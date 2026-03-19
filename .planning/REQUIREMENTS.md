@@ -1,7 +1,7 @@
 # Requirements: MindrianOS Plugin
 
 **Defined:** 2026-03-19
-**Core Value:** Users can run the full PWS methodology inside Claude Code with zero infrastructure — Larry guides them through venture innovation with a persistent Data Room and optional Brain enrichment.
+**Core Value:** Users can run the full PWS methodology inside Claude Code with zero infrastructure -- Larry guides them through venture innovation with a persistent Data Room and optional Brain enrichment.
 
 ## v1 Requirements
 
@@ -17,9 +17,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Larry Personality
 
-- [ ] **LARY-01**: Larry is the default agent — all conversations flow through Larry's teaching personality without user configuration
+- [ ] **LARY-01**: Larry is the default agent -- all conversations flow through Larry's teaching personality without user configuration
 - [ ] **LARY-02**: Larry mode engine distributes responses across 4 modes: conceptual (40%), storytelling (30%), problem-solving (20%), assessment (10%)
-- [ ] **LARY-03**: Larry adapts voice based on conversation context — encourages exploration early, challenges assumptions later, pushes toward synthesis at the end
+- [ ] **LARY-03**: Larry adapts voice based on conversation context -- encourages exploration early, challenges assumptions later, pushes toward synthesis at the end
 - [ ] **LARY-04**: Larry personality is informed by the 8 Larry skill files ported from V2 and redesigned for Claude Code
 
 ### Data Room
@@ -52,8 +52,8 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Pipeline Chaining
 
 - [ ] **PIPE-01**: Pipeline stage contracts (numbered markdown files) define multi-step methodology workflows
-- [ ] **PIPE-02**: Output of one pipeline becomes structured input to the next (Week 7 chaining pattern) — e.g., Domain Explorer sub-domains feed into Bono hat perspectives
-- [ ] **PIPE-03**: User can run at least 2-3 key pipeline sequences end-to-end (Domain Explorer → Bono → JTBD, Minto → Devil's Advocate → Investment Thesis)
+- [ ] **PIPE-02**: Output of one pipeline becomes structured input to the next (Week 7 chaining pattern) -- e.g., Domain Explorer sub-domains feed into Bono hat perspectives
+- [ ] **PIPE-03**: User can run at least 2-3 key pipeline sequences end-to-end (Domain Explorer to Bono to JTBD, Minto to Devil's Advocate to Investment Thesis)
 - [ ] **PIPE-04**: Pipeline execution produces inspectable artifacts at each stage filed to Room sections
 
 ### Proactive Room Intelligence
@@ -65,7 +65,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Brain MCP Integration
 
-- [ ] **BRAN-01**: User can connect Brain MCP via `/mindrian-os:setup brain` (not in default config — zero startup cost)
+- [ ] **BRAN-01**: User can connect Brain MCP via `/mindrian-os:setup brain` (not in default config -- zero startup cost)
 - [ ] **BRAN-02**: Brain provides framework chain recommendations based on room state and problem classification
 - [ ] **BRAN-03**: Brain provides calibrated grading via 5-component rubric (100+ real project calibration)
 - [ ] **BRAN-04**: Brain provides mode engine calibration data for enhanced Larry personality
@@ -135,13 +135,59 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (Populated during roadmap creation) | | |
+| PLGN-01 | Phase 1 | Pending |
+| PLGN-02 | Phase 1 | Pending |
+| PLGN-03 | Phase 1 | Pending |
+| PLGN-04 | Phase 1 | Pending |
+| PLGN-05 | Phase 1 | Pending |
+| LARY-01 | Phase 1 | Pending |
+| LARY-02 | Phase 1 | Pending |
+| LARY-03 | Phase 1 | Pending |
+| LARY-04 | Phase 1 | Pending |
+| ROOM-01 | Phase 1 | Pending |
+| ROOM-02 | Phase 1 | Pending |
+| ROOM-03 | Phase 1 | Pending |
+| ROOM-04 | Phase 1 | Pending |
+| ROOM-05 | Phase 1 | Pending |
+| DEGS-01 | Phase 1 | Pending |
+| DEGS-02 | Phase 1 | Pending |
+| DEGS-03 | Phase 1 | Pending |
+| SURF-01 | Phase 1 | Pending |
+| SURF-02 | Phase 1 | Pending |
+| METH-01 | Phase 2 | Pending |
+| METH-02 | Phase 2 | Pending |
+| METH-03 | Phase 2 | Pending |
+| METH-04 | Phase 2 | Pending |
+| METH-05 | Phase 2 | Pending |
+| METH-06 | Phase 2 | Pending |
+| METH-07 | Phase 2 | Pending |
+| METH-08 | Phase 2 | Pending |
+| METH-09 | Phase 2 | Pending |
+| METH-10 | Phase 2 | Pending |
+| PASS-01 | Phase 2 | Pending |
+| PASS-02 | Phase 2 | Pending |
+| PASS-03 | Phase 2 | Pending |
+| PIPE-01 | Phase 3 | Pending |
+| PIPE-02 | Phase 3 | Pending |
+| PIPE-03 | Phase 3 | Pending |
+| PIPE-04 | Phase 3 | Pending |
+| PROA-01 | Phase 3 | Pending |
+| PROA-02 | Phase 3 | Pending |
+| PROA-03 | Phase 3 | Pending |
+| PROA-04 | Phase 3 | Pending |
+| BRAN-01 | Phase 4 | Pending |
+| BRAN-02 | Phase 4 | Pending |
+| BRAN-03 | Phase 4 | Pending |
+| BRAN-04 | Phase 4 | Pending |
+| BRAN-05 | Phase 4 | Pending |
+| ALLM-01 | Phase 4 | Pending |
+| ALLM-02 | Phase 4 | Pending |
 
 **Coverage:**
-- v1 requirements: 42 total
-- Mapped to phases: 0
-- Unmapped: 42 ⚠️
+- v1 requirements: 47 total
+- Mapped to phases: 47
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-19*
-*Last updated: 2026-03-19 after initial definition*
+*Last updated: 2026-03-19 after roadmap creation*
