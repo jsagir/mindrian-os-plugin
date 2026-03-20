@@ -195,8 +195,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BRAN-03 | Phase 4 | Pending |
 | BRAN-04 | Phase 4 | Pending |
 | BRAN-05 | Phase 4 | Pending |
-| ALLM-01 | Phase 4 | Pending |
-| ALLM-02 | Phase 4 | Pending |
+| ALLM-01 | Phase 2 | Pending |
+| ALLM-02 | Phase 2 | Pending |
 | UPDT-01 | Phase 5 | Pending |
 | UPDT-02 | Phase 5 | Pending |
 | CTXW-01 | Phase 5 | Pending |

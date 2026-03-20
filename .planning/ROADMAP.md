@@ -38,19 +38,21 @@ Plans:
 - [ ] 01-03-PLAN.md -- Help/status/room commands, graceful degradation verification, cross-surface readiness
 
 ### Phase 2: Core Methodologies
-**Goal**: Users can invoke 8 core methodology commands that produce structured artifacts automatically filed to the correct Data Room sections -- the methodology teaching experience comes alive
+**Goal**: ALL 25+ methodology commands built with structured artifact output, passive Room intelligence, and problem type classification routing -- the full methodology teaching experience
 **Depends on**: Phase 1
-**Requirements**: METH-01, METH-02, METH-03, METH-04, METH-05, METH-06, METH-07, METH-08, METH-09, METH-10, PASS-01, PASS-02, PASS-03
+**Requirements**: METH-01, METH-02, METH-03, METH-04, METH-05, METH-06, METH-07, METH-08, METH-09, METH-10, PASS-01, PASS-02, PASS-03, ALLM-01, ALLM-02
 **Success Criteria** (what must be TRUE):
-  1. User can invoke each of the 8 core methodologies (Domain Explorer, Minto, Bono, JTBD, Devil's Advocate, HSI, Investment Thesis, Lean Canvas) via slash commands and receive structured guided sessions
-  2. Each methodology produces markdown artifacts filed to the appropriate Data Room section with provenance metadata (source, timestamp, session)
-  3. PostToolUse hook auto-classifies insights from methodology conversations into correct Room sections without user action
-  4. Each methodology skill file is under 300 tokens with on-demand reference loading from references/ directory
+  1. User can invoke ALL 25+ methodologies via action-oriented slash commands and receive adaptive, Larry-guided sessions with user-controlled depth
+  2. Each methodology produces framework-specific markdown artifacts in Larry's voice, filed to the appropriate Data Room section with provenance metadata
+  3. PostToolUse hook auto-classifies insights via hybrid pattern (hook keyword match + room-passive skill for uncertain cases), user confirms before filing
+  4. Each methodology uses thin skill + on-demand reference loading pattern, with problem type classification (un/ill/well-defined + wicked) driving routing
+  5. PWS Grading command provides basic assessment using static rubric from references/
 **Plans**: TBD
 
 Plans:
-- [ ] 02-01: Thin skill pattern, references, and first 4 methodologies (Domain Explorer, Minto, Bono, JTBD)
-- [ ] 02-02: Remaining 4 methodologies (Devil's Advocate, HSI, Investment Thesis, Lean Canvas) and passive Room intelligence hooks
+- [ ] 02-01: Thin skill pattern, reference structure, and first batch of simplest methodologies (validate pattern)
+- [ ] 02-02: Remaining methodology commands (batch build using validated pattern)
+- [ ] 02-03: Passive Room intelligence (PostToolUse classification, filing with confirmation, problem type routing)
 
 ### Phase 3: Pipeline Chaining and Proactive Intelligence
 **Goal**: Users can run multi-step methodology sequences where each framework's output feeds the next, and the Room actively detects gaps, contradictions, and convergence across their work
@@ -67,19 +69,18 @@ Plans:
 - [ ] 03-01: Pipeline stage contracts and chaining engine
 - [ ] 03-02: Proactive Room intelligence (gaps, contradictions, convergence)
 
-### Phase 4: Brain MCP and Full Methodology Suite
-**Goal**: Users who connect Brain get enriched framework chaining, calibrated grading, and enhanced Larry personality, while all 25 methodologies are available as commands
+### Phase 4: Brain MCP Integration
+**Goal**: Users who connect Brain get enriched framework chaining, calibrated grading, enhanced Larry mode engine, and contextual problem-type routing -- the moat activates
 **Depends on**: Phase 3
-**Requirements**: BRAN-01, BRAN-02, BRAN-03, BRAN-04, BRAN-05, ALLM-01, ALLM-02
+**Requirements**: BRAN-01, BRAN-02, BRAN-03, BRAN-04, BRAN-05
 **Success Criteria** (what must be TRUE):
   1. User runs `/mindrian-os:setup brain` to connect Brain MCP -- it is NOT in default config and adds zero startup cost for Tier 0 users
   2. Brain-connected users get enriched framework chain recommendations, calibrated 5-component grading (from 100+ real projects), and enhanced Larry mode engine -- all gracefully degrade to Tier 0 static equivalents when Brain is unavailable
-  3. All 25 methodology bots from V2 are available as slash commands, each following the same thin skill + reference + pipeline pattern established in Phase 2
+  3. Brain's ADDRESSES_PROBLEM_TYPE and CO_OCCURS relationships enhance methodology routing beyond static references
 **Plans**: TBD
 
 Plans:
-- [ ] 04-01: Brain MCP integration and graceful degradation
-- [ ] 04-02: Remaining 17 methodology commands
+- [ ] 04-01: Brain MCP integration, setup command, and graceful degradation
 
 ### Phase 5: Plugin Intelligence Infrastructure
 **Goal**: MindrianOS can update itself, manage its own context budget intelligently, and automatically discover new Claude capabilities that amplify the plugin — the infrastructure that keeps the OS alive and evolving
