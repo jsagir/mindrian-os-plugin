@@ -29,12 +29,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User's workspace has 8 Data Room sections and STATE.md is computed from filesystem truth via hooks (not maintained by Claude)
   4. User closes Claude, reopens later, and SessionStart hook restores their full Room context -- work persists across sessions
   5. Plugin auto-loaded skills consume under 2% of context window; all features work identically on CLI, Desktop, and Cowork
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 01-01: Plugin manifest, settings, and Larry agent
-- [ ] 01-02: Data Room structure, hooks, and state system
-- [ ] 01-03: Degradation, cross-surface, help/status commands
+- [ ] 01-01-PLAN.md -- Larry agent with V2-ported personality, auto-loaded skills, reference files, plugin manifest
+- [ ] 01-02-PLAN.md -- Data Room initialization (new-project command), hook scripts, state computation system
+- [ ] 01-03-PLAN.md -- Help/status/room commands, graceful degradation verification, cross-surface readiness
 
 ### Phase 2: Core Methodologies
 **Goal**: Users can invoke 8 core methodology commands that produce structured artifacts automatically filed to the correct Data Room sections -- the methodology teaching experience comes alive
