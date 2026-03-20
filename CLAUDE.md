@@ -31,6 +31,25 @@ Optional: connect Neo4j Aura (free) for deeper intelligence. Optional: connect B
 
 ---
 
+## Tri-Polar Design Rule (MANDATORY)
+
+Every feature, command, skill, and capability MUST be evaluated through all three surfaces:
+
+| Surface | How Users Interact | What Matters Most |
+|---------|-------------------|-------------------|
+| **Claude Code CLI** | Full power. Hooks fire, scripts run, `/mindrian-os:*` commands. Power users. | Hook reliability, script execution, context budget, file output |
+| **Claude Desktop** | Conversational. Users talk to Larry. Less command-driven. | Larry personality, natural language discoverability, conversational flow |
+| **Cowork** | Multi-user, persistent agents. `00_Context/` shared state. Collaborative. | Shared room state, concurrent access, team visibility, export quality |
+
+**Before building any component, ask:**
+1. How does this work on **CLI**? (scripts, hooks, file I/O)
+2. How does this work on **Desktop**? (conversational, personality-driven)
+3. How does this work on **Cowork**? (shared state, multi-user, 00_Context/)
+
+Features that only work on one surface are incomplete. Design for all three.
+
+---
+
 ## The Moat — Why This Cannot Be Copied
 
 ### Anyone can copy (and thats fine):
