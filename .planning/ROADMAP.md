@@ -2,7 +2,7 @@
 
 ## Overview
 
-This roadmap delivers the MindrianOS Plugin in 5 phases following strict dependency order. Phase 1 creates the zero-config install experience where Larry talks immediately and the Data Room persists across sessions. Phase 2 ports the 8 core methodology commands with passive Room intelligence. Phase 3 activates the "OS" experience through pipeline chaining and proactive intelligence. Phase 4 connects the Brain MCP moat and expands to all 25 methodologies. Phase 5 adds plugin self-update, context window awareness, and capability radar — the infrastructure that keeps MindrianOS alive and evolving. Every phase delivers a coherent, independently verifiable capability.
+This roadmap delivers the MindrianOS Plugin in 5 phases following strict dependency order. Phase 1 creates the zero-config install experience where Larry talks immediately and the Data Room persists across sessions. Phase 2 builds ALL 25+ methodology commands with structured artifact output, passive Room intelligence, and problem type classification routing. Phase 3 activates the "OS" experience through pipeline chaining and proactive intelligence. Phase 4 connects the Brain MCP moat for enriched routing and calibrated grading. Phase 5 adds plugin self-update, context window awareness, and capability radar — the infrastructure that keeps MindrianOS alive and evolving. Every phase delivers a coherent, independently verifiable capability.
 
 ## Phases
 
@@ -13,9 +13,9 @@ This roadmap delivers the MindrianOS Plugin in 5 phases following strict depende
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Install and Larry Talks** - Plugin skeleton, Larry personality, Data Room with state system, hooks, graceful degradation, cross-surface compatibility (completed 2026-03-20)
-- [ ] **Phase 2: Core Methodologies** - 8 methodology commands with structured artifact output and passive Room intelligence (auto-classify, auto-file)
+- [ ] **Phase 2: Core Methodologies** - ALL 25+ methodology commands with structured artifact output, passive Room intelligence, and problem type classification routing
 - [ ] **Phase 3: Pipeline Chaining and Proactive Intelligence** - Multi-step methodology workflows where output becomes input, plus gap/contradiction/convergence detection
-- [ ] **Phase 4: Brain MCP and Full Methodology Suite** - Brain enrichment integration and remaining 17 methodology commands
+- [ ] **Phase 4: Brain MCP Integration** - Brain enrichment integration for enhanced routing, calibrated grading, and mode engine
 - [ ] **Phase 5: Plugin Intelligence Infrastructure** - Self-update system, context window awareness, Claude capability radar — keeps MindrianOS alive and evolving
 
 ## Phase Details
@@ -33,9 +33,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans:** 3/3 plans complete
 
 Plans:
-- [ ] 01-01-PLAN.md -- Larry agent with V2-ported personality, auto-loaded skills, reference files, plugin manifest
-- [ ] 01-02-PLAN.md -- Data Room initialization (new-project command), hook scripts, state computation system
-- [ ] 01-03-PLAN.md -- Help/status/room commands, graceful degradation verification, cross-surface readiness
+- [x] 01-01-PLAN.md -- Larry agent with V2-ported personality, auto-loaded skills, reference files, plugin manifest
+- [x] 01-02-PLAN.md -- Data Room initialization (new-project command), hook scripts, state computation system
+- [x] 01-03-PLAN.md -- Help/status/room commands, graceful degradation verification, cross-surface readiness
 
 ### Phase 2: Core Methodologies
 **Goal**: ALL 25+ methodology commands built with structured artifact output, passive Room intelligence, and problem type classification routing -- the full methodology teaching experience
@@ -47,12 +47,14 @@ Plans:
   3. PostToolUse hook auto-classifies insights via hybrid pattern (hook keyword match + room-passive skill for uncertain cases), user confirms before filing
   4. Each methodology uses thin skill + on-demand reference loading pattern, with problem type classification (un/ill/well-defined + wicked) driving routing
   5. PWS Grading command provides basic assessment using static rubric from references/
-**Plans**: TBD
+**Plans:** 5 plans
 
 Plans:
-- [ ] 02-01: Thin skill pattern, reference structure, and first batch of simplest methodologies (validate pattern)
-- [ ] 02-02: Remaining methodology commands (batch build using validated pattern)
-- [ ] 02-03: Passive Room intelligence (PostToolUse classification, filing with confirmation, problem type routing)
+- [ ] 02-01-PLAN.md -- Pattern foundation: problem-types reference, updated routing index, Tier 1-2 batch (7 simplest commands)
+- [ ] 02-02-PLAN.md -- Tier 3 batch: 8 framework workshop commands (Domain Explorer, Minto, Bono, JTBD, Reverse Salient, TTA, S-Curve, Ackoff)
+- [ ] 02-03-PLAN.md -- Tier 4 batch: 7 complex workshop commands (Scenario Planning, Validation, Futures, Root Cause, Macro Trends, Dominant Designs, User Needs)
+- [ ] 02-04-PLAN.md -- Tier 5 specials: 4 commands with custom logic (Grade, Investment Thesis, HSI, Diagnose)
+- [ ] 02-05-PLAN.md -- Passive Room intelligence: PostToolUse hook, classification script, room-passive filing, help command update
 
 ### Phase 3: Pipeline Chaining and Proactive Intelligence
 **Goal**: Users can run multi-step methodology sequences where each framework's output feeds the next, and the Room actively detects gaps, contradictions, and convergence across their work
@@ -106,7 +108,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Install and Larry Talks | 3/3 | Complete   | 2026-03-20 |
-| 2. Core Methodologies | 0/2 | Not started | - |
+| 2. Core Methodologies | 0/5 | Not started | - |
 | 3. Pipeline Chaining and Proactive Intelligence | 0/2 | Not started | - |
-| 4. Brain MCP and Full Methodology Suite | 0/2 | Not started | - |
+| 4. Brain MCP Integration | 0/1 | Not started | - |
 | 5. Plugin Intelligence Infrastructure | 0/3 | Not started | - |
