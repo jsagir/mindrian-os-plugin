@@ -24,11 +24,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Data Room
 
-- [ ] **ROOM-01**: User's workspace initializes with 8 Data Room sections: problem-definition, market-analysis, solution-design, business-model, competitive-analysis, team-execution, legal-ip, financial-model
-- [ ] **ROOM-02**: STATE.md is computed from filesystem truth (directory contents, file metadata) via hook scripts, not maintained incrementally by Claude
-- [ ] **ROOM-03**: SessionStart hook loads current Room state and context so user can resume work across sessions
-- [ ] **ROOM-04**: Stop hook persists session state before exit
-- [ ] **ROOM-05**: User can run `/mindrian-os:room` to view Data Room overview with section completeness and recent activity
+- [x] **ROOM-01**: User's workspace initializes with 8 Data Room sections: problem-definition, market-analysis, solution-design, business-model, competitive-analysis, team-execution, legal-ip, financial-model
+- [x] **ROOM-02**: STATE.md is computed from filesystem truth (directory contents, file metadata) via hook scripts, not maintained incrementally by Claude
+- [x] **ROOM-03**: SessionStart hook loads current Room state and context so user can resume work across sessions
+- [x] **ROOM-04**: Stop hook persists session state before exit
+- [x] **ROOM-05**: User can run `/mindrian-os:room` to view Data Room overview with section completeness and recent activity
 
 ### Methodology Commands
 
@@ -80,7 +80,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Cross-Surface Compatibility
 
 - [ ] **SURF-01**: Plugin works identically on Claude Code CLI, Desktop, and Cowork
-- [ ] **SURF-02**: Cowork surface gets 00_Context/ directory for shared project state
+- [x] **SURF-02**: Cowork surface gets 00_Context/ directory for shared project state
 
 ### All 25 Methodologies
 
@@ -144,16 +144,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LARY-02 | Phase 1 | Pending |
 | LARY-03 | Phase 1 | Pending |
 | LARY-04 | Phase 1 | Pending |
-| ROOM-01 | Phase 1 | Pending |
-| ROOM-02 | Phase 1 | Pending |
-| ROOM-03 | Phase 1 | Pending |
-| ROOM-04 | Phase 1 | Pending |
-| ROOM-05 | Phase 1 | Pending |
+| ROOM-01 | Phase 1 | Complete |
+| ROOM-02 | Phase 1 | Complete |
+| ROOM-03 | Phase 1 | Complete |
+| ROOM-04 | Phase 1 | Complete |
+| ROOM-05 | Phase 1 | Complete |
 | DEGS-01 | Phase 1 | Pending |
 | DEGS-02 | Phase 1 | Pending |
 | DEGS-03 | Phase 1 | Pending |
 | SURF-01 | Phase 1 | Pending |
-| SURF-02 | Phase 1 | Pending |
+| SURF-02 | Phase 1 | Complete |
 | METH-01 | Phase 2 | Pending |
 | METH-02 | Phase 2 | Pending |
 | METH-03 | Phase 2 | Pending |

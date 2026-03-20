@@ -29,7 +29,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User's workspace has 8 Data Room sections and STATE.md is computed from filesystem truth via hooks (not maintained by Claude)
   4. User closes Claude, reopens later, and SessionStart hook restores their full Room context -- work persists across sessions
   5. Plugin auto-loaded skills consume under 2% of context window; all features work identically on CLI, Desktop, and Cowork
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] 01-01-PLAN.md -- Larry agent with V2-ported personality, auto-loaded skills, reference files, plugin manifest
@@ -87,7 +87,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Install and Larry Talks | 0/3 | Not started | - |
+| 1. Install and Larry Talks | 1/3 | In Progress|  |
 | 2. Core Methodologies | 0/2 | Not started | - |
 | 3. Pipeline Chaining and Proactive Intelligence | 0/2 | Not started | - |
 | 4. Brain MCP and Full Methodology Suite | 0/2 | Not started | - |
