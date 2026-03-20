@@ -17,6 +17,14 @@
     "context-engine",
     "room-passive"
   ],
-  "commands": [],
-  "hooks": {}
+  "commands": [
+    "commands/new-project.md",
+    "commands/help.md",
+    "commands/status.md",
+    "commands/room.md"
+  ],
+  "agents": [
+    "agents/larry-extended.md"
+  ],
+  "hooks": "hooks/hooks.json"
 }
