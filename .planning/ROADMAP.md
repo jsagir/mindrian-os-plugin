@@ -2,7 +2,7 @@
 
 ## Overview
 
-This roadmap delivers the MindrianOS Plugin in 4 phases following strict dependency order. Phase 1 creates the zero-config install experience where Larry talks immediately and the Data Room persists across sessions. Phase 2 ports the 8 core methodology commands with passive Room intelligence. Phase 3 activates the "OS" experience through pipeline chaining and proactive intelligence. Phase 4 connects the Brain MCP moat and expands to all 25 methodologies. Every phase delivers a coherent, independently verifiable capability.
+This roadmap delivers the MindrianOS Plugin in 5 phases following strict dependency order. Phase 1 creates the zero-config install experience where Larry talks immediately and the Data Room persists across sessions. Phase 2 ports the 8 core methodology commands with passive Room intelligence. Phase 3 activates the "OS" experience through pipeline chaining and proactive intelligence. Phase 4 connects the Brain MCP moat and expands to all 25 methodologies. Phase 5 adds plugin self-update, context window awareness, and capability radar — the infrastructure that keeps MindrianOS alive and evolving. Every phase delivers a coherent, independently verifiable capability.
 
 ## Phases
 
@@ -16,6 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 2: Core Methodologies** - 8 methodology commands with structured artifact output and passive Room intelligence (auto-classify, auto-file)
 - [ ] **Phase 3: Pipeline Chaining and Proactive Intelligence** - Multi-step methodology workflows where output becomes input, plus gap/contradiction/convergence detection
 - [ ] **Phase 4: Brain MCP and Full Methodology Suite** - Brain enrichment integration and remaining 17 methodology commands
+- [ ] **Phase 5: Plugin Intelligence Infrastructure** - Self-update system, context window awareness, Claude capability radar — keeps MindrianOS alive and evolving
 
 ## Phase Details
 
@@ -80,10 +81,26 @@ Plans:
 - [ ] 04-01: Brain MCP integration and graceful degradation
 - [ ] 04-02: Remaining 17 methodology commands
 
+### Phase 5: Plugin Intelligence Infrastructure
+**Goal**: MindrianOS can update itself, manage its own context budget intelligently, and automatically discover new Claude capabilities that amplify the plugin — the infrastructure that keeps the OS alive and evolving
+**Depends on**: Phase 1 (uses hooks, commands, skills patterns established there)
+**Requirements**: UPDT-01, UPDT-02, CTXW-01, CTXW-02, RADR-01, RADR-02
+**Success Criteria** (what must be TRUE):
+  1. User runs `/mindrian-os:update` and gets version check, changelog display, clean install with user modification backup, and post-update reapply — modeled on GSD's proven update workflow
+  2. Plugin actively monitors context window consumption and adapts loading strategy — compresses references, defers skill loading, warns user when approaching limits, works on both 200K (Sonnet) and 1M (Opus) contexts
+  3. Plugin tracks official Anthropic releases (Newsroom, Blog, Claude Code changelog, Releasebot feeds) and surfaces new capabilities relevant to MindrianOS, tagged by domain (models, code, desktop_cowork, plugins_mcp, visualization)
+  4. Context awareness differentiates behavior by model context size — Sonnet users get aggressive reference compression, Opus users get richer inline context
+**Plans**: TBD
+
+Plans:
+- [ ] 05-01: Self-update system (version detection, changelog, clean install, modification backup/reapply)
+- [ ] 05-02: Context window awareness (consumption monitoring, adaptive loading, model-aware strategy)
+- [ ] 05-03: Claude capability radar (official feed ingestion, domain tagging, daily digest, opportunity surfacing)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -91,3 +108,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | 2. Core Methodologies | 0/2 | Not started | - |
 | 3. Pipeline Chaining and Proactive Intelligence | 0/2 | Not started | - |
 | 4. Brain MCP and Full Methodology Suite | 0/2 | Not started | - |
+| 5. Plugin Intelligence Infrastructure | 0/3 | Not started | - |

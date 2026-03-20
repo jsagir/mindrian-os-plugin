@@ -87,6 +87,21 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **ALLM-01**: All 25 methodology bots from V2 are available as slash commands (remaining 17 beyond the core 8)
 - [ ] **ALLM-02**: Each additional methodology follows the same thin skill + reference + pipeline pattern established in core 8
 
+### Plugin Self-Update
+
+- [ ] **UPDT-01**: User can run `/mindrian-os:update` to check for and install plugin updates with changelog display
+- [ ] **UPDT-02**: Update process backs up user modifications and offers reapply after clean install
+
+### Context Window Awareness
+
+- [ ] **CTXW-01**: Plugin monitors context window consumption and adapts loading strategy (compress references, defer skills)
+- [ ] **CTXW-02**: Plugin warns user when approaching context limits and suggests `/clear` or reference unloading
+
+### Claude Capability Radar
+
+- [ ] **RADR-01**: Plugin tracks official Anthropic releases (Newsroom, Blog, Claude Code changelog) and surfaces new capabilities relevant to MindrianOS
+- [ ] **RADR-02**: Capability updates tagged by domain (models, code, desktop_cowork, plugins_mcp, visualization) with daily digest
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -114,21 +129,6 @@ Deferred to future release. Tracked but not in current roadmap.
 
 - **CONN-01**: Plugin detects available MCPs on SessionStart and adapts behavior
 - **CONN-02**: Research skills use Tavily/ArXiv when available, graceful fallback when not
-
-### Plugin Self-Update
-
-- **UPDT-01**: User can run `/mindrian-os:update` to check for and install plugin updates with changelog display
-- **UPDT-02**: Update process backs up user modifications and offers reapply after clean install
-
-### Context Window Awareness
-
-- **CTXW-01**: Plugin monitors context window consumption and adapts loading strategy (compress references, defer skills)
-- **CTXW-02**: Plugin warns user when approaching context limits and suggests `/clear` or reference unloading
-
-### Claude Capability Radar
-
-- **RADR-01**: Plugin tracks official Anthropic releases (Newsroom, Blog, Claude Code changelog) and surfaces new capabilities relevant to MindrianOS
-- **RADR-02**: Capability updates tagged by domain (models, code, desktop_cowork, plugins_mcp, visualization) with daily digest
 
 ## Out of Scope
 
@@ -197,12 +197,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BRAN-05 | Phase 4 | Pending |
 | ALLM-01 | Phase 4 | Pending |
 | ALLM-02 | Phase 4 | Pending |
+| UPDT-01 | Phase 5 | Pending |
+| UPDT-02 | Phase 5 | Pending |
+| CTXW-01 | Phase 5 | Pending |
+| CTXW-02 | Phase 5 | Pending |
+| RADR-01 | Phase 5 | Pending |
+| RADR-02 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 47 total
-- Mapped to phases: 47
+- v1 requirements: 53 total
+- Mapped to phases: 53
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-19*
-*Last updated: 2026-03-19 after roadmap creation*
+*Last updated: 2026-03-20 after adding Phase 5 (self-update, context awareness, capability radar)*
