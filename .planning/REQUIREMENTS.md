@@ -115,6 +115,21 @@ Deferred to future release. Tracked but not in current roadmap.
 - **CONN-01**: Plugin detects available MCPs on SessionStart and adapts behavior
 - **CONN-02**: Research skills use Tavily/ArXiv when available, graceful fallback when not
 
+### Plugin Self-Update
+
+- **UPDT-01**: User can run `/mindrian-os:update` to check for and install plugin updates with changelog display
+- **UPDT-02**: Update process backs up user modifications and offers reapply after clean install
+
+### Context Window Awareness
+
+- **CTXW-01**: Plugin monitors context window consumption and adapts loading strategy (compress references, defer skills)
+- **CTXW-02**: Plugin warns user when approaching context limits and suggests `/clear` or reference unloading
+
+### Claude Capability Radar
+
+- **RADR-01**: Plugin tracks official Anthropic releases (Newsroom, Blog, Claude Code changelog) and surfaces new capabilities relevant to MindrianOS
+- **RADR-02**: Capability updates tagged by domain (models, code, desktop_cowork, plugins_mcp, visualization) with daily digest
+
 ## Out of Scope
 
 | Feature | Reason |

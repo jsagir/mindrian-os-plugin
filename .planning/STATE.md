@@ -69,7 +69,9 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None yet.
+- **Self-update system**: MindrianOS needs its own `/mindrian-os:update` command (like GSD's update workflow) — version detection, changelog display, clean install, cache clearing. Essential for marketplace distribution.
+- **Context window awareness**: Plugin should be aware of current context consumption and adapt behavior — compress references, defer loading, warn when approaching limits. Critical for users on Sonnet (200K) vs Opus (1M).
+- **Claude capability radar**: Auto-track official Anthropic releases (Newsroom, Claude Blog, Claude Code changelog, Releasebot feeds) to discover new features that amplify MindrianOS — tag by domain (models, code, desktop_cowork, plugins_mcp, visualization_svg), generate daily digest, surface opportunities to enhance the plugin.
 
 ### Blockers/Concerns
 
