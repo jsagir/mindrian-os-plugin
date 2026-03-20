@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# on-stop: Stop hook handler for MindrianOS
+# Computes STATE.md from filesystem truth and persists it to room/STATE.md
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Determine working directory
+WORK_DIR="${PWD}"
+ROOM_DIR="${WORK_DIR}/room"
+
+if [ -d "$ROOM_DIR" ]; then
+  # Room exists -- compute state and write STATE.md
+  state_content=$("${SCRIPT_DIR}/compute-state" "$ROOM_DIR" 2>/dev/null || echo "# Data Room State\n\nError computing state.")
+  printf '%s\n' "$state_content" > "${ROOM_DIR}/STATE.md"
+fi
+
+# Output minimal success JSON
+printf '{"status": "ok"}\n'
+
+exit 0

@@ -1,0 +1,184 @@
+#!/usr/bin/env bash
+# compute-state: Scan room/ directory and output STATE.md content
+# Called by session-start and on-stop hooks
+# Outputs structured markdown to stdout
+
+set -euo pipefail
+
+ROOM_DIR="${1:-.}"
+
+if [ ! -d "$ROOM_DIR" ]; then
+  echo "# Data Room State"
+  echo ""
+  echo "No room directory found."
+  exit 0
+fi
+
+# Collect section data
+declare -a section_names=()
+declare -a section_entries=()
+declare -a section_statuses=()
+declare -a section_dates=()
+total_entries=0
+
+for section_dir in "$ROOM_DIR"/*/; do
+  [ -d "$section_dir" ] || continue
+  section_name=$(basename "$section_dir")
+
+  # Skip hidden directories and special files
+  [[ "$section_name" == .* ]] && continue
+
+  section_names+=("$section_name")
+
+  # Count .md files excluding ROOM.md
+  entry_count=$(find "$section_dir" -maxdepth 1 -name "*.md" ! -name "ROOM.md" 2>/dev/null | wc -l)
+  entry_count=$(echo "$entry_count" | tr -d ' ')
+  section_entries+=("$entry_count")
+  total_entries=$((total_entries + entry_count))
+
+  # Determine status
+  if [ "$entry_count" -eq 0 ]; then
+    section_statuses+=("Empty")
+  elif [ "$entry_count" -ge 3 ]; then
+    section_statuses+=("Well-developed")
+  else
+    section_statuses+=("Active")
+  fi
+
+  # Get last modified date of most recent .md file
+  latest_file=$(find "$section_dir" -maxdepth 1 -name "*.md" -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)
+  if [ -n "$latest_file" ]; then
+    section_dates+=("$(date -r "$latest_file" +%Y-%m-%d 2>/dev/null || echo "unknown")")
+  else
+    section_dates+=("-")
+  fi
+done
+
+# Infer venture stage from which sections have content
+has_problem=false
+has_market=false
+has_solution=false
+has_business=false
+has_financial=false
+
+for i in "${!section_names[@]}"; do
+  count="${section_entries[$i]}"
+  [ "$count" -eq 0 ] && continue
+  case "${section_names[$i]}" in
+    problem-definition) has_problem=true ;;
+    market-analysis) has_market=true ;;
+    solution-design) has_solution=true ;;
+    business-model) has_business=true ;;
+    financial-model) has_financial=true ;;
+  esac
+done
+
+venture_stage="Pre-Opportunity"
+if $has_problem && ! $has_market; then
+  venture_stage="Pre-Opportunity"
+elif $has_problem && $has_market && ! $has_solution; then
+  venture_stage="Discovery"
+elif $has_problem && $has_market && $has_solution && ! $has_business; then
+  venture_stage="Validation"
+elif $has_problem && $has_solution && $has_business && ! $has_financial; then
+  venture_stage="Design"
+elif $has_problem && $has_solution && $has_business && $has_financial; then
+  venture_stage="Investment"
+fi
+
+# Detect cross-references
+declare -a cross_refs=()
+for section_dir in "$ROOM_DIR"/*/; do
+  [ -d "$section_dir" ] || continue
+  section_name=$(basename "$section_dir")
+  [[ "$section_name" == .* ]] && continue
+
+  for md_file in "$section_dir"/*.md; do
+    [ -f "$md_file" ] || continue
+    fname=$(basename "$md_file")
+    [ "$fname" = "ROOM.md" ] && continue
+
+    # Look for [[section-name]] or room/section-name references
+    for target in "${section_names[@]}"; do
+      [ "$target" = "$section_name" ] && continue
+      if grep -qE "\[\[$target\]\]|room/$target" "$md_file" 2>/dev/null; then
+        cross_refs+=("${section_name}/${fname} references ${target}")
+      fi
+    done
+  done
+done
+
+# Build output
+timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+cat << HEADER
+---
+computed: ${timestamp}
+venture_stage: ${venture_stage}
+total_entries: ${total_entries}
+---
+# Data Room State
+
+## Sections
+| Section | Entries | Status | Last Updated |
+|---------|---------|--------|-------------|
+HEADER
+
+for i in "${!section_names[@]}"; do
+  echo "| ${section_names[$i]} | ${section_entries[$i]} | ${section_statuses[$i]} | ${section_dates[$i]} |"
+done
+
+echo ""
+
+# Gaps section
+echo "## Gaps"
+has_gaps=false
+for i in "${!section_names[@]}"; do
+  if [ "${section_entries[$i]}" -eq 0 ]; then
+    has_gaps=true
+    case "${section_names[$i]}" in
+      problem-definition) echo "- problem-definition: No entries. Start with /mindrian-os:new-project to define your core problem." ;;
+      market-analysis) echo "- market-analysis: No entries. Consider exploring market size and customer segments." ;;
+      solution-design) echo "- solution-design: No entries. Consider mapping your solution architecture." ;;
+      business-model) echo "- business-model: No entries. Consider defining your revenue model." ;;
+      competitive-analysis) echo "- competitive-analysis: No entries. Consider /mindrian-os:challenge-assumptions." ;;
+      team-execution) echo "- team-execution: No entries. Consider documenting your team and execution plan." ;;
+      legal-ip) echo "- legal-ip: No entries. Consider documenting legal structure and IP." ;;
+      financial-model) echo "- financial-model: No entries. Consider building initial financial projections." ;;
+      *) echo "- ${section_names[$i]}: No entries." ;;
+    esac
+  fi
+done
+if ! $has_gaps; then
+  echo "No gaps detected -- all sections have entries."
+fi
+
+echo ""
+
+# Cross-references section
+echo "## Cross-References"
+if [ ${#cross_refs[@]} -gt 0 ]; then
+  for ref in "${cross_refs[@]}"; do
+    echo "- $ref"
+  done
+else
+  echo "No cross-references detected yet."
+fi
+
+echo ""
+
+# Suggested next action
+echo "## Suggested Next Action"
+if [ "$total_entries" -eq 0 ]; then
+  echo "Your Data Room is empty. Run /mindrian-os:new-project to get started with Larry."
+elif [ "$venture_stage" = "Pre-Opportunity" ]; then
+  echo "You have early problem definition work. Explore your market to move to Discovery stage."
+elif [ "$venture_stage" = "Discovery" ]; then
+  echo "Problem and market are taking shape. Design your solution to move to Validation."
+elif [ "$venture_stage" = "Validation" ]; then
+  echo "Strong foundation. Define your business model to move to Design stage."
+elif [ "$venture_stage" = "Design" ]; then
+  echo "Nearly complete. Build financial projections to reach Investment readiness."
+elif [ "$venture_stage" = "Investment" ]; then
+  echo "Comprehensive Data Room. Review gaps and strengthen weak sections for investor readiness."
+fi
