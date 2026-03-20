@@ -11,8 +11,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **PLGN-01**: User can install plugin with one command (`claude plugin install mindrian-os`) and Larry responds immediately with zero configuration
 - [ ] **PLGN-02**: Plugin manifest (plugin.json) declares all commands, skills, agents, hooks, and MCP configuration
-- [ ] **PLGN-03**: User can run `/mindrian-os:help` to see all available commands with descriptions and suggested starting points
-- [ ] **PLGN-04**: User can run `/mindrian-os:status` to see current Room state, active tier, and available integrations
+- [x] **PLGN-03**: User can run `/mindrian-os:help` to see all available commands with descriptions and suggested starting points
+- [x] **PLGN-04**: User can run `/mindrian-os:status` to see current Room state, active tier, and available integrations
 - [ ] **PLGN-05**: Plugin context budget stays under 2% of context window with all auto-loaded skills combined (methodology commands use `disable-model-invocation: true`)
 
 ### Larry Personality
@@ -73,13 +73,13 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Graceful Degradation
 
-- [ ] **DEGS-01**: Plugin is fully functional with zero external dependencies (Tier 0)
-- [ ] **DEGS-02**: references/ directory provides embedded framework definitions, static chain suggestions, and rubric as fallback for Brain
-- [ ] **DEGS-03**: All features that depend on optional services (Brain, LazyGraph) have local fallbacks that still provide value
+- [x] **DEGS-01**: Plugin is fully functional with zero external dependencies (Tier 0)
+- [x] **DEGS-02**: references/ directory provides embedded framework definitions, static chain suggestions, and rubric as fallback for Brain
+- [x] **DEGS-03**: All features that depend on optional services (Brain, LazyGraph) have local fallbacks that still provide value
 
 ### Cross-Surface Compatibility
 
-- [ ] **SURF-01**: Plugin works identically on Claude Code CLI, Desktop, and Cowork
+- [x] **SURF-01**: Plugin works identically on Claude Code CLI, Desktop, and Cowork
 - [x] **SURF-02**: Cowork surface gets 00_Context/ directory for shared project state
 
 ### All 25 Methodologies
@@ -152,8 +152,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | PLGN-01 | Phase 1 | Pending |
 | PLGN-02 | Phase 1 | Pending |
-| PLGN-03 | Phase 1 | Pending |
-| PLGN-04 | Phase 1 | Pending |
+| PLGN-03 | Phase 1 | Complete |
+| PLGN-04 | Phase 1 | Complete |
 | PLGN-05 | Phase 1 | Pending |
 | LARY-01 | Phase 1 | Pending |
 | LARY-02 | Phase 1 | Pending |
@@ -164,10 +164,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ROOM-03 | Phase 1 | Complete |
 | ROOM-04 | Phase 1 | Complete |
 | ROOM-05 | Phase 1 | Complete |
-| DEGS-01 | Phase 1 | Pending |
-| DEGS-02 | Phase 1 | Pending |
-| DEGS-03 | Phase 1 | Pending |
-| SURF-01 | Phase 1 | Pending |
+| DEGS-01 | Phase 1 | Complete |
+| DEGS-02 | Phase 1 | Complete |
+| DEGS-03 | Phase 1 | Complete |
+| SURF-01 | Phase 1 | Complete |
 | SURF-02 | Phase 1 | Complete |
 | METH-01 | Phase 2 | Pending |
 | METH-02 | Phase 2 | Pending |
