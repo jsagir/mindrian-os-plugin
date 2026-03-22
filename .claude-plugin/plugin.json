@@ -23,10 +23,31 @@
     "commands/help.md",
     "commands/status.md",
     "commands/room.md",
-    "commands/update.md"
+    "commands/update.md",
+    "commands/radar.md",
+    "commands/export.md",
+    "commands/pipeline.md",
+    "commands/setup.md",
+    "commands/suggest-next.md",
+    "commands/find-connections.md",
+    "commands/compare-ventures.md",
+    "commands/deep-grade.md",
+    "commands/research.md"
+  ],
+  "skills": [
+    "larry-personality",
+    "pws-methodology",
+    "context-engine",
+    "room-passive",
+    "room-proactive",
+    "brain-connector"
   ],
   "agents": [
-    "agents/larry-extended.md"
+    "agents/larry-extended.md",
+    "agents/brain-query.md",
+    "agents/grading.md",
+    "agents/research.md",
+    "agents/investor.md"
   ],
   "hooks": "hooks/hooks.json"
 }
