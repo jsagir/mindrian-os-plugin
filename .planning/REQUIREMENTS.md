@@ -81,16 +81,16 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Brain MCP Integration
 
-- [ ] **BRAN-01**: User can connect Brain MCP via `/mindrian-os:setup brain` — adds Neo4j + Pinecone to .mcp.json (not in default config, zero startup cost)
-- [ ] **BRAN-02**: 8 Brain MCP tools defined and callable (framework_chain, grade_calibrate, find_patterns, concept_connect, cross_domain, contradiction_check, gap_assess, search_semantic)
-- [ ] **BRAN-03**: brain-connector skill provides passive enrichment (Larry responses informed by graph) and proactive surfacing (contradictions, gaps detected via Brain tools, gated by confidence)
+- [x] **BRAN-01**: User can connect Brain MCP via `/mindrian-os:setup brain` — adds Neo4j + Pinecone to .mcp.json (not in default config, zero startup cost)
+- [x] **BRAN-02**: 8 Brain MCP tools defined and callable (framework_chain, grade_calibrate, find_patterns, concept_connect, cross_domain, contradiction_check, gap_assess, search_semantic)
+- [x] **BRAN-03**: brain-connector skill provides passive enrichment (Larry responses informed by graph) and proactive surfacing (contradictions, gaps detected via Brain tools, gated by confidence)
 - [ ] **BRAN-04**: Brain Agent sub-agent handles complex multi-hop graph queries, builds GraphRAG context across conversation turns
 - [ ] **BRAN-05**: Grading Agent provides calibrated 5-component assessment from 100+ real projects via brain_grade_calibrate
 - [ ] **BRAN-06**: Research Agent performs external web search via Tavily MCP, cross-references with Brain semantic index, files findings to room
 - [ ] **BRAN-07**: Investor Agent stress-tests venture from investor POV using Brain pattern data, produces structured concerns artifact
 - [ ] **BRAN-08**: 5 new commands: suggest-next, find-connections, compare-ventures, deep-grade, research
 - [ ] **BRAN-09**: Existing commands upgraded — diagnose (graph-informed), help (personalized), grade (routes to Grading Agent), pipeline (dynamic chains), mode engine (calibrated)
-- [ ] **BRAN-10**: Brain schema reference and query pattern templates in references/brain/
+- [x] **BRAN-10**: Brain schema reference and query pattern templates in references/brain/
 
 ### Graceful Degradation
 
@@ -221,16 +221,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DOCS-03 | Phase 3.2 | Complete |
 | DOCS-04 | Phase 3.2 | Complete |
 | DOCS-05 | Phase 3.2 | Complete |
-| BRAN-01 | Phase 4 | Pending |
-| BRAN-02 | Phase 4 | Pending |
-| BRAN-03 | Phase 4 | Pending |
+| BRAN-01 | Phase 4 | Complete |
+| BRAN-02 | Phase 4 | Complete |
+| BRAN-03 | Phase 4 | Complete |
 | BRAN-04 | Phase 4 | Pending |
 | BRAN-05 | Phase 4 | Pending |
 | BRAN-06 | Phase 4 | Pending |
 | BRAN-07 | Phase 4 | Pending |
 | BRAN-08 | Phase 4 | Pending |
 | BRAN-09 | Phase 4 | Pending |
-| BRAN-10 | Phase 4 | Pending |
+| BRAN-10 | Phase 4 | Complete |
 | ALLM-01 | Phase 2 | Complete |
 | ALLM-02 | Phase 2 | Complete |
 | UPDT-01 | Phase 5 | Pending |

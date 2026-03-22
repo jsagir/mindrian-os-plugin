@@ -150,6 +150,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 3.2 → 4 → 5
 | 2. Core Methodologies | 5/5 | Complete   | 2026-03-22 |
 | 3. Pipeline Chaining and Proactive Intelligence | 2/2 | Complete   | 2026-03-22 |
 | 3.1 Data Room Dashboard (INSERTED) | 2/2 | Complete   | 2026-03-22 |
-| 3.2 Document Generation (INSERTED) | 0/2 | Not started | - |
-| 4. Brain MCP Integration | 0/3 | Not started | - |
+| 3.2 Document Generation (INSERTED) | 2/2 | Complete   | 2026-03-22 |
+| 4. Brain MCP Toolbox | 0/3 | Not started | - |
 | 5. Plugin Intelligence Infrastructure | 0/3 | Not started | - |

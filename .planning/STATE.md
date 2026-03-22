@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 03.2-02-PLAN.md
-last_updated: "2026-03-22T11:07:48.943Z"
-last_activity: 2026-03-22 -- Completed 03.2-02 Render PDF + Export Command (2 tasks, 2 files)
+status: in-progress
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-03-22T12:20:03Z"
+last_activity: 2026-03-22 -- Completed 04-01 Brain MCP Foundation (2 tasks, 4 files)
 progress:
   total_phases: 7
   completed_phases: 5
-  total_plans: 14
-  completed_plans: 14
-  percent: 100
+  total_plans: 17
+  completed_plans: 15
+  percent: 88
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Users can run the full PWS methodology inside Claude Code with zero infrastructure -- Larry guides them through venture innovation with a persistent Data Room and optional Brain enrichment.
-**Current focus:** Phase 3.2: Document Generation -- De Stijl PDF templates and render pipeline
+**Current focus:** Phase 4: Brain MCP Toolbox -- connecting Larry's Brain via MCP tools
 
 ## Current Position
 
-Phase: 3.2 of 5 (Document Generation) -- COMPLETE
-Plan: 2 of 2 in current phase (03.2-01 complete, 03.2-02 complete)
-Status: Phase Complete
-Last activity: 2026-03-22 -- Completed 03.2-02 Render PDF + Export Command (2 tasks, 2 files)
+Phase: 4 of 5 (Brain MCP Toolbox)
+Plan: 1 of 3 in current phase (04-01 complete)
+Status: In Progress
+Last activity: 2026-03-22 -- Completed 04-01 Brain MCP Foundation (2 tasks, 4 files)
 
-Progress: [██████████] 100%
+Progress: [█████████░] 88%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [██████████] 100%
 | Phase 03.1 P02 | 2min | 3 tasks | 2 files |
 | Phase 03.2 P01 | 12min | 2 tasks | 13 files |
 | Phase 03.2 P02 | 4min | 2 tasks | 2 files |
+| Phase 04 P01 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -107,6 +108,9 @@ Recent decisions affecting current work:
 - [Phase 03.2]: Profile template filters entries by metadata.source for methodology-output grid mapping
 - [Phase 03.2]: base_url=PLUGIN_DIR for WeasyPrint font resolution; DOC_TYPES limited to 4 types with existing templates
 - [Phase 03.2]: TOC bookmarks only for thesis/report; WSL detection via /proc/version matching serve-dashboard pattern
+- [Phase 04-01]: MCP tool names derived from .mcp.json server names (neo4j-brain -> mcp__neo4j-brain__read_neo4j_cypher)
+- [Phase 04-01]: brain-connector replaces room-proactive bash analysis for Brain users (brain_gap_assess is superset)
+- [Phase 04-01]: All Cypher lives in query-patterns.md only -- skills and agents reference, never embed
 
 ### Roadmap Evolution
 
@@ -126,6 +130,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-22T10:36:00Z
-Stopped at: Completed 03.2-02-PLAN.md
+Last session: 2026-03-22T12:20:03Z
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None
