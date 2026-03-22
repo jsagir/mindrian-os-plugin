@@ -88,8 +88,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **BRAN-05**: Grading Agent provides calibrated 5-component assessment from 100+ real projects via brain_grade_calibrate
 - [x] **BRAN-06**: Research Agent performs external web search via Tavily MCP, cross-references with Brain semantic index, files findings to room
 - [x] **BRAN-07**: Investor Agent stress-tests venture from investor POV using Brain pattern data, produces structured concerns artifact
-- [ ] **BRAN-08**: 5 new commands: suggest-next, find-connections, compare-ventures, deep-grade, research
-- [ ] **BRAN-09**: Existing commands upgraded — diagnose (graph-informed), help (personalized), grade (routes to Grading Agent), pipeline (dynamic chains), mode engine (calibrated)
+- [x] **BRAN-08**: 5 new commands: suggest-next, find-connections, compare-ventures, deep-grade, research
+- [x] **BRAN-09**: Existing commands upgraded — diagnose (graph-informed), help (personalized), grade (routes to Grading Agent), pipeline (dynamic chains), mode engine (calibrated)
 - [x] **BRAN-10**: Brain schema reference and query pattern templates in references/brain/
 
 ### Graceful Degradation
@@ -228,8 +228,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BRAN-05 | Phase 4 | Complete |
 | BRAN-06 | Phase 4 | Complete |
 | BRAN-07 | Phase 4 | Complete |
-| BRAN-08 | Phase 4 | Pending |
-| BRAN-09 | Phase 4 | Pending |
+| BRAN-08 | Phase 4 | Complete |
+| BRAN-09 | Phase 4 | Complete |
 | BRAN-10 | Phase 4 | Complete |
 | ALLM-01 | Phase 2 | Complete |
 | ALLM-02 | Phase 2 | Complete |
