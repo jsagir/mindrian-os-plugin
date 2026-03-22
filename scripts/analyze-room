@@ -1,0 +1,216 @@
+#!/usr/bin/env bash
+# analyze-room: Deterministic Room analysis for proactive intelligence
+# Detects gaps (structural, semantic, adjacent), convergence themes, and structural contradictions
+# Called by session-start hook; outputs structured lines for Claude to interpret
+# Must complete in under 2 seconds
+
+set -euo pipefail
+
+ROOM_DIR="${1:-./room}"
+
+if [ ! -d "$ROOM_DIR" ]; then
+  echo "NO_ROOM"
+  exit 0
+fi
+
+# ── 8 DD-aligned sections ──
+SECTIONS=(
+  problem-definition
+  market-analysis
+  solution-design
+  business-model
+  competitive-analysis
+  team-execution
+  legal-ip
+  financial-model
+)
+
+# ── Read venture stage from STATE.md ──
+venture_stage="Pre-Opportunity"
+if [ -f "${ROOM_DIR}/STATE.md" ]; then
+  stage_line=$(grep -i 'venture_stage:' "${ROOM_DIR}/STATE.md" 2>/dev/null | head -1 || true)
+  if [ -n "$stage_line" ]; then
+    venture_stage=$(echo "$stage_line" | sed 's/.*venture_stage:[[:space:]]*//' | tr -d '"' | xargs)
+  fi
+fi
+
+# ── Helper: count entries in a section (excludes ROOM.md, STATE.md) ──
+count_entries() {
+  local dir="$1"
+  if [ ! -d "$dir" ]; then
+    echo 0
+    return
+  fi
+  find "$dir" -maxdepth 1 -name "*.md" ! -name "ROOM.md" ! -name "STATE.md" 2>/dev/null | wc -l | tr -d ' '
+}
+
+# ── Helper: get unique methodologies in a section ──
+get_methodologies() {
+  local dir="$1"
+  if [ ! -d "$dir" ]; then
+    return
+  fi
+  for f in "$dir"/*.md; do
+    [ -f "$f" ] || continue
+    fname=$(basename "$f")
+    [ "$fname" = "ROOM.md" ] || [ "$fname" = "STATE.md" ] && continue
+    grep -m1 '^methodology:' "$f" 2>/dev/null | sed 's/methodology:[[:space:]]*//' || true
+  done | sort -u
+}
+
+# ═══════════════════════════════════════════════
+# Section 1: Gap Detection
+# ═══════════════════════════════════════════════
+echo "## Gaps"
+
+# Build entry counts for adjacency checks
+declare -A entry_counts
+for section in "${SECTIONS[@]}"; do
+  entry_counts["$section"]=$(count_entries "${ROOM_DIR}/${section}")
+done
+
+for section in "${SECTIONS[@]}"; do
+  count="${entry_counts[$section]}"
+  section_dir="${ROOM_DIR}/${section}"
+
+  # Venture stage filtering: suppress irrelevant gaps
+  if [ "$venture_stage" = "Pre-Opportunity" ]; then
+    if [ "$section" = "financial-model" ] || [ "$section" = "legal-ip" ]; then
+      continue
+    fi
+  fi
+
+  if [ "$count" -eq 0 ]; then
+    # Investment stage: elevate all empty sections to HIGH
+    confidence="HIGH"
+    echo "GAP:STRUCTURAL:${section}:${confidence}:Section is empty"
+  elif [ "$count" -eq 1 ]; then
+    # Single entry -- check for single-lens (one methodology)
+    methodologies=$(get_methodologies "$section_dir")
+    method_count=$(echo "$methodologies" | grep -c '.' 2>/dev/null || echo 0)
+    if [ "$method_count" -le 1 ] && [ -n "$methodologies" ]; then
+      method_name=$(echo "$methodologies" | head -1)
+      echo "GAP:SEMANTIC:${section}:MEDIUM:Only analyzed via ${method_name} -- consider additional perspectives"
+    fi
+  else
+    # Multiple entries -- check if all share same methodology
+    methodologies=$(get_methodologies "$section_dir")
+    method_count=$(echo "$methodologies" | grep -c '.' 2>/dev/null || echo 0)
+    if [ "$method_count" -le 1 ] && [ -n "$methodologies" ]; then
+      method_name=$(echo "$methodologies" | head -1)
+      echo "GAP:SEMANTIC:${section}:MEDIUM:Only analyzed via ${method_name} -- consider additional perspectives"
+    fi
+  fi
+done
+
+# Adjacent section gap: problem + solution filled but market empty
+if [ "${entry_counts[problem-definition]}" -gt 0 ] && [ "${entry_counts[solution-design]}" -gt 0 ] && [ "${entry_counts[market-analysis]}" -eq 0 ]; then
+  echo "GAP:ADJACENT:market-analysis:HIGH:Problem and solution explored but no market evidence yet"
+fi
+
+echo ""
+
+# ═══════════════════════════════════════════════
+# Section 2: Convergence Detection
+# ═══════════════════════════════════════════════
+echo "## Convergence"
+
+# Noise words to filter out (common methodology terms)
+NOISE_WORDS="analysis|framework|venture|methodology|section|evidence|definition|problem|market|solution|business|model|financial|competitive|approach|should|would|could|about|their|these|those|which|where|through|between|using|based|consider|important|different|provide"
+
+# Collect terms from headers and bold text across sections, tracking which section each came from
+declare -A term_sections  # term -> "section1|section2|..."
+
+for section in "${SECTIONS[@]}"; do
+  section_dir="${ROOM_DIR}/${section}"
+  [ -d "$section_dir" ] || continue
+
+  for f in "$section_dir"/*.md; do
+    [ -f "$f" ] || continue
+    fname=$(basename "$f")
+    [ "$fname" = "ROOM.md" ] || [ "$fname" = "STATE.md" ] && continue
+
+    # Extract headers (## lines) and bold text (**text**)
+    terms=$(grep -oE '## [^\n]+|\*\*[^*]+\*\*' "$f" 2>/dev/null | \
+      sed 's/^## //' | sed 's/\*\*//g' | \
+      tr '[:upper:]' '[:lower:]' | \
+      grep -oE '[a-z]{5,}' | \
+      grep -vE "^(${NOISE_WORDS})$" | \
+      sort -u || true)
+
+    for term in $terms; do
+      existing="${term_sections[$term]:-}"
+      if [ -z "$existing" ]; then
+        term_sections["$term"]="$section"
+      elif ! echo "$existing" | grep -q "$section"; then
+        term_sections["$term"]="${existing}|${section}"
+      fi
+    done
+  done
+done
+
+# Find terms appearing in 3+ different sections
+convergence_found=false
+for term in "${!term_sections[@]}"; do
+  sections_str="${term_sections[$term]}"
+  section_count=$(echo "$sections_str" | tr '|' '\n' | wc -l | tr -d ' ')
+  if [ "$section_count" -ge 3 ]; then
+    convergence_found=true
+    echo "CONVERGE:${term}:${section_count}:MEDIUM:Appears in ${section_count} entries across multiple sections"
+  fi
+done
+
+if ! $convergence_found; then
+  echo "No convergence signals detected yet."
+fi
+
+echo ""
+
+# ═══════════════════════════════════════════════
+# Section 3: Contradiction Detection
+# ═══════════════════════════════════════════════
+echo "## Contradictions"
+
+# Structural contradiction: conflicting customer type terms across sections
+declare -A b2b_sections
+declare -A b2c_sections
+
+for section in "${SECTIONS[@]}"; do
+  section_dir="${ROOM_DIR}/${section}"
+  [ -d "$section_dir" ] || continue
+
+  for f in "$section_dir"/*.md; do
+    [ -f "$f" ] || continue
+    fname=$(basename "$f")
+    [ "$fname" = "ROOM.md" ] || [ "$fname" = "STATE.md" ] && continue
+
+    content=$(cat "$f" 2>/dev/null || true)
+
+    # Check for B2B/enterprise indicators
+    if echo "$content" | grep -iqE '\bB2B\b|\benterprise\b'; then
+      b2b_sections["$section"]=1
+    fi
+
+    # Check for B2C/consumer/individual indicators
+    if echo "$content" | grep -iqE '\bB2C\b|\bconsumer\b|\bindividual\b'; then
+      b2c_sections["$section"]=1
+    fi
+  done
+done
+
+contradiction_found=false
+for b2b_sec in "${!b2b_sections[@]}"; do
+  for b2c_sec in "${!b2c_sections[@]}"; do
+    if [ "$b2b_sec" != "$b2c_sec" ]; then
+      contradiction_found=true
+      echo "CONTRADICT:${b2b_sec}:${b2c_sec}:MEDIUM:Customer type mismatch -- B2B/enterprise vs B2C/consumer"
+    fi
+  done
+done
+
+if ! $contradiction_found; then
+  echo "No structural contradictions detected."
+fi
+
+echo ""
+echo "## End"
