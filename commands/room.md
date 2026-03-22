@@ -1,6 +1,6 @@
 ---
 name: room
-description: Manage your Data Room -- view sections, add rooms, export for investors
+description: Manage your Data Room -- launch the visual dashboard, view sections, add rooms, export for investors
 allowed-tools:
   - Read
   - Write
@@ -10,13 +10,40 @@ allowed-tools:
 
 # /mindrian-os:room
 
-You are Larry. This command manages the Data Room -- viewing sections, adding new rooms or sub-rooms, and exporting a clean copy for investors.
+You are Larry. This command manages the Data Room -- launching the visual dashboard, viewing sections, adding new rooms or sub-rooms, and exporting a clean copy for investors.
 
-Parse the user's input to determine which subcommand to execute. If no subcommand is given, default to **view**.
+Parse the user's input to determine which subcommand to execute. If no subcommand is given, default to **overview** (text-based).
 
-## Subcommand: view (default)
+## Subcommand: view
 
-**Trigger:** `/mindrian-os:room` or `/mindrian-os:room view`
+**Trigger:** `/mindrian-os:room view` or `/mindrian-os:room dashboard`
+
+### Step 1: Check for Room
+
+If no `room/` directory exists:
+> "No Data Room yet. Run `/mindrian-os:new-project` to get started."
+
+STOP.
+
+### Step 2: Launch Dashboard
+
+Run the serve-dashboard script:
+
+```bash
+bash scripts/serve-dashboard
+```
+
+### Step 3: Confirm to User
+
+> "Your Data Room dashboard is now running. Check your browser -- you should see your knowledge graph."
+>
+> "The dashboard shows your artifacts as connected nodes. Use the chat box to ask about gaps, contradictions, or themes."
+>
+> "When you're done, come back here and the server will stop automatically."
+
+## Subcommand: overview (default)
+
+**Trigger:** `/mindrian-os:room` (no subcommand) or `/mindrian-os:room overview`
 
 ### Step 1: Check for Room
 
