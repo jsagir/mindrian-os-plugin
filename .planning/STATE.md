@@ -138,9 +138,16 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-- **Self-update system**: MindrianOS needs its own `/mindrian-os:update` command (like GSD's update workflow) — version detection, changelog display, clean install, cache clearing. Essential for marketplace distribution.
-- **Context window awareness**: Plugin should be aware of current context consumption and adapt behavior — compress references, defer loading, warn when approaching limits. Critical for users on Sonnet (200K) vs Opus (1M).
-- **Claude capability radar**: Auto-track official Anthropic releases (Newsroom, Claude Blog, Claude Code changelog, Releasebot feeds) to discover new features that amplify MindrianOS — tag by domain (models, code, desktop_cowork, plugins_mcp, visualization_svg), generate daily digest, surface opportunities to enhance the plugin.
+- ~~**Self-update system**~~: DONE (Phase 5, Plan 01)
+- ~~**Context window awareness**~~: DONE (Phase 5, Plan 02)
+- ~~**Claude capability radar**~~: DONE (Phase 5, Plan 03)
+- **Trained Lawrence model (PAID TIER)**: Fine-tune a model on real Lawrence teaching transcripts/sessions — replaces prompt-engineered Larry with learned personality. Same plugin structure, different agent model. Training data: transcripts, 100+ graded projects, methodology application patterns. Platform TBD (Claude fine-tuning not public yet).
+- **GitHub repo + distribution**: Push to GitHub, test fresh install experience, marketplace submission when available.
+- **Live Brain MCP hosting**: Decide if users get their own Brain or shared hosted at brain.mindrian.ai.
+- **STATE.md reconciliation process**: Periodic check that room subfolder states stay contextually relevant, maintain relationship graph across sections.
+- **Additional pipelines**: Beyond Discovery + Thesis — Market Intelligence, Validation, etc.
+- **Additional persona agents**: Customer Agent, Devil's Advocate Agent, Domain Expert Agent (deferred from Phase 4).
+- **Pitch deck + venture brief templates**: Landscape PDF and 1-page constrained layout (stretch from Phase 3.2).
 
 ### Blockers/Concerns
 
