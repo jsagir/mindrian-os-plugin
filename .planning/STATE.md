@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03.1-02-PLAN.md
-last_updated: "2026-03-22T08:33:37.044Z"
-last_activity: 2026-03-22 -- Completed 03.1-01 Graph Pipeline + De Stijl Dashboard (2 tasks, 4 files)
+stopped_at: Completed 03.2-01-PLAN.md
+last_updated: "2026-03-22T10:30:38.489Z"
+last_activity: 2026-03-22 -- Completed 03.2-01 Document Templates (2 tasks, 13 files)
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 4
-  total_plans: 12
-  completed_plans: 12
-  percent: 92
+  total_plans: 14
+  completed_plans: 13
+  percent: 93
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Users can run the full PWS methodology inside Claude Code with zero infrastructure -- Larry guides them through venture innovation with a persistent Data Room and optional Brain enrichment.
-**Current focus:** Phase 3.1: Data Room Dashboard -- De Stijl viewer with knowledge graph and chat
+**Current focus:** Phase 3.2: Document Generation -- De Stijl PDF templates and render pipeline
 
 ## Current Position
 
-Phase: 3.1 of 5 (Data Room Dashboard) -- IN PROGRESS
-Plan: 1 of 2 in current phase (03.1-01 complete, 03.1-02 pending)
+Phase: 3.2 of 5 (Document Generation) -- IN PROGRESS
+Plan: 1 of 2 in current phase (03.2-01 complete, 03.2-02 pending)
 Status: In Progress
-Last activity: 2026-03-22 -- Completed 03.1-01 Graph Pipeline + De Stijl Dashboard (2 tasks, 4 files)
+Last activity: 2026-03-22 -- Completed 03.2-01 Document Templates (2 tasks, 13 files)
 
-Progress: [█████████░] 92%
+Progress: [█████████░] 93%
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [█████████░] 92%
 | Phase 03 P01 | 3min | 2 tasks | 10 files |
 | Phase 03.1 P01 | 3min | 2 tasks | 4 files |
 | Phase 03.1 P02 | 2min | 3 tasks | 2 files |
+| Phase 03.2 P01 | 12min | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -101,6 +102,8 @@ Recent decisions affecting current work:
 - [Phase 03.1-01]: Intelligence stored in window.__roomIntelligence for Plan 02 chat consumption
 - [Phase 03.1]: Client-side regex matching over pre-computed intelligence -- zero API dependencies
 - [Phase 03.1]: Text-based overview remains default room command; explicit 'view' launches browser dashboard
+- [Phase 03.2]: Fonts sourced from fontsource CDN and dharmatype GitHub for reliable TTF downloads
+- [Phase 03.2]: Profile template filters entries by metadata.source for methodology-output grid mapping
 
 ### Roadmap Evolution
 
@@ -120,6 +123,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-22T08:11:32.183Z
-Stopped at: Completed 03.1-02-PLAN.md
+Last session: 2026-03-22T10:30:38.486Z
+Stopped at: Completed 03.2-01-PLAN.md
 Resume file: None
