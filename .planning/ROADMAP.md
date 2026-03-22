@@ -116,10 +116,12 @@ Plans:
   6. Investor Agent stress-tests from investor POV using Brain pattern data
   7. 5 new commands work: suggest-next, find-connections, compare-ventures, deep-grade, research
   8. Existing commands upgraded: diagnose, help, grade, pipeline, mode engine — all Brain-informed
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 4 to break down)
+- [ ] 04-01-PLAN.md -- Brain foundation: setup command, schema reference, query patterns, brain-connector skill
+- [ ] 04-02-PLAN.md -- 4 specialized agents: Brain Agent (GraphRAG), Grading Agent, Research Agent, Investor Agent
+- [ ] 04-03-PLAN.md -- 5 new Brain commands + 5 existing command upgrades + mode engine + index update
 
 ### Phase 5: Plugin Intelligence Infrastructure
 **Goal**: MindrianOS can update itself, manage its own context budget intelligently, and automatically discover new Claude capabilities that amplify the plugin — the infrastructure that keeps the OS alive and evolving
@@ -149,5 +151,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 3.2 → 4 → 5
 | 3. Pipeline Chaining and Proactive Intelligence | 2/2 | Complete   | 2026-03-22 |
 | 3.1 Data Room Dashboard (INSERTED) | 2/2 | Complete   | 2026-03-22 |
 | 3.2 Document Generation (INSERTED) | 0/2 | Not started | - |
-| 4. Brain MCP Integration | 0/1 | Not started | - |
+| 4. Brain MCP Integration | 0/3 | Not started | - |
 | 5. Plugin Intelligence Infrastructure | 0/3 | Not started | - |
