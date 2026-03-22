@@ -88,7 +88,7 @@ Plans:
 - [ ] 03.1-02-PLAN.md — Chat intelligence panel and room view command wiring
 
 ### Phase 3.2: Document Generation (INSERTED)
-**Goal**: Users can run `/mindrian-os:export` to generate professional De Stijl PDFs from their Data Room — investment thesis, executive summary, due diligence report, PWS profiles, pitch deck, venture brief — all with zero additional dependencies using WeasyPrint + Jinja2
+**Goal**: Users can run `/mindrian-os:export` to generate professional De Stijl PDFs from their Data Room — investment thesis, executive summary, due diligence report, PWS profiles — all with zero additional dependencies using WeasyPrint + Jinja2
 **Depends on**: Phase 3.1
 **Requirements**: DOCS-01, DOCS-02, DOCS-03, DOCS-04, DOCS-05
 **Success Criteria** (what must be TRUE):
@@ -97,10 +97,11 @@ Plans:
   3. PWS Profile generation creates structured profiles from methodology outputs (Bono perspectives, Domain Explorer domains, JTBD personas)
   4. No additional dependencies — WeasyPrint, markdown2, Jinja2, PyMuPDF already installed
   5. Exports land in room/exports/ with clear filenames and open automatically
-**Plans:** 0 plans
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 3.2 to break down)
+- [ ] 03.2-01-PLAN.md — De Stijl CSS + bundled fonts + Jinja2 templates (thesis, summary, report, profile) + test fixtures
+- [ ] 03.2-02-PLAN.md — render-pdf Python orchestrator + /mindrian-os:export command
 
 ### Phase 4: Brain MCP Integration
 **Goal**: Users who connect Brain get enriched framework chaining, calibrated grading, enhanced Larry mode engine, and contextual problem-type routing -- the moat activates
@@ -142,6 +143,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 3.2 → 4 → 5
 | 2. Core Methodologies | 5/5 | Complete   | 2026-03-22 |
 | 3. Pipeline Chaining and Proactive Intelligence | 2/2 | Complete   | 2026-03-22 |
 | 3.1 Data Room Dashboard (INSERTED) | 2/2 | Complete   | 2026-03-22 |
-| 3.2 Document Generation (INSERTED) | 0/? | Not started | - |
+| 3.2 Document Generation (INSERTED) | 0/2 | Not started | - |
 | 4. Brain MCP Integration | 0/1 | Not started | - |
 | 5. Plugin Intelligence Infrastructure | 0/3 | Not started | - |
