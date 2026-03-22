@@ -1,0 +1,28 @@
+{
+  "elements": {
+    "nodes": [
+        { "data": { "id": "problem-definition", "label": "PROBLEM DEFINITION", "color": "#A63D2F" }, "classes": "section-group" },
+    { "data": { "id": "market-analysis", "label": "MARKET ANALYSIS", "color": "#C8A43C" }, "classes": "section-group" },
+    { "data": { "id": "solution-design", "label": "SOLUTION DESIGN", "color": "#5C5A56" }, "classes": "section-group" },
+    { "data": { "id": "business-model", "label": "BUSINESS MODEL", "color": "#2D6B4A" }, "classes": "section-group" },
+    { "data": { "id": "competitive-analysis", "label": "COMPETITIVE ANALYSIS", "color": "#B5602A" }, "classes": "section-group" },
+    { "data": { "id": "team-execution", "label": "TEAM & EXECUTION", "color": "#1E3A6E" }, "classes": "section-group" },
+    { "data": { "id": "legal-ip", "label": "LEGAL & IP", "color": "#6B4E8B" }, "classes": "section-group" },
+    { "data": { "id": "financial-model", "label": "FINANCIAL MODEL", "color": "#2A6B5E" }, "classes": "section-group" }
+    ],
+    "edges": [
+    
+    ]
+  },
+  "intelligence": {
+    "gaps": [],
+    "convergence": [],
+    "contradictions": [],
+    "summary": {
+      "total_artifacts": 0,
+      "venture_stage": "Pre-Opportunity",
+      "sections_active": 0,
+      "sections_empty": 8
+    }
+  }
+}

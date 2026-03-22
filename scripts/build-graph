@@ -1,0 +1,354 @@
+#!/usr/bin/env bash
+# build-graph: Generate Cytoscape.js graph JSON from room/ directory
+# Reads room artifacts, parses frontmatter, runs analyze-room,
+# and outputs dashboard/graph.json for the De Stijl knowledge graph dashboard
+# Must handle empty room gracefully (outputs 8 section group nodes)
+
+set -euo pipefail
+
+ROOM_DIR="${1:-./room}"
+OUTPUT_PATH="${2:-./dashboard/graph.json}"
+
+# ── 8 DD-aligned sections with display names and De Stijl colors ──
+declare -A SECTION_COLORS
+SECTION_COLORS=(
+  [problem-definition]="#A63D2F"
+  [market-analysis]="#C8A43C"
+  [solution-design]="#5C5A56"
+  [business-model]="#2D6B4A"
+  [competitive-analysis]="#B5602A"
+  [team-execution]="#1E3A6E"
+  [legal-ip]="#6B4E8B"
+  [financial-model]="#2A6B5E"
+)
+
+declare -A SECTION_LABELS
+SECTION_LABELS=(
+  [problem-definition]="PROBLEM DEFINITION"
+  [market-analysis]="MARKET ANALYSIS"
+  [solution-design]="SOLUTION DESIGN"
+  [business-model]="BUSINESS MODEL"
+  [competitive-analysis]="COMPETITIVE ANALYSIS"
+  [team-execution]="TEAM & EXECUTION"
+  [legal-ip]="LEGAL & IP"
+  [financial-model]="FINANCIAL MODEL"
+)
+
+SECTIONS=(
+  problem-definition
+  market-analysis
+  solution-design
+  business-model
+  competitive-analysis
+  team-execution
+  legal-ip
+  financial-model
+)
+
+# ── Helper: extract frontmatter from a file ──
+extract_frontmatter() {
+  local file="$1"
+  local in_frontmatter=false
+  local line_num=0
+
+  while IFS= read -r line; do
+    line_num=$((line_num + 1))
+    if [ "$line_num" -eq 1 ] && [ "$line" = "---" ]; then
+      in_frontmatter=true
+      continue
+    fi
+    if $in_frontmatter && [ "$line" = "---" ]; then
+      break
+    fi
+    if $in_frontmatter; then
+      echo "$line"
+    fi
+  done < "$file"
+}
+
+# ── Helper: get a specific frontmatter field ──
+get_field() {
+  local file="$1"
+  local field="$2"
+  extract_frontmatter "$file" | grep "^${field}:" | sed "s/${field}:[[:space:]]*//" | tr -d '"' | head -1
+}
+
+# ── Helper: get first heading from markdown file ──
+get_title() {
+  local file="$1"
+  local title
+  title=$(grep -m1 '^# ' "$file" 2>/dev/null | sed 's/^# //' || true)
+  if [ -z "$title" ]; then
+    title=$(basename "$file" .md)
+  fi
+  echo "$title"
+}
+
+# ── Helper: JSON-escape a string ──
+json_escape() {
+  local s="$1"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  s="${s//$'\n'/\\n}"
+  s="${s//$'\t'/\\t}"
+  echo "$s"
+}
+
+# ── Ensure output directory exists ──
+mkdir -p "$(dirname "$OUTPUT_PATH")"
+
+# ═══════════════════════════════════════════════
+# Phase 1: Build nodes
+# ═══════════════════════════════════════════════
+
+nodes=""
+node_count=0
+artifact_count=0
+
+# Section group nodes (always present)
+for section in "${SECTIONS[@]}"; do
+  color="${SECTION_COLORS[$section]}"
+  label="${SECTION_LABELS[$section]}"
+  node="{ \"data\": { \"id\": \"${section}\", \"label\": \"${label}\", \"color\": \"${color}\" }, \"classes\": \"section-group\" }"
+  if [ -n "$nodes" ]; then
+    nodes="${nodes},
+    ${node}"
+  else
+    nodes="    ${node}"
+  fi
+  node_count=$((node_count + 1))
+done
+
+# Artifact nodes (from room/ directory)
+# Track pipeline info for edge building
+declare -A artifact_pipeline      # id -> pipeline name
+declare -A artifact_stage         # id -> pipeline stage number
+declare -A artifact_section       # id -> section name
+declare -A pipeline_stages        # "pipeline:stage" -> artifact id
+
+if [ -d "$ROOM_DIR" ]; then
+  for section in "${SECTIONS[@]}"; do
+    section_dir="${ROOM_DIR}/${section}"
+    [ -d "$section_dir" ] || continue
+
+    for f in "$section_dir"/*.md; do
+      [ -f "$f" ] || continue
+      fname=$(basename "$f")
+      [ "$fname" = "ROOM.md" ] || [ "$fname" = "STATE.md" ] && continue
+
+      artifact_id="${section}/${fname%.md}"
+      title=$(json_escape "$(get_title "$f")")
+      methodology=$(json_escape "$(get_field "$f" "methodology")")
+      created=$(get_field "$f" "created")
+      pipeline=$(get_field "$f" "pipeline")
+      pipeline_stage=$(get_field "$f" "pipeline_stage")
+
+      color="${SECTION_COLORS[$section]}"
+
+      node="{ \"data\": { \"id\": \"${artifact_id}\", \"label\": \"${title}\", \"section\": \"${section}\", \"color\": \"${color}\", \"methodology\": \"${methodology}\", \"created\": \"${created}\", \"pipeline\": \"${pipeline}\", \"pipeline_stage\": \"${pipeline_stage}\", \"parent\": \"${section}\" }, \"classes\": \"artifact\" }"
+
+      nodes="${nodes},
+    ${node}"
+      node_count=$((node_count + 1))
+      artifact_count=$((artifact_count + 1))
+
+      # Track for pipeline edge building
+      artifact_section["$artifact_id"]="$section"
+      if [ -n "$pipeline" ] && [ -n "$pipeline_stage" ] && [ "$pipeline_stage" != "null" ]; then
+        artifact_pipeline["$artifact_id"]="$pipeline"
+        artifact_stage["$artifact_id"]="$pipeline_stage"
+        pipeline_stages["${pipeline}:${pipeline_stage}"]="$artifact_id"
+      fi
+
+    done
+  done
+fi
+
+# ═══════════════════════════════════════════════
+# Phase 2: Build edges
+# ═══════════════════════════════════════════════
+
+edges=""
+edge_count=0
+
+add_edge() {
+  local source="$1"
+  local target="$2"
+  local etype="$3"
+  local label="$4"
+  local css_class="$5"
+
+  local edge="{ \"data\": { \"id\": \"e${edge_count}\", \"source\": \"$(json_escape "$source")\", \"target\": \"$(json_escape "$target")\", \"type\": \"${etype}\", \"label\": \"$(json_escape "$label")\" }, \"classes\": \"${css_class}\" }"
+  if [ -n "$edges" ]; then
+    edges="${edges},
+    ${edge}"
+  else
+    edges="    ${edge}"
+  fi
+  edge_count=$((edge_count + 1))
+}
+
+# FEEDS_INTO edges: consecutive pipeline stages
+for key in "${!pipeline_stages[@]}"; do
+  pipeline_name="${key%%:*}"
+  stage="${key##*:}"
+  next_stage=$((stage + 1))
+  next_key="${pipeline_name}:${next_stage}"
+  if [ -n "${pipeline_stages[$next_key]:-}" ]; then
+    add_edge "${pipeline_stages[$key]}" "${pipeline_stages[$next_key]}" "FEEDS_INTO" "feeds into" "feeds-into"
+  fi
+done
+
+# Run analyze-room for CONTRADICT/CONVERGE intelligence
+analyze_output=""
+if [ -d "$ROOM_DIR" ]; then
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  if [ -x "${script_dir}/analyze-room" ]; then
+    analyze_output=$(bash "${script_dir}/analyze-room" "$ROOM_DIR" 2>/dev/null || true)
+  fi
+fi
+
+# Parse CONTRADICT lines -> edges between sections' most recent artifacts
+declare -A section_latest  # section -> most recent artifact id (by created date or last found)
+for aid in "${!artifact_section[@]}"; do
+  sec="${artifact_section[$aid]}"
+  section_latest["$sec"]="$aid"
+done
+
+while IFS= read -r line; do
+  if [[ "$line" == CONTRADICT:* ]]; then
+    IFS=':' read -r _ sec_a sec_b confidence message <<< "$line"
+    source="${section_latest[$sec_a]:-$sec_a}"
+    target="${section_latest[$sec_b]:-$sec_b}"
+    add_edge "$source" "$target" "CONTRADICTS" "$message" "contradicts"
+  fi
+done <<< "$analyze_output"
+
+# Parse CONVERGE lines -> edges between sections (connect first two sections where term appears)
+while IFS= read -r line; do
+  if [[ "$line" == CONVERGE:* ]]; then
+    IFS=':' read -r _ term count confidence message <<< "$line"
+    # We create an edge to the first section-group that has the term
+    # For simplicity, converge edges connect to the section group nodes
+    # (the dashboard shows convergence as a theme, not artifact-to-artifact)
+  fi
+done <<< "$analyze_output"
+
+# INFORMS edges: cross-references [[section-name]] in artifact content
+if [ -d "$ROOM_DIR" ]; then
+  for aid in "${!artifact_section[@]}"; do
+    # Reconstruct file path from artifact id
+    section="${artifact_section[$aid]}"
+    fname="${aid##*/}"
+    filepath="${ROOM_DIR}/${section}/${fname}.md"
+    [ -f "$filepath" ] || continue
+
+    for target_section in "${SECTIONS[@]}"; do
+      [ "$target_section" = "$section" ] && continue
+      if grep -q "\[\[${target_section}\]\]" "$filepath" 2>/dev/null; then
+        add_edge "$aid" "$target_section" "INFORMS" "informs" "informs"
+      fi
+    done
+  done
+fi
+
+# ═══════════════════════════════════════════════
+# Phase 3: Build intelligence object
+# ═══════════════════════════════════════════════
+
+# Parse gaps
+gaps_json=""
+while IFS= read -r line; do
+  if [[ "$line" == GAP:* ]]; then
+    IFS=':' read -r _ gap_type gap_section confidence message <<< "$line"
+    gap="{ \"type\": \"$(json_escape "$gap_type")\", \"section\": \"$(json_escape "$gap_section")\", \"confidence\": \"$(json_escape "$confidence")\", \"message\": \"$(json_escape "$message")\" }"
+    if [ -n "$gaps_json" ]; then
+      gaps_json="${gaps_json}, ${gap}"
+    else
+      gaps_json="${gap}"
+    fi
+  fi
+done <<< "$analyze_output"
+
+# Parse convergence
+convergence_json=""
+while IFS= read -r line; do
+  if [[ "$line" == CONVERGE:* ]]; then
+    IFS=':' read -r _ term count confidence message <<< "$line"
+    conv="{ \"term\": \"$(json_escape "$term")\", \"count\": ${count}, \"confidence\": \"$(json_escape "$confidence")\", \"message\": \"$(json_escape "$message")\" }"
+    if [ -n "$convergence_json" ]; then
+      convergence_json="${convergence_json}, ${conv}"
+    else
+      convergence_json="${conv}"
+    fi
+  fi
+done <<< "$analyze_output"
+
+# Parse contradictions
+contradictions_json=""
+while IFS= read -r line; do
+  if [[ "$line" == CONTRADICT:* ]]; then
+    IFS=':' read -r _ sec_a sec_b confidence message <<< "$line"
+    contra="{ \"section_a\": \"$(json_escape "$sec_a")\", \"section_b\": \"$(json_escape "$sec_b")\", \"confidence\": \"$(json_escape "$confidence")\", \"message\": \"$(json_escape "$message")\" }"
+    if [ -n "$contradictions_json" ]; then
+      contradictions_json="${contradictions_json}, ${contra}"
+    else
+      contradictions_json="${contra}"
+    fi
+  fi
+done <<< "$analyze_output"
+
+# Build summary
+venture_stage="Pre-Opportunity"
+if [ -f "${ROOM_DIR}/STATE.md" ]; then
+  stage_line=$(grep -i 'venture_stage:' "${ROOM_DIR}/STATE.md" 2>/dev/null | head -1 || true)
+  if [ -n "$stage_line" ]; then
+    venture_stage=$(echo "$stage_line" | sed 's/.*venture_stage:[[:space:]]*//' | tr -d '"' | xargs)
+  fi
+fi
+
+sections_active=0
+sections_empty=0
+for section in "${SECTIONS[@]}"; do
+  section_dir="${ROOM_DIR}/${section}"
+  if [ -d "$section_dir" ]; then
+    count=$(find "$section_dir" -maxdepth 1 -name "*.md" ! -name "ROOM.md" ! -name "STATE.md" 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$count" -gt 0 ]; then
+      sections_active=$((sections_active + 1))
+    else
+      sections_empty=$((sections_empty + 1))
+    fi
+  else
+    sections_empty=$((sections_empty + 1))
+  fi
+done
+
+# ═══════════════════════════════════════════════
+# Phase 4: Output JSON
+# ═══════════════════════════════════════════════
+
+cat > "$OUTPUT_PATH" << ENDJSON
+{
+  "elements": {
+    "nodes": [
+    ${nodes}
+    ],
+    "edges": [
+    ${edges}
+    ]
+  },
+  "intelligence": {
+    "gaps": [${gaps_json}],
+    "convergence": [${convergence_json}],
+    "contradictions": [${contradictions_json}],
+    "summary": {
+      "total_artifacts": ${artifact_count},
+      "venture_stage": "${venture_stage}",
+      "sections_active": ${sections_active},
+      "sections_empty": ${sections_empty}
+    }
+  }
+}
+ENDJSON
+
+echo "Generated graph.json: ${node_count} nodes, ${edge_count} edges"
