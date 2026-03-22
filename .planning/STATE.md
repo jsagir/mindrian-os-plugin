@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03.2-01-PLAN.md
-last_updated: "2026-03-22T10:30:38.489Z"
-last_activity: 2026-03-22 -- Completed 03.2-01 Document Templates (2 tasks, 13 files)
+stopped_at: Completed 03.2-02-PLAN.md
+last_updated: "2026-03-22T10:36:00Z"
+last_activity: 2026-03-22 -- Completed 03.2-02 Render PDF + Export Command (2 tasks, 2 files)
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 14
-  completed_plans: 13
-  percent: 93
+  completed_plans: 14
+  percent: 100
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 3.2 of 5 (Document Generation) -- IN PROGRESS
-Plan: 1 of 2 in current phase (03.2-01 complete, 03.2-02 pending)
-Status: In Progress
-Last activity: 2026-03-22 -- Completed 03.2-01 Document Templates (2 tasks, 13 files)
+Phase: 3.2 of 5 (Document Generation) -- COMPLETE
+Plan: 2 of 2 in current phase (03.2-01 complete, 03.2-02 complete)
+Status: Phase Complete
+Last activity: 2026-03-22 -- Completed 03.2-02 Render PDF + Export Command (2 tasks, 2 files)
 
-Progress: [█████████░] 93%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Progress: [█████████░] 93%
 | Phase 03.1 P01 | 3min | 2 tasks | 4 files |
 | Phase 03.1 P02 | 2min | 3 tasks | 2 files |
 | Phase 03.2 P01 | 12min | 2 tasks | 13 files |
+| Phase 03.2 P02 | 4min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,8 @@ Recent decisions affecting current work:
 - [Phase 03.1]: Text-based overview remains default room command; explicit 'view' launches browser dashboard
 - [Phase 03.2]: Fonts sourced from fontsource CDN and dharmatype GitHub for reliable TTF downloads
 - [Phase 03.2]: Profile template filters entries by metadata.source for methodology-output grid mapping
+- [Phase 03.2]: base_url=PLUGIN_DIR for WeasyPrint font resolution; DOC_TYPES limited to 4 types with existing templates
+- [Phase 03.2]: TOC bookmarks only for thesis/report; WSL detection via /proc/version matching serve-dashboard pattern
 
 ### Roadmap Evolution
 
@@ -123,6 +126,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-22T10:30:38.486Z
-Stopped at: Completed 03.2-01-PLAN.md
+Last session: 2026-03-22T10:36:00Z
+Stopped at: Completed 03.2-02-PLAN.md
 Resume file: None
