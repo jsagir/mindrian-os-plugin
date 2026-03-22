@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# check-update: Compare local plugin version against latest on GitHub
+# Output: UP_TO_DATE | UPDATE_AVAILABLE | CHECK_FAILED
+
+PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+CHANGELOG_URL="https://raw.githubusercontent.com/mindrian/mindrian-os-plugin/main/CHANGELOG.md"
+
+# Read current version from plugin.json
+if ! CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null); then
+  echo "CHECK_FAILED"
+  echo "Cannot read version from plugin.json"
+  exit 0
+fi
+
+# Fetch remote changelog
+if ! REMOTE_CHANGELOG=$(curl -sf --max-time 3 "$CHANGELOG_URL" 2>/dev/null); then
+  echo "CHECK_FAILED"
+  echo "Could not reach update server. Check your connection."
+  exit 0
+fi
+
+# Extract latest version from first ## [X.Y.Z] heading
+LATEST_VERSION=$(echo "$REMOTE_CHANGELOG" | grep -oP '(?<=^## \[)[0-9]+\.[0-9]+\.[0-9]+(?=\])' | head -1)
+
+if [[ -z "$LATEST_VERSION" ]]; then
+  echo "CHECK_FAILED"
+  echo "Could not parse version from remote changelog."
+  exit 0
+fi
+
+# Compare versions using sort -V
+LOWER=$(printf '%s\n%s' "$CURRENT_VERSION" "$LATEST_VERSION" | sort -V | head -1)
+
+if [[ "$CURRENT_VERSION" == "$LATEST_VERSION" ]]; then
+  echo "UP_TO_DATE"
+  echo "v${CURRENT_VERSION}"
+elif [[ "$LOWER" == "$CURRENT_VERSION" ]]; then
+  # Current is older than latest -- extract changelog entries between versions
+  CHANGELOG_DIFF=$(echo "$REMOTE_CHANGELOG" | sed -n "/^## \[${LATEST_VERSION}\]/,/^## \[${CURRENT_VERSION}\]/p" | head -n -1)
+  echo "UPDATE_AVAILABLE"
+  echo "CURRENT=${CURRENT_VERSION}"
+  echo "LATEST=${LATEST_VERSION}"
+  echo "---CHANGELOG---"
+  echo "$CHANGELOG_DIFF"
+else
+  # Current is newer than latest (dev build)
+  echo "UP_TO_DATE"
+  echo "v${CURRENT_VERSION}"
+fi

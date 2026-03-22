@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# backup-modifications: Detect user-modified plugin files and back them up
+# Output: BACKED_UP | NO_MODIFICATIONS | NO_CHECKSUMS
+
+PLUGIN_ROOT="${1:-$(cd "$(dirname "$0")/.." && pwd)}"
+WORK_DIR="$PWD"
+CHECKSUMS_FILE="$PLUGIN_ROOT/.mindrian-checksums"
+
+# Check for checksums file (generated at install time)
+if [[ ! -f "$CHECKSUMS_FILE" ]]; then
+  echo "NO_CHECKSUMS"
+  echo "Cannot detect modifications without install checksums."
+  exit 0
+fi
+
+# Read current version
+PLUGIN_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "unknown")
+
+# Compare current checksums against stored ones
+MODIFIED_FILES=()
+
+while IFS='  ' read -r stored_hash file_path; do
+  # Skip empty lines and comments
+  [[ -z "$stored_hash" || "$stored_hash" == \#* ]] && continue
+
+  full_path="$PLUGIN_ROOT/$file_path"
+  if [[ -f "$full_path" ]]; then
+    current_hash=$(md5sum "$full_path" | cut -d' ' -f1)
+    if [[ "$current_hash" != "$stored_hash" ]]; then
+      MODIFIED_FILES+=("$file_path")
+    fi
+  fi
+done < "$CHECKSUMS_FILE"
+
+# No modifications found
+if [[ ${#MODIFIED_FILES[@]} -eq 0 ]]; then
+  echo "NO_MODIFICATIONS"
+  echo "All files match install checksums."
+  exit 0
+fi
+
+# Back up modified files preserving directory structure
+BACKUP_DIR="$WORK_DIR/mindrian-patches"
+mkdir -p "$BACKUP_DIR"
+
+for file_path in "${MODIFIED_FILES[@]}"; do
+  src="$PLUGIN_ROOT/$file_path"
+  dest="$BACKUP_DIR/$file_path"
+  mkdir -p "$(dirname "$dest")"
+  cp "$src" "$dest"
+done
+
+# Create backup metadata
+BACKUP_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+FILES_JSON=$(printf '%s\n' "${MODIFIED_FILES[@]}" | python3 -c "import sys,json; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
+
+cat > "$BACKUP_DIR/backup-meta.json" <<EOF
+{
+  "backup_date": "$BACKUP_DATE",
+  "plugin_version": "$PLUGIN_VERSION",
+  "modified_files": $FILES_JSON
+}
+EOF
+
+echo "BACKED_UP"
+echo "${#MODIFIED_FILES[@]} files backed up to mindrian-patches/"

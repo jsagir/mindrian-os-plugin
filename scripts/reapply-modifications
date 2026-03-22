@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# reapply-modifications: List backed-up modifications and provide reapply guidance
+# Output: PATCHES_AVAILABLE | NO_BACKUP
+
+WORK_DIR="$PWD"
+BACKUP_DIR="$WORK_DIR/mindrian-patches"
+META_FILE="$BACKUP_DIR/backup-meta.json"
+
+# Check for backup
+if [[ ! -f "$META_FILE" ]]; then
+  echo "NO_BACKUP"
+  echo "No backed-up modifications found."
+  exit 0
+fi
+
+# Read backup metadata
+BACKUP_DATE=$(python3 -c "import json; print(json.load(open('$META_FILE'))['backup_date'])")
+PLUGIN_VERSION=$(python3 -c "import json; print(json.load(open('$META_FILE'))['plugin_version'])")
+FILE_COUNT=$(python3 -c "import json; print(len(json.load(open('$META_FILE'))['modified_files']))")
+
+echo "PATCHES_AVAILABLE"
+echo "Backup from v${PLUGIN_VERSION} (${BACKUP_DATE})"
+echo "${FILE_COUNT} modified files:"
+echo ""
+
+# List each file with its backup path
+python3 -c "import json; [print(f) for f in json.load(open('$META_FILE'))['modified_files']]" | while read -r file_path; do
+  echo "  - ${file_path}"
+  echo "    Backed up to: mindrian-patches/${file_path}"
+done
+
+echo ""
+echo "To reapply, copy each file back to the plugin directory."
+echo "Plugin location: \$CLAUDE_PLUGIN_ROOT or run 'claude plugin list' to find it."
