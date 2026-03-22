@@ -110,8 +110,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Plugin Self-Update
 
-- [ ] **UPDT-01**: User can run `/mindrian-os:update` to check for and install plugin updates with changelog display
-- [ ] **UPDT-02**: Update process backs up user modifications and offers reapply after clean install
+- [x] **UPDT-01**: User can run `/mindrian-os:update` to check for and install plugin updates with changelog display
+- [x] **UPDT-02**: Update process backs up user modifications and offers reapply after clean install
 
 ### Context Window Awareness
 
@@ -233,8 +233,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BRAN-10 | Phase 4 | Complete |
 | ALLM-01 | Phase 2 | Complete |
 | ALLM-02 | Phase 2 | Complete |
-| UPDT-01 | Phase 5 | Pending |
-| UPDT-02 | Phase 5 | Pending |
+| UPDT-01 | Phase 5 | Complete |
+| UPDT-02 | Phase 5 | Complete |
 | CTXW-01 | Phase 5 | Complete |
 | CTXW-02 | Phase 5 | Complete |
 | RADR-01 | Phase 5 | Complete |
