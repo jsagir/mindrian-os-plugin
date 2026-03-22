@@ -16,7 +16,8 @@
     "pws-methodology",
     "context-engine",
     "room-passive",
-    "room-proactive"
+    "room-proactive",
+    "brain-connector"
   ],
   "commands": [
     "commands/new-project.md",
@@ -32,15 +33,33 @@
     "commands/find-connections.md",
     "commands/compare-ventures.md",
     "commands/deep-grade.md",
-    "commands/research.md"
-  ],
-  "skills": [
-    "larry-personality",
-    "pws-methodology",
-    "context-engine",
-    "room-passive",
-    "room-proactive",
-    "brain-connector"
+    "commands/research.md",
+    "commands/beautiful-question.md",
+    "commands/map-unknowns.md",
+    "commands/challenge-assumptions.md",
+    "commands/analyze-systems.md",
+    "commands/leadership.md",
+    "commands/lean-canvas.md",
+    "commands/systems-thinking.md",
+    "commands/explore-domains.md",
+    "commands/structure-argument.md",
+    "commands/think-hats.md",
+    "commands/analyze-needs.md",
+    "commands/find-bottlenecks.md",
+    "commands/build-thesis.md",
+    "commands/grade.md",
+    "commands/explore-trends.md",
+    "commands/analyze-timing.md",
+    "commands/scenario-plan.md",
+    "commands/validate.md",
+    "commands/build-knowledge.md",
+    "commands/explore-futures.md",
+    "commands/root-cause.md",
+    "commands/macro-trends.md",
+    "commands/dominant-designs.md",
+    "commands/user-needs.md",
+    "commands/score-innovation.md",
+    "commands/diagnose.md"
   ],
   "agents": [
     "agents/larry-extended.md",

@@ -1,0 +1,25 @@
+# User workspace (private data)
+room/
+export/
+
+# Dashboard generated data
+dashboard/graph.json
+
+# Context bridge temp files
+/tmp/mindrian-*
+
+# Environment and secrets
+.env
+.env.local
+*.key
+
+# Python
+__pycache__/
+*.pyc
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Planning (development only)
+.planning/
