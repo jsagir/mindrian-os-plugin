@@ -70,7 +70,7 @@ extract_frontmatter() {
 get_field() {
   local file="$1"
   local field="$2"
-  extract_frontmatter "$file" | grep "^${field}:" | sed "s/${field}:[[:space:]]*//" | tr -d '"' | head -1
+  extract_frontmatter "$file" | grep "^${field}:" | sed "s/${field}:[[:space:]]*//" | tr -d '"' | head -1 || true
 }
 
 # ── Helper: get first heading from markdown file ──
