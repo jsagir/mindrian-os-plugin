@@ -65,11 +65,11 @@ Plans:
   2. Pipeline execution produces inspectable artifacts at each stage, all filed to Room sections with clear provenance chain
   3. Room proactive skill surfaces gap suggestions ("no competitive analysis yet"), contradiction alerts, and convergence signals with confidence scores
   4. Proactive suggestions are gated to prevent noise -- user is not overwhelmed by low-confidence alerts
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 03-01: Pipeline stage contracts and chaining engine
-- [ ] 03-02: Proactive Room intelligence (gaps, contradictions, convergence)
+- [ ] 03-01-PLAN.md -- Pipeline stage contracts (Discovery + Thesis chains), pipeline command, chains-index reference
+- [ ] 03-02-PLAN.md -- Proactive Room intelligence: analyze-room script, room-proactive skill, session-start hook integration
 
 ### Phase 4: Brain MCP Integration
 **Goal**: Users who connect Brain get enriched framework chaining, calibrated grading, enhanced Larry mode engine, and contextual problem-type routing -- the moat activates
