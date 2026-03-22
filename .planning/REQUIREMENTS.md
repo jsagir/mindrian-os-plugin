@@ -71,6 +71,14 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **DASH-04**: Chat box at the bottom allows natural language queries about the room and returns natural language answers from Larry
 - [x] **DASH-05**: Graph data auto-generated from room/ directory contents — no manual graph building, updates on refresh
 
+### Document Generation
+
+- [ ] **DOCS-01**: User can run `/mindrian-os:export` to generate professional De Stijl PDFs from Data Room content (thesis, summary, report, profile, deck, brief)
+- [ ] **DOCS-02**: PDF rendering uses WeasyPrint + Jinja2 templates with shared De Stijl CSS — zero additional dependencies
+- [ ] **DOCS-03**: Each document type maps room sections to document sections with correct accent colors and structure
+- [ ] **DOCS-04**: Exported PDFs include running headers/footers, page numbers, TOC (for multi-section docs), and bundled Bebas Neue font
+- [ ] **DOCS-05**: PWS Profile generation creates structured profiles from room data and methodology outputs (Bono, Domain Explorer, JTBD persona)
+
 ### Brain MCP Integration
 
 - [ ] **BRAN-01**: User can connect Brain MCP via `/mindrian-os:setup brain` (not in default config -- zero startup cost)
@@ -203,6 +211,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-03 | Phase 3.1 | Complete |
 | DASH-04 | Phase 3.1 | Complete |
 | DASH-05 | Phase 3.1 | Complete |
+| DOCS-01 | Phase 3.2 | Pending |
+| DOCS-02 | Phase 3.2 | Pending |
+| DOCS-03 | Phase 3.2 | Pending |
+| DOCS-04 | Phase 3.2 | Pending |
+| DOCS-05 | Phase 3.2 | Pending |
 | BRAN-01 | Phase 4 | Pending |
 | BRAN-02 | Phase 4 | Pending |
 | BRAN-03 | Phase 4 | Pending |
