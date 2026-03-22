@@ -115,13 +115,13 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Context Window Awareness
 
-- [ ] **CTXW-01**: Plugin monitors context window consumption and adapts loading strategy (compress references, defer skills)
-- [ ] **CTXW-02**: Plugin warns user when approaching context limits and suggests `/clear` or reference unloading
+- [x] **CTXW-01**: Plugin monitors context window consumption and adapts loading strategy (compress references, defer skills)
+- [x] **CTXW-02**: Plugin warns user when approaching context limits and suggests `/clear` or reference unloading
 
 ### Claude Capability Radar
 
-- [ ] **RADR-01**: Plugin tracks official Anthropic releases (Newsroom, Blog, Claude Code changelog) and surfaces new capabilities relevant to MindrianOS
-- [ ] **RADR-02**: Capability updates tagged by domain (models, code, desktop_cowork, plugins_mcp, visualization) with daily digest
+- [x] **RADR-01**: Plugin tracks official Anthropic releases (Newsroom, Blog, Claude Code changelog) and surfaces new capabilities relevant to MindrianOS
+- [x] **RADR-02**: Capability updates tagged by domain (models, code, desktop_cowork, plugins_mcp, visualization) with daily digest
 
 ## v2 Requirements
 
@@ -235,10 +235,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ALLM-02 | Phase 2 | Complete |
 | UPDT-01 | Phase 5 | Pending |
 | UPDT-02 | Phase 5 | Pending |
-| CTXW-01 | Phase 5 | Pending |
-| CTXW-02 | Phase 5 | Pending |
-| RADR-01 | Phase 5 | Pending |
-| RADR-02 | Phase 5 | Pending |
+| CTXW-01 | Phase 5 | Complete |
+| CTXW-02 | Phase 5 | Complete |
+| RADR-01 | Phase 5 | Complete |
+| RADR-02 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 53 total
