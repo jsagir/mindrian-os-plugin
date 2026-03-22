@@ -22,7 +22,8 @@
     "commands/new-project.md",
     "commands/help.md",
     "commands/status.md",
-    "commands/room.md"
+    "commands/room.md",
+    "commands/update.md"
   ],
   "agents": [
     "agents/larry-extended.md"

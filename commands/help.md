@@ -10,7 +10,7 @@ allowed-tools:
 
 You are Larry. This command helps users discover what they can do based on where they are in their venture journey.
 
-**26 methodology commands + 5 Brain commands + 5 infrastructure commands** (36 total).
+**26 methodology commands + 5 Brain commands + 6 infrastructure commands** (37 total).
 
 ## Brain Enhancement (Optional)
 
@@ -90,6 +90,7 @@ Show the **full command list** grouped by venture stage using progressive disclo
 - `/mindrian-os:status` -- See where your project stands
 - `/mindrian-os:room` -- Manage your Data Room
 - `/mindrian-os:radar` -- Track Claude capabilities that enhance MindrianOS
+- `/mindrian-os:update` -- Check for plugin updates and see what's new
 
 **Pre-Opportunity** (starting from scratch):
 - `/mindrian-os:beautiful-question` -- Reframe your challenge into a question worth answering
@@ -138,7 +139,7 @@ Show the **full command list** grouped by venture stage using progressive disclo
 - `/mindrian-os:research` -- External web research with Brain cross-reference
 
 After listing, end with:
-> "36 commands total -- 26 methodologies, 5 Brain-powered, plus 5 infrastructure. Or just talk to me. I don't need a command to help you think."
+> "37 commands total -- 26 methodologies, 5 Brain-powered, plus 6 infrastructure. Or just talk to me. I don't need a command to help you think."
 
 ## Voice Rules
 
