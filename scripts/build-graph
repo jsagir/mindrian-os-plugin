@@ -269,7 +269,7 @@ fi
 gaps_json=""
 while IFS= read -r line; do
   if [[ "$line" == GAP:* ]]; then
-    IFS=':' read -r _ gap_type gap_section confidence message <<< "$line"
+    IFS=':' read -r _ gap_type gap_section confidence message _ <<< "$line"
     gap="{ \"type\": \"$(json_escape "$gap_type")\", \"section\": \"$(json_escape "$gap_section")\", \"confidence\": \"$(json_escape "$confidence")\", \"message\": \"$(json_escape "$message")\" }"
     if [ -n "$gaps_json" ]; then
       gaps_json="${gaps_json}, ${gap}"
@@ -297,7 +297,7 @@ done <<< "$analyze_output"
 contradictions_json=""
 while IFS= read -r line; do
   if [[ "$line" == CONTRADICT:* ]]; then
-    IFS=':' read -r _ sec_a sec_b confidence message <<< "$line"
+    IFS=':' read -r _ sec_a sec_b confidence message _ <<< "$line"
     contra="{ \"section_a\": \"$(json_escape "$sec_a")\", \"section_b\": \"$(json_escape "$sec_b")\", \"confidence\": \"$(json_escape "$confidence")\", \"message\": \"$(json_escape "$message")\" }"
     if [ -n "$contradictions_json" ]; then
       contradictions_json="${contradictions_json}, ${contra}"

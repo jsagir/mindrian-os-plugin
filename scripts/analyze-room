@@ -87,7 +87,8 @@ for section in "${SECTIONS[@]}"; do
   elif [ "$count" -eq 1 ]; then
     # Single entry -- check for single-lens (one methodology)
     methodologies=$(get_methodologies "$section_dir")
-    method_count=$(echo "$methodologies" | grep -c '.' 2>/dev/null || echo 0)
+    method_count=$(echo "$methodologies" | grep -c '.' 2>/dev/null || true)
+    method_count=${method_count:-0}
     if [ "$method_count" -le 1 ] && [ -n "$methodologies" ]; then
       method_name=$(echo "$methodologies" | head -1)
       echo "GAP:SEMANTIC:${section}:MEDIUM:Only analyzed via ${method_name} -- consider additional perspectives"
@@ -95,7 +96,8 @@ for section in "${SECTIONS[@]}"; do
   else
     # Multiple entries -- check if all share same methodology
     methodologies=$(get_methodologies "$section_dir")
-    method_count=$(echo "$methodologies" | grep -c '.' 2>/dev/null || echo 0)
+    method_count=$(echo "$methodologies" | grep -c '.' 2>/dev/null || true)
+    method_count=${method_count:-0}
     if [ "$method_count" -le 1 ] && [ -n "$methodologies" ]; then
       method_name=$(echo "$methodologies" | head -1)
       echo "GAP:SEMANTIC:${section}:MEDIUM:Only analyzed via ${method_name} -- consider additional perspectives"
