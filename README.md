@@ -14,14 +14,6 @@ Most AI tools give you answers. MindrianOS gives you a thinking partner.
 
 Larry doesn't dump frameworks. He listens, reframes, challenges, and guides you through a structured methodology -- the Problem-Solving Workspace (PWS) -- developed over three decades of teaching entrepreneurs, engineers, and innovators how to navigate complex, undefined problems.
 
-The plugin builds on the Interpretable Context Methodology (ICM) introduced by Van Clief & McDermott (2026), which demonstrates that folder structure itself can serve as agentic architecture:
-
-> *"When orchestration can be expressed declaratively through folder hierarchy and markdown files, the file structure IS the routing table, the stage contracts, the state machine."*
->
-> -- Van Clief, J. & McDermott, D. (2026). "Interpretable Context Methodology: Folder Structure as Agentic Architecture." arXiv:2603.16021v2.
-
-In MindrianOS, your Data Room directory IS your venture state. Pipeline contracts ARE your workflow. Larry reads the room and responds accordingly. No state machine, no routing engine, no orchestration code -- the documentation is the code.
-
 ---
 
 ## Quick Start
@@ -29,7 +21,11 @@ In MindrianOS, your Data Room directory IS your venture state. Pipeline contract
 ### Install
 
 ```bash
-claude plugin install mindrian-os
+# Add the MindrianOS marketplace
+claude plugin marketplace add jsagir/mindrian-os-plugin
+
+# Install the plugin
+claude plugin install mindrian-os@mindrian-os-plugin
 ```
 
 ### Start
