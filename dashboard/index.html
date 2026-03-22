@@ -231,7 +231,7 @@
       font-size: 12px;
     }
 
-    /* ── Chat Panel Placeholder ── */
+    /* ── Chat Panel ── */
     .chat-panel {
       position: fixed;
       bottom: 0;
@@ -241,14 +241,124 @@
       background: var(--ds-surface);
       border-top: 1px solid var(--ds-border);
       display: flex;
-      align-items: center;
+    }
+
+    .chat-left {
+      flex: 7;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 12px;
+      max-height: 120px;
+    }
+
+    .chat-msg {
+      padding: 6px 8px;
+      margin-bottom: 4px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .chat-msg.user {
+      color: var(--ds-cream);
+      background: var(--ds-bg);
+    }
+
+    .chat-msg.bot {
+      color: var(--ds-muted);
+      background: var(--ds-elevated);
+      border-left: 3px solid var(--ds-yellow);
+    }
+
+    .chat-msg .confidence-high {
+      color: var(--ds-red);
+      font-weight: 600;
+    }
+
+    .chat-msg .confidence-medium {
+      color: var(--ds-yellow);
+      font-weight: 600;
+    }
+
+    .chat-input-bar {
+      display: flex;
+      padding: 8px 12px;
+      gap: 0;
+      border-top: 1px solid rgba(245,240,232,0.1);
+    }
+
+    .chat-input {
+      flex: 1;
+      height: 40px;
+      background: var(--ds-elevated);
+      color: var(--ds-cream);
+      border: 1px solid var(--ds-border);
+      border-radius: 0;
+      padding: 0 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .chat-input::placeholder {
+      color: var(--ds-muted);
+    }
+
+    .chat-input:focus {
+      border-color: var(--ds-muted);
+    }
+
+    .chat-send {
+      height: 40px;
+      padding: 0 16px;
+      background: var(--ds-elevated);
+      color: var(--ds-cream);
+      border: 1px solid var(--ds-border);
+      border-left: none;
+      border-radius: 0;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 16px;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: background 150ms ease;
+    }
+
+    .chat-send:hover {
+      background: var(--ds-red);
+    }
+
+    .chat-right {
+      flex: 3;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 10px 12px;
+      border-left: 1px solid rgba(245,240,232,0.1);
       justify-content: center;
     }
 
-    .chat-placeholder {
+    .chat-quick-btn {
+      background: var(--ds-elevated);
+      color: var(--ds-cream);
+      border: 1px solid var(--ds-border);
+      border-radius: 0;
+      padding: 8px 12px;
       font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      color: var(--ds-muted);
+      font-size: 11px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 150ms ease, border-color 150ms ease;
+    }
+
+    .chat-quick-btn:hover {
+      background: var(--ds-surface);
+      border-color: var(--ds-muted);
     }
 
     /* ── Status Indicators (6px squares) ── */
@@ -321,9 +431,21 @@
     <div id="detail-fields"></div>
   </div>
 
-  <!-- Chat Panel Placeholder -->
+  <!-- Chat Intelligence Panel -->
   <div class="chat-panel">
-    <span class="chat-placeholder">Chat intelligence loading in next update...</span>
+    <div class="chat-left">
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-bar">
+        <input type="text" class="chat-input" id="chat-input" placeholder="Ask about your room..." />
+        <button class="chat-send" id="chat-send">ASK</button>
+      </div>
+    </div>
+    <div class="chat-right">
+      <button class="chat-quick-btn" data-query="what gaps do I have?">Gaps</button>
+      <button class="chat-quick-btn" data-query="show contradictions">Conflicts</button>
+      <button class="chat-quick-btn" data-query="convergence themes">Themes</button>
+      <button class="chat-quick-btn" data-query="room overview">Summary</button>
+    </div>
   </div>
 
   <script>
@@ -607,6 +729,180 @@
           document.getElementById('empty-state').classList.add('visible');
         });
     }
+
+    // ── Chat Intelligence ──
+    let isFirstResponse = true;
+
+    function handleChatQuery(query, intelligence) {
+      if (!intelligence) {
+        return 'Loading room intelligence... Try refreshing.';
+      }
+
+      const q = query.toLowerCase();
+      let prefix = '';
+      if (isFirstResponse) {
+        prefix = "<strong>Here's what I see in your room...</strong><br><br>";
+        isFirstResponse = false;
+      }
+
+      // 1. Gap queries
+      if (/gap|missing|empty|need/i.test(q)) {
+        const gaps = intelligence.gaps || [];
+        if (gaps.length === 0) {
+          return prefix + 'No gaps detected -- your room coverage is strong.';
+        }
+        let lines = gaps.map(function(g) {
+          var conf = formatConfidence(g.confidence);
+          return conf + ' <strong>' + escapeHTML(g.section) + '</strong>: ' + escapeHTML(g.message);
+        });
+        return prefix + lines.join('<br>');
+      }
+
+      // 2. Contradiction queries
+      if (/contradict|conflict|mismatch|inconsisten/i.test(q)) {
+        var contras = intelligence.contradictions || [];
+        if (contras.length === 0) {
+          return prefix + 'No contradictions found between sections.';
+        }
+        var lines = contras.map(function(c) {
+          return '<strong>' + escapeHTML(c.section_a) + '</strong> vs <strong>' + escapeHTML(c.section_b) + '</strong>: ' + escapeHTML(c.message) + ' (' + formatConfidence(c.confidence) + ')';
+        });
+        return prefix + lines.join('<br>');
+      }
+
+      // 3. Convergence queries
+      if (/converg|theme|pattern|common|shared/i.test(q)) {
+        var conv = intelligence.convergence || [];
+        if (conv.length === 0) {
+          return prefix + 'No convergence patterns yet -- add more artifacts to build connections.';
+        }
+        var lines = conv.map(function(c) {
+          return '<strong>' + escapeHTML(c.term) + '</strong> appears across ' + c.count + ' sections';
+        });
+        return prefix + lines.join('<br>');
+      }
+
+      // 4. Summary queries
+      if (/summar|overview|status|how.*(doing|look|room)/i.test(q)) {
+        var s = intelligence.summary || {};
+        var line = 'Room: <strong>' + (s.total_artifacts || 0) + '</strong> artifacts across <strong>' + (s.sections_active || 0) + '</strong> sections (' + (s.sections_empty || 0) + ' empty). Stage: <strong>' + escapeHTML(s.venture_stage || 'Unknown') + '</strong>.';
+        return prefix + line;
+      }
+
+      // 5. Section-specific queries
+      var sectionMatch = matchSection(q);
+      if (sectionMatch) {
+        return prefix + formatSectionInfo(sectionMatch);
+      }
+
+      // 6. Edge/pipeline queries
+      if (/feeds|chain|pipeline|flow/i.test(q)) {
+        return prefix + formatPipelineInfo();
+      }
+
+      // 7. Fallback
+      return prefix + 'I can answer about gaps, contradictions, convergence themes, and section status. For deeper AI analysis, use <strong>/mindrian-os:room</strong> in your Claude session.';
+    }
+
+    function formatConfidence(level) {
+      if (level === 'HIGH') {
+        return '<span class="confidence-high">[HIGH]</span>';
+      }
+      if (level === 'MEDIUM') {
+        return '<span class="confidence-medium">[MEDIUM]</span>';
+      }
+      return '[' + escapeHTML(level || 'LOW') + ']';
+    }
+
+    function matchSection(query) {
+      if (!cy) return null;
+      var sectionNodes = cy.nodes('.section-group');
+      var best = null;
+      sectionNodes.forEach(function(node) {
+        var sectionId = node.data('id') || '';
+        var label = (node.data('label') || '').toLowerCase();
+        var words = sectionId.replace(/-/g, ' ').split(' ');
+        words.forEach(function(w) {
+          if (w.length > 3 && query.indexOf(w) !== -1) {
+            best = node;
+          }
+        });
+        if (query.indexOf(label.toLowerCase()) !== -1) {
+          best = node;
+        }
+      });
+      return best;
+    }
+
+    function formatSectionInfo(sectionNode) {
+      var id = sectionNode.data('id');
+      var label = sectionNode.data('label') || id;
+      var color = sectionNode.data('color') || '#5C5A56';
+      var artifacts = cy.nodes('.artifact').filter(function(n) {
+        return n.data('section') === id;
+      });
+      if (artifacts.length === 0) {
+        return '<strong>' + escapeHTML(label) + '</strong>: No artifacts yet. This section is empty.';
+      }
+      var names = [];
+      artifacts.forEach(function(n) { names.push(escapeHTML(n.data('label') || n.data('id'))); });
+      return '<strong>' + escapeHTML(label) + '</strong>: ' + artifacts.length + ' artifact(s) -- ' + names.join(', ');
+    }
+
+    function formatPipelineInfo() {
+      if (!cy) return 'No graph data loaded.';
+      var feedEdges = cy.edges('.feeds-into');
+      if (feedEdges.length === 0) {
+        return 'No pipeline connections found yet.';
+      }
+      var lines = [];
+      feedEdges.forEach(function(e) {
+        var src = e.source().data('label') || e.source().data('id');
+        var tgt = e.target().data('label') || e.target().data('id');
+        lines.push(escapeHTML(src) + ' -> ' + escapeHTML(tgt));
+      });
+      return '<strong>Pipeline flow:</strong><br>' + lines.join('<br>');
+    }
+
+    function addChatMessage(text, type) {
+      var container = document.getElementById('chat-messages');
+      var div = document.createElement('div');
+      div.className = 'chat-msg ' + type;
+      if (type === 'user') {
+        div.textContent = text;
+      } else {
+        div.innerHTML = text;
+      }
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function submitChat() {
+      var input = document.getElementById('chat-input');
+      var query = input.value.trim();
+      if (!query) return;
+
+      addChatMessage(query, 'user');
+      input.value = '';
+
+      var response = handleChatQuery(query, window.__roomIntelligence);
+      addChatMessage(response, 'bot');
+    }
+
+    // ── Chat event listeners ──
+    document.getElementById('chat-send').addEventListener('click', submitChat);
+    document.getElementById('chat-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { submitChat(); }
+    });
+
+    // Quick-action buttons
+    document.querySelectorAll('.chat-quick-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var query = btn.getAttribute('data-query');
+        document.getElementById('chat-input').value = query;
+        submitChat();
+      });
+    });
 
     // ── Boot ──
     loadGraph();
