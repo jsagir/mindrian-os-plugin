@@ -51,10 +51,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Pipeline Chaining
 
-- [ ] **PIPE-01**: Pipeline stage contracts (numbered markdown files) define multi-step methodology workflows
-- [ ] **PIPE-02**: Output of one pipeline becomes structured input to the next (Week 7 chaining pattern) -- e.g., Domain Explorer sub-domains feed into Bono hat perspectives
-- [ ] **PIPE-03**: User can run at least 2-3 key pipeline sequences end-to-end (Domain Explorer to Bono to JTBD, Minto to Devil's Advocate to Investment Thesis)
-- [ ] **PIPE-04**: Pipeline execution produces inspectable artifacts at each stage filed to Room sections
+- [x] **PIPE-01**: Pipeline stage contracts (numbered markdown files) define multi-step methodology workflows
+- [x] **PIPE-02**: Output of one pipeline becomes structured input to the next (Week 7 chaining pattern) -- e.g., Domain Explorer sub-domains feed into Bono hat perspectives
+- [x] **PIPE-03**: User can run at least 2-3 key pipeline sequences end-to-end (Domain Explorer to Bono to JTBD, Minto to Devil's Advocate to Investment Thesis)
+- [x] **PIPE-04**: Pipeline execution produces inspectable artifacts at each stage filed to Room sections
 
 ### Proactive Room Intelligence
 
@@ -182,10 +182,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PASS-01 | Phase 2 | Complete |
 | PASS-02 | Phase 2 | Complete |
 | PASS-03 | Phase 2 | Complete |
-| PIPE-01 | Phase 3 | Pending |
-| PIPE-02 | Phase 3 | Pending |
-| PIPE-03 | Phase 3 | Pending |
-| PIPE-04 | Phase 3 | Pending |
+| PIPE-01 | Phase 3 | Complete |
+| PIPE-02 | Phase 3 | Complete |
+| PIPE-03 | Phase 3 | Complete |
+| PIPE-04 | Phase 3 | Complete |
 | PROA-01 | Phase 3 | Complete |
 | PROA-02 | Phase 3 | Complete |
 | PROA-03 | Phase 3 | Complete |
