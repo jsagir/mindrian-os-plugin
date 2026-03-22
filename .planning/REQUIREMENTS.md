@@ -37,11 +37,11 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **METH-03**: User can invoke Bono Six Hats methodology via slash command to explore perspectives
 - [ ] **METH-04**: User can invoke JTBD (Jobs to Be Done) methodology via slash command to identify customer needs
 - [ ] **METH-05**: User can invoke Devil's Advocate methodology via slash command to challenge assumptions
-- [ ] **METH-06**: User can invoke HSI (Holistic Scoring Index) methodology via slash command to evaluate ventures
+- [x] **METH-06**: User can invoke HSI (Holistic Scoring Index) methodology via slash command to evaluate ventures
 - [ ] **METH-07**: User can invoke Investment Thesis methodology via slash command to build investment cases
 - [ ] **METH-08**: User can invoke Lean Canvas methodology via slash command to map business models
-- [ ] **METH-09**: Each methodology command produces structured markdown artifacts filed to the appropriate Data Room section
-- [ ] **METH-10**: Each methodology has a thin skill file (under 300 tokens) with on-demand reference loading from references/ directory
+- [x] **METH-09**: Each methodology command produces structured markdown artifacts filed to the appropriate Data Room section
+- [x] **METH-10**: Each methodology has a thin skill file (under 300 tokens) with on-demand reference loading from references/ directory
 
 ### Passive Room Intelligence
 
@@ -84,8 +84,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### All 25 Methodologies
 
-- [ ] **ALLM-01**: All 25 methodology bots from V2 are available as slash commands (remaining 17 beyond the core 8)
-- [ ] **ALLM-02**: Each additional methodology follows the same thin skill + reference + pipeline pattern established in core 8
+- [x] **ALLM-01**: All 25 methodology bots from V2 are available as slash commands (remaining 17 beyond the core 8)
+- [x] **ALLM-02**: Each additional methodology follows the same thin skill + reference + pipeline pattern established in core 8
 
 ### Plugin Self-Update
 
@@ -174,11 +174,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | METH-03 | Phase 2 | Pending |
 | METH-04 | Phase 2 | Pending |
 | METH-05 | Phase 2 | Pending |
-| METH-06 | Phase 2 | Pending |
+| METH-06 | Phase 2 | Complete |
 | METH-07 | Phase 2 | Pending |
 | METH-08 | Phase 2 | Pending |
-| METH-09 | Phase 2 | Pending |
-| METH-10 | Phase 2 | Pending |
+| METH-09 | Phase 2 | Complete |
+| METH-10 | Phase 2 | Complete |
 | PASS-01 | Phase 2 | Pending |
 | PASS-02 | Phase 2 | Pending |
 | PASS-03 | Phase 2 | Pending |
@@ -195,8 +195,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BRAN-03 | Phase 4 | Pending |
 | BRAN-04 | Phase 4 | Pending |
 | BRAN-05 | Phase 4 | Pending |
-| ALLM-01 | Phase 2 | Pending |
-| ALLM-02 | Phase 2 | Pending |
+| ALLM-01 | Phase 2 | Complete |
+| ALLM-02 | Phase 2 | Complete |
 | UPDT-01 | Phase 5 | Pending |
 | UPDT-02 | Phase 5 | Pending |
 | CTXW-01 | Phase 5 | Pending |
