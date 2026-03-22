@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-01-PLAN.md (Pipeline Chaining)
-last_updated: "2026-03-22T06:24:31.759Z"
-last_activity: 2026-03-22 -- Completed 03-01 Pipeline Chaining (2 chains, 10 files)
+stopped_at: Completed 03.1-01-PLAN.md
+last_updated: "2026-03-22T08:07:20.377Z"
+last_activity: 2026-03-22 -- Completed 03.1-01 Graph Pipeline + De Stijl Dashboard (2 tasks, 4 files)
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 3
-  total_plans: 10
-  completed_plans: 10
-  percent: 90
+  total_plans: 12
+  completed_plans: 11
+  percent: 92
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Users can run the full PWS methodology inside Claude Code with zero infrastructure -- Larry guides them through venture innovation with a persistent Data Room and optional Brain enrichment.
-**Current focus:** Phase 3: Pipeline Chaining and Proactive Intelligence
+**Current focus:** Phase 3.1: Data Room Dashboard -- De Stijl viewer with knowledge graph and chat
 
 ## Current Position
 
-Phase: 3 of 5 (Pipeline Chaining and Proactive Intelligence) -- IN PROGRESS
-Plan: 1 of 2 in current phase (03-01 complete, 03-02 pending)
+Phase: 3.1 of 5 (Data Room Dashboard) -- IN PROGRESS
+Plan: 1 of 2 in current phase (03.1-01 complete, 03.1-02 pending)
 Status: In Progress
-Last activity: 2026-03-22 -- Completed 03-01 Pipeline Chaining (2 chains, 10 files)
+Last activity: 2026-03-22 -- Completed 03.1-01 Graph Pipeline + De Stijl Dashboard (2 tasks, 4 files)
 
-Progress: [█████████░] 90%
+Progress: [█████████░] 92%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [█████████░] 90%
 | Phase 02 P04 | 5min | 2 tasks | 8 files |
 | Phase 03 P02 | 2min | 2 tasks | 4 files |
 | Phase 03 P01 | 3min | 2 tasks | 10 files |
+| Phase 03.1 P01 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -94,6 +95,13 @@ Recent decisions affecting current work:
 - [Phase 03]: Two-layer proactive: bash structural detection + Claude semantic interpretation
 - [Phase 03]: Noise gate: max 2 HIGH-confidence findings in SessionStart greeting, venture stage filtering
 - [Phase 03-01]: Stage contracts wrap methodologies with input/output context -- never modify methodology commands
+- [Phase 03.1-01]: CoSE layout for 13+ nodes, grid for fewer -- prevents node overlap with small graphs
+- [Phase 03.1-01]: graph.json served separately via fetch -- allows refresh without regenerating HTML
+- [Phase 03.1-01]: Intelligence stored in window.__roomIntelligence for Plan 02 chat consumption
+
+### Roadmap Evolution
+
+- Phase 3.1 inserted after Phase 3: Data Room Dashboard — localhost De Stijl viewer with knowledge graph and chat (URGENT — critical path, visual front door to the project)
 
 ### Pending Todos
 
@@ -109,6 +117,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-22T06:18:03.000Z
-Stopped at: Completed 03-01-PLAN.md (Pipeline Chaining)
+Last session: 2026-03-22T08:07:20.374Z
+Stopped at: Completed 03.1-01-PLAN.md
 Resume file: None
