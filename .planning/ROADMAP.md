@@ -47,7 +47,7 @@ Plans:
   3. PostToolUse hook auto-classifies insights via hybrid pattern (hook keyword match + room-passive skill for uncertain cases), user confirms before filing
   4. Each methodology uses thin skill + on-demand reference loading pattern, with problem type classification (un/ill/well-defined + wicked) driving routing
   5. PWS Grading command provides basic assessment using static rubric from references/
-**Plans:** 3/5 plans executed
+**Plans:** 4/5 plans executed
 
 Plans:
 - [ ] 02-01-PLAN.md -- Pattern foundation: problem-types reference, updated routing index, Tier 1-2 batch (7 simplest commands)
@@ -108,7 +108,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Install and Larry Talks | 3/3 | Complete   | 2026-03-20 |
-| 2. Core Methodologies | 3/5 | In Progress|  |
+| 2. Core Methodologies | 4/5 | In Progress|  |
 | 3. Pipeline Chaining and Proactive Intelligence | 0/2 | Not started | - |
 | 4. Brain MCP Integration | 0/1 | Not started | - |
 | 5. Plugin Intelligence Infrastructure | 0/3 | Not started | - |

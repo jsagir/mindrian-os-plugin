@@ -38,7 +38,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **METH-04**: User can invoke JTBD (Jobs to Be Done) methodology via slash command to identify customer needs
 - [ ] **METH-05**: User can invoke Devil's Advocate methodology via slash command to challenge assumptions
 - [x] **METH-06**: User can invoke HSI (Holistic Scoring Index) methodology via slash command to evaluate ventures
-- [ ] **METH-07**: User can invoke Investment Thesis methodology via slash command to build investment cases
+- [x] **METH-07**: User can invoke Investment Thesis methodology via slash command to build investment cases
 - [ ] **METH-08**: User can invoke Lean Canvas methodology via slash command to map business models
 - [x] **METH-09**: Each methodology command produces structured markdown artifacts filed to the appropriate Data Room section
 - [x] **METH-10**: Each methodology has a thin skill file (under 300 tokens) with on-demand reference loading from references/ directory
@@ -175,7 +175,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | METH-04 | Phase 2 | Complete |
 | METH-05 | Phase 2 | Pending |
 | METH-06 | Phase 2 | Complete |
-| METH-07 | Phase 2 | Pending |
+| METH-07 | Phase 2 | Complete |
 | METH-08 | Phase 2 | Pending |
 | METH-09 | Phase 2 | Complete |
 | METH-10 | Phase 2 | Complete |

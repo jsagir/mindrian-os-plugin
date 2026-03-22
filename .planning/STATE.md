@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-02-PLAN.md (Tier 3 core methodology commands)
-last_updated: "2026-03-22T04:59:50.941Z"
-last_activity: 2026-03-22 -- Completed 02-03 Tier 4 methodology commands
+stopped_at: Completed 02-04-PLAN.md (Tier 5 special methodology commands)
+last_updated: "2026-03-22T05:09:02.668Z"
+last_activity: 2026-03-22 -- Completed 02-04 Tier 5 special methodology commands (Phase 2 complete)
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 8
-  completed_plans: 6
-  percent: 63
+  completed_plans: 7
+  percent: 88
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 2 of 5 (Core Methodologies)
-Plan: 3 of 3 in current phase
+Phase: 2 of 5 (Core Methodologies) -- COMPLETE
+Plan: 4 of 4 in current phase (all complete)
 Status: Executing
-Last activity: 2026-03-22 -- Completed 02-03 Tier 4 methodology commands
+Last activity: 2026-03-22 -- Completed 02-04 Tier 5 special methodology commands (Phase 2 complete)
 
-Progress: [██████░░░░] 63%
+Progress: [█████████░] 88%
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Progress: [██████░░░░] 63%
 | Phase 01-03 P03 | 4min | 3 tasks | 4 files |
 | Phase 02 P03 | 7min | 2 tasks | 14 files |
 | Phase 02 P02 | 7min | 2 tasks | 16 files |
+| Phase 02 P04 | 5min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,9 @@ Recent decisions affecting current work:
 - [Phase 02]: explore-futures synthesizes TTA + Scenario + S-Curve as layered lenses, not three separate workshops
 - [Phase 02-02]: All 8 V2 prompts ported with strip/keep rules: removed File Search, JSON, temperature; kept phases, voice, anti-patterns, homework
 - [Phase 02-02]: Ackoff supports climb up/down directions; S-Curve has 6 phases; Reverse Salient includes honest failure protocol
+- [Phase 02-04]: Gate threshold 6/10 for Investment Thesis (V2 used 8/10 -- lowered for educational context)
+- [Phase 02-04]: HSI is conversational only for Tier 0 -- Brain MCP upgrade path documented for quantitative BERT/LSA
+- [Phase 02-04]: Diagnose never announces classification labels -- describes problem type in plain language
 
 ### Pending Todos
 
@@ -95,6 +99,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-22T04:59:50.938Z
-Stopped at: Completed 02-02-PLAN.md (Tier 3 core methodology commands)
+Last session: 2026-03-22T05:09:02.663Z
+Stopped at: Completed 02-04-PLAN.md (Tier 5 special methodology commands)
 Resume file: None
