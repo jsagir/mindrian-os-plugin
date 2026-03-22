@@ -73,6 +73,20 @@ if [ -d "$ROOM_DIR" ]; then
     context="${context}\n\n${CTX_BUDGET}"
   fi
 
+  # Track session analytics
+  bash "${SCRIPT_DIR}/track-analytics" session-start 2>/dev/null &
+
+  # Generate learnings from usage patterns
+  bash "${SCRIPT_DIR}/learn-from-usage" 2>/dev/null
+
+  # Load learnings if available
+  if [ -f "${ROOM_DIR}/.learnings.md" ]; then
+    learnings=$(cat "${ROOM_DIR}/.learnings.md" 2>/dev/null || true)
+    if [ -n "$learnings" ]; then
+      context="${context}\n\n## Usage Learnings (adapt your behavior accordingly)\n${learnings}"
+    fi
+  fi
+
   # Add venture stage and suggested action from state
   context="${context}\n\nYou are Larry. The user has an active Data Room. Greet them with awareness of where they left off and suggest what to work on next based on the gaps above."
 else

@@ -256,6 +256,29 @@ ICM's core insight -- that filesystem hierarchy can replace traditional orchestr
 
 ---
 
+## Learning System
+
+MindrianOS learns from how you use it. Every session, it analyzes your usage patterns and adapts:
+
+- **Framework preferences** -- which methodologies you gravitate toward and which you avoid
+- **Section imbalances** -- where you over-invest and where blind spots form
+- **Stage velocity** -- how quickly you move through venture stages
+- **Engagement depth** -- session frequency, pipeline adoption, export usage
+
+These learnings are stored locally in `room/.learnings.md` and fed to Larry at each session start. Larry adapts his suggestions, recommendations, and framework choices based on YOUR actual behavior -- not generic advice.
+
+All analytics stay on your machine. You can delete `room/.analytics.json` and `room/.learnings.md` anytime.
+
+---
+
+## Links
+
+- [PWS at Johns Hopkins](https://www.linkedin.com/company/problem-solving-workspace/) -- Problem-Solving Workspace LinkedIn
+- [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/) -- Creator of MindrianOS
+- [mindrian.ai](https://mindrian.ai) -- Mindrian homepage
+
+---
+
 ## License
 
 Proprietary. Copyright Jonathan Sagir / Mindrian.

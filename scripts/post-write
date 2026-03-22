@@ -12,5 +12,14 @@ if [[ -z "$FILE_PATH" ]]; then
   exit 0
 fi
 
+# Track artifact creation if in room/
+if [[ "$FILE_PATH" == */room/* ]]; then
+  # Extract section name from path
+  section=$(echo "$FILE_PATH" | grep -oP 'room/\K[^/]+' || true)
+  if [ -n "$section" ]; then
+    bash "${SCRIPT_DIR}/track-analytics" artifact "$section" 2>/dev/null &
+  fi
+fi
+
 # Run classification on the written file
 exec bash "${SCRIPT_DIR}/classify-insight" "$FILE_PATH"

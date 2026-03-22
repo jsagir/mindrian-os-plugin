@@ -1,0 +1,168 @@
+#!/usr/bin/env bash
+# learn-from-usage -- Analyze analytics and generate learning insights
+# Called by SessionStart to give Larry actionable intelligence about THIS user
+#
+# Reads: room/.analytics.json
+# Writes: room/.learnings.md (consumed by Larry via room-passive skill)
+#
+# Learning patterns:
+# 1. Framework preferences -- which commands this user loves/avoids
+# 2. Venture stage velocity -- how fast they progress through stages
+# 3. Section imbalances -- which rooms they over/under-invest in
+# 4. Pipeline adoption -- do they use structured chains or ad-hoc?
+# 5. Session patterns -- frequency, model choice, engagement depth
+
+ROOM_DIR=""
+if [ -d "./room" ]; then
+  ROOM_DIR="./room"
+elif [ -d "${PWD}/room" ]; then
+  ROOM_DIR="${PWD}/room"
+else
+  exit 0
+fi
+
+ANALYTICS_FILE="${ROOM_DIR}/.analytics.json"
+LEARNINGS_FILE="${ROOM_DIR}/.learnings.md"
+
+if [ ! -f "$ANALYTICS_FILE" ]; then
+  exit 0
+fi
+
+python3 << 'PYEOF'
+import json, os, sys
+from datetime import datetime, timedelta
+
+analytics_file = os.environ.get("ANALYTICS_FILE", "room/.analytics.json")
+learnings_file = os.environ.get("LEARNINGS_FILE", "room/.learnings.md")
+
+# Allow env override for testing
+if "ROOM_DIR" in os.environ:
+    analytics_file = os.path.join(os.environ["ROOM_DIR"], ".analytics.json")
+    learnings_file = os.path.join(os.environ["ROOM_DIR"], ".learnings.md")
+
+try:
+    with open(analytics_file, 'r') as f:
+        data = json.load(f)
+except:
+    sys.exit(0)
+
+sessions = data.get("total_sessions", 0)
+if sessions < 3:
+    # Not enough data to learn from
+    sys.exit(0)
+
+learnings = []
+suggestions = []
+
+# ── 1. Framework Preferences ──
+commands = data.get("commands", {})
+if commands:
+    sorted_cmds = sorted(commands.items(), key=lambda x: x[1], reverse=True)
+    top_3 = sorted_cmds[:3]
+    bottom_used = [c for c, n in sorted_cmds if n == 1]
+
+    if top_3:
+        names = ", ".join(f"{c} ({n}x)" for c, n in top_3)
+        learnings.append(f"**Most-used frameworks:** {names}")
+
+    # Detect framework clusters
+    problem_cmds = {"beautiful-question", "map-unknowns", "explore-domains", "diagnose", "root-cause", "build-knowledge"}
+    market_cmds = {"analyze-needs", "explore-trends", "analyze-timing", "macro-trends", "user-needs", "explore-futures"}
+    challenge_cmds = {"challenge-assumptions", "validate", "find-bottlenecks", "dominant-designs", "think-hats"}
+    solution_cmds = {"structure-argument", "scenario-plan", "analyze-systems", "systems-thinking", "lean-canvas", "leadership"}
+    invest_cmds = {"grade", "build-thesis", "score-innovation"}
+
+    used_set = set(commands.keys())
+    cluster_usage = {
+        "Problem Definition": len(used_set & problem_cmds),
+        "Market Analysis": len(used_set & market_cmds),
+        "Challenge/Validation": len(used_set & challenge_cmds),
+        "Solution Design": len(used_set & solution_cmds),
+        "Investment": len(used_set & invest_cmds),
+    }
+
+    strongest = max(cluster_usage, key=cluster_usage.get)
+    weakest = min(cluster_usage, key=cluster_usage.get)
+
+    if cluster_usage[strongest] > 0:
+        learnings.append(f"**Strongest cluster:** {strongest} ({cluster_usage[strongest]} frameworks used)")
+    if cluster_usage[weakest] == 0 and sessions > 5:
+        suggestions.append(f"User hasn't explored any {weakest} frameworks yet -- Larry should gently suggest one")
+    elif cluster_usage[weakest] < cluster_usage[strongest] - 2:
+        suggestions.append(f"{weakest} is underexplored compared to {strongest} -- potential blind spot")
+
+# ── 2. Section Imbalances ──
+sections = data.get("sections_touched", {})
+if sections:
+    all_sections = ["problem-definition", "market-analysis", "solution-design", "business-model",
+                    "competitive-analysis", "team-execution", "legal-ip", "financial-model"]
+    empty_sections = [s for s in all_sections if s not in sections]
+    heavy_sections = [(s, n) for s, n in sections.items() if n >= 5]
+
+    if empty_sections and sessions > 5:
+        suggestions.append(f"Empty rooms: {', '.join(empty_sections)} -- consider guiding user there")
+    if heavy_sections:
+        names = ", ".join(f"{s} ({n} artifacts)" for s, n in heavy_sections)
+        learnings.append(f"**Heavy investment:** {names}")
+
+# ── 3. Pipeline Adoption ──
+total_pipelines = data.get("total_pipelines", 0)
+total_artifacts = data.get("total_artifacts", 0)
+if total_artifacts > 10 and total_pipelines == 0:
+    suggestions.append("User creates many artifacts but never uses pipelines -- suggest `/mindrian-os:pipeline` for structured chains")
+elif total_pipelines > 0:
+    learnings.append(f"**Pipeline user:** {total_pipelines} pipeline runs ({data.get('pipeline_runs', {})})")
+
+# ── 4. Session Patterns ──
+daily = data.get("daily_sessions", {})
+if len(daily) >= 3:
+    dates = sorted(daily.keys())
+    recent_7 = [d for d in dates if d >= (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")]
+    if len(recent_7) >= 5:
+        learnings.append("**High engagement:** 5+ sessions in the last 7 days")
+    elif len(recent_7) == 0 and len(dates) > 0:
+        last_date = dates[-1]
+        suggestions.append(f"User hasn't been active since {last_date} -- Larry should welcome them back warmly")
+
+# ── 5. Model Distribution ──
+models = data.get("models_used", {})
+if models:
+    primary = max(models, key=models.get)
+    learnings.append(f"**Primary model:** {primary} ({models[primary]} sessions)")
+
+# ── 6. Export Engagement ──
+total_exports = data.get("total_exports", 0)
+if total_exports > 0:
+    learnings.append(f"**Exports generated:** {total_exports} ({data.get('export_types', {})})")
+elif sessions > 10 and total_artifacts > 5:
+    suggestions.append("User has enough content to export but hasn't yet -- suggest `/mindrian-os:export`")
+
+# ── 7. Brain Usage ──
+brain_queries = data.get("total_brain_queries", 0)
+if brain_queries > 0:
+    learnings.append(f"**Brain queries:** {brain_queries}")
+
+# ── Write learnings file ──
+if not learnings and not suggestions:
+    sys.exit(0)
+
+output = "# Usage Learnings\n\n"
+output += f"*Auto-generated from {sessions} sessions. Updated each session start.*\n\n"
+
+if learnings:
+    output += "## What We Know About This User\n\n"
+    for l in learnings:
+        output += f"- {l}\n"
+    output += "\n"
+
+if suggestions:
+    output += "## Suggestions for Larry\n\n"
+    for s in suggestions:
+        output += f"- {s}\n"
+    output += "\n"
+
+output += "---\n*This file is read by Larry to personalize the experience. User can delete it anytime.*\n"
+
+with open(learnings_file, 'w') as f:
+    f.write(output)
+PYEOF

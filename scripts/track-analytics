@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+# track-analytics -- Local analytics tracking for MindrianOS
+# Called by hooks to record usage events to room/.analytics.json
+#
+# Usage: track-analytics <event-type> [event-data]
+# Events:
+#   session-start              -- New session opened
+#   session-stop               -- Session ended
+#   command <command-name>      -- Command invoked
+#   artifact <room-section>    -- Artifact filed to room
+#   pipeline <pipeline-name>   -- Pipeline executed
+#   export <doc-type>          -- PDF exported
+#   brain-query                -- Brain MCP query made
+#
+# Analytics file: room/.analytics.json (local, user-owned)
+# Telemetry file: room/.telemetry-consent (opt-in flag)
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PLUGIN_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Find room directory
+ROOM_DIR=""
+if [ -d "./room" ]; then
+  ROOM_DIR="./room"
+elif [ -d "${PWD}/room" ]; then
+  ROOM_DIR="${PWD}/room"
+else
+  # No room yet -- skip tracking
+  exit 0
+fi
+
+ANALYTICS_FILE="${ROOM_DIR}/.analytics.json"
+EVENT_TYPE="${1:-}"
+EVENT_DATA="${2:-}"
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+TODAY=$(date -u +"%Y-%m-%d")
+
+# Ensure analytics file exists with default structure
+if [ ! -f "$ANALYTICS_FILE" ]; then
+  cat > "$ANALYTICS_FILE" << 'INIT'
+{
+  "version": "1.0",
+  "first_session": null,
+  "last_session": null,
+  "total_sessions": 0,
+  "total_artifacts": 0,
+  "total_exports": 0,
+  "total_pipelines": 0,
+  "total_brain_queries": 0,
+  "commands": {},
+  "daily_sessions": {},
+  "sections_touched": {},
+  "models_used": {},
+  "pipeline_runs": {},
+  "export_types": {}
+}
+INIT
+fi
+
+# Use Python for reliable JSON manipulation (jq not always available)
+python3 << PYEOF
+import json, sys, os
+
+analytics_file = "${ANALYTICS_FILE}"
+event_type = "${EVENT_TYPE}"
+event_data = "${EVENT_DATA}"
+timestamp = "${TIMESTAMP}"
+today = "${TODAY}"
+
+try:
+    with open(analytics_file, 'r') as f:
+        data = json.load(f)
+except (json.JSONDecodeError, FileNotFoundError):
+    data = {
+        "version": "1.0",
+        "first_session": None,
+        "last_session": None,
+        "total_sessions": 0,
+        "total_artifacts": 0,
+        "total_exports": 0,
+        "total_pipelines": 0,
+        "total_brain_queries": 0,
+        "commands": {},
+        "daily_sessions": {},
+        "sections_touched": {},
+        "models_used": {},
+        "pipeline_runs": {},
+        "export_types": {}
+    }
+
+if event_type == "session-start":
+    if data["first_session"] is None:
+        data["first_session"] = today
+    data["last_session"] = today
+    data["total_sessions"] = data.get("total_sessions", 0) + 1
+    daily = data.get("daily_sessions", {})
+    daily[today] = daily.get(today, 0) + 1
+    data["daily_sessions"] = daily
+
+    # Track model if available from context monitor
+    context_file = "/tmp/mindrian-context-state"
+    if os.path.exists(context_file):
+        try:
+            with open(context_file, 'r') as f:
+                ctx = json.load(f)
+            model = ctx.get("model_id", "unknown")
+            models = data.get("models_used", {})
+            models[model] = models.get(model, 0) + 1
+            data["models_used"] = models
+        except:
+            pass
+
+elif event_type == "session-stop":
+    data["last_session"] = today
+
+elif event_type == "command":
+    if event_data:
+        cmds = data.get("commands", {})
+        cmds[event_data] = cmds.get(event_data, 0) + 1
+        data["commands"] = cmds
+
+elif event_type == "artifact":
+    data["total_artifacts"] = data.get("total_artifacts", 0) + 1
+    if event_data:
+        sections = data.get("sections_touched", {})
+        sections[event_data] = sections.get(event_data, 0) + 1
+        data["sections_touched"] = sections
+
+elif event_type == "pipeline":
+    data["total_pipelines"] = data.get("total_pipelines", 0) + 1
+    if event_data:
+        pipes = data.get("pipeline_runs", {})
+        pipes[event_data] = pipes.get(event_data, 0) + 1
+        data["pipeline_runs"] = pipes
+
+elif event_type == "export":
+    data["total_exports"] = data.get("total_exports", 0) + 1
+    if event_data:
+        exports = data.get("export_types", {})
+        exports[event_data] = exports.get(event_data, 0) + 1
+        data["export_types"] = exports
+
+elif event_type == "brain-query":
+    data["total_brain_queries"] = data.get("total_brain_queries", 0) + 1
+
+# Write back atomically
+tmp_file = analytics_file + ".tmp"
+with open(tmp_file, 'w') as f:
+    json.dump(data, f, indent=2)
+os.replace(tmp_file, analytics_file)
+PYEOF
