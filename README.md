@@ -21,11 +21,11 @@ Larry doesn't dump frameworks. He listens, reframes, challenges, and guides you 
 ### Install
 
 ```bash
-# Add the MindrianOS marketplace
-claude plugin marketplace add jsagir/mindrian-os-plugin
+# Add the MindrianOS marketplace (one time)
+claude plugin marketplace add jsagir/mindrian-marketplace
 
 # Install the plugin
-claude plugin install mindrian-os@mindrian-os-plugin
+claude plugin install mindrian-os@mindrian-marketplace
 ```
 
 ### Start
