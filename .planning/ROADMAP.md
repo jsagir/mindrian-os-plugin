@@ -71,6 +71,22 @@ Plans:
 - [ ] 03-01-PLAN.md -- Pipeline stage contracts (Discovery + Thesis chains), pipeline command, chains-index reference
 - [ ] 03-02-PLAN.md -- Proactive Room intelligence: analyze-room script, room-proactive skill, session-start hook integration
 
+### Phase 3.1: Data Room Dashboard (INSERTED)
+**Goal**: Users can run `/mindrian-os:room view` to launch a localhost De Stijl dashboard showing their Data Room as an interactive knowledge graph with a chat box for natural language querying — the visual front door to their venture work
+**Depends on**: Phase 3
+**Requirements**: DASH-01, DASH-02, DASH-03, DASH-04, DASH-05
+**Success Criteria** (what must be TRUE):
+  1. User runs `/mindrian-os:room view` and a localhost server opens in their browser showing the Data Room as an interactive Cytoscape.js knowledge graph in full De Stijl aesthetic (dark bg, Bebas Neue, 0 border-radius, 8 semantic section colors)
+  2. Graph nodes represent insights/artifacts colored by room section, edges show INFORMS/CONTRADICTS/CONVERGES/FEEDS_INTO relationships, and user can zoom, pan, drag, click to expand
+  3. Chat box at the bottom allows natural language queries about the room ("what gaps do I have?", "show contradictions") and returns natural language answers
+  4. Dashboard auto-generates graph data from room/ directory contents and provenance metadata — no manual graph building required
+  5. Everything runs locally on localhost — zero cloud dependency, fully private
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03.1-01-PLAN.md — Graph data pipeline (build-graph + serve-dashboard scripts) and De Stijl Cytoscape.js dashboard HTML
+- [ ] 03.1-02-PLAN.md — Chat intelligence panel and room view command wiring
+
 ### Phase 4: Brain MCP Integration
 **Goal**: Users who connect Brain get enriched framework chaining, calibrated grading, enhanced Larry mode engine, and contextual problem-type routing -- the moat activates
 **Depends on**: Phase 3
@@ -103,12 +119,13 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
+Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Install and Larry Talks | 3/3 | Complete   | 2026-03-20 |
 | 2. Core Methodologies | 5/5 | Complete   | 2026-03-22 |
-| 3. Pipeline Chaining and Proactive Intelligence | 0/2 | Planned    | - |
+| 3. Pipeline Chaining and Proactive Intelligence | 2/2 | Complete   | 2026-03-22 |
+| 3.1 Data Room Dashboard (INSERTED) | 0/2 | Not started | - |
 | 4. Brain MCP Integration | 0/1 | Not started | - |
 | 5. Plugin Intelligence Infrastructure | 0/3 | Not started | - |
