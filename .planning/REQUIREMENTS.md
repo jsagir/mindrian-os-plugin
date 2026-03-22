@@ -32,10 +32,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Methodology Commands
 
-- [ ] **METH-01**: User can invoke Domain Explorer methodology via slash command to map opportunity sub-domains
-- [ ] **METH-02**: User can invoke Minto Pyramid methodology via slash command to structure logical arguments
-- [ ] **METH-03**: User can invoke Bono Six Hats methodology via slash command to explore perspectives
-- [ ] **METH-04**: User can invoke JTBD (Jobs to Be Done) methodology via slash command to identify customer needs
+- [x] **METH-01**: User can invoke Domain Explorer methodology via slash command to map opportunity sub-domains
+- [x] **METH-02**: User can invoke Minto Pyramid methodology via slash command to structure logical arguments
+- [x] **METH-03**: User can invoke Bono Six Hats methodology via slash command to explore perspectives
+- [x] **METH-04**: User can invoke JTBD (Jobs to Be Done) methodology via slash command to identify customer needs
 - [ ] **METH-05**: User can invoke Devil's Advocate methodology via slash command to challenge assumptions
 - [x] **METH-06**: User can invoke HSI (Holistic Scoring Index) methodology via slash command to evaluate ventures
 - [ ] **METH-07**: User can invoke Investment Thesis methodology via slash command to build investment cases
@@ -169,10 +169,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DEGS-03 | Phase 1 | Complete |
 | SURF-01 | Phase 1 | Complete |
 | SURF-02 | Phase 1 | Complete |
-| METH-01 | Phase 2 | Pending |
-| METH-02 | Phase 2 | Pending |
-| METH-03 | Phase 2 | Pending |
-| METH-04 | Phase 2 | Pending |
+| METH-01 | Phase 2 | Complete |
+| METH-02 | Phase 2 | Complete |
+| METH-03 | Phase 2 | Complete |
+| METH-04 | Phase 2 | Complete |
 | METH-05 | Phase 2 | Pending |
 | METH-06 | Phase 2 | Complete |
 | METH-07 | Phase 2 | Pending |
