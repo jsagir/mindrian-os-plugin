@@ -58,10 +58,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Proactive Room Intelligence
 
-- [ ] **PROA-01**: Room proactive skill detects gaps in Data Room sections ("no competitive analysis yet") and surfaces suggestions
-- [ ] **PROA-02**: Room proactive skill detects contradictions between Room sections and alerts user
-- [ ] **PROA-03**: Room proactive skill detects convergence signals (multiple frameworks pointing to same insight) and highlights them
-- [ ] **PROA-04**: Proactive suggestions include confidence scores and are gated to prevent noise
+- [x] **PROA-01**: Room proactive skill detects gaps in Data Room sections ("no competitive analysis yet") and surfaces suggestions
+- [x] **PROA-02**: Room proactive skill detects contradictions between Room sections and alerts user
+- [x] **PROA-03**: Room proactive skill detects convergence signals (multiple frameworks pointing to same insight) and highlights them
+- [x] **PROA-04**: Proactive suggestions include confidence scores and are gated to prevent noise
 
 ### Brain MCP Integration
 
@@ -173,23 +173,23 @@ Which phases cover which requirements. Updated during roadmap creation.
 | METH-02 | Phase 2 | Complete |
 | METH-03 | Phase 2 | Complete |
 | METH-04 | Phase 2 | Complete |
-| METH-05 | Phase 2 | Pending |
+| METH-05 | Phase 2 | Complete |
 | METH-06 | Phase 2 | Complete |
 | METH-07 | Phase 2 | Complete |
-| METH-08 | Phase 2 | Pending |
+| METH-08 | Phase 2 | Complete |
 | METH-09 | Phase 2 | Complete |
 | METH-10 | Phase 2 | Complete |
-| PASS-01 | Phase 2 | Pending |
-| PASS-02 | Phase 2 | Pending |
-| PASS-03 | Phase 2 | Pending |
+| PASS-01 | Phase 2 | Complete |
+| PASS-02 | Phase 2 | Complete |
+| PASS-03 | Phase 2 | Complete |
 | PIPE-01 | Phase 3 | Pending |
 | PIPE-02 | Phase 3 | Pending |
 | PIPE-03 | Phase 3 | Pending |
 | PIPE-04 | Phase 3 | Pending |
-| PROA-01 | Phase 3 | Pending |
-| PROA-02 | Phase 3 | Pending |
-| PROA-03 | Phase 3 | Pending |
-| PROA-04 | Phase 3 | Pending |
+| PROA-01 | Phase 3 | Complete |
+| PROA-02 | Phase 3 | Complete |
+| PROA-03 | Phase 3 | Complete |
+| PROA-04 | Phase 3 | Complete |
 | BRAN-01 | Phase 4 | Pending |
 | BRAN-02 | Phase 4 | Pending |
 | BRAN-03 | Phase 4 | Pending |
