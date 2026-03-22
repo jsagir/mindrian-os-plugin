@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in-progress
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-03-22T12:20:03Z"
+status: executing
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-03-22T12:25:21.387Z"
 last_activity: 2026-03-22 -- Completed 04-01 Brain MCP Foundation (2 tasks, 4 files)
 progress:
   total_phases: 7
   completed_phases: 5
   total_plans: 17
-  completed_plans: 15
+  completed_plans: 16
   percent: 88
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 4 of 5 (Brain MCP Toolbox)
-Plan: 1 of 3 in current phase (04-01 complete)
+Plan: 2 of 3 in current phase (04-02 complete)
 Status: In Progress
-Last activity: 2026-03-22 -- Completed 04-01 Brain MCP Foundation (2 tasks, 4 files)
+Last activity: 2026-03-22 -- Completed 04-02 Brain Specialized Agents (2 tasks, 4 files)
 
-Progress: [█████████░] 88%
+Progress: [█████████░] 94%
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Progress: [█████████░] 88%
 | Phase 03.2 P01 | 12min | 2 tasks | 13 files |
 | Phase 03.2 P02 | 4min | 2 tasks | 2 files |
 | Phase 04 P01 | 3min | 2 tasks | 4 files |
+| Phase 04 P02 | 2min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -111,6 +112,10 @@ Recent decisions affecting current work:
 - [Phase 04-01]: MCP tool names derived from .mcp.json server names (neo4j-brain -> mcp__neo4j-brain__read_neo4j_cypher)
 - [Phase 04-01]: brain-connector replaces room-proactive bash analysis for Brain users (brain_gap_assess is superset)
 - [Phase 04-01]: All Cypher lives in query-patterns.md only -- skills and agents reference, never embed
+- [Phase 04-02]: Each agent explicitly declares NOT Larry voice rules to prevent personality bleed
+- [Phase 04-02]: All agents reference query-patterns.md on demand -- zero inline Cypher in agent files
+- [Phase 04-02]: Investor Agent is genuinely adversarial with VC-specific language, not softened Larry
+- [Phase 04-02]: Research Agent requires user confirmation before filing to room -- no silent writes
 
 ### Roadmap Evolution
 
@@ -130,6 +135,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-22T12:20:03Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-03-22T12:25:21.384Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
