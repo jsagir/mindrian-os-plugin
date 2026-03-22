@@ -103,18 +103,23 @@ Plans:
 - [ ] 03.2-01-PLAN.md — De Stijl CSS + bundled fonts + Jinja2 templates (thesis, summary, report, profile) + test fixtures
 - [ ] 03.2-02-PLAN.md — render-pdf Python orchestrator + /mindrian-os:export command
 
-### Phase 4: Brain MCP Integration
-**Goal**: Users who connect Brain get enriched framework chaining, calibrated grading, enhanced Larry mode engine, and contextual problem-type routing -- the moat activates
+### Phase 4: Brain MCP Toolbox
+**Goal**: Connect Larry's Brain (Neo4j 21K nodes + Pinecone 1.4K embeddings) via 8 MCP tools, 4 specialized agents (Brain, Grading, Research, Investor), 5 new commands, brain-connector skill with passive enrichment and proactive surfacing — the moat activates
 **Depends on**: Phase 3
-**Requirements**: BRAN-01, BRAN-02, BRAN-03, BRAN-04, BRAN-05
+**Requirements**: BRAN-01, BRAN-02, BRAN-03, BRAN-04, BRAN-05, BRAN-06, BRAN-07, BRAN-08, BRAN-09, BRAN-10
 **Success Criteria** (what must be TRUE):
-  1. User runs `/mindrian-os:setup brain` to connect Brain MCP -- it is NOT in default config and adds zero startup cost for Tier 0 users
-  2. Brain-connected users get enriched framework chain recommendations, calibrated 5-component grading (from 100+ real projects), and enhanced Larry mode engine -- all gracefully degrade to Tier 0 static equivalents when Brain is unavailable
-  3. Brain's ADDRESSES_PROBLEM_TYPE and CO_OCCURS relationships enhance methodology routing beyond static references
+  1. User runs `/mindrian-os:setup brain` and Brain MCP connects (Neo4j + Pinecone) — NOT in default config, zero startup cost for Tier 0
+  2. brain-connector skill passively enriches Larry's responses with graph context and proactively surfaces contradictions/gaps (gated, max 2 HIGH per session)
+  3. Brain Agent handles complex multi-hop GraphRAG queries, building context across conversation turns
+  4. Grading Agent produces calibrated 5-component assessment scored against 100+ real projects
+  5. Research Agent performs external web search via Tavily, files findings to room with provenance
+  6. Investor Agent stress-tests from investor POV using Brain pattern data
+  7. 5 new commands work: suggest-next, find-connections, compare-ventures, deep-grade, research
+  8. Existing commands upgraded: diagnose, help, grade, pipeline, mode engine — all Brain-informed
 **Plans**: TBD
 
 Plans:
-- [ ] 04-01: Brain MCP integration, setup command, and graceful degradation
+- [ ] TBD (run /gsd:plan-phase 4 to break down)
 
 ### Phase 5: Plugin Intelligence Infrastructure
 **Goal**: MindrianOS can update itself, manage its own context budget intelligently, and automatically discover new Claude capabilities that amplify the plugin — the infrastructure that keeps the OS alive and evolving
