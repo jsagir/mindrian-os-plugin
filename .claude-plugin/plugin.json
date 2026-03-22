@@ -15,7 +15,8 @@
     "larry-personality",
     "pws-methodology",
     "context-engine",
-    "room-passive"
+    "room-passive",
+    "room-proactive"
   ],
   "commands": [
     "commands/new-project.md",

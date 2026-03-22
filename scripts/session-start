@@ -31,11 +31,19 @@ if [ -d "$ROOM_DIR" ]; then
     state_md=$(cat "${ROOM_DIR}/STATE.md" 2>/dev/null || true)
   fi
 
+  # Run proactive Room analysis
+  proactive_output=$("${SCRIPT_DIR}/analyze-room" "$ROOM_DIR" 2>/dev/null || echo "")
+
   # Build context with room overview
   context="[MindrianOS Room Context]\n\nCurrent room state:\n${state_output}"
 
   if [ -n "$user_context" ]; then
     context="${context}\n\nUser context:\n${user_context}"
+  fi
+
+  # Append proactive Room intelligence if available
+  if [ -n "$proactive_output" ] && [ "$proactive_output" != "NO_ROOM" ]; then
+    context="${context}\n\n## Proactive Room Intelligence\n${proactive_output}"
   fi
 
   # Add venture stage and suggested action from state
