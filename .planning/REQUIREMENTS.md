@@ -68,7 +68,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **DASH-01**: User can run `/mindrian-os:room view` to launch a localhost server that opens a De Stijl dashboard in their browser
 - [x] **DASH-02**: Dashboard displays Data Room as an interactive Cytoscape.js knowledge graph with nodes colored by 8 semantic section colors, zoomable, pannable, draggable
 - [x] **DASH-03**: Graph edges show relationships between artifacts (INFORMS, CONTRADICTS, CONVERGES, FEEDS_INTO) extracted from provenance metadata and pipeline chains
-- [ ] **DASH-04**: Chat box at the bottom allows natural language queries about the room and returns natural language answers from Larry
+- [x] **DASH-04**: Chat box at the bottom allows natural language queries about the room and returns natural language answers from Larry
 - [x] **DASH-05**: Graph data auto-generated from room/ directory contents — no manual graph building, updates on refresh
 
 ### Brain MCP Integration
@@ -201,7 +201,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-01 | Phase 3.1 | Complete |
 | DASH-02 | Phase 3.1 | Complete |
 | DASH-03 | Phase 3.1 | Complete |
-| DASH-04 | Phase 3.1 | Pending |
+| DASH-04 | Phase 3.1 | Complete |
 | DASH-05 | Phase 3.1 | Complete |
 | BRAN-01 | Phase 4 | Pending |
 | BRAN-02 | Phase 4 | Pending |
