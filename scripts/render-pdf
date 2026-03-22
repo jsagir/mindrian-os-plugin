@@ -180,6 +180,7 @@ def render_document(doc_type: str, room_data: dict, output_path: Path) -> None:
     font_config = FontConfiguration()
     css = CSS(
         filename=str(TEMPLATES_DIR / "destijl-base.css"),
+        base_url=str(PLUGIN_DIR),
         font_config=font_config,
     )
 
