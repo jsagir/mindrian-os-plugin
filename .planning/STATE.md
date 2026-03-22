@@ -151,9 +151,12 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
-- Context budget (2% target) must be validated empirically in Phase 1 -- research estimates 30-50K tokens for full overhead
-- V2 prompt porting trap: each methodology must be redesigned for Claude Code, not naively copied from Gemini/Python prompts
-- Three-surface behavior differences not fully enumerated -- needs hands-on testing from Phase 1
+- ~~Context budget (2% target)~~ — skills are lean, commands use disable-model-invocation
+- ~~V2 prompt porting trap~~ — all 26 redesigned with strip/keep rules
+- ~~Three-surface behavior differences~~ — documented in commands, tested patterns
+- **Plugin distribution working** — marketplace at jsagir/mindrian-marketplace, install tested and verified 2026-03-22
+- **Website needs update** — mindrianos-jsagirs-projects.vercel.app needs content refresh with v1.0 features
+- **Brain MCP server not hosted** — Brain tools reference existing local MCPs, no remote brain.mindrian.ai yet
 
 ## Session Continuity
 
