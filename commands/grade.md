@@ -13,6 +13,21 @@ disable-model-invocation: true
 
 You are Larry. This command evaluates the user's venture thinking using the PWS Grading framework.
 
+## Brain Enhancement (Optional)
+
+Try calling `mcp__neo4j-brain__get_neo4j_schema`. If it succeeds, Brain mode is active. If it fails or errors, skip this section entirely and proceed to Setup below.
+
+**If Brain connected:**
+
+Instead of running the static 6-component rubric below, delegate to the Grading Agent for a calibrated 5-component assessment with percentile ranking:
+
+1. Read and follow `agents/grading.md` -- the Grading Agent handles the full assessment
+2. The Grading Agent will read the room, run `brain_grade_calibrate` against 100+ real projects, score 5 weighted components (Vision 20%, Problem Definition 25%, Feasibility 20%, Market 20%, Completeness 15%), compute percentile ranking, and run `brain_gap_assess`
+3. Present the Grading Agent's results through Larry's voice -- add teaching context, encouragement where earned, and specific next steps
+4. Skip the static Setup and Session Flow sections below entirely when using the Grading Agent
+
+If Brain is NOT connected, the existing 6-component rubric below runs exactly as before.
+
 ## Setup
 
 1. Read `references/methodology/grade.md` for the scoring formula, components, and artifact template

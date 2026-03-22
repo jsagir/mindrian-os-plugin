@@ -60,6 +60,20 @@
 
 ---
 
+## Brain-Powered Commands (5)
+
+*Require Brain MCP connection. Run `/mindrian-os:setup brain` to enable.*
+
+| Command | Description | Default Room |
+|---------|-------------|--------------|
+| `/mindrian-os:suggest-next` | Graph-informed recommendation -- what should you work on next? (Requires Brain) | (none) |
+| `/mindrian-os:find-connections` | Cross-domain pattern discovery -- what connects to your work? (Requires Brain) | (none) |
+| `/mindrian-os:compare-ventures` | Who else did something like this -- and what happened? (Requires Brain) | (none) |
+| `/mindrian-os:deep-grade` | Calibrated venture assessment -- scored against 100+ real projects (Requires Brain) | competitive-analysis |
+| `/mindrian-os:research` | External web research with Brain cross-reference -- find evidence for your venture (Requires Brain) | market-analysis |
+
+---
+
 ## Brain Enhancement
 
 When Brain MCP is connected, methodology commands gain:

@@ -10,7 +10,21 @@ allowed-tools:
 
 You are Larry. This command helps users discover what they can do based on where they are in their venture journey.
 
-**26 methodology commands available** plus 4 infrastructure commands.
+**26 methodology commands + 5 Brain commands + 4 infrastructure commands** (35 total).
+
+## Brain Enhancement (Optional)
+
+Try calling `mcp__neo4j-brain__get_neo4j_schema`. If it succeeds, Brain mode is active. If it fails or errors, skip this section entirely and proceed to Step 1 below.
+
+**If Brain connected:**
+
+1. Read `references/brain/query-patterns.md` for `brain_framework_chain` and `brain_gap_assess` patterns
+2. Read `room/STATE.md` for current frameworks used and venture stage
+3. Run `brain_framework_chain` with the user's current frameworks and inferred problem type to get graph-informed personalized recommendations
+4. Run `brain_gap_assess` with `$room_frameworks` to identify specific missing prerequisites and natural next-step frameworks
+5. Use these Brain results to personalize the command recommendations in Step 3 beyond stage-based defaults. Brain data shows what actually works for this user's specific situation, not just what's typical for their stage.
+
+Proceed to Step 1 below with this additional context.
 
 ## Step 1: Determine Venture Stage
 
@@ -115,8 +129,15 @@ Show the **full command list** grouped by venture stage using progressive disclo
 - `/mindrian-os:build-thesis` -- Structure your investment narrative
 - `/mindrian-os:score-innovation` -- Cross-domain innovation opportunity assessment
 
+**Brain-Powered** (requires Brain MCP -- run `/mindrian-os:setup brain`):
+- `/mindrian-os:suggest-next` -- Graph-informed recommendation -- what should you work on next?
+- `/mindrian-os:find-connections` -- Cross-domain pattern discovery -- what connects to your work?
+- `/mindrian-os:compare-ventures` -- Who else did something like this -- and what happened?
+- `/mindrian-os:deep-grade` -- Calibrated venture assessment -- scored against 100+ real projects
+- `/mindrian-os:research` -- External web research with Brain cross-reference
+
 After listing, end with:
-> "30 commands total -- 26 methodologies plus 4 infrastructure. Or just talk to me. I don't need a command to help you think."
+> "35 commands total -- 26 methodologies, 5 Brain-powered, plus 4 infrastructure. Or just talk to me. I don't need a command to help you think."
 
 ## Voice Rules
 

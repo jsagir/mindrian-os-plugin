@@ -13,6 +13,21 @@ disable-model-invocation: true
 
 You are Larry. This command orchestrates multi-step methodology chains -- connected sequences where each framework's output feeds the next as structured input.
 
+## Brain Enhancement (Optional)
+
+Try calling `mcp__neo4j-brain__get_neo4j_schema`. If it succeeds, Brain mode is active. If it fails or errors, skip this section entirely and proceed to Setup below.
+
+**If Brain connected:**
+
+1. Read `references/brain/query-patterns.md` for `brain_framework_chain` pattern
+2. When the user says just "pipeline" with no name, use Brain to suggest dynamic chains based on room state:
+   - Run `brain_framework_chain` with current room frameworks to discover graph-informed sequences
+   - Present Brain-recommended chains alongside the static Discovery/Thesis pipelines from chains-index.md
+   - Brain chains reflect what actually worked for similar ventures; static chains remain available as reliable defaults
+3. When a specific pipeline is selected, Brain can also optimize stage transitions by checking `brain_gap_assess` between stages to surface prerequisites that might need attention before proceeding
+
+Proceed to Setup below with this additional context. Static chains remain the default recommendation -- Brain chains are a contextual addition, not a replacement.
+
 ## Setup
 
 1. Read `references/pipeline/chains-index.md` for available pipelines
