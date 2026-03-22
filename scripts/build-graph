@@ -224,13 +224,22 @@ while IFS= read -r line; do
   fi
 done <<< "$analyze_output"
 
-# Parse CONVERGE lines -> edges between sections (connect first two sections where term appears)
+# Parse CONVERGE lines -> edges between sections sharing a convergence term
 while IFS= read -r line; do
   if [[ "$line" == CONVERGE:* ]]; then
     IFS=':' read -r _ term count confidence message <<< "$line"
-    # We create an edge to the first section-group that has the term
-    # For simplicity, converge edges connect to the section group nodes
-    # (the dashboard shows convergence as a theme, not artifact-to-artifact)
+    # Find sections whose artifacts mention this term
+    matching_sections=()
+    for section in "${SECTIONS[@]}"; do
+      section_dir="${ROOM_DIR}/${section}"
+      if [ -d "$section_dir" ] && grep -rql "$term" "$section_dir" 2>/dev/null; then
+        matching_sections+=("$section")
+      fi
+    done
+    # Connect the first two matching sections
+    if [ ${#matching_sections[@]} -ge 2 ]; then
+      add_edge "${matching_sections[0]}" "${matching_sections[1]}" "CONVERGES" "$term" "converges"
+    fi
   fi
 done <<< "$analyze_output"
 
