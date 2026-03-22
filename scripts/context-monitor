@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# context-monitor: Statusline script for MindrianOS
+# Reads context window data from Claude's statusline API
+# Writes bridge file for skills/hooks to consume
+# Runs after each assistant message (debounced ~300ms)
+
+set -euo pipefail
+
+BRIDGE_FILE="/tmp/mindrian-context-state"
+
+# Read JSON from stdin
+INPUT=$(cat 2>/dev/null || echo "")
+
+# ANSI color codes
+GREEN="\033[32m"
+YELLOW="\033[33m"
+ORANGE="\033[38;5;208m"
+RED="\033[31m"
+RESET="\033[0m"
+
+# Extract fields with jq; fall back to conservative defaults if jq missing or input malformed
+if command -v jq >/dev/null 2>&1 && echo "$INPUT" | jq -e '.model' >/dev/null 2>&1; then
+  MODEL_ID=$(echo "$INPUT" | jq -r '.model.id // "unknown"')
+  MODEL_NAME=$(echo "$INPUT" | jq -r '.model.display_name // "unknown"')
+  CTX_PCT=$(echo "$INPUT" | jq -r '.context_window.used_percentage // 50')
+  CTX_SIZE=$(echo "$INPUT" | jq -r '.context_window.context_window_size // 200000')
+  CTX_REMAINING=$(echo "$INPUT" | jq -r '.context_window.remaining_percentage // 50')
+else
+  # Conservative defaults -- never crash
+  MODEL_ID="unknown"
+  MODEL_NAME="unknown"
+  CTX_PCT=50
+  CTX_SIZE=200000
+  CTX_REMAINING=50
+fi
+
+TIMESTAMP=$(date +%s)
+
+# Write bridge file (atomic via temp + mv)
+TMPFILE="${BRIDGE_FILE}.tmp.$$"
+cat > "$TMPFILE" <<EOF
+MODEL_ID=${MODEL_ID}
+MODEL_NAME=${MODEL_NAME}
+CTX_PCT=${CTX_PCT}
+CTX_SIZE=${CTX_SIZE}
+CTX_REMAINING=${CTX_REMAINING}
+TIMESTAMP=${TIMESTAMP}
+EOF
+mv "$TMPFILE" "$BRIDGE_FILE"
+
+# Display color-coded statusline to stderr
+CTX_INT="${CTX_PCT%.*}"
+CTX_INT="${CTX_INT:-0}"
+
+if [ "$CTX_INT" -gt 85 ] 2>/dev/null; then
+  echo -e "${RED}[MOS] ${CTX_PCT}% ctx | ${MODEL_NAME} -- consider /clear${RESET}" >&2
+elif [ "$CTX_INT" -gt 70 ] 2>/dev/null; then
+  echo -e "${ORANGE}[MOS] ${CTX_PCT}% ctx | ${MODEL_NAME}${RESET}" >&2
+elif [ "$CTX_INT" -gt 50 ] 2>/dev/null; then
+  echo -e "${YELLOW}[MOS] ${CTX_PCT}% ctx | ${MODEL_NAME}${RESET}" >&2
+else
+  echo -e "${GREEN}[MOS] ${CTX_PCT}% ctx | ${MODEL_NAME}${RESET}" >&2
+fi
+
+exit 0

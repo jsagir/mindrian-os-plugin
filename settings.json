@@ -1,3 +1,6 @@
 {
-  "agent": "larry-extended"
+  "agent": "larry-extended",
+  "statusline": {
+    "command": "${CLAUDE_PLUGIN_ROOT}/scripts/context-monitor"
+  }
 }
