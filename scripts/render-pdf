@@ -1,0 +1,331 @@
+#!/usr/bin/env python3
+"""render-pdf: Generate De Stijl PDFs from Data Room content.
+
+Collects room markdown artifacts, renders through Jinja2 templates
+with WeasyPrint, adds TOC bookmarks via PyMuPDF, and outputs to
+room/exports/.
+
+Usage:
+    python3 scripts/render-pdf <doc-type> [--room DIR] [--output PATH] [--no-open]
+
+Document types: thesis, summary, report, profile
+"""
+
+import argparse
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
+
+import markdown2
+import yaml
+from jinja2 import Environment, FileSystemLoader
+from weasyprint import CSS, HTML
+from weasyprint.text.fonts import FontConfiguration
+
+# ── Constants ────────────────────────────────────────────────────────
+
+PLUGIN_DIR = Path(__file__).resolve().parent.parent
+TEMPLATES_DIR = PLUGIN_DIR / "templates"
+
+SECTIONS = [
+    "problem-definition",
+    "market-analysis",
+    "solution-design",
+    "business-model",
+    "competitive-analysis",
+    "team-execution",
+    "legal-ip",
+    "financial-model",
+]
+
+SECTION_COLORS = {
+    "problem-definition": "#A63D2F",
+    "market-analysis": "#C8A43C",
+    "solution-design": "#5C5A56",
+    "business-model": "#2D6B4A",
+    "competitive-analysis": "#B5602A",
+    "team-execution": "#1E3A6E",
+    "legal-ip": "#6B4E8B",
+    "financial-model": "#2A6B5E",
+}
+
+SECTION_LABELS = {
+    "problem-definition": "Problem Definition",
+    "market-analysis": "Market Analysis",
+    "solution-design": "Solution Design",
+    "business-model": "Business Model",
+    "competitive-analysis": "Competitive Analysis",
+    "team-execution": "Team & Execution",
+    "legal-ip": "Legal & IP",
+    "financial-model": "Financial Model",
+}
+
+DOC_TYPES = {
+    "thesis": "investment-thesis.html",
+    "summary": "executive-summary.html",
+    "report": "due-diligence.html",
+    "profile": "profile.html",
+}
+
+DOC_TITLES = {
+    "thesis": "Investment Thesis",
+    "summary": "Executive Summary",
+    "report": "Due Diligence Report",
+    "profile": "PWS Profile",
+}
+
+SKIP_FILES = {"ROOM.md", "STATE.md"}
+
+
+# ── Functions ────────────────────────────────────────────────────────
+
+
+def collect_room_data(room_dir: Path, doc_type: str) -> dict:
+    """Walk room sections, parse markdown artifacts, return structured data."""
+    sections = {}
+
+    for section_name in SECTIONS:
+        section_dir = room_dir / section_name
+        if not section_dir.is_dir():
+            continue
+
+        entries = []
+        for md_file in sorted(section_dir.glob("*.md")):
+            if md_file.name in SKIP_FILES or md_file.name.startswith("_"):
+                continue
+
+            text = md_file.read_text(encoding="utf-8")
+            result = markdown2.markdown(
+                text, extras=["metadata", "fenced-code-blocks", "tables"]
+            )
+            metadata = result.metadata if result.metadata else {}
+            title = metadata.get("title", md_file.stem.replace("-", " ").title())
+
+            entries.append(
+                {
+                    "filename": md_file.name,
+                    "metadata": metadata,
+                    "html": str(result),
+                    "title": title,
+                }
+            )
+
+        if entries:
+            sections[section_name] = entries
+
+    venture_name = _infer_venture_name(room_dir)
+
+    return {
+        "sections": sections,
+        "metadata": {
+            "generated": datetime.now().strftime("%Y-%m-%d"),
+            "venture_name": venture_name,
+            "doc_type": doc_type,
+        },
+    }
+
+
+def _infer_venture_name(room_dir: Path) -> str:
+    """Extract venture name from room/STATE.md if it exists."""
+    state_file = room_dir / "STATE.md"
+    if state_file.exists():
+        try:
+            text = state_file.read_text(encoding="utf-8")
+            # Try YAML frontmatter
+            if text.startswith("---"):
+                parts = text.split("---", 2)
+                if len(parts) >= 3:
+                    fm = yaml.safe_load(parts[1])
+                    if isinstance(fm, dict):
+                        name = fm.get("venture_name") or fm.get("project_name")
+                        if name:
+                            return str(name)
+            # Try plain key: value line
+            for line in text.splitlines():
+                for key in ("venture_name:", "project_name:"):
+                    if line.strip().lower().startswith(key):
+                        return line.split(":", 1)[1].strip().strip('"').strip("'")
+        except Exception:
+            pass
+    return "Untitled Venture"
+
+
+def render_document(doc_type: str, room_data: dict, output_path: Path) -> None:
+    """Render Jinja2 template to PDF via WeasyPrint."""
+    template_name = DOC_TYPES[doc_type]
+    template_file = TEMPLATES_DIR / template_name
+    if not template_file.exists():
+        available = ", ".join(
+            k for k, v in DOC_TYPES.items() if (TEMPLATES_DIR / v).exists()
+        )
+        print(
+            f"Template not found: {template_name}\n"
+            f"Available document types: {available}"
+        )
+        sys.exit(1)
+
+    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
+    template = env.get_template(template_name)
+
+    html_string = template.render(
+        sections=room_data["sections"],
+        metadata=room_data["metadata"],
+        colors=SECTION_COLORS,
+        labels=SECTION_LABELS,
+        section_order=SECTIONS,
+        doc_title=DOC_TITLES.get(doc_type, doc_type.title()),
+    )
+
+    font_config = FontConfiguration()
+    css = CSS(
+        filename=str(TEMPLATES_DIR / "destijl-base.css"),
+        font_config=font_config,
+    )
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        HTML(string=html_string, base_url=str(PLUGIN_DIR)).write_pdf(
+            target=str(output_path),
+            stylesheets=[css],
+            font_config=font_config,
+        )
+    except Exception as e:
+        print(f"PDF generation failed: {e}")
+        print("Tip: Check that font files exist in assets/fonts/")
+        sys.exit(1)
+
+
+def add_toc_bookmarks(pdf_path: Path, sections: dict) -> None:
+    """Add PDF bookmarks for each populated section (thesis, report only)."""
+    import fitz  # PyMuPDF
+
+    doc = fitz.open(str(pdf_path))
+    toc = []
+
+    for section_name in SECTIONS:
+        if section_name not in sections or not sections[section_name]:
+            continue
+
+        label = SECTION_LABELS[section_name]
+        # Search each page for the section label text
+        found_page = 1  # default to first content page if not found
+        for page_num in range(doc.page_count):
+            page = doc[page_num]
+            results = page.search_for(label)
+            if results:
+                found_page = page_num + 1  # 1-based for TOC
+                break
+
+        toc.append([1, label, found_page])
+
+    if toc:
+        doc.set_toc(toc)
+        doc.save(str(pdf_path), incremental=True, encryption=0)
+
+    doc.close()
+
+
+def open_pdf(path: Path) -> None:
+    """Open generated PDF with platform-appropriate viewer."""
+    try:
+        import platform
+
+        system = platform.system()
+        if system == "Darwin":
+            subprocess.run(["open", str(path)])
+        elif system == "Linux":
+            # Check for WSL
+            try:
+                version_info = Path("/proc/version").read_text()
+                if "microsoft" in version_info.lower():
+                    subprocess.run(
+                        ["cmd.exe", "/c", "start", "", str(path)],
+                        stderr=subprocess.DEVNULL,
+                    )
+                    return
+            except Exception:
+                pass
+            subprocess.run(["xdg-open", str(path)], stderr=subprocess.DEVNULL)
+        elif system == "Windows":
+            subprocess.run(["start", str(path)], shell=True)
+    except Exception:
+        pass  # Don't crash if opener fails
+
+
+# ── CLI ──────────────────────────────────────────────────────────────
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Generate De Stijl PDFs from Data Room content"
+    )
+    parser.add_argument(
+        "doc_type",
+        choices=list(DOC_TYPES.keys()),
+        help="Document type: thesis, summary, report, profile",
+    )
+    parser.add_argument(
+        "--room",
+        type=Path,
+        default=Path("./room"),
+        help="Path to room directory (default: ./room)",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Output PDF path (default: room/exports/{type}-{date}.pdf)",
+    )
+    parser.add_argument(
+        "--no-open",
+        action="store_true",
+        help="Skip opening PDF after generation",
+    )
+
+    args = parser.parse_args()
+
+    # Validate room directory
+    if not args.room.is_dir():
+        print("No Data Room found. Run /mindrian-os:new-project first.")
+        sys.exit(1)
+
+    # Collect room data
+    room_data = collect_room_data(args.room, args.doc_type)
+
+    # Check for any content
+    if not room_data["sections"]:
+        print("Data Room is empty. Run some methodologies first.")
+        sys.exit(1)
+
+    # Set output path
+    if args.output:
+        output_path = args.output
+    else:
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        output_path = args.room / "exports" / f"{args.doc_type}-{date_str}.pdf"
+
+    # Render PDF
+    render_document(args.doc_type, room_data, output_path)
+
+    # Add TOC bookmarks for multi-section docs
+    if args.doc_type in ("thesis", "report"):
+        add_toc_bookmarks(output_path, room_data["sections"])
+
+    # Report success
+    section_count = len(room_data["sections"])
+    empty_sections = [s for s in SECTIONS if s not in room_data["sections"]]
+    print(f"Generated: {output_path} ({section_count} sections)")
+
+    if empty_sections:
+        names = ", ".join(SECTION_LABELS[s] for s in empty_sections)
+        print(f"Empty sections (not included): {names}")
+
+    # Open PDF
+    if not args.no_open:
+        open_pdf(output_path)
+
+
+if __name__ == "__main__":
+    main()
