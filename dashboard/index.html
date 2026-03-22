@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MindrianOS Data Room</title>
+  <script src="https://unpkg.com/cytoscape@3.33.1/dist/cytoscape.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ds-bg: #0D0D0D;
+      --ds-surface: #1A1A1A;
+      --ds-elevated: #2A2A2A;
+      --ds-cream: #F5F0E8;
+      --ds-muted: #A09A90;
+      --ds-border: #2A2A2A;
+      --ds-red: #A63D2F;
+      --ds-blue: #1E3A6E;
+      --ds-yellow: #C8A43C;
+      --ds-green: #2D6B4A;
+      --ds-sienna: #B5602A;
+      --ds-gray: #5C5A56;
+      --ds-amethyst: #6B4E8B;
+      --ds-teal: #2A6B5E;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      border-radius: 0;
+    }
+
+    body {
+      background: var(--ds-bg);
+      color: var(--ds-cream);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      background: var(--ds-surface);
+      border-bottom: 1px solid var(--ds-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 100;
+    }
+
+    .header-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 0.08em;
+      color: var(--ds-cream);
+      text-transform: uppercase;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-chip {
+      width: 8px;
+      height: 8px;
+      display: inline-block;
+    }
+
+    .legend-label {
+      font-size: 11px;
+      color: var(--ds-muted);
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+    }
+
+    .btn-refresh {
+      background: var(--ds-elevated);
+      color: var(--ds-cream);
+      border: 1px solid var(--ds-border);
+      padding: 6px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 150ms ease;
+      border-radius: 0;
+    }
+
+    .btn-refresh:hover {
+      background: var(--ds-surface);
+      border-color: var(--ds-muted);
+    }
+
+    /* ── Graph Container ── */
+    #cy {
+      position: absolute;
+      top: 48px;
+      left: 0;
+      right: 0;
+      bottom: 180px;
+      background: var(--ds-bg);
+    }
+
+    /* ── Empty State Overlay ── */
+    .empty-state {
+      position: absolute;
+      top: 48px;
+      left: 0;
+      right: 0;
+      bottom: 180px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .empty-state.visible {
+      display: flex;
+    }
+
+    .empty-state-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--ds-muted);
+      text-align: center;
+      max-width: 400px;
+      line-height: 1.6;
+    }
+
+    .empty-state-text code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--ds-cream);
+      background: var(--ds-elevated);
+      padding: 2px 6px;
+    }
+
+    /* ── Detail Panel ── */
+    .detail-panel {
+      position: fixed;
+      top: 48px;
+      right: 0;
+      width: 300px;
+      bottom: 180px;
+      background: var(--ds-surface);
+      border-left: 1px solid var(--ds-border);
+      transform: translateX(100%);
+      transition: transform 200ms ease-out;
+      z-index: 50;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .detail-panel.open {
+      transform: translateX(0);
+    }
+
+    .detail-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--ds-muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+      transition: color 150ms ease;
+    }
+
+    .detail-close:hover {
+      color: var(--ds-cream);
+    }
+
+    .detail-section-bar {
+      width: 100%;
+      height: 4px;
+      margin-bottom: 16px;
+    }
+
+    .detail-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.04em;
+      color: var(--ds-cream);
+      margin-bottom: 16px;
+      padding-right: 24px;
+    }
+
+    .detail-field {
+      margin-bottom: 12px;
+    }
+
+    .detail-field-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ds-muted);
+      margin-bottom: 2px;
+    }
+
+    .detail-field-value {
+      font-size: 13px;
+      color: var(--ds-cream);
+    }
+
+    .detail-field-value.mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    /* ── Chat Panel Placeholder ── */
+    .chat-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 180px;
+      background: var(--ds-surface);
+      border-top: 1px solid var(--ds-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chat-placeholder {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: var(--ds-muted);
+    }
+
+    /* ── Status Indicators (6px squares) ── */
+    .status-indicator {
+      width: 6px;
+      height: 6px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <span class="header-title">Mindrian Data Room</span>
+    <div class="header-right">
+      <div class="legend">
+        <div class="legend-item">
+          <span class="legend-chip" style="background: var(--ds-red)"></span>
+          <span class="legend-label">Problem</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-chip" style="background: var(--ds-yellow)"></span>
+          <span class="legend-label">Market</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-chip" style="background: var(--ds-gray)"></span>
+          <span class="legend-label">Solution</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-chip" style="background: var(--ds-green)"></span>
+          <span class="legend-label">Business</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-chip" style="background: var(--ds-sienna)"></span>
+          <span class="legend-label">Competitive</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-chip" style="background: var(--ds-blue)"></span>
+          <span class="legend-label">Team</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-chip" style="background: var(--ds-amethyst)"></span>
+          <span class="legend-label">Legal</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-chip" style="background: var(--ds-teal)"></span>
+          <span class="legend-label">Financial</span>
+        </div>
+      </div>
+      <button class="btn-refresh" id="btn-refresh">Refresh</button>
+    </div>
+  </div>
+
+  <!-- Graph Container -->
+  <div id="cy"></div>
+
+  <!-- Empty State Overlay -->
+  <div class="empty-state" id="empty-state">
+    <div class="empty-state-text">
+      Your Data Room is empty.<br>
+      Run <code>/mindrian-os:new-project</code> to get started.
+    </div>
+  </div>
+
+  <!-- Detail Panel -->
+  <div class="detail-panel" id="detail-panel">
+    <button class="detail-close" id="detail-close">X</button>
+    <div class="detail-section-bar" id="detail-section-bar"></div>
+    <div class="detail-title" id="detail-title"></div>
+    <div id="detail-fields"></div>
+  </div>
+
+  <!-- Chat Panel Placeholder -->
+  <div class="chat-panel">
+    <span class="chat-placeholder">Chat intelligence loading in next update...</span>
+  </div>
+
+  <script>
+    // ── Section Colors ──
+    const SECTION_COLORS = {
+      'problem-definition': '#A63D2F',
+      'market-analysis': '#C8A43C',
+      'solution-design': '#5C5A56',
+      'business-model': '#2D6B4A',
+      'competitive-analysis': '#B5602A',
+      'team-execution': '#1E3A6E',
+      'legal-ip': '#6B4E8B',
+      'financial-model': '#2A6B5E'
+    };
+
+    // ── Cytoscape De Stijl Stylesheet ──
+    const graphStyle = [
+      // Section group nodes
+      {
+        selector: 'node.section-group',
+        style: {
+          'background-color': '#1A1A1A',
+          'border-width': 2,
+          'border-color': 'data(color)',
+          'label': 'data(label)',
+          'font-family': '"Bebas Neue", sans-serif',
+          'font-size': 16,
+          'text-transform': 'uppercase',
+          'color': '#F5F0E8',
+          'text-valign': 'top',
+          'text-halign': 'center',
+          'text-margin-y': -8,
+          'shape': 'rectangle',
+          'width': 'label',
+          'height': 'label',
+          'padding': 24
+        }
+      },
+      // Artifact nodes
+      {
+        selector: 'node.artifact',
+        style: {
+          'background-color': 'data(color)',
+          'background-opacity': 0.7,
+          'border-width': 0,
+          'label': 'data(label)',
+          'font-family': '"Inter", sans-serif',
+          'font-size': 11,
+          'color': '#F5F0E8',
+          'text-valign': 'center',
+          'text-halign': 'center',
+          'text-wrap': 'wrap',
+          'text-max-width': 100,
+          'shape': 'rectangle',
+          'width': 120,
+          'height': 40
+        }
+      },
+      // Active / hovered node
+      {
+        selector: 'node:active, node.hover',
+        style: {
+          'background-opacity': 1,
+          'border-width': 2,
+          'border-color': '#F5F0E8',
+          'overlay-opacity': 0
+        }
+      },
+      // FEEDS_INTO edges
+      {
+        selector: 'edge.feeds-into',
+        style: {
+          'line-color': '#A09A90',
+          'target-arrow-color': '#A09A90',
+          'target-arrow-shape': 'triangle',
+          'curve-style': 'taxi',
+          'width': 2,
+          'line-style': 'solid'
+        }
+      },
+      // CONTRADICTS edges
+      {
+        selector: 'edge.contradicts',
+        style: {
+          'line-color': '#A63D2F',
+          'target-arrow-shape': 'none',
+          'curve-style': 'taxi',
+          'width': 2,
+          'line-style': 'dashed'
+        }
+      },
+      // CONVERGES edges
+      {
+        selector: 'edge.converges',
+        style: {
+          'line-color': '#C8A43C',
+          'target-arrow-shape': 'none',
+          'curve-style': 'taxi',
+          'width': 2,
+          'line-style': 'dotted'
+        }
+      },
+      // INFORMS edges
+      {
+        selector: 'edge.informs',
+        style: {
+          'line-color': '#5C5A56',
+          'target-arrow-color': '#5C5A56',
+          'target-arrow-shape': 'triangle',
+          'curve-style': 'taxi',
+          'width': 1,
+          'line-style': 'solid'
+        }
+      }
+    ];
+
+    // ── State ──
+    let cy = null;
+    window.__roomIntelligence = null;
+
+    // ── Initialize Graph ──
+    function initGraph(data) {
+      // Store intelligence for Plan 02 chat
+      window.__roomIntelligence = data.intelligence || null;
+
+      // Count artifact nodes
+      const artifactNodes = data.elements.nodes.filter(
+        n => n.classes && n.classes.includes('artifact')
+      );
+
+      // Show/hide empty state
+      const emptyState = document.getElementById('empty-state');
+      if (artifactNodes.length === 0) {
+        emptyState.classList.add('visible');
+      } else {
+        emptyState.classList.remove('visible');
+      }
+
+      // Choose layout based on node count
+      const totalNodes = data.elements.nodes.length;
+      const layoutConfig = totalNodes >= 13
+        ? {
+            name: 'cose',
+            nodeRepulsion: function() { return 8000; },
+            idealEdgeLength: function() { return 120; },
+            gravity: 0.25,
+            animate: false,
+            padding: 40
+          }
+        : {
+            name: 'grid',
+            rows: 2,
+            padding: 40,
+            animate: false
+          };
+
+      // Destroy previous instance
+      if (cy) {
+        cy.destroy();
+      }
+
+      cy = cytoscape({
+        container: document.getElementById('cy'),
+        elements: {
+          nodes: data.elements.nodes,
+          edges: data.elements.edges
+        },
+        style: graphStyle,
+        layout: layoutConfig,
+        minZoom: 0.3,
+        maxZoom: 3,
+        wheelSensitivity: 0.3
+      });
+
+      // ── Events ──
+
+      // Click artifact node -> show detail panel
+      cy.on('tap', 'node.artifact', function(evt) {
+        const node = evt.target;
+        const d = node.data();
+        showDetailPanel(d);
+      });
+
+      // Click background -> hide detail panel
+      cy.on('tap', function(evt) {
+        if (evt.target === cy) {
+          hideDetailPanel();
+        }
+      });
+
+      // Hover artifact -> highlight connected edges
+      cy.on('mouseover', 'node.artifact', function(evt) {
+        const node = evt.target;
+        node.addClass('hover');
+        node.connectedEdges().style({ 'opacity': 1, 'width': 3 });
+        // Dim other nodes
+        cy.elements().not(node).not(node.connectedEdges()).not(node.connectedEdges().connectedNodes()).style({ 'opacity': 0.3 });
+      });
+
+      cy.on('mouseout', 'node.artifact', function(evt) {
+        const node = evt.target;
+        node.removeClass('hover');
+        cy.elements().style({ 'opacity': 1 });
+        // Restore edge widths
+        cy.edges('.feeds-into, .informs').style({ 'width': 2 });
+        cy.edges('.informs').style({ 'width': 1 });
+        cy.edges('.contradicts, .converges').style({ 'width': 2 });
+      });
+    }
+
+    // ── Detail Panel ──
+    function showDetailPanel(data) {
+      const panel = document.getElementById('detail-panel');
+      const bar = document.getElementById('detail-section-bar');
+      const title = document.getElementById('detail-title');
+      const fields = document.getElementById('detail-fields');
+
+      const sectionColor = data.color || '#5C5A56';
+      bar.style.background = sectionColor;
+      title.textContent = data.label || data.id;
+
+      let html = '';
+
+      if (data.section) {
+        html += fieldHTML('Section', data.section.replace(/-/g, ' '));
+      }
+      if (data.methodology) {
+        html += fieldHTML('Methodology', data.methodology);
+      }
+      if (data.created) {
+        html += fieldHTML('Created', data.created);
+      }
+      if (data.pipeline) {
+        html += fieldHTML('Pipeline', data.pipeline);
+      }
+      if (data.pipeline_stage) {
+        html += fieldHTML('Pipeline Stage', data.pipeline_stage, true);
+      }
+      if (data.id) {
+        html += fieldHTML('File', 'room/' + data.id + '.md', true);
+      }
+
+      fields.innerHTML = html;
+      panel.classList.add('open');
+    }
+
+    function hideDetailPanel() {
+      document.getElementById('detail-panel').classList.remove('open');
+    }
+
+    function fieldHTML(label, value, mono) {
+      return '<div class="detail-field">' +
+        '<div class="detail-field-label">' + label + '</div>' +
+        '<div class="detail-field-value' + (mono ? ' mono' : '') + '">' + escapeHTML(value) + '</div>' +
+        '</div>';
+    }
+
+    function escapeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+
+    // ── Close button ──
+    document.getElementById('detail-close').addEventListener('click', hideDetailPanel);
+
+    // ── Refresh button ──
+    document.getElementById('btn-refresh').addEventListener('click', function() {
+      loadGraph();
+    });
+
+    // ── Load graph data ──
+    function loadGraph() {
+      fetch('graph.json?t=' + Date.now())
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          initGraph(data);
+        })
+        .catch(function(err) {
+          console.error('Failed to load graph.json:', err);
+          document.getElementById('empty-state').classList.add('visible');
+        });
+    }
+
+    // ── Boot ──
+    loadGraph();
+  </script>
+</body>
+</html>
