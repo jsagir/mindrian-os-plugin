@@ -132,12 +132,12 @@ Plans:
   2. Plugin actively monitors context window consumption and adapts loading strategy — compresses references, defers skill loading, warns user when approaching limits, works on both 200K (Sonnet) and 1M (Opus) contexts
   3. Plugin tracks official Anthropic releases (Newsroom, Blog, Claude Code changelog, Releasebot feeds) and surfaces new capabilities relevant to MindrianOS, tagged by domain (models, code, desktop_cowork, plugins_mcp, visualization)
   4. Context awareness differentiates behavior by model context size — Sonnet users get aggressive reference compression, Opus users get richer inline context
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 05-01: Self-update system (version detection, changelog, clean install, modification backup/reapply)
-- [ ] 05-02: Context window awareness (consumption monitoring, adaptive loading, model-aware strategy)
-- [ ] 05-03: Claude capability radar (official feed ingestion, domain tagging, daily digest, opportunity surfacing)
+- [ ] 05-01-PLAN.md -- Self-update system: /update command, version check, changelog display, modification backup/reapply
+- [ ] 05-02-PLAN.md -- Context window awareness: statusline bridge, context-engine skill upgrade, model-aware adaptive loading
+- [ ] 05-03-PLAN.md -- Capability radar: curated domain-tagged index, on-demand changelog fetch, /radar command
 
 ## Progress
 
