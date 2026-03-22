@@ -46,6 +46,33 @@ if [ -d "$ROOM_DIR" ]; then
     context="${context}\n\n## Proactive Room Intelligence\n${proactive_output}"
   fi
 
+  # Read context bridge file if available
+  CTX_BUDGET=""
+  BRIDGE_FILE="/tmp/mindrian-context-state"
+  if [ -f "$BRIDGE_FILE" ]; then
+    # Check staleness (> 5 min = stale)
+    BRIDGE_AGE=$(( $(date +%s) - $(stat -c %Y "$BRIDGE_FILE" 2>/dev/null || echo 0) ))
+    if [ "$BRIDGE_AGE" -lt 300 ]; then
+      CTX_MODEL=$(grep "^MODEL_NAME=" "$BRIDGE_FILE" | cut -d= -f2-)
+      CTX_PCT=$(grep "^CTX_PCT=" "$BRIDGE_FILE" | cut -d= -f2-)
+      CTX_SIZE=$(grep "^CTX_SIZE=" "$BRIDGE_FILE" | cut -d= -f2-)
+      if [ -n "$CTX_PCT" ]; then
+        CTX_BUDGET="[Context Budget] Model: ${CTX_MODEL:-unknown}, Usage: ${CTX_PCT}%, Window: ${CTX_SIZE:-200000} tokens"
+        # Add warning if above threshold
+        CTX_INT="${CTX_PCT%.*}"
+        if [ "${CTX_INT:-0}" -ge 85 ]; then
+          CTX_BUDGET="${CTX_BUDGET} -- CRITICAL: Consider suggesting /clear"
+        elif [ "${CTX_INT:-0}" -ge 70 ]; then
+          CTX_BUDGET="${CTX_BUDGET} -- WARNING: Context getting tight"
+        fi
+      fi
+    fi
+  fi
+
+  if [ -n "$CTX_BUDGET" ]; then
+    context="${context}\n\n${CTX_BUDGET}"
+  fi
+
   # Add venture stage and suggested action from state
   context="${context}\n\nYou are Larry. The user has an active Data Room. Greet them with awareness of where they left off and suggest what to work on next based on the gaps above."
 else
