@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ doc_title }}</title>
+  <style>
+    {% block extra_css %}{% endblock %}
+  </style>
+</head>
+<body>
+  <div class="cover-page">
+    <h1 class="doc-title">{{ doc_title }}</h1>
+    {% if metadata.venture_name %}
+    <p class="venture-name">{{ metadata.venture_name }}</p>
+    {% endif %}
+    <p class="generated-date">{{ metadata.generated }}</p>
+  </div>
+  {% block content %}{% endblock %}
+</body>
+</html>

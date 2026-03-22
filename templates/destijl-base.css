@@ -1,0 +1,268 @@
+/* De Stijl Base Stylesheet — MindrianOS PDF Template System
+ * Shared across all document templates. Rendered by WeasyPrint.
+ * Fonts loaded via @font-face url() — base_url set by render-pdf script.
+ */
+
+/* ── Font Declarations ─────────────────────────────────────────── */
+
+@font-face {
+  font-family: 'Bebas Neue';
+  src: url('assets/fonts/BebasNeue-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('assets/fonts/Inter-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('assets/fonts/Inter-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* ── Page Rules ────────────────────────────────────────────────── */
+
+@page {
+  size: A4;
+  margin: 24mm 20mm;
+  background: #0D0D0D;
+
+  @top-center {
+    content: string(doctitle);
+    font-family: 'Bebas Neue', sans-serif;
+    color: #A09A90;
+    font-size: 10px;
+  }
+
+  @bottom-right {
+    content: counter(page) ' / ' counter(pages);
+    font-family: 'Inter', sans-serif;
+    color: #A09A90;
+    font-size: 10px;
+  }
+}
+
+/* ── CSS Custom Properties ─────────────────────────────────────── */
+
+:root {
+  /* Surfaces */
+  --ds-bg: #0D0D0D;
+  --ds-surface: #1A1A1A;
+  --ds-elevated: #2A2A2A;
+  --ds-cream: #F5F0E8;
+  --ds-muted: #A09A90;
+
+  /* Section accent colors */
+  --ds-red: #A63D2F;
+  --ds-blue: #1E3A6E;
+  --ds-yellow: #C8A43C;
+  --ds-green: #2D6B4A;
+  --ds-sienna: #B5602A;
+  --ds-gray: #5C5A56;
+  --ds-amethyst: #6B4E8B;
+  --ds-teal: #2A6B5E;
+}
+
+/* ── Base Typography ───────────────────────────────────────────── */
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--ds-cream);
+  background: var(--ds-bg);
+  line-height: 1.6;
+  font-size: 11px;
+}
+
+h1, h2, h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.05em;
+  color: var(--ds-cream);
+  margin-top: 0;
+}
+
+h1 { font-size: 36px; line-height: 1.1; }
+h2 { font-size: 24px; line-height: 1.2; }
+h3 { font-size: 18px; line-height: 1.3; }
+
+p {
+  orphans: 3;
+  widows: 3;
+  margin: 0 0 12px 0;
+}
+
+/* De Stijl: zero radius everywhere */
+* {
+  border-radius: 0;
+}
+
+a {
+  color: var(--ds-yellow);
+  text-decoration: none;
+}
+
+/* ── Running Header String ─────────────────────────────────────── */
+
+.doc-title {
+  string-set: doctitle content();
+}
+
+/* ── Cover Page ────────────────────────────────────────────────── */
+
+.cover-page {
+  break-after: page;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 200mm;
+  text-align: center;
+}
+
+.cover-page h1 {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.venture-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  color: var(--ds-muted);
+  margin-bottom: 24px;
+}
+
+.generated-date {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--ds-muted);
+}
+
+/* ── Section Layout ────────────────────────────────────────────── */
+
+.room-section {
+  break-before: page;
+}
+
+.section-header {
+  string-set: doctitle content();
+  margin-bottom: 24px;
+}
+
+.accent-bar {
+  border-left: 4px solid var(--accent, var(--ds-muted));
+  padding-left: 16px;
+}
+
+.entry {
+  margin-bottom: 24px;
+  break-inside: avoid;
+}
+
+.entry h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: var(--ds-cream);
+}
+
+/* ── Two-Column Layout (Executive Summary) ─────────────────────── */
+
+.two-col {
+  columns: 2;
+  column-gap: 24px;
+}
+
+.two-col > * {
+  break-inside: avoid;
+}
+
+/* ── Profile Grid Layout ───────────────────────────────────────── */
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.profile-cell {
+  background: var(--ds-surface);
+  padding: 16px;
+  break-inside: avoid;
+}
+
+.profile-cell h3 {
+  font-size: 14px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.profile-placeholder {
+  color: var(--ds-muted);
+  font-style: italic;
+  font-size: 10px;
+}
+
+/* ── TOC (Due Diligence) ───────────────────────────────────────── */
+
+.toc {
+  break-after: page;
+}
+
+.toc h2 {
+  margin-bottom: 24px;
+}
+
+.toc-entry {
+  display: block;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--ds-elevated);
+  color: var(--ds-cream);
+  font-size: 14px;
+}
+
+.toc-entry .toc-number {
+  font-family: 'Bebas Neue', sans-serif;
+  color: var(--ds-muted);
+  margin-right: 12px;
+}
+
+/* ── Key Metrics Box ───────────────────────────────────────────── */
+
+.metrics-box {
+  background: var(--ds-surface);
+  padding: 16px;
+  margin-bottom: 24px;
+  break-inside: avoid;
+}
+
+.metrics-box h3 {
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: var(--ds-yellow);
+}
+
+/* ── Utility Classes ───────────────────────────────────────────── */
+
+.muted {
+  color: var(--ds-muted);
+}
+
+.surface {
+  background: var(--ds-surface);
+  padding: 16px;
+}
+
+.elevated {
+  background: var(--ds-elevated);
+  padding: 16px;
+}
+
+.page-break {
+  break-before: page;
+}
