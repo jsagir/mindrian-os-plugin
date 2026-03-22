@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# classify-insight -- Keyword-based room section classification
+# Called by PostToolUse hook after Write operations via run-hook.cmd
+#
+# Input: FILE_PATH as $1 argument, or via TOOL_INPUT_PATH env var
+# Output: "CLASSIFIED:{section}:HIGH", "SUGGEST:{section}:MEDIUM", or "UNCERTAIN"
+# Must complete in under 100ms (simple grep, no heavy processing)
+
+FILE_PATH="${1:-$TOOL_INPUT_PATH}"
+
+# No file path provided -- nothing to classify
+if [[ -z "$FILE_PATH" ]]; then
+  exit 0
+fi
+
+# Only process files in room/ directory
+if [[ ! "$FILE_PATH" == */room/* ]]; then
+  exit 0
+fi
+
+# Extract directory name for section detection
+DIRNAME=$(dirname "$FILE_PATH" | xargs basename)
+
+# Already filed to a known section -- high confidence
+SECTIONS="problem-definition market-analysis solution-design business-model competitive-analysis team-execution legal-ip financial-model"
+for section in $SECTIONS; do
+  if [[ "$DIRNAME" == "$section" ]]; then
+    echo "CLASSIFIED:$section:HIGH"
+    exit 0
+  fi
+done
+
+# Keyword classification for unfiled content (top 50 lines, lowercased)
+CONTENT=$(head -50 "$FILE_PATH" 2>/dev/null | tr '[:upper:]' '[:lower:]')
+
+if [[ -z "$CONTENT" ]]; then
+  echo "UNCERTAIN"
+  exit 0
+fi
+
+if echo "$CONTENT" | grep -qiE "problem|domain|question|definition|scope|undefined|beautiful.question|ackoff|pyramid"; then
+  echo "SUGGEST:problem-definition:MEDIUM"
+elif echo "$CONTENT" | grep -qiE "market|customer|trend|timing|s.curve|scenario|macro|future|tta|need"; then
+  echo "SUGGEST:market-analysis:MEDIUM"
+elif echo "$CONTENT" | grep -qiE "solution|design|system|hierarchy|bottleneck|architecture|hat"; then
+  echo "SUGGEST:solution-design:MEDIUM"
+elif echo "$CONTENT" | grep -qiE "model|revenue|canvas|pricing|unit.economics|lean"; then
+  echo "SUGGEST:business-model:MEDIUM"
+elif echo "$CONTENT" | grep -qiE "competition|competitor|challenge|assumption|validate|evidence|devil|red.team"; then
+  echo "SUGGEST:competitive-analysis:MEDIUM"
+elif echo "$CONTENT" | grep -qiE "team|leadership|hire|capability|execution"; then
+  echo "SUGGEST:team-execution:MEDIUM"
+elif echo "$CONTENT" | grep -qiE "legal|ip|patent|regulation|compliance"; then
+  echo "SUGGEST:legal-ip:MEDIUM"
+elif echo "$CONTENT" | grep -qiE "investment|thesis|financial|funding|valuation|grade|scoring"; then
+  echo "SUGGEST:financial-model:MEDIUM"
+else
+  echo "UNCERTAIN"
+fi

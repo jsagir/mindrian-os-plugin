@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# post-write -- PostToolUse handler for Write operations
+# Routes to classify-insight for room file classification
+#
+# Called by run-hook.cmd when PostToolUse fires after Write tool usage.
+# The written file path is passed via TOOL_INPUT_PATH env var or as $1.
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+FILE_PATH="${1:-$TOOL_INPUT_PATH}"
+
+if [[ -z "$FILE_PATH" ]]; then
+  exit 0
+fi
+
+# Run classification on the written file
+exec bash "${SCRIPT_DIR}/classify-insight" "$FILE_PATH"
