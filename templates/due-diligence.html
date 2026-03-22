@@ -1,0 +1,49 @@
+{% extends "_base.html" %}
+
+{% block extra_css %}
+/* Due Diligence Report — multi-section with TOC and numbered headings */
+.dd-section-number {
+  font-family: 'Bebas Neue', sans-serif;
+  color: var(--ds-muted);
+  margin-right: 8px;
+}
+{% endblock %}
+
+{% block content %}
+{# ── Table of Contents ── #}
+{% set ns = namespace(counter=0) %}
+<div class="toc">
+  <h2>Table of Contents</h2>
+  {% for name in section_order %}
+    {% if sections[name] is defined and sections[name]|length > 0 %}
+    {% set ns.counter = ns.counter + 1 %}
+    <a class="toc-entry" href="#{{ name }}">
+      <span class="toc-number">{{ ns.counter }}.</span>
+      {{ labels[name] }}
+    </a>
+    {% endif %}
+  {% endfor %}
+</div>
+
+{# ── Report Sections ── #}
+{% set ns.counter = 0 %}
+{% for name in section_order %}
+  {% if sections[name] is defined and sections[name]|length > 0 %}
+  {% set ns.counter = ns.counter + 1 %}
+  <div class="room-section" id="{{ name }}" style="--accent: {{ colors[name] }};">
+    <h2 class="section-header" style="string-set: doctitle '{{ labels[name] }}';">
+      <span class="dd-section-number">{{ ns.counter }}.</span>
+      {{ labels[name] }}
+    </h2>
+    <div class="accent-bar" style="border-left-color: {{ colors[name] }};">
+      {% for entry in sections[name] %}
+      <div class="entry">
+        <h3>{{ entry.title }}</h3>
+        {{ entry.html|safe }}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+{% endfor %}
+{% endblock %}

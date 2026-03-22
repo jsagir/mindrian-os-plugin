@@ -1,0 +1,40 @@
+{% extends "_base.html" %}
+
+{% block extra_css %}
+/* Executive Summary — compact 1-2 page dense layout */
+.summary-content {
+  columns: 2;
+  column-gap: 24px;
+}
+.summary-content > * {
+  break-inside: avoid;
+}
+.summary-section {
+  margin-bottom: 16px;
+}
+.summary-section h3 {
+  font-size: 14px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+{% endblock %}
+
+{% block content %}
+{% if sections['financial-model'] is defined and sections['financial-model']|length > 0 %}
+<div class="metrics-box">
+  <h3>Key Financial Metrics</h3>
+  {{ sections['financial-model'][0].html|safe|truncate(500) }}
+</div>
+{% endif %}
+
+<div class="summary-content">
+  {% for name in section_order %}
+    {% if sections[name] is defined and sections[name]|length > 0 %}
+    <div class="summary-section">
+      <h3 style="color: {{ colors[name] }};">{{ labels[name] }}</h3>
+      {{ sections[name][0].html|safe|truncate(500) }}
+    </div>
+    {% endif %}
+  {% endfor %}
+</div>
+{% endblock %}

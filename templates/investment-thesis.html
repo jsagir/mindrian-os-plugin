@@ -1,0 +1,25 @@
+{% extends "_base.html" %}
+
+{% block extra_css %}
+/* Investment Thesis — multi-page portrait with section breaks */
+{% endblock %}
+
+{% block content %}
+{% for name in section_order %}
+  {% if sections[name] is defined and sections[name]|length > 0 %}
+  <div class="room-section" style="--accent: {{ colors[name] }};">
+    <h2 class="section-header" style="string-set: doctitle '{{ labels[name] }}';">
+      {{ labels[name] }}
+    </h2>
+    <div class="accent-bar" style="border-left-color: {{ colors[name] }};">
+      {% for entry in sections[name] %}
+      <div class="entry">
+        <h3>{{ entry.title }}</h3>
+        {{ entry.html|safe }}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends "_base.html" %}
+
+{% block extra_css %}
+/* PWS Profile — single-page grid layout */
+@page profile-page {
+  size: A4;
+  margin: 24mm 20mm;
+  background: #0D0D0D;
+}
+.profile-content {
+  page: profile-page;
+  max-height: 247mm;
+  overflow: hidden;
+}
+.profile-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.profile-header h2 {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+.profile-subtitle {
+  font-size: 12px;
+  color: var(--ds-muted);
+}
+{% endblock %}
+
+{% block content %}
+<div class="profile-content">
+  <div class="profile-header">
+    {% if metadata.venture_name %}
+    <h2>{{ metadata.venture_name }}</h2>
+    {% endif %}
+    <p class="profile-subtitle">PWS Profile</p>
+  </div>
+
+  <div class="profile-grid">
+    {# ── Top-Left: Domain Expertise (explore-domains methodology) ── #}
+    <div class="profile-cell" style="--accent: {{ colors['problem-definition'] }};">
+      <div class="accent-bar" style="border-left-color: {{ colors['problem-definition'] }};">
+        <h3>Domain Expertise</h3>
+        {% set domain_entries = [] %}
+        {% if sections['problem-definition'] is defined %}
+          {% for entry in sections['problem-definition'] %}
+            {% if entry.metadata.source == 'explore-domains' %}
+              {% if domain_entries.append(entry) %}{% endif %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        {% if domain_entries|length > 0 %}
+          {% for entry in domain_entries %}
+          <div class="entry">
+            <h3>{{ entry.title }}</h3>
+            {{ entry.html|safe|truncate(300) }}
+          </div>
+          {% endfor %}
+        {% else %}
+          <p class="profile-placeholder">Run /mindrian-os:explore-domains to add domain expertise</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {# ── Top-Right: Thinking Perspectives (think-hats methodology) ── #}
+    <div class="profile-cell" style="--accent: {{ colors['problem-definition'] }};">
+      <div class="accent-bar" style="border-left-color: {{ colors['market-analysis'] }};">
+        <h3>Thinking Perspectives</h3>
+        {% set hat_entries = [] %}
+        {% for name in section_order %}
+          {% if sections[name] is defined %}
+            {% for entry in sections[name] %}
+              {% if entry.metadata.source == 'think-hats' %}
+                {% if hat_entries.append(entry) %}{% endif %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+        {% if hat_entries|length > 0 %}
+          {% for entry in hat_entries %}
+          <div class="entry">
+            <h3>{{ entry.title }}</h3>
+            {{ entry.html|safe|truncate(300) }}
+          </div>
+          {% endfor %}
+        {% else %}
+          <p class="profile-placeholder">Run /mindrian-os:think-hats to add perspectives</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {# ── Bottom-Left: Customer Understanding (analyze-needs / JTBD) ── #}
+    <div class="profile-cell" style="--accent: {{ colors['market-analysis'] }};">
+      <div class="accent-bar" style="border-left-color: {{ colors['green'] if colors['green'] is defined else colors.get('business-model', '#2D6B4A') }};">
+        <h3>Customer Understanding</h3>
+        {% set needs_entries = [] %}
+        {% for name in section_order %}
+          {% if sections[name] is defined %}
+            {% for entry in sections[name] %}
+              {% if entry.metadata.source in ['analyze-needs', 'user-needs'] %}
+                {% if needs_entries.append(entry) %}{% endif %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+        {% if needs_entries|length > 0 %}
+          {% for entry in needs_entries %}
+          <div class="entry">
+            <h3>{{ entry.title }}</h3>
+            {{ entry.html|safe|truncate(300) }}
+          </div>
+          {% endfor %}
+        {% else %}
+          <p class="profile-placeholder">Run /mindrian-os:analyze-needs to add customer insights</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {# ── Bottom-Right: Professional Background (team-execution) ── #}
+    <div class="profile-cell" style="--accent: {{ colors['team-execution'] }};">
+      <div class="accent-bar" style="border-left-color: {{ colors['team-execution'] }};">
+        <h3>Professional Background</h3>
+        {% if sections['team-execution'] is defined and sections['team-execution']|length > 0 %}
+          {% for entry in sections['team-execution'] %}
+          <div class="entry">
+            <h3>{{ entry.title }}</h3>
+            {{ entry.html|safe|truncate(300) }}
+          </div>
+          {% endfor %}
+        {% else %}
+          <p class="profile-placeholder">Add team member profiles to the Data Room</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
