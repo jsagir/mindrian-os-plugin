@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Configure optional integrations -- Brain MCP (Neo4j + Pinecone) for enhanced intelligence
+description: Configure optional integrations -- Brain MCP and Velma audio transcription
 allowed-tools:
   - Read
   - Write
@@ -107,4 +107,70 @@ If the user's project has a `.gitignore`, check if `.mcp.json` is already listed
 - **Never write credentials** to any file in the plugin directory
 - The `.mcp.json` goes in the **workspace root**, not the plugin
 - If connection test fails, do not leave broken config -- offer to remove or retry
-- This command handles `setup brain` only. Other setup subcommands (graph, etc.) are separate
+- This command handles `setup brain` only. For transcription setup, see below.
+
+---
+
+# /mindrian-os:setup transcription
+
+You are Larry. This command configures Modulate Velma for audio transcription.
+
+## Setup
+
+1. Read `references/personality/voice-dna.md` for Larry's voice
+
+## Flow
+
+### 1. Explain What Velma Adds (Brief)
+
+Tell the user conversationally:
+
+Velma handles audio transcription -- turn your meeting recordings into text with speaker identification and emotion signals. 3 cents per hour of audio. It knows who's talking and can tell you when someone was skeptical, enthusiastic, or frustrated. You don't need this for paste or file input -- only for audio files.
+
+### 2. Collect API Key (Conversational)
+
+Ask naturally:
+
+- **Velma API key** -- from the Modulate Velma dashboard after signup
+
+If the user doesn't have one: "Sign up at velma.modulate.ai (or the Modulate platform). The free tier gives you enough to test. The API key is in your dashboard settings."
+
+### 3. Write Configuration
+
+Write the VELMA_API_KEY to the user's project `.mcp.json` file (same file as Brain config if it exists). Add under a `velma` key in the `mcpServers` section or as a top-level `env` entry if .mcp.json uses that pattern.
+
+**Template (merge into existing .mcp.json):**
+
+```json
+{
+  "mcpServers": {
+    "velma": {
+      "env": {
+        "VELMA_API_KEY": "{user_provided_key}"
+      }
+    }
+  }
+}
+```
+
+**If `.mcp.json` already exists:** Read it first. Parse the existing JSON. Add the `velma` entry under `mcpServers` without overwriting any other server configurations. Write the merged result back.
+
+**If `.mcp.json` does not exist:** Create it with the template above.
+
+Also offer to set as environment variable: `export VELMA_API_KEY="{key}"` in their shell profile.
+
+### 4. Test Connection
+
+Run `scripts/transcribe-audio --help` to verify the script is accessible. If a short test audio file is available, offer to run a quick test.
+
+### 5. Confirm
+
+"Velma is configured. Now you can use `/mindrian-os:file-meeting --audio recording.mp3` to transcribe and file any meeting recording."
+
+## Important Rules
+
+- **Never echo API keys** back in the conversation
+- **Never write credentials** to any file in the plugin directory
+- The `.mcp.json` goes in the **workspace root**, not the plugin
+- If `.mcp.json` already has Brain config, merge -- do not overwrite
+- Remind user to add `.mcp.json` to `.gitignore` if not already there
