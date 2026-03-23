@@ -21,10 +21,10 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 
 ### Team Room Structure
 
-- [ ] **TEAM-01**: Room gains a `team/` directory with subfolders: `members/`, `mentors/`, `advisors/`
-- [ ] **TEAM-02**: Each person gets their own folder (e.g., `team/mentors/lawrence-aronhime/`) with PROFILE.md, and subfolders for their contributions (insights/, advice/, connections/, concerns/)
-- [ ] **TEAM-03**: `/mindrian-os:new-project` creates the team/ structure alongside the 8 topic sections
-- [ ] **TEAM-04**: When filing meeting segments, artifacts are cross-linked to both the topic section AND the speaker's person folder
+- [x] **TEAM-01**: Room gains a `team/` directory with subfolders: `members/`, `mentors/`, `advisors/`
+- [x] **TEAM-02**: Each person gets their own folder (e.g., `team/mentors/lawrence-aronhime/`) with PROFILE.md, and subfolders for their contributions (insights/, advice/, connections/, concerns/)
+- [x] **TEAM-03**: `/mindrian-os:new-project` creates the team/ structure alongside the 8 topic sections
+- [x] **TEAM-04**: When filing meeting segments, artifacts are cross-linked to both the topic section AND the speaker's person folder
 - [ ] **TEAM-05**: `team/TEAM-STATE.md` is computed from filesystem -- who contributes what, expertise distribution, gaps in team coverage
 
 ### Meeting Archive
@@ -97,10 +97,10 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 | MEET-07 | Phase 6 | Complete |
 | MEET-08 | Phase 6 | Complete |
 | MEET-09 | Phase 6 | Complete |
-| TEAM-01 | Phase 7 | Pending |
-| TEAM-02 | Phase 7 | Pending |
-| TEAM-03 | Phase 7 | Pending |
-| TEAM-04 | Phase 7 | Pending |
+| TEAM-01 | Phase 7 | Complete |
+| TEAM-02 | Phase 7 | Complete |
+| TEAM-03 | Phase 7 | Complete |
+| TEAM-04 | Phase 7 | Complete |
 | TEAM-05 | Phase 7 | Pending |
 | ARCH-01 | Phase 7 | Pending |
 | ARCH-02 | Phase 7 | Pending |

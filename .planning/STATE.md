@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Meeting Intelligence
-status: completed
-stopped_at: Completed 06-03-PLAN.md (Phase 6 complete)
-last_updated: "2026-03-23T18:41:50.057Z"
-last_activity: 2026-03-23 -- Completed 06-03 file-meeting command + speaker research scripts
+status: executing
+stopped_at: Completed 07-01-PLAN.md
+last_updated: "2026-03-23T19:32:32.950Z"
+last_activity: 2026-03-23 -- Completed 07-01 team room structure foundation
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
-  percent: 100
+  total_plans: 7
+  completed_plans: 5
+  percent: 93
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Teams can file meeting intelligence into a living Data Room -- speakers identified, insights classified, knowledge compounding across meetings.
-**Current focus:** Phase 6: Stage 1 Core Capability -- file-meeting command with transcript/audio input
+**Current focus:** Phase 7: Team Room Structure -- people-aware Data Room with speaker profiles and attribution
 
 ## Current Position
 
-Phase: 6 of 9 (Stage 1 Core Capability)
-Plan: 4 of 4 in current phase
-Status: Phase Complete
-Last activity: 2026-03-23 -- Completed 06-03 file-meeting command + speaker research scripts
+Phase: 7 of 9 (Team Room Structure)
+Plan: 1 of 3 in current phase
+Status: In Progress
+Last activity: 2026-03-23 -- Completed 07-01 team room structure foundation
 
-Progress: [██████████] 100%
+Progress: [█████████░] 93%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [██████████] 100%
 - Trend: Stable
 | Phase 06 P04 | 5min | 2 tasks | 4 files |
 | Phase 06 P03 | 7min | 3 tasks | 4 files |
+| Phase 07 P01 | 4min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,9 @@ Recent decisions affecting current work:
 - [Phase 06]: Speaker profiles use research_status: pending -- web research runs post-pipeline via scripts/research-speaker
 - [Phase 06]: Presentation priority: INVALIDATES > CONTRADICTS > CONVERGES > ENABLES > INFORMS
 - [Phase 06]: file-meeting is a thin command orchestrating 6 pipeline steps conversationally; speaker research runs post-pipeline only
+- [Phase 07]: Phase 7 profiles add roles (list) + primary_role alongside backward-compat role (singular)
+- [Phase 07]: Contributions section computed by compute-team, not filed manually to subfolders
+- [Phase 07]: Nested attribution block replaces flat speaker/speaker_role fields in artifact frontmatter
 
 ### Architectural Evolution (from Live Data Room Paper)
 
@@ -142,8 +146,8 @@ The HSI (Hybrid Similarity Index) and Reverse Salient Discovery tools are the CO
 
 ## Session Continuity
 
-Last session: 2026-03-23T18:41:50.053Z
-Stopped at: Completed 06-03-PLAN.md (Phase 6 complete)
+Last session: 2026-03-23T19:32:32.947Z
+Stopped at: Completed 07-01-PLAN.md
 Resume command: /gsd:execute-phase 6
 Resume file: None
 
