@@ -25,12 +25,12 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 - [x] **TEAM-02**: Each person gets their own folder (e.g., `team/mentors/lawrence-aronhime/`) with PROFILE.md, and subfolders for their contributions (insights/, advice/, connections/, concerns/)
 - [x] **TEAM-03**: `/mindrian-os:new-project` creates the team/ structure alongside the 8 topic sections
 - [x] **TEAM-04**: When filing meeting segments, artifacts are cross-linked to both the topic section AND the speaker's person folder
-- [ ] **TEAM-05**: `team/TEAM-STATE.md` is computed from filesystem -- who contributes what, expertise distribution, gaps in team coverage
+- [x] **TEAM-05**: `team/TEAM-STATE.md` is computed from filesystem -- who contributes what, expertise distribution, gaps in team coverage
 
 ### Meeting Archive
 
 - [x] **ARCH-01**: Each meeting gets its own folder in `room/meetings/YYYY-MM-DD-{name}/` with transcript.md, summary.md, and filed-to/ links
-- [ ] **ARCH-02**: `/mindrian-os:status` shows meeting count and last meeting date alongside room state
+- [x] **ARCH-02**: `/mindrian-os:status` shows meeting count and last meeting date alongside room state
 - [x] **ARCH-03**: Cross-meeting intelligence: Larry can reference past meetings ("Lawrence mentioned this 3 meetings ago")
 
 ### Read AI MCP Integration
@@ -101,9 +101,9 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 | TEAM-02 | Phase 7 | Complete |
 | TEAM-03 | Phase 7 | Complete |
 | TEAM-04 | Phase 7 | Complete |
-| TEAM-05 | Phase 7 | Pending |
+| TEAM-05 | Phase 7 | Complete |
 | ARCH-01 | Phase 7 | Complete |
-| ARCH-02 | Phase 7 | Pending |
+| ARCH-02 | Phase 7 | Complete |
 | ARCH-03 | Phase 7 | Complete |
 | RDAI-01 | Phase 8 | Pending |
 | RDAI-02 | Phase 8 | Pending |
