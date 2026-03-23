@@ -247,18 +247,36 @@ Track: total segments filed, total rejected, sections touched.
 
 ## Step 5: Create Meeting Summary + Archive
 
-### Infer Meeting Metadata
+### Infer Meeting Name + Confirm
 
 Before creating the archive, confirm the meeting name with the user:
 
-1. **Larry proposes** a meeting name from the dominant topic/purpose of the conversation:
+1. **Larry proposes** a meeting name from the dominant topic/purpose of classified segments:
    > "This looks like a mentoring session focused on market validation. I'd call it 'Market Validation Mentoring'. Sound right?"
 
 2. **User confirms or changes** the name. Use their version if they provide one.
 
 3. The confirmed meeting name becomes the **meeting_id** used in all attribution blocks and archive paths:
    - meeting_id: `YYYY-MM-DD-{confirmed-slug}` (e.g., `2026-03-15-market-validation-mentoring`)
-   - Slugify: lowercase, hyphens, no special characters
+   - Slugify: lowercase, hyphens, no special characters, max 50 characters
+
+### Meeting Archive Package
+
+The complete meeting archive directory structure:
+
+```
+room/meetings/YYYY-MM-DD-{meeting-name}/
+  transcript.md
+  summary.md
+  speakers.md
+  decisions.md
+  action-items.md
+  metadata.yaml
+  {audio-filename}       # only if --audio input
+  filed-to/
+```
+
+Each meeting is a self-contained knowledge artifact. The entire folder can be browsed, shared, or referenced as a unit.
 
 ### Create Meeting Archive Directory
 
@@ -270,6 +288,24 @@ mkdir -p room/meetings/YYYY-MM-DD-{meeting-name}/filed-to/
 
 Write the processed transcript (with speaker labels and format metadata) to:
 `room/meetings/YYYY-MM-DD-{meeting-name}/transcript.md`
+
+### Create Speakers Roster
+
+Create `room/meetings/YYYY-MM-DD-{meeting-name}/speakers.md`:
+
+```markdown
+---
+meeting_id: {YYYY-MM-DD-meeting-slug}
+meeting_date: {YYYY-MM-DD}
+---
+# Speakers: {meeting_name}
+
+| Speaker | Role | Segments | Profile |
+|---------|------|----------|---------|
+| {name} | {role} | {count} | [[team/{role-plural}/{slug}/PROFILE.md]] |
+```
+
+One row per confirmed speaker from Step 2. Profile links use the slug from create-speaker-profile (canonical slug source).
 
 ### Create Full Summary
 
@@ -294,6 +330,80 @@ Structure:
 7. **## Rejections** -- segments rejected with structured reasons. This IS data -- do not hide or minimize rejections.
 
 8. **## Speakers** -- {count} speakers with roles and contribution summary
+
+### Create Decisions Log
+
+Create `room/meetings/YYYY-MM-DD-{meeting-name}/decisions.md`:
+
+```markdown
+---
+meeting_id: {YYYY-MM-DD-meeting-slug}
+---
+# Decisions: {meeting_name}
+
+1. **{Decision summary}** -- {speaker} ({role})
+   Filed to: [[{section}/{artifact-filename}.md]]
+   Impact: {cascade_sections from the decision artifact}
+```
+
+Extract from the segments classified as `decision` in Step 3. If no decisions were made, write: "No explicit decisions were recorded in this meeting."
+
+### Create Action Items Log
+
+Create `room/meetings/YYYY-MM-DD-{meeting-name}/action-items.md`:
+
+```markdown
+---
+meeting_id: {YYYY-MM-DD-meeting-slug}
+---
+# Action Items: {meeting_name}
+
+| Owner | Task | Deadline | Status |
+|-------|------|----------|--------|
+| {name} | {task} | {date or "not specified"} | open |
+```
+
+Extract from segments classified as `action-item` in Step 3. Deadlines ONLY if explicitly stated in transcript -- never invent deadlines. All items start as `status: open`. If no action items, write: "No action items were identified in this meeting."
+
+### Create Structured Metadata
+
+Create `room/meetings/YYYY-MM-DD-{meeting-name}/metadata.yaml` as the LAST file in the archive (after all other data is known):
+
+```yaml
+meeting_id: {YYYY-MM-DD-meeting-slug}
+meeting_name: {human-readable meeting name}
+meeting_date: {YYYY-MM-DD}
+source: {transcript | velma}
+speakers:
+  - name: {full name}
+    role: {role}
+    slug: {speaker-slug matching profile directory}
+  - name: {full name}
+    role: {role}
+    slug: {speaker-slug}
+topics:
+  - {dominant topic 1}
+  - {dominant topic 2}
+decisions_count: {N}
+insights_count: {N}
+action_items_count: {N}
+sections_touched:
+  - {section-name}
+  - {section-name}
+has_audio: {true | false}
+```
+
+Topics are inferred from the dominant themes of filed segments. Speaker slugs MUST match the directory names created by create-speaker-profile (canonical slug source).
+
+### Copy Audio File (if --audio)
+
+If input was `--audio <path>`, copy the audio file into the meeting archive:
+
+```bash
+cp {audio-path} room/meetings/{YYYY-MM-DD-meeting-slug}/{original-filename}
+```
+
+Set `has_audio: true` in metadata.yaml. If no audio input, set `has_audio: false`.
 
 ### Create Filed-To Reference Directory
 
@@ -327,6 +437,17 @@ Full summary: [[meetings/YYYY-MM-DD-{meeting-name}/summary.md]]
 Transcript: [[meetings/YYYY-MM-DD-{meeting-name}/transcript.md]]
 Filed {N} artifacts across {M} sections.
 ```
+
+### Past Meeting Lookup
+
+When Larry needs to reference past meetings (e.g., "Lawrence mentioned this 3 meetings ago"), grep metadata.yaml files across `room/meetings/`:
+
+- **By speaker:** `grep -rl '{speaker-slug}' room/meetings/*/metadata.yaml`
+- **By topic:** `grep -rl '{topic}' room/meetings/*/metadata.yaml`
+- **By date range:** Scan `meeting_date` fields in metadata.yaml files
+- **By decision count:** `grep -l 'decisions_count: [1-9]' room/meetings/*/metadata.yaml`
+
+This provides fast targeted lookups without indexing. metadata.yaml is designed as a grep-friendly structured search surface.
 
 ---
 
