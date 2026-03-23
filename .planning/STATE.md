@@ -135,8 +135,8 @@ The HSI (Hybrid Similarity Index) and Reverse Salient Discovery tools are the CO
 ## Session Continuity
 
 Last session: 2026-03-23
-Stopped at: Phase 6 planned (3 plans, 2 waves). HSI tools referenced. Architecture adapted. Ready to execute.
-Resume command: /gsd:execute-phase 6
+Stopped at: Phase 6 plans need REPLANNING — Modulate Velma Transcribe replaces Whisper as primary Tier 1 transcription. Plan 06-02 must be rewritten for Velma API (streaming + diarization + emotion). Plans 06-01 and 06-03 are still valid.
+Resume command: /gsd:plan-phase 6 --research
 Resume file: None
 
 ### Key Files for Next Session
