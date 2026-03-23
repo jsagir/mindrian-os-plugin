@@ -215,4 +215,55 @@ if ! $contradiction_found; then
 fi
 
 echo ""
+
+# ═══════════════════════════════════════════════
+# Section 4: Meeting Intelligence
+# ═══════════════════════════════════════════════
+echo "## Meeting Coverage"
+
+# Count meetings
+meeting_count=0
+if [ -d "$ROOM_DIR/meetings" ]; then
+  for meeting_dir in "$ROOM_DIR"/meetings/*/; do
+    [ -d "$meeting_dir" ] || continue
+    meeting_count=$((meeting_count + 1))
+  done
+fi
+
+if [ "$meeting_count" -gt 0 ]; then
+  echo "MEETING_COUNT:${meeting_count}"
+
+  # Track which sections have meeting-sourced artifacts
+  declare -A meeting_sourced_sections
+  for section in "${SECTIONS[@]}"; do
+    section_dir="${ROOM_DIR}/${section}"
+    [ -d "$section_dir" ] || continue
+    meeting_sourced_sections["$section"]=0
+
+    for f in "$section_dir"/*.md; do
+      [ -f "$f" ] || continue
+      fname=$(basename "$f")
+      [ "$fname" = "ROOM.md" ] || [ "$fname" = "STATE.md" ] && continue
+
+      if grep -q '^source: transcript' "$f" 2>/dev/null; then
+        meeting_sourced_sections["$section"]=$((${meeting_sourced_sections[$section]} + 1))
+      fi
+    done
+  done
+
+  # Report meeting-sourced artifact distribution
+  for section in "${SECTIONS[@]}"; do
+    count="${meeting_sourced_sections[$section]:-0}"
+    total="${entry_counts[$section]}"
+    if [ "$total" -gt 0 ] && [ "$count" -eq 0 ]; then
+      echo "GAP:MEETING_COVERAGE:${section}:LOW:No meeting insights filed here -- is this section discussed in meetings?"
+    elif [ "$count" -gt 0 ]; then
+      echo "MEETING_SOURCED:${section}:${count}:${total}"
+    fi
+  done
+else
+  echo "No meetings filed yet. Use /mindrian-os:file-meeting to capture meeting intelligence."
+fi
+
+echo ""
 echo "## End"

@@ -86,6 +86,28 @@ elif $has_problem && $has_solution && $has_business && $has_financial; then
   venture_stage="Investment"
 fi
 
+# Count meetings
+meeting_count=0
+last_meeting_date=""
+if [ -d "$ROOM_DIR/meetings" ]; then
+  for meeting_dir in "$ROOM_DIR"/meetings/*/; do
+    [ -d "$meeting_dir" ] || continue
+    meeting_count=$((meeting_count + 1))
+    dir_name=$(basename "$meeting_dir")
+    # Extract date from YYYY-MM-DD-{name} format
+    meeting_date="${dir_name:0:10}"
+    if [[ "$meeting_date" > "$last_meeting_date" ]]; then
+      last_meeting_date="$meeting_date"
+    fi
+  done
+fi
+
+# Count team members
+team_count=0
+if [ -d "$ROOM_DIR/team" ]; then
+  team_count=$(find "$ROOM_DIR/team" -name "PROFILE.md" 2>/dev/null | wc -l | tr -d ' ')
+fi
+
 # Detect cross-references
 declare -a cross_refs=()
 for section_dir in "$ROOM_DIR"/*/; do
@@ -166,6 +188,23 @@ else
 fi
 
 echo ""
+
+# Meetings section
+if [ "$meeting_count" -gt 0 ]; then
+  echo "## Meetings"
+  echo ""
+  echo "- **Meetings filed:** $meeting_count"
+  echo "- **Last meeting:** $last_meeting_date"
+  echo ""
+fi
+
+# Team section
+if [ "$team_count" -gt 0 ]; then
+  echo "## Team"
+  echo ""
+  echo "- **Team profiles:** $team_count"
+  echo ""
+fi
 
 # Suggested next action
 echo "## Suggested Next Action"

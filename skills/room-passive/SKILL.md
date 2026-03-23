@@ -15,9 +15,13 @@ When responding, be aware of the `room/` directory structure:
 - Use room entry counts to gauge venture completeness
 - Read ROOM.md files for section purpose and starter questions
 
-## Room Structure (8 DD-Aligned Sections)
+## Room Structure (8 DD-Aligned Sections + Team + Meetings)
 
 problem-definition, market-analysis, solution-design, business-model, competitive-analysis, team-execution, legal-ip, financial-model
+
+**Plus meeting infrastructure:**
+- `team/` -- members/, mentors/, advisors/, and role-specific directories with ICM nested profiles
+- `meetings/` -- YYYY-MM-DD-{name}/ archives with transcript.md, summary.md, filed-to/
 
 ## Filing Intelligence
 
@@ -44,3 +48,18 @@ room_section: {section}
 ```
 
 Larry adds this automatically when filing. Never omit provenance.
+
+## Meeting-Sourced Artifacts
+
+When artifacts have `source: transcript` in frontmatter, they came from `/mindrian-os:file-meeting`. Be aware:
+
+- **Meeting provenance**: These artifacts carry extended metadata: speaker, speaker_role, meeting_date, segment_type, confidence, assumptions, perspective, cascade_sections
+- **Cross-referencing**: Meeting artifacts are cross-linked to both the topic section AND the speaker's profile under room/team/
+- **Assumption tracking**: The `assumptions:` field lists claims extracted from the meeting. Track assumption validity across sessions -- flag when new information contradicts an existing assumption
+- **Cascade awareness**: The `cascade_sections:` field lists other sections this artifact may impact. When filing new content to those sections, mention the potential cascade
+
+### Filing Intelligence for Meeting Content
+
+When a user mentions a meeting or conversation during a regular session (not file-meeting):
+- Suggest `/mindrian-os:file-meeting` for structured filing
+- Note that pasting fragments loses provenance -- the full pipeline captures speaker, role, and context
