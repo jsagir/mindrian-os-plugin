@@ -28,7 +28,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### v2.0 Meeting Intelligence
 
-- [ ] **Phase 6: Stage 1 Core Capability** - file-meeting command with paste/audio input, Whisper transcription, speaker identification, segment classification, confirm-then-file, provenance metadata, meeting summary artifact
+- [ ] **Phase 6: Stage 1 Core Capability** - file-meeting command with paste/file/audio input, Velma transcription, speaker identification (12 roles), segment classification, confirm-then-file with structured rejection, provenance metadata, meeting summary, cross-relationship batch scan
 - [ ] **Phase 7: Team Room Structure** - team/ directory with members/mentors/advisors, per-person folders, cross-linking artifacts to topic AND speaker, meeting archive, TEAM-STATE.md
 - [ ] **Phase 8: Cross-Meeting Intelligence** - Convergence detection across meetings, contradiction tracking, action item continuity, contribution analysis, Read AI MCP integration
 - [ ] **Phase 9: Meeting Knowledge Graph** - Meetings and speakers as graph nodes, cross-meeting edges, timeline view, dashboard updates, meeting report export, meeting summary PDFs
@@ -36,21 +36,22 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 6: Stage 1 Core Capability
-**Goal**: Users can file a meeting transcript into their Data Room -- paste text, provide a file, or provide audio that gets transcribed locally -- with speakers identified, segments classified, and everything filed with full provenance after user confirmation
+**Goal**: Users can file a meeting transcript into their Data Room -- paste text, provide a file, or provide audio transcribed via Modulate Velma -- with speakers identified from 12-role taxonomy, segments classified by priority, ICM nested profiles auto-created for new speakers, everything filed with wicked-problem-aware provenance after user confirmation, and cross-relationship batch scan surfacing cascade impacts
 **Depends on**: Phase 5 (v1.0 complete)
 **Requirements**: MEET-01, MEET-02, MEET-03, MEET-04, MEET-05, MEET-06, MEET-07, MEET-08, MEET-09
 **Success Criteria** (what must be TRUE):
   1. User runs `/mindrian-os:file-meeting` and can paste transcript text, provide a file path, OR provide an audio file -- all three input modes work
-  2. Larry presents identified speakers with proposed names and roles (mentor, researcher, team-member, investor, advisor, customer) and user confirms or corrects before proceeding
-  3. Each speaker segment is classified (insight, advice, question, decision, action-item, noise) and non-noise segments are mapped to the correct Data Room section -- user confirms each filing before creation
-  4. Every filed artifact includes meeting provenance metadata (speaker, speaker_role, meeting_date, segment_type, confidence, source: transcript)
-  5. After all segments are filed, Larry produces a meeting summary artifact with key decisions, insights filed, contradictions detected, gaps identified, and action items
-**Plans**: 3 plans
+  2. Larry presents identified speakers with proposed names and roles (12-type taxonomy) with smart hybrid matching against team/ directory, user confirms or corrects before proceeding
+  3. Each speaker segment is classified (insight, advice, question, decision, action-item, noise) presented priority-first, and non-noise segments are mapped to the correct Data Room section -- user confirms with structured rejection capture
+  4. Every filed artifact includes wicked-problem-aware provenance metadata (speaker, speaker_role, meeting_date, segment_type, confidence, assumptions, perspective, cascade_sections, source: transcript)
+  5. After all segments are filed, Larry produces a narrative + structured meeting summary in dual storage (meetings/ + room/ root), then runs a cross-relationship batch scan surfacing INFORMS, CONTRADICTS, CONVERGES, INVALIDATES, ENABLES edges
+**Plans**: 4 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Meeting reference library (5 files) + file-meeting command + help update
-- [ ] 06-02-PLAN.md — Audio transcription script + setup transcription command
-- [ ] 06-03-PLAN.md — Cross-relationship discovery patterns + analyze-room meeting awareness + room-passive transcript awareness
+- [ ] 06-01-PLAN.md — Meeting reference library (7 files) + test fixtures and scripts (Wave 0)
+- [ ] 06-02-PLAN.md — Velma transcription script + setup transcription command
+- [ ] 06-03-PLAN.md — file-meeting command + create-speaker-profile script + help update
+- [ ] 06-04-PLAN.md — Cross-relationship patterns + room-passive/compute-state/analyze-room meeting awareness
 
 ### Phase 7: Team Room Structure
 **Goal**: The Data Room gains a team/ directory that organizes people by role, gives each person their own contribution folder, archives full meetings, and cross-links every filed artifact to both its topic section and its speaker -- turning the Room from topic-organized to people-aware
@@ -99,7 +100,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9
 | 3.2 Document Generation | v1.0 | 2/2 | Complete | 2026-03-22 |
 | 4. Brain MCP Toolbox | v1.0 | 3/3 | Complete | 2026-03-22 |
 | 5. Plugin Intelligence | v1.0 | 3/3 | Complete | 2026-03-22 |
-| 6. Stage 1 Core Capability | v2.0 | 0/3 | Not started | - |
+| 6. Stage 1 Core Capability | v2.0 | 0/4 | Not started | - |
 | 7. Team Room Structure | v2.0 | 0/? | Not started | - |
 | 8. Cross-Meeting Intelligence | v2.0 | 0/? | Not started | - |
 | 9. Meeting Knowledge Graph | v2.0 | 0/? | Not started | - |

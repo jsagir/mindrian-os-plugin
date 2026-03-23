@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Meeting Intelligence
-status: ready_to_plan
-stopped_at: Roadmap created for v2.0
-last_updated: "2026-03-23T00:00:00.000Z"
-last_activity: 2026-03-23 -- v2.0 roadmap created, 4 phases (6-9), 32 requirements mapped
+status: planning
+stopped_at: Phase 6 plans revised
+last_updated: "2026-03-23T12:43:56.784Z"
+last_activity: 2026-03-23 -- Phase 6 plans revised based on checker feedback
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 0
+  total_plans: 4
   completed_plans: 0
   percent: 0
 ---
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-03-23)
 ## Current Position
 
 Phase: 6 of 9 (Stage 1 Core Capability)
-Plan: 0 of ? in current phase (awaiting plan-phase)
-Status: Ready to plan
-Last activity: 2026-03-23 -- v2.0 roadmap created
+Plan: 0 of 4 in current phase (4 plans created, ready to execute)
+Status: Ready to execute
+Last activity: 2026-03-23 -- Phase 6 plans revised based on checker feedback
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -63,10 +63,11 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 - [v2.0 Roadmap]: 4 phases (6-9) -- Core Capability, Team Room, Cross-Meeting Intelligence, Knowledge Graph
-- [v2.0 Roadmap]: Phase 6 bundles all MEET requirements (transcript filing + Whisper transcription + speaker ID + classification + provenance + summary)
+- [v2.0 Roadmap]: Phase 6 bundles all MEET requirements (transcript filing + Velma transcription + speaker ID + classification + provenance + summary)
 - [v2.0 Roadmap]: Phase 7 combines TEAM + ARCH requirements (team directory structure + meeting archive + cross-linking)
 - [v2.0 Roadmap]: Phase 8 combines XMTG + RDAI requirements (cross-meeting intelligence + Read AI integration)
 - [v2.0 Roadmap]: Phase 9 combines GRAP + DASH + DOCS requirements (graph nodes + dashboard + exports)
+- [Phase 6 Decision]: Modulate Velma replaces Whisper for audio transcription (3 cents/hr, REST API, native diarization + emotions, no local Python/PyTorch)
 
 ### Architectural Evolution (from Live Data Room Paper)
 
@@ -126,7 +127,6 @@ The HSI (Hybrid Similarity Index) and Reverse Salient Discovery tools are the CO
 
 ### Blockers/Concerns
 
-- Whisper local installation required for audio transcription (MEET-08/09) -- need to verify whisper.cpp or openai-whisper availability
 - Read AI MCP availability and API stability (RDAI-01/02/03) -- Phase 8 dependency
 - Nested room structure migration: v1 users have flat 8-section rooms. v2 adds team/ and meetings/. Migration must be non-breaking.
 - Assumption tracking adds frontmatter complexity to every artifact. Must be optional/progressive — don't break existing room artifacts.
@@ -134,16 +134,17 @@ The HSI (Hybrid Similarity Index) and Reverse Salient Discovery tools are the CO
 
 ## Session Continuity
 
-Last session: 2026-03-23
-Stopped at: Phase 6 plans need REPLANNING — Modulate Velma Transcribe replaces Whisper as primary Tier 1 transcription. Plan 06-02 must be rewritten for Velma API (streaming + diarization + emotion). Plans 06-01 and 06-03 are still valid.
-Resume command: /gsd:plan-phase 6 --research
-Resume file: None
+Last session: 2026-03-23T12:43:56.777Z
+Stopped at: Phase 6 plans revised
+Resume command: /gsd:execute-phase 6
+Resume file: .planning/phases/06-stage1-core-capability/06-01-PLAN.md
 
 ### Key Files for Next Session
-- `.planning/phases/06-stage1-core-capability/06-01-PLAN.md` (Wave 1: file-meeting command)
-- `.planning/phases/06-stage1-core-capability/06-02-PLAN.md` (Wave 2: Whisper audio)
-- `.planning/phases/06-stage1-core-capability/06-03-PLAN.md` (Wave 2: cross-relationship discovery)
+- `.planning/phases/06-stage1-core-capability/06-01-PLAN.md` (Wave 1: meeting reference library + tests)
+- `.planning/phases/06-stage1-core-capability/06-02-PLAN.md` (Wave 1: Velma audio transcription)
+- `.planning/phases/06-stage1-core-capability/06-03-PLAN.md` (Wave 3: file-meeting command + research-speaker)
+- `.planning/phases/06-stage1-core-capability/06-04-PLAN.md` (Wave 2: cross-relationship patterns + room intelligence)
 - `.planning/phases/06-stage1-core-capability/06-RESEARCH.md` (Phase 6 research)
-- `CLAUDE.md` (ICM × Wicked Problem Management architecture)
+- `CLAUDE.md` (ICM x Wicked Problem Management architecture)
 - `references/hsi/HSI-TOOLS-REFERENCE.md` (HSI tools for auto-relationship builder)
 - `docs/research/LIVE_DATA_ROOM_JTBD_PAPER.md` (theoretical backbone)
