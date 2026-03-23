@@ -8,11 +8,32 @@ A commercial Claude Code + Cowork plugin that delivers Mindrian's PWS (Personal 
 
 Users can run the full PWS methodology — 25 specialized methodology bots, structured pipelines, and an intelligent Data Room — inside Claude Code with zero infrastructure, where Larry guides them through venture innovation using the same teaching intelligence that powers the classroom experience.
 
+## Current Milestone: v2.0 Meeting Intelligence
+
+**Goal:** Transform MindrianOS from a solo thinking tool into a team intelligence system — join meetings, understand speakers, file insights to the Data Room by person and topic, and build a living knowledge graph of team contributions over time.
+
+**Target features:**
+- Meeting transcript filing with speaker identification and role classification
+- Team room structure (members, mentors, advisors with per-person folders)
+- Read AI MCP integration for automatic transcript pull
+- Cross-meeting intelligence (convergence, contradictions, action item tracking)
+- Meeting summary artifacts with provenance
+- Notion Data Room structure mapping
+
 ## Requirements
 
 ### Validated
 
-(None yet — ship to validate)
+v1.0 shipped and verified:
+- ✓ One-command install, Larry active immediately (v1.0, Phase 1)
+- ✓ 26 methodology commands + 5 Brain commands + 7 infrastructure commands (v1.0, Phases 2-4)
+- ✓ Data Room with 8 sections, proactive intelligence, pipeline chaining (v1.0, Phases 2-3)
+- ✓ De Stijl dashboard with knowledge graph + chat (v1.0, Phase 3.1)
+- ✓ PDF export (thesis, summary, report, profile) (v1.0, Phase 3.2)
+- ✓ Brain MCP integration with 4 agents (v1.0, Phase 4)
+- ✓ Self-update, context awareness, capability radar (v1.0, Phase 5)
+- ✓ Analytics + learning system (v0.2.0)
+- ✓ Auto-update notification at SessionStart (v0.2.0)
 
 ### Active
 

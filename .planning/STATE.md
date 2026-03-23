@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: completed
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-03-22T13:53:23.358Z"
-last_activity: 2026-03-22 -- Completed 05-03 Capability Radar (2 tasks, 4 files)
+milestone: v2.0
+milestone_name: Meeting Intelligence
+status: defining_requirements
+stopped_at: Milestone v2.0 started
+last_updated: "2026-03-23T00:00:00.000Z"
+last_activity: 2026-03-23 -- Milestone v2.0 Meeting Intelligence started
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 20
-  completed_plans: 20
-  percent: 95
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
