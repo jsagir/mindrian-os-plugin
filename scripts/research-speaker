@@ -1,0 +1,239 @@
+#!/usr/bin/env bash
+# research-speaker -- Proactive web research on a newly identified meeting speaker
+#
+# Usage: research-speaker <room_dir> <speaker-slug> <display-name> <project-context> [--apply]
+# Example: research-speaker room/ tyler-chen "Tyler Chen" "EdTech startup building AI tutoring platform"
+#
+# Performs web research on a speaker in the context of the project/room.
+# Outputs research summary to stdout for user confirmation.
+# With --apply flag, updates the speaker's PROFILE.md with findings.
+#
+# Exit 0 on success (or research unavailable -- not fatal)
+# Exit 1 on failure (missing profile, invalid args)
+
+set -euo pipefail
+
+# --help flag
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  cat <<'USAGE'
+research-speaker -- Proactive web research on a newly identified meeting speaker
+
+USAGE:
+  research-speaker <room_dir> <speaker-slug> <display-name> <project-context> [--apply]
+
+ARGUMENTS:
+  room_dir         Path to the room directory (e.g., room/)
+  speaker-slug     Lowercase hyphenated name (e.g., tyler-chen)
+  display-name     Full display name in quotes (e.g., "Tyler Chen")
+  project-context  Brief project/venture description for search context
+
+OPTIONS:
+  --apply          Apply research findings to PROFILE.md (requires prior user confirmation)
+
+EXAMPLES:
+  # Research and output findings for review
+  research-speaker room/ tyler-chen "Tyler Chen" "EdTech startup building AI tutoring"
+
+  # Apply confirmed findings to profile
+  research-speaker room/ tyler-chen "Tyler Chen" "EdTech startup building AI tutoring" --apply
+
+OUTPUT:
+  Without --apply: Prints research summary markdown to stdout
+  With --apply: Updates PROFILE.md and prints confirmation
+
+EXIT CODES:
+  0  Success (including "research unavailable" -- not fatal)
+  1  Failure (missing profile, invalid arguments)
+USAGE
+  exit 0
+fi
+
+# Validate arguments
+if [[ $# -lt 4 ]]; then
+  echo "ERROR: At least 4 arguments required: room_dir, speaker-slug, display-name, project-context" >&2
+  echo "Run with --help for usage." >&2
+  exit 1
+fi
+
+ROOM_DIR="$1"
+SPEAKER_SLUG="$2"
+DISPLAY_NAME="$3"
+PROJECT_CONTEXT="$4"
+APPLY_FLAG="${5:-}"
+
+# Validate room_dir exists
+if [[ ! -d "$ROOM_DIR" ]]; then
+  echo "ERROR: Room directory does not exist: $ROOM_DIR" >&2
+  exit 1
+fi
+
+# Find the speaker's profile (search across all role directories)
+PROFILE_PATH=""
+while IFS= read -r path; do
+  PROFILE_PATH="$path"
+  break
+done < <(find "${ROOM_DIR}/team" -path "*/${SPEAKER_SLUG}/PROFILE.md" 2>/dev/null)
+
+if [[ -z "$PROFILE_PATH" ]]; then
+  echo "ERROR: No profile found for speaker '${SPEAKER_SLUG}' in ${ROOM_DIR}/team/" >&2
+  exit 1
+fi
+
+PROFILE_DIR=$(dirname "$PROFILE_PATH")
+
+# Read existing profile for role and dates
+SPEAKER_ROLE=$(grep -m1 '^role:' "$PROFILE_PATH" | sed 's/^role: *//' || echo "unknown")
+FIRST_MEETING=$(grep -m1 '^first_meeting:' "$PROFILE_PATH" | sed 's/^first_meeting: *//' || echo "unknown")
+RESEARCH_STATUS=$(grep -m1 '^research_status:' "$PROFILE_PATH" | sed 's/^research_status: *//' || echo "pending")
+
+# Check if already researched
+if [[ "$RESEARCH_STATUS" == "complete" || "$RESEARCH_STATUS" == "completed" ]]; then
+  RESEARCH_DATE=$(grep -m1 '^research_date:' "$PROFILE_PATH" | sed 's/^research_date: *//' || echo "unknown")
+  echo "Already researched on ${RESEARCH_DATE}. Skipping."
+  exit 0
+fi
+
+# Read room/STATE.md for venture context if available
+VENTURE_NAME=""
+VENTURE_DOMAIN=""
+VENTURE_STAGE=""
+if [[ -f "${ROOM_DIR}/STATE.md" ]]; then
+  VENTURE_NAME=$(grep -m1 '^venture_name:' "${ROOM_DIR}/STATE.md" | sed 's/^venture_name: *//' 2>/dev/null || echo "")
+  VENTURE_DOMAIN=$(grep -m1 '^domain:' "${ROOM_DIR}/STATE.md" | sed 's/^domain: *//' 2>/dev/null || echo "")
+  VENTURE_STAGE=$(grep -m1 '^venture_stage:' "${ROOM_DIR}/STATE.md" | sed 's/^venture_stage: *//' 2>/dev/null || echo "")
+fi
+
+# Build search context from project_context and STATE.md
+SEARCH_CONTEXT="${PROJECT_CONTEXT}"
+if [[ -n "$VENTURE_DOMAIN" ]]; then
+  SEARCH_CONTEXT="${SEARCH_CONTEXT} ${VENTURE_DOMAIN}"
+fi
+
+# Extract keywords for search queries
+VENTURE_KEYWORDS=$(echo "$SEARCH_CONTEXT" | tr ' ' '\n' | sort -u | head -5 | tr '\n' ' ')
+
+TODAY=$(date +%Y-%m-%d)
+
+# URL-encode a string for search queries
+urlencode() {
+  local string="$1"
+  python3 -c "import urllib.parse; print(urllib.parse.quote('$string'))" 2>/dev/null \
+    || echo "$string" | sed 's/ /+/g; s/"/%22/g'
+}
+
+# Construct search queries
+QUERY1=$(urlencode "\"${DISPLAY_NAME}\" ${VENTURE_DOMAIN:-${PROJECT_CONTEXT}}")
+QUERY2=$(urlencode "\"${DISPLAY_NAME}\" ${SPEAKER_ROLE} linkedin OR crunchbase OR twitter")
+QUERY3=$(urlencode "\"${DISPLAY_NAME}\" ${VENTURE_KEYWORDS}")
+
+# Attempt web search using curl (Google search as fallback)
+SEARCH_RESULTS=""
+SEARCH_AVAILABLE=false
+
+# Try fetching search results
+for query in "$QUERY1" "$QUERY2" "$QUERY3"; do
+  result=$(curl -s -m 10 "https://www.google.com/search?q=${query}&num=5" \
+    -H "User-Agent: Mozilla/5.0" 2>/dev/null || echo "")
+  if [[ -n "$result" ]]; then
+    SEARCH_AVAILABLE=true
+    SEARCH_RESULTS="${SEARCH_RESULTS}${result}"
+  fi
+done
+
+# Parse results (basic extraction)
+BACKGROUND="No public information found"
+RELEVANCE="Unable to determine relevance -- manual research recommended"
+ONLINE_PRESENCE="No links found"
+SUGGESTED_AFFILIATION="unknown"
+SUGGESTED_EXPERTISE=""
+
+if [[ "$SEARCH_AVAILABLE" == true && -n "$SEARCH_RESULTS" ]]; then
+  # Extract titles and snippets from search results (basic HTML parsing)
+  # Look for common patterns: LinkedIn titles, company mentions, etc.
+  TITLES=$(echo "$SEARCH_RESULTS" | grep -oP '(?<=<h3[^>]*>)[^<]+' 2>/dev/null | head -10 || echo "")
+  SNIPPETS=$(echo "$SEARCH_RESULTS" | grep -oP '(?<=<span[^>]*>)[^<]{50,200}' 2>/dev/null | head -10 || echo "")
+
+  if [[ -n "$TITLES" ]]; then
+    BACKGROUND="Search results found. Titles include: $(echo "$TITLES" | head -3 | tr '\n' '; ')"
+  fi
+
+  # Look for LinkedIn pattern
+  LINKEDIN=$(echo "$SEARCH_RESULTS" | grep -oP 'https?://[a-z]+\.linkedin\.com/in/[^ "]+' 2>/dev/null | head -1 || echo "")
+  if [[ -n "$LINKEDIN" ]]; then
+    ONLINE_PRESENCE="LinkedIn: ${LINKEDIN}"
+  fi
+
+  # Look for company/org mentions near the person's name
+  if [[ -n "$SNIPPETS" ]]; then
+    RELEVANCE="Found in search results related to: ${VENTURE_DOMAIN:-$PROJECT_CONTEXT}"
+  fi
+fi
+
+# Compose research summary
+RESEARCH_SUMMARY=$(cat <<SUMMARY
+## Research: ${DISPLAY_NAME}
+**Searched:** ${TODAY}
+**Context:** ${PROJECT_CONTEXT}
+**Role in meetings:** ${SPEAKER_ROLE}
+**First meeting:** ${FIRST_MEETING}
+
+### Professional Background
+${BACKGROUND}
+
+### Relevance to Project
+${RELEVANCE}
+
+### Online Presence
+${ONLINE_PRESENCE}
+
+### Suggested Profile Updates
+- affiliation: ${SUGGESTED_AFFILIATION}
+- expertise_areas: [to be determined from research and meeting contributions]
+SUMMARY
+)
+
+# If search was not available at all
+if [[ "$SEARCH_AVAILABLE" == false ]]; then
+  RESEARCH_SUMMARY=$(cat <<SUMMARY
+## Research: ${DISPLAY_NAME}
+**Searched:** ${TODAY}
+**Context:** ${PROJECT_CONTEXT}
+**Status:** Web search not available
+
+Web search not available. Populate manually or configure a search MCP.
+
+### Suggested Actions
+1. Search for "${DISPLAY_NAME}" on LinkedIn
+2. Search for "${DISPLAY_NAME}" in the context of "${PROJECT_CONTEXT}"
+3. Update the profile manually at: ${PROFILE_PATH}
+SUMMARY
+)
+fi
+
+# --apply mode: update PROFILE.md
+if [[ "$APPLY_FLAG" == "--apply" ]]; then
+  # Read current PROFILE.md
+  CURRENT_CONTENT=$(cat "$PROFILE_PATH")
+
+  # Update research_status from pending to complete
+  UPDATED=$(echo "$CURRENT_CONTENT" | sed "s/^research_status: pending/research_status: complete/")
+  UPDATED=$(echo "$UPDATED" | sed "s/^research_status: in-progress/research_status: complete/")
+
+  # Add research_date to frontmatter (after research_status line)
+  UPDATED=$(echo "$UPDATED" | sed "/^research_status:/a research_date: ${TODAY}")
+
+  # Replace placeholder context section
+  UPDATED=$(echo "$UPDATED" | sed "s/\[To be filled after proactive research\]/Researched on ${TODAY} in context of: ${PROJECT_CONTEXT}/")
+
+  # Write updated profile
+  echo "$UPDATED" > "$PROFILE_PATH"
+
+  echo "Profile updated: ${PROFILE_PATH}"
+  echo "Research status: complete"
+  echo "Research date: ${TODAY}"
+  exit 0
+fi
+
+# Default: output research summary to stdout
+echo "$RESEARCH_SUMMARY"
+exit 0
