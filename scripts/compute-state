@@ -108,6 +108,12 @@ if [ -d "$ROOM_DIR/team" ]; then
   team_count=$(find "$ROOM_DIR/team" -name "PROFILE.md" 2>/dev/null | wc -l | tr -d ' ')
 fi
 
+# Compute team intelligence (writes TEAM-STATE.md)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -d "$ROOM_DIR/team" ] && [ "$team_count" -gt 0 ]; then
+  bash "$SCRIPT_DIR/compute-team" "$ROOM_DIR" 2>/dev/null || true
+fi
+
 # Detect cross-references
 declare -a cross_refs=()
 for section_dir in "$ROOM_DIR"/*/; do
@@ -203,6 +209,18 @@ if [ "$team_count" -gt 0 ]; then
   echo "## Team"
   echo ""
   echo "- **Team profiles:** $team_count"
+  # Read roles from TEAM-STATE.md if available
+  if [ -f "$ROOM_DIR/team/TEAM-STATE.md" ]; then
+    roles_line=$(grep '^roles_represented:' "$ROOM_DIR/team/TEAM-STATE.md" | sed 's/^roles_represented: *//' || true)
+    active_count=$(grep '^active_members:' "$ROOM_DIR/team/TEAM-STATE.md" | sed 's/^active_members: *//' || true)
+    [ -n "$roles_line" ] && echo "- **Roles:** $roles_line"
+    [ -n "$active_count" ] && echo "- **Active:** $active_count"
+    # Show critical gaps if any
+    gap_critical=$(grep 'CRITICAL' "$ROOM_DIR/team/TEAM-STATE.md" 2>/dev/null | head -3 || true)
+    if [ -n "$gap_critical" ]; then
+      echo "- **Knowledge gaps detected** -- see team/TEAM-STATE.md"
+    fi
+  fi
   echo ""
 fi
 

@@ -57,12 +57,29 @@ Display the sections table from STATE.md. Format as a clean table showing:
 - Status (Active / Empty / Well-developed)
 - Last updated date
 
+If STATE.md has a Meetings section, Larry mentions it conversationally:
+> "You've filed {N} meetings. Last one was {date}."
+
 ### Gaps
 
 Read the Gaps section from STATE.md. Frame gaps as Larry would -- opportunities, not deficiencies:
 
 - "Your competitive-analysis room is empty. That's where `/mindrian-os:challenge-assumptions` would help -- stress-test your assumptions before the market does. (Coming soon.)"
 - "No financial projections yet. We'll get there -- first make sure the problem is real."
+
+### Team Intelligence
+
+If `room/team/TEAM-STATE.md` exists, read it and present key insights in Larry's voice:
+
+- **Team composition**: "{N} team members across {roles}."
+- **Knowledge gaps**: If TEAM-STATE.md has CRITICAL gaps, surface them as Larry would:
+  > "No legal perspective on the team yet. That's a gap worth filling before investor conversations."
+- **Missing perspectives**: If no customer or domain-expert:
+  > "I notice you don't have any customer voice in the room. That's the perspective most ventures miss."
+- **Activity concerns**: If any active members have declining activity:
+  > "Michael hasn't been in recent meetings. Still on the team?"
+
+If no team/ directory or no TEAM-STATE.md, skip this section entirely.
 
 ### Suggested Next Action
 
