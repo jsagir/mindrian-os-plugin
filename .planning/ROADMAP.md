@@ -80,6 +80,12 @@ Plans:
   3. Action items are tracked across meetings -- Larry flags incomplete actions from prior meetings at the start of each new meeting filing
   4. Team contribution analysis shows which members are most active, which are silent, and which consistently raise the same concern
   5. User can run `/mindrian-os:setup meetings` to connect Read AI MCP, then `/mindrian-os:file-meeting --latest` auto-fetches the most recent transcript without manual paste
+**Plans**: 3 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — Read AI MCP setup + file-meeting --latest flag (Wave 1)
+- [ ] 08-02-PLAN.md — compute-meetings-intelligence script + compute-state/compute-team extensions (Wave 1)
+- [ ] 08-03-PLAN.md — Cross-meeting intelligence in file-meeting: Step 0 triage + convergence/contradiction detection (Wave 2)
 
 ### Phase 9: Meeting Knowledge Graph
 **Goal**: Meetings and speakers become first-class nodes in the knowledge graph -- connected by SPOKE_IN, FILED_TO, ATTENDED, REINFORCES, and CONTRADICTS edges -- with a timeline view in the dashboard and meeting-specific exports
@@ -107,6 +113,6 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9
 | 4. Brain MCP Toolbox | v1.0 | 3/3 | Complete | 2026-03-22 |
 | 5. Plugin Intelligence | v1.0 | 3/3 | Complete | 2026-03-22 |
 | 6. Stage 1 Core Capability | v2.0 | 4/4 | Complete | 2026-03-23 |
-| 7. Team Room Structure | 3/3 | Complete   | 2026-03-23 | - |
-| 8. Cross-Meeting Intelligence | v2.0 | 0/? | Not started | - |
+| 7. Team Room Structure | 3/3 | Complete    | 2026-03-23 | - |
+| 8. Cross-Meeting Intelligence | v2.0 | 0/3 | Not started | - |
 | 9. Meeting Knowledge Graph | v2.0 | 0/? | Not started | - |
