@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-03-23
+
+### Added
+- **Auto Update Notification** — SessionStart checks GitHub for new versions once per day (cached, async, non-blocking). Users see "[Update Available]" in Larry's greeting
+- **Meeting Transcript Filing** — Design spec for `/mindrian-os:file-meeting`: paste transcript, identify speakers + roles, classify segments, file to Data Room sections with confirmation. Meeting summary artifact with cross-references, contradictions, action items
+- **Release Process Rule** — CLAUDE.md now mandates: CHANGELOG update, version bump, tag, push with tags for every release
+- **Analytics & Learning System** — Local usage tracking + behavioral learning that adapts Larry's suggestions
+- **Tyler Josephson Case Study** — Full mockup with HSI cross-domain scoring and Reverse Salient bottleneck analysis
+- **Dr. Vasquez Case Study** — 10-session CeraShield space reentry venture simulation with 33-page thesis PDF
+
+### Fixed
+- build-graph grep exit code under strict bash mode (all 10/10 scripts pass)
+- render-pdf font resolution (base_url for WeasyPrint @font-face)
+- analyze-room integer comparison in method_count
+- Plugin.json now registers all 40 commands (was 14)
+- Removed empty connector-awareness skill directory
+- Fixed check-update GitHub URL (jsagir/mindrian-os-plugin)
+
 ## [0.1.0] - 2026-03-22
 
 ### Added
