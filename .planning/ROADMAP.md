@@ -100,7 +100,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9
 | 3.2 Document Generation | v1.0 | 2/2 | Complete | 2026-03-22 |
 | 4. Brain MCP Toolbox | v1.0 | 3/3 | Complete | 2026-03-22 |
 | 5. Plugin Intelligence | v1.0 | 3/3 | Complete | 2026-03-22 |
-| 6. Stage 1 Core Capability | v2.0 | 0/4 | Not started | - |
+| 6. Stage 1 Core Capability | 1/4 | In Progress|  | - |
 | 7. Team Room Structure | v2.0 | 0/? | Not started | - |
 | 8. Cross-Meeting Intelligence | v2.0 | 0/? | Not started | - |
 | 9. Meeting Knowledge Graph | v2.0 | 0/? | Not started | - |

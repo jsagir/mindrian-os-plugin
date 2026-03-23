@@ -16,8 +16,8 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 - [ ] **MEET-05**: User confirms each filing before it's created (confirm-then-file UX, same as room-passive)
 - [ ] **MEET-06**: Each filed artifact includes meeting provenance (speaker, speaker_role, meeting_date, segment_type, confidence, source: transcript)
 - [ ] **MEET-07**: After all segments filed, Larry creates a meeting summary artifact with key decisions, insights filed, contradictions detected, gaps identified, and action items
-- [ ] **MEET-08**: Audio files are transcribed via Modulate Velma REST API (3 cents/hour) with native speaker diarization and emotion detection -- no local Python/PyTorch dependency
-- [ ] **MEET-09**: Velma transcription includes timestamps, speaker labels, and emotion signals that Larry uses for segment identification and context
+- [x] **MEET-08**: Audio files are transcribed via Modulate Velma REST API (3 cents/hour) with native speaker diarization and emotion detection -- no local Python/PyTorch dependency
+- [x] **MEET-09**: Velma transcription includes timestamps, speaker labels, and emotion signals that Larry uses for segment identification and context
 
 ### Team Room Structure
 
@@ -95,8 +95,8 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 | MEET-05 | Phase 6 | Pending |
 | MEET-06 | Phase 6 | Pending |
 | MEET-07 | Phase 6 | Pending |
-| MEET-08 | Phase 6 | Pending |
-| MEET-09 | Phase 6 | Pending |
+| MEET-08 | Phase 6 | Complete |
+| MEET-09 | Phase 6 | Complete |
 | TEAM-01 | Phase 7 | Pending |
 | TEAM-02 | Phase 7 | Pending |
 | TEAM-03 | Phase 7 | Pending |
