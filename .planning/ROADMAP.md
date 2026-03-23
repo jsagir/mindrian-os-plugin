@@ -28,7 +28,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### v2.0 Meeting Intelligence
 
-- [ ] **Phase 6: Stage 1 Core Capability** - file-meeting command with paste/file/audio input, Velma transcription, speaker identification (12 roles), segment classification, confirm-then-file with structured rejection, provenance metadata, meeting summary, cross-relationship batch scan
+- [x] **Phase 6: Stage 1 Core Capability** - file-meeting command with paste/file/audio input, Velma transcription, speaker identification (12 roles), segment classification, confirm-then-file with structured rejection, provenance metadata, meeting summary, cross-relationship batch scan (completed 2026-03-23)
 - [ ] **Phase 7: Team Room Structure** - team/ directory with members/mentors/advisors, per-person folders, cross-linking artifacts to topic AND speaker, meeting archive, TEAM-STATE.md
 - [ ] **Phase 8: Cross-Meeting Intelligence** - Convergence detection across meetings, contradiction tracking, action item continuity, contribution analysis, Read AI MCP integration
 - [ ] **Phase 9: Meeting Knowledge Graph** - Meetings and speakers as graph nodes, cross-meeting edges, timeline view, dashboard updates, meeting report export, meeting summary PDFs
@@ -48,10 +48,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 4 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Meeting reference library (7 files) + test fixtures and scripts (Wave 0)
-- [ ] 06-02-PLAN.md — Velma transcription script + setup transcription command
-- [ ] 06-03-PLAN.md — file-meeting command + create-speaker-profile script + help update
-- [ ] 06-04-PLAN.md — Cross-relationship patterns + room-passive/compute-state/analyze-room meeting awareness
+- [x] 06-01-PLAN.md — Meeting reference library (7 files) + test fixtures and scripts (Wave 0)
+- [x] 06-02-PLAN.md — Velma transcription script + setup transcription command
+- [x] 06-03-PLAN.md — file-meeting command + create-speaker-profile script + help update
+- [x] 06-04-PLAN.md — Cross-relationship patterns + room-passive/compute-state/analyze-room meeting awareness
 
 ### Phase 7: Team Room Structure
 **Goal**: The Data Room gains a team/ directory that organizes people by role, gives each person their own contribution folder, archives full meetings, and cross-links every filed artifact to both its topic section and its speaker -- turning the Room from topic-organized to people-aware
@@ -63,6 +63,12 @@ Plans:
   3. When filing meeting segments, each artifact is cross-linked to both the topic section (e.g., market-analysis/) AND the speaker's person folder -- both locations reference the same content
   4. Each meeting gets its own archive folder in room/meetings/YYYY-MM-DD-{name}/ with transcript.md, summary.md, and filed-to/ links
   5. `/mindrian-os:status` shows meeting count and last meeting date, and team/TEAM-STATE.md is computed from filesystem showing who contributes what, expertise distribution, and team coverage gaps
+**Plans**: 3 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Profile schema + attribution block + new-project team/ + file-meeting cross-link update
+- [ ] 07-02-PLAN.md — Full meeting archive package (speakers.md, decisions.md, action-items.md, metadata.yaml)
+- [ ] 07-03-PLAN.md — compute-team script + compute-state wiring + status team intelligence
 
 ### Phase 8: Cross-Meeting Intelligence
 **Goal**: Larry builds intelligence ACROSS meetings -- detecting when topics converge, speakers contradict themselves, action items go incomplete, and team participation patterns emerge -- plus Read AI integration removes the paste step entirely
@@ -100,7 +106,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9
 | 3.2 Document Generation | v1.0 | 2/2 | Complete | 2026-03-22 |
 | 4. Brain MCP Toolbox | v1.0 | 3/3 | Complete | 2026-03-22 |
 | 5. Plugin Intelligence | v1.0 | 3/3 | Complete | 2026-03-22 |
-| 6. Stage 1 Core Capability | 2/4 | In Progress|  | - |
-| 7. Team Room Structure | v2.0 | 0/? | Not started | - |
+| 6. Stage 1 Core Capability | v2.0 | 4/4 | Complete | 2026-03-23 |
+| 7. Team Room Structure | v2.0 | 0/3 | Not started | - |
 | 8. Cross-Meeting Intelligence | v2.0 | 0/? | Not started | - |
 | 9. Meeting Knowledge Graph | v2.0 | 0/? | Not started | - |
