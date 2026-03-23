@@ -93,6 +93,39 @@ else
   context="[MindrianOS] No room initialized yet. You are Larry. If the user wants to start a venture project, suggest /mindrian-os:new-project to get started. Otherwise, help them with whatever they need -- you're a thinking partner first."
 fi
 
+# Check for updates (async, non-blocking, max 3 second timeout)
+# Only check once per day — cache result
+UPDATE_CACHE="/tmp/mindrian-update-check"
+TODAY=$(date -u +"%Y-%m-%d")
+SHOULD_CHECK=true
+
+if [ -f "$UPDATE_CACHE" ]; then
+  CACHE_DATE=$(head -1 "$UPDATE_CACHE" 2>/dev/null || echo "")
+  if [ "$CACHE_DATE" = "$TODAY" ]; then
+    SHOULD_CHECK=false
+    # Read cached result
+    CACHED_STATUS=$(sed -n '2p' "$UPDATE_CACHE" 2>/dev/null || echo "")
+    if [ "$CACHED_STATUS" = "UPDATE_AVAILABLE" ]; then
+      CACHED_LATEST=$(sed -n '3p' "$UPDATE_CACHE" 2>/dev/null || echo "")
+      context="${context}\n\n[Update Available] MindrianOS ${CACHED_LATEST} is available. Run /mindrian-os:update to see what's new."
+    fi
+  fi
+fi
+
+if $SHOULD_CHECK; then
+  # Run check in background, cache result
+  (
+    UPDATE_RESULT=$("${SCRIPT_DIR}/check-update" 2>/dev/null || echo "CHECK_FAILED")
+    STATUS=$(echo "$UPDATE_RESULT" | head -1)
+    echo "$TODAY" > "$UPDATE_CACHE"
+    echo "$STATUS" >> "$UPDATE_CACHE"
+    if [ "$STATUS" = "UPDATE_AVAILABLE" ]; then
+      LATEST=$(echo "$UPDATE_RESULT" | grep "^LATEST=" | cut -d= -f2)
+      echo "$LATEST" >> "$UPDATE_CACHE"
+    fi
+  ) &
+fi
+
 # Escape string for JSON embedding
 escape_for_json() {
   local s="$1"

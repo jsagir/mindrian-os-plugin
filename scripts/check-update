@@ -5,7 +5,7 @@ set -euo pipefail
 # Output: UP_TO_DATE | UPDATE_AVAILABLE | CHECK_FAILED
 
 PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-CHANGELOG_URL="https://raw.githubusercontent.com/mindrian/mindrian-os-plugin/main/CHANGELOG.md"
+CHANGELOG_URL="https://raw.githubusercontent.com/jsagir/mindrian-os-plugin/main/CHANGELOG.md"
 
 # Read current version from plugin.json
 if ! CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null); then
