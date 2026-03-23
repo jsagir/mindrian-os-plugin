@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+# create-speaker-profile -- Create ICM nested folder profile for a new speaker
+#
+# Usage: create-speaker-profile <room_dir> <speaker-slug> <speaker-role> <display-name>
+# Example: create-speaker-profile room/ tyler-chen researcher "Tyler Chen"
+#
+# Creates the ICM nested folder structure under room/team/{role-plural}/{speaker-slug}/
+# with PROFILE.md, insights/, advice/, connections/, concerns/ subdirectories.
+#
+# Exit 0 on success, exit 1 on failure (e.g., directory already exists, invalid args)
+
+set -euo pipefail
+
+# --help flag
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  cat <<'USAGE'
+create-speaker-profile -- Create ICM nested folder profile for a new speaker
+
+USAGE:
+  create-speaker-profile <room_dir> <speaker-slug> <speaker-role> <display-name>
+
+ARGUMENTS:
+  room_dir      Path to the room directory (e.g., room/)
+  speaker-slug  Lowercase hyphenated name (e.g., tyler-chen)
+  speaker-role  One of: mentor, researcher, team-member, investor, advisor,
+                customer, founder, partner, domain-expert, government,
+                competitor, unknown
+  display-name  Full display name in quotes (e.g., "Tyler Chen")
+
+EXAMPLES:
+  create-speaker-profile room/ tyler-chen researcher "Tyler Chen"
+  create-speaker-profile room/ lawrence-aronhime mentor "Prof. Lawrence Aronhime"
+
+OUTPUT:
+  Prints the created profile directory path to stdout.
+  Exit 0 on success, exit 1 on failure.
+USAGE
+  exit 0
+fi
+
+# Validate arguments
+if [[ $# -lt 4 ]]; then
+  echo "ERROR: 4 arguments required: room_dir, speaker-slug, speaker-role, display-name" >&2
+  echo "Run with --help for usage." >&2
+  exit 1
+fi
+
+ROOM_DIR="$1"
+SPEAKER_SLUG="$2"
+SPEAKER_ROLE="$3"
+DISPLAY_NAME="$4"
+
+# Validate room_dir exists
+if [[ ! -d "$ROOM_DIR" ]]; then
+  echo "ERROR: Room directory does not exist: $ROOM_DIR" >&2
+  exit 1
+fi
+
+# Map role to plural directory name
+case "$SPEAKER_ROLE" in
+  mentor)        ROLE_PLURAL="mentors" ;;
+  researcher)    ROLE_PLURAL="researchers" ;;
+  team-member)   ROLE_PLURAL="members" ;;
+  investor)      ROLE_PLURAL="investors" ;;
+  advisor)       ROLE_PLURAL="advisors" ;;
+  customer)      ROLE_PLURAL="customers" ;;
+  founder)       ROLE_PLURAL="founders" ;;
+  partner)       ROLE_PLURAL="partners" ;;
+  domain-expert) ROLE_PLURAL="domain-experts" ;;
+  government)    ROLE_PLURAL="government" ;;
+  competitor)    ROLE_PLURAL="competitors" ;;
+  unknown)       ROLE_PLURAL="contacts" ;;
+  *)
+    echo "ERROR: Invalid role '$SPEAKER_ROLE'. Must be one of: mentor, researcher, team-member, investor, advisor, customer, founder, partner, domain-expert, government, competitor, unknown" >&2
+    exit 1
+    ;;
+esac
+
+# Build profile directory path
+PROFILE_DIR="${ROOM_DIR}/team/${ROLE_PLURAL}/${SPEAKER_SLUG}"
+
+# Check if profile already exists
+if [[ -d "$PROFILE_DIR" ]]; then
+  echo "ERROR: Profile already exists at $PROFILE_DIR" >&2
+  exit 1
+fi
+
+# Create directory structure
+mkdir -p "${PROFILE_DIR}/insights"
+mkdir -p "${PROFILE_DIR}/advice"
+mkdir -p "${PROFILE_DIR}/connections"
+mkdir -p "${PROFILE_DIR}/concerns"
+
+# Get today's date
+TODAY=$(date +%Y-%m-%d)
+
+# Create PROFILE.md
+cat > "${PROFILE_DIR}/PROFILE.md" <<EOF
+---
+name: ${DISPLAY_NAME}
+role: ${SPEAKER_ROLE}
+affiliation: (unknown -- pending research)
+first_meeting: ${TODAY}
+meetings_attended: 1
+created_by: file-meeting
+research_status: pending
+last_updated: ${TODAY}
+---
+
+# ${DISPLAY_NAME} (${SPEAKER_ROLE})
+
+**Role:** ${SPEAKER_ROLE} | **Affiliation:** Unknown
+
+## Context
+
+[To be filled after proactive research]
+
+## Expertise
+
+[To be inferred from meeting contributions]
+
+## Key Contributions
+
+[Auto-populated from filed artifacts]
+EOF
+
+# Output the created path
+echo "$PROFILE_DIR"
+exit 0
