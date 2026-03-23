@@ -1,0 +1,449 @@
+#!/usr/bin/env bash
+# compute-team: Scan team/ profiles and room/ artifacts to produce TEAM-STATE.md
+# A knowledge landscape context tool for Larry -- never productivity/attendance tracking
+# Called by compute-state as a sub-step
+#
+# Usage: scripts/compute-team <room_dir>
+# Output: Writes room/team/TEAM-STATE.md directly
+# Exit: 0 on success, 1 on error. If no team/ directory, exit 0 silently.
+
+set -e
+
+ROOM_DIR="${1:-.}"
+TEAM_DIR="$ROOM_DIR/team"
+
+# No team directory = no team yet, exit silently
+if [[ ! -d "$TEAM_DIR" ]]; then
+  exit 0
+fi
+
+# ─── 12-type role taxonomy ───────────────────────────────────────────────────
+ALL_ROLES="mentor researcher team-member investor advisor customer founder partner domain-expert government competitor unknown"
+
+# ─── Scan PROFILE.md files ───────────────────────────────────────────────────
+declare -a p_names=()
+declare -a p_roles=()
+declare -a p_primary_roles=()
+declare -a p_statuses=()
+declare -a p_affiliations=()
+declare -a p_first_meetings=()
+declare -a p_last_actives=()
+declare -a p_meetings_attended=()
+declare -a p_profile_paths=()
+
+profile_count=0
+
+while IFS= read -r profile_file; do
+  [ -f "$profile_file" ] || continue
+
+  # Extract fields from frontmatter (between first two --- lines)
+  frontmatter=$(sed -n '/^---$/,/^---$/p' "$profile_file" | head -50)
+
+  name=$(echo "$frontmatter" | grep '^name:' | head -1 | sed 's/^name: *//')
+  [ -z "$name" ] && continue
+
+  # Resolve roles: try roles: list first, fall back to role: singular
+  roles_raw=$(echo "$frontmatter" | grep '^roles:' | head -1 | sed 's/^roles: *//')
+  if [ -n "$roles_raw" ]; then
+    # Parse [mentor, advisor] or - mentor format
+    roles=$(echo "$roles_raw" | tr -d '[]' | tr ',' '\n' | sed 's/^ *//;s/ *$//' | grep -v '^$' | tr '\n' ', ' | sed 's/,$//' | sed 's/, *$//')
+  else
+    role_single=$(echo "$frontmatter" | grep '^role:' | head -1 | sed 's/^role: *//')
+    roles="${role_single:-unknown}"
+  fi
+
+  # Primary role: try primary_role first, fall back to role, fall back to first in roles
+  primary_role=$(echo "$frontmatter" | grep '^primary_role:' | head -1 | sed 's/^primary_role: *//')
+  if [ -z "$primary_role" ]; then
+    primary_role=$(echo "$frontmatter" | grep '^role:' | head -1 | sed 's/^role: *//')
+  fi
+  [ -z "$primary_role" ] && primary_role="unknown"
+
+  status=$(echo "$frontmatter" | grep '^status:' | head -1 | sed 's/^status: *//')
+  [ -z "$status" ] && status="active"
+
+  affiliation=$(echo "$frontmatter" | grep '^affiliation:' | head -1 | sed 's/^affiliation: *//')
+  [ -z "$affiliation" ] && affiliation="Unknown"
+
+  first_meeting=$(echo "$frontmatter" | grep '^first_meeting:' | head -1 | sed 's/^first_meeting: *//')
+  last_active=$(echo "$frontmatter" | grep '^last_active:' | head -1 | sed 's/^last_active: *//')
+  meetings_attended=$(echo "$frontmatter" | grep '^meetings_attended:' | head -1 | sed 's/^meetings_attended: *//')
+  [ -z "$meetings_attended" ] && meetings_attended="0"
+
+  # Store profile path relative to room
+  profile_rel=$(echo "$profile_file" | sed "s|^$ROOM_DIR/||")
+  profile_dir=$(dirname "$profile_rel")
+
+  p_names+=("$name")
+  p_roles+=("$roles")
+  p_primary_roles+=("$primary_role")
+  p_statuses+=("$status")
+  p_affiliations+=("$affiliation")
+  p_first_meetings+=("$first_meeting")
+  p_last_actives+=("$last_active")
+  p_meetings_attended+=("$meetings_attended")
+  p_profile_paths+=("$profile_dir")
+
+  profile_count=$((profile_count + 1))
+done < <(find "$TEAM_DIR" -name "PROFILE.md" -type f 2>/dev/null | sort)
+
+# If no profiles found, exit silently
+if [ "$profile_count" -eq 0 ]; then
+  exit 0
+fi
+
+# ─── Scan room/ sections for contributions ───────────────────────────────────
+# Build associative arrays: person -> section -> count, person -> artifacts list
+declare -A contrib_counts      # "name|section" -> count
+declare -A person_sections     # "name" -> "section1,section2,..."
+declare -A person_artifacts    # "name" -> "date|section|type|filename\n..."
+
+# Collect section directories (skip team/, meetings/, hidden dirs)
+section_dirs=()
+for section_dir in "$ROOM_DIR"/*/; do
+  [ -d "$section_dir" ] || continue
+  section_name=$(basename "$section_dir")
+  [[ "$section_name" == .* ]] && continue
+  [[ "$section_name" == "team" ]] && continue
+  [[ "$section_name" == "meetings" ]] && continue
+  section_dirs+=("$section_name")
+done
+
+for section_name in "${section_dirs[@]}"; do
+  section_path="$ROOM_DIR/$section_name"
+  for md_file in "$section_path"/*.md; do
+    [ -f "$md_file" ] || continue
+    fname=$(basename "$md_file")
+    [ "$fname" = "ROOM.md" ] && continue
+    [ "$fname" = "TEAM-STATE.md" ] && continue
+    [ "$fname" = "STATE.md" ] && continue
+
+    # Extract speaker: try nested attribution block first, fall back to flat
+    frontmatter=$(sed -n '/^---$/,/^---$/p' "$md_file" | head -50)
+
+    speaker=""
+    # Try nested attribution: look for "  speaker:" (indented)
+    speaker=$(echo "$frontmatter" | grep '^  speaker:' | head -1 | sed 's/^  speaker: *//')
+    # Fall back to flat speaker: field
+    if [ -z "$speaker" ]; then
+      speaker=$(echo "$frontmatter" | grep '^speaker:' | head -1 | sed 's/^speaker: *//')
+    fi
+
+    [ -z "$speaker" ] && continue
+
+    # Extract segment_type and date
+    seg_type=$(echo "$frontmatter" | grep '^segment_type:' | head -1 | sed 's/^segment_type: *//')
+    [ -z "$seg_type" ] && seg_type=$(echo "$frontmatter" | grep '^type:' | head -1 | sed 's/^type: *//')
+    [ -z "$seg_type" ] && seg_type="entry"
+
+    # Extract date from attribution block or flat field or filename
+    art_date=$(echo "$frontmatter" | grep '^  meeting_date:' | head -1 | sed 's/^  meeting_date: *//')
+    if [ -z "$art_date" ]; then
+      art_date=$(echo "$frontmatter" | grep '^date:' | head -1 | sed 's/^date: *//')
+    fi
+    if [ -z "$art_date" ]; then
+      # Try to extract date from filename (YYYY-MM-DD-*)
+      art_date=$(echo "$fname" | grep -oE '^[0-9]{4}-[0-9]{2}-[0-9]{2}' || true)
+    fi
+    [ -z "$art_date" ] && art_date="unknown"
+
+    # Update contribution counts
+    key="${speaker}|${section_name}"
+    current=${contrib_counts[$key]:-0}
+    contrib_counts[$key]=$((current + 1))
+
+    # Track which sections this person has contributed to
+    existing_sections=${person_sections[$speaker]:-}
+    if [[ ! ",$existing_sections," == *",$section_name,"* ]]; then
+      if [ -z "$existing_sections" ]; then
+        person_sections[$speaker]="$section_name"
+      else
+        person_sections[$speaker]="$existing_sections,$section_name"
+      fi
+    fi
+
+    # Track artifacts for PROFILE.md update
+    existing_artifacts=${person_artifacts[$speaker]:-}
+    person_artifacts[$speaker]="${existing_artifacts}${art_date}|${section_name}|${seg_type}|${fname}
+"
+  done
+done
+
+# ─── Compute expertise distribution ──────────────────────────────────────────
+declare -a expertise_primary=()
+declare -a expertise_sections=()
+declare -a expertise_total=()
+
+for i in "${!p_names[@]}"; do
+  name="${p_names[$i]}"
+  sections_str=${person_sections[$name]:-}
+
+  if [ -z "$sections_str" ]; then
+    expertise_primary+=("(no contributions)")
+    expertise_sections+=("-")
+    expertise_total+=("0")
+    continue
+  fi
+
+  # Find section with most contributions
+  max_count=0
+  max_section=""
+  total_count=0
+  IFS=',' read -ra secs <<< "$sections_str"
+  for sec in "${secs[@]}"; do
+    key="${name}|${sec}"
+    cnt=${contrib_counts[$key]:-0}
+    total_count=$((total_count + cnt))
+    if [ "$cnt" -gt "$max_count" ]; then
+      max_count=$cnt
+      max_section=$sec
+    fi
+  done
+
+  expertise_primary+=("$max_section")
+  expertise_sections+=("$sections_str")
+  expertise_total+=("$total_count")
+done
+
+# ─── Compute knowledge gaps ──────────────────────────────────────────────────
+# For each topic section, count unique contributors
+declare -A section_contributors  # section -> "name1,name2,..."
+
+for key in "${!contrib_counts[@]}"; do
+  IFS='|' read -r person section <<< "$key"
+  existing=${section_contributors[$section]:-}
+  if [[ ! ",$existing," == *",$person,"* ]]; then
+    if [ -z "$existing" ]; then
+      section_contributors[$section]="$person"
+    else
+      section_contributors[$section]="$existing,$person"
+    fi
+  fi
+done
+
+# ─── Compute missing perspectives ────────────────────────────────────────────
+declare -A represented_roles
+for i in "${!p_primary_roles[@]}"; do
+  represented_roles[${p_primary_roles[$i]}]=1
+done
+
+missing_roles=()
+for role in $ALL_ROLES; do
+  [ "$role" = "unknown" ] && continue
+  if [ -z "${represented_roles[$role]:-}" ]; then
+    missing_roles+=("$role")
+  fi
+done
+
+# ─── Compute role distribution ────────────────────────────────────────────────
+declare -A role_counts
+declare -A role_members
+
+for i in "${!p_names[@]}"; do
+  pr="${p_primary_roles[$i]}"
+  current=${role_counts[$pr]:-0}
+  role_counts[$pr]=$((current + 1))
+  existing=${role_members[$pr]:-}
+  if [ -z "$existing" ]; then
+    role_members[$pr]="${p_names[$i]}"
+  else
+    role_members[$pr]="$existing, ${p_names[$i]}"
+  fi
+done
+
+# ─── Compute activity patterns ───────────────────────────────────────────────
+today_epoch=$(date +%s 2>/dev/null || echo "0")
+
+compute_trend() {
+  local last_active="$1"
+  local status="$2"
+
+  if [ -z "$last_active" ] || [ "$last_active" = "unknown" ]; then
+    echo "unknown"
+    return
+  fi
+
+  local la_epoch
+  la_epoch=$(date -d "$last_active" +%s 2>/dev/null || echo "0")
+  if [ "$la_epoch" -eq 0 ]; then
+    echo "unknown"
+    return
+  fi
+
+  local days_ago=$(( (today_epoch - la_epoch) / 86400 ))
+
+  if [ "$days_ago" -le 14 ]; then
+    echo "consistent"
+  elif [ "$days_ago" -le 30 ]; then
+    echo "occasional"
+  elif [ "$status" = "active" ]; then
+    echo "declining"
+  else
+    echo "inactive"
+  fi
+}
+
+declare -a p_trends=()
+for i in "${!p_names[@]}"; do
+  trend=$(compute_trend "${p_last_actives[$i]}" "${p_statuses[$i]}")
+  p_trends+=("$trend")
+done
+
+# ─── Compute counts ──────────────────────────────────────────────────────────
+active_count=0
+for i in "${!p_statuses[@]}"; do
+  [ "${p_statuses[$i]}" = "active" ] && active_count=$((active_count + 1))
+done
+
+unique_roles=""
+for i in "${!p_primary_roles[@]}"; do
+  pr="${p_primary_roles[$i]}"
+  if [[ ! ",$unique_roles," == *",$pr,"* ]]; then
+    if [ -z "$unique_roles" ]; then
+      unique_roles="$pr"
+    else
+      unique_roles="$unique_roles, $pr"
+    fi
+  fi
+done
+
+# ─── Write TEAM-STATE.md ─────────────────────────────────────────────────────
+timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+OUTPUT_FILE="$TEAM_DIR/TEAM-STATE.md"
+
+{
+  echo "---"
+  echo "computed: $timestamp"
+  echo "team_size: $profile_count"
+  echo "active_members: $active_count"
+  echo "roles_represented: [$unique_roles]"
+  echo "---"
+  echo "# Team Knowledge Landscape"
+  echo ""
+
+  # Expertise Distribution
+  echo "## Expertise Distribution"
+  echo ""
+  echo "| Person | Primary Expertise | Sections Contributed | Last Active |"
+  echo "|--------|------------------|---------------------|-------------|"
+  for i in "${!p_names[@]}"; do
+    sections_display="${expertise_sections[$i]}"
+    [ "$sections_display" = "-" ] && sections_display="(none)"
+    echo "| ${p_names[$i]} | ${expertise_primary[$i]} | ${sections_display} | ${p_last_actives[$i]:-unknown} |"
+  done
+  echo ""
+
+  # Knowledge Gaps
+  echo "## Knowledge Gaps"
+  echo ""
+  echo "| Section | Contributors | Gap Assessment |"
+  echo "|---------|-------------|----------------|"
+  for section_name in "${section_dirs[@]}"; do
+    contributors=${section_contributors[$section_name]:-}
+    if [ -z "$contributors" ]; then
+      contributor_count=0
+      echo "| $section_name | 0 | CRITICAL: No perspectives filed |"
+    else
+      IFS=',' read -ra contrib_arr <<< "$contributors"
+      contributor_count=${#contrib_arr[@]}
+      if [ "$contributor_count" -eq 1 ]; then
+        echo "| $section_name | 1 ($contributors) | CONCENTRATION: Single perspective only |"
+      else
+        echo "| $section_name | $contributor_count | Diverse -- $contributor_count perspectives |"
+      fi
+    fi
+  done
+  echo ""
+
+  # Missing Perspectives
+  echo "## Missing Perspectives"
+  echo ""
+  if [ ${#missing_roles[@]} -eq 0 ]; then
+    echo "All role types from the 12-type taxonomy are represented."
+  else
+    for role in "${missing_roles[@]}"; do
+      case "$role" in
+        customer) echo "- CRITICAL: No **customer** voice on the team. Customer perspective is the most commonly missing in early ventures." ;;
+        domain-expert) echo "- CRITICAL: No **domain-expert** perspective. Deep domain knowledge reduces false assumptions." ;;
+        investor) echo "- No **investor** perspective. Consider before fundraising conversations." ;;
+        mentor) echo "- No **mentor** perspective. Experienced guidance accelerates learning cycles." ;;
+        researcher) echo "- No **researcher** perspective. Research grounds decisions in evidence." ;;
+        advisor) echo "- No **advisor** perspective. Strategic advisors expand the network." ;;
+        government) echo "- No **government/regulatory** perspective. Relevant for regulated markets." ;;
+        founder) echo "- No **founder** on team. Core leadership role not yet represented." ;;
+        partner) echo "- No **partner** perspective. Partnerships can unlock distribution." ;;
+        team-member) echo "- No **team-member** roles. Core execution capacity not represented." ;;
+        competitor) echo "- No **competitor** intelligence. Understanding competition sharpens positioning." ;;
+        *) echo "- No **$role** perspective represented." ;;
+      esac
+    done
+  fi
+  echo ""
+
+  # Role Distribution
+  echo "## Role Distribution"
+  echo ""
+  echo "| Role | Count | Members |"
+  echo "|------|-------|---------|"
+  for role in $ALL_ROLES; do
+    cnt=${role_counts[$role]:-0}
+    [ "$cnt" -eq 0 ] && continue
+    members=${role_members[$role]:-}
+    echo "| $role | $cnt | $members |"
+  done
+  echo ""
+
+  # Activity Patterns
+  echo "## Activity Patterns"
+  echo ""
+  echo "| Person | Status | Meetings | Last Active | Trend |"
+  echo "|--------|--------|----------|-------------|-------|"
+  for i in "${!p_names[@]}"; do
+    echo "| ${p_names[$i]} | ${p_statuses[$i]} | ${p_meetings_attended[$i]} | ${p_last_actives[$i]:-unknown} | ${p_trends[$i]} |"
+  done
+} > "$OUTPUT_FILE"
+
+# ─── Update PROFILE.md Contributions sections ────────────────────────────────
+for i in "${!p_names[@]}"; do
+  name="${p_names[$i]}"
+  profile_dir="${p_profile_paths[$i]}"
+  profile_file="$ROOM_DIR/$profile_dir/PROFILE.md"
+
+  [ -f "$profile_file" ] || continue
+
+  artifacts_raw=${person_artifacts[$name]:-}
+
+  # Build contributions table
+  contrib_table="## Contributions\n\n"
+  if [ -z "$artifacts_raw" ]; then
+    contrib_table="${contrib_table}[No contributions found yet]\n"
+  else
+    contrib_table="${contrib_table}| Date | Section | Type | Artifact |\n"
+    contrib_table="${contrib_table}|------|---------|------|----------|\n"
+    # Sort artifacts by date descending
+    sorted=$(echo -n "$artifacts_raw" | sort -t'|' -k1 -r)
+    while IFS='|' read -r art_date art_section art_type art_fname; do
+      [ -z "$art_fname" ] && continue
+      contrib_table="${contrib_table}| $art_date | $art_section | $art_type | [[$art_section/$art_fname]] |\n"
+    done <<< "$sorted"
+  fi
+
+  # Replace the Contributions section in PROFILE.md
+  # Find ## Contributions or ## Key Contributions, replace to next ## or EOF
+  if grep -q '^## Contributions' "$profile_file" || grep -q '^## Key Contributions' "$profile_file"; then
+    # Use awk to replace the section
+    awk -v new_section="$(echo -e "$contrib_table")" '
+      /^## Contributions/ || /^## Key Contributions/ {
+        print new_section
+        in_section = 1
+        next
+      }
+      in_section && /^## / {
+        in_section = 0
+      }
+      !in_section { print }
+    ' "$profile_file" > "${profile_file}.tmp" && mv "${profile_file}.tmp" "$profile_file"
+  fi
+done
+
+exit 0

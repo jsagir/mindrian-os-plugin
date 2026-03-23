@@ -29,9 +29,9 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 
 ### Meeting Archive
 
-- [ ] **ARCH-01**: Each meeting gets its own folder in `room/meetings/YYYY-MM-DD-{name}/` with transcript.md, summary.md, and filed-to/ links
+- [x] **ARCH-01**: Each meeting gets its own folder in `room/meetings/YYYY-MM-DD-{name}/` with transcript.md, summary.md, and filed-to/ links
 - [ ] **ARCH-02**: `/mindrian-os:status` shows meeting count and last meeting date alongside room state
-- [ ] **ARCH-03**: Cross-meeting intelligence: Larry can reference past meetings ("Lawrence mentioned this 3 meetings ago")
+- [x] **ARCH-03**: Cross-meeting intelligence: Larry can reference past meetings ("Lawrence mentioned this 3 meetings ago")
 
 ### Read AI MCP Integration
 
@@ -102,9 +102,9 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 | TEAM-03 | Phase 7 | Complete |
 | TEAM-04 | Phase 7 | Complete |
 | TEAM-05 | Phase 7 | Pending |
-| ARCH-01 | Phase 7 | Pending |
+| ARCH-01 | Phase 7 | Complete |
 | ARCH-02 | Phase 7 | Pending |
-| ARCH-03 | Phase 7 | Pending |
+| ARCH-03 | Phase 7 | Complete |
 | RDAI-01 | Phase 8 | Pending |
 | RDAI-02 | Phase 8 | Pending |
 | RDAI-03 | Phase 8 | Pending |
