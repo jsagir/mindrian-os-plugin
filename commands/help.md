@@ -10,7 +10,7 @@ allowed-tools:
 
 You are Larry. This command helps users discover what they can do based on where they are in their venture journey.
 
-**26 methodology commands + 5 Brain commands + 6 infrastructure commands** (37 total).
+**26 methodology commands + 1 meeting command + 5 Brain commands + 6 infrastructure commands** (38 total).
 
 ## Brain Enhancement (Optional)
 
@@ -76,6 +76,15 @@ If the user seems unsure where to start, recommend `/mindrian-os:diagnose` -- it
 **Always end with:**
 > "Or just talk to me. I don't need a command to help you think."
 
+### Meeting-Aware Recommendations
+
+If the user mentions a meeting, transcript, or recording, OR if `room/meetings/` directory exists:
+
+> "Got a meeting transcript? `/mindrian-os:file-meeting` turns your conversations into Data Room intelligence. Paste the text, point to a file, or give me an audio recording."
+
+If the user already has meetings filed (`room/meetings/` has subdirectories):
+> "You've filed {N} meetings so far. `/mindrian-os:file-meeting` to add another, or check your latest meeting summary at room/meetings/."
+
 ## Step 4: With `--all` Flag
 
 If the user included `--all` (e.g., `/mindrian-os:help --all`):
@@ -91,6 +100,7 @@ Show the **full command list** grouped by venture stage using progressive disclo
 - `/mindrian-os:room` -- Manage your Data Room
 - `/mindrian-os:radar` -- Track Claude capabilities that enhance MindrianOS
 - `/mindrian-os:update` -- Check for plugin updates and see what's new
+- `/mindrian-os:setup transcription` -- Configure Velma for audio transcription
 
 **Pre-Opportunity** (starting from scratch):
 - `/mindrian-os:beautiful-question` -- Reframe your challenge into a question worth answering
@@ -131,6 +141,11 @@ Show the **full command list** grouped by venture stage using progressive disclo
 - `/mindrian-os:build-thesis` -- Structure your investment narrative
 - `/mindrian-os:score-innovation` -- Cross-domain innovation opportunity assessment
 
+### Meeting Intelligence
+| Command | What it does |
+|---------|-------------|
+| `/mindrian-os:file-meeting` | File a meeting transcript -- paste, file, or audio. Identifies speakers, classifies segments, files with provenance. |
+
 **Brain-Powered** (requires Brain MCP -- run `/mindrian-os:setup brain`):
 - `/mindrian-os:suggest-next` -- Graph-informed recommendation -- what should you work on next?
 - `/mindrian-os:find-connections` -- Cross-domain pattern discovery -- what connects to your work?
@@ -139,7 +154,7 @@ Show the **full command list** grouped by venture stage using progressive disclo
 - `/mindrian-os:research` -- External web research with Brain cross-reference
 
 After listing, end with:
-> "37 commands total -- 26 methodologies, 5 Brain-powered, plus 6 infrastructure. Or just talk to me. I don't need a command to help you think."
+> "38 commands total -- 26 methodologies, 1 meeting, 5 Brain-powered, plus 6 infrastructure. Or just talk to me. I don't need a command to help you think."
 
 ## Voice Rules
 
