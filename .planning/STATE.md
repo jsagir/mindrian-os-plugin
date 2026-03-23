@@ -93,6 +93,27 @@ The paper (docs/research/LIVE_DATA_ROOM_JTBD_PAPER.md) revealed 7 gaps in v1.0 t
 - Capture rejection reasons when user skips a segment
 - Support the claim that "conversations are the primary knowledge source"
 
+### v2.0 Milestone: HSI & Reverse Salient Integration
+
+The HSI (Hybrid Similarity Index) and Reverse Salient Discovery tools are the COMPUTATIONAL ENGINE for auto-relationship building in the Data Room graph. They are integrated into the v2.0 milestone as follows:
+
+| Phase | HSI/RS Integration |
+|-------|-------------------|
+| **Phase 6 (Stage 1)** | Plan 06-03 builds the cross-relationship discovery loop. Tier 0 = keyword matching (analyze-room). Tier 1 = LSA + lightweight embeddings (MiniLM). Tier 2 = LSA + Pinecone + Neo4j (Brain). |
+| **Phase 7 (Team Room)** | HSI runs across speaker contributions — finds hidden connections between what different team members/mentors/advisors said across meetings. |
+| **Phase 8 (Cross-Meeting)** | Full Reverse Salient pipeline: LSA similarity matrix + semantic similarity matrix → differential → top pairs = hidden cross-meeting connections. |
+| **Phase 9 (Knowledge Graph)** | HSI-discovered edges (ENABLES, INFORMS, CONTRADICTS, CONVERGES, INVALIDATES) become first-class graph edges in dashboard. Timeline view shows when connections were discovered. |
+
+**Reference files:**
+- `references/hsi/HSI-TOOLS-REFERENCE.md` — adapted tools with plugin integration patterns
+- `docs/research/LIVE_DATA_ROOM_JTBD_PAPER.md` — theoretical backbone (wicked problems + nested systems)
+- Original HSI codebase: lsa.py, sts_bert.py, comparison.py, hybrid_index.py, lsa_bert_similarity.py
+
+**The tiered approach (Tier 0/1/2) matches plugin's graceful degradation:**
+- Tier 0 (no deps): keyword-based cross-references (already works in v1.0 analyze-room)
+- Tier 1 (lightweight): LSA + sentence-transformers MiniLM (~80MB, CPU-friendly) — auto-discovers hidden connections
+- Tier 2 (Brain): Full HSI with Pinecone embeddings + Neo4j storage — quantitative reverse salient detection
+
 ### Pending Todos
 
 - **Trained Lawrence model (PAID TIER)**: Fine-tune on real teaching transcripts
@@ -109,9 +130,20 @@ The paper (docs/research/LIVE_DATA_ROOM_JTBD_PAPER.md) revealed 7 gaps in v1.0 t
 - Read AI MCP availability and API stability (RDAI-01/02/03) -- Phase 8 dependency
 - Nested room structure migration: v1 users have flat 8-section rooms. v2 adds team/ and meetings/. Migration must be non-breaking.
 - Assumption tracking adds frontmatter complexity to every artifact. Must be optional/progressive — don't break existing room artifacts.
+- sentence-transformers MiniLM (~80MB) needs to be installed for Tier 1 HSI. Add to setup command or lazy-install on first use.
 
 ## Session Continuity
 
 Last session: 2026-03-23
-Stopped at: Architecture adapted from Live Data Room paper, ready to plan Phase 6
+Stopped at: Phase 6 planned (3 plans, 2 waves). HSI tools referenced. Architecture adapted. Ready to execute.
+Resume command: /gsd:execute-phase 6
 Resume file: None
+
+### Key Files for Next Session
+- `.planning/phases/06-stage1-core-capability/06-01-PLAN.md` (Wave 1: file-meeting command)
+- `.planning/phases/06-stage1-core-capability/06-02-PLAN.md` (Wave 2: Whisper audio)
+- `.planning/phases/06-stage1-core-capability/06-03-PLAN.md` (Wave 2: cross-relationship discovery)
+- `.planning/phases/06-stage1-core-capability/06-RESEARCH.md` (Phase 6 research)
+- `CLAUDE.md` (ICM × Wicked Problem Management architecture)
+- `references/hsi/HSI-TOOLS-REFERENCE.md` (HSI tools for auto-relationship builder)
+- `docs/research/LIVE_DATA_ROOM_JTBD_PAPER.md` (theoretical backbone)
