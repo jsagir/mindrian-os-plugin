@@ -1,0 +1,104 @@
+{
+  "segments": [
+    {
+      "speaker_id": "speaker_1",
+      "text": "Let's start with the market validation update. We ran the surveys last week across three segments.",
+      "start_time": 0.0,
+      "end_time": 5.8,
+      "emotions": [
+        {"label": "confident", "score": 0.82},
+        {"label": "neutral", "score": 0.15}
+      ]
+    },
+    {
+      "speaker_id": "speaker_2",
+      "text": "The enterprise segment showed strong interest, but I'm not sure about the SMB numbers. They looked inflated to me.",
+      "start_time": 6.1,
+      "end_time": 12.4,
+      "emotions": [
+        {"label": "skeptical", "score": 0.78},
+        {"label": "concerned", "score": 0.45}
+      ]
+    },
+    {
+      "speaker_id": "speaker_1",
+      "text": "Fair point. The SMB sample size was only forty-two respondents. We need at least a hundred for statistical significance.",
+      "start_time": 12.8,
+      "end_time": 19.2,
+      "emotions": [
+        {"label": "thoughtful", "score": 0.61},
+        {"label": "agreeable", "score": 0.54}
+      ]
+    },
+    {
+      "speaker_id": "speaker_3",
+      "text": "I ran the unit economics on the enterprise tier and the margins are incredible. Seventy-eight percent gross margin after infrastructure costs.",
+      "start_time": 19.5,
+      "end_time": 27.1,
+      "emotions": [
+        {"label": "enthusiastic", "score": 0.91},
+        {"label": "confident", "score": 0.68}
+      ]
+    },
+    {
+      "speaker_id": "speaker_2",
+      "text": "That assumes we hit the projected customer acquisition cost. If CAC doubles, which it easily could in this market, those margins evaporate.",
+      "start_time": 27.5,
+      "end_time": 35.3,
+      "emotions": [
+        {"label": "skeptical", "score": 0.65},
+        {"label": "analytical", "score": 0.58}
+      ]
+    },
+    {
+      "speaker_id": "speaker_1",
+      "text": "Good challenge. Let's model the sensitivity analysis. What's our break-even CAC?",
+      "start_time": 35.7,
+      "end_time": 40.9,
+      "emotions": [
+        {"label": "constructive", "score": 0.62},
+        {"label": "focused", "score": 0.55}
+      ]
+    },
+    {
+      "speaker_id": "speaker_3",
+      "text": "Break-even is around twelve hundred per customer. Current projection is eight-fifty, so we have a forty percent buffer.",
+      "start_time": 41.2,
+      "end_time": 48.6,
+      "emotions": [
+        {"label": "confident", "score": 0.72},
+        {"label": "analytical", "score": 0.60}
+      ]
+    },
+    {
+      "speaker_id": "speaker_2",
+      "text": "That buffer assumes the current conversion rates hold. We've only been running paid acquisition for two weeks. I'd wait for sixty-day data before committing to those projections.",
+      "start_time": 49.0,
+      "end_time": 58.4,
+      "emotions": [
+        {"label": "cautious", "score": 0.69},
+        {"label": "frustrated", "score": 0.73}
+      ]
+    },
+    {
+      "speaker_id": "speaker_1",
+      "text": "Agreed. Let's flag the CAC assumption as unvalidated and revisit in the next board update. Moving on to the product roadmap.",
+      "start_time": 58.8,
+      "end_time": 66.2,
+      "emotions": [
+        {"label": "decisive", "score": 0.67},
+        {"label": "neutral", "score": 0.30}
+      ]
+    },
+    {
+      "speaker_id": "speaker_3",
+      "text": "One more thing on unit economics -- the Tier 2 pricing experiment exceeded expectations. We should double down on that before the enterprise push.",
+      "start_time": 66.5,
+      "end_time": 74.0,
+      "emotions": [
+        {"label": "enthusiastic", "score": 0.85},
+        {"label": "persuasive", "score": 0.62}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+#!/usr/bin/env bash
+# transcribe-audio — Velma API wrapper for audio transcription
+# Converts audio files to timestamped, speaker-labeled text with emotion data
+#
+# Usage: scripts/transcribe-audio <audio-file>
+#        scripts/transcribe-audio --help
+#
+# Environment:
+#   VELMA_API_KEY   — API key (or stored in project .mcp.json)
+#   VELMA_API_URL   — Override API endpoint (default: https://api.modulate.ai/v1/transcribe)
+#
+# Output:
+#   stdout: Timestamped speaker-labeled text ([MM:SS-MM:SS] Speaker_N: text)
+#   stderr: Path to full JSON response file (for emotion/confidence parsing)
+
+set -euo pipefail
+
+VELMA_API_URL="${VELMA_API_URL:-https://api.modulate.ai/v1/transcribe}"
+SUPPORTED_FORMATS="mp3|m4a|wav"
+
+# --- Help ---
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" || $# -eq 0 ]]; then
+  cat <<'USAGE'
+Usage: scripts/transcribe-audio <audio-file>
+
+Transcribes audio using the Modulate Velma API with speaker diarization
+and emotion detection.
+
+Arguments:
+  <audio-file>   Path to audio file (.mp3, .m4a, .wav)
+
+Options:
+  --help, -h     Show this help message
+
+Environment Variables:
+  VELMA_API_KEY   Velma API key (or configure via /mindrian-os:setup transcription)
+  VELMA_API_URL   Override API endpoint (default: https://api.modulate.ai/v1/transcribe)
+
+Output:
+  stdout   Timestamped speaker-labeled text
+           Format: [MM:SS-MM:SS] Speaker_N: text
+  stderr   Path to JSON file with full response (emotions, confidence scores)
+
+Examples:
+  scripts/transcribe-audio recording.mp3
+  scripts/transcribe-audio ~/meetings/standup.m4a
+  VELMA_API_URL=http://localhost:8080/transcribe scripts/transcribe-audio test.wav
+USAGE
+  exit 0
+fi
+
+# --- Validate input file ---
+AUDIO_FILE="$1"
+
+if [[ ! -f "$AUDIO_FILE" ]]; then
+  echo "Error: File not found: $AUDIO_FILE" >&2
+  exit 1
+fi
+
+EXTENSION="${AUDIO_FILE##*.}"
+EXTENSION="${EXTENSION,,}"  # lowercase
+
+if [[ ! "$EXTENSION" =~ ^($SUPPORTED_FORMATS)$ ]]; then
+  echo "Error: Unsupported format '.$EXTENSION'. Supported: .mp3, .m4a, .wav" >&2
+  exit 1
+fi
+
+# Check file size (warn above 500MB)
+FILE_SIZE=$(stat -c%s "$AUDIO_FILE" 2>/dev/null || stat -f%z "$AUDIO_FILE" 2>/dev/null || echo 0)
+if [[ "$FILE_SIZE" -gt 524288000 ]]; then
+  echo "Warning: File is $(( FILE_SIZE / 1048576 ))MB. Large files may take longer to process." >&2
+fi
+
+# --- Resolve API key ---
+API_KEY="${VELMA_API_KEY:-}"
+
+if [[ -z "$API_KEY" ]]; then
+  # Try reading from project .mcp.json
+  MCP_JSON=""
+  for candidate in ".mcp.json" "../.mcp.json"; do
+    if [[ -f "$candidate" ]]; then
+      MCP_JSON="$candidate"
+      break
+    fi
+  done
+
+  if [[ -n "$MCP_JSON" ]] && command -v jq &>/dev/null; then
+    API_KEY=$(jq -r '.env.VELMA_API_KEY // .mcpServers.velma.env.VELMA_API_KEY // empty' "$MCP_JSON" 2>/dev/null || true)
+  fi
+fi
+
+if [[ -z "$API_KEY" ]]; then
+  echo "Error: Velma API key not configured. Run /mindrian-os:setup transcription or set VELMA_API_KEY" >&2
+  exit 1
+fi
+
+# --- Call Velma API ---
+RESPONSE_FILE=$(mktemp /tmp/velma-response-XXXXXX.json)
+
+HTTP_CODE=$(curl -s -w "%{http_code}" -o "$RESPONSE_FILE" \
+  -X POST "$VELMA_API_URL" \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Accept: application/json" \
+  -F "audio=@$AUDIO_FILE" \
+  -F "diarization=true" \
+  -F "emotions=true" \
+  --max-time 600 \
+  2>/dev/null) || {
+    echo "Error: Network failure connecting to Velma API at $VELMA_API_URL" >&2
+    rm -f "$RESPONSE_FILE"
+    exit 1
+  }
+
+if [[ "$HTTP_CODE" -lt 200 || "$HTTP_CODE" -ge 300 ]]; then
+  ERROR_MSG=$(jq -r '.error // .message // "Unknown error"' "$RESPONSE_FILE" 2>/dev/null || cat "$RESPONSE_FILE")
+  echo "Error: Velma API returned HTTP $HTTP_CODE: $ERROR_MSG" >&2
+  rm -f "$RESPONSE_FILE"
+  exit 1
+fi
+
+# --- Validate response has segments ---
+if ! jq -e '.segments' "$RESPONSE_FILE" &>/dev/null; then
+  echo "Error: Velma API response missing 'segments' field" >&2
+  rm -f "$RESPONSE_FILE"
+  exit 1
+fi
+
+# --- Parse and format output ---
+# Format timestamps as MM:SS
+format_timestamp() {
+  local seconds="$1"
+  local mins=$(echo "$seconds" | awk '{printf "%d", $1 / 60}')
+  local secs=$(echo "$seconds $mins" | awk '{printf "%02d", $1 - ($2 * 60)}')
+  printf "%02d:%s" "$mins" "$secs"
+}
+
+# Output timestamped speaker-labeled text to stdout
+jq -r '.segments[] | "\(.start_time)|\(.end_time)|\(.speaker_id)|\(.text)"' "$RESPONSE_FILE" | \
+while IFS='|' read -r start end speaker text; do
+  start_fmt=$(format_timestamp "$start")
+  end_fmt=$(format_timestamp "$end")
+  # Normalize speaker_id: speaker_1 -> Speaker_1
+  speaker_label=$(echo "$speaker" | sed 's/speaker_/Speaker_/')
+  echo "[$start_fmt-$end_fmt] $speaker_label: $text"
+done
+
+# Output JSON path to stderr for downstream tools
+echo "$RESPONSE_FILE" >&2
