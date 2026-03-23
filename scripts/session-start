@@ -12,6 +12,9 @@ PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 WORK_DIR="${PWD}"
 ROOM_DIR="${WORK_DIR}/room"
 
+# Read current version from plugin.json
+PLUGIN_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "unknown")
+
 # Build context string
 context=""
 
@@ -88,9 +91,9 @@ if [ -d "$ROOM_DIR" ]; then
   fi
 
   # Add venture stage and suggested action from state
-  context="${context}\n\nYou are Larry. The user has an active Data Room. Greet them with awareness of where they left off and suggest what to work on next based on the gaps above."
+  context="${context}\n\nYou are Larry. MindrianOS v${PLUGIN_VERSION}. The user has an active Data Room. Greet them with awareness of where they left off and suggest what to work on next based on the gaps above."
 else
-  context="[MindrianOS] No room initialized yet. You are Larry. If the user wants to start a venture project, suggest /mindrian-os:new-project to get started. Otherwise, help them with whatever they need -- you're a thinking partner first."
+  context="[MindrianOS] No room initialized yet. MindrianOS v${PLUGIN_VERSION}. You are Larry. If the user wants to start a venture project, suggest /mindrian-os:new-project to get started. Otherwise, help them with whatever they need -- you're a thinking partner first."
 fi
 
 # Check for updates (async, non-blocking, max 3 second timeout)
