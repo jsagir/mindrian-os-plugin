@@ -1,24 +1,26 @@
-# Meeting Summary Template -- Dual Storage Pattern
+# Meeting Summary Template -- Meeting Archive Package
 
-*Used by `file-meeting` to produce narrative + structured meeting summaries.*
+*Used by `file-meeting` to produce the complete meeting archive package.*
 
 ---
 
-## Dual Storage Pattern
+## Meeting Archive Package
 
-Every filed meeting produces TWO summary artifacts:
-
-| Artifact | Location | Purpose |
-|----------|----------|---------|
-| Full summary | `room/meetings/YYYY-MM-DD-{name}/summary.md` | Complete narrative + structured breakdown |
-| Compact reference | `room/meeting-YYYY-MM-DD-{name}.md` | Quick-access one-paragraph + link + counts |
-
-Plus supporting files in the meeting directory:
+Every filed meeting produces a self-contained archive folder with the following files:
 
 | File | Location | Purpose |
 |------|----------|---------|
 | Transcript | `room/meetings/YYYY-MM-DD-{name}/transcript.md` | Original transcript (preserved verbatim) |
+| Summary | `room/meetings/YYYY-MM-DD-{name}/summary.md` | Complete narrative + structured breakdown |
+| Speakers | `room/meetings/YYYY-MM-DD-{name}/speakers.md` | Who attended, roles, segment counts, profile links |
+| Decisions | `room/meetings/YYYY-MM-DD-{name}/decisions.md` | Extracted decisions with owners and impact sections |
+| Action Items | `room/meetings/YYYY-MM-DD-{name}/action-items.md` | Tasks with owners and deadlines (only if stated) |
+| Metadata | `room/meetings/YYYY-MM-DD-{name}/metadata.yaml` | Structured searchable metadata for cross-meeting lookup |
+| Audio | `room/meetings/YYYY-MM-DD-{name}/{filename}` | Audio copy (only if --audio input) |
 | Filed-to index | `room/meetings/YYYY-MM-DD-{name}/filed-to/` | Links to where each artifact was filed |
+| Compact reference | `room/meeting-YYYY-MM-DD-{name}.md` | Quick-access at room root |
+
+Each meeting folder is a complete knowledge artifact -- browsable, shareable, and self-contained.
 
 ---
 
@@ -201,6 +203,108 @@ Confidence: {confidence}
 Where `{NNN}` is a zero-padded sequence number matching the filing order (priority-ordered).
 
 This creates a bidirectional link: the artifact in the room section has `source: transcript` + `meeting_name` pointing back to the meeting, and the filed-to index points from the meeting to the artifact.
+
+---
+
+## speakers.md Template
+
+**Location:** `room/meetings/YYYY-MM-DD-{name}/speakers.md`
+
+```markdown
+---
+meeting_id: {YYYY-MM-DD-meeting-slug}
+meeting_date: {YYYY-MM-DD}
+---
+# Speakers: {meeting_name}
+
+| Speaker | Role | Segments | Profile |
+|---------|------|----------|---------|
+| {name} | {role} | {count} | [[team/{role-plural}/{slug}/PROFILE.md]] |
+```
+
+One row per confirmed speaker. Profile links use the canonical slug from create-speaker-profile. Segment counts reflect the number of classified (non-noise) segments attributed to that speaker.
+
+---
+
+## decisions.md Template
+
+**Location:** `room/meetings/YYYY-MM-DD-{name}/decisions.md`
+
+```markdown
+---
+meeting_id: {YYYY-MM-DD-meeting-slug}
+---
+# Decisions: {meeting_name}
+
+1. **{Decision summary}** -- {speaker} ({role})
+   Filed to: [[{section}/{artifact-filename}.md]]
+   Impact: {cascade_sections from the decision artifact}
+
+2. **{Decision summary}** -- {speaker} ({role})
+   Filed to: [[{section}/{artifact-filename}.md]]
+   Impact: {cascade_sections}
+```
+
+Extract from segments classified as `decision` in Step 3. Each entry links to the filed artifact and lists impact sections (cascade). If no decisions were made, write: "No explicit decisions were recorded in this meeting."
+
+---
+
+## action-items.md Template
+
+**Location:** `room/meetings/YYYY-MM-DD-{name}/action-items.md`
+
+```markdown
+---
+meeting_id: {YYYY-MM-DD-meeting-slug}
+---
+# Action Items: {meeting_name}
+
+| Owner | Task | Deadline | Status |
+|-------|------|----------|--------|
+| {name} | {task description} | {date or "not specified"} | open |
+```
+
+Extract from segments classified as `action-item`. Deadlines ONLY if explicitly stated in transcript -- never invent deadlines. All items start as `status: open`. If no action items, write: "No action items were identified in this meeting."
+
+---
+
+## metadata.yaml Template
+
+**Location:** `room/meetings/YYYY-MM-DD-{name}/metadata.yaml`
+
+```yaml
+meeting_id: {YYYY-MM-DD-meeting-slug}
+meeting_name: {human-readable meeting name}
+meeting_date: {YYYY-MM-DD}
+source: {transcript | velma}
+speakers:
+  - name: {full name}
+    role: {role}
+    slug: {speaker-slug matching profile directory}
+topics:
+  - {dominant topic 1}
+  - {dominant topic 2}
+decisions_count: {N}
+insights_count: {N}
+action_items_count: {N}
+sections_touched:
+  - {section-name}
+  - {section-name}
+has_audio: {true | false}
+```
+
+Created LAST in the archive after all other files are written (counts depend on completed processing). Topics are inferred from dominant themes of filed segments. Speaker slugs MUST match directory names from create-speaker-profile.
+
+### Searchability
+
+metadata.yaml is designed for grep-based cross-meeting lookups without indexing:
+
+- **Find meetings by speaker:** `grep -rl '{speaker-slug}' room/meetings/*/metadata.yaml`
+- **Find meetings by topic:** `grep -rl '{topic}' room/meetings/*/metadata.yaml`
+- **Find meetings with decisions:** `grep -l 'decisions_count: [1-9]' room/meetings/*/metadata.yaml`
+- **Find meetings by date range:** Scan `meeting_date` fields across metadata.yaml files
+
+This enables Larry to answer questions like "What did Lawrence say about pricing?" or "Which meetings had action items?" by scanning metadata.yaml files directly.
 
 ---
 
