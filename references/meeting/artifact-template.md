@@ -13,8 +13,12 @@ Every artifact filed from a meeting transcript MUST include this frontmatter:
 methodology: file-meeting
 created: {YYYY-MM-DD}
 source: transcript
-speaker: {name}
-speaker_role: {role from 12-type taxonomy}
+attribution:
+  speaker: {name}
+  role: {role from 12-type taxonomy}
+  profile_path: team/{role-plural}/{speaker-slug}
+  meeting_date: {YYYY-MM-DD}
+  meeting_id: {YYYY-MM-DD-meeting-slug}
 segment_type: {type from 6-type taxonomy}
 confidence: {0.0-1.0}
 meeting_date: {YYYY-MM-DD}
@@ -42,20 +46,32 @@ rejection: null
 | methodology | string | YES | Always `file-meeting` |
 | created | date | YES | Date the artifact was filed (YYYY-MM-DD) |
 | source | string | YES | `transcript` for text imports, `velma` for Velma-transcribed audio |
-| speaker | string | YES | Full name of the speaker |
-| speaker_role | enum | YES | One of the 12 roles from section-mapping.md |
 | segment_type | enum | YES | One of the 6 types from segment-classification.md |
 | confidence | float | YES | 0.0-1.0 classification confidence |
 | meeting_date | date | YES | When the meeting occurred |
 | meeting_name | string | YES | Human-readable meeting identifier |
 | room_section | string | YES | Target room section for filing |
 
+### Attribution Block
+
+The `attribution:` block replaces the Phase 6 flat `speaker:` and `speaker_role:` fields. It provides a complete provenance chain linking each artifact to its speaker and meeting.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| attribution.speaker | string | YES | Full name of the speaker |
+| attribution.role | enum | YES | One of the 12 roles from section-mapping.md |
+| attribution.profile_path | string | YES | Relative path to speaker profile (e.g., team/mentors/lawrence-aronhime) |
+| attribution.meeting_date | date | YES | When the meeting occurred (duplicated for provenance chain) |
+| attribution.meeting_id | string | YES | YYYY-MM-DD-{meeting-slug} unique meeting identifier |
+
+**Backward Compatibility:** compute-team and other scanners must handle BOTH flat `speaker:` (Phase 6 legacy) and nested `attribution.speaker:` (Phase 7+). Grep for `^speaker:` OR `^  speaker:` (indented under attribution:).
+
 ### Wicked Problem Fields
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | assumptions | list | YES | Extracted assumptions with validity tracking |
-| perspective | string | YES | Matches speaker_role -- frames the viewpoint |
+| perspective | string | YES | Matches speaker role -- frames the viewpoint |
 | cascade_sections | list | YES | Sections this artifact may impact beyond its target |
 
 ### Optional Fields
@@ -141,8 +157,12 @@ The insight suggests a technical architecture change that will affect costs (fin
 methodology: file-meeting
 created: 2026-03-15
 source: transcript
-speaker: Sarah Chen
-speaker_role: founder
+attribution:
+  speaker: Sarah Chen
+  role: founder
+  profile_path: team/founders/sarah-chen
+  meeting_date: 2026-03-15
+  meeting_id: 2026-03-15-board-strategy-q1
 segment_type: decision
 confidence: 0.92
 meeting_date: 2026-03-15
@@ -166,8 +186,12 @@ We've decided to focus on the enterprise segment first. The SMB numbers don't su
 methodology: file-meeting
 created: 2026-03-15
 source: transcript
-speaker: David Park
-speaker_role: team-member
+attribution:
+  speaker: David Park
+  role: team-member
+  profile_path: team/members/david-park
+  meeting_date: 2026-03-15
+  meeting_id: 2026-03-15-board-strategy-q1
 segment_type: action-item
 confidence: 0.88
 meeting_date: 2026-03-15
@@ -194,8 +218,12 @@ David will prepare the enterprise pricing deck by next Friday and share it with 
 methodology: file-meeting
 created: 2026-03-15
 source: transcript
-speaker: Lisa Wong
-speaker_role: researcher
+attribution:
+  speaker: Lisa Wong
+  role: researcher
+  profile_path: team/researchers/lisa-wong
+  meeting_date: 2026-03-15
+  meeting_id: 2026-03-15-board-strategy-q1
 segment_type: insight
 confidence: 0.85
 meeting_date: 2026-03-15
@@ -219,8 +247,12 @@ The enterprise segment grew 34% last quarter according to Gartner's latest repor
 methodology: file-meeting
 created: 2026-03-15
 source: transcript
-speaker: Prof. Lawrence Aronhime
-speaker_role: mentor
+attribution:
+  speaker: Prof. Lawrence Aronhime
+  role: mentor
+  profile_path: team/mentors/lawrence-aronhime
+  meeting_date: 2026-03-15
+  meeting_id: 2026-03-15-mentoring-session
 segment_type: advice
 confidence: 0.90
 meeting_date: 2026-03-15
@@ -244,8 +276,12 @@ You should reframe the problem before jumping to solutions. Right now you're sol
 methodology: file-meeting
 created: 2026-03-15
 source: transcript
-speaker: Michael Torres
-speaker_role: investor
+attribution:
+  speaker: Michael Torres
+  role: investor
+  profile_path: team/investors/michael-torres
+  meeting_date: 2026-03-15
+  meeting_id: 2026-03-15-board-strategy-q1
 segment_type: question
 confidence: 0.87
 meeting_date: 2026-03-15
@@ -268,8 +304,12 @@ What's your current churn rate for the enterprise customers you already have? An
 methodology: file-meeting
 created: 2026-03-15
 source: transcript
-speaker: Sarah Chen
-speaker_role: founder
+attribution:
+  speaker: Sarah Chen
+  role: founder
+  profile_path: team/founders/sarah-chen
+  meeting_date: 2026-03-15
+  meeting_id: 2026-03-15-board-strategy-q1
 segment_type: noise
 confidence: 0.55
 meeting_date: 2026-03-15

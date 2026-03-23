@@ -224,8 +224,12 @@ Include ALL provenance fields:
 - methodology: file-meeting
 - created: {today}
 - source: transcript (or velma)
-- speaker: {name}
-- speaker_role: {role}
+- attribution:
+  - speaker: {name}
+  - role: {role}
+  - profile_path: team/{role-plural}/{speaker-slug}
+  - meeting_date: {meeting date}
+  - meeting_id: {YYYY-MM-DD-meeting-slug}
 - segment_type: {type}
 - confidence: {confidence score}
 - meeting_date: {meeting date}
@@ -235,19 +239,26 @@ Include ALL provenance fields:
 - perspective: {speaker_role}
 - cascade_sections: {sections this may affect beyond target}
 
-### Create Speaker Reference Copy
-
-Also create a reference copy in the speaker's profile folder:
-
-- insights -> `room/team/{role-plural}/{speaker-slug}/insights/YYYY-MM-DD-{slug}.md`
-- advice -> `room/team/{role-plural}/{speaker-slug}/advice/YYYY-MM-DD-{slug}.md`
-- questions/concerns -> `room/team/{role-plural}/{speaker-slug}/concerns/YYYY-MM-DD-{slug}.md`
+Speaker contributions are tracked via computed backlinks in PROFILE.md (run by compute-team), not by filing copies to speaker subfolders.
 
 Track: total segments filed, total rejected, sections touched.
 
 ---
 
 ## Step 5: Create Meeting Summary + Archive
+
+### Infer Meeting Metadata
+
+Before creating the archive, confirm the meeting name with the user:
+
+1. **Larry proposes** a meeting name from the dominant topic/purpose of the conversation:
+   > "This looks like a mentoring session focused on market validation. I'd call it 'Market Validation Mentoring'. Sound right?"
+
+2. **User confirms or changes** the name. Use their version if they provide one.
+
+3. The confirmed meeting name becomes the **meeting_id** used in all attribution blocks and archive paths:
+   - meeting_id: `YYYY-MM-DD-{confirmed-slug}` (e.g., `2026-03-15-market-validation-mentoring`)
+   - Slugify: lowercase, hyphens, no special characters
 
 ### Create Meeting Archive Directory
 

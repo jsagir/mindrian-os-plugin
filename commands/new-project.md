@@ -78,8 +78,11 @@ room/
     ROOM.md
   financial-model/
     ROOM.md
+  team/
   USER.md
 ```
+
+**Note:** `team/` is created empty. No subfolders (members/, mentors/, advisors/) are pre-created. The structure grows organically as speakers are identified through meetings or user input. `team/` is NOT a topic section -- it is the people layer for the Data Room.
 
 ### ROOM.md Template
 
