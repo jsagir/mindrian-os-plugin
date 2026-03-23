@@ -45,7 +45,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Each speaker segment is classified (insight, advice, question, decision, action-item, noise) and non-noise segments are mapped to the correct Data Room section -- user confirms each filing before creation
   4. Every filed artifact includes meeting provenance metadata (speaker, speaker_role, meeting_date, segment_type, confidence, source: transcript)
   5. After all segments are filed, Larry produces a meeting summary artifact with key decisions, insights filed, contradictions detected, gaps identified, and action items
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Meeting reference library (5 files) + file-meeting command + help update
+- [ ] 06-02-PLAN.md — Audio transcription script + setup transcription command
+- [ ] 06-03-PLAN.md — Cross-relationship discovery patterns + analyze-room meeting awareness + room-passive transcript awareness
 
 ### Phase 7: Team Room Structure
 **Goal**: The Data Room gains a team/ directory that organizes people by role, gives each person their own contribution folder, archives full meetings, and cross-links every filed artifact to both its topic section and its speaker -- turning the Room from topic-organized to people-aware
@@ -94,7 +99,7 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9
 | 3.2 Document Generation | v1.0 | 2/2 | Complete | 2026-03-22 |
 | 4. Brain MCP Toolbox | v1.0 | 3/3 | Complete | 2026-03-22 |
 | 5. Plugin Intelligence | v1.0 | 3/3 | Complete | 2026-03-22 |
-| 6. Stage 1 Core Capability | v2.0 | 0/? | Not started | - |
+| 6. Stage 1 Core Capability | v2.0 | 0/3 | Not started | - |
 | 7. Team Room Structure | v2.0 | 0/? | Not started | - |
 | 8. Cross-Meeting Intelligence | v2.0 | 0/? | Not started | - |
 | 9. Meeting Knowledge Graph | v2.0 | 0/? | Not started | - |
