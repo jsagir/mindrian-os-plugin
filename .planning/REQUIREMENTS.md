@@ -1,7 +1,7 @@
 # Requirements: MindrianOS Plugin v2.0
 
 **Defined:** 2026-03-23
-**Core Value:** Teams can file meeting intelligence into a living Data Room — speakers identified, insights classified, knowledge compounding across meetings — transforming conversations into structured venture intelligence.
+**Core Value:** Teams can file meeting intelligence into a living Data Room -- speakers identified, insights classified, knowledge compounding across meetings -- transforming conversations into structured venture intelligence.
 
 ## v2.0 Requirements
 
@@ -16,7 +16,7 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 - [ ] **MEET-05**: User confirms each filing before it's created (confirm-then-file UX, same as room-passive)
 - [ ] **MEET-06**: Each filed artifact includes meeting provenance (speaker, speaker_role, meeting_date, segment_type, confidence, source: transcript)
 - [ ] **MEET-07**: After all segments filed, Larry creates a meeting summary artifact with key decisions, insights filed, contradictions detected, gaps identified, and action items
-- [ ] **MEET-08**: Audio files are transcribed locally via Whisper (openai-whisper or whisper.cpp) with speaker diarization — no cloud dependency
+- [ ] **MEET-08**: Audio files are transcribed locally via Whisper (openai-whisper or whisper.cpp) with speaker diarization -- no cloud dependency
 - [ ] **MEET-09**: Whisper transcription includes timestamps and speaker labels that Larry uses for segment identification
 
 ### Team Room Structure
@@ -25,7 +25,7 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 - [ ] **TEAM-02**: Each person gets their own folder (e.g., `team/mentors/lawrence-aronhime/`) with PROFILE.md, and subfolders for their contributions (insights/, advice/, connections/, concerns/)
 - [ ] **TEAM-03**: `/mindrian-os:new-project` creates the team/ structure alongside the 8 topic sections
 - [ ] **TEAM-04**: When filing meeting segments, artifacts are cross-linked to both the topic section AND the speaker's person folder
-- [ ] **TEAM-05**: `team/TEAM-STATE.md` is computed from filesystem — who contributes what, expertise distribution, gaps in team coverage
+- [ ] **TEAM-05**: `team/TEAM-STATE.md` is computed from filesystem -- who contributes what, expertise distribution, gaps in team coverage
 
 ### Meeting Archive
 
@@ -43,26 +43,26 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 
 - [ ] **XMTG-01**: Meeting summary artifacts include convergence detection (same topic mentioned across multiple meetings)
 - [ ] **XMTG-02**: Contradiction detection works across meetings (speaker said X in meeting 1, Y in meeting 2)
-- [ ] **XMTG-03**: Action items are tracked across meetings — Larry flags incomplete actions from prior meetings
+- [ ] **XMTG-03**: Action items are tracked across meetings -- Larry flags incomplete actions from prior meetings
 - [ ] **XMTG-04**: Team contribution analysis: which team members are most active, which are silent, which always raise the same concern
 
 ### Meeting as Graph Nodes
 
-- [ ] **GRAP-01**: Each meeting becomes a node in the knowledge graph (dashboard/graph.json) — colored distinctly, connected to all artifacts it produced
-- [ ] **GRAP-02**: Speaker nodes appear in the graph — connected to their meeting nodes AND to the room sections they contributed to
+- [ ] **GRAP-01**: Each meeting becomes a node in the knowledge graph (dashboard/graph.json) -- colored distinctly, connected to all artifacts it produced
+- [ ] **GRAP-02**: Speaker nodes appear in the graph -- connected to their meeting nodes AND to the room sections they contributed to
 - [ ] **GRAP-03**: build-graph script reads meetings/ directory and generates meeting nodes + speaker nodes + SPOKE_IN / FILED_TO / ATTENDED edges
-- [ ] **GRAP-04**: Cross-meeting edges: when same speaker mentions same concept in two meetings → REINFORCES edge; when two speakers contradict → CONTRADICTS edge
-- [ ] **GRAP-05**: Meeting timeline view in dashboard — meetings as a horizontal timeline with vertical edges showing what was filed from each
+- [ ] **GRAP-04**: Cross-meeting edges: when same speaker mentions same concept in two meetings -> REINFORCES edge; when two speakers contradict -> CONTRADICTS edge
+- [ ] **GRAP-05**: Meeting timeline view in dashboard -- meetings as a horizontal timeline with vertical edges showing what was filed from each
 
 ### Dashboard & Export Updates
 
 - [ ] **DASH-06**: Knowledge graph dashboard shows team members as nodes with edges to their contributions
-- [ ] **DASH-07**: `/mindrian-os:export` supports meeting-report type — summary of all meetings with decisions and action items
+- [ ] **DASH-07**: `/mindrian-os:export` supports meeting-report type -- summary of all meetings with decisions and action items
 - [ ] **DOCS-06**: Meeting summary PDFs with speaker attribution and section-colored filing indicators
 
 ## v3.0 Requirements (Deferred)
 
-### Audio Transcription (MOVED TO v2.0 — Stage 1)
+### Audio Transcription (MOVED TO v2.0 -- Stage 1)
 - Moved to v2.0 MEET requirements
 
 ### Live Meeting Join
@@ -78,7 +78,7 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 
 | Feature | Reason |
 |---------|--------|
-| Chrome extension for meeting capture | Complex to build and maintain — use Read AI MCP instead |
+| Chrome extension for meeting capture | Complex to build and maintain -- use Read AI MCP instead |
 | Real-time collaborative editing of room | Cowork handles this natively |
 | Video recording/playback | Storage/bandwidth; transcripts are sufficient |
 | Automated meeting scheduling | Calendar tools handle this |
@@ -88,43 +88,44 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MEET-01 | TBD | Pending |
-| MEET-02 | TBD | Pending |
-| MEET-03 | TBD | Pending |
-| MEET-04 | TBD | Pending |
-| MEET-05 | TBD | Pending |
-| MEET-06 | TBD | Pending |
-| MEET-07 | TBD | Pending |
-| TEAM-01 | TBD | Pending |
-| TEAM-02 | TBD | Pending |
-| TEAM-03 | TBD | Pending |
-| TEAM-04 | TBD | Pending |
-| TEAM-05 | TBD | Pending |
-| ARCH-01 | TBD | Pending |
-| ARCH-02 | TBD | Pending |
-| ARCH-03 | TBD | Pending |
-| RDAI-01 | TBD | Pending |
-| RDAI-02 | TBD | Pending |
-| RDAI-03 | TBD | Pending |
-| XMTG-01 | TBD | Pending |
-| XMTG-02 | TBD | Pending |
-| XMTG-03 | TBD | Pending |
-| XMTG-04 | TBD | Pending |
-| DASH-06 | TBD | Pending |
-| DASH-07 | TBD | Pending |
-| MEET-08 | TBD | Pending |
-| MEET-09 | TBD | Pending |
-| GRAP-01 | TBD | Pending |
-| GRAP-02 | TBD | Pending |
-| GRAP-03 | TBD | Pending |
-| GRAP-04 | TBD | Pending |
-| GRAP-05 | TBD | Pending |
-| DOCS-06 | TBD | Pending |
+| MEET-01 | Phase 6 | Pending |
+| MEET-02 | Phase 6 | Pending |
+| MEET-03 | Phase 6 | Pending |
+| MEET-04 | Phase 6 | Pending |
+| MEET-05 | Phase 6 | Pending |
+| MEET-06 | Phase 6 | Pending |
+| MEET-07 | Phase 6 | Pending |
+| MEET-08 | Phase 6 | Pending |
+| MEET-09 | Phase 6 | Pending |
+| TEAM-01 | Phase 7 | Pending |
+| TEAM-02 | Phase 7 | Pending |
+| TEAM-03 | Phase 7 | Pending |
+| TEAM-04 | Phase 7 | Pending |
+| TEAM-05 | Phase 7 | Pending |
+| ARCH-01 | Phase 7 | Pending |
+| ARCH-02 | Phase 7 | Pending |
+| ARCH-03 | Phase 7 | Pending |
+| RDAI-01 | Phase 8 | Pending |
+| RDAI-02 | Phase 8 | Pending |
+| RDAI-03 | Phase 8 | Pending |
+| XMTG-01 | Phase 8 | Pending |
+| XMTG-02 | Phase 8 | Pending |
+| XMTG-03 | Phase 8 | Pending |
+| XMTG-04 | Phase 8 | Pending |
+| GRAP-01 | Phase 9 | Pending |
+| GRAP-02 | Phase 9 | Pending |
+| GRAP-03 | Phase 9 | Pending |
+| GRAP-04 | Phase 9 | Pending |
+| GRAP-05 | Phase 9 | Pending |
+| DASH-06 | Phase 9 | Pending |
+| DASH-07 | Phase 9 | Pending |
+| DOCS-06 | Phase 9 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 32 total
-- Mapped to phases: 0 (awaiting roadmap)
-- Unmapped: 25
+- Mapped to phases: 32
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-23*
+*Traceability updated: 2026-03-23*

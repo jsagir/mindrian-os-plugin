@@ -1,8 +1,9 @@
 # Roadmap: MindrianOS Plugin
 
-## Overview
+## Milestones
 
-This roadmap delivers the MindrianOS Plugin in 5 phases following strict dependency order. Phase 1 creates the zero-config install experience where Larry talks immediately and the Data Room persists across sessions. Phase 2 builds ALL 25+ methodology commands with structured artifact output, passive Room intelligence, and problem type classification routing. Phase 3 activates the "OS" experience through pipeline chaining and proactive intelligence. Phase 4 connects the Brain MCP moat for enriched routing and calibrated grading. Phase 5 adds plugin self-update, context window awareness, and capability radar — the infrastructure that keeps MindrianOS alive and evolving. Every phase delivers a coherent, independently verifiable capability.
+- [x] **v1.0 MVP** - Phases 1-5 (shipped 2026-03-22)
+- [ ] **v2.0 Meeting Intelligence** - Phases 6-9 (in progress)
 
 ## Phases
 
@@ -12,144 +13,88 @@ This roadmap delivers the MindrianOS Plugin in 5 phases following strict depende
 
 Decimal phases appear between their surrounding integers in numeric order.
 
+<details>
+<summary>v1.0 MVP (Phases 1-5) - SHIPPED 2026-03-22</summary>
+
 - [x] **Phase 1: Install and Larry Talks** - Plugin skeleton, Larry personality, Data Room with state system, hooks, graceful degradation, cross-surface compatibility (completed 2026-03-20)
 - [x] **Phase 2: Core Methodologies** - ALL 25+ methodology commands with structured artifact output, passive Room intelligence, and problem type classification routing (completed 2026-03-22)
-- [ ] **Phase 3: Pipeline Chaining and Proactive Intelligence** - Multi-step methodology workflows where output becomes input, plus gap/contradiction/convergence detection
-- [ ] **Phase 4: Brain MCP Integration** - Brain enrichment integration for enhanced routing, calibrated grading, and mode engine
-- [x] **Phase 5: Plugin Intelligence Infrastructure** - Self-update system, context window awareness, Claude capability radar — keeps MindrianOS alive and evolving (completed 2026-03-22)
+- [x] **Phase 3: Pipeline Chaining and Proactive Intelligence** - Multi-step methodology workflows where output becomes input, plus gap/contradiction/convergence detection (completed 2026-03-22)
+- [x] **Phase 3.1: Data Room Dashboard (INSERTED)** - Localhost De Stijl dashboard with knowledge graph and chat (completed 2026-03-22)
+- [x] **Phase 3.2: Document Generation (INSERTED)** - Professional De Stijl PDF exports (completed 2026-03-22)
+- [x] **Phase 4: Brain MCP Toolbox** - Brain enrichment integration for enhanced routing, calibrated grading, and mode engine
+- [x] **Phase 5: Plugin Intelligence Infrastructure** - Self-update system, context window awareness, Claude capability radar (completed 2026-03-22)
+
+</details>
+
+### v2.0 Meeting Intelligence
+
+- [ ] **Phase 6: Stage 1 Core Capability** - file-meeting command with paste/audio input, Whisper transcription, speaker identification, segment classification, confirm-then-file, provenance metadata, meeting summary artifact
+- [ ] **Phase 7: Team Room Structure** - team/ directory with members/mentors/advisors, per-person folders, cross-linking artifacts to topic AND speaker, meeting archive, TEAM-STATE.md
+- [ ] **Phase 8: Cross-Meeting Intelligence** - Convergence detection across meetings, contradiction tracking, action item continuity, contribution analysis, Read AI MCP integration
+- [ ] **Phase 9: Meeting Knowledge Graph** - Meetings and speakers as graph nodes, cross-meeting edges, timeline view, dashboard updates, meeting report export, meeting summary PDFs
 
 ## Phase Details
 
-### Phase 1: Install and Larry Talks
-**Goal**: Users install with one command and immediately have Larry guiding them through a persistent, structured Data Room that survives across sessions -- with zero configuration and zero external dependencies
-**Depends on**: Nothing (first phase)
-**Requirements**: PLGN-01, PLGN-02, PLGN-03, PLGN-04, PLGN-05, LARY-01, LARY-02, LARY-03, LARY-04, ROOM-01, ROOM-02, ROOM-03, ROOM-04, ROOM-05, DEGS-01, DEGS-02, DEGS-03, SURF-01, SURF-02
+### Phase 6: Stage 1 Core Capability
+**Goal**: Users can file a meeting transcript into their Data Room -- paste text, provide a file, or provide audio that gets transcribed locally -- with speakers identified, segments classified, and everything filed with full provenance after user confirmation
+**Depends on**: Phase 5 (v1.0 complete)
+**Requirements**: MEET-01, MEET-02, MEET-03, MEET-04, MEET-05, MEET-06, MEET-07, MEET-08, MEET-09
 **Success Criteria** (what must be TRUE):
-  1. User runs `claude plugin install mindrian-os` and Larry responds to their first message with his teaching personality -- no setup steps, no configuration prompts
-  2. User can run `/mindrian-os:help` and `/mindrian-os:status` to discover commands and see current Room state
-  3. User's workspace has 8 Data Room sections and STATE.md is computed from filesystem truth via hooks (not maintained by Claude)
-  4. User closes Claude, reopens later, and SessionStart hook restores their full Room context -- work persists across sessions
-  5. Plugin auto-loaded skills consume under 2% of context window; all features work identically on CLI, Desktop, and Cowork
-**Plans:** 3/3 plans complete
+  1. User runs `/mindrian-os:file-meeting` and can paste transcript text, provide a file path, OR provide an audio file -- all three input modes work
+  2. Larry presents identified speakers with proposed names and roles (mentor, researcher, team-member, investor, advisor, customer) and user confirms or corrects before proceeding
+  3. Each speaker segment is classified (insight, advice, question, decision, action-item, noise) and non-noise segments are mapped to the correct Data Room section -- user confirms each filing before creation
+  4. Every filed artifact includes meeting provenance metadata (speaker, speaker_role, meeting_date, segment_type, confidence, source: transcript)
+  5. After all segments are filed, Larry produces a meeting summary artifact with key decisions, insights filed, contradictions detected, gaps identified, and action items
+**Plans**: TBD
 
-Plans:
-- [x] 01-01-PLAN.md -- Larry agent with V2-ported personality, auto-loaded skills, reference files, plugin manifest
-- [x] 01-02-PLAN.md -- Data Room initialization (new-project command), hook scripts, state computation system
-- [x] 01-03-PLAN.md -- Help/status/room commands, graceful degradation verification, cross-surface readiness
-
-### Phase 2: Core Methodologies
-**Goal**: ALL 25+ methodology commands built with structured artifact output, passive Room intelligence, and problem type classification routing -- the full methodology teaching experience
-**Depends on**: Phase 1
-**Requirements**: METH-01, METH-02, METH-03, METH-04, METH-05, METH-06, METH-07, METH-08, METH-09, METH-10, PASS-01, PASS-02, PASS-03, ALLM-01, ALLM-02
+### Phase 7: Team Room Structure
+**Goal**: The Data Room gains a team/ directory that organizes people by role, gives each person their own contribution folder, archives full meetings, and cross-links every filed artifact to both its topic section and its speaker -- turning the Room from topic-organized to people-aware
+**Depends on**: Phase 6
+**Requirements**: TEAM-01, TEAM-02, TEAM-03, TEAM-04, TEAM-05, ARCH-01, ARCH-02, ARCH-03
 **Success Criteria** (what must be TRUE):
-  1. User can invoke ALL 25+ methodologies via action-oriented slash commands and receive adaptive, Larry-guided sessions with user-controlled depth
-  2. Each methodology produces framework-specific markdown artifacts in Larry's voice, filed to the appropriate Data Room section with provenance metadata
-  3. PostToolUse hook auto-classifies insights via hybrid pattern (hook keyword match + room-passive skill for uncertain cases), user confirms before filing
-  4. Each methodology uses thin skill + on-demand reference loading pattern, with problem type classification (un/ill/well-defined + wicked) driving routing
-  5. PWS Grading command provides basic assessment using static rubric from references/
-**Plans:** 5/5 plans complete
+  1. `/mindrian-os:new-project` creates team/ directory alongside the 8 topic sections, with members/, mentors/, advisors/ subfolders ready
+  2. Each person has their own folder (e.g., team/mentors/lawrence-aronhime/) with PROFILE.md and contribution subfolders (insights/, advice/, connections/, concerns/) that accumulate over meetings
+  3. When filing meeting segments, each artifact is cross-linked to both the topic section (e.g., market-analysis/) AND the speaker's person folder -- both locations reference the same content
+  4. Each meeting gets its own archive folder in room/meetings/YYYY-MM-DD-{name}/ with transcript.md, summary.md, and filed-to/ links
+  5. `/mindrian-os:status` shows meeting count and last meeting date, and team/TEAM-STATE.md is computed from filesystem showing who contributes what, expertise distribution, and team coverage gaps
 
-Plans:
-- [x] 02-01-PLAN.md -- Pattern foundation: problem-types reference, updated routing index, Tier 1-2 batch (7 simplest commands)
-- [x] 02-02-PLAN.md -- Tier 3 batch: 8 framework workshop commands (Domain Explorer, Minto, Bono, JTBD, Reverse Salient, TTA, S-Curve, Ackoff)
-- [x] 02-03-PLAN.md -- Tier 4 batch: 7 complex workshop commands (Scenario Planning, Validation, Futures, Root Cause, Macro Trends, Dominant Designs, User Needs)
-- [x] 02-04-PLAN.md -- Tier 5 specials: 4 commands with custom logic (Grade, Investment Thesis, HSI, Diagnose)
-- [x] 02-05-PLAN.md -- Passive Room intelligence: PostToolUse hook, classification script, room-passive filing, help command update
-
-### Phase 3: Pipeline Chaining and Proactive Intelligence
-**Goal**: Users can run multi-step methodology sequences where each framework's output feeds the next, and the Room actively detects gaps, contradictions, and convergence across their work
-**Depends on**: Phase 2
-**Requirements**: PIPE-01, PIPE-02, PIPE-03, PIPE-04, PROA-01, PROA-02, PROA-03, PROA-04
+### Phase 8: Cross-Meeting Intelligence
+**Goal**: Larry builds intelligence ACROSS meetings -- detecting when topics converge, speakers contradict themselves, action items go incomplete, and team participation patterns emerge -- plus Read AI integration removes the paste step entirely
+**Depends on**: Phase 7
+**Requirements**: XMTG-01, XMTG-02, XMTG-03, XMTG-04, RDAI-01, RDAI-02, RDAI-03
 **Success Criteria** (what must be TRUE):
-  1. User can execute at least 2 pipeline sequences end-to-end (Domain Explorer to Bono to JTBD; Minto to Devil's Advocate to Investment Thesis) with each stage's output becoming structured input to the next
-  2. Pipeline execution produces inspectable artifacts at each stage, all filed to Room sections with clear provenance chain
-  3. Room proactive skill surfaces gap suggestions ("no competitive analysis yet"), contradiction alerts, and convergence signals with confidence scores
-  4. Proactive suggestions are gated to prevent noise -- user is not overwhelmed by low-confidence alerts
-**Plans:** 2 plans
+  1. Meeting summaries include convergence detection -- Larry identifies when the same topic was mentioned across multiple past meetings and surfaces the pattern
+  2. Larry detects contradictions across meetings (speaker said X in meeting 1, Y in meeting 2) and flags them in summaries and proactive alerts
+  3. Action items are tracked across meetings -- Larry flags incomplete actions from prior meetings at the start of each new meeting filing
+  4. Team contribution analysis shows which members are most active, which are silent, and which consistently raise the same concern
+  5. User can run `/mindrian-os:setup meetings` to connect Read AI MCP, then `/mindrian-os:file-meeting --latest` auto-fetches the most recent transcript without manual paste
 
-Plans:
-- [ ] 03-01-PLAN.md -- Pipeline stage contracts (Discovery + Thesis chains), pipeline command, chains-index reference
-- [ ] 03-02-PLAN.md -- Proactive Room intelligence: analyze-room script, room-proactive skill, session-start hook integration
-
-### Phase 3.1: Data Room Dashboard (INSERTED)
-**Goal**: Users can run `/mindrian-os:room view` to launch a localhost De Stijl dashboard showing their Data Room as an interactive knowledge graph with a chat box for natural language querying — the visual front door to their venture work
-**Depends on**: Phase 3
-**Requirements**: DASH-01, DASH-02, DASH-03, DASH-04, DASH-05
+### Phase 9: Meeting Knowledge Graph
+**Goal**: Meetings and speakers become first-class nodes in the knowledge graph -- connected by SPOKE_IN, FILED_TO, ATTENDED, REINFORCES, and CONTRADICTS edges -- with a timeline view in the dashboard and meeting-specific exports
+**Depends on**: Phase 8
+**Requirements**: GRAP-01, GRAP-02, GRAP-03, GRAP-04, GRAP-05, DASH-06, DASH-07, DOCS-06
 **Success Criteria** (what must be TRUE):
-  1. User runs `/mindrian-os:room view` and a localhost server opens in their browser showing the Data Room as an interactive Cytoscape.js knowledge graph in full De Stijl aesthetic (dark bg, Bebas Neue, 0 border-radius, 8 semantic section colors)
-  2. Graph nodes represent insights/artifacts colored by room section, edges show INFORMS/CONTRADICTS/CONVERGES/FEEDS_INTO relationships, and user can zoom, pan, drag, click to expand
-  3. Chat box at the bottom allows natural language queries about the room ("what gaps do I have?", "show contradictions") and returns natural language answers
-  4. Dashboard auto-generates graph data from room/ directory contents and provenance metadata — no manual graph building required
-  5. Everything runs locally on localhost — zero cloud dependency, fully private
-**Plans:** 2 plans
-
-Plans:
-- [ ] 03.1-01-PLAN.md — Graph data pipeline (build-graph + serve-dashboard scripts) and De Stijl Cytoscape.js dashboard HTML
-- [ ] 03.1-02-PLAN.md — Chat intelligence panel and room view command wiring
-
-### Phase 3.2: Document Generation (INSERTED)
-**Goal**: Users can run `/mindrian-os:export` to generate professional De Stijl PDFs from their Data Room — investment thesis, executive summary, due diligence report, PWS profiles — all with zero additional dependencies using WeasyPrint + Jinja2
-**Depends on**: Phase 3.1
-**Requirements**: DOCS-01, DOCS-02, DOCS-03, DOCS-04, DOCS-05
-**Success Criteria** (what must be TRUE):
-  1. User runs `/mindrian-os:export thesis` and gets a multi-page De Stijl PDF with room sections mapped to document sections, running headers/footers, and bundled Bebas Neue font
-  2. At least 4 document types work: thesis, summary, report, profile — each with a Jinja2 template and shared CSS
-  3. PWS Profile generation creates structured profiles from methodology outputs (Bono perspectives, Domain Explorer domains, JTBD personas)
-  4. No additional dependencies — WeasyPrint, markdown2, Jinja2, PyMuPDF already installed
-  5. Exports land in room/exports/ with clear filenames and open automatically
-**Plans:** 2 plans
-
-Plans:
-- [ ] 03.2-01-PLAN.md — De Stijl CSS + bundled fonts + Jinja2 templates (thesis, summary, report, profile) + test fixtures
-- [ ] 03.2-02-PLAN.md — render-pdf Python orchestrator + /mindrian-os:export command
-
-### Phase 4: Brain MCP Toolbox
-**Goal**: Connect Larry's Brain (Neo4j 21K nodes + Pinecone 1.4K embeddings) via 8 MCP tools, 4 specialized agents (Brain, Grading, Research, Investor), 5 new commands, brain-connector skill with passive enrichment and proactive surfacing — the moat activates
-**Depends on**: Phase 3
-**Requirements**: BRAN-01, BRAN-02, BRAN-03, BRAN-04, BRAN-05, BRAN-06, BRAN-07, BRAN-08, BRAN-09, BRAN-10
-**Success Criteria** (what must be TRUE):
-  1. User runs `/mindrian-os:setup brain` and Brain MCP connects (Neo4j + Pinecone) — NOT in default config, zero startup cost for Tier 0
-  2. brain-connector skill passively enriches Larry's responses with graph context and proactively surfaces contradictions/gaps (gated, max 2 HIGH per session)
-  3. Brain Agent handles complex multi-hop GraphRAG queries, building context across conversation turns
-  4. Grading Agent produces calibrated 5-component assessment scored against 100+ real projects
-  5. Research Agent performs external web search via Tavily, files findings to room with provenance
-  6. Investor Agent stress-tests from investor POV using Brain pattern data
-  7. 5 new commands work: suggest-next, find-connections, compare-ventures, deep-grade, research
-  8. Existing commands upgraded: diagnose, help, grade, pipeline, mode engine — all Brain-informed
-**Plans**: 3 plans
-
-Plans:
-- [ ] 04-01-PLAN.md -- Brain foundation: setup command, schema reference, query patterns, brain-connector skill
-- [ ] 04-02-PLAN.md -- 4 specialized agents: Brain Agent (GraphRAG), Grading Agent, Research Agent, Investor Agent
-- [ ] 04-03-PLAN.md -- 5 new Brain commands + 5 existing command upgrades + mode engine + index update
-
-### Phase 5: Plugin Intelligence Infrastructure
-**Goal**: MindrianOS can update itself, manage its own context budget intelligently, and automatically discover new Claude capabilities that amplify the plugin — the infrastructure that keeps the OS alive and evolving
-**Depends on**: Phase 1 (uses hooks, commands, skills patterns established there)
-**Requirements**: UPDT-01, UPDT-02, CTXW-01, CTXW-02, RADR-01, RADR-02
-**Success Criteria** (what must be TRUE):
-  1. User runs `/mindrian-os:update` and gets version check, changelog display, clean install with user modification backup, and post-update reapply — modeled on GSD's proven update workflow
-  2. Plugin actively monitors context window consumption and adapts loading strategy — compresses references, defers skill loading, warns user when approaching limits, works on both 200K (Sonnet) and 1M (Opus) contexts
-  3. Plugin tracks official Anthropic releases (Newsroom, Blog, Claude Code changelog, Releasebot feeds) and surfaces new capabilities relevant to MindrianOS, tagged by domain (models, code, desktop_cowork, plugins_mcp, visualization)
-  4. Context awareness differentiates behavior by model context size — Sonnet users get aggressive reference compression, Opus users get richer inline context
-**Plans**: 3 plans
-
-Plans:
-- [ ] 05-01-PLAN.md -- Self-update system: /update command, version check, changelog display, modification backup/reapply
-- [ ] 05-02-PLAN.md -- Context window awareness: statusline bridge, context-engine skill upgrade, model-aware adaptive loading
-- [ ] 05-03-PLAN.md -- Capability radar: curated domain-tagged index, on-demand changelog fetch, /radar command
+  1. Each meeting appears as a distinctly colored node in the knowledge graph (dashboard/graph.json), connected to all artifacts it produced
+  2. Speaker nodes appear in the graph, connected to their meeting nodes AND to the room sections they contributed to
+  3. Cross-meeting edges exist: REINFORCES (same speaker, same concept, two meetings) and CONTRADICTS (two speakers disagree) are visible and navigable
+  4. Dashboard shows a meeting timeline view -- meetings as a horizontal timeline with vertical edges showing what was filed from each
+  5. `/mindrian-os:export meeting-report` generates a summary of all meetings with decisions and action items, and meeting summary PDFs include speaker attribution with section-colored filing indicators
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 3.2 → 4 → 5
+Phases execute in numeric order: 6 -> 7 -> 8 -> 9
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Install and Larry Talks | 3/3 | Complete   | 2026-03-20 |
-| 2. Core Methodologies | 5/5 | Complete   | 2026-03-22 |
-| 3. Pipeline Chaining and Proactive Intelligence | 2/2 | Complete   | 2026-03-22 |
-| 3.1 Data Room Dashboard (INSERTED) | 2/2 | Complete   | 2026-03-22 |
-| 3.2 Document Generation (INSERTED) | 2/2 | Complete   | 2026-03-22 |
-| 4. Brain MCP Toolbox | 0/3 | Not started | - |
-| 5. Plugin Intelligence Infrastructure | 3/3 | Complete   | 2026-03-22 |
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. Install and Larry Talks | v1.0 | 3/3 | Complete | 2026-03-20 |
+| 2. Core Methodologies | v1.0 | 5/5 | Complete | 2026-03-22 |
+| 3. Pipeline Chaining | v1.0 | 2/2 | Complete | 2026-03-22 |
+| 3.1 Data Room Dashboard | v1.0 | 2/2 | Complete | 2026-03-22 |
+| 3.2 Document Generation | v1.0 | 2/2 | Complete | 2026-03-22 |
+| 4. Brain MCP Toolbox | v1.0 | 3/3 | Complete | 2026-03-22 |
+| 5. Plugin Intelligence | v1.0 | 3/3 | Complete | 2026-03-22 |
+| 6. Stage 1 Core Capability | v2.0 | 0/? | Not started | - |
+| 7. Team Room Structure | v2.0 | 0/? | Not started | - |
+| 8. Cross-Meeting Intelligence | v2.0 | 0/? | Not started | - |
+| 9. Meeting Knowledge Graph | v2.0 | 0/? | Not started | - |
