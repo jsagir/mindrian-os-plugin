@@ -85,7 +85,7 @@ if [[ -d "$PROFILE_DIR" ]]; then
   exit 1
 fi
 
-# Create directory structure
+# Create directory structure (Phase 6 legacy compat -- subfolders kept for backward compat)
 mkdir -p "${PROFILE_DIR}/insights"
 mkdir -p "${PROFILE_DIR}/advice"
 mkdir -p "${PROFILE_DIR}/connections"
@@ -94,11 +94,16 @@ mkdir -p "${PROFILE_DIR}/concerns"
 # Get today's date
 TODAY=$(date +%Y-%m-%d)
 
-# Create PROFILE.md
+# Create PROFILE.md with Phase 7 extended schema
 cat > "${PROFILE_DIR}/PROFILE.md" <<EOF
 ---
 name: ${DISPLAY_NAME}
+roles:
+  - ${SPEAKER_ROLE}
+primary_role: ${SPEAKER_ROLE}
 role: ${SPEAKER_ROLE}
+status: active
+last_active: ${TODAY}
 affiliation: (unknown -- pending research)
 first_meeting: ${TODAY}
 meetings_attended: 1
@@ -119,9 +124,9 @@ last_updated: ${TODAY}
 
 [To be inferred from meeting contributions]
 
-## Key Contributions
+## Contributions
 
-[Auto-populated from filed artifacts]
+[Computed by compute-team -- do not edit manually]
 EOF
 
 # Output the created path

@@ -48,7 +48,12 @@ room/team/{role-plural}/{firstname-lastname}/
 ```markdown
 ---
 name: {Full Name}
+roles:
+  - {speaker_role from 12-type taxonomy}
+primary_role: {speaker_role from 12-type taxonomy}
 role: {speaker_role from 12-type taxonomy}
+status: active
+last_active: {YYYY-MM-DD}
 affiliation: {organization, if known}
 first_meeting: {YYYY-MM-DD}
 meetings_attended: 1
@@ -71,11 +76,9 @@ First appeared in: [[meetings/YYYY-MM-DD-{meeting-name}/summary.md]]
 
 {Inferred from their contributions. Updated across meetings.}
 
-## Key Contributions
+## Contributions
 
-### From {meeting_name} ({YYYY-MM-DD})
-
-- {Summary of their key segments from this meeting}
+[Computed by compute-team -- do not edit manually]
 ```
 
 ---
@@ -85,7 +88,11 @@ First appeared in: [[meetings/YYYY-MM-DD-{meeting-name}/summary.md]]
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | name | string | -- | Full display name (with titles if applicable) |
-| role | enum | unknown | One of the 12 speaker roles |
+| roles | list | [{role}] | List of roles this speaker has held (Phase 7+) |
+| primary_role | string | {role} | Current primary role from 12-type taxonomy (Phase 7+) |
+| role | string | unknown | One of the 12 speaker roles (Phase 6 backward compat) |
+| status | enum | active | Lifecycle status: active, inactive, archived (Phase 7+) |
+| last_active | date | -- | Date of most recent meeting participation (Phase 7+) |
 | affiliation | string | "Unknown" | Organization, company, or institution |
 | first_meeting | date | -- | Date of the meeting where first encountered |
 | meetings_attended | integer | 1 | Incremented each time the speaker appears |
@@ -102,59 +109,67 @@ First appeared in: [[meetings/YYYY-MM-DD-{meeting-name}/summary.md]]
 | complete | Web research has been performed and integrated |
 | skipped | User chose to skip research for this speaker |
 
+### Status Lifecycle Values
+
+| Status | Meaning |
+|--------|---------|
+| active | Speaker has participated in a meeting within the last 90 days |
+| inactive | No meeting participation in 90+ days (computed by compute-team) |
+| archived | Manually archived by user -- excluded from active team scans |
+
 **Important:** Proactive web research runs AFTER the filing pipeline via `scripts/research-speaker`, NOT during filing. The filing pipeline should never block on external API calls. The profile is created with `research_status: pending` and a separate background process handles enrichment.
+
+### Backward Compatibility
+
+Phase 6 profiles have `role:` (singular). Phase 7 adds `roles:` (list) and `primary_role:`. compute-team reads `roles:` first, falls back to `role:` as single-element list.
+
+When scanning profiles, use this resolution order:
+1. Read `roles:` -- if present, use as the role list
+2. If `roles:` is absent, read `role:` and wrap as a single-element list: `[{role}]`
+3. `primary_role:` is always the current active role for routing and display
 
 ---
 
-## Subfolder Purposes
+## Computed Contributions Section
+
+The `## Contributions` section in PROFILE.md is **computed by compute-team**, not maintained manually or by file-meeting.
+
+compute-team rebuilds this section by scanning all room artifacts for matching `attribution.speaker` or `speaker` fields, then generating a per-meeting contribution summary:
+
+```markdown
+## Contributions
+
+### From Board Strategy Session Q1 (2026-03-15)
+- **decision** in solution-design: Focus on enterprise segment first
+- **insight** in market-analysis: Enterprise grew 34% last quarter
+
+### From Mentoring Session (2026-03-22)
+- **advice** in problem-definition: Reframe the problem before solving
+```
+
+This replaces the Phase 6 pattern of manually filing copies to speaker subfolders (insights/, advice/, etc.). The subfolders are retained for backward compatibility but file-meeting no longer writes to them.
+
+---
+
+## Subfolder Purposes (Legacy)
+
+The subdirectories (insights/, advice/, connections/, concerns/) are created for backward compatibility with Phase 6 profiles. As of Phase 7, file-meeting no longer creates copies in these subfolders. Speaker contributions are tracked via the computed Contributions section above.
 
 ### insights/
 
-Filed insights attributed to this speaker. Each file is a symlink or copy of the artifact filed to the room section.
-
-```
-insights/
-  2026-03-15-enterprise-growth-data.md
-  2026-03-22-customer-acquisition-cost.md
-```
-
-Purpose: See everything this speaker has contributed as insights across all meetings.
+Filed insights attributed to this speaker. Legacy -- no new files created by file-meeting in Phase 7+.
 
 ### advice/
 
-Filed advice attributed to this speaker. Advice is dual-filed (see segment-classification.md): once in the room section, once here.
-
-```
-advice/
-  2026-03-15-reframe-the-problem.md
-  2026-03-22-hire-vp-sales-first.md
-```
-
-Purpose: See all guidance this speaker has offered. Especially valuable for mentors and advisors.
+Filed advice attributed to this speaker. Legacy -- no new files created by file-meeting in Phase 7+.
 
 ### connections/
 
 People, organizations, or resources this speaker has mentioned or introduced.
 
-```
-connections/
-  acme-corp.md
-  university-partnership.md
-```
-
-Purpose: Track the network this speaker brings to the venture.
-
 ### concerns/
 
 Questions, risks, or objections this speaker has raised.
-
-```
-concerns/
-  churn-rate-unknown.md
-  sales-cycle-too-long.md
-```
-
-Purpose: Track what worries this speaker. Especially valuable for investor and customer profiles.
 
 ---
 
@@ -164,9 +179,9 @@ When a known speaker appears in a subsequent meeting:
 
 1. **Increment** `meetings_attended` in PROFILE.md frontmatter
 2. **Update** `last_updated` to today's date
-3. **Append** a new "### From {meeting_name} ({date})" subsection under Key Contributions
-4. **File** new insights, advice, connections, and concerns to the appropriate subfolders
-5. **Do NOT overwrite** existing content -- profiles are append-only for contributions
+3. **Update** `last_active` to today's date
+4. **Do NOT overwrite** existing content -- profiles are append-only for contributions
+5. Contributions are computed by compute-team, not filed manually
 
 ---
 
@@ -175,9 +190,11 @@ When a known speaker appears in a subsequent meeting:
 A speaker's role can change across meetings (e.g., advisor becomes investor after a funding round). Handle by:
 
 1. **Keep the profile in its original directory** (don't move folders)
-2. **Update the role field** in PROFILE.md frontmatter
-3. **Add a note** in the Context section: "Role changed from advisor to investor as of {date}"
-4. **Future filing** uses the updated role for routing priority calculations
+2. **Update the `primary_role` field** in PROFILE.md frontmatter
+3. **Append the new role** to the `roles:` list (preserves role history)
+4. **Update the `role` field** to match `primary_role` (backward compat)
+5. **Add a note** in the Context section: "Role changed from advisor to investor as of {date}"
+6. **Future filing** uses the updated role for routing priority calculations
 
 ---
 
@@ -187,9 +204,9 @@ When a speaker cannot be identified (raw paste format, unlabeled audio):
 
 1. Create profile at `room/team/contacts/unknown-speaker-{N}/`
 2. Set `research_status: pending`
-3. Set `role: unknown`
+3. Set `role: unknown` and `roles: [unknown]`
 4. After user identifies the speaker, rename the folder and update PROFILE.md
-5. All filed artifacts maintain correct links via the `speaker` field in their frontmatter
+5. All filed artifacts maintain correct links via the `attribution.speaker` field in their frontmatter
 
 ---
 
