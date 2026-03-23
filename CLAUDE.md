@@ -160,6 +160,101 @@ MindrianOS-Plugin/
 6. **LazyGraph optional** — enhances but never required
 7. **Pipelines chain through Room** — output becomes next inputs structure (Week 7)
 8. **Tier 0 fully functional** — no dependencies, graceful degradation everywhere
+9. **Wicked Problem Management** — the Data Room is NOT a document repository. It is a wicked problem management system (Rittel & Webber 1973). Every venture exhibits all 10 characteristics of wicked problems.
+10. **Nested System Architecture** — the venture IS a nested system (Simon 1962). Changes in one subsystem cascade through others. The room structure must represent and track these cascades.
+11. **Meetings are the primary knowledge source** — institutional knowledge lives in conversations, not documents. Meeting filing is the gateway to multi-stakeholder intelligence.
+12. **Assumptions are first-class entities** — every claim in the room has a validity status. Tracking assumption validity is the #1 underserved outcome (Opportunity Score: 18).
+13. **Rejection is data** — when a user rejects a suggestion, the reason becomes a graph node. "Why not" teaches the system as much as "yes."
+14. **Bidirectional stage progression** — ventures don't progress linearly. A well-defined problem can regress to ill-defined after market feedback. The system supports regression with history preservation.
+
+---
+
+## Architectural Evolution (from Live Data Room Paper)
+
+The plugin evolves from v1 (flat rooms + methodology commands) to v2+ (wicked problem management):
+
+### Room Structure Evolution
+
+```
+v1.0 (current):                    v2.0+ (target):
+room/                              room/
+├── problem-definition/            ├── problem-definition/
+├── market-analysis/               │   ├── assumptions/     ← tracked claims
+├── solution-design/               │   └── history/         ← formulation chain
+├── business-model/                ├── market-analysis/
+├── competitive-analysis/          ├── solution-design/
+├── team-execution/                ├── business-model/
+├── legal-ip/                      ├── competitive-analysis/
+├── financial-model/               ├── team/               ← NEW: people layer
+└── STATE.md                       │   ├── members/
+                                   │   ├── mentors/
+                                   │   └── advisors/
+                                   ├── meetings/           ← NEW: conversation layer
+                                   │   └── YYYY-MM-DD-*/
+                                   ├── legal-ip/
+                                   ├── financial-model/
+                                   ├── assumptions.json    ← NEW: validity tracking
+                                   └── STATE.md
+```
+
+### Cross-Subsystem Cascade Rule
+
+When an artifact is filed that contradicts or changes an assumption in another section:
+1. Detect the impact (analyze-room or Brain)
+2. Generate soft edits for affected sections
+3. Present to user: "This insight changes your financial model assumption. Review?"
+4. User APPROVE / REJECT (with reason) / DEFER
+5. Decision + reason become graph data
+
+### The Core Job (from JTBD Analysis)
+
+> "Reduce the time between insight and validated decision across every dimension of the venture simultaneously."
+
+Every feature is evaluated against this job. If it doesn't compress time-to-decision, it doesn't belong.
+
+### ICM × Wicked Problem Management
+
+ICM (Van Clief & McDermott 2026) says: **folder structure IS the code.** The paper (Sagir 2026) says: **the venture IS a wicked problem.** Combined:
+
+**The folder structure IS the wicked problem.**
+
+Each room section is a subsystem. Each artifact is a claim. Each cross-reference is a relationship. The hidden connections between subsystems — the ones nobody sees until it's too late — are discoverable by traversing the room's structure as a graph.
+
+```
+ICM Layer 0 (Identity)     = The venture's current problem formulation
+ICM Layer 1 (Routing)      = Problem type × wickedness → which agent/skill responds
+ICM Layer 2 (Contracts)    = Pipeline stage contracts encode cascade rules
+ICM Layer 3 (Reference)    = Brain graph + methodology references + assumption registry
+ICM Layer 4 (Artifacts)    = Room entries = claims with validity status + cross-refs
+```
+
+**The cross-relationship discovery rule:** After EVERY artifact is filed (methodology session OR meeting segment), the system scans for:
+1. **INFORMS** — this artifact references another section ([[cross-ref]])
+2. **CONTRADICTS** — this artifact conflicts with an existing claim
+3. **CONVERGES** — this artifact's themes appear in 3+ other sections
+4. **INVALIDATES** — this artifact makes an existing assumption stale
+5. **ENABLES** — this artifact unblocks something in another section
+
+These are not keyword matches. They are STRUCTURAL relationships in the nested system. The graph finds what humans miss.
+
+**The proactive discovery loop:**
+```
+Artifact filed → cross-relationship scan → new edges found
+    → Larry surfaces: "This changes your financial model assumption"
+    → User: APPROVE (cascade) / REJECT (reason captured) / DEFER
+    → Decision becomes graph data → next scan is smarter
+```
+
+This loop is the wicked problem management engine. It never stops running. It gets smarter with every decision.
+
+### Reference
+
+See `docs/research/LIVE_DATA_ROOM_JTBD_PAPER.md` for full theoretical grounding:
+- Rittel & Webber (1973) wicked problems — the 10 characteristics
+- Simon (1962) nested systems / nearly decomposable hierarchies
+- Van Clief & McDermott (2026) ICM — folder structure as agentic architecture
+- Christensen/Ulwick JTBD framework — the core job is time compression
+- Ashby's Law of Requisite Variety — tools must match system complexity
 
 ---
 
