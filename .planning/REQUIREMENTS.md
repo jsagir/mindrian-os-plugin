@@ -10,11 +10,11 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 ### Meeting Transcript Filing
 
 - [ ] **MEET-01**: User can run `/mindrian-os:file-meeting` and paste transcript text, provide a file path, OR provide an audio file (.mp3, .m4a, .wav) that gets transcribed via Modulate Velma
-- [ ] **MEET-02**: Larry identifies speakers in the transcript and asks user to confirm names and roles (mentor, researcher, team-member, investor, advisor, customer)
-- [ ] **MEET-03**: Each speaker segment is classified as insight, advice, question, decision, action-item, or noise
-- [ ] **MEET-04**: Non-noise segments are mapped to appropriate Data Room sections based on content and speaker role
+- [x] **MEET-02**: Larry identifies speakers in the transcript and asks user to confirm names and roles (mentor, researcher, team-member, investor, advisor, customer)
+- [x] **MEET-03**: Each speaker segment is classified as insight, advice, question, decision, action-item, or noise
+- [x] **MEET-04**: Non-noise segments are mapped to appropriate Data Room sections based on content and speaker role
 - [ ] **MEET-05**: User confirms each filing before it's created (confirm-then-file UX, same as room-passive)
-- [ ] **MEET-06**: Each filed artifact includes meeting provenance (speaker, speaker_role, meeting_date, segment_type, confidence, source: transcript)
+- [x] **MEET-06**: Each filed artifact includes meeting provenance (speaker, speaker_role, meeting_date, segment_type, confidence, source: transcript)
 - [ ] **MEET-07**: After all segments filed, Larry creates a meeting summary artifact with key decisions, insights filed, contradictions detected, gaps identified, and action items
 - [x] **MEET-08**: Audio files are transcribed via Modulate Velma REST API (3 cents/hour) with native speaker diarization and emotion detection -- no local Python/PyTorch dependency
 - [x] **MEET-09**: Velma transcription includes timestamps, speaker labels, and emotion signals that Larry uses for segment identification and context
@@ -89,11 +89,11 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | MEET-01 | Phase 6 | Pending |
-| MEET-02 | Phase 6 | Pending |
-| MEET-03 | Phase 6 | Pending |
-| MEET-04 | Phase 6 | Pending |
+| MEET-02 | Phase 6 | Complete |
+| MEET-03 | Phase 6 | Complete |
+| MEET-04 | Phase 6 | Complete |
 | MEET-05 | Phase 6 | Pending |
-| MEET-06 | Phase 6 | Pending |
+| MEET-06 | Phase 6 | Complete |
 | MEET-07 | Phase 6 | Pending |
 | MEET-08 | Phase 6 | Complete |
 | MEET-09 | Phase 6 | Complete |
