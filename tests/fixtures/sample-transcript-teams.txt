@@ -1,0 +1,62 @@
+[00:00:12] Sarah Chen
+Hey everyone, can you hear me okay? Let me just share my screen real quick.
+
+[00:00:25] David Park
+Yeah, we can hear you. Mike, are you on?
+
+[00:00:31] Michael Torres
+I'm here, just had some audio issues. All good now.
+
+[00:00:45] Sarah Chen
+Great. So let's jump into it. I want to cover the Q1 results and talk about our enterprise pivot.
+
+[00:01:10] Sarah Chen
+The big news is we've decided to focus exclusively on the enterprise segment starting next quarter. The SMB numbers just don't support the unit economics we need for Series A.
+
+[00:01:35] David Park
+The data backs that up. Enterprise segment grew 34% last quarter according to Gartner. SMB growth was flat at 2%. The mid-market is actually shrinking by about 5%.
+
+[00:02:05] Michael Torres
+What's your current churn rate for the enterprise customers you already have? And how does that compare to your SMB churn?
+
+[00:02:25] Sarah Chen
+Enterprise churn is around 8% annually. SMB is closer to 35%. That delta alone justifies the pivot.
+
+[00:02:50] Prof. Lawrence Aronhime
+Have you considered that you might be framing this wrong? Instead of asking how to sell to enterprises, the real question is what problem do enterprises have that SMBs don't. That reframing changes your entire product strategy.
+
+[00:03:20] Michael Torres
+I'd recommend hiring a VP of Sales with enterprise experience before you close the Series A. Investors will want to see that capability on the team.
+
+[00:03:45] Sarah Chen
+That's a good point. David, can you prepare the revised enterprise pricing deck by next Friday? We need it before the investor meeting on the 25th.
+
+[00:04:00] David Park
+Sure, I'll have it ready. I'll also pull the competitive analysis for enterprise players.
+
+[00:04:15] Prof. Lawrence Aronhime
+You should also map out the assumptions you're making about the enterprise segment. The TAM of $190M that you're citing -- where does that number come from? Is it validated or is it a guess?
+
+[00:04:40] Sarah Chen
+Good question. Lisa pulled it from the Gartner report, but we haven't validated it independently.
+
+[00:04:55] Michael Torres
+One thing I want to flag -- I ran into the CEO of Acme Corp at that conference in Austin last week. They're apparently building something very similar.
+
+[00:05:15] David Park
+That's concerning. We need to accelerate the enterprise features roadmap. I think we should aim for the beta launch by end of Q2 instead of Q3.
+
+[00:05:35] Sarah Chen
+Agreed. Let's move the timeline up. We're going to target end of Q2 for the enterprise beta. That's final.
+
+[00:05:50] Prof. Lawrence Aronhime
+The key insight here is that your competitive advantage isn't features -- it's the depth of integration with existing enterprise workflows. That's what Acme Corp can't replicate quickly.
+
+[00:06:10] Sarah Chen
+Alright everyone, I think we covered a lot. Let me summarize the key takeaways.
+
+[00:06:20] David Park
+Sounds good. Oh, by the way, nice weather we're having. My kid's soccer game got rained out though.
+
+[00:06:30] Sarah Chen
+Ha, yeah. Okay, let's wrap up. Thanks everyone.
