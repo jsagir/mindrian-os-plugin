@@ -35,14 +35,14 @@ Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap pha
 
 ### Opportunity Bank
 
-- [ ] **OPP-01**: New room/opportunity-bank/ section with ICM-standard filing, frontmatter, and cross-references
+- [x] **OPP-01**: New room/opportunity-bank/ section with ICM-standard filing, frontmatter, and cross-references
 - [ ] **OPP-02**: Proactive grant scanning via Grants.gov REST API surfaces relevant opportunities based on room intelligence
 - [ ] **OPP-03**: Discovered opportunities filed as room artifacts with relevance scoring and source provenance
 - [ ] **OPP-04**: Opportunity Bank integrated into compute-state and analyze-room intelligence pipeline
 
 ### Funding Room
 
-- [ ] **FUND-01**: New room/funding/ section with sub-rooms for non-dilutive, dilutive, and grants
+- [x] **FUND-01**: New room/funding/ section with sub-rooms for non-dilutive, dilutive, and grants
 - [ ] **FUND-02**: Per-grant folders with lifecycle stages: Discovered > Researched > Applying > Submitted > Awarded/Rejected
 - [ ] **FUND-03**: Grant progress tracked in section STATE.md with deadlines, status, and next actions
 - [ ] **FUND-04**: Cross-references between funding entries and opportunity-bank sources
@@ -96,11 +96,11 @@ Deferred to future release. Tracked but not in current roadmap.
 | BRAIN-01 | Phase 12 | Complete |
 | BRAIN-02 | Phase 12 | Complete |
 | BRAIN-03 | Phase 12 | Complete |
-| OPP-01 | Phase 13 | Pending |
+| OPP-01 | Phase 13 | Complete |
 | OPP-02 | Phase 13 | Pending |
 | OPP-03 | Phase 13 | Pending |
 | OPP-04 | Phase 13 | Pending |
-| FUND-01 | Phase 13 | Pending |
+| FUND-01 | Phase 13 | Complete |
 | FUND-02 | Phase 13 | Pending |
 | FUND-03 | Phase 13 | Pending |
 | FUND-04 | Phase 13 | Pending |
