@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-03-25
+
+### Added
+- **MCP Server** — Full MindrianOS accessible from Claude Desktop and Cowork via stdio MCP. One line in `claude_desktop_config.json` unlocks all 41 commands
+- **Hierarchical Tool Router** — 6 MCP tools (data_room, methodology, analysis, intelligence, meeting, export) routing all 41 CLI commands. 85-93% context reduction vs flat tool surface
+- **MCP Resources** — 5 read-only resources for room browsing (room://) without tool calls: room-state, room-sections, section content, meetings, intelligence
+- **MCP Prompts** — 5 methodology workflow prompts with Larry personality injection: file-meeting, analyze-room, grade-venture, run-methodology, suggest-next
+- **Brain MCP Server** — Standalone `mcp-server-brain/` service wrapping Neo4j + Pinecone behind API key auth. Deploy to Render with one-click `render.yaml`
+- **Brain API Key Gating** — `Authorization: Bearer <key>` middleware. Paid-tier users get API key, connect Brain from any surface
+- **Shared Core Library** — `bin/mindrian-tools.cjs` single Node.js entry point + `lib/core/` modules (room-ops, state-ops, meeting-ops, graph-ops, section-registry). Both CLI and MCP call the same internals
+- **Dynamic Section Discovery** — `analyze-room` and `build-graph` auto-discover new room sections. No more hardcoded arrays. Adding `opportunity-bank/` to room/ just works
+- **CLI/MCP Parity Check** — `lib/parity/check-parity.cjs` validates all CLI commands have MCP counterparts. CI-ready gate (exits non-zero on drift)
+- **Enhanced Status Line** — Shows project name, active room section, venture stage, gap count, and color-coded context window bar
+- **Brain Namespace Search** — `brain_search` now supports namespace targeting (core, reference, tools, materials, graphrag) for the consolidated `pws-brain` index
+
+### Changed
+- Pinecone index default changed from `neo4j-knowledge-base` to `pws-brain` (consolidated index with 5 namespaces, 12K+ records, single embedding model)
+- `scripts/context-monitor` rewritten in Node.js with room-aware status line
+
 ## [0.4.0] - 2026-03-24
 
 ### Added

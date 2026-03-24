@@ -17,7 +17,7 @@ services:
       - key: PINECONE_API_KEY
         sync: false
       - key: PINECONE_INDEX
-        value: neo4j-knowledge-base
+        value: pws-brain
       - key: BRAIN_API_KEYS
         sync: false
     autoDeploy: true

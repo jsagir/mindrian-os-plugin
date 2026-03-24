@@ -21,20 +21,23 @@ function getClient() {
  * explaining that external embedding is needed.
  */
 function registerPineconeTools(server) {
-  const indexName = process.env.PINECONE_INDEX || 'neo4j-knowledge-base';
+  const indexName = process.env.PINECONE_INDEX || 'pws-brain';
 
   // 1. brain_search — semantic search across Brain embeddings
   server.tool(
     'brain_search',
-    'Semantic search across Brain embeddings (1,427 PWS knowledge vectors)',
+    'Semantic search across Brain knowledge (12K+ PWS vectors). Namespaces: core (course material), reference (books/papers), tools (JTBD/grading/Bono), materials (graph exports), graphrag (relationship summaries). Omit namespace to search all.',
     {
       query: z.string().describe('Natural language search query'),
+      namespace: z.string().optional().describe('Namespace to search: core, reference, tools, materials, graphrag (omit for all)'),
       topK: z.number().optional().describe('Number of results (default 5)'),
       filter: z.record(z.any()).optional().describe('Metadata filter'),
     },
-    async ({ query, topK, filter }) => {
+    async ({ query, namespace, topK, filter }) => {
       try {
-        const index = getClient().index(indexName);
+        const index = namespace
+          ? getClient().index(indexName).namespace(namespace)
+          : getClient().index(indexName);
         const searchParams = {
           query: { topK: topK || 5, inputs: { text: query } },
         };

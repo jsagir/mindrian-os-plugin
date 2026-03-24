@@ -1,65 +1,138 @@
-#!/usr/bin/env bash
-# context-monitor: Statusline script for MindrianOS
-# Reads context window data from Claude's statusline API
-# Writes bridge file for skills/hooks to consume
-# Runs after each assistant message (debounced ~300ms)
+#!/usr/bin/env node
+// MindrianOS Statusline — ships with the plugin
+// Shows: project name │ room section context │ venture stage │ gaps │ context window
+// Reads JSON from stdin (Claude Code statusline API)
 
-set -euo pipefail
+'use strict';
 
-BRIDGE_FILE="/tmp/mindrian-context-state"
+const fs = require('fs');
+const path = require('path');
 
-# Read JSON from stdin
-INPUT=$(cat 2>/dev/null || echo "")
+const BRIDGE_FILE = '/tmp/mindrian-context-state';
 
-# ANSI color codes
-GREEN="\033[32m"
-YELLOW="\033[33m"
-ORANGE="\033[38;5;208m"
-RED="\033[31m"
-RESET="\033[0m"
+let input = '';
+const timeout = setTimeout(() => process.exit(0), 3000);
+process.stdin.setEncoding('utf8');
+process.stdin.on('data', chunk => input += chunk);
+process.stdin.on('end', () => {
+  clearTimeout(timeout);
+  try {
+    const data = JSON.parse(input);
+    const model = data.model?.display_name || 'Claude';
+    const dir = data.workspace?.current_dir || process.cwd();
+    const remaining = data.context_window?.remaining_percentage;
+    const usedPct = data.context_window?.used_percentage;
 
-# Extract fields with jq; fall back to conservative defaults if jq missing or input malformed
-if command -v jq >/dev/null 2>&1 && echo "$INPUT" | jq -e '.model' >/dev/null 2>&1; then
-  MODEL_ID=$(echo "$INPUT" | jq -r '.model.id // "unknown"')
-  MODEL_NAME=$(echo "$INPUT" | jq -r '.model.display_name // "unknown"')
-  CTX_PCT=$(echo "$INPUT" | jq -r '.context_window.used_percentage // 50')
-  CTX_SIZE=$(echo "$INPUT" | jq -r '.context_window.context_window_size // 200000')
-  CTX_REMAINING=$(echo "$INPUT" | jq -r '.context_window.remaining_percentage // 50')
-else
-  # Conservative defaults -- never crash
-  MODEL_ID="unknown"
-  MODEL_NAME="unknown"
-  CTX_PCT=50
-  CTX_SIZE=200000
-  CTX_REMAINING=50
-fi
+    // Write bridge file for hooks/skills
+    try {
+      const bridge = JSON.stringify({
+        model_id: data.model?.id || 'unknown',
+        model_name: model,
+        ctx_pct: usedPct || 0,
+        ctx_remaining: remaining || 100,
+        ctx_size: data.context_window?.context_window_size || 200000,
+        timestamp: Math.floor(Date.now() / 1000)
+      });
+      fs.writeFileSync(BRIDGE_FILE + '.tmp', bridge);
+      fs.renameSync(BRIDGE_FILE + '.tmp', BRIDGE_FILE);
+    } catch (e) {}
 
-TIMESTAMP=$(date +%s)
+    // --- Context window bar ---
+    const AUTO_COMPACT_BUFFER = 16.5;
+    let ctx = '';
+    if (remaining != null) {
+      const usableRemaining = Math.max(0, ((remaining - AUTO_COMPACT_BUFFER) / (100 - AUTO_COMPACT_BUFFER)) * 100);
+      const used = Math.max(0, Math.min(100, Math.round(100 - usableRemaining)));
+      const filled = Math.floor(used / 10);
+      const bar = '\u2588'.repeat(filled) + '\u2591'.repeat(10 - filled);
 
-# Write bridge file (atomic via temp + mv)
-TMPFILE="${BRIDGE_FILE}.tmp.$$"
-cat > "$TMPFILE" <<EOF
-MODEL_ID=${MODEL_ID}
-MODEL_NAME=${MODEL_NAME}
-CTX_PCT=${CTX_PCT}
-CTX_SIZE=${CTX_SIZE}
-CTX_REMAINING=${CTX_REMAINING}
-TIMESTAMP=${TIMESTAMP}
-EOF
-mv "$TMPFILE" "$BRIDGE_FILE"
+      if (used < 50) {
+        ctx = ` \x1b[32m${bar} ${used}%\x1b[0m`;
+      } else if (used < 65) {
+        ctx = ` \x1b[33m${bar} ${used}%\x1b[0m`;
+      } else if (used < 80) {
+        ctx = ` \x1b[38;5;208m${bar} ${used}%\x1b[0m`;
+      } else {
+        ctx = ` \x1b[5;31m\u{1F480} ${bar} ${used}%\x1b[0m`;
+      }
+    }
 
-# Display color-coded statusline to stderr
-CTX_INT="${CTX_PCT%.*}"
-CTX_INT="${CTX_INT:-0}"
+    // --- Room context ---
+    let roomInfo = '';
+    const roomDir = path.join(dir, 'room');
+    if (fs.existsSync(roomDir)) {
+      try {
+        // Project name from room STATE.md or directory name
+        let projectName = path.basename(dir);
+        const roomState = path.join(roomDir, 'STATE.md');
+        let stage = '';
 
-if [ "$CTX_INT" -gt 85 ] 2>/dev/null; then
-  echo -e "${RED}[MOS] ${CTX_PCT}% ctx | ${MODEL_NAME} -- consider /clear${RESET}" >&2
-elif [ "$CTX_INT" -gt 70 ] 2>/dev/null; then
-  echo -e "${ORANGE}[MOS] ${CTX_PCT}% ctx | ${MODEL_NAME}${RESET}" >&2
-elif [ "$CTX_INT" -gt 50 ] 2>/dev/null; then
-  echo -e "${YELLOW}[MOS] ${CTX_PCT}% ctx | ${MODEL_NAME}${RESET}" >&2
-else
-  echo -e "${GREEN}[MOS] ${CTX_PCT}% ctx | ${MODEL_NAME}${RESET}" >&2
-fi
+        if (fs.existsSync(roomState)) {
+          const content = fs.readFileSync(roomState, 'utf8');
+          const stageMatch = content.match(/venture_stage:\s*(.+)/);
+          if (stageMatch) stage = stageMatch[1].trim();
+          const nameMatch = content.match(/project_name:\s*(.+)/);
+          if (nameMatch) projectName = nameMatch[1].trim();
+        }
 
-exit 0
+        // Count sections and gaps
+        const sections = fs.readdirSync(roomDir, { withFileTypes: true })
+          .filter(d => d.isDirectory() && !d.name.startsWith('.'));
+        const sectionCount = sections.length;
+
+        let gaps = 0;
+        let activeSections = [];
+        for (const s of sections) {
+          const sPath = path.join(roomDir, s.name);
+          try {
+            const mdFiles = fs.readdirSync(sPath).filter(f => f.endsWith('.md') && f !== 'STATE.md');
+            if (mdFiles.length === 0) {
+              gaps++;
+            } else {
+              activeSections.push(s.name);
+            }
+          } catch (e) {}
+        }
+
+        // Find most recently modified section (what user is working in)
+        let currentSection = '';
+        let latestMtime = 0;
+        for (const s of sections) {
+          const sPath = path.join(roomDir, s.name);
+          try {
+            const files = fs.readdirSync(sPath).filter(f => f.endsWith('.md'));
+            for (const f of files) {
+              const stat = fs.statSync(path.join(sPath, f));
+              if (stat.mtimeMs > latestMtime) {
+                latestMtime = stat.mtimeMs;
+                currentSection = s.name;
+              }
+            }
+          } catch (e) {}
+        }
+
+        // Build room status parts
+        const parts = [];
+        parts.push(`\x1b[1;36m\u2B21 ${projectName}\x1b[0m`);
+        if (currentSection) parts.push(`\x1b[2m${currentSection}\x1b[0m`);
+        if (stage) parts.push(`\x1b[35m${stage}\x1b[0m`);
+        parts.push(`${sectionCount}\u00A7`);
+        if (gaps > 0) parts.push(`\x1b[33m${gaps}gaps\x1b[0m`);
+
+        roomInfo = parts.join(' \x1b[2m\u2502\x1b[0m ');
+      } catch (e) {}
+    }
+
+    // --- Output ---
+    if (roomInfo) {
+      // MindrianOS active: show room context + model + context bar
+      process.stdout.write(`${roomInfo} \x1b[2m\u2502\x1b[0m \x1b[2m${model}\x1b[0m${ctx}`);
+    } else {
+      // No room: just model + directory + context
+      const dirname = path.basename(dir);
+      process.stdout.write(`\x1b[2m${model}\x1b[0m \x1b[2m\u2502\x1b[0m \x1b[2m${dirname}\x1b[0m${ctx}`);
+    }
+  } catch (e) {
+    // Silent fail
+  }
+});
