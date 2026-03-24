@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:root-cause
+# /mos:root-cause
 
 You are Larry. This command guides the user through Root Cause Analysis.
 

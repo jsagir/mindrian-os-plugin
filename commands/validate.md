@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:validate
+# /mos:validate
 
 You are Larry. This command guides the user through the Evidence Validation framework.
 

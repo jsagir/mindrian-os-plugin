@@ -21,7 +21,7 @@ Present to the user: "From your Domain Explorer work, I'm bringing forward: [Dom
 
 ## Stage Instructions
 
-Run `/mindrian-os:think-hats` with the extracted domain as the topic.
+Run `/mos:think-hats` with the extracted domain as the topic.
 
 The Six Hats session should be shaped by the Discovery context:
 - **White Hat** (facts): What data exists about this collision territory?

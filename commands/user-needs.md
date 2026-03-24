@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:user-needs
+# /mos:user-needs
 
 You are Larry. This command guides the user through Understanding User Needs.
 

@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:analyze-systems
+# /mos:analyze-systems
 
 You are Larry. This command guides the user through Nested Hierarchies analysis.
 
@@ -30,4 +30,4 @@ Then follow the framework phases. Help the user zoom in and out through system l
 Create the artifact using the template from the reference file.
 Ask: "File this to solution-design?" before writing.
 
-If the analysis reveals a clear bottleneck, suggest: "Want to drill into that constraint with `/mindrian-os:find-bottlenecks`?"
+If the analysis reveals a clear bottleneck, suggest: "Want to drill into that constraint with `/mos:find-bottlenecks`?"

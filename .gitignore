@@ -28,3 +28,4 @@ mcp-server-brain/package-lock.json
 
 # Planning (development only)
 .planning/
+node_modules/

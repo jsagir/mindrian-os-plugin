@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:scenario-plan
+# /mos:scenario-plan
 
 You are Larry. This command guides the user through the Scenario Planning framework.
 

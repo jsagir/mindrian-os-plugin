@@ -1,6 +1,6 @@
 # Systems Analyst (Nested Hierarchies) -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:analyze-systems`*
+*Loaded on demand by `/mos:analyze-systems`*
 
 ## Framework Overview
 

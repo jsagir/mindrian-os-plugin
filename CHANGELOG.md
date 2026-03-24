@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-03-25
+
+### Changed
+- **Plugin renamed: `mindrian-os` -> `mos`** — All commands now use `/mos:` prefix (e.g., `/mos:diagnose`, `/mos:room`, `/mos:help`). 9 characters shorter per command. The old `/mindrian-os:` prefix no longer works after update.
+- **Thinking Trace** — Larry now shows his reasoning visually when applying methodology. Blockquote-based traces show problem type, chosen framework, chain logic, Brain connections, and cross-references. Mode-adaptive: hidden in Ask mode, brief in Blend, full in Tell mode.
+- **Visual Confirmations** — Larry confirms actions with structured feedback: what was filed, where, cross-references added, stage changes. Starting a methodology session shows estimated duration and output location.
+
+### Added
+- Thinking trace format in `skills/larry-personality/SKILL.md` — 4 trace types: routing, room analysis, Brain enrichment, action confirmation
+- Visual confirmation patterns for methodology sessions and room filing
+
 ## [0.5.0] - 2026-03-25
 
 ### Added
@@ -31,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Cross-Meeting Intelligence** — Convergence detection (same topic across 3+ meetings), severity-based contradiction flagging (high-impact = immediate, low-impact = summary), action item tracking across meetings (aggregated room/action-items.md with pre-filing triage), team contribution patterns (recurring concerns, influence shifts, role-gap analysis)
 - **MEETINGS-INTELLIGENCE.md** — New computed intelligence file: convergence signals, active contradictions, action item aggregation, team-level cross-meeting patterns. Separate from TEAM-STATE.md (per-person vs cross-meeting focus)
-- **Read AI MCP Integration** — `/mindrian-os:setup meetings` connects Read AI, Vexa, or Recall.ai MCP servers. `/mindrian-os:file-meeting --latest` auto-fetches most recent transcript without paste
+- **Read AI MCP Integration** — `/mos:setup meetings` connects Read AI, Vexa, or Recall.ai MCP servers. `/mos:file-meeting --latest` auto-fetches most recent transcript without paste
 - **Three-Layer Knowledge Graph** — build-graph now produces Structure (room sections), Content (meetings, speakers, artifacts), Intelligence (concepts from [[wikilinks]], convergence/contradiction edges). Every node has `layer` field, every edge has `source_type`
 - **[[Wikilink]] Support** — Larry auto-inserts `[[concept-name]]` links when filing artifacts. build-graph parses all `[[...]]` patterns into concept nodes and REFERENCES edges. Lazy graph: relationships first, metadata on demand
 - **Dashboard Timeline Mode** — Integrated in graph (not separate view). Meeting nodes arranged chronologically on X-axis, sections on Y-axis. REINFORCES edges pulse green, CONTRADICTS edges pulse red
@@ -51,8 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.0] - 2026-03-23
 
 ### Added
-- **Meeting Filing Command** (`/mindrian-os:file-meeting`) — Full 6-step pipeline: paste transcript, provide file path, or provide audio. Explicit flags (`--file`, `--audio`). Speaker identification with smart hybrid table (auto-matches from team/ directory). Priority-first segment classification with reasoning. Confirm-then-file UX with structured rejection reasons. Narrative + structured meeting summary with dual storage.
-- **Velma Audio Transcription** (`scripts/transcribe-audio`) — Modulate Velma REST API wrapper (3¢/hour) with native speaker diarization and 20+ emotion signals. Setup via `/mindrian-os:setup transcription` or auto-prompt on first `--audio` use.
+- **Meeting Filing Command** (`/mos:file-meeting`) — Full 6-step pipeline: paste transcript, provide file path, or provide audio. Explicit flags (`--file`, `--audio`). Speaker identification with smart hybrid table (auto-matches from team/ directory). Priority-first segment classification with reasoning. Confirm-then-file UX with structured rejection reasons. Narrative + structured meeting summary with dual storage.
+- **Velma Audio Transcription** (`scripts/transcribe-audio`) — Modulate Velma REST API wrapper (3¢/hour) with native speaker diarization and 20+ emotion signals. Setup via `/mos:setup transcription` or auto-prompt on first `--audio` use.
 - **Speaker Profile System** — ICM nested folder profiles auto-created for every new speaker (team/{role}/{name}/ with insights/, advice/, connections/, concerns/). Extended PROFILE.md schema with roles list, primary_role, status lifecycle (active/inactive/alumni/potential), and last_active tracking.
 - **Proactive Person Research** (`scripts/research-speaker`) — Web research on new speakers in context of the project/room. Builds Data Room-specific profile. `--apply` flag for user confirmation before writing.
 - **Cross-Relationship Discovery** — 5 edge types (INFORMS, CONTRADICTS, CONVERGES, INVALIDATES, ENABLES) with Tier 0 keyword heuristics. Batch scan after all filing complete. Patterns reference at `references/meeting/cross-relationship-patterns.md`.
@@ -70,7 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Auto Update Notification** — SessionStart checks GitHub for new versions once per day (cached, async, non-blocking). Users see "[Update Available]" in Larry's greeting
-- **Meeting Transcript Filing** — Design spec for `/mindrian-os:file-meeting`: paste transcript, identify speakers + roles, classify segments, file to Data Room sections with confirmation. Meeting summary artifact with cross-references, contradictions, action items
+- **Meeting Transcript Filing** — Design spec for `/mos:file-meeting`: paste transcript, identify speakers + roles, classify segments, file to Data Room sections with confirmation. Meeting summary artifact with cross-references, contradictions, action items
 - **Release Process Rule** — CLAUDE.md now mandates: CHANGELOG update, version bump, tag, push with tags for every release
 - **Analytics & Learning System** — Local usage tracking + behavioral learning that adapts Larry's suggestions
 - **Tyler Josephson Case Study** — Full mockup with HSI cross-domain scoring and Reverse Salient bottleneck analysis
@@ -94,7 +105,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Data Room Dashboard** -- De Stijl-styled localhost viewer with knowledge graph visualization, room chat, and CoSE/grid layout engine
 - **Document Generation** -- PDF export for thesis, report, profile, and brief types with WeasyPrint rendering and TOC bookmarks
 - **Brain MCP Integration** -- Optional Neo4j Brain connection with 5 Brain-powered commands: suggest-next, find-connections, compare-ventures, deep-grade, research
-- **Self-Update System** -- Version check, changelog display, modification backup/reapply flow via `/mindrian-os:update`
+- **Self-Update System** -- Version check, changelog display, modification backup/reapply flow via `/mos:update`
 - **Infrastructure Commands** -- new-project, help, status, room, setup, update
 - **Passive Room Filing** -- PostToolUse hook auto-classifies and files insights to room sub-rooms
 - **Graceful Degradation** -- Full functionality at Tier 0 (no dependencies), enhanced with optional Neo4j and Brain

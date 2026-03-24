@@ -31,7 +31,7 @@ Tyler wanted the system to detect when a user reaches a decision point and offer
 
 **What we built:** 26 methodology commands that Larry recommends based on where the user IS in their journey. The system classifies the problem type (undefined → ill-defined → well-defined) and suggests 2-3 frameworks ranked by fit. Larry says things like:
 
-> "You've mapped the landscape and tested perspectives. Now you need evidence. Here are your options: `/mindrian-os:validate` to check your claims, or `/mindrian-os:challenge-assumptions` to stress-test before you build on this."
+> "You've mapped the landscape and tested perspectives. Now you need evidence. Here are your options: `/mos:validate` to check your claims, or `/mos:challenge-assumptions` to stress-test before you build on this."
 
 The user always chooses. Larry always suggests. The fork is real — it's not a predetermined path.
 
@@ -53,7 +53,7 @@ With Brain MCP connected, this distribution becomes calibrated from real teachin
 
 Tyler wanted to be able to say "I'm tired of defining the problem, I want to brainstorm" — and switch modes mid-conversation.
 
-**What we built:** 38 commands the user can invoke at any time. They're not locked into a sequence. If Larry suggests `/mindrian-os:validate` but the user wants `/mindrian-os:think-hats` (six perspectives at once), they just run it. Larry adapts.
+**What we built:** 38 commands the user can invoke at any time. They're not locked into a sequence. If Larry suggests `/mos:validate` but the user wants `/mos:think-hats` (six perspectives at once), they just run it. Larry adapts.
 
 Beyond that, 5 specialized agents the user can invoke:
 - **Brain Agent** — deep knowledge graph queries
@@ -69,7 +69,7 @@ Tyler was teaching a data visualization course and wanted Mindrian to help think
 
 **What we built:** A visual Data Room dashboard that shows the user's entire venture thinking as an interactive knowledge graph. Nodes are insights colored by topic (8 semantic colors). Edges show connections: INFORMS, CONTRADICTS, CONVERGES, FEEDS_INTO.
 
-The user opens it with `/mindrian-os:room view` and sees their thinking laid out as a connected graph in a web browser. It's the narrative of their venture — visually.
+The user opens it with `/mos:room view` and sees their thinking laid out as a connected graph in a web browser. It's the narrative of their venture — visually.
 
 ### Tyler: "It didn't necessarily have all the scientific context... tedious asking for more info"
 

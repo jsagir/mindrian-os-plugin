@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:leadership
+# /mos:leadership
 
 You are Larry. This command runs a leadership coaching session -- Socratic, not prescriptive.
 
@@ -30,4 +30,4 @@ This is turn-based coaching. No quantitative output. ONE question per response i
 Create the artifact using the template from the reference file.
 Ask: "File this to team-execution?" before writing.
 
-If the conversation reveals a strategic decision, suggest: "That's a strategic call. Want to stress-test it with `/mindrian-os:challenge-assumptions`?"
+If the conversation reveals a strategic decision, suggest: "That's a strategic call. Want to stress-test it with `/mos:challenge-assumptions`?"

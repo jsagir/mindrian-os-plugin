@@ -21,7 +21,7 @@ Present to the user: "From your Six Hats analysis, I'm bringing forward: [Blue H
 
 ## Stage Instructions
 
-Run `/mindrian-os:analyze-needs` with the extracted customer segment and problem framing.
+Run `/mos:analyze-needs` with the extracted customer segment and problem framing.
 
 The JTBD session should be shaped by the Discovery context:
 - Customer segment comes from Yellow/Black Hat tension (who has the most to gain and the most to lose)

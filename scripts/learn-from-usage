@@ -109,7 +109,7 @@ if sections:
 total_pipelines = data.get("total_pipelines", 0)
 total_artifacts = data.get("total_artifacts", 0)
 if total_artifacts > 10 and total_pipelines == 0:
-    suggestions.append("User creates many artifacts but never uses pipelines -- suggest `/mindrian-os:pipeline` for structured chains")
+    suggestions.append("User creates many artifacts but never uses pipelines -- suggest `/mos:pipeline` for structured chains")
 elif total_pipelines > 0:
     learnings.append(f"**Pipeline user:** {total_pipelines} pipeline runs ({data.get('pipeline_runs', {})})")
 
@@ -135,7 +135,7 @@ total_exports = data.get("total_exports", 0)
 if total_exports > 0:
     learnings.append(f"**Exports generated:** {total_exports} ({data.get('export_types', {})})")
 elif sessions > 10 and total_artifacts > 5:
-    suggestions.append("User has enough content to export but hasn't yet -- suggest `/mindrian-os:export`")
+    suggestions.append("User has enough content to export but hasn't yet -- suggest `/mos:export`")
 
 # ── 7. Brain Usage ──
 brain_queries = data.get("total_brain_queries", 0)

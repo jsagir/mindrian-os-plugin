@@ -1,6 +1,6 @@
 # S-Curve Analysis (Timing Analyst) -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:analyze-timing`*
+*Loaded on demand by `/mos:analyze-timing`*
 
 ## Framework Overview
 

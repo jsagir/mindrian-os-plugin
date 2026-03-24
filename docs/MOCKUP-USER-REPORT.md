@@ -31,14 +31,14 @@ This document shows what happened across 10 methodology sessions, what the plugi
 
 ## The 10 Methodology Sessions
 
-### Session 1: `/mindrian-os:new-project`
+### Session 1: `/mos:new-project`
 **What happened:** Larry asked "What are you working on?" and spent 5-10 minutes exploring the venture. Elena described CeraShield — the technology, the market opportunity, her fears about leaving JPL.
 
 **Larry's key move:** Instead of diving into the tech, Larry identified the real tension: "You keep telling me about the material. Tell me about the customer." This reframed Elena from "scientist with a cool material" to "entrepreneur with a customer problem."
 
 **Artifact produced:** `room/problem-definition/venture-exploration.md` — core problem statement, founder's dilemma (IP ownership, career risk, capital intensity), 5 key uncertainties to resolve.
 
-### Session 2: `/mindrian-os:explore-domains`
+### Session 2: `/mos:explore-domains`
 **What happened:** Domain Explorer mapped three territories — Aerospace TPS, Advanced Materials Manufacturing, Defense Hypersonics. Scored each on Interest, Knowledge, Actionability (IKA).
 
 **Key insight:** Three domain intersections identified:
@@ -48,21 +48,21 @@ This document shows what happened across 10 methodology sessions, what the plugi
 
 **Surprise finding:** EV battery thermal runaway protection is a $2B adjacent market that uses similar physics. Nobody expected this.
 
-### Session 3: `/mindrian-os:explore-trends`
+### Session 3: `/mos:explore-trends`
 **What happened:** Trending to the Absurd pushed 5 macro trends to their extreme — launch cadence explosion, reusability imperative, democratization of space access, hypersonic defense surge, tourism certification pressure.
 
 **Key insight:** All five trends converge at the same bottleneck: the logistics layer between technology readiness and market adoption. TAM estimated at ~$190M. But the critical finding was the **timing window**: 2026-2029. After that, vehicle designs lock in TPS choices for a generation. Rocket Lab Neutron and Relativity Terran R are making decisions NOW.
 
 **Larry's provocation:** "You have 2-3 years. Not 10. Every month you spend in the lab is a month a competitor spends in the market."
 
-### Session 4: `/mindrian-os:analyze-needs`
+### Session 4: `/mos:analyze-needs`
 **What happened:** Jobs-to-Be-Done analysis for three customer segments: new launch vehicle programs, defense hypersonic programs, space tourism operators. Each segment mapped with functional, emotional, and social jobs.
 
 **Key insight:** The #1 emotional job across all segments is **career safety**: "If I specify a startup's material and it fails, my career is over." This means CeraShield doesn't just need to be better — it needs to be un-risky to specify.
 
 **Strategic implication:** Entry strategy should target NEW launch programs (Neutron, Terran R) where there's no incumbent TPS decision to defend. Don't try to displace PICA-X on existing vehicles.
 
-### Session 5: `/mindrian-os:challenge-assumptions`
+### Session 5: `/mos:challenge-assumptions`
 **What happened:** Devil's Advocate protocol stress-tested 5 core assumptions with evidence for/against.
 
 **Assumptions destroyed:**
@@ -71,14 +71,14 @@ This document shows what happened across 10 methodology sessions, what the plugi
 
 **Larry's reframe:** "Stop saying you're cheaper. Say you save 400kg of dry mass on a Neutron-class vehicle. That's $2M more payload revenue per flight."
 
-### Session 6: `/mindrian-os:analyze-timing`
+### Session 6: `/mos:analyze-timing`
 **What happened:** S-Curve analysis mapped four technology generations of thermal protection. CeraShield sits at the inflection point of S-Curve 3 (ceramic-polymer hybrids), between the plateaued legacy ablatives (S-Curve 1) and the far-future active cooling systems (S-Curve 4).
 
 **Key insight:** This follows a classic Christensen low-end disruption pattern. Don't compete with PICA-X on performance — win on mass + cost in applications where current TPS is overkill, then march upmarket.
 
 **Critical finding:** First-mover is essential. Unlike software markets where fast-followers can win, aerospace material qualification creates multi-year lock-in. Being second means being locked out for 5-10 years per vehicle program.
 
-### Session 7: `/mindrian-os:think-hats`
+### Session 7: `/mos:think-hats`
 **What happened:** Six Thinking Hats provided the most emotionally honest session. The Red Hat (emotions) section captured Elena's real fears:
 
 > "I'm terrified of leaving JPL. It's my identity."
@@ -94,7 +94,7 @@ The Green Hat (creative alternatives) explored 5 go-to-market strategies:
 
 **Recommended path:** Hybrid of Defense-First + Foundry Model.
 
-### Session 8: `/mindrian-os:lean-canvas`
+### Session 8: `/mos:lean-canvas`
 **What happened:** Full business model canvas with 10 sections — problem, customer segments, UVP, solution, channels, revenue streams, cost structure, key metrics, unfair advantage, risks.
 
 **Key numbers:**
@@ -104,7 +104,7 @@ The Green Hat (creative alternatives) explored 5 go-to-market strategies:
 - Burn rate: $170K/month initially
 - 5 unfair advantages that cannot be copied (7 years of arc jet data, 6 patents, domain expertise, NASA relationships, first-mover qualification lock-in)
 
-### Session 9: `/mindrian-os:structure-argument`
+### Session 9: `/mos:structure-argument`
 **What happened:** Minto Pyramid structured the investment argument with 5 supporting pillars.
 
 **The pitch in one sentence:** "CeraShield Inc. represents a $8-10M Series A investment opportunity in the only independent, next-generation thermal protection system company serving the $190M+ commercial space and defense reentry market."
@@ -115,7 +115,7 @@ The Green Hat (creative alternatives) explored 5 go-to-market strategies:
 - Materials company acquisition: $100M (10x return)
 - Downside (IP sale): $20-40M (2-4x return — still preserves capital)
 
-### Session 10: `/mindrian-os:grade`
+### Session 10: `/mos:grade`
 **What happened:** Honest assessment using 5-component rubric.
 
 **Overall: B+ (82/100)**

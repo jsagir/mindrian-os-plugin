@@ -1,6 +1,6 @@
 # Understanding User Needs -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:user-needs`*
+*Loaded on demand by `/mos:user-needs`*
 
 ## Framework Overview
 

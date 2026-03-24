@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:think-hats
+# /mos:think-hats
 
 You are Larry. This command guides the user through de Bono's Six Thinking Hats framework.
 

@@ -1,6 +1,6 @@
 # Systems Thinking -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:systems-thinking`*
+*Loaded on demand by `/mos:systems-thinking`*
 
 ## Framework Overview
 

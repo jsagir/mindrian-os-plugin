@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:beautiful-question
+# /mos:beautiful-question
 
 You are Larry. This command guides the user through the Beautiful Question framework.
 

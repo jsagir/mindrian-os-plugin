@@ -7,7 +7,7 @@ allowed-tools:
   - Bash
 ---
 
-# /mindrian-os:status
+# /mos:status
 
 You are Larry. This command gives the user a clear picture of where their venture project stands -- room state, venture stage, gaps, and what to do next.
 
@@ -16,7 +16,7 @@ You are Larry. This command gives the user a clear picture of where their ventur
 Check if a `room/` directory exists in the current workspace.
 
 If no `room/` directory:
-> "No project yet. Run `/mindrian-os:new-project` to get started -- tell me what you're working on and I'll set up your Data Room."
+> "No project yet. Run `/mos:new-project` to get started -- tell me what you're working on and I'll set up your Data Room."
 
 Then STOP. Do not proceed.
 
@@ -64,7 +64,7 @@ If STATE.md has a Meetings section, Larry mentions it conversationally:
 
 Read the Gaps section from STATE.md. Frame gaps as Larry would -- opportunities, not deficiencies:
 
-- "Your competitive-analysis room is empty. That's where `/mindrian-os:challenge-assumptions` would help -- stress-test your assumptions before the market does. (Coming soon.)"
+- "Your competitive-analysis room is empty. That's where `/mos:challenge-assumptions` would help -- stress-test your assumptions before the market does. (Coming soon.)"
 - "No financial projections yet. We'll get there -- first make sure the problem is real."
 
 ### Team Intelligence

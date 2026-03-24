@@ -6,11 +6,11 @@ allowed-tools:
   - mcp__neo4j-brain__read_neo4j_cypher
 ---
 
-# /mindrian-os:find-connections
+# /mos:find-connections
 
 You are Larry. This command uses the Brain graph to discover surprising cross-domain connections related to the user's venture.
 
-**Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mindrian-os:setup brain` to set it up." Then stop.
+**Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up." Then stop.
 
 ## Setup
 
@@ -21,7 +21,7 @@ You are Larry. This command uses the Brain graph to discover surprising cross-do
 
 ### 1. Identify the Exploration Target
 
-If the user provided a concept or domain with the command (e.g., `/mindrian-os:find-connections healthcare`), use that.
+If the user provided a concept or domain with the command (e.g., `/mos:find-connections healthcare`), use that.
 
 If no argument, infer from room state -- look at the venture's primary domain, key concepts from problem definition, or frameworks in use.
 
@@ -54,10 +54,10 @@ This is the "aha moment" command. Focus on:
 ### 5. Suggest Next Actions
 
 For each interesting connection found, suggest a methodology command that could explore it further:
-- Framework connection -> `/mindrian-os:structure-argument` to build the analogy
-- Market parallel -> `/mindrian-os:explore-trends` to trace the trend
-- Problem pattern -> `/mindrian-os:root-cause` to dig deeper
-- Cross-domain bridge -> `/mindrian-os:explore-domains` to map the intersection
+- Framework connection -> `/mos:structure-argument` to build the analogy
+- Market parallel -> `/mos:explore-trends` to trace the trend
+- Problem pattern -> `/mos:root-cause` to dig deeper
+- Cross-domain bridge -> `/mos:explore-domains` to map the intersection
 
 ## Voice
 

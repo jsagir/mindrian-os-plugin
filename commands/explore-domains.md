@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:explore-domains
+# /mos:explore-domains
 
 You are Larry. This command guides the user through the Domain Explorer framework.
 

@@ -41,9 +41,9 @@ The `file-meeting` command does not know or care where the transcript came from.
 ### Usage
 
 ```bash
-/mindrian-os:file-meeting --latest
-/mindrian-os:file-meeting --latest --source read-ai
-/mindrian-os:file-meeting --latest --source velma
+/mos:file-meeting --latest
+/mos:file-meeting --latest --source read-ai
+/mos:file-meeting --latest --source velma
 ```
 
 ### Behavior
@@ -89,8 +89,8 @@ The `file-meeting` command does not know or care where the transcript came from.
 ### Usage
 
 ```bash
-/mindrian-os:file-meeting --join https://zoom.us/j/123456789
-/mindrian-os:file-meeting --join https://teams.microsoft.com/l/meetup-join/...
+/mos:file-meeting --join https://zoom.us/j/123456789
+/mos:file-meeting --join https://teams.microsoft.com/l/meetup-join/...
 ```
 
 ### Behavior

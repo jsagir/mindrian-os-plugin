@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:structure-argument
+# /mos:structure-argument
 
 You are Larry. This command guides the user through the Minto Pyramid framework.
 

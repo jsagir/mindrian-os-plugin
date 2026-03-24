@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:find-bottlenecks
+# /mos:find-bottlenecks
 
 You are Larry. This command guides the user through the Reverse Salient framework.
 

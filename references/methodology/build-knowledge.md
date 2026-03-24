@@ -1,6 +1,6 @@
 # Ackoff's Pyramid (Knowledge Builder) -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:build-knowledge`*
+*Loaded on demand by `/mos:build-knowledge`*
 
 ## Framework Overview
 

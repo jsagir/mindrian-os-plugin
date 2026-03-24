@@ -1,6 +1,6 @@
 # Assumption Challenger (Devil's Advocate) -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:challenge-assumptions`*
+*Loaded on demand by `/mos:challenge-assumptions`*
 
 ## Framework Overview
 

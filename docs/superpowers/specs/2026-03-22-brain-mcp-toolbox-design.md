@@ -38,7 +38,7 @@ User ↔ Larry (main agent, brain-connector skill auto-loaded)
 
 ## Layer 1: MCP Tools
 
-Brain MCP server exposes 8 tools. Connected via `/mindrian-os:setup brain` which adds to `.mcp.json`.
+Brain MCP server exposes 8 tools. Connected via `/mos:setup brain` which adds to `.mcp.json`.
 
 | Tool | Input | Output | Purpose |
 |------|-------|--------|---------|
@@ -57,19 +57,19 @@ Brain MCP server exposes 8 tools. Connected via `/mindrian-os:setup brain` which
 
 Total after Phase 4: 31 commands (26 existing + 5 new).
 
-### /mindrian-os:suggest-next
+### /mos:suggest-next
 Graph-informed recommendation. "What should I work on next?" Uses `brain_framework_chain` + `brain_find_patterns` to recommend based on room state + venture stage + similar ventures. Not a static list — personalized to this user's specific situation.
 
-### /mindrian-os:find-connections
+### /mos:find-connections
 Cross-domain pattern discovery. "What connects to this?" Uses `brain_cross_domain` + `brain_concept_connect` to surface surprising links between the user's domain and adjacent fields. The "aha moment" command.
 
-### /mindrian-os:compare-ventures
+### /mos:compare-ventures
 "Who else did something like this?" Uses `brain_find_patterns` + `brain_search_semantic` to find similar ventures from Brain's calibration dataset, show what worked/failed, extract applicable lessons.
 
-### /mindrian-os:deep-grade
+### /mos:deep-grade
 Replaces static `/grade`. Calibrated 5-component assessment (vision, problem definition, feasibility, market understanding, completeness) scored against 100+ real student projects. Produces percentile ranking and specific actionable feedback.
 
-### /mindrian-os:research
+### /mos:research
 External web search via Tavily MCP + cross-reference with Brain's semantic index. Synthesizes findings into room artifacts with provenance metadata. The only command that reaches outside the local system.
 
 ---
@@ -85,13 +85,13 @@ External web search via Tavily MCP + cross-reference with Brain's semantic index
 ### Grading Agent (`agents/grading.md`)
 - **Role:** Calibrated assessment engine. Reads full room, runs 5-component rubric against Brain's real project data.
 - **Tools:** `brain_grade_calibrate`, `brain_gap_assess`
-- **Spawned by:** `/mindrian-os:deep-grade` command
+- **Spawned by:** `/mos:deep-grade` command
 - **Key behavior:** Produces scored report with percentile ranking, component breakdown, specific feedback per section. Filed to room as grading artifact.
 
 ### Research Agent (`agents/research.md`)
 - **Role:** External intelligence gatherer. Web search, cross-references with Brain's semantic index, synthesizes into room artifacts.
 - **Tools:** `brain_search_semantic`, Tavily MCP tools (`tavily-search`, `tavily-extract`)
-- **Spawned by:** `/mindrian-os:research` command, Larry (proactive when gap detected)
+- **Spawned by:** `/mos:research` command, Larry (proactive when gap detected)
 - **Key behavior:** Every finding gets provenance metadata (source URL, retrieval date, relevance score). Filed to appropriate room section with user confirmation.
 
 ### Investor Agent (`agents/investor.md`)
@@ -122,9 +122,9 @@ External web search via Tavily MCP + cross-reference with Brain's semantic index
 
 | Command | Upgrade |
 |---------|---------|
-| `/mindrian-os:diagnose` | Graph-informed: Brain maps problem to similar past problems, shows which frameworks actually worked |
-| `/mindrian-os:help` | Personalized: Brain recommends based on what similar ventures did at this stage |
-| `/mindrian-os:grade` | Routes to Grading Agent when Brain is connected (falls back to static rubric without Brain) |
+| `/mos:diagnose` | Graph-informed: Brain maps problem to similar past problems, shows which frameworks actually worked |
+| `/mos:help` | Personalized: Brain recommends based on what similar ventures did at this stage |
+| `/mos:grade` | Routes to Grading Agent when Brain is connected (falls back to static rubric without Brain) |
 | Pipeline chaining | Dynamic: Brain recommends chains based on room state, not just fixed Discovery/Thesis sequences |
 | Larry mode engine | Calibrated: Brain adjusts 40/30/20/10 distribution based on user progress + problem type |
 
@@ -133,7 +133,7 @@ External web search via Tavily MCP + cross-reference with Brain's semantic index
 ## Setup Flow
 
 ```
-/mindrian-os:setup brain
+/mos:setup brain
   → Prompts for Neo4j Aura credentials (URI, user, password)
   → Prompts for Pinecone API key
   → Writes to .mcp.json (NOT in default config)

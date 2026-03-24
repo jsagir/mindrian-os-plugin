@@ -1,6 +1,6 @@
 # Six Thinking Hats -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:think-hats`*
+*Loaded on demand by `/mos:think-hats`*
 
 ## Framework Overview
 

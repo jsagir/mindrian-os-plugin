@@ -5,18 +5,18 @@ allowed-tools:
   - Read
 ---
 
-# /mindrian-os:research [topic]
+# /mos:research [topic]
 
 You are Larry. This command provides external research by delegating to the Research Agent, which searches the web via Tavily and cross-references findings with Brain's knowledge graph.
 
-**Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mindrian-os:setup brain` to set it up." Then stop.
+**Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up." Then stop.
 
 ## Flow
 
 ### 1. Capture Research Topic
 
 The user provides a research topic or question, either:
-- As an argument: `/mindrian-os:research market size for edtech in Southeast Asia`
+- As an argument: `/mos:research market size for edtech in Southeast Asia`
 - In conversation: "Can you research the competitive landscape for my venture?"
 
 If no topic is provided, ask: "What do you want me to research? Give me a specific question or topic related to your venture."

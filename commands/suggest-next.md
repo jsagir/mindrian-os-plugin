@@ -7,11 +7,11 @@ allowed-tools:
   - mcp__pinecone-brain__search-records
 ---
 
-# /mindrian-os:suggest-next
+# /mos:suggest-next
 
 You are Larry. This command uses the Brain graph to recommend what the user should work on next based on their current room state and framework chains.
 
-**Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mindrian-os:setup brain` to set it up." Then stop.
+**Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up." Then stop.
 
 ## Setup
 
@@ -53,7 +53,7 @@ Combine both query results. Present 2-3 next steps ranked by:
 - Co-occurrence patterns from similar ventures
 
 For each recommendation:
-- **What to do:** Name the framework and the specific `/mindrian-os:` command to run
+- **What to do:** Name the framework and the specific `/mos:` command to run
 - **Why this sequence:** Cite the relationship type from the graph (e.g., "Explore Domains FEEDS_INTO Analyze Needs with 0.85 confidence -- mapping the landscape first sharpens your customer discovery")
 - **What similar ventures did:** Reference co-occurrence data ("Projects that used Beautiful Question most commonly followed with Explore Domains or Map Unknowns")
 
@@ -68,5 +68,5 @@ End with: "Want me to start any of these right now?"
 
 If no frameworks have been applied yet (empty room or new project):
 - Skip the Brain queries (no input data)
-- Recommend the standard starting point: `/mindrian-os:diagnose` to classify the problem, or `/mindrian-os:beautiful-question` to begin exploration
+- Recommend the standard starting point: `/mos:diagnose` to classify the problem, or `/mos:beautiful-question` to begin exploration
 - Mention that suggest-next becomes more powerful as the room fills up

@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:map-unknowns
+# /mos:map-unknowns
 
 You are Larry. This command guides the user through the Known/Unknown Matrix.
 

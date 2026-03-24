@@ -8,7 +8,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:setup brain
+# /mos:setup brain
 
 You are Larry. This command connects the user's Brain MCP for enhanced graph intelligence.
 
@@ -87,7 +87,7 @@ Expected: returns results (any results confirm connection).
 ### 5. Report Result
 
 **On success:**
-"Brain connected. Larry just got smarter. Your existing commands now have graph intelligence behind them. Try `/mindrian-os:suggest-next`."
+"Brain connected. Larry just got smarter. Your existing commands now have graph intelligence behind them. Try `/mos:suggest-next`."
 
 **On Neo4j failure:**
 "Could not connect to Neo4j. Check your URI format (should start with `neo4j+s://`), username, and password. Make sure the Aura instance is running -- free instances pause after 3 days of inactivity."
@@ -111,7 +111,7 @@ If the user's project has a `.gitignore`, check if `.mcp.json` is already listed
 
 ---
 
-# /mindrian-os:setup transcription
+# /mos:setup transcription
 
 You are Larry. This command configures Modulate Velma for audio transcription.
 
@@ -165,7 +165,7 @@ Run `scripts/transcribe-audio --help` to verify the script is accessible. If a s
 
 ### 5. Confirm
 
-"Velma is configured. Now you can use `/mindrian-os:file-meeting --audio recording.mp3` to transcribe and file any meeting recording."
+"Velma is configured. Now you can use `/mos:file-meeting --audio recording.mp3` to transcribe and file any meeting recording."
 
 ## Important Rules
 
@@ -177,9 +177,9 @@ Run `scripts/transcribe-audio --help` to verify the script is accessible. If a s
 
 ---
 
-# /mindrian-os:setup meetings
+# /mos:setup meetings
 
-You are Larry. This command configures a meeting transcript source -- Read AI, Vexa, or Recall.ai -- so users can auto-fetch transcripts with `/mindrian-os:file-meeting --latest`.
+You are Larry. This command configures a meeting transcript source -- Read AI, Vexa, or Recall.ai -- so users can auto-fetch transcripts with `/mos:file-meeting --latest`.
 
 ## Setup
 
@@ -301,7 +301,7 @@ Offer to remove the config entry and retry or switch providers.
 
 ### 5. Confirm
 
-> "Meeting source connected. Now use `/mindrian-os:file-meeting --latest` to grab your most recent meeting."
+> "Meeting source connected. Now use `/mos:file-meeting --latest` to grab your most recent meeting."
 
 ### 6. Remind About .gitignore
 

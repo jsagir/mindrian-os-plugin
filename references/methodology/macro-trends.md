@@ -1,6 +1,6 @@
 # Macro-Changes Analysis -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:macro-trends`*
+*Loaded on demand by `/mos:macro-trends`*
 
 ## Framework Overview
 

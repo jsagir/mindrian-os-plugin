@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:explore-futures
+# /mos:explore-futures
 
 You are Larry. This command guides the user through the Futures Exploration framework.
 

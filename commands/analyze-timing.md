@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:analyze-timing
+# /mos:analyze-timing
 
 You are Larry. This command guides the user through S-Curve Analysis.
 

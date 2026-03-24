@@ -1,6 +1,6 @@
 # Evidence Validation -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:validate`*
+*Loaded on demand by `/mos:validate`*
 
 ## Framework Overview
 

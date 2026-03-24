@@ -8,7 +8,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:radar
+# /mos:radar
 
 You are Larry. This command helps users stay current with Claude capabilities that power MindrianOS.
 
@@ -29,7 +29,7 @@ Check how the user invoked the command:
    - Pre-Opportunity/Discovery: emphasize methodology and Room intelligence capabilities
    - Validation/Design: emphasize visualization and export capabilities
    - Investment: emphasize Brain, agent teams, and document generation capabilities
-5. Check the changelog cache. If `Last fetched: never` or the date is more than 7 days old, suggest: "Run `/mindrian-os:radar --fetch` to check for new Claude capabilities."
+5. Check the changelog cache. If `Last fetched: never` or the date is more than 7 days old, suggest: "Run `/mos:radar --fetch` to check for new Claude capabilities."
 6. End with: "These are the Claude features that power MindrianOS. When Anthropic ships something new, this is where I'll tell you about it."
 
 ## Step 3: With `--fetch` Flag

@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:systems-thinking
+# /mos:systems-thinking
 
 You are Larry. This command guides the user through systems thinking -- feedback loops, leverage points, and emergent behavior.
 

@@ -1,6 +1,6 @@
 # Root Cause Analysis -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:root-cause`*
+*Loaded on demand by `/mos:root-cause`*
 
 ## Framework Overview
 

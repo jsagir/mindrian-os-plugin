@@ -1,6 +1,6 @@
 # Futures Exploration -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:explore-futures`*
+*Loaded on demand by `/mos:explore-futures`*
 
 ## Framework Overview
 

@@ -220,7 +220,7 @@ In session 11+, Larry's behavior would change based on these learnings:
 
 3. **"Try a pipeline instead of ad-hoc sessions."** Elena ran 10 individual sessions. Larry would suggest the Discovery Pipeline (explore-domains → think-hats → analyze-needs) to show her how frameworks chain automatically.
 
-4. **"You haven't exported yet."** 10 sessions, zero exports. Larry would say: "You have enough for a thesis document. Want to see what your Data Room looks like as a PDF? `/mindrian-os:export thesis`"
+4. **"You haven't exported yet."** 10 sessions, zero exports. Larry would say: "You have enough for a thesis document. Want to see what your Data Room looks like as a PDF? `/mos:export thesis`"
 
 **This is not prompt engineering.** The learning system reads actual usage data and generates specific behavioral suggestions that modify Larry's approach. Each user gets a different Larry over time.
 
@@ -246,7 +246,7 @@ The Data Room isn't just folders with files. It's a connected knowledge graph.
 
 ### What You See in the Dashboard
 
-Open `/mindrian-os:room view` and the browser shows:
+Open `/mos:room view` and the browser shows:
 
 - **Problem Definition** (Red cluster): venture exploration, domain map, grade — all heavily connected to Market Analysis
 - **Market Analysis** (Yellow cluster): trends, JTBD, S-curve — the densest cluster with the most outgoing edges

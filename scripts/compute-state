@@ -170,11 +170,11 @@ for i in "${!section_names[@]}"; do
   if [ "${section_entries[$i]}" -eq 0 ]; then
     has_gaps=true
     case "${section_names[$i]}" in
-      problem-definition) echo "- problem-definition: No entries. Start with /mindrian-os:new-project to define your core problem." ;;
+      problem-definition) echo "- problem-definition: No entries. Start with /mos:new-project to define your core problem." ;;
       market-analysis) echo "- market-analysis: No entries. Consider exploring market size and customer segments." ;;
       solution-design) echo "- solution-design: No entries. Consider mapping your solution architecture." ;;
       business-model) echo "- business-model: No entries. Consider defining your revenue model." ;;
-      competitive-analysis) echo "- competitive-analysis: No entries. Consider /mindrian-os:challenge-assumptions." ;;
+      competitive-analysis) echo "- competitive-analysis: No entries. Consider /mos:challenge-assumptions." ;;
       team-execution) echo "- team-execution: No entries. Consider documenting your team and execution plan." ;;
       legal-ip) echo "- legal-ip: No entries. Consider documenting legal structure and IP." ;;
       financial-model) echo "- financial-model: No entries. Consider building initial financial projections." ;;
@@ -246,7 +246,7 @@ fi
 # Suggested next action
 echo "## Suggested Next Action"
 if [ "$total_entries" -eq 0 ]; then
-  echo "Your Data Room is empty. Run /mindrian-os:new-project to get started with Larry."
+  echo "Your Data Room is empty. Run /mos:new-project to get started with Larry."
 elif [ "$venture_stage" = "Pre-Opportunity" ]; then
   echo "You have early problem definition work. Explore your market to move to Discovery stage."
 elif [ "$venture_stage" = "Discovery" ]; then

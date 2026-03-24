@@ -12,7 +12,7 @@ A user is in the middle of building their Data Room. They have a team meeting �
 
 After the meeting, the user tells Larry:
 
-> "/mindrian-os:file-meeting"
+> "/mos:file-meeting"
 
 Larry asks: "Got a transcript? Paste it, upload it, or point me to the file."
 
@@ -226,7 +226,7 @@ This is v2. For now, post-meeting transcript filing is the core feature.
 
 ## Implementation Priority
 
-**Phase 1 (now):** `/mindrian-os:file-meeting` command — paste/file transcript, speaker identification, segment classification, confirm-then-file, meeting summary artifact.
+**Phase 1 (now):** `/mos:file-meeting` command — paste/file transcript, speaker identification, segment classification, confirm-then-file, meeting summary artifact.
 
 **Phase 2 (soon):** Audio transcription via local Whisper. Speaker diarization.
 

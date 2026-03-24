@@ -1,6 +1,6 @@
 # Trending to the Absurd -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:explore-trends`*
+*Loaded on demand by `/mos:explore-trends`*
 
 ## Framework Overview
 

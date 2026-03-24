@@ -14,15 +14,15 @@ The Room is not just storage -- it is an active thinking partner. This skill giv
 | Trigger | Behavior |
 |---------|----------|
 | **SessionStart** | Run lightweight analysis. Surface at most 2 HIGH-confidence findings in greeting. Prioritize 1 gap + 1 convergence (or 1 contradiction). Keep it brief -- one sentence each. |
-| **/mindrian-os:status** | Include all HIGH + MEDIUM findings in status output. Group by type (Gaps, Convergence, Contradictions). |
-| **/mindrian-os:room --insights** | Full analysis including LOW confidence. Provide detailed interpretation and actionable suggestions. |
+| **/mos:status** | Include all HIGH + MEDIUM findings in status output. Group by type (Gaps, Convergence, Contradictions). |
+| **/mos:room --insights** | Full analysis including LOW confidence. Provide detailed interpretation and actionable suggestions. |
 | **During methodology session** | NEVER interrupt a methodology session with proactive findings. The user is deep in focused work. Save findings for the next SessionStart or status check. |
 
 ## Gap Detection
 
 Beyond structural gaps (empty sections detected by `compute-state`), detect semantic gaps:
 
-- **Single-lens gap**: Section has entries but all from the same methodology. The user explored one angle but not others. Phrase as opportunity: "Your market-analysis has trend data but no customer evidence -- consider /mindrian-os:analyze-needs."
+- **Single-lens gap**: Section has entries but all from the same methodology. The user explored one angle but not others. Phrase as opportunity: "Your market-analysis has trend data but no customer evidence -- consider /mos:analyze-needs."
 - **Evidence gap**: Section has entries but none with validation or evidence markers. Conceptual work without grounding.
 - **Adjacent section gap**: Connected sections filled but bridging section empty. Problem and solution explored but no market analysis connecting them.
 - **Depth gap**: Section has entries but all at `depth: quick`. No deep dives yet.
@@ -62,8 +62,8 @@ Phrase as signal strength:
 | Level | Criteria | Display Rule |
 |-------|----------|--------------|
 | **HIGH** | Direct structural evidence (empty section, 3+ supporting entries, clear keyword conflict) | Show in SessionStart greeting |
-| **MEDIUM** | 2 supporting entries, keyword overlap, single-lens detection | Show in /mindrian-os:status |
-| **LOW** | Single entry inference, weak keyword match, speculative connection | Show only on explicit request (/mindrian-os:room --insights) |
+| **MEDIUM** | 2 supporting entries, keyword overlap, single-lens detection | Show in /mos:status |
+| **LOW** | Single entry inference, weak keyword match, speculative connection | Show only on explicit request (/mos:room --insights) |
 
 ## Noise Gate
 

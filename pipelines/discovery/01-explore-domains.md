@@ -17,7 +17,7 @@ If the user provided a topic when starting the pipeline, use that as the startin
 
 ## Stage Instructions
 
-Run `/mindrian-os:explore-domains` with the user's topic.
+Run `/mos:explore-domains` with the user's topic.
 
 Focus the session on producing:
 - **Domain Statement** (1 clear sentence defining the territory)

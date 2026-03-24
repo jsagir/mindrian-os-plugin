@@ -1,6 +1,6 @@
 # Dominant Designs -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:dominant-designs`*
+*Loaded on demand by `/mos:dominant-designs`*
 
 ## Framework Overview
 

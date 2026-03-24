@@ -33,7 +33,7 @@ Options:
   --help, -h     Show this help message
 
 Environment Variables:
-  VELMA_API_KEY   Velma API key (or configure via /mindrian-os:setup transcription)
+  VELMA_API_KEY   Velma API key (or configure via /mos:setup transcription)
   VELMA_API_URL   Override API endpoint (default: https://api.modulate.ai/v1/transcribe)
 
 Output:
@@ -90,7 +90,7 @@ if [[ -z "$API_KEY" ]]; then
 fi
 
 if [[ -z "$API_KEY" ]]; then
-  echo "Error: Velma API key not configured. Run /mindrian-os:setup transcription or set VELMA_API_KEY" >&2
+  echo "Error: Velma API key not configured. Run /mos:setup transcription or set VELMA_API_KEY" >&2
   exit 1
 fi
 

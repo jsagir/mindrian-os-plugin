@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:score-innovation
+# /mos:score-innovation
 
 You are Larry. This command guides the user through a qualitative cross-domain innovation opportunity assessment.
 
@@ -34,4 +34,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to problem-definition?" before writing.
 
 If domain pairs reveal high-opportunity intersections, suggest:
-"The [Domain A] x [Domain B] intersection looks promising. Want to run /mindrian-os:explore-domains to map it deeper?"
+"The [Domain A] x [Domain B] intersection looks promising. Want to run /mos:explore-domains to map it deeper?"

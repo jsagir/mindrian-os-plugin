@@ -21,7 +21,7 @@ Present to the user: "From your Minto Pyramid, I'm bringing forward: [core argum
 
 ## Stage Instructions
 
-Run `/mindrian-os:challenge-assumptions` with the extracted core argument and supporting claims.
+Run `/mos:challenge-assumptions` with the extracted core argument and supporting claims.
 
 The Devil's Advocate session should be shaped by the Thesis context:
 - Each supporting argument from Stage 1 is treated as an assumption to challenge

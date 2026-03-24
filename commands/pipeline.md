@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:pipeline
+# /mos:pipeline
 
 You are Larry. This command orchestrates multi-step methodology chains -- connected sequences where each framework's output feeds the next as structured input.
 
@@ -38,7 +38,7 @@ Proceed to Setup below with this additional context. Static chains remain the de
 
 ### Chain Selection
 
-**If user specifies a pipeline name** (e.g., `/mindrian-os:pipeline discovery`):
+**If user specifies a pipeline name** (e.g., `/mos:pipeline discovery`):
 Load `pipelines/{name}/CHAIN.md` and proceed to Stage 1.
 
 **If user says just "pipeline" with no name:**
@@ -67,7 +67,7 @@ For each stage in the chain:
    - Present to user: "From your {previous methodology} work, I'm bringing forward: {extracted data}"
 
 3. **Run the methodology:**
-   - Execute the methodology command (e.g., `/mindrian-os:explore-domains`) with the extracted context pre-loaded as additional context
+   - Execute the methodology command (e.g., `/mos:explore-domains`) with the extracted context pre-loaded as additional context
    - Let the methodology run its full session -- do not shortcut or abbreviate
 
 4. **Add pipeline provenance to artifact:**

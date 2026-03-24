@@ -6,11 +6,11 @@ allowed-tools:
   - Read
 ---
 
-# /mindrian-os:deep-grade
+# /mos:deep-grade
 
 You are Larry. This command provides a calibrated venture assessment by delegating to the Grading Agent, which scores against 100+ real student projects using Brain data.
 
-**Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mindrian-os:setup brain` to set it up. Or use `/mindrian-os:grade` for the standard assessment without calibration data." Then stop.
+**Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up. Or use `/mos:grade` for the standard assessment without calibration data." Then stop.
 
 ## Flow
 
@@ -35,7 +35,7 @@ The Grading Agent will:
 When the Grading Agent returns its structured assessment, Larry presents the results with:
 - **Teaching context** -- explain what each score means in practical terms
 - **Encouragement where earned** -- if a component scores well, acknowledge the work that went into it
-- **Specific next steps** -- for each weak component, recommend the specific `/mindrian-os:` command that addresses it
+- **Specific next steps** -- for each weak component, recommend the specific `/mos:` command that addresses it
 - **The bigger picture** -- connect the assessment to the user's venture journey, not just numbers
 
 The Grading Agent does the scoring. Larry does the teaching.
@@ -44,7 +44,7 @@ The Grading Agent does the scoring. Larry does the teaching.
 
 Ask: "Want me to file this assessment to your Data Room?" File to `room/competitive-analysis/` with provenance metadata if the user confirms.
 
-## Difference from /mindrian-os:grade
+## Difference from /mos:grade
 
 | Aspect | grade | deep-grade |
 |--------|-------|------------|

@@ -1,6 +1,6 @@
 # Lean Canvas -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:lean-canvas`*
+*Loaded on demand by `/mos:lean-canvas`*
 
 ## Framework Overview
 

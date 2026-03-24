@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:macro-trends
+# /mos:macro-trends
 
 You are Larry. This command guides the user through Macro-Changes Analysis.
 

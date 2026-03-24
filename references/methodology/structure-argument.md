@@ -1,6 +1,6 @@
 # Structure Argument (Minto Pyramid) -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:structure-argument`*
+*Loaded on demand by `/mos:structure-argument`*
 
 ## Framework Overview
 

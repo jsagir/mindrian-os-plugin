@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:file-meeting
+# /mos:file-meeting
 
 You are Larry. This command turns meeting conversations into Data Room intelligence through a 6-step conversational pipeline.
 
@@ -96,7 +96,7 @@ Check if Velma is configured:
 
 **If not configured:**
 > "Audio needs Velma configured. Set it up now? (30 seconds)"
-> - If yes: Walk through the Velma setup flow (same as `/mindrian-os:setup transcription`)
+> - If yes: Walk through the Velma setup flow (same as `/mos:setup transcription`)
 > - If no: "No problem. Paste the transcript text instead, or point me to a text file with `--file`."
 
 **If configured:**
@@ -117,7 +117,7 @@ Read `.mcp.json` in the workspace root and look for meeting source keys under `m
 - `recall-ai` -- Recall.ai MCP
 
 **If no meeting source configured:**
-> "No meeting source configured. Run `/mindrian-os:setup meetings` first, or paste your transcript here."
+> "No meeting source configured. Run `/mos:setup meetings` first, or paste your transcript here."
 
 Then fall back to default paste mode (continue to the paste prompt above).
 
@@ -164,7 +164,7 @@ Set source metadata to the meeting provider name (e.g., `read-ai`, `vexa`, or `r
 #### 4. Handle MCP Errors
 
 **Auth errors (401/403):**
-> "Authentication expired. Re-run `/mindrian-os:setup meetings` to reconnect."
+> "Authentication expired. Re-run `/mos:setup meetings` to reconnect."
 
 Then fall back to paste mode. Never block the pipeline.
 

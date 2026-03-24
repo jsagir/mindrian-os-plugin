@@ -135,18 +135,18 @@ assets/
 scripts/
   render-pdf                # Orchestrator: reads room, selects template, renders PDF
 commands/
-  export.md                 # /mindrian-os:export thesis|summary|report|profile|deck|brief
+  export.md                 # /mos:export thesis|summary|report|profile|deck|brief
 ```
 
 ### Command UX
 
 ```
-/mindrian-os:export thesis      → Investment thesis PDF from full room
-/mindrian-os:export summary     → 1-2 page executive summary
-/mindrian-os:export report      → Due diligence report with TOC
-/mindrian-os:export profile     → PWS profile for a cohort member
-/mindrian-os:export deck        → Landscape pitch deck
-/mindrian-os:export brief       → 1-page venture brief
+/mos:export thesis      → Investment thesis PDF from full room
+/mos:export summary     → 1-2 page executive summary
+/mos:export report      → Due diligence report with TOC
+/mos:export profile     → PWS profile for a cohort member
+/mos:export deck        → Landscape pitch deck
+/mos:export brief       → 1-page venture brief
 ```
 
 ### Tri-Polar Surface Behavior

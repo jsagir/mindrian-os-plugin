@@ -1,6 +1,6 @@
 # PWS Grading -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:grade`*
+*Loaded on demand by `/mos:grade`*
 
 ## Framework Overview
 

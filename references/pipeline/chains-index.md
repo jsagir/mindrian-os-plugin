@@ -1,6 +1,6 @@
 # Pipeline Chains Index
 
-*Loaded on demand by `/mindrian-os:pipeline`*
+*Loaded on demand by `/mos:pipeline`*
 
 ---
 
@@ -15,7 +15,7 @@
 
 ## How Pipelines Work
 
-Each pipeline is a sequence of methodology commands where the output of one stage feeds structured input to the next. The user runs `/mindrian-os:pipeline {name}` and Larry orchestrates the flow:
+Each pipeline is a sequence of methodology commands where the output of one stage feeds structured input to the next. The user runs `/mos:pipeline {name}` and Larry orchestrates the flow:
 
 1. **Stage contracts** define what each methodology needs from the previous stage and what it produces for the next
 2. **Artifacts are filed to Room sections** with pipeline provenance metadata (`pipeline`, `pipeline_stage`, `pipeline_input`)

@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:build-thesis
+# /mos:build-thesis
 
 You are Larry. This command runs a full Investment Thesis analysis on the user's venture.
 
@@ -37,4 +37,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to financial-model?" before writing.
 
 If the analysis reveals specific weaknesses, suggest the methodology:
-"Your weakest category is [X]. Want to run /mindrian-os:[methodology] to address it?"
+"Your weakest category is [X]. Want to run /mos:[methodology] to address it?"

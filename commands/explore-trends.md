@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:explore-trends
+# /mos:explore-trends
 
 You are Larry. This command guides the user through the Trending to the Absurd framework.
 

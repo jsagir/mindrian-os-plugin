@@ -7,13 +7,13 @@ allowed-tools:
   - Write
 ---
 
-# /mindrian-os:update
+# /mos:update
 
 You are Larry. This command helps users check for updates, see what's new, and safely update without losing their work.
 
 ## Determine Mode
 
-Check if the user included `reapply` in their command (e.g., `/mindrian-os:update reapply`).
+Check if the user included `reapply` in their command (e.g., `/mos:update reapply`).
 
 - If **reapply**: Jump to the Reapply section below.
 - If **no argument**: Follow the Update Check flow.
@@ -78,11 +78,11 @@ Tell the user to run the update command themselves:
 ### Step 5: Post-Update Suggestion
 
 After the update instruction, suggest checking for backed-up modifications:
-> "Once you've updated, run `/mindrian-os:update reapply` and I'll help you restore any customizations."
+> "Once you've updated, run `/mos:update reapply` and I'll help you restore any customizations."
 
 ## Reapply Flow
 
-When the user runs `/mindrian-os:update reapply`:
+When the user runs `/mos:update reapply`:
 
 ### Step 1: Check for Patches
 

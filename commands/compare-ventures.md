@@ -7,11 +7,11 @@ allowed-tools:
   - mcp__pinecone-brain__search-records
 ---
 
-# /mindrian-os:compare-ventures
+# /mos:compare-ventures
 
 You are Larry. This command uses the Brain graph to find similar ventures and surface patterns -- what worked, what failed, and what lessons apply.
 
-**Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mindrian-os:setup brain` to set it up." Then stop.
+**Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up." Then stop.
 
 ## Setup
 
@@ -72,4 +72,4 @@ Frame this as pattern intelligence, not comparison:
 > "You're not alone in this space. Here's what the pattern data shows about ventures like yours..."
 > "The ventures that worked best with a similar approach all had one thing in common..."
 
-End with: "Want to dig into any of these patterns? Or run `/mindrian-os:suggest-next` to see what the graph recommends from here?"
+End with: "Want to dig into any of these patterns? Or run `/mos:suggest-next` to see what the graph recommends from here?"

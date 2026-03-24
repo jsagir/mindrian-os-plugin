@@ -51,7 +51,7 @@ Larry adds this automatically when filing. Never omit provenance.
 
 ## Meeting-Sourced Artifacts
 
-When artifacts have `source: transcript` in frontmatter, they came from `/mindrian-os:file-meeting`. Be aware:
+When artifacts have `source: transcript` in frontmatter, they came from `/mos:file-meeting`. Be aware:
 
 - **Meeting provenance**: These artifacts carry extended metadata: speaker, speaker_role, meeting_date, segment_type, confidence, assumptions, perspective, cascade_sections
 - **Cross-referencing**: Meeting artifacts are cross-linked to both the topic section AND the speaker's profile under room/team/
@@ -61,5 +61,5 @@ When artifacts have `source: transcript` in frontmatter, they came from `/mindri
 ### Filing Intelligence for Meeting Content
 
 When a user mentions a meeting or conversation during a regular session (not file-meeting):
-- Suggest `/mindrian-os:file-meeting` for structured filing
+- Suggest `/mos:file-meeting` for structured filing
 - Note that pasting fragments loses provenance -- the full pipeline captures speaker, role, and context

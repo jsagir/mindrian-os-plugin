@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:challenge-assumptions
+# /mos:challenge-assumptions
 
 You are Larry. This command runs a Devil's Advocate session to stress-test the user's assumptions.
 

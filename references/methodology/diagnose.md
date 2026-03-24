@@ -1,6 +1,6 @@
 # Problem Diagnosis -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:diagnose`*
+*Loaded on demand by `/mos:diagnose`*
 
 ## Framework Overview
 
@@ -84,7 +84,7 @@ Describe (don't label) what kind of problem this is. Be specific to their situat
 ### Phase 5: Methodology Recommendations (turn 3)
 
 Recommend 3-5 commands ranked by relevance. For each:
-- Command name (the /mindrian-os:command)
+- Command name (the /mos:command)
 - Why it fits THIS specific problem
 - What it will produce
 - Suggested order if multiple commands are recommended
@@ -143,9 +143,9 @@ venture_stage: {stage}
 
 | Priority | Command | Why It Fits | What It Produces |
 |----------|---------|-------------|------------------|
-| 1 | /mindrian-os:{cmd} | {specific reason for this problem} | {expected output} |
-| 2 | /mindrian-os:{cmd} | {specific reason} | {expected output} |
-| 3 | /mindrian-os:{cmd} | {specific reason} | {expected output} |
+| 1 | /mos:{cmd} | {specific reason for this problem} | {expected output} |
+| 2 | /mos:{cmd} | {specific reason} | {expected output} |
+| 3 | /mos:{cmd} | {specific reason} | {expected output} |
 
 ## Suggested Path
 {1-2 sentences on the recommended order and why}

@@ -18,18 +18,18 @@ Parse the user's argument to determine which document type they want. If no argu
 
 | Type | Command | What You Get |
 |------|---------|-------------|
-| **thesis** | `/mindrian-os:export thesis` | Investment thesis: multi-page narrative covering your full venture analysis. Includes all populated room sections with De Stijl accent bars and running headers. |
-| **summary** | `/mindrian-os:export summary` | Executive summary: dense 1-2 page overview for quick stakeholder review. Two-column layout with financial metrics box. |
-| **report** | `/mindrian-os:export report` | Due diligence report: comprehensive numbered sections with table of contents and PDF bookmarks. |
-| **profile** | `/mindrian-os:export profile` | PWS Profile: single-page professional profile built from your methodology work -- domain expertise, thinking perspectives, customer understanding, and professional background. |
-| **meeting-report** | `/mindrian-os:export meeting-report` | Meeting intelligence report: Minto pyramid structure covering all meetings with speaker attribution, decisions, contradictions, and section-colored filing indicators. |
+| **thesis** | `/mos:export thesis` | Investment thesis: multi-page narrative covering your full venture analysis. Includes all populated room sections with De Stijl accent bars and running headers. |
+| **summary** | `/mos:export summary` | Executive summary: dense 1-2 page overview for quick stakeholder review. Two-column layout with financial metrics box. |
+| **report** | `/mos:export report` | Due diligence report: comprehensive numbered sections with table of contents and PDF bookmarks. |
+| **profile** | `/mos:export profile` | PWS Profile: single-page professional profile built from your methodology work -- domain expertise, thinking perspectives, customer understanding, and professional background. |
+| **meeting-report** | `/mos:export meeting-report` | Meeting intelligence report: Minto pyramid structure covering all meetings with speaker attribution, decisions, contradictions, and section-colored filing indicators. |
 
 ## Generate the PDF
 
 If a valid document type is provided:
 
 1. **Check the room exists.** If `room/` directory does not exist, tell the user:
-   > "You don't have a Data Room yet. Run `/mindrian-os:new-project` to set one up, then come back for that export."
+   > "You don't have a Data Room yet. Run `/mos:new-project` to set one up, then come back for that export."
 
 2. **Run the render script:**
    ```bash
@@ -46,13 +46,13 @@ If a valid document type is provided:
 
 The profile document type is unique -- it pulls from your methodology outputs, not just raw room entries:
 
-- **Domain Expertise** (top-left): Populated from `/mindrian-os:explore-domains` outputs
-- **Thinking Perspectives** (top-right): Populated from `/mindrian-os:think-hats` outputs
-- **Customer Understanding** (bottom-left): Populated from `/mindrian-os:analyze-needs` / JTBD outputs
+- **Domain Expertise** (top-left): Populated from `/mos:explore-domains` outputs
+- **Thinking Perspectives** (top-right): Populated from `/mos:think-hats` outputs
+- **Customer Understanding** (bottom-left): Populated from `/mos:analyze-needs` / JTBD outputs
 - **Professional Background** (bottom-right): Populated from team-execution room entries
 
 If the profile looks sparse, suggest:
-> "Your profile will look sharper with more methodology outputs. Try running `/mindrian-os:think-hats` and `/mindrian-os:explore-domains` first -- those feed directly into your profile grid."
+> "Your profile will look sharper with more methodology outputs. Try running `/mos:think-hats` and `/mos:explore-domains` first -- those feed directly into your profile grid."
 
 ## Surface Behavior
 
@@ -63,5 +63,5 @@ If the profile looks sparse, suggest:
 ## Error Handling
 
 - If the user provides an invalid document type, show the table above and suggest the closest match.
-- If PDF generation fails, check that font files exist in `assets/fonts/` and suggest re-running `/mindrian-os:setup` if needed.
-- If the room has no content at all, guide them to start with a methodology: "Your room is empty -- try `/mindrian-os:lean-canvas` or `/mindrian-os:explore-domains` to get some content in there first."
+- If PDF generation fails, check that font files exist in `assets/fonts/` and suggest re-running `/mos:setup` if needed.
+- If the room has no content at all, guide them to start with a methodology: "Your room is empty -- try `/mos:lean-canvas` or `/mos:explore-domains` to get some content in there first."

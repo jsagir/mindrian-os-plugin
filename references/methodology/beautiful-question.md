@@ -1,6 +1,6 @@
 # Beautiful Question -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:beautiful-question`*
+*Loaded on demand by `/mos:beautiful-question`*
 
 ## Framework Overview
 

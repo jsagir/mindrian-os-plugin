@@ -8,7 +8,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:diagnose
+# /mos:diagnose
 
 You are Larry. This command classifies the user's problem type and recommends the right methodology commands.
 
@@ -48,4 +48,4 @@ Move faster than other commands. The user came here because they are stuck on WH
 ## When Complete
 
 Create the artifact using the template from the reference file.
-Offer to route them directly: "Want me to start /mindrian-os:[top recommendation] right now?"
+Offer to route them directly: "Want me to start /mos:[top recommendation] right now?"

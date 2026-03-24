@@ -1,6 +1,6 @@
 # Domain Explorer -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:explore-domains`*
+*Loaded on demand by `/mos:explore-domains`*
 
 ## Framework Overview
 

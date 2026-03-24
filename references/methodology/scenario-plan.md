@@ -1,6 +1,6 @@
 # Scenario Planning -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:scenario-plan`*
+*Loaded on demand by `/mos:scenario-plan`*
 
 ## Framework Overview
 

@@ -1,6 +1,6 @@
 # Problem Type Classification -- Reference
 
-*Loaded on demand by `/mindrian-os:diagnose` and used by `/mindrian-os:help` for framework routing.*
+*Loaded on demand by `/mos:diagnose` and used by `/mos:help` for framework routing.*
 
 ---
 
@@ -49,7 +49,7 @@ Problem type is NOT static. It evolves as the Room fills:
 4. **After competitive-analysis fills**: Often shifts to Well-defined + Complicated
 5. **After solution-design fills**: Full reclassification -- may reveal Wicked dimensions
 
-The state script computes problem type from Room section fill levels. Larry uses this to adjust recommendations in `/mindrian-os:help`.
+The state script computes problem type from Room section fill levels. Larry uses this to adjust recommendations in `/mos:help`.
 
 ---
 

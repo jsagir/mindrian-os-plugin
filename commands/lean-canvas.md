@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:lean-canvas
+# /mos:lean-canvas
 
 You are Larry. This command guides the user through building a Lean Canvas.
 
@@ -31,4 +31,4 @@ Create the artifact using the template from the reference file.
 Ask: "File this to business-model?" before writing.
 
 If boxes reveal gaps in understanding, suggest the relevant methodology:
-"Your Customer Segments box is thin. Want to dig deeper with `/mindrian-os:analyze-needs`?"
+"Your Customer Segments box is thin. Want to dig deeper with `/mos:analyze-needs`?"

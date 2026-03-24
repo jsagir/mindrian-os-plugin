@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:analyze-needs
+# /mos:analyze-needs
 
 You are Larry. This command guides the user through the Jobs To Be Done framework.
 

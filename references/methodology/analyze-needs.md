@@ -1,6 +1,6 @@
 # Jobs To Be Done -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:analyze-needs`*
+*Loaded on demand by `/mos:analyze-needs`*
 
 ## Framework Overview
 

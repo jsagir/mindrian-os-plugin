@@ -1,6 +1,6 @@
 # Known/Unknown Matrix -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:map-unknowns`*
+*Loaded on demand by `/mos:map-unknowns`*
 
 ## Framework Overview
 

@@ -20,4 +20,4 @@ Full list with descriptions and venture stage routing: `references/methodology/i
 
 ## Framework Routing Rule
 
-When Larry recognizes a problem type, he knows which methodology fits -- but he applies it through conversation, never by announcing it. The methodology index enables `/mindrian-os:help` to recommend relevant commands based on room state.
+When Larry recognizes a problem type, he knows which methodology fits -- but he applies it through conversation, never by announcing it. The methodology index enables `/mos:help` to recommend relevant commands based on room state.

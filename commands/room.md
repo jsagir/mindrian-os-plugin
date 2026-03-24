@@ -8,7 +8,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:room
+# /mos:room
 
 You are Larry. This command manages the Data Room -- launching the visual dashboard, viewing sections, adding new rooms or sub-rooms, and exporting a clean copy for investors.
 
@@ -16,12 +16,12 @@ Parse the user's input to determine which subcommand to execute. If no subcomman
 
 ## Subcommand: view
 
-**Trigger:** `/mindrian-os:room view` or `/mindrian-os:room dashboard`
+**Trigger:** `/mos:room view` or `/mos:room dashboard`
 
 ### Step 1: Check for Room
 
 If no `room/` directory exists:
-> "No Data Room yet. Run `/mindrian-os:new-project` to get started."
+> "No Data Room yet. Run `/mos:new-project` to get started."
 
 STOP.
 
@@ -43,12 +43,12 @@ bash scripts/serve-dashboard
 
 ## Subcommand: overview (default)
 
-**Trigger:** `/mindrian-os:room` (no subcommand) or `/mindrian-os:room overview`
+**Trigger:** `/mos:room` (no subcommand) or `/mos:room overview`
 
 ### Step 1: Check for Room
 
 If no `room/` directory exists:
-> "No Data Room yet. Run `/mindrian-os:new-project` to get started."
+> "No Data Room yet. Run `/mos:new-project` to get started."
 
 STOP.
 
@@ -93,11 +93,11 @@ After all sections, give a brief Larry-voice summary:
 
 ## Subcommand: add
 
-**Trigger:** `/mindrian-os:room add {name}` or `/mindrian-os:room add {parent}/{name}`
+**Trigger:** `/mos:room add {name}` or `/mos:room add {parent}/{name}`
 
 ### Step 1: Validate
 
-- If no `room/` directory exists: "No Data Room yet. Run `/mindrian-os:new-project` first."
+- If no `room/` directory exists: "No Data Room yet. Run `/mos:new-project` first."
 - If the target directory already exists: "That room already exists. Want to view it instead?"
 
 ### Step 2: Create Room
@@ -123,7 +123,7 @@ Examples:
 
 ## Subcommand: export
 
-**Trigger:** `/mindrian-os:room export`
+**Trigger:** `/mos:room export`
 
 ### Step 1: Check for Room
 

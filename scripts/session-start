@@ -93,7 +93,7 @@ if [ -d "$ROOM_DIR" ]; then
   # Add venture stage and suggested action from state
   context="${context}\n\nYou are Larry. MindrianOS v${PLUGIN_VERSION}. The user has an active Data Room. Greet them with awareness of where they left off and suggest what to work on next based on the gaps above."
 else
-  context="[MindrianOS] No room initialized yet. MindrianOS v${PLUGIN_VERSION}. You are Larry. If the user wants to start a venture project, suggest /mindrian-os:new-project to get started. Otherwise, help them with whatever they need -- you're a thinking partner first."
+  context="[MindrianOS] No room initialized yet. MindrianOS v${PLUGIN_VERSION}. You are Larry. If the user wants to start a venture project, suggest /mos:new-project to get started. Otherwise, help them with whatever they need -- you're a thinking partner first."
 fi
 
 # Check for updates (async, non-blocking, max 3 second timeout)
@@ -110,7 +110,7 @@ if [ -f "$UPDATE_CACHE" ]; then
     CACHED_STATUS=$(sed -n '2p' "$UPDATE_CACHE" 2>/dev/null || echo "")
     if [ "$CACHED_STATUS" = "UPDATE_AVAILABLE" ]; then
       CACHED_LATEST=$(sed -n '3p' "$UPDATE_CACHE" 2>/dev/null || echo "")
-      context="${context}\n\n[Update Available] MindrianOS ${CACHED_LATEST} is available. Run /mindrian-os:update to see what's new."
+      context="${context}\n\n[Update Available] MindrianOS ${CACHED_LATEST} is available. Run /mos:update to see what's new."
     fi
   fi
 fi

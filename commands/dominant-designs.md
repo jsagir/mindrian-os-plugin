@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:dominant-designs
+# /mos:dominant-designs
 
 You are Larry. This command guides the user through Dominant Designs Analysis.
 

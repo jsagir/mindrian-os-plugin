@@ -37,7 +37,7 @@ Every feature, command, skill, and capability MUST be evaluated through all thre
 
 | Surface | How Users Interact | What Matters Most |
 |---------|-------------------|-------------------|
-| **Claude Code CLI** | Full power. Hooks fire, scripts run, `/mindrian-os:*` commands. Power users. | Hook reliability, script execution, context budget, file output |
+| **Claude Code CLI** | Full power. Hooks fire, scripts run, `/mos:*` commands. Power users. | Hook reliability, script execution, context budget, file output |
 | **Claude Desktop** | Conversational. Users talk to Larry. Less command-driven. | Larry personality, natural language discoverability, conversational flow |
 | **Cowork** | Multi-user, persistent agents. `00_Context/` shared state. Collaborative. | Shared room state, concurrent access, team visibility, export quality |
 
@@ -106,17 +106,17 @@ claude plugin install mindrian-os@mindrian-marketplace
 # No Neo4j needed. No Brain needed. Just works.
 
 # OPTIONAL: Add graph for deeper intelligence
-/mindrian-os:setup graph
+/mos:setup graph
 
 # OPTIONAL: Connect Brain for enrichment
-/mindrian-os:setup brain
+/mos:setup brain
 ```
 
 ### Plugin Structure
 ```
 MindrianOS-Plugin/
 ├── .claude-plugin/plugin.json
-├── commands/                    # /mindrian-os:larry, :room, :pipeline, etc.
+├── commands/                    # /mos:larry, :room, :pipeline, etc.
 ├── skills/                      # Auto-activated: room-passive, room-proactive, etc.
 ├── agents/                      # Sub-agents: larry-extended, research, swarm
 ├── hooks/hooks.json             # Intelligence pipeline

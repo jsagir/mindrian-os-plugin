@@ -17,7 +17,7 @@ If the user provided a thesis statement when starting the pipeline, use that as 
 
 ## Stage Instructions
 
-Run `/mindrian-os:structure-argument` with the user's thesis or claim.
+Run `/mos:structure-argument` with the user's thesis or claim.
 
 Focus the session on producing:
 - **Core argument** (Minto answer-first statement)

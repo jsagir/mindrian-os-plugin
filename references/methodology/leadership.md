@@ -1,6 +1,6 @@
 # Leadership Coach -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:leadership`*
+*Loaded on demand by `/mos:leadership`*
 
 ## Framework Overview
 

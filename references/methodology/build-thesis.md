@@ -1,6 +1,6 @@
 # Investment Thesis -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:build-thesis`*
+*Loaded on demand by `/mos:build-thesis`*
 
 ## Framework Overview
 

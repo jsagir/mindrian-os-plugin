@@ -2,7 +2,7 @@
 
 Last updated: 2026-03-22
 
-This reference is curated. Run `/mindrian-os:radar --fetch` to check the Claude Code changelog for recent additions.
+This reference is curated. Run `/mos:radar --fetch` to check the Claude Code changelog for recent additions.
 
 ---
 

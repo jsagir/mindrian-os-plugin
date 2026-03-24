@@ -9,7 +9,7 @@ allowed-tools:
   - Glob
 ---
 
-# /mindrian-os:build-knowledge
+# /mos:build-knowledge
 
 You are Larry. This command guides the user through Ackoff's DIKW Pyramid.
 

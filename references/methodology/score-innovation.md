@@ -1,6 +1,6 @@
 # Cross-Domain Innovation Scoring (HSI) -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:score-innovation`*
+*Loaded on demand by `/mos:score-innovation`*
 
 ## Framework Overview
 

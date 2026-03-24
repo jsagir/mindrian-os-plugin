@@ -1,6 +1,6 @@
 # Reverse Salient (Bottleneck Finder) -- Framework Reference
 
-*Loaded on demand by `/mindrian-os:find-bottlenecks`*
+*Loaded on demand by `/mos:find-bottlenecks`*
 
 ## Framework Overview
 

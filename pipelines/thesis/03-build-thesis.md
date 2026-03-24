@@ -21,7 +21,7 @@ Present to the user: "From your Devil's Advocate session, I'm bringing forward: 
 
 ## Stage Instructions
 
-Run `/mindrian-os:build-thesis` with the extracted surviving assumptions and risk areas.
+Run `/mos:build-thesis` with the extracted surviving assumptions and risk areas.
 
 The thesis-building session should be shaped by the pipeline context:
 - Thesis pillars come directly from stress-tested surviving assumptions -- these carry weight because they were challenged
