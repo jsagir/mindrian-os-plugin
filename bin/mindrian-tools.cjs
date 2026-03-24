@@ -1,0 +1,86 @@
+#!/usr/bin/env node
+/**
+ * MindrianOS Plugin — CLI Entry Point
+ * Routes subcommands to lib/core modules.
+ * Pattern: GSD gsd-tools.cjs (switch-case routing, async main, catch).
+ * Surface-agnostic — no CLI/MCP/Desktop branching here.
+ */
+
+'use strict';
+
+const { output, error } = require('../lib/core/index.cjs');
+const roomOps = require('../lib/core/room-ops.cjs');
+const stateOps = require('../lib/core/state-ops.cjs');
+
+const USAGE = `Usage: mindrian-tools.cjs <command> <subcommand> [roomDir] [--raw]
+
+Commands:
+  room list-sections [roomDir]   List discovered sections with metadata
+  room analyze [roomDir]         Run analyze-room script
+  state compute [roomDir]        Run compute-state script
+  state get [roomDir]            Read STATE.md from room`;
+
+async function main() {
+  const argv = process.argv.slice(2);
+
+  // Detect --raw flag
+  const rawIndex = argv.indexOf('--raw');
+  const raw = rawIndex !== -1;
+  if (raw) argv.splice(rawIndex, 1);
+
+  const command = argv[0];
+  const subcommand = argv[1];
+  const roomDir = argv[2] || './room';
+
+  if (!command) {
+    error('No command specified.\n\n' + USAGE);
+  }
+
+  switch (command) {
+    case 'room': {
+      switch (subcommand) {
+        case 'list-sections': {
+          const result = roomOps.listSections(roomDir);
+          output(result, raw, JSON.stringify(result));
+          break;
+        }
+        case 'analyze': {
+          const result = roomOps.analyzeRoom(roomDir);
+          output({ output: result }, raw, result);
+          break;
+        }
+        default:
+          error(`Unknown room subcommand: ${subcommand}\n\n${USAGE}`);
+      }
+      break;
+    }
+
+    case 'state': {
+      switch (subcommand) {
+        case 'compute': {
+          const result = stateOps.computeState(roomDir);
+          output({ output: result }, raw, result);
+          break;
+        }
+        case 'get': {
+          const result = stateOps.getState(roomDir);
+          if (result === null) {
+            error(`No STATE.md found in ${roomDir}`);
+          }
+          output({ content: result }, raw, result);
+          break;
+        }
+        default:
+          error(`Unknown state subcommand: ${subcommand}\n\n${USAGE}`);
+      }
+      break;
+    }
+
+    default:
+      error(`Unknown command: ${command}\n\n${USAGE}`);
+  }
+}
+
+main().catch(e => {
+  error(e.message);
+});
