@@ -60,7 +60,9 @@ registerRouterTools(server, roomDir, pluginRoot, larryContext);
 const { registerResources } = require('../lib/mcp/resources.cjs');
 registerResources(server, roomDir);
 
-// TODO: Phase 11-02 — registerPrompts(server, roomDir, pluginRoot, larryContext)
+// Register MCP Prompts (methodology workflows with Larry personality)
+const { registerPrompts } = require('../lib/mcp/prompts.cjs');
+registerPrompts(server, roomDir, pluginRoot);
 
 // Connect stdio transport
 async function main() {
