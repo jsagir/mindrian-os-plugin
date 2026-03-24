@@ -97,7 +97,7 @@ De Stijl formatted PDFs generated directly from your Data Room content.
 
 ---
 
-## 38 Commands
+## 41 Commands
 
 ### Infrastructure
 
@@ -211,7 +211,7 @@ The plugin includes passive and proactive intelligence:
 
 ## Optional: Connect Brain
 
-For deeper intelligence powered by a 21K-node knowledge graph:
+For deeper intelligence powered by a 23K-node knowledge graph with 170K+ relationships:
 
 ```
 /mindrian-os:setup brain
