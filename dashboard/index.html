@@ -1444,13 +1444,194 @@
       });
     });
 
-    // ── Timeline mode (placeholder -- fully implemented in Task 2) ──
+    // ── Timeline Mode ──
+
     function stopTimelineAnimations() {
       if (timelineAnimInterval) {
         clearInterval(timelineAnimInterval);
         timelineAnimInterval = null;
       }
     }
+
+    // Map date string to X pixel position
+    function dateToX(dateStr, minDate, maxDate, containerWidth) {
+      var padLeft = 100;
+      var padRight = 100;
+      var usableWidth = containerWidth - padLeft - padRight;
+
+      if (!dateStr) return padLeft; // missing date -> left edge
+
+      var d = new Date(dateStr + 'T00:00:00');
+      if (isNaN(d.getTime())) return padLeft;
+
+      // Single meeting -> center
+      if (minDate === maxDate) return containerWidth / 2;
+
+      var range = maxDate - minDate;
+      if (range === 0) return containerWidth / 2;
+
+      var fraction = (d.getTime() - minDate) / range;
+      return padLeft + fraction * usableWidth;
+    }
+
+    // Map section ID to Y pixel position
+    function sectionToY(sectionId, containerHeight) {
+      var sections = [
+        'problem-definition', 'market-analysis', 'solution-design',
+        'business-model', 'competitive-analysis', 'team-execution',
+        'legal-ip', 'financial-model'
+      ];
+      var padTop = 200; // meetings row at Y=100, sections start at 200
+      var padBottom = 100;
+      var usableHeight = containerHeight - padTop - padBottom;
+      var idx = sections.indexOf(sectionId);
+      if (idx === -1) idx = 0;
+      var step = usableHeight / Math.max(sections.length - 1, 1);
+      return padTop + idx * step;
+    }
+
+    function enterTimelineMode() {
+      if (!cy) return;
+      timelineMode = true;
+      document.getElementById('btn-timeline').classList.add('active');
+
+      // Collect meeting dates
+      var meetingNodes = cy.nodes('.meeting');
+      var dates = [];
+      meetingNodes.forEach(function(n) {
+        var d = n.data('meeting_date');
+        if (d) {
+          var t = new Date(d + 'T00:00:00').getTime();
+          if (!isNaN(t)) dates.push(t);
+        }
+      });
+
+      var minDate = dates.length > 0 ? Math.min.apply(null, dates) : Date.now();
+      var maxDate = dates.length > 0 ? Math.max.apply(null, dates) : Date.now();
+
+      var container = document.getElementById('cy');
+      var cw = container.clientWidth || 1200;
+      var ch = container.clientHeight || 600;
+
+      // Hide speakers and concepts in timeline mode (reduce clutter)
+      cy.nodes('.speaker').hide();
+      cy.nodes('.concept').hide();
+
+      // Build position map
+      var positionMap = {};
+
+      // Meeting nodes: X by date, Y at top row
+      meetingNodes.forEach(function(n) {
+        positionMap[n.id()] = {
+          x: dateToX(n.data('meeting_date'), minDate, maxDate, cw),
+          y: 100
+        };
+      });
+
+      // Section-group nodes: horizontal band labels on Y axis
+      cy.nodes('.section-group').forEach(function(n) {
+        positionMap[n.id()] = {
+          x: cw / 2,
+          y: sectionToY(n.id(), ch)
+        };
+      });
+
+      // Artifact nodes: X by created date or parent meeting date, Y by section
+      cy.nodes('.artifact').forEach(function(n) {
+        var artifactDate = n.data('created') || null;
+        // If filed from a meeting, try to find the meeting date
+        if (!artifactDate) {
+          var filedEdges = n.connectedEdges('.filed-to');
+          if (filedEdges.length > 0) {
+            var meetingNode = filedEdges.connectedNodes('.meeting').first();
+            if (meetingNode && meetingNode.data('meeting_date')) {
+              artifactDate = meetingNode.data('meeting_date');
+            }
+          }
+        }
+        var xPos = dateToX(artifactDate, minDate, maxDate, cw);
+        var section = n.data('section') || n.data('parent') || 'problem-definition';
+        var yPos = sectionToY(section, ch);
+        positionMap[n.id()] = { x: xPos, y: yPos };
+      });
+
+      // Run preset layout with positions function
+      cy.layout({
+        name: 'preset',
+        positions: function(node) {
+          return positionMap[node.id()] || { x: 100, y: ch / 2 };
+        },
+        animate: true,
+        animationDuration: 300,
+        fit: true,
+        padding: 40
+      }).run();
+
+      // Start edge animations for REINFORCES (green pulse) and CONTRADICTS (red pulse)
+      startTimelineEdgeAnimations();
+    }
+
+    function exitTimelineMode() {
+      if (!cy) return;
+      timelineMode = false;
+      document.getElementById('btn-timeline').classList.remove('active');
+
+      // Stop animations
+      stopTimelineAnimations();
+
+      // Reset edge styles
+      cy.edges('.reinforces').style({ 'width': 2, 'opacity': 1 });
+      cy.edges('.contradicts').style({ 'width': 2, 'opacity': 1 });
+
+      // Restore speaker/concept visibility based on layer state
+      if (layerState.content) {
+        cy.nodes('.speaker').show();
+      }
+      if (layerState.intelligence) {
+        cy.nodes('.concept').show();
+      }
+
+      // Re-apply current preset filters
+      applyPreset(activePreset);
+
+      // Re-run CoSE layout
+      cy.layout({
+        name: 'cose',
+        nodeRepulsion: function() { return 8000; },
+        idealEdgeLength: function() { return 120; },
+        gravity: 0.25,
+        animate: true,
+        animationDuration: 300,
+        padding: 40
+      }).run();
+    }
+
+    function startTimelineEdgeAnimations() {
+      stopTimelineAnimations();
+      var tick = 0;
+      timelineAnimInterval = setInterval(function() {
+        if (!cy || !timelineMode) { stopTimelineAnimations(); return; }
+        tick++;
+        // Pulse REINFORCES edges: oscillate width between 2 and 4, opacity between 0.6 and 1
+        var reinforcesWidth = 2 + 2 * Math.abs(Math.sin(tick * 0.15));
+        var reinforcesOpacity = 0.6 + 0.4 * Math.abs(Math.sin(tick * 0.15));
+        cy.edges('.reinforces').style({ 'width': reinforcesWidth, 'opacity': reinforcesOpacity });
+
+        // Pulse CONTRADICTS edges: oscillate width between 2 and 4, phase-shifted
+        var contradictsWidth = 2 + 2 * Math.abs(Math.cos(tick * 0.12));
+        var contradictsOpacity = 0.6 + 0.4 * Math.abs(Math.cos(tick * 0.12));
+        cy.edges('.contradicts').style({ 'width': contradictsWidth, 'opacity': contradictsOpacity });
+      }, 60);
+    }
+
+    // ── Timeline toggle event listener ──
+    document.getElementById('btn-timeline').addEventListener('click', function() {
+      if (timelineMode) {
+        exitTimelineMode();
+      } else {
+        enterTimelineMode();
+      }
+    });
 
     // ── Boot ──
     loadGraph();
