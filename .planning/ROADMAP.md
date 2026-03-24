@@ -104,12 +104,12 @@ Plans:
   4. Grant progress with deadlines and next actions is tracked in the funding section STATE.md
   5. Cross-references link funding entries back to their opportunity-bank sources
   6. All Opportunity Bank and Funding Room operations work identically via CLI commands and MCP tools (Desktop/Cowork)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 13-01: TBD
-- [ ] 13-02: TBD
-- [ ] 13-03: TBD
+- [ ] 13-01-PLAN.md — Core module, reference templates, test fixtures, test suite
+- [ ] 13-02-PLAN.md — Context-driven grant discovery, opportunity filing, CLI + MCP integration
+- [ ] 13-03-PLAN.md — Funding lifecycle management, cross-references, CLI + MCP integration
 
 ### Phase 14: AI Team Personas
 **Goal**: Larry can adopt domain expert perspectives generated from room intelligence — accessible from both CLI plugin and MCP server
@@ -140,5 +140,5 @@ Phases 11 and 12 can run in parallel after Phase 10 completes. Phase 13 requires
 | 10. Shared Core + CLI Tools | 2/2 | Complete    | 2026-03-24 | - |
 | 11. MCP Server | 3/3 | Complete    | 2026-03-24 | - |
 | 12. Brain Hosting | 2/2 | Complete    | 2026-03-24 | - |
-| 13. Opportunity Bank + Funding Room | v3.0 | 0/TBD | Not started | - |
+| 13. Opportunity Bank + Funding Room | v3.0 | 0/3 | Not started | - |
 | 14. AI Team Personas | v3.0 | 0/TBD | Not started | - |
