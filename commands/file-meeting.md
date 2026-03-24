@@ -69,20 +69,94 @@ Run `bash scripts/transcribe-audio <path>` and use the output as the transcript.
 
 Also capture the full JSON response (written to temp file via stderr) for emotion data parsing downstream.
 
-### `--latest` / `--join <url>` -- Future Modes
+### `--latest` -- Auto-Fetch Mode
+
+Automatically fetch the most recent meeting transcript from a configured meeting source (Read AI, Vexa, or Recall.ai).
+
+#### 1. Check for Configured Meeting Source
+
+Read `.mcp.json` in the workspace root and look for meeting source keys under `mcpServers`:
+
+- `read-ai` -- Read AI MCP
+- `vexa` -- Vexa MCP
+- `recall-ai` -- Recall.ai MCP
+
+**If no meeting source configured:**
+> "No meeting source configured. Run `/mindrian-os:setup meetings` first, or paste your transcript here."
+
+Then fall back to default paste mode (continue to the paste prompt above).
+
+#### 2. Fetch Recent Meetings
+
+If a meeting source is found, detect which provider by the key name in `mcpServers` and call its list tool:
+
+| Provider | MCP Tool Call | Returns |
+|----------|--------------|---------|
+| Read AI | `mcp__read-ai__list-meetings` | Recent meetings with titles, dates, durations |
+| Vexa | `mcp__vexa__list-sessions` | Recent sessions with metadata |
+| Recall.ai | `mcp__recall-ai__list-meetings` | Recent meetings with participant info |
+
+Present the 5 most recent meetings in a table:
+
+```
+| # | Date       | Title                          | Duration | Participants |
+|---|------------|--------------------------------|----------|--------------|
+| 1 | 2026-03-23 | Weekly Team Sync               | 45min    | 4            |
+| 2 | 2026-03-22 | Investor Update Call           | 30min    | 3            |
+| 3 | 2026-03-21 | Product Review                 | 1h 15min | 6            |
+| 4 | 2026-03-20 | Mentor Session with Lawrence   | 50min    | 2            |
+| 5 | 2026-03-19 | Customer Discovery Interview   | 35min    | 3            |
+```
+
+> "Grabbing your latest meeting. Or pick a different one: [1-5]"
+
+Default to #1 (most recent) if user confirms or presses enter. If user selects a number, use that meeting.
+
+#### 3. Fetch Transcript
+
+Call the source's transcript retrieval tool with the selected session/meeting ID:
+
+| Provider | MCP Tool Call |
+|----------|--------------|
+| Read AI | `mcp__read-ai__get-transcript` with the session ID |
+| Vexa | `mcp__vexa__get-transcript` with the session ID |
+| Recall.ai | `mcp__recall-ai__get-meeting-transcript` with the meeting ID |
+
+Use the returned transcript text as input to Step 1 format detection (proceed to "Infer Meeting Metadata" below).
+
+Set source metadata to the meeting provider name (e.g., `read-ai`, `vexa`, or `recall-ai`) for artifact provenance tracking.
+
+#### 4. Handle MCP Errors
+
+**Auth errors (401/403):**
+> "Authentication expired. Re-run `/mindrian-os:setup meetings` to reconnect."
+
+Then fall back to paste mode. Never block the pipeline.
+
+**Network / other errors:**
+> "Could not reach {source}. Check your connection. Meanwhile, paste the transcript or use `--file`."
+
+Then fall back to paste mode. Never block the pipeline.
+
+**Empty response (no meetings found):**
+> "No recent meetings found in {source}. Your meeting tool might not have recorded anything recently. Paste the transcript here instead."
+
+Then fall back to paste mode.
+
+### `--join <url>` -- Future Mode
 
 Print:
-> "Not yet available. Coming in a future update. Use paste, `--file`, or `--audio` for now."
+> "Not yet available. Coming in a future update. Use `--latest`, paste, `--file`, or `--audio` for now."
 
-These flags are designed in `references/meeting/live-join-interface.md` but not implemented in Phase 6.
+This flag is designed in `references/meeting/live-join-interface.md` but not implemented until v3.0.
 
 ### Infer Meeting Metadata
 
 After getting the transcript content, infer metadata from content and Data Room context:
 
-- **Meeting date**: Extract from timestamps in transcript, file modification date, or ask user
+- **Meeting date**: Extract from timestamps in transcript, file modification date, or ask user. When `--latest` is used, the meeting date comes directly from the MCP response metadata -- no need to infer from transcript content.
 - **Meeting purpose**: Infer from content themes and dominant topics
-- **Participant count**: Count unique speaker labels
+- **Participant count**: Count unique speaker labels. When `--latest` is used, the participant count comes from the MCP response metadata and can be cross-checked against speaker labels in the transcript.
 
 Present inferences for confirmation:
 > "This looks like a {type} meeting from {date} with {N} participants. Correct?"
