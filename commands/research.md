@@ -3,7 +3,6 @@ name: research
 description: External web research with Brain cross-reference -- find evidence for your venture
 allowed-tools:
   - Read
-disable-model-invocation: true
 ---
 
 # /mindrian-os:research [topic]

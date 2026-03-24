@@ -1,28 +1,50 @@
 {
   "elements": {
     "nodes": [
-        { "data": { "id": "problem-definition", "label": "PROBLEM DEFINITION", "color": "#A63D2F" }, "classes": "section-group" },
-    { "data": { "id": "market-analysis", "label": "MARKET ANALYSIS", "color": "#C8A43C" }, "classes": "section-group" },
-    { "data": { "id": "solution-design", "label": "SOLUTION DESIGN", "color": "#5C5A56" }, "classes": "section-group" },
-    { "data": { "id": "business-model", "label": "BUSINESS MODEL", "color": "#2D6B4A" }, "classes": "section-group" },
-    { "data": { "id": "competitive-analysis", "label": "COMPETITIVE ANALYSIS", "color": "#B5602A" }, "classes": "section-group" },
-    { "data": { "id": "team-execution", "label": "TEAM & EXECUTION", "color": "#1E3A6E" }, "classes": "section-group" },
-    { "data": { "id": "legal-ip", "label": "LEGAL & IP", "color": "#6B4E8B" }, "classes": "section-group" },
-    { "data": { "id": "financial-model", "label": "FINANCIAL MODEL", "color": "#2A6B5E" }, "classes": "section-group" }
+        { "data": { "id": "problem-definition", "label": "PROBLEM DEFINITION", "color": "#A63D2F", "layer": "structure" }, "classes": "section-group" },
+    { "data": { "id": "market-analysis", "label": "MARKET ANALYSIS", "color": "#C8A43C", "layer": "structure" }, "classes": "section-group" },
+    { "data": { "id": "solution-design", "label": "SOLUTION DESIGN", "color": "#5C5A56", "layer": "structure" }, "classes": "section-group" },
+    { "data": { "id": "business-model", "label": "BUSINESS MODEL", "color": "#2D6B4A", "layer": "structure" }, "classes": "section-group" },
+    { "data": { "id": "competitive-analysis", "label": "COMPETITIVE ANALYSIS", "color": "#B5602A", "layer": "structure" }, "classes": "section-group" },
+    { "data": { "id": "team-execution", "label": "TEAM & EXECUTION", "color": "#1E3A6E", "layer": "structure" }, "classes": "section-group" },
+    { "data": { "id": "legal-ip", "label": "LEGAL & IP", "color": "#6B4E8B", "layer": "structure" }, "classes": "section-group" },
+    { "data": { "id": "financial-model", "label": "FINANCIAL MODEL", "color": "#2A6B5E", "layer": "structure" }, "classes": "section-group" },
+    { "data": { "id": "problem-definition/problem-brief", "label": "problem-brief", "section": "problem-definition", "color": "#A63D2F", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "problem-definition" }, "classes": "artifact" },
+    { "data": { "id": "market-analysis/market-scan", "label": "market-scan", "section": "market-analysis", "color": "#C8A43C", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "market-analysis" }, "classes": "artifact" },
+    { "data": { "id": "meeting/2026-01-15-kick-off", "label": "kick-off", "meeting_date": "2026-01-15", "speakers": "test-speaker", "decisions_count": "1", "action_items_count": "1", "color": "#D4A843", "layer": "content" }, "classes": "meeting" },
+    { "data": { "id": "meeting/2026-02-10-follow-up", "label": "follow-up", "meeting_date": "2026-02-10", "speakers": "test-speaker", "decisions_count": "0", "action_items_count": "2", "color": "#D4A843", "layer": "content" }, "classes": "meeting" },
+    { "data": { "id": "speaker/test-speaker", "label": "test-speaker", "role": "mentor", "role_type": "mentors", "color": "#1E3A6E", "layer": "content" }, "classes": "speaker" },
+    { "data": { "id": "concept/market-sizing", "label": "market-sizing", "ref_count": 3, "color": "#C8A43C", "layer": "intelligence" }, "classes": "concept unresolved" },
+    { "data": { "id": "concept/wicked-problems", "label": "wicked-problems", "ref_count": 3, "color": "#C8A43C", "layer": "intelligence" }, "classes": "concept unresolved" }
     ],
     "edges": [
-    
+        { "data": { "id": "e0", "source": "speaker/test-speaker", "target": "meeting/2026-01-15-kick-off", "type": "SPOKE_IN", "label": "spoke in", "source_type": "meeting" }, "classes": "spoke-in" },
+    { "data": { "id": "e1", "source": "speaker/test-speaker", "target": "meeting/2026-01-15-kick-off", "type": "ATTENDED", "label": "attended", "source_type": "meeting" }, "classes": "attended" },
+    { "data": { "id": "e2", "source": "speaker/test-speaker", "target": "meeting/2026-02-10-follow-up", "type": "SPOKE_IN", "label": "spoke in", "source_type": "meeting" }, "classes": "spoke-in" },
+    { "data": { "id": "e3", "source": "speaker/test-speaker", "target": "meeting/2026-02-10-follow-up", "type": "ATTENDED", "label": "attended", "source_type": "meeting" }, "classes": "attended" },
+    { "data": { "id": "e4", "source": "meetings/2026-01-15-kick-off/summary", "target": "concept/market-sizing", "type": "REFERENCES", "label": "references", "source_type": "wikilink" }, "classes": "references" },
+    { "data": { "id": "e5", "source": "problem-definition/problem-brief", "target": "concept/market-sizing", "type": "REFERENCES", "label": "references", "source_type": "wikilink" }, "classes": "references" },
+    { "data": { "id": "e6", "source": "market-analysis/market-scan", "target": "concept/market-sizing", "type": "REFERENCES", "label": "references", "source_type": "wikilink" }, "classes": "references" },
+    { "data": { "id": "e7", "source": "meetings/2026-02-10-follow-up/summary", "target": "concept/assumption-tracking", "type": "REFERENCES", "label": "references", "source_type": "wikilink" }, "classes": "references" },
+    { "data": { "id": "e8", "source": "meetings/2026-01-15-kick-off/summary", "target": "concept/wicked-problems", "type": "REFERENCES", "label": "references", "source_type": "wikilink" }, "classes": "references" },
+    { "data": { "id": "e9", "source": "meetings/2026-02-10-follow-up/summary", "target": "concept/wicked-problems", "type": "REFERENCES", "label": "references", "source_type": "wikilink" }, "classes": "references" },
+    { "data": { "id": "e10", "source": "problem-definition/problem-brief", "target": "concept/wicked-problems", "type": "REFERENCES", "label": "references", "source_type": "wikilink" }, "classes": "references" },
+    { "data": { "id": "e11", "source": "meeting/2026-01-15-kick-off", "target": "meeting/2026-02-10-follow-up", "type": "REINFORCES", "label": "convergence signal", "source_type": "intelligence" }, "classes": "reinforces" },
+    { "data": { "id": "e12", "source": "meeting/2026-01-15-kick-off", "target": "meeting/2026-02-10-follow-up", "type": "CONTRADICTS", "label": "contradiction", "source_type": "intelligence" }, "classes": "contradicts" }
     ]
   },
   "intelligence": {
-    "gaps": [],
+    "gaps": [{ "type": "STRUCTURAL", "section": "solution-design", "confidence": "HIGH", "message": "Section is empty" }, { "type": "STRUCTURAL", "section": "business-model", "confidence": "HIGH", "message": "Section is empty" }, { "type": "STRUCTURAL", "section": "competitive-analysis", "confidence": "HIGH", "message": "Section is empty" }, { "type": "STRUCTURAL", "section": "team-execution", "confidence": "HIGH", "message": "Section is empty" }, { "type": "MEETING_COVERAGE", "section": "problem-definition", "confidence": "LOW", "message": "No meeting insights filed here -- is this section discussed in meetings?" }, { "type": "MEETING_COVERAGE", "section": "market-analysis", "confidence": "LOW", "message": "No meeting insights filed here -- is this section discussed in meetings?" }],
     "convergence": [],
     "contradictions": [],
     "summary": {
-      "total_artifacts": 0,
+      "total_artifacts": 2,
+      "meeting_count": 2,
+      "speaker_count": 1,
+      "concept_count": 2,
       "venture_stage": "Pre-Opportunity",
-      "sections_active": 0,
-      "sections_empty": 8
+      "sections_active": 2,
+      "sections_empty": 6
     }
   }
 }

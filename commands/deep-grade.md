@@ -3,7 +3,6 @@ name: deep-grade
 description: Calibrated venture assessment -- scored against 100+ real projects
 allowed-tools:
   - Read
-disable-model-invocation: true
 ---
 
 # /mindrian-os:deep-grade

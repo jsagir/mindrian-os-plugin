@@ -6,7 +6,6 @@ allowed-tools:
   - Write
   - Bash
   - Glob
-disable-model-invocation: true
 ---
 
 # /mindrian-os:explore-trends

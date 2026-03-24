@@ -5,7 +5,6 @@ allowed-tools:
   - Read
   - mcp__neo4j-brain__read_neo4j_cypher
   - mcp__pinecone-brain__search-records
-disable-model-invocation: true
 ---
 
 # /mindrian-os:suggest-next

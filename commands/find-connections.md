@@ -4,7 +4,6 @@ description: Cross-domain pattern discovery -- what connects to your work?
 allowed-tools:
   - Read
   - mcp__neo4j-brain__read_neo4j_cypher
-disable-model-invocation: true
 ---
 
 # /mindrian-os:find-connections
