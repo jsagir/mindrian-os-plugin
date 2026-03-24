@@ -354,6 +354,8 @@ Include ALL provenance fields:
 - perspective: {speaker_role}
 - cascade_sections: {sections this may affect beyond target}
 
+When writing the artifact content, auto-insert [[concept-name]] links for key concepts that connect this segment to other parts of the Data Room. Use [[section-name]] for cross-section references (existing pattern) and [[concept-name]] for domain concepts, frameworks, or recurring themes. Examples: [[wicked-problems]], [[assumption-tracking]], [[market-sizing]], [[competitive-moat]]. These wikilinks feed the knowledge graph -- build-graph parses them into concept nodes and REFERENCES edges. Users can also manually add [[wikilinks]] to any room artifact at any time.
+
 Speaker contributions are tracked via computed backlinks in PROFILE.md (run by compute-team), not by filing copies to speaker subfolders.
 
 Track: total segments filed, total rejected, sections touched.

@@ -21,6 +21,7 @@ Parse the user's argument to determine which document type they want. If no argu
 | **summary** | `/mindrian-os:export summary` | Executive summary: dense 1-2 page overview for quick stakeholder review. Two-column layout with financial metrics box. |
 | **report** | `/mindrian-os:export report` | Due diligence report: comprehensive numbered sections with table of contents and PDF bookmarks. |
 | **profile** | `/mindrian-os:export profile` | PWS Profile: single-page professional profile built from your methodology work -- domain expertise, thinking perspectives, customer understanding, and professional background. |
+| **meeting-report** | `/mindrian-os:export meeting-report` | Meeting intelligence report: Minto pyramid structure covering all meetings with speaker attribution, decisions, contradictions, and section-colored filing indicators. |
 
 ## Generate the PDF
 
