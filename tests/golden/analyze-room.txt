@@ -1,0 +1,18 @@
+## Gaps
+GAP:SEMANTIC:problem-definition:MEDIUM:Only analyzed via minto-pyramid -- consider additional perspectives
+GAP:SEMANTIC:market-analysis:MEDIUM:Only analyzed via tam-sam-som -- consider additional perspectives
+GAP:STRUCTURAL:solution-design:HIGH:Section is empty
+GAP:STRUCTURAL:business-model:HIGH:Section is empty
+GAP:STRUCTURAL:competitive-analysis:HIGH:Section is empty
+GAP:STRUCTURAL:team-execution:HIGH:Section is empty
+
+## Convergence
+No convergence signals detected yet.
+
+## Contradictions
+No structural contradictions detected.
+
+## Meeting Coverage
+No meetings filed yet. Use /mindrian-os:file-meeting to capture meeting intelligence.
+
+## End
