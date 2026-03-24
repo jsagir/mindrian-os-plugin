@@ -43,8 +43,8 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 
 - [ ] **XMTG-01**: Meeting summary artifacts include convergence detection (same topic mentioned across multiple meetings)
 - [ ] **XMTG-02**: Contradiction detection works across meetings (speaker said X in meeting 1, Y in meeting 2)
-- [ ] **XMTG-03**: Action items are tracked across meetings -- Larry flags incomplete actions from prior meetings
-- [ ] **XMTG-04**: Team contribution analysis: which team members are most active, which are silent, which always raise the same concern
+- [x] **XMTG-03**: Action items are tracked across meetings -- Larry flags incomplete actions from prior meetings
+- [x] **XMTG-04**: Team contribution analysis: which team members are most active, which are silent, which always raise the same concern
 
 ### Meeting as Graph Nodes
 
@@ -110,8 +110,8 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 | RDAI-03 | Phase 8 | Complete |
 | XMTG-01 | Phase 8 | Pending |
 | XMTG-02 | Phase 8 | Pending |
-| XMTG-03 | Phase 8 | Pending |
-| XMTG-04 | Phase 8 | Pending |
+| XMTG-03 | Phase 8 | Complete |
+| XMTG-04 | Phase 8 | Complete |
 | GRAP-01 | Phase 9 | Pending |
 | GRAP-02 | Phase 9 | Pending |
 | GRAP-03 | Phase 9 | Pending |
