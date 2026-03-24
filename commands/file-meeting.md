@@ -26,10 +26,43 @@ Load all reference files and context before starting:
 6. Read `references/meeting/summary-template.md` for narrative + structured dual storage format
 7. Read `references/meeting/speaker-profile-template.md` for ICM nested folder profiles
 8. Read `references/meeting/cross-relationship-patterns.md` (if file exists -- skip gracefully if not)
-9. Read `room/STATE.md` for venture context (if exists)
-10. Scan `room/team/` for known speaker profiles: glob `room/team/*/*/PROFILE.md`
+9. Read `references/meeting/cross-meeting-intelligence.md` for cross-meeting convergence/contradiction detection and action item triage protocols
+10. Read `room/STATE.md` for venture context (if exists)
+11. Scan `room/team/` for known speaker profiles: glob `room/team/*/*/PROFILE.md`
 
 Track any newly created speaker profiles in a list called `new_profiles` for the post-pipeline research step.
+
+---
+
+## Step 0: Action Item Triage (Pre-Filing)
+
+Before starting the filing pipeline, check for open action items from prior meetings.
+
+### Load Open Items
+
+Read `room/action-items.md` if it exists. If the file does not exist or has zero open items, skip Step 0 entirely and proceed to Step 1.
+
+### Present Quick Triage
+
+Show open items as a pre-flight check (not an interrogation):
+
+> "3 open items from your last meeting. Quick check -- any done?"
+>
+> | # | Owner | Task | From Meeting |
+> |---|-------|------|--------------|
+> | 1 | Lawrence | Review TAM analysis | 2026-03-15-mentoring |
+> | 2 | Sarah | Send competitor deck | 2026-03-15-mentoring |
+> | 3 | Tyler | Schedule user interviews | 2026-03-10-research |
+>
+> [mark done: 1,3 / skip / review all]
+
+### Handle Responses
+
+- **mark done (e.g., "1,3")**: Update each item's status from `open` to `done` in the SOURCE meeting's action-items.md file (not the aggregated file). Find the source by the meeting_id in the aggregated table.
+- **skip**: Move on to Step 1. No changes.
+- **review all**: Show each item individually for yes/no.
+
+Track items marked done for inclusion in this meeting's summary ("Cleared 2 action items from prior meetings").
 
 ---
 
@@ -288,6 +321,14 @@ When the user rejects a filing, offer structured rejection reasons:
 
 Capture the rejection reason. This becomes graph data per the wicked problem architecture (rejection IS data).
 
+### Cross-Reference Against Open Action Items
+
+During filing, if any open action items remain (not cleared in Step 0), compare each segment being filed against them. If a segment appears to address or complete an open action item:
+
+> "This looks like progress on Lawrence's 'Review TAM analysis'. Mark as done?"
+
+Use Larry's judgment -- not exact text matching. Only surface when confidence is high. If user confirms, update the source meeting's action-items.md.
+
 ### Create Filed Artifacts
 
 For each filed segment, create a markdown file in the target room section using the frontmatter from `references/meeting/artifact-template.md`:
@@ -404,6 +445,10 @@ Structure:
 7. **## Rejections** -- segments rejected with structured reasons. This IS data -- do not hide or minimize rejections.
 
 8. **## Speakers** -- {count} speakers with roles and contribution summary
+
+9. **## Convergence Signals** -- topics appearing in 3+ meetings across the meeting history. Only include if convergence was detected. Skip section entirely if none.
+
+10. **## Cross-Meeting Contradictions** -- contradictions detected against prior meetings (beyond within-meeting contradictions in section 4). Only include if cross-meeting contradictions were found.
 
 ### Create Decisions Log
 
@@ -566,6 +611,27 @@ Present in priority order (INVALIDATES > CONTRADICTS > CONVERGES > ENABLES > INF
 
 > "No significant cross-relationships detected from this meeting's content against your existing Data Room. As your room grows, cross-meeting intelligence will get richer."
 
+### Cross-Meeting Intelligence Scan
+
+After the within-meeting cross-relationship scan, perform cross-meeting pattern detection using the protocols from `references/meeting/cross-meeting-intelligence.md`:
+
+#### Convergence Detection
+1. Extract key topics from the current meeting's metadata (topics inferred from filed segments)
+2. Grep `topics:` across all `room/meetings/*/metadata.yaml` files
+3. Any topic in 3+ meetings (including this one) = convergence signal
+4. Surface each: "Market validation has been raised in 4 of your last 6 meetings. This is becoming a central theme."
+
+#### Contradiction Detection
+1. Pre-filter prior meetings that share topics/speakers with current meeting (via metadata.yaml grep)
+2. Load summaries from up to 10 matching prior meetings
+3. Use Larry's reasoning to detect position changes or disagreements across meetings
+4. HIGH-impact contradictions (financials, strategy, key decisions): surface immediately with specific references
+5. LOW-impact contradictions (opinions, preferences): note in meeting summary
+
+#### Record Findings
+- Add convergence signals and cross-meeting contradictions to the meeting summary (new sections in Step 5)
+- Present the combined cross-relationship + cross-meeting findings to the user in priority order
+
 ---
 
 ## Post-Pipeline: Proactive Speaker Research
@@ -600,6 +666,9 @@ After all steps complete (including optional research):
 
 If cross-relationships were found, add:
 > "I flagged {X} cross-relationships worth reviewing."
+
+If cross-meeting intelligence was detected, add:
+> "{Y} convergence signals and {Z} cross-meeting contradictions detected."
 
 ---
 
