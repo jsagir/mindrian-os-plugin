@@ -35,9 +35,9 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 
 ### Read AI MCP Integration
 
-- [ ] **RDAI-01**: `/mindrian-os:setup meetings` connects Read AI MCP for automatic transcript pull
-- [ ] **RDAI-02**: `/mindrian-os:file-meeting --latest` auto-fetches the most recent meeting transcript from Read AI without paste
-- [ ] **RDAI-03**: Read AI MCP config stored in project-level .mcp.json (same pattern as Brain setup)
+- [x] **RDAI-01**: `/mindrian-os:setup meetings` connects Read AI MCP for automatic transcript pull
+- [x] **RDAI-02**: `/mindrian-os:file-meeting --latest` auto-fetches the most recent meeting transcript from Read AI without paste
+- [x] **RDAI-03**: Read AI MCP config stored in project-level .mcp.json (same pattern as Brain setup)
 
 ### Cross-Meeting Intelligence
 
@@ -105,9 +105,9 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 | ARCH-01 | Phase 7 | Complete |
 | ARCH-02 | Phase 7 | Complete |
 | ARCH-03 | Phase 7 | Complete |
-| RDAI-01 | Phase 8 | Pending |
-| RDAI-02 | Phase 8 | Pending |
-| RDAI-03 | Phase 8 | Pending |
+| RDAI-01 | Phase 8 | Complete |
+| RDAI-02 | Phase 8 | Complete |
+| RDAI-03 | Phase 8 | Complete |
 | XMTG-01 | Phase 8 | Pending |
 | XMTG-02 | Phase 8 | Pending |
 | XMTG-03 | Phase 8 | Pending |
