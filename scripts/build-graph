@@ -109,7 +109,7 @@ artifact_count=0
 for section in "${SECTIONS[@]}"; do
   color="${SECTION_COLORS[$section]}"
   label="${SECTION_LABELS[$section]}"
-  node="{ \"data\": { \"id\": \"${section}\", \"label\": \"${label}\", \"color\": \"${color}\" }, \"classes\": \"section-group\" }"
+  node="{ \"data\": { \"id\": \"${section}\", \"label\": \"${label}\", \"color\": \"${color}\", \"layer\": \"structure\" }, \"classes\": \"section-group\" }"
   if [ -n "$nodes" ]; then
     nodes="${nodes},
     ${node}"
@@ -145,7 +145,7 @@ if [ -d "$ROOM_DIR" ]; then
 
       color="${SECTION_COLORS[$section]}"
 
-      node="{ \"data\": { \"id\": \"${artifact_id}\", \"label\": \"${title}\", \"section\": \"${section}\", \"color\": \"${color}\", \"methodology\": \"${methodology}\", \"created\": \"${created}\", \"pipeline\": \"${pipeline}\", \"pipeline_stage\": \"${pipeline_stage}\", \"parent\": \"${section}\" }, \"classes\": \"artifact\" }"
+      node="{ \"data\": { \"id\": \"${artifact_id}\", \"label\": \"${title}\", \"section\": \"${section}\", \"color\": \"${color}\", \"methodology\": \"${methodology}\", \"created\": \"${created}\", \"pipeline\": \"${pipeline}\", \"pipeline_stage\": \"${pipeline_stage}\", \"layer\": \"content\", \"parent\": \"${section}\" }, \"classes\": \"artifact\" }"
 
       nodes="${nodes},
     ${node}"
@@ -164,6 +164,94 @@ if [ -d "$ROOM_DIR" ]; then
   done
 fi
 
+# Meeting nodes (from room/meetings/ directories)
+meeting_count=0
+declare -A meeting_speakers  # meeting_id -> comma-separated speakers
+
+if [ -d "$ROOM_DIR/meetings" ]; then
+  for mdir in "$ROOM_DIR"/meetings/*/; do
+    [ -d "$mdir" ] || continue
+    dir_name=$(basename "$mdir")
+    meeting_date="${dir_name:0:10}"
+    meeting_name="${dir_name:11}"
+    meeting_id="meeting/${dir_name}"
+
+    # Read metadata.yaml for speakers list and counts
+    speakers_csv=""
+    decisions_count="0"
+    action_items_count="0"
+    if [ -f "${mdir}metadata.yaml" ]; then
+      in_speakers=false
+      while IFS= read -r yline; do
+        if [[ "$yline" =~ ^speakers: ]]; then
+          in_speakers=true
+          continue
+        fi
+        if $in_speakers; then
+          if [[ "$yline" =~ ^[[:space:]]*-[[:space:]]+(.*) ]]; then
+            spk="${BASH_REMATCH[1]}"
+            spk=$(echo "$spk" | tr -d '"' | xargs)
+            if [ -n "$speakers_csv" ]; then
+              speakers_csv="${speakers_csv},${spk}"
+            else
+              speakers_csv="${spk}"
+            fi
+          else
+            in_speakers=false
+          fi
+        fi
+        if [[ "$yline" =~ ^decisions_count:[[:space:]]*(.*) ]]; then
+          decisions_count="${BASH_REMATCH[1]}"
+        fi
+        if [[ "$yline" =~ ^action_items_count:[[:space:]]*(.*) ]]; then
+          action_items_count="${BASH_REMATCH[1]}"
+        fi
+      done < "${mdir}metadata.yaml"
+    fi
+
+    meeting_speakers["$meeting_id"]="$speakers_csv"
+
+    label=$(json_escape "${meeting_name:-$dir_name}")
+    node="{ \"data\": { \"id\": \"${meeting_id}\", \"label\": \"${label}\", \"meeting_date\": \"${meeting_date}\", \"speakers\": \"$(json_escape "$speakers_csv")\", \"decisions_count\": \"${decisions_count}\", \"action_items_count\": \"${action_items_count}\", \"color\": \"#D4A843\", \"layer\": \"content\" }, \"classes\": \"meeting\" }"
+    nodes="${nodes},
+    ${node}"
+    node_count=$((node_count + 1))
+    meeting_count=$((meeting_count + 1))
+  done
+fi
+
+# Speaker nodes (from room/team/ profiles)
+speaker_count=0
+declare -A speaker_seen  # speaker name -> 1
+
+if [ -d "$ROOM_DIR/team" ]; then
+  for role_type in members mentors advisors; do
+    role_dir="$ROOM_DIR/team/${role_type}"
+    [ -d "$role_dir" ] || continue
+    for pdir in "$role_dir"/*/; do
+      [ -d "$pdir" ] || continue
+      person_name=$(basename "$pdir")
+      [ -n "${speaker_seen[$person_name]:-}" ] && continue
+      speaker_seen["$person_name"]=1
+
+      speaker_id="speaker/${person_name}"
+      role=""
+      if [ -f "${pdir}PROFILE.md" ]; then
+        role=$(get_field "${pdir}PROFILE.md" "role")
+        [ -z "$role" ] && role=$(get_field "${pdir}PROFILE.md" "primary_role")
+      fi
+      role="${role:-$role_type}"
+
+      label=$(json_escape "${person_name}")
+      node="{ \"data\": { \"id\": \"${speaker_id}\", \"label\": \"${label}\", \"role\": \"$(json_escape "$role")\", \"role_type\": \"${role_type}\", \"color\": \"#1E3A6E\", \"layer\": \"content\" }, \"classes\": \"speaker\" }"
+      nodes="${nodes},
+    ${node}"
+      node_count=$((node_count + 1))
+      speaker_count=$((speaker_count + 1))
+    done
+  done
+fi
+
 # ═══════════════════════════════════════════════
 # Phase 2: Build edges
 # ═══════════════════════════════════════════════
@@ -177,8 +265,9 @@ add_edge() {
   local etype="$3"
   local label="$4"
   local css_class="$5"
+  local source_type="${6:-room}"
 
-  local edge="{ \"data\": { \"id\": \"e${edge_count}\", \"source\": \"$(json_escape "$source")\", \"target\": \"$(json_escape "$target")\", \"type\": \"${etype}\", \"label\": \"$(json_escape "$label")\" }, \"classes\": \"${css_class}\" }"
+  local edge="{ \"data\": { \"id\": \"e${edge_count}\", \"source\": \"$(json_escape "$source")\", \"target\": \"$(json_escape "$target")\", \"type\": \"${etype}\", \"label\": \"$(json_escape "$label")\", \"source_type\": \"${source_type}\" }, \"classes\": \"${css_class}\" }"
   if [ -n "$edges" ]; then
     edges="${edges},
     ${edge}"
@@ -260,6 +349,45 @@ if [ -d "$ROOM_DIR" ]; then
     done
   done
 fi
+
+# Meeting edges: SPOKE_IN, ATTENDED, FILED_TO
+for mid in "${!meeting_speakers[@]}"; do
+  IFS=',' read -ra spk_arr <<< "${meeting_speakers[$mid]}"
+  for spk in "${spk_arr[@]}"; do
+    spk=$(echo "$spk" | xargs)
+    [ -z "$spk" ] && continue
+    speaker_id="speaker/${spk}"
+    # Create speaker node if not already seen (from metadata but no PROFILE.md)
+    if [ -z "${speaker_seen[$spk]:-}" ]; then
+      speaker_seen["$spk"]=1
+      label=$(json_escape "${spk}")
+      node="{ \"data\": { \"id\": \"${speaker_id}\", \"label\": \"${label}\", \"role\": \"\", \"role_type\": \"\", \"color\": \"#1E3A6E\", \"layer\": \"content\" }, \"classes\": \"speaker\" }"
+      nodes="${nodes},
+    ${node}"
+      node_count=$((node_count + 1))
+      speaker_count=$((speaker_count + 1))
+    fi
+    add_edge "$speaker_id" "$mid" "SPOKE_IN" "spoke in" "spoke-in" "meeting"
+    add_edge "$speaker_id" "$mid" "ATTENDED" "attended" "attended" "meeting"
+  done
+
+  # FILED_TO edges from meeting to sections/artifacts via filed-to/ symlinks
+  dir_name="${mid#meeting/}"
+  filed_dir="$ROOM_DIR/meetings/${dir_name}/filed-to"
+  if [ -d "$filed_dir" ]; then
+    for link in "$filed_dir"/*; do
+      [ -e "$link" ] || continue
+      target_path=$(readlink -f "$link" 2>/dev/null || echo "$link")
+      # Try to match to a section name
+      for sec in "${SECTIONS[@]}"; do
+        if [[ "$target_path" == *"/${sec}/"* ]] || [[ "$target_path" == *"/${sec}" ]]; then
+          add_edge "$mid" "$sec" "FILED_TO" "filed to" "filed-to" "meeting"
+          break
+        fi
+      done
+    done
+  fi
+done
 
 # ═══════════════════════════════════════════════
 # Phase 3: Build intelligence object
@@ -352,6 +480,8 @@ cat > "$OUTPUT_PATH" << ENDJSON
     "contradictions": [${contradictions_json}],
     "summary": {
       "total_artifacts": ${artifact_count},
+      "meeting_count": ${meeting_count},
+      "speaker_count": ${speaker_count},
       "venture_stage": "${venture_stage}",
       "sections_active": ${sections_active},
       "sections_empty": ${sections_empty}
