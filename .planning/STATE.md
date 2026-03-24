@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Meeting Intelligence
-status: completed
-stopped_at: Completed 09-03-PLAN.md
-last_updated: "2026-03-24T09:56:31.922Z"
-last_activity: 2026-03-24 -- Completed 08-03 cross-meeting intelligence in file-meeting pipeline
+status: executing
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-03-24T09:57:20.372Z"
+last_activity: 2026-03-24 -- Completed 09-01 three-layer knowledge graph with meeting/speaker/concept nodes
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 13
-  completed_plans: 11
-  percent: 100
+  completed_plans: 12
+  percent: 97
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-23)
 
 ## Current Position
 
-Phase: 8 of 9 (Cross-Meeting Intelligence)
-Plan: 3 of 3 in current phase
-Status: Phase Complete
-Last activity: 2026-03-24 -- Completed 08-03 cross-meeting intelligence in file-meeting pipeline
+Phase: 9 of 9 (Meeting Knowledge Graph)
+Plan: 1 of 3 in current phase
+Status: In Progress
+Last activity: 2026-03-24 -- Completed 09-01 three-layer knowledge graph with meeting/speaker/concept nodes
 
-Progress: [██████████] 100%
+Progress: [██████████] 97%
 
 ## Performance Metrics
 
@@ -63,6 +63,7 @@ Progress: [██████████] 100%
 | Phase 08 P02 | 3min | 2 tasks | 3 files |
 | Phase 08 P03 | 3min | 2 tasks | 2 files |
 | Phase 09 P03 | 3min | 2 tasks | 4 files |
+| Phase 09 P01 | 3min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -93,6 +94,7 @@ Recent decisions affecting current work:
 - [Phase 08]: Three-script computation chain: compute-state -> compute-team -> compute-meetings-intelligence
 - [Phase 08]: Action item lifecycle is simple open/done with 70% confidence threshold for cross-reference matching
 - [Phase 09]: Executive summary and logical claim in meeting-report are data-driven, not AI-generated
+- [Phase 09]: Concept nodes only for 2+ file references; unresolved concepts get separate CSS class; source_type on all edges
 
 ### Architectural Evolution (from Live Data Room Paper)
 
@@ -159,8 +161,8 @@ The HSI (Hybrid Similarity Index) and Reverse Salient Discovery tools are the CO
 
 ## Session Continuity
 
-Last session: 2026-03-24T09:56:31.918Z
-Stopped at: Completed 09-03-PLAN.md
+Last session: 2026-03-24T09:57:20.368Z
+Stopped at: Completed 09-01-PLAN.md
 Resume command: /gsd:execute-phase 6
 Resume file: None
 

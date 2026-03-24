@@ -48,10 +48,10 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 
 ### Meeting as Graph Nodes
 
-- [ ] **GRAP-01**: Each meeting becomes a node in the knowledge graph (dashboard/graph.json) -- colored distinctly, connected to all artifacts it produced
-- [ ] **GRAP-02**: Speaker nodes appear in the graph -- connected to their meeting nodes AND to the room sections they contributed to
-- [ ] **GRAP-03**: build-graph script reads meetings/ directory and generates meeting nodes + speaker nodes + SPOKE_IN / FILED_TO / ATTENDED edges
-- [ ] **GRAP-04**: Cross-meeting edges: when same speaker mentions same concept in two meetings -> REINFORCES edge; when two speakers contradict -> CONTRADICTS edge
+- [x] **GRAP-01**: Each meeting becomes a node in the knowledge graph (dashboard/graph.json) -- colored distinctly, connected to all artifacts it produced
+- [x] **GRAP-02**: Speaker nodes appear in the graph -- connected to their meeting nodes AND to the room sections they contributed to
+- [x] **GRAP-03**: build-graph script reads meetings/ directory and generates meeting nodes + speaker nodes + SPOKE_IN / FILED_TO / ATTENDED edges
+- [x] **GRAP-04**: Cross-meeting edges: when same speaker mentions same concept in two meetings -> REINFORCES edge; when two speakers contradict -> CONTRADICTS edge
 - [ ] **GRAP-05**: Meeting timeline view in dashboard -- meetings as a horizontal timeline with vertical edges showing what was filed from each
 
 ### Dashboard & Export Updates
@@ -112,10 +112,10 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 | XMTG-02 | Phase 8 | Complete |
 | XMTG-03 | Phase 8 | Complete |
 | XMTG-04 | Phase 8 | Complete |
-| GRAP-01 | Phase 9 | Pending |
-| GRAP-02 | Phase 9 | Pending |
-| GRAP-03 | Phase 9 | Pending |
-| GRAP-04 | Phase 9 | Pending |
+| GRAP-01 | Phase 9 | Complete |
+| GRAP-02 | Phase 9 | Complete |
+| GRAP-03 | Phase 9 | Complete |
+| GRAP-04 | Phase 9 | Complete |
 | GRAP-05 | Phase 9 | Pending |
 | DASH-06 | Phase 9 | Pending |
 | DASH-07 | Phase 9 | Complete |
