@@ -1,0 +1,16 @@
+{
+  "name": "mindrian-os-plugin",
+  "version": "0.4.2",
+  "description": "MindrianOS MCP server — Larry thinks with you through PWS methodology via Claude Desktop and Cowork",
+  "private": true,
+  "scripts": {
+    "mcp": "node bin/mindrian-mcp-server.cjs",
+    "parity": "node lib/parity/check-parity.cjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
