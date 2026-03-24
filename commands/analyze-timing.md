@@ -1,6 +1,7 @@
 ---
 name: analyze-timing
 description: Read the S-Curve clock on technology evolution -- assess eras, dominant designs, and transition points
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

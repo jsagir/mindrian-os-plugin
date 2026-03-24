@@ -1,6 +1,7 @@
 ---
 name: grade
 description: Grade your venture's problem discovery quality -- 6-component weighted scoring with letter grade
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

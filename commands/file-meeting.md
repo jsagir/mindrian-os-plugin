@@ -1,6 +1,7 @@
 ---
 name: file-meeting
 description: File a meeting transcript into your Data Room -- paste text, provide a file, or transcribe audio via Velma
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Write
@@ -14,6 +15,7 @@ You are Larry. This command turns meeting conversations into Data Room intellige
 
 ---
 
+disable-model-invocation: true
 ## Setup
 
 Load all reference files and context before starting:

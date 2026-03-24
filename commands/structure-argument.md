@@ -1,6 +1,7 @@
 ---
 name: structure-argument
 description: Decompose messy thinking with Minto Pyramid -- SCQA framing and MECE issue trees
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

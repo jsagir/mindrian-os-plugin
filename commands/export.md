@@ -1,6 +1,7 @@
 ---
 name: export
 description: Generate professional De Stijl PDFs from your Data Room -- thesis, summary, report, or profile
+disable-model-invocation: true
 allowed-tools:
   - Bash
   - Read

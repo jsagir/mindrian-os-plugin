@@ -1,6 +1,7 @@
 ---
 name: new-project
 description: Start a new venture project with Larry -- he'll explore your idea and create your Data Room
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Write
@@ -90,6 +91,7 @@ Each section gets a ROOM.md with this structure. **Tailor the starter questions 
 
 ```yaml
 ---
+disable-model-invocation: true
 section: {section-name}
 purpose: {one-line purpose}
 stage_relevance:

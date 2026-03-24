@@ -1,6 +1,7 @@
 ---
 name: think-hats
 description: Force perspective shifts with Six Thinking Hats -- diagnose defaults, rotate through all six, map tensions
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

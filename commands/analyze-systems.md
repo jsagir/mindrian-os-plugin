@@ -1,6 +1,7 @@
 ---
 name: analyze-systems
 description: Decompose complex systems into layers -- find where leverage lives
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

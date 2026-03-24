@@ -1,6 +1,7 @@
 ---
 name: build-thesis
 description: Run a full investment thesis analysis -- Ten Questions gate + 6-category deep dive + GO/NO-GO verdict
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

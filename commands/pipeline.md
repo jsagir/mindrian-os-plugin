@@ -1,6 +1,7 @@
 ---
 name: pipeline
 description: Run a multi-step methodology sequence -- frameworks chain output to input
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

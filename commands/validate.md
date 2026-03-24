@@ -1,6 +1,7 @@
 ---
 name: validate
 description: Validate ideas with evidence using importance-satisfaction mapping and Six Thinking Hats
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

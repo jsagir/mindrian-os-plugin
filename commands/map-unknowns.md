@@ -1,6 +1,7 @@
 ---
 name: map-unknowns
 description: Map what you know, don't know, and can't see -- Known/Unknown Matrix
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

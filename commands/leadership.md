@@ -1,6 +1,7 @@
 ---
 name: leadership
 description: Leadership coaching -- what kind of leader does your team actually need?
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

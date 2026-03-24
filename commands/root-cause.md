@@ -1,6 +1,7 @@
 ---
 name: root-cause
 description: Trace problems to their root cause using 5 Whys, Fishbone, Fault Tree, Barrier, or Change Analysis
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Write
