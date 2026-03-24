@@ -371,16 +371,24 @@ for mid in "${!meeting_speakers[@]}"; do
     add_edge "$speaker_id" "$mid" "ATTENDED" "attended" "attended" "meeting"
   done
 
-  # FILED_TO edges from meeting to sections/artifacts via filed-to/ symlinks
+  # FILED_TO edges from meeting to sections via filed-to/ pointer files
+  # Pointer files are markdown with the target path as text content (not symlinks)
   dir_name="${mid#meeting/}"
   filed_dir="$ROOM_DIR/meetings/${dir_name}/filed-to"
   if [ -d "$filed_dir" ]; then
     for link in "$filed_dir"/*; do
       [ -e "$link" ] || continue
-      target_path=$(readlink -f "$link" 2>/dev/null || echo "$link")
+      # Read target path: try symlink first, then parse file content
+      if [ -L "$link" ]; then
+        target_path=$(readlink -f "$link" 2>/dev/null || echo "$link")
+      else
+        target_path=$(head -5 "$link" 2>/dev/null | grep -oP '(?<=\().*?(?=\))|(?<=: ).*|^/.*|^room/.*' | head -1 || echo "$link")
+        # If no path found in content, use the filename as hint
+        [ -z "$target_path" ] && target_path=$(basename "$link" .md)
+      fi
       # Try to match to a section name
       for sec in "${SECTIONS[@]}"; do
-        if [[ "$target_path" == *"/${sec}/"* ]] || [[ "$target_path" == *"/${sec}" ]]; then
+        if [[ "$target_path" == *"${sec}"* ]]; then
           add_edge "$mid" "$sec" "FILED_TO" "filed to" "filed-to" "meeting"
           break
         fi
