@@ -35,7 +35,7 @@ See: `.planning/milestones/v2.0-ROADMAP.md`
 
 </details>
 
-### 🚧 v3.0 MCP Platform & Intelligence Expansion
+### v3.0 MCP Platform & Intelligence Expansion
 
 **Milestone Goal:** Deliver MindrianOS as a dual-surface platform (CLI plugin + MCP server) so Desktop/Cowork users access all capabilities, then expand with Opportunity Bank, Funding Room, and AI Team Personas. **Every feature ships to both surfaces — no exceptions.**
 
@@ -59,8 +59,8 @@ See: `.planning/milestones/v2.0-ROADMAP.md`
 **Plans**: 2 plans
 
 Plans:
-- [ ] 10-01-PLAN.md — Core library modules, mindrian-tools.cjs entry point, test fixtures
-- [ ] 10-02-PLAN.md — Dynamic section discovery refactoring, P1 module wrappers
+- [x] 10-01-PLAN.md — Core library modules, mindrian-tools.cjs entry point, test fixtures
+- [x] 10-02-PLAN.md — Dynamic section discovery refactoring, P1 module wrappers
 
 ### Phase 11: MCP Server
 **Goal**: Desktop and Cowork users can access every plugin capability through an MCP server without ever touching CLI
@@ -72,12 +72,12 @@ Plans:
   3. User can run methodology workflows (file meeting, run analysis, grade venture) via MCP Prompts pre-loaded with room context
   4. Larry personality and teaching mode behave identically in MCP context as in CLI
   5. CI parity check fails when a CLI command exists without a corresponding MCP tool
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 11-01: TBD
-- [ ] 11-02: TBD
-- [ ] 11-03: TBD
+- [ ] 11-01-PLAN.md — MCP server skeleton, npm setup, hierarchical tool router (6 tools, 41 commands)
+- [ ] 11-02-PLAN.md — MCP Resources (room:// URI scheme) and Prompts (methodology workflows with Larry personality)
+- [ ] 11-03-PLAN.md — CLI/MCP parity check script and end-to-end verification
 
 ### Phase 12: Brain Hosting + Room Collaboration
 **Goal**: Paid-tier users connect to Brain from any surface, and teams share room state through git
@@ -139,8 +139,8 @@ Phases 11 and 12 can run in parallel after Phase 10 completes. Phase 13 requires
 |-------|-----------|----------------|--------|-----------|
 | 1-5 | v1.0 | 20/20 | Complete | 2026-03-22 |
 | 6-9 | v2.0 | 13/13 | Complete | 2026-03-24 |
-| 10. Shared Core + CLI Tools | 2/2 | Complete   | 2026-03-24 | - |
-| 11. MCP Server | v3.0 | 0/TBD | Not started | - |
+| 10. Shared Core + CLI Tools | 2/2 | Complete    | 2026-03-24 | - |
+| 11. MCP Server | v3.0 | 0/3 | Planned | - |
 | 12. Brain Hosting + Room Collaboration | v3.0 | 0/TBD | Not started | - |
 | 13. Opportunity Bank + Funding Room | v3.0 | 0/TBD | Not started | - |
 | 14. AI Team Personas | v3.0 | 0/TBD | Not started | - |
