@@ -121,4 +121,4 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9
 | 6. Stage 1 Core Capability | v2.0 | 4/4 | Complete | 2026-03-23 |
 | 7. Team Room Structure | 3/3 | Complete    | 2026-03-23 | - |
 | 8. Cross-Meeting Intelligence | 3/3 | Complete    | 2026-03-24 | - |
-| 9. Meeting Knowledge Graph | v2.0 | 0/3 | Not started | - |
+| 9. Meeting Knowledge Graph | 1/3 | In Progress|  | - |

@@ -57,8 +57,8 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 ### Dashboard & Export Updates
 
 - [ ] **DASH-06**: Knowledge graph dashboard shows team members as nodes with edges to their contributions
-- [ ] **DASH-07**: `/mindrian-os:export` supports meeting-report type -- summary of all meetings with decisions and action items
-- [ ] **DOCS-06**: Meeting summary PDFs with speaker attribution and section-colored filing indicators
+- [x] **DASH-07**: `/mindrian-os:export` supports meeting-report type -- summary of all meetings with decisions and action items
+- [x] **DOCS-06**: Meeting summary PDFs with speaker attribution and section-colored filing indicators
 
 ## v3.0 Requirements (Deferred)
 
@@ -118,8 +118,8 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 | GRAP-04 | Phase 9 | Pending |
 | GRAP-05 | Phase 9 | Pending |
 | DASH-06 | Phase 9 | Pending |
-| DASH-07 | Phase 9 | Pending |
-| DOCS-06 | Phase 9 | Pending |
+| DASH-07 | Phase 9 | Complete |
+| DOCS-06 | Phase 9 | Complete |
 
 **Coverage:**
 - v2.0 requirements: 32 total
