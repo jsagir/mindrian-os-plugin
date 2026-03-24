@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: mindrian-brain
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.cjs
+    rootDir: mcp-server-brain
+    envVars:
+      - key: NEO4J_URI
+        sync: false
+      - key: NEO4J_USER
+        sync: false
+      - key: NEO4J_PASSWORD
+        sync: false
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: PINECONE_INDEX
+        value: neo4j-knowledge-base
+      - key: BRAIN_API_KEYS
+        sync: false
+    autoDeploy: true
