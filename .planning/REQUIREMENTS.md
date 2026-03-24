@@ -24,14 +24,14 @@ Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap pha
 ### Room Collaboration
 
 - [x] **COLLAB-01**: MCP server accesses local room via configurable `MINDRIAN_ROOM` env var
-- [ ] **COLLAB-02**: Room state syncable to git repo for team collaboration (git-based shared room)
-- [ ] **COLLAB-03**: Git sync handles STATE.md merge conflicts gracefully (last-write-wins with history preservation)
+- [ ] ~~**COLLAB-02**: Room state syncable to git repo for team collaboration~~ **(DEFERRED to v4.0 — room stays local for v3.0)**
+- [ ] ~~**COLLAB-03**: Git sync handles STATE.md merge conflicts gracefully~~ **(DEFERRED to v4.0)**
 
 ### Brain Hosting
 
-- [ ] **BRAIN-01**: Brain MCP server deployed as remote service at brain.mindrian.ai
+- [x] **BRAIN-01**: Brain MCP server deployed as remote service at brain.mindrian.ai
 - [ ] **BRAIN-02**: Desktop/Cowork users can connect to Brain via MCP config (same as CLI users)
-- [ ] **BRAIN-03**: Brain access gated by API key for paid tier subscribers
+- [x] **BRAIN-03**: Brain access gated by API key for paid tier subscribers
 
 ### Opportunity Bank
 
@@ -93,9 +93,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | COLLAB-01 | Phase 11 | Complete |
 | COLLAB-02 | Phase 12 | Pending |
 | COLLAB-03 | Phase 12 | Pending |
-| BRAIN-01 | Phase 12 | Pending |
+| BRAIN-01 | Phase 12 | Complete |
 | BRAIN-02 | Phase 12 | Pending |
-| BRAIN-03 | Phase 12 | Pending |
+| BRAIN-03 | Phase 12 | Complete |
 | OPP-01 | Phase 13 | Pending |
 | OPP-02 | Phase 13 | Pending |
 | OPP-03 | Phase 13 | Pending |
