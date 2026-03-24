@@ -1,0 +1,402 @@
+#!/usr/bin/env bash
+# compute-meetings-intelligence: Scan meetings/ to produce MEETINGS-INTELLIGENCE.md and action-items.md
+# Called by compute-state as a sub-step after compute-team
+#
+# Usage: scripts/compute-meetings-intelligence <room_dir>
+# Output: Writes room/MEETINGS-INTELLIGENCE.md and room/action-items.md directly
+# Exit: 0 on success. If no meetings/ directory or zero meetings, exit 0 silently.
+
+set -e
+
+ROOM_DIR="${1:-.}"
+MEETINGS_DIR="$ROOM_DIR/meetings"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Exit silently if no meetings directory
+[[ -d "$MEETINGS_DIR" ]] || exit 0
+
+# Count meetings
+meeting_count=0
+meeting_dirs=()
+for meeting_dir in "$MEETINGS_DIR"/*/; do
+  [ -d "$meeting_dir" ] || continue
+  meeting_count=$((meeting_count + 1))
+  meeting_dirs+=("$meeting_dir")
+done
+
+[ "$meeting_count" -eq 0 ] && exit 0
+
+# ─── Section 1: Topic Frequency (Convergence Signals) ────────────────────────
+declare -A topic_counts        # topic -> count
+declare -A topic_first_seen    # topic -> earliest date
+declare -A topic_latest_seen   # topic -> latest date
+declare -A topic_meetings_list # topic -> "meeting1, meeting2, ..."
+
+for meeting_dir in "${meeting_dirs[@]}"; do
+  metadata_file="${meeting_dir}metadata.yaml"
+  [ -f "$metadata_file" ] || continue
+
+  dir_name=$(basename "$meeting_dir")
+  # Extract date from YYYY-MM-DD-{name} format
+  meeting_date="${dir_name:0:10}"
+
+  # Extract topics from metadata.yaml
+  # topics: [topic1, topic2, topic3] or topics:\n- topic1\n- topic2
+  in_topics=false
+  while IFS= read -r line; do
+    # Handle inline array: topics: [topic1, topic2]
+    if [[ "$line" =~ ^topics:\ *\[(.+)\] ]]; then
+      topics_raw="${BASH_REMATCH[1]}"
+      IFS=',' read -ra topic_arr <<< "$topics_raw"
+      for topic in "${topic_arr[@]}"; do
+        topic=$(echo "$topic" | sed 's/^ *//;s/ *$//;s/^"//;s/"$//')
+        [ -z "$topic" ] && continue
+
+        current=${topic_counts[$topic]:-0}
+        topic_counts[$topic]=$((current + 1))
+
+        # Track first/latest seen
+        first=${topic_first_seen[$topic]:-}
+        if [ -z "$first" ] || [[ "$meeting_date" < "$first" ]]; then
+          topic_first_seen[$topic]="$meeting_date"
+        fi
+        latest=${topic_latest_seen[$topic]:-}
+        if [ -z "$latest" ] || [[ "$meeting_date" > "$latest" ]]; then
+          topic_latest_seen[$topic]="$meeting_date"
+        fi
+
+        # Track meetings list
+        existing=${topic_meetings_list[$topic]:-}
+        if [ -z "$existing" ]; then
+          topic_meetings_list[$topic]="$dir_name"
+        else
+          topic_meetings_list[$topic]="$existing, $dir_name"
+        fi
+      done
+      in_topics=false
+      continue
+    fi
+
+    # Handle multi-line topics list
+    if [[ "$line" =~ ^topics: ]]; then
+      in_topics=true
+      continue
+    fi
+
+    if $in_topics; then
+      if [[ "$line" =~ ^-\ +(.+) ]]; then
+        topic="${BASH_REMATCH[1]}"
+        topic=$(echo "$topic" | sed 's/^ *//;s/ *$//;s/^"//;s/"$//')
+        [ -z "$topic" ] && continue
+
+        current=${topic_counts[$topic]:-0}
+        topic_counts[$topic]=$((current + 1))
+
+        first=${topic_first_seen[$topic]:-}
+        if [ -z "$first" ] || [[ "$meeting_date" < "$first" ]]; then
+          topic_first_seen[$topic]="$meeting_date"
+        fi
+        latest=${topic_latest_seen[$topic]:-}
+        if [ -z "$latest" ] || [[ "$meeting_date" > "$latest" ]]; then
+          topic_latest_seen[$topic]="$meeting_date"
+        fi
+
+        existing=${topic_meetings_list[$topic]:-}
+        if [ -z "$existing" ]; then
+          topic_meetings_list[$topic]="$dir_name"
+        else
+          topic_meetings_list[$topic]="$existing, $dir_name"
+        fi
+      elif [[ ! "$line" =~ ^[[:space:]] ]]; then
+        in_topics=false
+      fi
+    fi
+  done < "$metadata_file"
+done
+
+# ─── Section 2: Contradiction Aggregation ─────────────────────────────────────
+declare -a contradiction_topics=()
+declare -a contradiction_claim_a=()
+declare -a contradiction_claim_b=()
+declare -a contradiction_speakers=()
+declare -a contradiction_statuses=()
+
+for meeting_dir in "${meeting_dirs[@]}"; do
+  summary_file="${meeting_dir}summary.md"
+  [ -f "$summary_file" ] || continue
+
+  # Look for ## Contradictions Detected section
+  in_contradictions=false
+  in_table=false
+  while IFS= read -r line; do
+    if [[ "$line" =~ ^##\ Contradictions\ Detected ]]; then
+      in_contradictions=true
+      continue
+    fi
+
+    # Exit section on next ## heading
+    if $in_contradictions && [[ "$line" =~ ^## ]] && [[ ! "$line" =~ ^##\ Contradictions ]]; then
+      in_contradictions=false
+      in_table=false
+      continue
+    fi
+
+    if $in_contradictions; then
+      # Skip table header and separator rows
+      if [[ "$line" =~ ^\|.*Topic.*Claim ]]; then
+        in_table=true
+        continue
+      fi
+      if [[ "$line" =~ ^\|[-[:space:]\|]+$ ]]; then
+        continue
+      fi
+
+      # Parse table rows: | Topic | Claim A | Claim B | Speakers | Status |
+      if $in_table && [[ "$line" =~ ^\| ]]; then
+        # Remove leading/trailing pipes, split by |
+        row=$(echo "$line" | sed 's/^|//;s/|$//')
+        IFS='|' read -ra cols <<< "$row"
+        if [ ${#cols[@]} -ge 4 ]; then
+          c_topic=$(echo "${cols[0]}" | sed 's/^ *//;s/ *$//')
+          c_claim_a=$(echo "${cols[1]}" | sed 's/^ *//;s/ *$//')
+          c_claim_b=$(echo "${cols[2]}" | sed 's/^ *//;s/ *$//')
+          c_speakers=$(echo "${cols[3]}" | sed 's/^ *//;s/ *$//')
+          c_status="unresolved"
+          if [ ${#cols[@]} -ge 5 ]; then
+            c_status=$(echo "${cols[4]}" | sed 's/^ *//;s/ *$//')
+            [ -z "$c_status" ] && c_status="unresolved"
+          fi
+
+          [ -z "$c_topic" ] && continue
+          contradiction_topics+=("$c_topic")
+          contradiction_claim_a+=("$c_claim_a")
+          contradiction_claim_b+=("$c_claim_b")
+          contradiction_speakers+=("$c_speakers")
+          contradiction_statuses+=("$c_status")
+        fi
+      fi
+    fi
+  done < "$summary_file"
+done
+
+# ─── Section 3: Action Item Aggregation ───────────────────────────────────────
+declare -a ai_owners=()
+declare -a ai_tasks=()
+declare -a ai_sources=()
+declare -a ai_dates=()
+declare -a ai_statuses=()
+
+for meeting_dir in "${meeting_dirs[@]}"; do
+  action_file="${meeting_dir}action-items.md"
+  [ -f "$action_file" ] || continue
+
+  dir_name=$(basename "$meeting_dir")
+  meeting_date="${dir_name:0:10}"
+
+  in_table=false
+  while IFS= read -r line; do
+    # Detect table header row
+    if [[ "$line" =~ ^\|.*Owner.*Task ]]; then
+      in_table=true
+      continue
+    fi
+    # Skip separator row
+    if [[ "$line" =~ ^\|[-[:space:]\|]+$ ]]; then
+      continue
+    fi
+    # End of table
+    if $in_table && [[ ! "$line" =~ ^\| ]]; then
+      in_table=false
+      continue
+    fi
+
+    if $in_table && [[ "$line" =~ ^\| ]]; then
+      row=$(echo "$line" | sed 's/^|//;s/|$//')
+      IFS='|' read -ra cols <<< "$row"
+      if [ ${#cols[@]} -ge 2 ]; then
+        a_owner=$(echo "${cols[0]}" | sed 's/^ *//;s/ *$//')
+        a_task=$(echo "${cols[1]}" | sed 's/^ *//;s/ *$//')
+        a_deadline=""
+        a_status="open"
+
+        # Try to extract deadline and status from remaining columns
+        if [ ${#cols[@]} -ge 3 ]; then
+          col2=$(echo "${cols[2]}" | sed 's/^ *//;s/ *$//')
+          # Check if it looks like a status (open/done) or a date
+          if [[ "$col2" == "open" ]] || [[ "$col2" == "done" ]]; then
+            a_status="$col2"
+          else
+            a_deadline="$col2"
+          fi
+        fi
+        if [ ${#cols[@]} -ge 4 ]; then
+          col3=$(echo "${cols[3]}" | sed 's/^ *//;s/ *$//')
+          if [[ "$col3" == "open" ]] || [[ "$col3" == "done" ]]; then
+            a_status="$col3"
+          fi
+        fi
+
+        [ -z "$a_owner" ] && continue
+        [ -z "$a_task" ] && continue
+
+        ai_owners+=("$a_owner")
+        ai_tasks+=("$a_task")
+        ai_sources+=("$dir_name")
+        ai_dates+=("$meeting_date")
+        ai_statuses+=("$a_status")
+      fi
+    fi
+  done < "$action_file"
+done
+
+# Count open and done
+total_open=0
+total_done=0
+for status in "${ai_statuses[@]}"; do
+  if [ "$status" = "done" ]; then
+    total_done=$((total_done + 1))
+  else
+    total_open=$((total_open + 1))
+  fi
+done
+
+# Write room/action-items.md
+timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+ACTION_ITEMS_FILE="$ROOM_DIR/action-items.md"
+
+{
+  echo "---"
+  echo "computed: $timestamp"
+  echo "total_open: $total_open"
+  echo "total_done: $total_done"
+  echo "---"
+  echo "# Open Action Items"
+  echo ""
+
+  if [ "$total_open" -eq 0 ]; then
+    echo "No open action items."
+  else
+    echo "| Owner | Task | Source Meeting | Date | Status |"
+    echo "|-------|------|---------------|------|--------|"
+    for i in "${!ai_owners[@]}"; do
+      [ "${ai_statuses[$i]}" != "open" ] && continue
+      echo "| ${ai_owners[$i]} | ${ai_tasks[$i]} | ${ai_sources[$i]} | ${ai_dates[$i]} | open |"
+    done
+  fi
+
+  echo ""
+  echo "# Recently Completed"
+  echo ""
+
+  if [ "$total_done" -eq 0 ]; then
+    echo "No completed action items yet."
+  else
+    echo "| Owner | Task | Source Meeting | Completed |"
+    echo "|-------|------|---------------|-----------|"
+    for i in "${!ai_owners[@]}"; do
+      [ "${ai_statuses[$i]}" != "done" ] && continue
+      echo "| ${ai_owners[$i]} | ${ai_tasks[$i]} | ${ai_sources[$i]} | ${ai_dates[$i]} |"
+    done
+  fi
+} > "$ACTION_ITEMS_FILE"
+
+# ─── Section 4: Write MEETINGS-INTELLIGENCE.md ───────────────────────────────
+OUTPUT_FILE="$ROOM_DIR/MEETINGS-INTELLIGENCE.md"
+
+# Count unresolved contradictions
+unresolved_count=0
+for status in "${contradiction_statuses[@]}"; do
+  [ "$status" = "unresolved" ] && unresolved_count=$((unresolved_count + 1))
+done
+
+# Count convergence signals (topics in 3+ meetings)
+convergence_count=0
+for topic in "${!topic_counts[@]}"; do
+  [ "${topic_counts[$topic]}" -ge 3 ] && convergence_count=$((convergence_count + 1))
+done
+
+{
+  echo "---"
+  echo "computed: $timestamp"
+  echo "meetings_analyzed: $meeting_count"
+  echo "convergence_signals: $convergence_count"
+  echo "unresolved_contradictions: $unresolved_count"
+  echo "open_action_items: $total_open"
+  echo "---"
+  echo "# Cross-Meeting Intelligence"
+  echo ""
+
+  # Active Convergence Signals
+  echo "## Active Convergence Signals"
+  echo ""
+  if [ "$convergence_count" -eq 0 ]; then
+    echo "No convergence signals detected yet. Topics need to appear in 3+ meetings to become signals."
+  else
+    echo "| Theme | Meetings | First Seen | Latest |"
+    echo "|-------|----------|------------|--------|"
+    for topic in "${!topic_counts[@]}"; do
+      cnt="${topic_counts[$topic]}"
+      [ "$cnt" -lt 3 ] && continue
+      echo "| $topic | ${cnt}/${meeting_count} | ${topic_first_seen[$topic]} | ${topic_latest_seen[$topic]} |"
+    done
+  fi
+  echo ""
+
+  # Active Contradictions
+  echo "## Active Contradictions"
+  echo ""
+  if [ ${#contradiction_topics[@]} -eq 0 ]; then
+    echo "No contradictions detected across meetings."
+  else
+    echo "| Topic | Claim A | Claim B | Speakers | Status |"
+    echo "|-------|---------|---------|----------|--------|"
+    for i in "${!contradiction_topics[@]}"; do
+      echo "| ${contradiction_topics[$i]} | ${contradiction_claim_a[$i]} | ${contradiction_claim_b[$i]} | ${contradiction_speakers[$i]} | ${contradiction_statuses[$i]} |"
+    done
+  fi
+  echo ""
+
+  # Meeting Timeline
+  echo "## Meeting Timeline"
+  echo ""
+  echo "| Date | Name | Speakers | Decisions | Action Items |"
+  echo "|------|------|----------|-----------|-------------|"
+
+  # Sort meetings by date (newest first)
+  for meeting_dir in "${meeting_dirs[@]}"; do
+    dir_name=$(basename "$meeting_dir")
+    meeting_date="${dir_name:0:10}"
+    meeting_name="${dir_name:11}"
+    [ -z "$meeting_name" ] && meeting_name="$dir_name"
+
+    metadata_file="${meeting_dir}metadata.yaml"
+    speakers_str="-"
+    decisions_count=0
+    action_items_count=0
+
+    if [ -f "$metadata_file" ]; then
+      # Extract speakers
+      speakers_raw=$(grep '^speakers:' "$metadata_file" | head -1 | sed 's/^speakers: *//' || true)
+      if [ -n "$speakers_raw" ]; then
+        speakers_str=$(echo "$speakers_raw" | tr -d '[]' | sed 's/^ *//;s/ *$//')
+      fi
+
+      # Extract decisions_count
+      dc=$(grep '^decisions_count:' "$metadata_file" | head -1 | sed 's/^decisions_count: *//' || true)
+      [ -n "$dc" ] && decisions_count="$dc"
+
+      # Extract action_items_count
+      aic=$(grep '^action_items_count:' "$metadata_file" | head -1 | sed 's/^action_items_count: *//' || true)
+      [ -n "$aic" ] && action_items_count="$aic"
+    fi
+
+    echo "| $meeting_date | $meeting_name | $speakers_str | $decisions_count | $action_items_count |"
+  done
+
+  echo ""
+  echo "---"
+  echo ""
+  echo "*See team/TEAM-STATE.md for team patterns, recurring concerns, and influence distribution.*"
+} > "$OUTPUT_FILE"
+
+exit 0
