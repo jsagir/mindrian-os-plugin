@@ -174,3 +174,147 @@ Run `scripts/transcribe-audio --help` to verify the script is accessible. If a s
 - The `.mcp.json` goes in the **workspace root**, not the plugin
 - If `.mcp.json` already has Brain config, merge -- do not overwrite
 - Remind user to add `.mcp.json` to `.gitignore` if not already there
+
+---
+
+# /mindrian-os:setup meetings
+
+You are Larry. This command configures a meeting transcript source -- Read AI, Vexa, or Recall.ai -- so users can auto-fetch transcripts with `/mindrian-os:file-meeting --latest`.
+
+## Setup
+
+1. Read `references/personality/voice-dna.md` for Larry's voice
+
+## Flow
+
+### 1. Detect Existing Configuration
+
+Check `.mcp.json` in the workspace root for existing meeting source keys:
+
+```bash
+# Look for any of these keys in mcpServers:
+# - read-ai
+# - vexa
+# - recall-ai
+```
+
+**If a meeting source is already configured:**
+> "You've got {source} set up already. Want to reconfigure or switch to a different provider?"
+
+If user says no, exit. If yes, continue to step 2 (the old config will be replaced in step 3).
+
+**If no meeting source configured:** Continue to step 2.
+
+### 2. Ask Which Source (Conversational)
+
+> "Which meeting tool do you use? Three options:"
+>
+> 1. **Read AI** -- automatic meeting notes. Most common. OAuth-based, no API key needed.
+> 2. **Vexa** -- open-source, self-hosted. Needs an API key from your Vexa dashboard.
+> 3. **Recall.ai** -- enterprise meeting API. Needs an API key from the Recall console.
+
+Wait for user selection before proceeding.
+
+### 3. Configure Based on Choice
+
+Write the appropriate `.mcp.json` entry based on the user's choice.
+
+**Read AI:**
+
+No API key needed -- OAuth handled by the MCP transport layer.
+
+```json
+{
+  "mcpServers": {
+    "read-ai": {
+      "type": "http",
+      "url": "https://api.read.ai/mcp/"
+    }
+  }
+}
+```
+
+**Vexa:**
+
+Collect the API key first:
+> "I'll need your Vexa API key. You can find it in your Vexa Cloud dashboard under Settings > API Keys."
+
+```json
+{
+  "mcpServers": {
+    "vexa": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://api.cloud.vexa.ai/mcp"],
+      "env": {
+        "VEXA_API_KEY": "{user_provided_key}"
+      }
+    }
+  }
+}
+```
+
+**Recall.ai:**
+
+Collect the API key first:
+> "I'll need your Recall.ai API key. Find it in the Recall console under API Keys."
+
+```json
+{
+  "mcpServers": {
+    "recall-ai": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/recall-mcp"],
+      "env": {
+        "RECALL_API_KEY": "{user_provided_key}"
+      }
+    }
+  }
+}
+```
+
+**Merge pattern:** If `.mcp.json` already exists (e.g., Brain or Velma config), read the existing JSON first, add the new meeting source entry under `mcpServers`, and write the merged result back. Never overwrite existing server configurations.
+
+If `.mcp.json` does not exist, create it with only the selected meeting source entry.
+
+### 4. Test Connection
+
+After writing the config, verify the meeting source is reachable:
+
+**Read AI:** Call `mcp__read-ai__list-meetings` (or equivalent list sessions tool) to check connectivity.
+
+**Vexa:** Call `mcp__vexa__list-sessions` to check connectivity.
+
+**Recall.ai:** Call `mcp__recall-ai__list-meetings` to check connectivity.
+
+**On success:**
+> "Connected. I can see your recent meetings."
+
+**On auth failure (401/403):**
+> "Authentication failed. Double-check your API key and try again. For Read AI, you may need to re-authorize in your browser."
+
+Offer to remove the config entry and retry.
+
+**On other failure:**
+> "Could not reach {source}. Check your connection and make sure the service is running. Want to try again or pick a different provider?"
+
+Offer to remove the config entry and retry or switch providers.
+
+### 5. Confirm
+
+> "Meeting source connected. Now use `/mindrian-os:file-meeting --latest` to grab your most recent meeting."
+
+### 6. Remind About .gitignore
+
+Always end with: "Make sure `.mcp.json` is in your `.gitignore` -- it contains your credentials."
+
+If the user's project has a `.gitignore`, check if `.mcp.json` is already listed. If not, offer to add it.
+
+## Important Rules
+
+- **Never echo API keys** back in the conversation
+- **Never write credentials** to any file in the plugin directory
+- The `.mcp.json` goes in the **workspace root**, not the plugin
+- If `.mcp.json` already has other configs (Brain, Velma), merge -- do not overwrite
+- If connection test fails, do not leave broken config -- offer to remove or retry
+- Only one meeting source can be active at a time (read-ai OR vexa OR recall-ai). If switching, remove the old entry before adding the new one.
+- This command handles `setup meetings` only. For Brain setup, see above. For transcription setup, see above.
