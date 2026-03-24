@@ -1,4 +1,4 @@
-# MindrinanOS Plugin — Complete Idea Document for GSD Ceremony
+# MindrianOS Plugin — Complete Idea Document for GSD Ceremony
 
 > This document captures the FULL evolution of the MindrianOS Plugin idea,
 > from initial concept through architecture decisions, moat analysis, and

@@ -1,4 +1,4 @@
-# MindrinanOS Plugin — Architecture Deep Dive
+# MindrianOS Plugin — Architecture Deep Dive
 
 Detailed architecture decisions from the research session.
 
@@ -6,7 +6,7 @@ Detailed architecture decisions from the research session.
 
 Source: Paper 2603.16021v2
 
-| Layer | Purpose | MindrinanOS Name | Budget |
+| Layer | Purpose | MindrianOS Name | Budget |
 |-------|---------|------------------|--------|
 | 0 | Identity | ROOM.md | ~300 tok |
 | 1 | Routing | ROUTING.md | ~300 tok |
@@ -19,7 +19,7 @@ Product (Layer 4): room/, bank/, journal/, exports/.
 
 ## GSD Patterns Applied
 
-| GSD | MindrinanOS |
+| GSD | MindrianOS |
 |-----|-------------|
 | STATE.md | ROOM-STATE.md (room health, methodology, mode) |
 | PROJECT.md | VENTURE.md (domain, hypothesis, constraints) |

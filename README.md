@@ -9,7 +9,7 @@
   [Prof. Lawrence Aronhime](https://www.linkedin.com/in/lawrence-aronhime-8363894/) over 30+ years at Johns Hopkins University.
   Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
 
-  [![Plugin Version](https://img.shields.io/badge/plugin-v0.4.2-blue)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Plugin Version](https://img.shields.io/badge/plugin-v0.5.0-blue)](https://github.com/jsagir/mindrian-os-plugin)
   [![Commands](https://img.shields.io/badge/commands-41-green)](https://github.com/jsagir/mindrian-os-plugin)
   [![Frameworks](https://img.shields.io/badge/PWS_frameworks-26-orange)](https://github.com/jsagir/mindrian-os-plugin)
   [![Brain Nodes](https://img.shields.io/badge/brain_nodes-23K+-purple)](https://github.com/jsagir/mindrian-os-plugin)
@@ -71,7 +71,7 @@ Larry responds. Your Data Room starts building. No setup required.
 Or start with structure:
 
 ```
-/mindrian-os:new-project
+/mos:new-project
 ```
 
 ---
@@ -125,6 +125,40 @@ Living team directory that evolves with your venture:
 - Knowledge landscape: who knows what, where expertise concentrates
 - Cross-meeting patterns: recurring concerns, influence shifts
 
+### MCP Server (v3.0)
+
+Full MindrianOS on Claude Desktop and Cowork — no CLI required:
+
+```json
+// Add to claude_desktop_config.json
+{
+  "mcpServers": {
+    "mindrian-os": {
+      "command": "node",
+      "args": ["/path/to/MindrianOS-Plugin/bin/mindrian-mcp-server.cjs"]
+    }
+  }
+}
+```
+
+- 6 hierarchical MCP tools route all 41 commands (~4,500 tokens vs 30-60K flat)
+- 5 MCP Resources for read-only room browsing (`room://` URI scheme)
+- 5 MCP Prompts with Larry personality injection
+- CLI/MCP parity: every command works on every surface
+
+### Brain Hosting (v3.0)
+
+Self-hosted Brain MCP server for paid tier:
+
+```bash
+cd mcp-server-brain && npm install && npm start
+# Or deploy to Render with render.yaml (one click)
+```
+
+- 5 Brain tools (3 Neo4j graph + 2 Pinecone semantic) behind API key auth
+- Users get API key → connect Brain from any surface
+- Single consolidated Pinecone index (`pws-brain`) with 12K+ records
+
 ### Knowledge Graph
 
 Three-layer interactive graph (Structure / Content / Intelligence):
@@ -136,11 +170,11 @@ Three-layer interactive graph (Structure / Content / Intelligence):
 ### Professional Export
 
 ```
-/mindrian-os:export thesis          # Multi-page investment thesis
-/mindrian-os:export summary         # 1-2 page executive summary
-/mindrian-os:export report          # Due diligence report with TOC
-/mindrian-os:export profile         # Professional venture profile
-/mindrian-os:export meeting-report  # Minto-structured meeting intelligence
+/mos:export thesis          # Multi-page investment thesis
+/mos:export summary         # 1-2 page executive summary
+/mos:export report          # Due diligence report with TOC
+/mos:export profile         # Professional venture profile
+/mos:export meeting-report  # Minto-structured meeting intelligence
 ```
 
 De Stijl formatted PDFs generated directly from your Data Room content.
@@ -154,8 +188,8 @@ MindrianOS runs on all three Claude surfaces:
 | Surface | Strengths | Best For |
 |---------|----------|----------|
 | **Claude Code** | Full power. Hooks fire, scripts execute, Data Room updates in real-time. | Daily venture work, meeting filing, exports |
-| **Claude Desktop** | Conversational. Larry's personality shines. | Early exploration, brainstorming |
-| **Cowork** | Multi-user. Shared Data Room through 00_Context/. | Team ventures, collaborative sessions |
+| **Claude Desktop** | Full MCP access. 6 tools, 5 resources, 5 prompts. Larry's personality shines. | Exploration, brainstorming, methodology sessions |
+| **Cowork** | Multi-user MCP. Shared Data Room through 00_Context/. | Team ventures, collaborative sessions |
 
 ---
 
@@ -214,15 +248,19 @@ MindrianOS runs on all three Claude surfaces:
 
 ```
 MindrianOS-Plugin/
-├── .claude-plugin/plugin.json  # Plugin manifest (v0.4.2)
-├── commands/                   # 41 commands (/mindrian-os:*)
-├── skills/                     # Auto-activated intelligence
-│   ├── larry-personality/      # Larry's teaching voice
-│   ├── room-passive/           # Filing intelligence
-│   ├── room-proactive/         # Gap & contradiction detection
-│   ├── pws-methodology/        # Framework routing
-│   ├── context-engine/         # Session continuity
-│   └── brain-connector/        # Optional Brain enrichment
+├── .claude-plugin/plugin.json  # Plugin manifest (v0.5.0)
+├── bin/
+│   ├── mindrian-tools.cjs      # CLI entry point (4 subcommand groups)
+│   └── mindrian-mcp-server.cjs # MCP server (stdio transport)
+├── lib/core/                   # Shared modules (CLI + MCP use the same code)
+│   ├── room-ops.js             # Room CRUD operations
+│   ├── state-ops.js            # State computation
+│   ├── meeting-ops.js          # Meeting intelligence
+│   ├── graph-ops.js            # Knowledge graph builder
+│   └── section-registry.js     # Dynamic section discovery
+├── mcp-server-brain/           # Standalone Brain hosting (Express + StreamableHTTP)
+├── commands/                   # 41 commands (/mos:*)
+├── skills/                     # Auto-activated intelligence (6 skills)
 ├── agents/                     # Larry, Brain, Grading, Research, Investor
 ├── hooks/                      # SessionStart, PostToolUse, Stop
 ├── scripts/                    # compute-state, build-graph, render-pdf, etc.
@@ -237,8 +275,8 @@ Three layers:
 
 | Layer | What | Who Owns It |
 |-------|------|-------------|
-| **Plugin** | Skills, commands, agents, hooks, PWS frameworks | This repo (marketplace) |
-| **Brain** | Neo4j 23K nodes + Pinecone 1.4K embeddings + teaching intelligence | Remote MCP (optional) |
+| **Plugin** | Skills, commands, agents, hooks, PWS frameworks, MCP server | This repo (marketplace) |
+| **Brain** | Neo4j 23K nodes + Pinecone 12K embeddings + teaching intelligence | Self-hosted MCP or Brain API key (optional) |
 | **Room** | Your workspace, entries, team, meetings, exports | You -- all data stays local |
 
 ---
@@ -248,12 +286,25 @@ Three layers:
 For deeper intelligence powered by a 23K-node knowledge graph:
 
 ```
-/mindrian-os:setup brain
+/mos:setup brain
 ```
 
 Brain adds: framework recommendations from similar ventures, calibrated grading from 100+ real projects, cross-domain pattern discovery, contradiction detection powered by semantic analysis.
 
 Everything degrades gracefully. Brain makes Larry smarter; Larry works fine without it.
+
+---
+
+## Roadmap
+
+| Version | Milestone | Status |
+|---------|-----------|--------|
+| v1.0 | MVP — 41 commands, Data Room, Dashboard | Shipped 2026-03-22 |
+| v2.0 | Meeting Intelligence — filing, team room, cross-meeting intel | Shipped 2026-03-24 |
+| v3.0 | MCP Platform — dual delivery, Brain hosting | Shipped 2026-03-25 |
+| v3.1 | Opportunity Bank + Funding Room — grant discovery, funding lifecycle | Planned |
+| v3.2 | AI Team Personas — domain expert perspectives, Six Hats integration | Planned |
+| v3.3 | User Knowledge Graph — KuzuDB embedded graph, natural language queries | Planned |
 
 ---
 
