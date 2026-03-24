@@ -30,7 +30,7 @@ Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap pha
 ### Brain Hosting
 
 - [x] **BRAIN-01**: Brain MCP server deployed as remote service at brain.mindrian.ai
-- [ ] **BRAIN-02**: Desktop/Cowork users can connect to Brain via MCP config (same as CLI users)
+- [x] **BRAIN-02**: Desktop/Cowork users can connect to Brain via MCP config (same as CLI users)
 - [x] **BRAIN-03**: Brain access gated by API key for paid tier subscribers
 
 ### Opportunity Bank
@@ -94,7 +94,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | COLLAB-02 | Phase 12 | Pending |
 | COLLAB-03 | Phase 12 | Pending |
 | BRAIN-01 | Phase 12 | Complete |
-| BRAIN-02 | Phase 12 | Pending |
+| BRAIN-02 | Phase 12 | Complete |
 | BRAIN-03 | Phase 12 | Complete |
 | OPP-01 | Phase 13 | Pending |
 | OPP-02 | Phase 13 | Pending |
