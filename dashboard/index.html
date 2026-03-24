@@ -367,6 +367,105 @@
       height: 6px;
       display: inline-block;
     }
+
+    /* ── Layer Toggle Buttons ── */
+    .layer-toggles {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-right: 12px;
+    }
+
+    .layer-btn {
+      background: var(--ds-elevated);
+      color: var(--ds-cream);
+      border: 1px solid var(--ds-border);
+      padding: 4px 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: background 150ms ease, border-color 150ms ease;
+    }
+
+    .layer-btn.active {
+      border-color: var(--ds-cream);
+      background: var(--ds-surface);
+    }
+
+    .layer-btn:hover {
+      border-color: var(--ds-muted);
+    }
+
+    /* ── Preset View Buttons ── */
+    .preset-views {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-right: 8px;
+    }
+
+    .preset-btn {
+      background: var(--ds-bg);
+      color: var(--ds-muted);
+      border: 1px solid var(--ds-border);
+      padding: 4px 8px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+    }
+
+    .preset-btn.active {
+      background: var(--ds-elevated);
+      color: var(--ds-cream);
+      border-color: var(--ds-cream);
+    }
+
+    .preset-btn:hover {
+      border-color: var(--ds-muted);
+      color: var(--ds-cream);
+    }
+
+    /* ── Timeline Toggle ── */
+    .timeline-btn {
+      background: var(--ds-elevated);
+      color: var(--ds-cream);
+      border: 1px solid var(--ds-border);
+      padding: 4px 10px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: background 150ms ease, border-color 150ms ease;
+    }
+
+    .timeline-btn.active {
+      border-color: var(--ds-yellow);
+      background: var(--ds-surface);
+      color: var(--ds-yellow);
+    }
+
+    .timeline-btn:hover {
+      border-color: var(--ds-muted);
+    }
+
+    /* ── Edge hover label tooltip ── */
+    .edge-tooltip {
+      position: absolute;
+      background: var(--ds-surface);
+      color: var(--ds-cream);
+      border: 1px solid var(--ds-border);
+      padding: 2px 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      pointer-events: none;
+      z-index: 60;
+      display: none;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
@@ -374,6 +473,19 @@
   <div class="header">
     <span class="header-title">Mindrian Data Room</span>
     <div class="header-right">
+      <div class="layer-toggles" id="layer-toggles">
+        <span style="font-size:10px;color:var(--ds-muted);text-transform:uppercase;letter-spacing:0.06em;">Layers:</span>
+        <button class="layer-btn active" data-layer="structure">Structure</button>
+        <button class="layer-btn active" data-layer="content">Content</button>
+        <button class="layer-btn active" data-layer="intelligence">Intelligence</button>
+      </div>
+      <div class="preset-views" id="preset-views">
+        <button class="preset-btn active" data-preset="room">Room</button>
+        <button class="preset-btn" data-preset="meetings">Meetings</button>
+        <button class="preset-btn" data-preset="team">Team</button>
+        <button class="preset-btn" data-preset="intel">Intel</button>
+      </div>
+      <button class="timeline-btn" id="btn-timeline">Timeline</button>
       <div class="legend">
         <div class="legend-item">
           <span class="legend-chip" style="background: var(--ds-red)"></span>
@@ -430,6 +542,9 @@
     <div class="detail-title" id="detail-title"></div>
     <div id="detail-fields"></div>
   </div>
+
+  <!-- Edge Tooltip -->
+  <div class="edge-tooltip" id="edge-tooltip"></div>
 
   <!-- Chat Intelligence Panel -->
   <div class="chat-panel">
@@ -559,12 +674,147 @@
           'width': 1,
           'line-style': 'solid'
         }
+      },
+      // ── Meeting nodes (gold diamond) ──
+      {
+        selector: 'node.meeting',
+        style: {
+          'background-color': '#D4A843',
+          'background-opacity': 0.85,
+          'border-width': 0,
+          'label': 'data(label)',
+          'font-family': '"Bebas Neue", sans-serif',
+          'font-size': 13,
+          'color': '#F5F0E8',
+          'text-valign': 'bottom',
+          'text-halign': 'center',
+          'text-margin-y': 6,
+          'shape': 'diamond',
+          'width': 50,
+          'height': 50
+        }
+      },
+      // ── Speaker nodes (deep blue ellipse) ──
+      {
+        selector: 'node.speaker',
+        style: {
+          'background-color': '#1E3A6E',
+          'background-opacity': 0.85,
+          'border-width': 0,
+          'label': 'data(label)',
+          'font-family': '"Inter", sans-serif',
+          'font-size': 11,
+          'color': '#F5F0E8',
+          'text-valign': 'bottom',
+          'text-halign': 'center',
+          'text-margin-y': 4,
+          'shape': 'ellipse',
+          'width': 40,
+          'height': 40
+        }
+      },
+      // ── Concept nodes (warm yellow square) ──
+      {
+        selector: 'node.concept',
+        style: {
+          'background-color': '#C8A43C',
+          'background-opacity': 0.8,
+          'border-width': 0,
+          'label': 'data(label)',
+          'font-family': '"Inter", sans-serif',
+          'font-size': 10,
+          'color': '#F5F0E8',
+          'text-valign': 'bottom',
+          'text-halign': 'center',
+          'text-margin-y': 4,
+          'shape': 'rectangle',
+          'width': 30,
+          'height': 30
+        }
+      },
+      // ── Unresolved concept (red border, faded) ──
+      {
+        selector: 'node.concept.unresolved',
+        style: {
+          'border-width': 2,
+          'border-color': '#A63D2F',
+          'background-opacity': 0.5
+        }
+      },
+      // ── SPOKE_IN edges ──
+      {
+        selector: 'edge.spoke-in',
+        style: {
+          'line-color': '#A09A90',
+          'target-arrow-color': '#A09A90',
+          'target-arrow-shape': 'triangle',
+          'curve-style': 'bezier',
+          'width': 1,
+          'line-style': 'solid'
+        }
+      },
+      // ── FILED_TO edges ──
+      {
+        selector: 'edge.filed-to',
+        style: {
+          'line-color': '#5C5A56',
+          'target-arrow-color': '#5C5A56',
+          'target-arrow-shape': 'triangle',
+          'curve-style': 'bezier',
+          'width': 1,
+          'line-style': 'solid'
+        }
+      },
+      // ── ATTENDED edges ──
+      {
+        selector: 'edge.attended',
+        style: {
+          'line-color': '#A09A90',
+          'target-arrow-shape': 'none',
+          'curve-style': 'bezier',
+          'width': 1,
+          'line-style': 'dotted'
+        }
+      },
+      // ── REINFORCES edges ──
+      {
+        selector: 'edge.reinforces',
+        style: {
+          'line-color': '#2D6B4A',
+          'target-arrow-shape': 'none',
+          'curve-style': 'bezier',
+          'width': 2,
+          'line-style': 'solid'
+        }
+      },
+      // ── REFERENCES edges ──
+      {
+        selector: 'edge.references',
+        style: {
+          'line-color': '#C8A43C',
+          'target-arrow-shape': 'none',
+          'curve-style': 'bezier',
+          'width': 1,
+          'line-style': 'dotted'
+        }
+      },
+      // ── Dimmed state for preset views ──
+      {
+        selector: 'node.dimmed',
+        style: {
+          'opacity': 0.3
+        }
       }
     ];
 
     // ── State ──
     let cy = null;
     window.__roomIntelligence = null;
+    let nodeFocused = false;
+    let timelineMode = false;
+    let timelineAnimInterval = null;
+    let layerState = { structure: true, content: true, intelligence: true };
+    let activePreset = 'room';
 
     // ── Initialize Graph ──
     function initGraph(data) {
@@ -607,6 +857,11 @@
         cy.destroy();
       }
 
+      // Stop any running timeline animations
+      stopTimelineAnimations();
+      timelineMode = false;
+      document.getElementById('btn-timeline').classList.remove('active');
+
       cy = cytoscape({
         container: document.getElementById('cy'),
         elements: {
@@ -620,13 +875,18 @@
         wheelSensitivity: 0.3
       });
 
+      // ── Apply saved positions from localStorage ──
+      applySavedPositions();
+
       // ── Events ──
 
-      // Click artifact node -> show detail panel
-      cy.on('tap', 'node.artifact', function(evt) {
+      // Click any tappable node -> show detail panel
+      cy.on('tap', 'node', function(evt) {
         const node = evt.target;
+        if (node.hasClass('section-group')) return;
         const d = node.data();
-        showDetailPanel(d);
+        const classes = node.classes();
+        showDetailPanel(d, classes);
       });
 
       // Click background -> hide detail panel
@@ -636,28 +896,230 @@
         }
       });
 
-      // Hover artifact -> highlight connected edges
-      cy.on('mouseover', 'node.artifact', function(evt) {
+      // Hover node -> highlight connected edges
+      cy.on('mouseover', 'node', function(evt) {
         const node = evt.target;
+        if (node.hasClass('section-group')) return;
+        nodeFocused = true;
         node.addClass('hover');
         node.connectedEdges().style({ 'opacity': 1, 'width': 3 });
-        // Dim other nodes
         cy.elements().not(node).not(node.connectedEdges()).not(node.connectedEdges().connectedNodes()).style({ 'opacity': 0.3 });
       });
 
-      cy.on('mouseout', 'node.artifact', function(evt) {
+      cy.on('mouseout', 'node', function(evt) {
         const node = evt.target;
+        if (node.hasClass('section-group')) return;
+        nodeFocused = false;
         node.removeClass('hover');
         cy.elements().style({ 'opacity': 1 });
-        // Restore edge widths
-        cy.edges('.feeds-into, .informs').style({ 'width': 2 });
-        cy.edges('.informs').style({ 'width': 1 });
-        cy.edges('.contradicts, .converges').style({ 'width': 2 });
+        // Restore edge default widths
+        cy.edges('.feeds-into, .contradicts, .converges, .reinforces').style({ 'width': 2 });
+        cy.edges('.informs, .spoke-in, .filed-to, .attended, .references').style({ 'width': 1 });
+        // Re-apply dimmed state if a preset requires it
+        if (activePreset === 'intel') {
+          cy.nodes('[layer="content"]').addClass('dimmed');
+        }
+      });
+
+      // ── Edge hover: show label ──
+      var edgeTooltip = document.getElementById('edge-tooltip');
+      cy.on('mouseover', 'edge', function(evt) {
+        if (nodeFocused) return;
+        var edge = evt.target;
+        var edgeType = edge.data('type') || edge.classes().join(', ');
+        edgeTooltip.textContent = edgeType;
+        edgeTooltip.style.display = 'block';
+        var pos = evt.renderedPosition || evt.position;
+        if (pos) {
+          edgeTooltip.style.left = (pos.x + 60) + 'px';
+          edgeTooltip.style.top = (pos.y + 48) + 'px';
+        }
+      });
+
+      cy.on('mouseout', 'edge', function() {
+        edgeTooltip.style.display = 'none';
+      });
+
+      cy.on('mousemove', 'edge', function(evt) {
+        if (nodeFocused) { edgeTooltip.style.display = 'none'; return; }
+        var pos = evt.renderedPosition || evt.position;
+        if (pos) {
+          edgeTooltip.style.left = (pos.x + 60) + 'px';
+          edgeTooltip.style.top = (pos.y + 48) + 'px';
+        }
+      });
+
+      // ── Position persistence on drag ──
+      cy.on('dragfree', 'node', function(evt) {
+        saveNodePositions();
+      });
+
+      // Apply current layer state
+      applyLayerState();
+    }
+
+    // ── Position Persistence ──
+    function saveNodePositions() {
+      if (!cy) return;
+      var positions = {};
+      cy.nodes().forEach(function(node) {
+        var p = node.position();
+        positions[node.id()] = { x: p.x, y: p.y };
+      });
+      try {
+        localStorage.setItem('graphPositions', JSON.stringify(positions));
+      } catch (e) { /* quota exceeded -- ignore */ }
+    }
+
+    function applySavedPositions() {
+      if (!cy) return;
+      var saved;
+      try {
+        saved = JSON.parse(localStorage.getItem('graphPositions') || '{}');
+      } catch (e) { return; }
+      if (!saved || Object.keys(saved).length === 0) return;
+
+      var currentIds = new Set();
+      cy.nodes().forEach(function(n) { currentIds.add(n.id()); });
+
+      // Clean stale IDs
+      var cleaned = {};
+      Object.keys(saved).forEach(function(id) {
+        if (currentIds.has(id)) cleaned[id] = saved[id];
+      });
+      try {
+        localStorage.setItem('graphPositions', JSON.stringify(cleaned));
+      } catch (e) { /* ignore */ }
+
+      // Apply saved positions
+      var hasUnsaved = false;
+      cy.nodes().forEach(function(node) {
+        if (cleaned[node.id()]) {
+          node.position(cleaned[node.id()]);
+        } else {
+          hasUnsaved = true;
+        }
+      });
+
+      // If some nodes are new, run CoSE on just those
+      if (hasUnsaved) {
+        var newNodes = cy.nodes().filter(function(n) { return !cleaned[n.id()]; });
+        if (newNodes.length > 0 && newNodes.length < cy.nodes().length) {
+          newNodes.layout({
+            name: 'cose',
+            nodeRepulsion: function() { return 4000; },
+            idealEdgeLength: function() { return 80; },
+            gravity: 0.5,
+            animate: false,
+            padding: 20,
+            fit: false
+          }).run();
+        }
+      }
+    }
+
+    // ── Layer Toggles ──
+    function toggleLayer(layerName, show) {
+      if (!cy) return;
+      layerState[layerName] = show;
+      applyLayerState();
+    }
+
+    function applyLayerState() {
+      if (!cy) return;
+      ['structure', 'content', 'intelligence'].forEach(function(layer) {
+        var nodes = cy.nodes('[layer="' + layer + '"]');
+        if (layerState[layer]) {
+          nodes.show();
+        } else {
+          nodes.hide();
+          // Hide edges connected to hidden nodes
+          nodes.connectedEdges().hide();
+        }
+      });
+      // Show edges where both ends are visible
+      cy.edges().forEach(function(edge) {
+        var src = edge.source();
+        var tgt = edge.target();
+        if (src.visible() && tgt.visible()) {
+          edge.show();
+        } else {
+          edge.hide();
+        }
+      });
+    }
+
+    // ── Preset Views ──
+    function applyPreset(presetName) {
+      if (!cy) return;
+      activePreset = presetName;
+
+      // Remove dimmed from all
+      cy.nodes().removeClass('dimmed');
+      // Reset all layers visible first
+      layerState = { structure: true, content: true, intelligence: true };
+
+      switch (presetName) {
+        case 'room':
+          // Structure + Content visible, Intelligence hidden
+          layerState.intelligence = false;
+          break;
+        case 'meetings':
+          // Structure visible, only meeting + speaker nodes in Content, artifacts hidden
+          layerState.intelligence = false;
+          break;
+        case 'team':
+          // Only speaker + meeting nodes visible
+          layerState.structure = false;
+          layerState.intelligence = false;
+          break;
+        case 'intel':
+          // All layers visible, content nodes dimmed
+          break;
+      }
+
+      // Update layer toggle button states
+      document.querySelectorAll('.layer-btn').forEach(function(btn) {
+        var layer = btn.getAttribute('data-layer');
+        if (layerState[layer]) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      applyLayerState();
+
+      // Additional filtering per preset
+      if (presetName === 'meetings') {
+        // Hide artifacts, show only meetings + speakers + sections
+        cy.nodes('.artifact').hide();
+        cy.nodes('.concept').hide();
+      } else if (presetName === 'team') {
+        // Only speakers and meetings
+        cy.nodes('.artifact').hide();
+        cy.nodes('.concept').hide();
+        cy.nodes('.section-group').hide();
+        cy.nodes('.speaker, .meeting').show();
+        // Only show SPOKE_IN, ATTENDED edges
+        cy.edges().hide();
+        cy.edges('.spoke-in, .attended').forEach(function(e) {
+          if (e.source().visible() && e.target().visible()) e.show();
+        });
+      } else if (presetName === 'intel') {
+        // All visible, but content nodes dimmed
+        cy.nodes('[layer="content"]').addClass('dimmed');
+        cy.nodes('.concept').removeClass('dimmed');
+      }
+
+      // Update preset button states
+      document.querySelectorAll('.preset-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-preset') === presetName);
       });
     }
 
     // ── Detail Panel ──
-    function showDetailPanel(data) {
+    function showDetailPanel(data, classes) {
       const panel = document.getElementById('detail-panel');
       const bar = document.getElementById('detail-section-bar');
       const title = document.getElementById('detail-title');
@@ -668,24 +1130,86 @@
       title.textContent = data.label || data.id;
 
       let html = '';
+      var classList = classes || [];
 
-      if (data.section) {
-        html += fieldHTML('Section', data.section.replace(/-/g, ' '));
+      // ── Meeting node detail ──
+      if (classList.indexOf('meeting') !== -1) {
+        if (data.meeting_date) {
+          html += fieldHTML('Date', data.meeting_date);
+        }
+        if (data.speakers) {
+          html += fieldHTML('Speakers', data.speakers);
+        }
+        // Count decisions and action items from connected edges
+        if (cy) {
+          var node = cy.getElementById(data.id);
+          var filedEdges = node.connectedEdges('.filed-to');
+          html += fieldHTML('Filed Artifacts', '' + filedEdges.length);
+          var attendees = node.connectedEdges('.attended, .spoke-in').connectedNodes('.speaker');
+          if (attendees.length > 0) {
+            var names = [];
+            attendees.forEach(function(n) { names.push(n.data('label') || n.id()); });
+            html += fieldHTML('Attendees', names.join(', '));
+          }
+        }
+        html += fieldHTML('Layer', data.layer || 'content');
       }
-      if (data.methodology) {
-        html += fieldHTML('Methodology', data.methodology);
+      // ── Speaker node detail ──
+      else if (classList.indexOf('speaker') !== -1) {
+        if (data.role) {
+          html += fieldHTML('Role', data.role);
+        }
+        if (data.role_type) {
+          html += fieldHTML('Role Type', data.role_type);
+        }
+        // Connected meetings
+        if (cy) {
+          var node = cy.getElementById(data.id);
+          var meetings = node.connectedEdges('.spoke-in, .attended').connectedNodes('.meeting');
+          if (meetings.length > 0) {
+            var mNames = [];
+            meetings.forEach(function(n) { mNames.push(n.data('label') || n.id()); });
+            html += fieldHTML('Meetings', mNames.join(', '));
+          }
+        }
+        html += fieldHTML('Layer', data.layer || 'content');
       }
-      if (data.created) {
-        html += fieldHTML('Created', data.created);
+      // ── Concept node detail ──
+      else if (classList.indexOf('concept') !== -1) {
+        var isUnresolved = classList.indexOf('unresolved') !== -1;
+        html += fieldHTML('Status', isUnresolved ? 'Unresolved' : 'Resolved');
+        // Referencing artifacts
+        if (cy) {
+          var node = cy.getElementById(data.id);
+          var refs = node.connectedEdges('.references').connectedNodes('.artifact');
+          if (refs.length > 0) {
+            var rNames = [];
+            refs.forEach(function(n) { rNames.push(n.data('label') || n.id()); });
+            html += fieldHTML('Referenced By', rNames.join(', '));
+          }
+        }
+        html += fieldHTML('Layer', data.layer || 'intelligence');
       }
-      if (data.pipeline) {
-        html += fieldHTML('Pipeline', data.pipeline);
-      }
-      if (data.pipeline_stage) {
-        html += fieldHTML('Pipeline Stage', data.pipeline_stage, true);
-      }
-      if (data.id) {
-        html += fieldHTML('File', 'room/' + data.id + '.md', true);
+      // ── Artifact node detail (existing) ──
+      else {
+        if (data.section) {
+          html += fieldHTML('Section', data.section.replace(/-/g, ' '));
+        }
+        if (data.methodology) {
+          html += fieldHTML('Methodology', data.methodology);
+        }
+        if (data.created) {
+          html += fieldHTML('Created', data.created);
+        }
+        if (data.pipeline) {
+          html += fieldHTML('Pipeline', data.pipeline);
+        }
+        if (data.pipeline_stage) {
+          html += fieldHTML('Pipeline Stage', data.pipeline_stage, true);
+        }
+        if (data.id) {
+          html += fieldHTML('File', 'room/' + data.id + '.md', true);
+        }
       }
 
       fields.innerHTML = html;
@@ -903,6 +1427,30 @@
         submitChat();
       });
     });
+
+    // ── Layer toggle event listeners ──
+    document.querySelectorAll('.layer-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        btn.classList.toggle('active');
+        var layer = btn.getAttribute('data-layer');
+        toggleLayer(layer, btn.classList.contains('active'));
+      });
+    });
+
+    // ── Preset view event listeners ──
+    document.querySelectorAll('.preset-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        applyPreset(btn.getAttribute('data-preset'));
+      });
+    });
+
+    // ── Timeline mode (placeholder -- fully implemented in Task 2) ──
+    function stopTimelineAnimations() {
+      if (timelineAnimInterval) {
+        clearInterval(timelineAnimInterval);
+        timelineAnimInterval = null;
+      }
+    }
 
     // ── Boot ──
     loadGraph();
