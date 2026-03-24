@@ -8,23 +8,33 @@ A commercial Claude Code + Cowork plugin that delivers Mindrian's PWS (Personal 
 
 Users can run the full PWS methodology — 25 specialized methodology bots, structured pipelines, and an intelligent Data Room — inside Claude Code with zero infrastructure, where Larry guides them through venture innovation using the same teaching intelligence that powers the classroom experience.
 
-## Current Milestone: v2.0 Meeting Intelligence
+## Current State
 
-**Goal:** Transform MindrianOS from a solo thinking tool into a team intelligence system — join meetings, understand speakers, file insights to the Data Room by person and topic, and build a living knowledge graph of team contributions over time.
+**Shipped:** v2.0 Meeting Intelligence (2026-03-24)
+**Next:** v3.0 (planning)
 
-**Target features:**
-- Meeting transcript filing with speaker identification and role classification
-- Team room structure (members, mentors, advisors with per-person folders)
-- Read AI MCP integration for automatic transcript pull
-- Cross-meeting intelligence (convergence, contradictions, action item tracking)
-- Meeting summary artifacts with provenance
-- Notion Data Room structure mapping
+v1.0 + v2.0 = 41 commands, 5 agents, meeting intelligence pipeline, team room, cross-meeting intelligence, three-layer knowledge graph, De Stijl dashboard + timeline mode, 5 PDF export types.
+
+## v3.0 Backlog (Captured Ideas)
+
+- Opportunity Bank (room section + proactive grant discovery agents)
+- Funding Room (non-dilutive/dilutive/grants sub-rooms, GSD-style process per grant)
+- AI Team Member Personas (domain experts generated from intelligence + Bono perspectives)
+- Wiki-style Data Room Dashboard (hosted Render/Vercel, nodes = pages, edges = hyperlinks)
+- Obsidian Plugin (room/ as Obsidian vault with graph view)
+- Chrome Plugin (meeting join + room access)
+- Room as Remote MCP (collaborative team access from local/remote)
+- MindrianOS CLI tools layer (mindrian-tools.cjs like gsd-tools.cjs)
+- Data Room level status bar (CLI nested room/section context)
+- Cursor + Antigravity/Windsurf compatibility (ICM = universal interface)
+- Risk vs Uncertainty blog post (adapted for MindrianOS)
+- Site style guide + generated images per article
 
 ## Requirements
 
 ### Validated
 
-v1.0 shipped and verified:
+v1.0 shipped (2026-03-22):
 - ✓ One-command install, Larry active immediately (v1.0, Phase 1)
 - ✓ 26 methodology commands + 5 Brain commands + 7 infrastructure commands (v1.0, Phases 2-4)
 - ✓ Data Room with 8 sections, proactive intelligence, pipeline chaining (v1.0, Phases 2-3)
@@ -35,28 +45,21 @@ v1.0 shipped and verified:
 - ✓ Analytics + learning system (v0.2.0)
 - ✓ Auto-update notification at SessionStart (v0.2.0)
 
+v2.0 shipped (2026-03-24):
+- ✓ Meeting filing pipeline with 3 input modes (paste/file/audio) + Velma transcription (v2.0, Phase 6)
+- ✓ Speaker identification with 12 roles, ICM nested folder profiles, proactive web research (v2.0, Phase 6)
+- ✓ Team room structure with dynamic folders, multiple roles, status lifecycle (v2.0, Phase 7)
+- ✓ Full meeting archive packages (7 files per meeting + audio copy) (v2.0, Phase 7)
+- ✓ Cross-meeting intelligence: convergence, contradictions, action items, team patterns (v2.0, Phase 8)
+- ✓ Read AI / Vexa / Recall.ai MCP integration + --latest auto-fetch (v2.0, Phase 8)
+- ✓ Three-layer knowledge graph with [[wikilinks]] and lazy graph pattern (v2.0, Phase 9)
+- ✓ Dashboard timeline mode with layer toggles, preset views, edge animations (v2.0, Phase 9)
+- ✓ Minto pyramid meeting-report PDF export with speaker attribution (v2.0, Phase 9)
+- ✓ Simon's Architecture of Complexity as basis theorem (v2.0, architecture)
+
 ### Active
 
-- [ ] One-command plugin install (`claude plugin install mindrian-os`) with Larry active immediately
-- [ ] ICM 5-layer folder structure as orchestration (Layer 0-4: identity, routing, stage contracts, reference/factory, working artifacts)
-- [ ] Data Room with 8 sections (problem-definition, market-analysis, solution-design, business-model, competitive-analysis, team-execution, legal-ip, financial-model)
-- [ ] Room passive intelligence: auto-capture, classify, and file every insight to correct section
-- [ ] Room proactive intelligence: detect gaps, contradictions, convergence; suggest next methodology; alert readiness
-- [ ] 25 methodology bot commands ported from V2 prompts
-- [ ] Larry personality and voice as default agent
-- [ ] Larry mode engine (40:30:20:10 distribution — conceptual:storytelling:problem-solving:assessment)
-- [ ] Pipeline system: ICM stage contracts for multi-step methodology workflows (Minto, Bono, HSI, JTBD, etc.)
-- [ ] Pipeline chaining through Room — output of one pipeline becomes structured input to next (Week 7 pattern)
-- [ ] Room hierarchy with STATE.md per room — sub-rooms for distinct opportunity spaces
-- [ ] Master STATE.md aggregating full room tree with session continuity
-- [ ] Brain MCP integration (optional) — graph enrichment, chain recommendations, grading, mode intelligence
-- [ ] LazyGraph integration (optional) — user's Neo4j Aura Free for personal knowledge graph
-- [ ] Three-surface compatibility: Claude Code CLI + Desktop + Cowork
-- [ ] Tier 0 (free) fully functional — all 25 methodologies, Data Room, pipelines with no dependencies
-- [ ] Graceful degradation: works without Brain, without LazyGraph, without any optional services
-- [ ] Methodology extensibility: Level A (conversation bot, one .md), Level B (full pipeline, folder), Level C (Brain graph integration)
-- [ ] SessionStart / PostToolUse / Stop hooks for intelligence pipeline
-- [ ] Connector awareness skill for detecting and leveraging available MCPs
+(Pending v3.0 requirements definition via `/gsd:new-milestone`)
 
 ### Out of Scope
 
