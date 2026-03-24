@@ -66,6 +66,7 @@ DOC_TYPES = {
     "summary": "executive-summary.html",
     "report": "due-diligence.html",
     "profile": "profile.html",
+    "meeting-report": "meeting-report.html",
 }
 
 DOC_TITLES = {
@@ -73,6 +74,7 @@ DOC_TITLES = {
     "summary": "Executive Summary",
     "report": "Due Diligence Report",
     "profile": "PWS Profile",
+    "meeting-report": "Meeting Intelligence Report",
 }
 
 SKIP_FILES = {"ROOM.md", "STATE.md"}
@@ -151,6 +153,244 @@ def _infer_venture_name(room_dir: Path) -> str:
     return "Untitled Venture"
 
 
+def collect_meeting_data(room_dir: Path) -> dict:
+    """Scan room/meetings/ directories, gather meeting intelligence for report."""
+    meetings_dir = room_dir / "meetings"
+    meetings = []
+    all_speakers = {}
+    total_decisions = 0
+    total_action_items = 0
+    contradictions = []
+    convergence_themes = []
+    open_items = []
+
+    if meetings_dir.is_dir():
+        for meeting_dir in sorted(meetings_dir.iterdir()):
+            if not meeting_dir.is_dir():
+                continue
+
+            # Read metadata.yaml
+            meta_file = meeting_dir / "metadata.yaml"
+            meta = {}
+            if meta_file.exists():
+                try:
+                    meta = yaml.safe_load(meta_file.read_text(encoding="utf-8")) or {}
+                except Exception:
+                    pass
+
+            meeting_name = meta.get("meeting_name", meeting_dir.name)
+            meeting_date = meta.get("meeting_date", "")
+            speakers_data = meta.get("speakers", [])
+            decisions_count = meta.get("decisions_count", 0) or 0
+            action_items_count = meta.get("action_items_count", 0) or 0
+
+            total_decisions += decisions_count
+            total_action_items += action_items_count
+
+            # Track speakers globally
+            speakers = []
+            for sp in speakers_data:
+                name = sp.get("name", "Unknown")
+                role = sp.get("role", "unknown")
+                all_speakers[name] = role
+                speakers.append({"name": name, "role": role})
+
+            # Read summary.md
+            summary_html = ""
+            summary_file = meeting_dir / "summary.md"
+            if summary_file.exists():
+                try:
+                    text = summary_file.read_text(encoding="utf-8")
+                    result = markdown2.markdown(
+                        text, extras=["fenced-code-blocks", "tables"]
+                    )
+                    summary_html = str(result)
+                except Exception:
+                    pass
+
+            # Read decisions.md for decision text
+            decisions = []
+            decisions_file = meeting_dir / "decisions.md"
+            if decisions_file.exists():
+                try:
+                    dec_text = decisions_file.read_text(encoding="utf-8")
+                    for line in dec_text.splitlines():
+                        stripped = line.strip()
+                        if stripped.startswith(("1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "9.")):
+                            decisions.append(stripped.split(".", 1)[1].strip().lstrip("*").strip())
+                except Exception:
+                    pass
+
+            # Read action-items.md for open items
+            ai_file = meeting_dir / "action-items.md"
+            if ai_file.exists():
+                try:
+                    ai_text = ai_file.read_text(encoding="utf-8")
+                    for line in ai_text.splitlines():
+                        if "| " in line and "open" in line.lower():
+                            parts = [p.strip() for p in line.split("|") if p.strip()]
+                            if len(parts) >= 4:
+                                open_items.append({
+                                    "owner": parts[0],
+                                    "task": parts[1],
+                                    "source_meeting": meeting_name,
+                                })
+                except Exception:
+                    pass
+
+            # Scan filed-to/ for filing indicators
+            filings = []
+            filed_to_dir = meeting_dir / "filed-to"
+            if filed_to_dir.is_dir():
+                for ref_file in sorted(filed_to_dir.glob("*.md")):
+                    try:
+                        ref_text = ref_file.read_text(encoding="utf-8")
+                        filed_path = ""
+                        artifact_title = ref_file.stem.replace("-", " ").title()
+                        for rline in ref_text.splitlines():
+                            if rline.startswith("Filed to:"):
+                                filed_path = rline.split(":", 1)[1].strip()
+                        # Determine section from filed path
+                        section_name = ""
+                        if filed_path:
+                            parts = filed_path.replace("room/", "").split("/")
+                            if parts:
+                                section_name = parts[0]
+                        section_color = SECTION_COLORS.get(section_name, "#5C5A56")
+                        section_label = SECTION_LABELS.get(section_name, section_name)
+                        filings.append({
+                            "section_color": section_color,
+                            "section_label": section_label,
+                            "artifact_title": artifact_title,
+                        })
+                    except Exception:
+                        pass
+
+            meetings.append({
+                "name": meeting_name,
+                "date": str(meeting_date),
+                "speakers": speakers,
+                "decisions": decisions,
+                "action_items_count": action_items_count,
+                "action_items": [],  # individual items if extracted
+                "filings": filings,
+                "summary_html": summary_html,
+            })
+
+            # Collect topics for convergence
+            for topic in meta.get("topics", []):
+                convergence_themes.append(topic)
+
+    # Read MEETINGS-INTELLIGENCE.md for contradictions/convergence
+    intel_file = room_dir / "MEETINGS-INTELLIGENCE.md"
+    if intel_file.exists():
+        try:
+            intel_text = intel_file.read_text(encoding="utf-8")
+            in_contradictions = False
+            for line in intel_text.splitlines():
+                if "contradiction" in line.lower() and line.startswith("#"):
+                    in_contradictions = True
+                    continue
+                elif line.startswith("#"):
+                    in_contradictions = False
+                if in_contradictions and line.strip().startswith("-"):
+                    contradictions.append({
+                        "description": line.strip().lstrip("-").strip(),
+                        "source_meeting": "cross-meeting analysis",
+                    })
+        except Exception:
+            pass
+
+    # Read team/TEAM-STATE.md for speaker roles (supplement)
+    team_state = room_dir / "team" / "TEAM-STATE.md"
+    if team_state.exists():
+        try:
+            ts_text = team_state.read_text(encoding="utf-8")
+            if ts_text.startswith("---"):
+                parts = ts_text.split("---", 2)
+                if len(parts) >= 3:
+                    ts_meta = yaml.safe_load(parts[1])
+                    if isinstance(ts_meta, dict):
+                        for member in ts_meta.get("members", []):
+                            name = member.get("name", "")
+                            role = member.get("primary_role", member.get("role", ""))
+                            if name and name not in all_speakers:
+                                all_speakers[name] = role
+        except Exception:
+            pass
+
+    # Build date range
+    dates = [m["date"] for m in meetings if m["date"]]
+    date_range = ""
+    if dates:
+        date_range = f"{dates[0]} to {dates[-1]}" if len(dates) > 1 else dates[0]
+
+    # Count convergence (topics appearing 3+)
+    from collections import Counter
+    topic_counts = Counter(convergence_themes)
+    convergent = [t for t, c in topic_counts.items() if c >= 3]
+
+    # Build executive summary (data-driven)
+    executive = {
+        "meeting_count": len(meetings),
+        "speaker_count": len(all_speakers),
+        "decision_count": total_decisions,
+        "action_item_count": total_action_items,
+        "date_range": date_range,
+        "narrative": (
+            f"{len(meetings)} meetings spanning {date_range or 'current period'} "
+            f"with {len(all_speakers)} unique speakers. "
+            f"{total_decisions} decisions recorded, "
+            f"{total_action_items} action items tracked."
+        ),
+    }
+
+    # Build logical claim (data-driven patterns)
+    claim_paragraphs = []
+    if convergent:
+        claim_paragraphs.append(
+            f"Across {len(meetings)} meetings, clear convergence has emerged around: "
+            + ", ".join(convergent) + "."
+        )
+    if total_decisions > 0:
+        claim_paragraphs.append(
+            f"The team has made {total_decisions} explicit decisions, "
+            f"showing active direction-setting across the venture."
+        )
+    if contradictions:
+        claim_paragraphs.append(
+            f"{len(contradictions)} contradiction(s) remain open, "
+            f"indicating areas where alignment is still forming."
+        )
+    if not claim_paragraphs:
+        claim_paragraphs.append(
+            "Meeting intelligence is accumulating. "
+            "Patterns will become clearer as more meetings are filed."
+        )
+
+    # Accent colors for meeting card rotation
+    accent_colors = list(SECTION_COLORS.values())
+
+    venture_name = _infer_venture_name(room_dir)
+
+    return {
+        "executive": executive,
+        "claim": {
+            "paragraphs": claim_paragraphs,
+            "convergence_themes": convergent,
+        },
+        "meetings": meetings,
+        "contradictions": contradictions,
+        "open_items": open_items,
+        "colors": accent_colors,
+        "metadata": {
+            "generated": datetime.now().strftime("%Y-%m-%d"),
+            "venture_name": venture_name,
+            "doc_type": "meeting-report",
+        },
+    }
+
+
 def render_document(doc_type: str, room_data: dict, output_path: Path) -> None:
     """Render Jinja2 template to PDF via WeasyPrint."""
     template_name = DOC_TYPES[doc_type]
@@ -168,14 +408,26 @@ def render_document(doc_type: str, room_data: dict, output_path: Path) -> None:
     env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
     template = env.get_template(template_name)
 
-    html_string = template.render(
-        sections=room_data["sections"],
-        metadata=room_data["metadata"],
-        colors=SECTION_COLORS,
-        labels=SECTION_LABELS,
-        section_order=SECTIONS,
-        doc_title=DOC_TITLES.get(doc_type, doc_type.title()),
-    )
+    if doc_type == "meeting-report":
+        html_string = template.render(
+            executive=room_data["executive"],
+            claim=room_data["claim"],
+            meetings=room_data["meetings"],
+            contradictions=room_data["contradictions"],
+            open_items=room_data["open_items"],
+            colors=room_data.get("colors", list(SECTION_COLORS.values())),
+            metadata=room_data["metadata"],
+            doc_title=DOC_TITLES.get(doc_type, doc_type.title()),
+        )
+    else:
+        html_string = template.render(
+            sections=room_data["sections"],
+            metadata=room_data["metadata"],
+            colors=SECTION_COLORS,
+            labels=SECTION_LABELS,
+            section_order=SECTIONS,
+            doc_title=DOC_TITLES.get(doc_type, doc_type.title()),
+        )
 
     font_config = FontConfiguration()
     css = CSS(
@@ -293,12 +545,16 @@ def main():
         sys.exit(1)
 
     # Collect room data
-    room_data = collect_room_data(args.room, args.doc_type)
-
-    # Check for any content
-    if not room_data["sections"]:
-        print("Data Room is empty. Run some methodologies first.")
-        sys.exit(1)
+    if args.doc_type == "meeting-report":
+        room_data = collect_meeting_data(args.room)
+        if not room_data["meetings"]:
+            print("No meetings found. File some meetings first with /mindrian-os:file-meeting.")
+            sys.exit(1)
+    else:
+        room_data = collect_room_data(args.room, args.doc_type)
+        if not room_data["sections"]:
+            print("Data Room is empty. Run some methodologies first.")
+            sys.exit(1)
 
     # Set output path
     if args.output:

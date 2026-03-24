@@ -1,0 +1,361 @@
+{% extends "_base.html" %}
+
+{% block extra_css %}
+/* De Stijl Meeting Intelligence Report */
+
+.minto-executive {
+  border-left: 6px solid #A63D2F;
+  padding: 24px 32px;
+  margin: 40px 0 32px;
+  font-size: 1.15em;
+  line-height: 1.6;
+  color: #1A1A1A;
+}
+
+.minto-executive h2 {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: #A63D2F;
+}
+
+.minto-executive .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.minto-executive .stat-box {
+  text-align: center;
+  padding: 12px;
+  background: #F5F2EC;
+  border-top: 3px solid #A63D2F;
+}
+
+.minto-executive .stat-box .number {
+  font-size: 1.8em;
+  font-weight: 700;
+  color: #A63D2F;
+  display: block;
+}
+
+.minto-executive .stat-box .label {
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #5C5A56;
+}
+
+.minto-claim {
+  margin: 32px 0;
+  padding: 24px 32px;
+  background: #F5F2EC;
+  border-left: 4px solid #C8A43C;
+}
+
+.minto-claim h2 {
+  font-size: 1.3em;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: #C8A43C;
+}
+
+.minto-claim p {
+  line-height: 1.7;
+  color: #2A2A2A;
+}
+
+.minto-backbone {
+  margin: 32px 0;
+}
+
+.minto-backbone h2 {
+  font-size: 1.3em;
+  font-weight: 700;
+  margin: 0 0 20px;
+  color: #1E3A6E;
+}
+
+.meeting-card {
+  background: #1A1A1A;
+  color: #F5F2EC;
+  padding: 20px 24px;
+  margin: 16px 0;
+  border-left: 5px solid #C8A43C;
+}
+
+.meeting-card h3 {
+  font-size: 1.1em;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #FFFFFF;
+}
+
+.meeting-card .meeting-date {
+  font-size: 0.85em;
+  color: #999;
+  margin-bottom: 12px;
+}
+
+.meeting-card .speakers-row {
+  margin: 8px 0 12px;
+}
+
+.speaker-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  margin: 2px 4px 2px 0;
+  font-size: 0.78em;
+  border-radius: 12px;
+  background: #2A2A2A;
+  color: #F5F2EC;
+  border: 1px solid #5C5A56;
+}
+
+.speaker-tag.mentor { border-color: #C8A43C; }
+.speaker-tag.investor { border-color: #2D6B4A; }
+.speaker-tag.founder { border-color: #A63D2F; }
+.speaker-tag.advisor { border-color: #6B4E8B; }
+.speaker-tag.researcher { border-color: #1E3A6E; }
+.speaker-tag.team-member { border-color: #2A6B5E; }
+.speaker-tag.customer { border-color: #B5602A; }
+.speaker-tag.domain-expert { border-color: #5C5A56; }
+
+.meeting-card .decisions-list,
+.meeting-card .action-items-list {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.meeting-card .decisions-list li,
+.meeting-card .action-items-list li {
+  margin: 4px 0;
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+.minto-evidence {
+  margin: 32px 0;
+}
+
+.minto-evidence h2 {
+  font-size: 1.3em;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: #B5602A;
+}
+
+.contradiction-entry,
+.open-item-entry {
+  padding: 12px 16px;
+  margin: 8px 0;
+  background: #FFF8F0;
+  border-left: 3px solid #B5602A;
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+.contradiction-entry .source,
+.open-item-entry .source {
+  font-size: 0.8em;
+  color: #888;
+  margin-top: 4px;
+}
+
+.minto-full-analysis {
+  page-break-before: always;
+  margin-top: 40px;
+}
+
+.minto-full-analysis h2 {
+  font-size: 1.3em;
+  font-weight: 700;
+  margin: 0 0 20px;
+  color: #1A1A1A;
+}
+
+.full-meeting-section {
+  page-break-before: always;
+  margin: 32px 0;
+}
+
+.full-meeting-section:first-child {
+  page-break-before: avoid;
+}
+
+.full-meeting-header {
+  padding: 16px 20px;
+  background: #1A1A1A;
+  color: #F5F2EC;
+  margin-bottom: 16px;
+}
+
+.full-meeting-header h3 {
+  font-size: 1.15em;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #FFFFFF;
+}
+
+.full-meeting-header .date-label {
+  font-size: 0.85em;
+  color: #999;
+}
+
+.filing-indicator {
+  padding: 6px 12px;
+  margin: 4px 0;
+  border-left: 3px solid #5C5A56;
+  font-size: 0.85em;
+  line-height: 1.5;
+}
+
+.filing-indicator .section-label {
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+.filing-indicator .artifact-title {
+  font-weight: 400;
+  color: #444;
+}
+
+.full-meeting-summary {
+  margin: 16px 0;
+  padding: 12px 0;
+  line-height: 1.7;
+  font-size: 0.92em;
+}
+{% endblock %}
+
+{% block content %}
+
+<!-- Level 1: Executive Summary -->
+<div class="minto-executive">
+  <h2>Executive Summary</h2>
+  <p>{{ executive.narrative }}</p>
+  <div class="stats-grid">
+    <div class="stat-box">
+      <span class="number">{{ executive.meeting_count }}</span>
+      <span class="label">Meetings</span>
+    </div>
+    <div class="stat-box">
+      <span class="number">{{ executive.speaker_count }}</span>
+      <span class="label">Speakers</span>
+    </div>
+    <div class="stat-box">
+      <span class="number">{{ executive.decision_count }}</span>
+      <span class="label">Decisions</span>
+    </div>
+    <div class="stat-box">
+      <span class="number">{{ executive.action_item_count }}</span>
+      <span class="label">Action Items</span>
+    </div>
+  </div>
+  {% if executive.date_range %}
+  <p style="font-size: 0.85em; color: #888; margin-top: 12px;">Period: {{ executive.date_range }}</p>
+  {% endif %}
+</div>
+
+<!-- Level 2: Logical Claim -->
+<div class="minto-claim">
+  <h2>What the Meetings Collectively Tell Us</h2>
+  {% for paragraph in claim.paragraphs %}
+  <p>{{ paragraph }}</p>
+  {% endfor %}
+  {% if claim.convergence_themes %}
+  <p><strong>Key convergence themes:</strong> {{ claim.convergence_themes | join(", ") }}</p>
+  {% endif %}
+</div>
+
+<!-- Level 3: Key Meeting Insights -->
+<div class="minto-backbone">
+  <h2>Key Meeting Insights</h2>
+  {% for meeting in meetings %}
+  <div class="meeting-card" style="border-left-color: {{ colors[loop.index0 % 8] }};">
+    <h3>{{ meeting.name }}</h3>
+    <div class="meeting-date">{{ meeting.date }}</div>
+    <div class="speakers-row">
+      {% for speaker in meeting.speakers %}
+      <span class="speaker-tag {{ speaker.role }}">{{ speaker.name }} ({{ speaker.role }})</span>
+      {% endfor %}
+    </div>
+    {% if meeting.decisions %}
+    <strong style="font-size: 0.85em; color: #C8A43C;">Decisions:</strong>
+    <ul class="decisions-list">
+      {% for d in meeting.decisions %}
+      <li>{{ d }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% if meeting.action_items %}
+    <strong style="font-size: 0.85em; color: #2D6B4A;">Action Items:</strong>
+    <ul class="action-items-list">
+      {% for a in meeting.action_items %}
+      <li>{{ a }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Level 4: Contradictions and Open Questions -->
+<div class="minto-evidence">
+  <h2>Contradictions &amp; Open Questions</h2>
+  {% if contradictions %}
+  <h3 style="font-size: 1em; margin: 16px 0 8px;">Contradictions</h3>
+  {% for c in contradictions %}
+  <div class="contradiction-entry">
+    {{ c.description }}
+    <div class="source">Source: {{ c.source_meeting }}</div>
+  </div>
+  {% endfor %}
+  {% endif %}
+  {% if open_items %}
+  <h3 style="font-size: 1em; margin: 16px 0 8px;">Unresolved Action Items</h3>
+  {% for item in open_items %}
+  <div class="open-item-entry">
+    <strong>{{ item.owner }}:</strong> {{ item.task }}
+    <div class="source">From: {{ item.source_meeting }}</div>
+  </div>
+  {% endfor %}
+  {% endif %}
+  {% if not contradictions and not open_items %}
+  <p style="color: #888; font-style: italic;">No contradictions or unresolved items detected.</p>
+  {% endif %}
+</div>
+
+<!-- Level 5: Full Analysis by Meeting -->
+<div class="minto-full-analysis">
+  <h2>Full Analysis by Meeting</h2>
+  {% for meeting in meetings %}
+  <div class="full-meeting-section">
+    <div class="full-meeting-header">
+      <h3>{{ meeting.name }}</h3>
+      <span class="date-label">{{ meeting.date }}</span>
+      <div class="speakers-row" style="margin-top: 8px;">
+        {% for speaker in meeting.speakers %}
+        <span class="speaker-tag {{ speaker.role }}">{{ speaker.name }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% if meeting.filings %}
+    {% for filing in meeting.filings %}
+    <div class="filing-indicator" style="border-left-color: {{ filing.section_color }};">
+      <span class="section-label">{{ filing.section_label }}</span>
+      <span class="artifact-title">{{ filing.artifact_title }}</span>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% if meeting.summary_html %}
+    <div class="full-meeting-summary">
+      {{ meeting.summary_html }}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
