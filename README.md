@@ -97,6 +97,141 @@ De Stijl formatted PDFs generated directly from your Data Room content.
 
 ---
 
+## How to Use MindrianOS on Each Platform
+
+MindrianOS runs on all three Claude surfaces. Each has different strengths.
+
+### Claude Code (Recommended -- Full Power)
+
+The primary experience. Hooks fire, scripts execute, the Data Room updates in real-time.
+
+**Install:**
+```bash
+claude plugin marketplace add jsagir/mindrian-marketplace
+claude plugin install mindrian-os@mindrian-marketplace
+```
+
+**Your first session:**
+```bash
+# Start Claude Code in your project directory
+claude
+
+# Option A: Just talk
+> I'm working on a platform that connects local farmers with urban restaurants.
+# Larry responds, asks questions, and starts building your Data Room.
+
+# Option B: Create structure first
+/mindrian-os:new-project
+
+# Explore frameworks
+/mindrian-os:beautiful-question      # Reframe your challenge
+/mindrian-os:explore-domains         # Map the innovation landscape
+/mindrian-os:challenge-assumptions   # Stress-test your thinking
+
+# Check progress
+/mindrian-os:status                  # Where you stand
+/mindrian-os:help                    # What to do next
+
+# File a meeting
+/mindrian-os:file-meeting            # Paste transcript or provide audio
+
+# See your room as a graph
+/mindrian-os:room view               # Opens localhost dashboard
+
+# Export for investors
+/mindrian-os:export thesis           # Generate investment thesis PDF
+```
+
+**What you get on Claude Code:**
+- SessionStart hook loads room context automatically
+- PostToolUse hook auto-files insights after every write
+- Full script execution (PDF export, dashboard, Velma transcription)
+- All 41 commands available
+- Pipeline chaining across frameworks
+- Context monitoring and budget awareness
+
+---
+
+### Claude Desktop (Conversational)
+
+Larry's personality shines here. Less command-driven, more natural dialogue. Great for early exploration.
+
+**Install:** Same two commands in your terminal, then open Claude Desktop.
+
+**Your first session:**
+
+Just start talking:
+```
+You: I've been thinking about a problem in healthcare -- patient handoffs
+     between shifts lose critical information.
+
+Larry: That's interesting. Before we jump to solutions, let me ask: when you
+       say "critical information" -- are you talking about clinical data that
+       exists in the EHR but doesn't transfer, or tacit knowledge that lives
+       in the nurse's head and never gets written down?
+```
+
+Larry will guide the conversation naturally. When you're ready for structure:
+```
+You: /mindrian-os:help
+Larry: Based on where you are, I'd suggest starting with /mindrian-os:beautiful-question
+       to reframe what you're actually solving...
+```
+
+**Best for:**
+- Early-stage idea exploration
+- Natural conversation with Larry's teaching voice
+- Quick brainstorming sessions
+- Discovering commands through dialogue
+
+**Limitations vs Claude Code:**
+- No automatic hooks (SessionStart, PostToolUse)
+- Scripts require manual execution
+- No localhost dashboard
+- No automatic insight filing
+
+---
+
+### Cowork (Team Collaboration)
+
+Multi-user, persistent agents. Your team shares a Data Room through the `00_Context/` directory.
+
+**Install:** Same two commands. The plugin activates for all workspace members.
+
+**Your first session:**
+```bash
+# One person creates the project
+/mindrian-os:new-project
+
+# Everyone sees the same Data Room
+/mindrian-os:status                  # Shows team's shared progress
+
+# Multiple people can run methodologies concurrently
+# Person A: /mindrian-os:analyze-needs
+# Person B: /mindrian-os:challenge-assumptions
+# Both artifacts file to the same room
+
+# File team meetings
+/mindrian-os:file-meeting            # Meeting insights go to shared room
+
+# Team intelligence
+# TEAM-STATE.md shows who contributed what, expertise gaps, patterns
+```
+
+**Best for:**
+- Team ventures with multiple contributors
+- Shared Data Room across members
+- Meeting intelligence with speaker tracking
+- Investor-ready exports from collaborative work
+
+**How it differs:**
+- `00_Context/` directory gives Larry shared team context
+- Room entries show attribution (who filed what, from which meeting)
+- TEAM-STATE.md provides team knowledge landscape
+- Export quality maintained for stakeholder presentations
+
+---
+
 ## 41 Commands
 
 ### Infrastructure
