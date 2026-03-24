@@ -212,20 +212,44 @@ When an artifact is filed that contradicts or changes an assumption in another s
 
 Every feature is evaluated against this job. If it doesn't compress time-to-decision, it doesn't belong.
 
-### ICM × Wicked Problem Management
+### Simon's Architecture of Complexity — The Basis Theorem
 
-ICM (Van Clief & McDermott 2026) says: **folder structure IS the code.** The paper (Sagir 2026) says: **the venture IS a wicked problem.** Combined:
+Herbert Simon (1962) proved that **all complex systems that persist are hierarchically organized into near-decomposable subsystems**. This isn't a design choice — it's a survival requirement. MindrianOS is the first software implementation of Simon's theory applied to venture innovation.
 
-**The folder structure IS the wicked problem.**
+**Simon's Principles → MindrianOS Implementation:**
 
-Each room section is a subsystem. Each artifact is a claim. Each cross-reference is a relationship. The hidden connections between subsystems — the ones nobody sees until it's too late — are discoverable by traversing the room's structure as a graph.
+| Simon | MindrianOS |
+|-------|-----------|
+| Near-decomposable systems | Room sections = subsystems with strong internal cohesion, weak external coupling |
+| Hierarchy as universal form | `room/` → sections → artifacts → claims. Each level has its own STATE.md |
+| Watchmaker parable (Hora builds in modules) | Skills, commands, agents — each built independently, snapped together via hooks |
+| Perturbations absorbed within levels | Filing an artifact updates its section, not the whole room |
+| Innovation at boundaries between levels | Cross-relationship discovery (INFORMS, CONTRADICTS, CONVERGES) — edges BETWEEN sections are where value concentrates |
+| Stable building blocks recombined | 25 methodology commands as reusable modules, pipeline chaining (Week 7 pattern) |
+| Near-decomposability enables evolution | Room structure grows organically — team/ folders created on demand, meetings populate the graph |
+
+**Simon + Rittel & Webber (1973):** The venture is a wicked problem. Simon's hierarchy makes wicked problems navigable by decomposing them into near-independent subsystems that can evolve without destroying each other.
+
+**Simon + Tetlock (Superforecasting):** Each room section is a decomposed forecasting domain. Meeting intelligence provides Bayesian updating (convergence = confidence growing, contradictions = beliefs need revision). The intelligence layer IS disciplined belief revision across the hierarchy.
+
+**Simon + Hughes (Reverse Salients):** In any expanding system, some components lag behind others. The cross-relationship scan finds these reverse salients — the room sections where the venture's understanding is weakest relative to its ambition.
+
+**The Architecture Theorem:** _The folder structure IS the near-decomposable hierarchy. The intelligence layer IS the weak interaction detector. Larry IS the hierarchical search navigator._
+
+### ICM × Wicked Problem Management × Simon
+
+ICM (Van Clief & McDermott 2026) says: **folder structure IS the code.** The paper (Sagir 2026) says: **the venture IS a wicked problem.** Simon (1962) says: **complex systems persist through hierarchical near-decomposability.** Combined:
+
+**The folder structure IS the wicked problem, organized as a near-decomposable hierarchy.**
+
+Each room section is a subsystem. Each artifact is a claim. Each cross-reference is a relationship. The hidden connections between subsystems — the ones nobody sees until it's too late — are discoverable by traversing the room's structure as a graph. This IS Simon's "weak interactions between subsystems" made visible.
 
 ```
-ICM Layer 0 (Identity)     = The venture's current problem formulation
-ICM Layer 1 (Routing)      = Problem type × wickedness → which agent/skill responds
-ICM Layer 2 (Contracts)    = Pipeline stage contracts encode cascade rules
-ICM Layer 3 (Reference)    = Brain graph + methodology references + assumption registry
-ICM Layer 4 (Artifacts)    = Room entries = claims with validity status + cross-refs
+ICM Layer 0 (Identity)     = The venture's current problem formulation (Simon: top of hierarchy)
+ICM Layer 1 (Routing)      = Problem type × wickedness → which agent/skill responds (Simon: hierarchical search)
+ICM Layer 2 (Contracts)    = Pipeline stage contracts encode cascade rules (Simon: inter-subsystem interfaces)
+ICM Layer 3 (Reference)    = Brain graph + methodology references + assumption registry (Simon: stable building blocks)
+ICM Layer 4 (Artifacts)    = Room entries = claims with validity status + cross-refs (Simon: subsystem components)
 ```
 
 **The cross-relationship discovery rule:** After EVERY artifact is filed (methodology session OR meeting segment), the system scans for:
@@ -250,11 +274,14 @@ This loop is the wicked problem management engine. It never stops running. It ge
 ### Reference
 
 See `docs/research/LIVE_DATA_ROOM_JTBD_PAPER.md` for full theoretical grounding:
-- Rittel & Webber (1973) wicked problems — the 10 characteristics
-- Simon (1962) nested systems / nearly decomposable hierarchies
-- Van Clief & McDermott (2026) ICM — folder structure as agentic architecture
-- Christensen/Ulwick JTBD framework — the core job is time compression
-- Ashby's Law of Requisite Variety — tools must match system complexity
+- **Simon (1962)** Architecture of Complexity — THE basis theorem. Near-decomposable hierarchies, watchmaker parable, hierarchical search. MindrianOS is Simon's theory as software.
+- **Rittel & Webber (1973)** wicked problems — the 10 characteristics. The venture IS a wicked problem.
+- **Van Clief & McDermott (2026)** ICM — folder structure as agentic architecture. The code IS the folder structure.
+- **Tetlock (2015)** Superforecasting — Bayesian updating, decomposition, probabilistic triage. The intelligence layer IS disciplined belief revision.
+- **Hughes (1983)** Reverse Salients — lagging components in expanding systems. Cross-relationship scan finds where the venture's understanding lags.
+- **Christensen/Ulwick** JTBD framework — the core job is time compression between insight and validated decision.
+- **Ashby's Law** of Requisite Variety — tools must match system complexity. 25 methodologies + intelligence layer = requisite variety for wicked problems.
+- **Knight (1921)** Risk vs. Uncertainty distinction — Risk can be managed, Uncertainty must be navigated. MindrianOS navigates uncertainty through Simon's hierarchical structure.
 
 ---
 
