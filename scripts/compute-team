@@ -401,6 +401,156 @@ OUTPUT_FILE="$TEAM_DIR/TEAM-STATE.md"
   for i in "${!p_names[@]}"; do
     echo "| ${p_names[$i]} | ${p_statuses[$i]} | ${p_meetings_attended[$i]} | ${p_last_actives[$i]:-unknown} | ${p_trends[$i]} |"
   done
+  echo ""
+
+  # ─── Recurring Concerns ──────────────────────────────────────────────────
+  # For each person, group their artifacts by section keywords to find recurring themes
+  echo "## Recurring Concerns"
+  echo ""
+
+  has_recurring=false
+  declare -A person_topic_counts    # "name|topic" -> count
+  declare -A person_topic_first     # "name|topic" -> first date
+
+  for name in "${!person_artifacts[@]}"; do
+    artifacts_raw="${person_artifacts[$name]}"
+    [ -z "$artifacts_raw" ] && continue
+
+    # Count how many artifacts per section per person
+    declare -A section_counts_local
+    declare -A section_first_local
+
+    while IFS='|' read -r art_date art_section art_type art_fname; do
+      [ -z "$art_section" ] && continue
+      key="$art_section"
+      current=${section_counts_local[$key]:-0}
+      section_counts_local[$key]=$((current + 1))
+
+      first=${section_first_local[$key]:-}
+      if [ -z "$first" ] || [[ "$art_date" < "$first" ]]; then
+        section_first_local[$key]="$art_date"
+      fi
+    done <<< "$artifacts_raw"
+
+    for sec in "${!section_counts_local[@]}"; do
+      cnt="${section_counts_local[$sec]}"
+      person_topic_counts["${name}|${sec}"]="$cnt"
+      person_topic_first["${name}|${sec}"]="${section_first_local[$sec]}"
+    done
+
+    unset section_counts_local
+    unset section_first_local
+    declare -A section_counts_local
+    declare -A section_first_local
+  done
+
+  # Output recurring concerns (3+ artifacts in same section)
+  recurring_lines=()
+  for key in "${!person_topic_counts[@]}"; do
+    cnt="${person_topic_counts[$key]}"
+    if [ "$cnt" -ge 3 ]; then
+      IFS='|' read -r person topic <<< "$key"
+      first_date="${person_topic_first[$key]}"
+      recurring_lines+=("| $person | $topic | $cnt | $first_date |")
+      has_recurring=true
+    fi
+  done
+
+  if $has_recurring; then
+    echo "| Person | Concern | Frequency | First Raised |"
+    echo "|--------|---------|-----------|--------------|"
+    for line in "${recurring_lines[@]}"; do
+      echo "$line"
+    done
+  else
+    echo "No recurring concerns detected yet. Requires 3+ artifacts from the same person in the same section."
+  fi
+  echo ""
+
+  # ─── Influence Distribution ──────────────────────────────────────────────
+  # For each person, count decision artifacts and compute influence score
+  echo "## Influence Distribution"
+  echo ""
+
+  declare -A person_decisions     # name -> decision count
+  declare -A person_insights      # name -> insight count
+  declare -A person_domain_decisions  # "section" -> "name1:count1,name2:count2"
+
+  for name in "${!person_artifacts[@]}"; do
+    artifacts_raw="${person_artifacts[$name]}"
+    [ -z "$artifacts_raw" ] && continue
+
+    d_count=0
+    i_count=0
+
+    while IFS='|' read -r art_date art_section art_type art_fname; do
+      [ -z "$art_type" ] && continue
+      if [[ "$art_type" == "decision" ]]; then
+        d_count=$((d_count + 1))
+
+        # Track domain decisions
+        existing=${person_domain_decisions[$art_section]:-}
+        # Simple: just track who has most decisions per section
+        person_domain_decisions["${art_section}|${name}"]=$((${person_domain_decisions["${art_section}|${name}"]:-0} + 1))
+      elif [[ "$art_type" == "insight" ]]; then
+        i_count=$((i_count + 1))
+      fi
+    done <<< "$artifacts_raw"
+
+    person_decisions[$name]=$d_count
+    person_insights[$name]=$i_count
+  done
+
+  # Find primary voice per domain (section with most decisions)
+  declare -A domain_primary_voice   # section -> name
+  declare -A domain_primary_count   # section -> count
+
+  for key in "${!person_domain_decisions[@]}"; do
+    IFS='|' read -r section name <<< "$key"
+    cnt="${person_domain_decisions[$key]}"
+    current_max=${domain_primary_count[$section]:-0}
+    if [ "$cnt" -gt "$current_max" ]; then
+      domain_primary_voice[$section]="$name"
+      domain_primary_count[$section]="$cnt"
+    fi
+  done
+
+  if [ ${#domain_primary_voice[@]} -gt 0 ]; then
+    echo "| Domain | Primary Voice | Decisions Led |"
+    echo "|--------|--------------|---------------|"
+    for section in "${!domain_primary_voice[@]}"; do
+      echo "| $section | ${domain_primary_voice[$section]} | ${domain_primary_count[$section]} |"
+    done
+  else
+    echo "No decision artifacts attributed yet."
+  fi
+  echo ""
+
+  # Influence scores
+  has_influence=false
+  influence_lines=()
+  for name in "${!person_decisions[@]}"; do
+    d=${person_decisions[$name]}
+    ins=${person_insights[$name]:-0}
+    # influence = decisions + (insights * 0.5) -- use integer math: decisions*2 + insights / 2
+    score_x2=$((d * 2 + ins))
+    score_int=$((score_x2 / 2))
+    score_dec=$((score_x2 % 2))
+    if [ "$d" -gt 0 ] || [ "$ins" -gt 0 ]; then
+      influence_lines+=("| $name | $d | $ins | ${score_int}.${score_dec} |")
+      has_influence=true
+    fi
+  done
+
+  if $has_influence; then
+    echo "### Influence Scores"
+    echo ""
+    echo "| Person | Decisions | Insights | Influence Score |"
+    echo "|--------|-----------|----------|-----------------|"
+    for line in "${influence_lines[@]}"; do
+      echo "$line"
+    done
+  fi
 } > "$OUTPUT_FILE"
 
 # ─── Update PROFILE.md Contributions sections ────────────────────────────────

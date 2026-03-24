@@ -114,6 +114,11 @@ if [ -d "$ROOM_DIR/team" ] && [ "$team_count" -gt 0 ]; then
   bash "$SCRIPT_DIR/compute-team" "$ROOM_DIR" 2>/dev/null || true
 fi
 
+# Compute cross-meeting intelligence (writes MEETINGS-INTELLIGENCE.md + action-items.md)
+if [ -d "$ROOM_DIR/meetings" ] && [ "$meeting_count" -gt 0 ]; then
+  bash "$SCRIPT_DIR/compute-meetings-intelligence" "$ROOM_DIR" 2>/dev/null || true
+fi
+
 # Detect cross-references
 declare -a cross_refs=()
 for section_dir in "$ROOM_DIR"/*/; do
@@ -202,6 +207,20 @@ if [ "$meeting_count" -gt 0 ]; then
   echo "- **Meetings filed:** $meeting_count"
   echo "- **Last meeting:** $last_meeting_date"
   echo ""
+
+  # Cross-Meeting Intelligence summary (from MEETINGS-INTELLIGENCE.md)
+  if [ -f "$ROOM_DIR/MEETINGS-INTELLIGENCE.md" ]; then
+    echo "## Cross-Meeting Intelligence"
+    echo ""
+    convergence_count=$(grep '^convergence_signals:' "$ROOM_DIR/MEETINGS-INTELLIGENCE.md" | sed 's/^convergence_signals: *//' || true)
+    unresolved_count=$(grep '^unresolved_contradictions:' "$ROOM_DIR/MEETINGS-INTELLIGENCE.md" | sed 's/^unresolved_contradictions: *//' || true)
+    open_items_count=$(grep '^open_action_items:' "$ROOM_DIR/MEETINGS-INTELLIGENCE.md" | sed 's/^open_action_items: *//' || true)
+    [ -n "$convergence_count" ] && [ "$convergence_count" -gt 0 ] 2>/dev/null && echo "- **Active convergence signals:** $convergence_count"
+    [ -n "$unresolved_count" ] && [ "$unresolved_count" -gt 0 ] 2>/dev/null && echo "- **Unresolved contradictions:** $unresolved_count"
+    [ -n "$open_items_count" ] && [ "$open_items_count" -gt 0 ] 2>/dev/null && echo "- **Open action items:** $open_items_count"
+    echo "- See room/MEETINGS-INTELLIGENCE.md for details"
+    echo ""
+  fi
 fi
 
 # Team section
