@@ -56,8 +56,11 @@ const server = new McpServer({
 const { registerRouterTools } = require('../lib/mcp/tool-router.cjs');
 registerRouterTools(server, roomDir, pluginRoot, larryContext);
 
-// TODO: Phase 11-02 — registerResources(server, roomDir)
-// TODO: Phase 11-03 — registerPrompts(server, roomDir, pluginRoot, larryContext)
+// Register MCP Resources (read-only room browsing via room:// URIs)
+const { registerResources } = require('../lib/mcp/resources.cjs');
+registerResources(server, roomDir);
+
+// TODO: Phase 11-02 — registerPrompts(server, roomDir, pluginRoot, larryContext)
 
 // Connect stdio transport
 async function main() {
