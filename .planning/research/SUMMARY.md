@@ -1,187 +1,204 @@
 # Project Research Summary
 
-**Project:** MindrianOS-Plugin
-**Domain:** Claude Code Plugin -- AI methodology teaching tool with structured workspace
-**Researched:** 2026-03-19
-**Confidence:** HIGH
+**Project:** MindrianOS-Plugin v3.0 — MCP Platform & Intelligence Expansion
+**Domain:** Claude Code plugin with dual-delivery MCP server, collaborative room intelligence, grant discovery, and AI personas
+**Researched:** 2026-03-24
+**Confidence:** HIGH (stack/architecture), MEDIUM (features/pitfalls)
 
 ## Executive Summary
 
-MindrianOS-Plugin is a Claude Code plugin that delivers AI-guided innovation methodology through a teaching personality (Larry), a structured workspace (Data Room), and optional knowledge graph enrichment (Brain MCP). Unlike traditional software projects, the entire "stack" is Markdown files, JSON configuration, and shell scripts -- there is no application runtime, no build system, no framework code. Claude Code discovers and loads plugin components (skills, agents, commands, hooks) from a standardized directory structure. The plugin's architecture follows the ICM (In-Context Methodology) principle: folder structure IS orchestration. This is a file-structure engineering problem, not a software engineering problem.
+MindrianOS v3.0 is a dual-surface intelligence platform: the existing 41-command Claude Code plugin (CLI surface) gains a parallel MCP server delivery layer so that Desktop and Cowork users receive identical capabilities without any CLI access. The research confirms a clean architectural path: a `mindrian-tools.cjs` shared core wraps existing Bash scripts via `child_process.execSync`, and a `mcp-server/` package exposes that same core as MCP tools + resources + prompts via stdio transport. Only two net-new npm dependencies are justified (`@modelcontextprotocol/sdk@1.27.1` and `cheerio@1.2.0`); everything else is Node.js built-ins or the existing Bash/Python script layer. The "folder IS the orchestration" principle is preserved without compromise.
 
-The recommended approach is to build in strict dependency order starting with the plugin skeleton and Larry personality (which must work on first message with zero configuration), then the Data Room state system, then methodology commands ported fresh for Claude Code (not translated from V2 Python prompts), then pipeline chaining, and finally external integrations (Brain MCP, LazyGraph). The critical architectural insight is that the 25 methodology commands must be user-invoked only (`disable-model-invocation: true`) to prevent context window starvation -- the single most dangerous pitfall. Only 5-6 background skills should auto-load. Everything else loads on demand.
+Two new room sections (`opportunity-bank/` and `funding/`) follow the established ICM pattern — each a sub-room with its own STATE.md. Grant discovery uses the free Grants.gov REST API as the primary data source, supplemented by web search for non-API sources, with Candid API as a paid-tier upgrade deferred until adoption is proven. AI Team Personas are generated directly from room state using De Bono's Six Hats framework as structure; they are perspective lenses that Larry adopts temporarily, not autonomous agents or expert advisors. Remote room access (Streamable HTTP transport + git-based sync) is explicitly scoped to v3.x+ after local MCP is validated.
 
-The primary risks are: (1) context window exhaustion from loading too many skills/MCP tools simultaneously, which must be budgeted from day one or requires a full rewrite; (2) STATE.md consistency drift where Claude fails to maintain file-based state reliably, solved by computing state from filesystem truth via hooks rather than asking Claude to maintain it; and (3) the prompt porting trap where V2's 25 Gemini/Python prompts are naively copied into skills that are too long, assume wrong capabilities, and fight Claude's native personality. Each methodology must be redesigned for Claude Code as a thin skill (under 300 tokens) that references detailed pipeline contracts on demand.
+The dominant risk is architectural: exposing 41 CLI commands as 41 MCP tools will consume 30,000-60,000 tokens of context window and cause LLM tool-selection failures. The research prescribes a hierarchical router pattern (5-8 high-level MCP tools, each taking a `command` enum parameter), MCP Resources for all read-only room data, and a parity matrix in CI to prevent CLI/MCP surface drift. The second major risk is premature abstraction during shared core extraction — the prescription is to treat `scripts/` as the already-existing shared core, point MCP tools directly at those scripts first, and extract upward only after three distinct consumers have emerged (Rule of Three).
+
+---
 
 ## Key Findings
 
 ### Recommended Stack
 
-The plugin has no traditional technology stack. The entire system is Markdown (CommonMark + YAML frontmatter), JSON (plugin manifest, hooks config, MCP config, settings), and Bash scripts (hook handlers). This is a hard constraint of the Claude Code plugin platform, not a choice. Python is used only for computation scripts (HSI scoring) where bash cannot suffice.
+The stack splits cleanly between the immutable plugin layer (Markdown + JSON + Bash, zero npm dependencies) and the new MCP server layer (Node.js CJS, `@modelcontextprotocol/sdk`, `zod`, `cheerio`). The SDK version 1.27.1 supports both stdio and Streamable HTTP transports on a single `McpServer` instance, meaning the local stdio v3.0 server can gain remote Streamable HTTP transport in a future phase without any architectural refactor. `zod@^3.25` is a required peer dependency of the SDK. `cheerio@1.2.0` is needed only for scraping non-API grant sources; the Grants.gov search endpoint is fully structured JSON with no scraping required.
 
 **Core technologies:**
-- **Markdown + YAML frontmatter**: Skills (SKILL.md), agents, commands, pipelines, references -- Claude Code's native format for all plugin intelligence
-- **JSON configuration**: plugin.json (manifest), hooks.json (event handlers), .mcp.json (Brain/LazyGraph connections), settings.json (default agent)
-- **Bash scripts**: Hook handlers for SessionStart context injection, PostToolUse room intelligence, Stop state persistence -- zero dependencies, cross-platform via polyglot wrapper
-- **Pipeline markdown files**: Custom convention (NOT a Claude Code primitive) -- numbered stage files that skills interpret as methodology workflows
+- `@modelcontextprotocol/sdk@1.27.1`: MCP server implementation — the only path to Desktop/Cowork users; 34,700+ dependents, MIT license, verified stable
+- `zod@^3.25.76`: Input/output schema validation for MCP tool definitions — required by SDK, pin to 3.x for ecosystem compatibility
+- `cheerio@1.2.0`: HTML parsing for non-API grant sources (SBIR.gov, state portals) — pure JS, no native bindings, 19,873 dependents
+- Grants.gov REST API (v1, free): Primary structured grant data source — no API key needed for search, 60 req/min rate limit, verified 2026-03-24
+- Node.js CJS `lib/core/*.cjs`: Shared internals called by both CLI and MCP — mirrors proven GSD pattern, zero additional dependencies
+- Existing `scripts/` (20 Bash scripts): Authoritative computation layer — preserved as-is; MCP tools wrap via `child_process.execSync`
 
-**Critical version note:** Test on 200K context (Sonnet) not just 1M (Opus). Most free-tier users will have Sonnet.
+**Total new npm dependencies for v3.0: 2** (`@modelcontextprotocol/sdk` + `cheerio`; `zod` pulled in by SDK).
+
+**Do not add:** Express/Hono/Fastify (MCP SDK bundles Hono internally), LangChain/CrewAI/AutoGen (fights ICM-native design), SQLite/Redis (creates dual source of truth with filesystem), TypeScript (build step breaks "every output is an edit surface"), Commander/yargs (Claude is the caller, not a human), `dotenv` (plugin inherits env from spawning process).
 
 ### Expected Features
 
-**Must have (table stakes):**
-- One-command install with Larry active immediately -- this IS the product pitch
-- 5-8 core methodology bots (Domain Explorer, Minto, Bono, JTBD, Devil's Advocate, HSI, Investment Thesis, Lean Canvas)
-- Data Room with 8 sections and STATE.md -- the "OS" in MindrianOS
-- Structured file output per methodology -- "every output is an edit surface"
-- Session continuity via SessionStart hook -- users must return and find their work
-- Graceful degradation -- Tier 0 fully functional with zero external dependencies
-- Help and discoverability -- 25 bots is overwhelming without guidance
+**Must have (table stakes — v3.0 launch blockers):**
+- MCP Server exposing tools + resources + prompts via stdio — Desktop/Cowork users have zero value without this
+- `mindrian-tools.cjs` CLI entry point — enables hook scripts, agent tool calls, and GSD-pattern dual delivery
+- MCP Resources for room state (`room://` URI scheme) — read-only room data must not bloat tool context; Resources not Tools
+- MCP Prompts for methodology workflows — 25 existing methodology bots map directly to MCP prompts with room-context injection
+- Opportunity Bank room section (`room/opportunities/`) — follows exact ICM sub-room pattern; low complexity, high signal
+- Funding Room structure (`room/funding/`) with per-grant sub-folders — structure only; intelligence added in v3.x
+- Basic grant lifecycle tracking: Discovered > Researched > Applying > Submitted > Awarded/Rejected
 
-**Should have (differentiators):**
-- Larry personality with 40:30:20:10 mode engine -- no other plugin has a calibrated teaching personality
-- Passive Room intelligence -- auto-capture and classify insights to correct Data Room sections
-- Pipeline chaining through Room -- output of one framework becomes structured input to the next (Week 7 pattern)
-- Brain MCP enrichment -- 21K-node teaching graph provides framework chaining rules, calibrated grading, cross-domain connections
-- Proactive Room intelligence -- gap detection, contradiction alerts, convergence signals (but start conservative)
+**Should have (differentiators — make v3.0 sticky):**
+- Proactive grant scouting agent (session-start hook-triggered, not cron) — reads room state, queries Grants.gov API, files discoveries
+- Room-aware grant matching using full 8-section DD context, not keyword-only matching
+- AI Team Personas auto-generated from room intelligence + De Bono hats framework
+- Persona dependency chain (coherence cascade): Market Expert > Technical Expert > Financial Expert > Devil's Advocate
+- Room context injection in MCP prompts — prompts arrive pre-loaded with current room state; no other MCP server does this
+- Per-grant GSD-style process folder with stage-specific artifacts and Larry assistance per stage
 
-**Defer (v2+):**
-- LazyGraph (personal Neo4j knowledge graph) -- high complexity, optional, value requires significant Room data first
-- Methodology extensibility (user-created bots) -- only valuable once community exists
-- Room hierarchy / sub-rooms -- power feature for advanced users after single-room experience is polished
-- Connector awareness (MCP ecosystem detection) -- nice-to-have, most users lack exotic MCPs on day one
-- Cross-user intelligence (Brain flywheel) -- requires significant user base
+**Defer (v4+):**
+- Remote Room collaborative MCP (Streamable HTTP + git sync) — MCP protocol's session state is a 2026 roadmap item; spec is unstable
+- Candid API integration — paid tier; defer until grant feature adoption proven
+- Full grant submission portal — regulatory liability; document generation only, user submits through official portals
+- Persona marketplace or memory across sessions — room IS the persona memory; cross-session state bloats context and creates drift
 
 ### Architecture Approach
 
-The architecture follows a four-layer model: Plugin Entry Layer (manifest, settings, hooks, MCP config), Component Layer (commands, skills, agents, pipelines), ICM Layer (folder-structure-as-orchestration with 5 numbered layers from identity to working artifacts), and Data/Intelligence Layer (local Room files, remote Brain MCP, optional LazyGraph). The default agent (`larry-extended` via settings.json) replaces Claude's system prompt entirely, making Larry the session personality. Skills auto-load contextual intelligence. Commands are user-invoked methodology tools. Pipelines are inert data that skills interpret.
+v3.0 adds two new directories to the existing plugin repo without touching any existing command, skill, agent, or hook. `bin/mindrian-tools.cjs` is a single Node.js CJS entry point (mirroring `gsd-tools.cjs` exactly) backed by `lib/core/*.cjs` modules that wrap existing Bash scripts. `mcp-server/server.cjs` is the stdio MCP server that registers MCP tools as thin Zod-validated wrappers around those same core modules. The existing `scripts/` directory is the de facto shared core; refactoring it is deferred until the Rule of Three is satisfied. Hook scripts remain Bash because their sub-3-second execution requirement rules out Node.js cold start.
 
 **Major components:**
-1. **larry-extended agent** -- Default session personality; preloads larry-personality, room-passive, and pws-methodology skills; all conversation runs through Larry
-2. **Data Room (8 sections + STATE.md)** -- Persistent structured workspace in user's project directory; the integration bus where pipeline outputs become next pipeline inputs
-3. **25 methodology commands** -- User-invoked slash commands (`/mindrian-os:bono`, etc.); each reads its pipeline contract and produces structured artifacts filed to Room sections
-4. **Hook intelligence pipeline** -- SessionStart loads context, PostToolUse classifies and files insights, Stop persists state; scripts must complete in under 3 seconds
-5. **references/ (Tier 0 factory)** -- 275 framework definitions, static chain suggestions, grading rubric; embedded fallback when Brain MCP is unavailable
-6. **Brain MCP (Tier 1, remote)** -- The moat; provides chaining rules, grading calibration, cross-framework intelligence; never distributed, never exposes raw data
+1. `bin/mindrian-tools.cjs` (shared core entry point) — single dispatch hub; called by hook scripts via `node bin/mindrian-tools.cjs <subcommand>` and imported directly by MCP tool handlers
+2. `lib/core/*.cjs` (room-ops, state-ops, meeting-ops, graph-ops, persona-ops, opportunity-ops) — business logic wrapping Bash scripts via `child_process.execSync`; surface-agnostic
+3. `mcp-server/server.cjs` + `tools/*.js` (MCP tool registrations) — stdio transport, hierarchical router (5-8 top-level tools), thin Zod-validated wrappers over core
+4. `room/opportunity-bank/` + `room/funding/` + `room/personas/` (new room sections) — ICM sub-rooms; `compute-state` and `analyze-room` updated to discover sections dynamically
+5. `references/personas/` + `references/opportunities/` (new reference sets) — generation templates and grant pattern libraries following existing `references/` structure
+
+**Key architectural constraint:** CLI commands are instructions to Claude (conversational pipelines). MCP tools are callable functions (structured atomic operations). A multi-step CLI command like `file-meeting.md` decomposes into 4-5 discrete MCP tools. This is not a 1:1 mapping.
 
 ### Critical Pitfalls
 
-1. **Context window starvation** -- 25 methodology skills + MCP tool descriptions + CLAUDE.md can burn 30-50K tokens before the user speaks. Prevention: methodology commands use `disable-model-invocation: true`, keep auto-invoked skills to 5-6, each skill under 300 tokens, use on-demand reference loading. Must be designed in Phase 1 or it requires a rewrite.
+1. **Tool explosion kills MCP server usability** — 41 flat MCP tools consume 30K-60K tokens of context window; LLM tool-selection accuracy degrades; Cursor hard-caps at 40 total tools. Prevention: hierarchical router pattern with 5-8 high-level tools; use MCP Resources for all read-only data. This architecture must be locked before any tools are implemented — retrofitting a router is a full rewrite.
 
-2. **STATE.md consistency drift** -- Claude deprioritizes bookkeeping side-effects (updating state files) when focused on user tasks. Prevention: compute state from filesystem truth via hook scripts on SessionStart, never trust STATE.md over actual directory contents, use PostToolUse hooks for programmatic updates rather than asking Claude to remember.
+2. **Shared core extraction breaks existing 41 commands** — Premature abstraction before understanding how MCP tool I/O differs from CLI command I/O creates a shared core that neither surface fits cleanly (Sandi Metz: "duplication is far cheaper than the wrong abstraction"). Prevention: treat `scripts/` as the already-existing shared core; point MCP tools at scripts first; apply Rule of Three (extract only after three distinct consumers); never add a `surface` or `mode` parameter to shared functions.
 
-3. **V2 prompt porting trap** -- V2's Gemini/Python prompts assume stateful backend, CopilotKit router, React UI, and Gemini's personality. Naive copy produces bloated skills that fight Claude. Prevention: redesign each methodology natively for Claude Code; thin skill (under 300 tokens) + reference files loaded on demand; test against V2 output quality.
+3. **Remote Room exposes venture-sensitive data without auth** — Meeting transcripts, financial models, and competitive intelligence become network-accessible. Prevention: ship stdio-only for v3.0 (same machine, no network exposure); add OAuth 2.1 + Resource Indicators (RFC 8707) + TLS before any Streamable HTTP transport. Never use HTTP; never store credentials in config files.
 
-4. **Proactive intelligence becomes noise** -- Room gap detection and contradiction alerts that fire too often or inaccurately train users to ignore them. Prevention: ship passive intelligence first (auto-classify, auto-file), add proactive only with confidence gates, reserve full proactive suite for Brain tier.
+4. **Feature parity drift between plugin and MCP surfaces** — Plugin gains commands faster than MCP tools are built; Desktop users get degraded capability silently with no automated detection. Prevention: parity matrix (command name, CLI status, MCP status, last verified date) as a CI-checked file; `mindrian-tools.cjs` shared entry point guarantees automatic parity at the logic level.
 
-5. **MCP cold start kills zero-config promise** -- Brain MCP in default .mcp.json means first interaction hangs on server startup. Prevention: Brain MCP NOT in default config; added only via `/mindrian-os:setup brain`; default experience is 100% local.
+5. **AI Personas generate hallucinated expert advice users trust** — Domain-specific hallucination rates: legal 18.7%, medical 15.6% (2026 survey). Persona framing creates false credibility even when outputs are identical to non-persona outputs. Prevention: frame as De Bono perspective lenses, never as named expert advisors; every persona output includes a disclaimer; personas only synthesize from existing room data, never generate new domain facts.
+
+---
 
 ## Implications for Roadmap
 
-Based on research, suggested phase structure:
+Based on the dependency graph established in ARCHITECTURE.md and validated by PITFALLS.md, the build order follows a strict dependency chain: shared core enables everything else; MCP server and new room sections can proceed in parallel once core is done; personas require rich room content so they ship last among v3.0 features; remote room is explicitly deferred.
 
-### Phase 1: Plugin Skeleton and Larry Personality
-**Rationale:** Everything depends on the plugin manifest, default agent, and context budget architecture. If the skeleton is wrong, everything built on top breaks. Larry speaking immediately on install is the entire product pitch.
-**Delivers:** Working plugin that installs via one command; Larry personality as default agent; CLAUDE.md; plugin.json; settings.json; basic help/status commands
-**Addresses:** One-command install, Larry personality, help/discoverability (table stakes)
-**Avoids:** Context window starvation (budget from day one); MCP cold start (no Brain in default config); plugin name collision (finalize name now)
+### Phase 10: Shared Core + CLI Tools Layer
 
-### Phase 2: Data Room and State System
-**Rationale:** The Room is the critical path -- every downstream feature (commands, pipelines, hooks, Brain integration) reads from or writes to it. State management architecture must be validated before building on top of it.
-**Delivers:** 8-section room folder structure; STATE.md computed from filesystem; SessionStart hook for context loading; Stop hook for state persistence; basic room management command
-**Addresses:** Persistent workspace, session continuity (table stakes)
-**Avoids:** STATE.md consistency drift (compute from filesystem truth, not incremental Claude updates)
+**Rationale:** This is the foundation for every subsequent phase. Nothing else — MCP server, opportunity bank, personas — can ship without callable Node.js logic. Phases 11 and 12 can run in parallel only after Phase 10 delivers.
+**Delivers:** `bin/mindrian-tools.cjs` with `room-ops`, `state-ops`, `meeting-ops`, `graph-ops`; dynamic section discovery in `compute-state` and `analyze-room` (replaces hardcoded `SECTIONS` array); validated by having existing hook scripts call into `mindrian-tools.cjs` for complex operations
+**Addresses:** MCP foundation, `mindrian-tools.cjs` CLI entry point (FEATURES.md P1), room section extensibility
+**Avoids:** Pitfall 2 (premature abstraction) — `scripts/` stays as-is; extraction is additive; Pitfall 8 (abstraction obscures debugging) — max 3 layers enforced from the start
 
-### Phase 3: Core Methodology Commands (5-8)
-**Rationale:** Methodology bots are the core value. After Room exists, commands can produce structured artifacts filed to sections. Start with 5-8 high-value frameworks, not all 25 at once.
-**Delivers:** Domain Explorer, Minto Pyramid, Bono Six Hats, JTBD, Devil's Advocate, HSI, Investment Thesis, Lean Canvas as slash commands; references/ framework definitions for each; pipeline stage contracts for each
-**Addresses:** Methodology bot conversations, structured output per methodology (table stakes)
-**Avoids:** V2 prompt porting trap (redesign each methodology natively); context starvation (commands are user-invoked only, not auto-loaded)
+### Phase 11: MCP Server (Local, stdio)
 
-### Phase 4: Passive Room Intelligence and Pipeline Chaining
-**Rationale:** With commands producing Room artifacts, passive intelligence (auto-classify, auto-file) and pipeline chaining (output-becomes-input) activate the "OS" experience. This is what makes MindrianOS sticky.
-**Delivers:** PostToolUse hook for insight classification; room-passive skill; pipeline chaining for 2-3 key sequences (Domain Explorer -> Bono -> JTBD); pws-methodology skill for framework selection guidance
-**Addresses:** Passive Room intelligence, pipeline chaining (differentiators)
-**Avoids:** Proactive noise (passive only in this phase -- high-value, low-risk)
+**Rationale:** The MCP server is the entire reason for v3.0. Desktop and Cowork users are completely blocked without it. Depends on Phase 10's shared core for tool implementations.
+**Delivers:** `mcp-server/server.cjs` with hierarchical tool router (5-8 tools max), MCP Resources for `room://` URI scheme, MCP Prompts for methodology workflows with room context injection; validated via `npx @modelcontextprotocol/inspector` and actual Claude Desktop `claude_desktop_config.json` test on all three platforms
+**Uses:** `@modelcontextprotocol/sdk@1.27.1`, `zod@^3.25`, `lib/core/*.cjs` from Phase 10
+**Implements:** Dual-delivery pattern, all three MCP primitives (tools/resources/prompts), stdio transport with Streamable HTTP hook-point
+**Avoids:** Pitfall 1 (tool explosion) — hierarchical router designed before any tools are implemented; Pitfall 4 (surface parity drift) — parity matrix in CI from this phase forward; Pitfall 5 (transport lock-out) — no SSE, dual transport design from day one; Pitfall 11 (cross-platform URI) — `url.pathToFileURL()` for all resource URIs
 
-### Phase 5: Remaining Methodologies and Proactive Intelligence
-**Rationale:** With the core loop proven and sticky, expand breadth (remaining 17 bots) and add proactive intelligence gated by confidence thresholds.
-**Delivers:** All 25 methodology commands; room-proactive skill (gap detection, convergence); grading command with Tier 0 static rubric
-**Addresses:** Proactive Room intelligence, calibrated grading (differentiators)
-**Avoids:** Proactive noise (confidence gates, Brain tier gets full suite)
+### Phase 12: New Room Sections (Opportunity Bank + Funding Room)
 
-### Phase 6: Brain MCP Integration
-**Rationale:** Brain integration is the moat activation. Only build after the Tier 0 experience is complete and validated with real users. Brain enriches but never gates.
-**Delivers:** .mcp.json Brain configuration via `/mindrian-os:setup brain`; enriched framework chaining; calibrated grading via Brain; mode engine calibration data; graceful degradation on connection failure
-**Addresses:** Brain MCP enrichment, framework chain recommendations, calibrated grading (differentiators)
-**Avoids:** MCP cold start (async connection, fallback to local); IP leakage (Brain returns intelligence, never raw data)
+**Rationale:** These are new ICM sub-rooms following established patterns. They do not depend on the MCP server and can be built in parallel with Phase 11, but require Phase 10's dynamic section discovery. Grant discovery delivers standalone value even before MCP is complete.
+**Delivers:** `room/opportunity-bank/` and `room/funding/` sub-rooms with STATE.md, per-grant folders following GSD process structure, basic lifecycle tracking, session-start hook extension for proactive grant scanning via Grants.gov API, new `commands/opportunities.md` and `commands/funding.md`, `agents/opportunity-scanner.md`
+**Uses:** Grants.gov free REST API (primary), `cheerio@1.2.0` (secondary), Native `fetch` (Node 18+)
+**Implements:** Opportunity Bank as room section; Funding Room as sub-room; hook-driven grant scanning (no cron)
+**Avoids:** Pitfall 6 (scope creep into CRM) — scope locked at discovery + connections only; no deadline management, no application form filling; Pitfall 12 (API credit burn) — 7-day cache TTL, re-scan only on room content change; Pitfall 13 (stale status) — Larry conversational reminders at SessionStart, no notification infrastructure; Pitfall 14 (Brain dependency) — every feature tested Brain-disconnected first
 
-### Phase 7: LazyGraph, Extensibility, and Polish
-**Rationale:** LazyGraph and extensibility are power features for engaged users. Ship only after core value is proven and community exists.
-**Delivers:** LazyGraph setup and integration; methodology extensibility (Level A/B/C); room hierarchy / sub-rooms; connector awareness; three-surface testing and polish; marketplace submission
-**Addresses:** LazyGraph, methodology extensibility, room hierarchy, connector awareness (deferred features)
-**Avoids:** Over-engineering before validation; bifurcated LazyGraph experience
+### Phase 13: AI Team Member Personas
+
+**Rationale:** Personas require well-populated rooms to produce non-generic output. Building last in the v3.0 sequence means rooms will have opportunity-bank and funding data in addition to the 8 DD sections, producing venture-specific rather than generic personas.
+**Delivers:** `lib/core/persona-ops.cjs` for persona generation from room state, `commands/persona.md`, `references/personas/` generation templates, `room/personas/` storage following ICM artifact pattern, Larry persona-lens behavior (De Bono Six Hats framing), `team_persona` tool in MCP server's hierarchical router
+**Implements:** Persona generation flow (room analysis > domain extraction > hat assignment > PERSONA.md), selective persona activation (analysis/synthesis tasks only per PRISM research), persona dependency chain via pipeline chaining (coherence cascade)
+**Avoids:** Pitfall 7 (hallucinated expert advice) — "perspective lens" framing, not "expert advisor"; disclaimer on every persona output; personas synthesize only from room data; Pitfall 5 anti-pattern (personas as independent agents) — personas are skill context files loaded by Larry, not autonomous agents
+
+### Phase 14: Remote Room Access (Deferred — v3.x+)
+
+**Rationale:** Remote room adds authentication, conflict resolution, Streamable HTTP transport, and real-time sync — each a significant complexity layer. The 2026 MCP roadmap lists session state as active work; building on a shifting spec is high-risk. Local MCP must be battle-tested in production before network complexity is layered on top.
+**Delivers:** Streamable HTTP transport alongside existing stdio on same `McpServer` instance (no code refactor — SDK supports dual transports), OAuth 2.1 + Resource Indicators (RFC 8707), git-based room sync for concurrent team access, STATE.md conflict resolution via recompute (derived data, always safe to regenerate)
+**Prerequisite:** Phase 11 local MCP validated in production; git-managed `room/`; auth infrastructure decision; re-read MCP session state spec at time of planning
+**Avoids:** Pitfall 3 (user data exposure without auth) — never ships without OAuth 2.1; Pitfall 9 (concurrent write conflicts) — git branching as concurrency layer, STATE.md regenerated idempotently on conflict
 
 ### Phase Ordering Rationale
 
-- **Dependency-driven:** Each phase builds on the prior. Room (Phase 2) is the integration bus everything uses. Commands (Phase 3) produce Room artifacts. Intelligence (Phase 4-5) reads Room state. Brain (Phase 6) enriches command outputs. This matches the architecture's build order exactly.
-- **Value-driven:** Phase 1-2 deliver a working product (Larry + Room). Phase 3 delivers the core methodology value. Phase 4 makes it sticky. Everything after Phase 4 is expansion and enrichment.
-- **Risk-driven:** Context budget (Phase 1), state management (Phase 2), and prompt porting (Phase 3) are the three highest-risk areas. Addressing them in order means failures are caught early when refactoring cost is lowest.
-- **Validation-driven:** Phase 1-3 should produce a usable MVP for 5 early users. Phase 4-5 should be informed by their feedback. Phase 6-7 should only proceed if Tier 0 engagement validates the core proposition.
+- Phase 10 is the single prerequisite for everything: `mindrian-tools.cjs` is the shared truth that guarantees CLI/MCP parity. Building MCP tools before this exists means duplicating logic that will need extraction later.
+- Phases 11 and 12 run in parallel: No dependency between MCP server and room sections. Both depend only on Phase 10. Parallel execution compresses the v3.0 timeline.
+- Phase 13 after 12: Personas need room content. Opportunity Bank and Funding Room data makes personas meaningfully venture-specific rather than generic.
+- Phase 14 as a separate release: Remote access complexity is high enough to constitute a distinct release. Shipping it within v3.0 would extend the timeline and risk the solid foundation established by Phases 10-13.
+- This ordering directly mirrors ARCHITECTURE.md's Phase 10-14 build order, which was derived from codebase dependency analysis.
 
 ### Research Flags
 
 Phases likely needing deeper research during planning:
-- **Phase 3 (Methodology Commands):** Each of the 25 V2 prompts needs individual analysis for Claude Code redesign. The prompt porting trap is real -- each methodology must be evaluated against Claude's native capabilities to determine what thin skill + reference structure is optimal. Batch research recommended.
-- **Phase 4 (Pipeline Chaining):** The Week 7 chaining pattern (output-becomes-input) needs concrete data flow design. How exactly do structured artifacts in one Room section become typed inputs to another pipeline? Needs worked examples.
-- **Phase 6 (Brain MCP):** Brain MCP tool interface design (what tools, what inputs/outputs, what caching strategy) needs research. The Brain exists but the MCP wrapper API does not yet.
+
+- **Phase 11 (MCP Server):** Tool decomposition design requires per-command analysis. Each multi-step CLI command must be mapped to its atomic MCP tool equivalents before implementation. The `file-meeting.md` decomposition alone (4-5 tools) is a non-trivial design task. Recommend a pre-phase mapping session covering all 41 commands before writing any tool handler.
+- **Phase 14 (Remote Room):** OAuth 2.1 + Resource Indicators (RFC 8707) in MCP context is new territory. The 2026 MCP session state spec is still evolving. Fresh research on the spec state at time of planning is mandatory before any design decisions.
+- **Phase 12 (Grant APIs):** Candid API pricing tiers, Grants.gov rate limit handling at scale, and Apify SBIR scraper reliability need validation before building the discovery agent. The free Grants.gov path is well-documented; everything beyond it needs API research at implementation time.
 
 Phases with standard patterns (skip research-phase):
-- **Phase 1 (Plugin Skeleton):** Well-documented Claude Code plugin structure. Superpowers and ElevenLabs plugins provide verified reference implementations.
-- **Phase 2 (Data Room):** Standard file-based state management. GSD patterns provide STATE.md templates.
+
+- **Phase 10 (Shared Core):** GSD's `gsd-tools.cjs` is a verified production reference available at `~/.claude/get-shit-done/bin/gsd-tools.cjs`. The pattern is fully documented and proven at 40+ subcommands. No new research needed — replicate what works.
+- **Phase 13 (Personas):** De Bono's Six Hats is a mature framework already implemented in `commands/think-hats.md`. PRISM (arXiv 2603.18507) and Mandal (2026) provide clear design principles with no ambiguity about implementation approach. Standard prompt engineering — no research phase needed.
+
+---
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Verified against official Claude Code plugin docs, Superpowers plugin source, ElevenLabs plugin source. No ambiguity -- the stack IS markdown + JSON + bash. |
-| Features | HIGH | Table stakes derived from 340+ plugin ecosystem and competing innovation tools. Differentiators identified from unique Brain/Larry/Room combination. Anti-features clearly reasoned. |
-| Architecture | HIGH | Plugin structure verified against official docs. ICM layering validated against paper. Build order derived from dependency analysis. Anti-patterns identified from real plugin inspection. |
-| Pitfalls | HIGH | Critical pitfalls (context starvation, state drift, prompt porting) grounded in platform constraints and real plugin observations. Prevention strategies are concrete and actionable. |
+| Stack | HIGH | All technologies verified against npm registry and official SDK docs as of 2026-03-24. Version compatibility confirmed. Only 2 net-new dependencies. Alternatives considered and rejected with clear rationale. |
+| Features | MEDIUM | MCP patterns HIGH. Grant API landscape MEDIUM (Grants.gov free tier verified; Candid API pricing not fully validated). Remote Room LOW (MCP session state spec is a 2026 roadmap item, not yet stable). |
+| Architecture | HIGH | Based on existing codebase analysis + MCP SDK official docs + GSD production reference. Component boundaries are clear. Build order validated against dependency analysis. Anti-patterns grounded in real plugin code inspection. |
+| Pitfalls | MEDIUM | Tool explosion data sourced from community discussions (MEDIUM). Hallucination statistics from 2026 survey (MEDIUM, not peer-reviewed). Auth and concurrency pitfalls sourced from official MCP spec and Sandi Metz — HIGH on those two. |
 
-**Overall confidence:** HIGH
+**Overall confidence:** HIGH for v3.0 scope (Phases 10-13). MEDIUM for Phase 14 (Remote Room) due to evolving MCP spec.
 
 ### Gaps to Address
 
-- **Three-surface behavior differences:** Research identified this as a critical pitfall but could not fully enumerate which hooks, agent behaviors, and MCP features differ across CLI vs Desktop vs Cowork. Needs hands-on testing from Phase 1 onward.
-- **Brain MCP tool interface:** Brain exists as a Neo4j + Pinecone deployment, but the MCP server wrapper with specific tool definitions (enrich_context, suggest_chain, grade_room, etc.) has not been built yet. Tool interface design is a Phase 6 prerequisite.
-- **Context budget exact numbers:** Research estimates 30-50K tokens for full plugin overhead, but exact measurement requires building the skeleton and profiling with `--debug`. Must validate in Phase 1.
-- **Methodology redesign effort:** Each of the 25 V2 prompts will need individual redesign effort. Some may port easily (simple conversation skills), others may need significant rethinking (pipeline-dependent bots). Cannot estimate until a few are attempted.
-- **Marketplace submission process:** Publishing requirements, review timeline, and any content restrictions for methodology plugins are not fully documented. Research during Phase 7.
+- **MCP session state spec (Phase 14):** The 2026 MCP roadmap lists this as active work. At time of Phase 14 planning, re-read the spec to understand what is finalized. The current design (git-as-concurrency-layer) is a sound fallback regardless of spec evolution, but the official path may be cleaner.
+- **Candid API cost model (Phase 12):** Candid's tiered pricing is not fully documented publicly. Needs a pricing conversation with Candid or a test of the free tier to understand viable discovery scope before committing to it as a data source. Start with Grants.gov free tier exclusively; add Candid only when federal grants prove insufficient.
+- **Windows path handling for MCP config (Phase 11):** stdio MCP servers on Windows require a `cmd /c` wrapper in `claude_desktop_config.json`. The development environment is Linux (WSL2) and this gap will not surface naturally. Must test on Windows explicitly during Phase 11.
+- **Node.js cold start vs. hook timeout (Phase 10):** The 2-3 second hook timeout assumption for Bash scripts needs validation against actual `mindrian-tools.cjs` execution time on a cold Node.js process. If cold start exceeds the budget, hook scripts must stay pure Bash and only call `mindrian-tools.cjs` for non-hook-triggered operations.
+- **Brain MCP Tier 0 validation (standing):** PITFALLS.md flags that every Phase 12-13 feature must be tested Brain-disconnected first (Pitfall 14). This is a standing validation requirement. The developer always has Brain connected — this gap will not surface naturally without explicit Tier 0 test runs.
+
+---
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- [Plugins reference - Claude Code Docs](https://code.claude.com/docs/en/plugins-reference) -- Complete plugin specification, manifest schema, environment variables
-- [Skills documentation - Claude Code Docs](https://code.claude.com/docs/en/skills) -- SKILL.md format, frontmatter, auto-invocation
-- [Hooks reference - Claude Code Docs](https://code.claude.com/docs/en/hooks) -- All 22 hook events, JSON schemas, exit codes
-- [Plugin marketplaces - Claude Code Docs](https://code.claude.com/docs/en/plugin-marketplaces) -- Distribution, versioning
-- [Subagents - Claude Code Docs](https://code.claude.com/docs/en/sub-agents) -- Agent format, delegation patterns
-- [MCP - Claude Code Docs](https://code.claude.com/docs/en/mcp) -- MCP server configuration
-- Superpowers plugin v5.0.5 (local inspection) -- Skills structure, SessionStart hook, agent format
-- ElevenLabs TTS plugin v0.1.0 (local inspection) -- Python hooks, setup commands, daemon pattern
+- [@modelcontextprotocol/sdk on npm](https://www.npmjs.com/package/@modelcontextprotocol/sdk) — v1.27.1 dependencies, peer deps, engine requirements
+- [MCP TypeScript SDK server docs](https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/server.md) — McpServer API, registerTool with Zod, StdioServerTransport
+- [MCP Transports Spec 2025-03-26](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports) — SSE deprecated, Streamable HTTP standard
+- [Grants.gov API](https://www.grants.gov/api) + [API Guide](https://grants.gov/api/api-guide) — free search endpoint, rate limits, JSON structure
+- [MCP Authorization Tutorial](https://modelcontextprotocol.io/docs/tutorials/security/authorization) — OAuth 2.1 official guidance
+- [MCP Resources Spec](https://modelcontextprotocol.info/docs/concepts/resources/) — read-only, application-controlled distinction from Tools
+- [PRISM: Expert Personas (arXiv 2603.18507)](https://arxiv.org/html/2603.18507) — personas improve alignment, damage accuracy on knowledge retrieval
+- [PersonaCite (arXiv 2601.22288)](https://arxiv.org/html/2601.22288v1) — personas generated from data vs. templates
+- [The Wrong Abstraction — Sandi Metz](https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction) — premature abstraction costs
+- GSD reference implementation (`~/.claude/get-shit-done/bin/gsd-tools.cjs`) — proven CJS single-entry-point pattern, 40+ subcommands, process.argv routing
 
 ### Secondary (MEDIUM confidence)
-- [Claude Code Context Buffer Analysis](https://claudefa.st/blog/guide/mechanics/context-buffer-management) -- Context consumption numbers
-- [MCP Context Optimization](https://scottspence.com/posts/optimising-mcp-server-context-usage-in-claude-code) -- MCP tool token costs
-- ICM paper (2603.16021v2) -- Folder-structure-as-orchestration theory
-- [Skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) -- Progressive disclosure
-- Innovation management competitive landscape (MagicSchool AI, Strategyzer, Braineet, Notion AI)
+- [Fundsprout: 12 Best Grant Discovery Platforms 2026](https://www.fundsprout.ai/resources/grant-discovery-platforms) — competitive landscape for grant tools
+- [MCP Tool Count Discussion](https://github.com/modelcontextprotocol/modelcontextprotocol/discussions/1251) — ~50 tool practical limit, Cursor 40-tool hard cap
+- [Why MCP Tool Overload Happens](https://www.lunar.dev/post/why-is-there-mcp-tool-overload-and-how-to-solve-it-for-your-ai-agents) — 30-60K token cost data for tool definitions
+- [Mandal (2026): Role-Based Agent Personas](https://www.sagarmandal.com/2026/03/15/agentic-engineering-part-3-role-based-agent-personas-why-specialization-beats-generalization/) — coherence cascade pattern, 10-step dependency chain
+- [MCP Security Survival Guide](https://towardsdatascience.com/the-mcp-security-survival-guide-best-practices-pitfalls-and-real-world-lessons/) — 492 exposed servers without auth
+- [2026 MCP Roadmap](http://blog.modelcontextprotocol.io/posts/2026-mcp-roadmap/) — session state as active work item
+- [Specmatic MCP Schema Drift Detector](https://specmatic.io/updates/testing-mcp-servers-how-specmatic-mcp-auto-test-catches-schema-drift-and-automates-regression/) — parity testing approach
+- [Cheerio on npm](https://www.npmjs.com/package/cheerio) — v1.2.0, 19,873 dependents, pure JS
 
-### Tertiary (LOW confidence)
-- [MCP context reduction approach](https://news.ycombinator.com/item?id=47193064) -- 98% reduction claim needs validation
-- Community plugin development patterns (blog posts, dev.to guides) -- Useful but not authoritative
+### Tertiary (LOW confidence — needs validation)
+- [Candid Grants API Developer Portal](https://developer.candid.org/) — exists and documented; pricing tiers not fully validated
+- [AI Hallucination Statistics 2026](https://suprmind.ai/hub/insights/ai-hallucination-statistics-research-report-2026/) — domain-specific rates; survey methodology, not peer-reviewed
+- [Apify SBIR Grants Scraper](https://apify.com/parseforge/sbir-government-grants-scraper/api) — data quality and freshness not independently verified
 
 ---
-*Research completed: 2026-03-19*
+*Research completed: 2026-03-24*
 *Ready for roadmap: yes*
