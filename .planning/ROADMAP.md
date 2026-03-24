@@ -97,6 +97,12 @@ Plans:
   3. Cross-meeting edges exist: REINFORCES (same speaker, same concept, two meetings) and CONTRADICTS (two speakers disagree) are visible and navigable
   4. Dashboard shows a meeting timeline view -- meetings as a horizontal timeline with vertical edges showing what was filed from each
   5. `/mindrian-os:export meeting-report` generates a summary of all meetings with decisions and action items, and meeting summary PDFs include speaker attribution with section-colored filing indicators
+**Plans**: 3 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Extend build-graph with meeting/speaker/concept nodes + [[wikilink]] edges + intelligence reading (Wave 1)
+- [ ] 09-02-PLAN.md — Dashboard layer toggles, preset views, timeline mode, new node/edge styles (Wave 2)
+- [ ] 09-03-PLAN.md — Meeting-report PDF export (Minto pyramid) + [[wikilink]] auto-insert in file-meeting (Wave 1)
 
 ## Progress
 
@@ -114,5 +120,5 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9
 | 5. Plugin Intelligence | v1.0 | 3/3 | Complete | 2026-03-22 |
 | 6. Stage 1 Core Capability | v2.0 | 4/4 | Complete | 2026-03-23 |
 | 7. Team Room Structure | 3/3 | Complete    | 2026-03-23 | - |
-| 8. Cross-Meeting Intelligence | 3/3 | Complete   | 2026-03-24 | - |
-| 9. Meeting Knowledge Graph | v2.0 | 0/? | Not started | - |
+| 8. Cross-Meeting Intelligence | 3/3 | Complete    | 2026-03-24 | - |
+| 9. Meeting Knowledge Graph | v2.0 | 0/3 | Not started | - |
