@@ -11,9 +11,25 @@ Users can run the full PWS methodology — 25 specialized methodology bots, stru
 ## Current State
 
 **Shipped:** v2.0 Meeting Intelligence (2026-03-24)
-**Next:** v3.0 (planning)
+**Current:** v3.0 MCP Platform & Intelligence Expansion (started 2026-03-24)
 
 v1.0 + v2.0 = 41 commands, 5 agents, meeting intelligence pipeline, team room, cross-meeting intelligence, three-layer knowledge graph, De Stijl dashboard + timeline mode, 5 PDF export types.
+
+## Current Milestone: v3.0 MCP Platform & Intelligence Expansion
+
+**Goal:** Deliver MindrianOS as a dual-surface platform — CLI plugin + MCP server — so teams on Desktop/Cowork can access all capabilities, then expand with Opportunity Bank, Funding Room, and AI Team Personas.
+
+**Critical discovery:** Claude Desktop and Cowork only support MCP servers via claude_desktop_config.json. No plugin system. The MCP server is the only path to reaching non-technical team users.
+
+**Target features:**
+- MCP Server: shared core library + MCP tool endpoints exposing Larry, Data Room, meeting filing, methodology commands
+- CLI tools layer: mindrian-tools.cjs single entry point for plugin commands (GSD pattern)
+- Room as Remote MCP: collaborative team access to shared room state
+- Opportunity Bank: room section + proactive grant/opportunity discovery agents
+- Funding Room: non-dilutive/dilutive/grants sub-rooms with GSD-style process per grant
+- AI Team Member Personas: domain experts generated from room intelligence + Bono perspectives
+
+**Dual delivery rule:** Every feature ships as both a plugin command (CLI) and MCP tool (Desktop/Cowork). Shared internals, two delivery layers.
 
 ## v3.0 Backlog (Captured Ideas)
 
@@ -59,7 +75,13 @@ v2.0 shipped (2026-03-24):
 
 ### Active
 
-(Pending v3.0 requirements definition via `/gsd:new-milestone`)
+v3.0 scope:
+- [ ] MCP Server with shared core exposing all capabilities to Desktop/Cowork
+- [ ] CLI tools layer (mindrian-tools.cjs)
+- [ ] Room as Remote MCP (collaborative team access)
+- [ ] Opportunity Bank (room section + proactive discovery agents)
+- [ ] Funding Room (non-dilutive/dilutive/grants sub-rooms)
+- [ ] AI Team Member Personas (domain experts + Bono perspectives)
 
 ### Out of Scope
 

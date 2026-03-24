@@ -1,36 +1,34 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Meeting Intelligence
-status: executing
-stopped_at: Completed 09-02-PLAN.md
-last_updated: "2026-03-24T12:42:16.816Z"
-last_activity: 2026-03-24 -- Completed 09-01 three-layer knowledge graph with meeting/speaker/concept nodes
+milestone: v3.0
+milestone_name: MCP Platform & Intelligence Expansion
+status: planning
+stopped_at: null
+last_updated: "2026-03-24T18:30:00.000Z"
+last_activity: 2026-03-24 -- Milestone v3.0 started
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 13
-  completed_plans: 13
-  percent: 97
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-23)
+See: .planning/PROJECT.md (updated 2026-03-24)
 
-**Core value:** Teams can file meeting intelligence into a living Data Room -- speakers identified, insights classified, knowledge compounding across meetings.
-**Current focus:** Phase 8: Cross-Meeting Intelligence -- convergence signals, contradiction tracking, action item lifecycle, team patterns across meetings
+**Core value:** Users can run the full PWS methodology inside Claude Code with zero infrastructure, where Larry guides them through venture innovation.
+**Current focus:** v3.0 — Dual-surface delivery (CLI plugin + MCP server) + Opportunity Bank, Funding Room, AI Team Personas
 
 ## Current Position
 
-Phase: 9 of 9 (Meeting Knowledge Graph)
-Plan: 1 of 3 in current phase
-Status: In Progress
-Last activity: 2026-03-24 -- Completed 09-01 three-layer knowledge graph with meeting/speaker/concept nodes
-
-Progress: [██████████] 97%
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-24 — Milestone v3.0 started
 
 ## Performance Metrics
 
