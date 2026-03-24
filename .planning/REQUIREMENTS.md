@@ -10,7 +10,7 @@ Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap pha
 ### Shared Core
 
 - [x] **CORE-01**: Plugin operations accessible via `mindrian-tools.cjs` single entry point callable by both CLI commands and MCP tools
-- [ ] **CORE-02**: Room sections auto-discovered dynamically (no hardcoded section list) — new sections like opportunity-bank/ and funding/ register automatically
+- [x] **CORE-02**: Room sections auto-discovered dynamically (no hardcoded section list) — new sections like opportunity-bank/ and funding/ register automatically
 - [ ] **CORE-03**: Parity matrix validates every CLI command has a corresponding MCP tool, checked in CI
 
 ### MCP Server
@@ -83,7 +83,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | CORE-01 | Phase 10 | Complete |
-| CORE-02 | Phase 10 | Pending |
+| CORE-02 | Phase 10 | Complete |
 | CORE-03 | Phase 11 | Pending |
 | MCP-01 | Phase 11 | Pending |
 | MCP-02 | Phase 11 | Pending |

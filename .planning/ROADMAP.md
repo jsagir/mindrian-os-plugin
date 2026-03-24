@@ -39,7 +39,7 @@ See: `.planning/milestones/v2.0-ROADMAP.md`
 
 **Milestone Goal:** Deliver MindrianOS as a dual-surface platform (CLI plugin + MCP server) so Desktop/Cowork users access all capabilities, then expand with Opportunity Bank, Funding Room, and AI Team Personas. **Every feature ships to both surfaces — no exceptions.**
 
-- [ ] **Phase 10: Shared Core + CLI Tools** - Extract mindrian-tools.cjs entry point and core modules that both CLI and MCP share
+- [x] **Phase 10: Shared Core + CLI Tools** - Extract mindrian-tools.cjs entry point and core modules that both CLI and MCP share (completed 2026-03-24)
 - [ ] **Phase 11: MCP Server** - Expose all plugin capabilities to Desktop/Cowork via hierarchical MCP tools, resources, and prompts
 - [ ] **Phase 12: Brain Hosting + Room Collaboration** - Deploy Brain as remote MCP service and enable git-based team room sharing
 - [ ] **Phase 13: Opportunity Bank + Funding Room** - Add grant discovery and funding lifecycle sections to the Data Room
@@ -139,7 +139,7 @@ Phases 11 and 12 can run in parallel after Phase 10 completes. Phase 13 requires
 |-------|-----------|----------------|--------|-----------|
 | 1-5 | v1.0 | 20/20 | Complete | 2026-03-22 |
 | 6-9 | v2.0 | 13/13 | Complete | 2026-03-24 |
-| 10. Shared Core + CLI Tools | 1/2 | In Progress|  | - |
+| 10. Shared Core + CLI Tools | 2/2 | Complete   | 2026-03-24 | - |
 | 11. MCP Server | v3.0 | 0/TBD | Not started | - |
 | 12. Brain Hosting + Room Collaboration | v3.0 | 0/TBD | Not started | - |
 | 13. Opportunity Bank + Funding Room | v3.0 | 0/TBD | Not started | - |
