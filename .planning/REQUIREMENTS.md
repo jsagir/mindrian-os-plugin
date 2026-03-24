@@ -52,11 +52,11 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 - [x] **GRAP-02**: Speaker nodes appear in the graph -- connected to their meeting nodes AND to the room sections they contributed to
 - [x] **GRAP-03**: build-graph script reads meetings/ directory and generates meeting nodes + speaker nodes + SPOKE_IN / FILED_TO / ATTENDED edges
 - [x] **GRAP-04**: Cross-meeting edges: when same speaker mentions same concept in two meetings -> REINFORCES edge; when two speakers contradict -> CONTRADICTS edge
-- [ ] **GRAP-05**: Meeting timeline view in dashboard -- meetings as a horizontal timeline with vertical edges showing what was filed from each
+- [x] **GRAP-05**: Meeting timeline view in dashboard -- meetings as a horizontal timeline with vertical edges showing what was filed from each
 
 ### Dashboard & Export Updates
 
-- [ ] **DASH-06**: Knowledge graph dashboard shows team members as nodes with edges to their contributions
+- [x] **DASH-06**: Knowledge graph dashboard shows team members as nodes with edges to their contributions
 - [x] **DASH-07**: `/mindrian-os:export` supports meeting-report type -- summary of all meetings with decisions and action items
 - [x] **DOCS-06**: Meeting summary PDFs with speaker attribution and section-colored filing indicators
 
@@ -116,8 +116,8 @@ Requirements for Meeting Intelligence milestone. Continues from v1.0 (Phases 1-5
 | GRAP-02 | Phase 9 | Complete |
 | GRAP-03 | Phase 9 | Complete |
 | GRAP-04 | Phase 9 | Complete |
-| GRAP-05 | Phase 9 | Pending |
-| DASH-06 | Phase 9 | Pending |
+| GRAP-05 | Phase 9 | Complete |
+| DASH-06 | Phase 9 | Complete |
 | DASH-07 | Phase 9 | Complete |
 | DOCS-06 | Phase 9 | Complete |
 
