@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 6: Stage 1 Core Capability** - file-meeting command with paste/file/audio input, Velma transcription, speaker identification (12 roles), segment classification, confirm-then-file with structured rejection, provenance metadata, meeting summary, cross-relationship batch scan (completed 2026-03-23)
 - [x] **Phase 7: Team Room Structure** - team/ directory with members/mentors/advisors, per-person folders, cross-linking artifacts to topic AND speaker, meeting archive, TEAM-STATE.md (completed 2026-03-23)
-- [ ] **Phase 8: Cross-Meeting Intelligence** - Convergence detection across meetings, contradiction tracking, action item continuity, contribution analysis, Read AI MCP integration
+- [x] **Phase 8: Cross-Meeting Intelligence** - Convergence detection across meetings, contradiction tracking, action item continuity, contribution analysis, Read AI MCP integration (completed 2026-03-24)
 - [ ] **Phase 9: Meeting Knowledge Graph** - Meetings and speakers as graph nodes, cross-meeting edges, timeline view, dashboard updates, meeting report export, meeting summary PDFs
 
 ## Phase Details
@@ -114,5 +114,5 @@ Phases execute in numeric order: 6 -> 7 -> 8 -> 9
 | 5. Plugin Intelligence | v1.0 | 3/3 | Complete | 2026-03-22 |
 | 6. Stage 1 Core Capability | v2.0 | 4/4 | Complete | 2026-03-23 |
 | 7. Team Room Structure | 3/3 | Complete    | 2026-03-23 | - |
-| 8. Cross-Meeting Intelligence | v2.0 | 0/3 | Not started | - |
+| 8. Cross-Meeting Intelligence | 3/3 | Complete   | 2026-03-24 | - |
 | 9. Meeting Knowledge Graph | v2.0 | 0/? | Not started | - |
