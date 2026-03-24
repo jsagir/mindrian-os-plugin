@@ -1,0 +1,59 @@
+'use strict';
+
+const express = require('express');
+const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js');
+const { StreamableHTTPServerTransport } = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
+const { validateApiKey } = require('./lib/auth.cjs');
+const { registerNeo4jTools } = require('./lib/neo4j-tools.cjs');
+const { registerPineconeTools } = require('./lib/pinecone-tools.cjs');
+
+const app = express();
+app.use(express.json());
+
+// API key auth middleware on /mcp route
+app.use('/mcp', validateApiKey);
+
+// MCP endpoint — stateless: new server + transport per request
+app.post('/mcp', async (req, res) => {
+  const server = new McpServer({
+    name: 'mindrian-brain',
+    version: '1.0.0',
+  });
+
+  registerNeo4jTools(server);
+  registerPineconeTools(server);
+
+  const transport = new StreamableHTTPServerTransport({
+    sessionIdGenerator: undefined, // stateless
+  });
+
+  await server.connect(transport);
+
+  try {
+    await transport.handleRequest(req, res, req.body);
+  } catch (err) {
+    if (!res.headersSent) {
+      res.status(500).json({
+        jsonrpc: '2.0',
+        error: { code: -32603, message: 'Internal server error' },
+        id: null,
+      });
+    }
+  }
+});
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', server: 'mindrian-brain', version: '1.0.0' });
+});
+
+// Start server (or export for testing)
+const PORT = process.env.PORT || 3001;
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Brain MCP server listening on port ${PORT}`);
+  });
+}
+
+module.exports = app;

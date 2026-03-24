@@ -41,7 +41,7 @@ See: `.planning/milestones/v2.0-ROADMAP.md`
 
 - [x] **Phase 10: Shared Core + CLI Tools** - Extract mindrian-tools.cjs entry point and core modules that both CLI and MCP share (completed 2026-03-24)
 - [x] **Phase 11: MCP Server** - Expose all plugin capabilities to Desktop/Cowork via hierarchical MCP tools, resources, and prompts (completed 2026-03-24)
-- [ ] **Phase 12: Brain Hosting + Room Collaboration** - Deploy Brain as remote MCP service and enable git-based team room sharing
+- [ ] **Phase 12: Brain Hosting** - Deploy Brain as remote MCP service on Render with API key auth (COLLAB-02/03 deferred to v4.0)
 - [ ] **Phase 13: Opportunity Bank + Funding Room** - Add grant discovery and funding lifecycle sections to the Data Room
 - [ ] **Phase 14: AI Team Personas** - Generate domain expert perspectives from room intelligence using De Bono framework
 
@@ -75,24 +75,22 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 11-01-PLAN.md — MCP server skeleton, npm setup, hierarchical tool router (6 tools, 41 commands)
-- [ ] 11-02-PLAN.md — MCP Resources (room:// URI scheme) and Prompts (methodology workflows with Larry personality)
-- [ ] 11-03-PLAN.md — CLI/MCP parity check script and end-to-end verification
+- [x] 11-01-PLAN.md — MCP server skeleton, npm setup, hierarchical tool router (6 tools, 41 commands)
+- [x] 11-02-PLAN.md — MCP Resources (room:// URI scheme) and Prompts (methodology workflows with Larry personality)
+- [x] 11-03-PLAN.md — CLI/MCP parity check script and end-to-end verification
 
-### Phase 12: Brain Hosting + Room Collaboration
-**Goal**: Paid-tier users connect to Brain from any surface, and teams share room state through git
+### Phase 12: Brain Hosting
+**Goal**: Deploy Brain as a remote MCP service so paid-tier users connect from any surface with one config entry
 **Depends on**: Phase 10 (can run parallel with Phase 11)
-**Requirements**: BRAIN-01, BRAIN-02, BRAIN-03, COLLAB-02, COLLAB-03
+**Requirements**: BRAIN-01, BRAIN-02, BRAIN-03
 **Success Criteria** (what must be TRUE):
   1. Desktop/Cowork user can add Brain MCP to their config and receive enriched intelligence identical to CLI users
   2. Brain access is gated by API key — requests without valid key are rejected with clear error
-  3. Team members can clone a room git repo, work locally, push changes, and pull others' updates
-  4. When two team members edit STATE.md concurrently, git sync resolves the conflict without data loss
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 12-01: TBD
-- [ ] 12-02: TBD
+- [ ] 12-01-PLAN.md — Brain MCP server (Express + StreamableHTTP, auth, Neo4j + Pinecone tools, smoke test)
+- [ ] 12-02-PLAN.md — Render deployment config, user documentation, end-to-end verification
 
 ### Phase 13: Opportunity Bank + Funding Room
 **Goal**: The Data Room proactively discovers grant opportunities and tracks funding lifecycle — accessible from both CLI plugin and MCP server
@@ -140,7 +138,7 @@ Phases 11 and 12 can run in parallel after Phase 10 completes. Phase 13 requires
 | 1-5 | v1.0 | 20/20 | Complete | 2026-03-22 |
 | 6-9 | v2.0 | 13/13 | Complete | 2026-03-24 |
 | 10. Shared Core + CLI Tools | 2/2 | Complete    | 2026-03-24 | - |
-| 11. MCP Server | 3/3 | Complete   | 2026-03-24 | - |
-| 12. Brain Hosting + Room Collaboration | v3.0 | 0/TBD | Not started | - |
+| 11. MCP Server | 3/3 | Complete    | 2026-03-24 | - |
+| 12. Brain Hosting | v3.0 | 0/2 | Planning complete | - |
 | 13. Opportunity Bank + Funding Room | v3.0 | 0/TBD | Not started | - |
 | 14. AI Team Personas | v3.0 | 0/TBD | Not started | - |

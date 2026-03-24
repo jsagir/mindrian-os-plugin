@@ -11,6 +11,7 @@ dashboard/graph.json
 # Environment and secrets
 .env
 .env.local
+.mcp.json
 *.key
 
 # Python
@@ -20,6 +21,10 @@ __pycache__/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Brain MCP server (standalone deploy)
+mcp-server-brain/node_modules/
+mcp-server-brain/package-lock.json
 
 # Planning (development only)
 .planning/

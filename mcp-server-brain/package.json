@@ -1,0 +1,20 @@
+{
+  "name": "mindrian-brain-mcp",
+  "version": "1.0.0",
+  "description": "Brain MCP server — wraps Neo4j and Pinecone behind API key auth",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.cjs",
+    "test": "node test-brain.cjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@pinecone-database/pinecone": "^5.1",
+    "express": "^4.21",
+    "neo4j-driver": "^5.28",
+    "zod": "^3.25"
+  }
+}
