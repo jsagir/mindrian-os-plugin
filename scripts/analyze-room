@@ -13,8 +13,8 @@ if [ ! -d "$ROOM_DIR" ]; then
   exit 0
 fi
 
-# ── 8 DD-aligned sections ──
-SECTIONS=(
+# ── 8 DD-aligned core sections (for gap messaging and section-specific logic) ──
+CORE_SECTIONS=(
   problem-definition
   market-analysis
   solution-design
@@ -24,6 +24,42 @@ SECTIONS=(
   legal-ip
   financial-model
 )
+
+# ── Structural directories (not sections) ──
+STRUCTURAL_DIRS=("meetings" "team")
+
+# ── Dynamic section discovery ──
+# Scan room directory for section directories (contains .md or STATE.md)
+EXTENDED_SECTIONS=()
+declare -A is_core_section
+declare -A is_structural_dir
+for s in "${CORE_SECTIONS[@]}"; do is_core_section["$s"]=1; done
+for s in "${STRUCTURAL_DIRS[@]}"; do is_structural_dir["$s"]=1; done
+
+if [ -d "$ROOM_DIR" ]; then
+  for dir in "$ROOM_DIR"/*/; do
+    [ -d "$dir" ] || continue
+    dir_name=$(basename "$dir")
+    # Skip hidden directories
+    [[ "$dir_name" == .* ]] && continue
+    # Skip structural directories
+    [ -n "${is_structural_dir[$dir_name]:-}" ] && continue
+    # Skip core sections (already in CORE_SECTIONS)
+    [ -n "${is_core_section[$dir_name]:-}" ] && continue
+    # Qualify: must contain at least one .md file or STATE.md
+    has_content=false
+    if [ -f "${dir}STATE.md" ]; then
+      has_content=true
+    else
+      md_count=$(find "$dir" -maxdepth 1 -name "*.md" 2>/dev/null | head -1)
+      [ -n "$md_count" ] && has_content=true
+    fi
+    $has_content && EXTENDED_SECTIONS+=("$dir_name")
+  done
+fi
+
+# Combine core + extended for iteration
+ALL_SECTIONS=("${CORE_SECTIONS[@]}" "${EXTENDED_SECTIONS[@]}")
 
 # ── Read venture stage from STATE.md ──
 venture_stage="Pre-Opportunity"
@@ -65,42 +101,50 @@ echo "## Gaps"
 
 # Build entry counts for adjacency checks
 declare -A entry_counts
-for section in "${SECTIONS[@]}"; do
+for section in "${ALL_SECTIONS[@]}"; do
   entry_counts["$section"]=$(count_entries "${ROOM_DIR}/${section}")
 done
 
-for section in "${SECTIONS[@]}"; do
+for section in "${ALL_SECTIONS[@]}"; do
   count="${entry_counts[$section]}"
   section_dir="${ROOM_DIR}/${section}"
 
-  # Venture stage filtering: suppress irrelevant gaps
-  if [ "$venture_stage" = "Pre-Opportunity" ]; then
-    if [ "$section" = "financial-model" ] || [ "$section" = "legal-ip" ]; then
-      continue
+  # Core section gap logic (venture stage filtering, specific messages)
+  if [ -n "${is_core_section[$section]:-}" ]; then
+    # Venture stage filtering: suppress irrelevant gaps
+    if [ "$venture_stage" = "Pre-Opportunity" ]; then
+      if [ "$section" = "financial-model" ] || [ "$section" = "legal-ip" ]; then
+        continue
+      fi
     fi
-  fi
 
-  if [ "$count" -eq 0 ]; then
-    # Investment stage: elevate all empty sections to HIGH
-    confidence="HIGH"
-    echo "GAP:STRUCTURAL:${section}:${confidence}:Section is empty"
-  elif [ "$count" -eq 1 ]; then
-    # Single entry -- check for single-lens (one methodology)
-    methodologies=$(get_methodologies "$section_dir")
-    method_count=$(echo "$methodologies" | grep -c '.' 2>/dev/null || true)
-    method_count=${method_count:-0}
-    if [ "$method_count" -le 1 ] && [ -n "$methodologies" ]; then
-      method_name=$(echo "$methodologies" | head -1)
-      echo "GAP:SEMANTIC:${section}:MEDIUM:Only analyzed via ${method_name} -- consider additional perspectives"
+    if [ "$count" -eq 0 ]; then
+      # Investment stage: elevate all empty sections to HIGH
+      confidence="HIGH"
+      echo "GAP:STRUCTURAL:${section}:${confidence}:Section is empty"
+    elif [ "$count" -eq 1 ]; then
+      # Single entry -- check for single-lens (one methodology)
+      methodologies=$(get_methodologies "$section_dir")
+      method_count=$(echo "$methodologies" | grep -c '.' 2>/dev/null || true)
+      method_count=${method_count:-0}
+      if [ "$method_count" -le 1 ] && [ -n "$methodologies" ]; then
+        method_name=$(echo "$methodologies" | head -1)
+        echo "GAP:SEMANTIC:${section}:MEDIUM:Only analyzed via ${method_name} -- consider additional perspectives"
+      fi
+    else
+      # Multiple entries -- check if all share same methodology
+      methodologies=$(get_methodologies "$section_dir")
+      method_count=$(echo "$methodologies" | grep -c '.' 2>/dev/null || true)
+      method_count=${method_count:-0}
+      if [ "$method_count" -le 1 ] && [ -n "$methodologies" ]; then
+        method_name=$(echo "$methodologies" | head -1)
+        echo "GAP:SEMANTIC:${section}:MEDIUM:Only analyzed via ${method_name} -- consider additional perspectives"
+      fi
     fi
   else
-    # Multiple entries -- check if all share same methodology
-    methodologies=$(get_methodologies "$section_dir")
-    method_count=$(echo "$methodologies" | grep -c '.' 2>/dev/null || true)
-    method_count=${method_count:-0}
-    if [ "$method_count" -le 1 ] && [ -n "$methodologies" ]; then
-      method_name=$(echo "$methodologies" | head -1)
-      echo "GAP:SEMANTIC:${section}:MEDIUM:Only analyzed via ${method_name} -- consider additional perspectives"
+    # Extended section: generic gap message for sparse content
+    if [ "$count" -le 1 ]; then
+      echo "STRUCTURAL_GAP:${section}:LOW:Section exists but has sparse content"
     fi
   fi
 done
@@ -123,7 +167,7 @@ NOISE_WORDS="analysis|framework|venture|methodology|section|evidence|definition|
 # Collect terms from headers and bold text across sections, tracking which section each came from
 declare -A term_sections  # term -> "section1|section2|..."
 
-for section in "${SECTIONS[@]}"; do
+for section in "${ALL_SECTIONS[@]}"; do
   section_dir="${ROOM_DIR}/${section}"
   [ -d "$section_dir" ] || continue
 
@@ -177,7 +221,7 @@ echo "## Contradictions"
 declare -A b2b_sections
 declare -A b2c_sections
 
-for section in "${SECTIONS[@]}"; do
+for section in "${ALL_SECTIONS[@]}"; do
   section_dir="${ROOM_DIR}/${section}"
   [ -d "$section_dir" ] || continue
 
@@ -235,7 +279,7 @@ if [ "$meeting_count" -gt 0 ]; then
 
   # Track which sections have meeting-sourced artifacts
   declare -A meeting_sourced_sections
-  for section in "${SECTIONS[@]}"; do
+  for section in "${ALL_SECTIONS[@]}"; do
     section_dir="${ROOM_DIR}/${section}"
     [ -d "$section_dir" ] || continue
     meeting_sourced_sections["$section"]=0
@@ -252,7 +296,7 @@ if [ "$meeting_count" -gt 0 ]; then
   done
 
   # Report meeting-sourced artifact distribution
-  for section in "${SECTIONS[@]}"; do
+  for section in "${ALL_SECTIONS[@]}"; do
     count="${meeting_sourced_sections[$section]:-0}"
     total="${entry_counts[$section]}"
     if [ "$total" -gt 0 ] && [ "$count" -eq 0 ]; then
