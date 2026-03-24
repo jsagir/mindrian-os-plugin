@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: MCP Platform & Intelligence Expansion
-status: executing
-stopped_at: Completed 10-02-PLAN.md
-last_updated: "2026-03-24T19:31:12.000Z"
-last_activity: 2026-03-24 — Completed 10-02 (Dynamic Discovery + P1 Wrappers)
+status: in-progress
+stopped_at: Completed 11-01-PLAN.md
+last_updated: "2026-03-24T20:42:28Z"
+last_activity: 2026-03-24 — Completed 11-01 (MCP Server Entry Point + Tool Router)
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 5
+  completed_plans: 3
   percent: 100
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-24)
 
 **Core value:** Dual-surface platform (CLI + MCP) delivering MindrianOS to Desktop/Cowork users with grant discovery and AI personas
-**Current focus:** Phase 10 — Shared Core + CLI Tools
+**Current focus:** Phase 11 — MCP Server
 
 ## Current Position
 
-Phase: 10 of 14 (Shared Core + CLI Tools) -- COMPLETE
-Plan: 2 of 2 in current phase
-Status: Phase Complete
-Last activity: 2026-03-24 — Completed 10-02 (Dynamic Discovery + P1 Wrappers)
+Phase: 11 of 14 (MCP Server)
+Plan: 1 of 4 in current phase
+Status: In Progress
+Last activity: 2026-03-24 — Completed 11-01 (MCP Server Entry Point + Tool Router)
 
-Progress: [██████████] 100% (35/35 plans complete across v1.0+v2.0+v3.0)
+Progress: [█████████░] 92% (23/25 plans complete across v1.0+v2.0+v3.0)
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Progress: [██████████] 100% (35/35 plans complete across v1.
 - Trend: Stable
 | Phase 10 P01 | 3min | 2 tasks | 10 files |
 | Phase 10 P02 | 5min | 2 tasks | 5 files |
+| Phase 11 P01 | 16min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,9 @@ Recent decisions affecting v3.0:
 - [Phase 10]: Wrap Bash scripts via execSync (10s timeout), do not rewrite logic in Node.js
 - [Phase 10]: 30s timeout for meeting/graph wrappers (slower scripts than room/state)
 - [Phase 10]: Extended sections get generic gap messages; core sections keep specific logic
+- [Phase 11]: Used server.tool() API for MCP SDK v1.27 (simpler than registerTool)
+- [Phase 11]: ALL_TOOL_COMMANDS uses 41 CLI names for parity (data_room has 5 internal sub-commands mapping to CLI 'room')
+- [Phase 11]: Larry compact personality (500 chars) in data_room description; full personality for future prompt injection
 
 ### Pending Todos
 
@@ -85,6 +89,6 @@ Recent decisions affecting v3.0:
 
 ## Session Continuity
 
-Last session: 2026-03-24T19:31:12.000Z
-Stopped at: Completed 10-02-PLAN.md (Phase 10 complete)
+Last session: 2026-03-24T20:42:28Z
+Stopped at: Completed 11-01-PLAN.md
 Resume file: None

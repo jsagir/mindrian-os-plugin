@@ -15,15 +15,15 @@ Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap pha
 
 ### MCP Server
 
-- [ ] **MCP-01**: MCP server exposes all plugin capabilities via hierarchical tool router (5-8 high-level tools grouping 41+ commands)
+- [x] **MCP-01**: MCP server exposes all plugin capabilities via hierarchical tool router (5-8 high-level tools grouping 41+ commands)
 - [ ] **MCP-02**: Room state, sections, and artifacts accessible as MCP Resources (read-only browsing without tool calls)
 - [ ] **MCP-03**: Common methodology workflows available as MCP Prompts (file meeting, run analysis, grade venture)
-- [ ] **MCP-04**: MCP server runs via stdio transport, configurable in claude_desktop_config.json with one line
+- [x] **MCP-04**: MCP server runs via stdio transport, configurable in claude_desktop_config.json with one line
 - [ ] **MCP-05**: Larry personality and teaching mode active in MCP context (same experience as CLI)
 
 ### Room Collaboration
 
-- [ ] **COLLAB-01**: MCP server accesses local room via configurable `MINDRIAN_ROOM` env var
+- [x] **COLLAB-01**: MCP server accesses local room via configurable `MINDRIAN_ROOM` env var
 - [ ] **COLLAB-02**: Room state syncable to git repo for team collaboration (git-based shared room)
 - [ ] **COLLAB-03**: Git sync handles STATE.md merge conflicts gracefully (last-write-wins with history preservation)
 
@@ -85,12 +85,12 @@ Deferred to future release. Tracked but not in current roadmap.
 | CORE-01 | Phase 10 | Complete |
 | CORE-02 | Phase 10 | Complete |
 | CORE-03 | Phase 11 | Pending |
-| MCP-01 | Phase 11 | Pending |
+| MCP-01 | Phase 11 | Complete |
 | MCP-02 | Phase 11 | Pending |
 | MCP-03 | Phase 11 | Pending |
-| MCP-04 | Phase 11 | Pending |
+| MCP-04 | Phase 11 | Complete |
 | MCP-05 | Phase 11 | Pending |
-| COLLAB-01 | Phase 11 | Pending |
+| COLLAB-01 | Phase 11 | Complete |
 | COLLAB-02 | Phase 12 | Pending |
 | COLLAB-03 | Phase 12 | Pending |
 | BRAIN-01 | Phase 12 | Pending |
