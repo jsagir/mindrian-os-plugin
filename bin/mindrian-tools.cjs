@@ -11,6 +11,8 @@
 const { output, error } = require('../lib/core/index.cjs');
 const roomOps = require('../lib/core/room-ops.cjs');
 const stateOps = require('../lib/core/state-ops.cjs');
+const meetingOps = require('../lib/core/meeting-ops.cjs');
+const graphOps = require('../lib/core/graph-ops.cjs');
 
 const USAGE = `Usage: mindrian-tools.cjs <command> <subcommand> [roomDir] [--raw]
 
@@ -18,7 +20,10 @@ Commands:
   room list-sections [roomDir]   List discovered sections with metadata
   room analyze [roomDir]         Run analyze-room script
   state compute [roomDir]        Run compute-state script
-  state get [roomDir]            Read STATE.md from room`;
+  state get [roomDir]            Read STATE.md from room
+  meeting compute-intel [roomDir]  Run compute-meetings-intelligence script
+  meeting compute-team [roomDir]   Run compute-team script
+  graph build [roomDir] [outputPath]  Generate knowledge graph JSON`;
 
 async function main() {
   const argv = process.argv.slice(2);
@@ -72,6 +77,38 @@ async function main() {
         }
         default:
           error(`Unknown state subcommand: ${subcommand}\n\n${USAGE}`);
+      }
+      break;
+    }
+
+    case 'meeting': {
+      switch (subcommand) {
+        case 'compute-intel': {
+          const result = meetingOps.computeMeetingsIntel(roomDir);
+          output({ output: result }, raw, result);
+          break;
+        }
+        case 'compute-team': {
+          const result = meetingOps.computeTeam(roomDir);
+          output({ output: result }, raw, result);
+          break;
+        }
+        default:
+          error(`Unknown meeting subcommand: ${subcommand}\n\n${USAGE}`);
+      }
+      break;
+    }
+
+    case 'graph': {
+      switch (subcommand) {
+        case 'build': {
+          const outputPath = argv[3]; // optional 4th arg
+          const result = graphOps.buildGraph(roomDir, outputPath);
+          output(result, raw, JSON.stringify(result));
+          break;
+        }
+        default:
+          error(`Unknown graph subcommand: ${subcommand}\n\n${USAGE}`);
       }
       break;
     }
