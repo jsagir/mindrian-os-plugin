@@ -43,9 +43,9 @@ Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap pha
 ### Funding Room
 
 - [x] **FUND-01**: New room/funding/ section with sub-rooms for non-dilutive, dilutive, and grants
-- [ ] **FUND-02**: Per-grant folders with lifecycle stages: Discovered > Researched > Applying > Submitted > Awarded/Rejected
-- [ ] **FUND-03**: Grant progress tracked in section STATE.md with deadlines, status, and next actions
-- [ ] **FUND-04**: Cross-references between funding entries and opportunity-bank sources
+- [x] **FUND-02**: Per-grant folders with lifecycle stages: Discovered > Researched > Applying > Submitted > Awarded/Rejected
+- [x] **FUND-03**: Grant progress tracked in section STATE.md with deadlines, status, and next actions
+- [x] **FUND-04**: Cross-references between funding entries and opportunity-bank sources
 
 ### AI Team Personas
 
@@ -101,9 +101,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | OPP-03 | Phase 13 | Complete |
 | OPP-04 | Phase 13 | Complete |
 | FUND-01 | Phase 13 | Complete |
-| FUND-02 | Phase 13 | Pending |
-| FUND-03 | Phase 13 | Pending |
-| FUND-04 | Phase 13 | Pending |
+| FUND-02 | Phase 13 | Complete |
+| FUND-03 | Phase 13 | Complete |
+| FUND-04 | Phase 13 | Complete |
 | PERS-01 | Phase 14 | Pending |
 | PERS-02 | Phase 14 | Pending |
 | PERS-03 | Phase 14 | Pending |

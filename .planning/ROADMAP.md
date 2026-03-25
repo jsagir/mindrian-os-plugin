@@ -42,7 +42,7 @@ See: `.planning/milestones/v2.0-ROADMAP.md`
 - [x] **Phase 10: Shared Core + CLI Tools** - Extract mindrian-tools.cjs entry point and core modules that both CLI and MCP share (completed 2026-03-24)
 - [x] **Phase 11: MCP Server** - Expose all plugin capabilities to Desktop/Cowork via hierarchical MCP tools, resources, and prompts (completed 2026-03-24)
 - [x] **Phase 12: Brain Hosting** - Deploy Brain as remote MCP service on Render with API key auth (COLLAB-02/03 deferred to v4.0) (completed 2026-03-24)
-- [ ] **Phase 13: Opportunity Bank + Funding Room** - Add grant discovery and funding lifecycle sections to the Data Room
+- [x] **Phase 13: Opportunity Bank + Funding Room** - Add grant discovery and funding lifecycle sections to the Data Room (completed 2026-03-25)
 - [ ] **Phase 14: AI Team Personas** - Generate domain expert perspectives from room intelligence using De Bono framework
 
 ## Phase Details
@@ -140,5 +140,5 @@ Phases 11 and 12 can run in parallel after Phase 10 completes. Phase 13 requires
 | 10. Shared Core + CLI Tools | 2/2 | Complete    | 2026-03-24 | - |
 | 11. MCP Server | 3/3 | Complete    | 2026-03-24 | - |
 | 12. Brain Hosting | 2/2 | Complete    | 2026-03-24 | - |
-| 13. Opportunity Bank + Funding Room | 2/3 | In Progress|  | - |
+| 13. Opportunity Bank + Funding Room | 3/3 | Complete   | 2026-03-25 | - |
 | 14. AI Team Personas | v3.0 | 0/TBD | Not started | - |
