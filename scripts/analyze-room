@@ -310,4 +310,116 @@ else
 fi
 
 echo ""
+
+# ═══════════════════════════════════════════════
+# Section 5: Opportunity Bank Intelligence (OPP-04)
+# ═══════════════════════════════════════════════
+echo "## Opportunity Bank"
+
+if [ -d "$ROOM_DIR/opportunity-bank" ]; then
+  # Count opportunities by status
+  declare -A opp_status_counts
+  opp_file_count=0
+
+  for f in "$ROOM_DIR"/opportunity-bank/*.md; do
+    [ -f "$f" ] || continue
+    fname=$(basename "$f")
+    [ "$fname" = "STATE.md" ] || [ "$fname" = "ROOM.md" ] && continue
+
+    opp_file_count=$((opp_file_count + 1))
+
+    # Parse status from frontmatter
+    status=$(grep -m1 '^status:' "$f" 2>/dev/null | sed 's/status:[[:space:]]*//' | tr -d '"' | xargs)
+    status=${status:-unknown}
+    opp_status_counts["$status"]=$(( ${opp_status_counts[$status]:-0} + 1 ))
+  done
+
+  if [ "$opp_file_count" -eq 0 ]; then
+    echo "Opportunity bank exists but has no filed opportunities."
+  else
+    # Output count by status
+    for status in "${!opp_status_counts[@]}"; do
+      echo "OPP_STATUS:${status}:${opp_status_counts[$status]}"
+    done
+
+    # Top by relevance (up to 3)
+    declare -a opp_relevance_lines=()
+    for f in "$ROOM_DIR"/opportunity-bank/*.md; do
+      [ -f "$f" ] || continue
+      fname=$(basename "$f")
+      [ "$fname" = "STATE.md" ] || [ "$fname" = "ROOM.md" ] && continue
+
+      rel_score=$(grep -m1 '^relevance_score:' "$f" 2>/dev/null | sed 's/relevance_score:[[:space:]]*//' | tr -d '"' | xargs)
+      funder=$(grep -m1 '^funder:' "$f" 2>/dev/null | sed 's/funder:[[:space:]]*//' | tr -d '"' | xargs)
+      [ -n "$rel_score" ] && opp_relevance_lines+=("${rel_score}:${fname}:${funder}")
+    done
+
+    # Sort descending by relevance, take top 3
+    if [ ${#opp_relevance_lines[@]} -gt 0 ]; then
+      printf '%s\n' "${opp_relevance_lines[@]}" | sort -t: -k1 -rn | head -3 | while IFS=: read -r score name funder_name; do
+        echo "OPP_TOP_RELEVANCE:${name}:${score}:${funder_name}"
+      done
+    fi
+
+    # Upcoming deadlines (future dates, up to 5)
+    today_str=$(date +%Y-%m-%d)
+    declare -a opp_deadline_lines=()
+    for f in "$ROOM_DIR"/opportunity-bank/*.md; do
+      [ -f "$f" ] || continue
+      fname=$(basename "$f")
+      [ "$fname" = "STATE.md" ] || [ "$fname" = "ROOM.md" ] && continue
+
+      deadline=$(grep -m1 '^deadline:' "$f" 2>/dev/null | sed 's/deadline:[[:space:]]*//' | tr -d '"' | xargs)
+      funder=$(grep -m1 '^funder:' "$f" 2>/dev/null | sed 's/funder:[[:space:]]*//' | tr -d '"' | xargs)
+      if [ -n "$deadline" ] && [[ "$deadline" > "$today_str" || "$deadline" = "$today_str" ]]; then
+        opp_deadline_lines+=("${deadline}:${fname}:${funder}")
+      fi
+    done
+
+    # Sort ascending by deadline, take top 5
+    if [ ${#opp_deadline_lines[@]} -gt 0 ]; then
+      printf '%s\n' "${opp_deadline_lines[@]}" | sort -t: -k1 | head -5 | while IFS=: read -r dl name funder_name; do
+        echo "OPP_DEADLINE:${name}:${dl}:${funder_name}"
+      done
+    fi
+  fi
+
+  # Funding pipeline summary (if funding/ exists)
+  if [ -d "$ROOM_DIR/funding" ]; then
+    declare -A fund_stage_counts
+
+    for fund_dir in "$ROOM_DIR"/funding/*/; do
+      [ -d "$fund_dir" ] || continue
+      status_file="${fund_dir}STATUS.md"
+      [ -f "$status_file" ] || continue
+
+      stage=$(grep -m1 '^stage:' "$status_file" 2>/dev/null | sed 's/stage:[[:space:]]*//' | tr -d '"' | xargs)
+      stage=${stage:-unknown}
+      fund_stage_counts["$stage"]=$(( ${fund_stage_counts[$stage]:-0} + 1 ))
+
+      # Check for stale entries (last_updated > 14 days ago)
+      last_updated=$(grep -m1 '^last_updated:' "$status_file" 2>/dev/null | sed 's/last_updated:[[:space:]]*//' | tr -d '"' | xargs)
+      if [ -n "$last_updated" ]; then
+        last_epoch=$(date -d "$last_updated" +%s 2>/dev/null || echo 0)
+        now_epoch=$(date +%s)
+        if [ "$last_epoch" -gt 0 ]; then
+          days_since=$(( (now_epoch - last_epoch) / 86400 ))
+          if [ "$days_since" -gt 14 ]; then
+            slug=$(basename "$fund_dir")
+            echo "FUND_STALE:${slug}:${days_since}"
+          fi
+        fi
+      fi
+    done
+
+    # Output count by stage
+    for stage in "${!fund_stage_counts[@]}"; do
+      echo "FUND_STAGE:${stage}:${fund_stage_counts[$stage]}"
+    done
+  fi
+else
+  echo "No opportunity bank in this room."
+fi
+
+echo ""
 echo "## End"

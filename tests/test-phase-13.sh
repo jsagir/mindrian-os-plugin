@@ -165,6 +165,100 @@ else
   fail "listFunding did not return 0 for missing room"
 fi
 
+# --- Test 9: buildGrantQuery (Plan 02) ---
+echo "Test 9: buildGrantQuery returns structured query from room context"
+
+QUERY_RESULT=$(cd "$PLUGIN_ROOT" && node -e "
+const ops = require('./lib/core/opportunity-ops.cjs');
+const q = ops.buildGrantQuery('$SAMPLE_ROOM');
+console.log(JSON.stringify(q));
+")
+
+if echo "$QUERY_RESULT" | grep -q '"keyword"'; then
+  pass "buildGrantQuery returns keyword field"
+else
+  fail "buildGrantQuery missing keyword field"
+fi
+
+if echo "$QUERY_RESULT" | grep -q '"fundingCategories"'; then
+  pass "buildGrantQuery returns fundingCategories field"
+else
+  fail "buildGrantQuery missing fundingCategories field"
+fi
+
+if echo "$QUERY_RESULT" | grep -q '"ventureStage"'; then
+  pass "buildGrantQuery returns ventureStage field"
+else
+  fail "buildGrantQuery missing ventureStage field"
+fi
+
+# --- Test 10: fileOpportunity (Plan 02) ---
+echo "Test 10: fileOpportunity creates artifact file"
+
+FILE_RESULT=$(cd "$PLUGIN_ROOT" && node -e "
+const ops = require('./lib/core/opportunity-ops.cjs');
+const result = ops.fileOpportunity('/tmp/test-room-phase13', { title: 'Test Grant', funder: 'DOE', program: 'Clean Energy', amount: 50000, source: 'manual', relevance_score: 0.6 });
+console.log(JSON.stringify(result));
+")
+
+if echo "$FILE_RESULT" | grep -q '"filed":true'; then
+  pass "fileOpportunity returns filed:true"
+else
+  fail "fileOpportunity did not return filed:true"
+fi
+
+# Cleanup temp room
+rm -rf /tmp/test-room-phase13
+
+# --- Test 11: CLI opportunity list (Plan 02) ---
+echo "Test 11: CLI opportunity list returns JSON"
+
+CLI_RESULT=$(cd "$PLUGIN_ROOT" && node bin/mindrian-tools.cjs opportunity list "$SAMPLE_ROOM" --raw 2>/dev/null)
+
+if echo "$CLI_RESULT" | grep -q '"count"'; then
+  pass "CLI opportunity list returns count field"
+else
+  fail "CLI opportunity list missing count field"
+fi
+
+# --- Test 12: MCP tool-router loads with opportunity commands ---
+echo "Test 12: MCP tool-router includes opportunity commands"
+
+if grep -q 'scan-opportunities' "$PLUGIN_ROOT/lib/mcp/tool-router.cjs"; then
+  pass "tool-router has scan-opportunities command"
+else
+  fail "tool-router missing scan-opportunities command"
+fi
+
+# --- Test 13: analyze-room opportunity bank section (OPP-04) ---
+echo "Test 13: analyze-room outputs opportunity bank intelligence"
+
+ANALYZE_OUTPUT=$(bash "$PLUGIN_ROOT/scripts/analyze-room" "$SAMPLE_ROOM" 2>/dev/null)
+
+if echo "$ANALYZE_OUTPUT" | grep -q "## Opportunity Bank"; then
+  pass "analyze-room has Opportunity Bank section header"
+else
+  fail "analyze-room missing Opportunity Bank section"
+fi
+
+if echo "$ANALYZE_OUTPUT" | grep -q "OPP_STATUS:discovered:1"; then
+  pass "analyze-room shows OPP_STATUS:discovered:1"
+else
+  fail "analyze-room missing OPP_STATUS:discovered:1"
+fi
+
+if echo "$ANALYZE_OUTPUT" | grep -q "OPP_TOP_RELEVANCE:"; then
+  pass "analyze-room shows OPP_TOP_RELEVANCE line"
+else
+  fail "analyze-room missing OPP_TOP_RELEVANCE line"
+fi
+
+if echo "$ANALYZE_OUTPUT" | grep -q "FUND_STAGE:researched:1"; then
+  pass "analyze-room shows FUND_STAGE:researched:1"
+else
+  fail "analyze-room missing FUND_STAGE:researched:1"
+fi
+
 # --- Summary ---
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
