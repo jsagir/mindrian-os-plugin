@@ -27,6 +27,8 @@ fi
 
 # --- Test 2: generateReasoning creates .reasoning/{section}/REASONING.md ---
 echo "[2] generateReasoning creates REASONING.md"
+# Backup fixture before overwriting
+cp "$FIXTURE_DIR/.reasoning/problem-definition/REASONING.md" "$FIXTURE_DIR/.reasoning/problem-definition/REASONING.md.bak"
 RESULT=$(node -e "
 const r = require('$SCRIPT_DIR/lib/core/reasoning-ops.cjs');
 const result = r.generateReasoning('$FIXTURE_DIR', 'problem-definition');
@@ -41,9 +43,9 @@ if echo "$RESULT" | grep -q "gen=OK"; then
 else
   fail "generateReasoning" "$RESULT"
 fi
-# Cleanup: restore fixture
-cp "$FIXTURE_DIR/../test-room-reasoning/.reasoning/problem-definition/REASONING.md.bak" \
-   "$FIXTURE_DIR/.reasoning/problem-definition/REASONING.md" 2>/dev/null || true
+# Restore fixture from backup
+cp "$FIXTURE_DIR/.reasoning/problem-definition/REASONING.md.bak" "$FIXTURE_DIR/.reasoning/problem-definition/REASONING.md"
+rm -f "$FIXTURE_DIR/.reasoning/problem-definition/REASONING.md.bak"
 
 # --- Test 3: listReasoning returns array with has_reasoning field ---
 echo "[3] listReasoning returns status array"
