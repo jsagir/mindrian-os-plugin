@@ -88,8 +88,8 @@ Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap pha
 
 - [x] **WIKI-01**: Every room section renders as a Wikipedia-style page with TOC, infobox from frontmatter, and content rendered from .md files
 - [x] **WIKI-02**: KuzuDB relationships become clickable hyperlinks (INFORMS → navigate, CONTRADICTS → red warning link, CONVERGES → grouped "See also")
-- [ ] **WIKI-03**: Chat interface scoped to current page — user talks to the Data Room through Larry
-- [ ] **WIKI-04**: Full-text search across all room pages with instant results (flexsearch)
+- [x] **WIKI-03**: Chat interface scoped to current page — user talks to the Data Room through Larry
+- [x] **WIKI-04**: Full-text search across all room pages with instant results (flexsearch)
 - [x] **WIKI-05**: Auto-refreshes when room content changes, De Stijl design, embedded Mermaid/images/media
 
 ## v4.0 Requirements
