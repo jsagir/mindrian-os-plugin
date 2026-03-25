@@ -179,6 +179,18 @@ node bin/mindrian-tools.cjs graph rebuild ./room
 4. **All errors should be silent** — if you see an error, it's a bug. Report it.
 5. **Never share your Brain API key** — it's tied to your account
 
+## Privacy & Data Ownership
+
+**All Data Room content is stored locally on your machine.** MindrianOS does not collect, access, or transmit your venture data. Period.
+
+- **Room data** — stays in your `room/` folder. Never leaves your machine.
+- **Knowledge graph** — KuzuDB runs embedded locally in `room/.lazygraph`. Your graph, your data.
+- **Brain connection** (optional) — sends only search queries to the methodology graph. Never your room content, artifacts, or meeting transcripts. The Brain contains teaching intelligence (frameworks, grading rubrics, methodology chains) — not your data.
+- **Wiki dashboard** — runs on localhost only. Not exposed to the internet.
+- **Analytics** — local usage patterns stored in `room/.learnings.md`. Never transmitted.
+
+Your intellectual property stays yours. MindrianOS is a tool, not a platform that monetizes your data.
+
 ## Get Help
 
 - **Website:** https://mindrianos-jsagirs-projects.vercel.app
