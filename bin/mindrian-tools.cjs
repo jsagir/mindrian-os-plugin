@@ -14,6 +14,7 @@ const stateOps = require('../lib/core/state-ops.cjs');
 const meetingOps = require('../lib/core/meeting-ops.cjs');
 const graphOps = require('../lib/core/graph-ops.cjs');
 const opportunityOps = require('../lib/core/opportunity-ops.cjs');
+const personaOps = require('../lib/core/persona-ops.cjs');
 
 const USAGE = `Usage: mindrian-tools.cjs <command> <subcommand> [roomDir] [--raw]
 
@@ -33,7 +34,11 @@ Commands:
   funding advance [roomDir] [slug] [note]   Advance to next stage
   funding status [roomDir] [slug]           Show funding entry details
   funding outcome [roomDir] [slug] [outcome]  Set outcome (awarded|rejected|withdrawn)
-  funding compute-state [roomDir]  Compute opportunity-bank + funding STATE.md`;
+  funding compute-state [roomDir]  Compute opportunity-bank + funding STATE.md
+  persona generate [roomDir]       Generate 6 De Bono hat personas from room state
+  persona list [roomDir]           List generated personas
+  persona invoke [roomDir] [hat] [artifact]  Invoke a specific hat perspective
+  persona analyze [roomDir] [artifact]       Run all 6 perspectives on an artifact`;
 
 async function main() {
   const argv = process.argv.slice(2);
@@ -230,6 +235,40 @@ async function main() {
         }
         default:
           error(`Unknown funding subcommand: ${subcommand}\n\n${USAGE}`);
+      }
+      break;
+    }
+
+    case 'persona': {
+      switch (subcommand) {
+        case 'generate': {
+          const result = personaOps.generatePersonas(roomDir);
+          output(result, raw, JSON.stringify(result));
+          break;
+        }
+        case 'list': {
+          const result = personaOps.listPersonas(roomDir);
+          output(result, raw, JSON.stringify(result));
+          break;
+        }
+        case 'invoke': {
+          const hatColor = argv[3];
+          const artifactPath = argv[4] || null;
+          if (!hatColor) {
+            error('persona invoke requires a hat color argument (white|red|black|yellow|green|blue)');
+          }
+          const result = personaOps.invokePersona(roomDir, hatColor, artifactPath);
+          output(result, raw, JSON.stringify(result));
+          break;
+        }
+        case 'analyze': {
+          const artifactPath = argv[3] || null;
+          const result = personaOps.analyzeAllPerspectives(roomDir, artifactPath);
+          output(result, raw, JSON.stringify(result));
+          break;
+        }
+        default:
+          error(`Unknown persona subcommand: ${subcommand}\n\n${USAGE}`);
       }
       break;
     }
