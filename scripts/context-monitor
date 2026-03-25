@@ -7,6 +7,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const visual = require('../lib/core/visual-ops.cjs');
 
 const BRIDGE_FILE = '/tmp/mindrian-context-state';
 
@@ -47,11 +48,11 @@ process.stdin.on('end', () => {
       const bar = '\u2588'.repeat(filled) + '\u2591'.repeat(10 - filled);
 
       if (used < 50) {
-        ctx = ` \x1b[32m${bar} ${used}%\x1b[0m`;
+        ctx = ` ${visual.ANSI.green}${bar} ${used}%${visual.ANSI.reset}`;
       } else if (used < 65) {
-        ctx = ` \x1b[33m${bar} ${used}%\x1b[0m`;
+        ctx = ` ${visual.ANSI.yellow}${bar} ${used}%${visual.ANSI.reset}`;
       } else if (used < 80) {
-        ctx = ` \x1b[38;5;208m${bar} ${used}%\x1b[0m`;
+        ctx = ` ${visual.ANSI.sienna}${bar} ${used}%${visual.ANSI.reset}`;
       } else {
         ctx = ` \x1b[5;31m\u{1F480} ${bar} ${used}%\x1b[0m`;
       }
@@ -111,26 +112,31 @@ process.stdin.on('end', () => {
           } catch (e) {}
         }
 
-        // Build room status parts
+        // Build room status parts (De Stijl visual identity)
         const parts = [];
-        parts.push(`\x1b[1;36m\u2B21 ${projectName}\x1b[0m`);
-        if (currentSection) parts.push(`\x1b[2m${currentSection}\x1b[0m`);
-        if (stage) parts.push(`\x1b[35m${stage}\x1b[0m`);
-        parts.push(`${sectionCount}\u00A7`);
-        if (gaps > 0) parts.push(`\x1b[33m${gaps}gaps\x1b[0m`);
+        parts.push(`${visual.ANSI.cyan}${visual.ANSI.bold}${visual.SYMBOLS.brand} ${projectName}${visual.ANSI.reset}`);
+        if (stage) {
+          const stageSym = visual.stageSymbol(stage);
+          parts.push(`${visual.ANSI.amethyst}${stageSym} ${stage}${visual.ANSI.reset}`);
+        }
+        const healthSym = gaps === 0 ? visual.SYMBOLS.health.populated : visual.SYMBOLS.health.empty;
+        parts.push(`${healthSym} ${sectionCount} sections`);
+        if (gaps > 0) {
+          parts.push(`${visual.ANSI.red}${visual.SYMBOLS.health.empty} ${gaps} gaps${visual.ANSI.reset}`);
+        }
 
-        roomInfo = parts.join(' \x1b[2m\u2502\x1b[0m ');
+        roomInfo = parts.join(` ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} `);
       } catch (e) {}
     }
 
     // --- Output ---
     if (roomInfo) {
       // MindrianOS active: show room context + model + context bar
-      process.stdout.write(`${roomInfo} \x1b[2m\u2502\x1b[0m \x1b[2m${model}\x1b[0m${ctx}`);
+      process.stdout.write(`${roomInfo} ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} ${visual.ANSI.dim}${model}${visual.ANSI.reset}${ctx}`);
     } else {
       // No room: just model + directory + context
       const dirname = path.basename(dir);
-      process.stdout.write(`\x1b[2m${model}\x1b[0m \x1b[2m\u2502\x1b[0m \x1b[2m${dirname}\x1b[0m${ctx}`);
+      process.stdout.write(`${visual.ANSI.dim}${model}${visual.ANSI.reset} ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} ${visual.ANSI.dim}${dirname}${visual.ANSI.reset}${ctx}`);
     }
   } catch (e) {
     // Silent fail
