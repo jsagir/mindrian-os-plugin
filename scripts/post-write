@@ -21,5 +21,28 @@ if [[ "$FILE_PATH" == */room/* ]]; then
   fi
 fi
 
+# Index artifact in LazyGraph (KuzuDB) if it is a .md file in a room
+if [[ "$FILE_PATH" == *.md ]]; then
+  # Skip STATE.md and ROOM.md (not artifacts)
+  basename_file=$(basename "$FILE_PATH")
+  if [[ "$basename_file" != "STATE.md" ]] && [[ "$basename_file" != "ROOM.md" ]]; then
+    # Walk up from FILE_PATH looking for STATE.md to find room root
+    room_dir=""
+    check_dir=$(dirname "$FILE_PATH")
+    while [ "$check_dir" != "/" ] && [ "$check_dir" != "." ]; do
+      if [ -f "$check_dir/STATE.md" ]; then
+        room_dir="$check_dir"
+        break
+      fi
+      check_dir=$(dirname "$check_dir")
+    done
+    if [ -n "$room_dir" ] && [ -d "$room_dir" ]; then
+      # Run graph index in background with timeout (don't block hook)
+      PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+      timeout 2 node "${PLUGIN_ROOT}/bin/mindrian-tools.cjs" graph index "$room_dir" "$FILE_PATH" --raw 2>/dev/null &
+    fi
+  fi
+fi
+
 # Run classification on the written file
 exec bash "${SCRIPT_DIR}/classify-insight" "$FILE_PATH"
