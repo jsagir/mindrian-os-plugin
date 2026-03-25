@@ -13,6 +13,7 @@ const roomOps = require('../lib/core/room-ops.cjs');
 const stateOps = require('../lib/core/state-ops.cjs');
 const meetingOps = require('../lib/core/meeting-ops.cjs');
 const graphOps = require('../lib/core/graph-ops.cjs');
+const opportunityOps = require('../lib/core/opportunity-ops.cjs');
 
 const USAGE = `Usage: mindrian-tools.cjs <command> <subcommand> [roomDir] [--raw]
 
@@ -23,7 +24,10 @@ Commands:
   state get [roomDir]            Read STATE.md from room
   meeting compute-intel [roomDir]  Run compute-meetings-intelligence script
   meeting compute-team [roomDir]   Run compute-team script
-  graph build [roomDir] [outputPath]  Generate knowledge graph JSON`;
+  graph build [roomDir] [outputPath]  Generate knowledge graph JSON
+  opportunity scan [roomDir]     Context-driven grant discovery
+  opportunity list [roomDir]     List filed opportunities
+  opportunity file [roomDir] [dataJson]  File an opportunity`;
 
 async function main() {
   const argv = process.argv.slice(2);
@@ -109,6 +113,39 @@ async function main() {
         }
         default:
           error(`Unknown graph subcommand: ${subcommand}\n\n${USAGE}`);
+      }
+      break;
+    }
+
+    case 'opportunity': {
+      switch (subcommand) {
+        case 'scan': {
+          const result = await opportunityOps.scanOpportunities(roomDir);
+          output(result, raw, JSON.stringify(result, null, 2));
+          break;
+        }
+        case 'list': {
+          const result = opportunityOps.listOpportunities(roomDir);
+          output(result, raw, JSON.stringify(result, null, 2));
+          break;
+        }
+        case 'file': {
+          const dataJson = argv[3];
+          if (!dataJson) {
+            error('opportunity file requires a JSON data argument');
+          }
+          let data;
+          try {
+            data = JSON.parse(dataJson);
+          } catch (_e) {
+            error('Invalid JSON data for opportunity file');
+          }
+          const result = opportunityOps.fileOpportunity(roomDir, data);
+          output(result, raw, JSON.stringify(result));
+          break;
+        }
+        default:
+          error(`Unknown opportunity subcommand: ${subcommand}\n\n${USAGE}`);
       }
       break;
     }
