@@ -26,6 +26,10 @@ Commands:
   meeting compute-intel [roomDir]  Run compute-meetings-intelligence script
   meeting compute-team [roomDir]   Run compute-team script
   graph build [roomDir] [outputPath]  Generate knowledge graph JSON
+  graph index [roomDir] <filePath>   Index single artifact in LazyGraph (KuzuDB)
+  graph rebuild [roomDir]            Rebuild entire LazyGraph from room artifacts
+  graph query [roomDir] "<cypher>"   Execute Cypher query against LazyGraph
+  graph stats [roomDir]              Show LazyGraph node/edge statistics
   opportunity scan [roomDir]     Context-driven grant discovery
   opportunity list [roomDir]     List filed opportunities
   opportunity file [roomDir] [dataJson]  File an opportunity
@@ -119,6 +123,30 @@ async function main() {
         case 'build': {
           const outputPath = argv[3]; // optional 4th arg
           const result = graphOps.buildGraph(roomDir, outputPath);
+          output(result, raw, JSON.stringify(result));
+          break;
+        }
+        case 'index': {
+          const filePath = argv[3];
+          if (!filePath) error('Usage: graph index <roomDir> <filePath>');
+          const result = await graphOps.indexArtifact(roomDir, filePath);
+          output(result, raw, JSON.stringify(result));
+          break;
+        }
+        case 'rebuild': {
+          const result = await graphOps.rebuildGraph(roomDir);
+          output(result, raw, JSON.stringify(result));
+          break;
+        }
+        case 'query': {
+          const cypher = argv[3];
+          if (!cypher) error('Usage: graph query <roomDir> "<cypher>"');
+          const result = await graphOps.queryGraph(roomDir, cypher);
+          output(result, raw, JSON.stringify(result));
+          break;
+        }
+        case 'stats': {
+          const result = await graphOps.graphStats(roomDir);
           output(result, raw, JSON.stringify(result));
           break;
         }
