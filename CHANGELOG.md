@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-03-26
+
+### Added
+- **De Stijl Visual Identity** — MindrianOS has its own visual language in the CLI. Every output feels like MindrianOS, not generic AI.
+- **Symbol System** (`lib/core/visual-ops.cjs`) — ⬡ brand, ◌◎◉◆★ venture stages, →⊗⊕▶⊘ edge types, ?⇌! Larry modes, ■□▪ section health. Single import, consistent everywhere.
+- **Unicode Room Diagrams** — `compute-state` renders the Data Room as a box diagram with sections, gaps, cross-references, and progress bars. The room becomes a visual map.
+- **ASCII Sparklines** — Section completeness charts via `asciichart`. Meeting frequency, venture progress visualized inline.
+- **Mermaid Diagrams in Artifacts** — Room flowcharts, knowledge graph views, framework chains embedded as Mermaid blocks in .md files. Auto-render in GitHub/Obsidian/Notion.
+- **`/mos:visualize`** — Opens rich diagrams in the browser: room flowchart, graph view, framework chain. De Stijl themed HTML with Mermaid.js.
+- **De Stijl Statusline** — Color-coded venture stage symbols, Mondrian accent colors (blue/red/yellow), section health indicators.
+- **19 visual-ops.cjs exports** — Symbols, colors, formatters, diagram generators, Mermaid generators, sparklines, progress bars.
+
 ## [1.0.0] - 2026-03-25
 
 ### Added
