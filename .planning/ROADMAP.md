@@ -117,16 +117,16 @@ Plans:
 **Requirements**: PERS-01, PERS-02, PERS-03, PERS-04
 **Dual delivery**: CLI commands + MCP tools for every capability
 **Success Criteria** (what must be TRUE):
-  1. User can generate domain expert personas from current room state, stored as structured markdown in team/ folder
+  1. User can generate domain expert personas from current room state, stored as structured markdown in personas/ folder
   2. Each persona maps to a De Bono Thinking Hat and argues consistently from that perspective
   3. Larry can invoke any persona for multi-perspective analysis on a room artifact, producing distinct viewpoints
   4. Every persona output includes a "perspective lens" disclaimer and never claims expert authority
   5. All persona operations work identically via CLI commands and MCP tools (Desktop/Cowork)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 14-01: TBD
-- [ ] 14-02: TBD
+- [ ] 14-01-PLAN.md — Core persona-ops.cjs module, reference templates, test fixtures, test suite
+- [ ] 14-02-PLAN.md — CLI routing, MCP tool registration, command docs, parity verification
 
 ## Progress
 
@@ -140,5 +140,5 @@ Phases 11 and 12 can run in parallel after Phase 10 completes. Phase 13 requires
 | 10. Shared Core + CLI Tools | 2/2 | Complete    | 2026-03-24 | - |
 | 11. MCP Server | 3/3 | Complete    | 2026-03-24 | - |
 | 12. Brain Hosting | 2/2 | Complete    | 2026-03-24 | - |
-| 13. Opportunity Bank + Funding Room | 3/3 | Complete   | 2026-03-25 | - |
-| 14. AI Team Personas | v3.0 | 0/TBD | Not started | - |
+| 13. Opportunity Bank + Funding Room | 3/3 | Complete    | 2026-03-25 | - |
+| 14. AI Team Personas | v3.0 | 0/2 | Not started | - |
