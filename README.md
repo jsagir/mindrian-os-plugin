@@ -9,10 +9,16 @@
   [Prof. Lawrence Aronhime](https://www.linkedin.com/in/lawrence-aronhime-8363894/) over 30+ years at Johns Hopkins University.
   Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
 
-  [![Plugin Version](https://img.shields.io/badge/plugin-v0.5.0-blue)](https://github.com/jsagir/mindrian-os-plugin)
-  [![Commands](https://img.shields.io/badge/commands-41-green)](https://github.com/jsagir/mindrian-os-plugin)
-  [![Frameworks](https://img.shields.io/badge/PWS_frameworks-26-orange)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Plugin Version](https://img.shields.io/badge/plugin-v0.9.0-blue)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Commands](https://img.shields.io/badge/commands-45-green)](https://github.com/jsagir/mindrian-os-plugin)
+  [![MCP Tools](https://img.shields.io/badge/MCP_tools-49-teal)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Agents](https://img.shields.io/badge/agents-7-orange)](https://github.com/jsagir/mindrian-os-plugin)
   [![Brain Nodes](https://img.shields.io/badge/brain_nodes-23K+-purple)](https://github.com/jsagir/mindrian-os-plugin)
+
+  [Website](https://mindrianos-jsagirs-projects.vercel.app) |
+  [Marketplace](https://github.com/jsagir/mindrian-marketplace) |
+  [Brain Access](https://mindrianos-jsagirs-projects.vercel.app/brain-access) |
+  [Roadmap](https://mindrianos-jsagirs-projects.vercel.app/roadmap)
 
 </div>
 
@@ -21,155 +27,149 @@
 ## Quick Start
 
 ```bash
-# Add the MindrianOS marketplace (one time)
+# Add the marketplace (one time)
 claude plugin marketplace add jsagir/mindrian-marketplace
 
-# Install the plugin
-claude plugin install mindrian-os@mindrian-marketplace
+# Install MindrianOS
+claude plugin install mos@mindrian-marketplace
 ```
 
 Larry starts talking. The Room starts listening. No setup required.
 
 ---
 
-## What Is MindrianOS?
+## Three Ways to Use MindrianOS
 
-A Claude Code plugin built on **PWS (Problems Worth Solving)** -- the practical innovation methodology that turns undefined problems into fundable ventures.
+| Surface | Setup | Best For |
+|---------|-------|----------|
+| **Claude Code CLI** | `claude plugin install mos@mindrian-marketplace` | Full power -- hooks, scripts, Data Room, exports |
+| **Claude Desktop** | One line in `claude_desktop_config.json` | Conversational -- talk to Larry, browse your room |
+| **Cowork** | Same MCP config, shared `00_Context/` | Team ventures -- multi-user Data Room |
 
-Most AI tools give you answers. MindrianOS gives you a thinking partner. Larry doesn't dump frameworks. He listens, reframes, challenges, and guides you through a structured methodology developed over three decades of teaching entrepreneurs, engineers, and innovators how to navigate complex, undefined problems.
-
----
-
-## PWS Inside MindrianOS
-
-PWS is the building blocks. MindrianOS is the operating system that runs them.
-
-**5 Venture Stages. 26 framework commands. One intelligent progression.**
-
-| Stage | What You're Doing | PWS Frameworks |
-|-------|------------------|----------------|
-| **Pre-Opportunity** | Still looking for problems | Scenario Analysis, Beautiful Question, Trending to the Absurd |
-| **Opportunity Identified** | Found a problem, understanding it deeply | JTBD, Nested Hierarchies, Domain Explorer |
-| **Problem Validated** | Confirmed the problem is real and worth solving | Root Cause, Systems Thinking, Red Team |
-| **Solution Designed** | Building and testing solutions | Lean Canvas, Minto, HSI Cross-Domain Scoring |
-| **Investment Ready** | Preparing for funding | Investment Thesis, Deep Grade, Scenario Plan |
-
-Larry knows which stage you're in and which framework you need before you do.
-
----
-
-## Start Working
-
-Just talk:
-
-```
-> I have an idea for a platform that connects local farmers with urban restaurants...
-```
-
-Larry responds. Your Data Room starts building. No setup required.
-
-Or start with structure:
-
-```
-/mos:new-project
-```
-
----
-
-## What You Get
-
-### Larry
-
-A thinking partner, not a chatbot. Modeled on Prof. Aronhime's teaching methodology:
-
-- **Provocative** -- "You're thinking about this as a marketplace problem. What if it's actually a logistics problem?"
-- **Structured** -- 26 PWS frameworks applied invisibly, earned through conversation
-- **Adaptive** -- mode engine shifts between conceptual, storytelling, problem-solving, and assessment
-- **Honest** -- tells you what's weak in your thinking before investors do
-
-### Data Room
-
-Self-organizing workspace that builds automatically as you work:
-
-| Section | What It Captures |
-|---------|-----------------|
-| Problem Definition | The question worth answering |
-| Market Analysis | Who has this problem and how badly |
-| Solution Design | Your technical approach |
-| Business Model | How you capture value |
-| Competitive Analysis | Who else and why you're different |
-| Team & Execution | Who builds this and how |
-| Legal & IP | Protection strategy |
-| Financial Model | The numbers that matter |
-
-Every artifact Larry helps you create gets filed automatically with provenance metadata -- which framework produced it, when, and why.
-
-### Meeting Intelligence (v2.0)
-
-```
-Paste transcript / provide file / provide audio
-    -> Larry identifies speakers (12 roles, auto-profiles)
-    -> Classifies segments (insight, decision, action-item...)
-    -> Files to Data Room sections with attribution
-    -> Builds meeting archive (7-file package)
-    -> Detects convergence and contradictions across meetings
-    -> Tracks action items across meeting history
-    -> Updates knowledge graph with meeting/speaker/concept nodes
-```
-
-### Team Room
-
-Living team directory that evolves with your venture:
-- ICM nested folder profiles for every team member, mentor, advisor
-- Role-gap analysis: which perspectives are missing
-- Knowledge landscape: who knows what, where expertise concentrates
-- Cross-meeting patterns: recurring concerns, influence shifts
-
-### MCP Server (v3.0)
-
-Full MindrianOS on Claude Desktop and Cowork — no CLI required:
+### Claude Desktop / Cowork Setup
 
 ```json
-// Add to claude_desktop_config.json
 {
   "mcpServers": {
     "mindrian-os": {
       "command": "node",
-      "args": ["/path/to/MindrianOS-Plugin/bin/mindrian-mcp-server.cjs"]
+      "args": ["/path/to/MindrianOS-Plugin/bin/mindrian-mcp-server.cjs"],
+      "env": {
+        "MINDRIAN_ROOM": "/path/to/your/room"
+      }
     }
   }
 }
 ```
 
-- 6 hierarchical MCP tools route all 41 commands (~4,500 tokens vs 30-60K flat)
-- 5 MCP Resources for read-only room browsing (`room://` URI scheme)
-- 5 MCP Prompts with Larry personality injection
-- CLI/MCP parity: every command works on every surface
+Restart Desktop. 6 hierarchical tools, 5 resources, 5 prompts appear. Larry works identically.
 
-### Brain Hosting (v3.0)
+---
 
-Self-hosted Brain MCP server for paid tier:
+## What You Get
 
-```bash
-cd mcp-server-brain && npm install && npm start
-# Or deploy to Render with render.yaml (one click)
+### Larry -- Your Thinking Partner
+
+Not a chatbot. A teaching agent modeled on Prof. Aronhime's methodology:
+
+- **Provocative** -- "You're thinking about this as a marketplace problem. What if it's actually a logistics problem?"
+- **Structured** -- 26 PWS frameworks applied invisibly, earned through conversation
+- **Transparent** -- shows his thinking with visual traces (problem type, chosen framework, why)
+- **Honest** -- tells you what's weak in your thinking before investors do
+
+> **Larry's Thinking**
+> Problem -- Wicked (8/10 characteristics)
+> Stage -- Pre-Opportunity
+> Method -- Bono Six Hats *divergent exploration needed*
+> Chain -- Bono -> JTBD -> Market Sizing
+> *3 Brain connections - 2 cross-references*
+
+### Data Room -- Self-Organizing Intelligence
+
+| Section | What It Captures |
+|---------|-----------------|
+| problem-definition/ | The question worth answering |
+| market-analysis/ | Who has this problem and how badly |
+| solution-design/ | Your technical approach |
+| business-model/ | How you capture value |
+| competitive-analysis/ | Who else and why you're different |
+| team-execution/ | Who builds this and how |
+| legal-ip/ | Protection strategy |
+| financial-model/ | The numbers that matter |
+| opportunity-bank/ | Discovered grants and opportunities |
+| funding/ | Active funding lifecycle tracking |
+| personas/ | AI team perspective lenses |
+| meetings/ | Meeting archives with speaker intelligence |
+| team/ | Team member profiles and knowledge landscape |
+
+### Embedded Knowledge Graph (KuzuDB LazyGraph)
+
+Per-project graph database that grows with your venture:
+
+```
+.md files = what's INSIDE each section (intra-section context)
+LazyGraph = relationships BETWEEN sections (inter-room intelligence)
 ```
 
-- 5 Brain tools (3 Neo4j graph + 2 Pinecone semantic) behind API key auth
-- Users get API key → connect Brain from any surface
-- Single consolidated Pinecone index (`pws-brain`) with 12K+ records
+- 5 edge types: INFORMS, CONTRADICTS, CONVERGES, ENABLES, INVALIDATES
+- Natural language queries: `/mos:query "What contradicts my pricing model?"`
+- Auto-updates via post-write hook -- file an artifact, graph grows
+- Zero server, zero setup (KuzuDB is embedded, like SQLite for graphs)
 
-### Knowledge Graph
+### Two-Graph Architecture
 
-Three-layer interactive graph (Structure / Content / Intelligence):
-- Meeting, speaker, and concept nodes with [[wikilink]] connections
-- Timeline mode with chronological meeting layout
-- Layer toggles and preset views (Room, Meetings, Team, Intel)
-- Edge animations: REINFORCES pulses green, CONTRADICTS pulses red
+```
+Brain (Neo4j, remote)              Room Graph (KuzuDB, local)
+23K nodes of methodology           YOUR venture's relationships
+170K+ framework connections        Grows as you file artifacts
+Serves via MCP API key             Embedded, zero server
+
+         Brain tells you HOW to think
+         Room Graph tells you WHAT your data says
+         Together = far more powerful than either alone
+```
+
+### Meeting Intelligence
+
+```bash
+/mos:file-meeting                    # Paste a transcript
+/mos:file-meeting --file notes.txt   # Provide a file
+/mos:file-meeting --audio call.mp3   # Transcribe audio (Velma)
+/mos:file-meeting --latest           # Auto-fetch from Read AI
+```
+
+Larry identifies speakers (12 roles), classifies segments, files to Data Room sections with attribution, builds meeting archive (7 files), detects convergence and contradictions, tracks action items.
+
+### Opportunity Bank + Funding Room
+
+```bash
+/mos:opportunities              # Context-driven grant discovery
+/mos:funding                    # Track funding lifecycle
+```
+
+Larry reads your room data (problem domain, geography, stage) and discovers relevant grants. Confirm-first UX -- review before filing. 4-stage lifecycle: Discovered > Researched > Applying > Submitted.
+
+### AI Team Personas (De Bono Six Hats)
+
+```bash
+/mos:persona                    # Generate 6 perspective lenses from room data
+/mos:persona invoke black       # Get the Risk Assessor's take
+```
+
+| Hat | Persona | Focus |
+|-----|---------|-------|
+| White | Data Analyst | Facts, numbers, gaps in data |
+| Red | Intuitive Advisor | Gut feelings, emotional reactions |
+| Black | Risk Assessor | What could go wrong, why this fails |
+| Yellow | Opportunity Scout | Benefits, value, upside potential |
+| Green | Creative Strategist | Alternatives, lateral thinking |
+| Blue | Process Architect | Meta-thinking, what's missing from the process |
+
+Every output carries a "perspective lens" disclaimer. These are thinking tools, not expert advice.
 
 ### Professional Export
 
-```
+```bash
 /mos:export thesis          # Multi-page investment thesis
 /mos:export summary         # 1-2 page executive summary
 /mos:export report          # Due diligence report with TOC
@@ -177,70 +177,95 @@ Three-layer interactive graph (Structure / Content / Intelligence):
 /mos:export meeting-report  # Minto-structured meeting intelligence
 ```
 
-De Stijl formatted PDFs generated directly from your Data Room content.
+De Stijl formatted PDFs generated from your Data Room content.
 
 ---
 
-## How to Use MindrianOS
+## Connect the Brain (Optional)
 
-MindrianOS runs on all three Claude surfaces:
+The Brain adds 23K nodes of teaching intelligence. Everything works without it -- Brain makes Larry smarter.
 
-| Surface | Strengths | Best For |
-|---------|----------|----------|
-| **Claude Code** | Full power. Hooks fire, scripts execute, Data Room updates in real-time. | Daily venture work, meeting filing, exports |
-| **Claude Desktop** | Full MCP access. 6 tools, 5 resources, 5 prompts. Larry's personality shines. | Exploration, brainstorming, methodology sessions |
-| **Cowork** | Multi-user MCP. Shared Data Room through 00_Context/. | Team ventures, collaborative sessions |
+**Request access:** [mindrianos-jsagirs-projects.vercel.app/brain-access](https://mindrianos-jsagirs-projects.vercel.app/brain-access)
+
+After approval, add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "mindrian-brain": {
+      "url": "https://mindrian-brain.onrender.com/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+| Capability | Without Brain | With Brain |
+|-----------|--------------|-----------|
+| Larry personality | Full | Full |
+| 26 methodology commands | All | All + graph-informed recommendations |
+| Data Room intelligence | Keyword-based | + framework chain suggestions |
+| Grading | Basic rubric | Calibrated against 100+ real projects |
+| Cross-domain connections | Manual | Automatic pattern discovery |
+
+**Brain-powered commands:** `/mos:suggest-next`, `/mos:find-connections`, `/mos:compare-ventures`, `/mos:deep-grade`, `/mos:research`
 
 ---
 
-## 41 Commands
+## All 45 Commands
 
-### Infrastructure
+### Infrastructure (always available)
 
 | Command | Purpose |
 |---------|---------|
-| `new-project` | Start a new venture project |
-| `help` | Larry recommends what to work on next |
-| `status` | View Data Room state and venture stage |
-| `room` | Manage Data Room -- view, export, launch dashboard |
-| `export` | Generate professional PDFs |
-| `pipeline` | Run multi-step framework chains |
-| `setup` | Connect Brain, transcription, or meeting sources |
-| `update` | Check for and install plugin updates |
-| `radar` | Discover new platform capabilities |
+| `/mos:new-project` | Start a new venture project |
+| `/mos:help` | Larry recommends what to work on next |
+| `/mos:status` | View Data Room state and venture stage |
+| `/mos:room` | Manage Data Room -- view, export, launch dashboard |
+| `/mos:export` | Generate professional PDFs |
+| `/mos:pipeline` | Run multi-step framework chains |
+| `/mos:setup` | Connect Brain, transcription, or meeting sources |
+| `/mos:update` | Check for and install plugin updates |
+| `/mos:radar` | Discover new platform capabilities |
 
 ### 26 PWS Methodology Commands
 
 **Defining the Problem Space:**
-`beautiful-question` | `explore-domains` | `map-unknowns` | `diagnose` | `root-cause` | `build-knowledge`
+`/mos:beautiful-question` | `/mos:explore-domains` | `/mos:map-unknowns` | `/mos:diagnose` | `/mos:root-cause` | `/mos:build-knowledge`
 
 **Understanding the Market:**
-`analyze-needs` | `explore-trends` | `analyze-timing` | `macro-trends` | `user-needs` | `explore-futures`
+`/mos:analyze-needs` | `/mos:explore-trends` | `/mos:analyze-timing` | `/mos:macro-trends` | `/mos:user-needs` | `/mos:explore-futures`
 
 **Challenging Your Thinking:**
-`challenge-assumptions` | `validate` | `find-bottlenecks` | `dominant-designs` | `think-hats`
+`/mos:challenge-assumptions` | `/mos:validate` | `/mos:find-bottlenecks` | `/mos:dominant-designs` | `/mos:think-hats`
 
 **Building Your Solution:**
-`structure-argument` | `scenario-plan` | `analyze-systems` | `systems-thinking` | `lean-canvas` | `leadership`
+`/mos:structure-argument` | `/mos:scenario-plan` | `/mos:analyze-systems` | `/mos:systems-thinking` | `/mos:lean-canvas` | `/mos:leadership`
 
 **Evaluating Your Venture:**
-`grade` | `build-thesis` | `score-innovation`
+`/mos:grade` | `/mos:build-thesis` | `/mos:score-innovation`
 
-### Meeting Intelligence
-
-| Command | Purpose |
-|---------|---------|
-| `file-meeting` | File transcript (paste, --file, --audio, --latest) |
-
-### Brain-Powered (Optional)
+### Intelligence + Meeting + Funding
 
 | Command | Purpose |
 |---------|---------|
-| `suggest-next` | Graph-informed next step |
-| `find-connections` | Cross-domain pattern discovery |
-| `compare-ventures` | Find similar ventures and extract lessons |
-| `deep-grade` | Calibrated assessment from 100+ real projects |
-| `research` | External research with semantic cross-reference |
+| `/mos:file-meeting` | File transcript (paste, --file, --audio, --latest) |
+| `/mos:opportunities` | Context-driven grant discovery |
+| `/mos:funding` | Funding lifecycle tracking |
+| `/mos:persona` | Generate AI team perspectives (De Bono) |
+| `/mos:query` | Natural language graph queries |
+
+### Brain-Powered (requires Brain API key)
+
+| Command | Purpose |
+|---------|---------|
+| `/mos:suggest-next` | Graph-informed next step |
+| `/mos:find-connections` | Cross-domain pattern discovery |
+| `/mos:compare-ventures` | Find similar ventures and extract lessons |
+| `/mos:deep-grade` | Calibrated assessment from 100+ real projects |
+| `/mos:research` | External research with semantic cross-reference |
 
 ---
 
@@ -248,69 +273,62 @@ MindrianOS runs on all three Claude surfaces:
 
 ```
 MindrianOS-Plugin/
-├── .claude-plugin/plugin.json  # Plugin manifest (v0.5.0)
+├── .claude-plugin/plugin.json  # Plugin manifest (v0.9.0)
 ├── bin/
-│   ├── mindrian-tools.cjs      # CLI entry point (4 subcommand groups)
-│   └── mindrian-mcp-server.cjs # MCP server (stdio transport)
-├── lib/core/                   # Shared modules (CLI + MCP use the same code)
-│   ├── room-ops.js             # Room CRUD operations
-│   ├── state-ops.js            # State computation
-│   ├── meeting-ops.js          # Meeting intelligence
-│   ├── graph-ops.js            # Knowledge graph builder
-│   └── section-registry.js     # Dynamic section discovery
-├── mcp-server-brain/           # Standalone Brain hosting (Express + StreamableHTTP)
-├── commands/                   # 41 commands (/mos:*)
+│   ├── mindrian-tools.cjs      # Shared CLI entry point
+│   └── mindrian-mcp-server.cjs # MCP server (Desktop/Cowork)
+├── lib/
+│   ├── core/                   # Shared modules (room-ops, state-ops, graph-ops,
+│   │                           #   meeting-ops, opportunity-ops, persona-ops,
+│   │                           #   lazygraph-ops, section-registry)
+│   ├── mcp/                    # MCP tools, resources, prompts, Larry context
+│   └── parity/                 # CLI/MCP parity check (CI gate)
+├── mcp-server-brain/           # Brain hosting (Express + Supabase auth)
+├── commands/                   # 45 commands (/mos:*)
 ├── skills/                     # Auto-activated intelligence (6 skills)
-├── agents/                     # Larry, Brain, Grading, Research, Investor
-├── hooks/                      # SessionStart, PostToolUse, Stop
-├── scripts/                    # compute-state, build-graph, render-pdf, etc.
-├── references/                 # PWS framework definitions + meeting protocols
+├── agents/                     # 7 agents
+├── hooks/                      # SessionStart, PostToolUse, PostWrite, Stop
+├── scripts/                    # compute-state, build-graph, analyze-room, etc.
+├── references/                 # PWS frameworks, meeting protocols, personas
 ├── templates/                  # PDF templates (De Stijl styled)
 ├── dashboard/                  # Knowledge graph viewer + chat
 ├── pipelines/                  # ICM stage contracts
-└── CLAUDE.md                   # Architecture guide
+├── tests/                      # 8 test suites, 100+ assertions
+└── CLAUDE.md                   # Architecture (Simon + ICM + Wicked Problems)
 ```
 
-Three layers:
+**Three layers:**
 
 | Layer | What | Who Owns It |
 |-------|------|-------------|
-| **Plugin** | Skills, commands, agents, hooks, PWS frameworks, MCP server | This repo (marketplace) |
-| **Brain** | Neo4j 23K nodes + Pinecone 12K embeddings + teaching intelligence | Self-hosted MCP or Brain API key (optional) |
-| **Room** | Your workspace, entries, team, meetings, exports | You -- all data stays local |
+| **Plugin** | Skills, commands, agents, hooks, MCP server | This repo |
+| **Brain** | Neo4j 23K nodes + Pinecone 12K vectors + teaching intelligence | Hosted MCP (optional, API key) |
+| **Room** | Your workspace, entries, team, meetings, graph, exports | You -- all data stays local |
 
 ---
 
-## Optional: Connect Brain
+## Milestones
 
-For deeper intelligence powered by a 23K-node knowledge graph:
+### v1.0 MVP (shipped 2026-03-22)
+One-command install. Larry talks immediately. 26 methodology commands. Data Room with 8 DD sections. De Stijl dashboard with knowledge graph. PDF export (thesis, summary, report, profile). Brain MCP integration. Self-update system.
 
-```
-/mos:setup brain
-```
+### v2.0 Meeting Intelligence (shipped 2026-03-24)
+Meeting filing pipeline (paste/file/audio + Velma transcription). Speaker identification with 12 roles. Team room with profiles and knowledge landscape. Cross-meeting intelligence (convergence, contradictions, action items). Three-layer knowledge graph with timeline mode. Minto meeting-report PDF.
 
-Brain adds: framework recommendations from similar ventures, calibrated grading from 100+ real projects, cross-domain pattern discovery, contradiction detection powered by semantic analysis.
-
-Everything degrades gracefully. Brain makes Larry smarter; Larry works fine without it.
-
----
-
-## Roadmap
-
-| Version | Milestone | Status |
-|---------|-----------|--------|
-| v1.0 | MVP — 41 commands, Data Room, Dashboard | Shipped 2026-03-22 |
-| v2.0 | Meeting Intelligence — filing, team room, cross-meeting intel | Shipped 2026-03-24 |
-| v3.0 | MCP Platform — dual delivery, Brain hosting | Shipped 2026-03-25 |
-| v3.1 | Opportunity Bank + Funding Room — grant discovery, funding lifecycle | Planned |
-| v3.2 | AI Team Personas — domain expert perspectives, Six Hats integration | Planned |
-| v3.3 | User Knowledge Graph — KuzuDB embedded graph, natural language queries | Planned |
+### v3.0 MCP Platform & Intelligence Expansion (shipped 2026-03-25)
+- **Phase 10:** Shared core library (`mindrian-tools.cjs` + `lib/core/` modules)
+- **Phase 11:** MCP server for Desktop/Cowork (6 hierarchical tools, 5 resources, 5 prompts)
+- **Phase 12:** Brain hosting on Render with Supabase-backed API key management
+- **Phase 13:** Opportunity Bank + Funding Room (context-driven grants, 4-stage lifecycle)
+- **Phase 14:** AI Team Personas (De Bono Six Hats from room intelligence)
+- **Phase 15:** User Knowledge Graph (KuzuDB LazyGraph, NL queries, hook-driven updates)
+- **UX:** `/mos:` prefix, thinking traces, visual confirmations, room-aware status line
 
 ---
 
 ## Privacy
 
-Everything runs locally. Your Data Room is a folder on your machine. No data leaves your computer unless you explicitly connect Brain (optional) or use web research.
+Everything runs locally. Your Data Room is a folder on your machine. No data leaves unless you explicitly connect Brain (optional API key) or use web research.
 
 ---
 
@@ -318,26 +336,26 @@ Everything runs locally. Your Data Room is a folder on your machine. No data lea
 
 - **Website**: [mindrianos-jsagirs-projects.vercel.app](https://mindrianos-jsagirs-projects.vercel.app)
 - **Marketplace**: [github.com/jsagir/mindrian-marketplace](https://github.com/jsagir/mindrian-marketplace)
-- **Prof. Lawrence Aronhime**: [LinkedIn](https://www.linkedin.com/in/lawrence-aronhime-8363894/) -- PWS methodology inventor
-- **Jonathan Sagir**: [LinkedIn](https://www.linkedin.com/in/jonathansagir/) -- MindrianOS developer
+- **Brain Access**: [Request API Key](https://mindrianos-jsagirs-projects.vercel.app/brain-access)
 - **PWS LinkedIn**: [Problems Worth Solving](https://www.linkedin.com/company/problem-solving-workspace/)
+- **Prof. Lawrence Aronhime**: [LinkedIn](https://www.linkedin.com/in/lawrence-aronhime-8363894/)
+- **Jonathan Sagir**: [LinkedIn](https://www.linkedin.com/in/jonathansagir/)
 
 ---
 
 <details>
-<summary><strong>Theoretical References</strong></summary>
+<summary><strong>Theoretical Foundations</strong></summary>
 
-MindrianOS and PWS are grounded in established research:
-
-| Source | Contribution |
-|--------|-------------|
-| Simon (1962) | Architecture of Complexity -- near-decomposable hierarchies (the room structure) |
-| Rittel & Webber (1973) | Wicked Problems -- ventures as wicked problems (the Data Room manages them) |
-| Van Clief & McDermott (2026) | ICM -- folder structure as agentic architecture |
-| Tetlock (2015) | Superforecasting -- intelligence layer as Bayesian updating |
-| Hughes (1983) | Reverse Salients -- finding where venture understanding lags |
-| Knight (1921) | Risk vs Uncertainty -- MindrianOS navigates uncertainty |
-| Ashby (1956) | Law of Requisite Variety -- tools must match system complexity |
+| Source | Contribution to MindrianOS |
+|--------|---------------------------|
+| **Simon (1962)** | Architecture of Complexity -- room sections as near-decomposable subsystems |
+| **Rittel & Webber (1973)** | Wicked Problems -- the Data Room manages ventures as wicked problems |
+| **Van Clief & McDermott (2026)** | ICM -- folder structure as agentic architecture |
+| **Tetlock (2015)** | Superforecasting -- intelligence layer as Bayesian updating |
+| **Hughes (1983)** | Reverse Salients -- LazyGraph finds where venture understanding lags |
+| **Knight (1921)** | Risk vs Uncertainty -- MindrianOS navigates uncertainty |
+| **Ashby (1956)** | Law of Requisite Variety -- 26 frameworks match venture complexity |
+| **De Bono (1985)** | Six Thinking Hats -- AI personas as structured perspective lenses |
 
 </details>
 
