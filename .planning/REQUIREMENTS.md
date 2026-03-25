@@ -78,13 +78,25 @@ Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap pha
 - [x] **VIS-04**: Mermaid diagram blocks embedded in room artifacts (.md files auto-render in GitHub/Obsidian/Notion)
 - [x] **VIS-05**: /mos:visualize command generates rich diagrams (room flowchart, graph view, framework chain) and opens in browser
 
+### Dynamic Integration Prompting
+
+- [x] **INTEG-01**: Larry detects when Brain, Obsidian, Notion, Velma, or meeting sources would enhance the current task and offers setup conversationally
+- [x] **INTEG-02**: Integration detection is non-blocking — offers, never forces, never interrupts methodology sessions
+- [ ] **INTEG-03**: Integration status visible in /mos:status output and statusline (connected/available/not configured)
+
+### Wikipedia Data Room Dashboard
+
+- [ ] **WIKI-01**: Every room section renders as a Wikipedia-style page with TOC, infobox from frontmatter, and content rendered from .md files
+- [ ] **WIKI-02**: KuzuDB relationships become clickable hyperlinks (INFORMS → navigate, CONTRADICTS → red warning link, CONVERGES → grouped "See also")
+- [ ] **WIKI-03**: Chat interface scoped to current page — user talks to the Data Room through Larry
+- [ ] **WIKI-04**: Full-text search across all room pages with instant results (flexsearch)
+- [ ] **WIKI-05**: Auto-refreshes when room content changes, De Stijl design, embedded Mermaid/images/media
+
 ## v4.0 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
 
 ### Ecosystem & Surfaces
-
-- **WIKI-01**: Wiki-style Data Room Dashboard hosted on Render/Vercel (nodes=pages, edges=hyperlinks)
 - **OBS-01**: Obsidian Plugin (room/ as Obsidian vault with graph view)
 - **CHROME-01**: Chrome Plugin for meeting join + room access
 - **STATUS-01**: Data Room level status bar (CLI nested room/section context)

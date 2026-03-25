@@ -196,7 +196,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 18-01-PLAN.md — Integration registry module, detection patterns reference, skill file updates for offer behavior
+- [x] 18-01-PLAN.md — Integration registry module, detection patterns reference, skill file updates for offer behavior
 - [ ] 18-02-PLAN.md — /mos:status integration table, session-start statusline, MCP tool router wiring
 
 ### Phase 19: Wikipedia Data Room Dashboard
