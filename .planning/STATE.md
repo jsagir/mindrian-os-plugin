@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v4.0
-milestone_name: Reasoning Engine & Intelligence Layer
-status: in-progress
-stopped_at: Completed 16-01-PLAN.md -- Core reasoning-ops.cjs module
-last_updated: "2026-03-25T13:15:09Z"
-last_activity: 2026-03-25 — Completed 16-01 (reasoning-ops.cjs, templates, test suite)
+milestone: v3.0
+milestone_name: MCP Platform & Intelligence Expansion
+status: executing
+stopped_at: Completed 16-02-PLAN.md -- CLI/MCP/LazyGraph wiring
+last_updated: "2026-03-25T13:21:31Z"
+last_activity: 2026-03-25 — Completed 16-02 (CLI routing, MCP tool commands, REASONING_INFORMS edge)
 progress:
   total_phases: 7
-  completed_phases: 6
-  total_plans: 16
-  completed_plans: 16
+  completed_phases: 7
+  total_plans: 18
+  completed_plans: 18
   percent: 100
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-24)
 ## Current Position
 
 Phase: 16 of 16 (Reasoning Engine)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: Phase 16 In Progress
-Last activity: 2026-03-25 — Completed 16-01 (reasoning-ops.cjs, templates, test suite)
+Last activity: 2026-03-25 — Completed 16-02 (CLI routing, MCP tool commands, REASONING_INFORMS edge)
 
-Progress: [██████████] 100% (36/36 plans complete across v1.0+v2.0+v3.0+v4.0)
+Progress: [██████████] 100% (38/38 plans complete across v1.0+v2.0+v3.0+v4.0)
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Progress: [██████████] 100% (36/36 plans complete across v1.
 | Phase 15 P03 | 4min | 2 tasks | 3 files |
 | Phase 15 P02 | 14min | 3 tasks | 5 files |
 | Phase 16 P01 | 6min | 2 tasks | 9 files |
+| Phase 16 P03 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -121,6 +122,8 @@ Recent decisions affecting v3.0:
 - [Phase 16]: Enhanced parseFrontmatter local to reasoning-ops.cjs — handles 2-3 level nesting (confidence.high, requires as object array, verification.must_be_true)
 - [Phase 16]: reconstructFrontmatter uses inline JSON arrays for short lists, block format for longer content
 - [Phase 16]: generateReasoning creates templates with placeholders — Larry fills reasoning content at conversation time
+- [Phase 16]: reason-section prompt inlines system+user content in single user role (MCP prompt spec constraint)
+- [Phase 16]: Schema reference serves dual purpose: developer docs + Larry generation context (lazygraph-schema.md pattern)
 
 ### Pending Todos
 
@@ -137,6 +140,6 @@ Recent decisions affecting v3.0:
 
 ## Session Continuity
 
-Last session: 2026-03-25T13:15:09Z
-Stopped at: Completed 16-01-PLAN.md -- Core reasoning-ops.cjs module
+Last session: 2026-03-25T13:22:40.708Z
+Stopped at: Completed 16-03-PLAN.md -- MCP resources, prompts, command docs, schema reference
 Resume file: None

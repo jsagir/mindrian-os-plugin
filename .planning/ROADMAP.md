@@ -45,7 +45,7 @@ See: `.planning/milestones/v2.0-ROADMAP.md`
 - [x] **Phase 13: Opportunity Bank + Funding Room** - Add grant discovery and funding lifecycle sections to the Data Room (completed 2026-03-25)
 - [x] **Phase 14: AI Team Personas** - Generate domain expert perspectives from room intelligence using De Bono framework (completed 2026-03-25)
 - [x] **Phase 15: User Knowledge Graph** - Per-project queryable LazyGraph using KuzuDB (embedded) for inter-room relationships + Pinecone semantic search (completed 2026-03-25)
-- [ ] **Phase 16: Reasoning Engine** - Per-section reasoning files + autonomous methodology orchestration + persistent chain-of-thought across all platforms
+- [x] **Phase 16: Reasoning Engine** - Per-section reasoning files + autonomous methodology orchestration + persistent chain-of-thought across all platforms (completed 2026-03-25)
 
 ## Phase Details
 
