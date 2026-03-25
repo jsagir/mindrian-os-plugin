@@ -18,6 +18,16 @@ Success on ANY = Brain active. All fail = silently fall back. **Never mention Br
 
 **If Pinecone returns RESOURCE_EXHAUSTED (429):** This means the monthly embedding quota is used up. Fall back to Neo4j Cypher queries only — use `brain_query` tool with Cypher instead of `brain_search`. Neo4j queries do NOT consume Pinecone quota.
 
+### Offer-to-Setup
+
+When Brain detection fails (all 3 checks return false) AND the user's request would benefit from Brain enrichment (framework queries, grading, cross-domain connections):
+
+1. Answer the user's question using local references (Tier 0 — always works)
+2. After the response, add a brief offer: "I'd give you more here with Brain connected — `/mos:setup brain`"
+3. Only offer ONCE per session. If user doesn't respond to it, do not repeat.
+
+Brain-beneficial signals: mentions of "grade", "connections", "framework recommendation", "what should I use", "suggest-next", "research [topic]"
+
 ## Passive Enrichment (Every Turn)
 
 Runs passive checks before responding. Check if Brain context helps:
