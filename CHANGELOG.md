@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-03-25
+
+### Added
+- **AI Team Personas** (`/mos:persona`) — Generate domain expert perspective lenses from room intelligence. Six De Bono Thinking Hats mapped to venture-specific personas: White (Data Analyst), Red (Intuitive Advisor), Black (Risk Assessor), Yellow (Opportunity Scout), Green (Creative Strategist), Blue (Process Architect).
+- **Multi-Perspective Analysis** — Larry invokes all 6 personas on any room artifact for multi-angle feedback. Each persona argues consistently from its hat perspective.
+- **Persona-Analyst Agent** — Dedicated agent for persona invocation with disclaimer enforcement and perspective-specific questioning patterns.
+- **Perspective Lens Disclaimers** — Every persona output includes "This is a perspective lens, not expert advice" disclaimer in both frontmatter and body. Never claims expert authority.
+- **4 new MCP tools** — generate-personas, list-personas, invoke-persona, analyze-perspectives in data_room router
+- **v3.0 Milestone Complete** — 5 phases, 12 plans, 44 CLI commands = 44 MCP tools, all verified
+
+### Changed
+- CLI/MCP parity now at 44/44 (was 41/41 after Phase 11, grew with Phases 13-14)
+
 ## [0.7.0] - 2026-03-25
 
 ### Added
