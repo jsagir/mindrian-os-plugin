@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-03-25
+
+### Added
+- **Reasoning Engine** (`/mos:reason`) — Per-section REASONING.md files with Minto/MECE structured critical thinking. Frontmatter dependency graphs (requires/provides/affects). Goal-backward verification per section. The power backend that makes MindrianOS a platform.
+- **reasoning-ops.cjs** — 8 exports: generateReasoning, getReasoning, listReasoning, verifyReasoning, createRun, get/set/mergeReasoningFrontmatter. Full programmatic frontmatter CRUD (learned from GSD gsd-tools.cjs patterns).
+- **Autonomous Methodology Orchestration** — Larry chains tools in sequences (diagnose → framework → apply → file → cross-reference → graph-update) captured as methodology run artifacts in room/.reasoning/runs/.
+- **Persistent Chain-of-Thought** — Reasoning is SAVED as .reasoning/ artifacts, not just displayed. Future sessions read them to understand WHY a section looks the way it does.
+- **REASONING_INFORMS edge type** — LazyGraph now tracks reasoning dependencies between sections (Section-to-Section edges).
+- **reasoning:// MCP Resources** — Browse reasoning state and per-section reasoning via MCP Resources (Desktop/Cowork).
+- **reason-section MCP Prompt** — Larry receives Minto/MECE template + room context when reasoning about a section.
+- **6 new MCP tools** — reasoning-get, reasoning-generate, reasoning-verify, reasoning-run, reasoning-list, reasoning-frontmatter in data_room router.
+- **CLI/MCP parity at 46/46**
+
+### This Is v1.0.0
+MindrianOS has shipped 7 phases in a single session: MCP Platform (10-11), Brain Hosting (12), Opportunity Bank + Funding Room (13), AI Team Personas (14), User Knowledge Graph (15), and Reasoning Engine (16). 46 commands, 7 agents, embedded graph, two-graph architecture, persistent reasoning, autonomous methodology orchestration. The platform is complete.
+
 ## [0.9.0] - 2026-03-25
 
 ### Added

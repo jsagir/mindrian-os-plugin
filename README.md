@@ -102,27 +102,27 @@ Not a chatbot. A teaching agent modeled on Prof. Aronhime's methodology:
 | meetings/ | Meeting archives with speaker intelligence |
 | team/ | Team member profiles and knowledge landscape |
 
-### Embedded Knowledge Graph (KuzuDB LazyGraph)
+### Embedded Knowledge Graph
 
-Per-project graph database that grows with your venture:
+Per-project graph that grows with your venture:
 
 ```
 .md files = what's INSIDE each section (intra-section context)
-LazyGraph = relationships BETWEEN sections (inter-room intelligence)
+Knowledge Graph = relationships BETWEEN sections (inter-room intelligence)
 ```
 
 - 5 edge types: INFORMS, CONTRADICTS, CONVERGES, ENABLES, INVALIDATES
 - Natural language queries: `/mos:query "What contradicts my pricing model?"`
-- Auto-updates via post-write hook -- file an artifact, graph grows
-- Zero server, zero setup (KuzuDB is embedded, like SQLite for graphs)
+- Auto-updates when you file artifacts -- the graph grows with your work
+- Zero setup, fully local -- your venture data never leaves your machine
 
-### Two-Graph Architecture
+### Two Levels of Intelligence
 
 ```
-Brain (Neo4j, remote)              Room Graph (KuzuDB, local)
-23K nodes of methodology           YOUR venture's relationships
-170K+ framework connections        Grows as you file artifacts
-Serves via MCP API key             Embedded, zero server
+Brain (remote, optional)           Room Graph (local, always on)
+Methodology intelligence           YOUR venture's relationships
+Framework chains + calibration     Grows as you file artifacts
+Connects via API key               Embedded, zero server
 
          Brain tells you HOW to think
          Room Graph tells you WHAT your data says
@@ -283,7 +283,7 @@ MindrianOS-Plugin/
 │   │                           #   lazygraph-ops, section-registry)
 │   ├── mcp/                    # MCP tools, resources, prompts, Larry context
 │   └── parity/                 # CLI/MCP parity check (CI gate)
-├── mcp-server-brain/           # Brain hosting (Express + Supabase auth)
+├── mcp-server-brain/           # Brain hosting server
 ├── commands/                   # 45 commands (/mos:*)
 ├── skills/                     # Auto-activated intelligence (6 skills)
 ├── agents/                     # 7 agents
@@ -302,7 +302,7 @@ MindrianOS-Plugin/
 | Layer | What | Who Owns It |
 |-------|------|-------------|
 | **Plugin** | Skills, commands, agents, hooks, MCP server | This repo |
-| **Brain** | Neo4j 23K nodes + Pinecone 12K vectors + teaching intelligence | Hosted MCP (optional, API key) |
+| **Brain** | 23K nodes of teaching intelligence + 12K embeddings | Hosted MCP (optional, API key) |
 | **Room** | Your workspace, entries, team, meetings, graph, exports | You -- all data stays local |
 
 ---
@@ -318,10 +318,10 @@ Meeting filing pipeline (paste/file/audio + Velma transcription). Speaker identi
 ### v3.0 MCP Platform & Intelligence Expansion (shipped 2026-03-25)
 - **Phase 10:** Shared core library (`mindrian-tools.cjs` + `lib/core/` modules)
 - **Phase 11:** MCP server for Desktop/Cowork (6 hierarchical tools, 5 resources, 5 prompts)
-- **Phase 12:** Brain hosting on Render with Supabase-backed API key management
+- **Phase 12:** Brain hosting with API key management
 - **Phase 13:** Opportunity Bank + Funding Room (context-driven grants, 4-stage lifecycle)
 - **Phase 14:** AI Team Personas (De Bono Six Hats from room intelligence)
-- **Phase 15:** User Knowledge Graph (KuzuDB LazyGraph, NL queries, hook-driven updates)
+- **Phase 15:** User Knowledge Graph (embedded graph, NL queries, auto-updates)
 - **UX:** `/mos:` prefix, thinking traces, visual confirmations, room-aware status line
 
 ---
