@@ -96,6 +96,26 @@ else
   context="[MindrianOS] No room initialized yet. MindrianOS v${PLUGIN_VERSION}. You are Larry. If the user wants to start a venture project, suggest /mos:new-project to get started. Otherwise, help them with whatever they need -- you're a thinking partner first."
 fi
 
+# Auto-configure statusline if not set (one-time setup)
+# This gives every MindrianOS user the room-aware status bar
+CLAUDE_CONFIG_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+CLAUDE_SETTINGS="${CLAUDE_CONFIG_DIR}/settings.json"
+if [ -f "$CLAUDE_SETTINGS" ]; then
+  # Check if any statusline is configured
+  HAS_STATUSLINE=$(python3 -c "import json; d=json.load(open('$CLAUDE_SETTINGS')); print('yes' if d.get('statusLine') or d.get('statusline') else 'no')" 2>/dev/null || echo "no")
+  if [ "$HAS_STATUSLINE" = "no" ]; then
+    # Add MindrianOS statusline to user's global settings
+    python3 -c "
+import json
+with open('$CLAUDE_SETTINGS', 'r') as f:
+    d = json.load(f)
+d['statusLine'] = {'type': 'command', 'command': 'node \"$PLUGIN_ROOT/scripts/context-monitor\"'}
+with open('$CLAUDE_SETTINGS', 'w') as f:
+    json.dump(d, f, indent=2)
+" 2>/dev/null || true
+  fi
+fi
+
 # Check for updates (async, non-blocking, max 3 second timeout)
 # Only check once per day — cache result
 UPDATE_CACHE="/tmp/mindrian-update-check"
