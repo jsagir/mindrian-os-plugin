@@ -44,6 +44,7 @@ See: `.planning/milestones/v2.0-ROADMAP.md`
 - [x] **Phase 12: Brain Hosting** - Deploy Brain as remote MCP service on Render with API key auth (COLLAB-02/03 deferred to v4.0) (completed 2026-03-24)
 - [x] **Phase 13: Opportunity Bank + Funding Room** - Add grant discovery and funding lifecycle sections to the Data Room (completed 2026-03-25)
 - [x] **Phase 14: AI Team Personas** - Generate domain expert perspectives from room intelligence using De Bono framework (completed 2026-03-25)
+- [ ] **Phase 15: User Knowledge Graph** - Per-project queryable LazyGraph using KuzuDB (embedded) for inter-room relationships + Pinecone semantic search
 
 ## Phase Details
 
@@ -128,6 +129,25 @@ Plans:
 - [ ] 14-01-PLAN.md — Core persona-ops.cjs module, reference templates, test fixtures, test suite
 - [ ] 14-02-PLAN.md — CLI routing, MCP tool registration, command docs, parity verification
 
+### Phase 15: User Knowledge Graph
+**Goal**: Each room automatically builds a queryable LazyGraph from its artifacts — .md files manage intra-section context, KuzuDB manages inter-room relationships as they evolve
+**Depends on**: Phase 10 (dynamic section discovery), Phase 13 (room sections with content)
+**Requirements**: GRAPH-01, GRAPH-02, GRAPH-03, GRAPH-04, GRAPH-05
+**Dual delivery**: CLI commands + MCP tools for every capability
+**Success Criteria** (what must be TRUE):
+  1. Room artifacts automatically indexed as KuzuDB nodes (embedded, one DB per project in room/.lazygraph/)
+  2. Cross-references (INFORMS, CONTRADICTS, CONVERGES, ENABLES, INVALIDATES) stored as typed edges
+  3. User can query their project graph via /mos:query with natural language (Larry translates to Cypher)
+  4. Room artifacts embedded in user-owned Pinecone index for semantic search (optional Tier 2)
+  5. Graph auto-updates when new artifacts are filed (hook-driven)
+  6. All graph operations work identically via CLI commands and MCP tools (Desktop/Cowork)
+**Plans**: 3 plans
+
+Plans:
+- [ ] 15-01-PLAN.md — Core lazygraph-ops.cjs module, KuzuDB schema, test fixtures, test suite
+- [ ] 15-02-PLAN.md — CLI routing, hook integration, MCP tool registration, NL query wiring
+- [ ] 15-03-PLAN.md — Pinecone Tier 2 stub, /mos:query command docs, schema reference
+
 ## Progress
 
 **Execution Order:**
@@ -141,4 +161,4 @@ Phases 11 and 12 can run in parallel after Phase 10 completes. Phase 13 requires
 | 11. MCP Server | 3/3 | Complete    | 2026-03-24 | - |
 | 12. Brain Hosting | 2/2 | Complete    | 2026-03-24 | - |
 | 13. Opportunity Bank + Funding Room | 3/3 | Complete    | 2026-03-25 | - |
-| 14. AI Team Personas | 2/2 | Complete   | 2026-03-25 | - |
+| 14. AI Team Personas | 2/2 | Complete    | 2026-03-25 | - |
