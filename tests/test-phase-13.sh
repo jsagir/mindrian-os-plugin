@@ -259,6 +259,103 @@ else
   fail "analyze-room missing FUND_STAGE:researched:1"
 fi
 
+# --- Test 14: createFunding creates per-opportunity folder (Plan 03) ---
+echo "Test 14: createFunding creates STATUS.md with stage: discovered"
+
+CREATE_RESULT=$(cd "$PLUGIN_ROOT" && node -e "
+const ops = require('./lib/core/opportunity-ops.cjs');
+const result = ops.createFunding('/tmp/test-room-p13-03', 'test-entry', '2026-03-20-nsf-sbir');
+console.log(JSON.stringify(result));
+")
+
+if echo "$CREATE_RESULT" | grep -q '"created":true'; then
+  pass "createFunding returns created:true"
+else
+  fail "createFunding did not return created:true"
+fi
+
+# Verify STATUS.md has discovered stage
+if grep -q 'stage: discovered' /tmp/test-room-p13-03/funding/test-entry/STATUS.md 2>/dev/null; then
+  pass "Created STATUS.md has stage: discovered"
+else
+  fail "Created STATUS.md missing stage: discovered"
+fi
+
+# --- Test 15: Wikilink cross-reference in created funding entry ---
+echo "Test 15: Created funding entry has wikilink cross-reference"
+
+if grep -q '\[\[opportunity-bank/' /tmp/test-room-p13-03/funding/test-entry/STATUS.md 2>/dev/null; then
+  pass "Created funding STATUS.md has [[opportunity-bank/ wikilink"
+else
+  fail "Created funding STATUS.md missing [[opportunity-bank/ wikilink"
+fi
+
+# --- Test 16: updateFundingStage valid transition ---
+echo "Test 16: updateFundingStage advances discovered to researched"
+
+ADVANCE_RESULT=$(cd "$PLUGIN_ROOT" && node -e "
+const ops = require('./lib/core/opportunity-ops.cjs');
+const result = ops.updateFundingStage('/tmp/test-room-p13-03', 'test-entry', 'researched', 'Test advance');
+console.log(JSON.stringify(result));
+")
+
+if echo "$ADVANCE_RESULT" | grep -q '"updated":true'; then
+  pass "updateFundingStage returns updated:true for valid transition"
+else
+  fail "updateFundingStage did not return updated:true"
+fi
+
+# Verify transition_history was updated
+if grep -q 'stage: researched' /tmp/test-room-p13-03/funding/test-entry/STATUS.md 2>/dev/null; then
+  pass "STATUS.md updated to stage: researched"
+else
+  fail "STATUS.md not updated to stage: researched"
+fi
+
+# --- Test 17: updateFundingStage invalid skip ---
+echo "Test 17: updateFundingStage rejects invalid stage transition"
+
+SKIP_RESULT=$(cd "$PLUGIN_ROOT" && node -e "
+const ops = require('./lib/core/opportunity-ops.cjs');
+const result = ops.updateFundingStage('/tmp/test-room-p13-03', 'test-entry', 'submitted', 'Skip test');
+console.log(JSON.stringify(result));
+")
+
+if echo "$SKIP_RESULT" | grep -q '"updated":false'; then
+  pass "updateFundingStage rejects skip (researched to submitted)"
+else
+  fail "updateFundingStage did not reject skip transition"
+fi
+
+# --- Test 18: CLI funding list returns data ---
+echo "Test 18: CLI funding list returns data for fixture room"
+
+CLI_FUND_RESULT=$(cd "$PLUGIN_ROOT" && node bin/mindrian-tools.cjs funding list "$SAMPLE_ROOM" --raw 2>/dev/null)
+
+if echo "$CLI_FUND_RESULT" | grep -q '"count"'; then
+  pass "CLI funding list returns count field"
+else
+  fail "CLI funding list missing count field"
+fi
+
+# --- Test 19: MCP tool-router includes funding commands ---
+echo "Test 19: MCP tool-router has funding commands registered"
+
+if grep -q 'list-funding' "$PLUGIN_ROOT/lib/mcp/tool-router.cjs"; then
+  pass "tool-router has list-funding command"
+else
+  fail "tool-router missing list-funding command"
+fi
+
+if grep -q 'create-funding' "$PLUGIN_ROOT/lib/mcp/tool-router.cjs"; then
+  pass "tool-router has create-funding command"
+else
+  fail "tool-router missing create-funding command"
+fi
+
+# Cleanup
+rm -rf /tmp/test-room-p13-03
+
 # --- Summary ---
 echo ""
 echo "Results: $PASS passed, $FAIL failed"

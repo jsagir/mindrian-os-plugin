@@ -27,7 +27,13 @@ Commands:
   graph build [roomDir] [outputPath]  Generate knowledge graph JSON
   opportunity scan [roomDir]     Context-driven grant discovery
   opportunity list [roomDir]     List filed opportunities
-  opportunity file [roomDir] [dataJson]  File an opportunity`;
+  opportunity file [roomDir] [dataJson]  File an opportunity
+  funding list [roomDir]         List funding pipeline entries
+  funding create [roomDir] [slug] [source]  Create funding entry from opportunity
+  funding advance [roomDir] [slug] [note]   Advance to next stage
+  funding status [roomDir] [slug]           Show funding entry details
+  funding outcome [roomDir] [slug] [outcome]  Set outcome (awarded|rejected|withdrawn)
+  funding compute-state [roomDir]  Compute opportunity-bank + funding STATE.md`;
 
 async function main() {
   const argv = process.argv.slice(2);
@@ -146,6 +152,84 @@ async function main() {
         }
         default:
           error(`Unknown opportunity subcommand: ${subcommand}\n\n${USAGE}`);
+      }
+      break;
+    }
+
+    case 'funding': {
+      switch (subcommand) {
+        case 'list': {
+          const result = opportunityOps.listFunding(roomDir);
+          output(result, raw, JSON.stringify(result, null, 2));
+          break;
+        }
+        case 'create': {
+          const slug = argv[3];
+          const source = argv[4];
+          if (!slug) {
+            error('funding create requires a slug argument');
+          }
+          if (!source) {
+            error('funding create requires a source opportunity filename');
+          }
+          const result = opportunityOps.createFunding(roomDir, slug, source);
+          output(result, raw, JSON.stringify(result, null, 2));
+          break;
+        }
+        case 'advance': {
+          const slug = argv[3];
+          const note = argv[4] || '';
+          if (!slug) {
+            error('funding advance requires a slug argument');
+          }
+          // Determine next stage from current entry
+          const fundResult = opportunityOps.listFunding(roomDir);
+          const entry = fundResult.entries.find(e => e.name === slug);
+          if (!entry) {
+            error(`Funding entry not found: ${slug}`);
+          }
+          const stageIdx = opportunityOps.FUNDING_STAGES.indexOf(entry.stage);
+          const nextStage = opportunityOps.FUNDING_STAGES[stageIdx + 1];
+          if (!nextStage) {
+            error(`Entry ${slug} is already at final stage: ${entry.stage}`);
+          }
+          const result = opportunityOps.updateFundingStage(roomDir, slug, nextStage, note);
+          output(result, raw, JSON.stringify(result, null, 2));
+          break;
+        }
+        case 'status': {
+          const slug = argv[3];
+          if (!slug) {
+            error('funding status requires a slug argument');
+          }
+          const statusPath = require('path').join(require('path').resolve(roomDir), 'funding', slug, 'STATUS.md');
+          try {
+            const content = require('fs').readFileSync(statusPath, 'utf-8');
+            output({ slug, content }, raw, content);
+          } catch (_e) {
+            error(`Funding entry not found: ${slug}`);
+          }
+          break;
+        }
+        case 'outcome': {
+          const slug = argv[3];
+          const outcomeVal = argv[4];
+          if (!slug || !outcomeVal) {
+            error('funding outcome requires slug and outcome arguments');
+          }
+          const result = opportunityOps.setFundingOutcome(roomDir, slug, outcomeVal);
+          output(result, raw, JSON.stringify(result, null, 2));
+          break;
+        }
+        case 'compute-state': {
+          const fundState = opportunityOps.computeFundingState(roomDir);
+          const oppState = opportunityOps.computeOpportunityBankState(roomDir);
+          const result = { funding: fundState, opportunity_bank: oppState };
+          output(result, raw, JSON.stringify(result, null, 2));
+          break;
+        }
+        default:
+          error(`Unknown funding subcommand: ${subcommand}\n\n${USAGE}`);
       }
       break;
     }
