@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# compute-opportunity-state -- Compute STATE.md for opportunity-bank and funding sections
+# Wraps Node.js computation for pipeline integration with existing compute-state chain.
+#
+# Usage: compute-opportunity-state [roomDir]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PLUGIN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+ROOM_DIR="${1:-./room}"
+
+node "$PLUGIN_ROOT/bin/mindrian-tools.cjs" funding compute-state "$ROOM_DIR" --raw 2>/dev/null || {
+  echo "Error: compute-opportunity-state failed" >&2
+  exit 1
+}
