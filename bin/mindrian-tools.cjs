@@ -16,6 +16,7 @@ const graphOps = require('../lib/core/graph-ops.cjs');
 const opportunityOps = require('../lib/core/opportunity-ops.cjs');
 const personaOps = require('../lib/core/persona-ops.cjs');
 const reasoningOps = require('../lib/core/reasoning-ops.cjs');
+const visualOps = require('../lib/core/visual-ops.cjs');
 
 const USAGE = `Usage: mindrian-tools.cjs <command> <subcommand> [roomDir] [--raw]
 
@@ -49,7 +50,11 @@ Commands:
   reasoning verify [roomDir] [section]       Check verification criteria
   reasoning run [roomDir] [section]          Execute full methodology run
   reasoning list [roomDir]                   Show all sections with reasoning status
-  reasoning frontmatter [roomDir] [json|section] [field]  Read/write reasoning frontmatter`;
+  reasoning frontmatter [roomDir] [json|section] [field]  Read/write reasoning frontmatter
+  visualize room [roomDir]       Generate room structure Mermaid diagram
+  visualize graph [roomDir]      Generate knowledge graph Mermaid diagram
+  visualize chain [roomDir]      Generate methodology chain Mermaid diagram
+  visualize mermaid [roomDir] [type]  Output raw Mermaid syntax to stdout`;
 
 async function main() {
   const argv = process.argv.slice(2);
@@ -375,6 +380,136 @@ async function main() {
         }
         default:
           error(`Unknown reasoning subcommand: ${subcommand}\n\n${USAGE}`);
+      }
+      break;
+    }
+
+    case 'visualize': {
+      const vizType = subcommand || 'room';
+      const fs = require('fs');
+      const path = require('path');
+
+      // Helper: collect section data from room
+      function collectSections() {
+        try {
+          const sectionData = roomOps.listSections(roomDir);
+          let stage = 'discovery';
+          try {
+            const stateContent = stateOps.getState(roomDir);
+            if (stateContent) {
+              const stageMatch = stateContent.match(/venture_stage:\s*(.+)/);
+              if (stageMatch) stage = stageMatch[1].trim();
+            }
+          } catch (_e) {}
+          if (sectionData && sectionData.sections) {
+            return sectionData.sections.map(s => ({
+              name: s.name || s,
+              entryCount: s.entryCount || s.entries || 0,
+              stage: stage,
+              edges: s.edges || []
+            }));
+          }
+        } catch (_e) {}
+        return [{ name: 'No room data', entryCount: 0, stage: 'discovery', edges: [] }];
+      }
+
+      switch (vizType) {
+        case 'room': {
+          const sections = collectSections();
+          const mermaid = visualOps.generateMermaidRoom(sections);
+          const block = visualOps.generateMermaidBlock(mermaid);
+          output({ mermaid, block }, raw, block);
+          break;
+        }
+        case 'graph': {
+          let nodes = [];
+          let edges = [];
+          try {
+            const stats = await graphOps.graphStats(roomDir);
+            if (stats && stats.nodes) {
+              nodes = stats.nodes;
+              edges = stats.edges || [];
+            }
+          } catch (_e) {}
+          if (nodes.length === 0) {
+            nodes = [{ id: 'empty', type: 'Section', label: 'No graph data' }];
+          }
+          const mermaid = visualOps.generateMermaidGraph(nodes, edges);
+          const block = visualOps.generateMermaidBlock(mermaid);
+          output({ mermaid, block }, raw, block);
+          break;
+        }
+        case 'chain': {
+          let steps = [];
+          try {
+            const reasonDir = path.join(path.resolve(roomDir), '.reasoning');
+            if (fs.existsSync(reasonDir)) {
+              const runs = fs.readdirSync(reasonDir)
+                .filter(f => f.endsWith('.md'))
+                .sort()
+                .reverse();
+              if (runs.length > 0) {
+                const content = fs.readFileSync(path.join(reasonDir, runs[0]), 'utf-8');
+                const stepMatches = content.match(/##\s+Step\s+\d+[^#]*/g) || [];
+                steps = stepMatches.map((blk, i) => {
+                  const nameMatch = blk.match(/##\s+Step\s+\d+:\s*(.+)/);
+                  const fwMatch = blk.match(/framework:\s*(.+)/i);
+                  const statusMatch = blk.match(/status:\s*(.+)/i);
+                  return {
+                    name: nameMatch ? nameMatch[1].trim() : `Step ${i + 1}`,
+                    framework: fwMatch ? fwMatch[1].trim() : '',
+                    status: statusMatch ? statusMatch[1].trim() : 'pending'
+                  };
+                });
+              }
+            }
+          } catch (_e) {}
+          if (steps.length === 0) {
+            steps = [
+              { name: 'Diagnose', framework: 'diagnose', status: 'pending' },
+              { name: 'Framework', framework: '', status: 'pending' },
+              { name: 'Apply', framework: '', status: 'pending' },
+              { name: 'File', framework: '', status: 'pending' },
+              { name: 'Cross-ref', framework: '', status: 'pending' },
+              { name: 'Graph Update', framework: '', status: 'pending' }
+            ];
+          }
+          const mermaid = visualOps.generateMermaidChain(steps);
+          const block = visualOps.generateMermaidBlock(mermaid);
+          output({ mermaid, block }, raw, block);
+          break;
+        }
+        case 'mermaid': {
+          // Raw Mermaid output — type from argv[3]
+          const mermaidType = argv[3] || 'room';
+          let mermaid;
+          if (mermaidType === 'graph') {
+            let nodes = [];
+            let edges = [];
+            try {
+              const stats = await graphOps.graphStats(roomDir);
+              if (stats && stats.nodes) { nodes = stats.nodes; edges = stats.edges || []; }
+            } catch (_e) {}
+            if (nodes.length === 0) nodes = [{ id: 'empty', type: 'Section', label: 'No graph data' }];
+            mermaid = visualOps.generateMermaidGraph(nodes, edges);
+          } else if (mermaidType === 'chain') {
+            mermaid = visualOps.generateMermaidChain([
+              { name: 'Diagnose', framework: 'diagnose', status: 'pending' },
+              { name: 'Framework', framework: '', status: 'pending' },
+              { name: 'Apply', framework: '', status: 'pending' },
+              { name: 'File', framework: '', status: 'pending' },
+              { name: 'Cross-ref', framework: '', status: 'pending' },
+              { name: 'Graph Update', framework: '', status: 'pending' }
+            ]);
+          } else {
+            const sections = collectSections();
+            mermaid = visualOps.generateMermaidRoom(sections);
+          }
+          output({ mermaid }, raw, mermaid);
+          break;
+        }
+        default:
+          error(`Unknown visualize subcommand: ${vizType}\n\nValid: room, graph, chain, mermaid`);
       }
       break;
     }
