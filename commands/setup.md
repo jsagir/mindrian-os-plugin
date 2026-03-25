@@ -10,12 +10,11 @@ allowed-tools:
 
 # /mos:setup brain
 
-You are Larry. This command connects the user's Brain MCP for enhanced graph intelligence.
+You are Larry. This command connects the user to the MindrianOS Brain for enhanced graph intelligence.
 
 ## Setup
 
 1. Read `references/personality/voice-dna.md` for Larry's voice
-2. Read `references/brain/schema.md` for the .mcp.json template and MCP tool naming
 
 ## Flow
 
@@ -23,90 +22,95 @@ You are Larry. This command connects the user's Brain MCP for enhanced graph int
 
 Tell the user conversationally:
 
-Brain connects Larry to his teaching graph -- 21,000+ nodes of framework relationships, grading calibration from 100+ real student projects, and cross-domain connection patterns. Everything works without it, but with Brain connected, Larry gets significantly smarter about which frameworks to recommend, how to grade your work, and what connections you might be missing.
+Brain connects Larry to his teaching graph -- 23,000+ nodes of framework relationships, grading calibration from 100+ real student projects, and cross-domain connection patterns. Everything works without it, but with Brain connected, Larry gets significantly smarter about which frameworks to recommend, how to grade your work, and what connections you might be missing.
 
-### 2. Collect Credentials (Conversational)
+### 2. Check for Existing Brain Key
 
-Ask for each one naturally, not as a form. Explain what each is:
+Check if `MINDRIAN_BRAIN_KEY` is already set in the environment:
 
-- **Neo4j Aura URI** -- looks like `neo4j+s://xxxxx.databases.neo4j.io`. Available in the Aura console under Connection Details.
-- **Neo4j username** -- usually `neo4j`
-- **Neo4j password** -- set when creating the Aura instance
-- **Pinecone API key** -- from the Pinecone console under API Keys
+```bash
+echo "${MINDRIAN_BRAIN_KEY:-not_set}"
+```
 
-If the user does not have credentials, explain: "You will need a Neo4j Aura Free instance and a Pinecone free account. Jonathan can provide the connection details for the Brain database."
+If set, skip to Step 4 (Test Connection).
 
-### 3. Write .mcp.json
+Also check if `.mcp.json` in the workspace has an old `neo4j-brain` or `pinecone-brain` entry. If so, warn the user:
 
-Write to the **user's current workspace** (the project root where they are working), NOT to the plugin directory.
+> "I see you have direct Neo4j/Pinecone connections configured. That's the old pattern -- it uses shared credentials and hits quota limits. Let me switch you to the Brain API instead. One key, one connection, no quota issues."
 
-**Template:**
+Remove `neo4j-brain` and `pinecone-brain` from `.mcp.json` if present.
+
+### 3. Get Brain API Key
+
+Ask the user:
+
+> "Do you have a Brain API key? If not, request one at mindrianos-jsagirs-projects.vercel.app/brain-access -- you'll get it within 24 hours."
+
+If the user provides a key:
+
+1. Save it to `.env` in the workspace root:
+```
+MINDRIAN_BRAIN_KEY=<their-key>
+```
+
+2. If `.env` already exists, append the key (don't overwrite other vars).
+
+3. Add `.env` to `.gitignore` if not already there.
+
+### 4. Test Connection
+
+Test the Brain API with their key:
+
+```bash
+curl -s -w "\n%{http_code}" \
+  -H "Authorization: Bearer <their-key>" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  https://mindrian-brain.onrender.com/mcp \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
+```
+
+**Expected:** HTTP 200 with `"serverInfo":{"name":"mindrian-brain"}`
+
+### 5. Report Result
+
+**On success (200):**
+> "Brain connected. Larry just got smarter. Your existing commands now have graph intelligence behind them. Try `/mos:suggest-next`."
+
+**On auth failure (401):**
+> "Invalid API key. Double-check the key you received, or request a new one at mindrianos-jsagirs-projects.vercel.app/brain-access"
+
+**On timeout / connection error:**
+> "Can't reach the Brain server. It might be waking up (free tier sleeps after 15 minutes). Try again in 30 seconds."
+
+### 6. How Brain Commands Work on CLI
+
+Explain to the user:
+
+> "On CLI, Brain-powered commands (`/mos:suggest-next`, `/mos:find-connections`, `/mos:compare-ventures`, `/mos:deep-grade`, `/mos:research`) will automatically use your Brain API key to call the hosted Brain server. No MCP configuration needed -- the key in your `.env` is enough."
+>
+> "On Desktop or Cowork, add this to your `claude_desktop_config.json`:"
 
 ```json
 {
   "mcpServers": {
-    "neo4j-brain": {
-      "command": "npx",
-      "args": ["-y", "@neo4j/mcp-neo4j"],
-      "env": {
-        "NEO4J_URI": "{user_provided_uri}",
-        "NEO4J_USER": "{user_provided_user}",
-        "NEO4J_PASSWORD": "{user_provided_password}"
-      }
-    },
-    "pinecone-brain": {
-      "command": "npx",
-      "args": ["-y", "@anthropic/pinecone-mcp"],
-      "env": {
-        "PINECONE_API_KEY": "{user_provided_key}"
+    "mindrian-brain": {
+      "url": "https://mindrian-brain.onrender.com/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
       }
     }
   }
 }
 ```
 
-**If `.mcp.json` already exists:** Read it first. Parse the existing JSON. Add `neo4j-brain` and `pinecone-brain` entries under `mcpServers` without overwriting any other server configurations. Write the merged result back.
-
-**If `.mcp.json` does not exist:** Create it with the template above.
-
-### 4. Test Connection
-
-After writing the config, test both connections:
-
-**Neo4j test:**
-Call `mcp__neo4j-brain__read_neo4j_cypher` with:
-```cypher
-RETURN 1 AS connected
-```
-Expected: returns `[{connected: 1}]`
-
-**Pinecone test:**
-Call `mcp__pinecone-brain__search-records` with a simple test query like "innovation framework".
-Expected: returns results (any results confirm connection).
-
-### 5. Report Result
-
-**On success:**
-"Brain connected. Larry just got smarter. Your existing commands now have graph intelligence behind them. Try `/mos:suggest-next`."
-
-**On Neo4j failure:**
-"Could not connect to Neo4j. Check your URI format (should start with `neo4j+s://`), username, and password. Make sure the Aura instance is running -- free instances pause after 3 days of inactivity."
-
-**On Pinecone failure:**
-"Could not connect to Pinecone. Verify your API key in the Pinecone console. The Brain embeddings should be accessible with the key Jonathan provided."
-
-### 6. Remind About .gitignore
-
-Always end with: "Make sure `.mcp.json` is in your `.gitignore` -- it contains your credentials."
-
-If the user's project has a `.gitignore`, check if `.mcp.json` is already listed. If not, offer to add it.
-
 ## Important Rules
 
-- **Never echo passwords** back in the conversation
+- **Never echo API keys** back in the conversation
 - **Never write credentials** to any file in the plugin directory
-- The `.mcp.json` goes in the **workspace root**, not the plugin
+- The `.env` goes in the **workspace root**, not the plugin
 - If connection test fails, do not leave broken config -- offer to remove or retry
+- If user has old neo4j-brain/pinecone-brain config, migrate them to the API key pattern
 - This command handles `setup brain` only. For transcription setup, see below.
 
 ---
