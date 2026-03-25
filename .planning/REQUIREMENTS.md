@@ -51,7 +51,7 @@ Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap pha
 
 - [x] **PERS-01**: Domain expert personas generated from room intelligence as structured markdown in team/ folder
 - [x] **PERS-02**: Six Thinking Hats (De Bono) mapped to generated personas — each argues from a specific perspective
-- [ ] **PERS-03**: Larry can invoke personas for multi-perspective analysis on any room artifact
+- [x] **PERS-03**: Larry can invoke personas for multi-perspective analysis on any room artifact
 - [x] **PERS-04**: Personas labeled as "perspective lenses" with disclaimers, never positioned as expert advisors
 
 ## v4.0 Requirements
@@ -106,7 +106,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | FUND-04 | Phase 13 | Complete |
 | PERS-01 | Phase 14 | Complete |
 | PERS-02 | Phase 14 | Complete |
-| PERS-03 | Phase 14 | Pending |
+| PERS-03 | Phase 14 | Complete |
 | PERS-04 | Phase 14 | Complete |
 
 **Coverage:**

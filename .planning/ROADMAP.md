@@ -43,7 +43,7 @@ See: `.planning/milestones/v2.0-ROADMAP.md`
 - [x] **Phase 11: MCP Server** - Expose all plugin capabilities to Desktop/Cowork via hierarchical MCP tools, resources, and prompts (completed 2026-03-24)
 - [x] **Phase 12: Brain Hosting** - Deploy Brain as remote MCP service on Render with API key auth (COLLAB-02/03 deferred to v4.0) (completed 2026-03-24)
 - [x] **Phase 13: Opportunity Bank + Funding Room** - Add grant discovery and funding lifecycle sections to the Data Room (completed 2026-03-25)
-- [ ] **Phase 14: AI Team Personas** - Generate domain expert perspectives from room intelligence using De Bono framework
+- [x] **Phase 14: AI Team Personas** - Generate domain expert perspectives from room intelligence using De Bono framework (completed 2026-03-25)
 
 ## Phase Details
 
@@ -141,4 +141,4 @@ Phases 11 and 12 can run in parallel after Phase 10 completes. Phase 13 requires
 | 11. MCP Server | 3/3 | Complete    | 2026-03-24 | - |
 | 12. Brain Hosting | 2/2 | Complete    | 2026-03-24 | - |
 | 13. Opportunity Bank + Funding Room | 3/3 | Complete    | 2026-03-25 | - |
-| 14. AI Team Personas | 1/2 | In Progress|  | - |
+| 14. AI Team Personas | 2/2 | Complete   | 2026-03-25 | - |
