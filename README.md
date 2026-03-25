@@ -120,13 +120,12 @@ Knowledge Graph = relationships BETWEEN sections (inter-room intelligence)
 
 ```
 Brain (remote, optional)           Room Graph (local, always on)
-Methodology intelligence           YOUR venture's relationships
-Framework chains + calibration     Grows as you file artifacts
-Connects via API key               Embedded, zero server
+Knows which tool to use next       Tracks YOUR venture's connections
+Grades against real ventures       Finds contradictions you missed
+Discovers cross-domain parallels   Remembers what you filed last week
 
-         Brain tells you HOW to think
-         Room Graph tells you WHAT your data says
-         Together = far more powerful than either alone
+         Brain tells you HOW to think about this kind of problem
+         Room Graph tells you WHAT your own data is saying
 ```
 
 ### Meeting Intelligence
@@ -183,7 +182,7 @@ De Stijl formatted PDFs generated from your Data Room content.
 
 ## Connect the Brain (Optional)
 
-The Brain adds 23K nodes of teaching intelligence. Everything works without it -- Brain makes Larry smarter.
+Without Brain, Larry teaches well. With Brain, Larry knows which frameworks work for problems like yours, grades your work against 100+ real ventures, and discovers connections between your domain and fields you'd never think to look at.
 
 **Request access:** [mindrianos-jsagirs-projects.vercel.app/brain-access](https://mindrianos-jsagirs-projects.vercel.app/brain-access)
 
@@ -202,13 +201,13 @@ After approval, add to your `claude_desktop_config.json`:
 }
 ```
 
-| Capability | Without Brain | With Brain |
-|-----------|--------------|-----------|
-| Larry personality | Full | Full |
-| 26 methodology commands | All | All + graph-informed recommendations |
-| Data Room intelligence | Keyword-based | + framework chain suggestions |
-| Grading | Basic rubric | Calibrated against 100+ real projects |
-| Cross-domain connections | Manual | Automatic pattern discovery |
+| What you're trying to do | Without Brain | With Brain |
+|--------------------------|--------------|-----------|
+| Figure out what to work on next | Larry suggests based on your room | Larry suggests based on what worked for 100+ similar ventures |
+| Know if your thinking is rigorous | General feedback | Scored and ranked against real student work |
+| Find unexpected parallels | You have to think of them | Larry surfaces connections from unrelated fields automatically |
+| Chain frameworks in the right order | Larry's best judgment | Informed by which sequences actually produced results |
+| Get honest about your weak spots | Larry points them out | Larry can show you exactly where you rank and why |
 
 **Brain-powered commands:** `/mos:suggest-next`, `/mos:find-connections`, `/mos:compare-ventures`, `/mos:deep-grade`, `/mos:research`
 
@@ -302,7 +301,7 @@ MindrianOS-Plugin/
 | Layer | What | Who Owns It |
 |-------|------|-------------|
 | **Plugin** | Skills, commands, agents, hooks, MCP server | This repo |
-| **Brain** | 23K nodes of teaching intelligence + 12K embeddings | Hosted MCP (optional, API key) |
+| **Brain** | Knows which frameworks work for which problems, calibrated from real teaching | Hosted MCP (optional, API key) |
 | **Room** | Your workspace, entries, team, meetings, graph, exports | You -- all data stays local |
 
 ---
