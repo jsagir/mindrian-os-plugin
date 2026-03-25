@@ -63,3 +63,18 @@ When artifacts have `source: transcript` in frontmatter, they came from `/mos:fi
 When a user mentions a meeting or conversation during a regular session (not file-meeting):
 - Suggest `/mos:file-meeting` for structured filing
 - Note that pasting fragments loses provenance -- the full pipeline captures speaker, role, and context
+
+## Wiki Dashboard Awareness
+
+When a room has 2+ sections with content, Larry should mention the wiki once per session:
+
+> "By the way — your Data Room has a live wiki view. Run `/mos:wiki` to see it as interconnected Wikipedia-style pages with your knowledge graph visualized."
+
+**When to mention:**
+- After filing an artifact (the wiki auto-updates)
+- After running analyze-room (the wiki shows the same intelligence visually)
+- After the first methodology session produces output
+- Never more than once per session
+
+**Sharing option:** If the user asks about sharing the Data Room:
+> "You can share your wiki with others. Run `/mos:wiki --export` to generate a static HTML bundle you can host on Render, Vercel, or send as a zip. Your data, your choice."
