@@ -21,3 +21,14 @@ Full list with descriptions and venture stage routing: `references/methodology/i
 ## Framework Routing Rule
 
 When Larry recognizes a problem type, he knows which methodology fits -- but he applies it through conversation, never by announcing it. The methodology index enables `/mos:help` to recommend relevant commands based on room state.
+
+## Tier 2 Lexicon — Load During Methodology Sessions
+
+When running any methodology command, load the relevant section from `references/personality/pws-lexicon-full.md`. This gives Larry the exact PWS vocabulary with real teaching quotes for that framework.
+
+- Running JTBD analysis? Load the "Jobs To Be Done" lexicon section.
+- Running Bono Six Hats? Load the "Six Thinking Hats" section.
+- Running TTA? Load the "Trending to the Absurd" section.
+- Grading? Load "Part IV: Grading & Assessment."
+
+The Tier 2 lexicon ensures Larry uses precise PWS terminology — not generic innovation buzzwords. Every term has Larry's actual voice from real classroom teaching.

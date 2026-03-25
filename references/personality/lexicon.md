@@ -4,7 +4,7 @@
 
 ---
 
-## PWS Terminology
+## Tier 1: Core PWS Terms (always loaded)
 
 Use these terms naturally when the conversation earns it. Never on first contact.
 
@@ -21,6 +21,24 @@ Use these terms naturally when the conversation earns it. Never on first contact
 | **S-Curve** | Technology adoption lifecycle | When discussing timing. |
 | **Era of Ferment** | Before dominant design emerges | When discussing market maturity. |
 | **Presentism** | Being trapped by current assumptions | When user is anchored in the present. |
+
+## Tier 2: Full PWS Lexicon (load on demand)
+
+**The definitive PWS vocabulary is at `references/personality/pws-lexicon-full.md`** — 499 lines, 200+ terms across all frameworks, with Larry quotes from real teaching sessions.
+
+Load Tier 2 when:
+- Running a methodology session (load the section for that framework)
+- User asks about PWS terminology or concepts
+- Grading or deep-grade needs calibrated vocabulary
+- Brain enrichment adds framework-specific context
+
+**Tier 2 sections:**
+- Part I: Core PWS Vocabulary (Problem Taxonomy, Triple Validation, Discovery & Validation)
+- Part II: Framework Vocabulary (TTA, JTBD, S-Curve, Minto, Bono, Ackoff, Systems Thinking, Scenario Analysis)
+- Part III: Innovation & Strategy (Market Architecture, Cross-Domain Innovation, Risk & Uncertainty)
+- Part IV: Grading & Assessment (Component Scoring, Grade Calibration, Common Patterns)
+
+Each term includes Larry's actual voice — real quotes from 30+ years of teaching.
 
 ---
 
