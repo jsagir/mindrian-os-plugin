@@ -36,9 +36,9 @@ Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap pha
 ### Opportunity Bank
 
 - [x] **OPP-01**: New room/opportunity-bank/ section with ICM-standard filing, frontmatter, and cross-references
-- [ ] **OPP-02**: Proactive grant scanning via Grants.gov REST API surfaces relevant opportunities based on room intelligence
-- [ ] **OPP-03**: Discovered opportunities filed as room artifacts with relevance scoring and source provenance
-- [ ] **OPP-04**: Opportunity Bank integrated into compute-state and analyze-room intelligence pipeline
+- [x] **OPP-02**: Proactive grant scanning via Grants.gov REST API surfaces relevant opportunities based on room intelligence
+- [x] **OPP-03**: Discovered opportunities filed as room artifacts with relevance scoring and source provenance
+- [x] **OPP-04**: Opportunity Bank integrated into compute-state and analyze-room intelligence pipeline
 
 ### Funding Room
 
@@ -97,9 +97,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | BRAIN-02 | Phase 12 | Complete |
 | BRAIN-03 | Phase 12 | Complete |
 | OPP-01 | Phase 13 | Complete |
-| OPP-02 | Phase 13 | Pending |
-| OPP-03 | Phase 13 | Pending |
-| OPP-04 | Phase 13 | Pending |
+| OPP-02 | Phase 13 | Complete |
+| OPP-03 | Phase 13 | Complete |
+| OPP-04 | Phase 13 | Complete |
 | FUND-01 | Phase 13 | Complete |
 | FUND-02 | Phase 13 | Pending |
 | FUND-03 | Phase 13 | Pending |
