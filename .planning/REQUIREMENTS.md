@@ -58,9 +58,9 @@ Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap pha
 
 - [x] **GRAPH-01**: Room artifacts automatically indexed as KuzuDB nodes (embedded, one DB per project in room/.lazygraph/)
 - [x] **GRAPH-02**: Cross-references (INFORMS, CONTRADICTS, CONVERGES, ENABLES, INVALIDATES) stored as typed edges
-- [ ] **GRAPH-03**: User can query their project graph via /mos:query with natural language (Larry translates to Cypher)
+- [x] **GRAPH-03**: User can query their project graph via /mos:query with natural language (Larry translates to Cypher)
 - [x] **GRAPH-04**: Room artifacts embedded in user-owned Pinecone index for semantic search (optional Tier 2)
-- [ ] **GRAPH-05**: Graph auto-updates when new artifacts are filed (hook-driven)
+- [x] **GRAPH-05**: Graph auto-updates when new artifacts are filed (hook-driven)
 
 ## v4.0 Requirements
 

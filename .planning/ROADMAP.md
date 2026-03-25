@@ -44,7 +44,7 @@ See: `.planning/milestones/v2.0-ROADMAP.md`
 - [x] **Phase 12: Brain Hosting** - Deploy Brain as remote MCP service on Render with API key auth (COLLAB-02/03 deferred to v4.0) (completed 2026-03-24)
 - [x] **Phase 13: Opportunity Bank + Funding Room** - Add grant discovery and funding lifecycle sections to the Data Room (completed 2026-03-25)
 - [x] **Phase 14: AI Team Personas** - Generate domain expert perspectives from room intelligence using De Bono framework (completed 2026-03-25)
-- [ ] **Phase 15: User Knowledge Graph** - Per-project queryable LazyGraph using KuzuDB (embedded) for inter-room relationships + Pinecone semantic search
+- [x] **Phase 15: User Knowledge Graph** - Per-project queryable LazyGraph using KuzuDB (embedded) for inter-room relationships + Pinecone semantic search (completed 2026-03-25)
 
 ## Phase Details
 

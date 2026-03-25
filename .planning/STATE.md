@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: MCP Platform & Intelligence Expansion
-status: executing
-stopped_at: Completed 15-03-PLAN.md -- Phase 15 complete
-last_updated: "2026-03-25T09:39:42.936Z"
-last_activity: 2026-03-25 — Completed 15-01 (LazyGraph core module with KuzuDB)
+status: completed
+stopped_at: Completed 15-02-PLAN.md -- LazyGraph CLI/hooks/MCP wiring
+last_updated: "2026-03-25T09:49:23.824Z"
+last_activity: 2026-03-25 — Completed 15-03 (Pinecone stub, query command, schema docs)
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 15
-  completed_plans: 14
+  completed_plans: 15
   percent: 100
 ---
 
@@ -30,7 +30,7 @@ Plan: 3 of 3 in current phase (COMPLETE)
 Status: Phase 15 Complete
 Last activity: 2026-03-25 — Completed 15-03 (Pinecone stub, query command, schema docs)
 
-Progress: [██████████] 97% (34/35 plans complete across v1.0+v2.0+v3.0+v4.0)
+Progress: [██████████] 100% (35/35 plans complete across v1.0+v2.0+v3.0+v4.0)
 
 ## Performance Metrics
 
@@ -65,6 +65,7 @@ Progress: [██████████] 97% (34/35 plans complete across v1.0
 | Phase 14 P02 | 4min | 2 tasks | 4 files |
 | Phase 15 P01 | 8min | 2 tasks | 9 files |
 | Phase 15 P03 | 4min | 2 tasks | 3 files |
+| Phase 15 P02 | 14min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -113,6 +114,9 @@ Recent decisions affecting v3.0:
 - [Phase 15]: KuzuDB creates file not directory at .lazygraph path
 - [Phase 15]: embedArtifact returns structured { success, reason, embeddingId } contract for Pinecone Tier 2
 - [Phase 15]: Schema doc serves dual purpose: developer reference and Larry Cypher generation prompt context
+- [Phase 15]: Open-use-close pattern for all lazygraph wrappers (try/finally ensures DB close)
+- [Phase 15]: NL query via schema reference in MCP tool description (Larry generates Cypher)
+- [Phase 15]: Post-write hook runs graph index in background with 2s timeout (non-blocking)
 
 ### Pending Todos
 
@@ -129,6 +133,6 @@ Recent decisions affecting v3.0:
 
 ## Session Continuity
 
-Last session: 2026-03-25T09:39:42.933Z
-Stopped at: Completed 15-03-PLAN.md -- Phase 15 complete
+Last session: 2026-03-25T09:49:23.821Z
+Stopped at: Completed 15-02-PLAN.md -- LazyGraph CLI/hooks/MCP wiring
 Resume file: None
