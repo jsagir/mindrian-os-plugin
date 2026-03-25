@@ -1,0 +1,189 @@
+#!/usr/bin/env bash
+# render-viz: Generate Mermaid diagrams and open in browser
+# Sub-commands: room, graph, chain
+# Falls back to stdout Mermaid syntax when browser unavailable
+#
+# Usage:
+#   render-viz room [roomDir]    Room structure flowchart
+#   render-viz graph [roomDir]   Knowledge graph view
+#   render-viz chain [roomDir]   Methodology chain flowchart
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+SUBCMD="${1:-}"
+ROOM_DIR="${2:-./room}"
+
+if [ -z "$SUBCMD" ]; then
+  echo "Usage: render-viz <room|graph|chain> [roomDir]"
+  echo ""
+  echo "Sub-commands:"
+  echo "  room   — Room structure flowchart (sections, stages, cross-references)"
+  echo "  graph  — Knowledge graph view (LazyGraph nodes and edges)"
+  echo "  chain  — Latest methodology chain flowchart"
+  exit 1
+fi
+
+# ── Generate Mermaid + HTML via Node.js ──
+
+MERMAID_OUTPUT=$(node -e "
+'use strict';
+const path = require('path');
+const fs = require('fs');
+const visualOps = require(path.join('${PLUGIN_ROOT}', 'lib', 'core', 'visual-ops.cjs'));
+
+const subcmd = '${SUBCMD}';
+const roomDir = path.resolve('${ROOM_DIR}');
+
+let mermaidSyntax = '';
+let title = '';
+
+switch (subcmd) {
+  case 'room': {
+    title = 'Room Structure';
+    // Read room sections
+    let sections = [];
+    try {
+      const roomOps = require(path.join('${PLUGIN_ROOT}', 'lib', 'core', 'room-ops.cjs'));
+      const sectionData = roomOps.listSections(roomDir);
+      if (sectionData && sectionData.sections) {
+        // Read STATE.md for venture stage
+        let stage = 'discovery';
+        try {
+          const stateOps = require(path.join('${PLUGIN_ROOT}', 'lib', 'core', 'state-ops.cjs'));
+          const stateContent = stateOps.getState(roomDir);
+          if (stateContent) {
+            const stageMatch = stateContent.match(/venture_stage:\\s*(.+)/);
+            if (stageMatch) stage = stageMatch[1].trim();
+          }
+        } catch (_e) {}
+
+        sections = sectionData.sections.map(s => ({
+          name: s.name || s,
+          entryCount: s.entryCount || s.entries || 0,
+          stage: stage,
+          edges: s.edges || []
+        }));
+      }
+    } catch (_e) {
+      // Fallback: empty sections
+    }
+    if (sections.length === 0) {
+      sections = [{ name: 'No room data', entryCount: 0, stage: 'discovery', edges: [] }];
+    }
+    mermaidSyntax = visualOps.generateMermaidRoom(sections);
+    break;
+  }
+  case 'graph': {
+    title = 'Knowledge Graph';
+    let nodes = [];
+    let edges = [];
+    try {
+      const graphOps = require(path.join('${PLUGIN_ROOT}', 'lib', 'core', 'graph-ops.cjs'));
+      const stats = await graphOps.graphStats(roomDir);
+      if (stats && stats.nodes) {
+        nodes = stats.nodes;
+        edges = stats.edges || [];
+      }
+    } catch (_e) {}
+    if (nodes.length === 0) {
+      nodes = [{ id: 'empty', type: 'Section', label: 'No graph data' }];
+    }
+    mermaidSyntax = visualOps.generateMermaidGraph(nodes, edges);
+    break;
+  }
+  case 'chain': {
+    title = 'Methodology Chain';
+    let steps = [];
+    try {
+      const reasonDir = path.join(roomDir, '.reasoning');
+      if (fs.existsSync(reasonDir)) {
+        const runs = fs.readdirSync(reasonDir)
+          .filter(f => f.endsWith('.md'))
+          .sort()
+          .reverse();
+        if (runs.length > 0) {
+          const content = fs.readFileSync(path.join(reasonDir, runs[0]), 'utf-8');
+          // Parse steps from run artifact (simplified)
+          const stepMatches = content.match(/##\\s+Step\\s+\\d+[^#]*/g) || [];
+          steps = stepMatches.map((block, i) => {
+            const nameMatch = block.match(/##\\s+Step\\s+\\d+:\\s*(.+)/);
+            const fwMatch = block.match(/framework:\\s*(.+)/i);
+            const statusMatch = block.match(/status:\\s*(.+)/i);
+            return {
+              name: nameMatch ? nameMatch[1].trim() : 'Step ' + (i + 1),
+              framework: fwMatch ? fwMatch[1].trim() : '',
+              status: statusMatch ? statusMatch[1].trim() : 'pending'
+            };
+          });
+        }
+      }
+    } catch (_e) {}
+    if (steps.length === 0) {
+      steps = [
+        { name: 'Diagnose', framework: 'diagnose', status: 'pending' },
+        { name: 'Framework', framework: '', status: 'pending' },
+        { name: 'Apply', framework: '', status: 'pending' },
+        { name: 'File', framework: '', status: 'pending' },
+        { name: 'Cross-ref', framework: '', status: 'pending' },
+        { name: 'Graph Update', framework: '', status: 'pending' }
+      ];
+    }
+    mermaidSyntax = visualOps.generateMermaidChain(steps);
+    break;
+  }
+  default:
+    process.stderr.write('Unknown sub-command: ' + subcmd + '\\n');
+    process.exit(1);
+}
+
+// Output JSON with both mermaid and html
+const html = visualOps.wrapMermaidHtml(mermaidSyntax, title);
+const result = JSON.stringify({ mermaid: mermaidSyntax, html: html, title: title });
+process.stdout.write(result);
+" 2>/dev/null || echo '{"mermaid":"graph TD\n  error[Generation failed]","html":"","title":"Error"}')
+
+# ── Extract Mermaid syntax for stdout fallback ──
+MERMAID_SYNTAX=$(echo "$MERMAID_OUTPUT" | node -e "
+const input = require('fs').readFileSync(0, 'utf-8');
+try { console.log(JSON.parse(input).mermaid); } catch(_e) { console.log('graph TD\n  error[Parse failed]'); }
+")
+
+HTML_CONTENT=$(echo "$MERMAID_OUTPUT" | node -e "
+const input = require('fs').readFileSync(0, 'utf-8');
+try { console.log(JSON.parse(input).html); } catch(_e) { console.log(''); }
+")
+
+# ── Write HTML to temp file ──
+VIZ_DIR="${TMPDIR:-/tmp}/mindrian-viz"
+mkdir -p "$VIZ_DIR"
+HTML_FILE="${VIZ_DIR}/diagram.html"
+echo "$HTML_CONTENT" > "$HTML_FILE"
+
+# ── Open in browser (cross-platform, WSL-aware) ──
+open_browser() {
+  local file="$1"
+  if grep -qi microsoft /proc/version 2>/dev/null; then
+    # WSL: convert to Windows path and open
+    local winpath
+    winpath=$(wslpath -w "$file" 2>/dev/null || echo "$file")
+    cmd.exe /c start "" "$winpath" 2>/dev/null && return 0
+  fi
+  if [ "$(uname)" = "Darwin" ]; then
+    open "$file" 2>/dev/null && return 0
+  fi
+  if command -v xdg-open >/dev/null 2>&1; then
+    xdg-open "$file" >/dev/null 2>&1 & return 0
+  fi
+  return 1
+}
+
+if open_browser "$HTML_FILE" 2>/dev/null; then
+  echo "Opened diagram in browser: $HTML_FILE" >&2
+else
+  echo "Browser unavailable. Mermaid syntax:" >&2
+fi
+
+# ── Always print Mermaid to stdout (for capture in artifacts) ──
+echo "$MERMAID_SYNTAX"

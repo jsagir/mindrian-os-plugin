@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",
+    "asciichart": "^1.5.25",
     "kuzu": "^0.11.3"
   },
   "engines": {
