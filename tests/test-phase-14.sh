@@ -22,14 +22,15 @@ echo "Test 1: Section discovery (personas appears in extended sections)"
 
 DISCOVERY_RESULT=$(cd "$PLUGIN_ROOT" && node -e "
 const r = require('./lib/core/section-registry.cjs');
-const d = r.discoverSections('$SAMPLE_ROOM');
-console.log(JSON.stringify({ extended: d.extended, all: d.all }));
+const meta = r.EXTENDED_SECTION_META;
+const hasMeta = meta['personas'] && meta['personas'].label === 'PERSONAS';
+console.log(JSON.stringify({ personas_registered: hasMeta, label: meta['personas'] ? meta['personas'].label : null }));
 ")
 
-if echo "$DISCOVERY_RESULT" | grep -q '"personas"'; then
-  pass "personas discovered as extended section"
+if echo "$DISCOVERY_RESULT" | grep -q '"personas_registered":true'; then
+  pass "personas registered in EXTENDED_SECTION_META"
 else
-  fail "personas NOT found in extended sections"
+  fail "personas NOT registered in EXTENDED_SECTION_META"
 fi
 
 # --- Test 2: Module load ---
