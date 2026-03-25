@@ -75,8 +75,8 @@ Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap pha
 - [x] **VIS-01**: MindrianOS symbol system (⬡ brand, ◌◎◉◆★ stages, →⊗⊕▶⊘ edges) used consistently across all commands, statusline, and traces
 - [x] **VIS-02**: Room structure visualized as Unicode box diagram showing sections, gaps, and cross-references in compute-state output
 - [x] **VIS-03**: ASCII sparklines and charts in compute-state and analyze-room output (asciichart npm)
-- [ ] **VIS-04**: Mermaid diagram blocks embedded in room artifacts (.md files auto-render in GitHub/Obsidian/Notion)
-- [ ] **VIS-05**: /mos:visualize command generates rich diagrams (room flowchart, graph view, framework chain) and opens in browser
+- [x] **VIS-04**: Mermaid diagram blocks embedded in room artifacts (.md files auto-render in GitHub/Obsidian/Notion)
+- [x] **VIS-05**: /mos:visualize command generates rich diagrams (room flowchart, graph view, framework chain) and opens in browser
 
 ## v4.0 Requirements
 
