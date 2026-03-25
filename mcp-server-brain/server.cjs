@@ -42,6 +42,17 @@ app.post('/mcp', async (req, res) => {
   }
 });
 
+// Root — redirect to docs
+app.get('/', (req, res) => {
+  res.json({
+    name: 'MindrianOS Brain',
+    version: '1.0.0',
+    docs: 'https://mindrianos-jsagirs-projects.vercel.app/brain-access',
+    health: '/health',
+    mcp: 'POST /mcp (requires API key)',
+  });
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', server: 'mindrian-brain', version: '1.0.0' });

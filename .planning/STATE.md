@@ -4,7 +4,7 @@ milestone: v3.0
 milestone_name: MCP Platform & Intelligence Expansion
 status: executing
 stopped_at: Completed 16-02-PLAN.md -- CLI/MCP/LazyGraph wiring
-last_updated: "2026-03-25T13:21:31Z"
+last_updated: "2026-03-25T13:23:55.693Z"
 last_activity: 2026-03-25 — Completed 16-02 (CLI routing, MCP tool commands, REASONING_INFORMS edge)
 progress:
   total_phases: 7
@@ -68,6 +68,7 @@ Progress: [██████████] 100% (38/38 plans complete across v1.
 | Phase 15 P02 | 14min | 3 tasks | 5 files |
 | Phase 16 P01 | 6min | 2 tasks | 9 files |
 | Phase 16 P03 | 3min | 2 tasks | 4 files |
+| Phase 16 P02 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -124,6 +125,7 @@ Recent decisions affecting v3.0:
 - [Phase 16]: generateReasoning creates templates with placeholders — Larry fills reasoning content at conversation time
 - [Phase 16]: reason-section prompt inlines system+user content in single user role (MCP prompt spec constraint)
 - [Phase 16]: Schema reference serves dual purpose: developer docs + Larry generation context (lazygraph-schema.md pattern)
+- [Phase 16]: REASONING_INFORMS is Section-to-Section edge type (reasoning dependencies between room sections)
 
 ### Pending Todos
 
@@ -140,6 +142,6 @@ Recent decisions affecting v3.0:
 
 ## Session Continuity
 
-Last session: 2026-03-25T13:22:40.708Z
-Stopped at: Completed 16-03-PLAN.md -- MCP resources, prompts, command docs, schema reference
+Last session: 2026-03-25T13:23:55.690Z
+Stopped at: Completed 16-02-PLAN.md -- CLI/MCP/LazyGraph wiring
 Resume file: None
