@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-03-25
+
+### Added
+- **User Knowledge Graph** (`/mos:query`, `/mos:graph`) — Per-project embedded LazyGraph using KuzuDB. Room artifacts auto-indexed as graph nodes. Cross-references stored as typed edges (INFORMS, CONTRADICTS, CONVERGES, ENABLES, INVALIDATES). Natural language queries translated to Cypher by Larry.
+- **KuzuDB Integration** — Embedded graph database (like SQLite for graphs). Zero server, zero setup, Apache 2.0. Cypher-compatible. Sub-millisecond local queries. Graph stored in `room/.lazygraph/` per project.
+- **Two-Graph Architecture** — Brain (Neo4j, remote) = methodology intelligence. Room Graph (KuzuDB, local) = venture intelligence. Together, far more powerful than either alone.
+- **Hook-Driven Graph Updates** — Post-write hook automatically indexes new room artifacts into the LazyGraph. Graph grows with the venture — no manual rebuild needed.
+- **Pinecone Tier 2 Stub** — `embedArtifact()` interface ready for semantic search layer. Graceful degradation when Pinecone unavailable.
+- **Graph Schema Reference** — `docs/lazygraph-schema.md` documents node types, edge types, and example Cypher queries for Larry's NL-to-Cypher translation.
+- **4 new MCP graph tools** — graph-index, graph-rebuild, graph-query, graph-stats in data_room router (49 total MCP commands)
+
 ## [0.8.0] - 2026-03-25
 
 ### Added
