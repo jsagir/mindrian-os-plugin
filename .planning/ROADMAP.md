@@ -185,10 +185,37 @@ Plans:
 - [ ] 17-02-PLAN.md — Unicode room diagram + ASCII sparklines in compute-state and analyze-room
 - [ ] 17-03-PLAN.md — Mermaid diagram generators, render-viz script, /mos:visualize command + CLI/MCP wiring
 
+### Phase 18: Dynamic Integration Prompting
+**Goal**: MindrianOS proactively detects when an MCP/API/plugin would enhance the user's workflow and offers to set it up
+**Depends on**: Phase 12 (Brain hosting), Phase 17 (visual identity for prompts)
+**Requirements**: INTEG-01, INTEG-02, INTEG-03
+**Success Criteria** (what must be TRUE):
+  1. Larry detects unmet capabilities and offers setup conversationally (Brain, Obsidian, Notion, Velma, meeting sources)
+  2. Detection is non-blocking — always offers, never forces, never interrupts methodology sessions
+  3. Integration status visible in /mos:status and statusline
+**Plans**: 2 plans
+
+Plans:
+- [ ] 18-01-PLAN.md — Integration registry module, detection patterns reference, skill file updates for offer behavior
+- [ ] 18-02-PLAN.md — /mos:status integration table, session-start statusline, MCP tool router wiring
+
+### Phase 19: Wikipedia Data Room Dashboard
+**Goal**: Localhost wiki-style viewer where room sections are pages, KuzuDB edges are hyperlinks, with chat, search, De Stijl design, and auto-expanding as room fills
+**Depends on**: Phase 15 (KuzuDB LazyGraph), Phase 17 (visual identity)
+**Requirements**: WIKI-01, WIKI-02, WIKI-03, WIKI-04, WIKI-05
+**Success Criteria** (what must be TRUE):
+  1. Every room section renders as a Wikipedia-style page with TOC, infobox, backlinks, and "See also" from KuzuDB edges
+  2. KuzuDB relationships become clickable hyperlinks between pages (INFORMS → navigate, CONTRADICTS → red warning)
+  3. Chat interface scoped to current page context — user talks to the Data Room through Larry
+  4. Full-text search across all room pages with instant results
+  5. Auto-refreshes when room content changes (file watcher)
+  6. De Stijl design with embedded Mermaid diagrams, images, and media
+**Plans**: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases 11 and 12 can run in parallel after Phase 10 completes. Phase 13 requires Phase 10. Phase 14 requires Phase 13. Phase 16 requires Phase 15. Phase 17 requires Phase 16.
+Phases 11 and 12 can run in parallel after Phase 10 completes. Phase 13 requires Phase 10. Phase 14 requires Phase 13. Phase 16 requires Phase 15. Phase 17 requires Phase 16. Phase 18 and 19 can run in parallel after Phase 17.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
