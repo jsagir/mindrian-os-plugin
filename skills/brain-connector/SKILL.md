@@ -53,12 +53,27 @@ Delegate to `agents/brain-query.md` when:
 - Cross-domain discovery requested
 - Pattern matching across multiple ventures
 
-## Brain Tool Names (by surface)
+## Primary Tool: brain_ask
 
-| Surface | Neo4j Schema | Neo4j Query | Pinecone Search |
-|---------|-------------|-------------|-----------------|
-| CLI (API key) | brain_schema | brain_query | brain_search |
-| Desktop (mindrian-brain MCP) | brain_schema | brain_query | brain_search |
-| Legacy (direct neo4j-brain) | get_neo4j_schema | read_neo4j_cypher | search-records |
+**Always use `brain_ask` first.** It accepts natural language, handles Pinecone vs Neo4j routing internally, and falls back automatically when Pinecone quota is exhausted.
 
-Try the first available. Fall back silently.
+```
+brain_ask({ question: "What frameworks relate to JTBD?", topK: 5 })
+```
+
+The caller never writes Cypher. The server handles:
+- Pinecone semantic search (when available)
+- Neo4j Cypher fallback (when Pinecone quota exhausted)
+- Keyword extraction from natural language
+- Pattern matching to optimal Cypher template
+
+**Only use brain_query (raw Cypher) when you need a specific, complex query that brain_ask can't handle.**
+
+## Tool Names (by surface)
+
+| Surface | Smart Tool | Neo4j Direct | Pinecone Direct | Schema |
+|---------|-----------|-------------|-----------------|--------|
+| CLI/Desktop (mindrian-brain) | brain_ask | brain_query | brain_search | brain_schema |
+| Legacy (neo4j-brain direct) | N/A | read_neo4j_cypher | search-records | get_neo4j_schema |
+
+Try `brain_ask` first. Fall back to direct tools only for complex Cypher. Fall back silently on all errors.

@@ -6,6 +6,7 @@ const { StreamableHTTPServerTransport } = require('@modelcontextprotocol/sdk/ser
 const { validateApiKey } = require('./lib/auth.cjs');
 const { registerNeo4jTools } = require('./lib/neo4j-tools.cjs');
 const { registerPineconeTools } = require('./lib/pinecone-tools.cjs');
+const { registerBrainAsk } = require('./lib/brain-ask.cjs');
 
 const app = express();
 app.use(express.json());
@@ -22,6 +23,7 @@ app.post('/mcp', async (req, res) => {
 
   registerNeo4jTools(server);
   registerPineconeTools(server);
+  registerBrainAsk(server);
 
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: undefined, // stateless
