@@ -7,8 +7,8 @@ description: |
   severity-rated structured concerns. Skeptical, direct, demanding.
 model: inherit
 allowed-tools:
-  - mcp__neo4j-brain__read_neo4j_cypher
-  - mcp__pinecone-brain__search-records
+  - mcp__mindrian-brain__brain_query (or fallback: mcp__neo4j-brain__read_neo4j_cypher)
+  - mcp__mindrian-brain__brain_search (or fallback: mcp__pinecone-brain__search-records). If Pinecone returns RESOURCE_EXHAUSTED, skip semantic search and use Neo4j Cypher queries instead
   - Read
 ---
 

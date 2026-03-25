@@ -3,8 +3,8 @@ name: suggest-next
 description: Graph-informed recommendation -- what should you work on next?
 allowed-tools:
   - Read
-  - mcp__neo4j-brain__read_neo4j_cypher
-  - mcp__pinecone-brain__search-records
+  - mcp__mindrian-brain__brain_query (or fallback: mcp__neo4j-brain__read_neo4j_cypher)
+  - mcp__mindrian-brain__brain_search (or fallback: mcp__pinecone-brain__search-records). If Pinecone returns RESOURCE_EXHAUSTED, skip semantic search and use Neo4j Cypher queries instead
 ---
 
 # /mos:suggest-next

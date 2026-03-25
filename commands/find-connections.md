@@ -3,7 +3,7 @@ name: find-connections
 description: Cross-domain pattern discovery -- what connects to your work?
 allowed-tools:
   - Read
-  - mcp__neo4j-brain__read_neo4j_cypher
+  - mcp__mindrian-brain__brain_query (or fallback: mcp__neo4j-brain__read_neo4j_cypher)
 ---
 
 # /mos:find-connections

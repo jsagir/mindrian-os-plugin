@@ -8,8 +8,8 @@ model: inherit
 allowed-tools:
   - mcp__tavily-mcp__tavily-search
   - mcp__tavily-mcp__tavily-extract
-  - mcp__pinecone-brain__search-records
-  - mcp__neo4j-brain__read_neo4j_cypher
+  - mcp__mindrian-brain__brain_search (or fallback: mcp__pinecone-brain__search-records). If Pinecone returns RESOURCE_EXHAUSTED, skip semantic search and use Neo4j Cypher queries instead
+  - mcp__mindrian-brain__brain_query (or fallback: mcp__neo4j-brain__read_neo4j_cypher)
   - Read
   - Write
 ---
@@ -41,7 +41,7 @@ For every research request:
 
 3. **Deep extraction** -- For promising results from step 2, call `mcp__tavily-mcp__tavily-extract` to get full content. Prioritize primary sources (company sites, research papers, market reports) over aggregators.
 
-4. **Brain cross-reference** -- Run `brain_search_semantic` via `mcp__pinecone-brain__search-records` to find related internal knowledge in the Brain. This connects external findings to Larry's framework intelligence.
+4. **Brain cross-reference** -- Run `brain_search_semantic` via `mcp__mindrian-brain__brain_search (or fallback: mcp__pinecone-brain__search-records). If Pinecone returns RESOURCE_EXHAUSTED, skip semantic search and use Neo4j Cypher queries instead` to find related internal knowledge in the Brain. This connects external findings to Larry's framework intelligence.
 
 5. **Synthesize** -- Combine external findings with Brain connections into a research brief:
    - Key findings (numbered, specific, sourced)

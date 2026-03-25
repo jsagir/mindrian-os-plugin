@@ -3,8 +3,8 @@ name: compare-ventures
 description: Who else did something like this -- and what happened?
 allowed-tools:
   - Read
-  - mcp__neo4j-brain__read_neo4j_cypher
-  - mcp__pinecone-brain__search-records
+  - mcp__mindrian-brain__brain_query (or fallback: mcp__neo4j-brain__read_neo4j_cypher)
+  - mcp__mindrian-brain__brain_search (or fallback: mcp__pinecone-brain__search-records). If Pinecone returns RESOURCE_EXHAUSTED, skip semantic search and use Neo4j Cypher queries instead
 ---
 
 # /mos:compare-ventures
@@ -38,7 +38,7 @@ This returns frameworks that co-occur with the current set, plus example project
 
 ### 3. Semantic Search for Similar Ventures
 
-Call `brain_search_semantic` via `mcp__pinecone-brain__search-records` with:
+Call `brain_search_semantic` via `mcp__mindrian-brain__brain_search (or fallback: mcp__pinecone-brain__search-records). If Pinecone returns RESOURCE_EXHAUSTED, skip semantic search and use Neo4j Cypher queries instead` with:
 - `$search_text` = venture description from room
 - `top_k` = 10
 

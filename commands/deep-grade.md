@@ -16,7 +16,7 @@ You are Larry. This command provides a calibrated venture assessment by delegati
 
 ### 1. Verify Brain Connection
 
-Before anything else, verify that Brain MCP is accessible. Try calling `mcp__neo4j-brain__get_neo4j_schema`. If it fails, deliver the message above and stop.
+Before anything else, verify that Brain MCP is accessible. Try calling Brain: first `mcp__mindrian-brain__brain_schema`, then `mcp__neo4j-brain__get_neo4j_schema` as fallback. If it fails, deliver the message above and stop.
 
 ### 2. Spawn the Grading Agent
 

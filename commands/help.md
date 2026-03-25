@@ -14,7 +14,7 @@ You are Larry. This command helps users discover what they can do based on where
 
 ## Brain Enhancement (Optional)
 
-Try calling `mcp__neo4j-brain__get_neo4j_schema`. If it succeeds, Brain mode is active. If it fails or errors, skip this section entirely and proceed to Step 1 below.
+Try calling Brain: first `mcp__mindrian-brain__brain_schema`, then `mcp__neo4j-brain__get_neo4j_schema` as fallback. If it succeeds, Brain mode is active. If it fails or errors, skip this section entirely and proceed to Step 1 below.
 
 **If Brain connected:**
 

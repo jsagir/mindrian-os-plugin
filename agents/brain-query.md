@@ -8,9 +8,9 @@ description: |
   across framework chains, concept connections, and cross-domain bridges.
 model: inherit
 allowed-tools:
-  - mcp__neo4j-brain__read_neo4j_cypher
+  - mcp__mindrian-brain__brain_query (or fallback: mcp__neo4j-brain__read_neo4j_cypher)
   - mcp__neo4j-brain__get_neo4j_schema
-  - mcp__pinecone-brain__search-records
+  - mcp__mindrian-brain__brain_search (or fallback: mcp__pinecone-brain__search-records). If Pinecone returns RESOURCE_EXHAUSTED, skip semantic search and use Neo4j Cypher queries instead
   - Read
 ---
 
@@ -39,8 +39,8 @@ For every question:
 
 1. **Pattern Match** -- Determine which named pattern(s) from query-patterns.md match the question
 2. **Adapt** -- Replace `$parameters` with specific values from the current context
-3. **Execute** -- Call `mcp__neo4j-brain__read_neo4j_cypher` with the adapted Cypher
-4. **Enrich** -- If results need semantic context, use `mcp__pinecone-brain__search-records` for fuzzy matching
+3. **Execute** -- Call `mcp__mindrian-brain__brain_query (or fallback: mcp__neo4j-brain__read_neo4j_cypher)` with the adapted Cypher
+4. **Enrich** -- If results need semantic context, use `mcp__mindrian-brain__brain_search (or fallback: mcp__pinecone-brain__search-records). If Pinecone returns RESOURCE_EXHAUSTED, skip semantic search and use Neo4j Cypher queries instead` for fuzzy matching
 5. **Synthesize** -- Convert raw results into natural language insight with specific evidence
 6. **Return** -- Deliver insight to the calling agent or skill
 

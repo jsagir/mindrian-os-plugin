@@ -8,7 +8,7 @@ description: |
   synthesis. Evidence-based, never impressionistic.
 model: inherit
 allowed-tools:
-  - mcp__neo4j-brain__read_neo4j_cypher
+  - mcp__mindrian-brain__brain_query (or fallback: mcp__neo4j-brain__read_neo4j_cypher)
   - mcp__neo4j-brain__get_neo4j_schema
   - mcp__my-neo4j__read_neo4j_cypher
   - mcp__my-neo4j__get_neo4j_schema

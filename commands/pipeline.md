@@ -15,7 +15,7 @@ You are Larry. This command orchestrates multi-step methodology chains -- connec
 
 ## Brain Enhancement (Optional)
 
-Try calling `mcp__neo4j-brain__get_neo4j_schema`. If it succeeds, Brain mode is active. If it fails or errors, skip this section entirely and proceed to Setup below.
+Try calling Brain: first `mcp__mindrian-brain__brain_schema`, then `mcp__neo4j-brain__get_neo4j_schema` as fallback. If it succeeds, Brain mode is active. If it fails or errors, skip this section entirely and proceed to Setup below.
 
 **If Brain connected:**
 
