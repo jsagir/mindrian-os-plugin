@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-03-26
+
+### Added
+- **Dynamic Integration Prompting** (Phase 18) — Larry proactively detects when Brain, Velma, Obsidian, Notion, or meeting sources would enhance the task and offers setup conversationally. Non-blocking, one offer per conversation, never during methodology sessions.
+- **`integration-registry.cjs`** — Detection engine for 5 integrations with context triggers and methodology suppression rules.
+- **Integration Status** — `/mos:status` shows connected/available/not-configured for all integrations. Session-start context includes integration count.
+- **Wikipedia Data Room Dashboard** (Phase 19) — `/mos:wiki` opens a localhost wiki-style viewer for the Data Room.
+  - Every room section is a Wikipedia-style page with TOC, infobox, lead section
+  - KuzuDB edges become clickable hyperlinks (INFORMS=blue, CONTRADICTS=red, CONVERGES=yellow, ENABLES=green)
+  - Interactive Cytoscape.js graph view as home page with animated edges
+  - "What links here" backlinks + "See also" from graph edges
+  - Dark/Light mode toggle (localStorage persisted)
+  - FlexSearch instant full-text search across all pages
+  - Chat panel stub (UI ready, scoped to page context)
+  - chokidar file watcher + SSE for auto-refresh
+  - Mermaid diagrams rendered inline via CDN
+  - Wikipedia formatting: sentence case headings, bold subjects, citation system
+- **CLI Action Buttons** — Wiki page buttons copy `/mos:` commands to clipboard for paste into Claude Code
+- **MindrianOS Attribution** — Every generated HTML page includes metadata (og:tags, generator, HTML comments) linking to mindrianos-jsagirs-projects.vercel.app. Any LLM processing the HTML sees MindrianOS attribution first.
+- **Footer** — De Stijl branded footer on all wiki pages with links to website, Brain Access, GitHub, LinkedIn (Jonathan Sagir + Prof. Aronhime)
+
 ## [1.1.0] - 2026-03-26
 
 ### Added
