@@ -62,6 +62,14 @@ Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap pha
 - [x] **GRAPH-04**: Room artifacts embedded in user-owned Pinecone index for semantic search (optional Tier 2)
 - [x] **GRAPH-05**: Graph auto-updates when new artifacts are filed (hook-driven)
 
+### Reasoning Engine
+
+- [x] **REASON-01**: Each room section generates a REASONING.md with Minto/MECE structured analysis, frontmatter dependency graph (requires/provides/affects), and goal-backward verification
+- [ ] **REASON-02**: Larry autonomously chains methodology tools in sequences (diagnose → framework → apply → file → cross-reference → graph-update) captured as methodology run artifacts
+- [x] **REASON-03**: Chain-of-thought is persisted as .reasoning/ artifacts that future sessions read to understand section state
+- [ ] **REASON-04**: Reasoning visualization works across CLI (blockquote traces), Desktop (MCP prompts), and Cowork (shared state) — showing logical flow in natural terms
+- [x] **REASON-05**: mindrian-tools.cjs provides programmatic frontmatter read/write for reasoning files (learned from gsd-tools.cjs patterns)
+
 ## v4.0 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.

@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v3.0
-milestone_name: MCP Platform & Intelligence Expansion
-status: completed
-stopped_at: Completed 15-02-PLAN.md -- LazyGraph CLI/hooks/MCP wiring
-last_updated: "2026-03-25T09:49:23.824Z"
-last_activity: 2026-03-25 — Completed 15-03 (Pinecone stub, query command, schema docs)
+milestone: v4.0
+milestone_name: Reasoning Engine & Intelligence Layer
+status: in-progress
+stopped_at: Completed 16-01-PLAN.md -- Core reasoning-ops.cjs module
+last_updated: "2026-03-25T13:15:09Z"
+last_activity: 2026-03-25 — Completed 16-01 (reasoning-ops.cjs, templates, test suite)
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 6
-  total_plans: 15
-  completed_plans: 15
+  total_plans: 16
+  completed_plans: 16
   percent: 100
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-24)
 
 **Core value:** Dual-surface platform (CLI + MCP) delivering MindrianOS to Desktop/Cowork users with grant discovery and AI personas
-**Current focus:** Phase 15 — User Knowledge Graph (KuzuDB LazyGraph)
+**Current focus:** Phase 16 — Reasoning Engine (Minto/MECE structured reasoning)
 
 ## Current Position
 
-Phase: 15 of 15 (User Knowledge Graph)
-Plan: 3 of 3 in current phase (COMPLETE)
-Status: Phase 15 Complete
-Last activity: 2026-03-25 — Completed 15-03 (Pinecone stub, query command, schema docs)
+Phase: 16 of 16 (Reasoning Engine)
+Plan: 1 of 3 in current phase
+Status: Phase 16 In Progress
+Last activity: 2026-03-25 — Completed 16-01 (reasoning-ops.cjs, templates, test suite)
 
-Progress: [██████████] 100% (35/35 plans complete across v1.0+v2.0+v3.0+v4.0)
+Progress: [██████████] 100% (36/36 plans complete across v1.0+v2.0+v3.0+v4.0)
 
 ## Performance Metrics
 
@@ -66,6 +66,7 @@ Progress: [██████████] 100% (35/35 plans complete across v1.
 | Phase 15 P01 | 8min | 2 tasks | 9 files |
 | Phase 15 P03 | 4min | 2 tasks | 3 files |
 | Phase 15 P02 | 14min | 3 tasks | 5 files |
+| Phase 16 P01 | 6min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -117,6 +118,9 @@ Recent decisions affecting v3.0:
 - [Phase 15]: Open-use-close pattern for all lazygraph wrappers (try/finally ensures DB close)
 - [Phase 15]: NL query via schema reference in MCP tool description (Larry generates Cypher)
 - [Phase 15]: Post-write hook runs graph index in background with 2s timeout (non-blocking)
+- [Phase 16]: Enhanced parseFrontmatter local to reasoning-ops.cjs — handles 2-3 level nesting (confidence.high, requires as object array, verification.must_be_true)
+- [Phase 16]: reconstructFrontmatter uses inline JSON arrays for short lists, block format for longer content
+- [Phase 16]: generateReasoning creates templates with placeholders — Larry fills reasoning content at conversation time
 
 ### Pending Todos
 
@@ -133,6 +137,6 @@ Recent decisions affecting v3.0:
 
 ## Session Continuity
 
-Last session: 2026-03-25T09:49:23.821Z
-Stopped at: Completed 15-02-PLAN.md -- LazyGraph CLI/hooks/MCP wiring
+Last session: 2026-03-25T13:15:09Z
+Stopped at: Completed 16-01-PLAN.md -- Core reasoning-ops.cjs module
 Resume file: None
