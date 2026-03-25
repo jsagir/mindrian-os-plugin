@@ -213,7 +213,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 19-01-PLAN.md — Express wiki server, markdown rendering pipeline, De Stijl layout, /mos:wiki command
+- [x] 19-01-PLAN.md — Express wiki server, markdown rendering pipeline, De Stijl layout, /mos:wiki command
 - [ ] 19-02-PLAN.md — KuzuDB graph integration: hyperlinks from edges, backlinks, "See also", graph view page
 - [ ] 19-03-PLAN.md — FlexSearch full-text search, chat panel (stub), chokidar auto-refresh, Mermaid/media rendering
 

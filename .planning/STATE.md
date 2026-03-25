@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: MCP Platform & Intelligence Expansion
 status: in-progress
-stopped_at: "Completed 18-01-PLAN.md -- Integration registry, detection patterns, skill offer updates"
-last_updated: "2026-03-25T23:25:08.800Z"
-last_activity: 2026-03-26 — Completed 18-01 (Integration registry, detection patterns, skill offer updates)
+stopped_at: "Completed 19-01-PLAN.md -- Wiki server foundation, markdown pipeline, De Stijl layout"
+last_updated: "2026-03-25T23:28:24Z"
+last_activity: 2026-03-26 — Completed 19-01 (Wiki server, markdown pipeline, dark/light mode, /mos:wiki command)
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 46
-  completed_plans: 42
-  percent: 91
+  completed_plans: 43
+  percent: 93
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-24)
 
 **Core value:** Dual-surface platform (CLI + MCP) delivering MindrianOS to Desktop/Cowork users with grant discovery and AI personas
-**Current focus:** Phase 18 — Dynamic Integration Prompting
+**Current focus:** Phase 19 — Wikipedia Data Room Dashboard
 
 ## Current Position
 
-Phase: 18 of 19 (Dynamic Integration Prompting)
-Plan: 1 of 2 in current phase
-Status: 18-01 Complete
-Last activity: 2026-03-26 — Completed 18-01 (Integration registry, detection patterns, skill offer updates)
+Phase: 19 of 19 (Wikipedia Data Room Dashboard)
+Plan: 1 of 3 in current phase
+Status: 19-01 Complete
+Last activity: 2026-03-26 — Completed 19-01 (Wiki server, markdown pipeline, dark/light mode, /mos:wiki command)
 
-Progress: [█████████░] 91% (42/46 plans complete across v1.0+v2.0+v3.0+v4.0)
+Progress: [█████████░] 93% (43/46 plans complete across v1.0+v2.0+v3.0+v4.0)
 
 ## Performance Metrics
 
@@ -73,6 +73,7 @@ Progress: [█████████░] 91% (42/46 plans complete across v1.0
 | Phase 17 P02 | 4min | 2 tasks | 4 files |
 | Phase 17 P03 | 5min | 2 tasks | 5 files |
 | Phase 18 P01 | 6min | 2 tasks | 4 files |
+| Phase 19 P01 | 10min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -139,6 +140,10 @@ Recent decisions affecting v3.0:
 - [Phase 17]: Mermaid diagrams use DS_HEX colors (not ANSI) — Mermaid renders as SVG
 - [Phase 17]: MCP visualize routed as data_room subcommands to keep tool count at 6
 - [Phase 18]: Catalog order determines suggestion priority (Brain > Velma > Obsidian > Notion > Meeting source)
+- [Phase 19]: @ig3/markdown-it-wikilinks@1.0.2 (plan specified 1.1.0 which does not exist)
+- [Phase 19]: Dark/light mode toggle in header with localStorage persistence (Jonathan mandatory directive)
+- [Phase 19]: Rebuild room index on each page request for development convenience (Plan 03 adds file watcher)
+- [Phase 19]: Express 5.x for modern async error handling
 
 ### Pending Todos
 
@@ -155,6 +160,6 @@ Recent decisions affecting v3.0:
 
 ## Session Continuity
 
-Last session: 2026-03-25T23:25:08.798Z
-Stopped at: Completed 18-01-PLAN.md
+Last session: 2026-03-25T23:28:24Z
+Stopped at: Completed 19-01-PLAN.md -- Wiki server foundation, markdown pipeline, De Stijl layout
 Resume file: None

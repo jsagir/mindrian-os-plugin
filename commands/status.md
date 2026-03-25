@@ -87,15 +87,31 @@ Pull the suggested action from STATE.md. Reframe it in Larry's voice as one spec
 
 > "Here's what I'd focus on next: [specific action]. Want to work on that, or is there something else on your mind?"
 
-### Brain Status
+### Integration Status
 
-Always show Brain connection status:
+Run integration detection to discover what's connected:
 
-> "Brain: not connected (using local references)"
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/bin/mindrian-tools.cjs" detect-integrations
+```
 
-This is a status indicator, not a sales pitch. One line. If Brain were connected, it would say:
+Display the results as a table:
 
-> "Brain: connected -- enhanced framework suggestions active"
+| Integration | Status | Setup |
+|-------------|--------|-------|
+| Brain       | Connected / Not configured | `/mos:setup brain` |
+| Velma       | Connected / Not configured | `/mos:setup transcription` |
+| Meetings    | Connected (provider) / Not configured | `/mos:setup meetings` |
+| Obsidian    | Detected / Not available | Coming soon |
+| Notion      | Not configured | Coming soon |
+
+Frame the status conversationally based on how many integrations are connected:
+
+- **0 connected:** "Running on local power only. Everything works -- integrations just make me sharper."
+- **1-2 connected:** "Brain's connected -- that's where the real intelligence comes from. [Others] available if you need them."
+- **3+ connected:** "Fully loaded. All the intelligence pipelines are active."
+
+This replaces the old Brain-only status. Brain is now one row in the integration table.
 
 ## Voice Rules
 
