@@ -167,10 +167,28 @@ Plans:
 - [ ] 16-02-PLAN.md — CLI routing, MCP tool router integration, LazyGraph REASONING_INFORMS edge type
 - [ ] 16-03-PLAN.md — MCP resources (reasoning://), MCP prompt, /mos:reason command docs, schema reference
 
+### Phase 17: Visual Identity — De Stijl CLI
+**Goal**: MindrianOS has a visually distinctive CLI experience — De Stijl symbolism, Unicode diagrams, ASCII charts, Mermaid in artifacts, color-coded edge types, venture stage indicators
+**Depends on**: Phase 16 (reasoning traces reference visual vocabulary), Phase 15 (graph edges need visual encoding)
+**Requirements**: VIS-01, VIS-02, VIS-03, VIS-04, VIS-05
+**Dual delivery**: CLI output + Mermaid in .md files + browser dashboard
+**Success Criteria** (what must be TRUE):
+  1. MindrianOS symbol system (⬡ brand, ◌◎◉◆★ stages, →⊗⊕▶⊘ edges) used consistently across all commands, statusline, and traces
+  2. Room structure visualized as Unicode box diagram showing sections, gaps, and cross-references
+  3. ASCII sparklines/charts in compute-state and analyze-room output (asciichart)
+  4. Mermaid diagram blocks embedded in room artifacts (.md files render in GitHub/Obsidian)
+  5. /mos:visualize command generates rich diagrams (room flowchart, graph view, framework chain) and opens in browser
+**Plans**: 3 plans
+
+Plans:
+- [ ] 17-01-PLAN.md — Symbol system module (visual-ops.cjs), De Stijl color palette, statusline enhancement
+- [ ] 17-02-PLAN.md — Unicode room diagram + ASCII sparklines in compute-state and analyze-room
+- [ ] 17-03-PLAN.md — Mermaid diagram generators, render-viz script, /mos:visualize command + CLI/MCP wiring
+
 ## Progress
 
 **Execution Order:**
-Phases 11 and 12 can run in parallel after Phase 10 completes. Phase 13 requires Phase 10. Phase 14 requires Phase 13. Phase 16 requires Phase 15.
+Phases 11 and 12 can run in parallel after Phase 10 completes. Phase 13 requires Phase 10. Phase 14 requires Phase 13. Phase 16 requires Phase 15. Phase 17 requires Phase 16.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
