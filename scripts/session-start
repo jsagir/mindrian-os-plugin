@@ -76,6 +76,14 @@ if [ -d "$ROOM_DIR" ]; then
     context="${context}\n\n${CTX_BUDGET}"
   fi
 
+  # Detect integrations
+  INTEG_OUTPUT=$(node "${PLUGIN_ROOT}/bin/mindrian-tools.cjs" detect-integrations 2>/dev/null || echo "{}")
+  INTEG_COUNT=$(echo "$INTEG_OUTPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(sum(1 for v in d.values() if v.get('status')=='connected'))" 2>/dev/null || echo "0")
+
+  if [ "$INTEG_COUNT" -gt 0 ]; then
+    context="${context}\n\nIntegrations: ${INTEG_COUNT} connected"
+  fi
+
   # Track session analytics
   bash "${SCRIPT_DIR}/track-analytics" session-start 2>/dev/null &
 

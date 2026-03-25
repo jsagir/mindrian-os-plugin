@@ -54,7 +54,8 @@ Commands:
   visualize room [roomDir]       Generate room structure Mermaid diagram
   visualize graph [roomDir]      Generate knowledge graph Mermaid diagram
   visualize chain [roomDir]      Generate methodology chain Mermaid diagram
-  visualize mermaid [roomDir] [type]  Output raw Mermaid syntax to stdout`;
+  visualize mermaid [roomDir] [type]  Output raw Mermaid syntax to stdout
+  detect-integrations                Detect all integration statuses (env, MCP, filesystem)`;
 
 async function main() {
   const argv = process.argv.slice(2);
@@ -511,6 +512,13 @@ async function main() {
         default:
           error(`Unknown visualize subcommand: ${vizType}\n\nValid: room, graph, chain, mermaid`);
       }
+      break;
+    }
+
+    case 'detect-integrations': {
+      const integrationRegistry = require('../lib/core/integration-registry.cjs');
+      const result = integrationRegistry.detectIntegrations();
+      output(result, raw, JSON.stringify(result, null, 2));
       break;
     }
 
