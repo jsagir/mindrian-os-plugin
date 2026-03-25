@@ -11,7 +11,9 @@
     "@ig3/markdown-it-wikilinks": "^1.0.2",
     "@modelcontextprotocol/sdk": "^1.27.1",
     "asciichart": "^1.5.25",
+    "chokidar": "^4.0.3",
     "express": "^5.1.0",
+    "flexsearch": "^0.7.43",
     "gray-matter": "^4.0.3",
     "kuzu": "^0.11.3",
     "markdown-it": "^14.1.0"
