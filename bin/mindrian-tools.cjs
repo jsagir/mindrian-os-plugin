@@ -15,6 +15,7 @@ const meetingOps = require('../lib/core/meeting-ops.cjs');
 const graphOps = require('../lib/core/graph-ops.cjs');
 const opportunityOps = require('../lib/core/opportunity-ops.cjs');
 const personaOps = require('../lib/core/persona-ops.cjs');
+const reasoningOps = require('../lib/core/reasoning-ops.cjs');
 
 const USAGE = `Usage: mindrian-tools.cjs <command> <subcommand> [roomDir] [--raw]
 
@@ -42,7 +43,13 @@ Commands:
   persona generate [roomDir]       Generate 6 De Bono hat personas from room state
   persona list [roomDir]           List generated personas
   persona invoke [roomDir] [hat] [artifact]  Invoke a specific hat perspective
-  persona analyze [roomDir] [artifact]       Run all 6 perspectives on an artifact`;
+  persona analyze [roomDir] [artifact]       Run all 6 perspectives on an artifact
+  reasoning get [roomDir] [section]          Get REASONING.md for a section
+  reasoning generate [roomDir] [section]     Generate/regenerate REASONING.md
+  reasoning verify [roomDir] [section]       Check verification criteria
+  reasoning run [roomDir] [section]          Execute full methodology run
+  reasoning list [roomDir]                   Show all sections with reasoning status
+  reasoning frontmatter [roomDir] [json|section] [field]  Read/write reasoning frontmatter`;
 
 async function main() {
   const argv = process.argv.slice(2);
@@ -297,6 +304,77 @@ async function main() {
         }
         default:
           error(`Unknown persona subcommand: ${subcommand}\n\n${USAGE}`);
+      }
+      break;
+    }
+
+    case 'reasoning': {
+      switch (subcommand) {
+        case 'get': {
+          const section = argv[3];
+          if (!section) error('reasoning get requires a section name');
+          const result = reasoningOps.getReasoning(roomDir, section);
+          output(result, raw, JSON.stringify(result, null, 2));
+          break;
+        }
+        case 'generate': {
+          const section = argv[3] || null;
+          const result = reasoningOps.generateReasoning(roomDir, section);
+          output(result, raw, JSON.stringify(result, null, 2));
+          break;
+        }
+        case 'verify': {
+          const section = argv[3];
+          if (!section) error('reasoning verify requires a section name');
+          const result = reasoningOps.verifyReasoning(roomDir, section);
+          output(result, raw, JSON.stringify(result, null, 2));
+          break;
+        }
+        case 'run': {
+          const section = argv[3];
+          if (!section) error('reasoning run requires a section name');
+          const result = reasoningOps.createRun(roomDir, section);
+          output(result, raw, JSON.stringify(result, null, 2));
+          break;
+        }
+        case 'list': {
+          const result = reasoningOps.listReasoning(roomDir);
+          output(result, raw, JSON.stringify(result, null, 2));
+          break;
+        }
+        case 'frontmatter': {
+          const fmArg = argv[3];
+          if (!fmArg) error('reasoning frontmatter requires a section name or JSON argument');
+          // Try parsing as JSON first (for set/merge operations)
+          let parsed;
+          try {
+            parsed = JSON.parse(fmArg);
+          } catch (_e) {
+            // Not JSON — treat as section name, optional field in argv[4]
+            const result = reasoningOps.getReasoningFrontmatter(roomDir, fmArg, argv[4] || null);
+            output(result, raw, JSON.stringify(result, null, 2));
+            break;
+          }
+          // JSON parsed — route by action
+          const { action, section, field, value } = parsed;
+          let result;
+          switch (action) {
+            case 'set':
+              result = reasoningOps.setReasoningFrontmatter(roomDir, section, field, value);
+              break;
+            case 'merge':
+              result = reasoningOps.mergeReasoningFrontmatter(roomDir, section, parsed);
+              break;
+            case 'get':
+            default:
+              result = reasoningOps.getReasoningFrontmatter(roomDir, section, field || null);
+              break;
+          }
+          output(result, raw, JSON.stringify(result, null, 2));
+          break;
+        }
+        default:
+          error(`Unknown reasoning subcommand: ${subcommand}\n\n${USAGE}`);
       }
       break;
     }
