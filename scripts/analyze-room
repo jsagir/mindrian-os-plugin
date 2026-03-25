@@ -7,6 +7,7 @@
 set -euo pipefail
 
 ROOM_DIR="${1:-./room}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [ ! -d "$ROOM_DIR" ]; then
   echo "NO_ROOM"
@@ -256,6 +257,56 @@ done
 
 if ! $contradiction_found; then
   echo "No structural contradictions detected."
+fi
+
+echo ""
+
+# ═══════════════════════════════════════════════
+# Section 3b: Cross-Reference Edges (visual)
+# ═══════════════════════════════════════════════
+echo "## Cross-References"
+
+cross_ref_found=false
+for section in "${ALL_SECTIONS[@]}"; do
+  section_dir="${ROOM_DIR}/${section}"
+  [ -d "$section_dir" ] || continue
+
+  for f in "$section_dir"/*.md; do
+    [ -f "$f" ] || continue
+    fname=$(basename "$f")
+    [ "$fname" = "ROOM.md" ] || [ "$fname" = "STATE.md" ] && continue
+
+    for target in "${ALL_SECTIONS[@]}"; do
+      [ "$target" = "$section" ] && continue
+      if grep -qE "\[\[$target\]\]|room/$target" "$f" 2>/dev/null; then
+        cross_ref_found=true
+        # Format edge with visual-ops symbols (graceful degradation)
+        FORMATTED_EDGE=$(node -e "
+          const v = require('$SCRIPT_DIR/../lib/core/visual-ops.cjs');
+          console.log(v.formatEdge('$section', '$target', 'INFORMS'));
+        " 2>/dev/null || echo "$section INFORMS $target")
+        echo "EDGE:${section}:${target}:INFORMS:${FORMATTED_EDGE}"
+      fi
+    done
+
+    # Check for contradiction proximity terms
+    content=$(cat "$f" 2>/dev/null || true)
+    for target in "${ALL_SECTIONS[@]}"; do
+      [ "$target" = "$section" ] && continue
+      if echo "$content" | grep -iqE "contradict.*$target|conflict.*$target|inconsisten.*$target" 2>/dev/null; then
+        cross_ref_found=true
+        FORMATTED_EDGE=$(node -e "
+          const v = require('$SCRIPT_DIR/../lib/core/visual-ops.cjs');
+          console.log(v.formatEdge('$section', '$target', 'CONTRADICTS'));
+        " 2>/dev/null || echo "$section CONTRADICTS $target")
+        echo "EDGE:${section}:${target}:CONTRADICTS:${FORMATTED_EDGE}"
+      fi
+    done
+  done
+done
+
+if ! $cross_ref_found; then
+  echo "No cross-reference edges detected yet."
 fi
 
 echo ""

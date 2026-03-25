@@ -141,6 +141,35 @@ for section_dir in "$ROOM_DIR"/*/; do
   done
 done
 
+# ── Visual output generation (graceful degradation if visual-ops unavailable) ──
+SECTIONS_JSON="["
+for i in "${!section_names[@]}"; do
+  [ "$i" -gt 0 ] && SECTIONS_JSON+=","
+  SECTIONS_JSON+="{\"name\":\"${section_names[$i]}\",\"entryCount\":${section_entries[$i]},\"stage\":\"${venture_stage}\",\"edges\":[]}"
+done
+SECTIONS_JSON+="]"
+
+ENTRY_COUNTS_JSON="["
+for i in "${!section_entries[@]}"; do
+  [ "$i" -gt 0 ] && ENTRY_COUNTS_JSON+=","
+  ENTRY_COUNTS_JSON+="${section_entries[$i]}"
+done
+ENTRY_COUNTS_JSON+="]"
+
+# Generate room diagram (Unicode box layout)
+DIAGRAM=$(node -e "
+  const v = require('$SCRIPT_DIR/../lib/core/visual-ops.cjs');
+  const sections = JSON.parse(process.argv[1]);
+  console.log(v.renderRoomDiagram(sections, { useColor: true }));
+" "$SECTIONS_JSON" 2>/dev/null || echo "")
+
+# Generate sparkline of section completeness
+SPARKLINE=$(node -e "
+  const v = require('$SCRIPT_DIR/../lib/core/visual-ops.cjs');
+  const values = JSON.parse(process.argv[1]);
+  console.log(v.renderSparkline(values, { height: 4, label: 'Section Completeness' }));
+" "$ENTRY_COUNTS_JSON" 2>/dev/null || echo "")
+
 # Build output
 timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -152,13 +181,38 @@ total_entries: ${total_entries}
 ---
 # Data Room State
 
-## Sections
-| Section | Entries | Status | Last Updated |
-|---------|---------|--------|-------------|
 HEADER
 
+# Visual summary first (diagram + sparkline), then details
+if [ -n "$DIAGRAM" ]; then
+  echo "## Room Map"
+  echo ""
+  echo "$DIAGRAM"
+  echo ""
+fi
+
+if [ -n "$SPARKLINE" ]; then
+  echo "$SPARKLINE"
+  echo ""
+fi
+
+echo "## Sections"
+echo "| Section | Entries | Progress | Status | Last Updated |"
+echo "|---------|---------|----------|--------|-------------|"
+
+# Determine max entries for progress bar scaling
+max_entries=5
+for i in "${!section_entries[@]}"; do
+  [ "${section_entries[$i]}" -gt "$max_entries" ] && max_entries="${section_entries[$i]}"
+done
+
 for i in "${!section_names[@]}"; do
-  echo "| ${section_names[$i]} | ${section_entries[$i]} | ${section_statuses[$i]} | ${section_dates[$i]} |"
+  # Generate progress bar for each section
+  PROGRESS_BAR=$(node -e "
+    const v = require('$SCRIPT_DIR/../lib/core/visual-ops.cjs');
+    console.log(v.renderProgressBar(${section_entries[$i]}, ${max_entries}, 10));
+  " 2>/dev/null || echo "${section_entries[$i]}/${max_entries}")
+  echo "| ${section_names[$i]} | ${section_entries[$i]} | ${PROGRESS_BAR} | ${section_statuses[$i]} | ${section_dates[$i]} |"
 done
 
 echo ""
