@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-03-25
+
+### Added
+- **Opportunity Bank** (`/mos:opportunities`) — Context-driven grant discovery. Larry reads your room data (problem domain, geography, stage) and searches relevant grant sources. Confirm-first UX: opportunities presented for review before filing. Multi-factor relevance scoring.
+- **Funding Room** (`/mos:funding`) — 4-stage lifecycle tracking: Discovered > Researched > Applying > Submitted. Per-opportunity folders with STATUS.md, wikilink cross-references to opportunity-bank sources, deadline tracking with staleness detection.
+- **Opportunity Scanner Agent** — Proactive discovery agent that uses room intelligence to find relevant opportunities across Grants.gov, Simpler Grants, and web research.
+- **Opportunity Intelligence** — `analyze-room` now outputs opportunity-bank intelligence (status counts, top relevance scores, funding pipeline stages) alongside existing DD sections.
+- **`compute-opportunity-state`** — Pipeline computation script for opportunity and funding aggregation, integrates with compute-state chain.
+- **6 new MCP tools** — scan-opportunities, list-opportunities, file-opportunity, list-funding, create-funding, update-funding-stage. All registered in data_room hierarchical router.
+- **32 new test assertions** (105 total across full suite)
+
 ## [0.6.0] - 2026-03-25
 
 ### Changed
