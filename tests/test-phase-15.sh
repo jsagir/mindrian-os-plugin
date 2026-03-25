@@ -197,6 +197,51 @@ check "graphStats total_nodes=8" "T11:total_nodes=8"
 echo "[12] closeGraph"
 check "closeGraph" "T12:closed=true"
 
+# --- Tests 13-17: CLI Integration (Plan 15-02) ---
+echo ""
+echo "=== Phase 15-02: CLI + MCP Integration ==="
+
+echo "[13] CLI graph rebuild"
+CLI_REBUILD=$(node "$SCRIPT_DIR/bin/mindrian-tools.cjs" graph rebuild "$FIXTURE_DIR" --raw 2>&1 || true)
+if echo "$CLI_REBUILD" | grep -q '"success":true'; then
+  pass "CLI graph rebuild returns success"
+else
+  fail "CLI graph rebuild" "$CLI_REBUILD"
+fi
+
+echo "[14] CLI graph stats"
+CLI_STATS=$(node "$SCRIPT_DIR/bin/mindrian-tools.cjs" graph stats "$FIXTURE_DIR" --raw 2>&1 || true)
+if echo "$CLI_STATS" | grep -q '"Artifact":5'; then
+  pass "CLI graph stats returns 5 artifacts"
+else
+  fail "CLI graph stats" "$CLI_STATS"
+fi
+
+echo "[15] CLI graph query"
+CLI_QUERY=$(node "$SCRIPT_DIR/bin/mindrian-tools.cjs" graph query "$FIXTURE_DIR" "MATCH (a:Artifact) RETURN a.id" --raw 2>&1 || true)
+if echo "$CLI_QUERY" | grep -q '"count":5'; then
+  pass "CLI graph query returns 5 rows"
+else
+  fail "CLI graph query" "$CLI_QUERY"
+fi
+
+echo "[16] Parity: graph commands in ALL_TOOL_COMMANDS"
+PARITY_CHECK=$(grep -c "graph" "$SCRIPT_DIR/lib/mcp/tool-router.cjs" || true)
+if [ "$PARITY_CHECK" -ge 4 ]; then
+  pass "graph commands appear in tool-router ($PARITY_CHECK references)"
+else
+  fail "parity check" "only $PARITY_CHECK graph references in tool-router"
+fi
+
+echo "[17] Parity: 4 new graph commands in DATA_ROOM_COMMANDS"
+for cmd in graph-index graph-rebuild graph-query graph-stats; do
+  if grep -q "'$cmd'" "$SCRIPT_DIR/lib/mcp/tool-router.cjs"; then
+    pass "DATA_ROOM_COMMANDS has $cmd"
+  else
+    fail "DATA_ROOM_COMMANDS missing $cmd" "not found in tool-router.cjs"
+  fi
+done
+
 echo ""
 echo "=== Results: $PASS passed, $FAIL failed ==="
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1
