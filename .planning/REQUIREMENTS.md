@@ -70,6 +70,14 @@ Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap pha
 - [x] **REASON-04**: Reasoning visualization works across CLI (blockquote traces), Desktop (MCP prompts), and Cowork (shared state) — showing logical flow in natural terms
 - [x] **REASON-05**: mindrian-tools.cjs provides programmatic frontmatter read/write for reasoning files (learned from gsd-tools.cjs patterns)
 
+### Visual Identity
+
+- [x] **VIS-01**: MindrianOS symbol system (⬡ brand, ◌◎◉◆★ stages, →⊗⊕▶⊘ edges) used consistently across all commands, statusline, and traces
+- [ ] **VIS-02**: Room structure visualized as Unicode box diagram showing sections, gaps, and cross-references in compute-state output
+- [ ] **VIS-03**: ASCII sparklines and charts in compute-state and analyze-room output (asciichart npm)
+- [ ] **VIS-04**: Mermaid diagram blocks embedded in room artifacts (.md files auto-render in GitHub/Obsidian/Notion)
+- [ ] **VIS-05**: /mos:visualize command generates rich diagrams (room flowchart, graph view, framework chain) and opens in browser
+
 ## v4.0 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
