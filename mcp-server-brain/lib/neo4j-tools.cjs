@@ -31,11 +31,9 @@ function registerNeo4jTools(server) {
     async () => {
       const session = getDriver().session({ defaultAccessMode: neo4j.session.READ });
       try {
-        const [labelsResult, relTypesResult, propKeysResult] = await Promise.all([
-          session.run('CALL db.labels()'),
-          session.run('CALL db.relationshipTypes()'),
-          session.run('CALL db.propertyKeys()'),
-        ]);
+        const labelsResult = await session.run('CALL db.labels()');
+        const relTypesResult = await session.run('CALL db.relationshipTypes()');
+        const propKeysResult = await session.run('CALL db.propertyKeys()');
 
         const schema = {
           labels: labelsResult.records.map(r => r.get('label')),

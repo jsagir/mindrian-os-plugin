@@ -37,7 +37,7 @@ function registerPineconeTools(server) {
       try {
         const index = namespace
           ? getClient().index(indexName).namespace(namespace)
-          : getClient().index(indexName);
+          : getClient().index(indexName).namespace('core');
         const searchParams = {
           query: { topK: topK || 5, inputs: { text: query } },
         };

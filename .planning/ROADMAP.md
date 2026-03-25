@@ -45,6 +45,7 @@ See: `.planning/milestones/v2.0-ROADMAP.md`
 - [x] **Phase 13: Opportunity Bank + Funding Room** - Add grant discovery and funding lifecycle sections to the Data Room (completed 2026-03-25)
 - [x] **Phase 14: AI Team Personas** - Generate domain expert perspectives from room intelligence using De Bono framework (completed 2026-03-25)
 - [x] **Phase 15: User Knowledge Graph** - Per-project queryable LazyGraph using KuzuDB (embedded) for inter-room relationships + Pinecone semantic search (completed 2026-03-25)
+- [ ] **Phase 16: Reasoning Engine** - Per-section reasoning files + autonomous methodology orchestration + persistent chain-of-thought across all platforms
 
 ## Phase Details
 
@@ -148,10 +149,28 @@ Plans:
 - [ ] 15-02-PLAN.md — CLI routing, hook integration, MCP tool registration, NL query wiring
 - [ ] 15-03-PLAN.md — Pinecone Tier 2 stub, /mos:query command docs, schema reference
 
+### Phase 16: Reasoning Engine
+**Goal**: MindrianOS captures, persists, and visualizes its critical thinking per room section — with autonomous methodology orchestration and chain-of-thought across all platforms
+**Depends on**: Phase 15 (LazyGraph for graph edges), Phase 14 (Personas reference reasoning)
+**Requirements**: REASON-01, REASON-02, REASON-03, REASON-04, REASON-05
+**Dual delivery**: CLI commands + MCP tools for every capability
+**Success Criteria** (what must be TRUE):
+  1. Each room section can have a REASONING.md with Minto/MECE structured analysis, frontmatter dependency graph, and goal-backward verification
+  2. Larry autonomously chains methodology tools in sequence (diagnose -> framework -> apply -> file -> cross-ref -> graph-update) captured as run artifacts
+  3. Chain-of-thought is SAVED as .reasoning/ artifacts, not just displayed — future sessions read them
+  4. Reasoning visualization works across CLI (blockquotes), Desktop (MCP prompts), and Cowork (shared state)
+  5. All reasoning operations work identically via CLI commands and MCP tools
+**Plans**: 3 plans
+
+Plans:
+- [ ] 16-01-PLAN.md — Core reasoning-ops.cjs module, reference templates, test fixtures, test suite
+- [ ] 16-02-PLAN.md — CLI routing, MCP tool router integration, LazyGraph REASONING_INFORMS edge type
+- [ ] 16-03-PLAN.md — MCP resources (reasoning://), MCP prompt, /mos:reason command docs, schema reference
+
 ## Progress
 
 **Execution Order:**
-Phases 11 and 12 can run in parallel after Phase 10 completes. Phase 13 requires Phase 10. Phase 14 requires Phase 13.
+Phases 11 and 12 can run in parallel after Phase 10 completes. Phase 13 requires Phase 10. Phase 14 requires Phase 13. Phase 16 requires Phase 15.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
