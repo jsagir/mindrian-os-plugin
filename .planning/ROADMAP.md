@@ -210,7 +210,12 @@ Plans:
   4. Full-text search across all room pages with instant results
   5. Auto-refreshes when room content changes (file watcher)
   6. De Stijl design with embedded Mermaid diagrams, images, and media
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 19-01-PLAN.md — Express wiki server, markdown rendering pipeline, De Stijl layout, /mos:wiki command
+- [ ] 19-02-PLAN.md — KuzuDB graph integration: hyperlinks from edges, backlinks, "See also", graph view page
+- [ ] 19-03-PLAN.md — FlexSearch full-text search, chat panel (stub), chokidar auto-refresh, Mermaid/media rendering
 
 ## Progress
 
