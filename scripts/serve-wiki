@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# serve-wiki: Launch localhost wiki dashboard for the Data Room
+# Starts Express server, opens browser (WSL-aware), stays alive until Ctrl+C
+
+set -euo pipefail
+
+ROOM_DIR="${ROOM_DIR:-./room}"
+PREFERRED_PORT="${1:-8421}"
+MAX_PORT=8430
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# ── Step 1: Find available port ──
+find_port() {
+  local port="$1"
+  local max="$2"
+  while [ "$port" -le "$max" ]; do
+    if python3 -c "import socket; s=socket.socket(); s.bind(('',${port})); s.close()" 2>/dev/null; then
+      echo "$port"
+      return 0
+    fi
+    port=$((port + 1))
+  done
+  return 1
+}
+
+PORT=$(find_port "$PREFERRED_PORT" "$MAX_PORT")
+if [ -z "$PORT" ]; then
+  echo "ERROR: No available port in range ${PREFERRED_PORT}-${MAX_PORT}"
+  exit 1
+fi
+
+# ── Step 2: Start wiki server in background ──
+SERVER_PID=""
+cleanup() {
+  if [ -n "$SERVER_PID" ] && kill -0 "$SERVER_PID" 2>/dev/null; then
+    kill "$SERVER_PID" 2>/dev/null || true
+    wait "$SERVER_PID" 2>/dev/null || true
+  fi
+  echo ""
+  echo "Wiki stopped."
+}
+trap cleanup EXIT INT TERM
+
+node "${SCRIPT_DIR}/../lib/wiki/wiki-server.cjs" "$ROOM_DIR" "$PORT" &
+SERVER_PID=$!
+
+# Brief pause to let server start
+sleep 0.5
+
+# Verify server started
+if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+  echo "ERROR: Failed to start wiki server on port ${PORT}"
+  exit 1
+fi
+
+# ── Step 3: Open browser (cross-platform) ──
+URL="http://localhost:${PORT}/wiki"
+
+open_browser() {
+  local url="$1"
+  if grep -qi microsoft /proc/version 2>/dev/null; then
+    # WSL: use Windows browser
+    cmd.exe /c start "" "$url" 2>/dev/null || true
+  elif [ "$(uname)" = "Darwin" ]; then
+    open "$url" 2>/dev/null || true
+  elif command -v xdg-open >/dev/null 2>&1; then
+    xdg-open "$url" >/dev/null 2>&1 &
+  else
+    echo "Open ${url} in your browser"
+  fi
+}
+
+open_browser "$URL"
+
+# ── Step 4: Print status ──
+echo ""
+echo "Wiki running at ${URL} (PID: ${SERVER_PID})"
+echo "Press Ctrl+C to stop"
+echo ""
+
+# ── Step 5: Wait for server process ──
+wait "$SERVER_PID"
