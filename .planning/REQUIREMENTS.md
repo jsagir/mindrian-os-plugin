@@ -82,7 +82,7 @@ Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap pha
 
 - [x] **INTEG-01**: Larry detects when Brain, Obsidian, Notion, Velma, or meeting sources would enhance the current task and offers setup conversationally
 - [x] **INTEG-02**: Integration detection is non-blocking — offers, never forces, never interrupts methodology sessions
-- [ ] **INTEG-03**: Integration status visible in /mos:status output and statusline (connected/available/not configured)
+- [x] **INTEG-03**: Integration status visible in /mos:status output and statusline (connected/available/not configured)
 
 ### Wikipedia Data Room Dashboard
 
