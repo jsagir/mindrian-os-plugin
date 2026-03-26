@@ -1,155 +1,80 @@
-# Requirements: MindrianOS Plugin v3.0
+# Requirements -- v4.0 Brain API Control & CLI UI Ruling System
 
-**Defined:** 2026-03-24
-**Core Value:** Users can run the full PWS methodology inside Claude Code with zero infrastructure, where Larry guides them through venture innovation.
-
-## v3.0 Requirements
-
-Requirements for MCP Platform & Intelligence Expansion. Each maps to roadmap phases.
-
-### Shared Core
-
-- [x] **CORE-01**: Plugin operations accessible via `mindrian-tools.cjs` single entry point callable by both CLI commands and MCP tools
-- [x] **CORE-02**: Room sections auto-discovered dynamically (no hardcoded section list) — new sections like opportunity-bank/ and funding/ register automatically
-- [x] **CORE-03**: Parity matrix validates every CLI command has a corresponding MCP tool, checked in CI
-
-### MCP Server
-
-- [x] **MCP-01**: MCP server exposes all plugin capabilities via hierarchical tool router (5-8 high-level tools grouping 41+ commands)
-- [x] **MCP-02**: Room state, sections, and artifacts accessible as MCP Resources (read-only browsing without tool calls)
-- [x] **MCP-03**: Common methodology workflows available as MCP Prompts (file meeting, run analysis, grade venture)
-- [x] **MCP-04**: MCP server runs via stdio transport, configurable in claude_desktop_config.json with one line
-- [x] **MCP-05**: Larry personality and teaching mode active in MCP context (same experience as CLI)
-
-### Room Collaboration
-
-- [x] **COLLAB-01**: MCP server accesses local room via configurable `MINDRIAN_ROOM` env var
-- [ ] ~~**COLLAB-02**: Room state syncable to git repo for team collaboration~~ **(DEFERRED to v4.0 — room stays local for v3.0)**
-- [ ] ~~**COLLAB-03**: Git sync handles STATE.md merge conflicts gracefully~~ **(DEFERRED to v4.0)**
-
-### Brain Hosting
-
-- [x] **BRAIN-01**: Brain MCP server deployed as remote service at brain.mindrian.ai
-- [x] **BRAIN-02**: Desktop/Cowork users can connect to Brain via MCP config (same as CLI users)
-- [x] **BRAIN-03**: Brain access gated by API key for paid tier subscribers
-
-### Opportunity Bank
-
-- [x] **OPP-01**: New room/opportunity-bank/ section with ICM-standard filing, frontmatter, and cross-references
-- [x] **OPP-02**: Proactive grant scanning via Grants.gov REST API surfaces relevant opportunities based on room intelligence
-- [x] **OPP-03**: Discovered opportunities filed as room artifacts with relevance scoring and source provenance
-- [x] **OPP-04**: Opportunity Bank integrated into compute-state and analyze-room intelligence pipeline
-
-### Funding Room
-
-- [x] **FUND-01**: New room/funding/ section with sub-rooms for non-dilutive, dilutive, and grants
-- [x] **FUND-02**: Per-grant folders with lifecycle stages: Discovered > Researched > Applying > Submitted > Awarded/Rejected
-- [x] **FUND-03**: Grant progress tracked in section STATE.md with deadlines, status, and next actions
-- [x] **FUND-04**: Cross-references between funding entries and opportunity-bank sources
-
-### AI Team Personas
-
-- [x] **PERS-01**: Domain expert personas generated from room intelligence as structured markdown in team/ folder
-- [x] **PERS-02**: Six Thinking Hats (De Bono) mapped to generated personas — each argues from a specific perspective
-- [x] **PERS-03**: Larry can invoke personas for multi-perspective analysis on any room artifact
-- [x] **PERS-04**: Personas labeled as "perspective lenses" with disclaimers, never positioned as expert advisors
-
-### User Knowledge Graph
-
-- [x] **GRAPH-01**: Room artifacts automatically indexed as KuzuDB nodes (embedded, one DB per project in room/.lazygraph/)
-- [x] **GRAPH-02**: Cross-references (INFORMS, CONTRADICTS, CONVERGES, ENABLES, INVALIDATES) stored as typed edges
-- [x] **GRAPH-03**: User can query their project graph via /mos:query with natural language (Larry translates to Cypher)
-- [x] **GRAPH-04**: Room artifacts embedded in user-owned Pinecone index for semantic search (optional Tier 2)
-- [x] **GRAPH-05**: Graph auto-updates when new artifacts are filed (hook-driven)
-
-### Reasoning Engine
-
-- [x] **REASON-01**: Each room section generates a REASONING.md with Minto/MECE structured analysis, frontmatter dependency graph (requires/provides/affects), and goal-backward verification
-- [x] **REASON-02**: Larry autonomously chains methodology tools in sequences (diagnose → framework → apply → file → cross-reference → graph-update) captured as methodology run artifacts
-- [x] **REASON-03**: Chain-of-thought is persisted as .reasoning/ artifacts that future sessions read to understand section state
-- [x] **REASON-04**: Reasoning visualization works across CLI (blockquote traces), Desktop (MCP prompts), and Cowork (shared state) — showing logical flow in natural terms
-- [x] **REASON-05**: mindrian-tools.cjs provides programmatic frontmatter read/write for reasoning files (learned from gsd-tools.cjs patterns)
-
-### Visual Identity
-
-- [x] **VIS-01**: MindrianOS symbol system (⬡ brand, ◌◎◉◆★ stages, →⊗⊕▶⊘ edges) used consistently across all commands, statusline, and traces
-- [x] **VIS-02**: Room structure visualized as Unicode box diagram showing sections, gaps, and cross-references in compute-state output
-- [x] **VIS-03**: ASCII sparklines and charts in compute-state and analyze-room output (asciichart npm)
-- [x] **VIS-04**: Mermaid diagram blocks embedded in room artifacts (.md files auto-render in GitHub/Obsidian/Notion)
-- [x] **VIS-05**: /mos:visualize command generates rich diagrams (room flowchart, graph view, framework chain) and opens in browser
-
-### Dynamic Integration Prompting
-
-- [x] **INTEG-01**: Larry detects when Brain, Obsidian, Notion, Velma, or meeting sources would enhance the current task and offers setup conversationally
-- [x] **INTEG-02**: Integration detection is non-blocking — offers, never forces, never interrupts methodology sessions
-- [x] **INTEG-03**: Integration status visible in /mos:status output and statusline (connected/available/not configured)
-
-### Wikipedia Data Room Dashboard
-
-- [x] **WIKI-01**: Every room section renders as a Wikipedia-style page with TOC, infobox from frontmatter, and content rendered from .md files
-- [x] **WIKI-02**: KuzuDB relationships become clickable hyperlinks (INFORMS → navigate, CONTRADICTS → red warning link, CONVERGES → grouped "See also")
-- [x] **WIKI-03**: Chat interface scoped to current page — user talks to the Data Room through Larry
-- [x] **WIKI-04**: Full-text search across all room pages with instant results (flexsearch)
-- [x] **WIKI-05**: Auto-refreshes when room content changes, De Stijl design, embedded Mermaid/images/media
+**Defined:** 2026-03-26
+**Core Value:** Protect the moat (Brain API access control) and establish the visual grammar for all MindrianOS terminal interactions.
 
 ## v4.0 Requirements
 
-Deferred to future release. Tracked but not in current roadmap.
+### Brain API Control
+- [ ] **BRAIN-01**: Admin can create time-limited API keys for Brain access via CLI command
+- [ ] **BRAIN-02**: Admin can revoke, extend, and list active Brain keys
+- [ ] **BRAIN-03**: Supabase `brain_api_keys` table with expiry, usage tracking, plan tier
+- [ ] **BRAIN-04**: `brain_write` tool blocked for non-admin API keys
+- [ ] **BRAIN-05**: Email notification sent to admin when new access is requested
+- [ ] **BRAIN-06**: Supabase credentials wired into Render for production auth
 
-### Ecosystem & Surfaces
-- **OBS-01**: Obsidian Plugin (room/ as Obsidian vault with graph view)
-- **CHROME-01**: Chrome Plugin for meeting join + room access
-- **STATUS-01**: Data Room level status bar (CLI nested room/section context)
-- **COMPAT-01**: Cursor + Windsurf compatibility via ICM universal interface
-- **SITE-01**: Blog posts (Risk vs Uncertainty) + site style guide + generated images
+### Admin Panel
+- [ ] **ADMIN-01**: `/mos:admin` command hidden from non-admin users (not locked -- invisible)
+- [ ] **ADMIN-02**: Admin panel self-teaches on every invocation (explains what each action does before executing)
+- [ ] **ADMIN-03**: Every destructive action shows consequences and requires confirmation
 
-## Out of Scope
+### CLI UI Ruling System
+- [ ] **UI-01**: `skills/ui-system/SKILL.md` auto-loaded on every session with full rendering rules
+- [ ] **UI-02**: 4-zone output anatomy enforced (header, body, intelligence strip, footer)
+- [ ] **UI-03**: 5 body shapes implemented (Mondrian board, semantic tree, room card, document view, action report)
+- [ ] **UI-04**: Symbol vocabulary (12 glyphs) and color contract (5 ANSI colors) codified
+- [ ] **UI-05**: Session start contract (cold/warm/signals) with max 2 signals in greeting
+- [ ] **UI-06**: Cross-surface adaptation rules (CLI -> Desktop -> Cowork)
+- [ ] **UI-07**: Dual context per folder -- STATE.md + MINTO.md both read before routing
 
-| Feature | Reason |
-|---------|--------|
-| Streamable HTTP transport (remote MCP) | MCP session state spec still evolving (2026 roadmap item). Ship stdio-only, defer remote to v3.x+ |
-| Full CRM/grant management system | Opportunity Bank and Funding Room are room sections with intelligence, not workflow engines |
-| Candid Grants API (paid) | Start with free Grants.gov. Add Candid when adoption justifies cost |
-| Autonomous persona agents | Personas are stateless perspective lenses, not autonomous agents. Larry orchestrates. |
-| Real-time collaborative editing | Git sync provides async collaboration. Real-time deferred to v4.0+ |
-| Flat 41-tool MCP surface | Research proved this consumes 30-60K tokens. Hierarchical router is mandatory. |
+### Multi-Room
+- [ ] **ROOM-01**: `.rooms/registry.json` with room index and active room tracking
+- [ ] **ROOM-02**: `/mos:rooms` command (list, new, open, close, archive, where)
+- [ ] **ROOM-03**: Context safety -- active room lock on all file-writing commands
+- [ ] **ROOM-04**: Header canary -- room name always visible in Zone 1
+- [ ] **ROOM-05**: Session start shows multi-room context when multiple rooms registered
+
+### Autonomous Engine
+- [ ] **ACT-01**: `/mos:act` reads room STATE.md + MINTO.md, selects framework via Brain (local fallback)
+- [ ] **ACT-02**: Framework execution via subagent (`agents/framework-runner.md`, isolated context)
+- [ ] **ACT-03**: Thinking trace displayed before any action
+- [ ] **ACT-04**: `--chain` mode chains 3-5 frameworks, each feeds the next via output contract
+- [ ] **ACT-05**: `--dry-run` previews without executing
 
 ## Traceability
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| CORE-01 | Phase 10 | Complete |
-| CORE-02 | Phase 10 | Complete |
-| CORE-03 | Phase 11 | Complete |
-| MCP-01 | Phase 11 | Complete |
-| MCP-02 | Phase 11 | Complete |
-| MCP-03 | Phase 11 | Complete |
-| MCP-04 | Phase 11 | Complete |
-| MCP-05 | Phase 11 | Complete |
-| COLLAB-01 | Phase 11 | Complete |
-| COLLAB-02 | Phase 12 | Pending |
-| COLLAB-03 | Phase 12 | Pending |
-| BRAIN-01 | Phase 12 | Complete |
-| BRAIN-02 | Phase 12 | Complete |
-| BRAIN-03 | Phase 12 | Complete |
-| OPP-01 | Phase 13 | Complete |
-| OPP-02 | Phase 13 | Complete |
-| OPP-03 | Phase 13 | Complete |
-| OPP-04 | Phase 13 | Complete |
-| FUND-01 | Phase 13 | Complete |
-| FUND-02 | Phase 13 | Complete |
-| FUND-03 | Phase 13 | Complete |
-| FUND-04 | Phase 13 | Complete |
-| PERS-01 | Phase 14 | Complete |
-| PERS-02 | Phase 14 | Complete |
-| PERS-03 | Phase 14 | Complete |
-| PERS-04 | Phase 14 | Complete |
+| REQ-ID | Phase | Status |
+|--------|-------|--------|
+| BRAIN-01 | Phase 20 | Pending |
+| BRAIN-02 | Phase 20 | Pending |
+| BRAIN-03 | Phase 20 | Pending |
+| BRAIN-04 | Phase 20 | Pending |
+| BRAIN-05 | Phase 20 | Pending |
+| BRAIN-06 | Phase 20 | Pending |
+| UI-01 | Phase 21 | Pending |
+| UI-02 | Phase 21 | Pending |
+| UI-03 | Phase 21 | Pending |
+| UI-04 | Phase 21 | Pending |
+| UI-05 | Phase 21 | Pending |
+| UI-06 | Phase 21 | Pending |
+| UI-07 | Phase 21 | Pending |
+| ADMIN-01 | Phase 22 | Pending |
+| ADMIN-02 | Phase 22 | Pending |
+| ADMIN-03 | Phase 22 | Pending |
+| ROOM-01 | Phase 23 | Pending |
+| ROOM-02 | Phase 23 | Pending |
+| ROOM-03 | Phase 23 | Pending |
+| ROOM-04 | Phase 23 | Pending |
+| ROOM-05 | Phase 23 | Pending |
+| ACT-01 | Phase 24 | Pending |
+| ACT-02 | Phase 24 | Pending |
+| ACT-03 | Phase 24 | Pending |
+| ACT-04 | Phase 24 | Pending |
+| ACT-05 | Phase 24 | Pending |
 
-**Coverage:**
-- v3.0 requirements: 26 total
-- Mapped to phases: 26
-- Unmapped: 0
+## Out of Scope
 
----
-*Requirements defined: 2026-03-24*
-*Last updated: 2026-03-24 after roadmap creation*
+- Payment/billing integration -- handled externally via Stripe/marketplace
+- Brain graph editing by users -- users get intelligence, never modify
+- Mobile-specific UI -- Claude surfaces handle this
+- Real-time collaboration -- Cowork handles natively
