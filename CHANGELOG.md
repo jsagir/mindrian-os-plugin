@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-03-26
+
+### Added
+- **Per-page PDF download** — Every wiki page has a "PDF" button. De Stijl print layout with MindrianOS attribution.
+- **BYOAPI Chat** — Chat panel accepts user's own Anthropic or OpenAI API key. Context scoped per page, key stored in localStorage only. Supports Claude Sonnet and GPT-4o.
+- **Onboarding Tour** — 8-step guided walkthrough for first-time wiki users. Highlights each zone (header, sidebar, search, content, infobox, privacy). Skip available, never shows again.
+- **Wiki Export** — `/mos:wiki --export` generates static HTML for sharing on Render, Vercel, or as zip.
+- **CLI Action Buttons** — Wiki page buttons copy `/mos:` commands to clipboard for paste into Claude Code.
+- **Embedded Logo** — MindrianOS logo (SVG, base64) in header + footer of all generated HTML. Links to website.
+- **Privacy Disclaimer** — Footer on every page: "All data stored locally. MindrianOS does not access your venture data."
+- **Larry Wiki Awareness** — Larry mentions wiki after filing artifacts or running analysis (room-passive skill, once per session).
+
 ## [1.2.0] - 2026-03-26
 
 ### Added
