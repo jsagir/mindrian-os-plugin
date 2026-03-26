@@ -20,4 +20,8 @@ services:
         value: pws-brain
       - key: BRAIN_API_KEYS
         sync: false
+      - key: SUPABASE_URL
+        value: https://ulmymxxmvsehjiyymqoi.supabase.co
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
     autoDeploy: true

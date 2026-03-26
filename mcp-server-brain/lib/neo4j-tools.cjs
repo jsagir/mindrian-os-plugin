@@ -22,7 +22,8 @@ function getDriver() {
  * Uses db.labels() + db.relationshipTypes() + db.propertyKeys() instead of
  * apoc.meta.schema() which may not be available on Aura free tier.
  */
-function registerNeo4jTools(server) {
+function registerNeo4jTools(server, options = {}) {
+  const { plan } = options;
   // 1. brain_schema — returns labels, relationship types, property keys
   server.tool(
     'brain_schema',
@@ -81,6 +82,12 @@ function registerNeo4jTools(server) {
       params: z.record(z.any()).optional().describe('Query parameters'),
     },
     async ({ cypher, params }) => {
+      if (plan !== 'admin') {
+        return {
+          content: [{ type: 'text', text: 'Write access requires admin key. Contact Jonathan for elevated access.' }],
+          isError: true,
+        };
+      }
       const session = getDriver().session({ defaultAccessMode: neo4j.session.WRITE });
       try {
         const result = await session.run(cypher, params || {});

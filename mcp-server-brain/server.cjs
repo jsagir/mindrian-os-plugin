@@ -21,7 +21,7 @@ app.post('/mcp', async (req, res) => {
     version: '1.0.0',
   });
 
-  registerNeo4jTools(server);
+  registerNeo4jTools(server, { plan: req.brainPlan });
   registerPineconeTools(server);
   registerBrainAsk(server);
 
