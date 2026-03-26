@@ -147,7 +147,7 @@ Phase 20 and 21 can run in parallel. Phase 22 requires Phase 20. Phase 23 requir
 | 6-9 | v2.0 | 13/13 | Complete | 2026-03-24 |
 | 10-19 | v3.0 | 26/26 | Complete | 2026-03-25 |
 | 20. Brain API Control | v4.0 | 0/2 | Planned | - |
-| 21. CLI UI Ruling System | v4.0 | 0/TBD | Not started | - |
+| 21. CLI UI Ruling System | v4.0 | 1/2 | In progress | - |
 | 22. Admin Panel | v4.0 | 0/TBD | Not started | - |
 | 23. Multi-Room Management | v4.0 | 0/TBD | Not started | - |
 | 24. Autonomous Engine | v4.0 | 0/TBD | Not started | - |
