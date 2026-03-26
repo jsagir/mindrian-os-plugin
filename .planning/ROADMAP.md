@@ -92,8 +92,8 @@ Plans:
   4. Every folder with a STATE.md also has a MINTO.md, and both are read before routing decisions
 **Plans**: 2 plans
 Plans:
-- [ ] 21-01-PLAN.md -- UI ruling system SKILL.md + MINTO template + settings auto-load
-- [ ] 21-02-PLAN.md -- Retrofit status, room, help commands to 4-zone anatomy
+- [ ] 20-01-PLAN.md -- Supabase SQL schema + brain_write guard + render.yaml
+- [ ] 20-02-PLAN.md -- brain-admin.cjs CLI tool
 
 ### Phase 22: Admin Panel
 **Goal**: Jonathan has a hidden, self-teaching admin experience that re-explains itself every time and makes destructive actions safe through consequence previews
@@ -105,8 +105,8 @@ Plans:
   3. Any destructive action (revoke key, purge data) shows exactly what will happen and requires explicit confirmation before executing
 **Plans**: 2 plans
 Plans:
-- [ ] 22-01-PLAN.md -- TBD
-- [ ] 22-02-PLAN.md -- TBD
+- [ ] 20-01-PLAN.md -- Supabase SQL schema + brain_write guard + render.yaml
+- [ ] 20-02-PLAN.md -- brain-admin.cjs CLI tool
 
 ### Phase 23: Multi-Room Management
 **Goal**: Users can maintain multiple project rooms simultaneously with safe context switching -- the system always knows which room is active and prevents cross-contamination
@@ -119,8 +119,8 @@ Plans:
   4. The room name is always visible in the Zone 1 header (canary), and session start shows multi-room context when 2+ rooms are registered
 **Plans**: 2 plans
 Plans:
-- [ ] 23-01-PLAN.md -- TBD
-- [ ] 23-02-PLAN.md -- TBD
+- [ ] 20-01-PLAN.md -- Supabase SQL schema + brain_write guard + render.yaml
+- [ ] 20-02-PLAN.md -- brain-admin.cjs CLI tool
 
 ### Phase 24: Autonomous Engine
 **Goal**: Larry can autonomously select and execute methodology frameworks based on room state -- with full thinking transparency, subagent isolation, and the ability to chain multiple frameworks in sequence
@@ -133,8 +133,8 @@ Plans:
   4. Running /mos:act --dry-run shows the full execution plan (framework selection, reasoning, expected outputs) without executing anything
 **Plans**: 2 plans
 Plans:
-- [ ] 24-01-PLAN.md -- TBD
-- [ ] 24-02-PLAN.md -- TBD
+- [ ] 20-01-PLAN.md -- Supabase SQL schema + brain_write guard + render.yaml
+- [ ] 20-02-PLAN.md -- brain-admin.cjs CLI tool
 
 ## Progress
 
@@ -147,7 +147,7 @@ Phase 20 and 21 can run in parallel. Phase 22 requires Phase 20. Phase 23 requir
 | 6-9 | v2.0 | 13/13 | Complete | 2026-03-24 |
 | 10-19 | v3.0 | 26/26 | Complete | 2026-03-25 |
 | 20. Brain API Control | v4.0 | 0/2 | Planned | - |
-| 21. CLI UI Ruling System | v4.0 | 0/2 | Planned | - |
+| 21. CLI UI Ruling System | v4.0 | 1/2 | In progress | - |
 | 22. Admin Panel | v4.0 | 0/TBD | Not started | - |
 | 23. Multi-Room Management | v4.0 | 0/TBD | Not started | - |
 | 24. Autonomous Engine | v4.0 | 0/TBD | Not started | - |

@@ -1,5 +1,14 @@
 {
   "agent": "larry-extended",
+  "skills": [
+    "larry-personality",
+    "room-passive",
+    "room-proactive",
+    "context-engine",
+    "brain-connector",
+    "pws-methodology",
+    "ui-system"
+  ],
   "statusline": {
     "command": "${CLAUDE_PLUGIN_ROOT}/scripts/context-monitor"
   }
