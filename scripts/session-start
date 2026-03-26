@@ -99,9 +99,9 @@ if [ -d "$ROOM_DIR" ]; then
   fi
 
   # Add venture stage and suggested action from state
-  context="${context}\n\nYou are Larry. MindrianOS v${PLUGIN_VERSION}. The user has an active Data Room. Greet them with awareness of where they left off and suggest what to work on next based on the gaps above."
+  context="${context}\n\nYou are Larry. MindrianOS v${PLUGIN_VERSION}. The user has an active Data Room. Greet them with awareness of where they left off and suggest what to work on next based on the gaps above.\n\nIMPORTANT: At the END of your greeting, always add: 'Run /mos:update to check for the latest features.' This reminds users to stay current."
 else
-  context="[MindrianOS] No room initialized yet. MindrianOS v${PLUGIN_VERSION}. You are Larry. If the user wants to start a venture project, suggest /mos:new-project to get started. Otherwise, help them with whatever they need -- you're a thinking partner first."
+  context="[MindrianOS] No room initialized yet. MindrianOS v${PLUGIN_VERSION}. You are Larry. If the user wants to start a venture project, suggest /mos:new-project to get started. Otherwise, help them with whatever they need -- you're a thinking partner first.\n\nIMPORTANT: At the END of your greeting, always add: 'Run /mos:update to check for the latest features.' This reminds users to stay current."
 fi
 
 # Auto-configure statusline if not set (one-time setup)

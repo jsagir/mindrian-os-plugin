@@ -129,14 +129,24 @@ process.stdin.on('end', () => {
       } catch (e) {}
     }
 
+    // --- Update check ---
+    let updateBadge = '';
+    try {
+      const updateCache = '/tmp/mindrian-update-check';
+      if (fs.existsSync(updateCache)) {
+        const lines = fs.readFileSync(updateCache, 'utf8').split('\n');
+        if (lines[1] && lines[1].trim() === 'UPDATE_AVAILABLE') {
+          updateBadge = `${visual.ANSI.yellow}\u2B06 /mos:update${visual.ANSI.reset} ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} `;
+        }
+      }
+    } catch (e) {}
+
     // --- Output ---
     if (roomInfo) {
-      // MindrianOS active: show room context + model + context bar
-      process.stdout.write(`${roomInfo} ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} ${visual.ANSI.dim}${model}${visual.ANSI.reset}${ctx}`);
+      process.stdout.write(`${updateBadge}${roomInfo} ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} ${visual.ANSI.dim}${model}${visual.ANSI.reset}${ctx}`);
     } else {
-      // No room: just model + directory + context
       const dirname = path.basename(dir);
-      process.stdout.write(`${visual.ANSI.dim}${model}${visual.ANSI.reset} ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} ${visual.ANSI.dim}${dirname}${visual.ANSI.reset}${ctx}`);
+      process.stdout.write(`${updateBadge}${visual.ANSI.dim}${model}${visual.ANSI.reset} ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} ${visual.ANSI.dim}${dirname}${visual.ANSI.reset}${ctx}`);
     }
   } catch (e) {
     // Silent fail
