@@ -2,232 +2,152 @@
 
 ## Milestones
 
-- ✅ **v1.0 MVP** — Phases 1-5 (shipped 2026-03-22)
-- ✅ **v2.0 Meeting Intelligence** — Phases 6-9 (shipped 2026-03-24)
-- 🚧 **v3.0 MCP Platform & Intelligence Expansion** — Phases 10-14
+- ✅ **v1.0 MVP** -- Phases 1-5 (shipped 2026-03-22)
+- ✅ **v2.0 Meeting Intelligence** -- Phases 6-9 (shipped 2026-03-24)
+- ✅ **v3.0 MCP Platform & Intelligence Expansion** -- Phases 10-19 (shipped 2026-03-25)
+- [ ] **v4.0 Brain API Control & CLI UI Ruling System** -- Phases 20-24 (in progress)
 
 ## Phases
 
 <details>
-<summary>✅ v1.0 MVP (Phases 1-5) — SHIPPED 2026-03-22</summary>
+<summary>v1.0 MVP (Phases 1-5) -- SHIPPED 2026-03-22</summary>
 
-- [x] Phase 1: Install and Larry Talks (3/3 plans) — 2026-03-20
-- [x] Phase 2: Core Methodologies (5/5 plans) — 2026-03-22
-- [x] Phase 3: Pipeline Chaining (2/2 plans) — 2026-03-22
-- [x] Phase 3.1: Data Room Dashboard (2/2 plans) — 2026-03-22
-- [x] Phase 3.2: Document Generation (2/2 plans) — 2026-03-22
-- [x] Phase 4: Brain MCP Toolbox (3/3 plans) — 2026-03-22
-- [x] Phase 5: Plugin Intelligence (3/3 plans) — 2026-03-22
+- [x] Phase 1: Install and Larry Talks (3/3 plans) -- 2026-03-20
+- [x] Phase 2: Core Methodologies (5/5 plans) -- 2026-03-22
+- [x] Phase 3: Pipeline Chaining (2/2 plans) -- 2026-03-22
+- [x] Phase 3.1: Data Room Dashboard (2/2 plans) -- 2026-03-22
+- [x] Phase 3.2: Document Generation (2/2 plans) -- 2026-03-22
+- [x] Phase 4: Brain MCP Toolbox (3/3 plans) -- 2026-03-22
+- [x] Phase 5: Plugin Intelligence (3/3 plans) -- 2026-03-22
 
 See: `.planning/milestones/v1.0-ROADMAP.md`
 
 </details>
 
 <details>
-<summary>✅ v2.0 Meeting Intelligence (Phases 6-9) — SHIPPED 2026-03-24</summary>
+<summary>v2.0 Meeting Intelligence (Phases 6-9) -- SHIPPED 2026-03-24</summary>
 
-- [x] Phase 6: Stage 1 Core Capability (4/4 plans) — 2026-03-23
-- [x] Phase 7: Team Room Structure (3/3 plans) — 2026-03-23
-- [x] Phase 8: Cross-Meeting Intelligence (3/3 plans) — 2026-03-24
-- [x] Phase 9: Meeting Knowledge Graph (3/3 plans) — 2026-03-24
+- [x] Phase 6: Stage 1 Core Capability (4/4 plans) -- 2026-03-23
+- [x] Phase 7: Team Room Structure (3/3 plans) -- 2026-03-23
+- [x] Phase 8: Cross-Meeting Intelligence (3/3 plans) -- 2026-03-24
+- [x] Phase 9: Meeting Knowledge Graph (3/3 plans) -- 2026-03-24
 
 See: `.planning/milestones/v2.0-ROADMAP.md`
 
 </details>
 
-### v3.0 MCP Platform & Intelligence Expansion
+<details>
+<summary>v3.0 MCP Platform & Intelligence Expansion (Phases 10-19) -- SHIPPED 2026-03-25</summary>
 
-**Milestone Goal:** Deliver MindrianOS as a dual-surface platform (CLI plugin + MCP server) so Desktop/Cowork users access all capabilities, then expand with Opportunity Bank, Funding Room, and AI Team Personas. **Every feature ships to both surfaces — no exceptions.**
+- [x] Phase 10: Shared Core + CLI Tools (2/2 plans) -- 2026-03-24
+- [x] Phase 11: MCP Server (3/3 plans) -- 2026-03-24
+- [x] Phase 12: Brain Hosting (2/2 plans) -- 2026-03-24
+- [x] Phase 13: Opportunity Bank + Funding Room (3/3 plans) -- 2026-03-25
+- [x] Phase 14: AI Team Personas (2/2 plans) -- 2026-03-25
+- [x] Phase 15: User Knowledge Graph (3/3 plans) -- 2026-03-25
+- [x] Phase 16: Reasoning Engine (3/3 plans) -- 2026-03-25
+- [x] Phase 17: Visual Identity -- De Stijl CLI (3/3 plans) -- 2026-03-25
+- [x] Phase 18: Dynamic Integration Prompting (2/2 plans) -- 2026-03-25
+- [x] Phase 19: Wikipedia Data Room Dashboard (3/3 plans) -- 2026-03-25
 
-- [x] **Phase 10: Shared Core + CLI Tools** - Extract mindrian-tools.cjs entry point and core modules that both CLI and MCP share (completed 2026-03-24)
-- [x] **Phase 11: MCP Server** - Expose all plugin capabilities to Desktop/Cowork via hierarchical MCP tools, resources, and prompts (completed 2026-03-24)
-- [x] **Phase 12: Brain Hosting** - Deploy Brain as remote MCP service on Render with API key auth (COLLAB-02/03 deferred to v4.0) (completed 2026-03-24)
-- [x] **Phase 13: Opportunity Bank + Funding Room** - Add grant discovery and funding lifecycle sections to the Data Room (completed 2026-03-25)
-- [x] **Phase 14: AI Team Personas** - Generate domain expert perspectives from room intelligence using De Bono framework (completed 2026-03-25)
-- [x] **Phase 15: User Knowledge Graph** - Per-project queryable LazyGraph using KuzuDB (embedded) for inter-room relationships + Pinecone semantic search (completed 2026-03-25)
-- [x] **Phase 16: Reasoning Engine** - Per-section reasoning files + autonomous methodology orchestration + persistent chain-of-thought across all platforms (completed 2026-03-25)
+See: `.planning/milestones/v3.0-ROADMAP.md`
+
+</details>
+
+### v4.0 Brain API Control & CLI UI Ruling System
+
+**Milestone Goal:** Protect the moat (Brain API key management with admin control), establish the visual grammar for all MindrianOS terminal interactions, then enable multi-room management and autonomous framework execution.
+
+- [ ] **Phase 20: Brain API Control** - Supabase-backed key management with approve/revoke/extend, usage tracking, and production auth
+- [ ] **Phase 21: CLI UI Ruling System** - The skill file that governs all MindrianOS output: 4-zone anatomy, 5 body shapes, symbol vocabulary, color contract, dual context
+- [ ] **Phase 22: Admin Panel** - Hidden self-teaching admin experience for Brain key management and system operations
+- [ ] **Phase 23: Multi-Room Management** - Room registry, switching, context safety, and header canary for multi-project workflows
+- [ ] **Phase 24: Autonomous Engine** - Brain-driven framework selection with subagent execution, thinking traces, and chain mode
 
 ## Phase Details
 
-### Phase 10: Shared Core + CLI Tools
-**Goal**: Plugin operations callable from a single Node.js entry point, enabling both CLI commands and future MCP tools to share identical logic
-**Depends on**: Nothing (v3.0 foundation)
-**Requirements**: CORE-01, CORE-02
+### Phase 20: Brain API Control
+**Goal**: Jonathan can manage who accesses the Brain -- create, revoke, extend, and monitor API keys -- with all state in Supabase and production auth wired into the deployed Brain MCP server
+**Depends on**: Phase 12 (Brain Hosting -- auth middleware already exists)
+**Requirements**: BRAIN-01, BRAIN-02, BRAIN-03, BRAIN-04, BRAIN-05, BRAIN-06
 **Success Criteria** (what must be TRUE):
-  1. Running `node bin/mindrian-tools.cjs <subcommand>` executes the same logic as the corresponding Bash script
-  2. Adding a new room section folder (e.g., opportunity-bank/) causes compute-state and analyze-room to discover it without code changes
-  3. Existing hook scripts can call mindrian-tools.cjs for complex operations and receive structured output
-  4. All 41 existing CLI commands continue to work identically after core extraction
+  1. Admin can run a CLI command to create a time-limited API key for a specific user with a plan tier, and that key immediately works against the deployed Brain MCP
+  2. Admin can list all active keys, revoke any key instantly (rejected on next request), and extend expiry dates
+  3. Non-admin API keys cannot call brain_write tools -- requests are rejected with clear error explaining the restriction
+  4. Usage is tracked per key (request count, last used timestamp) and queryable by admin
+  5. Brain MCP on Render reads credentials from Supabase in production -- no local env files needed on the server
 **Plans**: 2 plans
-
 Plans:
-- [x] 10-01-PLAN.md — Core library modules, mindrian-tools.cjs entry point, test fixtures
-- [x] 10-02-PLAN.md — Dynamic section discovery refactoring, P1 module wrappers
+- [ ] 20-01-PLAN.md -- Supabase SQL schema + brain_write guard + render.yaml
+- [ ] 20-02-PLAN.md -- brain-admin.cjs CLI tool
 
-### Phase 11: MCP Server
-**Goal**: Desktop and Cowork users can access every plugin capability through an MCP server without ever touching CLI
-**Depends on**: Phase 10
-**Requirements**: MCP-01, MCP-02, MCP-03, MCP-04, MCP-05, CORE-03, COLLAB-01
+### Phase 21: CLI UI Ruling System
+**Goal**: Every MindrianOS CLI interaction follows a consistent visual grammar defined in a single skill file -- Larry, commands, session start, and all output conform to the same 4-zone anatomy, symbol vocabulary, and color contract
+**Depends on**: Nothing (independent of Phase 20, can run in parallel)
+**Requirements**: UI-01, UI-02, UI-03, UI-04, UI-05, UI-06, UI-07
 **Success Criteria** (what must be TRUE):
-  1. User adds one line to claude_desktop_config.json and all MindrianOS capabilities appear in Claude Desktop
-  2. User can browse room state, sections, and artifacts as MCP Resources without making tool calls
-  3. User can run methodology workflows (file meeting, run analysis, grade venture) via MCP Prompts pre-loaded with room context
-  4. Larry personality and teaching mode behave identically in MCP context as in CLI
-  5. CI parity check fails when a CLI command exists without a corresponding MCP tool
-**Plans**: 3 plans
-
-Plans:
-- [x] 11-01-PLAN.md — MCP server skeleton, npm setup, hierarchical tool router (6 tools, 41 commands)
-- [x] 11-02-PLAN.md — MCP Resources (room:// URI scheme) and Prompts (methodology workflows with Larry personality)
-- [x] 11-03-PLAN.md — CLI/MCP parity check script and end-to-end verification
-
-### Phase 12: Brain Hosting
-**Goal**: Deploy Brain as a remote MCP service so paid-tier users connect from any surface with one config entry
-**Depends on**: Phase 10 (can run parallel with Phase 11)
-**Requirements**: BRAIN-01, BRAIN-02, BRAIN-03
-**Success Criteria** (what must be TRUE):
-  1. Desktop/Cowork user can add Brain MCP to their config and receive enriched intelligence identical to CLI users
-  2. Brain access is gated by API key — requests without valid key are rejected with clear error
+  1. A skill file at skills/ui-system/SKILL.md is auto-loaded every session and all MindrianOS output visibly follows the 4-zone layout (header with room context, body, intelligence strip, footer)
+  2. The 5 body shapes (Mondrian board, semantic tree, room card, document view, action report) are each used by at least one existing command
+  3. Session start greeting follows the cold/warm/signals contract with max 2 intelligence signals and adapts correctly across CLI, Desktop, and Cowork
+  4. Every folder with a STATE.md also has a MINTO.md, and both are read before routing decisions
 **Plans**: 2 plans
-
 Plans:
-- [ ] 12-01-PLAN.md — Brain MCP server (Express + StreamableHTTP, auth, Neo4j + Pinecone tools, smoke test)
-- [ ] 12-02-PLAN.md — Render deployment config, user documentation, end-to-end verification
+- [ ] 20-01-PLAN.md -- Supabase SQL schema + brain_write guard + render.yaml
+- [ ] 20-02-PLAN.md -- brain-admin.cjs CLI tool
 
-### Phase 13: Opportunity Bank + Funding Room
-**Goal**: The Data Room proactively discovers grant opportunities and tracks funding lifecycle — accessible from both CLI plugin and MCP server
-**Depends on**: Phase 10 (dynamic section discovery), Phase 11 (MCP tools for Desktop/Cowork delivery)
-**Requirements**: OPP-01, OPP-02, OPP-03, OPP-04, FUND-01, FUND-02, FUND-03, FUND-04
-**Dual delivery**: CLI commands + MCP tools for every capability
+### Phase 22: Admin Panel
+**Goal**: Jonathan has a hidden, self-teaching admin experience that re-explains itself every time and makes destructive actions safe through consequence previews
+**Depends on**: Phase 20 (Brain API Control -- admin panel manages keys)
+**Requirements**: ADMIN-01, ADMIN-02, ADMIN-03
 **Success Criteria** (what must be TRUE):
-  1. User sees relevant grant opportunities filed in room/opportunity-bank/ with relevance scores and source provenance after session start
-  2. Discovered opportunities appear in analyze-room intelligence output alongside existing DD sections
-  3. User can create a per-grant folder in room/funding/ with lifecycle stages (Discovered through Awarded/Rejected)
-  4. Grant progress with deadlines and next actions is tracked in the funding section STATE.md
-  5. Cross-references link funding entries back to their opportunity-bank sources
-  6. All Opportunity Bank and Funding Room operations work identically via CLI commands and MCP tools (Desktop/Cowork)
-**Plans**: 3 plans
-
-Plans:
-- [ ] 13-01-PLAN.md — Core module, reference templates, test fixtures, test suite
-- [ ] 13-02-PLAN.md — Context-driven grant discovery, opportunity filing, CLI + MCP integration
-- [ ] 13-03-PLAN.md — Funding lifecycle management, cross-references, CLI + MCP integration
-
-### Phase 14: AI Team Personas
-**Goal**: Larry can adopt domain expert perspectives generated from room intelligence — accessible from both CLI plugin and MCP server
-**Depends on**: Phase 13 (rich room content produces venture-specific personas)
-**Requirements**: PERS-01, PERS-02, PERS-03, PERS-04
-**Dual delivery**: CLI commands + MCP tools for every capability
-**Success Criteria** (what must be TRUE):
-  1. User can generate domain expert personas from current room state, stored as structured markdown in personas/ folder
-  2. Each persona maps to a De Bono Thinking Hat and argues consistently from that perspective
-  3. Larry can invoke any persona for multi-perspective analysis on a room artifact, producing distinct viewpoints
-  4. Every persona output includes a "perspective lens" disclaimer and never claims expert authority
-  5. All persona operations work identically via CLI commands and MCP tools (Desktop/Cowork)
+  1. Running /mos:admin shows the admin panel with available actions -- but only for the admin user; non-admin users see no trace of the command
+  2. Every invocation starts with a brief explanation of what each action does -- the panel teaches itself so the admin never needs to remember
+  3. Any destructive action (revoke key, purge data) shows exactly what will happen and requires explicit confirmation before executing
 **Plans**: 2 plans
-
 Plans:
-- [ ] 14-01-PLAN.md — Core persona-ops.cjs module, reference templates, test fixtures, test suite
-- [ ] 14-02-PLAN.md — CLI routing, MCP tool registration, command docs, parity verification
+- [ ] 20-01-PLAN.md -- Supabase SQL schema + brain_write guard + render.yaml
+- [ ] 20-02-PLAN.md -- brain-admin.cjs CLI tool
 
-### Phase 15: User Knowledge Graph
-**Goal**: Each room automatically builds a queryable LazyGraph from its artifacts — .md files manage intra-section context, KuzuDB manages inter-room relationships as they evolve
-**Depends on**: Phase 10 (dynamic section discovery), Phase 13 (room sections with content)
-**Requirements**: GRAPH-01, GRAPH-02, GRAPH-03, GRAPH-04, GRAPH-05
-**Dual delivery**: CLI commands + MCP tools for every capability
+### Phase 23: Multi-Room Management
+**Goal**: Users can maintain multiple project rooms simultaneously with safe context switching -- the system always knows which room is active and prevents cross-contamination
+**Depends on**: Phase 21 (UI system -- header canary uses Zone 1, session start shows multi-room context)
+**Requirements**: ROOM-01, ROOM-02, ROOM-03, ROOM-04, ROOM-05
 **Success Criteria** (what must be TRUE):
-  1. Room artifacts automatically indexed as KuzuDB nodes (embedded, one DB per project in room/.lazygraph/)
-  2. Cross-references (INFORMS, CONTRADICTS, CONVERGES, ENABLES, INVALIDATES) stored as typed edges
-  3. User can query their project graph via /mos:query with natural language (Larry translates to Cypher)
-  4. Room artifacts embedded in user-owned Pinecone index for semantic search (optional Tier 2)
-  5. Graph auto-updates when new artifacts are filed (hook-driven)
-  6. All graph operations work identically via CLI commands and MCP tools (Desktop/Cowork)
-**Plans**: 3 plans
-
-Plans:
-- [ ] 15-01-PLAN.md — Core lazygraph-ops.cjs module, KuzuDB schema, test fixtures, test suite
-- [ ] 15-02-PLAN.md — CLI routing, hook integration, MCP tool registration, NL query wiring
-- [ ] 15-03-PLAN.md — Pinecone Tier 2 stub, /mos:query command docs, schema reference
-
-### Phase 16: Reasoning Engine
-**Goal**: MindrianOS captures, persists, and visualizes its critical thinking per room section — with autonomous methodology orchestration and chain-of-thought across all platforms
-**Depends on**: Phase 15 (LazyGraph for graph edges), Phase 14 (Personas reference reasoning)
-**Requirements**: REASON-01, REASON-02, REASON-03, REASON-04, REASON-05
-**Dual delivery**: CLI commands + MCP tools for every capability
-**Success Criteria** (what must be TRUE):
-  1. Each room section can have a REASONING.md with Minto/MECE structured analysis, frontmatter dependency graph, and goal-backward verification
-  2. Larry autonomously chains methodology tools in sequence (diagnose -> framework -> apply -> file -> cross-ref -> graph-update) captured as run artifacts
-  3. Chain-of-thought is SAVED as .reasoning/ artifacts, not just displayed — future sessions read them
-  4. Reasoning visualization works across CLI (blockquotes), Desktop (MCP prompts), and Cowork (shared state)
-  5. All reasoning operations work identically via CLI commands and MCP tools
-**Plans**: 3 plans
-
-Plans:
-- [ ] 16-01-PLAN.md — Core reasoning-ops.cjs module, reference templates, test fixtures, test suite
-- [ ] 16-02-PLAN.md — CLI routing, MCP tool router integration, LazyGraph REASONING_INFORMS edge type
-- [ ] 16-03-PLAN.md — MCP resources (reasoning://), MCP prompt, /mos:reason command docs, schema reference
-
-### Phase 17: Visual Identity — De Stijl CLI
-**Goal**: MindrianOS has a visually distinctive CLI experience — De Stijl symbolism, Unicode diagrams, ASCII charts, Mermaid in artifacts, color-coded edge types, venture stage indicators
-**Depends on**: Phase 16 (reasoning traces reference visual vocabulary), Phase 15 (graph edges need visual encoding)
-**Requirements**: VIS-01, VIS-02, VIS-03, VIS-04, VIS-05
-**Dual delivery**: CLI output + Mermaid in .md files + browser dashboard
-**Success Criteria** (what must be TRUE):
-  1. MindrianOS symbol system (⬡ brand, ◌◎◉◆★ stages, →⊗⊕▶⊘ edges) used consistently across all commands, statusline, and traces
-  2. Room structure visualized as Unicode box diagram showing sections, gaps, and cross-references
-  3. ASCII sparklines/charts in compute-state and analyze-room output (asciichart)
-  4. Mermaid diagram blocks embedded in room artifacts (.md files render in GitHub/Obsidian)
-  5. /mos:visualize command generates rich diagrams (room flowchart, graph view, framework chain) and opens in browser
-**Plans**: 3 plans
-
-Plans:
-- [ ] 17-01-PLAN.md — Symbol system module (visual-ops.cjs), De Stijl color palette, statusline enhancement
-- [ ] 17-02-PLAN.md — Unicode room diagram + ASCII sparklines in compute-state and analyze-room
-- [ ] 17-03-PLAN.md — Mermaid diagram generators, render-viz script, /mos:visualize command + CLI/MCP wiring
-
-### Phase 18: Dynamic Integration Prompting
-**Goal**: MindrianOS proactively detects when an MCP/API/plugin would enhance the user's workflow and offers to set it up
-**Depends on**: Phase 12 (Brain hosting), Phase 17 (visual identity for prompts)
-**Requirements**: INTEG-01, INTEG-02, INTEG-03
-**Success Criteria** (what must be TRUE):
-  1. Larry detects unmet capabilities and offers setup conversationally (Brain, Obsidian, Notion, Velma, meeting sources)
-  2. Detection is non-blocking — always offers, never forces, never interrupts methodology sessions
-  3. Integration status visible in /mos:status and statusline
+  1. A .rooms/registry.json tracks all rooms with metadata, and /mos:rooms list shows them with status indicators
+  2. User can create, open, close, and archive rooms via /mos:rooms subcommands, and /mos:rooms where shows the currently active room
+  3. All file-writing commands check the active room lock before writing -- attempting to write to an inactive room is blocked with a clear error
+  4. The room name is always visible in the Zone 1 header (canary), and session start shows multi-room context when 2+ rooms are registered
 **Plans**: 2 plans
-
 Plans:
-- [x] 18-01-PLAN.md — Integration registry module, detection patterns reference, skill file updates for offer behavior
-- [ ] 18-02-PLAN.md — /mos:status integration table, session-start statusline, MCP tool router wiring
+- [ ] 20-01-PLAN.md -- Supabase SQL schema + brain_write guard + render.yaml
+- [ ] 20-02-PLAN.md -- brain-admin.cjs CLI tool
 
-### Phase 19: Wikipedia Data Room Dashboard
-**Goal**: Localhost wiki-style viewer where room sections are pages, KuzuDB edges are hyperlinks, with chat, search, De Stijl design, and auto-expanding as room fills
-**Depends on**: Phase 15 (KuzuDB LazyGraph), Phase 17 (visual identity)
-**Requirements**: WIKI-01, WIKI-02, WIKI-03, WIKI-04, WIKI-05
+### Phase 24: Autonomous Engine
+**Goal**: Larry can autonomously select and execute methodology frameworks based on room state -- with full thinking transparency, subagent isolation, and the ability to chain multiple frameworks in sequence
+**Depends on**: Phase 21 (UI system -- thinking traces use visual grammar), Phase 23 (room management -- /mos:act reads active room state)
+**Requirements**: ACT-01, ACT-02, ACT-03, ACT-04, ACT-05
 **Success Criteria** (what must be TRUE):
-  1. Every room section renders as a Wikipedia-style page with TOC, infobox, backlinks, and "See also" from KuzuDB edges
-  2. KuzuDB relationships become clickable hyperlinks between pages (INFORMS → navigate, CONTRADICTS → red warning)
-  3. Chat interface scoped to current page context — user talks to the Data Room through Larry
-  4. Full-text search across all room pages with instant results
-  5. Auto-refreshes when room content changes (file watcher)
-  6. De Stijl design with embedded Mermaid diagrams, images, and media
-**Plans**: 3 plans
-
+  1. Running /mos:act reads the active room's STATE.md + MINTO.md, queries the Brain (with local fallback) for the best framework, and displays a thinking trace explaining why that framework was selected
+  2. Framework execution happens in an isolated subagent context (agents/framework-runner.md) -- the main session context is not polluted
+  3. Running /mos:act --chain selects and executes 3-5 frameworks in sequence, where each framework's output feeds the next via a structured output contract
+  4. Running /mos:act --dry-run shows the full execution plan (framework selection, reasoning, expected outputs) without executing anything
+**Plans**: 2 plans
 Plans:
-- [x] 19-01-PLAN.md — Express wiki server, markdown rendering pipeline, De Stijl layout, /mos:wiki command
-- [ ] 19-02-PLAN.md — KuzuDB graph integration: hyperlinks from edges, backlinks, "See also", graph view page
-- [ ] 19-03-PLAN.md — FlexSearch full-text search, chat panel (stub), chokidar auto-refresh, Mermaid/media rendering
+- [ ] 20-01-PLAN.md -- Supabase SQL schema + brain_write guard + render.yaml
+- [ ] 20-02-PLAN.md -- brain-admin.cjs CLI tool
 
 ## Progress
 
 **Execution Order:**
-Phases 11 and 12 can run in parallel after Phase 10 completes. Phase 13 requires Phase 10. Phase 14 requires Phase 13. Phase 16 requires Phase 15. Phase 17 requires Phase 16. Phase 18 and 19 can run in parallel after Phase 17.
+Phase 20 and 21 can run in parallel. Phase 22 requires Phase 20. Phase 23 requires Phase 21. Phase 24 requires Phase 21 and Phase 23.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1-5 | v1.0 | 20/20 | Complete | 2026-03-22 |
 | 6-9 | v2.0 | 13/13 | Complete | 2026-03-24 |
-| 10. Shared Core + CLI Tools | 2/2 | Complete    | 2026-03-24 | - |
-| 11. MCP Server | 3/3 | Complete    | 2026-03-24 | - |
-| 12. Brain Hosting | 2/2 | Complete    | 2026-03-24 | - |
-| 13. Opportunity Bank + Funding Room | 3/3 | Complete    | 2026-03-25 | - |
-| 14. AI Team Personas | 2/2 | Complete    | 2026-03-25 | - |
+| 10-19 | v3.0 | 26/26 | Complete | 2026-03-25 |
+| 20. Brain API Control | v4.0 | 0/2 | Planned | - |
+| 21. CLI UI Ruling System | v4.0 | 0/TBD | Not started | - |
+| 22. Admin Panel | v4.0 | 0/TBD | Not started | - |
+| 23. Multi-Room Management | v4.0 | 0/TBD | Not started | - |
+| 24. Autonomous Engine | v4.0 | 0/TBD | Not started | - |

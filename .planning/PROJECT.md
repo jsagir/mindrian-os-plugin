@@ -15,21 +15,21 @@ Users can run the full PWS methodology — 25 specialized methodology bots, stru
 
 v1.0 + v2.0 = 41 commands, 5 agents, meeting intelligence pipeline, team room, cross-meeting intelligence, three-layer knowledge graph, De Stijl dashboard + timeline mode, 5 PDF export types.
 
-## Current Milestone: v3.0 MCP Platform & Intelligence Expansion
+## Current Milestone: v4.0 Brain API Control & CLI UI Ruling System
 
-**Goal:** Deliver MindrianOS as a dual-surface platform — CLI plugin + MCP server — so teams on Desktop/Cowork can access all capabilities, then expand with Opportunity Bank, Funding Room, and AI Team Personas.
-
-**Critical discovery:** Claude Desktop and Cowork only support MCP servers via claude_desktop_config.json. No plugin system. The MCP server is the only path to reaching non-technical team users.
+**Goal:** Protect the moat (Brain API key management with admin control) and establish the visual grammar for all MindrianOS terminal interactions, then enable multi-room management and autonomous framework execution.
 
 **Target features:**
-- MCP Server: shared core library + MCP tool endpoints exposing Larry, Data Room, meeting filing, methodology commands
-- CLI tools layer: mindrian-tools.cjs single entry point for plugin commands (GSD pattern)
-- Room as Remote MCP: collaborative team access to shared room state
-- Opportunity Bank: room section + proactive grant/opportunity discovery agents
-- Funding Room: non-dilutive/dilutive/grants sub-rooms with GSD-style process per grant
-- AI Team Member Personas: domain experts generated from room intelligence + Bono perspectives
+- Brain API key management: Supabase table, approve/revoke/extend, time-limited keys, usage tracking
+- Self-teaching admin panel (/mos:admin): hidden from non-admin users, re-explains itself on every invocation
+- CLI UI Ruling System (skills/ui-system/SKILL.md): 4-zone output anatomy, 5 body shapes, symbol vocabulary, color contract, session start contract
+- Dual context per folder: STATE.md (quantitative) + MINTO.md (qualitative reasoning pyramid)
+- Multi-room management: .rooms/registry.json, /mos:rooms (list/new/open/close/archive/where), context safety
+- /mos:act autonomous engine: Brain-driven framework selection, subagent execution, thinking trace before action, chain mode
 
-**Dual delivery rule:** Every feature ships as both a plugin command (CLI) and MCP tool (Desktop/Cowork). Shared internals, two delivery layers.
+**Key constraint:** Brain access is the commercial moat. Every API connection must be manually approved by Jonathan with time-limited expiry.
+
+**Previous milestone:** v3.0 MCP Platform & Intelligence Expansion (completed 2026-03-25, 19 phases, 26 plans)
 
 ## v3.0 Backlog (Captured Ideas)
 
@@ -75,9 +75,16 @@ v2.0 shipped (2026-03-24):
 
 ### Active
 
-v3.0 scope:
-- [ ] MCP Server with shared core exposing all capabilities to Desktop/Cowork
-- [ ] CLI tools layer (mindrian-tools.cjs)
+v4.0 scope:
+- [ ] Brain API key management (Supabase table, approve/revoke/extend, time-limited keys)
+- [ ] Self-teaching admin panel (/mos:admin) — hidden, owner-only
+- [ ] CLI UI Ruling System (skills/ui-system/SKILL.md) — 4 zones, 5 body shapes
+- [ ] Dual context per folder (STATE.md + MINTO.md)
+- [ ] Multi-room management (.rooms/registry.json, /mos:rooms command)
+- [ ] /mos:act autonomous engine (Brain-driven, subagent, chain mode)
+- [ ] Context safety system (active room lock, header canary, dirty context prevention)
+
+v3.0 deferred:
 - [ ] Room as Remote MCP (collaborative team access)
 - [ ] Opportunity Bank (room section + proactive discovery agents)
 - [ ] Funding Room (non-dilutive/dilutive/grants sub-rooms)
@@ -135,5 +142,22 @@ v3.0 scope:
 | One-command install | Zero config required; Larry talks immediately; optional enhancements later | — Pending |
 | Factory/Product separation | Layer 3 = IP (factory), Layer 4 = user work (product); clean ownership boundary | — Pending |
 
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd:transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd:complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
 ---
-*Last updated: 2026-03-19 after initialization*
+*Last updated: 2026-03-26 after v4.0 milestone start*
