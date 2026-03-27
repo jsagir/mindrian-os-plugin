@@ -14,9 +14,9 @@
 - [ ] **BRAIN-06**: Supabase credentials wired into Render for production auth
 
 ### Admin Panel
-- [ ] **ADMIN-01**: `/mos:admin` command hidden from non-admin users (not locked -- invisible)
-- [ ] **ADMIN-02**: Admin panel self-teaches on every invocation (explains what each action does before executing)
-- [ ] **ADMIN-03**: Every destructive action shows consequences and requires confirmation
+- [x] **ADMIN-01**: `/mos:admin` command hidden from non-admin users (not locked -- invisible)
+- [x] **ADMIN-02**: Admin panel self-teaches on every invocation (explains what each action does before executing)
+- [x] **ADMIN-03**: Every destructive action shows consequences and requires confirmation
 
 ### CLI UI Ruling System
 - [ ] **UI-01**: `skills/ui-system/SKILL.md` auto-loaded on every session with full rendering rules
@@ -58,9 +58,9 @@
 | UI-05 | Phase 21 | Pending |
 | UI-06 | Phase 21 | Pending |
 | UI-07 | Phase 21 | Pending |
-| ADMIN-01 | Phase 22 | Pending |
-| ADMIN-02 | Phase 22 | Pending |
-| ADMIN-03 | Phase 22 | Pending |
+| ADMIN-01 | Phase 22 | Complete |
+| ADMIN-02 | Phase 22 | Complete |
+| ADMIN-03 | Phase 22 | Complete |
 | ROOM-01 | Phase 23 | Pending |
 | ROOM-02 | Phase 23 | Pending |
 | ROOM-03 | Phase 23 | Pending |
