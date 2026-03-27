@@ -14,6 +14,20 @@ app.use(express.json());
 // API key auth middleware on /mcp route
 app.use('/mcp', validateApiKey);
 
+// Inject grace period warning into MCP JSON-RPC responses
+app.use('/mcp', (req, res, next) => {
+  if (!res.locals.brainWarning) return next();
+
+  const originalJson = res.json.bind(res);
+  res.json = function injectGraceWarning(body) {
+    if (body && typeof body === 'object') {
+      body._brain_warning = res.locals.brainWarning;
+    }
+    return originalJson(body);
+  };
+  next();
+});
+
 // MCP endpoint — stateless: new server + transport per request
 app.post('/mcp', async (req, res) => {
   const server = new McpServer({
