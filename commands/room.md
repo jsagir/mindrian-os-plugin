@@ -251,42 +251,38 @@ Larry adds a brief observation about the addition.
 
 ## Subcommand: export
 
-**Trigger:** `/mos:room export`
+**Trigger:** `/mos:room export` or `/mos:room export --format standalone`
 
 ### Step 1: Check for Room
 
 If no `room/` directory exists, use 3-line error format.
 
-### Step 2: Create Clean Export
+### Step 2: Generate Export
 
-Create an `export/` directory with a clean copy of the room tree:
+Run the export generation script:
 
 ```bash
-mkdir -p export
+node scripts/generate-export.cjs "./room"
 ```
 
-For each section and sub-room:
-1. Mirror the directory structure from `room/` into `export/`
-2. Copy all `.md` files EXCEPT:
-   - `ROOM.md` files (internal metadata)
-   - `STATE.md` (computed state, not content)
-   - `MINTO.md` (internal reasoning structure)
-   - `USER.md` (user context, private)
-3. For each copied file:
-   - Strip YAML frontmatter (the `---` delimited block at the top)
-   - Keep the clean markdown content only
-   - Preserve the file name
+This generates a self-contained HTML file at `room/exports/YYYY-MM-DD-{room-name}.html`.
 
 ### Step 3: Confirm (Shape E mini-report)
 
 ```
   Action: export
-  Target: export/
-  Files: [X] across [Y] sections
+  Format: Standalone HTML (De Stijl Mondrian grid + 4 views)
+  Output: room/exports/{filename}.html
+  Sections: [X] with content, [Y] empty
+  Intelligence: [N] gaps, [M] convergence themes, [K] contradictions
 
-  ▶ Review export/ before sharing
-  ▷ /mos:status                     Check overall progress
+  Open in any browser -- no server needed. Share with investors, mentors, or team.
+
+  ▶ /mos:room view                    Launch the live dashboard
+  ▷ /mos:status                       Check overall progress
 ```
+
+Larry adds a brief observation about the export quality (e.g., "Three empty sections will stand out to an investor -- consider filling them first.").
 
 ## Voice Rules
 
