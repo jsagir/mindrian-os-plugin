@@ -648,12 +648,20 @@ done <<< "$analyze_output"
 
 # Build summary
 venture_stage="Pre-Opportunity"
+room_name="Data Room"
 if [ -f "${ROOM_DIR}/STATE.md" ]; then
   stage_line=$(grep -i 'venture_stage:' "${ROOM_DIR}/STATE.md" 2>/dev/null | head -1 || true)
   if [ -n "$stage_line" ]; then
     venture_stage=$(echo "$stage_line" | sed 's/.*venture_stage:[[:space:]]*//' | tr -d '"' | xargs)
   fi
+  # Extract room/venture name
+  name_line=$(grep -i 'venture_name:' "${ROOM_DIR}/STATE.md" 2>/dev/null | head -1 || true)
+  if [ -n "$name_line" ]; then
+    room_name=$(echo "$name_line" | sed 's/.*venture_name:[[:space:]]*//' | tr -d '"' | xargs)
+  fi
 fi
+# Escape room name for JSON
+room_name_json=$(echo "$room_name" | sed 's/\\/\\\\/g; s/"/\\"/g')
 
 sections_active=0
 sections_empty=0
@@ -677,6 +685,13 @@ done
 
 cat > "$OUTPUT_PATH" << ENDJSON
 {
+  "meta": {
+    "roomName": "${room_name_json}",
+    "ventureStage": "${venture_stage}",
+    "generatedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+    "roomDir": "${ROOM_DIR}",
+    "generator": "MindrianOS build-graph"
+  },
   "elements": {
     "nodes": [
     ${nodes}

@@ -486,7 +486,7 @@
 <body>
   <!-- Header -->
   <div class="header">
-    <span class="header-title">Mindrian Data Room</span>
+    <span class="header-title" id="header-title">Mindrian Data Room</span>
     <div class="header-right">
       <div class="layer-toggles" id="layer-toggles">
         <span style="font-size:10px;color:var(--ds-muted);text-transform:uppercase;letter-spacing:0.06em;">Layers:</span>
@@ -833,6 +833,13 @@
 
     // ── Initialize Graph ──
     function initGraph(data) {
+      // Update room identity from graph metadata
+      if (data.meta && data.meta.roomName) {
+        var title = data.meta.roomName + ' \u2014 Data Room';
+        document.getElementById('header-title').textContent = title;
+        document.title = title + ' | MindrianOS';
+      }
+
       // Store intelligence for Plan 02 chat
       window.__roomIntelligence = data.intelligence || null;
 
