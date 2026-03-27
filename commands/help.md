@@ -40,6 +40,20 @@ Read `room/STATE.md` to find the current venture stage. If `room/` does not exis
 
 Extract `venture_stage` from the YAML frontmatter of STATE.md.
 
+## Step 1.5: Check Admin Visibility
+
+Check if the current user is an admin. This determines whether admin-only commands are visible.
+
+**Check in order:**
+
+1. Environment variable `MOS_ADMIN=true` is set
+2. Username contains "jsagi" or "jonathan" (check `$USER`, `$USERNAME`, or `whoami`)
+3. Home directory matches `/home/jsagi` (check `$HOME`)
+
+Set an internal flag `is_admin` to true if ANY condition is met, false otherwise.
+
+**Generic visibility filtering rule:** When listing commands, check each command file's YAML frontmatter for a `visibility` field. If `visibility: admin` is set and `is_admin` is false, skip that command entirely. This makes filtering generic -- any future hidden command just needs `visibility: admin` in its frontmatter.
+
 ## Step 2: Load References
 
 Read `references/methodology/index.md` for the full command routing table.
@@ -99,11 +113,20 @@ Commands grouped by FLOW, not by venture stage or alphabetically. Use tree symbo
   ├─ /mos:find-connections         Cross-domain links
   └─ /mos:wiki                     Launch wiki dashboard
 
-  ▼ Export + Admin
+  ▼ Export
   ├─ /mos:export                   Generate reports
   ├─ /mos:radar                    Capability radar
   └─ /mos:update                   Check for updates
 ```
+
+**If `is_admin` is true**, append an additional group after Export:
+
+```
+  ▼ Admin (owner only)
+  └─ /mos:admin                    Brain API management
+```
+
+**If `is_admin` is false**, do NOT render the Admin group. No trace of `/mos:admin` should appear anywhere in the output.
 
 After the tree, add a compact count line:
 ```
@@ -191,7 +214,11 @@ Rules:
 - No flags documentation, no option tables, no verbose descriptions
 - No zones, no header, no footer -- just the help card
 
-Load the command's `.md` file from `commands/` to get accurate description and usage patterns. If the command doesn't exist:
+Load the command's `.md` file from `commands/` to get accurate description and usage patterns.
+
+**Admin visibility guard:** Before loading a command file, check its YAML frontmatter for `visibility: admin`. If the command has `visibility: admin` and `is_admin` is false, treat the command as nonexistent -- render the unknown command error below. This ensures `/mos:help admin` reveals nothing to non-admin users.
+
+If the command doesn't exist (or is hidden by the visibility guard):
 ```
 ✗ Unknown command: [command]
   Why: No matching /mos: command found
@@ -204,12 +231,16 @@ If the user included `--all` (e.g., `/mos:help --all`):
 
 Show the **full command list** in the same tree format as Step 3 but with ALL commands listed (no `... (N more)` truncation). Include all methodology commands explicitly.
 
-Keep the same flow groupings. Add the `Admin (hidden)` group at the bottom:
+Keep the same flow groupings. Apply the same visibility filtering as Step 3:
+
+**If `is_admin` is true**, add the Admin group at the bottom:
 
 ```
   ▼ Admin (owner only)
   └─ /mos:admin                    Brain API management
 ```
+
+**If `is_admin` is false**, do NOT render the Admin group. The `--all` flag shows all commands the USER has access to, not all commands that exist in the system.
 
 End with the count line and Zone 4 footer.
 
