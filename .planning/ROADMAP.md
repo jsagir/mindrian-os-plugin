@@ -60,7 +60,7 @@ See: `.planning/milestones/v3.0-ROADMAP.md`
 
 - [ ] **Phase 20: Brain API Control** - Supabase-backed key management with approve/revoke/extend, usage tracking, and production auth
 - [ ] **Phase 21: CLI UI Ruling System** - The skill file that governs all MindrianOS output: 4-zone anatomy, 5 body shapes, symbol vocabulary, color contract, dual context
-- [x] **Phase 22: Admin Panel** - Hidden self-teaching admin experience for Brain key management and system operations (completed 2026-03-27)
+- [ ] **Phase 22: Admin Panel** - Hidden self-teaching admin experience for Brain key management and system operations
 - [ ] **Phase 23: Multi-Room Management** - Room registry, switching, context safety, and header canary for multi-project workflows
 - [ ] **Phase 24: Autonomous Engine** - Brain-driven framework selection with subagent execution, thinking traces, and chain mode
 
@@ -92,8 +92,8 @@ Plans:
   4. Every folder with a STATE.md also has a MINTO.md, and both are read before routing decisions
 **Plans**: 2 plans
 Plans:
-- [ ] 20-01-PLAN.md -- Supabase SQL schema + brain_write guard + render.yaml
-- [ ] 20-02-PLAN.md -- brain-admin.cjs CLI tool
+- [ ] 21-01-PLAN.md -- SKILL.md creation + body shape definitions + command mapping
+- [ ] 21-02-PLAN.md -- Retrofit existing commands with body_shape frontmatter + help grouping
 
 ### Phase 22: Admin Panel
 **Goal**: Jonathan has a hidden, self-teaching admin experience that re-explains itself every time and makes destructive actions safe through consequence previews
@@ -103,10 +103,9 @@ Plans:
   1. Running /mos:admin shows the admin panel with available actions -- but only for the admin user; non-admin users see no trace of the command
   2. Every invocation starts with a brief explanation of what each action does -- the panel teaches itself so the admin never needs to remember
   3. Any destructive action (revoke key, purge data) shows exactly what will happen and requires explicit confirmation before executing
-**Plans**: 2 plans
+**Plans**: 1 plan
 Plans:
-- [ ] 20-01-PLAN.md -- Supabase SQL schema + brain_write guard + render.yaml
-- [ ] 20-02-PLAN.md -- brain-admin.cjs CLI tool
+- [ ] 22-01-PLAN.md -- Admin command + help visibility filtering
 
 ### Phase 23: Multi-Room Management
 **Goal**: Users can maintain multiple project rooms simultaneously with safe context switching -- the system always knows which room is active and prevents cross-contamination
@@ -117,10 +116,9 @@ Plans:
   2. User can create, open, close, and archive rooms via /mos:rooms subcommands, and /mos:rooms where shows the currently active room
   3. All file-writing commands check the active room lock before writing -- attempting to write to an inactive room is blocked with a clear error
   4. The room name is always visible in the Zone 1 header (canary), and session start shows multi-room context when 2+ rooms are registered
-**Plans**: 2 plans
+**Plans**: TBD
 Plans:
-- [ ] 20-01-PLAN.md -- Supabase SQL schema + brain_write guard + render.yaml
-- [ ] 20-02-PLAN.md -- brain-admin.cjs CLI tool
+- [To be planned]
 
 ### Phase 24: Autonomous Engine
 **Goal**: Larry can autonomously select and execute methodology frameworks based on room state -- with full thinking transparency, subagent isolation, and the ability to chain multiple frameworks in sequence
@@ -131,10 +129,9 @@ Plans:
   2. Framework execution happens in an isolated subagent context (agents/framework-runner.md) -- the main session context is not polluted
   3. Running /mos:act --chain selects and executes 3-5 frameworks in sequence, where each framework's output feeds the next via a structured output contract
   4. Running /mos:act --dry-run shows the full execution plan (framework selection, reasoning, expected outputs) without executing anything
-**Plans**: 2 plans
+**Plans**: TBD
 Plans:
-- [ ] 20-01-PLAN.md -- Supabase SQL schema + brain_write guard + render.yaml
-- [ ] 20-02-PLAN.md -- brain-admin.cjs CLI tool
+- [To be planned]
 
 ## Progress
 
@@ -148,6 +145,6 @@ Phase 20 and 21 can run in parallel. Phase 22 requires Phase 20. Phase 23 requir
 | 10-19 | v3.0 | 26/26 | Complete | 2026-03-25 |
 | 20. Brain API Control | v4.0 | 0/2 | Planned | - |
 | 21. CLI UI Ruling System | v4.0 | 1/2 | In progress | - |
-| 22. Admin Panel | v4.0 | 1/1 | Complete   | 2026-03-27 |
+| 22. Admin Panel | v4.0 | 0/1 | Planned | - |
 | 23. Multi-Room Management | v4.0 | 0/TBD | Not started | - |
 | 24. Autonomous Engine | v4.0 | 0/TBD | Not started | - |
