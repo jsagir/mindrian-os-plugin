@@ -473,4 +473,67 @@ else
 fi
 
 echo ""
+
+# ── Capability Suggestions ──
+# Surface visualization and export commands when the room has enough data
+# These are LazyGraph-informed: suggest capabilities when they become meaningful
+
+total_artifacts=0
+for s in "${CORE_SECTIONS[@]}" "${EXTENDED_SECTIONS[@]}"; do
+  section_dir="${ROOM_DIR}/${s}"
+  [ -d "$section_dir" ] || continue
+  for f in "$section_dir"/*.md; do
+    [ -f "$f" ] || continue
+    fname=$(basename "$f")
+    [ "$fname" = "ROOM.md" ] || [ "$fname" = "STATE.md" ] && continue
+    total_artifacts=$((total_artifacts + 1))
+  done
+done
+
+# Count edges (meetings, team, wikilinks for graph richness)
+meeting_count=0
+if [ -d "$ROOM_DIR/meetings" ]; then
+  for mdir in "$ROOM_DIR"/meetings/*/; do
+    [ -d "$mdir" ] || continue
+    meeting_count=$((meeting_count + 1))
+  done
+fi
+
+team_count=0
+if [ -d "$ROOM_DIR/team" ]; then
+  for role_dir in "$ROOM_DIR"/team/members/ "$ROOM_DIR"/team/mentors/ "$ROOM_DIR"/team/advisors/; do
+    [ -d "$role_dir" ] || continue
+    for p in "$role_dir"*/; do
+      [ -d "$p" ] && team_count=$((team_count + 1))
+    done
+  done
+fi
+
+# Threshold-based capability suggestions
+if [ "$total_artifacts" -ge 3 ] && [ "$total_artifacts" -lt 7 ]; then
+  echo "CAPABILITY:DASHBOARD:MEDIUM:You have ${total_artifacts} artifacts -- /mos:room view launches an interactive knowledge graph showing how they connect"
+fi
+
+if [ "$total_artifacts" -ge 7 ]; then
+  echo "CAPABILITY:DASHBOARD:HIGH:Your room has ${total_artifacts} artifacts across multiple sections -- /mos:room view shows the full knowledge graph with intelligence overlays"
+  echo "CAPABILITY:EXPORT_DASHBOARD:HIGH:Export a shareable dashboard with /mos:room export -- standalone HTML with your full graph visualization"
+fi
+
+if [ "$total_artifacts" -ge 5 ] && [ "$meeting_count" -ge 1 ]; then
+  echo "CAPABILITY:WIKI:MEDIUM:With ${total_artifacts} artifacts and ${meeting_count} meeting(s), /mos:wiki gives you a searchable Wikipedia-style view with wikilinks"
+fi
+
+if [ "$total_artifacts" -ge 3 ] && [ "$meeting_count" -ge 2 ]; then
+  echo "CAPABILITY:MEETING_REPORT:MEDIUM:${meeting_count} meetings filed -- /mos:export meeting-report generates a Minto-structured intelligence report"
+fi
+
+if [ "$total_artifacts" -ge 10 ]; then
+  echo "CAPABILITY:THESIS:HIGH:Room is substantial (${total_artifacts} artifacts) -- /mos:export thesis generates an investment thesis PDF"
+fi
+
+if [ "$team_count" -ge 2 ]; then
+  echo "CAPABILITY:TEAM_VIEW:MEDIUM:${team_count} team profiles -- /mos:room view shows them as nodes connected to meetings and sections"
+fi
+
+echo ""
 echo "## End"

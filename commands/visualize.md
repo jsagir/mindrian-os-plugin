@@ -1,3 +1,11 @@
+---
+name: visualize
+description: Open rich visual diagrams in the browser -- room structure, knowledge graph, chains, timelines
+body_shape: D (Document View)
+ui_reference: skills/ui-system/SKILL.md
+allowed-tools: Bash
+---
+
 # /mos:visualize
 
 Open rich visual diagrams in the browser. Falls back to Mermaid code blocks in text output.

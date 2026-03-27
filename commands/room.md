@@ -251,13 +251,58 @@ Larry adds a brief observation about the addition.
 
 ## Subcommand: export
 
-**Trigger:** `/mos:room export`
+**Trigger:** `/mos:room export` or `/mos:room export dashboard` or `/mos:room export clean`
 
-### Step 1: Check for Room
+Parse the export type. Default to **dashboard** if no type specified.
+
+### Type: dashboard (default)
+
+Generates a self-contained Cytoscape.js knowledge graph dashboard as a single HTML file.
+This is the visualization-heavy De Stijl dashboard with interactive graph, intelligence panel, and chat UI.
+Works offline -- no server needed, just open in a browser.
+
+**CRITICAL: NEVER generate dashboard HTML by hand. ALWAYS use the generate-standalone script.**
+The template is `dashboard/index.html` -- do not improvise or create HTML from scratch.
+
+#### Step 1: Check for Room
 
 If no `room/` directory exists, use 3-line error format.
 
-### Step 2: Create Clean Export
+#### Step 2: Run the standalone generator
+
+```bash
+ROOM_DIR=./room bash scripts/generate-standalone ./room
+```
+
+This produces `room/data-room-dashboard.html` with:
+- Full Cytoscape.js interactive knowledge graph
+- All room artifacts, meetings, team members, and concepts as graph nodes
+- Intelligence panel (gaps, convergence, contradictions)
+- De Stijl styling with section-colored nodes and semantic edge types
+- Graph data embedded inline (no server dependency)
+
+#### Step 3: Confirm to User
+
+```
+  Action: export dashboard
+  Output: room/data-room-dashboard.html
+
+  The file contains your full knowledge graph as an interactive
+  visualization. Open it in any browser -- no server needed.
+
+  ▶ Open the file to review
+  ▷ /mos:room view                  Launch the live dashboard server
+```
+
+### Type: clean
+
+Generates a clean markdown export for sharing (strips frontmatter and internal files).
+
+#### Step 1: Check for Room
+
+If no `room/` directory exists, use 3-line error format.
+
+#### Step 2: Create Clean Export
 
 Create an `export/` directory with a clean copy of the room tree:
 
@@ -277,15 +322,15 @@ For each section and sub-room:
    - Keep the clean markdown content only
    - Preserve the file name
 
-### Step 3: Confirm (Shape E mini-report)
+#### Step 3: Confirm (Shape E mini-report)
 
 ```
-  Action: export
+  Action: export clean
   Target: export/
   Files: [X] across [Y] sections
 
   ▶ Review export/ before sharing
-  ▷ /mos:status                     Check overall progress
+  ▷ /mos:room export dashboard      Also generate the visual dashboard
 ```
 
 ## Voice Rules

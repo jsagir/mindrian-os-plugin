@@ -10,12 +10,24 @@ PREFERRED_PORT="${1:-8420}"
 MAX_PORT=8430
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DASHBOARD_DIR="$(cd "${SCRIPT_DIR}/../dashboard" && pwd)"
 
-# ── Step 1: Generate fresh graph data ──
-echo "Building graph data..."
-bash "${SCRIPT_DIR}/build-graph" "$ROOM_DIR"
+# ── Step 1: Resolve room directory (absolute path) ──
+if [ ! -d "$ROOM_DIR" ]; then
+  echo "ERROR: Room directory not found: $ROOM_DIR"
+  echo "Set ROOM_DIR or ensure ./room/ exists in your workspace"
+  exit 1
+fi
+ROOM_DIR="$(cd "$ROOM_DIR" && pwd)"
 
-# ── Step 2: Find available port ──
+# ── Step 2: Generate fresh graph data into the dashboard directory ──
+echo "Building graph data from ${ROOM_DIR}..."
+bash "${SCRIPT_DIR}/build-graph" "$ROOM_DIR" "${DASHBOARD_DIR}/graph.json"
+
+# ── Step 3: Find available port ──
+# Also generates standalone export alongside the dashboard
+bash "${SCRIPT_DIR}/generate-standalone" "$ROOM_DIR" "${DASHBOARD_DIR}" 2>/dev/null || true
+
 find_port() {
   local port="$1"
   local max="$2"
@@ -34,9 +46,6 @@ if [ -z "$PORT" ]; then
   echo "ERROR: No available port in range ${PREFERRED_PORT}-${MAX_PORT}"
   exit 1
 fi
-
-# ── Step 3: Resolve dashboard directory ──
-DASHBOARD_DIR="$(cd "${SCRIPT_DIR}/../dashboard" && pwd)"
 
 # ── Step 4: Start Python http.server in background ──
 SERVER_PID=""

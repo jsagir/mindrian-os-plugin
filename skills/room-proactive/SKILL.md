@@ -87,3 +87,38 @@ When the `analyze-room` script output is available in session context (injected 
 - `CONTRADICT:{section1}:{section2}:{confidence}:{message}` -- Structural conflict. Help the user reconcile.
 
 The script catches structural patterns; you add semantic interpretation. Read the actual Room entries to provide specific, contextual advice beyond what the script can detect.
+
+## Capability Suggestions
+
+The `analyze-room` script also emits `CAPABILITY:` signals when the room has enough data to make visualization and export features meaningful. These surface commands the user may not know about.
+
+### Signal Format
+
+```
+CAPABILITY:{feature}:{confidence}:{message with suggested command}
+```
+
+### Features Detected
+
+| Feature | Threshold | Command |
+|---------|-----------|---------|
+| **DASHBOARD** | 3+ artifacts | `/mos:room view` -- interactive Cytoscape knowledge graph |
+| **EXPORT_DASHBOARD** | 7+ artifacts | `/mos:room export` -- standalone shareable HTML |
+| **WIKI** | 5+ artifacts + 1+ meeting | `/mos:wiki` -- searchable Wikipedia-style room browser |
+| **MEETING_REPORT** | 3+ artifacts + 2+ meetings | `/mos:export meeting-report` -- Minto intelligence report |
+| **THESIS** | 10+ artifacts | `/mos:export thesis` -- investment thesis PDF |
+| **TEAM_VIEW** | 2+ team profiles | `/mos:room view` -- team nodes in the graph |
+
+### Display Rules
+
+- **SessionStart**: Include at most 1 CAPABILITY suggestion alongside the 2 intelligence findings. Choose the highest-confidence one. Frame it as a natural suggestion, not a sales pitch.
+- **Example**: "Your room has 8 artifacts with convergence signals -- try `/mos:room view` to see the knowledge graph."
+- **Never repeat**: If the user has already used the suggested command (check for `room/data-room-dashboard.html` existence for export, or `room/.lazygraph/` for wiki), do not suggest it again.
+- **Natural voice**: Weave the suggestion into Larry's greeting, not as a separate block. It should feel like a mentor pointing out a tool on the workbench, not a feature announcement.
+
+### CRITICAL: Dashboard Export Integrity
+
+When a user asks for a dashboard, room visualization, or export:
+- **ALWAYS** use `scripts/generate-standalone` or `scripts/serve-dashboard`
+- **NEVER** generate HTML by hand -- the template at `dashboard/index.html` has the full Cytoscape graph, De Stijl styling, intelligence panel, layer toggles, preset views, timeline mode, and chat UI
+- Improvised HTML will always be inferior to the real template

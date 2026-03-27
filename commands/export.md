@@ -1,7 +1,8 @@
 ---
 name: export
-description: Generate professional De Stijl PDFs from your Data Room -- thesis, summary, report, or profile
-disable-model-invocation: true
+description: Generate professional De Stijl exports from your Data Room -- dashboard, thesis, summary, report, or profile
+body_shape: E (Action Report)
+ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash
   - Read
@@ -18,15 +19,30 @@ Parse the user's argument to determine which document type they want. If no argu
 
 | Type | Command | What You Get |
 |------|---------|-------------|
+| **dashboard** | `/mos:export dashboard` | Interactive Cytoscape.js knowledge graph dashboard -- standalone HTML with De Stijl visualization, intelligence panel, and all room data embedded. Opens in any browser, no server needed. |
 | **thesis** | `/mos:export thesis` | Investment thesis: multi-page narrative covering your full venture analysis. Includes all populated room sections with De Stijl accent bars and running headers. |
 | **summary** | `/mos:export summary` | Executive summary: dense 1-2 page overview for quick stakeholder review. Two-column layout with financial metrics box. |
 | **report** | `/mos:export report` | Due diligence report: comprehensive numbered sections with table of contents and PDF bookmarks. |
 | **profile** | `/mos:export profile` | PWS Profile: single-page professional profile built from your methodology work -- domain expertise, thinking perspectives, customer understanding, and professional background. |
 | **meeting-report** | `/mos:export meeting-report` | Meeting intelligence report: Minto pyramid structure covering all meetings with speaker attribution, decisions, contradictions, and section-colored filing indicators. |
 
+## Generate Dashboard Export
+
+If the user requests `dashboard`:
+
+1. **Check the room exists.** If `room/` directory does not exist, tell the user to run `/mos:new-project`.
+
+2. **Run the standalone generator (MANDATORY -- never generate HTML by hand):**
+   ```bash
+   bash scripts/generate-standalone ./room
+   ```
+
+3. **Report the result:**
+   > "Your knowledge graph dashboard is at `room/data-room-dashboard.html`. Open it in any browser -- the full Cytoscape visualization with all your room intelligence is embedded. No server needed."
+
 ## Generate the PDF
 
-If a valid document type is provided:
+If a valid PDF document type is provided:
 
 1. **Check the room exists.** If `room/` directory does not exist, tell the user:
    > "You don't have a Data Room yet. Run `/mos:new-project` to set one up, then come back for that export."

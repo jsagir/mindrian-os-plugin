@@ -1,6 +1,8 @@
 ---
 name: wiki
 description: Open the Data Room wiki — browse room sections as Wikipedia-style pages
+body_shape: D (Document View)
+ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash
 ---
 # /mos:wiki
