@@ -148,3 +148,14 @@ Phase 20 and 21 can run in parallel. Phase 22 requires Phase 20. Phase 23 requir
 | 22. Admin Panel | v4.0 | 0/1 | Planned | - |
 | 23. Multi-Room Management | v4.0 | 0/TBD | Not started | - |
 | 24. Autonomous Engine | v4.0 | 0/TBD | Not started | - |
+
+### Phase 25: Data Room Export Template v2
+
+**Goal:** `/mos:room export` generates a single self-contained HTML file that any user can share — combining a Mondrian grid overview (clickable section cells), sidebar navigation for easy browsing, a document rail reader with TOC, an intelligence view (gaps/convergence/contradictions), a Cytoscape knowledge graph view, and rich content rendering (Mermaid diagrams, SVGs, tables, markdown). The template reads room/ state dynamically so it works for any MindrianOS user's data room.
+**Requirements**: EXPORT-01, EXPORT-02, EXPORT-03, EXPORT-04, EXPORT-05
+**Depends on:** Phase 19 (Wiki Dashboard — shares rendering patterns and graph data)
+**Plans:** 2 plans
+
+Plans:
+- [ ] 25-01-PLAN.md -- De Stijl HTML export template with 4 views (Mondrian grid, document reader, intelligence, graph)
+- [ ] 25-02-PLAN.md -- generate-export.cjs script + room command wiring
