@@ -654,10 +654,24 @@ if [ -f "${ROOM_DIR}/STATE.md" ]; then
   if [ -n "$stage_line" ]; then
     venture_stage=$(echo "$stage_line" | sed 's/.*venture_stage:[[:space:]]*//' | tr -d '"' | xargs)
   fi
-  # Extract room/venture name
-  name_line=$(grep -i 'venture_name:' "${ROOM_DIR}/STATE.md" 2>/dev/null | head -1 || true)
+  # Extract room/venture name (try multiple frontmatter keys)
+  name_line=$(grep -iE 'venture_name:|room_name:|project_name:|name:' "${ROOM_DIR}/STATE.md" 2>/dev/null | head -1 || true)
   if [ -n "$name_line" ]; then
-    room_name=$(echo "$name_line" | sed 's/.*venture_name:[[:space:]]*//' | tr -d '"' | xargs)
+    room_name=$(echo "$name_line" | sed 's/^[^:]*:[[:space:]]*//' | tr -d '"' | xargs)
+  fi
+  # Fallback: extract from H1 heading (e.g., "# Polygon Eye Data Room")
+  if [ "$room_name" = "Data Room" ]; then
+    h1_line=$(grep -m1 '^# ' "${ROOM_DIR}/STATE.md" 2>/dev/null | sed 's/^# //' || true)
+    if [ -n "$h1_line" ] && [ "$h1_line" != "Data Room State" ]; then
+      room_name="$h1_line"
+    fi
+  fi
+  # Last fallback: use parent directory name (titlecased)
+  if [ "$room_name" = "Data Room" ]; then
+    dir_name=$(basename "$ROOM_DIR")
+    if [ "$dir_name" != "room" ]; then
+      room_name=$(echo "$dir_name" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
+    fi
   fi
 fi
 # Escape room name for JSON
