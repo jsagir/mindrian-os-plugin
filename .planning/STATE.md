@@ -164,6 +164,10 @@ Recent decisions affecting v3.0:
 - [Phase 21]: Commands declare body shape in YAML frontmatter for machine readability
 - [Phase 21]: Help groups by flow (Getting Started, Working, Reviewing, Brain, Admin) not venture stage
 
+### Roadmap Evolution
+
+- Phase 25 added: Data Room Export Template v2 (Mondrian grid + sidebar + document rail + intelligence + graph + Mermaid/SVG/tables)
+
 ### Pending Todos
 
 - Trained Lawrence model (PAID TIER): Fine-tune on real teaching transcripts
