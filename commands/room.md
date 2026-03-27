@@ -251,87 +251,38 @@ Larry adds a brief observation about the addition.
 
 ## Subcommand: export
 
-**Trigger:** `/mos:room export` or `/mos:room export dashboard` or `/mos:room export clean`
+**Trigger:** `/mos:room export` or `/mos:room export --format standalone`
 
-Parse the export type. Default to **dashboard** if no type specified.
-
-### Type: dashboard (default)
-
-Generates a self-contained Cytoscape.js knowledge graph dashboard as a single HTML file.
-This is the visualization-heavy De Stijl dashboard with interactive graph, intelligence panel, and chat UI.
-Works offline -- no server needed, just open in a browser.
-
-**CRITICAL: NEVER generate dashboard HTML by hand. ALWAYS use the generate-standalone script.**
-The template is `dashboard/index.html` -- do not improvise or create HTML from scratch.
-
-#### Step 1: Check for Room
+### Step 1: Check for Room
 
 If no `room/` directory exists, use 3-line error format.
 
-#### Step 2: Run the standalone generator
+### Step 2: Generate Export
+
+Run the export generation script:
 
 ```bash
-ROOM_DIR=./room bash scripts/generate-standalone ./room
+node scripts/generate-export.cjs "./room"
 ```
 
-This produces `room/data-room-dashboard.html` with:
-- Full Cytoscape.js interactive knowledge graph
-- All room artifacts, meetings, team members, and concepts as graph nodes
-- Intelligence panel (gaps, convergence, contradictions)
-- De Stijl styling with section-colored nodes and semantic edge types
-- Graph data embedded inline (no server dependency)
+This generates a self-contained HTML file at `room/exports/YYYY-MM-DD-{room-name}.html`.
 
-#### Step 3: Confirm to User
+### Step 3: Confirm (Shape E mini-report)
 
 ```
-  Action: export dashboard
-  Output: room/data-room-dashboard.html
+  Action: export
+  Format: Standalone HTML (De Stijl Mondrian grid + 4 views)
+  Output: room/exports/{filename}.html
+  Sections: [X] with content, [Y] empty
+  Intelligence: [N] gaps, [M] convergence themes, [K] contradictions
 
-  The file contains your full knowledge graph as an interactive
-  visualization. Open it in any browser -- no server needed.
+  Open in any browser -- no server needed. Share with investors, mentors, or team.
 
-  ▶ Open the file to review
-  ▷ /mos:room view                  Launch the live dashboard server
+  ▶ /mos:room view                    Launch the live dashboard
+  ▷ /mos:status                       Check overall progress
 ```
 
-### Type: clean
-
-Generates a clean markdown export for sharing (strips frontmatter and internal files).
-
-#### Step 1: Check for Room
-
-If no `room/` directory exists, use 3-line error format.
-
-#### Step 2: Create Clean Export
-
-Create an `export/` directory with a clean copy of the room tree:
-
-```bash
-mkdir -p export
-```
-
-For each section and sub-room:
-1. Mirror the directory structure from `room/` into `export/`
-2. Copy all `.md` files EXCEPT:
-   - `ROOM.md` files (internal metadata)
-   - `STATE.md` (computed state, not content)
-   - `MINTO.md` (internal reasoning structure)
-   - `USER.md` (user context, private)
-3. For each copied file:
-   - Strip YAML frontmatter (the `---` delimited block at the top)
-   - Keep the clean markdown content only
-   - Preserve the file name
-
-#### Step 3: Confirm (Shape E mini-report)
-
-```
-  Action: export clean
-  Target: export/
-  Files: [X] across [Y] sections
-
-  ▶ Review export/ before sharing
-  ▷ /mos:room export dashboard      Also generate the visual dashboard
-```
+Larry adds a brief observation about the export quality (e.g., "Three empty sections will stand out to an investor -- consider filling them first.").
 
 ## Voice Rules
 
