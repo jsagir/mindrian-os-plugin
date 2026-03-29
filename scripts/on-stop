@@ -9,7 +9,7 @@ PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Determine working directory
 WORK_DIR="${PWD}"
-ROOM_DIR="${WORK_DIR}/room"
+ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR") || ROOM_DIR=""
 
 if [ -d "$ROOM_DIR" ]; then
   # Room exists -- compute state and write STATE.md

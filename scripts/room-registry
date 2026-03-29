@@ -1,0 +1,228 @@
+#!/usr/bin/env bash
+# room-registry -- Registry CRUD operations for multi-room management
+# Manages .rooms/registry.json with atomic writes (tmp + mv)
+#
+# Subcommands:
+#   create <name> <path> [venture_name] [venture_stage]
+#   read <name>
+#   list
+#   update <name> <field> <value>
+#   set-active <name>
+#   archive <name>
+#   get-active
+#
+# First positional argument (before subcommand) can be workspace dir.
+# Defaults to $PWD.
+
+set -euo pipefail
+
+# Parse workspace dir -- if first arg is a directory, use it
+WORK_DIR="$PWD"
+if [ $# -ge 1 ] && [ -d "$1" ]; then
+  WORK_DIR="$1"
+  shift
+fi
+
+REGISTRY_DIR="${WORK_DIR}/.rooms"
+REGISTRY_FILE="${REGISTRY_DIR}/registry.json"
+
+SUBCMD="${1:-}"
+shift 2>/dev/null || true
+
+ensure_registry() {
+  mkdir -p "$REGISTRY_DIR"
+  if [ ! -f "$REGISTRY_FILE" ]; then
+    echo '{"version": 1, "active": "", "rooms": {}}' > "$REGISTRY_FILE"
+  fi
+}
+
+case "$SUBCMD" in
+  create)
+    NAME="${1:-}"
+    RPATH="${2:-}"
+    VNAME="${3:-My Venture}"
+    VSTAGE="${4:-Pre-Opportunity}"
+    if [ -z "$NAME" ] || [ -z "$RPATH" ]; then
+      echo "Usage: room-registry create <name> <path> [venture_name] [venture_stage]" >&2
+      exit 1
+    fi
+    ensure_registry
+    python3 -c "
+import json, os, datetime
+reg_file = '$REGISTRY_FILE'
+with open(reg_file) as f:
+    reg = json.load(f)
+# Park currently active room
+old_active = reg.get('active', '')
+if old_active and old_active in reg.get('rooms', {}):
+    reg['rooms'][old_active]['status'] = 'parked'
+now = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+reg['rooms']['$NAME'] = {
+    'path': '$RPATH',
+    'created': now,
+    'last_opened': now,
+    'status': 'active',
+    'venture_name': '''$VNAME''',
+    'venture_stage': '''$VSTAGE'''
+}
+reg['active'] = '$NAME'
+tmp = reg_file + '.tmp'
+with open(tmp, 'w') as f:
+    json.dump(reg, f, indent=2)
+os.rename(tmp, reg_file)
+print(json.dumps(reg['rooms']['$NAME'], indent=2))
+"
+    # Create the room directory if it doesn't exist
+    mkdir -p "${WORK_DIR}/${RPATH}"
+    ;;
+
+  read)
+    NAME="${1:-}"
+    if [ -z "$NAME" ]; then
+      echo "Usage: room-registry read <name>" >&2
+      exit 1
+    fi
+    if [ ! -f "$REGISTRY_FILE" ]; then
+      echo "{}" ; exit 1
+    fi
+    python3 -c "
+import json, sys
+with open('$REGISTRY_FILE') as f:
+    reg = json.load(f)
+room = reg.get('rooms', {}).get('$NAME')
+if room:
+    print(json.dumps(room, indent=2))
+else:
+    print('{}')
+    sys.exit(1)
+"
+    ;;
+
+  list)
+    if [ ! -f "$REGISTRY_FILE" ]; then
+      echo "[]" ; exit 0
+    fi
+    python3 -c "
+import json
+with open('$REGISTRY_FILE') as f:
+    reg = json.load(f)
+result = []
+for name, room in reg.get('rooms', {}).items():
+    result.append({
+        'name': name,
+        'path': room.get('path', ''),
+        'status': room.get('status', 'unknown'),
+        'venture_name': room.get('venture_name', ''),
+        'venture_stage': room.get('venture_stage', ''),
+        'last_opened': room.get('last_opened', '')
+    })
+print(json.dumps(result, indent=2))
+"
+    ;;
+
+  update)
+    NAME="${1:-}"
+    FIELD="${2:-}"
+    VALUE="${3:-}"
+    if [ -z "$NAME" ] || [ -z "$FIELD" ]; then
+      echo "Usage: room-registry update <name> <field> <value>" >&2
+      exit 1
+    fi
+    if [ ! -f "$REGISTRY_FILE" ]; then
+      echo "No registry found" >&2; exit 1
+    fi
+    python3 -c "
+import json, os, sys
+reg_file = '$REGISTRY_FILE'
+with open(reg_file) as f:
+    reg = json.load(f)
+if '$NAME' not in reg.get('rooms', {}):
+    print('Room not found: $NAME', file=sys.stderr)
+    sys.exit(1)
+reg['rooms']['$NAME']['$FIELD'] = '''$VALUE'''
+tmp = reg_file + '.tmp'
+with open(tmp, 'w') as f:
+    json.dump(reg, f, indent=2)
+os.rename(tmp, reg_file)
+print(json.dumps(reg['rooms']['$NAME'], indent=2))
+"
+    ;;
+
+  set-active)
+    NAME="${1:-}"
+    if [ -z "$NAME" ]; then
+      echo "Usage: room-registry set-active <name>" >&2
+      exit 1
+    fi
+    if [ ! -f "$REGISTRY_FILE" ]; then
+      echo "No registry found" >&2; exit 1
+    fi
+    python3 -c "
+import json, os, sys, datetime
+reg_file = '$REGISTRY_FILE'
+with open(reg_file) as f:
+    reg = json.load(f)
+if '$NAME' not in reg.get('rooms', {}):
+    print('Room not found: $NAME', file=sys.stderr)
+    sys.exit(1)
+# Park currently active room
+old_active = reg.get('active', '')
+if old_active and old_active in reg.get('rooms', {}) and old_active != '$NAME':
+    reg['rooms'][old_active]['status'] = 'parked'
+now = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+reg['rooms']['$NAME']['status'] = 'active'
+reg['rooms']['$NAME']['last_opened'] = now
+reg['active'] = '$NAME'
+tmp = reg_file + '.tmp'
+with open(tmp, 'w') as f:
+    json.dump(reg, f, indent=2)
+os.rename(tmp, reg_file)
+print('$NAME')
+"
+    ;;
+
+  archive)
+    NAME="${1:-}"
+    if [ -z "$NAME" ]; then
+      echo "Usage: room-registry archive <name>" >&2
+      exit 1
+    fi
+    if [ ! -f "$REGISTRY_FILE" ]; then
+      echo "No registry found" >&2; exit 1
+    fi
+    python3 -c "
+import json, os, sys
+reg_file = '$REGISTRY_FILE'
+with open(reg_file) as f:
+    reg = json.load(f)
+if '$NAME' not in reg.get('rooms', {}):
+    print('Room not found: $NAME', file=sys.stderr)
+    sys.exit(1)
+reg['rooms']['$NAME']['status'] = 'archived'
+if reg.get('active') == '$NAME':
+    reg['active'] = ''
+tmp = reg_file + '.tmp'
+with open(tmp, 'w') as f:
+    json.dump(reg, f, indent=2)
+os.rename(tmp, reg_file)
+print('archived')
+"
+    ;;
+
+  get-active)
+    if [ ! -f "$REGISTRY_FILE" ]; then
+      echo ""; exit 0
+    fi
+    python3 -c "
+import json
+with open('$REGISTRY_FILE') as f:
+    reg = json.load(f)
+print(reg.get('active', ''))
+"
+    ;;
+
+  *)
+    echo "Usage: room-registry <create|read|list|update|set-active|archive|get-active> [args...]" >&2
+    exit 1
+    ;;
+esac

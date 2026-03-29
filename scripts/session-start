@@ -10,7 +10,7 @@ PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Determine working directory (where user's project is)
 WORK_DIR="${PWD}"
-ROOM_DIR="${WORK_DIR}/room"
+ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR") || ROOM_DIR=""
 
 # Read current version from plugin.json
 PLUGIN_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "unknown")
@@ -108,7 +108,7 @@ fi
 # Falls through to existing statusline (e.g. GSD) when no room present
 CLAUDE_CONFIG_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 CLAUDE_SETTINGS="${CLAUDE_CONFIG_DIR}/settings.json"
-if [ -f "$CLAUDE_SETTINGS" ] && [ -d "$ROOM_DIR" ]; then
+if [ -f "$CLAUDE_SETTINGS" ] && [ -n "$ROOM_DIR" ] && [ -d "$ROOM_DIR" ]; then
   # Room exists — ensure MindrianOS statusline is active
   CURRENT_STATUSLINE=$(python3 -c "import json; d=json.load(open('$CLAUDE_SETTINGS')); sl=d.get('statusLine',{}); print(sl.get('command',''))" 2>/dev/null || echo "")
   if [[ "$CURRENT_STATUSLINE" != *"context-monitor"* ]]; then
@@ -125,7 +125,7 @@ with open('$CLAUDE_SETTINGS', 'w') as f:
     json.dump(d, f, indent=2)
 " 2>/dev/null || true
   fi
-elif [ -f "$CLAUDE_SETTINGS" ] && [ ! -d "$ROOM_DIR" ]; then
+elif [ -f "$CLAUDE_SETTINGS" ] && { [ -z "$ROOM_DIR" ] || [ ! -d "$ROOM_DIR" ]; }; then
   # No room — restore saved statusline if we swapped it
   python3 -c "
 import json

@@ -60,8 +60,23 @@ process.stdin.on('end', () => {
 
     // --- Room context ---
     let roomInfo = '';
-    const roomDir = path.join(dir, 'room');
-    if (fs.existsSync(roomDir)) {
+    // Resolve room path: try registry first, fall back to room/
+    let roomDir = '';
+    const registryPath = path.join(dir, '.rooms', 'registry.json');
+    if (fs.existsSync(registryPath)) {
+      try {
+        const reg = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+        if (reg.active && reg.rooms[reg.active]) {
+          const resolved = path.resolve(dir, reg.rooms[reg.active].path);
+          if (fs.existsSync(resolved)) roomDir = resolved;
+        }
+      } catch (e) {}
+    }
+    if (!roomDir) {
+      const legacy = path.join(dir, 'room');
+      if (fs.existsSync(legacy)) roomDir = legacy;
+    }
+    if (roomDir) {
       try {
         // Project name from room STATE.md or directory name
         let projectName = path.basename(dir);
