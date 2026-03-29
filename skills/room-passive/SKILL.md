@@ -32,6 +32,31 @@ When a methodology session produces an artifact:
 3. **Handle uncertain classifications** -- if the PostToolUse hook reports "UNCERTAIN", analyze the artifact content in conversation context and suggest the best room section
 4. **Cross-room relevance** -- when an artifact relates to multiple rooms, file to the primary section and mention secondary relevance
 
+## Active Room Lock (Multi-Room Safety)
+
+When `.rooms/registry.json` exists in the workspace, multi-room mode is active. The following rules apply to ALL file-writing operations:
+
+### Before Filing ANY Artifact
+
+1. **Resolve the active room**: Read `.rooms/registry.json` and check the `active` field
+2. **Verify target path**: The file being written MUST be inside the active room's directory
+3. **Block cross-room writes**: If the target path is inside a DIFFERENT room (e.g., writing to `rooms/fintech-startup/` when `rooms/acme-robotics/` is active), STOP and show:
+   ```
+   x Cannot write to inactive room: fintech-startup
+     Why: Active room is acme-robotics -- writing to other rooms risks cross-contamination
+     Fix: /mos:rooms open fintech-startup
+   ```
+4. **Allow non-room writes**: Files outside any room directory (e.g., workspace root, `.rooms/`, `00_Context/`) are always allowed
+5. **Allow admin commands**: `/mos:admin` operations are room-agnostic and never blocked by the room lock
+
+### Single-Room Mode (No Registry)
+
+When no `.rooms/registry.json` exists, skip the active room check entirely. All writes to `room/` are allowed (backward compatibility).
+
+### Key Principle
+
+The room lock is a PREVENTION mechanism, not a recovery mechanism. It is better to block a write and ask the user to switch rooms than to allow cross-contamination and try to fix it later.
+
 ## Provenance Metadata
 
 Every filed artifact MUST include YAML frontmatter:
