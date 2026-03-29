@@ -20,6 +20,22 @@ v1.0 through v4.0 = 50+ commands, 8 agents, meeting intelligence pipeline, team 
 - v3.0 MCP Platform (2026-03-25) -- 10 phases, 26 plans
 - v4.0 Brain API & CLI UI (2026-03-29) -- 6 phases, 12 plans
 
+## Current Milestone: v5.0 Interactive Data Room
+
+**Goal:** The Data Room becomes a living, visual, shareable application -- anyone with a link can explore the knowledge graph, chat with Larry about the venture, discover relationships and opportunities, and see flows between sections.
+
+**Target features:**
+- Full visual Data Room with De Stijl design (not a document viewer -- an interactive app)
+- Interactive knowledge graph with relationship exploration and pattern discovery
+- Chat interface -- visitors talk to Larry scoped to the room's context
+- Flow visualization -- insight movement between sections, methodology chains, cascade paths
+- Relationship-driven opportunity discovery -- surface connections the user hasn't seen
+- Shareable via any static host (GitHub Pages, Vercel, Cloudflare) or localhost
+- Privacy controls -- choose what to expose
+
+**Key constraint:** Must work as a static deployable (no server required for viewers) while supporting interactive chat via BYOAPI or hosted endpoint.
+- v4.0 Brain API & CLI UI (2026-03-29) -- 6 phases, 12 plans
+
 ## v3.0 Backlog (Captured Ideas)
 
 - Opportunity Bank (room section + proactive grant discovery agents)
@@ -148,4 +164,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-29 after v4.0 milestone completion*
+*Last updated: 2026-03-30 after v5.0 milestone start*
