@@ -46,8 +46,15 @@ function supabaseUrl(path) {
  * Returns the full row needed for lifecycle checks.
  */
 async function lookupKeyRow(apiKey) {
+  // Try api_key (UUID) column first, then api_key_text (mbr_ string) column
+  const columns = 'id,user_id,email,plan,status,expires_at,grace_ends_at,trial_expired_at,total_requests,last_request_at';
+
+  // If key starts with mbr_, search api_key_text first
+  const searchColumn = apiKey.startsWith('mbr_') ? 'api_key_text' : 'api_key';
+  const fallbackColumn = apiKey.startsWith('mbr_') ? 'api_key' : 'api_key_text';
+
   const url = supabaseUrl(
-    `brain_api_keys?api_key=eq.${encodeURIComponent(apiKey)}&select=id,user_id,email,plan,status,expires_at,grace_ends_at,trial_expired_at,total_requests,last_request_at`
+    `brain_api_keys?${searchColumn}=eq.${encodeURIComponent(apiKey)}&select=${columns}`
   );
 
   const response = await fetch(url, {
@@ -55,12 +62,27 @@ async function lookupKeyRow(apiKey) {
     headers: supabaseHeaders(),
   });
 
-  if (!response.ok) return null;
+  if (response.ok) {
+    const rows = await response.json();
+    if (rows && rows.length > 0) return rows[0];
+  }
 
-  const rows = await response.json();
-  if (!rows || rows.length === 0) return null;
+  // Fallback: try the other column
+  const fallbackUrl = supabaseUrl(
+    `brain_api_keys?${fallbackColumn}=eq.${encodeURIComponent(apiKey)}&select=${columns}`
+  );
 
-  return rows[0];
+  const fallbackResponse = await fetch(fallbackUrl, {
+    method: 'GET',
+    headers: supabaseHeaders(),
+  });
+
+  if (!fallbackResponse.ok) return null;
+
+  const fallbackRows = await fallbackResponse.json();
+  if (!fallbackRows || fallbackRows.length === 0) return null;
+
+  return fallbackRows[0];
 }
 
 /**
