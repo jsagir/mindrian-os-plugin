@@ -29,7 +29,7 @@
 
 ### Multi-Room
 - [ ] **ROOM-01**: `.rooms/registry.json` with room index and active room tracking
-- [ ] **ROOM-02**: `/mos:rooms` command (list, new, open, close, archive, where)
+- [x] **ROOM-02**: `/mos:rooms` command (list, new, open, close, archive, where)
 - [ ] **ROOM-03**: Context safety -- active room lock on all file-writing commands
 - [ ] **ROOM-04**: Header canary -- room name always visible in Zone 1
 - [ ] **ROOM-05**: Session start shows multi-room context when multiple rooms registered
@@ -62,7 +62,7 @@
 | ADMIN-02 | Phase 22 | Complete |
 | ADMIN-03 | Phase 22 | Complete |
 | ROOM-01 | Phase 23 | Pending |
-| ROOM-02 | Phase 23 | Pending |
+| ROOM-02 | Phase 23 | Complete |
 | ROOM-03 | Phase 23 | Pending |
 | ROOM-04 | Phase 23 | Pending |
 | ROOM-05 | Phase 23 | Pending |
