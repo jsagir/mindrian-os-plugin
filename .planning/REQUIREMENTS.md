@@ -36,9 +36,9 @@
 
 ### Autonomous Engine
 - [ ] **ACT-01**: `/mos:act` reads room STATE.md + MINTO.md, selects framework via Brain (local fallback)
-- [ ] **ACT-02**: Framework execution via subagent (`agents/framework-runner.md`, isolated context)
+- [x] **ACT-02**: Framework execution via subagent (`agents/framework-runner.md`, isolated context)
 - [ ] **ACT-03**: Thinking trace displayed before any action
-- [ ] **ACT-04**: `--chain` mode chains 3-5 frameworks, each feeds the next via output contract
+- [x] **ACT-04**: `--chain` mode chains 3-5 frameworks, each feeds the next via output contract
 - [ ] **ACT-05**: `--dry-run` previews without executing
 
 ## Traceability
@@ -67,9 +67,9 @@
 | ROOM-04 | Phase 23 | Pending |
 | ROOM-05 | Phase 23 | Pending |
 | ACT-01 | Phase 24 | Pending |
-| ACT-02 | Phase 24 | Pending |
+| ACT-02 | Phase 24 | Complete |
 | ACT-03 | Phase 24 | Pending |
-| ACT-04 | Phase 24 | Pending |
+| ACT-04 | Phase 24 | Complete |
 | ACT-05 | Phase 24 | Pending |
 
 ## Out of Scope
