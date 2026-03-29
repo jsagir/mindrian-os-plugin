@@ -46,6 +46,19 @@ Rules:
 - Section name appears only when the command targets a specific section
 - Venture stage comes from room STATE.md
 
+### Multi-Room Header (Registry Mode)
+
+When `.rooms/registry.json` exists, the room name in Zone 1 comes from the registry's active room entry (not from reading `room/STATE.md` directly). This ensures the header canary always reflects the registry truth.
+
+If the active room's `venture_name` field is set, use it. Otherwise, use the room slug.
+
+If no room is active (user ran `/mos:rooms close`), header shows:
+```
+-- MindrianOS -- no active room --
+```
+
+The header canary is the FIRST line of defense for context safety. If a user sees "Acme Robotics" in the header but is about to file to "fintech-startup", the mismatch is immediately visible.
+
 ### Zone 2: Content Body
 
 The payload of the command. Varies by body shape (see Section 2). This zone has no chrome -- it is pure content.
