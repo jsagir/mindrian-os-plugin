@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-03-29
+
+### Added
+- **Brain API Key Management** (Phase 20) -- Supabase-backed `brain_api_keys` table with `validate_brain_key` RPC. Plan-gated `brain_write` guard blocks non-admin keys. `brain-admin.cjs` CLI with 6 commands (create/revoke/extend/list/usage/requests). Render production auth wired via env vars.
+- **CLI UI Ruling System** (Phase 21) -- 728-line `skills/ui-system/SKILL.md` governing all MindrianOS output. 4-zone anatomy (header, body, intelligence strip, footer), 5 body shapes (Mondrian board, semantic tree, room card, document view, action report), 12 glyphs, 5 ANSI colors, session start contract (cold/warm/signals), dual context routing (STATE.md + MINTO.md).
+- **Admin Panel** (Phase 22) -- Hidden `/mos:admin` command wrapping brain-admin.cjs. Self-teaching on every invocation. Consequence previews for destructive actions. Filtered from `/mos:help` for non-admin users.
+- **Multi-Room Management** (Phase 23) -- `.rooms/registry.json` for multi-project workspaces. `scripts/resolve-room` keystone resolver with legacy `room/` fallback. `scripts/room-registry` CRUD. `/mos:rooms` command with 6 subcommands (list/new/open/close/archive/where). Active room lock on all file-writing commands. Zone 1 header canary shows room name. Session start shows multi-room context. All hooks and scripts retrofitted.
+- **Autonomous Engine** (Phase 24) -- `/mos:act` reads active room STATE.md + MINTO.md, queries Brain for best methodology framework (local fallback via problem-types routing table), displays thinking trace in Shape E format. `agents/framework-runner.md` isolated subagent with quality gate and provenance tracking. `--chain` mode (3-5 frameworks in sequence). `--dry-run` previews without executing.
+- **Data Room Export v2** (Phase 25) -- Single-file De Stijl HTML export with 4 views: Mondrian grid overview, document reader with sidebar nav and TOC, intelligence view (gaps/convergence/contradictions), interactive Cytoscape knowledge graph. `generate-export.cjs` data injection script. Room identity in header.
+
 ## [1.3.0] - 2026-03-26
 
 ### Added
