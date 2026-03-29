@@ -131,9 +131,10 @@ Plans:
   2. Framework execution happens in an isolated subagent context (agents/framework-runner.md) -- the main session context is not polluted
   3. Running /mos:act --chain selects and executes 3-5 frameworks in sequence, where each framework's output feeds the next via a structured output contract
   4. Running /mos:act --dry-run shows the full execution plan (framework selection, reasoning, expected outputs) without executing anything
-**Plans**: TBD
+**Plans**: 2 plans
 Plans:
-- [To be planned]
+- [ ] 24-01-PLAN.md -- /mos:act command + Brain selection + thinking trace + dry-run
+- [ ] 24-02-PLAN.md -- framework-runner agent + chain mode output contract
 
 ## Progress
 
@@ -149,7 +150,7 @@ Phase 20 and 21 can run in parallel. Phase 22 requires Phase 20. Phase 23 requir
 | 21. CLI UI Ruling System | v4.0 | 1/2 | Complete    | 2026-03-29 |
 | 22. Admin Panel | v4.0 | 0/1 | Complete    | 2026-03-29 |
 | 23. Multi-Room Management | v4.0 | 0/3 | Not started | - |
-| 24. Autonomous Engine | v4.0 | 0/TBD | Not started | - |
+| 24. Autonomous Engine | v4.0 | 0/2 | Not started | - |
 
 ### Phase 25: Data Room Export Template v2
 
