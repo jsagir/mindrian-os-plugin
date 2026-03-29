@@ -28,7 +28,7 @@
 - [ ] **UI-07**: Dual context per folder -- STATE.md + MINTO.md both read before routing
 
 ### Multi-Room
-- [ ] **ROOM-01**: `.rooms/registry.json` with room index and active room tracking
+- [x] **ROOM-01**: `.rooms/registry.json` with room index and active room tracking
 - [ ] **ROOM-02**: `/mos:rooms` command (list, new, open, close, archive, where)
 - [ ] **ROOM-03**: Context safety -- active room lock on all file-writing commands
 - [ ] **ROOM-04**: Header canary -- room name always visible in Zone 1
@@ -61,7 +61,7 @@
 | ADMIN-01 | Phase 22 | Complete |
 | ADMIN-02 | Phase 22 | Complete |
 | ADMIN-03 | Phase 22 | Complete |
-| ROOM-01 | Phase 23 | Pending |
+| ROOM-01 | Phase 23 | Complete |
 | ROOM-02 | Phase 23 | Pending |
 | ROOM-03 | Phase 23 | Pending |
 | ROOM-04 | Phase 23 | Pending |
