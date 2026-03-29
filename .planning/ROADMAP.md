@@ -58,9 +58,9 @@ See: `.planning/milestones/v3.0-ROADMAP.md`
 
 **Milestone Goal:** Protect the moat (Brain API key management with admin control), establish the visual grammar for all MindrianOS terminal interactions, then enable multi-room management and autonomous framework execution.
 
-- [ ] **Phase 20: Brain API Control** - Supabase-backed key management with approve/revoke/extend, usage tracking, and production auth
-- [ ] **Phase 21: CLI UI Ruling System** - The skill file that governs all MindrianOS output: 4-zone anatomy, 5 body shapes, symbol vocabulary, color contract, dual context
-- [ ] **Phase 22: Admin Panel** - Hidden self-teaching admin experience for Brain key management and system operations
+- [x] **Phase 20: Brain API Control** - Supabase-backed key management with approve/revoke/extend, usage tracking, and production auth (completed 2026-03-29)
+- [x] **Phase 21: CLI UI Ruling System** - The skill file that governs all MindrianOS output: 4-zone anatomy, 5 body shapes, symbol vocabulary, color contract, dual context (completed 2026-03-29)
+- [x] **Phase 22: Admin Panel** - Hidden self-teaching admin experience for Brain key management and system operations (completed 2026-03-29)
 - [ ] **Phase 23: Multi-Room Management** - Room registry, switching, context safety, and header canary for multi-project workflows
 - [ ] **Phase 24: Autonomous Engine** - Brain-driven framework selection with subagent execution, thinking traces, and chain mode
 
@@ -116,9 +116,11 @@ Plans:
   2. User can create, open, close, and archive rooms via /mos:rooms subcommands, and /mos:rooms where shows the currently active room
   3. All file-writing commands check the active room lock before writing -- attempting to write to an inactive room is blocked with a clear error
   4. The room name is always visible in the Zone 1 header (canary), and session start shows multi-room context when 2+ rooms are registered
-**Plans**: TBD
+**Plans**: 3 plans
 Plans:
-- [To be planned]
+- [ ] 23-01-PLAN.md -- Registry infrastructure + resolve-room keystone + hook/script retrofit
+- [ ] 23-02-PLAN.md -- /mos:rooms command with 6 subcommands + new-project registry support
+- [ ] 23-03-PLAN.md -- Context safety (room lock) + Zone 1 header canary + multi-room greeting
 
 ### Phase 24: Autonomous Engine
 **Goal**: Larry can autonomously select and execute methodology frameworks based on room state -- with full thinking transparency, subagent isolation, and the ability to chain multiple frameworks in sequence
@@ -143,18 +145,18 @@ Phase 20 and 21 can run in parallel. Phase 22 requires Phase 20. Phase 23 requir
 | 1-5 | v1.0 | 20/20 | Complete | 2026-03-22 |
 | 6-9 | v2.0 | 13/13 | Complete | 2026-03-24 |
 | 10-19 | v3.0 | 26/26 | Complete | 2026-03-25 |
-| 20. Brain API Control | v4.0 | 0/2 | Planned | - |
-| 21. CLI UI Ruling System | v4.0 | 1/2 | In progress | - |
-| 22. Admin Panel | v4.0 | 0/1 | Planned | - |
-| 23. Multi-Room Management | v4.0 | 0/TBD | Not started | - |
+| 20. Brain API Control | v4.0 | 0/2 | Complete    | 2026-03-29 |
+| 21. CLI UI Ruling System | v4.0 | 1/2 | Complete    | 2026-03-29 |
+| 22. Admin Panel | v4.0 | 0/1 | Complete    | 2026-03-29 |
+| 23. Multi-Room Management | v4.0 | 0/3 | Not started | - |
 | 24. Autonomous Engine | v4.0 | 0/TBD | Not started | - |
 
 ### Phase 25: Data Room Export Template v2
 
-**Goal:** `/mos:room export` generates a single self-contained HTML file that any user can share — combining a Mondrian grid overview (clickable section cells), sidebar navigation for easy browsing, a document rail reader with TOC, an intelligence view (gaps/convergence/contradictions), a Cytoscape knowledge graph view, and rich content rendering (Mermaid diagrams, SVGs, tables, markdown). The template reads room/ state dynamically so it works for any MindrianOS user's data room.
+**Goal:** `/mos:room export` generates a single self-contained HTML file that any user can share -- combining a Mondrian grid overview (clickable section cells), sidebar navigation for easy browsing, a document rail reader with TOC, an intelligence view (gaps/convergence/contradictions), a Cytoscape knowledge graph view, and rich content rendering (Mermaid diagrams, SVGs, tables, markdown). The template reads room/ state dynamically so it works for any MindrianOS user's data room.
 **Requirements**: EXPORT-01, EXPORT-02, EXPORT-03, EXPORT-04, EXPORT-05
-**Depends on:** Phase 19 (Wiki Dashboard — shares rendering patterns and graph data)
-**Plans:** 2 plans
+**Depends on:** Phase 19 (Wiki Dashboard -- shares rendering patterns and graph data)
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 25-01-PLAN.md -- De Stijl HTML export template with 4 views (Mondrian grid, document reader, intelligence, graph)
