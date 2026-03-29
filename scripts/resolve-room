@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+# resolve-room -- Universal room path resolver (keystone script)
+# Returns the absolute path of the active room on stdout.
+#
+# Strategy:
+#   1. Registry: .rooms/registry.json -> active room path
+#   2. Legacy fallback: room/ directory
+#   3. No room: exit 1
+#
+# Arguments:
+#   $1 -- workspace directory (defaults to $PWD)
+#   --adopt -- if legacy room/ exists with no registry, create one
+#
+# Performance: must complete in under 200ms (single python3 call)
+
+set -euo pipefail
+
+WORK_DIR=""
+ADOPT=false
+
+for arg in "$@"; do
+  case "$arg" in
+    --adopt) ADOPT=true ;;
+    *) [ -z "$WORK_DIR" ] && WORK_DIR="$arg" ;;
+  esac
+done
+
+WORK_DIR="${WORK_DIR:-$PWD}"
+REGISTRY_DIR="${WORK_DIR}/.rooms"
+REGISTRY_FILE="${REGISTRY_DIR}/registry.json"
+
+# Strategy 1: Registry-based resolution
+if [ -f "$REGISTRY_FILE" ]; then
+  ROOM_PATH=$(python3 -c "
+import json, sys, os
+try:
+    with open('$REGISTRY_FILE') as f:
+        reg = json.load(f)
+    active = reg.get('active', '')
+    if not active or active not in reg.get('rooms', {}):
+        sys.exit(1)
+    rel_path = reg['rooms'][active]['path']
+    abs_path = os.path.normpath(os.path.join('$WORK_DIR', rel_path))
+    if os.path.isdir(abs_path):
+        print(abs_path)
+    else:
+        sys.exit(1)
+except Exception:
+    sys.exit(1)
+" 2>/dev/null) || { echo ""; exit 1; }
+
+  if [ -n "$ROOM_PATH" ]; then
+    echo "$ROOM_PATH"
+    exit 0
+  fi
+  exit 1
+fi
+
+# Strategy 2: Legacy fallback -- room/ directory
+LEGACY_DIR="${WORK_DIR}/room"
+if [ -d "$LEGACY_DIR" ]; then
+  if $ADOPT; then
+    # Create registry adopting the legacy room
+    mkdir -p "$REGISTRY_DIR"
+
+    # Extract venture info from STATE.md if available
+    python3 -c "
+import json, os, datetime
+state_file = os.path.join('$LEGACY_DIR', 'STATE.md')
+venture_name = 'My Venture'
+venture_stage = 'Pre-Opportunity'
+if os.path.isfile(state_file):
+    with open(state_file) as f:
+        for line in f:
+            if line.startswith('project_name:'):
+                venture_name = line.split(':', 1)[1].strip()
+            elif line.startswith('venture_stage:'):
+                venture_stage = line.split(':', 1)[1].strip()
+now = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+reg = {
+    'version': 1,
+    'active': 'default',
+    'rooms': {
+        'default': {
+            'path': 'room',
+            'created': now,
+            'last_opened': now,
+            'status': 'active',
+            'venture_name': venture_name,
+            'venture_stage': venture_stage
+        }
+    }
+}
+tmp = '$REGISTRY_FILE' + '.tmp'
+with open(tmp, 'w') as f:
+    json.dump(reg, f, indent=2)
+os.rename(tmp, '$REGISTRY_FILE')
+" 2>/dev/null
+  fi
+
+  # Return absolute path
+  echo "$(cd "$LEGACY_DIR" && pwd)"
+  exit 0
+fi
+
+# Strategy 3: No room found
+exit 1
