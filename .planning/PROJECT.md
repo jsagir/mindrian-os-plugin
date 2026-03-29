@@ -10,26 +10,15 @@ Users can run the full PWS methodology — 25 specialized methodology bots, stru
 
 ## Current State
 
-**Shipped:** v2.0 Meeting Intelligence (2026-03-24)
-**Current:** v3.0 MCP Platform & Intelligence Expansion (started 2026-03-24)
+**Shipped:** v4.0 Brain API Control & CLI UI Ruling System (2026-03-29)
 
-v1.0 + v2.0 = 41 commands, 5 agents, meeting intelligence pipeline, team room, cross-meeting intelligence, three-layer knowledge graph, De Stijl dashboard + timeline mode, 5 PDF export types.
+v1.0 through v4.0 = 50+ commands, 8 agents, meeting intelligence pipeline, team room, cross-meeting intelligence, three-layer knowledge graph, De Stijl dashboard + timeline mode, PDF exports, Brain API key management, CLI UI ruling system (4-zone anatomy, 5 body shapes), admin panel, multi-room management, autonomous framework engine, De Stijl HTML export with 4 views.
 
-## Current Milestone: v4.0 Brain API Control & CLI UI Ruling System
-
-**Goal:** Protect the moat (Brain API key management with admin control) and establish the visual grammar for all MindrianOS terminal interactions, then enable multi-room management and autonomous framework execution.
-
-**Target features:**
-- Brain API key management: Supabase table, approve/revoke/extend, time-limited keys, usage tracking
-- Self-teaching admin panel (/mos:admin): hidden from non-admin users, re-explains itself on every invocation
-- CLI UI Ruling System (skills/ui-system/SKILL.md): 4-zone output anatomy, 5 body shapes, symbol vocabulary, color contract, session start contract
-- Dual context per folder: STATE.md (quantitative) + MINTO.md (qualitative reasoning pyramid)
-- Multi-room management: .rooms/registry.json, /mos:rooms (list/new/open/close/archive/where), context safety
-- /mos:act autonomous engine: Brain-driven framework selection, subagent execution, thinking trace before action, chain mode
-
-**Key constraint:** Brain access is the commercial moat. Every API connection must be manually approved by Jonathan with time-limited expiry.
-
-**Previous milestone:** v3.0 MCP Platform & Intelligence Expansion (completed 2026-03-25, 19 phases, 26 plans)
+**Milestones shipped:**
+- v1.0 MVP (2026-03-22) -- 5 phases, 20 plans
+- v2.0 Meeting Intelligence (2026-03-24) -- 4 phases, 13 plans
+- v3.0 MCP Platform (2026-03-25) -- 10 phases, 26 plans
+- v4.0 Brain API & CLI UI (2026-03-29) -- 6 phases, 12 plans
 
 ## v3.0 Backlog (Captured Ideas)
 
@@ -73,18 +62,17 @@ v2.0 shipped (2026-03-24):
 - ✓ Minto pyramid meeting-report PDF export with speaker attribution (v2.0, Phase 9)
 - ✓ Simon's Architecture of Complexity as basis theorem (v2.0, architecture)
 
+v4.0 shipped (2026-03-29):
+- Brain API key management with Supabase, approve/revoke/extend, plan-gated brain_write guard (v4.0, Phase 20)
+- CLI UI Ruling System: 4-zone anatomy, 5 body shapes, 12 glyphs, session start contract (v4.0, Phase 21)
+- Self-teaching admin panel (/mos:admin) with help visibility filtering (v4.0, Phase 22)
+- Multi-room management: registry, /mos:rooms (6 subcommands), room lock, header canary (v4.0, Phase 23)
+- Autonomous engine: /mos:act with Brain-driven framework selection, chain mode, dry-run (v4.0, Phase 24)
+- De Stijl HTML export: Mondrian grid, document reader, intelligence view, Cytoscape graph (v4.0, Phase 25)
+
 ### Active
 
-v4.0 scope:
-- [ ] Brain API key management (Supabase table, approve/revoke/extend, time-limited keys)
-- [ ] Self-teaching admin panel (/mos:admin) — hidden, owner-only
-- [ ] CLI UI Ruling System (skills/ui-system/SKILL.md) — 4 zones, 5 body shapes
-- [ ] Dual context per folder (STATE.md + MINTO.md)
-- [ ] Multi-room management (.rooms/registry.json, /mos:rooms command)
-- [ ] /mos:act autonomous engine (Brain-driven, subagent, chain mode)
-- [ ] Context safety system (active room lock, header canary, dirty context prevention)
-
-v3.0 deferred:
+Deferred from v3.0:
 - [ ] Room as Remote MCP (collaborative team access)
 - [ ] Opportunity Bank (room section + proactive discovery agents)
 - [ ] Funding Room (non-dilutive/dilutive/grants sub-rooms)
@@ -160,4 +148,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-26 after v4.0 milestone start*
+*Last updated: 2026-03-29 after v4.0 milestone completion*
