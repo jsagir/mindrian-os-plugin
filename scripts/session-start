@@ -98,6 +98,41 @@ if [ -d "$ROOM_DIR" ]; then
     fi
   fi
 
+  # Multi-room context (ROOM-05)
+  REGISTRY="${WORK_DIR}/.rooms/registry.json"
+  if [ -f "$REGISTRY" ]; then
+    room_count=$(python3 -c "
+import json
+r = json.load(open('$REGISTRY'))
+print(len(r.get('rooms', {})))
+" 2>/dev/null || echo "0")
+
+    if [ "$room_count" -gt 1 ]; then
+      other_rooms=$(python3 -c "
+import json, datetime
+r = json.load(open('$REGISTRY'))
+active = r.get('active', '')
+lines = []
+for name, room in r.get('rooms', {}).items():
+    if name == active:
+        continue
+    status = room.get('status', 'parked')
+    sym = chr(9654) if status == 'parked' else chr(9655)
+    display_name = room.get('venture_name', name)
+    line = f'  {sym} {display_name:<25s} {status}'
+    lines.append(line)
+if lines:
+    print('\n'.join(lines[:5]))
+if len(lines) > 5:
+    print(f'  ...and {len(lines)-5} more (/mos:rooms list)')
+" 2>/dev/null || echo "")
+
+      if [ -n "$other_rooms" ]; then
+        context="${context}\n\n  Other rooms:\n${other_rooms}\n\n  ▷ /mos:rooms                      Manage your rooms"
+      fi
+    fi
+  fi
+
   # Add venture stage and suggested action from state
   context="${context}\n\nYou are Larry. MindrianOS v${PLUGIN_VERSION}. The user has an active Data Room. Greet them with awareness of where they left off and suggest what to work on next based on the gaps above.\n\n## UI Enforcement (MANDATORY)\nAll /mos: command output MUST follow the 4-zone anatomy from skills/ui-system/SKILL.md:\n1. Header Panel (room name, command, venture stage)\n2. Content Body (use the body_shape declared in the command's frontmatter)\n3. Intelligence Strip (conditional -- show if proactive findings exist)\n4. Action Footer (NEVER omit -- always suggest 2-3 next commands)\n\nSymbol vocabulary: use ONLY these glyphs: ■ ▼ ▶ ▷ ├─ └─ ✓ • ⚠ ⚡ ⬜ →\nColors: green=success, cyan=info, yellow=warning, red=critical, gray=muted\nNO EMOJI anywhere in output. NO exceptions.\n\n## Dashboard Export Integrity (MANDATORY)\nWhen generating a dashboard, room export, or standalone HTML visualization:\n- ALWAYS use scripts/generate-standalone or scripts/serve-dashboard\n- NEVER generate HTML by hand -- the template at dashboard/index.html has full Cytoscape.js graph, De Stijl styling, intelligence panel, layer toggles, and chat UI\n- Improvised HTML will always be inferior to the real template\n\nAFTER your greeting, ALWAYS show this command menu (copy exactly):\n\n---\nQuick commands (type /mos: to see all):\n  /mos:help ........... Larry recommends what to do next\n  /mos:status ......... See your Data Room state\n  /mos:diagnose ....... Classify your problem type\n  /mos:file-meeting ... File a meeting transcript\n  /mos:opportunities .. Discover relevant grants\n  /mos:persona ........ Get 6 perspectives on your work\n  /mos:query .......... Ask your knowledge graph anything\n  /mos:grade .......... Honest assessment of your venture\n  /mos:update ......... Check for latest features\n---"
 else

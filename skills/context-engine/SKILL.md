@@ -32,6 +32,27 @@ Track conversation threads across sessions. When user returns:
 2. Read STATE.md for where they left off
 3. Reference specific prior work naturally, not mechanically
 
+## Multi-Room Context at Session Start
+
+When `.rooms/registry.json` exists AND has 2 or more rooms registered, the session greeting includes a room list after the standard greeting:
+
+Format (appended after the active room's state summary):
+```
+  Other rooms:
+  |- fintech-startup     parked  3 days ago
+  |- biotech-venture     archived
+
+  ▷ /mos:rooms                      Manage your rooms
+  ▷ /mos:rooms open fintech-startup Switch rooms
+```
+
+Rules:
+- Only show OTHER rooms (not the active one -- it is already in the header and greeting)
+- Symbols: ▶ = parked, ▷ = archived
+- Show time since last_opened for parked rooms ("3 days ago", "1 hour ago")
+- Max 5 other rooms shown. If more, show count: "...and 3 more (/mos:rooms list)"
+- If only 1 room registered, do NOT show the multi-room section
+
 ## Context Window Awareness
 
 Read `/tmp/mindrian-context-state` if it exists. If the file is missing or older than 5 minutes (compare TIMESTAMP to current epoch), use conservative defaults: assume 200K context window, 50% usage, unknown model.
