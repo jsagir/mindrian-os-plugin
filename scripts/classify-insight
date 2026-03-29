@@ -13,8 +13,8 @@ if [[ -z "$FILE_PATH" ]]; then
   exit 0
 fi
 
-# Only process files in room/ directory
-if [[ ! "$FILE_PATH" == */room/* ]]; then
+# Only process files in room/ or rooms/ directory
+if [[ ! "$FILE_PATH" == */room/* ]] && [[ ! "$FILE_PATH" == */rooms/* ]]; then
   exit 0
 fi
 

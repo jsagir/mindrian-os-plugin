@@ -12,10 +12,20 @@ if [[ -z "$FILE_PATH" ]]; then
   exit 0
 fi
 
-# Track artifact creation if in room/
-if [[ "$FILE_PATH" == */room/* ]]; then
-  # Extract section name from path
-  section=$(echo "$FILE_PATH" | grep -oP 'room/\K[^/]+' || true)
+# Resolve active room for guard check
+ACTIVE_ROOM=$("${SCRIPT_DIR}/resolve-room" "$PWD" 2>/dev/null) || ACTIVE_ROOM=""
+
+# Track artifact creation if in room/ or rooms/
+if [[ "$FILE_PATH" == */room/* ]] || [[ "$FILE_PATH" == */rooms/* ]]; then
+  # Active room guard: skip processing for non-active rooms
+  if [ -n "$ACTIVE_ROOM" ]; then
+    case "$FILE_PATH" in
+      "${ACTIVE_ROOM}"/*) ;; # File is in active room -- proceed
+      *) exit 0 ;; # File is in a different room -- skip silently
+    esac
+  fi
+  # Extract section name from path (parent directory of the file)
+  section=$(dirname "$FILE_PATH" | xargs basename || true)
   if [ -n "$section" ]; then
     bash "${SCRIPT_DIR}/track-analytics" artifact "$section" 2>/dev/null &
   fi
