@@ -28,18 +28,18 @@
 - [ ] **UI-07**: Dual context per folder -- STATE.md + MINTO.md both read before routing
 
 ### Multi-Room
-- [x] **ROOM-01**: `.rooms/registry.json` with room index and active room tracking
+- [ ] **ROOM-01**: `.rooms/registry.json` with room index and active room tracking
 - [ ] **ROOM-02**: `/mos:rooms` command (list, new, open, close, archive, where)
-- [x] **ROOM-03**: Context safety -- active room lock on all file-writing commands
-- [x] **ROOM-04**: Header canary -- room name always visible in Zone 1
-- [x] **ROOM-05**: Session start shows multi-room context when multiple rooms registered
+- [ ] **ROOM-03**: Context safety -- active room lock on all file-writing commands
+- [ ] **ROOM-04**: Header canary -- room name always visible in Zone 1
+- [ ] **ROOM-05**: Session start shows multi-room context when multiple rooms registered
 
 ### Autonomous Engine
-- [ ] **ACT-01**: `/mos:act` reads room STATE.md + MINTO.md, selects framework via Brain (local fallback)
-- [ ] **ACT-02**: Framework execution via subagent (`agents/framework-runner.md`, isolated context)
-- [ ] **ACT-03**: Thinking trace displayed before any action
-- [ ] **ACT-04**: `--chain` mode chains 3-5 frameworks, each feeds the next via output contract
-- [ ] **ACT-05**: `--dry-run` previews without executing
+- [x] **ACT-01**: `/mos:act` reads room STATE.md + MINTO.md, selects framework via Brain (local fallback)
+- [x] **ACT-02**: Framework execution via subagent (`agents/framework-runner.md`, isolated context)
+- [x] **ACT-03**: Thinking trace displayed before any action
+- [x] **ACT-04**: `--chain` mode chains 3-5 frameworks, each feeds the next via output contract
+- [x] **ACT-05**: `--dry-run` previews without executing
 
 ## Traceability
 
@@ -61,16 +61,16 @@
 | ADMIN-01 | Phase 22 | Complete |
 | ADMIN-02 | Phase 22 | Complete |
 | ADMIN-03 | Phase 22 | Complete |
-| ROOM-01 | Phase 23 | Complete |
+| ROOM-01 | Phase 23 | Pending |
 | ROOM-02 | Phase 23 | Pending |
-| ROOM-03 | Phase 23 | Complete |
-| ROOM-04 | Phase 23 | Complete |
-| ROOM-05 | Phase 23 | Complete |
-| ACT-01 | Phase 24 | Pending |
-| ACT-02 | Phase 24 | Pending |
-| ACT-03 | Phase 24 | Pending |
-| ACT-04 | Phase 24 | Pending |
-| ACT-05 | Phase 24 | Pending |
+| ROOM-03 | Phase 23 | Pending |
+| ROOM-04 | Phase 23 | Pending |
+| ROOM-05 | Phase 23 | Pending |
+| ACT-01 | Phase 24 | Complete |
+| ACT-02 | Phase 24 | Complete |
+| ACT-03 | Phase 24 | Complete |
+| ACT-04 | Phase 24 | Complete |
+| ACT-05 | Phase 24 | Complete |
 
 ## Out of Scope
 
