@@ -62,7 +62,7 @@ See: `.planning/milestones/v3.0-ROADMAP.md`
 - [ ] **Phase 21: CLI UI Ruling System** - The skill file that governs all MindrianOS output: 4-zone anatomy, 5 body shapes, symbol vocabulary, color contract, dual context
 - [ ] **Phase 22: Admin Panel** - Hidden self-teaching admin experience for Brain key management and system operations
 - [ ] **Phase 23: Multi-Room Management** - Room registry, switching, context safety, and header canary for multi-project workflows
-- [ ] **Phase 24: Autonomous Engine** - Brain-driven framework selection with subagent execution, thinking traces, and chain mode
+- [x] **Phase 24: Autonomous Engine** - Brain-driven framework selection with subagent execution, thinking traces, and chain mode (completed 2026-03-29)
 
 ## Phase Details
 
@@ -147,14 +147,14 @@ Phase 20 and 21 can run in parallel. Phase 22 requires Phase 20. Phase 23 requir
 | 21. CLI UI Ruling System | v4.0 | 1/2 | In progress | - |
 | 22. Admin Panel | v4.0 | 0/1 | Planned | - |
 | 23. Multi-Room Management | v4.0 | 0/TBD | Not started | - |
-| 24. Autonomous Engine | v4.0 | 0/TBD | Not started | - |
+| 24. Autonomous Engine | v4.0 | 1/1 | Complete   | 2026-03-29 |
 
 ### Phase 25: Data Room Export Template v2
 
 **Goal:** `/mos:room export` generates a single self-contained HTML file that any user can share — combining a Mondrian grid overview (clickable section cells), sidebar navigation for easy browsing, a document rail reader with TOC, an intelligence view (gaps/convergence/contradictions), a Cytoscape knowledge graph view, and rich content rendering (Mermaid diagrams, SVGs, tables, markdown). The template reads room/ state dynamically so it works for any MindrianOS user's data room.
 **Requirements**: EXPORT-01, EXPORT-02, EXPORT-03, EXPORT-04, EXPORT-05
 **Depends on:** Phase 19 (Wiki Dashboard — shares rendering patterns and graph data)
-**Plans:** 2 plans
+**Plans:** 1/1 plans complete
 
 Plans:
 - [ ] 25-01-PLAN.md -- De Stijl HTML export template with 4 views (Mondrian grid, document reader, intelligence, graph)
