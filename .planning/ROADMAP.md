@@ -151,7 +151,9 @@ Plans:
   3. Hovering a node dims everything else to 0.15 opacity while connected nodes stay bright, and clicking opens a detail panel with artifact summary
   4. `highlightCluster(group)` can be called programmatically to highlight any keyword/tag group
   5. Edge types are visually distinct: INFORMS (thin gray arrow), CONTRADICTS (dashed red), CONVERGES (dotted gold), ENABLES (solid blue arrow)
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 29-01-PLAN.md -- Canvas 2D renderer (canvas-graph.js) + detail panel (graph-detail-panel.js)
 **UI hint**: yes
 
 ### Phase 30: Presentation Generator
