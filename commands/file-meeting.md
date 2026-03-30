@@ -528,6 +528,25 @@ cp {audio-path} room/meetings/{YYYY-MM-DD-meeting-slug}/{original-filename}
 
 Set `has_audio: true` in metadata.yaml. If no audio input, set `has_audio: false`.
 
+Register the audio file in the room's ASSET_MANIFEST.md for dashboard/wiki discovery:
+
+```bash
+# Register audio in ASSET_MANIFEST.md
+bash scripts/file-asset "$room_path" "$audio_path" "meetings" --meeting "$meeting_id"
+```
+
+This creates a markdown wrapper alongside the audio file in the meeting archive with a link to the transcript:
+```yaml
+---
+type: audio
+asset_path: meetings/{meeting_id}/{audio_filename}
+meeting_id: {meeting_id}
+transcript: meetings/{meeting_id}/transcript.md
+---
+```
+
+The wrapper content includes: `Transcript: [[meetings/{meeting_id}/transcript.md]]`
+
 ### Create Filed-To Reference Directory
 
 In `room/meetings/YYYY-MM-DD-{meeting-name}/filed-to/`, create a small markdown file for each filed artifact pointing to its location:

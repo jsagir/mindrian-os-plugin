@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # post-write -- PostToolUse handler for Write operations
 # Routes to classify-insight for room file classification
+# Routes to file-asset for binary file detection
 #
 # Called by run-hook.cmd when PostToolUse fires after Write tool usage.
 # The written file path is passed via TOOL_INPUT_PATH env var or as $1.
@@ -35,20 +36,56 @@ fi
 PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 room_dir=""
 
+# Walk up from FILE_PATH looking for STATE.md to find room root
+# Runs for ALL file types (binary and markdown) so room_dir is available
+check_dir=$(dirname "$FILE_PATH")
+while [ "$check_dir" != "/" ] && [ "$check_dir" != "." ]; do
+  if [ -f "$check_dir/STATE.md" ]; then
+    room_dir="$check_dir"
+    break
+  fi
+  check_dir=$(dirname "$check_dir")
+done
+
+# -- Binary file detection: route to file-asset --
+# Check file extension for binary types before the .md processing path
+case "${FILE_PATH##*.}" in
+  pdf|png|jpg|jpeg|gif|svg|webp|mp4|mov|avi|mkv|webm|mp3|wav|m4a|ogg|flac|aac|pptx|xlsx|docx|csv|zip|tar|gz)
+    if [ -n "$room_dir" ] && [ -d "$room_dir" ]; then
+      # Determine section from file path
+      rel_path="${FILE_PATH#"$room_dir"/}"
+      asset_section=""
+
+      # Check if path contains a known section name
+      for s in problem-definition market-analysis solution-design business-model competitive-analysis team-execution legal-ip financial-model; do
+        case "$rel_path" in
+          ${s}/*|assets/${s}/*) asset_section="$s"; break ;;
+        esac
+      done
+
+      # Check if in meetings/
+      if [ -z "$asset_section" ]; then
+        case "$rel_path" in
+          meetings/*) asset_section="meetings" ;;
+        esac
+      fi
+
+      # Fallback: use parent directory name
+      if [ -z "$asset_section" ]; then
+        asset_section=$(dirname "$FILE_PATH" | xargs basename || echo "unknown")
+      fi
+
+      bash "$SCRIPT_DIR/file-asset" "$room_dir" "$FILE_PATH" "$asset_section" 2>/dev/null &
+    fi
+    exit 0
+    ;;
+esac
+
 # Index artifact in LazyGraph (KuzuDB) if it is a .md file in a room
 if [[ "$FILE_PATH" == *.md ]]; then
   # Skip STATE.md and ROOM.md (not artifacts)
   basename_file=$(basename "$FILE_PATH")
   if [[ "$basename_file" != "STATE.md" ]] && [[ "$basename_file" != "ROOM.md" ]]; then
-    # Walk up from FILE_PATH looking for STATE.md to find room root
-    check_dir=$(dirname "$FILE_PATH")
-    while [ "$check_dir" != "/" ] && [ "$check_dir" != "." ]; do
-      if [ -f "$check_dir/STATE.md" ]; then
-        room_dir="$check_dir"
-        break
-      fi
-      check_dir=$(dirname "$check_dir")
-    done
     if [ -n "$room_dir" ] && [ -d "$room_dir" ]; then
       # Run graph index in background with timeout (don't block hook)
       timeout 2 node "${PLUGIN_ROOT}/bin/mindrian-tools.cjs" graph index "$room_dir" "$FILE_PATH" --raw 2>/dev/null &

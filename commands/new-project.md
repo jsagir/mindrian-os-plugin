@@ -99,8 +99,11 @@ Create the room directory with 8 base sections aligned to due diligence standard
   financial-model/
     ROOM.md
   team/
+  assets/
   USER.md
 ```
+
+`assets/` stores binary files (PDFs, images, videos) organized by section. Subdirectories are created on demand by `scripts/file-asset` when assets are filed.
 
 **Multi-room registration:** When in multi-room mode, after creating the directory structure, register the room:
 
