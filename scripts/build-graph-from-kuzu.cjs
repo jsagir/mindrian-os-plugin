@@ -180,14 +180,14 @@ function getColor(section) {
 
     // -- Query ALL edges --
     const edgeRows = await lgOps.queryGraph(conn,
-      "MATCH (a)-[r]->(b) RETURN a.id AS src, type(r) AS relType, b.id AS tgt"
+      "MATCH (a)-[r]->(b) RETURN coalesce(a.id, a.name) AS src, label(r) AS relType, coalesce(b.id, b.name) AS tgt"
     );
 
     // Also try Section-keyed edges (name instead of id)
     let sectionEdgeRows = [];
     try {
       sectionEdgeRows = await lgOps.queryGraph(conn,
-        "MATCH (a)-[r]->(b) WHERE a.name IS NOT NULL OR b.name IS NOT NULL RETURN coalesce(a.id, a.name) AS src, type(r) AS relType, coalesce(b.id, b.name) AS tgt"
+        "MATCH (a)-[r]->(b) WHERE a.name IS NOT NULL OR b.name IS NOT NULL RETURN coalesce(a.id, a.name) AS src, label(r) AS relType, coalesce(b.id, b.name) AS tgt"
       );
     } catch (_) {
       // Fall through -- edgeRows already captures most edges
