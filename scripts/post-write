@@ -12,6 +12,9 @@ if [[ -z "$FILE_PATH" ]]; then
   exit 0
 fi
 
+# Initialize room_dir for use by both graph index and git commit
+room_dir=""
+
 # Resolve active room for guard check
 ACTIVE_ROOM=$("${SCRIPT_DIR}/resolve-room" "$PWD" 2>/dev/null) || ACTIVE_ROOM=""
 
@@ -37,7 +40,6 @@ if [[ "$FILE_PATH" == *.md ]]; then
   basename_file=$(basename "$FILE_PATH")
   if [[ "$basename_file" != "STATE.md" ]] && [[ "$basename_file" != "ROOM.md" ]]; then
     # Walk up from FILE_PATH looking for STATE.md to find room root
-    room_dir=""
     check_dir=$(dirname "$FILE_PATH")
     while [ "$check_dir" != "/" ] && [ "$check_dir" != "." ]; do
       if [ -f "$check_dir/STATE.md" ]; then
@@ -55,4 +57,21 @@ if [[ "$FILE_PATH" == *.md ]]; then
 fi
 
 # Run classification on the written file
-exec bash "${SCRIPT_DIR}/classify-insight" "$FILE_PATH"
+bash "${SCRIPT_DIR}/classify-insight" "$FILE_PATH"
+
+# Git auto-commit (only fires if room has git initialized -- silent no-op otherwise)
+if [[ "$FILE_PATH" == */room/* ]] || [[ "$FILE_PATH" == */rooms/* ]]; then
+  if [ -n "$room_dir" ] && [ -d "$room_dir" ]; then
+    bash "${SCRIPT_DIR}/git-ops" commit "$room_dir" "$FILE_PATH" 2>/dev/null &
+  else
+    # Walk up to find room root for non-.md files (room_dir may not be set yet)
+    _git_check_dir=$(dirname "$FILE_PATH")
+    while [ "$_git_check_dir" != "/" ] && [ "$_git_check_dir" != "." ]; do
+      if [ -f "$_git_check_dir/STATE.md" ]; then
+        bash "${SCRIPT_DIR}/git-ops" commit "$_git_check_dir" "$FILE_PATH" 2>/dev/null &
+        break
+      fi
+      _git_check_dir=$(dirname "$_git_check_dir")
+    done
+  fi
+fi
