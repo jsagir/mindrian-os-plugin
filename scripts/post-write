@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # post-write -- PostToolUse handler for Write operations
-# Full filing cascade: classify -> artifact-id -> kuzu-index -> compute-state (bg) -> build-graph-from-kuzu (bg) -> git-ops (bg)
+# Full filing cascade: classify -> artifact-id -> kuzu-index -> compute-state (bg) -> build-graph-from-kuzu (bg) -> proactive-intel (bg) -> cross-room (bg) -> git-ops (bg)
 #
 # Called by run-hook.cmd when PostToolUse fires after Write tool usage.
 # The written file path is passed via TOOL_INPUT_PATH env var or as $1.
@@ -13,7 +13,9 @@
 #          5. KuzuDB graph index (sync, <500ms)
 #   BG:    6. compute-state (<2s)
 #          7. build-graph-from-kuzu (<5s)
-#          8. git-ops commit
+#          8. proactive intelligence persistence
+#          9. cross-room relationship detection
+#         10. git-ops commit
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -92,7 +94,32 @@ if [ -n "$room_dir" ] && [ -d "${room_dir}/.lazygraph" ]; then
   timeout 5 node "${PLUGIN_ROOT}/scripts/build-graph-from-kuzu.cjs" "$room_dir" 2>/dev/null &
 fi
 
-# ── Step 8: git-ops commit (background) ──
+# ── Step 8: Proactive intelligence persistence (background) ──
+if [ -n "$room_dir" ] && [ -d "$room_dir" ]; then
+  (
+    analysis=$(bash "${SCRIPT_DIR}/analyze-room" "$room_dir" 2>/dev/null || true)
+    if [ -n "$analysis" ]; then
+      node -e "
+        const pi = require('${PLUGIN_ROOT}/lib/core/proactive-intelligence.cjs');
+        pi.persistIntelligence(process.argv[1], process.argv[2]);
+      " "$room_dir" "$analysis" 2>/dev/null || true
+    fi
+  ) &
+fi
+
+# ── Step 9: Cross-room relationship detection (background, only if multi-room) ──
+if [ -n "$room_dir" ] && [ -d "$room_dir" ]; then
+  _ws_dir=$(dirname "$room_dir")
+  while [ "$_ws_dir" != "/" ]; do
+    if [ -f "$_ws_dir/.rooms/registry.json" ]; then
+      timeout 10 node "${PLUGIN_ROOT}/scripts/cross-room-detect.cjs" "$room_dir" "$_ws_dir" 2>/dev/null &
+      break
+    fi
+    _ws_dir=$(dirname "$_ws_dir")
+  done
+fi
+
+# ── Step 10: git-ops commit (background) ──
 if [[ "$FILE_PATH" == */room/* ]] || [[ "$FILE_PATH" == */rooms/* ]]; then
   if [ -n "$room_dir" ] && [ -d "$room_dir" ]; then
     bash "${SCRIPT_DIR}/git-ops" commit "$room_dir" "$FILE_PATH" 2>/dev/null &
