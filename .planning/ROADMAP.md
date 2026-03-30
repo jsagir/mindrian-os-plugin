@@ -75,7 +75,7 @@ See: `.planning/milestones/v4.0-ROADMAP.md`
 - [x] **Phase 27: Filing Pipeline + KuzuDB Engine** - Complete filing cascade (classify -> KuzuDB -> graph -> presentation -> git) with relationship intelligence (completed 2026-03-30)
 - [ ] **Phase 27.1: HSI + Reverse Salient Python Pipeline** - Python-native HSI computation (sklearn TF-IDF + embeddings), Reverse Salient cross-section detection, results -> KuzuDB edges, 3-tier (keyword/sklearn/Pinecone)
 - [ ] **Phase 28: Binary Asset Filing** - PDFs, images, videos filed with manifests and displayed in presentation views
-- [ ] **Phase 29: Canvas Graph Renderer** - Custom Canvas 2D graph with force simulation, particles, glow, and cluster highlighting (Milken Twin pattern)
+- [x] **Phase 29: Canvas Graph Renderer** - Custom Canvas 2D graph with force simulation, particles, glow, and cluster highlighting (Milken Twin pattern) (completed 2026-03-30)
 - [ ] **Phase 30: Presentation Generator** - All 6 views (dashboard, wiki, deck, insights, diagrams, graph) with dual themes and branding
 - [ ] **Phase 31: Auto-Update + Deploy Pipeline** - Localhost live reload, Vercel onboarding, auto-deploy on push, privacy controls
 - [ ] **Phase 32: Generative UI + Chat** - Larry generates views conversationally in deployed site with BYOAPI chat panel
@@ -151,22 +151,26 @@ Plans:
   3. Hovering a node dims everything else to 0.15 opacity while connected nodes stay bright, and clicking opens a detail panel with artifact summary
   4. `highlightCluster(group)` can be called programmatically to highlight any keyword/tag group
   5. Edge types are visually distinct: INFORMS (thin gray arrow), CONTRADICTS (dashed red), CONVERGES (dotted gold), ENABLES (solid blue arrow)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 29-01-PLAN.md -- Canvas 2D renderer (canvas-graph.js) + detail panel (graph-detail-panel.js)
+- [x] 29-01-PLAN.md -- Canvas 2D renderer (canvas-graph.js) + detail panel (graph-detail-panel.js)
 **UI hint**: yes
 
 ### Phase 30: Presentation Generator
 **Goal**: One command produces all 6 self-contained HTML views from any room, with dual design themes and enforced branding
 **Depends on**: Phase 28, Phase 29
 **Requirements**: PRES-01, PRES-02, PRES-03, PRES-04, PRES-05, PRES-06, PRES-07, PRES-08, PRES-09
+**Plans:** 3 plans
+Plans:
+- [ ] 30-01-PLAN.md -- Master generator (generate-presentation.cjs) + dashboard.html + graph.html + post-write cascade wiring
+- [ ] 30-02-PLAN.md -- Wiki template (3-panel browser, search, wikilinks) + Deck template (fullscreen slides, keyboard nav)
+- [ ] 30-03-PLAN.md -- Insights template (counters, timelines, quadrants) + Diagrams template (SVG from graph.json) + PWS light theme across all 6 views
 **Success Criteria** (what must be TRUE):
   1. Running `generate-presentation` on any room produces 6 HTML files: index.html (dashboard), wiki.html, deck.html, insights.html, diagrams.html, graph.html
   2. Dashboard shows stats bar, 6 view cards, video embed, assets grid, partners, opportunities, and governing thought
   3. Wiki provides 3-panel browsing with collapsible sidebar, search, TOC, infobox, [[wikilinks]], and section colors
   4. Both De Stijl dark (default) and PWS light themes render correctly across all 6 views
   5. Every generated view contains the MindrianOS logo header, "Built with MindrianOS" footer, and Mondrian color bar (non-removable branding)
-**Plans**: TBD
 **UI hint**: yes
 
 ### Phase 31: Auto-Update + Deploy Pipeline
@@ -202,7 +206,7 @@ Plans:
 | v2.0 Meeting Intelligence | 6-9 | 13/13 | Complete | 2026-03-24 |
 | v3.0 MCP Platform | 10-19 | 26/26 | Complete | 2026-03-25 |
 | v4.0 Brain API & CLI UI | 20-25 | 12/12 | Complete | 2026-03-29 |
-| v5.0 Data Room Presentation | 26-32 | 8/TBD | In progress | - |
+| v5.0 Data Room Presentation | 26-32 | 11/TBD | In progress | - |
 
 **Execution Order:**
 Phases execute in numeric order: 26 -> 27 -> 27.1 -> 28 -> 29 -> 30 -> 31 -> 32
