@@ -103,7 +103,7 @@ Plans:
 **Plans:** 4 plans
 Plans:
 - [ ] 27-01-PLAN.md -- KuzuDB schema extension: Meeting, Speaker, Assumption node types + confidence edges + assumption indexing
-- [ ] 27-02-PLAN.md -- Complete post-write cascade + artifact IDs + build-graph-from-kuzu.cjs
+- [x] 27-02-PLAN.md -- Complete post-write cascade + artifact IDs + build-graph-from-kuzu.cjs
 - [ ] 27-03-PLAN.md -- Meeting + speaker KuzuDB integration + SEGMENT_OF/SPOKE_IN/CONSULTED_ON edges
 - [ ] 27-04-PLAN.md -- Room structure contract: STATE.md maintenance, cross-room detection, proactive intelligence persistence
 **Success Criteria** (what must be TRUE):

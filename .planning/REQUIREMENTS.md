@@ -55,9 +55,9 @@
 - [ ] **ASSET-04**: Meeting audio/video filed in meetings/ with transcript link
 
 ### Filing Pipeline Completeness
-- [ ] **FILE-01**: Post-write hook chain: classify -> KuzuDB index -> compute-state -> build-graph -> git commit -> push (generate-presentation wired in Phase 30)
-- [ ] **FILE-02**: Artifact IDs (stable hash) in frontmatter for reliable cross-referencing
-- [ ] **FILE-03**: Pipeline provenance in frontmatter (pipeline name, stage number, requires/provides)
+- [x] **FILE-01**: Post-write hook chain: classify -> KuzuDB index -> compute-state -> build-graph -> git commit -> push (generate-presentation wired in Phase 30)
+- [x] **FILE-02**: Artifact IDs (stable hash) in frontmatter for reliable cross-referencing
+- [x] **FILE-03**: Pipeline provenance in frontmatter (pipeline name, stage number, requires/provides)
 - [ ] **FILE-04**: Meeting segments create KuzuDB nodes with SEGMENT_OF edges to meeting node
 - [ ] **FILE-05**: Speaker expertise mapped to room sections via CONSULTED_ON edges
 
@@ -88,9 +88,9 @@
 | GIT-04 | Phase 26 | Pending |
 | GIT-05 | Phase 26 | Pending |
 | GIT-06 | Phase 26 | Complete |
-| FILE-01 | Phase 27 | Pending |
-| FILE-02 | Phase 27 | Pending |
-| FILE-03 | Phase 27 | Pending |
+| FILE-01 | Phase 27 | Complete |
+| FILE-02 | Phase 27 | Complete |
+| FILE-03 | Phase 27 | Complete |
 | FILE-04 | Phase 27 | Pending |
 | FILE-05 | Phase 27 | Pending |
 | KUZU-01 | Phase 27 | Pending |

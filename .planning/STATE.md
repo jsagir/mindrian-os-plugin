@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Data Room Presentation System
-status: verifying
+status: executing
 stopped_at: Completed 26-02-PLAN.md
-last_updated: "2026-03-30T19:21:13.249Z"
-last_activity: 2026-03-30
+last_updated: "2026-03-30T19:41:00.057Z"
+last_activity: 2026-03-30 -- Phase 27 execution started
 progress:
   total_phases: 7
   completed_phases: 1
-  total_plans: 2
+  total_plans: 6
   completed_plans: 2
   percent: 100
 ---
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-24)
 
 **Core value:** Dual-surface platform (CLI + MCP) delivering MindrianOS to Desktop/Cowork users with grant discovery and AI personas
-**Current focus:** Phase 22 — admin-panel
+**Current focus:** Phase 27 — filing-pipeline-kuzudb-engine
 
 ## Current Position
 
-Phase: 22 (admin-panel) — EXECUTING
-Plan: 1 of 1
-Status: Phase complete — ready for verification
-Last activity: 2026-03-30
+Phase: 27 (filing-pipeline-kuzudb-engine) — EXECUTING
+Plan: 2 of 4
+Status: Executing Phase 27
+Last activity: 2026-03-30 -- Completed 27-02-PLAN.md
 
 Progress: [██████████] 100% (46/46 plans complete across v1.0+v2.0+v3.0+v4.0)
 
@@ -86,6 +86,7 @@ Progress: [██████████] 100% (46/46 plans complete across v1.
 | Phase 24 P01 | 2min | 2 tasks | 3 files |
 | Phase 26 P01 | 3min | 2 tasks | 4 files |
 | Phase 26 P02 | 2min | 2 tasks | 2 files |
+| Phase 27 P02 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -176,6 +177,9 @@ Recent decisions affecting v3.0:
 - [Phase 26]: Git setup offered AFTER room creation -- room always functional first
 - [Phase 26]: gh CLI missing = friendly guidance, never blocks
 - [Phase 26]: auto_push defaults to off -- user opts in explicitly
+- [Phase 27]: KuzuDB index changed from bg to sync so build-graph-from-kuzu sees fresh data
+- [Phase 27]: Artifact ID injection runs before KuzuDB index to include ID in indexed content
+- [Phase 27]: String-based frontmatter manipulation (no gray-matter for writes) to avoid content reformatting
 
 ### Pending Todos
 
@@ -192,6 +196,6 @@ Recent decisions affecting v3.0:
 
 ## Session Continuity
 
-Last session: 2026-03-30T19:21:13.246Z
-Stopped at: Completed 26-02-PLAN.md
+Last session: 2026-03-30T19:45:00Z
+Stopped at: Completed 27-02-PLAN.md
 Resume file: None
