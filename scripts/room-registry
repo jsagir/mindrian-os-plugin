@@ -63,7 +63,11 @@ reg['rooms']['$NAME'] = {
     'last_opened': now,
     'status': 'active',
     'venture_name': '''$VNAME''',
-    'venture_stage': '''$VSTAGE'''
+    'venture_stage': '''$VSTAGE''',
+    'git_enabled': 'false',
+    'git_remote': '',
+    'auto_push': 'off',
+    'vercel_url': ''
 }
 reg['active'] = '$NAME'
 tmp = reg_file + '.tmp'
@@ -114,7 +118,9 @@ for name, room in reg.get('rooms', {}).items():
         'status': room.get('status', 'unknown'),
         'venture_name': room.get('venture_name', ''),
         'venture_stage': room.get('venture_stage', ''),
-        'last_opened': room.get('last_opened', '')
+        'last_opened': room.get('last_opened', ''),
+        'git_enabled': room.get('git_enabled', 'false'),
+        'auto_push': room.get('auto_push', 'off')
     })
 print(json.dumps(result, indent=2))
 "
@@ -221,8 +227,41 @@ print(reg.get('active', ''))
 "
     ;;
 
+  git-config)
+    NAME="${1:-}"
+    GIT_ENABLED="${2:-false}"
+    GIT_REMOTE="${3:-}"
+    AUTO_PUSH="${4:-off}"
+    VERCEL_URL="${5:-}"
+    if [ -z "$NAME" ]; then
+      echo "Usage: room-registry git-config <name> <git_enabled> [git_remote] [auto_push] [vercel_url]" >&2
+      exit 1
+    fi
+    if [ ! -f "$REGISTRY_FILE" ]; then
+      echo "No registry found" >&2; exit 1
+    fi
+    python3 -c "
+import json, os, sys
+reg_file = '$REGISTRY_FILE'
+with open(reg_file) as f:
+    reg = json.load(f)
+if '$NAME' not in reg.get('rooms', {}):
+    print('Room not found: $NAME', file=sys.stderr)
+    sys.exit(1)
+reg['rooms']['$NAME']['git_enabled'] = '''$GIT_ENABLED'''
+reg['rooms']['$NAME']['git_remote'] = '''$GIT_REMOTE'''
+reg['rooms']['$NAME']['auto_push'] = '''$AUTO_PUSH'''
+reg['rooms']['$NAME']['vercel_url'] = '''$VERCEL_URL'''
+tmp = reg_file + '.tmp'
+with open(tmp, 'w') as f:
+    json.dump(reg, f, indent=2)
+os.rename(tmp, reg_file)
+print(json.dumps(reg['rooms']['$NAME'], indent=2))
+"
+    ;;
+
   *)
-    echo "Usage: room-registry <create|read|list|update|set-active|archive|get-active> [args...]" >&2
+    echo "Usage: room-registry <create|read|list|update|set-active|archive|get-active|git-config> [args...]" >&2
     exit 1
     ;;
 esac
