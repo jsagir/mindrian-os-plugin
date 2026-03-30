@@ -1,3 +1,9 @@
+---
+name: funding
+description: Track grant opportunities through the funding lifecycle
+body_shape: B (Semantic Tree)
+---
+
 # /mos:funding
 
 > Track grant opportunities through the funding lifecycle. Promote discoveries from opportunity-bank, advance through stages, and monitor your funding pipeline.

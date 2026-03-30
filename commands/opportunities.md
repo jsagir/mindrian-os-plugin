@@ -1,3 +1,9 @@
+---
+name: opportunities
+description: Context-driven grant discovery and opportunity management
+body_shape: E (Action Report)
+---
+
 # /mos:opportunities -- Grant Discovery + Opportunity Management
 
 > Context-driven grant discovery. Larry reads your room, generates search queries, and presents opportunities for you to confirm or reject.

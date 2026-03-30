@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-03-30
+
+### Fixed
+- **Command registration** -- Added YAML frontmatter to `funding.md`, `opportunities.md`, and `persona.md`. These 3 commands were invisible in Claude Code because they lacked the `---` frontmatter block that the plugin loader requires. All 51 commands now register correctly.
+
 ## [1.4.0] - 2026-03-29
 
 ### Added

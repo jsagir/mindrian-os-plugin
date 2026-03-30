@@ -1,3 +1,9 @@
+---
+name: persona
+description: Generate AI perspective lenses (De Bono Six Hats) from your room data
+body_shape: C (Room Card)
+---
+
 # Persona -- AI Perspective Lenses
 
 Generate persistent De Bono Six Thinking Hat perspective lenses from your room data.
