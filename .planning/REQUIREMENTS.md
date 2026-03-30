@@ -42,11 +42,11 @@
 - [ ] **GRAPH-08**: Edge types visually distinct: INFORMS (thin gray arrow), CONTRADICTS (dashed red), CONVERGES (dotted gold), ENABLES (solid blue arrow)
 
 ### KuzuDB Relationship Engine
-- [ ] **KUZU-01**: Every filing (methodology, meeting, manual, pipeline, reasoning) creates KuzuDB nodes + edges
-- [ ] **KUZU-02**: Cross-room relationship detection -- edges between artifacts in different rooms
-- [ ] **KUZU-03**: graph.json generated from KuzuDB queries (not just file scanning)
-- [ ] **KUZU-04**: Assumption tracking as first-class KuzuDB entities with validity status
-- [ ] **KUZU-05**: Confidence scores on all edges, propagated to graph visualization (edge thickness/opacity)
+- [x] **KUZU-01**: Every filing (methodology, meeting, manual, pipeline, reasoning) creates KuzuDB nodes + edges
+- [x] **KUZU-02**: Cross-room relationship detection -- edges between artifacts in different rooms
+- [x] **KUZU-03**: graph.json generated from KuzuDB queries (not just file scanning)
+- [x] **KUZU-04**: Assumption tracking as first-class KuzuDB entities with validity status
+- [x] **KUZU-05**: Confidence scores on all edges, propagated to graph visualization (edge thickness/opacity)
 
 ### Binary Asset Filing
 - [ ] **ASSET-01**: PDFs, images, videos filed with markdown wrapper + frontmatter in correct section
@@ -58,14 +58,14 @@
 - [x] **FILE-01**: Post-write hook chain: classify -> KuzuDB index -> compute-state -> build-graph -> git commit -> push (generate-presentation wired in Phase 30)
 - [x] **FILE-02**: Artifact IDs (stable hash) in frontmatter for reliable cross-referencing
 - [x] **FILE-03**: Pipeline provenance in frontmatter (pipeline name, stage number, requires/provides)
-- [ ] **FILE-04**: Meeting segments create KuzuDB nodes with SEGMENT_OF edges to meeting node
-- [ ] **FILE-05**: Speaker expertise mapped to room sections via CONSULTED_ON edges
+- [x] **FILE-04**: Meeting segments create KuzuDB nodes with SEGMENT_OF edges to meeting node
+- [x] **FILE-05**: Speaker expertise mapped to room sections via CONSULTED_ON edges
 
 ### Room Structure Contract
-- [ ] **ROOM-01**: Every room maintains STATE.md (quantitative) context file, regenerated on every filing. MINTO.md (qualitative) generated on session-start when room has 3+ artifacts
-- [ ] **ROOM-02**: CJS scripts operate on room path argument (ICM: folder structure = code)
-- [ ] **ROOM-03**: Room tree always browsable as GitHub repo with meaningful structure
-- [ ] **ROOM-04**: Proactive intelligence persisted in .proactive-intelligence.json with repeat suppression
+- [x] **ROOM-01**: Every room maintains STATE.md (quantitative) context file, regenerated on every filing. MINTO.md (qualitative) generated on session-start when room has 3+ artifacts
+- [x] **ROOM-02**: CJS scripts operate on room path argument (ICM: folder structure = code)
+- [x] **ROOM-03**: Room tree always browsable as GitHub repo with meaningful structure
+- [x] **ROOM-04**: Proactive intelligence persisted in .proactive-intelligence.json with repeat suppression
 
 ### Generative UI
 - [ ] **GENUI-01**: Vercel json-render integration -- Larry generates UI components declaratively
@@ -91,17 +91,17 @@
 | FILE-01 | Phase 27 | Complete |
 | FILE-02 | Phase 27 | Complete |
 | FILE-03 | Phase 27 | Complete |
-| FILE-04 | Phase 27 | Pending |
-| FILE-05 | Phase 27 | Pending |
-| KUZU-01 | Phase 27 | Pending |
-| KUZU-02 | Phase 27 | Pending |
-| KUZU-03 | Phase 27 | Pending |
-| KUZU-04 | Phase 27 | Pending |
-| KUZU-05 | Phase 27 | Pending |
-| ROOM-01 | Phase 27 | Pending |
-| ROOM-02 | Phase 27 | Pending |
-| ROOM-03 | Phase 27 | Pending |
-| ROOM-04 | Phase 27 | Pending |
+| FILE-04 | Phase 27 | Complete |
+| FILE-05 | Phase 27 | Complete |
+| KUZU-01 | Phase 27 | Complete |
+| KUZU-02 | Phase 27 | Complete |
+| KUZU-03 | Phase 27 | Complete |
+| KUZU-04 | Phase 27 | Complete |
+| KUZU-05 | Phase 27 | Complete |
+| ROOM-01 | Phase 27 | Complete |
+| ROOM-02 | Phase 27 | Complete |
+| ROOM-03 | Phase 27 | Complete |
+| ROOM-04 | Phase 27 | Complete |
 | ASSET-01 | Phase 28 | Pending |
 | ASSET-02 | Phase 28 | Pending |
 | ASSET-03 | Phase 28 | Pending |

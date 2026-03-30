@@ -72,7 +72,7 @@ See: `.planning/milestones/v4.0-ROADMAP.md`
 ### v5.0 Data Room Presentation System (In Progress)
 
 - [x] **Phase 26: Git Integration** - Every room becomes a GitHub repo with auto-commit and auto-push on every filing (completed 2026-03-30)
-- [ ] **Phase 27: Filing Pipeline + KuzuDB Engine** - Complete filing cascade (classify -> KuzuDB -> graph -> presentation -> git) with relationship intelligence
+- [x] **Phase 27: Filing Pipeline + KuzuDB Engine** - Complete filing cascade (classify -> KuzuDB -> graph -> presentation -> git) with relationship intelligence (completed 2026-03-30)
 - [ ] **Phase 28: Binary Asset Filing** - PDFs, images, videos filed with manifests and displayed in presentation views
 - [ ] **Phase 29: Canvas Graph Renderer** - Custom Canvas 2D graph with force simulation, particles, glow, and cluster highlighting (Milken Twin pattern)
 - [ ] **Phase 30: Presentation Generator** - All 6 views (dashboard, wiki, deck, insights, diagrams, graph) with dual themes and branding
@@ -100,12 +100,12 @@ Plans:
 **Goal**: Every filing triggers the complete cascade -- classify, KuzuDB index, compute-state, build-graph, generate-presentation, git commit, push -- with rich relationship intelligence
 **Depends on**: Phase 26
 **Requirements**: FILE-01, FILE-02, FILE-03, FILE-04, FILE-05, KUZU-01, KUZU-02, KUZU-03, KUZU-04, KUZU-05, ROOM-01, ROOM-02, ROOM-03, ROOM-04
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 Plans:
-- [ ] 27-01-PLAN.md -- KuzuDB schema extension: Meeting, Speaker, Assumption node types + confidence edges + assumption indexing
+- [x] 27-01-PLAN.md -- KuzuDB schema extension: Meeting, Speaker, Assumption node types + confidence edges + assumption indexing
 - [x] 27-02-PLAN.md -- Complete post-write cascade + artifact IDs + build-graph-from-kuzu.cjs
-- [ ] 27-03-PLAN.md -- Meeting + speaker KuzuDB integration + SEGMENT_OF/SPOKE_IN/CONSULTED_ON edges
-- [ ] 27-04-PLAN.md -- Room structure contract: STATE.md maintenance, cross-room detection, proactive intelligence persistence
+- [x] 27-03-PLAN.md -- Meeting + speaker KuzuDB integration + SEGMENT_OF/SPOKE_IN/CONSULTED_ON edges
+- [x] 27-04-PLAN.md -- Room structure contract: STATE.md maintenance, cross-room detection, proactive intelligence persistence
 **Success Criteria** (what must be TRUE):
   1. Filing any artifact (methodology session, meeting segment, manual entry, pipeline output, reasoning file) triggers the full chain ending in a git push
   2. Every artifact gets a stable hash ID in frontmatter and KuzuDB nodes + edges are created with typed relationships (INFORMS, CONTRADICTS, CONVERGES, ENABLES, SEGMENT_OF, CONSULTED_ON)
