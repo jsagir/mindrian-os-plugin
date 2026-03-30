@@ -220,6 +220,100 @@ If Cowork is detected, also create a `00_Context/` directory with a brief projec
   project-summary.md    # Brief venture description for Cowork shared context
 ```
 
+## Step 8.5: Offer Git Setup (Optional)
+
+After the room is created and STATE.md computed, offer the user version control:
+
+> "Want me to set up git for this room? This gives you automatic version history and optionally a GitHub repo. You can always add this later with `/mos:rooms git-setup <name>`."
+
+**If user declines or says "skip":** Proceed to Step 9. Room works perfectly without git. Say:
+> "No problem -- your room is ready. You can always add git later."
+
+**If user accepts:**
+
+### Step 8.5a: Check gh CLI
+
+First, check if `gh` CLI is available:
+
+```bash
+gh --version 2>/dev/null
+```
+
+**If gh is available:** Proceed to Step 8.5b.
+
+**If gh is NOT available:** Tell the user:
+> "The GitHub CLI (`gh`) isn't installed. You have two options:
+> 1. **Local git only** -- I'll initialize git for version history, but no GitHub remote. You can add a remote later.
+> 2. **Install gh first** -- Run `brew install gh` (macOS) or see https://cli.github.com/ -- then come back and run `/mos:rooms git-setup <name>`.
+>
+> Want me to set up local git only, or skip for now?"
+
+If user chooses local only: Initialize git without remote (Step 8.5b, skip 8.5c).
+If user chooses skip: Proceed to Step 9.
+
+### Step 8.5b: Initialize Git
+
+Determine room path (same as used in Step 4):
+- Multi-room: `rooms/<slug>/`
+- Legacy: `room/`
+
+Run:
+```bash
+bash scripts/git-ops init <room_path>
+bash scripts/git-ops lfs-setup <room_path>
+```
+
+### Step 8.5c: Create GitHub Remote (only if gh available AND user wants it)
+
+Check if user is authenticated:
+```bash
+gh auth status 2>/dev/null
+```
+
+If not authenticated, guide them:
+> "Run `gh auth login` first, then come back with `/mos:rooms git-setup <name>`."
+> Proceed to Step 8.5d (skip remote).
+
+If authenticated, create the repo:
+```bash
+gh repo create <slug> --private --source=<room_path> --push
+```
+
+Capture the remote URL from output.
+
+### Step 8.5d: Update Registry
+
+Determine room name (the slug from Step 4).
+
+```bash
+bash scripts/room-registry git-config <name> true "<remote_url_or_empty>" "off"
+```
+
+Note: auto_push defaults to "off". User opts into auto-push explicitly later.
+
+### Step 8.5e: First Commit + Push
+
+```bash
+git -C <room_path> add -A
+git -C <room_path> commit -m "room: initialize <venture_name> Data Room"
+```
+
+IMPORTANT: Use `git -C <room_path>` instead of `cd + git`. This keeps all git operations consistent with the scripts/git-ops pattern (no bare `cd` side effects, handles spaces in paths).
+
+If remote was configured:
+```bash
+bash scripts/git-ops push <room_path>
+```
+
+Report to user:
+> "Git initialized. Your room has version control now. Every time I file something, it gets committed automatically."
+> If remote exists: "GitHub repo: <url>. Auto-push is off by default -- run `/mos:rooms git-setup <name> --auto-push auto` to enable."
+> If no remote: "Local git only -- no GitHub remote. Add one later with `/mos:rooms git-setup <name>`."
+
+**CRITICAL:** This entire step is wrapped in a try/catch mindset. If ANY git operation fails, print a brief note and proceed to Step 9. The room is already created. Git failure must NEVER prevent the user from using their room. Example:
+
+> "Git setup had an issue, but your room is ready. You can try again later with `/mos:rooms git-setup <name>`."
+
 ## Step 9: Close with Next Action
 
 Based on the conversation, suggest what to work on first. Reference specific gaps:
