@@ -82,59 +82,59 @@
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| GIT-01 | TBD | Pending |
-| GIT-02 | TBD | Pending |
-| GIT-03 | TBD | Pending |
-| GIT-04 | TBD | Pending |
-| GIT-05 | TBD | Pending |
-| GIT-06 | TBD | Pending |
-| DEPLOY-01 | TBD | Pending |
-| DEPLOY-02 | TBD | Pending |
-| DEPLOY-03 | TBD | Pending |
-| DEPLOY-04 | TBD | Pending |
-| DEPLOY-05 | TBD | Pending |
-| PRES-01 | TBD | Pending |
-| PRES-02 | TBD | Pending |
-| PRES-03 | TBD | Pending |
-| PRES-04 | TBD | Pending |
-| PRES-05 | TBD | Pending |
-| PRES-06 | TBD | Pending |
-| PRES-07 | TBD | Pending |
-| PRES-08 | TBD | Pending |
-| PRES-09 | TBD | Pending |
-| GRAPH-01 | TBD | Pending |
-| GRAPH-02 | TBD | Pending |
-| GRAPH-03 | TBD | Pending |
-| GRAPH-04 | TBD | Pending |
-| GRAPH-05 | TBD | Pending |
-| GRAPH-06 | TBD | Pending |
-| GRAPH-07 | TBD | Pending |
-| GRAPH-08 | TBD | Pending |
-| KUZU-01 | TBD | Pending |
-| KUZU-02 | TBD | Pending |
-| KUZU-03 | TBD | Pending |
-| KUZU-04 | TBD | Pending |
-| KUZU-05 | TBD | Pending |
-| ASSET-01 | TBD | Pending |
-| ASSET-02 | TBD | Pending |
-| ASSET-03 | TBD | Pending |
-| ASSET-04 | TBD | Pending |
-| FILE-01 | TBD | Pending |
-| FILE-02 | TBD | Pending |
-| FILE-03 | TBD | Pending |
-| FILE-04 | TBD | Pending |
-| FILE-05 | TBD | Pending |
-| ROOM-01 | TBD | Pending |
-| ROOM-02 | TBD | Pending |
-| ROOM-03 | TBD | Pending |
-| ROOM-04 | TBD | Pending |
-| GENUI-01 | TBD | Pending |
-| GENUI-02 | TBD | Pending |
-| GENUI-03 | TBD | Pending |
-| GENUI-04 | TBD | Pending |
-| SYNC-01 | TBD | Pending |
-| SYNC-02 | TBD | Pending |
-| SYNC-03 | TBD | Pending |
+| GIT-01 | Phase 26 | Pending |
+| GIT-02 | Phase 26 | Pending |
+| GIT-03 | Phase 26 | Pending |
+| GIT-04 | Phase 26 | Pending |
+| GIT-05 | Phase 26 | Pending |
+| GIT-06 | Phase 26 | Pending |
+| FILE-01 | Phase 27 | Pending |
+| FILE-02 | Phase 27 | Pending |
+| FILE-03 | Phase 27 | Pending |
+| FILE-04 | Phase 27 | Pending |
+| FILE-05 | Phase 27 | Pending |
+| KUZU-01 | Phase 27 | Pending |
+| KUZU-02 | Phase 27 | Pending |
+| KUZU-03 | Phase 27 | Pending |
+| KUZU-04 | Phase 27 | Pending |
+| KUZU-05 | Phase 27 | Pending |
+| ROOM-01 | Phase 27 | Pending |
+| ROOM-02 | Phase 27 | Pending |
+| ROOM-03 | Phase 27 | Pending |
+| ROOM-04 | Phase 27 | Pending |
+| ASSET-01 | Phase 28 | Pending |
+| ASSET-02 | Phase 28 | Pending |
+| ASSET-03 | Phase 28 | Pending |
+| ASSET-04 | Phase 28 | Pending |
+| GRAPH-01 | Phase 29 | Pending |
+| GRAPH-02 | Phase 29 | Pending |
+| GRAPH-03 | Phase 29 | Pending |
+| GRAPH-04 | Phase 29 | Pending |
+| GRAPH-05 | Phase 29 | Pending |
+| GRAPH-06 | Phase 29 | Pending |
+| GRAPH-07 | Phase 29 | Pending |
+| GRAPH-08 | Phase 29 | Pending |
+| PRES-01 | Phase 30 | Pending |
+| PRES-02 | Phase 30 | Pending |
+| PRES-03 | Phase 30 | Pending |
+| PRES-04 | Phase 30 | Pending |
+| PRES-05 | Phase 30 | Pending |
+| PRES-06 | Phase 30 | Pending |
+| PRES-07 | Phase 30 | Pending |
+| PRES-08 | Phase 30 | Pending |
+| PRES-09 | Phase 30 | Pending |
+| SYNC-01 | Phase 31 | Pending |
+| SYNC-02 | Phase 31 | Pending |
+| SYNC-03 | Phase 31 | Pending |
+| DEPLOY-01 | Phase 31 | Pending |
+| DEPLOY-02 | Phase 31 | Pending |
+| DEPLOY-03 | Phase 31 | Pending |
+| DEPLOY-04 | Phase 31 | Pending |
+| DEPLOY-05 | Phase 31 | Pending |
+| GENUI-01 | Phase 32 | Pending |
+| GENUI-02 | Phase 32 | Pending |
+| GENUI-03 | Phase 32 | Pending |
+| GENUI-04 | Phase 32 | Pending |
 
 ## Out of Scope
 
