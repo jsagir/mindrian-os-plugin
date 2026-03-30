@@ -118,15 +118,16 @@ Plans:
 **Goal**: Python-native computational pipeline that discovers hidden cross-artifact connections using dual similarity analysis (structural + semantic), detects Reverse Salients across room sections, and writes results as KuzuDB edges -- running as background intelligence after every filing
 **Depends on**: Phase 27 (KuzuDB schema + post-write cascade)
 **Requirements**: HSI-01, HSI-02, HSI-03, HSI-04, HSI-05
+**Plans:** 2 plans
+Plans:
+- [ ] 27.1-01-PLAN.md -- HSI Python scripts (compute-hsi.py, detect-reverse-salients.py) + KuzuDB bridge (hsi-to-kuzu.cjs) + schema extension
+- [ ] 27.1-02-PLAN.md -- Post-write wiring (background HSI step) + check-hsi-deps + /mos:setup hsi command
 **Success Criteria** (what must be TRUE):
   1. `scripts/compute-hsi.py` computes TF-IDF/SVD (LSA) + embedding similarity for all room artifacts, outputs top hidden connection pairs with HSI scores
   2. `scripts/detect-reverse-salients.py` identifies cross-section opportunities where a solution in one section addresses a problem in another
-  3. HSI results are written as KuzuDB edges (ENABLES, SURPRISING_CONNECTION) with hsi_score, lsa_sim, semantic_sim metadata
+  3. HSI results are written as KuzuDB edges (HSI_CONNECTION, REVERSE_SALIENT) with hsi_score, lsa_sim, semantic_sim metadata
   4. Post-write hook fires HSI computation in background (non-blocking, after git-ops step)
   5. 3-tier system: Tier 0 = keyword matching (existing), Tier 1 = sklearn TF-IDF + MiniLM embeddings, Tier 2 = sklearn + Pinecone Brain embeddings
-**Plans**: TBD
-Plans:
-- [To be planned]
 
 ### Phase 28: Binary Asset Filing
 **Goal**: PDFs, images, videos, and meeting recordings are filed as first-class room artifacts with manifests and cross-references
@@ -197,8 +198,8 @@ Plans:
 | v2.0 Meeting Intelligence | 6-9 | 13/13 | Complete | 2026-03-24 |
 | v3.0 MCP Platform | 10-19 | 26/26 | Complete | 2026-03-25 |
 | v4.0 Brain API & CLI UI | 20-25 | 12/12 | Complete | 2026-03-29 |
-| v5.0 Data Room Presentation | 26-32 | 6/TBD | In progress | - |
+| v5.0 Data Room Presentation | 26-32 | 8/TBD | In progress | - |
 
 **Execution Order:**
-Phases execute in numeric order: 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32
+Phases execute in numeric order: 26 -> 27 -> 27.1 -> 28 -> 29 -> 30 -> 31 -> 32
 Note: Phase 29 depends on Phase 27 (not 28), so 28 and 29 could theoretically parallelize.
