@@ -82,16 +82,19 @@ See: `.planning/milestones/v4.0-ROADMAP.md`
 ## Phase Details
 
 ### Phase 26: Git Integration
-**Goal**: Every room is a GitHub repo from creation, with automatic version control on every filing
+**Goal**: Every room CAN be a GitHub repo with automatic version control on every filing -- but users can opt out and stay purely local
 **Depends on**: Phase 25 (Data Room Export Template v2)
 **Requirements**: GIT-01, GIT-02, GIT-03, GIT-04, GIT-05, GIT-06
+**Plans:** 2 plans
+Plans:
+- [ ] 26-01-PLAN.md -- Git infrastructure: scripts/git-ops, lib/core/git-ops.cjs, registry extension, post-write hook
+- [ ] 26-02-PLAN.md -- New project git offer, gh CLI detection, /mos:rooms git-setup subcommand
 **Success Criteria** (what must be TRUE):
-  1. Running `/mos:new-project` creates a local git repo, a GitHub remote, and pushes the initial room structure
-  2. Every artifact written to the room (methodology, meeting, manual) results in a git commit with a descriptive provenance message
-  3. Commits auto-push to GitHub (with configurable auto/manual/batch modes)
-  4. Binary files over 10MB are tracked via Git LFS automatically
+  1. Running `/mos:new-project` offers to create a local git repo, a GitHub remote, and push the initial room structure -- but user can decline
+  2. Every artifact written to the room (methodology, meeting, manual) results in a git commit with a descriptive provenance message -- only if git is initialized
+  3. Commits auto-push to GitHub (configurable: auto/manual/off, default off)
+  4. Binary files over 10MB are tracked via Git LFS automatically -- only when git is active
   5. If `gh` CLI is missing, the user gets a guided install flow instead of a cryptic error
-**Plans**: TBD
 
 ### Phase 27: Filing Pipeline + KuzuDB Engine
 **Goal**: Every filing triggers the complete cascade -- classify, KuzuDB index, compute-state, build-graph, generate-presentation, git commit, push -- with rich relationship intelligence
@@ -174,7 +177,7 @@ See: `.planning/milestones/v4.0-ROADMAP.md`
 | v2.0 Meeting Intelligence | 6-9 | 13/13 | Complete | 2026-03-24 |
 | v3.0 MCP Platform | 10-19 | 26/26 | Complete | 2026-03-25 |
 | v4.0 Brain API & CLI UI | 20-25 | 12/12 | Complete | 2026-03-29 |
-| v5.0 Data Room Presentation | 26-32 | 0/TBD | Not started | - |
+| v5.0 Data Room Presentation | 26-32 | 2/TBD | In progress | - |
 
 **Execution Order:**
 Phases execute in numeric order: 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32
