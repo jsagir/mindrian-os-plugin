@@ -28,6 +28,7 @@ Commands:
   meeting compute-intel [roomDir]  Run compute-meetings-intelligence script
   meeting compute-team [roomDir]   Run compute-team script
   graph build [roomDir] [outputPath]  Generate knowledge graph JSON
+  graph build-kuzu [roomDir] [outputPath]  Build graph.json from KuzuDB (primary)
   graph index [roomDir] <filePath>   Index single artifact in LazyGraph (KuzuDB)
   graph rebuild [roomDir]            Rebuild entire LazyGraph from room artifacts
   graph query [roomDir] "<cypher>"   Execute Cypher query against LazyGraph
@@ -160,6 +161,12 @@ async function main() {
         }
         case 'stats': {
           const result = await graphOps.graphStats(roomDir);
+          output(result, raw, JSON.stringify(result));
+          break;
+        }
+        case 'build-kuzu': {
+          const outputPath = argv[3]; // optional 4th arg
+          const result = graphOps.buildGraphFromKuzu(roomDir, outputPath);
           output(result, raw, JSON.stringify(result));
           break;
         }
