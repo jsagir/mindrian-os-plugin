@@ -100,13 +100,18 @@ Plans:
 **Goal**: Every filing triggers the complete cascade -- classify, KuzuDB index, compute-state, build-graph, generate-presentation, git commit, push -- with rich relationship intelligence
 **Depends on**: Phase 26
 **Requirements**: FILE-01, FILE-02, FILE-03, FILE-04, FILE-05, KUZU-01, KUZU-02, KUZU-03, KUZU-04, KUZU-05, ROOM-01, ROOM-02, ROOM-03, ROOM-04
+**Plans:** 4 plans
+Plans:
+- [ ] 27-01-PLAN.md -- KuzuDB schema extension: Meeting, Speaker, Assumption node types + confidence edges + assumption indexing
+- [ ] 27-02-PLAN.md -- Complete post-write cascade + artifact IDs + build-graph-from-kuzu.cjs
+- [ ] 27-03-PLAN.md -- Meeting + speaker KuzuDB integration + SEGMENT_OF/SPOKE_IN/CONSULTED_ON edges
+- [ ] 27-04-PLAN.md -- Room structure contract: STATE.md maintenance, cross-room detection, proactive intelligence persistence
 **Success Criteria** (what must be TRUE):
   1. Filing any artifact (methodology session, meeting segment, manual entry, pipeline output, reasoning file) triggers the full chain ending in a git push
   2. Every artifact gets a stable hash ID in frontmatter and KuzuDB nodes + edges are created with typed relationships (INFORMS, CONTRADICTS, CONVERGES, ENABLES, SEGMENT_OF, CONSULTED_ON)
   3. graph.json is generated from KuzuDB queries (not just file scanning) with confidence scores on edges
   4. Assumptions are tracked as first-class KuzuDB entities with validity status that surfaces in the graph
   5. Room STATE.md and MINTO.md stay current after every filing, and proactive intelligence persists with repeat suppression
-**Plans**: TBD
 
 ### Phase 28: Binary Asset Filing
 **Goal**: PDFs, images, videos, and meeting recordings are filed as first-class room artifacts with manifests and cross-references
@@ -177,7 +182,7 @@ Plans:
 | v2.0 Meeting Intelligence | 6-9 | 13/13 | Complete | 2026-03-24 |
 | v3.0 MCP Platform | 10-19 | 26/26 | Complete | 2026-03-25 |
 | v4.0 Brain API & CLI UI | 20-25 | 12/12 | Complete | 2026-03-29 |
-| v5.0 Data Room Presentation | 26-32 | 2/TBD | In progress | - |
+| v5.0 Data Room Presentation | 26-32 | 6/TBD | In progress | - |
 
 **Execution Order:**
 Phases execute in numeric order: 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32

@@ -55,14 +55,14 @@
 - [ ] **ASSET-04**: Meeting audio/video filed in meetings/ with transcript link
 
 ### Filing Pipeline Completeness
-- [ ] **FILE-01**: Post-write hook chain: classify -> KuzuDB index -> compute-state -> build-graph -> generate-presentation -> git commit -> push
+- [ ] **FILE-01**: Post-write hook chain: classify -> KuzuDB index -> compute-state -> build-graph -> git commit -> push (generate-presentation wired in Phase 30)
 - [ ] **FILE-02**: Artifact IDs (stable hash) in frontmatter for reliable cross-referencing
 - [ ] **FILE-03**: Pipeline provenance in frontmatter (pipeline name, stage number, requires/provides)
 - [ ] **FILE-04**: Meeting segments create KuzuDB nodes with SEGMENT_OF edges to meeting node
 - [ ] **FILE-05**: Speaker expertise mapped to room sections via CONSULTED_ON edges
 
 ### Room Structure Contract
-- [ ] **ROOM-01**: Every room maintains STATE.md (quantitative) + MINTO.md (qualitative) context files
+- [ ] **ROOM-01**: Every room maintains STATE.md (quantitative) context file, regenerated on every filing. MINTO.md (qualitative) generated on session-start when room has 3+ artifacts
 - [ ] **ROOM-02**: CJS scripts operate on room path argument (ICM: folder structure = code)
 - [ ] **ROOM-03**: Room tree always browsable as GitHub repo with meaningful structure
 - [ ] **ROOM-04**: Proactive intelligence persisted in .proactive-intelligence.json with repeat suppression
