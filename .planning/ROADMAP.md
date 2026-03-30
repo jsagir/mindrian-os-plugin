@@ -137,7 +137,9 @@ Plans:
   1. A PDF, image, or video filed to the room gets a markdown wrapper with frontmatter in the correct section folder
   2. ASSET_MANIFEST.md is automatically updated listing all binary assets with metadata
   3. Meeting audio/video files are filed in meetings/ with a link to their transcript
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 28-01-PLAN.md -- Binary asset filing: file-asset script, asset-ops.cjs, post-write hook, manifest, meeting audio
 
 ### Phase 29: Canvas Graph Renderer
 **Goal**: A custom Canvas 2D graph replaces Cytoscape with force simulation, animated particles, glow effects, and cluster highlighting -- the Milken Twin visual pattern
