@@ -1,24 +1,35 @@
 #!/usr/bin/env bash
 # post-write -- PostToolUse handler for Write operations
-# Routes to classify-insight for room file classification
+# Full filing cascade: classify -> artifact-id -> kuzu-index -> compute-state (bg) -> build-graph-from-kuzu (bg) -> git-ops (bg)
 #
 # Called by run-hook.cmd when PostToolUse fires after Write tool usage.
 # The written file path is passed via TOOL_INPUT_PATH env var or as $1.
+#
+# Chain (respecting 3000ms hook timeout):
+#   SYNC:  1. Active room guard
+#          2. Track analytics (bg)
+#          3. Inject artifact_id into frontmatter (<50ms)
+#          4. classify-insight (<100ms)
+#          5. KuzuDB graph index (sync, <500ms)
+#   BG:    6. compute-state (<2s)
+#          7. build-graph-from-kuzu (<5s)
+#          8. git-ops commit
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 FILE_PATH="${1:-$TOOL_INPUT_PATH}"
 
 if [[ -z "$FILE_PATH" ]]; then
   exit 0
 fi
 
-# Initialize room_dir for use by both graph index and git commit
+# Initialize room_dir early -- needed by multiple steps
 room_dir=""
 
 # Resolve active room for guard check
 ACTIVE_ROOM=$("${SCRIPT_DIR}/resolve-room" "$PWD" 2>/dev/null) || ACTIVE_ROOM=""
 
-# Track artifact creation if in room/ or rooms/
+# ── Step 1: Active room guard + analytics ──
 if [[ "$FILE_PATH" == */room/* ]] || [[ "$FILE_PATH" == */rooms/* ]]; then
   # Active room guard: skip processing for non-active rooms
   if [ -n "$ACTIVE_ROOM" ]; then
@@ -27,19 +38,18 @@ if [[ "$FILE_PATH" == */room/* ]] || [[ "$FILE_PATH" == */rooms/* ]]; then
       *) exit 0 ;; # File is in a different room -- skip silently
     esac
   fi
-  # Extract section name from path (parent directory of the file)
+  # ── Step 2: Track analytics (background) ──
   section=$(dirname "$FILE_PATH" | xargs basename || true)
   if [ -n "$section" ]; then
     bash "${SCRIPT_DIR}/track-analytics" artifact "$section" 2>/dev/null &
   fi
 fi
 
-# Index artifact in LazyGraph (KuzuDB) if it is a .md file in a room
+# ── Detect room_dir early (walk up to STATE.md) ──
+# Needed for artifact_id injection, KuzuDB index, compute-state, build-graph, git-ops
 if [[ "$FILE_PATH" == *.md ]]; then
-  # Skip STATE.md and ROOM.md (not artifacts)
   basename_file=$(basename "$FILE_PATH")
   if [[ "$basename_file" != "STATE.md" ]] && [[ "$basename_file" != "ROOM.md" ]]; then
-    # Walk up from FILE_PATH looking for STATE.md to find room root
     check_dir=$(dirname "$FILE_PATH")
     while [ "$check_dir" != "/" ] && [ "$check_dir" != "." ]; do
       if [ -f "$check_dir/STATE.md" ]; then
@@ -48,18 +58,41 @@ if [[ "$FILE_PATH" == *.md ]]; then
       fi
       check_dir=$(dirname "$check_dir")
     done
-    if [ -n "$room_dir" ] && [ -d "$room_dir" ]; then
-      # Run graph index in background with timeout (don't block hook)
-      PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-      timeout 2 node "${PLUGIN_ROOT}/bin/mindrian-tools.cjs" graph index "$room_dir" "$FILE_PATH" --raw 2>/dev/null &
-    fi
   fi
 fi
 
-# Run classification on the written file
+# ── Step 3: Inject artifact_id into frontmatter (sync, <50ms) ──
+# Must run BEFORE KuzuDB index so the artifact_id is in content when indexed
+if [[ "$FILE_PATH" == *.md ]] && [ -n "$room_dir" ]; then
+  basename_file=$(basename "$FILE_PATH")
+  if [[ "$basename_file" != "STATE.md" ]] && [[ "$basename_file" != "ROOM.md" ]]; then
+    node -e "require('${PLUGIN_ROOT}/lib/core/artifact-id.cjs').injectArtifactId('${FILE_PATH}', '${room_dir}')" 2>/dev/null || true
+  fi
+fi
+
+# ── Step 4: classify-insight (sync, <100ms) ──
 bash "${SCRIPT_DIR}/classify-insight" "$FILE_PATH"
 
-# Git auto-commit (only fires if room has git initialized -- silent no-op otherwise)
+# ── Step 5: KuzuDB graph index (sync, <500ms) ──
+# Runs synchronously so build-graph-from-kuzu (bg) sees the just-indexed data
+if [[ "$FILE_PATH" == *.md ]] && [ -n "$room_dir" ] && [ -d "$room_dir" ]; then
+  basename_file=$(basename "$FILE_PATH")
+  if [[ "$basename_file" != "STATE.md" ]] && [[ "$basename_file" != "ROOM.md" ]]; then
+    timeout 1 node "${PLUGIN_ROOT}/bin/mindrian-tools.cjs" graph index "$room_dir" "$FILE_PATH" --raw 2>/dev/null || true
+  fi
+fi
+
+# ── Step 6: compute-state (background, <2s) ──
+if [ -n "$room_dir" ] && [ -d "$room_dir" ]; then
+  bash "${SCRIPT_DIR}/compute-state" "$room_dir" > "${room_dir}/STATE.md" 2>/dev/null &
+fi
+
+# ── Step 7: build-graph-from-kuzu (background, <5s) ──
+if [ -n "$room_dir" ] && [ -d "${room_dir}/.lazygraph" ]; then
+  timeout 5 node "${PLUGIN_ROOT}/scripts/build-graph-from-kuzu.cjs" "$room_dir" 2>/dev/null &
+fi
+
+# ── Step 8: git-ops commit (background) ──
 if [[ "$FILE_PATH" == */room/* ]] || [[ "$FILE_PATH" == */rooms/* ]]; then
   if [ -n "$room_dir" ] && [ -d "$room_dir" ]; then
     bash "${SCRIPT_DIR}/git-ops" commit "$room_dir" "$FILE_PATH" 2>/dev/null &
