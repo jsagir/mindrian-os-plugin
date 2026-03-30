@@ -31,13 +31,16 @@ if [[ "$FILE_PATH" == */room/* ]] || [[ "$FILE_PATH" == */rooms/* ]]; then
   fi
 fi
 
+# Resolve plugin root and room directory for downstream steps
+PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+room_dir=""
+
 # Index artifact in LazyGraph (KuzuDB) if it is a .md file in a room
 if [[ "$FILE_PATH" == *.md ]]; then
   # Skip STATE.md and ROOM.md (not artifacts)
   basename_file=$(basename "$FILE_PATH")
   if [[ "$basename_file" != "STATE.md" ]] && [[ "$basename_file" != "ROOM.md" ]]; then
     # Walk up from FILE_PATH looking for STATE.md to find room root
-    room_dir=""
     check_dir=$(dirname "$FILE_PATH")
     while [ "$check_dir" != "/" ] && [ "$check_dir" != "." ]; do
       if [ -f "$check_dir/STATE.md" ]; then
@@ -48,10 +51,32 @@ if [[ "$FILE_PATH" == *.md ]]; then
     done
     if [ -n "$room_dir" ] && [ -d "$room_dir" ]; then
       # Run graph index in background with timeout (don't block hook)
-      PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
       timeout 2 node "${PLUGIN_ROOT}/bin/mindrian-tools.cjs" graph index "$room_dir" "$FILE_PATH" --raw 2>/dev/null &
     fi
   fi
+fi
+
+# -- HSI computation + KuzuDB bridge (background, non-blocking) --
+# Fires AFTER graph index. Only runs when:
+#   a) File is a .md file in a room
+#   b) room_dir is set and has .lazygraph
+#   c) Python + sklearn are available (check-hsi-deps exits 0)
+if [[ "$FILE_PATH" == *.md ]] && [ -n "$room_dir" ] && [ -d "${room_dir}/.lazygraph" ]; then
+  (
+    # Check HSI deps are available (silent check)
+    if bash "${SCRIPT_DIR}/check-hsi-deps" >/dev/null 2>&1; then
+      # Run HSI computation
+      python3 "${PLUGIN_ROOT}/scripts/compute-hsi.py" "$room_dir" 2>/dev/null || true
+
+      # Run reverse salient detection
+      python3 "${PLUGIN_ROOT}/scripts/detect-reverse-salients.py" "$room_dir" 2>/dev/null || true
+
+      # Write results to KuzuDB
+      if [ -f "${room_dir}/.hsi-results.json" ]; then
+        node "${PLUGIN_ROOT}/scripts/hsi-to-kuzu.cjs" "$room_dir" 2>/dev/null || true
+      fi
+    fi
+  ) &
 fi
 
 # Run classification on the written file
