@@ -1,0 +1,6 @@
+meeting_name: "Investor Call Q1"
+meeting_date: 2026-03-15
+source: transcript
+speakers:
+  - name: "Jane Doe"
+    role: "investor"
