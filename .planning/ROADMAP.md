@@ -71,7 +71,7 @@ See: `.planning/milestones/v4.0-ROADMAP.md`
 
 ### v5.0 Data Room Presentation System (In Progress)
 
-- [ ] **Phase 26: Git Integration** - Every room becomes a GitHub repo with auto-commit and auto-push on every filing
+- [x] **Phase 26: Git Integration** - Every room becomes a GitHub repo with auto-commit and auto-push on every filing (completed 2026-03-30)
 - [ ] **Phase 27: Filing Pipeline + KuzuDB Engine** - Complete filing cascade (classify -> KuzuDB -> graph -> presentation -> git) with relationship intelligence
 - [ ] **Phase 28: Binary Asset Filing** - PDFs, images, videos filed with manifests and displayed in presentation views
 - [ ] **Phase 29: Canvas Graph Renderer** - Custom Canvas 2D graph with force simulation, particles, glow, and cluster highlighting (Milken Twin pattern)
@@ -85,10 +85,10 @@ See: `.planning/milestones/v4.0-ROADMAP.md`
 **Goal**: Every room CAN be a GitHub repo with automatic version control on every filing -- but users can opt out and stay purely local
 **Depends on**: Phase 25 (Data Room Export Template v2)
 **Requirements**: GIT-01, GIT-02, GIT-03, GIT-04, GIT-05, GIT-06
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
-- [ ] 26-01-PLAN.md -- Git infrastructure: scripts/git-ops, lib/core/git-ops.cjs, registry extension, post-write hook
-- [ ] 26-02-PLAN.md -- New project git offer, gh CLI detection, /mos:rooms git-setup subcommand
+- [x] 26-01-PLAN.md -- Git infrastructure: scripts/git-ops, lib/core/git-ops.cjs, registry extension, post-write hook
+- [x] 26-02-PLAN.md -- New project git offer, gh CLI detection, /mos:rooms git-setup subcommand
 **Success Criteria** (what must be TRUE):
   1. Running `/mos:new-project` offers to create a local git repo, a GitHub remote, and push the initial room structure -- but user can decline
   2. Every artifact written to the room (methodology, meeting, manual) results in a git commit with a descriptive provenance message -- only if git is initialized

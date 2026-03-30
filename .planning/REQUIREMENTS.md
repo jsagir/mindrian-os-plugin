@@ -6,12 +6,12 @@
 ## v5.0 Requirements
 
 ### Git Integration
-- [ ] **GIT-01**: `/mos:new-project` initializes git repo + creates GitHub repo via `gh` CLI + first push
+- [x] **GIT-01**: `/mos:new-project` initializes git repo + creates GitHub repo via `gh` CLI + first push
 - [ ] **GIT-02**: Post-write hook auto-commits every artifact with provenance message (e.g., "methodology: explore-domains", "meeting: 2026-03-30 investor call")
 - [ ] **GIT-03**: Auto-push to GitHub after every commit (configurable: auto/manual/batch)
 - [ ] **GIT-04**: `.rooms/registry.json` tracks git_remote, vercel_url, auto_push per room
 - [ ] **GIT-05**: Git LFS configured for binary files > 10MB (.gitattributes auto-generated)
-- [ ] **GIT-06**: `gh` CLI detection with guided install if missing
+- [x] **GIT-06**: `gh` CLI detection with guided install if missing
 
 ### Deploy Pipeline
 - [ ] **DEPLOY-01**: `/mos:publish` guides one-time Vercel setup (link project, first deploy, custom domain)
@@ -82,12 +82,12 @@
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| GIT-01 | Phase 26 | Pending |
+| GIT-01 | Phase 26 | Complete |
 | GIT-02 | Phase 26 | Pending |
 | GIT-03 | Phase 26 | Pending |
 | GIT-04 | Phase 26 | Pending |
 | GIT-05 | Phase 26 | Pending |
-| GIT-06 | Phase 26 | Pending |
+| GIT-06 | Phase 26 | Complete |
 | FILE-01 | Phase 27 | Pending |
 | FILE-02 | Phase 27 | Pending |
 | FILE-03 | Phase 27 | Pending |
