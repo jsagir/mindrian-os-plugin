@@ -9,10 +9,10 @@
   [Prof. Lawrence Aronhime](https://www.linkedin.com/in/lawrence-aronhime-8363894/) over 30+ years at Johns Hopkins University.
   Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
 
-  [![Plugin Version](https://img.shields.io/badge/plugin-v0.9.0-blue)](https://github.com/jsagir/mindrian-os-plugin)
-  [![Commands](https://img.shields.io/badge/commands-45-green)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Plugin Version](https://img.shields.io/badge/plugin-v1.4.1-blue)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Commands](https://img.shields.io/badge/commands-51-green)](https://github.com/jsagir/mindrian-os-plugin)
   [![MCP Tools](https://img.shields.io/badge/MCP_tools-49-teal)](https://github.com/jsagir/mindrian-os-plugin)
-  [![Agents](https://img.shields.io/badge/agents-7-orange)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Agents](https://img.shields.io/badge/agents-8-orange)](https://github.com/jsagir/mindrian-os-plugin)
   [![Brain Nodes](https://img.shields.io/badge/brain_nodes-23K+-purple)](https://github.com/jsagir/mindrian-os-plugin)
 
   [Website](https://mindrianos-jsagirs-projects.vercel.app) |
@@ -34,7 +34,12 @@ claude plugin marketplace add jsagir/mindrian-marketplace
 claude plugin install mos@mindrian-marketplace
 ```
 
-Larry starts talking. The Room starts listening. No setup required.
+Larry starts talking. The Room starts listening. KuzuDB builds your knowledge graph automatically. No setup required.
+
+```bash
+# Optional: install Python deps for HSI cross-artifact intelligence
+/mos:setup hsi
+```
 
 ---
 
@@ -102,18 +107,21 @@ Not a chatbot. A teaching agent modeled on Prof. Aronhime's methodology:
 | meetings/ | Meeting archives with speaker intelligence |
 | team/ | Team member profiles and knowledge landscape |
 
-### Embedded Knowledge Graph
+### Embedded Knowledge Graph (KuzuDB)
 
-Per-project graph that grows with your venture:
+Per-project graph that grows with your venture, powered by KuzuDB as the automatic backbone:
 
 ```
 .md files = what's INSIDE each section (intra-section context)
-Knowledge Graph = relationships BETWEEN sections (inter-room intelligence)
+KuzuDB graph = relationships BETWEEN sections (inter-room intelligence)
 ```
 
 - 5 edge types: INFORMS, CONTRADICTS, CONVERGES, ENABLES, INVALIDATES
 - Natural language queries: `/mos:query "What contradicts my pricing model?"`
-- Auto-updates when you file artifacts -- the graph grows with your work
+- Auto-updates when you file artifacts -- every filing triggers the full cascade (classify -> KuzuDB -> graph -> git)
+- Artifact IDs and pipeline provenance tracked automatically
+- Meeting and speaker nodes stored in KuzuDB for relationship discovery
+- Cross-room detection finds connections across multiple ventures
 - Zero setup, fully local -- your venture data never leaves your machine
 
 ### Two Levels of Intelligence
@@ -127,6 +135,29 @@ Discovers cross-domain parallels   Remembers what you filed last week
          Brain tells you HOW to think about this kind of problem
          Room Graph tells you WHAT your own data is saying
 ```
+
+### HSI + Reverse Salient Pipeline
+
+Cross-artifact intelligence that finds what you missed:
+
+- **HSI (Hybrid Similarity Index)** -- Python-native computation using sklearn TF-IDF + embeddings to measure how artifacts relate across sections
+- **Reverse Salient Detection** -- automatically finds where your venture's understanding lags behind its ambition (Hughes 1983)
+- **3-tier similarity** -- keyword matching, sklearn embeddings, and Pinecone semantic search
+- Results stored as KuzuDB edges -- the graph gets smarter with every artifact
+- Run `/mos:setup hsi` to install Python dependencies (sklearn, numpy)
+
+### Git Integration (Optional)
+
+Your Room can be a GitHub repo:
+
+```bash
+/mos:rooms git-setup    # Link room to a GitHub repo
+/mos:rooms git-status   # Check sync state
+```
+
+- Every filing auto-commits and pushes (when enabled)
+- Full version history of your venture's evolution
+- Optional -- not mandatory. Works perfectly without git.
 
 ### Meeting Intelligence
 
@@ -213,7 +244,7 @@ After approval, add to your `claude_desktop_config.json`:
 
 ---
 
-## All 45 Commands
+## All 51 Commands
 
 ### Infrastructure (always available)
 
@@ -223,11 +254,14 @@ After approval, add to your `claude_desktop_config.json`:
 | `/mos:help` | Larry recommends what to work on next |
 | `/mos:status` | View Data Room state and venture stage |
 | `/mos:room` | Manage Data Room -- view, export, launch dashboard |
+| `/mos:rooms` | Multi-room management (list, new, open, close, archive, where) + git-setup, git-status |
 | `/mos:export` | Generate professional PDFs |
 | `/mos:pipeline` | Run multi-step framework chains |
-| `/mos:setup` | Connect Brain, transcription, or meeting sources |
+| `/mos:setup` | Connect Brain, transcription, meeting sources, or HSI pipeline |
 | `/mos:update` | Check for and install plugin updates |
 | `/mos:radar` | Discover new platform capabilities |
+| `/mos:act` | Autonomous engine -- Brain-driven framework selection, --chain, --dry-run |
+| `/mos:admin` | Hidden self-teaching admin panel |
 
 ### 26 PWS Methodology Commands
 
@@ -272,22 +306,29 @@ After approval, add to your `claude_desktop_config.json`:
 
 ```
 MindrianOS-Plugin/
-├── .claude-plugin/plugin.json  # Plugin manifest (v0.9.0)
+├── .claude-plugin/plugin.json  # Plugin manifest (v1.4.1)
 ├── bin/
 │   ├── mindrian-tools.cjs      # Shared CLI entry point
 │   └── mindrian-mcp-server.cjs # MCP server (Desktop/Cowork)
 ├── lib/
 │   ├── core/                   # Shared modules (room-ops, state-ops, graph-ops,
 │   │                           #   meeting-ops, opportunity-ops, persona-ops,
-│   │                           #   lazygraph-ops, section-registry)
+│   │                           #   lazygraph-ops, section-registry, kuzu-ops)
 │   ├── mcp/                    # MCP tools, resources, prompts, Larry context
 │   └── parity/                 # CLI/MCP parity check (CI gate)
 ├── mcp-server-brain/           # Brain hosting server
-├── commands/                   # 45 commands (/mos:*)
-├── skills/                     # Auto-activated intelligence (6 skills)
-├── agents/                     # 7 agents
+├── commands/                   # 51 commands (/mos:*)
+├── skills/                     # Auto-activated intelligence (7 skills)
+├── agents/                     # 8 agents
 ├── hooks/                      # SessionStart, PostToolUse, PostWrite, Stop
-├── scripts/                    # compute-state, build-graph, analyze-room, etc.
+├── scripts/                    # 28 bash scripts + 34 CJS modules + 3 Python scripts
+│   ├── git-ops                 # Git integration (7 subcommands)
+│   ├── compute-hsi.py          # HSI dual similarity (sklearn TF-IDF + embeddings)
+│   ├── detect-reverse-salients.py  # Cross-section innovation detection
+│   ├── hsi-to-kuzu.cjs         # KuzuDB edge bridge for HSI results
+│   ├── build-graph-from-kuzu.cjs   # graph.json generated from KuzuDB
+│   ├── cross-room-detect.cjs   # Multi-room relationship detection
+│   └── check-hsi-deps          # Python dependency checker
 ├── references/                 # PWS frameworks, meeting protocols, personas
 ├── templates/                  # PDF templates (De Stijl styled)
 ├── dashboard/                  # Knowledge graph viewer + chat
@@ -296,13 +337,25 @@ MindrianOS-Plugin/
 └── CLAUDE.md                   # Architecture (Simon + ICM + Wicked Problems)
 ```
 
+### What You Get -- By the Numbers
+
+| Component | Count |
+|-----------|-------|
+| Commands (`/mos:*`) | 51 |
+| Agents | 8 |
+| Skills (auto-loaded) | 7 |
+| MCP Tools | 49 |
+| Bash Scripts | 28 |
+| CJS Modules | 34 |
+| Python Scripts (HSI pipeline) | 3 |
+
 **Three layers:**
 
 | Layer | What | Who Owns It |
 |-------|------|-------------|
 | **Plugin** | Skills, commands, agents, hooks, MCP server | This repo |
 | **Brain** | Knows which frameworks work for which problems, calibrated from real teaching | Hosted MCP (optional, API key) |
-| **Room** | Your workspace, entries, team, meetings, graph, exports | You -- all data stays local |
+| **Room** | Your workspace, entries, team, meetings, KuzuDB graph, exports | You -- all data stays local |
 
 ---
 
@@ -322,6 +375,17 @@ Meeting filing pipeline (paste/file/audio + Velma transcription). Speaker identi
 - **Phase 14:** AI Team Personas (De Bono Six Hats from room intelligence)
 - **Phase 15:** User Knowledge Graph (embedded graph, NL queries, auto-updates)
 - **UX:** `/mos:` prefix, thinking traces, visual confirmations, room-aware status line
+
+### v4.0 Autonomous Engine & Multi-Room (shipped 2026-03-27)
+- **`/mos:act`** -- Brain-driven autonomous framework selection and execution with `--chain` and `--dry-run`
+- **`/mos:rooms`** -- Multi-room management (list, new, open, close, archive, where)
+- **`/mos:admin`** -- Hidden self-teaching admin panel
+- **Proactive intelligence persistence** -- insights survive across sessions
+
+### v5.0 Filing Pipeline, KuzuDB & HSI (shipped 2026-03-29)
+- **Phase 26 - Git Integration:** Room = GitHub repo, auto-commit/push on filing, optional (not mandatory), `git-setup` and `git-status` subcommands
+- **Phase 27 - Filing Pipeline + KuzuDB Engine:** Every filing triggers the full cascade (classify -> KuzuDB -> graph -> git). Artifact IDs, pipeline provenance, meeting/speaker KuzuDB nodes, cross-room detection, proactive intelligence persistence
+- **Phase 27.1 - HSI + Reverse Salient Pipeline:** Python-native HSI computation (sklearn TF-IDF + embeddings), Reverse Salient cross-section detection, results as KuzuDB edges, 3-tier similarity (keyword/sklearn/Pinecone)
 
 ---
 
