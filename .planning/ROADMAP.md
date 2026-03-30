@@ -73,6 +73,7 @@ See: `.planning/milestones/v4.0-ROADMAP.md`
 
 - [x] **Phase 26: Git Integration** - Every room becomes a GitHub repo with auto-commit and auto-push on every filing (completed 2026-03-30)
 - [x] **Phase 27: Filing Pipeline + KuzuDB Engine** - Complete filing cascade (classify -> KuzuDB -> graph -> presentation -> git) with relationship intelligence (completed 2026-03-30)
+- [ ] **Phase 27.1: HSI + Reverse Salient Python Pipeline** - Python-native HSI computation (sklearn TF-IDF + embeddings), Reverse Salient cross-section detection, results -> KuzuDB edges, 3-tier (keyword/sklearn/Pinecone)
 - [ ] **Phase 28: Binary Asset Filing** - PDFs, images, videos filed with manifests and displayed in presentation views
 - [ ] **Phase 29: Canvas Graph Renderer** - Custom Canvas 2D graph with force simulation, particles, glow, and cluster highlighting (Milken Twin pattern)
 - [ ] **Phase 30: Presentation Generator** - All 6 views (dashboard, wiki, deck, insights, diagrams, graph) with dual themes and branding
@@ -112,6 +113,20 @@ Plans:
   3. graph.json is generated from KuzuDB queries (not just file scanning) with confidence scores on edges
   4. Assumptions are tracked as first-class KuzuDB entities with validity status that surfaces in the graph
   5. Room STATE.md and MINTO.md stay current after every filing, and proactive intelligence persists with repeat suppression
+
+### Phase 27.1: HSI + Reverse Salient Python Pipeline (INSERTED)
+**Goal**: Python-native computational pipeline that discovers hidden cross-artifact connections using dual similarity analysis (structural + semantic), detects Reverse Salients across room sections, and writes results as KuzuDB edges -- running as background intelligence after every filing
+**Depends on**: Phase 27 (KuzuDB schema + post-write cascade)
+**Requirements**: HSI-01, HSI-02, HSI-03, HSI-04, HSI-05
+**Success Criteria** (what must be TRUE):
+  1. `scripts/compute-hsi.py` computes TF-IDF/SVD (LSA) + embedding similarity for all room artifacts, outputs top hidden connection pairs with HSI scores
+  2. `scripts/detect-reverse-salients.py` identifies cross-section opportunities where a solution in one section addresses a problem in another
+  3. HSI results are written as KuzuDB edges (ENABLES, SURPRISING_CONNECTION) with hsi_score, lsa_sim, semantic_sim metadata
+  4. Post-write hook fires HSI computation in background (non-blocking, after git-ops step)
+  5. 3-tier system: Tier 0 = keyword matching (existing), Tier 1 = sklearn TF-IDF + MiniLM embeddings, Tier 2 = sklearn + Pinecone Brain embeddings
+**Plans**: TBD
+Plans:
+- [To be planned]
 
 ### Phase 28: Binary Asset Filing
 **Goal**: PDFs, images, videos, and meeting recordings are filed as first-class room artifacts with manifests and cross-references

@@ -61,6 +61,13 @@
 - [x] **FILE-04**: Meeting segments create KuzuDB nodes with SEGMENT_OF edges to meeting node
 - [x] **FILE-05**: Speaker expertise mapped to room sections via CONSULTED_ON edges
 
+### HSI + Reverse Salient Pipeline
+- [ ] **HSI-01**: `scripts/compute-hsi.py` computes dual similarity (TF-IDF/SVD + embeddings) across all room artifacts
+- [ ] **HSI-02**: `scripts/detect-reverse-salients.py` finds cross-section innovation opportunities
+- [ ] **HSI-03**: HSI results written as KuzuDB edges (ENABLES, SURPRISING_CONNECTION) with scores
+- [ ] **HSI-04**: Post-write hook fires HSI in background (non-blocking, after git-ops)
+- [ ] **HSI-05**: 3-tier: keyword (Tier 0), sklearn+MiniLM (Tier 1), sklearn+Pinecone (Tier 2)
+
 ### Room Structure Contract
 - [x] **ROOM-01**: Every room maintains STATE.md (quantitative) context file, regenerated on every filing. MINTO.md (qualitative) generated on session-start when room has 3+ artifacts
 - [x] **ROOM-02**: CJS scripts operate on room path argument (ICM: folder structure = code)
