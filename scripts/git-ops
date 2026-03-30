@@ -1,0 +1,211 @@
+#!/usr/bin/env bash
+# git-ops -- Git operations for room version control
+# All operations are guarded by is-enabled check.
+# When git is not enabled for a room, every subcommand exits 0 silently.
+#
+# Subcommands:
+#   is-enabled <room_path>
+#   init <room_path>
+#   commit <room_path> <file_path> [message]
+#   push <room_path>
+#   lfs-setup <room_path>
+#   status <room_path>
+#   get-auto-push <room_path>
+#
+# First positional argument (before subcommand) can be workspace dir.
+# Defaults to $PWD.
+
+set -euo pipefail
+
+# Parse workspace dir -- if first arg is a directory and second arg is a known subcommand
+WORK_DIR="$PWD"
+if [ $# -ge 2 ]; then
+  case "$2" in
+    is-enabled|init|commit|push|lfs-setup|status|get-auto-push)
+      if [ -d "$1" ]; then
+        WORK_DIR="$1"
+        shift
+      fi
+      ;;
+  esac
+fi
+
+SUBCMD="${1:-}"
+shift 2>/dev/null || true
+
+REGISTRY_DIR="${WORK_DIR}/.rooms"
+REGISTRY_FILE="${REGISTRY_DIR}/registry.json"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Guard function -- returns 0 if git is enabled for this room path
+is_git_enabled() {
+  local room_path="${1:-}"
+  if [ -z "$room_path" ] || [ ! -d "$room_path" ]; then
+    return 1
+  fi
+  # Check if room_path has .git/ or is inside a git repo
+  if git -C "$room_path" rev-parse --git-dir >/dev/null 2>&1; then
+    return 0
+  fi
+  return 1
+}
+
+case "$SUBCMD" in
+  is-enabled)
+    ROOM_PATH="${1:-}"
+    if is_git_enabled "$ROOM_PATH"; then
+      echo "true"
+      exit 0
+    else
+      echo "false"
+      exit 1
+    fi
+    ;;
+
+  init)
+    ROOM_PATH="${1:-}"
+    if [ -z "$ROOM_PATH" ]; then
+      echo "Usage: git-ops init <room_path>" >&2
+      exit 1
+    fi
+    mkdir -p "$ROOM_PATH"
+    git -C "$ROOM_PATH" init >/dev/null 2>&1
+
+    # Create .gitignore
+    cat > "${ROOM_PATH}/.gitignore" << 'GITIGNORE'
+.DS_Store
+*.tmp
+.proactive-intelligence.json
+GITIGNORE
+
+    # Create .gitattributes with LFS patterns
+    cat > "${ROOM_PATH}/.gitattributes" << 'GITATTR'
+*.pdf filter=lfs diff=lfs merge=lfs -text
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.pptx filter=lfs diff=lfs merge=lfs -text
+GITATTR
+
+    echo "initialized"
+    ;;
+
+  commit)
+    ROOM_PATH="${1:-}"
+    FILE_PATH="${2:-}"
+    MSG="${3:-}"
+    # Guard: exit 0 silently if git is not enabled
+    if ! is_git_enabled "$ROOM_PATH"; then
+      exit 0
+    fi
+    if [ -z "$FILE_PATH" ]; then
+      exit 0
+    fi
+    # Auto-generate message if not provided
+    if [ -z "$MSG" ]; then
+      # Extract section name and filename for provenance
+      rel_path="${FILE_PATH#"$ROOM_PATH"/}"
+      section=$(echo "$rel_path" | cut -d'/' -f1)
+      filename=$(basename "$FILE_PATH" .md)
+      MSG="${section}: ${filename}"
+    fi
+    # Stage the specific file
+    git -C "$ROOM_PATH" add "$FILE_PATH" 2>/dev/null || true
+    # Commit (--no-verify for auto-commits, || true for empty commits)
+    git -C "$ROOM_PATH" commit -m "$MSG" --no-verify 2>/dev/null || true
+    # Check auto_push setting
+    auto_push=$("${SCRIPT_DIR}/git-ops" get-auto-push "$ROOM_PATH" 2>/dev/null || echo "off")
+    if [ "$auto_push" = "auto" ]; then
+      "${SCRIPT_DIR}/git-ops" push "$ROOM_PATH" 2>/dev/null &
+    fi
+    ;;
+
+  push)
+    ROOM_PATH="${1:-}"
+    # Guard: exit 0 silently if git is not enabled
+    if ! is_git_enabled "$ROOM_PATH"; then
+      exit 0
+    fi
+    # Check if remote exists
+    if ! git -C "$ROOM_PATH" remote get-url origin >/dev/null 2>&1; then
+      exit 0
+    fi
+    # Push in background, non-blocking
+    git -C "$ROOM_PATH" push origin HEAD 2>/dev/null &
+    echo "pushed"
+    ;;
+
+  lfs-setup)
+    ROOM_PATH="${1:-}"
+    # Guard: exit 0 silently if git is not enabled
+    if ! is_git_enabled "$ROOM_PATH"; then
+      exit 0
+    fi
+    # Check if git lfs is available
+    if git lfs version >/dev/null 2>&1; then
+      git -C "$ROOM_PATH" lfs install --local 2>/dev/null
+      echo "lfs-configured"
+    else
+      echo "Git LFS not installed -- large files will be committed normally" >&2
+    fi
+    exit 0
+    ;;
+
+  status)
+    ROOM_PATH="${1:-}"
+    # Guard: print disabled status and exit 0
+    if ! is_git_enabled "$ROOM_PATH"; then
+      echo '{"enabled": false}'
+      exit 0
+    fi
+    # Get remote URL
+    remote=$(git -C "$ROOM_PATH" remote get-url origin 2>/dev/null || echo "null")
+    if [ "$remote" = "null" ]; then
+      remote_json="null"
+    else
+      remote_json="\"$remote\""
+    fi
+    # Get auto_push setting
+    auto_push=$("${SCRIPT_DIR}/git-ops" get-auto-push "$ROOM_PATH" 2>/dev/null || echo "off")
+    # Check LFS
+    if git lfs version >/dev/null 2>&1 && [ -f "${ROOM_PATH}/.git/hooks/pre-push" ] 2>/dev/null; then
+      lfs="true"
+    else
+      lfs="false"
+    fi
+    # Count dirty files
+    dirty=$(git -C "$ROOM_PATH" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+    echo "{\"enabled\": true, \"remote\": ${remote_json}, \"auto_push\": \"${auto_push}\", \"lfs\": ${lfs}, \"dirty_files\": ${dirty}}"
+    ;;
+
+  get-auto-push)
+    ROOM_PATH="${1:-}"
+    if [ ! -f "$REGISTRY_FILE" ]; then
+      echo "off"
+      exit 0
+    fi
+    # Find room name by matching path in registry
+    python3 -c "
+import json, os, sys
+try:
+    with open('$REGISTRY_FILE') as f:
+        reg = json.load(f)
+    room_path = os.path.realpath('$ROOM_PATH')
+    for name, room in reg.get('rooms', {}).items():
+        rp = room.get('path', '')
+        # Try both absolute and relative paths
+        if os.path.realpath(rp) == room_path or os.path.realpath(os.path.join('$WORK_DIR', rp)) == room_path:
+            print(room.get('auto_push', 'off'))
+            sys.exit(0)
+    print('off')
+except Exception:
+    print('off')
+" 2>/dev/null || echo "off"
+    ;;
+
+  *)
+    echo "Usage: git-ops <is-enabled|init|commit|push|lfs-setup|status|get-auto-push> [args...]" >&2
+    exit 1
+    ;;
+esac
