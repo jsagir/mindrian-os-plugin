@@ -25,7 +25,7 @@ You are Larry. This command manages multiple project rooms using **Body Shape B 
 
 Parse user input to determine which subcommand to execute. If no subcommand is given, default to `list`.
 
-Subcommands: `list`, `new`, `open`, `close`, `archive`, `where`
+Subcommands: `list`, `new`, `open`, `close`, `archive`, `where`, `git-setup`, `git-status`
 
 **Natural language mapping (Desktop/Cowork):**
 - "which room am I in?" / "where am I?" -> `where`
@@ -34,6 +34,8 @@ Subcommands: `list`, `new`, `open`, `close`, `archive`, `where`
 - "create a new room" / "new room" -> `new`
 - "park this room" / "close room" -> `close`
 - "archive the old project" -> `archive`
+- "set up git for this room" / "add git" -> `git-setup`
+- "git status" / "is git configured?" -> `git-status`
 
 ---
 
@@ -67,9 +69,9 @@ Render using Body Shape B (Semantic Tree):
 -- MindrianOS -- Rooms -----------------------------------------------
 
   [v] .rooms/
-  |- [filled-square] acme-robotics          active   Pre-Opportunity   8 entries
-  |- [triangle-right] fintech-startup        parked   Discovery         14 entries
-  |- [hollow-triangle] biotech-venture        archived Validation        22 entries
+  |- [filled-square] acme-robotics          active [git]  Pre-Opportunity   8 entries
+  |- [triangle-right] fintech-startup        parked        Discovery         14 entries
+  |- [hollow-triangle] biotech-venture        archived      Validation        22 entries
 
   Active: acme-robotics (switched 2 hours ago)
 
@@ -77,6 +79,8 @@ Render using Body Shape B (Semantic Tree):
   [hollow-triangle] /mos:rooms new                    Create a new room
   [hollow-triangle] /mos:rooms where                  Quick sanity check
 ```
+
+Show `[git]` after the room status if `git_enabled` is `"true"` in the registry entry for that room.
 
 Symbol key:
 - `■` (filled square) = active room
@@ -377,6 +381,155 @@ Run `bash scripts/room-registry read <active-name>` to get the full registry ent
   [triangle-right] /mos:status           Check room health
   [triangle-right] /mos:rooms open       Switch rooms
   [hollow-triangle] /mos:rooms list       See all rooms
+```
+
+---
+
+## Subcommand: git-setup
+
+**Trigger:** `/mos:rooms git-setup [name]`
+
+If no name provided, use the currently active room (get via `bash scripts/room-registry get-active`).
+
+### Step 1: Validate Room
+
+Run `bash scripts/room-registry read <name>` to verify room exists.
+
+If not found, show 3-line error and STOP.
+
+### Step 2: Check Current Git State
+
+Run `bash scripts/git-ops status <room_path>` to check if git is already configured.
+
+If already enabled:
+> "Git is already set up for this room."
+> Show current status (remote URL, auto_push setting, LFS status).
+> Offer to change settings: "Want to change auto-push mode? Current: <setting>."
+
+If user wants to change auto_push:
+```bash
+bash scripts/room-registry git-config <name> true "<existing_remote>" "<new_setting>"
+```
+
+Then STOP.
+
+### Step 3: Initialize Git
+
+```bash
+bash scripts/git-ops init <room_path>
+bash scripts/git-ops lfs-setup <room_path>
+```
+
+### Step 4: Offer GitHub Remote
+
+Check gh CLI:
+```bash
+gh --version 2>/dev/null
+```
+
+If gh available, check auth:
+```bash
+gh auth status 2>/dev/null
+```
+
+If gh available AND authenticated:
+> "Want me to create a GitHub repo for this room? (Private by default)"
+
+If user accepts:
+```bash
+gh repo create <name> --private --source=<room_path> --push
+```
+
+Capture remote URL.
+
+If gh NOT available:
+> "GitHub CLI not installed. Setting up local git only. Install `gh` later to add a remote: https://cli.github.com/"
+
+If gh available but NOT authenticated:
+> "GitHub CLI found but not logged in. Run `gh auth login`, then try again. Setting up local git only for now."
+
+### Step 5: First Commit
+
+```bash
+git -C <room_path> add -A
+git -C <room_path> commit -m "room: initialize <venture_name> Data Room"
+```
+
+IMPORTANT: Use `git -C <room_path>` instead of `cd + git`. This keeps all git operations consistent with the scripts/git-ops pattern (no bare `cd` side effects, handles spaces in paths).
+
+If remote configured:
+```bash
+bash scripts/git-ops push <room_path>
+```
+
+### Step 6: Update Registry
+
+```bash
+bash scripts/room-registry git-config <name> true "<remote_url_or_empty>" "off"
+```
+
+### Step 7: Report Success
+
+```
+-- MindrianOS -- Git Setup Complete ------------------------------------
+
+  Room: <name>
+  Git: initialized
+  Remote: <url or "local only">
+  Auto-push: off (opt-in with --auto-push auto)
+  LFS: <enabled/not available>
+
+  [triangle-right] /mos:rooms git-setup <name> --auto-push auto   Enable auto-push
+  [triangle-right] /mos:rooms git-status                          Check git state
+  [hollow-triangle] /mos:rooms list                                See all rooms
+```
+
+### Auto-push Flag
+
+If the user passes `--auto-push <mode>` (where mode is auto, manual, or off), set that mode instead of the default "off":
+```bash
+bash scripts/room-registry git-config <name> true "<remote>" "<mode>"
+```
+
+**CRITICAL:** If ANY git operation fails, print a brief note and STOP gracefully. Git failure must NEVER leave the room in a broken state. Example:
+
+> "Git setup had an issue. Your room still works fine. Try again or check `gh auth status`."
+
+---
+
+## Subcommand: git-status
+
+**Trigger:** `/mos:rooms git-status [name]`
+
+If no name provided, use the currently active room.
+
+### Step 1: Get Status
+
+Run `bash scripts/git-ops status <room_path>`
+
+### Step 2: Render
+
+If git not enabled:
+```
+-- MindrianOS -- <name> ------------------------------------------------
+
+  Git: not configured
+
+  [triangle-right] /mos:rooms git-setup <name>   Set up git for this room
+```
+
+If git enabled:
+```
+-- MindrianOS -- <name> ------------------------------------------------
+
+  Git: enabled
+  Remote: <url or "none (local only)">
+  Auto-push: <auto|manual|off>
+  LFS: <installed|not available>
+  Uncommitted changes: <N files>
+
+  [triangle-right] /mos:rooms git-setup <name> --auto-push auto   Change auto-push
+  [hollow-triangle] /mos:rooms list                                See all rooms
 ```
 
 ---
