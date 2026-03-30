@@ -20,20 +20,59 @@ v1.0 through v4.0 = 50+ commands, 8 agents, meeting intelligence pipeline, team 
 - v3.0 MCP Platform (2026-03-25) -- 10 phases, 26 plans
 - v4.0 Brain API & CLI UI (2026-03-29) -- 6 phases, 12 plans
 
-## Current Milestone: v5.0 Interactive Data Room
+## Current Milestone: v5.0 Data Room Presentation System
 
-**Goal:** The Data Room becomes a living, visual, shareable application -- anyone with a link can explore the knowledge graph, chat with Larry about the venture, discover relationships and opportunities, and see flows between sections.
+**Goal:** Every MindrianOS Data Room becomes a living, deployed, shareable application. Room = GitHub repo. Every filing (methodology, meeting, PDF, image, video) triggers the full pipeline: KuzuDB edges -> graph.json -> 6-view presentation -> git commit -> Vercel auto-deploy. The room is always visible, always current, always branded.
 
 **Target features:**
-- Full visual Data Room with De Stijl design (not a document viewer -- an interactive app)
-- Interactive knowledge graph with relationship exploration and pattern discovery
-- Chat interface -- visitors talk to Larry scoped to the room's context
-- Flow visualization -- insight movement between sections, methodology chains, cascade paths
-- Relationship-driven opportunity discovery -- surface connections the user hasn't seen
-- Shareable via any static host (GitHub Pages, Vercel, Cloudflare) or localhost
-- Privacy controls -- choose what to expose
 
-**Key constraint:** Must work as a static deployable (no server required for viewers) while supporting interactive chat via BYOAPI or hosted endpoint.
+Git & Deploy:
+- Room = GitHub repo from /mos:new-project (gh CLI integration)
+- Auto-commit on every filing with provenance messages
+- Auto-push to GitHub after every artifact
+- /mos:publish for guided Vercel onboarding (one-time, 5 minutes)
+- Vercel auto-deploys on every push -- shareable URL always current
+- Privacy controls -- select which sections to publish
+
+6-View Presentation System:
+- Dashboard (index.html) -- stats, view cards, video, assets, opportunities, governing thought
+- Wiki (wiki.html) -- 3-panel Wikipedia browser, sidebar, search, TOC, infobox, wikilinks
+- Deck (deck.html) -- fullscreen slides from MINTO.md + key artifacts, keyboard nav
+- Insights (insights.html) -- stat counters, timelines, quadrants, funnels, heat maps
+- Diagrams (diagrams.html) -- Graphviz SVG architecture flows, light/dark toggle
+- Graph (graph.html) -- Canvas-based Milken Twin renderer: circles, particles, glow, cluster highlight
+
+KuzuDB Relationship Engine:
+- Every filing creates KuzuDB nodes + edges automatically
+- Cross-room relationship detection (multi-room intelligence)
+- Relationships power the Canvas graph view (not static graph.json)
+- Assumption tracking with validity status (first-class entities)
+
+Binary Asset Filing:
+- PDFs, images, videos filed alongside markdown with frontmatter
+- ASSET_MANIFEST.md auto-updated
+- Git LFS for large files
+- Assets display in dashboard grid and wiki inline
+
+Complete Filing Pipeline:
+- Every path into the room (methodology, meeting, pipeline, manual, reasoning) triggers:
+  classify -> file -> KuzuDB edges -> graph update -> presentation regenerate -> git commit -> push -> deploy
+
+Generative UI (json-render + Vercel AI SDK):
+- Larry generates views conversationally in deployed site
+- highlightCluster() wired as AI tool call
+- BYOAPI chat panel (user provides API key)
+
+Folder Structure Contract:
+- Every room maintains STATE.md + MINTO.md context files
+- CJS scripts in plugin operate on room path (ICM: folder = code)
+- Room tree is always browsable as a GitHub repo
+
+**Key constraints:**
+- Branding contract: MindrianOS logo + "Built with MindrianOS" + Mondrian color bar = non-removable
+- Two design themes: De Stijl dark (default) + PWS light (warm variant)
+- Self-contained HTML files (no server for viewers)
+- Static deploy to any host (Vercel, GitHub Pages, Cloudflare, Render)
 - v4.0 Brain API & CLI UI (2026-03-29) -- 6 phases, 12 plans
 
 ## v3.0 Backlog (Captured Ideas)
