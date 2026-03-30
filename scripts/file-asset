@@ -1,0 +1,253 @@
+#!/usr/bin/env bash
+# file-asset -- File a binary asset into a room with markdown wrapper + manifest update
+#
+# Usage:
+#   scripts/file-asset <room_path> <file_path> <section> [--meeting <meeting_id>]
+#   scripts/file-asset <room_path> --manifest-only
+#
+# Binary types: pdf, image, video, audio, document, archive
+# Creates: assets/{section}/{file}, wrapper .md with frontmatter, updates ASSET_MANIFEST.md
+# Output: FILED:{section}:{type}:{filename} on success
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+SECTIONS="problem-definition market-analysis solution-design business-model competitive-analysis team-execution legal-ip financial-model meetings"
+
+# --- Helpers ---
+
+classify_type() {
+  local ext="${1##*.}"
+  ext=$(echo "$ext" | tr '[:upper:]' '[:lower:]')
+  case "$ext" in
+    pdf) echo "pdf" ;;
+    png|jpg|jpeg|gif|svg|webp) echo "image" ;;
+    mp4|mov|avi|mkv|webm) echo "video" ;;
+    mp3|wav|m4a|ogg|flac|aac) echo "audio" ;;
+    pptx|xlsx|docx|csv) echo "document" ;;
+    zip|tar|gz) echo "archive" ;;
+    *) echo "unknown" ;;
+  esac
+}
+
+human_size() {
+  local bytes="$1"
+  if [ "$bytes" -ge 1073741824 ]; then
+    echo "$(echo "scale=1; $bytes / 1073741824" | bc) GB"
+  elif [ "$bytes" -ge 1048576 ]; then
+    echo "$(echo "scale=1; $bytes / 1048576" | bc) MB"
+  elif [ "$bytes" -ge 1024 ]; then
+    echo "$(echo "scale=1; $bytes / 1024" | bc) KB"
+  else
+    echo "${bytes} B"
+  fi
+}
+
+regenerate_manifest() {
+  local room_path="$1"
+  local manifest="${room_path}/ASSET_MANIFEST.md"
+  local assets_dir="${room_path}/assets"
+
+  # Also scan meetings for audio/video assets
+  local total_count=0
+  local total_bytes=0
+  local table_rows=""
+
+  # Scan assets/ directory
+  if [ -d "$assets_dir" ]; then
+    while IFS= read -r -d '' file; do
+      local rel_path="${file#"$room_path"/}"
+      local filename=$(basename "$file")
+      local section=$(basename "$(dirname "$file")")
+      local file_type=$(classify_type "$filename")
+      local file_bytes=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null || echo "0")
+      local file_size=$(human_size "$file_bytes")
+      local file_date=$(date -r "$file" "+%Y-%m-%d" 2>/dev/null || date "+%Y-%m-%d")
+
+      table_rows="${table_rows}| [${filename}](${rel_path}) | ${file_type} | ${section} | ${file_size} | ${file_date} |
+"
+      total_count=$((total_count + 1))
+      total_bytes=$((total_bytes + file_bytes))
+    done < <(find "$assets_dir" -type f -print0 2>/dev/null)
+  fi
+
+  # Scan meetings/ for audio/video files (non-.md, non-.yaml)
+  local meetings_dir="${room_path}/meetings"
+  if [ -d "$meetings_dir" ]; then
+    while IFS= read -r -d '' file; do
+      local filename=$(basename "$file")
+      local ext="${filename##*.}"
+      ext=$(echo "$ext" | tr '[:upper:]' '[:lower:]')
+      # Skip markdown and yaml files
+      case "$ext" in
+        md|yaml|yml) continue ;;
+      esac
+      local file_type=$(classify_type "$filename")
+      # Only include recognized binary types
+      case "$file_type" in
+        unknown) continue ;;
+      esac
+      local rel_path="${file#"$room_path"/}"
+      local meeting_id=$(basename "$(dirname "$file")")
+      local file_bytes=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null || echo "0")
+      local file_size=$(human_size "$file_bytes")
+      local file_date=$(date -r "$file" "+%Y-%m-%d" 2>/dev/null || date "+%Y-%m-%d")
+
+      table_rows="${table_rows}| [${filename}](${rel_path}) | ${file_type} | meetings/${meeting_id} | ${file_size} | ${file_date} |
+"
+      total_count=$((total_count + 1))
+      total_bytes=$((total_bytes + file_bytes))
+    done < <(find "$meetings_dir" -maxdepth 2 -type f -print0 2>/dev/null)
+  fi
+
+  local total_size=$(human_size "$total_bytes")
+
+  cat > "$manifest" << EOF
+# Asset Manifest
+
+> Auto-generated. Do not edit manually.
+
+| File | Type | Section | Size | Date |
+|------|------|---------|------|------|
+${table_rows}
+Total: ${total_count} assets (${total_size})
+EOF
+
+  # Git commit manifest
+  bash "$SCRIPT_DIR/git-ops" commit "$room_path" "$manifest" "asset-manifest: update (${total_count} assets)" 2>/dev/null || true
+}
+
+# --- Main ---
+
+ROOM_PATH="${1:-}"
+if [ -z "$ROOM_PATH" ]; then
+  echo "Usage: file-asset <room_path> <file_path> <section> [--meeting <meeting_id>]" >&2
+  echo "       file-asset <room_path> --manifest-only" >&2
+  exit 1
+fi
+
+# Handle --manifest-only flag
+if [ "${2:-}" = "--manifest-only" ]; then
+  if [ ! -f "$ROOM_PATH/STATE.md" ]; then
+    echo "ERROR: Not a valid room (no STATE.md): $ROOM_PATH" >&2
+    exit 1
+  fi
+  regenerate_manifest "$ROOM_PATH"
+  echo "MANIFEST_UPDATED"
+  exit 0
+fi
+
+FILE_PATH="${2:-}"
+SECTION="${3:-}"
+
+# Parse optional --meeting flag
+MEETING_ID=""
+shift 3 2>/dev/null || true
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --meeting)
+      MEETING_ID="${2:-}"
+      shift 2
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+# Validate inputs
+if [ ! -f "$ROOM_PATH/STATE.md" ]; then
+  echo "ERROR: Not a valid room (no STATE.md): $ROOM_PATH" >&2
+  exit 1
+fi
+
+if [ ! -f "$FILE_PATH" ]; then
+  echo "ERROR: File not found: $FILE_PATH" >&2
+  exit 1
+fi
+
+# Validate section
+valid_section=false
+for s in $SECTIONS; do
+  if [ "$SECTION" = "$s" ]; then
+    valid_section=true
+    break
+  fi
+done
+if [ "$valid_section" = "false" ]; then
+  echo "ERROR: Unknown section: $SECTION. Valid: $SECTIONS" >&2
+  exit 1
+fi
+
+# Classify binary type
+FILENAME=$(basename "$FILE_PATH")
+FILENAME_NO_EXT="${FILENAME%.*}"
+FILE_TYPE=$(classify_type "$FILENAME")
+
+# Get file size
+FILE_BYTES=$(stat -c%s "$FILE_PATH" 2>/dev/null || stat -f%z "$FILE_PATH" 2>/dev/null || echo "0")
+FILE_SIZE=$(human_size "$FILE_BYTES")
+ORIGINAL_PATH=$(realpath "$FILE_PATH" 2>/dev/null || echo "$FILE_PATH")
+TODAY=$(date "+%Y-%m-%d")
+
+if [ -n "$MEETING_ID" ]; then
+  # Meeting mode: wrapper goes to meetings/{meeting_id}/, no copy needed
+  ASSET_REL_PATH="meetings/${MEETING_ID}/${FILENAME}"
+  WRAPPER_PATH="${ROOM_PATH}/meetings/${MEETING_ID}/${FILENAME_NO_EXT}-asset.md"
+
+  mkdir -p "${ROOM_PATH}/meetings/${MEETING_ID}"
+
+  # Create markdown wrapper with transcript link
+  cat > "$WRAPPER_PATH" << EOF
+---
+type: ${FILE_TYPE}
+asset_path: ${ASSET_REL_PATH}
+original_path: ${ORIGINAL_PATH}
+file_size: ${FILE_SIZE}
+section: meetings
+meeting_id: ${MEETING_ID}
+created: ${TODAY}
+---
+# ${FILENAME}
+
+Binary asset filed to meetings/${MEETING_ID}.
+
+Transcript: [[meetings/${MEETING_ID}/transcript.md]]
+EOF
+
+else
+  # Standard mode: copy to assets/{section}/ and create wrapper in section/
+  ASSET_DIR="${ROOM_PATH}/assets/${SECTION}"
+  mkdir -p "$ASSET_DIR"
+
+  cp "$FILE_PATH" "${ASSET_DIR}/${FILENAME}"
+  ASSET_REL_PATH="assets/${SECTION}/${FILENAME}"
+  WRAPPER_PATH="${ROOM_PATH}/${SECTION}/${FILENAME_NO_EXT}.md"
+
+  # Create markdown wrapper
+  cat > "$WRAPPER_PATH" << EOF
+---
+type: ${FILE_TYPE}
+asset_path: ${ASSET_REL_PATH}
+original_path: ${ORIGINAL_PATH}
+file_size: ${FILE_SIZE}
+section: ${SECTION}
+created: ${TODAY}
+---
+# ${FILENAME}
+
+Binary asset filed to ${SECTION}.
+EOF
+
+  # Git commit the asset file
+  bash "$SCRIPT_DIR/git-ops" commit "$ROOM_PATH" "${ASSET_DIR}/${FILENAME}" "asset: ${SECTION}/${FILENAME}" 2>/dev/null || true
+fi
+
+# Git commit the wrapper
+bash "$SCRIPT_DIR/git-ops" commit "$ROOM_PATH" "$WRAPPER_PATH" "asset-wrapper: ${SECTION}/${FILENAME}" 2>/dev/null || true
+
+# Update ASSET_MANIFEST.md
+regenerate_manifest "$ROOM_PATH"
+
+echo "FILED:${SECTION}:${FILE_TYPE}:${FILENAME}"
