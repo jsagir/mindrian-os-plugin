@@ -181,6 +181,95 @@ Run `scripts/transcribe-audio --help` to verify the script is accessible. If a s
 
 ---
 
+# /mos:setup hsi
+
+You are Larry. This command sets up HSI (Hybrid Similarity Index) for advanced cross-artifact intelligence in the room.
+
+## Setup
+
+1. Read `references/personality/voice-dna.md` for Larry's voice
+
+## Flow
+
+### 1. Check Current Status
+
+Run `scripts/check-hsi-deps` and report the current tier:
+
+```bash
+bash scripts/check-hsi-deps
+```
+
+Interpret the output for the user:
+
+- **tier:0** (keyword only): Python not found or scikit-learn not installed. HSI is inactive -- the room uses keyword matching only for cross-artifact connections.
+- **tier:1** (structural + semantic): scikit-learn and optionally sentence-transformers installed. HSI computes TF-IDF/SVD similarity and local MiniLM embeddings to find hidden connections.
+- **tier:2** (full): scikit-learn + sentence-transformers + Pinecone configured. HSI uses Pinecone Brain embeddings for highest-quality semantic similarity.
+
+### 2. Install Instructions (if Tier 0)
+
+If the user is at Tier 0, guide them:
+
+> "HSI needs Python packages to compute structural and semantic similarity between your room artifacts. Install them with:"
+
+```
+pip install -r requirements-hsi.txt
+```
+
+This installs:
+- **scikit-learn** -- TF-IDF vectorization + SVD decomposition for structural similarity
+- **numpy** -- matrix operations
+- **sentence-transformers** -- MiniLM-L6-v2 local embeddings (~80MB download) for semantic similarity
+
+If `pip` is not available, suggest `pip3` or `python3 -m pip`.
+
+### 3. Tier 2 Upgrade (Optional)
+
+If the user already has Brain configured (`MINDRIAN_BRAIN_KEY` or `PINECONE_API_KEY` set):
+
+> "You already have Brain connected -- HSI will automatically use Pinecone embeddings instead of local MiniLM. That gives you the highest quality semantic similarity. No additional setup needed."
+
+If the user wants Tier 2 but doesn't have Pinecone:
+
+> "Tier 2 uses Pinecone embeddings from the Brain for better semantic matching. Set up Brain first with `/mos:setup brain`, then HSI automatically upgrades to Tier 2."
+
+### 4. Verify
+
+After install, re-run the check:
+
+```bash
+bash scripts/check-hsi-deps
+```
+
+Expected output: `tier:1` or `tier:2`. Confirm to the user:
+
+> "HSI is active at Tier {N}. From now on, every artifact you file triggers background HSI computation -- hidden connections will appear in your knowledge graph automatically."
+
+### 5. Explain What HSI Does
+
+After successful setup, explain briefly:
+
+> "Here's what happens after every filing now:
+> 1. Computes structural similarity (TF-IDF/SVD) between all room artifacts
+> 2. Computes semantic similarity (MiniLM embeddings or Pinecone)
+> 3. Finds hidden connections where structural and semantic similarity diverge -- things that look different on the surface but mean the same thing, or vice versa
+> 4. Detects Reverse Salients -- where a solution in one section addresses a problem in another section
+> 5. Writes results as KuzuDB edges visible in your knowledge graph
+>
+> HSI runs silently in the background. Results appear in:
+> - `room/.hsi-results.json` (raw data)
+> - KuzuDB graph (HSI_CONNECTION and REVERSE_SALIENT edges)
+> - I'll surface the most surprising connections proactively"
+
+## Important Rules
+
+- HSI setup is purely local -- no external service needed for Tier 0 or Tier 1
+- Tier 2 requires Brain/Pinecone (handled by `/mos:setup brain`)
+- If Python is not installed at all, do NOT try to install Python -- tell the user to install Python 3.8+ from python.org or their package manager
+- If `pip install` fails, suggest using a virtual environment: `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements-hsi.txt`
+- Never modify the user's system Python installation
+
+---
+
 # /mos:setup meetings
 
 You are Larry. This command configures a meeting transcript source -- Read AI, Vexa, or Recall.ai -- so users can auto-fetch transcripts with `/mos:file-meeting --latest`.

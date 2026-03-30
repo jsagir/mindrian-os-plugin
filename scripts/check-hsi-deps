@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# check-hsi-deps -- Report HSI tier availability
+# Exit codes: 0=tier1+, 1=no python, 2=no sklearn
+# Output to stdout: "tier:0", "tier:1", or "tier:2"
+
+set -euo pipefail
+
+# Check Python 3
+if ! command -v python3 &>/dev/null; then
+  echo "tier:0"
+  exit 1
+fi
+
+# Check sklearn (Tier 1 minimum)
+if ! python3 -c "import sklearn" 2>/dev/null; then
+  echo "tier:0"
+  exit 2
+fi
+
+# Check sentence-transformers (Tier 1 full)
+has_st=false
+if python3 -c "import sentence_transformers" 2>/dev/null; then
+  has_st=true
+fi
+
+# Check Pinecone (Tier 2)
+has_pinecone=false
+if python3 -c "import pinecone" 2>/dev/null && [ -n "${PINECONE_API_KEY:-}" ]; then
+  has_pinecone=true
+fi
+
+if $has_pinecone && $has_st; then
+  echo "tier:2"
+  exit 0
+elif $has_st; then
+  echo "tier:1"
+  exit 0
+else
+  # sklearn present but no embeddings -- can still do LSA-only
+  echo "tier:1"
+  exit 0
+fi
