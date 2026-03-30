@@ -1,0 +1,484 @@
+#!/usr/bin/env python3
+"""
+compute-hsi.py -- HSI (Hybrid Similarity Index) Computation Pipeline
+=====================================================================
+Ported from V4 hsi_semantic_surprise.py and V2 compute_lsa.py.
+Reads room/*.md artifacts, computes TF-IDF/SVD structural similarity
+and embedding semantic similarity, outputs .hsi-results.json with scored pairs.
+
+Usage:
+    python3 scripts/compute-hsi.py /path/to/room [--tier 1|2] [--threshold 0.30] [--output path]
+
+Tier system (per HSI-05):
+    Tier 0: Handled by analyze-room bash script (keyword-only) -- NOT this script
+    Tier 1: sklearn + MiniLM (default, CPU-only, ~80MB model)
+    Tier 2: sklearn + Pinecone (uses existing embeddings if configured)
+"""
+
+import argparse
+import hashlib
+import json
+import math
+import os
+import re
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+# --- Guarded imports ---
+
+try:
+    import numpy as np
+except ImportError:
+    print("HSI requires numpy. Run: pip install -r requirements-hsi.txt", file=sys.stderr)
+    sys.exit(1)
+
+try:
+    from sklearn.decomposition import TruncatedSVD
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.metrics.pairwise import cosine_similarity
+except ImportError:
+    print("HSI requires scikit-learn. Run: pip install -r requirements-hsi.txt", file=sys.stderr)
+    sys.exit(1)
+
+
+# --- OM-HMM Integrative Thinking Keywords (from V4) ---
+
+_INTEGRATIVE_KEYWORDS = frozenset({
+    "cross-domain", "synthesis", "combine", "bridge", "transfer",
+    "connect", "integrate", "hybrid", "convergence", "interdisciplinary",
+    "analogy", "metaphor", "parallel", "intersection", "fusion",
+})
+
+_FEATURE_PATTERNS = [
+    (r"\bsimple\b|\bstraightforward\b|\bbasic\b", "simple"),
+    (r"\bcomplex\b|\bcomplicated\b|\bintricate\b", "complex"),
+    (r"\blinear\b|\bsequential\b|\bstep.by.step\b", "linear"),
+    (r"\bmulti\w*\b|\bparallel\b|\bsimultaneous\b", "multidirectional"),
+    (r"\bpart\b|\bcomponent\b|\bpiece\b|\bfragment\b", "part"),
+    (r"\bholistic\b|\bwhole\b|\bsystem\b|\bentire\b", "holistic"),
+    (r"\btrade.?off\b|\bcompromise\b|\bbalance\b", "tradeoff"),
+    (r"\bcreative\b|\bnovel\b|\binnovati\\w+\b|\boriginal\b", "creative"),
+]
+
+# Skip files/dirs
+SKIP_FILES = {"STATE.md", "ROOM.md", "MINTO.md"}
+SKIP_DIRS = {".lazygraph", ".git", "node_modules", ".hsi-cache.json"}
+
+
+def parse_frontmatter(content):
+    """Extract frontmatter fields using regex (no PyYAML dependency)."""
+    fm_match = re.match(r'^---\n([\s\S]*?)\n---', content)
+    if not fm_match:
+        return {}
+    fm_text = fm_match.group(1)
+    fields = {}
+    for line in fm_text.split('\n'):
+        if ':' in line:
+            key, _, val = line.partition(':')
+            fields[key.strip()] = val.strip().strip('"').strip("'")
+    return fields
+
+
+def extract_title(content, filepath):
+    """Extract title from first # heading."""
+    match = re.search(r'^# (.+)$', content, re.MULTILINE)
+    if match:
+        return match.group(1).strip()
+    return Path(filepath).stem.replace('-', ' ').title()
+
+
+def extract_body(content):
+    """Extract body text after frontmatter --- block."""
+    fm_match = re.match(r'^---\n[\s\S]*?\n---\n?', content)
+    if fm_match:
+        return content[fm_match.end():]
+    return content
+
+
+def discover_artifacts(room_dir):
+    """Walk room_dir for .md files, build artifact list."""
+    artifacts = []
+    room_path = Path(room_dir).resolve()
+
+    for root, dirs, files in os.walk(room_path):
+        # Filter out skip dirs
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+
+        rel_root = Path(root).relative_to(room_path)
+        # Skip root-level files (no section)
+        if str(rel_root) == '.':
+            continue
+
+        section = str(rel_root).split(os.sep)[0]
+
+        for fname in sorted(files):
+            if not fname.endswith('.md'):
+                continue
+            if fname in SKIP_FILES:
+                continue
+
+            fpath = Path(root) / fname
+            try:
+                content = fpath.read_text(encoding='utf-8')
+            except (OSError, UnicodeDecodeError):
+                continue
+
+            artifact_id = str(Path(rel_root) / Path(fname).stem).replace(os.sep, '/')
+            title = extract_title(content, fpath)
+            body = extract_body(content)
+
+            if len(body.strip()) < 50:
+                continue  # skip near-empty artifacts
+
+            artifacts.append({
+                'id': artifact_id,
+                'section': section,
+                'title': title,
+                'path': str(fpath.relative_to(room_path)),
+                'text': body.strip(),
+            })
+
+    return artifacts
+
+
+def compute_content_hashes(artifacts):
+    """Compute MD5 hash of each artifact's text content."""
+    hashes = {}
+    for art in artifacts:
+        h = hashlib.md5(art['text'].encode('utf-8')).hexdigest()[:12]
+        hashes[art['id']] = h
+    return hashes
+
+
+def check_cache(room_dir, current_hashes):
+    """Check if all artifact hashes match cached hashes. Return True if unchanged."""
+    cache_path = Path(room_dir) / '.hsi-cache.json'
+    if not cache_path.exists():
+        return False
+    try:
+        cached = json.loads(cache_path.read_text(encoding='utf-8'))
+        cached_hashes = cached.get('hashes', {})
+        if set(cached_hashes.keys()) != set(current_hashes.keys()):
+            return False
+        return all(cached_hashes.get(k) == v for k, v in current_hashes.items())
+    except (json.JSONDecodeError, OSError):
+        return False
+
+
+def write_cache(room_dir, hashes):
+    """Write content hashes to cache file."""
+    cache_path = Path(room_dir) / '.hsi-cache.json'
+    cache_path.write_text(json.dumps({
+        'timestamp': datetime.now(timezone.utc).isoformat(),
+        'hashes': hashes,
+    }, indent=2), encoding='utf-8')
+
+
+def compute_lsa_similarity(texts):
+    """Compute LSA structural similarity matrix using TF-IDF + SVD.
+
+    Ported from V4 compute_lsa_similarity and V2 compute_lsa.py.
+    Uses 500 max_features (lighter than V2's 2000 -- room artifacts are smaller).
+    """
+    n = len(texts)
+    vectorizer = TfidfVectorizer(stop_words='english', max_features=500)
+
+    try:
+        tfidf_matrix = vectorizer.fit_transform(texts)
+    except ValueError:
+        # Empty vocabulary
+        return np.eye(n)
+
+    n_components = min(80, n - 1, tfidf_matrix.shape[1])
+    if n_components < 1:
+        return np.eye(n)
+
+    svd = TruncatedSVD(n_components=n_components)
+    reduced = svd.fit_transform(tfidf_matrix)
+
+    sim_matrix = cosine_similarity(reduced)
+    return np.clip(sim_matrix, 0.0, 1.0)
+
+
+def compute_semantic_similarity_tier1(texts):
+    """Tier 1: Local MiniLM embeddings (CPU-only, ~80MB model)."""
+    try:
+        from sentence_transformers import SentenceTransformer
+    except ImportError:
+        return None
+
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    embeddings = model.encode(texts, show_progress_bar=False)
+    sim_matrix = cosine_similarity(embeddings)
+    return np.clip(sim_matrix, 0.0, 1.0)
+
+
+def compute_semantic_similarity_tier2(artifact_ids, texts):
+    """Tier 2: Pinecone embeddings from existing index.
+
+    Falls back to Tier 1 if Pinecone not configured or query fails.
+    """
+    api_key = os.environ.get('PINECONE_API_KEY')
+    index_name = os.environ.get('PINECONE_INDEX')
+
+    if not api_key or not index_name:
+        return None  # Fall back to Tier 1
+
+    try:
+        from pinecone import Pinecone
+        pc = Pinecone(api_key=api_key)
+        index = pc.Index(index_name)
+
+        # Fetch existing embeddings for artifact IDs
+        fetch_result = index.fetch(ids=artifact_ids)
+        vectors = fetch_result.get('vectors', {})
+
+        if len(vectors) < 2:
+            return None  # Not enough vectors, fall back
+
+        # Build embedding matrix in artifact order
+        dim = None
+        embeddings = []
+        for aid in artifact_ids:
+            if aid in vectors:
+                vec = vectors[aid]['values']
+                if dim is None:
+                    dim = len(vec)
+                embeddings.append(vec)
+            else:
+                return None  # Missing vector, fall back to Tier 1
+
+        embedding_matrix = np.array(embeddings)
+        sim_matrix = cosine_similarity(embedding_matrix)
+        return np.clip(sim_matrix, 0.0, 1.0)
+
+    except Exception:
+        return None  # Any error, fall back to Tier 1
+
+
+def compute_omhmm_score(text):
+    """Simplified OM-HMM integrative thinking score (0-100).
+
+    Ported from V4 HSISemanticSurpriseSkill.compute_omhmm_score.
+    Score = 0.5 * likelihood_ratio * 100
+          + 0.3 * (feature_diversity / 8) * 100
+          + 0.2 * min(complexity_ratio * 50, 100)
+    """
+    text_lower = text.lower()
+    words = text_lower.split()
+    total_words = max(len(words), 1)
+
+    # Feature diversity
+    features_found = set()
+    for pattern, label in _FEATURE_PATTERNS:
+        if re.search(pattern, text_lower):
+            features_found.add(label)
+    feature_diversity = len(features_found)
+
+    # Complexity ratio: sentence length variance / mean
+    sentences = re.split(r'[.!?]+', text)
+    sentences = [s.strip() for s in sentences if s.strip()]
+    if len(sentences) > 1:
+        lengths = [len(s.split()) for s in sentences]
+        mean_len = sum(lengths) / len(lengths)
+        if mean_len > 0:
+            variance = sum((ln - mean_len) ** 2 for ln in lengths) / len(lengths)
+            complexity_ratio = (variance ** 0.5) / mean_len
+        else:
+            complexity_ratio = 0.0
+    else:
+        complexity_ratio = 0.0
+
+    # Likelihood ratio: integrative keyword density
+    integrative_count = sum(
+        1 for w in words if w.strip('.,;:!?') in _INTEGRATIVE_KEYWORDS
+    )
+    likelihood_ratio = integrative_count / total_words
+
+    score = (
+        0.5 * likelihood_ratio * 100
+        + 0.3 * (feature_diversity / 8) * 100
+        + 0.2 * min(complexity_ratio * 50, 100)
+    )
+
+    return max(0.0, min(100.0, score))
+
+
+def compute_hsi_matrix(artifacts, lsa_matrix, semantic_matrix, threshold=0.30):
+    """Compute HSI innovation differential matrix and extract top pairs.
+
+    Ported from V4 execute() method:
+    - semantic_surprise = abs(semantic_sim - lsa_sim)
+    - integrative_factor = sqrt(omhmm_i * omhmm_j) / 100
+    - innovation_differential = 0.6 * semantic_surprise + 0.4 * integrative_factor
+    - breakthrough_potential = 0.7 * differential + 0.3 * min(lsa, semantic) (from V2)
+    """
+    n = len(artifacts)
+    texts = [a['text'] for a in artifacts]
+
+    # Compute OM-HMM scores
+    omhmm_scores = [compute_omhmm_score(t) for t in texts]
+
+    pairs = []
+    for i in range(n):
+        for j in range(i + 1, n):
+            lsa_sim = float(lsa_matrix[i, j])
+            sem_sim = float(semantic_matrix[i, j])
+
+            semantic_surprise = abs(sem_sim - lsa_sim)
+            integrative_factor = math.sqrt(omhmm_scores[i] * omhmm_scores[j]) / 100.0
+            innovation_diff = 0.6 * semantic_surprise + 0.4 * integrative_factor
+
+            if innovation_diff < threshold:
+                continue
+
+            # Classify
+            if lsa_sim > sem_sim:
+                surprise_type = 'structural_transfer'
+            else:
+                surprise_type = 'semantic_implementation'
+
+            # Breakthrough potential (from V2)
+            breakthrough = 0.7 * innovation_diff + 0.3 * min(lsa_sim, sem_sim)
+
+            pairs.append({
+                'left_id': artifacts[i]['id'],
+                'right_id': artifacts[j]['id'],
+                'lsa_sim': round(lsa_sim, 4),
+                'semantic_sim': round(sem_sim, 4),
+                'hsi_score': round(innovation_diff, 4),
+                'surprise_type': surprise_type,
+                'breakthrough_potential': round(breakthrough, 4),
+            })
+
+    # Sort by hsi_score descending, take top 20
+    pairs.sort(key=lambda p: p['hsi_score'], reverse=True)
+    return pairs[:20]
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='HSI computation pipeline for room artifacts'
+    )
+    parser.add_argument('room_dir', help='Path to room directory')
+    parser.add_argument('--tier', type=int, choices=[1, 2], default=1,
+                        help='Embedding tier: 1=MiniLM (default), 2=Pinecone')
+    parser.add_argument('--threshold', type=float, default=0.30,
+                        help='Minimum HSI score threshold (default: 0.30)')
+    parser.add_argument('--output', default=None,
+                        help='Output JSON path (default: {room_dir}/.hsi-results.json)')
+
+    args = parser.parse_args()
+    room_dir = Path(args.room_dir).resolve()
+
+    if not room_dir.is_dir():
+        print(f"Error: {room_dir} is not a directory", file=sys.stderr)
+        sys.exit(1)
+
+    output_path = args.output or str(room_dir / '.hsi-results.json')
+
+    # Step 1: Discover artifacts
+    artifacts = discover_artifacts(room_dir)
+
+    if len(artifacts) < 2:
+        # Write empty results and exit
+        result = {
+            'metadata': {
+                'timestamp': datetime.now(timezone.utc).isoformat(),
+                'room_dir': str(room_dir),
+                'tier': args.tier,
+                'artifact_count': len(artifacts),
+                'pair_count': 0,
+            },
+            'artifacts': [],
+            'hsi_pairs': [],
+            'reverse_salients': [],
+        }
+        Path(output_path).write_text(json.dumps(result, indent=2), encoding='utf-8')
+        print(f"HSI: {len(artifacts)} artifacts found (minimum 2 required), wrote empty results",
+              file=sys.stderr)
+        sys.exit(0)
+
+    # Step 2: Check cache
+    content_hashes = compute_content_hashes(artifacts)
+    if check_cache(room_dir, content_hashes):
+        print("HSI: all artifacts unchanged (cache hit), skipping computation",
+              file=sys.stderr)
+        sys.exit(0)
+
+    # Step 3: Compute LSA structural similarity
+    texts = [a['text'] for a in artifacts]
+    print(f"HSI: computing LSA similarity for {len(artifacts)} artifacts...",
+          file=sys.stderr)
+    lsa_matrix = compute_lsa_similarity(texts)
+
+    # Step 4: Compute semantic similarity
+    tier_used = args.tier
+    semantic_matrix = None
+
+    if args.tier == 2:
+        artifact_ids = [a['id'] for a in artifacts]
+        semantic_matrix = compute_semantic_similarity_tier2(artifact_ids, texts)
+        if semantic_matrix is not None:
+            tier_used = 2
+            print("HSI: using Tier 2 (Pinecone) embeddings", file=sys.stderr)
+
+    if semantic_matrix is None:
+        # Tier 1 fallback
+        print("HSI: using Tier 1 (MiniLM) embeddings...", file=sys.stderr)
+        semantic_matrix = compute_semantic_similarity_tier1(texts)
+        tier_used = 1
+
+        if semantic_matrix is None:
+            print(
+                "HSI: sentence-transformers not installed. "
+                "Run: pip install -r requirements-hsi.txt",
+                file=sys.stderr
+            )
+            sys.exit(1)
+
+    # Step 5: Compute HSI matrix and extract top pairs
+    pairs = compute_hsi_matrix(artifacts, lsa_matrix, semantic_matrix,
+                               threshold=args.threshold)
+
+    # Step 6: Build output
+    artifact_list = [
+        {
+            'id': a['id'],
+            'section': a['section'],
+            'title': a['title'],
+            'path': a['path'],
+        }
+        for a in artifacts
+    ]
+
+    result = {
+        'metadata': {
+            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'room_dir': str(room_dir),
+            'tier': tier_used,
+            'artifact_count': len(artifacts),
+            'pair_count': len(pairs),
+        },
+        'artifacts': artifact_list,
+        'hsi_pairs': pairs,
+        'reverse_salients': [],  # Populated by detect-reverse-salients.py
+    }
+
+    Path(output_path).write_text(json.dumps(result, indent=2), encoding='utf-8')
+
+    # Update cache
+    write_cache(room_dir, content_hashes)
+
+    # Summary to stderr
+    top_score = pairs[0]['hsi_score'] if pairs else 0.0
+    print(
+        f"HSI: {len(pairs)} pairs found (top score: {top_score:.3f}), "
+        f"tier {tier_used}, {len(artifacts)} artifacts",
+        file=sys.stderr
+    )
+
+
+if __name__ == '__main__':
+    main()
