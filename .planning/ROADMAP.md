@@ -183,7 +183,10 @@ Plans:
   3. `/mos:publish` guides the user through one-time Vercel setup (link project, first deploy, optional custom domain) in under 5 minutes
   4. Every git push triggers Vercel auto-deploy so the shareable URL is always current (~30s latency)
   5. User can selectively publish sections (`--sections`) or deploy with password protection (`--private`)
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 31-01-PLAN.md -- Localhost live reload: presentation-server, presentation-watcher, serve-presentation launcher, SSE auto-refresh
+- [ ] 31-02-PLAN.md -- /mos:publish command: Vercel onboarding, selective sections, password protection, exports log
 **UI hint**: yes
 
 ### Phase 32: Generative UI + Chat
