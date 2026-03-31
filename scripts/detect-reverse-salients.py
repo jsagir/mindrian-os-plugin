@@ -6,11 +6,17 @@ Ported from V2 detect_reverse_salients.py (287 lines).
 Reads .hsi-results.json and identifies cross-section innovation opportunities
 where a solution in one section addresses a problem in another.
 
+v1.6.0 "Powerhouse" upgrade: Leverages spectral OM-HMM metadata from
+compute-hsi.py. Pairs where both artifacts have high spectral gaps (fast
+Markov mixing across thinking modes) receive a spectral bonus to their
+breakthrough potential -- artifacts written with genuinely integrative
+thinking are more likely to produce real cross-domain breakthroughs.
+
 Usage:
     python3 scripts/detect-reverse-salients.py /path/to/room [--threshold 0.30] [--top-n 20]
 
 Pipeline: Load HSI results -> Group by section -> Cross-section analysis
-          -> Classify -> Score -> Generate thesis -> Update JSON
+          -> Classify -> Score (with spectral bonus) -> Generate thesis -> Update JSON
 """
 
 import argparse
@@ -33,16 +39,22 @@ def classify_opportunity(lsa_sim, semantic_sim):
     return 'semantic_implementation'
 
 
-def score_breakthrough_potential(differential, lsa_sim, semantic_sim):
+def score_breakthrough_potential(differential, lsa_sim, semantic_sim, spectral_gap_avg=0.0):
     """Score breakthrough potential of a reverse salient.
 
-    Ported from V2 score_breakthrough_potential.
-    breakthrough = (novelty * 0.7) + (feasibility * 0.3)
-    Where novelty = differential, feasibility = min(lsa, semantic)
+    v1.6.0: Added spectral bonus. Pairs where both artifacts exhibit fast
+    Markov chain mixing (high spectral gap) get up to 15% bonus. This
+    rewards connections between artifacts written with genuinely diverse
+    thinking modes, not just keyword-stuffed text.
+
+    breakthrough = (novelty * 0.60) + (feasibility * 0.25) + (spectral * 0.15)
+    Where novelty = differential, feasibility = min(lsa, semantic),
+    spectral = average spectral gap of both artifacts.
     """
     novelty = differential
     feasibility = min(lsa_sim, semantic_sim)
-    return (novelty * 0.7) + (feasibility * 0.3)
+    spectral = spectral_gap_avg
+    return (novelty * 0.60) + (feasibility * 0.25) + (spectral * 0.15)
 
 
 def generate_innovation_thesis(innovation_type, source_artifact, target_artifact,
@@ -128,8 +140,13 @@ def detect_reverse_salients(hsi_data, threshold=0.30, min_similarity=0.20, top_n
                 best_pair['lsa_sim'], best_pair['semantic_sim']
             )
             differential = best_pair['hsi_score']
+
+            # v1.6.0: Use spectral gap from HSI pair metadata if available
+            spectral_gap_avg = best_pair.get('spectral_gap_avg', 0.0)
+
             breakthrough = score_breakthrough_potential(
-                differential, best_pair['lsa_sim'], best_pair['semantic_sim']
+                differential, best_pair['lsa_sim'], best_pair['semantic_sim'],
+                spectral_gap_avg=spectral_gap_avg
             )
 
             # Determine source/target based on type
@@ -158,6 +175,9 @@ def detect_reverse_salients(hsi_data, threshold=0.30, min_similarity=0.20, top_n
                 'innovation_type': innovation_type,
                 'differential_score': round(differential, 4),
                 'breakthrough_potential': round(breakthrough, 4),
+                'spectral_gap_avg': round(spectral_gap_avg, 4),
+                'left_dominant_mode': best_pair.get('left_dominant_mode', 'unknown'),
+                'right_dominant_mode': best_pair.get('right_dominant_mode', 'unknown'),
                 'innovation_thesis': thesis,
             })
 

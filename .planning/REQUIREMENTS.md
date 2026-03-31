@@ -1,153 +1,92 @@
-# Requirements -- v5.0 Data Room Presentation System
+# Requirements: MindrianOS Plugin
 
-**Defined:** 2026-03-30
-**Core Value:** Every Data Room becomes a living, deployed, shareable application -- always visible, always current, always branded.
+**Defined:** 2026-03-31
+**Core Value:** Users can run the full PWS methodology inside Claude Code with zero infrastructure, where Larry guides them through venture innovation
 
-## v5.0 Requirements
+## v5.1 Requirements
 
-### Git Integration
-- [x] **GIT-01**: `/mos:new-project` initializes git repo + creates GitHub repo via `gh` CLI + first push
-- [ ] **GIT-02**: Post-write hook auto-commits every artifact with provenance message (e.g., "methodology: explore-domains", "meeting: 2026-03-30 investor call")
-- [ ] **GIT-03**: Auto-push to GitHub after every commit (configurable: auto/manual/batch)
-- [ ] **GIT-04**: `.rooms/registry.json` tracks git_remote, vercel_url, auto_push per room
-- [ ] **GIT-05**: Git LFS configured for binary files > 10MB (.gitattributes auto-generated)
-- [x] **GIT-06**: `gh` CLI detection with guided install if missing
+Requirements for User Outlets milestone. Each maps to roadmap phases.
 
-### Deploy Pipeline
-- [x] **DEPLOY-01**: `/mos:publish` guides one-time Vercel setup (link project, first deploy, custom domain)
-- [x] **DEPLOY-02**: Vercel auto-deploys on every git push -- shareable URL always current
-- [x] **DEPLOY-03**: `/mos:publish --sections` for selective publishing (privacy: only include chosen sections)
-- [x] **DEPLOY-04**: `/mos:publish --private` for password-protected deployment
-- [x] **DEPLOY-05**: Exports log (`.exports-log.json`) tracks deployed URLs, timestamps, host
+### CLI Identity
 
-### Presentation Generator
-- [x] **PRES-01**: `generate-presentation` script produces all 6 views from any room in one command
-- [x] **PRES-02**: Dashboard (index.html) -- stats bar, 6 view cards, video embed, assets grid, partners, opportunities, governing thought
-- [ ] **PRES-03**: Wiki (wiki.html) -- 3-panel browser, collapsible sidebar, search, TOC, infobox, [[wikilinks]], section colors
-- [ ] **PRES-04**: Deck (deck.html) -- fullscreen slides auto-generated from MINTO.md + key artifacts + stats, keyboard nav
-- [x] **PRES-05**: Insights (insights.html) -- animated stat counters, timelines, quadrants, funnels, comparison tables, heat maps
-- [x] **PRES-06**: Diagrams (diagrams.html) -- Graphviz SVG from graph.json edges, light/dark toggle, multiple diagram types
-- [x] **PRES-07**: Graph (graph.html) -- Canvas-based renderer (Milken Twin pattern): circles, particles, glow, cluster highlight, ego-centric exploration
-- [x] **PRES-08**: Both design themes available: De Stijl dark (default) + PWS light (warm variant)
-- [x] **PRES-09**: Branding contract enforced: MindrianOS logo header, "Built with MindrianOS" footer, Mondrian color bar -- non-removable
+- [ ] **BANNER-01**: User sees Mondrian banner on first-ever cold start
+- [ ] **BANNER-02**: User sees Mondrian banner after plugin update with version diff
+- [ ] **BANNER-03**: User can type /mos:splash to display Mondrian banner anytime
 
-### Canvas Graph Renderer
-- [ ] **GRAPH-01**: Custom Canvas 2D renderer (not Cytoscape) with force simulation, ~330 lines
-- [ ] **GRAPH-02**: Circular nodes sized by centrality (degree or betweenness), section-colored at 60% opacity
-- [ ] **GRAPH-03**: Animated particles traveling along edges (data flowing visualization)
-- [ ] **GRAPH-04**: Hover: connected nodes stay full opacity, everything else dims to 0.15, edges brighten
-- [ ] **GRAPH-05**: Glow rings on hovered + core nodes, ambient pulse animation on key concepts
-- [ ] **GRAPH-06**: `highlightCluster(group)` API -- keywords/tags trigger group-level highlights
-- [ ] **GRAPH-07**: Click node: detail panel slides in with artifact summary + cross-section connections
-- [ ] **GRAPH-08**: Edge types visually distinct: INFORMS (thin gray arrow), CONTRADICTS (dashed red), CONVERGES (dotted gold), ENABLES (solid blue arrow)
+### Onboarding
 
-### KuzuDB Relationship Engine
-- [x] **KUZU-01**: Every filing (methodology, meeting, manual, pipeline, reasoning) creates KuzuDB nodes + edges
-- [x] **KUZU-02**: Cross-room relationship detection -- edges between artifacts in different rooms
-- [x] **KUZU-03**: graph.json generated from KuzuDB queries (not just file scanning)
-- [x] **KUZU-04**: Assumption tracking as first-class KuzuDB entities with validity status
-- [x] **KUZU-05**: Confidence scores on all edges, propagated to graph visualization (edge thickness/opacity)
+- [ ] **ONBOARD-01**: System detects first install via ~/.mindrian-onboarded marker
+- [x] **ONBOARD-02**: User gets 7-step Larry-voiced walkthrough on first install (all skippable)
+- [x] **ONBOARD-03**: USER.md generated from onboarding conversation and persisted
+- [ ] **ONBOARD-04**: Update path shows "What's New" highlights from CHANGELOG
+- [x] **ONBOARD-05**: User can type /mos:onboard to re-run onboarding anytime
 
-### Binary Asset Filing
-- [ ] **ASSET-01**: PDFs, images, videos filed with markdown wrapper + frontmatter in correct section
-- [ ] **ASSET-02**: ASSET_MANIFEST.md auto-updated on every binary filing
-- [ ] **ASSET-03**: Assets auto-discovered and displayed in dashboard grid and wiki inline rendering
-- [ ] **ASSET-04**: Meeting audio/video filed in meetings/ with transcript link
+### Command Wiring
 
-### Filing Pipeline Completeness
-- [x] **FILE-01**: Post-write hook chain: classify -> KuzuDB index -> compute-state -> build-graph -> git commit -> push (generate-presentation wired in Phase 30)
-- [x] **FILE-02**: Artifact IDs (stable hash) in frontmatter for reliable cross-referencing
-- [x] **FILE-03**: Pipeline provenance in frontmatter (pipeline name, stage number, requires/provides)
-- [x] **FILE-04**: Meeting segments create KuzuDB nodes with SEGMENT_OF edges to meeting node
-- [x] **FILE-05**: Speaker expertise mapped to room sections via CONSULTED_ON edges
+- [ ] **WIRE-01**: /mos:present generates all 6 presentation views and opens dashboard in browser
+- [ ] **WIRE-02**: /mos:dashboard opens interactive graph with chat panel in browser
+- [ ] **WIRE-03**: /mos:speakers shows speaker profiles from filed meetings
+- [ ] **WIRE-04**: /mos:reanalyze re-runs intelligence on already-filed meetings
+- [ ] **WIRE-05**: /mos:graph provides direct KuzuDB graph exploration
 
-### HSI + Reverse Salient Pipeline
-- [ ] **HSI-01**: `scripts/compute-hsi.py` computes dual similarity (TF-IDF/SVD + embeddings) across all room artifacts
-- [ ] **HSI-02**: `scripts/detect-reverse-salients.py` finds cross-section innovation opportunities
-- [ ] **HSI-03**: HSI results written as KuzuDB edges (ENABLES, SURPRISING_CONNECTION) with scores
-- [ ] **HSI-04**: Post-write hook fires HSI in background (non-blocking, after git-ops)
-- [ ] **HSI-05**: 3-tier: keyword (Tier 0), sklearn+MiniLM (Tier 1), sklearn+Pinecone (Tier 2)
+### JTBD Warm Start
 
-### Room Structure Contract
-- [x] **ROOM-01**: Every room maintains STATE.md (quantitative) context file, regenerated on every filing. MINTO.md (qualitative) generated on session-start when room has 3+ artifacts
-- [x] **ROOM-02**: CJS scripts operate on room path argument (ICM: folder structure = code)
-- [x] **ROOM-03**: Room tree always browsable as GitHub repo with meaningful structure
-- [x] **ROOM-04**: Proactive intelligence persisted in .proactive-intelligence.json with repeat suppression
+- [ ] **JTBD-01**: Larry's warm start nudges identify user's current job and frame commands as job acceleration
+- [ ] **JTBD-02**: Nudges follow pattern "You have [state]. /mos:X [outcome]" -- max 2-3 per session
+- [ ] **JTBD-03**: Dynamic command menu adapts to what user hasn't tried yet
 
-### Generative UI
-- [ ] **GENUI-01**: Vercel json-render integration -- Larry generates UI components declaratively
-- [ ] **GENUI-02**: `highlightCluster()` wired as AI tool call in deployed site
-- [x] **GENUI-03**: BYOAPI chat panel -- visitor provides API key, stored in localStorage, direct browser-to-API
-- [ ] **GENUI-04**: "Show me contradictions" -> Larry generates filtered graph view + analysis card
+### Validation
 
-### Auto-Update Mechanism
-- [ ] **SYNC-01**: Localhost: chokidar watches room/, SSE triggers browser reload (~1s latency)
-- [ ] **SYNC-02**: Post-write: hook regenerates presentation views (~2-3s latency)
-- [x] **SYNC-03**: Deployed: git push triggers Vercel auto-deploy (~30s latency)
+- [ ] **VAL-01**: Phase 32-02 generative tools (highlightCluster, filterEdgeType, showInsight) verified working
+- [ ] **VAL-02**: End-to-end flow tested: install -> onboard -> file -> present -> share
 
-## Traceability
+## Future Requirements
 
-| REQ-ID | Phase | Status |
-|--------|-------|--------|
-| GIT-01 | Phase 26 | Complete |
-| GIT-02 | Phase 26 | Pending |
-| GIT-03 | Phase 26 | Pending |
-| GIT-04 | Phase 26 | Pending |
-| GIT-05 | Phase 26 | Pending |
-| GIT-06 | Phase 26 | Complete |
-| FILE-01 | Phase 27 | Complete |
-| FILE-02 | Phase 27 | Complete |
-| FILE-03 | Phase 27 | Complete |
-| FILE-04 | Phase 27 | Complete |
-| FILE-05 | Phase 27 | Complete |
-| KUZU-01 | Phase 27 | Complete |
-| KUZU-02 | Phase 27 | Complete |
-| KUZU-03 | Phase 27 | Complete |
-| KUZU-04 | Phase 27 | Complete |
-| KUZU-05 | Phase 27 | Complete |
-| ROOM-01 | Phase 27 | Complete |
-| ROOM-02 | Phase 27 | Complete |
-| ROOM-03 | Phase 27 | Complete |
-| ROOM-04 | Phase 27 | Complete |
-| ASSET-01 | Phase 28 | Pending |
-| ASSET-02 | Phase 28 | Pending |
-| ASSET-03 | Phase 28 | Pending |
-| ASSET-04 | Phase 28 | Pending |
-| GRAPH-01 | Phase 29 | Pending |
-| GRAPH-02 | Phase 29 | Pending |
-| GRAPH-03 | Phase 29 | Pending |
-| GRAPH-04 | Phase 29 | Pending |
-| GRAPH-05 | Phase 29 | Pending |
-| GRAPH-06 | Phase 29 | Pending |
-| GRAPH-07 | Phase 29 | Pending |
-| GRAPH-08 | Phase 29 | Pending |
-| PRES-01 | Phase 30 | Complete |
-| PRES-02 | Phase 30 | Complete |
-| PRES-03 | Phase 30 | Pending |
-| PRES-04 | Phase 30 | Pending |
-| PRES-05 | Phase 30 | Complete |
-| PRES-06 | Phase 30 | Complete |
-| PRES-07 | Phase 30 | Complete |
-| PRES-08 | Phase 30 | Complete |
-| PRES-09 | Phase 30 | Complete |
-| SYNC-01 | Phase 31 | Pending |
-| SYNC-02 | Phase 31 | Pending |
-| SYNC-03 | Phase 31 | Complete |
-| DEPLOY-01 | Phase 31 | Complete |
-| DEPLOY-02 | Phase 31 | Complete |
-| DEPLOY-03 | Phase 31 | Complete |
-| DEPLOY-04 | Phase 31 | Complete |
-| DEPLOY-05 | Phase 31 | Complete |
-| GENUI-01 | Phase 32 | Pending |
-| GENUI-02 | Phase 32 | Pending |
-| GENUI-03 | Phase 32 | Complete |
-| GENUI-04 | Phase 32 | Pending |
+Deferred from v5.1:
+
+- Workflow triggers ("I just had a meeting" -> guided filing flow)
+- Conversational router (natural language -> command routing)
+- Graph surgery (user can edit/delete KuzuDB edges)
+- HSI threshold tuning (user-configurable similarity parameters)
+- Artifact provenance viewer (show where each insight came from)
 
 ## Out of Scope
 
-- Real-time collaborative editing (Cowork handles natively)
-- Custom LLM hosting for chat (BYOAPI only -- user provides their own key)
-- Mobile-native app (responsive web only)
-- Brain graph editing by users (users get intelligence, never modify)
-- Payment/billing for hosting (user's own Vercel/GitHub account)
-- Obsidian/Notion sync (future milestone)
+| Feature | Reason |
+|---------|--------|
+| New infrastructure/scripts | v5.1 wires existing infra only |
+| Browser-based onboarding UI | CLI-native, Larry-voiced |
+| New methodology commands | 26 already exist, focus on discoverability |
+| Mobile/Desktop-specific features | CLI-first for this milestone |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| BANNER-01 | Phase 34 | Pending |
+| BANNER-02 | Phase 34 | Pending |
+| BANNER-03 | Phase 34 | Pending |
+| ONBOARD-01 | Phase 35 | Pending |
+| ONBOARD-02 | Phase 35 | Complete |
+| ONBOARD-03 | Phase 35 | Complete |
+| ONBOARD-04 | Phase 35 | Pending |
+| ONBOARD-05 | Phase 35 | Complete |
+| WIRE-01 | Phase 36 | Pending |
+| WIRE-02 | Phase 36 | Pending |
+| WIRE-03 | Phase 36 | Pending |
+| WIRE-04 | Phase 36 | Pending |
+| WIRE-05 | Phase 36 | Pending |
+| JTBD-01 | Phase 37 | Pending |
+| JTBD-02 | Phase 37 | Pending |
+| JTBD-03 | Phase 37 | Pending |
+| VAL-01 | Phase 38 | Pending |
+| VAL-02 | Phase 38 | Pending |
+
+**Coverage:**
+- v5.1 requirements: 18 total
+- Mapped to phases: 18
+- Unmapped: 0
+
+---
+*Requirements defined: 2026-03-31*
+*Last updated: 2026-03-31 after roadmap creation*

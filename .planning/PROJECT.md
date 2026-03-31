@@ -10,69 +10,53 @@ Users can run the full PWS methodology — 25 specialized methodology bots, stru
 
 ## Current State
 
-**Shipped:** v4.0 Brain API Control & CLI UI Ruling System (2026-03-29)
+**Shipped:** v5.0 Data Room Presentation System (2026-03-31)
 
-v1.0 through v4.0 = 50+ commands, 8 agents, meeting intelligence pipeline, team room, cross-meeting intelligence, three-layer knowledge graph, De Stijl dashboard + timeline mode, PDF exports, Brain API key management, CLI UI ruling system (4-zone anatomy, 5 body shapes), admin panel, multi-room management, autonomous framework engine, De Stijl HTML export with 4 views.
+v1.0 through v5.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Presentation System (Dashboard, Wiki, Deck, Insights, Diagrams, Graph). Canvas knowledge graph with particles and glow. BYOAPI chat with Larry. Git integration (optional), KuzuDB automatic backbone, HSI pipeline, binary asset filing, Vercel one-click deploy. Dual themes (De Stijl dark + PWS light). MindrianOS branding enforced.
 
 **Milestones shipped:**
 - v1.0 MVP (2026-03-22) -- 5 phases, 20 plans
 - v2.0 Meeting Intelligence (2026-03-24) -- 4 phases, 13 plans
 - v3.0 MCP Platform (2026-03-25) -- 10 phases, 26 plans
 - v4.0 Brain API & CLI UI (2026-03-29) -- 6 phases, 12 plans
+- v5.0 Presentation System (2026-03-31) -- 8 phases, 17 plans
+- v5.1 User Outlets (in progress)
 
-## Current Milestone: v5.0 Data Room Presentation System
+## Current Milestone: v5.1 User Outlets
 
-**Goal:** Every MindrianOS Data Room becomes a living, deployed, shareable application. Room = GitHub repo. Every filing (methodology, meeting, PDF, image, video) triggers the full pipeline: KuzuDB edges -> graph.json -> 6-view presentation -> git commit -> Vercel auto-deploy. The room is always visible, always current, always branded.
+**Goal:** Make MindrianOS's power reachable -- wire user-facing commands to built infrastructure, build onboarding, and ensure everything from v5.0 actually works from a user's perspective. No new infrastructure -- just outlets.
 
 **Target features:**
 
-Git & Deploy:
-- Room = GitHub repo from /mos:new-project (gh CLI integration)
-- Auto-commit on every filing with provenance messages
-- Auto-push to GitHub after every artifact
-- /mos:publish for guided Vercel onboarding (one-time, 5 minutes)
-- Vercel auto-deploys on every push -- shareable URL always current
-- Privacy controls -- select which sections to publish
+CLI Identity:
+- Mondrian banner fires reliably on cold start and after updates
+- /mos:splash command for manual banner display
+- Banner renders correctly across terminal environments
 
-6-View Presentation System:
-- Dashboard (index.html) -- stats, view cards, video, assets, opportunities, governing thought
-- Wiki (wiki.html) -- 3-panel Wikipedia browser, sidebar, search, TOC, infobox, wikilinks
-- Deck (deck.html) -- fullscreen slides from MINTO.md + key artifacts, keyboard nav
-- Insights (insights.html) -- stat counters, timelines, quadrants, funnels, heat maps
-- Diagrams (diagrams.html) -- Graphviz SVG architecture flows, light/dark toggle
-- Graph (graph.html) -- Canvas-based Milken Twin renderer: circles, particles, glow, cluster highlight
+Onboarding (Phase 33 build):
+- First-install detection via ~/.mindrian-onboarded marker
+- 7-step Larry-voiced interactive walkthrough (all skippable)
+- USER.md generated from onboarding conversation
+- Update path shows "What's New" from CHANGELOG
+- /mos:onboard command for re-run anytime
 
-KuzuDB Relationship Engine:
-- Every filing creates KuzuDB nodes + edges automatically
-- Cross-room relationship detection (multi-room intelligence)
-- Relationships power the Canvas graph view (not static graph.json)
-- Assumption tracking with validity status (first-class entities)
+Command Wiring (connect existing infrastructure to users):
+- /mos:present -- generate 6-view presentation + open in browser
+- /mos:dashboard -- open interactive graph dashboard with chat
+- /mos:speakers -- show speaker profiles from filed meetings
+- /mos:reanalyze -- re-run intelligence on existing meetings
+- /mos:graph -- direct KuzuDB graph exploration
 
-Binary Asset Filing:
-- PDFs, images, videos filed alongside markdown with frontmatter
-- ASSET_MANIFEST.md auto-updated
-- Git LFS for large files
-- Assets display in dashboard grid and wiki inline
+JTBD Warm Start:
+- Larry reads room state + user's current job to phrase nudges
+- Every suggestion follows "You have [state]. /mos:X [outcome that matters]"
+- Max 2-3 nudges per session, never feature descriptions
+- Commands framed as job acceleration, not tool usage
 
-Complete Filing Pipeline:
-- Every path into the room (methodology, meeting, pipeline, manual, reasoning) triggers:
-  classify -> file -> KuzuDB edges -> graph update -> presentation regenerate -> git commit -> push -> deploy
-
-Generative UI (json-render + Vercel AI SDK):
-- Larry generates views conversationally in deployed site
-- highlightCluster() wired as AI tool call
-- BYOAPI chat panel (user provides API key)
-
-Folder Structure Contract:
-- Every room maintains STATE.md + MINTO.md context files
-- CJS scripts in plugin operate on room path (ICM: folder = code)
-- Room tree is always browsable as a GitHub repo
-
-**Key constraints:**
-- Branding contract: MindrianOS logo + "Built with MindrianOS" + Mondrian color bar = non-removable
-- Two design themes: De Stijl dark (default) + PWS light (warm variant)
-- Self-contained HTML files (no server for viewers)
-- Static deploy to any host (Vercel, GitHub Pages, Cloudflare, Render)
+v5.0 Validation:
+- Phase 32-02 generative tools (highlightCluster, filterEdgeType, showInsight) verified working
+- End-to-end: install -> onboard -> file -> present -> share flow tested
+- All 6 presentation views render correctly with room data
 - v4.0 Brain API & CLI UI (2026-03-29) -- 6 phases, 12 plans
 
 ## v3.0 Backlog (Captured Ideas)
@@ -203,4 +187,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-30 after v5.0 milestone start*
+*Last updated: 2026-03-31 after v5.1 milestone start*
