@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# on-file-changed: FileChanged hook handler for MindrianOS
+# Detects external modifications to room files and re-runs the post-write
+# cascade (classify, KuzuDB index, HSI compute, state recompute).
+# Must complete in under 3 seconds.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# The changed file path comes from the hook event
+FILE_PATH="${1:-${TOOL_INPUT_PATH:-}}"
+
+if [ -z "$FILE_PATH" ]; then
+  printf '{"status": "no_file"}\n'
+  exit 0
+fi
+
+# Resolve active room
+WORK_DIR="${PWD}"
+ACTIVE_ROOM=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR" 2>/dev/null) || ACTIVE_ROOM=""
+
+if [ -z "$ACTIVE_ROOM" ]; then
+  printf '{"status": "no_room"}\n'
+  exit 0
+fi
+
+# Only process files within the active room
+case "$FILE_PATH" in
+  "${ACTIVE_ROOM}"/*) ;; # File is in active room -- proceed
+  *) printf '{"status": "outside_room"}\n'; exit 0 ;;
+esac
+
+# Skip STATE.md and ROOM.md (infrastructure files, not artifacts)
+basename_file=$(basename "$FILE_PATH")
+if [[ "$basename_file" == "STATE.md" ]] || [[ "$basename_file" == "ROOM.md" ]] || [[ "$basename_file" == "TEAM-STATE.md" ]] || [[ "$basename_file" == "MEETINGS-INTELLIGENCE.md" ]]; then
+  printf '{"status": "skipped_infra"}\n'
+  exit 0
+fi
+
+# Skip hidden files and directories
+case "$FILE_PATH" in
+  */.*) printf '{"status": "skipped_hidden"}\n'; exit 0 ;;
+esac
+
+# Delegate to post-write for the full cascade
+# post-write handles: classify, graph index, HSI compute, presentation regen
+exec bash "${SCRIPT_DIR}/post-write" "$FILE_PATH"
