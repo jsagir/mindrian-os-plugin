@@ -737,6 +737,163 @@ function renderBrandedHtml(model) {
       color: var(--ds-muted);
     }
 
+    /* -- Grid Variants -- */
+    .card-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .card-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    /* -- Section Header Color Variants -- */
+    .section-header--blue::before { background: var(--ds-blue); }
+    .section-header--teal::before { background: var(--ds-teal); }
+    .section-header--default::before { background: var(--ds-blue); }
+
+    /* -- Breakthrough Cards -- */
+    .breakthrough-card {
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+      border-left: 3px solid var(--ds-blue);
+      padding: 20px;
+      transition: border-color var(--ds-transition), box-shadow var(--ds-transition);
+    }
+    .breakthrough-card:hover {
+      filter: brightness(1.25);
+      box-shadow: var(--ds-shadow-lifted);
+    }
+    .breakthrough-card .tag {
+      color: var(--ds-blue-text);
+    }
+    .breakthrough-card h3 {
+      font-family: var(--ds-font-body);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ds-cream);
+      margin-bottom: 6px;
+    }
+    .breakthrough-card p {
+      font-size: 13px;
+      color: var(--ds-muted);
+      line-height: 1.5;
+    }
+
+    /* -- Opportunity Rows -- */
+    .opp-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .opp-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 16px;
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+      transition: box-shadow var(--ds-transition);
+    }
+    .opp-row:hover {
+      filter: brightness(1.25);
+      box-shadow: var(--ds-shadow-lifted);
+    }
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      font-family: var(--ds-font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ds-bg);
+      flex-shrink: 0;
+    }
+    .score-badge--high { background: var(--ds-green); }
+    .score-badge--mid { background: var(--ds-yellow); }
+    .score-badge--low { background: var(--ds-muted); }
+    .opp-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ds-cream);
+      flex: 1;
+    }
+    .opp-detail {
+      font-family: var(--ds-font-mono);
+      font-size: 12px;
+      color: var(--ds-muted);
+      white-space: nowrap;
+    }
+
+    /* -- CTA Card -- */
+    .cta-card {
+      background: var(--ds-surface);
+      border: 1px dashed var(--ds-border);
+      padding: 32px;
+      text-align: center;
+    }
+    .cta-card p {
+      font-size: 14px;
+      color: var(--ds-muted);
+    }
+    .cta-card code {
+      font-family: var(--ds-font-mono);
+      font-size: 13px;
+      color: var(--ds-teal-text);
+      background: var(--ds-bg);
+      padding: 2px 8px;
+    }
+
+    /* -- View Cards -- */
+    .view-card {
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+      padding: 20px;
+      transition: border-color var(--ds-transition), box-shadow var(--ds-transition);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .view-card:hover {
+      filter: brightness(1.25);
+      box-shadow: var(--ds-shadow-lifted);
+    }
+    .view-card h3 {
+      font-family: var(--ds-font-body);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ds-cream);
+    }
+    .view-card p {
+      font-size: 13px;
+      color: var(--ds-muted);
+      line-height: 1.5;
+      flex: 1;
+    }
+    .view-card-link {
+      font-family: var(--ds-font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ds-blue-text);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+    }
+    .view-card-link:hover {
+      text-decoration: underline;
+    }
+    .view-card-disabled {
+      opacity: 0.5;
+      border-style: dashed;
+    }
+    .view-card-disabled .view-card-link {
+      color: var(--ds-muted);
+      pointer-events: none;
+    }
+
     /* -- Responsive -- */
     @media (max-width: 768px) {
       .header { padding: 0 16px; }
@@ -745,12 +902,15 @@ function renderBrandedHtml(model) {
       .stat-value { font-size: 22px; }
       .section { padding: 32px 0; }
       .card-grid { grid-template-columns: 1fr; }
+      .card-grid-3 { grid-template-columns: 1fr; }
+      .card-grid-4 { grid-template-columns: repeat(2, 1fr); }
       .footer { flex-direction: column; gap: 12px; text-align: center; }
     }
     @media (max-width: 480px) {
       .header-title { font-size: 18px; }
       .stage-badge { display: none; }
       .stats-bar { gap: 16px; }
+      .card-grid-4 { grid-template-columns: 1fr; }
     }
 
     /* -- No italic anywhere -- */
@@ -804,11 +964,63 @@ function renderBrandedHtml(model) {
     </div>
   </div>
 
-  <!-- Room Sections -->
+  <!-- Breakthrough Angles (ATF-01, D-19) -- only if breakthroughs exist -->
+  ${model.breakthroughs.length > 0 ? `<div class="section">
+    <div class="container">
+      <h2 class="section-header section-header--blue">BREAKTHROUGH ANGLES</h2>
+      <div class="card-grid-3">
+        ${model.breakthroughs.map(b => `<div class="breakthrough-card">
+          <span class="tag">${escapeHtml(b.tag)}</span>
+          <h3>${escapeHtml(b.label)}</h3>
+          ${b.description ? `<p>${escapeHtml(b.description)}</p>` : ''}
+        </div>`).join('\n        ')}
+      </div>
+    </div>
+  </div>` : ''}
+
+  <!-- Top Opportunities (ATF-02, D-20) -- always visible -->
+  <div class="section section-alt">
+    <div class="container">
+      <h2 class="section-header section-header--teal">TOP OPPORTUNITIES</h2>
+      ${model.opportunities.length > 0 ? `<div class="opp-list">
+        ${model.opportunities.slice(0, 5).map(o => {
+          const badgeClass = o.score >= 90 ? 'score-badge--high' : o.score >= 70 ? 'score-badge--mid' : 'score-badge--low';
+          return `<div class="opp-row">
+            <span class="score-badge ${badgeClass}">${o.score || '--'}</span>
+            <span class="opp-title">${escapeHtml(o.title)}</span>
+            ${o.funder ? `<span class="opp-detail">${escapeHtml(o.funder)}</span>` : ''}
+            ${o.amount ? `<span class="opp-detail">${escapeHtml(o.amount)}</span>` : ''}
+            ${o.deadline ? `<span class="opp-detail">${escapeHtml(o.deadline)}</span>` : ''}
+          </div>`;
+        }).join('\n        ')}
+      </div>` : `<div class="cta-card">
+        <p>No opportunities scanned yet. Run <code>/mos:opportunities scan</code> to discover grants.</p>
+      </div>`}
+    </div>
+  </div>
+
+  <!-- Views (HUB-02, D-03 to D-06) -->
   <div class="section">
     <div class="container">
+      <h2 class="section-header section-header--default">VIEWS</h2>
+      <div class="card-grid-3">
+        ${model.views.map(v => `<div class="view-card${v.available ? '' : ' view-card-disabled'}">
+          <span class="tag">${escapeHtml(v.tag)}</span>
+          <h3>${escapeHtml(v.title)}</h3>
+          <p>${escapeHtml(v.description)}</p>
+          ${v.available
+            ? `<a href="${escapeHtml(v.filename)}" class="view-card-link">Open &gt;</a>`
+            : `<span class="view-card-link">${escapeHtml(v.reason)}</span>`}
+        </div>`).join('\n        ')}
+      </div>
+    </div>
+  </div>
+
+  <!-- Room Sections (HUB-03, D-07 to D-09) -->
+  <div class="section section-alt">
+    <div class="container">
       <h2 class="section-header">ROOM SECTIONS</h2>
-      <div class="card-grid">
+      <div class="card-grid-4">
         ${sectionCards}
       </div>
     </div>
