@@ -21,15 +21,15 @@
 - [ ] **DEPLOY-05**: Exports log (`.exports-log.json`) tracks deployed URLs, timestamps, host
 
 ### Presentation Generator
-- [ ] **PRES-01**: `generate-presentation` script produces all 6 views from any room in one command
-- [ ] **PRES-02**: Dashboard (index.html) -- stats bar, 6 view cards, video embed, assets grid, partners, opportunities, governing thought
+- [x] **PRES-01**: `generate-presentation` script produces all 6 views from any room in one command
+- [x] **PRES-02**: Dashboard (index.html) -- stats bar, 6 view cards, video embed, assets grid, partners, opportunities, governing thought
 - [ ] **PRES-03**: Wiki (wiki.html) -- 3-panel browser, collapsible sidebar, search, TOC, infobox, [[wikilinks]], section colors
 - [ ] **PRES-04**: Deck (deck.html) -- fullscreen slides auto-generated from MINTO.md + key artifacts + stats, keyboard nav
 - [ ] **PRES-05**: Insights (insights.html) -- animated stat counters, timelines, quadrants, funnels, comparison tables, heat maps
 - [ ] **PRES-06**: Diagrams (diagrams.html) -- Graphviz SVG from graph.json edges, light/dark toggle, multiple diagram types
-- [ ] **PRES-07**: Graph (graph.html) -- Canvas-based renderer (Milken Twin pattern): circles, particles, glow, cluster highlight, ego-centric exploration
+- [x] **PRES-07**: Graph (graph.html) -- Canvas-based renderer (Milken Twin pattern): circles, particles, glow, cluster highlight, ego-centric exploration
 - [ ] **PRES-08**: Both design themes available: De Stijl dark (default) + PWS light (warm variant)
-- [ ] **PRES-09**: Branding contract enforced: MindrianOS logo header, "Built with MindrianOS" footer, Mondrian color bar -- non-removable
+- [x] **PRES-09**: Branding contract enforced: MindrianOS logo header, "Built with MindrianOS" footer, Mondrian color bar -- non-removable
 
 ### Canvas Graph Renderer
 - [ ] **GRAPH-01**: Custom Canvas 2D renderer (not Cytoscape) with force simulation, ~330 lines
@@ -121,15 +121,15 @@
 | GRAPH-06 | Phase 29 | Pending |
 | GRAPH-07 | Phase 29 | Pending |
 | GRAPH-08 | Phase 29 | Pending |
-| PRES-01 | Phase 30 | Pending |
-| PRES-02 | Phase 30 | Pending |
+| PRES-01 | Phase 30 | Complete |
+| PRES-02 | Phase 30 | Complete |
 | PRES-03 | Phase 30 | Pending |
 | PRES-04 | Phase 30 | Pending |
 | PRES-05 | Phase 30 | Pending |
 | PRES-06 | Phase 30 | Pending |
-| PRES-07 | Phase 30 | Pending |
+| PRES-07 | Phase 30 | Complete |
 | PRES-08 | Phase 30 | Pending |
-| PRES-09 | Phase 30 | Pending |
+| PRES-09 | Phase 30 | Complete |
 | SYNC-01 | Phase 31 | Pending |
 | SYNC-02 | Phase 31 | Pending |
 | SYNC-03 | Phase 31 | Pending |
