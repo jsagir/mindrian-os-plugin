@@ -77,7 +77,7 @@
 ### Generative UI
 - [ ] **GENUI-01**: Vercel json-render integration -- Larry generates UI components declaratively
 - [ ] **GENUI-02**: `highlightCluster()` wired as AI tool call in deployed site
-- [ ] **GENUI-03**: BYOAPI chat panel -- visitor provides API key, stored in localStorage, direct browser-to-API
+- [x] **GENUI-03**: BYOAPI chat panel -- visitor provides API key, stored in localStorage, direct browser-to-API
 - [ ] **GENUI-04**: "Show me contradictions" -> Larry generates filtered graph view + analysis card
 
 ### Auto-Update Mechanism
@@ -140,7 +140,7 @@
 | DEPLOY-05 | Phase 31 | Complete |
 | GENUI-01 | Phase 32 | Pending |
 | GENUI-02 | Phase 32 | Pending |
-| GENUI-03 | Phase 32 | Pending |
+| GENUI-03 | Phase 32 | Complete |
 | GENUI-04 | Phase 32 | Pending |
 
 ## Out of Scope

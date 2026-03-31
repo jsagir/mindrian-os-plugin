@@ -308,6 +308,14 @@ var ROOM_DATA = /*ROOM_DATA_PLACEHOLDER*/{};
 </script>
 
 <script>
+/*CHAT_CONTEXT_JS*/
+</script>
+
+<script>
+/*CHAT_PANEL_JS*/
+</script>
+
+<script>
 (function() {
   var D = ROOM_DATA;
   var container = document.getElementById('graph-container');
@@ -333,6 +341,29 @@ var ROOM_DATA = /*ROOM_DATA_PLACEHOLDER*/{};
       }
     }
   });
+
+  // Expose graph for chat tool calls
+  window.__mosGraph = graph;
+})();
+
+// -- Chat Panel initialization --
+(function() {
+  var D = ROOM_DATA;
+  if (typeof ChatPanel === 'undefined') return;
+  var chatContainer = document.createElement('div');
+  chatContainer.id = 'chat-container';
+  document.body.appendChild(chatContainer);
+  var panel = new ChatPanel(chatContainer, {
+    roomData: D,
+    onToolCall: function(name, args) {
+      // Tool call bridge -- Plan 32-02 will wire generative tools here
+      if (name === 'highlightCluster' && window.__mosGraph) {
+        window.__mosGraph.highlightCluster(args.group);
+      }
+    }
+  });
+  // Expose for tool calls from Plan 32-02
+  window.__mosChatPanel = panel;
 })();
 
 function toggleTheme() {
