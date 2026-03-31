@@ -20,64 +20,32 @@ v1.0 through v5.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Presen
 - v3.0 MCP Platform (2026-03-25) -- 10 phases, 26 plans
 - v4.0 Brain API & CLI UI (2026-03-29) -- 6 phases, 12 plans
 - v5.0 Presentation System (2026-03-31) -- 8 phases, 17 plans
-- v5.1 User Outlets (partially completed)
+- v5.1 User Outlets (2026-03-31) -- 5 phases, 7 plans
 
-## Current Milestone: v1.6.0 Powerhouse
+## Current Milestone: v5.2 Export Snapshot System
 
-**Goal:** Transform MindrianOS from reactive teaching partner into proactive, cost-optimized, parallel-processing venture intelligence engine with Design-by-Analogy discovery and deep Claude Code platform optimization.
+**Goal:** One command (/mos:export snapshot) generates a unified hub page + co-located view files from any Data Room -- point-in-time visual overview matching the MindrianOS website design system, deployable to Vercel.
 
-**Moat Mandate:** Every feature, every PR, every phase review must answer: "Does this deepen the MWP moat or just add surface area?" The moat is the integration of 7 MWP layers + 9 KuzuDB edge types + Brain IP + 30 years of teaching calibration. Internal docs enforce this.
+**Design Brief:** docs/EXPORT-DESIGN-BRIEF.md (564 lines, AD-1 through AD-14)
 
 **Target features:**
-
-A. Hook Expansion (6 new Claude Code hooks):
-- PreCompact/PostCompact (context preservation across autocompact)
-- FileChanged (external edit detection, auto re-index)
-- CwdChanged (auto room switching on directory change)
-- SubagentStop (auto-file agent results through cascade)
-- TaskCompleted (pipeline stage tracking and REASONING.md staleness)
-
-B. Model Routing (per-agent, per-stage):
-- MODEL_PROFILES table (quality/balanced/budget/inherit)
-- Venture-stage adaptive hints (Pre-Opportunity=cheap, Investment=opus)
-- Cascade step model assignment (haiku for classify, sonnet for edges)
-- /mos:models command for profile management
-- Per-room config in room/.config.json
-
-C. Parallel Agent Patterns:
-- /mos:act --swarm (3 frameworks in parallel across gap sections)
-- /mos:persona --parallel (6 De Bono hats simultaneously)
-- /mos:grade --full (8 sections graded at once)
-- /mos:research --broad (3-angle parallel research)
-- Cross-cascade emergent discovery from parallel filings
-
-D. Spectral OM-HMM (DONE - implemented 2026-03-31):
-- Markov chain thinking-mode transition analysis (Seabrook & Wiskott 2022)
-- Spectral gap scoring replaces keyword-density proxy
-- Per-artifact spectral profiles in HSI output
-- 15% spectral bonus in reverse salient breakthrough scoring
-
-E. Sentinel Mode (scheduled intelligence):
-- Weekly room health check (Monday 9am)
-- Daily grant deadline monitor (8am)
-- Weekly competitor watch (Friday)
-- Weekly HSI recomputation (Sunday midnight)
-- /mos:scout manual fallback if cron unavailable
-
-F. Design-by-Analogy Pipeline (NEW methodology):
-- 5-stage pipeline: Decompose -> Abstract -> Search -> Transfer -> Validate
-- Internal search (KuzuDB + Brain) + external research orchestration (Tavily MCP)
-- TRIZ contradiction resolution on existing CONTRADICTS edges
-- SAPPhIRE functional encoding of room artifacts
-- 3 new KuzuDB edge types (ANALOGOUS_TO, STRUCTURALLY_ISOMORPHIC, RESOLVES_VIA)
-- /mos:find-analogies command with --brain and --external modes
-- brain_analogy_search query pattern for Neo4j
-
-G. Future-Proofing (ccleaks.com Claude Code preparation):
-- room/.context/ directory (KAIROS persistent memory prep)
-- .claude/teams/mindrian.json (Coordinator Mode manifest)
-- IPC protocol design (UDS Inbox cross-session prep)
-- Daemon-compatible command wrappers
+- Unified generate-snapshot.cjs (Node.js, zero deps) replacing 5 fragmented scripts
+- Hub page (index.html) linking to co-located views per snapshot folder
+- Intelligence Map as primary graph (7 layers, toggles, edge filters, click-to-inspect)
+- Wiki article browser with sidebar and search
+- Doc Hub scrollable reader
+- Deck auto-generated slides (if 3+ sections populated)
+- Real Mondrian logo (canonical SVG), not colored bars
+- Website design system tokens hardcoded (standalone)
+- Breakthroughs (ADJACENT_POSSIBLE) + Opportunities above the fold
+- Key insights extraction (CRITICAL > CONTRADICTS > VALIDATES > MINTO > CONVERGES, max 5)
+- Red team severity summary
+- Semantic edges from existing graph.json (KuzuDB enriched, fallback to CONVERGES)
+- Version history via manifest.json + collapsible sidebar
+- CDN default, --offline flag inlines Cytoscape.js
+- All content hyperlinked via KuzuDB graph relationships (AD-14)
+- Responsive 375px-1440px
+- Single folder per snapshot in room/exports/
 - MWP specification document
 
 H. Prompt Cache Optimization:

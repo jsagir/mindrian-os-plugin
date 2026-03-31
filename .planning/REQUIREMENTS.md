@@ -1,171 +1,104 @@
-# Requirements - v1.6.0 Powerhouse
+# Requirements: MindrianOS Plugin
 
 **Defined:** 2026-03-31
-**Core Value:** Users can run the full PWS methodology inside Claude Code with zero infrastructure, where Larry guides them through venture innovation
-**Moat:** Every requirement deepens the MWP moat (7 layers + 9 edge types + Brain IP + teaching calibration)
+**Core Value:** One command produces a unified visual snapshot from any Data Room
 
----
+## v5.2 Requirements
 
-## v1.6.0 Requirements
+### Generator
 
-### Hook Expansion
+- [ ] **GEN-01**: Single generate-snapshot.cjs script (Node.js, zero npm deps) produces snapshot folder
+- [ ] **GEN-02**: Output is a folder per snapshot: room/exports/{YYYY-MM-DD-HHmm}/index.html + view files
+- [ ] **GEN-03**: Reads existing graph.json (KuzuDB enriched) first, falls back to keyword-only CONVERGES
 
-- [ ] **HOOK-01**: PreCompact hook saves room STATE.md, methodology progress, last 5 artifacts, and MINTO confidence levels to temp file before autocompact
-- [ ] **HOOK-02**: PostCompact hook restores saved room context as additionalContext after autocompact, including venture stage and pending verifications
-- [ ] **HOOK-03**: FileChanged hook detects external modifications to room files and re-runs post-write cascade (classify, KuzuDB index, build-graph, compute-state)
-- [ ] **HOOK-04**: CwdChanged hook auto-switches active room when user changes directory to a registered room path
-- [ ] **HOOK-05**: SubagentStop hook auto-routes framework-runner/grading/research/opportunity-scanner/persona-analyst output through post-write cascade
-- [ ] **HOOK-06**: TaskCompleted hook updates pipeline progress in STATE.md, checks REASONING.md staleness, and surfaces next-stage readiness
+### Logo & Branding
 
-### Model Routing
+- [ ] **BRAND-01**: Real Mondrian grid mark SVG (canonical from website) in header and footer
+- [ ] **BRAND-02**: Website design system tokens hardcoded (from globals.css, standalone)
+- [ ] **BRAND-03**: "Built with MindrianOS" footer, Mondrian color bar, Bebas Neue/Inter/JetBrains Mono
 
-- [x] **MODEL-01**: lib/core/model-profiles.cjs with MODEL_PROFILES table mapping 8 agents to 4 profile tiers (quality/balanced/budget/inherit)
-- [x] **MODEL-02**: Venture-stage adaptive hints that auto-select model tier based on STATE.md venture stage (Pre-Opportunity=cheap, Investment=opus)
-- [ ] **MODEL-03**: /mos:models command for viewing current profile, switching profiles, and overriding specific agents
-- [x] **MODEL-04**: Per-room configuration stored in room/.config.json with model_profile and model_overrides fields
-- [x] **MODEL-05**: Cascade step model routing: haiku for classify, sonnet for edge detection and proactive analysis
-- [x] **MODEL-06**: 5-step model resolution: override > stage-hint > runtime > profile > default
+### Hub Page
 
-### Parallel Agent Patterns
+- [ ] **HUB-01**: Stats bar (sections, articles, connections, gaps, grants)
+- [ ] **HUB-02**: View cards grid linking to co-located view files (conditional -- grayed if no content)
+- [ ] **HUB-03**: Section cards with populated indicators + gap indicators (dashed, muted) for empty sections
+- [ ] **HUB-04**: Key insights extraction (max 5, priority: CRITICAL > CONTRADICTS > VALIDATES > MINTO > CONVERGES, always 1 positive)
+- [ ] **HUB-05**: Red team severity summary (if RED-TEAM-REPORT.md or methodology: red-team exists)
+- [ ] **HUB-06**: Methodology artifact cards (detect methodology: in frontmatter, render with badge)
 
-- [ ] **PARA-01**: /mos:act --swarm dispatches 3 framework-runners in parallel across highest-gap sections with per-agent model resolution
-- [ ] **PARA-02**: /mos:persona --parallel dispatches 6 persona-analyst agents (one per De Bono hat) simultaneously
-- [ ] **PARA-03**: /mos:grade --full dispatches 8 grading agents (one per section) in parallel with REASONING.md verification
-- [ ] **PARA-04**: /mos:research --broad dispatches 3 research agents (academic, market, competitor) in parallel
-- [ ] **PARA-05**: Cross-cascade emergent discovery: parallel filings trigger HSI recomputation finding cross-agent innovation connections
+### Above-the-Fold
 
-### Spectral OM-HMM (DONE)
+- [ ] **ATF-01**: Breakthrough angles from ADJACENT_POSSIBLE graph nodes (silently skip if none)
+- [ ] **ATF-02**: Bank of Opportunities scored list from funding-strategy/ (CTA if none exist)
 
-- [x] **SPEC-01**: Markov chain thinking-mode transition analysis with 5 modes (analytical, integrative, descriptive, evaluative, creative)
-- [x] **SPEC-02**: Spectral gap scoring (eigenvalue decomposition) replaces keyword-density proxy in compute-hsi.py
-- [x] **SPEC-03**: Per-artifact spectral profiles in .hsi-results.json (omhmm_score, spectral_gap, dominant_mode, mode_entropy, absorbing_score)
-- [x] **SPEC-04**: 15% spectral bonus in reverse salient breakthrough scoring (detect-reverse-salients.py)
+### Views
 
-### Sentinel Mode
+- [ ] **VIEW-01**: Intelligence Map -- 7-layer graph with toggles, edge filters, click-to-inspect (keeps existing Cytoscape design, AD-13)
+- [ ] **VIEW-02**: Wiki -- article browser with sidebar, search, wikilinks
+- [ ] **VIEW-03**: Doc Hub -- scrollable reader
+- [ ] **VIEW-04**: Deck -- auto-generated slides (if 3+ sections populated)
 
-- [ ] **SENT-01**: Weekly room health check comparing STATE.md against previous week snapshot
-- [ ] **SENT-02**: Daily grant deadline monitor scanning room/funding/ and room/opportunity-bank/
-- [ ] **SENT-03**: Weekly competitor watch researching tracked competitors with contradiction flagging
-- [ ] **SENT-04**: Weekly HSI recomputation updating HSI_CONNECTION and REVERSE_SALIENT edges
-- [ ] **SENT-05**: /mos:scout command as manual fallback running all sentinel tasks
-- [ ] **SENT-06**: room/.intelligence/ directory for cron-generated alerts and digests
-- [ ] **SENT-07**: room/.snapshots/ directory with weekly STATE.md copies for comparison
+### Versioning
 
-### Design-by-Analogy Pipeline
+- [ ] **VER-01**: manifest.json with rich stats per snapshot (sections, articles, edges, gaps, opportunities)
+- [ ] **VER-02**: Collapsible version history sidebar in hub page
 
-- [ ] **DBA-01**: pipelines/analogy/CHAIN.md with 5 stages: Decompose, Abstract, Search, Transfer, Validate
-- [ ] **DBA-02**: Stage 1 DECOMPOSE extracts SAPPhIRE function-behavior-structure triples from room artifacts
-- [ ] **DBA-03**: Stage 2 ABSTRACT strips domain language, maps to TRIZ parameter space, produces functional keywords
-- [ ] **DBA-04**: Stage 3 SEARCH runs dual-mode: internal (KuzuDB + Brain) and external (Tavily MCP for AskNature, patents, academic)
-- [ ] **DBA-05**: Stage 4 TRANSFER builds correspondence tables mapping source domain solutions to venture domain
-- [ ] **DBA-06**: Stage 5 VALIDATE stress-tests structural mappings via challenge-assumptions
-- [ ] **DBA-07**: /mos:find-analogies command with --brain and --external modes
-- [ ] **DBA-08**: 3 new KuzuDB edge types: ANALOGOUS_TO, STRUCTURALLY_ISOMORPHIC, RESOLVES_VIA
-- [ ] **DBA-09**: TRIZ contradiction classification on CONTRADICTS edges with triz_improving_param, triz_worsening_param, triz_principles
-- [ ] **DBA-10**: references/methodology/triz-matrix.json and triz-principles.md static reference files
-- [ ] **DBA-11**: references/methodology/sapphire-encoding.md guide for SAPPhIRE extraction
-- [ ] **DBA-12**: brain_analogy_search Cypher query pattern for cross-domain framework retrieval
+### Cross-Cutting
 
-### Platform Optimization
+- [ ] **CROSS-01**: Responsive 375px-1440px (mobile-first breakpoints)
+- [ ] **CROSS-02**: CDN default for Cytoscape.js, --offline flag inlines it
+- [ ] **CROSS-03**: All content hyperlinked via KuzuDB graph relationships (AD-14), edge-type color coded
+- [ ] **CROSS-04**: Works offline (file:// protocol)
 
-- [ ] **PLAT-01**: Session-start restructured for prompt cache hits: stable sections separated from dynamic room context
-- [ ] **PLAT-02**: CLAUDE.md split into modular sections using @include directive
-- [ ] **PLAT-03**: Deep link protocol (claude-cli://open) for room navigation and dashboard handoff
-- [ ] **PLAT-04**: AUTOCOMPACT_PCT_OVERRIDE tuned for room-aware thresholds
-- [ ] **PLAT-05**: MAX_THINKING_TOKENS override for grading and methodology depth
-- [ ] **PLAT-06**: CLAUDE_CODE_MAX_CONTEXT_TOKENS for deep sessions
+## Future Requirements
 
-### Future-Proofing
+- Version comparison in sidebar (sparkline progress over time)
+- Team/partners section rendering
+- Featured quote selection algorithm
+- Snapshot diffing between versions
 
-- [ ] **FUTURE-01**: room/.context/ directory with KAIROS-compatible session files
-- [ ] **FUTURE-02**: Enhanced Stop hook writing session log to room/.context/last-session.md
-- [ ] **FUTURE-03**: .claude/teams/mindrian.json Coordinator Mode team manifest
-- [ ] **FUTURE-04**: docs/MWP-SPECIFICATION.md formal protocol specification
+## Out of Scope
 
-### Moat Documentation
-
-- [ ] **MOAT-01**: Internal dev team mandate document for moat-first review
-- [ ] **MOAT-02**: CLAUDE.md moat section for contributor awareness
-- [ ] **MOAT-03**: Phase review template with moat deepening assessment field
-
----
+| Feature | Reason |
+|---------|--------|
+| Delete old 5 scripts | Keep deprecated until Snapshot tested on 3+ rooms (AD-3) |
+| Re-compute semantic edges | Read existing graph.json only (AD-2) |
+| Website repo dependency | Tokens hardcoded, standalone (AD-4) |
+| Custom themes | De Stijl dark only for v5.2 |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MODEL-01 | Phase 39 | Complete |
-| MODEL-02 | Phase 39 | Complete |
-| MODEL-03 | Phase 39 | Pending |
-| MODEL-04 | Phase 39 | Complete |
-| MODEL-05 | Phase 39 | Complete |
-| MODEL-06 | Phase 39 | Complete |
-| HOOK-01 | Phase 40 | Pending |
-| HOOK-02 | Phase 40 | Pending |
-| HOOK-03 | Phase 40 | Pending |
-| HOOK-04 | Phase 40 | Pending |
-| HOOK-05 | Phase 40 | Pending |
-| HOOK-06 | Phase 40 | Pending |
-| PARA-01 | Phase 41 | Pending |
-| PARA-02 | Phase 41 | Pending |
-| PARA-03 | Phase 41 | Pending |
-| PARA-04 | Phase 41 | Pending |
-| PARA-05 | Phase 41 | Pending |
-| SPEC-01 | Pre-roadmap | Done |
-| SPEC-02 | Pre-roadmap | Done |
-| SPEC-03 | Pre-roadmap | Done |
-| SPEC-04 | Pre-roadmap | Done |
-| PLAT-01 | Phase 42 | Pending |
-| PLAT-02 | Phase 42 | Pending |
-| PLAT-03 | Phase 42 | Pending |
-| PLAT-04 | Phase 42 | Pending |
-| PLAT-05 | Phase 42 | Pending |
-| PLAT-06 | Phase 42 | Pending |
-| SENT-01 | Phase 43 | Pending |
-| SENT-02 | Phase 43 | Pending |
-| SENT-03 | Phase 43 | Pending |
-| SENT-04 | Phase 43 | Pending |
-| SENT-05 | Phase 43 | Pending |
-| SENT-06 | Phase 43 | Pending |
-| SENT-07 | Phase 43 | Pending |
-| DBA-08 | Phase 44 | Pending |
-| DBA-09 | Phase 44 | Pending |
-| DBA-10 | Phase 44 | Pending |
-| DBA-11 | Phase 44 | Pending |
-| DBA-12 | Phase 44 | Pending |
-| DBA-01 | Phase 45 | Pending |
-| DBA-02 | Phase 45 | Pending |
-| DBA-03 | Phase 45 | Pending |
-| DBA-04 | Phase 45 | Pending |
-| DBA-05 | Phase 45 | Pending |
-| DBA-06 | Phase 45 | Pending |
-| DBA-07 | Phase 45 | Pending |
-| FUTURE-01 | Phase 46 | Pending |
-| FUTURE-02 | Phase 46 | Pending |
-| FUTURE-03 | Phase 46 | Pending |
-| FUTURE-04 | Phase 46 | Pending |
-| MOAT-01 | Phase 46 | Pending |
-| MOAT-02 | Phase 46 | Pending |
-| MOAT-03 | Phase 46 | Pending |
+| GEN-01 | TBD | Pending |
+| GEN-02 | TBD | Pending |
+| GEN-03 | TBD | Pending |
+| BRAND-01 | TBD | Pending |
+| BRAND-02 | TBD | Pending |
+| BRAND-03 | TBD | Pending |
+| HUB-01 | TBD | Pending |
+| HUB-02 | TBD | Pending |
+| HUB-03 | TBD | Pending |
+| HUB-04 | TBD | Pending |
+| HUB-05 | TBD | Pending |
+| HUB-06 | TBD | Pending |
+| ATF-01 | TBD | Pending |
+| ATF-02 | TBD | Pending |
+| VIEW-01 | TBD | Pending |
+| VIEW-02 | TBD | Pending |
+| VIEW-03 | TBD | Pending |
+| VIEW-04 | TBD | Pending |
+| VER-01 | TBD | Pending |
+| VER-02 | TBD | Pending |
+| CROSS-01 | TBD | Pending |
+| CROSS-02 | TBD | Pending |
+| CROSS-03 | TBD | Pending |
+| CROSS-04 | TBD | Pending |
+
+**Coverage:**
+- v5.2 requirements: 24 total
+- Mapped to phases: 0
+- Unmapped: 24
 
 ---
-
-## Future Requirements (Deferred)
-
-- Daemon wrappers -- blocked by DAEMON build flag
-- UDS IPC protocol -- blocked by UDS_INBOX build flag
-- Bridge API endpoints -- blocked by BRIDGE_MODE build flag
-- UltraPlan wrapper -- blocked by tengu_ultraplan_model gate
-- Buddy Larry skin -- blocked by BUDDY build flag
-- Scratchpad integration -- blocked by tengu_scratch gate
-- Random walk innovation pathways -- post-1.6.0 research
-- NLP thinking-mode classifier -- post-1.6.0 research
-- PageRank cascade prediction -- post-1.6.0 research
-
-## Out of Scope
-
-- Full NLP classifier for thinking modes -- regex is fast, dependency-free, meaningful
-- Rewriting existing cascade pipeline -- additive only
-- New room sections -- adds edges and metadata, not sections
-- Payment/billing -- marketplace handles externally
-- Mobile/web UI -- Claude surfaces handle natively
+*Requirements defined: 2026-03-31*
