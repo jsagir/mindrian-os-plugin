@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# on-agent-complete: SubagentStop hook handler for MindrianOS
+# Auto-routes framework-runner, grading, research, opportunity-scanner,
+# and persona-analyst agent output through the post-write cascade.
+# This ensures subagent-generated artifacts are classified, indexed in
+# KuzuDB, and trigger HSI recomputation.
+# Must complete in under 3 seconds.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Resolve active room
+WORK_DIR="${PWD}"
+ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR" 2>/dev/null) || ROOM_DIR=""
+
+if [ ! -d "$ROOM_DIR" ]; then
+  printf '{"status": "no_room"}\n'
+  exit 0
+fi
+
+# Find files modified by the subagent
+# Strategy: check for recently modified .md files in the room (last 30 seconds)
+CUTOFF=$(date -d '30 seconds ago' +%s 2>/dev/null || date -v-30S +%s 2>/dev/null || echo 0)
+
+modified_files=()
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  mod_time=$(echo "$line" | cut -d' ' -f1)
+  file_path=$(echo "$line" | cut -d' ' -f2-)
+
+  # Only process files modified after cutoff
+  mod_epoch=$(echo "$mod_time" | cut -d. -f1)
+  if [ "${mod_epoch:-0}" -ge "$CUTOFF" ]; then
+    modified_files+=("$file_path")
+  fi
+done < <(find "$ROOM_DIR" -name "*.md" -not -name "STATE.md" -not -name "ROOM.md" -not -name "TEAM-STATE.md" -not -name "MEETINGS-INTELLIGENCE.md" -not -path "*/.lazygraph/*" -not -path "*/.intelligence/*" -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -20)
+
+if [ ${#modified_files[@]} -eq 0 ]; then
+  printf '{"status": "no_modified_files"}\n'
+  exit 0
+fi
+
+# Route each modified file through the post-write cascade
+cascade_count=0
+for file_path in "${modified_files[@]}"; do
+  # Active room guard
+  case "$file_path" in
+    "${ROOM_DIR}"/*) ;; # In active room -- proceed
+    *) continue ;;
+  esac
+
+  # Skip hidden files
+  case "$file_path" in
+    */.*) continue ;;
+  esac
+
+  # Run post-write cascade in background for each file
+  bash "${SCRIPT_DIR}/post-write" "$file_path" 2>/dev/null &
+  cascade_count=$((cascade_count + 1))
+done
+
+# Recompute room state after all cascades are dispatched
+(
+  sleep 1  # Wait for cascades to start
+  "${SCRIPT_DIR}/compute-state" "$ROOM_DIR" > "${ROOM_DIR}/STATE.md" 2>/dev/null || true
+) &
+
+# Track subagent completion
+bash "${SCRIPT_DIR}/track-analytics" agent-complete 2>/dev/null &
+
+printf '{"status": "cascaded", "files_processed": %d}\n' "$cascade_count"
+
+exit 0
