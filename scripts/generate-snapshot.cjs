@@ -228,6 +228,440 @@ function scanRoom(roomDir) {
   };
 }
 
+// -- De Stijl Branded Template --
+
+/**
+ * Mondrian logo SVG -- 5-rectangle grid mark + wordmark.
+ * Header variant (height 40) includes wordmark.
+ * Footer variant (height 24) includes wordmark at smaller size.
+ */
+function logoSvg(height) {
+  const scale = height / 48;
+  const w = Math.round(240 * scale);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48" width="${w}" height="${height}">
+  <rect x="0" y="0" width="20" height="48" fill="#1E3A6E"/>
+  <rect x="22" y="0" width="12" height="22" fill="#A63D2F"/>
+  <rect x="22" y="24" width="12" height="24" fill="#C8A43C"/>
+  <rect x="36" y="0" width="8" height="48" fill="#F5F0E8"/>
+  <rect x="46" y="0" width="4" height="32" fill="#2D6B4A"/>
+  <text x="60" y="35" font-size="32" fill="#F5F0E8"
+        font-family="'Bebas Neue', sans-serif"
+        font-weight="400" letter-spacing="0.04em">MINDRIAN</text>
+</svg>`;
+}
+
+/**
+ * 5-color accent bar (red, blue, yellow, green, teal).
+ */
+function accentBar() {
+  return `<div class="accent-bar">
+  <span style="background:#A63D2F"></span>
+  <span style="background:#1E3A6E"></span>
+  <span style="background:#C8A43C"></span>
+  <span style="background:#2D6B4A"></span>
+  <span style="background:#2A6B5E"></span>
+</div>`;
+}
+
+/**
+ * Render a section card with De Stijl styling.
+ */
+function renderSectionCard(section) {
+  const borderColor = section.color || DEFAULT_COLOR;
+  const articleLabel = section.articleCount === 1 ? '1 article' : `${section.articleCount} articles`;
+
+  if (section.isEmpty) {
+    return `<div class="card card-gap" style="border-left:3px dashed ${borderColor}">
+  <span class="tag">${escapeHtml(section.label)}</span>
+  <p class="card-empty">No articles yet</p>
+</div>`;
+  }
+
+  const articleList = section.articles.map(a =>
+    `<li>${escapeHtml(a.title)}</li>`
+  ).join('\n        ');
+
+  return `<div class="card" style="border-left:3px solid ${borderColor}">
+  <span class="tag">${escapeHtml(section.label)}</span>
+  <p class="card-count">${articleLabel}</p>
+  <ul class="card-articles">
+        ${articleList}
+  </ul>
+</div>`;
+}
+
+/**
+ * Render the full branded HTML page.
+ */
+function renderBrandedHtml(model) {
+  const exportDate = new Date(model.exportDate);
+  const dateStr = exportDate.toLocaleDateString('en-US', {
+    year: 'numeric', month: 'long', day: 'numeric'
+  });
+  const timeStr = exportDate.toLocaleTimeString('en-US', {
+    hour: '2-digit', minute: '2-digit', hour12: false
+  });
+
+  const sectionCards = model.sections.map(renderSectionCard).join('\n    ');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(model.name)} -- Snapshot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* -- De Stijl Design Tokens -- */
+    :root {
+      /* Backgrounds */
+      --ds-bg: #1a1a1a;
+      --ds-surface: #2d2d2d;
+      --ds-elevated: #3a3a3a;
+      /* Text */
+      --ds-cream: #f5f1e8;
+      --ds-muted: #a8a39f;
+      /* Borders */
+      --ds-border: #404040;
+      /* Section colors (fill) */
+      --ds-red: #A63D2F;
+      --ds-blue: #1E3A6E;
+      --ds-yellow: #C8A43C;
+      --ds-green: #2D6B4A;
+      --ds-sienna: #B5602A;
+      --ds-gray: #5C5A56;
+      --ds-amethyst: #6B4E8B;
+      --ds-teal: #2A6B5E;
+      /* Section colors (text) */
+      --ds-red-text: #C95A4A;
+      --ds-blue-text: #4A7BC8;
+      --ds-yellow-text: #C8A43C;
+      --ds-green-text: #4A9B72;
+      --ds-sienna-text: #D4804A;
+      --ds-gray-text: #8A8780;
+      --ds-amethyst-text: #9B7EB5;
+      --ds-teal-text: #4A9B8E;
+      /* Shadows */
+      --ds-shadow-flat: 0 0 0 1px var(--ds-border);
+      --ds-shadow-lifted: 4px 4px 0 #0a0a0f;
+      /* Motion */
+      --ds-transition: 150ms ease;
+      --ds-transition-slow: 200ms ease-out;
+      /* Typography */
+      --ds-font-display: 'Bebas Neue', sans-serif;
+      --ds-font-body: 'Inter', system-ui, sans-serif;
+      --ds-font-mono: 'JetBrains Mono', monospace;
+    }
+
+    /* -- Reset + Base -- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      font-family: var(--ds-font-body);
+      background: var(--ds-bg);
+      color: var(--ds-cream);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* -- Zero border-radius everywhere -- */
+    * { border-radius: 0 !important; }
+
+    /* -- Header -- */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--ds-bg);
+      border-bottom: 1px solid var(--ds-border);
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .header-title {
+      font-family: var(--ds-font-display);
+      font-size: 24px;
+      font-weight: 400;
+      letter-spacing: 0.03em;
+      color: var(--ds-cream);
+    }
+    .header-subtitle {
+      font-size: 12px;
+      color: var(--ds-muted);
+      margin-left: 4px;
+    }
+    .stage-badge {
+      font-family: var(--ds-font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ds-yellow-text);
+      border: 1px solid var(--ds-yellow);
+      padding: 4px 12px;
+    }
+    .header-date {
+      font-family: var(--ds-font-mono);
+      font-size: 12px;
+      color: var(--ds-muted);
+    }
+
+    /* -- Accent Bar -- */
+    .accent-bar {
+      display: flex;
+      height: 4px;
+      width: 100%;
+    }
+    .accent-bar span {
+      flex: 1;
+    }
+
+    /* -- Layout -- */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+    .section {
+      padding: 48px 0;
+      border-top: 1px solid var(--ds-border);
+    }
+    .section:first-child { border-top: none; }
+    .section-alt { background: var(--ds-surface); }
+
+    /* -- Stats Bar -- */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      padding: 24px 32px;
+      background: var(--ds-surface);
+      border-bottom: 1px solid var(--ds-border);
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-value {
+      font-family: var(--ds-font-mono);
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--ds-cream);
+    }
+    .stat-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ds-muted);
+      margin-top: 4px;
+    }
+
+    /* -- Section Headers -- */
+    .section-header {
+      font-family: var(--ds-font-display);
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--ds-cream);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-header::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 28px;
+      background: var(--ds-blue);
+    }
+
+    /* -- Cards Grid -- */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+      padding: 20px;
+      transition: border-color var(--ds-transition), box-shadow var(--ds-transition);
+    }
+    .card:hover {
+      filter: brightness(1.25);
+      box-shadow: var(--ds-shadow-lifted);
+    }
+    .card-gap {
+      opacity: 0.5;
+    }
+    .card-gap:hover {
+      opacity: 0.7;
+    }
+
+    /* -- Tags -- */
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ds-muted);
+      margin-bottom: 8px;
+    }
+
+    /* -- Card content -- */
+    .card-count {
+      font-family: var(--ds-font-mono);
+      font-size: 13px;
+      color: var(--ds-cream);
+      margin-bottom: 8px;
+    }
+    .card-empty {
+      font-size: 13px;
+      color: var(--ds-muted);
+      font-style: normal;
+    }
+    .card-articles {
+      list-style: none;
+      padding: 0;
+    }
+    .card-articles li {
+      font-size: 13px;
+      color: var(--ds-muted);
+      padding: 2px 0;
+      border-bottom: 1px solid var(--ds-border);
+    }
+    .card-articles li:last-child {
+      border-bottom: none;
+    }
+
+    /* -- Footer -- */
+    .footer {
+      border-top: 1px solid var(--ds-border);
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .footer-brand {
+      font-size: 12px;
+      color: var(--ds-muted);
+      letter-spacing: 0.04em;
+    }
+    .footer-meta {
+      font-family: var(--ds-font-mono);
+      font-size: 11px;
+      color: var(--ds-muted);
+    }
+
+    /* -- Responsive -- */
+    @media (max-width: 768px) {
+      .header { padding: 0 16px; }
+      .container { padding: 0 16px; }
+      .stats-bar { gap: 24px; padding: 16px; flex-wrap: wrap; }
+      .stat-value { font-size: 22px; }
+      .section { padding: 32px 0; }
+      .card-grid { grid-template-columns: 1fr; }
+      .footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+    @media (max-width: 480px) {
+      .header-title { font-size: 18px; }
+      .stage-badge { display: none; }
+      .stats-bar { gap: 16px; }
+    }
+
+    /* -- No italic anywhere -- */
+    em, i { font-style: normal; font-weight: 600; }
+
+    /* -- Reduced motion -- */
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      ${logoSvg(40)}
+      <span class="header-title">${escapeHtml(model.name)}</span>
+      ${model.subtitle ? `<span class="header-subtitle">${escapeHtml(model.subtitle)}</span>` : ''}
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <span class="stage-badge">${escapeHtml(model.stage)}</span>
+      <span class="header-date">${escapeHtml(dateStr)} ${escapeHtml(timeStr)}</span>
+    </div>
+  </header>
+
+  <!-- Accent Bar -->
+  ${accentBar()}
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-value">${model.stats.sectionCount}</div>
+      <div class="stat-label">Sections</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">${model.stats.articleCount}</div>
+      <div class="stat-label">Articles</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">${model.stats.connectionCount}</div>
+      <div class="stat-label">Connections</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">${model.stats.gapCount}</div>
+      <div class="stat-label">Gaps</div>
+    </div>
+    ${model.stats.grantCount > 0 ? `<div class="stat">
+      <div class="stat-value">${model.stats.grantCount}</div>
+      <div class="stat-label">Grants</div>
+    </div>` : ''}
+  </div>
+
+  <!-- Room Sections -->
+  <div class="section">
+    <div class="container">
+      <h2 class="section-header">ROOM SECTIONS</h2>
+      <div class="card-grid">
+        ${sectionCards}
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Accent Bar -->
+  ${accentBar()}
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-left">
+      ${logoSvg(24)}
+      <span class="footer-brand">Built with MindrianOS</span>
+    </div>
+    <span class="footer-meta">${escapeHtml(dateStr)} | ${model.stats.sectionCount}s, ${model.graph.edges.length}e</span>
+  </footer>
+
+</body>
+</html>`;
+}
+
 /**
  * Write snapshot folder with index.html and manifest.json.
  */
@@ -238,42 +672,8 @@ function writeSnapshot(roomDir, model) {
   // Create snapshot folder
   fs.mkdirSync(snapshotDir, { recursive: true });
 
-  // -- Write index.html (minimal skeleton -- Plan 02 replaces with branded template) --
-  const sectionListHtml = model.sections.map(s =>
-    `      <li><strong>${s.label}</strong> - ${s.articleCount} article${s.articleCount !== 1 ? 's' : ''}${s.isEmpty ? ' (empty)' : ''}</li>`
-  ).join('\n');
-
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(model.name)} - Snapshot</title>
-  <style>
-    body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
-    h1 { margin-bottom: 0.25rem; }
-    .stage { color: #666; margin-bottom: 1.5rem; }
-    .stats { background: #f5f5f5; padding: 1rem; margin: 1rem 0; }
-    ul { padding-left: 1.5rem; }
-  </style>
-</head>
-<body>
-  <h1>${escapeHtml(model.name)}</h1>
-  <p class="stage">Stage: ${escapeHtml(model.stage)}</p>
-  ${model.subtitle ? `<p>${escapeHtml(model.subtitle)}</p>` : ''}
-  <div class="stats">
-    <p><strong>Sections:</strong> ${model.stats.sectionCount} |
-       <strong>Articles:</strong> ${model.stats.articleCount} |
-       <strong>Connections:</strong> ${model.stats.connectionCount} |
-       <strong>Gaps:</strong> ${model.stats.gapCount}</p>
-  </div>
-  <h2>Sections</h2>
-  <ul>
-${sectionListHtml}
-  </ul>
-  <!-- Branded template: see 40-02-PLAN.md -->
-</body>
-</html>`;
+  // -- Write index.html (De Stijl branded template) --
+  const html = renderBrandedHtml(model);
 
   fs.writeFileSync(path.join(snapshotDir, 'index.html'), html, 'utf-8');
 
