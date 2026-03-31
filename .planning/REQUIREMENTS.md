@@ -21,9 +21,9 @@
 
 - [ ] **MODEL-01**: lib/core/model-profiles.cjs with MODEL_PROFILES table mapping 8 agents to 4 profile tiers (quality/balanced/budget/inherit)
 - [ ] **MODEL-02**: Venture-stage adaptive hints that auto-select model tier based on STATE.md venture stage (Pre-Opportunity=cheap, Investment=opus)
-- [ ] **MODEL-03**: /mos:models command for viewing current profile, switching profiles, and overriding specific agents
+- [x] **MODEL-03**: /mos:models command for viewing current profile, switching profiles, and overriding specific agents
 - [ ] **MODEL-04**: Per-room configuration stored in room/.config.json with model_profile and model_overrides fields
-- [ ] **MODEL-05**: Cascade step model routing: haiku for classify, sonnet for edge detection and proactive analysis
+- [x] **MODEL-05**: Cascade step model routing: haiku for classify, sonnet for edge detection and proactive analysis
 - [ ] **MODEL-06**: 5-step model resolution: override > stage-hint > runtime > profile > default
 
 ### Parallel Agent Patterns
@@ -96,9 +96,9 @@
 |-------------|-------|--------|
 | MODEL-01 | Phase 39 | Pending |
 | MODEL-02 | Phase 39 | Pending |
-| MODEL-03 | Phase 39 | Pending |
+| MODEL-03 | Phase 39 | Complete |
 | MODEL-04 | Phase 39 | Pending |
-| MODEL-05 | Phase 39 | Pending |
+| MODEL-05 | Phase 39 | Complete |
 | MODEL-06 | Phase 39 | Pending |
 | HOOK-01 | Phase 40 | Pending |
 | HOOK-02 | Phase 40 | Pending |
