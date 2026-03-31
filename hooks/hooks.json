@@ -13,6 +13,30 @@
         ]
       }
     ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" pre-compact",
+            "timeout": 2000,
+            "statusMessage": "Saving room context before compact..."
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" post-compact",
+            "timeout": 3000,
+            "statusMessage": "Restoring room context..."
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
@@ -32,6 +56,54 @@
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" post-write",
             "timeout": 3000
+          }
+        ]
+      }
+    ],
+    "FileChanged": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" on-file-changed",
+            "timeout": 3000,
+            "statusMessage": "Processing external file change..."
+          }
+        ]
+      }
+    ],
+    "CwdChanged": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" on-cwd-changed",
+            "timeout": 2000,
+            "statusMessage": "Switching room context..."
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" on-agent-complete",
+            "timeout": 3000,
+            "statusMessage": "Processing agent output..."
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" on-task-complete",
+            "timeout": 3000,
+            "statusMessage": "Updating pipeline progress..."
           }
         ]
       }
