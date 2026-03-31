@@ -5,9 +5,21 @@ All notable changes to MindrianOS Plugin will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+<!-- Onboarding Registry: Each version entry can include `onboarding: true/false` and `onboard_steps:` -->
+<!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
+<!-- This allows new releases to automatically surface relevant guidance without code changes -->
+
 ## [Unreleased]
 
+### Added
+- **Interactive Onboarding System** -- 7-step Larry-voiced walkthrough on first install. Deep context building (USER.md) with 3 input approaches (Q&A, document paste, web research). Update path shows What's New from CHANGELOG. Manual re-run via /mos:onboard. Version-aware onboarding registry in CHANGELOG.md.
+
 ## [1.5.1] - 2026-03-31
+onboarding: true
+onboard_steps:
+  - "Larry now builds a deep profile about you on first install -- everything gets smarter after onboarding"
+  - "Returning users see what changed since their last session, framed as capabilities"
+  - "Type /mos:onboard anytime to re-run the walkthrough or /mos:onboard whats-new for changelog"
 
 ### Added
 - **De Stijl Mondrian Banner** -- ASCII art splash screen with 5 background color zones (red/blue/yellow/teal/green) creating a Mondrian grid composition. Shows on cold session start and during `/mos:update`. Standalone via `bash scripts/banner`. 24-bit ANSI true color. Includes `assets/banner-showcase.html` frontend preview.
