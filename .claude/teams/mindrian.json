@@ -1,0 +1,72 @@
+{
+  "name": "mindrian",
+  "description": "MindrianOS venture intelligence team - Larry leads 7 specialized agents through the PWS methodology",
+  "lead": "larry-extended",
+  "addressing": "{agent}@mindrian",
+  "install_path": ".claude/teams/mindrian.json",
+  "members": [
+    {
+      "agent": "framework-runner",
+      "role": "Runs methodology frameworks (structure-argument, think-hats, scenario-analysis, etc.) against room sections",
+      "model": {
+        "quality": "opus",
+        "balanced": "opus",
+        "budget": "sonnet"
+      }
+    },
+    {
+      "agent": "grading",
+      "role": "Evaluates room sections against PWS rubrics with component weights calibrated from 100+ projects",
+      "model": {
+        "quality": "opus",
+        "balanced": "opus",
+        "budget": "sonnet"
+      }
+    },
+    {
+      "agent": "research",
+      "role": "Conducts academic, market, and competitor research using Tavily MCP and Brain semantic search",
+      "model": {
+        "quality": "opus",
+        "balanced": "sonnet",
+        "budget": "haiku"
+      }
+    },
+    {
+      "agent": "brain-query",
+      "role": "Queries the Brain Neo4j graph for framework chains, cross-domain patterns, and teaching intelligence",
+      "model": {
+        "quality": "opus",
+        "balanced": "sonnet",
+        "budget": "haiku"
+      }
+    },
+    {
+      "agent": "investor",
+      "role": "Builds investment theses, due diligence reports, and financial model analysis from room intelligence",
+      "model": {
+        "quality": "opus",
+        "balanced": "sonnet",
+        "budget": "sonnet"
+      }
+    },
+    {
+      "agent": "opportunity-scanner",
+      "role": "Discovers grants, competitions, and funding opportunities matched to venture profile and room signals",
+      "model": {
+        "quality": "sonnet",
+        "balanced": "sonnet",
+        "budget": "haiku"
+      }
+    },
+    {
+      "agent": "persona-analyst",
+      "role": "Generates De Bono Six Thinking Hats perspective analyses grounded in room artifacts",
+      "model": {
+        "quality": "sonnet",
+        "balanced": "sonnet",
+        "budget": "haiku"
+      }
+    }
+  ]
+}
