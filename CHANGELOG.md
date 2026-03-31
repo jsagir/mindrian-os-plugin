@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-03-31
+
+### Added
+- **Git Integration** (Phase 26) -- Optional git tracking for room artifacts. `scripts/git-ops` (7 subcommands), `lib/core/git-ops.cjs` (6 functions). Auto-commit on every filing with provenance messages. `/mos:rooms git-setup` for retroactive setup. Git LFS for large binaries. Default OFF -- users opt in.
+- **Filing Pipeline + KuzuDB Engine** (Phase 27) -- Every filing triggers full cascade: classify -> artifact-id -> KuzuDB index -> compute-state -> build-graph-from-kuzu -> git commit. Stable artifact hash IDs in frontmatter. Pipeline provenance (stage, requires, provides). Meeting segments as KuzuDB nodes (SEGMENT_OF, SPOKE_IN, CONSULTED_ON). Cross-room relationship detection. Proactive intelligence persistence with repeat suppression.
+- **HSI + Reverse Salient Pipeline** (Phase 27.1) -- Python-native HSI computation (`scripts/compute-hsi.py`, ported from V4 production). Reverse Salient cross-section detection (`scripts/detect-reverse-salients.py`, ported from V2). Results as KuzuDB edges (HSI_CONNECTION, REVERSE_SALIENT). 3-tier: keyword (Tier 0), sklearn+MiniLM (Tier 1), sklearn+Pinecone (Tier 2). `/mos:setup hsi` for guided install.
+- **Binary Asset Filing** (Phase 28) -- PDFs, images, videos filed with markdown wrappers + frontmatter. `scripts/file-asset` classifies and files. ASSET_MANIFEST.md auto-updated. Meeting audio/video registered with transcript links.
+- **Canvas Graph Renderer** (Phase 29) -- Custom Canvas 2D graph replacing Cytoscape. `lib/graph/canvas-graph.js` (467 lines): force simulation, animated particles, glow rings, hover dimming (0.15 opacity), ambient pulse, `highlightCluster()` API, 6 edge type styles. `lib/graph/graph-detail-panel.js` for clicked node details.
+- **Data Room Presentation System** (Phase 30) -- `/mos:export presentation` generates 6 self-contained HTML views from any room: Dashboard, Wiki (3-panel browser), Deck (fullscreen slides), Insights (stat counters, timelines, funnels), Diagrams (SVG from graph), Graph (Canvas renderer). Dual themes: De Stijl dark + PWS light. MindrianOS branding enforced (non-removable).
+- **Auto-Update + Deploy** (Phase 31) -- `scripts/serve-presentation` with chokidar + SSE live reload (~1s). `/mos:publish` for guided Vercel onboarding. `--sections` for selective publishing. `--private` for password protection. `.exports-log.json` deployment tracking.
+- **Generative UI + Chat** (Phase 32) -- BYOAPI chat panel (`lib/chat/chat-panel.js`) with direct Anthropic API streaming. Room context builder with Larry voice DNA. Generative tools: `highlightCluster()`, `filterEdgeType()`, `showInsight()` wired as AI tool calls. "Show me contradictions" -> graph highlights + analysis card.
+
 ## [1.4.1] - 2026-03-30
 
 ### Fixed
