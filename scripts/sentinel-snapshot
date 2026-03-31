@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# sentinel-snapshot: Copy room/STATE.md to room/.snapshots/STATE-YYYY-MM-DD.md
+# Creates a point-in-time snapshot for drift detection by sentinel-health-check
+# Part of Sentinel Intelligence (SENT-07)
+
+set -euo pipefail
+
+ROOM_DIR="${1:-./room}"
+
+if [ ! -d "$ROOM_DIR" ]; then
+  echo "ERROR: Room directory not found: $ROOM_DIR" >&2
+  exit 1
+fi
+
+if [ ! -f "$ROOM_DIR/STATE.md" ]; then
+  echo "ERROR: No STATE.md found in $ROOM_DIR" >&2
+  exit 1
+fi
+
+# Ensure .snapshots/ directory exists
+SNAPSHOTS_DIR="$ROOM_DIR/.snapshots"
+mkdir -p "$SNAPSHOTS_DIR"
+
+# Generate snapshot filename with today's date
+TODAY=$(date -u +"%Y-%m-%d")
+SNAPSHOT_FILE="$SNAPSHOTS_DIR/STATE-${TODAY}.md"
+
+# Copy STATE.md to snapshot
+cp "$ROOM_DIR/STATE.md" "$SNAPSHOT_FILE"
+
+echo "SNAPSHOT_CREATED:${SNAPSHOT_FILE}"
+echo "SNAPSHOT_DATE:${TODAY}"
+
+# Clean up old snapshots (keep last 12 weeks)
+SNAPSHOT_COUNT=$(find "$SNAPSHOTS_DIR" -name "STATE-*.md" 2>/dev/null | wc -l | tr -d ' ')
+if [ "$SNAPSHOT_COUNT" -gt 12 ]; then
+  # Remove oldest snapshots beyond the 12-week window
+  find "$SNAPSHOTS_DIR" -name "STATE-*.md" 2>/dev/null | sort | head -n $(( SNAPSHOT_COUNT - 12 )) | while read -r old_snap; do
+    rm "$old_snap"
+    echo "SNAPSHOT_PRUNED:$(basename "$old_snap")"
+  done
+fi
