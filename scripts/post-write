@@ -116,5 +116,11 @@ if [[ "$FILE_PATH" == *.md ]] && [ -n "$room_dir" ] && [ -d "${room_dir}/.lazygr
   ) &
 fi
 
+# -- Regenerate presentation views (background, non-blocking) --
+# Only fires when room has exports/presentation/ directory (user has generated at least once)
+if [ -n "$room_dir" ] && [ -d "${room_dir}/exports/presentation" ]; then
+  node "${PLUGIN_ROOT}/scripts/generate-presentation.cjs" "$room_dir" --output "${room_dir}/exports/presentation" 2>/dev/null &
+fi
+
 # Run classification on the written file
 exec bash "${SCRIPT_DIR}/classify-insight" "$FILE_PATH"
