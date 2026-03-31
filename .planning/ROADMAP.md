@@ -76,7 +76,7 @@ See: `.planning/milestones/v4.0-ROADMAP.md`
 - [ ] **Phase 27.1: HSI + Reverse Salient Python Pipeline** - Python-native HSI computation (sklearn TF-IDF + embeddings), Reverse Salient cross-section detection, results -> KuzuDB edges, 3-tier (keyword/sklearn/Pinecone)
 - [ ] **Phase 28: Binary Asset Filing** - PDFs, images, videos filed with manifests and displayed in presentation views
 - [x] **Phase 29: Canvas Graph Renderer** - Custom Canvas 2D graph with force simulation, particles, glow, and cluster highlighting (Milken Twin pattern) (completed 2026-03-30)
-- [ ] **Phase 30: Presentation Generator** - All 6 views (dashboard, wiki, deck, insights, diagrams, graph) with dual themes and branding
+- [x] **Phase 30: Presentation Generator** - All 6 views (dashboard, wiki, deck, insights, diagrams, graph) with dual themes and branding (completed 2026-03-31)
 - [ ] **Phase 31: Auto-Update + Deploy Pipeline** - Localhost live reload, Vercel onboarding, auto-deploy on push, privacy controls
 - [ ] **Phase 32: Generative UI + Chat** - Larry generates views conversationally in deployed site with BYOAPI chat panel
 
@@ -160,11 +160,11 @@ Plans:
 **Goal**: One command produces all 6 self-contained HTML views from any room, with dual design themes and enforced branding
 **Depends on**: Phase 28, Phase 29
 **Requirements**: PRES-01, PRES-02, PRES-03, PRES-04, PRES-05, PRES-06, PRES-07, PRES-08, PRES-09
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 Plans:
-- [ ] 30-01-PLAN.md -- Master generator (generate-presentation.cjs) + dashboard.html + graph.html + post-write cascade wiring
+- [x] 30-01-PLAN.md -- Master generator (generate-presentation.cjs) + dashboard.html + graph.html + post-write cascade wiring
 - [x] 30-02-PLAN.md -- Wiki template (3-panel browser, search, wikilinks) + Deck template (fullscreen slides, keyboard nav)
-- [ ] 30-03-PLAN.md -- Insights template (counters, timelines, quadrants) + Diagrams template (SVG from graph.json) + PWS light theme across all 6 views
+- [x] 30-03-PLAN.md -- Insights template (counters, timelines, quadrants) + Diagrams template (SVG from graph.json) + PWS light theme across all 6 views
 **Success Criteria** (what must be TRUE):
   1. Running `generate-presentation` on any room produces 6 HTML files: index.html (dashboard), wiki.html, deck.html, insights.html, diagrams.html, graph.html
   2. Dashboard shows stats bar, 6 view cards, video embed, assets grid, partners, opportunities, and governing thought

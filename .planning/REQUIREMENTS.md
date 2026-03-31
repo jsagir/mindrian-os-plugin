@@ -25,10 +25,10 @@
 - [x] **PRES-02**: Dashboard (index.html) -- stats bar, 6 view cards, video embed, assets grid, partners, opportunities, governing thought
 - [ ] **PRES-03**: Wiki (wiki.html) -- 3-panel browser, collapsible sidebar, search, TOC, infobox, [[wikilinks]], section colors
 - [ ] **PRES-04**: Deck (deck.html) -- fullscreen slides auto-generated from MINTO.md + key artifacts + stats, keyboard nav
-- [ ] **PRES-05**: Insights (insights.html) -- animated stat counters, timelines, quadrants, funnels, comparison tables, heat maps
-- [ ] **PRES-06**: Diagrams (diagrams.html) -- Graphviz SVG from graph.json edges, light/dark toggle, multiple diagram types
+- [x] **PRES-05**: Insights (insights.html) -- animated stat counters, timelines, quadrants, funnels, comparison tables, heat maps
+- [x] **PRES-06**: Diagrams (diagrams.html) -- Graphviz SVG from graph.json edges, light/dark toggle, multiple diagram types
 - [x] **PRES-07**: Graph (graph.html) -- Canvas-based renderer (Milken Twin pattern): circles, particles, glow, cluster highlight, ego-centric exploration
-- [ ] **PRES-08**: Both design themes available: De Stijl dark (default) + PWS light (warm variant)
+- [x] **PRES-08**: Both design themes available: De Stijl dark (default) + PWS light (warm variant)
 - [x] **PRES-09**: Branding contract enforced: MindrianOS logo header, "Built with MindrianOS" footer, Mondrian color bar -- non-removable
 
 ### Canvas Graph Renderer
@@ -125,10 +125,10 @@
 | PRES-02 | Phase 30 | Complete |
 | PRES-03 | Phase 30 | Pending |
 | PRES-04 | Phase 30 | Pending |
-| PRES-05 | Phase 30 | Pending |
-| PRES-06 | Phase 30 | Pending |
+| PRES-05 | Phase 30 | Complete |
+| PRES-06 | Phase 30 | Complete |
 | PRES-07 | Phase 30 | Complete |
-| PRES-08 | Phase 30 | Pending |
+| PRES-08 | Phase 30 | Complete |
 | PRES-09 | Phase 30 | Complete |
 | SYNC-01 | Phase 31 | Pending |
 | SYNC-02 | Phase 31 | Pending |
