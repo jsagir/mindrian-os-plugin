@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Data Room Presentation System
 status: verifying
-stopped_at: Completed 32-01-PLAN.md
-last_updated: "2026-03-31T06:47:23.775Z"
+stopped_at: Completed 36-02-PLAN.md
+last_updated: "2026-03-31T21:52:54.261Z"
 last_activity: 2026-03-31
 progress:
   total_phases: 8
-  completed_phases: 2
-  total_plans: 13
-  completed_plans: 8
+  completed_phases: 3
+  total_plans: 17
+  completed_plans: 10
   percent: 100
 ---
 
@@ -92,6 +92,7 @@ Progress: [██████████] 100% (46/46 plans complete across v1.
 | Phase 30 P01 | 4min | 2 tasks | 4 files |
 | Phase 30 P03 | 8min | 2 tasks | 6 files |
 | Phase 32 P01 | 5min | 2 tasks | 4 files |
+| Phase 36 P02 | 2min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -194,6 +195,8 @@ Recent decisions affecting v3.0:
 - [Phase 30]: Pure JS SVG for diagrams instead of external Graphviz binary
 - [Phase 30]: Fixed Mondrian 4px color bar as non-removable branding in all templates
 - [Phase 32]: BYOAPI pattern with anthropic-dangerous-direct-browser-access for zero-server chat
+- [Phase 36]: Room Card (Body Shape C) for speakers and graph results; Action Report (Body Shape E) for reanalyze delta
+- [Phase 36]: Node -e inline scripts for lazygraph-ops.cjs access in graph command
 
 ### Pending Todos
 
@@ -210,6 +213,6 @@ Recent decisions affecting v3.0:
 
 ## Session Continuity
 
-Last session: 2026-03-31T06:47:23.772Z
-Stopped at: Completed 32-01-PLAN.md
+Last session: 2026-03-31T21:52:50.221Z
+Stopped at: Completed 36-02-PLAN.md
 Resume file: None
