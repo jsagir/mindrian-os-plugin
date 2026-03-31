@@ -312,6 +312,10 @@ var ROOM_DATA = /*ROOM_DATA_PLACEHOLDER*/{};
 </script>
 
 <script>
+/*GENERATIVE_TOOLS_JS*/
+</script>
+
+<script>
 /*CHAT_PANEL_JS*/
 </script>
 
@@ -344,6 +348,9 @@ var ROOM_DATA = /*ROOM_DATA_PLACEHOLDER*/{};
 
   // Expose graph for chat tool calls
   window.__mosGraph = graph;
+
+  // Expose GenerativeTools globally for chat panel
+  window.__mosTools = typeof GenerativeTools !== 'undefined' ? GenerativeTools : null;
 })();
 
 // -- Chat Panel initialization --
@@ -356,13 +363,21 @@ var ROOM_DATA = /*ROOM_DATA_PLACEHOLDER*/{};
   var panel = new ChatPanel(chatContainer, {
     roomData: D,
     onToolCall: function(name, args) {
-      // Tool call bridge -- Plan 32-02 will wire generative tools here
+      if (typeof GenerativeTools !== 'undefined') {
+        return GenerativeTools.executeToolCall(name, args, {
+          graph: window.__mosGraph,
+          roomData: D,
+          chatPanel: panel
+        });
+      }
+      // Fallback: direct highlightCluster for backward compat
       if (name === 'highlightCluster' && window.__mosGraph) {
         window.__mosGraph.highlightCluster(args.group);
+        return { success: true };
       }
+      return { success: false, message: 'Tool not available' };
     }
   });
-  // Expose for tool calls from Plan 32-02
   window.__mosChatPanel = panel;
 })();
 

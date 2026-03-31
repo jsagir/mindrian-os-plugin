@@ -372,7 +372,7 @@ function readInlineJS(relPath) {
   return safeRead(fullPath) || '// ' + relPath + ' not found';
 }
 
-function processTemplate(templateContent, roomData, canvasGraphJS, detailPanelJS, chatContextJS, chatPanelJS) {
+function processTemplate(templateContent, roomData, canvasGraphJS, detailPanelJS, chatContextJS, generativeToolsJS, chatPanelJS) {
   let html = templateContent;
 
   // Inject ROOM_DATA JSON
@@ -387,8 +387,9 @@ function processTemplate(templateContent, roomData, canvasGraphJS, detailPanelJS
   // Inject graph-detail-panel.js
   html = html.replace('/*GRAPH_DETAIL_PANEL_JS*/', detailPanelJS);
 
-  // Inject chat-context.js and chat-panel.js
+  // Inject chat-context.js, generative-tools.js, and chat-panel.js
   if (chatContextJS) html = html.replace('/*CHAT_CONTEXT_JS*/', chatContextJS);
+  if (generativeToolsJS) html = html.replace('/*GENERATIVE_TOOLS_JS*/', generativeToolsJS);
   if (chatPanelJS) html = html.replace('/*CHAT_PANEL_JS*/', chatPanelJS);
 
   // Simple template variables
@@ -526,9 +527,11 @@ function main() {
   }
 
   // -- 5. Read inline JS for graph templates --
+  // Injection order: canvas-graph -> detail-panel -> chat-context -> generative-tools -> chat-panel
   const canvasGraphJS = readInlineJS('lib/graph/canvas-graph.js');
   const detailPanelJS = readInlineJS('lib/graph/graph-detail-panel.js');
   const chatContextJS = readInlineJS('lib/chat/chat-context.js');
+  const generativeToolsJS = readInlineJS('lib/chat/generative-tools.js');
   const chatPanelJS = readInlineJS('lib/chat/chat-panel.js');
 
   // -- 6. Process each template --
@@ -545,7 +548,7 @@ function main() {
       continue;
     }
 
-    const html = processTemplate(templateContent, ROOM_DATA, canvasGraphJS, detailPanelJS, chatContextJS, chatPanelJS);
+    const html = processTemplate(templateContent, ROOM_DATA, canvasGraphJS, detailPanelJS, chatContextJS, generativeToolsJS, chatPanelJS);
     const outputPath = path.join(outputDir, tpl.output);
     fs.writeFileSync(outputPath, html, 'utf-8');
     generated++;
