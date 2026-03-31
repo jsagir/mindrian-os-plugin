@@ -74,6 +74,18 @@
 
 ---
 
+## Design-by-Analogy Reference Files
+
+| File | Description |
+|------|-------------|
+| `triz-matrix.json` | 39x39 TRIZ contradiction matrix mapping engineering parameter pairs to inventive principles |
+| `triz-principles.md` | All 40 inventive principles with descriptions and application examples |
+| `sapphire-encoding.md` | SAPPhIRE 7-layer functional encoding guide for room artifact decomposition |
+
+Used by the Design-by-Analogy pipeline (`/mos:find-analogies`) and `enrichContradictionWithTRIZ()` in `lazygraph-ops.cjs`.
+
+---
+
 ## Brain Enhancement
 
 When Brain MCP is connected, methodology commands gain:
