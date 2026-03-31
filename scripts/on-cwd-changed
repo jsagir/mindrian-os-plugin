@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+# on-cwd-changed: CwdChanged hook handler for MindrianOS
+# Auto-switches the active room when the user changes directory to a
+# registered room path. Updates the registry and injects new room context.
+# Must complete in under 2 seconds.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# New working directory (passed by hook or use PWD)
+NEW_DIR="${1:-$PWD}"
+
+# Try to resolve a room at the new directory
+NEW_ROOM=$("${SCRIPT_DIR}/resolve-room" "$NEW_DIR" 2>/dev/null) || NEW_ROOM=""
+
+# Also check if new dir IS inside a room (walk up to find STATE.md)
+if [ -z "$NEW_ROOM" ]; then
+  check_dir="$NEW_DIR"
+  while [ "$check_dir" != "/" ] && [ "$check_dir" != "." ]; do
+    if [ -f "$check_dir/STATE.md" ]; then
+      # Found a room -- try to resolve from parent
+      parent_dir=$(dirname "$check_dir")
+      NEW_ROOM=$("${SCRIPT_DIR}/resolve-room" "$parent_dir" 2>/dev/null) || NEW_ROOM=""
+      if [ -z "$NEW_ROOM" ]; then
+        # Legacy room without registry -- adopt it
+        NEW_ROOM=$("${SCRIPT_DIR}/resolve-room" "$parent_dir" --adopt 2>/dev/null) || NEW_ROOM=""
+      fi
+      break
+    fi
+    check_dir=$(dirname "$check_dir")
+  done
+fi
+
+if [ -z "$NEW_ROOM" ]; then
+  # No room at new directory -- nothing to switch
+  printf '{"status": "no_room"}\n'
+  exit 0
+fi
+
+# Check if this is different from the currently active room
+OLD_ROOM=$("${SCRIPT_DIR}/resolve-room" "$PWD" 2>/dev/null) || OLD_ROOM=""
+
+if [ "$NEW_ROOM" = "$OLD_ROOM" ]; then
+  # Same room -- no switch needed
+  printf '{"status": "same_room"}\n'
+  exit 0
+fi
+
+# Update registry to point to the new room
+# Find the registry that contains this room
+REGISTRY_FILE=""
+for reg_candidate in "${NEW_DIR}/.rooms/registry.json" "$(dirname "$NEW_ROOM")/.rooms/registry.json"; do
+  if [ -f "$reg_candidate" ]; then
+    REGISTRY_FILE="$reg_candidate"
+    break
+  fi
+done
+
+if [ -n "$REGISTRY_FILE" ]; then
+  python3 -c "
+import json, os
+reg_path = '$REGISTRY_FILE'
+new_room = '$NEW_ROOM'
+
+with open(reg_path) as f:
+    reg = json.load(f)
+
+# Find which room entry matches the new room path
+for name, room in reg.get('rooms', {}).items():
+    abs_path = os.path.normpath(os.path.join(os.path.dirname(reg_path).replace('/.rooms', ''), room['path']))
+    if abs_path == new_room:
+        reg['active'] = name
+        import datetime
+        room['last_opened'] = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+        break
+
+tmp = reg_path + '.tmp'
+with open(tmp, 'w') as f:
+    json.dump(reg, f, indent=2)
+os.rename(tmp, reg_path)
+" 2>/dev/null || true
+fi
+
+# Compute state for the new room
+state_output=$("${SCRIPT_DIR}/compute-state" "$NEW_ROOM" 2>/dev/null || echo "Error computing state")
+
+# Read plugin version
+PLUGIN_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "unknown")
+
+# Build context for the new room
+room_name=$(basename "$NEW_ROOM")
+context="[MindrianOS Room Switch] Switched to room: ${room_name}\n\n${state_output}\n\nYou are Larry. MindrianOS v${PLUGIN_VERSION}. The user switched to a different Data Room. Greet them with awareness of this room's state."
+
+# Escape for JSON
+escape_for_json() {
+  local s="$1"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  s="${s//$'\n'/\\n}"
+  s="${s//$'\r'/\\r}"
+  s="${s//$'\t'/\\t}"
+  printf '%s' "$s"
+}
+
+escaped_context=$(escape_for_json "$context")
+
+# Track room switch in analytics
+bash "${SCRIPT_DIR}/track-analytics" room-switch 2>/dev/null &
+
+# Output context injection
+if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
+  printf '{\n  "additional_context": "%s"\n}\n' "$escaped_context"
+elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$escaped_context"
+else
+  printf '{\n  "additional_context": "%s"\n}\n' "$escaped_context"
+fi
+
+exit 0
