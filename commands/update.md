@@ -68,7 +68,12 @@ Handle the output:
 
 ### Step 4: Instruct Update
 
-Tell the user to run the update command themselves:
+First, show the De Stijl banner:
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/banner"
+```
+
+Then tell the user to run the update command themselves:
 > "Very simply -- run this to update:"
 > ```
 > claude plugin update mindrian-os@mindrian-marketplace
