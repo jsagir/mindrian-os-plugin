@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# pre-compact: PreCompact hook handler for MindrianOS
+# Saves room STATE.md, methodology progress, last 5 artifacts, and MINTO
+# confidence levels to temp file before autocompact wipes context.
+# Must complete in under 2 seconds.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Determine working directory and resolve active room
+WORK_DIR="${PWD}"
+ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR") || ROOM_DIR=""
+
+if [ ! -d "$ROOM_DIR" ]; then
+  # No room -- nothing to preserve
+  printf '{"status": "no_room"}\n'
+  exit 0
+fi
+
+SAVE_FILE="/tmp/mindrian-pre-compact-state"
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+# 1. Capture STATE.md content
+state_content=""
+if [ -f "${ROOM_DIR}/STATE.md" ]; then
+  state_content=$(cat "${ROOM_DIR}/STATE.md" 2>/dev/null || true)
+fi
+
+# 2. Capture methodology progress (pipeline stage from STATE.md frontmatter)
+venture_stage=""
+total_entries=""
+if [ -n "$state_content" ]; then
+  venture_stage=$(echo "$state_content" | grep '^venture_stage:' | head -1 | sed 's/^venture_stage: *//' || true)
+  total_entries=$(echo "$state_content" | grep '^total_entries:' | head -1 | sed 's/^total_entries: *//' || true)
+fi
+
+# 3. Capture last 5 artifacts (most recently modified .md files in room)
+last_artifacts=$(find "$ROOM_DIR" -name "*.md" -not -name "STATE.md" -not -name "ROOM.md" -not -name "TEAM-STATE.md" -not -name "MEETINGS-INTELLIGENCE.md" -not -path "*/.lazygraph/*" -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -5 | cut -d' ' -f2- || true)
+
+# 4. Capture MINTO confidence (from REASONING.md files if they exist)
+minto_confidence=""
+for reasoning_file in "$ROOM_DIR"/*/REASONING.md; do
+  [ -f "$reasoning_file" ] || continue
+  section=$(dirname "$reasoning_file" | xargs basename)
+  confidence=$(grep -i 'confidence:' "$reasoning_file" 2>/dev/null | head -1 | sed 's/.*confidence: *//i' || true)
+  if [ -n "$confidence" ]; then
+    minto_confidence="${minto_confidence}${section}=${confidence}\n"
+  fi
+done
+
+# 5. Capture active pipeline info
+active_pipeline=""
+for chain_file in "$ROOM_DIR"/.pipeline-state*.json; do
+  [ -f "$chain_file" ] || continue
+  active_pipeline=$(cat "$chain_file" 2>/dev/null || true)
+  break
+done
+
+# 6. Read USER.md if exists
+user_context=""
+if [ -f "${ROOM_DIR}/USER.md" ]; then
+  user_context=$(cat "${ROOM_DIR}/USER.md" 2>/dev/null || true)
+fi
+
+# Write all captured context to temp file
+cat > "$SAVE_FILE" << SAVEFILE
+TIMESTAMP=${TIMESTAMP}
+ROOM_DIR=${ROOM_DIR}
+VENTURE_STAGE=${venture_stage}
+TOTAL_ENTRIES=${total_entries}
+---STATE_MD_START---
+${state_content}
+---STATE_MD_END---
+---LAST_ARTIFACTS_START---
+${last_artifacts}
+---LAST_ARTIFACTS_END---
+---MINTO_CONFIDENCE_START---
+$(printf '%b' "$minto_confidence")
+---MINTO_CONFIDENCE_END---
+---PIPELINE_STATE_START---
+${active_pipeline}
+---PIPELINE_STATE_END---
+---USER_CONTEXT_START---
+${user_context}
+---USER_CONTEXT_END---
+SAVEFILE
+
+printf '{"status": "saved", "file": "%s"}\n' "$SAVE_FILE"
+
+exit 0
