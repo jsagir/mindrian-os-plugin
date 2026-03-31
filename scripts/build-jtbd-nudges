@@ -1,0 +1,205 @@
+#!/usr/bin/env bash
+# build-jtbd-nudges: Generate JTBD-framed nudges + dynamic command menu
+# Reads room state + analytics to output personalized session greeting content
+# Called by session-start warm branch
+#
+# Usage: build-jtbd-nudges <ROOM_DIR> <PLUGIN_ROOT>
+# Output: Two sections to stdout -- JTBD nudges (max 3) + dynamic command menu
+
+set -euo pipefail
+
+ROOM_DIR="${1:-}"
+PLUGIN_ROOT="${2:-}"
+
+if [ -z "$ROOM_DIR" ] || [ ! -d "$ROOM_DIR" ]; then
+  echo ""
+  exit 0
+fi
+
+# Gather room signals for nudge generation
+ANALYTICS_FILE="${ROOM_DIR}/.analytics.json"
+STATE_FILE="${ROOM_DIR}/STATE.md"
+MEETINGS_INTEL="${ROOM_DIR}/MEETINGS-INTELLIGENCE.md"
+
+# Use python3 for all JSON + nudge logic (same pattern as learn-from-usage)
+python3 - "$ROOM_DIR" "$ANALYTICS_FILE" "$MEETINGS_INTEL" << 'PYEOF'
+import json, os, glob, sys
+
+room_dir = sys.argv[1]
+analytics_file = sys.argv[2]
+meetings_intel_file = sys.argv[3]
+
+# ── Gather room signals ──
+
+# Count entries per section
+sections = {}
+empty_sections = []
+total_entries = 0
+
+for entry in sorted(os.listdir(room_dir)):
+    section_path = os.path.join(room_dir, entry)
+    if not os.path.isdir(section_path):
+        continue
+    if entry.startswith('.'):
+        continue
+    md_files = [f for f in os.listdir(section_path)
+                if f.endswith('.md') and f != 'ROOM.md']
+    count = len(md_files)
+    sections[entry] = count
+    total_entries += count
+    if count == 0:
+        empty_sections.append(entry)
+
+filled_sections = [s for s, c in sections.items() if c > 0]
+filled_count = len(filled_sections)
+
+# Determine venture stage
+has = lambda name: sections.get(name, 0) > 0
+if has('problem-definition') and has('solution-design') and has('business-model') and has('financial-model'):
+    venture_stage = 'Investment'
+elif has('problem-definition') and has('solution-design') and has('business-model'):
+    venture_stage = 'Design'
+elif has('problem-definition') and has('market-analysis') and has('solution-design'):
+    venture_stage = 'Validation'
+elif has('problem-definition') and has('market-analysis'):
+    venture_stage = 'Discovery'
+else:
+    venture_stage = 'Pre-Opportunity'
+
+# Count meetings
+meeting_count = 0
+meetings_dir = os.path.join(room_dir, 'meetings')
+if os.path.isdir(meetings_dir):
+    meeting_count = len([d for d in os.listdir(meetings_dir)
+                         if os.path.isdir(os.path.join(meetings_dir, d))])
+
+# Convergence signals
+convergence_count = 0
+if os.path.isfile(meetings_intel_file):
+    try:
+        with open(meetings_intel_file, 'r') as f:
+            for line in f:
+                if line.startswith('convergence_signals:'):
+                    val = line.split(':', 1)[1].strip()
+                    convergence_count = int(val) if val.isdigit() else 0
+                    break
+    except:
+        pass
+
+# Check for existing presentation/export
+has_presentation = os.path.isdir(os.path.join(room_dir, '..', 'export')) or \
+                   any(f.endswith('.html') for f in os.listdir(os.path.join(room_dir, '..')) if os.path.isfile(os.path.join(room_dir, '..', f)))
+
+# Load analytics
+analytics = {}
+commands_used = {}
+try:
+    with open(analytics_file, 'r') as f:
+        analytics = json.load(f)
+    commands_used = analytics.get('commands', {})
+except:
+    pass
+
+# Check if grade has been run
+has_grade = commands_used.get('grade', 0) > 0 or commands_used.get('/mos:grade', 0) > 0
+
+# Check if meetings analyzed
+has_cross_meeting = commands_used.get('cross-meeting', 0) > 0
+
+# ── Generate JTBD Nudges (max 3) ──
+# Priority order: pick top 2-3 that apply
+
+nudges = []
+
+# a) Empty room
+if total_entries == 0:
+    nudges.append("You have an empty Data Room. Tell Larry about your venture idea -- he will structure your thinking and file it where it belongs.")
+
+# b) Problem only, no market
+if venture_stage == 'Pre-Opportunity' and total_entries > 0:
+    nudges.append(f"You have {total_entries} entries shaping your problem. Ask Larry to explore your market -- so you know if the problem is worth solving before you go deeper.")
+
+# c) Meetings filed but not analyzed
+if meeting_count > 0 and not has_cross_meeting and convergence_count == 0:
+    nudges.append(f"You have {meeting_count} meetings filed but their insights are sitting in transcripts. Ask Larry to pull cross-meeting intelligence into the sections where it belongs.")
+
+# d) 3+ sections filled, no grade
+if filled_count >= 3 and not has_grade:
+    nudges.append(f"You have {filled_count} sections filled across your Data Room. Ask Larry for an honest grade -- so you see where your case is strong and where it needs work.")
+
+# e) Rich room, no presentation
+if filled_count >= 5 and total_entries >= 10 and not has_presentation:
+    nudges.append(f"Your room has {total_entries} entries across {filled_count} sections. Tell Larry to generate your dashboard -- so investors can browse your evidence without a meeting.")
+
+# f) Convergence signals
+if convergence_count > 0:
+    nudges.append(f"Your meetings show {convergence_count} convergence signals -- multiple sources pointing the same direction. Ask Larry to surface these patterns -- convergence is where your strongest arguments live.")
+
+# g) Empty competitive-analysis
+if 'competitive-analysis' in empty_sections and total_entries > 0:
+    nudges.append("You have no competitive analysis yet. Ask Larry to challenge your assumptions -- knowing your blind spots early saves months of wrong turns.")
+
+# h) Entries but no meetings
+if total_entries > 0 and meeting_count == 0:
+    nudges.append(f"You have {total_entries} entries but no meeting intelligence. File a meeting transcript and Larry will extract insights, track action items, and connect what people said to what your room already knows.")
+
+# Take max 3
+nudges = nudges[:3]
+
+# ── Generate Dynamic Command Menu (6 commands) ──
+# Candidate commands with stage relevance
+candidates = [
+    {'cmd': '/mos:help', 'desc': 'Larry recommends what to do next', 'stages': ['all'], 'anchor': True},
+    {'cmd': '/mos:status', 'desc': 'See your Data Room state', 'stages': ['all'], 'anchor': True},
+    {'cmd': '/mos:diagnose', 'desc': 'Classify your problem type', 'stages': ['Pre-Opportunity', 'Discovery']},
+    {'cmd': '/mos:file-meeting', 'desc': 'File a meeting transcript', 'stages': ['all']},
+    {'cmd': '/mos:opportunities', 'desc': 'Discover relevant grants and funding', 'stages': ['Discovery', 'Validation', 'Design', 'Investment']},
+    {'cmd': '/mos:persona', 'desc': 'Get 6 perspectives on your work', 'stages': ['Validation', 'Design', 'Investment']},
+    {'cmd': '/mos:query', 'desc': 'Ask your knowledge graph anything', 'stages': ['Discovery', 'Validation', 'Design', 'Investment']},
+    {'cmd': '/mos:grade', 'desc': 'Honest assessment of your venture', 'stages': ['Validation', 'Design', 'Investment']},
+    {'cmd': '/mos:present', 'desc': 'Generate your Data Room dashboard', 'stages': ['Design', 'Investment']},
+    {'cmd': '/mos:act', 'desc': 'Larry runs a framework autonomously', 'stages': ['Discovery', 'Validation', 'Design', 'Investment']},
+    {'cmd': '/mos:update', 'desc': 'Check for latest features', 'stages': ['all']},
+]
+
+# Score each candidate
+def score_cmd(c):
+    # Anchors always included
+    if c.get('anchor'):
+        return 1000
+    s = 0
+    # Stage relevance
+    if 'all' in c['stages'] or venture_stage in c['stages']:
+        s += 50
+    # Unused bonus (higher = less used)
+    cmd_name = c['cmd'].replace('/mos:', '')
+    usage = commands_used.get(cmd_name, 0)
+    if usage == 0:
+        s += 30  # never used -- high priority
+    elif usage < 3:
+        s += 15  # rarely used
+    # else: frequently used, no bonus
+    return s
+
+scored = sorted(candidates, key=score_cmd, reverse=True)
+
+# Always include anchors, then top 4 non-anchors
+anchors = [c for c in scored if c.get('anchor')]
+non_anchors = [c for c in scored if not c.get('anchor') and score_cmd(c) > 0]
+menu_items = anchors + non_anchors[:4]
+
+# ── Output ──
+
+for nudge in nudges:
+    print(nudge)
+
+print("")
+print("---")
+print("Quick commands (type /mos: to see all):")
+for item in menu_items:
+    cmd = item['cmd']
+    desc = item['desc']
+    dots = '.' * max(1, 20 - len(cmd))
+    print(f"  {cmd} {dots} {desc}")
+print("---")
+PYEOF
