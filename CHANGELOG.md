@@ -9,10 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
-## [Unreleased]
+## [1.6.0] - 2026-03-31
+onboarding: true
+onboard_steps:
+  - "MindrianOS now has a visual identity -- Mondrian banner on every cold start and after updates"
+  - "First-time users get a guided onboarding -- tell Larry about yourself and everything gets smarter"
+  - "5 new commands connect you to your room's power: /mos:present, /mos:dashboard, /mos:speakers, /mos:reanalyze, /mos:graph"
+  - "Larry's greeting now tells you what's in it for YOU based on your room state -- not feature lists"
 
 ### Added
-- **Interactive Onboarding System** -- 7-step Larry-voiced walkthrough on first install. Deep context building (USER.md) with 3 input approaches (Q&A, document paste, web research). Update path shows What's New from CHANGELOG. Manual re-run via /mos:onboard. Version-aware onboarding registry in CHANGELOG.md.
+- **Interactive Onboarding System** (Phase 35) -- 7-step Larry-voiced walkthrough on first install. Deep context building (USER.md) with 3 input approaches (Q&A, document paste, web research). Update path shows What's New from CHANGELOG. Manual re-run via /mos:onboard. Version-aware onboarding registry in CHANGELOG.md. Natural-language-first: teaches users to talk, not type commands.
+- **Command Wiring** (Phase 36) -- 5 new /mos: commands connecting users to existing infrastructure: /mos:present (6-view presentation + browser), /mos:dashboard (interactive graph + chat), /mos:speakers (meeting speaker profiles), /mos:reanalyze (re-run meeting intelligence), /mos:graph (KuzuDB natural language exploration).
+- **JTBD Warm Start** (Phase 37) -- Larry's session greeting identifies your current job and frames suggestions as "You have [state]. [action] [outcome that matters]." Dynamic 6-command menu adapts to what you haven't tried yet. Max 2-3 nudges per session.
+- **CLI Identity** (Phase 34) -- Responsive Mondrian banner with 3 terminal width tiers (full 100+, compact 80-99, minimal <80). Update detection via version marker. /mos:splash for on-demand banner. Dual-path rendering (stderr + additionalContext fallback).
+- **End-to-End Validation** (Phase 38) -- 24/24 checkpoints passing across syntax validation, template verification, presentation generation, and branding contract.
 
 ## [1.5.1] - 2026-03-31
 onboarding: true
