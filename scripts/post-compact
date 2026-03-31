@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+# post-compact: PostCompact hook handler for MindrianOS
+# Restores saved room context as additionalContext after autocompact.
+# Reads the temp file written by pre-compact and injects it into Claude's
+# context so the session continues with room awareness.
+# Must complete in under 2 seconds.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+SAVE_FILE="/tmp/mindrian-pre-compact-state"
+
+if [ ! -f "$SAVE_FILE" ]; then
+  # No saved state -- fall back to fresh session-start behavior
+  exec bash "${SCRIPT_DIR}/session-start"
+fi
+
+# Check staleness (> 10 min = stale, probably from a previous session)
+SAVE_AGE=$(( $(date +%s) - $(stat -c %Y "$SAVE_FILE" 2>/dev/null || echo 0) ))
+if [ "$SAVE_AGE" -gt 600 ]; then
+  rm -f "$SAVE_FILE"
+  exec bash "${SCRIPT_DIR}/session-start"
+fi
+
+# Extract saved context
+ROOM_DIR=$(grep '^ROOM_DIR=' "$SAVE_FILE" | cut -d= -f2-)
+VENTURE_STAGE=$(grep '^VENTURE_STAGE=' "$SAVE_FILE" | cut -d= -f2-)
+TOTAL_ENTRIES=$(grep '^TOTAL_ENTRIES=' "$SAVE_FILE" | cut -d= -f2-)
+
+# Extract STATE.md content
+state_content=$(sed -n '/^---STATE_MD_START---$/,/^---STATE_MD_END---$/p' "$SAVE_FILE" | sed '1d;$d')
+
+# Extract last artifacts
+last_artifacts=$(sed -n '/^---LAST_ARTIFACTS_START---$/,/^---LAST_ARTIFACTS_END---$/p' "$SAVE_FILE" | sed '1d;$d')
+
+# Extract MINTO confidence
+minto_confidence=$(sed -n '/^---MINTO_CONFIDENCE_START---$/,/^---MINTO_CONFIDENCE_END---$/p' "$SAVE_FILE" | sed '1d;$d')
+
+# Extract pipeline state
+pipeline_state=$(sed -n '/^---PIPELINE_STATE_START---$/,/^---PIPELINE_STATE_END---$/p' "$SAVE_FILE" | sed '1d;$d')
+
+# Extract user context
+user_context=$(sed -n '/^---USER_CONTEXT_START---$/,/^---USER_CONTEXT_END---$/p' "$SAVE_FILE" | sed '1d;$d')
+
+# Read plugin version
+PLUGIN_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "unknown")
+
+# Build restored context
+context="[MindrianOS Post-Compact Recovery] v${PLUGIN_VERSION}\n\nContext was autocompacted. Here is your restored room state:\n"
+
+if [ -n "$VENTURE_STAGE" ]; then
+  context="${context}\nVenture Stage: ${VENTURE_STAGE}"
+fi
+
+if [ -n "$TOTAL_ENTRIES" ]; then
+  context="${context}\nTotal Entries: ${TOTAL_ENTRIES}"
+fi
+
+if [ -n "$state_content" ]; then
+  context="${context}\n\n## Room State (pre-compact snapshot)\n${state_content}"
+fi
+
+if [ -n "$last_artifacts" ]; then
+  context="${context}\n\n## Last 5 Artifacts Modified\n${last_artifacts}"
+fi
+
+if [ -n "$minto_confidence" ]; then
+  context="${context}\n\n## MINTO Confidence by Section\n${minto_confidence}"
+fi
+
+if [ -n "$pipeline_state" ]; then
+  context="${context}\n\n## Active Pipeline State\n${pipeline_state}"
+fi
+
+if [ -n "$user_context" ]; then
+  context="${context}\n\n## User Context\n${user_context}"
+fi
+
+# Check for pending verifications in room
+if [ -d "$ROOM_DIR" ]; then
+  pending_verifications=""
+  for reasoning in "$ROOM_DIR"/*/REASONING.md; do
+    [ -f "$reasoning" ] || continue
+    section=$(dirname "$reasoning" | xargs basename)
+    stale_marker=$(grep -i 'status: *stale\|status: *needs-review' "$reasoning" 2>/dev/null | head -1 || true)
+    if [ -n "$stale_marker" ]; then
+      pending_verifications="${pending_verifications}\n- ${section}/REASONING.md needs review"
+    fi
+  done
+  if [ -n "$pending_verifications" ]; then
+    context="${context}\n\n## Pending Verifications${pending_verifications}"
+  fi
+fi
+
+context="${context}\n\nYou are Larry. The session was autocompacted. Continue helping the user with their venture. Reference the restored state above to maintain continuity."
+
+# Clean up temp file after successful restore
+rm -f "$SAVE_FILE"
+
+# Escape for JSON
+escape_for_json() {
+  local s="$1"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  s="${s//$'\n'/\\n}"
+  s="${s//$'\r'/\\r}"
+  s="${s//$'\t'/\\t}"
+  printf '%s' "$s"
+}
+
+escaped_context=$(escape_for_json "$context")
+
+# Output context injection
+if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
+  printf '{\n  "additional_context": "%s"\n}\n' "$escaped_context"
+elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$escaped_context"
+else
+  printf '{\n  "additional_context": "%s"\n}\n' "$escaped_context"
+fi
+
+exit 0
