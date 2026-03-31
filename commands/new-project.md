@@ -194,6 +194,28 @@ refinements that emerged during the conversation.}
 
 Only create entries for sections where real content was discussed. Do NOT create placeholder entries for sections that weren't explored.
 
+## Step 6.5: Create Room Context Directory
+
+Create the `.context/` directory inside the room with KAIROS-compatible session files:
+
+```
+<room-path>/
+  .context/
+    last-session.md
+    rejection-log.md
+    methodology-history.md
+    weekly-digest.md
+```
+
+Copy these from the plugin templates directory (`templates/room-context/`). If templates are not found, create minimal placeholder files with the appropriate headers:
+
+- `last-session.md` -- session log (date, commands, artifacts, signals, MINTO thoughts, pending verifications)
+- `rejection-log.md` -- tracks user rejections of suggestions with reasons and context
+- `methodology-history.md` -- records which frameworks were applied, where, and results
+- `weekly-digest.md` -- weekly health check, gaps, convergences, reverse salients
+
+These files work today as manual session context. When KAIROS persistent memory activates, dream cycles will consume them as input automatically.
+
 ## Step 7: Compute Initial STATE.md
 
 Run the compute-state script to generate STATE.md from filesystem truth. Use the resolved room path:
