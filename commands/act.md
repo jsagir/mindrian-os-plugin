@@ -19,8 +19,10 @@ You are Larry. This command autonomously selects and executes the best methodolo
 **Modes:**
 - `/mos:act` -- select and execute one framework
 - `/mos:act --chain` -- select and execute 3-5 frameworks in sequence
+- `/mos:act --swarm` -- dispatch 3 framework-runners in parallel across highest-gap sections
 - `/mos:act --dry-run` -- show the execution plan without running anything
 - `/mos:act --chain --dry-run` -- preview the full chain plan
+- `/mos:act --swarm --dry-run` -- preview the swarm dispatch plan
 
 ## UI Format
 
@@ -232,6 +234,117 @@ After any execution (single or chain):
    - Another `/mos:act` for continued autonomous work
    - Specific manual command if human judgment needed
    - `/mos:status` to see updated room state
+
+## Swarm Mode (`/mos:act --swarm`)
+
+Swarm mode dispatches 3 framework-runner agents **simultaneously**, each targeting a different high-gap room section. This is the parallel counterpart to `--chain` (which runs sequentially).
+
+### Swarm Selection
+
+1. **Identify the 3 weakest sections** from `room/STATE.md`:
+   - Sort sections by entry count (ascending)
+   - Exclude sections with 5+ entries (already well-developed)
+   - If fewer than 3 sections qualify, swarm only the qualifying count
+
+2. **Select one framework per section** using the same scoring logic as Step 3 (Brain or local fallback), but each framework targets a DIFFERENT section. No two agents work the same section.
+
+3. **Resolve model per agent** using `lib/core/model-profiles.cjs`:
+   ```
+   const { resolveModel } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs');
+   const model = resolveModel('framework-runner', roomPath);
+   ```
+   Each agent gets its own model resolution based on venture stage and room config. Agents targeting complex sections (problem-definition, financial-model) may resolve to a higher-tier model than agents targeting simpler sections (competitive-analysis).
+
+### Swarm Thinking Trace
+
+Display the swarm plan before dispatching:
+
+```
+[THINK] Swarm Selection (3 parallel agents)
+
+  Room: {room name}
+  Stage: {venture stage}
+
+  Agent 1: {framework-1} -> room/{section-1}/
+           Model: {resolved model}
+           Gap: {entry count} entries (weakest)
+  Agent 2: {framework-2} -> room/{section-2}/
+           Model: {resolved model}
+           Gap: {entry count} entries
+  Agent 3: {framework-3} -> room/{section-3}/
+           Model: {resolved model}
+           Gap: {entry count} entries
+
+  Source: {Brain graph | Local routing table}
+  Parallel: All 3 run simultaneously
+```
+
+Ask user: "Ready to swarm? (yes / modify / cancel)"
+
+### Swarm Dispatch
+
+If user confirms:
+
+1. Dispatch all 3 framework-runner agents in parallel using the Agent tool with `run_in_background: true`:
+   - Each agent receives: framework name, room path, target section, room context summary, resolved model
+   - Each agent is an independent `agents/framework-runner.md` invocation
+   - Agents do NOT share context or coordinate -- they run in full isolation
+
+2. Show dispatch confirmation:
+   ```
+   [SWARM] Dispatched 3 agents
+           Agent 1: {framework-1} -> {section-1} [running]
+           Agent 2: {framework-2} -> {section-2} [running]
+           Agent 3: {framework-3} -> {section-3} [running]
+
+           Waiting for all agents to complete...
+   ```
+
+3. As each agent completes, collect its `FRAMEWORK_RUNNER_RESULT` structured summary
+
+### Swarm Synthesis
+
+After all 3 agents return:
+
+1. **Collect results** -- parse each agent's `FRAMEWORK_RUNNER_RESULT` for key_insights and cross_references
+
+2. **Cross-agent discovery** -- scan all 3 artifacts for emergent connections:
+   - Do any two agents' findings reference the same concept from different angles?
+   - Do any cross_references point to each other's target sections?
+   - Are there contradictions between agents' findings?
+
+3. **Trigger HSI recomputation** -- run the post-write cascade for all 3 new artifacts:
+   ```bash
+   "${CLAUDE_PLUGIN_ROOT}/scripts/compute-hsi.py" room
+   ```
+   This satisfies PARA-05: parallel filings trigger HSI recomputation to discover cross-agent innovation connections.
+
+4. **Show swarm summary:**
+   ```
+   [SWARM] Complete -- 3 frameworks executed in parallel
+
+     Agent 1: {framework-1} -> room/{section-1}/
+              Quality: {high|medium|low}
+              Insights: {top insight}
+     Agent 2: {framework-2} -> room/{section-2}/
+              Quality: {high|medium|low}
+              Insights: {top insight}
+     Agent 3: {framework-3} -> room/{section-3}/
+              Quality: {high|medium|low}
+              Insights: {top insight}
+
+     Cross-Agent Discoveries:
+     - {emergent connection 1}
+     - {emergent connection 2}
+
+     HSI Recomputed: {new HSI_CONNECTION edges found}
+     Artifacts filed: {total count}
+     Sections updated: {list}
+   ```
+
+### Swarm Dry-Run (`/mos:act --swarm --dry-run`)
+
+Display the swarm thinking trace (above) with all 3 agent assignments, resolved models, and expected outputs. Do NOT dispatch any agents.
 
 ## Brain Enhancement
 
