@@ -14,11 +14,11 @@
 - [x] **GIT-06**: `gh` CLI detection with guided install if missing
 
 ### Deploy Pipeline
-- [ ] **DEPLOY-01**: `/mos:publish` guides one-time Vercel setup (link project, first deploy, custom domain)
-- [ ] **DEPLOY-02**: Vercel auto-deploys on every git push -- shareable URL always current
-- [ ] **DEPLOY-03**: `/mos:publish --sections` for selective publishing (privacy: only include chosen sections)
-- [ ] **DEPLOY-04**: `/mos:publish --private` for password-protected deployment
-- [ ] **DEPLOY-05**: Exports log (`.exports-log.json`) tracks deployed URLs, timestamps, host
+- [x] **DEPLOY-01**: `/mos:publish` guides one-time Vercel setup (link project, first deploy, custom domain)
+- [x] **DEPLOY-02**: Vercel auto-deploys on every git push -- shareable URL always current
+- [x] **DEPLOY-03**: `/mos:publish --sections` for selective publishing (privacy: only include chosen sections)
+- [x] **DEPLOY-04**: `/mos:publish --private` for password-protected deployment
+- [x] **DEPLOY-05**: Exports log (`.exports-log.json`) tracks deployed URLs, timestamps, host
 
 ### Presentation Generator
 - [x] **PRES-01**: `generate-presentation` script produces all 6 views from any room in one command
@@ -81,9 +81,9 @@
 - [ ] **GENUI-04**: "Show me contradictions" -> Larry generates filtered graph view + analysis card
 
 ### Auto-Update Mechanism
-- [x] **SYNC-01**: Localhost: chokidar watches room/, SSE triggers browser reload (~1s latency)
-- [x] **SYNC-02**: Post-write: hook regenerates presentation views (~2-3s latency)
-- [ ] **SYNC-03**: Deployed: git push triggers Vercel auto-deploy (~30s latency)
+- [ ] **SYNC-01**: Localhost: chokidar watches room/, SSE triggers browser reload (~1s latency)
+- [ ] **SYNC-02**: Post-write: hook regenerates presentation views (~2-3s latency)
+- [x] **SYNC-03**: Deployed: git push triggers Vercel auto-deploy (~30s latency)
 
 ## Traceability
 
@@ -130,14 +130,14 @@
 | PRES-07 | Phase 30 | Complete |
 | PRES-08 | Phase 30 | Complete |
 | PRES-09 | Phase 30 | Complete |
-| SYNC-01 | Phase 31 | Complete |
-| SYNC-02 | Phase 31 | Complete |
-| SYNC-03 | Phase 31 | Pending |
-| DEPLOY-01 | Phase 31 | Pending |
-| DEPLOY-02 | Phase 31 | Pending |
-| DEPLOY-03 | Phase 31 | Pending |
-| DEPLOY-04 | Phase 31 | Pending |
-| DEPLOY-05 | Phase 31 | Pending |
+| SYNC-01 | Phase 31 | Pending |
+| SYNC-02 | Phase 31 | Pending |
+| SYNC-03 | Phase 31 | Complete |
+| DEPLOY-01 | Phase 31 | Complete |
+| DEPLOY-02 | Phase 31 | Complete |
+| DEPLOY-03 | Phase 31 | Complete |
+| DEPLOY-04 | Phase 31 | Complete |
+| DEPLOY-05 | Phase 31 | Complete |
 | GENUI-01 | Phase 32 | Pending |
 | GENUI-02 | Phase 32 | Pending |
 | GENUI-03 | Phase 32 | Pending |
