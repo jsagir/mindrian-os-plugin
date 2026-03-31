@@ -1,0 +1,152 @@
+#!/usr/bin/env bash
+# on-task-complete: TaskCompleted hook handler for MindrianOS
+# Updates pipeline progress in STATE.md, checks REASONING.md staleness,
+# and surfaces next-stage readiness signals.
+# Must complete in under 3 seconds.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Resolve active room
+WORK_DIR="${PWD}"
+ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR" 2>/dev/null) || ROOM_DIR=""
+
+if [ ! -d "$ROOM_DIR" ]; then
+  printf '{"status": "no_room"}\n'
+  exit 0
+fi
+
+# 1. Recompute room state (updates venture stage, entry counts, gaps)
+state_content=$("${SCRIPT_DIR}/compute-state" "$ROOM_DIR" 2>/dev/null || echo "")
+if [ -n "$state_content" ]; then
+  printf '%s\n' "$state_content" > "${ROOM_DIR}/STATE.md"
+fi
+
+# 2. Check REASONING.md staleness across all sections
+stale_sections=""
+CURRENT_TIME=$(date +%s)
+STALENESS_THRESHOLD=$((7 * 24 * 3600))  # 7 days
+
+for section_dir in "$ROOM_DIR"/*/; do
+  [ -d "$section_dir" ] || continue
+  section_name=$(basename "$section_dir")
+  [[ "$section_name" == .* ]] && continue
+
+  reasoning_file="${section_dir}/REASONING.md"
+
+  # Count current artifacts in this section
+  artifact_count=$(find "$section_dir" -maxdepth 1 -name "*.md" ! -name "ROOM.md" ! -name "REASONING.md" 2>/dev/null | wc -l | tr -d ' ')
+
+  if [ ! -f "$reasoning_file" ]; then
+    # No REASONING.md but has artifacts -- flag as needing one
+    if [ "$artifact_count" -ge 2 ]; then
+      stale_sections="${stale_sections}\n- ${section_name}: No REASONING.md (${artifact_count} artifacts need synthesis)"
+    fi
+    continue
+  fi
+
+  # Check age of REASONING.md
+  reasoning_mod=$(stat -c %Y "$reasoning_file" 2>/dev/null || echo 0)
+  reasoning_age=$((CURRENT_TIME - reasoning_mod))
+
+  # Check if artifacts are newer than REASONING.md
+  newer_artifacts=0
+  for artifact in "$section_dir"/*.md; do
+    [ -f "$artifact" ] || continue
+    af_name=$(basename "$artifact")
+    [[ "$af_name" == "ROOM.md" || "$af_name" == "REASONING.md" ]] && continue
+    af_mod=$(stat -c %Y "$artifact" 2>/dev/null || echo 0)
+    if [ "$af_mod" -gt "$reasoning_mod" ]; then
+      newer_artifacts=$((newer_artifacts + 1))
+    fi
+  done
+
+  if [ "$reasoning_age" -gt "$STALENESS_THRESHOLD" ] || [ "$newer_artifacts" -ge 2 ]; then
+    stale_reason=""
+    if [ "$reasoning_age" -gt "$STALENESS_THRESHOLD" ]; then
+      days_old=$((reasoning_age / 86400))
+      stale_reason="aged ${days_old}d"
+    fi
+    if [ "$newer_artifacts" -ge 2 ]; then
+      [ -n "$stale_reason" ] && stale_reason="${stale_reason}, "
+      stale_reason="${stale_reason}${newer_artifacts} newer artifacts"
+    fi
+    stale_sections="${stale_sections}\n- ${section_name}: REASONING.md stale (${stale_reason})"
+  fi
+done
+
+# 3. Check next-stage readiness
+venture_stage=$(grep '^venture_stage:' "${ROOM_DIR}/STATE.md" 2>/dev/null | head -1 | sed 's/^venture_stage: *//' || true)
+readiness_signal=""
+
+case "${venture_stage}" in
+  "Pre-Opportunity")
+    # Check if enough for Discovery
+    pd_count=$(find "$ROOM_DIR/problem-definition" -maxdepth 1 -name "*.md" ! -name "ROOM.md" 2>/dev/null | wc -l | tr -d ' ')
+    if [ "${pd_count:-0}" -ge 3 ]; then
+      readiness_signal="Ready for Discovery: ${pd_count} problem artifacts. Consider exploring market analysis next."
+    fi
+    ;;
+  "Discovery")
+    ma_count=$(find "$ROOM_DIR/market-analysis" -maxdepth 1 -name "*.md" ! -name "ROOM.md" 2>/dev/null | wc -l | tr -d ' ')
+    if [ "${ma_count:-0}" -ge 3 ]; then
+      readiness_signal="Ready for Validation: ${ma_count} market artifacts. Consider designing your solution."
+    fi
+    ;;
+  "Validation")
+    sd_count=$(find "$ROOM_DIR/solution-design" -maxdepth 1 -name "*.md" ! -name "ROOM.md" 2>/dev/null | wc -l | tr -d ' ')
+    if [ "${sd_count:-0}" -ge 3 ]; then
+      readiness_signal="Ready for Design: ${sd_count} solution artifacts. Consider defining your business model."
+    fi
+    ;;
+  "Design")
+    bm_count=$(find "$ROOM_DIR/business-model" -maxdepth 1 -name "*.md" ! -name "ROOM.md" 2>/dev/null | wc -l | tr -d ' ')
+    if [ "${bm_count:-0}" -ge 2 ]; then
+      readiness_signal="Ready for Investment: ${bm_count} business model artifacts. Consider building financial projections."
+    fi
+    ;;
+  "Investment")
+    readiness_signal="Investment stage reached. Focus on strengthening weak sections and preparing for investor review."
+    ;;
+esac
+
+# 4. Build intelligence output
+context=""
+if [ -n "$stale_sections" ]; then
+  context="## REASONING.md Staleness Check$(printf '%b' "$stale_sections")"
+fi
+
+if [ -n "$readiness_signal" ]; then
+  [ -n "$context" ] && context="${context}\n\n"
+  context="${context}## Stage Readiness\n${readiness_signal}"
+fi
+
+# Track task completion
+bash "${SCRIPT_DIR}/track-analytics" task-complete 2>/dev/null &
+
+# Output result
+if [ -n "$context" ]; then
+  escape_for_json() {
+    local s="$1"
+    s="${s//\\/\\\\}"
+    s="${s//\"/\\\"}"
+    s="${s//$'\n'/\\n}"
+    s="${s//$'\r'/\\r}"
+    s="${s//$'\t'/\\t}"
+    printf '%s' "$s"
+  }
+
+  escaped_context=$(escape_for_json "$context")
+
+  if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+    printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "TaskCompleted",\n    "additionalContext": "%s"\n  }\n}\n' "$escaped_context"
+  else
+    printf '{\n  "additional_context": "%s"\n}\n' "$escaped_context"
+  fi
+else
+  printf '{"status": "ok", "venture_stage": "%s"}\n' "${venture_stage:-unknown}"
+fi
+
+exit 0
