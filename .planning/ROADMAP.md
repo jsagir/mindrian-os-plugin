@@ -6,7 +6,9 @@
 - v2.0 Meeting Intelligence -- Phases 6-9 (shipped 2026-03-24)
 - v3.0 MCP Platform & Intelligence Expansion -- Phases 10-19 (shipped 2026-03-25)
 - v4.0 Brain API Control & CLI UI Ruling System -- Phases 20-25 (shipped 2026-03-29)
-- v5.0 Data Room Presentation System -- Phases 26-32 (in progress)
+- v5.0 Data Room Presentation System -- Phases 26-33 (shipped 2026-03-31)
+- v5.1 User Outlets -- Phases 34-38 (in progress)
+- v1.6.0 Powerhouse -- Phases 39-46 (planned)
 
 ## Phases
 
@@ -69,151 +71,195 @@ See: `.planning/milestones/v4.0-ROADMAP.md`
 
 </details>
 
-### v5.0 Data Room Presentation System (In Progress)
+<details>
+<summary>v5.0 Data Room Presentation System (Phases 26-33) -- SHIPPED 2026-03-31</summary>
 
-- [x] **Phase 26: Git Integration** - Every room becomes a GitHub repo with auto-commit and auto-push on every filing (completed 2026-03-30)
-- [x] **Phase 27: Filing Pipeline + KuzuDB Engine** - Complete filing cascade (classify -> KuzuDB -> graph -> presentation -> git) with relationship intelligence (completed 2026-03-30)
-- [ ] **Phase 27.1: HSI + Reverse Salient Python Pipeline** - Python-native HSI computation (sklearn TF-IDF + embeddings), Reverse Salient cross-section detection, results -> KuzuDB edges, 3-tier (keyword/sklearn/Pinecone)
-- [ ] **Phase 28: Binary Asset Filing** - PDFs, images, videos filed with manifests and displayed in presentation views
-- [x] **Phase 29: Canvas Graph Renderer** - Custom Canvas 2D graph with force simulation, particles, glow, and cluster highlighting (Milken Twin pattern) (completed 2026-03-30)
-- [x] **Phase 30: Presentation Generator** - All 6 views (dashboard, wiki, deck, insights, diagrams, graph) with dual themes and branding (completed 2026-03-31)
-- [ ] **Phase 31: Auto-Update + Deploy Pipeline** - Localhost live reload, Vercel onboarding, auto-deploy on push, privacy controls
-- [ ] **Phase 32: Generative UI + Chat** - Larry generates views conversationally in deployed site with BYOAPI chat panel
+- [x] Phase 26: Git Integration (2/2 plans) -- 2026-03-30
+- [x] Phase 27: Filing Pipeline + KuzuDB Engine (4/4 plans) -- 2026-03-30
+- [x] Phase 27.1: HSI + Reverse Salient Pipeline (2/2 plans) -- 2026-03-31
+- [x] Phase 28: Binary Asset Filing (1/1 plans) -- 2026-03-31
+- [x] Phase 29: Canvas Graph Renderer (1/1 plans) -- 2026-03-31
+- [x] Phase 30: Presentation Generator (3/3 plans) -- 2026-03-31
+- [x] Phase 31: Auto-Update + Deploy Pipeline (2/2 plans) -- 2026-03-31
+- [x] Phase 32: Generative UI + Chat (2/2 plans) -- 2026-03-31
+- [x] Phase 33: Interactive Onboarding System (spec complete) -- 2026-03-31
+
+See: `.planning/milestones/v5.0-ROADMAP.md`
+
+</details>
+
+<details>
+<summary>v5.1 User Outlets (Phases 34-38) -- IN PROGRESS</summary>
+
+- [x] Phase 34: CLI Identity (1/1 plans) -- 2026-03-31
+- [x] Phase 35: Interactive Onboarding (2/2 plans) -- 2026-03-31
+- [ ] Phase 36: Command Wiring (0/2 plans)
+- [ ] Phase 37: JTBD Warm Start (0/1 plans)
+- [ ] Phase 38: End-to-End Validation (0/1 plans)
+
+</details>
+
+### v1.6.0 Powerhouse (Planned)
+
+**Milestone Goal:** Transform MindrianOS from reactive teaching partner into proactive, cost-optimized, parallel-processing venture intelligence engine with Design-by-Analogy discovery, deep Claude Code platform optimization, and formal MWP specification.
+
+**Spectral OM-HMM (SPEC-01 through SPEC-04): ALREADY DONE** -- implemented in compute-hsi.py and detect-reverse-salients.py before roadmap creation.
+
+- [ ] **Phase 39: Model Profiles & Routing** - Per-agent model resolution with venture-stage adaptive hints and cascade step routing
+- [ ] **Phase 40: Hook Expansion** - 6 new Claude Code hooks wiring the intelligence nervous system
+- [ ] **Phase 41: Parallel Agent Patterns** - Swarm, parallel personas, full grading, and broad research with cross-cascade discovery
+- [ ] **Phase 42: Platform Optimization** - Prompt cache hits, modular CLAUDE.md, deep links, and environment variable tuning
+- [ ] **Phase 43: Sentinel Intelligence** - Scheduled room health, grant monitoring, competitor watch, and HSI recomputation
+- [ ] **Phase 44: Design-by-Analogy Foundation** - KuzuDB edge types, TRIZ matrix, SAPPhIRE encoding, and Brain query patterns
+- [ ] **Phase 45: Design-by-Analogy Pipeline** - 5-stage analogy pipeline with /mos:find-analogies command
+- [ ] **Phase 46: Future-Proofing & Moat Documentation** - KAIROS prep, Coordinator Mode manifest, and MWP specification
 
 ## Phase Details
 
-### Phase 26: Git Integration
-**Goal**: Every room CAN be a GitHub repo with automatic version control on every filing -- but users can opt out and stay purely local
-**Depends on**: Phase 25 (Data Room Export Template v2)
-**Requirements**: GIT-01, GIT-02, GIT-03, GIT-04, GIT-05, GIT-06
-**Plans:** 2/2 plans complete
-Plans:
-- [x] 26-01-PLAN.md -- Git infrastructure: scripts/git-ops, lib/core/git-ops.cjs, registry extension, post-write hook
-- [x] 26-02-PLAN.md -- New project git offer, gh CLI detection, /mos:rooms git-setup subcommand
+### Phase 39: Model Profiles & Routing
+**Goal**: Users can control cost and quality of every agent interaction through profiles, and the system auto-adapts model selection based on venture stage
+**Depends on**: Nothing (foundation for parallel agents and sentinel)
+**Requirements**: MODEL-01, MODEL-02, MODEL-03, MODEL-04, MODEL-05, MODEL-06
 **Success Criteria** (what must be TRUE):
-  1. Running `/mos:new-project` offers to create a local git repo, a GitHub remote, and push the initial room structure -- but user can decline
-  2. Every artifact written to the room (methodology, meeting, manual) results in a git commit with a descriptive provenance message -- only if git is initialized
-  3. Commits auto-push to GitHub (configurable: auto/manual/off, default off)
-  4. Binary files over 10MB are tracked via Git LFS automatically -- only when git is active
-  5. If `gh` CLI is missing, the user gets a guided install flow instead of a cryptic error
+  1. User runs /mos:models and sees which model tier each of the 8 agents is currently using
+  2. User switches to "budget" profile and subsequent /mos:act runs use haiku/sonnet instead of opus
+  3. Room at Pre-Opportunity stage automatically hints cheaper models; room at Investment stage hints opus
+  4. Per-room overrides in room/.config.json persist across sessions and take priority over profile defaults
+  5. Cascade steps (classify, edge detection, proactive analysis) each use their assigned model tier, not the session default
+**Plans**: TBD
 
-### Phase 27: Filing Pipeline + KuzuDB Engine
-**Goal**: Every filing triggers the complete cascade -- classify, KuzuDB index, compute-state, build-graph, generate-presentation, git commit, push -- with rich relationship intelligence
-**Depends on**: Phase 26
-**Requirements**: FILE-01, FILE-02, FILE-03, FILE-04, FILE-05, KUZU-01, KUZU-02, KUZU-03, KUZU-04, KUZU-05, ROOM-01, ROOM-02, ROOM-03, ROOM-04
-**Plans:** 4/4 plans complete
 Plans:
-- [x] 27-01-PLAN.md -- KuzuDB schema extension: Meeting, Speaker, Assumption node types + confidence edges + assumption indexing
-- [x] 27-02-PLAN.md -- Complete post-write cascade + artifact IDs + build-graph-from-kuzu.cjs
-- [x] 27-03-PLAN.md -- Meeting + speaker KuzuDB integration + SEGMENT_OF/SPOKE_IN/CONSULTED_ON edges
-- [x] 27-04-PLAN.md -- Room structure contract: STATE.md maintenance, cross-room detection, proactive intelligence persistence
-**Success Criteria** (what must be TRUE):
-  1. Filing any artifact (methodology session, meeting segment, manual entry, pipeline output, reasoning file) triggers the full chain ending in a git push
-  2. Every artifact gets a stable hash ID in frontmatter and KuzuDB nodes + edges are created with typed relationships (INFORMS, CONTRADICTS, CONVERGES, ENABLES, SEGMENT_OF, CONSULTED_ON)
-  3. graph.json is generated from KuzuDB queries (not just file scanning) with confidence scores on edges
-  4. Assumptions are tracked as first-class KuzuDB entities with validity status that surfaces in the graph
-  5. Room STATE.md and MINTO.md stay current after every filing, and proactive intelligence persists with repeat suppression
+- [ ] 39-01: MODEL_PROFILES table + model resolution chain + /mos:models command
+- [ ] 39-02: Venture-stage hints + per-room config + cascade step routing
 
-### Phase 27.1: HSI + Reverse Salient Python Pipeline (INSERTED)
-**Goal**: Python-native computational pipeline that discovers hidden cross-artifact connections using dual similarity analysis (structural + semantic), detects Reverse Salients across room sections, and writes results as KuzuDB edges -- running as background intelligence after every filing
-**Depends on**: Phase 27 (KuzuDB schema + post-write cascade)
-**Requirements**: HSI-01, HSI-02, HSI-03, HSI-04, HSI-05
-**Plans:** 2 plans
-Plans:
-- [ ] 27.1-01-PLAN.md -- HSI Python scripts (compute-hsi.py, detect-reverse-salients.py) + KuzuDB bridge (hsi-to-kuzu.cjs) + schema extension
-- [ ] 27.1-02-PLAN.md -- Post-write wiring (background HSI step) + check-hsi-deps + /mos:setup hsi command
+### Phase 40: Hook Expansion
+**Goal**: The plugin's intelligence nervous system fires automatically on context changes, external edits, agent completions, and pipeline stage transitions
+**Depends on**: Phase 39 (SubagentStop needs model resolution for cascade routing)
+**Requirements**: HOOK-01, HOOK-02, HOOK-03, HOOK-04, HOOK-05, HOOK-06
 **Success Criteria** (what must be TRUE):
-  1. `scripts/compute-hsi.py` computes TF-IDF/SVD (LSA) + embedding similarity for all room artifacts, outputs top hidden connection pairs with HSI scores
-  2. `scripts/detect-reverse-salients.py` identifies cross-section opportunities where a solution in one section addresses a problem in another
-  3. HSI results are written as KuzuDB edges (HSI_CONNECTION, REVERSE_SALIENT) with hsi_score, lsa_sim, semantic_sim metadata
-  4. Post-write hook fires HSI computation in background (non-blocking, after git-ops step)
-  5. 3-tier system: Tier 0 = keyword matching (existing), Tier 1 = sklearn TF-IDF + MiniLM embeddings, Tier 2 = sklearn + Pinecone Brain embeddings
+  1. User works for 3+ hours and Larry retains venture stage, methodology progress, and MINTO confidence after autocompact
+  2. User edits a room file in VS Code and the KuzuDB graph updates automatically within the same Claude session
+  3. User cd's to a different registered room and Larry switches context without manual /mos:room set
+  4. A framework-runner subagent completes and its output is automatically filed through the cascade pipeline
+  5. Pipeline stage completion updates STATE.md progress and surfaces "ready for next stage" notification
+**Plans**: TBD
 
-### Phase 28: Binary Asset Filing
-**Goal**: PDFs, images, videos, and meeting recordings are filed as first-class room artifacts with manifests and cross-references
-**Depends on**: Phase 27
-**Requirements**: ASSET-01, ASSET-02, ASSET-03, ASSET-04
-**Success Criteria** (what must be TRUE):
-  1. A PDF, image, or video filed to the room gets a markdown wrapper with frontmatter in the correct section folder
-  2. ASSET_MANIFEST.md is automatically updated listing all binary assets with metadata
-  3. Meeting audio/video files are filed in meetings/ with a link to their transcript
-**Plans:** 1 plan
 Plans:
-- [ ] 28-01-PLAN.md -- Binary asset filing: file-asset script, asset-ops.cjs, post-write hook, manifest, meeting audio
+- [ ] 40-01: PreCompact + PostCompact scripts + hooks.json wiring
+- [ ] 40-02: FileChanged + CwdChanged + SubagentStop + TaskCompleted scripts + hooks.json wiring
 
-### Phase 29: Canvas Graph Renderer
-**Goal**: A custom Canvas 2D graph replaces Cytoscape with force simulation, animated particles, glow effects, and cluster highlighting -- the Milken Twin visual pattern
-**Depends on**: Phase 27 (needs graph.json from KuzuDB)
-**Requirements**: GRAPH-01, GRAPH-02, GRAPH-03, GRAPH-04, GRAPH-05, GRAPH-06, GRAPH-07, GRAPH-08
+### Phase 41: Parallel Agent Patterns
+**Goal**: Users can dispatch multiple agents simultaneously for swarm analysis, parallel personas, full grading, and broad research, with emergent cross-agent discoveries
+**Depends on**: Phase 39 (model resolution), Phase 40 (SubagentStop hook for auto-filing)
+**Requirements**: PARA-01, PARA-02, PARA-03, PARA-04, PARA-05
 **Success Criteria** (what must be TRUE):
-  1. The graph renders on Canvas 2D (~330 lines) with circular nodes sized by centrality, section-colored at 60% opacity, and force simulation positioning
-  2. Animated particles travel along edges and glow rings pulse on core nodes, creating a living data-flow visualization
-  3. Hovering a node dims everything else to 0.15 opacity while connected nodes stay bright, and clicking opens a detail panel with artifact summary
-  4. `highlightCluster(group)` can be called programmatically to highlight any keyword/tag group
-  5. Edge types are visually distinct: INFORMS (thin gray arrow), CONTRADICTS (dashed red), CONVERGES (dotted gold), ENABLES (solid blue arrow)
-**Plans:** 1/1 plans complete
-Plans:
-- [x] 29-01-PLAN.md -- Canvas 2D renderer (canvas-graph.js) + detail panel (graph-detail-panel.js)
-**UI hint**: yes
+  1. User runs /mos:act --swarm and 3 framework-runners execute in parallel across the highest-gap sections, completing in ~1/3 serial time
+  2. User runs /mos:persona --parallel and receives 6 De Bono hat perspectives generated simultaneously
+  3. User runs /mos:grade --full and all 8 room sections are graded in parallel with REASONING.md verification
+  4. User runs /mos:research --broad and receives synthesized academic + market + competitor intelligence
+  5. After parallel filings complete, HSI recomputation discovers cross-agent innovation connections that serial execution would miss
+**Plans**: TBD
 
-### Phase 30: Presentation Generator
-**Goal**: One command produces all 6 self-contained HTML views from any room, with dual design themes and enforced branding
-**Depends on**: Phase 28, Phase 29
-**Requirements**: PRES-01, PRES-02, PRES-03, PRES-04, PRES-05, PRES-06, PRES-07, PRES-08, PRES-09
-**Plans:** 3/3 plans complete
 Plans:
-- [x] 30-01-PLAN.md -- Master generator (generate-presentation.cjs) + dashboard.html + graph.html + post-write cascade wiring
-- [x] 30-02-PLAN.md -- Wiki template (3-panel browser, search, wikilinks) + Deck template (fullscreen slides, keyboard nav)
-- [x] 30-03-PLAN.md -- Insights template (counters, timelines, quadrants) + Diagrams template (SVG from graph.json) + PWS light theme across all 6 views
-**Success Criteria** (what must be TRUE):
-  1. Running `generate-presentation` on any room produces 6 HTML files: index.html (dashboard), wiki.html, deck.html, insights.html, diagrams.html, graph.html
-  2. Dashboard shows stats bar, 6 view cards, video embed, assets grid, partners, opportunities, and governing thought
-  3. Wiki provides 3-panel browsing with collapsible sidebar, search, TOC, infobox, [[wikilinks]], and section colors
-  4. Both De Stijl dark (default) and PWS light themes render correctly across all 6 views
-  5. Every generated view contains the MindrianOS logo header, "Built with MindrianOS" footer, and Mondrian color bar (non-removable branding)
-**UI hint**: yes
+- [ ] 41-01: Parallel dispatch infrastructure + --swarm on /mos:act + --parallel on /mos:persona
+- [ ] 41-02: --full on /mos:grade + --broad on /mos:research + cross-cascade emergent discovery
 
-### Phase 31: Auto-Update + Deploy Pipeline
-**Goal**: Room changes appear in the browser within seconds (localhost) and deployed sites stay current via Vercel auto-deploy, with guided onboarding and privacy controls
-**Depends on**: Phase 30
-**Requirements**: SYNC-01, SYNC-02, SYNC-03, DEPLOY-01, DEPLOY-02, DEPLOY-03, DEPLOY-04, DEPLOY-05
+### Phase 42: Platform Optimization
+**Goal**: Sessions start faster with better cache hits, CLAUDE.md loads only what is needed, and environment variables are tuned for room-aware behavior
+**Depends on**: Nothing (independent optimization track)
+**Requirements**: PLAT-01, PLAT-02, PLAT-03, PLAT-04, PLAT-05, PLAT-06
 **Success Criteria** (what must be TRUE):
-  1. Localhost: chokidar watches the room folder and SSE triggers browser reload within ~1 second of any filing
-  2. Post-write hook regenerates presentation views within ~2-3 seconds of any artifact change
-  3. `/mos:publish` guides the user through one-time Vercel setup (link project, first deploy, optional custom domain) in under 5 minutes
-  4. Every git push triggers Vercel auto-deploy so the shareable URL is always current (~30s latency)
-  5. User can selectively publish sections (`--sections`) or deploy with password protection (`--private`)
-**Plans**: 2 plans
-Plans:
-- [ ] 31-01-PLAN.md -- Localhost live reload: presentation-server, presentation-watcher, serve-presentation launcher, SSE auto-refresh
-- [ ] 31-02-PLAN.md -- /mos:publish command: Vercel onboarding, selective sections, password protection, exports log
-**UI hint**: yes
+  1. Session-start prompt has stable prefix sections that hit prompt cache on repeated sessions in the same room
+  2. CLAUDE.md uses @include directives so only relevant sections load into context for the current operation
+  3. Deep link URLs (claude-cli://open) navigate directly to specific rooms or sections from dashboard views
+  4. AUTOCOMPACT_PCT_OVERRIDE, MAX_THINKING_TOKENS, and CLAUDE_CODE_MAX_CONTEXT_TOKENS are set in settings.json with documented rationale
+**Plans**: TBD
 
-### Phase 32: Generative UI + Chat
-**Goal**: Visitors to a deployed room can chat with Larry who generates filtered views and visual highlights conversationally, using their own API key
-**Depends on**: Phase 31
-**Requirements**: GENUI-01, GENUI-02, GENUI-03, GENUI-04
-**Success Criteria** (what must be TRUE):
-  1. Larry can generate UI components declaratively via Vercel json-render integration in the deployed site
-  2. `highlightCluster()` is wired as an AI tool call -- Larry saying "show me market analysis" highlights those graph nodes
-  3. A visitor can enter their own API key in a BYOAPI chat panel (stored in localStorage) and converse with Larry directly from the browser
-  4. Asking "show me contradictions" produces a filtered graph view with contradicting nodes highlighted plus an analysis card
-**Plans:** 2 plans
 Plans:
-- [ ] 32-01-PLAN.md -- BYOAPI chat panel: API key in localStorage, streaming Anthropic calls, room context system prompt, Larry personality
-- [ ] 32-02-PLAN.md -- Generative tools: highlightCluster/filterEdgeType/showInsight as AI tool calls, json-render inline components
-**UI hint**: yes
+- [ ] 42-01: Session-start cache restructure + modular CLAUDE.md with @include
+- [ ] 42-02: Deep link protocol + environment variable tuning in settings.json
+
+### Phase 43: Sentinel Intelligence
+**Goal**: The room generates proactive intelligence on a schedule - health checks, deadline alerts, competitor updates, and HSI refreshes - without user prompting
+**Depends on**: Phase 40 (hooks for scheduled triggers), Phase 39 (model routing for cost control)
+**Requirements**: SENT-01, SENT-02, SENT-03, SENT-04, SENT-05, SENT-06, SENT-07
+**Success Criteria** (what must be TRUE):
+  1. Weekly room health check compares current STATE.md against previous snapshot and surfaces drift or stagnation
+  2. Daily grant deadline monitor alerts user about approaching deadlines in opportunity-bank and funding sections
+  3. Weekly competitor watch produces intelligence brief with contradiction flagging against room claims
+  4. User runs /mos:scout and all sentinel tasks execute immediately as manual fallback
+  5. Sentinel outputs persist in room/.intelligence/ as browsable digest files and room/.snapshots/ contains weekly STATE.md copies
+**Plans**: TBD
+
+Plans:
+- [ ] 43-01: Sentinel framework + /mos:scout command + room health check + grant deadline monitor
+- [ ] 43-02: Competitor watch + HSI recomputation schedule + .intelligence/ and .snapshots/ directories
+
+### Phase 44: Design-by-Analogy Foundation
+**Goal**: The knowledge graph and reference library are extended with analogy-specific edge types, TRIZ contradiction parameters, and SAPPhIRE functional encoding
+**Depends on**: Nothing (schema and reference files are independent)
+**Requirements**: DBA-08, DBA-09, DBA-10, DBA-11, DBA-12
+**Success Criteria** (what must be TRUE):
+  1. KuzuDB schema includes ANALOGOUS_TO, STRUCTURALLY_ISOMORPHIC, and RESOLVES_VIA edge types with proper properties
+  2. Existing CONTRADICTS edges can be enriched with TRIZ parameters (improving_param, worsening_param, principles) via the cascade
+  3. references/methodology/ contains triz-matrix.json (40x40 contradiction matrix) and triz-principles.md (40 inventive principles)
+  4. references/methodology/sapphire-encoding.md provides extraction guide for State-Action-Part-Phenomenon-Input-oRgan-Effect triples
+  5. brain_analogy_search Cypher query pattern retrieves cross-domain framework matches from Brain
+**Plans**: TBD
+
+Plans:
+- [ ] 44-01: KuzuDB edge types + TRIZ reference files + SAPPhIRE encoding guide + Brain query pattern
+
+### Phase 45: Design-by-Analogy Pipeline
+**Goal**: Users can discover cross-domain analogies for their venture problems through a structured 5-stage pipeline that searches internally (KuzuDB + Brain) and externally (Tavily)
+**Depends on**: Phase 44 (edge types and references must exist)
+**Requirements**: DBA-01, DBA-02, DBA-03, DBA-04, DBA-05, DBA-06, DBA-07
+**Success Criteria** (what must be TRUE):
+  1. pipelines/analogy/CHAIN.md defines the 5-stage pipeline (Decompose, Abstract, Search, Transfer, Validate) with stage contracts
+  2. User runs /mos:find-analogies and the pipeline extracts functional abstractions from room artifacts, searches for analogous solutions, and presents correspondence tables
+  3. User runs /mos:find-analogies --brain and Brain enriches search results with cross-domain framework patterns from the teaching graph
+  4. User runs /mos:find-analogies --external and Tavily MCP searches AskNature, patents, and academic sources for analogous solutions
+  5. Validated analogies are persisted as ANALOGOUS_TO and STRUCTURALLY_ISOMORPHIC edges in KuzuDB with source domain attribution
+**Plans**: TBD
+
+Plans:
+- [ ] 45-01: CHAIN.md + Decompose (SAPPhIRE) + Abstract (TRIZ mapping) stages
+- [ ] 45-02: Search (dual-mode) + Transfer (correspondence tables) + Validate (challenge) + /mos:find-analogies command
+
+### Phase 46: Future-Proofing & Moat Documentation
+**Goal**: MindrianOS is prepared for KAIROS persistent memory, Coordinator Mode multi-agent teams, and the MWP protocol is formally specified for contributor alignment
+**Depends on**: Phase 39 (model profiles feed into team manifest)
+**Requirements**: FUTURE-01, FUTURE-02, FUTURE-03, FUTURE-04, MOAT-01, MOAT-02, MOAT-03
+**Success Criteria** (what must be TRUE):
+  1. room/.context/ directory exists with template files (last-session.md, rejection-log.md, methodology-history.md) ready for KAIROS consumption
+  2. Enhanced Stop hook writes session summary to room/.context/last-session.md on every session end
+  3. .claude/teams/mindrian.json defines Larry as lead with 7 member agents and per-member model config
+  4. docs/MWP-SPECIFICATION.md formally describes the 7-layer Mindrian Workspace Protocol with edge types, cascade rules, and moat formula
+  5. CLAUDE.md contains a moat section and phase review template includes moat deepening assessment field
+**Plans**: TBD
+
+Plans:
+- [ ] 46-01: KAIROS prep (room/.context/ + enhanced Stop hook) + Coordinator Mode manifest
+- [ ] 46-02: MWP specification + moat documentation (internal mandate + CLAUDE.md section + review template)
 
 ## Progress
 
-| Milestone | Phases | Plans | Status | Shipped |
-|-----------|--------|-------|--------|---------|
-| v1.0 MVP | 1-5 | 20/20 | Complete | 2026-03-22 |
-| v2.0 Meeting Intelligence | 6-9 | 13/13 | Complete | 2026-03-24 |
-| v3.0 MCP Platform | 10-19 | 26/26 | Complete | 2026-03-25 |
-| v4.0 Brain API & CLI UI | 20-25 | 12/12 | Complete | 2026-03-29 |
-| v5.0 Data Room Presentation | 26-32 | 13/TBD | In progress | - |
-
 **Execution Order:**
-Phases execute in numeric order: 26 -> 27 -> 27.1 -> 28 -> 29 -> 30 -> 31 -> 32
-Note: Phase 29 depends on Phase 27 (not 28), so 28 and 29 could theoretically parallelize.
+Phases execute in numeric order: 39 -> 40 -> 41 -> 42 -> 43 -> 44 -> 45 -> 46
+Note: Phase 42 (Platform Optimization) is independent and can execute in parallel with 40-41 if desired.
+
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 34. CLI Identity | v5.1 | 1/1 | Complete | 2026-03-31 |
+| 35. Interactive Onboarding | v5.1 | 2/2 | Complete | 2026-03-31 |
+| 36. Command Wiring | v5.1 | 1/2 | In Progress|  |
+| 37. JTBD Warm Start | v5.1 | 0/1 | Not started | - |
+| 38. End-to-End Validation | v5.1 | 0/1 | Not started | - |
+| 39. Model Profiles & Routing | v1.6.0 | 0/2 | Not started | - |
+| 40. Hook Expansion | v1.6.0 | 0/2 | Not started | - |
+| 41. Parallel Agent Patterns | v1.6.0 | 0/2 | Not started | - |
+| 42. Platform Optimization | v1.6.0 | 0/2 | Not started | - |
+| 43. Sentinel Intelligence | v1.6.0 | 0/2 | Not started | - |
+| 44. Design-by-Analogy Foundation | v1.6.0 | 0/1 | Not started | - |
+| 45. Design-by-Analogy Pipeline | v1.6.0 | 0/2 | Not started | - |
+| 46. Future-Proofing & Moat Documentation | v1.6.0 | 0/2 | Not started | - |

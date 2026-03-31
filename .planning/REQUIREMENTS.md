@@ -1,153 +1,171 @@
-# Requirements -- v5.0 Data Room Presentation System
+# Requirements - v1.6.0 Powerhouse
 
-**Defined:** 2026-03-30
-**Core Value:** Every Data Room becomes a living, deployed, shareable application -- always visible, always current, always branded.
+**Defined:** 2026-03-31
+**Core Value:** Users can run the full PWS methodology inside Claude Code with zero infrastructure, where Larry guides them through venture innovation
+**Moat:** Every requirement deepens the MWP moat (7 layers + 9 edge types + Brain IP + teaching calibration)
 
-## v5.0 Requirements
+---
 
-### Git Integration
-- [x] **GIT-01**: `/mos:new-project` initializes git repo + creates GitHub repo via `gh` CLI + first push
-- [ ] **GIT-02**: Post-write hook auto-commits every artifact with provenance message (e.g., "methodology: explore-domains", "meeting: 2026-03-30 investor call")
-- [ ] **GIT-03**: Auto-push to GitHub after every commit (configurable: auto/manual/batch)
-- [ ] **GIT-04**: `.rooms/registry.json` tracks git_remote, vercel_url, auto_push per room
-- [ ] **GIT-05**: Git LFS configured for binary files > 10MB (.gitattributes auto-generated)
-- [x] **GIT-06**: `gh` CLI detection with guided install if missing
+## v1.6.0 Requirements
 
-### Deploy Pipeline
-- [x] **DEPLOY-01**: `/mos:publish` guides one-time Vercel setup (link project, first deploy, custom domain)
-- [x] **DEPLOY-02**: Vercel auto-deploys on every git push -- shareable URL always current
-- [x] **DEPLOY-03**: `/mos:publish --sections` for selective publishing (privacy: only include chosen sections)
-- [x] **DEPLOY-04**: `/mos:publish --private` for password-protected deployment
-- [x] **DEPLOY-05**: Exports log (`.exports-log.json`) tracks deployed URLs, timestamps, host
+### Hook Expansion
 
-### Presentation Generator
-- [x] **PRES-01**: `generate-presentation` script produces all 6 views from any room in one command
-- [x] **PRES-02**: Dashboard (index.html) -- stats bar, 6 view cards, video embed, assets grid, partners, opportunities, governing thought
-- [ ] **PRES-03**: Wiki (wiki.html) -- 3-panel browser, collapsible sidebar, search, TOC, infobox, [[wikilinks]], section colors
-- [ ] **PRES-04**: Deck (deck.html) -- fullscreen slides auto-generated from MINTO.md + key artifacts + stats, keyboard nav
-- [x] **PRES-05**: Insights (insights.html) -- animated stat counters, timelines, quadrants, funnels, comparison tables, heat maps
-- [x] **PRES-06**: Diagrams (diagrams.html) -- Graphviz SVG from graph.json edges, light/dark toggle, multiple diagram types
-- [x] **PRES-07**: Graph (graph.html) -- Canvas-based renderer (Milken Twin pattern): circles, particles, glow, cluster highlight, ego-centric exploration
-- [x] **PRES-08**: Both design themes available: De Stijl dark (default) + PWS light (warm variant)
-- [x] **PRES-09**: Branding contract enforced: MindrianOS logo header, "Built with MindrianOS" footer, Mondrian color bar -- non-removable
+- [ ] **HOOK-01**: PreCompact hook saves room STATE.md, methodology progress, last 5 artifacts, and MINTO confidence levels to temp file before autocompact
+- [ ] **HOOK-02**: PostCompact hook restores saved room context as additionalContext after autocompact, including venture stage and pending verifications
+- [ ] **HOOK-03**: FileChanged hook detects external modifications to room files and re-runs post-write cascade (classify, KuzuDB index, build-graph, compute-state)
+- [ ] **HOOK-04**: CwdChanged hook auto-switches active room when user changes directory to a registered room path
+- [ ] **HOOK-05**: SubagentStop hook auto-routes framework-runner/grading/research/opportunity-scanner/persona-analyst output through post-write cascade
+- [ ] **HOOK-06**: TaskCompleted hook updates pipeline progress in STATE.md, checks REASONING.md staleness, and surfaces next-stage readiness
 
-### Canvas Graph Renderer
-- [ ] **GRAPH-01**: Custom Canvas 2D renderer (not Cytoscape) with force simulation, ~330 lines
-- [ ] **GRAPH-02**: Circular nodes sized by centrality (degree or betweenness), section-colored at 60% opacity
-- [ ] **GRAPH-03**: Animated particles traveling along edges (data flowing visualization)
-- [ ] **GRAPH-04**: Hover: connected nodes stay full opacity, everything else dims to 0.15, edges brighten
-- [ ] **GRAPH-05**: Glow rings on hovered + core nodes, ambient pulse animation on key concepts
-- [ ] **GRAPH-06**: `highlightCluster(group)` API -- keywords/tags trigger group-level highlights
-- [ ] **GRAPH-07**: Click node: detail panel slides in with artifact summary + cross-section connections
-- [ ] **GRAPH-08**: Edge types visually distinct: INFORMS (thin gray arrow), CONTRADICTS (dashed red), CONVERGES (dotted gold), ENABLES (solid blue arrow)
+### Model Routing
 
-### KuzuDB Relationship Engine
-- [x] **KUZU-01**: Every filing (methodology, meeting, manual, pipeline, reasoning) creates KuzuDB nodes + edges
-- [x] **KUZU-02**: Cross-room relationship detection -- edges between artifacts in different rooms
-- [x] **KUZU-03**: graph.json generated from KuzuDB queries (not just file scanning)
-- [x] **KUZU-04**: Assumption tracking as first-class KuzuDB entities with validity status
-- [x] **KUZU-05**: Confidence scores on all edges, propagated to graph visualization (edge thickness/opacity)
+- [ ] **MODEL-01**: lib/core/model-profiles.cjs with MODEL_PROFILES table mapping 8 agents to 4 profile tiers (quality/balanced/budget/inherit)
+- [ ] **MODEL-02**: Venture-stage adaptive hints that auto-select model tier based on STATE.md venture stage (Pre-Opportunity=cheap, Investment=opus)
+- [ ] **MODEL-03**: /mos:models command for viewing current profile, switching profiles, and overriding specific agents
+- [ ] **MODEL-04**: Per-room configuration stored in room/.config.json with model_profile and model_overrides fields
+- [ ] **MODEL-05**: Cascade step model routing: haiku for classify, sonnet for edge detection and proactive analysis
+- [ ] **MODEL-06**: 5-step model resolution: override > stage-hint > runtime > profile > default
 
-### Binary Asset Filing
-- [ ] **ASSET-01**: PDFs, images, videos filed with markdown wrapper + frontmatter in correct section
-- [ ] **ASSET-02**: ASSET_MANIFEST.md auto-updated on every binary filing
-- [ ] **ASSET-03**: Assets auto-discovered and displayed in dashboard grid and wiki inline rendering
-- [ ] **ASSET-04**: Meeting audio/video filed in meetings/ with transcript link
+### Parallel Agent Patterns
 
-### Filing Pipeline Completeness
-- [x] **FILE-01**: Post-write hook chain: classify -> KuzuDB index -> compute-state -> build-graph -> git commit -> push (generate-presentation wired in Phase 30)
-- [x] **FILE-02**: Artifact IDs (stable hash) in frontmatter for reliable cross-referencing
-- [x] **FILE-03**: Pipeline provenance in frontmatter (pipeline name, stage number, requires/provides)
-- [x] **FILE-04**: Meeting segments create KuzuDB nodes with SEGMENT_OF edges to meeting node
-- [x] **FILE-05**: Speaker expertise mapped to room sections via CONSULTED_ON edges
+- [ ] **PARA-01**: /mos:act --swarm dispatches 3 framework-runners in parallel across highest-gap sections with per-agent model resolution
+- [ ] **PARA-02**: /mos:persona --parallel dispatches 6 persona-analyst agents (one per De Bono hat) simultaneously
+- [ ] **PARA-03**: /mos:grade --full dispatches 8 grading agents (one per section) in parallel with REASONING.md verification
+- [ ] **PARA-04**: /mos:research --broad dispatches 3 research agents (academic, market, competitor) in parallel
+- [ ] **PARA-05**: Cross-cascade emergent discovery: parallel filings trigger HSI recomputation finding cross-agent innovation connections
 
-### HSI + Reverse Salient Pipeline
-- [ ] **HSI-01**: `scripts/compute-hsi.py` computes dual similarity (TF-IDF/SVD + embeddings) across all room artifacts
-- [ ] **HSI-02**: `scripts/detect-reverse-salients.py` finds cross-section innovation opportunities
-- [ ] **HSI-03**: HSI results written as KuzuDB edges (ENABLES, SURPRISING_CONNECTION) with scores
-- [ ] **HSI-04**: Post-write hook fires HSI in background (non-blocking, after git-ops)
-- [ ] **HSI-05**: 3-tier: keyword (Tier 0), sklearn+MiniLM (Tier 1), sklearn+Pinecone (Tier 2)
+### Spectral OM-HMM (DONE)
 
-### Room Structure Contract
-- [x] **ROOM-01**: Every room maintains STATE.md (quantitative) context file, regenerated on every filing. MINTO.md (qualitative) generated on session-start when room has 3+ artifacts
-- [x] **ROOM-02**: CJS scripts operate on room path argument (ICM: folder structure = code)
-- [x] **ROOM-03**: Room tree always browsable as GitHub repo with meaningful structure
-- [x] **ROOM-04**: Proactive intelligence persisted in .proactive-intelligence.json with repeat suppression
+- [x] **SPEC-01**: Markov chain thinking-mode transition analysis with 5 modes (analytical, integrative, descriptive, evaluative, creative)
+- [x] **SPEC-02**: Spectral gap scoring (eigenvalue decomposition) replaces keyword-density proxy in compute-hsi.py
+- [x] **SPEC-03**: Per-artifact spectral profiles in .hsi-results.json (omhmm_score, spectral_gap, dominant_mode, mode_entropy, absorbing_score)
+- [x] **SPEC-04**: 15% spectral bonus in reverse salient breakthrough scoring (detect-reverse-salients.py)
 
-### Generative UI
-- [ ] **GENUI-01**: Vercel json-render integration -- Larry generates UI components declaratively
-- [ ] **GENUI-02**: `highlightCluster()` wired as AI tool call in deployed site
-- [x] **GENUI-03**: BYOAPI chat panel -- visitor provides API key, stored in localStorage, direct browser-to-API
-- [ ] **GENUI-04**: "Show me contradictions" -> Larry generates filtered graph view + analysis card
+### Sentinel Mode
 
-### Auto-Update Mechanism
-- [ ] **SYNC-01**: Localhost: chokidar watches room/, SSE triggers browser reload (~1s latency)
-- [ ] **SYNC-02**: Post-write: hook regenerates presentation views (~2-3s latency)
-- [x] **SYNC-03**: Deployed: git push triggers Vercel auto-deploy (~30s latency)
+- [ ] **SENT-01**: Weekly room health check comparing STATE.md against previous week snapshot
+- [ ] **SENT-02**: Daily grant deadline monitor scanning room/funding/ and room/opportunity-bank/
+- [ ] **SENT-03**: Weekly competitor watch researching tracked competitors with contradiction flagging
+- [ ] **SENT-04**: Weekly HSI recomputation updating HSI_CONNECTION and REVERSE_SALIENT edges
+- [ ] **SENT-05**: /mos:scout command as manual fallback running all sentinel tasks
+- [ ] **SENT-06**: room/.intelligence/ directory for cron-generated alerts and digests
+- [ ] **SENT-07**: room/.snapshots/ directory with weekly STATE.md copies for comparison
+
+### Design-by-Analogy Pipeline
+
+- [ ] **DBA-01**: pipelines/analogy/CHAIN.md with 5 stages: Decompose, Abstract, Search, Transfer, Validate
+- [ ] **DBA-02**: Stage 1 DECOMPOSE extracts SAPPhIRE function-behavior-structure triples from room artifacts
+- [ ] **DBA-03**: Stage 2 ABSTRACT strips domain language, maps to TRIZ parameter space, produces functional keywords
+- [ ] **DBA-04**: Stage 3 SEARCH runs dual-mode: internal (KuzuDB + Brain) and external (Tavily MCP for AskNature, patents, academic)
+- [ ] **DBA-05**: Stage 4 TRANSFER builds correspondence tables mapping source domain solutions to venture domain
+- [ ] **DBA-06**: Stage 5 VALIDATE stress-tests structural mappings via challenge-assumptions
+- [ ] **DBA-07**: /mos:find-analogies command with --brain and --external modes
+- [ ] **DBA-08**: 3 new KuzuDB edge types: ANALOGOUS_TO, STRUCTURALLY_ISOMORPHIC, RESOLVES_VIA
+- [ ] **DBA-09**: TRIZ contradiction classification on CONTRADICTS edges with triz_improving_param, triz_worsening_param, triz_principles
+- [ ] **DBA-10**: references/methodology/triz-matrix.json and triz-principles.md static reference files
+- [ ] **DBA-11**: references/methodology/sapphire-encoding.md guide for SAPPhIRE extraction
+- [ ] **DBA-12**: brain_analogy_search Cypher query pattern for cross-domain framework retrieval
+
+### Platform Optimization
+
+- [ ] **PLAT-01**: Session-start restructured for prompt cache hits: stable sections separated from dynamic room context
+- [ ] **PLAT-02**: CLAUDE.md split into modular sections using @include directive
+- [ ] **PLAT-03**: Deep link protocol (claude-cli://open) for room navigation and dashboard handoff
+- [ ] **PLAT-04**: AUTOCOMPACT_PCT_OVERRIDE tuned for room-aware thresholds
+- [ ] **PLAT-05**: MAX_THINKING_TOKENS override for grading and methodology depth
+- [ ] **PLAT-06**: CLAUDE_CODE_MAX_CONTEXT_TOKENS for deep sessions
+
+### Future-Proofing
+
+- [ ] **FUTURE-01**: room/.context/ directory with KAIROS-compatible session files
+- [ ] **FUTURE-02**: Enhanced Stop hook writing session log to room/.context/last-session.md
+- [ ] **FUTURE-03**: .claude/teams/mindrian.json Coordinator Mode team manifest
+- [ ] **FUTURE-04**: docs/MWP-SPECIFICATION.md formal protocol specification
+
+### Moat Documentation
+
+- [ ] **MOAT-01**: Internal dev team mandate document for moat-first review
+- [ ] **MOAT-02**: CLAUDE.md moat section for contributor awareness
+- [ ] **MOAT-03**: Phase review template with moat deepening assessment field
+
+---
 
 ## Traceability
 
-| REQ-ID | Phase | Status |
-|--------|-------|--------|
-| GIT-01 | Phase 26 | Complete |
-| GIT-02 | Phase 26 | Pending |
-| GIT-03 | Phase 26 | Pending |
-| GIT-04 | Phase 26 | Pending |
-| GIT-05 | Phase 26 | Pending |
-| GIT-06 | Phase 26 | Complete |
-| FILE-01 | Phase 27 | Complete |
-| FILE-02 | Phase 27 | Complete |
-| FILE-03 | Phase 27 | Complete |
-| FILE-04 | Phase 27 | Complete |
-| FILE-05 | Phase 27 | Complete |
-| KUZU-01 | Phase 27 | Complete |
-| KUZU-02 | Phase 27 | Complete |
-| KUZU-03 | Phase 27 | Complete |
-| KUZU-04 | Phase 27 | Complete |
-| KUZU-05 | Phase 27 | Complete |
-| ROOM-01 | Phase 27 | Complete |
-| ROOM-02 | Phase 27 | Complete |
-| ROOM-03 | Phase 27 | Complete |
-| ROOM-04 | Phase 27 | Complete |
-| ASSET-01 | Phase 28 | Pending |
-| ASSET-02 | Phase 28 | Pending |
-| ASSET-03 | Phase 28 | Pending |
-| ASSET-04 | Phase 28 | Pending |
-| GRAPH-01 | Phase 29 | Pending |
-| GRAPH-02 | Phase 29 | Pending |
-| GRAPH-03 | Phase 29 | Pending |
-| GRAPH-04 | Phase 29 | Pending |
-| GRAPH-05 | Phase 29 | Pending |
-| GRAPH-06 | Phase 29 | Pending |
-| GRAPH-07 | Phase 29 | Pending |
-| GRAPH-08 | Phase 29 | Pending |
-| PRES-01 | Phase 30 | Complete |
-| PRES-02 | Phase 30 | Complete |
-| PRES-03 | Phase 30 | Pending |
-| PRES-04 | Phase 30 | Pending |
-| PRES-05 | Phase 30 | Complete |
-| PRES-06 | Phase 30 | Complete |
-| PRES-07 | Phase 30 | Complete |
-| PRES-08 | Phase 30 | Complete |
-| PRES-09 | Phase 30 | Complete |
-| SYNC-01 | Phase 31 | Pending |
-| SYNC-02 | Phase 31 | Pending |
-| SYNC-03 | Phase 31 | Complete |
-| DEPLOY-01 | Phase 31 | Complete |
-| DEPLOY-02 | Phase 31 | Complete |
-| DEPLOY-03 | Phase 31 | Complete |
-| DEPLOY-04 | Phase 31 | Complete |
-| DEPLOY-05 | Phase 31 | Complete |
-| GENUI-01 | Phase 32 | Pending |
-| GENUI-02 | Phase 32 | Pending |
-| GENUI-03 | Phase 32 | Complete |
-| GENUI-04 | Phase 32 | Pending |
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| MODEL-01 | Phase 39 | Pending |
+| MODEL-02 | Phase 39 | Pending |
+| MODEL-03 | Phase 39 | Pending |
+| MODEL-04 | Phase 39 | Pending |
+| MODEL-05 | Phase 39 | Pending |
+| MODEL-06 | Phase 39 | Pending |
+| HOOK-01 | Phase 40 | Pending |
+| HOOK-02 | Phase 40 | Pending |
+| HOOK-03 | Phase 40 | Pending |
+| HOOK-04 | Phase 40 | Pending |
+| HOOK-05 | Phase 40 | Pending |
+| HOOK-06 | Phase 40 | Pending |
+| PARA-01 | Phase 41 | Pending |
+| PARA-02 | Phase 41 | Pending |
+| PARA-03 | Phase 41 | Pending |
+| PARA-04 | Phase 41 | Pending |
+| PARA-05 | Phase 41 | Pending |
+| SPEC-01 | Pre-roadmap | Done |
+| SPEC-02 | Pre-roadmap | Done |
+| SPEC-03 | Pre-roadmap | Done |
+| SPEC-04 | Pre-roadmap | Done |
+| PLAT-01 | Phase 42 | Pending |
+| PLAT-02 | Phase 42 | Pending |
+| PLAT-03 | Phase 42 | Pending |
+| PLAT-04 | Phase 42 | Pending |
+| PLAT-05 | Phase 42 | Pending |
+| PLAT-06 | Phase 42 | Pending |
+| SENT-01 | Phase 43 | Pending |
+| SENT-02 | Phase 43 | Pending |
+| SENT-03 | Phase 43 | Pending |
+| SENT-04 | Phase 43 | Pending |
+| SENT-05 | Phase 43 | Pending |
+| SENT-06 | Phase 43 | Pending |
+| SENT-07 | Phase 43 | Pending |
+| DBA-08 | Phase 44 | Pending |
+| DBA-09 | Phase 44 | Pending |
+| DBA-10 | Phase 44 | Pending |
+| DBA-11 | Phase 44 | Pending |
+| DBA-12 | Phase 44 | Pending |
+| DBA-01 | Phase 45 | Pending |
+| DBA-02 | Phase 45 | Pending |
+| DBA-03 | Phase 45 | Pending |
+| DBA-04 | Phase 45 | Pending |
+| DBA-05 | Phase 45 | Pending |
+| DBA-06 | Phase 45 | Pending |
+| DBA-07 | Phase 45 | Pending |
+| FUTURE-01 | Phase 46 | Pending |
+| FUTURE-02 | Phase 46 | Pending |
+| FUTURE-03 | Phase 46 | Pending |
+| FUTURE-04 | Phase 46 | Pending |
+| MOAT-01 | Phase 46 | Pending |
+| MOAT-02 | Phase 46 | Pending |
+| MOAT-03 | Phase 46 | Pending |
+
+---
+
+## Future Requirements (Deferred)
+
+- Daemon wrappers -- blocked by DAEMON build flag
+- UDS IPC protocol -- blocked by UDS_INBOX build flag
+- Bridge API endpoints -- blocked by BRIDGE_MODE build flag
+- UltraPlan wrapper -- blocked by tengu_ultraplan_model gate
+- Buddy Larry skin -- blocked by BUDDY build flag
+- Scratchpad integration -- blocked by tengu_scratch gate
+- Random walk innovation pathways -- post-1.6.0 research
+- NLP thinking-mode classifier -- post-1.6.0 research
+- PageRank cascade prediction -- post-1.6.0 research
 
 ## Out of Scope
 
-- Real-time collaborative editing (Cowork handles natively)
-- Custom LLM hosting for chat (BYOAPI only -- user provides their own key)
-- Mobile-native app (responsive web only)
-- Brain graph editing by users (users get intelligence, never modify)
-- Payment/billing for hosting (user's own Vercel/GitHub account)
-- Obsidian/Notion sync (future milestone)
+- Full NLP classifier for thinking modes -- regex is fast, dependency-free, meaningful
+- Rewriting existing cascade pipeline -- additive only
+- New room sections -- adds edges and metadata, not sections
+- Payment/billing -- marketplace handles externally
+- Mobile/web UI -- Claude surfaces handle natively
