@@ -20,44 +20,98 @@ v1.0 through v5.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Presen
 - v3.0 MCP Platform (2026-03-25) -- 10 phases, 26 plans
 - v4.0 Brain API & CLI UI (2026-03-29) -- 6 phases, 12 plans
 - v5.0 Presentation System (2026-03-31) -- 8 phases, 17 plans
-- v5.1 User Outlets (in progress)
+- v5.1 User Outlets (partially completed)
 
-## Current Milestone: v5.1 User Outlets
+## Current Milestone: v1.6.0 Powerhouse
 
-**Goal:** Make MindrianOS's power reachable -- wire user-facing commands to built infrastructure, build onboarding, and ensure everything from v5.0 actually works from a user's perspective. No new infrastructure -- just outlets.
+**Goal:** Transform MindrianOS from reactive teaching partner into proactive, cost-optimized, parallel-processing venture intelligence engine with Design-by-Analogy discovery and deep Claude Code platform optimization.
+
+**Moat Mandate:** Every feature, every PR, every phase review must answer: "Does this deepen the MWP moat or just add surface area?" The moat is the integration of 7 MWP layers + 9 KuzuDB edge types + Brain IP + 30 years of teaching calibration. Internal docs enforce this.
 
 **Target features:**
 
-CLI Identity:
-- Mondrian banner fires reliably on cold start and after updates
-- /mos:splash command for manual banner display
-- Banner renders correctly across terminal environments
+A. Hook Expansion (6 new Claude Code hooks):
+- PreCompact/PostCompact (context preservation across autocompact)
+- FileChanged (external edit detection, auto re-index)
+- CwdChanged (auto room switching on directory change)
+- SubagentStop (auto-file agent results through cascade)
+- TaskCompleted (pipeline stage tracking and REASONING.md staleness)
 
-Onboarding (Phase 33 build):
-- First-install detection via ~/.mindrian-onboarded marker
-- 7-step Larry-voiced interactive walkthrough (all skippable)
-- USER.md generated from onboarding conversation
-- Update path shows "What's New" from CHANGELOG
-- /mos:onboard command for re-run anytime
+B. Model Routing (per-agent, per-stage):
+- MODEL_PROFILES table (quality/balanced/budget/inherit)
+- Venture-stage adaptive hints (Pre-Opportunity=cheap, Investment=opus)
+- Cascade step model assignment (haiku for classify, sonnet for edges)
+- /mos:models command for profile management
+- Per-room config in room/.config.json
 
-Command Wiring (connect existing infrastructure to users):
-- /mos:present -- generate 6-view presentation + open in browser
-- /mos:dashboard -- open interactive graph dashboard with chat
-- /mos:speakers -- show speaker profiles from filed meetings
-- /mos:reanalyze -- re-run intelligence on existing meetings
-- /mos:graph -- direct KuzuDB graph exploration
+C. Parallel Agent Patterns:
+- /mos:act --swarm (3 frameworks in parallel across gap sections)
+- /mos:persona --parallel (6 De Bono hats simultaneously)
+- /mos:grade --full (8 sections graded at once)
+- /mos:research --broad (3-angle parallel research)
+- Cross-cascade emergent discovery from parallel filings
 
-JTBD Warm Start:
-- Larry reads room state + user's current job to phrase nudges
-- Every suggestion follows "You have [state]. /mos:X [outcome that matters]"
-- Max 2-3 nudges per session, never feature descriptions
-- Commands framed as job acceleration, not tool usage
+D. Spectral OM-HMM (DONE - implemented 2026-03-31):
+- Markov chain thinking-mode transition analysis (Seabrook & Wiskott 2022)
+- Spectral gap scoring replaces keyword-density proxy
+- Per-artifact spectral profiles in HSI output
+- 15% spectral bonus in reverse salient breakthrough scoring
 
-v5.0 Validation:
-- Phase 32-02 generative tools (highlightCluster, filterEdgeType, showInsight) verified working
-- End-to-end: install -> onboard -> file -> present -> share flow tested
-- All 6 presentation views render correctly with room data
-- v4.0 Brain API & CLI UI (2026-03-29) -- 6 phases, 12 plans
+E. Sentinel Mode (scheduled intelligence):
+- Weekly room health check (Monday 9am)
+- Daily grant deadline monitor (8am)
+- Weekly competitor watch (Friday)
+- Weekly HSI recomputation (Sunday midnight)
+- /mos:scout manual fallback if cron unavailable
+
+F. Design-by-Analogy Pipeline (NEW methodology):
+- 5-stage pipeline: Decompose -> Abstract -> Search -> Transfer -> Validate
+- Internal search (KuzuDB + Brain) + external research orchestration (Tavily MCP)
+- TRIZ contradiction resolution on existing CONTRADICTS edges
+- SAPPhIRE functional encoding of room artifacts
+- 3 new KuzuDB edge types (ANALOGOUS_TO, STRUCTURALLY_ISOMORPHIC, RESOLVES_VIA)
+- /mos:find-analogies command with --brain and --external modes
+- brain_analogy_search query pattern for Neo4j
+
+G. Future-Proofing (ccleaks.com Claude Code preparation):
+- room/.context/ directory (KAIROS persistent memory prep)
+- .claude/teams/mindrian.json (Coordinator Mode manifest)
+- IPC protocol design (UDS Inbox cross-session prep)
+- Daemon-compatible command wrappers
+- MWP specification document
+
+H. Prompt Cache Optimization:
+- Restructure session-start hook for maximum cache hits
+- Stable system prompt sections vs dynamic room context separation
+- MCP tool ordering for cache stability
+
+I. Modular CLAUDE.md (@include directive):
+- Split CLAUDE.md into modular sections
+- On-demand loading via @include
+- Reduce base context size, load sections as needed
+
+J. Deep Link Protocol:
+- claude-cli://open URLs for room-to-room navigation
+- Dashboard-to-CLI handoff links
+- Section-specific deep links from presentation views
+
+K. Environment Variable Tuning:
+- AUTOCOMPACT_PCT_OVERRIDE for room-aware thresholds
+- MAX_THINKING_TOKENS override for grading/methodology depth
+- CLAUDE_CODE_MAX_CONTEXT_TOKENS for deep sessions
+
+L. MWP Moat Documentation:
+- Internal dev team mandate document
+- Every PR references moat impact
+- Phase reviews include moat deepening assessment
+- MWP specification as formal protocol document
+
+**Research basis:**
+- ICM paper (Van Clief & McDermott 2026, arxiv 2603.16021)
+- Spectral Markov Theory (Seabrook & Wiskott 2022, arxiv 2207.02296)
+- ccleaks.com Claude Code capability audit (1,884 TypeScript files, 512K LOC)
+- Simon (1962), Rittel-Webber (1973), Hughes (1983), Minto (1987), JTBD, Ashby (1956)
+- Design-by-Analogy: TRIZ, Synectics, SAPPhIRE, structural isomorphism theory
 
 ## v3.0 Backlog (Captured Ideas)
 
@@ -187,4 +241,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-31 after v5.1 milestone start*
+*Last updated: 2026-03-31 after v1.6.0 Powerhouse milestone start*
