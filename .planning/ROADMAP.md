@@ -8,8 +8,8 @@ Goal: Transform MindrianOS from reactive teaching partner into proactive, cost-o
 ## Phases
 
 - [x] **Phase 39: Model Profiles & Routing** -- 2/2 plans complete (2026-03-31)
-- [ ] **Phase 40: Hook Expansion** -- 6 new Claude Code hooks wiring the intelligence nervous system
-- [ ] **Phase 41: Parallel Agent Patterns** -- Swarm, parallel personas, full grading, broad research with cross-cascade discovery
+- [x] **Phase 40: Hook Expansion** -- 6 new Claude Code hooks wiring the intelligence nervous system (completed 2026-03-31)
+- [ ] **Phase 41: Hub Page** -- Stats bar, view cards, section cards, insights, red team, methodology cards, breakthroughs, opportunities
 - [ ] **Phase 42: Platform Optimization** -- Prompt cache hits, modular CLAUDE.md, deep links, environment variable tuning
 - [ ] **Phase 43: Sentinel Intelligence** -- Scheduled room health, grant monitoring, competitor watch, HSI recomputation
 - [ ] **Phase 44: Design-by-Analogy Foundation** -- KuzuDB edge types, TRIZ matrix, SAPPhIRE encoding, Brain query patterns
@@ -37,19 +37,25 @@ Goal: Transform MindrianOS from reactive teaching partner into proactive, cost-o
 3. User cd's to a different registered room and Larry switches context without manual command
 4. A framework-runner subagent completes and its output is automatically filed through the cascade pipeline
 5. Pipeline stage completion updates STATE.md progress and surfaces readiness notification
-**Plans:** TBD
+**Plans:** 1/0 plans complete
 
-### Phase 41: Parallel Agent Patterns
-**Goal:** Users can dispatch multiple agents simultaneously for swarm analysis, parallel personas, full grading, and broad research
-**Depends on:** Phase 39 (model resolution), Phase 40 (SubagentStop hook for auto-filing)
-**Requirements:** PARA-01, PARA-02, PARA-03, PARA-04, PARA-05
+### Phase 41: Hub Page
+**Goal:** Snapshot hub page (index.html) shows full room intelligence: stats, breakthroughs, opportunities, view cards, section overview, key insights, red team severity, and methodology artifacts
+**Depends on:** Phase 40 (generate-snapshot.cjs skeleton from Phase 40)
+**Requirements:** HUB-01, HUB-02, HUB-03, HUB-04, HUB-05, HUB-06, ATF-01, ATF-02
 **Success Criteria:**
-1. /mos:act --swarm dispatches 3 framework-runners in parallel completing in ~1/3 serial time
-2. /mos:persona --parallel generates 6 De Bono hat perspectives simultaneously
-3. /mos:grade --full grades all 8 room sections in parallel with REASONING.md verification
-4. /mos:research --broad synthesizes academic + market + competitor intelligence
-5. After parallel filings, HSI recomputation discovers cross-agent innovation connections
-**Plans:** TBD
+1. Stats bar shows 5 counters (sections, articles, connections, gaps, grants) always
+2. Breakthrough angle cards render from ADJACENT_POSSIBLE graph nodes, silently skip when none
+3. Opportunities scored list from funding-strategy/ with CTA when empty
+4. View cards grid with conditional grayed-out state for unavailable views
+5. Section cards in 4-column grid with colored borders and gap indicators
+6. Key insights (max 5) extracted from graph edges + red team, always include 1 positive
+7. Red team severity boxes (CRITICAL/HIGH/MEDIUM/LOW) when red team data exists
+8. Methodology artifact cards with badges detected from frontmatter
+**Plans:** 2 plans
+Plans:
+- [ ] 41-01-PLAN.md -- Above-fold content: data extractors + breakthroughs + opportunities + view cards + section grid
+- [ ] 41-02-PLAN.md -- Below-fold intelligence: insights + red team severity + methodology cards
 
 ### Phase 42: Platform Optimization
 **Goal:** Sessions start faster with better cache hits, CLAUDE.md loads only what is needed, and environment variables are tuned
@@ -115,8 +121,8 @@ Goal: Transform MindrianOS from reactive teaching partner into proactive, cost-o
 | Phase | Status | Plans | Completed |
 |-------|--------|-------|-----------|
 | 39 | Complete | 2/2 | 2026-03-31 |
-| 40 | Not Started | TBD | -- |
-| 41 | Not Started | TBD | -- |
+| 40 | Not Started | Complete    | 2026-03-31 |
+| 41 | In Progress | 0/2 | -- |
 | 42 | Not Started | TBD | -- |
 | 43 | Not Started | TBD | -- |
 | 44 | Not Started | TBD | -- |
@@ -125,8 +131,8 @@ Goal: Transform MindrianOS from reactive teaching partner into proactive, cost-o
 
 ## Dependency Chain
 
-Phase 39 (Models) --> Phase 41 (Parallel) --> Phase 43 (Sentinel)
-Phase 40 (Hooks) --> Phase 41 (Parallel)
+Phase 39 (Models) --> Phase 41 (Hub Page)
+Phase 40 (Hooks) --> Phase 41 (Hub Page)
 Phase 42 (Platform) -- independent, can run parallel with 40-41
 Phase 44 (DBA Foundation) --> Phase 45 (DBA Pipeline)
 Phase 46 (Future) -- independent
