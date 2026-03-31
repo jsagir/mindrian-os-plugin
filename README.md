@@ -9,8 +9,8 @@
   [Prof. Lawrence Aronhime](https://www.linkedin.com/in/lawrence-aronhime-8363894/) over 30+ years at Johns Hopkins University.
   Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
 
-  [![Plugin Version](https://img.shields.io/badge/plugin-v1.4.1-blue)](https://github.com/jsagir/mindrian-os-plugin)
-  [![Commands](https://img.shields.io/badge/commands-51-green)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Plugin Version](https://img.shields.io/badge/plugin-v1.5.1-blue)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Commands](https://img.shields.io/badge/commands-52-green)](https://github.com/jsagir/mindrian-os-plugin)
   [![MCP Tools](https://img.shields.io/badge/MCP_tools-49-teal)](https://github.com/jsagir/mindrian-os-plugin)
   [![Agents](https://img.shields.io/badge/agents-8-orange)](https://github.com/jsagir/mindrian-os-plugin)
   [![Brain Nodes](https://img.shields.io/badge/brain_nodes-23K+-purple)](https://github.com/jsagir/mindrian-os-plugin)
@@ -26,12 +26,27 @@
 
 ## Quick Start
 
-```bash
-# Add the marketplace (one time)
-claude plugin marketplace add jsagir/mindrian-marketplace
+### Option A: One-Line Install (recommended)
 
-# Install MindrianOS
+```bash
+curl -sL https://raw.githubusercontent.com/jsagir/mindrian-os-plugin/main/install.sh | bash
+```
+
+Restart Claude Code. Larry starts talking.
+
+### Option B: Plugin Marketplace (if available)
+
+```bash
+claude plugin marketplace add jsagir/mindrian-marketplace
 claude plugin install mos@mindrian-marketplace
+```
+
+### Option C: Manual Clone
+
+```bash
+git clone https://github.com/jsagir/mindrian-os-plugin.git ~/.claude/plugins/mindrian-os
+cd ~/.claude/plugins/mindrian-os
+bash install.sh
 ```
 
 Larry starts talking. The Room starts listening. KuzuDB builds your knowledge graph automatically. No setup required.
