@@ -9,10 +9,12 @@
   [Prof. Lawrence Aronhime](https://www.linkedin.com/in/lawrence-aronhime-8363894/) over 30+ years at Johns Hopkins University.
   Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
 
-  [![Plugin Version](https://img.shields.io/badge/plugin-v1.6.0-blue)](https://github.com/jsagir/mindrian-os-plugin)
-  [![Commands](https://img.shields.io/badge/commands-58-green)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Plugin Version](https://img.shields.io/badge/plugin-v1.6.1_Powerhouse-blue)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Commands](https://img.shields.io/badge/commands-62-green)](https://github.com/jsagir/mindrian-os-plugin)
   [![MCP Tools](https://img.shields.io/badge/MCP_tools-49-teal)](https://github.com/jsagir/mindrian-os-plugin)
   [![Agents](https://img.shields.io/badge/agents-8-orange)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Hooks](https://img.shields.io/badge/hooks-9-red)](https://github.com/jsagir/mindrian-os-plugin)
+  [![KuzuDB Edges](https://img.shields.io/badge/edge_types-12-yellow)](https://github.com/jsagir/mindrian-os-plugin)
   [![Brain Nodes](https://img.shields.io/badge/brain_nodes-23K+-purple)](https://github.com/jsagir/mindrian-os-plugin)
 
   [Website](https://mindrianos-jsagirs-projects.vercel.app) |
@@ -131,7 +133,7 @@ Per-project graph that grows with your venture, powered by KuzuDB as the automat
 KuzuDB graph = relationships BETWEEN sections (inter-room intelligence)
 ```
 
-- 5 edge types: INFORMS, CONTRADICTS, CONVERGES, ENABLES, INVALIDATES
+- 12 edge types: INFORMS, CONTRADICTS, CONVERGES, ENABLES, INVALIDATES, BELONGS_TO, REASONING_INFORMS, HSI_CONNECTION, REVERSE_SALIENT, ANALOGOUS_TO, STRUCTURALLY_ISOMORPHIC, RESOLVES_VIA
 - Natural language queries: `/mos:query "What contradicts my pricing model?"`
 - Auto-updates when you file artifacts -- every filing triggers the full cascade (classify -> KuzuDB -> graph -> git)
 - Artifact IDs and pipeline provenance tracked automatically
@@ -151,15 +153,58 @@ Discovers cross-domain parallels   Remembers what you filed last week
          Room Graph tells you WHAT your own data is saying
 ```
 
-### HSI + Reverse Salient Pipeline
+### HSI + Spectral OM-HMM Pipeline
 
 Cross-artifact intelligence that finds what you missed:
 
 - **HSI (Hybrid Similarity Index)** -- Python-native computation using sklearn TF-IDF + embeddings to measure how artifacts relate across sections
-- **Reverse Salient Detection** -- automatically finds where your venture's understanding lags behind its ambition (Hughes 1983)
+- **Spectral OM-HMM** -- Markov chain analysis of thinking-mode transitions (Seabrook & Wiskott 2022). Spectral gap scoring replaces keyword-density proxy. Artifacts with genuinely diverse thinking patterns score higher.
+- **Reverse Salient Detection** -- automatically finds where your venture's understanding lags behind its ambition (Hughes 1983), with 15% spectral bonus for integrative thinking quality
 - **3-tier similarity** -- keyword matching, sklearn embeddings, and Pinecone semantic search
 - Results stored as KuzuDB edges -- the graph gets smarter with every artifact
 - Run `/mos:setup hsi` to install Python dependencies (sklearn, numpy)
+
+### Design-by-Analogy Pipeline (NEW in v1.6.0)
+
+Cross-domain innovation discovery through structural isomorphism:
+
+```bash
+/mos:find-analogies               # Quick on-demand analogy scan
+/mos:find-analogies --brain       # Brain-enriched cross-domain search
+/mos:find-analogies --external    # External research (AskNature, patents, academic)
+```
+
+5-stage pipeline: **Decompose** (SAPPhIRE extraction) -> **Abstract** (TRIZ parameter mapping) -> **Search** (dual-mode internal + external) -> **Transfer** (correspondence tables) -> **Validate** (structural stress-test).
+
+Built on TRIZ (39 engineering parameters, 40 inventive principles) and SAPPhIRE (7-layer functional ontology). Discovers solutions from completely different domains that share your problem's relational structure.
+
+### Parallel Agent Patterns (NEW in v1.6.0)
+
+```bash
+/mos:act --swarm        # 3 frameworks in parallel across highest-gap sections
+/mos:persona --parallel # 6 De Bono hats generated simultaneously
+/mos:grade --full       # 8 sections graded at once
+/mos:research --broad   # 3-angle parallel research (academic + market + competitor)
+```
+
+Cross-cascade emergent discovery: parallel filings trigger HSI recomputation, finding innovation connections that serial execution would miss.
+
+### Model Routing (NEW in v1.6.0)
+
+```bash
+/mos:models             # View current profile and agent assignments
+/mos:models set budget  # Switch to budget profile (66-86% cost reduction)
+```
+
+Per-agent model selection: Opus for teaching and grading, Sonnet for structured work, Haiku for scanning. Venture-stage adaptive hints auto-select cheaper models for early exploration and Opus for investment-stage rigor.
+
+### Sentinel Intelligence (NEW in v1.6.0)
+
+```bash
+/mos:scout              # Run all sentinel tasks manually
+```
+
+Scheduled intelligence: weekly room health checks, daily grant deadline monitoring, weekly competitor watch, weekly HSI recomputation. Always-on venture monitoring without user prompting.
 
 ### Git Integration (Optional)
 
@@ -332,10 +377,10 @@ MindrianOS-Plugin/
 │   ├── mcp/                    # MCP tools, resources, prompts, Larry context
 │   └── parity/                 # CLI/MCP parity check (CI gate)
 ├── mcp-server-brain/           # Brain hosting server
-├── commands/                   # 51 commands (/mos:*)
+├── commands/                   # 62 commands (/mos:*)
 ├── skills/                     # Auto-activated intelligence (7 skills)
 ├── agents/                     # 8 agents
-├── hooks/                      # SessionStart, PostToolUse, PostWrite, Stop
+├── hooks/                      # 9 hooks (SessionStart, PostToolUse, Stop + 6 Powerhouse hooks)
 ├── scripts/                    # 28 bash scripts + 34 CJS modules + 3 Python scripts
 │   ├── git-ops                 # Git integration (7 subcommands)
 │   ├── compute-hsi.py          # HSI dual similarity (sklearn TF-IDF + embeddings)
@@ -356,12 +401,15 @@ MindrianOS-Plugin/
 
 | Component | Count |
 |-----------|-------|
-| Commands (`/mos:*`) | 51 |
+| Commands (`/mos:*`) | 62 |
 | Agents | 8 |
 | Skills (auto-loaded) | 7 |
+| Hooks | 9 |
 | MCP Tools | 49 |
-| Bash Scripts | 28 |
-| CJS Modules | 34 |
+| KuzuDB Edge Types | 12 |
+| Pipelines | 3 |
+| Bash Scripts | 40+ |
+| CJS Modules | 20 |
 | Python Scripts (HSI pipeline) | 3 |
 
 **Three layers:**
@@ -402,6 +450,17 @@ Meeting filing pipeline (paste/file/audio + Velma transcription). Speaker identi
 - **Phase 27 - Filing Pipeline + KuzuDB Engine:** Every filing triggers the full cascade (classify -> KuzuDB -> graph -> git). Artifact IDs, pipeline provenance, meeting/speaker KuzuDB nodes, cross-room detection, proactive intelligence persistence
 - **Phase 27.1 - HSI + Reverse Salient Pipeline:** Python-native HSI computation (sklearn TF-IDF + embeddings), Reverse Salient cross-section detection, results as KuzuDB edges, 3-tier similarity (keyword/sklearn/Pinecone)
 
+### v1.6.0 Powerhouse (shipped 2026-03-31)
+The transformation from reactive teaching partner to proactive venture intelligence engine:
+- **Model Routing:** Per-agent model selection (quality/balanced/budget/inherit) with venture-stage adaptive hints. `/mos:models` command. 60-86% cost reduction.
+- **Hook Expansion:** 6 new Claude Code hooks (PreCompact, PostCompact, FileChanged, CwdChanged, SubagentStop, TaskCompleted). Larry never loses context. External edits auto-sync. Agent results auto-file.
+- **Parallel Agents:** `--swarm`, `--parallel`, `--full`, `--broad` flags on act/persona/grade/research. 3x speed via simultaneous execution.
+- **Spectral OM-HMM:** Markov chain thinking-mode analysis replaces keyword-density scoring. Per-artifact spectral profiles. 15% breakthrough bonus for genuine integrative thinking.
+- **Design-by-Analogy:** 5-stage pipeline (Decompose/Abstract/Search/Transfer/Validate). TRIZ contradiction matrix (39x39). SAPPhIRE functional encoding. 3 new KuzuDB edge types. `/mos:find-analogies` command.
+- **Sentinel Intelligence:** `/mos:scout` for scheduled room health checks, grant deadline monitoring, competitor watch, HSI recomputation.
+- **Platform Optimization:** Prompt cache optimization, modular CLAUDE.md via @include, deep link protocol, environment variable tuning.
+- **Future-Proofing:** KAIROS-compatible room/.context/, Coordinator Mode team manifest, formal MWP specification (525 lines), moat mandate documentation.
+
 ---
 
 ## Privacy
@@ -434,6 +493,10 @@ Everything runs locally. Your Data Room is a folder on your machine. No data lea
 | **Knight (1921)** | Risk vs Uncertainty -- MindrianOS navigates uncertainty |
 | **Ashby (1956)** | Law of Requisite Variety -- 26 frameworks match venture complexity |
 | **De Bono (1985)** | Six Thinking Hats -- AI personas as structured perspective lenses |
+| **Seabrook & Wiskott (2022)** | Spectral Theory of Markov Chains -- thinking-mode transition analysis for HSI |
+| **Minto (1987)** | Pyramid Principle -- SCQA + MECE per-section reasoning |
+| **Altshuller (1999)** | TRIZ -- 39 parameters, 40 inventive principles for Design-by-Analogy |
+| **Chakrabarti et al.** | SAPPhIRE -- 7-layer functional ontology for cross-domain encoding |
 
 </details>
 
