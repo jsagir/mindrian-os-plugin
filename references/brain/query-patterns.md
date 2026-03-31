@@ -182,3 +182,34 @@ Parameters:
 **Output:** Ranked list of semantically similar items with scores and metadata.
 
 **Usage notes:** Use for fuzzy matching when exact node names are unknown. Combine with Cypher patterns for hybrid retrieval: semantic search finds candidates, Cypher explores their graph neighborhood.
+
+---
+
+## 9. brain_analogy_search
+
+**Purpose:** Find frameworks from DIFFERENT domains that address the SAME problem type. Powers the Design-by-Analogy pipeline Stage 3 (SEARCH) for cross-domain analogy discovery.
+
+```cypher
+MATCH (f1:Framework)-[:ADDRESSES_PROBLEM_TYPE]->(pt:ProblemType)
+WHERE f1.category = $source_category
+WITH pt, collect(f1) AS source_frameworks
+MATCH (f2:Framework)-[:ADDRESSES_PROBLEM_TYPE]->(pt)
+WHERE NOT f2.category = $source_category
+AND NOT f2 IN source_frameworks
+OPTIONAL MATCH (f2)-[:CO_OCCURS]->(bridge:Framework)
+WHERE bridge IN source_frameworks
+RETURN f2.name AS analogy_framework,
+       f2.category AS analogy_domain,
+       f2.description AS description,
+       pt.name AS shared_problem_type,
+       bridge.name AS structural_bridge
+ORDER BY bridge IS NOT NULL DESC
+LIMIT 15
+```
+
+**Parameters:**
+- `$source_category`: The domain category of the current venture (e.g., "education", "healthcare", "fintech")
+
+**Output:** Frameworks from different domains that solve the same problem type, ranked by whether they share a structural bridge (CO_OCCURS) with the source domain's frameworks. The `structural_bridge` field identifies the connecting framework, confirming structural isomorphism rather than superficial similarity.
+
+**Usage notes:** Use when running `/mos:find-analogies --brain`. The `analogy_domain` reveals which external domain to investigate further. The `structural_bridge` validates that the analogy has structural grounding in the Brain graph, not just keyword overlap. Combine with `brain_search_semantic` for hybrid retrieval: this pattern finds graph-validated analogies, semantic search finds fuzzy matches beyond the graph.
