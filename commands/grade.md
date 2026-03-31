@@ -19,6 +19,18 @@ Try calling Brain: first `mcp__mindrian-brain__brain_schema`, then `mcp__neo4j-b
 
 **If Brain connected:**
 
+### Model Resolution
+
+Before dispatching the Grading Agent, resolve its model:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs" resolve <roomDir> grading
+```
+
+- If result is `skip`, tell the user: "Grading is not available at the current venture stage. Use `/mos:models override grading sonnet` to force." Then STOP.
+- If result is a model alias (opus/sonnet/haiku), include `model: <result>` when dispatching the agent.
+- If result is `inherit`, do not specify a model (use session default).
+
 Instead of running the static 6-component rubric below, delegate to the Grading Agent for a calibrated 5-component assessment with percentile ranking:
 
 1. Read and follow `agents/grading.md` -- the Grading Agent handles the full assessment

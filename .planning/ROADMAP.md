@@ -5,5 +5,5 @@
 **Plans:** 1/2 plans executed
 
 Plans:
-- [x] 39-01-PLAN.md -- Core model-profiles module (MODEL_PROFILES table, STAGE_HINTS, CASCADE_MODELS, resolveModel, loadRoomConfig, validation script)
-- [ ] 39-02-PLAN.md -- /mos:models command + model resolution wiring in agent-dispatching commands
+- [ ] 39-01-PLAN.md -- Core model-profiles module (MODEL_PROFILES table, STAGE_HINTS, CASCADE_MODELS, resolveModel, loadRoomConfig, validation script)
+- [x] 39-02-PLAN.md -- /mos:models command + model resolution wiring in agent-dispatching commands

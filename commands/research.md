@@ -21,7 +21,19 @@ The user provides a research topic or question, either:
 
 If no topic is provided, ask: "What do you want me to research? Give me a specific question or topic related to your venture."
 
-### 2. Spawn the Research Agent
+### 2. Model Resolution
+
+Before dispatching the Research Agent, resolve its model:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs" resolve <roomDir> research
+```
+
+- If result is `skip`, tell the user: "Research agent is not available at the current venture stage. Use `/mos:models override research sonnet` to force." Then STOP.
+- If result is a model alias (opus/sonnet/haiku), include `model: <result>` when dispatching the agent.
+- If result is `inherit`, do not specify a model (use session default).
+
+### 3. Spawn the Research Agent
 
 Delegate the research to the Research Agent by reading and following `agents/research.md`.
 
@@ -32,7 +44,7 @@ The Research Agent will:
 - Cross-reference with Brain via `brain_search_semantic` to connect findings to framework intelligence
 - Synthesize into a research brief with numbered findings, source URLs, Brain connections, and venture relevance
 
-### 3. Larry Reviews and Presents
+### 4. Larry Reviews and Presents
 
 When the Research Agent returns its brief, Larry:
 - **Contextualizes** -- helps the user understand what the findings mean for their specific venture
@@ -40,7 +52,7 @@ When the Research Agent returns its brief, Larry:
 - **Highlights surprises** -- calls out findings that challenge or strengthen the current thesis
 - **Notes gaps** -- if the research raises new questions, name them
 
-### 4. User Confirms Before Filing
+### 5. User Confirms Before Filing
 
 **CRITICAL:** The Research Agent does NOT file to the room automatically. Present the brief to the user first.
 
