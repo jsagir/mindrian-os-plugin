@@ -390,6 +390,14 @@ body {
     <span class="stage-badge" id="stage-badge"></span>
   </div>
   <div class="header-right">
+    <nav style="display:flex;gap:6px;align-items:center">
+      <a href="index.html" style="font-size:10px;color:var(--mondrian-red);text-decoration:none;font-family:'JetBrains Mono',monospace;padding:3px 8px;border:1px solid var(--mondrian-red);letter-spacing:0.5px">Dashboard</a>
+      <a href="wiki.html" style="font-size:10px;color:var(--text-secondary);text-decoration:none;font-family:'JetBrains Mono',monospace;padding:3px 8px;border:1px solid var(--border-color);letter-spacing:0.5px">Wiki</a>
+      <a href="deck.html" style="font-size:10px;color:var(--text-secondary);text-decoration:none;font-family:'JetBrains Mono',monospace;padding:3px 8px;border:1px solid var(--border-color);letter-spacing:0.5px">Deck</a>
+      <a href="insights.html" style="font-size:10px;color:var(--text-secondary);text-decoration:none;font-family:'JetBrains Mono',monospace;padding:3px 8px;border:1px solid var(--border-color);letter-spacing:0.5px">Insights</a>
+      <a href="diagrams.html" style="font-size:10px;color:var(--text-secondary);text-decoration:none;font-family:'JetBrains Mono',monospace;padding:3px 8px;border:1px solid var(--border-color);letter-spacing:0.5px">Diagrams</a>
+      <a href="graph.html" style="font-size:10px;color:var(--text-secondary);text-decoration:none;font-family:'JetBrains Mono',monospace;padding:3px 8px;border:1px solid var(--border-color);letter-spacing:0.5px">Graph</a>
+    </nav>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
   </div>
 </header>
@@ -477,10 +485,10 @@ body {
 </div>
 
 <!-- Footer with branding -->
-<footer class="footer">
+<footer class="footer" style="padding-bottom:8px">
   <div class="footer-left">
     <span>Built with MindrianOS</span>
-    <div class="mondrian-bar">
+    <div class="mondrian-bar" style="width:60px">
       <span class="mb-r"></span>
       <span class="mb-b"></span>
       <span class="mb-y"></span>
@@ -489,6 +497,14 @@ body {
   </div>
   <span>Generated {{GENERATED_DATE}}</span>
 </footer>
+
+<!-- Fixed Mondrian color bar -->
+<div style="position:fixed;bottom:0;left:0;right:0;height:4px;display:flex;z-index:9999">
+  <span style="flex:1;background:#C23B22"></span>
+  <span style="flex:1;background:#1B3B6F"></span>
+  <span style="flex:1;background:#E8B931"></span>
+  <span style="flex:1;background:#1A1A1A"></span>
+</div>
 
 <script>
 // -- ROOM_DATA injection point --

@@ -241,7 +241,14 @@ html, body {
       <h1 id="room-name">{{ROOM_NAME}}</h1>
     </div>
     <div class="topbar-right">
-      <a href="index.html" class="back-link">Back to Dashboard</a>
+      <nav style="display:flex;gap:6px;align-items:center">
+        <a href="index.html" class="back-link">Dashboard</a>
+        <a href="wiki.html" class="back-link">Wiki</a>
+        <a href="deck.html" class="back-link">Deck</a>
+        <a href="insights.html" class="back-link">Insights</a>
+        <a href="diagrams.html" class="back-link">Diagrams</a>
+        <a href="graph.html" class="back-link" style="color:var(--mondrian-yellow);border-color:var(--mondrian-yellow)">Graph</a>
+      </nav>
       <button class="theme-toggle" onclick="toggleTheme()">Theme</button>
     </div>
   </div>
@@ -277,6 +284,14 @@ html, body {
     <span>Generated {{GENERATED_DATE}}</span>
   </footer>
 
+</div>
+
+<!-- Fixed Mondrian color bar -->
+<div style="position:fixed;bottom:0;left:0;right:0;height:4px;display:flex;z-index:9999">
+  <span style="flex:1;background:#C23B22"></span>
+  <span style="flex:1;background:#1B3B6F"></span>
+  <span style="flex:1;background:#E8B931"></span>
+  <span style="flex:1;background:#1A1A1A"></span>
 </div>
 
 <script>
