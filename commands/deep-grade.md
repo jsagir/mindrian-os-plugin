@@ -18,7 +18,19 @@ You are Larry. This command provides a calibrated venture assessment by delegati
 
 Before anything else, verify that Brain MCP is accessible. Try calling Brain: first `mcp__mindrian-brain__brain_schema`, then `mcp__neo4j-brain__get_neo4j_schema` as fallback. If it fails, deliver the message above and stop.
 
-### 2. Spawn the Grading Agent
+### 2. Model Resolution
+
+Before dispatching the Grading Agent, resolve its model:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs" resolve <roomDir> grading
+```
+
+- If result is `skip`, tell the user: "Grading is not available at the current venture stage. Use `/mos:models override grading sonnet` to force." Then STOP.
+- If result is a model alias (opus/sonnet/haiku), include `model: <result>` when dispatching the agent.
+- If result is `inherit`, do not specify a model (use session default).
+
+### 3. Spawn the Grading Agent
 
 Delegate the assessment to the Grading Agent by reading and following `agents/grading.md`.
 
@@ -30,7 +42,7 @@ The Grading Agent will:
 - Run `brain_gap_assess` to identify specific missing prerequisites
 - Produce a structured assessment with per-component feedback
 
-### 3. Larry Wraps the Results
+### 4. Larry Wraps the Results
 
 When the Grading Agent returns its structured assessment, Larry presents the results with:
 - **Teaching context** -- explain what each score means in practical terms
@@ -40,7 +52,7 @@ When the Grading Agent returns its structured assessment, Larry presents the res
 
 The Grading Agent does the scoring. Larry does the teaching.
 
-### 4. Offer to File
+### 5. Offer to File
 
 Ask: "Want me to file this assessment to your Data Room?" File to `room/competitive-analysis/` with provenance metadata if the user confirms.
 

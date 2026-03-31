@@ -131,6 +131,20 @@ Format:
   Source: {Brain graph | Local routing table}
 ```
 
+## Step 4b: Model Resolution
+
+Before dispatching any agent, resolve its model using the model-profiles module:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs" resolve <roomDir> framework-runner
+```
+
+- If result is `skip`, tell the user: "Framework-runner is not recommended at the current venture stage. Use `/mos:models override framework-runner sonnet` to force."  Then STOP -- do not dispatch.
+- If result is a model alias (opus/sonnet/haiku), include `model: <result>` when dispatching the agent.
+- If result is `inherit`, do not specify a model (use session default).
+
+For `--swarm` mode (dispatches 3 framework-runners), resolve once and apply the same model to all three dispatches.
+
 ## Step 5: Handle Mode
 
 ### Standard Mode (`/mos:act`)
