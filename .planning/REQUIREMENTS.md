@@ -81,8 +81,8 @@
 - [ ] **GENUI-04**: "Show me contradictions" -> Larry generates filtered graph view + analysis card
 
 ### Auto-Update Mechanism
-- [ ] **SYNC-01**: Localhost: chokidar watches room/, SSE triggers browser reload (~1s latency)
-- [ ] **SYNC-02**: Post-write: hook regenerates presentation views (~2-3s latency)
+- [x] **SYNC-01**: Localhost: chokidar watches room/, SSE triggers browser reload (~1s latency)
+- [x] **SYNC-02**: Post-write: hook regenerates presentation views (~2-3s latency)
 - [ ] **SYNC-03**: Deployed: git push triggers Vercel auto-deploy (~30s latency)
 
 ## Traceability
@@ -130,8 +130,8 @@
 | PRES-07 | Phase 30 | Complete |
 | PRES-08 | Phase 30 | Complete |
 | PRES-09 | Phase 30 | Complete |
-| SYNC-01 | Phase 31 | Pending |
-| SYNC-02 | Phase 31 | Pending |
+| SYNC-01 | Phase 31 | Complete |
+| SYNC-02 | Phase 31 | Complete |
 | SYNC-03 | Phase 31 | Pending |
 | DEPLOY-01 | Phase 31 | Pending |
 | DEPLOY-02 | Phase 31 | Pending |
