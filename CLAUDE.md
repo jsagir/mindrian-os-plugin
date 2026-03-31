@@ -328,9 +328,22 @@ claude plugin marketplace update mindrian-marketplace
 
 ---
 
-## Modular References (@include)
+## MWP Moat Awareness (MANDATORY for all contributors)
 
-Extended architecture, moat, and decision documentation is maintained in modular files. These are loaded on demand via @include:
+The Mindrian Workspace Protocol (MWP) is a 7-layer integrated system. The moat is NOT any individual layer - it is the integration of all 7 layers operating simultaneously on every user action.
+
+**The 7 Layers:** Folder Hierarchy, Artifact Provenance, Cascade Pipeline, MINTO Reasoning, HSI Innovation Discovery, Proactive Intelligence Loop, Brain Enrichment.
+
+**The Rule:** Every feature, command, agent, and hook must deepen the MWP moat. Before building, ask: "Does this connect to the cascade pipeline? Does it generate or consume edges? Does it leverage Brain intelligence?"
+
+Features that operate independently of MWP layers add surface area, not moat depth. Surface area without integration is technical debt.
+
+**Full details:** See `docs/MOAT-MANDATE.md` for the PR review checklist, anti-patterns, and what CAN vs CANNOT be copied.
+**Protocol specification:** See `docs/MWP-SPECIFICATION.md` for the formal 7-layer protocol with edge schemas and resolution orders.
+
+---
+
+## Modular References (@include)
 
 @.claude/includes/architecture.md
 @.claude/includes/moat.md
@@ -338,13 +351,3 @@ Extended architecture, moat, and decision documentation is maintained in modular
 @.claude/includes/release-process.md
 
 See also: docs/ENV-TUNING.md for environment variable optimization.
-See also: docs/MWP-SPECIFICATION.md for the formal 7-layer protocol.
-See also: docs/MOAT-MANDATE.md for the moat-first review process.
-
----
-
-## The Moat (MANDATORY AWARENESS)
-
-Every contributor must understand: MindrianOS's moat is NOT any single feature. It is the INTEGRATION of 7 MWP layers + 9 KuzuDB edge types + Brain IP (21K nodes, 65K relationships) + 30 years of teaching calibration. Before merging any change, answer: "Does this deepen the moat or just add surface area?"
-
-Full moat documentation: @.claude/includes/moat.md
