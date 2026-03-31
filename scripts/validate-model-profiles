@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# validate-model-profiles -- Smoke tests for model routing system
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PASS=0
+FAIL=0
+
+check() {
+  local desc="$1"
+  local result="$2"
+  if [ "$result" = "true" ]; then
+    echo "PASS: $desc"
+    PASS=$((PASS + 1))
+  else
+    echo "FAIL: $desc"
+    FAIL=$((FAIL + 1))
+  fi
+}
+
+# 1. Module loads
+if node -e "require('$PLUGIN_ROOT/lib/core/model-profiles.cjs')" 2>/dev/null; then
+  check "Module loads without error" "true"
+else
+  check "Module loads without error" "false"
+fi
+
+# 2. 8 agents in MODEL_PROFILES
+RESULT=$(node -e "const m=require('$PLUGIN_ROOT/lib/core/model-profiles.cjs'); console.log(Object.keys(m.MODEL_PROFILES).length === 8)")
+check "8 agents in MODEL_PROFILES" "$RESULT"
+
+# 3. 3 valid profiles
+RESULT=$(node -e "const m=require('$PLUGIN_ROOT/lib/core/model-profiles.cjs'); console.log(m.VALID_PROFILES.length === 3)")
+check "3 valid profiles" "$RESULT"
+
+# 4. 5 stage hints
+RESULT=$(node -e "const m=require('$PLUGIN_ROOT/lib/core/model-profiles.cjs'); console.log(Object.keys(m.STAGE_HINTS).length === 5)")
+check "5 stage hints" "$RESULT"
+
+# 5. 5 cascade models
+RESULT=$(node -e "const m=require('$PLUGIN_ROOT/lib/core/model-profiles.cjs'); console.log(Object.keys(m.CASCADE_MODELS).length === 5)")
+check "5 cascade models" "$RESULT"
+
+# 6. Default config is quality
+RESULT=$(node -e "const m=require('$PLUGIN_ROOT/lib/core/model-profiles.cjs'); console.log(m.loadRoomConfig('/tmp/nonexistent-room-abc').model_profile === 'quality')")
+check "Default config is quality" "$RESULT"
+
+# 7. Resolve grading on quality (no stage)
+RESULT=$(node -e "const m=require('$PLUGIN_ROOT/lib/core/model-profiles.cjs'); console.log(m.resolveModel('/tmp/nonexistent-room-abc', 'grading') === 'opus')")
+check "Resolve grading on quality profile returns opus" "$RESULT"
+
+# 8. Resolve opportunity-scanner on budget
+TMPDIR1=$(mktemp -d)
+echo '{"model_profile":"budget"}' > "$TMPDIR1/.config.json"
+RESULT=$(node -e "const m=require('$PLUGIN_ROOT/lib/core/model-profiles.cjs'); console.log(m.resolveModel('$TMPDIR1', 'opportunity-scanner') === 'haiku')")
+check "Resolve opportunity-scanner on budget returns haiku" "$RESULT"
+rm -rf "$TMPDIR1"
+
+# 9. Override beats profile
+TMPDIR2=$(mktemp -d)
+echo '{"model_profile":"budget","model_overrides":{"grading":"opus"}}' > "$TMPDIR2/.config.json"
+RESULT=$(node -e "const m=require('$PLUGIN_ROOT/lib/core/model-profiles.cjs'); console.log(m.resolveModel('$TMPDIR2', 'grading') === 'opus')")
+check "Override beats profile" "$RESULT"
+rm -rf "$TMPDIR2"
+
+# 10. Cascade classify is haiku
+RESULT=$(node -e "const m=require('$PLUGIN_ROOT/lib/core/model-profiles.cjs'); console.log(m.resolveCascadeModel('classify') === 'haiku')")
+check "Cascade classify is haiku" "$RESULT"
+
+# 11. Cascade compute-state is null
+RESULT=$(node -e "const m=require('$PLUGIN_ROOT/lib/core/model-profiles.cjs'); console.log(m.resolveCascadeModel('compute-state') === null)")
+check "Cascade compute-state is null" "$RESULT"
+
+# 12. Format table returns string
+RESULT=$(node -e "const m=require('$PLUGIN_ROOT/lib/core/model-profiles.cjs'); console.log(typeof m.formatProfileTable('/tmp/nonexistent-room-abc') === 'string')")
+check "Format table returns string" "$RESULT"
+
+# 13. CLI resolve subcommand
+CLI_OUTPUT=$(node "$PLUGIN_ROOT/lib/core/model-profiles.cjs" resolve /tmp/nonexistent-room-abc grading 2>/dev/null)
+RESULT="false"
+if [ "$CLI_OUTPUT" = "opus" ]; then
+  RESULT="true"
+fi
+check "CLI resolve subcommand outputs opus" "$RESULT"
+
+echo ""
+echo "Results: $PASS passed, $FAIL failed"
+
+if [ "$FAIL" -gt 0 ]; then
+  exit 1
+fi
+exit 0
