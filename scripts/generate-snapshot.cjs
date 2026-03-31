@@ -205,7 +205,12 @@ function scanRoom(roomDir) {
     }
   }
 
-  // 4. Build and return data model
+  // 4. Extract breakthroughs, opportunities, views
+  const breakthroughs = extractBreakthroughs(graphNodes);
+  const opportunities = extractOpportunities(roomDir, sections);
+  const views = extractViews('');
+
+  // 5. Build and return data model
   return {
     name,
     stage,
@@ -223,9 +228,172 @@ function scanRoom(roomDir) {
       edges: graphEdges,
       enriched
     },
+    breakthroughs,
+    opportunities,
+    views,
     exportDate: new Date().toISOString(),
     timestamp
   };
+}
+
+/**
+ * Extract breakthrough angle nodes from graph (layer === 'breakthrough').
+ * Per D-19, ATF-01. Returns empty array if none found (AD-8: silently skip).
+ */
+function extractBreakthroughs(graphNodes) {
+  const results = [];
+  for (const node of graphNodes) {
+    const d = node.data || {};
+    if (d.layer !== 'breakthrough') continue;
+    results.push({
+      id: d.id || '',
+      label: d.label || '',
+      description: d.description || '',
+      tag: node.classes
+        ? node.classes.replace(/-node$/, '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+        : 'Cross-Domain'
+    });
+  }
+  return results;
+}
+
+/**
+ * Extract opportunities from funding-strategy/ or opportunity-bank/ section articles.
+ * Per D-20, ATF-02. Parses frontmatter for structured fields, falls back to body scan.
+ */
+function extractOpportunities(roomDir, sections) {
+  // Find the funding section
+  const fundingSection = sections.find(s =>
+    s.id === 'funding-strategy' || s.id === 'opportunity-bank'
+  );
+  if (!fundingSection || fundingSection.articles.length === 0) return [];
+
+  const results = [];
+  const sectionDir = path.join(roomDir, fundingSection.id);
+
+  for (const article of fundingSection.articles) {
+    const filePath = path.join(sectionDir, article.filename);
+    let content;
+    try {
+      content = fs.readFileSync(filePath, 'utf-8');
+    } catch (_) { continue; }
+
+    const fm = parseFrontmatter(content);
+
+    // Check for structured frontmatter fields
+    if (fm.relevance_score || fm.funder || fm.program) {
+      results.push({
+        title: article.title,
+        score: parseInt(fm.relevance_score, 10) || 0,
+        funder: fm.funder || '',
+        program: fm.program || '',
+        amount: fm.amount || '',
+        deadline: fm.deadline || ''
+      });
+      continue;
+    }
+
+    // Fallback: scan body for numbered items with scores
+    // Patterns: "### 1. Name", "**97/100**", "Score: 97"
+    const bodyLines = content.split('\n');
+    let currentItem = null;
+
+    for (const line of bodyLines) {
+      // Match "### N. Title" or "N. **Title**"
+      const itemMatch = line.match(/^#{1,4}\s*(\d+)\.\s+(.+)/) ||
+                         line.match(/^\*?\*?(\d+)\.\s+\*?\*?(.+?)\*?\*?\s*$/);
+      if (itemMatch) {
+        if (currentItem) results.push(currentItem);
+        currentItem = {
+          title: itemMatch[2].replace(/\*\*/g, '').trim(),
+          score: 0,
+          funder: '',
+          program: '',
+          amount: '',
+          deadline: ''
+        };
+        continue;
+      }
+
+      if (!currentItem) continue;
+
+      // Match score patterns
+      const scoreMatch = line.match(/\*\*(\d+)\/100\*\*/) ||
+                          line.match(/Score:\s*(\d+)/) ||
+                          line.match(/Relevance:\s*(\d+)/i);
+      if (scoreMatch) currentItem.score = parseInt(scoreMatch[1], 10);
+
+      // Match amount patterns
+      const amountMatch = line.match(/\$[\d,.]+[MBK]?/i);
+      if (amountMatch) currentItem.amount = amountMatch[0];
+
+      // Match funder/program
+      const funderMatch = line.match(/(?:Funder|Agency|Sponsor):\s*(.+)/i);
+      if (funderMatch) currentItem.funder = funderMatch[1].trim();
+
+      const progMatch = line.match(/(?:Program|Mechanism):\s*(.+)/i);
+      if (progMatch) currentItem.program = progMatch[1].trim();
+
+      const deadlineMatch = line.match(/(?:Deadline|Due):\s*(.+)/i);
+      if (deadlineMatch) currentItem.deadline = deadlineMatch[1].trim();
+    }
+
+    if (currentItem) results.push(currentItem);
+  }
+
+  // Sort by score descending
+  results.sort((a, b) => b.score - a.score);
+  return results;
+}
+
+/**
+ * Extract view card definitions. Per D-03 to D-06, HUB-02.
+ * Views are co-located HTML files created in Phase 42 -- check availability.
+ */
+function extractViews(snapshotDir) {
+  const viewDefs = [
+    {
+      id: 'intelligence-map',
+      tag: 'Graph',
+      title: 'Intelligence Map',
+      description: 'Interactive knowledge graph with layer toggles, edge filters, and click-to-inspect.',
+      filename: 'intelligence-map.html'
+    },
+    {
+      id: 'wiki',
+      tag: 'Articles',
+      title: 'Wiki',
+      description: 'Wikipedia-style article browser with sidebar navigation and search.',
+      filename: 'wiki.html'
+    },
+    {
+      id: 'dochub',
+      tag: 'Reader',
+      title: 'Doc Hub',
+      description: 'Scrollable document reader with all articles in a single page.',
+      filename: 'dochub.html'
+    },
+    {
+      id: 'deck',
+      tag: 'Slides',
+      title: 'Deck',
+      description: 'Auto-generated presentation slides from room content.',
+      filename: 'deck.html'
+    }
+  ];
+
+  return viewDefs.map(v => {
+    let available = false;
+    let reason = 'Generated in future export';
+    if (snapshotDir) {
+      const filePath = path.join(snapshotDir, v.filename);
+      if (fs.existsSync(filePath)) {
+        available = true;
+        reason = '';
+      }
+    }
+    return { ...v, available, reason };
+  });
 }
 
 // -- De Stijl Branded Template --
@@ -630,10 +798,10 @@ function renderBrandedHtml(model) {
       <div class="stat-value">${model.stats.gapCount}</div>
       <div class="stat-label">Gaps</div>
     </div>
-    ${model.stats.grantCount > 0 ? `<div class="stat">
+    <div class="stat">
       <div class="stat-value">${model.stats.grantCount}</div>
       <div class="stat-label">Grants</div>
-    </div>` : ''}
+    </div>
   </div>
 
   <!-- Room Sections -->
