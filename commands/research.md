@@ -11,6 +11,114 @@ You are Larry. This command provides external research by delegating to the Rese
 
 **Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up." Then stop.
 
+## Broad Parallel Mode (`/mos:research --broad`)
+
+Dispatches 3 research agents simultaneously -- academic, market, and competitor -- for comprehensive parallel intelligence gathering on a single topic.
+
+Unlike standard research (single agent, sequential queries), `--broad` runs 3 specialized research angles in parallel, then synthesizes findings with cross-angle triangulation.
+
+### Flow
+
+1. **Capture research topic** -- same as standard mode (argument or conversational)
+
+2. **Resolve model per agent** using `lib/core/model-profiles.cjs`:
+   ```
+   const { resolveModel } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs');
+   const model = resolveModel('research', roomPath);
+   ```
+
+3. **Dispatch 3 research agents in parallel** using the Agent tool with `run_in_background: true`:
+
+   Each agent follows `agents/research.md` but with a specialized research angle:
+
+   **Agent 1: Academic Research**
+   - Search queries focused on: academic papers, peer-reviewed studies, university research, published frameworks
+   - Tavily search with `search_depth: "advanced"` and academic domain filters
+   - Brain cross-reference: `brain_search_semantic` for framework connections to academic findings
+   - Output: scholarly evidence, theoretical grounding, methodology validation
+
+   **Agent 2: Market Research**
+   - Search queries focused on: market size, growth rates, industry reports, funding rounds, market trends
+   - Tavily search targeting: market research firms, industry publications, financial databases
+   - Brain cross-reference: venture-stage-appropriate market intelligence
+   - Output: market data, sizing, trends, TAM/SAM/SOM indicators
+
+   **Agent 3: Competitor Research**
+   - Search queries focused on: direct competitors, alternative solutions, market positioning, feature comparison
+   - Tavily search targeting: product pages, comparison sites, Crunchbase, news coverage
+   - Brain cross-reference: competitive analysis frameworks from the Teaching Graph
+   - Output: competitor landscape, positioning gaps, differentiation opportunities
+
+   ```
+   [RESEARCH --broad] Dispatching 3 research agents
+
+     Agent 1: Academic    -- scholarly evidence & frameworks     [running]
+     Agent 2: Market      -- sizing, trends & growth data       [running]
+     Agent 3: Competitor  -- landscape, gaps & positioning      [running]
+
+     Topic: {research topic}
+     Model: {resolved model}
+     Waiting for all agents...
+   ```
+
+4. **Collect and synthesize** -- after all 3 agents return:
+
+   a. Parse each agent's research brief (numbered findings, sources, Brain connections)
+   b. **Cross-angle triangulation:**
+      - Do academic findings support or contradict market data?
+      - Do competitor approaches align with academic best practices?
+      - Are there market opportunities that competitors have missed AND academia validates?
+   c. Highlight convergences (3-source validated claims) and contradictions (conflicting signals)
+
+5. **Trigger HSI recomputation** if findings surface cross-section connections:
+   ```bash
+   "${CLAUDE_PLUGIN_ROOT}/scripts/compute-hsi.py" room
+   ```
+
+6. **Present the broad research brief:**
+
+   ```
+   [RESEARCH --broad] Complete -- 3 research angles synthesized
+
+   ## Broad Research Brief: {topic}
+
+   ### Academic Findings
+   1. {finding with source URL and retrieval date}
+   2. {finding}
+   3. {finding}
+   Brain connections: {related frameworks/concepts}
+
+   ### Market Intelligence
+   1. {finding with source URL and retrieval date}
+   2. {finding}
+   3. {finding}
+   Brain connections: {related market patterns}
+
+   ### Competitive Landscape
+   1. {finding with source URL and retrieval date}
+   2. {finding}
+   3. {finding}
+   Brain connections: {related competitive frameworks}
+
+   ---
+
+   ### Cross-Angle Triangulation
+
+   **Validated (3-source):**
+   - {claim supported by academic + market + competitor data}
+
+   **Contradictions:**
+   - Academic says X, but market data shows Y
+
+   **Opportunities (gap found):**
+   - {market opportunity that competitors missed and academia supports}
+
+   ### Venture Relevance
+   {How these findings connect to the user's specific venture}
+   ```
+
+7. **User confirms before filing** -- present the brief first. Suggest filing to the most relevant room section (usually `room/market-analysis/` or `room/competitive-analysis/`). Filing includes full provenance metadata from all 3 agents.
+
 ## Flow
 
 ### 1. Capture Research Topic
