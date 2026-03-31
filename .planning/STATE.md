@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Data Room Presentation System
 status: verifying
-stopped_at: Completed 34-01-PLAN.md
-last_updated: "2026-03-31T19:59:38.241Z"
+stopped_at: Completed 35-01-PLAN.md
+last_updated: "2026-03-31T21:25:14.735Z"
 last_activity: 2026-03-31
 progress:
   total_phases: 8
@@ -92,7 +92,7 @@ Progress: [██████████] 100% (46/46 plans complete across v1.
 | Phase 30 P01 | 4min | 2 tasks | 4 files |
 | Phase 30 P03 | 8min | 2 tasks | 6 files |
 | Phase 32 P01 | 5min | 2 tasks | 4 files |
-| Phase 34 P01 | 2min | 3 tasks | 3 files |
+| Phase 35 P01 | 5min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -195,7 +195,7 @@ Recent decisions affecting v3.0:
 - [Phase 30]: Pure JS SVG for diagrams instead of external Graphviz binary
 - [Phase 30]: Fixed Mondrian 4px color bar as non-removable branding in all templates
 - [Phase 32]: BYOAPI pattern with anthropic-dangerous-direct-browser-access for zero-server chat
-- [Phase 34]: Responsive banner: 3 width tiers (>=100 wide, 80-99 compact, <80 minimal) with tput cols detection
+- [Phase 35]: Marker file at ~/.mindrian-onboarded with version + date; 3-way context injection in cold-start branch
 
 ### Pending Todos
 
@@ -212,6 +212,6 @@ Recent decisions affecting v3.0:
 
 ## Session Continuity
 
-Last session: 2026-03-31T19:59:38.238Z
-Stopped at: Completed 34-01-PLAN.md
+Last session: 2026-03-31T21:25:14.732Z
+Stopped at: Completed 35-01-PLAN.md
 Resume file: None

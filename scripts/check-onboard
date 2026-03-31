@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# check-onboard: Detect onboarding status (FIRST_INSTALL / UPDATE / CURRENT)
+# Output contract: line 1 = status, subsequent lines = key=value pairs
+
+PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "unknown")
+
+MARKER="$HOME/.mindrian-onboarded"
+
+# Handle --write flag (create/update marker file)
+if [ "${1:-}" = "--write" ]; then
+  echo "$CURRENT_VERSION" > "$MARKER"
+  echo "$(date -u +%Y-%m-%d)" >> "$MARKER"
+  exit 0
+fi
+
+# Detection logic
+if [ ! -f "$MARKER" ]; then
+  echo "FIRST_INSTALL"
+  echo "CURRENT=$CURRENT_VERSION"
+  exit 0
+fi
+
+# Marker exists -- read stored version
+MARKER_VERSION=$(head -1 "$MARKER" 2>/dev/null || echo "0.0.0")
+
+# Compare versions using sort -V
+LOWER=$(printf '%s\n%s' "$MARKER_VERSION" "$CURRENT_VERSION" | sort -V | head -1)
+
+if [ "$MARKER_VERSION" = "$CURRENT_VERSION" ]; then
+  echo "CURRENT"
+elif [ "$LOWER" = "$MARKER_VERSION" ]; then
+  # Marker is older than current -- update available
+  echo "UPDATE"
+  echo "PREVIOUS=$MARKER_VERSION"
+  echo "CURRENT=$CURRENT_VERSION"
+else
+  # Marker is newer (dev scenario) -- treat as current
+  echo "CURRENT"
+fi

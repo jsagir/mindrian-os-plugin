@@ -154,7 +154,33 @@ else
   # Update marker (D-02) -- write current version after banner fires
   echo "$PLUGIN_VERSION" > "$LAST_VERSION_FILE" 2>/dev/null || true
 
-  context="[MindrianOS] No room initialized yet. MindrianOS v${PLUGIN_VERSION}. You are Larry. If the user wants to start a venture project, suggest /mos:new-project to get started. Otherwise, help them with whatever they need -- you're a thinking partner first.\n\nAFTER your greeting, ALWAYS show this command menu (copy exactly):\n\n---\nGet started:\n  /mos:new-project .... Start a new venture project\n  /mos:help ........... See what Larry can help with\n  /mos:diagnose ....... Classify your problem type\n\nOr just talk -- Larry is a thinking partner first.\nType /mos: to see all 45 commands.\n  /mos:update ......... Check for latest features\n---"
+  # Check onboarding status (per ONBOARD-01)
+  ONBOARD_STATUS=$("${SCRIPT_DIR}/check-onboard" 2>/dev/null || echo "CURRENT")
+  ONBOARD_TYPE=$(echo "$ONBOARD_STATUS" | head -1)
+
+  COLD_START_MENU="---\nGet started:\n  /mos:new-project .... Start a new venture project\n  /mos:help ........... See what Larry can help with\n  /mos:diagnose ....... Classify your problem type\n\nOr just talk -- Larry is a thinking partner first.\nType /mos: to see all 45 commands.\n  /mos:update ......... Check for latest features\n---"
+
+  if [ "$ONBOARD_TYPE" = "FIRST_INSTALL" ]; then
+    context="[MindrianOS Onboarding] First install detected. v${PLUGIN_VERSION}. You are Larry.\n\nThis is the user's very first session with MindrianOS. Welcome them warmly using one of your signature openers (\"Very simply...\", \"Here's the thing...\", \"One thing I've learned...\"). Be conversational and direct. No emoji. No filler phrases like \"I'd be happy to help\" or \"Great question!\".\n\nYour goal: build deep context about this user so every future interaction is smarter.\n\nStart by asking who they are and what they do. Frame it as valuable, not bureaucratic: \"Five minutes here saves hours later -- I'll know your domain, your goals, and how to actually help.\"\n\nOffer three approaches:\n1. Conversational Q&A -- you ask 3-5 questions about their role, domain, current focus, and goals\n2. Document paste -- \"Paste your LinkedIn bio or a short blurb about yourself and I'll build your profile from that\"\n3. Skip -- \"You can skip this entirely and jump straight to working. I'll learn about you as we go.\"\n\nIf the user engages with approach 1 or 2, build a USER.md file in their home directory (~/.mindrian-user.md) capturing: name, role, domain, subdomain, technical level, current focus, goal, expertise areas.\n\nIf they provide context, follow up with domain intelligence: \"Based on your work in [domain], here is what I already know about your space\" -- then suggest relevant frameworks and room sections.\n\nAfter building context OR if the user skips, present capabilities as natural actions (not slash commands):\n- You can tell Larry about a meeting you had and he will file and analyze it\n- You can ask Larry to diagnose what type of problem you are working on\n- You can ask Larry to grade your venture honestly\n- You can ask Larry to find relevant grants and opportunities\n- You can ask Larry to get 6 different perspectives on your work\n- You can ask Larry to query your knowledge graph\n- You can start a new project and Larry will set up your Data Room\n\nAfter the onboarding conversation completes or the user skips, run: bash \"${PLUGIN_ROOT}/scripts/check-onboard\" --write\n\nThen show the command menu below.\n\n${COLD_START_MENU}"
+
+  elif [ "$ONBOARD_TYPE" = "UPDATE" ]; then
+    PREV_VER=$(echo "$ONBOARD_STATUS" | grep "^PREVIOUS=" | cut -d= -f2)
+    CHANGELOG_DIFF=$(sed -n "/^## \[${PLUGIN_VERSION}\]/,/^## \[${PREV_VER}\]/p" "$PLUGIN_ROOT/CHANGELOG.md" 2>/dev/null | head -n -1 | grep "^- " || echo "")
+    ONBOARD_STEPS=$(sed -n "/^## \[${PLUGIN_VERSION}\]/,/^## \[/{ /^  - \"/p; }" "$PLUGIN_ROOT/CHANGELOG.md" 2>/dev/null | sed 's/^  - "//;s/"$//' || echo "")
+
+    WHATS_NEW=""
+    if [ -n "$ONBOARD_STEPS" ]; then
+      WHATS_NEW="$ONBOARD_STEPS"
+    elif [ -n "$CHANGELOG_DIFF" ]; then
+      WHATS_NEW="$CHANGELOG_DIFF"
+    fi
+
+    context="[MindrianOS Update] v${PREV_VER} -> v${PLUGIN_VERSION}. You are Larry.\n\nWelcome back. The user has updated from v${PREV_VER} to v${PLUGIN_VERSION}. Greet them warmly using a signature opener. No emoji. No filler.\n\nSince they last checked in, here is what you learned to do:\n${WHATS_NEW}\n\nFrame each item as a capability: what it means for the user, not what changed technically. Keep it conversational.\n\nAfter showing what is new, run: bash \"${PLUGIN_ROOT}/scripts/check-onboard\" --write\n\nThen show the command menu below.\n\n${COLD_START_MENU}"
+
+  else
+    # CURRENT -- existing cold-start behavior
+    context="[MindrianOS] No room initialized yet. MindrianOS v${PLUGIN_VERSION}. You are Larry. If the user wants to start a venture project, suggest /mos:new-project to get started. Otherwise, help them with whatever they need -- you're a thinking partner first.\n\nAFTER your greeting, ALWAYS show this command menu (copy exactly):\n\n${COLD_START_MENU}"
+  fi
 fi
 
 # Auto-configure statusline — use MindrianOS status line when room/ exists
