@@ -163,7 +163,7 @@ Plans:
 **Plans:** 3 plans
 Plans:
 - [ ] 30-01-PLAN.md -- Master generator (generate-presentation.cjs) + dashboard.html + graph.html + post-write cascade wiring
-- [ ] 30-02-PLAN.md -- Wiki template (3-panel browser, search, wikilinks) + Deck template (fullscreen slides, keyboard nav)
+- [x] 30-02-PLAN.md -- Wiki template (3-panel browser, search, wikilinks) + Deck template (fullscreen slides, keyboard nav)
 - [ ] 30-03-PLAN.md -- Insights template (counters, timelines, quadrants) + Diagrams template (SVG from graph.json) + PWS light theme across all 6 views
 **Success Criteria** (what must be TRUE):
   1. Running `generate-presentation` on any room produces 6 HTML files: index.html (dashboard), wiki.html, deck.html, insights.html, diagrams.html, graph.html

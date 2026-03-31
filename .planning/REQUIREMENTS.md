@@ -23,8 +23,8 @@
 ### Presentation Generator
 - [ ] **PRES-01**: `generate-presentation` script produces all 6 views from any room in one command
 - [ ] **PRES-02**: Dashboard (index.html) -- stats bar, 6 view cards, video embed, assets grid, partners, opportunities, governing thought
-- [ ] **PRES-03**: Wiki (wiki.html) -- 3-panel browser, collapsible sidebar, search, TOC, infobox, [[wikilinks]], section colors
-- [ ] **PRES-04**: Deck (deck.html) -- fullscreen slides auto-generated from MINTO.md + key artifacts + stats, keyboard nav
+- [x] **PRES-03**: Wiki (wiki.html) -- 3-panel browser, collapsible sidebar, search, TOC, infobox, [[wikilinks]], section colors
+- [x] **PRES-04**: Deck (deck.html) -- fullscreen slides auto-generated from MINTO.md + key artifacts + stats, keyboard nav
 - [ ] **PRES-05**: Insights (insights.html) -- animated stat counters, timelines, quadrants, funnels, comparison tables, heat maps
 - [ ] **PRES-06**: Diagrams (diagrams.html) -- Graphviz SVG from graph.json edges, light/dark toggle, multiple diagram types
 - [ ] **PRES-07**: Graph (graph.html) -- Canvas-based renderer (Milken Twin pattern): circles, particles, glow, cluster highlight, ego-centric exploration
@@ -32,14 +32,14 @@
 - [ ] **PRES-09**: Branding contract enforced: MindrianOS logo header, "Built with MindrianOS" footer, Mondrian color bar -- non-removable
 
 ### Canvas Graph Renderer
-- [ ] **GRAPH-01**: Custom Canvas 2D renderer (not Cytoscape) with force simulation, ~330 lines
-- [ ] **GRAPH-02**: Circular nodes sized by centrality (degree or betweenness), section-colored at 60% opacity
-- [ ] **GRAPH-03**: Animated particles traveling along edges (data flowing visualization)
-- [ ] **GRAPH-04**: Hover: connected nodes stay full opacity, everything else dims to 0.15, edges brighten
-- [ ] **GRAPH-05**: Glow rings on hovered + core nodes, ambient pulse animation on key concepts
-- [ ] **GRAPH-06**: `highlightCluster(group)` API -- keywords/tags trigger group-level highlights
-- [ ] **GRAPH-07**: Click node: detail panel slides in with artifact summary + cross-section connections
-- [ ] **GRAPH-08**: Edge types visually distinct: INFORMS (thin gray arrow), CONTRADICTS (dashed red), CONVERGES (dotted gold), ENABLES (solid blue arrow)
+- [x] **GRAPH-01**: Custom Canvas 2D renderer (not Cytoscape) with force simulation, ~330 lines
+- [x] **GRAPH-02**: Circular nodes sized by centrality (degree or betweenness), section-colored at 60% opacity
+- [x] **GRAPH-03**: Animated particles traveling along edges (data flowing visualization)
+- [x] **GRAPH-04**: Hover: connected nodes stay full opacity, everything else dims to 0.15, edges brighten
+- [x] **GRAPH-05**: Glow rings on hovered + core nodes, ambient pulse animation on key concepts
+- [x] **GRAPH-06**: `highlightCluster(group)` API -- keywords/tags trigger group-level highlights
+- [x] **GRAPH-07**: Click node: detail panel slides in with artifact summary + cross-section connections
+- [x] **GRAPH-08**: Edge types visually distinct: INFORMS (thin gray arrow), CONTRADICTS (dashed red), CONVERGES (dotted gold), ENABLES (solid blue arrow)
 
 ### KuzuDB Relationship Engine
 - [x] **KUZU-01**: Every filing (methodology, meeting, manual, pipeline, reasoning) creates KuzuDB nodes + edges
@@ -113,18 +113,18 @@
 | ASSET-02 | Phase 28 | Pending |
 | ASSET-03 | Phase 28 | Pending |
 | ASSET-04 | Phase 28 | Pending |
-| GRAPH-01 | Phase 29 | Pending |
-| GRAPH-02 | Phase 29 | Pending |
-| GRAPH-03 | Phase 29 | Pending |
-| GRAPH-04 | Phase 29 | Pending |
-| GRAPH-05 | Phase 29 | Pending |
-| GRAPH-06 | Phase 29 | Pending |
-| GRAPH-07 | Phase 29 | Pending |
-| GRAPH-08 | Phase 29 | Pending |
+| GRAPH-01 | Phase 29 | Complete |
+| GRAPH-02 | Phase 29 | Complete |
+| GRAPH-03 | Phase 29 | Complete |
+| GRAPH-04 | Phase 29 | Complete |
+| GRAPH-05 | Phase 29 | Complete |
+| GRAPH-06 | Phase 29 | Complete |
+| GRAPH-07 | Phase 29 | Complete |
+| GRAPH-08 | Phase 29 | Complete |
 | PRES-01 | Phase 30 | Pending |
 | PRES-02 | Phase 30 | Pending |
-| PRES-03 | Phase 30 | Pending |
-| PRES-04 | Phase 30 | Pending |
+| PRES-03 | Phase 30 | Complete |
+| PRES-04 | Phase 30 | Complete |
 | PRES-05 | Phase 30 | Pending |
 | PRES-06 | Phase 30 | Pending |
 | PRES-07 | Phase 30 | Pending |
