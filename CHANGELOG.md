@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.6.1] - 2026-03-31
+
+### Added
+- /mos:models command for viewing, switching, and overriding model profiles (quality/balanced/budget/inherit)
+- Per-agent model routing with MODEL_PROFILES table mapping 8 agents to 3 cost tiers
+- Venture-stage adaptive hints auto-selecting cheaper models for Pre-Opportunity and Opus for Investment stage
+- Per-room configuration via room/.config.json with global defaults at ~/.mindrian/defaults.json
+- CASCADE_MODELS table for future LLM-powered cascade steps
+- Model resolution wired into /mos:act, /mos:grade, /mos:deep-grade, /mos:research commands
+- 13-test validation script at scripts/validate-model-profiles
+
 ## [1.6.0] - 2026-03-31
 onboarding: true
 onboard_steps:
