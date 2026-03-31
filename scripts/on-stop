@@ -18,6 +18,97 @@ if [ -d "$ROOM_DIR" ]; then
 
   # Track session end
   bash "${SCRIPT_DIR}/track-analytics" session-stop 2>/dev/null &
+
+  # --- KAIROS Prep: Write session summary to room/.context/last-session.md ---
+  CONTEXT_DIR="${ROOM_DIR}/.context"
+  if [ -d "$CONTEXT_DIR" ]; then
+    SESSION_DATE=$(date -u +"%Y-%m-%d")
+    SESSION_TIME=$(date -u +"%H:%M:%S")
+
+    # Extract venture stage from STATE.md
+    VENTURE_STAGE=$(grep -i "Stage:" "${ROOM_DIR}/STATE.md" 2>/dev/null | head -1 | sed 's/.*Stage:\s*//' | tr -d '\r' || echo "Unknown")
+
+    # Count artifacts (markdown files excluding STATE.md, ROOM.md, USER.md)
+    ARTIFACT_COUNT=$(find "$ROOM_DIR" -name "*.md" \
+      ! -name "STATE.md" ! -name "ROOM.md" ! -name "USER.md" \
+      ! -path "*/.context/*" ! -path "*/.reasoning/*" \
+      -newer "${CONTEXT_DIR}/last-session.md" 2>/dev/null | wc -l || echo "0")
+    ARTIFACT_COUNT=$(echo "$ARTIFACT_COUNT" | tr -d ' ')
+
+    # Count signals from proactive intelligence
+    SIGNAL_COUNT=0
+    if [ -f "${ROOM_DIR}/.proactive-intelligence.json" ]; then
+      SIGNAL_COUNT=$(node -e "
+        try {
+          const d = require('fs').readFileSync('${ROOM_DIR}/.proactive-intelligence.json','utf8');
+          const j = JSON.parse(d);
+          console.log(Array.isArray(j.signals) ? j.signals.length : 0);
+        } catch(_) { console.log(0); }
+      " 2>/dev/null || echo "0")
+    fi
+
+    # Detect active methodology from recent artifacts
+    LAST_METHODOLOGY=$(find "$ROOM_DIR" -name "*.md" \
+      ! -name "STATE.md" ! -name "ROOM.md" ! -name "USER.md" \
+      ! -path "*/.context/*" ! -path "*/.reasoning/*" \
+      -newer "${CONTEXT_DIR}/last-session.md" 2>/dev/null \
+      | head -1 \
+      | xargs grep -l "^methodology:" 2>/dev/null \
+      | head -1 \
+      | xargs grep "^methodology:" 2>/dev/null \
+      | sed 's/methodology:\s*//' | tr -d '\r' || echo "none detected")
+
+    # Extract MINTO governing thoughts from .reasoning directories
+    MINTO_THOUGHTS=""
+    for section_dir in "${ROOM_DIR}"/*/; do
+      section_name=$(basename "$section_dir")
+      reasoning_file="${ROOM_DIR}/.reasoning/${section_name}/REASONING.md"
+      if [ -f "$reasoning_file" ]; then
+        governing=$(grep -A1 "governing.thought" "$reasoning_file" 2>/dev/null | tail -1 | sed 's/^[[:space:]]*//' || echo "")
+        if [ -n "$governing" ] && [ "$governing" != "---" ]; then
+          MINTO_THOUGHTS="${MINTO_THOUGHTS}\n- **${section_name}:** ${governing}"
+        fi
+      fi
+    done
+    if [ -z "$MINTO_THOUGHTS" ]; then
+      MINTO_THOUGHTS="\n- No REASONING.md files established yet"
+    fi
+
+    # Write session log
+    cat > "${CONTEXT_DIR}/last-session.md" <<SESSIONEOF
+# Last Session Log
+
+## Session Metadata
+
+- **Date:** ${SESSION_DATE}
+- **Time:** ${SESSION_TIME} UTC
+- **Active Room:** ${ROOM_DIR}
+- **Venture Stage:** ${VENTURE_STAGE}
+
+## Artifacts Filed
+
+- **Count:** ${ARTIFACT_COUNT} new/modified since last session
+
+## Signals Detected
+
+- **Total Signals:** ${SIGNAL_COUNT}
+
+## Active Methodology
+
+- **Last Framework Used:** ${LAST_METHODOLOGY}
+
+## MINTO Governing Thoughts
+${MINTO_THOUGHTS}
+
+## Pending Verifications
+
+- Check STATE.md for current section grades and gaps
+
+## Session Notes
+
+Session ended ${SESSION_DATE} at ${SESSION_TIME} UTC.
+SESSIONEOF
+  fi
 fi
 
 # Output minimal success JSON
