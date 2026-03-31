@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
 # banner: De Stijl Mondrian ASCII art banner for MindrianOS
-# Usage: bash scripts/banner [version]
+# Usage: bash scripts/banner [version] [old_version]
 #
-# Full block-letter "MindrianOS" with 4 background color zones
-# creating a Mondrian grid composition. Bottom bar adds a 5th color.
+# Responsive banner with 3 width tiers:
+#   >= 100 cols: Full block-letter "MindrianOS" with 4 Mondrian zones
+#   80-99 cols:  Compact "MOS" block letters with 2 Mondrian zones
+#   < 80 cols:   Minimal single-line identity
 #
-# ┌──────────────────┬──────────────────┬──────────────────┬──────────────────┐
-# │   M I N (red)    │  D R I (blue)    │  A N (yellow)    │   O S (teal)     │
-# ├──────────────────┴────────────┬─────┴──────────────────┴──────────────────┤
-# │  tagline (green)              │                     version (red)         │
-# └───────────────────────────────┴───────────────────────────────────────────┘
+# When old_version is provided, bottom bar shows version transition (v1.4.0 -> v1.5.1)
 
 set -euo pipefail
 
+# Width detection -- once per invocation (D-06)
+COLS=${COLUMNS:-$(tput cols 2>/dev/null || echo 120)}
+
 VERSION="${1:-}"
+OLD_VERSION="${2:-}"
+
 if [ -z "$VERSION" ]; then
   SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
   PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -30,36 +33,95 @@ CF=$'\e[38;2;245;240;232m'   # Cream fg  #F5F0E8
 MF=$'\e[38;2;160;154;144m'   # Muted fg  #A09A90
 RS=$'\e[0m'                   # Reset
 
-# Full MindrianOS block letters (78 chars per row)
-# Split into 4 Mondrian zones: MIN(24) DRI(18) AN(18) OS(18)
-L1='███╗   ███╗██╗███╗   ██╗██████╗ ██████╗ ██╗ █████╗ ███╗   ██╗ ██████╗ ███████╗'
-L2='████╗ ████║██║████╗  ██║██╔══██╗██╔══██╗██║██╔══██╗████╗  ██║██╔═══██╗██╔════╝'
-L3='██╔████╔██║██║██╔██╗ ██║██║  ██║██████╔╝██║███████║██╔██╗ ██║██║   ██║███████╗'
-L4='██║╚██╔╝██║██║██║╚██╗██║██║  ██║██╔══██╗██║██╔══██║██║╚██╗██║██║   ██║╚════██║'
-L5='██║ ╚═╝ ██║██║██║ ╚████║██████╔╝██║  ██║██║██║  ██║██║ ╚████║╚██████╔╝███████║'
-L6='╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝'
-
-# Bottom Mondrian bar: tagline(green, 45) + version(red, 33) = 78
+# Version display string
 VER="v${VERSION}"
-VLEN=${#VER}
-VLP=$(( (33 - VLEN) / 2 ))
-VRP=$(( 33 - VLEN - VLP ))
-VPAD=$(printf '%*s%s%*s' "$VLP" '' "$VER" "$VRP" '')
-TPAD=$(printf '%9s%s%9s' '' 'Wicked problems. Navigated.' '')
+if [ -n "$OLD_VERSION" ]; then
+  VER_TRANSITION="v${OLD_VERSION} -> v${VERSION}"
+else
+  VER_TRANSITION=""
+fi
 
-# Render the Mondrian composition
-printf '\n'
-for L in "$L1" "$L2" "$L3" "$L4" "$L5" "$L6"; do
-  printf "  %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n" \
-    "$RB" "$CF" "${L:0:24}"  "$RS" \
-    "$BB" "$CF" "${L:24:18}" "$RS" \
-    "$YB" "$CF" "${L:42:18}" "$RS" \
-    "$TB" "$CF" "${L:60:18}" "$RS"
-done
-printf '\n'
-printf "  %s%s%s%s%s%s%s%s\n" \
-  "$GB" "$CF" "$TPAD" "$RS" \
-  "$RB" "$CF" "$VPAD" "$RS"
-printf '\n'
-printf "  %smindrian.ai | Jonathan Sagir | linkedin.com/in/jonathansagir%s\n" "$MF" "$RS"
-printf '\n'
+if [ "$COLS" -ge 100 ]; then
+  # ========== WIDE: Full MindrianOS block letters, 4 Mondrian zones ==========
+  # 78 chars per row, split into: MIN(24) DRI(18) AN(18) OS(18)
+  L1='███╗   ███╗██╗███╗   ██╗██████╗ ██████╗ ██╗ █████╗ ███╗   ██╗ ██████╗ ███████╗'
+  L2='████╗ ████║██║████╗  ██║██╔══██╗██╔══██╗██║██╔══██╗████╗  ██║██╔═══██╗██╔════╝'
+  L3='██╔████╔██║██║██╔██╗ ██║██║  ██║██████╔╝██║███████║██╔██╗ ██║██║   ██║███████╗'
+  L4='██║╚██╔╝██║██║██║╚██╗██║██║  ██║██╔══██╗██║██╔══██║██║╚██╗██║██║   ██║╚════██║'
+  L5='██║ ╚═╝ ██║██║██║ ╚████║██████╔╝██║  ██║██║██║  ██║██║ ╚████║╚██████╔╝███████║'
+  L6='╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝'
+
+  # Bottom Mondrian bar: tagline(green, 45) + version(red, 33) = 78
+  if [ -n "$VER_TRANSITION" ]; then
+    VDISPLAY="$VER_TRANSITION"
+  else
+    VDISPLAY="$VER"
+  fi
+  VLEN=${#VDISPLAY}
+  VLP=$(( (33 - VLEN) / 2 ))
+  VRP=$(( 33 - VLEN - VLP ))
+  VPAD=$(printf '%*s%s%*s' "$VLP" '' "$VDISPLAY" "$VRP" '')
+  TPAD=$(printf '%9s%s%9s' '' 'Wicked problems. Navigated.' '')
+
+  # Render the Mondrian composition
+  printf '\n'
+  for L in "$L1" "$L2" "$L3" "$L4" "$L5" "$L6"; do
+    printf "  %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n" \
+      "$RB" "$CF" "${L:0:24}"  "$RS" \
+      "$BB" "$CF" "${L:24:18}" "$RS" \
+      "$YB" "$CF" "${L:42:18}" "$RS" \
+      "$TB" "$CF" "${L:60:18}" "$RS"
+  done
+  printf '\n'
+  printf "  %s%s%s%s%s%s%s%s\n" \
+    "$GB" "$CF" "$TPAD" "$RS" \
+    "$RB" "$CF" "$VPAD" "$RS"
+  printf '\n'
+  printf "  %smindrian.ai | Jonathan Sagir | linkedin.com/in/jonathansagir%s\n" "$MF" "$RS"
+  printf '\n'
+
+elif [ "$COLS" -ge 80 ]; then
+  # ========== COMPACT: Abbreviated "MOS" block letters, 2 Mondrian zones ==========
+  # ~42 chars per row, split into: MO(24) S(18)
+  C1='███╗   ███╗ ██████╗ ███████╗'
+  C2='████╗ ████║██╔═══██╗██╔════╝'
+  C3='██╔████╔██║██║   ██║███████╗'
+  C4='██║╚██╔╝██║██║   ██║╚════██║'
+  C5='██║ ╚═╝ ██║╚██████╔╝███████║'
+  C6='╚═╝     ╚═╝ ╚═════╝ ╚══════╝'
+
+  # Bottom bar: tagline(green, 38) + version(red, 24) = 62
+  if [ -n "$VER_TRANSITION" ]; then
+    VDISPLAY="$VER_TRANSITION"
+  else
+    VDISPLAY="$VER"
+  fi
+  VLEN=${#VDISPLAY}
+  VLP=$(( (24 - VLEN) / 2 ))
+  VRP=$(( 24 - VLEN - VLP ))
+  VPAD=$(printf '%*s%s%*s' "$VLP" '' "$VDISPLAY" "$VRP" '')
+  TPAD=$(printf '%4s%s%7s' '' 'Wicked problems. Navigated.' '')
+
+  printf '\n'
+  for L in "$C1" "$C2" "$C3" "$C4" "$C5" "$C6"; do
+    printf "  %s%s%s%s%s%s%s%s%s\n" \
+      "$RB" "$CF" "${L:0:18}" "$RS" \
+      "$BB" "$CF" "${L:18}"   "$RS"
+  done
+  printf '\n'
+  printf "  %s%s%s%s%s%s%s%s\n" \
+    "$GB" "$CF" "$TPAD" "$RS" \
+    "$RB" "$CF" "$VPAD" "$RS"
+  printf '\n'
+  printf "  %smindrian.ai | Jonathan Sagir | linkedin.com/in/jonathansagir%s\n" "$MF" "$RS"
+  printf '\n'
+
+else
+  # ========== MINIMAL: Single line, no block art ==========
+  if [ -n "$VER_TRANSITION" ]; then
+    printf "  %s%s MINDRIANOS %s %s%s\n" "$RB" "$CF" "$VER_TRANSITION" "$RS" ""
+  else
+    printf "  %s%s MINDRIANOS %s %s%s\n" "$RB" "$CF" "$VER" "$RS" ""
+  fi
+  printf "  %sWicked problems. Navigated.%s\n" "$MF" "$RS"
+fi
