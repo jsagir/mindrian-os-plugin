@@ -1,0 +1,346 @@
+#!/usr/bin/env bash
+# publish-ops -- Vercel deployment operations for room presentations
+# Follows git-ops subcommand pattern.
+#
+# Subcommands:
+#   check-vercel              -- Check Vercel CLI install + login status
+#   link <room_path>          -- Link room presentation to Vercel project
+#   deploy <room_path> [flags] -- Deploy presentation (--sections sec1,sec2 --private)
+#   domain <room_path> <domain> -- Add custom domain
+#   log-deploy <room_path> <url> [flags] -- Log deployment to .exports-log.json
+#
+# First positional argument (before subcommand) can be workspace dir.
+# Defaults to $PWD.
+
+set -euo pipefail
+
+# Parse workspace dir
+WORK_DIR="$PWD"
+if [ $# -ge 2 ]; then
+  case "$2" in
+    check-vercel|link|deploy|domain|log-deploy)
+      if [ -d "$1" ]; then
+        WORK_DIR="$1"
+        shift
+      fi
+      ;;
+  esac
+fi
+
+SUBCMD="${1:-}"
+shift 2>/dev/null || true
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# ---------- Subcommands ----------
+
+case "$SUBCMD" in
+
+  check-vercel)
+    installed="false"
+    logged_in="false"
+    user="null"
+
+    if command -v vercel >/dev/null 2>&1; then
+      installed="true"
+      whoami_result=$(vercel whoami 2>/dev/null || echo "")
+      if [ -n "$whoami_result" ]; then
+        logged_in="true"
+        user="\"${whoami_result}\""
+      fi
+    fi
+
+    echo "{\"installed\": ${installed}, \"logged_in\": ${logged_in}, \"user\": ${user}}"
+    ;;
+
+  link)
+    ROOM_PATH="${1:-}"
+    if [ -z "$ROOM_PATH" ]; then
+      echo "Usage: publish-ops link <room_path>" >&2
+      exit 1
+    fi
+
+    PRES_DIR="${ROOM_PATH}/exports/presentation"
+    if [ ! -d "$PRES_DIR" ]; then
+      echo "No exports/presentation/ directory found at ${ROOM_PATH}. Run generate-presentation.cjs first." >&2
+      exit 1
+    fi
+
+    # Check if already linked
+    if [ -d "${PRES_DIR}/.vercel" ]; then
+      PROJECT_NAME=$(node -e "
+        try {
+          const p = require('${PRES_DIR}/.vercel/project.json');
+          console.log(p.projectId || 'linked');
+        } catch { console.log('linked'); }
+      " 2>/dev/null || echo "linked")
+      echo "{\"linked\": true, \"project\": \"${PROJECT_NAME}\"}"
+      exit 0
+    fi
+
+    # Link to Vercel
+    if vercel link --yes --cwd "$PRES_DIR" 2>&1; then
+      echo "{\"linked\": true}"
+    else
+      echo "{\"linked\": false, \"error\": \"vercel link failed\"}" >&2
+      exit 1
+    fi
+    ;;
+
+  deploy)
+    ROOM_PATH="${1:-}"
+    if [ -z "$ROOM_PATH" ]; then
+      echo "Usage: publish-ops deploy <room_path> [--sections sec1,sec2] [--private]" >&2
+      exit 1
+    fi
+    shift
+
+    SECTIONS=""
+    PRIVATE="false"
+    PASSWORD=""
+
+    # Parse flags
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        --sections)
+          SECTIONS="${2:-}"
+          shift 2
+          ;;
+        --private)
+          PRIVATE="true"
+          shift
+          ;;
+        *)
+          shift
+          ;;
+      esac
+    done
+
+    PRES_DIR="${ROOM_PATH}/exports/presentation"
+    DEPLOY_DIR="$PRES_DIR"
+    CLEANUP_TEMP=""
+
+    if [ ! -d "$PRES_DIR" ]; then
+      echo "No exports/presentation/ directory found at ${ROOM_PATH}." >&2
+      exit 1
+    fi
+
+    # -- Section filtering --
+    if [ -n "$SECTIONS" ]; then
+      TEMP_DIR=$(mktemp -d)
+      CLEANUP_TEMP="$TEMP_DIR"
+      cp -r "${PRES_DIR}/." "$TEMP_DIR/"
+
+      # Filter ROOM_DATA in each HTML file to only include specified sections
+      node -e "
+const fs = require('fs');
+const path = require('path');
+const allowedSections = '${SECTIONS}'.split(',').map(s => s.trim());
+const tempDir = '${TEMP_DIR}';
+
+const htmlFiles = fs.readdirSync(tempDir).filter(f => f.endsWith('.html'));
+for (const file of htmlFiles) {
+  const filePath = path.join(tempDir, file);
+  let content = fs.readFileSync(filePath, 'utf-8');
+
+  // Match the ROOM_DATA JSON blob
+  const match = content.match(/\/\*ROOM_DATA_PLACEHOLDER\*\/(\\{[\\s\\S]*?\\});/);
+  if (!match) continue;
+
+  try {
+    const data = JSON.parse(match[1]);
+
+    // Filter sections
+    if (data.sections) {
+      data.sections = data.sections.filter(s =>
+        allowedSections.includes(s.name) || allowedSections.includes(s.id)
+      );
+    }
+
+    // Filter artifacts to only allowed sections
+    if (data.artifacts) {
+      data.artifacts = data.artifacts.filter(a =>
+        allowedSections.includes(a.section)
+      );
+    }
+
+    // Filter graph nodes/edges
+    if (data.graph) {
+      if (data.graph.elements) {
+        const g = data.graph.elements;
+        if (g.nodes) {
+          g.nodes = g.nodes.filter(n => {
+            const s = (n.data || {}).section;
+            return !s || allowedSections.includes(s);
+          });
+          const nodeIds = new Set(g.nodes.map(n => (n.data || {}).id));
+          if (g.edges) {
+            g.edges = g.edges.filter(e =>
+              nodeIds.has((e.data || {}).source) && nodeIds.has((e.data || {}).target)
+            );
+          }
+        }
+      }
+    }
+
+    // Rewrite the JSON in the HTML
+    content = content.replace(
+      /\/\*ROOM_DATA_PLACEHOLDER\*\/\\{[\\s\\S]*?\\};/,
+      '/*ROOM_DATA_PLACEHOLDER*/' + JSON.stringify(data) + ';'
+    );
+    fs.writeFileSync(filePath, content, 'utf-8');
+  } catch (e) {
+    // Skip files that don't have parseable ROOM_DATA
+  }
+}
+console.log('filtered');
+"
+      DEPLOY_DIR="$TEMP_DIR"
+    fi
+
+    # -- Password protection (client-side gate for free tier) --
+    if [ "$PRIVATE" = "true" ]; then
+      PASSWORD=$(node -e "console.log(require('crypto').randomBytes(6).toString('hex'))")
+      PASSWORD_HASH=$(node -e "console.log(require('crypto').createHash('sha256').update('${PASSWORD}').digest('hex'))")
+
+      # Inject password gate into each HTML file
+      node -e "
+const fs = require('fs');
+const path = require('path');
+const deployDir = '${DEPLOY_DIR}';
+const hash = '${PASSWORD_HASH}';
+
+const gate = \`
+<div id=\"mos-password-gate\" style=\"position:fixed;top:0;left:0;width:100%;height:100%;background:#1a1a2e;display:flex;align-items:center;justify-content:center;z-index:99999;font-family:system-ui,sans-serif;\">
+  <div style=\"text-align:center;color:#e0e0e0;\">
+    <div style=\"font-size:1.2rem;margin-bottom:1rem;\">This presentation is password-protected</div>
+    <input id=\"mos-pw-input\" type=\"password\" placeholder=\"Enter password\" style=\"padding:0.5rem 1rem;font-size:1rem;border:2px solid #c8102e;background:#0d0d1a;color:#fff;border-radius:4px;outline:none;width:200px;\" />
+    <br/><button onclick=\"mosCheckPw()\" style=\"margin-top:0.75rem;padding:0.5rem 1.5rem;background:#c8102e;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:1rem;\">Enter</button>
+    <div id=\"mos-pw-error\" style=\"color:#c8102e;margin-top:0.5rem;display:none;\">Incorrect password</div>
+  </div>
+</div>
+<script>
+async function mosCheckPw(){
+  var v=document.getElementById('mos-pw-input').value;
+  var buf=new TextEncoder().encode(v);
+  var h=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',buf))).map(b=>b.toString(16).padStart(2,'0')).join('');
+  if(h==='\${hash}'){document.getElementById('mos-password-gate').remove();}
+  else{document.getElementById('mos-pw-error').style.display='block';}
+}
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('mos-password-gate'))mosCheckPw();});
+</script>
+\`;
+
+const htmlFiles = fs.readdirSync(deployDir).filter(f => f.endsWith('.html'));
+for (const file of htmlFiles) {
+  const filePath = path.join(deployDir, file);
+  let content = fs.readFileSync(filePath, 'utf-8');
+  // Insert gate right after <body>
+  content = content.replace(/<body([^>]*)>/, '<body\$1>' + gate);
+  fs.writeFileSync(filePath, content, 'utf-8');
+}
+console.log('password-gate-injected');
+"
+      echo "PASSWORD=${PASSWORD}"
+    fi
+
+    # -- Copy .vercel config to deploy dir if it exists and we're using a temp dir --
+    if [ -n "$CLEANUP_TEMP" ] && [ -d "${PRES_DIR}/.vercel" ]; then
+      cp -r "${PRES_DIR}/.vercel" "${DEPLOY_DIR}/.vercel"
+    fi
+
+    # -- Deploy --
+    DEPLOY_OUTPUT=$(vercel --yes --cwd "$DEPLOY_DIR" 2>&1) || {
+      echo "DEPLOY_ERROR: ${DEPLOY_OUTPUT}" >&2
+      # Cleanup temp dir if used
+      [ -n "$CLEANUP_TEMP" ] && rm -rf "$CLEANUP_TEMP"
+      exit 1
+    }
+
+    # Extract URL from vercel output (last line is typically the URL)
+    DEPLOY_URL=$(echo "$DEPLOY_OUTPUT" | grep -oE 'https://[^ ]+' | tail -1)
+
+    echo "URL=${DEPLOY_URL}"
+
+    # Log deployment via exports-log.cjs
+    SECTIONS_JSON="[\"all\"]"
+    if [ -n "$SECTIONS" ]; then
+      SECTIONS_JSON=$(node -e "console.log(JSON.stringify('${SECTIONS}'.split(',').map(s=>s.trim())))")
+    fi
+
+    node -e "
+const log = require('${PLUGIN_DIR}/lib/core/exports-log.cjs');
+log.logDeployment('${ROOM_PATH}', {
+  url: '${DEPLOY_URL}',
+  host: 'vercel',
+  sections: ${SECTIONS_JSON},
+  private: ${PRIVATE},
+  project_name: '',
+  password: '${PASSWORD}' || undefined
+});
+console.log('logged');
+"
+
+    # Git commit + push for auto-deploy (SYNC-03)
+    "${SCRIPT_DIR}/git-ops" commit "$ROOM_PATH" "${ROOM_PATH}/exports/presentation/" "deploy: publish presentation" 2>/dev/null || true
+    "${SCRIPT_DIR}/git-ops" push "$ROOM_PATH" 2>/dev/null || true
+
+    # Cleanup temp dir
+    [ -n "$CLEANUP_TEMP" ] && rm -rf "$CLEANUP_TEMP"
+
+    echo "DEPLOY_COMPLETE"
+    ;;
+
+  domain)
+    ROOM_PATH="${1:-}"
+    DOMAIN="${2:-}"
+    if [ -z "$ROOM_PATH" ] || [ -z "$DOMAIN" ]; then
+      echo "Usage: publish-ops domain <room_path> <domain>" >&2
+      exit 1
+    fi
+
+    PRES_DIR="${ROOM_PATH}/exports/presentation"
+    if vercel domains add "$DOMAIN" --cwd "$PRES_DIR" 2>&1; then
+      echo "{\"domain\": \"${DOMAIN}\", \"added\": true}"
+    else
+      echo "{\"domain\": \"${DOMAIN}\", \"added\": false}" >&2
+      exit 1
+    fi
+    ;;
+
+  log-deploy)
+    ROOM_PATH="${1:-}"
+    URL="${2:-}"
+    shift 2 2>/dev/null || true
+
+    SECTIONS="all"
+    PRIVATE="false"
+
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        --sections) SECTIONS="${2:-all}"; shift 2 ;;
+        --private) PRIVATE="true"; shift ;;
+        *) shift ;;
+      esac
+    done
+
+    SECTIONS_JSON=$(node -e "console.log(JSON.stringify('${SECTIONS}'.split(',').map(s=>s.trim())))")
+
+    node -e "
+const log = require('${PLUGIN_DIR}/lib/core/exports-log.cjs');
+log.logDeployment('${ROOM_PATH}', {
+  url: '${URL}',
+  host: 'vercel',
+  sections: ${SECTIONS_JSON},
+  private: ${PRIVATE}
+});
+console.log('logged');
+"
+    ;;
+
+  *)
+    echo "Usage: publish-ops <check-vercel|link|deploy|domain|log-deploy> [args...]" >&2
+    exit 1
+    ;;
+esac
