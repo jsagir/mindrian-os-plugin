@@ -198,7 +198,10 @@ Plans:
   2. `highlightCluster()` is wired as an AI tool call -- Larry saying "show me market analysis" highlights those graph nodes
   3. A visitor can enter their own API key in a BYOAPI chat panel (stored in localStorage) and converse with Larry directly from the browser
   4. Asking "show me contradictions" produces a filtered graph view with contradicting nodes highlighted plus an analysis card
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 32-01-PLAN.md -- BYOAPI chat panel: API key in localStorage, streaming Anthropic calls, room context system prompt, Larry personality
+- [ ] 32-02-PLAN.md -- Generative tools: highlightCluster/filterEdgeType/showInsight as AI tool calls, json-render inline components
 **UI hint**: yes
 
 ## Progress
@@ -209,7 +212,7 @@ Plans:
 | v2.0 Meeting Intelligence | 6-9 | 13/13 | Complete | 2026-03-24 |
 | v3.0 MCP Platform | 10-19 | 26/26 | Complete | 2026-03-25 |
 | v4.0 Brain API & CLI UI | 20-25 | 12/12 | Complete | 2026-03-29 |
-| v5.0 Data Room Presentation | 26-32 | 11/TBD | In progress | - |
+| v5.0 Data Room Presentation | 26-32 | 13/TBD | In progress | - |
 
 **Execution Order:**
 Phases execute in numeric order: 26 -> 27 -> 27.1 -> 28 -> 29 -> 30 -> 31 -> 32
