@@ -1,0 +1,188 @@
+#!/usr/bin/env bash
+# sentinel-deadline-monitor: Scan funding/ and opportunity-bank/ for approaching deadlines
+# Alerts on deadlines within 7 days (configurable via --days flag)
+# Outputs alerts to room/.intelligence/deadlines-YYYY-MM-DD.md
+# Part of Sentinel Intelligence (SENT-02)
+
+set -euo pipefail
+
+ROOM_DIR="${1:-./room}"
+ALERT_DAYS="${2:-7}"
+
+if [ ! -d "$ROOM_DIR" ]; then
+  echo "ERROR: Room directory not found: $ROOM_DIR" >&2
+  exit 1
+fi
+
+# Ensure .intelligence/ directory exists
+INTEL_DIR="$ROOM_DIR/.intelligence"
+mkdir -p "$INTEL_DIR"
+
+TODAY=$(date -u +"%Y-%m-%d")
+TODAY_EPOCH=$(date -d "$TODAY" +%s 2>/dev/null || date -j -f "%Y-%m-%d" "$TODAY" +%s 2>/dev/null || echo "0")
+CUTOFF_EPOCH=$((TODAY_EPOCH + ALERT_DAYS * 86400))
+
+urgent_count=0
+upcoming_count=0
+overdue_count=0
+
+# Collect all deadline alerts
+declare -a alerts=()
+
+# ── Scan funding/ for STATUS.md files with deadline fields ──
+if [ -d "$ROOM_DIR/funding" ]; then
+  for fund_dir in "$ROOM_DIR"/funding/*/; do
+    [ -d "$fund_dir" ] || continue
+    status_file="${fund_dir}STATUS.md"
+    [ -f "$status_file" ] || continue
+
+    slug=$(basename "$fund_dir")
+
+    # Extract deadline from frontmatter
+    deadline=$(grep -m1 '^deadline:' "$status_file" 2>/dev/null | sed 's/deadline:[[:space:]]*//' | tr -d '"' | xargs)
+    [ -z "$deadline" ] && continue
+
+    # Extract funder name
+    funder=$(grep -m1 '^funder:' "$status_file" 2>/dev/null | sed 's/funder:[[:space:]]*//' | tr -d '"' | xargs)
+    funder=${funder:-$slug}
+
+    # Extract stage
+    stage=$(grep -m1 '^stage:' "$status_file" 2>/dev/null | sed 's/stage:[[:space:]]*//' | tr -d '"' | xargs)
+    stage=${stage:-unknown}
+
+    # Calculate days until deadline
+    deadline_epoch=$(date -d "$deadline" +%s 2>/dev/null || echo "0")
+    if [ "$deadline_epoch" -eq 0 ]; then
+      continue
+    fi
+
+    days_until=$(( (deadline_epoch - TODAY_EPOCH) / 86400 ))
+
+    if [ "$days_until" -lt 0 ]; then
+      overdue_count=$((overdue_count + 1))
+      alerts+=("OVERDUE|funding|${funder}|${deadline}|${days_until}|${stage}")
+    elif [ "$days_until" -le "$ALERT_DAYS" ]; then
+      urgent_count=$((urgent_count + 1))
+      alerts+=("URGENT|funding|${funder}|${deadline}|${days_until}|${stage}")
+    elif [ "$days_until" -le $((ALERT_DAYS * 2)) ]; then
+      upcoming_count=$((upcoming_count + 1))
+      alerts+=("UPCOMING|funding|${funder}|${deadline}|${days_until}|${stage}")
+    fi
+  done
+fi
+
+# ── Scan opportunity-bank/ for deadline frontmatter ──
+if [ -d "$ROOM_DIR/opportunity-bank" ]; then
+  for f in "$ROOM_DIR"/opportunity-bank/*.md; do
+    [ -f "$f" ] || continue
+    fname=$(basename "$f")
+    [ "$fname" = "STATE.md" ] || [ "$fname" = "ROOM.md" ] && continue
+
+    # Extract deadline from frontmatter
+    deadline=$(grep -m1 '^deadline:' "$f" 2>/dev/null | sed 's/deadline:[[:space:]]*//' | tr -d '"' | xargs)
+    [ -z "$deadline" ] && continue
+
+    # Extract funder name
+    funder=$(grep -m1 '^funder:' "$f" 2>/dev/null | sed 's/funder:[[:space:]]*//' | tr -d '"' | xargs)
+    funder=${funder:-$fname}
+
+    # Extract status
+    status=$(grep -m1 '^status:' "$f" 2>/dev/null | sed 's/status:[[:space:]]*//' | tr -d '"' | xargs)
+    status=${status:-unknown}
+
+    # Calculate days until deadline
+    deadline_epoch=$(date -d "$deadline" +%s 2>/dev/null || echo "0")
+    if [ "$deadline_epoch" -eq 0 ]; then
+      continue
+    fi
+
+    days_until=$(( (deadline_epoch - TODAY_EPOCH) / 86400 ))
+
+    if [ "$days_until" -lt 0 ]; then
+      overdue_count=$((overdue_count + 1))
+      alerts+=("OVERDUE|opportunity|${funder}|${deadline}|${days_until}|${status}")
+    elif [ "$days_until" -le "$ALERT_DAYS" ]; then
+      urgent_count=$((urgent_count + 1))
+      alerts+=("URGENT|opportunity|${funder}|${deadline}|${days_until}|${status}")
+    elif [ "$days_until" -le $((ALERT_DAYS * 2)) ]; then
+      upcoming_count=$((upcoming_count + 1))
+      alerts+=("UPCOMING|opportunity|${funder}|${deadline}|${days_until}|${status}")
+    fi
+  done
+fi
+
+# ── Generate report ──
+total_alerts=$((urgent_count + overdue_count + upcoming_count))
+
+if [ "$total_alerts" -eq 0 ]; then
+  echo "DEADLINES:CLEAR:No approaching deadlines within ${ALERT_DAYS} days"
+  exit 0
+fi
+
+REPORT_FILE="$INTEL_DIR/deadlines-${TODAY}.md"
+
+{
+  echo "---"
+  echo "type: deadline-monitor"
+  echo "date: ${TODAY}"
+  echo "alert_window: ${ALERT_DAYS} days"
+  echo "overdue: ${overdue_count}"
+  echo "urgent: ${urgent_count}"
+  echo "upcoming: ${upcoming_count}"
+  echo "---"
+  echo ""
+  echo "# Deadline Monitor - ${TODAY}"
+  echo ""
+
+  if [ "$overdue_count" -gt 0 ]; then
+    echo "## OVERDUE"
+    echo ""
+    echo "| Source | Name | Deadline | Days Past | Stage/Status |"
+    echo "|--------|------|----------|-----------|--------------|"
+    for alert in "${alerts[@]}"; do
+      IFS='|' read -r severity source name dl days st <<< "$alert"
+      if [ "$severity" = "OVERDUE" ]; then
+        echo "| ${source} | ${name} | ${dl} | ${days#-} days ago | ${st} |"
+      fi
+    done
+    echo ""
+  fi
+
+  if [ "$urgent_count" -gt 0 ]; then
+    echo "## URGENT (within ${ALERT_DAYS} days)"
+    echo ""
+    echo "| Source | Name | Deadline | Days Left | Stage/Status |"
+    echo "|--------|------|----------|-----------|--------------|"
+    for alert in "${alerts[@]}"; do
+      IFS='|' read -r severity source name dl days st <<< "$alert"
+      if [ "$severity" = "URGENT" ]; then
+        echo "| ${source} | ${name} | ${dl} | ${days} days | ${st} |"
+      fi
+    done
+    echo ""
+  fi
+
+  if [ "$upcoming_count" -gt 0 ]; then
+    echo "## UPCOMING (${ALERT_DAYS}-$((ALERT_DAYS * 2)) days)"
+    echo ""
+    echo "| Source | Name | Deadline | Days Left | Stage/Status |"
+    echo "|--------|------|----------|-----------|--------------|"
+    for alert in "${alerts[@]}"; do
+      IFS='|' read -r severity source name dl days st <<< "$alert"
+      if [ "$severity" = "UPCOMING" ]; then
+        echo "| ${source} | ${name} | ${dl} | ${days} days | ${st} |"
+      fi
+    done
+    echo ""
+  fi
+} > "$REPORT_FILE"
+
+# Output summary to stdout
+echo "DEADLINES:ALERT:${overdue_count} overdue, ${urgent_count} urgent, ${upcoming_count} upcoming"
+if [ "$overdue_count" -gt 0 ]; then
+  echo "DEADLINE_CRITICAL:${overdue_count} deadlines have passed!"
+fi
+if [ "$urgent_count" -gt 0 ]; then
+  echo "DEADLINE_URGENT:${urgent_count} deadlines within ${ALERT_DAYS} days"
+fi
+echo "REPORT:${REPORT_FILE}"

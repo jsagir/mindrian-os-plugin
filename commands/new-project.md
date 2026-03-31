@@ -100,10 +100,16 @@ Create the room directory with 8 base sections aligned to due diligence standard
     ROOM.md
   team/
   assets/
+  .intelligence/
+  .snapshots/
   USER.md
 ```
 
 `assets/` stores binary files (PDFs, images, videos) organized by section. Subdirectories are created on demand by `scripts/file-asset` when assets are filed.
+
+`.intelligence/` stores sentinel-generated alerts and digests (health checks, deadline reports, competitor watch). Created empty on room init so sentinel scripts can write to it immediately.
+
+`.snapshots/` stores weekly STATE.md copies for drift detection by sentinel-health-check. Created empty on room init.
 
 **Multi-room registration:** When in multi-room mode, after creating the directory structure, register the room:
 

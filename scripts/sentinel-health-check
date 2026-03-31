@@ -1,0 +1,172 @@
+#!/usr/bin/env bash
+# sentinel-health-check: Compare current STATE.md against latest snapshot
+# Detects drift in venture stage, section counts, entry counts, and edge counts
+# Outputs drift report to room/.intelligence/health-YYYY-MM-DD.md
+# Part of Sentinel Intelligence (SENT-01)
+
+set -euo pipefail
+
+ROOM_DIR="${1:-./room}"
+
+if [ ! -d "$ROOM_DIR" ]; then
+  echo "ERROR: Room directory not found: $ROOM_DIR" >&2
+  exit 1
+fi
+
+if [ ! -f "$ROOM_DIR/STATE.md" ]; then
+  echo "ERROR: No STATE.md found in $ROOM_DIR" >&2
+  exit 1
+fi
+
+# Ensure .intelligence/ directory exists
+INTEL_DIR="$ROOM_DIR/.intelligence"
+mkdir -p "$INTEL_DIR"
+
+# Find latest snapshot
+SNAPSHOTS_DIR="$ROOM_DIR/.snapshots"
+if [ ! -d "$SNAPSHOTS_DIR" ]; then
+  echo "NO_SNAPSHOTS: No previous snapshots found. Run sentinel-snapshot first."
+  echo "Creating initial snapshot now..."
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  bash "$SCRIPT_DIR/sentinel-snapshot" "$ROOM_DIR"
+  echo "HEALTH_CHECK:BASELINE:First snapshot created. Run health check again next week for drift detection."
+  exit 0
+fi
+
+LATEST_SNAPSHOT=$(find "$SNAPSHOTS_DIR" -name "STATE-*.md" 2>/dev/null | sort -r | head -1)
+
+if [ -z "$LATEST_SNAPSHOT" ]; then
+  echo "NO_SNAPSHOTS: No snapshot files found. Run sentinel-snapshot first."
+  exit 0
+fi
+
+SNAPSHOT_DATE=$(basename "$LATEST_SNAPSHOT" | sed 's/STATE-//' | sed 's/\.md//')
+TODAY=$(date -u +"%Y-%m-%d")
+
+# ── Extract key metrics from current STATE.md ──
+extract_metric() {
+  local file="$1"
+  local pattern="$2"
+  grep -i "$pattern" "$file" 2>/dev/null | head -1 | sed "s/.*${pattern}[[:space:]]*//" | tr -d '"' | xargs || echo ""
+}
+
+extract_count() {
+  local file="$1"
+  local pattern="$2"
+  grep -c "$pattern" "$file" 2>/dev/null || echo "0"
+}
+
+CURRENT="$ROOM_DIR/STATE.md"
+PREVIOUS="$LATEST_SNAPSHOT"
+
+# Extract venture stage
+current_stage=$(extract_metric "$CURRENT" "venture_stage:")
+previous_stage=$(extract_metric "$PREVIOUS" "venture_stage:")
+
+# Count sections with entries (lines matching "entries:" or entry count patterns)
+current_entry_lines=$(grep -E '^\|.*\|.*[0-9]+.*\|' "$CURRENT" 2>/dev/null | wc -l | tr -d ' ')
+previous_entry_lines=$(grep -E '^\|.*\|.*[0-9]+.*\|' "$PREVIOUS" 2>/dev/null | wc -l | tr -d ' ')
+
+# Count total entries (sum numbers from entry count patterns)
+current_total=$(grep -oE '[0-9]+ entries' "$CURRENT" 2>/dev/null | grep -oE '[0-9]+' | paste -sd+ | bc 2>/dev/null || echo "0")
+previous_total=$(grep -oE '[0-9]+ entries' "$PREVIOUS" 2>/dev/null | grep -oE '[0-9]+' | paste -sd+ | bc 2>/dev/null || echo "0")
+
+# Count edges/relationships mentioned
+current_edges=$(grep -ciE 'INFORMS|CONTRADICTS|CONVERGES|ENABLES|INVALIDATES' "$CURRENT" 2>/dev/null || echo "0")
+previous_edges=$(grep -ciE 'INFORMS|CONTRADICTS|CONVERGES|ENABLES|INVALIDATES' "$PREVIOUS" 2>/dev/null || echo "0")
+
+# ── Build drift report ──
+REPORT_FILE="$INTEL_DIR/health-${TODAY}.md"
+
+drift_detected=false
+
+{
+  echo "---"
+  echo "type: health-check"
+  echo "date: ${TODAY}"
+  echo "snapshot_compared: ${SNAPSHOT_DATE}"
+  echo "---"
+  echo ""
+  echo "# Room Health Check - ${TODAY}"
+  echo ""
+  echo "Comparing current STATE.md against snapshot from ${SNAPSHOT_DATE}."
+  echo ""
+  echo "## Venture Stage"
+  echo ""
+
+  if [ "$current_stage" != "$previous_stage" ] && [ -n "$previous_stage" ]; then
+    drift_detected=true
+    echo "DRIFT: Stage changed from **${previous_stage}** to **${current_stage}**"
+  else
+    echo "Stable: ${current_stage:-Unknown}"
+  fi
+
+  echo ""
+  echo "## Entry Counts"
+  echo ""
+
+  entry_delta=$((current_total - previous_total))
+  if [ "$entry_delta" -gt 0 ]; then
+    echo "Growth: +${entry_delta} entries since last snapshot (${previous_total} -> ${current_total})"
+  elif [ "$entry_delta" -lt 0 ]; then
+    drift_detected=true
+    echo "DRIFT: Entry count decreased by ${entry_delta#-} (${previous_total} -> ${current_total})"
+  else
+    echo "No change: ${current_total} entries"
+  fi
+
+  echo ""
+  echo "## Edge Counts"
+  echo ""
+
+  edge_delta=$((current_edges - previous_edges))
+  if [ "$edge_delta" -gt 0 ]; then
+    echo "Growth: +${edge_delta} edges since last snapshot"
+  elif [ "$edge_delta" -lt 0 ]; then
+    drift_detected=true
+    echo "DRIFT: Edge count decreased by ${edge_delta#-}"
+  else
+    echo "No change: ${current_edges} edges"
+  fi
+
+  echo ""
+  echo "## Staleness Check"
+  echo ""
+
+  # Check if STATE.md was modified recently
+  state_mod=$(stat -c %Y "$CURRENT" 2>/dev/null || echo "0")
+  now_epoch=$(date +%s)
+  days_since_mod=$(( (now_epoch - state_mod) / 86400 ))
+
+  if [ "$days_since_mod" -gt 14 ]; then
+    drift_detected=true
+    echo "WARNING: STATE.md not updated in ${days_since_mod} days -- room may be stale"
+  elif [ "$days_since_mod" -gt 7 ]; then
+    echo "NOTE: STATE.md last updated ${days_since_mod} days ago"
+  else
+    echo "Fresh: STATE.md updated within the last week"
+  fi
+
+  echo ""
+  echo "## Summary"
+  echo ""
+
+  if $drift_detected; then
+    echo "HEALTH_STATUS: DRIFT_DETECTED"
+    echo ""
+    echo "Action recommended: Review the changes above and determine if they are intentional."
+  else
+    echo "HEALTH_STATUS: HEALTHY"
+    echo ""
+    echo "Room is stable since last snapshot on ${SNAPSHOT_DATE}."
+  fi
+} > "$REPORT_FILE"
+
+# Output summary to stdout
+if $drift_detected; then
+  echo "HEALTH_CHECK:DRIFT:${TODAY}:Changes detected since ${SNAPSHOT_DATE}"
+else
+  echo "HEALTH_CHECK:HEALTHY:${TODAY}:No significant drift since ${SNAPSHOT_DATE}"
+fi
+
+echo "REPORT:${REPORT_FILE}"
