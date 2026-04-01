@@ -21,7 +21,7 @@
 
 ## Phases
 
-- [ ] **Phase 47: Adaptive Room Detection + Parallel Extraction** - Detect Room type from State/Sections/Entries, configure adaptive labels and metrics, run tiered model extraction
+- [x] **Phase 47: Adaptive Room Detection + Parallel Extraction** - Detect Room type from State/Sections/Entries, configure adaptive labels and metrics, run tiered model extraction
 - [ ] **Phase 48: Constellation + Fabric Graph** - Full 12-Thread Cytoscape graph with De Stijl colors, spectral OM-HMM coloring, Surprises, Bottlenecks, cross-domain bridges
 - [ ] **Phase 49: Showcase Views + Deep Links** - Overview, Library, Narrative, Synthesis, Blueprint views plus claude-cli:// deep links on every element
 - [ ] **Phase 50: Generative Fabric Chat** - Chat view with natural language to Cypher, Constellation click injection, BYOAPI, docked in all views
@@ -98,7 +98,7 @@
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 47. Adaptive Room Detection + Parallel Extraction | v6.2 | 0/TBD | Not started | - |
+| 47. Adaptive Room Detection + Parallel Extraction | v6.2 | 1/1 | Complete | 2026-04-01 |
 | 48. Constellation + Fabric Graph | v6.2 | 0/TBD | Not started | - |
 | 49. Showcase Views + Deep Links | v6.2 | 0/TBD | Not started | - |
 | 50. Generative Fabric Chat | v6.2 | 0/TBD | Not started | - |
