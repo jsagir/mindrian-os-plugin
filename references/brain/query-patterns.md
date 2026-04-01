@@ -1,6 +1,6 @@
 # Brain Query Patterns
 
-9 named Cypher/Pinecone templates. Single source of truth for all agents, skills, and commands.
+10 named Cypher/Pinecone templates. Single source of truth for all agents, skills, and commands.
 
 ## How to Use
 
@@ -213,3 +213,127 @@ LIMIT 15
 **Output:** Frameworks from other domains that solve the same type of problem, with optional bridging frameworks that connect the two domains.
 
 **Usage notes:** Used by the Design-by-Analogy pipeline (Stage 3 SEARCH) and `/mos:find-analogies --brain`. The key insight: same problem type + different domain = structural analogy candidate. Bridge frameworks increase confidence that the analogy is meaningful, not superficial.
+
+---
+
+## 10. brain_proactive_suggest
+
+**Purpose:** Given the user's current Room state (frameworks used, venture stage, section health, active signals), return a ranked list of ACTIONS the Brain recommends -- not just frameworks, but specific /mos: commands with JTBD reasoning.
+
+This is the Brain's proactive intelligence engine. It doesn't wait to be asked. It knows what works based on 100+ real projects and tells Larry WHAT to suggest and WHY.
+
+### Query 10a: What Should the User Do Next?
+
+```cypher
+// Find frameworks the user HASN'T used that their current frameworks FEED INTO
+MATCH (current:Framework)-[r:FEEDS_INTO]->(next:Framework)
+WHERE current.name IN $room_frameworks
+AND NOT next.name IN $room_frameworks
+WITH next, r, r.confidence AS confidence
+
+// Check if next framework addresses the user's problem type
+OPTIONAL MATCH (next)-[apt:ADDRESSES_PROBLEM_TYPE]->(pt:ProblemType {name: $problem_type})
+
+// Check if there's a phase/stage progression pattern
+OPTIONAL MATCH (next)-[:HAS_PHASE]->(phase)
+WITH next, confidence, pt, count(phase) AS phase_count
+
+// Get success data from real projects
+OPTIONAL MATCH (next)-[:APPLIED_IN]->(example:Example)
+WHERE example.grade_numeric >= 80
+
+RETURN next.name AS framework,
+       next.description AS description,
+       next.category AS category,
+       confidence,
+       pt IS NOT NULL AS matches_problem,
+       phase_count,
+       count(example) AS success_count
+ORDER BY confidence DESC, matches_problem DESC, success_count DESC
+LIMIT 5
+```
+
+**Parameters:**
+- `$room_frameworks` -- frameworks the user has already used (from Room artifacts' methodology frontmatter)
+- `$problem_type` -- inferred from STATE.md (e.g., "wicked", "ill-defined-complex")
+
+**Output:** Ranked next-action recommendations with confidence and success data.
+
+### Query 10b: What's the Proven Sequence for This Stage?
+
+```cypher
+// Find the most common framework SEQUENCE for this venture stage
+MATCH (f1:Framework)-[r:FEEDS_INTO]->(f2:Framework)-[:FEEDS_INTO]->(f3:Framework)
+WHERE f1.name IN $room_frameworks
+AND NOT f2.name IN $room_frameworks
+AND NOT f3.name IN $room_frameworks
+
+// Check sequence success in real projects
+OPTIONAL MATCH (f1)-[:APPLIED_IN]->(e:Example)<-[:APPLIED_IN]-(f2)
+WHERE e.grade_numeric >= 75
+
+RETURN f1.name AS current,
+       f2.name AS next_step,
+       f3.name AS after_that,
+       r.confidence AS step_confidence,
+       r.transform_description AS why_this_order,
+       count(e) AS projects_used_this_sequence
+ORDER BY step_confidence DESC, projects_used_this_sequence DESC
+LIMIT 3
+```
+
+**Output:** Proven 3-step sequences starting from the user's current frameworks.
+
+### Query 10c: What Are Users at This Stage Missing?
+
+```cypher
+// Compare this user's framework set against the TYPICAL set for their venture stage
+MATCH (stage:VentureStage {name: $venture_stage})<-[:TYPICAL_AT]-(typical:Framework)
+WHERE NOT typical.name IN $room_frameworks
+OPTIONAL MATCH (typical)-[:ADDRESSES_PROBLEM_TYPE]->(pt:ProblemType {name: $problem_type})
+RETURN typical.name AS missing_framework,
+       typical.description AS why_it_matters,
+       typical.category AS category,
+       pt IS NOT NULL AS addresses_your_problem
+ORDER BY addresses_your_problem DESC, typical.importance DESC
+LIMIT 5
+```
+
+**Parameters:**
+- `$venture_stage` -- from STATE.md (Pre-Opportunity, Discovery, Validation, Design, Investment)
+
+**Output:** Frameworks typical for this stage that the user hasn't used yet.
+
+### How Larry Uses Pattern 10 (Proactive Command Mapping)
+
+The Brain returns framework names. Larry maps them to /mos: commands using the routing table in `references/methodology/index.md`. The mapping:
+
+| Brain Returns | Larry Suggests | JTBD Framing |
+|--------------|---------------|-------------|
+| "Jobs-to-Be-Done" not used | `/mos:analyze-needs` | "When you don't know what job your customer hires for, you want to discover the struggling moment. `/mos:analyze-needs` does exactly that." |
+| "Blue Ocean Strategy" as next step | `/mos:dominant-designs` | "When you've mapped customer needs but don't see a differentiated position, you want to find whitespace. `/mos:dominant-designs` does exactly that." |
+| "Six Thinking Hats" for wicked problem | `/mos:think-hats` or `/mos:persona --parallel` | "When your problem has 8/10 wicked characteristics, you want multiple perspectives simultaneously. `/mos:persona --parallel` does exactly that -- 6 hats in 2 minutes." |
+| Contradiction between frameworks | `/mos:find-analogies` | "When Brain sees your frameworks disagree on effectiveness, you want to find how other domains resolved the same tension. `/mos:find-analogies --brain` does exactly that." |
+| Missing prerequisite | The specific prerequisite command | "When Brain says you skipped a prerequisite that 80% of successful ventures complete first, you want to backfill before it compounds. `/mos:[prereq]` does exactly that." |
+| 3-step proven sequence | Suggest step 2 | "When Brain has seen 47 ventures use this exact sequence and 80% scored above B+, you want to follow the proven path. Next step: `/mos:[step2]`." |
+
+### Integration Point: session-start Hook
+
+The session-start hook already queries Brain for framework chains (see commands/help.md Brain Enhancement). Pattern 10 extends this:
+
+1. SessionStart loads room frameworks from STATE.md
+2. If Brain is connected, run `brain_proactive_suggest` (10a)
+3. Store top 3 suggestions in session context
+4. Larry's JTBD provoked suggestions (every 3-7 turns) draw from these Brain-ranked suggestions FIRST before falling back to local heuristics
+
+This means Brain-connected users get SMARTER suggestions than free-tier users. The Brain knows what worked for 100+ real ventures. Local heuristics are good. Brain suggestions are calibrated.
+
+### Graceful Degradation
+
+| Tier | Source | Quality |
+|------|--------|---------|
+| Brain + Room | Pattern 10a/10b/10c + Room Signals | Best: calibrated from real projects, sequence-aware, stage-matched |
+| Room only | Local heuristics from STATE.md + KuzuDB | Good: Room-specific but no cross-venture calibration |
+| No Room | Generic stage-based defaults | Okay: standard recommendations from methodology index |
+
+Brain suggestions ENRICH. They never GATE. Free-tier users still get good suggestions from local Room intelligence.

@@ -55,6 +55,34 @@ After room changes and at session start:
 - If any Brain call fails, silently fall back -- never error to user
 - If Pinecone quota exhausted, use Neo4j only -- never block on Pinecone errors
 
+## Proactive Command Suggestions (Brain-Powered)
+
+When Brain is connected, Larry gets CALIBRATED command suggestions. The Brain has Command nodes linked to Frameworks, VentureStages, and SignalTypes via trigger relationships. This is Level 3 intelligence -- backed by 100+ real project outcomes.
+
+**Schema:** See `references/brain/command-triggers-schema.md` for full node/relationship definitions.
+
+**How it works:**
+
+1. SessionStart (or every 3-7 turns): Larry queries `brain_proactive_command` (Pattern 10d)
+2. Brain returns ranked command suggestions with:
+   - JTBD framing (when/want/so baked into the Command node)
+   - Trigger condition (which Room Signal activates it)
+   - Stage impact (how relevant at current venture stage)
+   - Success count (how many real projects benefited)
+3. Larry picks the top suggestion that matches current Room Signals
+4. Presents using the JTBD formula from the Command node's jtbd_when/jtbd_want/jtbd_so fields
+
+**Multi-hop traversal:**
+```
+Room frameworks -> FOLLOWS_FRAMEWORK -> Command -> TRIGGERED_BY_SIGNAL -> current Signals?
+                                     -> RELEVANT_AT_STAGE -> current Stage?
+                                     -> ADDRESSES_PROBLEM_TYPE -> current problem?
+```
+
+The Brain walks 2-3 hops to find the MOST relevant command. This is why Brain users get smarter suggestions than free-tier -- the graph encodes WHICH commands worked WHEN for WHICH problem types, calibrated from real data.
+
+**Fallback:** If Brain is not connected, Larry falls back to Level 2 (local Room heuristics from `skills/larry-personality/SKILL.md` provoked suggestions).
+
 ## Delegation
 
 Delegate to `agents/brain-query.md` when:
@@ -62,6 +90,7 @@ Delegate to `agents/brain-query.md` when:
 - User explicitly asks to explore connections
 - Cross-domain discovery requested
 - Pattern matching across multiple ventures
+- Proactive command suggestion needs deeper reasoning than Pattern 10d provides
 
 ## Primary Tool: brain_ask
 
