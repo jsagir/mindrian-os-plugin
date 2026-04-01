@@ -21,55 +21,45 @@ v1.0 through v5.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Presen
 - v4.0 Brain API & CLI UI (2026-03-29) -- 6 phases, 12 plans
 - v5.0 Presentation System (2026-03-31) -- 8 phases, 17 plans
 - v5.1 User Outlets (2026-03-31) -- 5 phases, 7 plans
+- v1.6.0 Powerhouse (2026-03-31) -- 8 phases, parallel execution, spectral OM-HMM, DbA, model routing
 
-## Current Milestone: v5.2 Export Snapshot System
+## Current Milestone: v6.2 RoomHub + SnapshotHub
 
-**Goal:** One command (/mos:export snapshot) generates a unified hub page + co-located view files from any Data Room -- point-in-time visual overview matching the MindrianOS website design system, deployable to Vercel.
+**Goal:** The living adaptive Showcase for any Room. RoomHub serves the Room as an interactive intelligence surface (localhost). SnapshotHub exports a frozen version for sharing (static HTML). Both adapt to Room type -- venture, website, research, or general.
 
-**Design Brief:** docs/EXPORT-DESIGN-BRIEF.md (564 lines, AD-1 through AD-14)
+**Research:** docs/research/RESEARCH_13_EXPORT_V6.2_ADAPTATION.md
+**Design Brief:** docs/EXPORT-DESIGN-BRIEF.md (original v5.2, still valid for base requirements)
+**Reference Rooms:** PWS website (web project), ALIGN X Milken (venture), demo cancer (research)
 
 **Target features:**
-- Unified generate-snapshot.cjs (Node.js, zero deps) replacing 5 fragmented scripts
-- Hub page (index.html) linking to co-located views per snapshot folder
-- Intelligence Map as primary graph (7 layers, toggles, edge filters, click-to-inspect)
-- Wiki article browser with sidebar and search
-- Doc Hub scrollable reader
-- Deck auto-generated slides (if 3+ sections populated)
-- Real Mondrian logo (canonical SVG), not colored bars
-- Website design system tokens hardcoded (standalone)
-- Breakthroughs (ADJACENT_POSSIBLE) + Opportunities above the fold
-- Key insights extraction (CRITICAL > CONTRADICTS > VALIDATES > MINTO > CONVERGES, max 5)
-- Red team severity summary
-- Semantic edges from existing graph.json (KuzuDB enriched, fallback to CONVERGES)
-- Version history via manifest.json + collapsible sidebar
-- CDN default, --offline flag inlines Cytoscape.js
-- All content hyperlinked via KuzuDB graph relationships (AD-14)
-- Responsive 375px-1440px
-- Single folder per snapshot in room/exports/
-- MWP specification document
 
-H. Prompt Cache Optimization:
-- Restructure session-start hook for maximum cache hits
-- Stable system prompt sections vs dynamic room context separation
-- MCP tool ordering for cache stability
+RoomHub (live, interactive, localhost):
+- Adaptive Room type detection from State + Sections + Entries
+- Hub adapts Stats, Section labels, Signals to Room content
+- 7 Showcase views: Overview, Library, Narrative, Synthesis, Blueprint, Constellation, Chat
+- Generative chat querying Fabric via Cypher
+- Constellation clicks inject context into chat ("Tell me about this Thread")
+- BYOAPI pattern (user's Claude API key, fallback CTA)
+- All 12 Thread types in Constellation (De Stijl colors per type)
+- Surprises highlighted with spectral coloring
+- Bottlenecks with innovation thesis tooltips
+- Thesis governing thoughts as Section lead paragraphs
+- Sentinel digest as Signal briefing
+- Deep links (claude-cli://) on every Entry, Section, Thread
 
-I. Modular CLAUDE.md (@include directive):
-- Split CLAUDE.md into modular sections
-- On-demand loading via @include
-- Reduce base context size, load sections as needed
+SnapshotHub (frozen export for sharing):
+- /mos:snapshot generates static HTML to room/exports/
+- Version history from room/.snapshots/ as sidebar
+- manifest.json with Room metrics (entries, threads, surprises, bottlenecks, signals, lenses, conversations)
+- Responsive 375px-1440px, offline-capable
+- Signature: "Built with MindrianOS" + Mondrian bar
 
-J. Deep Link Protocol:
-- claude-cli://open URLs for room-to-room navigation
-- Dashboard-to-CLI handoff links
-- Section-specific deep links from presentation views
-
-K. Environment Variable Tuning:
-- AUTOCOMPACT_PCT_OVERRIDE for room-aware thresholds
-- MAX_THINKING_TOKENS override for grading/methodology depth
-- CLAUDE_CODE_MAX_CONTEXT_TOKENS for deep sessions
-
-L. MWP Moat Documentation:
-- Internal dev team mandate document
+Powerhouse integration:
+- Parallel extraction (haiku scan per Section, sonnet synthesis, opus narrative)
+- Model routing via room/.config.json
+- ANALOGOUS_TO as cross-domain bridge lines in Constellation
+- RESOLVES_VIA as resolution chains on Tensions
+- Spectral OM-HMM profiles color Entries by thinking-mode diversity
 - Every PR references moat impact
 - Phase reviews include moat deepening assessment
 - MWP specification as formal protocol document
