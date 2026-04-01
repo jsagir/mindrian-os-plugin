@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.6.3] - 2026-04-01
+
+### Added
+- Brain Proactive Command Engine: Command nodes as first-class Neo4j entities with TRIGGERED_BY_SIGNAL, FOLLOWS_FRAMEWORK, RELEVANT_AT_STAGE relationships
+- Multi-hop command suggestion queries (Pattern 10a-d): frameworks -> commands -> triggers -> JTBD
+- JTBD-powered contextual command discovery: Larry suggests commands every 3-7 turns using "When/want/so" formula
+- Fabric-driven surprise suggestions: Larry queries KuzuDB Tensions, Bottlenecks, Surprises for command triggers
+- Onboarding invitation on any "how to use" question with /mos:onboard
+- v6.2 RoomHub: adaptive Room type detection, 7 Showcase views, Constellation graph, Generative Fabric Chat
+- /mos:snapshot for 7-view SnapshotHub HTML export
+- Analogy engine wired into /mos:help and pws-methodology skill
+- Parallel Power group in help tree (--swarm, --parallel, --full, --broad)
+- Update flow uses JTBD formula for every new capability
+
 ## [1.6.1] - 2026-03-31
 onboarding: true
 onboard_steps:
