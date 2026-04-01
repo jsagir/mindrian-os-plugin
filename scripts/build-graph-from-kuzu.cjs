@@ -90,6 +90,28 @@ function getColor(section) {
       });
     }
 
+    // -- Load spectral profiles from .hsi-results.json if available --
+    let spectralProfiles = {};
+    const hsiResultsPath = path.join(path.resolve(roomDir), '.hsi-results.json');
+    try {
+      if (fs.existsSync(hsiResultsPath)) {
+        const hsiData = JSON.parse(fs.readFileSync(hsiResultsPath, 'utf-8'));
+        // Index by artifact id for quick lookup
+        if (Array.isArray(hsiData.profiles)) {
+          for (const p of hsiData.profiles) {
+            if (p.id) spectralProfiles[p.id] = p;
+          }
+        } else if (typeof hsiData === 'object') {
+          // May be keyed directly by artifact id
+          for (const [key, val] of Object.entries(hsiData)) {
+            if (val && typeof val === 'object') spectralProfiles[key] = val;
+          }
+        }
+      }
+    } catch (_) {
+      // No spectral data available -- continue without
+    }
+
     // -- Query Artifact nodes --
     const artifactRows = await lgOps.queryGraph(conn,
       "MATCH (a:Artifact) RETURN a.id AS id, a.title AS title, a.section AS section, a.methodology AS methodology, a.created AS created"
@@ -97,6 +119,8 @@ function getColor(section) {
     for (const row of artifactRows) {
       const id = row.id || row['a.id'];
       const section = row.section || row['a.section'] || '';
+      const spectral = spectralProfiles[id] || {};
+
       nodes.push({
         data: {
           id: id,
@@ -107,6 +131,11 @@ function getColor(section) {
           created: row.created || row['a.created'] || '',
           layer: 'content',
           parent: section,
+          // Spectral OM-HMM profile (FABRIC-03)
+          spectral_gap: spectral.spectral_gap || 0,
+          spectral_gap_avg: spectral.spectral_gap_avg || spectral.spectral_gap || 0,
+          dominant_mode: spectral.dominant_mode || '',
+          mode_entropy: spectral.mode_entropy || 0,
         },
         classes: 'artifact',
       });
@@ -178,7 +207,8 @@ function getColor(section) {
       // Assumption table may not exist -- skip silently
     }
 
-    // -- Query ALL edges --
+    // -- Query ALL edges with properties per type --
+    // Generic edge query (catches all types)
     const edgeRows = await lgOps.queryGraph(conn,
       "MATCH (a)-[r]->(b) RETURN coalesce(a.id, a.name) AS src, label(r) AS relType, coalesce(b.id, b.name) AS tgt"
     );
@@ -193,6 +223,95 @@ function getColor(section) {
       // Fall through -- edgeRows already captures most edges
     }
 
+    // -- Query typed edge properties for Constellation view --
+    // HSI_CONNECTION properties (FABRIC-04)
+    const hsiEdgeProps = {};
+    try {
+      const hsiRows = await lgOps.queryGraph(conn,
+        "MATCH (a:Artifact)-[r:HSI_CONNECTION]->(b:Artifact) RETURN a.id AS src, b.id AS tgt, r.hsi_score AS hsi_score, r.lsa_sim AS lsa_sim, r.semantic_sim AS semantic_sim, r.surprise_type AS surprise_type, r.breakthrough_potential AS breakthrough_potential, r.tier AS tier"
+      );
+      for (const r of hsiRows) {
+        const key = `${r.src || r['a.id']}-HSI_CONNECTION-${r.tgt || r['b.id']}`;
+        hsiEdgeProps[key] = {
+          hsi_score: r.hsi_score || r['r.hsi_score'] || 0,
+          lsa_sim: r.lsa_sim || r['r.lsa_sim'] || 0,
+          semantic_sim: r.semantic_sim || r['r.semantic_sim'] || 0,
+          surprise_type: r.surprise_type || r['r.surprise_type'] || '',
+          breakthrough_potential: r.breakthrough_potential || r['r.breakthrough_potential'] || 0,
+          tier: r.tier || r['r.tier'] || '',
+        };
+      }
+    } catch (_) {}
+
+    // REVERSE_SALIENT properties (FABRIC-05)
+    const rsEdgeProps = {};
+    try {
+      const rsRows = await lgOps.queryGraph(conn,
+        "MATCH (a:Section)-[r:REVERSE_SALIENT]->(b:Section) RETURN a.name AS src, b.name AS tgt, r.differential_score AS diff, r.innovation_type AS itype, r.innovation_thesis AS thesis, r.source_artifact AS src_art, r.target_artifact AS tgt_art"
+      );
+      for (const r of rsRows) {
+        const key = `${r.src || r['a.name']}-REVERSE_SALIENT-${r.tgt || r['b.name']}`;
+        rsEdgeProps[key] = {
+          differential_score: r.diff || r['r.differential_score'] || 0,
+          innovation_type: r.itype || r['r.innovation_type'] || '',
+          innovation_thesis: r.thesis || r['r.innovation_thesis'] || '',
+          source_artifact: r.src_art || r['r.source_artifact'] || '',
+          target_artifact: r.tgt_art || r['r.target_artifact'] || '',
+        };
+      }
+    } catch (_) {}
+
+    // ANALOGOUS_TO properties (FABRIC-06)
+    const analogyEdgeProps = {};
+    try {
+      const analogyRows = await lgOps.queryGraph(conn,
+        "MATCH (a:Artifact)-[r:ANALOGOUS_TO]->(b:Artifact) RETURN a.id AS src, b.id AS tgt, r.analogy_distance AS dist, r.structural_fitness AS fit, r.source_domain AS domain, r.transfer_map AS tmap, r.discovery_method AS method"
+      );
+      for (const r of analogyRows) {
+        const key = `${r.src || r['a.id']}-ANALOGOUS_TO-${r.tgt || r['b.id']}`;
+        analogyEdgeProps[key] = {
+          analogy_distance: r.dist || r['r.analogy_distance'] || 'near',
+          structural_fitness: r.fit || r['r.structural_fitness'] || 0,
+          source_domain: r.domain || r['r.source_domain'] || '',
+          transfer_map: r.tmap || r['r.transfer_map'] || '{}',
+          discovery_method: r.method || r['r.discovery_method'] || '',
+        };
+      }
+    } catch (_) {}
+
+    // STRUCTURALLY_ISOMORPHIC properties
+    const isoEdgeProps = {};
+    try {
+      const isoRows = await lgOps.queryGraph(conn,
+        "MATCH (a:Section)-[r:STRUCTURALLY_ISOMORPHIC]->(b:Section) RETURN a.name AS src, b.name AS tgt, r.isomorphism_score AS score, r.mapped_elements AS mapped, r.source AS source"
+      );
+      for (const r of isoRows) {
+        const key = `${r.src || r['a.name']}-STRUCTURALLY_ISOMORPHIC-${r.tgt || r['b.name']}`;
+        isoEdgeProps[key] = {
+          isomorphism_score: r.score || r['r.isomorphism_score'] || 0,
+          mapped_elements: r.mapped || r['r.mapped_elements'] || '{}',
+          source: r.source || r['r.source'] || '',
+        };
+      }
+    } catch (_) {}
+
+    // RESOLVES_VIA properties
+    const resolveEdgeProps = {};
+    try {
+      const resolveRows = await lgOps.queryGraph(conn,
+        "MATCH (a:Artifact)-[r:RESOLVES_VIA]->(b:Artifact) RETURN a.id AS src, b.id AS tgt, r.resolution_type AS rtype, r.triz_principle AS triz, r.analogy_source AS asrc, r.confidence AS conf"
+      );
+      for (const r of resolveRows) {
+        const key = `${r.src || r['a.id']}-RESOLVES_VIA-${r.tgt || r['b.id']}`;
+        resolveEdgeProps[key] = {
+          resolution_type: r.rtype || r['r.resolution_type'] || 'direct',
+          triz_principle: r.triz || r['r.triz_principle'] || '',
+          analogy_source: r.asrc || r['r.analogy_source'] || '',
+          confidence: r.conf || r['r.confidence'] || 0,
+        };
+      }
+    } catch (_) {}
+
     const seenEdges = new Set();
     const allEdgeRows = [...edgeRows, ...sectionEdgeRows];
 
@@ -206,14 +325,31 @@ function getColor(section) {
       if (seenEdges.has(edgeKey)) continue;
       seenEdges.add(edgeKey);
 
+      // Merge type-specific properties
+      const edgeData = {
+        id: `e${edgeIdx}`,
+        source: src,
+        target: tgt,
+        type: relType,
+        label: relType.toLowerCase().replace(/_/g, ' '),
+      };
+
+      // Attach typed properties for Constellation rendering
+      const propsKey = edgeKey;
+      if (relType === 'HSI_CONNECTION' && hsiEdgeProps[propsKey]) {
+        Object.assign(edgeData, hsiEdgeProps[propsKey]);
+      } else if (relType === 'REVERSE_SALIENT' && rsEdgeProps[propsKey]) {
+        Object.assign(edgeData, rsEdgeProps[propsKey]);
+      } else if (relType === 'ANALOGOUS_TO' && analogyEdgeProps[propsKey]) {
+        Object.assign(edgeData, analogyEdgeProps[propsKey]);
+      } else if (relType === 'STRUCTURALLY_ISOMORPHIC' && isoEdgeProps[propsKey]) {
+        Object.assign(edgeData, isoEdgeProps[propsKey]);
+      } else if (relType === 'RESOLVES_VIA' && resolveEdgeProps[propsKey]) {
+        Object.assign(edgeData, resolveEdgeProps[propsKey]);
+      }
+
       edges.push({
-        data: {
-          id: `e${edgeIdx}`,
-          source: src,
-          target: tgt,
-          type: relType,
-          label: relType.toLowerCase().replace(/_/g, ' '),
-        },
+        data: edgeData,
         classes: relType.toLowerCase().replace(/_/g, '-'),
       });
       edgeIdx++;
