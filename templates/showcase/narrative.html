@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ROOM_NAME}} - Narrative</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ds-bg: #1a1a1a;
+      --ds-surface: #2d2d2d;
+      --ds-elevated: #3a3a3a;
+      --ds-cream: #f5f1e8;
+      --ds-muted: #a8a39f;
+      --ds-border: #404040;
+      --ds-red: #A63D2F;
+      --ds-blue: #1E3A6E;
+      --ds-yellow: #C8A43C;
+      --ds-green: #2D6B4A;
+      --ds-sienna: #B5602A;
+      --ds-teal: #2A6B5E;
+      --ds-amethyst: #6B4E8B;
+      --ds-red-text: #C95A4A;
+      --ds-blue-text: #4A7BC8;
+      --ds-yellow-text: #C8A43C;
+      --ds-green-text: #4A9B72;
+      --ds-teal-text: #4A9B8E;
+      --ds-shadow-lifted: 4px 4px 0 #0a0a0f;
+      --ds-transition: 150ms ease;
+      --ds-font-display: 'Bebas Neue', sans-serif;
+      --ds-font-body: 'Inter', system-ui, sans-serif;
+      --ds-font-mono: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { border-radius: 0 !important; }
+    html, body { height: 100%; font-size: 16px; overflow: hidden; }
+    body {
+      font-family: var(--ds-font-body);
+      background: var(--ds-bg);
+      color: var(--ds-cream);
+      -webkit-font-smoothing: antialiased;
+    }
+    em, i { font-style: normal; font-weight: 600; }
+
+    /* -- Slide Container -- */
+    .deck-container {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      overflow: hidden;
+    }
+    .slide {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 64px 80px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .slide.active {
+      opacity: 1; pointer-events: auto;
+    }
+
+    /* -- Title Slide -- */
+    .slide-title {
+      background: linear-gradient(135deg, var(--ds-bg) 0%, #222 100%);
+    }
+    .slide-title h1 {
+      font-family: var(--ds-font-display);
+      font-size: 72px; font-weight: 400;
+      letter-spacing: 0.04em; text-align: center;
+      max-width: 900px; line-height: 1.1;
+    }
+    .slide-title .thesis-text {
+      font-size: 20px; color: var(--ds-muted);
+      text-align: center; max-width: 700px;
+      margin-top: 24px; line-height: 1.6;
+    }
+    .slide-title .stage-line {
+      font-family: var(--ds-font-mono);
+      font-size: 12px; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--ds-yellow-text);
+      margin-top: 32px;
+    }
+
+    /* -- Section Slide -- */
+    .slide-section {
+      align-items: flex-start;
+      padding: 80px 120px;
+    }
+    .slide-section-bar {
+      width: 48px; height: 4px;
+      margin-bottom: 24px;
+    }
+    .slide-section h2 {
+      font-family: var(--ds-font-display);
+      font-size: 52px; font-weight: 400;
+      letter-spacing: 0.03em; margin-bottom: 16px;
+    }
+    .slide-section .section-thesis {
+      font-size: 18px; color: var(--ds-muted);
+      max-width: 640px; line-height: 1.7;
+      margin-bottom: 32px;
+    }
+    .slide-section .entry-list {
+      display: flex; flex-direction: column; gap: 12px;
+      max-width: 640px; width: 100%;
+    }
+    .slide-entry {
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+      border-left: 3px solid var(--ds-blue);
+      padding: 16px 20px;
+    }
+    .slide-entry h4 {
+      font-size: 15px; font-weight: 600;
+      color: var(--ds-cream); margin-bottom: 4px;
+    }
+    .slide-entry p {
+      font-size: 13px; color: var(--ds-muted);
+      line-height: 1.5;
+    }
+    .slide-entry .deep-link {
+      font-family: var(--ds-font-mono);
+      font-size: 11px; color: var(--ds-blue-text);
+      text-decoration: none; margin-top: 6px;
+      display: inline-block;
+    }
+
+    /* -- Content Slide (top Entry deep dive) -- */
+    .slide-content {
+      align-items: flex-start;
+      padding: 80px 120px;
+    }
+    .slide-content .content-tag {
+      font-family: var(--ds-font-mono);
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--ds-muted); margin-bottom: 12px;
+    }
+    .slide-content h2 {
+      font-family: var(--ds-font-display);
+      font-size: 44px; font-weight: 400;
+      letter-spacing: 0.03em; margin-bottom: 24px;
+    }
+    .slide-content .content-body {
+      font-size: 16px; color: var(--ds-muted);
+      line-height: 1.8; max-width: 680px;
+    }
+
+    /* -- Close Slide -- */
+    .slide-close {
+      background: linear-gradient(135deg, #222 0%, var(--ds-bg) 100%);
+    }
+    .slide-close .logo-text {
+      font-family: var(--ds-font-display);
+      font-size: 56px; letter-spacing: 0.06em;
+      margin-bottom: 16px;
+    }
+    .slide-close p {
+      font-size: 14px; color: var(--ds-muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* -- Controls -- */
+    .deck-controls {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; align-items: center; gap: 16px;
+      z-index: 100; padding: 8px 16px;
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+    }
+    .deck-btn {
+      background: none; border: 1px solid var(--ds-border);
+      color: var(--ds-cream); padding: 6px 14px;
+      font-family: var(--ds-font-mono); font-size: 12px;
+      cursor: pointer; transition: all var(--ds-transition);
+    }
+    .deck-btn:hover { background: var(--ds-elevated); }
+    .deck-btn:disabled { opacity: 0.3; cursor: default; }
+    .deck-counter {
+      font-family: var(--ds-font-mono);
+      font-size: 12px; color: var(--ds-muted);
+      min-width: 50px; text-align: center;
+    }
+    .deck-progress {
+      position: fixed; top: 0; left: 0;
+      height: 3px; background: var(--ds-blue);
+      transition: width 0.4s ease; z-index: 200;
+    }
+
+    /* -- Accent bar decoration -- */
+    .slide-accent {
+      position: absolute; bottom: 0; left: 0;
+      width: 100%; height: 4px;
+      display: flex;
+    }
+    .slide-accent span { flex: 1; }
+
+    @media (max-width: 768px) {
+      .slide { padding: 40px 24px; }
+      .slide-title h1 { font-size: 40px; }
+      .slide-section { padding: 40px 24px; }
+      .slide-section h2 { font-size: 36px; }
+      .slide-content { padding: 40px 24px; }
+      .slide-content h2 { font-size: 32px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="deck-progress" id="deck-progress"></div>
+  <div class="deck-container" id="deck-container"></div>
+
+  <div class="deck-controls">
+    <button class="deck-btn" id="btn-prev" disabled>&lt; Prev</button>
+    <span class="deck-counter" id="slide-counter">1 / 1</span>
+    <button class="deck-btn" id="btn-next">Next &gt;</button>
+  </div>
+
+  <script id="room-data" type="application/json">{{ROOM_DATA}}</script>
+
+  <script>
+  (function() {
+    'use strict';
+
+    var data;
+    try { data = JSON.parse(document.getElementById('room-data').textContent); }
+    catch(e) { console.error('Failed to parse room data:', e); return; }
+
+    var container = document.getElementById('deck-container');
+    var slides = [];
+    var currentSlide = 0;
+
+    var accentHtml = '<div class="slide-accent">' +
+      '<span style="background:#A63D2F"></span>' +
+      '<span style="background:#1E3A6E"></span>' +
+      '<span style="background:#C8A43C"></span>' +
+      '<span style="background:#2D6B4A"></span>' +
+      '<span style="background:#2A6B5E"></span></div>';
+
+    // -- Build slides --
+
+    // 1. Title slide
+    var titleSlide = document.createElement('div');
+    titleSlide.className = 'slide slide-title active';
+    titleSlide.innerHTML =
+      '<h1>' + esc(data.name || 'Untitled Room') + '</h1>' +
+      (data.roomThesis ? '<p class="thesis-text">' + esc(data.roomThesis) + '</p>' : '') +
+      '<div class="stage-line">' + esc(data.stage || 'Discovery') + '</div>' +
+      accentHtml;
+    container.appendChild(titleSlide);
+    slides.push(titleSlide);
+
+    // 2. Section slides (one per section with entries)
+    var sections = (data.sections || []).filter(function(s) { return s.articleCount > 0; });
+
+    // Require minimum 3 sections
+    if (sections.length < 3) {
+      var msgSlide = document.createElement('div');
+      msgSlide.className = 'slide slide-section';
+      msgSlide.innerHTML =
+        '<h2>Not enough content</h2>' +
+        '<p class="section-thesis">The Narrative view requires at least 3 populated Sections. ' +
+        'Currently ' + sections.length + ' section(s) have entries. Add more content to your Room to generate the full narrative deck.</p>' +
+        accentHtml;
+      container.appendChild(msgSlide);
+      slides.push(msgSlide);
+    } else {
+      sections.forEach(function(sec) {
+        var slide = document.createElement('div');
+        slide.className = 'slide slide-section';
+
+        var entriesHtml = (sec.articles || []).slice(0, 5).map(function(art) {
+          return '<div class="slide-entry">' +
+            '<h4>' + esc(art.title) + '</h4>' +
+            '<p>' + esc((art.content || '').replace(/^#.*$/gm,'').replace(/\n+/g,' ').slice(0,200)) + '</p>' +
+            (art.deepLink ? '<a href="' + esc(art.deepLink) + '" class="deep-link">Open in Claude Code &gt;</a>' : '') +
+            '</div>';
+        }).join('');
+
+        slide.innerHTML =
+          '<div class="slide-section-bar" style="background:' + (sec.color || '#D4CFC7') + '"></div>' +
+          '<h2>' + esc(sec.label) + '</h2>' +
+          (sec.thesis ? '<p class="section-thesis">' + esc(sec.thesis) + '</p>' : '') +
+          '<div class="entry-list">' + entriesHtml + '</div>' +
+          accentHtml;
+
+        container.appendChild(slide);
+        slides.push(slide);
+      });
+    }
+
+    // 3. Closing slide
+    var closeSlide = document.createElement('div');
+    closeSlide.className = 'slide slide-close';
+    closeSlide.innerHTML =
+      '<div class="logo-text">MINDRIANOS</div>' +
+      '<p>Built with MindrianOS</p>' +
+      accentHtml;
+    container.appendChild(closeSlide);
+    slides.push(closeSlide);
+
+    // -- Navigation --
+    var btnPrev = document.getElementById('btn-prev');
+    var btnNext = document.getElementById('btn-next');
+    var counter = document.getElementById('slide-counter');
+    var progress = document.getElementById('deck-progress');
+
+    function goTo(idx) {
+      if (idx < 0 || idx >= slides.length) return;
+      slides[currentSlide].classList.remove('active');
+      currentSlide = idx;
+      slides[currentSlide].classList.add('active');
+      updateControls();
+    }
+
+    function updateControls() {
+      btnPrev.disabled = currentSlide === 0;
+      btnNext.disabled = currentSlide === slides.length - 1;
+      counter.textContent = (currentSlide + 1) + ' / ' + slides.length;
+      progress.style.width = ((currentSlide + 1) / slides.length * 100) + '%';
+    }
+
+    btnPrev.onclick = function() { goTo(currentSlide - 1); };
+    btnNext.onclick = function() { goTo(currentSlide + 1); };
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+        e.preventDefault();
+        goTo(currentSlide + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        goTo(currentSlide - 1);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        goTo(0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        goTo(slides.length - 1);
+      }
+    });
+
+    updateControls();
+
+    function esc(str) {
+      if (!str) return '';
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  })();
+  </script>
+
+</body>
+</html>
