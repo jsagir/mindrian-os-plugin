@@ -1,92 +1,70 @@
-# Requirements - v1.6.0 Powerhouse
+# Requirements - v6.2 RoomHub + SnapshotHub
 
-**Defined:** 2026-03-31
-**Core Value:** Users can run the full PWS methodology inside Claude Code with zero infrastructure, where Larry guides them through venture innovation
-**Moat:** Every requirement deepens the MWP moat (7 layers + 9 edge types + Brain IP + teaching calibration)
+**Defined:** 2026-04-01
+**Core Value:** Any Room becomes a living, adaptive intelligence surface -- the RoomHub serves it interactively, the SnapshotHub freezes it for sharing.
+**Taxonomy:** All terms per references/taxonomy/TAXONOMY.md
 
 ---
 
-## v1.6.0 Requirements
+## v6.2 Requirements
 
-### Hook Expansion
+### Adaptive Room Detection
 
-- [ ] **HOOK-01**: PreCompact hook saves room STATE.md, methodology progress, last 5 artifacts, and MINTO confidence levels to temp file before autocompact
-- [ ] **HOOK-02**: PostCompact hook restores saved room context as additionalContext after autocompact, including venture stage and pending verifications
-- [ ] **HOOK-03**: FileChanged hook detects external modifications to room files and re-runs post-write cascade (classify, KuzuDB index, build-graph, compute-state)
-- [ ] **HOOK-04**: CwdChanged hook auto-switches active room when user changes directory to a registered room path
-- [ ] **HOOK-05**: SubagentStop hook auto-routes framework-runner/grading/research/opportunity-scanner/persona-analyst output through post-write cascade
-- [ ] **HOOK-06**: TaskCompleted hook updates pipeline progress in STATE.md, checks REASONING.md staleness, and surfaces next-stage readiness
+- [ ] **ROOM-01**: Room type detector reads State + Section names + Entry content to classify as venture/website/research/general
+- [ ] **ROOM-02**: ROOM_TYPE_CONFIG maps each type to: statsBar metrics, hubTitle, sectionLabels, insightTypes, graphLabel
+- [ ] **ROOM-03**: Stats bar adapts to Room type (venture: entries/threads/gaps/grants | website: pages/components/breakpoints | research: papers/citations/findings)
+- [ ] **ROOM-04**: Section cards use type-specific labels (venture: "Problem Definition" | website: "User Needs" | research: "Research Question")
 
-### Model Routing
+### Showcase Views (7)
 
-- [ ] **MODEL-01**: lib/core/model-profiles.cjs with MODEL_PROFILES table mapping 8 agents to 4 profile tiers (quality/balanced/budget/inherit)
-- [ ] **MODEL-02**: Venture-stage adaptive hints that auto-select model tier based on STATE.md venture stage (Pre-Opportunity=cheap, Investment=opus)
-- [x] **MODEL-03**: /mos:models command for viewing current profile, switching profiles, and overriding specific agents
-- [ ] **MODEL-04**: Per-room configuration stored in room/.config.json with model_profile and model_overrides fields
-- [x] **MODEL-05**: Cascade step model routing: haiku for classify, sonnet for edge detection and proactive analysis
-- [ ] **MODEL-06**: 5-step model resolution: override > stage-hint > runtime > profile > default
+- [ ] **VIEW-01**: Overview -- hub with adaptive stats, Section cards + Thesis governing thoughts, Signal briefing, Sentinel digest
+- [ ] **VIEW-02**: Library -- 3-panel Entry browser with sidebar, FlexSearch, TOC, Thread hyperlinks
+- [ ] **VIEW-03**: Narrative -- fullscreen Deck slides from Thesis + top Entries (min 3 Sections)
+- [ ] **VIEW-04**: Synthesis -- stat counters, timelines, funnels, Bottleneck heat map, Surprise clusters
+- [ ] **VIEW-05**: Blueprint -- SVG architecture from Fabric edges, Mermaid rendering
+- [ ] **VIEW-06**: Constellation -- Cytoscape graph, 12 Thread types, De Stijl colors, spectral coloring, particles, glow
+- [ ] **VIEW-07**: Chat -- generative panel docked bottom-right, Fabric Cypher queries, BYOAPI
 
-### Parallel Agent Patterns
+### Generative Fabric Chat
 
-- [ ] **PARA-01**: /mos:act --swarm dispatches 3 framework-runners in parallel across highest-gap sections with per-agent model resolution
-- [ ] **PARA-02**: /mos:persona --parallel dispatches 6 persona-analyst agents (one per De Bono hat) simultaneously
-- [ ] **PARA-03**: /mos:grade --full dispatches 8 grading agents (one per section) in parallel with REASONING.md verification
-- [ ] **PARA-04**: /mos:research --broad dispatches 3 research agents (academic, market, competitor) in parallel
-- [ ] **PARA-05**: Cross-cascade emergent discovery: parallel filings trigger HSI recomputation finding cross-agent innovation connections
+- [ ] **CHAT-01**: Chat queries Fabric (KuzuDB) via natural language to Cypher
+- [ ] **CHAT-02**: Constellation clicks inject context ("Tell me about [Entry]", "Threads connecting [Section]")
+- [ ] **CHAT-03**: BYOAPI -- user's Claude API key via settings modal, localStorage, never transmitted
+- [ ] **CHAT-04**: Chat available in all 7 views (docked bottom-right, expandable)
 
-### Spectral OM-HMM (DONE)
+### 12-Thread Constellation
 
-- [x] **SPEC-01**: Markov chain thinking-mode transition analysis with 5 modes (analytical, integrative, descriptive, evaluative, creative)
-- [x] **SPEC-02**: Spectral gap scoring (eigenvalue decomposition) replaces keyword-density proxy in compute-hsi.py
-- [x] **SPEC-03**: Per-artifact spectral profiles in .hsi-results.json (omhmm_score, spectral_gap, dominant_mode, mode_entropy, absorbing_score)
-- [x] **SPEC-04**: 15% spectral bonus in reverse salient breakthrough scoring (detect-reverse-salients.py)
+- [ ] **FABRIC-01**: All 12 Thread types rendered: INFORMS, CONTRADICTS, CONVERGES, ENABLES, INVALIDATES, BELONGS_TO, REASONING_INFORMS, HSI_CONNECTION, REVERSE_SALIENT, ANALOGOUS_TO, STRUCTURALLY_ISOMORPHIC, RESOLVES_VIA
+- [ ] **FABRIC-02**: De Stijl color per Thread type + toggle filters in sidebar
+- [ ] **FABRIC-03**: Entries colored by spectral OM-HMM profile (spectral_gap = color intensity)
+- [ ] **FABRIC-04**: Surprises (HSI_CONNECTION) with animated particles on high-breakthrough edges
+- [ ] **FABRIC-05**: Bottlenecks (REVERSE_SALIENT) with innovation thesis tooltip on hover
+- [ ] **FABRIC-06**: ANALOGOUS_TO as dashed cross-domain bridge lines between Sections
 
-### Sentinel Mode
+### SnapshotHub Export
 
-- [ ] **SENT-01**: Weekly room health check comparing STATE.md against previous week snapshot
-- [ ] **SENT-02**: Daily grant deadline monitor scanning room/funding/ and room/opportunity-bank/
-- [ ] **SENT-03**: Weekly competitor watch researching tracked competitors with contradiction flagging
-- [ ] **SENT-04**: Weekly HSI recomputation updating HSI_CONNECTION and REVERSE_SALIENT edges
-- [ ] **SENT-05**: /mos:scout command as manual fallback running all sentinel tasks
-- [ ] **SENT-06**: room/.intelligence/ directory for cron-generated alerts and digests
-- [ ] **SENT-07**: room/.snapshots/ directory with weekly STATE.md copies for comparison
+- [ ] **SNAP-01**: /mos:snapshot generates static HTML to room/exports/{YYYY-MM-DD-HHmm}/
+- [ ] **SNAP-02**: All 7 views as co-located HTML + shared CSS/JS
+- [ ] **SNAP-03**: manifest.json with Room metrics (entries, threads, surprises, bottlenecks, signals, lenses, conversations)
+- [ ] **SNAP-04**: Version history sidebar from room/.snapshots/
 
-### Design-by-Analogy Pipeline
+### Deep Links
 
-- [ ] **DBA-01**: pipelines/analogy/CHAIN.md with 5 stages: Decompose, Abstract, Search, Transfer, Validate
-- [ ] **DBA-02**: Stage 1 DECOMPOSE extracts SAPPhIRE function-behavior-structure triples from room artifacts
-- [ ] **DBA-03**: Stage 2 ABSTRACT strips domain language, maps to TRIZ parameter space, produces functional keywords
-- [ ] **DBA-04**: Stage 3 SEARCH runs dual-mode: internal (KuzuDB + Brain) and external (Tavily MCP for AskNature, patents, academic)
-- [ ] **DBA-05**: Stage 4 TRANSFER builds correspondence tables mapping source domain solutions to venture domain
-- [ ] **DBA-06**: Stage 5 VALIDATE stress-tests structural mappings via challenge-assumptions
-- [ ] **DBA-07**: /mos:find-analogies command with --brain and --external modes
-- [ ] **DBA-08**: 3 new KuzuDB edge types: ANALOGOUS_TO, STRUCTURALLY_ISOMORPHIC, RESOLVES_VIA
-- [ ] **DBA-09**: TRIZ contradiction classification on CONTRADICTS edges with triz_improving_param, triz_worsening_param, triz_principles
-- [ ] **DBA-10**: references/methodology/triz-matrix.json and triz-principles.md static reference files
-- [ ] **DBA-11**: references/methodology/sapphire-encoding.md guide for SAPPhIRE extraction
-- [ ] **DBA-12**: brain_analogy_search Cypher query pattern for cross-domain framework retrieval
+- [ ] **LINK-01**: Every Entry, Section, Thread gets claude-cli://open deep link
+- [ ] **LINK-02**: Click opens Claude Code at exact Room location
 
-### Platform Optimization
+### Parallel Extraction
 
-- [ ] **PLAT-01**: Session-start restructured for prompt cache hits: stable sections separated from dynamic room context
-- [ ] **PLAT-02**: CLAUDE.md split into modular sections using @include directive
-- [ ] **PLAT-03**: Deep link protocol (claude-cli://open) for room navigation and dashboard handoff
-- [ ] **PLAT-04**: AUTOCOMPACT_PCT_OVERRIDE tuned for room-aware thresholds
-- [ ] **PLAT-05**: MAX_THINKING_TOKENS override for grading and methodology depth
-- [ ] **PLAT-06**: CLAUDE_CODE_MAX_CONTEXT_TOKENS for deep sessions
+- [ ] **EXTRACT-01**: Haiku scan per Section (entry counts, Thesis, Claims, spectral profiles) in parallel
+- [ ] **EXTRACT-02**: Sonnet synthesis (top 5 Signals, Room health score, innovation map)
+- [ ] **EXTRACT-03**: Opus narrative (Room story, hub hero text adapted to Room type)
 
-### Future-Proofing
+### Responsive + Offline
 
-- [ ] **FUTURE-01**: room/.context/ directory with KAIROS-compatible session files
-- [ ] **FUTURE-02**: Enhanced Stop hook writing session log to room/.context/last-session.md
-- [ ] **FUTURE-03**: .claude/teams/mindrian.json Coordinator Mode team manifest
-- [ ] **FUTURE-04**: docs/MWP-SPECIFICATION.md formal protocol specification
-
-### Moat Documentation
-
-- [ ] **MOAT-01**: Internal dev team mandate document for moat-first review
-- [ ] **MOAT-02**: CLAUDE.md moat section for contributor awareness
-- [ ] **MOAT-03**: Phase review template with moat deepening assessment field
+- [ ] **POLISH-01**: Responsive 375px-1440px (mobile-first)
+- [ ] **POLISH-02**: CDN default, --offline inlines all deps
+- [ ] **POLISH-03**: Works on file:// (chat requires API key)
+- [ ] **POLISH-04**: Signature footer + Mondrian bar in all views
 
 ---
 
@@ -94,78 +72,60 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MODEL-01 | Phase 39 | Pending |
-| MODEL-02 | Phase 39 | Pending |
-| MODEL-03 | Phase 39 | Complete |
-| MODEL-04 | Phase 39 | Pending |
-| MODEL-05 | Phase 39 | Complete |
-| MODEL-06 | Phase 39 | Pending |
-| HOOK-01 | Phase 40 | Pending |
-| HOOK-02 | Phase 40 | Pending |
-| HOOK-03 | Phase 40 | Pending |
-| HOOK-04 | Phase 40 | Pending |
-| HOOK-05 | Phase 40 | Pending |
-| HOOK-06 | Phase 40 | Pending |
-| PARA-01 | Phase 41 | Pending |
-| PARA-02 | Phase 41 | Pending |
-| PARA-03 | Phase 41 | Pending |
-| PARA-04 | Phase 41 | Pending |
-| PARA-05 | Phase 41 | Pending |
-| SPEC-01 | Pre-roadmap | Done |
-| SPEC-02 | Pre-roadmap | Done |
-| SPEC-03 | Pre-roadmap | Done |
-| SPEC-04 | Pre-roadmap | Done |
-| PLAT-01 | Phase 42 | Pending |
-| PLAT-02 | Phase 42 | Pending |
-| PLAT-03 | Phase 42 | Pending |
-| PLAT-04 | Phase 42 | Pending |
-| PLAT-05 | Phase 42 | Pending |
-| PLAT-06 | Phase 42 | Pending |
-| SENT-01 | Phase 43 | Pending |
-| SENT-02 | Phase 43 | Pending |
-| SENT-03 | Phase 43 | Pending |
-| SENT-04 | Phase 43 | Pending |
-| SENT-05 | Phase 43 | Pending |
-| SENT-06 | Phase 43 | Pending |
-| SENT-07 | Phase 43 | Pending |
-| DBA-08 | Phase 44 | Pending |
-| DBA-09 | Phase 44 | Pending |
-| DBA-10 | Phase 44 | Pending |
-| DBA-11 | Phase 44 | Pending |
-| DBA-12 | Phase 44 | Pending |
-| DBA-01 | Phase 45 | Pending |
-| DBA-02 | Phase 45 | Pending |
-| DBA-03 | Phase 45 | Pending |
-| DBA-04 | Phase 45 | Pending |
-| DBA-05 | Phase 45 | Pending |
-| DBA-06 | Phase 45 | Pending |
-| DBA-07 | Phase 45 | Pending |
-| FUTURE-01 | Phase 46 | Pending |
-| FUTURE-02 | Phase 46 | Pending |
-| FUTURE-03 | Phase 46 | Pending |
-| FUTURE-04 | Phase 46 | Pending |
-| MOAT-01 | Phase 46 | Pending |
-| MOAT-02 | Phase 46 | Pending |
-| MOAT-03 | Phase 46 | Pending |
+| ROOM-01 | Phase 47 | Pending |
+| ROOM-02 | Phase 47 | Pending |
+| ROOM-03 | Phase 47 | Pending |
+| ROOM-04 | Phase 47 | Pending |
+| VIEW-01 | Phase 49 | Pending |
+| VIEW-02 | Phase 49 | Pending |
+| VIEW-03 | Phase 49 | Pending |
+| VIEW-04 | Phase 49 | Pending |
+| VIEW-05 | Phase 49 | Pending |
+| VIEW-06 | Phase 48 | Pending |
+| VIEW-07 | Phase 50 | Pending |
+| CHAT-01 | Phase 50 | Pending |
+| CHAT-02 | Phase 50 | Pending |
+| CHAT-03 | Phase 50 | Pending |
+| CHAT-04 | Phase 50 | Pending |
+| FABRIC-01 | Phase 48 | Pending |
+| FABRIC-02 | Phase 48 | Pending |
+| FABRIC-03 | Phase 48 | Pending |
+| FABRIC-04 | Phase 48 | Pending |
+| FABRIC-05 | Phase 48 | Pending |
+| FABRIC-06 | Phase 48 | Pending |
+| SNAP-01 | Phase 51 | Pending |
+| SNAP-02 | Phase 51 | Pending |
+| SNAP-03 | Phase 51 | Pending |
+| SNAP-04 | Phase 51 | Pending |
+| LINK-01 | Phase 49 | Pending |
+| LINK-02 | Phase 49 | Pending |
+| EXTRACT-01 | Phase 47 | Pending |
+| EXTRACT-02 | Phase 47 | Pending |
+| EXTRACT-03 | Phase 47 | Pending |
+| POLISH-01 | Phase 51 | Pending |
+| POLISH-02 | Phase 51 | Pending |
+| POLISH-03 | Phase 51 | Pending |
+| POLISH-04 | Phase 51 | Pending |
+
+**Coverage:** 34/34 requirements mapped
 
 ---
 
-## Future Requirements (Deferred)
+## Future Requirements
 
-- Daemon wrappers -- blocked by DAEMON build flag
-- UDS IPC protocol -- blocked by UDS_INBOX build flag
-- Bridge API endpoints -- blocked by BRIDGE_MODE build flag
-- UltraPlan wrapper -- blocked by tengu_ultraplan_model gate
-- Buddy Larry skin -- blocked by BUDDY build flag
-- Scratchpad integration -- blocked by tengu_scratch gate
-- Random walk innovation pathways -- post-1.6.0 research
-- NLP thinking-mode classifier -- post-1.6.0 research
-- PageRank cascade prediction -- post-1.6.0 research
+- SnapshotHub diffing between versions
+- Team/partners Section rendering
+- Featured quote selection algorithm
+- RoomHub as remote MCP (team access)
+- Vercel one-click deploy from /mos:snapshot
 
 ## Out of Scope
 
-- Full NLP classifier for thinking modes -- regex is fast, dependency-free, meaningful
-- Rewriting existing cascade pipeline -- additive only
-- New room sections -- adds edges and metadata, not sections
-- Payment/billing -- marketplace handles externally
-- Mobile/web UI -- Claude surfaces handle natively
+- Backend server (localhost only, static files)
+- User accounts/auth (BYOAPI only)
+- Real-time collaboration (Cowork handles natively)
+- Custom themes (De Stijl dark only for v6.2)
+- Rewriting existing Showcase scripts (build on generate-snapshot.cjs)
+
+---
+*Requirements defined: 2026-04-01*

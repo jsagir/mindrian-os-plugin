@@ -1,138 +1,115 @@
-# Roadmap: MindrianOS Plugin v1.6.0 Powerhouse
+# Roadmap: MindrianOS Plugin v6.2 RoomHub + SnapshotHub
 
-## Milestone
+## Milestones
 
-v1.6.0 Powerhouse -- Phases 39-46
-Goal: Transform MindrianOS from reactive teaching partner into proactive, cost-optimized, parallel-processing venture intelligence engine with Design-by-Analogy discovery.
+<details>
+<summary>Previous milestones (Phases 1-46) -- SHIPPED</summary>
+
+- v1.0 MVP (Phases 1-5) -- shipped 2026-03-22
+- v2.0 Meeting Intelligence (Phases 6-9) -- shipped 2026-03-24
+- v3.0 MCP Platform (Phases 10-19) -- shipped 2026-03-25
+- v4.0 Brain API & CLI UI (Phases 20-25) -- shipped 2026-03-29
+- v5.0 Presentation System (Phases 26-33) -- shipped 2026-03-31
+- v5.1 User Outlets (Phases 34-38) -- shipped 2026-03-31
+- v1.6.0 Powerhouse (Phases 39-46) -- shipped 2026-03-31
+
+</details>
+
+### v6.2 RoomHub + SnapshotHub (In Progress)
+
+**Milestone Goal:** Any Room becomes a living, adaptive intelligence surface. RoomHub serves it interactively on localhost with 7 Showcase views, generative Fabric chat, and a full 12-Thread Constellation. SnapshotHub freezes it into static HTML for sharing.
 
 ## Phases
 
-- [x] **Phase 39: Model Profiles & Routing** -- 2/2 plans complete (2026-03-31)
-- [x] **Phase 40: Hook Expansion** -- 6 new Claude Code hooks wiring the intelligence nervous system (completed 2026-03-31)
-- [ ] **Phase 41: Hub Page** -- Stats bar, view cards, section cards, insights, red team, methodology cards, breakthroughs, opportunities
-- [ ] **Phase 42: Platform Optimization** -- Prompt cache hits, modular CLAUDE.md, deep links, environment variable tuning
-- [ ] **Phase 43: Sentinel Intelligence** -- Scheduled room health, grant monitoring, competitor watch, HSI recomputation
-- [ ] **Phase 44: Design-by-Analogy Foundation** -- KuzuDB edge types, TRIZ matrix, SAPPhIRE encoding, Brain query patterns
-- [ ] **Phase 45: Design-by-Analogy Pipeline** -- 5-stage analogy pipeline with /mos:find-analogies command
-- [ ] **Phase 46: Future-Proofing & Moat Documentation** -- KAIROS prep, Coordinator Mode manifest, MWP specification
+- [ ] **Phase 47: Adaptive Room Detection + Parallel Extraction** - Detect Room type from State/Sections/Entries, configure adaptive labels and metrics, run tiered model extraction
+- [ ] **Phase 48: Constellation + Fabric Graph** - Full 12-Thread Cytoscape graph with De Stijl colors, spectral OM-HMM coloring, Surprises, Bottlenecks, cross-domain bridges
+- [ ] **Phase 49: Showcase Views + Deep Links** - Overview, Library, Narrative, Synthesis, Blueprint views plus claude-cli:// deep links on every element
+- [ ] **Phase 50: Generative Fabric Chat** - Chat view with natural language to Cypher, Constellation click injection, BYOAPI, docked in all views
+- [ ] **Phase 51: SnapshotHub Export + Polish** - Freeze RoomHub to static HTML, version history, responsive 375-1440px, offline mode, MindrianOS signature
 
 ## Phase Details
 
-### Phase 39: Model Profiles & Routing
-**Goal:** Users can control cost and quality of every agent interaction through profiles, and the system auto-adapts model selection based on venture stage
-**Depends on:** Nothing (foundation for parallel agents and sentinel)
-**Requirements:** MODEL-01, MODEL-02, MODEL-03, MODEL-04, MODEL-05, MODEL-06
-**Status:** COMPLETE (2026-03-31)
-**Plans:** 2/2 complete
-- [x] 39-01: Core model-profiles.cjs module
-- [x] 39-02: /mos:models command + dispatch wiring
+### Phase 47: Adaptive Room Detection + Parallel Extraction
+**Goal**: The system knows what kind of Room it is looking at and has extracted all Section-level intelligence in parallel using tiered models
+**Depends on**: Phase 46 (Powerhouse -- model routing, parallel agents, spectral profiles)
+**Requirements**: ROOM-01, ROOM-02, ROOM-03, ROOM-04, EXTRACT-01, EXTRACT-02, EXTRACT-03
+**Success Criteria** (what must be TRUE):
+  1. Running /mos:hub on the demo-cancer-room correctly identifies it as "research" and displays research-specific stats (papers, citations, findings)
+  2. Running /mos:hub on the ALIGN room correctly identifies it as "venture" and displays venture-specific stats (entries, threads, gaps, grants)
+  3. Section cards show type-adapted labels ("Research Question" for research, "User Needs" for website, "Problem Definition" for venture)
+  4. Parallel haiku extraction completes for all Sections producing Thesis, Claims, and spectral profiles; sonnet synthesizes top 5 Signals + health score; opus generates Room narrative adapted to detected type
+**Plans**: TBD
 
-### Phase 40: Hook Expansion
-**Goal:** The plugin's intelligence nervous system fires automatically on context changes, external edits, agent completions, and pipeline stage transitions
-**Depends on:** Phase 39 (SubagentStop needs model resolution for cascade routing)
-**Requirements:** HOOK-01, HOOK-02, HOOK-03, HOOK-04, HOOK-05, HOOK-06
-**Success Criteria:**
-1. User works for 3+ hours and Larry retains venture stage and MINTO confidence after autocompact
-2. User edits a room file in VS Code and the KuzuDB graph updates automatically
-3. User cd's to a different registered room and Larry switches context without manual command
-4. A framework-runner subagent completes and its output is automatically filed through the cascade pipeline
-5. Pipeline stage completion updates STATE.md progress and surfaces readiness notification
-**Plans:** 1/0 plans complete
+### Phase 48: Constellation + Fabric Graph
+**Goal**: Users see every Thread in their Room's Fabric as an interactive, color-coded Constellation that reveals Surprises, Bottlenecks, and cross-domain bridges
+**Depends on**: Phase 47
+**Requirements**: FABRIC-01, FABRIC-02, FABRIC-03, FABRIC-04, FABRIC-05, FABRIC-06, VIEW-06
+**Success Criteria** (what must be TRUE):
+  1. Constellation view renders all 12 Thread types from KuzuDB with distinct De Stijl colors and a toggle filter sidebar
+  2. Entries are colored by their spectral OM-HMM profile -- higher spectral_gap produces more intense coloring
+  3. HSI_CONNECTION edges (Surprises) show animated particles on high-breakthrough connections
+  4. REVERSE_SALIENT edges (Bottlenecks) display innovation thesis tooltip on hover
+  5. ANALOGOUS_TO edges render as dashed cross-domain bridge lines between Sections
+**Plans**: TBD
+**UI hint**: yes
 
-### Phase 41: Hub Page
-**Goal:** Snapshot hub page (index.html) shows full room intelligence: stats, breakthroughs, opportunities, view cards, section overview, key insights, red team severity, and methodology artifacts
-**Depends on:** Phase 40 (generate-snapshot.cjs skeleton from Phase 40)
-**Requirements:** HUB-01, HUB-02, HUB-03, HUB-04, HUB-05, HUB-06, ATF-01, ATF-02
-**Success Criteria:**
-1. Stats bar shows 5 counters (sections, articles, connections, gaps, grants) always
-2. Breakthrough angle cards render from ADJACENT_POSSIBLE graph nodes, silently skip when none
-3. Opportunities scored list from funding-strategy/ with CTA when empty
-4. View cards grid with conditional grayed-out state for unavailable views
-5. Section cards in 4-column grid with colored borders and gap indicators
-6. Key insights (max 5) extracted from graph edges + red team, always include 1 positive
-7. Red team severity boxes (CRITICAL/HIGH/MEDIUM/LOW) when red team data exists
-8. Methodology artifact cards with badges detected from frontmatter
-**Plans:** 1/2 plans executed
-Plans:
-- [x] 41-01-PLAN.md -- Above-fold content: data extractors + breakthroughs + opportunities + view cards + section grid
-- [ ] 41-02-PLAN.md -- Below-fold intelligence: insights + red team severity + methodology cards
+### Phase 49: Showcase Views + Deep Links
+**Goal**: Users can explore the Room through 5 distinct Showcase views and click any element to open it directly in Claude Code
+**Depends on**: Phase 48
+**Requirements**: VIEW-01, VIEW-02, VIEW-03, VIEW-04, VIEW-05, LINK-01, LINK-02
+**Success Criteria** (what must be TRUE):
+  1. Overview shows adaptive stats bar, Section cards with Thesis governing thoughts, Signal briefing, and Sentinel digest
+  2. Library provides 3-panel Entry browser with sidebar navigation, FlexSearch full-text search, TOC, and Thread hyperlinks between Entries
+  3. Narrative generates fullscreen Deck slides from Thesis + top Entries (requires min 3 populated Sections)
+  4. Synthesis displays stat counters, timelines, Bottleneck heat map, and Surprise clusters
+  5. Blueprint renders SVG architecture from Fabric edges with Mermaid rendering
+  6. Every Entry, Section, and Thread has a claude-cli:// deep link that opens Claude Code at the exact Room location
+**Plans**: TBD
+**UI hint**: yes
 
-### Phase 42: Platform Optimization
-**Goal:** Sessions start faster with better cache hits, CLAUDE.md loads only what is needed, and environment variables are tuned
-**Depends on:** Nothing (independent optimization track)
-**Requirements:** PLAT-01, PLAT-02, PLAT-03, PLAT-04, PLAT-05, PLAT-06
-**Success Criteria:**
-1. Session-start has stable prefix sections that hit prompt cache on repeated sessions
-2. CLAUDE.md uses @include directives for on-demand section loading
-3. Deep link URLs navigate directly to specific rooms or sections from dashboard
-4. AUTOCOMPACT_PCT_OVERRIDE, MAX_THINKING_TOKENS, CLAUDE_CODE_MAX_CONTEXT_TOKENS set with rationale
-**Plans:** TBD
+### Phase 50: Generative Fabric Chat
+**Goal**: Users can ask questions about their Room in natural language and get answers grounded in the Fabric graph, with Constellation clicks feeding context into the conversation
+**Depends on**: Phase 48, Phase 49
+**Requirements**: VIEW-07, CHAT-01, CHAT-02, CHAT-03, CHAT-04
+**Success Criteria** (what must be TRUE):
+  1. User types a natural language question and gets an answer backed by Cypher queries against the Fabric (KuzuDB)
+  2. Clicking an Entry or Thread in the Constellation injects context into the chat ("Tell me about [Entry]", "Threads connecting [Section]")
+  3. Chat uses BYOAPI pattern -- user's Claude API key stored in localStorage via settings modal, never transmitted, with fallback CTA when no key configured
+  4. Chat panel is available docked bottom-right in all 7 Showcase views, expandable to full panel
+**Plans**: TBD
+**UI hint**: yes
 
-### Phase 43: Sentinel Intelligence
-**Goal:** Room generates proactive intelligence on schedule without user prompting
-**Depends on:** Phase 40 (hooks for scheduling), Phase 39 (model routing for cost control)
-**Requirements:** SENT-01, SENT-02, SENT-03, SENT-04, SENT-05, SENT-06, SENT-07
-**Success Criteria:**
-1. Weekly room health check compares STATE.md against previous snapshot
-2. Daily grant deadline monitor alerts about approaching deadlines
-3. Weekly competitor watch produces brief with contradiction flagging
-4. /mos:scout runs all sentinel tasks as manual fallback
-5. Outputs persist in room/.intelligence/ and room/.snapshots/
-**Plans:** TBD
-
-### Phase 44: Design-by-Analogy Foundation
-**Goal:** Knowledge graph and reference library extended with analogy-specific edge types, TRIZ parameters, SAPPhIRE encoding
-**Depends on:** Nothing (schema and reference files are independent)
-**Requirements:** DBA-08, DBA-09, DBA-10, DBA-11, DBA-12
-**Success Criteria:**
-1. KuzuDB includes ANALOGOUS_TO, STRUCTURALLY_ISOMORPHIC, RESOLVES_VIA edge types
-2. CONTRADICTS edges can be enriched with TRIZ parameters
-3. triz-matrix.json and triz-principles.md in references/methodology/
-4. sapphire-encoding.md provides SAPPhIRE extraction guide
-5. brain_analogy_search Cypher pattern retrieves cross-domain matches
-**Plans:** TBD
-
-### Phase 45: Design-by-Analogy Pipeline
-**Goal:** Users discover cross-domain analogies through structured 5-stage pipeline searching internally and externally
-**Depends on:** Phase 44 (edge types and references must exist)
-**Requirements:** DBA-01, DBA-02, DBA-03, DBA-04, DBA-05, DBA-06, DBA-07
-**Success Criteria:**
-1. pipelines/analogy/CHAIN.md defines 5-stage pipeline with stage contracts
-2. /mos:find-analogies extracts functional abstractions and presents correspondence tables
-3. --brain mode enriches with cross-domain framework patterns from teaching graph
-4. --external mode searches AskNature, patents, academic sources via Tavily
-5. Validated analogies persisted as KuzuDB edges with source attribution
-**Plans:** TBD
-
-### Phase 46: Future-Proofing & Moat Documentation
-**Goal:** MindrianOS prepared for KAIROS, Coordinator Mode, and MWP protocol formally specified
-**Depends on:** Phase 39 (model profiles feed into team manifest)
-**Requirements:** FUTURE-01, FUTURE-02, FUTURE-03, FUTURE-04, MOAT-01, MOAT-02, MOAT-03
-**Success Criteria:**
-1. room/.context/ exists with template files ready for KAIROS consumption
-2. Enhanced Stop hook writes session summary to last-session.md
-3. .claude/teams/mindrian.json defines Larry as lead with 7 member agents
-4. docs/MWP-SPECIFICATION.md formally describes the 7-layer protocol
-5. CLAUDE.md moat section + phase review template with moat assessment field
-**Plans:** TBD
+### Phase 51: SnapshotHub Export + Polish
+**Goal**: Users can freeze the RoomHub into a shareable, offline-capable static export with version history and MindrianOS branding
+**Depends on**: Phase 49, Phase 50
+**Requirements**: SNAP-01, SNAP-02, SNAP-03, SNAP-04, POLISH-01, POLISH-02, POLISH-03, POLISH-04
+**Success Criteria** (what must be TRUE):
+  1. /mos:snapshot generates a complete folder of co-located HTML files (all 7 views + shared CSS/JS) to room/exports/{YYYY-MM-DD-HHmm}/
+  2. manifest.json contains Room metrics (entries, threads, surprises, bottlenecks, signals, lenses, conversations) and version history sidebar renders from room/.snapshots/
+  3. All views are responsive from 375px to 1440px with mobile-first breakpoints
+  4. Running with --offline inlines all dependencies; export works on file:// protocol (chat requires API key)
+  5. Every view includes the "Built with MindrianOS" signature footer with Mondrian bar
+**Plans**: TBD
+**UI hint**: yes
 
 ## Progress
 
-| Phase | Status | Plans | Completed |
-|-------|--------|-------|-----------|
-| 39 | Complete | 2/2 | 2026-03-31 |
-| 40 | Not Started | Complete    | 2026-03-31 |
-| 41 | 1/2 | In Progress|  |
-| 42 | Not Started | TBD | -- |
-| 43 | Not Started | TBD | -- |
-| 44 | Not Started | TBD | -- |
-| 45 | Not Started | TBD | -- |
-| 46 | Not Started | TBD | -- |
+**Execution Order:** 47 -> 48 -> 49 -> 50 -> 51
+
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 47. Adaptive Room Detection + Parallel Extraction | v6.2 | 0/TBD | Not started | - |
+| 48. Constellation + Fabric Graph | v6.2 | 0/TBD | Not started | - |
+| 49. Showcase Views + Deep Links | v6.2 | 0/TBD | Not started | - |
+| 50. Generative Fabric Chat | v6.2 | 0/TBD | Not started | - |
+| 51. SnapshotHub Export + Polish | v6.2 | 0/TBD | Not started | - |
 
 ## Dependency Chain
 
-Phase 39 (Models) --> Phase 41 (Hub Page)
-Phase 40 (Hooks) --> Phase 41 (Hub Page)
-Phase 42 (Platform) -- independent, can run parallel with 40-41
-Phase 44 (DBA Foundation) --> Phase 45 (DBA Pipeline)
-Phase 46 (Future) -- independent
+```
+Phase 47 (Detection + Extraction) --> Phase 48 (Constellation)
+Phase 48 (Constellation) --> Phase 49 (Showcase Views)
+Phase 48 (Constellation) --> Phase 50 (Chat)
+Phase 49 (Showcase Views) --> Phase 50 (Chat)
+Phase 49 + 50 --> Phase 51 (SnapshotHub)
+```
