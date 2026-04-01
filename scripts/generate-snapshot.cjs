@@ -14,7 +14,14 @@
 
 const fs = require('fs');
 const path = require('path');
-const { detectRoomType, getRoomTypeConfig, getSectionLabel } = require('../lib/core/room-type-detector.cjs');
+
+// -- Chat Embed (Phase 50: Fabric Chat in all views) --
+let generateChatSnippet;
+try {
+  generateChatSnippet = require('./generate-chat-embed.cjs').generateChatSnippet;
+} catch (_) {
+  generateChatSnippet = null;
+}
 
 // -- Constants --
 
@@ -206,82 +213,34 @@ function scanRoom(roomDir) {
     }
   }
 
-  // 4. Detect Room type and get adaptive config (ROOM-01, ROOM-02)
-  const stateContent = fs.existsSync(stateFile) ? fs.readFileSync(stateFile, 'utf-8') : '';
-  const sectionMeta = sections.map(s => {
-    // Build lightweight entries for content sampling
-    const sectionDir = path.join(roomDir, s.id);
-    const sampleEntries = [];
-    try {
-      const files = fs.readdirSync(sectionDir).filter(f => f.endsWith('.md') && !SKIP_FILES.has(f));
-      for (const f of files.slice(0, 3)) {
-        try {
-          const content = fs.readFileSync(path.join(sectionDir, f), 'utf-8');
-          sampleEntries.push({ content });
-        } catch (_) {}
-      }
-    } catch (_) {}
-    return { name: s.id, entries: sampleEntries };
-  });
-  const roomType = detectRoomType(stateContent, sectionMeta);
-  const roomTypeConfig = getRoomTypeConfig(roomType);
-
-  // Apply type-specific Section labels (ROOM-04)
-  for (const section of sections) {
-    section.label = getSectionLabel(roomType, section.id);
-  }
-
-  // 5. Extract breakthroughs, opportunities, views
+  // 4. Extract breakthroughs, opportunities, views
   const breakthroughs = extractBreakthroughs(graphNodes);
   const opportunities = extractOpportunities(roomDir, sections);
   const views = extractViews('');
 
-  // 6. Build adaptive stats (ROOM-03)
-  // Count findings for research rooms
-  let findingCount = 0;
-  if (roomType === 'research') {
-    for (const s of sections) {
-      if (s.id === 'findings' || s.id === 'results') {
-        findingCount += s.articleCount;
-      }
+  // 5. Generate Fabric Chat embed (Phase 50)
+  let chatEmbed = '';
+  if (generateChatSnippet) {
+    try {
+      chatEmbed = generateChatSnippet(roomDir);
+    } catch (_) {
+      // Chat panel generation failed -- degrade silently
     }
   }
-  // Count components for website rooms
-  let componentCount = 0;
-  let breakpointCount = 0;
-  if (roomType === 'website') {
-    for (const s of sections) {
-      if (s.id.includes('component') || s.id === 'solution-design') {
-        componentCount += s.articleCount;
-      }
-    }
-    // Breakpoints estimated from responsive-related entries
-    breakpointCount = 3; // Default: mobile, tablet, desktop
-  }
 
-  const statsMap = {
-    sectionCount: sections.length,
-    entryCount: totalArticles,
-    articleCount: totalArticles,
-    threadCount: graphEdges.length,
-    connectionCount: graphEdges.length,
-    gapCount,
-    grantCount,
-    signalCount: breakthroughs.length,
-    findingCount,
-    componentCount,
-    breakpointCount,
-  };
-
-  // 7. Build and return data model
+  // 6. Build and return data model
   return {
     name,
     stage,
     subtitle,
-    roomType,
-    roomTypeConfig,
     sections,
-    stats: statsMap,
+    stats: {
+      sectionCount: sections.length,
+      articleCount: totalArticles,
+      connectionCount: graphEdges.length,
+      gapCount,
+      grantCount
+    },
     graph: {
       nodes: graphNodes,
       edges: graphEdges,
@@ -290,6 +249,7 @@ function scanRoom(roomDir) {
     breakthroughs,
     opportunities,
     views,
+    _chatEmbed: chatEmbed,
     exportDate: new Date().toISOString(),
     timestamp
   };
@@ -536,7 +496,7 @@ function renderBrandedHtml(model) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(model.name)} -- ${escapeHtml(model.roomTypeConfig.hubTitle)}</title>
+  <title>${escapeHtml(model.name)} -- Snapshot</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -988,7 +948,7 @@ function renderBrandedHtml(model) {
     <div class="header-left">
       ${logoSvg(40)}
       <span class="header-title">${escapeHtml(model.name)}</span>
-      ${model.subtitle ? `<span class="header-subtitle">${escapeHtml(model.subtitle)}</span>` : `<span class="header-subtitle">${escapeHtml(model.roomTypeConfig.hubTitle)}</span>`}
+      ${model.subtitle ? `<span class="header-subtitle">${escapeHtml(model.subtitle)}</span>` : ''}
     </div>
     <div style="display:flex;align-items:center;gap:16px;">
       <span class="stage-badge">${escapeHtml(model.stage)}</span>
@@ -999,12 +959,28 @@ function renderBrandedHtml(model) {
   <!-- Accent Bar -->
   ${accentBar()}
 
-  <!-- Stats Bar (adaptive per Room type: ${model.roomType}) -->
+  <!-- Stats Bar -->
   <div class="stats-bar">
-    ${model.roomTypeConfig.statsBar.map(s => `<div class="stat">
-      <div class="stat-value">${model.stats[s.key] || 0}</div>
-      <div class="stat-label">${escapeHtml(s.label)}</div>
-    </div>`).join('\n    ')}
+    <div class="stat">
+      <div class="stat-value">${model.stats.sectionCount}</div>
+      <div class="stat-label">Sections</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">${model.stats.articleCount}</div>
+      <div class="stat-label">Articles</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">${model.stats.connectionCount}</div>
+      <div class="stat-label">Connections</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">${model.stats.gapCount}</div>
+      <div class="stat-label">Gaps</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">${model.stats.grantCount}</div>
+      <div class="stat-label">Grants</div>
+    </div>
   </div>
 
   <!-- Breakthrough Angles (ATF-01, D-19) -- only if breakthroughs exist -->
@@ -1080,6 +1056,9 @@ function renderBrandedHtml(model) {
     </div>
     <span class="footer-meta">${escapeHtml(dateStr)} | ${model.stats.sectionCount}s, ${model.graph.edges.length}e</span>
   </footer>
+
+  <!-- Fabric Chat Panel (Phase 50: Generative Fabric Chat) -->
+  ${model._chatEmbed || ''}
 
 </body>
 </html>`;
@@ -1177,10 +1156,13 @@ function main() {
 
   console.log(`Snapshot written to ${snapshotDir}`);
   console.log(`  Room: ${model.name}`);
-  console.log(`  Type: ${model.roomType} (${model.roomTypeConfig.hubTitle})`);
   console.log(`  Stage: ${model.stage}`);
-  for (const stat of model.roomTypeConfig.statsBar) {
-    console.log(`  ${stat.label}: ${model.stats[stat.key] || 0}`);
+  console.log(`  Sections: ${model.stats.sectionCount}`);
+  console.log(`  Articles: ${model.stats.articleCount}`);
+  console.log(`  Connections: ${model.stats.connectionCount}`);
+  console.log(`  Gaps: ${model.stats.gapCount}`);
+  if (model.stats.grantCount > 0) {
+    console.log(`  Grants/Opportunities: ${model.stats.grantCount}`);
   }
   console.log(`  Graph enriched: ${model.graph.enriched}`);
 }

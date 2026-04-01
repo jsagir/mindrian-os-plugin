@@ -1,0 +1,592 @@
+<!--
+  MindrianOS Plugin -- Fabric Chat Panel (Embeddable Component)
+  Docked bottom-right, expandable/collapsible chat panel.
+  Queries the Room's Fabric (KuzuDB) via NL-to-Cypher.
+  BYOAPI: user's Claude API key stored in localStorage only.
+
+  Embed:
+    1. Include this HTML inline in any view, OR
+    2. Load via iframe: <iframe src="chat-panel.html"></iframe>
+    3. Or use generate-chat-embed.cjs to inject with room schema
+
+  Context injection:
+    window.postMessage({ type: 'chat-inject', nodeId: '...', label: '...', nodeType: 'Artifact' })
+-->
+
+<div id="mos-fabric-chat-root"></div>
+
+<style>
+  /* -- Fabric Chat Panel Styles -- */
+  .fc-toggle {
+    position: fixed; bottom: 20px; right: 20px; z-index: 10000;
+    background: var(--mondrian-yellow, #C8A43C); color: #1A1A1A;
+    border: none; padding: 10px 18px;
+    font-family: 'DM Sans', 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    transition: transform 0.15s, box-shadow 0.15s;
+    border-radius: 0;
+  }
+  .fc-toggle:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
+
+  .fc-panel {
+    position: fixed; bottom: 20px; right: 20px; z-index: 10001;
+    width: 380px; height: 520px; max-height: 80vh;
+    background: var(--ds-surface, #2d2d2d); border: 2px solid var(--ds-border, #404040);
+    display: none; flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5); overflow: hidden;
+    font-family: 'Inter', 'DM Sans', sans-serif;
+    border-radius: 0;
+  }
+  .fc-panel.fc-open { display: flex; }
+
+  .fc-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; background: var(--ds-bg, #1a1a1a);
+    border-bottom: 2px solid var(--mondrian-yellow, #C8A43C);
+    flex-shrink: 0;
+  }
+  .fc-header h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--ds-cream, #f5f1e8); }
+  .fc-header-actions { display: flex; gap: 6px; align-items: center; }
+
+  .fc-btn {
+    background: none; border: 1px solid var(--ds-border, #404040);
+    color: var(--ds-muted, #a8a39f); cursor: pointer;
+    padding: 3px 8px; font-size: 11px;
+    font-family: 'Inter', sans-serif; border-radius: 0;
+  }
+  .fc-btn:hover { color: var(--ds-cream, #f5f1e8); border-color: var(--ds-muted, #a8a39f); }
+
+  .fc-messages {
+    flex: 1; overflow-y: auto; padding: 12px; display: flex;
+    flex-direction: column; gap: 8px; min-height: 0;
+  }
+
+  .fc-msg {
+    max-width: 88%; padding: 8px 12px;
+    font-size: 13px; line-height: 1.5; color: var(--ds-cream, #f5f1e8);
+    word-wrap: break-word; border-radius: 0;
+  }
+  .fc-msg-user { align-self: flex-end; background: var(--ds-blue, #1E3A6E); }
+  .fc-msg-assistant { align-self: flex-start; background: rgba(255,255,255,0.06); }
+  .fc-msg-system { align-self: center; color: var(--ds-muted, #a8a39f); font-size: 11px; text-align: center; padding: 4px 8px; }
+
+  .fc-msg-cypher {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    background: rgba(0,0,0,0.3); padding: 6px 10px; margin-top: 4px;
+    color: var(--ds-muted, #a8a39f); cursor: pointer; position: relative;
+    border-left: 2px solid var(--ds-yellow, #C8A43C);
+  }
+  .fc-msg-cypher::before {
+    content: 'Cypher'; display: block; font-size: 9px;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ds-yellow, #C8A43C); margin-bottom: 2px;
+  }
+  .fc-msg-cypher.fc-collapsed { max-height: 24px; overflow: hidden; }
+  .fc-msg-cypher.fc-collapsed::after { content: ' (click to expand)'; font-size: 9px; color: var(--ds-muted, #a8a39f); }
+
+  .fc-input-area {
+    display: flex; gap: 8px; padding: 12px;
+    border-top: 1px solid var(--ds-border, #404040); flex-shrink: 0;
+  }
+  .fc-input-area textarea {
+    flex: 1; background: var(--ds-bg, #1a1a1a);
+    border: 1px solid var(--ds-border, #404040); color: var(--ds-cream, #f5f1e8);
+    padding: 8px 10px; font-size: 13px; resize: none;
+    font-family: 'Inter', sans-serif; min-height: 38px; max-height: 80px;
+    border-radius: 0;
+  }
+  .fc-input-area textarea:focus { outline: none; border-color: var(--mondrian-yellow, #C8A43C); }
+  .fc-input-area textarea::placeholder { color: var(--ds-muted, #a8a39f); }
+
+  .fc-send {
+    background: var(--mondrian-yellow, #C8A43C); color: #1A1A1A;
+    border: none; padding: 8px 14px;
+    font-weight: 600; cursor: pointer; font-size: 13px;
+    font-family: 'Inter', sans-serif; flex-shrink: 0; border-radius: 0;
+  }
+  .fc-send:hover { opacity: 0.9; }
+  .fc-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .fc-key-form {
+    padding: 24px 16px; display: flex; flex-direction: column;
+    gap: 12px; align-items: center; flex: 1; justify-content: center;
+  }
+  .fc-key-form input {
+    width: 100%; background: var(--ds-bg, #1a1a1a);
+    border: 1px solid var(--ds-border, #404040); color: var(--ds-cream, #f5f1e8);
+    padding: 10px 12px; font-size: 13px; font-family: 'Inter', sans-serif;
+    border-radius: 0;
+  }
+  .fc-key-form input:focus { outline: none; border-color: var(--mondrian-yellow, #C8A43C); }
+  .fc-key-form input::placeholder { color: var(--ds-muted, #a8a39f); }
+  .fc-key-note { font-size: 11px; color: var(--ds-muted, #a8a39f); text-align: center; line-height: 1.4; }
+
+  .fc-streaming .fc-send { opacity: 0.4; cursor: not-allowed; }
+
+  /* -- Settings modal -- */
+  .fc-settings-overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7); z-index: 10; display: none;
+    align-items: center; justify-content: center;
+  }
+  .fc-settings-overlay.fc-visible { display: flex; }
+  .fc-settings-box {
+    background: var(--ds-surface, #2d2d2d); border: 1px solid var(--ds-border, #404040);
+    padding: 24px; width: 90%; max-width: 320px;
+  }
+  .fc-settings-box h4 { margin: 0 0 12px 0; font-size: 14px; color: var(--ds-cream, #f5f1e8); }
+</style>
+
+<script>
+(function() {
+  'use strict';
+
+  // -- Storage keys --
+  var KEY_API = 'mos-fabric-api-key';
+  var KEY_OPEN = 'mos-fabric-chat-open';
+
+  // -- Graph schema (injected by generate-chat-embed or set via window) --
+  var graphSchema = (typeof window !== 'undefined' && window.__fabricSchema) || null;
+
+  // -- Simple markdown renderer --
+  function renderMd(text) {
+    if (!text) return '';
+    return text
+      .replace(/```(\w*)\n?([\s\S]*?)```/g, function(_, lang, code) {
+        return '<pre style="background:rgba(0,0,0,0.3);padding:8px;overflow-x:auto;font-size:12px;margin:6px 0"><code>' + esc(code.trim()) + '</code></pre>';
+      })
+      .replace(/`([^`]+)`/g, '<code style="background:rgba(0,0,0,0.3);padding:1px 4px;font-size:12px">$1</code>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em style="font-style:normal;font-weight:600">$1</em>')
+      .replace(/^\|(.+)\|$/gm, function(row) {
+        var cells = row.split('|').filter(function(c) { return c.trim(); });
+        return '<div style="display:flex;gap:8px;font-size:12px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
+          cells.map(function(c) { return '<span style="flex:1">' + c.trim() + '</span>'; }).join('') + '</div>';
+      })
+      .replace(/^[-*]\s+(.+)$/gm, '<div style="margin-left:12px;padding:1px 0">- $1</div>')
+      .replace(/\n/g, '<br>');
+  }
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  // -- Build NL-to-Cypher system prompt --
+  function buildSystemPrompt() {
+    var schema = graphSchema || (typeof FabricChat !== 'undefined' && FabricChat.GRAPH_SCHEMA) || null;
+    var schemaBlock = '';
+    if (schema) {
+      if (typeof FabricChat !== 'undefined' && FabricChat.buildSchemaDescription) {
+        schemaBlock = FabricChat.buildSchemaDescription(schema);
+      } else {
+        schemaBlock = JSON.stringify(schema, null, 2);
+      }
+    }
+
+    return [
+      'You are Larry, an AI innovation co-founder embedded in MindrianOS.',
+      'You help users explore their Room\'s Fabric (knowledge graph) through natural language.',
+      '',
+      'When the user asks a question about their Room data:',
+      '1. First, translate the question into a KuzuDB Cypher query',
+      '2. Show the Cypher query (the UI will display it in a collapsible block)',
+      '3. Then provide a natural language summary of what the query would find',
+      '',
+      'Format your response as:',
+      'CYPHER: <the cypher query>',
+      'ANSWER: <your natural language explanation>',
+      '',
+      'If the user is asking a general question (not about graph data), just answer normally without Cypher.',
+      '',
+      schema ? schemaBlock : 'No graph schema available -- answer questions generally.'
+    ].join('\n');
+  }
+
+  // -- State --
+  var messages = [];
+  var streaming = false;
+  var els = {};
+
+  // -- API key management --
+  function getKey() { try { return localStorage.getItem(KEY_API) || ''; } catch (_) { return ''; } }
+  function setKey(k) { try { localStorage.setItem(KEY_API, k); } catch (_) {} }
+  function clearKey() { try { localStorage.removeItem(KEY_API); } catch (_) {} }
+
+  // -- Build UI --
+  function build() {
+    var root = document.getElementById('mos-fabric-chat-root');
+    if (!root) return;
+
+    // Toggle button
+    els.toggle = document.createElement('button');
+    els.toggle.className = 'fc-toggle';
+    els.toggle.textContent = 'Fabric Chat';
+    els.toggle.addEventListener('click', toggle);
+    root.appendChild(els.toggle);
+
+    // Panel
+    els.panel = document.createElement('div');
+    els.panel.className = 'fc-panel';
+    els.panel.style.position = 'relative';
+    root.appendChild(els.panel);
+
+    // Header
+    var header = document.createElement('div');
+    header.className = 'fc-header';
+    header.innerHTML = '<h3>Fabric Chat</h3><div class="fc-header-actions"></div>';
+    els.panel.appendChild(header);
+    els.headerActions = header.querySelector('.fc-header-actions');
+
+    // Settings gear
+    var gearBtn = document.createElement('button');
+    gearBtn.className = 'fc-btn';
+    gearBtn.textContent = '\u2699';
+    gearBtn.title = 'API Key Settings';
+    gearBtn.addEventListener('click', showSettings);
+    els.headerActions.appendChild(gearBtn);
+
+    // Minimize
+    var minBtn = document.createElement('button');
+    minBtn.className = 'fc-btn';
+    minBtn.textContent = '\u2212';
+    minBtn.title = 'Minimize';
+    minBtn.addEventListener('click', toggle);
+    els.headerActions.appendChild(minBtn);
+
+    // Settings overlay
+    els.settingsOverlay = document.createElement('div');
+    els.settingsOverlay.className = 'fc-settings-overlay';
+    els.settingsOverlay.innerHTML = '<div class="fc-settings-box">' +
+      '<h4>API Key</h4>' +
+      '<input type="password" class="fc-settings-input" placeholder="sk-ant-..." value="' + esc(getKey()) + '">' +
+      '<div style="display:flex;gap:8px;margin-top:12px">' +
+      '<button class="fc-send fc-settings-save" style="flex:1">Save</button>' +
+      '<button class="fc-btn fc-settings-clear">Clear</button>' +
+      '<button class="fc-btn fc-settings-close">Close</button>' +
+      '</div>' +
+      '<div class="fc-key-note" style="margin-top:8px">Key stored in your browser only. Never sent to MindrianOS.</div>' +
+      '</div>';
+    els.panel.appendChild(els.settingsOverlay);
+
+    els.settingsOverlay.querySelector('.fc-settings-save').addEventListener('click', function() {
+      var val = els.settingsOverlay.querySelector('.fc-settings-input').value.trim();
+      if (val) { setKey(val); }
+      hideSettings();
+      if (val && !els.msgList) showChat();
+    });
+    els.settingsOverlay.querySelector('.fc-settings-clear').addEventListener('click', function() {
+      clearKey();
+      els.settingsOverlay.querySelector('.fc-settings-input').value = '';
+    });
+    els.settingsOverlay.querySelector('.fc-settings-close').addEventListener('click', hideSettings);
+
+    // Body
+    els.body = document.createElement('div');
+    els.body.style.cssText = 'display:flex;flex-direction:column;flex:1;min-height:0;';
+    els.panel.appendChild(els.body);
+
+    if (getKey()) {
+      showChat();
+    } else {
+      showKeyForm();
+    }
+
+    // Restore open state
+    if (localStorage.getItem(KEY_OPEN) === 'true') {
+      show();
+    }
+
+    // Listen for context injection via postMessage
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'chat-inject') {
+        handleContextInjection(e.data);
+      }
+    });
+  }
+
+  function toggle() {
+    if (els.panel.classList.contains('fc-open')) { hide(); } else { show(); }
+  }
+  function show() {
+    els.panel.classList.add('fc-open');
+    els.toggle.style.display = 'none';
+    try { localStorage.setItem(KEY_OPEN, 'true'); } catch (_) {}
+  }
+  function hide() {
+    els.panel.classList.remove('fc-open');
+    els.toggle.style.display = 'block';
+    try { localStorage.setItem(KEY_OPEN, 'false'); } catch (_) {}
+  }
+
+  function showSettings() { els.settingsOverlay.classList.add('fc-visible'); }
+  function hideSettings() { els.settingsOverlay.classList.remove('fc-visible'); }
+
+  function showKeyForm() {
+    els.body.innerHTML = '';
+    var form = document.createElement('div');
+    form.className = 'fc-key-form';
+    form.innerHTML = '<div style="font-size:14px;color:var(--ds-cream,#f5f1e8);text-align:center;font-weight:600">Connect your API key to enable Fabric Chat</div>' +
+      '<input type="password" placeholder="Enter your Anthropic API key..." class="fc-key-input">' +
+      '<button class="fc-send fc-key-save">Save Key and Start</button>' +
+      '<div class="fc-key-note">Key stored in your browser only. Never sent to any server except Anthropic.</div>';
+    els.body.appendChild(form);
+
+    var keyInput = form.querySelector('.fc-key-input');
+    form.querySelector('.fc-key-save').addEventListener('click', function() {
+      var val = keyInput.value.trim();
+      if (!val) return;
+      setKey(val);
+      showChat();
+    });
+    keyInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') form.querySelector('.fc-key-save').click();
+    });
+  }
+
+  function showChat() {
+    els.body.innerHTML = '';
+
+    // Messages area
+    els.msgList = document.createElement('div');
+    els.msgList.className = 'fc-messages';
+    els.body.appendChild(els.msgList);
+
+    // Re-render existing messages
+    for (var i = 0; i < messages.length; i++) {
+      renderMessage(messages[i].role, messages[i].content, messages[i].cypher);
+    }
+
+    // Welcome
+    if (messages.length === 0) {
+      addSystemMsg('Ask about your Room\'s Fabric -- entries, threads, surprises, bottlenecks.');
+    }
+
+    // Input area
+    var inputArea = document.createElement('div');
+    inputArea.className = 'fc-input-area';
+    els.body.appendChild(inputArea);
+
+    els.textarea = document.createElement('textarea');
+    els.textarea.placeholder = 'Ask about your Room...';
+    els.textarea.rows = 1;
+    inputArea.appendChild(els.textarea);
+
+    els.sendBtn = document.createElement('button');
+    els.sendBtn.className = 'fc-send';
+    els.sendBtn.textContent = 'Send';
+    inputArea.appendChild(els.sendBtn);
+
+    els.sendBtn.addEventListener('click', send);
+    els.textarea.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+    });
+  }
+
+  function addSystemMsg(text) {
+    var el = document.createElement('div');
+    el.className = 'fc-msg fc-msg-system';
+    el.textContent = text;
+    els.msgList.appendChild(el);
+    scrollBottom();
+  }
+
+  function renderMessage(role, content, cypher) {
+    // Cypher block (collapsible)
+    if (cypher) {
+      var cypherEl = document.createElement('div');
+      cypherEl.className = 'fc-msg-cypher fc-collapsed';
+      cypherEl.textContent = cypher;
+      cypherEl.addEventListener('click', function() {
+        this.classList.toggle('fc-collapsed');
+      });
+      els.msgList.appendChild(cypherEl);
+    }
+
+    var el = document.createElement('div');
+    el.className = 'fc-msg fc-msg-' + role;
+    if (role === 'assistant') {
+      el.innerHTML = renderMd(content);
+    } else {
+      el.textContent = content;
+    }
+    els.msgList.appendChild(el);
+    scrollBottom();
+    return el;
+  }
+
+  function scrollBottom() {
+    if (els.msgList) els.msgList.scrollTop = els.msgList.scrollHeight;
+  }
+
+  // -- Context injection from Constellation --
+  function handleContextInjection(data) {
+    var nodeId = data.nodeId || '';
+    var nodeType = data.nodeType || 'Artifact';
+    var label = data.label || nodeId;
+
+    // Build injection question
+    var question;
+    if (typeof FabricChat !== 'undefined' && FabricChat.injectContext) {
+      question = FabricChat.injectContext(nodeId, nodeType, label);
+    } else {
+      question = nodeType === 'Section'
+        ? 'Tell me about the ' + label + ' section.'
+        : 'Tell me about "' + label + '".';
+    }
+
+    // Open panel and inject
+    show();
+    if (els.textarea) {
+      els.textarea.value = question;
+      send();
+    }
+  }
+
+  // -- Send message --
+  function send() {
+    if (streaming) return;
+    var text = (els.textarea.value || '').trim();
+    if (!text) return;
+    els.textarea.value = '';
+
+    messages.push({ role: 'user', content: text });
+    renderMessage('user', text);
+
+    // Cap at 20
+    while (messages.length > 20) messages.shift();
+
+    streamResponse();
+  }
+
+  function streamResponse() {
+    var apiKey = getKey();
+    if (!apiKey) { showKeyForm(); return; }
+
+    streaming = true;
+    els.panel.classList.add('fc-streaming');
+    if (els.sendBtn) els.sendBtn.disabled = true;
+
+    var assistantEl = renderMessage('assistant', '');
+    var fullText = '';
+
+    var requestBody = {
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1024,
+      system: buildSystemPrompt(),
+      messages: messages.slice(),
+      stream: true
+    };
+
+    fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify(requestBody)
+    }).then(function(response) {
+      if (response.status === 401) {
+        clearKey();
+        assistantEl.className = 'fc-msg fc-msg-system';
+        assistantEl.textContent = 'Invalid API key. Click the gear icon to update.';
+        endStream();
+        return;
+      }
+      if (!response.ok) {
+        return response.text().then(function(errText) {
+          var errMsg = 'Error (' + response.status + ')';
+          try { var ej = JSON.parse(errText); if (ej.error && ej.error.message) errMsg = ej.error.message; } catch (_) {}
+          assistantEl.className = 'fc-msg fc-msg-system';
+          assistantEl.textContent = errMsg;
+          endStream();
+        });
+      }
+
+      var reader = response.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer = '';
+
+      function readChunk() {
+        return reader.read().then(function(result) {
+          if (result.done) { finishResponse(fullText, assistantEl); return; }
+
+          buffer += decoder.decode(result.value, { stream: true });
+          var lines = buffer.split('\n');
+          buffer = lines.pop();
+
+          for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            if (!line.startsWith('data: ')) continue;
+            var jsonStr = line.slice(6);
+            if (jsonStr === '[DONE]') continue;
+            try {
+              var event = JSON.parse(jsonStr);
+              if (event.type === 'content_block_delta' && event.delta && event.delta.type === 'text_delta') {
+                fullText += event.delta.text;
+                // Parse out CYPHER block for display
+                var parsed = parseCypherAndAnswer(fullText);
+                assistantEl.innerHTML = renderMd(parsed.answer || fullText);
+                scrollBottom();
+              }
+              if (event.type === 'message_stop') { finishResponse(fullText, assistantEl); return; }
+            } catch (_) {}
+          }
+          return readChunk();
+        });
+      }
+
+      return readChunk();
+    }).catch(function(err) {
+      assistantEl.className = 'fc-msg fc-msg-system';
+      assistantEl.textContent = 'Connection error: ' + (err.message || 'unknown');
+      endStream();
+    });
+  }
+
+  function parseCypherAndAnswer(text) {
+    var cypherMatch = text.match(/CYPHER:\s*([\s\S]*?)(?=\nANSWER:|$)/i);
+    var answerMatch = text.match(/ANSWER:\s*([\s\S]*)/i);
+
+    if (cypherMatch && answerMatch) {
+      return {
+        cypher: cypherMatch[1].trim(),
+        answer: answerMatch[1].trim()
+      };
+    }
+    return { cypher: '', answer: text };
+  }
+
+  function finishResponse(fullText, assistantEl) {
+    var parsed = parseCypherAndAnswer(fullText);
+
+    // If there's a Cypher query, show it in a collapsible block
+    if (parsed.cypher) {
+      var cypherEl = document.createElement('div');
+      cypherEl.className = 'fc-msg-cypher fc-collapsed';
+      cypherEl.textContent = parsed.cypher;
+      cypherEl.addEventListener('click', function() { this.classList.toggle('fc-collapsed'); });
+      els.msgList.insertBefore(cypherEl, assistantEl);
+    }
+
+    assistantEl.innerHTML = renderMd(parsed.answer || fullText);
+    messages.push({ role: 'assistant', content: fullText, cypher: parsed.cypher });
+    while (messages.length > 20) messages.shift();
+    scrollBottom();
+    endStream();
+  }
+
+  function endStream() {
+    streaming = false;
+    els.panel.classList.remove('fc-streaming');
+    if (els.sendBtn) els.sendBtn.disabled = false;
+    if (els.textarea) els.textarea.focus();
+  }
+
+  // -- Initialize when DOM is ready --
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', build);
+  } else {
+    build();
+  }
+
+})();
+</script>
