@@ -15,6 +15,14 @@
 const fs = require('fs');
 const path = require('path');
 
+// -- Chat Embed (Phase 50: Fabric Chat in all views) --
+let generateChatSnippet;
+try {
+  generateChatSnippet = require('./generate-chat-embed.cjs').generateChatSnippet;
+} catch (_) {
+  generateChatSnippet = null;
+}
+
 // -- Constants --
 
 const SKIP_DIRS = new Set(['.lazygraph', 'meetings', 'team', 'exports']);
@@ -210,7 +218,17 @@ function scanRoom(roomDir) {
   const opportunities = extractOpportunities(roomDir, sections);
   const views = extractViews('');
 
-  // 5. Build and return data model
+  // 5. Generate Fabric Chat embed (Phase 50)
+  let chatEmbed = '';
+  if (generateChatSnippet) {
+    try {
+      chatEmbed = generateChatSnippet(roomDir);
+    } catch (_) {
+      // Chat panel generation failed -- degrade silently
+    }
+  }
+
+  // 6. Build and return data model
   return {
     name,
     stage,
@@ -231,6 +249,7 @@ function scanRoom(roomDir) {
     breakthroughs,
     opportunities,
     views,
+    _chatEmbed: chatEmbed,
     exportDate: new Date().toISOString(),
     timestamp
   };
@@ -1037,6 +1056,9 @@ function renderBrandedHtml(model) {
     </div>
     <span class="footer-meta">${escapeHtml(dateStr)} | ${model.stats.sectionCount}s, ${model.graph.edges.length}e</span>
   </footer>
+
+  <!-- Fabric Chat Panel (Phase 50: Generative Fabric Chat) -->
+  ${model._chatEmbed || ''}
 
 </body>
 </html>`;
