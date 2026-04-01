@@ -111,10 +111,20 @@ Commands grouped by FLOW, not by venture stage or alphabetically. Use tree symbo
   ├─ /mos:query                    Ask the knowledge graph
   ├─ /mos:research                 Web research
   ├─ /mos:find-connections         Cross-domain links
+  ├─ /mos:find-analogies           Design-by-Analogy discovery
+  ├─ /mos:scout                    Sentinel scan (health, grants, competitors)
   └─ /mos:wiki                     Launch wiki dashboard
+
+  ▼ Parallel Power
+  ├─ /mos:act --swarm              3 frameworks in parallel
+  ├─ /mos:persona --parallel       6 perspectives simultaneously
+  ├─ /mos:grade --full             All sections graded at once
+  ├─ /mos:research --broad         3-angle parallel research
+  └─ /mos:models                   Model profile management
 
   ▼ Export
   ├─ /mos:export                   Generate reports
+  ├─ /mos:snapshot                 7-view RoomHub export
   ├─ /mos:radar                    Capability radar
   └─ /mos:update                   Check for updates
 ```
