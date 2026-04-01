@@ -10,10 +10,10 @@
 
 ### Adaptive Room Detection
 
-- [x] **ROOM-01**: Room type detector reads State + Section names + Entry content to classify as venture/website/research/general
-- [x] **ROOM-02**: ROOM_TYPE_CONFIG maps each type to: statsBar metrics, hubTitle, sectionLabels, insightTypes, graphLabel
-- [x] **ROOM-03**: Stats bar adapts to Room type (venture: entries/threads/gaps/grants | website: pages/components/breakpoints | research: papers/citations/findings)
-- [x] **ROOM-04**: Section cards use type-specific labels (venture: "Problem Definition" | website: "User Needs" | research: "Research Question")
+- [ ] **ROOM-01**: Room type detector reads State + Section names + Entry content to classify as venture/website/research/general
+- [ ] **ROOM-02**: ROOM_TYPE_CONFIG maps each type to: statsBar metrics, hubTitle, sectionLabels, insightTypes, graphLabel
+- [ ] **ROOM-03**: Stats bar adapts to Room type (venture: entries/threads/gaps/grants | website: pages/components/breakpoints | research: papers/citations/findings)
+- [ ] **ROOM-04**: Section cards use type-specific labels (venture: "Problem Definition" | website: "User Needs" | research: "Research Question")
 
 ### Showcase Views (7)
 
@@ -43,10 +43,10 @@
 
 ### SnapshotHub Export
 
-- [ ] **SNAP-01**: /mos:snapshot generates static HTML to room/exports/{YYYY-MM-DD-HHmm}/
-- [ ] **SNAP-02**: All 7 views as co-located HTML + shared CSS/JS
-- [ ] **SNAP-03**: manifest.json with Room metrics (entries, threads, surprises, bottlenecks, signals, lenses, conversations)
-- [ ] **SNAP-04**: Version history sidebar from room/.snapshots/
+- [x] **SNAP-01**: /mos:snapshot generates static HTML to room/exports/{YYYY-MM-DD-HHmm}/
+- [x] **SNAP-02**: All 7 views as co-located HTML + shared CSS/JS
+- [x] **SNAP-03**: manifest.json with Room metrics (entries, threads, surprises, bottlenecks, signals, lenses, conversations)
+- [x] **SNAP-04**: Version history sidebar from room/.snapshots/
 
 ### Deep Links
 
@@ -55,16 +55,16 @@
 
 ### Parallel Extraction
 
-- [x] **EXTRACT-01**: Haiku scan per Section (entry counts, Thesis, Claims, spectral profiles) in parallel
-- [x] **EXTRACT-02**: Sonnet synthesis (top 5 Signals, Room health score, innovation map)
-- [x] **EXTRACT-03**: Opus narrative (Room story, hub hero text adapted to Room type)
+- [ ] **EXTRACT-01**: Haiku scan per Section (entry counts, Thesis, Claims, spectral profiles) in parallel
+- [ ] **EXTRACT-02**: Sonnet synthesis (top 5 Signals, Room health score, innovation map)
+- [ ] **EXTRACT-03**: Opus narrative (Room story, hub hero text adapted to Room type)
 
 ### Responsive + Offline
 
-- [ ] **POLISH-01**: Responsive 375px-1440px (mobile-first)
-- [ ] **POLISH-02**: CDN default, --offline inlines all deps
-- [ ] **POLISH-03**: Works on file:// (chat requires API key)
-- [ ] **POLISH-04**: Signature footer + Mondrian bar in all views
+- [x] **POLISH-01**: Responsive 375px-1440px (mobile-first)
+- [x] **POLISH-02**: CDN default, --offline inlines all deps
+- [x] **POLISH-03**: Works on file:// (chat requires API key)
+- [x] **POLISH-04**: Signature footer + Mondrian bar in all views
 
 ---
 
@@ -72,10 +72,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ROOM-01 | Phase 47 | Complete |
-| ROOM-02 | Phase 47 | Complete |
-| ROOM-03 | Phase 47 | Complete |
-| ROOM-04 | Phase 47 | Complete |
+| ROOM-01 | Phase 47 | Pending |
+| ROOM-02 | Phase 47 | Pending |
+| ROOM-03 | Phase 47 | Pending |
+| ROOM-04 | Phase 47 | Pending |
 | VIEW-01 | Phase 49 | Pending |
 | VIEW-02 | Phase 49 | Pending |
 | VIEW-03 | Phase 49 | Pending |
@@ -93,19 +93,19 @@
 | FABRIC-04 | Phase 48 | Pending |
 | FABRIC-05 | Phase 48 | Pending |
 | FABRIC-06 | Phase 48 | Pending |
-| SNAP-01 | Phase 51 | Pending |
-| SNAP-02 | Phase 51 | Pending |
-| SNAP-03 | Phase 51 | Pending |
-| SNAP-04 | Phase 51 | Pending |
+| SNAP-01 | Phase 51 | Complete |
+| SNAP-02 | Phase 51 | Complete |
+| SNAP-03 | Phase 51 | Complete |
+| SNAP-04 | Phase 51 | Complete |
 | LINK-01 | Phase 49 | Pending |
 | LINK-02 | Phase 49 | Pending |
-| EXTRACT-01 | Phase 47 | Complete |
-| EXTRACT-02 | Phase 47 | Complete |
-| EXTRACT-03 | Phase 47 | Complete |
-| POLISH-01 | Phase 51 | Pending |
-| POLISH-02 | Phase 51 | Pending |
-| POLISH-03 | Phase 51 | Pending |
-| POLISH-04 | Phase 51 | Pending |
+| EXTRACT-01 | Phase 47 | Pending |
+| EXTRACT-02 | Phase 47 | Pending |
+| EXTRACT-03 | Phase 47 | Pending |
+| POLISH-01 | Phase 51 | Complete |
+| POLISH-02 | Phase 51 | Complete |
+| POLISH-03 | Phase 51 | Complete |
+| POLISH-04 | Phase 51 | Complete |
 
 **Coverage:** 34/34 requirements mapped
 
