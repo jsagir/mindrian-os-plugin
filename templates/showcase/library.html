@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ROOM_NAME}} - Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/flexsearch@0.7.43/dist/flexsearch.bundle.min.js"></script>
+  <style>
+    :root {
+      --ds-bg: #1a1a1a;
+      --ds-surface: #2d2d2d;
+      --ds-elevated: #3a3a3a;
+      --ds-cream: #f5f1e8;
+      --ds-muted: #a8a39f;
+      --ds-border: #404040;
+      --ds-red: #A63D2F;
+      --ds-blue: #1E3A6E;
+      --ds-yellow: #C8A43C;
+      --ds-green: #2D6B4A;
+      --ds-sienna: #B5602A;
+      --ds-gray: #5C5A56;
+      --ds-amethyst: #6B4E8B;
+      --ds-teal: #2A6B5E;
+      --ds-red-text: #C95A4A;
+      --ds-blue-text: #4A7BC8;
+      --ds-yellow-text: #C8A43C;
+      --ds-green-text: #4A9B72;
+      --ds-sienna-text: #D4804A;
+      --ds-gray-text: #8A8780;
+      --ds-amethyst-text: #9B7EB5;
+      --ds-teal-text: #4A9B8E;
+      --ds-shadow-lifted: 4px 4px 0 #0a0a0f;
+      --ds-transition: 150ms ease;
+      --ds-font-display: 'Bebas Neue', sans-serif;
+      --ds-font-body: 'Inter', system-ui, sans-serif;
+      --ds-font-mono: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { border-radius: 0 !important; }
+    html, body { height: 100%; font-size: 16px; }
+    body {
+      font-family: var(--ds-font-body);
+      background: var(--ds-bg);
+      color: var(--ds-cream);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      display: flex; flex-direction: column;
+    }
+    em, i { font-style: normal; font-weight: 600; }
+
+    /* -- Nav -- */
+    .nav-bar {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--ds-bg);
+      border-bottom: 1px solid var(--ds-border);
+      display: flex; align-items: center; justify-content: space-between;
+      height: 48px; padding: 0 24px; flex-shrink: 0;
+    }
+    .nav-brand { font-family: var(--ds-font-display); font-size: 20px; letter-spacing: 0.04em; color: var(--ds-cream); }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a {
+      font-family: var(--ds-font-mono); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--ds-muted); text-decoration: none;
+      padding: 6px 12px; border: 1px solid transparent;
+      transition: all var(--ds-transition);
+    }
+    .nav-links a:hover { color: var(--ds-cream); border-color: var(--ds-border); }
+    .nav-links a.active { color: var(--ds-cream); border-color: var(--ds-blue); background: var(--ds-surface); }
+
+    /* -- Accent Bar -- */
+    .accent-bar { display: flex; height: 4px; width: 100%; flex-shrink: 0; }
+    .accent-bar span { flex: 1; }
+
+    /* -- 3-Panel Layout -- */
+    .library-layout {
+      display: grid;
+      grid-template-columns: 240px 300px 1fr;
+      flex: 1; overflow: hidden;
+    }
+
+    /* -- Sidebar (Section List) -- */
+    .sidebar {
+      background: var(--ds-surface);
+      border-right: 1px solid var(--ds-border);
+      overflow-y: auto; padding: 16px 0;
+    }
+    .sidebar-header {
+      font-family: var(--ds-font-display);
+      font-size: 16px; letter-spacing: 0.1em;
+      color: var(--ds-muted); padding: 0 16px 12px;
+      border-bottom: 1px solid var(--ds-border);
+      margin-bottom: 8px;
+    }
+    .sidebar-search {
+      padding: 0 12px 12px;
+    }
+    .sidebar-search input {
+      width: 100%; padding: 8px 12px;
+      background: var(--ds-bg); border: 1px solid var(--ds-border);
+      color: var(--ds-cream); font-family: var(--ds-font-mono);
+      font-size: 12px; outline: none;
+    }
+    .sidebar-search input:focus { border-color: var(--ds-blue); }
+    .sidebar-search input::placeholder { color: var(--ds-muted); }
+    .sidebar-section {
+      padding: 8px 16px; cursor: pointer;
+      font-size: 13px; font-weight: 500;
+      color: var(--ds-muted); border-left: 3px solid transparent;
+      transition: all var(--ds-transition);
+    }
+    .sidebar-section:hover { color: var(--ds-cream); background: var(--ds-bg); }
+    .sidebar-section.active { color: var(--ds-cream); border-left-color: var(--ds-blue); background: var(--ds-bg); }
+    .sidebar-section .count {
+      font-family: var(--ds-font-mono);
+      font-size: 11px; color: var(--ds-muted);
+      float: right;
+    }
+
+    /* -- Entry List (Middle Panel) -- */
+    .entry-list-panel {
+      border-right: 1px solid var(--ds-border);
+      overflow-y: auto; background: var(--ds-bg);
+    }
+    .entry-list-header {
+      position: sticky; top: 0; z-index: 10;
+      background: var(--ds-bg);
+      border-bottom: 1px solid var(--ds-border);
+      padding: 12px 16px;
+      font-family: var(--ds-font-display);
+      font-size: 16px; letter-spacing: 0.1em;
+      color: var(--ds-cream);
+    }
+    .entry-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--ds-border);
+      cursor: pointer;
+      transition: background var(--ds-transition);
+    }
+    .entry-item:hover { background: var(--ds-surface); }
+    .entry-item.active { background: var(--ds-surface); border-left: 3px solid var(--ds-blue); }
+    .entry-item h4 {
+      font-size: 14px; font-weight: 600;
+      color: var(--ds-cream); margin-bottom: 4px;
+    }
+    .entry-item .entry-section {
+      font-family: var(--ds-font-mono);
+      font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ds-muted);
+    }
+    .entry-item .entry-preview {
+      font-size: 12px; color: var(--ds-muted);
+      margin-top: 4px; line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .entry-threads { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+    .thread-tag {
+      font-family: var(--ds-font-mono);
+      font-size: 9px; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 2px 6px; border: 1px solid;
+    }
+
+    /* Thread type colors */
+    .thread-INFORMS { color: var(--ds-blue-text); border-color: var(--ds-blue); }
+    .thread-CONTRADICTS { color: var(--ds-red-text); border-color: var(--ds-red); }
+    .thread-CONVERGES { color: var(--ds-green-text); border-color: var(--ds-green); }
+    .thread-ENABLES { color: var(--ds-teal-text); border-color: var(--ds-teal); }
+    .thread-INVALIDATES { color: var(--ds-sienna-text); border-color: var(--ds-sienna); }
+    .thread-BELONGS_TO { color: var(--ds-gray-text); border-color: var(--ds-gray); }
+    .thread-REASONING_INFORMS { color: var(--ds-amethyst-text); border-color: var(--ds-amethyst); }
+    .thread-HSI_CONNECTION { color: var(--ds-yellow-text); border-color: var(--ds-yellow); }
+    .thread-REVERSE_SALIENT { color: var(--ds-red-text); border-color: var(--ds-red); }
+    .thread-ANALOGOUS_TO { color: var(--ds-teal-text); border-color: var(--ds-teal); }
+    .thread-STRUCTURALLY_ISOMORPHIC { color: var(--ds-amethyst-text); border-color: var(--ds-amethyst); }
+    .thread-RESOLVES_VIA { color: var(--ds-green-text); border-color: var(--ds-green); }
+
+    .no-results {
+      text-align: center; padding: 48px 16px;
+      color: var(--ds-muted); font-size: 13px;
+    }
+
+    /* -- Reader Panel -- */
+    .reader-panel {
+      overflow-y: auto; padding: 32px;
+      background: var(--ds-bg);
+    }
+    .reader-empty {
+      display: flex; align-items: center; justify-content: center;
+      height: 100%; color: var(--ds-muted); font-size: 14px;
+      text-align: center;
+    }
+    .reader-meta {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 24px; padding-bottom: 16px;
+      border-bottom: 1px solid var(--ds-border);
+    }
+    .reader-meta .tag {
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--ds-muted);
+    }
+    .reader-meta .deep-link {
+      font-family: var(--ds-font-mono);
+      font-size: 11px; color: var(--ds-blue-text);
+      text-decoration: none; margin-left: auto;
+    }
+    .reader-meta .deep-link:hover { text-decoration: underline; }
+    .reader-title {
+      font-family: var(--ds-font-display);
+      font-size: 36px; font-weight: 400;
+      letter-spacing: 0.03em; color: var(--ds-cream);
+      margin-bottom: 16px;
+    }
+    .reader-content {
+      font-size: 14px; color: var(--ds-muted);
+      line-height: 1.7; max-width: 720px;
+    }
+    .reader-content h1, .reader-content h2, .reader-content h3 {
+      font-family: var(--ds-font-display);
+      color: var(--ds-cream); margin: 24px 0 12px;
+      letter-spacing: 0.03em;
+    }
+    .reader-content h1 { font-size: 28px; }
+    .reader-content h2 { font-size: 22px; }
+    .reader-content h3 { font-size: 18px; }
+    .reader-content p { margin-bottom: 12px; }
+    .reader-content ul, .reader-content ol {
+      margin: 0 0 12px 24px;
+    }
+    .reader-content li { margin-bottom: 4px; }
+    .reader-content code {
+      font-family: var(--ds-font-mono);
+      font-size: 13px; background: var(--ds-surface);
+      padding: 2px 6px; color: var(--ds-teal-text);
+    }
+    .reader-content blockquote {
+      border-left: 3px solid var(--ds-blue);
+      padding: 8px 16px; margin: 12px 0;
+      background: var(--ds-surface);
+    }
+    .reader-toc {
+      margin-bottom: 24px; padding: 16px;
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+    }
+    .reader-toc h4 {
+      font-family: var(--ds-font-mono);
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--ds-muted); margin-bottom: 8px;
+    }
+    .reader-toc a {
+      display: block; font-size: 13px;
+      color: var(--ds-blue-text); text-decoration: none;
+      padding: 2px 0;
+    }
+    .reader-toc a:hover { text-decoration: underline; }
+    .reader-threads-section {
+      margin-top: 24px; padding-top: 16px;
+      border-top: 1px solid var(--ds-border);
+    }
+    .reader-threads-section h4 {
+      font-family: var(--ds-font-mono);
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--ds-muted); margin-bottom: 8px;
+    }
+    .reader-thread-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--ds-muted);
+      text-decoration: none; padding: 4px 8px;
+      border: 1px solid var(--ds-border);
+      margin: 0 4px 4px 0;
+      transition: all var(--ds-transition);
+    }
+    .reader-thread-link:hover { background: var(--ds-surface); color: var(--ds-cream); }
+
+    /* -- Footer -- */
+    .footer {
+      border-top: 1px solid var(--ds-border);
+      padding: 16px 24px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-brand { font-size: 12px; color: var(--ds-muted); }
+    .footer-meta { font-family: var(--ds-font-mono); font-size: 11px; color: var(--ds-muted); }
+
+    @media (max-width: 900px) {
+      .library-layout { grid-template-columns: 200px 1fr; }
+      .entry-list-panel { display: none; }
+    }
+    @media (max-width: 600px) {
+      .library-layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav-bar">
+    <span class="nav-brand">MINDRIANOS</span>
+    <div class="nav-links">
+      <a href="overview.html">Overview</a>
+      <a href="library.html" class="active">Library</a>
+      <a href="narrative.html">Narrative</a>
+      <a href="synthesis.html">Synthesis</a>
+      <a href="blueprint.html">Blueprint</a>
+      <a href="constellation.html">Constellation</a>
+    </div>
+  </nav>
+  <div class="accent-bar">
+    <span style="background:#A63D2F"></span>
+    <span style="background:#1E3A6E"></span>
+    <span style="background:#C8A43C"></span>
+    <span style="background:#2D6B4A"></span>
+    <span style="background:#2A6B5E"></span>
+  </div>
+
+  <div class="library-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">SECTIONS</div>
+      <div class="sidebar-search">
+        <input type="text" id="search-input" placeholder="Search entries..." />
+      </div>
+      <div id="sidebar-sections"></div>
+    </div>
+
+    <!-- Entry List -->
+    <div class="entry-list-panel">
+      <div class="entry-list-header" id="entry-list-header">ALL ENTRIES</div>
+      <div id="entry-list"></div>
+    </div>
+
+    <!-- Reader -->
+    <div class="reader-panel" id="reader-panel">
+      <div class="reader-empty">
+        <div>
+          <p style="font-size:24px;margin-bottom:8px;">Select an entry to read</p>
+          <p>Browse sections on the left, or search above</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <span class="footer-brand">Built with MindrianOS</span>
+    <span class="footer-meta" id="footer-meta"></span>
+  </footer>
+
+  <script id="room-data" type="application/json">{{ROOM_DATA}}</script>
+
+  <script>
+  (function() {
+    'use strict';
+
+    var data;
+    try { data = JSON.parse(document.getElementById('room-data').textContent); }
+    catch(e) { console.error('Failed to parse room data:', e); return; }
+
+    var sections = data.sections || [];
+    var allEntries = [];
+    var searchIndex = null;
+
+    // Build flat entry list
+    sections.forEach(function(sec) {
+      (sec.articles || []).forEach(function(art) {
+        allEntries.push({
+          id: sec.id + '/' + art.filename,
+          title: art.title || art.filename,
+          section: sec.id,
+          sectionLabel: sec.label,
+          sectionColor: sec.color,
+          content: art.content || '',
+          preview: (art.content || '').replace(/^#.*$/gm, '').replace(/\n+/g, ' ').slice(0, 200),
+          threads: art.threads || [],
+          deepLink: art.deepLink || ''
+        });
+      });
+    });
+
+    // Initialize FlexSearch
+    try {
+      searchIndex = new FlexSearch.Index({ tokenize: 'forward', resolution: 9 });
+      allEntries.forEach(function(entry, i) {
+        searchIndex.add(i, entry.title + ' ' + entry.preview + ' ' + entry.sectionLabel);
+      });
+    } catch(e) {
+      // FlexSearch CDN may not be available
+    }
+
+    // -- Render sidebar --
+    var sidebarEl = document.getElementById('sidebar-sections');
+    var allItem = document.createElement('div');
+    allItem.className = 'sidebar-section active';
+    allItem.innerHTML = 'All Entries <span class="count">' + allEntries.length + '</span>';
+    allItem.onclick = function() { filterSection(null); };
+    sidebarEl.appendChild(allItem);
+
+    sections.forEach(function(sec) {
+      var el = document.createElement('div');
+      el.className = 'sidebar-section';
+      el.style.borderLeftColor = sec.color || '#D4CFC7';
+      el.innerHTML = escapeHtml(sec.label) + ' <span class="count">' + (sec.articles || []).length + '</span>';
+      el.onclick = function() { filterSection(sec.id); };
+      el.dataset.sectionId = sec.id;
+      sidebarEl.appendChild(el);
+    });
+
+    var activeSection = null;
+
+    function filterSection(sectionId) {
+      activeSection = sectionId;
+      // Update sidebar active state
+      var items = sidebarEl.querySelectorAll('.sidebar-section');
+      items.forEach(function(item) {
+        if (!sectionId && !item.dataset.sectionId) item.classList.add('active');
+        else if (item.dataset.sectionId === sectionId) item.classList.add('active');
+        else item.classList.remove('active');
+      });
+      renderEntryList(getFilteredEntries());
+      document.getElementById('entry-list-header').textContent =
+        sectionId ? sections.find(function(s) { return s.id === sectionId; }).label.toUpperCase() : 'ALL ENTRIES';
+    }
+
+    function getFilteredEntries() {
+      var filtered = activeSection
+        ? allEntries.filter(function(e) { return e.section === activeSection; })
+        : allEntries;
+      return filtered;
+    }
+
+    // -- Search --
+    var searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('input', function() {
+      var q = this.value.trim();
+      if (!q) {
+        renderEntryList(getFilteredEntries());
+        return;
+      }
+      if (searchIndex) {
+        var results = searchIndex.search(q, 50);
+        var filtered = results.map(function(i) { return allEntries[i]; });
+        if (activeSection) {
+          filtered = filtered.filter(function(e) { return e.section === activeSection; });
+        }
+        renderEntryList(filtered);
+      }
+    });
+
+    // -- Entry List --
+    function renderEntryList(entries) {
+      var listEl = document.getElementById('entry-list');
+      if (entries.length === 0) {
+        listEl.innerHTML = '<div class="no-results">No entries found</div>';
+        return;
+      }
+      listEl.innerHTML = '';
+      entries.forEach(function(entry) {
+        var el = document.createElement('div');
+        el.className = 'entry-item';
+        var threadsHtml = entry.threads.map(function(t) {
+          return '<span class="thread-tag thread-' + escapeHtml(t.type || 'INFORMS') + '">' +
+            escapeHtml(t.type || 'INFORMS') + '</span>';
+        }).join('');
+        el.innerHTML =
+          '<span class="entry-section">' + escapeHtml(entry.sectionLabel) + '</span>' +
+          '<h4>' + escapeHtml(entry.title) + '</h4>' +
+          '<p class="entry-preview">' + escapeHtml(entry.preview) + '</p>' +
+          (threadsHtml ? '<div class="entry-threads">' + threadsHtml + '</div>' : '');
+        el.onclick = function() { showEntry(entry, el); };
+        listEl.appendChild(el);
+      });
+    }
+
+    // -- Reader --
+    function showEntry(entry, itemEl) {
+      // Mark active
+      var items = document.querySelectorAll('.entry-item');
+      items.forEach(function(i) { i.classList.remove('active'); });
+      if (itemEl) itemEl.classList.add('active');
+
+      var reader = document.getElementById('reader-panel');
+      var headings = extractHeadings(entry.content);
+      var tocHtml = '';
+      if (headings.length > 2) {
+        tocHtml = '<div class="reader-toc"><h4>TABLE OF CONTENTS</h4>' +
+          headings.map(function(h) {
+            return '<a href="#' + h.id + '" style="padding-left:' + ((h.level - 1) * 12) + 'px">' +
+              escapeHtml(h.text) + '</a>';
+          }).join('') + '</div>';
+      }
+
+      var threadsHtml = '';
+      if (entry.threads && entry.threads.length > 0) {
+        threadsHtml = '<div class="reader-threads-section"><h4>THREADS</h4>' +
+          entry.threads.map(function(t) {
+            return '<a href="' + escapeHtml(t.deepLink || '#') + '" class="reader-thread-link">' +
+              '<span class="thread-tag thread-' + escapeHtml(t.type || 'INFORMS') + '">' +
+                escapeHtml(t.type || 'INFORMS') + '</span> ' +
+              escapeHtml(t.target || t.label || '') + '</a>';
+          }).join('') + '</div>';
+      }
+
+      reader.innerHTML =
+        '<div class="reader-meta">' +
+          '<span class="tag">' + escapeHtml(entry.sectionLabel) + '</span>' +
+          (entry.deepLink ? '<a href="' + escapeHtml(entry.deepLink) + '" class="deep-link">Open in Claude Code &gt;</a>' : '') +
+        '</div>' +
+        '<h1 class="reader-title">' + escapeHtml(entry.title) + '</h1>' +
+        tocHtml +
+        '<div class="reader-content">' + renderMarkdown(entry.content) + '</div>' +
+        threadsHtml;
+    }
+
+    function extractHeadings(md) {
+      if (!md) return [];
+      var headings = [];
+      var lines = md.split('\n');
+      lines.forEach(function(line) {
+        var m = line.match(/^(#{1,3})\s+(.+)/);
+        if (m) {
+          var id = m[2].toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          headings.push({ level: m[1].length, text: m[2], id: id });
+        }
+      });
+      return headings;
+    }
+
+    function renderMarkdown(md) {
+      if (!md) return '<p style="color:var(--ds-muted)">No content available</p>';
+      return md
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/^### (.+)$/gm, function(_, t) { return '<h3 id="' + t.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '">' + t + '</h3>'; })
+        .replace(/^## (.+)$/gm, function(_, t) { return '<h2 id="' + t.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '">' + t + '</h2>'; })
+        .replace(/^# (.+)$/gm, function(_, t) { return '<h1 id="' + t.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '">' + t + '</h1>'; })
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/`(.+?)`/g, '<code>$1</code>')
+        .replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/^(?!<[hublop])(.+)$/gm, '<p>$1</p>');
+    }
+
+    // Initial render
+    renderEntryList(allEntries);
+
+    // Footer
+    var exportDate = data.exportDate ? new Date(data.exportDate) : new Date();
+    document.getElementById('footer-meta').textContent =
+      allEntries.length + ' entries | ' +
+      exportDate.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ROOM_NAME}} - Overview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* -- De Stijl Design Tokens -- */
+    :root {
+      --ds-bg: #1a1a1a;
+      --ds-surface: #2d2d2d;
+      --ds-elevated: #3a3a3a;
+      --ds-cream: #f5f1e8;
+      --ds-muted: #a8a39f;
+      --ds-border: #404040;
+      --ds-red: #A63D2F;
+      --ds-blue: #1E3A6E;
+      --ds-yellow: #C8A43C;
+      --ds-green: #2D6B4A;
+      --ds-sienna: #B5602A;
+      --ds-gray: #5C5A56;
+      --ds-amethyst: #6B4E8B;
+      --ds-teal: #2A6B5E;
+      --ds-red-text: #C95A4A;
+      --ds-blue-text: #4A7BC8;
+      --ds-yellow-text: #C8A43C;
+      --ds-green-text: #4A9B72;
+      --ds-sienna-text: #D4804A;
+      --ds-gray-text: #8A8780;
+      --ds-amethyst-text: #9B7EB5;
+      --ds-teal-text: #4A9B8E;
+      --ds-shadow-flat: 0 0 0 1px var(--ds-border);
+      --ds-shadow-lifted: 4px 4px 0 #0a0a0f;
+      --ds-transition: 150ms ease;
+      --ds-font-display: 'Bebas Neue', sans-serif;
+      --ds-font-body: 'Inter', system-ui, sans-serif;
+      --ds-font-mono: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { border-radius: 0 !important; }
+    html { font-size: 16px; }
+    body {
+      font-family: var(--ds-font-body);
+      background: var(--ds-bg);
+      color: var(--ds-cream);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    em, i { font-style: normal; font-weight: 600; }
+
+    /* -- Nav Bar -- */
+    .nav-bar {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--ds-bg);
+      border-bottom: 1px solid var(--ds-border);
+      display: flex; align-items: center; justify-content: space-between;
+      height: 48px; padding: 0 24px;
+    }
+    .nav-brand {
+      font-family: var(--ds-font-display);
+      font-size: 20px; letter-spacing: 0.04em;
+      color: var(--ds-cream);
+    }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a {
+      font-family: var(--ds-font-mono);
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--ds-muted); text-decoration: none;
+      padding: 6px 12px; border: 1px solid transparent;
+      transition: all var(--ds-transition);
+    }
+    .nav-links a:hover { color: var(--ds-cream); border-color: var(--ds-border); }
+    .nav-links a.active { color: var(--ds-cream); border-color: var(--ds-blue); background: var(--ds-surface); }
+
+    /* -- Accent Bar -- */
+    .accent-bar { display: flex; height: 4px; width: 100%; }
+    .accent-bar span { flex: 1; }
+
+    /* -- Header -- */
+    .hero {
+      padding: 48px 32px 32px;
+      border-bottom: 1px solid var(--ds-border);
+    }
+    .hero h1 {
+      font-family: var(--ds-font-display);
+      font-size: 48px; font-weight: 400;
+      letter-spacing: 0.04em; color: var(--ds-cream);
+      margin-bottom: 8px;
+    }
+    .hero-subtitle {
+      font-size: 16px; color: var(--ds-muted);
+      max-width: 640px; margin-bottom: 16px;
+    }
+    .stage-badge {
+      font-family: var(--ds-font-mono);
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--ds-yellow-text);
+      border: 1px solid var(--ds-yellow);
+      padding: 4px 12px; display: inline-block;
+    }
+
+    /* -- Stats Bar -- */
+    .stats-bar {
+      display: flex; justify-content: center; gap: 48px;
+      padding: 24px 32px; background: var(--ds-surface);
+      border-bottom: 1px solid var(--ds-border);
+    }
+    .stat { text-align: center; }
+    .stat-value {
+      font-family: var(--ds-font-mono);
+      font-size: 28px; font-weight: 600; color: var(--ds-cream);
+    }
+    .stat-label {
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--ds-muted); margin-top: 4px;
+    }
+
+    /* -- Layout -- */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+    .section {
+      padding: 48px 0;
+      border-top: 1px solid var(--ds-border);
+    }
+    .section:first-child { border-top: none; }
+    .section-alt { background: var(--ds-surface); }
+    .section-header {
+      font-family: var(--ds-font-display);
+      font-size: 28px; font-weight: 400;
+      letter-spacing: 0.04em; color: var(--ds-cream);
+      margin-bottom: 24px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-header::before {
+      content: ''; display: inline-block;
+      width: 4px; height: 24px; background: var(--ds-blue);
+    }
+
+    /* -- Section Cards -- */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+    .section-card {
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+      padding: 24px;
+      transition: border-color var(--ds-transition), box-shadow var(--ds-transition);
+      position: relative;
+    }
+    .section-card:hover {
+      filter: brightness(1.25);
+      box-shadow: var(--ds-shadow-lifted);
+    }
+    .section-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-card .tag {
+      display: inline-block;
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--ds-muted);
+    }
+    .section-card .entry-count {
+      font-family: var(--ds-font-mono);
+      font-size: 12px; color: var(--ds-muted);
+    }
+    .section-card h3 {
+      font-size: 16px; font-weight: 600;
+      color: var(--ds-cream); margin-bottom: 8px;
+    }
+    .section-card .thesis {
+      font-size: 13px; color: var(--ds-muted);
+      line-height: 1.5; margin-bottom: 12px;
+    }
+    .section-card .deep-link {
+      font-family: var(--ds-font-mono);
+      font-size: 11px; color: var(--ds-blue-text);
+      text-decoration: none; letter-spacing: 0.05em;
+    }
+    .section-card .deep-link:hover { text-decoration: underline; }
+    .section-card-gap { opacity: 0.5; border-style: dashed; }
+
+    /* -- Signal Briefing -- */
+    .signal-list { display: flex; flex-direction: column; gap: 12px; }
+    .signal-item {
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+      border-left: 3px solid var(--ds-blue);
+      padding: 16px 20px;
+      transition: box-shadow var(--ds-transition);
+    }
+    .signal-item:hover {
+      filter: brightness(1.25);
+      box-shadow: var(--ds-shadow-lifted);
+    }
+    .signal-item h4 {
+      font-size: 14px; font-weight: 600;
+      color: var(--ds-cream); margin-bottom: 4px;
+    }
+    .signal-item p {
+      font-size: 13px; color: var(--ds-muted); line-height: 1.5;
+    }
+    .signal-item .signal-source {
+      font-family: var(--ds-font-mono);
+      font-size: 11px; color: var(--ds-teal-text);
+      margin-top: 6px;
+    }
+
+    /* -- Sentinel Digest -- */
+    .sentinel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+    }
+    .sentinel-card {
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+      padding: 16px;
+    }
+    .sentinel-card .sentinel-type {
+      font-family: var(--ds-font-mono);
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .sentinel-card .sentinel-type--warning { color: var(--ds-sienna-text); }
+    .sentinel-card .sentinel-type--info { color: var(--ds-blue-text); }
+    .sentinel-card .sentinel-type--success { color: var(--ds-green-text); }
+    .sentinel-card p {
+      font-size: 13px; color: var(--ds-muted); line-height: 1.4;
+    }
+
+    /* -- Footer -- */
+    .footer {
+      border-top: 1px solid var(--ds-border);
+      padding: 24px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-brand {
+      font-size: 12px; color: var(--ds-muted); letter-spacing: 0.04em;
+    }
+    .footer-meta {
+      font-family: var(--ds-font-mono);
+      font-size: 11px; color: var(--ds-muted);
+    }
+
+    /* -- Responsive -- */
+    @media (max-width: 768px) {
+      .hero { padding: 32px 16px 24px; }
+      .hero h1 { font-size: 36px; }
+      .container { padding: 0 16px; }
+      .stats-bar { gap: 24px; padding: 16px; flex-wrap: wrap; }
+      .stat-value { font-size: 22px; }
+      .section { padding: 32px 0; }
+      .card-grid { grid-template-columns: 1fr; }
+      .nav-links a { font-size: 10px; padding: 4px 8px; }
+      .footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+    @media (max-width: 480px) {
+      .nav-brand { font-size: 16px; }
+      .stats-bar { gap: 16px; }
+      .hero h1 { font-size: 28px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav-bar">
+    <span class="nav-brand">MINDRIANOS</span>
+    <div class="nav-links">
+      <a href="overview.html" class="active">Overview</a>
+      <a href="library.html">Library</a>
+      <a href="narrative.html">Narrative</a>
+      <a href="synthesis.html">Synthesis</a>
+      <a href="blueprint.html">Blueprint</a>
+      <a href="constellation.html">Constellation</a>
+    </div>
+  </nav>
+
+  <!-- Accent Bar -->
+  <div class="accent-bar">
+    <span style="background:#A63D2F"></span>
+    <span style="background:#1E3A6E"></span>
+    <span style="background:#C8A43C"></span>
+    <span style="background:#2D6B4A"></span>
+    <span style="background:#2A6B5E"></span>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1 id="room-name"></h1>
+    <p class="hero-subtitle" id="room-subtitle"></p>
+    <span class="stage-badge" id="room-stage"></span>
+  </div>
+
+  <!-- Adaptive Stats Bar -->
+  <div class="stats-bar" id="stats-bar"></div>
+
+  <!-- Signal Briefing -->
+  <div class="section">
+    <div class="container">
+      <h2 class="section-header">SIGNAL BRIEFING</h2>
+      <div class="signal-list" id="signal-list">
+        <div style="text-align:center;padding:24px;color:var(--ds-muted);font-size:13px;">
+          No signals extracted yet. Run <code style="font-family:var(--ds-font-mono);color:var(--ds-teal-text);background:var(--ds-bg);padding:2px 6px;">/mos:hub extract</code> to generate intelligence.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Cards with Thesis -->
+  <div class="section section-alt">
+    <div class="container">
+      <h2 class="section-header">SECTIONS</h2>
+      <div class="card-grid" id="section-grid"></div>
+    </div>
+  </div>
+
+  <!-- Sentinel Digest -->
+  <div class="section">
+    <div class="container">
+      <h2 class="section-header">SENTINEL DIGEST</h2>
+      <div class="sentinel-grid" id="sentinel-grid">
+        <div style="text-align:center;padding:24px;color:var(--ds-muted);font-size:13px;grid-column:1/-1;">
+          No sentinel data available. Intelligence extraction populates this section.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Accent Bar -->
+  <div class="accent-bar">
+    <span style="background:#A63D2F"></span>
+    <span style="background:#1E3A6E"></span>
+    <span style="background:#C8A43C"></span>
+    <span style="background:#2D6B4A"></span>
+    <span style="background:#2A6B5E"></span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span class="footer-brand">Built with MindrianOS</span>
+    <span class="footer-meta" id="footer-meta"></span>
+  </footer>
+
+  <!-- Room Data (injected by generate-snapshot.cjs) -->
+  <script id="room-data" type="application/json">{{ROOM_DATA}}</script>
+
+  <script>
+  (function() {
+    'use strict';
+
+    var data;
+    try {
+      data = JSON.parse(document.getElementById('room-data').textContent);
+    } catch(e) {
+      console.error('Failed to parse room data:', e);
+      return;
+    }
+
+    // -- Populate hero --
+    document.getElementById('room-name').textContent = data.name || 'Untitled Room';
+    document.getElementById('room-subtitle').textContent = data.subtitle || '';
+    document.getElementById('room-stage').textContent = data.stage || 'Discovery';
+
+    // -- Adaptive Stats Bar --
+    var statsBar = document.getElementById('stats-bar');
+    var statsConfig = data.statsConfig || [
+      { key: 'sectionCount', label: 'Sections' },
+      { key: 'articleCount', label: 'Entries' },
+      { key: 'connectionCount', label: 'Threads' },
+      { key: 'gapCount', label: 'Gaps' }
+    ];
+    var stats = data.stats || {};
+    statsConfig.forEach(function(s) {
+      var div = document.createElement('div');
+      div.className = 'stat';
+      div.innerHTML = '<div class="stat-value">' + (stats[s.key] != null ? stats[s.key] : 0) +
+        '</div><div class="stat-label">' + escapeHtml(s.label) + '</div>';
+      statsBar.appendChild(div);
+    });
+
+    // -- Section Cards --
+    var grid = document.getElementById('section-grid');
+    var sections = data.sections || [];
+    sections.forEach(function(sec) {
+      var card = document.createElement('div');
+      var isEmpty = sec.articleCount === 0;
+      card.className = 'section-card' + (isEmpty ? ' section-card-gap' : '');
+      card.style.borderLeft = '3px ' + (isEmpty ? 'dashed' : 'solid') + ' ' + (sec.color || '#D4CFC7');
+
+      var countLabel = sec.articleCount === 1 ? '1 entry' : sec.articleCount + ' entries';
+      var thesis = sec.thesis || '';
+      var deepLink = sec.deepLink || '';
+
+      card.innerHTML =
+        '<div class="section-card-header">' +
+          '<span class="tag">' + escapeHtml(sec.label) + '</span>' +
+          '<span class="entry-count">' + countLabel + '</span>' +
+        '</div>' +
+        (thesis ? '<p class="thesis">' + escapeHtml(thesis) + '</p>' : '') +
+        (isEmpty ? '<p style="font-size:13px;color:var(--ds-muted)">No entries yet</p>' : '') +
+        (deepLink ? '<a href="' + escapeHtml(deepLink) + '" class="deep-link">Open in Claude Code &gt;</a>' : '');
+
+      grid.appendChild(card);
+    });
+
+    // -- Signal Briefing --
+    var signalList = document.getElementById('signal-list');
+    var signals = data.signals || [];
+    if (signals.length > 0) {
+      signalList.innerHTML = '';
+      signals.slice(0, 5).forEach(function(sig) {
+        var item = document.createElement('div');
+        item.className = 'signal-item';
+        item.innerHTML =
+          '<h4>' + escapeHtml(sig.title || 'Signal') + '</h4>' +
+          '<p>' + escapeHtml(sig.description || '') + '</p>' +
+          (sig.source ? '<div class="signal-source">Source: ' + escapeHtml(sig.source) + '</div>' : '');
+        signalList.appendChild(item);
+      });
+    }
+
+    // -- Sentinel Digest --
+    var sentinelGrid = document.getElementById('sentinel-grid');
+    var sentinels = data.sentinels || [];
+    if (sentinels.length > 0) {
+      sentinelGrid.innerHTML = '';
+      sentinels.forEach(function(s) {
+        var card = document.createElement('div');
+        card.className = 'sentinel-card';
+        var typeClass = s.type === 'warning' ? 'sentinel-type--warning' :
+                        s.type === 'success' ? 'sentinel-type--success' : 'sentinel-type--info';
+        card.innerHTML =
+          '<div class="sentinel-type ' + typeClass + '">' + escapeHtml(s.type || 'info') + '</div>' +
+          '<p>' + escapeHtml(s.message || '') + '</p>';
+        sentinelGrid.appendChild(card);
+      });
+    }
+
+    // -- Footer --
+    var exportDate = data.exportDate ? new Date(data.exportDate) : new Date();
+    document.getElementById('footer-meta').textContent =
+      exportDate.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) +
+      ' | ' + (stats.sectionCount || 0) + 's, ' + (stats.connectionCount || 0) + 'e';
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  })();
+  </script>
+
+</body>
+</html>

@@ -15,13 +15,27 @@
 const fs = require('fs');
 const path = require('path');
 
-// -- Chat Embed (Phase 50: Fabric Chat in all views) --
-let generateChatSnippet;
+// Deep link generation (Phase 42)
+let deepLinks;
 try {
-  generateChatSnippet = require('./generate-chat-embed.cjs').generateChatSnippet;
+  deepLinks = require('../lib/core/deep-links.cjs');
 } catch (_) {
-  generateChatSnippet = null;
+  // Fallback if deep-links module not available
+  deepLinks = {
+    generateDeepLink: (roomPath, cmd) => {
+      const cwd = encodeURIComponent(path.resolve(roomPath));
+      if (!cmd) return `claude-cli://open?cwd=${cwd}`;
+      return `claude-cli://open?cwd=${cwd}&q=${encodeURIComponent(cmd)}`;
+    },
+    generateSectionLink: (roomPath, section) => {
+      const cwd = encodeURIComponent(path.resolve(roomPath));
+      return `claude-cli://open?cwd=${cwd}&q=${encodeURIComponent('/mos:room ' + section)}`;
+    }
+  };
 }
+
+// Showcase view template directory
+const SHOWCASE_TEMPLATE_DIR = path.join(__dirname, '..', 'templates', 'showcase');
 
 // -- Constants --
 
@@ -157,11 +171,17 @@ function scanRoom(roomDir) {
       for (const f of files) {
         if (!f.endsWith('.md') || SKIP_FILES.has(f)) continue;
         let title = f.replace(/\.md$/, '');
+        let content = '';
         try {
-          const content = fs.readFileSync(path.join(sectionDir, f), 'utf-8');
+          content = fs.readFileSync(path.join(sectionDir, f), 'utf-8');
           title = extractTitle(content, f);
         } catch (_) { /* use filename fallback */ }
-        articles.push({ filename: f, title });
+        // Generate deep link for this Entry (LINK-01)
+        const entryDeepLink = deepLinks.generateDeepLink(
+          roomDir,
+          `/mos:room ${dirName} ${f.replace(/\.md$/, '')}`
+        );
+        articles.push({ filename: f, title, content, deepLink: entryDeepLink, threads: [] });
       }
     } catch (_) { /* skip unreadable dirs */ }
 
@@ -175,13 +195,18 @@ function scanRoom(roomDir) {
       grantCount += articleCount;
     }
 
+    // Generate deep link for this Section (LINK-01)
+    const sectionDeepLink = deepLinks.generateSectionLink(roomDir, dirName);
+
     sections.push({
       id: dirName,
       label: toLabel(dirName),
       color: SECTION_COLORS[dirName] || DEFAULT_COLOR,
       articleCount,
       articles,
-      isEmpty
+      isEmpty,
+      deepLink: sectionDeepLink,
+      thesis: '' // populated by extraction pipeline
     });
   }
 
@@ -213,22 +238,40 @@ function scanRoom(roomDir) {
     }
   }
 
+  // 3b. Enrich articles with thread info from graph edges (LINK-01)
+  const articleMap = {};
+  for (const sec of sections) {
+    for (const art of sec.articles) {
+      const artId = art.filename.replace(/\.md$/, '');
+      articleMap[artId] = art;
+      articleMap[sec.id + '/' + artId] = art;
+    }
+  }
+  for (const edge of graphEdges) {
+    const d = edge.data || {};
+    const src = d.source || '';
+    const tgt = d.target || '';
+    const type = d.type || d.label || 'INFORMS';
+    // Add thread to source article
+    const srcArt = articleMap[src];
+    if (srcArt) {
+      const tgtDeepLink = deepLinks.generateDeepLink(roomDir, `/mos:room ${tgt}`);
+      srcArt.threads.push({ type, target: tgt, deepLink: tgtDeepLink });
+    }
+    // Add thread to target article
+    const tgtArt = articleMap[tgt];
+    if (tgtArt) {
+      const srcDeepLink = deepLinks.generateDeepLink(roomDir, `/mos:room ${src}`);
+      tgtArt.threads.push({ type, target: src, deepLink: srcDeepLink });
+    }
+  }
+
   // 4. Extract breakthroughs, opportunities, views
   const breakthroughs = extractBreakthroughs(graphNodes);
   const opportunities = extractOpportunities(roomDir, sections);
   const views = extractViews('');
 
-  // 5. Generate Fabric Chat embed (Phase 50)
-  let chatEmbed = '';
-  if (generateChatSnippet) {
-    try {
-      chatEmbed = generateChatSnippet(roomDir);
-    } catch (_) {
-      // Chat panel generation failed -- degrade silently
-    }
-  }
-
-  // 6. Build and return data model
+  // 5. Build and return data model
   return {
     name,
     stage,
@@ -249,7 +292,6 @@ function scanRoom(roomDir) {
     breakthroughs,
     opportunities,
     views,
-    _chatEmbed: chatEmbed,
     exportDate: new Date().toISOString(),
     timestamp
   };
@@ -1057,9 +1099,6 @@ function renderBrandedHtml(model) {
     <span class="footer-meta">${escapeHtml(dateStr)} | ${model.stats.sectionCount}s, ${model.graph.edges.length}e</span>
   </footer>
 
-  <!-- Fabric Chat Panel (Phase 50: Generative Fabric Chat) -->
-  ${model._chatEmbed || ''}
-
 </body>
 </html>`;
 }
@@ -1079,6 +1118,9 @@ function writeSnapshot(roomDir, model) {
 
   fs.writeFileSync(path.join(snapshotDir, 'index.html'), html, 'utf-8');
 
+  // -- Generate Showcase views (Phase 49: VIEW-01 through VIEW-05) --
+  const showcaseFiles = generateShowcaseViews(snapshotDir, model, roomDir);
+
   // -- Write/update manifest.json --
   const snapshotEntry = {
     timestamp: model.timestamp,
@@ -1087,7 +1129,7 @@ function writeSnapshot(roomDir, model) {
     stage: model.stage,
     stats: model.stats,
     enriched: model.graph.enriched,
-    files: ['index.html']
+    files: ['index.html'].concat(showcaseFiles)
   };
 
   const manifestPath = path.join(exportsDir, 'manifest.json');
@@ -1114,6 +1156,77 @@ function writeSnapshot(roomDir, model) {
   fs.writeFileSync(path.join(snapshotDir, 'manifest.json'), JSON.stringify(localManifest, null, 2), 'utf-8');
 
   return snapshotDir;
+}
+
+/**
+ * Generate all 5 Showcase view HTML files from templates.
+ * Each view gets room data injected as inline JSON.
+ * Returns array of generated filenames.
+ */
+function generateShowcaseViews(snapshotDir, model, roomDir) {
+  const SHOWCASE_VIEWS = [
+    'overview.html',
+    'library.html',
+    'narrative.html',
+    'synthesis.html',
+    'blueprint.html'
+  ];
+
+  // Build the room data payload for injection
+  // Strip large content from articles for overview/synthesis (keep for library)
+  const lightModel = {
+    name: model.name,
+    stage: model.stage,
+    subtitle: model.subtitle,
+    roomThesis: model.roomThesis || '',
+    sections: model.sections.map(sec => ({
+      id: sec.id,
+      label: sec.label,
+      color: sec.color,
+      articleCount: sec.articleCount,
+      isEmpty: sec.isEmpty,
+      deepLink: sec.deepLink || '',
+      thesis: sec.thesis || '',
+      articles: sec.articles.map(a => ({
+        filename: a.filename,
+        title: a.title,
+        content: a.content || '',
+        deepLink: a.deepLink || '',
+        threads: a.threads || []
+      }))
+    })),
+    stats: model.stats,
+    graph: model.graph,
+    signals: model.signals || [],
+    sentinels: model.sentinels || [],
+    timeline: model.timeline || [],
+    statsConfig: model.statsConfig || null,
+    exportDate: model.exportDate
+  };
+
+  const roomDataJson = JSON.stringify(lightModel);
+  const generatedFiles = [];
+
+  for (const viewFile of SHOWCASE_VIEWS) {
+    const templatePath = path.join(SHOWCASE_TEMPLATE_DIR, viewFile);
+    if (!fs.existsSync(templatePath)) {
+      // Template not yet available -- skip silently
+      continue;
+    }
+
+    let template = fs.readFileSync(templatePath, 'utf-8');
+
+    // Inject room data JSON
+    template = template.replace('{{ROOM_DATA}}', roomDataJson.replace(/</g, '\\u003c'));
+
+    // Replace title placeholder
+    template = template.replace('{{ROOM_NAME}}', escapeHtml(model.name));
+
+    fs.writeFileSync(path.join(snapshotDir, viewFile), template, 'utf-8');
+    generatedFiles.push(viewFile);
+  }
+
+  return generatedFiles;
 }
 
 /**
@@ -1165,6 +1278,13 @@ function main() {
     console.log(`  Grants/Opportunities: ${model.stats.grantCount}`);
   }
   console.log(`  Graph enriched: ${model.graph.enriched}`);
+
+  // Report showcase views
+  const showcaseViews = ['overview.html', 'library.html', 'narrative.html', 'synthesis.html', 'blueprint.html'];
+  const generated = showcaseViews.filter(f => fs.existsSync(path.join(snapshotDir, f)));
+  if (generated.length > 0) {
+    console.log(`  Showcase views: ${generated.join(', ')}`);
+  }
 }
 
 main();
