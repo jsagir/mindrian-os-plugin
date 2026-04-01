@@ -43,10 +43,10 @@
 
 ### SnapshotHub Export
 
-- [ ] **SNAP-01**: /mos:snapshot generates static HTML to room/exports/{YYYY-MM-DD-HHmm}/
-- [ ] **SNAP-02**: All 7 views as co-located HTML + shared CSS/JS
-- [ ] **SNAP-03**: manifest.json with Room metrics (entries, threads, surprises, bottlenecks, signals, lenses, conversations)
-- [ ] **SNAP-04**: Version history sidebar from room/.snapshots/
+- [x] **SNAP-01**: /mos:snapshot generates static HTML to room/exports/{YYYY-MM-DD-HHmm}/
+- [x] **SNAP-02**: All 7 views as co-located HTML + shared CSS/JS
+- [x] **SNAP-03**: manifest.json with Room metrics (entries, threads, surprises, bottlenecks, signals, lenses, conversations)
+- [x] **SNAP-04**: Version history sidebar from room/.snapshots/
 
 ### Deep Links
 
@@ -61,10 +61,10 @@
 
 ### Responsive + Offline
 
-- [ ] **POLISH-01**: Responsive 375px-1440px (mobile-first)
-- [ ] **POLISH-02**: CDN default, --offline inlines all deps
-- [ ] **POLISH-03**: Works on file:// (chat requires API key)
-- [ ] **POLISH-04**: Signature footer + Mondrian bar in all views
+- [x] **POLISH-01**: Responsive 375px-1440px (mobile-first)
+- [x] **POLISH-02**: CDN default, --offline inlines all deps
+- [x] **POLISH-03**: Works on file:// (chat requires API key)
+- [x] **POLISH-04**: Signature footer + Mondrian bar in all views
 
 ---
 
@@ -93,19 +93,19 @@
 | FABRIC-04 | Phase 48 | Pending |
 | FABRIC-05 | Phase 48 | Pending |
 | FABRIC-06 | Phase 48 | Pending |
-| SNAP-01 | Phase 51 | Pending |
-| SNAP-02 | Phase 51 | Pending |
-| SNAP-03 | Phase 51 | Pending |
-| SNAP-04 | Phase 51 | Pending |
+| SNAP-01 | Phase 51 | Complete |
+| SNAP-02 | Phase 51 | Complete |
+| SNAP-03 | Phase 51 | Complete |
+| SNAP-04 | Phase 51 | Complete |
 | LINK-01 | Phase 49 | Pending |
 | LINK-02 | Phase 49 | Pending |
 | EXTRACT-01 | Phase 47 | Pending |
 | EXTRACT-02 | Phase 47 | Pending |
 | EXTRACT-03 | Phase 47 | Pending |
-| POLISH-01 | Phase 51 | Pending |
-| POLISH-02 | Phase 51 | Pending |
-| POLISH-03 | Phase 51 | Pending |
-| POLISH-04 | Phase 51 | Pending |
+| POLISH-01 | Phase 51 | Complete |
+| POLISH-02 | Phase 51 | Complete |
+| POLISH-03 | Phase 51 | Complete |
+| POLISH-04 | Phase 51 | Complete |
 
 **Coverage:** 34/34 requirements mapped
 

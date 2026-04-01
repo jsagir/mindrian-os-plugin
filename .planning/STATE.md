@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v6.2
 milestone_name: RoomHub + SnapshotHub
-status: roadmap_complete
-stopped_at: null
-last_updated: "2026-04-01T01:00:00.000Z"
-last_activity: 2026-04-01 -- Roadmap created for v6.2 (Phases 47-51, 34 requirements)
+status: executing
+stopped_at: "Completed Phase 51 SnapshotHub Export + Polish"
+last_updated: "2026-04-01T15:00:00.000Z"
+last_activity: 2026-04-01 -- Phase 51 SnapshotHub Export + Polish completed (4 tasks, 4 commits)
 progress:
   total_phases: 5
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 5
+  completed_plans: 1
+  percent: 20
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-01)
 
 **Core value:** Any Room becomes a living, adaptive intelligence surface -- RoomHub serves it interactively, SnapshotHub freezes it for sharing
-**Current focus:** Phase 47 -- Adaptive Room Detection + Parallel Extraction
+**Current focus:** Phase 51 complete -- SnapshotHub Export + Polish
 
 ## Current Position
 
-Phase: 47 of 51 (Adaptive Room Detection + Parallel Extraction)
-Plan: 0 of TBD
-Status: Ready to plan
-Last activity: 2026-04-01 -- Roadmap created
+Phase: 51 of 51 (SnapshotHub Export + Polish -- COMPLETE)
+Plan: 1 of 1
+Status: Phase 51 complete
+Last activity: 2026-04-01 -- Phase 51 shipped (4 tasks, 4 commits, 4 files)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [##░░░░░░░░] 20%
 
 ## Performance Metrics
 
@@ -48,6 +48,10 @@ Progress: [░░░░░░░░░░] 0%
 ### Decisions
 
 Recent decisions affecting v6.2:
+- [Phase 51]: Shared CSS as linked file (not inline) for co-located views
+- [Phase 51]: Mobile-first breakpoints (375/768/1024/1440) not desktop-down
+- [Phase 51]: Offline inlining via Node.js child_process, no npm deps
+- [Phase 51]: Manifest v2 schema with full metrics, spectral, section completeness
 - [v6.2 init]: RoomHub first (live localhost), SnapshotHub second (freeze and export)
 - [v6.2 init]: Build on existing generate-snapshot.cjs (368 lines), lib/chat/chat-panel.js, lib/core/deep-links.cjs
 - [v6.2 init]: 5 phases (47-51), coarse granularity, derived from RESEARCH_13 proposal
@@ -67,5 +71,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-01
-Stopped at: Roadmap created for v6.2 RoomHub + SnapshotHub
-Resume file: None
+Stopped at: Phase 51 SnapshotHub Export + Polish complete
+Resume file: .planning/phases/51-snapshot-hub-export-polish/51-SUMMARY.md
