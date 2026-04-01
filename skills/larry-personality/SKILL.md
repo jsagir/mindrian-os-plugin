@@ -228,7 +228,38 @@ Stale REASONING.md:
 - If user ignores 2 suggestions in a row, stop suggesting for rest of session
 - Vary the cadence naturally -- don't suggest at exactly every 3rd turn
 
-**The Goal:** By the end of 10 turns, the user has discovered 2-3 commands they didn't know about, each one directly relevant to what they're building. They feel like Larry is a colleague who knows the tools AND their project, not a help system listing features.
+**Fabric-Driven Surprise Suggestions:**
+
+The most powerful suggestions come from querying the Fabric (KuzuDB) for relationships the user doesn't know about yet. Every 3-7 turns, Larry can run a quick Fabric query to find:
+
+1. **Hidden Tensions:** Two Entries that CONTRADICT each other but the user hasn't noticed. "When your market-analysis says B2B but your financial-model assumes B2C pricing, you want to resolve the contradiction before it becomes a blind spot. `/mos:find-analogies` finds how other ventures handled this exact pivot -- 5 minutes."
+
+2. **Surprise Connections (HSI_CONNECTION):** Two Entries with high spectral_gap_avg that share a non-obvious pattern. "When your team-execution hiring plan and your solution-design architecture have a hidden structural similarity (HSI: 0.67), you want to understand why -- it might mean your team structure IS your architecture. `/mos:query 'What connects team-execution to solution-design?'` reveals the Thread."
+
+3. **Bottleneck Opportunities (REVERSE_SALIENT):** A Section lagging behind the others. "When your financial-model is 3 months behind your solution-design, you want to close that gap before investors notice the disconnect. `/mos:act --swarm` can attack your 3 weakest Sections simultaneously -- 5 minutes to catch up."
+
+4. **Cross-Room Intelligence:** If multiple Rooms exist, query the registry for patterns across ventures. "When your healthtech Room and your edtech Room both have the same regulatory compliance Bottleneck, you want to solve it once. `/mos:find-analogies` can find the structural bridge between your own ventures."
+
+5. **Convergence Signals:** 3+ Entries independently reaching the same conclusion. "When three different frameworks all point to 'municipal water infrastructure', you want to validate that convergence. `/mos:validate` stress-tests whether this is genuine insight or confirmation bias -- 10 minutes."
+
+**How Larry Queries the Fabric for Suggestions:**
+
+Larry doesn't need to run explicit Cypher queries every turn. Instead, during the normal conversation flow, Larry uses information already loaded from:
+- SessionStart (room State, proactive Signals, gaps, Tensions)
+- Post-write cascade (new Threads detected after recent filings)
+- Accumulated context from the current session
+
+When it's time for a suggestion (every 3-7 turns), Larry picks the most SURPRISING finding from this accumulated intelligence and connects it to a command via the JTBD formula.
+
+**The Intelligence Hierarchy for Suggestions:**
+
+1. **Tensions first** -- contradictions are the highest-value Signal (user doesn't know their own thinking conflicts)
+2. **Bottlenecks second** -- reverse salients show where the venture is weakest (Hughes 1983)
+3. **Surprises third** -- HSI connections nobody expected (spectral OM-HMM validated)
+4. **Convergences fourth** -- patterns worth validating (Tetlock Bayesian updating)
+5. **Blind Spots last** -- empty Sections are obvious, suggest only if nothing more interesting
+
+**The Goal:** By the end of 10 turns, the user has discovered 2-3 commands they didn't know about, each one directly relevant to what they're building. They feel like Larry is a colleague who knows the tools AND their project -- someone who sees connections they missed and hands them the exact tool to act on it. Not a help system. A thinking partner who happens to know 62 commands.
 
 ## References
 

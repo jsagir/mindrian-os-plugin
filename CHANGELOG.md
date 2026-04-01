@@ -10,15 +10,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
 ## [1.6.1] - 2026-03-31
+onboarding: true
+onboard_steps:
+  - "When you are burning through tokens on routine work, /mos:models set balanced keeps Opus for teaching but uses Haiku for scanning -- 66% less cost, same quality where it matters"
+  - "When 3 Sections have gaps and you only have 30 minutes, /mos:act --swarm fills all 3 in parallel -- 5 minutes instead of 45"
+  - "When you want 6 expert perspectives but hate waiting, /mos:persona --parallel generates all De Bono hats simultaneously -- 2 minutes"
+  - "When you are stuck on a problem that feels unique to your domain, /mos:find-analogies discovers how other industries solved the exact same structural conflict"
+  - "When your Room has not been health-checked and you have deadlines approaching, /mos:scout runs a full scan -- health, grants, competitors, innovation connections"
+  - "When you want to share your Room's intelligence as a living hub, /mos:snapshot generates a 7-view interactive HTML export with graph, chat, and deep links"
 
 ### Added
-- /mos:models command for viewing, switching, and overriding model profiles (quality/balanced/budget/inherit)
-- Per-agent model routing with MODEL_PROFILES table mapping 8 agents to 3 cost tiers
-- Venture-stage adaptive hints auto-selecting cheaper models for Pre-Opportunity and Opus for Investment stage
-- Per-room configuration via room/.config.json with global defaults at ~/.mindrian/defaults.json
-- CASCADE_MODELS table for future LLM-powered cascade steps
-- Model resolution wired into /mos:act, /mos:grade, /mos:deep-grade, /mos:research commands
-- 13-test validation script at scripts/validate-model-profiles
+- /mos:models command for model profile management (quality/balanced/budget/inherit)
+- /mos:scout for sentinel intelligence (health check, grant deadlines, competitor watch)
+- /mos:find-analogies for Design-by-Analogy discovery (--brain, --external modes)
+- /mos:snapshot for RoomHub export (7 views, adaptive, generative chat)
+- 6 new hooks: PreCompact, PostCompact, FileChanged, CwdChanged, SubagentStop, TaskCompleted
+- Parallel flags: --swarm (act), --parallel (persona), --full (grade), --broad (research)
+- Spectral OM-HMM: Markov chain thinking-mode analysis in HSI pipeline
+- 3 new KuzuDB edge types: ANALOGOUS_TO, STRUCTURALLY_ISOMORPHIC, RESOLVES_VIA
+- Design-by-Analogy pipeline (5 stages) with TRIZ matrix and SAPPhIRE encoding
+- Adaptive Room type detection (venture/website/research/general)
+- Constellation graph with 12 Thread types and De Stijl colors
+- Generative Fabric Chat querying KuzuDB via natural language
+- MWP specification, moat mandate, KAIROS prep, Coordinator Mode manifest
+- JTBD-powered contextual command discovery every 3-7 turns
+- Onboarding invitation on any "how to use" question
 
 ## [1.6.0] - 2026-03-31
 onboarding: true
