@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ROOM_NAME}} - Blueprint</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --ds-bg: #1a1a1a;
+      --ds-surface: #2d2d2d;
+      --ds-elevated: #3a3a3a;
+      --ds-cream: #f5f1e8;
+      --ds-muted: #a8a39f;
+      --ds-border: #404040;
+      --ds-red: #A63D2F;
+      --ds-blue: #1E3A6E;
+      --ds-yellow: #C8A43C;
+      --ds-green: #2D6B4A;
+      --ds-sienna: #B5602A;
+      --ds-teal: #2A6B5E;
+      --ds-amethyst: #6B4E8B;
+      --ds-red-text: #C95A4A;
+      --ds-blue-text: #4A7BC8;
+      --ds-yellow-text: #C8A43C;
+      --ds-green-text: #4A9B72;
+      --ds-teal-text: #4A9B8E;
+      --ds-amethyst-text: #9B7EB5;
+      --ds-shadow-lifted: 4px 4px 0 #0a0a0f;
+      --ds-transition: 150ms ease;
+      --ds-font-display: 'Bebas Neue', sans-serif;
+      --ds-font-body: 'Inter', system-ui, sans-serif;
+      --ds-font-mono: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { border-radius: 0 !important; }
+    html { font-size: 16px; }
+    body {
+      font-family: var(--ds-font-body);
+      background: var(--ds-bg);
+      color: var(--ds-cream);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    em, i { font-style: normal; font-weight: 600; }
+
+    .nav-bar {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--ds-bg);
+      border-bottom: 1px solid var(--ds-border);
+      display: flex; align-items: center; justify-content: space-between;
+      height: 48px; padding: 0 24px;
+    }
+    .nav-brand { font-family: var(--ds-font-display); font-size: 20px; letter-spacing: 0.04em; color: var(--ds-cream); }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a {
+      font-family: var(--ds-font-mono); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--ds-muted); text-decoration: none;
+      padding: 6px 12px; border: 1px solid transparent;
+      transition: all var(--ds-transition);
+    }
+    .nav-links a:hover { color: var(--ds-cream); border-color: var(--ds-border); }
+    .nav-links a.active { color: var(--ds-cream); border-color: var(--ds-blue); background: var(--ds-surface); }
+
+    .accent-bar { display: flex; height: 4px; width: 100%; }
+    .accent-bar span { flex: 1; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+    .section { padding: 48px 0; border-top: 1px solid var(--ds-border); }
+    .section:first-child { border-top: none; }
+    .section-alt { background: var(--ds-surface); }
+    .section-header {
+      font-family: var(--ds-font-display);
+      font-size: 28px; font-weight: 400;
+      letter-spacing: 0.04em; color: var(--ds-cream);
+      margin-bottom: 24px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-header::before {
+      content: ''; display: inline-block;
+      width: 4px; height: 24px; background: var(--ds-blue);
+    }
+
+    /* -- SVG Diagram Container -- */
+    .blueprint-canvas {
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+      min-height: 500px; overflow: auto;
+      position: relative;
+    }
+    .blueprint-canvas svg {
+      display: block; margin: 0 auto;
+    }
+
+    /* -- SVG Section Box -- */
+    .bp-section-box {
+      cursor: pointer;
+    }
+    .bp-section-box:hover rect {
+      filter: brightness(1.3);
+    }
+    .bp-section-box text {
+      font-family: 'Inter', sans-serif;
+      fill: #f5f1e8;
+    }
+
+    /* -- Legend -- */
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 16px;
+      margin-top: 16px;
+    }
+    .legend-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--ds-muted);
+    }
+    .legend-swatch {
+      width: 24px; height: 3px;
+    }
+
+    /* -- Mermaid Container -- */
+    .mermaid-container {
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+      padding: 32px; overflow: auto;
+    }
+    .mermaid-container .mermaid svg {
+      max-width: 100%;
+    }
+
+    /* -- Edge Stats -- */
+    .edge-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 8px; margin-top: 16px;
+    }
+    .edge-stat {
+      background: var(--ds-bg);
+      border: 1px solid var(--ds-border);
+      padding: 12px; display: flex;
+      align-items: center; gap: 8px;
+    }
+    .edge-stat-color {
+      width: 12px; height: 12px; flex-shrink: 0;
+    }
+    .edge-stat-label {
+      font-family: var(--ds-font-mono);
+      font-size: 11px; color: var(--ds-muted);
+      flex: 1;
+    }
+    .edge-stat-count {
+      font-family: var(--ds-font-mono);
+      font-size: 13px; font-weight: 600;
+      color: var(--ds-cream);
+    }
+
+    /* -- Footer -- */
+    .footer {
+      border-top: 1px solid var(--ds-border);
+      padding: 24px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-brand { font-size: 12px; color: var(--ds-muted); }
+    .footer-meta { font-family: var(--ds-font-mono); font-size: 11px; color: var(--ds-muted); }
+
+    @media (max-width: 768px) {
+      .container { padding: 0 16px; }
+      .section { padding: 32px 0; }
+      .edge-stats { grid-template-columns: repeat(2, 1fr); }
+      .footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav-bar">
+    <span class="nav-brand">MINDRIANOS</span>
+    <div class="nav-links">
+      <a href="overview.html">Overview</a>
+      <a href="library.html">Library</a>
+      <a href="narrative.html">Narrative</a>
+      <a href="synthesis.html">Synthesis</a>
+      <a href="blueprint.html" class="active">Blueprint</a>
+      <a href="constellation.html">Constellation</a>
+    </div>
+  </nav>
+  <div class="accent-bar">
+    <span style="background:#A63D2F"></span>
+    <span style="background:#1E3A6E"></span>
+    <span style="background:#C8A43C"></span>
+    <span style="background:#2D6B4A"></span>
+    <span style="background:#2A6B5E"></span>
+  </div>
+
+  <!-- SVG Architecture Diagram -->
+  <div class="section">
+    <div class="container">
+      <h2 class="section-header">ROOM ARCHITECTURE</h2>
+      <div class="blueprint-canvas" id="blueprint-canvas"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+  </div>
+
+  <!-- Mermaid Flowchart -->
+  <div class="section section-alt">
+    <div class="container">
+      <h2 class="section-header">FABRIC FLOWCHART</h2>
+      <div class="mermaid-container">
+        <div class="mermaid" id="mermaid-diagram"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edge Distribution -->
+  <div class="section">
+    <div class="container">
+      <h2 class="section-header">THREAD DISTRIBUTION</h2>
+      <div class="edge-stats" id="edge-stats"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="accent-bar">
+    <span style="background:#A63D2F"></span>
+    <span style="background:#1E3A6E"></span>
+    <span style="background:#C8A43C"></span>
+    <span style="background:#2D6B4A"></span>
+    <span style="background:#2A6B5E"></span>
+  </div>
+  <footer class="footer">
+    <span class="footer-brand">Built with MindrianOS</span>
+    <span class="footer-meta" id="footer-meta"></span>
+  </footer>
+
+  <script id="room-data" type="application/json">{{ROOM_DATA}}</script>
+
+  <script>
+  (function() {
+    'use strict';
+
+    var THREAD_COLORS = {
+      'INFORMS': '#4A7BC8',
+      'CONTRADICTS': '#C95A4A',
+      'CONVERGES': '#4A9B72',
+      'ENABLES': '#4A9B8E',
+      'INVALIDATES': '#D4804A',
+      'BELONGS_TO': '#8A8780',
+      'REASONING_INFORMS': '#9B7EB5',
+      'HSI_CONNECTION': '#C8A43C',
+      'REVERSE_SALIENT': '#C95A4A',
+      'ANALOGOUS_TO': '#4A9B8E',
+      'STRUCTURALLY_ISOMORPHIC': '#9B7EB5',
+      'RESOLVES_VIA': '#4A9B72'
+    };
+
+    var SECTION_COLORS = {
+      'problem-definition': '#A63D2F',
+      'market-analysis': '#C8A43C',
+      'solution-design': '#5C5A56',
+      'business-model': '#2D6B4A',
+      'competitive-analysis': '#B5602A',
+      'team-execution': '#1E3A6E',
+      'legal-ip': '#6B4E8B',
+      'financial-model': '#2A6B5E',
+      'opportunity-bank': '#C87137',
+      'funding-strategy': '#3A7B5E'
+    };
+    var DEFAULT_COLOR = '#D4CFC7';
+
+    var data;
+    try { data = JSON.parse(document.getElementById('room-data').textContent); }
+    catch(e) { console.error('Failed to parse room data:', e); return; }
+
+    var sections = data.sections || [];
+    var graph = data.graph || {};
+    var edges = graph.edges || [];
+
+    // -- Build SVG Architecture Diagram --
+    var canvas = document.getElementById('blueprint-canvas');
+    var svgWidth = Math.max(800, sections.length * 160 + 100);
+    var svgHeight = 500;
+    var boxW = 120;
+    var boxH = 80;
+    var padding = 40;
+    var cols = Math.ceil(Math.sqrt(sections.length));
+    var rows = Math.ceil(sections.length / cols);
+
+    var sectionPositions = {};
+    sections.forEach(function(sec, i) {
+      var col = i % cols;
+      var row = Math.floor(i / cols);
+      var x = padding + col * (boxW + 40);
+      var y = padding + row * (boxH + 60);
+      sectionPositions[sec.id] = { x: x + boxW / 2, y: y + boxH / 2 };
+    });
+
+    svgWidth = padding * 2 + cols * (boxW + 40);
+    svgHeight = padding * 2 + rows * (boxH + 60);
+
+    var svgParts = [];
+    svgParts.push('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + svgWidth + ' ' + svgHeight + '" width="' + svgWidth + '" height="' + svgHeight + '">');
+    svgParts.push('<defs><marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#a8a39f"/></marker></defs>');
+
+    // Draw edges first (behind boxes)
+    edges.forEach(function(e) {
+      var d = e.data || {};
+      var src = d.source || '';
+      var tgt = d.target || '';
+      var type = d.type || d.label || 'INFORMS';
+      var p1 = sectionPositions[src];
+      var p2 = sectionPositions[tgt];
+      if (!p1 || !p2) return;
+
+      var color = THREAD_COLORS[type] || '#a8a39f';
+      var dashArray = type === 'ANALOGOUS_TO' ? ' stroke-dasharray="6,4"' : '';
+      var strokeWidth = type === 'HSI_CONNECTION' ? 2.5 : type === 'REVERSE_SALIENT' ? 2 : 1.5;
+
+      svgParts.push('<line x1="' + p1.x + '" y1="' + p1.y + '" x2="' + p2.x + '" y2="' + p2.y + '" stroke="' + color + '" stroke-width="' + strokeWidth + '"' + dashArray + ' marker-end="url(#arrowhead)" opacity="0.6"/>');
+    });
+
+    // Draw section boxes
+    sections.forEach(function(sec, i) {
+      var col = i % cols;
+      var row = Math.floor(i / cols);
+      var x = padding + col * (boxW + 40);
+      var y = padding + row * (boxH + 60);
+      var color = SECTION_COLORS[sec.id] || DEFAULT_COLOR;
+      var deepLink = sec.deepLink || '';
+
+      svgParts.push('<g class="bp-section-box"' + (deepLink ? ' onclick="window.open(\'' + esc(deepLink) + '\')"' : '') + '>');
+      svgParts.push('<rect x="' + x + '" y="' + y + '" width="' + boxW + '" height="' + boxH + '" fill="' + color + '" stroke="#404040" stroke-width="1"/>');
+      // Section label (truncate if needed)
+      var label = sec.label || sec.id;
+      if (label.length > 14) label = label.slice(0, 12) + '...';
+      svgParts.push('<text x="' + (x + boxW / 2) + '" y="' + (y + boxH / 2 - 6) + '" text-anchor="middle" font-size="11" font-weight="600">' + esc(label) + '</text>');
+      svgParts.push('<text x="' + (x + boxW / 2) + '" y="' + (y + boxH / 2 + 12) + '" text-anchor="middle" font-size="10" fill="#a8a39f">' + sec.articleCount + ' entries</text>');
+      svgParts.push('</g>');
+    });
+
+    svgParts.push('</svg>');
+    canvas.innerHTML = svgParts.join('');
+
+    // -- Legend --
+    var legendEl = document.getElementById('legend');
+    Object.keys(THREAD_COLORS).forEach(function(type) {
+      var item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML =
+        '<div class="legend-swatch" style="background:' + THREAD_COLORS[type] + '"></div>' +
+        type.replace(/_/g, ' ');
+      legendEl.appendChild(item);
+    });
+
+    // -- Mermaid Flowchart --
+    var mermaidCode = 'flowchart TD\n';
+    sections.forEach(function(sec) {
+      var id = sec.id.replace(/-/g, '_');
+      mermaidCode += '  ' + id + '["' + esc(sec.label) + '"]\n';
+    });
+    // Add edges
+    var edgeTypes = { 'INFORMS': '-->', 'CONTRADICTS': '-.->', 'CONVERGES': '==>', 'ENABLES': '-->' };
+    edges.forEach(function(e) {
+      var d = e.data || {};
+      var src = (d.source || '').replace(/-/g, '_');
+      var tgt = (d.target || '').replace(/-/g, '_');
+      var type = d.type || d.label || 'INFORMS';
+      if (!src || !tgt) return;
+      var arrow = edgeTypes[type] || '-->';
+      var label = type.replace(/_/g, ' ');
+      mermaidCode += '  ' + src + ' ' + arrow + '|' + label + '| ' + tgt + '\n';
+    });
+
+    document.getElementById('mermaid-diagram').textContent = mermaidCode;
+
+    try {
+      mermaid.initialize({
+        theme: 'dark',
+        themeVariables: {
+          primaryColor: '#2d2d2d',
+          primaryBorderColor: '#404040',
+          primaryTextColor: '#f5f1e8',
+          lineColor: '#a8a39f',
+          secondaryColor: '#1E3A6E',
+          tertiaryColor: '#2A6B5E'
+        },
+        flowchart: { curve: 'basis', padding: 20 }
+      });
+      mermaid.run();
+    } catch(e) {
+      document.getElementById('mermaid-diagram').textContent = 'Mermaid rendering unavailable. Ensure CDN access.';
+    }
+
+    // -- Edge Stats --
+    var edgeCounts = {};
+    edges.forEach(function(e) {
+      var type = (e.data || {}).type || (e.data || {}).label || 'UNKNOWN';
+      edgeCounts[type] = (edgeCounts[type] || 0) + 1;
+    });
+
+    var edgeStatsEl = document.getElementById('edge-stats');
+    Object.keys(THREAD_COLORS).forEach(function(type) {
+      var count = edgeCounts[type] || 0;
+      var stat = document.createElement('div');
+      stat.className = 'edge-stat';
+      stat.innerHTML =
+        '<div class="edge-stat-color" style="background:' + THREAD_COLORS[type] + '"></div>' +
+        '<span class="edge-stat-label">' + type.replace(/_/g, ' ') + '</span>' +
+        '<span class="edge-stat-count">' + count + '</span>';
+      edgeStatsEl.appendChild(stat);
+    });
+
+    // Footer
+    var exportDate = data.exportDate ? new Date(data.exportDate) : new Date();
+    document.getElementById('footer-meta').textContent =
+      exportDate.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) +
+      ' | ' + edges.length + ' threads';
+
+    function esc(str) {
+      if (!str) return '';
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  })();
+  </script>
+
+</body>
+</html>
