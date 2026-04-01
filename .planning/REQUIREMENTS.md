@@ -10,10 +10,10 @@
 
 ### Adaptive Room Detection
 
-- [ ] **ROOM-01**: Room type detector reads State + Section names + Entry content to classify as venture/website/research/general
-- [ ] **ROOM-02**: ROOM_TYPE_CONFIG maps each type to: statsBar metrics, hubTitle, sectionLabels, insightTypes, graphLabel
-- [ ] **ROOM-03**: Stats bar adapts to Room type (venture: entries/threads/gaps/grants | website: pages/components/breakpoints | research: papers/citations/findings)
-- [ ] **ROOM-04**: Section cards use type-specific labels (venture: "Problem Definition" | website: "User Needs" | research: "Research Question")
+- [x] **ROOM-01**: Room type detector reads State + Section names + Entry content to classify as venture/website/research/general
+- [x] **ROOM-02**: ROOM_TYPE_CONFIG maps each type to: statsBar metrics, hubTitle, sectionLabels, insightTypes, graphLabel
+- [x] **ROOM-03**: Stats bar adapts to Room type (venture: entries/threads/gaps/grants | website: pages/components/breakpoints | research: papers/citations/findings)
+- [x] **ROOM-04**: Section cards use type-specific labels (venture: "Problem Definition" | website: "User Needs" | research: "Research Question")
 
 ### Showcase Views (7)
 
@@ -55,9 +55,9 @@
 
 ### Parallel Extraction
 
-- [ ] **EXTRACT-01**: Haiku scan per Section (entry counts, Thesis, Claims, spectral profiles) in parallel
-- [ ] **EXTRACT-02**: Sonnet synthesis (top 5 Signals, Room health score, innovation map)
-- [ ] **EXTRACT-03**: Opus narrative (Room story, hub hero text adapted to Room type)
+- [x] **EXTRACT-01**: Haiku scan per Section (entry counts, Thesis, Claims, spectral profiles) in parallel
+- [x] **EXTRACT-02**: Sonnet synthesis (top 5 Signals, Room health score, innovation map)
+- [x] **EXTRACT-03**: Opus narrative (Room story, hub hero text adapted to Room type)
 
 ### Responsive + Offline
 
@@ -72,10 +72,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ROOM-01 | Phase 47 | Pending |
-| ROOM-02 | Phase 47 | Pending |
-| ROOM-03 | Phase 47 | Pending |
-| ROOM-04 | Phase 47 | Pending |
+| ROOM-01 | Phase 47 | Complete |
+| ROOM-02 | Phase 47 | Complete |
+| ROOM-03 | Phase 47 | Complete |
+| ROOM-04 | Phase 47 | Complete |
 | VIEW-01 | Phase 49 | Pending |
 | VIEW-02 | Phase 49 | Pending |
 | VIEW-03 | Phase 49 | Pending |
@@ -99,9 +99,9 @@
 | SNAP-04 | Phase 51 | Pending |
 | LINK-01 | Phase 49 | Pending |
 | LINK-02 | Phase 49 | Pending |
-| EXTRACT-01 | Phase 47 | Pending |
-| EXTRACT-02 | Phase 47 | Pending |
-| EXTRACT-03 | Phase 47 | Pending |
+| EXTRACT-01 | Phase 47 | Complete |
+| EXTRACT-02 | Phase 47 | Complete |
+| EXTRACT-03 | Phase 47 | Complete |
 | POLISH-01 | Phase 51 | Pending |
 | POLISH-02 | Phase 51 | Pending |
 | POLISH-03 | Phase 51 | Pending |
