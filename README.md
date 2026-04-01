@@ -9,8 +9,8 @@
   [Prof. Lawrence Aronhime](https://www.linkedin.com/in/lawrence-aronhime-8363894/) over 30+ years at Johns Hopkins University.
   Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
 
-  [![Plugin Version](https://img.shields.io/badge/plugin-v1.6.1_Powerhouse-blue)](https://github.com/jsagir/mindrian-os-plugin)
-  [![Commands](https://img.shields.io/badge/commands-62-green)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Plugin Version](https://img.shields.io/badge/plugin-v1.6.2_RoomHub-blue)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Commands](https://img.shields.io/badge/commands-63-green)](https://github.com/jsagir/mindrian-os-plugin)
   [![MCP Tools](https://img.shields.io/badge/MCP_tools-49-teal)](https://github.com/jsagir/mindrian-os-plugin)
   [![Agents](https://img.shields.io/badge/agents-8-orange)](https://github.com/jsagir/mindrian-os-plugin)
   [![Hooks](https://img.shields.io/badge/hooks-9-red)](https://github.com/jsagir/mindrian-os-plugin)
@@ -304,7 +304,7 @@ After approval, add to your `claude_desktop_config.json`:
 
 ---
 
-## All 51 Commands
+## All 63 Commands
 
 ### Infrastructure (always available)
 
@@ -321,6 +321,7 @@ After approval, add to your `claude_desktop_config.json`:
 | `/mos:update` | Check for and install plugin updates |
 | `/mos:radar` | Discover new platform capabilities |
 | `/mos:act` | Autonomous engine -- Brain-driven framework selection, --chain, --dry-run |
+| `/mos:snapshot` | Export 7-view SnapshotHub HTML from your Room |
 | `/mos:admin` | Hidden self-teaching admin panel |
 
 ### 26 PWS Methodology Commands
@@ -377,7 +378,7 @@ MindrianOS-Plugin/
 │   ├── mcp/                    # MCP tools, resources, prompts, Larry context
 │   └── parity/                 # CLI/MCP parity check (CI gate)
 ├── mcp-server-brain/           # Brain hosting server
-├── commands/                   # 62 commands (/mos:*)
+├── commands/                   # 63 commands (/mos:*)
 ├── skills/                     # Auto-activated intelligence (7 skills)
 ├── agents/                     # 8 agents
 ├── hooks/                      # 9 hooks (SessionStart, PostToolUse, Stop + 6 Powerhouse hooks)
@@ -401,7 +402,7 @@ MindrianOS-Plugin/
 
 | Component | Count |
 |-----------|-------|
-| Commands (`/mos:*`) | 62 |
+| Commands (`/mos:*`) | 63 |
 | Agents | 8 |
 | Skills (auto-loaded) | 7 |
 | Hooks | 9 |
@@ -460,6 +461,14 @@ The transformation from reactive teaching partner to proactive venture intellige
 - **Sentinel Intelligence:** `/mos:scout` for scheduled room health checks, grant deadline monitoring, competitor watch, HSI recomputation.
 - **Platform Optimization:** Prompt cache optimization, modular CLAUDE.md via @include, deep link protocol, environment variable tuning.
 - **Future-Proofing:** KAIROS-compatible room/.context/, Coordinator Mode team manifest, formal MWP specification (525 lines), moat mandate documentation.
+
+### v6.2 RoomHub + SnapshotHub (shipped 2026-03-31)
+The Room becomes a living, adaptive intelligence hub:
+- **RoomHub:** Living adaptive intelligence hub for any Room. Adaptive Room detection (venture/website/research/general) tailors the entire experience to your project type.
+- **SnapshotHub:** `/mos:snapshot` exports a 7-view standalone HTML -- Overview, Library, Narrative, Synthesis, Blueprint, Constellation, Chat -- from your Room's current state.
+- **12-Thread Constellation Graph:** Interactive knowledge graph with De Stijl colors and spectral coloring. 12 edge types rendered as a navigable constellation.
+- **Generative Fabric Chat:** Query your KuzuDB graph via natural language directly inside the SnapshotHub. Ask questions, get answers grounded in your room data.
+- **JTBD-Powered Contextual Discovery:** Every 3-7 turns, Larry surfaces the next command you should run based on your current state and the Jobs-To-Be-Done framework. Commands find you, not the other way around.
 
 ---
 
