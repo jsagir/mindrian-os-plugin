@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ROOM_NAME}} - Synthesis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ds-bg: #1a1a1a;
+      --ds-surface: #2d2d2d;
+      --ds-elevated: #3a3a3a;
+      --ds-cream: #f5f1e8;
+      --ds-muted: #a8a39f;
+      --ds-border: #404040;
+      --ds-red: #A63D2F;
+      --ds-blue: #1E3A6E;
+      --ds-yellow: #C8A43C;
+      --ds-green: #2D6B4A;
+      --ds-sienna: #B5602A;
+      --ds-teal: #2A6B5E;
+      --ds-amethyst: #6B4E8B;
+      --ds-red-text: #C95A4A;
+      --ds-blue-text: #4A7BC8;
+      --ds-yellow-text: #C8A43C;
+      --ds-green-text: #4A9B72;
+      --ds-sienna-text: #D4804A;
+      --ds-gray-text: #8A8780;
+      --ds-amethyst-text: #9B7EB5;
+      --ds-teal-text: #4A9B8E;
+      --ds-shadow-lifted: 4px 4px 0 #0a0a0f;
+      --ds-transition: 150ms ease;
+      --ds-font-display: 'Bebas Neue', sans-serif;
+      --ds-font-body: 'Inter', system-ui, sans-serif;
+      --ds-font-mono: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { border-radius: 0 !important; }
+    html { font-size: 16px; }
+    body {
+      font-family: var(--ds-font-body);
+      background: var(--ds-bg);
+      color: var(--ds-cream);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    em, i { font-style: normal; font-weight: 600; }
+
+    /* -- Nav -- */
+    .nav-bar {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--ds-bg);
+      border-bottom: 1px solid var(--ds-border);
+      display: flex; align-items: center; justify-content: space-between;
+      height: 48px; padding: 0 24px;
+    }
+    .nav-brand { font-family: var(--ds-font-display); font-size: 20px; letter-spacing: 0.04em; color: var(--ds-cream); }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a {
+      font-family: var(--ds-font-mono); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--ds-muted); text-decoration: none;
+      padding: 6px 12px; border: 1px solid transparent;
+      transition: all var(--ds-transition);
+    }
+    .nav-links a:hover { color: var(--ds-cream); border-color: var(--ds-border); }
+    .nav-links a.active { color: var(--ds-cream); border-color: var(--ds-blue); background: var(--ds-surface); }
+
+    .accent-bar { display: flex; height: 4px; width: 100%; }
+    .accent-bar span { flex: 1; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+    .section { padding: 48px 0; border-top: 1px solid var(--ds-border); }
+    .section:first-child { border-top: none; }
+    .section-alt { background: var(--ds-surface); }
+    .section-header {
+      font-family: var(--ds-font-display);
+      font-size: 28px; font-weight: 400;
+      letter-spacing: 0.04em; color: var(--ds-cream);
+      margin-bottom: 24px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-header::before {
+      content: ''; display: inline-block;
+      width: 4px; height: 24px; background: var(--ds-blue);
+    }
+
+    /* -- Stat Counters -- */
+    .counter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+    }
+    .counter-card {
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+      padding: 24px; text-align: center;
+      transition: box-shadow var(--ds-transition);
+    }
+    .counter-card:hover {
+      box-shadow: var(--ds-shadow-lifted);
+    }
+    .counter-value {
+      font-family: var(--ds-font-mono);
+      font-size: 40px; font-weight: 700;
+      color: var(--ds-cream);
+      line-height: 1;
+    }
+    .counter-label {
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--ds-muted); margin-top: 8px;
+    }
+
+    /* -- Heat Map -- */
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+    }
+    .heatmap-cell {
+      padding: 16px;
+      border: 1px solid var(--ds-border);
+      transition: box-shadow var(--ds-transition);
+      position: relative; overflow: hidden;
+    }
+    .heatmap-cell:hover { box-shadow: var(--ds-shadow-lifted); }
+    .heatmap-cell .hm-label {
+      font-size: 13px; font-weight: 600;
+      color: var(--ds-cream); position: relative; z-index: 1;
+    }
+    .heatmap-cell .hm-score {
+      font-family: var(--ds-font-mono);
+      font-size: 11px; color: rgba(245,241,232,0.7);
+      position: relative; z-index: 1; margin-top: 4px;
+    }
+    .heatmap-cell .hm-bar {
+      position: absolute; bottom: 0; left: 0;
+      height: 4px; transition: width 0.5s ease;
+    }
+
+    /* -- Surprise Clusters -- */
+    .cluster-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .cluster-card {
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+      border-left: 3px solid var(--ds-yellow);
+      padding: 20px;
+      transition: box-shadow var(--ds-transition);
+    }
+    .cluster-card:hover { box-shadow: var(--ds-shadow-lifted); filter: brightness(1.15); }
+    .cluster-card .cluster-label {
+      font-family: var(--ds-font-mono);
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--ds-yellow-text); margin-bottom: 8px;
+    }
+    .cluster-card h4 {
+      font-size: 15px; font-weight: 600;
+      color: var(--ds-cream); margin-bottom: 6px;
+    }
+    .cluster-card p {
+      font-size: 13px; color: var(--ds-muted); line-height: 1.5;
+    }
+    .cluster-card .cluster-nodes {
+      display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px;
+    }
+    .cluster-node {
+      font-family: var(--ds-font-mono);
+      font-size: 10px; padding: 2px 6px;
+      border: 1px solid var(--ds-border);
+      color: var(--ds-muted);
+    }
+
+    /* -- Timeline -- */
+    .timeline { position: relative; padding-left: 32px; }
+    .timeline::before {
+      content: ''; position: absolute;
+      left: 12px; top: 0; bottom: 0;
+      width: 2px; background: var(--ds-border);
+    }
+    .timeline-item {
+      position: relative; margin-bottom: 24px;
+      padding: 16px;
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+    }
+    .timeline-item::before {
+      content: ''; position: absolute;
+      left: -26px; top: 20px;
+      width: 10px; height: 10px;
+      background: var(--ds-blue);
+    }
+    .timeline-item .tl-date {
+      font-family: var(--ds-font-mono);
+      font-size: 11px; color: var(--ds-muted);
+      margin-bottom: 4px;
+    }
+    .timeline-item h4 {
+      font-size: 14px; font-weight: 600;
+      color: var(--ds-cream); margin-bottom: 4px;
+    }
+    .timeline-item p {
+      font-size: 13px; color: var(--ds-muted); line-height: 1.5;
+    }
+
+    /* -- Footer -- */
+    .footer {
+      border-top: 1px solid var(--ds-border);
+      padding: 24px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-brand { font-size: 12px; color: var(--ds-muted); }
+    .footer-meta { font-family: var(--ds-font-mono); font-size: 11px; color: var(--ds-muted); }
+
+    .empty-state {
+      text-align: center; padding: 32px;
+      color: var(--ds-muted); font-size: 13px;
+    }
+    .empty-state code {
+      font-family: var(--ds-font-mono);
+      color: var(--ds-teal-text); background: var(--ds-bg);
+      padding: 2px 6px;
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 0 16px; }
+      .section { padding: 32px 0; }
+      .counter-grid { grid-template-columns: repeat(2, 1fr); }
+      .heatmap-grid { grid-template-columns: 1fr; }
+      .cluster-grid { grid-template-columns: 1fr; }
+      .footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav-bar">
+    <span class="nav-brand">MINDRIANOS</span>
+    <div class="nav-links">
+      <a href="overview.html">Overview</a>
+      <a href="library.html">Library</a>
+      <a href="narrative.html">Narrative</a>
+      <a href="synthesis.html" class="active">Synthesis</a>
+      <a href="blueprint.html">Blueprint</a>
+      <a href="constellation.html">Constellation</a>
+    </div>
+  </nav>
+  <div class="accent-bar">
+    <span style="background:#A63D2F"></span>
+    <span style="background:#1E3A6E"></span>
+    <span style="background:#C8A43C"></span>
+    <span style="background:#2D6B4A"></span>
+    <span style="background:#2A6B5E"></span>
+  </div>
+
+  <!-- Stat Counters -->
+  <div class="section">
+    <div class="container">
+      <h2 class="section-header">ROOM METRICS</h2>
+      <div class="counter-grid" id="counter-grid"></div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="section section-alt">
+    <div class="container">
+      <h2 class="section-header">TIMELINE</h2>
+      <div class="timeline" id="timeline">
+        <div class="empty-state">Timeline populates from Room activity history.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottleneck Heat Map -->
+  <div class="section">
+    <div class="container">
+      <h2 class="section-header">BOTTLENECK HEAT MAP</h2>
+      <p style="font-size:13px;color:var(--ds-muted);margin-bottom:16px;">
+        Sections colored by reverse salient score. Hotter = more lagging relative to Room ambition.
+      </p>
+      <div class="heatmap-grid" id="heatmap-grid"></div>
+    </div>
+  </div>
+
+  <!-- Surprise Clusters -->
+  <div class="section section-alt">
+    <div class="container">
+      <h2 class="section-header">SURPRISE CLUSTERS</h2>
+      <div class="cluster-grid" id="cluster-grid">
+        <div class="empty-state">
+          No surprises detected yet. Run <code>/mos:hub extract</code> to discover cross-domain connections.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="accent-bar">
+    <span style="background:#A63D2F"></span>
+    <span style="background:#1E3A6E"></span>
+    <span style="background:#C8A43C"></span>
+    <span style="background:#2D6B4A"></span>
+    <span style="background:#2A6B5E"></span>
+  </div>
+  <footer class="footer">
+    <span class="footer-brand">Built with MindrianOS</span>
+    <span class="footer-meta" id="footer-meta"></span>
+  </footer>
+
+  <script id="room-data" type="application/json">{{ROOM_DATA}}</script>
+
+  <script>
+  (function() {
+    'use strict';
+
+    var data;
+    try { data = JSON.parse(document.getElementById('room-data').textContent); }
+    catch(e) { console.error('Failed to parse room data:', e); return; }
+
+    var stats = data.stats || {};
+    var sections = data.sections || [];
+    var graph = data.graph || {};
+    var edges = graph.edges || [];
+    var nodes = graph.nodes || [];
+
+    // -- Stat Counters --
+    var counterGrid = document.getElementById('counter-grid');
+    var counters = [
+      { value: stats.articleCount || 0, label: 'Entries', color: 'var(--ds-blue)' },
+      { value: stats.connectionCount || 0, label: 'Threads', color: 'var(--ds-green)' },
+      { value: countEdgeType('HSI_CONNECTION'), label: 'Surprises', color: 'var(--ds-yellow)' },
+      { value: countEdgeType('REVERSE_SALIENT'), label: 'Bottlenecks', color: 'var(--ds-red)' },
+      { value: stats.sectionCount || 0, label: 'Sections', color: 'var(--ds-teal)' },
+      { value: stats.gapCount || 0, label: 'Gaps', color: 'var(--ds-sienna)' }
+    ];
+
+    counters.forEach(function(c) {
+      var card = document.createElement('div');
+      card.className = 'counter-card';
+      card.style.borderTop = '3px solid ' + c.color;
+      card.innerHTML =
+        '<div class="counter-value">' + c.value + '</div>' +
+        '<div class="counter-label">' + c.label + '</div>';
+      counterGrid.appendChild(card);
+    });
+
+    function countEdgeType(type) {
+      return edges.filter(function(e) {
+        var d = e.data || {};
+        return d.type === type || d.label === type;
+      }).length;
+    }
+
+    // -- Timeline --
+    var timelineEl = document.getElementById('timeline');
+    var timelineEvents = data.timeline || [];
+    if (timelineEvents.length > 0) {
+      timelineEl.innerHTML = '';
+      timelineEvents.forEach(function(evt) {
+        var item = document.createElement('div');
+        item.className = 'timeline-item';
+        item.innerHTML =
+          '<div class="tl-date">' + esc(evt.date || '') + '</div>' +
+          '<h4>' + esc(evt.title || '') + '</h4>' +
+          '<p>' + esc(evt.description || '') + '</p>';
+        timelineEl.appendChild(item);
+      });
+    }
+
+    // -- Bottleneck Heat Map --
+    var heatmapGrid = document.getElementById('heatmap-grid');
+    // Calculate per-section bottleneck score
+    var sectionScores = {};
+    edges.forEach(function(e) {
+      var d = e.data || {};
+      if (d.type === 'REVERSE_SALIENT' || d.label === 'REVERSE_SALIENT') {
+        var src = d.source || '';
+        var tgt = d.target || '';
+        // Increment score for both source and target sections
+        if (src) sectionScores[src] = (sectionScores[src] || 0) + 1;
+        if (tgt) sectionScores[tgt] = (sectionScores[tgt] || 0) + 1;
+      }
+    });
+
+    // Also score sections by emptiness
+    var maxScore = 1;
+    sections.forEach(function(sec) {
+      var score = sectionScores[sec.id] || 0;
+      if (sec.articleCount === 0) score += 2;
+      sectionScores[sec.id] = score;
+      if (score > maxScore) maxScore = score;
+    });
+
+    sections.forEach(function(sec) {
+      var score = sectionScores[sec.id] || 0;
+      var intensity = Math.min(score / maxScore, 1);
+      var bgColor = intensity > 0.6 ? 'rgba(166,61,47,0.3)' :
+                    intensity > 0.3 ? 'rgba(200,164,60,0.2)' :
+                    'rgba(45,107,74,0.15)';
+      var barColor = intensity > 0.6 ? 'var(--ds-red)' :
+                     intensity > 0.3 ? 'var(--ds-yellow)' :
+                     'var(--ds-green)';
+
+      var cell = document.createElement('div');
+      cell.className = 'heatmap-cell';
+      cell.style.background = bgColor;
+      cell.innerHTML =
+        '<div class="hm-label">' + esc(sec.label) + '</div>' +
+        '<div class="hm-score">Score: ' + score + ' | ' + sec.articleCount + ' entries</div>' +
+        '<div class="hm-bar" style="width:' + (intensity * 100) + '%;background:' + barColor + '"></div>';
+      heatmapGrid.appendChild(cell);
+    });
+
+    // -- Surprise Clusters --
+    var clusterGrid = document.getElementById('cluster-grid');
+    var surprises = edges.filter(function(e) {
+      var d = e.data || {};
+      return d.type === 'HSI_CONNECTION' || d.label === 'HSI_CONNECTION';
+    });
+
+    if (surprises.length > 0) {
+      clusterGrid.innerHTML = '';
+      // Group by source section
+      var clusters = {};
+      surprises.forEach(function(e) {
+        var d = e.data || {};
+        var key = d.source || 'unknown';
+        if (!clusters[key]) clusters[key] = [];
+        clusters[key].push(d);
+      });
+
+      Object.keys(clusters).forEach(function(key) {
+        var group = clusters[key];
+        var card = document.createElement('div');
+        card.className = 'cluster-card';
+
+        var nodesHtml = group.map(function(d) {
+          return '<span class="cluster-node">' + esc(d.target || d.label || '') + '</span>';
+        }).join('');
+
+        card.innerHTML =
+          '<div class="cluster-label">SURPRISE CLUSTER</div>' +
+          '<h4>' + esc(key.replace(/-/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); })) + '</h4>' +
+          '<p>' + group.length + ' cross-domain connection(s) detected</p>' +
+          '<div class="cluster-nodes">' + nodesHtml + '</div>';
+        clusterGrid.appendChild(card);
+      });
+    }
+
+    // -- Footer --
+    var exportDate = data.exportDate ? new Date(data.exportDate) : new Date();
+    document.getElementById('footer-meta').textContent =
+      exportDate.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+
+    function esc(str) {
+      if (!str) return '';
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  })();
+  </script>
+
+</body>
+</html>
