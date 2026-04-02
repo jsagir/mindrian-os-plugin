@@ -112,6 +112,16 @@ if [[ "$FILE_PATH" == *.md ]] && [ -n "$room_dir" ] && [ -d "${room_dir}/.lazygr
       if [ -f "${room_dir}/.hsi-results.json" ]; then
         node "${PLUGIN_ROOT}/scripts/hsi-to-kuzu.cjs" "$room_dir" 2>/dev/null || true
       fi
+
+      # -- Causal extraction pipeline (runs after HSI, uses HSI data as seed) --
+      # Extracts cause-effect claims from artifacts, detects cascades, builds chains.
+      # Confidence weighted by spectral gap (high-quality thinking = higher confidence).
+      python3 "${PLUGIN_ROOT}/scripts/compute-causal.py" "$room_dir" 2>/dev/null || true
+
+      # Write causal claims and edges to KuzuDB
+      if [ -f "${room_dir}/.causal-results.json" ]; then
+        node "${PLUGIN_ROOT}/scripts/causal-to-kuzu.cjs" "$room_dir" 2>/dev/null || true
+      fi
     fi
   ) &
 fi

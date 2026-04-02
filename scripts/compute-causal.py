@@ -407,6 +407,25 @@ def main():
 
     output_path = args.output or str(room_dir / '.causal-results.json')
 
+    # Step 0: Load HSI spectral data if available (for confidence weighting)
+    # High spectral gap = artifact written with diverse thinking modes = higher causal confidence
+    hsi_spectral = {}
+    hsi_path = room_dir / '.hsi-results.json'
+    if hsi_path.exists():
+        try:
+            hsi_data = json.loads(hsi_path.read_text(encoding='utf-8'))
+            for art in hsi_data.get('artifacts', []):
+                spectral = art.get('spectral', {})
+                if spectral.get('spectral_gap', 0) > 0:
+                    hsi_spectral[art['id']] = {
+                        'spectral_gap': spectral['spectral_gap'],
+                        'omhmm_score': spectral.get('omhmm_score', 0),
+                        'dominant_mode': spectral.get('dominant_mode', 'unknown'),
+                    }
+            print(f"Causal: loaded spectral data for {len(hsi_spectral)} artifacts", file=sys.stderr)
+        except (json.JSONDecodeError, OSError):
+            pass  # No HSI data — proceed without spectral weighting
+
     # Step 1: Discover artifacts
     artifacts = discover_artifacts(room_dir)
     print(f"Causal: found {len(artifacts)} artifacts", file=sys.stderr)
@@ -450,8 +469,12 @@ def main():
                 mechanism = extract_mechanism(sentence, cause, effect)
                 domain = classify_causal_domain(artifact, cause, effect)
 
-                # Confidence based on signal strength and mechanism presence
-                confidence = min(1.0, 0.3 + (score * 0.1) + (0.2 if mechanism else 0.0))
+                # Confidence based on signal strength, mechanism presence, and spectral quality
+                base_confidence = 0.3 + (score * 0.1) + (0.2 if mechanism else 0.0)
+                # Spectral boost: high spectral gap = diverse thinking = higher causal confidence
+                spectral_info = hsi_spectral.get(artifact['id'], {})
+                spectral_boost = spectral_info.get('spectral_gap', 0) * 0.3  # Up to ~0.1 boost
+                confidence = min(1.0, base_confidence + spectral_boost)
 
                 claim = {
                     'id': f'causal-{claim_counter:04d}',
@@ -475,6 +498,80 @@ def main():
 
     print(f"Causal: extracted {len(all_claims)} claims from {len(artifacts)} artifacts", file=sys.stderr)
 
+    # Step 2b: HSI-seeded causal extraction
+    # When HSI finds a surprising connection between two artifacts,
+    # look for causal language that BRIDGES the pair.
+    if hsi_path.exists():
+        try:
+            hsi_data = json.loads(hsi_path.read_text(encoding='utf-8'))
+            hsi_pairs = hsi_data.get('hsi_pairs', [])
+            # Build artifact text lookup
+            art_text = {a['id']: a['text'] for a in artifacts}
+
+            for pair in hsi_pairs:
+                if pair.get('hsi_score', 0) < 0.4:
+                    continue  # Only seed from strong HSI connections
+
+                left_text = art_text.get(pair['left_id'], '')
+                right_text = art_text.get(pair['right_id'], '')
+                if not left_text or not right_text:
+                    continue
+
+                # Extract shared causal entities between the pair
+                left_sentences = split_sentences(left_text)
+                right_sentences = split_sentences(right_text)
+
+                # Find sentences in left that causally relate to themes in right
+                right_nouns = set()
+                for s in right_sentences:
+                    right_nouns.update(w.lower() for w in s.split() if len(w) > 4 and w[0].isupper())
+
+                for sentence in left_sentences:
+                    signals, score = detect_causal_signals(sentence)
+                    if score < 2:
+                        continue
+                    # Check if sentence references themes from the other artifact
+                    sentence_words = set(sentence.lower().split())
+                    overlap = sentence_words & {n.lower() for n in right_nouns}
+                    if len(overlap) < 1:
+                        continue
+
+                    pairs_found = extract_cause_effect_pairs(sentence)
+                    for cause, effect, connector in pairs_found:
+                        claim_counter += 1
+                        mechanism = extract_mechanism(sentence, cause, effect)
+                        spectral_boost = pair.get('spectral_gap_avg', 0) * 0.3
+                        hsi_confidence = min(1.0, 0.4 + (score * 0.1) + spectral_boost + (0.15 if mechanism else 0.0))
+
+                        claim = {
+                            'id': f'causal-{claim_counter:04d}',
+                            'cause': cause[:200],
+                            'effect': effect[:200],
+                            'mechanism': mechanism[:300] if mechanism else '',
+                            'confidence': round(hsi_confidence, 3),
+                            'evidence': [pair['left_id'], pair['right_id']],
+                            'source_artifact': pair['left_id'],
+                            'source_sentence': sentence[:500],
+                            'connector': connector,
+                            'domain': classify_causal_domain({'section': ''}, cause, effect),
+                            'section': pair['left_id'].split('/')[0],
+                            'causal_signals': signals,
+                            'signal_score': score,
+                            'discovery_method': 'hsi',
+                            'hsi_score': pair['hsi_score'],
+                            'hsi_pair': [pair['left_id'], pair['right_id']],
+                            'falsifiable_prediction': '',
+                            'novelty_score': 0.0,
+                            'created': datetime.now(timezone.utc).strftime('%Y-%m-%d'),
+                        }
+                        all_claims.append(claim)
+
+            hsi_seeded = sum(1 for c in all_claims if c.get('discovery_method') == 'hsi')
+            if hsi_seeded > 0:
+                print(f"Causal: {hsi_seeded} HSI-seeded claims extracted", file=sys.stderr)
+        except (json.JSONDecodeError, OSError):
+            pass  # HSI data unavailable — continue without
+
     # Step 3: Score novelty for each claim
     for claim in all_claims:
         claim['novelty_score'] = round(score_novelty(claim, all_claims), 4)
@@ -493,6 +590,11 @@ def main():
     for claim in all_claims:
         domain_counts[claim['domain']] += 1
 
+    # Step 6b: Discovery method summary
+    method_counts = defaultdict(int)
+    for claim in all_claims:
+        method_counts[claim.get('discovery_method', 'heuristic')] += 1
+
     # Step 7: Build output
     result = {
         'metadata': {
@@ -503,6 +605,8 @@ def main():
             'cascade_count': len(cascades),
             'chain_count': len(chains),
             'domain_distribution': dict(domain_counts),
+            'discovery_method_distribution': dict(method_counts),
+            'hsi_spectral_artifacts': len(hsi_spectral),
             'causal_version': '1.7.0',
         },
         'claims': all_claims,
