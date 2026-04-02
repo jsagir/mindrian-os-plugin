@@ -337,3 +337,112 @@ This means Brain-connected users get SMARTER suggestions than free-tier users. T
 | No Room | Generic stage-based defaults | Okay: standard recommendations from methodology index |
 
 Brain suggestions ENRICH. They never GATE. Free-tier users still get good suggestions from local Room intelligence.
+
+---
+
+## 11. brain_causal_framework_select
+
+**Purpose:** Given a problem type and causal reasoning need, recommend which frameworks REVEAL causation vs merely describe it.
+
+```cypher
+MATCH (f:Framework)-[:ADDRESSES_PROBLEM_TYPE]->(pt:ProblemType {name: $problem_type})
+WHERE f.category IN ['causal-analysis', 'systems-thinking', 'root-cause', 'assumption-testing']
+OPTIONAL MATCH (f)-[:APPLIED_IN]->(e:Example)
+WHERE e.grade_numeric >= 75
+RETURN f.name AS framework,
+       f.description AS description,
+       f.category AS category,
+       count(e) AS success_count
+ORDER BY success_count DESC
+LIMIT 5
+```
+
+**Parameters:**
+- `$problem_type` -- from STATE.md (e.g., "wicked", "ill-defined")
+
+**Output:** Frameworks proven to reveal causal mechanisms for this problem type. Used by `/mos:causal` to select the right causal analysis approach.
+
+**How Larry Uses Pattern 11:**
+Larry maps Brain's framework recommendations to causal analysis modes:
+
+| Brain Returns | Causal Mode | Larry's Approach |
+|--------------|-------------|-----------------|
+| "Root Cause Analysis" | 5 Whys chain | Each "why" becomes a CAUSES edge in KuzuDB |
+| "Systems Thinking" | Feedback loop mapping | Bidirectional CAUSES edges, cycle detection |
+| "Challenge Assumptions" | Cascade analysis | CASCADES_TO edges from assumption to dependent claims |
+| "Scenario Planning" | Counterfactual branching | Competing causal chains for different futures |
+| "Reverse Salient" | Bottleneck causation | Find where one blocked cause prevents an entire system |
+
+---
+
+## 12. brain_causal_pattern_match
+
+**Purpose:** Find which causal patterns the Brain has seen in similar ventures. What causal mistakes do ventures at this stage commonly make?
+
+```cypher
+MATCH (f:Framework)-[:APPLIED_IN]->(e:Example)
+WHERE f.name IN $room_frameworks
+AND e.feedback_patterns IS NOT NULL
+WITH e, collect(f.name) AS frameworks_used
+WHERE any(p IN e.feedback_patterns WHERE p CONTAINS 'assumption' OR p CONTAINS 'causal' OR p CONTAINS 'root cause')
+RETURN e.project_name AS project,
+       e.grade AS grade,
+       e.feedback_patterns AS patterns,
+       frameworks_used
+ORDER BY e.grade_numeric DESC
+LIMIT 10
+```
+
+**Parameters:**
+- `$room_frameworks` -- frameworks the user has already used
+
+**Output:** Real projects with assumption/causal-related feedback patterns. Larry uses these to warn users about common causal reasoning mistakes.
+
+**Common Feedback Patterns (from 100+ real projects):**
+- "Vision-to-Execution Gap" → causal chain from vision to execution has missing links
+- "Framework Vomit" → applying frameworks without tracing causal connections between them
+- "Assumption Stack" → untested assumptions stacked 3+ deep without validation
+- "Single Stakeholder" → causal model only considers one actor's perspective
+
+---
+
+## 13. brain_causal_contradiction_resolve
+
+**Purpose:** When two causal claims contradict each other, find how similar contradictions were resolved in past ventures.
+
+```cypher
+MATCH (f1:Framework)-[c:CO_OCCURS]->(f2:Framework)
+WHERE f1.name IN $contradicting_frameworks
+AND f2.name IN $contradicting_frameworks
+OPTIONAL MATCH (f1)-[:APPLIED_IN]->(e:Example)<-[:APPLIED_IN]-(f2)
+WHERE e.grade_numeric >= 70
+RETURN f1.name AS framework_a,
+       f2.name AS framework_b,
+       c.context AS co_occurrence_context,
+       collect(DISTINCT e.project_name)[..3] AS resolved_in_projects,
+       count(e) AS resolution_count
+ORDER BY resolution_count DESC
+LIMIT 5
+```
+
+**Parameters:**
+- `$contradicting_frameworks` -- the two frameworks producing conflicting causal claims
+
+**Output:** How past ventures resolved similar framework contradictions. Used when Larry detects competing causal explanations from different methodology runs.
+
+**How Larry Uses Pattern 13:**
+When two causal claims contradict:
+1. Query Pattern 13 to find resolution precedents
+2. If precedent exists: "In 3 previous ventures, this contradiction was resolved by [approach]. The successful ones used [framework] to disambiguate."
+3. If no precedent: "This is a novel contradiction. Let's test both causal hypotheses: [prediction A] vs [prediction B]. Which can we validate fastest?"
+
+---
+
+## Causal Layer Integration Notes
+
+**Brain is READ-ONLY for causal data.** All causal claims, edges, and cascade data are stored in local KuzuDB. Brain provides DIRECTIVES for:
+- Which frameworks to use for causal analysis (Pattern 11)
+- What causal mistakes to avoid (Pattern 12)
+- How to resolve causal contradictions (Pattern 13)
+
+**See also:** `references/brain/causal-directives.md` for the full directive set that governs Larry's causal reasoning behavior.

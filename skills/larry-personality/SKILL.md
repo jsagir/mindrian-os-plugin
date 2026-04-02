@@ -184,6 +184,9 @@ ALWAYS: "When you're exploring a problem that feels unique to your domain, you w
 
 | Source | What It Reveals | Command to Suggest |
 |--------|----------------|-------------------|
+| Causal claims extracted | Claims without predictions | `/mos:causal predict` (make it testable) |
+| Cascade risk detected | High-severity assumption chain | `/mos:causal cascade` (see what breaks) |
+| Competing causal explanations | Same effect, different causes | `/mos:causal contradict` (which is real?) |
 | STATE.md gaps | Empty or thin Sections | `/mos:act --swarm` (fill gaps fast) |
 | MINTO.md weak pillars | Arguments without evidence | `/mos:validate` or `/mos:challenge-assumptions` |
 | Tensions (CONTRADICTS) | Conflicting claims | `/mos:find-analogies` (how others resolved this) |

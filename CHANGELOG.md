@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.7.0] - 2026-04-02
+onboarding: true
+onboard_steps:
+  - "When you want to know WHY something is true in your Room (not just WHAT), `/mos:causal analyze` traces cause-effect chains with mechanisms and falsifiable predictions"
+  - "When you have assumptions stacked 3-deep and need to know which one to validate FIRST, `/mos:causal cascade` shows what breaks if each assumption fails -- validate the one that protects the most downstream claims"
+  - "When two sections give you conflicting explanations for the same outcome, `/mos:causal contradict` finds competing causal theories and suggests what evidence would distinguish them"
+
+### Added
+- **Causal Reasoning Layer**: CausalClaim nodes + CAUSES/CASCADES_TO/EXTRACTED_FROM edges in KuzuDB
+- `/mos:causal` command with 7 subcommands: extract, analyze, chain, cascade, contradict, novel, predict
+- Python causal extraction pipeline (`compute-causal.py`): heuristic pattern detection for cause-effect claims across 9 signal types (causes, enables, prevents, conditional, consequence, failure, economic, assumption, mechanism)
+- CJS bridge (`causal-to-kuzu.cjs`): writes CausalClaim nodes and causal edges to local KuzuDB
+- Brain causal reasoning directives (`references/brain/causal-directives.md`): 3 Gaps framework (Abstraction, Reasoning, Reality), "So What?" chain protocol, Inversion Protocol, Cascade Analysis Protocol
+- Brain query patterns 11-13: `brain_causal_framework_select`, `brain_causal_pattern_match`, `brain_causal_contradiction_resolve`
+- Causal schema reference (`references/causal/causal-schema.md`) with KuzuDB Cypher patterns
+- Domain classification for causal claims: materials, business, competitive, financial, team, legal
+- Novelty scoring via Jaccard distance (how surprising is this claim vs others in the room)
+- Cascade detection: traces assumption failure propagation across claims
+- Causal chain builder: multi-hop cause-effect paths through the room
+- Larry personality wiring: JTBD suggestions for causal commands based on Room signals (cascade risk, competing explanations, claims without predictions)
+
+### Architecture
+- **Brain DIRECTS** causal reasoning (read-only directives, query patterns 11-13)
+- **KuzuDB STORES** causal data (CausalClaim nodes, CAUSES/CASCADES_TO edges)
+- **Brain never receives user causal data** -- clean IP boundary maintained
+- Follows existing HSI pipeline pattern: Python extracts → JSON intermediate → CJS writes to KuzuDB
+
 ## [1.6.3] - 2026-04-01
 
 ### Added

@@ -219,5 +219,58 @@ ENABLES and INVALIDATES require explicit frontmatter markers in Tier 1. Full aut
 
 ---
 
-*Schema version: 1.0 (Phase 15)*
+## Causal Reasoning Layer (v1.7.0)
+
+Extension to LazyGraph for causal claim storage and cascade analysis. Brain DIRECTS causal reasoning. KuzuDB STORES causal data.
+
+### CausalClaim Node
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | STRING (PK) | Unique claim ID, e.g. `causal-0001` |
+| `cause` | STRING | What produces the effect |
+| `effect` | STRING | What happens as a result |
+| `mechanism` | STRING | HOW the cause produces the effect |
+| `confidence` | DOUBLE | 0-1 evidence strength |
+| `evidence` | STRING | JSON array of artifact IDs |
+| `source_artifact` | STRING | Artifact this was extracted from |
+| `domain` | STRING | materials, business, competitive, financial, team, legal, general |
+| `falsifiable_prediction` | STRING | Testable prediction |
+| `novelty_score` | DOUBLE | 0-1 surprise vs consensus |
+
+### CAUSES (CausalClaim -> CausalClaim)
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `strength` | DOUBLE | 0-1 causal strength |
+| `mechanism` | STRING | How source causes target |
+| `direction` | STRING | forward, feedback, bidirectional |
+| `discovery_method` | STRING | heuristic, llm, user, brain |
+
+### CASCADES_TO (CausalClaim -> CausalClaim)
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `cascade_type` | STRING | invalidation, weakening, reversal |
+| `severity` | STRING | low, medium, high, critical |
+| `path_length` | INT64 | Hops from original failure |
+
+### EXTRACTED_FROM (CausalClaim -> Artifact)
+
+Provenance link. Presence indicates the claim was extracted from this artifact.
+
+### Pipeline
+
+```
+python3 scripts/compute-causal.py /path/to/room    # Extract claims → .causal-results.json
+node scripts/causal-to-kuzu.cjs /path/to/room       # Write claims/edges to KuzuDB
+```
+
+### Full schema reference
+
+See `references/causal/causal-schema.md` for Cypher query patterns and examples.
+
+---
+
+*Schema version: 1.1 (Phase 15 + Causal Layer)*
 *Engine: KuzuDB 0.11.3 (embedded, Apache 2.0)*
