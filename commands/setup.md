@@ -59,10 +59,28 @@ MINDRIAN_BRAIN_KEY=<their-key>
 
 ### 4. Test Connection
 
-Test the Brain API with their key:
+Test in two stages. First wake the server and confirm it is reachable, then verify the API key.
+
+**Stage 1 -- Health check (no auth, wakes Render free tier):**
 
 ```bash
-curl -s -w "\n%{http_code}" \
+curl -s -w "\n%{http_code}" --max-time 60 https://mindrian-brain.onrender.com/health
+```
+
+**Expected:** HTTP 200 with `{"status":"ok","server":"mindrian-brain","version":"1.0.0"}`
+
+If the health check returns a non-200 or times out, tell the user:
+> "Brain server is waking up (free tier sleeps after 15 minutes of inactivity). Give it 30 seconds and I will retry."
+
+Retry the health check once after 30 seconds. If it still fails:
+> "Can't reach the Brain server right now. Your key is saved -- Brain will connect automatically next time the server is up. Try `/mos:suggest-next` later to confirm."
+
+Do NOT proceed to Stage 2 if health check fails. The key is saved, setup is complete, verification is deferred.
+
+**Stage 2 -- Key verification (only after health returns 200):**
+
+```bash
+curl -s -w "\n%{http_code}" --max-time 15 \
   -H "Authorization: Bearer <their-key>" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
@@ -74,14 +92,17 @@ curl -s -w "\n%{http_code}" \
 
 ### 5. Report Result
 
-**On success (200):**
-> "Brain connected. Larry just got smarter. Your existing commands now have graph intelligence behind them. Try `/mos:suggest-next`."
+**On success (200 on both stages):**
+> "Brain connected and verified. Larry just got smarter. Your existing commands now have graph intelligence behind them. Try `/mos:suggest-next`."
 
-**On auth failure (401):**
-> "Invalid API key. Double-check the key you received, or request a new one at mindrianos-jsagirs-projects.vercel.app/brain-access"
+**On health OK but key auth failure (401):**
+> "Brain server is up, but your key was rejected. Double-check the key you received, or request a new one at mindrianos-jsagirs-projects.vercel.app/brain-access"
 
-**On timeout / connection error:**
-> "Can't reach the Brain server. It might be waking up (free tier sleeps after 15 minutes). Try again in 30 seconds."
+**On health OK but key verification timeout:**
+> "Brain server is up and your key is saved. Verification timed out but that is normal on first connect. Try `/mos:suggest-next` to confirm it works."
+
+**On health check failure (after retry):**
+> "Brain server is sleeping. Your key is saved and will connect automatically when the server wakes. Nothing else to do -- try a Brain command later."
 
 ### 6. How Brain Commands Work on CLI
 
