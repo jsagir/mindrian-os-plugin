@@ -1,7 +1,6 @@
 ---
 name: systems-thinking
 description: See the feedback loops, stocks, and flows that drive your system
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

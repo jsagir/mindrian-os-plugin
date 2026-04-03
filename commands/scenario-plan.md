@@ -1,7 +1,6 @@
 ---
 name: scenario-plan
 description: Build multiple plausible futures using 2x2 scenario matrix -- escape presentism
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

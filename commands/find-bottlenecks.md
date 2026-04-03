@@ -1,7 +1,6 @@
 ---
 name: find-bottlenecks
 description: Identify the lagging component holding your system back -- Reverse Salient analysis with attack vectors
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

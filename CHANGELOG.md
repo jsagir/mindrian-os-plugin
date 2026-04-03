@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
-## [1.6.3] - 2026-04-01
+## [1.6.3] - 2026-04-03
+
+### Fixed
+- Remove disable-model-invocation from all 29 methodology commands -- was blocking LLM responses entirely, making every /mos: methodology command unusable
 
 ### Added
 - Brain Proactive Command Engine: Command nodes as first-class Neo4j entities with TRIGGERED_BY_SIGNAL, FOLLOWS_FRAMEWORK, RELEVANT_AT_STAGE relationships

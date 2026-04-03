@@ -1,7 +1,6 @@
 ---
 name: explore-trends
 description: Push trends to their extreme to find problems hiding in the future -- Trending to the Absurd
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

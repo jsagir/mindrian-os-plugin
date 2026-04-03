@@ -1,7 +1,6 @@
 ---
 name: explore-domains
 description: Map your domain territory -- where opposites collide and opportunity hides (IKA scoring)
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

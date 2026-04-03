@@ -1,7 +1,6 @@
 ---
 name: challenge-assumptions
 description: Stress-test your assumptions before the market does -- Devil's Advocate
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Write
