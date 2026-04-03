@@ -1,7 +1,6 @@
 ---
 name: analyze-needs
 description: Discover what progress customers are really trying to make -- Jobs To Be Done with opportunity scoring
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

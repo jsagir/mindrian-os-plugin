@@ -1,7 +1,6 @@
 ---
 name: macro-trends
 description: Map macro-level changes reshaping a domain -- PEST analysis, destruction patterns, multi-order consequences
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.6.2] - 2026-04-03
+
+### Fixed
+- Remove disable-model-invocation from all 29 methodology commands -- was blocking LLM responses entirely, making every /mos: methodology command unusable
+
 ## [1.6.1] - 2026-03-31
 
 ### Added

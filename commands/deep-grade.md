@@ -1,7 +1,6 @@
 ---
 name: deep-grade
 description: Calibrated venture assessment -- scored against 100+ real projects
-disable-model-invocation: true
 allowed-tools:
   - Read
 ---

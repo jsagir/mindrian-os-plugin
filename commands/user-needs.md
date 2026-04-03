@@ -1,7 +1,6 @@
 ---
 name: user-needs
 description: Map user processes and find where importance meets dissatisfaction -- opportunity through observation
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

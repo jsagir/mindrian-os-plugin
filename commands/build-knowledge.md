@@ -1,7 +1,6 @@
 ---
 name: build-knowledge
 description: Climb Ackoff's DIKW Pyramid -- separate data from information from knowledge from wisdom
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

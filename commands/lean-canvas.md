@@ -1,7 +1,6 @@
 ---
 name: lean-canvas
 description: Build your business model on one page -- 9 boxes, no fluff
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

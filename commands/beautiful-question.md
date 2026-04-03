@@ -1,7 +1,6 @@
 ---
 name: beautiful-question
 description: Reframe your challenge into a question worth answering -- Why / What If / How
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Write
