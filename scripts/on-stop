@@ -19,6 +19,72 @@ if [ -d "$ROOM_DIR" ]; then
   # Track session end
   bash "${SCRIPT_DIR}/track-analytics" session-stop 2>/dev/null &
 
+  # --- Student Progress Tracking (CTX-06) ---
+  # Detect archetype and write learning progress for students
+  USER_ARCHETYPE=$(node "${PLUGIN_ROOT}/lib/core/user-archetype.cjs" "$ROOM_DIR" 2>/dev/null | node -e "process.stdin.on('data',d=>{try{console.log(JSON.parse(d).archetype)}catch(_){console.log('default')}})" 2>/dev/null || echo "default")
+
+  if [ "$USER_ARCHETYPE" = "student" ]; then
+    CONTEXT_DIR="${ROOM_DIR}/.context"
+    mkdir -p "$CONTEXT_DIR" 2>/dev/null || true
+
+    # Count completed tasks (markdown files in room sections with "completed" or "done" markers)
+    COMPLETED_TASKS=0
+    TOTAL_TASKS=22  # PWS workbook has 22 tasks across 5 stages
+    for task_file in "${ROOM_DIR}"/*/task-*.md "${ROOM_DIR}"/*/deliverable-*.md; do
+      [ -f "$task_file" ] || continue
+      COMPLETED_TASKS=$((COMPLETED_TASKS + 1))
+    done
+
+    # Also count any files with completion markers
+    MARKED_COMPLETE=$(grep -rl "status:\s*complete" "${ROOM_DIR}" --include="*.md" 2>/dev/null | wc -l || echo "0")
+    MARKED_COMPLETE=$(echo "$MARKED_COMPLETE" | tr -d ' ')
+    if [ "$MARKED_COMPLETE" -gt "$COMPLETED_TASKS" ]; then
+      COMPLETED_TASKS="$MARKED_COMPLETE"
+    fi
+
+    # Count room sections as proxy for progress stages
+    SECTION_COUNT=$(find "$ROOM_DIR" -maxdepth 1 -type d ! -name '.*' ! -name '_*' ! -path "$ROOM_DIR" 2>/dev/null | wc -l || echo "0")
+    SECTION_COUNT=$(echo "$SECTION_COUNT" | tr -d ' ')
+
+    # Detect last methodology used
+    LAST_METHOD="none"
+    RECENT_FILE=$(find "$ROOM_DIR" -name "*.md" ! -name "STATE.md" ! -name "ROOM.md" ! -name "USER.md" ! -path "*/.context/*" -newer "${CONTEXT_DIR}/learning-progress.md" 2>/dev/null | head -1 || echo "")
+    if [ -n "$RECENT_FILE" ] && [ -f "$RECENT_FILE" ]; then
+      METHOD_MATCH=$(grep -m1 "methodology:" "$RECENT_FILE" 2>/dev/null | sed 's/methodology:\s*//' | tr -d '\r' || echo "")
+      if [ -n "$METHOD_MATCH" ]; then
+        LAST_METHOD="$METHOD_MATCH"
+      fi
+    fi
+
+    SESSION_DATE=$(date -u +"%Y-%m-%d")
+    SESSION_TIME=$(date -u +"%H:%M:%S")
+
+    cat > "${CONTEXT_DIR}/learning-progress.md" <<PROGRESSEOF
+# Learning Progress
+
+You completed ${COMPLETED_TASKS} of ${TOTAL_TASKS} tasks.
+
+## Progress Summary
+
+- **Tasks completed:** ${COMPLETED_TASKS}/${TOTAL_TASKS}
+- **Sections active:** ${SECTION_COUNT}
+- **Last methodology:** ${LAST_METHOD}
+- **Last session:** ${SESSION_DATE} ${SESSION_TIME} UTC
+
+## Session History
+
+- ${SESSION_DATE}: Session ended with ${COMPLETED_TASKS} tasks complete, ${SECTION_COUNT} active sections
+PROGRESSEOF
+
+    # Append to history (keep last 10 entries)
+    HISTORY_FILE="${CONTEXT_DIR}/learning-history.log"
+    echo "${SESSION_DATE} ${SESSION_TIME} tasks=${COMPLETED_TASKS} sections=${SECTION_COUNT} method=${LAST_METHOD}" >> "$HISTORY_FILE" 2>/dev/null || true
+    # Trim to last 10
+    if [ -f "$HISTORY_FILE" ]; then
+      tail -10 "$HISTORY_FILE" > "${HISTORY_FILE}.tmp" 2>/dev/null && mv "${HISTORY_FILE}.tmp" "$HISTORY_FILE" 2>/dev/null || true
+    fi
+  fi
+
   # --- KAIROS Prep: Write session summary to room/.context/last-session.md ---
   CONTEXT_DIR="${ROOM_DIR}/.context"
   if [ -d "$CONTEXT_DIR" ]; then

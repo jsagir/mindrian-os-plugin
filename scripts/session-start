@@ -63,6 +63,45 @@ When generating a dashboard, room export, or standalone HTML visualization:
 context=""
 
 if [ -d "$ROOM_DIR" ]; then
+  # =============================================================================
+  # CONTEXT INTELLIGENCE: Archetype detection + tiered loading (CTX-01, CTX-02, CTX-05)
+  # =============================================================================
+
+  # Detect user archetype and session count
+  ARCHETYPE_JSON=$(node "${PLUGIN_ROOT}/lib/core/user-archetype.cjs" "$ROOM_DIR" 2>/dev/null || echo '{"archetype":"default","confidence":"low","signals":[],"sessionCount":0,"domain":null}')
+  USER_ARCHETYPE=$(echo "$ARCHETYPE_JSON" | node -e "process.stdin.on('data',d=>{try{console.log(JSON.parse(d).archetype)}catch(_){console.log('default')}})" 2>/dev/null || echo "default")
+  SESSION_COUNT=$(echo "$ARCHETYPE_JSON" | node -e "process.stdin.on('data',d=>{try{console.log(JSON.parse(d).sessionCount||0)}catch(_){console.log(0)}})" 2>/dev/null || echo "0")
+  ROOM_DOMAIN=$(echo "$ARCHETYPE_JSON" | node -e "process.stdin.on('data',d=>{try{const j=JSON.parse(d);console.log(j.domain||'')}catch(_){console.log('')}})" 2>/dev/null || echo "")
+
+  # Get MCP session profile recommendation
+  MCP_PROFILE_JSON=$(node "${PLUGIN_ROOT}/lib/core/mcp-profiles.cjs" get "$USER_ARCHETYPE" 2>/dev/null || echo '{"profile":"think","servers":["mindrian"],"maxTools":15}')
+  MCP_PROFILE=$(echo "$MCP_PROFILE_JSON" | node -e "process.stdin.on('data',d=>{try{console.log(JSON.parse(d).profile)}catch(_){console.log('think')}})" 2>/dev/null || echo "think")
+
+  # Read context bridge file for budget-aware tiering
+  CTX_PCT_RAW=""
+  BRIDGE_FILE="/tmp/mindrian-context-state"
+  if [ -f "$BRIDGE_FILE" ]; then
+    BRIDGE_AGE=$(( $(date +%s) - $(stat -c %Y "$BRIDGE_FILE" 2>/dev/null || echo 0) ))
+    if [ "$BRIDGE_AGE" -lt 300 ]; then
+      CTX_PCT_RAW=$(node -e "try{const d=require('fs').readFileSync('$BRIDGE_FILE','utf8');console.log(JSON.parse(d).ctx_pct||0)}catch(_){console.log(0)}" 2>/dev/null || echo "0")
+    fi
+  fi
+  CTX_PCT_INT="${CTX_PCT_RAW%.*}"
+  CTX_PCT_INT="${CTX_PCT_INT:-0}"
+
+  # Determine context tier based on budget and archetype (CTX-02)
+  # Tiers: minimal (~500 tokens) / balanced (~2K tokens) / rich (~5K tokens)
+  CONTEXT_TIER="balanced"
+  if [ "$CTX_PCT_INT" -ge 70 ]; then
+    CONTEXT_TIER="minimal"
+  elif [ "$CTX_PCT_INT" -lt 30 ] || [ "$USER_ARCHETYPE" = "venturist" ]; then
+    CONTEXT_TIER="rich"
+  fi
+  # Students default to minimal unless budget is wide open
+  if [ "$USER_ARCHETYPE" = "student" ] && [ "$CTX_PCT_INT" -ge 30 ]; then
+    CONTEXT_TIER="minimal"
+  fi
+
   # Room exists -- compute state and build context
   state_output=$("${SCRIPT_DIR}/compute-state" "$ROOM_DIR" 2>/dev/null || echo "Error computing state")
 
@@ -78,40 +117,68 @@ if [ -d "$ROOM_DIR" ]; then
     state_md=$(cat "${ROOM_DIR}/STATE.md" 2>/dev/null || true)
   fi
 
-  # Run proactive Room analysis
-  proactive_output=$("${SCRIPT_DIR}/analyze-room" "$ROOM_DIR" 2>/dev/null || echo "")
-
-  # Build dynamic context with room overview
-  context="\n\n--- DYNAMIC SESSION CONTEXT ---\n\n[Room State]\n${state_output}"
-
-  if [ -n "$user_context" ]; then
-    context="${context}\n\nUser context:\n${user_context}"
+  # =============================================================================
+  # RETURNING USER GREETING (CTX-05)
+  # Session count > 3 triggers domain-specific greeting instead of full intro
+  # =============================================================================
+  RETURNING_USER_HINT=""
+  if [ "$SESSION_COUNT" -gt 3 ] && [ -n "$ROOM_DOMAIN" ]; then
+    RETURNING_USER_HINT="[Returning User] This is session #${SESSION_COUNT}. Skip the full introduction. Greet with domain awareness: \"I see you're continuing work on ${ROOM_DOMAIN}.\" Then go straight to actionable nudges."
   fi
 
-  # Append proactive Room intelligence if available
-  if [ -n "$proactive_output" ] && [ "$proactive_output" != "NO_ROOM" ]; then
-    context="${context}\n\n## Proactive Room Intelligence\n${proactive_output}"
-  fi
+  # =============================================================================
+  # TIERED CONTEXT LOADING (CTX-02)
+  # minimal: state summary only (~500 tokens)
+  # balanced: state + user + brief proactive (~2K tokens)
+  # rich: state + user + full proactive + learnings (~5K tokens)
+  # =============================================================================
 
-  # Read context bridge file if available
-  CTX_BUDGET=""
-  BRIDGE_DIR="$HOME/.mindrian/bridge"
-  mkdir -p "$BRIDGE_DIR"
-  if [ -n "$ROOM_DIR" ]; then
-    ROOM_HASH=$(echo -n "$ROOM_DIR" | md5sum | cut -c1-8)
-    BRIDGE_FILE="$BRIDGE_DIR/${ROOM_HASH}.json"
+  if [ "$CONTEXT_TIER" = "minimal" ]; then
+    # ~500 tokens: just state summary, no proactive analysis
+    context="\n\n--- DYNAMIC SESSION CONTEXT ---\n\n[Context Tier: minimal | Archetype: ${USER_ARCHETYPE} | MCP Profile: ${MCP_PROFILE}]\n\n[Room State]\n${state_output}"
+    if [ -n "$RETURNING_USER_HINT" ]; then
+      context="${context}\n\n${RETURNING_USER_HINT}"
+    fi
+  elif [ "$CONTEXT_TIER" = "rich" ]; then
+    # ~5K tokens: full context with proactive analysis, learnings, and detailed nudges
+    proactive_output=$("${SCRIPT_DIR}/analyze-room" "$ROOM_DIR" 2>/dev/null || echo "")
+    context="\n\n--- DYNAMIC SESSION CONTEXT ---\n\n[Context Tier: rich | Archetype: ${USER_ARCHETYPE} | MCP Profile: ${MCP_PROFILE}]\n\n[Room State]\n${state_output}"
+    if [ -n "$RETURNING_USER_HINT" ]; then
+      context="${context}\n\n${RETURNING_USER_HINT}"
+    fi
+    if [ -n "$user_context" ]; then
+      context="${context}\n\nUser context:\n${user_context}"
+    fi
+    if [ -n "$proactive_output" ] && [ "$proactive_output" != "NO_ROOM" ]; then
+      context="${context}\n\n## Proactive Room Intelligence\n${proactive_output}"
+    fi
   else
-    BRIDGE_FILE="$BRIDGE_DIR/default.json"
+    # balanced (~2K tokens): state + user + brief proactive
+    proactive_output=$("${SCRIPT_DIR}/analyze-room" "$ROOM_DIR" 2>/dev/null || echo "")
+    context="\n\n--- DYNAMIC SESSION CONTEXT ---\n\n[Context Tier: balanced | Archetype: ${USER_ARCHETYPE} | MCP Profile: ${MCP_PROFILE}]\n\n[Room State]\n${state_output}"
+    if [ -n "$RETURNING_USER_HINT" ]; then
+      context="${context}\n\n${RETURNING_USER_HINT}"
+    fi
+    if [ -n "$user_context" ]; then
+      context="${context}\n\nUser context:\n${user_context}"
+    fi
+    if [ -n "$proactive_output" ] && [ "$proactive_output" != "NO_ROOM" ]; then
+      # Truncate proactive output for balanced tier (first 30 lines max)
+      proactive_brief=$(echo "$proactive_output" | head -30)
+      context="${context}\n\n## Proactive Room Intelligence (summary)\n${proactive_brief}"
+    fi
   fi
+
+  # Read context bridge file for budget display (reuses BRIDGE_FILE read from tiering)
+  CTX_BUDGET=""
   if [ -f "$BRIDGE_FILE" ]; then
-    # Check staleness (> 5 min = stale)
-    BRIDGE_AGE=$(( $(date +%s) - $(stat -c %Y "$BRIDGE_FILE" 2>/dev/null || echo 0) ))
-    if [ "$BRIDGE_AGE" -lt 300 ]; then
-      CTX_MODEL=$(grep "^MODEL_NAME=" "$BRIDGE_FILE" | cut -d= -f2-)
-      CTX_PCT=$(grep "^CTX_PCT=" "$BRIDGE_FILE" | cut -d= -f2-)
-      CTX_SIZE=$(grep "^CTX_SIZE=" "$BRIDGE_FILE" | cut -d= -f2-)
+    BRIDGE_AGE_DISP=$(( $(date +%s) - $(stat -c %Y "$BRIDGE_FILE" 2>/dev/null || echo 0) ))
+    if [ "$BRIDGE_AGE_DISP" -lt 300 ]; then
+      CTX_MODEL=$(node -e "try{const d=require('fs').readFileSync('$BRIDGE_FILE','utf8');console.log(JSON.parse(d).model_name||'unknown')}catch(_){console.log('unknown')}" 2>/dev/null || echo "unknown")
+      CTX_PCT=$(node -e "try{const d=require('fs').readFileSync('$BRIDGE_FILE','utf8');console.log(JSON.parse(d).ctx_pct||0)}catch(_){console.log(0)}" 2>/dev/null || echo "0")
+      CTX_SIZE=$(node -e "try{const d=require('fs').readFileSync('$BRIDGE_FILE','utf8');console.log(JSON.parse(d).ctx_size||200000)}catch(_){console.log(200000)}" 2>/dev/null || echo "200000")
       if [ -n "$CTX_PCT" ]; then
-        CTX_BUDGET="[Context Budget] Model: ${CTX_MODEL:-unknown}, Usage: ${CTX_PCT}%, Window: ${CTX_SIZE:-200000} tokens"
+        CTX_BUDGET="[Context Budget] Model: ${CTX_MODEL:-unknown}, Usage: ${CTX_PCT}%, Window: ${CTX_SIZE:-200000} tokens, Tier: ${CONTEXT_TIER}"
         # Add warning if above threshold
         CTX_INT="${CTX_PCT%.*}"
         if [ "${CTX_INT:-0}" -ge 85 ]; then
@@ -141,11 +208,19 @@ if [ -d "$ROOM_DIR" ]; then
   # Generate learnings from usage patterns
   bash "${SCRIPT_DIR}/learn-from-usage" 2>/dev/null
 
-  # Load learnings if available
-  if [ -f "${ROOM_DIR}/.learnings.md" ]; then
+  # Load learnings if available (skip on minimal tier to save tokens)
+  if [ "$CONTEXT_TIER" != "minimal" ] && [ -f "${ROOM_DIR}/.learnings.md" ]; then
     learnings=$(cat "${ROOM_DIR}/.learnings.md" 2>/dev/null || true)
     if [ -n "$learnings" ]; then
       context="${context}\n\n## Usage Learnings (adapt your behavior accordingly)\n${learnings}"
+    fi
+  fi
+
+  # Student learning progress injection (CTX-06 - read)
+  if [ "$USER_ARCHETYPE" = "student" ] && [ -f "${ROOM_DIR}/.context/learning-progress.md" ]; then
+    progress_summary=$(head -10 "${ROOM_DIR}/.context/learning-progress.md" 2>/dev/null || true)
+    if [ -n "$progress_summary" ]; then
+      context="${context}\n\n## Learning Progress\n${progress_summary}"
     fi
   fi
 
@@ -269,7 +344,7 @@ fi
 
 # Check for updates (async, non-blocking, max 3 second timeout)
 # Only check once per day — cache result
-UPDATE_CACHE="$HOME/.mindrian/bridge/update-check.json"
+UPDATE_CACHE="/tmp/mindrian-update-check"
 TODAY=$(date -u +"%Y-%m-%d")
 SHOULD_CHECK=true
 

@@ -3,47 +3,101 @@ name: context-engine
 description: >
   Session context management and user memory. Relevant for managing USER.md,
   tracking user preferences, and providing context-aware greetings across sessions.
-activation: "dir_exists:room"
 ---
 
 # Context Engine -- Session Continuity
 
 ## USER.md Management
 
-On first interaction, create `USER.md` in workspace root capturing: name, background, learning style preferences, venture context, session history notes. On each session start, read USER.md to personalize. Update when user shares new context.
+On first interaction, create `USER.md` in the workspace root capturing:
+- Name and background
+- Learning style preferences (exploratory vs direct, depth preference)
+- Venture context (domain, stage, key challenges)
+- Session history notes
+
+On each session start, read USER.md to personalize the interaction.
+Update USER.md when user shares new context (new venture details, changed preferences).
 
 ## Context-Aware Return Greeting
 
-When USER.md and STATE.md exist, greet with awareness of last topic, room gaps, and suggested next action. Reference specific room state naturally.
+When USER.md and STATE.md exist, greet with awareness:
+"I see you were working on [last topic]. You still have gaps in [empty rooms]. Want to continue with [suggested next action]?"
+
+Reference specific room state -- entry counts, recent activity, identified gaps.
 
 ## Session Continuity
 
-On return: read USER.md (who), STATE.md (where left off), reference prior work naturally.
+Track conversation threads across sessions. When user returns:
+1. Read USER.md for who they are
+2. Read STATE.md for where they left off
+3. Reference specific prior work naturally, not mechanically
 
-## Multi-Room Context
+## Multi-Room Context at Session Start
 
-When `.rooms/registry.json` has 2+ rooms, append other rooms after active room greeting:
-- Show OTHER rooms only (active is in header already)
-- Symbols: `>` parked, `>` archived. Time since last opened.
-- Max 5 shown. If more: "...and N more (`/mos:rooms list`)"
-- Single room: skip this section
+When `.rooms/registry.json` exists AND has 2 or more rooms registered, the session greeting includes a room list after the standard greeting:
+
+Format (appended after the active room's state summary):
+```
+  Other rooms:
+  |- fintech-startup     parked  3 days ago
+  |- biotech-venture     archived
+
+  ▷ /mos:rooms                      Manage your rooms
+  ▷ /mos:rooms open fintech-startup Switch rooms
+```
+
+Rules:
+- Only show OTHER rooms (not the active one -- it is already in the header and greeting)
+- Symbols: ▶ = parked, ▷ = archived
+- Show time since last_opened for parked rooms ("3 days ago", "1 hour ago")
+- Max 5 other rooms shown. If more, show count: "...and 3 more (/mos:rooms list)"
+- If only 1 room registered, do NOT show the multi-room section
 
 ## Context Window Awareness
 
-Read `/tmp/mindrian-context-state` if exists and fresh (<5min). Missing/stale: assume 200K window, 50% usage.
+Read `/tmp/mindrian-context-state` if it exists. If the file is missing or older than 5 minutes (compare TIMESTAMP to current epoch), use conservative defaults: assume 200K context window, 50% usage, unknown model.
 
-| Model | Context | Strategy |
-|-------|---------|----------|
-| opus | 1M | Rich: load full references inline |
-| sonnet | 200K | Lean: thin skills, summarize references |
-| haiku | 200K | Minimal: essential only |
+### Model-Specific Behavior
 
-### Adaptive Behavior by Usage
+| Model Contains | Context Size | Strategy |
+|----------------|-------------|----------|
+| opus | 1,000,000 | Rich context: load full methodology references inline when relevant |
+| sonnet | 200,000 | Lean context: thin skills only, summarize references instead of quoting |
+| haiku | 200,000 | Minimal: essential context only, shortest responses |
+| (unknown) | 200,000 | Conservative: treat as Sonnet |
 
-- <50%: Normal, load freely
-- 50-70%: Mention moderate context on heavy methodology requests
-- 70-85%: Warn, suggest `/clear`
-- 85-95%: Active warning, concise mode
-- >95%: Critical, auto-compact imminent
+### Autocompact Threshold by User Archetype (CTX-04)
 
-When constrained: summarize instead of quoting, skip proactive detail, keep personality intact.
+Different user types have different optimal compact thresholds. The session-start hook injects the user archetype into context. Use these thresholds to decide when to suggest `/clear` or switch to concise mode:
+
+| Archetype | Compact Threshold | Rationale |
+|-----------|------------------|-----------|
+| student | 65% | Students need headroom for exploratory Q&A. Compact early to keep teaching quality high. |
+| default | 72% | Standard users get the balanced threshold. |
+| venturist | 75% | Venturists run pipelines that consume context. Let them use more before suggesting compact. |
+| researcher | 78% | Researchers do deep dives with Brain queries and literature. They need the most runway before interruption. |
+
+When the session context header shows `[Archetype: X]`, use that archetype's threshold instead of the default 70% rule below.
+
+### Context Threshold Actions
+
+| Usage | Action |
+|-------|--------|
+| < 50% | Normal operation. Load references freely. |
+| 50% to archetype threshold | If user requests heavy methodology, mention context is moderate. |
+| Archetype threshold to threshold+15% | Warn: "We're at ~X% context. Consider `/clear` before starting a new methodology to keep quality high." |
+| Threshold+15% to 95% | Active warning: "Context is getting tight. I'll be more concise. Strongly suggest `/clear` to free space." |
+| > 95% | Critical: "Auto-compact will trigger soon. Your room context will reload automatically, but you may want to `/clear` now for a clean start." |
+
+### Adaptive Reference Loading
+
+When context is constrained (above 60% on Sonnet, above 80% on Opus):
+- Do NOT load full methodology references inline
+- Summarize Room findings instead of quoting full entries
+- Skip proactive intelligence detail (mention count only, not full analysis)
+- Keep Larry's personality and thin skill instructions (NEVER compress these)
+
+When context is plentiful:
+- Load full references when methodology commands request them
+- Include detailed proactive intelligence in greetings
+- Provide richer examples and deeper framework explanations
