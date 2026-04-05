@@ -1,16 +1,22 @@
 #!/usr/bin/env node
 
 /**
- * MindrianOS MCP Server — stdio transport entry point
+ * MindrianOS MCP Server -- dual transport entry point (stdio + Streamable HTTP)
  *
  * Connects MindrianOS plugin capabilities to Claude Desktop and Cowork
  * via the Model Context Protocol. Uses hierarchical tool router (9 tools
  * covering 64 CLI commands) to stay under 7000 token budget.
  *
+ * Transport selection is automatic via surface detection:
+ *   - CLI / Desktop: stdio (default, zero-config)
+ *   - Cowork: Streamable HTTP on 127.0.0.1:3847
+ *
+ * Override with MINDRIAN_TRANSPORT=stdio|http env var.
+ *
  * Configuration:
  *   MINDRIAN_ROOM env var sets the Data Room path (default: ./room)
  *
- * Usage in claude_desktop_config.json:
+ * Usage in claude_desktop_config.json (stdio):
  *   {
  *     "mcpServers": {
  *       "mindrian-os": {
@@ -20,6 +26,10 @@
  *       }
  *     }
  *   }
+ *
+ * Usage for Cowork (Streamable HTTP):
+ *   MINDRIAN_TRANSPORT=http node bin/mindrian-mcp-server.cjs
+ *   -> Listens on http://127.0.0.1:3847/mcp
  */
 
 'use strict';
@@ -28,6 +38,11 @@ const path = require('path');
 const fs = require('fs');
 const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js');
 const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
+const { detectSurface } = require('../lib/mcp/surface-detect.cjs');
+const { registerCapabilities } = require('../lib/mcp/capability-registry.cjs');
+
+// Detect surface before anything else
+const surface = detectSurface();
 
 // Resolve paths
 const pluginRoot = path.resolve(__dirname, '..');
@@ -64,11 +79,44 @@ registerResources(server, roomDir);
 const { registerPrompts } = require('../lib/mcp/prompts.cjs');
 registerPrompts(server, roomDir, pluginRoot);
 
-// Connect stdio transport
+// Register surface-aware capabilities (MCP Apps, Tasks -- Phase 58/60 hook points)
+registerCapabilities(server, surface.capabilities, roomDir, pluginRoot);
+
+// Connect transport based on detected surface
 async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  process.stderr.write(`[mindrian-os] MCP server v${version} started (room: ${roomDir})\n`);
+  if (surface.transport === 'http') {
+    // Streamable HTTP for Cowork
+    let express;
+    try {
+      express = require('express');
+    } catch (err) {
+      process.stderr.write(`[mindrian-os] Express not available, falling back to stdio transport.\n`);
+      const transport = new StdioServerTransport();
+      await server.connect(transport);
+      process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, stdio-fallback, room: ${roomDir})\n`);
+      return;
+    }
+
+    const { StreamableHTTPServerTransport } = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
+    const app = express();
+    app.use(express.json());
+
+    // MCP endpoint
+    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+    app.all('/mcp', async (req, res) => {
+      await transport.handleRequest(req, res);
+    });
+
+    await server.connect(transport);
+    app.listen(3847, '127.0.0.1', () => {
+      process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, HTTP on 127.0.0.1:3847, room: ${roomDir})\n`);
+    });
+  } else {
+    // stdio for CLI and Desktop
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, ${surface.transport}, room: ${roomDir})\n`);
+  }
 }
 
 main().catch((err) => {
