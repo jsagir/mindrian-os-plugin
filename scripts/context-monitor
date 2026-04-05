@@ -9,7 +9,21 @@ const fs = require('fs');
 const path = require('path');
 const visual = require('../lib/core/visual-ops.cjs');
 
-const BRIDGE_FILE = '/tmp/mindrian-context-state';
+const os = require('os');
+const crypto = require('crypto');
+
+/**
+ * Get per-room bridge file path at ~/.mindrian/bridge/{room-hash}.json
+ * @param {string} [roomDir] - Room directory path for hashing
+ * @returns {string} Bridge file path
+ */
+function getBridgeFile(roomDir) {
+  const bridgeDir = path.join(os.homedir(), '.mindrian', 'bridge');
+  if (!fs.existsSync(bridgeDir)) fs.mkdirSync(bridgeDir, { recursive: true });
+  if (!roomDir) return path.join(bridgeDir, 'default.json');
+  const hash = crypto.createHash('md5').update(roomDir).digest('hex').slice(0, 8);
+  return path.join(bridgeDir, hash + '.json');
+}
 
 let input = '';
 const timeout = setTimeout(() => process.exit(0), 3000);
@@ -24,8 +38,10 @@ process.stdin.on('end', () => {
     const remaining = data.context_window?.remaining_percentage;
     const usedPct = data.context_window?.used_percentage;
 
-    // Write bridge file for hooks/skills
+    // Write bridge file for hooks/skills (per-room isolation)
+    // Uses dir (workspace) as hash source since roomDir isn't resolved yet
     try {
+      const bridgeFile = getBridgeFile(dir);
       const bridge = JSON.stringify({
         model_id: data.model?.id || 'unknown',
         model_name: model,
@@ -34,8 +50,8 @@ process.stdin.on('end', () => {
         ctx_size: data.context_window?.context_window_size || 200000,
         timestamp: Math.floor(Date.now() / 1000)
       });
-      fs.writeFileSync(BRIDGE_FILE + '.tmp', bridge);
-      fs.renameSync(BRIDGE_FILE + '.tmp', BRIDGE_FILE);
+      fs.writeFileSync(bridgeFile + '.tmp', bridge);
+      fs.renameSync(bridgeFile + '.tmp', bridgeFile);
     } catch (e) {}
 
     // --- Context window bar ---
@@ -147,7 +163,7 @@ process.stdin.on('end', () => {
     // --- Update check ---
     let updateBadge = '';
     try {
-      const updateCache = '/tmp/mindrian-update-check';
+      const updateCache = path.join(os.homedir(), '.mindrian', 'bridge', 'update-check.json');
       if (fs.existsSync(updateCache)) {
         const lines = fs.readFileSync(updateCache, 'utf8').split('\n');
         if (lines[1] && lines[1].trim() === 'UPDATE_AVAILABLE') {
