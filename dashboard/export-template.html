@@ -52,6 +52,12 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -87,9 +93,14 @@ body {
 .topbar-logo {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 10px;
   text-decoration: none;
   flex-shrink: 0;
+}
+
+.topbar-logo svg {
+  height: 28px;
+  width: auto;
 }
 
 .topbar-logo-block {
@@ -216,16 +227,19 @@ body {
 .mondrian-grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
-  grid-template-rows: 260px 200px 180px 160px;
-  gap: 0;
-  border: var(--grid-border);
+  grid-auto-rows: minmax(160px, 1fr);
+  gap: 5px;
   background: var(--mondrian-black);
   margin: 0;
+  padding: 5px;
   min-height: calc(100vh - 56px);
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .mondrian-cell {
-  border: var(--grid-border);
   padding: 28px 24px;
   cursor: pointer;
   position: relative;
@@ -236,6 +250,7 @@ body {
   justify-content: flex-end;
   opacity: 0;
   animation: cellAssemble 0.6s ease forwards;
+  min-width: 0; /* prevent grid blowout */
 }
 
 .mondrian-cell:hover {
@@ -253,8 +268,8 @@ body {
 .cell-section-label {
   font-family: "DM Sans", sans-serif;
   font-weight: 700;
-  font-size: 10px;
-  letter-spacing: 0.18em;
+  font-size: 12px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   margin-bottom: 8px;
 }
@@ -264,6 +279,10 @@ body {
   font-weight: 700;
   font-size: 20px;
   line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .cell-summary {
@@ -272,6 +291,11 @@ body {
   line-height: 1.5;
   margin-top: 8px;
   opacity: 0.85;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
 }
 
 .cell-meta {
@@ -285,11 +309,18 @@ body {
 /* Artifact count badge */
 .cell-count {
   font-family: "JetBrains Mono", monospace;
-  font-size: 10px;
+  font-size: 11px;
   position: absolute;
   top: 12px;
   right: 14px;
-  opacity: 0.5;
+  opacity: 0.6;
+}
+
+/* Focus rings for keyboard navigation */
+.mondrian-cell:focus-visible {
+  outline: 3px solid var(--mondrian-yellow);
+  outline-offset: -3px;
+  z-index: 11;
 }
 
 /* Light text for dark bg cells */
@@ -298,7 +329,7 @@ body {
 }
 
 .mondrian-cell.dark-bg .cell-section-label {
-  color: rgba(247,243,237,0.7);
+  color: rgba(247,243,237,0.8);
 }
 
 /* Dark text for light bg cells */
@@ -307,7 +338,163 @@ body {
 }
 
 .mondrian-cell.light-bg .cell-section-label {
-  color: rgba(26,26,26,0.5);
+  color: rgba(26,26,26,0.6);
+}
+
+/* Cell action bar -- always visible, enhanced on hover */
+.cell-actions {
+  display: flex;
+  gap: 6px;
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  z-index: 2;
+}
+
+.mondrian-cell:hover .cell-actions,
+.mondrian-cell:focus-within .cell-actions {
+  opacity: 1;
+}
+
+.cell-action-btn {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  min-height: 32px;
+  min-width: 44px;
+  border: 1px solid rgba(247,243,237,0.3);
+  border-radius: 3px;
+  background: rgba(26,26,26,0.7);
+  color: rgba(247,243,237,0.9);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.cell-action-btn:hover {
+  background: rgba(26,26,26,0.95);
+  border-color: var(--mondrian-yellow);
+  color: var(--mondrian-yellow);
+  transform: translateY(-1px);
+}
+
+.cell-action-btn:focus-visible {
+  outline: 2px solid var(--mondrian-yellow);
+  outline-offset: 2px;
+}
+
+.cell-action-btn:active {
+  transform: scale(0.97);
+}
+
+.mondrian-cell.light-bg .cell-action-btn {
+  background: rgba(247,243,237,0.7);
+  color: var(--mondrian-black);
+  border-color: rgba(26,26,26,0.2);
+}
+
+.mondrian-cell.light-bg .cell-action-btn:hover {
+  background: rgba(247,243,237,0.95);
+  border-color: var(--mondrian-blue);
+  color: var(--mondrian-blue);
+}
+
+.mondrian-cell.light-bg .cell-action-btn:focus-visible {
+  outline-color: var(--mondrian-blue);
+}
+
+/* Command panel -- slide-in results viewer */
+.command-panel {
+  position: fixed;
+  top: 0;
+  right: -480px;
+  width: 480px;
+  height: 100vh;
+  background: #111;
+  border-left: 3px solid var(--mondrian-yellow);
+  z-index: 1000;
+  transition: right 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.command-panel.open {
+  right: 0;
+}
+
+.command-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(247,243,237,0.1);
+  flex-shrink: 0;
+}
+
+.command-panel-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mondrian-yellow);
+}
+
+.command-panel-close {
+  font-size: 18px;
+  background: none;
+  border: none;
+  color: rgba(247,243,237,0.5);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.command-panel-close:hover {
+  color: var(--mondrian-white);
+}
+
+.command-panel-cmd {
+  padding: 12px 20px;
+  font-size: 13px;
+  color: rgba(247,243,237,0.5);
+  border-bottom: 1px solid rgba(247,243,237,0.05);
+  flex-shrink: 0;
+}
+
+.command-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(247,243,237,0.85);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.command-panel-status {
+  padding: 12px 20px;
+  font-size: 11px;
+  color: rgba(247,243,237,0.4);
+  border-top: 1px solid rgba(247,243,237,0.05);
+  flex-shrink: 0;
+}
+
+.command-panel-status.running {
+  color: var(--mondrian-yellow);
+}
+
+.command-panel-status.done {
+  color: var(--accent-green);
+}
+
+.command-panel-status.error {
+  color: var(--mondrian-red);
 }
 
 /* Stage cell special */
@@ -1009,12 +1196,14 @@ body {
    ============================================ */
 @media (max-width: 1024px) {
   .mondrian-grid {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto;
+    grid-template-columns: 1fr 1fr !important;
+    grid-auto-rows: minmax(120px, auto) !important;
   }
 
   .mondrian-cell {
     min-height: 140px;
+    grid-column: auto !important;
+    grid-row: auto !important;
   }
 
   .doc-toc { display: none; }
@@ -1024,17 +1213,27 @@ body {
   .intel-view { padding: 24px; }
   .graph-sidebar { width: 200px; }
   .graph-detail-panel { width: 260px; }
+
+  .command-panel { width: 100%; right: -100%; }
 }
 
 @media (max-width: 640px) {
   .mondrian-grid {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
+    grid-template-columns: 1fr !important;
+    grid-auto-rows: minmax(100px, auto) !important;
+    padding: 3px;
+    gap: 3px;
   }
 
   .mondrian-cell {
-    min-height: 120px;
+    min-height: 100px;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    padding: 20px 16px;
   }
+
+  .cell-actions { gap: 4px; top: 8px; left: 10px; }
+  .cell-action-btn { font-size: 10px; padding: 5px 8px; min-height: 28px; }
 
   .doc-rail { display: none; }
   .doc-sidebar-nav { display: none; }
@@ -1042,10 +1241,31 @@ body {
   .graph-detail-panel { width: 100%; }
   .topbar { padding: 0 12px; }
   .topbar-title { font-size: 11px; letter-spacing: 0.1em; }
+  .topbar-logo svg { height: 22px; }
+
+  .command-panel { width: 100%; right: -100%; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .mondrian-cell { animation: none; opacity: 1; transition: none; }
+  .cell-action-btn { transition: none; }
+  .command-panel { transition: none; }
 }
 </style>
 </head>
 <body>
+
+<!-- Command Panel (slide-in from right) -->
+<div class="command-panel" id="command-panel">
+  <div class="command-panel-header">
+    <span class="command-panel-title" id="cmd-panel-title">Command</span>
+    <button class="command-panel-close" onclick="closeCommandPanel()" aria-label="Close command panel">x</button>
+  </div>
+  <div class="command-panel-cmd" id="cmd-panel-cmd"></div>
+  <div class="command-panel-body" id="cmd-panel-body"></div>
+  <div class="command-panel-status" id="cmd-panel-status"></div>
+</div>
 
 <!-- ========================================
      TOP BAR
@@ -1053,9 +1273,14 @@ body {
 <div class="topbar">
   <div class="topbar-left">
     <a class="topbar-logo" href="https://mindrianos-jsagirs-projects.vercel.app" target="_blank" rel="noopener noreferrer" title="MindrianOS">
-      <div class="topbar-logo-block r"></div>
-      <div class="topbar-logo-block b"></div>
-      <div class="topbar-logo-block y"></div>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48">
+        <rect x="0" y="0" width="20" height="48" fill="#1E3A6E"/>
+        <rect x="22" y="0" width="12" height="22" fill="#A63D2F"/>
+        <rect x="22" y="24" width="12" height="24" fill="#C8A43C"/>
+        <rect x="36" y="0" width="8" height="48" fill="#F5F0E8"/>
+        <rect x="46" y="0" width="4" height="32" fill="#2D6B4A"/>
+        <text x="60" y="35" font-size="32" fill="#F5F0E8" font-family="'DM Sans', 'Bebas Neue', sans-serif" font-weight="700" letter-spacing="0.04em">MINDRIAN</text>
+      </svg>
     </a>
     <span class="topbar-title" id="topbar-room-name"></span>
     <span class="topbar-badge" id="topbar-stage-badge"></span>
@@ -1187,6 +1412,70 @@ var SECTION_LABELS = {
   'funding': 'Funding'
 };
 
+/* Contextual actions per section -- top 3 with JTBD rationale */
+var SECTION_ACTIONS = {
+  'problem-definition': [
+    { label: 'Root Cause', cmd: '/mos:root-cause', jtbd: 'When my problem feels symptomatic, I want to trace it to its root so I stop treating surface effects' },
+    { label: 'Challenge', cmd: '/mos:challenge-assumptions', jtbd: 'When I have a problem statement, I want to stress-test it so the market does not surprise me later' },
+    { label: 'Validate', cmd: '/mos:validate', jtbd: 'When I think I understand the problem, I want evidence so I know it is real, not imagined' },
+  ],
+  'market-analysis': [
+    { label: 'Trends', cmd: '/mos:explore-trends', jtbd: 'When I see market signals, I want to push them to extremes so I find problems hiding in the future' },
+    { label: 'Timing', cmd: '/mos:analyze-timing', jtbd: 'When I am entering a market, I want to read the S-Curve clock so I know if I am early, on time, or late' },
+    { label: 'User Needs', cmd: '/mos:user-needs', jtbd: 'When I have users, I want to map where importance meets dissatisfaction so I find real opportunity' },
+  ],
+  'solution-design': [
+    { label: 'Analogies', cmd: '/mos:find-analogies', jtbd: 'When I need innovation, I want cross-domain patterns so I do not reinvent what others already solved' },
+    { label: 'Systems', cmd: '/mos:systems-thinking', jtbd: 'When my solution is complex, I want to see feedback loops so I find leverage points' },
+    { label: 'Bottlenecks', cmd: '/mos:find-bottlenecks', jtbd: 'When progress stalls, I want to find the lagging component so I attack the right constraint' },
+  ],
+  'competitive-analysis': [
+    { label: 'Compare', cmd: '/mos:compare-ventures', jtbd: 'When I see competitors, I want to know what happened to similar ventures so I learn from their fate' },
+    { label: 'Dominant', cmd: '/mos:dominant-designs', jtbd: 'When standards exist, I want to find where they are cracking so I can disrupt at the seam' },
+    { label: 'Domains', cmd: '/mos:explore-domains', jtbd: 'When I feel boxed in, I want to map adjacent territory so I find where opposites collide' },
+  ],
+  'business-model': [
+    { label: 'Lean Canvas', cmd: '/mos:lean-canvas', jtbd: 'When I need clarity, I want my model on one page so I see what is missing at a glance' },
+    { label: 'Validate', cmd: '/mos:validate', jtbd: 'When I have assumptions, I want to test them with evidence so I build on facts, not hopes' },
+    { label: 'Scenarios', cmd: '/mos:scenario-plan', jtbd: 'When the future is uncertain, I want multiple plausible paths so I escape presentism' },
+  ],
+  'team-execution': [
+    { label: 'Leadership', cmd: '/mos:leadership', jtbd: 'When my team needs direction, I want to know what leader they actually need, not who I think I am' },
+    { label: 'Bottlenecks', cmd: '/mos:find-bottlenecks', jtbd: 'When execution lags, I want to find which component is holding us back so I unblock progress' },
+    { label: '6 Hats', cmd: '/mos:think-hats', jtbd: 'When the team thinks alike, I want forced perspective shifts so blind spots become visible' },
+  ],
+  'opportunity-bank': [
+    { label: 'Scan', cmd: '/mos:opportunities', jtbd: 'When I need direction, I want the intelligence layer to surface well-defined opportunities from my data' },
+    { label: 'Score', cmd: '/mos:score-innovation', jtbd: 'When I have opportunities, I want to score them across domains so I pick the highest-leverage one' },
+    { label: 'Connections', cmd: '/mos:find-connections', jtbd: 'When I feel stuck, I want cross-domain pattern discovery so I find what connects to my work' },
+  ],
+  'financial-model': [
+    { label: 'Validate', cmd: '/mos:validate', jtbd: 'When I have projections, I want evidence mapping so I know which numbers are real vs wishful' },
+    { label: 'Scenarios', cmd: '/mos:scenario-plan', jtbd: 'When I have one forecast, I want multiple futures so I prepare for what I cannot predict' },
+    { label: 'Thesis', cmd: '/mos:build-thesis', jtbd: 'When I need investment, I want a GO/NO-GO analysis so I know if the numbers tell a fundable story' },
+  ],
+  'legal-ip': [
+    { label: 'Unknowns', cmd: '/mos:map-unknowns', jtbd: 'When I face legal risk, I want to map what I know vs do not know so hidden liabilities surface' },
+    { label: 'Challenge', cmd: '/mos:challenge-assumptions', jtbd: 'When I assume protection, I want stress-testing so I discover gaps before a competitor does' },
+    { label: 'Dominant', cmd: '/mos:dominant-designs', jtbd: 'When standards exist, I want to understand IP landscape so I know what is defensible' },
+  ],
+  'funding': [
+    { label: 'Thesis', cmd: '/mos:build-thesis', jtbd: 'When I seek funding, I want a full investment thesis so I pass the 10-question gate' },
+    { label: 'Grants', cmd: '/mos:funding', jtbd: 'When I need non-dilutive capital, I want grant lifecycle tracking so I never miss a deadline' },
+    { label: 'Grade', cmd: '/mos:deep-grade', jtbd: 'When I pitch, I want calibrated scoring so I know how I compare to 100+ real ventures' },
+  ],
+  'personas': [
+    { label: '6 Hats', cmd: '/mos:think-hats', jtbd: 'When I need diverse thinking, I want forced perspective rotation so I escape my default hat' },
+    { label: 'Persona', cmd: '/mos:persona', jtbd: 'When I need fresh eyes, I want AI perspective lenses generated from my data so I see what I miss' },
+    { label: 'Challenge', cmd: '/mos:challenge-assumptions', jtbd: 'When I feel confident, I want a devil advocate so complacency does not blind me' },
+  ],
+  '_default': [
+    { label: 'Analyze', cmd: '/mos:reason', jtbd: 'When I have content, I want structured reasoning so my thinking becomes rigorous' },
+    { label: 'Diagnose', cmd: '/mos:diagnose', jtbd: 'When I am unsure, I want problem classification so I get matched to the right methodology' },
+    { label: '6 Hats', cmd: '/mos:think-hats', jtbd: 'When I think in one mode, I want forced perspective shifts so I see the full picture' },
+  ],
+};
+
 /* Grid layout configurations per cell index for Mondrian asymmetry */
 var GRID_LAYOUTS = [
   { col: '1 / 2', row: '1 / 3' },     /* 0: large left — spans 2 rows */
@@ -1258,35 +1547,102 @@ function buildGrid() {
     return;
   }
 
-  /* Adjust grid rows based on section count */
-  var totalSlots = sections.length + 1; /* +1 for stage badge */
-  var rowCount = Math.max(4, Math.ceil((totalSlots + 2) / 3) + 1);
-  var rowSizes = ['260px', '200px', '180px', '160px'];
-  while (rowSizes.length < rowCount) rowSizes.push('160px');
+  /* Sort sections: filled first (by artifact count desc), empty last */
+  var filled = sections.filter(function(s) { return s.entryCount > 0; });
+  var empty = sections.filter(function(s) { return s.entryCount === 0; });
+  filled.sort(function(a, b) { return b.entryCount - a.entryCount; });
+  var sorted = filled.concat(empty);
+
+  /* Compute total artifacts for proportional sizing */
+  var maxCount = Math.max.apply(null, sections.map(function(s) { return s.entryCount || 0; }).concat([1]));
+
+  /* Dynamic grid: filled sections get prominent slots, empty get small gap cells */
+  var totalCells = sorted.length + 1; /* +1 for stage badge */
+  var rowCount = Math.max(3, Math.ceil(totalCells / 3));
+
+  /* Build grid template rows dynamically */
+  var rowSizes = [];
+  for (var r = 0; r < rowCount; r++) {
+    if (r === 0) rowSizes.push('minmax(200px, 2fr)');
+    else if (r < 2) rowSizes.push('minmax(160px, 1.5fr)');
+    else rowSizes.push('minmax(120px, 1fr)');
+  }
   grid.style.gridTemplateRows = rowSizes.join(' ');
 
-  var layoutIndex = 0;
+  /* Build layout: top-heavy sections get multi-column spans */
+  var layouts = [];
+  var row = 1;
+  var col = 1;
+  var idx = 0;
+
+  /* First cell (most artifacts): give it dominant position */
+  if (sorted.length > 0 && sorted[0].entryCount > 0) {
+    layouts.push({ col: '1 / 2', row: '1 / 3', size: 'large' }); /* span 2 rows */
+    idx = 1;
+    /* Second cell: wide top right */
+    if (sorted.length > 1 && sorted[1].entryCount > 0) {
+      layouts.push({ col: '2 / 4', row: '1 / 2', size: 'wide' });
+      idx = 2;
+    }
+    /* Stage badge: small cell */
+    /* Third cell: medium */
+    if (sorted.length > 2 && sorted[2].entryCount > 0) {
+      layouts.push({ col: '2 / 3', row: '2 / 3', size: 'medium' });
+      idx = 3;
+    }
+    /* Stage badge slot: 3/4 row 2/3 -- placed separately */
+  }
+
+  /* Remaining filled sections: flow into grid */
+  row = 3; col = 1;
+  for (var fi = idx; fi < filled.length; fi++) {
+    var span = filled[fi].entryCount >= 3 ? 2 : 1;
+    if (col + span - 1 > 3) { row++; col = 1; }
+    var colEnd = col + span;
+    layouts.push({ col: col + ' / ' + colEnd, row: row + ' / ' + (row + 1), size: span > 1 ? 'wide' : 'normal' });
+    col = colEnd;
+    if (col > 3) { row++; col = 1; }
+  }
+
+  /* Empty sections: small gap cells at bottom */
+  if (col > 1 && empty.length > 0) { row++; col = 1; }
+  for (var ei = 0; ei < empty.length; ei++) {
+    if (col > 3) { row++; col = 1; }
+    layouts.push({ col: col + ' / ' + (col + 1), row: row + ' / ' + (row + 1), size: 'gap' });
+    col++;
+  }
+
+  /* Recalculate row count and update */
+  var actualRows = row;
+  rowSizes = [];
+  for (r = 0; r < actualRows; r++) {
+    if (r === 0) rowSizes.push('minmax(200px, 2fr)');
+    else if (r < 2) rowSizes.push('minmax(160px, 1.5fr)');
+    else rowSizes.push('minmax(100px, 1fr)');
+  }
+  grid.style.gridTemplateRows = rowSizes.join(' ');
+
   var stagePlaced = false;
 
-  sections.forEach(function(section, i) {
+  sorted.forEach(function(section, i) {
     var cell = document.createElement('div');
     cell.className = 'mondrian-cell';
-    var sectionColor = section.color || SECTION_COLORS[section.id] || '#F7F3ED';
+    var isGap = section.entryCount === 0;
+    var sectionColor = isGap ? '#2A2A2A' : (section.color || SECTION_COLORS[section.id] || '#F7F3ED');
     cell.style.background = sectionColor;
     cell.style.animationDelay = (i * 50) + 'ms';
 
     /* Determine light/dark text */
-    var isDark = section.lightText || DARK_BG_SECTIONS.indexOf(section.id) >= 0;
+    var isDark = isGap || section.lightText || DARK_BG_SECTIONS.indexOf(section.id) >= 0;
     cell.classList.add(isDark ? 'dark-bg' : 'light-bg');
 
-    /* Grid position */
-    var layout = GRID_LAYOUTS[layoutIndex] || { col: ((layoutIndex % 3) + 1) + ' / ' + ((layoutIndex % 3) + 2), row: 'auto' };
+    /* Grid position from computed layout */
+    var layout = layouts[i] || { col: 'auto', row: 'auto', size: 'normal' };
     cell.style.gridColumn = layout.col;
     cell.style.gridRow = layout.row;
-    layoutIndex++;
 
-    /* Insert stage badge after position 2 (index 3 in layout) */
-    if (layoutIndex === 3 && !stagePlaced) {
+    /* Insert stage badge after position 2 */
+    if (i === 2 && !stagePlaced) {
       var stageCell = document.createElement('div');
       stageCell.className = 'mondrian-cell cell-stage';
       stageCell.style.background = 'var(--mondrian-yellow)';
@@ -1300,13 +1656,55 @@ function buildGrid() {
 
     /* Cell content */
     cell.setAttribute('data-section', section.id);
+    cell.setAttribute('tabindex', '0');
+    cell.setAttribute('role', 'button');
+    cell.setAttribute('aria-label', (section.label || section.id) + ', ' + (section.entryCount || 0) + ' artifacts. Click to view documents.');
     cell.onclick = function() { openDoc(section.id); };
+    cell.onkeydown = function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDoc(section.id); } };
 
-    var countText = section.entryCount === 1 ? '1 artifact' : (section.entryCount || 0) + ' artifacts';
-    cell.innerHTML =
-      '<span class="cell-count">' + escHtml(countText) + '</span>' +
-      '<div class="cell-section-label">' + escHtml(section.label || SECTION_LABELS[section.id] || section.id) + '</div>' +
-      '<div class="cell-title">' + escHtml(section.summary || section.label || section.id) + '</div>';
+    var sectionLabel = section.label || SECTION_LABELS[section.id] || section.id;
+
+    if (isGap) {
+      /* Empty section: show as gap with contextual action */
+      var isOppBank = section.id === 'opportunity-bank';
+      cell.style.opacity = isOppBank ? '0.8' : '0.5';
+      cell.style.borderStyle = 'dashed';
+      if (isOppBank) {
+        cell.style.borderColor = 'var(--mondrian-yellow)';
+        cell.style.borderWidth = '2px';
+      }
+
+      var gapActions = SECTION_ACTIONS[section.id] || SECTION_ACTIONS['_default'];
+      var gapActionHtml = '<div class="cell-actions" style="opacity:1;">';
+      /* Show just the first action for gap cells - the most relevant one */
+      var firstAction = gapActions[0];
+      gapActionHtml += '<button class="cell-action-btn" title="' + escHtml(firstAction.jtbd) + '" onclick="event.stopPropagation();runCommand(\'' + firstAction.cmd + '\',\'' + escHtml(section.id) + '\')" style="' + (isOppBank ? 'border-color:var(--mondrian-yellow);color:var(--mondrian-yellow);' : '') + '">' + escHtml(firstAction.label) + '</button>';
+      gapActionHtml += '</div>';
+
+      cell.innerHTML = gapActionHtml +
+        '<div class="cell-section-label" style="opacity:0.7;">' + escHtml(sectionLabel) + '</div>' +
+        '<div class="cell-title" style="font-size:14px;opacity:' + (isOppBank ? '0.85' : '0.6') + ';">' + (isOppBank ? 'Scan for Opportunities' : 'Gap - not started') + '</div>';
+    } else {
+      var countText = section.entryCount === 1 ? '1 artifact' : (section.entryCount || 0) + ' artifacts';
+      var summaryText = section.summary || '';
+      if (summaryText.match(/^\|/) || summaryText.match(/^\*\*Filed/)) summaryText = '';
+
+      /* Scale font based on cell importance */
+      var titleSize = layout.size === 'large' ? '24px' : layout.size === 'wide' ? '22px' : '18px';
+
+      var actions = SECTION_ACTIONS[section.id] || SECTION_ACTIONS['_default'];
+      var actionHtml = '<div class="cell-actions">';
+      actions.forEach(function(a) {
+        actionHtml += '<button class="cell-action-btn" title="' + escHtml(a.jtbd) + '" onclick="event.stopPropagation();runCommand(\'' + a.cmd + '\',\'' + escHtml(section.id) + '\')">' + escHtml(a.label) + '</button>';
+      });
+      actionHtml += '</div>';
+
+      cell.innerHTML = actionHtml +
+        '<span class="cell-count">' + escHtml(countText) + '</span>' +
+        '<div class="cell-section-label">' + escHtml(sectionLabel) + '</div>' +
+        '<div class="cell-title" style="font-size:' + titleSize + ';">' + escHtml(sectionLabel) + '</div>' +
+        (summaryText ? '<div class="cell-summary">' + escHtml(summaryText) + '</div>' : '');
+    }
 
     grid.appendChild(cell);
   });
@@ -1322,6 +1720,38 @@ function buildGrid() {
     stageCell.innerHTML = '<div class="stage-label">' + escHtml(ROOM_DATA.stage || 'Discovery') + '</div><div class="stage-sub">Venture Stage</div>';
     grid.appendChild(stageCell);
   }
+
+  /* Legend strip at bottom of grid */
+  var legendRow = actualRows + 1;
+  var legendCell = document.createElement('div');
+  legendCell.className = 'mondrian-cell';
+  legendCell.style.gridColumn = '1 / -1';
+  legendCell.style.gridRow = legendRow + ' / ' + (legendRow + 1);
+  legendCell.style.background = 'var(--mondrian-black)';
+  legendCell.style.padding = '12px 24px';
+  legendCell.style.display = 'flex';
+  legendCell.style.flexDirection = 'row';
+  legendCell.style.flexWrap = 'wrap';
+  legendCell.style.alignItems = 'center';
+  legendCell.style.justifyContent = 'center';
+  legendCell.style.gap = '24px';
+  legendCell.style.cursor = 'default';
+  legendCell.style.minHeight = '64px';
+  legendCell.style.borderTop = '3px solid rgba(247,243,237,0.15)';
+
+  var legendItems = [];
+  sorted.forEach(function(s) {
+    var c = s.entryCount === 0 ? '#2A2A2A' : (s.color || SECTION_COLORS[s.id] || '#5C5A56');
+    var lbl = s.label || SECTION_LABELS[s.id] || s.id;
+    legendItems.push(
+      '<span style="display:inline-flex;align-items:center;gap:8px;font-family:DM Sans,sans-serif;font-size:13px;font-weight:500;letter-spacing:0.04em;color:rgba(247,243,237,0.75);">' +
+      '<span style="width:14px;height:14px;border-radius:3px;background:' + c + ';border:1px solid rgba(247,243,237,0.25);flex-shrink:0;"></span>' +
+      escHtml(lbl) + ' <span style="opacity:0.5;font-size:11px;">(' + (s.entryCount || 0) + ')</span>' +
+      '</span>'
+    );
+  });
+  legendCell.innerHTML = legendItems.join('');
+  grid.appendChild(legendCell);
 }
 
 /* ============================================
@@ -1950,6 +2380,82 @@ function escHtml(str) {
   if (!str) return '';
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+/* ============================================
+   COMMAND PANEL -- CLI Remote Control
+   ============================================ */
+function runCommand(cmd, sectionId) {
+  var panel = document.getElementById('command-panel');
+  var title = document.getElementById('cmd-panel-title');
+  var cmdLine = document.getElementById('cmd-panel-cmd');
+  var body = document.getElementById('cmd-panel-body');
+  var status = document.getElementById('cmd-panel-status');
+
+  /* Open panel */
+  panel.classList.add('open');
+  title.textContent = sectionId ? sectionId.replace(/-/g, ' ').toUpperCase() : 'Room Command';
+  cmdLine.textContent = '> ' + cmd + (sectionId ? ' [' + sectionId + ']' : '');
+  body.textContent = '';
+  status.textContent = 'Running...';
+  status.className = 'command-panel-status running';
+
+  /* Get command info and section analysis */
+  fetch('/api/command', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ command: cmd, section: sectionId }),
+  }).then(function(response) {
+    return response.json();
+  }).then(function(data) {
+    if (data.error) {
+      status.textContent = 'Error: ' + data.error;
+      status.className = 'command-panel-status error';
+      return;
+    }
+
+    /* Show section analysis */
+    body.innerHTML = '';
+    var pre = document.createElement('pre');
+    pre.style.whiteSpace = 'pre-wrap';
+    pre.style.wordBreak = 'break-word';
+    pre.textContent = data.section + (data.analysis || '');
+    body.appendChild(pre);
+
+    /* Copy-to-clipboard button */
+    var copyBlock = document.createElement('div');
+    copyBlock.style.cssText = 'margin-top:20px;padding:16px;background:rgba(247,243,237,0.08);border:1px solid rgba(247,243,237,0.15);border-radius:4px;';
+    copyBlock.innerHTML =
+      '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:rgba(247,243,237,0.4);margin-bottom:8px;">Paste in your CLI</div>' +
+      '<div style="font-size:14px;color:var(--mondrian-yellow);font-weight:600;margin-bottom:12px;word-break:break-all;">' + escHtml(data.clipboardCmd) + '</div>' +
+      '<button id="copy-cmd-btn" style="font-family:JetBrains Mono,monospace;font-size:11px;padding:8px 16px;background:var(--mondrian-yellow);color:var(--mondrian-black);border:none;border-radius:3px;cursor:pointer;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;">Copy Command</button>';
+    body.appendChild(copyBlock);
+
+    /* Wire copy button */
+    document.getElementById('copy-cmd-btn').onclick = function() {
+      navigator.clipboard.writeText(data.clipboardCmd).then(function() {
+        document.getElementById('copy-cmd-btn').textContent = 'Copied!';
+        setTimeout(function() {
+          document.getElementById('copy-cmd-btn').textContent = 'Copy Command';
+        }, 2000);
+      });
+    };
+
+    status.textContent = data.message;
+    status.className = 'command-panel-status done';
+  }).catch(function(err) {
+    status.textContent = 'Failed: ' + err.message;
+    status.className = 'command-panel-status error';
+    body.textContent = 'Could not connect to hub server.\nMake sure the hub is running on localhost.';
+  });
+}
+
+function closeCommandPanel() {
+  document.getElementById('command-panel').classList.remove('open');
+}
+
+/* Close panel on Escape */
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeCommandPanel();
+});
 </script>
 
 </body>

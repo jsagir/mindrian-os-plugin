@@ -10,6 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
 ## [1.8.1] - 2026-04-05
+### Added
+- Live Hub interactive dashboard with Command API -- click section cards to trigger MindrianOS CLI commands
+- Contextual action buttons per section with JTBD rationale (Problem Definition gets Root Cause/Challenge/Validate, Market gets Trends/Timing/User Needs, etc.)
+- Proper Mondrian grid mark + MINDRIAN wordmark logo linking to mindrianos website
+- Content-proportional card sizing -- sections with more artifacts get larger grid cells
+- Gap cells for empty/missing sections with dashed borders and contextual action buttons
+- Opportunity Bank gets special treatment -- yellow border highlight with "Scan for Opportunities" CTA
+- Color legend strip at bottom of grid showing all sections with artifact counts
+- Command panel (slide-in from right) with copy-to-clipboard CLI command and section preview
+- Full keyboard navigation -- Tab through cards, Enter/Space to activate, focus-visible rings
+- ARIA labels and roles on all interactive elements
+- prefers-reduced-motion support -- animations disabled for motion-sensitive users
+- Mobile responsive grid -- 2-column at 1024px, single-column at 640px with reset grid positions
+
 ### Fixed
 - Remove dead code in room_graph router (unreachable cases from merge artifact)
 - Add hat-briefing and scheduled-tasks to MCP routers (were missing from command coverage)
@@ -17,6 +31,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add shutdown handler double-fire guard in session-catchup.cjs
 - Wire both MCP servers (mindrian-os local + mindrian-brain remote) into plugin .mcp.json
 - ALL_TOOL_COMMANDS now correctly reports 64 routed commands
+- Raw markdown no longer leaks into grid card summaries (tables, bold markers, metadata lines stripped)
+- Summary extraction skips frontmatter-like lines (Filed:, Source:, Category:)
+- Section label font size increased from 10px to 12px for readability
+- Contrast improved on dark-bg cell labels (0.7 to 0.8 opacity)
+- Touch target sizes on action buttons meet 44px minimum width
 
 ## [1.8.0] - 2026-04-05
 onboarding: true
