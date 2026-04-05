@@ -61,7 +61,11 @@ Plans:
   2. Running `/mos:setup` detects the surface and configures both MCP servers (Brain remote + MindrianOS local) with zero manual JSON editing
   3. Two processes (CLI hook + MCP server) writing to KuzuDB simultaneously produce zero data loss -- write gateway serializes all writes through promise chain
   4. MCP Apps registration only appears on Desktop/Cowork; CLI hooks only fire on CLI; feature registration adapts to detected surface
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [x] 53-01-PLAN.md - Surface detection + dual transport + capability registration
+- [ ] 53-02-PLAN.md - KuzuDB write gateway + write lock + setup auto-configuration
 
 ### Phase 54: Token + Hook Optimization
 **Goal**: Fresh-install users pay half the per-turn token cost while retaining full capability, and the intelligence cascade fires efficiently with debouncing, caching, and batching
@@ -171,7 +175,7 @@ Note: Phase 54 (Token + Hook) and Phases 56 (Pipeline) + 57 (Agent Dispatch) can
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 52. MCP Foundation | v1.8.0 | 2/3 | In Progress|  |
-| 53. Surface Detection + Write Safety | v1.8.0 | 0/TBD | Not started | - |
+| 53. Surface Detection + Write Safety | v1.8.0 | 1/2 | In Progress|  |
 | 54. Token + Hook Optimization | v1.8.0 | 0/TBD | Not started | - |
 | 55. Context Intelligence | v1.8.0 | 0/TBD | Not started | - |
 | 56. Pipeline Chaining | v1.8.0 | 0/TBD | Not started | - |

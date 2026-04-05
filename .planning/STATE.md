@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.8.0
 milestone_name: Cowork Adaptation
 status: executing
-stopped_at: Completed 52-02-PLAN.md (router restructuring 6->9, 64-command coverage)
-last_updated: "2026-04-05T19:32:45.536Z"
+stopped_at: Completed 53-01-PLAN.md (surface detection + dual transport)
+last_updated: "2026-04-05T20:12:18.616Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 10
-  completed_phases: 0
-  total_plans: 3
-  completed_plans: 2
+  completed_phases: 1
+  total_plans: 5
+  completed_plans: 4
   percent: 0
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** Every MindrianOS command, pipeline, and intelligence capability works identically across CLI, Desktop, and Cowork
-**Current focus:** Phase 52 — MCP Foundation
+**Current focus:** Phase 53 — Surface Detection + Write Safety
 
 ## Current Position
 
-Phase: 52 (MCP Foundation) — EXECUTING
-Plan: 3 of 3
+Phase: 53 (Surface Detection + Write Safety) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
 Last activity: 2026-04-05
 
@@ -58,6 +58,8 @@ Progress: [░░░░░░░░░░] 0%
 - [Roadmap v2]: READY merged into Release Phase 61 (future-proofing tested alongside integration)
 - [Phase 52]: intelligence-cascade.cjs shared module: hsi-to-kuzu and generate-presentation called via child_process (script-style), binary detection moved to shared module for surface parity
 - [Phase 52]: 9 routers covering 64 CLI commands: room_state/content/graph split from data_room, orchestration new, formatSuggestedNext on all responses
+- [Phase 53]: Express imported via SDK bundle, not added as direct dependency
+- [Phase 53]: MINDRIAN_TRANSPORT env override takes highest detection priority; graceful stdio fallback on HTTP path
 
 ### Pending Todos
 
@@ -73,6 +75,6 @@ Progress: [░░░░░░░░░░] 0%
 
 ## Session Continuity
 
-Last session: 2026-04-05T19:32:45.531Z
-Stopped at: Completed 52-02-PLAN.md (router restructuring 6->9, 64-command coverage)
+Last session: 2026-04-05T20:12:18.614Z
+Stopped at: Completed 53-01-PLAN.md (surface detection + dual transport)
 Resume file: None

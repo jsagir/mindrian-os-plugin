@@ -16,10 +16,10 @@
 
 ### Surface Detection
 
-- [ ] **SURF-01**: Auto-detect CLI vs Desktop vs Cowork at server startup via environment signals (MINDRIAN_TRANSPORT, CLAUDE_SURFACE, /sessions directory, process.stdin.isTTY)
-- [ ] **SURF-02**: Dual transport: stdio for Desktop + Streamable HTTP for Cowork on same McpServer instance, selected by surface detection
+- [x] **SURF-01**: Auto-detect CLI vs Desktop vs Cowork at server startup via environment signals (MINDRIAN_TRANSPORT, CLAUDE_SURFACE, /sessions directory, process.stdin.isTTY)
+- [x] **SURF-02**: Dual transport: stdio for Desktop + Streamable HTTP for Cowork on same McpServer instance, selected by surface detection
 - [ ] **SURF-03**: `/mos:setup` auto-configures both MCP servers (Brain remote + MindrianOS local) based on detected surface
-- [ ] **SURF-04**: Capability-aware feature registration: MCP Apps only on Desktop/Cowork, Tasks only on Cowork, hooks only on CLI
+- [x] **SURF-04**: Capability-aware feature registration: MCP Apps only on Desktop/Cowork, Tasks only on Cowork, hooks only on CLI
 
 ### Write Safety
 
@@ -140,10 +140,10 @@
 | MCP-04 | Phase 52 | Pending |
 | MCP-05 | Phase 52 | Complete |
 | MCP-06 | Phase 52 | Complete |
-| SURF-01 | Phase 53 | Pending |
-| SURF-02 | Phase 53 | Pending |
+| SURF-01 | Phase 53 | Complete |
+| SURF-02 | Phase 53 | Complete |
 | SURF-03 | Phase 53 | Pending |
-| SURF-04 | Phase 53 | Pending |
+| SURF-04 | Phase 53 | Complete |
 | WRITE-01 | Phase 53 | Pending |
 | WRITE-02 | Phase 53 | Pending |
 | WRITE-03 | Phase 53 | Pending |
