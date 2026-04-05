@@ -19,26 +19,43 @@ Parse the user's argument to determine which document type they want. If no argu
 
 | Type | Command | What You Get |
 |------|---------|-------------|
-| **dashboard** | `/mos:export dashboard` | Interactive Cytoscape.js knowledge graph dashboard -- standalone HTML with De Stijl visualization, intelligence panel, and all room data embedded. Opens in any browser, no server needed. |
+| **hub** | `/mos:export hub` | **DEFAULT.** Single-file De Stijl tabbed hub with all content inline -- the same format as synteris-hub. Shareable, deployable, works offline. |
+| **dashboard** | `/mos:export dashboard` | Interactive Cytoscape.js knowledge graph dashboard -- standalone HTML with graph visualization. Better for small rooms. |
 | **thesis** | `/mos:export thesis` | Investment thesis: multi-page narrative covering your full venture analysis. Includes all populated room sections with De Stijl accent bars and running headers. |
 | **summary** | `/mos:export summary` | Executive summary: dense 1-2 page overview for quick stakeholder review. Two-column layout with financial metrics box. |
 | **report** | `/mos:export report` | Due diligence report: comprehensive numbered sections with table of contents and PDF bookmarks. |
 | **profile** | `/mos:export profile` | PWS Profile: single-page professional profile built from your methodology work -- domain expertise, thinking perspectives, customer understanding, and professional background. |
 | **meeting-report** | `/mos:export meeting-report` | Meeting intelligence report: Minto pyramid structure covering all meetings with speaker attribution, decisions, contradictions, and section-colored filing indicators. |
 
-## Generate Dashboard Export
+## Generate Hub Export (DEFAULT)
 
-If the user requests `dashboard`:
+If the user requests `hub`, or runs `/mos:export` with no argument, or says "export my room":
 
 1. **Check the room exists.** If `room/` directory does not exist, tell the user to run `/mos:new-project`.
 
-2. **Run the standalone generator (MANDATORY -- never generate HTML by hand):**
+2. **Run the hub generator (MANDATORY -- never generate HTML by hand):**
+   ```bash
+   node scripts/generate-hub.cjs ./room
+   ```
+
+3. **Report the result:**
+   > "Your Data Room snapshot is at `room/exports/hub.html`. Single file -- open it in any browser, send it by email, or deploy to Vercel. Everything is inline."
+
+4. **If `--open` or user says "open it":** Open in browser with OS-appropriate command.
+
+## Generate Dashboard Export
+
+If the user specifically requests `dashboard`:
+
+1. **Check the room exists.** If `room/` directory does not exist, tell the user to run `/mos:new-project`.
+
+2. **Run the standalone generator:**
    ```bash
    bash scripts/generate-standalone ./room
    ```
 
 3. **Report the result:**
-   > "Your knowledge graph dashboard is at `room/data-room-dashboard.html`. Open it in any browser -- the full Cytoscape visualization with all your room intelligence is embedded. No server needed."
+   > "Your knowledge graph dashboard is at `room/data-room-dashboard.html`. Open it in any browser -- Cytoscape visualization with graph intelligence. Note: for rooms with 30+ artifacts, the hub format (`/mos:export hub`) usually looks better."
 
 ## Generate the PDF
 

@@ -1,7 +1,7 @@
 ---
 name: snapshot
-description: Freeze your RoomHub into a shareable static HTML export
-usage: /mos:snapshot [ROOM_PATH] [--offline] [--open]
+description: Generate a shareable single-file Data Room snapshot -- De Stijl tabbed hub with all content inline
+usage: /mos:snapshot [ROOM_PATH] [--output PATH] [--open]
 category: export
 surface: cli, desktop, cowork
 requires: room
@@ -9,39 +9,49 @@ requires: room
 
 # /mos:snapshot
 
-Freeze the current Room into a **SnapshotHub** - a self-contained folder of co-located HTML files that can be shared, archived, or opened offline.
+Generate a **single standalone HTML file** containing your entire Data Room -- De Stijl themed, tabbed navigation, all content inline, shareable via email or deployable to Vercel/Render.
 
 ## What It Does
 
 1. Reads the Room at `ROOM_PATH` (defaults to `./room`)
-2. Scans all Sections, Entries, Fabric (graph.json), and State
-3. Generates **7 Showcase views** as co-located HTML files with shared CSS/JS
-4. Writes a `manifest.json` with Room metrics and snapshot metadata
-5. Adds a version history sidebar from `room/.snapshots/` (if available)
-6. Outputs everything to `room/exports/{YYYY-MM-DD-HHmm}/`
+2. Recursively scans all sections (standard + custom) and nested `.md` files
+3. Reads `STATE.md` for venture name, stage, and key insight
+4. Generates a **single HTML file** with:
+   - De Stijl header with Mondrian color bars
+   - Sticky tabbed navigation (auto-generated from sections)
+   - Overview tab with venture card, insight box, stats
+   - Each section as a tab with articles rendered as colored cards
+   - All CSS inline, markdown converted to HTML
+   - Zero external dependencies (except Google Fonts + Chart.js CDN)
 
-## Output Structure
+## Output
 
 ```
-room/exports/2026-03-31-1430/
-  index.html          # Overview (dashboard)
-  library.html        # Entry browser (wiki)
-  narrative.html      # Deck slides
-  synthesis.html      # Insights + stats
-  blueprint.html      # Diagrams (Mermaid)
-  constellation.html  # Knowledge graph (Cytoscape)
-  chat.html           # Fabric chat (requires API key)
-  shared.css          # Shared De Stijl styles
-  shared.js           # Shared navigation + utilities
-  manifest.json       # Room metrics + snapshot metadata
+room/exports/hub.html          # Default output
+```
+
+Or specify a custom path:
+
+```
+room/exports/my-snapshot.html  # With --output flag
+```
+
+## How to Run
+
+```bash
+# Default: generate hub.html in room/exports/
+node scripts/generate-hub.cjs ./room
+
+# Custom output path
+node scripts/generate-hub.cjs ./room --output ./my-export.html
 ```
 
 ## Flags
 
 | Flag | What It Does |
 |------|-------------|
-| `--offline` | Inline all CDN dependencies (Cytoscape.js, FlexSearch, Mermaid.js, Chart.js). Produces larger files but works with zero network. |
-| `--open` | Open the snapshot in the default browser after generation. |
+| `--output PATH` | Write the HTML to a specific location instead of room/exports/hub.html |
+| `--open` | Open the snapshot in the default browser after generation |
 
 ## Usage
 
@@ -52,46 +62,62 @@ room/exports/2026-03-31-1430/
 # Snapshot a specific room
 /mos:snapshot ~/rooms/my-venture
 
-# Offline-capable export
-/mos:snapshot --offline
+# Generate with custom output name
+/mos:snapshot --output ./synteris-hub.html
 
 # Generate and immediately view
 /mos:snapshot --open
 ```
 
-## Summary Output
+## Implementation
 
-After generation, Larry reports:
+When the user runs `/mos:snapshot`:
 
-```
-SnapshotHub generated: 7 views, 42 entries, 12 threads
-  Location: room/exports/2026-03-31-1430/
-  Open: file:///.../room/exports/2026-03-31-1430/index.html
-```
+1. **Check the room exists.** If `room/` directory does not exist, tell the user to run `/mos:new-project`.
+
+2. **Run the hub generator:**
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/generate-hub.cjs" ./room
+   ```
+
+3. **If `--open` flag:** Open the result in browser:
+   ```bash
+   # macOS
+   open room/exports/hub.html
+   # Linux
+   xdg-open room/exports/hub.html
+   # Windows
+   explorer.exe room/exports/hub.html
+   ```
+
+4. **Report the result:**
+   > "Your Data Room snapshot is at `room/exports/hub.html`. Single file -- open it in any browser, send it by email, or deploy to Vercel. All your content is inline."
+
+5. **If some sections are empty**, mention them:
+   > "A few sections are still empty ({list}). Fill those and re-export for a stronger snapshot."
 
 ## Tri-Polar Behavior
 
 | Surface | Behavior |
 |---------|----------|
-| **CLI** | Runs `generate-snapshot.cjs`, outputs path, optional `--open` launches browser |
-| **Desktop** | Larry says "I've frozen your Room into a shareable snapshot. Here's the link." |
+| **CLI** | Runs `generate-hub.cjs`, outputs path, optional `--open` launches browser |
+| **Desktop** | Larry says "I've created a shareable snapshot of your Data Room. Here's the file." |
 | **Cowork** | Generates to shared `00_Context/exports/` so team members can access |
 
 ## Technical
 
-- **Script:** `scripts/generate-snapshot.cjs`
-- **Zero dependencies:** Uses only Node.js built-ins
-- **Incremental manifests:** Each snapshot appends to `room/exports/manifest.json`
-- **file:// compatible:** All views work when opened directly from filesystem (chat requires API key)
-- **Signature footer:** Every view includes "Built with MindrianOS" + Mondrian color bar
+- **Script:** `scripts/generate-hub.cjs`
+- **Zero npm dependencies:** Uses only Node.js built-ins
+- **Single file:** Everything inline -- CSS, content, navigation. No shared.css, no shared.js
+- **file:// compatible:** Works when opened directly from filesystem
+- **Recursive scanning:** Handles nested directory structures (product/capabilities/discovery/*.md)
+- **Custom sections:** Auto-detects and renders any non-standard room sections
+- **Signature footer:** "Built with MindrianOS" + Mondrian color bar
 
-## Requirements
+## Legacy Multi-File Export
 
-- SNAP-01: Static HTML to room/exports/{YYYY-MM-DD-HHmm}/
-- SNAP-02: All 7 views as co-located HTML + shared CSS/JS
-- SNAP-03: manifest.json with Room metrics
-- SNAP-04: Version history sidebar from room/.snapshots/
-- POLISH-01: Responsive 375px-1440px
-- POLISH-02: CDN default, --offline inlines all deps
-- POLISH-03: Works on file:// protocol
-- POLISH-04: Signature footer + Mondrian bar in all views
+The previous 7-view multi-file SnapshotHub is still available via:
+```bash
+node scripts/generate-snapshot.cjs ./room
+```
+But the single-file hub is the default and recommended format (D20).
