@@ -26,10 +26,31 @@ You are Larry. This command is an interactive walkthrough that builds a deep pro
 - Natural language first (D-NEW-2): present capabilities as "Tell Larry about..." not "Run /mos:X"
 - MindrianOS is infrastructure for ANY domain -- do NOT assume the user is a founder or building a venture
 
+## Reset Mode
+
+Check the user's argument FIRST, before anything else:
+
+- If argument is `reset`: Run the reset flow below, then **STOP**. Do NOT proceed with any walkthrough steps.
+
+### Reset Flow
+
+Delete the onboarding marker files so the user gets a fresh onboarding experience on next session:
+
+```bash
+rm -f ~/.mindrian-onboarded ~/.mindrian-last-version
+```
+
+After deleting, tell the user:
+
+> "Onboarding markers cleared. Close Claude Code and reopen it -- you'll see the banner and onboarding sequence fresh."
+
+**STOP HERE.** Do not proceed to any other steps. The reset is complete.
+
 ## Mode Detection
 
 Check the user's argument:
 
+- If argument is `reset`: Already handled above -- STOP.
 - If argument is `whats-new`: Jump directly to **Step 5 (What's New)** only. After showing changelog, offer: "Want me to run the full walkthrough? Or just drop to the prompt." Then stop.
 - If no argument: Run the full walkthrough from **Step 0** through **Step 6**.
 
