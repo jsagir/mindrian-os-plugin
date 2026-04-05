@@ -56,6 +56,7 @@ Commands:
   visualize graph [roomDir]      Generate knowledge graph Mermaid diagram
   visualize chain [roomDir]      Generate methodology chain Mermaid diagram
   visualize mermaid [roomDir] [type]  Output raw Mermaid syntax to stdout
+  cascade [roomDir] [filePath]       Run intelligence cascade on a filed artifact
   detect-integrations                Detect all integration statuses (env, MCP, filesystem)`;
 
 async function main() {
@@ -519,6 +520,23 @@ async function main() {
         default:
           error(`Unknown visualize subcommand: ${vizType}\n\nValid: room, graph, chain, mermaid`);
       }
+      break;
+    }
+
+    case 'cascade': {
+      const cascadeRoomDir = argv[1] || './room';
+      const cascadeFilePath = argv[2] || null;
+      const cascade = require('../lib/core/intelligence-cascade.cjs');
+      const cascadeResult = await cascade.runCascade(cascadeRoomDir, {
+        trigger: 'cli-hook',
+        filePath: cascadeFilePath
+      });
+      if (raw) {
+        process.stdout.write(JSON.stringify(cascadeResult));
+      } else {
+        process.stdout.write(JSON.stringify(cascadeResult, null, 2));
+      }
+      process.exit(0);
       break;
     }
 
