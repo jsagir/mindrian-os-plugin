@@ -1,4 +1,4 @@
-# Roadmap: MindrianOS Plugin v1.7.0 Causal Reasoning Layer
+# Roadmap: MindrianOS Plugin v1.8.0 Cowork Adaptation
 
 ## Milestones
 
@@ -16,120 +16,139 @@
 
 </details>
 
-### v1.7.0 Causal Reasoning Layer (In Progress)
+### v1.8.0 Cowork Adaptation (In Progress)
 
-**Milestone Goal:** Larry can trace cause-effect chains, detect assumption cascades, surface bottlenecks through graph structure, and track falsifiable predictions -- enabling "because...because...because" reasoning across the Data Room.
+**Milestone Goal:** Every MindrianOS command, pipeline, and intelligence capability works identically across CLI, Desktop, and Cowork -- with Brain-driven routing, scheduled external intelligence, persistent De Bono perspectives, and inline Data Room views on Cowork.
 
 ## Phases
 
-- [ ] **Phase 52: Causal Schema + Brain Enrichment** - KuzuDB CausalClaim schema and Neo4j causal framework wiring (parallel targets)
-- [ ] **Phase 53: Causal Extraction** - Larry extracts cause/mechanism/effect triples from room artifacts with provenance and Three Gaps enforcement
-- [ ] **Phase 54: Graph Engine** - NetworkX algorithms for chain traversal, cascade simulation, bottleneck detection, contradiction detection, and cross-reference linking
-- [ ] **Phase 55: Post-Write Integration + Prediction Registry** - Causal candidate flagging in post-write cascade and falsifiable prediction tracking with closed-loop learning
-- [ ] **Phase 56: Command + Larry Wiring** - /mos:causal command, Brain directives, Larry personality JTBD, and proactive discovery surfacing
-- [ ] **Phase 57: Release** - CHANGELOG, version bump, schema docs
+- [ ] **Phase 52: MCP Foundation** - Intelligence cascade, router restructuring, SDK upgrade, 64-command coverage with Brain-driven routing
+- [ ] **Phase 53: Surface Detection + Write Safety** - Auto-detect CLI/Desktop/Cowork, dual transport, KuzuDB write gateway
+- [ ] **Phase 54: Token Optimization** - Native-first skills, UI system compression, progressive loading to halve per-turn token cost
+- [ ] **Phase 55: Pipeline Chaining** - Room-file-based state for LLM-orchestrated tool sequences, Brain chain recommendations
+- [ ] **Phase 56: Scheduled Intelligence** - Session catch-up, daily briefings, competitor/grant/news scanning on Cowork
+- [ ] **Phase 57: De Bono Persistent Hats** - 6 perspective personas with cross-session memory feeding Brain routing
+- [ ] **Phase 58: MCP Apps Data Room Views** - Dashboard, wiki, and graph rendered inline via ext-apps in Cowork/Desktop
+- [ ] **Phase 59: Release v1.8.0** - Integration testing across all 3 surfaces, version bump, release
 
 ## Phase Details
 
-### Phase 52: Causal Schema + Brain Enrichment
-**Goal**: The causal data model exists in KuzuDB and the Brain's causal framework family is wired with traversable edges
+### Phase 52: MCP Foundation
+**Goal**: All 64 plugin commands work as MCP tools on Desktop and Cowork with intelligence firing on every write operation and Brain-driven routing resilient to cold starts
 **Depends on**: Phase 51 (v6.2 SnapshotHub)
-**Requirements**: SCHEMA-01, SCHEMA-02, SCHEMA-03, SCHEMA-04, SCHEMA-05, SCHEMA-06, BRAIN-01, BRAIN-02, BRAIN-03, BRAIN-04, BRAIN-05, BRAIN-06, BRAIN-07
+**Requirements**: MCP-01, MCP-02, MCP-03, MCP-04, MCP-05, MCP-06
 **Success Criteria** (what must be TRUE):
-  1. Running initSchema() on an existing .lazygraph database adds CausalClaim node table and CAUSES, CASCADES_TO, EXTRACTED_FROM edge tables without destroying existing data
-  2. graphStats() reports CausalClaim count and causal edge counts alongside existing node/edge stats
-  3. KuzuDB bounded path queries on CausalClaim chains return correct results without hanging (tested with intentional cycle data, CJS-side deduplication)
-  4. Brain query for "causal frameworks" returns Theory of Change, Root Cause Analysis, Systems Thinking, Causal Loop Diagrams connected via FEEDS_INTO chain with TYPICAL_AT stage mappings
-  5. Brain query patterns 11-13 (causal_framework_select, causal_pattern_match, causal_contradiction_resolve) return valid results
-**Plans**: 2 plans
-Plans:
-- [ ] 52-01-PLAN.md -- KuzuDB CausalClaim schema extension (SCHEMA-01 through SCHEMA-06)
-- [ ] 52-02-PLAN.md -- Brain causal framework enrichment + query patterns 11-13 (BRAIN-01 through BRAIN-07)
+  1. A Desktop/Cowork user can invoke any of the 64 plugin commands via MCP tools -- no command is CLI-only
+  2. Filing an artifact via MCP tool triggers the same HSI computation, cross-reference scan, and graph indexing that CLI hooks produce (intelligence-cascade.cjs shared module)
+  3. Asking Larry "what should I do next?" on Cowork returns a Brain-informed framework recommendation within 2 seconds, falling back to local heuristic if Brain is cold/unreachable
+  4. Each MCP router group contains 15 or fewer commands and MCP Inspector testing shows less than 5% misroute rate on 20 natural language queries
+  5. Every MCP tool response includes a `## Suggested Next` section with the exact tool name to call next
+**Plans**: TBD
 
-### Phase 53: Causal Extraction
-**Goal**: Larry can extract structured causal claims from any room artifact with provenance tracking and quality enforcement
+### Phase 53: Surface Detection + Write Safety
+**Goal**: The plugin auto-detects which surface it runs on and configures itself accordingly, with KuzuDB writes safe under concurrent CLI + MCP access
 **Depends on**: Phase 52
-**Requirements**: EXTRACT-01, EXTRACT-02, EXTRACT-03, EXTRACT-04, EXTRACT-05, EXTRACT-06
+**Requirements**: SURF-01, SURF-02, SURF-03, SURF-04, WRITE-01, WRITE-02, WRITE-03
 **Success Criteria** (what must be TRUE):
-  1. Running /mos:causal extract on a room artifact produces cause/mechanism/effect triples stored as CausalClaim nodes in KuzuDB with EXTRACTED_FROM edges linking back to the source artifact
-  2. Each extracted claim has confidence scored by method: observed=0.7, asserted=0.5, inferred=0.3
-  3. Extraction caps at 5 claims per artifact and every claim includes an explicit mechanism and falsifiable prediction (Three Gaps)
-  4. Claims are classified into one of 7 domains (materials, business, competitive, financial, team, legal, general)
+  1. Starting the MCP server on Desktop uses stdio transport; starting on Cowork uses Streamable HTTP on 127.0.0.1:3847 -- no user configuration needed
+  2. Running `/mos:setup` detects the surface and configures both MCP servers (Brain remote + MindrianOS local) with zero manual JSON editing
+  3. Two processes (CLI hook + MCP server) writing to KuzuDB simultaneously produce zero data loss -- write gateway serializes all writes through promise chain
+  4. MCP Apps registration only appears on Desktop/Cowork; CLI hooks only fire on CLI; feature registration adapts to detected surface
 **Plans**: TBD
 
-### Phase 54: Graph Engine
-**Goal**: The system can traverse causal chains, simulate cascades, detect bottlenecks and contradictions, and cross-reference causal claims with existing HSI/RS/Analogy edges
+### Phase 54: Token Optimization
+**Goal**: Fresh-install users pay half the per-turn token cost while retaining full capability through progressive skill loading
+**Depends on**: Phase 52
+**Requirements**: TOKEN-01, TOKEN-02, TOKEN-03, TOKEN-04, TOKEN-05, TOKEN-06
+**Success Criteria** (what must be TRUE):
+  1. A fresh install with no room directory loads approximately 10,000 tokens per turn (down from approximately 20,500)
+  2. Skills that reference room state (room-proactive, room-passive) only load after a room/ directory exists
+  3. Brain-connector skill loads on demand when Brain is detected, not at startup
+  4. The UI system skill compresses from approximately 28K bytes to approximately 8K bytes without losing any rendering rules
+  5. Opening a room progressively loads Layer 1 skills; connecting Brain adds Layer 2 -- capability grows with context
+**Plans**: TBD
+
+### Phase 55: Pipeline Chaining
+**Goal**: Users can run multi-step methodology pipelines end-to-end on Desktop/Cowork where each tool's output feeds the next through room artifacts
+**Depends on**: Phase 52, Phase 53
+**Requirements**: PIPE-01, PIPE-02, PIPE-03
+**Success Criteria** (what must be TRUE):
+  1. Running scenario analysis on Cowork produces a room artifact that root-cause analysis can read as input without the user manually copying content
+  2. A full pipeline (scenario analysis -> root cause -> causal tracing -> prediction tracking) completes end-to-end via MCP tools with each step reading the previous step's room artifact
+  3. Brain recommendation includes chain ordering -- Larry suggests the next framework in sequence based on CO_OCCURS and FEEDS_INTO relationships
+**Plans**: TBD
+
+### Phase 56: Scheduled Intelligence
+**Goal**: Cowork users receive daily briefings, prediction deadline alerts, and proactive competitor/grant/news intelligence without manual triggering
 **Depends on**: Phase 53
-**Requirements**: ENGINE-01, ENGINE-02, ENGINE-03, ENGINE-04, ENGINE-05, ENGINE-06, ENGINE-07, ENGINE-08
+**Requirements**: SCHED-01, SCHED-02, SCHED-03, SCHED-04, SCHED-05, SCHED-06, SCHED-07
 **Success Criteria** (what must be TRUE):
-  1. /mos:causal trace on a claim shows the full "because...because...because" chain up to 6 hops via NetworkX all_simple_paths
-  2. Cascade simulation shows "if X is wrong, what falls?" with confidence decaying multiplicatively per hop
-  3. Bottleneck detection surfaces high-centrality, low-out-degree CausalClaim nodes that the user did not explicitly ask about
-  4. Contradiction detection catches circular reasoning (A causes B causes C causes A) and reports the cycle
-  5. Cross-reference queries show which HSI pairs have causal explanations, which reverse salients have causal chains, and which analogies match causal structure
-**Plans**: 3 plans
-Plans:
-- [ ] 54-01-PLAN.md -- CJS export function, CASCADES_TO edge creation, test seed data (ENGINE-01, ENGINE-02)
-- [ ] 54-02-PLAN.md -- Python NetworkX engine with 5 algorithms (ENGINE-01, ENGINE-02, ENGINE-03, ENGINE-04, ENGINE-08)
-- [ ] 54-03-PLAN.md -- Cross-reference Cypher queries + results bridge (ENGINE-05, ENGINE-06, ENGINE-07)
-
-### Phase 55: Post-Write Integration + Prediction Registry
-**Goal**: Causal candidates are automatically flagged after artifact filing, and users can generate and track falsifiable predictions with closed-loop confidence updates
-**Depends on**: Phase 54
-**Requirements**: HOOK-01, HOOK-02, HOOK-03, HOOK-04, PREDICT-01, PREDICT-02, PREDICT-03, PREDICT-04, PREDICT-05, PREDICT-06, ENGINE-09
-**Success Criteria** (what must be TRUE):
-  1. Filing a new artifact triggers causal candidate flagging (regex heuristic) that produces .causal-candidates.json without blocking the post-write cascade
-  2. Running /mos:causal extract on flagged candidates writes confirmed claims to KuzuDB via CJS bridge, then cross-reference step links them to existing HSI/RS/Analogy edges
-  3. /mos:causal predict generates falsifiable predictions with deadlines, stored in room/.predictions/REGISTRY.json with lifecycle: pending -> confirmed/refuted/expired
-  4. Larry proactively prompts for prediction resolution when deadlines pass (session-start or every 5th session)
-  5. Resolving a prediction propagates confidence updates back to source CausalClaim nodes in KuzuDB, and prediction summary shows hit rate and overdue count
-**Plans**: 3 plans
-Plans:
-- [ ] 55-01-PLAN.md -- Post-write causal candidate flagging + confirm-to-KuzuDB bridge (HOOK-01, HOOK-02, HOOK-03, HOOK-04)
-- [ ] 55-02-PLAN.md -- Prediction registry CRUD, /mos:causal predict command, session-start overdue check (PREDICT-01 through PREDICT-06)
-- [ ] 55-03-PLAN.md -- Research-backed examples via analogy engine (ENGINE-09)
-
-### Phase 56: Command + Larry Wiring
-**Goal**: Users interact with the full causal layer through /mos:causal and Larry naturally suggests causal reasoning when assumptions stack up
-**Depends on**: Phase 55
-**Requirements**: CMD-01, CMD-02, CMD-03, CMD-04, CMD-05, CMD-06
-**Success Criteria** (what must be TRUE):
-  1. /mos:causal command works with all 3 subcommands: extract (run extraction), trace (chain + cascade + bottleneck + contradiction), predict (generate + track predictions)
-  2. Brain causal directives document exists at references/brain/causal-directives.md and Larry references Three Gaps framework during extraction
-  3. Larry personality suggests /mos:causal commands at contextually appropriate moments ("When assumptions stack 3-deep, try /mos:causal trace cascade")
-  4. Room-proactive intelligence surfaces discoveries when the graph has converging causal + HSI + RS + analogy edges
-  5. Causal schema reference document at references/causal/causal-schema.md provides Cypher query context for Brain and Larry
+  1. Opening a Cowork session after 24+ hours shows a catch-up summary: what was missed, predictions approaching deadline, new files since last session
+  2. A daily briefing generates automatically from room state -- approaching deadlines, new contradictions, stale sections -- and is readable as a room artifact
+  3. Competitor analysis, grant discovery, and domain news scans run on schedule and file results to room/intelligence/ with provenance and timestamps
+  4. Scout sentinel tasks (health check, deadline scan, competitor watch, HSI recomputation) execute on their configured schedule via Cowork's built-in task system
+  5. All scheduled results are idempotent -- running twice produces the same output, and missed runs are recovered on next session start
 **Plans**: TBD
 
-### Phase 57: Release
-**Goal**: v1.7.0 is versioned, documented, and ready for users
+### Phase 57: De Bono Persistent Hats
+**Goal**: Six perspective personas maintain cross-session memory and feed their findings into Brain routing for richer methodology recommendations
 **Depends on**: Phase 56
-**Requirements**: REL-01, REL-02, REL-03
+**Requirements**: HAT-01, HAT-02, HAT-03, HAT-04
 **Success Criteria** (what must be TRUE):
-  1. CHANGELOG.md has a v1.7.0 entry with onboarding steps explaining how to use /mos:causal
-  2. plugin.json version reads 1.7.0
-  3. docs/lazygraph-schema.md includes a causal section documenting CausalClaim, CAUSES, CASCADES_TO, and EXTRACTED_FROM
+  1. Each of the 6 De Bono hats (White/Red/Black/Yellow/Green/Blue) has persistent state in room/.mindrian/hats/{color}/ that survives across sessions
+  2. Running a hat analysis loads one subagent that sequentially processes all 6 personas -- NOT 6 concurrent agents (token budget stays under 5K total)
+  3. Black Hat concerns influence risk assessments and Yellow Hat opportunities feed HSI scoring when Brain recommends frameworks
+  4. Each hat session produces a dated log at room/.mindrian/hats/{color}/session-log/YYYY-MM-DD.md showing what that perspective found
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 58: MCP Apps Data Room Views
+**Goal**: Desktop and Cowork users see interactive Data Room views (dashboard, wiki, graph) rendered inline in the conversation without a local server
+**Depends on**: Phase 52
+**Requirements**: APP-01, APP-02, APP-03, APP-04, APP-05, APP-06
+**Success Criteria** (what must be TRUE):
+  1. Asking to see the dashboard on Cowork renders a De Stijl Mondrian grid inline in the conversation via MCP Apps
+  2. Room sections are browsable as wiki pages inline -- user can navigate between sections without opening files
+  3. The knowledge graph renders inline with Cytoscape.js showing nodes, edges, and the existing De Stijl visual style
+  4. All views use vanilla HTML/JS with no build step -- served as ui:// resources via ext-apps
+  5. Views can call MCP tools via postMessage for on-demand data refresh (bidirectional communication)
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 59: Release v1.8.0
+**Goal**: v1.8.0 is tested across all three surfaces, versioned, and ready for users
+**Depends on**: Phase 52, Phase 53, Phase 54, Phase 55, Phase 56, Phase 57, Phase 58
+**Success Criteria** (what must be TRUE):
+  1. A fresh install on CLI, Desktop, and Cowork each complete a basic workflow (create room, file artifact, run methodology, view dashboard) without errors
+  2. CHANGELOG.md has a v1.8.0 entry documenting all new capabilities with surface-specific guidance
+  3. plugin.json version reads 1.8.0
 **Plans**: TBD
 
 ## Progress
 
-**Execution Order:** 52 -> 53 -> 54 -> 55 -> 56 -> 57
+**Execution Order:** 52 -> 53 -> [54 parallel with 55] -> 56 -> 57 -> [58 parallel with 56-57] -> 59
+
+Note: Phase 54 (Token Optimization) can run parallel with Phase 55 (Pipeline Chaining) -- both depend on Phase 52 but not each other. Phase 58 (MCP Apps) depends only on Phase 52 and can start in parallel with Phases 56-57.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 52. Causal Schema + Brain Enrichment | v1.7.0 | 0/2 | Planning complete | - |
-| 53. Causal Extraction | v1.7.0 | 0/TBD | Not started | - |
-| 54. Graph Engine | v1.7.0 | 0/3 | Planning complete | - |
-| 55. Post-Write Integration + Prediction Registry | v1.7.0 | 0/3 | Planning complete | - |
-| 56. Command + Larry Wiring | v1.7.0 | 0/TBD | Not started | - |
-| 57. Release | v1.7.0 | 0/TBD | Not started | - |
+| 52. MCP Foundation | v1.8.0 | 0/TBD | Not started | - |
+| 53. Surface Detection + Write Safety | v1.8.0 | 0/TBD | Not started | - |
+| 54. Token Optimization | v1.8.0 | 0/TBD | Not started | - |
+| 55. Pipeline Chaining | v1.8.0 | 0/TBD | Not started | - |
+| 56. Scheduled Intelligence | v1.8.0 | 0/TBD | Not started | - |
+| 57. De Bono Persistent Hats | v1.8.0 | 0/TBD | Not started | - |
+| 58. MCP Apps Data Room Views | v1.8.0 | 0/TBD | Not started | - |
+| 59. Release v1.8.0 | v1.8.0 | 0/TBD | Not started | - |
 
 ## Dependency Chain
 
 ```
-Phase 52 (Schema + Brain) --> Phase 53 (Extraction)
-Phase 53 (Extraction) --> Phase 54 (Graph Engine)
-Phase 54 (Graph Engine) --> Phase 55 (Post-Write + Predictions)
-Phase 55 (Post-Write + Predictions) --> Phase 56 (Command + Larry)
-Phase 56 (Command + Larry) --> Phase 57 (Release)
+Phase 52 (MCP Foundation) --> Phase 53 (Surface Detection + Write Safety)
+Phase 52 (MCP Foundation) --> Phase 54 (Token Optimization) [parallel track]
+Phase 52 (MCP Foundation) --> Phase 58 (MCP Apps) [parallel track]
+Phase 52 + 53 --> Phase 55 (Pipeline Chaining)
+Phase 53 (Surface Detection) --> Phase 56 (Scheduled Intelligence)
+Phase 56 (Scheduled Intelligence) --> Phase 57 (De Bono Hats)
+All phases --> Phase 59 (Release)
 ```

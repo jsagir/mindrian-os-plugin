@@ -102,51 +102,51 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MCP-01 | TBD | Pending |
-| MCP-02 | TBD | Pending |
-| MCP-03 | TBD | Pending |
-| MCP-04 | TBD | Pending |
-| MCP-05 | TBD | Pending |
-| MCP-06 | TBD | Pending |
-| SURF-01 | TBD | Pending |
-| SURF-02 | TBD | Pending |
-| SURF-03 | TBD | Pending |
-| SURF-04 | TBD | Pending |
-| WRITE-01 | TBD | Pending |
-| WRITE-02 | TBD | Pending |
-| WRITE-03 | TBD | Pending |
-| PIPE-01 | TBD | Pending |
-| PIPE-02 | TBD | Pending |
-| PIPE-03 | TBD | Pending |
-| TOKEN-01 | TBD | Pending |
-| TOKEN-02 | TBD | Pending |
-| TOKEN-03 | TBD | Pending |
-| TOKEN-04 | TBD | Pending |
-| TOKEN-05 | TBD | Pending |
-| TOKEN-06 | TBD | Pending |
-| SCHED-01 | TBD | Pending |
-| SCHED-02 | TBD | Pending |
-| SCHED-03 | TBD | Pending |
-| SCHED-04 | TBD | Pending |
-| SCHED-05 | TBD | Pending |
-| SCHED-06 | TBD | Pending |
-| SCHED-07 | TBD | Pending |
-| HAT-01 | TBD | Pending |
-| HAT-02 | TBD | Pending |
-| HAT-03 | TBD | Pending |
-| HAT-04 | TBD | Pending |
-| APP-01 | TBD | Pending |
-| APP-02 | TBD | Pending |
-| APP-03 | TBD | Pending |
-| APP-04 | TBD | Pending |
-| APP-05 | TBD | Pending |
-| APP-06 | TBD | Pending |
+| MCP-01 | Phase 52 | Pending |
+| MCP-02 | Phase 52 | Pending |
+| MCP-03 | Phase 52 | Pending |
+| MCP-04 | Phase 52 | Pending |
+| MCP-05 | Phase 52 | Pending |
+| MCP-06 | Phase 52 | Pending |
+| SURF-01 | Phase 53 | Pending |
+| SURF-02 | Phase 53 | Pending |
+| SURF-03 | Phase 53 | Pending |
+| SURF-04 | Phase 53 | Pending |
+| WRITE-01 | Phase 53 | Pending |
+| WRITE-02 | Phase 53 | Pending |
+| WRITE-03 | Phase 53 | Pending |
+| TOKEN-01 | Phase 54 | Pending |
+| TOKEN-02 | Phase 54 | Pending |
+| TOKEN-03 | Phase 54 | Pending |
+| TOKEN-04 | Phase 54 | Pending |
+| TOKEN-05 | Phase 54 | Pending |
+| TOKEN-06 | Phase 54 | Pending |
+| PIPE-01 | Phase 55 | Pending |
+| PIPE-02 | Phase 55 | Pending |
+| PIPE-03 | Phase 55 | Pending |
+| SCHED-01 | Phase 56 | Pending |
+| SCHED-02 | Phase 56 | Pending |
+| SCHED-03 | Phase 56 | Pending |
+| SCHED-04 | Phase 56 | Pending |
+| SCHED-05 | Phase 56 | Pending |
+| SCHED-06 | Phase 56 | Pending |
+| SCHED-07 | Phase 56 | Pending |
+| HAT-01 | Phase 57 | Pending |
+| HAT-02 | Phase 57 | Pending |
+| HAT-03 | Phase 57 | Pending |
+| HAT-04 | Phase 57 | Pending |
+| APP-01 | Phase 58 | Pending |
+| APP-02 | Phase 58 | Pending |
+| APP-03 | Phase 58 | Pending |
+| APP-04 | Phase 58 | Pending |
+| APP-05 | Phase 58 | Pending |
+| APP-06 | Phase 58 | Pending |
 
 **Coverage:**
 - v1.8.0 requirements: 39 total
-- Mapped to phases: 0 (awaiting roadmap)
-- Unmapped: 39
+- Mapped to phases: 39/39
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-05*
-*Last updated: 2026-04-05 after initial definition*
+*Last updated: 2026-04-05 after roadmap creation*
