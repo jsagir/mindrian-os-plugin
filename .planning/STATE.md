@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.8.0
 milestone_name: Cowork Adaptation
 status: executing
-stopped_at: Completed 57-01 (agent dispatch optimization)
-last_updated: "2026-04-05T20:55:00Z"
+stopped_at: Completed 58-01-PLAN.md (scheduled intelligence)
+last_updated: "2026-04-05T21:07:00Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 10
-  completed_phases: 3
-  total_plans: 8
-  completed_plans: 7
-  percent: 30
+  completed_phases: 4
+  total_plans: 9
+  completed_plans: 8
+  percent: 40
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** Every MindrianOS command, pipeline, and intelligence capability works identically across CLI, Desktop, and Cowork
-**Current focus:** Phase 57 -- Agent Dispatch Optimization
+**Current focus:** Phase 58 -- Scheduled Intelligence
 
 ## Current Position
 
-Phase: 57 (Agent Dispatch Optimization) -- COMPLETE
+Phase: 58 (Scheduled Intelligence) -- COMPLETE
 Plan: 1 of 1
 Status: Phase complete
 Last activity: 2026-04-05
 
-Progress: [###░░░░░░░] 30%
+Progress: [####░░░░░░] 40%
 
 ## Performance Metrics
 
@@ -75,6 +75,11 @@ Progress: [###░░░░░░░] 30%
 - [Phase 57]: Model downgrade chain: opus -> sonnet -> haiku at 60% budget threshold
 - [Phase 57]: Chain checkpoints: yes/skip/stop between every step (mandatory)
 - [Phase 57]: Coordinator output schema is documentation-only JSON until feature ships
+- [Phase 58]: Session catch-up runs on Cowork HTTP startup only (not stdio Desktop/CLI)
+- [Phase 58]: Shutdown handler registers on all surfaces for session state persistence
+- [Phase 58]: Competitor and news scans return query objects for LLM execution (not direct fetch)
+- [Phase 58]: Grant discovery calls opportunity-ops.scanOpportunities directly (API access)
+- [Phase 58]: All intelligence results use date-stamped filenames for idempotency
 
 ### Pending Todos
 
@@ -90,6 +95,6 @@ Progress: [###░░░░░░░] 30%
 
 ## Session Continuity
 
-Last session: 2026-04-05T20:59:13Z
-Stopped at: Completed 57-01 (agent dispatch optimization)
+Last session: 2026-04-05T21:07:00Z
+Stopped at: Completed 58-01-PLAN.md (scheduled intelligence)
 Resume file: None

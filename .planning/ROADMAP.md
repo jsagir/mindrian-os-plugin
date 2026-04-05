@@ -139,7 +139,10 @@ Plans:
   3. Competitor analysis, grant discovery, and domain news scans run on schedule and file results to room/intelligence/ with provenance and timestamps
   4. Scout sentinel tasks (health check, deadline scan, competitor watch, HSI recomputation) execute on their configured schedule via Cowork's built-in task system
   5. All scheduled results are idempotent -- running twice produces the same output, and missed runs are recovered on next session start
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [x] 58-01-PLAN.md - Session catch-up, daily briefing, scheduled scanner, task definitions, MCP wiring (SCHED-01 through SCHED-07)
 
 ### Phase 59: De Bono Persistent Hats
 **Goal**: Six perspective personas maintain cross-session memory and feed their findings into Brain routing for richer methodology recommendations
@@ -193,7 +196,7 @@ Note: Phase 54 (Token + Hook) and Phases 56 (Pipeline) + 57 (Agent Dispatch) can
 | 55. Context Intelligence | v1.8.0 | 1/1 | Complete | 2026-04-05 |
 | 56. Pipeline Chaining | v1.8.0 | 1/1 | Complete | 2026-04-05 |
 | 57. Agent Dispatch Optimization | v1.8.0 | 1/1 | Complete | 2026-04-05 |
-| 58. Scheduled Intelligence | v1.8.0 | 0/TBD | Not started | - |
+| 58. Scheduled Intelligence | v1.8.0 | 1/1 | Complete | 2026-04-05 |
 | 59. De Bono Persistent Hats | v1.8.0 | 0/TBD | Not started | - |
 | 60. MCP Apps Data Room Views | v1.8.0 | 0/TBD | Not started | - |
 | 61. Release v1.8.0 + Platform Readiness | v1.8.0 | 0/TBD | Not started | - |

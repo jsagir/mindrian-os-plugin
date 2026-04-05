@@ -76,13 +76,13 @@
 
 ### Scheduled Intelligence
 
-- [ ] **SCHED-01**: Session catch-up: on MCP server init, compute what was missed since last session (hours since scout, predictions due, new files)
-- [ ] **SCHED-02**: Daily briefing generation from room state, approaching prediction deadlines, and new contradictions
-- [ ] **SCHED-03**: Scheduled competitor analysis: periodic web search for competitors in room's domain context
-- [ ] **SCHED-04**: Scheduled grant/funding discovery: proactive scan for grants and funding opportunities relevant to room's focus area
-- [ ] **SCHED-05**: Scheduled context-relevant news: web search for developments in the venture's domain, filed to room/intelligence/
-- [ ] **SCHED-06**: Scout sentinel tasks run on schedule: health check, deadline scan, competitor watch, HSI recomputation
-- [ ] **SCHED-07**: All scheduled results filed as room artifacts with provenance and timestamps
+- [x] **SCHED-01**: Session catch-up: on MCP server init, compute what was missed since last session (hours since scout, predictions due, new files)
+- [x] **SCHED-02**: Daily briefing generation from room state, approaching prediction deadlines, and new contradictions
+- [x] **SCHED-03**: Scheduled competitor analysis: periodic web search for competitors in room's domain context
+- [x] **SCHED-04**: Scheduled grant/funding discovery: proactive scan for grants and funding opportunities relevant to room's focus area
+- [x] **SCHED-05**: Scheduled context-relevant news: web search for developments in the venture's domain, filed to room/intelligence/
+- [x] **SCHED-06**: Scout sentinel tasks run on schedule: health check, deadline scan, competitor watch, HSI recomputation
+- [x] **SCHED-07**: All scheduled results filed as room artifacts with provenance and timestamps
 
 ### De Bono Persistent Hats
 
@@ -172,13 +172,13 @@
 | AGENT-03 | Phase 57 | Complete |
 | AGENT-04 | Phase 57 | Complete |
 | AGENT-05 | Phase 57 | Complete |
-| SCHED-01 | Phase 58 | Pending |
-| SCHED-02 | Phase 58 | Pending |
-| SCHED-03 | Phase 58 | Pending |
-| SCHED-04 | Phase 58 | Pending |
-| SCHED-05 | Phase 58 | Pending |
-| SCHED-06 | Phase 58 | Pending |
-| SCHED-07 | Phase 58 | Pending |
+| SCHED-01 | Phase 58 | Complete |
+| SCHED-02 | Phase 58 | Complete |
+| SCHED-03 | Phase 58 | Complete |
+| SCHED-04 | Phase 58 | Complete |
+| SCHED-05 | Phase 58 | Complete |
+| SCHED-06 | Phase 58 | Complete |
+| SCHED-07 | Phase 58 | Complete |
 | HAT-01 | Phase 59 | Pending |
 | HAT-02 | Phase 59 | Pending |
 | HAT-03 | Phase 59 | Pending |
