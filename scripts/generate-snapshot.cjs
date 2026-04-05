@@ -188,22 +188,30 @@ function scanRoom(roomDir) {
     const sectionDir = path.join(roomDir, dirName);
     const articles = [];
 
-    try {
-      const files = fs.readdirSync(sectionDir);
-      for (const f of files) {
-        if (!f.endsWith('.md') || SKIP_FILES.has(f)) continue;
-        let title = f.replace(/\.md$/, '');
-        let body = '';
-        let fm = {};
-        try {
-          const content = fs.readFileSync(path.join(sectionDir, f), 'utf-8');
-          title = extractTitle(content, f);
-          body = extractBody(content);
-          fm = parseFrontmatter(content);
-        } catch (_) { /* use filename fallback */ }
-        articles.push({ filename: f, title, body, frontmatter: fm, section: dirName });
-      }
-    } catch (_) { /* skip unreadable dirs */ }
+    // Recursive scan -- find all .md files at any depth within the section
+    function scanDir(dir) {
+      try {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          const fullPath = path.join(dir, entry.name);
+          if (entry.isDirectory() && !entry.name.startsWith('.')) {
+            scanDir(fullPath);
+          } else if (entry.isFile() && entry.name.endsWith('.md') && !SKIP_FILES.has(entry.name)) {
+            let title = entry.name.replace(/\.md$/, '');
+            let body = '';
+            let fm = {};
+            try {
+              const content = fs.readFileSync(fullPath, 'utf-8');
+              title = extractTitle(content, entry.name);
+              body = extractBody(content);
+              fm = parseFrontmatter(content);
+            } catch (_) { /* use filename fallback */ }
+            articles.push({ filename: entry.name, title, body, frontmatter: fm, section: dirName });
+          }
+        }
+      } catch (_) { /* skip unreadable dirs */ }
+    }
+    scanDir(sectionDir);
 
     const articleCount = articles.length;
     totalEntries += articleCount;

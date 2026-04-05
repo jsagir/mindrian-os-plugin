@@ -112,6 +112,26 @@ function safeReadDir(dirPath, opts) {
   }
 }
 
+// Recursively find all .md files in a directory tree
+function findMdFiles(dirPath, skipFiles) {
+  const results = [];
+  function walk(dir) {
+    try {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.name.startsWith('.')) continue;
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) { walk(full); }
+        else if (entry.isFile() && entry.name.endsWith('.md') && !(skipFiles || new Set()).has(entry.name)) {
+          results.push(full);
+        }
+      }
+    } catch (_) {}
+  }
+  walk(dirPath);
+  return results;
+}
+
 // -- Parse args --
 
 function parseArgs(argv) {
@@ -143,15 +163,15 @@ function collectSections(roomDir) {
     if (dirName.startsWith('.') || SKIP_DIRS.has(dirName)) continue;
 
     const sectionDir = path.join(roomDir, dirName);
-    const mdFiles = safeReadDir(sectionDir)
-      .filter(f => f.endsWith('.md') && !SKIP_FILES.has(f));
+    const mdFilePaths = findMdFiles(sectionDir, SKIP_FILES);
+    const mdFiles = mdFilePaths.map(p => path.basename(p));
 
-    const entryCount = mdFiles.length;
+    const entryCount = mdFilePaths.length;
     totalArtifacts += entryCount;
 
     let summary = '';
     if (entryCount > 0) {
-      const firstContent = safeRead(path.join(sectionDir, mdFiles[0]));
+      const firstContent = safeRead(mdFilePaths[0]);
       if (firstContent) summary = extractTitle(firstContent, mdFiles[0]);
     }
 

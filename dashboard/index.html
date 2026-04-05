@@ -813,6 +813,15 @@
           'line-style': 'dotted'
         }
       },
+      // ── Cluster edges (invisible, layout only) ──
+      {
+        selector: 'edge.cluster-edge',
+        style: {
+          'opacity': 0,
+          'width': 0,
+          'events': 'no'
+        }
+      },
       // ── Dimmed state for preset views ──
       {
         selector: 'node.dimmed',
@@ -858,14 +867,45 @@
 
       // Choose layout based on node count
       const totalNodes = data.elements.nodes.length;
+      // For large rooms (many artifacts), remove parent-child compound nesting
+      // and use cose layout with virtual edges to keep artifacts near their section
+      if (totalNodes > 30) {
+        // Strip parent field -- cose compound layout collapses with many children
+        data.elements.nodes.forEach(function(n) {
+          if (n.data.parent) {
+            n.data._section = n.data.parent;
+            delete n.data.parent;
+          }
+        });
+        // Add virtual edges from artifact to section for clustering
+        if (!data.elements.edges) data.elements.edges = [];
+        data.elements.nodes.forEach(function(n) {
+          if (n.data._section) {
+            data.elements.edges.push({
+              data: {
+                id: 'cluster-' + n.data.id,
+                source: n.data._section,
+                target: n.data.id,
+                type: 'cluster'
+              },
+              classes: 'cluster-edge'
+            });
+          }
+        });
+      }
+
       const layoutConfig = totalNodes >= 13
         ? {
             name: 'cose',
-            nodeRepulsion: function() { return 8000; },
-            idealEdgeLength: function() { return 120; },
-            gravity: 0.25,
+            nodeRepulsion: function(node) { return node.data('layer') === 'structure' ? 50000 : 8000; },
+            idealEdgeLength: function() { return 80; },
+            edgeElasticity: function(edge) { return edge.hasClass('cluster-edge') ? 200 : 100; },
+            gravity: 0.15,
             animate: false,
-            padding: 40
+            padding: 40,
+            fit: true,
+            randomize: true,
+            numIter: 500
           }
         : {
             name: 'grid',
