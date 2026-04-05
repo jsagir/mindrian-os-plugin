@@ -1,11 +1,107 @@
 ---
 name: setup
-description: Configure optional integrations -- Brain MCP and Velma audio transcription
+description: Configure optional integrations -- surface detection, Brain MCP, Velma audio transcription, HSI, meetings
 allowed-tools:
   - Read
   - Write
   - Bash
   - Glob
+---
+
+# /mos:setup
+
+You are Larry. When called without a subcommand, this command auto-detects the user's surface and configures both MCP servers (Brain remote + MindrianOS local).
+
+## Setup
+
+1. Read `references/personality/voice-dna.md` for Larry's voice
+
+## Flow
+
+### 1. Detect Surface
+
+Run surface detection:
+```bash
+node -e "const { detectSurface } = require('$(dirname "$(realpath "$0")")/lib/mcp/surface-detect.cjs'); console.log(JSON.stringify(detectSurface()));"
+```
+
+Replace the path with the actual plugin root resolved at runtime. Report to user:
+> "Detected surface: {surface} ({transport} transport)"
+
+### 2. Configure MindrianOS MCP Server
+
+Based on detected surface:
+
+**Desktop (stdio):**
+
+Generate and show the `claude_desktop_config.json` snippet:
+```json
+{
+  "mcpServers": {
+    "mindrian-os": {
+      "command": "node",
+      "args": ["{plugin_root}/bin/mindrian-mcp-server.cjs"],
+      "env": { "MINDRIAN_ROOM": "{current_working_directory}/room" }
+    }
+  }
+}
+```
+
+Offer to write this directly to `~/.config/Claude/claude_desktop_config.json` (merge with existing if file exists -- read first, parse JSON, add/update the mindrian-os entry under mcpServers, write back). On macOS the path is `~/Library/Application Support/Claude/claude_desktop_config.json`.
+
+**Cowork (Streamable HTTP):**
+
+Tell the user:
+> "On Cowork, MindrianOS starts automatically as a Streamable HTTP server on 127.0.0.1:3847. Add it in Cowork Settings > Integrations > MCP Servers with URL: http://127.0.0.1:3847/mcp"
+
+Note: Cowork MCP configuration may be automatable via API in the future. For now, provide the URL and manual instructions.
+
+**CLI:**
+
+Tell the user:
+> "On CLI, MindrianOS works through plugin commands and hooks directly. No MCP server configuration needed. If you want MCP tools on CLI too, start the server manually: `node {plugin_root}/bin/mindrian-mcp-server.cjs`"
+
+### 3. Configure Brain MCP Server (if key exists)
+
+Check if `MINDRIAN_BRAIN_KEY` is set (env or `.env` file). If set:
+
+**Desktop:** Add Brain to the same `claude_desktop_config.json`:
+```json
+{
+  "mindrian-brain": {
+    "url": "https://mindrian-brain.onrender.com/mcp",
+    "headers": {
+      "Authorization": "Bearer {brain_key}"
+    }
+  }
+}
+```
+
+**Cowork:** Tell the user:
+> "Add Brain in Cowork Settings > Integrations > MCP Servers with URL: https://mindrian-brain.onrender.com/mcp and header Authorization: Bearer {first_4_chars}..."
+
+If Brain key is NOT set, remind: "Run `/mos:setup brain` to connect Larry's teaching graph for enhanced intelligence."
+
+### 4. Summary
+
+Print a summary table:
+```
+Surface: {surface}
+Transport: {transport}
+MindrianOS MCP: {configured/instructions provided}
+Brain MCP: {configured/not configured -- run /mos:setup brain}
+Capabilities: hooks={hooks}, apps={apps}, tasks={tasks}, scripts={scripts}
+```
+
+## Important Rules
+
+- Use `lib/mcp/surface-detect.cjs` for detection -- do not hardcode surface checks
+- On Desktop, always merge into existing `claude_desktop_config.json` -- never overwrite
+- On Cowork, provide the URL for manual configuration (automation may come later)
+- On CLI, no MCP config needed -- just inform the user
+- If Brain key exists, configure both servers together
+- Never echo full API keys -- show only first 4 characters
+
 ---
 
 # /mos:setup brain
