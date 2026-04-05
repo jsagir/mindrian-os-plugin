@@ -51,6 +51,12 @@ EXTENDED_COLORS=(
   [opportunity-bank]="#C87137"
   [funding]="#3A7B5E"
   [personas]="#7B4A8B"
+  [product]="#1E3A6E"
+  [ip]="#6B4E8B"
+  [decisions]="#A63D2F"
+  [beta-testing]="#2D6B4A"
+  [product-evolution]="#C8A43C"
+  [tech-stack]="#5C5A56"
 )
 
 # ── Structural directories (not sections) ──
@@ -70,12 +76,12 @@ if [ -d "$ROOM_DIR" ]; then
     [[ "$dir_name" == .* ]] && continue
     [ -n "${is_structural_dir[$dir_name]:-}" ] && continue
     [ -n "${is_core_section[$dir_name]:-}" ] && continue
-    # Qualify: must contain at least one .md file or STATE.md
+    # Qualify: must contain at least one .md file (search recursively)
     has_content=false
     if [ -f "${dir}STATE.md" ]; then
       has_content=true
     else
-      md_file=$(find "$dir" -maxdepth 1 -name "*.md" 2>/dev/null | head -1)
+      md_file=$(find "$dir" -name "*.md" 2>/dev/null | head -1)
       [ -n "$md_file" ] && has_content=true
     fi
     if $has_content; then
@@ -179,12 +185,14 @@ if [ -d "$ROOM_DIR" ]; then
     section_dir="${ROOM_DIR}/${section}"
     [ -d "$section_dir" ] || continue
 
-    for f in "$section_dir"/*.md; do
+    while IFS= read -r f; do
       [ -f "$f" ] || continue
       fname=$(basename "$f")
-      [ "$fname" = "ROOM.md" ] || [ "$fname" = "STATE.md" ] && continue
+      [ "$fname" = "ROOM.md" ] || [ "$fname" = "STATE.md" ] || [ "$fname" = "TEAM-STATE.md" ] && continue
 
-      artifact_id="${section}/${fname%.md}"
+      # Build artifact ID from relative path within section
+      rel_path="${f#${section_dir}/}"
+      artifact_id="${section}/${rel_path%.md}"
       title=$(json_escape "$(get_title "$f")")
       methodology=$(json_escape "$(get_field "$f" "methodology")")
       created=$(get_field "$f" "created")
@@ -208,7 +216,7 @@ if [ -d "$ROOM_DIR" ]; then
         pipeline_stages["${pipeline}:${pipeline_stage}"]="$artifact_id"
       fi
 
-    done
+    done < <(find "$section_dir" -name "*.md" -type f 2>/dev/null | sort)
   done
 fi
 
