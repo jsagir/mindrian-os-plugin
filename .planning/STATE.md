@@ -5,7 +5,7 @@ milestone_name: RoomHub + SnapshotHub
 status: executing
 stopped_at: "Completed Phase 51 SnapshotHub Export + Polish"
 last_updated: "2026-04-01T15:00:00.000Z"
-last_activity: 2026-04-01 -- Phase 51 SnapshotHub Export + Polish completed (4 tasks, 4 commits)
+last_activity: 2026-04-05 - Completed quick task 260405-dvt: Fix 4 critical post-beta installation issues
 progress:
   total_phases: 5
   completed_phases: 1
@@ -63,6 +63,12 @@ Recent decisions affecting v6.2:
 
 - Trained Lawrence model (PAID TIER): Fine-tune on real teaching transcripts
 - Website content refresh: mindrianos-jsagirs-projects.vercel.app
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260405-dvt | Fix 4 critical post-beta installation issues: banner always on cold start, onboard reset, global brain key fallback, post-room open folder | 2026-04-05 | f694754 | [260405-dvt-fix-4-critical-post-beta-installation-is](./quick/260405-dvt-fix-4-critical-post-beta-installation-is/) |
 
 ### Blockers/Concerns
 
