@@ -1,17 +1,17 @@
 # Project Research Summary
 
-**Project:** MindrianOS-Plugin v3.0 — MCP Platform & Intelligence Expansion
-**Domain:** Claude Code plugin with dual-delivery MCP server, collaborative room intelligence, grant discovery, and AI personas
-**Researched:** 2026-03-24
-**Confidence:** HIGH (stack/architecture), MEDIUM (features/pitfalls)
+**Project:** MindrianOS Plugin — v1.8.0 Cowork Adaptation
+**Domain:** Multi-surface MCP plugin with persistent intelligence (CLI + Desktop + Cowork)
+**Researched:** 2026-04-05
+**Confidence:** HIGH
 
 ## Executive Summary
 
-MindrianOS v3.0 is a dual-surface intelligence platform: the existing 41-command Claude Code plugin (CLI surface) gains a parallel MCP server delivery layer so that Desktop and Cowork users receive identical capabilities without any CLI access. The research confirms a clean architectural path: a `mindrian-tools.cjs` shared core wraps existing Bash scripts via `child_process.execSync`, and a `mcp-server/` package exposes that same core as MCP tools + resources + prompts via stdio transport. Only two net-new npm dependencies are justified (`@modelcontextprotocol/sdk@1.27.1` and `cheerio@1.2.0`); everything else is Node.js built-ins or the existing Bash/Python script layer. The "folder IS the orchestration" principle is preserved without compromise.
+MindrianOS v1.8.0 extends an already-shipped 64-command CLI plugin into a full Desktop and Cowork product. The core challenge is not building new features — it is adapting existing intelligence (9 hooks, PostToolUse cascade, Brain-driven routing, LazyGraph, methodology pipelines) to a fundamentally different execution model. On CLI, the product is hook-driven. On Desktop and Cowork, hooks are permanently dead (confirmed Anthropic bug #27398: `--setting-sources user` excludes plugin-scoped hooks silently). The MCP protocol is the only surface available, and every piece of intelligence that CLI users receive automatically must be re-wired to fire through MCP tool handlers. This adaptation requires a single critical refactor — extract all intelligence triggers into a shared `intelligence-cascade.cjs` module called by both hook scripts AND MCP tool write-handlers. Without this, Cowork users get a hollow shell that appears to work while intelligence silently stops firing.
 
-Two new room sections (`opportunity-bank/` and `funding/`) follow the established ICM pattern — each a sub-room with its own STATE.md. Grant discovery uses the free Grants.gov REST API as the primary data source, supplemented by web search for non-API sources, with Candid API as a paid-tier upgrade deferred until adoption is proven. AI Team Personas are generated directly from room state using De Bono's Six Hats framework as structure; they are perspective lenses that Larry adopts temporarily, not autonomous agents or expert advisors. Remote room access (Streamable HTTP transport + git-based sync) is explicitly scoped to v3.x+ after local MCP is validated.
+The recommended approach follows a strict phase order driven by dependency: surface detection first (enables all conditional logic), orphaned command registration second (unblocks Desktop/Cowork usability — 15 commands are currently invisible on non-CLI surfaces), Brain-driven routing third (the moat, the differentiator), then scheduled intelligence and De Bono hats (the persistent layer), and MCP Apps views last (highest effort, most immature spec). Stack changes are minimal — one SDK upgrade (`@modelcontextprotocol/sdk` 1.27.1 to 1.29.0, required as peer dependency of `ext-apps`) and one new package (`@modelcontextprotocol/ext-apps@1.5.0`, used only in the final phase). SSE transport is permanently deprecated as of April 1, 2026; Streamable HTTP is the mandatory replacement for Cowork connectivity.
 
-The dominant risk is architectural: exposing 41 CLI commands as 41 MCP tools will consume 30,000-60,000 tokens of context window and cause LLM tool-selection failures. The research prescribes a hierarchical router pattern (5-8 high-level MCP tools, each taking a `command` enum parameter), MCP Resources for all read-only room data, and a parity matrix in CI to prevent CLI/MCP surface drift. The second major risk is premature abstraction during shared core extraction — the prescription is to treat `scripts/` as the already-existing shared core, point MCP tools directly at those scripts first, and extract upward only after three distinct consumers have emerged (Rule of Three).
+The dominant risk across all four critical pitfalls is silent failure. Hooks die without error. KuzuDB writes contend without error. Brain timeouts block without fallback. Router misrouting succeeds with wrong results. Prevention requires: shared cascade module (not two codepaths), promise-chain write serialization in `graph-ops.cjs` (~30 lines), 2-second hard Brain timeout with local fallback heuristic, and router splitting to keep each enum group under 15 commands. All four are low-to-medium recovery cost if addressed in Phase 1 — trust-destroying if discovered after users rely on the product.
 
 ---
 
@@ -19,133 +19,143 @@ The dominant risk is architectural: exposing 41 CLI commands as 41 MCP tools wil
 
 ### Recommended Stack
 
-The stack splits cleanly between the immutable plugin layer (Markdown + JSON + Bash, zero npm dependencies) and the new MCP server layer (Node.js CJS, `@modelcontextprotocol/sdk`, `zod`, `cheerio`). The SDK version 1.27.1 supports both stdio and Streamable HTTP transports on a single `McpServer` instance, meaning the local stdio v3.0 server can gain remote Streamable HTTP transport in a future phase without any architectural refactor. `zod@^3.25` is a required peer dependency of the SDK. `cheerio@1.2.0` is needed only for scraping non-API grant sources; the Grants.gov search endpoint is fully structured JSON with no scraping required.
+The existing stack is sound and requires minimal change. The SDK upgrade to 1.29.0 is mandatory — not for features but as a hard peer dependency of `@modelcontextprotocol/ext-apps`. It also unlocks `StreamableHTTPServerTransport`, which replaces the now-deprecated SSE transport (SSE connections stopped being accepted April 1, 2026). All other existing packages (express@5.1.0, chokidar@4.0.3, kuzu@0.11.3, flexsearch@0.7.43, zod@^3.25) remain unchanged. The `ext-apps` package is the only genuinely new dependency, and it is needed only for Phase 6 MCP Apps views — implement as a graceful-degradation optional require so the server runs without it.
 
 **Core technologies:**
-- `@modelcontextprotocol/sdk@1.27.1`: MCP server implementation — the only path to Desktop/Cowork users; 34,700+ dependents, MIT license, verified stable
-- `zod@^3.25.76`: Input/output schema validation for MCP tool definitions — required by SDK, pin to 3.x for ecosystem compatibility
-- `cheerio@1.2.0`: HTML parsing for non-API grant sources (SBIR.gov, state portals) — pure JS, no native bindings, 19,873 dependents
-- Grants.gov REST API (v1, free): Primary structured grant data source — no API key needed for search, 60 req/min rate limit, verified 2026-03-24
-- Node.js CJS `lib/core/*.cjs`: Shared internals called by both CLI and MCP — mirrors proven GSD pattern, zero additional dependencies
-- Existing `scripts/` (20 Bash scripts): Authoritative computation layer — preserved as-is; MCP tools wrap via `child_process.execSync`
+- `@modelcontextprotocol/sdk@^1.29.0`: SDK upgrade only — unlocks Streamable HTTP transport, MCP Apps compatibility, session management; mandatory peer dep for ext-apps
+- `@modelcontextprotocol/ext-apps@^1.5.0`: Interactive UI in conversation — `registerAppTool` / `registerAppResource`, vanilla JS, no React required; defer to Phase 6 only
+- `express@5.1.0` (installed): Streamable HTTP endpoint via `createMcpExpressApp()` with DNS rebinding protection — already installed, no change
+- `chokidar@4.0.3` (installed): File watching for resource subscription cleanup — already proven in this project
+- `kuzu@0.11.3` (installed): LazyGraph embedded graph — requires write queue serialization (~30 lines) to be safe under concurrent MCP access
 
-**Total new npm dependencies for v3.0: 2** (`@modelcontextprotocol/sdk` + `cheerio`; `zod` pulled in by SDK).
+**Transport strategy:** stdio for Desktop (zero-config, spawned as child process via `claude_desktop_config.json`), Streamable HTTP on `127.0.0.1:3847` for Cowork (env-gated via `MINDRIAN_TRANSPORT=http`). Same `McpServer` instance serves both transports via env detection in `surface-detect.cjs`.
 
-**Do not add:** Express/Hono/Fastify (MCP SDK bundles Hono internally), LangChain/CrewAI/AutoGen (fights ICM-native design), SQLite/Redis (creates dual source of truth with filesystem), TypeScript (build step breaks "every output is an edit surface"), Commander/yargs (Claude is the caller, not a human), `dotenv` (plugin inherits env from spawning process).
+**What NOT to add:** node-cron (Cowork has built-in scheduler), ws/socket.io (MCP Streamable HTTP handles SSE push already), React/Next.js (De Stijl views are vanilla HTML/JS — no build step), any state management library (room/ IS the state store per ICM principle), `@modelcontextprotocol/sdk@2.0.0-alpha` (breaking changes: TaskManager refactor, Standard Schema replaces Zod, WebSocket removed).
+
+**Total new packages: 1** (`@modelcontextprotocol/ext-apps`). **Total upgrades: 1** (SDK 1.27.1 to 1.29.0). **Total removed: 0**.
 
 ### Expected Features
 
-**Must have (table stakes — v3.0 launch blockers):**
-- MCP Server exposing tools + resources + prompts via stdio — Desktop/Cowork users have zero value without this
-- `mindrian-tools.cjs` CLI entry point — enables hook scripts, agent tool calls, and GSD-pattern dual delivery
-- MCP Resources for room state (`room://` URI scheme) — read-only room data must not bloat tool context; Resources not Tools
-- MCP Prompts for methodology workflows — 25 existing methodology bots map directly to MCP prompts with room-context injection
-- Opportunity Bank room section (`room/opportunities/`) — follows exact ICM sub-room pattern; low complexity, high signal
-- Funding Room structure (`room/funding/`) with per-grant sub-folders — structure only; intelligence added in v3.x
-- Basic grant lifecycle tracking: Discovered > Researched > Applying > Submitted > Awarded/Rejected
+The 15 currently orphaned commands — act, causal, dashboard, find-analogies, models, present, publish, query, reanalyze, rooms, scout, speakers, wiki, splash, admin — are table stakes. Desktop and Cowork users have NO slash commands; MCP tools are their only interface. Missing 15 of 64 commands means the product is visibly broken. Surface auto-detection via MCP `initialize` handshake's `clientInfo.name` field is a zero-cost unlock that enables all conditional behavior. Brain-driven routing as a proper MCP tool (`orchestration` router) is the product's moat — it must be accessible from Cowork, not just CLI.
 
-**Should have (differentiators — make v3.0 sticky):**
-- Proactive grant scouting agent (session-start hook-triggered, not cron) — reads room state, queries Grants.gov API, files discoveries
-- Room-aware grant matching using full 8-section DD context, not keyword-only matching
-- AI Team Personas auto-generated from room intelligence + De Bono hats framework
-- Persona dependency chain (coherence cascade): Market Expert > Technical Expert > Financial Expert > Devil's Advocate
-- Room context injection in MCP prompts — prompts arrive pre-loaded with current room state; no other MCP server does this
-- Per-grant GSD-style process folder with stage-specific artifacts and Larry assistance per stage
+**Must have (table stakes):**
+- 15 orphaned commands registered in 2 new routers (`orchestration` + expanded `export`) — Desktop/Cowork users have NO slash commands; MCP tools are their only interface
+- Surface auto-detection (CLI/Desktop/Cowork) — detect via `clientInfo.name` in `server.oninitialized`; users install once, plugin adapts
+- Standardized tool output shapes with `## Suggested Next` — enables LLM-orchestrated chaining; each tool tells Claude what to call next
+- Brain-driven routing as `orchestration` router MCP tool — the moat, must work from all surfaces with 3-tier fallback
+- Hook-to-MCP equivalence via `intelligence-cascade.cjs` shared module — without this, Cowork users get a hollow shell
+- Graceful degradation at Tier 0 (no Brain, no internet) — already built for CLI; must extend through all MCP wrappers
+- Daily room briefing scheduled task — first differentiating moment for Cowork users
 
-**Defer (v4+):**
-- Remote Room collaborative MCP (Streamable HTTP + git sync) — MCP protocol's session state is a 2026 roadmap item; spec is unstable
-- Candid API integration — paid tier; defer until grant feature adoption proven
-- Full grant submission portal — regulatory liability; document generation only, user submits through official portals
-- Persona marketplace or memory across sessions — room IS the persona memory; cross-session state bloats context and creates drift
+**Should have (competitive differentiators):**
+- De Bono 6 persistent hats — cross-session memory IS the differentiator; NOT 6 separate agents (token catastrophe per Pitfall 7), but 6 persona files loaded sequentially by one subagent, state in `room/.mindrian/hats/`
+- Prediction deadline tracking scheduled task — unique intelligence nobody else surfaces
+- Session catch-up pattern — missed scheduled runs execute on next manual session; makes scheduling a convenience, not a dependency
+- KuzuDB write queue serialization — prevents silent graph data loss under concurrent MCP + CLI access
+
+**Defer (v2+):**
+- MCP Apps Data Room views (dashboard/wiki/graph as inline iframes) — highest effort, spec still maturing; existing HTML exports are the always-working fallback
+- Cross-user intelligence — requires Anthropic team sharing features not yet available
+- Real-time push via MCP resource subscriptions — no Claude client implements the subscription protocol yet; build when spec ships, not before
 
 ### Architecture Approach
 
-v3.0 adds two new directories to the existing plugin repo without touching any existing command, skill, agent, or hook. `bin/mindrian-tools.cjs` is a single Node.js CJS entry point (mirroring `gsd-tools.cjs` exactly) backed by `lib/core/*.cjs` modules that wrap existing Bash scripts. `mcp-server/server.cjs` is the stdio MCP server that registers MCP tools as thin Zod-validated wrappers around those same core modules. The existing `scripts/` directory is the de facto shared core; refactoring it is deferred until the Rule of Three is satisfied. Hook scripts remain Bash because their sub-3-second execution requirement rules out Node.js cold start.
+The architecture is an expansion of the existing 6-router hierarchical MCP tool structure to 8 routers. Two new files (`surface-detect.cjs` ~40 lines, `brain-router.cjs` ~150 lines) and one critical refactor (`intelligence-cascade.cjs`) unlock the rest. The principle throughout: the MCP orchestration layer RECOMMENDS, existing `lib/core/*` modules EXECUTE. No methodology logic is duplicated — Claude (on Desktop/Cowork) reads the Brain's recommendation and invokes existing methodology/analysis routers. The `intelligence-cascade.cjs` refactor is the single highest-leverage change in the entire milestone; it prevents the "looks done but isn't" failure mode that would otherwise appear only after users lose trust.
 
 **Major components:**
-1. `bin/mindrian-tools.cjs` (shared core entry point) — single dispatch hub; called by hook scripts via `node bin/mindrian-tools.cjs <subcommand>` and imported directly by MCP tool handlers
-2. `lib/core/*.cjs` (room-ops, state-ops, meeting-ops, graph-ops, persona-ops, opportunity-ops) — business logic wrapping Bash scripts via `child_process.execSync`; surface-agnostic
-3. `mcp-server/server.cjs` + `tools/*.js` (MCP tool registrations) — stdio transport, hierarchical router (5-8 top-level tools), thin Zod-validated wrappers over core
-4. `room/opportunity-bank/` + `room/funding/` + `room/personas/` (new room sections) — ICM sub-rooms; `compute-state` and `analyze-room` updated to discover sections dynamically
-5. `references/personas/` + `references/opportunities/` (new reference sets) — generation templates and grant pattern libraries following existing `references/` structure
+1. `lib/mcp/surface-detect.cjs` (NEW ~40 lines) — detects CLI/Desktop/Cowork from env signals (`MINDRIAN_TRANSPORT`, `CLAUDE_SURFACE`, `COWORK_SESSION_ID`, `/sessions` dir); gates all conditional registration
+2. `lib/mcp/brain-router.cjs` (NEW ~150 lines) — wraps `brain-client.cjs` + `state-ops.cjs`; 3-tier routing: cache hit (instant) / local heuristic from `problem-types.md` (<100ms) / Brain query (2s hard timeout then fallback)
+3. `lib/core/intelligence-cascade.cjs` (NEW) — shared module called by both CLI hooks AND MCP tool write-handlers; HSI computation, cross-reference scan, graph indexing; same logic, two entry points
+4. `lib/mcp/tasks.cjs` (NEW ~120 lines) — MCP Tasks for long-running operations on Cowork: scout (~60s), reanalyze (~30s), act-swarm (~120s)
+5. `lib/mcp/session-catchup.cjs` (NEW ~100 lines) — reads `room/.mindrian/last-session.json` on server init, computes delta, queues overdue tasks; resilient to scheduling failures
+6. `lib/mcp/apps.cjs` (NEW ~200 lines, Phase 6 only) — MCP Apps registration via `ext-apps`; thin delivery wrapper over existing De Stijl HTML generators; not the view engine itself
+7. `lib/mcp/tool-router.cjs` (MODIFY +~300 lines) — expand from 6 to 8 routers; split `data_room` into `room_state` / `room_content` / `room_graph` to keep all enums under 15 commands
+8. `lib/core/graph-ops.cjs` (MODIFY +~30 lines) — promise-chain write queue; serializes all writes through async queue; concurrent reads unaffected
 
-**Key architectural constraint:** CLI commands are instructions to Claude (conversational pipelines). MCP tools are callable functions (structured atomic operations). A multi-step CLI command like `file-meeting.md` decomposes into 4-5 discrete MCP tools. This is not a 1:1 mapping.
+**Filesystem persistence model (ICM principle — room IS the state):** Hat state in `room/.mindrian/hats/{color}/STATE.md`. Session state in `room/.mindrian/last-session.json`. Pipeline state in `room/.mindrian/pipeline-state.json`. Brain cache in `room/.mindrian/brain-cache.json`. No in-memory state that doesn't also live in the room. No new databases.
 
 ### Critical Pitfalls
 
-1. **Tool explosion kills MCP server usability** — 41 flat MCP tools consume 30K-60K tokens of context window; LLM tool-selection accuracy degrades; Cursor hard-caps at 40 total tools. Prevention: hierarchical router pattern with 5-8 high-level tools; use MCP Resources for all read-only data. This architecture must be locked before any tools are implemented — retrofitting a router is a full rewrite.
+1. **Hooks are dead in Cowork (Confirmed Anthropic bug #27398)** — Cowork spawns Claude CLI with `--setting-sources user`, which silently excludes plugin-scoped hooks. All 9 hooks (SessionStart, PostToolUse, FileChanged, etc.) are dead. Prevention: extract ALL intelligence triggers into `intelligence-cascade.cjs`; call it from every MCP write-tool handler. This is not optional — it IS the product differentiator.
 
-2. **Shared core extraction breaks existing 41 commands** — Premature abstraction before understanding how MCP tool I/O differs from CLI command I/O creates a shared core that neither surface fits cleanly (Sandi Metz: "duplication is far cheaper than the wrong abstraction"). Prevention: treat `scripts/` as the already-existing shared core; point MCP tools at scripts first; apply Rule of Three (extract only after three distinct consumers); never add a `surface` or `mode` parameter to shared functions.
+2. **Router misrouting from oversized enums** — Claude tool selection accuracy degrades above ~15 commands per router. Current `data_room` router has 34 commands and already misroutes ~15% of the time. Adding 15 orphans without splitting makes it worse. Prevention: split `data_room` into 3 sub-routers; add 2 new routers; keep ALL groups under 15 commands. Target: 8-10 routers, 5-12 commands each. Must be done before adding any new commands.
 
-3. **Remote Room exposes venture-sensitive data without auth** — Meeting transcripts, financial models, and competitive intelligence become network-accessible. Prevention: ship stdio-only for v3.0 (same machine, no network exposure); add OAuth 2.1 + Resource Indicators (RFC 8707) + TLS before any Streamable HTTP transport. Never use HTTP; never store credentials in config files.
+3. **KuzuDB single-writer contention** — CLI hooks and MCP server are separate Node.js processes; both call `lazygraph.openGraph()` with READ_WRITE access; the loser fails silently (no error, just lost writes). Prevention: promise-chain write queue in `graph-ops.cjs` (~30 lines); file-based PID lock at `room/.graph/write.lock`. Must be done before any concurrent CLI + MCP usage.
 
-4. **Feature parity drift between plugin and MCP surfaces** — Plugin gains commands faster than MCP tools are built; Desktop users get degraded capability silently with no automated detection. Prevention: parity matrix (command name, CLI status, MCP status, last verified date) as a CI-checked file; `mindrian-tools.cjs` shared entry point guarantees automatic parity at the logic level.
+4. **Brain unreachable = routing brick wall** — Brain runs on Render free tier (sleeps after 15 min idle, 10-30s cold start). v1.8.0 elevates Brain from "optional enrichment" to "routing oracle," making every `act`/`suggest-next` call a potential 30-second block. Prevention: 2-second hard timeout, 3-tier routing (cache / local heuristic / Brain), pre-warm ping on server start (async, non-blocking), Brain NEVER required for any tool to function.
 
-5. **AI Personas generate hallucinated expert advice users trust** — Domain-specific hallucination rates: legal 18.7%, medical 15.6% (2026 survey). Persona framing creates false credibility even when outputs are identical to non-persona outputs. Prevention: frame as De Bono perspective lenses, never as named expert advisors; every persona output includes a disclaimer; personas only synthesize from existing room data, never generate new domain facts.
+5. **Cowork sandbox path access for plugin references** — Cowork VM only mounts user-selected folders; `references/methodology/*.md` and `references/personality/*.md` may be inaccessible via `__dirname`-relative paths even though the server process itself runs. Prevention: TEST THIS FIRST before any other Cowork work; if it fails, copy essential references to `room/00_Context/` during `/mos:setup` (pattern already exists in Cowork projects).
 
 ---
 
 ## Implications for Roadmap
 
-Based on the dependency graph established in ARCHITECTURE.md and validated by PITFALLS.md, the build order follows a strict dependency chain: shared core enables everything else; MCP server and new room sections can proceed in parallel once core is done; personas require rich room content so they ship last among v3.0 features; remote room is explicitly deferred.
+Based on the combined research, 6 phases are recommended. The dependency graph from FEATURES.md is the primary ordering signal: surface detection unlocks everything else; tool parity unlocks chaining and Brain routing; Brain routing unlocks scheduled intelligence; scheduled intelligence provides infrastructure for De Bono hats; MCP Apps is a parallel track requiring only tool parity. The `intelligence-cascade.cjs` refactor in Phase 1 is non-negotiable — it is cheaper now than after users discover the hollow shell.
 
-### Phase 10: Shared Core + CLI Tools Layer
+### Phase 1: MCP Foundation
+**Rationale:** Three of four critical pitfalls (hooks dead, router accuracy, Brain timeout) must be resolved before any other work delivers user value. Surface detection enables all conditional logic. This phase creates the trusted infrastructure all later phases build on.
+**Delivers:** All 64 commands exposed on Desktop/Cowork via 8 routers; `intelligence-cascade.cjs` shared module firing on all MCP writes; router accuracy verified via MCP Inspector (20 natural language queries, <5% misroute rate); Brain routing resilient with 2-second hard timeout and local fallback; file watcher subscription cleanup (Pitfall 10)
+**Addresses:** Surface auto-detection, 15 orphaned commands, standardized tool output shapes, Hook-to-MCP equivalence, Tier 0 graceful degradation
+**Avoids:** Pitfalls 1 (hooks dead), 2 (router misrouting), 4 (Brain timeout), 10 (resource subscription memory leak)
+**Research flag:** Standard patterns — well-documented MCP SDK, verified codebase integration points. Skip research-phase.
 
-**Rationale:** This is the foundation for every subsequent phase. Nothing else — MCP server, opportunity bank, personas — can ship without callable Node.js logic. Phases 11 and 12 can run in parallel only after Phase 10 delivers.
-**Delivers:** `bin/mindrian-tools.cjs` with `room-ops`, `state-ops`, `meeting-ops`, `graph-ops`; dynamic section discovery in `compute-state` and `analyze-room` (replaces hardcoded `SECTIONS` array); validated by having existing hook scripts call into `mindrian-tools.cjs` for complex operations
-**Addresses:** MCP foundation, `mindrian-tools.cjs` CLI entry point (FEATURES.md P1), room section extensibility
-**Avoids:** Pitfall 2 (premature abstraction) — `scripts/` stays as-is; extraction is additive; Pitfall 8 (abstraction obscures debugging) — max 3 layers enforced from the start
+### Phase 2: Surface Detection + Write Safety
+**Rationale:** KuzuDB write contention (Pitfall 3) and sandbox path access (Pitfall 5) must be resolved before Cowork users can file any artifacts safely. Session isolation (Pitfall 11) must be established before multi-session testing begins.
+**Delivers:** `surface-detect.cjs` module; write queue in `graph-ops.cjs`; Cowork path access verified and adapted; `MCP-Session-Id` session isolation; dual transport architecture in `bin/mindrian-mcp-server.cjs`
+**Uses:** Streamable HTTP via SDK 1.29.0 `StreamableHTTPServerTransport`; `createMcpExpressApp()` for DNS rebinding protection; existing `express@5.1.0`
+**Implements:** stdio for Desktop (zero-config), Streamable HTTP on `127.0.0.1:3847` for Cowork (env-gated); surface-adaptive reference loading
+**Avoids:** Pitfalls 3 (KuzuDB contention), 5 (sandbox paths), 11 (session state leaks)
+**Research flag:** Cowork sandbox path behavior requires empirical verification — deploy minimal `fs.readFileSync(__dirname + '/references/...')` test before building the phase. One known unknown that cannot be resolved without deployment.
 
-### Phase 11: MCP Server (Local, stdio)
+### Phase 3: Pipeline Chaining
+**Rationale:** Pipeline chaining (the Week 7 pattern: scenario -> root-cause -> causal -> prediction) is the core methodology value. Without it, Desktop/Cowork users have 64 disconnected tools rather than a methodology system. Requires Phase 1 tool parity and standardized output shapes.
+**Delivers:** `room/.mindrian/pipeline-state.json` tracking current pipeline position; `previous_step` optional parameter on methodology tools; every tool response includes actionable `## Suggested Next` with exact tool call syntax; structured chaining between methodology and analysis routers
+**Implements:** Room-file-based pipeline state (stateless MCP calls chain through room artifacts, not conversation context — enforces Decision #7)
+**Avoids:** Pitfall 6 (pipeline context loss across stateless MCP tool calls)
+**Research flag:** Standard patterns — enforces existing Decision #7 (pipelines chain through Room). Skip research-phase.
 
-**Rationale:** The MCP server is the entire reason for v3.0. Desktop and Cowork users are completely blocked without it. Depends on Phase 10's shared core for tool implementations.
-**Delivers:** `mcp-server/server.cjs` with hierarchical tool router (5-8 tools max), MCP Resources for `room://` URI scheme, MCP Prompts for methodology workflows with room context injection; validated via `npx @modelcontextprotocol/inspector` and actual Claude Desktop `claude_desktop_config.json` test on all three platforms
-**Uses:** `@modelcontextprotocol/sdk@1.27.1`, `zod@^3.25`, `lib/core/*.cjs` from Phase 10
-**Implements:** Dual-delivery pattern, all three MCP primitives (tools/resources/prompts), stdio transport with Streamable HTTP hook-point
-**Avoids:** Pitfall 1 (tool explosion) — hierarchical router designed before any tools are implemented; Pitfall 4 (surface parity drift) — parity matrix in CI from this phase forward; Pitfall 5 (transport lock-out) — no SSE, dual transport design from day one; Pitfall 11 (cross-platform URI) — `url.pathToFileURL()` for all resource URIs
+### Phase 4: Scheduled Intelligence
+**Rationale:** Daily briefing and prediction deadline tracking are the first Cowork-exclusive differentiators — the "Larry thinks while you sleep" moment. Requires Phase 1 tool parity (briefing calls existing MCP tools) and Phase 2 write safety (briefing writes to room/).
+**Delivers:** Daily room briefing (9am SKILL.md scheduled task), prediction deadline tracker (daily), room health monitor (daily), competitor watch (weekly), `session-catchup.cjs` for missed-run recovery
+**Uses:** Cowork built-in task scheduler via SKILL.md files (no node-cron); `room/.mindrian/last-session.json`; existing `proactive-intelligence.cjs` and `state-ops.cjs`
+**Implements:** Catch-up architecture — stored scheduling intent in room, checked on every session start regardless of scheduler reliability; idempotent briefing generation (runs twice produces same output)
+**Avoids:** Pitfall 8 (scheduled task unreliability — catch-up pattern makes scheduling a convenience, not a dependency); known MCP connector bug (#43397) mitigated by `~/.claude/mcp.json` configuration
+**Research flag:** Cowork scheduler MCP connector bugs (#43397, #32000, #36327) are active with no resolution timeline. Mitigation pattern documented. No additional research needed; monitor during testing.
 
-### Phase 12: New Room Sections (Opportunity Bank + Funding Room)
+### Phase 5: De Bono Persistent Hats
+**Rationale:** De Bono hats are the cross-session perspective memory differentiator, but must be built correctly. Naive 6-agent implementation would multiply token usage 6x (Pitfall 7, confirmed issue #41461). Requires Phase 4 scheduled intelligence as infrastructure for nightly hat runs.
+**Delivers:** 6 hat persona files (`room/.mindrian/hats/{color}/STATE.md`); sequential single-subagent analysis (one agent loads 6 persona files, NOT 6 separate agents); single `daily-perspectives.md` replacing not accumulating; hat state feeding `brain-router.cjs` recommendations (black hat risks, yellow hat opportunities, blue hat methodology effectiveness)
+**Implements:** Persona-file-based hat architecture; cross-session memory via filesystem accumulation; hat outputs as Brain enrichment input per moat mandate
+**Avoids:** Pitfall 7 (De Bono token catastrophe — one agent + 6 persona files, NOT 6 persistent processes; each hat analysis <5K tokens total)
+**Research flag:** Hat-triggered cascade detection (hats noticing cross-section contradictions) is Phase 5b and has no existing codebase precedent. May need additional design research before implementation.
 
-**Rationale:** These are new ICM sub-rooms following established patterns. They do not depend on the MCP server and can be built in parallel with Phase 11, but require Phase 10's dynamic section discovery. Grant discovery delivers standalone value even before MCP is complete.
-**Delivers:** `room/opportunity-bank/` and `room/funding/` sub-rooms with STATE.md, per-grant folders following GSD process structure, basic lifecycle tracking, session-start hook extension for proactive grant scanning via Grants.gov API, new `commands/opportunities.md` and `commands/funding.md`, `agents/opportunity-scanner.md`
-**Uses:** Grants.gov free REST API (primary), `cheerio@1.2.0` (secondary), Native `fetch` (Node 18+)
-**Implements:** Opportunity Bank as room section; Funding Room as sub-room; hook-driven grant scanning (no cron)
-**Avoids:** Pitfall 6 (scope creep into CRM) — scope locked at discovery + connections only; no deadline management, no application form filling; Pitfall 12 (API credit burn) — 7-day cache TTL, re-scan only on room content change; Pitfall 13 (stale status) — Larry conversational reminders at SessionStart, no notification infrastructure; Pitfall 14 (Brain dependency) — every feature tested Brain-disconnected first
-
-### Phase 13: AI Team Member Personas
-
-**Rationale:** Personas require well-populated rooms to produce non-generic output. Building last in the v3.0 sequence means rooms will have opportunity-bank and funding data in addition to the 8 DD sections, producing venture-specific rather than generic personas.
-**Delivers:** `lib/core/persona-ops.cjs` for persona generation from room state, `commands/persona.md`, `references/personas/` generation templates, `room/personas/` storage following ICM artifact pattern, Larry persona-lens behavior (De Bono Six Hats framing), `team_persona` tool in MCP server's hierarchical router
-**Implements:** Persona generation flow (room analysis > domain extraction > hat assignment > PERSONA.md), selective persona activation (analysis/synthesis tasks only per PRISM research), persona dependency chain via pipeline chaining (coherence cascade)
-**Avoids:** Pitfall 7 (hallucinated expert advice) — "perspective lens" framing, not "expert advisor"; disclaimer on every persona output; personas synthesize only from room data; Pitfall 5 anti-pattern (personas as independent agents) — personas are skill context files loaded by Larry, not autonomous agents
-
-### Phase 14: Remote Room Access (Deferred — v3.x+)
-
-**Rationale:** Remote room adds authentication, conflict resolution, Streamable HTTP transport, and real-time sync — each a significant complexity layer. The 2026 MCP roadmap lists session state as active work; building on a shifting spec is high-risk. Local MCP must be battle-tested in production before network complexity is layered on top.
-**Delivers:** Streamable HTTP transport alongside existing stdio on same `McpServer` instance (no code refactor — SDK supports dual transports), OAuth 2.1 + Resource Indicators (RFC 8707), git-based room sync for concurrent team access, STATE.md conflict resolution via recompute (derived data, always safe to regenerate)
-**Prerequisite:** Phase 11 local MCP validated in production; git-managed `room/`; auth infrastructure decision; re-read MCP session state spec at time of planning
-**Avoids:** Pitfall 3 (user data exposure without auth) — never ships without OAuth 2.1; Pitfall 9 (concurrent write conflicts) — git branching as concurrency layer, STATE.md regenerated idempotently on conflict
+### Phase 6: MCP Apps Data Room Views
+**Rationale:** Highest implementation effort, most visually impressive, most immature spec. Defer until Phases 1-5 are production-proven. HTML exports are the always-working fallback — MCP Apps is progressive enhancement, not new capability.
+**Delivers:** Dashboard (De Stijl Mondrian grid), wiki (section navigation), knowledge graph (Cytoscape) rendered inline in Claude conversation; read-only first, bidirectional tool calls from iframe as Phase 6b
+**Uses:** `@modelcontextprotocol/ext-apps@1.5.0` (`ext-apps/server` subpackage only — no React peer dep); existing De Stijl HTML generators wrapped, not replaced; Cytoscape.js bundled inline (no CDN due to iframe CSP restrictions)
+**Implements:** `lib/mcp/apps.cjs` as thin delivery wrapper; HTML export remains primary view mechanism; MCP Apps layer adds <100 lines via `apps-bridge.cjs` abstraction
+**Avoids:** Pitfall 9 (MCP Apps spec drift — HTML exports unaffected by any spec change), Pitfall 12 (Cytoscape iframe CSP blocking — bundle inline, test in actual Cowork VM, not just local browser)
+**Research flag:** MCP Apps rendering in actual Cowork VM sandbox requires empirical testing — cross-client rendering differences documented. Test in real Cowork sandbox at phase start before completing any implementation.
 
 ### Phase Ordering Rationale
 
-- Phase 10 is the single prerequisite for everything: `mindrian-tools.cjs` is the shared truth that guarantees CLI/MCP parity. Building MCP tools before this exists means duplicating logic that will need extraction later.
-- Phases 11 and 12 run in parallel: No dependency between MCP server and room sections. Both depend only on Phase 10. Parallel execution compresses the v3.0 timeline.
-- Phase 13 after 12: Personas need room content. Opportunity Bank and Funding Room data makes personas meaningfully venture-specific rather than generic.
-- Phase 14 as a separate release: Remote access complexity is high enough to constitute a distinct release. Shipping it within v3.0 would extend the timeline and risk the solid foundation established by Phases 10-13.
-- This ordering directly mirrors ARCHITECTURE.md's Phase 10-14 build order, which was derived from codebase dependency analysis.
+- Phases 1-2 are a hard prerequisite gate. Nothing shipped on Cowork is trustworthy until `intelligence-cascade.cjs` fires on MCP writes and KuzuDB writes are safe. The hollow shell failure mode is invisible — users won't know intelligence stopped; they'll just notice Larry "seems dumber."
+- Phase 3 (pipeline chaining) can run in parallel with Phase 4 if capacity allows — both depend on Phase 1 tool parity but not on each other.
+- Phases 4-5 form a scheduled intelligence stack where each phase provides infrastructure the next requires. Phase 5 cannot precede Phase 4.
+- Phase 6 is explicitly the last phase and can be started in parallel with Phase 5 on a separate track if capacity allows, since it depends only on Phase 1 tool parity.
+- The `intelligence-cascade.cjs` refactor is the single highest-leverage commit in the roadmap. It prevents the most trust-destroying failure mode and costs 1-2 days to do correctly versus 3-5 days to retrofit after discovery.
 
 ### Research Flags
 
-Phases likely needing deeper research during planning:
-
-- **Phase 11 (MCP Server):** Tool decomposition design requires per-command analysis. Each multi-step CLI command must be mapped to its atomic MCP tool equivalents before implementation. The `file-meeting.md` decomposition alone (4-5 tools) is a non-trivial design task. Recommend a pre-phase mapping session covering all 41 commands before writing any tool handler.
-- **Phase 14 (Remote Room):** OAuth 2.1 + Resource Indicators (RFC 8707) in MCP context is new territory. The 2026 MCP session state spec is still evolving. Fresh research on the spec state at time of planning is mandatory before any design decisions.
-- **Phase 12 (Grant APIs):** Candid API pricing tiers, Grants.gov rate limit handling at scale, and Apify SBIR scraper reliability need validation before building the discovery agent. The free Grants.gov path is well-documented; everything beyond it needs API research at implementation time.
+Phases needing deeper research during planning:
+- **Phase 2:** Cowork sandbox path accessibility for `__dirname`-relative `references/` files — empirical test required before implementation. Deploy a 10-line test MCP server to Cowork VM and verify `loadReference()` returns content. This is the single most critical unknown in the entire roadmap.
+- **Phase 6:** MCP Apps rendering behavior in actual Cowork VM sandbox — spec is stable but cross-client rendering differences are documented. Run a minimal `registerAppTool` test in real Cowork before completing the phase.
+- **Phase 5b (hat cascade detection):** Hat-triggered cross-section contradiction detection has no existing codebase precedent. May need design research before Phase 5b implementation.
 
 Phases with standard patterns (skip research-phase):
-
-- **Phase 10 (Shared Core):** GSD's `gsd-tools.cjs` is a verified production reference available at `~/.claude/get-shit-done/bin/gsd-tools.cjs`. The pattern is fully documented and proven at 40+ subcommands. No new research needed — replicate what works.
-- **Phase 13 (Personas):** De Bono's Six Hats is a mature framework already implemented in `commands/think-hats.md`. PRISM (arXiv 2603.18507) and Mandal (2026) provide clear design principles with no ambiguity about implementation approach. Standard prompt engineering — no research phase needed.
+- **Phase 1:** MCP SDK tool registration, router hierarchy, surface detection — fully documented with verified codebase examples. The existing 6-router pattern is the blueprint; this is an expansion, not a redesign.
+- **Phase 3:** Pipeline chaining — enforces existing Decision #7, uses `room/` filesystem as state store per ICM principle. Standard pattern.
+- **Phase 4:** Cowork scheduled tasks + catch-up pattern — fully documented in official Cowork help. Workarounds for known bugs verified. SKILL.md format is established.
 
 ---
 
@@ -153,52 +163,52 @@ Phases with standard patterns (skip research-phase):
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All technologies verified against npm registry and official SDK docs as of 2026-03-24. Version compatibility confirmed. Only 2 net-new dependencies. Alternatives considered and rejected with clear rationale. |
-| Features | MEDIUM | MCP patterns HIGH. Grant API landscape MEDIUM (Grants.gov free tier verified; Candid API pricing not fully validated). Remote Room LOW (MCP session state spec is a 2026 roadmap item, not yet stable). |
-| Architecture | HIGH | Based on existing codebase analysis + MCP SDK official docs + GSD production reference. Component boundaries are clear. Build order validated against dependency analysis. Anti-patterns grounded in real plugin code inspection. |
-| Pitfalls | MEDIUM | Tool explosion data sourced from community discussions (MEDIUM). Hallucination statistics from 2026 survey (MEDIUM, not peer-reviewed). Auth and concurrency pitfalls sourced from official MCP spec and Sandi Metz — HIGH on those two. |
+| Stack | HIGH | SDK 1.29.0 and ext-apps 1.5.0 verified via npm registry April 5 2026. Peer deps confirmed via `npm view`. SSE deprecation date confirmed (April 1, 2026). |
+| Features | HIGH | MCP spec verified, Cowork scheduled task format verified, surface detection mechanism verified via official MCP initialize handshake docs. 15 orphaned commands identified via direct codebase inspection. |
+| Architecture | HIGH | Based on direct codebase reading of `tool-router.cjs`, `brain-client.cjs`, `graph-ops.cjs`. Component sizes estimated from actual module patterns. Build order validated against dependency analysis. |
+| Pitfalls | HIGH | Critical pitfalls verified against confirmed GitHub issues (#27398, #43397, #41461), KuzuDB concurrency docs, MCP token budget research, and direct codebase state inspection. |
 
-**Overall confidence:** HIGH for v3.0 scope (Phases 10-13). MEDIUM for Phase 14 (Remote Room) due to evolving MCP spec.
+**Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **MCP session state spec (Phase 14):** The 2026 MCP roadmap lists this as active work. At time of Phase 14 planning, re-read the spec to understand what is finalized. The current design (git-as-concurrency-layer) is a sound fallback regardless of spec evolution, but the official path may be cleaner.
-- **Candid API cost model (Phase 12):** Candid's tiered pricing is not fully documented publicly. Needs a pricing conversation with Candid or a test of the free tier to understand viable discovery scope before committing to it as a data source. Start with Grants.gov free tier exclusively; add Candid only when federal grants prove insufficient.
-- **Windows path handling for MCP config (Phase 11):** stdio MCP servers on Windows require a `cmd /c` wrapper in `claude_desktop_config.json`. The development environment is Linux (WSL2) and this gap will not surface naturally. Must test on Windows explicitly during Phase 11.
-- **Node.js cold start vs. hook timeout (Phase 10):** The 2-3 second hook timeout assumption for Bash scripts needs validation against actual `mindrian-tools.cjs` execution time on a cold Node.js process. If cold start exceeds the budget, hook scripts must stay pure Bash and only call `mindrian-tools.cjs` for non-hook-triggered operations.
-- **Brain MCP Tier 0 validation (standing):** PITFALLS.md flags that every Phase 12-13 feature must be tested Brain-disconnected first (Pitfall 14). This is a standing validation requirement. The developer always has Brain connected — this gap will not surface naturally without explicit Tier 0 test runs.
+- **Cowork VM `__dirname` path resolution:** Cannot be confirmed without deployment. PITFALLS.md correctly says "test this first." Treat as an unknown until Phase 2 empirical test. The fix (copy references to `room/00_Context/` during setup) is ready if needed.
+- **MCP Apps iframe CSP in Cowork sandbox:** Cytoscape.js CDN loading may be blocked. Bundle-vs-CDN decision must be made after testing in actual Cowork VM. Bundling inline is the safer default.
+- **Cowork scheduler MCP connector bug scope:** Bugs #43397 and #32000 are filed but resolution timeline unknown. The catch-up pattern mitigates but does not eliminate the risk if `~/.claude/mcp.json` workaround also fails.
+- **Brain cold start pre-warm timing:** The pre-warm `/health` ping on MCP server start must be async and fire-and-forget. A synchronous pre-warm would itself block server initialization by ~30s on cold start. Must not block `server.connect()`.
+- **`ext-apps` draft spec evolution:** A draft spec exists alongside the stable 2026-01-26 spec. If a breaking `1.6.0` releases between Phase 1 and Phase 6, `apps-bridge.cjs` abstraction is the insurance. Keep the wrapper thin.
 
 ---
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- [@modelcontextprotocol/sdk on npm](https://www.npmjs.com/package/@modelcontextprotocol/sdk) — v1.27.1 dependencies, peer deps, engine requirements
-- [MCP TypeScript SDK server docs](https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/server.md) — McpServer API, registerTool with Zod, StdioServerTransport
-- [MCP Transports Spec 2025-03-26](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports) — SSE deprecated, Streamable HTTP standard
-- [Grants.gov API](https://www.grants.gov/api) + [API Guide](https://grants.gov/api/api-guide) — free search endpoint, rate limits, JSON structure
-- [MCP Authorization Tutorial](https://modelcontextprotocol.io/docs/tutorials/security/authorization) — OAuth 2.1 official guidance
-- [MCP Resources Spec](https://modelcontextprotocol.info/docs/concepts/resources/) — read-only, application-controlled distinction from Tools
-- [PRISM: Expert Personas (arXiv 2603.18507)](https://arxiv.org/html/2603.18507) — personas improve alignment, damage accuracy on knowledge retrieval
-- [PersonaCite (arXiv 2601.22288)](https://arxiv.org/html/2601.22288v1) — personas generated from data vs. templates
-- [The Wrong Abstraction — Sandi Metz](https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction) — premature abstraction costs
-- GSD reference implementation (`~/.claude/get-shit-done/bin/gsd-tools.cjs`) — proven CJS single-entry-point pattern, 40+ subcommands, process.argv routing
+- [@modelcontextprotocol/sdk npm](https://www.npmjs.com/package/@modelcontextprotocol/sdk) — v1.29.0 latest stable, peer deps, Node >=18 requirement; verified April 5 2026
+- [@modelcontextprotocol/ext-apps npm](https://www.npmjs.com/package/@modelcontextprotocol/ext-apps) — v1.5.0, peer dep on SDK ^1.29.0, React optional confirmed via peerDependenciesMeta
+- [MCP Apps official spec](https://modelcontextprotocol.io/docs/extensions/apps) — ui:// scheme, sandboxed iframe, bidirectional JSON-RPC, security model; stable Jan 2026
+- [MCP Apps blog post](https://blog.modelcontextprotocol.io/posts/2026-01-26-mcp-apps/) — launch announcement, supported clients, technical architecture
+- [ext-apps GitHub + Quickstart](https://apps.extensions.modelcontextprotocol.io/api/documents/Quickstart.html) — registerAppTool, registerAppResource, RESOURCE_MIME_TYPE; vanilla JS example verified
+- [TypeScript SDK server docs](https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/server.md) — Streamable HTTP, dual transport, session management
+- [Claude Cowork help center](https://support.claude.com/en/articles/13345190-get-started-with-cowork) — VM sandbox, folder mount constraints, MCP bridging
+- [Cowork scheduled tasks docs](https://support.claude.com/en/articles/13854387-schedule-recurring-tasks-in-cowork) — SKILL.md format, catch-up behavior, constraints
+- [GitHub #27398](https://github.com/anthropics/claude-code/issues/27398) — Cowork plugin hooks never fire, `--setting-sources user` confirmed, closed as duplicate
+- [GitHub #43397, #32000, #36327](https://github.com/anthropics/claude-code) — MCP connectors not loading in scheduled tasks
+- [GitHub #41461](https://github.com/anthropics/claude-code/issues/41461) — background agents cannot be stopped, massive token waste confirmed
+- [KuzuDB concurrency docs](https://docs.kuzudb.com/concurrency/) — single READ_WRITE instance enforced via file permission flags; multi-process contention behavior
+- [Inside Claude Cowork VM](https://pvieito.com/2026/01/inside-claude-cowork) — VirtioFS, bubblewrap sandbox, /sessions directory marker, folder mount constraints
+- [Build custom connectors via remote MCP](https://support.claude.com/en/articles/11503834-build-custom-connectors-via-remote-mcp-servers) — remote servers added via Settings > Integrations (not JSON config)
+- Existing codebase: `lib/mcp/tool-router.cjs` (6 routers, 49 commands), `lib/core/brain-client.cjs`, `lib/core/graph-ops.cjs` — verified by direct code reading
 
 ### Secondary (MEDIUM confidence)
-- [Fundsprout: 12 Best Grant Discovery Platforms 2026](https://www.fundsprout.ai/resources/grant-discovery-platforms) — competitive landscape for grant tools
-- [MCP Tool Count Discussion](https://github.com/modelcontextprotocol/modelcontextprotocol/discussions/1251) — ~50 tool practical limit, Cursor 40-tool hard cap
-- [Why MCP Tool Overload Happens](https://www.lunar.dev/post/why-is-there-mcp-tool-overload-and-how-to-solve-it-for-your-ai-agents) — 30-60K token cost data for tool definitions
-- [Mandal (2026): Role-Based Agent Personas](https://www.sagarmandal.com/2026/03/15/agentic-engineering-part-3-role-based-agent-personas-why-specialization-beats-generalization/) — coherence cascade pattern, 10-step dependency chain
-- [MCP Security Survival Guide](https://towardsdatascience.com/the-mcp-security-survival-guide-best-practices-pitfalls-and-real-world-lessons/) — 492 exposed servers without auth
-- [2026 MCP Roadmap](http://blog.modelcontextprotocol.io/posts/2026-mcp-roadmap/) — session state as active work item
-- [Specmatic MCP Schema Drift Detector](https://specmatic.io/updates/testing-mcp-servers-how-specmatic-mcp-auto-test-catches-schema-drift-and-automates-regression/) — parity testing approach
-- [Cheerio on npm](https://www.npmjs.com/package/cheerio) — v1.2.0, 19,873 dependents, pure JS
+- [MCP Streamable HTTP deep dive](https://www.claudemcp.com/blog/mcp-streamable-http) — SSE deprecation date, Streamable HTTP replacement; April 1 2026 cutoff
+- [MCP Token Limits: Hidden Cost of Tool Overload](https://deploystack.io/blog/mcp-token-limits-the-hidden-cost-of-tool-overload) — ~15-20 enum accuracy threshold, 300-600 tokens per tool definition
+- [Cowork security guide](https://www.harmonic.security/resources/securing-claude-cowork-a-security-practitioners-guide) — network restrictions, folder mounting behavior
+- [MCP stateless execution](https://www.getknit.dev/blog/advanced-mcp-agent-orchestration-chaining-and-handoffs) — state must be managed externally, pipeline state design
 
-### Tertiary (LOW confidence — needs validation)
-- [Candid Grants API Developer Portal](https://developer.candid.org/) — exists and documented; pricing tiers not fully validated
-- [AI Hallucination Statistics 2026](https://suprmind.ai/hub/insights/ai-hallucination-statistics-research-report-2026/) — domain-specific rates; survey methodology, not peer-reviewed
-- [Apify SBIR Grants Scraper](https://apify.com/parseforge/sbir-government-grants-scraper/api) — data quality and freshness not independently verified
+### Tertiary (LOW confidence)
+- [ccleaks KAIROS analysis](https://ccleaks.com) — background agent, autoDream, always-on memory consolidation; NOT shipped, do not build against; MindrianOS room artifacts are KAIROS-compatible (plain files, MCP tools as API surface) but no code dependency on KAIROS
+- [Vela-Engineering KuzuDB fork](https://www.vela.partners/blog/kuzudb-ai-agent-memory-graph-database) — multi-writer fork exists as fallback if promise-chain queue proves insufficient; adds non-standard dependency, use only as last resort
 
 ---
-*Research completed: 2026-03-24*
+*Research completed: 2026-04-05*
 *Ready for roadmap: yes*
