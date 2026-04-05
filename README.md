@@ -306,7 +306,7 @@ After approval, add to your `claude_desktop_config.json`:
 
 ---
 
-## All 63 Commands
+## All 66 Commands
 
 ### Infrastructure (always available)
 
@@ -380,7 +380,7 @@ MindrianOS-Plugin/
 │   ├── mcp/                    # MCP tools, resources, prompts, Larry context
 │   └── parity/                 # CLI/MCP parity check (CI gate)
 ├── mcp-server-brain/           # Brain hosting server
-├── commands/                   # 63 commands (/mos:*)
+├── commands/                   # 66 commands (/mos:*)
 ├── skills/                     # Auto-activated intelligence (7 skills)
 ├── agents/                     # 8 agents
 ├── hooks/                      # 9 hooks (SessionStart, PostToolUse, Stop + 6 Powerhouse hooks)
@@ -404,11 +404,11 @@ MindrianOS-Plugin/
 
 | Component | Count |
 |-----------|-------|
-| Commands (`/mos:*`) | 63 |
+| Commands (`/mos:*`) | 66 |
 | Agents | 8 |
 | Skills (auto-loaded) | 7 |
 | Hooks | 9 |
-| MCP Tools | 49 |
+| MCP Tools | 64 (9 routers) |
 | KuzuDB Edge Types | 12 |
 | Pipelines | 3 |
 | Bash Scripts | 40+ |
