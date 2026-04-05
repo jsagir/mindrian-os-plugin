@@ -40,6 +40,7 @@ const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js');
 const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
 const { detectSurface } = require('../lib/mcp/surface-detect.cjs');
 const { registerCapabilities } = require('../lib/mcp/capability-registry.cjs');
+const { computeCatchUp, registerShutdownHandler } = require('../lib/mcp/session-catchup.cjs');
 
 // Detect surface before anything else
 const surface = detectSurface();
@@ -82,6 +83,11 @@ registerPrompts(server, roomDir, pluginRoot);
 // Register surface-aware capabilities (MCP Apps, Tasks -- Phase 58/60 hook points)
 registerCapabilities(server, surface.capabilities, roomDir, pluginRoot);
 
+// Session catch-up: register shutdown handler to save session state (all surfaces)
+if (fs.existsSync(roomDir)) {
+  registerShutdownHandler(roomDir);
+}
+
 // Connect transport based on detected surface
 async function main() {
   if (surface.transport === 'http') {
@@ -110,6 +116,20 @@ async function main() {
     await server.connect(transport);
     app.listen(3847, '127.0.0.1', () => {
       process.stderr.write(`[mindrian-os] MCP server v${version} started (${surface.surface}, HTTP on 127.0.0.1:3847, room: ${roomDir})\n`);
+
+      // Session catch-up for Cowork: compute what was missed since last session
+      if (fs.existsSync(roomDir)) {
+        try {
+          const catchUp = computeCatchUp(roomDir);
+          if (catchUp.hasCatchUp) {
+            process.stderr.write(`[mindrian-os] Session catch-up: ${catchUp.summary}\n`);
+          } else {
+            process.stderr.write(`[mindrian-os] Session catch-up: first session or no changes detected.\n`);
+          }
+        } catch (e) {
+          process.stderr.write(`[mindrian-os] Session catch-up failed (non-fatal): ${e.message}\n`);
+        }
+      }
     });
   } else {
     // stdio for CLI and Desktop
