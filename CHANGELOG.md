@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.7.1] - 2026-04-05
+
+### Added
+- generate-hub.cjs rebuilt to Synteris quality -- full De Stijl component library with venture cards, grade circles, badge system, smart content detection (bug/wish/decision cards), Data Room Views button row, scroll-highlight navigation
+- /mos:snapshot and /mos:export now produce single-file tabbed hub by default (D20)
+- Recursive scanning in all visualization scripts (build-graph, generate-snapshot, generate-presentation)
+
+### Fixed
+- build-graph recursive scanning for nested directories (12 nodes to 73)
+- Cytoscape node IDs with slashes breaking CSS selectors
+- generate-standalone JS injection leaving orphaned .then/.catch blocks
+- generate-snapshot.cjs and generate-presentation.cjs depth-1 scanning
+- Cytoscape compound layout collapsing for 30+ node rooms
+- Banner on every cold start, not just first install
+- Status line: wrong JSON key, literal $PLUGIN_ROOT, room-only gate
+- Brain key global fallback to ~/.mindrian.env
+- /mos:onboard reset for replaying welcome sequence
+- Post-room creation shows OS-native open folder command
+- Brain setup two-stage health check (wake before verify)
+- disable-model-invocation removed from 29 methodology commands
+
 ## [1.7.0] - 2026-04-05
 onboarding: true
 onboard_steps:
