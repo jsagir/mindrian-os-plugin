@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Room Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* De Stijl Design Tokens */
+:root {
+  --ds-bg: #1a1a1a;
+  --ds-surface: #2d2d2d;
+  --ds-elevated: #3a3a3a;
+  --ds-cream: #f5f1e8;
+  --ds-muted: #a8a39f;
+  --ds-text: #d4cfc7;
+  --ds-border: #404040;
+  --ds-red: #A63D2F;
+  --ds-blue: #1E3A6E;
+  --ds-yellow: #C8A43C;
+  --ds-green: #2D6B4A;
+  --ds-teal: #2A6B5E;
+  --ds-sienna: #B5602A;
+  --ds-gray: #5C5A56;
+  --ds-amethyst: #6B4E8B;
+  --ds-red-text: #C95A4A;
+  --ds-blue-text: #4A7BC8;
+  --ds-yellow-text: #C8A43C;
+  --ds-green-text: #4A9B72;
+  --ds-teal-text: #4A9B8E;
+  --ds-font-display: 'Bebas Neue', sans-serif;
+  --ds-font-body: 'Inter', system-ui, sans-serif;
+  --ds-font-mono: 'JetBrains Mono', monospace;
+  --ds-transition: 150ms ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--ds-font-body);
+  background: var(--ds-bg);
+  color: var(--ds-cream);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  padding: 16px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 2px solid var(--ds-border);
+  margin-bottom: 16px;
+}
+.header-title {
+  font-family: var(--ds-font-display);
+  font-size: 1.75rem;
+  letter-spacing: 0.04em;
+  color: var(--ds-cream);
+}
+.header-stage {
+  font-family: var(--ds-font-mono);
+  font-size: 0.75rem;
+  color: var(--ds-yellow-text);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.header-subtitle {
+  font-size: 0.875rem;
+  color: var(--ds-muted);
+  margin-top: 2px;
+}
+.refresh-btn {
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  color: var(--ds-muted);
+  font-family: var(--ds-font-mono);
+  font-size: 0.6875rem;
+  padding: 6px 12px;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: var(--ds-transition);
+}
+.refresh-btn:hover { border-color: var(--ds-blue); color: var(--ds-cream); }
+
+/* Mondrian accent bar */
+.accent-bar {
+  display: flex;
+  height: 4px;
+  margin-bottom: 16px;
+}
+.accent-bar span { flex: 1; }
+.accent-bar span:nth-child(1) { background: var(--ds-red); }
+.accent-bar span:nth-child(2) { background: var(--ds-blue); }
+.accent-bar span:nth-child(3) { background: var(--ds-yellow); }
+.accent-bar span:nth-child(4) { background: var(--ds-cream); }
+.accent-bar span:nth-child(5) { background: var(--ds-bg); }
+
+/* Stats row */
+.stats-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.stat-card {
+  flex: 1;
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  padding: 12px 16px;
+}
+.stat-value {
+  font-family: var(--ds-font-mono);
+  font-size: 1.5rem;
+  color: var(--ds-cream);
+}
+.stat-label {
+  font-family: var(--ds-font-mono);
+  font-size: 0.6875rem;
+  color: var(--ds-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Mondrian grid */
+.mondrian-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.section-card {
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  padding: 16px;
+  position: relative;
+  transition: var(--ds-transition);
+  cursor: default;
+}
+.section-card:hover {
+  border-color: var(--ds-cream);
+  transform: translateY(-1px);
+}
+.section-card-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+.section-card-label {
+  font-family: var(--ds-font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  padding-left: 12px;
+}
+.section-card-count {
+  font-family: var(--ds-font-mono);
+  font-size: 1.25rem;
+  color: var(--ds-cream);
+  padding-left: 12px;
+}
+.section-card-entries {
+  font-size: 0.75rem;
+  color: var(--ds-muted);
+  padding-left: 12px;
+  margin-top: 4px;
+}
+
+/* Footer */
+.mondrian-bar {
+  display: flex;
+  height: 3px;
+  margin-top: 16px;
+}
+.mondrian-bar span { flex: 1; }
+.signature {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-family: var(--ds-font-mono);
+  font-size: 0.625rem;
+  color: var(--ds-muted);
+  letter-spacing: 0.08em;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 48px;
+  color: var(--ds-muted);
+  font-family: var(--ds-font-mono);
+}
+</style>
+</head>
+<body>
+<div id="app" class="loading">Loading Data Room...</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@modelcontextprotocol/ext-apps/dist/src/app-with-deps.js"></script>
+<script>
+(async function() {
+  // Connect to MCP Apps bridge
+  const app = new App();
+  let connected = false;
+  try {
+    await app.connect();
+    connected = true;
+  } catch (e) {
+    console.warn('MCP Apps bridge not available, using tool result data');
+  }
+
+  let roomData = null;
+
+  // Receive tool result data
+  app.ontoolresult = function(result) {
+    try {
+      const text = result.content && result.content[0] && result.content[0].text;
+      if (text) {
+        roomData = JSON.parse(text);
+        render(roomData);
+      }
+    } catch (e) {
+      document.getElementById('app').innerHTML = '<p>Error parsing room data</p>';
+    }
+  };
+
+  // Refresh handler -- calls back to MCP tool
+  window.refreshDashboard = async function() {
+    if (connected) {
+      try {
+        const result = await app.callServerTool({ name: 'room-dashboard', arguments: {} });
+        if (result && result.content && result.content[0]) {
+          roomData = JSON.parse(result.content[0].text);
+          render(roomData);
+        }
+      } catch (e) {
+        console.error('Refresh failed:', e);
+      }
+    }
+  };
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function render(data) {
+    const s = data.stats || {};
+    const sections = data.sections || [];
+
+    let html = '';
+
+    // Header
+    html += '<div class="header">';
+    html += '<div>';
+    html += '<div class="header-title">' + escapeHtml(data.name || 'Data Room') + '</div>';
+    html += '<div class="header-stage">' + escapeHtml(data.stage || '') + '</div>';
+    if (data.subtitle) html += '<div class="header-subtitle">' + escapeHtml(data.subtitle) + '</div>';
+    html += '</div>';
+    html += '<button class="refresh-btn" onclick="refreshDashboard()">REFRESH</button>';
+    html += '</div>';
+
+    // Accent bar
+    html += '<div class="accent-bar"><span></span><span></span><span></span><span></span><span></span></div>';
+
+    // Stats
+    html += '<div class="stats-row">';
+    html += '<div class="stat-card"><div class="stat-value">' + (s.section_count || 0) + '</div><div class="stat-label">Sections</div></div>';
+    html += '<div class="stat-card"><div class="stat-value">' + (s.entry_count || 0) + '</div><div class="stat-label">Entries</div></div>';
+    html += '<div class="stat-card"><div class="stat-value">' + (s.thread_count || 0) + '</div><div class="stat-label">Threads</div></div>';
+    html += '</div>';
+
+    // Mondrian grid of sections
+    html += '<div class="mondrian-grid">';
+    for (const sec of sections) {
+      html += '<div class="section-card">';
+      html += '<div class="section-card-accent" style="background:' + (sec.color || '#4A7BC8') + '"></div>';
+      html += '<div class="section-card-label" style="color:' + (sec.color || '#4A7BC8') + '">' + escapeHtml(sec.label) + '</div>';
+      html += '<div class="section-card-count">' + (sec.entryCount || 0) + '</div>';
+      if (sec.articles && sec.articles.length > 0) {
+        html += '<div class="section-card-entries">';
+        for (var i = 0; i < Math.min(sec.articles.length, 3); i++) {
+          html += escapeHtml(sec.articles[i].title);
+          if (i < Math.min(sec.articles.length, 3) - 1) html += ', ';
+        }
+        if (sec.articles.length > 3) html += '...';
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+
+    // Footer
+    html += '<div class="mondrian-bar">';
+    html += '<span style="background:#A63D2F"></span>';
+    html += '<span style="background:#1E3A6E"></span>';
+    html += '<span style="background:#C8A43C"></span>';
+    html += '<span style="background:#F5F0E8"></span>';
+    html += '<span style="background:#1a1a1a"></span>';
+    html += '</div>';
+    html += '<div class="signature">';
+    html += '<span>MINDRIANOS</span>';
+    html += '<span>' + (s.section_count||0) + 's ' + (s.entry_count||0) + 'e ' + (s.thread_count||0) + 't</span>';
+    html += '</div>';
+
+    document.getElementById('app').innerHTML = html;
+    document.getElementById('app').className = '';
+  }
+})();
+</script>
+</body>
+</html>

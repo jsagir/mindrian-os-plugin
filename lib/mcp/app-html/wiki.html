@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Room Wiki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ds-bg: #1a1a1a;
+  --ds-surface: #2d2d2d;
+  --ds-elevated: #3a3a3a;
+  --ds-cream: #f5f1e8;
+  --ds-muted: #a8a39f;
+  --ds-text: #d4cfc7;
+  --ds-border: #404040;
+  --ds-red: #A63D2F;
+  --ds-blue: #1E3A6E;
+  --ds-yellow: #C8A43C;
+  --ds-green: #2D6B4A;
+  --ds-teal: #2A6B5E;
+  --ds-sienna: #B5602A;
+  --ds-gray: #5C5A56;
+  --ds-amethyst: #6B4E8B;
+  --ds-blue-text: #4A7BC8;
+  --ds-yellow-text: #C8A43C;
+  --ds-green-text: #4A9B72;
+  --ds-teal-text: #4A9B8E;
+  --ds-font-display: 'Bebas Neue', sans-serif;
+  --ds-font-body: 'Inter', system-ui, sans-serif;
+  --ds-font-mono: 'JetBrains Mono', monospace;
+  --ds-transition: 150ms ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--ds-font-body);
+  background: var(--ds-bg);
+  color: var(--ds-cream);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Layout */
+.wiki-layout {
+  display: flex;
+  height: 100vh;
+}
+.wiki-sidebar {
+  width: 260px;
+  background: var(--ds-surface);
+  border-right: 1px solid var(--ds-border);
+  overflow-y: auto;
+  flex-shrink: 0;
+  padding: 16px;
+}
+.wiki-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 32px;
+}
+
+/* Sidebar */
+.wiki-brand {
+  font-family: var(--ds-font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.wiki-stage {
+  font-family: var(--ds-font-mono);
+  font-size: 0.6875rem;
+  color: var(--ds-yellow-text);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.wiki-search {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--ds-bg);
+  border: 1px solid var(--ds-border);
+  color: var(--ds-cream);
+  font-family: var(--ds-font-body);
+  font-size: 0.875rem;
+  margin-bottom: 16px;
+}
+.wiki-search:focus { outline: none; border-color: var(--ds-blue); }
+.wiki-section-group { margin-bottom: 12px; }
+.wiki-section-label {
+  font-family: var(--ds-font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--ds-transition);
+}
+.wiki-section-label:hover { color: var(--ds-cream); }
+.wiki-section-dot {
+  width: 8px;
+  height: 8px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.wiki-entry-link {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--ds-muted);
+  padding: 2px 0 2px 14px;
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  transition: var(--ds-transition);
+}
+.wiki-entry-link:hover {
+  color: var(--ds-cream);
+}
+.wiki-entry-link.active {
+  color: var(--ds-cream);
+  border-left-color: var(--ds-blue);
+}
+
+/* Main content */
+.wiki-welcome {
+  padding: 48px 0;
+  text-align: center;
+}
+.wiki-welcome h2 {
+  font-family: var(--ds-font-display);
+  font-size: 2rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+.wiki-welcome p {
+  color: var(--ds-muted);
+  font-size: 0.875rem;
+}
+
+.article-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ds-border);
+}
+.article-section-label {
+  font-family: var(--ds-font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.article-title {
+  font-family: var(--ds-font-display);
+  font-size: 1.75rem;
+  letter-spacing: 0.04em;
+}
+.article-meta {
+  font-family: var(--ds-font-mono);
+  font-size: 0.6875rem;
+  color: var(--ds-muted);
+  margin-top: 4px;
+}
+.article-body {
+  color: var(--ds-text);
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.article-body h1, .article-body h2, .article-body h3 {
+  font-family: var(--ds-font-display);
+  letter-spacing: 0.04em;
+  margin: 24px 0 8px;
+  color: var(--ds-cream);
+}
+.article-body h2 { font-size: 1.25rem; }
+.article-body h3 { font-size: 1rem; }
+
+/* Accent bar */
+.accent-bar {
+  display: flex;
+  height: 3px;
+}
+.accent-bar span { flex: 1; }
+.accent-bar span:nth-child(1) { background: var(--ds-red); }
+.accent-bar span:nth-child(2) { background: var(--ds-blue); }
+.accent-bar span:nth-child(3) { background: var(--ds-yellow); }
+.accent-bar span:nth-child(4) { background: var(--ds-cream); }
+.accent-bar span:nth-child(5) { background: var(--ds-bg); }
+
+/* Responsive */
+@media (max-width: 767px) {
+  .wiki-sidebar { width: 200px; padding: 12px; }
+  .wiki-main { padding: 16px; }
+}
+@media (max-width: 480px) {
+  .wiki-layout { flex-direction: column; }
+  .wiki-sidebar { width: 100%; height: auto; max-height: 200px; border-right: none; border-bottom: 1px solid var(--ds-border); }
+}
+
+.loading {
+  text-align: center;
+  padding: 48px;
+  color: var(--ds-muted);
+  font-family: var(--ds-font-mono);
+}
+.refresh-btn {
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  color: var(--ds-muted);
+  font-family: var(--ds-font-mono);
+  font-size: 0.6875rem;
+  padding: 4px 8px;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 12px;
+}
+.refresh-btn:hover { border-color: var(--ds-blue); color: var(--ds-cream); }
+</style>
+</head>
+<body>
+<div id="app" class="loading">Loading Wiki...</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@modelcontextprotocol/ext-apps/dist/src/app-with-deps.js"></script>
+<script>
+(async function() {
+  const app = new App();
+  let connected = false;
+  try {
+    await app.connect();
+    connected = true;
+  } catch (e) {
+    console.warn('MCP Apps bridge not available');
+  }
+
+  let roomData = null;
+  let activeArticle = null;
+
+  app.ontoolresult = function(result) {
+    try {
+      const text = result.content && result.content[0] && result.content[0].text;
+      if (text) {
+        roomData = JSON.parse(text);
+        render(roomData);
+      }
+    } catch (e) {
+      document.getElementById('app').innerHTML = '<p>Error parsing data</p>';
+    }
+  };
+
+  window.refreshWiki = async function() {
+    if (connected) {
+      try {
+        const result = await app.callServerTool({ name: 'room-wiki', arguments: {} });
+        if (result && result.content && result.content[0]) {
+          roomData = JSON.parse(result.content[0].text);
+          render(roomData);
+        }
+      } catch (e) { console.error('Refresh failed:', e); }
+    }
+  };
+
+  window.selectArticle = function(sectionId, articleIdx) {
+    if (!roomData) return;
+    const sec = roomData.sections.find(function(s) { return s.id === sectionId; });
+    if (!sec || !sec.articles[articleIdx]) return;
+    activeArticle = { section: sec, article: sec.articles[articleIdx] };
+    renderMain();
+    // Update sidebar active state
+    document.querySelectorAll('.wiki-entry-link').forEach(function(el) { el.classList.remove('active'); });
+    var linkId = 'link-' + sectionId + '-' + articleIdx;
+    var el = document.getElementById(linkId);
+    if (el) el.classList.add('active');
+    // Update model context
+    if (connected) {
+      app.updateModelContext({
+        content: [{ type: 'text', text: 'User is reading: ' + sec.label + ' / ' + sec.articles[articleIdx].title }]
+      }).catch(function() {});
+    }
+  };
+
+  window.filterEntries = function(query) {
+    if (!roomData) return;
+    var q = query.toLowerCase();
+    document.querySelectorAll('.wiki-entry-link').forEach(function(el) {
+      var text = el.textContent.toLowerCase();
+      el.style.display = (!q || text.indexOf(q) >= 0) ? 'block' : 'none';
+    });
+    document.querySelectorAll('.wiki-section-group').forEach(function(grp) {
+      var links = grp.querySelectorAll('.wiki-entry-link');
+      var visible = Array.from(links).some(function(l) { return l.style.display !== 'none'; });
+      grp.style.display = (!q || visible) ? 'block' : 'none';
+    });
+  };
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function renderSidebar() {
+    if (!roomData) return '';
+    var sections = roomData.sections || [];
+    var html = '';
+    html += '<div class="wiki-brand">' + escapeHtml(roomData.name || 'Data Room') + '</div>';
+    html += '<div class="wiki-stage">' + escapeHtml(roomData.stage || '') + '</div>';
+    html += '<input class="wiki-search" type="text" placeholder="Search entries..." oninput="filterEntries(this.value)">';
+
+    for (var s = 0; s < sections.length; s++) {
+      var sec = sections[s];
+      html += '<div class="wiki-section-group">';
+      html += '<div class="wiki-section-label" style="color:' + (sec.color||'#4A7BC8') + '">';
+      html += '<span class="wiki-section-dot" style="background:' + (sec.color||'#4A7BC8') + '"></span>';
+      html += escapeHtml(sec.label) + ' (' + (sec.entryCount||0) + ')';
+      html += '</div>';
+      for (var a = 0; a < (sec.articles||[]).length; a++) {
+        html += '<a class="wiki-entry-link" id="link-' + sec.id + '-' + a + '" onclick="selectArticle(\'' + sec.id + '\', ' + a + ')">';
+        html += escapeHtml(sec.articles[a].title);
+        html += '</a>';
+      }
+      html += '</div>';
+    }
+
+    html += '<button class="refresh-btn" onclick="refreshWiki()">REFRESH</button>';
+    return html;
+  }
+
+  function renderMain() {
+    var mainEl = document.getElementById('wiki-main');
+    if (!mainEl) return;
+    if (!activeArticle) {
+      var total = roomData ? (roomData.stats.entry_count || 0) : 0;
+      mainEl.innerHTML = '<div class="wiki-welcome"><h2>DATA ROOM WIKI</h2><p>Select an entry from the sidebar to read. ' + total + ' entries available.</p></div>';
+      return;
+    }
+    var sec = activeArticle.section;
+    var art = activeArticle.article;
+    var fm = art.frontmatter || {};
+
+    var html = '<div class="article-header">';
+    html += '<div class="article-section-label" style="color:' + (sec.color||'#4A7BC8') + '">' + escapeHtml(sec.label) + '</div>';
+    html += '<div class="article-title">' + escapeHtml(art.title) + '</div>';
+    var metaParts = [];
+    if (fm.date) metaParts.push(fm.date);
+    if (fm.type) metaParts.push(fm.type);
+    if (fm.status) metaParts.push(fm.status);
+    if (metaParts.length) html += '<div class="article-meta">' + escapeHtml(metaParts.join(' | ')) + '</div>';
+    html += '</div>';
+
+    html += '<div class="article-body">' + escapeHtml(art.body || '(No content)') + '</div>';
+    mainEl.innerHTML = html;
+  }
+
+  function render(data) {
+    var html = '<div class="accent-bar"><span></span><span></span><span></span><span></span><span></span></div>';
+    html += '<div class="wiki-layout">';
+    html += '<aside class="wiki-sidebar">' + renderSidebar() + '</aside>';
+    html += '<main class="wiki-main" id="wiki-main"></main>';
+    html += '</div>';
+
+    document.getElementById('app').innerHTML = html;
+    document.getElementById('app').className = '';
+
+    // Auto-select section if specified
+    if (data._activeSection) {
+      var sec = data.sections.find(function(s) { return s.id === data._activeSection; });
+      if (sec && sec.articles && sec.articles.length > 0) {
+        selectArticle(sec.id, 0);
+        return;
+      }
+    }
+    renderMain();
+  }
+})();
+</script>
+</body>
+</html>

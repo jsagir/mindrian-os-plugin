@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knowledge Graph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ds-bg: #1a1a1a;
+  --ds-surface: #2d2d2d;
+  --ds-elevated: #3a3a3a;
+  --ds-cream: #f5f1e8;
+  --ds-muted: #a8a39f;
+  --ds-text: #d4cfc7;
+  --ds-border: #404040;
+  --ds-red: #A63D2F;
+  --ds-blue: #1E3A6E;
+  --ds-yellow: #C8A43C;
+  --ds-green: #2D6B4A;
+  --ds-teal: #2A6B5E;
+  --ds-sienna: #B5602A;
+  --ds-gray: #5C5A56;
+  --ds-amethyst: #6B4E8B;
+  --ds-blue-text: #4A7BC8;
+  --ds-yellow-text: #C8A43C;
+  --ds-teal-text: #4A9B8E;
+  --ds-font-display: 'Bebas Neue', sans-serif;
+  --ds-font-body: 'Inter', system-ui, sans-serif;
+  --ds-font-mono: 'JetBrains Mono', monospace;
+  --ds-transition: 150ms ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--ds-font-body);
+  background: var(--ds-bg);
+  color: var(--ds-cream);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Header */
+.graph-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--ds-surface);
+  border-bottom: 1px solid var(--ds-border);
+  height: 48px;
+}
+.graph-title {
+  font-family: var(--ds-font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+}
+.graph-stats {
+  font-family: var(--ds-font-mono);
+  font-size: 0.6875rem;
+  color: var(--ds-muted);
+  letter-spacing: 0.08em;
+}
+.graph-controls {
+  display: flex;
+  gap: 6px;
+}
+.graph-btn {
+  background: var(--ds-bg);
+  border: 1px solid var(--ds-border);
+  color: var(--ds-muted);
+  font-family: var(--ds-font-mono);
+  font-size: 0.625rem;
+  padding: 4px 8px;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: var(--ds-transition);
+}
+.graph-btn:hover { border-color: var(--ds-blue); color: var(--ds-cream); }
+.graph-btn.active { border-color: var(--ds-blue); color: var(--ds-cream); background: var(--ds-blue); }
+
+/* Accent bar */
+.accent-bar {
+  display: flex;
+  height: 3px;
+}
+.accent-bar span { flex: 1; }
+.accent-bar span:nth-child(1) { background: var(--ds-red); }
+.accent-bar span:nth-child(2) { background: var(--ds-blue); }
+.accent-bar span:nth-child(3) { background: var(--ds-yellow); }
+.accent-bar span:nth-child(4) { background: var(--ds-cream); }
+.accent-bar span:nth-child(5) { background: var(--ds-bg); }
+
+/* Sidebar */
+.graph-sidebar {
+  position: fixed;
+  top: 51px;
+  left: 0;
+  width: 180px;
+  background: var(--ds-surface);
+  border-right: 1px solid var(--ds-border);
+  padding: 12px;
+  z-index: 80;
+  height: calc(100vh - 51px);
+  overflow-y: auto;
+}
+.sidebar-title {
+  font-family: var(--ds-font-display);
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  font-size: 0.6875rem;
+  color: var(--ds-muted);
+  cursor: pointer;
+  transition: var(--ds-transition);
+}
+.filter-item:hover { color: var(--ds-cream); }
+.filter-item input { accent-color: var(--ds-blue); }
+.filter-dot {
+  width: 8px;
+  height: 8px;
+  display: inline-block;
+}
+
+/* Graph container */
+.cy-container {
+  position: absolute;
+  top: 51px;
+  left: 180px;
+  right: 0;
+  bottom: 0;
+  background: var(--ds-bg);
+}
+
+/* Node info panel */
+.node-info {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  padding: 12px 16px;
+  max-width: 300px;
+  z-index: 90;
+  display: none;
+}
+.node-info-title {
+  font-family: var(--ds-font-display);
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.node-info-type {
+  font-family: var(--ds-font-mono);
+  font-size: 0.625rem;
+  color: var(--ds-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.node-info-edges {
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--ds-text);
+}
+
+@media (max-width: 767px) {
+  .graph-sidebar { display: none; }
+  .cy-container { left: 0; }
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: var(--ds-muted);
+  font-family: var(--ds-font-mono);
+}
+</style>
+</head>
+<body>
+<div id="app" class="loading">Loading Graph...</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@modelcontextprotocol/ext-apps/dist/src/app-with-deps.js"></script>
+<script>
+(async function() {
+  var THREAD_COLORS = {
+    'INFORMS': '#4A7BC8',
+    'CONTRADICTS': '#C95A4A',
+    'CONVERGES': '#C8A43C',
+    'ENABLES': '#4A9B72',
+    'INVALIDATES': '#A63D2F',
+    'BELONGS_TO': '#5C5A56',
+    'REASONING_INFORMS': '#6B4E8B',
+    'HSI_CONNECTION': '#4A9B8E',
+    'REVERSE_SALIENT': '#A63D2F',
+    'ANALOGOUS_TO': '#C87137',
+    'STRUCTURALLY_ISOMORPHIC': '#6B4E8B',
+    'RESOLVES_VIA': '#2D6B4A',
+    'CAUSES': '#B5602A',
+    'ROOT_CAUSE_OF': '#C95A4A',
+    'FEEDS_INTO': '#4A9B72',
+    'CO_OCCURS': '#C8A43C'
+  };
+
+  var app = new App();
+  var connected = false;
+  try {
+    await app.connect();
+    connected = true;
+  } catch (e) {
+    console.warn('MCP Apps bridge not available');
+  }
+
+  var cy = null;
+  var roomData = null;
+
+  app.ontoolresult = function(result) {
+    try {
+      var text = result.content && result.content[0] && result.content[0].text;
+      if (text) {
+        roomData = JSON.parse(text);
+        render(roomData);
+      }
+    } catch (e) {
+      document.getElementById('app').innerHTML = '<p>Error parsing graph data</p>';
+    }
+  };
+
+  window.refreshGraph = async function() {
+    if (connected) {
+      try {
+        var result = await app.callServerTool({ name: 'room-graph', arguments: {} });
+        if (result && result.content && result.content[0]) {
+          roomData = JSON.parse(result.content[0].text);
+          render(roomData);
+        }
+      } catch (e) { console.error('Refresh failed:', e); }
+    }
+  };
+
+  window.setLayout = function(name) {
+    if (!cy) return;
+    cy.layout({ name: name, animate: true, animationDuration: 500, padding: 40 }).run();
+    document.querySelectorAll('.layout-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.dataset.layout === name);
+    });
+  };
+
+  window.toggleThread = function(type, visible) {
+    if (!cy) return;
+    cy.edges().forEach(function(edge) {
+      var edgeType = edge.data('type') || edge.data('label');
+      if (edgeType === type) {
+        if (visible) edge.show(); else edge.hide();
+      }
+    });
+  };
+
+  window.fitGraph = function() {
+    if (cy) cy.fit(null, 40);
+  };
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function render(data) {
+    var nodes = data.graphNodes || [];
+    var edges = data.graphEdges || [];
+    var layoutName = data._layout || 'cose';
+
+    // Collect unique thread types from data
+    var threadTypes = {};
+    for (var i = 0; i < edges.length; i++) {
+      var t = edges[i].data.type || 'INFORMS';
+      threadTypes[t] = (threadTypes[t] || 0) + 1;
+    }
+
+    var html = '';
+    // Header
+    html += '<div class="graph-header">';
+    html += '<div class="graph-title">' + escapeHtml(data.name || 'Knowledge Graph') + '</div>';
+    html += '<div class="graph-stats">' + nodes.length + ' nodes / ' + edges.length + ' edges</div>';
+    html += '<div class="graph-controls">';
+    html += '<button class="graph-btn layout-btn' + (layoutName==='cose'?' active':'') + '" data-layout="cose" onclick="setLayout(\'cose\')">COSE</button>';
+    html += '<button class="graph-btn layout-btn' + (layoutName==='circle'?' active':'') + '" data-layout="circle" onclick="setLayout(\'circle\')">CIRCLE</button>';
+    html += '<button class="graph-btn layout-btn' + (layoutName==='breadthfirst'?' active':'') + '" data-layout="breadthfirst" onclick="setLayout(\'breadthfirst\')">TREE</button>';
+    html += '<button class="graph-btn" onclick="fitGraph()">FIT</button>';
+    html += '<button class="graph-btn" onclick="refreshGraph()">REFRESH</button>';
+    html += '</div>';
+    html += '</div>';
+
+    // Accent bar
+    html += '<div class="accent-bar"><span></span><span></span><span></span><span></span><span></span></div>';
+
+    // Sidebar with thread filters
+    html += '<aside class="graph-sidebar">';
+    html += '<div class="sidebar-title">THREADS</div>';
+    var types = Object.keys(threadTypes).sort();
+    for (var j = 0; j < types.length; j++) {
+      var tt = types[j];
+      var col = THREAD_COLORS[tt] || '#5C5A56';
+      html += '<label class="filter-item">';
+      html += '<input type="checkbox" checked onchange="toggleThread(\'' + tt + '\', this.checked)">';
+      html += '<span class="filter-dot" style="background:' + col + '"></span>';
+      html += tt.replace(/_/g, ' ') + ' (' + threadTypes[tt] + ')';
+      html += '</label>';
+    }
+    html += '</aside>';
+
+    // Graph container
+    html += '<div id="cy" class="cy-container"></div>';
+
+    // Node info panel
+    html += '<div id="node-info" class="node-info">';
+    html += '<div class="node-info-title" id="info-title"></div>';
+    html += '<div class="node-info-type" id="info-type"></div>';
+    html += '<div class="node-info-edges" id="info-edges"></div>';
+    html += '</div>';
+
+    document.getElementById('app').innerHTML = html;
+    document.getElementById('app').className = '';
+
+    // Initialize Cytoscape
+    cy = cytoscape({
+      container: document.getElementById('cy'),
+      elements: nodes.concat(edges),
+      style: [
+        {
+          selector: 'node',
+          style: {
+            'label': 'data(label)',
+            'background-color': function(ele) { return ele.data('color') || '#4A7BC8'; },
+            'color': '#f5f1e8',
+            'font-size': function(ele) { return ele.data('type') === 'section' ? '11px' : '9px'; },
+            'font-family': 'Inter, sans-serif',
+            'text-valign': 'bottom',
+            'text-margin-y': 4,
+            'width': function(ele) { return ele.data('type') === 'section' ? 32 : 20; },
+            'height': function(ele) { return ele.data('type') === 'section' ? 32 : 20; },
+            'border-width': 1,
+            'border-color': '#404040',
+            'text-wrap': 'ellipsis',
+            'text-max-width': '80px'
+          }
+        },
+        {
+          selector: 'edge',
+          style: {
+            'line-color': function(ele) { return THREAD_COLORS[ele.data('type')] || '#5C5A56'; },
+            'target-arrow-color': function(ele) { return THREAD_COLORS[ele.data('type')] || '#5C5A56'; },
+            'target-arrow-shape': 'triangle',
+            'width': 1.5,
+            'opacity': 0.7,
+            'curve-style': 'bezier'
+          }
+        },
+        {
+          selector: 'edge[type = "ANALOGOUS_TO"]',
+          style: {
+            'line-style': 'dashed',
+            'line-dash-pattern': [6, 3]
+          }
+        },
+        {
+          selector: 'node:selected',
+          style: {
+            'border-width': 3,
+            'border-color': '#C8A43C'
+          }
+        }
+      ],
+      layout: { name: layoutName, animate: false, padding: 40 }
+    });
+
+    // Node click handler
+    cy.on('tap', 'node', function(evt) {
+      var node = evt.target;
+      var panel = document.getElementById('node-info');
+      var title = document.getElementById('info-title');
+      var type = document.getElementById('info-type');
+      var edgesDiv = document.getElementById('info-edges');
+
+      title.textContent = node.data('label') || node.id();
+      type.textContent = (node.data('type') || 'node').toUpperCase();
+
+      var connected = node.connectedEdges();
+      var edgeList = [];
+      connected.forEach(function(e) {
+        var other = e.source().id() === node.id() ? e.target() : e.source();
+        edgeList.push((e.data('type')||'--') + ' -> ' + (other.data('label')||other.id()));
+      });
+      edgesDiv.textContent = edgeList.length > 0 ? edgeList.join(', ') : 'No connections';
+
+      panel.style.display = 'block';
+
+      // Update model context on node click
+      if (window.connected) {
+        app.updateModelContext({
+          content: [{ type: 'text', text: 'User selected graph node: ' + node.data('label') + ' (type: ' + node.data('type') + ')' }]
+        }).catch(function() {});
+      }
+    });
+
+    // Background click hides panel
+    cy.on('tap', function(evt) {
+      if (evt.target === cy) {
+        document.getElementById('node-info').style.display = 'none';
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
