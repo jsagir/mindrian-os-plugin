@@ -3,6 +3,7 @@
  * causal-to-kuzu.cjs -- KuzuDB Writer for Causal Extraction Results
  * =================================================================
  * Reads .causal-extract.json and creates CausalClaim nodes + EXTRACTED_FROM edges.
+ * Also creates CASCADES_TO edges from the cascades array (Phase 54).
  * Enforces Three Gaps quality (mechanism + falsifiable_prediction required),
  * max 5 claims per artifact, confidence by extraction method, domain validation.
  *
@@ -15,7 +16,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { openGraph, closeGraph, createCausalClaim, createExtractedFromEdge } = require('../lib/core/lazygraph-ops.cjs');
+const { openGraph, closeGraph, createCausalClaim, createExtractedFromEdge, createCascadesToEdge } = require('../lib/core/lazygraph-ops.cjs');
 
 /** Valid domains for CausalClaim classification */
 const VALID_DOMAINS = ['materials', 'business', 'competitive', 'financial', 'team', 'legal', 'general'];
@@ -122,6 +123,27 @@ async function main() {
     }
 
     process.stderr.write(`Wrote ${written} causal claims from ${sourceArtifact} to KuzuDB\n`);
+
+    // --- Phase 54: Create CASCADES_TO edges from cascades array ---
+    if (Array.isArray(data.cascades) && data.cascades.length > 0) {
+      let cascadeWritten = 0;
+      for (const cascade of data.cascades) {
+        if (!cascade.from_claim_id || !cascade.to_claim_id) {
+          continue;
+        }
+        try {
+          await createCascadesToEdge(conn, cascade.from_claim_id, cascade.to_claim_id, {
+            cascade_type: cascade.cascade_type || 'invalidation',
+            severity: cascade.severity || 'medium',
+          });
+          cascadeWritten++;
+        } catch (e) {
+          // One or both claim nodes may not exist -- skip silently
+          process.stderr.write(`Causal: cascade edge ${cascade.from_claim_id}->${cascade.to_claim_id} skipped: ${e.message}\n`);
+        }
+      }
+      process.stderr.write(`Wrote ${cascadeWritten} CASCADES_TO edges to KuzuDB\n`);
+    }
 
   } catch (e) {
     process.stderr.write(`Causal-to-KuzuDB error: ${e.message}\n`);
