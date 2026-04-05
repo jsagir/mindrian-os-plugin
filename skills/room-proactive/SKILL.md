@@ -3,138 +3,90 @@ name: room-proactive
 description: >
   Proactive Data Room intelligence. Surfaces gaps, contradictions, and convergence
   signals. Active when room/ exists with entries.
+activation: "dir_exists:room"
 ---
 
 # Room Proactive -- Gap, Contradiction, and Convergence Detection
 
-The Room is not just storage -- it is an active thinking partner. This skill gives you the ability to surface what is missing, what conflicts, and what is strengthening across the user's venture work.
+The Room is an active thinking partner. This skill surfaces what is missing, conflicting, and strengthening.
 
-## When to Activate
+## Activation Triggers
 
 | Trigger | Behavior |
 |---------|----------|
-| **SessionStart** | Run lightweight analysis. Surface at most 2 HIGH-confidence findings in greeting. Prioritize 1 gap + 1 convergence (or 1 contradiction). Keep it brief -- one sentence each. |
-| **/mos:status** | Include all HIGH + MEDIUM findings in status output. Group by type (Gaps, Convergence, Contradictions). |
-| **/mos:room --insights** | Full analysis including LOW confidence. Provide detailed interpretation and actionable suggestions. |
-| **During methodology session** | NEVER interrupt a methodology session with proactive findings. The user is deep in focused work. Save findings for the next SessionStart or status check. |
+| SessionStart | Max 2 HIGH findings. Prioritize 1 gap + 1 convergence (or contradiction). |
+| /mos:status | All HIGH + MEDIUM findings grouped by type. |
+| /mos:room --insights | Full analysis including LOW with interpretation. |
+| Methodology session | NEVER interrupt. Save for next SessionStart. |
 
 ## Gap Detection
 
-Beyond structural gaps (empty sections detected by `compute-state`), detect semantic gaps:
+- **Single-lens:** All entries from same methodology. Suggest complementary.
+- **Evidence gap:** Entries without validation/evidence markers.
+- **Adjacent section:** Connected sections filled, bridging section empty.
+- **Depth gap:** All entries at `depth: quick`.
 
-- **Single-lens gap**: Section has entries but all from the same methodology. The user explored one angle but not others. Phrase as opportunity: "Your market-analysis has trend data but no customer evidence -- consider /mos:analyze-needs."
-- **Evidence gap**: Section has entries but none with validation or evidence markers. Conceptual work without grounding.
-- **Adjacent section gap**: Connected sections filled but bridging section empty. Problem and solution explored but no market analysis connecting them.
-- **Depth gap**: Section has entries but all at `depth: quick`. No deep dives yet.
-
-Always phrase gaps as opportunities, not criticisms. Suggest specific commands when possible.
+Phrase as opportunities, not criticisms. Suggest specific commands.
 
 ## Contradiction Detection
 
-Scan Room entries for incompatible claims across sections:
+Scan for incompatible claims: customer type, market size, problem definition, timing assumptions.
 
-- **Customer type**: One section targets enterprise, another targets individual consumers
-- **Market size**: Wildly different TAM/SAM assertions in different entries
-- **Problem definition**: Core problem described differently across frameworks
-- **Timing assumptions**: Some entries assume urgent market, others assume long horizon
-
-**Phrasing rule**: Frame as tensions worth reconciling, not errors:
-- Good: "Your Domain Explorer says 'enterprise IT' but your Lean Canvas targets 'individual developers' -- worth reconciling."
-- Bad: "Error: contradictory customer types detected."
-
-**Time-awareness**: Only flag contradictions between entries from similar time periods. If earlier entries say X and recent entries say Y, that is likely a pivot (progress), not a contradiction. Check the `created:` frontmatter date. Natural evolution is signal, not noise.
+Frame as tensions worth reconciling. Check `created:` dates -- natural evolution (old X -> recent Y) is progress, not contradiction.
 
 ## Convergence Detection
 
-Multiple frameworks reaching similar conclusions independently is a strong signal:
-
-- **Domain convergence**: Same domain appears in 3+ artifacts from different methodologies
-- **Customer convergence**: Same customer segment identified by different frameworks
-- **Risk convergence**: Same risk flagged by multiple analyses
-- **Theme convergence**: Same keyword or concept appears across different sections
-
-Phrase as signal strength:
-- "Three frameworks independently identified 'aging water infrastructure' -- this convergence suggests a strong problem signal."
-- "Both your Domain Explorer and Lean Canvas point to 'small municipalities' as the target customer -- this alignment strengthens your focus."
+Same domain/customer/risk/theme in 3+ artifacts from different methodologies. Phrase as signal strength.
 
 ## Confidence Scoring
 
-| Level | Criteria | Display Rule |
-|-------|----------|--------------|
-| **HIGH** | Direct structural evidence (empty section, 3+ supporting entries, clear keyword conflict) | Show in SessionStart greeting |
-| **MEDIUM** | 2 supporting entries, keyword overlap, single-lens detection | Show in /mos:status |
-| **LOW** | Single entry inference, weak keyword match, speculative connection | Show only on explicit request (/mos:room --insights) |
+| Level | Criteria | Display |
+|-------|----------|---------|
+| HIGH | Direct structural evidence, 3+ entries, clear conflict | SessionStart |
+| MEDIUM | 2 entries, keyword overlap, single-lens | /mos:status |
+| LOW | Single entry inference, weak match | Explicit request only |
 
 ## Noise Gate
 
-Proactive intelligence must be helpful, not noisy. Strict gating rules:
+1. SessionStart: max 2 findings
+2. Never interrupt methodology
+3. Stage filtering: Pre-Opportunity suppresses financial/legal gaps. Investment elevates all gaps.
+4. Never repeat unchanged findings consecutive sessions
 
-1. **SessionStart**: Maximum 2 findings. Prioritize 1 gap + 1 convergence (or 1 contradiction if HIGH confidence). Never more than 2.
-2. **Never interrupt methodology sessions**: If the user is running a methodology command, suppress all proactive output. Wait for the next SessionStart.
-3. **Venture stage filtering**:
-   - **Pre-Opportunity**: Suppress gap alerts for `financial-model` and `legal-ip` -- these are not relevant yet. Focus on problem and market gaps.
-   - **Investment**: Elevate all empty section gap alerts to HIGH -- at this stage, gaps matter more.
-4. **Repeat suppression**: Do not surface the same finding in consecutive sessions unless something changed. If the user saw "market-analysis is empty" yesterday and has not added entries, do not repeat it.
+## analyze-room Signal Format
 
-## Reading analyze-room Output
+- `GAP:STRUCTURAL:{section}:{confidence}:{message}`
+- `GAP:SEMANTIC:{section}:{confidence}:{message}`
+- `GAP:ADJACENT:{section}:{confidence}:{message}`
+- `CONVERGE:{term}:{count}:{confidence}:{message}`
+- `CONTRADICT:{section1}:{section2}:{confidence}:{message}`
 
-When the `analyze-room` script output is available in session context (injected by session-start hook), parse the structured lines and use them as starting points:
-
-- `GAP:STRUCTURAL:{section}:{confidence}:{message}` -- Empty section. Add context about what the section needs.
-- `GAP:SEMANTIC:{section}:{confidence}:{message}` -- Single-lens. Suggest complementary methodologies.
-- `GAP:ADJACENT:{section}:{confidence}:{message}` -- Missing bridge. Explain why the connection matters.
-- `CONVERGE:{term}:{count}:{confidence}:{message}` -- Theme convergence. Interpret what it means for the venture.
-- `CONTRADICT:{section1}:{section2}:{confidence}:{message}` -- Structural conflict. Help the user reconcile.
-
-The script catches structural patterns; you add semantic interpretation. Read the actual Room entries to provide specific, contextual advice beyond what the script can detect.
+Script catches structural patterns; add semantic interpretation from actual Room entries.
 
 ## Capability Suggestions
 
-The `analyze-room` script also emits `CAPABILITY:` signals when the room has enough data to make visualization and export features meaningful. These surface commands the user may not know about.
-
-### Signal Format
-
-```
-CAPABILITY:{feature}:{confidence}:{message with suggested command}
-```
-
-### Features Detected
+`CAPABILITY:{feature}:{confidence}:{message}` signals when room has enough data for features:
 
 | Feature | Threshold | Command |
 |---------|-----------|---------|
-| **DASHBOARD** | 3+ artifacts | `/mos:room view` -- interactive Cytoscape knowledge graph |
-| **EXPORT_DASHBOARD** | 7+ artifacts | `/mos:room export` -- standalone shareable HTML |
-| **WIKI** | 5+ artifacts + 1+ meeting | `/mos:wiki` -- searchable Wikipedia-style room browser |
-| **MEETING_REPORT** | 3+ artifacts + 2+ meetings | `/mos:export meeting-report` -- Minto intelligence report |
-| **THESIS** | 10+ artifacts | `/mos:export thesis` -- investment thesis PDF |
-| **TEAM_VIEW** | 2+ team profiles | `/mos:room view` -- team nodes in the graph |
+| DASHBOARD | 3+ artifacts | `/mos:room view` |
+| EXPORT_DASHBOARD | 7+ artifacts | `/mos:room export` |
+| WIKI | 5+ artifacts + 1+ meeting | `/mos:wiki` |
+| MEETING_REPORT | 3+ artifacts + 2+ meetings | `/mos:export meeting-report` |
+| THESIS | 10+ artifacts | `/mos:export thesis` |
+| TEAM_VIEW | 2+ team profiles | `/mos:room view` |
 
-### Display Rules
+Max 1 capability suggestion per SessionStart. Natural voice. Never repeat used commands.
 
-- **SessionStart**: Include at most 1 CAPABILITY suggestion alongside the 2 intelligence findings. Choose the highest-confidence one. Frame it as a natural suggestion, not a sales pitch.
-- **Example**: "Your room has 8 artifacts with convergence signals -- try `/mos:room view` to see the knowledge graph."
-- **Never repeat**: If the user has already used the suggested command (check for `room/data-room-dashboard.html` existence for export, or `room/.lazygraph/` for wiki), do not suggest it again.
-- **Natural voice**: Weave the suggestion into Larry's greeting, not as a separate block. It should feel like a mentor pointing out a tool on the workbench, not a feature announcement.
+## Causal Discovery Surfacing (v1.7.0)
 
-### Causal Discovery Surfacing (v1.7.0)
+Surface causal discoveries when graph has 5+ CausalClaim nodes AND 3+ CASCADES_TO edges:
+- CausalClaim + HSI_CONNECTION: explain the cause-effect behind similarity
+- CausalClaim through REVERSE_SALIENT: show chain to bottleneck root
+- CausalClaim + ANALOGOUS_TO: structural match prediction
+- Overdue predictions: prompt review
+- Cascade depth >3: warn about blast radius
 
-When the room's KuzuDB graph has converging causal + HSI + RS + analogy edges, surface discoveries proactively:
+## Dashboard Export Integrity
 
-| Convergence Pattern | What to Surface |
-|---|---|
-| CausalClaim links to HSI_CONNECTION pair | "This HSI surprise has a causal explanation -- [mechanism]. The connection isn't just similarity, it's cause-effect." |
-| CausalClaim chain runs through REVERSE_SALIENT section | "Your bottleneck in [section] has a causal chain leading to it: [chain]. Resolving [root cause] could unblock [N] downstream claims." |
-| CausalClaim source artifact has ANALOGOUS_TO edge | "The causal structure in [claim] matches an analogy from [domain] -- [analogy]. This structural match suggests [prediction]." |
-| Prediction overdue in REGISTRY.json | "You have [N] predictions past their deadline. Run /mos:causal predict list to review." |
-| Cascade depth > 3 from a single claim | "One claim supports [N] downstream claims across [M] sections. If [claim] is wrong, the blast radius is significant." |
-
-**Threshold:** Only surface causal discoveries when the graph has 5+ CausalClaim nodes AND 3+ CASCADES_TO edges. Sparse graphs produce noise, not insight.
-
-**Check via:** `graphStats()` returns `nodes.CausalClaim` count and `edges.CASCADES_TO` count.
-
-### CRITICAL: Dashboard Export Integrity
-
-When a user asks for a dashboard, room visualization, or export:
-- **ALWAYS** use `scripts/generate-standalone` or `scripts/serve-dashboard`
-- **NEVER** generate HTML by hand -- the template at `dashboard/index.html` has the full Cytoscape graph, De Stijl styling, intelligence panel, layer toggles, preset views, timeline mode, and chat UI
-- Improvised HTML will always be inferior to the real template
+ALWAYS use `scripts/generate-standalone` or `scripts/serve-dashboard`. NEVER generate HTML by hand.

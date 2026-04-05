@@ -4,115 +4,70 @@ description: >
   Brain enrichment for Larry. Passive: weaves graph context into responses.
   Proactive: surfaces contradictions and gaps. Active when Brain API key is
   set (MINDRIAN_BRAIN_KEY in .env) or Brain MCP server is configured.
+activation: "env:MINDRIAN_BRAIN_KEY"
 ---
+
+# Brain Connector -- Enrichment Layer
 
 ## Detection
 
-Check if Brain is available. Try these in order:
+Check Brain availability in order:
+1. `MINDRIAN_BRAIN_KEY` env var (CLI users)
+2. `mcp__mindrian-brain__brain_schema` tool (Desktop/Cowork MCP)
+3. `mcp__neo4j-brain__get_neo4j_schema` tool (legacy)
 
-1. Check if `MINDRIAN_BRAIN_KEY` environment variable is set (CLI users with API key)
-2. Try calling `mcp__mindrian-brain__brain_schema` (Desktop/Cowork users with MCP config)
-3. Try calling `mcp__neo4j-brain__get_neo4j_schema` (legacy direct connection)
+Any success = Brain active. All fail = silent fallback. Never mention failures to user.
 
-Success on ANY = Brain active. All fail = silently fall back. **Never mention Brain connection failures to the user.**
-
-**If Pinecone returns RESOURCE_EXHAUSTED (429):** This means the monthly embedding quota is used up. Fall back to Neo4j Cypher queries only — use `brain_query` tool with Cypher instead of `brain_search`. Neo4j queries do NOT consume Pinecone quota.
+Pinecone RESOURCE_EXHAUSTED (429): fall back to Neo4j Cypher only via `brain_query`.
 
 ### Offer-to-Setup
 
-When Brain detection fails (all 3 checks return false) AND the user's request would benefit from Brain enrichment (framework queries, grading, cross-domain connections):
-
-1. Answer the user's question using local references (Tier 0 — always works)
-2. After the response, add a brief offer: "I'd give you more here with Brain connected — `/mos:setup brain`"
-3. Only offer ONCE per session. If user doesn't respond to it, do not repeat.
-
-Brain-beneficial signals: mentions of "grade", "connections", "framework recommendation", "what should I use", "suggest-next", "research [topic]"
+When Brain detection fails AND request would benefit (framework queries, grading, cross-domain): answer with local references first, then offer once: "I'd give you more here with Brain connected -- `/mos:setup brain`"
 
 ## Passive Enrichment (Every Turn)
 
-Runs passive checks before responding. Check if Brain context helps:
-
-- **Framework mention detected**: Use `brain_concept_connect` pattern from `references/brain/query-patterns.md` to find related frameworks. Weave naturally into response.
-- **Methodology session active**: Use `brain_framework_chain` pattern to check if Brain recommends a different next step than static chains-index. Mention only if confidence is high.
-- **Simple, fast lookups only**. Never run multi-hop queries inline. If complex, delegate to Brain Agent.
-- **Prefer Cypher queries over Pinecone search** when possible — Cypher has no quota limits.
+- Framework mention: find related frameworks, weave naturally
+- Methodology session: check if Brain recommends different next step
+- Simple fast lookups only. Complex queries: delegate to Brain Agent.
+- Prefer Cypher over Pinecone (no quota limits)
 
 ## Proactive Surfacing (SessionStart + PostToolUse)
 
-After room changes and at session start:
-
-- Run `brain_gap_assess` against current room frameworks (via Cypher, not Pinecone)
-- Run `brain_contradiction_check` if new artifacts added
-- Surface at most **2 HIGH-confidence findings**
-- Use Larry's voice: "Hold on -- I noticed something..."
-- For Brain users, this **replaces** the room-proactive bash analysis (`brain_gap_assess` is a superset)
+After room changes and session start:
+- Run gap assessment and contradiction check against room frameworks
+- Max 2 HIGH-confidence findings
+- Voice: "Hold on -- I noticed something..."
+- For Brain users, replaces room-proactive bash analysis (superset)
 
 ## Gating Rules
 
-- Max 2 proactive findings per session greeting
-- Only HIGH confidence findings surface automatically
-- Never interrupt a methodology session with proactive findings
-- If any Brain call fails, silently fall back -- never error to user
-- If Pinecone quota exhausted, use Neo4j only -- never block on Pinecone errors
+- Max 2 proactive findings per greeting
+- HIGH confidence only for auto-surfacing
+- Never interrupt methodology sessions
+- Silent fallback on all failures
+- Pinecone quota exhausted: use Neo4j only
 
-## Proactive Command Suggestions (Brain-Powered)
+## Brain-Powered Command Suggestions
 
-When Brain is connected, Larry gets CALIBRATED command suggestions. The Brain has Command nodes linked to Frameworks, VentureStages, and SignalTypes via trigger relationships. This is Level 3 intelligence -- backed by 100+ real project outcomes.
+Brain has Command nodes linked to Frameworks, VentureStages, SignalTypes. Level 3 intelligence from 100+ real projects.
 
-**Schema:** See `references/brain/command-triggers-schema.md` for full node/relationship definitions.
+Query `brain_proactive_command` for ranked suggestions with JTBD framing, trigger conditions, stage impact. Pick top match for current Room Signals. Present via JTBD formula from Command node fields.
 
-**How it works:**
+Multi-hop: Room frameworks -> FOLLOWS_FRAMEWORK -> Command -> TRIGGERED_BY_SIGNAL -> Signals -> RELEVANT_AT_STAGE -> Stage
 
-1. SessionStart (or every 3-7 turns): Larry queries `brain_proactive_command` (Pattern 10d)
-2. Brain returns ranked command suggestions with:
-   - JTBD framing (when/want/so baked into the Command node)
-   - Trigger condition (which Room Signal activates it)
-   - Stage impact (how relevant at current venture stage)
-   - Success count (how many real projects benefited)
-3. Larry picks the top suggestion that matches current Room Signals
-4. Presents using the JTBD formula from the Command node's jtbd_when/jtbd_want/jtbd_so fields
-
-**Multi-hop traversal:**
-```
-Room frameworks -> FOLLOWS_FRAMEWORK -> Command -> TRIGGERED_BY_SIGNAL -> current Signals?
-                                     -> RELEVANT_AT_STAGE -> current Stage?
-                                     -> ADDRESSES_PROBLEM_TYPE -> current problem?
-```
-
-The Brain walks 2-3 hops to find the MOST relevant command. This is why Brain users get smarter suggestions than free-tier -- the graph encodes WHICH commands worked WHEN for WHICH problem types, calibrated from real data.
-
-**Fallback:** If Brain is not connected, Larry falls back to Level 2 (local Room heuristics from `skills/larry-personality/SKILL.md` provoked suggestions).
+Fallback: local Room heuristics from larry-personality provoked suggestions.
 
 ## Delegation
 
-Delegate to `agents/brain-query.md` when:
-- Question requires 2+ graph hops
-- User explicitly asks to explore connections
-- Cross-domain discovery requested
-- Pattern matching across multiple ventures
-- Proactive command suggestion needs deeper reasoning than Pattern 10d provides
+Delegate to `agents/brain-query.md` for: 2+ graph hops, explicit connection exploration, cross-domain discovery, multi-venture patterns, deep proactive reasoning.
 
 ## Primary Tool: brain_ask
 
-**Always use `brain_ask` first.** It accepts natural language, handles Pinecone vs Neo4j routing internally, and falls back automatically when Pinecone quota is exhausted.
+Always use `brain_ask` first -- natural language, auto-routes Pinecone/Neo4j, handles fallback. Only use `brain_query` (raw Cypher) for specific complex queries.
 
-```
-brain_ask({ question: "What frameworks relate to JTBD?", topK: 5 })
-```
+## Tool Names
 
-The caller never writes Cypher. The server handles:
-- Pinecone semantic search (when available)
-- Neo4j Cypher fallback (when Pinecone quota exhausted)
-- Keyword extraction from natural language
-- Pattern matching to optimal Cypher template
-
-**Only use brain_query (raw Cypher) when you need a specific, complex query that brain_ask can't handle.**
-
-## Tool Names (by surface)
-
-| Surface | Smart Tool | Neo4j Direct | Pinecone Direct | Schema |
-|---------|-----------|-------------|-----------------|--------|
-| CLI/Desktop (mindrian-brain) | brain_ask | brain_query | brain_search | brain_schema |
-| Legacy (neo4j-brain direct) | N/A | read_neo4j_cypher | search-records | get_neo4j_schema |
-
-Try `brain_ask` first. Fall back to direct tools only for complex Cypher. Fall back silently on all errors.
+| Surface | Smart | Neo4j | Pinecone | Schema |
+|---------|-------|-------|----------|--------|
+| mindrian-brain | brain_ask | brain_query | brain_search | brain_schema |
+| neo4j-brain (legacy) | N/A | read_neo4j_cypher | search-records | get_neo4j_schema |
