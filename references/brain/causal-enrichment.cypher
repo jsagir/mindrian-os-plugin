@@ -57,7 +57,7 @@ MERGE (f)-[:RELATED_TO]->(c)
 MATCH (f:Framework {name: 'Causal Loop Diagrams'}), (c:Concept {name: 'Causal Reasoning'})
 MERGE (f)-[:RELATED_TO]->(c)
 
-MATCH (f:Framework {name: 'Scenario Analysis'}), (c:Concept {name: 'Causal Reasoning'})
+MATCH (f:Framework {name: 'Scenario Analysis Framework'}), (c:Concept {name: 'Causal Reasoning'})
 MERGE (f)-[:RELATED_TO]->(c)
 
 MATCH (f:Framework {name: 'Theory of Change'}), (c:Concept {name: 'Causal Reasoning'})
@@ -74,7 +74,7 @@ MERGE (a)-[:FEEDS_INTO]->(b)
 MATCH (a:Framework {name: 'Systems Thinking'}), (b:Framework {name: 'Causal Loop Diagrams'})
 MERGE (a)-[:FEEDS_INTO]->(b)
 
-MATCH (a:Framework {name: 'Causal Loop Diagrams'}), (b:Framework {name: 'Scenario Analysis'})
+MATCH (a:Framework {name: 'Causal Loop Diagrams'}), (b:Framework {name: 'Scenario Analysis Framework'})
 MERGE (a)-[:FEEDS_INTO]->(b)
 
 // Branch: Systems Thinking -> Reverse Salient Analysis
@@ -96,7 +96,7 @@ MERGE (a)-[:CO_OCCURS]->(b)
 MERGE (b)-[:CO_OCCURS]->(a)
 
 // Cynefin <-> Root Cause Analysis
-MATCH (a:Framework {name: 'Cynefin'}), (b:Framework {name: 'Root Cause Analysis'})
+MATCH (a:Framework {name: 'Cynefin Framework'}), (b:Framework {name: 'Root Cause Analysis'})
 MERGE (a)-[:CO_OCCURS]->(b)
 MERGE (b)-[:CO_OCCURS]->(a)
 
@@ -129,18 +129,19 @@ MERGE (f)-[:TYPICAL_AT]->(s)
 // NOTE: Use exact names from Query E. Names below are best-guess.
 
 // Link to Causal Reasoning concept
-MATCH (f:Framework {name: 'Falsifiability'}), (c:Concept {name: 'Causal Reasoning'})
+// NOTE: Falsifiability is a Concept, Logic Trees is a Concept (not Framework labels)
+MATCH (f:Concept {name: 'Falsifiability'}), (c:Concept {name: 'Causal Reasoning'})
 MERGE (f)-[:RELATED_TO]->(c)
 
-MATCH (f:Framework {name: 'Hypothesis Tree'}), (c:Concept {name: 'Causal Reasoning'})
+MATCH (f:Concept {name: 'Logic Trees (Issue, Hypothesis, Decision)'}), (c:Concept {name: 'Causal Reasoning'})
 MERGE (f)-[:RELATED_TO]->(c)
 
-// FEEDS_INTO from Theory of Change to Hypothesis Tree
-MATCH (a:Framework {name: 'Theory of Change'}), (b:Framework {name: 'Hypothesis Tree'})
+// FEEDS_INTO from Theory of Change to Logic Trees
+MATCH (a:Framework {name: 'Theory of Change'}), (b:Concept {name: 'Logic Trees (Issue, Hypothesis, Decision)'})
 MERGE (a)-[:FEEDS_INTO]->(b)
 
-// FEEDS_INTO from Hypothesis Tree to Falsifiability
-MATCH (a:Framework {name: 'Hypothesis Tree'}), (b:Framework {name: 'Falsifiability'})
+// FEEDS_INTO from Logic Trees to Falsifiability
+MATCH (a:Concept {name: 'Logic Trees (Issue, Hypothesis, Decision)'}), (b:Concept {name: 'Falsifiability'})
 MERGE (a)-[:FEEDS_INTO]->(b)
 
 // ============================================================================
