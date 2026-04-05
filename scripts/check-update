@@ -22,7 +22,7 @@ if ! REMOTE_CHANGELOG=$(curl -sf --max-time 3 "$CHANGELOG_URL" 2>/dev/null); the
 fi
 
 # Extract latest version from first ## [X.Y.Z] heading
-LATEST_VERSION=$(echo "$REMOTE_CHANGELOG" | grep -oP '(?<=^## \[)[0-9]+\.[0-9]+\.[0-9]+(?=\])' | head -1)
+LATEST_VERSION=$(echo "$REMOTE_CHANGELOG" | sed -n 's/^## \[\([0-9]*\.[0-9]*\.[0-9]*\)\].*/\1/p' | head -1)
 
 if [[ -z "$LATEST_VERSION" ]]; then
   echo "CHECK_FAILED"
