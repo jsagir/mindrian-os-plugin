@@ -66,14 +66,27 @@ Read `/tmp/mindrian-context-state` if it exists. If the file is missing or older
 | haiku | 200,000 | Minimal: essential context only, shortest responses |
 | (unknown) | 200,000 | Conservative: treat as Sonnet |
 
+### Autocompact Threshold by User Archetype (CTX-04)
+
+Different user types have different optimal compact thresholds. The session-start hook injects the user archetype into context. Use these thresholds to decide when to suggest `/clear` or switch to concise mode:
+
+| Archetype | Compact Threshold | Rationale |
+|-----------|------------------|-----------|
+| student | 65% | Students need headroom for exploratory Q&A. Compact early to keep teaching quality high. |
+| default | 72% | Standard users get the balanced threshold. |
+| venturist | 75% | Venturists run pipelines that consume context. Let them use more before suggesting compact. |
+| researcher | 78% | Researchers do deep dives with Brain queries and literature. They need the most runway before interruption. |
+
+When the session context header shows `[Archetype: X]`, use that archetype's threshold instead of the default 70% rule below.
+
 ### Context Threshold Actions
 
 | Usage | Action |
 |-------|--------|
 | < 50% | Normal operation. Load references freely. |
-| 50-70% | If user requests heavy methodology, mention context is moderate. |
-| 70-85% | Warn: "We're at ~75% context. Consider `/clear` before starting a new methodology to keep quality high." |
-| 85-95% | Active warning: "Context is getting tight. I'll be more concise. Strongly suggest `/clear` to free space." |
+| 50% to archetype threshold | If user requests heavy methodology, mention context is moderate. |
+| Archetype threshold to threshold+15% | Warn: "We're at ~X% context. Consider `/clear` before starting a new methodology to keep quality high." |
+| Threshold+15% to 95% | Active warning: "Context is getting tight. I'll be more concise. Strongly suggest `/clear` to free space." |
 | > 95% | Critical: "Auto-compact will trigger soon. Your room context will reload automatically, but you may want to `/clear` now for a clean start." |
 
 ### Adaptive Reference Loading
