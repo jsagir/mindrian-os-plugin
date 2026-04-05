@@ -95,7 +95,14 @@ if [ -d "$ROOM_DIR" ]; then
 
   # Read context bridge file if available
   CTX_BUDGET=""
-  BRIDGE_FILE="/tmp/mindrian-context-state"
+  BRIDGE_DIR="$HOME/.mindrian/bridge"
+  mkdir -p "$BRIDGE_DIR"
+  if [ -n "$ROOM_DIR" ]; then
+    ROOM_HASH=$(echo -n "$ROOM_DIR" | md5sum | cut -c1-8)
+    BRIDGE_FILE="$BRIDGE_DIR/${ROOM_HASH}.json"
+  else
+    BRIDGE_FILE="$BRIDGE_DIR/default.json"
+  fi
   if [ -f "$BRIDGE_FILE" ]; then
     # Check staleness (> 5 min = stale)
     BRIDGE_AGE=$(( $(date +%s) - $(stat -c %Y "$BRIDGE_FILE" 2>/dev/null || echo 0) ))
@@ -262,7 +269,7 @@ fi
 
 # Check for updates (async, non-blocking, max 3 second timeout)
 # Only check once per day — cache result
-UPDATE_CACHE="/tmp/mindrian-update-check"
+UPDATE_CACHE="$HOME/.mindrian/bridge/update-check.json"
 TODAY=$(date -u +"%Y-%m-%d")
 SHOULD_CHECK=true
 

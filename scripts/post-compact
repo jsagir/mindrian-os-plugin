@@ -10,7 +10,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-SAVE_FILE="/tmp/mindrian-pre-compact-state"
+SAVE_DIR="$HOME/.mindrian/bridge"
+mkdir -p "$SAVE_DIR"
+SAVE_FILE="$SAVE_DIR/pre-compact-state.json"
 
 if [ ! -f "$SAVE_FILE" ]; then
   # No saved state -- fall back to fresh session-start behavior

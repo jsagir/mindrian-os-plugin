@@ -98,7 +98,12 @@ if event_type == "session-start":
     data["daily_sessions"] = daily
 
     # Track model if available from context monitor
-    context_file = "/tmp/mindrian-context-state"
+    import hashlib
+    bridge_dir = os.path.join(os.path.expanduser("~"), ".mindrian", "bridge")
+    os.makedirs(bridge_dir, exist_ok=True)
+    room_dir_abs = os.path.abspath("${ROOM_DIR}")
+    room_hash = hashlib.md5(room_dir_abs.encode()).hexdigest()[:8] if room_dir_abs else "default"
+    context_file = os.path.join(bridge_dir, f"{room_hash}.json")
     if os.path.exists(context_file):
         try:
             with open(context_file, 'r') as f:
