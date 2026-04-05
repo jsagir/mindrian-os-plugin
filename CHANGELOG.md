@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.6.4] - 2026-04-05
+
+### Fixed
+- Banner now displays on every cold start (no room), not just first install -- branding was invisible to users who had partial previous installs
+- Brain API key lookup falls back to ~/.mindrian.env when CWD .env is missing -- key no longer vanishes when user changes directories
+- Brain setup also writes key to ~/.mindrian.env as global backup
+
+### Added
+- /mos:onboard reset -- clears onboarding markers so users can replay the welcome sequence and banner
+- Post-room creation shows OS-native "open folder" command (macOS/Windows/Linux) -- users can find their room in Finder/Explorer
+
 ## [1.6.3] - 2026-04-03
 
 ### Fixed
