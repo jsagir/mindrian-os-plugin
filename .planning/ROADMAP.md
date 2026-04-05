@@ -18,18 +18,20 @@
 
 ### v1.8.0 Cowork Adaptation (In Progress)
 
-**Milestone Goal:** Every MindrianOS command, pipeline, and intelligence capability works identically across CLI, Desktop, and Cowork -- with Brain-driven routing, scheduled external intelligence, persistent De Bono perspectives, and inline Data Room views on Cowork.
+**Milestone Goal:** Every MindrianOS command, pipeline, and intelligence capability works identically across CLI, Desktop, and Cowork -- with Brain-driven routing, optimized context/token budgets per user archetype, smart agent dispatch, scheduled external intelligence, persistent De Bono perspectives, and inline Data Room views on Cowork.
 
 ## Phases
 
 - [ ] **Phase 52: MCP Foundation** - Intelligence cascade, router restructuring, SDK upgrade, 64-command coverage with Brain-driven routing
 - [ ] **Phase 53: Surface Detection + Write Safety** - Auto-detect CLI/Desktop/Cowork, dual transport, KuzuDB write gateway
-- [ ] **Phase 54: Token Optimization** - Native-first skills, UI system compression, progressive loading to halve per-turn token cost
-- [ ] **Phase 55: Pipeline Chaining** - Room-file-based state for LLM-orchestrated tool sequences, Brain chain recommendations
-- [ ] **Phase 56: Scheduled Intelligence** - Session catch-up, daily briefings, competitor/grant/news scanning on Cowork
-- [ ] **Phase 57: De Bono Persistent Hats** - 6 perspective personas with cross-session memory feeding Brain routing
-- [ ] **Phase 58: MCP Apps Data Room Views** - Dashboard, wiki, and graph rendered inline via ext-apps in Cowork/Desktop
-- [ ] **Phase 59: Release v1.8.0** - Integration testing across all 3 surfaces, version bump, release
+- [ ] **Phase 54: Token + Hook Optimization** - Native-first skills, UI system compression, progressive loading, HSI debounce, write batching, bridge isolation
+- [ ] **Phase 55: Context Intelligence** - User archetype detection, tiered context loading, MCP session profiles, autocompact tuning, returning user and student progress
+- [ ] **Phase 56: Pipeline Chaining** - Room-file-based state for LLM-orchestrated tool sequences, Brain chain recommendations
+- [ ] **Phase 57: Agent Dispatch Optimization** - Dynamic swarm sizing, cost estimation, chain checkpoints, budget-aware model routing, Coordinator prep
+- [ ] **Phase 58: Scheduled Intelligence** - Session catch-up, daily briefings, competitor/grant/news scanning on Cowork
+- [ ] **Phase 59: De Bono Persistent Hats** - 6 perspective personas with cross-session memory feeding Brain routing
+- [ ] **Phase 60: MCP Apps Data Room Views** - Dashboard, wiki, and graph rendered inline via ext-apps in Cowork/Desktop
+- [ ] **Phase 61: Release v1.8.0 + Platform Readiness** - Integration testing across all 3 surfaces, KAIROS prep, UDS stubs, GrowthBook monitoring, version bump
 
 ## Phase Details
 
@@ -56,19 +58,34 @@
   4. MCP Apps registration only appears on Desktop/Cowork; CLI hooks only fire on CLI; feature registration adapts to detected surface
 **Plans**: TBD
 
-### Phase 54: Token Optimization
-**Goal**: Fresh-install users pay half the per-turn token cost while retaining full capability through progressive skill loading
+### Phase 54: Token + Hook Optimization
+**Goal**: Fresh-install users pay half the per-turn token cost while retaining full capability, and the intelligence cascade fires efficiently with debouncing, caching, and batching
 **Depends on**: Phase 52
-**Requirements**: TOKEN-01, TOKEN-02, TOKEN-03, TOKEN-04, TOKEN-05, TOKEN-06
+**Requirements**: TOKEN-01, TOKEN-02, TOKEN-03, TOKEN-04, TOKEN-05, TOKEN-06, HOOK-01, HOOK-02, HOOK-03, HOOK-04, HOOK-05
 **Success Criteria** (what must be TRUE):
   1. A fresh install with no room directory loads approximately 10,000 tokens per turn (down from approximately 20,500)
   2. Skills that reference room state (room-proactive, room-passive) only load after a room/ directory exists
   3. Brain-connector skill loads on demand when Brain is detected, not at startup
   4. The UI system skill compresses from approximately 28K bytes to approximately 8K bytes without losing any rendering rules
   5. Opening a room progressively loads Layer 1 skills; connecting Brain adds Layer 2 -- capability grows with context
+  6. Writing the same file twice within 30 seconds triggers HSI computation only once (debounce)
+  7. A swarm writing 3 artifacts produces a single batched HSI computation, not 3 separate ones
+  8. Bridge file is stored per-room at ~/.mindrian/bridge/{room-hash}.json, not at a shared /tmp/ path
 **Plans**: TBD
 
-### Phase 55: Pipeline Chaining
+### Phase 55: Context Intelligence
+**Goal**: The system detects user type and session intent, then loads only the context and MCP servers each user actually needs -- students get minimal overhead, venturists get full pipelines, returning users skip re-introductions
+**Depends on**: Phase 54
+**Requirements**: CTX-01, CTX-02, CTX-03, CTX-04, CTX-05, CTX-06
+**Success Criteria** (what must be TRUE):
+  1. A user with USER.md indicating "student" and >70% context budget used gets minimal context (~500 tokens) at session start, while a venturist in a fresh session gets rich context (~5K tokens)
+  2. Setting MCP session profile to "learn" loads zero external MCP servers; setting to "full" loads all configured servers
+  3. A returning user (session count > 3) sees a domain-specific greeting ("I see you're continuing work on [domain]") instead of the full introduction
+  4. A student's completed tasks are persisted to room/.context/learning-progress.md at session end, and the next session reports "You completed X of 22 tasks"
+  5. Autocompact threshold adapts to user type: 65% for students, 72% default, 75% venturist, 78% researcher
+**Plans**: TBD
+
+### Phase 56: Pipeline Chaining
 **Goal**: Users can run multi-step methodology pipelines end-to-end on Desktop/Cowork where each tool's output feeds the next through room artifacts
 **Depends on**: Phase 52, Phase 53
 **Requirements**: PIPE-01, PIPE-02, PIPE-03
@@ -78,7 +95,19 @@
   3. Brain recommendation includes chain ordering -- Larry suggests the next framework in sequence based on CO_OCCURS and FEEDS_INTO relationships
 **Plans**: TBD
 
-### Phase 56: Scheduled Intelligence
+### Phase 57: Agent Dispatch Optimization
+**Goal**: Agent dispatch is budget-aware -- swarms scale to context availability, chains checkpoint between steps, and expensive operations show cost estimates before running
+**Depends on**: Phase 52
+**Requirements**: AGENT-01, AGENT-02, AGENT-03, AGENT-04, AGENT-05
+**Success Criteria** (what must be TRUE):
+  1. Running /mos:act --swarm with 1 weak section dispatches 1 agent, not 3 -- swarm size equals min(weak_sections, context_budget / agent_cost)
+  2. Before dispatching a multi-agent operation, the user sees "This will use ~150K tokens (3 agents x Opus)" and can confirm or cancel
+  3. Multi-step pipeline chains pause between steps with "Continue to step N?" instead of auto-running all 3-5 steps
+  4. When remaining context drops below 60%, agent dispatch automatically downgrades from Opus to Sonnet
+  5. Agent output format is structured so that when CLAUDE_CODE_COORDINATOR_MODE ships, framework-runners map directly to Coordinator workers with no refactoring
+**Plans**: TBD
+
+### Phase 58: Scheduled Intelligence
 **Goal**: Cowork users receive daily briefings, prediction deadline alerts, and proactive competitor/grant/news intelligence without manual triggering
 **Depends on**: Phase 53
 **Requirements**: SCHED-01, SCHED-02, SCHED-03, SCHED-04, SCHED-05, SCHED-06, SCHED-07
@@ -90,9 +119,9 @@
   5. All scheduled results are idempotent -- running twice produces the same output, and missed runs are recovered on next session start
 **Plans**: TBD
 
-### Phase 57: De Bono Persistent Hats
+### Phase 59: De Bono Persistent Hats
 **Goal**: Six perspective personas maintain cross-session memory and feed their findings into Brain routing for richer methodology recommendations
-**Depends on**: Phase 56
+**Depends on**: Phase 58
 **Requirements**: HAT-01, HAT-02, HAT-03, HAT-04
 **Success Criteria** (what must be TRUE):
   1. Each of the 6 De Bono hats (White/Red/Black/Yellow/Green/Blue) has persistent state in room/.mindrian/hats/{color}/ that survives across sessions
@@ -102,7 +131,7 @@
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 58: MCP Apps Data Room Views
+### Phase 60: MCP Apps Data Room Views
 **Goal**: Desktop and Cowork users see interactive Data Room views (dashboard, wiki, graph) rendered inline in the conversation without a local server
 **Depends on**: Phase 52
 **Requirements**: APP-01, APP-02, APP-03, APP-04, APP-05, APP-06
@@ -115,40 +144,48 @@
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 59: Release v1.8.0
-**Goal**: v1.8.0 is tested across all three surfaces, versioned, and ready for users
-**Depends on**: Phase 52, Phase 53, Phase 54, Phase 55, Phase 56, Phase 57, Phase 58
+### Phase 61: Release v1.8.0 + Platform Readiness
+**Goal**: v1.8.0 is tested across all three surfaces, versioned, and prepared for upcoming Anthropic platform features (KAIROS, Coordinator, UDS)
+**Depends on**: Phase 52, Phase 53, Phase 54, Phase 55, Phase 56, Phase 57, Phase 58, Phase 59, Phase 60
+**Requirements**: READY-01, READY-02, READY-03, READY-04
 **Success Criteria** (what must be TRUE):
   1. A fresh install on CLI, Desktop, and Cowork each complete a basic workflow (create room, file artifact, run methodology, view dashboard) without errors
-  2. CHANGELOG.md has a v1.8.0 entry documenting all new capabilities with surface-specific guidance
-  3. plugin.json version reads 1.8.0
+  2. last-session.md includes structured fields (active_methodology, open_questions, next_suggested_action, confidence_level) consumable by future KAIROS daily logs
+  3. When tengu_kairos activates, context-engine reads the KAIROS daily log instead of cold-start context rebuilding -- detection is wired, waiting for the gate
+  4. UDS listener stubs exist in room-passive for future cross-instance room state sharing
+  5. GrowthBook gates (tengu_kairos, tengu_harbor, tengu_scratch) are monitored and auto-activate features when they go live
+  6. CHANGELOG.md has a v1.8.0 entry and plugin.json version reads 1.8.0
 **Plans**: TBD
 
 ## Progress
 
-**Execution Order:** 52 -> 53 -> [54 parallel with 55] -> 56 -> 57 -> [58 parallel with 56-57] -> 59
+**Execution Order:** 52 -> 53 -> [54 parallel with 56, 57] -> 55 -> [58 parallel with 60] -> 59 -> 61
 
-Note: Phase 54 (Token Optimization) can run parallel with Phase 55 (Pipeline Chaining) -- both depend on Phase 52 but not each other. Phase 58 (MCP Apps) depends only on Phase 52 and can start in parallel with Phases 56-57.
+Note: Phase 54 (Token + Hook) and Phases 56 (Pipeline) + 57 (Agent Dispatch) can run in parallel after Phase 52 -- they share no dependencies. Phase 55 (Context Intelligence) depends on Phase 54's skill compression foundation. Phase 60 (MCP Apps) depends only on Phase 52 and can start alongside Phase 58. Phase 59 (De Bono Hats) needs Phase 58's scheduled infrastructure.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 52. MCP Foundation | v1.8.0 | 0/TBD | Not started | - |
 | 53. Surface Detection + Write Safety | v1.8.0 | 0/TBD | Not started | - |
-| 54. Token Optimization | v1.8.0 | 0/TBD | Not started | - |
-| 55. Pipeline Chaining | v1.8.0 | 0/TBD | Not started | - |
-| 56. Scheduled Intelligence | v1.8.0 | 0/TBD | Not started | - |
-| 57. De Bono Persistent Hats | v1.8.0 | 0/TBD | Not started | - |
-| 58. MCP Apps Data Room Views | v1.8.0 | 0/TBD | Not started | - |
-| 59. Release v1.8.0 | v1.8.0 | 0/TBD | Not started | - |
+| 54. Token + Hook Optimization | v1.8.0 | 0/TBD | Not started | - |
+| 55. Context Intelligence | v1.8.0 | 0/TBD | Not started | - |
+| 56. Pipeline Chaining | v1.8.0 | 0/TBD | Not started | - |
+| 57. Agent Dispatch Optimization | v1.8.0 | 0/TBD | Not started | - |
+| 58. Scheduled Intelligence | v1.8.0 | 0/TBD | Not started | - |
+| 59. De Bono Persistent Hats | v1.8.0 | 0/TBD | Not started | - |
+| 60. MCP Apps Data Room Views | v1.8.0 | 0/TBD | Not started | - |
+| 61. Release v1.8.0 + Platform Readiness | v1.8.0 | 0/TBD | Not started | - |
 
 ## Dependency Chain
 
 ```
 Phase 52 (MCP Foundation) --> Phase 53 (Surface Detection + Write Safety)
-Phase 52 (MCP Foundation) --> Phase 54 (Token Optimization) [parallel track]
-Phase 52 (MCP Foundation) --> Phase 58 (MCP Apps) [parallel track]
-Phase 52 + 53 --> Phase 55 (Pipeline Chaining)
-Phase 53 (Surface Detection) --> Phase 56 (Scheduled Intelligence)
-Phase 56 (Scheduled Intelligence) --> Phase 57 (De Bono Hats)
-All phases --> Phase 59 (Release)
+Phase 52 (MCP Foundation) --> Phase 54 (Token + Hook Optimization) [parallel track A]
+Phase 52 (MCP Foundation) --> Phase 56 (Pipeline Chaining) [parallel track B, also needs 53]
+Phase 52 (MCP Foundation) --> Phase 57 (Agent Dispatch Optimization) [parallel track B]
+Phase 52 (MCP Foundation) --> Phase 60 (MCP Apps) [parallel track C]
+Phase 54 (Token + Hook) --> Phase 55 (Context Intelligence)
+Phase 53 (Surface Detection) --> Phase 58 (Scheduled Intelligence)
+Phase 58 (Scheduled Intelligence) --> Phase 59 (De Bono Hats)
+All phases --> Phase 61 (Release + Platform Readiness)
 ```

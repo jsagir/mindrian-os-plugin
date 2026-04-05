@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v1.8.0
 milestone_name: Cowork Adaptation
 status: ready_to_plan
-stopped_at: "Roadmap created, ready to plan Phase 52"
+stopped_at: "Roadmap v2 created with 22 new requirements, ready to plan Phase 52"
 last_updated: "2026-04-05T00:00:00.000Z"
-last_activity: 2026-04-05 - Roadmap created for v1.8.0 (8 phases, 39 requirements)
+last_activity: 2026-04-05 - Roadmap updated for v1.8.0 (10 phases, 61 requirements)
 progress:
-  total_phases: 8
+  total_phases: 10
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-05)
 
 ## Current Position
 
-Phase: 52 of 59 (MCP Foundation)
+Phase: 52 of 61 (MCP Foundation)
 Plan: -- (not yet planned)
 Status: Ready to plan
-Last activity: 2026-04-05 -- Roadmap created
+Last activity: 2026-04-05 -- Roadmap updated with 22 new optimization requirements (CTX, HOOK, AGENT, READY)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -51,6 +51,10 @@ Progress: [░░░░░░░░░░] 0%
 - [v1.8.0 init]: KuzuDB write gateway with promise-chain serialization before any concurrent access
 - [v1.8.0 init]: De Bono = 1 subagent + 6 persona files, NOT 6 concurrent agents (token catastrophe)
 - [v1.8.0 init]: Team sharing deferred to v2.0 (Anthropic hasn't shipped it)
+- [Roadmap v2]: TOKEN + HOOK merged into Phase 54 (same performance concern, tightly coupled)
+- [Roadmap v2]: CTX split to dedicated Phase 55 (depends on Phase 54 skill compression)
+- [Roadmap v2]: AGENT gets dedicated Phase 57 (dispatch quality independent of pipeline chaining)
+- [Roadmap v2]: READY merged into Release Phase 61 (future-proofing tested alongside integration)
 
 ### Pending Todos
 
@@ -61,10 +65,11 @@ Progress: [░░░░░░░░░░] 0%
 
 - Cowork VM __dirname path resolution for references/ files -- must test empirically in Phase 53
 - Cowork scheduler MCP connector bugs (#43397, #32000, #36327) -- catch-up pattern mitigates
-- MCP Apps iframe CSP in Cowork sandbox -- bundle Cytoscape.js inline, test in Phase 58
+- MCP Apps iframe CSP in Cowork sandbox -- bundle Cytoscape.js inline, test in Phase 60
+- Phase 54 has 11 requirements (slightly over 10-req guidance) -- all small perf optimizations
 
 ## Session Continuity
 
 Last session: 2026-04-05
-Stopped at: Roadmap created for v1.8.0
+Stopped at: Roadmap v2 created with 10 phases, 61 requirements
 Resume file: None

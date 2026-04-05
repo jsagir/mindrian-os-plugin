@@ -27,13 +27,7 @@
 - [ ] **WRITE-02**: File-based write lock (`room/.graph/write.lock`) with PID, timestamp, and 5-second stale lock cleanup
 - [ ] **WRITE-03**: CLI hooks detect running MCP server and delegate graph writes rather than competing for KuzuDB lock
 
-### Pipeline Chaining
-
-- [ ] **PIPE-01**: Room-file-based state enables LLM-orchestrated tool sequences (methodology A output -> room artifact -> methodology B reads it)
-- [ ] **PIPE-02**: Full pipeline chains work end-to-end via MCP: scenario analysis -> root cause -> causal tracing -> prediction tracking
-- [ ] **PIPE-03**: Brain recommendation includes chain ordering: CO_OCCURS and FEEDS_INTO relationships encode which frameworks to run in what sequence
-
-### Token Optimization
+### Token Optimization -- Skill Compression
 
 - [ ] **TOKEN-01**: Native-first skill architecture: skills teach only domain-specific rules, not how to use tools Claude already knows (Read, Write, WebSearch, Agent)
 - [ ] **TOKEN-02**: Compress ui-system from ~28K bytes (~7,200 tokens) to ~8K bytes (~2,200 tokens) by removing examples and keeping rules only
@@ -41,6 +35,44 @@
 - [ ] **TOKEN-04**: Defer brain-connector skill until Brain is detected (~1,500 token savings, load on demand)
 - [ ] **TOKEN-05**: Progressive loading: Layer 0 always (~9K tokens), Layer 1 on-demand (full skill content when needed), Layer 2 Brain power-up (optional)
 - [ ] **TOKEN-06**: Per-turn base cost reduced from ~20,500 tokens to ~10,000 tokens for fresh install users
+
+### Hook Optimization
+
+- [ ] **HOOK-01**: Post-write HSI debounce: skip recompute if same file written within 30s
+- [ ] **HOOK-02**: Analyze-room caching: skip if STATE.md hash unchanged (5-min TTL)
+- [ ] **HOOK-03**: Write batching: queue multiple artifact writes, single HSI compute for the batch
+- [ ] **HOOK-04**: Bridge file per-room isolation: move from /tmp/ hardcoded to ~/.mindrian/bridge/{room-hash}.json
+- [ ] **HOOK-05**: Framework recommendation cache: (room_path, STATE.md_hash) -> frameworks, 10-min TTL
+
+### Context Intelligence -- User Archetype + Tiered Loading
+
+- [ ] **CTX-01**: Detect user archetype (venturist/researcher/student) from USER.md, venture stage, and command patterns
+- [ ] **CTX-02**: Tiered context loading at session start: minimal (~500 tokens, >70% budget used), balanced (~2K, 30-70%), rich (~5K, <30% or venturist pipeline)
+- [ ] **CTX-03**: MCP session profiles (learn/think/build/research/present/full) that control which MCP servers load -- student exercises need zero MCP overhead
+- [ ] **CTX-04**: Autocompact tuning per user type: 65% student, 72% default, 75% venturist, 78% researcher
+- [ ] **CTX-05**: Returning user detection: session count > 3 triggers domain-specific greeting instead of full intro ("I see you're continuing work on [domain]")
+- [ ] **CTX-06**: Student progress tracking: SessionEnd writes to room/.context/learning-progress.md, next session starts with "You completed 7 of 22 tasks"
+
+### Pipeline Chaining
+
+- [ ] **PIPE-01**: Room-file-based state enables LLM-orchestrated tool sequences (methodology A output -> room artifact -> methodology B reads it)
+- [ ] **PIPE-02**: Full pipeline chains work end-to-end via MCP: scenario analysis -> root cause -> causal tracing -> prediction tracking
+- [ ] **PIPE-03**: Brain recommendation includes chain ordering: CO_OCCURS and FEEDS_INTO relationships encode which frameworks to run in what sequence
+
+### Agent Dispatch Optimization
+
+- [ ] **AGENT-01**: Dynamic swarm sizing: dispatch N agents = min(weak_sections, context_budget / agent_cost) instead of always 3
+- [ ] **AGENT-02**: Cost estimation before dispatch: show "This will use ~150K tokens (3 agents x Opus)" before running
+- [ ] **AGENT-03**: Chain checkpointing: pause between pipeline steps with "Continue to step 3?" instead of always running 3-5
+- [ ] **AGENT-04**: Budget-aware model routing: if total_cost > remaining_context * 0.6, downgrade from Opus to Sonnet
+- [ ] **AGENT-05**: Coordinator-compatible agent outputs: when CLAUDE_CODE_COORDINATOR_MODE ships, framework-runners map to Coordinator workers
+
+### KAIROS/Platform Readiness
+
+- [ ] **READY-01**: Structured last-session.md with active_methodology, open_questions, next_suggested_action, confidence_level
+- [ ] **READY-02**: KAIROS log detection in context-engine: when tengu_kairos activates, read daily log instead of cold-start context rebuild
+- [ ] **READY-03**: UDS listener stubs in room-passive for future cross-instance room state sharing
+- [ ] **READY-04**: Monitor GrowthBook gates (tengu_kairos, tengu_harbor, tengu_scratch) and auto-activate when features go live
 
 ### Scheduled Intelligence
 
@@ -121,32 +153,52 @@
 | TOKEN-04 | Phase 54 | Pending |
 | TOKEN-05 | Phase 54 | Pending |
 | TOKEN-06 | Phase 54 | Pending |
-| PIPE-01 | Phase 55 | Pending |
-| PIPE-02 | Phase 55 | Pending |
-| PIPE-03 | Phase 55 | Pending |
-| SCHED-01 | Phase 56 | Pending |
-| SCHED-02 | Phase 56 | Pending |
-| SCHED-03 | Phase 56 | Pending |
-| SCHED-04 | Phase 56 | Pending |
-| SCHED-05 | Phase 56 | Pending |
-| SCHED-06 | Phase 56 | Pending |
-| SCHED-07 | Phase 56 | Pending |
-| HAT-01 | Phase 57 | Pending |
-| HAT-02 | Phase 57 | Pending |
-| HAT-03 | Phase 57 | Pending |
-| HAT-04 | Phase 57 | Pending |
-| APP-01 | Phase 58 | Pending |
-| APP-02 | Phase 58 | Pending |
-| APP-03 | Phase 58 | Pending |
-| APP-04 | Phase 58 | Pending |
-| APP-05 | Phase 58 | Pending |
-| APP-06 | Phase 58 | Pending |
+| HOOK-01 | Phase 54 | Pending |
+| HOOK-02 | Phase 54 | Pending |
+| HOOK-03 | Phase 54 | Pending |
+| HOOK-04 | Phase 54 | Pending |
+| HOOK-05 | Phase 54 | Pending |
+| CTX-01 | Phase 55 | Pending |
+| CTX-02 | Phase 55 | Pending |
+| CTX-03 | Phase 55 | Pending |
+| CTX-04 | Phase 55 | Pending |
+| CTX-05 | Phase 55 | Pending |
+| CTX-06 | Phase 55 | Pending |
+| PIPE-01 | Phase 56 | Pending |
+| PIPE-02 | Phase 56 | Pending |
+| PIPE-03 | Phase 56 | Pending |
+| AGENT-01 | Phase 57 | Pending |
+| AGENT-02 | Phase 57 | Pending |
+| AGENT-03 | Phase 57 | Pending |
+| AGENT-04 | Phase 57 | Pending |
+| AGENT-05 | Phase 57 | Pending |
+| SCHED-01 | Phase 58 | Pending |
+| SCHED-02 | Phase 58 | Pending |
+| SCHED-03 | Phase 58 | Pending |
+| SCHED-04 | Phase 58 | Pending |
+| SCHED-05 | Phase 58 | Pending |
+| SCHED-06 | Phase 58 | Pending |
+| SCHED-07 | Phase 58 | Pending |
+| HAT-01 | Phase 59 | Pending |
+| HAT-02 | Phase 59 | Pending |
+| HAT-03 | Phase 59 | Pending |
+| HAT-04 | Phase 59 | Pending |
+| APP-01 | Phase 60 | Pending |
+| APP-02 | Phase 60 | Pending |
+| APP-03 | Phase 60 | Pending |
+| APP-04 | Phase 60 | Pending |
+| APP-05 | Phase 60 | Pending |
+| APP-06 | Phase 60 | Pending |
+| READY-01 | Phase 61 | Pending |
+| READY-02 | Phase 61 | Pending |
+| READY-03 | Phase 61 | Pending |
+| READY-04 | Phase 61 | Pending |
 
 **Coverage:**
-- v1.8.0 requirements: 39 total
-- Mapped to phases: 39/39
+- v1.8.0 requirements: 61 total
+- Mapped to phases: 61/61
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-05*
-*Last updated: 2026-04-05 after roadmap creation*
+*Last updated: 2026-04-05 after roadmap v2 (22 new requirements mapped)*
