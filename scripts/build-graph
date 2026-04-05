@@ -4,6 +4,712 @@
 # and outputs dashboard/graph.json for the De Stijl knowledge graph dashboard
 # Must handle empty room gracefully (outputs 8 section group nodes)
 
+# macOS bash 3.2 compatibility -- Python3 fallback
+if [ "${BASH_VERSINFO[0]:-0}" -lt 4 ]; then
+  exec python3 - "$@" << 'PYEOF'
+import sys, os, re, json, subprocess
+from pathlib import Path
+from datetime import datetime, timezone
+
+ROOM_DIR = sys.argv[1] if len(sys.argv) > 1 else "./room"
+OUTPUT_PATH = sys.argv[2] if len(sys.argv) > 2 else "./dashboard/graph.json"
+
+# ---- 8 DD-aligned core sections with display names and De Stijl colors ----
+SECTION_COLORS = {
+    "problem-definition": "#A63D2F",
+    "market-analysis": "#C8A43C",
+    "solution-design": "#5C5A56",
+    "business-model": "#2D6B4A",
+    "competitive-analysis": "#B5602A",
+    "team-execution": "#1E3A6E",
+    "legal-ip": "#6B4E8B",
+    "financial-model": "#2A6B5E",
+}
+
+SECTION_LABELS = {
+    "problem-definition": "PROBLEM DEFINITION",
+    "market-analysis": "MARKET ANALYSIS",
+    "solution-design": "SOLUTION DESIGN",
+    "business-model": "BUSINESS MODEL",
+    "competitive-analysis": "COMPETITIVE ANALYSIS",
+    "team-execution": "TEAM & EXECUTION",
+    "legal-ip": "LEGAL & IP",
+    "financial-model": "FINANCIAL MODEL",
+}
+
+CORE_SECTIONS = [
+    "problem-definition",
+    "market-analysis",
+    "solution-design",
+    "business-model",
+    "competitive-analysis",
+    "team-execution",
+    "legal-ip",
+    "financial-model",
+]
+
+EXTENDED_COLORS = {
+    "opportunity-bank": "#C87137",
+    "funding": "#3A7B5E",
+    "personas": "#7B4A8B",
+    "product": "#1E3A6E",
+    "ip": "#6B4E8B",
+    "decisions": "#A63D2F",
+    "beta-testing": "#2D6B4A",
+    "product-evolution": "#C8A43C",
+    "tech-stack": "#5C5A56",
+}
+
+STRUCTURAL_DIRS = {"meetings", "team"}
+
+# ---- Dynamic section discovery ----
+is_core = set(CORE_SECTIONS)
+EXTENDED_SECTIONS = []
+
+room_path = Path(ROOM_DIR)
+if room_path.is_dir():
+    for d in sorted(room_path.iterdir()):
+        if not d.is_dir():
+            continue
+        dn = d.name
+        if dn.startswith("."):
+            continue
+        if dn in STRUCTURAL_DIRS or dn in is_core:
+            continue
+        has_content = False
+        if (d / "STATE.md").is_file():
+            has_content = True
+        else:
+            for _ in d.rglob("*.md"):
+                has_content = True
+                break
+        if has_content:
+            EXTENDED_SECTIONS.append(dn)
+            SECTION_COLORS[dn] = EXTENDED_COLORS.get(dn, "#5C5A56")
+            SECTION_LABELS[dn] = dn.replace("-", " ").upper()
+
+ALL_SECTIONS = CORE_SECTIONS + EXTENDED_SECTIONS
+
+
+# ---- Helpers ----
+def extract_frontmatter(filepath):
+    lines = []
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+            raw = f.readlines()
+    except Exception:
+        return []
+    if not raw or raw[0].strip() != "---":
+        return []
+    for line in raw[1:]:
+        if line.strip() == "---":
+            break
+        lines.append(line.rstrip("\n"))
+    return lines
+
+
+def get_field(filepath, field):
+    for line in extract_frontmatter(filepath):
+        if line.startswith(field + ":"):
+            val = line[len(field) + 1:].strip().strip('"')
+            return val
+    return ""
+
+
+def get_title(filepath):
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                if line.startswith("# "):
+                    return line[2:].strip()
+    except Exception:
+        pass
+    return Path(filepath).stem
+
+
+def json_escape(s):
+    s = s.replace("\\", "\\\\")
+    s = s.replace('"', '\\"')
+    s = s.replace("\n", "\\n")
+    s = s.replace("\t", "\\t")
+    return s
+
+
+def find_md_files(directory, recursive=False):
+    """Find .md files, sorted, like find ... | sort"""
+    p = Path(directory)
+    if not p.is_dir():
+        return []
+    if recursive:
+        files = sorted(p.rglob("*.md"))
+    else:
+        files = sorted(p.glob("*.md"))
+    return [str(f) for f in files if f.is_file()]
+
+
+# ---- Ensure output directory exists ----
+os.makedirs(os.path.dirname(OUTPUT_PATH) or ".", exist_ok=True)
+
+# ===========================================================
+# Phase 1: Build nodes
+# ===========================================================
+
+nodes = []
+node_count = 0
+artifact_count = 0
+
+# Section group nodes (always present)
+for section in ALL_SECTIONS:
+    color = SECTION_COLORS[section]
+    label = SECTION_LABELS[section]
+    nodes.append(
+        '{ "data": { "id": "%s", "label": "%s", "color": "%s", "layer": "structure" }, "classes": "section-group" }'
+        % (section, label, color)
+    )
+    node_count += 1
+
+# Artifact nodes
+artifact_pipeline = {}
+artifact_stage = {}
+artifact_section = {}
+pipeline_stages = {}
+
+if room_path.is_dir():
+    for section in ALL_SECTIONS:
+        section_dir = room_path / section
+        if not section_dir.is_dir():
+            continue
+        for f in sorted(section_dir.rglob("*.md")):
+            if not f.is_file():
+                continue
+            fname = f.name
+            if fname in ("ROOM.md", "STATE.md", "TEAM-STATE.md"):
+                continue
+            rel_path = str(f.relative_to(section_dir))
+            rel_clean = rel_path.replace(".md", "").replace("/", "-")
+            artifact_id = "%s/%s" % (section, rel_clean)
+            title = json_escape(get_title(str(f)))
+            methodology = json_escape(get_field(str(f), "methodology"))
+            created = get_field(str(f), "created")
+            pipeline = get_field(str(f), "pipeline")
+            pipeline_stage_val = get_field(str(f), "pipeline_stage")
+            color = SECTION_COLORS[section]
+            nodes.append(
+                '{ "data": { "id": "%s", "label": "%s", "section": "%s", "color": "%s", "methodology": "%s", "created": "%s", "pipeline": "%s", "pipeline_stage": "%s", "layer": "content", "parent": "%s" }, "classes": "artifact" }'
+                % (artifact_id, title, section, color, methodology, created, pipeline, pipeline_stage_val, section)
+            )
+            node_count += 1
+            artifact_count += 1
+            artifact_section[artifact_id] = section
+            if pipeline and pipeline_stage_val and pipeline_stage_val != "null":
+                artifact_pipeline[artifact_id] = pipeline
+                artifact_stage[artifact_id] = pipeline_stage_val
+                pipeline_stages["%s:%s" % (pipeline, pipeline_stage_val)] = artifact_id
+
+# Meeting nodes
+meeting_count = 0
+meeting_speakers = {}
+
+meetings_dir = room_path / "meetings"
+if meetings_dir.is_dir():
+    for mdir in sorted(meetings_dir.iterdir()):
+        if not mdir.is_dir():
+            continue
+        dir_name = mdir.name
+        meeting_date = dir_name[:10]
+        meeting_name = dir_name[11:] if len(dir_name) > 11 else ""
+        meeting_id = "meeting/%s" % dir_name
+
+        speakers_csv = ""
+        decisions_count = "0"
+        action_items_count = "0"
+        meta_file = mdir / "metadata.yaml"
+        if meta_file.is_file():
+            in_speakers = False
+            with open(str(meta_file), "r", encoding="utf-8", errors="replace") as mf:
+                for yline in mf:
+                    yline = yline.rstrip("\n")
+                    if yline.startswith("speakers:"):
+                        in_speakers = True
+                        continue
+                    if in_speakers:
+                        m = re.match(r"^\s*-\s+(.*)", yline)
+                        if m:
+                            spk = m.group(1).strip().strip('"')
+                            if speakers_csv:
+                                speakers_csv += "," + spk
+                            else:
+                                speakers_csv = spk
+                        else:
+                            in_speakers = False
+                    m = re.match(r"^decisions_count:\s*(.*)", yline)
+                    if m:
+                        decisions_count = m.group(1).strip()
+                    m = re.match(r"^action_items_count:\s*(.*)", yline)
+                    if m:
+                        action_items_count = m.group(1).strip()
+
+        meeting_speakers[meeting_id] = speakers_csv
+        label = json_escape(meeting_name or dir_name)
+        nodes.append(
+            '{ "data": { "id": "%s", "label": "%s", "meeting_date": "%s", "speakers": "%s", "decisions_count": "%s", "action_items_count": "%s", "color": "#D4A843", "layer": "content" }, "classes": "meeting" }'
+            % (meeting_id, label, meeting_date, json_escape(speakers_csv), decisions_count, action_items_count)
+        )
+        node_count += 1
+        meeting_count += 1
+
+# Speaker nodes
+speaker_count = 0
+speaker_seen = {}
+
+team_dir = room_path / "team"
+if team_dir.is_dir():
+    for role_type in ("members", "mentors", "advisors"):
+        role_dir = team_dir / role_type
+        if not role_dir.is_dir():
+            continue
+        for pdir in sorted(role_dir.iterdir()):
+            if not pdir.is_dir():
+                continue
+            person_name = pdir.name
+            if person_name in speaker_seen:
+                continue
+            speaker_seen[person_name] = 1
+            speaker_id = "speaker/%s" % person_name
+            role = ""
+            profile = pdir / "PROFILE.md"
+            if profile.is_file():
+                role = get_field(str(profile), "role")
+                if not role:
+                    role = get_field(str(profile), "primary_role")
+            if not role:
+                role = role_type
+            label = json_escape(person_name)
+            nodes.append(
+                '{ "data": { "id": "%s", "label": "%s", "role": "%s", "role_type": "%s", "color": "#1E3A6E", "layer": "content" }, "classes": "speaker" }'
+                % (speaker_id, label, json_escape(role), role_type)
+            )
+            node_count += 1
+            speaker_count += 1
+
+# ===========================================================
+# Phase 2: Build edges
+# ===========================================================
+
+edges = []
+edge_count = 0
+
+
+def add_edge(source, target, etype, label, css_class, source_type="room"):
+    global edge_count
+    edges.append(
+        '{ "data": { "id": "e%d", "source": "%s", "target": "%s", "type": "%s", "label": "%s", "source_type": "%s" }, "classes": "%s" }'
+        % (edge_count, json_escape(source), json_escape(target), etype, json_escape(label), source_type, css_class)
+    )
+    edge_count += 1
+
+
+# FEEDS_INTO edges
+for key, aid in pipeline_stages.items():
+    pipeline_name, stage_str = key.split(":", 1)
+    try:
+        next_stage = int(stage_str) + 1
+    except ValueError:
+        continue
+    next_key = "%s:%d" % (pipeline_name, next_stage)
+    if next_key in pipeline_stages:
+        add_edge(aid, pipeline_stages[next_key], "FEEDS_INTO", "feeds into", "feeds-into")
+
+# Run analyze-room
+analyze_output = ""
+if room_path.is_dir():
+    # Find analyze-room script relative to this script's location
+    # When running via heredoc, try multiple candidate paths
+    candidates = []
+    if "BASH_SOURCE_DIR" in os.environ:
+        candidates.append(Path(os.environ["BASH_SOURCE_DIR"]) / "analyze-room")
+    # Try relative to ROOM_DIR parent
+    candidates.append(Path(ROOM_DIR).resolve().parent / "scripts" / "analyze-room")
+    # Try current working directory
+    candidates.append(Path(".") / "scripts" / "analyze-room")
+
+    for candidate in candidates:
+        if candidate.is_file() and os.access(str(candidate), os.X_OK):
+            try:
+                analyze_output = subprocess.check_output(
+                    ["bash", str(candidate), ROOM_DIR],
+                    stderr=subprocess.DEVNULL, text=True
+                )
+            except Exception:
+                analyze_output = ""
+            break
+
+# Parse CONTRADICT/CONVERGE
+section_latest = {}
+for aid, sec in artifact_section.items():
+    section_latest[sec] = aid
+
+for line in analyze_output.splitlines():
+    if line.startswith("CONTRADICT:"):
+        parts = line.split(":")
+        if len(parts) >= 5:
+            sec_a, sec_b, confidence, message = parts[1], parts[2], parts[3], parts[4]
+            source = section_latest.get(sec_a, sec_a)
+            target = section_latest.get(sec_b, sec_b)
+            add_edge(source, target, "CONTRADICTS", message, "contradicts")
+
+for line in analyze_output.splitlines():
+    if line.startswith("CONVERGE:"):
+        parts = line.split(":")
+        if len(parts) >= 5:
+            term, count_str, confidence, message = parts[1], parts[2], parts[3], parts[4]
+            matching = []
+            for section in ALL_SECTIONS:
+                sdir = room_path / section
+                if sdir.is_dir():
+                    try:
+                        result = subprocess.run(
+                            ["grep", "-rql", term, str(sdir)],
+                            capture_output=True, text=True
+                        )
+                        if result.returncode == 0:
+                            matching.append(section)
+                    except Exception:
+                        pass
+            if len(matching) >= 2:
+                add_edge(matching[0], matching[1], "CONVERGES", term, "converges")
+
+# INFORMS edges
+if room_path.is_dir():
+    for aid, section in artifact_section.items():
+        fname = aid.split("/", 1)[1] if "/" in aid else aid
+        filepath = room_path / section / (fname + ".md")
+        if not filepath.is_file():
+            continue
+        try:
+            content = filepath.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+        for target_section in ALL_SECTIONS:
+            if target_section == section:
+                continue
+            if "[[%s]]" % target_section in content:
+                add_edge(aid, target_section, "INFORMS", "informs", "informs")
+
+# Meeting edges
+for mid, spk_csv in meeting_speakers.items():
+    if not spk_csv:
+        continue
+    for spk in spk_csv.split(","):
+        spk = spk.strip()
+        if not spk:
+            continue
+        speaker_id = "speaker/%s" % spk
+        if spk not in speaker_seen:
+            speaker_seen[spk] = 1
+            label = json_escape(spk)
+            nodes.append(
+                '{ "data": { "id": "%s", "label": "%s", "role": "", "role_type": "", "color": "#1E3A6E", "layer": "content" }, "classes": "speaker" }'
+                % (speaker_id, label)
+            )
+            node_count += 1
+            speaker_count += 1
+        add_edge(speaker_id, mid, "SPOKE_IN", "spoke in", "spoke-in", "meeting")
+        add_edge(speaker_id, mid, "ATTENDED", "attended", "attended", "meeting")
+
+    # FILED_TO edges
+    dir_name = mid.replace("meeting/", "", 1)
+    filed_dir = room_path / "meetings" / dir_name / "filed-to"
+    if filed_dir.is_dir():
+        for link in sorted(filed_dir.iterdir()):
+            if not link.exists():
+                continue
+            if link.is_symlink():
+                try:
+                    target_path = str(link.resolve())
+                except Exception:
+                    target_path = str(link)
+            else:
+                target_path = ""
+                try:
+                    with open(str(link), "r", encoding="utf-8", errors="replace") as lf:
+                        head_lines = []
+                        for i, ln in enumerate(lf):
+                            if i >= 5:
+                                break
+                            head_lines.append(ln.rstrip("\n"))
+                    head_text = "\n".join(head_lines)
+                    # Equivalent of: grep -oP '(?<=\().*?(?=\))|(?<=: ).*|^/.*|^room/.*'
+                    m = re.search(r'(?<=\().*?(?=\))|(?<=: ).*|^/.*|^room/.*', head_text, re.MULTILINE)
+                    if m:
+                        target_path = m.group(0)
+                except Exception:
+                    pass
+                if not target_path:
+                    target_path = link.stem
+            for sec in ALL_SECTIONS:
+                if sec in target_path:
+                    add_edge(mid, sec, "FILED_TO", "filed to", "filed-to", "meeting")
+                    break
+
+# ===========================================================
+# Phase 2b: Wikilink concept nodes and intelligence edges
+# ===========================================================
+
+concept_count = 0
+concept_seen = {}
+concept_ref_count = {}
+concept_sources = {}
+
+if room_path.is_dir():
+    for mdfile in sorted(room_path.rglob("*.md")):
+        if not mdfile.is_file():
+            continue
+        if mdfile.name == "transcript.md":
+            continue
+        rel_path = str(mdfile.relative_to(room_path))
+        source_id = rel_path.replace(".md", "")
+
+        try:
+            content = mdfile.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+
+        wlinks = sorted(set(re.findall(r'\[\[([^\]]+)\]\]', content)))
+        if not wlinks:
+            continue
+
+        for concept in wlinks:
+            if not concept:
+                continue
+            concept_key = concept.lower().replace(" ", "-")
+            prev_sources = concept_sources.get(concept_key, "")
+            if source_id not in prev_sources:
+                concept_ref_count[concept_key] = concept_ref_count.get(concept_key, 0) + 1
+                if prev_sources:
+                    concept_sources[concept_key] = prev_sources + "," + source_id
+                else:
+                    concept_sources[concept_key] = source_id
+
+# Create concept nodes for concepts referenced in 2+ files
+for concept_key, ref_count in concept_ref_count.items():
+    if ref_count < 2:
+        continue
+    concept_id = "concept/%s" % concept_key
+    concept_seen[concept_key] = 1
+    css_class = "concept"
+    resolved = False
+    if room_path.is_dir():
+        for _ in room_path.rglob(concept_key + ".md"):
+            resolved = True
+            break
+    if not resolved:
+        css_class = "concept unresolved"
+    label = json_escape(concept_key)
+    nodes.append(
+        '{ "data": { "id": "%s", "label": "%s", "ref_count": %d, "color": "#C8A43C", "layer": "intelligence" }, "classes": "%s" }'
+        % (concept_id, label, ref_count, css_class)
+    )
+    node_count += 1
+    concept_count += 1
+
+# REFERENCES edges
+for concept_key, src_csv in concept_sources.items():
+    concept_id = "concept/%s" % concept_key
+    for src in src_csv.split(","):
+        if not src:
+            continue
+        add_edge(src, concept_id, "REFERENCES", "references", "references", "wikilink")
+
+# Cross-meeting intelligence edges from MEETINGS-INTELLIGENCE.md
+intel_file = room_path / "MEETINGS-INTELLIGENCE.md"
+if intel_file.is_file():
+    try:
+        intel_content = intel_file.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        intel_content = ""
+
+    meeting_date_re = re.compile(r'[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9-]+')
+
+    def find_meeting_refs(line_text):
+        refs = meeting_date_re.findall(line_text)
+        matched = []
+        for mref in refs:
+            if not mref:
+                continue
+            for mid2 in meeting_speakers:
+                if mref in mid2:
+                    matched.append(mid2)
+                    break
+        return matched
+
+    # Parse Convergence Signals
+    in_convergence = False
+    for iline in intel_content.splitlines():
+        if iline.startswith("## Convergence Signals"):
+            in_convergence = True
+            continue
+        if iline.startswith("## ") and in_convergence:
+            in_convergence = False
+            continue
+        if in_convergence and "-" in iline:
+            conv_meetings = find_meeting_refs(iline)
+            if len(conv_meetings) >= 2:
+                for i in range(len(conv_meetings) - 1):
+                    for j in range(i + 1, len(conv_meetings)):
+                        add_edge(conv_meetings[i], conv_meetings[j], "REINFORCES", "convergence signal", "reinforces", "intelligence")
+
+    # Parse Contradictions
+    in_contradictions = False
+    for iline in intel_content.splitlines():
+        if iline.startswith("## Contradictions"):
+            in_contradictions = True
+            continue
+        if iline.startswith("## ") and in_contradictions:
+            in_contradictions = False
+            continue
+        if in_contradictions and "-" in iline:
+            contra_meetings = find_meeting_refs(iline)
+            if len(contra_meetings) >= 2:
+                for i in range(len(contra_meetings) - 1):
+                    for j in range(i + 1, len(contra_meetings)):
+                        add_edge(contra_meetings[i], contra_meetings[j], "CONTRADICTS", "contradiction", "contradicts", "intelligence")
+
+# ===========================================================
+# Phase 3: Build intelligence object
+# ===========================================================
+
+gaps_json_parts = []
+convergence_json_parts = []
+contradictions_json_parts = []
+
+for line in analyze_output.splitlines():
+    if line.startswith("GAP:"):
+        parts = line.split(":")
+        if len(parts) >= 5:
+            gaps_json_parts.append(
+                '{ "type": "%s", "section": "%s", "confidence": "%s", "message": "%s" }'
+                % (json_escape(parts[1]), json_escape(parts[2]), json_escape(parts[3]), json_escape(parts[4]))
+            )
+    elif line.startswith("CONVERGE:"):
+        parts = line.split(":")
+        if len(parts) >= 5:
+            convergence_json_parts.append(
+                '{ "term": "%s", "count": %s, "confidence": "%s", "message": "%s" }'
+                % (json_escape(parts[1]), parts[2], json_escape(parts[3]), json_escape(parts[4]))
+            )
+    elif line.startswith("CONTRADICT:"):
+        parts = line.split(":")
+        if len(parts) >= 5:
+            contradictions_json_parts.append(
+                '{ "section_a": "%s", "section_b": "%s", "confidence": "%s", "message": "%s" }'
+                % (json_escape(parts[1]), json_escape(parts[2]), json_escape(parts[3]), json_escape(parts[4]))
+            )
+
+# Build summary
+venture_stage = "Pre-Opportunity"
+room_name = "Data Room"
+state_file = room_path / "STATE.md"
+if state_file.is_file():
+    try:
+        state_content = state_file.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        state_content = ""
+    for sl in state_content.splitlines():
+        if re.match(r'(?i)venture_stage:', sl):
+            venture_stage = re.sub(r'.*venture_stage:\s*', '', sl, flags=re.IGNORECASE).strip().strip('"')
+            break
+    for sl in state_content.splitlines():
+        if re.match(r'(?i)(venture_name|room_name|project_name|name):', sl):
+            room_name = re.sub(r'^[^:]*:\s*', '', sl).strip().strip('"')
+            break
+    if room_name == "Data Room":
+        for sl in state_content.splitlines():
+            if sl.startswith("# "):
+                h1 = sl[2:].strip()
+                if h1 and h1 != "Data Room State":
+                    room_name = h1
+                break
+    if room_name == "Data Room":
+        dn = room_path.name
+        if dn != "room":
+            room_name = " ".join(w.capitalize() for w in dn.split("-"))
+
+room_name_json = room_name.replace("\\", "\\\\").replace('"', '\\"')
+
+sections_active = 0
+sections_empty = 0
+for section in ALL_SECTIONS:
+    sdir = room_path / section
+    if sdir.is_dir():
+        count = sum(
+            1 for f in sdir.iterdir()
+            if f.is_file() and f.suffix == ".md" and f.name not in ("ROOM.md", "STATE.md")
+        )
+        if count > 0:
+            sections_active += 1
+        else:
+            sections_empty += 1
+    else:
+        sections_empty += 1
+
+# ===========================================================
+# Phase 4: Output JSON
+# ===========================================================
+
+generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+nodes_str = ",\n    ".join(nodes) if nodes else ""
+edges_str = ",\n    ".join(edges) if edges else ""
+
+output = """{
+  "meta": {
+    "roomName": "%s",
+    "ventureStage": "%s",
+    "generatedAt": "%s",
+    "roomDir": "%s",
+    "generator": "MindrianOS build-graph"
+  },
+  "elements": {
+    "nodes": [
+    %s
+    ],
+    "edges": [
+    %s
+    ]
+  },
+  "intelligence": {
+    "gaps": [%s],
+    "convergence": [%s],
+    "contradictions": [%s],
+    "summary": {
+      "total_artifacts": %d,
+      "meeting_count": %d,
+      "speaker_count": %d,
+      "concept_count": %d,
+      "venture_stage": "%s",
+      "sections_active": %d,
+      "sections_empty": %d
+    }
+  }
+}
+""" % (
+    room_name_json, venture_stage, generated_at, ROOM_DIR,
+    nodes_str, edges_str,
+    ", ".join(gaps_json_parts),
+    ", ".join(convergence_json_parts),
+    ", ".join(contradictions_json_parts),
+    artifact_count, meeting_count, speaker_count, concept_count,
+    venture_stage, sections_active, sections_empty,
+)
+
+with open(OUTPUT_PATH, "w", encoding="utf-8") as out:
+    out.write(output)
+
+print("Generated graph.json: %d nodes, %d edges" % (node_count, edge_count))
+PYEOF
+fi
+
 set -euo pipefail
 
 ROOM_DIR="${1:-./room}"
