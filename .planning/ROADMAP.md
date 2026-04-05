@@ -80,7 +80,11 @@ Plans:
   6. Writing the same file twice within 30 seconds triggers HSI computation only once (debounce)
   7. A swarm writing 3 artifacts produces a single batched HSI computation, not 3 separate ones
   8. Bridge file is stored per-room at ~/.mindrian/bridge/{room-hash}.json, not at a shared /tmp/ path
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 54-01-PLAN.md -- Skill compression + progressive loading (TOKEN-01 through TOKEN-06)
+- [ ] 54-02-PLAN.md -- Hook optimization: debounce, batch, cache, bridge migration (HOOK-01 through HOOK-05)
 
 ### Phase 55: Context Intelligence
 **Goal**: The system detects user type and session intent, then loads only the context and MCP servers each user actually needs -- students get minimal overhead, venturists get full pipelines, returning users skip re-introductions
@@ -176,7 +180,7 @@ Note: Phase 54 (Token + Hook) and Phases 56 (Pipeline) + 57 (Agent Dispatch) can
 |-------|-----------|----------------|--------|-----------|
 | 52. MCP Foundation | v1.8.0 | 2/3 | In Progress|  |
 | 53. Surface Detection + Write Safety | v1.8.0 | 2/2 | Complete   | 2026-04-05 |
-| 54. Token + Hook Optimization | v1.8.0 | 0/TBD | Not started | - |
+| 54. Token + Hook Optimization | v1.8.0 | 0/2 | Planned | - |
 | 55. Context Intelligence | v1.8.0 | 0/TBD | Not started | - |
 | 56. Pipeline Chaining | v1.8.0 | 0/TBD | Not started | - |
 | 57. Agent Dispatch Optimization | v1.8.0 | 0/TBD | Not started | - |
