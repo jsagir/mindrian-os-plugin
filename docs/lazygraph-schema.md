@@ -83,6 +83,28 @@ Every artifact belongs to exactly one section.
 |----------|------|-------------|
 | *(none)* | | Structural membership |
 
+### CAUSES (Artifact -> Artifact)
+
+Created when one artifact directly causes or triggers effects described in another. Detected via explicit `causes:` frontmatter, Brain enrichment causal chains, or proximity terms near causal language ("causes", "triggers", "leads to", "results in").
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `mechanism` | STRING | How the cause produces the effect |
+| `confidence` | DOUBLE | Detection confidence (0.0-1.0) |
+| `framework` | STRING | Framework or methodology that identified the relationship |
+| `direction` | STRING | `forward` (default) or `backward` for reverse tracing |
+
+### ROOT_CAUSE_OF (Artifact -> Artifact)
+
+Traces backward through a causal chain to identify the root cause of a problem or symptom. Created by Brain enrichment or explicit multi-hop causal analysis.
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `chain_length` | INT64 | Number of intermediate causes in the chain |
+| `intermediate_causes` | STRING | JSON array of artifact IDs in the causal chain |
+| `confidence` | DOUBLE | Confidence decreases with chain length (1/(depth+1)) |
+| `discovery_source` | STRING | `manual`, `brain_enrichment`, or `cascade_analysis` |
+
 ---
 
 ## Example Cypher Queries
@@ -141,6 +163,30 @@ RETURN a.title, a.section, b.title, b.section, c.confidence
 ```cypher
 MATCH (a:Artifact {id: 'problem-definition/market-trends'})-[:INFORMS]->(b:Artifact)
 RETURN b.title, b.section
+```
+
+### What causes problems in this room?
+
+```cypher
+MATCH (a:Artifact)-[r:CAUSES]->(b:Artifact)
+RETURN a.title AS cause, b.title AS effect, r.mechanism, r.confidence
+ORDER BY r.confidence DESC
+```
+
+### Trace root causes of a specific issue
+
+```cypher
+MATCH (root:Artifact)-[r:ROOT_CAUSE_OF]->(symptom:Artifact)
+WHERE symptom.title CONTAINS 'churn'
+RETURN root.title, r.chain_length, r.intermediate_causes, r.confidence
+```
+
+### Find all causal chains across sections
+
+```cypher
+MATCH (a:Artifact)-[r:CAUSES]->(b:Artifact)
+WHERE a.section <> b.section
+RETURN a.title, a.section, b.title, b.section, r.mechanism
 ```
 
 ### Graph overview statistics
@@ -214,10 +260,12 @@ KuzuDB does not support `OPTIONAL MATCH`. Use `MATCH` and handle empty results i
 | ENABLES | Explicit `enables:` frontmatter only | + causal inference |
 | INVALIDATES | Explicit `invalidates:` frontmatter only | + temporal staleness detection |
 | BELONGS_TO | File location (automatic) | Same |
+| CAUSES | Explicit `causes:` frontmatter + proximity causal terms | + Brain enrichment causal chains |
+| ROOT_CAUSE_OF | Brain enrichment multi-hop chains only | + automated chain discovery |
 
-ENABLES and INVALIDATES require explicit frontmatter markers in Tier 1. Full automatic detection is a Tier 2 capability requiring Pinecone semantic analysis.
+ENABLES and INVALIDATES require explicit frontmatter markers in Tier 1. CAUSES supports both frontmatter and proximity detection. ROOT_CAUSE_OF primarily comes from Brain enrichment. Full automatic detection is a Tier 2 capability requiring Pinecone semantic analysis or Brain causal graph queries.
 
 ---
 
-*Schema version: 1.0 (Phase 15)*
+*Schema version: 1.1 (Phase 52 - causal edges added)*
 *Engine: KuzuDB 0.11.3 (embedded, Apache 2.0)*
