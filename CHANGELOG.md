@@ -9,6 +9,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.7.0] - 2026-04-05
+onboarding: true
+onboard_steps:
+  - "When you want to know WHY something is true in your Room (not just WHAT), /mos:causal extract traces cause-effect chains with mechanisms and falsifiable predictions"
+  - "When assumptions stack 3-deep and you need to know which to validate FIRST, /mos:causal trace cascade shows what breaks if each assumption fails"
+  - "When you have a causal claim worth testing, /mos:causal predict turns it into a trackable prediction with a deadline -- Larry reminds you when it's time to check"
+
+### Added
+- **Causal Reasoning Layer**: CausalClaim nodes in KuzuDB with 12 properties (cause, mechanism, effect, confidence, domain, falsifiable_prediction, novelty_score, extraction_method, evidence, source_artifact, created)
+- **Causal Edge Types**: CAUSES + ROOT_CAUSE_OF (Artifact->Artifact), CASCADES_TO (CausalClaim->CausalClaim), EXTRACTED_FROM (CausalClaim->Artifact)
+- `/mos:causal` command with 3 subcommands: extract (Larry extracts cause/mechanism/effect triples with Three Gaps enforcement), predict (generate and track falsifiable predictions), examples (research-backed examples via Brain + Tavily)
+- **Causal Graph Engine** (compute-causal.py): 5 NetworkX algorithms -- chain traversal (all_simple_paths, cutoff=6), cascade simulation (descendants with multiplicative confidence decay), bottleneck detection (betweenness centrality), contradiction detection (cycle finding), inversion protocol (node removal + path diff)
+- **Cross-Reference Queries**: Cypher joins linking CausalClaims to HSI_CONNECTION, REVERSE_SALIENT, and ANALOGOUS_TO edges -- discovers where causal explanations connect to existing intelligence
+- **Prediction Registry** (prediction-registry.cjs): 5 subcommands (add/resolve/list/overdue/archive), REGISTRY.json lifecycle (pending->confirmed/refuted/expired), opportunity typing (business/research/funding/competitive/technical), confidence propagation from outcomes
+- **Post-Write Causal Flagging**: Lightweight regex heuristic flags causal candidates after HSI+RS in post-write cascade, writes .causal-candidates.json
+- **Research-Backed Examples** (ENGINE-09): Analogy engine generates structural search queries from causal graph topology -- Brain/Pinecone for PWS teaching examples + Tavily for chronologically recent real-world examples
+- **Brain Enrichment**: Theory of Change Framework node, Causal Reasoning parent Concept, FEEDS_INTO chains (Root Cause -> Systems Thinking -> CLD -> Scenario Analysis), CO_OCCURS edges, TYPICAL_AT venture stage mappings, Falsifiability + Logic Trees linked
+- **Brain Query Patterns 11-13**: causal_framework_select, causal_pattern_match, causal_contradiction_resolve
+- **Brain Causal Directives**: Three Gaps framework (Abstraction, Reasoning, Reality) -- every claim needs mechanism + falsifiable prediction
+- **Larry JTBD Suggestions**: 5 signal-to-suggestion mappings for causal commands in larry-personality skill
+- **Room-Proactive Causal Discovery**: 5 convergence patterns surfacing discoveries when causal + HSI + RS + analogy edges converge (threshold: 5+ claims, 3+ cascades)
+- **Session-Start Prediction Check**: Larry proactively prompts for overdue prediction resolution
+
+### Architecture
+- **Larry EXTRACTS** causal claims (semantic, LLM with Three Gaps enforcement)
+- **Python COMPUTES** graph algorithms (NetworkX -- chains, cascades, bottlenecks, contradictions, inversions)
+- **KuzuDB STORES** causal data (CausalClaim nodes, CASCADES_TO/EXTRACTED_FROM edges)
+- **Brain DIRECTS** causal reasoning (read-only directives, query patterns 11-13)
+- **Brain never receives user causal data** -- clean IP boundary maintained
+- Follows existing HSI pipeline pattern: Python extracts -> JSON intermediate -> CJS writes to KuzuDB
+- Discovery emerges from graph structure: Cypher walks Causal -> HSI -> RS -> Analogy edges in one query
+
 ## [1.6.3] - 2026-04-03
 
 ### Fixed
