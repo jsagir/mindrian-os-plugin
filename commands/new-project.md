@@ -238,6 +238,49 @@ bash scripts/compute-state room > room/STATE.md
 
 Find the script relative to the plugin root. If the `scripts/compute-state` script is available at the plugin level, use it. Otherwise, look for it relative to the current working directory.
 
+## Step 7.5: Open Room in File Browser
+
+After STATE.md is computed and confirmed, help the user find their room in the filesystem. Detect the OS and show the appropriate command.
+
+Run OS detection:
+```bash
+OS_TYPE=$(uname -s 2>/dev/null || echo "unknown")
+```
+
+Then present the room path and the open command conversationally:
+
+**macOS (Darwin):**
+> "Your room is at `<room-path>`. To see it in Finder, run:"
+> ```
+> open <room-path>
+> ```
+
+**Linux:**
+> "Your room is at `<room-path>`. To open it in your file browser, run:"
+> ```
+> xdg-open <room-path>
+> ```
+
+**Windows (MINGW, MSYS, CYGWIN, or WSL):**
+
+For WSL environments, detect whether we are inside WSL:
+```bash
+if grep -qi microsoft /proc/version 2>/dev/null; then
+  # WSL -- convert path and use explorer.exe
+  WINDOWS_PATH=$(wslpath -w "<room-path>" 2>/dev/null || echo "<room-path>")
+  echo "explorer.exe $WINDOWS_PATH"
+else
+  echo "explorer <room-path>"
+fi
+```
+
+> "Your room is at `<room-path>`. To see it in Explorer, run:"
+> ```
+> explorer.exe <windows-path>
+> ```
+
+Frame it naturally -- this is a helpful nudge, not a required step. If the user is already working in the CLI, they may not need it.
+
 ## Step 8: Cowork Context (Optional)
 
 Check if the environment suggests Cowork (look for `COWORK_PLUGIN_ROOT` or similar env vars).
