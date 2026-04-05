@@ -96,7 +96,10 @@ Plans:
   3. A returning user (session count > 3) sees a domain-specific greeting ("I see you're continuing work on [domain]") instead of the full introduction
   4. A student's completed tasks are persisted to room/.context/learning-progress.md at session end, and the next session reports "You completed X of 22 tasks"
   5. Autocompact threshold adapts to user type: 65% for students, 72% default, 75% venturist, 78% researcher
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [x] 55-01-PLAN.md - User archetype detection, tiered loading, MCP profiles, autocompact tuning, returning user, student progress
 
 ### Phase 56: Pipeline Chaining
 **Goal**: Users can run multi-step methodology pipelines end-to-end on Desktop/Cowork where each tool's output feeds the next through room artifacts
@@ -184,7 +187,7 @@ Note: Phase 54 (Token + Hook) and Phases 56 (Pipeline) + 57 (Agent Dispatch) can
 | 52. MCP Foundation | v1.8.0 | 2/3 | In Progress|  |
 | 53. Surface Detection + Write Safety | v1.8.0 | 2/2 | Complete   | 2026-04-05 |
 | 54. Token + Hook Optimization | v1.8.0 | 1/2 | In Progress|  |
-| 55. Context Intelligence | v1.8.0 | 0/TBD | Not started | - |
+| 55. Context Intelligence | v1.8.0 | 1/1 | Complete | 2026-04-05 |
 | 56. Pipeline Chaining | v1.8.0 | 1/1 | Complete | 2026-04-05 |
 | 57. Agent Dispatch Optimization | v1.8.0 | 0/TBD | Not started | - |
 | 58. Scheduled Intelligence | v1.8.0 | 0/TBD | Not started | - |

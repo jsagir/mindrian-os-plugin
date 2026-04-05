@@ -46,12 +46,12 @@
 
 ### Context Intelligence -- User Archetype + Tiered Loading
 
-- [ ] **CTX-01**: Detect user archetype (venturist/researcher/student) from USER.md, venture stage, and command patterns
-- [ ] **CTX-02**: Tiered context loading at session start: minimal (~500 tokens, >70% budget used), balanced (~2K, 30-70%), rich (~5K, <30% or venturist pipeline)
-- [ ] **CTX-03**: MCP session profiles (learn/think/build/research/present/full) that control which MCP servers load -- student exercises need zero MCP overhead
-- [ ] **CTX-04**: Autocompact tuning per user type: 65% student, 72% default, 75% venturist, 78% researcher
-- [ ] **CTX-05**: Returning user detection: session count > 3 triggers domain-specific greeting instead of full intro ("I see you're continuing work on [domain]")
-- [ ] **CTX-06**: Student progress tracking: SessionEnd writes to room/.context/learning-progress.md, next session starts with "You completed 7 of 22 tasks"
+- [x] **CTX-01**: Detect user archetype (venturist/researcher/student) from USER.md, venture stage, and command patterns
+- [x] **CTX-02**: Tiered context loading at session start: minimal (~500 tokens, >70% budget used), balanced (~2K, 30-70%), rich (~5K, <30% or venturist pipeline)
+- [x] **CTX-03**: MCP session profiles (learn/think/build/research/present/full) that control which MCP servers load -- student exercises need zero MCP overhead
+- [x] **CTX-04**: Autocompact tuning per user type: 65% student, 72% default, 75% venturist, 78% researcher
+- [x] **CTX-05**: Returning user detection: session count > 3 triggers domain-specific greeting instead of full intro ("I see you're continuing work on [domain]")
+- [x] **CTX-06**: Student progress tracking: SessionEnd writes to room/.context/learning-progress.md, next session starts with "You completed 7 of 22 tasks"
 
 ### Pipeline Chaining
 
@@ -158,12 +158,12 @@
 | HOOK-03 | Phase 54 | Complete |
 | HOOK-04 | Phase 54 | Complete |
 | HOOK-05 | Phase 54 | Complete |
-| CTX-01 | Phase 55 | Pending |
-| CTX-02 | Phase 55 | Pending |
-| CTX-03 | Phase 55 | Pending |
-| CTX-04 | Phase 55 | Pending |
-| CTX-05 | Phase 55 | Pending |
-| CTX-06 | Phase 55 | Pending |
+| CTX-01 | Phase 55 | Complete |
+| CTX-02 | Phase 55 | Complete |
+| CTX-03 | Phase 55 | Complete |
+| CTX-04 | Phase 55 | Complete |
+| CTX-05 | Phase 55 | Complete |
+| CTX-06 | Phase 55 | Complete |
 | PIPE-01 | Phase 56 | Complete |
 | PIPE-02 | Phase 56 | Complete |
 | PIPE-03 | Phase 56 | Complete |
