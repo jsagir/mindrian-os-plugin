@@ -83,7 +83,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 54-01-PLAN.md -- Skill compression + progressive loading (TOKEN-01 through TOKEN-06)
+- [x] 54-01-PLAN.md -- Skill compression + progressive loading (TOKEN-01 through TOKEN-06)
 - [ ] 54-02-PLAN.md -- Hook optimization: debounce, batch, cache, bridge migration (HOOK-01 through HOOK-05)
 
 ### Phase 55: Context Intelligence
@@ -180,7 +180,7 @@ Note: Phase 54 (Token + Hook) and Phases 56 (Pipeline) + 57 (Agent Dispatch) can
 |-------|-----------|----------------|--------|-----------|
 | 52. MCP Foundation | v1.8.0 | 2/3 | In Progress|  |
 | 53. Surface Detection + Write Safety | v1.8.0 | 2/2 | Complete   | 2026-04-05 |
-| 54. Token + Hook Optimization | v1.8.0 | 0/2 | Planned | - |
+| 54. Token + Hook Optimization | v1.8.0 | 1/2 | In Progress|  |
 | 55. Context Intelligence | v1.8.0 | 0/TBD | Not started | - |
 | 56. Pipeline Chaining | v1.8.0 | 0/TBD | Not started | - |
 | 57. Agent Dispatch Optimization | v1.8.0 | 0/TBD | Not started | - |

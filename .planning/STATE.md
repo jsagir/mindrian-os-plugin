@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.8.0
 milestone_name: Cowork Adaptation
 status: verifying
-stopped_at: Completed 53-02-PLAN.md (write safety + surface setup)
-last_updated: "2026-04-05T20:26:07.982Z"
+stopped_at: Completed 54-01-PLAN.md (skill compression + progressive loading)
+last_updated: "2026-04-05T20:42:06.410Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 10
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 7
+  completed_plans: 6
   percent: 0
 ---
 
@@ -21,11 +21,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** Every MindrianOS command, pipeline, and intelligence capability works identically across CLI, Desktop, and Cowork
-**Current focus:** Phase 53 — Surface Detection + Write Safety
+**Current focus:** Phase 54 — Token + Hook Optimization
 
 ## Current Position
 
-Phase: 53 (Surface Detection + Write Safety) — EXECUTING
+Phase: 54 (Token + Hook Optimization) — EXECUTING
 Plan: 2 of 2
 Status: Phase complete — ready for verification
 Last activity: 2026-04-05
@@ -61,6 +61,9 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 53]: Express imported via SDK bundle, not added as direct dependency
 - [Phase 53]: MINDRIAN_TRANSPORT env override takes highest detection priority; graceful stdio fallback on HTTP path
 - [Phase 53]: Write lock uses synchronous fs ops guarding async DB writes; 5s stale threshold; reads bypass queue
+- [Phase 54]: djb2 hash for STATE.md cache keys; 500ms batch window; md5 hash for cross-language bridge file naming; periodic cache eviction every 100 calls
+- [Phase 54]: Native-first skill compression: 74K to 26K bytes, zero tool instructions
+- [Phase 54]: Progressive loading: Layer 0 always / Layer 1 room-conditional / Layer 2 Brain-conditional
 
 ### Pending Todos
 
@@ -76,6 +79,6 @@ Progress: [░░░░░░░░░░] 0%
 
 ## Session Continuity
 
-Last session: 2026-04-05T20:26:07.979Z
-Stopped at: Completed 53-02-PLAN.md (write safety + surface setup)
+Last session: 2026-04-05T20:42:06.407Z
+Stopped at: Completed 54-01-PLAN.md (skill compression + progressive loading)
 Resume file: None

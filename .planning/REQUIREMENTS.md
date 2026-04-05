@@ -29,20 +29,20 @@
 
 ### Token Optimization -- Skill Compression
 
-- [ ] **TOKEN-01**: Native-first skill architecture: skills teach only domain-specific rules, not how to use tools Claude already knows (Read, Write, WebSearch, Agent)
-- [ ] **TOKEN-02**: Compress ui-system from ~28K bytes (~7,200 tokens) to ~8K bytes (~2,200 tokens) by removing examples and keeping rules only
-- [ ] **TOKEN-03**: Defer room-proactive and room-passive skills until room/ directory exists (zero capability loss, ~3,600 token savings)
-- [ ] **TOKEN-04**: Defer brain-connector skill until Brain is detected (~1,500 token savings, load on demand)
-- [ ] **TOKEN-05**: Progressive loading: Layer 0 always (~9K tokens), Layer 1 on-demand (full skill content when needed), Layer 2 Brain power-up (optional)
-- [ ] **TOKEN-06**: Per-turn base cost reduced from ~20,500 tokens to ~10,000 tokens for fresh install users
+- [x] **TOKEN-01**: Native-first skill architecture: skills teach only domain-specific rules, not how to use tools Claude already knows (Read, Write, WebSearch, Agent)
+- [x] **TOKEN-02**: Compress ui-system from ~28K bytes (~7,200 tokens) to ~8K bytes (~2,200 tokens) by removing examples and keeping rules only
+- [x] **TOKEN-03**: Defer room-proactive and room-passive skills until room/ directory exists (zero capability loss, ~3,600 token savings)
+- [x] **TOKEN-04**: Defer brain-connector skill until Brain is detected (~1,500 token savings, load on demand)
+- [x] **TOKEN-05**: Progressive loading: Layer 0 always (~9K tokens), Layer 1 on-demand (full skill content when needed), Layer 2 Brain power-up (optional)
+- [x] **TOKEN-06**: Per-turn base cost reduced from ~20,500 tokens to ~10,000 tokens for fresh install users
 
 ### Hook Optimization
 
-- [ ] **HOOK-01**: Post-write HSI debounce: skip recompute if same file written within 30s
-- [ ] **HOOK-02**: Analyze-room caching: skip if STATE.md hash unchanged (5-min TTL)
-- [ ] **HOOK-03**: Write batching: queue multiple artifact writes, single HSI compute for the batch
-- [ ] **HOOK-04**: Bridge file per-room isolation: move from /tmp/ hardcoded to ~/.mindrian/bridge/{room-hash}.json
-- [ ] **HOOK-05**: Framework recommendation cache: (room_path, STATE.md_hash) -> frameworks, 10-min TTL
+- [x] **HOOK-01**: Post-write HSI debounce: skip recompute if same file written within 30s
+- [x] **HOOK-02**: Analyze-room caching: skip if STATE.md hash unchanged (5-min TTL)
+- [x] **HOOK-03**: Write batching: queue multiple artifact writes, single HSI compute for the batch
+- [x] **HOOK-04**: Bridge file per-room isolation: move from /tmp/ hardcoded to ~/.mindrian/bridge/{room-hash}.json
+- [x] **HOOK-05**: Framework recommendation cache: (room_path, STATE.md_hash) -> frameworks, 10-min TTL
 
 ### Context Intelligence -- User Archetype + Tiered Loading
 
@@ -147,17 +147,17 @@
 | WRITE-01 | Phase 53 | Complete |
 | WRITE-02 | Phase 53 | Complete |
 | WRITE-03 | Phase 53 | Complete |
-| TOKEN-01 | Phase 54 | Pending |
-| TOKEN-02 | Phase 54 | Pending |
-| TOKEN-03 | Phase 54 | Pending |
-| TOKEN-04 | Phase 54 | Pending |
-| TOKEN-05 | Phase 54 | Pending |
-| TOKEN-06 | Phase 54 | Pending |
-| HOOK-01 | Phase 54 | Pending |
-| HOOK-02 | Phase 54 | Pending |
-| HOOK-03 | Phase 54 | Pending |
-| HOOK-04 | Phase 54 | Pending |
-| HOOK-05 | Phase 54 | Pending |
+| TOKEN-01 | Phase 54 | Complete |
+| TOKEN-02 | Phase 54 | Complete |
+| TOKEN-03 | Phase 54 | Complete |
+| TOKEN-04 | Phase 54 | Complete |
+| TOKEN-05 | Phase 54 | Complete |
+| TOKEN-06 | Phase 54 | Complete |
+| HOOK-01 | Phase 54 | Complete |
+| HOOK-02 | Phase 54 | Complete |
+| HOOK-03 | Phase 54 | Complete |
+| HOOK-04 | Phase 54 | Complete |
+| HOOK-05 | Phase 54 | Complete |
 | CTX-01 | Phase 55 | Pending |
 | CTX-02 | Phase 55 | Pending |
 | CTX-03 | Phase 55 | Pending |
