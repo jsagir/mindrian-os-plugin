@@ -18,14 +18,14 @@
 
 - [x] **SURF-01**: Auto-detect CLI vs Desktop vs Cowork at server startup via environment signals (MINDRIAN_TRANSPORT, CLAUDE_SURFACE, /sessions directory, process.stdin.isTTY)
 - [x] **SURF-02**: Dual transport: stdio for Desktop + Streamable HTTP for Cowork on same McpServer instance, selected by surface detection
-- [ ] **SURF-03**: `/mos:setup` auto-configures both MCP servers (Brain remote + MindrianOS local) based on detected surface
+- [x] **SURF-03**: `/mos:setup` auto-configures both MCP servers (Brain remote + MindrianOS local) based on detected surface
 - [x] **SURF-04**: Capability-aware feature registration: MCP Apps only on Desktop/Cowork, Tasks only on Cowork, hooks only on CLI
 
 ### Write Safety
 
-- [ ] **WRITE-01**: KuzuDB write-gateway with promise-chain serialization in graph-ops.cjs preventing single-writer contention
-- [ ] **WRITE-02**: File-based write lock (`room/.graph/write.lock`) with PID, timestamp, and 5-second stale lock cleanup
-- [ ] **WRITE-03**: CLI hooks detect running MCP server and delegate graph writes rather than competing for KuzuDB lock
+- [x] **WRITE-01**: KuzuDB write-gateway with promise-chain serialization in graph-ops.cjs preventing single-writer contention
+- [x] **WRITE-02**: File-based write lock (`room/.graph/write.lock`) with PID, timestamp, and 5-second stale lock cleanup
+- [x] **WRITE-03**: CLI hooks detect running MCP server and delegate graph writes rather than competing for KuzuDB lock
 
 ### Token Optimization -- Skill Compression
 
@@ -142,11 +142,11 @@
 | MCP-06 | Phase 52 | Complete |
 | SURF-01 | Phase 53 | Complete |
 | SURF-02 | Phase 53 | Complete |
-| SURF-03 | Phase 53 | Pending |
+| SURF-03 | Phase 53 | Complete |
 | SURF-04 | Phase 53 | Complete |
-| WRITE-01 | Phase 53 | Pending |
-| WRITE-02 | Phase 53 | Pending |
-| WRITE-03 | Phase 53 | Pending |
+| WRITE-01 | Phase 53 | Complete |
+| WRITE-02 | Phase 53 | Complete |
+| WRITE-03 | Phase 53 | Complete |
 | TOKEN-01 | Phase 54 | Pending |
 | TOKEN-02 | Phase 54 | Pending |
 | TOKEN-03 | Phase 54 | Pending |

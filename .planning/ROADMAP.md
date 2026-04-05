@@ -23,7 +23,7 @@
 ## Phases
 
 - [ ] **Phase 52: MCP Foundation** - Intelligence cascade, router restructuring, SDK upgrade, 64-command coverage with Brain-driven routing
-- [ ] **Phase 53: Surface Detection + Write Safety** - Auto-detect CLI/Desktop/Cowork, dual transport, KuzuDB write gateway
+- [x] **Phase 53: Surface Detection + Write Safety** - Auto-detect CLI/Desktop/Cowork, dual transport, KuzuDB write gateway (completed 2026-04-05)
 - [ ] **Phase 54: Token + Hook Optimization** - Native-first skills, UI system compression, progressive loading, HSI debounce, write batching, bridge isolation
 - [ ] **Phase 55: Context Intelligence** - User archetype detection, tiered context loading, MCP session profiles, autocompact tuning, returning user and student progress
 - [ ] **Phase 56: Pipeline Chaining** - Room-file-based state for LLM-orchestrated tool sequences, Brain chain recommendations
@@ -65,7 +65,7 @@ Plans:
 
 Plans:
 - [x] 53-01-PLAN.md - Surface detection + dual transport + capability registration
-- [ ] 53-02-PLAN.md - KuzuDB write gateway + write lock + setup auto-configuration
+- [x] 53-02-PLAN.md - KuzuDB write gateway + write lock + setup auto-configuration
 
 ### Phase 54: Token + Hook Optimization
 **Goal**: Fresh-install users pay half the per-turn token cost while retaining full capability, and the intelligence cascade fires efficiently with debouncing, caching, and batching
@@ -175,7 +175,7 @@ Note: Phase 54 (Token + Hook) and Phases 56 (Pipeline) + 57 (Agent Dispatch) can
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 52. MCP Foundation | v1.8.0 | 2/3 | In Progress|  |
-| 53. Surface Detection + Write Safety | v1.8.0 | 1/2 | In Progress|  |
+| 53. Surface Detection + Write Safety | v1.8.0 | 2/2 | Complete   | 2026-04-05 |
 | 54. Token + Hook Optimization | v1.8.0 | 0/TBD | Not started | - |
 | 55. Context Intelligence | v1.8.0 | 0/TBD | Not started | - |
 | 56. Pipeline Chaining | v1.8.0 | 0/TBD | Not started | - |
