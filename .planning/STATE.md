@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.8.0
 milestone_name: Cowork Adaptation
-status: verifying
-stopped_at: Completed 54-01-PLAN.md (skill compression + progressive loading)
-last_updated: "2026-04-05T20:42:06.410Z"
+status: executing
+stopped_at: Completed 56-01-PLAN.md (pipeline chaining)
+last_updated: "2026-04-05T20:55:00Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 10
-  completed_phases: 2
-  total_plans: 7
-  completed_plans: 6
-  percent: 0
+  completed_phases: 3
+  total_plans: 8
+  completed_plans: 7
+  percent: 30
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** Every MindrianOS command, pipeline, and intelligence capability works identically across CLI, Desktop, and Cowork
-**Current focus:** Phase 54 — Token + Hook Optimization
+**Current focus:** Phase 56 — Pipeline Chaining
 
 ## Current Position
 
-Phase: 54 (Token + Hook Optimization) — EXECUTING
-Plan: 2 of 2
-Status: Phase complete — ready for verification
+Phase: 56 (Pipeline Chaining) — COMPLETE
+Plan: 1 of 1
+Status: Phase complete
 Last activity: 2026-04-05
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [###░░░░░░░] 30%
 
 ## Performance Metrics
 
@@ -64,6 +64,13 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 54]: djb2 hash for STATE.md cache keys; 500ms batch window; md5 hash for cross-language bridge file naming; periodic cache eviction every 100 calls
 - [Phase 54]: Native-first skill compression: 74K to 26K bytes, zero tool instructions
 - [Phase 54]: Progressive loading: Layer 0 always / Layer 1 room-conditional / Layer 2 Brain-conditional
+- [Phase 56]: Pipeline state in room/.mindrian/pipeline-state.json (ICM-native)
+- [Phase 56]: Advisory chain ordering: out-of-order steps recorded but don't advance position
+- [Phase 56]: FEEDS_INTO prioritized over CO_OCCURS for Brain chain ordering
+- [Phase 55]: Archetype detection uses 5 signal sources with weighted scoring: USER.md, stage, structure, research dirs, command history
+- [Phase 55]: Context tiers: minimal ~500 tokens, balanced ~2K, rich ~5K -- selected by budget % and archetype
+- [Phase 55]: 6 MCP profiles: learn(0 servers) through full(5 servers) -- intent keywords override archetype defaults
+- [Phase 55]: Autocompact thresholds: student 65%, default 72%, venturist 75%, researcher 78%
 
 ### Pending Todos
 

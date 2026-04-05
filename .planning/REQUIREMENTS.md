@@ -55,9 +55,9 @@
 
 ### Pipeline Chaining
 
-- [ ] **PIPE-01**: Room-file-based state enables LLM-orchestrated tool sequences (methodology A output -> room artifact -> methodology B reads it)
-- [ ] **PIPE-02**: Full pipeline chains work end-to-end via MCP: scenario analysis -> root cause -> causal tracing -> prediction tracking
-- [ ] **PIPE-03**: Brain recommendation includes chain ordering: CO_OCCURS and FEEDS_INTO relationships encode which frameworks to run in what sequence
+- [x] **PIPE-01**: Room-file-based state enables LLM-orchestrated tool sequences (methodology A output -> room artifact -> methodology B reads it)
+- [x] **PIPE-02**: Full pipeline chains work end-to-end via MCP: scenario analysis -> root cause -> causal tracing -> prediction tracking
+- [x] **PIPE-03**: Brain recommendation includes chain ordering: CO_OCCURS and FEEDS_INTO relationships encode which frameworks to run in what sequence
 
 ### Agent Dispatch Optimization
 
@@ -164,9 +164,9 @@
 | CTX-04 | Phase 55 | Pending |
 | CTX-05 | Phase 55 | Pending |
 | CTX-06 | Phase 55 | Pending |
-| PIPE-01 | Phase 56 | Pending |
-| PIPE-02 | Phase 56 | Pending |
-| PIPE-03 | Phase 56 | Pending |
+| PIPE-01 | Phase 56 | Complete |
+| PIPE-02 | Phase 56 | Complete |
+| PIPE-03 | Phase 56 | Complete |
 | AGENT-01 | Phase 57 | Pending |
 | AGENT-02 | Phase 57 | Pending |
 | AGENT-03 | Phase 57 | Pending |
