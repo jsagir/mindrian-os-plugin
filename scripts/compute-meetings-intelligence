@@ -6,6 +6,320 @@
 # Output: Writes room/MEETINGS-INTELLIGENCE.md and room/action-items.md directly
 # Exit: 0 on success. If no meetings/ directory or zero meetings, exit 0 silently.
 
+# macOS bash 3.2 compatibility -- Python3 fallback for declare -A (associative arrays)
+if [ "${BASH_VERSINFO[0]:-0}" -lt 4 ]; then
+  exec python3 - "$@" << 'PYEOF'
+import sys, os, re
+from pathlib import Path
+from datetime import datetime, timezone
+
+room_dir = sys.argv[1] if len(sys.argv) > 1 else "."
+meetings_dir = os.path.join(room_dir, "meetings")
+
+if not os.path.isdir(meetings_dir):
+    sys.exit(0)
+
+meeting_dirs = sorted([
+    os.path.join(meetings_dir, d)
+    for d in os.listdir(meetings_dir)
+    if os.path.isdir(os.path.join(meetings_dir, d))
+])
+
+if not meeting_dirs:
+    sys.exit(0)
+
+meeting_count = len(meeting_dirs)
+
+# --- Section 1: Topic Frequency (Convergence Signals) ---
+topic_counts = {}
+topic_first_seen = {}
+topic_latest_seen = {}
+topic_meetings_list = {}
+
+for meeting_dir in meeting_dirs:
+    metadata_file = os.path.join(meeting_dir, "metadata.yaml")
+    if not os.path.isfile(metadata_file):
+        continue
+
+    dir_name = os.path.basename(meeting_dir)
+    meeting_date = dir_name[:10]
+
+    with open(metadata_file, "r") as f:
+        lines = f.readlines()
+
+    in_topics = False
+    for line in lines:
+        line = line.rstrip("\n")
+        # Inline array: topics: [topic1, topic2]
+        m = re.match(r'^topics:\s*\[(.+)\]', line)
+        if m:
+            topics_raw = m.group(1)
+            for topic in topics_raw.split(","):
+                topic = topic.strip().strip('"')
+                if not topic:
+                    continue
+                topic_counts[topic] = topic_counts.get(topic, 0) + 1
+                first = topic_first_seen.get(topic)
+                if first is None or meeting_date < first:
+                    topic_first_seen[topic] = meeting_date
+                latest = topic_latest_seen.get(topic)
+                if latest is None or meeting_date > latest:
+                    topic_latest_seen[topic] = meeting_date
+                existing = topic_meetings_list.get(topic)
+                if existing is None:
+                    topic_meetings_list[topic] = dir_name
+                else:
+                    topic_meetings_list[topic] = existing + ", " + dir_name
+            in_topics = False
+            continue
+
+        if re.match(r'^topics:', line):
+            in_topics = True
+            continue
+
+        if in_topics:
+            m2 = re.match(r'^-\s+(.+)', line)
+            if m2:
+                topic = m2.group(1).strip().strip('"')
+                if not topic:
+                    continue
+                topic_counts[topic] = topic_counts.get(topic, 0) + 1
+                first = topic_first_seen.get(topic)
+                if first is None or meeting_date < first:
+                    topic_first_seen[topic] = meeting_date
+                latest = topic_latest_seen.get(topic)
+                if latest is None or meeting_date > latest:
+                    topic_latest_seen[topic] = meeting_date
+                existing = topic_meetings_list.get(topic)
+                if existing is None:
+                    topic_meetings_list[topic] = dir_name
+                else:
+                    topic_meetings_list[topic] = existing + ", " + dir_name
+            elif not re.match(r'^\s', line):
+                in_topics = False
+
+# --- Section 2: Contradiction Aggregation ---
+contradiction_topics = []
+contradiction_claim_a = []
+contradiction_claim_b = []
+contradiction_speakers = []
+contradiction_statuses = []
+
+for meeting_dir in meeting_dirs:
+    summary_file = os.path.join(meeting_dir, "summary.md")
+    if not os.path.isfile(summary_file):
+        continue
+
+    with open(summary_file, "r") as f:
+        lines = f.readlines()
+
+    in_contradictions = False
+    in_table = False
+    for line in lines:
+        line = line.rstrip("\n")
+        if re.match(r'^## Contradictions Detected', line):
+            in_contradictions = True
+            continue
+        if in_contradictions and re.match(r'^## ', line) and not re.match(r'^## Contradictions', line):
+            in_contradictions = False
+            in_table = False
+            continue
+        if in_contradictions:
+            if re.match(r'^\|.*Topic.*Claim', line):
+                in_table = True
+                continue
+            if re.match(r'^\|[\-\s\|]+$', line):
+                continue
+            if in_table and line.startswith("|"):
+                row = line.strip("|")
+                cols = row.split("|")
+                if len(cols) >= 4:
+                    c_topic = cols[0].strip()
+                    c_claim_a = cols[1].strip()
+                    c_claim_b = cols[2].strip()
+                    c_speakers = cols[3].strip()
+                    c_status = "unresolved"
+                    if len(cols) >= 5:
+                        c_status = cols[4].strip() or "unresolved"
+                    if not c_topic:
+                        continue
+                    contradiction_topics.append(c_topic)
+                    contradiction_claim_a.append(c_claim_a)
+                    contradiction_claim_b.append(c_claim_b)
+                    contradiction_speakers.append(c_speakers)
+                    contradiction_statuses.append(c_status)
+
+# --- Section 3: Action Item Aggregation ---
+ai_owners = []
+ai_tasks = []
+ai_sources = []
+ai_dates = []
+ai_statuses = []
+
+for meeting_dir in meeting_dirs:
+    action_file = os.path.join(meeting_dir, "action-items.md")
+    if not os.path.isfile(action_file):
+        continue
+
+    dir_name = os.path.basename(meeting_dir)
+    meeting_date = dir_name[:10]
+
+    with open(action_file, "r") as f:
+        lines = f.readlines()
+
+    in_table = False
+    for line in lines:
+        line = line.rstrip("\n")
+        if re.match(r'^\|.*Owner.*Task', line):
+            in_table = True
+            continue
+        if re.match(r'^\|[\-\s\|]+$', line):
+            continue
+        if in_table and not line.startswith("|"):
+            in_table = False
+            continue
+        if in_table and line.startswith("|"):
+            row = line.strip("|")
+            cols = row.split("|")
+            if len(cols) >= 2:
+                a_owner = cols[0].strip()
+                a_task = cols[1].strip()
+                a_deadline = ""
+                a_status = "open"
+                if len(cols) >= 3:
+                    col2 = cols[2].strip()
+                    if col2 in ("open", "done"):
+                        a_status = col2
+                    else:
+                        a_deadline = col2
+                if len(cols) >= 4:
+                    col3 = cols[3].strip()
+                    if col3 in ("open", "done"):
+                        a_status = col3
+                if not a_owner or not a_task:
+                    continue
+                ai_owners.append(a_owner)
+                ai_tasks.append(a_task)
+                ai_sources.append(dir_name)
+                ai_dates.append(meeting_date)
+                ai_statuses.append(a_status)
+
+total_open = sum(1 for s in ai_statuses if s != "done")
+total_done = sum(1 for s in ai_statuses if s == "done")
+
+timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+# Write action-items.md
+action_items_file = os.path.join(room_dir, "action-items.md")
+with open(action_items_file, "w") as f:
+    f.write("---\n")
+    f.write("computed: {}\n".format(timestamp))
+    f.write("total_open: {}\n".format(total_open))
+    f.write("total_done: {}\n".format(total_done))
+    f.write("---\n")
+    f.write("# Open Action Items\n\n")
+    if total_open == 0:
+        f.write("No open action items.\n")
+    else:
+        f.write("| Owner | Task | Source Meeting | Date | Status |\n")
+        f.write("|-------|------|---------------|------|--------|\n")
+        for i in range(len(ai_owners)):
+            if ai_statuses[i] != "open":
+                continue
+            f.write("| {} | {} | {} | {} | open |\n".format(ai_owners[i], ai_tasks[i], ai_sources[i], ai_dates[i]))
+    f.write("\n# Recently Completed\n\n")
+    if total_done == 0:
+        f.write("No completed action items yet.\n")
+    else:
+        f.write("| Owner | Task | Source Meeting | Completed |\n")
+        f.write("|-------|------|---------------|----------|\n")
+        for i in range(len(ai_owners)):
+            if ai_statuses[i] != "done":
+                continue
+            f.write("| {} | {} | {} | {} |\n".format(ai_owners[i], ai_tasks[i], ai_sources[i], ai_dates[i]))
+
+# --- Section 4: Write MEETINGS-INTELLIGENCE.md ---
+output_file = os.path.join(room_dir, "MEETINGS-INTELLIGENCE.md")
+
+unresolved_count = sum(1 for s in contradiction_statuses if s == "unresolved")
+convergence_count = sum(1 for t, c in topic_counts.items() if c >= 3)
+
+with open(output_file, "w") as f:
+    f.write("---\n")
+    f.write("computed: {}\n".format(timestamp))
+    f.write("meetings_analyzed: {}\n".format(meeting_count))
+    f.write("convergence_signals: {}\n".format(convergence_count))
+    f.write("unresolved_contradictions: {}\n".format(unresolved_count))
+    f.write("open_action_items: {}\n".format(total_open))
+    f.write("---\n")
+    f.write("# Cross-Meeting Intelligence\n\n")
+
+    f.write("## Active Convergence Signals\n\n")
+    if convergence_count == 0:
+        f.write("No convergence signals detected yet. Topics need to appear in 3+ meetings to become signals.\n")
+    else:
+        f.write("| Theme | Meetings | First Seen | Latest |\n")
+        f.write("|-------|----------|------------|--------|\n")
+        for topic, cnt in topic_counts.items():
+            if cnt < 3:
+                continue
+            f.write("| {} | {}/{} | {} | {} |\n".format(
+                topic, cnt, meeting_count, topic_first_seen[topic], topic_latest_seen[topic]))
+    f.write("\n")
+
+    f.write("## Active Contradictions\n\n")
+    if not contradiction_topics:
+        f.write("No contradictions detected across meetings.\n")
+    else:
+        f.write("| Topic | Claim A | Claim B | Speakers | Status |\n")
+        f.write("|-------|---------|---------|----------|--------|\n")
+        for i in range(len(contradiction_topics)):
+            f.write("| {} | {} | {} | {} | {} |\n".format(
+                contradiction_topics[i], contradiction_claim_a[i], contradiction_claim_b[i],
+                contradiction_speakers[i], contradiction_statuses[i]))
+    f.write("\n")
+
+    f.write("## Meeting Timeline\n\n")
+    f.write("| Date | Name | Speakers | Decisions | Action Items |\n")
+    f.write("|------|------|----------|-----------|-------------|\n")
+
+    for meeting_dir in meeting_dirs:
+        dir_name = os.path.basename(meeting_dir)
+        meeting_date = dir_name[:10]
+        meeting_name = dir_name[11:] if len(dir_name) > 11 else dir_name
+
+        metadata_file = os.path.join(meeting_dir, "metadata.yaml")
+        speakers_str = "-"
+        decisions_count = "0"
+        action_items_count = "0"
+
+        if os.path.isfile(metadata_file):
+            with open(metadata_file, "r") as mf:
+                for mline in mf:
+                    mline = mline.rstrip("\n")
+                    if mline.startswith("speakers:"):
+                        raw = mline[len("speakers:"):].strip()
+                        if raw:
+                            speakers_str = raw.strip("[]").strip()
+                    elif mline.startswith("decisions_count:"):
+                        val = mline[len("decisions_count:"):].strip()
+                        if val:
+                            decisions_count = val
+                    elif mline.startswith("action_items_count:"):
+                        val = mline[len("action_items_count:"):].strip()
+                        if val:
+                            action_items_count = val
+
+        f.write("| {} | {} | {} | {} | {} |\n".format(
+            meeting_date, meeting_name, speakers_str, decisions_count, action_items_count))
+
+    f.write("\n---\n\n")
+    f.write("*See team/TEAM-STATE.md for team patterns, recurring concerns, and influence distribution.*\n")
+
+sys.exit(0)
+PYEOF
+fi
+
 set -e
 
 ROOM_DIR="${1:-.}"
