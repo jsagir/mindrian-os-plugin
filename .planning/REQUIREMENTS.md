@@ -7,11 +7,11 @@
 
 ### MCP Foundation
 
-- [ ] **MCP-01**: All 64 plugin commands are exposed as MCP tools via hierarchical routers (currently 49/64)
-- [ ] **MCP-02**: Router restructuring keeps each router group under 15 commands (split data_room 34-cmd group into sub-routers)
+- [x] **MCP-01**: All 64 plugin commands are exposed as MCP tools via hierarchical routers (currently 49/64)
+- [x] **MCP-02**: Router restructuring keeps each router group under 15 commands (split data_room 34-cmd group into sub-routers)
 - [x] **MCP-03**: Intelligence cascade shared module (`intelligence-cascade.cjs`) called by both CLI hooks and MCP tool handlers for HSI/cross-ref/graph-update
 - [ ] **MCP-04**: Brain-driven routing at MCP layer: orchestration router consults Brain for framework chain recommendations with 3-tier fallback (cache -> local heuristic -> Brain with 2s timeout)
-- [ ] **MCP-05**: All MCP tool outputs include standardized `## Suggested Next` section enabling LLM-orchestrated pipeline chaining
+- [x] **MCP-05**: All MCP tool outputs include standardized `## Suggested Next` section enabling LLM-orchestrated pipeline chaining
 - [x] **MCP-06**: SDK upgraded from 1.27.1 to ^1.29.0 for Streamable HTTP transport and ext-apps peer dependency
 
 ### Surface Detection
@@ -134,11 +134,11 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MCP-01 | Phase 52 | Pending |
-| MCP-02 | Phase 52 | Pending |
+| MCP-01 | Phase 52 | Complete |
+| MCP-02 | Phase 52 | Complete |
 | MCP-03 | Phase 52 | Complete |
 | MCP-04 | Phase 52 | Pending |
-| MCP-05 | Phase 52 | Pending |
+| MCP-05 | Phase 52 | Complete |
 | MCP-06 | Phase 52 | Complete |
 | SURF-01 | Phase 53 | Pending |
 | SURF-02 | Phase 53 | Pending |

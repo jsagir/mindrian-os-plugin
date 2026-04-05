@@ -45,11 +45,11 @@
   3. Asking Larry "what should I do next?" on Cowork returns a Brain-informed framework recommendation within 2 seconds, falling back to local heuristic if Brain is cold/unreachable
   4. Each MCP router group contains 15 or fewer commands and MCP Inspector testing shows less than 5% misroute rate on 20 natural language queries
   5. Every MCP tool response includes a `## Suggested Next` section with the exact tool name to call next
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 - [x] 52-01-PLAN.md - SDK upgrade + intelligence cascade extraction (shared module)
-- [ ] 52-02-PLAN.md - Router restructuring (6->9), 64-command coverage, Suggested Next
+- [x] 52-02-PLAN.md - Router restructuring (6->9), 64-command coverage, Suggested Next
 - [ ] 52-03-PLAN.md - Brain-driven routing with 3-tier fallback
 
 ### Phase 53: Surface Detection + Write Safety
@@ -170,7 +170,7 @@ Note: Phase 54 (Token + Hook) and Phases 56 (Pipeline) + 57 (Agent Dispatch) can
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 52. MCP Foundation | v1.8.0 | 1/3 | In Progress|  |
+| 52. MCP Foundation | v1.8.0 | 2/3 | In Progress|  |
 | 53. Surface Detection + Write Safety | v1.8.0 | 0/TBD | Not started | - |
 | 54. Token + Hook Optimization | v1.8.0 | 0/TBD | Not started | - |
 | 55. Context Intelligence | v1.8.0 | 0/TBD | Not started | - |

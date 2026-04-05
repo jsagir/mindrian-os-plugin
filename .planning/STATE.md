@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.8.0
 milestone_name: Cowork Adaptation
 status: executing
-stopped_at: Completed 52-01-PLAN.md (intelligence cascade extraction + SDK upgrade)
-last_updated: "2026-04-05T19:20:37.668Z"
+stopped_at: Completed 52-02-PLAN.md (router restructuring 6->9, 64-command coverage)
+last_updated: "2026-04-05T19:32:45.536Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-05)
 ## Current Position
 
 Phase: 52 (MCP Foundation) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-04-05
 
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 - [Roadmap v2]: AGENT gets dedicated Phase 57 (dispatch quality independent of pipeline chaining)
 - [Roadmap v2]: READY merged into Release Phase 61 (future-proofing tested alongside integration)
 - [Phase 52]: intelligence-cascade.cjs shared module: hsi-to-kuzu and generate-presentation called via child_process (script-style), binary detection moved to shared module for surface parity
+- [Phase 52]: 9 routers covering 64 CLI commands: room_state/content/graph split from data_room, orchestration new, formatSuggestedNext on all responses
 
 ### Pending Todos
 
@@ -72,6 +73,6 @@ Progress: [░░░░░░░░░░] 0%
 
 ## Session Continuity
 
-Last session: 2026-04-05T19:20:37.664Z
-Stopped at: Completed 52-01-PLAN.md (intelligence cascade extraction + SDK upgrade)
+Last session: 2026-04-05T19:32:45.531Z
+Stopped at: Completed 52-02-PLAN.md (router restructuring 6->9, 64-command coverage)
 Resume file: None
