@@ -2,12 +2,12 @@
   "agent": "larry-extended",
   "skills": [
     "larry-personality",
-    "room-passive",
-    "room-proactive",
-    "context-engine",
-    "brain-connector",
     "pws-methodology",
-    "ui-system"
+    "ui-system",
+    { "name": "room-passive", "when": "dir_exists:room" },
+    { "name": "room-proactive", "when": "dir_exists:room" },
+    { "name": "context-engine", "when": "dir_exists:room" },
+    { "name": "brain-connector", "when": "env:MINDRIAN_BRAIN_KEY" }
   ],
   "statusLine": {
     "type": "command",
