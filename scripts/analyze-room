@@ -4,6 +4,487 @@
 # Called by session-start hook; outputs structured lines for Claude to interpret
 # Must complete in under 2 seconds
 
+# macOS bash 3.2 compatibility -- Python3 fallback
+if [ "${BASH_VERSINFO[0]:-0}" -lt 4 ]; then
+  exec python3 - "$@" << 'PYEOF'
+import sys, os, re, subprocess
+from pathlib import Path
+from datetime import datetime, date
+
+ROOM_DIR = sys.argv[1] if len(sys.argv) > 1 else "./room"
+SCRIPT_DIR = str(Path(__file__).resolve().parent) if '__file__' in dir() else os.path.dirname(os.path.abspath(sys.argv[0])) if sys.argv[0] != '-' else '.'
+
+if not os.path.isdir(ROOM_DIR):
+    print("NO_ROOM")
+    sys.exit(0)
+
+CORE_SECTIONS = [
+    "problem-definition",
+    "market-analysis",
+    "solution-design",
+    "business-model",
+    "competitive-analysis",
+    "team-execution",
+    "legal-ip",
+    "financial-model",
+]
+
+STRUCTURAL_DIRS = {"meetings", "team"}
+
+# Dynamic section discovery
+is_core_section = set(CORE_SECTIONS)
+EXTENDED_SECTIONS = []
+
+room_path = Path(ROOM_DIR)
+if room_path.is_dir():
+    for d in sorted(room_path.iterdir()):
+        if not d.is_dir():
+            continue
+        name = d.name
+        if name.startswith('.'):
+            continue
+        if name in STRUCTURAL_DIRS:
+            continue
+        if name in is_core_section:
+            continue
+        # Must contain at least one .md or STATE.md
+        if (d / "STATE.md").is_file():
+            EXTENDED_SECTIONS.append(name)
+        elif any(d.glob("*.md")):
+            EXTENDED_SECTIONS.append(name)
+
+ALL_SECTIONS = CORE_SECTIONS + EXTENDED_SECTIONS
+
+# Read venture stage
+venture_stage = "Pre-Opportunity"
+state_file = room_path / "STATE.md"
+if state_file.is_file():
+    for line in state_file.read_text(errors='replace').splitlines():
+        if re.match(r'(?i)venture_stage:', line):
+            venture_stage = re.sub(r'(?i).*venture_stage:\s*', '', line).strip().strip('"')
+            break
+
+# Helpers
+def count_entries(section_dir):
+    p = Path(section_dir)
+    if not p.is_dir():
+        return 0
+    return sum(1 for f in p.glob("*.md") if f.name not in ("ROOM.md", "STATE.md"))
+
+def get_methodologies(section_dir):
+    p = Path(section_dir)
+    if not p.is_dir():
+        return []
+    meths = set()
+    for f in p.glob("*.md"):
+        if f.name in ("ROOM.md", "STATE.md"):
+            continue
+        try:
+            for line in f.read_text(errors='replace').splitlines():
+                m = re.match(r'^methodology:\s*(.*)', line)
+                if m:
+                    meths.add(m.group(1).strip())
+                    break
+        except:
+            pass
+    return sorted(meths)
+
+def md_files(section_dir):
+    """Yield .md files in section_dir excluding ROOM.md and STATE.md."""
+    p = Path(section_dir)
+    if not p.is_dir():
+        return
+    for f in p.glob("*.md"):
+        if f.name not in ("ROOM.md", "STATE.md"):
+            yield f
+
+# ═══════════════════════════════════════════════
+# Section 1: Gap Detection
+# ═══════════════════════════════════════════════
+print("## Gaps")
+
+entry_counts = {}
+for section in ALL_SECTIONS:
+    entry_counts[section] = count_entries(room_path / section)
+
+for section in ALL_SECTIONS:
+    count = entry_counts[section]
+    section_dir = room_path / section
+
+    if section in is_core_section:
+        if venture_stage == "Pre-Opportunity":
+            if section in ("financial-model", "legal-ip"):
+                continue
+
+        if count == 0:
+            confidence = "HIGH"
+            print(f"GAP:STRUCTURAL:{section}:{confidence}:Section is empty")
+        elif count == 1:
+            methodologies = get_methodologies(section_dir)
+            method_count = len(methodologies)
+            if method_count <= 1 and methodologies:
+                print(f"GAP:SEMANTIC:{section}:MEDIUM:Only analyzed via {methodologies[0]} -- consider additional perspectives")
+        else:
+            methodologies = get_methodologies(section_dir)
+            method_count = len(methodologies)
+            if method_count <= 1 and methodologies:
+                print(f"GAP:SEMANTIC:{section}:MEDIUM:Only analyzed via {methodologies[0]} -- consider additional perspectives")
+    else:
+        if count <= 1:
+            print(f"STRUCTURAL_GAP:{section}:LOW:Section exists but has sparse content")
+
+# Adjacent section gap
+if entry_counts.get("problem-definition", 0) > 0 and entry_counts.get("solution-design", 0) > 0 and entry_counts.get("market-analysis", 0) == 0:
+    print("GAP:ADJACENT:market-analysis:HIGH:Problem and solution explored but no market evidence yet")
+
+print()
+
+# ═══════════════════════════════════════════════
+# Section 2: Convergence Detection
+# ═══════════════════════════════════════════════
+print("## Convergence")
+
+NOISE_WORDS = set("analysis|framework|venture|methodology|section|evidence|definition|problem|market|solution|business|model|financial|competitive|approach|should|would|could|about|their|these|those|which|where|through|between|using|based|consider|important|different|provide".split("|"))
+
+term_sections = {}  # term -> set of sections
+
+for section in ALL_SECTIONS:
+    section_dir = room_path / section
+    for f in md_files(section_dir):
+        try:
+            content = f.read_text(errors='replace')
+        except:
+            continue
+        # Extract headers and bold text
+        headers = re.findall(r'^## (.+)$', content, re.MULTILINE)
+        bolds = re.findall(r'\*\*([^*]+)\*\*', content)
+        raw = ' '.join(headers + bolds).lower()
+        terms = set(re.findall(r'[a-z]{5,}', raw))
+        terms -= NOISE_WORDS
+        for term in terms:
+            if term not in term_sections:
+                term_sections[term] = set()
+            term_sections[term].add(section)
+
+convergence_found = False
+for term, sections in sorted(term_sections.items()):
+    sc = len(sections)
+    if sc >= 3:
+        convergence_found = True
+        print(f"CONVERGE:{term}:{sc}:MEDIUM:Appears in {sc} entries across multiple sections")
+
+if not convergence_found:
+    print("No convergence signals detected yet.")
+
+print()
+
+# ═══════════════════════════════════════════════
+# Section 3: Contradiction Detection
+# ═══════════════════════════════════════════════
+print("## Contradictions")
+
+b2b_sections = set()
+b2c_sections = set()
+
+for section in ALL_SECTIONS:
+    section_dir = room_path / section
+    for f in md_files(section_dir):
+        try:
+            content = f.read_text(errors='replace')
+        except:
+            continue
+        if re.search(r'\bB2B\b|\benterprise\b', content, re.IGNORECASE):
+            b2b_sections.add(section)
+        if re.search(r'\bB2C\b|\bconsumer\b|\bindividual\b', content, re.IGNORECASE):
+            b2c_sections.add(section)
+
+contradiction_found = False
+for b2b_sec in sorted(b2b_sections):
+    for b2c_sec in sorted(b2c_sections):
+        if b2b_sec != b2c_sec:
+            contradiction_found = True
+            print(f"CONTRADICT:{b2b_sec}:{b2c_sec}:MEDIUM:Customer type mismatch -- B2B/enterprise vs B2C/consumer")
+
+if not contradiction_found:
+    print("No structural contradictions detected.")
+
+print()
+
+# ═══════════════════════════════════════════════
+# Section 3b: Cross-Reference Edges
+# ═══════════════════════════════════════════════
+print("## Cross-References")
+
+cross_ref_found = False
+for section in ALL_SECTIONS:
+    section_dir = room_path / section
+    for f in md_files(section_dir):
+        try:
+            content = f.read_text(errors='replace')
+        except:
+            continue
+        for target in ALL_SECTIONS:
+            if target == section:
+                continue
+            if re.search(rf'\[\[{re.escape(target)}\]\]|room/{re.escape(target)}', content):
+                cross_ref_found = True
+                # Try visual-ops formatting via node, fallback to plain
+                formatted = f"{section} INFORMS {target}"
+                try:
+                    lib_path = os.path.join(SCRIPT_DIR, '..', 'lib', 'core', 'visual-ops.cjs')
+                    result = subprocess.run(
+                        ['node', '-e', f"const v = require('{lib_path}'); console.log(v.formatEdge('{section}', '{target}', 'INFORMS'));"],
+                        capture_output=True, text=True, timeout=2
+                    )
+                    if result.returncode == 0 and result.stdout.strip():
+                        formatted = result.stdout.strip()
+                except:
+                    pass
+                print(f"EDGE:{section}:{target}:INFORMS:{formatted}")
+
+        # Check for contradiction proximity terms
+        for target in ALL_SECTIONS:
+            if target == section:
+                continue
+            if re.search(rf'contradict.*{re.escape(target)}|conflict.*{re.escape(target)}|inconsisten.*{re.escape(target)}', content, re.IGNORECASE):
+                cross_ref_found = True
+                formatted = f"{section} CONTRADICTS {target}"
+                try:
+                    lib_path = os.path.join(SCRIPT_DIR, '..', 'lib', 'core', 'visual-ops.cjs')
+                    result = subprocess.run(
+                        ['node', '-e', f"const v = require('{lib_path}'); console.log(v.formatEdge('{section}', '{target}', 'CONTRADICTS'));"],
+                        capture_output=True, text=True, timeout=2
+                    )
+                    if result.returncode == 0 and result.stdout.strip():
+                        formatted = result.stdout.strip()
+                except:
+                    pass
+                print(f"EDGE:{section}:{target}:CONTRADICTS:{formatted}")
+
+if not cross_ref_found:
+    print("No cross-reference edges detected yet.")
+
+print()
+
+# ═══════════════════════════════════════════════
+# Section 4: Meeting Intelligence
+# ═══════════════════════════════════════════════
+print("## Meeting Coverage")
+
+meeting_count = 0
+meetings_dir = room_path / "meetings"
+if meetings_dir.is_dir():
+    for d in meetings_dir.iterdir():
+        if d.is_dir():
+            meeting_count += 1
+
+if meeting_count > 0:
+    print(f"MEETING_COUNT:{meeting_count}")
+
+    meeting_sourced = {}
+    for section in ALL_SECTIONS:
+        section_dir = room_path / section
+        if not section_dir.is_dir():
+            continue
+        meeting_sourced[section] = 0
+        for f in md_files(section_dir):
+            try:
+                for line in f.read_text(errors='replace').splitlines():
+                    if line.strip() == 'source: transcript':
+                        meeting_sourced[section] += 1
+                        break
+            except:
+                pass
+
+    for section in ALL_SECTIONS:
+        count = meeting_sourced.get(section, 0)
+        total = entry_counts[section]
+        if total > 0 and count == 0:
+            print(f"GAP:MEETING_COVERAGE:{section}:LOW:No meeting insights filed here -- is this section discussed in meetings?")
+        elif count > 0:
+            print(f"MEETING_SOURCED:{section}:{count}:{total}")
+else:
+    print("No meetings filed yet. Use /mindrian-os:file-meeting to capture meeting intelligence.")
+
+print()
+
+# ═══════════════════════════════════════════════
+# Section 5: Opportunity Bank Intelligence
+# ═══════════════════════════════════════════════
+print("## Opportunity Bank")
+
+opp_bank = room_path / "opportunity-bank"
+if opp_bank.is_dir():
+    opp_status_counts = {}
+    opp_file_count = 0
+
+    for f in opp_bank.glob("*.md"):
+        if f.name in ("STATE.md", "ROOM.md"):
+            continue
+        opp_file_count += 1
+        status = "unknown"
+        try:
+            for line in f.read_text(errors='replace').splitlines():
+                m = re.match(r'^status:\s*(.*)', line)
+                if m:
+                    status = m.group(1).strip().strip('"')
+                    break
+        except:
+            pass
+        opp_status_counts[status] = opp_status_counts.get(status, 0) + 1
+
+    if opp_file_count == 0:
+        print("Opportunity bank exists but has no filed opportunities.")
+    else:
+        for status, cnt in sorted(opp_status_counts.items()):
+            print(f"OPP_STATUS:{status}:{cnt}")
+
+        # Top by relevance
+        opp_relevance = []
+        for f in opp_bank.glob("*.md"):
+            if f.name in ("STATE.md", "ROOM.md"):
+                continue
+            rel_score = None
+            funder = ""
+            try:
+                for line in f.read_text(errors='replace').splitlines():
+                    m = re.match(r'^relevance_score:\s*(.*)', line)
+                    if m:
+                        rel_score = m.group(1).strip().strip('"')
+                    m2 = re.match(r'^funder:\s*(.*)', line)
+                    if m2:
+                        funder = m2.group(1).strip().strip('"')
+            except:
+                pass
+            if rel_score:
+                opp_relevance.append((rel_score, f.name, funder))
+
+        if opp_relevance:
+            opp_relevance.sort(key=lambda x: float(x[0]) if x[0].replace('.','',1).isdigit() else 0, reverse=True)
+            for score, name, funder_name in opp_relevance[:3]:
+                print(f"OPP_TOP_RELEVANCE:{name}:{score}:{funder_name}")
+
+        # Upcoming deadlines
+        today_str = date.today().strftime("%Y-%m-%d")
+        opp_deadlines = []
+        for f in opp_bank.glob("*.md"):
+            if f.name in ("STATE.md", "ROOM.md"):
+                continue
+            deadline = None
+            funder = ""
+            try:
+                for line in f.read_text(errors='replace').splitlines():
+                    m = re.match(r'^deadline:\s*(.*)', line)
+                    if m:
+                        deadline = m.group(1).strip().strip('"')
+                    m2 = re.match(r'^funder:\s*(.*)', line)
+                    if m2:
+                        funder = m2.group(1).strip().strip('"')
+            except:
+                pass
+            if deadline and deadline >= today_str:
+                opp_deadlines.append((deadline, f.name, funder))
+
+        if opp_deadlines:
+            opp_deadlines.sort(key=lambda x: x[0])
+            for dl, name, funder_name in opp_deadlines[:5]:
+                print(f"OPP_DEADLINE:{name}:{dl}:{funder_name}")
+
+    # Funding pipeline
+    funding_dir = room_path / "funding"
+    if funding_dir.is_dir():
+        fund_stage_counts = {}
+
+        for fund_dir in sorted(funding_dir.iterdir()):
+            if not fund_dir.is_dir():
+                continue
+            status_file = fund_dir / "STATUS.md"
+            if not status_file.is_file():
+                continue
+
+            stage = "unknown"
+            last_updated = None
+            try:
+                for line in status_file.read_text(errors='replace').splitlines():
+                    m = re.match(r'^stage:\s*(.*)', line)
+                    if m:
+                        stage = m.group(1).strip().strip('"')
+                    m2 = re.match(r'^last_updated:\s*(.*)', line)
+                    if m2:
+                        last_updated = m2.group(1).strip().strip('"')
+            except:
+                pass
+
+            fund_stage_counts[stage] = fund_stage_counts.get(stage, 0) + 1
+
+            if last_updated:
+                try:
+                    lu_date = datetime.strptime(last_updated, "%Y-%m-%d").date()
+                    days_since = (date.today() - lu_date).days
+                    if days_since > 14:
+                        print(f"FUND_STALE:{fund_dir.name}:{days_since}")
+                except:
+                    pass
+
+        for stage, cnt in sorted(fund_stage_counts.items()):
+            print(f"FUND_STAGE:{stage}:{cnt}")
+else:
+    print("No opportunity bank in this room.")
+
+print()
+
+# ── Capability Suggestions ──
+total_artifacts = 0
+for s in ALL_SECTIONS:
+    section_dir = room_path / s
+    if not section_dir.is_dir():
+        continue
+    for f in section_dir.glob("*.md"):
+        if f.name not in ("ROOM.md", "STATE.md"):
+            total_artifacts += 1
+
+# Recount meetings for capability section
+meeting_count = 0
+if meetings_dir.is_dir():
+    for d in meetings_dir.iterdir():
+        if d.is_dir():
+            meeting_count += 1
+
+team_count = 0
+team_dir = room_path / "team"
+if team_dir.is_dir():
+    for role_dir in ["members", "mentors", "advisors"]:
+        rd = team_dir / role_dir
+        if rd.is_dir():
+            for p in rd.iterdir():
+                if p.is_dir():
+                    team_count += 1
+
+if 3 <= total_artifacts < 7:
+    print(f"CAPABILITY:DASHBOARD:MEDIUM:You have {total_artifacts} artifacts -- /mos:room view launches an interactive knowledge graph showing how they connect")
+
+if total_artifacts >= 7:
+    print(f"CAPABILITY:DASHBOARD:HIGH:Your room has {total_artifacts} artifacts across multiple sections -- /mos:room view shows the full knowledge graph with intelligence overlays")
+    print(f"CAPABILITY:EXPORT_DASHBOARD:HIGH:Export a shareable dashboard with /mos:room export -- standalone HTML with your full graph visualization")
+
+if total_artifacts >= 5 and meeting_count >= 1:
+    print(f"CAPABILITY:WIKI:MEDIUM:With {total_artifacts} artifacts and {meeting_count} meeting(s), /mos:wiki gives you a searchable Wikipedia-style view with wikilinks")
+
+if total_artifacts >= 3 and meeting_count >= 2:
+    print(f"CAPABILITY:MEETING_REPORT:MEDIUM:{meeting_count} meetings filed -- /mos:export meeting-report generates a Minto-structured intelligence report")
+
+if total_artifacts >= 10:
+    print(f"CAPABILITY:THESIS:HIGH:Room is substantial ({total_artifacts} artifacts) -- /mos:export thesis generates an investment thesis PDF")
+
+if team_count >= 2:
+    print(f"CAPABILITY:TEAM_VIEW:MEDIUM:{team_count} team profiles -- /mos:room view shows them as nodes connected to meetings and sections")
+
+print()
+print("## End")
+sys.exit(0)
+PYEOF
+fi
+
 set -euo pipefail
 
 ROOM_DIR="${1:-./room}"
