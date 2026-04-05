@@ -56,8 +56,8 @@
 ### Parallel Extraction
 
 - [x] **EXTRACT-01**: Haiku scan per Section (entry counts, Thesis, Claims, spectral profiles) in parallel
-- [x] **EXTRACT-02**: Sonnet synthesis (top 5 Signals, Room health score, innovation map)
-- [x] **EXTRACT-03**: Opus narrative (Room story, hub hero text adapted to Room type)
+- [ ] **EXTRACT-02**: Sonnet synthesis (top 5 Signals, Room health score, innovation map)
+- [ ] **EXTRACT-03**: Opus narrative (Room story, hub hero text adapted to Room type)
 
 ### Responsive + Offline
 
@@ -100,8 +100,8 @@
 | LINK-01 | Phase 49 | Pending |
 | LINK-02 | Phase 49 | Pending |
 | EXTRACT-01 | Phase 47 | Complete |
-| EXTRACT-02 | Phase 47 | Complete |
-| EXTRACT-03 | Phase 47 | Complete |
+| EXTRACT-02 | Phase 47 | Pending |
+| EXTRACT-03 | Phase 47 | Pending |
 | POLISH-01 | Phase 51 | Complete |
 | POLISH-02 | Phase 51 | Complete |
 | POLISH-03 | Phase 51 | Complete |

@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v6.2
 milestone_name: RoomHub + SnapshotHub
 status: verifying
-stopped_at: Completed 53-01-PLAN.md
-last_updated: "2026-04-05T13:00:47.187Z"
+stopped_at: Completed 53-02-PLAN.md
+last_updated: "2026-04-05T12:58:26.652Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 5
@@ -61,8 +61,7 @@ Recent decisions affecting v6.2:
 - [v6.2 init]: Room type detection from State + Section names + Entry content (venture/website/research/general)
 - [v6.2 init]: All 12 Thread types rendered in Constellation with De Stijl color per type
 - [v6.2 init]: BYOAPI pattern for Chat (user's Claude API key, localStorage, never transmitted)
-- [Phase 53]: CausalClaim schema added to initSchema for worktree compatibility
-- [Phase 53]: Three Gaps enforcement: claims without mechanism or prediction rejected
+- [Phase 53]: Extraction intelligence lives in command prompt, not code - Larry IS the NLP engine
 
 ### Pending Todos
 
@@ -75,6 +74,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-05T13:00:47.183Z
-Stopped at: Completed 53-01-PLAN.md
+Last session: 2026-04-05T12:58:26.648Z
+Stopped at: Completed 53-02-PLAN.md
 Resume file: None
