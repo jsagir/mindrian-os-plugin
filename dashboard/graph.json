@@ -1,4 +1,11 @@
 {
+  "meta": {
+    "roomName": "Synteris - SLRS Technology Commercialization",
+    "ventureStage": "Pre-Opportunity",
+    "generatedAt": "2026-04-01T12:56:40Z",
+    "roomDir": "/home/jsagi/room-adam",
+    "generator": "MindrianOS build-graph"
+  },
   "elements": {
     "nodes": [
         { "data": { "id": "problem-definition", "label": "PROBLEM DEFINITION", "color": "#A63D2F", "layer": "structure" }, "classes": "section-group" },
@@ -9,42 +16,57 @@
     { "data": { "id": "team-execution", "label": "TEAM & EXECUTION", "color": "#1E3A6E", "layer": "structure" }, "classes": "section-group" },
     { "data": { "id": "legal-ip", "label": "LEGAL & IP", "color": "#6B4E8B", "layer": "structure" }, "classes": "section-group" },
     { "data": { "id": "financial-model", "label": "FINANCIAL MODEL", "color": "#2A6B5E", "layer": "structure" }, "classes": "section-group" },
-    { "data": { "id": "problem-definition/problem-brief", "label": "problem-brief", "section": "problem-definition", "color": "#A63D2F", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "problem-definition" }, "classes": "artifact" },
-    { "data": { "id": "market-analysis/market-scan", "label": "market-scan", "section": "market-analysis", "color": "#C8A43C", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "market-analysis" }, "classes": "artifact" },
-    { "data": { "id": "meeting/2026-01-15-kick-off", "label": "kick-off", "meeting_date": "2026-01-15", "speakers": "test-speaker", "decisions_count": "1", "action_items_count": "1", "color": "#D4A843", "layer": "content" }, "classes": "meeting" },
-    { "data": { "id": "meeting/2026-02-10-follow-up", "label": "follow-up", "meeting_date": "2026-02-10", "speakers": "test-speaker", "decisions_count": "0", "action_items_count": "2", "color": "#D4A843", "layer": "content" }, "classes": "meeting" },
-    { "data": { "id": "speaker/test-speaker", "label": "test-speaker", "role": "mentor", "role_type": "mentors", "color": "#1E3A6E", "layer": "content" }, "classes": "speaker" },
-    { "data": { "id": "concept/market-sizing", "label": "market-sizing", "ref_count": 3, "color": "#C8A43C", "layer": "intelligence" }, "classes": "concept unresolved" },
-    { "data": { "id": "concept/wicked-problems", "label": "wicked-problems", "ref_count": 3, "color": "#C8A43C", "layer": "intelligence" }, "classes": "concept unresolved" }
+    { "data": { "id": "opportunity-bank", "label": "OPPORTUNITY BANK", "color": "#C87137", "layer": "structure" }, "classes": "section-group" },
+    { "data": { "id": "problem-definition/constraint-analysis", "label": "constraint-analysis", "section": "problem-definition", "color": "#A63D2F", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "problem-definition" }, "classes": "artifact" },
+    { "data": { "id": "problem-definition/technology-commercialization-gap", "label": "technology-commercialization-gap", "section": "problem-definition", "color": "#A63D2F", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "problem-definition" }, "classes": "artifact" },
+    { "data": { "id": "market-analysis/01-semicap-ceramic-components", "label": "Semiconductor Capital Equipment: Ceramic Component Market", "section": "market-analysis", "color": "#C8A43C", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "market-analysis" }, "classes": "artifact" },
+    { "data": { "id": "market-analysis/02-fusion-energy-plasma-facing", "label": "Fusion Energy: Plasma-Facing Component Procurement", "section": "market-analysis", "color": "#C8A43C", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "market-analysis" }, "classes": "artifact" },
+    { "data": { "id": "market-analysis/03-directed-energy-thermal-mgmt", "label": "Directed Energy Weapons: Thermal Management Programs", "section": "market-analysis", "color": "#C8A43C", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "market-analysis" }, "classes": "artifact" },
+    { "data": { "id": "market-analysis/04-non-obvious-markets", "label": "Non-Obvious Markets for SLRS Carbide/Nitride Ceramics", "section": "market-analysis", "color": "#C8A43C", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "market-analysis" }, "classes": "artifact" },
+    { "data": { "id": "market-analysis/05-ceramic-am-cross-domain", "label": "Cross-Domain Applications: Ceramic AM Market Lessons for SLRS", "section": "market-analysis", "color": "#C8A43C", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "market-analysis" }, "classes": "artifact" },
+    { "data": { "id": "market-analysis/06-sbir-sttr-opportunities", "label": "SBIR/STTR Opportunities for SLRS / UHTC Manufacturing", "section": "market-analysis", "color": "#C8A43C", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "market-analysis" }, "classes": "artifact" },
+    { "data": { "id": "market-analysis/07-synteris-competitive-position", "label": "Synteris / SLRS: Technology Position and Competitive Landscape", "section": "market-analysis", "color": "#C8A43C", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "market-analysis" }, "classes": "artifact" },
+    { "data": { "id": "market-analysis/beachhead-candidates", "label": "beachhead-candidates", "section": "market-analysis", "color": "#C8A43C", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "market-analysis" }, "classes": "artifact" },
+    { "data": { "id": "market-analysis/research-synthesis", "label": "research-synthesis", "section": "market-analysis", "color": "#C8A43C", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "market-analysis" }, "classes": "artifact" },
+    { "data": { "id": "solution-design/slrs-process-architecture", "label": "slrs-process-architecture", "section": "solution-design", "color": "#5C5A56", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "solution-design" }, "classes": "artifact" },
+    { "data": { "id": "business-model/unit-economics-framework", "label": "unit-economics-framework", "section": "business-model", "color": "#2D6B4A", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "business-model" }, "classes": "artifact" },
+    { "data": { "id": "competitive-analysis/manufacturing-landscape", "label": "manufacturing-landscape", "section": "competitive-analysis", "color": "#B5602A", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "competitive-analysis" }, "classes": "artifact" },
+    { "data": { "id": "team-execution/adam-peters-profile", "label": "adam-peters-profile", "section": "team-execution", "color": "#1E3A6E", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "team-execution" }, "classes": "artifact" },
+    { "data": { "id": "legal-ip/complete-publication-portfolio", "label": "complete-publication-portfolio", "section": "legal-ip", "color": "#6B4E8B", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "legal-ip" }, "classes": "artifact" },
+    { "data": { "id": "legal-ip/nature-paper-materials-design-hypersonics", "label": "nature-paper-materials-design-hypersonics", "section": "legal-ip", "color": "#6B4E8B", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "legal-ip" }, "classes": "artifact" },
+    { "data": { "id": "legal-ip/patent-and-ip-landscape", "label": "patent-and-ip-landscape", "section": "legal-ip", "color": "#6B4E8B", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "legal-ip" }, "classes": "artifact" },
+    { "data": { "id": "financial-model/funding-runway", "label": "funding-runway", "section": "financial-model", "color": "#2A6B5E", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "financial-model" }, "classes": "artifact" },
+    { "data": { "id": "opportunity-bank/brain-framework-chain", "label": "brain-framework-chain", "section": "opportunity-bank", "color": "#C87137", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "opportunity-bank" }, "classes": "artifact" },
+    { "data": { "id": "opportunity-bank/cross-domain-analogies", "label": "cross-domain-analogies", "section": "opportunity-bank", "color": "#C87137", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "opportunity-bank" }, "classes": "artifact" },
+    { "data": { "id": "opportunity-bank/hsi-opportunity-scoring", "label": "hsi-opportunity-scoring", "section": "opportunity-bank", "color": "#C87137", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "opportunity-bank" }, "classes": "artifact" },
+    { "data": { "id": "opportunity-bank/research-validated-breakthroughs", "label": "research-validated-breakthroughs", "section": "opportunity-bank", "color": "#C87137", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "opportunity-bank" }, "classes": "artifact" },
+    { "data": { "id": "opportunity-bank/reverse-salient-analysis", "label": "reverse-salient-analysis", "section": "opportunity-bank", "color": "#C87137", "methodology": "", "created": "", "pipeline": "", "pipeline_stage": "", "layer": "content", "parent": "opportunity-bank" }, "classes": "artifact" }
     ],
     "edges": [
-        { "data": { "id": "e0", "source": "speaker/test-speaker", "target": "meeting/2026-01-15-kick-off", "type": "SPOKE_IN", "label": "spoke in", "source_type": "meeting" }, "classes": "spoke-in" },
-    { "data": { "id": "e1", "source": "speaker/test-speaker", "target": "meeting/2026-01-15-kick-off", "type": "ATTENDED", "label": "attended", "source_type": "meeting" }, "classes": "attended" },
-    { "data": { "id": "e2", "source": "speaker/test-speaker", "target": "meeting/2026-02-10-follow-up", "type": "SPOKE_IN", "label": "spoke in", "source_type": "meeting" }, "classes": "spoke-in" },
-    { "data": { "id": "e3", "source": "speaker/test-speaker", "target": "meeting/2026-02-10-follow-up", "type": "ATTENDED", "label": "attended", "source_type": "meeting" }, "classes": "attended" },
-    { "data": { "id": "e4", "source": "meetings/2026-01-15-kick-off/summary", "target": "concept/market-sizing", "type": "REFERENCES", "label": "references", "source_type": "wikilink" }, "classes": "references" },
-    { "data": { "id": "e5", "source": "problem-definition/problem-brief", "target": "concept/market-sizing", "type": "REFERENCES", "label": "references", "source_type": "wikilink" }, "classes": "references" },
-    { "data": { "id": "e6", "source": "market-analysis/market-scan", "target": "concept/market-sizing", "type": "REFERENCES", "label": "references", "source_type": "wikilink" }, "classes": "references" },
-    { "data": { "id": "e7", "source": "meetings/2026-02-10-follow-up/summary", "target": "concept/assumption-tracking", "type": "REFERENCES", "label": "references", "source_type": "wikilink" }, "classes": "references" },
-    { "data": { "id": "e8", "source": "meetings/2026-01-15-kick-off/summary", "target": "concept/wicked-problems", "type": "REFERENCES", "label": "references", "source_type": "wikilink" }, "classes": "references" },
-    { "data": { "id": "e9", "source": "meetings/2026-02-10-follow-up/summary", "target": "concept/wicked-problems", "type": "REFERENCES", "label": "references", "source_type": "wikilink" }, "classes": "references" },
-    { "data": { "id": "e10", "source": "problem-definition/problem-brief", "target": "concept/wicked-problems", "type": "REFERENCES", "label": "references", "source_type": "wikilink" }, "classes": "references" },
-    { "data": { "id": "e11", "source": "meeting/2026-01-15-kick-off", "target": "meeting/2026-02-10-follow-up", "type": "REINFORCES", "label": "convergence signal", "source_type": "intelligence" }, "classes": "reinforces" },
-    { "data": { "id": "e12", "source": "meeting/2026-01-15-kick-off", "target": "meeting/2026-02-10-follow-up", "type": "CONTRADICTS", "label": "contradiction", "source_type": "intelligence" }, "classes": "contradicts" }
+        { "data": { "id": "e0", "source": "problem-definition", "target": "market-analysis", "type": "CONVERGES", "label": "curre", "source_type": "room" }, "classes": "converges" },
+    { "data": { "id": "e1", "source": "problem-definition", "target": "market-analysis", "type": "CONVERGES", "label": "material", "source_type": "room" }, "classes": "converges" },
+    { "data": { "id": "e2", "source": "problem-definition", "target": "market-analysis", "type": "CONVERGES", "label": "question", "source_type": "room" }, "classes": "converges" },
+    { "data": { "id": "e3", "source": "market-analysis", "target": "team-execution", "type": "CONVERGES", "label": "network", "source_type": "room" }, "classes": "converges" },
+    { "data": { "id": "e4", "source": "problem-definition", "target": "market-analysis", "type": "CONVERGES", "label": "geometry", "source_type": "room" }, "classes": "converges" },
+    { "data": { "id": "e5", "source": "market-analysis", "target": "solution-design", "type": "CONVERGES", "label": "qualification", "source_type": "room" }, "classes": "converges" },
+    { "data": { "id": "e6", "source": "market-analysis", "target": "solution-design", "type": "CONVERGES", "label": "materials", "source_type": "room" }, "classes": "converges" },
+    { "data": { "id": "e7", "source": "problem-definition", "target": "market-analysis", "type": "CONVERGES", "label": "process", "source_type": "room" }, "classes": "converges" },
+    { "data": { "id": "e8", "source": "problem-definition", "target": "market-analysis", "type": "CONVERGES", "label": "ceramic", "source_type": "room" }, "classes": "converges" },
+    { "data": { "id": "e9", "source": "market-analysis", "target": "business-model", "type": "CONVERGES", "label": "semicap", "source_type": "room" }, "classes": "converges" }
     ]
   },
   "intelligence": {
-    "gaps": [{ "type": "STRUCTURAL", "section": "solution-design", "confidence": "HIGH", "message": "Section is empty" }, { "type": "STRUCTURAL", "section": "business-model", "confidence": "HIGH", "message": "Section is empty" }, { "type": "STRUCTURAL", "section": "competitive-analysis", "confidence": "HIGH", "message": "Section is empty" }, { "type": "STRUCTURAL", "section": "team-execution", "confidence": "HIGH", "message": "Section is empty" }, { "type": "MEETING_COVERAGE", "section": "problem-definition", "confidence": "LOW", "message": "No meeting insights filed here -- is this section discussed in meetings?" }, { "type": "MEETING_COVERAGE", "section": "market-analysis", "confidence": "LOW", "message": "No meeting insights filed here -- is this section discussed in meetings?" }],
-    "convergence": [],
+    "gaps": [],
+    "convergence": [{ "term": "peters", "count": 3, "confidence": "MEDIUM", "message": "Appears in 3 entries across multiple sections" }, { "term": "curre", "count": 3, "confidence": "MEDIUM", "message": "Appears in 3 entries across multiple sections" }, { "term": "strengths", "count": 3, "confidence": "MEDIUM", "message": "Appears in 3 entries across multiple sections" }, { "term": "material", "count": 3, "confidence": "MEDIUM", "message": "Appears in 3 entries across multiple sections" }, { "term": "recomme", "count": 3, "confidence": "MEDIUM", "message": "Appears in 3 entries across multiple sections" }, { "term": "question", "count": 4, "confidence": "MEDIUM", "message": "Appears in 4 entries across multiple sections" }, { "term": "network", "count": 3, "confidence": "MEDIUM", "message": "Appears in 3 entries across multiple sections" }, { "term": "geometry", "count": 4, "confidence": "MEDIUM", "message": "Appears in 4 entries across multiple sections" }, { "term": "qualification", "count": 3, "confidence": "MEDIUM", "message": "Appears in 3 entries across multiple sections" }, { "term": "materials", "count": 3, "confidence": "MEDIUM", "message": "Appears in 3 entries across multiple sections" }, { "term": "strategic", "count": 3, "confidence": "MEDIUM", "message": "Appears in 3 entries across multiple sections" }, { "term": "process", "count": 4, "confidence": "MEDIUM", "message": "Appears in 4 entries across multiple sections" }, { "term": "ceramic", "count": 3, "confidence": "MEDIUM", "message": "Appears in 3 entries across multiple sections" }, { "term": "semicap", "count": 3, "confidence": "MEDIUM", "message": "Appears in 3 entries across multiple sections" }],
     "contradictions": [],
     "summary": {
-      "total_artifacts": 2,
-      "meeting_count": 2,
-      "speaker_count": 1,
-      "concept_count": 2,
+      "total_artifacts": 24,
+      "meeting_count": 0,
+      "speaker_count": 0,
+      "concept_count": 0,
       "venture_stage": "Pre-Opportunity",
-      "sections_active": 2,
-      "sections_empty": 6
+      "sections_active": 9,
+      "sections_empty": 0
     }
   }
 }

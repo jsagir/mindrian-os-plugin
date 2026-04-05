@@ -351,3 +351,197 @@ Features that operate independently of MWP layers add surface area, not moat dep
 @.claude/includes/release-process.md
 
 See also: docs/ENV-TUNING.md for environment variable optimization.
+
+<!-- GSD:project-start source:PROJECT.md -->
+## Project
+
+**MindrianOS Plugin**
+
+A commercial Claude Code + Cowork plugin that delivers Mindrian's PWS (Personal Wisdom System) methodology as installable skills, commands, agents, and hooks. Users install with one command and immediately get Larry (the AI teaching personality) plus a structured Data Room that passively captures insights and proactively surfaces gaps, contradictions, and convergence signals. The plugin leverages Claude's native capabilities while optionally connecting to the Brain (Neo4j knowledge graph with 21K+ nodes of teaching intelligence) for enriched guidance.
+
+**Core Value:** Users can run the full PWS methodology — 25 specialized methodology bots, structured pipelines, and an intelligent Data Room — inside Claude Code with zero infrastructure, where Larry guides them through venture innovation using the same teaching intelligence that powers the classroom experience.
+
+### Constraints
+
+- **Plugin format**: Must conform to Claude Code plugin structure (commands/, skills/, agents/, hooks/, .mcp.json, settings.json, plugin.json)
+- **No server infrastructure**: Plugin runs entirely in Claude's environment — no backend services except optional Brain MCP
+- **Brain IP protection**: The 21K-node teaching graph, grading intelligence, and mode engine calibration are proprietary — never distributed, only served via MCP
+- **Neo4j Aura Free limits**: LazyGraph must work within 50K node limit
+- **Three surfaces**: All features must work across CLI, Desktop, and Cowork without surface-specific code
+- **Existing assets**: Must port from V2/OS, not rebuild from scratch — 25 prompts, Larry personality, mode engine already exist
+<!-- GSD:project-end -->
+
+<!-- GSD:stack-start source:research/STACK.md -->
+## Technology Stack
+
+## Key Insight: v3.0 Breaks the "No Dependencies" Rule -- Intentionally
+## Existing Stack (v1.0/v2.0 -- DO NOT CHANGE)
+| Technology | Role | Status |
+|------------|------|--------|
+| Markdown + YAML frontmatter | Skills, agents, commands, pipelines, references | Shipped, stable |
+| JSON | plugin.json, hooks.json, .mcp.json, settings.json, STATE.md frontmatter | Shipped, stable |
+| Bash scripts (20 in scripts/) | Room analysis, state computation, meeting intelligence, PDF, transcription | Shipped, stable |
+| Neo4j Aura + Brain MCP | 21K-node graph at brain.mindrian.ai (remote MCP, Streamable HTTP) | Deployed |
+| Pinecone | 1,427 embeddings for Brain semantic search | Deployed |
+| Cytoscape.js (via CDN in dashboard HTML) | De Stijl knowledge graph visualization | Shipped v1.0 |
+| Velma API | Meeting transcription at 3c/hour | Integrated v2.0 |
+| sentence-transformers + LSA (Python) | HSI computation scripts | Shipped v2.0 |
+## v3.0 Stack Additions
+### 1. MCP Server Framework
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| `@modelcontextprotocol/sdk` | 1.27.1 | Build MindrianOS MCP server exposing tools to Desktop/Cowork | THE official SDK. Only real option. 34,700+ dependents. MIT license. Supports both stdio and Streamable HTTP transports on a single McpServer instance. [HIGH confidence -- verified npm registry 2026-03-24] |
+| `zod` | ^3.25 (use 3.25.76) | Input/output schema validation for MCP tools | Required peer dependency of MCP SDK. SDK declares `"^3.25 || ^4.0"`. Use 3.x because zod-to-json-schema (used internally by SDK) is more tested with 3.x. 4.x works but is newer. [HIGH confidence -- verified npm peer deps] |
+- Claude Desktop spawns stdio MCP servers as child processes via `claude_desktop_config.json`. This is the native, zero-config path for local use.
+- Streamable HTTP adds authentication, CORS, port management, and TLS complexity with zero benefit for a locally-spawned server.
+- The Brain MCP already uses Streamable HTTP for remote access. MindrianOS-Plugin MCP is local-first.
+- When remote room access is needed, add Streamable HTTP transport alongside stdio. The SDK supports dual transports on the same McpServer instance -- no code refactor needed.
+### 2. Shared Core Library (CLI + MCP)
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| Node.js CJS (no framework) | >=18 | `lib/core/*.cjs` shared internals called by both CLI and MCP | Mirrors proven GSD pattern. Zero additional dependencies. CJS because plugin ecosystem uses CommonJS. |
+### 3. Opportunity Bank & Grant Discovery
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| Grants.gov REST API | v1 | Programmatic search of US federal grants | Free. No API key needed for search endpoint (`v1/api/search2`). Returns structured JSON with opportunity details, deadlines, eligibility, amounts. 60 req/min rate limit. [HIGH confidence -- verified Grants.gov API docs] |
+| `cheerio` | 1.2.0 | Parse HTML from non-API grant sources | jQuery-style DOM traversal. 19,873 npm dependents. Pure JS, no native bindings. Lightweight alternative to headless browsers. [HIGH confidence -- verified npm] |
+| Native `fetch` | Built into Node 18+ | HTTP requests for APIs and web pages | No package needed. Node 18+ global fetch. |
+- `session-start` hook already runs `analyze-room`. Extend it: `mindrian-tools.cjs opportunity-scan --room ./room`
+- Each session start, check room domain keywords against cached grant data. Fetch fresh if stale (>24h).
+- Results filed to `room/opportunity-bank/grants/` as structured Markdown entries.
+- Zero infrastructure. No persistent process. No cron. Session start IS the trigger.
+### 4. AI Team Member Personas
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| No new library | -- | Persona generation from room intelligence | Personas are structured Markdown files generated from room data + prompt templates. Not a library problem. |
+# Dr. Sarah Chen -- Market Validation Expert
+## Expertise
+## Perspective (Yellow Hat -- Benefits)
+## Communication Style
+## Knowledge Boundaries
+### 5. Scheduled Agents (OPTIONAL -- Future Only)
+| Technology | Version | Purpose | When to Use |
+|------------|---------|---------|-------------|
+| `node-cron` | 4.2.1 | Schedule periodic grant discovery sweeps | ONLY if MCP server runs as persistent Streamable HTTP process (v3.x+ remote room mode). Not needed for v3.0 stdio mode. |
+## Supporting Libraries (New)
+| Library | Version | Purpose | When to Use |
+|---------|---------|---------|-------------|
+| `zod` | ^3.25.76 | Schema validation for MCP tools and CLI input validation | Always. Required by MCP SDK. |
+| `cheerio` | 1.2.0 | HTML parsing for grant discovery scraping | When scraping grant sources beyond Grants.gov API. |
+## Development Tools
+| Tool | Purpose | Notes |
+|------|---------|-------|
+| `npx @modelcontextprotocol/inspector` | Test MCP server tools interactively | Official MCP debugging tool. Connects via stdio, lets you call tools and inspect responses. Use during development. |
+| `claude --plugin-dir .` + Desktop config | Test dual delivery | CLI: test via plugin-dir flag. Desktop: add to claude_desktop_config.json as local stdio server. |
+## Installation
+# Initialize package.json (if not exists)
+# Core: MCP server + schema validation
+# Opportunity discovery: HTML parsing for non-API grant sources
+# That's it. 3 packages. Everything else is Node.js built-ins or existing Bash scripts.
+## Alternatives Considered
+| Recommended | Alternative | When to Use Alternative |
+|-------------|-------------|-------------------------|
+| `@modelcontextprotocol/sdk` stdio | Streamable HTTP transport | When remote team access is needed (v3.x+). Add alongside stdio on same McpServer instance. |
+| Native `fetch` (Node 18+) | `node-fetch` / `axios` / `got` | Never. Native fetch is sufficient. Zero reason to add HTTP client dependencies. |
+| `cheerio` for scraping | Playwright / Puppeteer | Only if a grant site requires JavaScript rendering (unlikely for .gov sites). 200MB+ browser download not justified. |
+| No cron for v3.0 | `node-cron` / `agenda` / `bull` | Session-start hook handles proactive scanning. Add cron only if persistent server mode is built. |
+| Filesystem room state | SQLite / Redis / Turso | Never. The filesystem IS the ICM architecture. Adding a database creates dual-source-of-truth. |
+| Prompt-based personas | LangChain agents / CrewAI | Never. These fight ICM-native design. Claude loads persona markdown as context. |
+| Zod 3.x | Zod 4.x | When MCP SDK ecosystem fully stabilizes on 4.x. The SDK accepts both, but 3.x has broader compatibility today. |
+| Grants.gov free API | Paid grant databases (Foundation Directory Online, GrantStation) | Only if targeting private/foundation grants beyond federal scope. Adds cost. Defer until proven demand. |
+| CJS modules | ESM modules | When Claude Code plugin ecosystem adopts ESM. Currently CJS is the norm (gsd-tools.cjs pattern). |
+## What NOT to Use
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| Express / Hono / Fastify for MCP | MCP SDK includes Hono internally for Streamable HTTP. Adding another HTTP framework creates conflicts. | MCP SDK's built-in transport layer |
+| LangChain / CrewAI / AutoGen / Semantic Kernel | Fights ICM-native architecture. Adds 50+ transitive dependencies. Claude IS the LLM -- no orchestration framework needed. | Direct prompt engineering + room-as-context |
+| SQLite / Redis / Turso for room state | Creates dual source of truth with filesystem. Breaks "folder IS orchestration" principle. | `room/` filesystem + STATE.md |
+| WebSocket libraries (ws, socket.io) | MCP Streamable HTTP handles server-to-client push via SSE when needed. | MCP SDK Streamable HTTP transport (future) |
+| Puppeteer / Playwright for scraping | 200MB+ browser download. Grant sites are server-rendered HTML. | `cheerio` + native `fetch` |
+| Commander / yargs / meow for CLI | Claude is the caller, not a human. Process.argv parsing is sufficient. GSD pattern proves this. | Direct `process.argv` switch-case in CJS |
+| Zod 4.x (for now) | Works with MCP SDK, but ecosystem (zod-to-json-schema) is more battle-tested with 3.x. | `zod@^3.25` |
+| dotenv | Plugin runs in Claude's environment. MCP server inherits env from spawning process. `.env` files add confusion about where config lives. | Direct `process.env` access |
+| TypeScript | Build step breaks "every output is an edit surface" principle. CJS files are directly inspectable and editable. | Plain CJS with JSDoc type comments if needed |
+| npm workspaces / monorepo tools | Single repo with flat structure. No packages to link. | Flat `bin/` + `lib/` structure |
+## Stack Patterns by Variant
+- `mindrian-tools.cjs` is the entry point
+- Import from `lib/core/*` directly
+- Hook scripts call `node bin/mindrian-tools.cjs <subcommand>`
+- No MCP SDK in this path -- pure Node.js + Bash
+- Because: CLI users have full script execution via hooks
+- `mindrian-mcp-server.cjs` is the entry point (stdio)
+- Register MCP tools that wrap `lib/core/*` functions
+- User adds to `claude_desktop_config.json`
+- Because: Desktop/Cowork only speak MCP protocol, not plugin commands
+- Both entry points import the SAME `lib/core/*` modules
+- Feature parity guaranteed by shared core
+- Plugin commands = skill triggers CLI tools layer
+- MCP tools = thin Zod-validated wrappers around same core
+- Because: "Every feature ships as both" is the v3.0 rule
+- Add Streamable HTTP transport to existing McpServer
+- Same instance, dual transports (stdio + HTTP)
+- Room folder must be accessible (Git sync, mounted volume, or shared drive)
+- Add `node-cron` for background opportunity scanning
+- Because: Remote users can't trigger session-start hooks
+## Version Compatibility
+| Package | Compatible With | Notes |
+|---------|-----------------|-------|
+| `@modelcontextprotocol/sdk@1.27.1` | `zod@^3.25 \|\| ^4.0`, Node.js >=18 | SDK internally uses Hono 4.x, Express 5.x, ajv 8.x. Do NOT add these as direct dependencies -- they come bundled. |
+| `zod@^3.25` | `@modelcontextprotocol/sdk@1.27.1`, `zod-to-json-schema@^3.25` | Pin to 3.x branch for stability. |
+| `cheerio@1.2.0` | Node.js >=18 | Pure JS, no native bindings. Works everywhere. |
+| Plugin layer (Markdown + JSON + Bash) | Claude Code 1.x+ | No change from v1.0/v2.0. Plugin layer is independent of MCP server layer. |
+| Brain MCP (remote) | MCP protocol 2024+ | Already deployed. MindrianOS MCP server is SEPARATE -- Claude Desktop lists both in config. |
+## Integration Points: How New Stack Connects to Existing
+| Existing Component | How v3.0 Stack Integrates |
+|-------------------|--------------------------|
+| 20 Bash scripts in `scripts/` | `lib/core/*.cjs` wraps script invocations via `child_process.execSync`. Bash scripts remain authoritative. Core library is the Node.js API surface over them. |
+| `hooks/hooks.json` + hook scripts | `session-start` hook gains opportunity scan: calls `node bin/mindrian-tools.cjs opportunity-scan`. New hook for persona refresh on room changes. |
+| Brain MCP (brain.mindrian.ai) | MindrianOS MCP server is SEPARATE. Both listed in user's `claude_desktop_config.json`. Claude orchestrates between them. They share no code. |
+| Plugin commands (commands/*.md) | Commands invoke `mindrian-tools.cjs` subcommands. Same core functions. Commands are the plugin-layer entry; tools.cjs is the execution layer. |
+| De Stijl dashboard | Dashboard reads `room/` filesystem. MCP tools write to same filesystem. Dashboard auto-refreshes. No direct integration needed. |
+| `room/` folder structure | Opportunity Bank = `room/opportunity-bank/`. Funding Room = `room/funding/`. AI Personas = `room/team/ai-personas/`. Same ICM pattern, new sections. |
+| settings.json | Add MCP server path config. Plugin still uses `{"agent": "larry-extended"}`. |
+| `.mcp.json` | Add MindrianOS local MCP server alongside existing Brain remote MCP. |
+## Sources
+- [@modelcontextprotocol/sdk on npm](https://www.npmjs.com/package/@modelcontextprotocol/sdk) -- verified v1.27.1, dependencies, peer deps (`zod@^3.25 || ^4.0`), engine (Node >=18) [HIGH confidence]
+- [MCP TypeScript SDK server docs](https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/server.md) -- McpServer API, registerTool with Zod schemas, StdioServerTransport, Streamable HTTP [HIGH confidence]
+- [MCP local server connection guide](https://modelcontextprotocol.io/docs/develop/connect-local-servers) -- stdio is native transport for Claude Desktop [HIGH confidence]
+- [Claude Desktop MCP config](https://support.claude.com/en/articles/11503834-building-custom-connectors-via-remote-mcp-servers) -- claude_desktop_config.json format, stdio vs HTTP [HIGH confidence]
+- [Grants.gov API](https://www.grants.gov/api) -- free search endpoint (`v1/api/search2`), no auth for search, 60 req/min, structured JSON responses [HIGH confidence]
+- [Grants.gov API Guide](https://grants.gov/api/api-guide) -- endpoint details, query parameters, rate limits [HIGH confidence]
+- [Cheerio on npm](https://www.npmjs.com/package/cheerio) -- verified v1.2.0, 19,873 dependents, pure JS [HIGH confidence]
+- [node-cron on npm](https://www.npmjs.com/package/node-cron) -- verified v4.2.1, crontab syntax, pure JS [HIGH confidence]
+- GSD reference implementation (`~/.claude/get-shit-done/bin/gsd-tools.cjs`) -- proven CJS single-entry-point pattern, 40+ subcommands, process.argv routing [HIGH confidence, local verification]
+<!-- GSD:stack-end -->
+
+<!-- GSD:conventions-start source:CONVENTIONS.md -->
+## Conventions
+
+Conventions not yet established. Will populate as patterns emerge during development.
+<!-- GSD:conventions-end -->
+
+<!-- GSD:architecture-start source:ARCHITECTURE.md -->
+## Architecture
+
+Architecture not yet mapped. Follow existing patterns found in the codebase.
+<!-- GSD:architecture-end -->
+
+<!-- GSD:workflow-start source:GSD defaults -->
+## GSD Workflow Enforcement
+
+Before using Edit, Write, or other file-changing tools, start work through a GSD command so planning artifacts and execution context stay in sync.
+
+Use these entry points:
+- `/gsd:quick` for small fixes, doc updates, and ad-hoc tasks
+- `/gsd:debug` for investigation and bug fixing
+- `/gsd:execute-phase` for planned phase work
+
+Do not make direct repo edits outside a GSD workflow unless the user explicitly asks to bypass it.
+<!-- GSD:workflow-end -->
+
+<!-- GSD:profile-start -->
+## Developer Profile
+
+> Profile not yet configured. Run `/gsd:profile-user` to generate your developer profile.
+> This section is managed by `generate-claude-profile` -- do not edit manually.
+<!-- GSD:profile-end -->

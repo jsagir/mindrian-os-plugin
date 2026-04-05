@@ -81,32 +81,31 @@ if [ "$COLS" -ge 100 ]; then
   printf '\n'
 
 elif [ "$COLS" -ge 80 ]; then
-  # ========== COMPACT: Abbreviated "MOS" block letters, 2 Mondrian zones ==========
-  # ~42 chars per row, split into: MO(24) S(18)
-  C1='███╗   ███╗ ██████╗ ███████╗'
-  C2='████╗ ████║██╔═══██╗██╔════╝'
-  C3='██╔████╔██║██║   ██║███████╗'
-  C4='██║╚██╔╝██║██║   ██║╚════██║'
-  C5='██║ ╚═╝ ██║╚██████╔╝███████║'
-  C6='╚═╝     ╚═╝ ╚═════╝ ╚══════╝'
+  # ========== COMPACT: "Mindrian-OS" block letters, 2 Mondrian zones ==========
+  C1='███╗   ███╗██╗███╗   ██╗██████╗ ██████╗ ██╗ █████╗ ███╗   ██╗        ██████╗ ███████╗'
+  C2='████╗ ████║██║████╗  ██║██╔══██╗██╔══██╗██║██╔══██╗████╗  ██║        ██╔═══██╗██╔════╝'
+  C3='██╔████╔██║██║██╔██╗ ██║██║  ██║██████╔╝██║███████║██╔██╗ ██║█████╗  ██║   ██║███████╗'
+  C4='██║╚██╔╝██║██║██║╚██╗██║██║  ██║██╔══██╗██║██╔══██║██║╚██╗██║╚════╝  ██║   ██║╚════██║'
+  C5='██║ ╚═╝ ██║██║██║ ╚████║██████╔╝██║  ██║██║██║  ██║██║ ╚████║       ╚██████╔╝███████║'
+  C6='╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝        ╚═════╝ ╚══════╝'
 
-  # Bottom bar: tagline(green, 38) + version(red, 24) = 62
+  # Bottom bar: tagline(green, 52) + version(red, 33) = 85
   if [ -n "$VER_TRANSITION" ]; then
     VDISPLAY="$VER_TRANSITION"
   else
     VDISPLAY="$VER"
   fi
   VLEN=${#VDISPLAY}
-  VLP=$(( (24 - VLEN) / 2 ))
-  VRP=$(( 24 - VLEN - VLP ))
+  VLP=$(( (33 - VLEN) / 2 ))
+  VRP=$(( 33 - VLEN - VLP ))
   VPAD=$(printf '%*s%s%*s' "$VLP" '' "$VDISPLAY" "$VRP" '')
-  TPAD=$(printf '%4s%s%7s' '' 'Wicked problems. Navigated.' '')
+  TPAD=$(printf '%12s%s%13s' '' 'Wicked problems. Navigated.' '')
 
   printf '\n'
   for L in "$C1" "$C2" "$C3" "$C4" "$C5" "$C6"; do
     printf "  %s%s%s%s%s%s%s%s%s\n" \
-      "$RB" "$CF" "${L:0:18}" "$RS" \
-      "$BB" "$CF" "${L:18}"   "$RS"
+      "$RB" "$CF" "${L:0:42}" "$RS" \
+      "$BB" "$CF" "${L:42}"   "$RS"
   done
   printf '\n'
   printf "  %s%s%s%s%s%s%s%s\n" \
@@ -119,9 +118,9 @@ elif [ "$COLS" -ge 80 ]; then
 else
   # ========== MINIMAL: Single line, no block art ==========
   if [ -n "$VER_TRANSITION" ]; then
-    printf "  %s%s MINDRIANOS %s %s%s\n" "$RB" "$CF" "$VER_TRANSITION" "$RS" ""
+    printf "  %s%s Mindrian-OS %s %s%s\n" "$RB" "$CF" "$VER_TRANSITION" "$RS" ""
   else
-    printf "  %s%s MINDRIANOS %s %s%s\n" "$RB" "$CF" "$VER" "$RS" ""
+    printf "  %s%s Mindrian-OS %s %s%s\n" "$RB" "$CF" "$VER" "$RS" ""
   fi
   printf "  %sWicked problems. Navigated.%s\n" "$MF" "$RS"
 fi

@@ -267,5 +267,64 @@ ENABLES and INVALIDATES require explicit frontmatter markers in Tier 1. CAUSES s
 
 ---
 
-*Schema version: 1.1 (Phase 52 - causal edges added)*
+---
+
+## Causal Reasoning Layer (v1.7.0)
+
+### CausalClaim (Node Type)
+
+Represents a single cause-effect assertion extracted from a room artifact by Larry.
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `id` | STRING (PK) | -- | Unique claim ID, e.g. `causal-0001` |
+| `cause` | STRING | -- | What produces the effect (max 200 chars) |
+| `mechanism` | STRING | -- | HOW the cause produces the effect (max 300 chars) |
+| `effect` | STRING | -- | What happens as a result (max 200 chars) |
+| `confidence` | DOUBLE | 0.5 | Dynamic confidence: observed=0.7, asserted=0.5, inferred=0.3 initial; updated by predictions, contradictions, age decay, cross-refs |
+| `evidence` | STRING | '[]' | JSON array of supporting artifact IDs |
+| `source_artifact` | STRING | '' | Primary artifact ID this was extracted from |
+| `domain` | STRING | 'general' | materials, business, competitive, financial, team, legal, general |
+| `falsifiable_prediction` | STRING | '' | Testable prediction that would disprove this claim |
+| `novelty_score` | DOUBLE | 0.0 | How surprising vs consensus (graph neighborhood uniqueness) |
+| `extraction_method` | STRING | 'inferred' | observed, asserted, inferred -- affects initial confidence |
+| `created` | STRING | '' | Date extracted (YYYY-MM-DD) |
+
+### CASCADES_TO (CausalClaim -> CausalClaim)
+
+Tracks assumption failure propagation. If source claim is invalidated, target claim is at risk.
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `cascade_type` | STRING | 'invalidation' | invalidation, weakening, reversal |
+| `severity` | STRING | 'medium' | low, medium, high, critical |
+| `path_length` | INT64 | 1 | Hops from original failure point |
+
+### EXTRACTED_FROM (CausalClaim -> Artifact)
+
+Links a causal claim back to the artifact it was extracted from. Every CausalClaim MUST have at least one EXTRACTED_FROM edge for provenance.
+
+No additional properties -- the edge itself is the provenance link.
+
+### Relationship to Existing Edges
+
+CausalClaim operates as a **semantic layer ON TOP of the Artifact graph**:
+
+```
+Artifact Graph (structural):
+  [market-pain.md] --HSI_CONNECTION--> [coating-mechanism.md]
+
+Causal Layer (semantic):
+  [downtime-cost-claim] --CASCADES_TO--> [coating-adoption-claim]
+        |                                        |
+  EXTRACTED_FROM                           EXTRACTED_FROM
+        |                                        |
+  [market-pain.md]                       [coating-mechanism.md]
+```
+
+The existing CAUSES and ROOT_CAUSE_OF edges (Artifact -> Artifact) capture direct causal relationships at the artifact level. CausalClaim nodes provide finer-grained claim-level causal reasoning with mechanisms and falsifiable predictions.
+
+---
+
+*Schema version: 1.2 (Phase 52 - CausalClaim node + CASCADES_TO + EXTRACTED_FROM added)*
 *Engine: KuzuDB 0.11.3 (embedded, Apache 2.0)*

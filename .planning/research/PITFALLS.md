@@ -1,347 +1,352 @@
-# Domain Pitfalls
+# Domain Pitfalls: Causal Reasoning Layer (v1.7.0)
 
-**Domain:** Adding MCP server delivery, shared core, remote room, Opportunity Bank, Funding Room, and AI Personas to existing 41-command Claude Code plugin
-**Researched:** 2026-03-24
+**Domain:** Causal reasoning over unstructured text in an embedded knowledge graph (KuzuDB)
+**Researched:** 2026-04-03
+**Context:** Adding causal extraction, cascade simulation, and prediction tracking to MindrianOS Plugin v1.6.3
+
+**Consultant session failures referenced:** Branch `claude/plugin-consultant-review-6MYsc` proposed DoWhy/causal-learn (wrong data type), monolithic orchestrator (architecture fiction), 7 subcommands (over-scoped), regex-based extraction with 9 signal types (cargo cult), and Jaccard novelty scoring (placeholder shipped as feature).
+
+---
 
 ## Critical Pitfalls
 
-Mistakes that cause rewrites, architectural dead-ends, or broken existing functionality.
+Mistakes that cause rewrites, abandoned features, or graph degradation.
 
-### Pitfall 1: Tool Explosion Kills MCP Server Usability
+### Pitfall 1: Wrong Abstraction Level for Causal Extraction
 
-**What goes wrong:** The plugin has 41 commands. Naively exposing each as an MCP tool means 41+ tool definitions injected into Desktop/Cowork context before any conversation starts. Real-world data shows 5 MCP servers with 30 tools each consume 30,000-60,000 tokens just in tool metadata -- 25-30% of a 200K context window. Cursor hard-limits at 40 MCP tools total. Claude Desktop users connecting MindrianOS MCP alongside GitHub MCP and a filesystem MCP will hit tool selection failures where the LLM misfires on similarly-named tools (e.g., `analyze_needs` vs `analyze_systems` vs `analyze_timing`).
+**What goes wrong:** Building extraction that operates at the wrong level of abstraction -- either too shallow (keyword matching) or too deep (full statistical causal inference). The consultant proposed regex patterns scanning for 9 causal signal types ("because", "leads to", "results in"). Research confirms that causal keywords in text are unreliable indicators of actual causal reasoning. The word "because" frequently introduces justifications, elaborations, or correlations -- not causal mechanisms.
 
-**Why it happens:** Direct mapping from CLI commands to MCP tools feels natural -- "just expose everything." But CLI commands are human-navigated (users read help text, pick deliberately). MCP tools are LLM-navigated (fuzzy pattern matching on tool names and descriptions). The navigation model is fundamentally different.
+At the other extreme, importing DoWhy/pgmpy/causal-learn assumes tabular DataFrame inputs. The system's data is unstructured markdown text from venture conversations. These libraries solve a fundamentally different problem (estimating causal effects from observational data with known variables) than what MindrianOS needs (extracting causal claims from natural language and storing them as graph structure).
 
-**Consequences:** Desktop/Cowork users get worse responses than CLI users because tool metadata drowns the context. Tool selection accuracy drops. Users blame Larry, not the tool count. The MCP server becomes a liability instead of an expansion.
+**Why it happens:** Causal reasoning sits at the intersection of NLP, graph theory, and statistical inference. Consultants and developers reach for the tools they know. NLP people reach for regex/spaCy. Stats people reach for DoWhy. Both are wrong for this use case.
 
-**Warning signs:**
-- MCP tool descriptions total more than 15K tokens
-- LLM selects wrong methodology tool (e.g., calls `explore_trends` when user asked for `explore_domains`)
-- Desktop sessions hit compaction faster than CLI sessions
-- Users on Desktop report Larry "not knowing" capabilities that work fine on CLI
+**Consequences:** Regex extraction produces a graph full of false causal claims (every "because" becomes a CAUSES edge). Statistical tools fail entirely because there's no tabular data to operate on. Either path wastes a milestone.
 
 **Prevention:**
-- Use a hierarchical router pattern: expose 5-8 high-level tools (e.g., `larry_methodology`, `data_room`, `meeting`, `pipeline`, `export`) that internally dispatch to specific commands
-- Each high-level tool takes a `command` parameter with an enum of sub-commands -- this is how gsd-tools.cjs already works
-- Use MCP Resources (not Tools) for read-only data like room state, meeting archives, and knowledge graph views -- Resources are application-controlled, not model-controlled, so they do not bloat the tool selection prompt
-- Keep total MCP tool count under 15, ideally under 10
-- Test tool selection accuracy by asking ambiguous questions and measuring whether the right tool fires
+- Use a two-tier approach: (1) Larry (the LLM) performs semantic extraction during conversation -- it already understands causal structure from context. (2) A lightweight post-write heuristic ONLY flags candidate sentences for Larry's review, never creates causal edges autonomously.
+- The heuristic is a filter, not an extractor. It reduces the text Larry needs to re-examine, not a source of truth.
+- Never import statistical causal inference libraries. The data type is wrong. If you need causal statistics later, you'd first need to convert claims into structured variables -- a separate future feature.
 
-**Detection:** Count total token cost of MCP tool definitions. Anything over 10K tokens is a red flag. Log tool selection accuracy on Desktop.
+**Detection (warning signs):**
+- Regex patterns that match > 20% of sentences in a typical room artifact
+- Importing any library that requires a DataFrame as primary input
+- Extraction that runs without LLM involvement and creates edges
+- More than 3 "signal types" in a heuristic detector
 
-**Phase to address:** Phase 1 (MCP server design). Tool surface must be designed before any tools are implemented. Retrofitting a hierarchical router onto 41 flat tools is a rewrite.
+**Phase relevance:** Phase 1 (causal extraction design). This is the foundational decision. Get it wrong and everything downstream is polluted.
 
 ---
 
-### Pitfall 2: Shared Core Extraction Breaks Existing Plugin Commands
+### Pitfall 2: Graph Pollution from Low-Confidence Causal Claims
 
-**What goes wrong:** The plugin currently has 41 working commands, 20 scripts, 6 skills, 5 agents, and 3 hooks that work as an integrated unit. Extracting a "shared core" library so both the plugin AND the MCP server can use the same logic requires touching every command's internals. A premature abstraction -- pulling out shared logic before fully understanding how MCP tools differ from CLI commands -- creates a wrong abstraction that both consumers must work around with parameters and conditional paths. Sandi Metz's law: "duplication is far cheaper than the wrong abstraction."
+**What goes wrong:** Every extracted causal claim gets written as a CAUSES edge in KuzuDB at the same confidence level. Within weeks, the graph becomes a dense hairball where legitimate "semiconductor qualification CAUSES competitive moat" is indistinguishable from "meeting timing CAUSES schedule change." Research on Causal Knowledge Graphs confirms that distinguishing high-confidence from spurious edges is the critical quality gate -- precision@K for top-K highest-confidence predictions determines whether the system is usable for decision-making.
 
-**Why it happens:** DRY principle feels correct. The instinct is "extract shared logic first, then build MCP tools on top." But the plugin's commands were designed for Claude-reads-markdown orchestration (CLI), while MCP tools are JSON-schema functions called by any MCP client. Input validation, output formatting, error handling, and state management differ between the two surfaces. Abstracting before understanding these differences produces a shared core that serves neither surface well.
+**Why it happens:** Developers optimize for recall ("don't miss any causal claims") instead of precision ("only store claims worth acting on"). The consultant's design had no confidence threshold for edge creation -- everything extracted gets written.
 
-**Consequences:** Existing plugin commands that worked perfectly start failing because shared core refactoring changed their assumptions. Two bug surfaces (plugin AND MCP) instead of one. The shared core accumulates conditional branches (`if (surface === 'cli') ... else if (surface === 'mcp') ...`) until it is harder to maintain than two separate implementations would have been.
-
-**Warning signs:**
-- Shared functions taking a `surface` or `mode` parameter to change behavior
-- Plugin command tests failing after "no-op" refactoring to extract shared core
-- MCP tools that return data in a format that only makes sense for CLI rendering
-- More than 3 abstraction layers between user request and actual file I/O
+**Consequences:**
+- Larry's causal traces return noise alongside signal
+- Users lose trust when the system surfaces obvious or trivial causal chains
+- Cascade simulation produces misleading results because low-confidence edges are treated as certain
+- Graph queries slow down as edge count inflates (see Pitfall 6)
 
 **Prevention:**
-- Follow the Rule of Three: do NOT extract shared logic until you have implemented the same operation three times (CLI command, MCP tool, and one more consumer like the dashboard)
-- Start with duplication: copy plugin logic into MCP tool handlers. Let duplicated code show you what is actually shared vs. what only appears similar
-- Extract bottom-up, not top-down: share utility functions (file reading, state computation, room path resolution) before sharing high-level orchestration
-- Keep the existing plugin commands completely untouched during initial MCP development. MCP tools can call the same scripts the hooks already call -- the scripts/ directory IS the shared core
-- The scripts/ directory (compute-state, analyze-room, build-graph, etc.) is already surface-agnostic. Point MCP tools at these same scripts rather than refactoring commands
+- **Confidence-gated writing:** CausalClaim nodes get created at extraction time with a confidence score. Only claims with confidence >= 0.7 get CAUSES edges. Below 0.7, they exist as isolated CausalClaim nodes that can be promoted later.
+- **Mechanism requirement (Three Gaps):** Following Duraisamy's framework, every causal claim requires a mechanism ("A causes B THROUGH mechanism M"). Claims without mechanisms are flagged as hypotheses, not stored as edges.
+- **User confirmation loop:** High-impact causal claims (those that would create CASCADES_TO chains across sections) require user APPROVE/REJECT before edge creation -- matching the existing cross-subsystem cascade rule.
+- **Decay/pruning:** Causal claims that remain unconfirmed after 3 sessions get downgraded. Claims that get contradicted by new evidence get INVALIDATED, not deleted (preserving the learning history).
 
-**Detection:** Run the full existing test suite after every shared core change. Any failing test means the extraction went too far.
+**Detection (warning signs):**
+- More CAUSES edges than INFORMS edges in a typical room (causal edges should be rarer)
+- Average confidence score across all CAUSES edges is below 0.6
+- Users never reference causal traces in their work
+- Cascade simulation chains that exceed 5 hops routinely
 
-**Phase to address:** Phase 1 (shared core design). The decision of WHAT to share must happen before any extraction. But actual extraction should be gradual across phases, not a big-bang refactor.
+**Phase relevance:** Phase 1-2. The confidence schema must be designed before any extraction code runs.
 
 ---
 
-### Pitfall 3: Remote Room MCP Exposes User Data Without Auth
+### Pitfall 3: Monolithic Orchestrator Architecture
 
-**What goes wrong:** "Room as Remote MCP" means a user's Data Room -- containing meeting transcripts, speaker profiles with web-researched backgrounds, financial models, competitive analysis, team assessments -- becomes accessible over a network. The MCP specification's authentication is optional and the SDK has no built-in auth mechanisms. A 2026 Trend Micro survey found 492 MCP servers publicly exposed with zero client authentication. If the Room MCP launches without auth, anyone who discovers the endpoint gets full read access to proprietary venture intelligence.
+**What goes wrong:** A single script or module tries to coordinate all causal operations: extraction, graph writing, cascade simulation, prediction tracking, Brain queries, and cross-referencing. The consultant proposed `unified-discovery.py` importing HSI, analogy, and causal engines as Python modules -- but these are CLI scripts that output JSON, not importable modules. The architecture was fiction.
 
-**Why it happens:** Local MCP via stdio is inherently secure (same machine, same user). The jump to remote MCP feels like "just change the transport." But stdio-to-HTTP changes the threat model entirely: network exposure, credential management, session persistence, token handling. Developers building for a small team ("it's just us three") skip auth, then the server gets discovered or shared beyond the intended group.
+**Why it happens:** It feels clean to have one coordinator. But MindrianOS already has an established pattern: scripts output JSON, CJS scripts write to KuzuDB, hooks chain operations. Adding a monolithic Python orchestrator violates every architectural decision in the system.
 
-**Consequences:** Venture-sensitive data leaks: investor conversations, competitive intelligence, team assessments, financial projections. Even "read-only" leaks of meeting transcripts could expose confidential discussions. Legal liability for the platform. Trust destruction with early adopters.
-
-**Warning signs:**
-- Remote MCP endpoint accessible without any token or credential
-- Credentials stored in plaintext in config files
-- No audit trail of who accessed what room data
-- HTTP (not HTTPS) used in any configuration example or documentation
-- Long-lived static tokens with no expiry or rotation
+**Consequences:**
+- Single point of failure: if the orchestrator errors, all causal features break
+- Can't gracefully degrade (Tier 0 principle violated)
+- Testing becomes impossible because everything is coupled
+- Timeout issues in the post-write hook (3-second budget shared with existing steps)
 
 **Prevention:**
-- Phase 1: Ship Room MCP as stdio-only (local collaborative access via shared filesystem or git). Remote comes later
-- When remote is added: implement OAuth 2.1 per MCP spec, with Resource Indicators (RFC 8707) to scope tokens to specific rooms
-- Never expose the full room -- use MCP Resources with explicit user selection of what to share, not blanket access
-- Implement per-room access control: room owner grants read/write per team member
-- All remote transport must be Streamable HTTP over TLS (HTTPS only), never plain HTTP
-- Store no credentials in the MCP server config file -- use environment variables or a credential store
-- Log all remote access with timestamp, user identity, and accessed resource
+- Follow the existing pattern exactly: `Python computes -> JSON intermediate -> CJS writes to KuzuDB`
+- Causal extraction is Larry's job during conversation (no separate script needed for extraction)
+- Post-write hook adds ONE step: candidate flagging (lightweight, < 500ms)
+- Cascade simulation and prediction tracking are on-demand commands, not post-write operations
+- Each operation is independently testable and independently failing
 
-**Detection:** Security audit before any remote MCP release. Penetration test the endpoint. Check for plaintext credentials in any config file.
+**Detection (warning signs):**
+- Any file named `orchestrator`, `coordinator`, or `unified`
+- A Python script that imports 3+ internal modules
+- A script that both reads markdown AND writes to KuzuDB (separation of concerns violation)
+- Hook timeout budget consumed by causal processing
 
-**Phase to address:** Phase 3 (Room as Remote MCP). Must NOT ship remote access without auth. If auth is not ready, ship local-only and defer remote.
+**Phase relevance:** Phase 2 (integration architecture). Must be resolved before any code touches the post-write cascade.
 
 ---
 
-### Pitfall 4: Feature Parity Drift Between Plugin and MCP Surfaces
+### Pitfall 4: False Transitivity in Cascade Simulation
 
-**What goes wrong:** The dual delivery rule says "every feature ships as both a plugin command and MCP tool." In practice, the plugin gets features first (it is the development environment), and MCP tools lag behind. Over time: plugin has 45 commands, MCP server has 30 tools. A user on Desktop asks Larry to "file this meeting" and gets "I don't have that capability" while CLI users have had it for weeks. The surfaces drift apart silently because there is no automated check for parity.
+**What goes wrong:** "A CAUSES B" and "B CAUSES C" does NOT mean "A CAUSES C." Research on causal chain reasoning (Rehder 2015, von Sydow 2016) demonstrates that people (and systems) systematically assume the Markov condition holds in causal chains when it often doesn't. Confounding variables, nonlinear effects, and contextual modifiers break transitivity.
 
-**Why it happens:** Developers naturally build and test on the surface they use (CLI). MCP tools require additional work (schema definition, input validation, output formatting). When under deadline pressure, the MCP version gets deferred. There is no CI check that flags "command X exists without corresponding MCP tool Y." Documentation drifts as well: the help command lists capabilities that only exist on one surface.
+Example: "Qualification timeline CAUSES competitive moat" and "Competitive moat CAUSES pricing power" does NOT mean "Qualification timeline CAUSES pricing power" -- the pricing power might come from IP, not timeline.
 
-**Consequences:** Users who discover MindrianOS on Desktop (the intended growth surface for non-technical team members) get a degraded experience compared to CLI. User reports of "missing features" that actually exist but only on the other surface. Support burden increases. The "one product, two surfaces" promise erodes into "two half-products."
+**Why it happens:** Graph traversal naturally chains edges. If you query `MATCH (a)-[:CAUSES*1..5]->(b)`, KuzuDB returns transitive chains without checking whether transitivity is valid. The system presents these chains as causal reasoning when they may be confounded.
 
-**Warning signs:**
-- MCP tool count diverges from plugin command count with no tracking
-- User reports of missing features that exist on the other surface
-- Release notes mention features without specifying which surfaces support them
-- No automated parity test in CI
+**Consequences:**
+- Users make strategic decisions based on causal chains that don't hold
+- Larry presents false confidence: "BECAUSE X... BECAUSE Y... BECAUSE Z" when Z doesn't follow from X
+- The system becomes a confabulation engine rather than a reasoning tool
+- Particularly dangerous for venture founders making investment or pivot decisions
 
 **Prevention:**
-- Maintain a parity matrix (command name, CLI status, MCP status, last verified date) as a checked-in file that CI validates
-- Build MCP tool and plugin command simultaneously -- never ship one without at least a stub for the other
-- The mindrian-tools.cjs entry point (GSD pattern) should serve both surfaces: CLI commands call it, MCP tools call it. Same entry point = automatic parity
-- Use schema drift detection (Specmatic-style): tool schema in MCP must match command signature in plugin
-- Each release must include a parity check as part of the release process
+- **Chain confidence decay:** Each hop in a causal chain multiplies confidence. A 0.8 -> 0.8 chain has 0.64 effective confidence. Beyond 3 hops, flag as "speculative chain" rather than "causal trace."
+- **Mechanism continuity check:** When traversing A->B->C, verify that B's mechanism as an effect of A is compatible with B's mechanism as a cause of C. If the mechanism changes, flag the chain break.
+- **Bounded traversal:** Never traverse CAUSES chains beyond 4 hops. The LazyGraph schema doc already warns about KuzuDB's walk semantics requiring upper bounds.
+- **Confounding flag:** When two nodes have a common upstream cause, flag potential confounding rather than asserting direct causation.
+- **Display with decay:** Show confidence as it decays along the chain. "A -> B (0.85) -> C (0.72) -> D (0.58, speculative)"
 
-**Detection:** CI job that compares the list of commands/ files against the MCP server's tool registry. Any mismatch fails the build.
+**Detection (warning signs):**
+- Causal traces that exceed 4 hops presented without confidence decay
+- Users citing causal chain conclusions that skip intermediate mechanisms
+- Chain endpoints that have no direct evidential support in any room artifact
+- Queries using unbounded variable-length CAUSES paths
 
-**Phase to address:** Phase 1 (architecture). The mindrian-tools.cjs pattern must be established from the start. Parity checks in CI from Phase 2 onward.
+**Phase relevance:** Phase 3 (cascade simulation). Must be designed into the simulation engine from the start, not bolted on.
 
 ---
 
-### Pitfall 5: MCP Transport Choice Locks Out Desktop/Cowork Users
+### Pitfall 5: Prediction Systems That Get Abandoned
 
-**What goes wrong:** Claude Desktop requires MCP servers configured via claude_desktop_config.json. If the Room MCP uses Streamable HTTP (the modern transport), but Claude Desktop only supports stdio for local servers, the server never connects. Conversely, if you build stdio-only, remote collaborative access (the whole point of Room as Remote MCP) is impossible. SSE transport was deprecated in MCP spec 2026-03-26, so building on SSE creates immediate tech debt.
+**What goes wrong:** The prediction registry fills up with predictions nobody reviews. Resolution criteria are vague ("we'll know by Q3"). No review cadence exists. Within 2 months, the `.predictions/REGISTRY.json` is a graveyard of stale predictions that Larry occasionally references but nobody acts on.
 
-**Why it happens:** The MCP transport landscape shifted in early 2026. SSE was deprecated in favor of Streamable HTTP. But client support varies: Claude Desktop supports stdio natively for local servers. Streamable HTTP is the standard for remote servers. Building for one transport without planning for the other leaves a surface unsupported.
+Research on superforecasting (Tetlock 2015) shows that prediction systems work ONLY when: (1) questions have clear resolution criteria, (2) there's a regular review cadence with feedback, (3) predictions are updated with new evidence, and (4) the system tracks calibration over time.
 
-**Consequences:** Desktop users cannot connect to Room MCP. Or: remote team members cannot access shared room state. The collaborative access promise -- the core value of v3.0 -- fails at the transport layer before any feature code runs.
+MLOps research confirms the same pattern: "set & forget" mentality kills prediction systems. Without a Ground Truth system that catalogs forecasts and their resolutions with timestamps, the system degrades.
 
-**Warning signs:**
-- MCP server only implements one transport
-- No testing of the server with Claude Desktop's actual config loading
-- Windows users hit path issues with stdio (must use `cmd /c` wrapper)
-- Config examples use hardcoded paths that break cross-platform
+**Why it happens:** Building prediction creation is fun. Building prediction review is boring. Developers build the input side and defer the output side. The consultant proposed predictions without specifying resolution criteria format, review triggers, or what happens when predictions expire.
+
+**Consequences:**
+- Users ignore predictions entirely (feature abandoned)
+- Larry references stale predictions, undermining trust
+- No calibration data means the system can't improve
+- The REGISTRY.json grows indefinitely, slowing file reads
 
 **Prevention:**
-- Implement both stdio (for local Desktop/CLI) and Streamable HTTP (for remote/Cowork) from the start
-- stdio for local: zero-config, same-machine access. This is the default
-- Streamable HTTP for remote: requires auth, TLS, deployed endpoint. This is the upgrade path
-- Test with actual Claude Desktop on Windows, Mac, and Linux -- path handling differs
-- Use the `command` + `args` pattern in claude_desktop_config.json that is proven to work (node path to server script)
-- Never use SSE -- it is officially deprecated
+- **Mandatory resolution criteria at creation:** Every prediction MUST specify: (a) what would confirm it, (b) what would refute it, (c) a deadline. Predictions without all three are rejected.
+- **Forced review cadence:** Larry surfaces the oldest unresolved prediction every 5th session. Not optional.
+- **Maximum active predictions:** Cap at 10 active predictions per room. Force resolution of old ones before adding new ones. The consultant proposed unlimited predictions -- this is how registries die.
+- **Resolution states:** CONFIRMED / REFUTED / SUPERSEDED / EXPIRED. Never just "open" or "closed."
+- **Calibration score:** Track what percentage of high-confidence predictions resolved as expected. Surface this to the user: "Your predictions have been 60% accurate at the 80% confidence level -- you may be overconfident."
+- **Lean format:** REGISTRY.json entries should be < 10 fields. Bloated entries mean nobody reads them.
 
-**Detection:** Integration test: install MCP server, add to claude_desktop_config.json, verify tools appear in Claude Desktop. Test on all three platforms.
+**Detection (warning signs):**
+- More than 10 unresolved predictions in a room
+- No predictions resolved in the last 30 days
+- Predictions without explicit resolution criteria
+- No review prompts from Larry in recent sessions
 
-**Phase to address:** Phase 1 (MCP server skeleton). Transport must be dual from the start. Adding a second transport later requires architectural changes.
+**Phase relevance:** Phase 4 (prediction tracking). Design the review loop BEFORE the creation interface.
+
+---
 
 ## Moderate Pitfalls
 
-### Pitfall 6: Opportunity Bank / Funding Room Scope Creep Into Full CRM
+### Pitfall 6: KuzuDB Schema Bloat and Query Performance
 
-**What goes wrong:** "Opportunity Bank" starts as a room section with proactive grant discovery. Feature requests expand it: track application status, manage deadlines, store reviewer contacts, log follow-ups, integrate with grant portals, generate compliance reports. The Funding Room similarly expands: dilutive vs. non-dilutive sub-rooms, investor pipeline tracking, term sheet comparison, cap table modeling. Before you know it, you are building Salesforce inside a Claude Code plugin.
+**What goes wrong:** Adding CausalClaim as a new node type + CAUSES, CASCADES_TO, EXTRACTED_FROM as new edge types brings the schema to 3 node types and 15 edge types. KuzuDB uses column-oriented storage with CSR-based adjacency indices per edge type. Each new REL TABLE creates a separate index structure. While KuzuDB handles hundreds of millions of nodes efficiently, the overhead is per-query: multi-type traversal queries must scan multiple index structures.
 
-**Why it happens:** Grant and funding workflows are inherently complex. Each user has a slightly different process. The temptation is to accommodate every workflow variation. The plugin's file-based architecture (markdown in folders) makes it easy to add "just one more section" without feeling the weight of the feature.
+The specific concern is queries that need to cross edge types: "Find all artifacts connected to X via any combination of INFORMS, CAUSES, HSI_CONNECTION, and ANALOGOUS_TO." This requires either a UNION of multiple MATCH clauses or separate queries merged in application code.
 
-**Consequences:** Months spent on grant/funding workflow features that 10% of users need. The core value proposition (Larry + methodology + Data Room intelligence) gets neglected. The plugin becomes bloated with specialized features. Context budget consumed by funding management skills that most users never trigger.
-
-**Warning signs:**
-- Opportunity Bank has more than 5 custom fields per opportunity
-- Funding Room sub-rooms exceed 3 levels of nesting
-- Users request features that exist in dedicated grant management tools (GrantHub, Submittable)
-- The pipeline logic requires date tracking, reminders, and external API calls
+**Why it happens:** Each feature team adds "just one more edge type." The schema grows organically. KuzuDB's schema-first requirement means every edge type is a separate table -- unlike Neo4j where edge types are labels on a single edge store.
 
 **Prevention:**
-- Opportunity Bank is a ROOM SECTION, not a product. It stores structured insights about opportunities, filed by Larry from meetings and research. Maximum: opportunity name, source, relevance score, status (discovered/evaluating/applying/awarded/passed), and notes
-- Funding Room follows GSD-style process: each grant/opportunity gets a sub-folder with a simple state file. No custom fields, no deadline management, no external API integration
-- Explicitly OUT OF SCOPE: application form filling, deadline reminders, reviewer contact management, compliance tracking, cap table modeling. These are solved problems with dedicated tools
-- The intelligence value is in DISCOVERY and CONNECTIONS: "This grant's focus areas overlap with your problem definition and market analysis." That is what Larry does. The workflow management is someone else's problem
-- If a user asks for CRM features, the answer is: "Integrate with your existing tool via MCP" (many CRM MCP servers exist)
+- **Query budget:** Establish that no user-facing operation triggers more than 3 Cypher queries. If a feature needs 5 queries, redesign the schema or pre-compute.
+- **Pre-computed summaries:** For the "convergence discovery" use case (causal + HSI + RS + analogy edges), compute a summary JSON on write, don't query all edge types at read time.
+- **No new node types without justification:** CausalClaim might be better as an Artifact subtype (same node table, distinguished by a `type` property) rather than a separate node table. Evaluate before adding.
+- **Index awareness:** KuzuDB doesn't support multi-labeled nodes. If you need polymorphic queries across CausalClaim and Artifact, you'll need UNION queries. Consider whether CausalClaim metadata can be properties on existing Artifact nodes + CAUSES edges instead.
 
-**Phase to address:** Phase 3 (Opportunity Bank) and Phase 4 (Funding Room). Scope must be locked before implementation begins.
+**Detection (warning signs):**
+- Cypher queries that take > 200ms on a room with < 100 artifacts
+- Functions that issue > 3 sequential Cypher queries
+- UNION queries spanning > 3 edge types
+- `graphStats()` taking noticeably longer after schema expansion
+
+**Phase relevance:** Phase 1 (schema design). Decide CausalClaim representation before writing any edges.
 
 ---
 
-### Pitfall 7: AI Team Personas That Hallucinate Expertise They Do Not Have
+### Pitfall 7: Post-Write Hook Timeout Budget Exhaustion
 
-**What goes wrong:** AI Team Member Personas are "domain experts generated from room intelligence + Bono perspectives." The persona for "CFO perspective" confidently generates financial projections with no grounding in real financial data. The "Legal counsel" persona gives regulatory guidance that sounds authoritative but is fabricated. Users treat persona outputs as expert opinions because the persona's name and framing implies expertise. Research shows domain-specific hallucination rates remain high: legal (18.7%), medical (15.6%), coding (17.8%).
+**What goes wrong:** The existing post-write cascade already runs: (1) analytics tracking, (2) binary file detection, (3) LazyGraph indexing (2s timeout), (4) HSI computation + reverse salient detection + KuzuDB bridge (background), (5) presentation regeneration (background), and (6) classify-insight (exec, blocking). Adding causal candidate flagging to this chain risks exceeding the 3-second hook timeout or, worse, introducing ordering dependencies where causal flagging needs HSI results that haven't computed yet.
 
-**Why it happens:** The persona is a prompt wrapper around the same LLM. Adding a persona name ("Sarah, CFO") and role description does not give the LLM actual financial expertise. But the framing creates trust: users rated AI-generated persona outputs as more credible when the persona had a name and role, even when the outputs were identical to non-persona outputs. The anthropomorphization effect is documented and measurable.
+**Why it happens:** The post-write hook looks like a free place to add logic. Each addition seems small. But the cascade has serial dependencies (LazyGraph index must complete before HSI reads the graph) and a hard timeout budget.
 
-**Consequences:** Users make venture decisions based on hallucinated "expert" advice. Legal liability if a "legal counsel" persona gives incorrect regulatory guidance. Reputation damage when users discover personas are just prompt wrappers. Over-anthropomorphization creates emotional attachment to personas that provide no real value.
-
-**Warning signs:**
-- Personas make specific claims about regulations, tax codes, or legal requirements
-- Personas generate numerical projections (financial, market sizing) without citing sources
-- Users reference persona opinions in investor meetings as if from real advisors
-- Personas maintain consistent "personalities" across sessions but inconsistent factual claims
+**Consequences:**
+- Hook timeout kills all downstream steps (classify-insight never runs)
+- Non-deterministic failures when background processes race
+- Causal flagging that depends on updated graph state but runs before graph index completes
+- Debugging becomes nearly impossible because failures are silent (exit 0 on timeout)
 
 **Prevention:**
-- Personas must be explicitly framed as PERSPECTIVE TOOLS, not expert advisors. Use De Bono's thinking hats framing: "This is the financial perspective on your venture" not "This is your CFO Sarah's analysis"
-- Every persona output must include a disclaimer: "This perspective is generated from your room data and general knowledge. It is not professional [financial/legal/technical] advice"
-- Personas ONLY synthesize from room data -- they do not generate new facts. A financial perspective says "Your room data shows X revenue projection -- here are questions to validate it" not "Based on market conditions, revenue should be Y"
-- Limit persona capabilities: perspectives and questions, never recommendations or projections
-- Brain-enriched personas (Tier 1) can reference teaching graph connections but still must not fabricate domain-specific facts
-- Track if users are over-relying on persona outputs by monitoring citation patterns
+- **Budget audit:** Before adding any step, measure actual wall-clock time of the current cascade. The 3-second timeout in hooks.json is the hard limit.
+- **Causal flagging MUST be background, non-blocking:** `(causal-flag "$room_dir" "$FILE_PATH" 2>/dev/null || true) &`
+- **No ordering dependency on HSI:** Causal flagging should only read the artifact text and existing graph state, never depend on the HSI computation that runs in the same cascade.
+- **Flag-then-process pattern:** The post-write hook only MARKS candidates (appends to `.causal-candidates.json`). Actual extraction happens when the user invokes `/mos:causal extract` or when Larry processes the queue during conversation.
+- **Consider debouncing:** If a user writes 5 artifacts in 30 seconds, don't run 5 independent flagging passes. Debounce to a single pass after writes settle.
 
-**Detection:** Review persona outputs for specific factual claims not grounded in room data. Any financial projection, legal citation, or regulatory claim not traceable to a room artifact is a hallucination.
+**Detection (warning signs):**
+- classify-insight (the final `exec`) stops producing output
+- Room artifacts indexed in LazyGraph but missing causal flags (ordering failure)
+- Hook stderr showing timeout errors
+- User reports "Larry seems slow after saving files"
 
-**Phase to address:** Phase 5 (AI Personas). Ship as "perspective lenses" not "team members." The framing prevents the worst outcomes.
+**Phase relevance:** Phase 2 (integration). Must be tested with real room write patterns, not unit tests.
 
 ---
 
-### Pitfall 8: Shared Core Introduces Abstraction Layers That Obscure Debugging
+### Pitfall 8: Overscoped Command Surface
 
-**What goes wrong:** The current plugin is debuggable: a command is a markdown file, a script is a Node.js file, a hook calls a script. When something breaks, the path from symptom to cause is short. Introducing a shared core library (mindrian-core) adds indirection: command calls core function, core function calls utility, utility reads config, config determines behavior. When a meeting filing fails on MCP, the debugging path now traverses the MCP transport layer, the tool handler, the core library, the utility functions, and the filesystem operations. Five layers instead of two.
+**What goes wrong:** The consultant proposed 7 subcommands for `/mos:causal`. For a brand-new, unvalidated feature, this is scope creep before validation. Users won't learn 7 subcommands for something they've never used before. The cognitive load drives abandonment.
 
-**Why it happens:** Good software engineering says "extract common logic." But each abstraction layer adds debugging cost. In a plugin environment where the developer cannot attach a debugger (Claude Code runs the code, not you), extra layers are especially painful. Stack traces through abstraction layers are harder to read in log output than direct file-to-function paths.
+**Why it happens:** Developers design for the feature's full potential rather than its minimum viable interface. Every internal capability gets exposed as a command.
 
 **Prevention:**
-- Keep the abstraction stack shallow: maximum 3 layers (entry point -> business logic -> file I/O)
-- Use the existing scripts/ directory as the shared core. Scripts are already standalone Node.js files that can be called from hooks, commands, or MCP tool handlers
-- Every shared function must include structured logging with the calling context (which surface, which command/tool, which room)
-- Avoid class hierarchies and inheritance -- use simple functions that take explicit parameters
-- Each MCP tool handler should be a thin wrapper around a script call, not a deep abstraction chain
+- **3 subcommands maximum for v1.7.0:** `extract` (pull causal claims from current artifacts), `trace` (follow a causal chain from a claim), `predict` (register a testable prediction). Everything else is internal or triggered by Larry proactively.
+- **Larry-first surface:** Most users will encounter causal reasoning through Larry's conversation, not through commands. `/mos:causal` is the power-user escape hatch, not the primary interface.
+- **Each subcommand must have an obvious output:** `extract` produces a list of claims. `trace` produces a chain with confidence. `predict` produces a prediction card. No subcommand should produce "processing..." with no visible result.
+- **Desktop surface test:** If a subcommand can't be triggered by natural language on Claude Desktop, it probably shouldn't be a subcommand.
 
-**Phase to address:** Phase 1-2 (shared core design). Keep it flat and obvious.
+**Detection (warning signs):**
+- More than 3 subcommands in the initial release
+- Subcommands that are synonyms (e.g., `cascade` and `trace` doing similar things)
+- Subcommands that require > 2 flags or arguments
+- No usage of a subcommand after 2 weeks in production
+
+**Phase relevance:** Phase 3 (command design). Resist scope expansion until v1.7.0 ships and users validate.
 
 ---
 
-### Pitfall 9: Remote Room File Conflicts from Concurrent Team Access
+### Pitfall 9: Novelty Scoring Theater
 
-**What goes wrong:** Room as Remote MCP means multiple team members can modify the same room simultaneously. User A files a meeting while User B runs a methodology session that writes to the same room section. Both write to STATE.md. Last writer wins. User A's meeting filing overwrites User B's methodology output, or vice versa. There is no locking mechanism in the file-based room architecture.
+**What goes wrong:** The consultant proposed Jaccard distance for novelty scoring, acknowledged it was a placeholder, but designed it into the architecture as a feature. Jaccard distance between term sets is not novelty detection -- it measures term overlap, which conflates obscurity with novelty. A claim using rare jargon scores "novel" while a genuinely novel insight using common words scores "mundane."
 
-**Why it happens:** The room was designed for single-user access (one Claude instance, one filesystem). The ICM architecture (folder structure IS orchestration) assumes one writer at a time. Extending to multi-user access without adding concurrency control is like sharing a Google Doc without the collaboration engine -- just a file that two people overwrite.
+**Why it happens:** Novelty is genuinely hard to measure. The temptation is to use any computable metric and call it novelty. The Duraisamy paper's "Three Gaps" framework explicitly warns about the Reality Gap -- the distance between computational proxies and actual scientific value.
 
-**Consequences:** Lost data. Corrupted STATE.md files. Meeting archives that are partially overwritten by concurrent methodology sessions. User trust destruction when work disappears.
-
-**Warning signs:**
-- Multiple users writing to the same room within the same minute
-- STATE.md content that does not match the filesystem (classic drift, now caused by concurrent writes)
-- Room sections with entries that reference artifacts that do not exist (written by one user, overwritten by another)
+**Consequences:**
+- Users see "HIGH NOVELTY" on trivial claims and lose trust in the scoring system
+- Actually novel insights (like the geometry-enabled-qualification bottleneck in the north star example) score low because they use common words
+- The system optimizes for linguistic obscurity rather than genuine insight
 
 **Prevention:**
-- Phase 1 (local MCP): Room access is single-writer via stdio -- no concurrency issue. Ship this first
-- Phase 2 (remote MCP): Use git as the concurrency layer. Room IS a git repository. Each team member's Claude instance works on a branch. Merges happen explicitly (or via auto-merge for non-conflicting files)
-- Alternative: Cowork already handles collaboration natively. Room as Remote MCP should leverage Cowork's 00_Context/ shared state rather than building custom concurrency
-- At minimum: file-level locking via lockfiles (write a `.lock` file before modifying, remove after). Not perfect but prevents the worst corruption
-- STATE.md should be computed (regenerated from filesystem), never incrementally updated. Concurrent regeneration produces the same result -- idempotent
-- Clearly document which room operations are safe for concurrent access (reading) and which require coordination (writing)
+- **Don't ship novelty scoring in v1.7.0.** Mark it as a future capability. A bad novelty metric is worse than no metric.
+- **If novelty must ship:** Use LLM-assessed novelty (Larry compares the claim against existing room knowledge and rates novelty on a 1-10 scale with explanation). This is slow but accurate.
+- **Never use term-frequency metrics as novelty proxies.** Not Jaccard, not TF-IDF, not cosine distance between term vectors. These measure statistical unusualness, not intellectual novelty.
+- **When ready (future):** Novelty = "this claim contradicts or extends an existing assumption in the room." It's relational (graph structure), not statistical (term frequency).
 
-**Detection:** Integration test with two simultaneous writers to the same room section. If data is lost, the concurrency model is broken.
+**Detection (warning signs):**
+- Novelty scores that correlate with document length or vocabulary rarity
+- No user ever mentioning novelty scores in their work
+- Novelty scores that don't change when the room gains new knowledge
 
-**Phase to address:** Phase 3 (Room as Remote MCP). Must have a concurrency strategy before shipping remote write access.
+**Phase relevance:** Defer to post-v1.7.0. Include the field in the schema but leave it empty until a real algorithm exists.
 
 ---
-
-### Pitfall 10: Testing Burden Doubles Without Test Infrastructure
-
-**What goes wrong:** Before v3.0: test the plugin on CLI. After v3.0: test every feature on CLI (plugin command), Desktop (MCP tool via claude_desktop_config.json), and Cowork (MCP tool via shared context). That is 3x the test surface. Manual testing of 41 commands across 3 surfaces = 123 test scenarios per release. Without automation, releases slow to a crawl or ship untested.
-
-**Why it happens:** The v1.0/v2.0 testing was manageable because it was one surface. Adding MCP doubles the delivery layer. Adding remote access triples the configuration space. Each new surface introduces platform-specific bugs (Windows path handling, macOS permission dialogs, Linux environment differences).
-
-**Consequences:** Regressions ship undetected. Features that work on the developer's surface break on users' surfaces. Release cadence slows. Quality degrades as the team manually tests an ever-growing matrix.
-
-**Prevention:**
-- Build the parity test framework in Phase 1: a script that validates every command has a corresponding MCP tool and vice versa
-- Automated integration tests that call MCP tools via the MCP inspector (available in the SDK) -- no need for a full Claude Desktop instance
-- Use schema drift detection: tool schemas defined in code must match the actual tool behavior
-- Focus manual testing on the happy path for each surface. Automated tests cover edge cases
-- Consider a test matrix that prioritizes: CLI (primary dev surface), Desktop (primary user surface), Cowork (team surface). Not everything needs testing on all three -- prioritize based on feature usage patterns
-
-**Phase to address:** Phase 1 (test infrastructure). Must exist before any MCP tools are built. Every subsequent phase adds tests, not test infrastructure.
 
 ## Minor Pitfalls
 
-### Pitfall 11: MCP Resource URIs That Break Across Operating Systems
+### Pitfall 10: Brain Graph Enrichment Without Validation
 
-**What goes wrong:** MCP Resources use URIs (`file:///path/to/room/state.md`). Windows paths use backslashes and drive letters (`C:\Users\...`). Linux/Mac use forward slashes. If resource URIs are constructed by string concatenation from filesystem paths, they break on at least one platform.
+**What goes wrong:** Layer 1 (Brain Graph Enrichment) proposes wiring FEEDS_INTO chains, CO_OCCURS edges, and TYPICAL_AT mappings between causal frameworks in the Brain. If these edges are wrong (e.g., Root Cause Analysis doesn't actually FEED_INTO Systems Thinking in all contexts), Larry will confidently recommend incorrect framework sequences.
 
-**Prevention:** Use Node.js `url.pathToFileURL()` for all resource URI construction. Never construct URIs from strings. Test on Windows explicitly.
+**Prevention:**
+- Validate each Brain edge with the teaching graph owner (Jonathan) before creating it
+- Add edges incrementally (2-3 per iteration) and test with real room scenarios
+- Each edge needs a usage example: "When does Root Cause Analysis actually feed into Systems Thinking?"
 
-**Phase to address:** Phase 1 (MCP server implementation).
-
----
-
-### Pitfall 12: Opportunity Discovery Agents Burn API Credits on Low-Value Searches
-
-**What goes wrong:** "Proactive grant/opportunity discovery agents" run web searches and API calls to find relevant grants. Each search costs API credits (Brain MCP calls, web search tool calls). If the agent runs on every session start or room analysis, it burns credits on searches that return the same results as yesterday.
-
-**Prevention:** Cache discovery results with a 7-day TTL. Only re-search when room content changes significantly (new section filled, new meeting filed). Rate-limit discovery to once per day maximum. Show users the cost: "Discovery agent used 3 searches. Found 2 new opportunities."
-
-**Phase to address:** Phase 3 (Opportunity Bank).
+**Phase relevance:** Phase 1 (Brain enrichment). Small, validated batch -- not all edges at once.
 
 ---
 
-### Pitfall 13: Funding Room Status Tracking Without Notifications Creates Stale Data
+### Pitfall 11: EXTRACTED_FROM Edge Explosion
 
-**What goes wrong:** Grant applications have deadlines, reviewer feedback rounds, and status changes. If the Funding Room tracks status but has no notification mechanism (no email, no calendar, no external integration), statuses go stale. A grant marked "submitted" stays "submitted" forever because nobody remembers to update it.
+**What goes wrong:** Every CausalClaim gets an EXTRACTED_FROM edge pointing to its source artifact. If an artifact contains 8 causal claims, that's 8 EXTRACTED_FROM edges from 8 CausalClaims to 1 Artifact. Across a room with 40 artifacts, this could be 100-300 EXTRACTED_FROM edges -- potentially more than all other edge types combined.
 
-**Prevention:** Do NOT build notification infrastructure. The Funding Room is a snapshot tool, not a workflow engine. Larry can remind users during SessionStart: "You have 2 grants in 'submitted' status -- any updates?" This is conversational, not infrastructure.
+**Prevention:**
+- Store source_artifact as a PROPERTY on CausalClaim, not as a separate edge type. EXTRACTED_FROM is a provenance pointer, not a semantic relationship worth traversing.
+- Reserve edge types for relationships that participate in graph traversal queries.
 
-**Phase to address:** Phase 4 (Funding Room).
+**Phase relevance:** Phase 1 (schema design). Property vs. edge decision.
 
 ---
 
-### Pitfall 14: Brain MCP Becomes Required Dependency for New v3.0 Features
+### Pitfall 12: Presentation Layer Causal Visualization Overreach
 
-**What goes wrong:** v1.0 and v2.0 followed the "Tier 0 fully functional" principle -- Brain enhances but is never required. New v3.0 features (AI Personas that reference teaching graph, Opportunity Bank that uses Brain for relevance scoring, Funding Room that uses graph intelligence for grant matching) quietly require Brain MCP to function well. Tier 0 degradation goes from "slightly less intelligent" to "basically broken."
+**What goes wrong:** Trying to visualize causal chains as interactive graph diagrams in the 6-view presentation system before the data quality is established. Complex graph visualizations of noisy causal data look impressive in demos but confuse real users.
 
-**Warning signs:**
-- New features have code paths that only execute when Brain is connected
-- Tier 0 testing is skipped because the developer always has Brain connected
-- AI Persona quality is dramatically worse without Brain enrichment
-- Opportunity relevance scoring returns generic results without Brain
+**Prevention:**
+- Start with text-based causal trace output: "A -> B (0.85) -> C (0.72)"
+- Add graph visualization only after users validate the traces are useful in text form
+- Non-technical venture founders need narrative ("X causes Y because..."), not node-edge diagrams
 
-**Prevention:** Test every new feature with Brain MCP disconnected FIRST. If Tier 0 is not useful, the feature design is wrong. Brain should add depth and precision, not enable basic functionality. Add a CI check that runs tests without Brain MCP configured.
+**Phase relevance:** Defer to post-v1.7.0. Text traces first, visualization second.
 
-**Phase to address:** Every phase. This is a standing principle, not a one-time fix.
+---
 
 ## Phase-Specific Warnings
 
 | Phase Topic | Likely Pitfall | Mitigation |
 |-------------|---------------|------------|
-| MCP server design | Tool explosion (41 tools = context death) | Hierarchical router, max 10 tools, use Resources for read-only data |
-| Shared core extraction | Breaking existing 41 commands during refactor | Scripts/ IS the shared core. Point MCP tools at scripts, don't refactor commands |
-| CLI tools layer (mindrian-tools.cjs) | Duplicating logic already in scripts/ | Single entry point that dispatches to existing scripts |
-| Room as Remote MCP | User data exposure without auth | Ship stdio-only first, add auth before remote |
-| Room as Remote MCP | Concurrent write conflicts | Git-based branching, or Cowork-native collaboration |
-| Opportunity Bank | Scope creep into full CRM | Room section only: discovery + connections, not workflow management |
-| Funding Room | Building notification/deadline infrastructure | Conversational reminders via Larry, no infrastructure |
-| AI Personas | Hallucinated expert advice users trust | Perspective lenses, not experts. Disclaimer on every output |
-| AI Personas | Over-anthropomorphization | De Bono hats framing, never give personas proper names |
-| Dual delivery (CLI + MCP) | Feature parity drift | Parity matrix in CI, shared entry point (mindrian-tools.cjs) |
-| Dual delivery testing | 3x test surface without automation | Parity tests + MCP inspector automation from Phase 1 |
-| Transport choice | SSE deprecated, stdio-only locks out remote | Dual transport: stdio (local) + Streamable HTTP (remote) |
-| Brain dependency | New features quietly require Brain | Test every feature Brain-disconnected first |
+| Schema design | CausalClaim as separate node table inflates query complexity | Consider CausalClaim as Artifact subtype with `type: 'causal-claim'` property |
+| Brain enrichment | Incorrect FEEDS_INTO chains recommended by Larry | Validate each edge with teaching examples before creation |
+| Causal extraction | Regex/keyword extraction pollutes graph | LLM extraction only; heuristic for flagging candidates, never for creating edges |
+| Post-write integration | Hook timeout exceeded, ordering races | Background-only, no ordering dependency on HSI, flag-then-process pattern |
+| Cascade simulation | False transitivity presented as causal reasoning | Confidence decay per hop, 4-hop maximum, mechanism continuity check |
+| Prediction tracking | Registry abandoned within weeks | 10-prediction cap, forced review cadence, mandatory resolution criteria |
+| Command surface | Too many subcommands, low adoption | 3 subcommands max; Larry-first for most users |
+| Novelty scoring | Meaningless metric undermines trust | Defer to post-v1.7.0; if shipped, use LLM assessment not term-frequency |
+| Performance | 15 edge types cause slow multi-type queries | Query budget of 3 Cypher queries per operation; pre-compute summaries |
+| Visualization | Complex graph diagrams confuse non-technical users | Text-based traces first; narrative presentation for founders |
+
+---
+
+## Lessons from the Consultant Session (Explicit Reference)
+
+The consultant session (branch `claude/plugin-consultant-review-6MYsc`) provides five concrete anti-lessons:
+
+| Consultant Proposal | What Was Wrong | Correct Approach |
+|---------------------|---------------|------------------|
+| DoWhy / causal-learn / pgmpy | Require tabular DataFrames; our data is unstructured markdown text | LLM-based extraction; no statistical causal inference libraries |
+| `unified-discovery.py` monolithic orchestrator | Engines are CLI scripts outputting JSON, not importable Python modules | Follow existing pattern: Python -> JSON -> CJS -> KuzuDB |
+| 7 subcommands for `/mos:causal` | Over-scoped for an unvalidated feature | 3 subcommands: extract, trace, predict |
+| Regex with 9 causal signal types | Causal keywords don't indicate actual causal reasoning | LLM extraction with heuristic candidate flagging only |
+| Jaccard distance novelty scoring | Measures term overlap, not intellectual novelty | Defer novelty scoring; use LLM assessment when ready |
+
+Each of these mistakes shares a root cause: **applying generic tooling to a domain-specific problem without understanding the data type, architecture constraints, or user needs.**
+
+---
 
 ## Sources
 
-- [Why MCP Tool Overload Happens and How to Solve It](https://www.lunar.dev/post/why-is-there-mcp-tool-overload-and-how-to-solve-it-for-your-ai-agents) -- Tool explosion data, 150 tools = 30-60K tokens (MEDIUM confidence)
-- [MCP Tool Count Discussion](https://github.com/modelcontextprotocol/modelcontextprotocol/discussions/1251) -- ~50 tool practical limit, Cursor 40-tool hard cap (MEDIUM confidence)
-- [MCP Best Practices by Phil Schmid](https://www.philschmid.de/mcp-best-practices) -- Focused server design, workflow-oriented tools (MEDIUM confidence)
-- [MCP Server Best Practices 2026](https://www.cdata.com/blog/mcp-server-best-practices-2026) -- Resource modeling, tool vs resource distinction (MEDIUM confidence)
-- [MCP Resources Spec](https://modelcontextprotocol.info/docs/concepts/resources/) -- Resources are read-only, application-controlled (HIGH confidence)
-- [MCP Transports Spec](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports) -- SSE deprecated, Streamable HTTP standard (HIGH confidence)
-- [SSE vs Streamable HTTP](https://brightdata.com/blog/ai/sse-vs-streamable-http) -- Why MCP deprecated SSE (MEDIUM confidence)
-- [MCP Security Survival Guide](https://towardsdatascience.com/the-mcp-security-survival-guide-best-practices-pitfalls-and-real-world-lessons/) -- Auth pitfalls, 492 exposed servers (MEDIUM confidence)
-- [Securing MCP Servers](https://www.infracloud.io/blogs/securing-mcp-servers/) -- OAuth 2.1, credential management (MEDIUM confidence)
-- [MCP Authorization Tutorial](https://modelcontextprotocol.io/docs/tutorials/security/authorization) -- Official auth guidance (HIGH confidence)
-- [Specmatic MCP Schema Drift Detector](https://specmatic.io/updates/testing-mcp-servers-how-specmatic-mcp-auto-test-catches-schema-drift-and-automates-regression/) -- Automated parity testing (MEDIUM confidence)
-- [The Wrong Abstraction by Sandi Metz](https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction) -- Premature abstraction costs (HIGH confidence)
-- [Rule of Three for Refactoring](https://understandlegacycode.com/blog/refactoring-rule-of-three/) -- When to extract shared code (HIGH confidence)
-- [AI-Generated Personas and Hallucination Risk](https://dl.acm.org/doi/10.1145/3708359.3712160) -- Users trust hallucinated persona outputs (MEDIUM confidence)
-- [Generative AI Personas Considered Harmful](https://www.sciencedirect.com/science/article/pii/S1071581925002149) -- 20 challenges of algorithmic personas (MEDIUM confidence)
-- [AI Hallucination Statistics 2026](https://suprmind.ai/hub/insights/ai-hallucination-statistics-research-report-2026/) -- Domain-specific hallucination rates (MEDIUM confidence)
-- [Dangers of Anthropomorphizing AI](https://openethics.ai/when-machines-feel-too-real-the-dangers-of-anthropomorphizing-ai/) -- Trust and over-reliance risks (MEDIUM confidence)
-- [Claude Desktop MCP Setup](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop) -- Official Desktop MCP config (HIGH confidence)
-- [MCP Config File Guide](https://mcpplaygroundonline.com/blog/complete-guide-mcp-config-files-claude-desktop-cursor-lovable) -- Cross-platform config pitfalls (MEDIUM confidence)
+- [Transitive reasoning distorts induction in causal chains](https://link.springer.com/article/10.3758/s13421-015-0568-5) - von Sydow et al. on false transitivity
+- [Causal networks or causal islands?](https://pmc.ncbi.nlm.nih.gov/articles/PMC4490159/) - Rehder on mechanism-based causal reasoning
+- [Challenges and Opportunities in Causality Analysis Using LLMs](https://www.mdpi.com/1099-4300/28/1/23) - Survey of LLM causal reasoning limitations
+- [Survey on extraction of causal relations from natural language text](https://link.springer.com/article/10.1007/s10115-022-01665-w) - Comprehensive NLP causal extraction survey
+- [Heuristic Detectors vs LLM Judges](https://dev.to/tuomo_pisama/heuristic-detectors-vs-llm-judges-what-we-learned-analyzing-7000-agent-traces-iil) - Hybrid approach evidence (heuristic flag + LLM judge)
+- [CausalKG: Causal Knowledge Graph](https://arxiv.org/pdf/2201.03647) - Causal KG construction patterns
+- [Superforecasting: How to Upgrade Your Company's Judgment](https://hbr.org/2016/05/superforecasting-how-to-upgrade-your-companys-judgment) - Prediction system design from Tetlock's research
+- [Using AntiPatterns to avoid MLOps Mistakes](https://ar5iv.labs.arxiv.org/html/2107.00079) - Prediction system antipatterns
+- [KuzuDB CIDR paper](https://www.cidrdb.org/cidr2023/papers/p48-jin.pdf) - CSR storage, schema-first architecture, performance characteristics
+- [Embedded databases: KuzuDB study](https://thedataquarry.com/blog/embedded-db-2/) - KuzuDB benchmarks and query performance
+- [The Illusion of Causality in LLMs](https://www.mdpi.com/2504-4990/8/3/57) - Why LLMs appear to reason causally but rely on semantic pattern recombination
+- Duraisamy (2025) "Active Inference AI Systems for Scientific Discovery" - Three Gaps framework (Abstraction, Reasoning, Reality)
+- Hughes (1983) Reverse Salients - Betweenness centrality for bottleneck detection

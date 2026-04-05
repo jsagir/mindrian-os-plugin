@@ -22,54 +22,50 @@ v1.0 through v5.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Presen
 - v5.0 Presentation System (2026-03-31) -- 8 phases, 17 plans
 - v5.1 User Outlets (2026-03-31) -- 5 phases, 7 plans
 - v1.6.0 Powerhouse (2026-03-31) -- 8 phases, parallel execution, spectral OM-HMM, DbA, model routing
+- v6.2 RoomHub + SnapshotHub (2026-04-01) -- 5 phases, adaptive room detection, 7 showcase views, SnapshotHub export
 
-## Current Milestone: v6.2 RoomHub + SnapshotHub
+## Current Milestone: v1.7.0 Causal Reasoning Layer
 
-**Goal:** The living adaptive Showcase for any Room. RoomHub serves the Room as an interactive intelligence surface (localhost). SnapshotHub exports a frozen version for sharing (static HTML). Both adapt to Room type -- venture, website, research, or general.
+**Goal:** Larry can trace cause-effect chains, detect assumption cascades, surface bottlenecks through graph structure, and track falsifiable predictions -- enabling "because...because...because" reasoning across the Data Room.
 
-**Research:** docs/research/RESEARCH_13_EXPORT_V6.2_ADAPTATION.md
-**Design Brief:** docs/EXPORT-DESIGN-BRIEF.md (original v5.2, still valid for base requirements)
-**Reference Rooms:** PWS website (web project), ALIGN X Milken (venture), demo cancer (research)
+**Research basis:**
+- Consultant plugin review session (branch claude/plugin-consultant-review-6MYsc): Research 14-17, causal schema design, pipeline integration architecture
+- Brain audit: causal frameworks are islands -- zero FEEDS_INTO, CO_OCCURS, or TYPICAL_AT edges between Root Cause Analysis, Systems Thinking, Reverse Salient, Causal Loop Diagrams
+- Duraisamy (2025) "Active Inference AI Systems for Scientific Discovery" -- Three Gaps framework (Abstraction, Reasoning, Reality)
+- Hughes (1983) Reverse Salients -- betweenness centrality for bottleneck detection
+- Adam Peters/Synteris persona simulation -- 5.3/10 novelty baseline, target 7.5/10 with causal layer
 
 **Target features:**
 
-RoomHub (live, interactive, localhost):
-- Adaptive Room type detection from State + Sections + Entries
-- Hub adapts Stats, Section labels, Signals to Room content
-- 7 Showcase views: Overview, Library, Narrative, Synthesis, Blueprint, Constellation, Chat
-- Generative chat querying Fabric via Cypher
-- Constellation clicks inject context into chat ("Tell me about this Thread")
-- BYOAPI pattern (user's Claude API key, fallback CTA)
-- All 12 Thread types in Constellation (De Stijl colors per type)
-- Surprises highlighted with spectral coloring
-- Bottlenecks with innovation thesis tooltips
-- Thesis governing thoughts as Section lead paragraphs
-- Sentinel digest as Signal briefing
-- Deep links (claude-cli://) on every Entry, Section, Thread
+Layer 1 -- Brain Graph Enrichment:
+- Wire FEEDS_INTO chains: Root Cause Analysis -> Systems Thinking -> Causal Loop Diagrams -> Scenario Analysis
+- Add CO_OCCURS edges: Root Cause <-> Six Thinking Hats, Systems Thinking <-> Reverse Salient
+- Create "Theory of Change" Framework node (forward causal reasoning -- biggest gap)
+- Create "Causal Reasoning" parent Concept node connecting the family
+- Add TYPICAL_AT venture stage mappings for all causal frameworks
+- Link Falsifiability and Hypothesis Tree to causal frameworks via VALIDATES relationship
 
-SnapshotHub (frozen export for sharing):
-- /mos:snapshot generates static HTML to room/exports/
-- Version history from room/.snapshots/ as sidebar
-- manifest.json with Room metrics (entries, threads, surprises, bottlenecks, signals, lenses, conversations)
-- Responsive 375px-1440px, offline-capable
-- Signature: "Built with MindrianOS" + Mondrian bar
+Layer 2 -- Plugin Causal Engine:
+- CausalClaim node type in KuzuDB: cause, mechanism, effect, confidence, falsifiable_prediction, novelty_score, domain
+- CAUSES, CASCADES_TO, EXTRACTED_FROM edge types in LazyGraph
+- Causal graph engine (NetworkX): chain traversal, cascade simulation, betweenness centrality bottleneck detection, contradiction detection, inversion protocol
+- /mos:causal command (3 subcommands: extract, trace, predict)
+- Prediction tracking with closed-loop learning (room/.predictions/REGISTRY.json)
+- Post-write hook: causal candidate flagging after HSI, cross-reference step linking CausalClaims to HSI_CONNECTION and REVERSE_SALIENT edges
+- Brain causal directives (Three Gaps: every claim needs mechanism + falsifiable prediction)
+- Brain query patterns 11-13: causal_framework_select, causal_pattern_match, causal_contradiction_resolve
+- Larry personality JTBD wiring: "When you have assumptions stacked 3-deep, /mos:causal cascade"
+- Enhanced room-proactive: surface discoveries when graph has causal + HSI + RS + analogy edges converging
 
-Powerhouse integration:
-- Parallel extraction (haiku scan per Section, sonnet synthesis, opus narrative)
-- Model routing via room/.config.json
-- ANALOGOUS_TO as cross-domain bridge lines in Constellation
-- RESOLVES_VIA as resolution chains on Tensions
-- Spectral OM-HMM profiles color Entries by thinking-mode diversity
-- Every PR references moat impact
-- Phase reviews include moat deepening assessment
-- MWP specification as formal protocol document
+**Architecture:**
+- Larry extracts (semantic, LLM) -> Python computes (graph algorithms) -> KuzuDB stores -> Brain directs
+- No monolithic orchestrator -- integration through KuzuDB edges and post-write cascade
+- Tier 0 works without Python deps (Larry reasons causally from directives alone)
+- Discovery emerges from graph structure: Cypher walks Causal -> HSI -> RS -> Analogy edges in one query
+- Follows existing patterns: Python -> JSON intermediate -> CJS writes to KuzuDB
 
-**Research basis:**
-- ICM paper (Van Clief & McDermott 2026, arxiv 2603.16021)
-- Spectral Markov Theory (Seabrook & Wiskott 2022, arxiv 2207.02296)
-- ccleaks.com Claude Code capability audit (1,884 TypeScript files, 512K LOC)
-- Simon (1962), Rittel-Webber (1973), Hughes (1983), Minto (1987), JTBD, Ashby (1956)
-- Design-by-Analogy: TRIZ, Synectics, SAPPhIRE, structural isomorphism theory
+**North star example:**
+User asks "Should I target fusion or semiconductors?" and Larry traces: "Semiconductor targeting works BECAUSE qualification timeline creates competitive moat, BECAUSE etch chamber downtime costs $2-5M/year" -- then identifies the geometry-enabled-qualification bottleneck (novel, user didn't know), finds the medical implant analogy (structural match), and generates a testable prediction.
 
 ## v3.0 Backlog (Captured Ideas)
 
@@ -199,4 +195,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-31 after v1.6.0 Powerhouse milestone start*
+*Last updated: 2026-04-05 after v1.7.0 Causal Reasoning Layer milestone start*

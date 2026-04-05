@@ -1,304 +1,334 @@
-# Feature Research: v3.0 MCP Platform & Intelligence Expansion
+# Feature Landscape: Causal Reasoning Layer (v1.7.0)
 
-**Domain:** MCP server delivery, grant discovery/management, AI personas, collaborative room access
-**Researched:** 2026-03-24
-**Confidence:** MEDIUM (MCP patterns HIGH, grant APIs MEDIUM, personas MEDIUM, remote MCP LOW)
+**Domain:** Causal reasoning for venture intelligence / wicked problem management
+**Researched:** 2026-04-03
+**Confidence:** MEDIUM-HIGH
 
 ---
 
-## Feature Landscape
+## Competitive Landscape Summary
 
-### Table Stakes (Users Expect These)
+### Knowledge Management Tools (Notion, Obsidian, Roam Research)
 
-Features that are non-negotiable for v3.0 to feel complete. These are expectations set by existing MCP servers, grant tools, and the v2.0 plugin itself.
+**Finding: Zero causal reasoning features.** These tools offer bidirectional links, graph visualization, and backlinks. That is it. None distinguish between "A links to B" and "A causes B." None track directionality, confidence, or mechanism. None offer prediction tracking or cascade analysis.
+
+- **Notion**: Relational databases, kanban boards, AI summaries. No causal modeling.
+- **Obsidian**: Bidirectional links and graph view. The graph is navigational, not analytical -- it shows co-occurrence, not causation.
+- **Roam Research**: Block references and daily notes. "Networked thought" means associative linking, not causal chains.
+
+**Implication:** The bar for "better than what exists" is extremely low. Any directed edge with a mechanism field already exceeds everything in the PKM space.
+
+### Specialized Causal Tools
+
+Three tiers exist:
+
+1. **Systems dynamics simulators** (Vensim, Simantics, Insight Maker) -- Full stock-and-flow modeling with simulation engines. Powerful but require systems dynamics expertise. Users build mathematical models. Adoption limited to academics and trained practitioners.
+
+2. **Causal mapping platforms** (Kumu, Causal Map) -- Visual tools for drawing causal loop diagrams. Kumu is the most accessible: browser-based, free for public projects, imports from spreadsheets. However, these are drawing tools -- they don't compute anything. No simulation, no contradiction detection, no prediction tracking.
+
+3. **Causal AI platforms** (causaLens, DoWhy, CausalNex) -- Enterprise causal inference engines for data scientists. Require statistical datasets, Python expertise, and causal graph specification. Not applicable to qualitative venture reasoning.
+
+**Implication:** A massive gap exists between "draw causal arrows on a whiteboard" (Kumu) and "run Monte Carlo simulations on a stock-and-flow model" (Vensim). Nobody occupies the middle ground of qualitative causal reasoning with lightweight computation. This is MindrianOS's territory.
+
+### Prediction Tracking (Metaculus, Polymarket, PredictionBook)
+
+- **Metaculus**: Reputation-based forecasting. Users submit probability estimates on structured questions. Brier score tracking. Calibration curves per user. No financial stakes.
+- **Polymarket**: Blockchain prediction markets. Financial stakes drive accuracy. Binary yes/no resolution.
+- **PredictionBook**: Personal prediction journal. Simple probability + resolution. Dead-simple UX.
+
+**Key UX patterns from prediction platforms:**
+- Questions must be falsifiable with clear resolution criteria
+- Probability estimates (not binary yes/no)
+- Time-bounded resolution dates
+- Calibration feedback ("you said 80% and were right 60% of the time")
+- Scoring via Brier score or log score
+
+**Implication:** Personal prediction tracking works when it is dead simple: a claim, a probability, a resolution date, and an outcome. The Metaculus model (structured questions + calibration feedback) is the right pattern, not the Polymarket model (financial markets). MindrianOS should adopt PredictionBook-level simplicity with Metaculus-level calibration feedback over time.
+
+### Assumption Tracking (Lean Startup / Innovation)
+
+Board of Innovation and Lean UX practitioners use a 2x2 assumption map: importance vs. certainty. Assumptions in the "important + uncertain" quadrant get tested first. Miro and FigJam offer templates.
+
+**Key insight:** Assumption mapping is standard practice in venture methodology. But nobody connects assumptions to causal chains. Nobody tracks what happens downstream when an assumption is invalidated. This is the cascade problem -- and it is unsolved.
+
+---
+
+## Table Stakes
+
+Features users expect. Missing = the causal layer feels like a toy.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| **MCP tool endpoints for core commands** | Any MCP server must expose tools. Desktop/Cowork users have zero CLI access -- tools ARE the interface. Every existing MCP server ships tools. | MEDIUM | Wrap 41 existing commands as MCP tools. CLI Wrapper pattern (JSON config to MCP tools) is well-established. Use `tools/list` + `tools/call` protocol. Shared core library = single implementation, two delivery layers. |
-| **MCP resources for room state** | Resources are read-only data MCP servers expose. Room sections, STATE.md, team profiles are naturally resources. Desktop users need to browse room state without running commands. | MEDIUM | Expose room/ folder tree as `room://` URI scheme. STATE.md as `room://state`. Each DD section as `room://problem-definition`, etc. MIME type = text/markdown. |
-| **MCP prompts for methodology workflows** | Prompts are reusable instruction templates -- the third MCP primitive. 25 methodology bots map directly to prompts with arguments (venture context, stage, focus area). | LOW | Each methodology bot becomes an MCP prompt with typed arguments. Users pick from prompt list in Desktop/Cowork instead of memorizing `/mindrian-os:` commands. |
-| **mindrian-tools.cjs CLI entry point** | GSD pattern proven: single .cjs file as tool entry point. Plugin commands need scriptable, non-interactive execution for hooks and agents. | LOW | Mirror gsd-tools.cjs architecture. Subcommands map to plugin commands. Already designed in PROJECT.md. |
-| **Grant pipeline status tracking** | Every grant management tool (Instrumentl, Fundsprout, Fluxx) tracks grants through lifecycle stages with deadlines, amounts, and status. Users expect a Kanban-like pipeline. Table stakes for any grant feature. | MEDIUM | Stages: Discovered > Researched > Applying > Submitted > Under Review > Awarded/Rejected > Active > Reporting > Closed. Stored as structured markdown in room/funding/. |
-| **Grant opportunity metadata** | Grant tracking requires: funder name, program name, amount range, deadline, eligibility, fit score, URL, submission requirements. Without these fields, the feature is a toy. | LOW | JSON or YAML frontmatter in each grant file. Same ICM artifact pattern used for meeting files. |
-| **Opportunity Bank as room section** | Existing 8 DD sections set the pattern. New intelligence features need room storage. Opportunity Bank is just another section following the same pattern. | LOW | `room/opportunities/` with STATE.md. Follows exact same pattern as room/market-analysis/ etc. |
-| **Funding Room as sub-room** | v2.0 already has room hierarchy. Funding Room follows the same sub-room pattern with specialized sections. | LOW | `room/funding/` with sub-sections: `non-dilutive/`, `dilutive/`, `grants/`. Each with STATE.md. |
+| **Causal claim extraction** -- Larry identifies cause-effect statements from user text and room artifacts | Users won't manually tag claims. If Larry can't extract "A causes B because C" from natural conversation, the feature is dead on arrival. | Medium | LLM extraction with structured output. Must handle implicit causation ("revenue grew after we launched" = implied causal claim). Post-write hook triggers extraction after any artifact filing. |
+| **Directed causal graph** -- KuzuDB stores CAUSES edges with mechanism + confidence fields | The whole point. Without directed edges that distinguish cause from effect, this is just another link. | Low | Already planned in PROJECT.md. CausalClaim node type + CAUSES/CASCADES_TO edges. Extends existing LazyGraph pattern. |
+| **"Why?" chain traversal** -- trace back from an effect to root causes | Users already have /mos:root-cause. The causal graph should make root cause traversal automatic, not manual. Asking "why does Y happen?" and getting a chain is the minimum viable interaction. | Low-Medium | KuzuDB Cypher path traversal or NetworkX. Display as indented chain, not graph diagram. |
+| **"So what?" forward trace** -- if X changes, what downstream effects exist? | The inverse of "why." Users need both directions. Forward trace is how you evaluate decisions: "if I change pricing, what breaks?" | Low-Medium | Same graph traversal, opposite direction. Reuses the same engine. |
+| **Contradiction detection** -- flag when two causal claims conflict | Users already expect this from room-proactive intelligence. Causal contradictions ("A causes B" vs "A prevents B") are the most valuable contradictions to surface. | Medium | Compare CAUSES edges between same nodes with conflicting polarity. Surface via existing proactive intelligence loop. Fits naturally into the CONTRADICTS edge type. |
 
-### Differentiators (Competitive Advantage)
+### Dependency Note
+Extraction must come first. Everything else depends on having causal claims in the graph.
 
-Features that make v3.0 more than "just an MCP wrapper." These create lock-in and justify the platform expansion.
+---
+
+## Differentiators
+
+Features that set MindrianOS apart. Not expected, but deliver the "aha" moment.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| **Proactive grant scouting agent** | No MCP server does proactive opportunity discovery. Most grant tools require users to search. MindrianOS reads the room (problem definition, market analysis, team profile) and FINDS matching grants without being asked. This is the Opportunity Bank's killer feature. | HIGH | Agent reads room state, extracts keywords/domain/geography/stage, queries grant APIs (Candid Grants API, Grants.gov, SBIR scraper via Apify). Scores matches against room context. Files discoveries to room/opportunities/. Runs on schedule or SessionStart. |
-| **Room-aware grant matching** | Grant tools match on keywords. MindrianOS matches on the FULL room context -- problem definition, market analysis, team capabilities, financial model, competitive landscape. This is structural matching, not keyword matching. | HIGH | Cross-references room sections to build rich query. E.g., "team has AI expertise" + "targeting healthcare market" + "pre-revenue stage" = specific grant programs. Depends on room having content in multiple sections. |
-| **AI Team Personas from room intelligence** | Not generic "pretend to be an expert." Personas generated FROM the room's actual content -- a domain expert who has read every meeting transcript, every artifact, every cross-reference. The persona IS the room's intelligence wearing a face. | MEDIUM | Generate persona prompt from room state: domain expertise (from market-analysis), team dynamics (from meetings), problem understanding (from problem-definition). Use De Bono's Six Hats as structure (already exists as think-hats command). Personas are constrained specialists, not general chatbots. |
-| **Persona dependency chain (coherence cascade)** | Research shows personas work when sequenced with dependency chains -- each persona reads prior outputs. MindrianOS can chain personas: Market Expert > Technical Expert > Financial Expert > Devil's Advocate, each inheriting context. | MEDIUM | Follows the "10-step dependency chain" pattern from Mandal (2026). Each persona step reads all prior persona outputs. Creates what research calls "coherence cascade" -- early decisions flow through all subsequent analysis. Pipeline chaining (Week 7 pattern) already supports this. |
-| **Selective persona activation (PRISM insight)** | Research (arXiv 2603.18507) proves personas improve alignment tasks but DAMAGE accuracy on knowledge retrieval. MindrianOS should use personas for analysis/synthesis/challenge tasks, NOT for factual lookups. Route intelligently. | LOW | Larry handles knowledge retrieval (no persona overlay). Personas activate for: stakeholder simulation, perspective challenging, scenario analysis, pitch practice. Never for: data lookup, fact checking, grading. |
-| **Grant lifecycle as GSD-style process** | Each grant gets its own mini-workflow with stages, tasks, and deliverables -- like a GSD milestone per grant. No other tool treats grants as structured projects with AI assistance at each stage. | MEDIUM | Per-grant folder: `room/funding/grants/NSF-SBIR-2026/` with stages: research.md, eligibility.md, narrative-draft.md, budget.md, submission-checklist.md, reports/. STATE.md tracks stage progression. Larry assists at each stage. |
-| **Cross-grant intelligence** | Same pattern as cross-meeting intelligence. Detect overlap between grants (same funder, same deadline period), contradictions (budget commitments exceeding capacity), convergence (multiple grants pointing to same R&D direction). | MEDIUM | Reuse cross-meeting intelligence architecture. INFORMS/CONTRADICTS/CONVERGES/ENABLES relationships between grant artifacts and other room sections. "Your NSF narrative contradicts the market size in your financial model." |
-| **MCP prompts with room context injection** | Standard MCP prompts are static templates. MindrianOS prompts automatically inject current room state as context. User picks "Minto Pyramid" prompt, and it arrives pre-loaded with their venture's latest state. | LOW | Each prompt's handler reads room STATE.md + relevant section before generating the prompt message. Desktop/Cowork users get context-aware methodology without manual copy-paste. |
-| **Room as collaborative resource (Remote MCP)** | Cowork teams share room state via MCP resources. One team member files a meeting, another sees updated STATE.md and new cross-references immediately. No custom sync -- MCP resource protocol handles it. | HIGH | Requires MCP server running with access to shared filesystem (Cowork workspace). Resources emit change notifications when room files update. Session management for concurrent access. This is the hardest feature -- MCP session state is still evolving (2026 roadmap item). |
+| **Cascade simulation (plain language)** -- "If this assumption breaks, here's what falls" | Nobody does this for qualitative reasoning. Vensim does it for quantitative models. Kumu doesn't do it at all. This is the killer feature: show the user a domino chain in words, not graph theory. | Medium-High | See "Cascade Presentation" section below. Output is a numbered consequence chain, not a force-directed graph. |
+| **Assumption-causal linking** -- every assumption in the room connects to the causal claims that depend on it | Board of Innovation assumption maps are static 2x2 grids. MindrianOS shows: "This assumption supports 7 downstream causal claims. If it breaks, here's the blast radius." Transforms assumption tracking from a checklist to a live impact map. | Medium | Wire assumption nodes to CausalClaim nodes via SUPPORTS edge. Blast radius = count of downstream CASCADES_TO from claims supported by the assumption. |
+| **Convergence signals across reasoning types** -- when causal chains + HSI connections + reverse salients + analogies all point to the same node | This is the MWP moat in action. No tool on the market crosses causal reasoning with surprise connections with bottleneck detection with cross-domain analogies. When 4 analytical lenses converge on the same insight, that is real signal. | Medium | Cypher query walking Causal + HSI + RS + Analogy edges to find nodes with high in-degree across all types. Already sketched in PROJECT.md. |
+| **Lightweight prediction tracking** -- falsifiable predictions with probability, resolution date, and outcome | Metaculus proves this works. PredictionBook proves it can be simple. Nobody embeds predictions inside a causal graph. MindrianOS's version: every causal claim can generate a testable prediction, and resolved predictions update the confidence of the parent claim. Closed-loop learning. | Low-Medium | REGISTRY.json per room. Fields: claim_id, prediction_text, probability (0-1), resolution_date, outcome (null/true/false), resolved_date. Larry prompts: "You said X causes Y. What would we observe if that's true? By when?" |
+| **Bottleneck surfacing via betweenness centrality** -- "this node is the critical path for 12 causal chains" | Hughes reverse salient theory applied to the causal graph. Nodes with high betweenness centrality are the bottlenecks constraining the whole system. Users don't need graph theory -- Larry says: "Everything flows through [node]. If this breaks, 12 things downstream break with it." | Medium | NetworkX betweenness_centrality on causal subgraph. Present as "critical path" language, not graph metrics. |
 
-### Anti-Features (Do NOT Build)
+---
 
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| **Full grant submission portal** | "Let me submit grants from MindrianOS!" | Grant submission portals (Grants.gov, Submittable) have strict formatting, e-signature, and compliance requirements. Building submission is a massive liability. | Generate grant-ready documents (narrative, budget, supporting docs). User submits through official portals. Link to portal in grant file. |
-| **Real-time grant database** | "Why not scrape all grants continuously?" | Grant databases are massive (275K+ on Fundsprout alone). Maintaining a local mirror is infeasible. API costs scale with queries. Rate limits apply. | Use external APIs on-demand (Candid, Grants.gov, Apify SBIR scraper). Cache results in room/opportunities/. Refresh on user request or scheduled scan. |
-| **Persona memory across sessions** | "My Market Expert persona should remember our last conversation." | Persona state bloats context. Personas should be stateless -- regenerated from room state each time. Room IS the memory. Adding persona-specific memory creates drift between persona knowledge and room truth. | Personas regenerated from current room state every invocation. Room state IS persona memory. If room changed, persona adapts automatically. |
-| **Custom persona creation UI** | "Let me design my own AI team members with a wizard." | Scope creep. Persona generation should be automatic from room intelligence. Manual creation produces generic, unhelpful personas. | Auto-generate personas from room content + De Bono hats + domain detection. User can tweak via natural language ("make the market expert more skeptical") not through a configuration UI. |
-| **MCP server with its own web dashboard** | "Add a web UI for the MCP server management." | v1.0 anti-feature: no web UI. MCP server is invisible infrastructure. Claude surfaces ARE the UI. Adding a dashboard recreates the V2 problem. | Server exposes health via standard MCP ping. Diagnostics via `/mindrian-os:status` command or MCP tool. |
-| **Collaborative editing / CRDT** | "Multiple users editing the same room file simultaneously." | CRDTs are enormously complex. Cowork already handles collaborative editing. Building our own concurrent editing is reinventing the platform. | File-level ownership: one writer at a time, others read via MCP resources. Cowork's native collaboration handles multi-user editing. Room STATE.md uses append-only pattern for concurrent safety. |
-| **Payment/subscription management for grants** | "Track grant payments and disbursements." | Financial management is a regulated domain. Grant accounting requires compliance features (A-133 audit, OMB circulars). Building this is a liability. | Track grant amounts and milestones. Link to external accounting tools. Focus on narrative/strategic management, not financial accounting. |
-| **Persistent persona agents running in background** | "Keep my AI team always running, watching for things." | Background agents consume compute, create unexpected costs, and generate noise. Proactive intelligence on SessionStart is the right cadence. | Personas invoke on-demand or at session boundaries. Proactive scanning runs at SessionStart (existing pattern), not continuously. |
+## Anti-Features
+
+Features to deliberately NOT build. These sound impressive but destroy usability or never get used.
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| **Visual causal loop diagram editor** | CLD research is clear: diagrams with >12 elements overwhelm users. Building a visual editor is a massive UX effort (drag-drop, layout algorithms, zoom/pan) competing with Kumu which is free and already good at this. Users don't want to draw diagrams -- they want Larry to reason about causation. | Let Larry describe causal chains in natural language. Use existing De Stijl graph view for optional visualization. Never require users to manually draw causal maps. |
+| **Quantitative simulation engine** | Stock-and-flow simulation (Vensim territory) requires users to specify mathematical relationships. Venture reasoning is qualitative: "more marketing spend probably increases pipeline." Forcing numerical precision on uncertain qualitative relationships produces false confidence. | Keep causal reasoning qualitative. Confidence levels (high/medium/low or 0-1 scale), not equations. "If A breaks, B and C are affected" -- not "B decreases by 23%." |
+| **Formal causal inference (do-calculus, DAG identification)** | Pearl's causal inference framework requires observational datasets and careful identification of confounders. Venture intelligence operates on sparse qualitative claims, not statistical data. Implementing do-calculus would be technically impressive and completely useless for the target user. | Use LLM reasoning for mechanism identification. Use graph structure for chain traversal. Leave formal causal inference to causaLens and data scientists. |
+| **Real-time collaborative causal mapping** | Multi-user simultaneous editing of a shared causal graph requires conflict resolution, operational transforms, and complex state synchronization. | Let Cowork handle collaboration natively. Causal claims file to the room like any other artifact. Team members see each other's claims in the graph. |
+| **Prediction markets / betting mechanics** | Financial incentives distort reasoning in small-team contexts. Polymarket works for large liquid markets, not for a 3-person founding team. Gamification of predictions creates perverse incentives (sandbagging, anchoring to team consensus). | Simple probability + resolution date + outcome. No stakes, no markets, no leaderboards. Just honest calibration tracking. |
+| **Automated causal discovery from text corpus** | Mining an entire room for all possible causal relationships produces noise. Every sentence with "because," "leads to," or "results in" would generate a claim. Signal-to-noise ratio would be terrible. | Extract causal claims selectively: during methodology sessions, when Larry identifies key assumptions, and when the user explicitly asks. Quality over quantity. Trigger extraction at filing time (post-write hook), not as a batch sweep. |
+| **Mechanism specification forms** | Asking users to fill in structured fields for every causal claim (mechanism type, domain, evidence strength) adds friction for marginal benefit. | Larry should infer mechanisms from context, not demand them. If the user says "we grow because word of mouth," Larry extracts the mechanism. The user never sees a form. |
 
 ---
 
 ## Feature Dependencies
 
 ```
-MCP Server (shared core library)
-    |
-    +--> MCP Tools (wraps 41 commands)
-    |       +-- requires: shared core extracting command logic from .md files
-    |
-    +--> MCP Resources (room state)
-    |       +-- requires: room/ folder structure (already exists v2.0)
-    |       +-- enables: Remote Room (collaborative access)
-    |
-    +--> MCP Prompts (methodology templates)
-    |       +-- requires: 25 methodology bot definitions (already exist)
-    |       +-- enhanced by: room context injection
-    |
-    +--> mindrian-tools.cjs
-            +-- requires: shared core (same library MCP tools use)
-
-Opportunity Bank (room/opportunities/)
-    |
-    +--> requires: Room structure (exists v2.0)
-    +--> requires: MCP server OR CLI (at least one delivery surface)
-    |
-    +--> Proactive Grant Scouting Agent
-    |       +-- requires: Opportunity Bank section exists
-    |       +-- requires: Room has content (problem-def, market, team)
-    |       +-- requires: External API access (Candid, Grants.gov)
-    |       +-- enhanced by: Brain MCP (richer matching)
-    |
-    +--> Room-Aware Grant Matching
-            +-- requires: Proactive scouting agent
-            +-- requires: Multiple room sections populated
-
-Funding Room (room/funding/)
-    |
-    +--> requires: Room structure (exists v2.0)
-    +--> requires: Opportunity Bank (grants flow from discovery to management)
-    |
-    +--> Per-Grant GSD Process
-    |       +-- requires: Funding Room sections exist
-    |       +-- enhanced by: Larry assistance per stage
-    |
-    +--> Cross-Grant Intelligence
-            +-- requires: Multiple grants in pipeline
-            +-- reuses: Cross-meeting intelligence architecture (exists v2.0)
-
-AI Team Personas
-    |
-    +--> requires: Room has content (personas generated FROM room)
-    +--> requires: think-hats command (exists v2.0 -- De Bono structure)
-    |
-    +--> Persona Dependency Chain
-    |       +-- requires: Pipeline chaining (exists v2.0)
-    |       +-- requires: Multiple persona definitions
-    |
-    +--> Selective Activation (PRISM routing)
-            +-- requires: Persona definitions
-            +-- requires: Task classification (alignment vs knowledge)
-
-Remote Room (collaborative MCP)
-    |
-    +--> requires: MCP Server running
-    +--> requires: MCP Resources for room state
-    +--> requires: Cowork workspace (shared filesystem)
-    +--> blocked by: MCP session state still evolving (2026 roadmap)
+Causal Claim Extraction (TABLE STAKES)
+  |
+  v
+Directed Causal Graph Storage (TABLE STAKES)
+  |
+  +---> "Why?" Chain Traversal (TABLE STAKES)
+  |
+  +---> "So What?" Forward Trace (TABLE STAKES)
+  |
+  +---> Contradiction Detection (TABLE STAKES)
+  |
+  +---> Assumption-Causal Linking (DIFFERENTIATOR)
+  |       |
+  |       v
+  |     Cascade Simulation (DIFFERENTIATOR)
+  |
+  +---> Bottleneck Surfacing (DIFFERENTIATOR)
+  |
+  +---> Prediction Tracking (DIFFERENTIATOR -- can build in parallel)
+  |       |
+  |       v
+  |     Closed-Loop Confidence Update
+  |       (prediction resolves -> claim confidence changes)
+  |
+  +---> Convergence Signals (DIFFERENTIATOR)
+          requires HSI + RS + Analogy edges to already exist
 ```
 
-### Dependency Notes
+**Critical path:** Extraction -> Storage -> Traversal. Everything else layers on top.
 
-- **MCP Server is the gateway**: Everything in v3.0 flows through the shared core library. Build this first.
-- **Opportunity Bank before Funding Room**: Grants are discovered before they are managed. Discovery populates the pipeline.
-- **Personas require room content**: Empty rooms produce empty personas. Personas are a mid/late-stage feature, not day-one.
-- **Remote Room is highest-risk**: MCP collaborative session state is a 2026 roadmap item for the protocol itself. MindrianOS may need to work within limitations or use file-level locking as a workaround.
-- **Cross-grant intelligence reuses cross-meeting architecture**: Same INFORMS/CONTRADICTS/CONVERGES pattern, different artifacts. Low incremental complexity.
+**Parallel-safe:** Prediction tracking can be built alongside the core graph because it only needs a claim_id reference.
+
+**External dependency:** Convergence signals require sufficient edge density across HSI, RS, and Analogy types. This is a late-stage feature that only becomes useful after users have populated their rooms with diverse analytical artifacts.
 
 ---
 
-## MVP Definition
+## Cascade Simulation: How to Present to Non-Experts
 
-### Launch With (v3.0 Core)
+Research finding: CLD diagrams with >12 elements overwhelm even trained practitioners. Force-directed graph layouts are meaningless to users who don't read graph theory.
 
-- [ ] **MCP Server with shared core** -- This IS v3.0. Desktop/Cowork users get nothing without it. Expose tools + resources + prompts.
-- [ ] **mindrian-tools.cjs** -- CLI tools entry point. Enables hook scripts and agent tool calls.
-- [ ] **Opportunity Bank room section** -- `room/opportunities/` with manual and agent-assisted discovery. Low complexity, high value signal.
-- [ ] **Funding Room structure** -- `room/funding/` sub-rooms with per-grant folders. Structure only, intelligence later.
-- [ ] **Basic grant lifecycle tracking** -- STATUS field per grant (Discovered > Researched > Applying > Submitted > Awarded/Rejected). Minimum viable pipeline.
+### The Right UX: Domino Narration
 
-### Add After Validation (v3.x)
+Instead of showing a graph, Larry narrates the cascade as a numbered consequence chain:
 
-- [ ] **Proactive grant scouting agent** -- Add once room content is typically populated enough to generate meaningful queries. Trigger: users asking "find me grants" manually more than twice.
-- [ ] **AI Team Personas (auto-generated)** -- Add once room state is rich enough to produce non-generic personas. Trigger: users have 3+ methodology sessions and 2+ meetings filed.
-- [ ] **Persona dependency chain** -- Add once single-persona interaction is validated. Trigger: users finding single persona responses valuable.
-- [ ] **Cross-grant intelligence** -- Add once users have 3+ grants in pipeline. Trigger: users managing multiple grants simultaneously.
-- [ ] **Room context injection in MCP prompts** -- Enhance prompts after basic prompts are working. Low complexity, high impact.
-- [ ] **Room-aware grant matching** -- After proactive scouting proves useful. Requires room with content in 4+ sections.
+```
+You asked: "What if our qualification timeline assumption is wrong?"
 
-### Future Consideration (v4+)
+That assumption supports 3 causal claims in your room:
 
-- [ ] **Remote Room (collaborative MCP)** -- Defer until MCP protocol stabilizes session state management. The 2026 MCP roadmap lists this as active work. Building on shifting foundations is risky.
-- [ ] **Grant API integrations (Candid, Grants.gov)** -- Defer paid API integrations until grant feature adoption is validated. Start with manual discovery + web search agent.
-- [ ] **Persona marketplace** -- Community-created persona templates. Only valuable with established user base.
-- [ ] **Cross-user grant intelligence** -- Anonymized patterns from all users' grant outcomes. Requires significant user base (Brain flywheel).
+1. Qualification timeline (18 months) creates competitive moat
+   -> If wrong: Competitors can qualify in parallel. Moat shrinks.
 
----
+2. Long qualification -> customer lock-in -> recurring revenue stability
+   -> If wrong: Customers can switch vendors. Revenue becomes volatile.
 
-## Feature Prioritization Matrix
+3. Qualification cost -> barrier to entry -> limited competition
+   -> If wrong: Lower barrier means more entrants. Pricing pressure.
 
-| Feature | User Value | Implementation Cost | Priority | Depends On |
-|---------|------------|---------------------|----------|------------|
-| MCP Server (shared core + tools) | HIGH | HIGH | P1 | Nothing (foundation) |
-| MCP Resources (room state) | HIGH | MEDIUM | P1 | MCP Server |
-| MCP Prompts (methodology) | MEDIUM | LOW | P1 | MCP Server |
-| mindrian-tools.cjs | HIGH | LOW | P1 | Shared core |
-| Opportunity Bank (room section) | MEDIUM | LOW | P1 | Room (exists) |
-| Funding Room (structure) | MEDIUM | LOW | P1 | Room (exists) |
-| Grant lifecycle tracking | MEDIUM | MEDIUM | P1 | Funding Room |
-| Room context injection | HIGH | LOW | P2 | MCP Prompts |
-| Proactive grant scouting | HIGH | HIGH | P2 | Opportunity Bank + room content |
-| AI Team Personas (basic) | MEDIUM | MEDIUM | P2 | Room content + think-hats |
-| Per-grant GSD process | MEDIUM | MEDIUM | P2 | Funding Room |
-| Persona dependency chain | MEDIUM | MEDIUM | P2 | Basic personas |
-| Cross-grant intelligence | MEDIUM | LOW | P2 | 3+ grants in pipeline |
-| Room-aware matching | HIGH | HIGH | P3 | Proactive scouting |
-| Remote Room (collaborative) | HIGH | HIGH | P3 | MCP Server + protocol maturity |
-| Selective persona routing | LOW | LOW | P3 | Personas working |
+Blast radius: 3 direct claims, 7 downstream effects across
+market-analysis, business-model, and competitive-analysis sections.
 
-**Priority key:**
-- P1: Must ship for v3.0 to deliver value. MCP server + room expansion.
-- P2: Makes v3.0 sticky. Proactive intelligence + personas.
-- P3: Future expansion. Blocked by external dependencies or user base size.
+Most critical downstream effect:
+  Revenue model assumes 85% retention. If qualification doesn't create
+  lock-in, retention drops and your unit economics break at Year 2.
+
+Want to:
+  (a) Create a falsifiable prediction to test the timeline assumption?
+  (b) Trace deeper into the revenue model impact?
+  (c) Find analogies for markets where qualification didn't create moats?
+```
+
+### Design Principles for Cascade UX
+
+1. **Words first, graph optional.** The primary output is natural language narration. The De Stijl graph view exists for users who want it, but Larry's narration is the default.
+
+2. **Numbered consequences, not network diagrams.** Users understand "1, 2, 3 things break" better than "node A connects to nodes B, C, D with weighted edges."
+
+3. **Blast radius as a single number.** "This affects 7 downstream claims across 3 room sections." One number communicates severity without requiring graph literacy.
+
+4. **Identify the worst-case domino.** Don't just list consequences -- identify which one is most damaging. "The most critical downstream effect is..."
+
+5. **Action-oriented endings.** Every cascade output ends with "what do you want to do about it?" -- test, trace deeper, or find alternatives.
+
+6. **Progressive disclosure.** Start with the summary (3 claims affected, 7 downstream). User can ask to expand any branch. Never dump the full graph at once.
 
 ---
 
-## Competitor/Reference Analysis
+## Prediction Tracking: Practical Design
 
-### MCP Server Patterns
+### What Works (from Metaculus/PredictionBook patterns)
 
-| Pattern | How Others Do It | Our Approach |
-|---------|-----------------|--------------|
-| CLI-to-MCP wrapping | CLI Wrapper (mcpmarket.com): JSON config maps CLI subcommands to MCP tools with type-safe params | mindrian-tools.cjs as CLI layer, shared core library for both CLI and MCP. Not a wrapper -- native dual delivery. |
-| Resource exposure | Neo4j MCP: exposes graph data as resources with URI scheme | `room://` URI scheme for room sections. `room://state` for aggregated STATE.md. MIME type text/markdown. |
-| Prompt templates | Standard pattern: static templates with typed arguments | Context-aware prompts: inject current room state before serving prompt. No other MCP server does this. |
-| Tool granularity | Best practice: one clear purpose per tool. Avoid mega-tools. | One tool per command (41 tools). Group by category: methodology/, room/, meeting/, brain/. |
+| Element | Implementation | Why |
+|---------|---------------|-----|
+| Structured question | "Will [specific observable] happen by [date]?" | Forces falsifiability. Vague predictions can't be scored. |
+| Probability estimate | 0-1 scale, displayed as percentage | Captures uncertainty. "70% confident" is more useful than "I think so." |
+| Resolution criteria | What counts as true/false? Who judges? | Prevents retroactive rationalization. |
+| Resolution date | When does this get checked? | Prevents predictions from living forever unresolved. |
+| Outcome tracking | true/false/voided + actual date | Closed loop. The prediction actually gets resolved. |
+| Calibration feedback | "Your 80% predictions came true 60% of the time" | The whole point: improve reasoning quality over time. |
 
-### Grant Discovery Tools
+### What to Skip
 
-| Tool | What They Do | How We Differ |
-|------|-------------|---------------|
-| Instrumentl | All-in-one grant discovery + tracking. AI matching on mission. $179+/mo | We discover grants based on FULL room context (8 DD sections), not just mission statement. Integrated into venture workflow, not a separate tool. |
-| Fundsprout | AI-powered discovery across 275K opportunities. RFP analysis. | Similar AI matching, but ours is embedded in the venture intelligence system. Grants inform the Data Room, not a separate silo. |
-| Candid API | Programmatic grant search by subject, geography, population. REST API. Published daily. | Primary data source for our scouting agent. Candid provides data; we provide context-aware matching + room integration. |
-| Grants.gov | Official federal grant listings. Keyword search. Free. | Secondary data source. We add intelligence layer on top of raw listings. |
-| Apify SBIR Scraper | Scrapes NIH RePORTER, Grants.gov, Duke. Returns structured data. | Useful for SBIR-specific discovery. Integrate as one data source among several. |
+| Element | Why Skip |
+|---------|----------|
+| Brier score display | Too technical for most users. Show calibration curves instead ("you're overconfident at 80%+"). Only show Brier score to users who ask. |
+| Community aggregation | Single-user or small-team context. No wisdom of crowds to aggregate. |
+| Score leaderboards | Perverse incentives in small teams. |
+| Continuous probability updates | Metaculus allows updating predictions over time. Overkill for personal tracking. One estimate at creation, one resolution. Keep it simple. |
 
-### Grant Management Tools
+### Larry's Role in Prediction Tracking
 
-| Tool | Lifecycle Coverage | How We Differ |
-|------|-------------------|---------------|
-| Fluxx | Full lifecycle from discovery to reporting. $49+/mo | We don't replace Fluxx for financial tracking. We handle strategic grant management: narrative development, alignment checking, cross-grant intelligence. |
-| Submittable | Application management + review workflows | Submission-side tool. We're on the seeker side: find, prepare, track. |
-| Asana/Monday for Grants | Generic project management adapted for grants | No venture intelligence integration. We connect grants to room state: "This grant aligns with your market analysis." |
+Larry should proactively prompt for predictions at natural moments:
 
-### AI Persona Systems
+- After a causal claim is extracted: "You said X causes Y. What would we observe in the next 6 months if that's true?"
+- After a cascade analysis: "The most critical assumption here is [Z]. Want to set a prediction to test it?"
+- During JTBD cycle (every 3-7 turns): "You have 3 predictions coming due this month. Want to review them?"
+- After room-proactive contradiction detection: "This new information contradicts a prediction you made. Time to resolve it?"
 
-| System | Approach | How We Differ |
-|--------|---------|---------------|
-| PartyKit Thinking Hats | Each hat = separate chat room with dedicated AI chatbot. Spatial UI. | We already have think-hats command. Personas extend this: not just hats, but domain experts generated from room content. |
-| Jenova AI Role Creation | Business-focused persona generation for operations. Generic roles. | Our personas are venture-specific: generated FROM the room's actual data, not generic role templates. |
-| PRISM (arXiv 2603.18507) | Intent-based persona routing. Activates personas only when beneficial. | Apply PRISM insight: personas for analysis/synthesis, NOT for knowledge retrieval. Larry stays as the knowledge layer. |
-| Mandal (2026) Coherence Cascade | 10-step dependency chain of specialized personas. Sequential, each reads prior. | Directly applicable to our pipeline chaining. Market Expert > Technical Expert > Financial Expert > Devil's Advocate. Each reads all prior outputs. |
+### Prediction Storage
+
+```
+room/.predictions/REGISTRY.json
+
+{
+  "predictions": [
+    {
+      "id": "pred-001",
+      "claim_id": "causal-017",
+      "question": "Will qualification take >12 months for competitor X?",
+      "probability": 0.75,
+      "resolution_criteria": "Competitor X announces qualified product",
+      "resolution_date": "2026-10-01",
+      "created": "2026-04-03",
+      "outcome": null,
+      "resolved_date": null,
+      "room_section": "competitive-analysis"
+    }
+  ]
+}
+```
 
 ---
 
-## Grant API Landscape (for Proactive Scouting)
+## The 3-5 Features Users Will Actually Use
 
-| API/Source | Access | Data Quality | Cost | Best For |
-|------------|--------|-------------|------|----------|
-| **Candid Grants API** | REST, API key, published daily | HIGH -- compiled from 990s, direct reporting, multiple sources | Paid (tiered) | Foundation/private grants, funder intelligence |
-| **Grants.gov API** | REST, free | HIGH -- official federal source | Free | Federal grants only |
-| **Apify SBIR Scraper** | REST, Apify account | MEDIUM -- scraped, may lag | Pay-per-use (Apify credits) | SBIR/STTR/NIH specifically |
-| **OpenGrants** | No public API (web only) | MEDIUM -- 20K+ curated opportunities | Subscription | Broad discovery, consultant marketplace |
-| **Web search (Tavily/Brave)** | Via existing MCP tools | LOW -- unstructured, noisy | Existing tool cost | Catch-all for grants not in databases |
+Based on research, these survive contact with real users vs. features that sound impressive in demos:
 
-**Recommendation:** Start with Grants.gov (free, federal) + web search (already available). Add Candid API when grant feature adoption justifies the cost. SBIR scraper for tech ventures specifically.
+### Will Actually Use
+
+1. **"Why does this happen?" chain traversal** -- The most natural interaction. User asks a question, Larry traces the chain. This is what users already try to do mentally. Making it automatic and graph-backed is immediately useful.
+
+2. **"If this breaks, what else breaks?" cascade narration** -- Every founder lies awake worrying about this. A structured answer to "what's my blast radius if X goes wrong?" directly addresses anxiety and drives better decision-making.
+
+3. **Contradiction surfacing** -- Users already value this from room-proactive intelligence. Adding causal contradictions (same cause, opposite effects claimed) to the existing contradiction pipeline is a natural extension that users don't need to learn.
+
+4. **Assumption blast radius** -- "This assumption supports 7 downstream claims." A single number that changes how users prioritize what to validate. Simple, powerful, immediately actionable.
+
+5. **Lightweight predictions** (conditional) -- Only if Larry prompts naturally. Users won't voluntarily go to a prediction tracker. But if Larry says "You just claimed X. Want to bet on it? 70%? Check back in 3 months?" -- some users will engage. Track adoption before investing more.
+
+### Will NOT Use (despite sounding good)
+
+- **Graph visualization of causal network** -- Users look at it once, say "cool," and never open it again. The De Stijl graph view already covers this. Don't build causal-specific visualization.
+- **Manual causal claim creation** -- Nobody will manually tag "A causes B." Extraction must be automatic or it won't happen.
+- **Calibration dashboards** -- Requires months of prediction data. By the time there's enough data, users have either adopted the habit or abandoned it. Build only after evidence of adoption.
+- **Formal mechanism specification** -- Asking users to specify mechanism details adds friction for marginal benefit. Larry should infer mechanisms, not demand them.
+- **Causal graph export/import** -- Interoperability sounds responsible but no user will import a causal graph from another tool (none exist) or export one (to where?).
 
 ---
 
-## Persona Architecture Insights
+## MVP Recommendation
 
-### What Makes Personas Useful (Research-Backed)
+### Phase 1: Core Causal Engine (must ship together)
+1. **Causal claim extraction** -- Larry identifies and structures cause-effect-mechanism triples
+2. **Directed causal graph** -- CausalClaim nodes + CAUSES/CASCADES_TO edges in KuzuDB
+3. **"Why?" and "So what?" traversal** -- bidirectional chain walking via /mos:causal trace
+4. **Contradiction detection** -- surface conflicting causal claims via proactive intelligence
 
-1. **Constrained specialization**: Each persona focuses on ONE domain, takes everything else as given (Mandal 2026)
-2. **Sequential dependency**: Persona B reads Persona A's output. Creates coherence cascade. (Mandal 2026)
-3. **Generated from data, not templates**: Personas built from room content produce venture-specific insights. Generic "market expert" prompts produce generic advice. (PersonaCite, arXiv 2601.22288)
-4. **Selective activation**: Use personas for analysis/synthesis/challenge. Never for factual recall. (PRISM, arXiv 2603.18507)
+### Phase 2: Differentiation (build immediately after Phase 1)
+5. **Assumption-causal linking** -- wire existing room assumptions to causal claims
+6. **Cascade simulation** (plain language narration) -- /mos:causal cascade
+7. **Prediction tracking** -- /mos:causal predict with REGISTRY.json
 
-### What Makes Personas Gimmicky (Research-Backed)
-
-1. **Generic role prompts**: "You are a marketing expert" without context produces canned advice
-2. **Blanket persona application**: Applying personas to ALL tasks damages accuracy on knowledge retrieval (PRISM)
-3. **No dependency chain**: Independent personas contradict each other. No coherence. (Mandal 2026)
-4. **Persona as personality gimmick**: Adding a name and backstory without domain constraint is theater, not intelligence
-
-### MindrianOS Persona Design Principles
-
-- Personas are **generated from room state**, not predefined templates
-- Personas follow **De Bono's Six Hats** as structural framework (already built: think-hats command)
-- Personas are **chained via pipeline** (Week 7 pattern), each reading prior outputs
-- Personas are **never used for knowledge retrieval** -- Larry handles that
-- Personas are **stateless** -- regenerated from current room state each invocation
-- Personas can include **team-member-informed perspectives** -- if room/team/ has profiles with domain expertise, personas can represent "what would [team member role] think?"
+### Defer to v1.8+
+- **Convergence signals** -- requires all edge types (HSI, RS, Analogy, Causal) to have sufficient density in real rooms. Ship after users have populated causal graphs in practice.
+- **Calibration feedback** -- requires resolved predictions to exist. Useful only after users have tracked predictions for weeks/months.
+- **Bottleneck surfacing** -- requires enough causal claims to make betweenness centrality meaningful (~20+ nodes). Gate behind a density threshold.
 
 ---
 
 ## Sources
 
-### MCP Server Patterns
-- [MCP Specification (2025-11-25)](https://modelcontextprotocol.io/specification/2025-11-25) -- HIGH confidence
-- [WorkOS MCP Features Guide](https://workos.com/blog/mcp-features-guide) -- HIGH confidence (tools/resources/prompts breakdown)
-- [2026 MCP Roadmap](http://blog.modelcontextprotocol.io/posts/2026-mcp-roadmap/) -- HIGH confidence (session state, scalability)
-- [CLI Wrapper MCP Pattern](https://mcpmarket.com/server/cli-wrapper) -- MEDIUM confidence (wrapping pattern)
-- [MCP Server Development Guide](https://github.com/cyanheads/model-context-protocol-resources/blob/main/guides/mcp-server-development-guide.md) -- MEDIUM confidence
-- [MCP Best Practices](https://modelcontextprotocol.info/docs/best-practices/) -- MEDIUM confidence
+### Causal Reasoning Landscape
+- [causaLens Causal Reasoning Lab](https://causalens.com/causal-reasoning-lab) -- Enterprise causal AI platform
+- [Causal Knowledge Graph for Enterprise Innovation (2025)](https://link.springer.com/article/10.1007/s44443-025-00086-3) -- KG + causal inference integration
+- [Causal AI Disruption Across Industries 2025-2026](https://acalytica.com/blog/causal-ai-disruption-across-industries-2025-2026) -- Market adoption data (70% of AI orgs)
 
-### Grant Discovery & Management
-- [Fundsprout: 12 Best Grant Discovery Platforms 2026](https://www.fundsprout.ai/resources/grant-discovery-platforms) -- MEDIUM confidence
-- [Candid Grants API Developer Portal](https://developer.candid.org/) -- HIGH confidence (official)
-- [Grants.gov Grant Lifecycle](https://www.grants.gov/learn-grants/grants-101/the-grant-lifecycle) -- HIGH confidence (official)
-- [Instrumentl: Grant Application Pipelines](https://www.instrumentl.com/blog/how-to-create-grant-application-pipelines) -- MEDIUM confidence
-- [Apify SBIR Grants Scraper](https://apify.com/parseforge/sbir-government-grants-scraper/api) -- MEDIUM confidence
-- [Optimy: Grant Management System Guide 2026](https://www.optimy.com/blog-optimy/grant-management-system) -- MEDIUM confidence
+### Knowledge Management Comparison
+- [Notion vs Obsidian vs Roam 2026](https://www.yuanqilife.com/notion-vs-obsidian-vs-roam-research-note-taking-apps-2026/) -- Feature comparison confirming no causal features
+- [Best PKM Tools (Nodus Labs)](https://support.noduslabs.com/hc/en-us/articles/13449999219484-Best-PKM-Tools-in-2024-Obsidian-vs-Roam-Research-vs-Evernote-vs-Notion) -- Linking capabilities, not causal
 
-### AI Personas
-- [PRISM: Expert Personas Improve Alignment but Damage Accuracy (arXiv 2603.18507)](https://arxiv.org/html/2603.18507) -- HIGH confidence (peer research)
-- [Mandal: Role-Based Agent Personas -- Specialization Beats Generalization](https://www.sagarmandal.com/2026/03/15/agentic-engineering-part-3-role-based-agent-personas-why-specialization-beats-generalization/) -- MEDIUM confidence
-- [PersonaCite: Agentic Synthetic AI Personas (arXiv 2601.22288)](https://arxiv.org/html/2601.22288v1) -- HIGH confidence (peer research)
-- [Jenova AI: AI Persona Simulation](https://www.jenova.ai/en/resources/ai-persona-simulation) -- LOW confidence (vendor)
+### Causal Mapping & Systems Dynamics
+- [Kumu Causal Loop Diagrams](https://kumu.io/maryulseth/causal-loop-diagram-introduction-explanation) -- Visual causal mapping (free public, $9/mo private)
+- [Vensim Software](https://vensim.com/software/) -- Systems dynamics simulation
+- [Insight Maker](https://insightmaker.com/) -- Free browser-based CLD + simulation
+- [MetaSD: Are CLDs useful?](https://metasd.com/2010/04/are-causal-loop-diagrams-useful/) -- Critical evaluation of CLD effectiveness
 
-### Collaborative MCP / Remote Room
-- [MCP 2026 Roadmap -- Session State](http://blog.modelcontextprotocol.io/posts/2026-mcp-roadmap/) -- HIGH confidence
-- [MCP Transport Future](https://blog.modelcontextprotocol.io/posts/2025-12-19-mcp-transport-future/) -- MEDIUM confidence
-- [WorkOS: MCP Enterprise Readiness](https://workos.com/blog/2026-mcp-roadmap-enterprise-readiness) -- MEDIUM confidence
+### CLD Usability Research
+- [CLD Influence on Systems Thinking (2025)](https://www.sciencedirect.com/science/article/pii/S2451958825000284) -- Diagrams >12 elements overwhelm users
+- [Creately CLD Guide](https://creately.com/guides/causal-loop-diagram/) -- Best practices for accessible CLDs
+
+### Prediction Tracking
+- [Metaculus Forecasting Platform Guide](https://www.predictionmarket.tools/news/metaculus-forecasting-platform-guide) -- UX patterns
+- [Metaculus Review 2026](https://predictionmarketsreviews.com/reviews/metaculus) -- Brier scoring, calibration curves
+- [LessWrong: Tracking Personal Forecasts](https://www.lesswrong.com/posts/R22HQJBiMnaSrr6cN/question-tracking-accuracy-of-personal-forecasts) -- Personal prediction tracking discussion
+- [Brier Index (Forecasting Research)](https://forecastingresearch.substack.com/p/introducing-the-brier-index) -- Making scores interpretable
+
+### Assumption Tracking
+- [Board of Innovation Assumption Mapper](https://www.boardofinnovation.com/tools/assumption-mapper/) -- 2x2 importance vs certainty
+- [Maze Assumption Mapping Guide](https://maze.co/blog/assumption-mapping/) -- Lean UX methodology
+- [UXtweak Assumption Mapping Guide](https://blog.uxtweak.com/assumption-mapping/) -- Practical implementation
+
+### Cascade / Ripple Effect
+- [Ripple Effect Visualization in Supply Chains (2021)](https://www.tandfonline.com/doi/full/10.1080/00207543.2021.1987547) -- Systems dynamics approach to cascade viz
+- [Cascade Effects in Business Continuity](https://continuity2.com/blog/cascade-effects-in-business-continuity-planning) -- Flowchart-based cascade communication for non-experts
 
 ---
-*Feature research for: MindrianOS v3.0 MCP Platform & Intelligence Expansion*
-*Researched: 2026-03-24*
-*Prior version archived: FEATURES-v1.md (v1.0 research from 2026-03-19)*
+*Feature research for: MindrianOS v1.7.0 Causal Reasoning Layer*
+*Researched: 2026-04-03*
+*Prior version archived: covers v3.0 MCP Platform research from 2026-03-24*

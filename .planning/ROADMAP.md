@@ -1,9 +1,9 @@
-# Roadmap: MindrianOS Plugin v6.2 RoomHub + SnapshotHub
+# Roadmap: MindrianOS Plugin v1.7.0 Causal Reasoning Layer
 
 ## Milestones
 
 <details>
-<summary>Previous milestones (Phases 1-46) -- SHIPPED</summary>
+<summary>Previous milestones (Phases 1-51) -- SHIPPED</summary>
 
 - v1.0 MVP (Phases 1-5) -- shipped 2026-03-22
 - v2.0 Meeting Intelligence (Phases 6-9) -- shipped 2026-03-24
@@ -12,104 +12,116 @@
 - v5.0 Presentation System (Phases 26-33) -- shipped 2026-03-31
 - v5.1 User Outlets (Phases 34-38) -- shipped 2026-03-31
 - v1.6.0 Powerhouse (Phases 39-46) -- shipped 2026-03-31
+- v6.2 RoomHub + SnapshotHub (Phases 47-51) -- shipped 2026-04-01
 
 </details>
 
-### v6.2 RoomHub + SnapshotHub (In Progress)
+### v1.7.0 Causal Reasoning Layer (In Progress)
 
-**Milestone Goal:** Any Room becomes a living, adaptive intelligence surface. RoomHub serves it interactively on localhost with 7 Showcase views, generative Fabric chat, and a full 12-Thread Constellation. SnapshotHub freezes it into static HTML for sharing.
+**Milestone Goal:** Larry can trace cause-effect chains, detect assumption cascades, surface bottlenecks through graph structure, and track falsifiable predictions -- enabling "because...because...because" reasoning across the Data Room.
 
 ## Phases
 
-- [x] **Phase 47: Adaptive Room Detection + Parallel Extraction** - Detect Room type from State/Sections/Entries, configure adaptive labels and metrics, run tiered model extraction
-- [ ] **Phase 48: Constellation + Fabric Graph** - Full 12-Thread Cytoscape graph with De Stijl colors, spectral OM-HMM coloring, Surprises, Bottlenecks, cross-domain bridges
-- [ ] **Phase 49: Showcase Views + Deep Links** - Overview, Library, Narrative, Synthesis, Blueprint views plus claude-cli:// deep links on every element
-- [ ] **Phase 50: Generative Fabric Chat** - Chat view with natural language to Cypher, Constellation click injection, BYOAPI, docked in all views
-- [ ] **Phase 51: SnapshotHub Export + Polish** - Freeze RoomHub to static HTML, version history, responsive 375-1440px, offline mode, MindrianOS signature
+- [ ] **Phase 52: Causal Schema + Brain Enrichment** - KuzuDB CausalClaim schema and Neo4j causal framework wiring (parallel targets)
+- [ ] **Phase 53: Causal Extraction** - Larry extracts cause/mechanism/effect triples from room artifacts with provenance and Three Gaps enforcement
+- [ ] **Phase 54: Graph Engine** - NetworkX algorithms for chain traversal, cascade simulation, bottleneck detection, contradiction detection, and cross-reference linking
+- [ ] **Phase 55: Post-Write Integration + Prediction Registry** - Causal candidate flagging in post-write cascade and falsifiable prediction tracking with closed-loop learning
+- [ ] **Phase 56: Command + Larry Wiring** - /mos:causal command, Brain directives, Larry personality JTBD, and proactive discovery surfacing
+- [ ] **Phase 57: Release** - CHANGELOG, version bump, schema docs
 
 ## Phase Details
 
-### Phase 47: Adaptive Room Detection + Parallel Extraction
-**Goal**: The system knows what kind of Room it is looking at and has extracted all Section-level intelligence in parallel using tiered models
-**Depends on**: Phase 46 (Powerhouse -- model routing, parallel agents, spectral profiles)
-**Requirements**: ROOM-01, ROOM-02, ROOM-03, ROOM-04, EXTRACT-01, EXTRACT-02, EXTRACT-03
+### Phase 52: Causal Schema + Brain Enrichment
+**Goal**: The causal data model exists in KuzuDB and the Brain's causal framework family is wired with traversable edges
+**Depends on**: Phase 51 (v6.2 SnapshotHub)
+**Requirements**: SCHEMA-01, SCHEMA-02, SCHEMA-03, SCHEMA-04, SCHEMA-05, SCHEMA-06, BRAIN-01, BRAIN-02, BRAIN-03, BRAIN-04, BRAIN-05, BRAIN-06, BRAIN-07
 **Success Criteria** (what must be TRUE):
-  1. Running /mos:hub on the demo-cancer-room correctly identifies it as "research" and displays research-specific stats (papers, citations, findings)
-  2. Running /mos:hub on the ALIGN room correctly identifies it as "venture" and displays venture-specific stats (entries, threads, gaps, grants)
-  3. Section cards show type-adapted labels ("Research Question" for research, "User Needs" for website, "Problem Definition" for venture)
-  4. Parallel haiku extraction completes for all Sections producing Thesis, Claims, and spectral profiles; sonnet synthesizes top 5 Signals + health score; opus generates Room narrative adapted to detected type
+  1. Running initSchema() on an existing .lazygraph database adds CausalClaim node table and CAUSES, CASCADES_TO, EXTRACTED_FROM edge tables without destroying existing data
+  2. graphStats() reports CausalClaim count and causal edge counts alongside existing node/edge stats
+  3. KuzuDB bounded path queries on CausalClaim chains return correct results without hanging (tested with intentional cycle data, CJS-side deduplication)
+  4. Brain query for "causal frameworks" returns Theory of Change, Root Cause Analysis, Systems Thinking, Causal Loop Diagrams connected via FEEDS_INTO chain with TYPICAL_AT stage mappings
+  5. Brain query patterns 11-13 (causal_framework_select, causal_pattern_match, causal_contradiction_resolve) return valid results
+**Plans**: 2 plans
+Plans:
+- [ ] 52-01-PLAN.md -- KuzuDB CausalClaim schema extension (SCHEMA-01 through SCHEMA-06)
+- [ ] 52-02-PLAN.md -- Brain causal framework enrichment + query patterns 11-13 (BRAIN-01 through BRAIN-07)
+
+### Phase 53: Causal Extraction
+**Goal**: Larry can extract structured causal claims from any room artifact with provenance tracking and quality enforcement
+**Depends on**: Phase 52
+**Requirements**: EXTRACT-01, EXTRACT-02, EXTRACT-03, EXTRACT-04, EXTRACT-05, EXTRACT-06
+**Success Criteria** (what must be TRUE):
+  1. Running /mos:causal extract on a room artifact produces cause/mechanism/effect triples stored as CausalClaim nodes in KuzuDB with EXTRACTED_FROM edges linking back to the source artifact
+  2. Each extracted claim has confidence scored by method: observed=0.7, asserted=0.5, inferred=0.3
+  3. Extraction caps at 5 claims per artifact and every claim includes an explicit mechanism and falsifiable prediction (Three Gaps)
+  4. Claims are classified into one of 7 domains (materials, business, competitive, financial, team, legal, general)
 **Plans**: TBD
 
-### Phase 48: Constellation + Fabric Graph
-**Goal**: Users see every Thread in their Room's Fabric as an interactive, color-coded Constellation that reveals Surprises, Bottlenecks, and cross-domain bridges
-**Depends on**: Phase 47
-**Requirements**: FABRIC-01, FABRIC-02, FABRIC-03, FABRIC-04, FABRIC-05, FABRIC-06, VIEW-06
+### Phase 54: Graph Engine
+**Goal**: The system can traverse causal chains, simulate cascades, detect bottlenecks and contradictions, and cross-reference causal claims with existing HSI/RS/Analogy edges
+**Depends on**: Phase 53
+**Requirements**: ENGINE-01, ENGINE-02, ENGINE-03, ENGINE-04, ENGINE-05, ENGINE-06, ENGINE-07, ENGINE-08
 **Success Criteria** (what must be TRUE):
-  1. Constellation view renders all 12 Thread types from KuzuDB with distinct De Stijl colors and a toggle filter sidebar
-  2. Entries are colored by their spectral OM-HMM profile -- higher spectral_gap produces more intense coloring
-  3. HSI_CONNECTION edges (Surprises) show animated particles on high-breakthrough connections
-  4. REVERSE_SALIENT edges (Bottlenecks) display innovation thesis tooltip on hover
-  5. ANALOGOUS_TO edges render as dashed cross-domain bridge lines between Sections
+  1. /mos:causal trace on a claim shows the full "because...because...because" chain up to 6 hops via NetworkX all_simple_paths
+  2. Cascade simulation shows "if X is wrong, what falls?" with confidence decaying multiplicatively per hop
+  3. Bottleneck detection surfaces high-centrality, low-out-degree CausalClaim nodes that the user did not explicitly ask about
+  4. Contradiction detection catches circular reasoning (A causes B causes C causes A) and reports the cycle
+  5. Cross-reference queries show which HSI pairs have causal explanations, which reverse salients have causal chains, and which analogies match causal structure
 **Plans**: TBD
-**UI hint**: yes
 
-### Phase 49: Showcase Views + Deep Links
-**Goal**: Users can explore the Room through 5 distinct Showcase views and click any element to open it directly in Claude Code
-**Depends on**: Phase 48
-**Requirements**: VIEW-01, VIEW-02, VIEW-03, VIEW-04, VIEW-05, LINK-01, LINK-02
+### Phase 55: Post-Write Integration + Prediction Registry
+**Goal**: Causal candidates are automatically flagged after artifact filing, and users can generate and track falsifiable predictions with closed-loop confidence updates
+**Depends on**: Phase 54
+**Requirements**: HOOK-01, HOOK-02, HOOK-03, HOOK-04, PREDICT-01, PREDICT-02, PREDICT-03, PREDICT-04, PREDICT-05, PREDICT-06
 **Success Criteria** (what must be TRUE):
-  1. Overview shows adaptive stats bar, Section cards with Thesis governing thoughts, Signal briefing, and Sentinel digest
-  2. Library provides 3-panel Entry browser with sidebar navigation, FlexSearch full-text search, TOC, and Thread hyperlinks between Entries
-  3. Narrative generates fullscreen Deck slides from Thesis + top Entries (requires min 3 populated Sections)
-  4. Synthesis displays stat counters, timelines, Bottleneck heat map, and Surprise clusters
-  5. Blueprint renders SVG architecture from Fabric edges with Mermaid rendering
-  6. Every Entry, Section, and Thread has a claude-cli:// deep link that opens Claude Code at the exact Room location
+  1. Filing a new artifact triggers causal candidate flagging (regex heuristic) that produces .causal-candidates.json without blocking the post-write cascade
+  2. Running /mos:causal extract on flagged candidates writes confirmed claims to KuzuDB via CJS bridge, then cross-reference step links them to existing HSI/RS/Analogy edges
+  3. /mos:causal predict generates falsifiable predictions with deadlines, stored in room/.predictions/REGISTRY.json with lifecycle: pending -> confirmed/refuted/expired
+  4. Larry proactively prompts for prediction resolution when deadlines pass (session-start or every 5th session)
+  5. Resolving a prediction propagates confidence updates back to source CausalClaim nodes in KuzuDB, and prediction summary shows hit rate and overdue count
 **Plans**: TBD
-**UI hint**: yes
 
-### Phase 50: Generative Fabric Chat
-**Goal**: Users can ask questions about their Room in natural language and get answers grounded in the Fabric graph, with Constellation clicks feeding context into the conversation
-**Depends on**: Phase 48, Phase 49
-**Requirements**: VIEW-07, CHAT-01, CHAT-02, CHAT-03, CHAT-04
+### Phase 56: Command + Larry Wiring
+**Goal**: Users interact with the full causal layer through /mos:causal and Larry naturally suggests causal reasoning when assumptions stack up
+**Depends on**: Phase 55
+**Requirements**: CMD-01, CMD-02, CMD-03, CMD-04, CMD-05, CMD-06
 **Success Criteria** (what must be TRUE):
-  1. User types a natural language question and gets an answer backed by Cypher queries against the Fabric (KuzuDB)
-  2. Clicking an Entry or Thread in the Constellation injects context into the chat ("Tell me about [Entry]", "Threads connecting [Section]")
-  3. Chat uses BYOAPI pattern -- user's Claude API key stored in localStorage via settings modal, never transmitted, with fallback CTA when no key configured
-  4. Chat panel is available docked bottom-right in all 7 Showcase views, expandable to full panel
+  1. /mos:causal command works with all 3 subcommands: extract (run extraction), trace (chain + cascade + bottleneck + contradiction), predict (generate + track predictions)
+  2. Brain causal directives document exists at references/brain/causal-directives.md and Larry references Three Gaps framework during extraction
+  3. Larry personality suggests /mos:causal commands at contextually appropriate moments ("When assumptions stack 3-deep, try /mos:causal trace cascade")
+  4. Room-proactive intelligence surfaces discoveries when the graph has converging causal + HSI + RS + analogy edges
+  5. Causal schema reference document at references/causal/causal-schema.md provides Cypher query context for Brain and Larry
 **Plans**: TBD
-**UI hint**: yes
 
-### Phase 51: SnapshotHub Export + Polish
-**Goal**: Users can freeze the RoomHub into a shareable, offline-capable static export with version history and MindrianOS branding
-**Depends on**: Phase 49, Phase 50
-**Requirements**: SNAP-01, SNAP-02, SNAP-03, SNAP-04, POLISH-01, POLISH-02, POLISH-03, POLISH-04
+### Phase 57: Release
+**Goal**: v1.7.0 is versioned, documented, and ready for users
+**Depends on**: Phase 56
+**Requirements**: REL-01, REL-02, REL-03
 **Success Criteria** (what must be TRUE):
-  1. /mos:snapshot generates a complete folder of co-located HTML files (all 7 views + shared CSS/JS) to room/exports/{YYYY-MM-DD-HHmm}/
-  2. manifest.json contains Room metrics (entries, threads, surprises, bottlenecks, signals, lenses, conversations) and version history sidebar renders from room/.snapshots/
-  3. All views are responsive from 375px to 1440px with mobile-first breakpoints
-  4. Running with --offline inlines all dependencies; export works on file:// protocol (chat requires API key)
-  5. Every view includes the "Built with MindrianOS" signature footer with Mondrian bar
+  1. CHANGELOG.md has a v1.7.0 entry with onboarding steps explaining how to use /mos:causal
+  2. plugin.json version reads 1.7.0
+  3. docs/lazygraph-schema.md includes a causal section documenting CausalClaim, CAUSES, CASCADES_TO, and EXTRACTED_FROM
 **Plans**: TBD
-**UI hint**: yes
 
 ## Progress
 
-**Execution Order:** 47 -> 48 -> 49 -> 50 -> 51
+**Execution Order:** 52 -> 53 -> 54 -> 55 -> 56 -> 57
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 47. Adaptive Room Detection + Parallel Extraction | v6.2 | 1/1 | Complete | 2026-04-01 |
-| 48. Constellation + Fabric Graph | v6.2 | 0/TBD | Not started | - |
-| 49. Showcase Views + Deep Links | v6.2 | 0/TBD | Not started | - |
-| 50. Generative Fabric Chat | v6.2 | 0/TBD | Not started | - |
-| 51. SnapshotHub Export + Polish | v6.2 | 1/1 | Complete | 2026-04-01 |
+| 52. Causal Schema + Brain Enrichment | v1.7.0 | 0/2 | Planning complete | - |
+| 53. Causal Extraction | v1.7.0 | 0/TBD | Not started | - |
+| 54. Graph Engine | v1.7.0 | 0/TBD | Not started | - |
+| 55. Post-Write Integration + Prediction Registry | v1.7.0 | 0/TBD | Not started | - |
+| 56. Command + Larry Wiring | v1.7.0 | 0/TBD | Not started | - |
+| 57. Release | v1.7.0 | 0/TBD | Not started | - |
 
 ## Dependency Chain
 
 ```
-Phase 47 (Detection + Extraction) --> Phase 48 (Constellation)
-Phase 48 (Constellation) --> Phase 49 (Showcase Views)
-Phase 48 (Constellation) --> Phase 50 (Chat)
-Phase 49 (Showcase Views) --> Phase 50 (Chat)
-Phase 49 + 50 --> Phase 51 (SnapshotHub)
+Phase 52 (Schema + Brain) --> Phase 53 (Extraction)
+Phase 53 (Extraction) --> Phase 54 (Graph Engine)
+Phase 54 (Graph Engine) --> Phase 55 (Post-Write + Predictions)
+Phase 55 (Post-Write + Predictions) --> Phase 56 (Command + Larry)
+Phase 56 (Command + Larry) --> Phase 57 (Release)
 ```
