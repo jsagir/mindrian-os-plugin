@@ -235,38 +235,29 @@ else
   fi
 fi
 
-# Auto-configure statusline — use MindrianOS status line when room/ exists
-# Falls through to existing statusline (e.g. GSD) when no room present
+# Auto-configure statusline — ALWAYS use MindrianOS status line when plugin is installed
+# The context-monitor script handles both room and no-room cases gracefully
 CLAUDE_CONFIG_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 CLAUDE_SETTINGS="${CLAUDE_CONFIG_DIR}/settings.json"
-if [ -f "$CLAUDE_SETTINGS" ] && [ -n "$ROOM_DIR" ] && [ -d "$ROOM_DIR" ]; then
-  # Room exists — ensure MindrianOS statusline is active
+MONITOR_PATH="${PLUGIN_ROOT}/scripts/context-monitor"
+if [ -f "$CLAUDE_SETTINGS" ]; then
   CURRENT_STATUSLINE=$(python3 -c "import json; d=json.load(open('$CLAUDE_SETTINGS')); sl=d.get('statusLine',{}); print(sl.get('command',''))" 2>/dev/null || echo "")
   if [[ "$CURRENT_STATUSLINE" != *"context-monitor"* ]]; then
     # Save the current statusline as fallback, set MindrianOS as active
+    # Use resolved MONITOR_PATH (not $PLUGIN_ROOT which won't expand on user machines)
     python3 -c "
-import json
-with open('$CLAUDE_SETTINGS', 'r') as f:
+import json, sys
+monitor = sys.argv[1]
+settings = sys.argv[2]
+with open(settings, 'r') as f:
     d = json.load(f)
-# Store original statusline for restoration when leaving MindrianOS project
 if d.get('statusLine') and 'context-monitor' not in d['statusLine'].get('command',''):
     d['_savedStatusLine'] = d['statusLine']
-d['statusLine'] = {'type': 'command', 'command': 'node \"$PLUGIN_ROOT/scripts/context-monitor\"'}
-with open('$CLAUDE_SETTINGS', 'w') as f:
+d['statusLine'] = {'type': 'command', 'command': 'node \"' + monitor + '\"'}
+with open(settings, 'w') as f:
     json.dump(d, f, indent=2)
-" 2>/dev/null || true
+" "$MONITOR_PATH" "$CLAUDE_SETTINGS" 2>/dev/null || true
   fi
-elif [ -f "$CLAUDE_SETTINGS" ] && { [ -z "$ROOM_DIR" ] || [ ! -d "$ROOM_DIR" ]; }; then
-  # No room — restore saved statusline if we swapped it
-  python3 -c "
-import json
-with open('$CLAUDE_SETTINGS', 'r') as f:
-    d = json.load(f)
-if '_savedStatusLine' in d:
-    d['statusLine'] = d.pop('_savedStatusLine')
-    with open('$CLAUDE_SETTINGS', 'w') as f:
-        json.dump(d, f, indent=2)
-" 2>/dev/null || true
 fi
 
 # Check for updates (async, non-blocking, max 3 second timeout)
