@@ -18,11 +18,12 @@ You are Larry. This command autonomously selects and executes the best methodolo
 
 **Modes:**
 - `/mos:act` -- select and execute one framework
-- `/mos:act --chain` -- select and execute 3-5 frameworks in sequence
-- `/mos:act --swarm` -- dispatch 3 framework-runners in parallel across highest-gap sections
+- `/mos:act --chain` -- select and execute 3-5 frameworks in sequence (checkpoints between steps)
+- `/mos:act --swarm` -- dispatch N framework-runners in parallel across highest-gap sections (N is dynamic)
 - `/mos:act --dry-run` -- show the execution plan without running anything
 - `/mos:act --chain --dry-run` -- preview the full chain plan
 - `/mos:act --swarm --dry-run` -- preview the swarm dispatch plan
+- `/mos:act --budget <N>` -- set max token budget (e.g. `--budget 100000`); applies to any mode
 
 ## UI Format
 
@@ -145,7 +146,30 @@ node "${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs" resolve <roomDir> frame
 - If result is a model alias (opus/sonnet/haiku), include `model: <result>` when dispatching the agent.
 - If result is `inherit`, do not specify a model (use session default).
 
-For `--swarm` mode (dispatches 3 framework-runners), resolve once and apply the same model to all three dispatches.
+For `--swarm` mode, resolve once and apply the same model to all dispatches.
+
+## Step 4c: Cost Estimation (AGENT-02)
+
+Before dispatching any agents, calculate and display the cost estimate using `dispatch-optimizer.cjs`:
+
+```javascript
+const { estimateTokenCost, formatCostEstimate, selectModel, planDispatch } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/dispatch-optimizer.cjs');
+```
+
+**For single mode:** Estimate 1 agent at the resolved model.
+**For chain mode:** Estimate N agents (one per chain step) at the resolved model.
+**For swarm mode:** Use `planDispatch(roomPath, { remainingContext, maxBudget })` for full plan.
+
+Display the cost estimate in the thinking trace:
+
+```
+[COST] Estimated token usage
+       {formatCostEstimate result, e.g. "This will use ~150K tokens (3 agents x Opus)"}
+       Budget: {remainingContext}K remaining
+       {if downgraded: "Model downgraded: opus -> sonnet (budget constraint)"}
+```
+
+If the `--budget` flag is set, pass it as `maxBudget` to the optimizer. The optimizer will constrain swarm sizing and model selection to fit within the user's budget.
 
 ## Step 5: Handle Mode
 
@@ -206,18 +230,28 @@ Display the thinking trace (Step 4) and the execution plan following the dry-run
 
 3. Ask user: "Ready to run this chain? (yes / modify / cancel)"
 
-4. If yes, execute sequentially:
+4. If yes, execute sequentially **with checkpoints between steps** (AGENT-03):
    - Run framework 1 via `agents/framework-runner.md`
-   - Pass framework 1's structured output as chain input to framework 2
-   - Continue until all frameworks complete
-   - Between each framework, show a brief status:
+   - After each step completes, use `chainCheckpoint()` from `dispatch-optimizer.cjs` to generate the pause prompt:
+     ```javascript
+     const { chainCheckpoint } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/dispatch-optimizer.cjs');
+     const cp = chainCheckpoint(currentStep, totalSteps, completedFramework, nextFramework, { artifactsAdded, section });
+     ```
+   - Display the checkpoint and WAIT for the user's response:
      ```
      [CHAIN] Step {N}/{total} complete: {framework-name}
              Filed: {artifacts count} artifacts to room/{section}/
              Forwarding: {chain_forward.focus}
-     ```
 
-5. After all frameworks complete, show summary:
+     Continue to step {N+1}? ({next-framework-name})
+     (yes / skip / stop)
+     ```
+   - **yes** -- proceed to next framework, passing previous output as chain input
+   - **skip** -- skip the next framework, move to the one after it (or finish if last)
+   - **stop** -- halt the chain, file what's been produced, show partial summary
+   - This checkpoint replaces the old auto-run behavior. Users control pacing.
+
+5. After all frameworks complete (or user stops), show summary:
    ```
    [ACT] Chain Complete
 
@@ -251,30 +285,48 @@ After any execution (single or chain):
 
 ## Swarm Mode (`/mos:act --swarm`)
 
-Swarm mode dispatches 3 framework-runner agents **simultaneously**, each targeting a different high-gap room section. This is the parallel counterpart to `--chain` (which runs sequentially).
+Swarm mode dispatches **N** framework-runner agents **simultaneously**, each targeting a different high-gap room section. N is **dynamically calculated** -- not hardcoded to 3. This is the parallel counterpart to `--chain` (which runs sequentially).
 
-### Swarm Selection
+### Swarm Selection (AGENT-01: Dynamic Sizing)
 
-1. **Identify the 3 weakest sections** from `room/STATE.md`:
-   - Sort sections by entry count (ascending)
-   - Exclude sections with 5+ entries (already well-developed)
-   - If fewer than 3 sections qualify, swarm only the qualifying count
+Use `dispatch-optimizer.cjs` to calculate the optimal swarm size:
 
-2. **Select one framework per section** using the same scoring logic as Step 3 (Brain or local fallback), but each framework targets a DIFFERENT section. No two agents work the same section.
+```javascript
+const { planDispatch } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/dispatch-optimizer.cjs');
+const plan = planDispatch(roomPath, {
+  remainingContext: contextBudget,  // current session remaining tokens
+  maxBudget: userBudget || undefined,  // from --budget flag if set
+});
+// plan.agents = optimal count
+// plan.sections = which sections to target
+// plan.model = which model to use (may be downgraded)
+// plan.cost.display = human-readable cost string
+```
 
-3. **Resolve model per agent** using `lib/core/model-profiles.cjs`:
-   ```
-   const { resolveModel } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs');
-   const model = resolveModel('framework-runner', roomPath);
-   ```
-   Each agent gets its own model resolution based on venture stage and room config. Agents targeting complex sections (problem-definition, financial-model) may resolve to a higher-tier model than agents targeting simpler sections (competitive-analysis).
+The optimizer applies the formula: **N = min(weak_sections, context_budget / agent_cost)**
+
+1. **Identify weak sections** via `findWeakSections(roomPath)`:
+   - Sections with fewer than 5 entries, sorted ascending
+   - If zero weak sections, swarm is not useful -- suggest single `/mos:act` instead
+
+2. **Scale to budget** via `scaleSwarm()`:
+   - If `--budget` flag set, that caps the total token spend
+   - If remaining context is tight, fewer agents dispatched
+   - If remaining context < 60% of window, model downgrades automatically (AGENT-04)
+
+3. **Select one framework per section** using the same scoring logic as Step 3 (Brain or local fallback), but each framework targets a DIFFERENT section. No two agents work the same section.
+
+4. **Model resolution** uses `selectModel()` from dispatch-optimizer:
+   - Starts with model-profiles.cjs resolution for framework-runner
+   - Downgrades opus -> sonnet -> haiku if budget requires it (AGENT-04)
+   - All agents in a swarm use the same model tier
 
 ### Swarm Thinking Trace
 
-Display the swarm plan before dispatching:
+Display the swarm plan before dispatching, including cost estimate (AGENT-02):
 
 ```
-[THINK] Swarm Selection (3 parallel agents)
+[THINK] Swarm Selection ({N} parallel agents)
 
   Room: {room name}
   Stage: {venture stage}
@@ -285,12 +337,14 @@ Display the swarm plan before dispatching:
   Agent 2: {framework-2} -> room/{section-2}/
            Model: {resolved model}
            Gap: {entry count} entries
-  Agent 3: {framework-3} -> room/{section-3}/
-           Model: {resolved model}
-           Gap: {entry count} entries
+  [... up to N agents ...]
 
   Source: {Brain graph | Local routing table}
-  Parallel: All 3 run simultaneously
+  Sizing: {plan.reasoning.swarm}
+  {if downgraded: "Model: downgraded from {original} to {actual} (budget constraint)"}
+
+[COST] {plan.cost.display}
+       Budget: {remainingContext}K remaining{if --budget: ", capped at {budget}K"}
 ```
 
 Ask user: "Ready to swarm? (yes / modify / cancel)"
@@ -299,17 +353,18 @@ Ask user: "Ready to swarm? (yes / modify / cancel)"
 
 If user confirms:
 
-1. Dispatch all 3 framework-runner agents in parallel using the Agent tool with `run_in_background: true`:
+1. Dispatch all N framework-runner agents in parallel using the Agent tool with `run_in_background: true`:
+   - N comes from `plan.agents` (dispatch-optimizer result), NOT hardcoded
    - Each agent receives: framework name, room path, target section, room context summary, resolved model
    - Each agent is an independent `agents/framework-runner.md` invocation
    - Agents do NOT share context or coordinate -- they run in full isolation
 
 2. Show dispatch confirmation:
    ```
-   [SWARM] Dispatched 3 agents
+   [SWARM] Dispatched {N} agents
            Agent 1: {framework-1} -> {section-1} [running]
            Agent 2: {framework-2} -> {section-2} [running]
-           Agent 3: {framework-3} -> {section-3} [running]
+           [... up to N ...]
 
            Waiting for all agents to complete...
    ```
@@ -318,16 +373,16 @@ If user confirms:
 
 ### Swarm Synthesis
 
-After all 3 agents return:
+After all N agents return:
 
 1. **Collect results** -- parse each agent's `FRAMEWORK_RUNNER_RESULT` for key_insights and cross_references
 
-2. **Cross-agent discovery** -- scan all 3 artifacts for emergent connections:
+2. **Cross-agent discovery** -- scan all N artifacts for emergent connections:
    - Do any two agents' findings reference the same concept from different angles?
    - Do any cross_references point to each other's target sections?
    - Are there contradictions between agents' findings?
 
-3. **Trigger HSI recomputation** -- run the post-write cascade for all 3 new artifacts:
+3. **Trigger HSI recomputation** -- run the post-write cascade for all N new artifacts:
    ```bash
    "${CLAUDE_PLUGIN_ROOT}/scripts/compute-hsi.py" room
    ```
@@ -335,22 +390,18 @@ After all 3 agents return:
 
 4. **Show swarm summary:**
    ```
-   [SWARM] Complete -- 3 frameworks executed in parallel
+   [SWARM] Complete -- {N} frameworks executed in parallel
 
      Agent 1: {framework-1} -> room/{section-1}/
               Quality: {high|medium|low}
               Insights: {top insight}
-     Agent 2: {framework-2} -> room/{section-2}/
-              Quality: {high|medium|low}
-              Insights: {top insight}
-     Agent 3: {framework-3} -> room/{section-3}/
-              Quality: {high|medium|low}
-              Insights: {top insight}
+     [... for each agent ...]
 
      Cross-Agent Discoveries:
      - {emergent connection 1}
      - {emergent connection 2}
 
+     Token Usage: {actual tokens used} (estimated {plan.cost.display})
      HSI Recomputed: {new HSI_CONNECTION edges found}
      Artifacts filed: {total count}
      Sections updated: {list}
