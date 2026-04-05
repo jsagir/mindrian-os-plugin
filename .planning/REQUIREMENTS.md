@@ -93,12 +93,12 @@
 
 ### MCP Apps Data Room Views
 
-- [ ] **APP-01**: ext-apps@1.5.0 installed with registerAppTool/registerAppResource for ui:// resources
-- [ ] **APP-02**: Dashboard view rendered inline in Cowork/Desktop via MCP Apps (De Stijl Mondrian grid, read-only first)
-- [ ] **APP-03**: Wiki view rendered inline via MCP Apps (room sections as browsable pages)
-- [ ] **APP-04**: Knowledge graph view rendered inline via MCP Apps (Cytoscape.js, existing De Stijl graph)
-- [ ] **APP-05**: Views use vanilla HTML/JS + CDN libs (no React, no build step) served as ui:// resources
-- [ ] **APP-06**: Bidirectional: iframe can call MCP tools via postMessage for on-demand data refresh
+- [x] **APP-01**: ext-apps@1.5.0 installed with registerAppTool/registerAppResource for ui:// resources
+- [x] **APP-02**: Dashboard view rendered inline in Cowork/Desktop via MCP Apps (De Stijl Mondrian grid, read-only first)
+- [x] **APP-03**: Wiki view rendered inline via MCP Apps (room sections as browsable pages)
+- [x] **APP-04**: Knowledge graph view rendered inline via MCP Apps (Cytoscape.js, existing De Stijl graph)
+- [x] **APP-05**: Views use vanilla HTML/JS + CDN libs (no React, no build step) served as ui:// resources
+- [x] **APP-06**: Bidirectional: iframe can call MCP tools via postMessage for on-demand data refresh
 
 ## v2.0 Requirements (Deferred -- Requires Anthropic Team Sharing)
 
@@ -183,12 +183,12 @@
 | HAT-02 | Phase 59 | Pending |
 | HAT-03 | Phase 59 | Pending |
 | HAT-04 | Phase 59 | Pending |
-| APP-01 | Phase 60 | Pending |
-| APP-02 | Phase 60 | Pending |
-| APP-03 | Phase 60 | Pending |
-| APP-04 | Phase 60 | Pending |
-| APP-05 | Phase 60 | Pending |
-| APP-06 | Phase 60 | Pending |
+| APP-01 | Phase 60 | Complete |
+| APP-02 | Phase 60 | Complete |
+| APP-03 | Phase 60 | Complete |
+| APP-04 | Phase 60 | Complete |
+| APP-05 | Phase 60 | Complete |
+| APP-06 | Phase 60 | Complete |
 | READY-01 | Phase 61 | Pending |
 | READY-02 | Phase 61 | Pending |
 | READY-03 | Phase 61 | Pending |

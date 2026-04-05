@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.8.0
 milestone_name: Cowork Adaptation
 status: executing
-stopped_at: Completed 58-01-PLAN.md (scheduled intelligence)
-last_updated: "2026-04-05T21:07:00Z"
+stopped_at: Completed 60-01-PLAN.md (MCP Apps Data Room Views)
+last_updated: "2026-04-05T21:17:00Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 10
-  completed_phases: 4
-  total_plans: 9
-  completed_plans: 8
-  percent: 40
+  completed_phases: 5
+  total_plans: 10
+  completed_plans: 9
+  percent: 50
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** Every MindrianOS command, pipeline, and intelligence capability works identically across CLI, Desktop, and Cowork
-**Current focus:** Phase 58 -- Scheduled Intelligence
+**Current focus:** Phase 60 -- MCP Apps Data Room Views
 
 ## Current Position
 
-Phase: 58 (Scheduled Intelligence) -- COMPLETE
+Phase: 60 (MCP Apps Data Room Views) -- COMPLETE
 Plan: 1 of 1
 Status: Phase complete
 Last activity: 2026-04-05
 
-Progress: [####░░░░░░] 40%
+Progress: [#####░░░░░] 50%
 
 ## Performance Metrics
 
@@ -80,6 +80,10 @@ Progress: [####░░░░░░] 40%
 - [Phase 58]: Competitor and news scans return query objects for LLM execution (not direct fetch)
 - [Phase 58]: Grant discovery calls opportunity-ops.scanOpportunities directly (API access)
 - [Phase 58]: All intelligence results use date-stamped filenames for idempotency
+- [Phase 60]: ext-apps _meta.ui.resourceUri pattern links tools to ui:// resources
+- [Phase 60]: Vanilla JS + inline CSS for all MCP App templates (no React, no build step)
+- [Phase 60]: Shared scanRoomData function: one scan serves dashboard, wiki, and graph
+- [Phase 60]: Non-fatal MCP Apps registration: failure does not crash server
 
 ### Pending Todos
 
@@ -95,6 +99,6 @@ Progress: [####░░░░░░] 40%
 
 ## Session Continuity
 
-Last session: 2026-04-05T21:07:00Z
-Stopped at: Completed 58-01-PLAN.md (scheduled intelligence)
+Last session: 2026-04-05T21:17:00Z
+Stopped at: Completed 60-01-PLAN.md (MCP Apps Data Room Views)
 Resume file: None

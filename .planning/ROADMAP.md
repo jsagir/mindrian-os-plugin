@@ -30,7 +30,7 @@
 - [ ] **Phase 57: Agent Dispatch Optimization** - Dynamic swarm sizing, cost estimation, chain checkpoints, budget-aware model routing, Coordinator prep
 - [ ] **Phase 58: Scheduled Intelligence** - Session catch-up, daily briefings, competitor/grant/news scanning on Cowork
 - [ ] **Phase 59: De Bono Persistent Hats** - 6 perspective personas with cross-session memory feeding Brain routing
-- [ ] **Phase 60: MCP Apps Data Room Views** - Dashboard, wiki, and graph rendered inline via ext-apps in Cowork/Desktop
+- [x] **Phase 60: MCP Apps Data Room Views** - Dashboard, wiki, and graph rendered inline via ext-apps in Cowork/Desktop (completed 2026-04-05)
 - [ ] **Phase 61: Release v1.8.0 + Platform Readiness** - Integration testing across all 3 surfaces, KAIROS prep, UDS stubs, GrowthBook monitoring, version bump
 
 ## Phase Details
@@ -166,8 +166,10 @@ Plans:
   3. The knowledge graph renders inline with Cytoscape.js showing nodes, edges, and the existing De Stijl visual style
   4. All views use vanilla HTML/JS with no build step -- served as ui:// resources via ext-apps
   5. Views can call MCP tools via postMessage for on-demand data refresh (bidirectional communication)
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 1 plan
+
+Plans:
+- [x] 60-01-PLAN.md - ext-apps installation, app-views module, HTML templates, capability wiring, bidirectional comms (APP-01 through APP-06)
 
 ### Phase 61: Release v1.8.0 + Platform Readiness
 **Goal**: v1.8.0 is tested across all three surfaces, versioned, and prepared for upcoming Anthropic platform features (KAIROS, Coordinator, UDS)
@@ -198,7 +200,7 @@ Note: Phase 54 (Token + Hook) and Phases 56 (Pipeline) + 57 (Agent Dispatch) can
 | 57. Agent Dispatch Optimization | v1.8.0 | 1/1 | Complete | 2026-04-05 |
 | 58. Scheduled Intelligence | v1.8.0 | 1/1 | Complete | 2026-04-05 |
 | 59. De Bono Persistent Hats | v1.8.0 | 0/TBD | Not started | - |
-| 60. MCP Apps Data Room Views | v1.8.0 | 0/TBD | Not started | - |
+| 60. MCP Apps Data Room Views | v1.8.0 | 1/1 | Complete | 2026-04-05 |
 | 61. Release v1.8.0 + Platform Readiness | v1.8.0 | 0/TBD | Not started | - |
 
 ## Dependency Chain
