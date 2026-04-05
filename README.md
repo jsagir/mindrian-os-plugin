@@ -9,13 +9,15 @@
   [Prof. Lawrence Aronhime](https://www.linkedin.com/in/lawrence-aronhime-8363894/) over 30+ years at Johns Hopkins University.
   Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
 
-  [![Plugin Version](https://img.shields.io/badge/plugin-v1.6.2_RoomHub-blue)](https://github.com/jsagir/mindrian-os-plugin)
-  [![Commands](https://img.shields.io/badge/commands-63-green)](https://github.com/jsagir/mindrian-os-plugin)
-  [![MCP Tools](https://img.shields.io/badge/MCP_tools-49-teal)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Plugin Version](https://img.shields.io/badge/plugin-v1.8.1_Cowork_Adaptation-blue)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Commands](https://img.shields.io/badge/commands-66-green)](https://github.com/jsagir/mindrian-os-plugin)
+  [![MCP Tools](https://img.shields.io/badge/MCP_tools-64_(9_routers)-teal)](https://github.com/jsagir/mindrian-os-plugin)
+  [![MCP Apps](https://img.shields.io/badge/MCP_Apps-3_(dashboard,_wiki,_graph)-cyan)](https://github.com/jsagir/mindrian-os-plugin)
   [![Agents](https://img.shields.io/badge/agents-8-orange)](https://github.com/jsagir/mindrian-os-plugin)
   [![Hooks](https://img.shields.io/badge/hooks-9-red)](https://github.com/jsagir/mindrian-os-plugin)
   [![KuzuDB Edges](https://img.shields.io/badge/edge_types-12-yellow)](https://github.com/jsagir/mindrian-os-plugin)
   [![Brain Nodes](https://img.shields.io/badge/brain_nodes-23K+-purple)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Surfaces](https://img.shields.io/badge/surfaces-CLI_+_Desktop_+_Cowork-brightgreen)](https://github.com/jsagir/mindrian-os-plugin)
 
   [Website](https://mindrianos-jsagirs-projects.vercel.app) |
   [Marketplace](https://github.com/jsagir/mindrian-marketplace) |
