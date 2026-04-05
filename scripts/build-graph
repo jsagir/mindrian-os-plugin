@@ -191,8 +191,11 @@ if [ -d "$ROOM_DIR" ]; then
       [ "$fname" = "ROOM.md" ] || [ "$fname" = "STATE.md" ] || [ "$fname" = "TEAM-STATE.md" ] && continue
 
       # Build artifact ID from relative path within section
+      # Use -- as separator instead of / to avoid breaking Cytoscape CSS selectors
       rel_path="${f#${section_dir}/}"
-      artifact_id="${section}/${rel_path%.md}"
+      rel_clean="${rel_path%.md}"
+      rel_clean="${rel_clean////-}"
+      artifact_id="${section}/${rel_clean}"
       title=$(json_escape "$(get_title "$f")")
       methodology=$(json_escape "$(get_field "$f" "methodology")")
       created=$(get_field "$f" "created")
