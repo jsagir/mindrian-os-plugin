@@ -51,6 +51,31 @@ Every filed artifact MUST include frontmatter: methodology, created, depth, prob
 
 For ad-hoc meeting mentions, suggest `/mos:file-meeting` for structured filing.
 
+## UDS Cross-Instance Listener Stubs (READY-03)
+
+<!-- UDS (Unified Data Sharing) is a future Anthropic feature for cross-instance state sharing.
+     When UDS ships, room-passive should listen for external room updates from other Claude instances
+     (e.g., a Cowork teammate files an artifact, and your Desktop session sees it).
+
+     Activation conditions:
+     1. Environment variable `tengu_harbor` is set to `true` (UDS feature gate)
+     2. OR file `room/.mindrian/uds-active` exists
+     3. AND room has multi-user configuration in room/.mindrian/uds-config.json
+
+     When active, room-passive should:
+     - Poll room/.mindrian/uds-inbox/ for incoming state diffs from other instances
+     - Apply diffs to local room state (new artifacts, updated STATE.md sections)
+     - Surface changes to user: "A teammate filed a new market analysis entry. Want to review?"
+     - Write acknowledgments to room/.mindrian/uds-outbox/ for sync confirmation
+
+     Until UDS ships, this is a no-op. The stubs exist so that:
+     - The room-passive skill already documents the integration surface
+     - When UDS activates via GrowthBook gate, only the transport layer needs implementation
+     - The skill instructions (what to do with incoming changes) are already defined
+-->
+
+When `tengu_harbor` env var is `true` or `room/.mindrian/uds-active` exists, check `room/.mindrian/uds-inbox/` for cross-instance updates on session start. Surface new entries to user before standard greeting. This is a future capability -- currently a no-op until UDS ships.
+
 ## Wiki Dashboard Awareness
 
 When room has 2+ sections with content, mention wiki once per session after filing, analyzing, or first methodology output: "`/mos:wiki` for live wiki view." Sharing: `/mos:wiki --export` for static HTML bundle.
