@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.8.0] - 2026-04-05
+onboarding: true
+onboard_steps:
+  - "MindrianOS now works across all three surfaces: CLI, Desktop, and Cowork. Same commands, same intelligence, same room."
+  - "MCP Apps render your Data Room inline: dashboard, wiki, and knowledge graph views right in the conversation."
+  - "Smart context loading: Larry detects your archetype (student/venturist/researcher) and loads only what you need -- half the token cost."
+
+### Added
+- **MCP Foundation**: All 64 plugin commands exposed as MCP tools via 9 hierarchical routers with intelligence-cascade.cjs shared module
+- **Surface Detection**: Auto-detect CLI/Desktop/Cowork at startup; dual transport (stdio + Streamable HTTP) on same McpServer instance
+- **Write Safety**: KuzuDB write-gateway with promise-chain serialization, file-based write lock with PID/timestamp/stale cleanup
+- **Token Optimization**: Native-first skills compressed from 74K to 26K bytes; progressive loading (Layer 0 always, Layer 1 on-demand, Layer 2 Brain); per-turn cost halved from ~20.5K to ~10K tokens
+- **Hook Optimization**: HSI debounce (30s), analyze-room caching (5-min TTL), write batching, per-room bridge file isolation, framework recommendation cache (10-min TTL)
+- **Context Intelligence**: User archetype detection (venturist/researcher/student), tiered context loading (500/2K/5K tokens), 6 MCP session profiles, autocompact tuning per archetype, returning user detection, student progress tracking
+- **Pipeline Chaining**: Room-file-based state enables LLM-orchestrated tool sequences; Brain chain ordering via CO_OCCURS and FEEDS_INTO relationships
+- **Agent Dispatch Optimization**: Dynamic swarm sizing, cost estimation before dispatch, chain checkpoints, budget-aware model routing (opus -> sonnet -> haiku), Coordinator-compatible output
+- **Scheduled Intelligence**: Session catch-up on Cowork, daily briefings, competitor/grant/news scanning, scout sentinel tasks, all results filed as room artifacts with provenance
+- **MCP Apps Data Room Views**: Dashboard (De Stijl Mondrian grid), wiki (browsable room sections), knowledge graph (Cytoscape.js) rendered inline via ext-apps; bidirectional postMessage communication
+- **Session State Writer**: Structured last-session.md with active_methodology, open_questions, next_suggested_action, confidence_level, artifacts_created, session_duration (KAIROS-ready)
+- **KAIROS Detection**: context-engine reads KAIROS daily log instead of cold-start context rebuild when tengu_kairos activates
+- **UDS Listener Stubs**: room-passive ready for cross-instance room state sharing when tengu_harbor ships
+- **Platform Gate Monitor**: checkGates() monitors tengu_kairos, tengu_harbor, tengu_scratch, tengu_portal_quail via env vars with local override support
+
+### Changed
+- SDK upgraded from 1.27.1 to ^1.29.0 for Streamable HTTP transport and ext-apps peer dependency
+- Router groups capped at 15 commands (data_room split into room_state/content/graph sub-routers)
+- Skills teach domain-specific rules only -- no redundant tool instructions for native Claude capabilities
+
 ## [1.7.1] - 2026-04-05
 
 ### Added
