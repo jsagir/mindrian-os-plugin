@@ -1,5 +1,9 @@
 {
   "mcpServers": {
+    "mindrian-os": {
+      "command": "node",
+      "args": ["bin/mindrian-mcp-server.cjs"]
+    },
     "mindrian-brain": {
       "url": "https://mindrian-brain.onrender.com/mcp",
       "headers": {
