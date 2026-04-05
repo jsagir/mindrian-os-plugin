@@ -150,15 +150,15 @@ SUGGESTED_EXPERTISE=""
 if [[ "$SEARCH_AVAILABLE" == true && -n "$SEARCH_RESULTS" ]]; then
   # Extract titles and snippets from search results (basic HTML parsing)
   # Look for common patterns: LinkedIn titles, company mentions, etc.
-  TITLES=$(echo "$SEARCH_RESULTS" | grep -oP '(?<=<h3[^>]*>)[^<]+' 2>/dev/null | head -10 || echo "")
-  SNIPPETS=$(echo "$SEARCH_RESULTS" | grep -oP '(?<=<span[^>]*>)[^<]{50,200}' 2>/dev/null | head -10 || echo "")
+  TITLES=$(echo "$SEARCH_RESULTS" | grep -E '<h3[^>]*>' 2>/dev/null | sed 's/.*<h3[^>]*>//;s/<\/h3>.*//' | head -10 || echo "")
+  SNIPPETS=$(echo "$SEARCH_RESULTS" | grep -E '<span[^>]*>[^<]\{50,200\}' 2>/dev/null | sed 's/.*<span[^>]*>//;s/<\/span>.*//' | head -10 || echo "")
 
   if [[ -n "$TITLES" ]]; then
     BACKGROUND="Search results found. Titles include: $(echo "$TITLES" | head -3 | tr '\n' '; ')"
   fi
 
   # Look for LinkedIn pattern
-  LINKEDIN=$(echo "$SEARCH_RESULTS" | grep -oP 'https?://[a-z]+\.linkedin\.com/in/[^ "]+' 2>/dev/null | head -1 || echo "")
+  LINKEDIN=$(echo "$SEARCH_RESULTS" | grep -oE 'https?://[a-z]+\.linkedin\.com/in/[^ "]+' 2>/dev/null | head -1 || echo "")
   if [[ -n "$LINKEDIN" ]]; then
     ONLINE_PRESENCE="LinkedIn: ${LINKEDIN}"
   fi

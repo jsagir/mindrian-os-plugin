@@ -7,6 +7,510 @@
 # Output: Writes room/team/TEAM-STATE.md directly
 # Exit: 0 on success, 1 on error. If no team/ directory, exit 0 silently.
 
+# macOS bash 3.2 compatibility -- Python3 fallback for declare -A (associative arrays)
+if [ "${BASH_VERSINFO[0]:-0}" -lt 4 ]; then
+  exec python3 - "$@" << 'PYEOF'
+import sys, os, re, subprocess, time
+from pathlib import Path
+from datetime import datetime, timezone
+
+room_dir = sys.argv[1] if len(sys.argv) > 1 else "."
+team_dir = os.path.join(room_dir, "team")
+
+if not os.path.isdir(team_dir):
+    sys.exit(0)
+
+# --- 12-type role taxonomy ---
+ALL_ROLES = "mentor researcher team-member investor advisor customer founder partner domain-expert government competitor unknown".split()
+
+# --- Scan PROFILE.md files ---
+p_names = []
+p_roles = []
+p_primary_roles = []
+p_statuses = []
+p_affiliations = []
+p_first_meetings = []
+p_last_actives = []
+p_meetings_attended = []
+p_profile_paths = []
+
+def find_profiles(base):
+    result = []
+    for root, dirs, files in os.walk(base):
+        dirs.sort()
+        for f in sorted(files):
+            if f == "PROFILE.md":
+                result.append(os.path.join(root, f))
+    return result
+
+def extract_frontmatter(filepath):
+    lines = []
+    with open(filepath, "r") as f:
+        content = f.readlines()
+    in_fm = False
+    count = 0
+    for line in content:
+        stripped = line.rstrip("\n")
+        if stripped == "---":
+            count += 1
+            if count == 1:
+                in_fm = True
+                continue
+            if count == 2:
+                break
+        if in_fm:
+            lines.append(stripped)
+    return lines
+
+def fm_get(fm_lines, key):
+    for line in fm_lines:
+        if line.startswith(key + ":"):
+            return line[len(key)+1:].strip()
+    return ""
+
+profile_files = find_profiles(team_dir)
+
+for profile_file in profile_files:
+    fm = extract_frontmatter(profile_file)
+    name = fm_get(fm, "name")
+    if not name:
+        continue
+
+    roles_raw = fm_get(fm, "roles")
+    if roles_raw:
+        roles = ", ".join([r.strip().strip('"') for r in roles_raw.strip("[]").split(",") if r.strip()])
+    else:
+        role_single = fm_get(fm, "role")
+        roles = role_single if role_single else "unknown"
+
+    primary_role = fm_get(fm, "primary_role")
+    if not primary_role:
+        primary_role = fm_get(fm, "role")
+    if not primary_role:
+        primary_role = "unknown"
+
+    status = fm_get(fm, "status") or "active"
+    affiliation = fm_get(fm, "affiliation") or "Unknown"
+    first_meeting = fm_get(fm, "first_meeting")
+    last_active = fm_get(fm, "last_active")
+    meetings_attended = fm_get(fm, "meetings_attended") or "0"
+
+    profile_rel = profile_file
+    if profile_rel.startswith(room_dir + "/"):
+        profile_rel = profile_rel[len(room_dir)+1:]
+    profile_dir_val = os.path.dirname(profile_rel)
+
+    p_names.append(name)
+    p_roles.append(roles)
+    p_primary_roles.append(primary_role)
+    p_statuses.append(status)
+    p_affiliations.append(affiliation)
+    p_first_meetings.append(first_meeting)
+    p_last_actives.append(last_active)
+    p_meetings_attended.append(meetings_attended)
+    p_profile_paths.append(profile_dir_val)
+
+profile_count = len(p_names)
+if profile_count == 0:
+    sys.exit(0)
+
+# --- Scan room/ sections for contributions ---
+contrib_counts = {}      # "name|section" -> count
+person_sections = {}     # "name" -> set of sections
+person_artifacts = {}    # "name" -> list of "date|section|type|filename"
+
+section_dirs = []
+for entry in sorted(os.listdir(room_dir)):
+    full = os.path.join(room_dir, entry)
+    if not os.path.isdir(full):
+        continue
+    if entry.startswith("."):
+        continue
+    if entry in ("team", "meetings"):
+        continue
+    section_dirs.append(entry)
+
+for section_name in section_dirs:
+    section_path = os.path.join(room_dir, section_name)
+    for fname in sorted(os.listdir(section_path)):
+        if not fname.endswith(".md"):
+            continue
+        md_file = os.path.join(section_path, fname)
+        if not os.path.isfile(md_file):
+            continue
+        if fname in ("ROOM.md", "TEAM-STATE.md", "STATE.md"):
+            continue
+
+        fm = extract_frontmatter(md_file)
+
+        # Extract speaker
+        speaker = ""
+        for line in fm:
+            if line.startswith("  speaker:"):
+                speaker = line[len("  speaker:"):].strip()
+                break
+        if not speaker:
+            speaker = fm_get(fm, "speaker")
+        if not speaker:
+            continue
+
+        seg_type = fm_get(fm, "segment_type")
+        if not seg_type:
+            seg_type = fm_get(fm, "type")
+        if not seg_type:
+            seg_type = "entry"
+
+        art_date = ""
+        for line in fm:
+            if line.startswith("  meeting_date:"):
+                art_date = line[len("  meeting_date:"):].strip()
+                break
+        if not art_date:
+            art_date = fm_get(fm, "date")
+        if not art_date:
+            m = re.match(r'^(\d{4}-\d{2}-\d{2})', fname)
+            if m:
+                art_date = m.group(1)
+        if not art_date:
+            art_date = "unknown"
+
+        key = "{}|{}".format(speaker, section_name)
+        contrib_counts[key] = contrib_counts.get(key, 0) + 1
+
+        if speaker not in person_sections:
+            person_sections[speaker] = set()
+        person_sections[speaker].add(section_name)
+
+        if speaker not in person_artifacts:
+            person_artifacts[speaker] = []
+        person_artifacts[speaker].append("{}|{}|{}|{}".format(art_date, section_name, seg_type, fname))
+
+# --- Compute expertise distribution ---
+expertise_primary = []
+expertise_sections = []
+expertise_total = []
+
+for i in range(len(p_names)):
+    name = p_names[i]
+    sections_set = person_sections.get(name, set())
+    if not sections_set:
+        expertise_primary.append("(no contributions)")
+        expertise_sections.append("-")
+        expertise_total.append("0")
+        continue
+
+    max_count = 0
+    max_section = ""
+    total_count = 0
+    for sec in sections_set:
+        key = "{}|{}".format(name, sec)
+        cnt = contrib_counts.get(key, 0)
+        total_count += cnt
+        if cnt > max_count:
+            max_count = cnt
+            max_section = sec
+
+    expertise_primary.append(max_section)
+    expertise_sections.append(",".join(sorted(sections_set)))
+    expertise_total.append(str(total_count))
+
+# --- Compute knowledge gaps ---
+section_contributors = {}
+for key in contrib_counts:
+    person, section = key.split("|", 1)
+    if section not in section_contributors:
+        section_contributors[section] = set()
+    section_contributors[section].add(person)
+
+# --- Compute missing perspectives ---
+represented_roles = set(p_primary_roles)
+missing_roles = [r for r in ALL_ROLES if r != "unknown" and r not in represented_roles]
+
+# --- Compute role distribution ---
+role_counts = {}
+role_members = {}
+for i in range(len(p_names)):
+    pr = p_primary_roles[i]
+    role_counts[pr] = role_counts.get(pr, 0) + 1
+    if pr not in role_members:
+        role_members[pr] = p_names[i]
+    else:
+        role_members[pr] = role_members[pr] + ", " + p_names[i]
+
+# --- Compute activity patterns ---
+try:
+    today_epoch = int(time.time())
+except:
+    today_epoch = 0
+
+def compute_trend(last_active, status):
+    if not last_active or last_active == "unknown":
+        return "unknown"
+    try:
+        from datetime import datetime as dt
+        la = dt.strptime(last_active[:10], "%Y-%m-%d")
+        la_epoch = int(la.timestamp())
+    except:
+        return "unknown"
+    days_ago = (today_epoch - la_epoch) // 86400
+    if days_ago <= 14:
+        return "consistent"
+    elif days_ago <= 30:
+        return "occasional"
+    elif status == "active":
+        return "declining"
+    else:
+        return "inactive"
+
+p_trends = [compute_trend(p_last_actives[i], p_statuses[i]) for i in range(len(p_names))]
+
+# --- Compute counts ---
+active_count = sum(1 for s in p_statuses if s == "active")
+
+unique_roles_list = []
+for pr in p_primary_roles:
+    if pr not in unique_roles_list:
+        unique_roles_list.append(pr)
+unique_roles = ", ".join(unique_roles_list)
+
+# --- Write TEAM-STATE.md ---
+timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+output_file = os.path.join(team_dir, "TEAM-STATE.md")
+
+with open(output_file, "w") as f:
+    f.write("---\n")
+    f.write("computed: {}\n".format(timestamp))
+    f.write("team_size: {}\n".format(profile_count))
+    f.write("active_members: {}\n".format(active_count))
+    f.write("roles_represented: [{}]\n".format(unique_roles))
+    f.write("---\n")
+    f.write("# Team Knowledge Landscape\n\n")
+
+    # Expertise Distribution
+    f.write("## Expertise Distribution\n\n")
+    f.write("| Person | Primary Expertise | Sections Contributed | Last Active |\n")
+    f.write("|--------|------------------|---------------------|-------------|\n")
+    for i in range(len(p_names)):
+        sections_display = expertise_sections[i]
+        if sections_display == "-":
+            sections_display = "(none)"
+        la = p_last_actives[i] if p_last_actives[i] else "unknown"
+        f.write("| {} | {} | {} | {} |\n".format(p_names[i], expertise_primary[i], sections_display, la))
+    f.write("\n")
+
+    # Knowledge Gaps
+    f.write("## Knowledge Gaps\n\n")
+    f.write("| Section | Contributors | Gap Assessment |\n")
+    f.write("|---------|-------------|----------------|\n")
+    for section_name in section_dirs:
+        contributors = section_contributors.get(section_name, set())
+        if not contributors:
+            f.write("| {} | 0 | CRITICAL: No perspectives filed |\n".format(section_name))
+        elif len(contributors) == 1:
+            person = list(contributors)[0]
+            f.write("| {} | 1 ({}) | CONCENTRATION: Single perspective only |\n".format(section_name, person))
+        else:
+            f.write("| {} | {} | Diverse -- {} perspectives |\n".format(section_name, len(contributors), len(contributors)))
+    f.write("\n")
+
+    # Missing Perspectives
+    f.write("## Missing Perspectives\n\n")
+    if not missing_roles:
+        f.write("All role types from the 12-type taxonomy are represented.\n")
+    else:
+        role_messages = {
+            "customer": '- CRITICAL: No **customer** voice on the team. Customer perspective is the most commonly missing in early ventures.',
+            "domain-expert": '- CRITICAL: No **domain-expert** perspective. Deep domain knowledge reduces false assumptions.',
+            "investor": '- No **investor** perspective. Consider before fundraising conversations.',
+            "mentor": '- No **mentor** perspective. Experienced guidance accelerates learning cycles.',
+            "researcher": '- No **researcher** perspective. Research grounds decisions in evidence.',
+            "advisor": '- No **advisor** perspective. Strategic advisors expand the network.',
+            "government": '- No **government/regulatory** perspective. Relevant for regulated markets.',
+            "founder": '- No **founder** on team. Core leadership role not yet represented.',
+            "partner": '- No **partner** perspective. Partnerships can unlock distribution.',
+            "team-member": '- No **team-member** roles. Core execution capacity not represented.',
+            "competitor": '- No **competitor** intelligence. Understanding competition sharpens positioning.',
+        }
+        for role in missing_roles:
+            f.write(role_messages.get(role, "- No **{}** perspective represented.".format(role)) + "\n")
+    f.write("\n")
+
+    # Role Distribution
+    f.write("## Role Distribution\n\n")
+    f.write("| Role | Count | Members |\n")
+    f.write("|------|-------|--------|\n")
+    for role in ALL_ROLES:
+        cnt = role_counts.get(role, 0)
+        if cnt == 0:
+            continue
+        members = role_members.get(role, "")
+        f.write("| {} | {} | {} |\n".format(role, cnt, members))
+    f.write("\n")
+
+    # Activity Patterns
+    f.write("## Activity Patterns\n\n")
+    f.write("| Person | Status | Meetings | Last Active | Trend |\n")
+    f.write("|--------|--------|----------|-------------|-------|\n")
+    for i in range(len(p_names)):
+        la = p_last_actives[i] if p_last_actives[i] else "unknown"
+        f.write("| {} | {} | {} | {} | {} |\n".format(
+            p_names[i], p_statuses[i], p_meetings_attended[i], la, p_trends[i]))
+    f.write("\n")
+
+    # Recurring Concerns
+    f.write("## Recurring Concerns\n\n")
+    person_topic_counts = {}
+    person_topic_first = {}
+
+    for name, artifacts_list in person_artifacts.items():
+        section_counts_local = {}
+        section_first_local = {}
+        for art_line in artifacts_list:
+            parts = art_line.split("|")
+            if len(parts) < 2:
+                continue
+            art_date = parts[0]
+            art_section = parts[1]
+            if not art_section:
+                continue
+            section_counts_local[art_section] = section_counts_local.get(art_section, 0) + 1
+            first = section_first_local.get(art_section)
+            if first is None or art_date < first:
+                section_first_local[art_section] = art_date
+
+        for sec, cnt in section_counts_local.items():
+            key = "{}|{}".format(name, sec)
+            person_topic_counts[key] = cnt
+            person_topic_first[key] = section_first_local[sec]
+
+    recurring_lines = []
+    for key, cnt in person_topic_counts.items():
+        if cnt >= 3:
+            person, topic = key.split("|", 1)
+            first_date = person_topic_first[key]
+            recurring_lines.append("| {} | {} | {} | {} |".format(person, topic, cnt, first_date))
+
+    if recurring_lines:
+        f.write("| Person | Concern | Frequency | First Raised |\n")
+        f.write("|--------|---------|-----------|-------------|\n")
+        for line in recurring_lines:
+            f.write(line + "\n")
+    else:
+        f.write("No recurring concerns detected yet. Requires 3+ artifacts from the same person in the same section.\n")
+    f.write("\n")
+
+    # Influence Distribution
+    f.write("## Influence Distribution\n\n")
+    person_decisions = {}
+    person_insights = {}
+    person_domain_decisions = {}
+
+    for name, artifacts_list in person_artifacts.items():
+        d_count = 0
+        i_count = 0
+        for art_line in artifacts_list:
+            parts = art_line.split("|")
+            if len(parts) < 3:
+                continue
+            art_section = parts[1]
+            art_type = parts[2]
+            if not art_type:
+                continue
+            if art_type == "decision":
+                d_count += 1
+                dd_key = "{}|{}".format(art_section, name)
+                person_domain_decisions[dd_key] = person_domain_decisions.get(dd_key, 0) + 1
+            elif art_type == "insight":
+                i_count += 1
+        person_decisions[name] = d_count
+        person_insights[name] = i_count
+
+    # Find primary voice per domain
+    domain_primary_voice = {}
+    domain_primary_count = {}
+
+    for key, cnt in person_domain_decisions.items():
+        section, name = key.split("|", 1)
+        current_max = domain_primary_count.get(section, 0)
+        if cnt > current_max:
+            domain_primary_voice[section] = name
+            domain_primary_count[section] = cnt
+
+    if domain_primary_voice:
+        f.write("| Domain | Primary Voice | Decisions Led |\n")
+        f.write("|--------|--------------|---------------|\n")
+        for section in domain_primary_voice:
+            f.write("| {} | {} | {} |\n".format(section, domain_primary_voice[section], domain_primary_count[section]))
+    else:
+        f.write("No decision artifacts attributed yet.\n")
+    f.write("\n")
+
+    # Influence scores
+    influence_lines = []
+    for name in person_decisions:
+        d = person_decisions[name]
+        ins = person_insights.get(name, 0)
+        score_x2 = d * 2 + ins
+        score_int = score_x2 // 2
+        score_dec = score_x2 % 2
+        if d > 0 or ins > 0:
+            influence_lines.append("| {} | {} | {} | {}.{} |".format(name, d, ins, score_int, score_dec))
+
+    if influence_lines:
+        f.write("### Influence Scores\n\n")
+        f.write("| Person | Decisions | Insights | Influence Score |\n")
+        f.write("|--------|-----------|----------|----------------|\n")
+        for line in influence_lines:
+            f.write(line + "\n")
+
+# --- Update PROFILE.md Contributions sections ---
+for i in range(len(p_names)):
+    name = p_names[i]
+    profile_dir_val = p_profile_paths[i]
+    profile_file = os.path.join(room_dir, profile_dir_val, "PROFILE.md")
+
+    if not os.path.isfile(profile_file):
+        continue
+
+    artifacts_list = person_artifacts.get(name, [])
+
+    contrib_table = "## Contributions\n\n"
+    if not artifacts_list:
+        contrib_table += "[No contributions found yet]\n"
+    else:
+        contrib_table += "| Date | Section | Type | Artifact |\n"
+        contrib_table += "|------|---------|------|----------|\n"
+        sorted_arts = sorted(artifacts_list, key=lambda x: x.split("|")[0], reverse=True)
+        for art_line in sorted_arts:
+            parts = art_line.split("|")
+            if len(parts) < 4 or not parts[3]:
+                continue
+            contrib_table += "| {} | {} | {} | [[{}/{}]] |\n".format(parts[0], parts[1], parts[2], parts[1], parts[3])
+
+    with open(profile_file, "r") as pf:
+        content = pf.read()
+
+    if re.search(r'^## (Key )?Contributions', content, re.MULTILINE):
+        # Replace the section
+        lines = content.split("\n")
+        new_lines = []
+        in_section = False
+        for line in lines:
+            if re.match(r'^## (Key )?Contributions', line):
+                new_lines.append(contrib_table.rstrip("\n"))
+                in_section = True
+                continue
+            if in_section and line.startswith("## "):
+                in_section = False
+            if not in_section:
+                new_lines.append(line)
+        with open(profile_file, "w") as pf:
+            pf.write("\n".join(new_lines))
+
+sys.exit(0)
+PYEOF
+fi
+
 set -e
 
 ROOM_DIR="${1:-.}"

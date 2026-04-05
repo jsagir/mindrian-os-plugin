@@ -17,7 +17,7 @@ echo "=== test-speaker-id ==="
 # --- Test 1: Zoom format extracts correct speaker names ---
 echo "Test 1: Zoom format speaker extraction"
 
-ZOOM_SPEAKERS=$(grep -oP '^\d{2}:\d{2}:\d{2}\s+\K[^:]+(?=:)' "$FIXTURES_DIR/sample-transcript-zoom.txt" | sort -u)
+ZOOM_SPEAKERS=$(sed -n 's/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9][[:space:]]*\([^:]*\):.*/\1/p' "$FIXTURES_DIR/sample-transcript-zoom.txt" | sort -u)
 ZOOM_COUNT=$(echo "$ZOOM_SPEAKERS" | wc -l)
 
 # Expect 4 speakers: Sarah Chen, David Park, Michael Torres, Prof. Lawrence Aronhime
@@ -48,7 +48,7 @@ fi
 # --- Test 2: Teams format extracts correct speaker names ---
 echo "Test 2: Teams format speaker extraction"
 
-TEAMS_SPEAKERS=$(grep -oP '^\[\d{2}:\d{2}:\d{2}\]\s+\K.+$' "$FIXTURES_DIR/sample-transcript-teams.txt" | sort -u)
+TEAMS_SPEAKERS=$(sed -n 's/^\[[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\][[:space:]]*\(.*\)$/\1/p' "$FIXTURES_DIR/sample-transcript-teams.txt" | sort -u)
 TEAMS_COUNT=$(echo "$TEAMS_SPEAKERS" | wc -l)
 
 if echo "$TEAMS_SPEAKERS" | grep -q "Sarah Chen"; then

@@ -58,7 +58,7 @@ if [[ ! -f "$AUDIO_FILE" ]]; then
 fi
 
 EXTENSION="${AUDIO_FILE##*.}"
-EXTENSION="${EXTENSION,,}"  # lowercase
+EXTENSION=$(echo "$EXTENSION" | tr '[:upper:]' '[:lower:]')  # lowercase (macOS bash 3.2 compat)
 
 if [[ ! "$EXTENSION" =~ ^($SUPPORTED_FORMATS)$ ]]; then
   echo "Error: Unsupported format '.$EXTENSION'. Supported: .mp3, .m4a, .wav" >&2

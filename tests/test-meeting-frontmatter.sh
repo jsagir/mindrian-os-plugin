@@ -91,7 +91,7 @@ else
 fi
 
 # confidence should be a float between 0 and 1
-if echo "$FRONTMATTER" | grep -qP "confidence: 0\.\d+"; then
+if echo "$FRONTMATTER" | grep -qE "confidence: 0\.[0-9]+"; then
   pass "confidence is a valid float"
 else
   fail "confidence should be a float (0.0-1.0)"
