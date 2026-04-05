@@ -1,0 +1,284 @@
+---
+name: scheduled-tasks
+description: Cowork scheduled task definitions for proactive intelligence -- daily briefing, prediction tracking, competitor watch, news scan, scout sentinel
+body_shape: E (Action Report)
+ui_reference: skills/ui-system/SKILL.md
+surface: cowork
+allowed-tools:
+  - Read
+  - Write
+  - Glob
+  - Bash
+  - WebSearch
+  - mcp__tavily__tavily-search
+  - mcp__mindrian-brain__brain_query
+---
+
+# Cowork Scheduled Tasks
+
+These are task definitions for Cowork's built-in scheduler. Each task runs autonomously at its configured interval, producing room artifacts in `room/intelligence/`.
+
+Users configure these in Cowork's task management UI. Larry references these definitions to register and execute scheduled work.
+
+---
+
+## Task 1: Daily Briefing
+
+**Schedule:** Every 24 hours (recommended: 6:00 AM user's timezone)
+**Trigger:** `daily-briefing`
+**Requirements:** SCHED-02
+
+### What It Does
+
+Generates a daily intelligence briefing from room state:
+- Approaching prediction deadlines (overdue, urgent, approaching)
+- New contradictions detected in intelligence files
+- Stale sections (7+ days without updates)
+- Room health summary (section coverage, artifact counts)
+
+### Execution
+
+```javascript
+const { writeBriefing } = require('lib/core/daily-briefing.cjs');
+const result = writeBriefing(roomDir);
+// result.outputPath = room/intelligence/briefing-YYYY-MM-DD.md
+```
+
+### Output
+
+Filed to: `room/intelligence/briefing-YYYY-MM-DD.md`
+
+Frontmatter includes: type, date, predictions_tracked, contradictions_found, stale_sections, generated timestamp.
+
+### Recovery
+
+If missed (Cowork was offline), the session catch-up module detects the gap and generates the briefing on next session start.
+
+---
+
+## Task 2: Prediction Deadline Tracker
+
+**Schedule:** Every 12 hours
+**Trigger:** `prediction-tracker`
+**Requirements:** SCHED-02
+
+### What It Does
+
+Scans `.predictions/REGISTRY.json` for:
+- OVERDUE predictions (deadline passed)
+- URGENT predictions (due within 3 days)
+- APPROACHING predictions (due within 14 days)
+
+Alerts are included in the daily briefing. This task runs more frequently to catch deadline transitions between briefings.
+
+### Execution
+
+```javascript
+const { getPredictionDeadlines } = require('lib/core/daily-briefing.cjs');
+const deadlines = getPredictionDeadlines(roomDir);
+const overdue = deadlines.filter(p => p.status === 'OVERDUE');
+const urgent = deadlines.filter(p => p.status === 'URGENT');
+```
+
+If overdue or urgent predictions exist, surface them via resource notification:
+> "You have N overdue predictions and M predictions due within 3 days."
+
+### Output
+
+No separate file -- results feed into the daily briefing. Notifications are surfaced to the user in the Cowork conversation.
+
+---
+
+## Task 3: Competitor Watch
+
+**Schedule:** Weekly (recommended: Monday 8:00 AM)
+**Trigger:** `competitor-watch`
+**Requirements:** SCHED-03, SCHED-07
+
+### What It Does
+
+1. Extracts tracked competitors from `room/competitive-analysis/` and `.config.json`
+2. Builds search queries for each competitor (max 5)
+3. Executes web searches for recent competitor activity
+4. Checks findings against room assumptions for contradictions
+5. Files results to `room/intelligence/competitors-YYYY-MM-DD.md`
+
+### Execution
+
+```javascript
+const { buildCompetitorQueries, fileCompetitorResults } = require('lib/core/scheduled-scanner.cjs');
+const queryPlan = buildCompetitorQueries(roomDir);
+
+if (queryPlan.insufficient) {
+  // No competitors tracked -- skip
+  return;
+}
+
+// For each query, use WebSearch or Tavily
+for (const q of queryPlan.queries) {
+  // Execute: WebSearch(q.searchQuery)
+  // Collect findings and check for contradictions against room/competitive-analysis/
+}
+
+// File results
+fileCompetitorResults(roomDir, results);
+```
+
+### Search Strategy
+
+For each competitor:
+- Query: `"[name]" funding OR launch OR pivot OR acquisition OR partnership`
+- Time range: last 30 days
+- Extract: key developments, funding rounds, product launches, pivots
+- Flag: any finding that contradicts claims in room/competitive-analysis/
+
+### Output
+
+Filed to: `room/intelligence/competitors-YYYY-MM-DD.md`
+
+Frontmatter includes: type, date, competitors_scanned, contradictions_found, generated timestamp, source.
+
+---
+
+## Task 4: Grant & Funding Discovery
+
+**Schedule:** Weekly (recommended: Wednesday 8:00 AM)
+**Trigger:** `grant-discovery`
+**Requirements:** SCHED-04, SCHED-07
+
+### What It Does
+
+1. Reads room context (domain keywords, geography, venture stage from STATE.md)
+2. Queries Grants.gov API and Simpler Grants API
+3. Scores results for relevance against room context
+4. Files top results to `room/intelligence/grants-YYYY-MM-DD.md`
+
+### Execution
+
+```javascript
+const { scanAndFileGrants } = require('lib/core/scheduled-scanner.cjs');
+const result = await scanAndFileGrants(roomDir);
+// result.outputPath, result.resultCount, result.apiErrors
+```
+
+### Prerequisites
+
+Room STATE.md should contain `domain_keywords` for accurate matching. Without keywords, the scanner falls back to problem-definition/ content.
+
+### Output
+
+Filed to: `room/intelligence/grants-YYYY-MM-DD.md`
+
+Frontmatter includes: type, date, results count, api_errors count, generated timestamp, source.
+
+---
+
+## Task 5: Domain News Scan
+
+**Schedule:** Weekly (recommended: Friday 8:00 AM)
+**Trigger:** `news-scan`
+**Requirements:** SCHED-05, SCHED-07
+
+### What It Does
+
+1. Reads domain keywords from room STATE.md
+2. Builds news queries: domain developments, regulatory updates, market/investment
+3. Executes web searches
+4. Files results to `room/intelligence/news-YYYY-MM-DD.md`
+
+### Execution
+
+```javascript
+const { buildNewsQueries, fileNewsResults } = require('lib/core/scheduled-scanner.cjs');
+const queryPlan = buildNewsQueries(roomDir);
+
+if (queryPlan.insufficient) {
+  // No domain keywords -- skip
+  return;
+}
+
+// For each query, use WebSearch or Tavily
+// Collect results per topic
+
+fileNewsResults(roomDir, results);
+```
+
+### Output
+
+Filed to: `room/intelligence/news-YYYY-MM-DD.md`
+
+Frontmatter includes: type, date, topics_scanned, items_found, generated timestamp, source.
+
+---
+
+## Task 6: Scout Sentinel
+
+**Schedule:** Weekly (recommended: Sunday midnight)
+**Trigger:** `scout-sentinel`
+**Requirements:** SCHED-06
+
+### What It Does
+
+Runs the full `/mos:scout` sentinel suite:
+1. State snapshot
+2. Health check (compare STATE.md vs last snapshot)
+3. Deadline monitor (funding/ and opportunity-bank/ deadlines)
+4. Competitor watch (if competitors tracked)
+5. HSI recomputation (if dependencies available)
+
+### Execution
+
+This task invokes the scout command directly:
+
+```bash
+PLUGIN_ROOT="$(dirname "$(readlink -f "$0")")/.."
+bash "${PLUGIN_ROOT}/scripts/sentinel-snapshot" "$ROOM_DIR"
+bash "${PLUGIN_ROOT}/scripts/sentinel-health-check" "$ROOM_DIR"
+bash "${PLUGIN_ROOT}/scripts/sentinel-deadline-monitor" "$ROOM_DIR"
+```
+
+For HSI recomputation (if scikit-learn is available):
+```bash
+python3 "${PLUGIN_ROOT}/scripts/compute-hsi.py" "$ROOM_DIR"
+python3 "${PLUGIN_ROOT}/scripts/detect-reverse-salients.py" "$ROOM_DIR"
+node "${PLUGIN_ROOT}/scripts/hsi-to-kuzu.cjs" "$ROOM_DIR"
+```
+
+### Output
+
+Multiple outputs:
+- `room/.snapshots/STATE-YYYY-MM-DD.md`
+- `room/.intelligence/health-YYYY-MM-DD.md` (if drift detected)
+- HSI results updated in `room/.hsi-results.json`
+
+---
+
+## Tri-Polar Notes
+
+**CLI:** These tasks don't run on CLI. Users invoke `/mos:scout` manually. Session-start hook handles catch-up scanning.
+
+**Desktop:** These tasks don't run on Desktop (no scheduler). Desktop users get the session catch-up summary when reconnecting after a gap.
+
+**Cowork:** Primary surface. Tasks register in Cowork's built-in scheduler. Users configure frequency in task management UI. Missed tasks are recovered by session catch-up on next connection.
+
+---
+
+## Configuration
+
+Users can customize task schedules by setting preferences in `room/.config.json`:
+
+```json
+{
+  "scheduled_tasks": {
+    "daily_briefing": { "enabled": true, "interval_hours": 24 },
+    "prediction_tracker": { "enabled": true, "interval_hours": 12 },
+    "competitor_watch": { "enabled": true, "interval_days": 7 },
+    "grant_discovery": { "enabled": true, "interval_days": 7 },
+    "news_scan": { "enabled": true, "interval_days": 7 },
+    "scout_sentinel": { "enabled": true, "interval_days": 7 }
+  },
+  "tracked_competitors": ["Competitor A", "Competitor B"]
+}
+```
+
+All tasks are enabled by default. Users can disable individual tasks or adjust frequency.
