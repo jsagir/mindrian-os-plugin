@@ -53,6 +53,19 @@ Rules:
 - Max 5 other rooms shown. If more, show count: "...and 3 more (/mos:rooms list)"
 - If only 1 room registered, do NOT show the multi-room section
 
+## KAIROS Daily Log Detection (READY-02)
+
+When the `tengu_kairos` environment variable is set to `true` OR the file `room/.mindrian/kairos-active` exists, KAIROS background memory is available. In this mode:
+
+1. **Skip cold-start context rebuild.** Do NOT re-read all room artifacts to reconstruct session state. KAIROS has already consolidated overnight context into a daily log.
+2. **Read the KAIROS daily log** at `room/.mindrian/kairos/daily-log.md` (or the path in `KAIROS_LOG_PATH` env var if set). This contains the consolidated memory from KAIROS background processing.
+3. **Read `room/.mindrian/last-session.md`** for structured session state (active_methodology, open_questions, next_suggested_action, confidence_level). This supplements the KAIROS log with MindrianOS-specific session data.
+4. **Greet with KAIROS-enriched context:** Reference insights from the daily log naturally. Example: "KAIROS noticed overnight that your financial model assumptions diverge from the market analysis. Want to reconcile?"
+
+When `tengu_kairos` is NOT set and `kairos-active` does not exist, this section is a no-op. Fall through to standard session continuity (USER.md + STATE.md) with zero overhead.
+
+**Graceful degradation:** If the flag is set but the daily log file is missing or empty, fall back to standard context rebuild and log a note: "KAIROS flag detected but no daily log found -- using standard context."
+
 ## Context Window Awareness
 
 Read `/tmp/mindrian-context-state` if it exists. If the file is missing or older than 5 minutes (compare TIMESTAMP to current epoch), use conservative defaults: assume 200K context window, 50% usage, unknown model.
