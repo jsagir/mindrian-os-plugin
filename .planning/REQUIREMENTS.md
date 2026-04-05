@@ -61,11 +61,11 @@
 
 ### Agent Dispatch Optimization
 
-- [ ] **AGENT-01**: Dynamic swarm sizing: dispatch N agents = min(weak_sections, context_budget / agent_cost) instead of always 3
-- [ ] **AGENT-02**: Cost estimation before dispatch: show "This will use ~150K tokens (3 agents x Opus)" before running
-- [ ] **AGENT-03**: Chain checkpointing: pause between pipeline steps with "Continue to step 3?" instead of always running 3-5
-- [ ] **AGENT-04**: Budget-aware model routing: if total_cost > remaining_context * 0.6, downgrade from Opus to Sonnet
-- [ ] **AGENT-05**: Coordinator-compatible agent outputs: when CLAUDE_CODE_COORDINATOR_MODE ships, framework-runners map to Coordinator workers
+- [x] **AGENT-01**: Dynamic swarm sizing: dispatch N agents = min(weak_sections, context_budget / agent_cost) instead of always 3
+- [x] **AGENT-02**: Cost estimation before dispatch: show "This will use ~150K tokens (3 agents x Opus)" before running
+- [x] **AGENT-03**: Chain checkpointing: pause between pipeline steps with "Continue to step 3?" instead of always running 3-5
+- [x] **AGENT-04**: Budget-aware model routing: if total_cost > remaining_context * 0.6, downgrade from Opus to Sonnet
+- [x] **AGENT-05**: Coordinator-compatible agent outputs: when CLAUDE_CODE_COORDINATOR_MODE ships, framework-runners map to Coordinator workers
 
 ### KAIROS/Platform Readiness
 
@@ -167,11 +167,11 @@
 | PIPE-01 | Phase 56 | Complete |
 | PIPE-02 | Phase 56 | Complete |
 | PIPE-03 | Phase 56 | Complete |
-| AGENT-01 | Phase 57 | Pending |
-| AGENT-02 | Phase 57 | Pending |
-| AGENT-03 | Phase 57 | Pending |
-| AGENT-04 | Phase 57 | Pending |
-| AGENT-05 | Phase 57 | Pending |
+| AGENT-01 | Phase 57 | Complete |
+| AGENT-02 | Phase 57 | Complete |
+| AGENT-03 | Phase 57 | Complete |
+| AGENT-04 | Phase 57 | Complete |
+| AGENT-05 | Phase 57 | Complete |
 | SCHED-01 | Phase 58 | Pending |
 | SCHED-02 | Phase 58 | Pending |
 | SCHED-03 | Phase 58 | Pending |

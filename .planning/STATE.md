@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.8.0
 milestone_name: Cowork Adaptation
 status: executing
-stopped_at: Completed 56-01-PLAN.md (pipeline chaining)
+stopped_at: Completed 57-01 (agent dispatch optimization)
 last_updated: "2026-04-05T20:55:00Z"
 last_activity: 2026-04-05
 progress:
@@ -21,11 +21,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** Every MindrianOS command, pipeline, and intelligence capability works identically across CLI, Desktop, and Cowork
-**Current focus:** Phase 56 — Pipeline Chaining
+**Current focus:** Phase 57 -- Agent Dispatch Optimization
 
 ## Current Position
 
-Phase: 56 (Pipeline Chaining) — COMPLETE
+Phase: 57 (Agent Dispatch Optimization) -- COMPLETE
 Plan: 1 of 1
 Status: Phase complete
 Last activity: 2026-04-05
@@ -71,6 +71,10 @@ Progress: [###░░░░░░░] 30%
 - [Phase 55]: Context tiers: minimal ~500 tokens, balanced ~2K, rich ~5K -- selected by budget % and archetype
 - [Phase 55]: 6 MCP profiles: learn(0 servers) through full(5 servers) -- intent keywords override archetype defaults
 - [Phase 55]: Autocompact thresholds: student 65%, default 72%, venturist 75%, researcher 78%
+- [Phase 57]: Dynamic swarm: N = min(weak_sections, budget / agent_cost), not hardcoded 3
+- [Phase 57]: Model downgrade chain: opus -> sonnet -> haiku at 60% budget threshold
+- [Phase 57]: Chain checkpoints: yes/skip/stop between every step (mandatory)
+- [Phase 57]: Coordinator output schema is documentation-only JSON until feature ships
 
 ### Pending Todos
 
@@ -86,6 +90,6 @@ Progress: [###░░░░░░░] 30%
 
 ## Session Continuity
 
-Last session: 2026-04-05T20:42:06.407Z
-Stopped at: Completed 54-01-PLAN.md (skill compression + progressive loading)
+Last session: 2026-04-05T20:59:13Z
+Stopped at: Completed 57-01 (agent dispatch optimization)
 Resume file: None
