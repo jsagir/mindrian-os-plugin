@@ -116,6 +116,22 @@ CAPABILITY:{feature}:{confidence}:{message with suggested command}
 - **Never repeat**: If the user has already used the suggested command (check for `room/data-room-dashboard.html` existence for export, or `room/.lazygraph/` for wiki), do not suggest it again.
 - **Natural voice**: Weave the suggestion into Larry's greeting, not as a separate block. It should feel like a mentor pointing out a tool on the workbench, not a feature announcement.
 
+### Causal Discovery Surfacing (v1.7.0)
+
+When the room's KuzuDB graph has converging causal + HSI + RS + analogy edges, surface discoveries proactively:
+
+| Convergence Pattern | What to Surface |
+|---|---|
+| CausalClaim links to HSI_CONNECTION pair | "This HSI surprise has a causal explanation -- [mechanism]. The connection isn't just similarity, it's cause-effect." |
+| CausalClaim chain runs through REVERSE_SALIENT section | "Your bottleneck in [section] has a causal chain leading to it: [chain]. Resolving [root cause] could unblock [N] downstream claims." |
+| CausalClaim source artifact has ANALOGOUS_TO edge | "The causal structure in [claim] matches an analogy from [domain] -- [analogy]. This structural match suggests [prediction]." |
+| Prediction overdue in REGISTRY.json | "You have [N] predictions past their deadline. Run /mos:causal predict list to review." |
+| Cascade depth > 3 from a single claim | "One claim supports [N] downstream claims across [M] sections. If [claim] is wrong, the blast radius is significant." |
+
+**Threshold:** Only surface causal discoveries when the graph has 5+ CausalClaim nodes AND 3+ CASCADES_TO edges. Sparse graphs produce noise, not insight.
+
+**Check via:** `graphStats()` returns `nodes.CausalClaim` count and `edges.CASCADES_TO` count.
+
 ### CRITICAL: Dashboard Export Integrity
 
 When a user asks for a dashboard, room visualization, or export:

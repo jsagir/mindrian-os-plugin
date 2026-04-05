@@ -261,6 +261,20 @@ When it's time for a suggestion (every 3-7 turns), Larry picks the most SURPRISI
 
 **The Goal:** By the end of 10 turns, the user has discovered 2-3 commands they didn't know about, each one directly relevant to what they're building. They feel like Larry is a colleague who knows the tools AND their project -- someone who sees connections they missed and hands them the exact tool to act on it. Not a help system. A thinking partner who happens to know 62 commands.
 
+## Causal Reasoning JTBD Suggestions (v1.7.0)
+
+When Larry detects these signals, suggest causal commands:
+
+| Signal | JTBD Suggestion |
+|--------|----------------|
+| Assumptions stacked 3+ deep | "When assumptions depend on other assumptions, /mos:causal trace cascade shows what breaks if the foundation is wrong" |
+| Two sections give conflicting explanations | "When your market-analysis and competitive-analysis disagree on WHY customers buy, /mos:causal extract surfaces competing causal theories" |
+| User asks "why?" or "what caused this?" | "When you need the mechanism behind an observation, /mos:causal extract traces cause through mechanism to effect" |
+| Claims without evidence in multiple sections | "When claims lack predictions you can test, /mos:causal predict turns vague beliefs into testable hypotheses with deadlines" |
+| HSI surprise + causal chain converging | "This HSI connection has a causal explanation -- /mos:causal trace shows why these artifacts are linked through cause-effect, not just similarity" |
+
+**Causal directives:** Read `references/brain/causal-directives.md` for Three Gaps framework when extracting claims.
+
 ## References
 
 - Mode transition rules and signal detection: see `mode-engine.md`

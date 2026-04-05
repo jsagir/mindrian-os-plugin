@@ -76,14 +76,18 @@ Plans:
 ### Phase 55: Post-Write Integration + Prediction Registry
 **Goal**: Causal candidates are automatically flagged after artifact filing, and users can generate and track falsifiable predictions with closed-loop confidence updates
 **Depends on**: Phase 54
-**Requirements**: HOOK-01, HOOK-02, HOOK-03, HOOK-04, PREDICT-01, PREDICT-02, PREDICT-03, PREDICT-04, PREDICT-05, PREDICT-06
+**Requirements**: HOOK-01, HOOK-02, HOOK-03, HOOK-04, PREDICT-01, PREDICT-02, PREDICT-03, PREDICT-04, PREDICT-05, PREDICT-06, ENGINE-09
 **Success Criteria** (what must be TRUE):
   1. Filing a new artifact triggers causal candidate flagging (regex heuristic) that produces .causal-candidates.json without blocking the post-write cascade
   2. Running /mos:causal extract on flagged candidates writes confirmed claims to KuzuDB via CJS bridge, then cross-reference step links them to existing HSI/RS/Analogy edges
   3. /mos:causal predict generates falsifiable predictions with deadlines, stored in room/.predictions/REGISTRY.json with lifecycle: pending -> confirmed/refuted/expired
   4. Larry proactively prompts for prediction resolution when deadlines pass (session-start or every 5th session)
   5. Resolving a prediction propagates confidence updates back to source CausalClaim nodes in KuzuDB, and prediction summary shows hit rate and overdue count
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 55-01-PLAN.md -- Post-write causal candidate flagging + confirm-to-KuzuDB bridge (HOOK-01, HOOK-02, HOOK-03, HOOK-04)
+- [ ] 55-02-PLAN.md -- Prediction registry CRUD, /mos:causal predict command, session-start overdue check (PREDICT-01 through PREDICT-06)
+- [ ] 55-03-PLAN.md -- Research-backed examples via analogy engine (ENGINE-09)
 
 ### Phase 56: Command + Larry Wiring
 **Goal**: Users interact with the full causal layer through /mos:causal and Larry naturally suggests causal reasoning when assumptions stack up
@@ -116,7 +120,7 @@ Plans:
 | 52. Causal Schema + Brain Enrichment | v1.7.0 | 0/2 | Planning complete | - |
 | 53. Causal Extraction | v1.7.0 | 0/TBD | Not started | - |
 | 54. Graph Engine | v1.7.0 | 0/3 | Planning complete | - |
-| 55. Post-Write Integration + Prediction Registry | v1.7.0 | 0/TBD | Not started | - |
+| 55. Post-Write Integration + Prediction Registry | v1.7.0 | 0/3 | Planning complete | - |
 | 56. Command + Larry Wiring | v1.7.0 | 0/TBD | Not started | - |
 | 57. Release | v1.7.0 | 0/TBD | Not started | - |
 
