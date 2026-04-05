@@ -4,8 +4,8 @@
  * MindrianOS MCP Server — stdio transport entry point
  *
  * Connects MindrianOS plugin capabilities to Claude Desktop and Cowork
- * via the Model Context Protocol. Uses hierarchical tool router (6 tools)
- * instead of flat 41-tool registration to stay under 5000 token budget.
+ * via the Model Context Protocol. Uses hierarchical tool router (9 tools
+ * covering 64 CLI commands) to stay under 7000 token budget.
  *
  * Configuration:
  *   MINDRIAN_ROOM env var sets the Data Room path (default: ./room)
@@ -52,7 +52,7 @@ const server = new McpServer({
   version,
 });
 
-// Register hierarchical tool router (6 tools covering 41 CLI commands)
+// Register hierarchical tool router (9 tools covering 64 CLI commands)
 const { registerRouterTools } = require('../lib/mcp/tool-router.cjs');
 registerRouterTools(server, roomDir, pluginRoot, larryContext);
 
