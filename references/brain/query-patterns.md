@@ -1,6 +1,6 @@
 # Brain Query Patterns
 
-10 named Cypher/Pinecone templates. Single source of truth for all agents, skills, and commands.
+13 named Cypher/Pinecone templates. Single source of truth for all agents, skills, and commands.
 
 ## How to Use
 
@@ -337,3 +337,71 @@ This means Brain-connected users get SMARTER suggestions than free-tier users. T
 | No Room | Generic stage-based defaults | Okay: standard recommendations from methodology index |
 
 Brain suggestions ENRICH. They never GATE. Free-tier users still get good suggestions from local Room intelligence.
+
+---
+
+## 11. causal_framework_select
+
+**Purpose:** Given a problem type and venture stage, which causal framework fits best?
+
+```cypher
+MATCH (f:Framework)-[:RELATED_TO]->(:Concept {name: 'Causal Reasoning'})
+OPTIONAL MATCH (f)-[:TYPICAL_AT]->(s:VentureStage {name: $stage})
+RETURN f.name AS framework,
+       f.description AS description,
+       s IS NOT NULL AS matches_stage
+ORDER BY matches_stage DESC
+LIMIT 5
+```
+
+**Parameters:**
+- `$stage` -- venture stage from STATE.md (Pre-Opportunity, Opportunity Identified, Problem Validation, Discovery, Design, Investment)
+
+**Output:** Ranked list of causal frameworks with stage-match indicator.
+
+---
+
+## 12. causal_pattern_match
+
+**Purpose:** Given a causal claim's domain, find which frameworks and teaching examples address similar causal patterns.
+
+```cypher
+MATCH (f:Framework)-[:RELATED_TO]->(:Concept {name: 'Causal Reasoning'})
+OPTIONAL MATCH (f)-[:ADDRESSES_PROBLEM_TYPE]->(pt:ProblemType)
+WHERE pt.name CONTAINS $domain OR pt.name CONTAINS $problem_keyword
+OPTIONAL MATCH (f)-[a:APPLIED_IN]->(e:Example)
+RETURN f.name AS framework,
+       collect(DISTINCT pt.name) AS problem_types,
+       collect(DISTINCT e.project_name)[0..3] AS example_projects,
+       a.grade_numeric AS example_grade
+ORDER BY size(collect(DISTINCT pt.name)) DESC
+LIMIT 5
+```
+
+**Parameters:**
+- `$domain` -- causal claim domain (materials, business, competitive, financial, team, legal, general)
+- `$problem_keyword` -- keyword from the causal claim's cause or effect text
+
+**Output:** Frameworks that address similar problem types, with teaching examples for calibration.
+
+---
+
+## 13. causal_contradiction_resolve
+
+**Purpose:** When two causal claims contradict, find frameworks and resolution patterns from the Brain.
+
+```cypher
+MATCH (f:Framework)-[:RELATED_TO]->(:Concept {name: 'Causal Reasoning'})
+WHERE f.name IN ['Six Thinking Hats', 'Cynefin', 'Root Cause Analysis', 'Systems Thinking']
+OPTIONAL MATCH (f)-[:CO_OCCURS]->(co:Framework)
+OPTIONAL MATCH (f)-[:FEEDS_INTO]->(next:Framework)
+RETURN f.name AS framework,
+       f.description AS description,
+       collect(DISTINCT co.name) AS co_occurs_with,
+       collect(DISTINCT next.name) AS feeds_into
+LIMIT 10
+```
+
+**Parameters:** None -- returns the full contradiction resolution toolkit.
+
+**Output:** Frameworks suited for resolving causal contradictions, with their co-occurrence and chaining relationships.
