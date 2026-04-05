@@ -67,7 +67,11 @@ Plans:
   3. Bottleneck detection surfaces high-centrality, low-out-degree CausalClaim nodes that the user did not explicitly ask about
   4. Contradiction detection catches circular reasoning (A causes B causes C causes A) and reports the cycle
   5. Cross-reference queries show which HSI pairs have causal explanations, which reverse salients have causal chains, and which analogies match causal structure
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 54-01-PLAN.md -- CJS export function, CASCADES_TO edge creation, test seed data (ENGINE-01, ENGINE-02)
+- [ ] 54-02-PLAN.md -- Python NetworkX engine with 5 algorithms (ENGINE-01, ENGINE-02, ENGINE-03, ENGINE-04, ENGINE-08)
+- [ ] 54-03-PLAN.md -- Cross-reference Cypher queries + results bridge (ENGINE-05, ENGINE-06, ENGINE-07)
 
 ### Phase 55: Post-Write Integration + Prediction Registry
 **Goal**: Causal candidates are automatically flagged after artifact filing, and users can generate and track falsifiable predictions with closed-loop confidence updates
@@ -111,7 +115,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 52. Causal Schema + Brain Enrichment | v1.7.0 | 0/2 | Planning complete | - |
 | 53. Causal Extraction | v1.7.0 | 0/TBD | Not started | - |
-| 54. Graph Engine | v1.7.0 | 0/TBD | Not started | - |
+| 54. Graph Engine | v1.7.0 | 0/3 | Planning complete | - |
 | 55. Post-Write Integration + Prediction Registry | v1.7.0 | 0/TBD | Not started | - |
 | 56. Command + Larry Wiring | v1.7.0 | 0/TBD | Not started | - |
 | 57. Release | v1.7.0 | 0/TBD | Not started | - |
