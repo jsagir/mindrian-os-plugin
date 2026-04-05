@@ -24,48 +24,57 @@ v1.0 through v5.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Presen
 - v1.6.0 Powerhouse (2026-03-31) -- 8 phases, parallel execution, spectral OM-HMM, DbA, model routing
 - v6.2 RoomHub + SnapshotHub (2026-04-01) -- 5 phases, adaptive room detection, 7 showcase views, SnapshotHub export
 
-## Current Milestone: v1.7.0 Causal Reasoning Layer
+## Current Milestone: v1.8.0 Cowork Adaptation
 
-**Goal:** Larry can trace cause-effect chains, detect assumption cascades, surface bottlenecks through graph structure, and track falsifiable predictions -- enabling "because...because...because" reasoning across the Data Room.
-
-**Research basis:**
-- Consultant plugin review session (branch claude/plugin-consultant-review-6MYsc): Research 14-17, causal schema design, pipeline integration architecture
-- Brain audit: causal frameworks are islands -- zero FEEDS_INTO, CO_OCCURS, or TYPICAL_AT edges between Root Cause Analysis, Systems Thinking, Reverse Salient, Causal Loop Diagrams
-- Duraisamy (2025) "Active Inference AI Systems for Scientific Discovery" -- Three Gaps framework (Abstraction, Reasoning, Reality)
-- Hughes (1983) Reverse Salients -- betweenness centrality for bottleneck detection
-- Adam Peters/Synteris persona simulation -- 5.3/10 novelty baseline, target 7.5/10 with causal layer
+**Goal:** Adapt the MindrianOS plugin for Claude Desktop and Claude Cowork surfaces -- exposing ALL 64 commands as MCP tools with Brain-driven routing, full pipeline chaining, surface auto-detection, and Cowork-unique persistent intelligence.
 
 **Target features:**
 
-Layer 1 -- Brain Graph Enrichment:
-- Wire FEEDS_INTO chains: Root Cause Analysis -> Systems Thinking -> Causal Loop Diagrams -> Scenario Analysis
-- Add CO_OCCURS edges: Root Cause <-> Six Thinking Hats, Systems Thinking <-> Reverse Salient
-- Create "Theory of Change" Framework node (forward causal reasoning -- biggest gap)
-- Create "Causal Reasoning" parent Concept node connecting the family
-- Add TYPICAL_AT venture stage mappings for all causal frameworks
-- Link Falsifiability and Hypothesis Tree to causal frameworks via VALIDATES relationship
+MCP Foundation (Complete Coverage):
+- All 64 commands exposed as MCP tools (currently 49/64 -- 15 orphans including act, causal, dashboard, find-analogies, rooms, scout, wiki, etc.)
+- Brain-driven tool routing: MCP server consults Brain to determine which methodology/tools to chain based on room context (the /mos:act engine exposed via MCP)
+- Full pipeline chaining via MCP: scenario analysis -> root cause -> causal tracing -> prediction tracking works end-to-end on Desktop/Cowork
+- Hierarchical router expanded to cover 100% of commands
 
-Layer 2 -- Plugin Causal Engine:
-- CausalClaim node type in KuzuDB: cause, mechanism, effect, confidence, falsifiable_prediction, novelty_score, domain
-- CAUSES, CASCADES_TO, EXTRACTED_FROM edge types in LazyGraph
-- Causal graph engine (NetworkX): chain traversal, cascade simulation, betweenness centrality bottleneck detection, contradiction detection, inversion protocol
-- /mos:causal command (3 subcommands: extract, trace, predict)
-- Prediction tracking with closed-loop learning (room/.predictions/REGISTRY.json)
-- Post-write hook: causal candidate flagging after HSI, cross-reference step linking CausalClaims to HSI_CONNECTION and REVERSE_SALIENT edges
-- Brain causal directives (Three Gaps: every claim needs mechanism + falsifiable prediction)
-- Brain query patterns 11-13: causal_framework_select, causal_pattern_match, causal_contradiction_resolve
-- Larry personality JTBD wiring: "When you have assumptions stacked 3-deep, /mos:causal cascade"
-- Enhanced room-proactive: surface discoveries when graph has causal + HSI + RS + analogy edges converging
+Surface Detection + Auto-Setup:
+- /mos:setup auto-detects CLI vs Desktop vs Cowork and configures both MCP servers (Brain remote + MindrianOS local)
+- One plugin install serves all three surfaces
+- Graceful degradation: CLI hooks -> MCP tool equivalents on Desktop/Cowork
+
+Cowork Scheduled Intelligence:
+- Persistent room watching (Larry never forgets between sessions)
+- Daily briefings from room state
+- Prediction deadline checks from REGISTRY.json
+- Scout/reanalyze running on schedule
+
+De Bono Persistent Hats:
+- 6 always-on perspective agents for Cowork rooms
+- Black Hat = causal chain validation, Yellow Hat = HSI + analogies, Blue Hat = Brain framework chains
+- Each hat maintains context across sessions
+
+MCP Apps Data Room Views:
+- Interactive dashboard/wiki/graph rendered in Cowork UI via MCP Apps
+- No local server needed -- views returned as MCP tool UI components
+- KAIROS-ready artifact structure for background agent consumption
 
 **Architecture:**
-- Larry extracts (semantic, LLM) -> Python computes (graph algorithms) -> KuzuDB stores -> Brain directs
-- No monolithic orchestrator -- integration through KuzuDB edges and post-write cascade
-- Tier 0 works without Python deps (Larry reasons causally from directives alone)
-- Discovery emerges from graph structure: Cypher walks Causal -> HSI -> RS -> Analogy edges in one query
-- Follows existing patterns: Python -> JSON intermediate -> CJS writes to KuzuDB
+- Two MCP servers: Brain MCP (remote, Streamable HTTP, proprietary IP) + MindrianOS MCP (local, stdio for Desktop / Streamable HTTP for Cowork)
+- Cowork runs in sandboxed Linux VM -- agents ONLY access mounted folders
+- PostToolUse hooks are CLI-only -- Cowork needs MCP-native equivalents
+- Brain consulted at routing layer to determine framework selection, chaining order, and context-aware methodology recommendations
+- Same lib/core/* shared between CLI (mindrian-tools.cjs) and MCP (mindrian-mcp-server.cjs)
 
-**North star example:**
-User asks "Should I target fusion or semiconductors?" and Larry traces: "Semiconductor targeting works BECAUSE qualification timeline creates competitive moat, BECAUSE etch chamber downtime costs $2-5M/year" -- then identifies the geometry-enabled-qualification bottleneck (novel, user didn't know), finds the medical implant analogy (structural match), and generates a testable prediction.
+**Research basis:**
+- Cowork deep dive: sandboxed VM, plugin format unified across CLI/Cowork, MCP Apps for UI
+- MCP persistent agents: Streamable HTTP transport, resource subscriptions, MCP Tasks for background agents
+- 64-command audit: 18 work now, 31 need MCP wrappers, 15 need redesign for Desktop/Cowork
+- KAIROS preview: persistent background agent with dreaming phase -- design artifacts to be consumable
+- MCP Apps: tools return interactive UI components rendered in Cowork interface
+
+**Deferred to v2.0 (requires Anthropic team sharing):**
+- Cross-person cascade detection
+- Team prediction calibration
+- Lawrence-as-observer
 
 ## v3.0 Backlog (Captured Ideas)
 
@@ -195,4 +204,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-05 after v1.7.0 Causal Reasoning Layer milestone start*
+*Last updated: 2026-04-05 after v1.8.0 Cowork Adaptation milestone start*

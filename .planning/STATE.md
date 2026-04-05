@@ -1,81 +1,53 @@
 ---
 gsd_state_version: 1.0
-milestone: v6.2
-milestone_name: RoomHub + SnapshotHub
-status: executing
-stopped_at: "Completed Phase 51 SnapshotHub Export + Polish"
-last_updated: "2026-04-01T15:00:00.000Z"
-last_activity: 2026-04-05 - Completed quick task 260405-dvt: Fix 4 critical post-beta installation issues
+milestone: v1.8.0
+milestone_name: Cowork Adaptation
+status: defining_requirements
+stopped_at: "Milestone started, defining requirements"
+last_updated: "2026-04-05T00:00:00.000Z"
+last_activity: 2026-04-05 - Milestone v1.8.0 started
 progress:
-  total_phases: 5
-  completed_phases: 1
-  total_plans: 5
-  completed_plans: 1
-  percent: 20
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-01)
+See: .planning/PROJECT.md (updated 2026-04-05)
 
-**Core value:** Any Room becomes a living, adaptive intelligence surface -- RoomHub serves it interactively, SnapshotHub freezes it for sharing
-**Current focus:** Phase 51 complete -- SnapshotHub Export + Polish
+**Core value:** Users can run the full PWS methodology inside Claude Code, Desktop, and Cowork with zero infrastructure
+**Current focus:** Defining requirements for v1.8.0 Cowork Adaptation
 
 ## Current Position
 
-Phase: 51 of 51 (SnapshotHub Export + Polish -- COMPLETE)
-Plan: 1 of 1
-Status: Phase 51 complete
-Last activity: 2026-04-01 -- Phase 51 shipped (4 tasks, 4 commits, 4 files)
-
-Progress: [##░░░░░░░░] 20%
-
-## Performance Metrics
-
-**Velocity:**
-- Total plans completed: 46+ (across v1.0-v1.6.0)
-- Average duration: ~5min
-- Total execution time: ~4 hours
-
-**Recent Trend:**
-- Last 5 plans: 9min, 3min, 6min, 5min, 8min
-- Trend: Stable
+Phase: Not started (defining requirements)
+Plan: --
+Status: Defining requirements
+Last activity: 2026-04-05 -- Milestone v1.8.0 started
 
 ## Accumulated Context
 
 ### Decisions
 
-Recent decisions affecting v6.2:
-- [Phase 51]: Shared CSS as linked file (not inline) for co-located views
-- [Phase 51]: Mobile-first breakpoints (375/768/1024/1440) not desktop-down
-- [Phase 51]: Offline inlining via Node.js child_process, no npm deps
-- [Phase 51]: Manifest v2 schema with full metrics, spectral, section completeness
-- [v6.2 init]: RoomHub first (live localhost), SnapshotHub second (freeze and export)
-- [v6.2 init]: Build on existing generate-snapshot.cjs (368 lines), lib/chat/chat-panel.js, lib/core/deep-links.cjs
-- [v6.2 init]: 5 phases (47-51), coarse granularity, derived from RESEARCH_13 proposal
-- [v6.2 init]: Room type detection from State + Section names + Entry content (venture/website/research/general)
-- [v6.2 init]: All 12 Thread types rendered in Constellation with De Stijl color per type
-- [v6.2 init]: BYOAPI pattern for Chat (user's Claude API key, localStorage, never transmitted)
+- [v1.8.0 init]: Two MCP servers -- Brain (remote, Streamable HTTP) + MindrianOS (local, stdio/HTTP)
+- [v1.8.0 init]: ALL 64 commands must be MCP tools -- no orphans
+- [v1.8.0 init]: Brain-driven routing at MCP layer -- consult Brain for methodology selection and chaining
+- [v1.8.0 init]: Full pipeline chaining across surfaces -- scenario -> root cause -> causal -> prediction
+- [v1.8.0 init]: Cowork sandbox = mounted folders only, no ~/.claude/ access
+- [v1.8.0 init]: PostToolUse hooks CLI-only -- Cowork needs MCP-native equivalents
+- [v1.8.0 init]: Team sharing deferred to v2.0 (Anthropic hasn't shipped it)
+- [v1.8.0 init]: KAIROS-ready artifact structure for background agent consumption
 
 ### Pending Todos
 
 - Trained Lawrence model (PAID TIER): Fine-tune on real teaching transcripts
 - Website content refresh: mindrianos-jsagirs-projects.vercel.app
 
-### Quick Tasks Completed
-
-| # | Description | Date | Commit | Directory |
-|---|-------------|------|--------|-----------|
-| 260405-dvt | Fix 4 critical post-beta installation issues: banner always on cold start, onboard reset, global brain key fallback, post-room open folder | 2026-04-05 | f694754 | [260405-dvt-fix-4-critical-post-beta-installation-is](./quick/260405-dvt-fix-4-critical-post-beta-installation-is/) |
-
 ### Blockers/Concerns
 
 None yet.
-
-## Session Continuity
-
-Last session: 2026-04-01
-Stopped at: Phase 51 SnapshotHub Export + Polish complete
-Resume file: .planning/phases/51-snapshot-hub-export-polish/51-SUMMARY.md
