@@ -137,6 +137,61 @@ chain_output: |
 
 The `key_insights` must be specific to the venture, not generic methodology descriptions. Each insight should be one sentence that a reader could act on without reading the full artifact.
 
+### Coordinator-Compatible Output (AGENT-05)
+
+When `CLAUDE_CODE_COORDINATOR_MODE` is detected in the environment (future Anthropic feature), the framework-runner maps directly to a Coordinator worker. The structured summary above already serves as the worker result. To ensure zero-refactor compatibility, the `FRAMEWORK_RUNNER_RESULT` block MUST also be emittable as JSON:
+
+```json
+{
+  "worker_id": "framework-runner-{framework}-{timestamp}",
+  "worker_type": "framework-runner",
+  "status": "complete",
+  "result": {
+    "framework": "{framework}",
+    "section": "{target_section}",
+    "artifact_path": "{full path to filed artifact}",
+    "entries_added": 1,
+    "quality": "high|medium|low",
+    "key_insights": [
+      "{insight 1}",
+      "{insight 2}",
+      "{insight 3}"
+    ],
+    "cross_references": [
+      { "type": "INFORMS", "source": "{source_section}", "target": "{target_section}" }
+    ]
+  },
+  "chain_output": "{structured extract for next framework, or null if single mode}",
+  "metrics": {
+    "tokens_used": null,
+    "duration_ms": null,
+    "model": "{resolved model alias}"
+  },
+  "coordinator_metadata": {
+    "can_parallelize": true,
+    "idempotent": false,
+    "side_effects": ["filesystem_write"],
+    "dependencies": []
+  }
+}
+```
+
+**Field mapping to Coordinator concepts:**
+- `worker_id` -- unique identifier for this execution (Coordinator uses this for deduplication)
+- `worker_type` -- maps to Coordinator's worker registry (always "framework-runner")
+- `status` -- "complete", "failed", or "partial" (chain interrupted)
+- `result` -- the actual payload, identical to FRAMEWORK_RUNNER_RESULT fields
+- `chain_output` -- enables Coordinator to pipe output to next worker in a DAG
+- `metrics` -- tokens_used and duration_ms are null until Coordinator provides instrumentation hooks
+- `coordinator_metadata.can_parallelize` -- true because framework-runners are isolated (no shared state)
+- `coordinator_metadata.idempotent` -- false because each run files a new artifact (side effect)
+- `coordinator_metadata.side_effects` -- declares filesystem writes so Coordinator can sequence appropriately
+- `coordinator_metadata.dependencies` -- empty for standalone; populated by `/mos:act --chain` to encode DAG edges
+
+**Current behavior:** The text-based `FRAMEWORK_RUNNER_RESULT` block is the canonical output. The JSON format above is the target contract -- when Coordinator ships, add `--coordinator-output` flag that switches to JSON stdout. Until then, the text format is used and the JSON schema is documentation-only.
+
+**Why prepare now:** Coordinator workers need structured input/output, parallelization hints, and side-effect declarations. By defining the schema now, we avoid a rewrite when the feature ships. The existing `FRAMEWORK_RUNNER_RESULT` fields map 1:1 to `result` -- no data is lost or restructured.
+
 ## Output Contract for Chain Mode (ACT-04)
 
 When operating as part of a chain (`chain_info` provided):
