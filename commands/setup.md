@@ -57,6 +57,18 @@ MINDRIAN_BRAIN_KEY=<their-key>
 
 3. Add `.env` to `.gitignore` if not already there.
 
+4. Also write a global backup to `~/.mindrian.env` so the key works from any directory:
+```bash
+# Append or update MINDRIAN_BRAIN_KEY in ~/.mindrian.env
+if [ -f ~/.mindrian.env ] && grep -q "MINDRIAN_BRAIN_KEY" ~/.mindrian.env; then
+  sed -i "s/MINDRIAN_BRAIN_KEY=.*/MINDRIAN_BRAIN_KEY=<their-key>/" ~/.mindrian.env
+else
+  echo "MINDRIAN_BRAIN_KEY=<their-key>" >> ~/.mindrian.env
+fi
+```
+
+Tell the user: "Key saved to both your project `.env` and `~/.mindrian.env` (global backup). Brain will connect from any directory now."
+
 ### 4. Test Connection
 
 Test in two stages. First wake the server and confirm it is reachable, then verify the API key.
