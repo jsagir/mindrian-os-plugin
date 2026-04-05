@@ -186,13 +186,22 @@ if len(lines) > 5:
   # Combine: stable prefix + dynamic suffix
   context="${stable_prefix}${context}\n\nThe user has an active Data Room."
 else
-  # Cold start: show De Stijl Mondrian banner
-  if [ -z "$LAST_VERSION" ]; then
-    # First-ever cold start (BANNER-01) -- no marker file exists
-    bash "${SCRIPT_DIR}/banner" "$PLUGIN_VERSION" >&2 2>/dev/null || true
-  elif [ "$LAST_VERSION" != "$PLUGIN_VERSION" ]; then
-    # Plugin was updated (BANNER-02) -- show version transition
+  # Cold start: show De Stijl Mondrian banner on EVERY cold start (no room detected)
+  if [ -n "$LAST_VERSION" ] && [ "$LAST_VERSION" != "$PLUGIN_VERSION" ]; then
+    # Plugin was updated -- show version transition banner
     bash "${SCRIPT_DIR}/banner" "$PLUGIN_VERSION" "$LAST_VERSION" >&2 2>/dev/null || true
+  else
+    # Standard cold start or first install -- show current version banner
+    bash "${SCRIPT_DIR}/banner" "$PLUGIN_VERSION" >&2 2>/dev/null || true
+  fi
+
+  # Determine onboarding type from LAST_VERSION markers (kept separate from banner)
+  if [ -z "$LAST_VERSION" ]; then
+    # First-ever cold start -- no marker file exists
+    :
+  elif [ "$LAST_VERSION" != "$PLUGIN_VERSION" ]; then
+    # Plugin was updated
+    :
   fi
   # Update marker (D-02) -- write current version after banner fires
   echo "$PLUGIN_VERSION" > "$LAST_VERSION_FILE" 2>/dev/null || true
