@@ -2,12 +2,13 @@
 'use strict';
 
 /**
- * MindrianOS -- Single-File SnapshotHub Generator
+ * MindrianOS -- Single-File SnapshotHub Generator (Synteris Quality)
  *
  * Generates a standalone HTML hub from any room/ directory.
  * Output is a single self-contained file with all CSS inline,
- * De Stijl design system, sticky tab navigation, and card-based
- * article rendering.
+ * De Stijl design system, sticky tab navigation, smart content
+ * detection, badge system, grade rendering, and card-based
+ * article rendering matching the Synteris reference quality.
  *
  * Usage:
  *   node scripts/generate-hub.cjs ./room
@@ -25,7 +26,7 @@ const SKIP_FILES = new Set([
   'ROOM.md', 'STATE.md', 'TEAM-STATE.md', 'USER.md',
   'MINTO.md', 'JTBD.md', 'ROOM-INTELLIGENCE.md',
   'MEETINGS-INTELLIGENCE.md', 'action-items.md',
-  'assumptions.json', 'ASSET_MANIFEST.md'
+  'assumptions.json', 'ASSET_MANIFEST.md', 'GRADE.md'
 ]);
 
 const SKIP_DIRS = new Set([
@@ -105,6 +106,40 @@ const SECTION_COLOR_CLASSES = {
 
 const DEFAULT_COLOR = 'var(--gray-500)';
 
+// Data Room view labels (decorative, shows multi-view capability)
+const DATA_ROOM_VIEWS = [
+  'Wiki', 'Graph Intelligence', 'Constellation', 'Dashboard',
+  'Deck', 'Insights', 'Diagrams', 'Narrative', 'Synthesis'
+];
+
+// Badge color mappings
+const STATUS_BADGES = {
+  'built': { bg: '#e6f2ef', color: 'var(--teal)', label: 'BUILT' },
+  'open': { bg: '#fdecea', color: 'var(--red)', label: 'OPEN' },
+  'designing': { bg: '#faf4e4', color: '#8a6d1f', label: 'DESIGNING' },
+  'active': { bg: '#e8edf5', color: 'var(--blue)', label: 'ACTIVE' },
+  'done': { bg: '#e6f2ef', color: 'var(--teal)', label: 'DONE' },
+  'planned': { bg: '#faf4e4', color: '#8a6d1f', label: 'PLANNED' },
+  'in-progress': { bg: '#e8edf5', color: 'var(--blue)', label: 'IN PROGRESS' },
+  'critical': { bg: '#fdecea', color: 'var(--red)', label: 'CRITICAL' }
+};
+
+const PRIORITY_BADGES = {
+  'critical': { bg: '#fdecea', color: 'var(--red)', label: 'CRITICAL' },
+  'high': { bg: '#faf4e4', color: '#8a6d1f', label: 'HIGH' },
+  'medium': { bg: '#e8edf5', color: 'var(--blue)', label: 'MEDIUM' },
+  'low': { bg: '#e6f2ef', color: 'var(--teal)', label: 'LOW' }
+};
+
+const TYPE_BADGES = {
+  'architectural': { bg: '#e8edf5', color: 'var(--blue)', label: 'ARCHITECTURAL' },
+  'philosophical': { bg: '#e6f2ef', color: 'var(--teal)', label: 'PHILOSOPHICAL' },
+  'tactical': { bg: '#faf4e4', color: '#8a6d1f', label: 'TACTICAL' },
+  'bug': { bg: '#fdecea', color: 'var(--red)', label: 'BUG' },
+  'feature': { bg: '#e8edf5', color: 'var(--blue)', label: 'FEATURE' },
+  'decision': { bg: '#faf4e4', color: '#8a6d1f', label: 'DECISION' }
+};
+
 // ── Helpers ──
 
 function parseFrontmatter(content) {
@@ -167,7 +202,7 @@ function formatDate(d) {
 
 /**
  * Basic markdown to HTML conversion.
- * Handles headings, bold, italic, code, lists, tables, blockquotes, links, paragraphs.
+ * Handles headings, bold, italic, code, lists, tables, blockquotes, links, paragraphs, code blocks.
  */
 function markdownToHtml(md) {
   if (!md) return '';
@@ -175,8 +210,11 @@ function markdownToHtml(md) {
   const lines = md.split('\n');
   const output = [];
   let inList = false;
+  let inOl = false;
   let inTable = false;
   let inBlockquote = false;
+  let inCodeBlock = false;
+  let codeBlockContent = [];
   let paragraph = [];
 
   function flushParagraph() {
@@ -192,12 +230,16 @@ function markdownToHtml(md) {
   function inlineFormat(text) {
     // Links [text](url)
     text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+    // Images ![alt](url) - render as linked text since we're in HTML
+    text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<em>[$1]</em>');
     // Bold **text**
     text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
     // Italic *text*
     text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
     // Inline code `text`
     text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+    // Strikethrough ~~text~~
+    text = text.replace(/~~([^~]+)~~/g, '<del>$1</del>');
     return text;
   }
 
@@ -205,12 +247,40 @@ function markdownToHtml(md) {
     const line = lines[i];
     const trimmed = line.trim();
 
+    // Code block fences
+    if (trimmed.startsWith('```')) {
+      if (inCodeBlock) {
+        output.push('<pre><code>' + escapeHtml(codeBlockContent.join('\n')) + '</code></pre>');
+        codeBlockContent = [];
+        inCodeBlock = false;
+      } else {
+        flushParagraph();
+        if (inList) { output.push('</ul>'); inList = false; }
+        if (inOl) { output.push('</ol>'); inOl = false; }
+        inCodeBlock = true;
+      }
+      continue;
+    }
+
+    if (inCodeBlock) {
+      codeBlockContent.push(line);
+      continue;
+    }
+
     // Empty line
     if (trimmed === '') {
       flushParagraph();
       if (inList) { output.push('</ul>'); inList = false; }
+      if (inOl) { output.push('</ol>'); inOl = false; }
       if (inTable) { output.push('</tbody></table>'); inTable = false; }
       if (inBlockquote) { output.push('</blockquote>'); inBlockquote = false; }
+      continue;
+    }
+
+    // Horizontal rule
+    if (trimmed.match(/^(---|\*\*\*|___)$/)) {
+      flushParagraph();
+      output.push('<hr style="border: none; border-top: 1px solid var(--gray-200); margin: 16px 0;">');
       continue;
     }
 
@@ -219,6 +289,7 @@ function markdownToHtml(md) {
     if (headingMatch) {
       flushParagraph();
       if (inList) { output.push('</ul>'); inList = false; }
+      if (inOl) { output.push('</ol>'); inOl = false; }
       // Map: # -> h3, ## -> h4, ### -> h5 (within card context)
       const level = Math.min(headingMatch[1].length + 2, 6);
       output.push(`<h${level}>${inlineFormat(headingMatch[2])}</h${level}>`);
@@ -239,9 +310,25 @@ function markdownToHtml(md) {
       inBlockquote = false;
     }
 
+    // Ordered list
+    if (trimmed.match(/^\d+\.\s+/)) {
+      flushParagraph();
+      if (inList) { output.push('</ul>'); inList = false; }
+      if (!inOl) {
+        output.push('<ol>');
+        inOl = true;
+      }
+      output.push('<li>' + inlineFormat(trimmed.replace(/^\d+\.\s+/, '')) + '</li>');
+      continue;
+    } else if (inOl && !trimmed.match(/^\s/)) {
+      output.push('</ol>');
+      inOl = false;
+    }
+
     // Unordered list
     if (trimmed.match(/^[-*+]\s+/)) {
       flushParagraph();
+      if (inOl) { output.push('</ol>'); inOl = false; }
       if (!inList) {
         output.push('<ul>');
         inList = true;
@@ -281,10 +368,247 @@ function markdownToHtml(md) {
   // Flush remaining
   flushParagraph();
   if (inList) output.push('</ul>');
+  if (inOl) output.push('</ol>');
   if (inTable) output.push('</tbody></table>');
   if (inBlockquote) output.push('</blockquote>');
+  if (inCodeBlock) {
+    output.push('<pre><code>' + escapeHtml(codeBlockContent.join('\n')) + '</code></pre>');
+  }
 
   return output.join('\n');
+}
+
+// ── Badge Builder ──
+
+function buildBadge(bg, color, label) {
+  return `<span class="market-badge" style="background:${bg};color:${color};">${escapeHtml(label)}</span>`;
+}
+
+function getBadgesForArticle(fm) {
+  const badges = [];
+
+  // Status badge
+  if (fm.status) {
+    const key = fm.status.toLowerCase().replace(/\s+/g, '-');
+    const badge = STATUS_BADGES[key];
+    if (badge) {
+      badges.push(buildBadge(badge.bg, badge.color, badge.label));
+    }
+  }
+
+  // Priority badge
+  if (fm.priority) {
+    const key = fm.priority.toLowerCase();
+    const badge = PRIORITY_BADGES[key];
+    if (badge) {
+      badges.push(buildBadge(badge.bg, badge.color, badge.label));
+    }
+  }
+
+  // Type badge
+  if (fm.type) {
+    const key = fm.type.toLowerCase();
+    const badge = TYPE_BADGES[key];
+    if (badge) {
+      badges.push(buildBadge(badge.bg, badge.color, badge.label));
+    }
+  }
+
+  return badges.join(' ');
+}
+
+// ── Smart Content Detection ──
+
+function detectCardType(article) {
+  const fm = article.frontmatter;
+  const body = article.body || '';
+
+  // Bug card: has fixed_in, commit, or root_cause
+  if (fm.fixed_in || fm.commit || fm.root_cause) return 'bug';
+
+  // Wish card: has wish and status
+  if (fm.wish || (fm.type && fm.type.toLowerCase() === 'wish')) return 'wish';
+
+  // Decision card: has decision field
+  if (fm.decision) return 'decision';
+
+  // Before/After comparison
+  if (body.includes('## Before') && body.includes('## After')) return 'comparison';
+
+  return 'standard';
+}
+
+function renderBugCard(article, sectionColorClass) {
+  const fm = article.frontmatter;
+  const statusBadge = fm.status
+    ? getBadgesForArticle(fm)
+    : buildBadge('#e6f2ef', 'var(--teal)', 'FIXED');
+
+  return `
+    <div class="card card-bordered ${sectionColorClass}" style="border-left-width: 4px;">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
+        <div class="card-title">${escapeHtml(article.title)}</div>
+        ${statusBadge}
+      </div>
+      ${fm.root_cause ? `<div style="font-size:13px;color:var(--gray-500);margin-bottom:8px;"><strong>Root Cause:</strong> ${escapeHtml(fm.root_cause)}</div>` : ''}
+      ${fm.fixed_in ? `<div style="font-size:13px;color:var(--teal);margin-bottom:8px;"><strong>Fixed in:</strong> <code>${escapeHtml(fm.fixed_in)}</code></div>` : ''}
+      ${fm.commit ? `<div style="font-size:13px;color:var(--gray-500);margin-bottom:8px;"><strong>Commit:</strong> <code>${escapeHtml(fm.commit)}</code></div>` : ''}
+      <div class="card-body">${markdownToHtml(article.body)}</div>
+      ${fm.source ? `<div style="font-size:12px;color:var(--gray-500);margin-top:10px;">Source: <code>${escapeHtml(fm.source)}</code></div>` : ''}
+    </div>`;
+}
+
+function renderWishCard(article, sectionColorClass) {
+  const fm = article.frontmatter;
+  const badges = getBadgesForArticle(fm);
+
+  return `
+    <div class="card card-bordered ${sectionColorClass}" style="border-left-width: 4px;">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
+        <div class="card-title">${escapeHtml(article.title)}</div>
+        ${badges}
+      </div>
+      ${fm.wish ? `<div style="font-size:14px;color:var(--blue);font-weight:500;margin-bottom:12px;font-style:italic;">"${escapeHtml(fm.wish)}"</div>` : ''}
+      <div class="card-body">${markdownToHtml(article.body)}</div>
+      ${fm.source ? `<div style="font-size:12px;color:var(--gray-500);margin-top:10px;">Source: <code>${escapeHtml(fm.source)}</code></div>` : ''}
+    </div>`;
+}
+
+function renderDecisionCard(article, sectionColorClass) {
+  const fm = article.frontmatter;
+  const dNum = fm.decision || '';
+
+  return `
+    <div class="card card-bordered ${sectionColorClass}" style="border-left-width: 4px;">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
+        <div class="card-title">${escapeHtml(article.title)}</div>
+        ${dNum ? buildBadge('#faf4e4', '#8a6d1f', 'D-' + escapeHtml(dNum)) : ''}
+      </div>
+      <div class="card-body">${markdownToHtml(article.body)}</div>
+      ${fm.source ? `<div style="font-size:12px;color:var(--gray-500);margin-top:10px;">Source: <code>${escapeHtml(fm.source)}</code></div>` : ''}
+    </div>`;
+}
+
+function renderComparisonCard(article, sectionColorClass) {
+  const fm = article.frontmatter;
+  const badges = getBadgesForArticle(fm);
+  const body = article.body || '';
+
+  // Split body at ## Before and ## After
+  const beforeMatch = body.match(/## Before\n([\s\S]*?)(?=## After)/);
+  const afterMatch = body.match(/## After\n([\s\S]*?)$/);
+
+  const beforeContent = beforeMatch ? beforeMatch[1].trim() : '';
+  const afterContent = afterMatch ? afterMatch[1].trim() : '';
+
+  // Get content that's not in before/after
+  const preamble = body.split('## Before')[0].trim();
+
+  return `
+    <div class="card card-bordered ${sectionColorClass}" style="border-left-width: 4px;">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
+        <div class="card-title">${escapeHtml(article.title)}</div>
+        ${badges}
+      </div>
+      ${preamble ? `<div class="card-body" style="margin-bottom:16px;">${markdownToHtml(preamble)}</div>` : ''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;">
+        <div style="background:var(--cream);padding:14px;border-radius:var(--radius);">
+          <div style="font-size:12px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Before</div>
+          <div class="card-body">${markdownToHtml(beforeContent)}</div>
+        </div>
+        <div style="background:var(--cream);padding:14px;border-radius:var(--radius);">
+          <div style="font-size:12px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">After</div>
+          <div class="card-body">${markdownToHtml(afterContent)}</div>
+        </div>
+      </div>
+      ${fm.source ? `<div style="font-size:12px;color:var(--gray-500);margin-top:10px;">Source: <code>${escapeHtml(fm.source)}</code></div>` : ''}
+    </div>`;
+}
+
+function renderStandardCard(article, sectionColorClass) {
+  const fm = article.frontmatter;
+  const badges = getBadgesForArticle(fm);
+
+  // Build subtitle from frontmatter
+  const subtitleParts = [];
+  if (fm.methodology) subtitleParts.push(fm.methodology);
+  if (fm.created) subtitleParts.push(fm.created);
+  else if (fm.date) subtitleParts.push(fm.date);
+  if (fm.source) subtitleParts.push(fm.source);
+  if (fm.type && !TYPE_BADGES[fm.type.toLowerCase()]) subtitleParts.push(fm.type);
+  const subtitleStr = subtitleParts.length > 0
+    ? `<div class="card-subtitle">${escapeHtml(subtitleParts.join(' | '))}</div>`
+    : '';
+
+  const bodyHtml = markdownToHtml(article.body);
+
+  return `
+    <div class="card card-bordered ${sectionColorClass}">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:${badges ? '8' : '0'}px;">
+        <div class="card-title">${escapeHtml(article.title)}</div>
+        ${badges ? `<div style="display:flex;gap:6px;flex-shrink:0;">${badges}</div>` : ''}
+      </div>
+      ${subtitleStr}
+      <div class="card-body">${bodyHtml}</div>
+    </div>`;
+}
+
+function renderArticleCard(article, sectionColorClass) {
+  const cardType = detectCardType(article);
+  switch (cardType) {
+    case 'bug': return renderBugCard(article, sectionColorClass);
+    case 'wish': return renderWishCard(article, sectionColorClass);
+    case 'decision': return renderDecisionCard(article, sectionColorClass);
+    case 'comparison': return renderComparisonCard(article, sectionColorClass);
+    default: return renderStandardCard(article, sectionColorClass);
+  }
+}
+
+// ── Grade Parser ──
+
+function parseGrade(roomDir) {
+  const gradeFile = path.join(roomDir, 'GRADE.md');
+  if (!fs.existsSync(gradeFile)) return null;
+
+  try {
+    const content = fs.readFileSync(gradeFile, 'utf-8');
+    const fm = parseFrontmatter(content);
+    const grade = {
+      letter: fm.grade || fm.letter || '',
+      score: fm.score || fm.total || '',
+      components: [],
+      quote: '',
+      ceilings: []
+    };
+
+    // Extract components from body (look for patterns like "Component: score")
+    const componentPattern = /^\*?\*?(.+?)\*?\*?\s*[:|-]\s*(\d+)\s*\/\s*100/gm;
+    let match;
+    while ((match = componentPattern.exec(content)) !== null) {
+      grade.components.push({
+        name: match[1].trim().replace(/\*\*/g, ''),
+        score: parseInt(match[2])
+      });
+    }
+
+    // Also try table format: | Component | Score |
+    const tablePattern = /\|\s*(.+?)\s*\|\s*(\d+)\s*(?:\/\s*100)?\s*\|/g;
+    while ((match = tablePattern.exec(content)) !== null) {
+      const name = match[1].trim().replace(/\*\*/g, '');
+      const score = parseInt(match[2]);
+      if (name !== 'Component' && name !== 'Dimension' && !isNaN(score) && score <= 100) {
+        grade.components.push({ name, score });
+      }
+    }
+
+    // Extract quote
+    const quoteMatch = content.match(/> (.+)/);
+    if (quoteMatch) grade.quote = quoteMatch[1];
+
+    return grade.letter ? grade : null;
+  } catch (_) {
+    return null;
+  }
 }
 
 // ── Room Scanner ──
@@ -295,36 +619,49 @@ function scanRoom(roomDir) {
   let ventureStage = 'Discovery';
   let subtitle = '';
   let firstInsight = '';
+  let stateFm = {};
+  let stateContent = '';
 
   const stateFile = path.join(roomDir, 'STATE.md');
   if (fs.existsSync(stateFile)) {
-    const stateContent = fs.readFileSync(stateFile, 'utf-8');
-    const fm = parseFrontmatter(stateContent);
+    stateContent = fs.readFileSync(stateFile, 'utf-8');
+    stateFm = parseFrontmatter(stateContent);
 
-    if (fm.venture_name) ventureName = fm.venture_name;
-    else if (fm.room_name) ventureName = fm.room_name;
-    else if (fm.name) ventureName = fm.name;
+    if (stateFm.venture_name) ventureName = stateFm.venture_name;
+    else if (stateFm.room_name) ventureName = stateFm.room_name;
+    else if (stateFm.name) ventureName = stateFm.name;
     else {
       const h1 = stateContent.match(/^# (.+)$/m);
       if (h1) ventureName = h1[1].replace(/Data Room State/i, '').trim() || ventureName;
     }
 
-    if (fm.venture_stage) ventureStage = fm.venture_stage;
-    else if (fm.stage) ventureStage = fm.stage;
+    if (stateFm.venture_stage) ventureStage = stateFm.venture_stage;
+    else if (stateFm.stage) ventureStage = stateFm.stage;
 
-    if (fm.subtitle) subtitle = fm.subtitle;
-    else if (fm.description) subtitle = fm.description;
+    if (stateFm.subtitle) subtitle = stateFm.subtitle;
+    else if (stateFm.description) subtitle = stateFm.description;
 
     // Extract suggested next action as insight
     const actionMatch = stateContent.match(/## Suggested Next Action\n(.+)/);
     if (actionMatch) firstInsight = actionMatch[1].trim();
   }
 
-  // 2. Discover sections
+  // 2. Parse GRADE.md
+  const grade = parseGrade(roomDir);
+
+  // 3. Read team/ for metadata
+  let founder = stateFm.founder || '';
+  let employees = stateFm.employees || '';
+  let funding = stateFm.funding || '';
+  let affiliation = stateFm.affiliation || '';
+
+  // 4. Discover sections
   const sections = [];
   let totalEntries = 0;
   let meetingsCount = 0;
   let teamCount = 0;
+  let marketAnalysisCount = 0;
+  let frameworksUsed = new Set();
 
   let dirEntries;
   try {
@@ -358,6 +695,10 @@ function scanRoom(roomDir) {
               fm = parseFrontmatter(content);
             } catch (_) { /* filename fallback */ }
             articles.push({ filename: e.name, title, body, frontmatter: fm });
+
+            // Track frameworks used
+            if (fm.methodology) frameworksUsed.add(fm.methodology);
+            if (fm.framework) frameworksUsed.add(fm.framework);
           }
         }
       } catch (_) { /* skip unreadable */ }
@@ -372,6 +713,7 @@ function scanRoom(roomDir) {
 
     if (dirName === 'meetings') meetingsCount = count;
     if (dirName === 'team') teamCount = count;
+    if (dirName === 'market-analysis') marketAnalysisCount = count;
 
     // Only include sections that have articles
     if (count > 0) {
@@ -386,7 +728,7 @@ function scanRoom(roomDir) {
     }
   }
 
-  // 3. Sort sections: standard first (in DD order), then custom alphabetically
+  // 5. Sort sections: standard first (in DD order), then custom alphabetically
   const standardOrder = new Map(STANDARD_SECTIONS.map((s, i) => [s, i]));
   sections.sort((a, b) => {
     const aStd = standardOrder.has(a.id);
@@ -397,12 +739,11 @@ function scanRoom(roomDir) {
     return a.id.localeCompare(b.id);
   });
 
-  // 4. Try to get first insight from problem-definition if not from STATE.md
+  // 6. Try to get first insight from problem-definition if not from STATE.md
   if (!firstInsight) {
     const probSection = sections.find(s => s.id === 'problem-definition');
     if (probSection && probSection.articles.length > 0) {
       const firstBody = probSection.articles[0].body;
-      // Take first sentence as insight
       const firstSentence = firstBody.match(/^([^.!?]+[.!?])/);
       if (firstSentence) firstInsight = firstSentence[1];
     }
@@ -419,43 +760,22 @@ function scanRoom(roomDir) {
     totalEntries,
     meetingsCount,
     teamCount,
-    firstInsight
+    marketAnalysisCount,
+    frameworksUsed: frameworksUsed.size,
+    firstInsight,
+    grade,
+    founder,
+    employees,
+    funding,
+    affiliation,
+    stateFm
   };
 }
 
-// ── HTML Generation ──
+// ── CSS Generation ──
 
-function generateHtml(room) {
-  const now = new Date();
-  const dateStr = formatDate(now);
-  const pageTitle = escapeHtml(room.ventureName) + ' | MindrianOS SnapshotHub';
-
-  // Build nav tabs
-  let navTabs = `<a class="nav-tab" href="#overview">Overview</a>`;
-  for (const section of room.sections) {
-    navTabs += `\n    <a class="nav-tab" href="#${toSectionId(section.id)}">${escapeHtml(section.label)}</a>`;
-  }
-
-  // Build overview tab
-  const overviewHtml = buildOverview(room, dateStr);
-
-  // Build section tabs
-  let sectionsHtml = '';
-  for (const section of room.sections) {
-    sectionsHtml += buildSection(section);
-  }
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${pageTitle}</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<style>
+function getFullCSS() {
+  return `
 :root {
   --red: #A63D2F;
   --blue: #1E3A6E;
@@ -591,6 +911,39 @@ body {
   border-bottom-color: var(--blue);
 }
 
+/* -- DATA ROOM VIEWS -- */
+.views-row {
+  max-width: 1200px;
+  margin: 20px auto 0;
+  padding: 0 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-radius: 20px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  color: var(--gray-700);
+  cursor: default;
+  transition: all 0.2s;
+}
+
+.view-btn:first-child {
+  background: var(--dark);
+  color: var(--white);
+  border-color: var(--dark);
+}
+
 /* -- MAIN -- */
 .main-content {
   max-width: 1200px;
@@ -686,6 +1039,21 @@ body {
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
 }
+.card-body pre {
+  background: var(--dark);
+  color: var(--cream);
+  padding: 16px;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  margin: 10px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.card-body pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
 .card-body blockquote {
   border-left: 3px solid var(--yellow);
   padding: 8px 16px;
@@ -699,6 +1067,25 @@ body {
   text-decoration: none;
 }
 .card-body a:hover { text-decoration: underline; }
+
+/* -- GRID HELPERS -- */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
 
 /* -- TABLES -- */
 .hub-table {
@@ -798,6 +1185,10 @@ body {
   padding: 28px;
   box-shadow: var(--shadow-md);
   margin-bottom: 24px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: start;
 }
 
 .venture-name {
@@ -834,6 +1225,742 @@ body {
   letter-spacing: 0.5px;
   color: var(--gray-500);
   margin-bottom: 2px;
+}
+
+.venture-grade {
+  text-align: center;
+}
+
+.grade-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.grade-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gray-500);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* -- MARKET CARDS -- */
+.market-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+  border-left: 4px solid var(--gray-300);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.market-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.market-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.market-name {
+  font-size: 17px;
+  font-weight: 700;
+  flex: 1;
+}
+
+.market-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.badge-red { background: #fdecea; color: var(--red); }
+.badge-blue { background: #e8edf5; color: var(--blue); }
+.badge-yellow { background: #faf4e4; color: #8a6d1f; }
+.badge-teal { background: #e6f2ef; color: var(--teal); }
+
+.market-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.market-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.market-stat-label {
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.market-stat-value {
+  font-weight: 700;
+}
+
+.market-finding {
+  font-size: 14px;
+  color: var(--gray-700);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.market-gating {
+  font-size: 13px;
+  padding: 10px 14px;
+  background: var(--cream);
+  border-radius: 6px;
+  color: var(--dark);
+}
+
+.market-gating strong {
+  color: var(--red);
+}
+
+/* -- OPPORTUNITY SECTION -- */
+.opp-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.opp-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.opp-card .source {
+  font-size: 12px;
+  color: var(--gray-500);
+  margin-bottom: 14px;
+}
+
+.analogy-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.analogy-item {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.analogy-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--cream);
+  color: var(--dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.analogy-text {
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.analogy-text strong {
+  color: var(--blue);
+}
+
+.breakthrough-box {
+  background: linear-gradient(135deg, var(--blue), #2a5a9e);
+  color: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 28px 28px;
+  margin-bottom: 24px;
+}
+
+.breakthrough-box h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.breakthrough-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.breakthrough-list li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.breakthrough-list .num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* -- HSI TABLE -- */
+.hsi-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.hsi-table thead th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-500);
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.hsi-table tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.hsi-table tbody tr:hover {
+  background: var(--cream);
+}
+
+.hsi-score {
+  font-weight: 700;
+}
+
+/* -- REVERSE SALIENT MAP -- */
+.rs-map {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.rs-item {
+  background: var(--cream);
+  padding: 16px;
+  border-radius: var(--radius);
+  border-left: 3px solid var(--red);
+}
+
+.rs-item h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.rs-item p {
+  font-size: 13px;
+  color: var(--gray-700);
+  line-height: 1.5;
+}
+
+/* -- FRAMEWORK CHAIN -- */
+.chain-container {
+  overflow-x: auto;
+  padding: 20px 0;
+}
+
+.chain {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-width: max-content;
+}
+
+.chain-node {
+  background: var(--white);
+  border: 2px solid var(--blue);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+.chain-node.active {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.chain-arrow {
+  width: 32px;
+  height: 2px;
+  background: var(--blue);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.chain-arrow::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -4px;
+  border: 5px solid transparent;
+  border-left: 6px solid var(--blue);
+}
+
+.framework-explain {
+  margin-top: 20px;
+}
+
+.framework-explain .fw-item {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--gray-200);
+  font-size: 14px;
+}
+
+.framework-explain .fw-item:last-child { border-bottom: none; }
+
+.fw-name {
+  font-weight: 700;
+  color: var(--blue);
+}
+
+.fw-reason {
+  color: var(--gray-700);
+  line-height: 1.5;
+}
+
+/* -- PROBLEM CLASSIFICATION -- */
+.problem-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.problem-tag {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--cream);
+  border: 1px solid var(--gray-200);
+}
+
+.problem-tag.active-tag {
+  background: var(--dark);
+  color: var(--white);
+  border-color: var(--dark);
+}
+
+/* -- TRANSCRIPT -- */
+.transcript-turn {
+  margin-bottom: 20px;
+}
+
+.turn-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.turn-label.user { color: var(--teal); }
+.turn-label.larry { color: var(--blue); }
+
+.turn-bubble {
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.turn-bubble.user {
+  background: var(--cream);
+}
+
+.turn-bubble.larry {
+  background: #edf2fa;
+  border-left: 4px solid var(--blue);
+}
+
+/* -- DECK SLIDES -- */
+.slide {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 40px 36px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.slide::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.slide:nth-child(1)::before { background: var(--red); }
+.slide:nth-child(2)::before { background: var(--blue); }
+.slide:nth-child(3)::before { background: var(--teal); }
+.slide:nth-child(4)::before { background: var(--yellow); }
+.slide:nth-child(5)::before { background: var(--red); }
+.slide:nth-child(6)::before { background: var(--blue); }
+.slide:nth-child(7)::before { background: var(--teal); }
+.slide:nth-child(8)::before { background: var(--yellow); }
+.slide:nth-child(9)::before { background: var(--red); }
+
+.slide-number {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-bottom: 16px;
+}
+
+.slide h3 {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+
+.slide h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.slide p, .slide li {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--gray-700);
+}
+
+.slide ul, .slide ol {
+  padding-left: 20px;
+}
+
+.slide li {
+  margin-bottom: 6px;
+}
+
+.slide-title-card {
+  text-align: center;
+  padding: 60px 36px;
+  background: var(--dark);
+  color: var(--white);
+}
+
+.slide-title-card h3 {
+  font-size: 32px;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+
+.slide-title-card p {
+  color: var(--gray-500);
+}
+
+.slide-title-card .tagline {
+  font-size: 18px;
+  color: var(--yellow);
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.slide-insight-card {
+  background: linear-gradient(135deg, var(--dark), #2a2a2a);
+  color: var(--white);
+  text-align: center;
+  padding: 50px 36px;
+}
+
+.slide-insight-card h3 { color: var(--white); }
+
+.slide-insight-card .quote {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--yellow);
+  max-width: 700px;
+  margin: 0 auto 16px;
+}
+
+.slide-insight-card p { color: rgba(255,255,255,0.7); }
+
+.chart-container {
+  max-width: 600px;
+  margin: 20px auto 0;
+}
+
+/* Revenue path */
+.revenue-path {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.revenue-step {
+  text-align: center;
+  padding: 24px 16px;
+  background: var(--cream);
+  border-radius: var(--radius);
+  position: relative;
+}
+
+.revenue-step h5 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+  margin-bottom: 8px;
+}
+
+.revenue-step .amount {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+
+.revenue-step .detail {
+  font-size: 13px;
+  color: var(--gray-500);
+}
+
+/* -- GRADE SECTION -- */
+.grade-overview {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 32px;
+  align-items: start;
+  margin-bottom: 32px;
+}
+
+.grade-big {
+  text-align: center;
+}
+
+.grade-big-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px;
+}
+
+.grade-big-letter {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.grade-big-score {
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.grade-bar-container {
+  margin-bottom: 14px;
+}
+
+.grade-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.grade-bar-track {
+  height: 10px;
+  background: var(--gray-200);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.grade-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.6s ease;
+}
+
+.grade-quote {
+  background: var(--cream);
+  border-left: 4px solid var(--yellow);
+  padding: 24px;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin-top: 24px;
+}
+
+.grade-quote .label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gray-500);
+  margin-bottom: 8px;
+}
+
+.grade-quote blockquote {
+  font-size: 16px;
+  line-height: 1.6;
+  font-style: italic;
+  color: var(--dark);
+}
+
+.ceiling-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+  margin-top: 20px;
+}
+
+.ceiling-card h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.ceiling-list {
+  list-style: none;
+}
+
+.ceiling-list li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.ceiling-list li:last-child { border-bottom: none; }
+
+.ceiling-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* -- WHAT MUST BE TRUE -- */
+.wmbt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.wmbt-item {
+  background: var(--cream);
+  padding: 16px;
+  border-radius: var(--radius);
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.wmbt-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.wmbt-text {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* -- ACTIVE QUESTIONS -- */
+.question-list {
+  list-style: none;
+}
+
+.question-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gray-200);
+  font-size: 14px;
+  line-height: 1.55;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.question-list li:last-child { border-bottom: none; }
+
+.q-icon {
+  color: var(--yellow);
+  font-weight: 700;
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: -1px;
 }
 
 /* -- SECTION SUMMARY -- */
@@ -927,15 +2054,28 @@ body {
 /* -- RESPONSIVE -- */
 @media (max-width: 768px) {
   .venture-card { grid-template-columns: 1fr; }
+  .grade-overview { grid-template-columns: 1fr; text-align: center; }
+  .revenue-path { grid-template-columns: 1fr; }
+  .framework-explain .fw-item { grid-template-columns: 1fr; }
+  .chain { flex-wrap: wrap; gap: 8px; }
+  .chain-arrow { display: none; }
+  .chain-node { min-width: auto; flex: 1 1 auto; }
+  .slide { padding: 28px 20px; }
+  .slide-title-card { padding: 40px 20px; }
+  .slide-insight-card { padding: 36px 20px; }
+  .slide-insight-card .quote { font-size: 18px; }
   .section-summary-grid { grid-template-columns: 1fr; }
   .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .views-row { gap: 6px; }
+  .view-btn { padding: 6px 12px; font-size: 11px; }
 }
 
 /* -- PRINT -- */
 @media print {
   .site-nav { display: none; }
+  .views-row { display: none; }
   .section { page-break-inside: avoid; }
-  .card { box-shadow: none; border: 1px solid var(--gray-200); }
+  .card, .slide { box-shadow: none; border: 1px solid var(--gray-200); }
   body { background: white; }
 }
 
@@ -948,6 +2088,73 @@ body {
 .section {
   animation: fadeUp 0.4s ease both;
 }
+`;
+}
+
+// ── Mindrian SVG Logo ──
+
+function getMinidrianSVG(textFill) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48" style="height:32px;width:auto;">
+  <rect x="0" y="0" width="20" height="48" fill="#1E3A6E"/>
+  <rect x="22" y="0" width="12" height="22" fill="#A63D2F"/>
+  <rect x="22" y="24" width="12" height="24" fill="#C8A43C"/>
+  <rect x="36" y="0" width="8" height="48" fill="#F5F0E8"/>
+  <rect x="46" y="0" width="4" height="32" fill="#2D6B4A"/>
+  <text x="60" y="35" font-size="32" fill="${textFill}" font-family="'Bebas Neue', sans-serif" font-weight="400" letter-spacing="0.04em">MINDRIAN</text>
+</svg>`;
+}
+
+function getSmallSVG(textFill) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48" style="height:20px;width:auto;">
+  <rect x="0" y="0" width="20" height="48" fill="#1E3A6E"/>
+  <rect x="22" y="0" width="12" height="22" fill="#A63D2F"/>
+  <rect x="22" y="24" width="12" height="24" fill="#C8A43C"/>
+  <rect x="36" y="0" width="8" height="48" fill="#F5F0E8"/>
+  <rect x="46" y="0" width="4" height="32" fill="#2D6B4A"/>
+  <text x="60" y="35" font-size="32" fill="${textFill}" font-family="'Bebas Neue', sans-serif" font-weight="400" letter-spacing="0.04em">MINDRIAN</text>
+</svg>`;
+}
+
+// ── HTML Generation ──
+
+function generateHtml(room) {
+  const now = new Date();
+  const dateStr = formatDate(now);
+  const pageTitle = escapeHtml(room.ventureName) + ' | MindrianOS SnapshotHub';
+
+  // Build nav tabs
+  let navTabs = `<a class="nav-tab" href="#overview">Overview</a>`;
+  for (const section of room.sections) {
+    navTabs += `\n    <a class="nav-tab" href="#${toSectionId(section.id)}">${escapeHtml(section.label)}</a>`;
+  }
+
+  // Build data room views row
+  let viewsHtml = '';
+  for (const view of DATA_ROOM_VIEWS) {
+    viewsHtml += `<span class="view-btn">${escapeHtml(view)}</span>\n    `;
+  }
+
+  // Build overview
+  const overviewHtml = buildOverview(room, dateStr);
+
+  // Build section tabs
+  let sectionsHtml = '';
+  for (const section of room.sections) {
+    sectionsHtml += buildSection(section);
+  }
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${pageTitle}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+${getFullCSS()}
 </style>
 </head>
 <body>
@@ -958,14 +2165,7 @@ body {
   <div class="header-inner">
     <div class="header-brand">
       <a href="https://mindrianos-jsagirs-projects.vercel.app/" target="_blank">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48" style="height:32px;width:auto;">
-          <rect x="0" y="0" width="20" height="48" fill="#1E3A6E"/>
-          <rect x="22" y="0" width="12" height="22" fill="#A63D2F"/>
-          <rect x="22" y="24" width="12" height="24" fill="#C8A43C"/>
-          <rect x="36" y="0" width="8" height="48" fill="#F5F0E8"/>
-          <rect x="46" y="0" width="4" height="32" fill="#2D6B4A"/>
-          <text x="60" y="35" font-size="32" fill="#F5F0E8" font-family="'Bebas Neue', sans-serif" font-weight="400" letter-spacing="0.04em">MINDRIAN</text>
-        </svg>
+        ${getMinidrianSVG('#F5F0E8')}
         <span>SnapshotHub</span>
       </a>
     </div>
@@ -982,6 +2182,11 @@ body {
   </div>
 </nav>
 
+<!-- DATA ROOM VIEWS -->
+<div class="views-row">
+  ${viewsHtml}
+</div>
+
 <!-- MAIN -->
 <main class="main-content">
 
@@ -996,14 +2201,7 @@ ${sectionsHtml}
   <div class="footer-inner">
     <div class="footer-brand">
       <a href="https://mindrianos-jsagirs-projects.vercel.app/" target="_blank">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48" style="height:20px;width:auto;">
-          <rect x="0" y="0" width="20" height="48" fill="#1E3A6E"/>
-          <rect x="22" y="0" width="12" height="22" fill="#A63D2F"/>
-          <rect x="22" y="24" width="12" height="24" fill="#C8A43C"/>
-          <rect x="36" y="0" width="8" height="48" fill="#F5F0E8"/>
-          <rect x="46" y="0" width="4" height="32" fill="#2D6B4A"/>
-          <text x="60" y="35" font-size="32" fill="#888" font-family="'Bebas Neue', sans-serif" font-weight="400" letter-spacing="0.04em">MINDRIAN</text>
-        </svg>
+        ${getSmallSVG('#888')}
         Generated by MindrianOS
       </a>
     </div>
@@ -1047,26 +2245,50 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 function buildOverview(room, dateStr) {
+  // Venture meta items
+  let metaItems = '';
+  if (room.founder) {
+    metaItems += `<dl><dt>Founder</dt><dd>${escapeHtml(room.founder)}</dd></dl>`;
+  }
+  if (room.employees) {
+    metaItems += `<dl><dt>Employees</dt><dd>${escapeHtml(room.employees)}</dd></dl>`;
+  }
+  if (room.funding) {
+    metaItems += `<dl><dt>Funding</dt><dd>${escapeHtml(room.funding)}</dd></dl>`;
+  }
+  if (room.affiliation) {
+    metaItems += `<dl><dt>Affiliation</dt><dd>${escapeHtml(room.affiliation)}</dd></dl>`;
+  }
+  // Always show these
+  metaItems += `<dl><dt>Stage</dt><dd>${escapeHtml(room.ventureStage)}</dd></dl>`;
+  metaItems += `<dl><dt>Generated</dt><dd>${dateStr}</dd></dl>`;
+  metaItems += `<dl><dt>Artifacts</dt><dd>${room.totalEntries}</dd></dl>`;
+
+  // Grade circle (if GRADE.md exists)
+  const gradeCircleHtml = room.grade ? `
+      <div class="venture-grade">
+        <div class="grade-circle">${escapeHtml(room.grade.letter)}</div>
+        <div class="grade-label">Session Grade</div>
+      </div>` : '';
+
   // Stats row
-  const statsHtml = `
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-value" style="color: var(--teal)">${room.totalEntries}</div>
-        <div class="stat-label">Artifacts</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" style="color: var(--blue)">${room.sections.length}</div>
-        <div class="stat-label">Sections</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" style="color: var(--red)">${room.meetingsCount}</div>
-        <div class="stat-label">Meetings</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" style="color: var(--yellow)">${room.teamCount}</div>
-        <div class="stat-label">Team Members</div>
-      </div>
-    </div>`;
+  const statsCards = [];
+  statsCards.push(`<div class="stat-card"><div class="stat-value" style="color: var(--blue)">${room.sections.length}</div><div class="stat-label">Sections</div></div>`);
+  statsCards.push(`<div class="stat-card"><div class="stat-value" style="color: var(--teal)">${room.totalEntries}</div><div class="stat-label">Documents</div></div>`);
+  if (room.marketAnalysisCount > 0) {
+    statsCards.push(`<div class="stat-card"><div class="stat-value" style="color: var(--red)">${room.marketAnalysisCount}</div><div class="stat-label">Market Analyses</div></div>`);
+  }
+  if (room.frameworksUsed > 0) {
+    statsCards.push(`<div class="stat-card"><div class="stat-value" style="color: var(--yellow)">${room.frameworksUsed}</div><div class="stat-label">Frameworks</div></div>`);
+  }
+  if (room.meetingsCount > 0) {
+    statsCards.push(`<div class="stat-card"><div class="stat-value" style="color: var(--blue)">${room.meetingsCount}</div><div class="stat-label">Meetings</div></div>`);
+  }
+  if (room.grade) {
+    statsCards.push(`<div class="stat-card"><div class="stat-value" style="color: var(--teal)">${escapeHtml(room.grade.letter)}</div><div class="stat-label">Grade</div></div>`);
+  }
+
+  const statsHtml = `<div class="stats-row">${statsCards.join('\n      ')}</div>`;
 
   // Section summary grid
   let sectionSummaryItems = '';
@@ -1089,13 +2311,14 @@ function buildOverview(room, dateStr) {
 
     <!-- Venture Card -->
     <div class="venture-card">
-      <div class="venture-name">${escapeHtml(room.ventureName)}</div>
-      <div class="venture-stage">${escapeHtml(room.ventureStage)}</div>
-      <div class="venture-meta">
-        <dl><dt>Generated</dt><dd>${dateStr}</dd></dl>
-        <dl><dt>Stage</dt><dd>${escapeHtml(room.ventureStage)}</dd></dl>
-        <dl><dt>Artifacts</dt><dd>${room.totalEntries}</dd></dl>
+      <div>
+        <div class="venture-name">${escapeHtml(room.ventureName)}</div>
+        <div class="venture-stage">${escapeHtml(room.ventureStage)}</div>
+        <div class="venture-meta">
+          ${metaItems}
+        </div>
       </div>
+      ${gradeCircleHtml}
     </div>
 
     <!-- Key Insight -->
@@ -1121,25 +2344,7 @@ function buildOverview(room, dateStr) {
 function buildSection(section) {
   let cardsHtml = '';
   for (const article of section.articles) {
-    // Build subtitle from frontmatter
-    const subtitleParts = [];
-    if (article.frontmatter.methodology) subtitleParts.push(article.frontmatter.methodology);
-    if (article.frontmatter.created) subtitleParts.push(article.frontmatter.created);
-    else if (article.frontmatter.date) subtitleParts.push(article.frontmatter.date);
-    if (article.frontmatter.source) subtitleParts.push(article.frontmatter.source);
-    if (article.frontmatter.type) subtitleParts.push(article.frontmatter.type);
-    const subtitleStr = subtitleParts.length > 0
-      ? `<div class="card-subtitle">${escapeHtml(subtitleParts.join(' | '))}</div>`
-      : '';
-
-    const bodyHtml = markdownToHtml(article.body);
-
-    cardsHtml += `
-      <div class="card card-bordered ${section.colorClass}">
-        <div class="card-title">${escapeHtml(article.title)}</div>
-        ${subtitleStr}
-        <div class="card-body">${bodyHtml}</div>
-      </div>`;
+    cardsHtml += renderArticleCard(article, section.colorClass);
   }
 
   return `
@@ -1161,7 +2366,7 @@ function main() {
 
   if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
     console.log(`
-MindrianOS -- Single-File SnapshotHub Generator
+MindrianOS -- Single-File SnapshotHub Generator (Synteris Quality)
 
 Usage:
   node scripts/generate-hub.cjs <room-path> [--output <path>]
@@ -1220,10 +2425,16 @@ Examples:
 
   // Write output
   fs.writeFileSync(outputPath, html, 'utf-8');
+
+  const lineCount = html.split('\n').length;
   console.log(`Hub generated: ${outputPath}`);
   console.log(`  Venture: ${room.ventureName}`);
   console.log(`  Stage: ${room.ventureStage}`);
   console.log(`  Sections: ${room.sections.map(s => s.label).join(', ')}`);
+  console.log(`  Lines: ${lineCount}`);
+  if (room.grade) {
+    console.log(`  Grade: ${room.grade.letter}`);
+  }
 }
 
 main();
