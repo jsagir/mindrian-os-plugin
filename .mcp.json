@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "mindrian-brain": {
+      "url": "https://mindrian-brain.onrender.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${MINDRIAN_BRAIN_KEY}"
+      }
+    }
+  }
+}
