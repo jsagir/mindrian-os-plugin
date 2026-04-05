@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.6.5] - 2026-04-05
+
+### Fixed
+- Status line not showing for new users: plugin settings.json used wrong key name (statusline vs statusLine), session-start wrote literal $PLUGIN_ROOT instead of resolved path, and status line only configured when room existed
+- Status line now activates on every session regardless of room state
+
 ## [1.6.4] - 2026-04-05
 
 ### Fixed
