@@ -1,131 +1,152 @@
-# Requirements - v6.2 RoomHub + SnapshotHub
+# Requirements: MindrianOS v1.8.0 Cowork Adaptation
 
-**Defined:** 2026-04-01
-**Core Value:** Any Room becomes a living, adaptive intelligence surface -- the RoomHub serves it interactively, the SnapshotHub freezes it for sharing.
-**Taxonomy:** All terms per references/taxonomy/TAXONOMY.md
+**Defined:** 2026-04-05
+**Core Value:** Every MindrianOS command, pipeline, and intelligence capability works identically across CLI, Desktop, and Cowork -- with Brain-driven routing and scheduled external intelligence on Cowork.
 
----
+## v1.8.0 Requirements
 
-## v6.2 Requirements
+### MCP Foundation
 
-### Adaptive Room Detection
+- [ ] **MCP-01**: All 64 plugin commands are exposed as MCP tools via hierarchical routers (currently 49/64)
+- [ ] **MCP-02**: Router restructuring keeps each router group under 15 commands (split data_room 34-cmd group into sub-routers)
+- [ ] **MCP-03**: Intelligence cascade shared module (`intelligence-cascade.cjs`) called by both CLI hooks and MCP tool handlers for HSI/cross-ref/graph-update
+- [ ] **MCP-04**: Brain-driven routing at MCP layer: orchestration router consults Brain for framework chain recommendations with 3-tier fallback (cache -> local heuristic -> Brain with 2s timeout)
+- [ ] **MCP-05**: All MCP tool outputs include standardized `## Suggested Next` section enabling LLM-orchestrated pipeline chaining
+- [ ] **MCP-06**: SDK upgraded from 1.27.1 to ^1.29.0 for Streamable HTTP transport and ext-apps peer dependency
 
-- [ ] **ROOM-01**: Room type detector reads State + Section names + Entry content to classify as venture/website/research/general
-- [ ] **ROOM-02**: ROOM_TYPE_CONFIG maps each type to: statsBar metrics, hubTitle, sectionLabels, insightTypes, graphLabel
-- [ ] **ROOM-03**: Stats bar adapts to Room type (venture: entries/threads/gaps/grants | website: pages/components/breakpoints | research: papers/citations/findings)
-- [ ] **ROOM-04**: Section cards use type-specific labels (venture: "Problem Definition" | website: "User Needs" | research: "Research Question")
+### Surface Detection
 
-### Showcase Views (7)
+- [ ] **SURF-01**: Auto-detect CLI vs Desktop vs Cowork at server startup via environment signals (MINDRIAN_TRANSPORT, CLAUDE_SURFACE, /sessions directory, process.stdin.isTTY)
+- [ ] **SURF-02**: Dual transport: stdio for Desktop + Streamable HTTP for Cowork on same McpServer instance, selected by surface detection
+- [ ] **SURF-03**: `/mos:setup` auto-configures both MCP servers (Brain remote + MindrianOS local) based on detected surface
+- [ ] **SURF-04**: Capability-aware feature registration: MCP Apps only on Desktop/Cowork, Tasks only on Cowork, hooks only on CLI
 
-- [ ] **VIEW-01**: Overview -- hub with adaptive stats, Section cards + Thesis governing thoughts, Signal briefing, Sentinel digest
-- [ ] **VIEW-02**: Library -- 3-panel Entry browser with sidebar, FlexSearch, TOC, Thread hyperlinks
-- [ ] **VIEW-03**: Narrative -- fullscreen Deck slides from Thesis + top Entries (min 3 Sections)
-- [ ] **VIEW-04**: Synthesis -- stat counters, timelines, funnels, Bottleneck heat map, Surprise clusters
-- [ ] **VIEW-05**: Blueprint -- SVG architecture from Fabric edges, Mermaid rendering
-- [ ] **VIEW-06**: Constellation -- Cytoscape graph, 12 Thread types, De Stijl colors, spectral coloring, particles, glow
-- [ ] **VIEW-07**: Chat -- generative panel docked bottom-right, Fabric Cypher queries, BYOAPI
+### Write Safety
 
-### Generative Fabric Chat
+- [ ] **WRITE-01**: KuzuDB write-gateway with promise-chain serialization in graph-ops.cjs preventing single-writer contention
+- [ ] **WRITE-02**: File-based write lock (`room/.graph/write.lock`) with PID, timestamp, and 5-second stale lock cleanup
+- [ ] **WRITE-03**: CLI hooks detect running MCP server and delegate graph writes rather than competing for KuzuDB lock
 
-- [ ] **CHAT-01**: Chat queries Fabric (KuzuDB) via natural language to Cypher
-- [ ] **CHAT-02**: Constellation clicks inject context ("Tell me about [Entry]", "Threads connecting [Section]")
-- [ ] **CHAT-03**: BYOAPI -- user's Claude API key via settings modal, localStorage, never transmitted
-- [ ] **CHAT-04**: Chat available in all 7 views (docked bottom-right, expandable)
+### Pipeline Chaining
 
-### 12-Thread Constellation
+- [ ] **PIPE-01**: Room-file-based state enables LLM-orchestrated tool sequences (methodology A output -> room artifact -> methodology B reads it)
+- [ ] **PIPE-02**: Full pipeline chains work end-to-end via MCP: scenario analysis -> root cause -> causal tracing -> prediction tracking
+- [ ] **PIPE-03**: Brain recommendation includes chain ordering: CO_OCCURS and FEEDS_INTO relationships encode which frameworks to run in what sequence
 
-- [ ] **FABRIC-01**: All 12 Thread types rendered: INFORMS, CONTRADICTS, CONVERGES, ENABLES, INVALIDATES, BELONGS_TO, REASONING_INFORMS, HSI_CONNECTION, REVERSE_SALIENT, ANALOGOUS_TO, STRUCTURALLY_ISOMORPHIC, RESOLVES_VIA
-- [ ] **FABRIC-02**: De Stijl color per Thread type + toggle filters in sidebar
-- [ ] **FABRIC-03**: Entries colored by spectral OM-HMM profile (spectral_gap = color intensity)
-- [ ] **FABRIC-04**: Surprises (HSI_CONNECTION) with animated particles on high-breakthrough edges
-- [ ] **FABRIC-05**: Bottlenecks (REVERSE_SALIENT) with innovation thesis tooltip on hover
-- [ ] **FABRIC-06**: ANALOGOUS_TO as dashed cross-domain bridge lines between Sections
+### Token Optimization
 
-### SnapshotHub Export
+- [ ] **TOKEN-01**: Native-first skill architecture: skills teach only domain-specific rules, not how to use tools Claude already knows (Read, Write, WebSearch, Agent)
+- [ ] **TOKEN-02**: Compress ui-system from ~28K bytes (~7,200 tokens) to ~8K bytes (~2,200 tokens) by removing examples and keeping rules only
+- [ ] **TOKEN-03**: Defer room-proactive and room-passive skills until room/ directory exists (zero capability loss, ~3,600 token savings)
+- [ ] **TOKEN-04**: Defer brain-connector skill until Brain is detected (~1,500 token savings, load on demand)
+- [ ] **TOKEN-05**: Progressive loading: Layer 0 always (~9K tokens), Layer 1 on-demand (full skill content when needed), Layer 2 Brain power-up (optional)
+- [ ] **TOKEN-06**: Per-turn base cost reduced from ~20,500 tokens to ~10,000 tokens for fresh install users
 
-- [x] **SNAP-01**: /mos:snapshot generates static HTML to room/exports/{YYYY-MM-DD-HHmm}/
-- [x] **SNAP-02**: All 7 views as co-located HTML + shared CSS/JS
-- [x] **SNAP-03**: manifest.json with Room metrics (entries, threads, surprises, bottlenecks, signals, lenses, conversations)
-- [x] **SNAP-04**: Version history sidebar from room/.snapshots/
+### Scheduled Intelligence
 
-### Deep Links
+- [ ] **SCHED-01**: Session catch-up: on MCP server init, compute what was missed since last session (hours since scout, predictions due, new files)
+- [ ] **SCHED-02**: Daily briefing generation from room state, approaching prediction deadlines, and new contradictions
+- [ ] **SCHED-03**: Scheduled competitor analysis: periodic web search for competitors in room's domain context
+- [ ] **SCHED-04**: Scheduled grant/funding discovery: proactive scan for grants and funding opportunities relevant to room's focus area
+- [ ] **SCHED-05**: Scheduled context-relevant news: web search for developments in the venture's domain, filed to room/intelligence/
+- [ ] **SCHED-06**: Scout sentinel tasks run on schedule: health check, deadline scan, competitor watch, HSI recomputation
+- [ ] **SCHED-07**: All scheduled results filed as room artifacts with provenance and timestamps
 
-- [ ] **LINK-01**: Every Entry, Section, Thread gets claude-cli://open deep link
-- [ ] **LINK-02**: Click opens Claude Code at exact Room location
+### De Bono Persistent Hats
 
-### Parallel Extraction
+- [ ] **HAT-01**: 6 perspective personas with cross-session memory stored in room/.mindrian/hats/{color}/
+- [ ] **HAT-02**: 1 subagent loads persona files on demand (NOT 6 concurrent agents -- token budget control)
+- [ ] **HAT-03**: Hat state feeds Brain routing: Black Hat concerns influence risk assessment, Yellow Hat opportunities feed HSI scoring, Blue Hat tracks methodology effectiveness
+- [ ] **HAT-04**: Session log per hat: room/.mindrian/hats/{color}/session-log/YYYY-MM-DD.md tracks what each perspective found
 
-- [x] **EXTRACT-01**: Haiku scan per Section (entry counts, Thesis, Claims, spectral profiles) in parallel
-- [ ] **EXTRACT-02**: Sonnet synthesis (top 5 Signals, Room health score, innovation map)
-- [ ] **EXTRACT-03**: Opus narrative (Room story, hub hero text adapted to Room type)
+### MCP Apps Data Room Views
 
-### Responsive + Offline
+- [ ] **APP-01**: ext-apps@1.5.0 installed with registerAppTool/registerAppResource for ui:// resources
+- [ ] **APP-02**: Dashboard view rendered inline in Cowork/Desktop via MCP Apps (De Stijl Mondrian grid, read-only first)
+- [ ] **APP-03**: Wiki view rendered inline via MCP Apps (room sections as browsable pages)
+- [ ] **APP-04**: Knowledge graph view rendered inline via MCP Apps (Cytoscape.js, existing De Stijl graph)
+- [ ] **APP-05**: Views use vanilla HTML/JS + CDN libs (no React, no build step) served as ui:// resources
+- [ ] **APP-06**: Bidirectional: iframe can call MCP tools via postMessage for on-demand data refresh
 
-- [x] **POLISH-01**: Responsive 375px-1440px (mobile-first)
-- [x] **POLISH-02**: CDN default, --offline inlines all deps
-- [x] **POLISH-03**: Works on file:// (chat requires API key)
-- [x] **POLISH-04**: Signature footer + Mondrian bar in all views
+## v2.0 Requirements (Deferred -- Requires Anthropic Team Sharing)
 
----
+### Cross-User Intelligence
+
+- **TEAM-01**: Cross-person cascade detection across shared room state
+- **TEAM-02**: Team prediction calibration (multi-user Brier scores)
+- **TEAM-03**: Lawrence-as-observer (mentor watches team conversations)
+- **TEAM-04**: Shared room concurrent access with conflict resolution
+
+### KAIROS Integration
+
+- **KAIROS-01**: Register room artifacts as KAIROS-consumable for background agent
+- **KAIROS-02**: Auto-Dream memory consolidation writes to room/.mindrian/dreams/
+- **KAIROS-03**: Cold-start context rebuilding made obsolete by KAIROS persistence
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Real-time push via MCP resource subscriptions | No Claude client implements resource subscriptions yet. Polling via scheduled tasks instead. |
+| Flat 64-tool MCP registration | 30-60K token overhead. Hierarchical routers proven at 49 commands, scale to 64. |
+| React/Next.js for MCP Apps | Build step, massive deps. De Stijl views are vanilla HTML/JS. ext-apps supports vanilla JS natively. |
+| WebSocket live dashboard | Sandboxed MCP App iframes communicate via postMessage only. WebSocket violates CSP. |
+| KAIROS daemon (custom persistent agent) | KAIROS is unshipped Anthropic internal. Desktop Scheduled Tasks are the sanctioned pattern. |
+| node-cron in MCP server | stdio servers are ephemeral. Cowork has built-in scheduler. Session catch-up handles the gap. |
+| chokidar file watching in MCP server | Without push delivery (subscriptions not implemented), watching generates events nobody receives. |
+| State outside room/ directory | Breaks ICM principle (folder IS orchestration). Room must be self-contained for portability. |
+| TypeScript migration | Build step breaks "every output is an edit surface" principle. CJS stays. |
+| Team sharing features | Anthropic hasn't shipped Cowork team sharing. Deferred to v2.0. |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ROOM-01 | Phase 47 | Pending |
-| ROOM-02 | Phase 47 | Pending |
-| ROOM-03 | Phase 47 | Pending |
-| ROOM-04 | Phase 47 | Pending |
-| VIEW-01 | Phase 49 | Pending |
-| VIEW-02 | Phase 49 | Pending |
-| VIEW-03 | Phase 49 | Pending |
-| VIEW-04 | Phase 49 | Pending |
-| VIEW-05 | Phase 49 | Pending |
-| VIEW-06 | Phase 48 | Pending |
-| VIEW-07 | Phase 50 | Pending |
-| CHAT-01 | Phase 50 | Pending |
-| CHAT-02 | Phase 50 | Pending |
-| CHAT-03 | Phase 50 | Pending |
-| CHAT-04 | Phase 50 | Pending |
-| FABRIC-01 | Phase 48 | Pending |
-| FABRIC-02 | Phase 48 | Pending |
-| FABRIC-03 | Phase 48 | Pending |
-| FABRIC-04 | Phase 48 | Pending |
-| FABRIC-05 | Phase 48 | Pending |
-| FABRIC-06 | Phase 48 | Pending |
-| SNAP-01 | Phase 51 | Complete |
-| SNAP-02 | Phase 51 | Complete |
-| SNAP-03 | Phase 51 | Complete |
-| SNAP-04 | Phase 51 | Complete |
-| LINK-01 | Phase 49 | Pending |
-| LINK-02 | Phase 49 | Pending |
-| EXTRACT-01 | Phase 47 | Complete |
-| EXTRACT-02 | Phase 47 | Pending |
-| EXTRACT-03 | Phase 47 | Pending |
-| POLISH-01 | Phase 51 | Complete |
-| POLISH-02 | Phase 51 | Complete |
-| POLISH-03 | Phase 51 | Complete |
-| POLISH-04 | Phase 51 | Complete |
+| MCP-01 | TBD | Pending |
+| MCP-02 | TBD | Pending |
+| MCP-03 | TBD | Pending |
+| MCP-04 | TBD | Pending |
+| MCP-05 | TBD | Pending |
+| MCP-06 | TBD | Pending |
+| SURF-01 | TBD | Pending |
+| SURF-02 | TBD | Pending |
+| SURF-03 | TBD | Pending |
+| SURF-04 | TBD | Pending |
+| WRITE-01 | TBD | Pending |
+| WRITE-02 | TBD | Pending |
+| WRITE-03 | TBD | Pending |
+| PIPE-01 | TBD | Pending |
+| PIPE-02 | TBD | Pending |
+| PIPE-03 | TBD | Pending |
+| TOKEN-01 | TBD | Pending |
+| TOKEN-02 | TBD | Pending |
+| TOKEN-03 | TBD | Pending |
+| TOKEN-04 | TBD | Pending |
+| TOKEN-05 | TBD | Pending |
+| TOKEN-06 | TBD | Pending |
+| SCHED-01 | TBD | Pending |
+| SCHED-02 | TBD | Pending |
+| SCHED-03 | TBD | Pending |
+| SCHED-04 | TBD | Pending |
+| SCHED-05 | TBD | Pending |
+| SCHED-06 | TBD | Pending |
+| SCHED-07 | TBD | Pending |
+| HAT-01 | TBD | Pending |
+| HAT-02 | TBD | Pending |
+| HAT-03 | TBD | Pending |
+| HAT-04 | TBD | Pending |
+| APP-01 | TBD | Pending |
+| APP-02 | TBD | Pending |
+| APP-03 | TBD | Pending |
+| APP-04 | TBD | Pending |
+| APP-05 | TBD | Pending |
+| APP-06 | TBD | Pending |
 
-**Coverage:** 34/34 requirements mapped
-
----
-
-## Future Requirements
-
-- SnapshotHub diffing between versions
-- Team/partners Section rendering
-- Featured quote selection algorithm
-- RoomHub as remote MCP (team access)
-- Vercel one-click deploy from /mos:snapshot
-
-## Out of Scope
-
-- Backend server (localhost only, static files)
-- User accounts/auth (BYOAPI only)
-- Real-time collaboration (Cowork handles natively)
-- Custom themes (De Stijl dark only for v6.2)
-- Rewriting existing Showcase scripts (build on generate-snapshot.cjs)
+**Coverage:**
+- v1.8.0 requirements: 39 total
+- Mapped to phases: 0 (awaiting roadmap)
+- Unmapped: 39
 
 ---
-*Requirements defined: 2026-04-01*
+*Requirements defined: 2026-04-05*
+*Last updated: 2026-04-05 after initial definition*
