@@ -1,0 +1,37 @@
+{
+  "source_artifact": "problem-definition/market-pain",
+  "extracted_at": "2026-04-05",
+  "claims": [
+    {
+      "id": "causal-test0001",
+      "cause": "Equipment downtime averaging 12 hours",
+      "mechanism": "Uncoated surfaces degrade under thermal cycling",
+      "effect": "Production losses of $50K per incident",
+      "extraction_method": "observed",
+      "domain": "materials",
+      "falsifiable_prediction": "Coating reduces downtime below 4 hours",
+      "evidence": ["problem-definition/market-pain"]
+    },
+    {
+      "id": "causal-test0002",
+      "cause": "Competitor pricing at $200/sqft",
+      "mechanism": "Below-cost pricing strategy",
+      "effect": "Margin pressure on existing players",
+      "extraction_method": "asserted",
+      "domain": "competitive",
+      "falsifiable_prediction": "Competitor raises prices within 12 months",
+      "evidence": ["competitive-analysis/pricing"]
+    },
+    {
+      "id": "causal-test0003",
+      "cause": "Market is growing",
+      "mechanism": "",
+      "effect": "Company will succeed",
+      "extraction_method": "inferred",
+      "domain": "business",
+      "falsifiable_prediction": "",
+      "evidence": []
+    }
+  ],
+  "rejected": []
+}

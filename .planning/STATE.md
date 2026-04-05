@@ -1,57 +1,68 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.7.0
-milestone_name: Causal Reasoning Layer
-status: executing
-stopped_at: Phase 52 context gathered
-last_updated: "2026-04-05T08:03:56.011Z"
-last_activity: 2026-04-05 -- Phase 52 execution started
+milestone: v6.2
+milestone_name: RoomHub + SnapshotHub
+status: verifying
+stopped_at: Completed 53-01-PLAN.md
+last_updated: "2026-04-05T13:00:47.187Z"
+last_activity: 2026-04-05
 progress:
-  total_phases: 6
+  total_phases: 5
   completed_phases: 0
-  total_plans: 2
-  completed_plans: 0
-  percent: 0
+  total_plans: 0
+  completed_plans: 5
+  percent: 20
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-05)
+See: .planning/PROJECT.md (updated 2026-04-01)
 
-**Core value:** Larry can trace cause-effect chains, surface hidden bottlenecks, and generate falsifiable predictions -- enabling "because...because...because" reasoning across the Data Room
-**Current focus:** Phase 52 — causal-schema-brain-enrichment
+**Core value:** Any Room becomes a living, adaptive intelligence surface -- RoomHub serves it interactively, SnapshotHub freezes it for sharing
+**Current focus:** Phase 51 complete -- SnapshotHub Export + Polish
 
 ## Current Position
 
-Phase: 52 (causal-schema-brain-enrichment) — EXECUTING
-Plan: 1 of 2
-Status: Executing Phase 52
-Last activity: 2026-04-05 -- Phase 52 execution started
+Phase: 51 of 51 (SnapshotHub Export + Polish -- COMPLETE)
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-04-05
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [##░░░░░░░░] 20%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 46+ (across v1.0-v6.2)
+- Total plans completed: 46+ (across v1.0-v1.6.0)
 - Average duration: ~5min
 - Total execution time: ~4 hours
+
+**Recent Trend:**
+
+- Last 5 plans: 9min, 3min, 6min, 5min, 8min
+- Trend: Stable
 
 ## Accumulated Context
 
 ### Decisions
 
-Recent decisions affecting v1.7.0:
+Recent decisions affecting v6.2:
 
-- [v1.7.0 init]: Larry extracts (LLM), Python computes (graph algorithms), KuzuDB stores, Brain directs
-- [v1.7.0 init]: No monolithic orchestrator -- integration through edges and post-write cascade
-- [v1.7.0 init]: Tier 0 works without Python deps (Larry reasons from directives alone)
-- [v1.7.0 roadmap]: Schema + Brain enrichment combined into Phase 52 (parallel targets: KuzuDB vs Neo4j Aura)
-- [v1.7.0 roadmap]: Post-write integration + Prediction registry combined into Phase 55 (both depend on engine)
-- [v1.7.0 roadmap]: Linear 6-phase chain, no parallel phases -- each builds on previous
+- [Phase 51]: Shared CSS as linked file (not inline) for co-located views
+- [Phase 51]: Mobile-first breakpoints (375/768/1024/1440) not desktop-down
+- [Phase 51]: Offline inlining via Node.js child_process, no npm deps
+- [Phase 51]: Manifest v2 schema with full metrics, spectral, section completeness
+- [v6.2 init]: RoomHub first (live localhost), SnapshotHub second (freeze and export)
+- [v6.2 init]: Build on existing generate-snapshot.cjs (368 lines), lib/chat/chat-panel.js, lib/core/deep-links.cjs
+- [v6.2 init]: 5 phases (47-51), coarse granularity, derived from RESEARCH_13 proposal
+- [v6.2 init]: Room type detection from State + Section names + Entry content (venture/website/research/general)
+- [v6.2 init]: All 12 Thread types rendered in Constellation with De Stijl color per type
+- [v6.2 init]: BYOAPI pattern for Chat (user's Claude API key, localStorage, never transmitted)
+- [Phase 53]: CausalClaim schema added to initSchema for worktree compatibility
+- [Phase 53]: Three Gaps enforcement: claims without mechanism or prediction rejected
 
 ### Pending Todos
 
@@ -60,11 +71,10 @@ Recent decisions affecting v1.7.0:
 
 ### Blockers/Concerns
 
-- Brain Framework/Concept node labels need verification against Neo4j Aura before Phase 52 Brain enrichment
-- KuzuDB ACYCLIC path semantic must be tested with cross-node-type patterns in Phase 52
+None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-05T07:39:39.326Z
-Stopped at: Phase 52 context gathered
-Resume file: .planning/phases/52-causal-schema-brain-enrichment/52-CONTEXT.md
+Last session: 2026-04-05T13:00:47.183Z
+Stopped at: Completed 53-01-PLAN.md
+Resume file: None
