@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.8.1] - 2026-04-05
+### Fixed
+- Remove dead code in room_graph router (unreachable cases from merge artifact)
+- Add hat-briefing and scheduled-tasks to MCP routers (were missing from command coverage)
+- Sanitize Cypher query input in brain-router.cjs to prevent injection from malformed STATE.md
+- Add shutdown handler double-fire guard in session-catchup.cjs
+- Wire both MCP servers (mindrian-os local + mindrian-brain remote) into plugin .mcp.json
+- ALL_TOOL_COMMANDS now correctly reports 64 routed commands
+
 ## [1.8.0] - 2026-04-05
 onboarding: true
 onboard_steps:
