@@ -31,7 +31,7 @@
 - [ ] **Phase 58: Scheduled Intelligence** - Session catch-up, daily briefings, competitor/grant/news scanning on Cowork
 - [ ] **Phase 59: De Bono Persistent Hats** - 6 perspective personas with cross-session memory feeding Brain routing
 - [x] **Phase 60: MCP Apps Data Room Views** - Dashboard, wiki, and graph rendered inline via ext-apps in Cowork/Desktop (completed 2026-04-05)
-- [ ] **Phase 61: Release v1.8.0 + Platform Readiness** - Integration testing across all 3 surfaces, KAIROS prep, UDS stubs, GrowthBook monitoring, version bump
+- [x] **Phase 61: Release v1.8.0 + Platform Readiness** - Integration testing across all 3 surfaces, KAIROS prep, UDS stubs, GrowthBook monitoring, version bump (completed 2026-04-05)
 
 ## Phase Details
 
@@ -182,7 +182,10 @@ Plans:
   4. UDS listener stubs exist in room-passive for future cross-instance room state sharing
   5. GrowthBook gates (tengu_kairos, tengu_harbor, tengu_scratch) are monitored and auto-activate features when they go live
   6. CHANGELOG.md has a v1.8.0 entry and plugin.json version reads 1.8.0
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [x] 61-01-PLAN.md - Session state writer, KAIROS detection, UDS stubs, platform gates, v1.8.0 release (READY-01 through READY-04)
 
 ## Progress
 
@@ -201,7 +204,7 @@ Note: Phase 54 (Token + Hook) and Phases 56 (Pipeline) + 57 (Agent Dispatch) can
 | 58. Scheduled Intelligence | v1.8.0 | 1/1 | Complete | 2026-04-05 |
 | 59. De Bono Persistent Hats | v1.8.0 | 0/TBD | Not started | - |
 | 60. MCP Apps Data Room Views | v1.8.0 | 1/1 | Complete | 2026-04-05 |
-| 61. Release v1.8.0 + Platform Readiness | v1.8.0 | 0/TBD | Not started | - |
+| 61. Release v1.8.0 + Platform Readiness | v1.8.0 | 1/1 | Complete | 2026-04-05 |
 
 ## Dependency Chain
 

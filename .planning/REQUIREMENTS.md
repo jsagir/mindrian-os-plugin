@@ -69,10 +69,10 @@
 
 ### KAIROS/Platform Readiness
 
-- [ ] **READY-01**: Structured last-session.md with active_methodology, open_questions, next_suggested_action, confidence_level
-- [ ] **READY-02**: KAIROS log detection in context-engine: when tengu_kairos activates, read daily log instead of cold-start context rebuild
-- [ ] **READY-03**: UDS listener stubs in room-passive for future cross-instance room state sharing
-- [ ] **READY-04**: Monitor GrowthBook gates (tengu_kairos, tengu_harbor, tengu_scratch) and auto-activate when features go live
+- [x] **READY-01**: Structured last-session.md with active_methodology, open_questions, next_suggested_action, confidence_level
+- [x] **READY-02**: KAIROS log detection in context-engine: when tengu_kairos activates, read daily log instead of cold-start context rebuild
+- [x] **READY-03**: UDS listener stubs in room-passive for future cross-instance room state sharing
+- [x] **READY-04**: Monitor GrowthBook gates (tengu_kairos, tengu_harbor, tengu_scratch) and auto-activate when features go live
 
 ### Scheduled Intelligence
 
@@ -189,10 +189,10 @@
 | APP-04 | Phase 60 | Complete |
 | APP-05 | Phase 60 | Complete |
 | APP-06 | Phase 60 | Complete |
-| READY-01 | Phase 61 | Pending |
-| READY-02 | Phase 61 | Pending |
-| READY-03 | Phase 61 | Pending |
-| READY-04 | Phase 61 | Pending |
+| READY-01 | Phase 61 | Complete |
+| READY-02 | Phase 61 | Complete |
+| READY-03 | Phase 61 | Complete |
+| READY-04 | Phase 61 | Complete |
 
 **Coverage:**
 - v1.8.0 requirements: 61 total

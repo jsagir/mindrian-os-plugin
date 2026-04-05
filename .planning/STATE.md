@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.8.0
 milestone_name: Cowork Adaptation
 status: executing
-stopped_at: Completed 60-01-PLAN.md (MCP Apps Data Room Views)
-last_updated: "2026-04-05T21:17:00Z"
+stopped_at: Completed 61-01-PLAN.md (Release v1.8.0 + Platform Readiness)
+last_updated: "2026-04-05T21:23:00Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 10
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 10
-  completed_plans: 9
-  percent: 50
+  completed_plans: 10
+  percent: 60
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** Every MindrianOS command, pipeline, and intelligence capability works identically across CLI, Desktop, and Cowork
-**Current focus:** Phase 60 -- MCP Apps Data Room Views
+**Current focus:** Phase 61 -- Release v1.8.0 + Platform Readiness (COMPLETE)
 
 ## Current Position
 
-Phase: 60 (MCP Apps Data Room Views) -- COMPLETE
+Phase: 61 (Release v1.8.0 + Platform Readiness) -- COMPLETE
 Plan: 1 of 1
-Status: Phase complete
+Status: Phase complete, v1.8.0 released and tagged
 Last activity: 2026-04-05
 
-Progress: [#####░░░░░] 50%
+Progress: [######░░░░] 60%
 
 ## Performance Metrics
 
@@ -84,6 +84,10 @@ Progress: [#####░░░░░] 50%
 - [Phase 60]: Vanilla JS + inline CSS for all MCP App templates (no React, no build step)
 - [Phase 60]: Shared scanRoomData function: one scan serves dashboard, wiki, and graph
 - [Phase 60]: Non-fatal MCP Apps registration: failure does not crash server
+- [Phase 61]: Platform gates via process.env with local override files as testing escape hatch
+- [Phase 61]: KAIROS detection is a skill instruction (no code path) -- activates when LLM reads SKILL.md
+- [Phase 61]: UDS stubs documented-first: skill instructions define behavior, transport deferred
+- [Phase 61]: session-state.cjs uses YAML frontmatter + Markdown body for dual machine/human consumption
 
 ### Pending Todos
 
@@ -99,6 +103,6 @@ Progress: [#####░░░░░] 50%
 
 ## Session Continuity
 
-Last session: 2026-04-05T21:17:00Z
-Stopped at: Completed 60-01-PLAN.md (MCP Apps Data Room Views)
+Last session: 2026-04-05T21:23:00Z
+Stopped at: Completed 61-01-PLAN.md (Release v1.8.0 + Platform Readiness)
 Resume file: None
