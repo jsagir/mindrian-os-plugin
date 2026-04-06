@@ -38,3 +38,14 @@ Last activity: 2026-04-06 -- Roadmap created (4 phases, 27 requirements)
 - Neo4j Aura + APOC 2026.03.0, write via console, read via MCP
 - Curly apostrophe fix applied to all scripts (STARTS WITH prefix matching)
 - Mullins execution order fix applied (match as Technique, not ValidationTool)
+
+### Pending Todos
+
+- **generate-hub.cjs standard features:** Sticky top bar with Mondrian branding, persona card auto-generated from room data, view buttons linking to views/ folder, bottom nav with Mindrian branding, vis-network graph replacing Cytoscape -- all as STANDARD output not manual patches
+- **Update generate-snapshot.cjs constellation:** Already uses vis-network (v1.8.4) but needs the sidebar/detail panel/controls from the Tony prototype
+- **Update generate-presentation.cjs:** Graph view should use vis-network per references/design/graph-visualization-standard.md
+- **Update dashboard/index.html:** Live dashboard graph view should match export quality
+- **LaTeX export command:** /mos:latex for any artifact with PDF output
+- **Open source diagram lib evaluation:** For architecture/flow diagrams in exports
+- **Desktop Data Room MCP:** KuzuDB Windows build blocked -- need alternative or skill bridge
+- **Grading calibration data:** 0/100+ Example nodes -- needs Lawrence's actual grading records
