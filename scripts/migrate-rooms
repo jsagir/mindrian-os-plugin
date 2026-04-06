@@ -1,0 +1,406 @@
+#!/usr/bin/env bash
+# migrate-rooms -- Guided migration from legacy room layouts to ~/MindrianRooms/
+# Detects scattered rooms, shows discovery table, confirms each move individually.
+# Never auto-deletes old paths. Optionally creates symlinks for backward compat.
+#
+# Usage:
+#   scripts/migrate-rooms [--dry-run] [--no-symlink] [search-dir]
+#
+# Arguments:
+#   search-dir    Base directory to scan (defaults to $HOME)
+#   --dry-run     Show what would be migrated without moving anything
+#   --no-symlink  Skip symlink prompts (no symlinks created)
+#
+# Environment:
+#   MINDRIAN_ROOMS_HOME -- override ~/MindrianRooms as target location
+#
+# Requires: room-registry, update-icm-index (from same scripts/ directory)
+
+set -euo pipefail
+
+# --- Parse arguments ---
+SEARCH_DIR="$HOME"
+DRY_RUN=false
+NO_SYMLINK=false
+
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run)    DRY_RUN=true ;;
+    --no-symlink) NO_SYMLINK=true ;;
+    *)            SEARCH_DIR="$arg" ;;
+  esac
+done
+
+ROOMS_HOME="${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# --- Color helpers (stderr for prompts, stdout for data) ---
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+info()  { echo -e "${CYAN}[migrate]${NC} $*" >&2; }
+warn()  { echo -e "${YELLOW}[migrate]${NC} $*" >&2; }
+ok()    { echo -e "${GREEN}[migrate]${NC} $*" >&2; }
+err()   { echo -e "${RED}[migrate]${NC} $*" >&2; }
+
+# --- Ensure target directory exists ---
+mkdir -p "$ROOMS_HOME"
+
+# --- Discovery: find legacy room patterns ---
+# Patterns from CONTEXT.md D-01:
+#   ~/room/           (single legacy room)
+#   ~/room-*/         (named legacy rooms like room-adam, room-dahbura)
+#   ~/rooms/*/        (rooms directory with sub-rooms)
+#   ~/demo-*/room/    (demo rooms)
+#   ~/*/room/         (project directories with embedded room/)
+#   Also check for STATE.md as room indicator
+
+declare -a FOUND_PATHS=()
+declare -a FOUND_NAMES=()
+declare -a FOUND_VENTURES=()
+declare -a FOUND_STAGES=()
+declare -a FOUND_COUNTS=()
+
+# Extract venture name from STATE.md frontmatter
+extract_venture() {
+  local room_path="$1"
+  local state_file="${room_path}/STATE.md"
+  if [ -f "$state_file" ]; then
+    python3 -c "
+import sys
+venture = 'Unknown'
+stage = 'Pre-Opportunity'
+in_frontmatter = False
+with open('$state_file') as f:
+    for line in f:
+        line = line.strip()
+        if line == '---':
+            if in_frontmatter:
+                break
+            in_frontmatter = True
+            continue
+        if in_frontmatter:
+            if line.startswith('project_name:'):
+                venture = line.split(':', 1)[1].strip().strip('\"').strip(\"'\")
+            elif line.startswith('venture_stage:'):
+                stage = line.split(':', 1)[1].strip().strip('\"').strip(\"'\")
+print(venture)
+print(stage)
+" 2>/dev/null || echo -e "Unknown\nPre-Opportunity"
+  else
+    echo "Unknown"
+    echo "Pre-Opportunity"
+  fi
+}
+
+# Count files in a directory (non-hidden, recursive)
+count_files() {
+  local dir="$1"
+  find "$dir" -not -path '*/.*' -type f 2>/dev/null | wc -l | tr -d ' '
+}
+
+# Propose a slug from the directory name or venture name
+propose_slug() {
+  local path="$1"
+  local venture="$2"
+  local dirname
+  dirname=$(basename "$path")
+
+  # If the directory is just "room", try parent name or venture name
+  if [ "$dirname" = "room" ]; then
+    local parent
+    parent=$(basename "$(dirname "$path")")
+    if [ "$venture" != "Unknown" ]; then
+      # Slugify venture name
+      echo "$venture" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//' | sed 's/-$//'
+    else
+      echo "$parent" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//' | sed 's/-$//'
+    fi
+  elif [[ "$dirname" == room-* ]]; then
+    # Strip "room-" prefix
+    echo "${dirname#room-}"
+  else
+    echo "$dirname" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//' | sed 's/-$//'
+  fi
+}
+
+# Check if a path is a valid room (has STATE.md or section-like directories)
+is_room() {
+  local dir="$1"
+  [ ! -d "$dir" ] && return 1
+  # Has STATE.md -> definitely a room
+  [ -f "${dir}/STATE.md" ] && return 0
+  # Has typical room section folders
+  for section in problem-definition market-analysis solution-design business-model; do
+    [ -d "${dir}/${section}" ] && return 0
+  done
+  return 1
+}
+
+# Check if path is already inside ROOMS_HOME (skip these)
+is_already_migrated() {
+  local path="$1"
+  local resolved
+  resolved=$(cd "$path" 2>/dev/null && pwd)
+  [[ "$resolved" == "$ROOMS_HOME"* ]]
+}
+
+info "Scanning for legacy room layouts..."
+info "Search directory: ${SEARCH_DIR}"
+info "Target: ${ROOMS_HOME}"
+echo "" >&2
+
+# Pattern 1: ~/room/ (single legacy room)
+if [ -d "${SEARCH_DIR}/room" ] && is_room "${SEARCH_DIR}/room" && ! is_already_migrated "${SEARCH_DIR}/room"; then
+  FOUND_PATHS+=("${SEARCH_DIR}/room")
+fi
+
+# Pattern 2: ~/room-*/ (named legacy rooms)
+for dir in "${SEARCH_DIR}"/room-*/; do
+  [ -d "$dir" ] || continue
+  dir="${dir%/}"
+  is_room "$dir" && ! is_already_migrated "$dir" && FOUND_PATHS+=("$dir")
+done
+
+# Pattern 3: ~/rooms/*/ (rooms directory with sub-rooms)
+if [ -d "${SEARCH_DIR}/rooms" ]; then
+  for dir in "${SEARCH_DIR}"/rooms/*/; do
+    [ -d "$dir" ] || continue
+    dir="${dir%/}"
+    is_room "$dir" && ! is_already_migrated "$dir" && FOUND_PATHS+=("$dir")
+  done
+fi
+
+# Pattern 4: ~/demo-*/room/ (demo rooms)
+for dir in "${SEARCH_DIR}"/demo-*/; do
+  [ -d "$dir" ] || continue
+  dir="${dir%/}"
+  if [ -d "${dir}/room" ] && is_room "${dir}/room" && ! is_already_migrated "${dir}/room"; then
+    FOUND_PATHS+=("${dir}/room")
+  fi
+done
+
+# Pattern 5: ~/*/room/ (project directories with embedded room/)
+# Only scan one level deep to avoid excessive traversal
+for dir in "${SEARCH_DIR}"/*/; do
+  [ -d "$dir" ] || continue
+  dir="${dir%/}"
+  # Skip known non-project directories
+  local_basename=$(basename "$dir")
+  case "$local_basename" in
+    rooms|MindrianRooms|.local|.cache|.config|.npm|.nvm|node_modules|snap|.claude) continue ;;
+  esac
+  if [ -d "${dir}/room" ] && is_room "${dir}/room" && ! is_already_migrated "${dir}/room"; then
+    # Check we haven't already found this path
+    already_found=false
+    for existing in "${FOUND_PATHS[@]+"${FOUND_PATHS[@]}"}"; do
+      if [ "$existing" = "${dir}/room" ]; then
+        already_found=true
+        break
+      fi
+    done
+    $already_found || FOUND_PATHS+=("${dir}/room")
+  fi
+done
+
+# --- Deduplicate and resolve symlinks ---
+declare -a UNIQUE_PATHS=()
+for path in "${FOUND_PATHS[@]+"${FOUND_PATHS[@]}"}"; do
+  resolved=$(cd "$path" 2>/dev/null && pwd) || continue
+  # Skip if it's a symlink pointing into ROOMS_HOME (already migrated)
+  if [ -L "$path" ]; then
+    link_target=$(readlink -f "$path" 2>/dev/null || echo "")
+    if [[ "$link_target" == "$ROOMS_HOME"* ]]; then
+      continue
+    fi
+  fi
+  # Deduplicate by resolved path
+  is_dup=false
+  for existing in "${UNIQUE_PATHS[@]+"${UNIQUE_PATHS[@]}"}"; do
+    existing_resolved=$(cd "$existing" 2>/dev/null && pwd) || continue
+    if [ "$resolved" = "$existing_resolved" ]; then
+      is_dup=true
+      break
+    fi
+  done
+  $is_dup || UNIQUE_PATHS+=("$path")
+done
+
+# --- Build discovery table data ---
+if [ ${#UNIQUE_PATHS[@]} -eq 0 ]; then
+  ok "No legacy rooms found. Everything is already in ${ROOMS_HOME}/"
+  exit 0
+fi
+
+for path in "${UNIQUE_PATHS[@]}"; do
+  venture_info=$(extract_venture "$path")
+  venture=$(echo "$venture_info" | head -1)
+  stage=$(echo "$venture_info" | tail -1)
+  slug=$(propose_slug "$path" "$venture")
+  file_count=$(count_files "$path")
+
+  FOUND_NAMES+=("$slug")
+  FOUND_VENTURES+=("$venture")
+  FOUND_STAGES+=("$stage")
+  FOUND_COUNTS+=("$file_count")
+done
+
+# --- Display discovery table ---
+echo "" >&2
+echo -e "${BOLD}Discovery Results${NC}" >&2
+echo -e "${BOLD}=================${NC}" >&2
+echo "" >&2
+printf "%-4s %-40s %-25s %-20s %-8s %-20s\n" "#" "Legacy Path" "Venture" "Stage" "Files" "Proposed Slug" >&2
+printf "%-4s %-40s %-25s %-20s %-8s %-20s\n" "---" "----------------------------------------" "-------------------------" "--------------------" "--------" "--------------------" >&2
+
+for i in "${!UNIQUE_PATHS[@]}"; do
+  idx=$((i + 1))
+  # Shorten path for display (replace $HOME with ~)
+  display_path="${UNIQUE_PATHS[$i]/$HOME/\~}"
+  printf "%-4s %-40s %-25s %-20s %-8s %-20s\n" \
+    "$idx" "$display_path" "${FOUND_VENTURES[$i]}" "${FOUND_STAGES[$i]}" "${FOUND_COUNTS[$i]}" "${FOUND_NAMES[$i]}" >&2
+done
+
+echo "" >&2
+info "Found ${#UNIQUE_PATHS[@]} legacy room(s) to migrate."
+echo "" >&2
+
+if $DRY_RUN; then
+  warn "Dry run -- no changes will be made."
+  echo "" >&2
+  for i in "${!UNIQUE_PATHS[@]}"; do
+    echo "WOULD MIGRATE: ${UNIQUE_PATHS[$i]} -> ${ROOMS_HOME}/${FOUND_NAMES[$i]}/"
+  done
+  exit 0
+fi
+
+# --- Migrate each room individually with confirmation ---
+MIGRATED=0
+SKIPPED=0
+
+for i in "${!UNIQUE_PATHS[@]}"; do
+  src="${UNIQUE_PATHS[$i]}"
+  slug="${FOUND_NAMES[$i]}"
+  venture="${FOUND_VENTURES[$i]}"
+  stage="${FOUND_STAGES[$i]}"
+  file_count="${FOUND_COUNTS[$i]}"
+  dest="${ROOMS_HOME}/${slug}"
+  display_src="${src/$HOME/\~}"
+
+  echo "" >&2
+  echo -e "${BOLD}Room $((i + 1)) of ${#UNIQUE_PATHS[@]}${NC}" >&2
+  echo -e "  Source:  ${display_src}" >&2
+  echo -e "  Target:  ~/MindrianRooms/${slug}/" >&2
+  echo -e "  Venture: ${venture}" >&2
+  echo -e "  Files:   ${file_count}" >&2
+  echo "" >&2
+
+  # Check if target already exists
+  if [ -d "$dest" ]; then
+    warn "Target ${dest} already exists. Skipping to avoid overwrite."
+    SKIPPED=$((SKIPPED + 1))
+    continue
+  fi
+
+  # Prompt for confirmation
+  read -r -p "  Migrate this room? [y/N/q] " response < /dev/tty 2>/dev/null || response="n"
+  case "$response" in
+    [yY]|[yY][eE][sS])
+      ;;
+    [qQ]|[qQ][uU][iI][tT])
+      info "Migration stopped by user."
+      break
+      ;;
+    *)
+      info "Skipped."
+      SKIPPED=$((SKIPPED + 1))
+      continue
+      ;;
+  esac
+
+  # Allow slug override
+  read -r -p "  Use slug '${slug}'? [Y/n/custom] " slug_response < /dev/tty 2>/dev/null || slug_response="y"
+  case "$slug_response" in
+    [nN]|[nN][oO])
+      read -r -p "  Enter custom slug: " custom_slug < /dev/tty 2>/dev/null || custom_slug=""
+      if [ -n "$custom_slug" ]; then
+        slug="$custom_slug"
+        dest="${ROOMS_HOME}/${slug}"
+      fi
+      ;;
+    [yY]|[yY][eE][sS]|"")
+      ;; # keep proposed slug
+    *)
+      # Treat as custom slug
+      slug="$slug_response"
+      dest="${ROOMS_HOME}/${slug}"
+      ;;
+  esac
+
+  # Execute copy
+  info "Copying ${display_src} -> ~/MindrianRooms/${slug}/ ..."
+  cp -a "$src" "$dest"
+
+  if [ $? -ne 0 ]; then
+    err "Copy failed for ${display_src}. Skipping."
+    SKIPPED=$((SKIPPED + 1))
+    continue
+  fi
+
+  ok "Copied successfully."
+
+  # Register in room-registry
+  info "Registering in room registry..."
+  if [ -x "${SCRIPT_DIR}/room-registry" ]; then
+    "${SCRIPT_DIR}/room-registry" create "$slug" "$slug" "$venture" "$stage" >/dev/null 2>&1 || \
+      warn "Registry create returned non-zero (room may already be registered)."
+    ok "Registered: ${slug}"
+  else
+    warn "room-registry not found at ${SCRIPT_DIR}/room-registry -- skipping registration."
+  fi
+
+  # Refresh INDEX.md
+  if [ -x "${SCRIPT_DIR}/update-icm-index" ]; then
+    "${SCRIPT_DIR}/update-icm-index" "$ROOMS_HOME" >/dev/null 2>&1 || true
+  fi
+
+  # Offer symlink (unless --no-symlink)
+  if ! $NO_SYMLINK; then
+    echo "" >&2
+    read -r -p "  Create symlink at old location? (${display_src} -> ${dest}) [y/N] " symlink_response < /dev/tty 2>/dev/null || symlink_response="n"
+    case "$symlink_response" in
+      [yY]|[yY][eE][sS])
+        # Remove original directory (it was copied, not moved)
+        # Actually -- we do NOT auto-delete. Create symlink alongside or inform user.
+        warn "To create a symlink, you must first remove or rename the original directory."
+        warn "Run:  mv '${src}' '${src}.bak'  then:  ln -s '${dest}' '${src}'"
+        info "Commands printed above -- run them manually when ready."
+        ;;
+      *)
+        info "No symlink created. Old path remains as-is."
+        ;;
+    esac
+  fi
+
+  MIGRATED=$((MIGRATED + 1))
+  ok "Room ${slug} migration complete."
+done
+
+# --- Summary ---
+echo "" >&2
+echo -e "${BOLD}Migration Summary${NC}" >&2
+echo -e "=================" >&2
+echo -e "  Migrated: ${GREEN}${MIGRATED}${NC}" >&2
+echo -e "  Skipped:  ${YELLOW}${SKIPPED}${NC}" >&2
+echo -e "  Target:   ${ROOMS_HOME}/" >&2
+echo "" >&2
+
+if [ $MIGRATED -gt 0 ]; then
+  ok "Migration complete. Old directories were NOT deleted."
+  info "Once you verify everything works, you can remove them manually."
+  info "Tip: Use 'ls ${ROOMS_HOME}/' to see your new room layout."
+fi
