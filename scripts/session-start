@@ -63,6 +63,11 @@ When generating a dashboard, room export, or standalone HTML visualization:
 context=""
 
 if [ -d "$ROOM_DIR" ]; then
+  # Fire-and-forget room hierarchy graph sync (Phase 59.2, D-16: never blocks)
+  ROOMS_HOME="${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}"
+  node "${SCRIPT_DIR}/sync-rooms-graph" "$ROOMS_HOME" >/dev/null 2>&1 &
+  node "${SCRIPT_DIR}/sync-rooms-brain" "$ROOMS_HOME" >/dev/null 2>&1 &
+
   # =============================================================================
   # CONTEXT INTELLIGENCE: Archetype detection + tiered loading (CTX-01, CTX-02, CTX-05)
   # =============================================================================

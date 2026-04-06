@@ -20,6 +20,8 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Central rooms location (new default)
 ROOMS_HOME="${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}"
 
@@ -85,6 +87,9 @@ print(json.dumps(reg['rooms']['$NAME'], indent=2))
 "
     # Create the room directory under ROOMS_HOME
     mkdir -p "${ROOMS_HOME}/${RPATH}"
+    # Fire-and-forget graph sync (D-16: never blocks)
+    node "${SCRIPT_DIR}/sync-rooms-graph" "$ROOMS_HOME" >/dev/null 2>&1 &
+    node "${SCRIPT_DIR}/sync-rooms-brain" "$ROOMS_HOME" >/dev/null 2>&1 &
     ;;
 
   read)
@@ -220,6 +225,9 @@ with open(tmp, 'w') as f:
 os.rename(tmp, reg_file)
 print('archived')
 "
+    # Fire-and-forget graph sync (D-16: never blocks)
+    node "${SCRIPT_DIR}/sync-rooms-graph" "$ROOMS_HOME" >/dev/null 2>&1 &
+    node "${SCRIPT_DIR}/sync-rooms-brain" "$ROOMS_HOME" >/dev/null 2>&1 &
     ;;
 
   get-active)
