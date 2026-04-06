@@ -1,0 +1,275 @@
+#!/usr/bin/env node
+/**
+ * sync-rooms-graph -- Sync room hierarchy to KuzuDB local graph
+ *
+ * Reads registry.json, creates/updates Room and RoomGroup nodes in KuzuDB,
+ * and creates CONTAINS edges for the physical hierarchy.
+ *
+ * Idempotent: safe to run multiple times (MERGE semantics).
+ * Fire-and-forget: failure never blocks any operation.
+ * Additive only: NEVER writes to filesystem or registry.json (D-15).
+ * Regenerable: graph can be rebuilt from filesystem at any time (D-18).
+ *
+ * Usage: node sync-rooms-graph [roomsHome]
+ *   roomsHome - Override ~/MindrianRooms (default: $MINDRIAN_ROOMS_HOME or ~/MindrianRooms)
+ *
+ * Exit codes:
+ *   0 - Success or graceful skip (no registry, no kuzu, etc.)
+ *   Never exits non-zero (fire-and-forget, D-16)
+ */
+
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
+const ROOMS_HOME = process.argv[2] || process.env.MINDRIAN_ROOMS_HOME || path.join(os.homedir(), 'MindrianRooms');
+const REGISTRY_PATH = path.join(ROOMS_HOME, '.rooms', 'registry.json');
+const GRAPH_DIR = path.join(ROOMS_HOME, '.rooms', '.room-graph');
+
+/**
+ * Initialize KuzuDB schema for room hierarchy.
+ * Creates Room, RoomGroup, and VentureStage node tables plus CONTAINS and AT_STAGE rel tables.
+ * All operations are IF NOT EXISTS -- safe to call repeatedly.
+ * @param {object} conn - KuzuDB Connection
+ */
+async function initSchema(conn) {
+  // Node tables
+  await conn.query(`
+    CREATE NODE TABLE IF NOT EXISTS Room(
+      name STRING PRIMARY KEY,
+      venture_name STRING,
+      venture_stage STRING,
+      domain STRING,
+      status STRING,
+      created STRING,
+      path STRING
+    )
+  `);
+
+  await conn.query(`
+    CREATE NODE TABLE IF NOT EXISTS RoomGroup(
+      name STRING PRIMARY KEY,
+      icm_layer STRING,
+      rationale STRING,
+      path STRING
+    )
+  `);
+
+  await conn.query(`
+    CREATE NODE TABLE IF NOT EXISTS VentureStage(
+      name STRING PRIMARY KEY
+    )
+  `);
+
+  // Relationship tables
+  await conn.query(`CREATE REL TABLE IF NOT EXISTS CONTAINS(FROM RoomGroup TO Room)`);
+  await conn.query(`CREATE REL TABLE IF NOT EXISTS GROUP_CONTAINS(FROM RoomGroup TO RoomGroup)`);
+  await conn.query(`CREATE REL TABLE IF NOT EXISTS AT_STAGE(FROM Room TO VentureStage)`);
+}
+
+/**
+ * Seed the 5 VentureStage nodes (matching Brain taxonomy).
+ * @param {object} conn - KuzuDB Connection
+ */
+async function seedStages(conn) {
+  const stages = ['Pre-Opportunity', 'Discovery', 'Validation', 'Design', 'Investment'];
+  for (const stage of stages) {
+    await conn.query(`MERGE (s:VentureStage {name: $name})`, { name: stage });
+  }
+}
+
+/**
+ * Detect group directories under ROOMS_HOME.
+ * A group is a directory that contains subdirectories which are registered rooms.
+ * @param {object} rooms - rooms object from registry.json
+ * @returns {Map<string, string[]>} groupName -> [roomNames]
+ */
+function detectGroups(rooms) {
+  const groups = new Map();
+
+  for (const [name, room] of Object.entries(rooms)) {
+    const roomPath = room.path || name;
+    const parts = roomPath.split('/').filter(Boolean);
+
+    // If path has a parent directory, that parent is a group
+    if (parts.length >= 2) {
+      const groupName = parts[0];
+      if (!groups.has(groupName)) {
+        groups.set(groupName, []);
+      }
+      groups.get(groupName).push(name);
+    }
+  }
+
+  // Also scan filesystem for group directories with CLAUDE.md (ICM-compliant groups)
+  try {
+    const entries = fs.readdirSync(ROOMS_HOME, { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      if (entry.name.startsWith('.') || entry.name.startsWith('_')) continue;
+
+      const groupPath = path.join(ROOMS_HOME, entry.name);
+      const hasClaude = fs.existsSync(path.join(groupPath, 'CLAUDE.md'));
+
+      // Check if this directory contains any subdirectories (potential rooms)
+      const subEntries = fs.readdirSync(groupPath, { withFileTypes: true });
+      const hasSubdirs = subEntries.some(e => e.isDirectory() && !e.name.startsWith('.'));
+
+      if (hasClaude && hasSubdirs && !groups.has(entry.name)) {
+        groups.set(entry.name, []);
+      }
+    }
+  } catch (_) {
+    // Filesystem scan is best-effort
+  }
+
+  return groups;
+}
+
+/**
+ * Sync rooms and groups to KuzuDB.
+ * Uses MERGE for idempotent upserts.
+ * @param {object} conn - KuzuDB Connection
+ * @param {object} registry - Parsed registry.json
+ */
+async function syncRooms(conn, registry) {
+  const rooms = registry.rooms || {};
+  const groups = detectGroups(rooms);
+
+  // Sync Room nodes
+  for (const [name, room] of Object.entries(rooms)) {
+    if (room.status === 'archived') continue;
+
+    await conn.query(`MERGE (r:Room {name: $name})
+      ON CREATE SET r.venture_name = $vname, r.venture_stage = $vstage,
+        r.status = $status, r.created = $created, r.path = $path, r.domain = $domain
+      ON MATCH SET r.venture_name = $vname, r.venture_stage = $vstage,
+        r.status = $status, r.path = $path, r.domain = $domain`, {
+      name,
+      vname: room.venture_name || '',
+      vstage: room.venture_stage || '',
+      status: room.status || 'unknown',
+      created: room.created || '',
+      path: room.path || name,
+      domain: room.domain || ''
+    });
+
+    // Create AT_STAGE edge if venture_stage is known
+    if (room.venture_stage) {
+      // Delete existing AT_STAGE edges first (room can change stage)
+      await conn.query(`
+        MATCH (r:Room {name: $name})-[e:AT_STAGE]->(:VentureStage)
+        DELETE e
+      `, { name });
+
+      await conn.query(`
+        MATCH (r:Room {name: $name}), (s:VentureStage {name: $stage})
+        CREATE (r)-[:AT_STAGE]->(s)
+      `, { name, stage: room.venture_stage });
+    }
+  }
+
+  // Sync RoomGroup nodes
+  for (const [groupName, roomNames] of groups) {
+    const groupPath = path.join(ROOMS_HOME, groupName);
+    let rationale = '';
+
+    // Try to extract rationale from group's CLAUDE.md
+    try {
+      const claudePath = path.join(groupPath, 'CLAUDE.md');
+      if (fs.existsSync(claudePath)) {
+        const content = fs.readFileSync(claudePath, 'utf8');
+        const lines = content.split('\n').slice(0, 5);
+        rationale = lines.find(l => l.trim() && !l.startsWith('#')) || '';
+      }
+    } catch (_) {}
+
+    await conn.query(`MERGE (g:RoomGroup {name: $name})
+      ON CREATE SET g.icm_layer = 'group', g.rationale = $rationale, g.path = $path
+      ON MATCH SET g.rationale = $rationale, g.path = $path`, {
+      name: groupName,
+      rationale,
+      path: groupName
+    });
+
+    // Create CONTAINS edges from group to rooms
+    for (const roomName of roomNames) {
+      // Check if edge already exists
+      const existing = await conn.query(`
+        MATCH (g:RoomGroup {name: $group})-[:CONTAINS]->(r:Room {name: $room})
+        RETURN count(*) AS cnt
+      `, { group: groupName, room: roomName });
+
+      let edgeCount = 0;
+      while (existing.hasNext()) {
+        const row = await existing.getNext();
+        edgeCount = row['cnt'] || 0;
+      }
+
+      if (edgeCount === 0) {
+        await conn.query(`
+          MATCH (g:RoomGroup {name: $group}), (r:Room {name: $room})
+          CREATE (g)-[:CONTAINS]->(r)
+        `, { group: groupName, room: roomName });
+      }
+    }
+  }
+}
+
+async function main() {
+  // Check registry exists
+  if (!fs.existsSync(REGISTRY_PATH)) {
+    process.exit(0);
+  }
+
+  // Load registry
+  let registry;
+  try {
+    registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
+  } catch (_) {
+    process.stderr.write('sync-rooms-graph: invalid registry.json\n');
+    process.exit(0);
+  }
+
+  // Check if rooms exist
+  if (!registry.rooms || Object.keys(registry.rooms).length === 0) {
+    process.exit(0);
+  }
+
+  // Try to load KuzuDB
+  let kuzu;
+  try {
+    kuzu = require('kuzu');
+  } catch (_) {
+    process.stderr.write('sync-rooms-graph: kuzu not available, skipping local graph sync\n');
+    process.exit(0);
+  }
+
+  // Open or create graph database
+  let db = null;
+  let conn = null;
+  try {
+    fs.mkdirSync(GRAPH_DIR, { recursive: true });
+    db = new kuzu.Database(GRAPH_DIR, 0, false, false, 256 * 1024 * 1024);
+    conn = new kuzu.Connection(db);
+
+    await initSchema(conn);
+    await seedStages(conn);
+    await syncRooms(conn, registry);
+
+    const roomCount = Object.keys(registry.rooms).filter(n => registry.rooms[n].status !== 'archived').length;
+    console.log(JSON.stringify({ synced: roomCount, graph: GRAPH_DIR }));
+  } catch (err) {
+    process.stderr.write(`sync-rooms-graph: ${err.message}\n`);
+  } finally {
+    try { if (conn) conn.close(); } catch (_) {}
+    try { if (db) db.close(); } catch (_) {}
+  }
+}
+
+main().catch(err => {
+  process.stderr.write(`sync-rooms-graph: ${err.message}\n`);
+  process.exit(0);
+});
