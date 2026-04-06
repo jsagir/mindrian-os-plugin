@@ -3,12 +3,16 @@ name: room-proactive
 description: >
   Proactive Data Room intelligence. Surfaces gaps, contradictions, and convergence
   signals. Active when room/ exists with entries.
-activation: "dir_exists:room"
+activation: "resolve_room:active"
 ---
 
 # Room Proactive -- Gap, Contradiction, and Convergence Detection
 
 The Room is an active thinking partner. This skill surfaces what is missing, conflicting, and strengthening.
+
+## Skill Activation
+
+This skill activates when `scripts/resolve-room` finds any active room with entries. The resolver checks (in order): central registry at `~/MindrianRooms/.rooms/registry.json`, directory scan under `~/MindrianRooms/`, workspace registry, and legacy `room/` fallback. All analysis below operates on the resolved room path.
 
 ## Activation Triggers
 

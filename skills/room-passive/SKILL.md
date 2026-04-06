@@ -3,14 +3,20 @@ name: room-passive
 description: >
   Data Room awareness, filing intelligence, and passive monitoring. Active when
   room/ exists -- gives Larry project structure context and filing guidance.
-activation: "dir_exists:room"
+activation: "resolve_room:active"
 ---
 
 # Room Passive -- Awareness + Filing Intelligence
 
+## Activation
+
+This skill activates when `scripts/resolve-room` finds any active room. The resolver checks (in order): central registry at `~/MindrianRooms/.rooms/registry.json`, directory scan under `~/MindrianRooms/`, workspace registry, and legacy `room/` fallback. If any strategy returns a path, this skill is active.
+
+The resolved room path (absolute) is the working room for all operations below.
+
 ## Room Awareness
 
-Be aware of `room/` structure: reference specific sections, note empty sections as opportunities, use entry counts for completeness, read ROOM.md for section purpose.
+Be aware of the active room's structure: reference specific sections, note empty sections as opportunities, use entry counts for completeness, read ROOM.md for section purpose. The room lives under `~/MindrianRooms/[name]/` (or legacy `room/` for unmigrated workspaces).
 
 ## Room Structure
 
