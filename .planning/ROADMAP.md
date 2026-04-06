@@ -1,146 +1,86 @@
-# Roadmap: MindrianOS Plugin v1.8.2 -- Brain Graph Optimization
+# Roadmap: MindrianRooms -- ICM Room Organization v1.8.6
 
 ## Overview
 
-| Phases | Requirements | Script | Execution |
-|--------|-------------|--------|-----------|
-| 4 phases | 27 REQs | v182-brain-optimize.cypher (19 sections) | Neo4j Aura console + MCP verification |
+This milestone updates the MindrianOS plugin to centralize all Data Rooms under ~/MindrianRooms/ with ICM-compliant directory structure. The physical directory already exists for the developer; this work updates resolve-room, room-registry, creation commands, skill activation triggers, display commands, and adds a migration engine for legacy layouts. Four phases deliver path resolution first (the keystone), then creation and ICM structure, then skill/UX updates, and finally the migration engine for existing users.
 
-**Single source of truth:** `scripts/v182-brain-optimize.cypher`
-**Architecture reference:** `references/brain/graph-architecture.md`
+## Milestones
 
----
+<details>
+<summary>v1.8.2 Brain Graph Optimization (Phases 52-55) - PLANNED</summary>
 
-## Phase 52: Foundation -- Labels, Stages, ProblemTypes, Dedup
+4 phases, 27 requirements. Normalization scripts written. Ready to execute separately.
 
-**Goal:** Clean the graph foundation so all subsequent wiring lands on canonical nodes.
+</details>
 
-**Script sections:** 1 (Labels), 2 (VentureStage), 3 (ProblemType), 4 (DictionaryTerm dedup), 5 (Book dedup + GROUNDS_FRAMEWORK), 6 (Opportunity Bank)
+- 🚧 **v1.8.6 MindrianRooms -- ICM Room Organization** - Phases 56-59 (in progress)
 
-**Requirements:**
-- FRAG-06: Label normalization
-- CAUSAL-05: VentureStage progression chain
-- FRAG-01: ProblemType consolidation
-- FRAG-02: DictionaryTerm dedup
-- FRAG-03: Book dedup + title normalization
-- FRAG-04: INTRODUCES_FRAMEWORK mislanding fix
-- LAZY-04: Provenance chain (GROUNDS_FRAMEWORK)
-- FRAG-05: Opportunity Bank consolidation
+## Phases
 
-**Success criteria:**
-1. `MATCH (n:concept) RETURN count(n)` returns 0 (labels cleaned)
-2. `MATCH (n:VentureStage) RETURN count(n)` returns 5 with PROGRESSES_TO chain
-3. `MATCH (n:ProblemType)-[:SUBTYPE_OF]->(c) RETURN count(n)` returns 9+ (matrix + Wicked)
-4. `MATCH (n:DictionaryTerm) WITH n.name, count(n) AS c WHERE c > 1 RETURN count(n)` returns 0
-5. `MATCH (n:Book) WITH n.name, count(n) AS c WHERE c > 1 RETURN count(n)` returns 0
-6. `MATCH ()-[r:GROUNDS_FRAMEWORK]->() RETURN count(r)` returns 10+
+- [ ] **Phase 56: Path Resolution** - Update resolve-room to default to ~/MindrianRooms/ with legacy fallback
+- [ ] **Phase 57: Room Creation & ICM Structure** - Room creation targets MindrianRooms, auto-generates ICM Layer 0/1, INDEX.md auto-refresh
+- [ ] **Phase 58: Skill Activation & Display** - Skills detect rooms in new location, commands show MindrianRooms paths
+- [ ] **Phase 59: Migration Engine** - Detect legacy layouts, guided migration with symlinks, /mos:setup integration
 
----
+## Phase Details
 
-## Phase 53: Causal Spine -- FEEDS_INTO, TYPICAL_AT, PREREQUISITE, ADDRESSES
+### Phase 56: Path Resolution
+**Goal**: All room lookups resolve through ~/MindrianRooms/ as the primary location, with backward-compatible legacy fallback
+**Depends on**: Nothing (first phase of milestone)
+**Requirements**: PATH-01, PATH-02, PATH-03
+**Success Criteria** (what must be TRUE):
+  1. Running resolve-room in a project with rooms under ~/MindrianRooms/ returns the correct room path from registry.json
+  2. Running resolve-room without a registry.json still finds rooms by scanning ~/MindrianRooms/ directory
+  3. Running resolve-room with rooms only at ~/room/ or ~/rooms/ still resolves them but prints a deprecation notice to stderr
+**Plans**: 1 plan
+Plans:
+- [ ] 56-01-PLAN.md -- Rewrite resolve-room and room-registry for MindrianRooms-first resolution
 
-**Goal:** Wire the methodology intelligence that powers Larry's causal reasoning, stage recommendations, and gap detection.
+### Phase 57: Room Creation & ICM Structure
+**Goal**: New rooms are created under ~/MindrianRooms/ with ICM-compliant Layer 0 (CLAUDE.md) and Layer 1 (INDEX.md) auto-generated, and INDEX.md stays current as rooms change
+**Depends on**: Phase 56
+**Requirements**: CREATE-01, CREATE-02, CREATE-03, CREATE-04, ICM-01, ICM-02, ICM-03, ICM-04
+**Success Criteria** (what must be TRUE):
+  1. Running /mos:new-project creates the room folder under ~/MindrianRooms/[slug]/ and writes registry.json to ~/MindrianRooms/.rooms/
+  2. Running /mos:rooms create produces the same result as /mos:new-project for path and registry
+  3. First room creation on a fresh system auto-generates ~/MindrianRooms/CLAUDE.md (Layer 0 identity) and ~/MindrianRooms/INDEX.md (Layer 1 routing) from templates
+  4. INDEX.md content updates automatically when a room is created, archived, or changes stage
+  5. Each room retains its own STATE.md as its Layer 2 contract (no regression)
+**Plans**: TBD
+**UI hint**: yes
 
-**Script sections:** 7 (FEEDS_INTO), 8 (TYPICAL_AT), 9 (ADDRESSES_PROBLEM_TYPE), 10 (PREREQUISITE)
+### Phase 58: Skill Activation & Display
+**Goal**: Passive and proactive skills detect rooms in the new location, and all display commands show ~/MindrianRooms/ paths
+**Depends on**: Phase 56
+**Requirements**: SKILL-01, SKILL-02, UX-01, UX-02, UX-03
+**Success Criteria** (what must be TRUE):
+  1. room-passive skill activates when working directory is inside ~/MindrianRooms/[room-name]/
+  2. room-proactive skill activates when working directory is inside ~/MindrianRooms/[room-name]/
+  3. /mos:rooms list output shows ~/MindrianRooms/ paths for all rooms
+  4. /mos:room overview header displays the simplified ~/MindrianRooms/[name]/ path
+  5. Session greeting mentions MindrianRooms location when a room is detected
+**Plans**: TBD
 
-**Requirements:**
-- CAUSAL-01: FEEDS_INTO enrichment (4 -> 35+)
-- CAUSAL-02: PREREQUISITE edges (0 -> 14)
-- CAUSAL-03: TYPICAL_AT enrichment (4 -> 30+)
-- CAUSAL-04: ADDRESSES_PROBLEM_TYPE cleanup + enrichment
+### Phase 59: Migration Engine
+**Goal**: Existing users with legacy ~/room/ or ~/rooms/ layouts get a guided migration path to ~/MindrianRooms/
+**Depends on**: Phase 57
+**Requirements**: MIG-01, MIG-02, MIG-03, MIG-04
+**Success Criteria** (what must be TRUE):
+  1. Running the migration script detects rooms at ~/room/ and ~/rooms/ and reports what it found with file counts
+  2. Migration prompts for confirmation before moving any files, showing source and destination paths
+  3. After migration, optional symlinks at old locations point to new ~/MindrianRooms/[slug]/ paths
+  4. /mos:setup offers an "organize rooms" option that triggers the migration flow
+**Plans**: TBD
 
-**Success criteria:**
-1. `MATCH ()-[r:FEEDS_INTO]->(:Framework) RETURN count(r)` returns 30+
-2. `MATCH ()-[r:TYPICAL_AT]->() RETURN count(r)` returns 30+
-3. `MATCH ()-[r:ADDRESSES_PROBLEM_TYPE]->() RETURN count(r)` returns 60+
-4. `MATCH ()-[r:PREREQUISITE]->() RETURN count(r)` returns 14
-5. PWS spine traversal works: `MATCH path = (s:Framework {name:'Domain Selection'})-[:FEEDS_INTO*1..10]->(e) RETURN length(path)` returns paths up to 9-10 hops
+## Progress
 
----
+**Execution Order:**
+Phases execute in numeric order: 56 -> 57 -> 58 -> 59
+(Phase 58 depends on 56 only, so it could run in parallel with 57 if needed)
 
-## Phase 54: Agent + Teaching Layer -- Mullins, Workshops, Bots, Agents, CaseStudies
-
-**Goal:** Wire every teaching entity to its Framework so Larry knows which bot runs which methodology, which workshop teaches what, and which case study illustrates which concept.
-
-**Script sections:** 11 (Mullins), 12 (Workshops), 13 (Bots), 14 (CorePrinciples), 15 (FrameworkAgents), 16 (CaseStudies)
-
-**Requirements:**
-- AGENT-03: Mullins promotion + pipeline wiring
-- AGENT-04: Workshop->TEACHES->Framework
-- AGENT-05: Bot->IMPLEMENTS->Framework
-- AGENT-06: CorePrinciple->GOVERNS
-- AGENT-01: FrameworkAgents wired (10/10)
-- AGENT-02: CaseStudies wired (26+/30)
-- AGENT-07: Grading gap flagged
-
-**Success criteria:**
-1. `MATCH (n {name:'Mullins Model Validation'}) RETURN labels(n)` includes ValidationTool
-2. `MATCH (w:Workshop)-[:TEACHES]->(f) RETURN count(r)` returns 16+
-3. `MATCH (b:Bot)-[:IMPLEMENTS]->(f) RETURN count(r)` returns 15
-4. `MATCH (n:FrameworkAgent) WITH n, size([(n)--() | 1]) AS c WHERE c < 3 RETURN count(n)` returns 0
-5. `MATCH (n:CaseStudy) WITH n, size([(n)--() | 1]) AS c WHERE c < 2 RETURN count(n)` returns < 5
-
----
-
-## Phase 55: Lazy Bridge + Verification -- ALIAS_OF, Promotion, Cleanup, Indexes, Docs
-
-**Goal:** Bridge the Lazy layer to curated nodes so semantic intelligence reaches Larry, clean orphans, verify everything, update docs.
-
-**Script sections:** 17 (ALIAS_OF + promotion + cleanup), 18 (Indexes), 19 (Grading gap)
-
-**Requirements:**
-- LAZY-01: ALIAS_OF from LazyGraphConcepts to canonical nodes
-- LAZY-02: Promote valuable LazyGraphConcepts to Concept
-- LAZY-03: Delete 511 orphan LazyGraphConcepts
-- LAZY-05: DictionaryTerm->Framework bridging
-- VERIFY-01: Edge count targets met
-- VERIFY-02: Zero orphan agents/dupes/mislanded edges
-- VERIFY-03: graph-architecture.md updated with post-normalization metrics
-- VERIFY-04: Idempotency confirmed
-
-**Success criteria:**
-1. `MATCH ()-[r:ALIAS_OF]->() RETURN count(r)` returns 20+
-2. `MATCH (n:LazyGraphConcept) WHERE NOT (n)--() RETURN count(n)` returns 0
-3. All verification queries in the final block of v182-brain-optimize.cypher pass
-4. `references/brain/graph-architecture.md` updated with post-run metrics
-5. Re-running the full script produces no new edges (idempotent via MERGE)
-
----
-
-## Requirement Traceability
-
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| FRAG-06 | 52 | Pending |
-| CAUSAL-05 | 52 | Pending |
-| FRAG-01 | 52 | Pending |
-| FRAG-02 | 52 | Pending |
-| FRAG-03 | 52 | Pending |
-| FRAG-04 | 52 | Pending |
-| LAZY-04 | 52 | Pending |
-| FRAG-05 | 52 | Pending |
-| CAUSAL-01 | 53 | Pending |
-| CAUSAL-02 | 53 | Pending |
-| CAUSAL-03 | 53 | Pending |
-| CAUSAL-04 | 53 | Pending |
-| AGENT-03 | 54 | Pending |
-| AGENT-04 | 54 | Pending |
-| AGENT-05 | 54 | Pending |
-| AGENT-06 | 54 | Pending |
-| AGENT-01 | 54 | Pending |
-| AGENT-02 | 54 | Pending |
-| AGENT-07 | 54 | Pending |
-| LAZY-01 | 55 | Pending |
-| LAZY-02 | 55 | Pending |
-| LAZY-03 | 55 | Pending |
-| LAZY-05 | 55 | Pending |
-| VERIFY-01 | 55 | Pending |
-| VERIFY-02 | 55 | Pending |
-| VERIFY-03 | 55 | Pending |
-| VERIFY-04 | 55 | Pending |
-
-**Coverage:** 27/27 requirements mapped. 0 unmapped.
-
----
-*Roadmap created: 2026-04-06*
-*Script: scripts/v182-brain-optimize.cypher (19 sections, 4 phases)*
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 56. Path Resolution | v1.8.6 | 0/1 | Planned | - |
+| 57. Room Creation & ICM Structure | v1.8.6 | 0/0 | Not started | - |
+| 58. Skill Activation & Display | v1.8.6 | 0/0 | Not started | - |
+| 59. Migration Engine | v1.8.6 | 0/0 | Not started | - |

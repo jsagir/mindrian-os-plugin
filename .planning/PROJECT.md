@@ -24,9 +24,23 @@ v1.0 through v5.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Presen
 - v1.6.0 Powerhouse (2026-03-31) -- 8 phases, parallel execution, spectral OM-HMM, DbA, model routing
 - v6.2 RoomHub + SnapshotHub (2026-04-01) -- 5 phases, adaptive room detection, 7 showcase views, SnapshotHub export
 
-## Current Milestone: v1.8.2 Brain Graph Optimization
+## Current Milestone: v1.8.6 MindrianRooms -- ICM Room Organization
 
-**Goal:** Make the Neo4j Brain graph work for MindrianOS -- fix the curated spine so causal discovery actually chains, bridge the Lazy layer so semantic intelligence reaches Larry, and clean the fragmentation that makes traversal unreliable.
+**Goal:** Centralize all Data Rooms under `~/MindrianRooms/` with ICM-compliant directory structure, and update the plugin to enforce this as the default for all room creation and resolution.
+
+**Target features:**
+- ICM Root Structure: ~/MindrianRooms/ with Layer 0 (CLAUDE.md) and Layer 1 (INDEX.md) auto-generated on first room creation
+- resolve-room script update: default path resolution from ~/room/ and ~/rooms/ to ~/MindrianRooms/
+- room-registry script update: new rooms created under ~/MindrianRooms/[slug]/
+- new-project command update: room creation targets MindrianRooms, generates ICM files if missing
+- rooms command update: display paths, creation paths, and registry point to MindrianRooms
+- Skill activation update: room-passive and room-proactive detect rooms in new location
+- Migration script: detect legacy ~/room/ and ~/rooms/ layouts, offer guided migration with symlink option
+- INDEX.md auto-refresh: updates when rooms are created, archived, or stage changes
+- Old path cleanup guidance after confirmed migration
+
+**Previous milestone (v1.8.2 Brain Graph Optimization):**
+Defined and roadmapped Brain graph enrichment (4 phases, 27 requirements). Normalization scripts written. Ready to execute separately.
 
 **Research basis:**
 - Live graph audit (2026-04-06): 32,612 nodes, 170,791 rels, 828 labels, 1,633 rel types
