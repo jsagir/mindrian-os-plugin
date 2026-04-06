@@ -98,11 +98,11 @@ Bold for emphasis. Default/white for content. Never combine colors on one token.
 
 Three variants based on room state:
 
-**Cold Start (no room/):** Brief. Header shows MindrianOS/no room. Primary: `/mos:new-project`. Alt: conversational start.
+**Cold Start (no room found):** Brief. Header shows MindrianOS/no room. Mention that rooms will be created at ~/MindrianRooms/. Primary: `/mos:new-project`. Alt: conversational start.
 
-**Warm Start (room, no signals):** "Reading the Room" trace (blockquote). Stats: active sections, entries, last activity. Strongest/weakest callouts. Grounded actions.
+**Warm Start (room, no signals):** "Reading the Room" trace (blockquote). Show room path as ~/MindrianRooms/[name]/. Stats: active sections, entries, last activity. Strongest/weakest callouts. Grounded actions.
 
-**Warm Start + Signals (room + HIGH/MEDIUM):** Same trace + max 2 signals. Prioritize 1 contradiction + 1 convergence. First action addresses top signal. Never repeat same signal consecutive sessions unless changed.
+**Warm Start + Signals (room + HIGH/MEDIUM):** Same trace + max 2 signals. Room path shown in header as ~/MindrianRooms/[name]/. Prioritize 1 contradiction + 1 convergence. First action addresses top signal. Never repeat same signal consecutive sessions unless changed.
 
 ## 6. CLI Voice Rules
 

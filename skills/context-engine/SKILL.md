@@ -25,6 +25,12 @@ When USER.md and STATE.md exist, greet with awareness:
 
 Reference specific room state -- entry counts, recent activity, identified gaps.
 
+### MindrianRooms Location Reference
+
+When the active room resolves under `~/MindrianRooms/` (via `scripts/resolve-room`), include the location naturally in the greeting. Example: "Your rooms live at ~/MindrianRooms/. Active room: [name]."
+
+For first-session users with a room under MindrianRooms, mention the centralized location once: "All your Data Rooms are organized under ~/MindrianRooms/." Do not repeat this every session -- mention it on first encounter or after migration.
+
 ## Session Continuity
 
 Track conversation threads across sessions. When user returns:
@@ -34,7 +40,7 @@ Track conversation threads across sessions. When user returns:
 
 ## Multi-Room Context at Session Start
 
-When `.rooms/registry.json` exists AND has 2 or more rooms registered, the session greeting includes a room list after the standard greeting:
+When `~/MindrianRooms/.rooms/registry.json` (or workspace `.rooms/registry.json` for legacy) exists AND has 2 or more rooms registered, the session greeting includes a room list after the standard greeting:
 
 Format (appended after the active room's state summary):
 ```
