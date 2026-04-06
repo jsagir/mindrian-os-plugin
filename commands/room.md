@@ -30,10 +30,10 @@ Parse the user's input to determine which subcommand to execute. If no subcomman
 
 ### Step 1: Check for Room
 
-If no `room/` directory exists, use the 3-line error format (per D-24):
+Run `bash scripts/resolve-room` to find the active room. If it exits non-zero (no room found), use the 3-line error format (per D-24):
 ```
-✗ No Data Room found
-  Why: No room/ directory in workspace
+x No Data Room found
+  Why: No room under ~/MindrianRooms/ or legacy room/ in workspace
   Fix: /mos:new-project
 ```
 
@@ -61,10 +61,10 @@ bash scripts/serve-dashboard
 
 ### Step 1: Check for Room
 
-If no `room/` directory exists, use the 3-line error format:
+Run `bash scripts/resolve-room` to find the active room path. If it exits non-zero (no room found), use the 3-line error format:
 ```
-✗ No Data Room found
-  Why: No room/ directory in workspace
+x No Data Room found
+  Why: No room under ~/MindrianRooms/ or legacy room/ in workspace
   Fix: /mos:new-project
 ```
 
@@ -72,15 +72,17 @@ STOP.
 
 ### Step 2: Read Room State
 
-Read `room/STATE.md` for the computed overview. Also read each section's `ROOM.md` for identity and purpose.
+Read `STATE.md` from the resolved room path for the computed overview. Also read each section's `ROOM.md` for identity and purpose.
 
 ### Step 3: Render 4-Zone Output (Shape B: Semantic Tree)
 
 **Zone 1 -- Header Panel:**
 ```
-╭─ [Room Name] ── Room Overview ── [Venture Stage] ──────╮
-│                                                            │
+╭─ [Room Name] ── ~/MindrianRooms/[name]/ ── [Venture Stage] ──────╮
+│                                                                       │
 ```
+
+Show the simplified `~/MindrianRooms/[name]/` path in the header. For legacy unmigrated rooms, show the actual relative path instead.
 
 **Zone 2 -- Content Body (Shape B: Semantic Tree):**
 
@@ -138,7 +140,7 @@ If no signals, omit Zone 3 entirely.
 
 ### Step 1: Validate Section
 
-If no `room/` directory exists, use 3-line error format. If the section doesn't exist in `room/`, show:
+Run `bash scripts/resolve-room` to find the active room. If no room found, use 3-line error format. If the section doesn't exist in the resolved room path, show:
 ```
 ✗ Section not found: [section-name]
   Why: No room/[section-name]/ directory
@@ -217,7 +219,7 @@ Actions reference graph edges when possible.
 
 ### Step 1: Validate
 
-- If no `room/` directory exists, use 3-line error format.
+- Run `bash scripts/resolve-room` to find the active room. If no room found, use 3-line error format.
 - If the target directory already exists:
   ```
   ✗ Room already exists: [path]
