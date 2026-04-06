@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.8.6
 milestone_name: MindrianRooms -- ICM Room Organization
 status: planning
-stopped_at: Completed 56-01-PLAN.md
+stopped_at: Completed 58-01-PLAN.md
 last_updated: "2026-04-06T20:24:42.378Z"
 last_activity: 2026-04-06 -- Roadmap created for v1.8.6
 progress:
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-06)
 
 ## Current Position
 
-Phase: 56 of 59 (Path Resolution)
-Plan: -- (not yet planned)
-Status: Ready to plan
-Last activity: 2026-04-06 -- Roadmap created for v1.8.6
+Phase: 58 of 59 (Skill Activation & Display)
+Plan: 01 (complete)
+Status: Phase 58 complete
+Last activity: 2026-04-06 -- Phase 58 skill activation and display updates
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -48,6 +48,7 @@ Progress: [░░░░░░░░░░] 0%
 - Phase 58 (Skill/UX) depends only on Phase 56, enabling parallel execution with Phase 57 if needed
 - ICM Layer 0 = CLAUDE.md (identity), Layer 1 = INDEX.md (routing), Layer 2 = per-room STATE.md (contract)
 - [Phase 56]: resolve-room uses 4-strategy cascade: central registry -> dir scan -> workspace registry -> legacy fallback
+- [Phase 58]: Skills use resolve_room:active trigger; all display paths show ~/MindrianRooms/[name]/; session greeting references MindrianRooms on first encounter
 
 ### Pending Todos
 

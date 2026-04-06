@@ -27,8 +27,8 @@
 
 ### Skill Activation
 
-- [ ] **SKILL-01**: room-passive detects rooms in ~/MindrianRooms/[active-room]/
-- [ ] **SKILL-02**: room-proactive detects rooms in ~/MindrianRooms/[active-room]/
+- [x] **SKILL-01**: room-passive detects rooms in ~/MindrianRooms/[active-room]/
+- [x] **SKILL-02**: room-proactive detects rooms in ~/MindrianRooms/[active-room]/
 
 ### Migration
 
@@ -39,17 +39,30 @@
 
 ### Display & UX
 
-- [ ] **UX-01**: /mos:rooms list shows ~/MindrianRooms/ paths
-- [ ] **UX-02**: /mos:room overview header shows simplified ~/MindrianRooms/[name]/ path
-- [ ] **UX-03**: Session greeting references MindrianRooms location when room detected
+- [x] **UX-01**: /mos:rooms list shows ~/MindrianRooms/ paths
+- [x] **UX-02**: /mos:room overview header shows simplified ~/MindrianRooms/[name]/ path
+- [x] **UX-03**: Session greeting references MindrianRooms location when room detected
 
-### Room Organizer
+### Room Organizer (Wicked Hierarchy Navigator)
 
 - [ ] **ORG-01**: /mos:organize displays current room structure as ICM-compliant tree with status indicators
-- [ ] **ORG-02**: /mos:organize propose suggests reorganization by client, domain, stage, or custom grouping
+- [ ] **ORG-02**: /mos:organize propose suggests reorganization using graph-informed groupings (shared themes, domains, frameworks, stages) -- not just metadata sorting
 - [ ] **ORG-03**: Each proposed room move requires explicit human confirmation before file operations execute
-- [ ] **ORG-04**: Nested hierarchies supported with ICM CLAUDE.md auto-generated at each grouping level
+- [ ] **ORG-04**: Nested hierarchies supported with ICM CLAUDE.md auto-generated at each grouping level from graph context
 - [ ] **ORG-05**: Registry.json and INDEX.md auto-update after each confirmed move
+- [ ] **ORG-06**: Multiple organizational views available without moving files -- "show by client", "show by stage", "show by domain" are graph projections
+- [ ] **ORG-07**: User decisions (GROUP / SEPARATE / DEFER) become graph edges that inform future reorganization proposals
+
+### Room Hierarchy Graph Layer (Brain Enrichment)
+
+- [ ] **GRAPH-01**: Room nodes created in Neo4j Brain for each registered room with name, stage, domain, creation date
+- [ ] **GRAPH-02**: RoomGroup nodes represent grouping levels (clients/, internal/, etc.) with ICM layer metadata
+- [ ] **GRAPH-03**: CONTAINS edges model physical hierarchy (RoomRoot -> RoomGroup -> Room)
+- [ ] **GRAPH-04**: AT_STAGE edges connect Room nodes to existing VentureStage taxonomy (5 stages already in Brain)
+- [ ] **GRAPH-05**: USES_FRAMEWORK edges connect Room nodes to Framework nodes based on methodology commands run in that room
+- [ ] **GRAPH-06**: SHARES_THEME edges between Room nodes detected from cross-room content analysis (CO_OCCURS pattern)
+- [ ] **GRAPH-07**: DataRoomSection nodes (13 existing orphans) wired to parent Room nodes via HAS_SECTION
+- [ ] **GRAPH-08**: Graph layer is additive only -- filesystem + registry.json remain operational truth, graph adds intelligence
 
 ## Future Requirements
 
@@ -79,24 +92,34 @@ None deferred -- scope is tight.
 | ICM-02 | Phase 57 | Pending |
 | ICM-03 | Phase 57 | Pending |
 | ICM-04 | Phase 57 | Pending |
-| SKILL-01 | Phase 58 | Pending |
-| SKILL-02 | Phase 58 | Pending |
+| SKILL-01 | Phase 58 | Complete |
+| SKILL-02 | Phase 58 | Complete |
 | MIG-01 | Phase 59 | Pending |
 | MIG-02 | Phase 59 | Pending |
 | MIG-03 | Phase 59 | Pending |
 | MIG-04 | Phase 59 | Pending |
-| UX-01 | Phase 58 | Pending |
-| UX-02 | Phase 58 | Pending |
-| UX-03 | Phase 58 | Pending |
+| UX-01 | Phase 58 | Complete |
+| UX-02 | Phase 58 | Complete |
+| UX-03 | Phase 58 | Complete |
 | ORG-01 | Phase 59.1 | Pending |
 | ORG-02 | Phase 59.1 | Pending |
 | ORG-03 | Phase 59.1 | Pending |
 | ORG-04 | Phase 59.1 | Pending |
 | ORG-05 | Phase 59.1 | Pending |
+| ORG-06 | Phase 59.1 | Pending |
+| ORG-07 | Phase 59.1 | Pending |
+| GRAPH-01 | Phase 59.2 | Pending |
+| GRAPH-02 | Phase 59.2 | Pending |
+| GRAPH-03 | Phase 59.2 | Pending |
+| GRAPH-04 | Phase 59.2 | Pending |
+| GRAPH-05 | Phase 59.2 | Pending |
+| GRAPH-06 | Phase 59.2 | Pending |
+| GRAPH-07 | Phase 59.2 | Pending |
+| GRAPH-08 | Phase 59.2 | Pending |
 
 **Coverage:**
-- v1.8.6 requirements: 25 total
-- Mapped to phases: 25
+- v1.8.6 requirements: 35 total
+- Mapped to phases: 35
 - Unmapped: 0
 
 ---
