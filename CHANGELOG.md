@@ -11,11 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.8.4] - 2026-04-06
 
+### Added
+- Dashboard detail panel: plain English relationship descriptions ("supports", "conflicts with", "shares themes with")
+- Edge hover tooltip shows full sentence: "Market Analysis supports Pricing Model" instead of raw INFORMS
+- Clickable relationship items in panel navigate to connected nodes
+- 12 edge types translated: INFORMS, CONTRADICTS, CONVERGES, FEEDS_INTO, REINFORCES, INVALIDATES, ENABLES, CAUSES, FILED_TO, SPOKE_IN, ATTENDED, REFERENCES
+- Artifact summary preview in detail panel when available
+- Relationships color-coded by type (red=conflict, blue=support, yellow=convergence, green=reinforces)
+
 ### Changed
 - Graph visualization standard: vis-network (vis.js) replaces Cytoscape.js for all exports
 - SnapshotHub constellation rebuilt with ForceAtlas2 physics, interactive nodes, edge filtering
 - Readable labels with dark outline, section color-coding, diamond/dot node shapes
 - Detail panel on node click, sidebar filters, controls bar (Fit/Zoom/Physics/Stabilize)
+- Detail panel widened to 360px for relationship readability
 - Design standard codified at references/design/graph-visualization-standard.md
 
 ## [1.8.3] - 2026-04-06

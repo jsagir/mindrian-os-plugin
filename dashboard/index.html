@@ -177,7 +177,7 @@
       position: fixed;
       top: 48px;
       right: 0;
-      width: 300px;
+      width: 360px;
       bottom: 180px;
       background: var(--ds-surface);
       border-left: 1px solid var(--ds-border);
@@ -988,8 +988,11 @@
       cy.on('mouseover', 'edge', function(evt) {
         if (nodeFocused) return;
         var edge = evt.target;
-        var edgeType = edge.data('type') || edge.classes().join(', ');
-        edgeTooltip.textContent = edgeType;
+        var edgeClass = getEdgeClass(edge);
+        var info = EDGE_ENGLISH[edgeClass] || { verb: edgeClass };
+        var srcLabel = edge.source().data('label') || edge.source().id();
+        var tgtLabel = edge.target().data('label') || edge.target().id();
+        edgeTooltip.textContent = '"' + srcLabel + '" ' + info.verb + ' "' + tgtLabel + '"';
         edgeTooltip.style.display = 'block';
         var pos = evt.renderedPosition || evt.position;
         if (pos) {
@@ -1180,6 +1183,83 @@
       });
     }
 
+    // ── Edge Type to Plain English ──
+    var EDGE_ENGLISH = {
+      'informs':      { verb: 'supports',          icon: '\u2192', color: 'var(--ds-blue)' },
+      'contradicts':  { verb: 'conflicts with',    icon: '\u26A0', color: 'var(--ds-red)' },
+      'converges':    { verb: 'shares themes with', icon: '\u2261', color: 'var(--ds-yellow)' },
+      'feeds-into':   { verb: 'feeds into',        icon: '\u25B6', color: 'var(--ds-green)' },
+      'reinforces':   { verb: 'reinforces',        icon: '\u2714', color: 'var(--ds-green)' },
+      'invalidates':  { verb: 'invalidates',       icon: '\u2718', color: 'var(--ds-red)' },
+      'enables':      { verb: 'enables',           icon: '\u25B7', color: 'var(--ds-teal)' },
+      'causes':       { verb: 'causes',            icon: '\u21D2', color: 'var(--ds-sienna)' },
+      'filed-to':     { verb: 'filed to',          icon: '\u2192', color: 'var(--ds-muted)' },
+      'spoke-in':     { verb: 'spoke in',          icon: '\u25CF', color: 'var(--ds-blue)' },
+      'attended':     { verb: 'attended',           icon: '\u25CF', color: 'var(--ds-muted)' },
+      'references':   { verb: 'mentions',          icon: '\u2192', color: 'var(--ds-amethyst)' }
+    };
+
+    function edgeToEnglish(edgeClass, sourceLabel, targetLabel, isOutgoing) {
+      var info = EDGE_ENGLISH[edgeClass] || { verb: edgeClass, icon: '\u2192', color: 'var(--ds-muted)' };
+      if (isOutgoing) {
+        return info.icon + ' ' + info.verb + ' "' + targetLabel + '"';
+      } else {
+        return info.icon + ' "' + sourceLabel + '" ' + info.verb + ' this';
+      }
+    }
+
+    function getEdgeClass(edge) {
+      var classes = ['informs','contradicts','converges','feeds-into','reinforces',
+                     'invalidates','enables','causes','filed-to','spoke-in','attended','references'];
+      for (var i = 0; i < classes.length; i++) {
+        if (edge.hasClass(classes[i])) return classes[i];
+      }
+      return edge.data('type') || 'related';
+    }
+
+    // ── Build relationships section for detail panel ──
+    function buildRelationshipsHTML(nodeId) {
+      if (!cy) return '';
+      var node = cy.getElementById(nodeId);
+      if (!node || node.length === 0) return '';
+
+      var edges = node.connectedEdges();
+      if (edges.length === 0) return '';
+
+      var outgoing = [];
+      var incoming = [];
+
+      edges.forEach(function(edge) {
+        var edgeClass = getEdgeClass(edge);
+        var src = edge.source();
+        var tgt = edge.target();
+        var srcLabel = src.data('label') || src.id();
+        var tgtLabel = tgt.data('label') || tgt.id();
+        var info = EDGE_ENGLISH[edgeClass] || { verb: edgeClass, icon: '\u2192', color: 'var(--ds-muted)' };
+
+        if (src.id() === nodeId) {
+          outgoing.push({ text: edgeToEnglish(edgeClass, srcLabel, tgtLabel, true), color: info.color, targetId: tgt.id() });
+        } else {
+          incoming.push({ text: edgeToEnglish(edgeClass, srcLabel, tgtLabel, false), color: info.color, targetId: src.id() });
+        }
+      });
+
+      var html = '<div class="detail-relationships">';
+      html += '<div class="detail-field-label" style="margin-top:16px;margin-bottom:8px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;">Connections</div>';
+
+      var allRels = outgoing.concat(incoming);
+      for (var i = 0; i < allRels.length; i++) {
+        var rel = allRels[i];
+        html += '<div class="detail-rel-item" data-target="' + escapeHTML(rel.targetId) + '" style="cursor:pointer;padding:6px 8px;margin-bottom:2px;border-left:3px solid ' + rel.color + ';background:rgba(245,240,232,0.03);font-size:12px;color:var(--ds-cream);transition:background 150ms ease;"';
+        html += ' onmouseover="this.style.background=\'rgba(245,240,232,0.08)\'"';
+        html += ' onmouseout="this.style.background=\'rgba(245,240,232,0.03)\'"';
+        html += '>' + escapeHTML(rel.text) + '</div>';
+      }
+
+      html += '</div>';
+      return html;
+    }
+
     // ── Detail Panel ──
     function showDetailPanel(data, classes) {
       const panel = document.getElementById('detail-panel');
@@ -1202,7 +1282,6 @@
         if (data.speakers) {
           html += fieldHTML('Speakers', data.speakers);
         }
-        // Count decisions and action items from connected edges
         if (cy) {
           var node = cy.getElementById(data.id);
           var filedEdges = node.connectedEdges('.filed-to');
@@ -1224,7 +1303,6 @@
         if (data.role_type) {
           html += fieldHTML('Role Type', data.role_type);
         }
-        // Connected meetings
         if (cy) {
           var node = cy.getElementById(data.id);
           var meetings = node.connectedEdges('.spoke-in, .attended').connectedNodes('.meeting');
@@ -1240,7 +1318,6 @@
       else if (classList.indexOf('concept') !== -1) {
         var isUnresolved = classList.indexOf('unresolved') !== -1;
         html += fieldHTML('Status', isUnresolved ? 'Unresolved' : 'Resolved');
-        // Referencing artifacts
         if (cy) {
           var node = cy.getElementById(data.id);
           var refs = node.connectedEdges('.references').connectedNodes('.artifact');
@@ -1252,7 +1329,7 @@
         }
         html += fieldHTML('Layer', data.layer || 'intelligence');
       }
-      // ── Artifact node detail (existing) ──
+      // ── Artifact node detail ──
       else {
         if (data.section) {
           html += fieldHTML('Section', data.section.replace(/-/g, ' '));
@@ -1269,13 +1346,35 @@
         if (data.pipeline_stage) {
           html += fieldHTML('Pipeline Stage', data.pipeline_stage, true);
         }
+        // Content preview from artifact summary
+        if (data.summary) {
+          html += '<div class="detail-field"><div class="detail-field-label">Summary</div><div class="detail-field-value" style="font-size:12px;line-height:1.5;color:var(--ds-cream);opacity:0.85;">' + escapeHTML(data.summary) + '</div></div>';
+        }
         if (data.id) {
           html += fieldHTML('File', 'room/' + data.id + '.md', true);
         }
       }
 
+      // ── Relationships in plain English (all node types) ──
+      html += buildRelationshipsHTML(data.id);
+
       fields.innerHTML = html;
       panel.classList.add('open');
+
+      // ── Click relationship items to navigate to connected nodes ──
+      var relItems = panel.querySelectorAll('.detail-rel-item');
+      relItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+          var targetId = this.getAttribute('data-target');
+          var targetNode = cy.getElementById(targetId);
+          if (targetNode && targetNode.length > 0) {
+            cy.animate({ center: { eles: targetNode }, zoom: cy.zoom() }, { duration: 300 });
+            var td = targetNode.data();
+            var tc = targetNode.classes();
+            showDetailPanel(td, tc);
+          }
+        });
+      });
     }
 
     function hideDetailPanel() {
