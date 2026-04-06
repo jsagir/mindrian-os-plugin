@@ -2,6 +2,9 @@
 # room-registry -- Registry CRUD operations for multi-room management
 # Manages .rooms/registry.json with atomic writes (tmp + mv)
 #
+# Default registry location: $MINDRIAN_ROOMS_HOME/.rooms/registry.json
+# (was $WORK_DIR/.rooms/registry.json in v1 -- kept for backward compat)
+#
 # Subcommands:
 #   create <name> <path> [venture_name] [venture_stage]
 #   read <name>
@@ -10,26 +13,30 @@
 #   set-active <name>
 #   archive <name>
 #   get-active
+#   git-config <name> <git_enabled> [git_remote] [auto_push] [vercel_url]
 #
-# First positional argument (before subcommand) can be workspace dir.
-# Defaults to $PWD.
+# First positional argument (before subcommand) can be a directory to override
+# ROOMS_HOME for that invocation. Defaults to $MINDRIAN_ROOMS_HOME or ~/MindrianRooms.
 
 set -euo pipefail
 
-# Parse workspace dir -- if first arg is a directory, use it
-WORK_DIR="$PWD"
+# Central rooms location (new default)
+ROOMS_HOME="${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}"
+
+# Parse optional directory override -- if first arg is a directory, use it
 if [ $# -ge 1 ] && [ -d "$1" ]; then
-  WORK_DIR="$1"
+  ROOMS_HOME="$1"
   shift
 fi
 
-REGISTRY_DIR="${WORK_DIR}/.rooms"
+REGISTRY_DIR="${ROOMS_HOME}/.rooms"
 REGISTRY_FILE="${REGISTRY_DIR}/registry.json"
 
 SUBCMD="${1:-}"
 shift 2>/dev/null || true
 
 ensure_registry() {
+  mkdir -p "$ROOMS_HOME"
   mkdir -p "$REGISTRY_DIR"
   if [ ! -f "$REGISTRY_FILE" ]; then
     echo '{"version": 1, "active": "", "rooms": {}}' > "$REGISTRY_FILE"
@@ -76,8 +83,8 @@ with open(tmp, 'w') as f:
 os.rename(tmp, reg_file)
 print(json.dumps(reg['rooms']['$NAME'], indent=2))
 "
-    # Create the room directory if it doesn't exist
-    mkdir -p "${WORK_DIR}/${RPATH}"
+    # Create the room directory under ROOMS_HOME
+    mkdir -p "${ROOMS_HOME}/${RPATH}"
     ;;
 
   read)

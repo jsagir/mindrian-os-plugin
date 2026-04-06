@@ -23,6 +23,9 @@ run_registry_tests() {
   TMPBASE=$(mktemp -d)
   trap "rm -rf $TMPBASE" EXIT
 
+  # Isolate from real ~/MindrianRooms so central registry doesn't interfere
+  export MINDRIAN_ROOMS_HOME="$TMPBASE/no-central-rooms"
+
   # Test 1: resolve-room with no room and no registry returns exit 1
   echo "Test 1: resolve-room with no room and no registry"
   EMPTY_DIR="$TMPBASE/empty-workspace"
