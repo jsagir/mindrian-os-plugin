@@ -13,17 +13,17 @@
 
 ### Room Creation
 
-- [ ] **CREATE-01**: /mos:new-project creates rooms under ~/MindrianRooms/[slug]/
-- [ ] **CREATE-02**: /mos:rooms create targets ~/MindrianRooms/[slug]/
-- [ ] **CREATE-03**: First room creation auto-generates ICM Layer 0 (CLAUDE.md) and Layer 1 (INDEX.md) at ~/MindrianRooms/ if missing
-- [ ] **CREATE-04**: room-registry script writes to ~/MindrianRooms/.rooms/registry.json
+- [x] **CREATE-01**: /mos:new-project creates rooms under ~/MindrianRooms/[slug]/
+- [x] **CREATE-02**: /mos:rooms create targets ~/MindrianRooms/[slug]/
+- [x] **CREATE-03**: First room creation auto-generates ICM Layer 0 (CLAUDE.md) and Layer 1 (INDEX.md) at ~/MindrianRooms/ if missing
+- [x] **CREATE-04**: room-registry script writes to ~/MindrianRooms/.rooms/registry.json
 
 ### ICM Compliance
 
-- [ ] **ICM-01**: CLAUDE.md at ~/MindrianRooms/ declares identity (Layer 0: "What is this place?")
-- [ ] **ICM-02**: INDEX.md at ~/MindrianRooms/ provides routing (Layer 1: "Which room do I need?")
-- [ ] **ICM-03**: INDEX.md auto-updates when rooms are created, archived, or stage changes
-- [ ] **ICM-04**: Each room retains its own STATE.md as Layer 2 contract
+- [x] **ICM-01**: CLAUDE.md at ~/MindrianRooms/ declares identity (Layer 0: "What is this place?")
+- [x] **ICM-02**: INDEX.md at ~/MindrianRooms/ provides routing (Layer 1: "Which room do I need?")
+- [x] **ICM-03**: INDEX.md auto-updates when rooms are created, archived, or stage changes
+- [x] **ICM-04**: Each room retains its own STATE.md as Layer 2 contract
 
 ### Skill Activation
 
@@ -84,14 +84,14 @@ None deferred -- scope is tight.
 | PATH-01 | Phase 56 | Complete |
 | PATH-02 | Phase 56 | Complete |
 | PATH-03 | Phase 56 | Complete |
-| CREATE-01 | Phase 57 | Pending |
-| CREATE-02 | Phase 57 | Pending |
-| CREATE-03 | Phase 57 | Pending |
-| CREATE-04 | Phase 57 | Pending |
-| ICM-01 | Phase 57 | Pending |
-| ICM-02 | Phase 57 | Pending |
-| ICM-03 | Phase 57 | Pending |
-| ICM-04 | Phase 57 | Pending |
+| CREATE-01 | Phase 57 | Complete |
+| CREATE-02 | Phase 57 | Complete |
+| CREATE-03 | Phase 57 | Complete |
+| CREATE-04 | Phase 57 | Complete |
+| ICM-01 | Phase 57 | Complete |
+| ICM-02 | Phase 57 | Complete |
+| ICM-03 | Phase 57 | Complete |
+| ICM-04 | Phase 57 | Complete |
 | SKILL-01 | Phase 58 | Complete |
 | SKILL-02 | Phase 58 | Complete |
 | MIG-01 | Phase 59 | Pending |

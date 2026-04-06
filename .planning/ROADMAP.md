@@ -17,11 +17,12 @@ This milestone updates the MindrianOS plugin to centralize all Data Rooms under 
 
 ## Phases
 
-- [ ] **Phase 56: Path Resolution** - Update resolve-room to default to ~/MindrianRooms/ with legacy fallback
-- [ ] **Phase 57: Room Creation & ICM Structure** - Room creation targets MindrianRooms, auto-generates ICM Layer 0/1, INDEX.md auto-refresh
-- [ ] **Phase 58: Skill Activation & Display** - Skills detect rooms in new location, commands show MindrianRooms paths
+- [x] **Phase 56: Path Resolution** - Update resolve-room to default to ~/MindrianRooms/ with legacy fallback
+- [x] **Phase 57: Room Creation & ICM Structure** - Room creation targets MindrianRooms, auto-generates ICM Layer 0/1, INDEX.md auto-refresh
+- [x] **Phase 58: Skill Activation & Display** - Skills detect rooms in new location, commands show MindrianRooms paths
 - [ ] **Phase 59: Migration Engine** - Detect legacy layouts, guided migration with symlinks, /mos:setup integration
-- [ ] **Phase 59.1: Room Organizer Skill** - /mos:organize command for ongoing room restructuring with human-in-the-loop
+- [ ] **Phase 59.1: Room Organizer Skill** - Wicked hierarchy navigator with graph-informed proposals and human-in-the-loop
+- [ ] **Phase 59.2: Room Hierarchy Graph Layer** - Neo4j Brain + KuzuDB dual-graph room hierarchy as additive intelligence layer
 
 ## Phase Details
 
@@ -85,15 +86,29 @@ Plans:
   5. Registry.json and INDEX.md auto-update after each confirmed move
 **Plans**: TBD
 
+### Phase 59.2: Room Hierarchy Graph Layer
+**Goal**: Create Room/RoomGroup/CONTAINS schema in BOTH KuzuDB (local, fast) and Neo4j Brain (remote, semantic intelligence) as an additive layer over the existing filesystem + registry.json
+**Depends on**: Phase 59.1
+**Requirements**: GRAPH-01, GRAPH-02, GRAPH-03, GRAPH-04, GRAPH-05, GRAPH-06, GRAPH-07, GRAPH-08
+**Success Criteria** (what must be TRUE):
+  1. KuzuDB local graph has Room nodes for each registered room with hierarchy edges
+  2. Neo4j Brain has matching Room/RoomGroup nodes with AT_STAGE edges to existing VentureStage taxonomy
+  3. USES_FRAMEWORK edges connect rooms to frameworks based on methodology usage
+  4. SHARES_THEME edges detected from cross-room content analysis
+  5. 13 orphaned DataRoomSection nodes wired to parent Room nodes
+  6. Filesystem + registry.json remain operational truth -- graph failure degrades gracefully to file-only mode
+  7. /mos:organize proposals improve with graph data when available
+**Plans**: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 56 -> 57 -> 58 -> 59 -> 59.1
+Phases execute in numeric order: 56 -> 57 -> 58 -> 59 -> 59.1 -> 59.2
 (Phase 58 depends on 56 only, so it could run in parallel with 57 if needed)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 56. Path Resolution | v1.8.6 | 0/1 | Planned | - |
-| 57. Room Creation & ICM Structure | v1.8.6 | 0/0 | Not started | - |
-| 58. Skill Activation & Display | v1.8.6 | 0/0 | Not started | - |
+| 56. Path Resolution | v1.8.6 | 1/1 | Complete | 2026-04-06 |
+| 57. Room Creation & ICM Structure | v1.8.6 | 1/1 | Complete | 2026-04-06 |
+| 58. Skill Activation & Display | v1.8.6 | 1/1 | Complete | 2026-04-06 |
 | 59. Migration Engine | v1.8.6 | 0/0 | Not started | - |
