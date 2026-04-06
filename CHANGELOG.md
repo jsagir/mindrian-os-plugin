@@ -9,6 +9,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.8.2] - 2026-04-06
+
+onboarding: true
+onboard_steps:
+  - Paste the Brain optimization prompt to restructure your room
+  - Run /mos:suggest-next to see Brain-powered recommendations
+  - Check room/STATE.md for Brain-Informed Framework Coverage
+
+### Added
+- Brain Graph Optimization: methodology spine wired end-to-end (47 FEEDS_INTO, 40 TYPICAL_AT, 14 PREREQUISITE, 63 ADDRESSES_PROBLEM_TYPE edges)
+- Full PWS workshop sequence mapped: all 8 workshops wired to their frameworks via TEACHES edges
+- Mullins Model Validation promoted to ValidationTool -- gateway between Triple Validation and Due Diligence
+- Red Teaming framework wired at dual stages (stress-test ill-defined + adversarial validation)
+- 15 Bot->IMPLEMENTS->Framework edges (Larry knows which bot runs which methodology)
+- 16 CorePrinciple->GOVERNS edges connecting teaching principles to frameworks
+- 22 ALIAS_OF edges bridging LazyGraph semantic layer to curated Framework/ProblemType nodes
+- 24 GROUNDS_FRAMEWORK edges creating Book->Framework intellectual provenance chains
+- ProblemType 2D matrix wired (Definition x Complexity with Framework recommendations)
+- CaseStudy layer enriched: Challenger, NASA, Marconi, Naval Aviation + 13 more wired to Frameworks
+- 10/10 FrameworkAgents fully wired (DERIVED_FROM + APPLIES_TO + IMPLEMENTED_BY)
+- Grading calibration gap flagged as SystemGap node (visible, queryable)
+- Graph architecture reference: references/brain/graph-architecture.md (5-layer stack, 10 Cypher patterns)
+- Universal room restructuring prompt for any MindrianOS user
+
+### Fixed
+- FEEDS_INTO spine: was 4 real Framework->Framework edges, now 47 (Larry can chain methodologies)
+- TYPICAL_AT: was 4 edges, now 40 (Larry can recommend by venture stage)
+- PREREQUISITE: was 0 edges, now 14 (Larry can warn "do X before Y")
+- ProblemType fragmentation: 250+ scattered nodes consolidated via ALIAS_OF + SUBTYPE_OF to 4 canonical types
+- DictionaryTerm duplicates: 8x copies of Ill-defined, Well-defined, Un-defined merged
+- Book layer: 25 duplicate titles merged, 123 INTRODUCES_FRAMEWORK edges redirected from Concept to Framework
+- Label normalization: concept->Concept, base/UNKNOWN stripped (846 labels cleaned)
+- 503 orphan LazyGraphConcepts deleted (zero relationships, generic noise)
+- Opportunity Bank: 21 scattered nodes consolidated to 1 canonical with full pipeline wiring
+
+### Changed
+- /mos:suggest-next now traverses real graph edges instead of pattern-matching on framework names
+- /mos:diagnose routes through verified ADDRESSES_PROBLEM_TYPE edges with effectiveness scores
+- /mos:act walks PREREQUISITE chains to prevent recommending advanced frameworks to beginners
+- Brain query patterns updated for post-normalization graph structure
+- references/brain/schema.md edge counts updated to reflect live graph state
+
 ## [1.7.1] - 2026-04-05
 
 ### Added

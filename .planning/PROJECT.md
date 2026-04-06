@@ -24,48 +24,63 @@ v1.0 through v5.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Presen
 - v1.6.0 Powerhouse (2026-03-31) -- 8 phases, parallel execution, spectral OM-HMM, DbA, model routing
 - v6.2 RoomHub + SnapshotHub (2026-04-01) -- 5 phases, adaptive room detection, 7 showcase views, SnapshotHub export
 
-## Current Milestone: v1.7.0 Causal Reasoning Layer
+## Current Milestone: v1.8.2 Brain Graph Optimization
 
-**Goal:** Larry can trace cause-effect chains, detect assumption cascades, surface bottlenecks through graph structure, and track falsifiable predictions -- enabling "because...because...because" reasoning across the Data Room.
+**Goal:** Make the Neo4j Brain graph work for MindrianOS -- fix the curated spine so causal discovery actually chains, bridge the Lazy layer so semantic intelligence reaches Larry, and clean the fragmentation that makes traversal unreliable.
 
 **Research basis:**
-- Consultant plugin review session (branch claude/plugin-consultant-review-6MYsc): Research 14-17, causal schema design, pipeline integration architecture
-- Brain audit: causal frameworks are islands -- zero FEEDS_INTO, CO_OCCURS, or TYPICAL_AT edges between Root Cause Analysis, Systems Thinking, Reverse Salient, Causal Loop Diagrams
-- Duraisamy (2025) "Active Inference AI Systems for Scientific Discovery" -- Three Gaps framework (Abstraction, Reasoning, Reality)
-- Hughes (1983) Reverse Salients -- betweenness centrality for bottleneck detection
-- Adam Peters/Synteris persona simulation -- 5.3/10 novelty baseline, target 7.5/10 with causal layer
+- Live graph audit (2026-04-06): 32,612 nodes, 170,791 rels, 828 labels, 1,633 rel types
+- 5-layer architecture documented: L1 Curated (281), L2 Document (1,454), L3 Entity (5,316), L4 Lazy (8,425), L5 Taxonomy (970)
+- Critical finding: L1 Curated and L4 Lazy have ZERO direct edges. Bridge is 3-hop through Chunks
+- FEEDS_INTO: only 4 real Framework->Framework edges for 86 frameworks
+- TYPICAL_AT: 4 edges total. PREREQUISITE: 0 edges.
+- ProblemType fragmented across 150+ nodes (LazyGraphConcept "Well-Defined Problem" has 348 rels vs canonical 83)
+- 7/10 FrameworkAgents orphaned, 19/30 CaseStudies orphaned, 0 grading calibration data
+- Scripts already written: brain-normalize-final.cypher, brain-normalize-supplement.cypher, brain-normalize-problemtype.cypher
+- Architecture reference: references/brain/graph-architecture.md with 10 Cypher patterns
 
 **Target features:**
 
-Layer 1 -- Brain Graph Enrichment:
-- Wire FEEDS_INTO chains: Root Cause Analysis -> Systems Thinking -> Causal Loop Diagrams -> Scenario Analysis
-- Add CO_OCCURS edges: Root Cause <-> Six Thinking Hats, Systems Thinking <-> Reverse Salient
-- Create "Theory of Change" Framework node (forward causal reasoning -- biggest gap)
-- Create "Causal Reasoning" parent Concept node connecting the family
-- Add TYPICAL_AT venture stage mappings for all causal frameworks
-- Link Falsifiability and Hypothesis Tree to causal frameworks via VALIDATES relationship
+Causal Discovery Optimization:
+- FEEDS_INTO enrichment (4 -> 35+ Framework chains including full PWS spine)
+- PREREQUISITE edges (0 -> 14, enables "do X before Y" warnings)
+- TYPICAL_AT stage mapping (4 -> 30+, powers /mos:suggest-next and /mos:act)
+- ADDRESSES_PROBLEM_TYPE cleanup (remove __Entity__ noise, add effectiveness scores)
+- 2D ProblemType matrix wiring (Definition x Complexity with Framework recommendations)
+- Full provenance chain: Book -> GROUNDS_FRAMEWORK -> Framework -> ADDRESSES_PROBLEM_TYPE -> ProblemType
 
-Layer 2 -- Plugin Causal Engine:
-- CausalClaim node type in KuzuDB: cause, mechanism, effect, confidence, falsifiable_prediction, novelty_score, domain
-- CAUSES, CASCADES_TO, EXTRACTED_FROM edge types in LazyGraph
-- Causal graph engine (NetworkX): chain traversal, cascade simulation, betweenness centrality bottleneck detection, contradiction detection, inversion protocol
-- /mos:causal command (3 subcommands: extract, trace, predict)
-- Prediction tracking with closed-loop learning (room/.predictions/REGISTRY.json)
-- Post-write hook: causal candidate flagging after HSI, cross-reference step linking CausalClaims to HSI_CONNECTION and REVERSE_SALIENT edges
-- Brain causal directives (Three Gaps: every claim needs mechanism + falsifiable prediction)
-- Brain query patterns 11-13: causal_framework_select, causal_pattern_match, causal_contradiction_resolve
-- Larry personality JTBD wiring: "When you have assumptions stacked 3-deep, /mos:causal cascade"
-- Enhanced room-proactive: surface discoveries when graph has causal + HSI + RS + analogy edges converging
+Lazy Graph Optimization:
+- ALIAS_OF bridge from high-rel LazyGraphConcepts to canonical nodes (1,900+ orphaned rels become findable)
+- Promote valuable LazyGraphConcepts (3+ Framework CO_OCCURS) to Concept
+- Clean 511 orphan LazyGraphConcepts
+- CO_OCCURS weight-based query patterns for semantic discovery (weight >= 2 filter)
+- 3-hop bridge pattern: LazyGraph -> Chunk -> Entity -> Framework
+
+Fragmentation Cleanup:
+- ProblemType consolidation (150+ nodes -> 4 canonical + ALIAS_OF + SUBTYPE_OF)
+- Book dedup (88 null-title + 6x duplicates) + INTRODUCES_FRAMEWORK mislanding fix
+- Opportunity Bank (21 nodes -> 1 canonical with full wiring)
+- DictionaryTerm dedup (8x copies per problem type)
+- Label normalization (lowercase->PascalCase, base/UNKNOWN removal)
+
+Agent + Teaching Layer Wiring:
+- FrameworkAgents 10/10 wired (DERIVED_FROM + APPLIES_TO + IMPLEMENTED_BY)
+- CaseStudies 26+/30 wired (Challenger, NASA, Marconi, Naval Aviation + student projects)
+- Mullins Model Validation: Technique -> ValidationTool, full pipeline gateway
+- Workshop->TEACHES->Framework (0 -> 16+ edges)
+- Bot->IMPLEMENTS->Framework (0 -> 15+ edges)
+- CorePrinciple->GOVERNS (0 -> 20+ edges)
+- Grading calibration gap flagged as SystemGap node (0 Example nodes with rubric scores)
 
 **Architecture:**
-- Larry extracts (semantic, LLM) -> Python computes (graph algorithms) -> KuzuDB stores -> Brain directs
-- No monolithic orchestrator -- integration through KuzuDB edges and post-write cascade
-- Tier 0 works without Python deps (Larry reasons causally from directives alone)
-- Discovery emerges from graph structure: Cypher walks Causal -> HSI -> RS -> Analogy edges in one query
-- Follows existing patterns: Python -> JSON intermediate -> CJS writes to KuzuDB
+- All normalization uses APOC (2026.03.0 confirmed on Aura): mergeNodes for dedup, periodic.iterate for batch ops
+- Write operations via Neo4j Aura console or write MCP tool
+- Verification via read MCP (mcp__my-neo4j__read_neo4j_cypher)
+- Curly apostrophe (U+2019) in "Devil's" handled via STARTS WITH prefix matching
+- ALIAS_OF preserves LazyGraph CO_OCCURS fabric while making canonical nodes discoverable
 
-**North star example:**
-User asks "Should I target fusion or semiconductors?" and Larry traces: "Semiconductor targeting works BECAUSE qualification timeline creates competitive moat, BECAUSE etch chamber downtime costs $2-5M/year" -- then identifies the geometry-enabled-qualification bottleneck (novel, user didn't know), finds the medical implant analogy (structural match), and generates a testable prediction.
+**Previous milestone (v1.7.0 Causal Reasoning Layer):**
+Defined causal engine architecture. This milestone executes the Brain graph enrichment that v1.7.0 designed but never ran.
 
 ## v3.0 Backlog (Captured Ideas)
 
