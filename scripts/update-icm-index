@@ -1,0 +1,149 @@
+#!/usr/bin/env bash
+# update-icm-index -- Regenerate INDEX.md at ROOMS_HOME from registry.json
+# Idempotent: safe to call multiple times. Overwrites INDEX.md completely.
+#
+# Usage:
+#   scripts/update-icm-index
+#   scripts/update-icm-index /path/to/rooms-home
+#
+# Environment:
+#   MINDRIAN_ROOMS_HOME -- override ~/MindrianRooms as central rooms location
+
+set -euo pipefail
+
+ROOMS_HOME="${1:-${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}}"
+REGISTRY_FILE="${ROOMS_HOME}/.rooms/registry.json"
+INDEX_FILE="${ROOMS_HOME}/INDEX.md"
+
+if [ ! -f "$REGISTRY_FILE" ]; then
+  echo "No registry found at $REGISTRY_FILE -- skipping INDEX.md update" >&2
+  exit 0
+fi
+
+# Generate INDEX.md from registry.json using inline Python
+python3 -c "
+import json, os, datetime
+
+rooms_home = '$ROOMS_HOME'
+registry_file = '$REGISTRY_FILE'
+
+with open(registry_file) as f:
+    reg = json.load(f)
+
+rooms = reg.get('rooms', {})
+active_rooms = []
+archived_rooms = []
+
+for name, room in sorted(rooms.items()):
+    status = room.get('status', 'unknown')
+    if status == 'archived':
+        archived_rooms.append((name, room))
+    else:
+        active_rooms.append((name, room))
+
+# Count .md entries in each room directory (excluding STATE.md, ROOM.md, USER.md)
+def count_entries(room_path):
+    abs_path = os.path.join(rooms_home, room_path)
+    if not os.path.isdir(abs_path):
+        return 0
+    count = 0
+    for root, dirs, files in os.walk(abs_path):
+        # Skip hidden dirs and .context
+        dirs[:] = [d for d in dirs if not d.startswith('.')]
+        for f in files:
+            if f.endswith('.md') and f not in ('STATE.md', 'ROOM.md', 'USER.md', 'INDEX.md', 'CLAUDE.md'):
+                count += 1
+    return count
+
+def format_date(ts):
+    if not ts:
+        return '-'
+    # Handle both ISO formats
+    for fmt in ('%Y-%m-%dT%H:%M:%SZ', '%Y-%m-%dT%H:%M:%S.%f', '%Y-%m-%dT%H:%M:%S.%fZ'):
+        try:
+            dt = datetime.datetime.strptime(ts, fmt)
+            return dt.strftime('%Y-%m-%d')
+        except ValueError:
+            continue
+    # Fallback: just take the date portion
+    return ts[:10] if len(ts) >= 10 else ts
+
+# Also scan for _archive/ directories
+archive_dirs = []
+archive_path = os.path.join(rooms_home, '_archive')
+if os.path.isdir(archive_path):
+    for d in sorted(os.listdir(archive_path)):
+        if os.path.isdir(os.path.join(archive_path, d)):
+            archive_dirs.append(d)
+
+lines = []
+lines.append('# MindrianRooms -- ICM Layer 1 (Routing)')
+lines.append('')
+lines.append('**Question answered:** \"Where do I go?\"')
+lines.append('')
+lines.append('## Active Rooms')
+lines.append('')
+
+if active_rooms:
+    lines.append('| Room | Venture | Stage | Entries | Last Active |')
+    lines.append('|------|---------|-------|---------|-------------|')
+    for name, room in active_rooms:
+        path = room.get('path', name)
+        venture = room.get('venture_name', name)
+        stage = room.get('venture_stage', '-')
+        entries = count_entries(path)
+        last = format_date(room.get('last_opened', ''))
+        lines.append(f'| {name}/ | {venture} | {stage} | {entries} | {last} |')
+else:
+    lines.append('No active rooms. Run \`/mos:new-project\` to create your first room.')
+
+lines.append('')
+lines.append('## Archive')
+lines.append('')
+
+has_archives = False
+if archived_rooms:
+    lines.append('| Room | Reason |')
+    lines.append('|------|--------|')
+    for name, room in archived_rooms:
+        lines.append(f'| {name}/ | Archived from registry |')
+    has_archives = True
+
+if archive_dirs:
+    if not has_archives:
+        lines.append('| Room | Reason |')
+        lines.append('|------|--------|')
+    for d in archive_dirs:
+        # Skip if already in archived_rooms
+        if not any(name == d for name, _ in archived_rooms):
+            lines.append(f'| _archive/{d}/ | Moved to archive |')
+    has_archives = True
+
+if not has_archives:
+    lines.append('No archived rooms.')
+
+lines.append('')
+lines.append('## How to Work in a Room')
+lines.append('')
+lines.append('1. \`cd ~/MindrianRooms/[room-name]\` then \`claude\`')
+lines.append('2. Or from any session: tell Larry \"go to [room name]\"')
+lines.append('3. \`/mos:rooms\` manages the registry programmatically')
+lines.append('')
+lines.append('## Room Creation Rule')
+lines.append('')
+lines.append('All new rooms MUST be created under ~/MindrianRooms/. The convention:')
+lines.append('- Directory name = kebab-case slug (e.g., \`new-venture-name\`)')
+lines.append('- Each room is self-contained with its own STATE.md, sections, and graph')
+lines.append('- Parent (this directory) holds the index; rooms hold the content')
+lines.append('')
+
+output = '\\n'.join(lines)
+
+# Atomic write
+tmp = '$INDEX_FILE' + '.tmp'
+with open(tmp, 'w') as f:
+    f.write(output)
+os.rename(tmp, '$INDEX_FILE')
+
+print(f'INDEX.md updated: {len(active_rooms)} active, {len(archived_rooms)} archived')
+"
