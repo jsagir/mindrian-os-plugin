@@ -1,0 +1,438 @@
+#!/usr/bin/env node
+/**
+ * sync-rooms-brain -- Sync room hierarchy to Neo4j Brain (remote graph)
+ *
+ * Creates/updates Room and RoomGroup nodes in Neo4j Brain via the Brain HTTP API.
+ * Creates semantic edges: AT_STAGE, USES_FRAMEWORK, SHARES_THEME, HAS_SECTION.
+ * Wires 13 orphaned DataRoomSection nodes to parent Room nodes via HAS_SECTION.
+ *
+ * Idempotent: uses MERGE semantics throughout.
+ * Fire-and-forget: failure never blocks any operation (D-16).
+ * Additive only: NEVER writes to filesystem or registry.json (D-15).
+ * Only runs when Brain API key is available.
+ *
+ * Usage: node sync-rooms-brain [roomsHome]
+ *   roomsHome - Override ~/MindrianRooms (default: $MINDRIAN_ROOMS_HOME or ~/MindrianRooms)
+ *
+ * Exit codes:
+ *   0 - Always (fire-and-forget, D-16)
+ */
+
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
+const ROOMS_HOME = process.argv[2] || process.env.MINDRIAN_ROOMS_HOME || path.join(os.homedir(), 'MindrianRooms');
+const REGISTRY_PATH = path.join(ROOMS_HOME, '.rooms', 'registry.json');
+const SCRIPT_DIR = __dirname;
+const PLUGIN_ROOT = path.resolve(SCRIPT_DIR, '..');
+
+let brain;
+try {
+  brain = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'brain-client.cjs'));
+} catch (_) {
+  process.stderr.write('sync-rooms-brain: brain-client not found\n');
+  process.exit(0);
+}
+
+/**
+ * Execute a Cypher write query via Brain API.
+ * Returns true on success, false on failure.
+ * @param {string} cypher
+ * @returns {Promise<boolean>}
+ */
+async function brainWrite(cypher) {
+  try {
+    const result = await brain.write(cypher);
+    return result !== null;
+  } catch (_) {
+    return false;
+  }
+}
+
+/**
+ * Execute a Cypher read query via Brain API.
+ * @param {string} cypher
+ * @returns {Promise<object|null>}
+ */
+async function brainRead(cypher) {
+  try {
+    return await brain.query(cypher);
+  } catch (_) {
+    return null;
+  }
+}
+
+/**
+ * Create a RoomRoot node (the ~/MindrianRooms/ root).
+ */
+async function syncRoomRoot() {
+  return brainWrite(`
+    MERGE (root:RoomRoot {name: 'MindrianRooms'})
+    ON CREATE SET root.created = datetime(), root.path = '~/MindrianRooms/'
+  `);
+}
+
+/**
+ * Sync Room nodes to Brain.
+ * @param {object} rooms - rooms object from registry.json
+ */
+async function syncRoomNodes(rooms) {
+  for (const [name, room] of Object.entries(rooms)) {
+    if (room.status === 'archived') continue;
+
+    const stage = (room.venture_stage || '').replace(/'/g, "\\'");
+    const vname = (room.venture_name || '').replace(/'/g, "\\'");
+    const domain = (room.domain || '').replace(/'/g, "\\'");
+    const status = (room.status || 'unknown').replace(/'/g, "\\'");
+    const created = room.created || '';
+    const roomPath = (room.path || name).replace(/'/g, "\\'");
+
+    await brainWrite(`
+      MERGE (r:Room {name: '${name}'})
+      ON CREATE SET r.venture_name = '${vname}', r.venture_stage = '${stage}',
+        r.domain = '${domain}', r.status = '${status}',
+        r.created = '${created}', r.path = '${roomPath}'
+      ON MATCH SET r.venture_name = '${vname}', r.venture_stage = '${stage}',
+        r.domain = '${domain}', r.status = '${status}', r.path = '${roomPath}'
+    `);
+  }
+}
+
+/**
+ * Detect group directories and sync RoomGroup nodes.
+ * @param {object} rooms - rooms object from registry.json
+ * @returns {Map<string, string[]>} groupName -> [roomNames]
+ */
+async function syncRoomGroups(rooms) {
+  const groups = new Map();
+
+  for (const [name, room] of Object.entries(rooms)) {
+    if (room.status === 'archived') continue;
+    const roomPath = room.path || name;
+    const parts = roomPath.split('/').filter(Boolean);
+
+    if (parts.length >= 2) {
+      const groupName = parts[0];
+      if (!groups.has(groupName)) {
+        groups.set(groupName, []);
+      }
+      groups.get(groupName).push(name);
+    }
+  }
+
+  for (const [groupName, roomNames] of groups) {
+    // Create RoomGroup node
+    await brainWrite(`
+      MERGE (g:RoomGroup {name: '${groupName}'})
+      ON CREATE SET g.icm_layer = 'group', g.created = datetime()
+    `);
+
+    // CONTAINS: RoomRoot -> RoomGroup
+    await brainWrite(`
+      MATCH (root:RoomRoot {name: 'MindrianRooms'}), (g:RoomGroup {name: '${groupName}'})
+      MERGE (root)-[:CONTAINS]->(g)
+    `);
+
+    // CONTAINS: RoomGroup -> Room
+    for (const roomName of roomNames) {
+      await brainWrite(`
+        MATCH (g:RoomGroup {name: '${groupName}'}), (r:Room {name: '${roomName}'})
+        MERGE (g)-[:CONTAINS]->(r)
+      `);
+    }
+  }
+
+  // Rooms not in any group: RoomRoot -> Room directly
+  for (const [name, room] of Object.entries(rooms)) {
+    if (room.status === 'archived') continue;
+    const roomPath = room.path || name;
+    const parts = roomPath.split('/').filter(Boolean);
+
+    if (parts.length < 2) {
+      await brainWrite(`
+        MATCH (root:RoomRoot {name: 'MindrianRooms'}), (r:Room {name: '${name}'})
+        MERGE (root)-[:CONTAINS]->(r)
+      `);
+    }
+  }
+
+  return groups;
+}
+
+/**
+ * Create AT_STAGE edges connecting Room nodes to existing VentureStage taxonomy.
+ * @param {object} rooms - rooms object from registry.json
+ */
+async function syncAtStageEdges(rooms) {
+  for (const [name, room] of Object.entries(rooms)) {
+    if (room.status === 'archived' || !room.venture_stage) continue;
+
+    const stage = room.venture_stage.replace(/'/g, "\\'");
+
+    // Remove existing AT_STAGE edges (room can change stage)
+    await brainWrite(`
+      MATCH (r:Room {name: '${name}'})-[e:AT_STAGE]->(:VentureStage)
+      DELETE e
+    `);
+
+    // Create new AT_STAGE edge
+    await brainWrite(`
+      MATCH (r:Room {name: '${name}'}), (s:VentureStage {name: '${stage}'})
+      MERGE (r)-[:AT_STAGE]->(s)
+    `);
+  }
+}
+
+/**
+ * Create USES_FRAMEWORK edges from room analytics data.
+ * Reads each room's .analytics.json for command usage that maps to frameworks.
+ * @param {object} rooms - rooms object from registry.json
+ */
+async function syncUsesFrameworkEdges(rooms) {
+  // Command-to-framework mapping (from methodology index)
+  const cmdToFramework = {
+    'jtbd': 'Jobs-to-Be-Done',
+    'analyze-needs': 'Jobs-to-Be-Done',
+    'dominant-designs': 'Blue Ocean Strategy',
+    'think-hats': 'Six Thinking Hats',
+    'persona': 'Design Thinking',
+    'swot': 'SWOT Analysis',
+    'bmc': 'Business Model Canvas',
+    'lean-canvas': 'Lean Canvas',
+    'pestel': 'PESTEL Analysis',
+    'porters': "Porter's Five Forces",
+    'value-chain': 'Value Chain Analysis',
+    'design-thinking': 'Design Thinking',
+    'systems-thinking': 'Systems Thinking',
+    'cynefin': 'Cynefin Framework',
+    'root-cause': 'Root Cause Analysis',
+    'find-analogies': 'Design-by-Analogy',
+    'stakeholder-map': 'Stakeholder Mapping',
+    'risk-matrix': 'Risk Matrix',
+    'scenario-planning': 'Scenario Planning',
+    'triple-validation': 'PWS Triple Validation Compass',
+  };
+
+  for (const [name, room] of Object.entries(rooms)) {
+    if (room.status === 'archived') continue;
+
+    const roomPath = path.join(ROOMS_HOME, room.path || name);
+    const analyticsPath = path.join(roomPath, '.analytics.json');
+
+    if (!fs.existsSync(analyticsPath)) continue;
+
+    let analytics;
+    try {
+      analytics = JSON.parse(fs.readFileSync(analyticsPath, 'utf8'));
+    } catch (_) {
+      continue;
+    }
+
+    const commands = analytics.commands || {};
+    const frameworksUsed = new Set();
+
+    for (const [cmd, count] of Object.entries(commands)) {
+      // Strip /mos: prefix if present
+      const cleanCmd = cmd.replace(/^\/mos:/, '').replace(/^mos:/, '');
+      const framework = cmdToFramework[cleanCmd];
+      if (framework && !frameworksUsed.has(framework)) {
+        frameworksUsed.add(framework);
+        const escapedFw = framework.replace(/'/g, "\\'");
+        await brainWrite(`
+          MATCH (r:Room {name: '${name}'}), (f:Framework {name: '${escapedFw}'})
+          MERGE (r)-[e:USES_FRAMEWORK]->(f)
+          ON CREATE SET e.first_used = datetime(), e.usage_count = ${count || 1}
+          ON MATCH SET e.usage_count = ${count || 1}
+        `);
+      }
+    }
+  }
+}
+
+/**
+ * Wire orphaned DataRoomSection nodes to parent Room nodes via HAS_SECTION.
+ * DataRoomSection nodes already exist in Brain (13 orphans detected during context gathering).
+ * @param {object} rooms - rooms object from registry.json
+ */
+async function wireOrphanedSections(rooms) {
+  // Standard room sections (matching DataRoomSection names in Brain)
+  const sectionNames = [
+    'Problem Definition', 'Market Analysis', 'Solution Design',
+    'Business Model', 'Competitive Analysis', 'Team & Execution',
+    'Legal & IP', 'Financial Model', 'Opportunity Bank',
+    'Funding', 'Product', 'Decisions', 'Beta Testing'
+  ];
+
+  for (const [name, room] of Object.entries(rooms)) {
+    if (room.status === 'archived') continue;
+
+    const roomPath = path.join(ROOMS_HOME, room.path || name);
+
+    // Check which sections actually exist in this room's filesystem
+    for (const sectionName of sectionNames) {
+      const slug = sectionName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
+      const sectionDir = path.join(roomPath, slug);
+
+      if (fs.existsSync(sectionDir)) {
+        const escapedSection = sectionName.replace(/'/g, "\\'");
+        await brainWrite(`
+          MATCH (r:Room {name: '${name}'}), (s:DataRoomSection {name: '${escapedSection}'})
+          MERGE (r)-[:HAS_SECTION]->(s)
+        `);
+      }
+    }
+  }
+}
+
+/**
+ * Detect SHARES_THEME edges between rooms based on CO_OCCURS pattern.
+ * Reads problem-definition content from each room and finds shared domain keywords.
+ * @param {object} rooms - rooms object from registry.json
+ */
+async function detectSharedThemes(rooms) {
+  const roomKeywords = new Map();
+
+  // Extract keywords from each room's problem-definition
+  for (const [name, room] of Object.entries(rooms)) {
+    if (room.status === 'archived') continue;
+
+    const roomPath = path.join(ROOMS_HOME, room.path || name);
+    const probDefDir = path.join(roomPath, 'problem-definition');
+
+    if (!fs.existsSync(probDefDir)) continue;
+
+    const keywords = new Set();
+
+    try {
+      const files = fs.readdirSync(probDefDir).filter(f => f.endsWith('.md'));
+      for (const file of files.slice(0, 5)) { // Limit to 5 files per room
+        const content = fs.readFileSync(path.join(probDefDir, file), 'utf8');
+        // Extract meaningful words (5+ chars, not common noise)
+        const noise = new Set([
+          'about', 'their', 'these', 'those', 'which', 'where', 'through',
+          'between', 'using', 'based', 'should', 'would', 'could', 'other',
+          'being', 'there', 'every', 'after', 'before', 'while', 'since'
+        ]);
+        const words = content.toLowerCase().match(/\b[a-z]{5,}\b/g) || [];
+        for (const word of words) {
+          if (!noise.has(word)) keywords.add(word);
+        }
+      }
+    } catch (_) {
+      continue;
+    }
+
+    if (keywords.size > 0) {
+      roomKeywords.set(name, keywords);
+    }
+  }
+
+  // Find room pairs with significant keyword overlap
+  const roomNames = [...roomKeywords.keys()];
+  for (let i = 0; i < roomNames.length; i++) {
+    for (let j = i + 1; j < roomNames.length; j++) {
+      const nameA = roomNames[i];
+      const nameB = roomNames[j];
+      const kwA = roomKeywords.get(nameA);
+      const kwB = roomKeywords.get(nameB);
+
+      // Count intersection
+      let shared = 0;
+      const sharedTerms = [];
+      for (const kw of kwA) {
+        if (kwB.has(kw)) {
+          shared++;
+          if (sharedTerms.length < 10) sharedTerms.push(kw);
+        }
+      }
+
+      // Require significant overlap (10+ shared domain words)
+      if (shared >= 10) {
+        const themes = sharedTerms.slice(0, 5).join(', ').replace(/'/g, "\\'");
+        await brainWrite(`
+          MATCH (r1:Room {name: '${nameA}'}), (r2:Room {name: '${nameB}'})
+          MERGE (r1)-[e:SHARES_THEME]->(r2)
+          ON CREATE SET e.shared_terms = '${themes}', e.term_count = ${shared}, e.detected = datetime()
+          ON MATCH SET e.shared_terms = '${themes}', e.term_count = ${shared}
+        `);
+      }
+    }
+  }
+}
+
+async function main() {
+  // Check Brain availability
+  if (!brain.isAvailable()) {
+    process.stderr.write('sync-rooms-brain: Brain API not available (no key), skipping\n');
+    process.exit(0);
+  }
+
+  // Check registry exists
+  if (!fs.existsSync(REGISTRY_PATH)) {
+    process.exit(0);
+  }
+
+  // Load registry
+  let registry;
+  try {
+    registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
+  } catch (_) {
+    process.stderr.write('sync-rooms-brain: invalid registry.json\n');
+    process.exit(0);
+  }
+
+  const rooms = registry.rooms || {};
+  if (Object.keys(rooms).length === 0) {
+    process.exit(0);
+  }
+
+  const results = {
+    root: false,
+    rooms: 0,
+    groups: 0,
+    atStage: 0,
+    usesFramework: 0,
+    hasSections: 0,
+    sharesTheme: 0,
+    errors: []
+  };
+
+  try {
+    // 1. Create RoomRoot
+    results.root = await syncRoomRoot();
+
+    // 2. Sync Room nodes
+    await syncRoomNodes(rooms);
+    results.rooms = Object.keys(rooms).filter(n => rooms[n].status !== 'archived').length;
+
+    // 3. Sync RoomGroup nodes and CONTAINS edges
+    const groups = await syncRoomGroups(rooms);
+    results.groups = groups.size;
+
+    // 4. AT_STAGE edges
+    await syncAtStageEdges(rooms);
+    results.atStage = Object.values(rooms).filter(r => r.venture_stage && r.status !== 'archived').length;
+
+    // 5. USES_FRAMEWORK edges
+    await syncUsesFrameworkEdges(rooms);
+
+    // 6. Wire orphaned DataRoomSection nodes
+    await wireOrphanedSections(rooms);
+
+    // 7. SHARES_THEME detection
+    await detectSharedThemes(rooms);
+
+  } catch (err) {
+    results.errors.push(err.message);
+  }
+
+  console.log(JSON.stringify(results));
+}
+
+main().catch(err => {
+  process.stderr.write(`sync-rooms-brain: ${err.message}\n`);
+  process.exit(0);
+});
