@@ -24,57 +24,63 @@ v1.0 through v5.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Presen
 - v1.6.0 Powerhouse (2026-03-31) -- 8 phases, parallel execution, spectral OM-HMM, DbA, model routing
 - v6.2 RoomHub + SnapshotHub (2026-04-01) -- 5 phases, adaptive room detection, 7 showcase views, SnapshotHub export
 
-## Current Milestone: v1.8.0 Cowork Adaptation
+## Current Milestone: v1.8.2 Brain Graph Optimization
 
-**Goal:** Adapt the MindrianOS plugin for Claude Desktop and Claude Cowork surfaces -- exposing ALL 64 commands as MCP tools with Brain-driven routing, full pipeline chaining, surface auto-detection, and Cowork-unique persistent intelligence.
+**Goal:** Make the Neo4j Brain graph work for MindrianOS -- fix the curated spine so causal discovery actually chains, bridge the Lazy layer so semantic intelligence reaches Larry, and clean the fragmentation that makes traversal unreliable.
+
+**Research basis:**
+- Live graph audit (2026-04-06): 32,612 nodes, 170,791 rels, 828 labels, 1,633 rel types
+- 5-layer architecture documented: L1 Curated (281), L2 Document (1,454), L3 Entity (5,316), L4 Lazy (8,425), L5 Taxonomy (970)
+- Critical finding: L1 Curated and L4 Lazy have ZERO direct edges. Bridge is 3-hop through Chunks
+- FEEDS_INTO: only 4 real Framework->Framework edges for 86 frameworks
+- TYPICAL_AT: 4 edges total. PREREQUISITE: 0 edges.
+- ProblemType fragmented across 150+ nodes (LazyGraphConcept "Well-Defined Problem" has 348 rels vs canonical 83)
+- 7/10 FrameworkAgents orphaned, 19/30 CaseStudies orphaned, 0 grading calibration data
+- Scripts already written: brain-normalize-final.cypher, brain-normalize-supplement.cypher, brain-normalize-problemtype.cypher
+- Architecture reference: references/brain/graph-architecture.md with 10 Cypher patterns
 
 **Target features:**
 
-MCP Foundation (Complete Coverage):
-- All 64 commands exposed as MCP tools (currently 49/64 -- 15 orphans including act, causal, dashboard, find-analogies, rooms, scout, wiki, etc.)
-- Brain-driven tool routing: MCP server consults Brain to determine which methodology/tools to chain based on room context (the /mos:act engine exposed via MCP)
-- Full pipeline chaining via MCP: scenario analysis -> root cause -> causal tracing -> prediction tracking works end-to-end on Desktop/Cowork
-- Hierarchical router expanded to cover 100% of commands
+Causal Discovery Optimization:
+- FEEDS_INTO enrichment (4 -> 35+ Framework chains including full PWS spine)
+- PREREQUISITE edges (0 -> 14, enables "do X before Y" warnings)
+- TYPICAL_AT stage mapping (4 -> 30+, powers /mos:suggest-next and /mos:act)
+- ADDRESSES_PROBLEM_TYPE cleanup (remove __Entity__ noise, add effectiveness scores)
+- 2D ProblemType matrix wiring (Definition x Complexity with Framework recommendations)
+- Full provenance chain: Book -> GROUNDS_FRAMEWORK -> Framework -> ADDRESSES_PROBLEM_TYPE -> ProblemType
 
-Surface Detection + Auto-Setup:
-- /mos:setup auto-detects CLI vs Desktop vs Cowork and configures both MCP servers (Brain remote + MindrianOS local)
-- One plugin install serves all three surfaces
-- Graceful degradation: CLI hooks -> MCP tool equivalents on Desktop/Cowork
+Lazy Graph Optimization:
+- ALIAS_OF bridge from high-rel LazyGraphConcepts to canonical nodes (1,900+ orphaned rels become findable)
+- Promote valuable LazyGraphConcepts (3+ Framework CO_OCCURS) to Concept
+- Clean 511 orphan LazyGraphConcepts
+- CO_OCCURS weight-based query patterns for semantic discovery (weight >= 2 filter)
+- 3-hop bridge pattern: LazyGraph -> Chunk -> Entity -> Framework
 
-Cowork Scheduled Intelligence:
-- Persistent room watching (Larry never forgets between sessions)
-- Daily briefings from room state
-- Prediction deadline checks from REGISTRY.json
-- Scout/reanalyze running on schedule
+Fragmentation Cleanup:
+- ProblemType consolidation (150+ nodes -> 4 canonical + ALIAS_OF + SUBTYPE_OF)
+- Book dedup (88 null-title + 6x duplicates) + INTRODUCES_FRAMEWORK mislanding fix
+- Opportunity Bank (21 nodes -> 1 canonical with full wiring)
+- DictionaryTerm dedup (8x copies per problem type)
+- Label normalization (lowercase->PascalCase, base/UNKNOWN removal)
 
-De Bono Persistent Hats:
-- 6 always-on perspective agents for Cowork rooms
-- Black Hat = causal chain validation, Yellow Hat = HSI + analogies, Blue Hat = Brain framework chains
-- Each hat maintains context across sessions
-
-MCP Apps Data Room Views:
-- Interactive dashboard/wiki/graph rendered in Cowork UI via MCP Apps
-- No local server needed -- views returned as MCP tool UI components
-- KAIROS-ready artifact structure for background agent consumption
+Agent + Teaching Layer Wiring:
+- FrameworkAgents 10/10 wired (DERIVED_FROM + APPLIES_TO + IMPLEMENTED_BY)
+- CaseStudies 26+/30 wired (Challenger, NASA, Marconi, Naval Aviation + student projects)
+- Mullins Model Validation: Technique -> ValidationTool, full pipeline gateway
+- Workshop->TEACHES->Framework (0 -> 16+ edges)
+- Bot->IMPLEMENTS->Framework (0 -> 15+ edges)
+- CorePrinciple->GOVERNS (0 -> 20+ edges)
+- Grading calibration gap flagged as SystemGap node (0 Example nodes with rubric scores)
 
 **Architecture:**
-- Two MCP servers: Brain MCP (remote, Streamable HTTP, proprietary IP) + MindrianOS MCP (local, stdio for Desktop / Streamable HTTP for Cowork)
-- Cowork runs in sandboxed Linux VM -- agents ONLY access mounted folders
-- PostToolUse hooks are CLI-only -- Cowork needs MCP-native equivalents
-- Brain consulted at routing layer to determine framework selection, chaining order, and context-aware methodology recommendations
-- Same lib/core/* shared between CLI (mindrian-tools.cjs) and MCP (mindrian-mcp-server.cjs)
+- All normalization uses APOC (2026.03.0 confirmed on Aura): mergeNodes for dedup, periodic.iterate for batch ops
+- Write operations via Neo4j Aura console or write MCP tool
+- Verification via read MCP (mcp__my-neo4j__read_neo4j_cypher)
+- Curly apostrophe (U+2019) in "Devil's" handled via STARTS WITH prefix matching
+- ALIAS_OF preserves LazyGraph CO_OCCURS fabric while making canonical nodes discoverable
 
-**Research basis:**
-- Cowork deep dive: sandboxed VM, plugin format unified across CLI/Cowork, MCP Apps for UI
-- MCP persistent agents: Streamable HTTP transport, resource subscriptions, MCP Tasks for background agents
-- 64-command audit: 18 work now, 31 need MCP wrappers, 15 need redesign for Desktop/Cowork
-- KAIROS preview: persistent background agent with dreaming phase -- design artifacts to be consumable
-- MCP Apps: tools return interactive UI components rendered in Cowork interface
-
-**Deferred to v2.0 (requires Anthropic team sharing):**
-- Cross-person cascade detection
-- Team prediction calibration
-- Lawrence-as-observer
+**Previous milestone (v1.7.0 Causal Reasoning Layer):**
+Defined causal engine architecture. This milestone executes the Brain graph enrichment that v1.7.0 designed but never ran.
 
 ## v3.0 Backlog (Captured Ideas)
 
@@ -204,4 +210,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-05 after v1.8.0 Cowork Adaptation milestone start*
+*Last updated: 2026-04-05 after v1.7.0 Causal Reasoning Layer milestone start*
