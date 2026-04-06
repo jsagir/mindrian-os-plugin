@@ -13,7 +13,7 @@ This milestone updates the MindrianOS plugin to centralize all Data Rooms under 
 
 </details>
 
-- 🚧 **v1.8.6 MindrianRooms -- ICM Room Organization** - Phases 56-59 (in progress)
+- 🚧 **v1.8.6 MindrianRooms -- ICM Room Organization** - Phases 56-59.1 (in progress)
 
 ## Phases
 
@@ -21,6 +21,7 @@ This milestone updates the MindrianOS plugin to centralize all Data Rooms under 
 - [ ] **Phase 57: Room Creation & ICM Structure** - Room creation targets MindrianRooms, auto-generates ICM Layer 0/1, INDEX.md auto-refresh
 - [ ] **Phase 58: Skill Activation & Display** - Skills detect rooms in new location, commands show MindrianRooms paths
 - [ ] **Phase 59: Migration Engine** - Detect legacy layouts, guided migration with symlinks, /mos:setup integration
+- [ ] **Phase 59.1: Room Organizer Skill** - /mos:organize command for ongoing room restructuring with human-in-the-loop
 
 ## Phase Details
 
@@ -72,10 +73,22 @@ Plans:
   4. /mos:setup offers an "organize rooms" option that triggers the migration flow
 **Plans**: TBD
 
+### Phase 59.1: Room Organizer Skill
+**Goal**: An /mos:organize command that lets users restructure their room hierarchy with human confirmation at each step
+**Depends on**: Phase 59
+**Requirements**: ORG-01, ORG-02, ORG-03, ORG-04, ORG-05
+**Success Criteria** (what must be TRUE):
+  1. /mos:organize shows current room structure as an ICM-compliant tree
+  2. /mos:organize propose suggests reorganization by client, domain, stage, or custom grouping
+  3. Each proposed move requires explicit human confirmation before execution
+  4. Nested hierarchies supported (e.g., clients/adam/synteris/) with ICM CLAUDE.md at each grouping level
+  5. Registry.json and INDEX.md auto-update after each confirmed move
+**Plans**: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 56 -> 57 -> 58 -> 59
+Phases execute in numeric order: 56 -> 57 -> 58 -> 59 -> 59.1
 (Phase 58 depends on 56 only, so it could run in parallel with 57 if needed)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
