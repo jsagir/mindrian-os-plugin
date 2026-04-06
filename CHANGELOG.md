@@ -9,6 +9,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.8.6] - 2026-04-06
+
+onboarding: true
+onboard_steps:
+  - "Your rooms now live in ~/MindrianRooms/ -- one place for every project. Tell Larry 'go to [room name]' to switch."
+  - "/mos:organize navigates your room hierarchy as a wicked problem -- multiple views, graph-informed proposals, human confirmation for every move."
+  - "Room hierarchy syncs to KuzuDB (local) and Neo4j Brain (remote) as an additive intelligence layer. Graph failure degrades gracefully."
+  - "/mos:setup rooms migrates legacy ~/room/ and ~/rooms/ layouts to MindrianRooms with guided confirmation."
+
+### Added
+- **MindrianRooms centralized directory** -- all Data Rooms under ~/MindrianRooms/ with ICM Layer 0 (CLAUDE.md) and Layer 1 (INDEX.md) auto-generated
+- **resolve-room 4-strategy cascade** -- central registry, directory scan, workspace registry, legacy fallback with deprecation notice
+- **MINDRIAN_ROOMS_HOME env var** -- override ~/MindrianRooms location for power users
+- **ICM templates** -- templates/icm/CLAUDE.md (Layer 0 identity) and INDEX.md (Layer 1 routing) auto-generated on first room creation
+- **update-icm-index script** -- idempotent INDEX.md regeneration from registry, called on create/archive/stage change
+- **/mos:organize command** -- wicked hierarchy navigator with 4 subcommands (tree/propose/view/move), 4-tier graceful degradation (Brain+KuzuDB -> Brain -> KuzuDB -> metadata), human confirmation for every move
+- **GROUP-CLAUDE.md template** -- ICM Layer 0 for grouping directories, generated from graph context
+- **Virtual room projections** -- /mos:organize view [by-stage|by-client|by-domain|by-activity] shows groupings WITHOUT moving files
+- **Decision memory** -- user GROUP/SEPARATE/DEFER choices stored locally and promoted to graph edges when Brain available
+- **migrate-rooms script** -- detects 5 legacy room patterns, per-room confirmed migration with registry integration and optional symlinks
+- **/mos:setup rooms** -- guided migration option for legacy layouts
+- **Dual-graph room hierarchy** -- KuzuDB local graph (Room/RoomGroup/CONTAINS/AT_STAGE) + Neo4j Brain remote (adds USES_FRAMEWORK/SHARES_THEME/HAS_SECTION)
+- **sync-rooms-graph script** -- KuzuDB sync from registry, fire-and-forget, idempotent
+- **sync-rooms-brain script** -- Neo4j Brain sync with AT_STAGE, USES_FRAMEWORK, SHARES_THEME edges, wires 13 orphaned DataRoomSection nodes
+- **Room hierarchy schema reference** -- references/brain/room-hierarchy-schema.md with Cypher patterns and KuzuDB DDL
+
+### Changed
+- room-passive and room-proactive skills now detect rooms via resolve-room (not dir_exists:room)
+- /mos:rooms list shows ~/MindrianRooms/ paths from central registry
+- /mos:room overview header shows simplified ~/MindrianRooms/[name]/ path
+- /mos:new-project creates rooms under ~/MindrianRooms/[slug]/
+- /mos:rooms create targets ~/MindrianRooms/[slug]/ with ICM auto-generation
+- room-registry writes to central ~/MindrianRooms/.rooms/registry.json
+- Session greeting references MindrianRooms location when room detected
+- room-registry create/archive triggers fire-and-forget graph sync
+
 ## [1.8.4] - 2026-04-06
 
 ### Added
