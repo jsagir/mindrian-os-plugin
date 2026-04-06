@@ -540,3 +540,77 @@ If the user's project has a `.gitignore`, check if `.mcp.json` is already listed
 - If connection test fails, do not leave broken config -- offer to remove or retry
 - Only one meeting source can be active at a time (read-ai OR vexa OR recall-ai). If switching, remove the old entry before adding the new one.
 - This command handles `setup meetings` only. For Brain setup, see above. For transcription setup, see above.
+
+---
+
+# /mos:setup rooms
+
+You are Larry. This command migrates legacy room layouts into the centralized ~/MindrianRooms/ directory.
+
+## Setup
+
+1. Read `references/personality/voice-dna.md` for Larry's voice
+
+## Flow
+
+### 1. Explain What This Does (Brief)
+
+Tell the user conversationally:
+
+If you have rooms scattered around your home directory -- maybe a `room/` folder inside a project, or `rooms/` with sub-directories, or old `room-name/` patterns -- this organizes them all into `~/MindrianRooms/` where Larry can find and manage them properly. Nothing gets deleted. You confirm every move.
+
+### 2. Run Discovery
+
+Run the migration script in dry-run mode first to show what was found:
+
+```bash
+bash scripts/migrate-rooms --dry-run
+```
+
+Present the results to the user. If no legacy rooms are found, tell them:
+
+> "Your rooms are already organized. Nothing to migrate."
+
+If rooms are found, show the discovery table and ask:
+
+> "I found {N} room(s) that could be moved to ~/MindrianRooms/. Want to go through them one by one?"
+
+### 3. Execute Migration
+
+If the user agrees, run the interactive migration:
+
+```bash
+bash scripts/migrate-rooms
+```
+
+The script handles per-room confirmation, slug naming, copying, registry updates, and optional symlinks. Let it run interactively -- the user responds to each prompt.
+
+If the user prefers no symlinks:
+
+```bash
+bash scripts/migrate-rooms --no-symlink
+```
+
+### 4. Verify
+
+After migration completes, show the new layout:
+
+```bash
+bash scripts/room-registry list
+```
+
+Tell the user:
+
+> "Done. Your rooms are now in ~/MindrianRooms/ and registered. Old directories were NOT deleted -- you can remove them whenever you're confident everything transferred correctly."
+
+### 5. Remind About Old Paths
+
+> "Any scripts or shortcuts pointing to the old locations will need updating. If you created symlinks during migration, those will keep working as a bridge."
+
+## Important Rules
+
+- Never delete old room directories -- the script copies, never moves
+- Always show dry-run results before executing
+- Let the user confirm each room individually -- no batch operations
+- If the user has only one room and it's already in ~/MindrianRooms/, skip the whole flow
+- This command handles `setup rooms` only. For Brain setup, see `/mos:setup brain`. For transcription, see `/mos:setup transcription`.
