@@ -141,3 +141,38 @@ detail-panel: #12121a with backdrop-filter: blur(8px)
 - `scripts/generate-presentation.cjs` -- graph view uses vis-network
 - `lib/quickview/hub-server.cjs` -- live dashboard graph uses vis-network
 - `dashboard/index.html` -- localhost dashboard uses vis-network
+
+---
+
+## Pitch Deck Standard (v1.8.4)
+
+The SnapshotHub pitch deck uses the `/slides` skill structure:
+- 10-slide YC Seed Deck format
+- Chart.js for all data visualizations (minimum 3 charts)
+- 16:9 aspect ratio with keyboard navigation (arrows + click)
+- Progress bar at top
+- De Stijl dark palette (#0a0a0f background, Mondrian accents)
+- Bebas Neue headings, Inter body
+- MINDRIAN logo + Back to Hub link
+- Mobile responsive (breakpoints at 900px, 600px)
+- Mondrian color bar footer
+
+### Slide Structure
+1. Title/Hook (AIDA formula)
+2. Problem (PAS formula)
+3. Convergence/IKA (Chart.js horizontal bar)
+4. Solution (TRL progress bars)
+5. Market & Timing (Chart.js S-curve lines)
+6. Competitive Landscape (grid with check/miss)
+7. Business Model (Chart.js stacked bar)
+8. Team (credential grid)
+9. Traction & Timeline (milestone cards)
+10. The Ask/CTA (AIDA urgency)
+
+### Generator Integration
+`generate-hub.cjs` should produce this deck as `views/deck.html` by:
+1. Reading room sections for content
+2. Extracting metrics from STATE.md
+3. Building Chart.js datasets from market-analysis/ and financial-model/
+4. Generating persona card from team/ data
+5. Using the slide template from references/templates/deck-template.html
