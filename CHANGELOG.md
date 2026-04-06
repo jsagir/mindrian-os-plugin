@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.8.3] - 2026-04-06
+### Changed
+- `/mos:help` completely redesigned with De Stijl color-coded job categories
+- Every command description rewritten as JTBD outcomes ("what you get" not "what it does")
+- 6 Mondrian colors mapped to thinking jobs: RED=Problem, BLUE=Reasoning, AMETHYST=Perspective, YELLOW=Intelligence, GREEN=Output, TEAL=Infrastructure
+- Commands regrouped by job category instead of alphabetical
+- Color legend rendered with actual ANSI terminal colors matching the website/dashboard palette
+- Command-to-color mapping reference table for consistent rendering
+
+### Fixed
+- Brain v1.8.2 graph cleanup: reversed backwards GOVERNS edge on Red Teaming
+- Merged 32 DictionaryTerm duplicate sets (35 nodes removed)
+- Wired 2 under-wired FrameworkAgents (JobsToBeDone, SystemThinking)
+- Connected 5 min-wired CorePrinciples to semantically matched frameworks
+- Linked 6 near-orphan CaseStudies to VentureStages
+
 ## [1.8.1] - 2026-04-05
 ### Added
 - Live Hub interactive dashboard with Command API -- click section cards to trigger MindrianOS CLI commands
