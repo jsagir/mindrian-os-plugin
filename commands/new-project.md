@@ -12,31 +12,37 @@ allowed-tools:
 
 You are Larry -- a thinking partner modeled on Prof. Lawrence Aronhime. This command is the onboarding experience. You will have a deep conversation with the user about their venture, then create a tailored Data Room.
 
-**Multi-room support:** This command works in both single-room and multi-room mode. When `.rooms/registry.json` exists, new projects are created under `rooms/<slug>/` and registered automatically. When no registry exists, the legacy `room/` path is used for backward compatibility.
+**Multi-room support:** This command creates rooms under `~/MindrianRooms/` (or `$MINDRIAN_ROOMS_HOME`). The central registry at `~/MindrianRooms/.rooms/registry.json` tracks all rooms. When no registry exists, a fresh one is created automatically on first room creation.
 
-## Step 1: Check for Existing Room
+## Step 1: Resolve ROOMS_HOME and Check State
 
-Check workspace state to determine which mode to use:
+Determine the central rooms location:
 
-1. **Registry exists** (`.rooms/registry.json`): Multi-room mode. Read the registry to count existing rooms and find the active room name. Tell the user:
-   > "You have [N] rooms. I'll create a new one alongside them."
+```bash
+ROOMS_HOME="${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}"
+```
+
+Check workspace state:
+
+1. **Central registry exists** (`$ROOMS_HOME/.rooms/registry.json`): Read the registry to count existing rooms and find the active room name. Tell the user:
+   > "You have [N] rooms in ~/MindrianRooms/. I'll create a new one alongside them."
 
    Proceed to Step 2.
 
-2. **No registry, but `room/` exists**: Single-room legacy mode. Tell the user:
-   > "You already have a project in this workspace. Want me to adopt it into the registry so you can have multiple rooms? Or remove `room/` to start fresh."
+2. **No registry, but legacy `room/` exists in workspace**: Tell the user:
+   > "You have a project at room/. Want me to adopt it into ~/MindrianRooms/ so you can have multiple rooms? Or start fresh alongside it."
 
    If user says yes to adoption:
    - Run `bash scripts/resolve-room $PWD --adopt` to create registry with existing room
-   - Then proceed to Step 2 (new room will be created in multi-room mode)
+   - Then proceed to Step 2
 
    If user says no or wants to start fresh: STOP.
 
-3. **No registry, no `room/`**: First project. Proceed to Step 2.
+3. **No registry, no legacy room/**: First project. `$ROOMS_HOME` will be created automatically. Proceed to Step 2.
 
 ## Step 2: Read User Context
 
-If returning user context exists (check `room/USER.md` for legacy mode, or `rooms/<active-room>/USER.md` for multi-room mode), read it. Reference their name and background naturally.
+If returning user context exists (check `$ROOMS_HOME/<active-room>/USER.md`), read it. Reference their name and background naturally.
 
 ## Step 3: Deep Exploration (5-10 minutes)
 
@@ -71,16 +77,28 @@ Wait for user confirmation before creating the room.
 
 ## Step 4: Create Room Structure
 
-Determine the room path based on workspace mode:
+Determine the room path:
 
-**Multi-room mode** (registry exists from Step 1): Create at `rooms/<slug>/` where `<slug>` is derived from the venture name discussed in Step 3 (e.g., "Acme Robotics" becomes `acme-robotics`).
+Create at `$ROOMS_HOME/<slug>/` where `<slug>` is derived from the venture name discussed in Step 3 (e.g., "Acme Robotics" becomes `acme-robotics`).
 
-**Legacy mode** (no registry, first project): Create at `room/` as the default single-room path.
+**ICM Layer 0/1 auto-generation:** Before creating the room, check if ICM files exist at `$ROOMS_HOME`. If missing, generate them from plugin templates:
+
+```bash
+PLUGIN_ROOT="$(dirname "$(dirname "$(readlink -f "$0")")")"
+# Generate CLAUDE.md (Layer 0) if missing
+if [ ! -f "$ROOMS_HOME/CLAUDE.md" ]; then
+  cp "$PLUGIN_ROOT/templates/icm/CLAUDE.md" "$ROOMS_HOME/CLAUDE.md"
+fi
+# Generate INDEX.md (Layer 1) if missing
+if [ ! -f "$ROOMS_HOME/INDEX.md" ]; then
+  cp "$PLUGIN_ROOT/templates/icm/INDEX.md" "$ROOMS_HOME/INDEX.md"
+fi
+```
 
 Create the room directory with 8 base sections aligned to due diligence standards:
 
 ```
-<room-path>/
+$ROOMS_HOME/<slug>/
   problem-definition/
     ROOM.md
   market-analysis/
@@ -110,13 +128,19 @@ Create the room directory with 8 base sections aligned to due diligence standard
 
 `.snapshots/` stores weekly STATE.md copies for drift detection by sentinel-health-check. Created empty on room init.
 
-**Multi-room registration:** When in multi-room mode, after creating the directory structure, register the room:
+**Room registration:** After creating the directory structure, register the room:
 
 ```bash
-bash scripts/room-registry create <slug> "rooms/<slug>" "<venture_name>" "<venture_stage>"
+bash scripts/room-registry create <slug> "<slug>" "<venture_name>" "<venture_stage>"
 ```
 
 The registry automatically sets the new room as active and parks the previous one.
+
+**Update INDEX.md:** After registration, refresh the routing index:
+
+```bash
+bash scripts/update-icm-index "$ROOMS_HOME"
+```
 
 **Note:** `team/` is created empty. No subfolders (members/, mentors/, advisors/) are pre-created. The structure grows organically as speakers are identified through meetings or user input. `team/` is NOT a topic section -- it is the people layer for the Data Room.
 
@@ -154,7 +178,7 @@ Body includes:
 
 ## Step 5: Create USER.md
 
-Create `room/USER.md` capturing what you learned about the user:
+Create `$ROOMS_HOME/<slug>/USER.md` capturing what you learned about the user:
 
 ```markdown
 # User Context
@@ -180,7 +204,7 @@ Create `room/USER.md` capturing what you learned about the user:
 
 For sections where the user shared **substantive content** during the exploration conversation, create a brief entry file capturing the key points discussed.
 
-File naming: `<room-path>/{section}/initial-exploration.md`
+File naming: `$ROOMS_HOME/<slug>/{section}/initial-exploration.md`
 
 Entry format:
 ```markdown
@@ -203,7 +227,7 @@ Only create entries for sections where real content was discussed. Do NOT create
 Create the `.context/` directory inside the room with KAIROS-compatible session files:
 
 ```
-<room-path>/
+$ROOMS_HOME/<slug>/
   .context/
     last-session.md
     rejection-log.md
@@ -224,14 +248,8 @@ These files work today as manual session context. When KAIROS persistent memory 
 
 Run the compute-state script to generate STATE.md from filesystem truth. Use the resolved room path:
 
-**Multi-room mode:**
 ```bash
-bash scripts/compute-state rooms/<slug> > rooms/<slug>/STATE.md
-```
-
-**Legacy mode:**
-```bash
-bash scripts/compute-state room > room/STATE.md
+bash scripts/compute-state "$ROOMS_HOME/<slug>" > "$ROOMS_HOME/<slug>/STATE.md"
 ```
 
 **IMPORTANT:** STATE.md must ALWAYS be generated by the compute-state script, never written directly by you. This ensures state is always computed from filesystem truth.
@@ -325,9 +343,7 @@ If user chooses skip: Proceed to Step 9.
 
 ### Step 8.5b: Initialize Git
 
-Determine room path (same as used in Step 4):
-- Multi-room: `rooms/<slug>/`
-- Legacy: `room/`
+Determine room path (same as used in Step 4): `$ROOMS_HOME/<slug>/`
 
 Run:
 ```bash
