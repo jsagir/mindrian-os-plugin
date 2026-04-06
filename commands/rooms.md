@@ -45,17 +45,19 @@ Subcommands: `list`, `new`, `open`, `close`, `archive`, `where`, `git-setup`, `g
 
 ### Step 1: Get Room Data
 
-Run `bash scripts/room-registry list` to get JSON array of rooms.
+Determine `ROOMS_HOME` (`$MINDRIAN_ROOMS_HOME` or `~/MindrianRooms`).
+
+Run `bash scripts/room-registry list` to get JSON array of rooms. The registry lives at `$ROOMS_HOME/.rooms/registry.json`.
 
 If the command fails (no registry exists), check for legacy `room/` directory:
 
 - If `room/` exists: Tell the user they have a single-room workspace. Suggest adopting it:
-  > "You have an existing room/ project. Run `/mos:rooms new` to create additional rooms - I'll offer to adopt your existing project into the registry first."
+  > "You have an existing room/ project. Run `/mos:rooms new` to create additional rooms -- I'll offer to adopt your existing project into the registry first."
 
   Then STOP.
 
 - If no room at all: Tell the user they have no rooms yet. Suggest:
-  > "No rooms found. Run `/mos:rooms new` or `/mos:new-project` to get started."
+  > "No rooms found. Your rooms will live at ~/MindrianRooms/. Run `/mos:rooms new` or `/mos:new-project` to get started."
 
   Then STOP.
 
@@ -66,14 +68,14 @@ For each room in the JSON array, count .md files in the room directory (excludin
 Render using Body Shape B (Semantic Tree):
 
 ```
--- MindrianOS -- Rooms -----------------------------------------------
+-- MindrianOS -- Rooms -- ~/MindrianRooms/ -------------------------
 
-  [v] .rooms/
   |- [filled-square] acme-robotics          active [git]  Pre-Opportunity   8 entries
   |- [triangle-right] fintech-startup        parked        Discovery         14 entries
   |- [hollow-triangle] biotech-venture        archived      Validation        22 entries
 
   Active: acme-robotics (switched 2 hours ago)
+  Path: ~/MindrianRooms/acme-robotics/
 
   [triangle-right] /mos:rooms open fintech-startup   Switch to parked room
   [hollow-triangle] /mos:rooms new                    Create a new room
@@ -127,10 +129,10 @@ If user says no: Proceed without adoption (the old room/ still works via legacy 
 
 ### Step 3: Create Room Directory
 
-Create directory at `rooms/<slug>/` with the 8 standard sections:
+Create directory at `~/MindrianRooms/<slug>/` (under ROOMS_HOME) with the 8 standard sections:
 
 ```
-rooms/<slug>/
+~/MindrianRooms/<slug>/
   problem-definition/
     ROOM.md
   market-analysis/
@@ -167,7 +169,7 @@ Use the section definitions from `/mos:new-project` Step 4 for purpose and metho
 
 Run:
 ```bash
-bash scripts/room-registry create <slug> "rooms/<slug>" "<venture_name>" "Pre-Opportunity"
+bash scripts/room-registry create <slug> "<slug>" "<venture_name>" "Pre-Opportunity"
 ```
 
 The registry create command automatically sets the new room as active and parks the previous one.
@@ -176,7 +178,7 @@ The registry create command automatically sets the new room as active and parks 
 
 Run:
 ```bash
-bash scripts/compute-state rooms/<slug> > rooms/<slug>/STATE.md
+bash scripts/compute-state "$ROOMS_HOME/<slug>" > "$ROOMS_HOME/<slug>/STATE.md"
 ```
 
 ### Step 6: Report Success
@@ -186,7 +188,7 @@ Show success with Zone 1 header displaying the new room name:
 ```
 -- MindrianOS -- <venture_name> --------------------------------------
 
-  Room created: rooms/<slug>/
+  Room created: ~/MindrianRooms/<slug>/
   Status: active
   Venture stage: Pre-Opportunity
   Sections: 8
@@ -373,7 +375,7 @@ Run `bash scripts/room-registry read <active-name>` to get the full registry ent
 -- MindrianOS -- <venture_name> --------------------------------------
 
   Active room: <name>
-  Path: <absolute-path>
+  Path: ~/MindrianRooms/<name>/
   Venture: <venture_name>
   Stage: <venture_stage>
   Last opened: <timestamp>
@@ -382,6 +384,8 @@ Run `bash scripts/room-registry read <active-name>` to get the full registry ent
   [triangle-right] /mos:rooms open       Switch rooms
   [hollow-triangle] /mos:rooms list       See all rooms
 ```
+
+Display the path as `~/MindrianRooms/<name>/` (abbreviated with ~). For legacy rooms that haven't migrated, show the actual path (e.g., `./room/`).
 
 ---
 
