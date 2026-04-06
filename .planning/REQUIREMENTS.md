@@ -55,14 +55,14 @@
 
 ### Room Hierarchy Graph Layer (Brain Enrichment)
 
-- [ ] **GRAPH-01**: Room nodes created in Neo4j Brain for each registered room with name, stage, domain, creation date
-- [ ] **GRAPH-02**: RoomGroup nodes represent grouping levels (clients/, internal/, etc.) with ICM layer metadata
-- [ ] **GRAPH-03**: CONTAINS edges model physical hierarchy (RoomRoot -> RoomGroup -> Room)
-- [ ] **GRAPH-04**: AT_STAGE edges connect Room nodes to existing VentureStage taxonomy (5 stages already in Brain)
-- [ ] **GRAPH-05**: USES_FRAMEWORK edges connect Room nodes to Framework nodes based on methodology commands run in that room
-- [ ] **GRAPH-06**: SHARES_THEME edges between Room nodes detected from cross-room content analysis (CO_OCCURS pattern)
-- [ ] **GRAPH-07**: DataRoomSection nodes (13 existing orphans) wired to parent Room nodes via HAS_SECTION
-- [ ] **GRAPH-08**: Graph layer is additive only -- filesystem + registry.json remain operational truth, graph adds intelligence
+- [x] **GRAPH-01**: Room nodes created in Neo4j Brain for each registered room with name, stage, domain, creation date
+- [x] **GRAPH-02**: RoomGroup nodes represent grouping levels (clients/, internal/, etc.) with ICM layer metadata
+- [x] **GRAPH-03**: CONTAINS edges model physical hierarchy (RoomRoot -> RoomGroup -> Room)
+- [x] **GRAPH-04**: AT_STAGE edges connect Room nodes to existing VentureStage taxonomy (5 stages already in Brain)
+- [x] **GRAPH-05**: USES_FRAMEWORK edges connect Room nodes to Framework nodes based on methodology commands run in that room
+- [x] **GRAPH-06**: SHARES_THEME edges between Room nodes detected from cross-room content analysis (CO_OCCURS pattern)
+- [x] **GRAPH-07**: DataRoomSection nodes (13 existing orphans) wired to parent Room nodes via HAS_SECTION
+- [x] **GRAPH-08**: Graph layer is additive only -- filesystem + registry.json remain operational truth, graph adds intelligence
 
 ## Future Requirements
 
@@ -108,14 +108,14 @@ None deferred -- scope is tight.
 | ORG-05 | Phase 59.1 | Complete |
 | ORG-06 | Phase 59.1 | Complete |
 | ORG-07 | Phase 59.1 | Complete |
-| GRAPH-01 | Phase 59.2 | Pending |
-| GRAPH-02 | Phase 59.2 | Pending |
-| GRAPH-03 | Phase 59.2 | Pending |
-| GRAPH-04 | Phase 59.2 | Pending |
-| GRAPH-05 | Phase 59.2 | Pending |
-| GRAPH-06 | Phase 59.2 | Pending |
-| GRAPH-07 | Phase 59.2 | Pending |
-| GRAPH-08 | Phase 59.2 | Pending |
+| GRAPH-01 | Phase 59.2 | Complete |
+| GRAPH-02 | Phase 59.2 | Complete |
+| GRAPH-03 | Phase 59.2 | Complete |
+| GRAPH-04 | Phase 59.2 | Complete |
+| GRAPH-05 | Phase 59.2 | Complete |
+| GRAPH-06 | Phase 59.2 | Complete |
+| GRAPH-07 | Phase 59.2 | Complete |
+| GRAPH-08 | Phase 59.2 | Complete |
 
 **Coverage:**
 - v1.8.6 requirements: 35 total

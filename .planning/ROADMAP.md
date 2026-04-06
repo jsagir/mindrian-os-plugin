@@ -20,9 +20,9 @@ This milestone updates the MindrianOS plugin to centralize all Data Rooms under 
 - [x] **Phase 56: Path Resolution** - Update resolve-room to default to ~/MindrianRooms/ with legacy fallback
 - [x] **Phase 57: Room Creation & ICM Structure** - Room creation targets MindrianRooms, auto-generates ICM Layer 0/1, INDEX.md auto-refresh
 - [x] **Phase 58: Skill Activation & Display** - Skills detect rooms in new location, commands show MindrianRooms paths
-- [ ] **Phase 59: Migration Engine** - Detect legacy layouts, guided migration with symlinks, /mos:setup integration
-- [ ] **Phase 59.1: Room Organizer Skill** - Wicked hierarchy navigator with graph-informed proposals and human-in-the-loop
-- [ ] **Phase 59.2: Room Hierarchy Graph Layer** - Neo4j Brain + KuzuDB dual-graph room hierarchy as additive intelligence layer
+- [x] **Phase 59: Migration Engine** - Detect legacy layouts, guided migration with symlinks, /mos:setup integration
+- [x] **Phase 59.1: Room Organizer Skill** - Wicked hierarchy navigator with graph-informed proposals and human-in-the-loop
+- [x] **Phase 59.2: Room Hierarchy Graph Layer** - Neo4j Brain + KuzuDB dual-graph room hierarchy as additive intelligence layer
 
 ## Phase Details
 

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.8.6
 milestone_name: MindrianRooms -- ICM Room Organization
-status: in-progress
-stopped_at: Completed 59-01-PLAN.md and 59.1-01-PLAN.md
-last_updated: "2026-04-06T20:41:30Z"
-last_activity: 2026-04-06 -- Phase 59 migration engine and Phase 59.1 wicked hierarchy complete
+status: complete
+stopped_at: Completed 59.2-01 (Room Hierarchy Graph Layer)
+last_updated: "2026-04-06T20:52:00Z"
+last_activity: 2026-04-06 -- Phase 59.2 room hierarchy graph layer complete
 progress:
   total_phases: 6
-  completed_phases: 1
-  total_plans: 1
-  completed_plans: 5
-  percent: 0
+  completed_phases: 6
+  total_plans: 6
+  completed_plans: 6
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-06)
 
 **Core value:** Centralize all Data Rooms under ~/MindrianRooms/ with ICM-compliant structure
-**Current focus:** Phase 56 -- Path Resolution (ready to plan)
+**Current focus:** v1.8.6 milestone complete
 
 ## Current Position
 
-Phase: 59 of 59.2 (Migration Engine)
+Phase: 59.2 of 59.2 (Room Hierarchy Graph Layer)
 Plan: 01 (complete)
-Status: Phase 59 complete, Phase 59.1 complete
-Last activity: 2026-04-06 -- migrate-rooms script, /mos:setup rooms, /mos:organize command
+Status: All phases complete (56, 57, 58, 59, 59.1, 59.2)
+Last activity: 2026-04-06 -- dual-graph room hierarchy, sync scripts, Brain integration
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
@@ -51,6 +51,7 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 58]: Skills use resolve_room:active trigger; all display paths show ~/MindrianRooms/[name]/; session greeting references MindrianRooms on first encounter
 - [Phase 59]: migrate-rooms uses cp -a (copy, never move); 5 legacy patterns detected; per-room confirmation; /mos:setup rooms added
 - [Phase 59.1]: /mos:organize uses 4-tier degradation (Brain+KuzuDB -> Brain -> KuzuDB -> metadata); decisions stored locally in .rooms/decisions.json, promoted to graph edges when Brain available
+- [Phase 59.2]: Dual-graph architecture (KuzuDB local + Neo4j Brain remote); graph never writes filesystem; fire-and-forget sync on session-start and room create/archive; brain-client.cjs write() method added
 
 ### Pending Todos
 
@@ -67,6 +68,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06T20:40:32Z
-Stopped at: Completed 59.1-01-PLAN.md
+Last session: 2026-04-06T20:52:00Z
+Stopped at: Completed 59.2-01 (Room Hierarchy Graph Layer) -- v1.8.6 milestone complete
 Resume file: None
