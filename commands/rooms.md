@@ -114,18 +114,38 @@ If the user provides a human-readable name like "Acme Robotics":
 
 If no name provided, ask: "What should I call this room?"
 
-### Step 2: Check for Legacy Room
+### Step 2: Resolve ROOMS_HOME and Check State
 
-If `.rooms/registry.json` does NOT exist AND `room/` directory exists:
+Determine the central rooms location:
+
+```bash
+ROOMS_HOME="${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}"
+```
+
+If `$ROOMS_HOME/.rooms/registry.json` does NOT exist AND legacy `room/` directory exists in the workspace:
 
 Ask the user:
-> "You have an existing room/ project. Want me to adopt it into the registry first? This lets you keep your current project and create new ones alongside it."
+> "You have an existing room/ project. Want me to adopt it into ~/MindrianRooms/ so you can have multiple rooms?"
 
 If user says yes:
 - Run `bash scripts/resolve-room $PWD --adopt` to create registry with existing room
 - Then proceed to Step 3
 
 If user says no: Proceed without adoption (the old room/ still works via legacy fallback).
+
+### Step 2.5: ICM Layer 0/1 Auto-Generation
+
+Before creating the room, ensure ICM files exist at `$ROOMS_HOME`:
+
+```bash
+PLUGIN_ROOT="$(dirname "$(dirname "$(readlink -f "$0")")")"
+if [ ! -f "$ROOMS_HOME/CLAUDE.md" ]; then
+  cp "$PLUGIN_ROOT/templates/icm/CLAUDE.md" "$ROOMS_HOME/CLAUDE.md"
+fi
+if [ ! -f "$ROOMS_HOME/INDEX.md" ]; then
+  cp "$PLUGIN_ROOT/templates/icm/INDEX.md" "$ROOMS_HOME/INDEX.md"
+fi
+```
 
 ### Step 3: Create Room Directory
 
@@ -173,6 +193,12 @@ bash scripts/room-registry create <slug> "<slug>" "<venture_name>" "Pre-Opportun
 ```
 
 The registry create command automatically sets the new room as active and parks the previous one.
+
+**Update INDEX.md:** After registration, refresh the routing index:
+
+```bash
+bash scripts/update-icm-index "$ROOMS_HOME"
+```
 
 ### Step 5: Compute State
 
@@ -281,14 +307,21 @@ bash scripts/room-registry update <active-name> status parked
 
 Clear the active field in the registry by running:
 ```bash
+ROOMS_HOME="${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}"
 python3 -c "
 import json
-with open('.rooms/registry.json', 'r') as f:
+with open('$ROOMS_HOME/.rooms/registry.json', 'r') as f:
     reg = json.load(f)
 reg['active'] = ''
-with open('.rooms/registry.json', 'w') as f:
+with open('$ROOMS_HOME/.rooms/registry.json', 'w') as f:
     json.dump(reg, f, indent=2)
 "
+```
+
+**Update INDEX.md:** After parking, refresh the routing index:
+
+```bash
+bash scripts/update-icm-index "$ROOMS_HOME"
 ```
 
 ### Step 4: Report Success
@@ -336,6 +369,12 @@ bash scripts/room-registry archive <name>
 ```
 
 This sets the room status to `archived`. If the room was active, it also clears the active field.
+
+**Update INDEX.md:** After archiving, refresh the routing index:
+
+```bash
+bash scripts/update-icm-index "${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}"
+```
 
 ### Step 4: Report Success
 
