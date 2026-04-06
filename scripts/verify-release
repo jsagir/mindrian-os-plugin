@@ -1,0 +1,360 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# verify-release: Pre-release verification for MindrianOS plugin
+# Tests everything that can break for users: validation, visuals, onboarding, colors, marketplace sync.
+# Run this BEFORE every release. Fails loud on any issue.
+#
+# Usage: bash scripts/verify-release
+# Exit code 0 = all clear, non-zero = DO NOT RELEASE
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+MARKETPLACE_DIR="$HOME/mindrian-marketplace"
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+BOLD='\033[1m'
+
+PASS=0
+FAIL=0
+WARN=0
+
+pass() { PASS=$((PASS + 1)); echo -e "  ${GREEN}✓${NC} $1"; }
+fail() { FAIL=$((FAIL + 1)); echo -e "  ${RED}✗${NC} $1"; }
+warn() { WARN=$((WARN + 1)); echo -e "  ${YELLOW}⚠${NC} $1"; }
+
+echo -e "${CYAN}${BOLD}=== MindrianOS Pre-Release Verification ===${NC}"
+echo ""
+
+# ============================================================
+# 1. PLUGIN VALIDATION (Claude Code's own validator)
+# ============================================================
+echo -e "${BOLD}1. Plugin Validation${NC}"
+
+VALIDATION=$(claude plugin validate "$PLUGIN_ROOT" 2>&1 || true)
+if echo "$VALIDATION" | grep -q "Validation passed"; then
+  pass "Plugin validation passed (0 errors)"
+else
+  fail "Plugin validation FAILED:"
+  echo "$VALIDATION" | grep -E "error|Error" | head -5
+fi
+
+# ============================================================
+# 2. MARKETPLACE VALIDATION
+# ============================================================
+echo -e "\n${BOLD}2. Marketplace Validation${NC}"
+
+if [ -d "$MARKETPLACE_DIR" ]; then
+  MVAL=$(claude plugin validate "$MARKETPLACE_DIR" 2>&1 || true)
+  if echo "$MVAL" | grep -q "Validation failed"; then
+    fail "Marketplace validation FAILED"
+  else
+    pass "Marketplace validation passed"
+  fi
+else
+  warn "Marketplace directory not found at $MARKETPLACE_DIR"
+fi
+
+# ============================================================
+# 3. VERSION SYNC (plugin.json == marketplace.json)
+# ============================================================
+echo -e "\n${BOLD}3. Version Sync${NC}"
+
+PLUGIN_VER=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "MISSING")
+
+if [ -f "$MARKETPLACE_DIR/.claude-plugin/marketplace.json" ]; then
+  MARKET_VER=$(python3 -c "import json; print(json.load(open('$MARKETPLACE_DIR/.claude-plugin/marketplace.json'))['plugins'][0]['version'])" 2>/dev/null || echo "MISSING")
+  if [ "$PLUGIN_VER" = "$MARKET_VER" ]; then
+    pass "Versions match: plugin=$PLUGIN_VER marketplace=$MARKET_VER"
+  else
+    fail "Version MISMATCH: plugin=$PLUGIN_VER marketplace=$MARKET_VER"
+  fi
+else
+  warn "Marketplace.json not found"
+fi
+
+# ============================================================
+# 4. COMMAND COUNT + CRITICAL COMMANDS
+# ============================================================
+echo -e "\n${BOLD}4. Commands${NC}"
+
+CMD_COUNT=$(ls "$PLUGIN_ROOT/commands/"*.md 2>/dev/null | wc -l)
+if [ "$CMD_COUNT" -ge 60 ]; then
+  pass "Command count: $CMD_COUNT (>= 60)"
+else
+  fail "Command count: $CMD_COUNT (expected >= 60)"
+fi
+
+CRITICAL_CMDS=(new-project onboard help setup status room splash update diagnose act export present dashboard wiki visualize)
+for cmd in "${CRITICAL_CMDS[@]}"; do
+  if [ -f "$PLUGIN_ROOT/commands/$cmd.md" ]; then
+    # Verify frontmatter has name field
+    if head -5 "$PLUGIN_ROOT/commands/$cmd.md" | grep -q "name: $cmd"; then
+      : # ok
+    else
+      fail "commands/$cmd.md missing 'name: $cmd' in frontmatter"
+    fi
+  else
+    fail "CRITICAL command missing: commands/$cmd.md"
+  fi
+done
+pass "All ${#CRITICAL_CMDS[@]} critical commands present with valid frontmatter"
+
+# ============================================================
+# 5. AGENTS (all must have frontmatter)
+# ============================================================
+echo -e "\n${BOLD}5. Agents${NC}"
+
+AGENT_COUNT=$(ls "$PLUGIN_ROOT/agents/"*.md 2>/dev/null | wc -l)
+AGENTS_NO_FM=0
+for agent in "$PLUGIN_ROOT/agents/"*.md; do
+  if ! head -1 "$agent" | grep -q "^---"; then
+    AGENTS_NO_FM=$((AGENTS_NO_FM + 1))
+    fail "Agent missing frontmatter: $(basename "$agent")"
+  fi
+done
+if [ "$AGENTS_NO_FM" -eq 0 ]; then
+  pass "All $AGENT_COUNT agents have valid frontmatter"
+fi
+
+# ============================================================
+# 6. ALLOWED-TOOLS VALIDATION (the Amnon bug)
+# ============================================================
+echo -e "\n${BOLD}6. Allowed-Tools Integrity${NC}"
+
+BAD_TOOLS=0
+for file in "$PLUGIN_ROOT/commands/"*.md "$PLUGIN_ROOT/agents/"*.md; do
+  # Extract ONLY the YAML frontmatter (between --- markers), then check allowed-tools
+  FRONTMATTER=$(sed -n '1,/^---$/p' "$file" 2>/dev/null | tail -n +2 | sed '$d')
+  if echo "$FRONTMATTER" | grep -A 50 "^allowed-tools:" 2>/dev/null | grep -E "^\s*-.*\(or |^\s*-.*fallback:|^\s*-.*\). If " > /dev/null 2>&1; then
+    BAD_TOOLS=$((BAD_TOOLS + 1))
+    fail "Invalid allowed-tools in $(basename "$file") (inline comments in frontmatter)"
+  fi
+done
+if [ "$BAD_TOOLS" -eq 0 ]; then
+  pass "All allowed-tools entries are plain strings (no inline comments)"
+fi
+
+# ============================================================
+# 7. VISUAL ELEMENTS
+# ============================================================
+echo -e "\n${BOLD}7. Visual Elements${NC}"
+
+# Banner script exists and produces ANSI output
+if [ -x "$PLUGIN_ROOT/scripts/banner" ]; then
+  BANNER_OUT=$(bash "$PLUGIN_ROOT/scripts/banner" "$PLUGIN_VER" 2>&1)
+  if echo "$BANNER_OUT" | grep -q "\[48;2;"; then
+    pass "Banner renders with ANSI 24-bit color codes"
+  else
+    fail "Banner output missing ANSI color codes"
+  fi
+  if echo "$BANNER_OUT" | grep -q "$PLUGIN_VER"; then
+    pass "Banner shows version $PLUGIN_VER"
+  else
+    fail "Banner does not show current version"
+  fi
+else
+  fail "scripts/banner not found or not executable"
+fi
+
+# Help command has ANSI color definitions
+if grep -q '\\033\[38;2;166;61;47m' "$PLUGIN_ROOT/commands/help.md" 2>/dev/null; then
+  pass "/mos:help has De Stijl ANSI color codes (red, blue, yellow, green, amethyst, teal)"
+else
+  fail "/mos:help missing ANSI color code definitions"
+fi
+
+# Help has all 6 color blocks defined
+HELP_COLORS=0
+for hex in "166;61;47" "30;58;110" "107;78;139" "200;164;60" "45;107;74" "42;107;94"; do
+  if grep -q "$hex" "$PLUGIN_ROOT/commands/help.md" 2>/dev/null; then
+    HELP_COLORS=$((HELP_COLORS + 1))
+  fi
+done
+if [ "$HELP_COLORS" -eq 6 ]; then
+  pass "/mos:help defines all 6 De Stijl color categories"
+else
+  fail "/mos:help only has $HELP_COLORS/6 color definitions"
+fi
+
+# visual-ops.cjs exists (dependency for status line)
+if [ -f "$PLUGIN_ROOT/lib/core/visual-ops.cjs" ]; then
+  pass "visual-ops.cjs exists (status line dependency)"
+else
+  fail "visual-ops.cjs MISSING (status line will break)"
+fi
+
+# ============================================================
+# 8. ONBOARDING FLOW
+# ============================================================
+echo -e "\n${BOLD}8. Onboarding${NC}"
+
+# Onboard command exists and has the right structure
+if [ -f "$PLUGIN_ROOT/commands/onboard.md" ]; then
+  if grep -q "name: onboard" "$PLUGIN_ROOT/commands/onboard.md"; then
+    pass "/mos:onboard exists with valid frontmatter"
+  else
+    fail "/mos:onboard has wrong frontmatter"
+  fi
+else
+  fail "/mos:onboard MISSING"
+fi
+
+# New-project command exists
+if [ -f "$PLUGIN_ROOT/commands/new-project.md" ]; then
+  pass "/mos:new-project exists"
+else
+  fail "/mos:new-project MISSING"
+fi
+
+# Session-start hook mentions onboarding detection
+if grep -q "mindrian-onboarded\|onboard\|first.time\|NEW_USER" "$PLUGIN_ROOT/scripts/session-start" 2>/dev/null; then
+  pass "session-start detects new users for onboarding"
+else
+  warn "session-start may not detect new users"
+fi
+
+# ============================================================
+# 9. HOOKS + SETTINGS
+# ============================================================
+echo -e "\n${BOLD}9. Hooks + Settings${NC}"
+
+# hooks.json is valid JSON
+if python3 -c "import json; json.load(open('$PLUGIN_ROOT/hooks/hooks.json'))" 2>/dev/null; then
+  pass "hooks.json is valid JSON"
+else
+  fail "hooks.json is INVALID JSON"
+fi
+
+# settings.json has statusLine
+if grep -q "statusLine" "$PLUGIN_ROOT/settings.json" 2>/dev/null; then
+  pass "settings.json has statusLine configuration"
+else
+  fail "settings.json MISSING statusLine (no status bar for users)"
+fi
+
+# settings.json has larry-extended as default agent
+if grep -q "larry-extended" "$PLUGIN_ROOT/settings.json" 2>/dev/null; then
+  pass "settings.json defaults to larry-extended agent"
+else
+  fail "settings.json missing larry-extended default"
+fi
+
+# context-monitor script exists and is executable
+if [ -x "$PLUGIN_ROOT/scripts/context-monitor" ]; then
+  pass "context-monitor script exists (status line)"
+else
+  fail "context-monitor MISSING or not executable"
+fi
+
+# ============================================================
+# 10. SKILLS
+# ============================================================
+echo -e "\n${BOLD}10. Skills${NC}"
+
+REQUIRED_SKILLS=(larry-personality pws-methodology ui-system room-passive room-proactive context-engine brain-connector)
+for skill in "${REQUIRED_SKILLS[@]}"; do
+  if [ -f "$PLUGIN_ROOT/skills/$skill/SKILL.md" ]; then
+    : # ok
+  else
+    fail "Skill MISSING: skills/$skill/SKILL.md"
+  fi
+done
+pass "All ${#REQUIRED_SKILLS[@]} required skills present"
+
+# ============================================================
+# 11. SCRIPTS EXECUTABLE
+# ============================================================
+echo -e "\n${BOLD}11. Script Permissions${NC}"
+
+CRITICAL_SCRIPTS=(banner session-start context-monitor check-update self-update resolve-room)
+NOT_EXEC=0
+for script in "${CRITICAL_SCRIPTS[@]}"; do
+  if [ -f "$PLUGIN_ROOT/scripts/$script" ] && [ ! -x "$PLUGIN_ROOT/scripts/$script" ]; then
+    NOT_EXEC=$((NOT_EXEC + 1))
+    fail "scripts/$script exists but is NOT executable"
+  fi
+done
+if [ "$NOT_EXEC" -eq 0 ]; then
+  pass "All critical scripts are executable"
+fi
+
+# ============================================================
+# 12. GIT STATE
+# ============================================================
+echo -e "\n${BOLD}12. Git State${NC}"
+
+cd "$PLUGIN_ROOT"
+UNCOMMITTED=$(git status --porcelain 2>/dev/null | grep -v "^??" | wc -l)
+if [ "$UNCOMMITTED" -eq 0 ]; then
+  pass "No uncommitted changes in plugin repo"
+else
+  warn "$UNCOMMITTED uncommitted changes in plugin repo"
+fi
+
+if [ -d "$MARKETPLACE_DIR" ]; then
+  cd "$MARKETPLACE_DIR"
+  UNCOMMITTED_M=$(git status --porcelain 2>/dev/null | grep -v "^??" | wc -l)
+  if [ "$UNCOMMITTED_M" -eq 0 ]; then
+    pass "No uncommitted changes in marketplace repo"
+  else
+    warn "$UNCOMMITTED_M uncommitted changes in marketplace repo"
+  fi
+fi
+
+# ============================================================
+# 13. CHANGELOG HAS CURRENT VERSION
+# ============================================================
+echo -e "\n${BOLD}13. Changelog${NC}"
+
+if [ -f "$PLUGIN_ROOT/CHANGELOG.md" ]; then
+  if grep -q "\[$PLUGIN_VER\]" "$PLUGIN_ROOT/CHANGELOG.md"; then
+    pass "CHANGELOG.md has entry for v$PLUGIN_VER"
+  else
+    warn "CHANGELOG.md has no entry for v$PLUGIN_VER"
+  fi
+else
+  fail "CHANGELOG.md MISSING"
+fi
+
+# ============================================================
+# 14. MCP CONFIG
+# ============================================================
+echo -e "\n${BOLD}14. MCP Config${NC}"
+
+if [ -f "$PLUGIN_ROOT/.mcp.json" ]; then
+  if python3 -c "import json; json.load(open('$PLUGIN_ROOT/.mcp.json'))" 2>/dev/null; then
+    pass ".mcp.json is valid JSON"
+  else
+    fail ".mcp.json is INVALID JSON"
+  fi
+  if grep -q "mindrian-brain" "$PLUGIN_ROOT/.mcp.json"; then
+    pass ".mcp.json has Brain MCP server configured"
+  else
+    warn ".mcp.json missing Brain MCP server"
+  fi
+else
+  fail ".mcp.json MISSING"
+fi
+
+# ============================================================
+# SUMMARY
+# ============================================================
+echo ""
+echo -e "${BOLD}═══════════════════════════════════════════════${NC}"
+TOTAL=$((PASS + FAIL + WARN))
+echo -e "  ${GREEN}✓ $PASS passed${NC}  ${RED}✗ $FAIL failed${NC}  ${YELLOW}⚠ $WARN warnings${NC}  ($TOTAL checks)"
+
+if [ "$FAIL" -gt 0 ]; then
+  echo -e "\n  ${RED}${BOLD}DO NOT RELEASE. Fix $FAIL failures first.${NC}"
+  echo -e "${BOLD}═══════════════════════════════════════════════${NC}"
+  exit 1
+else
+  echo -e "\n  ${GREEN}${BOLD}CLEAR TO RELEASE v$PLUGIN_VER${NC}"
+  echo -e "${BOLD}═══════════════════════════════════════════════${NC}"
+  exit 0
+fi

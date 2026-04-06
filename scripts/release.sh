@@ -45,16 +45,14 @@ esac
 NEW_VERSION="$MAJOR.$MINOR.$PATCH"
 echo -e "${GREEN}New version: $NEW_VERSION${NC}"
 
-# --- Step 2: Validate plugin BEFORE any changes ---
+# --- Step 2: Run FULL verification (not just validation) ---
 echo ""
-echo "=== Validating plugin ==="
-VALIDATION=$(claude plugin validate "$PLUGIN_DIR" 2>&1)
-if echo "$VALIDATION" | grep -q "Validation failed"; then
-  echo -e "${RED}ABORT: Plugin validation failed. Fix errors first:${NC}"
-  echo "$VALIDATION"
+echo "=== Running pre-release verification ==="
+if ! bash "$PLUGIN_DIR/scripts/verify-release" 2>&1; then
+  echo -e "${RED}ABORT: Pre-release verification failed. Fix all failures first.${NC}"
   exit 1
 fi
-echo -e "${GREEN}Plugin validation passed${NC}"
+echo -e "${GREEN}All verification checks passed${NC}"
 
 # --- Step 3: Bump plugin.json ---
 cd "$PLUGIN_DIR"
