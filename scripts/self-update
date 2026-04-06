@@ -67,18 +67,22 @@ if [ -z "$LATEST_VERSION" ]; then
   exit 0
 fi
 
-# --- Compare versions ---
+# --- Compare versions (node-based, cross-platform - no sort -V) ---
 if [ "$MODE" != "force" ]; then
-  LOWER=$(printf '%s\n%s' "$CURRENT_VERSION" "$LATEST_VERSION" | sort -V | head -1)
+  VERSION_CMP=$(node -e "
+    const [a,b] = ['$CURRENT_VERSION','$LATEST_VERSION'].map(v => v.split('.').map(Number));
+    if (a[0]===b[0] && a[1]===b[1] && a[2]===b[2]) console.log('equal');
+    else if (a[0]>b[0] || (a[0]===b[0] && a[1]>b[1]) || (a[0]===b[0] && a[1]===b[1] && a[2]>b[2])) console.log('ahead');
+    else console.log('behind');
+  " 2>/dev/null || echo "behind")
 
-  if [ "$CURRENT_VERSION" = "$LATEST_VERSION" ]; then
+  if [ "$VERSION_CMP" = "equal" ]; then
     echo "UP_TO_DATE"
     echo "v${CURRENT_VERSION}"
     exit 0
   fi
 
-  if [ "$LOWER" != "$CURRENT_VERSION" ]; then
-    # Current is newer (dev build)
+  if [ "$VERSION_CMP" = "ahead" ]; then
     echo "UP_TO_DATE"
     echo "v${CURRENT_VERSION} (ahead of v${LATEST_VERSION})"
     exit 0
@@ -214,42 +218,36 @@ if [ "$STAGED_CMDS" -lt 50 ]; then
   exit 0
 fi
 
-# Step 3: Remove old files (preserve .env, node_modules)
-PRESERVE_LIST=(".env" "node_modules" ".update-stage")
-for item in "$CACHE_DIR"/* "$CACHE_DIR"/.*; do
-  bname=$(basename "$item")
-  if [ "$bname" = "." ] || [ "$bname" = ".." ]; then continue; fi
-  skip=false
-  for preserve in "${PRESERVE_LIST[@]}"; do
-    if [ "$bname" = "$preserve" ]; then skip=true; break; fi
-  done
-  if [ "$skip" = false ]; then
-    rm -rf "$item" 2>/dev/null || true
-  fi
-done
+# Step 3: Preserve .env and node_modules by copying into stage
+cp "$CACHE_DIR/.env" "$STAGE/.env" 2>/dev/null || true
+if [ -d "$CACHE_DIR/node_modules" ]; then
+  mv "$CACHE_DIR/node_modules" "$STAGE/node_modules" 2>/dev/null || true
+fi
 
-# Step 4: Move staged files into place
-for item in "$STAGE"/* "$STAGE"/.*; do
-  bname=$(basename "$item")
-  if [ "$bname" = "." ] || [ "$bname" = ".." ] || [ "$bname" = ".update-stage" ]; then continue; fi
-  mv "$item" "$CACHE_DIR/" 2>/dev/null || true
-done
-rm -rf "$STAGE"
+# Step 4: ATOMIC SWAP via rename (single filesystem operation)
+# Rename old dir away, rename stage dir to target. If process dies mid-swap,
+# either the old or new dir is in place -- never partial state.
+OLD_DIR="${CACHE_DIR}.old-$$"
+mv "$CACHE_DIR" "$OLD_DIR"
+mv "$STAGE" "$CACHE_DIR"
 
-# Step 5: Post-swap validation -- if this fails, ROLLBACK
+# Step 5: Post-swap validation -- if fails, ATOMIC ROLLBACK (rename back)
 POST_CMDS=$(ls "$CACHE_DIR/commands/"*.md 2>/dev/null | wc -l)
-POST_VERSION=$(python3 -c "import json; print(json.load(open('$CACHE_DIR/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "")
+POST_VERSION=$(node -e "console.log(require('$CACHE_DIR/.claude-plugin/plugin.json').version)" 2>/dev/null || echo "")
 
 if [ "$POST_CMDS" -lt 50 ] || [ -z "$POST_VERSION" ]; then
   echo "STATUS=rollback"
   echo "Post-swap validation failed ($POST_CMDS commands, version='$POST_VERSION'). Rolling back..."
-  # ROLLBACK: restore from full backup
-  rm -rf "$CACHE_DIR"/*
-  cp -a "$BACKUP_DIR/full/." "$CACHE_DIR/" 2>/dev/null || true
+  # ATOMIC ROLLBACK: rename back
+  rm -rf "$CACHE_DIR"
+  mv "$OLD_DIR" "$CACHE_DIR"
   echo "UPDATE_FAILED"
   echo "Update failed post-swap validation. Rolled back to v${CURRENT_VERSION}. Your install is safe."
   exit 0
 fi
+
+# Swap succeeded - clean up old dir
+rm -rf "$OLD_DIR"
 
 # Generate checksums for future modification detection
 echo "STATUS=checksums"

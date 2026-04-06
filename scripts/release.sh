@@ -21,7 +21,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-PLUGIN_DIR="$HOME/MindrianOS-Plugin"
+PLUGIN_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 MARKETPLACE_DIR="$HOME/mindrian-marketplace"
 
 # --- Step 0: Parse bump type ---
@@ -109,19 +109,33 @@ if ! grep -q "\[$NEW_VERSION\]" CHANGELOG.md 2>/dev/null; then
   fi
 fi
 
-# --- Step 7: Commit plugin ---
+# --- Step 6.5: Post-bump re-verification ---
+echo ""
+echo "=== Re-verifying after version bump ==="
+REVAL=$(bash "$PLUGIN_DIR/scripts/verify-release" 2>&1 || true)
+if echo "$REVAL" | grep -q "DO NOT RELEASE"; then
+  echo -e "${RED}ABORT: Post-bump verification failed. Rolling back version bumps.${NC}"
+  cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json
+  cd "$MARKETPLACE_DIR" && git checkout .claude-plugin/marketplace.json
+  exit 1
+fi
+echo -e "${GREEN}Post-bump verification passed${NC}"
+
+# --- Step 7: Commit plugin (specific files only - NEVER git add -A) ---
 echo ""
 echo "=== Committing plugin ==="
 cd "$PLUGIN_DIR"
-git add -A
+git add .claude-plugin/plugin.json CHANGELOG.md
+# Add any other modified tracked files (but NOT untracked files)
+git diff --name-only | xargs -r git add
 git commit -m "release: v$NEW_VERSION" || echo "Nothing to commit in plugin"
 git tag "v$NEW_VERSION" 2>/dev/null || echo "Tag v$NEW_VERSION already exists"
 
-# --- Step 8: Commit marketplace ---
+# --- Step 8: Commit marketplace (specific files only) ---
 echo ""
 echo "=== Committing marketplace ==="
 cd "$MARKETPLACE_DIR"
-git add -A
+git add .claude-plugin/marketplace.json README.md
 git commit -m "release: sync to v$NEW_VERSION" || echo "Nothing to commit in marketplace"
 
 # --- Step 9: Push both ---
