@@ -17,7 +17,7 @@
   [![Hooks](https://img.shields.io/badge/hooks-9-red)](https://github.com/jsagir/mindrian-os-plugin)
   [![Edge Types](https://img.shields.io/badge/edge_types-12-yellow)](https://github.com/jsagir/mindrian-os-plugin)
   [![Brain Nodes](https://img.shields.io/badge/brain_nodes-32K+-purple)](https://github.com/jsagir/mindrian-os-plugin)
-  [![Brain Edges](https://img.shields.io/badge/brain_edges-47_FEEDS__INTO,_40_TYPICAL__AT,_14_PREREQUISITE-blueviolet)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Brain Edges](https://img.shields.io/badge/brain_edges-114_FEEDS__INTO,_100_TYPICAL__AT,_15_PREREQUISITE-blueviolet)](https://github.com/jsagir/mindrian-os-plugin)
   [![Surfaces](https://img.shields.io/badge/surfaces-CLI_+_Desktop_+_Cowork-brightgreen)](https://github.com/jsagir/mindrian-os-plugin)
 
   [Website](https://mindrianos-jsagirs-projects.vercel.app) |

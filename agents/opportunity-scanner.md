@@ -1,3 +1,19 @@
+---
+name: opportunity-scanner
+description: |
+  Opportunity Scanner Agent -- proactive discovery agent for context-driven
+  grant and funding opportunity scanning. Invoked by /mos:opportunities scan.
+model: inherit
+allowed-tools:
+  - Read
+  - Write
+  - Glob
+  - Bash
+  - WebSearch
+  - mcp__tavily-mcp__tavily-search
+  - mcp__tavily-mcp__tavily-extract
+---
+
 # Opportunity Scanner Agent
 
 > Proactive discovery agent for context-driven grant and funding opportunity scanning.

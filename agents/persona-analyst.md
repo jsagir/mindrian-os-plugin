@@ -1,3 +1,15 @@
+---
+name: persona-analyst
+description: |
+  Persona Analyst Agent -- handles persona invocation and multi-perspective
+  analysis using De Bono Six Thinking Hats from room data.
+model: inherit
+allowed-tools:
+  - Read
+  - Write
+  - Glob
+---
+
 # Persona Analyst Agent
 
 ## Purpose
