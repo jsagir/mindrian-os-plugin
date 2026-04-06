@@ -67,6 +67,7 @@ const THREAD_TYPES = [
 
 const CDN_URLS = {
   cytoscape: 'https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js',
+  visnetwork: 'https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js',
   flexsearch: 'https://cdn.jsdelivr.net/npm/flexsearch@0.7.43/dist/flexsearch.bundle.min.js',
   mermaid: 'https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js',
   chartjs: 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
@@ -904,77 +905,130 @@ function renderConstellation(model) {
     'RESOLVES_VIA': '#2D6B4A'
   };
 
-  return `${pageHead('Constellation', model, [CDN_URLS.cytoscape])}
+  // Build vis-network nodes/edges from cytoscape elements
+  const cyData = JSON.parse(cyElements);
+  const visNodes = (cyData.nodes || []).map(n => {
+    const d = n.data || n;
+    const sec = d.section || d.layer || (d.id.includes('/') ? d.id.split('/')[0] : 'other');
+    const label = d.label || d.id;
+    const short = label.length > 35 ? label.substring(0, 33) + '...' : label;
+    const color = d.color || threadColors[sec] || '#7F8C8D';
+    return {
+      id: d.id, label: short, title: '<b>' + label + '</b><br>Section: ' + sec.replace(/-/g,' '),
+      group: sec, _section: sec, _fullLabel: label,
+      color: { background: color, border: color, highlight: { background: '#F5F0E8', border: color }, hover: { background: color, border: '#F5F0E8' } },
+      font: { color: '#ccc', size: 11, face: 'Inter,system-ui,sans-serif', strokeWidth: 3, strokeColor: '#0a0a0f' },
+      shape: d.id.includes('/') ? 'dot' : 'diamond', size: d.id.includes('/') ? 12 : 20,
+      borderWidth: 2, shadow: { enabled: true, color: 'rgba(0,0,0,0.3)', size: 6 }
+    };
+  });
+  const visEdges = (cyData.edges || []).map((e, i) => {
+    const d = e.data || e;
+    const t = d.type || d.label || 'CONVERGES';
+    const c = threadColors[t] || '#5C5A56';
+    return {
+      id: 'e' + i, from: d.source, to: d.target, _type: t,
+      color: { color: c, opacity: 0.4, highlight: c, hover: c },
+      width: 1.5, arrows: { to: { enabled: true, scaleFactor: 0.5 } },
+      smooth: { type: 'continuous', roundness: 0.3 }, title: t
+    };
+  });
+  // Collect sections
+  const sectionCounts = {};
+  visNodes.forEach(n => { sectionCounts[n._section] = (sectionCounts[n._section] || 0) + 1; });
+
+  return `${pageHead('Constellation', model, [CDN_URLS.visnetwork])}
   <style>
-    .cy-container { width:100%; height:calc(100vh - 132px); background:var(--ds-bg); }
-    .cy-sidebar { position:fixed; top:68px; left:0; width:200px; background:var(--ds-surface); border-right:1px solid var(--ds-border); padding:12px; z-index:80; height:calc(100vh - 68px); overflow-y:auto; }
-    .cy-filter { display:flex; align-items:center; gap:6px; padding:4px 0; font-size:0.75rem; color:var(--ds-muted); cursor:pointer; }
-    .cy-filter input { accent-color:var(--ds-blue); }
-    .cy-filter:hover { color:var(--ds-cream); }
-    @media (max-width:767px) { .cy-sidebar { display:none; } .cy-container { height:calc(100vh - 68px); } }
+    body{overflow:hidden;height:100vh}
+    .vn-layout{display:flex;height:calc(100vh - 68px)}
+    .vn-sidebar{width:220px;background:var(--ds-surface);border-right:1px solid var(--ds-border);padding:14px;overflow-y:auto;flex-shrink:0}
+    .vn-sidebar h3{font-family:var(--ds-font-display);font-size:0.7rem;letter-spacing:0.12em;color:var(--ds-muted);margin:10px 0 6px}
+    .vn-sidebar h3:first-child{margin-top:0}
+    .vn-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;font-size:0.68rem;border:1px solid var(--ds-border);border-radius:4px;background:transparent;color:var(--ds-muted);cursor:pointer;margin:2px;transition:all .15s;font-family:inherit}
+    .vn-btn:hover{border-color:var(--ds-cream-dim,#555);color:var(--ds-cream)}
+    .vn-btn.active{border-color:var(--bc,var(--ds-border));color:var(--ds-cream);background:rgba(255,255,255,.04)}
+    .vn-btn .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+    .vn-stats{margin-top:12px;padding-top:10px;border-top:1px solid var(--ds-border)}
+    .vn-sr{display:flex;justify-content:space-between;font-size:0.68rem;padding:2px 0;color:var(--ds-muted)}
+    .vn-sr b{color:var(--ds-cream)}
+    .vn-legend{margin-top:10px;padding-top:10px;border-top:1px solid var(--ds-border)}
+    .vn-li{display:flex;align-items:center;gap:6px;font-size:0.62rem;color:var(--ds-muted);padding:2px 0}
+    .vn-ll{width:14px;height:2px;border-radius:1px}
+    .vn-graph{flex:1;position:relative}
+    #network{width:100%;height:100%}
+    .vn-dp{position:absolute;right:14px;top:14px;width:260px;background:var(--ds-elevated,var(--ds-surface));border:1px solid var(--ds-border);border-radius:8px;padding:14px;display:none;z-index:5;box-shadow:0 8px 24px rgba(0,0,0,.5);max-height:80vh;overflow-y:auto;backdrop-filter:blur(8px)}
+    .vn-dp.v{display:block}
+    .vn-dp .x{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--ds-muted);cursor:pointer;font-size:14px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .vn-dp .x:hover{color:var(--ds-cream);background:rgba(255,255,255,.1)}
+    .vn-dp .sec{font-size:0.56rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+    .vn-dp .ttl{font-size:0.875rem;font-weight:700;color:var(--ds-cream);margin-bottom:8px;padding-right:24px}
+    .vn-dp .conn{font-size:0.68rem;color:var(--ds-muted);padding:4px 0;border-bottom:1px solid var(--ds-border);display:flex;align-items:center;gap:5px}
+    .vn-dp .conn:last-child{border-bottom:none}
+    .vn-dp .et{font-size:0.5rem;text-transform:uppercase;letter-spacing:.5px;padding:1px 5px;border-radius:2px;font-weight:600;flex-shrink:0}
+    .vn-ctrls{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:3px;background:var(--ds-surface);border:1px solid var(--ds-border);border-radius:6px;padding:3px;backdrop-filter:blur(8px)}
+    .vn-ctrls button{padding:5px 12px;font-size:0.56rem;font-weight:600;background:transparent;border:none;border-radius:4px;color:var(--ds-muted);cursor:pointer;font-family:inherit}
+    .vn-ctrls button:hover{color:var(--ds-cream);background:rgba(255,255,255,.06)}
+    @media(max-width:767px){.vn-sidebar{display:none}.vn-dp{width:calc(100% - 28px);left:14px;right:14px}}
   </style>
 </head>
 <body>
   ${pageHeader(model, 'constellation')}
-
-  <aside class="cy-sidebar">
-    <h3 style="font-family:var(--ds-font-display);font-size:1rem;letter-spacing:0.04em;margin-bottom:8px">THREADS</h3>
-    ${THREAD_TYPES.map(t => `<label class="cy-filter">
-      <input type="checkbox" checked data-thread="${t}" onchange="toggleThread('${t}', this.checked)">
-      <span style="width:8px;height:8px;background:${threadColors[t] || '#5C5A56'};display:inline-block"></span>
-      ${t.replace(/_/g, ' ')}
-    </label>`).join('\n    ')}
-  </aside>
-
-  <div id="cy" class="cy-container" style="margin-left:200px"></div>
-
+  <div class="vn-layout">
+    <div class="vn-sidebar">
+      <h3>Edge Types</h3>
+      ${THREAD_TYPES.map(t => `<button class="vn-btn active" data-f="edge" data-v="${t}" style="--bc:${threadColors[t] || '#5C5A56'}" onclick="tf(this)"><span class="dot" style="background:${threadColors[t] || '#5C5A56'}"></span>${t.replace(/_/g,' ')}</button>`).join('\n      ')}
+      <h3>Sections</h3>
+      <div id="sf">${Object.keys(sectionCounts).sort().map(s => {
+        const c = threadColors[s] || '#7F8C8D';
+        const label = s.replace(/-/g,' ').replace(/\b\w/g, l => l.toUpperCase());
+        return `<button class="vn-btn active" data-f="section" data-v="${s}" style="--bc:${c}" onclick="tf(this)"><span class="dot" style="background:${c}"></span>${label}</button>`;
+      }).join('')}</div>
+      <div class="vn-stats">
+        <div class="vn-sr"><span>Nodes</span><b>${visNodes.length}</b></div>
+        <div class="vn-sr"><span>Edges</span><b>${visEdges.length}</b></div>
+      </div>
+      <div class="vn-legend">
+        <h3>Legend</h3>
+        ${Object.entries(threadColors).map(([t,c]) => `<div class="vn-li"><span class="vn-ll" style="background:${c}"></span>${t.replace(/_/g,' ')}</div>`).join('')}
+      </div>
+    </div>
+    <div class="vn-graph">
+      <div id="network"></div>
+      <div class="vn-dp" id="dp">
+        <button class="x" onclick="cd()">&times;</button>
+        <div class="sec" id="ds"></div>
+        <div class="ttl" id="dt"></div>
+        <div id="dc"></div>
+      </div>
+      <div class="vn-ctrls">
+        <button onclick="net.fit({animation:true})">Fit</button>
+        <button onclick="net.moveTo({scale:net.getScale()*1.3,animation:true})">+</button>
+        <button onclick="net.moveTo({scale:net.getScale()*0.7,animation:true})">-</button>
+        <button onclick="physOn=!physOn;net.setOptions({physics:{enabled:physOn}})">Physics</button>
+        <button onclick="net.stabilize(100)">Stabilize</button>
+      </div>
+    </div>
+  </div>
   ${signatureFooter(model)}
   <script src="shared.js"></script>
   <script>
-    const elements = ${cyElements};
-    const threadColors = ${JSON.stringify(threadColors)};
-
-    const cy = cytoscape({
-      container: document.getElementById('cy'),
-      elements: [...(elements.nodes || []), ...(elements.edges || [])],
-      style: [
-        { selector: 'node', style: {
-          'label': 'data(label)',
-          'background-color': function(ele) { return ele.data('color') || '#4A7BC8'; },
-          'color': '#f5f1e8',
-          'font-size': '10px',
-          'font-family': 'Inter, sans-serif',
-          'text-valign': 'bottom',
-          'text-margin-y': 4,
-          'width': 24,
-          'height': 24,
-          'border-width': 1,
-          'border-color': '#404040'
-        }},
-        { selector: 'edge', style: {
-          'line-color': function(ele) { return threadColors[ele.data('type') || ele.data('label')] || '#5C5A56'; },
-          'target-arrow-color': function(ele) { return threadColors[ele.data('type') || ele.data('label')] || '#5C5A56'; },
-          'target-arrow-shape': 'triangle',
-          'width': 1.5,
-          'opacity': 0.7,
-          'curve-style': 'bezier'
-        }},
-        { selector: 'edge[type="ANALOGOUS_TO"], edge[label="ANALOGOUS_TO"]', style: {
-          'line-style': 'dashed',
-          'line-dash-pattern': [6, 3]
-        }}
-      ],
-      layout: { name: 'cose', animate: false, padding: 40 }
+    var allNodes=new vis.DataSet(${JSON.stringify(visNodes)});
+    var allEdges=new vis.DataSet(${JSON.stringify(visEdges)});
+    var threadColors=${JSON.stringify(threadColors)};
+    var physOn=true;
+    var net=new vis.Network(document.getElementById('network'),{nodes:allNodes,edges:allEdges},{
+      physics:{enabled:true,solver:'forceAtlas2Based',forceAtlas2Based:{gravitationalConstant:-40,centralGravity:0.008,springLength:120,springConstant:0.04,damping:0.4},stabilization:{iterations:200,fit:true}},
+      interaction:{hover:true,tooltipDelay:200,zoomView:true,dragView:true,keyboard:{enabled:true}},
+      nodes:{font:{color:'#ccc',size:11,face:'Inter,system-ui,sans-serif',strokeWidth:3,strokeColor:'#0a0a0f'},borderWidth:2,shadow:{enabled:true,color:'rgba(0,0,0,0.3)',size:6}},
+      edges:{smooth:{type:'continuous',roundness:0.3},hoverWidth:2},
+      layout:{improvedLayout:true}
     });
-
-    function toggleThread(type, visible) {
-      cy.edges().forEach(edge => {
-        const edgeType = edge.data('type') || edge.data('label');
-        if (edgeType === type) {
-          if (visible) edge.show(); else edge.hide();
-        }
-      });
-    }
+    net.on('click',function(p){if(p.nodes.length>0){var n=allNodes.get(p.nodes[0]);sd(n)}else{cd()}});
+    net.once('stabilizationIterationsDone',function(){net.fit({animation:true})});
+    function sd(n){var sec=n._section||'';var sl=sec.replace(/-/g,' ').replace(/\\b\\w/g,function(x){return x.toUpperCase()});document.getElementById('ds').innerHTML='<span style="color:'+(threadColors[sec]||'#888')+'">'+sl+'</span>';document.getElementById('dt').textContent=n._fullLabel||n.label;var conns=net.getConnectedEdges(n.id);var h='';conns.forEach(function(eid){var e=allEdges.get(eid);var oid=e.from===n.id?e.to:e.from;var o=allNodes.get(oid);if(!o)return;var t=e._type||'CONVERGES';var tc=threadColors[t]||'#555';h+='<div class="conn"><span class="et" style="color:'+tc+';background:rgba(255,255,255,0.05)">'+t+'</span><span>'+(o._fullLabel||o.label)+'</span></div>'});document.getElementById('dc').innerHTML=h||'<div style="color:#444">No connections</div>';document.getElementById('dp').classList.add('v');net.selectNodes([n.id])}
+    function cd(){document.getElementById('dp').classList.remove('v');net.unselectAll()}
+    function tf(b){b.classList.toggle('active');af()}
+    function af(){var ae=[],as=[];document.querySelectorAll('.vn-btn[data-f="edge"].active').forEach(function(b){ae.push(b.dataset.v)});document.querySelectorAll('.vn-btn[data-f="section"].active').forEach(function(b){as.push(b.dataset.v)});allNodes.forEach(function(n){allNodes.update({id:n.id,hidden:as.indexOf(n._section)<0})});allEdges.forEach(function(e){var hidden=ae.indexOf(e._type)<0||allNodes.get(e.from).hidden||allNodes.get(e.to).hidden;allEdges.update({id:e.id,hidden:hidden})})}
   </script>
 </body>
 </html>`;

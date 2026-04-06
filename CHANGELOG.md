@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.8.4] - 2026-04-06
+
+### Changed
+- Graph visualization standard: vis-network (vis.js) replaces Cytoscape.js for all exports
+- SnapshotHub constellation rebuilt with ForceAtlas2 physics, interactive nodes, edge filtering
+- Readable labels with dark outline, section color-coding, diamond/dot node shapes
+- Detail panel on node click, sidebar filters, controls bar (Fit/Zoom/Physics/Stabilize)
+- Design standard codified at references/design/graph-visualization-standard.md
+
 ## [1.8.3] - 2026-04-06
 ### Changed
 - `/mos:help` completely redesigned with De Stijl color-coded job categories
