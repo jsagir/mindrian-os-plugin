@@ -32,10 +32,10 @@
 
 ### Migration
 
-- [ ] **MIG-01**: Migration script detects legacy ~/room/ and ~/rooms/ layouts
-- [ ] **MIG-02**: Migration offers guided move with file count and confirmation
-- [ ] **MIG-03**: Migration creates symlinks at old locations pointing to new (optional)
-- [ ] **MIG-04**: /mos:setup includes "organize rooms" option that triggers migration
+- [x] **MIG-01**: Migration script detects legacy ~/room/ and ~/rooms/ layouts
+- [x] **MIG-02**: Migration offers guided move with file count and confirmation
+- [x] **MIG-03**: Migration creates symlinks at old locations pointing to new (optional)
+- [x] **MIG-04**: /mos:setup includes "organize rooms" option that triggers migration
 
 ### Display & UX
 
@@ -45,13 +45,13 @@
 
 ### Room Organizer (Wicked Hierarchy Navigator)
 
-- [ ] **ORG-01**: /mos:organize displays current room structure as ICM-compliant tree with status indicators
-- [ ] **ORG-02**: /mos:organize propose suggests reorganization using graph-informed groupings (shared themes, domains, frameworks, stages) -- not just metadata sorting
-- [ ] **ORG-03**: Each proposed room move requires explicit human confirmation before file operations execute
-- [ ] **ORG-04**: Nested hierarchies supported with ICM CLAUDE.md auto-generated at each grouping level from graph context
-- [ ] **ORG-05**: Registry.json and INDEX.md auto-update after each confirmed move
-- [ ] **ORG-06**: Multiple organizational views available without moving files -- "show by client", "show by stage", "show by domain" are graph projections
-- [ ] **ORG-07**: User decisions (GROUP / SEPARATE / DEFER) become graph edges that inform future reorganization proposals
+- [x] **ORG-01**: /mos:organize displays current room structure as ICM-compliant tree with status indicators
+- [x] **ORG-02**: /mos:organize propose suggests reorganization using graph-informed groupings (shared themes, domains, frameworks, stages) -- not just metadata sorting
+- [x] **ORG-03**: Each proposed room move requires explicit human confirmation before file operations execute
+- [x] **ORG-04**: Nested hierarchies supported with ICM CLAUDE.md auto-generated at each grouping level from graph context
+- [x] **ORG-05**: Registry.json and INDEX.md auto-update after each confirmed move
+- [x] **ORG-06**: Multiple organizational views available without moving files -- "show by client", "show by stage", "show by domain" are graph projections
+- [x] **ORG-07**: User decisions (GROUP / SEPARATE / DEFER) become graph edges that inform future reorganization proposals
 
 ### Room Hierarchy Graph Layer (Brain Enrichment)
 
@@ -94,20 +94,20 @@ None deferred -- scope is tight.
 | ICM-04 | Phase 57 | Complete |
 | SKILL-01 | Phase 58 | Complete |
 | SKILL-02 | Phase 58 | Complete |
-| MIG-01 | Phase 59 | Pending |
-| MIG-02 | Phase 59 | Pending |
-| MIG-03 | Phase 59 | Pending |
-| MIG-04 | Phase 59 | Pending |
+| MIG-01 | Phase 59 | Complete |
+| MIG-02 | Phase 59 | Complete |
+| MIG-03 | Phase 59 | Complete |
+| MIG-04 | Phase 59 | Complete |
 | UX-01 | Phase 58 | Complete |
 | UX-02 | Phase 58 | Complete |
 | UX-03 | Phase 58 | Complete |
-| ORG-01 | Phase 59.1 | Pending |
-| ORG-02 | Phase 59.1 | Pending |
-| ORG-03 | Phase 59.1 | Pending |
-| ORG-04 | Phase 59.1 | Pending |
-| ORG-05 | Phase 59.1 | Pending |
-| ORG-06 | Phase 59.1 | Pending |
-| ORG-07 | Phase 59.1 | Pending |
+| ORG-01 | Phase 59.1 | Complete |
+| ORG-02 | Phase 59.1 | Complete |
+| ORG-03 | Phase 59.1 | Complete |
+| ORG-04 | Phase 59.1 | Complete |
+| ORG-05 | Phase 59.1 | Complete |
+| ORG-06 | Phase 59.1 | Complete |
+| ORG-07 | Phase 59.1 | Complete |
 | GRAPH-01 | Phase 59.2 | Pending |
 | GRAPH-02 | Phase 59.2 | Pending |
 | GRAPH-03 | Phase 59.2 | Pending |
