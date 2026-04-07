@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.8.8] - 2026-04-07
+
+onboarding: true
+onboard_steps:
+  - "The Brain just got 10x smarter. Framework chaining (125 FEEDS_INTO edges), stage-aware recommendations (129 TYPICAL_AT), and 444 semantic bridges from LazyGraph to curated knowledge."
+  - "Error messages are now human-readable. Every script follows: What happened / Why / How to fix."
+  - "Install guide at mindrian.ai/docs/install -- three paths (no Claude Code / has Claude Code / update), platform-specific steps."
+
+### Added
+- **Brain: Causal Discovery** -- FEEDS_INTO 4->125, PREREQUISITE 0->15, TYPICAL_AT 4->129, ADDRESSES_PROBLEM_TYPE cleaned to 152
+- **Brain: Lazy Graph Bridge** -- 444 ALIAS_OF bridges connecting LazyGraph (245K CO_OCCURS) to canonical nodes, 235 concepts promoted
+- **Brain: Fragmentation Cleanup** -- 12 lowercase labels fixed, 75 null-title Books removed, noise CaseStudies cleaned
+- **Brain: Teaching Wiring** -- 29/29 CaseStudies wired, 406 TEACHES edges, 23 IMPLEMENTS, 7 leadership books codified
+- **Brain: Venture Stage Mapping** -- 30 TYPICAL_AT edges across 5 stages with effectiveness scores and source book provenance
+- **Dummy-Proof Install** -- human-readable error messages (What/Why/Fix pattern) across resolve-room, room-registry, session-start, check-update, self-update
+- **Install test checklist** (scripts/test-fresh-install.md) for Mac and Windows manual verification
+- **Top 10 troubleshooting items** added to website install page
+
+### Changed
+- All script errors now follow `[MindrianOS] What / Why: reason / Fix: command` pattern
+- Website install page expanded with troubleshooting section
+
 ## [1.8.7] - 2026-04-07
 
 ### Added
