@@ -52,7 +52,9 @@ case "$SUBCMD" in
     VNAME="${3:-My Venture}"
     VSTAGE="${4:-Pre-Opportunity}"
     if [ -z "$NAME" ] || [ -z "$RPATH" ]; then
-      echo "Usage: room-registry create <name> <path> [venture_name] [venture_stage]" >&2
+      echo "[MindrianOS] Cannot create room -- missing name or path." >&2
+      echo "  Why: Both a room name and path are required to create a room" >&2
+      echo "  Fix: Run /mos:new-project to create a room interactively" >&2
       exit 1
     fi
     ensure_registry
@@ -95,10 +97,15 @@ print(json.dumps(reg['rooms']['$NAME'], indent=2))
   read)
     NAME="${1:-}"
     if [ -z "$NAME" ]; then
-      echo "Usage: room-registry read <name>" >&2
+      echo "[MindrianOS] Cannot read room -- no name provided." >&2
+      echo "  Why: You need to specify which room to read" >&2
+      echo "  Fix: Run /mos:rooms to see your rooms, then try again with a name" >&2
       exit 1
     fi
     if [ ! -f "$REGISTRY_FILE" ]; then
+      echo "[MindrianOS] No room registry found." >&2
+      echo "  Why: No rooms have been created yet at ${ROOMS_HOME}/" >&2
+      echo "  Fix: Run /mos:new-project to create your first room" >&2
       echo "{}" ; exit 1
     fi
     python3 -c "
@@ -143,11 +150,16 @@ print(json.dumps(result, indent=2))
     FIELD="${2:-}"
     VALUE="${3:-}"
     if [ -z "$NAME" ] || [ -z "$FIELD" ]; then
-      echo "Usage: room-registry update <name> <field> <value>" >&2
+      echo "[MindrianOS] Cannot update room -- missing name or field." >&2
+      echo "  Why: Both a room name and field name are required" >&2
+      echo "  Fix: Run /mos:rooms to see your rooms" >&2
       exit 1
     fi
     if [ ! -f "$REGISTRY_FILE" ]; then
-      echo "No registry found" >&2; exit 1
+      echo "[MindrianOS] No room registry found." >&2
+      echo "  Why: No rooms have been created yet" >&2
+      echo "  Fix: Run /mos:new-project to create your first room" >&2
+      exit 1
     fi
     python3 -c "
 import json, os, sys
@@ -155,7 +167,7 @@ reg_file = '$REGISTRY_FILE'
 with open(reg_file) as f:
     reg = json.load(f)
 if '$NAME' not in reg.get('rooms', {}):
-    print('Room not found: $NAME', file=sys.stderr)
+    print('[MindrianOS] Room not found: $NAME', file=sys.stderr); print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
     sys.exit(1)
 reg['rooms']['$NAME']['$FIELD'] = '''$VALUE'''
 tmp = reg_file + '.tmp'
@@ -169,11 +181,16 @@ print(json.dumps(reg['rooms']['$NAME'], indent=2))
   set-active)
     NAME="${1:-}"
     if [ -z "$NAME" ]; then
-      echo "Usage: room-registry set-active <name>" >&2
+      echo "[MindrianOS] Cannot activate room -- no name provided." >&2
+      echo "  Why: You need to specify which room to switch to" >&2
+      echo "  Fix: Run /mos:rooms to see available rooms" >&2
       exit 1
     fi
     if [ ! -f "$REGISTRY_FILE" ]; then
-      echo "No registry found" >&2; exit 1
+      echo "[MindrianOS] No room registry found." >&2
+      echo "  Why: No rooms have been created yet" >&2
+      echo "  Fix: Run /mos:new-project to create your first room" >&2
+      exit 1
     fi
     python3 -c "
 import json, os, sys, datetime
@@ -181,7 +198,7 @@ reg_file = '$REGISTRY_FILE'
 with open(reg_file) as f:
     reg = json.load(f)
 if '$NAME' not in reg.get('rooms', {}):
-    print('Room not found: $NAME', file=sys.stderr)
+    print('[MindrianOS] Room not found: $NAME', file=sys.stderr); print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
     sys.exit(1)
 # Park currently active room
 old_active = reg.get('active', '')
@@ -202,11 +219,16 @@ print('$NAME')
   archive)
     NAME="${1:-}"
     if [ -z "$NAME" ]; then
-      echo "Usage: room-registry archive <name>" >&2
+      echo "[MindrianOS] Cannot archive room -- no name provided." >&2
+      echo "  Why: You need to specify which room to archive" >&2
+      echo "  Fix: Run /mos:rooms to see your rooms" >&2
       exit 1
     fi
     if [ ! -f "$REGISTRY_FILE" ]; then
-      echo "No registry found" >&2; exit 1
+      echo "[MindrianOS] No room registry found." >&2
+      echo "  Why: No rooms have been created yet" >&2
+      echo "  Fix: Run /mos:new-project to create your first room" >&2
+      exit 1
     fi
     python3 -c "
 import json, os, sys
@@ -214,7 +236,7 @@ reg_file = '$REGISTRY_FILE'
 with open(reg_file) as f:
     reg = json.load(f)
 if '$NAME' not in reg.get('rooms', {}):
-    print('Room not found: $NAME', file=sys.stderr)
+    print('[MindrianOS] Room not found: $NAME', file=sys.stderr); print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
     sys.exit(1)
 reg['rooms']['$NAME']['status'] = 'archived'
 if reg.get('active') == '$NAME':
@@ -249,11 +271,16 @@ print(reg.get('active', ''))
     AUTO_PUSH="${4:-off}"
     VERCEL_URL="${5:-}"
     if [ -z "$NAME" ]; then
-      echo "Usage: room-registry git-config <name> <git_enabled> [git_remote] [auto_push] [vercel_url]" >&2
+      echo "[MindrianOS] Cannot configure git -- no room name provided." >&2
+      echo "  Why: You need to specify which room to configure" >&2
+      echo "  Fix: Run /mos:rooms to see your rooms" >&2
       exit 1
     fi
     if [ ! -f "$REGISTRY_FILE" ]; then
-      echo "No registry found" >&2; exit 1
+      echo "[MindrianOS] No room registry found." >&2
+      echo "  Why: No rooms have been created yet" >&2
+      echo "  Fix: Run /mos:new-project to create your first room" >&2
+      exit 1
     fi
     python3 -c "
 import json, os, sys
@@ -261,7 +288,7 @@ reg_file = '$REGISTRY_FILE'
 with open(reg_file) as f:
     reg = json.load(f)
 if '$NAME' not in reg.get('rooms', {}):
-    print('Room not found: $NAME', file=sys.stderr)
+    print('[MindrianOS] Room not found: $NAME', file=sys.stderr); print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
     sys.exit(1)
 reg['rooms']['$NAME']['git_enabled'] = '''$GIT_ENABLED'''
 reg['rooms']['$NAME']['git_remote'] = '''$GIT_REMOTE'''
@@ -276,7 +303,9 @@ print(json.dumps(reg['rooms']['$NAME'], indent=2))
     ;;
 
   *)
-    echo "Usage: room-registry <create|read|list|update|set-active|archive|get-active|git-config> [args...]" >&2
+    echo "[MindrianOS] Unknown room-registry command: '${SUBCMD}'" >&2
+    echo "  Why: '${SUBCMD}' is not a valid subcommand" >&2
+    echo "  Fix: Valid commands are: create, read, list, update, set-active, archive, get-active, git-config" >&2
     exit 1
     ;;
 esac

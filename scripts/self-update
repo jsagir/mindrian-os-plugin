@@ -55,7 +55,9 @@ fi
 REMOTE_CHANGELOG=""
 if ! REMOTE_CHANGELOG=$(curl -sf --max-time 10 "$CHANGELOG_URL" 2>/dev/null); then
   echo "CHECK_FAILED"
-  echo "Could not reach GitHub. Check your connection."
+  echo "Could not reach GitHub to check for updates."
+  echo "  Why: No internet connection or GitHub is temporarily down"
+  echo "  Fix: Check your internet connection and try /mos:update again later"
   exit 0
 fi
 
@@ -114,7 +116,9 @@ trap "rm -rf '$TEMP_DIR'" EXIT
 echo "STATUS=cloning"
 if ! git clone --depth 1 --single-branch --branch main "$REPO_URL" "$TEMP_DIR/plugin" 2>/dev/null; then
   echo "UPDATE_FAILED"
-  echo "Git clone failed. Check your connection or GitHub access."
+  echo "Could not download the update from GitHub."
+  echo "  Why: Git clone failed -- possibly no internet or GitHub access"
+  echo "  Fix: Check your internet connection. If behind a firewall, ensure GitHub is accessible."
   exit 0
 fi
 
@@ -124,7 +128,9 @@ DOWNLOADED_VERSION=$(python3 -c "import json; print(json.load(open('$TEMP_DIR/pl
 
 if [ -z "$DOWNLOADED_VERSION" ]; then
   echo "UPDATE_FAILED"
-  echo "Downloaded plugin has no valid plugin.json"
+  echo "Downloaded update is invalid (missing plugin.json)."
+  echo "  Why: The download may have been corrupted"
+  echo "  Fix: Run /mos:update again. If it keeps failing, report to support."
   exit 0
 fi
 

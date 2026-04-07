@@ -108,7 +108,7 @@ if [ -d "$ROOM_DIR" ]; then
   fi
 
   # Room exists -- compute state and build context
-  state_output=$("${SCRIPT_DIR}/compute-state" "$ROOM_DIR" 2>/dev/null || echo "Error computing state")
+  state_output=$("${SCRIPT_DIR}/compute-state" "$ROOM_DIR" 2>/dev/null || echo "Could not compute room state. Your room exists but state analysis failed. Try /mos:status to diagnose.")
 
   # Read USER.md if exists
   user_context=""

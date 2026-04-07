@@ -10,14 +10,17 @@ CHANGELOG_URL="https://raw.githubusercontent.com/jsagir/mindrian-os-plugin/main/
 # Read current version from plugin.json
 if ! CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null); then
   echo "CHECK_FAILED"
-  echo "Cannot read version from plugin.json"
+  echo "Cannot read plugin version. Your install may be corrupted."
+  echo "  Fix: Run /mos:update force to reinstall"
   exit 0
 fi
 
 # Fetch remote changelog
 if ! REMOTE_CHANGELOG=$(curl -sf --max-time 3 "$CHANGELOG_URL" 2>/dev/null); then
   echo "CHECK_FAILED"
-  echo "Could not reach update server. Check your connection."
+  echo "Could not reach update server."
+  echo "  Why: No internet connection or GitHub is temporarily down"
+  echo "  Fix: Check your internet connection and try /mos:update again later"
   exit 0
 fi
 

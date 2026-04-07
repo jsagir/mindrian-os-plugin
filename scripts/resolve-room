@@ -89,12 +89,15 @@ try:
         sys.exit(1)
 except Exception:
     sys.exit(1)
-" 2>/dev/null) || { echo ""; exit 1; }
+" 2>/dev/null) || ROOM_PATH=""
 
   if [ -n "$ROOM_PATH" ]; then
     echo "$ROOM_PATH"
     exit 0
   fi
+  echo "[MindrianOS] Registry found but no active room is set." >&2
+  echo "  Why: Registry at ${REGISTRY_FILE} has no active room or the room directory is missing" >&2
+  echo "  Fix: Run /mos:rooms to list and activate a room" >&2
   exit 1
 fi
 
@@ -159,4 +162,8 @@ os.rename(tmp, '$REGISTRY_FILE')
 fi
 
 # --- Strategy 3: No room found ---
+# Human-readable error to stderr so callers can display it
+echo "[MindrianOS] No Data Room found." >&2
+echo "  Why: No room directory exists in ${ROOMS_HOME}/ or ${WORK_DIR}/" >&2
+echo "  Fix: Run /mos:new-project to create your first Data Room" >&2
 exit 1
