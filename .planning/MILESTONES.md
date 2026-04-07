@@ -1,5 +1,21 @@
 # Milestones
 
+## v1.8.6 MindrianRooms -- ICM Room Organization (Shipped: 2026-04-06)
+
+**Phases completed:** 6 phases (56-59.2), 6 plans, 35 requirements
+
+**Key accomplishments:**
+
+- Centralized all Data Rooms under ~/MindrianRooms/ with ICM Layer 0 (CLAUDE.md) and Layer 1 (INDEX.md) auto-generation
+- 4-strategy resolve-room cascade (central registry, directory scan, workspace registry, legacy fallback) with MINDRIAN_ROOMS_HOME env var
+- /mos:organize wicked hierarchy navigator with 4 subcommands (tree/propose/view/move), 4-tier graceful degradation (Brain+KuzuDB -> Brain -> KuzuDB -> metadata), human confirmation for every move
+- Dual-graph room hierarchy: KuzuDB local (Room/RoomGroup/CONTAINS/AT_STAGE) + Neo4j Brain remote (adds USES_FRAMEWORK/SHARES_THEME/HAS_SECTION) as additive intelligence layer
+- Migration engine detecting 5 legacy room patterns with per-room confirmed migration
+- 13 orphaned DataRoomSection Brain nodes wired to parent Room nodes
+- Integration audit: 21 exports, 0 orphaned, 6/6 E2E flows verified
+
+---
+
 ## v4.0 Brain API Control & CLI UI Ruling System (Shipped: 2026-03-29)
 
 **Phases completed:** 6 phases, 12 plans, 21 tasks

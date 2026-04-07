@@ -13,7 +13,12 @@ This milestone updates the MindrianOS plugin to centralize all Data Rooms under 
 
 </details>
 
-- 🚧 **v1.8.6 MindrianRooms -- ICM Room Organization** - Phases 56-59.1 (in progress)
+<details>
+<summary>v1.8.6 MindrianRooms -- ICM Room Organization (Phases 56-59.2) - SHIPPED</summary>
+
+6 phases, 35 requirements. Centralized rooms, wicked hierarchy navigator, dual-graph layer. See .planning/milestones/v1.8.6-ROADMAP.md
+
+</details>
 
 ## Phases
 
