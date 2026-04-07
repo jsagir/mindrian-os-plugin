@@ -11,6 +11,15 @@ from pathlib import Path
 # Add scripts dir to path for import
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'scripts'))
 
+def _load_module():
+    """Load compute-whitespace-embeddings.py as a module (handles hyphens)."""
+    import importlib.util
+    script = Path(__file__).resolve().parent.parent / 'scripts' / 'compute-whitespace-embeddings.py'
+    spec = importlib.util.spec_from_file_location("compute_whitespace_embeddings", script)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
 
 def test_script_exists():
     """Script file must exist."""
@@ -39,10 +48,7 @@ def test_required_functions():
 
 def test_discover_artifacts_skip_logic():
     """discover_artifacts must skip STATE.md, ROOM.md, MINTO.md and root files."""
-    from importlib import import_module
-    mod = __import__('compute-whitespace-embeddings'.replace('-', '_'))
-    # Fallback: try importlib
-    # We'll test by creating a temp room with skip files
+    mod = _load_module()
     with tempfile.TemporaryDirectory() as tmpdir:
         # Create section with artifacts
         section = Path(tmpdir) / 'market-analysis'
@@ -63,7 +69,7 @@ def test_discover_artifacts_skip_logic():
 
 def test_compute_content_hashes():
     """compute_content_hashes must return MD5 hashes (12 chars)."""
-    mod = __import__('compute-whitespace-embeddings'.replace('-', '_'))
+    mod = _load_module()
     artifacts = [
         {'id': 'test/a', 'text': 'Hello world test content here'},
         {'id': 'test/b', 'text': 'Another test content piece'},
