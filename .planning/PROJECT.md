@@ -24,77 +24,50 @@ v1.0 through v5.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Presen
 - v1.6.0 Powerhouse (2026-03-31) -- 8 phases, parallel execution, spectral OM-HMM, DbA, model routing
 - v6.2 RoomHub + SnapshotHub (2026-04-01) -- 5 phases, adaptive room detection, 7 showcase views, SnapshotHub export
 
-## Current Milestone: v1.8.6 MindrianRooms -- ICM Room Organization
+## Current Milestone: v1.9.0 Whitespace Mapping Power Tool
 
-**Goal:** Centralize all Data Rooms under `~/MindrianRooms/` with ICM-compliant directory structure, and update the plugin to enforce this as the default for all room creation and resolution.
+**Goal:** Build a SemNovel-inspired whitespace detection system that finds what's MISSING in a venture's understanding. Implements Huan He's (Yale) algorithms -- SemNovel embedding-distance novelty scoring and TopicForest hierarchical gap detection -- codified for innovation opportunity whitespace mapping. Uses embedding space density estimation against Brain consensus baseline to surface unexplored territory as actionable hypotheses.
 
 **Target features:**
-- ICM Root Structure: ~/MindrianRooms/ with Layer 0 (CLAUDE.md) and Layer 1 (INDEX.md) auto-generated on first room creation
-- resolve-room script update: default path resolution from ~/room/ and ~/rooms/ to ~/MindrianRooms/
-- room-registry script update: new rooms created under ~/MindrianRooms/[slug]/
-- new-project command update: room creation targets MindrianRooms, generates ICM files if missing
-- rooms command update: display paths, creation paths, and registry point to MindrianRooms
-- Skill activation update: room-passive and room-proactive detect rooms in new location
-- Migration script: detect legacy ~/room/ and ~/rooms/ layouts, offer guided migration with symlink option
-- INDEX.md auto-refresh: updates when rooms are created, archived, or stage changes
-- Old path cleanup guidance after confirmed migration
 
-**Previous milestone (v1.8.2 Brain Graph Optimization):**
-Defined and roadmapped Brain graph enrichment (4 phases, 27 requirements). Normalization scripts written. Ready to execute separately.
+Whitespace Detection Engine:
+- Embed all room artifacts using existing MiniLM (from HSI pipeline)
+- Embed Brain methodology/framework descriptions as domain consensus baseline
+- Density estimation -- find low-density regions where artifacts SHOULD exist but don't
+- Surface gaps as "whitespace zones" with generated hypotheses about what should fill them
+- TopicForest-style hierarchical clustering to show which branches of understanding have zero coverage
+
+SemNovel Novelty Scoring:
+- Replace Jaccard novelty scoring with embedding distance-from-consensus
+- Score every insight and artifact by distance from existing knowledge space
+- Validated by Huan He: distance from consensus predicts genuine novelty (Nobel Prize papers, p < 0.001)
+
+Whitespace Command (/mos:whitespace):
+- Map whitespace across room sections (dense = explored, sparse = unexplored)
+- Generate hypotheses for empty regions
+- Rank gaps by strategic importance (RS bottleneck integration)
+- Visual whitespace map for dashboard/presentation export
+
+Pipeline Integration:
+- HSI finds connections -> Whitespace finds what's BETWEEN them
+- RS finds bottlenecks -> Whitespace maps downstream of each bottleneck
+- Analogy engine maps cross-domain -> Whitespace finds unmapped transfer zones
+- Causal layer (from consultant audit) -> selective integration for mechanism extraction
 
 **Research basis:**
-- Live graph audit (2026-04-06): 32,612 nodes, 170,791 rels, 828 labels, 1,633 rel types
-- 5-layer architecture documented: L1 Curated (281), L2 Document (1,454), L3 Entity (5,316), L4 Lazy (8,425), L5 Taxonomy (970)
-- Critical finding: L1 Curated and L4 Lazy have ZERO direct edges. Bridge is 3-hop through Chunks
-- FEEDS_INTO: only 4 real Framework->Framework edges for 86 frameworks
-- TYPICAL_AT: 4 edges total. PREREQUISITE: 0 edges.
-- ProblemType fragmented across 150+ nodes (LazyGraphConcept "Well-Defined Problem" has 348 rels vs canonical 83)
-- 7/10 FrameworkAgents orphaned, 19/30 CaseStudies orphaned, 0 grading calibration data
-- Scripts already written: brain-normalize-final.cypher, brain-normalize-supplement.cypher, brain-normalize-problemtype.cypher
-- Architecture reference: references/brain/graph-architecture.md with 10 Cypher patterns
+- Huan He (Yale): SemNovel (JBI 2025), TopicForest (JBI 2025), MedViz (medviz.org)
+- Information extraction approach to detecting novelty (AMIA 2025)
+- Consultant deep research on Three Gaps framework (Duraisamy 2025, arXiv 2506.21329)
+- Consultant-built causal layer on branch claude/plugin-consultant-review-6MYsc -- needs audit
+- Existing HSI pipeline with MiniLM embeddings -- infrastructure already exists
+- Brain 21K+ nodes -- consensus baseline already built
+- Lawrence's question: "Did it find something nobody had thought of before?" This milestone is the answer.
 
-**Target features:**
+**Previous milestone (v1.8.6 MindrianRooms -- ICM Room Organization):**
+Centralized rooms under ~/MindrianRooms/ with ICM compliance, wicked hierarchy navigator, dual-graph layer (KuzuDB + Neo4j Brain). 6 phases, 35 requirements, integration audit passed.
 
-Causal Discovery Optimization:
-- FEEDS_INTO enrichment (4 -> 35+ Framework chains including full PWS spine)
-- PREREQUISITE edges (0 -> 14, enables "do X before Y" warnings)
-- TYPICAL_AT stage mapping (4 -> 30+, powers /mos:suggest-next and /mos:act)
-- ADDRESSES_PROBLEM_TYPE cleanup (remove __Entity__ noise, add effectiveness scores)
-- 2D ProblemType matrix wiring (Definition x Complexity with Framework recommendations)
-- Full provenance chain: Book -> GROUNDS_FRAMEWORK -> Framework -> ADDRESSES_PROBLEM_TYPE -> ProblemType
-
-Lazy Graph Optimization:
-- ALIAS_OF bridge from high-rel LazyGraphConcepts to canonical nodes (1,900+ orphaned rels become findable)
-- Promote valuable LazyGraphConcepts (3+ Framework CO_OCCURS) to Concept
-- Clean 511 orphan LazyGraphConcepts
-- CO_OCCURS weight-based query patterns for semantic discovery (weight >= 2 filter)
-- 3-hop bridge pattern: LazyGraph -> Chunk -> Entity -> Framework
-
-Fragmentation Cleanup:
-- ProblemType consolidation (150+ nodes -> 4 canonical + ALIAS_OF + SUBTYPE_OF)
-- Book dedup (88 null-title + 6x duplicates) + INTRODUCES_FRAMEWORK mislanding fix
-- Opportunity Bank (21 nodes -> 1 canonical with full wiring)
-- DictionaryTerm dedup (8x copies per problem type)
-- Label normalization (lowercase->PascalCase, base/UNKNOWN removal)
-
-Agent + Teaching Layer Wiring:
-- FrameworkAgents 10/10 wired (DERIVED_FROM + APPLIES_TO + IMPLEMENTED_BY)
-- CaseStudies 26+/30 wired (Challenger, NASA, Marconi, Naval Aviation + student projects)
-- Mullins Model Validation: Technique -> ValidationTool, full pipeline gateway
-- Workshop->TEACHES->Framework (0 -> 16+ edges)
-- Bot->IMPLEMENTS->Framework (0 -> 15+ edges)
-- CorePrinciple->GOVERNS (0 -> 20+ edges)
-- Grading calibration gap flagged as SystemGap node (0 Example nodes with rubric scores)
-
-**Architecture:**
-- All normalization uses APOC (2026.03.0 confirmed on Aura): mergeNodes for dedup, periodic.iterate for batch ops
-- Write operations via Neo4j Aura console or write MCP tool
-- Verification via read MCP (mcp__my-neo4j__read_neo4j_cypher)
-- Curly apostrophe (U+2019) in "Devil's" handled via STARTS WITH prefix matching
-- ALIAS_OF preserves LazyGraph CO_OCCURS fabric while making canonical nodes discoverable
-
-**Previous milestone (v1.7.0 Causal Reasoning Layer):**
-Defined causal engine architecture. This milestone executes the Brain graph enrichment that v1.7.0 designed but never ran.
+**Parked milestone (v1.9.0-parked Context Engineering Optimization):**
+Context engineering optimization parked due to intelligence tradeoff concern. Full Intelligence must remain the default. Artifacts preserved in .planning/phases/60-63 and .planning/research/.
 
 ## v3.0 Backlog (Captured Ideas)
 
@@ -224,4 +197,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-05 after v1.7.0 Causal Reasoning Layer milestone start*
+*Last updated: 2026-04-08 after v1.9.0 Whitespace Mapping Power Tool milestone start*

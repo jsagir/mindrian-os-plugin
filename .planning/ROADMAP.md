@@ -1,119 +1,150 @@
-# Roadmap: MindrianRooms -- ICM Room Organization v1.8.6
+# Roadmap: MindrianOS v1.9.0 Whitespace Mapping Power Tool
 
 ## Overview
 
-This milestone updates the MindrianOS plugin to centralize all Data Rooms under ~/MindrianRooms/ with ICM-compliant directory structure. The physical directory already exists for the developer; this work updates resolve-room, room-registry, creation commands, skill activation triggers, display commands, and adds a migration engine for legacy layouts. Four phases deliver path resolution first (the keystone), then creation and ICM structure, then skill/UX updates, and finally the migration engine for existing users.
+Build a SemNovel-inspired whitespace detection system that finds what's MISSING in a venture's understanding. Starting from embedding infrastructure (llm-embedder + Brain consensus baseline), through density-based gap detection and novelty scoring, to a methodology-aware interpretation layer that classifies gaps by problem type and generates hypotheses through Brain framework chains. TopicForest hierarchical clustering provides a complementary tree view of coverage gaps. Pipeline integration chains whitespace with HSI, RS, and Analogy for a complete Discovery Cycle. Brain learns cross-room whitespace patterns. The /mos:whitespace command and D3.js density map make it all actionable.
 
 ## Milestones
 
 <details>
-<summary>v1.8.2 Brain Graph Optimization (Phases 52-55) - PLANNED</summary>
+<summary>v1.0 through v6.2 (Phases 1-51) - SHIPPED</summary>
 
-4 phases, 27 requirements. Normalization scripts written. Ready to execute separately.
+- v1.0 MVP (Phases 1-5, shipped 2026-03-22)
+- v2.0 Meeting Intelligence (Phases 6-9, shipped 2026-03-24)
+- v3.0 MCP Platform (Phases 10-19, shipped 2026-03-25)
+- v4.0 Brain API & CLI UI (Phases 20-25, shipped 2026-03-29)
+- v5.0 Presentation System (Phases 26-33, shipped 2026-03-31)
+- v5.1 User Outlets (Phases 34-38, shipped 2026-03-31)
+- v1.6.0 Powerhouse (Phases 39-46, shipped 2026-03-31)
+- v6.2 RoomHub + SnapshotHub (Phases 47-51, shipped 2026-04-01)
 
 </details>
 
 <details>
-<summary>v1.8.6 MindrianRooms -- ICM Room Organization (Phases 56-59.2) - SHIPPED</summary>
+<summary>v1.8.6 MindrianRooms (Phases 56-59.2) - SHIPPED 2026-04-06</summary>
 
-6 phases, 35 requirements. Centralized rooms, wicked hierarchy navigator, dual-graph layer. See .planning/milestones/v1.8.6-ROADMAP.md
+6 phases, 35 requirements. Centralized rooms under ~/MindrianRooms/, wicked hierarchy navigator, dual-graph layer (KuzuDB + Neo4j Brain).
 
 </details>
 
+<details>
+<summary>v1.9.0-parked Context Engineering (Phases 60-63) - PARKED</summary>
+
+Context engineering optimization parked due to intelligence tradeoff concern. Full Intelligence must remain the default. Phase directories archived at .planning/phases/60-63 with original names.
+
+</details>
+
+### v1.9.0 Whitespace Mapping Power Tool (In Progress)
+
+**Milestone Goal:** Detect what's MISSING in a venture's understanding using SemNovel embedding-distance novelty scoring, TopicForest hierarchical gap detection, and Brain methodology-aware interpretation -- codified for innovation opportunity whitespace mapping.
+
 ## Phases
 
-- [x] **Phase 56: Path Resolution** - Update resolve-room to default to ~/MindrianRooms/ with legacy fallback
-- [x] **Phase 57: Room Creation & ICM Structure** - Room creation targets MindrianRooms, auto-generates ICM Layer 0/1, INDEX.md auto-refresh
-- [x] **Phase 58: Skill Activation & Display** - Skills detect rooms in new location, commands show MindrianRooms paths
-- [x] **Phase 59: Migration Engine** - Detect legacy layouts, guided migration with symlinks, /mos:setup integration
-- [x] **Phase 59.1: Room Organizer Skill** - Wicked hierarchy navigator with graph-informed proposals and human-in-the-loop
-- [x] **Phase 59.2: Room Hierarchy Graph Layer** - Neo4j Brain + KuzuDB dual-graph room hierarchy as additive intelligence layer
+**Note:** Phase numbers 60-66 reuse the 60+ range. Old context engineering directories (60-63) are archived/parked.
+
+- [ ] **Phase 60: Embedding Infrastructure** - Embed room artifacts and Brain baseline into shared 768-dim semantic space using llm-embedder
+- [ ] **Phase 61: Novelty Scoring & Gap Detection** - Density estimation, whitespace zone identification, novelty scoring, and KuzuDB storage
+- [ ] **Phase 62: Interpretation Layer** - Problem type classification, framework chain selection, and methodology-aware hypothesis generation (the moat)
+- [ ] **Phase 63: TopicForest Hierarchical Clustering** - Agglomerative topic tree with recursive Claude labeling to find sparse branches
+- [ ] **Phase 64: Pipeline Integration** - Chain whitespace with HSI, RS, and Analogy into a Discovery Cycle
+- [ ] **Phase 65: Brain Intelligence Layer** - Write whitespace patterns to Neo4j Brain and enable cross-room learning
+- [ ] **Phase 66: Command, Visualization & External Corpus** - /mos:whitespace command, D3.js density map, and Semantic Scholar integration
 
 ## Phase Details
 
-### Phase 56: Path Resolution
-**Goal**: All room lookups resolve through ~/MindrianRooms/ as the primary location, with backward-compatible legacy fallback
+### Phase 60: Embedding Infrastructure
+**Goal**: Room artifacts and Brain methodology descriptions exist as comparable vectors in the same 768-dim semantic space
 **Depends on**: Nothing (first phase of milestone)
-**Requirements**: PATH-01, PATH-02, PATH-03
+**Requirements**: EMBED-01, EMBED-02
 **Success Criteria** (what must be TRUE):
-  1. Running resolve-room in a project with rooms under ~/MindrianRooms/ returns the correct room path from registry.json
-  2. Running resolve-room without a registry.json still finds rooms by scanning ~/MindrianRooms/ directory
-  3. Running resolve-room with rooms only at ~/room/ or ~/rooms/ still resolves them but prints a deprecation notice to stderr
-**Plans**: 1 plan
+  1. Running the whitespace embedder on a room produces cached 768-dim vectors for every artifact using BAAI/llm-embedder (with MiniLM fallback for Tier 0)
+  2. Brain methodology/framework descriptions are embedded and cached as a local JSON "consensus baseline" file
+  3. Room artifact embeddings and Brain baseline embeddings can be loaded together for downstream computation (same dimensionality, cosine-comparable)
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 56-01-PLAN.md -- Rewrite resolve-room and room-registry for MindrianRooms-first resolution
+- [x] 60-01-PLAN.md - Room artifact embedding script with llm-embedder + MiniLM fallback
+- [ ] 60-02-PLAN.md - Brain baseline embedding + cosine compatibility verification
 
-### Phase 57: Room Creation & ICM Structure
-**Goal**: New rooms are created under ~/MindrianRooms/ with ICM-compliant Layer 0 (CLAUDE.md) and Layer 1 (INDEX.md) auto-generated, and INDEX.md stays current as rooms change
-**Depends on**: Phase 56
-**Requirements**: CREATE-01, CREATE-02, CREATE-03, CREATE-04, ICM-01, ICM-02, ICM-03, ICM-04
+### Phase 61: Novelty Scoring & Gap Detection
+**Goal**: The system identifies low-density whitespace zones where room understanding is missing and scores every artifact by novelty
+**Depends on**: Phase 60
+**Requirements**: EMBED-03, EMBED-04, OUT-03, OUT-04
 **Success Criteria** (what must be TRUE):
-  1. Running /mos:new-project creates the room folder under ~/MindrianRooms/[slug]/ and writes registry.json to ~/MindrianRooms/.rooms/
-  2. Running /mos:rooms create produces the same result as /mos:new-project for path and registry
-  3. First room creation on a fresh system auto-generates ~/MindrianRooms/CLAUDE.md (Layer 0 identity) and ~/MindrianRooms/INDEX.md (Layer 1 routing) from templates
-  4. INDEX.md content updates automatically when a room is created, archived, or changes stage
-  5. Each room retains its own STATE.md as its Layer 2 contract (no regression)
+  1. UMAP reduces 768-dim embeddings to 15-dim for density estimation, and KDE identifies low-density regions in the room's embedding space
+  2. Brain-covered regions with zero room artifact coverage are detected and ranked by strategic importance (RS bottleneck integration)
+  3. Every filed artifact receives a novelty score (embedding distance from Brain consensus) that replaces Jaccard-based scoring
+  4. Detected whitespace zones are persisted as KuzuDB WhitespaceZone nodes with density_score, nearest_frameworks, hypothesis, strategic_rank, problem_type, and exploration_status
+**Plans**: TBD
+
+### Phase 62: Interpretation Layer
+**Goal**: Each whitespace zone is classified by problem type and filled with methodology-aware hypotheses generated through Brain framework chains -- this is the moat
+**Depends on**: Phase 61
+**Requirements**: INTERP-01, INTERP-02, INTERP-03
+**Success Criteria** (what must be TRUE):
+  1. Each whitespace zone is classified as Ill-Defined, Well-Defined, Wicked, or Un-Defined using Brain's problem taxonomy and nearest framework context
+  2. For each classified gap, a framework chain is selected using Brain's FEEDS_INTO edges and effectiveness scores to sequence the exploration methodology
+  3. Larry generates hypotheses that run THROUGH the selected framework chain (methodology-contextualized, not generic prompting) for each whitespace zone
+**Plans**: TBD
+
+### Phase 63: TopicForest Hierarchical Clustering
+**Goal**: Users can see a hierarchical topic tree showing which branches of understanding have zero coverage at multiple granularity levels
+**Depends on**: Phase 60
+**Requirements**: INTERP-04
+**Success Criteria** (what must be TRUE):
+  1. Agglomerative clustering with binary partitioning builds a topic tree from room + Brain embeddings
+  2. Claude recursively labels clusters from leaf to root, producing human-readable topic names at every tree level
+  3. Sparse branches (Brain nodes present, zero room artifact nodes) are identified as whitespace zones at multiple granularity levels
+**Plans**: TBD
+
+### Phase 64: Pipeline Integration
+**Goal**: Whitespace detection chains with HSI, RS, and Analogy to form a complete Discovery Cycle that finds gaps humans miss
+**Depends on**: Phase 61, Phase 62
+**Requirements**: PIPE-01, PIPE-02, PIPE-03, PIPE-04
+**Success Criteria** (what must be TRUE):
+  1. After HSI finds surprising artifact pairs, whitespace automatically maps what's BETWEEN them (the missing connecting artifact)
+  2. After RS finds a bottleneck section, whitespace maps empty territory DOWNSTREAM of each bottleneck
+  3. After Analogy maps cross-domain transfer, whitespace identifies where causal/structural transfer hasn't been articulated
+  4. The full Discovery Cycle (HSI -> Whitespace -> RS -> Analogy) can run as a chained sequence via post-write hook or /mos:whitespace command
+**Plans**: TBD
+
+### Phase 65: Brain Intelligence Layer
+**Goal**: The Brain learns from whitespace discoveries across all rooms, enabling "what gaps did similar ventures find?" intelligence
+**Depends on**: Phase 61, Phase 62
+**Requirements**: BRAIN-01, BRAIN-02, BRAIN-03, BRAIN-04
+**Success Criteria** (what must be TRUE):
+  1. WhitespaceZone nodes are written to Neo4j Brain linked to the Framework chains that explored them
+  2. Cross-room whitespace patterns are tracked in Brain (anonymized) so the Brain learns which gap types are real opportunities vs noise
+  3. TYPICAL_WHITESPACE edges connect ProblemType nodes to common whitespace patterns discovered across rooms
+  4. Brain queries return actionable intelligence: "what gaps did similar ventures find?" and "which framework chains resolved similar whitespace?"
+**Plans**: TBD
+
+### Phase 66: Command, Visualization & External Corpus
+**Goal**: Users interact with whitespace through a full command interface, see density maps in the dashboard, and can expand detection to external literature
+**Depends on**: Phase 61, Phase 62, Phase 63
+**Requirements**: OUT-01, OUT-02, EMBED-05
+**Success Criteria** (what must be TRUE):
+  1. /mos:whitespace command works with subcommands: map, analyze, hypothesis, tree, score, external, compare
+  2. De Stijl dashboard shows a D3.js density map (UMAP 2D scatter + KDE contours) with Brain baseline reference markers and a TopicForest tree overlay
+  3. External corpus mode queries Semantic Scholar API, embeds results into the same semantic space, and detects cross-domain whitespace
 **Plans**: TBD
 **UI hint**: yes
-
-### Phase 58: Skill Activation & Display
-**Goal**: Passive and proactive skills detect rooms in the new location, and all display commands show ~/MindrianRooms/ paths
-**Depends on**: Phase 56
-**Requirements**: SKILL-01, SKILL-02, UX-01, UX-02, UX-03
-**Success Criteria** (what must be TRUE):
-  1. room-passive skill activates when working directory is inside ~/MindrianRooms/[room-name]/
-  2. room-proactive skill activates when working directory is inside ~/MindrianRooms/[room-name]/
-  3. /mos:rooms list output shows ~/MindrianRooms/ paths for all rooms
-  4. /mos:room overview header displays the simplified ~/MindrianRooms/[name]/ path
-  5. Session greeting mentions MindrianRooms location when a room is detected
-**Plans**: TBD
-
-### Phase 59: Migration Engine
-**Goal**: Existing users with legacy ~/room/ or ~/rooms/ layouts get a guided migration path to ~/MindrianRooms/
-**Depends on**: Phase 57
-**Requirements**: MIG-01, MIG-02, MIG-03, MIG-04
-**Success Criteria** (what must be TRUE):
-  1. Running the migration script detects rooms at ~/room/ and ~/rooms/ and reports what it found with file counts
-  2. Migration prompts for confirmation before moving any files, showing source and destination paths
-  3. After migration, optional symlinks at old locations point to new ~/MindrianRooms/[slug]/ paths
-  4. /mos:setup offers an "organize rooms" option that triggers the migration flow
-**Plans**: TBD
-
-### Phase 59.1: Room Organizer Skill
-**Goal**: An /mos:organize command that lets users restructure their room hierarchy with human confirmation at each step
-**Depends on**: Phase 59
-**Requirements**: ORG-01, ORG-02, ORG-03, ORG-04, ORG-05
-**Success Criteria** (what must be TRUE):
-  1. /mos:organize shows current room structure as an ICM-compliant tree
-  2. /mos:organize propose suggests reorganization by client, domain, stage, or custom grouping
-  3. Each proposed move requires explicit human confirmation before execution
-  4. Nested hierarchies supported (e.g., clients/adam/synteris/) with ICM CLAUDE.md at each grouping level
-  5. Registry.json and INDEX.md auto-update after each confirmed move
-**Plans**: TBD
-
-### Phase 59.2: Room Hierarchy Graph Layer
-**Goal**: Create Room/RoomGroup/CONTAINS schema in BOTH KuzuDB (local, fast) and Neo4j Brain (remote, semantic intelligence) as an additive layer over the existing filesystem + registry.json
-**Depends on**: Phase 59.1
-**Requirements**: GRAPH-01, GRAPH-02, GRAPH-03, GRAPH-04, GRAPH-05, GRAPH-06, GRAPH-07, GRAPH-08
-**Success Criteria** (what must be TRUE):
-  1. KuzuDB local graph has Room nodes for each registered room with hierarchy edges
-  2. Neo4j Brain has matching Room/RoomGroup nodes with AT_STAGE edges to existing VentureStage taxonomy
-  3. USES_FRAMEWORK edges connect rooms to frameworks based on methodology usage
-  4. SHARES_THEME edges detected from cross-room content analysis
-  5. 13 orphaned DataRoomSection nodes wired to parent Room nodes
-  6. Filesystem + registry.json remain operational truth -- graph failure degrades gracefully to file-only mode
-  7. /mos:organize proposals improve with graph data when available
-**Plans**: TBD
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 56 -> 57 -> 58 -> 59 -> 59.1 -> 59.2
-(Phase 58 depends on 56 only, so it could run in parallel with 57 if needed)
+Phases execute in numeric order: 60 -> 61 -> 62 -> 63 -> 64 -> 65 -> 66
+Note: Phase 63 depends only on Phase 60, so it can run in parallel with Phase 61-62 if desired.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 56. Path Resolution | v1.8.6 | 1/1 | Complete | 2026-04-06 |
-| 57. Room Creation & ICM Structure | v1.8.6 | 1/1 | Complete | 2026-04-06 |
-| 58. Skill Activation & Display | v1.8.6 | 1/1 | Complete | 2026-04-06 |
-| 59. Migration Engine | v1.8.6 | 0/0 | Not started | - |
+| 60. Embedding Infrastructure | v1.9.0 | 1/2 | In Progress|  |
+| 61. Novelty Scoring & Gap Detection | v1.9.0 | 0/TBD | Not started | - |
+| 62. Interpretation Layer | v1.9.0 | 0/TBD | Not started | - |
+| 63. TopicForest Hierarchical Clustering | v1.9.0 | 0/TBD | Not started | - |
+| 64. Pipeline Integration | v1.9.0 | 0/TBD | Not started | - |
+| 65. Brain Intelligence Layer | v1.9.0 | 0/TBD | Not started | - |
+| 66. Command, Visualization & External Corpus | v1.9.0 | 0/TBD | Not started | - |
+
+---
+*Roadmap created: 2026-04-08*
+*Last updated: 2026-04-08*

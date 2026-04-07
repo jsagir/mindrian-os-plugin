@@ -1,204 +1,219 @@
-# Stack Research
+# Stack Research: v1.9.0 Context Engineering Optimization
 
-**Domain:** MCP Platform & Intelligence Expansion (dual-surface: CLI plugin + MCP server)
-**Researched:** 2026-03-24 (v3.0 additions to existing v1.0/v2.0 stack)
-**Confidence:** HIGH
+**Domain:** Claude Code plugin optimization (context window management, caching, progressive loading, npm distribution, release hardening)
+**Researched:** 2026-04-07
+**Confidence:** HIGH (verified against existing codebase, official Claude Code docs, npm registry)
 
-## Key Insight: v3.0 Breaks the "No Dependencies" Rule -- Intentionally
+## Scope
 
-v1.0/v2.0 was pure Markdown + JSON + Bash. Zero npm dependencies. That rule served the plugin layer well.
+This research covers ONLY the new stack additions for v1.9.0. The existing validated stack (Node.js CJS, Bash scripts, Neo4j Aura, Pinecone, KuzuDB, ICM folder structure, MCP SDK, gray-matter, etc.) is NOT re-evaluated.
 
-v3.0 introduces an MCP server layer that REQUIRES `@modelcontextprotocol/sdk` (Node.js). This is not scope creep -- it is the only path to reaching Desktop/Cowork users. The MCP SDK is the single justified dependency. Everything else stays dependency-free or uses what MCP SDK already pulls in.
-
-**The dual-layer rule:** Plugin layer (commands/, skills/, agents/, hooks/) stays pure Markdown + JSON + Bash. MCP server layer (bin/, lib/) is Node.js CJS. They share core logic through lib/.
+**Critical finding: Zero new npm dependencies required.** Every v1.9.0 feature is achievable with Node.js built-ins + existing dependencies. This is not accidental -- the features are infrastructure-level (file I/O, hashing, process management) where Node.js core modules are the right tool.
 
 ---
 
-## Existing Stack (v1.0/v2.0 -- DO NOT CHANGE)
+## Recommended Stack Additions
 
-| Technology | Role | Status |
-|------------|------|--------|
-| Markdown + YAML frontmatter | Skills, agents, commands, pipelines, references | Shipped, stable |
-| JSON | plugin.json, hooks.json, .mcp.json, settings.json, STATE.md frontmatter | Shipped, stable |
-| Bash scripts (20 in scripts/) | Room analysis, state computation, meeting intelligence, PDF, transcription | Shipped, stable |
-| Neo4j Aura + Brain MCP | 21K-node graph at brain.mindrian.ai (remote MCP, Streamable HTTP) | Deployed |
-| Pinecone | 1,427 embeddings for Brain semantic search | Deployed |
-| Cytoscape.js (via CDN in dashboard HTML) | De Stijl knowledge graph visualization | Shipped v1.0 |
-| Velma API | Meeting transcription at 3c/hour | Integrated v2.0 |
-| sentence-transformers + LSA (Python) | HSI computation scripts | Shipped v2.0 |
-
----
-
-## v3.0 Stack Additions
-
-### 1. MCP Server Framework
+### 1. Context Window Measurement
 
 | Technology | Version | Purpose | Why Recommended |
 |------------|---------|---------|-----------------|
-| `@modelcontextprotocol/sdk` | 1.27.1 | Build MindrianOS MCP server exposing tools to Desktop/Cowork | THE official SDK. Only real option. 34,700+ dependents. MIT license. Supports both stdio and Streamable HTTP transports on a single McpServer instance. [HIGH confidence -- verified npm registry 2026-03-24] |
-| `zod` | ^3.25 (use 3.25.76) | Input/output schema validation for MCP tools | Required peer dependency of MCP SDK. SDK declares `"^3.25 || ^4.0"`. Use 3.x because zod-to-json-schema (used internally by SDK) is more tested with 3.x. 4.x works but is newer. [HIGH confidence -- verified npm peer deps] |
+| Built-in `context-monitor` statusline | Already shipped (v1.8.x) | Writes context window data (`used_percentage`, `remaining_percentage`, `context_window_size`) to per-room bridge files at `~/.mindrian/bridge/{hash}.json` | Already exists in codebase. `session-start` already reads this bridge file for tiered context loading (CTX-02). No new dependency needed. |
+| Character-based estimation | Built-in | Approximate token counts from file byte sizes using ~4 chars/token heuristic | Good enough for load/skip decisions. Skill files are markdown -- 1 token per ~4 chars is well-established for English text. Exact counts are unnecessary when the goal is "load this 5KB file or not." |
 
-**Transport decision: stdio for v3.0. Streamable HTTP deferred to v3.x+.**
+**Why NOT `@anthropic-ai/tokenizer`:** This npm package is explicitly documented as inaccurate for Claude 3+ models ("very rough approximation"). We already have real context window percentages from the statusline API via the bridge file. Adding a dependency for worse data than what we already have is wrong. [HIGH confidence -- verified GitHub repo README]
 
-Rationale:
-- Claude Desktop spawns stdio MCP servers as child processes via `claude_desktop_config.json`. This is the native, zero-config path for local use.
-- Streamable HTTP adds authentication, CORS, port management, and TLS complexity with zero benefit for a locally-spawned server.
-- The Brain MCP already uses Streamable HTTP for remote access. MindrianOS-Plugin MCP is local-first.
-- When remote room access is needed, add Streamable HTTP transport alongside stdio. The SDK supports dual transports on the same McpServer instance -- no code refactor needed.
+**Why NOT Anthropic's Token Count API:** Requires API key + network call. Plugin hooks must complete in <2 seconds. API calls from hooks add latency and failure modes. The bridge file approach is zero-latency, zero-network. [HIGH confidence -- verified API docs]
 
-**MCP server code pattern:**
-
-```javascript
-// bin/mindrian-mcp-server.cjs
-const { McpServer } = require("@modelcontextprotocol/sdk/server/mcp.js");
-const { StdioServerTransport } = require("@modelcontextprotocol/sdk/server/stdio.js");
-const { z } = require("zod");
-
-// Import shared core
-const roomOps = require("../lib/core/room-ops.cjs");
-const meetingOps = require("../lib/core/meeting-ops.cjs");
-
-const server = new McpServer({ name: "mindrian-os", version: "0.4.2" });
-
-// Thin wrapper: Zod schema -> core function -> MCP response
-server.registerTool("analyze-room", {
-  title: "Analyze Room",
-  description: "Scan Data Room for gaps, convergence, contradictions",
-  inputSchema: { roomPath: z.string().optional() }
-}, async ({ roomPath }) => {
-  const result = roomOps.analyzeRoom(roomPath || "./room");
-  return { content: [{ type: "text", text: result }] };
-});
-
-const transport = new StdioServerTransport();
-await server.connect(transport);
-```
-
-### 2. Shared Core Library (CLI + MCP)
+### 2. Progressive/Lazy Skill Loading
 
 | Technology | Version | Purpose | Why Recommended |
 |------------|---------|---------|-----------------|
-| Node.js CJS (no framework) | >=18 | `lib/core/*.cjs` shared internals called by both CLI and MCP | Mirrors proven GSD pattern. Zero additional dependencies. CJS because plugin ecosystem uses CommonJS. |
+| Node.js `fs` (built-in) | Node 18+ | Read skill file sizes, generate stub summaries, load full skills on demand | No library needed. Skills are markdown files in `skills/*/SKILL.md` (7 directories, ~50KB total). A build script reads file sizes and extracts frontmatter. |
+| `gray-matter` | ^4.0.3 | Parse skill YAML frontmatter for manifest generation | Already in package.json. Use frontmatter `trigger` and `description` fields to build stubs without loading full skill body. |
 
-**Architecture:**
+**Architecture:** Generate `skills/.manifest.json` at build/release time containing per-skill metadata (name, description, triggers, byte size, priority tier). Session-start loads the manifest (~500 bytes) instead of all 7 skill directories (~50KB). Full skill content loads only when triggered.
 
-```
-MindrianOS-Plugin/
-  bin/
-    mindrian-tools.cjs          # CLI entry point (GSD pattern: process.argv)
-    mindrian-mcp-server.cjs     # MCP entry point (stdio transport)
-  lib/
-    core/                       # Shared internals -- the REAL logic
-      room-ops.cjs              # Wraps scripts/analyze-room, compute-state
-      meeting-ops.cjs           # Wraps scripts/compute-meetings-intelligence
-      intelligence-ops.cjs      # Cross-relationship scan, convergence detection
-      persona-ops.cjs           # AI team member generation
-      opportunity-ops.cjs       # Grant search, opportunity matching
-    tools/                      # MCP tool registrations (thin wrappers)
-      room-tools.cjs            # registerTool calls for room operations
-      meeting-tools.cjs         # registerTool calls for meeting operations
-      intelligence-tools.cjs
-      persona-tools.cjs
-      opportunity-tools.cjs
-    schemas/                    # Zod schemas shared between CLI and MCP
-      room-schemas.cjs
-      meeting-schemas.cjs
-```
+Current skill sizes (measured from codebase):
+- `larry-personality/mode-engine.md`: 7,890 bytes
+- `ui-system/SKILL.md`: 7,492 bytes
+- `context-engine/SKILL.md`: 6,769 bytes
+- `room-proactive/SKILL.md`: 5,801 bytes
+- `larry-personality/SKILL.md`: 5,349 bytes
+- `brain-connector/SKILL.md`: 5,062 bytes
+- `larry-personality/framework-chains.md`: 4,921 bytes
+- `room-passive/SKILL.md`: 4,297 bytes
+- `pws-methodology/SKILL.md`: 2,229 bytes
+- **Total: ~49,810 bytes = ~12,450 tokens always loaded**
 
-**Critical pattern:** `lib/core/*.cjs` functions wrap existing Bash scripts via `child_process.execSync`. The Bash scripts remain the authoritative computation layer. Core library is the Node.js API surface.
+With manifest: ~500 bytes loaded = ~125 tokens. **99% reduction** for skills layer at session start.
 
+### 3. Caching Strategies
+
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| File-based JSON cache (custom, ~50 lines) | N/A | Cache Brain MCP responses, STATE.md computations, room analysis results | Write JSON to `room/.mindrian/cache/{key}.json` with TTL via file mtime. On read, check mtime age vs TTL. On miss, recompute and write. Filesystem IS the cache -- aligns with ICM. |
+| Node.js `crypto.createHash('md5')` | Built-in | Cache key generation from input parameters | Already used in `context-monitor` for bridge file path hashing. Consistent pattern across codebase. |
+
+**Cache implementation pattern:**
 ```javascript
-// lib/core/room-ops.cjs
-const { execSync } = require('child_process');
+// lib/core/file-cache.cjs (~50 lines)
+const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
-function analyzeRoom(roomPath) {
-  const scriptDir = path.resolve(__dirname, '../../scripts');
-  return execSync(`bash ${scriptDir}/analyze-room "${roomPath}"`, {
-    encoding: 'utf-8',
-    timeout: 5000
-  });
+function cacheKey(prefix, ...args) {
+  return prefix + '-' + crypto.createHash('md5').update(args.join('|')).digest('hex').slice(0, 12);
+}
+
+function cacheGet(cacheDir, key, ttlSeconds) {
+  const file = path.join(cacheDir, key + '.json');
+  if (!fs.existsSync(file)) return null;
+  const age = (Date.now() - fs.statSync(file).mtimeMs) / 1000;
+  if (age > ttlSeconds) { try { fs.unlinkSync(file); } catch(e) {} return null; }
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch(e) { return null; }
+}
+
+function cacheSet(cacheDir, key, value) {
+  fs.mkdirSync(cacheDir, { recursive: true });
+  const tmp = path.join(cacheDir, key + '.json.tmp');
+  fs.writeFileSync(tmp, JSON.stringify(value));
+  fs.renameSync(tmp, path.join(cacheDir, key + '.json')); // atomic write
+}
+
+function cacheClear(cacheDir, prefix) {
+  if (!fs.existsSync(cacheDir)) return;
+  for (const f of fs.readdirSync(cacheDir)) {
+    if (f.startsWith(prefix)) try { fs.unlinkSync(path.join(cacheDir, f)); } catch(e) {}
+  }
 }
 ```
 
-**Why no Commander/yargs for CLI:** Claude is the caller, not a human. `process.argv` switch-case is sufficient. GSD's gsd-tools.cjs proves this works for 40+ subcommands with zero dependencies.
+**TTL recommendations:**
+| Cache Target | TTL | Rationale | Invalidation |
+|-------------|-----|-----------|--------------|
+| Brain MCP responses | 24h (86400s) | Teaching intelligence is static between releases | Manual via `/mos:cache clear` |
+| STATE.md computation | 5min (300s) | Recompute on next session start if stale | PostWrite hook when STATE.md changes |
+| Room analysis (analyze-room) | 15min (900s) | Moderate churn during active sessions | PostWrite hook clears on any room file write |
+| Skill manifest | Until plugin update | Version-stamped, never stale within same version | Regenerated at build time |
+| Integrity check result | 24h (86400s) | File hashes don't change during normal use | Cleared on plugin update |
+| Hook staleness check | 24h (86400s) | Version headers don't change during normal use | Cleared on plugin update |
 
-### 3. Opportunity Bank & Grant Discovery
+**Why NOT `node-cache` / `lru-cache` / `cacheman`:** These are in-memory caches. Hook scripts run as **separate processes** spawned by Claude Code -- in-memory state dies when the process exits. File-based caching is the ONLY approach that persists across ephemeral hook invocations. This is not a preference; it is a hard constraint of the plugin hook architecture. [HIGH confidence -- verified by examining hooks.json: hooks spawn `run-hook.cmd` which executes scripts as child processes]
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| Grants.gov REST API | v1 | Programmatic search of US federal grants | Free. No API key needed for search endpoint (`v1/api/search2`). Returns structured JSON with opportunity details, deadlines, eligibility, amounts. 60 req/min rate limit. [HIGH confidence -- verified Grants.gov API docs] |
-| `cheerio` | 1.2.0 | Parse HTML from non-API grant sources | jQuery-style DOM traversal. 19,873 npm dependents. Pure JS, no native bindings. Lightweight alternative to headless browsers. [HIGH confidence -- verified npm] |
-| Native `fetch` | Built into Node 18+ | HTTP requests for APIs and web pages | No package needed. Node 18+ global fetch. |
+**Why NOT Redis/SQLite:** Creates dual source of truth with filesystem. Breaks ICM principle. Adds infrastructure dependency.
 
-**Grant discovery strategy:**
-
-1. **Grants.gov API** (primary, structured) -- keyword search by domain from room STATE.md, filter by open/forecasted status, match against venture sector.
-2. **Cheerio scraping** (secondary, for non-API sources) -- SBIR.gov program pages, state grant portals, foundation directories.
-3. **Room-driven matching** -- extract venture domain, keywords, stage from room/STATE.md. Match against grant eligibility criteria. Score relevance.
-
-**Trigger pattern: Hook-driven, not cron.**
-- `session-start` hook already runs `analyze-room`. Extend it: `mindrian-tools.cjs opportunity-scan --room ./room`
-- Each session start, check room domain keywords against cached grant data. Fetch fresh if stale (>24h).
-- Results filed to `room/opportunity-bank/grants/` as structured Markdown entries.
-- Zero infrastructure. No persistent process. No cron. Session start IS the trigger.
-
-### 4. AI Team Member Personas
+### 4. npm Package Distribution
 
 | Technology | Version | Purpose | Why Recommended |
 |------------|---------|---------|-----------------|
-| No new library | -- | Persona generation from room intelligence | Personas are structured Markdown files generated from room data + prompt templates. Not a library problem. |
+| npm registry (public) | N/A | Distribute plugin as npm package | Claude Code marketplace natively supports `npm` as a plugin source type in marketplace.json. Zero custom infrastructure needed. |
+| `marketplace.json` npm source | N/A | Point marketplace entry to npm package | Verified format: `{"source": "npm", "package": "mindrian-os", "version": "^1.9.0"}`. Supports version pinning, semver ranges, private registries. |
+| `"files"` in package.json | N/A | Whitelist published files | Safer than `.npmignore` blacklist -- explicitly declares what ships. |
+| `npm publish` | Built-in | Publish to registry | Standard workflow. `prepublishOnly` script generates build artifacts. |
 
-**Pattern:**
-
-Persona = structured Markdown in `room/team/ai-personas/<name>.md`:
-```markdown
----
-name: Dr. Sarah Chen
-role: Market Validation Expert
-hat: Yellow (Benefits)
-domain: Healthcare AI market analysis
-generated: 2026-03-24
-source-sections: [market-analysis, competitive-analysis]
----
-
-# Dr. Sarah Chen -- Market Validation Expert
-
-## Expertise
-[Generated from room/market-analysis/ and room/competitive-analysis/ content]
-
-## Perspective (Yellow Hat -- Benefits)
-[Bono's Six Hats perspective assignment]
-
-## Communication Style
-[Generated personality traits]
-
-## Knowledge Boundaries
-[What this persona knows vs. doesn't know, based on room content]
+**marketplace.json npm source entry:**
+```json
+{
+  "name": "mos",
+  "source": {
+    "source": "npm",
+    "package": "mindrian-os",
+    "version": "^1.9.0"
+  },
+  "description": "MindrianOS -- AI innovation co-founder"
+}
 ```
 
-Generated by `lib/core/persona-ops.cjs` which reads room sections, extracts themes, assigns Bono hats, and templates the persona file. Claude loads persona files as context when the user invokes `/mindrian-os:team consult`.
+**Dual distribution strategy:** Keep GitHub as primary (self-update via git clone is proven, gives more control, supports SHA pinning). Add npm as secondary for marketplace integration. Both deliver identical code.
 
-**Why no persona framework (no LangChain agents, no CrewAI, no AutoGen):** These frameworks add massive dependency trees and fight ICM-native architecture where the folder IS the orchestration. Claude already IS the LLM. Persona files are context Claude reads -- no agent orchestration framework needed.
+**Required package.json changes:**
+- Remove `"private": true` (blocks npm publish)
+- Add `"files"` whitelist
+- Add `prepublishOnly` build script
 
-### 5. Scheduled Agents (OPTIONAL -- Future Only)
+### 5. Hook Version Detection and Staleness Checks
 
-| Technology | Version | Purpose | When to Use |
-|------------|---------|---------|-------------|
-| `node-cron` | 4.2.1 | Schedule periodic grant discovery sweeps | ONLY if MCP server runs as persistent Streamable HTTP process (v3.x+ remote room mode). Not needed for v3.0 stdio mode. |
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| Version header convention | N/A | Each hook/script embeds `# @version X.Y.Z` in first 5 lines | Zero-cost. Self-documenting. Survives copy/move operations. |
+| Semver comparison (custom, ~20 lines) | N/A | Compare script version headers against plugin.json version | Already have version comparison logic in `check-update` (Node one-liner). Extract to `lib/core/version-ops.cjs`. |
 
-For v3.0, session-start hook handles all proactive scanning. `node-cron` is a future dependency, not a current one.
+**Convention:**
+```bash
+#!/usr/bin/env bash
+# @version 1.9.0
+# session-start: SessionStart hook handler for MindrianOS
+```
+
+**Detection logic:**
+```javascript
+// lib/core/version-ops.cjs
+function checkHookStaleness(scriptPath, pluginVersion) {
+  const head = fs.readFileSync(scriptPath, 'utf8').split('\n').slice(0, 5).join('\n');
+  const match = head.match(/@version\s+([\d.]+)/);
+  if (!match) return { stale: false, reason: 'no-header' };
+  return { stale: match[1] !== pluginVersion, expected: pluginVersion, found: match[1] };
+}
+```
+
+Scripts without headers are treated as "unknown version" (always pass). This allows gradual adoption without breaking existing scripts.
+
+### 6. Git Verification for Plugin Integrity
+
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| Node.js `crypto` | Built-in | SHA-256 hash of critical files | 3 lines of code. Hash plugin.json + hooks.json + key scripts. Compare against known-good hashes. |
+| `.integrity` file | N/A | Ship SHA-256 hashes with each release | Generated at build time. Read at session-start (once per day, cached). |
+| `child_process.execSync` | Built-in | Git tag verification (`git tag -v`) | Already used throughout codebase in git-ops.cjs. |
+
+**Integrity check flow:**
+1. Build time: `scripts/build-integrity.cjs` hashes critical files, writes `.integrity`
+2. Session-start: Read `.integrity`, recompute hashes, compare
+3. Mismatch = warn: "Plugin files modified since install. Run /mos:update to restore."
+4. Result cached for 24h in bridge file (avoid re-checking every session)
+5. Only checks critical files (plugin.json, hooks.json, session-start, ~10 files total)
+
+**Critical files to hash:**
+- `.claude-plugin/plugin.json` -- version, identity
+- `hooks/hooks.json` -- hook configuration
+- `hooks/run-hook.cmd` -- hook dispatcher
+- `scripts/session-start` -- context injection
+- `scripts/self-update` -- update mechanism
+- `bin/mindrian-tools.cjs` -- CLI entry point
+- `lib/core/index.cjs` -- core library entry
+
+### 7. Background Update Check (Detached Process)
+
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| `child_process.spawn` with `detached: true` | Built-in | Run update check without blocking session-start | `spawn('node', ['check-update-bg.cjs'], { detached: true, stdio: 'ignore' }).unref()`. Process survives parent exit. Writes result to bridge file. |
+
+**Pattern:**
+```javascript
+// Non-blocking update check spawned from session-start
+const child = spawn('node', [path.join(__dirname, 'check-update-bg.cjs')], {
+  detached: true,
+  stdio: 'ignore',
+  env: { ...process.env, PLUGIN_ROOT: pluginRoot }
+});
+child.unref(); // Don't wait for completion
+```
+
+The background process writes its result to the bridge file. Next session-start reads the cached result instead of blocking on a network call.
 
 ---
 
-## Supporting Libraries (New)
+## Supporting Libraries
 
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
-| `zod` | ^3.25.76 | Schema validation for MCP tools and CLI input validation | Always. Required by MCP SDK. |
-| `cheerio` | 1.2.0 | HTML parsing for grant discovery scraping | When scraping grant sources beyond Grants.gov API. |
+| `gray-matter` | ^4.0.3 | Parse skill frontmatter for manifest generation | Already installed. Use in `build-skill-manifest.cjs`. |
+| Node.js `crypto` | Built-in | Cache keys (MD5), integrity hashes (SHA-256) | Already used in context-monitor. |
+| Node.js `fs` | Built-in | File-based cache, skill loading, integrity checks | Core of everything. |
+| Node.js `child_process` | Built-in | Git operations, background update check | Already used extensively. |
 
-**Total new npm dependencies for v3.0: 2** (`@modelcontextprotocol/sdk` + `cheerio`). Zod is pulled in by SDK. Everything else is Node.js built-ins.
+**Total new npm dependencies for v1.9.0: 0**
 
 ---
 
@@ -206,42 +221,58 @@ For v3.0, session-start hook handles all proactive scanning. `node-cron` is a fu
 
 | Tool | Purpose | Notes |
 |------|---------|-------|
-| `npx @modelcontextprotocol/inspector` | Test MCP server tools interactively | Official MCP debugging tool. Connects via stdio, lets you call tools and inspect responses. Use during development. |
-| `claude --plugin-dir .` + Desktop config | Test dual delivery | CLI: test via plugin-dir flag. Desktop: add to claude_desktop_config.json as local stdio server. |
+| `scripts/verify-release` | Pre-release verification | Already exists. Extend with: integrity hash generation, hook version validation, npm pack dry-run. |
+| `npm pack --dry-run` | Preview npm package contents | Verify `"files"` whitelist before first publish. |
+| `wc -c skills/*/*.md` | Measure skill token budget | Quick validation that progressive loading numbers are correct. |
 
 ---
 
 ## Installation
 
 ```bash
-# Initialize package.json (if not exists)
-cd /home/jsagi/MindrianOS-Plugin
-npm init -y
+# No new packages required for v1.9.0
+# Everything uses Node.js built-ins + existing dependencies (gray-matter)
 
-# Core: MCP server + schema validation
-npm install @modelcontextprotocol/sdk@1.27.1 zod@^3.25
-
-# Opportunity discovery: HTML parsing for non-API grant sources
-npm install cheerio@1.2.0
-
-# That's it. 3 packages. Everything else is Node.js built-ins or existing Bash scripts.
+# For npm distribution setup (one-time):
+npm login
+npm publish --access public
 ```
 
-**Claude Desktop configuration (user-side):**
+---
+
+## package.json Changes Required
 
 ```json
 {
-  "mcpServers": {
-    "mindrian-os": {
-      "command": "node",
-      "args": ["/path/to/MindrianOS-Plugin/bin/mindrian-mcp-server.cjs"],
-      "env": {
-        "MINDRIAN_ROOM_PATH": "/path/to/user/project/room"
-      }
-    }
+  "name": "mindrian-os",
+  "private": false,
+  "files": [
+    "bin/",
+    "lib/",
+    "scripts/",
+    "commands/",
+    "skills/",
+    "agents/",
+    "hooks/",
+    "references/",
+    "pipelines/",
+    ".claude-plugin/",
+    ".mcp.json",
+    "settings.json",
+    "CHANGELOG.md",
+    ".integrity"
+  ],
+  "scripts": {
+    "mcp": "node bin/mindrian-mcp-server.cjs",
+    "parity": "node lib/parity/check-parity.cjs",
+    "build:manifest": "node scripts/build-skill-manifest.cjs",
+    "build:integrity": "node scripts/build-integrity.cjs",
+    "prepublishOnly": "npm run build:manifest && npm run build:integrity"
   }
 }
 ```
+
+**Note:** `"name"` changes from `mindrian-os-plugin` to `mindrian-os` for npm public package name. Verify name availability on npmjs.com before publishing.
 
 ---
 
@@ -249,15 +280,15 @@ npm install cheerio@1.2.0
 
 | Recommended | Alternative | When to Use Alternative |
 |-------------|-------------|-------------------------|
-| `@modelcontextprotocol/sdk` stdio | Streamable HTTP transport | When remote team access is needed (v3.x+). Add alongside stdio on same McpServer instance. |
-| Native `fetch` (Node 18+) | `node-fetch` / `axios` / `got` | Never. Native fetch is sufficient. Zero reason to add HTTP client dependencies. |
-| `cheerio` for scraping | Playwright / Puppeteer | Only if a grant site requires JavaScript rendering (unlikely for .gov sites). 200MB+ browser download not justified. |
-| No cron for v3.0 | `node-cron` / `agenda` / `bull` | Session-start hook handles proactive scanning. Add cron only if persistent server mode is built. |
-| Filesystem room state | SQLite / Redis / Turso | Never. The filesystem IS the ICM architecture. Adding a database creates dual-source-of-truth. |
-| Prompt-based personas | LangChain agents / CrewAI | Never. These fight ICM-native design. Claude loads persona markdown as context. |
-| Zod 3.x | Zod 4.x | When MCP SDK ecosystem fully stabilizes on 4.x. The SDK accepts both, but 3.x has broader compatibility today. |
-| Grants.gov free API | Paid grant databases (Foundation Directory Online, GrantStation) | Only if targeting private/foundation grants beyond federal scope. Adds cost. Defer until proven demand. |
-| CJS modules | ESM modules | When Claude Code plugin ecosystem adopts ESM. Currently CJS is the norm (gsd-tools.cjs pattern). |
+| Character-based token estimation | `@anthropic-ai/tokenizer` | Never. Inaccurate for Claude 3+. Bridge file has real data. |
+| File-based JSON cache (50 lines) | `node-cache`, `cacheman`, `keyv` | Never. Hook processes are ephemeral -- in-memory caches die between invocations. |
+| `"files"` whitelist in package.json | `.npmignore` | Never. Whitelist is safer -- explicitly declares what ships. |
+| `# @version` header convention | Separate version manifest file | Never. Headers are self-documenting, survive copy. Manifest creates sync risk. |
+| `crypto.createHash('sha256')` | `ssri` npm package | Never. SSRI is for HTTP subresource integrity. Local hashing is 3 lines of built-in code. |
+| npm as secondary distribution | npm as primary (drop git self-update) | When Anthropic marketplace fully standardizes on npm and provides auto-update for npm sources. |
+| Custom semver comparison | `semver` npm package | Only if version comparison grows to need ranges/prereleases. Current need is equality check only. |
+| Build-time skill manifest | Runtime skill scanning | Never in production. Runtime scanning adds latency to session-start (2-second budget). |
+| Detached spawn for update check | In-process async fetch | Never. Session-start has 2-second timeout. Network calls can take 3+ seconds. Detached process is fire-and-forget. |
 
 ---
 
@@ -265,89 +296,78 @@ npm install cheerio@1.2.0
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| Express / Hono / Fastify for MCP | MCP SDK includes Hono internally for Streamable HTTP. Adding another HTTP framework creates conflicts. | MCP SDK's built-in transport layer |
-| LangChain / CrewAI / AutoGen / Semantic Kernel | Fights ICM-native architecture. Adds 50+ transitive dependencies. Claude IS the LLM -- no orchestration framework needed. | Direct prompt engineering + room-as-context |
-| SQLite / Redis / Turso for room state | Creates dual source of truth with filesystem. Breaks "folder IS orchestration" principle. | `room/` filesystem + STATE.md |
-| WebSocket libraries (ws, socket.io) | MCP Streamable HTTP handles server-to-client push via SSE when needed. | MCP SDK Streamable HTTP transport (future) |
-| Puppeteer / Playwright for scraping | 200MB+ browser download. Grant sites are server-rendered HTML. | `cheerio` + native `fetch` |
-| Commander / yargs / meow for CLI | Claude is the caller, not a human. Process.argv parsing is sufficient. GSD pattern proves this. | Direct `process.argv` switch-case in CJS |
-| Zod 4.x (for now) | Works with MCP SDK, but ecosystem (zod-to-json-schema) is more battle-tested with 3.x. | `zod@^3.25` |
-| dotenv | Plugin runs in Claude's environment. MCP server inherits env from spawning process. `.env` files add confusion about where config lives. | Direct `process.env` access |
-| TypeScript | Build step breaks "every output is an edit surface" principle. CJS files are directly inspectable and editable. | Plain CJS with JSDoc type comments if needed |
-| npm workspaces / monorepo tools | Single repo with flat structure. No packages to link. | Flat `bin/` + `lib/` structure |
+| `@anthropic-ai/tokenizer` | Inaccurate for Claude 3+. Adds dependency for worse data than bridge file already provides. | Bridge file `ctx_pct` from Claude's statusline API |
+| `node-cache` / `lru-cache` / `@isaacs/ttlcache` | In-memory. Hook processes are ephemeral -- memory is lost between invocations. | File-based JSON cache in `room/.mindrian/cache/` |
+| `semver` npm package | Need equality check, not range resolution. 20 lines vs 50KB dependency. | `version.split('.').map(Number)` comparison |
+| `tiktoken` / `js-tiktoken` | OpenAI tokenizer with different encoding than Claude. Bridge file has exact data. | Bridge file context window data |
+| Any database for caching | Dual source of truth. Filesystem IS the architecture. | JSON files in `.mindrian/cache/` |
+| Webpack / esbuild / rollup | No bundling needed. CJS files ship as source. "Every output is an edit surface." | Direct file shipping via `"files"` whitelist |
+| `dotenv` | Environment comes from shell. Plugin runs in Claude's environment. | Direct `process.env` access |
+| `commander` / `yargs` for build scripts | Build scripts take 0-1 args. `process.argv[2]` is sufficient. | Direct `process.argv` |
 
 ---
 
-## Stack Patterns by Variant
+## New Files to Create
 
-**If building for CLI-only users (Claude Code):**
-- `mindrian-tools.cjs` is the entry point
-- Import from `lib/core/*` directly
-- Hook scripts call `node bin/mindrian-tools.cjs <subcommand>`
-- No MCP SDK in this path -- pure Node.js + Bash
-- Because: CLI users have full script execution via hooks
+| File | Purpose | Size Estimate |
+|------|---------|---------------|
+| `lib/core/file-cache.cjs` | Generic file-based cache with TTL | ~50 lines |
+| `lib/core/version-ops.cjs` | Hook staleness detection, semver comparison | ~40 lines |
+| `lib/core/skill-loader.cjs` | Progressive skill loading, manifest reading | ~60 lines |
+| `lib/core/integrity-ops.cjs` | File hash generation and verification | ~50 lines |
+| `scripts/build-skill-manifest.cjs` | Build-time: generate `skills/.manifest.json` | ~40 lines |
+| `scripts/build-integrity.cjs` | Build-time: generate `.integrity` hash file | ~30 lines |
+| `scripts/check-update-bg.cjs` | Background (detached) update checker | ~40 lines |
+| `skills/.manifest.json` | Pre-computed skill metadata (generated) | ~1KB |
+| `.integrity` | SHA-256 hashes of critical files (generated) | ~500 bytes |
 
-**If building for Desktop/Cowork users:**
-- `mindrian-mcp-server.cjs` is the entry point (stdio)
-- Register MCP tools that wrap `lib/core/*` functions
-- User adds to `claude_desktop_config.json`
-- Because: Desktop/Cowork only speak MCP protocol, not plugin commands
+**Total new code: ~360 lines across 7 source files + 2 generated files.**
 
-**If both (the target):**
-- Both entry points import the SAME `lib/core/*` modules
-- Feature parity guaranteed by shared core
-- Plugin commands = skill triggers CLI tools layer
-- MCP tools = thin Zod-validated wrappers around same core
-- Because: "Every feature ships as both" is the v3.0 rule
+---
 
-**If adding remote room access (v3.x+):**
-- Add Streamable HTTP transport to existing McpServer
-- Same instance, dual transports (stdio + HTTP)
-- Room folder must be accessible (Git sync, mounted volume, or shared drive)
-- Add `node-cron` for background opportunity scanning
-- Because: Remote users can't trigger session-start hooks
+## Integration Points
+
+| Existing Component | How v1.9.0 Integrates |
+|-------------------|--------------------------|
+| `scripts/session-start` | Reads skill manifest instead of loading all skills. Checks hook staleness (cached 24h). Verifies integrity (cached 24h). Spawns background update check. Already reads bridge file for context tier. |
+| `scripts/context-monitor` | No changes. Already writes bridge file with context window data that drives all budget decisions. |
+| `hooks/hooks.json` | No structural changes. PostWrite hook's `post-write` script extended to invalidate relevant caches via `cacheClear()`. |
+| `lib/core/brain-client.cjs` | Wrap Brain MCP calls with `file-cache` (24h TTL). Cache key = query hash. |
+| `scripts/compute-state` | Wrap output with `file-cache` (5min TTL). Cache key = room path hash. |
+| `scripts/analyze-room` | Wrap output with `file-cache` (15min TTL). Invalidated by PostWrite hook. |
+| `scripts/check-update` | Extract version comparison to `version-ops.cjs`. Background variant writes to bridge file. |
+| `scripts/self-update` | Add npm update path (`npm install mindrian-os@latest`) alongside git clone. |
+| `package.json` | Remove `"private": true`, add `"files"`, add build scripts, rename to `mindrian-os`. |
+| `scripts/verify-release` | Extend with: build manifest, build integrity, validate version headers, npm pack dry-run. |
+| `scripts/post-write` | Add cache invalidation: clear `analyze-room` and `compute-state` caches on room file writes. |
+| Marketplace `marketplace.json` | Add npm source entry alongside existing GitHub source. |
 
 ---
 
 ## Version Compatibility
 
-| Package | Compatible With | Notes |
-|---------|-----------------|-------|
-| `@modelcontextprotocol/sdk@1.27.1` | `zod@^3.25 \|\| ^4.0`, Node.js >=18 | SDK internally uses Hono 4.x, Express 5.x, ajv 8.x. Do NOT add these as direct dependencies -- they come bundled. |
-| `zod@^3.25` | `@modelcontextprotocol/sdk@1.27.1`, `zod-to-json-schema@^3.25` | Pin to 3.x branch for stability. |
-| `cheerio@1.2.0` | Node.js >=18 | Pure JS, no native bindings. Works everywhere. |
-| Plugin layer (Markdown + JSON + Bash) | Claude Code 1.x+ | No change from v1.0/v2.0. Plugin layer is independent of MCP server layer. |
-| Brain MCP (remote) | MCP protocol 2024+ | Already deployed. MindrianOS MCP server is SEPARATE -- Claude Desktop lists both in config. |
-
----
-
-## Integration Points: How New Stack Connects to Existing
-
-| Existing Component | How v3.0 Stack Integrates |
-|-------------------|--------------------------|
-| 20 Bash scripts in `scripts/` | `lib/core/*.cjs` wraps script invocations via `child_process.execSync`. Bash scripts remain authoritative. Core library is the Node.js API surface over them. |
-| `hooks/hooks.json` + hook scripts | `session-start` hook gains opportunity scan: calls `node bin/mindrian-tools.cjs opportunity-scan`. New hook for persona refresh on room changes. |
-| Brain MCP (brain.mindrian.ai) | MindrianOS MCP server is SEPARATE. Both listed in user's `claude_desktop_config.json`. Claude orchestrates between them. They share no code. |
-| Plugin commands (commands/*.md) | Commands invoke `mindrian-tools.cjs` subcommands. Same core functions. Commands are the plugin-layer entry; tools.cjs is the execution layer. |
-| De Stijl dashboard | Dashboard reads `room/` filesystem. MCP tools write to same filesystem. Dashboard auto-refreshes. No direct integration needed. |
-| `room/` folder structure | Opportunity Bank = `room/opportunity-bank/`. Funding Room = `room/funding/`. AI Personas = `room/team/ai-personas/`. Same ICM pattern, new sections. |
-| settings.json | Add MCP server path config. Plugin still uses `{"agent": "larry-extended"}`. |
-| `.mcp.json` | Add MindrianOS local MCP server alongside existing Brain remote MCP. |
+| Component | Compatible With | Notes |
+|-----------|-----------------|-------|
+| File-based cache (custom) | Node.js >=18 | Uses `fs.statSync().mtimeMs` (available since Node 8) |
+| `gray-matter@^4.0.3` | Node.js >=18 | Already in package.json, no change |
+| `crypto.createHash('sha256')` | Node.js >=18 | Built-in, always available |
+| `child_process.spawn({ detached })` | Node.js >=18 | Built-in, used for background update check |
+| npm publish | npm >=9 | Requires `"private": false` |
+| Claude Code npm plugin source | Claude Code 1.x+ | Verified in official marketplace docs |
 
 ---
 
 ## Sources
 
-- [@modelcontextprotocol/sdk on npm](https://www.npmjs.com/package/@modelcontextprotocol/sdk) -- verified v1.27.1, dependencies, peer deps (`zod@^3.25 || ^4.0`), engine (Node >=18) [HIGH confidence]
-- [MCP TypeScript SDK server docs](https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/server.md) -- McpServer API, registerTool with Zod schemas, StdioServerTransport, Streamable HTTP [HIGH confidence]
-- [MCP local server connection guide](https://modelcontextprotocol.io/docs/develop/connect-local-servers) -- stdio is native transport for Claude Desktop [HIGH confidence]
-- [Claude Desktop MCP config](https://support.claude.com/en/articles/11503834-building-custom-connectors-via-remote-mcp-servers) -- claude_desktop_config.json format, stdio vs HTTP [HIGH confidence]
-- [Grants.gov API](https://www.grants.gov/api) -- free search endpoint (`v1/api/search2`), no auth for search, 60 req/min, structured JSON responses [HIGH confidence]
-- [Grants.gov API Guide](https://grants.gov/api/api-guide) -- endpoint details, query parameters, rate limits [HIGH confidence]
-- [Cheerio on npm](https://www.npmjs.com/package/cheerio) -- verified v1.2.0, 19,873 dependents, pure JS [HIGH confidence]
-- [node-cron on npm](https://www.npmjs.com/package/node-cron) -- verified v4.2.1, crontab syntax, pure JS [HIGH confidence]
-- GSD reference implementation (`~/.claude/get-shit-done/bin/gsd-tools.cjs`) -- proven CJS single-entry-point pattern, 40+ subcommands, process.argv routing [HIGH confidence, local verification]
+- [Claude Code Plugin Marketplace Docs](https://code.claude.com/docs/en/plugin-marketplaces) -- npm source type confirmed, marketplace.json schema verified, plugin caching behavior documented [HIGH confidence -- fetched 2026-04-07]
+- [Anthropic Tokenizer TypeScript](https://github.com/anthropics/anthropic-tokenizer-typescript) -- README confirms inaccuracy for Claude 3+ models [HIGH confidence]
+- [Claude API Token Counting](https://platform.claude.com/docs/en/build-with-claude/token-counting) -- API-based counting requires API key, free but network-dependent [HIGH confidence]
+- [@anthropic-ai/tokenizer npm](https://www.npmjs.com/package/@anthropic-ai/tokenizer) -- package exists but deprecated for modern models [HIGH confidence]
+- [node-cache npm](https://www.npmjs.com/package/node-cache) -- confirmed in-memory only, unsuitable for ephemeral processes [HIGH confidence]
+- Existing codebase: `scripts/context-monitor` (bridge file pattern), `scripts/session-start` (tiered loading), `scripts/check-update` (version comparison), `hooks/hooks.json` (process model) -- all verified by reading source [HIGH confidence, local verification]
+- Existing `package.json` -- `"private": true` confirmed, dependencies verified [HIGH confidence, local verification]
+- Skill file sizes measured: `du -b skills/*/*.md` -- 49,810 bytes total across 9 files [HIGH confidence, local verification]
 
 ---
-*Stack research for: MindrianOS v3.0 MCP Platform & Intelligence Expansion*
-*Researched: 2026-03-24*
+*Stack research for: MindrianOS v1.9.0 Context Engineering Optimization*
+*Researched: 2026-04-07*

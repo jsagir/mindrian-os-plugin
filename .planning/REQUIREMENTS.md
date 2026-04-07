@@ -1,127 +1,94 @@
-# Requirements: MindrianRooms -- ICM Room Organization v1.8.6
+# Requirements: MindrianOS v1.9.0 Whitespace Mapping Power Tool
 
-**Defined:** 2026-04-06
-**Core Value:** Centralize all Data Rooms under ~/MindrianRooms/ with ICM-compliant structure
+**Defined:** 2026-04-08
+**Core Value:** Detect what's MISSING in a venture's understanding using methodology-aware embedding-space gap detection -- not just what connects (HSI) or what's bottlenecked (RS), but what nobody has thought of yet
 
-## v1.8.6 Requirements
+## v1.9.0 Requirements
 
-### Path Resolution
+### Embedding & Detection Engine
 
-- [x] **PATH-01**: resolve-room script resolves active room from ~/MindrianRooms/.rooms/registry.json before legacy fallback
-- [x] **PATH-02**: resolve-room falls back to ~/MindrianRooms/ directory scan when no registry exists
-- [x] **PATH-03**: Legacy ~/room/ and ~/rooms/ paths still resolve (backward compat) but emit deprecation notice
+- [x] **EMBED-01**: Room artifacts embedded using BAAI/llm-embedder (768-dim) via sentence-transformers, with MiniLM fallback for Tier 0
+- [ ] **EMBED-02**: Brain methodology/framework descriptions embedded as consensus baseline ("semantic universe") -- cached locally as JSON
+- [ ] **EMBED-03**: Density estimation on UMAP-reduced embeddings (768d -> 15d) using KDE to identify low-density whitespace regions
+- [ ] **EMBED-04**: Gap detection identifies Brain-covered regions with zero room artifact coverage -- ranked by strategic importance
+- [ ] **EMBED-05**: External corpus mode queries Semantic Scholar API and/or patent databases, embeds results into same semantic space for cross-domain whitespace detection
 
-### Room Creation
+### Interpretation & Strategy Layer (The Moat)
 
-- [x] **CREATE-01**: /mos:new-project creates rooms under ~/MindrianRooms/[slug]/
-- [x] **CREATE-02**: /mos:rooms create targets ~/MindrianRooms/[slug]/
-- [x] **CREATE-03**: First room creation auto-generates ICM Layer 0 (CLAUDE.md) and Layer 1 (INDEX.md) at ~/MindrianRooms/ if missing
-- [x] **CREATE-04**: room-registry script writes to ~/MindrianRooms/.rooms/registry.json
+- [ ] **INTERP-01**: Each whitespace zone classified by problem type (Ill-Defined / Well-Defined / Wicked / Un-Defined) using Brain's problem taxonomy and nearest framework context
+- [ ] **INTERP-02**: Framework chain selection uses Brain's FEEDS_INTO edges and effectiveness scores to sequence exploration methodology for each classified gap
+- [ ] **INTERP-03**: Hypothesis generation runs THROUGH the selected framework chain -- Larry generates hypotheses contextualized by the methodology, not generic prompting
+- [ ] **INTERP-04**: TopicForest hierarchical gap tree built from room + Brain embeddings using agglomerative clustering with binary partitioning and recursive Claude labeling -- sparse branches = whitespace zones at multiple granularity levels
 
-### ICM Compliance
+### Pipeline Integration (Discovery Cycle)
 
-- [x] **ICM-01**: CLAUDE.md at ~/MindrianRooms/ declares identity (Layer 0: "What is this place?")
-- [x] **ICM-02**: INDEX.md at ~/MindrianRooms/ provides routing (Layer 1: "Which room do I need?")
-- [x] **ICM-03**: INDEX.md auto-updates when rooms are created, archived, or stage changes
-- [x] **ICM-04**: Each room retains its own STATE.md as Layer 2 contract
+- [ ] **PIPE-01**: HSI -> Whitespace integration: after HSI finds surprising artifact pairs, whitespace maps what's BETWEEN them (the missing connecting artifact)
+- [ ] **PIPE-02**: RS -> Whitespace integration: after RS finds bottleneck section, whitespace maps empty territory DOWNSTREAM of each bottleneck
+- [ ] **PIPE-03**: Analogy -> Whitespace integration: after analogy engine maps cross-domain, whitespace identifies where causal/structural transfer hasn't been articulated
+- [ ] **PIPE-04**: Discovery Cycle automation: HSI -> Whitespace -> RS -> Analogy chained in sequence, each feeding the next, on post-write hook or /mos:whitespace command
 
-### Skill Activation
+### Brain Whitespace Intelligence (Learning Loop)
 
-- [x] **SKILL-01**: room-passive detects rooms in ~/MindrianRooms/[active-room]/
-- [x] **SKILL-02**: room-proactive detects rooms in ~/MindrianRooms/[active-room]/
+- [ ] **BRAIN-01**: Whitespace pattern data written to Neo4j Brain -- WhitespaceZone nodes linked to Framework chains that explored them
+- [ ] **BRAIN-02**: Cross-room whitespace patterns tracked in Brain (anonymized) -- Brain learns which gap types are real opportunities vs noise across all users
+- [ ] **BRAIN-03**: TYPICAL_WHITESPACE edges connecting ProblemType -> common whitespace patterns discovered across rooms
+- [ ] **BRAIN-04**: Brain query patterns for whitespace intelligence -- "what gaps did similar ventures find?" and "which framework chains resolved similar whitespace?"
 
-### Migration
+### Output & Visualization
 
-- [x] **MIG-01**: Migration script detects legacy ~/room/ and ~/rooms/ layouts
-- [x] **MIG-02**: Migration offers guided move with file count and confirmation
-- [x] **MIG-03**: Migration creates symlinks at old locations pointing to new (optional)
-- [x] **MIG-04**: /mos:setup includes "organize rooms" option that triggers migration
-
-### Display & UX
-
-- [x] **UX-01**: /mos:rooms list shows ~/MindrianRooms/ paths
-- [x] **UX-02**: /mos:room overview header shows simplified ~/MindrianRooms/[name]/ path
-- [x] **UX-03**: Session greeting references MindrianRooms location when room detected
-
-### Room Organizer (Wicked Hierarchy Navigator)
-
-- [x] **ORG-01**: /mos:organize displays current room structure as ICM-compliant tree with status indicators
-- [x] **ORG-02**: /mos:organize propose suggests reorganization using graph-informed groupings (shared themes, domains, frameworks, stages) -- not just metadata sorting
-- [x] **ORG-03**: Each proposed room move requires explicit human confirmation before file operations execute
-- [x] **ORG-04**: Nested hierarchies supported with ICM CLAUDE.md auto-generated at each grouping level from graph context
-- [x] **ORG-05**: Registry.json and INDEX.md auto-update after each confirmed move
-- [x] **ORG-06**: Multiple organizational views available without moving files -- "show by client", "show by stage", "show by domain" are graph projections
-- [x] **ORG-07**: User decisions (GROUP / SEPARATE / DEFER) become graph edges that inform future reorganization proposals
-
-### Room Hierarchy Graph Layer (Brain Enrichment)
-
-- [x] **GRAPH-01**: Room nodes created in Neo4j Brain for each registered room with name, stage, domain, creation date
-- [x] **GRAPH-02**: RoomGroup nodes represent grouping levels (clients/, internal/, etc.) with ICM layer metadata
-- [x] **GRAPH-03**: CONTAINS edges model physical hierarchy (RoomRoot -> RoomGroup -> Room)
-- [x] **GRAPH-04**: AT_STAGE edges connect Room nodes to existing VentureStage taxonomy (5 stages already in Brain)
-- [x] **GRAPH-05**: USES_FRAMEWORK edges connect Room nodes to Framework nodes based on methodology commands run in that room
-- [x] **GRAPH-06**: SHARES_THEME edges between Room nodes detected from cross-room content analysis (CO_OCCURS pattern)
-- [x] **GRAPH-07**: DataRoomSection nodes (13 existing orphans) wired to parent Room nodes via HAS_SECTION
-- [x] **GRAPH-08**: Graph layer is additive only -- filesystem + registry.json remain operational truth, graph adds intelligence
+- [ ] **OUT-01**: /mos:whitespace command with subcommands: map, analyze, hypothesis, tree, score, external, compare
+- [ ] **OUT-02**: Whitespace visualization in De Stijl dashboard -- D3.js density map (UMAP 2D scatter + KDE contours) and TopicForest tree overlay
+- [ ] **OUT-03**: KuzuDB WhitespaceZone nodes storing density_score, nearest_frameworks, hypothesis, strategic_rank, problem_type, exploration_status
+- [ ] **OUT-04**: Every filed artifact gets a novelty score (embedding distance from Brain consensus) -- replaces Jaccard-based scoring
+- [ ] **OUT-05**: Per-section WHITESPACE.md files written to each room section folder -- small ICM-native context files showing detected gaps relevant to THAT section, updated on each whitespace run
 
 ## Future Requirements
 
-None deferred -- scope is tight.
+None deferred -- full scope selected.
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Remote room sync | Separate feature, not part of local reorganization |
-| Room templates | Nice-to-have but not required for path centralization |
-| Cross-room intelligence | Requires graph layer work beyond path changes |
-| Automatic old path deletion | Too destructive -- migration offers guidance, user decides |
+| Custom embedding model training | Using pre-trained llm-embedder; fine-tuning is a separate research effort |
+| Real-time patent monitoring | API polling adds infrastructure complexity; on-demand query is sufficient for v1.9.0 |
+| Multi-language embedding (Hebrew/Arabic) | llm-embedder is English-focused; multilingual (BAAI/bge-m3) deferred to future |
+| Whitespace-as-a-service (paid MCP) | Business model decision not committed; architecture should support it but not build the billing |
+| Drug discovery / biomedical vertical | Domain-agnostic architecture supports it but no domain-specific tuning in this milestone |
+| Innovation Authority / TTO integration | National-scale deployment is a separate initiative; architecture enables but doesn't target |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PATH-01 | Phase 56 | Complete |
-| PATH-02 | Phase 56 | Complete |
-| PATH-03 | Phase 56 | Complete |
-| CREATE-01 | Phase 57 | Complete |
-| CREATE-02 | Phase 57 | Complete |
-| CREATE-03 | Phase 57 | Complete |
-| CREATE-04 | Phase 57 | Complete |
-| ICM-01 | Phase 57 | Complete |
-| ICM-02 | Phase 57 | Complete |
-| ICM-03 | Phase 57 | Complete |
-| ICM-04 | Phase 57 | Complete |
-| SKILL-01 | Phase 58 | Complete |
-| SKILL-02 | Phase 58 | Complete |
-| MIG-01 | Phase 59 | Complete |
-| MIG-02 | Phase 59 | Complete |
-| MIG-03 | Phase 59 | Complete |
-| MIG-04 | Phase 59 | Complete |
-| UX-01 | Phase 58 | Complete |
-| UX-02 | Phase 58 | Complete |
-| UX-03 | Phase 58 | Complete |
-| ORG-01 | Phase 59.1 | Complete |
-| ORG-02 | Phase 59.1 | Complete |
-| ORG-03 | Phase 59.1 | Complete |
-| ORG-04 | Phase 59.1 | Complete |
-| ORG-05 | Phase 59.1 | Complete |
-| ORG-06 | Phase 59.1 | Complete |
-| ORG-07 | Phase 59.1 | Complete |
-| GRAPH-01 | Phase 59.2 | Complete |
-| GRAPH-02 | Phase 59.2 | Complete |
-| GRAPH-03 | Phase 59.2 | Complete |
-| GRAPH-04 | Phase 59.2 | Complete |
-| GRAPH-05 | Phase 59.2 | Complete |
-| GRAPH-06 | Phase 59.2 | Complete |
-| GRAPH-07 | Phase 59.2 | Complete |
-| GRAPH-08 | Phase 59.2 | Complete |
+| EMBED-01 | Phase 60 | Complete |
+| EMBED-02 | Phase 60 | Pending |
+| EMBED-03 | Phase 61 | Pending |
+| EMBED-04 | Phase 61 | Pending |
+| EMBED-05 | Phase 66 | Pending |
+| INTERP-01 | Phase 62 | Pending |
+| INTERP-02 | Phase 62 | Pending |
+| INTERP-03 | Phase 62 | Pending |
+| INTERP-04 | Phase 63 | Pending |
+| PIPE-01 | Phase 64 | Pending |
+| PIPE-02 | Phase 64 | Pending |
+| PIPE-03 | Phase 64 | Pending |
+| PIPE-04 | Phase 64 | Pending |
+| BRAIN-01 | Phase 65 | Pending |
+| BRAIN-02 | Phase 65 | Pending |
+| BRAIN-03 | Phase 65 | Pending |
+| BRAIN-04 | Phase 65 | Pending |
+| OUT-01 | Phase 66 | Pending |
+| OUT-02 | Phase 66 | Pending |
+| OUT-03 | Phase 61 | Pending |
+| OUT-04 | Phase 61 | Pending |
+| OUT-05 | Phase 61 | Pending |
 
 **Coverage:**
-- v1.8.6 requirements: 35 total
-- Mapped to phases: 35
+- v1.9.0 requirements: 22 total
+- Mapped to phases: 21
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-04-06*
-*Last updated: 2026-04-06 after roadmap creation*
+*Requirements defined: 2026-04-08*
+*Last updated: 2026-04-08 after roadmap creation*
