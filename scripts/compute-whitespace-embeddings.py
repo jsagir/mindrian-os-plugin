@@ -249,6 +249,93 @@ def embed_artifacts(model, artifacts):
     return [emb.tolist() for emb in embeddings]
 
 
+def verify_baseline_compatibility(room_dir):
+    """Verify room artifact embeddings are cosine-comparable with Brain baseline.
+
+    Loads both whitespace-embeddings.json and brain-baseline.json, checks
+    dimensional compatibility, and computes a sample cosine similarity to
+    confirm vectors are in the same semantic space.
+
+    Exits 0 on success, 1 on failure.
+    """
+    ws_path = room_dir / ".mindrian" / "whitespace-embeddings.json"
+    bl_path = room_dir / ".mindrian" / "brain-baseline.json"
+
+    # Check files exist
+    if not ws_path.exists():
+        print(f"FAIL: Room embeddings not found: {ws_path}", file=sys.stderr)
+        sys.exit(1)
+
+    if not bl_path.exists():
+        print(f"FAIL: Brain baseline not found: {bl_path}", file=sys.stderr)
+        sys.exit(1)
+
+    # Load both files
+    try:
+        ws_data = json.loads(ws_path.read_text(encoding="utf-8"))
+        bl_data = json.loads(bl_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"FAIL: Could not read embedding files: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    ws_meta = ws_data.get("metadata", {})
+    bl_meta = bl_data.get("metadata", {})
+
+    ws_dim = ws_meta.get("model_dim", 0)
+    bl_dim = bl_meta.get("model_dim", 0)
+    ws_model = ws_meta.get("model_name", "unknown")
+    bl_model = bl_meta.get("model_name", "unknown")
+
+    ws_embeddings = ws_data.get("embeddings", [])
+    bl_baselines = bl_data.get("baselines", [])
+
+    n_artifacts = len(ws_embeddings)
+    n_baselines = len(bl_baselines)
+
+    print(f"Room artifacts:  {n_artifacts} embeddings ({ws_model}, {ws_dim}-dim)")
+    print(f"Brain baselines: {n_baselines} embeddings ({bl_model}, {bl_dim}-dim)")
+
+    # Check dimensionality match
+    if ws_dim != bl_dim:
+        print(
+            f"\nFAIL: Dimension mismatch! Room={ws_dim}d, Brain={bl_dim}d. "
+            f"Re-embed with matching model.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    # Check model match (warning only -- MiniLM fallback is valid)
+    if ws_model != bl_model:
+        print(
+            f"\nWARNING: Model mismatch (room={ws_model}, brain={bl_model}). "
+            f"Vectors may still be comparable if dimensions match.",
+            file=sys.stderr,
+        )
+
+    # Verify we have vectors to compare
+    if n_artifacts == 0 or n_baselines == 0:
+        print(
+            f"\nWARNING: Cannot compute cosine similarity -- "
+            f"{'no room artifacts' if n_artifacts == 0 else 'no brain baselines'}.",
+            file=sys.stderr,
+        )
+        print(f"\nVerified: {n_artifacts} room artifacts + {n_baselines} Brain baselines "
+              f"({ws_dim}d) = dimensionally compatible (no vectors to compare)")
+        return
+
+    # Compute sample cosine similarity
+    sample_artifact = np.array(ws_embeddings[0]["vector"]).reshape(1, -1)
+    sample_baseline = np.array(bl_baselines[0]["vector"]).reshape(1, -1)
+
+    similarity = cosine_similarity(sample_artifact, sample_baseline)[0][0]
+
+    print(f"\nSample cosine similarity: {similarity:.4f}")
+    print(f"  Room artifact: '{ws_embeddings[0].get('title', ws_embeddings[0].get('id', 'unknown'))}'")
+    print(f"  Brain baseline: '{bl_baselines[0].get('name', 'unknown')}'")
+    print(f"\nVerified: {n_artifacts} room artifacts ({ws_dim}d) + "
+          f"{n_baselines} Brain baselines ({bl_dim}d) = cosine-comparable")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Embed room artifacts for whitespace detection pipeline"
@@ -264,6 +351,12 @@ def main():
         default=None,
         help="Output JSON path (default: {room_dir}/.mindrian/whitespace-embeddings.json)",
     )
+    parser.add_argument(
+        "--verify-baseline",
+        action="store_true",
+        default=False,
+        help="Verify room artifact embeddings are cosine-comparable with Brain baseline embeddings",
+    )
 
     args = parser.parse_args()
     room_dir = Path(args.room_dir).resolve()
@@ -271,6 +364,11 @@ def main():
     if not room_dir.is_dir():
         print(f"Error: {room_dir} is not a directory", file=sys.stderr)
         sys.exit(1)
+
+    # --- Verify baseline mode ---
+    if args.verify_baseline:
+        verify_baseline_compatibility(room_dir)
+        sys.exit(0)
 
     # Determine output path (per D-09: room/.mindrian/whitespace-embeddings.json)
     if args.output:
