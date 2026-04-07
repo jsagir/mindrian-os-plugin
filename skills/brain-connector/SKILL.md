@@ -31,6 +31,31 @@ When Brain detection fails AND request would benefit (framework queries, grading
 - Simple fast lookups only. Complex queries: delegate to Brain Agent.
 - Prefer Cypher over Pinecone (no quota limits)
 
+### Team-Execution Enrichment
+
+When the user is discussing team, leadership, or working in team-execution section:
+
+1. Query Brain for leadership frameworks matching the discussion:
+```cypher
+MATCH (f:Framework)-[:RELATED_TO]->(:Concept {name: 'Causal Reasoning'})
+WHERE f.name IN ['Tuckman Team Stages', 'Psychological Safety', 'Adaptive Leadership',
+                  'Emotional Intelligence in Leadership', 'High-Performing Teams']
+OPTIONAL MATCH (f)-[:TYPICAL_AT]->(s:VentureStage {name: $venture_stage})
+RETURN f.name, s IS NOT NULL AS matches_stage
+ORDER BY matches_stage DESC
+```
+
+2. Surface the leadership FEEDS_INTO chain relevant to the conversation:
+```cypher
+MATCH path = (f:Framework {name: $current_framework})-[:FEEDS_INTO*1..3]->(next:Framework)
+WHERE next.name IN ['Adaptive Leadership', 'Situational Leadership', 'High-Performing Teams',
+                     'Distributed Leadership', 'Systems Leadership', 'Transformational Leadership']
+RETURN next.name AS suggested, [r IN relationships(path) | r.confidence] AS confidence
+ORDER BY confidence DESC LIMIT 3
+```
+
+3. Weave naturally: "The teaching graph connects what you're describing to [framework] -- it addresses the [specific gap] you mentioned."
+
 ## Proactive Surfacing (SessionStart + PostToolUse)
 
 After room changes and session start:
@@ -38,6 +63,22 @@ After room changes and session start:
 - Max 2 HIGH-confidence findings
 - Voice: "Hold on -- I noticed something..."
 - For Brain users, replaces room-proactive bash analysis (superset)
+
+### Leadership Proactive Signals
+
+On SessionStart, if room has team-execution entries:
+
+1. Check if any leadership frameworks from the graph have been used vs. available:
+```cypher
+MATCH (f:Framework)-[:TYPICAL_AT]->(s:VentureStage {name: $stage})
+WHERE f.name IN ['Tuckman Team Stages', 'Psychological Safety', 'Adaptive Leadership',
+                  'Emotional Intelligence in Leadership', 'High-Performing Teams',
+                  'Servant Leadership', 'Distributed Leadership', 'Transformational Leadership']
+RETURN f.name AS available_framework
+```
+
+2. Compare against frameworks already applied in room (from STATE.md `frameworks_used`)
+3. If 3+ unused leadership frameworks are available for the current stage, surface: "Your team section has data but you haven't used [N] leadership frameworks that match your stage. /mos:leadership to explore."
 
 ## Gating Rules
 
