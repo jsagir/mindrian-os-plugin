@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.8.7] - 2026-04-07
+
+### Added
+- Leadership coaching intelligence integrated into team-execution room section
+- V2 leadership knowledge ported: 7 domains, ABET integration, signature reframes
+- Team-execution proactive signals: team gaps, solo founder detection, assessment staleness
+- Team-execution contradiction detection: capacity mismatch, stage mismatch
+- Brain leadership framework chains: 4 coaching pipelines (assessment, building, strategic, conflict)
+- Team-context-aware coaching: adapts opening based on team size and composition
+- Brain-enriched framework suggestions after coaching sessions
+- Neo4j Brain: 7 KnowledgeDomain nodes, 6 leadership ProblemTypes, ~57 edges
+
 ## [1.8.6] - 2026-04-06
 
 onboarding: true
