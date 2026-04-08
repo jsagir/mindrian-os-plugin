@@ -8,7 +8,7 @@
 ### Embedding & Detection Engine
 
 - [x] **EMBED-01**: Room artifacts embedded using BAAI/llm-embedder (768-dim) via sentence-transformers, with MiniLM fallback for Tier 0
-- [ ] **EMBED-02**: Brain methodology/framework descriptions embedded as consensus baseline ("semantic universe") -- cached locally as JSON
+- [x] **EMBED-02**: Brain methodology/framework descriptions embedded as consensus baseline ("semantic universe") -- cached locally as JSON
 - [ ] **EMBED-03**: Density estimation on UMAP-reduced embeddings (768d -> 15d) using KDE to identify low-density whitespace regions
 - [ ] **EMBED-04**: Gap detection identifies Brain-covered regions with zero room artifact coverage -- ranked by strategic importance
 - [ ] **EMBED-05**: External corpus mode queries Semantic Scholar API and/or patent databases, embeds results into same semantic space for cross-domain whitespace detection
@@ -38,7 +38,7 @@
 
 - [ ] **OUT-01**: /mos:whitespace command with subcommands: map, analyze, hypothesis, tree, score, external, compare
 - [ ] **OUT-02**: Whitespace visualization in De Stijl dashboard -- D3.js density map (UMAP 2D scatter + KDE contours) and TopicForest tree overlay
-- [ ] **OUT-03**: KuzuDB WhitespaceZone nodes storing density_score, nearest_frameworks, hypothesis, strategic_rank, problem_type, exploration_status
+- [x] **OUT-03**: KuzuDB WhitespaceZone nodes storing density_score, nearest_frameworks, hypothesis, strategic_rank, problem_type, exploration_status
 - [ ] **OUT-04**: Every filed artifact gets a novelty score (embedding distance from Brain consensus) -- replaces Jaccard-based scoring
 - [ ] **OUT-05**: Per-section WHITESPACE.md files written to each room section folder -- small ICM-native context files showing detected gaps relevant to THAT section, updated on each whitespace run
 
@@ -62,7 +62,7 @@ None deferred -- full scope selected.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | EMBED-01 | Phase 60 | Complete |
-| EMBED-02 | Phase 60 | Pending |
+| EMBED-02 | Phase 60 | Complete |
 | EMBED-03 | Phase 61 | Pending |
 | EMBED-04 | Phase 61 | Pending |
 | EMBED-05 | Phase 66 | Pending |
@@ -80,7 +80,7 @@ None deferred -- full scope selected.
 | BRAIN-04 | Phase 65 | Pending |
 | OUT-01 | Phase 66 | Pending |
 | OUT-02 | Phase 66 | Pending |
-| OUT-03 | Phase 61 | Pending |
+| OUT-03 | Phase 61 | Complete |
 | OUT-04 | Phase 61 | Pending |
 | OUT-05 | Phase 61 | Pending |
 

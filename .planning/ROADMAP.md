@@ -42,7 +42,7 @@ Context engineering optimization parked due to intelligence tradeoff concern. Fu
 
 **Note:** Phase numbers 60-66 reuse the 60+ range. Old context engineering directories (60-63) are archived/parked.
 
-- [ ] **Phase 60: Embedding Infrastructure** - Embed room artifacts and Brain baseline into shared 768-dim semantic space using llm-embedder
+- [x] **Phase 60: Embedding Infrastructure** - Embed room artifacts and Brain baseline into shared 768-dim semantic space using llm-embedder (completed 2026-04-08)
 - [ ] **Phase 61: Novelty Scoring & Gap Detection** - Density estimation, whitespace zone identification, novelty scoring, and KuzuDB storage
 - [ ] **Phase 62: Interpretation Layer** - Problem type classification, framework chain selection, and methodology-aware hypothesis generation (the moat)
 - [ ] **Phase 63: TopicForest Hierarchical Clustering** - Agglomerative topic tree with recursive Claude labeling to find sparse branches
@@ -60,7 +60,7 @@ Context engineering optimization parked due to intelligence tradeoff concern. Fu
   1. Running the whitespace embedder on a room produces cached 768-dim vectors for every artifact using BAAI/llm-embedder (with MiniLM fallback for Tier 0)
   2. Brain methodology/framework descriptions are embedded and cached as a local JSON "consensus baseline" file
   3. Room artifact embeddings and Brain baseline embeddings can be loaded together for downstream computation (same dimensionality, cosine-comparable)
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 60-01-PLAN.md - Room artifact embedding script with llm-embedder + MiniLM fallback
 - [ ] 60-02-PLAN.md - Brain baseline embedding + cosine compatibility verification
@@ -68,13 +68,18 @@ Plans:
 ### Phase 61: Novelty Scoring & Gap Detection
 **Goal**: The system identifies low-density whitespace zones where room understanding is missing and scores every artifact by novelty
 **Depends on**: Phase 60
-**Requirements**: EMBED-03, EMBED-04, OUT-03, OUT-04
+**Requirements**: EMBED-03, EMBED-04, OUT-03, OUT-04, OUT-05
 **Success Criteria** (what must be TRUE):
   1. UMAP reduces 768-dim embeddings to 15-dim for density estimation, and KDE identifies low-density regions in the room's embedding space
   2. Brain-covered regions with zero room artifact coverage are detected and ranked by strategic importance (RS bottleneck integration)
   3. Every filed artifact receives a novelty score (embedding distance from Brain consensus) that replaces Jaccard-based scoring
   4. Detected whitespace zones are persisted as KuzuDB WhitespaceZone nodes with density_score, nearest_frameworks, hypothesis, strategic_rank, problem_type, and exploration_status
-**Plans**: TBD
+  5. Per-section WHITESPACE.md files written to each room section folder showing detected gaps relevant to that section
+**Plans:** 2/3 plans executed
+Plans:
+- [x] 61-01-PLAN.md - UMAP + KDE density estimation, gap detection, SemNovel novelty scoring
+- [x] 61-02-PLAN.md - KuzuDB WhitespaceZone schema + bridge script
+- [ ] 61-03-PLAN.md - Per-section WHITESPACE.md ICM-native gap files
 
 ### Phase 62: Interpretation Layer
 **Goal**: Each whitespace zone is classified by problem type and filled with methodology-aware hypotheses generated through Brain framework chains -- this is the moat
@@ -137,8 +142,8 @@ Note: Phase 63 depends only on Phase 60, so it can run in parallel with Phase 61
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 60. Embedding Infrastructure | v1.9.0 | 1/2 | In Progress|  |
-| 61. Novelty Scoring & Gap Detection | v1.9.0 | 0/TBD | Not started | - |
+| 60. Embedding Infrastructure | v1.9.0 | 2/2 | Complete    | 2026-04-08 |
+| 61. Novelty Scoring & Gap Detection | v1.9.0 | 2/3 | In Progress|  |
 | 62. Interpretation Layer | v1.9.0 | 0/TBD | Not started | - |
 | 63. TopicForest Hierarchical Clustering | v1.9.0 | 0/TBD | Not started | - |
 | 64. Pipeline Integration | v1.9.0 | 0/TBD | Not started | - |
