@@ -25,7 +25,7 @@
 - [x] **PIPE-01**: HSI -> Whitespace integration: after HSI finds surprising artifact pairs, whitespace maps what's BETWEEN them (the missing connecting artifact)
 - [x] **PIPE-02**: RS -> Whitespace integration: after RS finds bottleneck section, whitespace maps empty territory DOWNSTREAM of each bottleneck
 - [x] **PIPE-03**: Analogy -> Whitespace integration: after analogy engine maps cross-domain, whitespace identifies where causal/structural transfer hasn't been articulated
-- [ ] **PIPE-04**: Discovery Cycle automation: HSI -> Whitespace -> RS -> Analogy chained in sequence, each feeding the next, on post-write hook or /mos:whitespace command
+- [x] **PIPE-04**: Discovery Cycle automation: HSI -> Whitespace -> RS -> Analogy chained in sequence, each feeding the next, on post-write hook or /mos:whitespace command
 
 ### Brain Whitespace Intelligence (Learning Loop)
 
@@ -73,7 +73,7 @@ None deferred -- full scope selected.
 | PIPE-01 | Phase 64 | Complete |
 | PIPE-02 | Phase 64 | Complete |
 | PIPE-03 | Phase 64 | Complete |
-| PIPE-04 | Phase 64 | Pending |
+| PIPE-04 | Phase 64 | Complete |
 | BRAIN-01 | Phase 65 | Pending |
 | BRAIN-02 | Phase 65 | Pending |
 | BRAIN-03 | Phase 65 | Pending |
