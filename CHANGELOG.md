@@ -9,49 +9,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.9.1] - 2026-04-08
+
+onboarding: true
+onboard_steps:
+  - "NEW: /mos:validate-proposition -- score your value proposition through 3 gates: Is it Real? Can you Win? Is it Worth it? Mathematical VPS composite with 15 weighted dimensions."
+  - "PWS Value Proposition Framework from Prof. Aronhime -- the Samsonite Test for every venture. A proposition is not good or bad, it is strong or weak."
+  - "Value Canvas + BTC statement + B2B value drivers -- full quantitative assessment from problem case to business case."
+
+### Added
+- **PWS Value Proposition Framework** -- Lawrence Aronhime's 3-gate scoring system codified as /mos:validate-proposition
+- **Three Sequential Gates** -- Is It Real? (R>=6.0), Can We Win? (W>=5.5), Is It Worth It? (V>=5.0) -- each must pass before the next
+- **15 Weighted Scoring Dimensions** -- 5 per gate, each scored 0-10 with evidence, weighted by importance
+- **VPS Composite Formula** -- Value Proposition Strength = R*0.35 + W*0.35 + V*0.30, rated STRONG/MODERATE/WEAK/FAILING
+- **Gate Kill Logic** -- any single gate failure kills the proposition regardless of other scores
+- **Value Canvas Integration** -- Jobs/Gains/Pains mapping with Fit Score formula (jobs x gains x pains ratio)
+- **BTC Statement Generator** -- For/Who/Our/That/Unlike/Our product template populated from gate evidence
+- **B2B Value Drivers** -- 8 quantitative drivers (revenue, cost, responsiveness, productivity, cycle time, satisfaction, quality, employee)
+- **Brain Integration** -- PWS Value Proposition framework node wired to JTBD, Hedgehog Concept, Golden Circle, all 5 venture stages
+- **Samsonite Test** -- signature reframe: "durability at fair price beats premium quality every time"
+
 ## [1.9.0] - 2026-04-08
 
 onboarding: true
 onboard_steps:
-  - "NEW: /mos:whitespace -- find what's MISSING in your venture. Maps gaps in your understanding using embedding-space density analysis, based on Huan He's SemNovel research (Yale)."
-  - "Every artifact now gets a novelty score -- how far is your insight from the Brain's consensus? Higher = more original thinking."
-  - "Per-section WHITESPACE.md files appear in your room folders showing exactly what gaps Larry sees in each section."
-  - "The Discovery Cycle chains HSI -> Whitespace -> Reverse Salient -> Analogy to find gaps humans miss."
+  - "NEW: /mos:whitespace -- find what's MISSING in your venture. Maps gaps using embedding-space density analysis, based on Huan He's SemNovel research (Yale)."
+  - "MindrianOS now has a Model Data Room -- 168 artifacts across 10 sections, built from 45 meeting transcripts, 43 research papers, 35 PWS frameworks."
+  - "HSI Spectral Analysis on real evidence -- 20 cross-domain innovation pairs discovered, reverse salients identified."
 
 ### Added
-- **Whitespace Mapping Engine** -- SemNovel-inspired embedding-space gap detection finds what's MISSING in your venture understanding, not just what connects (HSI) or what's bottlenecked (RS)
+- **Whitespace Mapping Engine** -- SemNovel-inspired embedding-space gap detection
 - **/mos:whitespace command** -- 7 subcommands: map, analyze, hypothesis, tree, score, external, discover
-- **Novelty Scoring** -- every filed artifact gets an embedding-distance novelty score against Brain consensus baseline (replaces Jaccard)
-- **Per-section WHITESPACE.md** -- ICM-native gap files written to each room section folder, updated on each whitespace run
-- **Interpretation Layer (The Moat)** -- each whitespace zone classified by problem type (Ill-Defined/Well-Defined/Wicked/Un-Defined) using Brain's ADDRESSES_PROBLEM_TYPE edges with effectiveness scores
-- **Framework Chain Selection** -- Brain's FEEDS_INTO edges select and sequence exploration methodology for each classified gap (e.g., JTBD -> Process Mapping -> RS for ill-defined gaps)
-- **Three-Gate Validation** -- Anchor Gate + Brain Consensus Gate + Semantic Coherence Gate filter false positives before showing gaps to users
-- **Hypothesis Generation** -- methodology-aware hypotheses generated THROUGH selected framework chains, not generic prompting
-- **TopicForest Hierarchical Clustering** -- agglomerative topic tree with recursive Claude labeling shows which branches of understanding have zero coverage at multiple granularity levels
-- **Discovery Cycle** -- HSI -> Whitespace -> RS -> Analogy chained in sequence, each feeding the next (on-demand via /mos:whitespace discover)
-- **HSI-Seeded Whitespace** -- finds what's BETWEEN surprising artifact pairs
-- **RS-Seeded Whitespace** -- maps empty territory DOWNSTREAM of bottleneck sections
-- **Analogy-Seeded Whitespace** -- identifies where cross-domain causal transfer hasn't been articulated
-- **Brain Intelligence Layer** -- whitespace patterns written to Neo4j Brain for cross-room learning (anonymized, TYPICAL_WHITESPACE edges)
-- **Brain Query Patterns 14-15** -- "what gaps did similar ventures find?" and "which framework chains resolved similar whitespace?"
-- **Semantic Scholar Integration** -- external corpus mode queries 200M+ papers, embeds in same space, detects cross-domain whitespace
-- **D3.js Whitespace Density Map** -- UMAP 2D scatter + KDE contours in De Stijl dashboard, dense=explored, sparse=whitespace
-- **TopicForest Dashboard Panel** -- collapsible hierarchical topic tree visualization with coverage indicators
-- **KuzuDB WhitespaceZone nodes** -- full graph persistence with density_score, nearest_frameworks, hypothesis, strategic_rank, problem_type
-- **requirements-whitespace.txt** -- Python dependencies for whitespace pipeline (umap-learn, hdbscan, scipy, sentence-transformers)
-
-### Research
-- Deep research on Huan He (Yale) SemNovel + TopicForest + MedViz algorithms
-- RND algorithm (arXiv 2503.01508) -- domain-agnostic novelty assessment, AUROC 0.820
-- Patent whitespace competitive landscape (Cypris, PatSnap, Researchly)
-- IP independence architecture decision -- potentially patentable claim for methodology-aware gap classification
-- Applied novelty detection case studies across innovation management, education, literary analysis
-
-### Architecture
-- 7 phases, 22 requirements, ~7,500 lines of whitespace engine code
-- 20+ new files (7 Python scripts, 8 CJS scripts, 1 command, 2 dashboard additions, 2 Brain reference docs)
-- 79+ passing tests across Python and Node.js
-- Integration audit: 18/18 cross-phase connections wired, 5/5 E2E flows verified
+- **Novelty Scoring** -- every filed artifact gets an embedding-distance novelty score
+- **Discovery Cycle** -- HSI -> Whitespace -> RS -> Analogy chained in sequence
+- **Model Data Room** -- 168 artifacts across 10 sections built from real project evidence
+- **Google Drive API Integration** -- OAuth token, batch download 45+ documents
+- **HSI Spectral Analysis** -- 20 innovation pairs, OM-HMM structural scoring
+- **Investment Thesis Gate** -- 7/10 pass on MindrianOS's own evidence
+- **People Mapping** -- 19 unique people across 45 meetings
+- **Cross-Source Intelligence** -- Gmail + Calendar + Drive + Notion + Claude memory
 
 ## [1.8.8] - 2026-04-07
 

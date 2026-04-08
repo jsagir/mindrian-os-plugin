@@ -1,94 +1,100 @@
-# Requirements: MindrianOS v1.9.0 Whitespace Mapping Power Tool
+# Requirements: Brain Graph Optimization + Dummy-Proof Install v1.8.8
 
-**Defined:** 2026-04-08
-**Core Value:** Detect what's MISSING in a venture's understanding using methodology-aware embedding-space gap detection -- not just what connects (HSI) or what's bottlenecked (RS), but what nobody has thought of yet
+**Defined:** 2026-04-07
+**Core Value:** Make the Brain graph actually chain frameworks, and make the install experience zero-friction for non-technical users
 
-## v1.9.0 Requirements
+## v1.8.8 Requirements
 
-### Embedding & Detection Engine
+### Brain: Causal Discovery (Workstream A)
 
-- [x] **EMBED-01**: Room artifacts embedded using BAAI/llm-embedder (768-dim) via sentence-transformers, with MiniLM fallback for Tier 0
-- [x] **EMBED-02**: Brain methodology/framework descriptions embedded as consensus baseline ("semantic universe") -- cached locally as JSON
-- [ ] **EMBED-03**: Density estimation on UMAP-reduced embeddings (768d -> 15d) using KDE to identify low-density whitespace regions
-- [ ] **EMBED-04**: Gap detection identifies Brain-covered regions with zero room artifact coverage -- ranked by strategic importance
-- [x] **EMBED-05**: External corpus mode queries Semantic Scholar API and/or patent databases, embeds results into same semantic space for cross-domain whitespace detection
+- [ ] **BRAIN-01**: FEEDS_INTO enrichment from 4 to 35+ Framework-to-Framework chains including full PWS spine
+- [ ] **BRAIN-02**: PREREQUISITE edges from 0 to 14 (enables "do X before Y" warnings in /mos:suggest-next)
+- [ ] **BRAIN-03**: TYPICAL_AT stage mapping from 4 to 30+ (powers /mos:suggest-next and /mos:act stage-aware selection)
+- [ ] **BRAIN-04**: ADDRESSES_PROBLEM_TYPE cleanup (remove __Entity__ noise, add effectiveness scores)
+- [ ] **BRAIN-05**: 2D ProblemType matrix wiring (Definition x Complexity with Framework recommendations)
+- [ ] **BRAIN-06**: Full provenance chain: Book -> GROUNDS_FRAMEWORK -> Framework -> ADDRESSES_PROBLEM_TYPE -> ProblemType
 
-### Interpretation & Strategy Layer (The Moat)
+### Brain: Lazy Graph Bridge (Workstream A)
 
-- [x] **INTERP-01**: Each whitespace zone classified by problem type (Ill-Defined / Well-Defined / Wicked / Un-Defined) using Brain's problem taxonomy and nearest framework context
-- [x] **INTERP-02**: Framework chain selection uses Brain's FEEDS_INTO edges and effectiveness scores to sequence exploration methodology for each classified gap
-- [x] **INTERP-03**: Hypothesis generation runs THROUGH the selected framework chain -- Larry generates hypotheses contextualized by the methodology, not generic prompting
-- [x] **INTERP-04**: TopicForest hierarchical gap tree built from room + Brain embeddings using agglomerative clustering with binary partitioning and recursive Claude labeling -- sparse branches = whitespace zones at multiple granularity levels
+- [ ] **LAZY-01**: ALIAS_OF bridge from high-rel LazyGraphConcepts to canonical nodes
+- [ ] **LAZY-02**: Promote valuable LazyGraphConcepts (3+ Framework CO_OCCURS) to Concept
+- [ ] **LAZY-03**: Clean 511 orphan LazyGraphConcepts
+- [ ] **LAZY-04**: CO_OCCURS weight-based query patterns (weight >= 2 filter)
 
-### Pipeline Integration (Discovery Cycle)
+### Brain: Fragmentation Cleanup (Workstream A)
 
-- [x] **PIPE-01**: HSI -> Whitespace integration: after HSI finds surprising artifact pairs, whitespace maps what's BETWEEN them (the missing connecting artifact)
-- [x] **PIPE-02**: RS -> Whitespace integration: after RS finds bottleneck section, whitespace maps empty territory DOWNSTREAM of each bottleneck
-- [x] **PIPE-03**: Analogy -> Whitespace integration: after analogy engine maps cross-domain, whitespace identifies where causal/structural transfer hasn't been articulated
-- [x] **PIPE-04**: Discovery Cycle automation: HSI -> Whitespace -> RS -> Analogy chained in sequence, each feeding the next, on post-write hook or /mos:whitespace command
+- [ ] **FRAG-01**: ProblemType consolidation (150+ nodes -> 4 canonical + ALIAS_OF + SUBTYPE_OF)
+- [ ] **FRAG-02**: Book dedup (88 null-title + 6x duplicates) + INTRODUCES_FRAMEWORK mislanding fix
+- [ ] **FRAG-03**: Opportunity Bank consolidation (21 nodes -> 1 canonical with full wiring)
+- [ ] **FRAG-04**: DictionaryTerm dedup (8x copies per problem type)
+- [ ] **FRAG-05**: Label normalization (lowercase -> PascalCase, base/UNKNOWN removal)
 
-### Brain Whitespace Intelligence (Learning Loop)
+### Brain: Agent + Teaching Wiring (Workstream A)
 
-- [ ] **BRAIN-01**: Whitespace pattern data written to Neo4j Brain -- WhitespaceZone nodes linked to Framework chains that explored them
-- [ ] **BRAIN-02**: Cross-room whitespace patterns tracked in Brain (anonymized) -- Brain learns which gap types are real opportunities vs noise across all users
-- [ ] **BRAIN-03**: TYPICAL_WHITESPACE edges connecting ProblemType -> common whitespace patterns discovered across rooms
-- [x] **BRAIN-04**: Brain query patterns for whitespace intelligence -- "what gaps did similar ventures find?" and "which framework chains resolved similar whitespace?"
+- [ ] **WIRE-01**: FrameworkAgents 10/10 wired (DERIVED_FROM + APPLIES_TO + IMPLEMENTED_BY)
+- [ ] **WIRE-02**: CaseStudies 26+/30 wired (Challenger, NASA, Marconi, Naval Aviation + student projects)
+- [ ] **WIRE-03**: Workshop -> TEACHES -> Framework (0 -> 16+ edges)
+- [ ] **WIRE-04**: Bot -> IMPLEMENTS -> Framework (0 -> 15+ edges)
+- [ ] **WIRE-05**: CorePrinciple -> GOVERNS (0 -> 20+ edges)
 
-### Output & Visualization
+### Install: Dummy-Proof Experience (Workstream B)
 
-- [ ] **OUT-01**: /mos:whitespace command with subcommands: map, analyze, hypothesis, tree, score, external, compare
-- [ ] **OUT-02**: Whitespace visualization in De Stijl dashboard -- D3.js density map (UMAP 2D scatter + KDE contours) and TopicForest tree overlay
-- [x] **OUT-03**: KuzuDB WhitespaceZone nodes storing density_score, nearest_frameworks, hypothesis, strategic_rank, problem_type, exploration_status
-- [ ] **OUT-04**: Every filed artifact gets a novelty score (embedding distance from Brain consensus) -- replaces Jaccard-based scoring
-- [ ] **OUT-05**: Per-section WHITESPACE.md files written to each room section folder -- small ICM-native context files showing detected gaps relevant to THAT section, updated on each whitespace run
-
-## Future Requirements
-
-None deferred -- full scope selected.
+- [ ] **INST-01**: Test install guide page on fresh Mac (Node.js from scratch, Claude Code, MindrianOS, Brain)
+- [ ] **INST-02**: Test install guide page on fresh Windows (same flow)
+- [ ] **INST-03**: Generate screenshots for every install step (Mac + Windows)
+- [ ] **INST-04**: Improve error messages in scripts to be human-readable (no raw stack traces)
+- [ ] **INST-05**: Test /mos:onboard flow end-to-end on fresh install
+- [ ] **INST-06**: Test /mos:onboard whats-new flow after update
+- [ ] **INST-07**: Document top 10 failure modes with one-line fixes on install page
+- [ ] **INST-08**: Verify email template renders correctly in Gmail, Outlook, Apple Mail
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Custom embedding model training | Using pre-trained llm-embedder; fine-tuning is a separate research effort |
-| Real-time patent monitoring | API polling adds infrastructure complexity; on-demand query is sufficient for v1.9.0 |
-| Multi-language embedding (Hebrew/Arabic) | llm-embedder is English-focused; multilingual (BAAI/bge-m3) deferred to future |
-| Whitespace-as-a-service (paid MCP) | Business model decision not committed; architecture should support it but not build the billing |
-| Drug discovery / biomedical vertical | Domain-agnostic architecture supports it but no domain-specific tuning in this milestone |
-| Innovation Authority / TTO integration | National-scale deployment is a separate initiative; architecture enables but doesn't target |
+| Context engineering optimization | Separate milestone v1.9.0 |
+| New Brain node types (Room, RoomGroup) | Already shipped in v1.8.6 Phase 59.2 |
+| Grading calibration data | Requires Lawrence's actual grading records -- flagged as SystemGap |
+| Video walkthrough | Nice-to-have, defer to v1.9.0 |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EMBED-01 | Phase 60 | Complete |
-| EMBED-02 | Phase 60 | Complete |
-| EMBED-03 | Phase 61 | Pending |
-| EMBED-04 | Phase 61 | Pending |
-| EMBED-05 | Phase 66 | Complete |
-| INTERP-01 | Phase 62 | Complete |
-| INTERP-02 | Phase 62 | Complete |
-| INTERP-03 | Phase 62 | Complete |
-| INTERP-04 | Phase 63 | Complete |
-| PIPE-01 | Phase 64 | Complete |
-| PIPE-02 | Phase 64 | Complete |
-| PIPE-03 | Phase 64 | Complete |
-| PIPE-04 | Phase 64 | Complete |
-| BRAIN-01 | Phase 65 | Pending |
-| BRAIN-02 | Phase 65 | Pending |
-| BRAIN-03 | Phase 65 | Pending |
-| BRAIN-04 | Phase 65 | Complete |
-| OUT-01 | Phase 66 | Pending |
-| OUT-02 | Phase 66 | Pending |
-| OUT-03 | Phase 61 | Complete |
-| OUT-04 | Phase 61 | Pending |
-| OUT-05 | Phase 61 | Pending |
+| BRAIN-01 | Phase 60 | Pending |
+| BRAIN-02 | Phase 60 | Pending |
+| BRAIN-03 | Phase 60 | Pending |
+| BRAIN-04 | Phase 60 | Pending |
+| BRAIN-05 | Phase 60 | Pending |
+| BRAIN-06 | Phase 60 | Pending |
+| LAZY-01 | Phase 61 | Pending |
+| LAZY-02 | Phase 61 | Pending |
+| LAZY-03 | Phase 61 | Pending |
+| LAZY-04 | Phase 61 | Pending |
+| FRAG-01 | Phase 62 | Pending |
+| FRAG-02 | Phase 62 | Pending |
+| FRAG-03 | Phase 62 | Pending |
+| FRAG-04 | Phase 62 | Pending |
+| FRAG-05 | Phase 62 | Pending |
+| WIRE-01 | Phase 63 | Pending |
+| WIRE-02 | Phase 63 | Pending |
+| WIRE-03 | Phase 63 | Pending |
+| WIRE-04 | Phase 63 | Pending |
+| WIRE-05 | Phase 63 | Pending |
+| INST-01 | Phase 64 | Pending |
+| INST-02 | Phase 64 | Pending |
+| INST-03 | Phase 64 | Pending |
+| INST-04 | Phase 64 | Pending |
+| INST-05 | Phase 64 | Pending |
+| INST-06 | Phase 64 | Pending |
+| INST-07 | Phase 64 | Pending |
+| INST-08 | Phase 64 | Pending |
 
 **Coverage:**
-- v1.9.0 requirements: 22 total
-- Mapped to phases: 21
+- v1.8.8 requirements: 28 total
+- Mapped to phases: 28
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-04-08*
-*Last updated: 2026-04-08 after roadmap creation*
+*Requirements defined: 2026-04-07*
+*Last updated: 2026-04-07 after initial definition*
