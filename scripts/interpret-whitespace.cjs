@@ -346,6 +346,77 @@ function validateZone(gap, gapIndex, umap2d, brainFrameworkNames) {
 }
 
 // ---------------------------------------------------------------------------
+// Hypothesis Prompt Builder (D-10, D-11)
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a structured prompt for Claude to generate a methodology-aware hypothesis.
+ * The script outputs this prompt -- it does NOT call Claude itself. Larry uses the
+ * prompt at runtime for lazy hypothesis generation (D-09).
+ *
+ * @param {Object} gap - enriched whitespace gap with problem_type, framework_chain, etc.
+ * @param {Array} roomArtifacts - nearest room artifact summaries [{title, id, section}]
+ * @param {Object} brainDescriptions - map of framework name to description string
+ * @returns {string} Structured prompt for Claude
+ */
+function buildHypothesisPrompt(gap, roomArtifacts, brainDescriptions) {
+  const fw = gap.brain_framework || 'unknown methodology';
+  const pt = gap.problem_type || 'Un-Defined';
+  const chain = gap.framework_chain || [];
+  const density = gap.density_score || 0;
+
+  // Build framework chain description
+  const chainDescriptions = chain.map((fwName, i) => {
+    const desc = (brainDescriptions && brainDescriptions[fwName]) || 'No description available';
+    return `  ${i + 1}. **${fwName}:** ${desc}`;
+  }).join('\n');
+
+  // Build nearest artifact context
+  const artifactContext = (roomArtifacts || []).map(a => {
+    const title = a.title || a.id || 'untitled';
+    const section = a.section || 'unknown';
+    return `  - "${title}" (in ${section}/)`;
+  }).join('\n') || '  - No nearby artifacts found';
+
+  // Framework-specific question templates
+  const questionTemplates = {
+    'Ill-Defined': `Through ${chain[0] || fw} lens: what job is the user hiring this solution for, and what progress are they trying to make?`,
+    'Well-Defined': `Through ${chain[0] || fw} lens: what categories of analysis are missing, and how do they decompose the problem?`,
+    'Wicked': `Through ${chain[0] || fw} lens: what feedback loops and unintended consequences are unexamined in this territory?`,
+    'Un-Defined': `Through ${chain[0] || fw} lens: what beautiful question would open this unexplored territory for structured investigation?`,
+  };
+  const frameworkQuestion = questionTemplates[pt] || questionTemplates['Un-Defined'];
+
+  const prompt = `You are analyzing a whitespace gap in a venture's Data Room.
+
+## Zone Context
+- **Problem Type:** ${pt}
+- **Primary Framework:** ${fw}
+- **Density Score:** ${density} (lower = more sparse, indicating larger gap)
+- **Validation Status:** ${gap.validated ? 'Validated' : 'Unvalidated'}
+
+## Framework Chain for Exploration
+${chainDescriptions || '  (No framework chain available)'}
+
+## Nearest Room Artifacts
+${artifactContext}
+
+## Your Task
+
+Generate a 3-part hypothesis for this whitespace gap:
+
+1. **What's missing and why it matters:** Describe what knowledge, analysis, or perspective is absent from this region of the venture's understanding. Explain why this gap creates risk or missed opportunity.
+
+2. **Framework-driven question:** ${frameworkQuestion}
+
+3. **Suggested next action:** Recommend a specific action -- either a /mos: command (e.g., \`/mos:methodology jtbd\`, \`/mos:pipeline bono\`) or an artifact to create (e.g., "create market-analysis/customer-jobs.md"). Be specific to the venture's context.
+
+Output ONLY the 3-part hypothesis. No preamble.`;
+
+  return prompt;
+}
+
+// ---------------------------------------------------------------------------
 // Brain queries (READ-ONLY per D-12)
 // ---------------------------------------------------------------------------
 
@@ -513,10 +584,18 @@ async function interpretWhitespace(roomDir) {
 // ---------------------------------------------------------------------------
 
 if (require.main === module) {
-  const roomDir = process.argv[2];
+  const args = process.argv.slice(2);
+  const hypothesize = args.includes('--hypothesize');
+  const hypothesizeCountArg = args.find((a, i) => args[i - 1] === '--top');
+  const hypothesizeCount = hypothesizeCountArg ? parseInt(hypothesizeCountArg, 10) : 3;
+  const roomDir = args.find(a => !a.startsWith('-') && a !== hypothesizeCountArg);
 
   if (!roomDir) {
-    console.error('Usage: node scripts/interpret-whitespace.cjs /path/to/room');
+    console.error('Usage: node scripts/interpret-whitespace.cjs /path/to/room [--hypothesize] [--top N]');
+    console.error('');
+    console.error('Options:');
+    console.error('  --hypothesize   Generate hypothesis prompts for top validated gaps');
+    console.error('  --top N         Number of gaps to generate hypotheses for (default: 3)');
     console.error('');
     console.error('Reads:  .mindrian/whitespace-results.json');
     console.error('Writes: .mindrian/interpretation-results.json');
@@ -531,6 +610,27 @@ if (require.main === module) {
 
   interpretWhitespace(resolvedDir)
     .then(result => {
+      // If --hypothesize, generate hypothesis prompts for top validated gaps
+      if (hypothesize) {
+        const validatedGaps = result.gaps
+          .filter(g => g.validated)
+          .sort((a, b) => (a.density_score || 0) - (b.density_score || 0)) // lower density = bigger gap
+          .slice(0, hypothesizeCount);
+
+        for (const gap of validatedGaps) {
+          const artifacts = (gap.nearest_room_artifacts || []).map(a => {
+            if (typeof a === 'string') return { id: a, title: a };
+            return { id: a.artifact_id || a.id, title: a.title || a.artifact_id, section: a.section };
+          });
+          gap.hypothesis_prompt = buildHypothesisPrompt(gap, artifacts, {});
+        }
+
+        // Re-write with hypothesis prompts
+        const outPath = path.join(resolvedDir, '.mindrian', 'interpretation-results.json');
+        fs.writeFileSync(outPath, JSON.stringify(result, null, 2), 'utf-8');
+        process.stderr.write(`Generated hypothesis prompts for ${validatedGaps.length} validated gaps\n`);
+      }
+
       const outPath = path.join(resolvedDir, '.mindrian', 'interpretation-results.json');
       console.log(`Output: ${outPath}`);
     })
@@ -553,5 +653,6 @@ module.exports = {
   brainConsensusGate,
   semanticCoherenceGate,
   validateZone,
+  buildHypothesisPrompt,
   interpretWhitespace,
 };

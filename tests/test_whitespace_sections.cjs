@@ -102,6 +102,33 @@ function setup() {
     JSON.stringify(mockResults, null, 2),
     'utf-8'
   );
+
+  // Mock interpretation-results.json (Phase 62 enrichment)
+  const mockInterpretation = {
+    metadata: { interpretation_timestamp: '2026-04-08T01:00:00Z' },
+    gaps: [
+      {
+        brain_framework: 'Jobs-to-be-Done',
+        problem_type: 'Ill-Defined',
+        framework_chain: ['JTBD', 'Process Mapping', 'Reverse Salients'],
+        validated: true,
+        validation: { gates_passed: ['anchor', 'brain_consensus', 'semantic_coherence'], gates_failed: [] },
+      },
+      {
+        brain_framework: 'Blue Ocean Strategy',
+        problem_type: 'Well-Defined',
+        framework_chain: ['MECE', 'Pyramid Principle'],
+        validated: false,
+        validation: { gates_passed: ['brain_consensus'], gates_failed: ['anchor'] },
+      },
+    ],
+  };
+
+  fs.writeFileSync(
+    path.join(roomDir, '.mindrian', 'interpretation-results.json'),
+    JSON.stringify(mockInterpretation, null, 2),
+    'utf-8'
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -202,6 +229,34 @@ try {
     assert.ok(maContent.includes('## Section Novelty Scores'), 'Should have novelty table');
     assert.ok(maContent.includes('Competitors'), 'Should list Competitors artifact');
     assert.ok(maContent.includes('0.88'), 'Should show novelty score 0.88');
+  });
+
+  // -- Phase 62 interpretation enrichment tests --
+  test('problem-definition has problem type badge [Ill-Defined]', () => {
+    assert.ok(pdContent.includes('[Ill-Defined]'), 'Should have problem type badge');
+  });
+
+  test('problem-definition has framework chain (Explore via)', () => {
+    assert.ok(pdContent.includes('**Explore via:**'), 'Should have framework chain');
+    assert.ok(pdContent.includes('JTBD'), 'Chain should include JTBD');
+    assert.ok(pdContent.includes('Process Mapping'), 'Chain should include Process Mapping');
+  });
+
+  test('problem-definition has Validated confidence', () => {
+    assert.ok(pdContent.includes('Validated'), 'Should show validated status');
+  });
+
+  test('market-analysis has problem type badge [Well-Defined]', () => {
+    assert.ok(maContent.includes('[Well-Defined]'), 'Should have Well-Defined badge');
+  });
+
+  test('market-analysis has Unvalidated confidence', () => {
+    assert.ok(maContent.includes('Unvalidated'), 'Should show unvalidated status');
+  });
+
+  test('market-analysis has framework chain (Explore via)', () => {
+    assert.ok(maContent.includes('**Explore via:**'), 'Should have framework chain');
+    assert.ok(maContent.includes('MECE'), 'Chain should include MECE');
   });
 
   // -- solution-design/WHITESPACE.md (no gaps, no novelty) --

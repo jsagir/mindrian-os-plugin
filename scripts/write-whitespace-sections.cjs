@@ -114,6 +114,24 @@ function main() {
   const noveltyScores = data.novelty_scores || [];
   const timestamp = metadata.timestamp || new Date().toISOString();
 
+  // Check for interpretation-results.json (Phase 62 enrichment)
+  const interpPath = path.join(resolvedRoom, '.mindrian', 'interpretation-results.json');
+  let interpGapMap = {};
+  if (fs.existsSync(interpPath)) {
+    try {
+      const interpData = JSON.parse(fs.readFileSync(interpPath, 'utf-8'));
+      if (interpData && Array.isArray(interpData.gaps)) {
+        for (const ig of interpData.gaps) {
+          if (ig.brain_framework) {
+            interpGapMap[ig.brain_framework] = ig;
+          }
+        }
+      }
+    } catch (e) {
+      // Malformed interpretation -- continue without enrichment
+    }
+  }
+
   // --- Group gaps by section ---
   // Each gap has nearest_room_artifacts which can be objects or strings.
   // Extract section from artifact_id or the string itself.
@@ -189,7 +207,7 @@ function main() {
       continue;
     }
 
-    const content = buildWhitespaceMd(section, sectionGaps, sectionNovelty, timestamp);
+    const content = buildWhitespaceMd(section, sectionGaps, sectionNovelty, timestamp, interpGapMap);
     fs.writeFileSync(sectionPath, content, 'utf-8');
     sectionsWritten++;
     totalGapsDistributed += sectionGaps.length;
@@ -236,9 +254,10 @@ function buildMinimalWhitespace(section, timestamp) {
  * @param {Array} sectionGaps
  * @param {Array} sectionNovelty
  * @param {string} timestamp
+ * @param {Object} interpGapMap - interpretation enrichment keyed by brain_framework
  * @returns {string}
  */
-function buildWhitespaceMd(section, sectionGaps, sectionNovelty, timestamp) {
+function buildWhitespaceMd(section, sectionGaps, sectionNovelty, timestamp, interpGapMap) {
   // Compute average novelty
   let avgNovelty = 0;
   if (sectionNovelty.length > 0) {
@@ -273,7 +292,33 @@ function buildWhitespaceMd(section, sectionGaps, sectionNovelty, timestamp) {
       const density = r3(gap.density_score || 0);
       const rank = r3(gap.strategic_rank || 0);
 
-      lines.push(`### ${i + 1}. ${gap.brain_framework} (density: ${density})`);
+      // Check interpretation enrichment
+      const interp = (interpGapMap || {})[gap.brain_framework];
+      const problemType = (interp && interp.problem_type) || gap.problem_type || '';
+      const frameworkChain = (interp && interp.framework_chain) || [];
+      const validated = interp && interp.validated;
+      const validationGates = (interp && interp.validation) || {};
+
+      // Gap heading with problem type badge
+      const badge = problemType ? ` [${problemType}]` : '';
+      lines.push(`### ${i + 1}. ${gap.brain_framework}${badge} (density: ${density})`);
+
+      // Framework chain suggestion
+      if (frameworkChain.length > 0) {
+        lines.push(`- **Explore via:** ${frameworkChain.join(' -> ')}`);
+      }
+
+      // Validation status
+      if (interp) {
+        const passedGates = (validationGates.gates_passed || []).map(g =>
+          g.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())
+        );
+        if (validated) {
+          lines.push(`- **Confidence:** Validated (${passedGates.join(' + ')})`);
+        } else {
+          lines.push(`- **Confidence:** Unvalidated`);
+        }
+      }
 
       // Strategic rank
       lines.push(`- **Strategic rank:** ${rank}`);

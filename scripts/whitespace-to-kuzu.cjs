@@ -88,6 +88,28 @@ async function main() {
   const gaps = data.gaps || [];
   const noveltyScores = data.novelty_scores || [];
 
+  // Check for interpretation-results.json (from Phase 62 interpret-whitespace.cjs)
+  // If present, use enriched gaps with problem_type and framework_chain
+  const interpPath = path.join(resolvedRoom, '.mindrian', 'interpretation-results.json');
+  let interpData = null;
+  if (fs.existsSync(interpPath)) {
+    try {
+      interpData = JSON.parse(fs.readFileSync(interpPath, 'utf-8'));
+    } catch (e) {
+      // Malformed interpretation -- continue with raw gaps
+    }
+  }
+
+  // Build lookup from interpretation data keyed by brain_framework
+  const interpGapMap = {};
+  if (interpData && Array.isArray(interpData.gaps)) {
+    for (const ig of interpData.gaps) {
+      if (ig.brain_framework) {
+        interpGapMap[ig.brain_framework] = ig;
+      }
+    }
+  }
+
   let db;
   try {
     const graph = await openGraph(resolvedRoom);
@@ -104,18 +126,23 @@ async function main() {
       const slug = slugify(framework);
       const zoneId = `ws-${slug}-${shortHash(framework)}`;
 
+      // Enrich from interpretation-results.json if available
+      const interp = interpGapMap[framework] || {};
+      const problemType = interp.problem_type || gap.problem_type || '';
+      const frameworkChain = interp.framework_chain
+        ? JSON.stringify(interp.framework_chain)
+        : '[]';
+
       // Create WhitespaceZone node
       await addWhitespaceZone(conn, {
         id: zoneId,
         brain_framework: framework,
         density_score: gap.density_score || 0.0,
         knn_density: gap.knn_density || 0.0,
-        nearest_frameworks: Array.isArray(gap.nearest_room_artifacts)
-          ? JSON.stringify(gap.nearest_room_artifacts)
-          : '[]',
+        nearest_frameworks: frameworkChain,
         hypothesis: gap.hypothesis || '',
         strategic_rank: gap.strategic_rank || 0.0,
-        problem_type: gap.problem_type || '',
+        problem_type: problemType,
         exploration_status: 'detected',
         created: new Date().toISOString(),
       });

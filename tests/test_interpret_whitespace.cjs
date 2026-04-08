@@ -279,12 +279,13 @@ const mockUmap2d = {
   ],
 };
 
-// Import new gate functions
+// Import new gate + hypothesis functions
 const {
   anchorGate,
   brainConsensusGate,
   semanticCoherenceGate,
   validateZone,
+  buildHypothesisPrompt,
 } = mod;
 
 console.log('');
@@ -375,6 +376,55 @@ test('validateZone returns invalid when Anchor gate fails', () => {
   const result = validateZone(gap, 0, mockUmap2d, brainFrameworkNames);
   assert.strictEqual(result.valid, false, 'Should be invalid when anchor fails');
   assert.ok(result.gates_failed.includes('anchor'), 'Should fail anchor gate');
+});
+
+// ---------------------------------------------------------------------------
+// Hypothesis Prompt Builder tests
+// ---------------------------------------------------------------------------
+
+console.log('');
+console.log('Test: buildHypothesisPrompt');
+console.log('');
+
+test('buildHypothesisPrompt produces structured prompt with zone context', () => {
+  const gap = {
+    brain_framework: 'JTBD',
+    problem_type: 'Ill-Defined',
+    framework_chain: ['JTBD', 'Process Mapping', 'Reverse Salients'],
+    density_score: -5.23,
+    validated: true,
+  };
+  const artifacts = [{ title: 'Pain Points', id: 'problem-definition/pain-points.md', section: 'problem-definition' }];
+  const descriptions = { 'JTBD': 'Jobs-to-be-Done framework for understanding customer needs' };
+
+  const prompt = buildHypothesisPrompt(gap, artifacts, descriptions);
+  assert.ok(typeof prompt === 'string', 'Should return a string');
+  assert.ok(prompt.includes('Ill-Defined'), 'Should include problem type');
+  assert.ok(prompt.includes('JTBD'), 'Should include framework name');
+  assert.ok(prompt.includes('Process Mapping'), 'Should include chain frameworks');
+  assert.ok(prompt.includes('Pain Points'), 'Should include nearest artifact');
+  assert.ok(prompt.includes("What's missing"), 'Should include 3-part format instruction');
+  assert.ok(prompt.includes('Framework-driven question'), 'Should include framework question instruction');
+  assert.ok(prompt.includes('Suggested next action'), 'Should include action instruction');
+});
+
+test('buildHypothesisPrompt includes framework-specific question for Wicked type', () => {
+  const gap = {
+    brain_framework: 'Systems Thinking',
+    problem_type: 'Wicked',
+    framework_chain: ['Systems Thinking', 'Causal Loop Diagrams'],
+    density_score: -4.0,
+    validated: true,
+  };
+  const prompt = buildHypothesisPrompt(gap, [], {});
+  assert.ok(prompt.includes('feedback loops'), 'Wicked type should ask about feedback loops');
+});
+
+test('buildHypothesisPrompt handles missing data gracefully', () => {
+  const gap = { brain_framework: '', problem_type: '', framework_chain: [], density_score: 0 };
+  const prompt = buildHypothesisPrompt(gap, [], {});
+  assert.ok(typeof prompt === 'string', 'Should still return a string');
+  assert.ok(prompt.length > 100, 'Should produce a non-trivial prompt');
 });
 
 // Run async integration tests
