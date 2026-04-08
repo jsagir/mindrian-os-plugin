@@ -513,6 +513,8 @@ function main() {
   const graph = collectGraph(roomDir);
   const kuzu = collectKuzu(roomDir, graph);
   const stats = collectStats(roomDir, totalArtifacts, sections.length);
+  const whitespace = collectWhitespace(roomDir);
+  const topicForest = collectTopicForest(roomDir);
 
   // Update edge count from graph data
   stats.edges = (graph.elements.edges || []).length;
@@ -533,6 +535,9 @@ function main() {
     assets,
     team,
     videoUrl,
+    whitespace,
+    topicForest,
+    sectionColors: SECTION_COLORS,
     state: { name: ventureName, stage },
     currentView: 'graph',
   };
@@ -588,6 +593,137 @@ function main() {
   console.log('  Graph: ' + (graph.elements.nodes || []).length + ' nodes, ' + (graph.elements.edges || []).length + ' edges');
   if (kuzu.available) {
     console.log('  LazyGraph: ' + JSON.stringify(kuzu.edges));
+  }
+  if (whitespace) {
+    console.log('  Whitespace: ' + (whitespace.points || []).length + ' points, ' + (whitespace.zones || []).length + ' zones');
+  }
+  if (topicForest) {
+    console.log('  TopicForest: loaded');
+  }
+}
+
+// -- Whitespace + TopicForest data collection --
+
+function collectWhitespace(roomDir) {
+  const mindrianDir = path.join(roomDir, '.mindrian');
+
+  // Try to read whitespace-results.json
+  const resultsPath = path.join(mindrianDir, 'whitespace-results.json');
+  const resultsContent = safeRead(resultsPath);
+  if (!resultsContent) return null;
+
+  let results;
+  try {
+    results = JSON.parse(resultsContent);
+  } catch (_) {
+    return null;
+  }
+
+  // Get UMAP 2D points - check for pre-computed or cached
+  let umap2d = results.umap_2d || null;
+
+  // If no umap_2d in results, check for cached viz projection
+  if (!umap2d) {
+    const cachedPath = path.join(mindrianDir, 'umap-2d-viz.json');
+    const cachedContent = safeRead(cachedPath);
+    if (cachedContent) {
+      try {
+        const cached = JSON.parse(cachedContent);
+        // Check staleness - compare timestamps
+        const cachedStat = fs.statSync(cachedPath);
+        const resultsStat = fs.statSync(resultsPath);
+        if (cachedStat.mtimeMs >= resultsStat.mtimeMs) {
+          umap2d = cached.points || cached;
+        }
+      } catch (_) {}
+    }
+  }
+
+  // If still no 2D points, try to compute via Python (PCA fallback)
+  if (!umap2d) {
+    const embeddingsPath = path.join(mindrianDir, 'whitespace-embeddings.json');
+    if (fs.existsSync(embeddingsPath)) {
+      umap2d = computeUmap2D(embeddingsPath, mindrianDir);
+    }
+  }
+
+  // Extract zones
+  const zones = results.zones || [];
+
+  // Extract KDE contours (pre-computed or null)
+  const kdeContours = results.kde_contours || null;
+
+  return {
+    points: umap2d || [],
+    zones: zones,
+    kdeContours: kdeContours,
+  };
+}
+
+function computeUmap2D(embeddingsPath, mindrianDir) {
+  // Try UMAP first, fall back to PCA
+  const outputPath = path.join(mindrianDir, 'umap-2d-viz.json');
+
+  const pyScript = [
+    'import json, sys, os',
+    'emb_path = sys.argv[1]',
+    'out_path = sys.argv[2]',
+    'with open(emb_path) as f: data = json.load(f)',
+    'points = data if isinstance(data, list) else data.get("embeddings", [])',
+    'if not points: sys.exit(0)',
+    'import numpy as np',
+    'ids = [p.get("id","") for p in points]',
+    'types = [p.get("type","room") for p in points]',
+    'labels = [p.get("label","") for p in points]',
+    'sections = [p.get("section","") for p in points]',
+    'vecs = np.array([p["embedding"] for p in points])',
+    'try:',
+    '    from umap import UMAP',
+    '    reducer = UMAP(n_components=2, random_state=42, n_neighbors=min(15, len(vecs)-1))',
+    '    coords = reducer.fit_transform(vecs)',
+    'except ImportError:',
+    '    from sklearn.decomposition import PCA',
+    '    reducer = PCA(n_components=2)',
+    '    coords = reducer.fit_transform(vecs)',
+    'result = []',
+    'for i in range(len(ids)):',
+    '    result.append({"id": ids[i], "x": float(coords[i][0]), "y": float(coords[i][1]), "type": types[i], "label": labels[i], "section": sections[i]})',
+    'with open(out_path, "w") as f: json.dump({"points": result}, f)',
+  ].join('\n');
+
+  const tmpPy = path.join(mindrianDir, '.tmp-umap-2d.py');
+  try {
+    fs.writeFileSync(tmpPy, pyScript, 'utf-8');
+    safeExec('python3 "' + tmpPy + '" "' + embeddingsPath + '" "' + outputPath + '"', 30000);
+    fs.unlinkSync(tmpPy);
+
+    const output = safeRead(outputPath);
+    if (output) {
+      const parsed = JSON.parse(output);
+      return parsed.points || [];
+    }
+  } catch (_) {
+    try { fs.unlinkSync(tmpPy); } catch (_e) {}
+  }
+
+  return null;
+}
+
+function collectTopicForest(roomDir) {
+  const mindrianDir = path.join(roomDir, '.mindrian');
+
+  // Try labeled version first, then plain
+  const labeledPath = path.join(mindrianDir, 'topic-forest-labeled.json');
+  const plainPath = path.join(mindrianDir, 'topic-forest.json');
+
+  const content = safeRead(labeledPath) || safeRead(plainPath);
+  if (!content) return null;
+
+  try {
+    const data = JSON.parse(content);
+    return data.tree || data;
+  } catch (_) {
+    return null;
   }
 }
 
