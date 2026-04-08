@@ -115,8 +115,11 @@ Plans:
   1. After HSI finds surprising artifact pairs, whitespace automatically maps what's BETWEEN them (the missing connecting artifact)
   2. After RS finds a bottleneck section, whitespace maps empty territory DOWNSTREAM of each bottleneck
   3. After Analogy maps cross-domain transfer, whitespace identifies where causal/structural transfer hasn't been articulated
-  4. The full Discovery Cycle (HSI -> Whitespace -> RS -> Analogy) can run as a chained sequence via post-write hook or /mos:whitespace command
-**Plans**: TBD
+  4. The full Discovery Cycle (HSI -> Whitespace -> RS -> Analogy) can run as a chained sequence via /mos:whitespace discover command
+**Plans:** 2 plans
+Plans:
+- [ ] 64-01-PLAN.md -- HSI-seeded, RS-seeded, and Analogy-seeded whitespace detection scripts
+- [ ] 64-02-PLAN.md -- Discovery Cycle orchestrator with chained execution and dry-run validation
 
 ### Phase 65: Brain Intelligence Layer
 **Goal**: The Brain learns from whitespace discoveries across all rooms, enabling "what gaps did similar ventures find?" intelligence
@@ -151,8 +154,8 @@ Note: Phase 63 depends only on Phase 60, so it can run in parallel with Phase 61
 | 60. Embedding Infrastructure | v1.9.0 | 2/2 | Complete    | 2026-04-08 |
 | 61. Novelty Scoring & Gap Detection | v1.9.0 | 2/3 | Complete    | 2026-04-08 |
 | 62. Interpretation Layer | v1.9.0 | 2/2 | Complete    | 2026-04-08 |
-| 63. TopicForest Hierarchical Clustering | v1.9.0 | 2/2 | Complete   | 2026-04-08 |
-| 64. Pipeline Integration | v1.9.0 | 0/TBD | Not started | - |
+| 63. TopicForest Hierarchical Clustering | v1.9.0 | 2/2 | Complete    | 2026-04-08 |
+| 64. Pipeline Integration | v1.9.0 | 0/2 | Not started | - |
 | 65. Brain Intelligence Layer | v1.9.0 | 0/TBD | Not started | - |
 | 66. Command, Visualization & External Corpus | v1.9.0 | 0/TBD | Not started | - |
 
