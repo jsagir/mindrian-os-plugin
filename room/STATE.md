@@ -1,5 +1,5 @@
 ---
-computed: 2026-04-07T23:38:01Z
+computed: 2026-04-08T01:12:10Z
 venture_stage: Pre-Opportunity
 total_entries: 2
 ---

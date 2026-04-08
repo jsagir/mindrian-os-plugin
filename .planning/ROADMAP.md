@@ -47,7 +47,7 @@ Context engineering optimization parked due to intelligence tradeoff concern. Fu
 - [x] **Phase 62: Interpretation Layer** - Problem type classification, framework chain selection, and methodology-aware hypothesis generation (the moat) (completed 2026-04-08)
 - [x] **Phase 63: TopicForest Hierarchical Clustering** - Agglomerative topic tree with recursive Claude labeling to find sparse branches (completed 2026-04-08)
 - [x] **Phase 64: Pipeline Integration** - Chain whitespace with HSI, RS, and Analogy into a Discovery Cycle (completed 2026-04-08)
-- [ ] **Phase 65: Brain Intelligence Layer** - Write whitespace patterns to Neo4j Brain and enable cross-room learning
+- [x] **Phase 65: Brain Intelligence Layer** - Write whitespace patterns to Neo4j Brain and enable cross-room learning (completed 2026-04-08)
 - [ ] **Phase 66: Command, Visualization & External Corpus** - /mos:whitespace command, D3.js density map, and Semantic Scholar integration
 
 ## Phase Details
@@ -130,7 +130,7 @@ Plans:
   2. Cross-room whitespace patterns are tracked in Brain (anonymized) so the Brain learns which gap types are real opportunities vs noise
   3. TYPICAL_WHITESPACE edges connect ProblemType nodes to common whitespace patterns discovered across rooms
   4. Brain queries return actionable intelligence: "what gaps did similar ventures find?" and "which framework chains resolved similar whitespace?"
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 65-01-PLAN.md -- Whitespace-to-Brain write script + discovery-cycle integration
 - [x] 65-02-PLAN.md -- Brain query patterns 14-15 for whitespace intelligence
@@ -143,7 +143,11 @@ Plans:
   1. /mos:whitespace command works with subcommands: map, analyze, hypothesis, tree, score, external, compare
   2. De Stijl dashboard shows a D3.js density map (UMAP 2D scatter + KDE contours) with Brain baseline reference markers and a TopicForest tree overlay
   3. External corpus mode queries Semantic Scholar API, embeds results into the same semantic space, and detects cross-domain whitespace
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 66-01-PLAN.md -- /mos:whitespace command definition + CLI dispatcher (7 subcommands)
+- [ ] 66-02-PLAN.md -- Semantic Scholar external corpus integration (query + embed + cross-domain detection)
+- [ ] 66-03-PLAN.md -- D3.js density map + TopicForest tree dashboard panels
 **UI hint**: yes
 
 ## Progress
@@ -159,8 +163,8 @@ Note: Phase 63 depends only on Phase 60, so it can run in parallel with Phase 61
 | 62. Interpretation Layer | v1.9.0 | 2/2 | Complete    | 2026-04-08 |
 | 63. TopicForest Hierarchical Clustering | v1.9.0 | 2/2 | Complete    | 2026-04-08 |
 | 64. Pipeline Integration | v1.9.0 | 2/2 | Complete    | 2026-04-08 |
-| 65. Brain Intelligence Layer | v1.9.0 | 1/2 | In Progress|  |
-| 66. Command, Visualization & External Corpus | v1.9.0 | 0/TBD | Not started | - |
+| 65. Brain Intelligence Layer | v1.9.0 | 1/2 | Complete    | 2026-04-08 |
+| 66. Command, Visualization & External Corpus | v1.9.0 | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-04-08*
