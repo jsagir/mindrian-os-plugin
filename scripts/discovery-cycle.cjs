@@ -13,6 +13,7 @@
  *   5. Analogy -> Whitespace(transfer) -- run discover-analogy-whitespace.py
  *   6. Aggregate -- merge all discovery results into discovery-cycle-results.json
  *   7. Run interpret-whitespace.cjs on new zones (classify + hypothesis via Brain)
+ *   8. Write validated whitespace to Brain (fire-and-forget, never blocks)
  *
  * On-demand execution only (per D-11 -- NOT a post-write hook).
  *
@@ -424,6 +425,20 @@ async function runDiscoveryCycle(roomDir, options = {}) {
   if (aggregated.all_zones.length > 0) {
     log('Discovery Cycle: running interpretation pass...');
     runInterpretation(resolvedRoom, opts);
+  }
+
+  // Step 8: Write validated whitespace to Brain (fire-and-forget, per D-03)
+  if (!opts.dryRun) {
+    try {
+      execSync(`node "${path.join(SCRIPTS_DIR, 'whitespace-to-brain.cjs')}" "${resolvedRoom}"`, {
+        stdio: opts.verbose ? 'inherit' : 'pipe',
+        timeout: 30000  // 30s timeout -- fire and forget
+      });
+      if (opts.verbose) log('Brain write complete');
+    } catch (e) {
+      if (opts.verbose) log('Brain write skipped: ' + (e.message || 'unknown error'));
+      // Fire-and-forget: never block discovery cycle
+    }
   }
 
   // Print human-readable summary to stdout
