@@ -130,7 +130,10 @@ Plans:
   2. Cross-room whitespace patterns are tracked in Brain (anonymized) so the Brain learns which gap types are real opportunities vs noise
   3. TYPICAL_WHITESPACE edges connect ProblemType nodes to common whitespace patterns discovered across rooms
   4. Brain queries return actionable intelligence: "what gaps did similar ventures find?" and "which framework chains resolved similar whitespace?"
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 65-01-PLAN.md -- Whitespace-to-Brain write script + discovery-cycle integration
+- [ ] 65-02-PLAN.md -- Brain query patterns 14-15 for whitespace intelligence
 
 ### Phase 66: Command, Visualization & External Corpus
 **Goal**: Users interact with whitespace through a full command interface, see density maps in the dashboard, and can expand detection to external literature
@@ -155,8 +158,8 @@ Note: Phase 63 depends only on Phase 60, so it can run in parallel with Phase 61
 | 61. Novelty Scoring & Gap Detection | v1.9.0 | 2/3 | Complete    | 2026-04-08 |
 | 62. Interpretation Layer | v1.9.0 | 2/2 | Complete    | 2026-04-08 |
 | 63. TopicForest Hierarchical Clustering | v1.9.0 | 2/2 | Complete    | 2026-04-08 |
-| 64. Pipeline Integration | v1.9.0 | 2/2 | Complete   | 2026-04-08 |
-| 65. Brain Intelligence Layer | v1.9.0 | 0/TBD | Not started | - |
+| 64. Pipeline Integration | v1.9.0 | 2/2 | Complete    | 2026-04-08 |
+| 65. Brain Intelligence Layer | v1.9.0 | 0/2 | Not started | - |
 | 66. Command, Visualization & External Corpus | v1.9.0 | 0/TBD | Not started | - |
 
 ---
