@@ -261,6 +261,122 @@ function cleanup() {
   } catch (e) {}
 }
 
+// ---------------------------------------------------------------------------
+// Gate validation tests
+// ---------------------------------------------------------------------------
+
+// Mock UMAP data for anchor gate tests
+const mockUmap2d = {
+  room_artifacts: [
+    // Cluster A: tightly packed around (1, 1)
+    { id: 'art-a1', x: 1.0, y: 1.0, cluster: 'A' },
+    { id: 'art-a2', x: 1.1, y: 1.1, cluster: 'A' },
+    { id: 'art-a3', x: 0.9, y: 0.95, cluster: 'A' },
+    // Cluster B: tightly packed around (5, 5)
+    { id: 'art-b1', x: 5.0, y: 5.0, cluster: 'B' },
+    { id: 'art-b2', x: 5.1, y: 5.1, cluster: 'B' },
+    { id: 'art-b3', x: 4.9, y: 4.95, cluster: 'B' },
+  ],
+};
+
+// Import new gate functions
+const {
+  anchorGate,
+  brainConsensusGate,
+  semanticCoherenceGate,
+  validateZone,
+} = mod;
+
+console.log('');
+console.log('Test: anchorGate');
+console.log('');
+
+test('anchorGate rejects gaps at periphery (nearest artifacts from single cluster)', () => {
+  // Gap at (10, 10) - far from everything, nearest artifacts all from cluster A
+  const peripheralGap = {
+    brain_framework: 'JTBD',
+    nearest_room_artifacts: ['art-a1', 'art-a2', 'art-a3'],
+  };
+  const result = anchorGate(peripheralGap, 0, mockUmap2d);
+  assert.strictEqual(result.passed, false, 'Should reject peripheral gap');
+  assert.ok(result.reason.length > 0, 'Should provide rejection reason');
+});
+
+test('anchorGate passes gaps between 2+ distinct artifact clusters', () => {
+  // Gap between clusters A and B, nearest artifacts from both
+  const interpolationGap = {
+    brain_framework: 'Design Thinking',
+    nearest_room_artifacts: ['art-a1', 'art-a2', 'art-b1', 'art-b2'],
+  };
+  const result = anchorGate(interpolationGap, 0, mockUmap2d);
+  assert.strictEqual(result.passed, true, 'Should pass interpolation gap');
+});
+
+console.log('');
+console.log('Test: brainConsensusGate');
+console.log('');
+
+const brainFrameworkNames = ['JTBD', 'Design Thinking', 'Systems Thinking', 'MECE', 'Beautiful Questions'];
+
+test('brainConsensusGate rejects gaps where Brain has no framework nearby', () => {
+  const gap = { brain_framework: 'Nonexistent Framework XYZ' };
+  const result = brainConsensusGate(gap, brainFrameworkNames);
+  assert.strictEqual(result.passed, false, 'Should reject unknown framework');
+});
+
+test('brainConsensusGate passes gaps where Brain framework maps to region', () => {
+  const gap = { brain_framework: 'JTBD' };
+  const result = brainConsensusGate(gap, brainFrameworkNames);
+  assert.strictEqual(result.passed, true, 'Should pass known framework');
+});
+
+console.log('');
+console.log('Test: semanticCoherenceGate');
+console.log('');
+
+test('semanticCoherenceGate is placeholder that always passes', () => {
+  const gap = { brain_framework: 'Whatever' };
+  const result = semanticCoherenceGate(gap);
+  assert.strictEqual(result.passed, true, 'Placeholder should always pass');
+  assert.ok(result.reason.includes('deferred'), 'Should mention deferred');
+});
+
+console.log('');
+console.log('Test: validateZone');
+console.log('');
+
+test('validateZone returns valid when Anchor + Brain gates pass', () => {
+  const gap = {
+    brain_framework: 'JTBD',
+    nearest_room_artifacts: ['art-a1', 'art-b1', 'art-a2', 'art-b2'],
+  };
+  const result = validateZone(gap, 0, mockUmap2d, brainFrameworkNames);
+  assert.strictEqual(result.valid, true, 'Should be valid');
+  assert.ok(result.gates_passed.includes('anchor'), 'Should pass anchor gate');
+  assert.ok(result.gates_passed.includes('brain_consensus'), 'Should pass brain consensus gate');
+  assert.ok(result.gates_passed.includes('semantic_coherence'), 'Should pass semantic coherence gate');
+});
+
+test('validateZone returns invalid when Brain gate fails', () => {
+  const gap = {
+    brain_framework: 'Nonexistent Framework',
+    nearest_room_artifacts: ['art-a1', 'art-b1'],
+  };
+  const result = validateZone(gap, 0, mockUmap2d, brainFrameworkNames);
+  assert.strictEqual(result.valid, false, 'Should be invalid');
+  assert.ok(result.gates_failed.includes('brain_consensus'), 'Should fail brain consensus');
+});
+
+test('validateZone returns invalid when Anchor gate fails', () => {
+  const gap = {
+    brain_framework: 'JTBD',
+    nearest_room_artifacts: ['art-a1', 'art-a2', 'art-a3'],
+  };
+  const result = validateZone(gap, 0, mockUmap2d, brainFrameworkNames);
+  assert.strictEqual(result.valid, false, 'Should be invalid when anchor fails');
+  assert.ok(result.gates_failed.includes('anchor'), 'Should fail anchor gate');
+});
+
 // Run async integration tests
 (async () => {
   try {
