@@ -213,6 +213,139 @@ function selectFrameworkChain(problemType, startFramework, feedsIntoMap, problem
 }
 
 // ---------------------------------------------------------------------------
+// Three-Gate Validation (Pitfall 2 from PITFALLS-whitespace.md)
+// ---------------------------------------------------------------------------
+
+/**
+ * Anchor Gate: gap must lie BETWEEN populated clusters, not in void.
+ * Checks that nearest artifacts come from at least 2 distinct clusters
+ * by measuring UMAP coordinate spread among nearest artifacts.
+ *
+ * @param {Object} gap - whitespace gap with nearest_room_artifacts
+ * @param {number} gapIndex - index of gap in gaps array
+ * @param {Object} umap2d - UMAP 2D projection data { room_artifacts: [{id, x, y, cluster}] }
+ * @returns {{ passed: boolean, reason: string }}
+ */
+function anchorGate(gap, gapIndex, umap2d) {
+  const nearestIds = (gap.nearest_room_artifacts || []).map(a =>
+    typeof a === 'string' ? a : (a.artifact_id || a.id || a)
+  );
+
+  if (nearestIds.length < 2) {
+    return { passed: false, reason: 'Fewer than 2 nearest artifacts -- cannot determine cluster spread' };
+  }
+
+  const artCoords = (umap2d && umap2d.room_artifacts) || [];
+  const coordMap = {};
+  for (const art of artCoords) {
+    coordMap[art.id] = art;
+  }
+
+  // Collect coordinates of nearest artifacts that exist in UMAP data
+  const points = [];
+  for (const id of nearestIds) {
+    if (coordMap[id]) {
+      points.push(coordMap[id]);
+    }
+  }
+
+  if (points.length < 2) {
+    return { passed: false, reason: 'Insufficient UMAP data for nearest artifacts' };
+  }
+
+  // Check cluster diversity: if artifacts have cluster labels, use them
+  const clusters = new Set(points.map(p => p.cluster).filter(Boolean));
+  if (clusters.size >= 2) {
+    return { passed: true, reason: `Artifacts span ${clusters.size} clusters` };
+  }
+
+  // Fallback: measure coordinate spread (max pairwise distance)
+  let maxDist = 0;
+  for (let i = 0; i < points.length; i++) {
+    for (let j = i + 1; j < points.length; j++) {
+      const dx = points[i].x - points[j].x;
+      const dy = points[i].y - points[j].y;
+      maxDist = Math.max(maxDist, Math.sqrt(dx * dx + dy * dy));
+    }
+  }
+
+  // Threshold: artifacts must be spread > 1.0 UMAP units apart to suggest multiple clusters
+  const SPREAD_THRESHOLD = 1.0;
+  if (maxDist >= SPREAD_THRESHOLD) {
+    return { passed: true, reason: `Artifact spread ${maxDist.toFixed(2)} exceeds threshold ${SPREAD_THRESHOLD}` };
+  }
+
+  return { passed: false, reason: `Artifacts tightly clustered (spread ${maxDist.toFixed(2)} < ${SPREAD_THRESHOLD}) -- likely periphery, not interpolation gap` };
+}
+
+/**
+ * Brain Consensus Gate: gap's framework must exist in Brain's known frameworks.
+ * If Brain also has no framework for this region, the gap is noise.
+ *
+ * @param {Object} gap - whitespace gap with brain_framework field
+ * @param {string[]} brainFrameworkNames - list of known Brain framework names
+ * @returns {{ passed: boolean, reason: string }}
+ */
+function brainConsensusGate(gap, brainFrameworkNames) {
+  const fw = gap.brain_framework || '';
+  if (!fw) {
+    return { passed: false, reason: 'No brain_framework assigned to gap' };
+  }
+
+  const known = Array.isArray(brainFrameworkNames) ? brainFrameworkNames : [];
+  if (known.includes(fw)) {
+    return { passed: true, reason: `Framework "${fw}" exists in Brain` };
+  }
+
+  return { passed: false, reason: `Framework "${fw}" not found in Brain -- gap may be noise` };
+}
+
+/**
+ * Semantic Coherence Gate: placeholder that always passes.
+ * Full implementation requires embedding round-trip (generate description,
+ * embed, check distance) which happens during hypothesis generation.
+ *
+ * @param {Object} gap - whitespace gap
+ * @returns {{ passed: boolean, reason: string }}
+ */
+function semanticCoherenceGate(gap) {
+  return { passed: true, reason: 'Semantic coherence check deferred to hypothesis generation' };
+}
+
+/**
+ * Orchestrate all three gates for a whitespace zone.
+ * A zone must pass Anchor Gate AND Brain Consensus Gate to be valid.
+ * Semantic Coherence Gate is advisory (does not block).
+ *
+ * @param {Object} gap - whitespace gap
+ * @param {number} gapIndex - index in gaps array
+ * @param {Object} umap2d - UMAP 2D data
+ * @param {string[]} brainFrameworkNames - known framework names
+ * @returns {{ valid: boolean, gates_passed: string[], gates_failed: string[] }}
+ */
+function validateZone(gap, gapIndex, umap2d, brainFrameworkNames) {
+  const gates_passed = [];
+  const gates_failed = [];
+
+  const anchor = anchorGate(gap, gapIndex, umap2d);
+  if (anchor.passed) gates_passed.push('anchor');
+  else gates_failed.push('anchor');
+
+  const brain = brainConsensusGate(gap, brainFrameworkNames);
+  if (brain.passed) gates_passed.push('brain_consensus');
+  else gates_failed.push('brain_consensus');
+
+  const semantic = semanticCoherenceGate(gap);
+  if (semantic.passed) gates_passed.push('semantic_coherence');
+  else gates_failed.push('semantic_coherence');
+
+  // Must pass both Anchor AND Brain Consensus to be valid
+  const valid = anchor.passed && brain.passed;
+
+  return { valid, gates_passed, gates_failed };
+}
+
+// ---------------------------------------------------------------------------
 // Brain queries (READ-ONLY per D-12)
 // ---------------------------------------------------------------------------
 
@@ -331,6 +464,12 @@ async function interpretWhitespace(roomDir) {
     }
 
     counts[gap.problem_type] = (counts[gap.problem_type] || 0) + 1;
+
+    // Three-gate validation
+    const brainFrameworkNames = Object.keys(problemTypeMap);
+    const validation = validateZone(gap, gaps.indexOf(gap), wsData.umap_2d || {}, brainFrameworkNames);
+    gap.validated = validation.valid;
+    gap.validation = { gates_passed: validation.gates_passed, gates_failed: validation.gates_failed };
   }
 
   // Build enriched output
@@ -410,5 +549,9 @@ module.exports = {
   selectFrameworkChain,
   buildProblemTypeMap,
   buildFeedsIntoMap,
+  anchorGate,
+  brainConsensusGate,
+  semanticCoherenceGate,
+  validateZone,
   interpretWhitespace,
 };
