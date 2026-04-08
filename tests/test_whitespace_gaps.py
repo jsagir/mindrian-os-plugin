@@ -169,11 +169,12 @@ def test_novelty_identical_vs_random():
 
 def test_detect_whitespace_zones(room_embeddings, brain_embeddings):
     """Far brain baselines should be detected as whitespace zones."""
-    # UMAP reduce (mock to just use first 15 dims or PCA for determinism)
+    # Reduce dimensions via PCA (15 or max feasible)
     from sklearn.decomposition import PCA
 
     combined = np.vstack([room_embeddings, brain_embeddings])
-    pca = PCA(n_components=15, random_state=42)
+    n_components = min(15, combined.shape[0] - 1, combined.shape[1])
+    pca = PCA(n_components=n_components, random_state=42)
     reduced = pca.fit_transform(combined)
 
     room_reduced = reduced[: len(room_embeddings)]
@@ -254,9 +255,17 @@ def test_output_json_structure(sample_room_dir):
 # --- Test 7: UMAP reduction produces correct output dimensions ---
 
 def test_umap_reduction_dimensions(room_embeddings, brain_embeddings):
-    """UMAP produces N x 15 for density and N x 2 for visualization."""
+    """Reduction produces N x 15 for density and N x 2 for visualization."""
     combined = np.vstack([room_embeddings, brain_embeddings])
     reduced_15, reduced_2 = mod.umap_reduce(combined)
 
-    assert reduced_15.shape == (8, 15), f"Expected (8,15), got {reduced_15.shape}"
-    assert reduced_2.shape == (8, 2), f"Expected (8,2), got {reduced_2.shape}"
+    # n_samples=8, so max components is min(15, 7) = 7 for density
+    expected_density_cols = min(15, combined.shape[0] - 1, combined.shape[1])
+    expected_viz_cols = min(2, combined.shape[0] - 1, combined.shape[1])
+
+    assert reduced_15.shape == (8, expected_density_cols), (
+        f"Expected (8,{expected_density_cols}), got {reduced_15.shape}"
+    )
+    assert reduced_2.shape == (8, expected_viz_cols), (
+        f"Expected (8,{expected_viz_cols}), got {reduced_2.shape}"
+    )
