@@ -32,7 +32,7 @@
 - [ ] **BRAIN-01**: Whitespace pattern data written to Neo4j Brain -- WhitespaceZone nodes linked to Framework chains that explored them
 - [ ] **BRAIN-02**: Cross-room whitespace patterns tracked in Brain (anonymized) -- Brain learns which gap types are real opportunities vs noise across all users
 - [ ] **BRAIN-03**: TYPICAL_WHITESPACE edges connecting ProblemType -> common whitespace patterns discovered across rooms
-- [ ] **BRAIN-04**: Brain query patterns for whitespace intelligence -- "what gaps did similar ventures find?" and "which framework chains resolved similar whitespace?"
+- [x] **BRAIN-04**: Brain query patterns for whitespace intelligence -- "what gaps did similar ventures find?" and "which framework chains resolved similar whitespace?"
 
 ### Output & Visualization
 
@@ -77,7 +77,7 @@ None deferred -- full scope selected.
 | BRAIN-01 | Phase 65 | Pending |
 | BRAIN-02 | Phase 65 | Pending |
 | BRAIN-03 | Phase 65 | Pending |
-| BRAIN-04 | Phase 65 | Pending |
+| BRAIN-04 | Phase 65 | Complete |
 | OUT-01 | Phase 66 | Pending |
 | OUT-02 | Phase 66 | Pending |
 | OUT-03 | Phase 61 | Complete |
