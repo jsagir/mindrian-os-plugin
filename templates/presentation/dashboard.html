@@ -21,6 +21,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <style>
 /* ============================================
    DE STIJL DESIGN SYSTEM - DARK THEME
@@ -373,6 +374,140 @@ body {
 .mb-k { background: var(--mondrian-black); }
 
 [data-theme="light"] .mb-k { background: #333; }
+
+/* -- Whitespace + TopicForest Panels -- */
+.whitespace-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 768px) {
+  .whitespace-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ws-panel {
+  background: var(--bg-card);
+  border: 2px solid var(--mondrian-black);
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+.ws-panel-header {
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--border-color);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+}
+.ws-panel-body {
+  padding: 0;
+  min-height: 400px;
+  position: relative;
+}
+.ws-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 32px;
+  text-align: center;
+}
+.ws-empty-state p {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.ws-empty-state code {
+  color: var(--mondrian-yellow);
+  background: var(--bg-elevated);
+  padding: 2px 6px;
+}
+
+/* Density map SVG */
+.density-map-svg {
+  width: 100%;
+  height: 400px;
+  display: block;
+}
+.density-map-svg text {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* D3 tooltip */
+.ws-tooltip {
+  position: absolute;
+  background: var(--mondrian-black);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  pointer-events: none;
+  z-index: 200;
+  max-width: 240px;
+  line-height: 1.4;
+}
+
+/* Zone detail popup */
+.ws-zone-detail {
+  position: absolute;
+  background: var(--bg-elevated);
+  border: 2px solid var(--mondrian-red);
+  padding: 12px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  z-index: 201;
+  max-width: 280px;
+  line-height: 1.5;
+}
+.ws-zone-detail .zd-title {
+  font-weight: 600;
+  color: var(--mondrian-yellow);
+  margin-bottom: 4px;
+}
+.ws-zone-detail .zd-row {
+  color: var(--text-secondary);
+}
+
+/* TopicForest tree */
+.tf-panel-body {
+  overflow-y: auto;
+  max-height: 440px;
+  padding: 8px 0;
+}
+.tf-tree-svg {
+  width: 100%;
+  min-height: 400px;
+}
+.tf-tree-svg text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  fill: var(--text-primary);
+}
+.tf-tree-svg .tf-link {
+  fill: none;
+  stroke: var(--border-color);
+  stroke-width: 1.5;
+}
+.tf-tree-svg .tf-node-covered { fill: var(--accent-green); }
+.tf-tree-svg .tf-node-sparse { fill: var(--mondrian-yellow); }
+.tf-tree-svg .tf-node-whitespace {
+  fill: none;
+  stroke: var(--mondrian-red);
+  stroke-width: 2;
+  stroke-dasharray: 4,3;
+}
+.tf-tree-svg .tf-count {
+  font-size: 9px;
+  fill: var(--text-muted);
+}
 </style>
 </head>
 <body>
@@ -450,6 +585,21 @@ body {
         <div class="vc-title">Graph</div>
         <div class="vc-desc">Knowledge graph explorer</div>
       </a>
+    </div>
+  </section>
+
+  <!-- Whitespace Density Map + TopicForest -->
+  <section id="whitespace-section">
+    <h2 class="section-title">Whitespace Map</h2>
+    <div class="whitespace-row">
+      <div class="ws-panel" id="density-map-panel">
+        <div class="ws-panel-header">Density Map</div>
+        <div class="ws-panel-body" id="density-map-body"></div>
+      </div>
+      <div class="ws-panel" id="topic-forest-panel">
+        <div class="ws-panel-header">Topic Forest</div>
+        <div class="tf-panel-body" id="topic-forest-body"></div>
+      </div>
     </div>
   </section>
 
@@ -609,6 +759,330 @@ var ROOM_DATA = /*ROOM_DATA_PLACEHOLDER*/{};
   function escapeH(s) {
     if (!s) return '';
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+})();
+
+// -- Whitespace Density Map --
+(function() {
+  var D = ROOM_DATA;
+  var mapBody = document.getElementById('density-map-body');
+  var forestBody = document.getElementById('topic-forest-body');
+
+  // -- Density Map --
+  if (!mapBody) return;
+
+  if (!D.whitespace || !D.whitespace.points || D.whitespace.points.length === 0) {
+    mapBody.innerHTML = '<div class="ws-empty-state"><p>No whitespace data.<br>Run <code>/mos:whitespace map</code> to generate.</p></div>';
+  } else {
+    renderDensityMap(mapBody, D.whitespace, D.sectionColors || {});
+  }
+
+  // -- Topic Forest --
+  if (!forestBody) return;
+
+  if (!D.topicForest) {
+    forestBody.innerHTML = '<div class="ws-empty-state"><p>No topic tree.<br>Run <code>/mos:whitespace tree</code> to generate.</p></div>';
+  } else {
+    renderTopicForest(forestBody, D.topicForest);
+  }
+
+  function renderDensityMap(container, ws, sectionColors) {
+    var points = ws.points;
+    var zones = ws.zones || [];
+    var contours = ws.kdeContours;
+
+    var margin = { top: 20, right: 20, bottom: 30, left: 40 };
+    var width = container.clientWidth || 600;
+    var height = 400;
+    var innerW = width - margin.left - margin.right;
+    var innerH = height - margin.top - margin.bottom;
+
+    var svg = d3.select(container)
+      .append('svg')
+      .attr('class', 'density-map-svg')
+      .attr('viewBox', '0 0 ' + width + ' ' + height)
+      .attr('preserveAspectRatio', 'xMidYMid meet');
+
+    var g = svg.append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    // Scales
+    var xExtent = d3.extent(points, function(p) { return p.x; });
+    var yExtent = d3.extent(points, function(p) { return p.y; });
+    var xPad = (xExtent[1] - xExtent[0]) * 0.1 || 1;
+    var yPad = (yExtent[1] - yExtent[0]) * 0.1 || 1;
+
+    var xScale = d3.scaleLinear()
+      .domain([xExtent[0] - xPad, xExtent[1] + xPad])
+      .range([0, innerW]);
+
+    var yScale = d3.scaleLinear()
+      .domain([yExtent[0] - yPad, yExtent[1] + yPad])
+      .range([innerH, 0]);
+
+    // KDE contours
+    if (contours && contours.length > 0) {
+      // Pre-computed contour paths
+      var maxLevel = d3.max(contours, function(c) { return c.level; });
+      contours.forEach(function(c) {
+        var isDense = c.level >= maxLevel * 0.4;
+        g.append('path')
+          .attr('d', c.path)
+          .attr('fill', 'none')
+          .attr('stroke', isDense ? '#2D6B4A' : '#A63D2F')
+          .attr('stroke-width', isDense ? 2 : 1.5)
+          .attr('stroke-dasharray', isDense ? 'none' : '6,4')
+          .attr('opacity', 0.6);
+      });
+    } else {
+      // Compute contours client-side from room points only
+      var roomPts = points.filter(function(p) { return p.type === 'room'; });
+      if (roomPts.length >= 3) {
+        var contourGen = d3.contourDensity()
+          .x(function(p) { return xScale(p.x); })
+          .y(function(p) { return yScale(p.y); })
+          .size([innerW, innerH])
+          .bandwidth(30)
+          .thresholds(6);
+
+        var densityData = contourGen(roomPts);
+        var maxVal = d3.max(densityData, function(d) { return d.value; }) || 1;
+
+        g.selectAll('.contour')
+          .data(densityData)
+          .enter()
+          .append('path')
+          .attr('d', d3.geoPath())
+          .attr('fill', 'none')
+          .attr('stroke', function(d) {
+            return d.value >= maxVal * 0.4 ? '#2D6B4A' : '#A63D2F';
+          })
+          .attr('stroke-width', function(d) {
+            return d.value >= maxVal * 0.4 ? 2 : 1.5;
+          })
+          .attr('stroke-dasharray', function(d) {
+            return d.value >= maxVal * 0.4 ? 'none' : '6,4';
+          })
+          .attr('opacity', 0.5);
+      }
+    }
+
+    // Tooltip
+    var tooltip = d3.select(container)
+      .append('div')
+      .attr('class', 'ws-tooltip')
+      .style('display', 'none');
+
+    // Brain baseline points (smaller, muted)
+    var brainPts = points.filter(function(p) { return p.type === 'brain'; });
+    g.selectAll('.brain-point')
+      .data(brainPts)
+      .enter()
+      .append('rect')
+      .attr('x', function(p) { return xScale(p.x) - 3; })
+      .attr('y', function(p) { return yScale(p.y) - 3; })
+      .attr('width', 6)
+      .attr('height', 6)
+      .attr('fill', '#888')
+      .attr('opacity', 0.5)
+      .on('mouseenter', function(event, p) {
+        tooltip.style('display', 'block')
+          .html('<strong>' + escapeH(p.label) + '</strong><br>Type: brain baseline')
+          .style('left', (event.offsetX + 12) + 'px')
+          .style('top', (event.offsetY - 28) + 'px');
+      })
+      .on('mouseleave', function() { tooltip.style('display', 'none'); });
+
+    // Room artifact points (larger, colored by section)
+    var roomPts2 = points.filter(function(p) { return p.type === 'room'; });
+    g.selectAll('.room-point')
+      .data(roomPts2)
+      .enter()
+      .append('rect')
+      .attr('x', function(p) { return xScale(p.x) - 5; })
+      .attr('y', function(p) { return yScale(p.y) - 5; })
+      .attr('width', 10)
+      .attr('height', 10)
+      .attr('fill', function(p) { return sectionColors[p.section] || '#D4CFC7'; })
+      .attr('opacity', 0.85)
+      .on('mouseenter', function(event, p) {
+        tooltip.style('display', 'block')
+          .html('<strong>' + escapeH(p.label) + '</strong><br>Section: ' + escapeH(p.section))
+          .style('left', (event.offsetX + 12) + 'px')
+          .style('top', (event.offsetY - 28) + 'px');
+      })
+      .on('mouseleave', function() { tooltip.style('display', 'none'); });
+
+    // Zone markers (dashed rectangles at centroids)
+    var zoneDetail = null;
+    zones.forEach(function(z) {
+      if (!z.centroid_2d || z.centroid_2d.length < 2) return;
+      var cx = xScale(z.centroid_2d[0]);
+      var cy = yScale(z.centroid_2d[1]);
+
+      g.append('rect')
+        .attr('x', cx - 14)
+        .attr('y', cy - 14)
+        .attr('width', 28)
+        .attr('height', 28)
+        .attr('fill', 'none')
+        .attr('stroke', '#C8A43C')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '4,3')
+        .style('cursor', 'pointer')
+        .on('click', function(event) {
+          // Remove existing detail
+          if (zoneDetail) zoneDetail.remove();
+          zoneDetail = d3.select(container)
+            .append('div')
+            .attr('class', 'ws-zone-detail')
+            .style('left', (event.offsetX + 16) + 'px')
+            .style('top', (event.offsetY - 10) + 'px')
+            .html(
+              '<div class="zd-title">' + escapeH(z.zone_id) + '</div>' +
+              '<div class="zd-row">Density: ' + (z.density_score || 0).toFixed(3) + '</div>' +
+              '<div class="zd-row">Type: ' + escapeH(z.problem_type || 'unknown') + '</div>' +
+              '<div class="zd-row">Frameworks: ' + escapeH((z.nearest_frameworks || []).join(', ')) + '</div>'
+            );
+          // Auto-dismiss on next click
+          setTimeout(function() {
+            document.addEventListener('click', function dismiss() {
+              if (zoneDetail) { zoneDetail.remove(); zoneDetail = null; }
+              document.removeEventListener('click', dismiss);
+            }, { once: true });
+          }, 100);
+        });
+
+      // Zone label
+      g.append('text')
+        .attr('x', cx)
+        .attr('y', cy + 24)
+        .attr('text-anchor', 'middle')
+        .attr('fill', '#C8A43C')
+        .attr('font-size', '9px')
+        .text(z.zone_id);
+    });
+
+    // Legend
+    var legend = svg.append('g')
+      .attr('transform', 'translate(' + (width - 160) + ',10)');
+    var legendItems = [
+      { label: 'Room artifact', color: '#D4CFC7', dash: false },
+      { label: 'Brain baseline', color: '#888', dash: false },
+      { label: 'Dense (explored)', color: '#2D6B4A', dash: false },
+      { label: 'Sparse (whitespace)', color: '#A63D2F', dash: true },
+    ];
+    legendItems.forEach(function(item, i) {
+      var ly = i * 14;
+      legend.append('rect')
+        .attr('x', 0).attr('y', ly).attr('width', 10).attr('height', 10)
+        .attr('fill', item.dash ? 'none' : item.color)
+        .attr('stroke', item.dash ? item.color : 'none')
+        .attr('stroke-dasharray', item.dash ? '3,2' : 'none');
+      legend.append('text')
+        .attr('x', 14).attr('y', ly + 9)
+        .attr('fill', 'var(--text-secondary)')
+        .attr('font-size', '9px')
+        .text(item.label);
+    });
+  }
+
+  function renderTopicForest(container, treeData) {
+    var margin = { top: 20, right: 80, bottom: 20, left: 20 };
+    var width = container.clientWidth || 300;
+
+    var root = d3.hierarchy(treeData, function(d) { return d.children; });
+    var treeLayout = d3.tree().nodeSize([22, 120]);
+    treeLayout(root);
+
+    // Calculate bounds
+    var minY = Infinity, maxY = -Infinity;
+    root.each(function(d) {
+      if (d.x < minY) minY = d.x;
+      if (d.x > maxY) maxY = d.x;
+    });
+
+    var height = (maxY - minY) + margin.top + margin.bottom + 40;
+
+    var svg = d3.select(container)
+      .append('svg')
+      .attr('class', 'tf-tree-svg')
+      .attr('viewBox', '0 0 ' + width + ' ' + height)
+      .attr('preserveAspectRatio', 'xMinYMin meet')
+      .style('min-height', Math.max(400, height) + 'px');
+
+    var g = svg.append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + (margin.top - minY + 10) + ')');
+
+    // Orthogonal links (step curve, not curved)
+    g.selectAll('.tf-link')
+      .data(root.links())
+      .enter()
+      .append('path')
+      .attr('class', 'tf-link')
+      .attr('d', function(d) {
+        return 'M' + d.source.y + ',' + d.source.x +
+               'H' + ((d.source.y + d.target.y) / 2) +
+               'V' + d.target.x +
+               'H' + d.target.y;
+      });
+
+    // Nodes
+    var nodes = g.selectAll('.tf-node')
+      .data(root.descendants())
+      .enter()
+      .append('g')
+      .attr('class', 'tf-node')
+      .attr('transform', function(d) { return 'translate(' + d.y + ',' + d.x + ')'; })
+      .style('cursor', function(d) { return d.children ? 'pointer' : 'default'; })
+      .on('click', function(event, d) {
+        if (!d.children && !d._children) return;
+        // Toggle collapse
+        if (d.children) {
+          d._children = d.children;
+          d.children = null;
+        } else {
+          d.children = d._children;
+          d._children = null;
+        }
+        // Re-render
+        container.innerHTML = '';
+        renderTopicForest(container, treeData);
+      });
+
+    // Node shapes by coverage
+    nodes.append('rect')
+      .attr('x', -5).attr('y', -5)
+      .attr('width', 10).attr('height', 10)
+      .attr('class', function(d) {
+        var cov = d.data.coverage || '';
+        if (cov === 'covered') return 'tf-node-covered';
+        if (cov === 'sparse') return 'tf-node-sparse';
+        if (cov === 'whitespace') return 'tf-node-whitespace';
+        return 'tf-node-covered';
+      });
+
+    // Labels
+    nodes.append('text')
+      .attr('x', 12)
+      .attr('y', 4)
+      .text(function(d) {
+        var label = d.data.label || '';
+        return label.length > 22 ? label.slice(0, 20) + '..' : label;
+      });
+
+    // Artifact count
+    nodes.filter(function(d) { return d.data.artifact_count != null; })
+      .append('text')
+      .attr('class', 'tf-count')
+      .attr('x', 12)
+      .attr('y', 14)
+      .text(function(d) { return d.data.artifact_count + ' artifacts'; });
+  }
+
+  function escapeH(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 })();
 
