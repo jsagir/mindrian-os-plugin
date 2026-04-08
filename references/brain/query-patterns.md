@@ -405,3 +405,56 @@ LIMIT 10
 **Parameters:** None -- returns the full contradiction resolution toolkit.
 
 **Output:** Frameworks suited for resolving causal contradictions, with their co-occurrence and chaining relationships.
+
+---
+
+## 14. brain_whitespace_similar
+
+**Purpose:** Given a problem type and optional venture stage, find what whitespace gaps similar ventures discovered.
+
+```cypher
+MATCH (wz:WhitespaceZone)-[:EXPLORED_BY]->(f:Framework)
+WHERE wz.problem_type = $problem_type
+WITH wz, collect(f.name) AS chain, wz.density_score AS density, wz.strategic_rank AS rank
+ORDER BY rank ASC, density ASC
+RETURN wz.problem_type AS problem_type,
+       wz.hypothesis AS hypothesis,
+       chain AS framework_chain,
+       density,
+       rank
+LIMIT 10
+```
+
+**Parameters:**
+- `$problem_type` -- problem classification (Ill-Defined, Well-Defined, Wicked, Un-Defined)
+
+**Output:** Ranked whitespace zones discovered by other ventures with the same problem type, including the framework chains used to explore them.
+
+**Usage notes:** Used by Larry when a user asks "what am I missing?" or when Brain proactively suggests surfaces gaps. Results are anonymized -- no room or user identifying data is stored. Combine with pattern 1 (brain_framework_chain) to recommend next exploration steps.
+
+---
+
+## 15. brain_whitespace_resolve
+
+**Purpose:** Given a whitespace pattern type, find which framework chains have been used to resolve similar gaps.
+
+```cypher
+MATCH (pt:ProblemType)-[tw:TYPICAL_WHITESPACE]->(wp:WhitespacePattern)
+WHERE wp.type = $whitespace_type
+WITH pt, tw.occurrences AS frequency
+MATCH (wz:WhitespaceZone {problem_type: wp.type})-[:EXPLORED_BY]->(f:Framework)
+WITH pt, frequency, wz, collect({name: f.name, position: wz.density_score}) AS chain
+RETURN pt.name AS problem_type,
+       frequency AS times_seen,
+       wz.hypothesis AS example_hypothesis,
+       [c IN chain | c.name] AS resolution_chain
+ORDER BY frequency DESC
+LIMIT 10
+```
+
+**Parameters:**
+- `$whitespace_type` -- the whitespace pattern type string (matches WhitespaceZone.problem_type)
+
+**Output:** Problem types that commonly exhibit this whitespace pattern, how often it occurs, example hypotheses, and the framework chains that have explored it.
+
+**Usage notes:** Used when Larry says "ventures like yours typically have a gap in X -- here's how others explored it." The resolution_chain shows the actual methodology sequence used, not just a recommendation. Combine with pattern 14 for full whitespace intelligence: 14 finds WHAT gaps exist, 15 finds HOW to resolve them.
