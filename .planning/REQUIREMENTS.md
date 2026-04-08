@@ -11,7 +11,7 @@
 - [x] **EMBED-02**: Brain methodology/framework descriptions embedded as consensus baseline ("semantic universe") -- cached locally as JSON
 - [ ] **EMBED-03**: Density estimation on UMAP-reduced embeddings (768d -> 15d) using KDE to identify low-density whitespace regions
 - [ ] **EMBED-04**: Gap detection identifies Brain-covered regions with zero room artifact coverage -- ranked by strategic importance
-- [ ] **EMBED-05**: External corpus mode queries Semantic Scholar API and/or patent databases, embeds results into same semantic space for cross-domain whitespace detection
+- [x] **EMBED-05**: External corpus mode queries Semantic Scholar API and/or patent databases, embeds results into same semantic space for cross-domain whitespace detection
 
 ### Interpretation & Strategy Layer (The Moat)
 
@@ -65,7 +65,7 @@ None deferred -- full scope selected.
 | EMBED-02 | Phase 60 | Complete |
 | EMBED-03 | Phase 61 | Pending |
 | EMBED-04 | Phase 61 | Pending |
-| EMBED-05 | Phase 66 | Pending |
+| EMBED-05 | Phase 66 | Complete |
 | INTERP-01 | Phase 62 | Complete |
 | INTERP-02 | Phase 62 | Complete |
 | INTERP-03 | Phase 62 | Complete |
