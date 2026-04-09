@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.9.4
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 72-02-PLAN.md
-last_updated: "2026-04-09T20:00:18.286Z"
+stopped_at: Completed 73-01-PLAN.md
+last_updated: "2026-04-09T20:14:23.536Z"
 last_activity: 2026-04-09
 progress:
   total_phases: 5
-  completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
+  completed_phases: 3
+  total_plans: 6
+  completed_plans: 6
   percent: 0
 ---
 
@@ -52,6 +52,8 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 71 P02 | 3min | 2 tasks | 2 files |
 | Phase 72 P01 | 4min | 2 tasks | 4 files |
 | Phase 72 P02 | 4min | 2 tasks | 2 files |
+| Phase 73 P02 | 3min | 2 tasks | 2 files |
+| Phase 73 P01 | 4min | 2 tasks | 3 files |
 
 ### Decisions
 
@@ -65,6 +67,9 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 72]: ADDRESSES edges limited to 5 artifacts per domain section, IN_DOMAIN links to Section node
 - [Phase 72]: Brain enrichment is non-blocking fire-and-forget in bankOpportunity
 - [Phase 72]: FEEDS_INTO chains provide ordered validation step sequences for banked opportunities
+- [Phase 73]: Inline Tier 0 chains in getTier0Chain() rather than parsing persona-chains.md at runtime
+- [Phase 73]: Unknown persona defaults to researcher chain (problem-first is safest generic path)
+- [Phase 73]: Tier 0 hardcoded framework chains for persona-based conversation routing without Brain dependency
 
 ### Pending Todos
 
@@ -80,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-09T20:00:18.281Z
-Stopped at: Completed 72-02-PLAN.md
+Last session: 2026-04-09T20:14:23.528Z
+Stopped at: Completed 73-01-PLAN.md
 Resume file: None

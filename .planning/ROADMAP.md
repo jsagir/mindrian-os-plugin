@@ -41,7 +41,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 
 - [x] **Phase 71: Opportunity Extraction Engine** - Universal schema, framework side-effects, persistence to opportunity-bank/ (completed 2026-04-09)
 - [x] **Phase 72: Opportunity Graph + Brain Enrichment** - KuzuDB integration, Brain cross-referencing against 100 frameworks (completed 2026-04-09)
-- [ ] **Phase 73: Conversation Mode Routing** - Three entry modes, persona detection, Brain framework chain selection
+- [x] **Phase 73: Conversation Mode Routing** - Three entry modes, persona detection, Brain framework chain selection (completed 2026-04-09)
 - [ ] **Phase 74: Conversation Capture + Room Seeding** - Opportunity banking during conversation, room seeding from banked opportunities, persistent scratchpad
 - [ ] **Phase 75: Onboarding Redesign** - Three entry paths taught, opportunity bank explained, Knight framing, returning user greeting
 
@@ -89,8 +89,8 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 73-01-PLAN.md -- Session-start mode routing + JTBD mode menu + conversation-mode skill
-- [ ] 73-02-PLAN.md -- getFrameworkChain in brain-client + Tier 0 persona-chains reference
+- [x] 73-01-PLAN.md -- Session-start mode routing + JTBD mode menu + conversation-mode skill
+- [x] 73-02-PLAN.md -- getFrameworkChain in brain-client + Tier 0 persona-chains reference
 
 ### Phase 74: Conversation Capture + Room Seeding
 **Goal**: Mode 2 conversations produce banked opportunities in real-time, and those opportunities can seed a new Data Room when the user is ready
@@ -132,6 +132,6 @@ Phases execute in numeric order: 71 -> 72 -> 73 -> 74 -> 75
 |-------|----------------|--------|-----------|
 | 71. Opportunity Extraction Engine | 2/2 | Complete   | 2026-04-09 |
 | 72. Opportunity Graph + Brain Enrichment | 2/2 | Complete   | 2026-04-09 |
-| 73. Conversation Mode Routing | 0/2 | Not started | - |
+| 73. Conversation Mode Routing | 2/2 | Complete   | 2026-04-09 |
 | 74. Conversation Capture + Room Seeding | 0/2 | Not started | - |
 | 75. Onboarding Redesign | 0/2 | Not started | - |
