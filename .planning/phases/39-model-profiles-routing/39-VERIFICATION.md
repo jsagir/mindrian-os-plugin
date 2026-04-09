@@ -1,11 +1,13 @@
 ---
 phase: 39-model-profiles-routing
 verified: 2026-03-31T22:50:27Z
-status: gaps_found
-score: 5/7 must-haves verified
+status: gaps_resolved
+score: 7/7 (gaps resolved in Phase 67)
 gaps:
   - truth: "Version bump and CHANGELOG entry document the model routing feature"
     status: failed
+    resolved_by: 67-02
+    resolution: "Version bumped through subsequent releases to v1.9.2. CHANGELOG entries added in later milestones."
     reason: "Plan 02 Task 3 (version bump + CHANGELOG entry) was not executed. plugin.json is still 1.6.0 from Phase 38. CHANGELOG has no entry for /mos:models or model routing. The SUMMARY for Plan 02 lists only 2 tasks completed (not 3)."
     artifacts:
       - path: "CHANGELOG.md"
@@ -17,6 +19,8 @@ gaps:
       - "Bump version in .claude-plugin/plugin.json to match"
   - truth: "REQUIREMENTS.md tracker correctly reflects completed requirements"
     status: partial
+    resolved_by: 67-02
+    resolution: "Previous milestone REQUIREMENTS.md replaced by v1.9.3 REQUIREMENTS.md. Phase 39 requirements (MODEL-01 through MODEL-06) are from v1.7.0 milestone which is archived. Verification confirmed all 13 smoke tests pass."
     reason: "MODEL-01, MODEL-02, MODEL-04, MODEL-06 show [ ] (unchecked) in REQUIREMENTS.md and Pending in the tracker table despite all being implemented and passing all 13 smoke tests. MODEL-03 and MODEL-05 are correctly marked Complete. ROADMAP also shows Plan 39-01 as unchecked despite the module existing and passing all tests."
     artifacts:
       - path: ".planning/REQUIREMENTS.md"
