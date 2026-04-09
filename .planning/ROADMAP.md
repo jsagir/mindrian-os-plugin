@@ -1,137 +1,188 @@
-# Roadmap: Opportunity Engine + Conversation-First Entry v1.9.4
+# Roadmap: v2.0 Mindrian Platform -- SQLite + MCP Server
 
 ## Overview
 
-Three-layer build: first the opportunity extraction engine (every framework interaction produces bankable opportunities), then conversation-first entry (persona-aware mode routing with Brain-guided exploration), then onboarding redesign (teach what Layers 1+2 built). Each layer depends on the previous -- you can't bank opportunities in conversation without the extraction engine, and you can't teach entry paths that don't exist yet.
+Replace the dead KuzuDB with SQLite (graph + memory system), ship MindrianOS intelligence as a routed MCP server with interactive MCP Apps, and establish co-development infrastructure so every capability ships as both plugin command and MCP tool. SQLite migration is the critical path -- everything depends on room.db existing. MCP Apps leverage the existing 3 apps and ext-apps SDK v1.5.0 already in package.json.
 
 ## Milestones
 
 <details>
-<summary>v1.8.6 MindrianRooms (Phases 56-59.2) - SHIPPED 2026-04-06</summary>
+<summary>v1.8.8 Brain Graph Optimization + Pam-Proof Install (Phases 60-64) - SHIPPED</summary>
 
-6 phases, 35 requirements. See .planning/milestones/v1.8.6-ROADMAP.md
-
-</details>
-
-<details>
-<summary>v1.8.8 Brain Graph Optimization + Dummy-Proof Install (Phases 60-64) - SHIPPED 2026-04-07</summary>
-
-5 phases, 27 requirements. Causal discovery, lazy graph bridge, fragmentation cleanup, agent wiring, install experience.
+5 phases, Brain normalization (FEEDS_INTO, PREREQUISITE, TYPICAL_AT enrichment), LazyGraph bridging, fragmentation cleanup, teaching wiring, dummy-proof install. See .planning/milestones/v1.8.8-ROADMAP.md
 
 </details>
 
 <details>
-<summary>v1.9.0 Model Data Room + Self-Analysis (Phases 65-66) - SHIPPED 2026-04-08</summary>
+<summary>v1.9.0 Model Data Room + Self-Analysis (Phases 65-76) - SHIPPED</summary>
 
-Google Drive integration, 168-artifact model room, HSI self-analysis, Investment Thesis gate.
-v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to-end.
-
-</details>
-
-<details>
-<summary>v1.9.3 Wiring Integrity + Intelligence Loop (Phases 67-70) - SHIPPED 2026-04-09</summary>
-
-4 phases. APPROVE/REJECT/DEFER cascade, mid-session intelligence, filing completeness, macOS portability.
+Google Drive integration, 168-artifact model room, HSI self-analysis, Investment Thesis, knowledge graph (179 nodes/383 edges). See .planning/milestones/v1.9.0-ROADMAP.md
 
 </details>
 
-- **v1.9.4 Opportunity Engine + Conversation-First Entry** - Phases 71-75 (in progress)
+- **v2.0 Mindrian Platform -- SQLite + MCP Server** - Phases 77-87 (in progress)
 
 ## Phases
 
-- [x] **Phase 71: Opportunity Extraction Engine** - Universal schema, framework side-effects, persistence to opportunity-bank/ (completed 2026-04-09)
-- [x] **Phase 72: Opportunity Graph + Brain Enrichment** - KuzuDB integration, Brain cross-referencing against 100 frameworks (completed 2026-04-09)
-- [x] **Phase 73: Conversation Mode Routing** - Three entry modes, persona detection, Brain framework chain selection (completed 2026-04-09)
-- [x] **Phase 74: Conversation Capture + Room Seeding** - Opportunity banking during conversation, room seeding from banked opportunities, persistent scratchpad (completed 2026-04-09)
-- [x] **Phase 75: Onboarding Redesign** - Three entry paths taught, opportunity bank explained, Knight framing, returning user greeting (completed 2026-04-09)
+- [ ] **Phase 77: SQLite Foundation** - Graph tables + lazygraph-ops.cjs replacement + WAL mode
+- [ ] **Phase 78: Memory Layer + Assumptions** - Identity, facts, sessions, fragments tables + assumption tracking
+- [ ] **Phase 79: SQLite Migration + Cleanup** - Migration tool, 24+ file updates, NL queries, kuzu removal
+- [ ] **Phase 80: De Stijl Component Library + App Foundation** - Shared CSS/grid primitives, upgrade existing 3 apps, Shopify intent pattern
+- [ ] **Phase 81: MCP Server Core** - Router architecture (5-7 tools), Larry Lite, dual transport, shared lib/core contract
+- [ ] **Phase 82: MCP Router Tools** - Brain, Room, Compute routers + Text-to-Cypher + Cypher-to-Text
+- [ ] **Phase 83: Co-Development Infrastructure** - Shared contract enforcement, dual-ship CI, test harness
+- [ ] **Phase 84: MCP Apps - Core Views** - Mullins Assessment, Command Center, Graph Explorer, Wiki Browser
+- [ ] **Phase 85: MCP Apps - Methodology + Meeting** - Mermaid Viewer, Meeting Timeline, FEEDS_INTO Explorer, Mode Card
+- [ ] **Phase 86: MCP Apps - Interaction Primitives** - Form blocks, data tables, chart panels, action panels, wizard/stepper
+- [ ] **Phase 87: Cross-Platform Testing** - Claude Desktop, ChatGPT, OpenClaw, postMessage bug guard
 
 ## Phase Details
 
-### Phase 71: Opportunity Extraction Engine
-**Goal**: Every methodology command produces bankable opportunities as a universal side effect, persisted in a standard schema
-**Depends on**: Phase 70 (intelligence loop must exist -- opportunities are a new artifact type that flows through the filing cascade)
-**Requirements**: OPP-01, OPP-02, OPP-03
+### Phase 77: SQLite Foundation
+**Goal**: Room graph stored in SQLite with WAL mode, lazygraph-ops.cjs fully replaced, concurrent plugin+MCP access works
+**Depends on**: Nothing (critical path -- everything else blocks on this)
+**Requirements**: SQLITE-01, SQLITE-02, SQLITE-03
 **Success Criteria** (what must be TRUE):
-  1. User runs any methodology command (/mos:diagnose, /mos:lean-canvas, /mos:find-bottlenecks, /mos:explore-domains) and opportunities appear in room/opportunity-bank/ without any extra action
-  2. Each banked opportunity file contains YAML frontmatter with all schema fields: problem, mirror_solution, domain, evidence, source_framework, knight_position, confidence
-  3. User can run /mos:opportunities and see all banked opportunities listed with their knight_position (risk vs uncertainty) and confidence scores
-  4. A methodology command that produces zero opportunities does not create empty or stub files
-**Plans**: 2 plans
-
+  1. Running any lazygraph-ops function (addNode, addEdge, query, etc.) reads/writes room/.mindrian/room.db instead of .lazygraph/
+  2. All 27 lazygraph-ops.cjs exports pass existing integration tests with SQLite backend (same signatures, same return shapes)
+  3. Two separate Node.js processes can read room.db simultaneously without lock errors (WAL mode verified)
+**Plans:** 2 plans
 Plans:
-- [x] 71-01-PLAN.md -- Universal opportunity schema + extraction + bankOpportunity persistence
-- [x] 71-02-PLAN.md -- Intelligence cascade Step 11 wiring + /mos:opportunities command update
+- [ ] 77-01-PLAN.md -- Install better-sqlite3, create test scaffold, rewrite lazygraph-ops.cjs from KuzuDB to SQLite
+- [ ] 77-02-PLAN.md -- Update graph-ops.cjs + write-lock.cjs wrappers, verify WAL concurrent access
 
-### Phase 72: Opportunity Graph + Brain Enrichment
-**Goal**: Banked opportunities become queryable graph nodes with cross-framework validation suggestions from the Brain
-**Depends on**: Phase 71 (opportunities must exist before they can be graphed or enriched)
-**Requirements**: OPP-04, OPP-05
+### Phase 78: Memory Layer + Assumptions
+**Goal**: Users have a persistent memory system across sessions -- Larry remembers who they are, what they said, and which assumptions are still valid
+**Depends on**: Phase 77
+**Requirements**: SQLITE-04, SQLITE-05
 **Success Criteria** (what must be TRUE):
-  1. After banking an opportunity, KuzuDB contains an Opportunity node with ADDRESSES edges to Problem nodes and IN_DOMAIN edges to Domain nodes
-  2. When Brain is connected, banked opportunities receive "next validation steps" suggestions drawn from the 100 frameworks x 131 FEEDS_INTO chains
-  3. User can query opportunities by domain, knight_position, or confidence through /mos:opportunities with filter flags
-**Plans**: 2 plans
+  1. Larry can recall user identity facts (name, role, venture) from L0 identity table without re-asking
+  2. Facts stored with valid_from timestamps and can be invalidated (valid_from/invalidated_at lifecycle works)
+  3. Session history (L2) and conversation fragments (L3) persist across Claude restarts
+  4. Assumptions have validity status (untested/supported/contradicted/stale) that updates when new evidence is filed
+**Plans**: TBD
 
-Plans:
-- [x] 72-01-PLAN.md -- KuzuDB Opportunity node + ADDRESSES/IN_DOMAIN edges + indexOpportunity + filter flags
-- [x] 72-02-PLAN.md -- Brain enrichment: suggestValidationSteps + enrichOpportunity with FEEDS_INTO chains
-
-### Phase 73: Conversation Mode Routing
-**Goal**: Every session starts with persona-aware mode selection that routes to the right Brain framework chain
-**Depends on**: Phase 72 (Mode 2's "explore+capture" needs the opportunity engine to exist for banking)
-**Requirements**: CONV-01, CONV-02, CONV-03
+### Phase 79: SQLite Migration + Cleanup
+**Goal**: Existing rooms with .lazygraph/ data migrate cleanly to room.db, all 24+ KuzuDB-touching files updated, kuzu dependency removed
+**Depends on**: Phase 78
+**Requirements**: SQLITE-06, SQLITE-07, SQLITE-08, SQLITE-09
 **Success Criteria** (what must be TRUE):
-  1. On session start, user sees three modes with JTBD statements: Explore (just talk, nothing saved), Explore+Capture (room builds as you talk), Build Then Work (jump to /mos:new-project)
-  2. In Mode 2, Larry detects user persona (TTO, Researcher, or Business) within 2-3 exchanges through targeted questions
-  3. After persona detection, Larry follows the corresponding Brain framework chain: TTO (tech push -> domain -> problem), Researcher (problem exploration -> JTBD -> value prop), Business (opportunity -> market -> problem definition)
-  4. Mode 1 and Mode 3 work without Brain connection (Tier 0 principle)
-**Plans**: 2 plans
+  1. User can ask "what frameworks connect to my problem?" in natural language and Larry translates to SQL, returns results (no Cypher exposure)
+  2. Running migration tool on a room with existing .lazygraph/ data produces a room.db with identical node/edge counts
+  3. grep -r "kuzu" across the entire repo returns zero matches outside migration tool and changelog
+  4. package.json no longer lists kuzu as a dependency
+**Plans**: TBD
+
+### Phase 80: De Stijl Component Library + App Foundation
+**Goal**: All MCP Apps share a consistent De Stijl visual language, existing 3 apps upgraded to ext-apps App class with bidirectional tool calling, Shopify intent pattern wired
+**Depends on**: Phase 77 (apps read from room.db)
+**Requirements**: APP-10, APP-01, APP-11
+**Success Criteria** (what must be TRUE):
+  1. A shared CSS file (or inline tokens) provides Mondrian grid primitives, health bars, badges, and color tokens reusable across all apps
+  2. Existing dashboard, wiki, and graph apps use ext-apps App class with callServerTool for live data fetching
+  3. Clicking a UI element in any app bubbles an intent to Larry (e.g., "analyze this section") rather than directly executing actions
+**Plans**: TBD
 **UI hint**: yes
 
-Plans:
-- [x] 73-01-PLAN.md -- Session-start mode routing + JTBD mode menu + conversation-mode skill
-- [x] 73-02-PLAN.md -- getFrameworkChain in brain-client + Tier 0 persona-chains reference
-
-### Phase 74: Conversation Capture + Room Seeding
-**Goal**: Mode 2 conversations produce banked opportunities in real-time, and those opportunities can seed a new Data Room when the user is ready
-**Depends on**: Phase 73 (mode routing and persona detection must exist before capture can happen within Mode 2)
-**Requirements**: CONV-04, CONV-05, CONV-06
+### Phase 81: MCP Server Core
+**Goal**: MindrianOS runs as an MCP server that any LLM host can connect to, with 5-7 router tools (not 23 flat), Larry Lite methodology instinct, and shared lib/core modules
+**Depends on**: Phase 77 (server needs SQLite for room state)
+**Requirements**: MCP-01, MCP-05, MCP-06, MCP-07
 **Success Criteria** (what must be TRUE):
-  1. During a Mode 2 conversation, Larry extracts well-defined problems and mirror solutions from the user's own words and banks them as opportunities (user sees confirmation after each extraction)
-  2. User can say "I'm ready to build" and banked opportunities seed a new Data Room with pre-loaded sections (problem-definition, solution-design, market-analysis populated from conversation, not empty)
-  3. Pre-room scratchpad persists across sessions -- user can close Claude, return tomorrow, and Mode 1 conversations from previous sessions are still available to upgrade to Mode 2
-  4. Scratchpad contents survive session boundaries without requiring a room to exist
-**Plans**: 2 plans
+  1. Claude Desktop can connect to MindrianOS MCP server via stdio transport and see 5-7 router tools (not 23)
+  2. Larry Lite system prompt (200-line methodology instinct) is served to host LLMs, enabling tool orchestration without full Larry personality
+  3. Server starts on both stdio (local) and Streamable HTTP (remote) transports from same codebase
+  4. MCP tool handlers import from lib/core/*.cjs -- same functions that plugin hooks call
+**Plans**: TBD
 
-Plans:
-- [x] 74-01-PLAN.md -- bank-opportunity CLI + scratchpad-ops.cjs + conversation-mode banking instructions
-- [x] 74-02-PLAN.md -- Room seeding from scratchpad in new-project.md + session-start scratchpad reading
-
-### Phase 75: Onboarding Redesign
-**Goal**: New and returning users understand all three entry paths and the opportunity bank as universal output
-**Depends on**: Phase 74 (can't teach entry paths that don't exist yet)
-**Requirements**: ONBD-01, ONBD-02, ONBD-03, ONBD-04
+### Phase 82: MCP Router Tools
+**Goal**: All Brain, Room, and Compute intelligence accessible through routed MCP tools with subcommand dispatch
+**Depends on**: Phase 81
+**Requirements**: MCP-02, MCP-03, MCP-04, MCP-08, MCP-09
 **Success Criteria** (what must be TRUE):
-  1. Running /mos:onboard walks user through all three modes with a persona-specific guided first experience (TTO users see tech-push framing, Researchers see problem-first framing, Business users see opportunity-first framing)
-  2. Onboarding explains the opportunity bank as the universal output -- every framework interaction, every conversation capture, every room analysis feeds the same bank
-  3. Knight risk vs uncertainty distinction is presented as the "why" -- MindrianOS converts uncertainty to manageable risk, and the onboarding makes this concrete with examples
-  4. Returning users who have previously banked opportunities see them surfaced in their session greeting (not just onboarding -- this persists)
-**Plans**: 2 plans
+  1. Calling brain_router with subcommand "ask" returns Brain teaching intelligence, "query" runs Cypher, "grade" returns rubric scores
+  2. Calling room_router with subcommand "analyze" returns room health, "state" returns current position, "file" files an artifact
+  3. Calling compute_router with subcommand "hsi_score" returns HSI results, "reverse_salients" identifies weak sections
+  4. User asks "what frameworks address wicked problems?" and Text-to-Cypher translates to Cypher, executes against Brain, and Cypher-to-Text renders readable answer
+**Plans**: TBD
+
+### Phase 83: Co-Development Infrastructure
+**Goal**: Every new capability automatically ships as both plugin command and MCP tool, with CI enforcement and test parity
+**Depends on**: Phase 81
+**Requirements**: CODEV-01, CODEV-02, CODEV-03
+**Success Criteria** (what must be TRUE):
+  1. Every lib/core module exports both sync and async variants, importable from both plugin hooks and MCP server
+  2. Opening a PR that adds an MCP tool without a matching plugin command (or vice versa) fails CI check
+  3. Test harness runs same input through both plugin hook path and MCP tool path, asserts identical output
+**Plans**: TBD
+
+### Phase 84: MCP Apps - Core Views
+**Goal**: Users see rich interactive views inside their chat -- Mullins assessment cards, room command center, knowledge graph explorer, and wiki browser
+**Depends on**: Phase 80, Phase 82
+**Requirements**: APP-02, APP-03, APP-04, APP-05
+**Success Criteria** (what must be TRUE):
+  1. Mullins Assessment renders 3-column card (Real/Win/Worth) with live evidence counts from room artifacts, clicking a cell shows supporting evidence
+  2. Room Command Center shows Mondrian-grid section health with APPROVE/REJECT/DEFER buttons that bubble intents to Larry
+  3. Knowledge Graph Explorer renders interactive Cytoscape.js graph with pan/zoom/filter, edge type toggles, and click-to-article navigation
+  4. Wiki Browser displays room structure as hyperlinked pages with section drill-down, artifact content, and backlinks
+**Plans**: TBD
 **UI hint**: yes
 
-Plans:
-- [x] 75-01-PLAN.md -- Rewrite /mos:onboard with mode-first structure + opportunity bank + Knight framing
-- [x] 75-02-PLAN.md -- Opportunity bank summary in returning user greeting + context-engine update
+### Phase 85: MCP Apps - Methodology + Meeting
+**Goal**: Users can visually navigate methodology chains, meeting timelines, framework sequences, and select their working mode through interactive in-chat apps
+**Depends on**: Phase 80, Phase 82
+**Requirements**: APP-06, APP-07, APP-08, APP-09
+**Success Criteria** (what must be TRUE):
+  1. Mermaid/Flowchart Viewer renders methodology chains and causal diagrams as interactive Mermaid diagrams in-chat
+  2. Meeting Timeline shows speaker bubbles along a timeline with decision points and action items, click-to-drill to meeting details
+  3. FEEDS_INTO Chain Explorer visualizes framework chains from Brain, clicking a framework shows next steps and rationale
+  4. Mode Selection Card presents 3 visual mode buttons (Explore+Capture, Deep Analysis, Quick File) that set Larry's working mode
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 86: MCP Apps - Interaction Primitives
+**Goal**: Reusable interaction components (forms, tables, charts, actions, wizards) available for all current and future MCP Apps
+**Depends on**: Phase 80
+**Requirements**: APP-12, APP-13, APP-14, APP-15, APP-16
+**Success Criteria** (what must be TRUE):
+  1. Form blocks collect structured input (meeting filing, room creation) and submit as tool calls
+  2. Data tables render sortable artifact lists with ranked relevance from search results
+  3. Chart panels display bar/line/pie/KPI for HSI scores, section coverage, room analytics
+  4. Action panels show approve/retry/compare/branch buttons that cascade into next tool actions
+  5. Wizard/stepper guides multi-step flows (onboarding, room setup) with progress tracking
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 87: Cross-Platform Testing
+**Goal**: MindrianOS MCP server and apps verified working on Claude Desktop, ChatGPT, and OpenClaw with known bugs guarded
+**Depends on**: Phase 84, Phase 85, Phase 86
+**Requirements**: TEST-01, TEST-02, TEST-03, TEST-04
+**Success Criteria** (what must be TRUE):
+  1. All MCP Apps render correctly and are interactive on Claude Desktop (verified manually)
+  2. MCP Apps render correctly on ChatGPT with ext-apps SDK compatibility confirmed
+  3. MCP server connects and responds to tool calls on OpenClaw via stdio transport
+  4. All app HTML includes guard for Claude.ai postMessage bug (issue #47) -- no silent failures
+**Plans**: TBD
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 71 -> 72 -> 73 -> 74 -> 75
+Phases execute in numeric order: 77 -> 78 -> 79 -> 80 -> 81 -> 82 -> 83 -> 84 -> 85 -> 86 -> 87
+
+Note: Phases 80 (Apps Foundation) and 81 (MCP Server Core) can start in parallel after Phase 77.
+Phases 83 (Co-Dev) can run parallel with 82 (Router Tools).
+Phases 84 and 85 can run parallel after 80+82 complete.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 71. Opportunity Extraction Engine | 2/2 | Complete   | 2026-04-09 |
-| 72. Opportunity Graph + Brain Enrichment | 2/2 | Complete   | 2026-04-09 |
-| 73. Conversation Mode Routing | 2/2 | Complete   | 2026-04-09 |
-| 74. Conversation Capture + Room Seeding | 2/2 | Complete   | 2026-04-09 |
-| 75. Onboarding Redesign | 2/2 | Complete   | 2026-04-09 |
+| 77. SQLite Foundation | 0/2 | Planning complete | - |
+| 78. Memory Layer + Assumptions | 0/? | Not started | - |
+| 79. SQLite Migration + Cleanup | 0/? | Not started | - |
+| 80. De Stijl Component Library + App Foundation | 0/? | Not started | - |
+| 81. MCP Server Core | 0/? | Not started | - |
+| 82. MCP Router Tools | 0/? | Not started | - |
+| 83. Co-Development Infrastructure | 0/? | Not started | - |
+| 84. MCP Apps - Core Views | 0/? | Not started | - |
+| 85. MCP Apps - Methodology + Meeting | 0/? | Not started | - |
+| 86. MCP Apps - Interaction Primitives | 0/? | Not started | - |
+| 87. Cross-Platform Testing | 0/? | Not started | - |
