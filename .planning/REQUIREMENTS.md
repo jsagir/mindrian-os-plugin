@@ -13,7 +13,7 @@
 
 ## Conversation-First Entry (CONV)
 
-- [ ] **CONV-01**: Session-start presents 3 modes with JTBD statements: Explore (nothing saved), Explore+Capture (room builds as side effect), Build Then Work (/mos:new-project)
+- [x] **CONV-01**: Session-start presents 3 modes with JTBD statements: Explore (nothing saved), Explore+Capture (room builds as side effect), Build Then Work (/mos:new-project)
 - [x] **CONV-02**: Mode 2 detects user persona (TTO/Researcher/Business) within first 2-3 exchanges through Larry's questions
 - [x] **CONV-03**: Mode 2 selects Brain framework chain based on persona: TTO (tech push -> domain -> problem), Researcher (problem exploration -> JTBD -> value prop), Business (opportunity recognition -> market -> problem definition)
 - [ ] **CONV-04**: Mode 2 banks opportunities during conversation -- well-defined problem + mirror solution extracted from user's own words
