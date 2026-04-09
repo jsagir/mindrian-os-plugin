@@ -39,7 +39,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 
 ## Phases
 
-- [ ] **Phase 71: Opportunity Extraction Engine** - Universal schema, framework side-effects, persistence to opportunity-bank/
+- [x] **Phase 71: Opportunity Extraction Engine** - Universal schema, framework side-effects, persistence to opportunity-bank/ (completed 2026-04-09)
 - [ ] **Phase 72: Opportunity Graph + Brain Enrichment** - KuzuDB integration, Brain cross-referencing against 100 frameworks
 - [ ] **Phase 73: Conversation Mode Routing** - Three entry modes, persona detection, Brain framework chain selection
 - [ ] **Phase 74: Conversation Capture + Room Seeding** - Opportunity banking during conversation, room seeding from banked opportunities, persistent scratchpad
@@ -60,7 +60,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 
 Plans:
 - [x] 71-01-PLAN.md -- Universal opportunity schema + extraction + bankOpportunity persistence
-- [ ] 71-02-PLAN.md -- Intelligence cascade Step 11 wiring + /mos:opportunities command update
+- [x] 71-02-PLAN.md -- Intelligence cascade Step 11 wiring + /mos:opportunities command update
 
 ### Phase 72: Opportunity Graph + Brain Enrichment
 **Goal**: Banked opportunities become queryable graph nodes with cross-framework validation suggestions from the Brain
@@ -130,7 +130,7 @@ Phases execute in numeric order: 71 -> 72 -> 73 -> 74 -> 75
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 71. Opportunity Extraction Engine | 1/2 | In Progress|  |
+| 71. Opportunity Extraction Engine | 2/2 | Complete   | 2026-04-09 |
 | 72. Opportunity Graph + Brain Enrichment | 0/2 | Not started | - |
 | 73. Conversation Mode Routing | 0/2 | Not started | - |
 | 74. Conversation Capture + Room Seeding | 0/2 | Not started | - |
