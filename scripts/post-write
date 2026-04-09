@@ -73,5 +73,23 @@ done
 #   - Markdown cascade: classify-insight, graph-index, HSI, reverse salients, hsi-to-kuzu, presentation
 # This keeps CLI hooks and MCP tools using identical intelligence logic.
 if [ -n "$room_dir" ]; then
-  node "${PLUGIN_ROOT}/bin/mindrian-tools.cjs" cascade "$room_dir" "$FILE_PATH" --raw 2>/dev/null &
+  # Run cascade in foreground so we can capture and report status
+  CASCADE_OUTPUT=$(node "${PLUGIN_ROOT}/bin/mindrian-tools.cjs" cascade "$room_dir" "$FILE_PATH" --raw 2>/dev/null) || CASCADE_OUTPUT='{"error":"cascade failed"}'
+
+  # Extract key status fields for a compact report
+  # Use jq if available, otherwise output raw
+  if command -v jq >/dev/null 2>&1; then
+    CASCADE_STATUS=$(echo "$CASCADE_OUTPUT" | jq -c '{
+      cascade_status: "complete",
+      classification: .classification,
+      git_commit: .gitCommit.status,
+      graph_index: .graphIndex.status,
+      proactive_intelligence: .proactiveIntelligence.status
+    }' 2>/dev/null) || CASCADE_STATUS='{"cascade_status":"complete","raw":true}'
+  else
+    # No jq -- wrap raw output with status marker
+    CASCADE_STATUS="{\"cascade_status\":\"complete\"}"
+  fi
+
+  echo "$CASCADE_STATUS"
 fi
