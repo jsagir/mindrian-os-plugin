@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.9.3] - 2026-04-09
+
+onboarding: true
+onboard_steps:
+  - "NEW: The intelligence loop is real. File an artifact and Larry will surface cross-subsystem impacts -- 'This changes your financial model assumption [0.82]'. Respond APPROVE, REJECT (with reason), or DEFER. Your decisions become graph data that makes the next scan smarter."
+  - "Filing now produces a complete audit trail: automatic git commit, classification metadata in frontmatter, and cascade status visible to Larry."
+  - "All scripts work on macOS now. No more GNU-only stat/find/date/readlink calls breaking on Darwin."
+
+### Added
+- **APPROVE/REJECT/DEFER workflow** -- after filing an artifact, Larry surfaces up to 2 cross-subsystem impacts with confidence scores. User responds APPROVE (cascade), REJECT (reason captured as graph data), or DEFER (parked). Decisions persist to .proactive-intelligence.json and become KuzuDB edges (CONFIRMS, INVALIDATES, DEFERRED).
+- **Mid-session intelligence** -- new findings surface in Larry's next response after filing, not just at session start. Repeat suppression prevents noise (3+ showings auto-suppressed). New evidence resets suppression.
+- **record-decision CLI subcommand** -- `node bin/mindrian-tools.cjs record-decision` wires decisions from skill instructions through to persistence and graph edges
+- **getNewFindings()** -- compares current analysis vs last-persisted, returns only NEW or CHANGED findings with suppression filtering
+- **recordDecision()** -- persists user APPROVE/REJECT/DEFER with timestamp, reason, and KuzuDB edge creation
+- **CONFIRMS/DEFERRED/INVALIDATES edge types** -- new KuzuDB schema for decision tracking
+- **Automatic git commit on artifact filing** -- structured message format "file(section): artifact title"
+- **Classification in frontmatter** -- classify-insight result stored as `classification:` field in artifact YAML
+- **Cascade status reporting** -- post-write hook echoes completion status to stdout for Larry's context
+
+### Fixed
+- **macOS portability** -- replaced all GNU-only `stat -c %Y`, `find -printf`, `readlink -f`, `date -d` calls with portable helpers across 13 scripts
+- **/mos:radar registered in plugin.json** -- command was implemented but unreachable
+- **VERIFICATION.md staleness** -- phases 39, 60, 62 checkboxes updated to match implementations
+- **Brain fallback guards** -- leadership.md and hat-briefing.md now gracefully degrade without Brain
+- **datetime.utcnow() deprecation** -- replaced with datetime.now(datetime.UTC) in 4 scripts
+- **zod missing from package.json** -- MCP server peer dependency was not declared
+- **classify-insight fire-and-forget** -- now synchronous, result consumed by cascade
+
 ## [1.9.2] - 2026-04-09
 
 onboarding: true
