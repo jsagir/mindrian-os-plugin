@@ -56,11 +56,11 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
   2. Each banked opportunity file contains YAML frontmatter with all schema fields: problem, mirror_solution, domain, evidence, source_framework, knight_position, confidence
   3. User can run /mos:opportunities and see all banked opportunities listed with their knight_position (risk vs uncertainty) and confidence scores
   4. A methodology command that produces zero opportunities does not create empty or stub files
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 71-01: Universal opportunity schema definition + extraction helper
-- [ ] 71-02: Framework command side-effect wiring + opportunity-bank persistence
+- [x] 71-01-PLAN.md -- Universal opportunity schema + extraction + bankOpportunity persistence
+- [ ] 71-02-PLAN.md -- Intelligence cascade Step 11 wiring + /mos:opportunities command update
 
 ### Phase 72: Opportunity Graph + Brain Enrichment
 **Goal**: Banked opportunities become queryable graph nodes with cross-framework validation suggestions from the Brain
@@ -130,7 +130,7 @@ Phases execute in numeric order: 71 -> 72 -> 73 -> 74 -> 75
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 71. Opportunity Extraction Engine | 0/2 | Not started | - |
+| 71. Opportunity Extraction Engine | 1/2 | In Progress|  |
 | 72. Opportunity Graph + Brain Enrichment | 0/2 | Not started | - |
 | 73. Conversation Mode Routing | 0/2 | Not started | - |
 | 74. Conversation Capture + Room Seeding | 0/2 | Not started | - |
