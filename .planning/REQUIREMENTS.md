@@ -15,17 +15,28 @@
 - [ ] **SQLITE-08**: All 24+ files touching KuzuDB updated (scripts, CLI, MCP tools, wiki, cascade)
 - [ ] **SQLITE-09**: kuzu npm package removed from dependencies
 
-## MCP Server
+## MCP Server (Goal-Oriented Tools)
 
-- [ ] **MCP-01**: 5-7 router tools (not 23 flat) covering Brain, Room, Graph, Methodology, Export, Meeting, Compute
-- [ ] **MCP-02**: Brain router: brain_ask, brain_query, brain_search, brain_grade, brain_route, brain_chain as subcommands
-- [ ] **MCP-03**: Room router: room_analyze, room_state, room_file, room_sections as subcommands
-- [ ] **MCP-04**: Compute router: hsi_score, reverse_salients, whitespace_detect, blindspot, surprise, novelty, disruption as subcommands
-- [ ] **MCP-05**: Larry Lite server instructions (methodology instinct, not personality) -- teaches host LLMs tool orchestration
-- [ ] **MCP-06**: stdio transport (local Desktop) + Streamable HTTP transport (remote/OpenClaw) on same server
-- [ ] **MCP-07**: Shared lib/core/*.cjs contract -- every core module callable from both plugin hooks and MCP tool handlers
-- [ ] **MCP-08**: Text-to-Cypher -- natural language questions translated to Cypher queries against Brain Neo4j (21K nodes), executed via brain_query, structured results returned
-- [ ] **MCP-09**: Cypher-to-Text -- raw Cypher query results translated back to natural language explanations, graph traversal results rendered as readable insights
+**Design principle:** Tools are goals, not endpoints. Each tool orchestrates the full internal pipeline. The LLM picks a tool matching the user's intent -- the server does all chaining. Brain queries, Room analysis, HSI scoring, and UI attachment happen INSIDE each tool. The moat (methodology chaining) lives in server code, not in exposed subcommand documentation.
+
+- [ ] **MCP-01**: 10 goal-oriented tools where each orchestrates complete internal pipeline, returns JSON data + _meta.ui.resourceUri for MCP App
+- [ ] **MCP-02**: explore_opportunity(description) -- chains domain exploration + reverse salient + S-curve + JTBD + HSI internally, attaches Knowledge Graph Explorer UI
+- [ ] **MCP-03**: validate_idea(claim) -- chains Mullins Triple Validation + Six Hats + Ackoff + assumption creation internally, attaches Mullins Assessment UI
+- [ ] **MCP-04**: file_artifact(content, section) -- triggers full filing cascade (classify, graph-index, HSI, cross-ref scan, assumption check), attaches updated Command Center UI
+- [ ] **MCP-05**: whats_weak() -- runs analyze-room + reverse salients + blindspot coverage + bias scan + Brain routing, attaches Command Center + Bias Heatmap UI
+- [ ] **MCP-06**: grade_my_work() -- runs full grading rubric with Brain calibration + evidence mapping, attaches Grading Scorecard UI
+- [ ] **MCP-07**: red_team(target) -- adversarial stress-test orchestrating Devil's Advocate + Black Hat + investor perspective + Brain failure pattern matching, attaches Red Team Report UI
+- [ ] **MCP-08**: detect_bias(target) -- systematic bias scan (confirmation, survivorship, anchoring, selection) across room evidence with balance scoring, attaches Bias Heatmap UI
+- [ ] **MCP-09**: file_meeting(transcript) -- full meeting pipeline (parse, extract speakers, file segments, team update, cascade), attaches Meeting Timeline UI
+- [ ] **MCP-10**: whats_next() -- Brain-routed suggestion based on room state + venture stage + FEEDS_INTO chain traversal, attaches Chain Explorer UI
+- [ ] **MCP-11**: track_assumption(claim, evidence) -- create/update assumption with validity lifecycle + evidence linking, attaches Assumption Dashboard UI
+- [ ] **MCP-12**: Larry Lite server instructions (200-line methodology instinct, not personality) -- teaches host LLMs WHEN to call which tool based on user intent
+- [ ] **MCP-13**: stdio transport (local Desktop) + Streamable HTTP transport (remote/OpenClaw) on same server instance
+- [ ] **MCP-14**: Shared lib/core/*.cjs contract -- every core module callable from both plugin hooks and MCP tool handlers
+- [ ] **MCP-15**: Text-to-Cypher + Cypher-to-Text wrapped INSIDE tools that need Brain (not exposed as separate tools) -- natural language in, readable insights out
+- [ ] **MCP-16**: Brain-driven tool selection -- given user intent, Brain's ADDRESSES_PROBLEM_TYPE + FEEDS_INTO graph determines which goal-oriented tool(s) to invoke and in what order. Server can auto-chain tools when Brain recommends a sequence.
+- [ ] **MCP-17**: Brain-driven agent spawning -- Brain's FrameworkAgent nodes (10 agents: ReverseSalientAgent, HSIAgent, JTBDAgent, etc.) determine which specialist agent to spawn for deep analysis. MCP server spawns agents as sub-tool-calls with isolated context.
+- [ ] **MCP-18**: Dynamic tool recommendation -- after any tool completes, Brain suggests the next logical tool based on FEEDS_INTO chains and current room state. Returned in tool response as `_meta.suggested_next`.
 
 ## MCP Apps (Interactive UI)
 
@@ -45,6 +56,9 @@
 - [ ] **APP-14**: Chart panels -- bar/line/pie/KPI for room analytics, section coverage, HSI scores, coverage percentages
 - [ ] **APP-15**: Action panels -- approve/retry/compare/branch into next tool action from UI, cascade decision buttons
 - [ ] **APP-16**: Wizard/stepper -- multi-step onboarding, guided room setup, methodology pipeline progress
+- [ ] **APP-17**: Red Team Report -- attack vectors as severity-rated cards with "Defend" action buttons, each defense tracked as assumption with evidence
+- [ ] **APP-18**: Bias Heatmap -- section-level bias risk visualization (confirmation=dark red, anchoring=yellow, balanced=green), click to see specific bias instances
+- [ ] **APP-19**: Assumption Validity Dashboard -- visual assumption lifecycle cards stacked by section, color-coded validity (green=supported, yellow=untested, red=contradicted, gray=stale), evidence for/against per assumption
 
 ## Co-Development Infrastructure
 
@@ -81,8 +95,53 @@
 
 | REQ | Phase | Status |
 |-----|-------|--------|
-| SQLITE-01 through SQLITE-09 | TBD | Pending |
-| MCP-01 through MCP-09 | TBD | Pending |
-| APP-01 through APP-16 | TBD | Pending |
-| CODEV-01 through CODEV-03 | TBD | Pending |
-| TEST-01 through TEST-04 | TBD | Pending |
+| SQLITE-01 | Phase 77: SQLite Foundation | Pending |
+| SQLITE-02 | Phase 77: SQLite Foundation | Pending |
+| SQLITE-03 | Phase 77: SQLite Foundation | Pending |
+| SQLITE-04 | Phase 78: Memory Layer + Assumptions | Pending |
+| SQLITE-05 | Phase 78: Memory Layer + Assumptions | Pending |
+| SQLITE-06 | Phase 79: SQLite Migration + Cleanup | Pending |
+| SQLITE-07 | Phase 79: SQLite Migration + Cleanup | Pending |
+| SQLITE-08 | Phase 79: SQLite Migration + Cleanup | Pending |
+| SQLITE-09 | Phase 79: SQLite Migration + Cleanup | Pending |
+| MCP-01 | Phase 81: MCP Server Core | Pending |
+| MCP-02 | Phase 82: Goal-Oriented Tools | Pending |
+| MCP-03 | Phase 82: Goal-Oriented Tools | Pending |
+| MCP-04 | Phase 82: Goal-Oriented Tools | Pending |
+| MCP-05 | Phase 82: Goal-Oriented Tools | Pending |
+| MCP-06 | Phase 82: Goal-Oriented Tools | Pending |
+| MCP-07 | Phase 82: Goal-Oriented Tools | Pending |
+| MCP-08 | Phase 82: Goal-Oriented Tools | Pending |
+| MCP-09 | Phase 82: Goal-Oriented Tools | Pending |
+| MCP-10 | Phase 82: Goal-Oriented Tools | Pending |
+| MCP-11 | Phase 82: Goal-Oriented Tools | Pending |
+| MCP-12 | Phase 81: MCP Server Core | Pending |
+| MCP-13 | Phase 81: MCP Server Core | Pending |
+| MCP-14 | Phase 81: MCP Server Core | Pending |
+| MCP-15 | Phase 82: Goal-Oriented Tools | Pending |
+| APP-01 | Phase 80: De Stijl Component Library + App Foundation | Pending |
+| APP-02 | Phase 84: MCP Apps - Core Views | Pending |
+| APP-03 | Phase 84: MCP Apps - Core Views | Pending |
+| APP-04 | Phase 84: MCP Apps - Core Views | Pending |
+| APP-05 | Phase 84: MCP Apps - Core Views | Pending |
+| APP-06 | Phase 85: MCP Apps - Methodology + Meeting | Pending |
+| APP-07 | Phase 85: MCP Apps - Methodology + Meeting | Pending |
+| APP-08 | Phase 85: MCP Apps - Methodology + Meeting | Pending |
+| APP-09 | Phase 85: MCP Apps - Methodology + Meeting | Pending |
+| APP-10 | Phase 80: De Stijl Component Library + App Foundation | Pending |
+| APP-11 | Phase 80: De Stijl Component Library + App Foundation | Pending |
+| APP-12 | Phase 86: MCP Apps - Interaction Primitives | Pending |
+| APP-13 | Phase 86: MCP Apps - Interaction Primitives | Pending |
+| APP-14 | Phase 86: MCP Apps - Interaction Primitives | Pending |
+| APP-15 | Phase 86: MCP Apps - Interaction Primitives | Pending |
+| APP-16 | Phase 86: MCP Apps - Interaction Primitives | Pending |
+| APP-17 | Phase 85: MCP Apps - Methodology + Meeting | Pending |
+| APP-18 | Phase 85: MCP Apps - Methodology + Meeting | Pending |
+| APP-19 | Phase 84: MCP Apps - Core Views | Pending |
+| CODEV-01 | Phase 83: Co-Development Infrastructure | Pending |
+| CODEV-02 | Phase 83: Co-Development Infrastructure | Pending |
+| CODEV-03 | Phase 83: Co-Development Infrastructure | Pending |
+| TEST-01 | Phase 87: Cross-Platform Testing | Pending |
+| TEST-02 | Phase 87: Cross-Platform Testing | Pending |
+| TEST-03 | Phase 87: Cross-Platform Testing | Pending |
+| TEST-04 | Phase 87: Cross-Platform Testing | Pending |
