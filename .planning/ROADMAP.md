@@ -1,113 +1,94 @@
-# Roadmap: Brain Graph Optimization + Pam-Proof Install v1.8.8
+# Roadmap: Wiring Integrity + Intelligence Loop v1.9.3
 
 ## Overview
 
-Two parallel workstreams: (A) Execute the Brain normalization scripts from v1.8.2 -- enriching framework chains, prerequisite edges, stage mappings, and wiring orphaned nodes in the Neo4j teaching graph. (B) Test and polish the install experience for non-technical users with screenshots, error handling, and onboarding verification.
+Complete the remaining audit findings from the 8-audit plugin scan. The centerpiece is making the APPROVE/REJECT/DEFER cascade workflow real -- from artifact filed to Larry surfaces finding to user decides to decision becomes graph data. Alongside: fix filing cascade gaps, macOS portability, radar registration, and stale docs.
 
 ## Milestones
 
 <details>
-<summary>v1.8.2 Brain Graph Optimization (Phases 52-55) - SUPERSEDED by v1.8.8</summary>
-
-Original 4 phases absorbed into v1.8.8 Phases 60-63. Scripts written, research complete.
-
-</details>
-
-<details>
-<summary>v1.8.6 MindrianRooms -- ICM Room Organization (Phases 56-59.2) - SHIPPED</summary>
+<summary>v1.8.6 MindrianRooms (Phases 56-59.2) - SHIPPED 2026-04-06</summary>
 
 6 phases, 35 requirements. See .planning/milestones/v1.8.6-ROADMAP.md
 
 </details>
 
-- **v1.8.8 Brain Graph Optimization + Pam-Proof Install** - Phases 60-64 (in progress)
+<details>
+<summary>v1.8.8 Brain Graph Optimization + Dummy-Proof Install (Phases 60-64) - SHIPPED 2026-04-07</summary>
+
+5 phases, 27 requirements. Causal discovery, lazy graph bridge, fragmentation cleanup, agent wiring, install experience.
+
+</details>
+
+<details>
+<summary>v1.9.0 Model Data Room + Self-Analysis (Phases 65-66) - SHIPPED 2026-04-08</summary>
+
+Google Drive integration, 168-artifact model room, HSI self-analysis, Investment Thesis gate.
+v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to-end.
+
+</details>
+
+- **v1.9.3 Wiring Integrity + Intelligence Loop** - Phases 67-70 (in progress)
 
 ## Phases
 
-- [ ] **Phase 60: Causal Discovery Optimization** - FEEDS_INTO, PREREQUISITE, TYPICAL_AT, ADDRESSES_PROBLEM_TYPE enrichment
-- [ ] **Phase 61: Lazy Graph Bridge** - ALIAS_OF bridging, LazyGraphConcept promotion, orphan cleanup
-- [ ] **Phase 62: Fragmentation Cleanup** - ProblemType consolidation, Book dedup, label normalization
-- [ ] **Phase 63: Agent + Teaching Wiring** - FrameworkAgents, CaseStudies, Workshops, Bots, CorePrinciples
-- [ ] **Phase 64: Dummy-Proof Install Experience** - Test, screenshot, error messages, onboarding flow, email templates
+- [ ] **Phase 67: Portability + Polish** - macOS compat, radar registration, stale doc fixes
+- [ ] **Phase 68: Filing Cascade Completeness** - Git-commit on file, classify consumption, status reporting
+- [ ] **Phase 69: APPROVE/REJECT/DEFER Workflow** - Cross-subsystem impact surfacing, user decision capture, decision-as-graph-data
+- [ ] **Phase 70: Mid-Session Intelligence Loop** - Post-filing injection, repeat suppression, live intelligence during session
 
 ## Phase Details
 
-### Phase 60: Causal Discovery Optimization
-**Goal**: Enrich the Brain's causal discovery spine so framework chaining, stage-aware suggestions, and problem-type routing actually work
-**Depends on**: Nothing (first phase, scripts already written)
-**Requirements**: BRAIN-01, BRAIN-02, BRAIN-03, BRAIN-04, BRAIN-05, BRAIN-06
-**Success Criteria**:
-  1. FEEDS_INTO edges >= 35 between Framework nodes (verified by Cypher count)
-  2. PREREQUISITE edges >= 14 (verified by Cypher count)
-  3. TYPICAL_AT edges >= 30 connecting Frameworks to VentureStages
-  4. ADDRESSES_PROBLEM_TYPE edges cleaned of __Entity__ noise
-  5. 2D ProblemType matrix queryable: given (definition_level, complexity) return ranked frameworks
-  6. Provenance chain traversable: Book -> Framework -> ProblemType in single Cypher query
-**Scripts**: brain-normalize-final.cypher, brain-normalize-supplement.cypher
+### Phase 67: Portability + Polish
+**Goal**: Plugin scripts run correctly on macOS and all registered commands are reachable
+**Depends on**: Nothing (independent fixes, no new subsystem dependencies)
+**Requirements**: PORT-01, PORT-02, PORT-03, PORT-04
+**Success Criteria** (what must be TRUE):
+  1. Running any hook script on macOS produces no GNU-specific errors (stat -c and find -printf replaced with portable alternatives)
+  2. User can invoke /mos:radar from the plugin system and it resolves to the radar command
+  3. REQUIREMENTS.md checkboxes for phases 39, 60, 61, 62 reflect actual implementation status (checked if done, unchecked if not)
 **Plans**: TBD
 
-### Phase 61: Lazy Graph Bridge
-**Goal**: Connect the LazyGraph layer (8,425 nodes) to the Curated layer (281 nodes) so semantic intelligence reaches Larry
-**Depends on**: Phase 60
-**Requirements**: LAZY-01, LAZY-02, LAZY-03, LAZY-04
-**Success Criteria**:
-  1. ALIAS_OF edges bridge top-50 LazyGraphConcepts to canonical Framework/Concept nodes
-  2. LazyGraphConcepts with 3+ CO_OCCURS promoted to Concept label
-  3. 511 orphan LazyGraphConcepts cleaned (deleted or aliased)
-  4. CO_OCCURS queries with weight >= 2 filter return meaningful results
-**Scripts**: brain-normalize-supplement.cypher
+### Phase 68: Filing Cascade Completeness
+**Goal**: Every artifact filing produces a complete audit trail -- git history, classification metadata, and visible status reporting
+**Depends on**: Phase 67 (portability fixes ensure cascade scripts run on all platforms)
+**Requirements**: FILE-01, FILE-02, FILE-03
+**Success Criteria** (what must be TRUE):
+  1. After filing a markdown artifact, a git commit exists with message format "file(section): artifact title"
+  2. Filed artifacts contain a classification: field in their YAML frontmatter (populated by classify-insight)
+  3. Larry receives cascade completion status in hook output (user can see "cascade complete" or "cascade failed" in session context)
 **Plans**: TBD
 
-### Phase 62: Fragmentation Cleanup
-**Goal**: Consolidate fragmented nodes so graph traversal is reliable
-**Depends on**: Phase 60
-**Requirements**: FRAG-01, FRAG-02, FRAG-03, FRAG-04, FRAG-05
-**Success Criteria**:
-  1. ProblemType nodes reduced from 150+ to 4 canonical with ALIAS_OF and SUBTYPE_OF
-  2. Book nodes deduped (0 null-title, 0 duplicates)
-  3. Opportunity Bank consolidated to 1 canonical node
-  4. DictionaryTerm deduped (1 per problem type, not 8)
-  5. All labels PascalCase, no base/UNKNOWN labels remaining
-**Scripts**: brain-normalize-problemtype.cypher
+### Phase 69: APPROVE/REJECT/DEFER Workflow
+**Goal**: Users can make decisions on cross-subsystem impacts and those decisions become persistent, queryable graph data
+**Depends on**: Phase 68 (filing must be complete before decision layer can respond to filings)
+**Requirements**: INTEL-01, INTEL-02, INTEL-03
+**Success Criteria** (what must be TRUE):
+  1. After filing an artifact, Larry presents up to 2 cross-subsystem impacts with confidence scores (e.g., "This changes your financial model assumption [0.82]")
+  2. User can respond APPROVE, REJECT (with reason), or DEFER to each surfaced impact
+  3. APPROVE/REJECT/DEFER decisions appear in .proactive-intelligence.json with timestamp and decision type
+  4. KuzuDB contains corresponding edges (INVALIDATES for approve-cascade, CONFIRMS for reject-reason, DEFERRED for parked items)
+  5. Rejected reasons are stored as queryable data (Decision #13: "Rejection is data")
 **Plans**: TBD
 
-### Phase 63: Agent + Teaching Wiring
-**Goal**: Wire orphaned teaching layer nodes so the Brain knows which agents implement which frameworks, which case studies illustrate them, and which principles govern them
-**Depends on**: Phase 60
-**Requirements**: WIRE-01, WIRE-02, WIRE-03, WIRE-04, WIRE-05
-**Success Criteria**:
-  1. 10/10 FrameworkAgents connected (DERIVED_FROM + APPLIES_TO + IMPLEMENTED_BY)
-  2. 26+/30 CaseStudies connected to relevant Frameworks
-  3. 16+ Workshop -> TEACHES -> Framework edges
-  4. 15+ Bot -> IMPLEMENTS -> Framework edges
-  5. 20+ CorePrinciple -> GOVERNS edges
-**Plans**: TBD
-
-### Phase 64: Dummy-Proof Install Experience
-**Goal**: Non-technical users can install MindrianOS alone in 10 minutes using the website guide
-**Depends on**: Nothing (parallel with Brain phases)
-**Requirements**: INST-01, INST-02, INST-03, INST-04, INST-05, INST-06, INST-07, INST-08
-**Success Criteria**:
-  1. Fresh Mac install completes successfully following only the website guide
-  2. Fresh Windows install completes successfully following only the website guide
-  3. Screenshots exist for every step on both platforms
-  4. No raw stack traces in any MindrianOS script error output
-  5. /mos:onboard completes without errors on fresh install
-  6. /mos:onboard whats-new shows correct changelog after update
-  7. Install page has troubleshooting section with top 10 failure modes
-  8. Email template renders correctly in Gmail, Outlook, and Apple Mail
+### Phase 70: Mid-Session Intelligence Loop
+**Goal**: Intelligence findings surface throughout the session (not just at start) and repeat suppression prevents noise fatigue
+**Depends on**: Phase 69 (APPROVE/REJECT/DEFER must exist before mid-session can present decisions)
+**Requirements**: INTEL-04, INTEL-05
+**Success Criteria** (what must be TRUE):
+  1. After a post-write cascade completes mid-session, new findings are available in Larry's next response (not deferred to next session start)
+  2. Insights surfaced 3+ times without new evidence are suppressed from Larry's output
+  3. When new evidence changes a previously-suppressed insight, it re-surfaces with a "new evidence" indicator
 **Plans**: TBD
 
 ## Progress
 
 **Execution Order:**
-Phases 60-63 (Brain) execute in sequence: 60 -> 61/62 (parallel) -> 63
-Phase 64 (Install) runs in PARALLEL with all Brain phases (no dependency)
+Phases execute in numeric order: 67 -> 68 -> 69 -> 70
 
-| Phase | Milestone | Plans Complete | Status | Completed |
-|-------|-----------|----------------|--------|-----------|
-| 60. Causal Discovery | v1.8.8 | 0/0 | Not started | - |
-| 61. Lazy Graph Bridge | v1.8.8 | 0/0 | Not started | - |
-| 62. Fragmentation Cleanup | v1.8.8 | 0/0 | Not started | - |
-| 63. Agent + Teaching Wiring | v1.8.8 | 0/0 | Not started | - |
-| 64. Pam-Proof Install | v1.8.8 | 0/0 | Not started | - |
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 67. Portability + Polish | 0/TBD | Not started | - |
+| 68. Filing Cascade Completeness | 0/TBD | Not started | - |
+| 69. APPROVE/REJECT/DEFER Workflow | 0/TBD | Not started | - |
+| 70. Mid-Session Intelligence Loop | 0/TBD | Not started | - |

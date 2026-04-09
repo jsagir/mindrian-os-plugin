@@ -39,15 +39,15 @@
 
 | REQ-ID | Phase | Plan | Status |
 |--------|-------|------|--------|
-| INTEL-01 | -- | -- | Pending |
-| INTEL-02 | -- | -- | Pending |
-| INTEL-03 | -- | -- | Pending |
-| INTEL-04 | -- | -- | Pending |
-| INTEL-05 | -- | -- | Pending |
-| FILE-01 | -- | -- | Pending |
-| FILE-02 | -- | -- | Pending |
-| FILE-03 | -- | -- | Pending |
-| PORT-01 | -- | -- | Pending |
-| PORT-02 | -- | -- | Pending |
-| PORT-03 | -- | -- | Pending |
-| PORT-04 | -- | -- | Pending |
+| INTEL-01 | Phase 69 | -- | Pending |
+| INTEL-02 | Phase 69 | -- | Pending |
+| INTEL-03 | Phase 69 | -- | Pending |
+| INTEL-04 | Phase 70 | -- | Pending |
+| INTEL-05 | Phase 70 | -- | Pending |
+| FILE-01 | Phase 68 | -- | Pending |
+| FILE-02 | Phase 68 | -- | Pending |
+| FILE-03 | Phase 68 | -- | Pending |
+| PORT-01 | Phase 67 | -- | Pending |
+| PORT-02 | Phase 67 | -- | Pending |
+| PORT-03 | Phase 67 | -- | Pending |
+| PORT-04 | Phase 67 | -- | Pending |
