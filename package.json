@@ -12,6 +12,7 @@
     "@modelcontextprotocol/ext-apps": "^1.5.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "asciichart": "^1.5.25",
+    "better-sqlite3": "^12.8.0",
     "chokidar": "^4.0.3",
     "express": "^5.1.0",
     "flexsearch": "^0.7.43",
