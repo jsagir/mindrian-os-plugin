@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.9.4
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 75-02-PLAN.md
-last_updated: "2026-04-09T21:05:36.969Z"
+stopped_at: Completed 75-01-PLAN.md
+last_updated: "2026-04-09T21:06:51.103Z"
 last_activity: 2026-04-09
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 10
-  completed_plans: 9
+  completed_plans: 10
   percent: 0
 ---
 
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 74 P01 | 4min | 2 tasks | 3 files |
 | Phase 74 P02 | 4min | 2 tasks | 2 files |
 | Phase 75 P02 | 2min | 2 tasks | 2 files |
+| Phase 75-onboarding-redesign P01 | 3min | 2 tasks | 1 files |
 
 ### Decisions
 
@@ -79,6 +80,8 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 74]: Scratchpad reading in session-start is non-blocking with || echo fallback
 - [Phase 74]: Section seeding maps opportunity domain to room sections (problem-definition, solution-design, market-analysis, business-model)
 - [Phase 75]: OPP_BANK_SUMMARY computed via inline node, sorted by confidence, injected into all three tiers
+- [Phase 75-onboarding-redesign]: Mode-first onboarding: teach three ways to work before asking who the user is
+- [Phase 75-onboarding-redesign]: Knight framing is practical with persona examples, not academic theory
 
 ### Pending Todos
 
@@ -94,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-09T21:05:36.965Z
-Stopped at: Completed 75-02-PLAN.md
+Last session: 2026-04-09T21:06:51.100Z
+Stopped at: Completed 75-01-PLAN.md
 Resume file: None

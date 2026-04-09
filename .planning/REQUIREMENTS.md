@@ -22,9 +22,9 @@
 
 ## Onboarding Redesign (ONBD)
 
-- [ ] **ONBD-01**: /mos:onboard teaches all three entry paths with persona-specific guided first experience
-- [ ] **ONBD-02**: Onboarding explains the opportunity bank as the universal output of every framework interaction
-- [ ] **ONBD-03**: Knight uncertainty/risk framing presented as the "why" -- MindrianOS converts uncertainty to manageable risk
+- [x] **ONBD-01**: /mos:onboard teaches all three entry paths with persona-specific guided first experience
+- [x] **ONBD-02**: Onboarding explains the opportunity bank as the universal output of every framework interaction
+- [x] **ONBD-03**: Knight uncertainty/risk framing presented as the "why" -- MindrianOS converts uncertainty to manageable risk
 - [x] **ONBD-04**: Returning users who have banked opportunities see them surfaced in session greeting
 
 ## Future Requirements (Deferred)

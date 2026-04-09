@@ -43,7 +43,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - [x] **Phase 72: Opportunity Graph + Brain Enrichment** - KuzuDB integration, Brain cross-referencing against 100 frameworks (completed 2026-04-09)
 - [x] **Phase 73: Conversation Mode Routing** - Three entry modes, persona detection, Brain framework chain selection (completed 2026-04-09)
 - [x] **Phase 74: Conversation Capture + Room Seeding** - Opportunity banking during conversation, room seeding from banked opportunities, persistent scratchpad (completed 2026-04-09)
-- [ ] **Phase 75: Onboarding Redesign** - Three entry paths taught, opportunity bank explained, Knight framing, returning user greeting
+- [x] **Phase 75: Onboarding Redesign** - Three entry paths taught, opportunity bank explained, Knight framing, returning user greeting (completed 2026-04-09)
 
 ## Phase Details
 
@@ -120,7 +120,7 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 75-01-PLAN.md -- Rewrite /mos:onboard with mode-first structure + opportunity bank + Knight framing
+- [x] 75-01-PLAN.md -- Rewrite /mos:onboard with mode-first structure + opportunity bank + Knight framing
 - [x] 75-02-PLAN.md -- Opportunity bank summary in returning user greeting + context-engine update
 
 ## Progress
@@ -134,4 +134,4 @@ Phases execute in numeric order: 71 -> 72 -> 73 -> 74 -> 75
 | 72. Opportunity Graph + Brain Enrichment | 2/2 | Complete   | 2026-04-09 |
 | 73. Conversation Mode Routing | 2/2 | Complete   | 2026-04-09 |
 | 74. Conversation Capture + Room Seeding | 2/2 | Complete   | 2026-04-09 |
-| 75. Onboarding Redesign | 1/2 | In Progress|  |
+| 75. Onboarding Redesign | 2/2 | Complete   | 2026-04-09 |
