@@ -27,19 +27,41 @@ v1.0 through v1.9.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Pres
 - v1.8.8 Brain Graph Optimization (2026-04-07) -- causal discovery, lazy graph bridge, fragmentation cleanup, teaching wiring, dummy-proof install
 - v1.9.0 Model Data Room (2026-04-08) -- Google Drive integration, 168-artifact model room, HSI self-analysis, Investment Thesis, knowledge graph (179 nodes/383 edges)
 
-## Current Milestone: v1.9.3 Wiring Integrity + Intelligence Loop
+## Current Milestone: v1.9.4 Opportunity Engine + Conversation-First Entry
 
-**Goal:** Complete the remaining audit findings from the 8-audit plugin scan -- bring the APPROVE/REJECT/DEFER cascade workflow to life, fix macOS portability, wire radar registration, clean stale docs, and make the mid-session intelligence loop real.
+**Goal:** Every framework interaction produces bankable opportunities as a universal side effect. Every session starts with persona-aware mode routing. Mode 2 converts uncertainty to risk through Brain-guided conversation. Onboarding redesigned to teach all three entry paths.
 
 **Target features:**
-- APPROVE/REJECT/DEFER cascade workflow (cross-subsystem impact detection, user decision capture, decision-as-graph-data)
-- /mos:radar registration in plugin.json
-- macOS portability (replace GNU-only stat -c, find -printf with cross-platform alternatives)
-- REQUIREMENTS.md checkbox staleness fix (phases 39, 60, 61, 62)
-- Filing cascade git-commit for markdown artifacts
-- Mid-session proactive intelligence (surface findings after filing, not just at session start)
 
-**Context:** v1.9.2 fixed the dead post-write hook and wired proactive-intelligence.cjs for the first time. The filing cascade now fires end-to-end. But the user-facing intelligence loop -- where Larry says "this changes your financial model" and the user responds APPROVE/REJECT/DEFER -- is still aspirational code.
+Layer 1 -- Opportunity Extraction Engine:
+- Universal opportunity schema (problem + mirror solution + domain + evidence + source_framework + knight_position + confidence)
+- Every framework command banks opportunities as side effect
+- Opportunity bank feeds /mos:opportunities and room/opportunity-bank/
+- Brain enrichment: cross-reference banked opportunities against 100 frameworks x 131 chains
+
+Layer 2 -- Conversation-First Entry (Three Modes):
+- Session-start mode routing with JTBD statements
+- Mode 1: Explore (freeform, nothing saved)
+- Mode 2: Explore+Capture (persona detection -> Brain framework chain -> opportunities bank as you talk -> room seeds when ready)
+- Mode 3: Build Then Work (existing /mos:new-project)
+- Three personas: TTO (solution->problem->business), Researcher (problem->business->solution), Business (opportunity->problem->solution)
+- Pre-room scratchpad persisting across sessions
+
+Layer 3 -- Onboarding Redesign:
+- /mos:onboard teaches all three entry paths with persona-specific guided first experience
+- Opportunity bank explained as the universal output
+- Knight uncertainty/risk framing as the "why"
+
+**Context:** v1.9.3 completed the intelligence loop (APPROVE/REJECT/DEFER, mid-session findings, filing cascade). Brain has 100 frameworks, 131 FEEDS_INTO chains, Opportunity schema exists. Two validated personas (Implicit User = domain-embedded with tech/data, Explicit User = ambition but no direction). Knight risk/uncertainty distinction is the theoretical backbone. PWS mission: "reduce time and risk translating ideas from laboratory to marketplace."
+
+## Previous Milestone: v1.9.3 Wiring Integrity + Intelligence Loop (SHIPPED 2026-04-09)
+
+**Delivered:**
+- APPROVE/REJECT/DEFER cascade workflow (cross-subsystem impact detection, user decisions become KuzuDB edges)
+- Mid-session proactive intelligence (findings surface after filing, not just session start)
+- Filing cascade completeness (auto git-commit, classification in frontmatter, status reporting)
+- macOS portability (all GNU-only calls replaced with portable helpers across 13 scripts)
+- v1.9.2: 13 wiring fixes + intelligence cascade fully wired end-to-end
 
 ## Previous Milestone: v1.9.0 Model Data Room + Self-Analysis (SHIPPED 2026-04-08)
 

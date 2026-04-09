@@ -1,53 +1,60 @@
-# Requirements: Wiring Integrity + Intelligence Loop v1.9.3
+# Requirements: Opportunity Engine + Conversation-First Entry v1.9.4
 
 **Defined:** 2026-04-09
-**Core Value:** Make the intelligence loop real -- from artifact filed to Larry surfaces finding to user decides to decision becomes graph data
+**Core Value:** Convert uncertainty to manageable risk through structured exploration -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
 
-## Intelligence Loop (INTEL)
+## Opportunity Extraction Engine (OPP)
 
-- [x] **INTEL-01**: After filing an artifact, Larry surfaces up to 2 cross-subsystem impacts with confidence scores (e.g., "This changes your financial model assumption")
-- [x] **INTEL-02**: User can respond APPROVE (cascade soft edits), REJECT (capture reason as graph data), or DEFER (park for later review)
-- [x] **INTEL-03**: APPROVE/REJECT/DEFER decisions are persisted to .proactive-intelligence.json and indexed as KuzuDB edges (INVALIDATES, CONFIRMS, DEFERRED)
-- [x] **INTEL-04**: Mid-session intelligence injection -- after post-write cascade completes, new findings are available to Larry's next response (not just session start)
-- [x] **INTEL-05**: Repeat suppression works -- insights shown 3+ times are not re-surfaced unless new evidence changes them
+- [ ] **OPP-01**: Universal opportunity schema defined: problem statement, mirror solution, domain, evidence, source_framework, knight_position (risk vs uncertainty), confidence score
+- [ ] **OPP-02**: Every methodology command (/mos:diagnose, /mos:lean-canvas, /mos:find-bottlenecks, /mos:explore-domains, etc.) produces banked opportunities as a side effect of normal execution
+- [ ] **OPP-03**: Opportunities persist to room/opportunity-bank/ as structured markdown with YAML frontmatter matching the universal schema
+- [ ] **OPP-04**: Opportunity bank integrates with existing /mos:opportunities command and KuzuDB (ADDRESSES->Problem, IN_DOMAIN->Domain edges)
+- [ ] **OPP-05**: Brain enrichment: banked opportunities cross-referenced against 100 frameworks to suggest next validation steps
 
-## Filing Completeness (FILE)
+## Conversation-First Entry (CONV)
 
-- [x] **FILE-01**: Filing a markdown artifact triggers an automatic git commit with structured message ("file(section): artifact title")
-- [x] **FILE-02**: classify-insight result is consumed by the cascade (not fire-and-forget) and stored in artifact frontmatter as classification: field
-- [x] **FILE-03**: Post-write cascade reports completion status to Larry via hook output (not silently swallowed)
+- [ ] **CONV-01**: Session-start presents 3 modes with JTBD statements: Explore (nothing saved), Explore+Capture (room builds as side effect), Build Then Work (/mos:new-project)
+- [ ] **CONV-02**: Mode 2 detects user persona (TTO/Researcher/Business) within first 2-3 exchanges through Larry's questions
+- [ ] **CONV-03**: Mode 2 selects Brain framework chain based on persona: TTO (tech push -> domain -> problem), Researcher (problem exploration -> JTBD -> value prop), Business (opportunity recognition -> market -> problem definition)
+- [ ] **CONV-04**: Mode 2 banks opportunities during conversation -- well-defined problem + mirror solution extracted from user's own words
+- [ ] **CONV-05**: When user is ready, banked opportunities seed a new Data Room with pre-loaded sections (not empty)
+- [ ] **CONV-06**: Pre-room scratchpad persists across sessions so Mode 1 conversations can upgrade to Mode 2 later without losing context
 
-## Portability + Polish (PORT)
+## Onboarding Redesign (ONBD)
 
-- [x] **PORT-01**: All hook scripts use cross-platform date/stat commands (replace GNU stat -c %Y with portable alternative)
-- [x] **PORT-02**: on-agent-complete replaces find -printf with POSIX-compatible alternative
-- [x] **PORT-03**: /mos:radar is registered in plugin.json and reachable via the plugin system
-- [x] **PORT-04**: REQUIREMENTS.md checkboxes for phases 39, 60, 61, 62 updated to match actual implementation status
+- [ ] **ONBD-01**: /mos:onboard teaches all three entry paths with persona-specific guided first experience
+- [ ] **ONBD-02**: Onboarding explains the opportunity bank as the universal output of every framework interaction
+- [ ] **ONBD-03**: Knight uncertainty/risk framing presented as the "why" -- MindrianOS converts uncertainty to manageable risk
+- [ ] **ONBD-04**: Returning users who have banked opportunities see them surfaced in session greeting
 
 ## Future Requirements (Deferred)
 
-- Cross-room relationship detection triggered automatically after filing (currently code exists but never triggered)
-- Proactive context windowing (auto-suggest /clear at archetype-specific thresholds)
+- Cross-user anonymized opportunity patterns (Brain learns from all users' opportunity banks)
+- Opportunity scoring against market data (Grants.gov, Crunchbase integration)
+- Team opportunity bank (shared across Cowork users)
 
 ## Out of Scope
 
-- Full APPROVE cascade that auto-edits affected sections (v2.0+ -- too risky without user trust established)
-- Real-time WebSocket push from cascade to UI (not possible in CLI plugin model)
-- Windows hook support (acknowledged limitation -- run-hook.cmd exits 0 silently)
+- Automatic room creation without user confirmation (Mode 2 always asks before creating)
+- Full auto-pilot framework execution (Larry guides, user decides)
+- Payment/monetization changes (handled externally)
 
 ## Traceability
 
 | REQ-ID | Phase | Plan | Status |
 |--------|-------|------|--------|
-| INTEL-01 | Phase 69 | -- | Pending |
-| INTEL-02 | Phase 69 | -- | Pending |
-| INTEL-03 | Phase 69 | -- | Pending |
-| INTEL-04 | Phase 70 | -- | Pending |
-| INTEL-05 | Phase 70 | -- | Pending |
-| FILE-01 | Phase 68 | -- | Pending |
-| FILE-02 | Phase 68 | -- | Pending |
-| FILE-03 | Phase 68 | -- | Pending |
-| PORT-01 | Phase 67 | -- | Pending |
-| PORT-02 | Phase 67 | -- | Pending |
-| PORT-03 | Phase 67 | -- | Pending |
-| PORT-04 | Phase 67 | -- | Pending |
+| OPP-01 | -- | -- | Pending |
+| OPP-02 | -- | -- | Pending |
+| OPP-03 | -- | -- | Pending |
+| OPP-04 | -- | -- | Pending |
+| OPP-05 | -- | -- | Pending |
+| CONV-01 | -- | -- | Pending |
+| CONV-02 | -- | -- | Pending |
+| CONV-03 | -- | -- | Pending |
+| CONV-04 | -- | -- | Pending |
+| CONV-05 | -- | -- | Pending |
+| CONV-06 | -- | -- | Pending |
+| ONBD-01 | -- | -- | Pending |
+| ONBD-02 | -- | -- | Pending |
+| ONBD-03 | -- | -- | Pending |
+| ONBD-04 | -- | -- | Pending |
