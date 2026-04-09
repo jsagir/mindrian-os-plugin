@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.9.4
-milestone_name: milestone
-status: verifying
-stopped_at: Completed 75-01-PLAN.md
-last_updated: "2026-04-09T21:06:51.103Z"
-last_activity: 2026-04-09
+milestone: v2.0
+milestone_name: Mindrian Platform -- SQLite + MCP Server
+status: ready_to_plan
+stopped_at: null
+last_updated: "2026-04-10T00:00:00.000Z"
+last_activity: 2026-04-10 - Milestone v2.0 started
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 10
-  completed_plans: 10
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
   percent: 0
 ---
 
@@ -18,17 +18,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-09)
+See: .planning/PROJECT.md (updated 2026-04-10)
 
-**Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 71 - Opportunity Extraction Engine
+**Core value:** Ship MindrianOS intelligence as a platform -- any LLM host gets 23 tools, interactive UI, and a room memory system
+**Current focus:** v2.0 milestone defining requirements
 
 ## Current Position
 
-Phase: 1 of 5 (Phase 71: Opportunity Extraction Engine)
-Plan: 2 of 2 in current phase
-Status: Phase complete — ready for verification
-Last activity: 2026-04-09
+Phase: Not started (defining requirements)
+Plan: --
+Status: Defining requirements
+Last activity: 2026-04-10 -- Milestone v2.0 started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -40,63 +40,46 @@ Progress: [░░░░░░░░░░] 0%
 - Average duration: --
 - Total execution time: 0 hours
 
-**By Phase:**
-
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| - | - | - | - |
-
 ## Accumulated Context
-
-| Phase 71 P01 | 4min | 2 tasks | 3 files |
-| Phase 71 P02 | 3min | 2 tasks | 2 files |
-| Phase 72 P01 | 4min | 2 tasks | 4 files |
-| Phase 72 P02 | 4min | 2 tasks | 2 files |
-| Phase 73 P02 | 3min | 2 tasks | 2 files |
-| Phase 73 P01 | 4min | 2 tasks | 3 files |
-| Phase 74 P01 | 4min | 2 tasks | 3 files |
-| Phase 74 P02 | 4min | 2 tasks | 2 files |
-| Phase 75 P02 | 2min | 2 tasks | 2 files |
-| Phase 75-onboarding-redesign P01 | 3min | 2 tasks | 1 files |
 
 ### Decisions
 
-- v1.9.3: APPROVE/REJECT/DEFER cascade, mid-session intelligence, filing completeness all shipped
-- v1.9.4: Three-layer dependency order: OPP (engine) -> CONV (entry) -> ONBD (teaching)
-- v1.9.4: 5 phases for 15 requirements -- OPP splits into engine+graph, CONV splits into routing+capture
-- [Phase 71]: djb2 hash for opportunity dedup - fast, deterministic, sufficient for file-level uniqueness
-- [Phase 71]: Knight position classification: gaps=uncertainty, convergences=risk, contradictions=mixed
-- [Phase 71]: Hoist analyzeOutput before Step 10 try block for Step 11 cross-step reuse
-- [Phase 72]: Non-blocking graph indexing: bankOpportunity writes file first, indexOpportunity fires as catch-swallowed promise
-- [Phase 72]: ADDRESSES edges limited to 5 artifacts per domain section, IN_DOMAIN links to Section node
-- [Phase 72]: Brain enrichment is non-blocking fire-and-forget in bankOpportunity
-- [Phase 72]: FEEDS_INTO chains provide ordered validation step sequences for banked opportunities
-- [Phase 73]: Inline Tier 0 chains in getTier0Chain() rather than parsing persona-chains.md at runtime
-- [Phase 73]: Unknown persona defaults to researcher chain (problem-first is safest generic path)
-- [Phase 73]: Tier 0 hardcoded framework chains for persona-based conversation routing without Brain dependency
-- [Phase 74]: Atomic writes (.tmp then rename) for scratchpad crash safety
-- [Phase 74]: Lazy require of opportunity-ops in migrateToRoom to avoid circular deps
-- [Phase 74]: bank-opportunity auto-detects JSON vs roomDir+JSON argument pattern
-- [Phase 74]: Scratchpad reading in session-start is non-blocking with || echo fallback
-- [Phase 74]: Section seeding maps opportunity domain to room sections (problem-definition, solution-design, market-analysis, business-model)
-- [Phase 75]: OPP_BANK_SUMMARY computed via inline node, sorted by confidence, injected into all three tiers
-- [Phase 75-onboarding-redesign]: Mode-first onboarding: teach three ways to work before asking who the user is
-- [Phase 75-onboarding-redesign]: Knight framing is practical with persona examples, not academic theory
+- KuzuDB abandoned Oct 2025 -- must replace with SQLite (better-sqlite3, WAL mode)
+- lazygraph-ops.cjs is the single replacement point -- 90% of 24+ files route through it
+- room.db at room/.mindrian/room.db replaces .lazygraph/ directory
+- Graph + Memory in one database: nodes/edges tables + identity/facts/sessions/fragments/assumptions tables
+- MCP server co-development: lib/core/*.cjs is shared core, MCP tools are thin Zod wrappers
+- 23 MCP tools across 3 tiers: Brain (6), Room (11), Graph+Export (6)
+- Larry Lite: 200-line system prompt for host LLMs (methodology instinct, not personality)
+- MCP Apps (SEP-1865): De Stijl dashboards, knowledge graph, wiki render in-chat via ui:// scheme
+- Natural language graph queries replace Cypher (Larry/host LLM translates to SQL)
+- Co-development rule: every new capability ships as both plugin command AND MCP tool
+- Neo4j Brain stays as-is (remote MCP, complex Cypher, 21K nodes, the moat)
 
 ### Pending Todos
 
 - generate-hub.cjs standard features (sticky top bar, persona card, vis-network graph)
 - Update generate-snapshot.cjs constellation (sidebar/detail panel from Tony prototype)
+- Update generate-presentation.cjs graph view to vis-network
 - LaTeX export command: /mos:latex
-- Desktop Data Room MCP: KuzuDB Windows build blocked
 - Grading calibration data: 0/100+ Example nodes
+
+### Phase 76 (Brain Normalization + Wave 1) -- DONE 2026-04-09
+
+Shipped independently:
+- 280 "The X" prefix dupes merged, 73 file path contamination nodes removed
+- 20 missing FEEDS_INTO edges added (leadership cluster -> PWS methodology chains)
+- 4 Wave 1 algorithm scripts: blindspot-mass, bayesian-surprise, element-novelty, disruption-index
+- Brain: 7,931 -> 7,578 LazyGraphConcepts, 122,915 -> 119,706 CO_OCCURS, 147 -> 167 FEEDS_INTO
 
 ### Blockers/Concerns
 
-None yet.
+- KuzuDB npm package still works but receives no security patches -- migration is urgent
+- MCP Apps SDK (@modelcontextprotocol/ext-apps) needs version verification before building
+- TypeScript SDK lacks runtime tool unregister API (issue #898) -- not a blocker, register all at startup
 
 ## Session Continuity
 
-Last session: 2026-04-09T21:06:51.100Z
-Stopped at: Completed 75-01-PLAN.md
+Last session: 2026-04-10
+Stopped at: Milestone v2.0 initialized, ready for requirements
 Resume file: None

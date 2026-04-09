@@ -27,52 +27,53 @@ v1.0 through v1.9.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Pres
 - v1.8.8 Brain Graph Optimization (2026-04-07) -- causal discovery, lazy graph bridge, fragmentation cleanup, teaching wiring, dummy-proof install
 - v1.9.0 Model Data Room (2026-04-08) -- Google Drive integration, 168-artifact model room, HSI self-analysis, Investment Thesis, knowledge graph (179 nodes/383 edges)
 
-## Current Milestone: v1.9.4 Opportunity Engine + Conversation-First Entry
+## Current Milestone: v2.0 Mindrian Platform -- SQLite + MCP Server
 
-**Goal:** Every framework interaction produces bankable opportunities as a universal side effect. Every session starts with persona-aware mode routing. Mode 2 converts uncertainty to risk through Brain-guided conversation. Onboarding redesigned to teach all three entry paths.
+**Goal:** Replace the dead KuzuDB with SQLite (graph + memory system), then ship MindrianOS intelligence as a 23-tool MCP server with interactive UI (MCP Apps) that any LLM host can use.
 
 **Target features:**
 
-Layer 1 -- Opportunity Extraction Engine:
-- Universal opportunity schema (problem + mirror solution + domain + evidence + source_framework + knight_position + confidence)
-- Every framework command banks opportunities as side effect
-- Opportunity bank feeds /mos:opportunities and room/opportunity-bank/
-- Brain enrichment: cross-reference banked opportunities against 100 frameworks x 131 chains
+Workstream A -- SQLite Migration + Memory System:
+- Replace KuzuDB with SQLite + better-sqlite3 (same API, concurrent access via WAL)
+- Graph tables: nodes, edges, concepts (replaces .lazygraph/)
+- Memory tables: identity (L0), facts with temporal validity (L1), sessions (L2), fragments (L3)
+- Assumption tracking with validity lifecycle (untested/supported/contradicted/stale)
+- Natural language graph queries (Larry translates to SQL, no Cypher exposure)
+- Migrate all 24+ files touching KuzuDB (lazygraph-ops.cjs is the single replacement point)
 
-Layer 2 -- Conversation-First Entry (Three Modes):
-- Session-start mode routing with JTBD statements
-- Mode 1: Explore (freeform, nothing saved)
-- Mode 2: Explore+Capture (persona detection -> Brain framework chain -> opportunities bank as you talk -> room seeds when ready)
-- Mode 3: Build Then Work (existing /mos:new-project)
-- Three personas: TTO (solution->problem->business), Researcher (problem->business->solution), Business (opportunity->problem->solution)
-- Pre-room scratchpad persisting across sessions
+Workstream B -- Mindrian MCP Server (23 tools):
+- Tier 1: Brain intelligence (6 tools -- brain_ask, brain_query, brain_search, brain_grade, brain_route, brain_chain)
+- Tier 2: Room intelligence (11 tools -- room_analyze, room_state, room_file, hsi_score, reverse_salients, whitespace_detect, blindspot_coverage, surprise_score, novelty_rank, disruption_index, meeting_extract)
+- Tier 3: Graph + Export (6 tools -- graph_query, graph_index, visualize, export_snapshot, persona_generate, opportunity_scan)
+- Larry Lite system prompt (200 lines teaching methodology instinct, not personality)
+- Co-development rule: every new capability ships as both plugin command AND MCP tool
 
-Layer 3 -- Onboarding Redesign:
-- /mos:onboard teaches all three entry paths with persona-specific guided first experience
-- Opportunity bank explained as the universal output
-- Knight uncertainty/risk framing as the "why"
+Workstream C -- MCP Apps (Interactive UI):
+- MCP Apps integration (SEP-1865, production-ready Jan 2026, Anthropic + OpenAI co-developed)
+- De Stijl dashboards render in-chat via ui:// scheme
+- Knowledge graph visualization as MCP App
+- Wiki view as MCP App
+- Works in Claude, VS Code, ChatGPT, any MCP Apps-compatible client
 
-**Context:** v1.9.3 completed the intelligence loop (APPROVE/REJECT/DEFER, mid-session findings, filing cascade). Brain has 100 frameworks, 131 FEEDS_INTO chains, Opportunity schema exists. Two validated personas (Implicit User = domain-embedded with tech/data, Explicit User = ambition but no direction). Knight risk/uncertainty distinction is the theoretical backbone. PWS mission: "reduce time and risk translating ideas from laboratory to marketplace."
-
-## Previous Milestone: v1.9.3 Wiring Integrity + Intelligence Loop (SHIPPED 2026-04-09)
-
-**Delivered:**
-- APPROVE/REJECT/DEFER cascade workflow (cross-subsystem impact detection, user decisions become KuzuDB edges)
-- Mid-session proactive intelligence (findings surface after filing, not just session start)
-- Filing cascade completeness (auto git-commit, classification in frontmatter, status reporting)
-- macOS portability (all GNU-only calls replaced with portable helpers across 13 scripts)
-- v1.9.2: 13 wiring fixes + intelligence cascade fully wired end-to-end
+**Key context:**
+- KuzuDB abandoned Oct 2025 (archived on GitHub, no maintenance)
+- SQLite WAL mode solves MCP/plugin concurrent access (the blocker for co-development)
+- lib/core/*.cjs is already the shared core -- MCP tools wrap existing functions
+- room.db at room/.mindrian/room.db replaces .lazygraph/ directory
+- 24+ files touch KuzuDB but 90% route through lazygraph-ops.cjs (single replacement point)
+- MCP Apps SDK: @modelcontextprotocol/ext-apps
 
 ## Previous Milestone: v1.9.0 Model Data Room + Self-Analysis (SHIPPED 2026-04-08)
 
+**Goal:** Prove MindrianOS capabilities by building a comprehensive Data Room about itself -- pulling from Google Drive meetings, Gmail, GSD artifacts, Claude memory, and plugin repo. Then run HSI, Investment Thesis, and knowledge graph analysis on the result.
+
 **Delivered:**
-- 168 artifacts across 10 sections
-- Google Drive API integration (45 meeting transcripts + 4 whitepapers)
+- 168 artifacts across 10 sections (meetings, research, methodology, solution-design, competitive, problem-definition, market, business-model, team, team-execution)
+- Google Drive API integration (45 meeting transcripts + 4 whitepapers downloaded via OAuth)
 - Knowledge graph: 179 nodes, 383 edges, 198 cross-references
-- HSI Tier 1: 20 innovation pairs, reverse salient in business-model
-- Investment Thesis gate: 7/10
-- v1.9.1: PWS Value Proposition Framework (3-gate VPS scoring)
-- v1.9.2: 13 wiring fixes + intelligence cascade fully wired
+- HSI Tier 1: 20 innovation pairs, reverse salient in business-model (OM-HMM 33.6)
+- Investment Thesis gate: 7/10 (weak on momentum, funding justification, valuation)
+- 19 people mapped across 45 meetings with roles and attendance
 
 ## Previous Milestone: v1.8.8 Brain Graph Optimization + Dummy-Proof Install (SHIPPED 2026-04-07)
 
