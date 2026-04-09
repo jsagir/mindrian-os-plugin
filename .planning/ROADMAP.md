@@ -73,7 +73,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 72-01-PLAN.md -- KuzuDB Opportunity node + ADDRESSES/IN_DOMAIN edges + indexOpportunity + filter flags
+- [x] 72-01-PLAN.md -- KuzuDB Opportunity node + ADDRESSES/IN_DOMAIN edges + indexOpportunity + filter flags
 - [ ] 72-02-PLAN.md -- Brain enrichment: suggestValidationSteps + enrichOpportunity with FEEDS_INTO chains
 
 ### Phase 73: Conversation Mode Routing
@@ -131,7 +131,7 @@ Phases execute in numeric order: 71 -> 72 -> 73 -> 74 -> 75
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 71. Opportunity Extraction Engine | 2/2 | Complete   | 2026-04-09 |
-| 72. Opportunity Graph + Brain Enrichment | 0/2 | Not started | - |
+| 72. Opportunity Graph + Brain Enrichment | 1/2 | In Progress|  |
 | 73. Conversation Mode Routing | 0/2 | Not started | - |
 | 74. Conversation Capture + Room Seeding | 0/2 | Not started | - |
 | 75. Onboarding Redesign | 0/2 | Not started | - |

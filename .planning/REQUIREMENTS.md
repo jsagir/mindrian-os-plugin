@@ -8,7 +8,7 @@
 - [x] **OPP-01**: Universal opportunity schema defined: problem statement, mirror solution, domain, evidence, source_framework, knight_position (risk vs uncertainty), confidence score
 - [x] **OPP-02**: Every methodology command (/mos:diagnose, /mos:lean-canvas, /mos:find-bottlenecks, /mos:explore-domains, etc.) produces banked opportunities as a side effect of normal execution
 - [x] **OPP-03**: Opportunities persist to room/opportunity-bank/ as structured markdown with YAML frontmatter matching the universal schema
-- [ ] **OPP-04**: Opportunity bank integrates with existing /mos:opportunities command and KuzuDB (ADDRESSES->Problem, IN_DOMAIN->Domain edges)
+- [x] **OPP-04**: Opportunity bank integrates with existing /mos:opportunities command and KuzuDB (ADDRESSES->Problem, IN_DOMAIN->Domain edges)
 - [ ] **OPP-05**: Brain enrichment: banked opportunities cross-referenced against 100 frameworks to suggest next validation steps
 
 ## Conversation-First Entry (CONV)
