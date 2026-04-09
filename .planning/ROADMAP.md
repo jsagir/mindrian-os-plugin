@@ -121,7 +121,7 @@ Plans:
 
 Plans:
 - [ ] 75-01-PLAN.md -- Rewrite /mos:onboard with mode-first structure + opportunity bank + Knight framing
-- [ ] 75-02-PLAN.md -- Opportunity bank summary in returning user greeting + context-engine update
+- [x] 75-02-PLAN.md -- Opportunity bank summary in returning user greeting + context-engine update
 
 ## Progress
 
@@ -134,4 +134,4 @@ Phases execute in numeric order: 71 -> 72 -> 73 -> 74 -> 75
 | 72. Opportunity Graph + Brain Enrichment | 2/2 | Complete   | 2026-04-09 |
 | 73. Conversation Mode Routing | 2/2 | Complete   | 2026-04-09 |
 | 74. Conversation Capture + Room Seeding | 2/2 | Complete   | 2026-04-09 |
-| 75. Onboarding Redesign | 0/2 | Not started | - |
+| 75. Onboarding Redesign | 1/2 | In Progress|  |
