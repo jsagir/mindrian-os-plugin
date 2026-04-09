@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.9.4] - 2026-04-09
+
+onboarding: true
+onboard_steps:
+  - "NEW: Three ways to start. Explore (just think), Explore+Capture (room builds as you talk), or Build Then Work. MindrianOS detects whether you're a TTO, researcher, or business person and adapts."
+  - "Every framework Larry runs now banks opportunities automatically. Your Opportunity Bank grows with every interaction -- well-defined problems paired with mirror solutions, scored by confidence."
+  - "Returning users see their strongest banked opportunities in the greeting. The scratchpad persists across sessions so you never lose a thought."
+
+### Added
+- **Opportunity Extraction Engine** -- universal schema (problem + mirror solution + domain + evidence + knight_position + confidence). Every methodology command banks opportunities as a side effect via intelligence cascade Step 11.
+- **Opportunity Graph** -- banked opportunities become KuzuDB nodes with ADDRESSES and IN_DOMAIN edges. Filter by domain, knight position, or confidence threshold.
+- **Brain Validation Steps** -- Brain-connected users get suggested next frameworks from 100 frameworks x 131 FEEDS_INTO chains for each banked opportunity.
+- **Conversation Mode Routing** -- sessions without a room present 3 modes with JTBD statements. Mode 2 (Explore+Capture) detects persona (TTO/Researcher/Business) and selects the right Brain framework chain.
+- **getFrameworkChain(persona)** -- Brain queries FEEDS_INTO chains per persona with Tier 0 hardcoded fallback in persona-chains.md.
+- **conversation-mode skill** -- new skill with persona detection signals, Mode 2 banking instructions, and framework chain guidance.
+- **bank-opportunity CLI subcommand** -- Larry banks opportunities during conversation via `node bin/mindrian-tools.cjs bank-opportunity`.
+- **scratchpad-ops.cjs** -- pre-room persistence at ~/.mindrian/scratchpad.json. Conversations persist across sessions without a room existing.
+- **Room seeding from Opportunity Bank** -- new Step 6.1 in /mos:new-project migrates scratchpad opportunities into pre-loaded room sections.
+- **Onboarding redesign** -- mode-first structure: Step 1 (Three Ways to Work), Step 2 (Opportunity Bank), Step 3 (Knight uncertainty/risk framing with persona examples).
+- **Returning user opportunity greeting** -- session-start surfaces banked opportunity count and strongest opportunity for returning users.
+
 ## [1.9.3] - 2026-04-09
 
 onboarding: true
