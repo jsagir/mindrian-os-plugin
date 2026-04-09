@@ -42,7 +42,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - [x] **Phase 71: Opportunity Extraction Engine** - Universal schema, framework side-effects, persistence to opportunity-bank/ (completed 2026-04-09)
 - [x] **Phase 72: Opportunity Graph + Brain Enrichment** - KuzuDB integration, Brain cross-referencing against 100 frameworks (completed 2026-04-09)
 - [x] **Phase 73: Conversation Mode Routing** - Three entry modes, persona detection, Brain framework chain selection (completed 2026-04-09)
-- [ ] **Phase 74: Conversation Capture + Room Seeding** - Opportunity banking during conversation, room seeding from banked opportunities, persistent scratchpad
+- [x] **Phase 74: Conversation Capture + Room Seeding** - Opportunity banking during conversation, room seeding from banked opportunities, persistent scratchpad (completed 2026-04-09)
 - [ ] **Phase 75: Onboarding Redesign** - Three entry paths taught, opportunity bank explained, Knight framing, returning user greeting
 
 ## Phase Details
@@ -105,7 +105,7 @@ Plans:
 
 Plans:
 - [x] 74-01-PLAN.md -- bank-opportunity CLI + scratchpad-ops.cjs + conversation-mode banking instructions
-- [ ] 74-02-PLAN.md -- Room seeding from scratchpad in new-project.md + session-start scratchpad reading
+- [x] 74-02-PLAN.md -- Room seeding from scratchpad in new-project.md + session-start scratchpad reading
 
 ### Phase 75: Onboarding Redesign
 **Goal**: New and returning users understand all three entry paths and the opportunity bank as universal output
@@ -133,5 +133,5 @@ Phases execute in numeric order: 71 -> 72 -> 73 -> 74 -> 75
 | 71. Opportunity Extraction Engine | 2/2 | Complete   | 2026-04-09 |
 | 72. Opportunity Graph + Brain Enrichment | 2/2 | Complete   | 2026-04-09 |
 | 73. Conversation Mode Routing | 2/2 | Complete   | 2026-04-09 |
-| 74. Conversation Capture + Room Seeding | 1/2 | In Progress|  |
+| 74. Conversation Capture + Room Seeding | 2/2 | Complete   | 2026-04-09 |
 | 75. Onboarding Redesign | 0/2 | Not started | - |

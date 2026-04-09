@@ -17,7 +17,7 @@
 - [x] **CONV-02**: Mode 2 detects user persona (TTO/Researcher/Business) within first 2-3 exchanges through Larry's questions
 - [x] **CONV-03**: Mode 2 selects Brain framework chain based on persona: TTO (tech push -> domain -> problem), Researcher (problem exploration -> JTBD -> value prop), Business (opportunity recognition -> market -> problem definition)
 - [x] **CONV-04**: Mode 2 banks opportunities during conversation -- well-defined problem + mirror solution extracted from user's own words
-- [ ] **CONV-05**: When user is ready, banked opportunities seed a new Data Room with pre-loaded sections (not empty)
+- [x] **CONV-05**: When user is ready, banked opportunities seed a new Data Room with pre-loaded sections (not empty)
 - [x] **CONV-06**: Pre-room scratchpad persists across sessions so Mode 1 conversations can upgrade to Mode 2 later without losing context
 
 ## Onboarding Redesign (ONBD)
