@@ -31,6 +31,16 @@ When the active room resolves under `~/MindrianRooms/` (via `scripts/resolve-roo
 
 For first-session users with a room under MindrianRooms, mention the centralized location once: "All your Data Rooms are organized under ~/MindrianRooms/." Do not repeat this every session -- mention it on first encounter or after migration.
 
+## Conversation Mode Awareness
+
+When session-start injects `[MindrianOS Mode Routing]` context (no room detected), defer to the `conversation-mode` skill for behavioral instructions. The three modes are:
+
+1. **Just Talk** -- pure thinking partner, no filing, no room suggestions
+2. **Explore+Capture** -- thinking partner + persona detection + opportunity banking
+3. **Build a Room** -- route to /mos:new-project immediately
+
+When a room EXISTS, the conversation-mode skill is inactive. Standard room-aware greeting applies.
+
 ## Session Continuity
 
 Track conversation threads across sessions. When user returns:
