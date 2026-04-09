@@ -6,6 +6,18 @@
 
 set -euo pipefail
 
+# Cross-platform find with modification time (outputs: epoch.fractional filepath)
+# Replaces GNU find -printf '%T@ %p\n' which is not available on macOS
+portable_find_mtime() {
+  # All arguments are passed to find, but -printf is NOT used
+  # Instead, use -exec with stat to get modification time
+  if [ "$(uname -s)" = "Darwin" ]; then
+    find "$@" -exec stat -f '%m %N' {} \;
+  else
+    find "$@" -printf '%T@ %p\n'
+  fi
+}
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
@@ -39,7 +51,7 @@ if [ -n "$state_content" ]; then
 fi
 
 # 3. Capture last 5 artifacts (most recently modified .md files in room)
-last_artifacts=$(find "$ROOM_DIR" -name "*.md" -not -name "STATE.md" -not -name "ROOM.md" -not -name "TEAM-STATE.md" -not -name "MEETINGS-INTELLIGENCE.md" -not -path "*/.lazygraph/*" -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -5 | cut -d' ' -f2- || true)
+last_artifacts=$(portable_find_mtime "$ROOM_DIR" -name "*.md" -not -name "STATE.md" -not -name "ROOM.md" -not -name "TEAM-STATE.md" -not -name "MEETINGS-INTELLIGENCE.md" -not -path "*/.lazygraph/*" 2>/dev/null | sort -rn | head -5 | cut -d' ' -f2- || true)
 
 # 4. Capture MINTO confidence (from REASONING.md files if they exist)
 minto_confidence=""

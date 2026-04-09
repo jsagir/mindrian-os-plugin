@@ -5,6 +5,18 @@
 
 set -euo pipefail
 
+# Cross-platform find with modification time (outputs: epoch.fractional filepath)
+# Replaces GNU find -printf '%T@ %p\n' which is not available on macOS
+portable_find_mtime() {
+  # All arguments are passed to find, but -printf is NOT used
+  # Instead, use -exec with stat to get modification time
+  if [ "$(uname -s)" = "Darwin" ]; then
+    find "$@" -exec stat -f '%m %N' {} \;
+  else
+    find "$@" -printf '%T@ %p\n'
+  fi
+}
+
 ROOM_DIR="${1:-.}"
 
 if [ ! -d "$ROOM_DIR" ]; then
@@ -46,7 +58,7 @@ for section_dir in "$ROOM_DIR"/*/; do
   fi
 
   # Get last modified date of most recent .md file
-  latest_file=$(find "$section_dir" -maxdepth 1 -name "*.md" -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)
+  latest_file=$(portable_find_mtime "$section_dir" -maxdepth 1 -name "*.md" 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)
   if [ -n "$latest_file" ]; then
     section_dates+=("$(date -r "$latest_file" +%Y-%m-%d 2>/dev/null || echo "unknown")")
   else
