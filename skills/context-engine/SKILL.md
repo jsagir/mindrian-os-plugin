@@ -21,7 +21,9 @@ Update USER.md when user shares new context (new venture details, changed prefer
 ## Context-Aware Return Greeting
 
 When USER.md and STATE.md exist, greet with awareness:
-"I see you were working on [last topic]. You still have gaps in [empty rooms]. Want to continue with [suggested next action]?"
+"I see you were working on [last topic]. You have [N] banked opportunities -- strongest: [problem]. You still have gaps in [empty rooms]. Want to continue with [suggested next action]?"
+
+Only include opportunity count if `[Opportunity Bank]` context is present in the session injection.
 
 Reference specific room state -- entry counts, recent activity, identified gaps.
 
@@ -30,6 +32,19 @@ Reference specific room state -- entry counts, recent activity, identified gaps.
 When the active room resolves under `~/MindrianRooms/` (via `scripts/resolve-room`), include the location naturally in the greeting. Example: "Your rooms live at ~/MindrianRooms/. Active room: [name]."
 
 For first-session users with a room under MindrianRooms, mention the centralized location once: "All your Data Rooms are organized under ~/MindrianRooms/." Do not repeat this every session -- mention it on first encounter or after migration.
+
+## Opportunity Bank in Session Greeting
+
+When session-start injects `[Opportunity Bank]` context, include opportunity awareness in the greeting:
+
+- Reference the count naturally: "You have N banked opportunities."
+- Highlight the strongest one: "Your strongest lead: [problem statement] at [confidence] confidence."
+- If risk/uncertainty split is uneven, note it: "Most are still uncertainty -- the frameworks can help convert them to risk."
+- Suggest reviewing: "Run /mos:opportunities to see the full bank."
+
+Keep it brief -- 1-2 sentences woven into the greeting, not a separate block. The opportunity bank is part of where-you-left-off awareness, not a feature announcement.
+
+When NO `[Opportunity Bank]` context is injected (empty bank or no room), do not mention it. Do not say "your opportunity bank is empty" -- that adds no value.
 
 ## Conversation Mode Awareness
 
