@@ -7,6 +7,16 @@
 
 set -euo pipefail
 
+# Cross-platform file modification time (epoch seconds)
+portable_stat_mtime() {
+  local file="$1"
+  if [ "$(uname -s)" = "Darwin" ]; then
+    stat -f %m "$file" 2>/dev/null || echo 0
+  else
+    stat -c %Y "$file" 2>/dev/null || echo 0
+  fi
+}
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
@@ -20,7 +30,7 @@ if [ ! -f "$SAVE_FILE" ]; then
 fi
 
 # Check staleness (> 10 min = stale, probably from a previous session)
-SAVE_AGE=$(( $(date +%s) - $(stat -c %Y "$SAVE_FILE" 2>/dev/null || echo 0) ))
+SAVE_AGE=$(( $(date +%s) - $(portable_stat_mtime "$SAVE_FILE") ))
 if [ "$SAVE_AGE" -gt 600 ]; then
   rm -f "$SAVE_FILE"
   exec bash "${SCRIPT_DIR}/session-start"

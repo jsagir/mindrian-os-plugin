@@ -5,6 +5,16 @@
 
 set -euo pipefail
 
+# Cross-platform file modification time (epoch seconds)
+portable_stat_mtime() {
+  local file="$1"
+  if [ "$(uname -s)" = "Darwin" ]; then
+    stat -f %m "$file" 2>/dev/null || echo 0
+  else
+    stat -c %Y "$file" 2>/dev/null || echo 0
+  fi
+}
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
@@ -86,7 +96,7 @@ if [ -d "$ROOM_DIR" ]; then
   CTX_PCT_RAW=""
   BRIDGE_FILE="/tmp/mindrian-context-state"
   if [ -f "$BRIDGE_FILE" ]; then
-    BRIDGE_AGE=$(( $(date +%s) - $(stat -c %Y "$BRIDGE_FILE" 2>/dev/null || echo 0) ))
+    BRIDGE_AGE=$(( $(date +%s) - $(portable_stat_mtime "$BRIDGE_FILE") ))
     if [ "$BRIDGE_AGE" -lt 300 ]; then
       CTX_PCT_RAW=$(node -e "try{const d=require('fs').readFileSync('$BRIDGE_FILE','utf8');console.log(JSON.parse(d).ctx_pct||0)}catch(_){console.log(0)}" 2>/dev/null || echo "0")
     fi
@@ -177,7 +187,7 @@ if [ -d "$ROOM_DIR" ]; then
   # Read context bridge file for budget display (reuses BRIDGE_FILE read from tiering)
   CTX_BUDGET=""
   if [ -f "$BRIDGE_FILE" ]; then
-    BRIDGE_AGE_DISP=$(( $(date +%s) - $(stat -c %Y "$BRIDGE_FILE" 2>/dev/null || echo 0) ))
+    BRIDGE_AGE_DISP=$(( $(date +%s) - $(portable_stat_mtime "$BRIDGE_FILE") ))
     if [ "$BRIDGE_AGE_DISP" -lt 300 ]; then
       CTX_MODEL=$(node -e "try{const d=require('fs').readFileSync('$BRIDGE_FILE','utf8');console.log(JSON.parse(d).model_name||'unknown')}catch(_){console.log('unknown')}" 2>/dev/null || echo "unknown")
       CTX_PCT=$(node -e "try{const d=require('fs').readFileSync('$BRIDGE_FILE','utf8');console.log(JSON.parse(d).ctx_pct||0)}catch(_){console.log(0)}" 2>/dev/null || echo "0")

@@ -6,6 +6,16 @@
 
 set -euo pipefail
 
+# Cross-platform file modification time (epoch seconds)
+portable_stat_mtime() {
+  local file="$1"
+  if [ "$(uname -s)" = "Darwin" ]; then
+    stat -f %m "$file" 2>/dev/null || echo 0
+  else
+    stat -c %Y "$file" 2>/dev/null || echo 0
+  fi
+}
+
 ROOM_DIR="${1:-./room}"
 
 if [ ! -d "$ROOM_DIR" ]; then
@@ -134,7 +144,7 @@ drift_detected=false
   echo ""
 
   # Check if STATE.md was modified recently
-  state_mod=$(stat -c %Y "$CURRENT" 2>/dev/null || echo "0")
+  state_mod=$(portable_stat_mtime "$CURRENT")
   now_epoch=$(date +%s)
   days_since_mod=$(( (now_epoch - state_mod) / 86400 ))
 
