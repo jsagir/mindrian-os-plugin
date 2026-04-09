@@ -15,6 +15,15 @@ allowed-tools:
 
 > Context-driven grant discovery. Larry reads your room, generates search queries, and presents opportunities for you to confirm or reject.
 
+## How Opportunities Get Banked
+
+Opportunities enter the bank through two paths:
+
+1. **Grant discovery** (`/mos:opportunities scan`) - external funding opportunities from Grants.gov and Simpler Grants, filed after user confirmation
+2. **Intelligence cascade** (automatic) - every methodology command that triggers analyze-room extracts gaps, convergences, and contradictions as bankable opportunities. These are filed automatically with no user action needed.
+
+Every opportunity carries a Knight position (risk vs uncertainty vs mixed) and a confidence score. Risk = known problem with quantifiable odds. Uncertainty = unknown problem requiring exploration. Mixed = contradiction that could go either way.
+
 ## Subcommands
 
 ### scan
@@ -48,7 +57,18 @@ This is the **confirm-first pattern**: Larry presents, user decides. Nothing is 
 
 ### list
 
-Show filed opportunities from your opportunity-bank with status and relevance.
+Show all filed opportunities from your opportunity-bank with status, knight_position, and confidence.
+
+**Display format:**
+
+> | # | Source | Program/Problem | Knight Position | Confidence | Deadline | Status |
+> |---|--------|-----------------|-----------------|------------|----------|--------|
+> | 1 | NIH | SBIR Phase I | risk | 0.85 | 2026-06-01 | filed |
+> | 2 | diagnose | Missing structural coverage in market-analysis | uncertainty | 0.8 | - | banked |
+
+This unified table works for both grant-scanned and cascade-extracted opportunities:
+- Grant opportunities: Source = funder name, Knight Position = 'risk' (grants are known risk), Confidence = relevance_score
+- Cascade opportunities: Source = source_framework, Knight Position = from schema, Confidence = from schema
 
 **CLI:** `mindrian-tools.cjs opportunity list [roomDir]`
 **MCP:** `data_room` tool with command `list-opportunities`
@@ -59,6 +79,28 @@ File a specific opportunity after scan confirmation. Used internally after user 
 
 **CLI:** `mindrian-tools.cjs opportunity file [roomDir] [dataJson]`
 **MCP:** `data_room` tool with command `file-opportunity`
+
+### bank
+
+List all banked opportunities extracted from methodology commands (not grant scans).
+
+These are opportunities discovered by the intelligence cascade - gaps, convergences, and contradictions that represent bankable problems.
+
+**Display format:**
+
+> Here are the opportunities your Data Room intelligence has banked:
+>
+> | # | Problem | Domain | Knight Position | Confidence | Source | Status |
+> |---|---------|--------|-----------------|------------|--------|--------|
+> | 1 | Missing structural coverage in market-analysis | market-analysis | uncertainty | 0.8 | diagnose | banked |
+>
+> **Actions:**
+> - **View details** - I'll show the full evidence and mirror solution
+> - **Pursue** - promote to funding pipeline
+> - **Reject** - capture your reason (this teaches me)
+
+**CLI:** `mindrian-tools.cjs opportunity bank [roomDir]`
+**MCP:** `data_room` tool with command `bank-opportunities`
 
 ## Rejection Handling
 
