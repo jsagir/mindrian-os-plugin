@@ -22,7 +22,7 @@ This skill activates when `scripts/resolve-room` finds any active room with entr
 | /mos:status | All HIGH + MEDIUM findings grouped by type. |
 | /mos:room --insights | Full analysis including LOW with interpretation. |
 | Methodology session | NEVER interrupt. Save for next SessionStart. |
-| PostToolUse (cascade complete) | Max 2 NEW findings from cascade. Present for APPROVE/REJECT/DEFER. |
+| PostToolUse (cascade complete) | Check cascade_status.proactive_intelligence.newFindings. If non-empty, present max 2 for APPROVE/REJECT/DEFER using Decision Capture flow. |
 
 ## Gap Detection
 
@@ -76,6 +76,28 @@ Same domain/customer/risk/theme in 3+ artifacts from different methodologies. Ph
 2. Never interrupt methodology
 3. Stage filtering: Pre-Opportunity suppresses financial/legal gaps. Investment elevates all gaps.
 4. Never repeat unchanged findings consecutive sessions
+
+## Mid-Session Intelligence
+
+When cascade_status appears in additionalContext (from a post-write hook completing), check for new findings:
+
+### Detection
+
+Look for `proactive_intelligence.newFindings` in the cascade_status JSON. If the array is non-empty, there are new intelligence findings from the filing that just occurred.
+
+### Behavior
+
+1. If `newFindings` has 1+ items with confidence >= 0.60: present using the "After Filing: Decision Capture" flow below
+2. If `newFindings` is empty or all items have confidence < 0.60: do not interrupt -- the cascade ran but found nothing new
+3. If `proactive_intelligence.suppressed` > 0: silently note that repeat findings were filtered -- do NOT mention suppression to the user
+
+### New Evidence Indicator
+
+If a finding has `isNew: false`, it means this is a PREVIOUSLY SEEN finding that has NEW EVIDENCE (confidence or message changed). Present it with context:
+
+"I've seen this signal before, but new evidence just shifted it. [Finding message]. Confidence is now [0.xx] (was different before)."
+
+This distinguishes updated findings from brand-new discoveries and helps the user understand why they are seeing something again.
 
 ## After Filing: Decision Capture
 
