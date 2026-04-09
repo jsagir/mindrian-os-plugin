@@ -21,8 +21,8 @@
 
 - [x] **PORT-01**: All hook scripts use cross-platform date/stat commands (replace GNU stat -c %Y with portable alternative)
 - [x] **PORT-02**: on-agent-complete replaces find -printf with POSIX-compatible alternative
-- [ ] **PORT-03**: /mos:radar is registered in plugin.json and reachable via the plugin system
-- [ ] **PORT-04**: REQUIREMENTS.md checkboxes for phases 39, 60, 61, 62 updated to match actual implementation status
+- [x] **PORT-03**: /mos:radar is registered in plugin.json and reachable via the plugin system
+- [x] **PORT-04**: REQUIREMENTS.md checkboxes for phases 39, 60, 61, 62 updated to match actual implementation status
 
 ## Future Requirements (Deferred)
 
