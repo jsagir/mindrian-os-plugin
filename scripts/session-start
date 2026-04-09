@@ -352,6 +352,12 @@ else
 
   COLD_START_MENU="---\nGet started:\n  /mos:new-project .... Start a new venture project\n  /mos:help ........... See what Larry can help with\n  /mos:diagnose ....... Classify your problem type\n\nOr just talk -- Larry is a thinking partner first.\nType /mos: to see all 45 commands.\n  /mos:update ......... Check for latest features\n---"
 
+  # Enable auto-update by default for new installs
+  if [ "$ONBOARD_TYPE" = "FIRST_INSTALL" ]; then
+    mkdir -p "$HOME/.mindrian" 2>/dev/null
+    touch "$HOME/.mindrian/auto-update" 2>/dev/null
+  fi
+
   if [ "$ONBOARD_TYPE" = "FIRST_INSTALL" ]; then
     context="${stable_prefix}\n\n--- DYNAMIC SESSION CONTEXT ---\n\n[MindrianOS Onboarding] First install detected.\n\nThis is the user's very first session with MindrianOS. Welcome them warmly using one of your signature openers (\"Very simply...\", \"Here's the thing...\", \"One thing I've learned...\"). Be conversational and direct. No emoji. No filler phrases like \"I'd be happy to help\" or \"Great question!\".\n\nYour goal: build deep context about this user so every future interaction is smarter.\n\nStart by asking who they are and what they do. Frame it as valuable, not bureaucratic: \"Five minutes here saves hours later -- I'll know your domain, your goals, and how to actually help.\"\n\nOffer three approaches:\n1. Conversational Q&A -- you ask 3-5 questions about their role, domain, current focus, and goals\n2. Document paste -- \"Paste your LinkedIn bio or a short blurb about yourself and I'll build your profile from that\"\n3. Skip -- \"You can skip this entirely and jump straight to working. I'll learn about you as we go.\"\n\nIf the user engages with approach 1 or 2, build a USER.md file in their home directory (~/.mindrian-user.md) capturing: name, role, domain, subdomain, technical level, current focus, goal, expertise areas.\n\nIf they provide context, follow up with domain intelligence: \"Based on your work in [domain], here is what I already know about your space\" -- then suggest relevant frameworks and room sections.\n\nAfter building context OR if the user skips, present capabilities as natural actions (not slash commands):\n- You can tell Larry about a meeting you had and he will file and analyze it\n- You can ask Larry to diagnose what type of problem you are working on\n- You can ask Larry to grade your venture honestly\n- You can ask Larry to find relevant grants and opportunities\n- You can ask Larry to get 6 different perspectives on your work\n- You can ask Larry to query your knowledge graph\n- You can start a new project and Larry will set up your Data Room\n\nAfter the onboarding conversation completes or the user skips, run: bash \"${PLUGIN_ROOT}/scripts/check-onboard\" --write\n\nThen show the command menu below.\n\n${COLD_START_MENU}"
 
@@ -444,7 +450,20 @@ if [ -f "$UPDATE_CACHE" ]; then
     CACHED_STATUS=$(sed -n '2p' "$UPDATE_CACHE" 2>/dev/null || echo "")
     if [ "$CACHED_STATUS" = "UPDATE_AVAILABLE" ]; then
       CACHED_LATEST=$(sed -n '3p' "$UPDATE_CACHE" 2>/dev/null || echo "")
-      context="${context}\n\n[Update Available] MindrianOS ${CACHED_LATEST} is available. Run /mos:update to see what's new."
+      # Auto-update: apply update silently if consent exists
+      AUTO_UPDATE_FLAG="$HOME/.mindrian/auto-update"
+      if [ -f "$AUTO_UPDATE_FLAG" ]; then
+        AUTO_RESULT=$("${SCRIPT_DIR}/self-update" install 2>/dev/null | head -1 || echo "UPDATE_FAILED")
+        if [ "$AUTO_RESULT" = "UPDATED" ]; then
+          context="${context}\n\n[Auto-Updated] MindrianOS updated to ${CACHED_LATEST}. Run /mos:update to see what's new."
+          echo "$TODAY" > "$UPDATE_CACHE"
+          echo "UP_TO_DATE" >> "$UPDATE_CACHE"
+        else
+          context="${context}\n\n[Update Available] MindrianOS ${CACHED_LATEST} is available. Auto-update failed -- run /mos:update manually."
+        fi
+      else
+        context="${context}\n\n[Update Available] MindrianOS ${CACHED_LATEST} is available. Run /mos:update to see what's new.\nEnable auto-updates: mkdir -p ~/.mindrian && touch ~/.mindrian/auto-update"
+      fi
     fi
   fi
 fi
