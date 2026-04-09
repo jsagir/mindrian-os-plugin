@@ -27,17 +27,30 @@ v1.0 through v1.9.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Pres
 - v1.8.8 Brain Graph Optimization (2026-04-07) -- causal discovery, lazy graph bridge, fragmentation cleanup, teaching wiring, dummy-proof install
 - v1.9.0 Model Data Room (2026-04-08) -- Google Drive integration, 168-artifact model room, HSI self-analysis, Investment Thesis, knowledge graph (179 nodes/383 edges)
 
-## Current Milestone: v1.9.0 Model Data Room + Self-Analysis (SHIPPED 2026-04-08)
+## Current Milestone: v1.9.3 Wiring Integrity + Intelligence Loop
 
-**Goal:** Prove MindrianOS capabilities by building a comprehensive Data Room about itself -- pulling from Google Drive meetings, Gmail, GSD artifacts, Claude memory, and plugin repo. Then run HSI, Investment Thesis, and knowledge graph analysis on the result.
+**Goal:** Complete the remaining audit findings from the 8-audit plugin scan -- bring the APPROVE/REJECT/DEFER cascade workflow to life, fix macOS portability, wire radar registration, clean stale docs, and make the mid-session intelligence loop real.
+
+**Target features:**
+- APPROVE/REJECT/DEFER cascade workflow (cross-subsystem impact detection, user decision capture, decision-as-graph-data)
+- /mos:radar registration in plugin.json
+- macOS portability (replace GNU-only stat -c, find -printf with cross-platform alternatives)
+- REQUIREMENTS.md checkbox staleness fix (phases 39, 60, 61, 62)
+- Filing cascade git-commit for markdown artifacts
+- Mid-session proactive intelligence (surface findings after filing, not just at session start)
+
+**Context:** v1.9.2 fixed the dead post-write hook and wired proactive-intelligence.cjs for the first time. The filing cascade now fires end-to-end. But the user-facing intelligence loop -- where Larry says "this changes your financial model" and the user responds APPROVE/REJECT/DEFER -- is still aspirational code.
+
+## Previous Milestone: v1.9.0 Model Data Room + Self-Analysis (SHIPPED 2026-04-08)
 
 **Delivered:**
-- 168 artifacts across 10 sections (meetings, research, methodology, solution-design, competitive, problem-definition, market, business-model, team, team-execution)
-- Google Drive API integration (45 meeting transcripts + 4 whitepapers downloaded via OAuth)
+- 168 artifacts across 10 sections
+- Google Drive API integration (45 meeting transcripts + 4 whitepapers)
 - Knowledge graph: 179 nodes, 383 edges, 198 cross-references
-- HSI Tier 1: 20 innovation pairs, reverse salient in business-model (OM-HMM 33.6)
-- Investment Thesis gate: 7/10 (weak on momentum, funding justification, valuation)
-- 19 people mapped across 45 meetings with roles and attendance
+- HSI Tier 1: 20 innovation pairs, reverse salient in business-model
+- Investment Thesis gate: 7/10
+- v1.9.1: PWS Value Proposition Framework (3-gate VPS scoring)
+- v1.9.2: 13 wiring fixes + intelligence cascade fully wired
 
 ## Previous Milestone: v1.8.8 Brain Graph Optimization + Dummy-Proof Install (SHIPPED 2026-04-07)
 

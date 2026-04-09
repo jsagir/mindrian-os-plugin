@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.8.8
-milestone_name: Brain Graph Optimization + Pam-Proof Install
+milestone: v1.9.3
+milestone_name: Wiring Integrity + Intelligence Loop
 status: ready_to_plan
 stopped_at: null
-last_updated: "2026-04-07T00:00:00.000Z"
-last_activity: 2026-04-07 - Milestone v1.8.8 started
+last_updated: "2026-04-09T00:00:00.000Z"
+last_activity: 2026-04-09 - Milestone v1.9.3 started
 progress:
   total_phases: 0
   completed_phases: 0
@@ -18,19 +18,19 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-06)
+See: .planning/PROJECT.md (updated 2026-04-09)
 
-**Core value:** Centralize all Data Rooms under ~/MindrianRooms/ with ICM-compliant structure
-**Current focus:** v1.8.6 milestone complete
+**Core value:** Make the intelligence loop real -- from artifact filed to Larry surfaces finding to user decides to decision becomes graph data
+**Current focus:** v1.9.3 Wiring Integrity + Intelligence Loop
 
 ## Current Position
 
-Phase: 59.2 of 59.2 (Room Hierarchy Graph Layer)
-Plan: 01 (complete)
-Status: All phases complete (56, 57, 58, 59, 59.1, 59.2)
-Last activity: 2026-04-06 -- dual-graph room hierarchy, sync scripts, Brain integration
+Phase: Not started (defining requirements)
+Plan: --
+Status: Defining requirements
+Last activity: 2026-04-09 -- Milestone v1.9.3 started
 
-Progress: [##########] 100%
+Progress: [..........] 0%
 
 ## Performance Metrics
 
