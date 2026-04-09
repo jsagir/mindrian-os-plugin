@@ -73,7 +73,7 @@ for name, room in reg.get('rooms', {}).items():
     if abs_path == new_room:
         reg['active'] = name
         import datetime
-        room['last_opened'] = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+        room['last_opened'] = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
         break
 
 tmp = reg_path + '.tmp'

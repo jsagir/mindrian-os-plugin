@@ -67,7 +67,7 @@ with open(reg_file) as f:
 old_active = reg.get('active', '')
 if old_active and old_active in reg.get('rooms', {}):
     reg['rooms'][old_active]['status'] = 'parked'
-now = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
 reg['rooms']['$NAME'] = {
     'path': '$RPATH',
     'created': now,
@@ -204,7 +204,7 @@ if '$NAME' not in reg.get('rooms', {}):
 old_active = reg.get('active', '')
 if old_active and old_active in reg.get('rooms', {}) and old_active != '$NAME':
     reg['rooms'][old_active]['status'] = 'parked'
-now = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
 reg['rooms']['$NAME']['status'] = 'active'
 reg['rooms']['$NAME']['last_opened'] = now
 reg['active'] = '$NAME'
