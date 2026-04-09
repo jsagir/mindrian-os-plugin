@@ -70,11 +70,11 @@ Plans:
   1. After banking an opportunity, KuzuDB contains an Opportunity node with ADDRESSES edges to Problem nodes and IN_DOMAIN edges to Domain nodes
   2. When Brain is connected, banked opportunities receive "next validation steps" suggestions drawn from the 100 frameworks x 131 FEEDS_INTO chains
   3. User can query opportunities by domain, knight_position, or confidence through /mos:opportunities with filter flags
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 72-01: KuzuDB opportunity nodes + edges (ADDRESSES, IN_DOMAIN) + graph queries
-- [ ] 72-02: Brain enrichment -- cross-reference opportunities against framework chains for validation suggestions
+- [ ] 72-01-PLAN.md -- KuzuDB Opportunity node + ADDRESSES/IN_DOMAIN edges + indexOpportunity + filter flags
+- [ ] 72-02-PLAN.md -- Brain enrichment: suggestValidationSteps + enrichOpportunity with FEEDS_INTO chains
 
 ### Phase 73: Conversation Mode Routing
 **Goal**: Every session starts with persona-aware mode selection that routes to the right Brain framework chain
