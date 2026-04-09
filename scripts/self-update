@@ -182,7 +182,7 @@ BACKUP_FULL="$(cd "$(dirname "$0")/full" && pwd)"
 TARGET="${1:-}"
 if [ -z "$TARGET" ]; then
   echo "Usage: bash rollback.sh <plugin-cache-dir>"
-  echo "  e.g. bash rollback.sh ~/.claude/plugins/cache/mindrian-marketplace/mos/1.8.4"
+  echo "  e.g. bash rollback.sh ~/.claude/plugins/cache/mindrian-marketplace/mos/1.9.3"
   exit 1
 fi
 echo "Rolling back to $(cat "$BACKUP_FULL/.claude-plugin/plugin.json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["version"])')"

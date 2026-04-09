@@ -9,7 +9,7 @@
   [Prof. Lawrence Aronhime](https://www.linkedin.com/in/lawrence-aronhime-8363894/) over 30+ years at Johns Hopkins University.
   Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
 
-  [![Plugin Version](https://img.shields.io/badge/plugin-v1.8.4_Graph_Visualization-blue)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Plugin Version](https://img.shields.io/badge/plugin-v1.9.3_Graph_Visualization-blue)](https://github.com/jsagir/mindrian-os-plugin)
   [![Commands](https://img.shields.io/badge/commands-66-green)](https://github.com/jsagir/mindrian-os-plugin)
   [![MCP Tools](https://img.shields.io/badge/MCP_tools-64_(9_routers)-teal)](https://github.com/jsagir/mindrian-os-plugin)
   [![MCP Apps](https://img.shields.io/badge/MCP_Apps-3_(dashboard,_wiki,_graph)-cyan)](https://github.com/jsagir/mindrian-os-plugin)

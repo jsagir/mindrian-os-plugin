@@ -144,7 +144,7 @@ detail-panel: #12121a with backdrop-filter: blur(8px)
 
 ---
 
-## Pitch Deck Standard (v1.8.4)
+## Pitch Deck Standard (v1.9.3)
 
 The SnapshotHub pitch deck uses the `/slides` skill structure:
 - 10-slide YC Seed Deck format
