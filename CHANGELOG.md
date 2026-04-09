@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.9.2] - 2026-04-09
+
+onboarding: true
+onboard_steps:
+  - "CRITICAL FIX: The filing cascade now actually fires. Every artifact you write triggers KuzuDB indexing, HSI scoring, state recomputation, graph rebuilding, and proactive intelligence persistence. Before this fix, the entire pipeline was silently dead."
+  - "13 wiring fixes from a full 8-audit plugin scan: post-write hook, MCP routes, allowed-tools, hook timeouts, env detection."
+  - "Desktop/Cowork users can now access /mos:whitespace and /mos:organize -- they had zero MCP routing before."
+
+### Fixed
+- **Post-write hook was dead** -- Claude Code passes file paths via stdin JSON, not positional args. The entire filing cascade (KuzuDB index, HSI, reverse salients, presentation regen) silently did nothing after every artifact write. Now reads from stdin with backward-compatible fallbacks.
+- **Intelligence cascade missing 4 steps** -- artifact-id injection, compute-state, build-graph, and proactive intelligence persistence were never called. The loop from "artifact filed" to "Larry surfaces a finding" now actually works.
+- **act-swarm phantom MCP route** -- registered in z.enum but handler fell through to dead-end "reference not found" message
+- **SessionStart hook had no timeout** -- the heaviest hook could hang indefinitely. Now has 10s timeout.
+- **consolidate-pinecone.py crashed on import** -- bare `from pinecone import Pinecone` with no try/except
+- **Velma env var mismatch** -- integration-registry checked MODULATE_API_KEY but transcribe-audio used VELMA_API_KEY. Now checks both.
+- **deep-grade and research commands blocked by own allowed-tools** -- declared only Read but needed Bash, Agent, WebSearch
+- **6 commands missing allowed-tools entirely** -- funding, opportunities, persona, splash, reason, snapshot
+- **visualize and wiki YAML scalar format** -- `allowed-tools: Bash` parsed as string not list
+- **help.md missing Bash** -- admin identity check could not run
+- **reason.md missing name: field** -- used command: instead of name:
+- **post-write missing set -euo pipefail** -- only hook script without strict error handling
+
+### Added
+- **whitespace MCP route** -- Desktop/Cowork users can now access /mos:whitespace
+- **organize MCP route** -- Desktop/Cowork users can now access /mos:organize
+- **act-swarm MCP handler** -- full Brain-driven swarm execution via MCP
+- **Array env detection** -- integration-registry now supports checking multiple env var names per integration
+
 ## [1.9.1] - 2026-04-08
 
 onboarding: true
