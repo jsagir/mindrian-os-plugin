@@ -85,12 +85,12 @@ Plans:
   2. In Mode 2, Larry detects user persona (TTO, Researcher, or Business) within 2-3 exchanges through targeted questions
   3. After persona detection, Larry follows the corresponding Brain framework chain: TTO (tech push -> domain -> problem), Researcher (problem -> JTBD -> value prop), Business (opportunity -> market -> problem definition)
   4. Mode 1 and Mode 3 work without Brain connection (Tier 0 principle)
-**Plans**: TBD
+**Plans**: 2 plans
 **UI hint**: yes
 
 Plans:
-- [ ] 73-01: Session-start mode routing UI + JTBD statements + mode selection flow
-- [ ] 73-02: Persona detection logic + Brain framework chain selection per persona
+- [ ] 73-01-PLAN.md -- Session-start mode routing + JTBD mode menu + conversation-mode skill
+- [ ] 73-02-PLAN.md -- getFrameworkChain in brain-client + Tier 0 persona-chains reference
 
 ### Phase 74: Conversation Capture + Room Seeding
 **Goal**: Mode 2 conversations produce banked opportunities in real-time, and those opportunities can seed a new Data Room when the user is ready
