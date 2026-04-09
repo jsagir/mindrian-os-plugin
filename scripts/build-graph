@@ -712,6 +712,17 @@ fi
 
 set -euo pipefail
 
+# Portable readlink -f (macOS lacks GNU readlink)
+portable_realpath() {
+  if command -v realpath >/dev/null 2>&1; then
+    realpath "$1"
+  elif command -v python3 >/dev/null 2>&1; then
+    python3 -c "import os; print(os.path.realpath('$1'))"
+  else
+    echo "$1"
+  fi
+}
+
 ROOM_DIR="${1:-./room}"
 OUTPUT_PATH="${2:-./dashboard/graph.json}"
 
@@ -1145,7 +1156,7 @@ for mid in "${!meeting_speakers[@]}"; do
       [ -e "$link" ] || continue
       # Read target path: try symlink first, then parse file content
       if [ -L "$link" ]; then
-        target_path=$(readlink -f "$link" 2>/dev/null || echo "$link")
+        target_path=$(portable_realpath "$link" 2>/dev/null || echo "$link")
       else
         target_path=$(head -5 "$link" 2>/dev/null | sed -n 's/.*(\([^)]*\)).*/\1/p; s/^.*: //p; /^\/\|^room\//p' | head -1 || echo "$link")
         # If no path found in content, use the filename as hint

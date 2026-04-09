@@ -513,6 +513,15 @@ fi
 
 set -e
 
+# Portable date -d replacement (macOS lacks GNU date -d)
+portable_date_to_epoch() {
+  local datestr="$1"
+  date -d "$datestr" +%s 2>/dev/null \
+    || date -j -f "%Y-%m-%d" "$datestr" +%s 2>/dev/null \
+    || python3 -c "from datetime import datetime; print(int(datetime.strptime('$datestr','%Y-%m-%d').timestamp()))" 2>/dev/null \
+    || echo "0"
+}
+
 ROOM_DIR="${1:-.}"
 TEAM_DIR="$ROOM_DIR/team"
 
@@ -768,7 +777,7 @@ compute_trend() {
   fi
 
   local la_epoch
-  la_epoch=$(date -d "$last_active" +%s 2>/dev/null || echo "0")
+  la_epoch=$(portable_date_to_epoch "$last_active")
   if [ "$la_epoch" -eq 0 ]; then
     echo "unknown"
     return

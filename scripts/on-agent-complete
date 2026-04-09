@@ -34,7 +34,10 @@ fi
 
 # Find files modified by the subagent
 # Strategy: check for recently modified .md files in the room (last 30 seconds)
-CUTOFF=$(date -d '30 seconds ago' +%s 2>/dev/null || date -v-30S +%s 2>/dev/null || echo 0)
+CUTOFF=$(date -d '30 seconds ago' +%s 2>/dev/null \
+  || date -v-30S +%s 2>/dev/null \
+  || python3 -c "import time; print(int(time.time()) - 30)" 2>/dev/null \
+  || echo 0)
 
 modified_files=()
 while IFS= read -r line; do

@@ -18,6 +18,17 @@
 
 set -euo pipefail
 
+# Portable readlink -f (macOS lacks GNU readlink)
+portable_realpath() {
+  if command -v realpath >/dev/null 2>&1; then
+    realpath "$1"
+  elif command -v python3 >/dev/null 2>&1; then
+    python3 -c "import os; print(os.path.realpath('$1'))"
+  else
+    echo "$1"
+  fi
+}
+
 # --- Parse arguments ---
 SEARCH_DIR="$HOME"
 DRY_RUN=false
@@ -213,7 +224,7 @@ for path in "${FOUND_PATHS[@]+"${FOUND_PATHS[@]}"}"; do
   resolved=$(cd "$path" 2>/dev/null && pwd) || continue
   # Skip if it's a symlink pointing into ROOMS_HOME (already migrated)
   if [ -L "$path" ]; then
-    link_target=$(readlink -f "$path" 2>/dev/null || echo "")
+    link_target=$(portable_realpath "$path" 2>/dev/null || echo "")
     if [[ "$link_target" == "$ROOMS_HOME"* ]]; then
       continue
     fi

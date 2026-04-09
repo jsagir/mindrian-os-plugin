@@ -14,12 +14,21 @@ if [ ! -d "$ROOM_DIR" ]; then
   exit 1
 fi
 
+# Portable date -d replacement (macOS lacks GNU date -d)
+portable_date_to_epoch() {
+  local datestr="$1"
+  date -d "$datestr" +%s 2>/dev/null \
+    || date -j -f "%Y-%m-%d" "$datestr" +%s 2>/dev/null \
+    || python3 -c "from datetime import datetime; print(int(datetime.strptime('$datestr','%Y-%m-%d').timestamp()))" 2>/dev/null \
+    || echo "0"
+}
+
 # Ensure .intelligence/ directory exists
 INTEL_DIR="$ROOM_DIR/.intelligence"
 mkdir -p "$INTEL_DIR"
 
 TODAY=$(date -u +"%Y-%m-%d")
-TODAY_EPOCH=$(date -d "$TODAY" +%s 2>/dev/null || date -j -f "%Y-%m-%d" "$TODAY" +%s 2>/dev/null || echo "0")
+TODAY_EPOCH=$(portable_date_to_epoch "$TODAY")
 CUTOFF_EPOCH=$((TODAY_EPOCH + ALERT_DAYS * 86400))
 
 urgent_count=0
@@ -51,7 +60,7 @@ if [ -d "$ROOM_DIR/funding" ]; then
     stage=${stage:-unknown}
 
     # Calculate days until deadline
-    deadline_epoch=$(date -d "$deadline" +%s 2>/dev/null || echo "0")
+    deadline_epoch=$(portable_date_to_epoch "$deadline")
     if [ "$deadline_epoch" -eq 0 ]; then
       continue
     fi
@@ -91,7 +100,7 @@ if [ -d "$ROOM_DIR/opportunity-bank" ]; then
     status=${status:-unknown}
 
     # Calculate days until deadline
-    deadline_epoch=$(date -d "$deadline" +%s 2>/dev/null || echo "0")
+    deadline_epoch=$(portable_date_to_epoch "$deadline")
     if [ "$deadline_epoch" -eq 0 ]; then
       continue
     fi

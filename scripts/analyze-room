@@ -487,6 +487,15 @@ fi
 
 set -euo pipefail
 
+# Portable date -d replacement (macOS lacks GNU date -d)
+portable_date_to_epoch() {
+  local datestr="$1"
+  date -d "$datestr" +%s 2>/dev/null \
+    || date -j -f "%Y-%m-%d" "$datestr" +%s 2>/dev/null \
+    || python3 -c "from datetime import datetime; print(int(datetime.strptime('$datestr','%Y-%m-%d').timestamp()))" 2>/dev/null \
+    || echo "0"
+}
+
 ROOM_DIR="${1:-./room}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -932,7 +941,7 @@ if [ -d "$ROOM_DIR/opportunity-bank" ]; then
       # Check for stale entries (last_updated > 14 days ago)
       last_updated=$(grep -m1 '^last_updated:' "$status_file" 2>/dev/null | sed 's/last_updated:[[:space:]]*//' | tr -d '"' | xargs)
       if [ -n "$last_updated" ]; then
-        last_epoch=$(date -d "$last_updated" +%s 2>/dev/null || echo 0)
+        last_epoch=$(portable_date_to_epoch "$last_updated")
         now_epoch=$(date +%s)
         if [ "$last_epoch" -gt 0 ]; then
           days_since=$(( (now_epoch - last_epoch) / 86400 ))
