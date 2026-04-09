@@ -57,6 +57,8 @@ Commands:
   visualize chain [roomDir]      Generate methodology chain Mermaid diagram
   visualize mermaid [roomDir] [type]  Output raw Mermaid syntax to stdout
   cascade [roomDir] [filePath]       Run intelligence cascade on a filed artifact
+  record-decision --room DIR --key KEY --decision approve|reject|defer [--reason "..."] [--source-artifact ID] [--target-artifact ID]
+                                     Record user decision on a proactive intelligence finding
   detect-integrations                Detect all integration statuses (env, MCP, filesystem)`;
 
 async function main() {
@@ -535,6 +537,76 @@ async function main() {
         process.stdout.write(JSON.stringify(cascadeResult));
       } else {
         process.stdout.write(JSON.stringify(cascadeResult, null, 2));
+      }
+      process.exit(0);
+      break;
+    }
+
+    case 'record-decision': {
+      // Parse named flags from argv
+      const rdFlags = {};
+      for (let i = 1; i < argv.length; i++) {
+        if (argv[i].startsWith('--') && i + 1 < argv.length) {
+          rdFlags[argv[i].slice(2)] = argv[++i];
+        }
+      }
+      const rdRoom = rdFlags['room'];
+      const rdKey = rdFlags['key'];
+      const rdDecision = rdFlags['decision'];
+      const rdReason = rdFlags['reason'] || '';
+      const rdSourceArtifact = rdFlags['source-artifact'];
+      const rdTargetArtifact = rdFlags['target-artifact'];
+
+      // Validate required args
+      if (!rdRoom || !rdKey || !rdDecision) {
+        process.stderr.write('Usage: mindrian-tools.cjs record-decision --room DIR --key KEY --decision approve|reject|defer [--reason "..."] [--source-artifact ID] [--target-artifact ID]\n');
+        process.exit(1);
+      }
+      if (!['approve', 'reject', 'defer'].includes(rdDecision)) {
+        process.stderr.write('Error: --decision must be one of: approve, reject, defer\n');
+        process.exit(1);
+      }
+      if (rdDecision === 'reject' && !rdReason) {
+        process.stderr.write('Error: --reason is required when decision is reject\n');
+        process.exit(1);
+      }
+
+      // Record decision in .proactive-intelligence.json
+      const proactiveIntel = require('../lib/core/proactive-intelligence.cjs');
+      const rdResult = proactiveIntel.recordDecision(rdRoom, rdKey, rdDecision, rdReason);
+
+      // Optionally persist KuzuDB edge (best-effort, Tier 0: works without graph)
+      let graphEdge = false;
+      if (rdSourceArtifact && rdTargetArtifact) {
+        const fs = require('fs');
+        const lazygraphDir = require('path').join(require('path').resolve(rdRoom), '.lazygraph');
+        if (fs.existsSync(lazygraphDir)) {
+          try {
+            await graphOps.persistDecisionEdge(
+              rdRoom,
+              rdSourceArtifact,
+              rdTargetArtifact,
+              rdResult.edgeType,
+              { reason: rdReason, timestamp: new Date().toISOString() }
+            );
+            graphEdge = true;
+          } catch (_e) {
+            // KuzuDB edge creation is best-effort
+          }
+        }
+      }
+
+      const rdOutput = {
+        recorded: true,
+        decision: rdDecision,
+        edgeType: rdResult.edgeType,
+        graphEdge
+      };
+
+      if (raw) {
+        process.stdout.write(JSON.stringify(rdOutput));
+      } else {
+        process.stdout.write(JSON.stringify(rdOutput, null, 2));
       }
       process.exit(0);
       break;
