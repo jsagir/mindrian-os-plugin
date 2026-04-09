@@ -77,10 +77,10 @@ Plans:
   3. APPROVE/REJECT/DEFER decisions appear in .proactive-intelligence.json with timestamp and decision type
   4. KuzuDB contains corresponding edges (INVALIDATES for approve-cascade, CONFIRMS for reject-reason, DEFERRED for parked items)
   5. Rejected reasons are stored as queryable data (Decision #13: "Rejection is data")
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 69-01-PLAN.md -- Core functions: getNewFindings + recordDecision + CONFIRMS/DEFERRED edges + cascade newFindings return
+- [x] 69-01-PLAN.md -- Core functions: getNewFindings + recordDecision + CONFIRMS/DEFERRED edges + cascade newFindings return
 - [ ] 69-02-PLAN.md -- Skill instructions for Larry decision capture + record-decision CLI subcommand
 
 ### Phase 70: Mid-Session Intelligence Loop
@@ -102,5 +102,5 @@ Phases execute in numeric order: 67 -> 68 -> 69 -> 70
 |-------|----------------|--------|-----------|
 | 67. Portability + Polish | 2/2 | Complete   | 2026-04-09 |
 | 68. Filing Cascade Completeness | 2/2 | Complete   | 2026-04-09 |
-| 69. APPROVE/REJECT/DEFER Workflow | 0/2 | Not started | - |
+| 69. APPROVE/REJECT/DEFER Workflow | 1/2 | In Progress|  |
 | 70. Mid-Session Intelligence Loop | 0/TBD | Not started | - |
