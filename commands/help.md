@@ -7,6 +7,7 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read
   - Glob
+  - Bash
 ---
 
 # /mos:help

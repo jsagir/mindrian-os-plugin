@@ -3,6 +3,10 @@ name: research
 description: External web research with Brain cross-reference -- find evidence for your venture
 allowed-tools:
   - Read
+  - Bash
+  - Agent
+  - WebSearch
+  - WebFetch
 ---
 
 # /mos:research [topic]

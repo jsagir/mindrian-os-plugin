@@ -3,6 +3,8 @@ name: deep-grade
 description: Calibrated venture assessment -- scored against 100+ real projects
 allowed-tools:
   - Read
+  - Bash
+  - Agent
 ---
 
 # /mos:deep-grade

@@ -5,6 +5,9 @@ usage: /mos:snapshot [ROOM_PATH] [--output PATH] [--open]
 category: export
 surface: cli, desktop, cowork
 requires: room
+allowed-tools:
+  - Bash
+  - Read
 ---
 
 # /mos:snapshot

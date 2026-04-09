@@ -1,13 +1,33 @@
 #!/usr/bin/env bash
+set -euo pipefail
 # post-write -- PostToolUse handler for Write operations
 # Routes to classify-insight for room file classification
 # Routes to file-asset for binary file detection
 #
 # Called by run-hook.cmd when PostToolUse fires after Write tool usage.
-# The written file path is passed via TOOL_INPUT_PATH env var or as $1.
+# Claude Code passes hook data as JSON on stdin (PostToolUse schema):
+#   { "tool_name": "Write", "tool_input": { "file_path": "..." }, ... }
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-FILE_PATH="${1:-$TOOL_INPUT_PATH}"
+
+# Read file path from stdin JSON (Claude Code hook API),
+# fall back to $1 or TOOL_INPUT_PATH for backward compatibility
+if [ -t 0 ]; then
+  # stdin is a terminal (manual invocation) -- use args
+  FILE_PATH="${1:-${TOOL_INPUT_PATH:-}}"
+else
+  # stdin has data -- parse JSON from Claude Code hook
+  HOOK_INPUT=$(cat)
+  FILE_PATH=$(echo "$HOOK_INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null || true)
+  # Fallback: try tool_response.filePath
+  if [[ -z "$FILE_PATH" ]]; then
+    FILE_PATH=$(echo "$HOOK_INPUT" | jq -r '.tool_response.filePath // empty' 2>/dev/null || true)
+  fi
+  # Final fallback: positional arg or env var
+  if [[ -z "$FILE_PATH" ]]; then
+    FILE_PATH="${1:-${TOOL_INPUT_PATH:-}}"
+  fi
+fi
 
 if [[ -z "$FILE_PATH" ]]; then
   exit 0

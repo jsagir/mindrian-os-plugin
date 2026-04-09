@@ -2,6 +2,8 @@
 name: splash
 description: Display the MindrianOS Mondrian banner
 body_shape: raw
+allowed-tools:
+  - Bash
 ---
 
 # /mos:splash

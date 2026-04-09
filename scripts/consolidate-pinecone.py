@@ -17,7 +17,12 @@ All text content is re-embedded by the integrated model on upsert.
 import os
 import sys
 import time
-from pinecone import Pinecone
+
+try:
+    from pinecone import Pinecone
+except ImportError:
+    print("Error: pinecone package not installed. Run: pip install pinecone", file=sys.stderr)
+    sys.exit(1)
 
 API_KEY = os.environ.get("PINECONE_API_KEY", "pcsk_2BdKp7_8ptiybKm28fyCqMowRVky4EUoFm4Tx9pwatf8E4zK3VhvqADaMMwoS1VSyTURha")
 TARGET_INDEX = "pws-brain"

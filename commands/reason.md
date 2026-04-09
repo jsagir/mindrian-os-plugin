@@ -1,7 +1,13 @@
 ---
+name: reason
 command: mos:reason
 description: Analyze room sections using Minto/MECE structured reasoning
 usage: /mos:reason <subcommand> [section] [options]
+allowed-tools:
+  - Read
+  - Write
+  - Bash
+  - Glob
 ---
 
 # Reasoning Engine

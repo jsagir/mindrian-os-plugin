@@ -2,6 +2,11 @@
 name: funding
 description: Track grant opportunities through the funding lifecycle
 body_shape: B (Semantic Tree)
+allowed-tools:
+  - Read
+  - Write
+  - Bash
+  - Glob
 ---
 
 # /mos:funding

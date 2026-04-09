@@ -3,7 +3,9 @@ name: visualize
 description: Open rich visual diagrams in the browser -- room structure, knowledge graph, chains, timelines
 body_shape: D (Document View)
 ui_reference: skills/ui-system/SKILL.md
-allowed-tools: Bash
+allowed-tools:
+  - Bash
+  - Read
 ---
 
 # /mos:visualize

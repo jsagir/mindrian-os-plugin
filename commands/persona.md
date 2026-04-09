@@ -2,6 +2,11 @@
 name: persona
 description: Generate AI perspective lenses (De Bono Six Hats) from your room data
 body_shape: C (Room Card)
+allowed-tools:
+  - Read
+  - Write
+  - Bash
+  - Glob
 ---
 
 # Persona -- AI Perspective Lenses

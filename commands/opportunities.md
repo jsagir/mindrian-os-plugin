@@ -2,6 +2,13 @@
 name: opportunities
 description: Context-driven grant discovery and opportunity management
 body_shape: E (Action Report)
+allowed-tools:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - Agent
+  - WebSearch
 ---
 
 # /mos:opportunities -- Grant Discovery + Opportunity Management
