@@ -6,7 +6,7 @@
 ## Intelligence Loop (INTEL)
 
 - [x] **INTEL-01**: After filing an artifact, Larry surfaces up to 2 cross-subsystem impacts with confidence scores (e.g., "This changes your financial model assumption")
-- [ ] **INTEL-02**: User can respond APPROVE (cascade soft edits), REJECT (capture reason as graph data), or DEFER (park for later review)
+- [x] **INTEL-02**: User can respond APPROVE (cascade soft edits), REJECT (capture reason as graph data), or DEFER (park for later review)
 - [x] **INTEL-03**: APPROVE/REJECT/DEFER decisions are persisted to .proactive-intelligence.json and indexed as KuzuDB edges (INVALIDATES, CONFIRMS, DEFERRED)
 - [ ] **INTEL-04**: Mid-session intelligence injection -- after post-write cascade completes, new findings are available to Larry's next response (not just session start)
 - [ ] **INTEL-05**: Repeat suppression works -- insights shown 3+ times are not re-surfaced unless new evidence changes them

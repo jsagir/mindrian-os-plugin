@@ -34,7 +34,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 
 - [x] **Phase 67: Portability + Polish** - macOS compat, radar registration, stale doc fixes (completed 2026-04-09)
 - [x] **Phase 68: Filing Cascade Completeness** - Git-commit on file, classify consumption, status reporting (completed 2026-04-09)
-- [ ] **Phase 69: APPROVE/REJECT/DEFER Workflow** - Cross-subsystem impact surfacing, user decision capture, decision-as-graph-data
+- [x] **Phase 69: APPROVE/REJECT/DEFER Workflow** - Cross-subsystem impact surfacing, user decision capture, decision-as-graph-data (completed 2026-04-09)
 - [ ] **Phase 70: Mid-Session Intelligence Loop** - Post-filing injection, repeat suppression, live intelligence during session
 
 ## Phase Details
@@ -77,11 +77,11 @@ Plans:
   3. APPROVE/REJECT/DEFER decisions appear in .proactive-intelligence.json with timestamp and decision type
   4. KuzuDB contains corresponding edges (INVALIDATES for approve-cascade, CONFIRMS for reject-reason, DEFERRED for parked items)
   5. Rejected reasons are stored as queryable data (Decision #13: "Rejection is data")
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 69-01-PLAN.md -- Core functions: getNewFindings + recordDecision + CONFIRMS/DEFERRED edges + cascade newFindings return
-- [ ] 69-02-PLAN.md -- Skill instructions for Larry decision capture + record-decision CLI subcommand
+- [x] 69-02-PLAN.md -- Skill instructions for Larry decision capture + record-decision CLI subcommand
 
 ### Phase 70: Mid-Session Intelligence Loop
 **Goal**: Intelligence findings surface throughout the session (not just at start) and repeat suppression prevents noise fatigue
@@ -102,5 +102,5 @@ Phases execute in numeric order: 67 -> 68 -> 69 -> 70
 |-------|----------------|--------|-----------|
 | 67. Portability + Polish | 2/2 | Complete   | 2026-04-09 |
 | 68. Filing Cascade Completeness | 2/2 | Complete   | 2026-04-09 |
-| 69. APPROVE/REJECT/DEFER Workflow | 1/2 | In Progress|  |
+| 69. APPROVE/REJECT/DEFER Workflow | 2/2 | Complete   | 2026-04-09 |
 | 70. Mid-Session Intelligence Loop | 0/TBD | Not started | - |
