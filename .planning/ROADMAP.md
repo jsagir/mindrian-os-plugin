@@ -47,7 +47,11 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
   1. Running any hook script on macOS produces no GNU-specific errors (stat -c and find -printf replaced with portable alternatives)
   2. User can invoke /mos:radar from the plugin system and it resolves to the radar command
   3. REQUIREMENTS.md checkboxes for phases 39, 60, 61, 62 reflect actual implementation status (checked if done, unchecked if not)
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 67-01-PLAN.md -- Replace GNU stat/find with cross-platform helpers in 7 hook scripts
+- [ ] 67-02-PLAN.md -- Register /mos:radar in plugin.json and update stale VERIFICATION.md files
 
 ### Phase 68: Filing Cascade Completeness
 **Goal**: Every artifact filing produces a complete audit trail -- git history, classification metadata, and visible status reporting
@@ -88,7 +92,7 @@ Phases execute in numeric order: 67 -> 68 -> 69 -> 70
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 67. Portability + Polish | 0/TBD | Not started | - |
+| 67. Portability + Polish | 0/2 | Planned | - |
 | 68. Filing Cascade Completeness | 0/TBD | Not started | - |
 | 69. APPROVE/REJECT/DEFER Workflow | 0/TBD | Not started | - |
 | 70. Mid-Session Intelligence Loop | 0/TBD | Not started | - |

@@ -17,5 +17,12 @@
     "data-room",
     "thinking-partner",
     "larry"
+  ],
+  "commands": [
+    {
+      "name": "radar",
+      "description": "Track Claude capabilities that could enhance MindrianOS",
+      "source": "commands/radar.md"
+    }
   ]
 }
