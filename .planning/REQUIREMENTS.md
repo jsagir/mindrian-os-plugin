@@ -43,18 +43,18 @@
 
 | REQ-ID | Phase | Plan | Status |
 |--------|-------|------|--------|
-| OPP-01 | -- | -- | Pending |
-| OPP-02 | -- | -- | Pending |
-| OPP-03 | -- | -- | Pending |
-| OPP-04 | -- | -- | Pending |
-| OPP-05 | -- | -- | Pending |
-| CONV-01 | -- | -- | Pending |
-| CONV-02 | -- | -- | Pending |
-| CONV-03 | -- | -- | Pending |
-| CONV-04 | -- | -- | Pending |
-| CONV-05 | -- | -- | Pending |
-| CONV-06 | -- | -- | Pending |
-| ONBD-01 | -- | -- | Pending |
-| ONBD-02 | -- | -- | Pending |
-| ONBD-03 | -- | -- | Pending |
-| ONBD-04 | -- | -- | Pending |
+| OPP-01 | Phase 71 | -- | Pending |
+| OPP-02 | Phase 71 | -- | Pending |
+| OPP-03 | Phase 71 | -- | Pending |
+| OPP-04 | Phase 72 | -- | Pending |
+| OPP-05 | Phase 72 | -- | Pending |
+| CONV-01 | Phase 73 | -- | Pending |
+| CONV-02 | Phase 73 | -- | Pending |
+| CONV-03 | Phase 73 | -- | Pending |
+| CONV-04 | Phase 74 | -- | Pending |
+| CONV-05 | Phase 74 | -- | Pending |
+| CONV-06 | Phase 74 | -- | Pending |
+| ONBD-01 | Phase 75 | -- | Pending |
+| ONBD-02 | Phase 75 | -- | Pending |
+| ONBD-03 | Phase 75 | -- | Pending |
+| ONBD-04 | Phase 75 | -- | Pending |

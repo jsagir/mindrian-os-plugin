@@ -5,11 +5,11 @@ milestone_name: Opportunity Engine + Conversation-First Entry
 status: ready_to_plan
 stopped_at: null
 last_updated: "2026-04-09T00:00:00.000Z"
-last_activity: 2026-04-09 - Milestone v1.9.4 started
+last_activity: 2026-04-09 - Roadmap created for v1.9.4 (5 phases, 15 requirements)
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
-  total_plans: 0
+  total_plans: 10
   completed_plans: 0
   percent: 0
 ---
@@ -20,17 +20,17 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-04-09)
 
-**Core value:** Make the intelligence loop real -- from artifact filed to Larry surfaces finding to user decides to decision becomes graph data
-**Current focus:** Phase 67 - Portability + Polish
+**Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
+**Current focus:** Phase 71 - Opportunity Extraction Engine
 
 ## Current Position
 
-Phase: 1 of 4 (Phase 67: Portability + Polish)
-Plan: 2 of 2 in current phase
-Status: Phase complete — ready for verification
-Last activity: 2026-04-09
+Phase: 1 of 5 (Phase 71: Opportunity Extraction Engine)
+Plan: 0 of 2 in current phase
+Status: Ready to plan
+Last activity: 2026-04-09 -- Roadmap created
 
-Progress: [█████░░░░░] 50%
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -48,32 +48,11 @@ Progress: [█████░░░░░] 50%
 
 ## Accumulated Context
 
-| Phase 67 P01 | 4min | 2 tasks | 7 files |
-| Phase 67 P02 | 4min | 2 tasks | 4 files |
-| Phase 68 P01 | 3min | 2 tasks | 2 files |
-| Phase 68 P02 | 3min | 2 tasks | 1 files |
-| Phase 69 P01 | 3min | 2 tasks | 4 files |
-| Phase 69 P02 | 3min | 2 tasks | 2 files |
-| Phase 70 P01 | 3min | 2 tasks | 3 files |
-
 ### Decisions
 
-- v1.9.2: Post-write hook and intelligence-cascade.cjs wired end-to-end
-- v1.9.2: proactive-intelligence.cjs persistence works (Step 10 in cascade)
-- v1.9.3: PORT fixes first (unblock cascade on macOS before building on it)
-- v1.9.3: APPROVE/REJECT/DEFER gets own phase (biggest feature, core MWP moat deepener)
-- [Phase 67]: Pure bash OS detection via uname -s for portable stat/find helpers
-- [Phase 67]: Added commands array to plugin.json for explicit radar registration
-- [Phase 68]: Synchronous classify-insight with injectClassification helper for frontmatter injection
-- [Phase 68]: Git commit on artifact filing: file(section): title format via git-ops.cjs
-- [Phase 68]: Cascade runs in foreground (blocking) with JSON status echoed to stdout for Larry additionalContext
-- [Phase 69]: recordDecision returns edgeType string, caller routes to persistDecisionEdge (separation of concerns)
-- [Phase 69]: CONFIRMS edge for reject (confirms existing state), INVALIDATES for approve (invalidates old assumption)
-- [Phase 69]: record-decision uses named flags for clarity in skill instructions Larry reads
-- [Phase 69]: KuzuDB edge creation best-effort with try/catch (Tier 0 principle)
-- [Phase 69]: Rejection reason enforced at CLI level (exits 1) to guarantee Decision #13 data capture
-- [Phase 70]: Pass full proactive_intelligence object (status, new, suppressed, newFindings) in post-write hook output
-- [Phase 70]: Evidence-change check before times_shown increment avoids off-by-one on re-surfaced insights
+- v1.9.3: APPROVE/REJECT/DEFER cascade, mid-session intelligence, filing completeness all shipped
+- v1.9.4: Three-layer dependency order: OPP (engine) -> CONV (entry) -> ONBD (teaching)
+- v1.9.4: 5 phases for 15 requirements -- OPP splits into engine+graph, CONV splits into routing+capture
 
 ### Pending Todos
 
@@ -89,6 +68,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-09T15:51:15.941Z
-Stopped at: Completed 70-01-PLAN.md
+Last session: 2026-04-09
+Stopped at: Roadmap created for v1.9.4
 Resume file: None
