@@ -222,6 +222,60 @@ refinements that emerged during the conversation.}
 
 Only create entries for sections where real content was discussed. Do NOT create placeholder entries for sections that weren't explored.
 
+## Step 6.1: Seed from Opportunity Bank
+
+Check if the pre-room scratchpad has banked opportunities from previous conversations. If so, migrate them into the new room so sections start with real content instead of empty.
+
+```bash
+SCRATCHPAD_DATA=$(node -e "const sp = require('$PLUGIN_ROOT/lib/core/scratchpad-ops.cjs'); console.log(JSON.stringify(sp.readScratchpad()))" 2>/dev/null || echo '{"opportunities":[]}')
+OPP_COUNT=$(echo "$SCRATCHPAD_DATA" | node -e "process.stdin.on('data',d=>{try{console.log(JSON.parse(d).opportunities.length)}catch(_){console.log(0)}})")
+```
+
+**If OPP_COUNT > 0:** Migrate scratchpad into the new room:
+
+```bash
+MIGRATE_RESULT=$(node -e "const sp = require('$PLUGIN_ROOT/lib/core/scratchpad-ops.cjs'); const result = sp.migrateToRoom('$ROOMS_HOME/<slug>'); console.log(JSON.stringify(result))" 2>/dev/null || echo '{"migrated_opportunities":0,"migrated_highlights":0}')
+```
+
+This calls `migrateToRoom()` which:
+1. Banks each opportunity to `opportunity-bank/` via `bankOpportunity()`
+2. Copies highlights to `.context/conversation-highlights.md`
+3. Clears the scratchpad after successful migration
+
+**After migration, seed room sections** from the banked opportunities. For each migrated opportunity, create an entry in the relevant section based on its domain:
+
+- Problem-related domain: entry in `problem-definition/`
+- Mirror solution exists: entry in `solution-design/`
+- Market-related domain: entry in `market-analysis/`
+- Business model evidence: entry in `business-model/`
+
+Each section entry uses this format:
+
+```markdown
+---
+source: conversation-capture
+date: {YYYY-MM-DD}
+opportunity_ref: opportunity-bank/{opportunity-filename}
+---
+
+# {Problem Statement}
+
+## Identified Approach
+{mirror_solution, if present}
+
+## Evidence
+{evidence from the opportunity}
+
+## Context
+- **Domain:** {domain}
+- **Knight Position:** {knight_position} (risk vs uncertainty)
+- **Confidence:** {confidence}
+```
+
+Tell the user: "I migrated {N} opportunities from our previous conversations into your new room. Your problem-definition/ and solution-design/ sections already have content."
+
+**If OPP_COUNT = 0:** Skip silently. No message needed.
+
 ## Step 6.5: Create Room Context Directory
 
 Create the `.context/` directory inside the room with KAIROS-compatible session files:
@@ -404,7 +458,15 @@ Report to user:
 
 ## Step 9: Close with Next Action
 
-Based on the conversation, suggest what to work on first. Reference specific gaps:
+Based on the conversation, suggest what to work on first. Reference specific gaps.
+
+**If opportunities were seeded from scratchpad (OPP_COUNT > 0):**
+
+> "I seeded your room with {N} opportunities from our previous conversations. Your problem-definition already has [specific problem from first opportunity]. Want to validate it with /mos:diagnose, or explore another section?"
+
+Reference the specific content that was migrated so the user sees the continuity between their earlier conversations and the new room.
+
+**Otherwise (no seeded opportunities):**
 
 > "Your problem definition is solid -- I captured that. But your competitive landscape is empty. Want to explore that, or should we dig deeper into your business model?"
 
