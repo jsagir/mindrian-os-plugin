@@ -116,12 +116,12 @@ Plans:
   2. Onboarding explains the opportunity bank as the universal output -- every framework interaction, every conversation capture, every room analysis feeds the same bank
   3. Knight risk vs uncertainty distinction is presented as the "why" -- MindrianOS converts uncertainty to manageable risk, and the onboarding makes this concrete with examples
   4. Returning users who have previously banked opportunities see them surfaced in their session greeting (not just onboarding -- this persists)
-**Plans**: TBD
+**Plans**: 2 plans
 **UI hint**: yes
 
 Plans:
-- [ ] 75-01: /mos:onboard three-path walkthrough + persona-specific guided experience
-- [ ] 75-02: Opportunity bank explanation + Knight framing + returning user greeting integration
+- [ ] 75-01-PLAN.md -- Rewrite /mos:onboard with mode-first structure + opportunity bank + Knight framing
+- [ ] 75-02-PLAN.md -- Opportunity bank summary in returning user greeting + context-engine update
 
 ## Progress
 

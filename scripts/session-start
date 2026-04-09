@@ -142,6 +142,40 @@ if [ -d "$ROOM_DIR" ]; then
   fi
 
   # =============================================================================
+  # OPPORTUNITY BANK SUMMARY (ONBD-04)
+  # Surface banked opportunities in returning user greeting
+  # =============================================================================
+  OPP_BANK_SUMMARY=""
+  OPP_BANK_DIR="${ROOM_DIR}/opportunity-bank"
+  if [ -d "$OPP_BANK_DIR" ]; then
+    OPP_BANK_JSON=$(node -e "
+      const ops = require('${PLUGIN_ROOT}/lib/core/opportunity-ops.cjs');
+      const opps = ops.listOpportunities('${ROOM_DIR}');
+      if (opps.length === 0) { console.log(''); process.exit(0); }
+      const sorted = opps.sort((a,b) => (b.frontmatter.confidence||0) - (a.frontmatter.confidence||0));
+      const top = sorted[0];
+      console.log(JSON.stringify({
+        count: opps.length,
+        top_problem: (top.frontmatter.problem || '').substring(0, 100),
+        top_confidence: top.frontmatter.confidence || 0,
+        uncertainty_count: opps.filter(o => o.frontmatter.knight_position === 'uncertainty').length,
+        risk_count: opps.filter(o => o.frontmatter.knight_position === 'risk').length
+      }));
+    " 2>/dev/null || echo "")
+
+    if [ -n "$OPP_BANK_JSON" ]; then
+      OPP_COUNT=$(echo "$OPP_BANK_JSON" | node -e "process.stdin.on('data',d=>{try{console.log(JSON.parse(d).count||0)}catch(_){console.log(0)}})" 2>/dev/null || echo "0")
+      if [ "$OPP_COUNT" -gt 0 ] 2>/dev/null; then
+        OPP_TOP=$(echo "$OPP_BANK_JSON" | node -e "process.stdin.on('data',d=>{try{console.log(JSON.parse(d).top_problem||'')}catch(_){console.log('')}})" 2>/dev/null || echo "")
+        OPP_CONF=$(echo "$OPP_BANK_JSON" | node -e "process.stdin.on('data',d=>{try{console.log(JSON.parse(d).top_confidence||0)}catch(_){console.log(0)}})" 2>/dev/null || echo "0")
+        OPP_UNC=$(echo "$OPP_BANK_JSON" | node -e "process.stdin.on('data',d=>{try{console.log(JSON.parse(d).uncertainty_count||0)}catch(_){console.log(0)}})" 2>/dev/null || echo "0")
+        OPP_RISK=$(echo "$OPP_BANK_JSON" | node -e "process.stdin.on('data',d=>{try{console.log(JSON.parse(d).risk_count||0)}catch(_){console.log(0)}})" 2>/dev/null || echo "0")
+        OPP_BANK_SUMMARY="[Opportunity Bank] ${OPP_COUNT} banked opportunities (${OPP_RISK} risk, ${OPP_UNC} uncertainty). Strongest: \"${OPP_TOP}\" (confidence: ${OPP_CONF}). Reference in greeting: mention the count and strongest opportunity. Suggest /mos:opportunities to review the bank."
+      fi
+    fi
+  fi
+
+  # =============================================================================
   # TIERED CONTEXT LOADING (CTX-02)
   # minimal: state summary only (~500 tokens)
   # balanced: state + user + brief proactive (~2K tokens)
@@ -154,12 +188,18 @@ if [ -d "$ROOM_DIR" ]; then
     if [ -n "$RETURNING_USER_HINT" ]; then
       context="${context}\n\n${RETURNING_USER_HINT}"
     fi
+    if [ -n "$OPP_BANK_SUMMARY" ]; then
+      context="${context}\n\n${OPP_BANK_SUMMARY}"
+    fi
   elif [ "$CONTEXT_TIER" = "rich" ]; then
     # ~5K tokens: full context with proactive analysis, learnings, and detailed nudges
     proactive_output=$("${SCRIPT_DIR}/analyze-room" "$ROOM_DIR" 2>/dev/null || echo "")
     context="\n\n--- DYNAMIC SESSION CONTEXT ---\n\n[Context Tier: rich | Archetype: ${USER_ARCHETYPE} | MCP Profile: ${MCP_PROFILE}]\n\n[Room State]\n${state_output}"
     if [ -n "$RETURNING_USER_HINT" ]; then
       context="${context}\n\n${RETURNING_USER_HINT}"
+    fi
+    if [ -n "$OPP_BANK_SUMMARY" ]; then
+      context="${context}\n\n${OPP_BANK_SUMMARY}"
     fi
     if [ -n "$user_context" ]; then
       context="${context}\n\nUser context:\n${user_context}"
@@ -173,6 +213,9 @@ if [ -d "$ROOM_DIR" ]; then
     context="\n\n--- DYNAMIC SESSION CONTEXT ---\n\n[Context Tier: balanced | Archetype: ${USER_ARCHETYPE} | MCP Profile: ${MCP_PROFILE}]\n\n[Room State]\n${state_output}"
     if [ -n "$RETURNING_USER_HINT" ]; then
       context="${context}\n\n${RETURNING_USER_HINT}"
+    fi
+    if [ -n "$OPP_BANK_SUMMARY" ]; then
+      context="${context}\n\n${OPP_BANK_SUMMARY}"
     fi
     if [ -n "$user_context" ]; then
       context="${context}\n\nUser context:\n${user_context}"
