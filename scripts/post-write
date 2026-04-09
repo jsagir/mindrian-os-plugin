@@ -84,7 +84,12 @@ if [ -n "$room_dir" ]; then
       classification: .classification,
       git_commit: .gitCommit.status,
       graph_index: .graphIndex.status,
-      proactive_intelligence: .proactiveIntelligence.status
+      proactive_intelligence: {
+        status: .proactiveIntelligence.status,
+        new: .proactiveIntelligence.new,
+        suppressed: .proactiveIntelligence.suppressed,
+        newFindings: .proactiveIntelligence.newFindings
+      }
     }' 2>/dev/null) || CASCADE_STATUS='{"cascade_status":"complete","raw":true}'
   else
     # No jq -- wrap raw output with status marker

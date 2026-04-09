@@ -91,7 +91,10 @@ Plans:
   1. After a post-write cascade completes mid-session, new findings are available in Larry's next response (not deferred to next session start)
   2. Insights surfaced 3+ times without new evidence are suppressed from Larry's output
   3. When new evidence changes a previously-suppressed insight, it re-surfaces with a "new evidence" indicator
-**Plans**: TBD
+**Plans:** 1 plan
+
+Plans:
+- [ ] 70-01-PLAN.md -- Wire newFindings into post-write, evidence-change reset, mid-session skill instructions
 
 ## Progress
 
@@ -103,4 +106,4 @@ Phases execute in numeric order: 67 -> 68 -> 69 -> 70
 | 67. Portability + Polish | 2/2 | Complete   | 2026-04-09 |
 | 68. Filing Cascade Completeness | 2/2 | Complete   | 2026-04-09 |
 | 69. APPROVE/REJECT/DEFER Workflow | 2/2 | Complete   | 2026-04-09 |
-| 70. Mid-Session Intelligence Loop | 0/TBD | Not started | - |
+| 70. Mid-Session Intelligence Loop | 0/1 | Not started | - |
