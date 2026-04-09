@@ -25,7 +25,7 @@ When session-start injects `[MindrianOS Mode Routing]` context, this skill gover
 - Within the first 2-3 exchanges, detect the user's persona through conversation signals (see Persona Detection section).
 - Once persona is detected, follow the corresponding framework chain (see Framework Chain Selection section).
 - When you identify a well-defined problem + mirror solution pair, tell the user: "I am catching a pattern here: [problem] and a potential approach: [solution]. Want me to bank that?"
-- Do NOT create a room yet. Bank to a pre-room scratchpad (Phase 74 will implement persistence).
+- Do NOT create a room yet. Bank to the persistent scratchpad at ~/.mindrian/scratchpad.json via the bank-opportunity CLI.
 - When the user says "I am ready to build" or similar, suggest transitioning to /mos:new-project with their banked patterns as seed data.
 
 ## Mode 3: Build a Room
@@ -59,3 +59,44 @@ When Brain is connected (brain-client.cjs isAvailable() returns true), call getF
   Larry asks: "What opportunity do you see?" then "How big is this market?" then "What specific problem are you solving?" then "Who else is trying?"
 
 The chain guides Larry's QUESTIONS, not the user's answers. Larry uses the chain to know what to ask next after each exchange.
+
+## Opportunity Banking During Mode 2
+
+When you identify a well-defined problem + mirror solution pair during Mode 2 conversation, bank it immediately:
+
+1. Extract from the user's own words: problem statement, proposed solution, domain
+2. Confirm with the user: "I am catching a pattern: [problem]. And a potential approach: [solution]. Want me to bank that?"
+3. If user confirms, run:
+   ```bash
+   node bin/mindrian-tools.cjs bank-opportunity '{"problem":"<extracted>","mirror_solution":"<extracted>","domain":"<detected>","evidence":"conversation with user","source_framework":"conversation","knight_position":"uncertainty","confidence":0.5}'
+   ```
+4. Tell the user: "Banked. You have [N] opportunities captured so far."
+5. Do NOT bank vague ideas. Only bank when both problem AND solution are articulated clearly enough to seed a room section.
+
+Banking thresholds:
+- Bank when: user states a clear problem AND proposes or agrees to a direction
+- Do NOT bank when: user is still brainstorming, problem is vague, no solution direction exists
+- Confidence mapping: 0.3 = speculative, 0.5 = discussed but unvalidated, 0.8 = user expressed strong conviction
+- knight_position: "uncertainty" for novel problems, "risk" for known problems with quantifiable unknowns
+
+## Scratchpad Persistence
+
+Banked opportunities and conversation highlights persist at ~/.mindrian/scratchpad.json across sessions. This means:
+
+- If the user closes Claude and returns tomorrow, their banked opportunities are still there
+- On session start (when no room exists), Larry should check the scratchpad:
+  ```bash
+  node -e "const sp = require('<plugin_root>/lib/core/scratchpad-ops.cjs'); console.log(JSON.stringify(sp.readScratchpad()))"
+  ```
+- If the scratchpad has entries, reference them: "Last time we captured [N] opportunities. Want to continue exploring, or are you ready to build a room?"
+- When the user says "I am ready to build," the scratchpad migrates into the new room automatically (see new-project seed-from-bank step)
+
+Scratchpad also tracks:
+- persona: detected user persona carries across sessions
+- framework_chain_progress: which step in the chain the user reached
+
+To update persona or chain progress:
+```bash
+node -e "const sp = require('<plugin_root>/lib/core/scratchpad-ops.cjs'); sp.updateScratchpadMeta('persona', 'researcher')"
+node -e "const sp = require('<plugin_root>/lib/core/scratchpad-ops.cjs'); sp.updateScratchpadMeta('framework_chain_progress', {chain:['Problem Exploration','JTBD','Value Proposition','Lean Canvas'],current_step:2})"
+```
