@@ -16,9 +16,9 @@
 - [x] **CONV-01**: Session-start presents 3 modes with JTBD statements: Explore (nothing saved), Explore+Capture (room builds as side effect), Build Then Work (/mos:new-project)
 - [x] **CONV-02**: Mode 2 detects user persona (TTO/Researcher/Business) within first 2-3 exchanges through Larry's questions
 - [x] **CONV-03**: Mode 2 selects Brain framework chain based on persona: TTO (tech push -> domain -> problem), Researcher (problem exploration -> JTBD -> value prop), Business (opportunity recognition -> market -> problem definition)
-- [ ] **CONV-04**: Mode 2 banks opportunities during conversation -- well-defined problem + mirror solution extracted from user's own words
+- [x] **CONV-04**: Mode 2 banks opportunities during conversation -- well-defined problem + mirror solution extracted from user's own words
 - [ ] **CONV-05**: When user is ready, banked opportunities seed a new Data Room with pre-loaded sections (not empty)
-- [ ] **CONV-06**: Pre-room scratchpad persists across sessions so Mode 1 conversations can upgrade to Mode 2 later without losing context
+- [x] **CONV-06**: Pre-room scratchpad persists across sessions so Mode 1 conversations can upgrade to Mode 2 later without losing context
 
 ## Onboarding Redesign (ONBD)
 

@@ -104,7 +104,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 74-01-PLAN.md -- bank-opportunity CLI + scratchpad-ops.cjs + conversation-mode banking instructions
+- [x] 74-01-PLAN.md -- bank-opportunity CLI + scratchpad-ops.cjs + conversation-mode banking instructions
 - [ ] 74-02-PLAN.md -- Room seeding from scratchpad in new-project.md + session-start scratchpad reading
 
 ### Phase 75: Onboarding Redesign
@@ -133,5 +133,5 @@ Phases execute in numeric order: 71 -> 72 -> 73 -> 74 -> 75
 | 71. Opportunity Extraction Engine | 2/2 | Complete   | 2026-04-09 |
 | 72. Opportunity Graph + Brain Enrichment | 2/2 | Complete   | 2026-04-09 |
 | 73. Conversation Mode Routing | 2/2 | Complete   | 2026-04-09 |
-| 74. Conversation Capture + Room Seeding | 0/2 | Not started | - |
+| 74. Conversation Capture + Room Seeding | 1/2 | In Progress|  |
 | 75. Onboarding Redesign | 0/2 | Not started | - |
