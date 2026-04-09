@@ -15,7 +15,7 @@
 
 - [x] **FILE-01**: Filing a markdown artifact triggers an automatic git commit with structured message ("file(section): artifact title")
 - [x] **FILE-02**: classify-insight result is consumed by the cascade (not fire-and-forget) and stored in artifact frontmatter as classification: field
-- [ ] **FILE-03**: Post-write cascade reports completion status to Larry via hook output (not silently swallowed)
+- [x] **FILE-03**: Post-write cascade reports completion status to Larry via hook output (not silently swallowed)
 
 ## Portability + Polish (PORT)
 

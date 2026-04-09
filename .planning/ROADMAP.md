@@ -33,7 +33,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 ## Phases
 
 - [x] **Phase 67: Portability + Polish** - macOS compat, radar registration, stale doc fixes (completed 2026-04-09)
-- [ ] **Phase 68: Filing Cascade Completeness** - Git-commit on file, classify consumption, status reporting
+- [x] **Phase 68: Filing Cascade Completeness** - Git-commit on file, classify consumption, status reporting (completed 2026-04-09)
 - [ ] **Phase 69: APPROVE/REJECT/DEFER Workflow** - Cross-subsystem impact surfacing, user decision capture, decision-as-graph-data
 - [ ] **Phase 70: Mid-Session Intelligence Loop** - Post-filing injection, repeat suppression, live intelligence during session
 
@@ -61,11 +61,11 @@ Plans:
   1. After filing a markdown artifact, a git commit exists with message format "file(section): artifact title"
   2. Filed artifacts contain a classification: field in their YAML frontmatter (populated by classify-insight)
   3. Larry receives cascade completion status in hook output (user can see "cascade complete" or "cascade failed" in session context)
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 68-01-PLAN.md -- Synchronous classify-insight + frontmatter injection + git commit step in cascade
-- [ ] 68-02-PLAN.md -- Foreground cascade in post-write + status reporting to Larry via stdout
+- [x] 68-02-PLAN.md -- Foreground cascade in post-write + status reporting to Larry via stdout
 
 ### Phase 69: APPROVE/REJECT/DEFER Workflow
 **Goal**: Users can make decisions on cross-subsystem impacts and those decisions become persistent, queryable graph data
@@ -97,6 +97,6 @@ Phases execute in numeric order: 67 -> 68 -> 69 -> 70
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 67. Portability + Polish | 2/2 | Complete   | 2026-04-09 |
-| 68. Filing Cascade Completeness | 1/2 | In Progress|  |
+| 68. Filing Cascade Completeness | 2/2 | Complete   | 2026-04-09 |
 | 69. APPROVE/REJECT/DEFER Workflow | 0/TBD | Not started | - |
 | 70. Mid-Session Intelligence Loop | 0/TBD | Not started | - |
