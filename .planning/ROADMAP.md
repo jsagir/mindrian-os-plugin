@@ -35,7 +35,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - [x] **Phase 67: Portability + Polish** - macOS compat, radar registration, stale doc fixes (completed 2026-04-09)
 - [x] **Phase 68: Filing Cascade Completeness** - Git-commit on file, classify consumption, status reporting (completed 2026-04-09)
 - [x] **Phase 69: APPROVE/REJECT/DEFER Workflow** - Cross-subsystem impact surfacing, user decision capture, decision-as-graph-data (completed 2026-04-09)
-- [ ] **Phase 70: Mid-Session Intelligence Loop** - Post-filing injection, repeat suppression, live intelligence during session
+- [x] **Phase 70: Mid-Session Intelligence Loop** - Post-filing injection, repeat suppression, live intelligence during session (completed 2026-04-09)
 
 ## Phase Details
 
@@ -91,10 +91,10 @@ Plans:
   1. After a post-write cascade completes mid-session, new findings are available in Larry's next response (not deferred to next session start)
   2. Insights surfaced 3+ times without new evidence are suppressed from Larry's output
   3. When new evidence changes a previously-suppressed insight, it re-surfaces with a "new evidence" indicator
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 70-01-PLAN.md -- Wire newFindings into post-write, evidence-change reset, mid-session skill instructions
+- [x] 70-01-PLAN.md -- Wire newFindings into post-write, evidence-change reset, mid-session skill instructions
 
 ## Progress
 
@@ -106,4 +106,4 @@ Phases execute in numeric order: 67 -> 68 -> 69 -> 70
 | 67. Portability + Polish | 2/2 | Complete   | 2026-04-09 |
 | 68. Filing Cascade Completeness | 2/2 | Complete   | 2026-04-09 |
 | 69. APPROVE/REJECT/DEFER Workflow | 2/2 | Complete   | 2026-04-09 |
-| 70. Mid-Session Intelligence Loop | 0/1 | Not started | - |
+| 70. Mid-Session Intelligence Loop | 1/1 | Complete   | 2026-04-09 |

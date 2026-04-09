@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.9.3
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 69-02-PLAN.md
-last_updated: "2026-04-09T15:19:59.096Z"
+stopped_at: Completed 70-01-PLAN.md
+last_updated: "2026-04-09T15:51:15.944Z"
 last_activity: 2026-04-09
 progress:
   total_phases: 4
-  completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
+  completed_phases: 4
+  total_plans: 7
+  completed_plans: 7
   percent: 50
 ---
 
@@ -54,6 +54,7 @@ Progress: [█████░░░░░] 50%
 | Phase 68 P02 | 3min | 2 tasks | 1 files |
 | Phase 69 P01 | 3min | 2 tasks | 4 files |
 | Phase 69 P02 | 3min | 2 tasks | 2 files |
+| Phase 70 P01 | 3min | 2 tasks | 3 files |
 
 ### Decisions
 
@@ -71,6 +72,8 @@ Progress: [█████░░░░░] 50%
 - [Phase 69]: record-decision uses named flags for clarity in skill instructions Larry reads
 - [Phase 69]: KuzuDB edge creation best-effort with try/catch (Tier 0 principle)
 - [Phase 69]: Rejection reason enforced at CLI level (exits 1) to guarantee Decision #13 data capture
+- [Phase 70]: Pass full proactive_intelligence object (status, new, suppressed, newFindings) in post-write hook output
+- [Phase 70]: Evidence-change check before times_shown increment avoids off-by-one on re-surfaced insights
 
 ### Pending Todos
 
@@ -86,6 +89,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-09T15:19:59.092Z
-Stopped at: Completed 69-02-PLAN.md
+Last session: 2026-04-09T15:51:15.941Z
+Stopped at: Completed 70-01-PLAN.md
 Resume file: None
