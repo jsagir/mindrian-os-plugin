@@ -22,6 +22,7 @@ This skill activates when `scripts/resolve-room` finds any active room with entr
 | /mos:status | All HIGH + MEDIUM findings grouped by type. |
 | /mos:room --insights | Full analysis including LOW with interpretation. |
 | Methodology session | NEVER interrupt. Save for next SessionStart. |
+| PostToolUse (cascade complete) | Max 2 NEW findings from cascade. Present for APPROVE/REJECT/DEFER. |
 
 ## Gap Detection
 
@@ -75,6 +76,66 @@ Same domain/customer/risk/theme in 3+ artifacts from different methodologies. Ph
 2. Never interrupt methodology
 3. Stage filtering: Pre-Opportunity suppresses financial/legal gaps. Investment elevates all gaps.
 4. Never repeat unchanged findings consecutive sessions
+
+## After Filing: Decision Capture
+
+When the post-write cascade completes and returns `newFindings` in `cascade_status.proactive_intelligence`, present findings to the user for decision.
+
+### When to Present
+
+- ONLY when cascade_status includes `proactive_intelligence.newFindings` with 1+ items
+- ONLY present findings with confidence >= 0.60
+- Max 2 findings per filing (pick highest confidence)
+- NEVER present during a methodology session (save for next filing)
+- NEVER re-present findings already marked `decided: true`
+
+### How to Present
+
+Format each finding as a natural observation, not a system alert:
+
+"I noticed something while filing that [artifact title]. [Finding message]. Confidence: [0.xx]
+
+This [CONTRADICTS/creates a GAP in/CONVERGES WITH] your [section name].
+
+What would you like to do?
+- **APPROVE** -- accept this impact (I'll note the cross-subsystem connection)
+- **REJECT** -- disagree with this finding (tell me why -- your reasoning becomes data)
+- **DEFER** -- park this for later review"
+
+### How to Record
+
+When the user responds, run this command via Bash:
+
+For APPROVE:
+```bash
+node bin/mindrian-tools.cjs record-decision --room ROOM_PATH --key "INSIGHT_KEY" --decision approve
+```
+
+For REJECT (reason is REQUIRED -- ask for it if not provided):
+```bash
+node bin/mindrian-tools.cjs record-decision --room ROOM_PATH --key "INSIGHT_KEY" --decision reject --reason "USER_REASON_HERE"
+```
+
+For DEFER:
+```bash
+node bin/mindrian-tools.cjs record-decision --room ROOM_PATH --key "INSIGHT_KEY" --decision defer
+```
+
+Where:
+- ROOM_PATH is the resolved room directory path
+- INSIGHT_KEY is the finding's dedup key (format: `type:subtype:section` for gaps, `convergence:term` for convergence, `contradiction:section1:section2` for contradictions)
+
+If the finding references specific artifacts with IDs, add `--source-artifact` and `--target-artifact` flags to create a KuzuDB edge.
+
+### Rejection is Data (Decision #13)
+
+When a user rejects a finding, their reason is the most valuable signal in the system. ALWAYS capture the reason. If the user says just "no" or "reject", ask: "Got it -- can you tell me briefly why? Your reasoning helps me learn what matters for this venture."
+
+### After Recording
+
+Confirm briefly: "Noted -- [decision]. [If reject: Your reasoning is now part of the room's intelligence.]"
+
+Do NOT follow up with more findings. One decision interaction per filing. If there were 2 findings presented, capture both decisions before moving on.
 
 ## analyze-room Signal Format
 
