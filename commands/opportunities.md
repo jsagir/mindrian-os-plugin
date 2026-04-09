@@ -57,7 +57,7 @@ This is the **confirm-first pattern**: Larry presents, user decides. Nothing is 
 
 ### list
 
-Show all filed opportunities from your opportunity-bank with status, knight_position, and confidence.
+Show filed opportunities with optional filters (--domain, --knight, --min-confidence).
 
 **Display format:**
 
@@ -70,7 +70,17 @@ This unified table works for both grant-scanned and cascade-extracted opportunit
 - Grant opportunities: Source = funder name, Knight Position = 'risk' (grants are known risk), Confidence = relevance_score
 - Cascade opportunities: Source = source_framework, Knight Position = from schema, Confidence = from schema
 
-**CLI:** `mindrian-tools.cjs opportunity list [roomDir]`
+### Filter Flags
+
+The list subcommand supports filter flags to narrow results:
+
+- `--domain <name>` -- Filter by domain (partial match, case-insensitive). Example: `--domain market-analysis`
+- `--knight <position>` -- Filter by Knight position: `risk`, `uncertainty`, or `mixed`
+- `--min-confidence <N>` -- Filter by minimum confidence score (0.0-1.0). Example: `--min-confidence 0.7`
+
+Flags can be combined: `--domain healthcare --knight uncertainty --min-confidence 0.5`
+
+**CLI:** `mindrian-tools.cjs opportunity list [roomDir] --domain X --knight Y --min-confidence N`
 **MCP:** `data_room` tool with command `list-opportunities`
 
 ### file
