@@ -40,7 +40,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 ## Phases
 
 - [x] **Phase 71: Opportunity Extraction Engine** - Universal schema, framework side-effects, persistence to opportunity-bank/ (completed 2026-04-09)
-- [ ] **Phase 72: Opportunity Graph + Brain Enrichment** - KuzuDB integration, Brain cross-referencing against 100 frameworks
+- [x] **Phase 72: Opportunity Graph + Brain Enrichment** - KuzuDB integration, Brain cross-referencing against 100 frameworks (completed 2026-04-09)
 - [ ] **Phase 73: Conversation Mode Routing** - Three entry modes, persona detection, Brain framework chain selection
 - [ ] **Phase 74: Conversation Capture + Room Seeding** - Opportunity banking during conversation, room seeding from banked opportunities, persistent scratchpad
 - [ ] **Phase 75: Onboarding Redesign** - Three entry paths taught, opportunity bank explained, Knight framing, returning user greeting
@@ -74,7 +74,7 @@ Plans:
 
 Plans:
 - [x] 72-01-PLAN.md -- KuzuDB Opportunity node + ADDRESSES/IN_DOMAIN edges + indexOpportunity + filter flags
-- [ ] 72-02-PLAN.md -- Brain enrichment: suggestValidationSteps + enrichOpportunity with FEEDS_INTO chains
+- [x] 72-02-PLAN.md -- Brain enrichment: suggestValidationSteps + enrichOpportunity with FEEDS_INTO chains
 
 ### Phase 73: Conversation Mode Routing
 **Goal**: Every session starts with persona-aware mode selection that routes to the right Brain framework chain
@@ -131,7 +131,7 @@ Phases execute in numeric order: 71 -> 72 -> 73 -> 74 -> 75
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 71. Opportunity Extraction Engine | 2/2 | Complete   | 2026-04-09 |
-| 72. Opportunity Graph + Brain Enrichment | 1/2 | In Progress|  |
+| 72. Opportunity Graph + Brain Enrichment | 2/2 | Complete   | 2026-04-09 |
 | 73. Conversation Mode Routing | 0/2 | Not started | - |
 | 74. Conversation Capture + Room Seeding | 0/2 | Not started | - |
 | 75. Onboarding Redesign | 0/2 | Not started | - |
