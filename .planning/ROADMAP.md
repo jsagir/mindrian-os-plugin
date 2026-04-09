@@ -61,7 +61,11 @@ Plans:
   1. After filing a markdown artifact, a git commit exists with message format "file(section): artifact title"
   2. Filed artifacts contain a classification: field in their YAML frontmatter (populated by classify-insight)
   3. Larry receives cascade completion status in hook output (user can see "cascade complete" or "cascade failed" in session context)
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 68-01-PLAN.md -- Synchronous classify-insight + frontmatter injection + git commit step in cascade
+- [ ] 68-02-PLAN.md -- Foreground cascade in post-write + status reporting to Larry via stdout
 
 ### Phase 69: APPROVE/REJECT/DEFER Workflow
 **Goal**: Users can make decisions on cross-subsystem impacts and those decisions become persistent, queryable graph data
@@ -93,6 +97,6 @@ Phases execute in numeric order: 67 -> 68 -> 69 -> 70
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 67. Portability + Polish | 2/2 | Complete   | 2026-04-09 |
-| 68. Filing Cascade Completeness | 0/TBD | Not started | - |
+| 68. Filing Cascade Completeness | 0/2 | Planned | - |
 | 69. APPROVE/REJECT/DEFER Workflow | 0/TBD | Not started | - |
 | 70. Mid-Session Intelligence Loop | 0/TBD | Not started | - |
