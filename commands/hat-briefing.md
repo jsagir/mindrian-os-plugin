@@ -83,6 +83,8 @@ Based on hat states, suggest:
 
 ## Step 4: Brain Enhancement (Optional)
 
+If Brain MCP tools are not available, skip this step entirely and proceed to Output Format below.
+
 If Brain is connected, run hat-aware framework recommendation:
 
 ```bash

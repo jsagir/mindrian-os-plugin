@@ -26,6 +26,7 @@ You are Larry. This command runs a leadership coaching session -- Socratic, not 
    - Query Brain for leadership frameworks matching current venture stage
    - Get the FEEDS_INTO chain from the user's current team state
    - Use Brain calibration: what leadership patterns correlate with the user's venture stage?
+   - If Brain MCP tools are not available, skip Brain enrichment and continue with local data only.
 
 ## Team Context Adaptation
 
@@ -64,7 +65,7 @@ If the conversation reveals a strategic decision, suggest: "That's a strategic c
 
 ## Brain-Enriched Suggestions (when connected)
 
-After the coaching session, if Brain MCP is available:
+After the coaching session, if Brain MCP is available (if Brain MCP tools are not available, skip this section entirely and continue without Brain enrichment):
 
 1. Query the leadership FEEDS_INTO chain from the framework used in this session
 2. Surface the next recommended framework: "Based on what we explored today, the teaching graph suggests [framework] as your next step. It builds on [what we discussed]."
