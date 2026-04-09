@@ -83,7 +83,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. On session start, user sees three modes with JTBD statements: Explore (just talk, nothing saved), Explore+Capture (room builds as you talk), Build Then Work (jump to /mos:new-project)
   2. In Mode 2, Larry detects user persona (TTO, Researcher, or Business) within 2-3 exchanges through targeted questions
-  3. After persona detection, Larry follows the corresponding Brain framework chain: TTO (tech push -> domain -> problem), Researcher (problem -> JTBD -> value prop), Business (opportunity -> market -> problem definition)
+  3. After persona detection, Larry follows the corresponding Brain framework chain: TTO (tech push -> domain -> problem), Researcher (problem exploration -> JTBD -> value prop), Business (opportunity -> market -> problem definition)
   4. Mode 1 and Mode 3 work without Brain connection (Tier 0 principle)
 **Plans**: 2 plans
 **UI hint**: yes
@@ -101,11 +101,11 @@ Plans:
   2. User can say "I'm ready to build" and banked opportunities seed a new Data Room with pre-loaded sections (problem-definition, solution-design, market-analysis populated from conversation, not empty)
   3. Pre-room scratchpad persists across sessions -- user can close Claude, return tomorrow, and Mode 1 conversations from previous sessions are still available to upgrade to Mode 2
   4. Scratchpad contents survive session boundaries without requiring a room to exist
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 74-01: Real-time opportunity extraction during Mode 2 conversation + banking flow
-- [ ] 74-02: Room seeding from banked opportunities + persistent pre-room scratchpad
+- [ ] 74-01-PLAN.md -- bank-opportunity CLI + scratchpad-ops.cjs + conversation-mode banking instructions
+- [ ] 74-02-PLAN.md -- Room seeding from scratchpad in new-project.md + session-start scratchpad reading
 
 ### Phase 75: Onboarding Redesign
 **Goal**: New and returning users understand all three entry paths and the opportunity bank as universal output

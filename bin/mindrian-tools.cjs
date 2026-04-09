@@ -17,6 +17,7 @@ const opportunityOps = require('../lib/core/opportunity-ops.cjs');
 const personaOps = require('../lib/core/persona-ops.cjs');
 const reasoningOps = require('../lib/core/reasoning-ops.cjs');
 const visualOps = require('../lib/core/visual-ops.cjs');
+const scratchpadOps = require('../lib/core/scratchpad-ops.cjs');
 
 const USAGE = `Usage: mindrian-tools.cjs <command> <subcommand> [roomDir] [--raw]
 
@@ -57,6 +58,7 @@ Commands:
   visualize chain [roomDir]      Generate methodology chain Mermaid diagram
   visualize mermaid [roomDir] [type]  Output raw Mermaid syntax to stdout
   cascade [roomDir] [filePath]       Run intelligence cascade on a filed artifact
+  bank-opportunity [roomDir] <json>   Bank an opportunity from conversation (room or scratchpad)
   record-decision --room DIR --key KEY --decision approve|reject|defer [--reason "..."] [--source-artifact ID] [--target-artifact ID]
                                      Record user decision on a proactive intelligence finding
   detect-integrations                Detect all integration statuses (env, MCP, filesystem)`;
@@ -609,6 +611,35 @@ async function main() {
         process.stdout.write(JSON.stringify(rdOutput, null, 2));
       }
       process.exit(0);
+      break;
+    }
+
+    case 'bank-opportunity': {
+      // argv[1] could be roomDir or JSON. If it parses as JSON, no roomDir given.
+      let bkRoom = null;
+      let bkJson = argv[1];
+      if (argv[2]) {
+        // Two args: roomDir + JSON
+        bkRoom = argv[1];
+        bkJson = argv[2];
+      }
+      if (!bkJson) error('bank-opportunity requires a JSON argument');
+      let bkData;
+      try { bkData = JSON.parse(bkJson); } catch (_e) { error('Invalid JSON for bank-opportunity'); }
+
+      // If room exists, bank directly to room
+      if (bkRoom) {
+        const fs = require('fs');
+        if (fs.existsSync(require('path').resolve(bkRoom))) {
+          const result = opportunityOps.bankOpportunity(bkRoom, bkData);
+          output(result, raw, JSON.stringify(result));
+          break;
+        }
+      }
+
+      // No room or room not found -- bank to scratchpad
+      const spResult = scratchpadOps.writeScratchpadEntry('opportunity', bkData);
+      output(spResult, raw, JSON.stringify(spResult));
       break;
     }
 
