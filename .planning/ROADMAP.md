@@ -60,9 +60,9 @@ Plans:
   2. Facts stored with valid_from timestamps and can be invalidated (valid_from/invalidated_at lifecycle works)
   3. Session history (L2) and conversation fragments (L3) persist across Claude restarts
   4. Assumptions have validity status (untested/supported/contradicted/stale) that updates when new evidence is filed
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 78-01-PLAN.md -- Schema + L0 identity + L1 facts (memory-ops.cjs foundation)
+- [x] 78-01-PLAN.md -- Schema + L0 identity + L1 facts (memory-ops.cjs foundation)
 - [ ] 78-02-PLAN.md -- L2 sessions + L3 fragments + assumptions tracking
 
 ### Phase 79: SQLite Migration + Cleanup
@@ -206,7 +206,7 @@ Phases 84 and 85 can run parallel after 80+82 complete.
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 77. SQLite Foundation | 2/2 | Complete | 2026-04-10 |
-| 78. Memory Layer + Assumptions | 0/? | Not started | - |
+| 78. Memory Layer + Assumptions | 1/2 | In Progress|  |
 | 79. SQLite Migration + Cleanup | 0/? | Not started | - |
 | 80. De Stijl Component Library + App Foundation | 0/? | Not started | - |
 | 81. MCP Server Core | 0/? | Not started | - |

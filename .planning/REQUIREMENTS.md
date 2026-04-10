@@ -8,7 +8,7 @@
 - [x] **SQLITE-01**: Room graph stored in SQLite (nodes + edges tables) at room/.mindrian/room.db replacing .lazygraph/
 - [x] **SQLITE-02**: All 27 lazygraph-ops.cjs exports work identically with SQLite backend (same function signatures)
 - [x] **SQLITE-03**: WAL mode enabled for concurrent read access (plugin + MCP server simultaneously)
-- [ ] **SQLITE-04**: Memory layer: identity table (L0), facts table with valid_from/invalidated_at (L1), sessions table (L2), fragments table (L3)
+- [x] **SQLITE-04**: Memory layer: identity table (L0), facts table with valid_from/invalidated_at (L1), sessions table (L2), fragments table (L3)
 - [ ] **SQLITE-05**: Assumption tracking table with validity lifecycle (untested/supported/contradicted/stale) and evidence linking
 - [ ] **SQLITE-06**: Natural language graph queries -- Larry translates user questions to SQL, no Cypher exposure to users
 - [ ] **SQLITE-07**: Migration tool converts existing .lazygraph/ data to room.db (or rebuilds from artifacts)
@@ -98,7 +98,7 @@
 | SQLITE-01 | Phase 77: SQLite Foundation | Complete |
 | SQLITE-02 | Phase 77: SQLite Foundation | Complete |
 | SQLITE-03 | Phase 77: SQLite Foundation | Complete |
-| SQLITE-04 | Phase 78: Memory Layer + Assumptions | Pending |
+| SQLITE-04 | Phase 78: Memory Layer + Assumptions | Complete |
 | SQLITE-05 | Phase 78: Memory Layer + Assumptions | Pending |
 | SQLITE-06 | Phase 79: SQLite Migration + Cleanup | Pending |
 | SQLITE-07 | Phase 79: SQLite Migration + Cleanup | Pending |
