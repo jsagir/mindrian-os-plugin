@@ -16,3 +16,4 @@
 | 12 | Assumptions are first-class | Every claim has validity status. Tracking validity is #1 underserved outcome. |
 | 13 | Rejection is data | "Why not" teaches as much as "yes." Rejection reason becomes graph node. |
 | 14 | Bidirectional stage progression | Ventures can regress. System supports regression with history preservation. |
+| 15 | ICM Layer 0 everywhere | Every directory gets ROOM.md -- no exceptions. Folders without identity cause misfiling and lost context. This is the contract between the folder and every agent that touches it. |

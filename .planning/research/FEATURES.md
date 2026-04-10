@@ -1,181 +1,150 @@
-# Feature Research
+# Feature Landscape
 
-**Domain:** Context engineering optimization for AI coding assistant plugin (Claude Code)
-**Researched:** 2026-04-07
-**Confidence:** HIGH (verified against Claude Code docs, ecosystem tools, measured baselines)
+**Domain:** MCP Intelligence Server with Memory System and Interactive UI
+**Researched:** 2026-04-09
+**Milestone:** v2.0 Mindrian Platform -- SQLite + MCP Server
 
-## Feature Landscape
+## Table Stakes
 
-### Table Stakes (Users Expect These)
+Features users expect from a production MCP server with 20+ tools, memory, and interactive UI. Missing = product feels incomplete or unprofessional.
 
-Features that any context-aware Claude Code plugin must have. MindrianOS already ships partial implementations of several -- this milestone completes them.
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| Hierarchical tool router (keep 9 routers, not 23 flat tools) | LLMs degrade at 20+ tools -- empirically proven. GitHub Copilot cut 40 to 13 for measurable gains. Block rebuilt 30+ Linear tools to 2. MindrianOS already has 9 routers covering 64 commands in tool-router.cjs. | Already built | Do NOT expand to 23 flat tools as the milestone doc suggests. Add new commands as subcommands within existing routers. |
+| Server instructions for tool orchestration | MCP spec feature (Nov 2025) that teaches LLMs multi-step workflows. GPT-4 Mini showed +60% success rate with instructions vs without. This IS where "Larry Lite" lives -- not as personality, but as methodology instinct. | Low | Declare in McpServer init response. Focus on tool relationships and workflow patterns, not personality directives. |
+| Outcome-oriented tool design | Industry consensus (Phil Schmid, MCP Bundles, Workato): tools should return complete outcomes, not CRUD operations. "track_order(email)" returns full status, not separate get_order + get_shipping + get_tracking. | Med | Audit existing 9 routers for outcome-orientation. Some currently dispatch to individual CLI commands rather than composing results. |
+| SQLite WAL-mode concurrent access | KuzuDB abandoned Oct 2025 (archived on GitHub). SQLite WAL mode solves MCP/plugin concurrent writes -- the actual blocker for co-development. Every serious embedded DB use case in 2026 uses this. | Med | better-sqlite3 is the correct choice. WAL mode is one pragma. Room.db at room/.mindrian/room.db replaces .lazygraph/ directory. |
+| Graph tables (nodes, edges, concepts) | Replacing .lazygraph/ KuzuDB schema. 19 edge types already defined in lazygraph-ops.cjs (INFORMS, CONTRADICTS, CONVERGES, ENABLES, INVALIDATES, etc). | Med | Single replacement point: lazygraph-ops.cjs. 24+ files touch KuzuDB but 90% route through this one module. |
+| Memory L0: Identity persistence | System must remember who the user is, project context, core preferences across sessions. Every memory system starts here -- MemPalace, Mem0, Claude's native memory all have this tier. | Low | One row per identity key. Rarely changes. Partially exists in STATE.md but not queryable or persistent across rooms. |
+| Memory L1: Temporal facts with validity windows | MemPalace (April 2026, 96.6% LongMemEval recall) proved temporal knowledge graphs with validity windows are SOTA. Facts have valid_from/valid_to; invalidation marks end dates without deletion. | Med | SQLite schema: entity, predicate, object, valid_from, valid_to, source, confidence. Enables "what was true about X on date Y?" queries. |
+| Memory L2: Session continuity | Session-level recall so Larry knows what happened in previous sessions. MemPalace showed +15.2% gains in multi-session recall vs turn-level approaches. | Med | session_id, started_at, ended_at, summary, key_decisions, room_path. Populated at session end via hook. |
+| Memory L3: Conversation fragments | Important quotes, specific instructions, exchanges worth preserving verbatim. The "drawer" level in MemPalace's palace metaphor. | Low | fragment_id, session_id, content, importance_score, tags. Selective storage -- not full conversation history. |
+| MCP Apps dashboard rendering | MCP Apps (SEP-1865, released Jan 2026) is THE official standard for in-chat interactive UI. Co-developed by Anthropic + OpenAI. Supported in Claude, VS Code Insiders, ChatGPT, Goose. | High | @modelcontextprotocol/ext-apps SDK. Tools declare _meta.ui.resourceUri pointing to ui:// resources. HTML rendered in sandboxed iframes. Bidirectional comms via postMessage JSON-RPC. |
+| Assumption tracking with validity lifecycle | MindrianOS Key Decision #12: "Assumptions are first-class entities." Every claim needs untested/supported/contradicted/stale status. Opportunity Score 18 -- highest underserved outcome. | Med | SQLite table: assumption_id, claim, section, status (enum), evidence[], tested_at, invalidated_by. Status transitions triggered by new evidence, time elapsed, or user override. |
+| Natural language graph queries | Users should never see SQL or Cypher. Larry translates questions to structured queries. This is a standard expectation for any graph-backed intelligence system in 2026. | Med | Pattern: user question -> Larry generates SQL -> execute against room.db -> format results as narrative response. |
+| Error handling with recovery suggestions | MCP best practice: every error response includes what went wrong AND what to try instead. Not just "tool failed" but "tool failed because X, try Y instead." | Low | Wrap all tool handlers with try/catch returning structured { error, suggestion, alternative_tool }. |
+| Tool response with "Suggested Next" | Already implemented in tool-router.cjs. Every response includes next tool + args + rationale for pipeline chaining. | Already built | This IS the MWP cascade pattern via MCP. Keep and enhance. |
 
-| Feature | Why Expected | Complexity | Depends On | Notes |
-|---------|--------------|------------|------------|-------|
-| **CLAUDE.md diet (41KB to 20KB)** | Every token of CLAUDE.md is taxed on every interaction. 41KB = ~10K tokens of permanent overhead. Community consensus: keep under 2K tokens (8KB). MindrianOS is 5x over. | MEDIUM | Nothing -- standalone refactor | Extract theory/architecture to `references/` docs. Keep only routing instructions, identity, and UI enforcement in CLAUDE.md. Includes already add 5.6KB on top. Move moat/architecture/decisions to reference docs loaded on-demand. |
-| **Progressive skill loading (stubs + on-demand)** | 55KB of skills always loaded = ~14K tokens. Ecosystem standard is lazy-loaded skills -- summary metadata first, full body only when triggered. Claude Code itself uses this pattern for MCP tool discovery (95% reduction). | HIGH | Skill refactoring | Split each SKILL.md into frontmatter stub (~200 bytes) + full body. Stub loaded at session start, body loaded when skill activates. 7 skills x 5-7KB each = massive savings. |
-| **Context window usage monitoring** | Claude Code shows token % in terminal. Plugins that consume context must be transparent about their own overhead. Users expect to know "how much of my window did the plugin eat?" | LOW | Existing `context-monitor` script | Already partially built. Enhance with plugin-specific breakdown: CLAUDE.md tokens, skills tokens, hook injection tokens, room state tokens. |
-| **Tiered context loading by budget** | When context is 70%+ full, loading 5K of room state is wasteful. Ecosystem pattern: tier loading based on remaining budget (minimal/balanced/rich). | LOW | Existing `session-start` hook | Already implemented (CTX-02). Refine thresholds and add skill-level tiering. |
-| **STATE.md caching with TTL** | Recomputing full room state every session wastes hook execution time. If room hasn't changed, serve cached STATE.md. | MEDIUM | `compute-state` script, file watcher | Hash room directory tree. If hash matches cached hash, skip recompute. TTL of 1 hour for time-sensitive data (deadlines, opportunity state). |
-| **Learnings rotation (bounded history)** | `.learnings.md` grows unbounded across sessions. Old learnings become noise, not signal. Unbounded files are a known context engineering anti-pattern. | LOW | Nothing -- standalone | Cap at 20 most recent entries. Rotate on write. Archive older entries to `.learnings-archive.md` (not loaded). |
-| **Hook version headers** | Known Claude Code issue (Issue #18517, #15642): plugin hooks point to stale cached versions after updates. Hooks must self-identify their version. | LOW | `plugin.json` version field | Each hook script reads plugin.json version, compares to expected. Warns if stale. Since Claude Code 2.0.70, native auto-update exists for marketplace plugins, but self-hosted installs still need this. |
+## Differentiators
 
-### Differentiators (Competitive Advantage)
+Features that set MindrianOS apart from generic MCP servers. Not expected, but high-value for an intelligence platform.
 
-Features that go beyond what any existing Claude Code plugin does. These leverage MindrianOS's unique ICM hierarchy.
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| Intelligence cascade via MCP | Post-write triggers: graph-index -> HSI -> reverse-salients -> presentation. Already works in CLI hooks. MCP tools must fire the same cascade for surface parity. No other MCP server has write-triggered intelligence pipelines. | Med | runCascade() referenced in tool-router.cjs. Cascade must fire identically whether user is on CLI (hooks) or Desktop/Cowork (MCP). |
+| Cross-subsystem contradiction detection | When a fact in one room section contradicts another section, the system catches it automatically. MemPalace does this for simple facts; MindrianOS does it for venture intelligence across hierarchically organized sections. | High | Combines temporal facts (L1) + graph edges (CONTRADICTS, INVALIDATES) + proactive intelligence loop. This is the moat -- integration of 7 MWP layers. |
+| De Stijl interactive knowledge graph as MCP App | Cytoscape.js graph visualization rendered in-chat via MCP Apps iframe. Users click nodes, explore connections, filter by edge type -- inside Claude/ChatGPT. No context window consumed by graph rendering. | High | ext-apps SDK. HTML+JS bundle served as ui:// resource. Bidirectional: graph clicks trigger callServerTool() for deeper exploration. Existing dashboard HTML generator provides the template. |
+| Wiki view as MCP App | Room sections as navigable wiki pages rendered in-chat. Nodes = pages, edges = hyperlinks. Interactive exploration without consuming context tokens. | High | Second MCP App. Reuse existing wiki HTML generator from exports. Add callServerTool() for "dive deeper into this section" interactions. |
+| Assumption validity lifecycle engine | Automated tracking: untested -> tested (with evidence link) -> supported/contradicted -> stale (time-based decay). No other MCP server or memory system tracks claim validity with evidence linking. | Med | Status transitions triggered by: new evidence filed (auto-detect via graph-index), time elapsed (configurable staleness threshold), user override. Graph edges link assumptions to supporting/contradicting evidence. |
+| Larry Lite via server instructions | Not a personality -- a 200-line methodology instinct that teaches any host LLM WHEN to use WHICH tool, in WHAT sequence. Encodes mode engine calibration (40:30:20:10 conceptual:storytelling:problem-solving:assessment) as tool workflow guidance. | Med | Server instructions field in MCP init. Focus on: tool ordering rules (always room_state before methodology), constraint sequences, stage-appropriate tool selection. Anti-pattern: personality directives in instructions. |
+| Proactive intelligence at session start | MCP server computes catch-up summary when connected: what changed since last session, new contradictions, convergence signals, stale assumptions. No other MCP server provides session-aware onboarding. | Med | session-catchup.cjs already exists. Expose as MCP resource (session://catchup) or initial prompt containing delta summary. Memory L2 sessions table enables "last session" comparison. |
+| Bidirectional stage progression tracking | Ventures regress. When market feedback invalidates a supported assumption, the stage can move backward with full history preservation. Forward-only progress trackers miss this reality. | Med | Memory L1 temporal facts + assumption status changes = automatic regression detection. History preserved via valid_from/valid_to on all facts. |
+| Rejection as graph data | When user rejects a Larry suggestion, the reason becomes a graph node. "Why not" teaches the system as much as "yes." Negative signal capture is unique to MindrianOS. | Low | rejection_id, tool_name, suggestion, reason, timestamp. Node type in graph. Feeds back into Larry Lite's server instructions as avoidance patterns over time. |
+| Multi-room memory isolation with cross-room opt-in | Each room gets its own room.db with isolated graph + memory. Cross-room queries possible but explicitly opt-in. Privacy by default, synthesis by choice. | Med | room/.mindrian/room.db per room. Memory tables scoped by room. Cross-room = ATTACH database in SQLite for join queries across rooms. |
 
-| Feature | Value Proposition | Complexity | Depends On | Notes |
-|---------|-------------------|------------|------------|-------|
-| **ICM-driven context traversal** | No other plugin uses folder hierarchy as context routing. Instead of flat-loading everything, traverse Layer 0 (identity) -> Layer 1 (routing) -> Layer 2 (room state) -> load ONLY relevant skills/references. This is MindrianOS's architectural moat applied to context. | HIGH | ICM hierarchy (already built), skill stubs | The hierarchy IS the context budget. Each layer decides what the next layer loads. Layer 0 (STATE.md venture_stage) determines which skills are relevant. A "seed-stage" venture doesn't need financial-model skills loaded. |
-| **Per-room context profiles (.context-profile.json)** | Auto-generated from usage patterns: which skills fire most, which room sections get accessed, which Brain queries run. Next session pre-loads only what this room actually uses. | MEDIUM | Usage analytics (existing `track-analytics`), skill stubs | No other plugin personalizes context loading per project. Most load the same payload regardless of what the user does. This is the "Netflix recommendation" for context. |
-| **Proactive context windowing at archetype thresholds** | Instead of reactive `/clear` suggestions, the system proactively switches to concise mode at archetype-specific thresholds (student: 65%, venturist: 75%, researcher: 78%). Preemptive, not reactive. | MEDIUM | Archetype detection (existing `user-archetype.cjs`), context-monitor bridge | Existing implementation handles thresholds. Enhancement: auto-shed low-priority context (proactive intelligence detail, learnings) before suggesting `/clear`. Shed silently, not with warnings. |
-| **Stable prefix optimization for prompt caching** | Claude's prompt cache requires exact prefix matching. Session-start already separates stable prefix from dynamic suffix (lines 28-57 of session-start). Formalizing this enables cache hits across sessions -- the stable prefix never changes, so subsequent API calls within a session reuse the cached prefix. | MEDIUM | Session-start hook refactoring | Cache hierarchy: tools -> system -> messages. CLAUDE.md content is in system prompt. If CLAUDE.md prefix is stable (identity + routing), it caches. Dynamic room state goes in the suffix after the cache breakpoint. Current session-start already does this partially. |
-| **Delta-based STATE.md updates** | Instead of full STATE.md recompute, detect what changed since last compute (new files, modified files, deleted files) and update only affected sections. Reduces hook execution time from 2+ seconds to <500ms for unchanged rooms. | HIGH | `compute-state` script refactoring | Use directory tree hash + per-section file hashes. On session start, compare hashes. Only recompute sections with changes. Store hash manifest in `.mindrian/state-hashes.json`. |
-| **Context compression for Brain responses** | Brain MCP queries return rich graph data. Cache responses with 24h TTL, serve summaries instead of raw graph data in constrained contexts. | MEDIUM | Brain client (existing `brain-client.cjs`) | Brain responses are deterministic for same query. Cache in `.mindrian/brain-cache/`. Key = query hash. Serve compressed summary when context > 60%. |
-| **npm distribution with integrity verification** | Ship via npm as primary install channel. Include git commit hash verification to prevent MITM on self-hosted installs. Native installer pattern for marketplace. | MEDIUM | Release process, `publish-ops` script | npm is no longer recommended for Claude Code itself (native installer preferred), but for PLUGINS npm remains the standard distribution. Add `--integrity` flag to verify package hash against published manifest. |
+## Anti-Features
 
-### Anti-Features (Commonly Requested, Often Problematic)
+Features to explicitly NOT build. Each would dilute the product or fight existing architecture.
 
-Features that seem valuable but create problems in this specific domain.
-
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| **Real-time token counting** | "Show me exact token count at all times" | Token counting requires tokenizer (tiktoken or similar), adds dependency, and the count is approximate anyway since Claude Code's internal system prompt is opaque. Claude Code already shows percentage in statusline. | Use the existing percentage-based context-monitor. Enhance with category breakdown (plugin overhead vs conversation), not exact counts. |
-| **Automatic context pruning (delete old messages)** | "Auto-delete old conversation turns to free space" | Claude Code manages its own compaction (server-side). Interfering with message history causes coherence loss. Plugin cannot and should not modify conversation state. | Proactive shedding of PLUGIN-injected context (room state, intelligence, learnings) -- the parts the plugin controls. Never touch conversation history. |
-| **Per-file token budgets** | "Each skill file gets a max token budget" | Token budgets per file create arbitrary constraints. A 5KB skill that fires once is fine. A 500-byte skill that fires every turn is worse. Budget should be aggregate, not per-file. | Aggregate session budget with tiered loading. Track cumulative plugin overhead, not individual file sizes. |
-| **LLM-based context summarization** | "Use Claude to summarize context before loading" | Adds an LLM call to every session start. Increases latency (2-5 seconds), costs tokens, and the summarization itself consumes context window. Defeats the purpose. | Extractive compression: rule-based selection of relevant sections based on room state and archetype. No LLM in the hot path. |
-| **Cross-session memory database (SQLite/Redis)** | "Store all context in a database for retrieval" | Violates ICM principle: filesystem IS the architecture. Adds dependency, creates dual source of truth, breaks "every output is an edit surface." | `.mindrian/` directory with JSON/MD files. State in filesystem, queryable by scripts. Already proven with registry.json, brain-cache, bridge files. |
-| **Dynamic skill injection mid-conversation** | "Load new skills when user mentions a topic" | Mid-conversation context injection is unreliable. Claude may not notice new system instructions added after conversation start. Creates inconsistent behavior. | Pre-load skill stubs at session start. Full skill body loads on first activation (explicit trigger), not on keyword detection. |
-| **Compression via external embedding/RAG** | "Embed room content in Pinecone, retrieve on demand" | Adds infrastructure dependency (Pinecone), breaks Tier 0 "no dependencies" promise, retrieval quality varies, and latency is 1-3 seconds per query. | Keep context loading filesystem-based. Brain MCP handles RAG for enrichment (optional). Room context stays local and deterministic. |
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| 23 flat MCP tools | LLMs degrade above 20 tools -- GitHub Copilot and Block both proved fewer = better. The milestone doc says "23 tools in 3 tiers" but tool-router.cjs already solves this with 9 hierarchical routers covering 64 commands. Expanding to 23 flat tools would REGRESS tool selection quality. | Keep the 9-router pattern. New Brain/Room/Graph capabilities become subcommands within existing routers (e.g., brain_ask becomes a subcommand of the intelligence router). |
+| Full personality in server instructions | MCP blog (Nov 2025) explicitly warns: personality directives in server instructions "don't work." Instructions are for tool workflow guidance. Larry's personality belongs in the plugin skills layer, not the MCP server. | Larry personality stays in skills/agents (plugin layer). Larry Lite = methodology instinct only -- tool ordering, workflow patterns, stage awareness. |
+| Vector embeddings in room.db | Mixing sqlite-vss or similar vector extensions into SQLite adds native compilation complexity, breaks cross-platform compatibility, and creates a dependency that fights the "zero infrastructure" promise. | Keep Pinecone for semantic search (already deployed at brain.mindrian.ai). SQLite handles structured data only: graph + memory + assumptions. |
+| Real-time collaboration in MCP Apps | MCP Apps iframes are sandboxed, single-user by design. WebSocket collaboration fights the security model and adds infrastructure MindrianOS doesn't have. | Cowork handles multi-user natively. MCP Apps are single-user interactive views. Collaborative features live in the Cowork surface, not in MCP Apps. |
+| Custom CSS forcing De Stijl in all hosts | MCP Apps provides useHostStyles() for matching host theme. Forcing De Stijl in ChatGPT or VS Code creates visual clashes and breaks host UX expectations. | De Stijl as default when no host theme detected. useHostStyles() for host-adaptive rendering. Progressive enhancement: full De Stijl in Claude, adaptive elsewhere. |
+| Cron/scheduler for memory consolidation | No persistent process in v2.0. Plugin runs in Claude's environment. node-cron requires a long-running server that doesn't exist in stdio transport mode. | Session-start hook handles all periodic work: memory consolidation, stale assumption detection, opportunity scanning. Session start IS the trigger -- no daemon needed. |
+| REST API wrapper (1:1 command-to-tool mapping) | The #1 anti-pattern in MCP server design (Phil Schmid, 2026): "A good REST API is not a good MCP server." Converting 64 CLI commands to 64 MCP tools would be catastrophic for LLM tool selection. | Outcome-oriented routers that compose multiple commands internally. The 9-router pattern already does this correctly. |
+| TypeScript for MCP server | Build step breaks "every output is an edit surface" principle. CJS files are directly inspectable and editable by both humans and Claude. Established STACK.md decision. | Plain CJS with JSDoc type annotations where needed. Zod provides runtime validation equivalent to TS compile-time checks. |
+| SQLite replacing STATE.md for room state | Creates dual source of truth with filesystem. Breaks ICM principle: "folder IS orchestration." STATE.md is the room state authority -- that is a foundational architectural decision. | STATE.md remains room state authority (ICM Layer 0). SQLite handles supplementary data: graph topology, memory tiers, assumptions. These are queryable indexes, not state replacements. |
+| Full conversation history storage | Storing all conversation turns in memory would explode storage and violate privacy expectations. Users don't expect an MCP server to record everything they say. | Memory L3 stores only explicitly important fragments: key decisions, instruction overrides, rejection reasons. Selective, not comprehensive. |
 
 ## Feature Dependencies
 
 ```
-[CLAUDE.md Diet]
-    └──enables──> [Progressive Skill Loading] (diet creates headroom for skill stubs)
-                      └──enables──> [ICM-Driven Context Traversal] (stubs are the traversal units)
-                                        └──enables──> [Per-Room Context Profiles] (traversal generates usage data)
+SQLite Migration (lazygraph-ops.cjs rewrite)
+  |-> Graph tables (nodes, edges, concepts)
+  |-> Memory tables (L0 identity, L1 facts, L2 sessions, L3 fragments)
+  |-> Assumption tracking tables
+  |-> Natural language graph queries (require graph tables)
 
-[STATE.md Caching + TTL]
-    └──enables──> [Delta-Based STATE.md Updates] (caching provides baseline, delta updates refresh it)
+MCP Apps SDK Integration (@modelcontextprotocol/ext-apps)
+  |-> ui:// resource registration in MCP server
+  |-> De Stijl dashboard as MCP App (first app, proves pattern)
+  |-> Knowledge graph visualization as MCP App (requires graph tables)
+  |-> Wiki view as MCP App (requires graph tables)
 
-[Context Window Monitoring]
-    └──enables──> [Proactive Context Windowing] (monitoring provides the signal)
+Larry Lite (server instructions)
+  |-> NO dependency on SQLite or MCP Apps
+  |-> Ships independently as server instruction string in MCP init
+  |-> Evolves based on rejection data (L3 fragments) over time
 
-[Hook Version Headers]
-    └──enables──> [npm Distribution] (versioning is prerequisite for package integrity)
+Intelligence Cascade via MCP
+  |-> Requires: graph tables (for graph-index step)
+  |-> Requires: runCascade() wired into MCP tool handlers
+  |-> Enables: cross-subsystem contradiction detection
+  |-> Enables: proactive intelligence at session start
 
-[Brain Response Caching] ──independent──> (no dependencies, can ship anytime)
+Assumption Tracking
+  |-> Requires: SQLite migration (assumption table)
+  |-> Requires: graph tables (evidence linking via edges)
+  |-> Enables: bidirectional stage progression detection
+  |-> Enables: proactive intelligence (stale assumption alerts)
 
-[Stable Prefix Optimization] ──requires──> [CLAUDE.md Diet] (diet stabilizes the prefix content)
-
-[Learnings Rotation] ──independent──> (no dependencies, can ship anytime)
+Session Catchup (proactive intelligence)
+  |-> Requires: Memory L2 (session table for "last session" comparison)
+  |-> Requires: Memory L1 (temporal facts for "what changed")
+  |-> Partially built: session-catchup.cjs exists
 ```
 
-### Dependency Notes
+## MVP Recommendation
 
-- **CLAUDE.md Diet enables Progressive Skill Loading:** Cannot add skill stubs if CLAUDE.md is still 41KB. The diet creates the token headroom that makes lazy loading worthwhile.
-- **Progressive Skill Loading enables ICM Traversal:** ICM traversal loads skills selectively. Without stubs, there is nothing lightweight to traverse -- you either load the full skill or nothing.
-- **STATE.md Caching enables Delta Updates:** Delta detection needs a cached baseline to compare against. Without caching, every session does a full compute anyway.
-- **CLAUDE.md Diet required for Stable Prefix:** The stable prefix must be lean and unchanging. A 41KB CLAUDE.md that includes theory and architecture docs cannot be a stable prefix -- it changes too often.
-- **Hook Version Headers required for npm Distribution:** Package integrity verification depends on version identification being reliable. Stale hooks undermine distribution trust.
+Prioritize (Workstream A first, then B in parallel with C):
 
-## MVP Definition
+1. **SQLite migration via lazygraph-ops.cjs** -- Replace KuzuDB. Graph tables + memory tables + assumption tables in one room.db. This unblocks everything else. Single replacement point makes this tractable.
+2. **Memory L0-L1** -- Identity persistence + temporal facts with validity windows. Immediate recall improvement. The "170 tokens to recall everything" pattern from MemPalace applies: store structured facts, load a compact summary at session start.
+3. **Assumption tracking with validity lifecycle** -- First-class assumption entities. This is the #1 underserved outcome (Opportunity Score 18) and the deepest moat feature. No competitor has this.
+4. **Larry Lite server instructions** -- 200 lines of methodology instinct in server init. Zero dependency on SQLite. Ship in parallel with Workstream A.
+5. **Intelligence cascade via MCP** -- Surface parity: MCP tools fire the same cascade as CLI hooks. Requires graph tables from step 1.
+6. **MCP Apps: De Stijl dashboard** -- First interactive in-chat UI. Proves the MCP Apps pattern. Requires ext-apps SDK integration.
 
-### Phase 1: Weight Reduction (ship first)
+Defer:
+- **MCP Apps: Wiki view** -- Second interactive app. Build after dashboard pattern is proven and working in Claude + at least one other client.
+- **MCP Apps: Knowledge graph visualization** -- Third interactive app. Most complex (Cytoscape.js in iframe with bidirectional tool calls). Build last.
+- **Memory L2-L3** -- Session recall and fragments. L0-L1 cover ~80% of recall value. L2-L3 are refinements.
+- **Cross-room memory queries** -- Edge case until users have 3+ active rooms. ATTACH database pattern is straightforward when needed.
+- **Rejection as graph data** -- Valuable signal but not blocking. Add after assumption tracking proves the validity lifecycle works.
 
-The foundation. Everything else builds on reduced baseline overhead.
+## Existing Capabilities to Leverage
 
-- [ ] CLAUDE.md diet (41KB to ~20KB) -- moves theory to reference docs, keeps routing/identity/UI
-- [ ] Learnings rotation (cap at 20 entries) -- prevents unbounded growth
-- [ ] Hook version headers -- self-identifying hooks for staleness detection
-- [ ] Stable prefix formalization in session-start -- enables prompt cache hits
+These lib/core/*.cjs modules are the shared core that MCP tools wrap. New features MUST extend these, not create parallel paths. The co-development rule: every new capability ships as both plugin command AND MCP tool.
 
-### Phase 2: Smart Loading (ship second)
-
-Progressive loading requires the weight reduction from Phase 1 to be meaningful.
-
-- [ ] Progressive skill loading (stub + on-demand) -- 55KB always-loaded to ~3KB stubs
-- [ ] STATE.md caching with TTL -- skip recompute when room unchanged
-- [ ] Context window monitoring enhancement -- plugin overhead breakdown
-
-### Phase 3: Intelligence (ship third)
-
-Leverages ICM hierarchy and usage data, both of which need Phases 1-2 in place.
-
-- [ ] ICM-driven context traversal -- hierarchy routes context loading
-- [ ] Per-room context profiles -- auto-generated from usage patterns
-- [ ] Delta-based STATE.md updates -- incremental instead of full recompute
-- [ ] Proactive context windowing -- shed before warning
-
-### Phase 4: Distribution + Caching (ship fourth)
-
-Release infrastructure and optional Brain optimization.
-
-- [ ] npm distribution with integrity verification
-- [ ] Brain response caching (24h TTL)
-- [ ] Git commit hash verification for self-hosted installs
-
-### Future Consideration (post-milestone)
-
-- [ ] Cross-room context sharing (load patterns from one room to bootstrap another) -- needs multi-room usage data first
-- [ ] Adaptive archetype refinement (archetype adjusts mid-session based on behavior) -- needs baseline archetype data
-- [ ] Plugin overhead dashboard (HTML view showing context budget allocation) -- nice-to-have, not core
-
-## Feature Prioritization Matrix
-
-| Feature | User Value | Implementation Cost | Priority | Tokens Saved |
-|---------|------------|---------------------|----------|--------------|
-| CLAUDE.md diet | HIGH | LOW | P1 | ~5K tokens (~50% of CLAUDE.md) |
-| Progressive skill loading | HIGH | HIGH | P1 | ~11K tokens (~80% of skills) |
-| Stable prefix optimization | HIGH | MEDIUM | P1 | Indirect (cache hits reduce API cost) |
-| Learnings rotation | MEDIUM | LOW | P1 | Variable (prevents unbounded growth) |
-| Hook version headers | MEDIUM | LOW | P1 | None (reliability, not tokens) |
-| STATE.md caching + TTL | HIGH | MEDIUM | P2 | None (latency, not tokens) |
-| ICM-driven context traversal | HIGH | HIGH | P2 | ~3-5K tokens (selective loading) |
-| Delta STATE.md updates | MEDIUM | HIGH | P2 | None (latency, not tokens) |
-| Context monitoring enhancement | MEDIUM | LOW | P2 | None (visibility, not savings) |
-| Per-room context profiles | MEDIUM | MEDIUM | P3 | ~2-3K tokens (personalized loading) |
-| Proactive context windowing | MEDIUM | MEDIUM | P3 | Variable (prevents degradation) |
-| Brain response caching | MEDIUM | MEDIUM | P3 | ~1-2K tokens per cached query |
-| npm distribution | HIGH | MEDIUM | P3 | None (distribution, not tokens) |
-| Git hash verification | LOW | LOW | P3 | None (security, not tokens) |
-
-**Projected total savings:** 23.6K fixed tokens to ~6K = 75% reduction (matching PROJECT.md target).
-Breakdown: CLAUDE.md diet saves ~5K, progressive skill loading saves ~11K, ICM traversal saves ~3K, session-start optimization saves ~2K.
-
-## Competitor Feature Analysis
-
-| Feature | context-mode (mksglu) | Claude HUD | OpenClaw ContextEngine | MindrianOS Approach |
-|---------|----------------------|------------|----------------------|---------------------|
-| Tool output sandboxing | Core feature (98% reduction via FTS5) | No | DAG summarization | Not applicable -- MindrianOS overhead is system prompt + skills, not tool output |
-| Context monitoring | No | Core feature (agent status + context %) | Internal metrics | Existing statusline + bridge file. Enhance with breakdown. |
-| Progressive loading | No | No | Plugin-based strategies | Core differentiator: ICM hierarchy + skill stubs |
-| Cache strategy | No | No | Plugin architecture | Stable prefix + STATE.md caching + Brain response caching |
-| Prompt cache optimization | No | No | No | Stable prefix / dynamic suffix split (unique to MindrianOS) |
-| Per-project personalization | No | No | No | Per-room context profiles (unique to MindrianOS) |
-| Hierarchy-based loading | No | No | No | ICM Layer 0/1/2 traversal (unique to MindrianOS) |
-
-**Key insight:** Existing ecosystem tools optimize for tool output and monitoring. MindrianOS's context problem is different: it is system prompt + skill overhead, not tool output. The ICM hierarchy approach to context routing has no ecosystem equivalent -- it is a genuine differentiator.
+| Module | Relevance to v2.0 | Integration Point |
+|--------|-------------------|-------------------|
+| lazygraph-ops.cjs | PRIMARY migration target. SQLite replaces KuzuDB here. 24+ files route through this single module. | Rewrite internals from KuzuDB to better-sqlite3. Keep the same exported API (openGraph, closeGraph, initSchema, indexArtifact, rebuildGraph, queryGraph, graphStats). |
+| intelligence-cascade.cjs | Cascade logic for post-write triggers. MCP tools must call this after write operations. | Wire runCascade() into MCP tool handlers that modify room content. |
+| proactive-intelligence.cjs | Gap/contradiction/convergence detection. Memory L1 temporal facts enhance detection quality. | Assumption tracking feeds new signals into proactive detection. |
+| session-state.cjs | Session tracking. Memory L2 extends this with SQLite persistence for cross-session recall. | Add session summary storage at session end. |
+| brain-client.cjs | Brain API calls. Larry Lite server instructions describe when to invoke Brain tools. | Server instructions reference Brain tools in workflow patterns. |
+| room-ops.cjs | Room CRUD operations. MCP routers already wrap this. | No change needed -- stable API. |
+| graph-ops.cjs | Graph building from room artifacts. Directly affected by SQLite migration. | Update to write SQLite graph tables instead of KuzuDB. |
+| session-catchup.cjs | Catch-up computation at MCP connect time. | Enhance with Memory L1 temporal delta: "what facts changed since last session." |
 
 ## Sources
 
-- [Claude Code Context Window Management](https://claudefa.st/blog/guide/mechanics/context-management) -- optimization strategies, /context command
-- [Claude Code 1M Context Window](https://claudefa.st/blog/guide/mechanics/1m-context-ga) -- 1M GA, 15% compaction reduction
-- [Context Engineering for Coding Agents (Martin Fowler)](https://martinfowler.com/articles/exploring-gen-ai/context-engineering-coding-agents.html) -- systematic context engineering strategies
-- [Lazy Skills: Token-Efficient Dynamic Agent Capabilities](https://boliv.substack.com/p/lazy-skills-a-token-efficient-approach) -- stub + on-demand pattern, 82% improvement
-- [context-mode (mksglu)](https://github.com/mksglu/context-mode) -- 98% tool output reduction, 66K+ developers
-- [Claude HUD](https://aitoolly.com/ai-news/article/2026-03-22-claude-hud-a-new-monitoring-plugin-for-claude-code-tracking-context-and-agent-activity) -- context monitoring plugin
-- [Why More Tokens Makes Agents Worse (Morph)](https://www.morphllm.com/context-engineering) -- diminishing returns of context loading
-- [Claude Prompt Caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching) -- prefix stability, cache hierarchy, invalidation
-- [Plugin Hook Staleness (Issue #15642)](https://github.com/anthropics/claude-code/issues/15642) -- CLAUDE_PLUGIN_ROOT stale version bug
-- [Plugin Hook Settings Not Updated (Issue #18517)](https://github.com/anthropics/claude-code/issues/18517) -- hooks point to old versioned path
-- [Token Optimization Best Practices](https://www.mintlify.com/affaan-m/everything-claude-code/guides/token-optimization) -- CLAUDE.md under 2K tokens, skills architecture
-- [Claude Code Hooks Reference](https://code.claude.com/docs/en/hooks) -- SessionStart, PreCompact, PostCompact lifecycle
-- [OpenClaw ContextEngine Deep Dive](https://openclaws.io/blog/openclaw-contextengine-deep-dive) -- plugin-based context management architecture
-- [Building AI Coding Agents (arXiv 2603.05344)](https://arxiv.org/abs/2603.05344) -- scaffolding, harness, context engineering
-- [Adaptive Context Compression for LLMs (arXiv 2603.29193)](https://arxiv.org/html/2603.29193) -- compression techniques for long-running interactions
+- [MCP Server Best Practices - Phil Schmid](https://www.philschmid.de/mcp-best-practices) -- outcome-oriented design, agent-first thinking, anti-REST-wrapper pattern [HIGH confidence]
+- [The Six-Tool Pattern - MCP Bundles](https://www.mcpbundles.com/blog/mcp-tool-design-pattern) -- reducing 12+ tools to 6 via category grouping [HIGH confidence]
+- [MCP Tool Overload - DEV Community](https://dev.to/nebulagg/mcp-tool-overload-why-more-tools-make-your-agent-worse-5a49) -- empirical evidence LLMs degrade above 20 tools [HIGH confidence]
+- [Server Instructions - MCP Blog](https://blog.modelcontextprotocol.io/posts/2025-11-03-using-server-instructions/) -- teaching LLMs tool workflows, +60% GPT-4 Mini success rate [HIGH confidence]
+- [MCP Apps Official Release - MCP Blog](https://blog.modelcontextprotocol.io/posts/2026-01-26-mcp-apps/) -- SEP-1865, ui:// scheme, ext-apps SDK, iframe sandbox [HIGH confidence]
+- [MCP Apps GitHub - ext-apps](https://github.com/modelcontextprotocol/ext-apps/) -- SDK packages, API, server-side app registration [HIGH confidence]
+- [MemPalace Memory System](https://recca0120.github.io/en/2026/04/08/mempalace-ai-memory-system/) -- L0-L3 tiers, SQLite temporal KG, 96.6% recall, contradiction detection [MEDIUM confidence - very new, limited independent verification]
+- [SEP-993: Namespaces - MCP GitHub](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/993) -- official namespace proposal for tool grouping [HIGH confidence]
+- [MCP 2026 Roadmap - WorkOS](https://workos.com/blog/2026-mcp-roadmap-enterprise-readiness) -- OAuth 2.1, enterprise priorities [MEDIUM confidence]
+- [Anthropic + OpenAI MCP Apps - Inkeep](https://inkeep.com/blog/anthropic-openai-mcp-apps-extension) -- joint MCP Apps development [MEDIUM confidence]
+- [MCP Best Practices - CData](https://www.cdata.com/blog/mcp-server-best-practices-2026) -- 2026 production patterns [MEDIUM confidence]
+- [Agentic MCP Configuration - PulseMCP](https://www.pulsemcp.com/posts/agentic-mcp-configuration) -- dynamic tool loading for large servers [MEDIUM confidence]
 
 ---
-*Feature research for: Context Engineering Optimization (MindrianOS v1.9.0)*
-*Researched: 2026-04-07*
+*Feature research for: v2.0 Mindrian Platform -- SQLite + MCP Server*
+*Researched: 2026-04-09*

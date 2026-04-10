@@ -1,36 +1,36 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.8.8
+milestone: v2.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 77-01-PLAN.md (SQLite LazyGraph Rewrite)
-last_updated: "2026-04-09T23:02:19.931Z"
-last_activity: 2026-04-06 -- dual-graph room hierarchy, sync scripts, Brain integration
+status: executing
+stopped_at: Roadmap created, ready to plan Phase 77
+last_updated: "2026-04-09T22:54:00.447Z"
+last_activity: 2026-04-09 -- Phase 77 execution started
 progress:
-  total_phases: 5
-  completed_phases: 3
-  total_plans: 6
-  completed_plans: 9
-  percent: 100
+  total_phases: 11
+  completed_phases: 0
+  total_plans: 2
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-06)
+See: .planning/PROJECT.md (updated 2026-04-10)
 
-**Core value:** Centralize all Data Rooms under ~/MindrianRooms/ with ICM-compliant structure
-**Current focus:** v1.8.6 milestone complete
+**Core value:** Ship MindrianOS intelligence as a platform -- any LLM host gets routed tools, interactive UI (MCP Apps), and a room memory system. Replace dead KuzuDB with SQLite. Co-develop plugin and MCP server from shared core.
+**Current focus:** Phase 77 — sqlite-foundation
 
 ## Current Position
 
-Phase: 59.2 of 59.2 (Room Hierarchy Graph Layer)
-Plan: 01 (complete)
-Status: All phases complete (56, 57, 58, 59, 59.1, 59.2)
-Last activity: 2026-04-06 -- dual-graph room hierarchy, sync scripts, Brain integration
+Phase: 77 (sqlite-foundation) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 77
+Last activity: 2026-04-09 -- Phase 77 execution started
 
-Progress: [##########] 100%
+Progress: [                    ] 0%
 
 ## Performance Metrics
 
@@ -44,16 +44,19 @@ Progress: [##########] 100%
 
 ### Decisions
 
-- resolve-room is the keystone script -- all other changes depend on it resolving ~/MindrianRooms/ first
-- Phase 58 (Skill/UX) depends only on Phase 56, enabling parallel execution with Phase 57 if needed
-- ICM Layer 0 = CLAUDE.md (identity), Layer 1 = INDEX.md (routing), Layer 2 = per-room STATE.md (contract)
-- [Phase 56]: resolve-room uses 4-strategy cascade: central registry -> dir scan -> workspace registry -> legacy fallback
-- [Phase 58]: Skills use resolve_room:active trigger; all display paths show ~/MindrianRooms/[name]/; session greeting references MindrianRooms on first encounter
-- [Phase 59]: migrate-rooms uses cp -a (copy, never move); 5 legacy patterns detected; per-room confirmation; /mos:setup rooms added
-- [Phase 59.1]: /mos:organize uses 4-tier degradation (Brain+KuzuDB -> Brain -> KuzuDB -> metadata); decisions stored locally in .rooms/decisions.json, promoted to graph edges when Brain available
-- [Phase 59.2]: Dual-graph architecture (KuzuDB local + Neo4j Brain remote); graph never writes filesystem; fire-and-forget sync on session-start and room create/archive; brain-client.cjs write() method added
-- [Phase 77]: Properties stored as JSON in generic nodes/edges tables - not per-type tables like KuzuDB
-- [Phase 77]: conn === db in SQLite world - openGraph returns { db, conn: db } for backward compat
+- KuzuDB abandoned Oct 2025 -- must replace with SQLite (better-sqlite3, WAL mode)
+- lazygraph-ops.cjs is the single replacement point -- 90% of 24+ files route through it
+- room.db at room/.mindrian/room.db replaces .lazygraph/ directory
+- Graph + Memory in one database: nodes/edges tables + identity/facts/sessions/fragments/assumptions tables
+- 5-7 MCP router tools (not 23 flat) -- LLMs degrade above 20 tools
+- MCP server co-development: lib/core/*.cjs is shared core, MCP tools are thin Zod wrappers
+- Larry Lite: 200-line system prompt for host LLMs (methodology instinct, not personality)
+- MCP Apps (SEP-1865): De Stijl dashboards, knowledge graph, wiki render in-chat via ui:// scheme
+- Natural language graph queries replace Cypher (Larry/host LLM translates to SQL)
+- Co-development rule: every new capability ships as both plugin command AND MCP tool
+- Neo4j Brain stays as-is (remote MCP, complex Cypher, 21K nodes, the moat)
+- De Stijl component library early -- all apps depend on shared components
+- Keep async wrappers initially to avoid 100+ call-site breakage during SQLite migration
 
 ### Pending Todos
 
@@ -61,88 +64,17 @@ Progress: [##########] 100%
 - Update generate-snapshot.cjs constellation (sidebar/detail panel from Tony prototype)
 - Update generate-presentation.cjs graph view to vis-network
 - LaTeX export command: /mos:latex
-- Desktop Data Room MCP: KuzuDB Windows build blocked
 - Grading calibration data: 0/100+ Example nodes
-
-### v1.9.0 -- Context Engineering Optimization (Next Milestone)
-
-**Goal:** Cut the 23.6K fixed token overhead that consumes 12% of Sonnet budget before any room context loads.
-
-**CLAUDE.md Diet (41KB -> ~20KB):**
-
-- Move architectural theory (Simon, Rittel, ICM -- 8KB) to external docs/THEORY.md
-- Move tech stack reference (18KB) to docs/STACK.md
-- Keep only: identity, rules, key decisions, constraints, release process
-- @include only what's needed per session, not everything
-
-**Progressive Skill Loading (46KB always -> 5KB + on-demand):**
-
-- Load 2-3 core skills at startup (ui-system, context-engine, room-passive)
-- Lazy-load methodology skills only when /mos: command invoked
-- Lazy-load brain-connector only when Brain is configured
-- Target: 5KB startup overhead instead of 46KB
-
-**Learnings Rotation:**
-
-- .learnings.md grows unbounded today -- no garbage collection
-- Add rotation: keep only last 20 sessions
-- Add staleness detection: remove learnings older than 30 days
-- Add dedup: merge similar learnings
-
-**STATE.md Caching:**
-
-- Currently recalculated from scratch every session start
-- Add caching with 30-minute TTL + file-change invalidation
-- Add "summary mode" for context budgets >60% -- inject key metrics only, not full table
-
-**Brain Response Caching:**
-
-- Same Brain query fetches fresh every time today
-- Add 24h cache for identical queries
-- Cache stored in .rooms/.brain-cache.json
-
-**Proactive Context Windowing:**
-
-- Currently reactive (user must /clear)
-- Add proactive suggestion at archetype-specific thresholds
-- Students: suggest at 65%, venturists: 75%, researchers: 78%
-- Auto-switch to minimal tier before autocompact triggers
-
-**ICM-Driven Context Loading (the big one):**
-
-- Van Clief & McDermott say "folder structure IS the code" -- but also folder structure IS the context strategy
-- ~/MindrianRooms/CLAUDE.md (Layer 0) tells the model WHERE it is
-- ~/MindrianRooms/INDEX.md (Layer 1) tells the model WHERE to go -- which room to load
-- Room/STATE.md (Layer 2) tells the model WHAT this room contains -- load only relevant sections
-- Section/ROOM.md (Layer 3) tells the model WHAT this section needs -- load only relevant references
-- Today: session-start loads everything flat. v1.9.0: session-start TRAVERSES the ICM hierarchy
-- Load Layer 0 first (tiny). Read Layer 1 to find active room (tiny). Read Layer 2 to understand room state (small). Load ONLY the sections and skills relevant to the user's current context.
-- The ICM hierarchy becomes the SELECT strategy from the ByteByteGo article -- the folder structure decides what enters the context window
-- MindrianRooms/CLAUDE.md is not just identity documentation -- it becomes the context routing instruction
-- Each room's CLAUDE.md (if we add one) could specify: which skills this room needs, which Brain queries are relevant, what references to pre-load
-- This is ICM Layer 2 (Contracts) from the paper: "What do I do?" becomes "What context do I need?"
-
-**Per-Room Context Profiles:**
-
-- Each room gets a .context-profile.json: preferred skills, relevant frameworks, Brain query patterns
-- session-start reads the profile and loads ONLY what this room needs
-- A "cancer research" room loads different skills than a "venture pitch" room
-- A room at "Pre-Opportunity" stage loads different frameworks than "Ready to Build"
-- The profile is auto-generated from room usage (.analytics.json) and stage (STATE.md)
-
-**Measured Impact Target:**
-
-- Sonnet: 23.6K overhead -> ~6K (75% reduction, with ICM-driven loading)
-- Opus: 23.6K overhead -> ~6K (same, budget allows richer per-section loading)
-- Per-turn cost: halve again from the v1.8.4 optimization (10K -> 5K)
-- Room-specific loading means a simple note-taking session doesn't load methodology skills at all
 
 ### Blockers/Concerns
 
-None yet.
+- KuzuDB npm package still works but receives no security patches -- migration is urgent
+- MCP Apps SDK (@modelcontextprotocol/ext-apps) needs version verification before building
+- Claude.ai postMessage bug (issue #47) affects MCP Apps -- needs guard in all HTML
+- ChatGPT MCP Apps compatibility unverified -- TEST-02 is discovery work
 
 ## Session Continuity
 
-Last session: 2026-04-09T23:02:19.928Z
-Stopped at: Completed 77-01-PLAN.md (SQLite LazyGraph Rewrite)
+Last session: 2026-04-10
+Stopped at: Roadmap created, ready to plan Phase 77
 Resume file: None

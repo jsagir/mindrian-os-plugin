@@ -91,6 +91,32 @@ mkdir -p "${PROFILE_DIR}/advice"
 mkdir -p "${PROFILE_DIR}/connections"
 mkdir -p "${PROFILE_DIR}/concerns"
 
+# ICM Layer 0 -- every directory gets identity (Key Decision #15)
+cat > "${PROFILE_DIR}/ROOM.md" <<ROOMEOF
+---
+icm_layer: 0
+type: speaker-profile
+speaker: ${DISPLAY_NAME}
+role: ${SPEAKER_ROLE}
+---
+# ${DISPLAY_NAME} -- Speaker Profile Directory
+
+${SPEAKER_ROLE} in the venture. Profile and contribution tracking.
+
+## Contents
+| File | Purpose |
+|------|---------|
+| PROFILE.md | Full profile with expertise, relationships, role |
+| insights/ | Insights attributed to this speaker |
+| advice/ | Advice given by this speaker |
+| connections/ | Relationship map for this speaker |
+| concerns/ | Concerns raised by this speaker |
+
+## Note
+Contributions are tracked via computed backlinks in PROFILE.md (run by compute-team).
+Do not manually file artifacts here -- use the meeting filing pipeline.
+ROOMEOF
+
 # Get today's date
 TODAY=$(date +%Y-%m-%d)
 

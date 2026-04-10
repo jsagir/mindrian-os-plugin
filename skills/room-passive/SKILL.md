@@ -24,6 +24,45 @@ Be aware of the active room's structure: reference specific sections, note empty
 
 Plus: `team/` (members/mentors/advisors with ICM nested profiles), `meetings/` (YYYY-MM-DD-{name}/ archives)
 
+## ICM Layer 0 Mandate (MANDATORY)
+
+Every directory in the Data Room MUST have an identity file (ROOM.md). No exceptions.
+This is ICM Layer 0 -- it answers "Where am I? What belongs here? What does NOT belong here?"
+
+### The Rule
+When creating ANY new directory -- whether a room section, sub-room, team profile folder,
+meeting archive, opportunity bank, or any other folder -- ALWAYS create a ROOM.md inside it.
+
+### ROOM.md Template
+```markdown
+---
+icm_layer: 0
+section: {section-name or folder-type}
+parent: {parent-room-or-directory}
+---
+# {Folder Display Name}
+
+{One sentence: what this folder contains.}
+
+## What Belongs Here
+- {2-4 bullet points}
+
+## What Does NOT Belong Here
+- {2-3 redirects to correct locations}
+```
+
+### Enforcement
+- When filing an artifact to a section that lacks ROOM.md, create it FIRST
+- When creating a new sub-room, create ROOM.md for every section directory
+- When running /mos:room or room analysis, flag directories missing ROOM.md as ICM gaps
+- Scripts that create directories (create-speaker-profile, create-room, etc.) MUST generate ROOM.md
+- This applies to ALL rooms, ALL sub-rooms, ALL sections, ALL special folders -- no exceptions
+
+### Why This Matters
+Without Layer 0, Claude (on any surface -- CLI, Desktop, Cowork) cannot determine what belongs
+in a folder. This leads to misfiling, duplication, and lost context. ROOM.md is the folder's
+contract with every agent that touches it.
+
 ## Filing Intelligence
 
 When methodology produces an artifact:
