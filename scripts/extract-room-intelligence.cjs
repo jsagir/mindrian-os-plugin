@@ -25,7 +25,7 @@ const { detectRoomType, getRoomTypeConfig } = require('../lib/core/room-type-det
 
 // -- Constants --
 
-const SKIP_DIRS = new Set(['.lazygraph', 'meetings', 'team', 'exports', 'assets', 'personas']);
+const SKIP_DIRS = new Set(['.mindrian', 'meetings', 'team', 'exports', 'assets', 'personas']);
 const SKIP_FILES = new Set([
   'ROOM.md', 'STATE.md', 'USER.md', 'JTBD.md',
   'ROOM-INTELLIGENCE.md', 'MEETINGS-INTELLIGENCE.md',

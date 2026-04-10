@@ -51,7 +51,7 @@ if [ -n "$state_content" ]; then
 fi
 
 # 3. Capture last 5 artifacts (most recently modified .md files in room)
-last_artifacts=$(portable_find_mtime "$ROOM_DIR" -name "*.md" -not -name "STATE.md" -not -name "ROOM.md" -not -name "TEAM-STATE.md" -not -name "MEETINGS-INTELLIGENCE.md" -not -path "*/.lazygraph/*" 2>/dev/null | sort -rn | head -5 | cut -d' ' -f2- || true)
+last_artifacts=$(portable_find_mtime "$ROOM_DIR" -name "*.md" -not -name "STATE.md" -not -name "ROOM.md" -not -name "TEAM-STATE.md" -not -name "MEETINGS-INTELLIGENCE.md" -not -path "*/.mindrian/*" 2>/dev/null | sort -rn | head -5 | cut -d' ' -f2- || true)
 
 # 4. Capture MINTO confidence (from REASONING.md files if they exist)
 minto_confidence=""

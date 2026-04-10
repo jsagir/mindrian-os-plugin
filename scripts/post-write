@@ -70,7 +70,7 @@ done
 # -- Delegate intelligence cascade to shared module (works on all surfaces) --
 # The shared module (lib/core/intelligence-cascade.cjs) handles:
 #   - Binary file detection and routing to file-asset
-#   - Markdown cascade: classify-insight, graph-index, HSI, reverse salients, hsi-to-kuzu, presentation
+#   - Markdown cascade: classify-insight, graph-index, HSI, reverse salients, hsi-to-graph, presentation
 # This keeps CLI hooks and MCP tools using identical intelligence logic.
 if [ -n "$room_dir" ]; then
   # Run cascade in foreground so we can capture and report status
