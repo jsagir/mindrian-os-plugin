@@ -156,7 +156,7 @@ python3 "${PLUGIN_ROOT}/scripts/compute-hsi.py" "$ROOM_DIR" --output "$ROOM_DIR/
 # Step 2: Detect reverse salients (lagging subsystems)
 python3 "${PLUGIN_ROOT}/scripts/detect-reverse-salients.py" "$ROOM_DIR"
 
-# Step 3: Write HSI edges to SQLite graph (if available)
+# Step 3: Write HSI edges to room graph (if available)
 node "${PLUGIN_ROOT}/scripts/hsi-to-graph.cjs" "$ROOM_DIR" 2>/dev/null || true
 ```
 
@@ -164,7 +164,7 @@ Report:
 - Number of HSI pairs scored
 - Top 3 highest-scoring connections
 - Any new reverse salients detected
-- Whether KuzuDB was updated
+- Whether room graph was updated
 
 ## Step 6: Generate Summary
 

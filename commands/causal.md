@@ -165,14 +165,14 @@ After confirmation, write the results:
 }
 ```
 
-3. **Call the bridge script** to write confirmed claims to the SQLite graph:
+3. **Call the bridge script** to write confirmed claims to the room graph:
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/scripts/causal-to-graph.cjs" "room/"
 ```
 
 4. **Handle bridge errors:**
-   - If the graph is not available (no `.mindrian/` directory): Report that JSON was saved and claims can be written to the graph later when it is initialized. The `.causal-extract.json` file is the durable record.
+   - If the room graph is not available (no `.mindrian/room.db`): Report that JSON was saved and claims can be written to the graph later when the graph is initialized. The `.causal-extract.json` file is the durable record.
    - If the bridge script reports skipped claims (missing mechanism or prediction): Report which claims were skipped and why.
 
 ### Post-Write Report
@@ -209,7 +209,7 @@ x Artifact not found: {path}
 **No causal statements found:**
 Explain what to look for rather than returning an empty table. Help the user understand what makes a causal claim vs. a descriptive statement.
 
-**Graph unavailable:**
+**Room graph unavailable:**
 ```
 {warning} Knowledge graph not initialized
   JSON saved to room/.causal-extract.json (claims preserved)

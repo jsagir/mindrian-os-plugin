@@ -54,7 +54,7 @@ const SECTION_COLORS = {
   'personas': '#7B4A8B',
 };
 
-const SKIP_DIRS = new Set(['.lazygraph', 'meetings', 'team', 'exports', '.git']);
+const SKIP_DIRS = new Set(['.mindrian', 'meetings', 'team', 'exports', '.git']);
 const SKIP_FILES = new Set(['ROOM.md', 'STATE.md', 'MINTO.md', 'USER.md', 'ROOM-INTELLIGENCE.md', 'MEETINGS-INTELLIGENCE.md']);
 
 // -- Helpers --
@@ -313,11 +313,11 @@ function collectGraph(roomDir) {
   return graph;
 }
 
-function collectKuzu(roomDir, graph) {
-  const lazygraphDir = path.join(roomDir, '.lazygraph');
-  if (!fs.existsSync(lazygraphDir)) return { available: false };
+function collectGraphData(roomDir, graph) {
+  const graphDb = path.join(roomDir, '.mindrian', 'room.db');
+  if (!fs.existsSync(graphDb)) return { available: false };
 
-  // Reuse the same KuzuDB sync query pattern from generate-export.cjs
+  // Query SQLite room graph via lazygraph-ops
   const queryScript = [
     "const lgOps = require('" + path.join(SCRIPT_DIR, '..', 'lib', 'core', 'lazygraph-ops.cjs').replace(/\\/g, '\\\\') + "');",
     "(async () => {",
@@ -325,7 +325,7 @@ function collectKuzu(roomDir, graph) {
     "  try {",
     "    const { db: d, conn } = await lgOps.openGraph('" + roomDir.replace(/\\/g, '\\\\') + "');",
     "    db = d;",
-    "    const edges = await lgOps.queryGraph(conn, \"MATCH (a)-[r]->(b) RETURN label(r) AS relType, coalesce(a.id, a.name) AS src, coalesce(b.id, b.name) AS tgt\");",
+    "    const edges = await lgOps.queryGraph(conn, \"SELECT type AS relType, source AS src, target AS tgt FROM edges\");",
     "    const stats = await lgOps.graphStats(conn);",
     "    await lgOps.closeGraph(db);",
     "    console.log(JSON.stringify({ edges, stats }));",
@@ -336,7 +336,7 @@ function collectKuzu(roomDir, graph) {
     "})();",
   ].join('\n');
 
-  const tmpScript = path.join(roomDir, '.tmp-pres-kuzu.js');
+  const tmpScript = path.join(roomDir, '.tmp-pres-graph-query.js');
   try {
     fs.writeFileSync(tmpScript, queryScript, 'utf-8');
     const output = safeExec('node "' + tmpScript + '"', 10000);
@@ -346,7 +346,7 @@ function collectKuzu(roomDir, graph) {
     const data = JSON.parse(output.trim());
     if (data.error) return { available: false };
 
-    // Merge KuzuDB edges into graph
+    // Merge SQLite graph edges into graph
     const existingEdgeIds = new Set(
       (graph.elements.edges || []).map(e => e.data.source + '-' + e.data.target + '-' + e.data.type)
     );
@@ -356,12 +356,12 @@ function collectKuzu(roomDir, graph) {
       if (!existingEdgeIds.has(edgeKey)) {
         graph.elements.edges.push({
           data: {
-            id: 'kuzu-e' + (edgeIdx++),
+            id: 'graph-e' + (edgeIdx++),
             source: edge.src,
             target: edge.tgt,
             type: edge.relType,
             label: edge.relType.toLowerCase(),
-            source_type: 'lazygraph',
+            source_type: 'room_graph',
           },
           classes: edge.relType.toLowerCase(),
         });
@@ -375,8 +375,8 @@ function collectKuzu(roomDir, graph) {
 
     return {
       available: true,
-      artifacts: (data.stats && data.stats.nodes && data.stats.nodes.artifacts) || 0,
-      sections: (data.stats && data.stats.nodes && data.stats.nodes.sections) || 0,
+      artifacts: (data.stats && data.stats.nodes && data.stats.nodes.Artifact) || 0,
+      sections: (data.stats && data.stats.nodes && data.stats.nodes.Section) || 0,
       edges: edgeCounts,
     };
   } catch (err) {
@@ -511,7 +511,7 @@ function main() {
   const assets = collectAssets(roomDir);
   const team = collectTeam(roomDir);
   const graph = collectGraph(roomDir);
-  const kuzu = collectKuzu(roomDir, graph);
+  const graphData = collectGraphData(roomDir, graph);
   const stats = collectStats(roomDir, totalArtifacts, sections.length);
   const whitespace = collectWhitespace(roomDir);
   const topicForest = collectTopicForest(roomDir);
@@ -529,7 +529,7 @@ function main() {
     intelligence: { gaps: [], convergence: [], contradictions: [] },
     graph,
     stats,
-    kuzu,
+    graphData,
     minto,
     opportunities,
     assets,
@@ -591,8 +591,8 @@ function main() {
   console.log('  Sections: ' + sections.length);
   console.log('  Artifacts: ' + totalArtifacts);
   console.log('  Graph: ' + (graph.elements.nodes || []).length + ' nodes, ' + (graph.elements.edges || []).length + ' edges');
-  if (kuzu.available) {
-    console.log('  LazyGraph: ' + JSON.stringify(kuzu.edges));
+  if (graphData.available) {
+    console.log('  Room Graph: ' + JSON.stringify(graphData.edges));
   }
   if (whitespace) {
     console.log('  Whitespace: ' + (whitespace.points || []).length + ' points, ' + (whitespace.zones || []).length + ' zones');

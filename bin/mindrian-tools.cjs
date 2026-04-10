@@ -29,11 +29,11 @@ Commands:
   meeting compute-intel [roomDir]  Run compute-meetings-intelligence script
   meeting compute-team [roomDir]   Run compute-team script
   graph build [roomDir] [outputPath]  Generate knowledge graph JSON
-  graph build-kuzu [roomDir] [outputPath]  Build graph.json from KuzuDB (primary)
-  graph index [roomDir] <filePath>   Index single artifact in LazyGraph (KuzuDB)
-  graph rebuild [roomDir]            Rebuild entire LazyGraph from room artifacts
-  graph query [roomDir] "<cypher>"   Execute Cypher query against LazyGraph
-  graph stats [roomDir]              Show LazyGraph node/edge statistics
+  graph build-sqlite [roomDir] [outputPath]  Build graph.json from SQLite (primary)
+  graph index [roomDir] <filePath>   Index single artifact in room graph
+  graph rebuild [roomDir]            Rebuild entire room graph from room artifacts
+  graph query [roomDir] "<sql>"      Execute SQL query against room graph
+  graph stats [roomDir]              Show room graph node/edge statistics
   opportunity scan [roomDir]     Context-driven grant discovery
   opportunity list [roomDir]     List filed opportunities
   opportunity file [roomDir] [dataJson]  File an opportunity
@@ -158,9 +158,9 @@ async function main() {
           break;
         }
         case 'query': {
-          const cypher = argv[3];
-          if (!cypher) error('Usage: graph query <roomDir> "<cypher>"');
-          const result = await graphOps.queryGraph(roomDir, cypher);
+          const sql = argv[3];
+          if (!sql) error('Usage: graph query <roomDir> "<sql>"');
+          const result = await graphOps.queryGraph(roomDir, sql);
           output(result, raw, JSON.stringify(result));
           break;
         }
@@ -169,7 +169,8 @@ async function main() {
           output(result, raw, JSON.stringify(result));
           break;
         }
-        case 'build-kuzu': {
+        case 'build-sqlite':
+        case 'build-kuzu': { // backward-compat alias
           const outputPath = argv[3]; // optional 4th arg
           const result = graphOps.buildGraphFromKuzu(roomDir, outputPath);
           output(result, raw, JSON.stringify(result));
@@ -577,12 +578,12 @@ async function main() {
       const proactiveIntel = require('../lib/core/proactive-intelligence.cjs');
       const rdResult = proactiveIntel.recordDecision(rdRoom, rdKey, rdDecision, rdReason);
 
-      // Optionally persist KuzuDB edge (best-effort, Tier 0: works without graph)
+      // Optionally persist graph edge (best-effort, Tier 0: works without graph)
       let graphEdge = false;
       if (rdSourceArtifact && rdTargetArtifact) {
         const fs = require('fs');
-        const lazygraphDir = require('path').join(require('path').resolve(rdRoom), '.lazygraph');
-        if (fs.existsSync(lazygraphDir)) {
+        const graphDb = require('path').join(require('path').resolve(rdRoom), '.mindrian', 'room.db');
+        if (fs.existsSync(graphDb)) {
           try {
             await graphOps.persistDecisionEdge(
               rdRoom,
@@ -593,7 +594,7 @@ async function main() {
             );
             graphEdge = true;
           } catch (_e) {
-            // KuzuDB edge creation is best-effort
+            // Graph edge creation is best-effort
           }
         }
       }

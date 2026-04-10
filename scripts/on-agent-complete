@@ -3,7 +3,7 @@
 # Auto-routes framework-runner, grading, research, opportunity-scanner,
 # and persona-analyst agent output through the post-write cascade.
 # This ensures subagent-generated artifacts are classified, indexed in
-# KuzuDB, and trigger HSI recomputation.
+# the room graph, and trigger HSI recomputation.
 # Must complete in under 3 seconds.
 
 set -euo pipefail
@@ -50,7 +50,7 @@ while IFS= read -r line; do
   if [ "${mod_epoch:-0}" -ge "$CUTOFF" ]; then
     modified_files+=("$file_path")
   fi
-done < <(portable_find_mtime "$ROOM_DIR" -name "*.md" -not -name "STATE.md" -not -name "ROOM.md" -not -name "TEAM-STATE.md" -not -name "MEETINGS-INTELLIGENCE.md" -not -path "*/.lazygraph/*" -not -path "*/.intelligence/*" 2>/dev/null | sort -rn | head -20)
+done < <(portable_find_mtime "$ROOM_DIR" -name "*.md" -not -name "STATE.md" -not -name "ROOM.md" -not -name "TEAM-STATE.md" -not -name "MEETINGS-INTELLIGENCE.md" -not -path "*/.mindrian/*" -not -path "*/.intelligence/*" 2>/dev/null | sort -rn | head -20)
 
 if [ ${#modified_files[@]} -eq 0 ]; then
   printf '{"status": "no_modified_files"}\n'

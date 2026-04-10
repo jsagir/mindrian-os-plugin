@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 78-02-PLAN.md
-last_updated: "2026-04-10T06:14:07.474Z"
+stopped_at: Completed 79-04-PLAN.md
+last_updated: "2026-04-10T15:46:43.123Z"
 last_activity: 2026-04-10
 progress:
   total_phases: 11
   completed_phases: 1
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
   percent: 18
 ---
 
@@ -61,6 +61,7 @@ Progress: [##                  ] 18%
 - buildGraphFromKuzu function name preserved for backward compat -- Phase 79 handles script updates
 - [Phase 78]: JSON columns stored as strings, parsed on read with try/catch fallback
 - [Phase 78]: FK constraints on fragments.session_id enforced naturally by better-sqlite3
+- [Phase 79-04]: build-kuzu kept as backward-compat alias; collectKuzu renamed to collectGraphData with SQL; Neo4j Brain MCP tool names left as-is
 
 ### Pending Todos
 
@@ -79,6 +80,6 @@ Progress: [##                  ] 18%
 
 ## Session Continuity
 
-Last session: 2026-04-10T06:14:07.471Z
-Stopped at: Completed 78-02-PLAN.md
+Last session: 2026-04-10T15:46:43.117Z
+Stopped at: Completed 79-04-PLAN.md
 Resume file: None
