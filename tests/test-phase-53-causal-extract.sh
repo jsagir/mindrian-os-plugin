@@ -162,14 +162,14 @@ const TEST_DIR = '$TEST_DIR';
 async function run() {
   // Run bridge on 7-claim fixture
   try {
-    execSync('node $SCRIPT_DIR/scripts/causal-to-kuzu.cjs ' + TEST_DIR + '/room-t5', { stdio: ['pipe', 'pipe', 'pipe'] });
+    execSync('node $SCRIPT_DIR/scripts/causal-to-graph.cjs ' + TEST_DIR + '/room-t5', { stdio: ['pipe', 'pipe', 'pipe'] });
   } catch (e) {
-    // KuzuDB segfault on exit expected
+    // Close error on exit expected
   }
 
   // Count claims written
   const { db, conn } = await lg.openGraph(TEST_DIR + '/room-t5');
-  const rows = await lg.queryGraph(conn, 'MATCH (c:CausalClaim) RETURN count(*) AS cnt');
+  const rows = await lg.queryGraph(conn, "SELECT COUNT(*) AS cnt FROM nodes WHERE type = 'CausalClaim'");
   console.log('T5:count=' + (rows[0] ? rows[0]['cnt'] : 0));
   await lg.closeGraph(db);
   console.log('T5_DONE');
@@ -191,17 +191,17 @@ const TEST_DIR = '$TEST_DIR';
 async function run() {
   // Run bridge on fixture with 1 incomplete claim (claim 3: empty mechanism + prediction)
   try {
-    execSync('node $SCRIPT_DIR/scripts/causal-to-kuzu.cjs ' + TEST_DIR + '/room-t1', { stdio: ['pipe', 'pipe', 'pipe'] });
+    execSync('node $SCRIPT_DIR/scripts/causal-to-graph.cjs ' + TEST_DIR + '/room-t1', { stdio: ['pipe', 'pipe', 'pipe'] });
   } catch (e) {
-    // KuzuDB segfault on exit expected
+    // Close error on exit expected
   }
 
   // Check if causal-test0003 was rejected
   const { db, conn } = await lg.openGraph(TEST_DIR + '/room-t1');
-  const rows = await lg.queryGraph(conn, \"MATCH (c:CausalClaim {id: 'causal-test0003'}) RETURN c.id\");
+  const rows = await lg.queryGraph(conn, \"SELECT id FROM nodes WHERE id = 'causal-test0003' AND type = 'CausalClaim'\");
   console.log('T6:rejected=' + (rows.length === 0 ? 'true' : 'false'));
   // Check valid claims were written
-  const valid = await lg.queryGraph(conn, \"MATCH (c:CausalClaim {id: 'causal-test0002'}) RETURN c.id\");
+  const valid = await lg.queryGraph(conn, \"SELECT id FROM nodes WHERE id = 'causal-test0002' AND type = 'CausalClaim'\");
   console.log('T6:valid_written=' + (valid.length > 0 ? 'true' : 'false'));
   await lg.closeGraph(db);
   console.log('T6_DONE');

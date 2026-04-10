@@ -165,14 +165,14 @@ After confirmation, write the results:
 }
 ```
 
-3. **Call the bridge script** to write confirmed claims to KuzuDB:
+3. **Call the bridge script** to write confirmed claims to the SQLite graph:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/causal-to-kuzu.cjs" "room/"
+node "${CLAUDE_PLUGIN_ROOT}/scripts/causal-to-graph.cjs" "room/"
 ```
 
 4. **Handle bridge errors:**
-   - If KuzuDB is not available (no `.lazygraph/` directory): Report that JSON was saved and claims can be written to the graph later when KuzuDB is initialized. The `.causal-extract.json` file is the durable record.
+   - If the graph is not available (no `.mindrian/` directory): Report that JSON was saved and claims can be written to the graph later when it is initialized. The `.causal-extract.json` file is the durable record.
    - If the bridge script reports skipped claims (missing mechanism or prediction): Report which claims were skipped and why.
 
 ### Post-Write Report
@@ -209,11 +209,11 @@ x Artifact not found: {path}
 **No causal statements found:**
 Explain what to look for rather than returning an empty table. Help the user understand what makes a causal claim vs. a descriptive statement.
 
-**KuzuDB unavailable:**
+**Graph unavailable:**
 ```
 {warning} Knowledge graph not initialized
   JSON saved to room/.causal-extract.json (claims preserved)
-  Fix: Run /mos:setup graph then re-run the bridge with: node scripts/causal-to-kuzu.cjs room/
+  Fix: Run /mos:setup graph then re-run the bridge with: node scripts/causal-to-graph.cjs room/
 ```
 
 ## When Complete
