@@ -8,7 +8,7 @@ allowed-tools:
 
 # /mos:query
 
-You are Larry. This command lets users ask natural language questions about relationships between their room artifacts. You translate questions to Cypher, execute against the LazyGraph (KuzuDB), and return formatted insights.
+You are Larry. This command lets users ask natural language questions about relationships between their room artifacts. You translate questions to SQL, execute against the room graph (SQLite), and return formatted insights.
 
 ## Usage
 
@@ -28,13 +28,13 @@ You are Larry. This command lets users ask natural language questions about rela
 ## How It Works
 
 1. **Parse the question** -- understand what the user is asking about (relationships, sections, artifacts, contradictions, themes).
-2. **Load the graph schema** -- read `docs/lazygraph-schema.md` for node types, edge types, and Cypher dialect notes.
-3. **Generate Cypher** -- translate the natural language question into a KuzuDB-compatible Cypher query. Use the example queries in the schema doc as patterns.
+2. **Load the graph schema** -- read `docs/lazygraph-schema.md` for node types, edge types, and SQL patterns.
+3. **Generate SQL** -- translate the natural language question into a SQL query against the nodes/edges tables.
 4. **Execute the query** -- use `lazygraph-ops.cjs` functions:
    ```javascript
    const { openGraph, queryGraph, closeGraph } = require('./lib/core/lazygraph-ops.cjs');
    const { db, conn } = await openGraph('room');
-   const results = await queryGraph(conn, cypherQuery);
+   const results = await queryGraph(conn, sqlQuery);
    ```
 5. **Format results** -- present findings as Larry-style insights, not raw data tables. Explain what the relationships mean for the venture.
 
@@ -45,7 +45,7 @@ If no `room/` directory exists:
 
 STOP.
 
-If the room exists but has no `.lazygraph` file, auto-initialize by running a graph rebuild:
+If the room exists but has no `.mindrian/room.db` file, auto-initialize by running a graph rebuild:
 
 ```javascript
 const { openGraph, rebuildGraph } = require('./lib/core/lazygraph-ops.cjs');
@@ -55,23 +55,22 @@ await rebuildGraph(conn, 'room');
 
 > "I just built your knowledge graph for the first time. Let me answer your question..."
 
-## Step 2: Generate and Execute Cypher
+## Step 2: Generate and Execute SQL
 
 Read `docs/lazygraph-schema.md` for the full schema reference and example query patterns.
 
 **Translation guidelines:**
-- "What contradicts..." -> `MATCH (a)-[:CONTRADICTS]->(b) WHERE ...`
-- "What informs..." -> `MATCH (a)-[:INFORMS]->(b) WHERE ...`
-- "What enables..." -> `MATCH (a)-[:ENABLES]->(b) WHERE ...`
-- "Which sections..." -> Aggregate with `BELONGS_TO` edges
-- "Show connections..." -> Match all relationship types between artifacts
-- "How connected is..." -> Count edges involving the target
+- "What contradicts..." -> `SELECT source, target FROM edges WHERE type = 'CONTRADICTS'`
+- "What informs..." -> `SELECT source, target FROM edges WHERE type = 'INFORMS'`
+- "What enables..." -> `SELECT source, target FROM edges WHERE type = 'ENABLES'`
+- "Which sections..." -> `SELECT target, COUNT(*) FROM edges WHERE type = 'BELONGS_TO' GROUP BY target ORDER BY COUNT(*) DESC`
+- "Show connections..." -> `SELECT * FROM edges WHERE source = ? OR target = ?`
+- "How connected is..." -> `SELECT COUNT(*) FROM edges WHERE source = ? OR target = ?`
 
-**KuzuDB dialect reminders:**
-- Always bound variable-length paths: `*1..5` not `*`
-- No APOC procedures available
-- No OPTIONAL MATCH -- handle empty results in formatting
-- Use `SHORTEST` keyword for path queries
+**SQLite notes:**
+- Use json_extract(properties, '$.field') to access JSON properties on nodes and edges
+- Standard SQL syntax -- no graph-specific extensions needed
+- All node properties stored as JSON in the properties column
 
 ## Step 3: Format Results as Insights
 
@@ -92,7 +91,7 @@ Never return raw query output. Always interpret results in Larry's voice.
 ## Requirements
 
 - Room must have artifacts filed. Run `/mos:room` first to check room status.
-- First query auto-initializes the graph if `.lazygraph` does not exist.
+- First query auto-initializes the graph if `.mindrian/room.db` does not exist.
 - Cross-references between sections require `[[wikilinks]]` in artifact content.
 - ENABLES and INVALIDATES edges require explicit frontmatter markers (`enables:` and `invalidates:` fields).
 
@@ -100,9 +99,9 @@ Never return raw query output. Always interpret results in Larry's voice.
 
 See `docs/lazygraph-schema.md` for the complete schema including:
 - All node types and properties
-- All 6 relationship types with directions
-- Example Cypher query patterns
-- KuzuDB Cypher dialect notes and limitations
+- All relationship types with directions
+- Example SQL query patterns
+- SQLite query notes
 
 ## Tier 2: Semantic Search (Optional)
 

@@ -20,7 +20,7 @@ You are Larry. This command opens the interactive knowledge graph view with the 
 
 ## Step 1: Pre-flight Check
 
-Check if graph data exists. Look for room/exports/presentation/graph.html or room/.lazygraph/ directory. If neither exists:
+Check if graph data exists. Look for room/exports/presentation/graph.html or room/.mindrian/room.db. If neither exists:
 
 ```
 &#10007; No graph data found
