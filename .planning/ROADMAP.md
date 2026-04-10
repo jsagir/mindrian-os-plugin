@@ -48,8 +48,8 @@ Google Drive integration, 168-artifact model room, HSI self-analysis, Investment
   3. Two separate Node.js processes can read room.db simultaneously without lock errors (WAL mode verified)
 **Plans:** 2 plans
 Plans:
-- [ ] 77-01-PLAN.md -- Install better-sqlite3, create test scaffold, rewrite lazygraph-ops.cjs from KuzuDB to SQLite
-- [ ] 77-02-PLAN.md -- Update graph-ops.cjs + write-lock.cjs wrappers, verify WAL concurrent access
+- [x] 77-01-PLAN.md -- Install better-sqlite3, create test scaffold, rewrite lazygraph-ops.cjs from KuzuDB to SQLite
+- [x] 77-02-PLAN.md -- Update graph-ops.cjs + write-lock.cjs wrappers, verify WAL concurrent access
 
 ### Phase 78: Memory Layer + Assumptions
 **Goal**: Users have a persistent memory system across sessions -- Larry remembers who they are, what they said, and which assumptions are still valid
@@ -175,7 +175,7 @@ Phases 84 and 85 can run parallel after 80+82 complete.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 77. SQLite Foundation | 0/2 | Planning complete | - |
+| 77. SQLite Foundation | 2/2 | Complete | 2026-04-10 |
 | 78. Memory Layer + Assumptions | 0/? | Not started | - |
 | 79. SQLite Migration + Cleanup | 0/? | Not started | - |
 | 80. De Stijl Component Library + App Foundation | 0/? | Not started | - |
