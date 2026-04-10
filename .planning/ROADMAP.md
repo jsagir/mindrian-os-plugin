@@ -60,7 +60,10 @@ Plans:
   2. Facts stored with valid_from timestamps and can be invalidated (valid_from/invalidated_at lifecycle works)
   3. Session history (L2) and conversation fragments (L3) persist across Claude restarts
   4. Assumptions have validity status (untested/supported/contradicted/stale) that updates when new evidence is filed
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 78-01-PLAN.md -- Schema + L0 identity + L1 facts (memory-ops.cjs foundation)
+- [ ] 78-02-PLAN.md -- L2 sessions + L3 fragments + assumptions tracking
 
 ### Phase 79: SQLite Migration + Cleanup
 **Goal**: Existing rooms with .lazygraph/ data migrate cleanly to room.db, all 24+ KuzuDB-touching files updated, kuzu dependency removed
@@ -71,7 +74,10 @@ Plans:
   2. Running migration tool on a room with existing .lazygraph/ data produces a room.db with identical node/edge counts
   3. grep -r "kuzu" across the entire repo returns zero matches outside migration tool and changelog
   4. package.json no longer lists kuzu as a dependency
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 78-01-PLAN.md -- Schema + L0 identity + L1 facts (memory-ops.cjs foundation)
+- [ ] 78-02-PLAN.md -- L2 sessions + L3 fragments + assumptions tracking
 
 ### Phase 80: De Stijl Component Library + App Foundation
 **Goal**: All MCP Apps share a consistent De Stijl visual language, existing 3 apps upgraded to ext-apps App class with bidirectional tool calling, Shopify intent pattern wired
@@ -81,7 +87,10 @@ Plans:
   1. A shared CSS file (or inline tokens) provides Mondrian grid primitives, health bars, badges, and color tokens reusable across all apps
   2. Existing dashboard, wiki, and graph apps use ext-apps App class with callServerTool for live data fetching
   3. Clicking a UI element in any app bubbles an intent to Larry (e.g., "analyze this section") rather than directly executing actions
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 78-01-PLAN.md -- Schema + L0 identity + L1 facts (memory-ops.cjs foundation)
+- [ ] 78-02-PLAN.md -- L2 sessions + L3 fragments + assumptions tracking
 **UI hint**: yes
 
 ### Phase 81: MCP Server Core
@@ -93,7 +102,10 @@ Plans:
   2. Larry Lite system prompt (200-line methodology instinct) is served to host LLMs, enabling tool orchestration without full Larry personality
   3. Server starts on both stdio (local) and Streamable HTTP (remote) transports from same codebase
   4. MCP tool handlers import from lib/core/*.cjs -- same functions that plugin hooks call
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 78-01-PLAN.md -- Schema + L0 identity + L1 facts (memory-ops.cjs foundation)
+- [ ] 78-02-PLAN.md -- L2 sessions + L3 fragments + assumptions tracking
 
 ### Phase 82: MCP Router Tools
 **Goal**: All Brain, Room, and Compute intelligence accessible through routed MCP tools with subcommand dispatch
@@ -104,7 +116,10 @@ Plans:
   2. Calling room_router with subcommand "analyze" returns room health, "state" returns current position, "file" files an artifact
   3. Calling compute_router with subcommand "hsi_score" returns HSI results, "reverse_salients" identifies weak sections
   4. User asks "what frameworks address wicked problems?" and Text-to-Cypher translates to Cypher, executes against Brain, and Cypher-to-Text renders readable answer
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 78-01-PLAN.md -- Schema + L0 identity + L1 facts (memory-ops.cjs foundation)
+- [ ] 78-02-PLAN.md -- L2 sessions + L3 fragments + assumptions tracking
 
 ### Phase 83: Co-Development Infrastructure
 **Goal**: Every new capability automatically ships as both plugin command and MCP tool, with CI enforcement and test parity
@@ -114,7 +129,10 @@ Plans:
   1. Every lib/core module exports both sync and async variants, importable from both plugin hooks and MCP server
   2. Opening a PR that adds an MCP tool without a matching plugin command (or vice versa) fails CI check
   3. Test harness runs same input through both plugin hook path and MCP tool path, asserts identical output
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 78-01-PLAN.md -- Schema + L0 identity + L1 facts (memory-ops.cjs foundation)
+- [ ] 78-02-PLAN.md -- L2 sessions + L3 fragments + assumptions tracking
 
 ### Phase 84: MCP Apps - Core Views
 **Goal**: Users see rich interactive views inside their chat -- Mullins assessment cards, room command center, knowledge graph explorer, and wiki browser
@@ -125,7 +143,10 @@ Plans:
   2. Room Command Center shows Mondrian-grid section health with APPROVE/REJECT/DEFER buttons that bubble intents to Larry
   3. Knowledge Graph Explorer renders interactive Cytoscape.js graph with pan/zoom/filter, edge type toggles, and click-to-article navigation
   4. Wiki Browser displays room structure as hyperlinked pages with section drill-down, artifact content, and backlinks
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 78-01-PLAN.md -- Schema + L0 identity + L1 facts (memory-ops.cjs foundation)
+- [ ] 78-02-PLAN.md -- L2 sessions + L3 fragments + assumptions tracking
 **UI hint**: yes
 
 ### Phase 85: MCP Apps - Methodology + Meeting
@@ -137,7 +158,10 @@ Plans:
   2. Meeting Timeline shows speaker bubbles along a timeline with decision points and action items, click-to-drill to meeting details
   3. FEEDS_INTO Chain Explorer visualizes framework chains from Brain, clicking a framework shows next steps and rationale
   4. Mode Selection Card presents 3 visual mode buttons (Explore+Capture, Deep Analysis, Quick File) that set Larry's working mode
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 78-01-PLAN.md -- Schema + L0 identity + L1 facts (memory-ops.cjs foundation)
+- [ ] 78-02-PLAN.md -- L2 sessions + L3 fragments + assumptions tracking
 **UI hint**: yes
 
 ### Phase 86: MCP Apps - Interaction Primitives
@@ -150,7 +174,10 @@ Plans:
   3. Chart panels display bar/line/pie/KPI for HSI scores, section coverage, room analytics
   4. Action panels show approve/retry/compare/branch buttons that cascade into next tool actions
   5. Wizard/stepper guides multi-step flows (onboarding, room setup) with progress tracking
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 78-01-PLAN.md -- Schema + L0 identity + L1 facts (memory-ops.cjs foundation)
+- [ ] 78-02-PLAN.md -- L2 sessions + L3 fragments + assumptions tracking
 **UI hint**: yes
 
 ### Phase 87: Cross-Platform Testing
@@ -162,7 +189,10 @@ Plans:
   2. MCP Apps render correctly on ChatGPT with ext-apps SDK compatibility confirmed
   3. MCP server connects and responds to tool calls on OpenClaw via stdio transport
   4. All app HTML includes guard for Claude.ai postMessage bug (issue #47) -- no silent failures
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 78-01-PLAN.md -- Schema + L0 identity + L1 facts (memory-ops.cjs foundation)
+- [ ] 78-02-PLAN.md -- L2 sessions + L3 fragments + assumptions tracking
 
 ## Progress
 
