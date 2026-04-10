@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * sync-rooms-graph -- Sync room hierarchy to KuzuDB local graph
+ * sync-rooms-graph -- Sync room hierarchy to SQLite local graph
  *
- * Reads registry.json, creates/updates Room and RoomGroup nodes in KuzuDB,
+ * Reads registry.json, creates/updates Room and RoomGroup nodes in SQLite,
  * and creates CONTAINS edges for the physical hierarchy.
  *
- * Idempotent: safe to run multiple times (MERGE semantics).
+ * Idempotent: safe to run multiple times (INSERT OR REPLACE semantics).
  * Fire-and-forget: failure never blocks any operation.
  * Additive only: NEVER writes to filesystem or registry.json (D-15).
  * Regenerable: graph can be rebuilt from filesystem at any time (D-18).
@@ -14,7 +14,7 @@
  *   roomsHome - Override ~/MindrianRooms (default: $MINDRIAN_ROOMS_HOME or ~/MindrianRooms)
  *
  * Exit codes:
- *   0 - Success or graceful skip (no registry, no kuzu, etc.)
+ *   0 - Success or graceful skip (no registry, no better-sqlite3, etc.)
  *   Never exits non-zero (fire-and-forget, D-16)
  */
 
@@ -26,57 +26,68 @@ const os = require('os');
 
 const ROOMS_HOME = process.argv[2] || process.env.MINDRIAN_ROOMS_HOME || path.join(os.homedir(), 'MindrianRooms');
 const REGISTRY_PATH = path.join(ROOMS_HOME, '.rooms', 'registry.json');
-const GRAPH_DIR = path.join(ROOMS_HOME, '.rooms', '.room-graph');
+const DB_DIR = path.join(ROOMS_HOME, '.rooms', '.room-graph');
+const DB_PATH = path.join(DB_DIR, 'rooms.db');
 
 /**
- * Initialize KuzuDB schema for room hierarchy.
- * Creates Room, RoomGroup, and VentureStage node tables plus CONTAINS and AT_STAGE rel tables.
+ * Initialize SQLite schema for room hierarchy.
+ * Creates Room, RoomGroup, and VentureStage node tables plus relationship tables.
  * All operations are IF NOT EXISTS -- safe to call repeatedly.
- * @param {object} conn - KuzuDB Connection
+ * @param {import('better-sqlite3').Database} db - better-sqlite3 Database instance
  */
-async function initSchema(conn) {
-  // Node tables
-  await conn.query(`
-    CREATE NODE TABLE IF NOT EXISTS Room(
-      name STRING PRIMARY KEY,
-      venture_name STRING,
-      venture_stage STRING,
-      domain STRING,
-      status STRING,
-      created STRING,
-      path STRING
-    )
+function initRoomSchema(db) {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS rooms (
+      name TEXT PRIMARY KEY,
+      venture_name TEXT DEFAULT '',
+      venture_stage TEXT DEFAULT '',
+      domain TEXT DEFAULT '',
+      status TEXT DEFAULT '',
+      created TEXT DEFAULT '',
+      path TEXT DEFAULT ''
+    );
+    CREATE TABLE IF NOT EXISTS room_groups (
+      name TEXT PRIMARY KEY,
+      icm_layer TEXT DEFAULT 'group',
+      rationale TEXT DEFAULT '',
+      path TEXT DEFAULT ''
+    );
+    CREATE TABLE IF NOT EXISTS venture_stages (
+      name TEXT PRIMARY KEY
+    );
+    CREATE TABLE IF NOT EXISTS group_contains_room (
+      group_name TEXT NOT NULL,
+      room_name TEXT NOT NULL,
+      PRIMARY KEY (group_name, room_name),
+      FOREIGN KEY (group_name) REFERENCES room_groups(name),
+      FOREIGN KEY (room_name) REFERENCES rooms(name)
+    );
+    CREATE TABLE IF NOT EXISTS group_contains_group (
+      parent_group TEXT NOT NULL,
+      child_group TEXT NOT NULL,
+      PRIMARY KEY (parent_group, child_group),
+      FOREIGN KEY (parent_group) REFERENCES room_groups(name),
+      FOREIGN KEY (child_group) REFERENCES room_groups(name)
+    );
+    CREATE TABLE IF NOT EXISTS room_at_stage (
+      room_name TEXT NOT NULL,
+      stage_name TEXT NOT NULL,
+      PRIMARY KEY (room_name, stage_name),
+      FOREIGN KEY (room_name) REFERENCES rooms(name),
+      FOREIGN KEY (stage_name) REFERENCES venture_stages(name)
+    );
   `);
-
-  await conn.query(`
-    CREATE NODE TABLE IF NOT EXISTS RoomGroup(
-      name STRING PRIMARY KEY,
-      icm_layer STRING,
-      rationale STRING,
-      path STRING
-    )
-  `);
-
-  await conn.query(`
-    CREATE NODE TABLE IF NOT EXISTS VentureStage(
-      name STRING PRIMARY KEY
-    )
-  `);
-
-  // Relationship tables
-  await conn.query(`CREATE REL TABLE IF NOT EXISTS CONTAINS(FROM RoomGroup TO Room)`);
-  await conn.query(`CREATE REL TABLE IF NOT EXISTS GROUP_CONTAINS(FROM RoomGroup TO RoomGroup)`);
-  await conn.query(`CREATE REL TABLE IF NOT EXISTS AT_STAGE(FROM Room TO VentureStage)`);
 }
 
 /**
  * Seed the 5 VentureStage nodes (matching Brain taxonomy).
- * @param {object} conn - KuzuDB Connection
+ * @param {import('better-sqlite3').Database} db - better-sqlite3 Database instance
  */
-async function seedStages(conn) {
+function seedStages(db) {
   const stages = ['Pre-Opportunity', 'Discovery', 'Validation', 'Design', 'Investment'];
+  const stmt = db.prepare('INSERT OR IGNORE INTO venture_stages (name) VALUES (?)');
   for (const stage of stages) {
-    await conn.query(`MERGE (s:VentureStage {name: $name})`, { name: stage });
+    stmt.run(stage);
   }
 }
 
@@ -129,47 +140,48 @@ function detectGroups(rooms) {
 }
 
 /**
- * Sync rooms and groups to KuzuDB.
- * Uses MERGE for idempotent upserts.
- * @param {object} conn - KuzuDB Connection
+ * Sync rooms and groups to SQLite.
+ * Uses INSERT OR REPLACE for idempotent upserts.
+ * @param {import('better-sqlite3').Database} db - better-sqlite3 Database instance
  * @param {object} registry - Parsed registry.json
  */
-async function syncRooms(conn, registry) {
+function syncRooms(db, registry) {
   const rooms = registry.rooms || {};
   const groups = detectGroups(rooms);
+
+  const upsertRoom = db.prepare(
+    'INSERT OR REPLACE INTO rooms (name, venture_name, venture_stage, domain, status, created, path) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  );
+  const deleteStage = db.prepare('DELETE FROM room_at_stage WHERE room_name = ?');
+  const insertStage = db.prepare('INSERT OR IGNORE INTO room_at_stage (room_name, stage_name) VALUES (?, ?)');
 
   // Sync Room nodes
   for (const [name, room] of Object.entries(rooms)) {
     if (room.status === 'archived') continue;
 
-    await conn.query(`MERGE (r:Room {name: $name})
-      ON CREATE SET r.venture_name = $vname, r.venture_stage = $vstage,
-        r.status = $status, r.created = $created, r.path = $path, r.domain = $domain
-      ON MATCH SET r.venture_name = $vname, r.venture_stage = $vstage,
-        r.status = $status, r.path = $path, r.domain = $domain`, {
+    upsertRoom.run(
       name,
-      vname: room.venture_name || '',
-      vstage: room.venture_stage || '',
-      status: room.status || 'unknown',
-      created: room.created || '',
-      path: room.path || name,
-      domain: room.domain || ''
-    });
+      room.venture_name || '',
+      room.venture_stage || '',
+      room.domain || '',
+      room.status || 'unknown',
+      room.created || '',
+      room.path || name
+    );
 
     // Create AT_STAGE edge if venture_stage is known
     if (room.venture_stage) {
-      // Delete existing AT_STAGE edges first (room can change stage)
-      await conn.query(`
-        MATCH (r:Room {name: $name})-[e:AT_STAGE]->(:VentureStage)
-        DELETE e
-      `, { name });
-
-      await conn.query(`
-        MATCH (r:Room {name: $name}), (s:VentureStage {name: $stage})
-        CREATE (r)-[:AT_STAGE]->(s)
-      `, { name, stage: room.venture_stage });
+      deleteStage.run(name);
+      insertStage.run(name, room.venture_stage);
     }
   }
+
+  const upsertGroup = db.prepare(
+    'INSERT OR REPLACE INTO room_groups (name, icm_layer, rationale, path) VALUES (?, ?, ?, ?)'
+  );
+  const insertContains = db.prepare(
+    'INSERT OR IGNORE INTO group_contains_room (group_name, room_name) VALUES (?, ?)'
+  );
 
   // Sync RoomGroup nodes
   for (const [groupName, roomNames] of groups) {
@@ -186,39 +198,16 @@ async function syncRooms(conn, registry) {
       }
     } catch (_) {}
 
-    await conn.query(`MERGE (g:RoomGroup {name: $name})
-      ON CREATE SET g.icm_layer = 'group', g.rationale = $rationale, g.path = $path
-      ON MATCH SET g.rationale = $rationale, g.path = $path`, {
-      name: groupName,
-      rationale,
-      path: groupName
-    });
+    upsertGroup.run(groupName, 'group', rationale, groupName);
 
     // Create CONTAINS edges from group to rooms
     for (const roomName of roomNames) {
-      // Check if edge already exists
-      const existing = await conn.query(`
-        MATCH (g:RoomGroup {name: $group})-[:CONTAINS]->(r:Room {name: $room})
-        RETURN count(*) AS cnt
-      `, { group: groupName, room: roomName });
-
-      let edgeCount = 0;
-      while (existing.hasNext()) {
-        const row = await existing.getNext();
-        edgeCount = row['cnt'] || 0;
-      }
-
-      if (edgeCount === 0) {
-        await conn.query(`
-          MATCH (g:RoomGroup {name: $group}), (r:Room {name: $room})
-          CREATE (g)-[:CONTAINS]->(r)
-        `, { group: groupName, room: roomName });
-      }
+      insertContains.run(groupName, roomName);
     }
   }
 }
 
-async function main() {
+function main() {
   // Check registry exists
   if (!fs.existsSync(REGISTRY_PATH)) {
     process.exit(0);
@@ -238,38 +227,34 @@ async function main() {
     process.exit(0);
   }
 
-  // Try to load KuzuDB
-  let kuzu;
+  // Try to load better-sqlite3
+  let Database;
   try {
-    kuzu = require('kuzu');
+    Database = require('better-sqlite3');
   } catch (_) {
-    process.stderr.write('sync-rooms-graph: kuzu not available, skipping local graph sync\n');
+    process.stderr.write('sync-rooms-graph: better-sqlite3 not available, skipping local graph sync\n');
     process.exit(0);
   }
 
   // Open or create graph database
   let db = null;
-  let conn = null;
   try {
-    fs.mkdirSync(GRAPH_DIR, { recursive: true });
-    db = new kuzu.Database(GRAPH_DIR, 0, false, false, 256 * 1024 * 1024);
-    conn = new kuzu.Connection(db);
+    fs.mkdirSync(DB_DIR, { recursive: true });
+    db = new Database(DB_PATH);
+    db.pragma('journal_mode = WAL');
+    db.pragma('foreign_keys = ON');
 
-    await initSchema(conn);
-    await seedStages(conn);
-    await syncRooms(conn, registry);
+    initRoomSchema(db);
+    seedStages(db);
+    syncRooms(db, registry);
 
     const roomCount = Object.keys(registry.rooms).filter(n => registry.rooms[n].status !== 'archived').length;
-    console.log(JSON.stringify({ synced: roomCount, graph: GRAPH_DIR }));
+    console.log(JSON.stringify({ synced: roomCount, graph: DB_PATH }));
   } catch (err) {
     process.stderr.write(`sync-rooms-graph: ${err.message}\n`);
   } finally {
-    try { if (conn) conn.close(); } catch (_) {}
     try { if (db) db.close(); } catch (_) {}
   }
 }
 
-main().catch(err => {
-  process.stderr.write(`sync-rooms-graph: ${err.message}\n`);
-  process.exit(0);
-});
+main();
