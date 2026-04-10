@@ -12,7 +12,7 @@
 - [x] **SQLITE-05**: Assumption tracking table with validity lifecycle (untested/supported/contradicted/stale) and evidence linking
 - [ ] **SQLITE-06**: Natural language graph queries -- Larry translates user questions to SQL, no Cypher exposure to users
 - [ ] **SQLITE-07**: Migration tool converts existing .lazygraph/ data to room.db (or rebuilds from artifacts)
-- [ ] **SQLITE-08**: All 24+ files touching KuzuDB updated (scripts, CLI, MCP tools, wiki, cascade)
+- [x] **SQLITE-08**: All 24+ files touching KuzuDB updated (scripts, CLI, MCP tools, wiki, cascade)
 - [ ] **SQLITE-09**: kuzu npm package removed from dependencies
 
 ## MCP Server (Goal-Oriented Tools)
@@ -102,7 +102,7 @@
 | SQLITE-05 | Phase 78: Memory Layer + Assumptions | Complete |
 | SQLITE-06 | Phase 79: SQLite Migration + Cleanup | Pending |
 | SQLITE-07 | Phase 79: SQLite Migration + Cleanup | Pending |
-| SQLITE-08 | Phase 79: SQLite Migration + Cleanup | Pending |
+| SQLITE-08 | Phase 79: SQLite Migration + Cleanup | Complete |
 | SQLITE-09 | Phase 79: SQLite Migration + Cleanup | Pending |
 | MCP-01 | Phase 81: MCP Server Core | Pending |
 | MCP-02 | Phase 82: Goal-Oriented Tools | Pending |
