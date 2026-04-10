@@ -8,6 +8,10 @@ dashboard/graph.json
 # Context bridge temp files
 /tmp/mindrian-*
 
+# SQLite auxiliary files (WAL mode)
+*.db-wal
+*.db-shm
+
 # Environment and secrets
 .env
 .env.local
