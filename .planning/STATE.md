@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 78-01 (Memory Layer L0 Identity + L1 Facts)
-last_updated: "2026-04-10T06:06:13.881Z"
+stopped_at: Completed 78-02-PLAN.md
+last_updated: "2026-04-10T06:14:07.474Z"
 last_activity: 2026-04-10
 progress:
   total_phases: 11
@@ -59,7 +59,8 @@ Progress: [##                  ] 18%
 - Keep async wrappers initially to avoid 100+ call-site breakage during SQLite migration
 - .mindrian/ is the unified room metadata directory (replaces .graph/ and .lazygraph/)
 - buildGraphFromKuzu function name preserved for backward compat -- Phase 79 handles script updates
-- [Phase 78]: Memory tables share same room.db as graph tables -- single database per room
+- [Phase 78]: JSON columns stored as strings, parsed on read with try/catch fallback
+- [Phase 78]: FK constraints on fragments.session_id enforced naturally by better-sqlite3
 
 ### Pending Todos
 
@@ -78,6 +79,6 @@ Progress: [##                  ] 18%
 
 ## Session Continuity
 
-Last session: 2026-04-10T06:06:13.878Z
-Stopped at: Completed 78-01 (Memory Layer L0 Identity + L1 Facts)
+Last session: 2026-04-10T06:14:07.471Z
+Stopped at: Completed 78-02-PLAN.md
 Resume file: None

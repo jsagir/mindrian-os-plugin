@@ -22,6 +22,13 @@ const {
   addFact,
   invalidateFact,
   getValidFacts,
+  startSession,
+  endSession,
+  addFragment,
+  getSessionHistory,
+  createAssumption,
+  updateAssumptionValidity,
+  getAssumptions,
 } = require('../lib/core/memory-ops.cjs');
 
 // --- Helpers ---
@@ -270,5 +277,255 @@ describe('SQLITE-04: L1 Facts', () => {
     const facts = await getValidFacts(conn);
     const competitorFacts = facts.filter(f => f.subject === 'competitor');
     assert.strictEqual(competitorFacts.length, 0, 'invalidated competitor fact should not appear');
+  });
+});
+
+// ============================================================
+// SQLITE-04: L2 Sessions
+// ============================================================
+
+describe('SQLITE-04: L2 Sessions', () => {
+  let roomDir, db, conn;
+
+  before(async () => {
+    roomDir = createTempRoom();
+    const result = await lazygraph.openGraph(roomDir);
+    db = result.db;
+    conn = result.conn;
+    initMemorySchema(conn);
+  });
+
+  after(async () => {
+    await lazygraph.closeGraph(db);
+    cleanupRoom(roomDir);
+  });
+
+  it('startSession returns id and started_at', async () => {
+    const session = await startSession(conn);
+    assert.ok(typeof session.id === 'number', 'id should be a number');
+    assert.ok(session.id > 0, 'id should be positive');
+    assert.ok(typeof session.started_at === 'string', 'started_at should be a string');
+  });
+
+  it('endSession updates session with ended_at and summary', async () => {
+    const session = await startSession(conn);
+    const result = await endSession(conn, session.id, {
+      summary: 'Discussed market analysis',
+      methodology_used: 'SWOT',
+    });
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.id, session.id);
+    assert.ok(typeof result.ended_at === 'string', 'ended_at should be a string');
+
+    // Verify in database
+    const row = conn.prepare('SELECT * FROM sessions WHERE id = ?').get(session.id);
+    assert.ok(row.ended_at, 'ended_at should be set');
+    assert.strictEqual(row.summary, 'Discussed market analysis');
+    assert.strictEqual(row.methodology_used, 'SWOT');
+  });
+
+  it('endSession stores key_decisions as JSON string', async () => {
+    const session = await startSession(conn);
+    await endSession(conn, session.id, {
+      summary: 'Strategy session',
+      key_decisions: ['Pivot to B2B', 'Hire CTO'],
+    });
+    const row = conn.prepare('SELECT * FROM sessions WHERE id = ?').get(session.id);
+    assert.strictEqual(row.key_decisions, '["Pivot to B2B","Hire CTO"]');
+  });
+});
+
+// ============================================================
+// SQLITE-04: L3 Fragments
+// ============================================================
+
+describe('SQLITE-04: L3 Fragments', () => {
+  let roomDir, db, conn;
+
+  before(async () => {
+    roomDir = createTempRoom();
+    const result = await lazygraph.openGraph(roomDir);
+    db = result.db;
+    conn = result.conn;
+    initMemorySchema(conn);
+  });
+
+  after(async () => {
+    await lazygraph.closeGraph(db);
+    cleanupRoom(roomDir);
+  });
+
+  it('addFragment returns id, session_id, and timestamp', async () => {
+    const session = await startSession(conn);
+    const fragment = await addFragment(conn, {
+      session_id: session.id,
+      role: 'user',
+      content: 'What is our market size?',
+      section_context: 'market-analysis',
+    });
+    assert.ok(typeof fragment.id === 'number', 'id should be a number');
+    assert.strictEqual(fragment.session_id, session.id);
+    assert.ok(typeof fragment.timestamp === 'string', 'timestamp should be a string');
+  });
+
+  it('addFragment with invalid session_id throws', async () => {
+    await assert.rejects(
+      async () => {
+        await addFragment(conn, {
+          session_id: 99999,
+          role: 'user',
+          content: 'This should fail',
+        });
+      },
+      (err) => {
+        // FK constraint error from better-sqlite3
+        assert.ok(err.message.includes('FOREIGN KEY'), 'should throw FK constraint error');
+        return true;
+      }
+    );
+  });
+
+  it('getSessionHistory returns sessions with nested fragments', async () => {
+    const session = await startSession(conn);
+    await addFragment(conn, {
+      session_id: session.id,
+      role: 'user',
+      content: 'First message',
+    });
+    await addFragment(conn, {
+      session_id: session.id,
+      role: 'assistant',
+      content: 'Second message',
+    });
+    await endSession(conn, session.id, { summary: 'Test session' });
+
+    const history = await getSessionHistory(conn);
+    assert.ok(Array.isArray(history), 'should return an array');
+    assert.ok(history.length >= 1, 'should have at least 1 session');
+
+    // Find our session
+    const found = history.find(s => s.id === session.id);
+    assert.ok(found, 'should find the session');
+    assert.ok(Array.isArray(found.fragments), 'session should have fragments array');
+    assert.ok(found.fragments.length >= 2, 'should have at least 2 fragments');
+  });
+
+  it('getSessionHistory respects limit parameter', async () => {
+    // Create a few sessions
+    await startSession(conn);
+    await startSession(conn);
+    await startSession(conn);
+
+    const limited = await getSessionHistory(conn, 2);
+    assert.ok(limited.length <= 2, 'should respect limit');
+  });
+});
+
+// ============================================================
+// SQLITE-05: Assumptions
+// ============================================================
+
+describe('SQLITE-05: Assumptions', () => {
+  let roomDir, db, conn;
+
+  before(async () => {
+    roomDir = createTempRoom();
+    const result = await lazygraph.openGraph(roomDir);
+    db = result.db;
+    conn = result.conn;
+    initMemorySchema(conn);
+  });
+
+  after(async () => {
+    await lazygraph.closeGraph(db);
+    cleanupRoom(roomDir);
+  });
+
+  it('createAssumption returns assumption with untested validity', async () => {
+    const assumption = await createAssumption(conn, {
+      claim: 'Market is $1B',
+      section: 'market-analysis',
+    });
+    assert.ok(typeof assumption.id === 'number', 'id should be a number');
+    assert.strictEqual(assumption.claim, 'Market is $1B');
+    assert.strictEqual(assumption.section, 'market-analysis');
+    assert.strictEqual(assumption.validity, 'untested');
+    assert.ok(typeof assumption.created_at === 'string', 'created_at should be a string');
+  });
+
+  it('updateAssumptionValidity to supported appends evidence_for', async () => {
+    const assumption = await createAssumption(conn, {
+      claim: 'TAM is growing',
+      section: 'market-analysis',
+    });
+    const result = await updateAssumptionValidity(conn, assumption.id, 'supported', {
+      evidence: 'market-data.md',
+    });
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.validity, 'supported');
+
+    // Verify in database
+    const row = conn.prepare('SELECT * FROM assumptions WHERE id = ?').get(assumption.id);
+    assert.strictEqual(row.validity, 'supported');
+    const evidenceFor = JSON.parse(row.evidence_for);
+    assert.ok(evidenceFor.includes('market-data.md'), 'evidence_for should contain the evidence');
+    assert.ok(row.last_tested, 'last_tested should be set');
+  });
+
+  it('updateAssumptionValidity to contradicted appends evidence_against', async () => {
+    const assumption = await createAssumption(conn, {
+      claim: 'No competitors exist',
+      section: 'competitive-analysis',
+    });
+    const result = await updateAssumptionValidity(conn, assumption.id, 'contradicted', {
+      evidence: 'competitor-analysis.md',
+    });
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.validity, 'contradicted');
+
+    const row = conn.prepare('SELECT * FROM assumptions WHERE id = ?').get(assumption.id);
+    const evidenceAgainst = JSON.parse(row.evidence_against);
+    assert.ok(evidenceAgainst.includes('competitor-analysis.md'), 'evidence_against should contain the evidence');
+  });
+
+  it('updateAssumptionValidity to stale sets invalidated_at', async () => {
+    const assumption = await createAssumption(conn, {
+      claim: 'Regulations are stable',
+      section: 'legal-ip',
+    });
+    const result = await updateAssumptionValidity(conn, assumption.id, 'stale', {});
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.validity, 'stale');
+
+    const row = conn.prepare('SELECT * FROM assumptions WHERE id = ?').get(assumption.id);
+    assert.ok(row.invalidated_at, 'invalidated_at should be set for stale assumptions');
+  });
+
+  it('getAssumptions returns all assumptions', async () => {
+    const assumptions = await getAssumptions(conn);
+    assert.ok(Array.isArray(assumptions), 'should return an array');
+    assert.ok(assumptions.length >= 4, 'should have at least 4 assumptions from prior tests');
+    // Verify evidence fields are parsed as arrays
+    for (const a of assumptions) {
+      assert.ok(Array.isArray(a.evidence_for), 'evidence_for should be parsed as array');
+      assert.ok(Array.isArray(a.evidence_against), 'evidence_against should be parsed as array');
+    }
+  });
+
+  it('getAssumptions filters by section', async () => {
+    const filtered = await getAssumptions(conn, { section: 'market-analysis' });
+    assert.ok(Array.isArray(filtered));
+    assert.ok(filtered.length >= 1);
+    for (const a of filtered) {
+      assert.strictEqual(a.section, 'market-analysis');
+    }
+  });
+
+  it('getAssumptions filters by validity', async () => {
+    const filtered = await getAssumptions(conn, { validity: 'untested' });
+    assert.ok(Array.isArray(filtered));
+    for (const a of filtered) {
+      assert.strictEqual(a.validity, 'untested');
+    }
   });
 });

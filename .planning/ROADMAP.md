@@ -62,8 +62,8 @@ Plans:
   4. Assumptions have validity status (untested/supported/contradicted/stale) that updates when new evidence is filed
 **Plans:** 1/2 plans executed
 Plans:
-- [x] 78-01-PLAN.md -- Schema + L0 identity + L1 facts (memory-ops.cjs foundation)
-- [ ] 78-02-PLAN.md -- L2 sessions + L3 fragments + assumptions tracking
+- [ ] 78-01-PLAN.md -- Schema + L0 identity + L1 facts (memory-ops.cjs foundation)
+- [x] 78-02-PLAN.md -- L2 sessions + L3 fragments + assumptions tracking
 
 ### Phase 79: SQLite Migration + Cleanup
 **Goal**: Existing rooms with .lazygraph/ data migrate cleanly to room.db, all 24+ KuzuDB-touching files updated, kuzu dependency removed
