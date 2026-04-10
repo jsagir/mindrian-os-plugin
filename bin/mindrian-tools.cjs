@@ -29,10 +29,10 @@ Commands:
   meeting compute-intel [roomDir]  Run compute-meetings-intelligence script
   meeting compute-team [roomDir]   Run compute-team script
   graph build [roomDir] [outputPath]  Generate knowledge graph JSON
-  graph build-kuzu [roomDir] [outputPath]  Build graph.json from KuzuDB (primary)
-  graph index [roomDir] <filePath>   Index single artifact in LazyGraph (KuzuDB)
+  graph build-sqlite [roomDir] [outputPath]  Build graph.json from SQLite (primary)
+  graph index [roomDir] <filePath>   Index single artifact in LazyGraph (SQLite)
   graph rebuild [roomDir]            Rebuild entire LazyGraph from room artifacts
-  graph query [roomDir] "<cypher>"   Execute Cypher query against LazyGraph
+  graph query [roomDir] "<sql>"      Execute SQL query against LazyGraph
   graph stats [roomDir]              Show LazyGraph node/edge statistics
   opportunity scan [roomDir]     Context-driven grant discovery
   opportunity list [roomDir]     List filed opportunities
@@ -169,7 +169,7 @@ async function main() {
           output(result, raw, JSON.stringify(result));
           break;
         }
-        case 'build-kuzu': {
+        case 'build-sqlite': {
           const outputPath = argv[3]; // optional 4th arg
           const result = graphOps.buildGraphFromKuzu(roomDir, outputPath);
           output(result, raw, JSON.stringify(result));

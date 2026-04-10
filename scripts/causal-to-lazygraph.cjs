@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * causal-to-kuzu.cjs -- KuzuDB Writer for Causal Extraction Results
- * =================================================================
+ * causal-to-lazygraph.cjs -- SQLite Writer for Causal Extraction Results
+ * =====================================================================
  * Reads .causal-extract.json and creates CausalClaim nodes + EXTRACTED_FROM edges.
  * Also creates CASCADES_TO edges from the cascades array (Phase 54).
  * Enforces Three Gaps quality (mechanism + falsifiable_prediction required),
  * max 5 claims per artifact, confidence by extraction method, domain validation.
  *
- * Usage: node scripts/causal-to-kuzu.cjs /path/to/room
+ * Usage: node scripts/causal-to-lazygraph.cjs /path/to/room
  *
  * Follows the open-use-close pattern established in Phase 15.
  */
@@ -30,7 +30,7 @@ const MAX_CLAIMS = 5;
 async function main() {
   const roomDir = process.argv[2];
   if (!roomDir) {
-    process.stderr.write('Usage: node scripts/causal-to-kuzu.cjs /path/to/room\n');
+    process.stderr.write('Usage: node scripts/causal-to-lazygraph.cjs /path/to/room\n');
     process.exit(1);
   }
 

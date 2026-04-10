@@ -162,7 +162,7 @@ const TEST_DIR = '$TEST_DIR';
 async function run() {
   // Run bridge on 7-claim fixture
   try {
-    execSync('node $SCRIPT_DIR/scripts/causal-to-kuzu.cjs ' + TEST_DIR + '/room-t5', { stdio: ['pipe', 'pipe', 'pipe'] });
+    execSync('node $SCRIPT_DIR/scripts/causal-to-lazygraph.cjs ' + TEST_DIR + '/room-t5', { stdio: ['pipe', 'pipe', 'pipe'] });
   } catch (e) {
     // KuzuDB segfault on exit expected
   }
@@ -191,7 +191,7 @@ const TEST_DIR = '$TEST_DIR';
 async function run() {
   // Run bridge on fixture with 1 incomplete claim (claim 3: empty mechanism + prediction)
   try {
-    execSync('node $SCRIPT_DIR/scripts/causal-to-kuzu.cjs ' + TEST_DIR + '/room-t1', { stdio: ['pipe', 'pipe', 'pipe'] });
+    execSync('node $SCRIPT_DIR/scripts/causal-to-lazygraph.cjs ' + TEST_DIR + '/room-t1', { stdio: ['pipe', 'pipe', 'pipe'] });
   } catch (e) {
     // KuzuDB segfault on exit expected
   }

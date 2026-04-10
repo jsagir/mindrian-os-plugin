@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * MindrianOS Plugin -- KuzuDB-sourced Cytoscape JSON Graph Builder
- * Queries KuzuDB (.lazygraph) as primary graph source and outputs
- * Cytoscape JSON matching the build-graph script output structure.
+ * MindrianOS Plugin -- SQLite-sourced Cytoscape JSON Graph Builder
+ * Queries LazyGraph SQLite (.mindrian/room.db) as primary graph source
+ * and outputs Cytoscape JSON matching the build-graph script output structure.
  *
- * Usage: node build-graph-from-kuzu.cjs <roomDir> [outputPath]
+ * Usage: node build-graph-from-sqlite.cjs <roomDir> [outputPath]
  *   roomDir    - Absolute path to room directory
  *   outputPath - Where to write graph.json (default: {roomDir}/.presentation/graph.json)
  *
- * Graceful degradation: exits 0 silently if .lazygraph/ does not exist.
+ * Graceful degradation: exits 0 silently if .mindrian/room.db does not exist.
  * Never fails the hook chain -- all errors exit 0 with stderr message.
  */
 
@@ -43,7 +43,7 @@ function getColor(section) {
   const outputPath = process.argv[3] || (roomDir ? path.join(roomDir, '.presentation', 'graph.json') : null);
 
   if (!roomDir) {
-    process.stderr.write('build-graph-from-kuzu: no roomDir provided\n');
+    process.stderr.write('build-graph-from-sqlite: no roomDir provided\n');
     process.exit(0);
   }
 
@@ -58,7 +58,7 @@ function getColor(section) {
   try {
     lgOps = require(path.resolve(__dirname, '..', 'lib', 'core', 'lazygraph-ops.cjs'));
   } catch (e) {
-    process.stderr.write('build-graph-from-kuzu: could not load lazygraph-ops: ' + e.message + '\n');
+    process.stderr.write('build-graph-from-sqlite: could not load lazygraph-ops: ' + e.message + '\n');
     process.exit(0);
   }
 
@@ -360,8 +360,8 @@ function getColor(section) {
       meta: {
         generatedAt: new Date().toISOString(),
         roomDir: roomDir,
-        generator: 'MindrianOS build-graph-from-kuzu',
-        source: 'kuzudb',
+        generator: 'MindrianOS build-graph-from-sqlite',
+        source: 'sqlite',
       },
       elements: {
         nodes: nodes,
@@ -382,10 +382,10 @@ function getColor(section) {
     }
 
     fs.writeFileSync(outputPath, JSON.stringify(output, null, 2), 'utf-8');
-    process.stderr.write(`build-graph-from-kuzu: ${nodes.length} nodes, ${edges.length} edges -> ${outputPath}\n`);
+    process.stderr.write(`build-graph-from-sqlite: ${nodes.length} nodes, ${edges.length} edges -> ${outputPath}\n`);
 
   } catch (err) {
-    process.stderr.write('build-graph-from-kuzu: ' + err.message + '\n');
+    process.stderr.write('build-graph-from-sqlite: ' + err.message + '\n');
     process.exit(0); // Never fail the hook chain
   } finally {
     if (db) {

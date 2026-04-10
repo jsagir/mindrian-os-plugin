@@ -100,7 +100,7 @@ function preflight(roomDir, requestedSteps, opts) {
     embeddings: fileExists(path.join(mindrianDir, 'whitespace-embeddings.json')),
     brain_baseline: fileExists(path.join(mindrianDir, 'brain-baseline.json')),
     analogy_edges: fileExists(path.join(mindrianDir, 'analogy-edges.json')),
-    kuzu_available: false,
+    sqlite_available: false,
     python_available: false,
     python_version: null,
     steps_will_run: [],
@@ -122,12 +122,12 @@ function preflight(roomDir, requestedSteps, opts) {
     report.python_available = false;
   }
 
-  // Check KuzuDB availability
+  // Check SQLite (LazyGraph) availability
   try {
-    require('kuzu');
-    report.kuzu_available = true;
+    require('better-sqlite3');
+    report.sqlite_available = true;
   } catch {
-    report.kuzu_available = false;
+    report.sqlite_available = false;
   }
 
   // Load data summaries for reporting
@@ -476,7 +476,7 @@ function runDryRun(roomDir, report, opts) {
     `  Embeddings:      ${report.embeddings ? `FOUND (${report.data_summary.embeddings || 'loaded'})` : 'MISSING'}`,
     `  Brain baseline:  ${report.brain_baseline ? `FOUND (${report.data_summary.brain_baseline || 'loaded'})` : 'MISSING'}`,
     `  Analogy edges:   ${report.analogy_edges ? 'FOUND (pre-exported)' : 'MISSING (will export from KuzuDB or use HSI fallback)'}`,
-    `  KuzuDB:          ${report.kuzu_available ? 'AVAILABLE' : 'NOT AVAILABLE (analogy step uses HSI fallback)'}`,
+    `  SQLite:          ${report.sqlite_available ? 'AVAILABLE' : 'NOT AVAILABLE (analogy step uses HSI fallback)'}`,
     `  Python:          ${report.python_available ? report.python_version : 'NOT FOUND'}`,
     '',
     `  Steps that will run:  ${report.steps_will_run.length > 0 ? report.steps_will_run.join(', ') : '(none)'}`,

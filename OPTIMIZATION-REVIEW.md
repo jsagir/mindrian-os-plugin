@@ -156,7 +156,7 @@ Also: presentation-server.cjs line 63 has fs.readFileSync inside an Express requ
 **Fix:** Document state contract: get* = read cached, compute* = regenerate, list* = enumerate.
 
 ### Dual graph implementations
-- `graph-ops.cjs`: kuzu operations
+- `graph-ops.cjs`: graph build operations
 - `lazygraph-ops.cjs`: lazy evaluation version
 - No documentation on when to use which
 

@@ -225,11 +225,11 @@ function main() {
     }
   }
 
-  // ── 6. Query LazyGraph (KuzuDB) for richer relationship data ──
-  let kuzuData = { available: false };
-  const lazygraphDir = path.join(roomDir, '.lazygraph');
-  if (fs.existsSync(lazygraphDir)) {
-    kuzuData = queryLazyGraph(roomDir, graph);
+  // ── 6. Query LazyGraph (SQLite) for richer relationship data ──
+  let graphData = { available: false };
+  const mindrianDir = path.join(roomDir, '.mindrian');
+  if (fs.existsSync(path.join(mindrianDir, 'room.db'))) {
+    graphData = queryLazyGraph(roomDir, graph);
   }
 
   // ── 7. Compute stats ──
@@ -269,7 +269,7 @@ function main() {
     intelligence,
     graph,
     stats,
-    kuzu: kuzuData
+    graphData: graphData
   };
 
   // ── 9. Read template ──
@@ -320,8 +320,8 @@ function main() {
   console.log(`  Sections: ${sections.length} (${emptySections} empty)`);
   console.log(`  Artifacts: ${totalArtifacts}`);
   console.log(`  Intelligence: ${intelligence.gaps.length} gaps, ${intelligence.convergence.length} convergence, ${intelligence.contradictions.length} contradictions`);
-  if (kuzuData.available) {
-    console.log(`  LazyGraph: ${JSON.stringify(kuzuData.edges)} edges`);
+  if (graphData.available) {
+    console.log(`  LazyGraph: ${JSON.stringify(graphData.edges)} edges`);
   }
 }
 
@@ -365,23 +365,20 @@ function parseIntelligence(output) {
   return { gaps, convergence, contradictions };
 }
 
-// ── LazyGraph (KuzuDB) query ──
+// ── LazyGraph (SQLite) query ──
 
 function queryLazyGraph(roomDir, graph) {
-  let kuzuData = { available: false };
-  let db, conn;
+  let lgData = { available: false };
 
   try {
     const lazygraphOps = require(path.join(SCRIPT_DIR, '..', 'lib', 'core', 'lazygraph-ops.cjs'));
-    const { openGraph, closeGraph, queryGraph, graphStats } = lazygraphOps;
 
-    // Use synchronous wrapper since this script is sync-style
-    // KuzuDB ops are async, so we use a self-invoking async wrapper
-    const result = execKuzuSync(roomDir, lazygraphOps);
+    // Use child process wrapper since lazygraph ops are async
+    const result = execLazyGraphSync(roomDir, lazygraphOps);
     if (result) {
-      kuzuData = result.kuzuData;
+      lgData = result.lgData;
 
-      // Merge KuzuDB edges into graph
+      // Merge SQLite edges into graph
       if (result.edges && result.edges.length > 0) {
         const existingEdgeIds = new Set(
           (graph.elements.edges || []).map(e => `${e.data.source}-${e.data.target}-${e.data.type}`)
@@ -393,7 +390,7 @@ function queryLazyGraph(roomDir, graph) {
           if (!existingEdgeIds.has(edgeKey)) {
             graph.elements.edges.push({
               data: {
-                id: `kuzu-e${edgeIdx++}`,
+                id: `lg-e${edgeIdx++}`,
                 source: edge.src,
                 target: edge.tgt,
                 type: edge.relType,
@@ -408,14 +405,14 @@ function queryLazyGraph(roomDir, graph) {
     }
   } catch (err) {
     process.stderr.write(`Warning: LazyGraph query failed: ${err.message}\n`);
-    kuzuData = { available: false };
+    lgData = { available: false };
   }
 
-  return kuzuData;
+  return lgData;
 }
 
-function execKuzuSync(roomDir, lazygraphOps) {
-  // Write a small Node script that queries KuzuDB and outputs JSON
+function execLazyGraphSync(roomDir, lazygraphOps) {
+  // Write a small Node script that queries SQLite and outputs JSON
   const queryScript = `
     const lgOps = require('${path.join(SCRIPT_DIR, '..', 'lib', 'core', 'lazygraph-ops.cjs').replace(/\\/g, '\\\\')}');
     (async () => {
@@ -423,7 +420,7 @@ function execKuzuSync(roomDir, lazygraphOps) {
       try {
         const { db: d, conn } = await lgOps.openGraph('${roomDir.replace(/\\/g, '\\\\')}');
         db = d;
-        const edges = await lgOps.queryGraph(conn, "MATCH (a)-[r]->(b) RETURN type(r) AS relType, a.id AS src, b.id AS tgt, a.title AS srcTitle, b.title AS tgtTitle");
+        const edges = await lgOps.queryGraph(conn, "SELECT e.type AS relType, e.source AS src, e.target AS tgt, json_extract(n1.properties, '$.title') AS srcTitle, json_extract(n2.properties, '$.title') AS tgtTitle FROM edges e LEFT JOIN nodes n1 ON e.source = n1.id LEFT JOIN nodes n2 ON e.target = n2.id");
         const stats = await lgOps.graphStats(conn);
         await lgOps.closeGraph(db);
         console.log(JSON.stringify({ edges, stats }));
@@ -434,7 +431,7 @@ function execKuzuSync(roomDir, lazygraphOps) {
     })();
   `;
 
-  const tmpScript = path.join(roomDir, '.tmp-kuzu-query.js');
+  const tmpScript = path.join(roomDir, '.tmp-lg-query.js');
   try {
     fs.writeFileSync(tmpScript, queryScript, 'utf-8');
     const output = safeExec(`node "${tmpScript}"`, 10000);
@@ -456,16 +453,16 @@ function execKuzuSync(roomDir, lazygraphOps) {
 
     return {
       edges: data.edges || [],
-      kuzuData: {
+      lgData: {
         available: true,
-        artifacts: data.stats?.nodes?.artifacts || 0,
-        sections: data.stats?.nodes?.sections || 0,
+        artifacts: data.stats?.nodes?.Artifact || 0,
+        sections: data.stats?.nodes?.Section || 0,
         edges: edgeCounts
       }
     };
   } catch (err) {
     try { fs.unlinkSync(tmpScript); } catch (_) {}
-    process.stderr.write(`Warning: KuzuDB sync query failed: ${err.message}\n`);
+    process.stderr.write(`Warning: LazyGraph sync query failed: ${err.message}\n`);
     return null;
   }
 }

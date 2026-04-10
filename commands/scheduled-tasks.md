@@ -241,7 +241,7 @@ For HSI recomputation (if scikit-learn is available):
 ```bash
 python3 "${PLUGIN_ROOT}/scripts/compute-hsi.py" "$ROOM_DIR"
 python3 "${PLUGIN_ROOT}/scripts/detect-reverse-salients.py" "$ROOM_DIR"
-node "${PLUGIN_ROOT}/scripts/hsi-to-kuzu.cjs" "$ROOM_DIR"
+node "${PLUGIN_ROOT}/scripts/hsi-to-lazygraph.cjs" "$ROOM_DIR"
 ```
 
 ### Output

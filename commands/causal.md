@@ -165,10 +165,10 @@ After confirmation, write the results:
 }
 ```
 
-3. **Call the bridge script** to write confirmed claims to KuzuDB:
+3. **Call the bridge script** to write confirmed claims to LazyGraph SQLite:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/causal-to-kuzu.cjs" "room/"
+node "${CLAUDE_PLUGIN_ROOT}/scripts/causal-to-lazygraph.cjs" "room/"
 ```
 
 4. **Handle bridge errors:**
@@ -213,7 +213,7 @@ Explain what to look for rather than returning an empty table. Help the user und
 ```
 {warning} Knowledge graph not initialized
   JSON saved to room/.causal-extract.json (claims preserved)
-  Fix: Run /mos:setup graph then re-run the bridge with: node scripts/causal-to-kuzu.cjs room/
+  Fix: Run /mos:setup graph then re-run the bridge with: node scripts/causal-to-lazygraph.cjs room/
 ```
 
 ## When Complete

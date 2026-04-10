@@ -2,10 +2,8 @@
 # MindrianOS Plugin — Phase 15 LazyGraph Integration Tests
 # Tests lazygraph-ops.cjs against test-room-graph fixtures
 #
-# Note: KuzuDB 0.11.3 (archived) triggers a segfault during Node.js process
-# exit after db.close(). All operations complete successfully — the segfault
-# occurs in the native destructor after our code finishes. Tests check output
-# correctness, not exit code of the node process.
+# Note: LazyGraph now uses better-sqlite3 instead of KuzuDB.
+# All operations use SQLite .mindrian/room.db.
 set -euo pipefail
 
 PASS=0
@@ -27,12 +25,12 @@ echo "Test dir: $TEST_DIR"
 echo "Fixture dir: $FIXTURE_DIR"
 echo ""
 
-# --- Test 1: kuzu loads ---
-echo "[1] kuzu loads"
-if node -e "require('kuzu'); console.log('OK')" 2>/dev/null | grep -q OK; then
-  pass "kuzu loads"
+# --- Test 1: better-sqlite3 loads ---
+echo "[1] better-sqlite3 loads"
+if node -e "require('better-sqlite3'); console.log('OK')" 2>/dev/null | grep -q OK; then
+  pass "better-sqlite3 loads"
 else
-  fail "kuzu loads" "require('kuzu') failed"
+  fail "better-sqlite3 loads" "require('better-sqlite3') failed"
 fi
 
 # --- Test 2: Module exports all 7 functions ---

@@ -313,7 +313,7 @@ function collectGraph(roomDir) {
   return graph;
 }
 
-function collectKuzu(roomDir, graph) {
+function collectGraphData(roomDir, graph) {
   const lazygraphDir = path.join(roomDir, '.lazygraph');
   if (!fs.existsSync(lazygraphDir)) return { available: false };
 
@@ -336,7 +336,7 @@ function collectKuzu(roomDir, graph) {
     "})();",
   ].join('\n');
 
-  const tmpScript = path.join(roomDir, '.tmp-pres-kuzu.js');
+  const tmpScript = path.join(roomDir, '.tmp-pres-sqlite.js');
   try {
     fs.writeFileSync(tmpScript, queryScript, 'utf-8');
     const output = safeExec('node "' + tmpScript + '"', 10000);
@@ -346,7 +346,7 @@ function collectKuzu(roomDir, graph) {
     const data = JSON.parse(output.trim());
     if (data.error) return { available: false };
 
-    // Merge KuzuDB edges into graph
+    // Merge SQLite edges into graph
     const existingEdgeIds = new Set(
       (graph.elements.edges || []).map(e => e.data.source + '-' + e.data.target + '-' + e.data.type)
     );
@@ -356,7 +356,7 @@ function collectKuzu(roomDir, graph) {
       if (!existingEdgeIds.has(edgeKey)) {
         graph.elements.edges.push({
           data: {
-            id: 'kuzu-e' + (edgeIdx++),
+            id: 'lg-e' + (edgeIdx++),
             source: edge.src,
             target: edge.tgt,
             type: edge.relType,
@@ -511,7 +511,7 @@ function main() {
   const assets = collectAssets(roomDir);
   const team = collectTeam(roomDir);
   const graph = collectGraph(roomDir);
-  const kuzu = collectKuzu(roomDir, graph);
+  const graphData = collectGraphData(roomDir, graph);
   const stats = collectStats(roomDir, totalArtifacts, sections.length);
   const whitespace = collectWhitespace(roomDir);
   const topicForest = collectTopicForest(roomDir);
@@ -529,7 +529,7 @@ function main() {
     intelligence: { gaps: [], convergence: [], contradictions: [] },
     graph,
     stats,
-    kuzu,
+    graphData,
     minto,
     opportunities,
     assets,
@@ -591,8 +591,8 @@ function main() {
   console.log('  Sections: ' + sections.length);
   console.log('  Artifacts: ' + totalArtifacts);
   console.log('  Graph: ' + (graph.elements.nodes || []).length + ' nodes, ' + (graph.elements.edges || []).length + ' edges');
-  if (kuzu.available) {
-    console.log('  LazyGraph: ' + JSON.stringify(kuzu.edges));
+  if (graphData.available) {
+    console.log('  LazyGraph: ' + JSON.stringify(graphData.edges));
   }
   if (whitespace) {
     console.log('  Whitespace: ' + (whitespace.points || []).length + ' points, ' + (whitespace.zones || []).length + ' zones');
