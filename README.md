@@ -389,8 +389,8 @@ MindrianOS-Plugin/
 │   ├── git-ops                 # Git integration (7 subcommands)
 │   ├── compute-hsi.py          # HSI dual similarity (sklearn TF-IDF + embeddings)
 │   ├── detect-reverse-salients.py  # Cross-section innovation detection
-│   ├── hsi-to-kuzu.cjs         # KuzuDB edge bridge for HSI results
-│   ├── build-graph-from-kuzu.cjs   # graph.json generated from KuzuDB
+│   ├── hsi-to-graph.cjs         # SQLite edge bridge for HSI results
+│   ├── build-graph-from-kuzu.cjs   # graph.json generated from SQLite graph
 │   ├── cross-room-detect.cjs   # Multi-room relationship detection
 │   └── check-hsi-deps          # Python dependency checker
 ├── references/                 # PWS frameworks, meeting protocols, personas
