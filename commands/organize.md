@@ -143,7 +143,7 @@ For each room, collect metadata:
 
 ### Step 2: Attempt Graph-Informed Groupings (Graceful Degradation)
 
-**Tier 1 -- Brain + KuzuDB (richest proposals):**
+**Tier 1 -- Brain + SQLite graph (richest proposals):**
 
 Try calling Brain MCP: `mcp__mindrian-brain__brain_schema` or `mcp__neo4j-brain__get_neo4j_schema`.
 
@@ -467,9 +467,9 @@ When Brain graph is available, these local files serve as a staging area. Decisi
 
 | Available | Proposal Quality | Source |
 |-----------|-----------------|--------|
-| Brain + KuzuDB | Rich: shared frameworks, themes, co-occurrence | Graph queries |
+| Brain + SQLite graph | Rich: shared frameworks, themes, co-occurrence | Graph queries |
 | Brain only | Good: venture stage taxonomy, framework connections | Cypher queries |
-| KuzuDB only | Good: local graph relationships, room metadata | Local graph |
+| SQLite graph only | Good: local graph relationships, room metadata | Local graph |
 | Neither (Tier 0) | Basic: stage clustering, name patterns, domain keywords | Registry + filesystem |
 
 The command always works. Intelligence quality scales with available infrastructure. This is the Tier 0 principle applied to room organization.

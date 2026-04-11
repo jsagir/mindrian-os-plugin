@@ -17,7 +17,7 @@ Launches a local Express server that renders room/ .md files as Wikipedia-style 
 - Table of contents per page
 - Infobox from YAML frontmatter
 - [[wikilink]] cross-references as clickable hyperlinks
-- KuzuDB graph edges as "See also" and backlinks
+- SQLite graph edges as "See also" and backlinks
 - Interactive knowledge graph view (home page)
 - Full-text search across all pages
 - Dark/light mode toggle

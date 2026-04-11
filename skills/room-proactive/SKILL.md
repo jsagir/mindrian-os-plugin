@@ -147,7 +147,7 @@ Where:
 - ROOM_PATH is the resolved room directory path
 - INSIGHT_KEY is the finding's dedup key (format: `type:subtype:section` for gaps, `convergence:term` for convergence, `contradiction:section1:section2` for contradictions)
 
-If the finding references specific artifacts with IDs, add `--source-artifact` and `--target-artifact` flags to create a KuzuDB edge.
+If the finding references specific artifacts with IDs, add `--source-artifact` and `--target-artifact` flags to create a graph edge.
 
 ### Rejection is Data (Decision #13)
 

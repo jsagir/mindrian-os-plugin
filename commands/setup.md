@@ -382,11 +382,11 @@ After successful setup, explain briefly:
 > 2. Computes semantic similarity (MiniLM embeddings or Pinecone)
 > 3. Finds hidden connections where structural and semantic similarity diverge -- things that look different on the surface but mean the same thing, or vice versa
 > 4. Detects Reverse Salients -- where a solution in one section addresses a problem in another section
-> 5. Writes results as KuzuDB edges visible in your knowledge graph
+> 5. Writes results as SQLite graph edges visible in your knowledge graph
 >
 > HSI runs silently in the background. Results appear in:
 > - `room/.hsi-results.json` (raw data)
-> - KuzuDB graph (HSI_CONNECTION and REVERSE_SALIENT edges)
+> - SQLite graph (HSI_CONNECTION and REVERSE_SALIENT edges)
 > - I'll surface the most surprising connections proactively"
 
 ## Important Rules
