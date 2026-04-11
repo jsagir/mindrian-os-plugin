@@ -175,6 +175,7 @@ Defined causal engine architecture. This milestone executes the Brain graph enri
 - AI Team Member Personas (domain experts generated from intelligence + Bono perspectives)
 - Wiki-style Data Room Dashboard (hosted Render/Vercel, nodes = pages, edges = hyperlinks)
 - Obsidian Plugin (room/ as Obsidian vault with graph view)
+- Obsidian-compatible rooms (ship .obsidian/ config template with room creation -- near-zero effort)
 - Chrome Plugin (meeting join + room access)
 - Room as Remote MCP (collaborative team access from local/remote)
 - MindrianOS CLI tools layer (mindrian-tools.cjs like gsd-tools.cjs)
@@ -182,6 +183,8 @@ Defined causal engine architecture. This milestone executes the Brain graph enri
 - Cursor + Antigravity/Windsurf compatibility (ICM = universal interface)
 - Risk vs Uncertainty blog post (adapted for MindrianOS)
 - Site style guide + generated images per article
+- Nanobot multi-channel Larry (wrap MCP server in Nanobot agent -- Larry on Telegram, Discord, WhatsApp, Slack, Email via github.com/HKUDS/nanobot. MCP-native, full MCP-UI rendering, 15+ messaging channels. v3.0+ multi-channel distribution.)
+- OpenClaw skill (Larry as always-on daemon -- 24/7 proactive intelligence, scheduled tasks, meeting capture from any channel)
 
 ## Requirements
 
