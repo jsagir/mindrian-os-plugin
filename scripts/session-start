@@ -150,7 +150,8 @@ if [ -d "$ROOM_DIR" ]; then
   if [ -d "$OPP_BANK_DIR" ]; then
     OPP_BANK_JSON=$(node -e "
       const ops = require('${PLUGIN_ROOT}/lib/core/opportunity-ops.cjs');
-      const opps = ops.listOpportunities('${ROOM_DIR}');
+      const result = ops.listOpportunities('${ROOM_DIR}');
+      const opps = result.opportunities || [];
       if (opps.length === 0) { console.log(''); process.exit(0); }
       const sorted = opps.sort((a,b) => (b.frontmatter.confidence||0) - (a.frontmatter.confidence||0));
       const top = sorted[0];

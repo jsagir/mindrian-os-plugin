@@ -4,9 +4,10 @@
     "larry-personality",
     "pws-methodology",
     "ui-system",
+    "conversation-mode",
+    "context-engine",
     { "name": "room-passive", "when": "dir_exists:room" },
     { "name": "room-proactive", "when": "dir_exists:room" },
-    { "name": "context-engine", "when": "dir_exists:room" },
     { "name": "brain-connector", "when": "env:MINDRIAN_BRAIN_KEY" }
   ],
   "statusLine": {
