@@ -3,49 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="MindrianOS -- AI Innovation Co-Founder">
 <title>MindrianOS Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@400;600;700;800&family=Source+Serif+4:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ============================================
-   DESIGN TOKENS -- Semantic Color System
-   All colors via CSS custom properties.
-   Zero raw hex in components.
+   DE STIJL DESIGN SYSTEM
+   Ported from export-template.html
+   The REAL MindrianOS visual identity
    ============================================ */
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@400;500;600;700&display=swap');
-
 :root {
-  /* --- Surface --- */
-  --surface-deep: #0A0A0A;
-  --surface-base: #1A1A1A;
-  --surface-card: #2A2A2A;
-  --surface-elevated: #333333;
-  --surface-hover: #3A3A3A;
-
-  /* --- Mondrian Decorative (brand only, NOT semantic) --- */
+  /* --- Mondrian Palette --- */
   --mondrian-red: #C23B22;
-  --mondrian-blue: #2A5DB0;
-  --mondrian-yellow: #F2C12E;
-  --mondrian-black: #111111;
-  --mondrian-cream: #F8F6F0;
+  --mondrian-blue: #1B3B6F;
+  --mondrian-yellow: #E8B931;
+  --mondrian-black: #1A1A1A;
+  --mondrian-white: #F7F3ED;
+  --mondrian-gray: #D4CFC7;
+  --accent-green: #2D6B4A;
+  --accent-sienna: #B5602A;
 
-  /* --- Semantic Colors --- */
-  --color-primary: #2563EB;
-  --color-accent: #F97316;
-  --color-success: #22C55E;
-  --color-warning: #EAB308;
-  --color-danger: #EF4444;
+  /* --- Grid Borders --- */
+  --grid-border: 5px solid var(--mondrian-black);
+  --grid-border-thin: 3px solid var(--mondrian-black);
 
-  /* --- Text --- */
-  --text-primary: #F8F6F0;
-  --text-secondary: #B8B0A4;
-  --text-muted: #8A8478;
-  --text-inverse: #0A0A0A;
+  /* --- Semantic Colors (De Stijl adapted) --- */
+  --color-success: #2D6B4A;
+  --color-danger: #C23B22;
+  --color-warning: #E8B931;
+  --color-info: #1B3B6F;
 
-  /* --- Grid Lines (the Mondrian signature) --- */
-  --grid-line: #111111;
-  --grid-width: 3px;
-  --grid-width-heavy: 4px;
+  /* --- Typography --- */
+  --font-headline: "Playfair Display", Georgia, serif;
+  --font-body: "Source Serif 4", Georgia, serif;
+  --font-ui: "DM Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 
-  /* --- Spacing Scale --- */
+  /* --- Spacing --- */
   --s1: 4px;
   --s2: 8px;
   --s3: 12px;
@@ -55,33 +51,22 @@
   --s7: 40px;
   --s8: 48px;
 
-  /* --- Typography --- */
-  --font-mono: 'Fira Code', ui-monospace, monospace;
-  --font-body: 'Fira Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --text-xs: 11px;
-  --text-sm: 12px;
-  --text-base: 13px;
-  --text-md: 14px;
-  --text-lg: 16px;
-  --text-xl: 20px;
-  --text-2xl: 28px;
-
   /* --- Animation --- */
   --transition-fast: 150ms ease-out;
   --transition-base: 200ms ease-out;
-  --transition-slow: 300ms ease-out;
+  --transition-slow: 300ms ease;
 
   /* --- Focus --- */
-  --focus-ring: 2px solid var(--color-accent);
-  --focus-offset: 2px;
+  --focus-ring: 3px solid var(--mondrian-yellow);
+  --focus-offset: -3px;
 
   /* --- Touch Target --- */
   --touch-min: 44px;
 
   /* --- Bullet Chart Zones --- */
-  --zone-danger: #2D1111;
-  --zone-warning: #2D2611;
-  --zone-good: #112D15;
+  --zone-danger: #F0DDD9;
+  --zone-warning: #F5EDD4;
+  --zone-good: #D9EAE0;
 }
 
 /* --- Reduced Motion --- */
@@ -103,126 +88,144 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: var(--font-body);
-  background: var(--surface-deep);
-  color: var(--text-primary);
-  min-height: 100vh;
-  overflow-x: hidden;
+html {
+  font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--mondrian-black);
+  color: var(--mondrian-black);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* --- Focus Visible --- */
 *:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
+  z-index: 11;
 }
 
 /* ============================================
    PLATFORM SHELL
-   No fixed height -- min-height with flex growth
    ============================================ */
 .platform {
   display: grid;
   grid-template-rows: auto 1fr auto;
   min-height: 100vh;
-  background: var(--surface-deep);
+  background: var(--mondrian-black);
 }
 
 /* ============================================
-   HEADER BAR
+   TOPBAR -- Black background, logo blocks, editorial
+   Matches export-template.html exactly
    ============================================ */
-.header {
+.topbar {
+  height: 56px;
+  background: var(--mondrian-black);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--s4);
-  min-height: var(--s8);
-  background: var(--surface-base);
-  border-bottom: var(--grid-width-heavy) solid var(--mondrian-red);
-  gap: var(--s4);
+  padding: 0 24px;
+  border-bottom: var(--grid-border);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.header-left {
+.topbar-left {
   display: flex;
   align-items: center;
-  gap: var(--s3);
+  gap: 16px;
   flex-shrink: 0;
 }
 
-/* --- Mondrian Logo Block --- */
-.logo {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 2px;
-  width: 24px;
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.topbar-logo-block {
+  width: 8px;
   height: 24px;
 }
-.logo-block {
-  border-radius: 1px;
-}
-.logo-block:nth-child(1) { background: var(--mondrian-red); }
-.logo-block:nth-child(2) { background: var(--mondrian-blue); }
-.logo-block:nth-child(3) { background: var(--mondrian-yellow); }
-.logo-block:nth-child(4) { background: var(--mondrian-cream); }
+.topbar-logo-block.r { background: var(--mondrian-red); }
+.topbar-logo-block.b { background: var(--mondrian-blue); }
+.topbar-logo-block.y { background: var(--mondrian-yellow); }
 
-.header-title {
-  font-family: var(--font-mono);
-  font-size: var(--text-base);
+.topbar-title {
+  font-family: var(--font-ui);
   font-weight: 700;
-  letter-spacing: 1px;
+  font-size: 13px;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--text-primary);
+  color: var(--mondrian-white);
 }
 
-.venture-badge {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: 500;
-  color: var(--text-muted);
-  padding: var(--s1) var(--s3);
-  border: 1px solid var(--surface-elevated);
-  background: var(--surface-card);
-  white-space: nowrap;
+.topbar-badge {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--mondrian-black);
+  background: var(--mondrian-yellow);
+  padding: 4px 14px;
+  display: inline-block;
 }
 
-/* --- View Tabs --- */
-.view-tabs {
+/* --- Tab Navigation --- */
+.topbar-nav {
   display: flex;
-  gap: 2px;
-  overflow-x: auto;
+  gap: 0;
 }
 
-.tab {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  letter-spacing: 0.5px;
+.topbar-nav button {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--mondrian-gray);
   background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
-  padding: 0 var(--s3);
+  padding: 8px 18px;
   min-height: var(--touch-min);
   min-width: var(--touch-min);
   cursor: pointer;
-  transition: color var(--transition-base), border-color var(--transition-base);
-  white-space: nowrap;
+  transition: color 0.2s ease, background 0.2s ease;
+  position: relative;
   display: flex;
   align-items: center;
-  gap: var(--s2);
+  gap: 8px;
 }
-.tab:hover {
-  color: var(--text-secondary);
+
+.topbar-nav button:hover {
+  color: var(--mondrian-white);
 }
-.tab.active {
-  color: var(--text-primary);
-  border-bottom-color: var(--mondrian-yellow);
+
+.topbar-nav button.active {
+  color: var(--mondrian-white);
+  background: rgba(255,255,255,0.08);
 }
-.tab svg {
+
+.topbar-nav button.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: var(--mondrian-yellow);
+}
+
+.topbar-nav button svg {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
@@ -233,8 +236,8 @@ body {
    ============================================ */
 .content {
   overflow-y: auto;
-  padding: var(--s5);
   min-height: 0;
+  background: var(--mondrian-black);
 }
 
 /* --- View Transitions --- */
@@ -248,64 +251,73 @@ body {
 
 /* ============================================
    VIEW 1: MULLINS ASSESSMENT (Home)
-   Three Mondrian columns -- the flagship visual
+   Three Mondrian columns with colored backgrounds
    ============================================ */
 .mullins {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: var(--grid-width);
-  background: var(--grid-line);
-  border: var(--grid-width) solid var(--grid-line);
-  margin-bottom: var(--s5);
+  gap: 5px;
+  background: var(--mondrian-black);
+  padding: 5px;
+  min-height: calc(100vh - 56px - 36px - 80px);
 }
 
 .mullins-column {
-  background: var(--surface-base);
-  padding: var(--s5);
-  border-top: var(--grid-width-heavy) solid;
+  padding: 28px 24px;
   display: flex;
   flex-direction: column;
-  gap: var(--s3);
+  gap: var(--s4);
+  position: relative;
 }
-.mullins-column.real { border-top-color: var(--mondrian-blue); }
-.mullins-column.win { border-top-color: var(--mondrian-yellow); }
-.mullins-column.worth { border-top-color: var(--mondrian-red); }
+.mullins-column.real {
+  background: var(--mondrian-blue);
+  color: var(--mondrian-white);
+}
+.mullins-column.win {
+  background: var(--mondrian-yellow);
+  color: var(--mondrian-black);
+}
+.mullins-column.worth {
+  background: var(--mondrian-red);
+  color: var(--mondrian-white);
+}
 
 .mullins-header {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
+  font-family: var(--font-headline);
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
+  font-size: 24px;
+  line-height: 1.2;
   padding-bottom: var(--s3);
-  border-bottom: 1px solid var(--surface-elevated);
+  border-bottom: 2px solid rgba(255,255,255,0.2);
 }
-.mullins-column.real .mullins-header { color: var(--mondrian-blue); }
-.mullins-column.win .mullins-header { color: var(--mondrian-yellow); }
-.mullins-column.worth .mullins-header { color: var(--mondrian-red); }
+.mullins-column.win .mullins-header {
+  border-bottom-color: rgba(0,0,0,0.15);
+}
 
-/* --- Mullins Cell (clickable question) --- */
+/* --- Mullins Cell (evidence meter) --- */
 .mullins-cell {
-  padding: var(--s3) var(--s4);
-  background: var(--surface-card);
-  border: 1px solid transparent;
+  padding: var(--s4);
+  background: rgba(255,255,255,0.08);
   cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition: transform var(--transition-slow), box-shadow var(--transition-slow);
   min-height: var(--touch-min);
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: var(--s2);
 }
+.mullins-column.win .mullins-cell {
+  background: rgba(0,0,0,0.06);
+}
 .mullins-cell:hover {
-  background: var(--surface-elevated);
-  border-color: var(--surface-hover);
+  transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 10;
 }
 
 .cell-question {
   font-family: var(--font-body);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
   line-height: 1.3;
 }
 
@@ -313,8 +325,14 @@ body {
 .bullet-chart {
   position: relative;
   height: 20px;
-  background: var(--surface-deep);
   overflow: hidden;
+}
+.mullins-column.real .bullet-chart,
+.mullins-column.worth .bullet-chart {
+  background: rgba(255,255,255,0.1);
+}
+.mullins-column.win .bullet-chart {
+  background: rgba(0,0,0,0.08);
 }
 
 /* Qualitative zones */
@@ -326,18 +344,21 @@ body {
 .bullet-zone.danger {
   left: 0;
   width: 33.33%;
-  background: var(--zone-danger);
+  background: rgba(194,59,34,0.25);
 }
 .bullet-zone.ok {
   left: 33.33%;
   width: 33.33%;
-  background: var(--zone-warning);
+  background: rgba(232,185,49,0.2);
 }
 .bullet-zone.good {
   left: 66.66%;
   width: 33.34%;
-  background: var(--zone-good);
+  background: rgba(45,107,74,0.25);
 }
+.mullins-column.win .bullet-zone.danger { background: rgba(194,59,34,0.2); }
+.mullins-column.win .bullet-zone.ok { background: rgba(181,96,42,0.15); }
+.mullins-column.win .bullet-zone.good { background: rgba(45,107,74,0.2); }
 
 /* Current value bar */
 .bullet-bar {
@@ -345,14 +366,16 @@ body {
   top: 5px;
   left: 0;
   height: 10px;
-  background: var(--color-success);
   transition: width var(--transition-slow);
   z-index: 2;
 }
-.bullet-bar.high { background: var(--color-success); }
-.bullet-bar.mid { background: var(--color-warning); }
-.bullet-bar.low { background: var(--color-danger); }
-.bullet-bar.none { background: var(--surface-elevated); width: 0 !important; }
+.bullet-bar.high { background: var(--accent-green); }
+.bullet-bar.mid { background: var(--accent-sienna); }
+.bullet-bar.low { background: var(--mondrian-red); }
+.bullet-bar.none { background: var(--mondrian-gray); width: 0 !important; }
+.mullins-column.win .bullet-bar.high { background: var(--accent-green); }
+.mullins-column.win .bullet-bar.mid { background: var(--accent-sienna); }
+.mullins-column.win .bullet-bar.low { background: var(--mondrian-red); }
 
 /* Target marker */
 .bullet-target {
@@ -360,8 +383,14 @@ body {
   top: 2px;
   height: 16px;
   width: 2px;
-  background: var(--text-primary);
   z-index: 3;
+}
+.mullins-column.real .bullet-target,
+.mullins-column.worth .bullet-target {
+  background: var(--mondrian-white);
+}
+.mullins-column.win .bullet-target {
+  background: var(--mondrian-black);
 }
 
 .cell-meta {
@@ -372,14 +401,15 @@ body {
 
 .cell-score {
   font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.8;
 }
 
 .cell-artifacts {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-muted);
+  opacity: 0.7;
   display: flex;
   align-items: center;
   gap: var(--s1);
@@ -394,18 +424,21 @@ body {
 .mullins-footer {
   margin-top: auto;
   padding-top: var(--s3);
-  border-top: 1px solid var(--surface-elevated);
+  border-top: 2px solid rgba(255,255,255,0.15);
   display: flex;
   justify-content: space-between;
   font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  color: var(--text-muted);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+.mullins-column.win .mullins-footer {
+  border-top-color: rgba(0,0,0,0.12);
 }
 .mullins-footer .gap-count {
-  color: var(--color-danger);
+  opacity: 0.9;
 }
 .mullins-footer .evidence-count {
-  color: var(--text-secondary);
+  opacity: 0.75;
 }
 
 /* --- Brain Suggestion Strip --- */
@@ -413,72 +446,77 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--s4);
-  padding: var(--s4) var(--s5);
-  background: var(--surface-base);
-  border: var(--grid-width) solid var(--grid-line);
-  border-left: var(--grid-width-heavy) solid var(--mondrian-blue);
-  min-height: var(--s8);
+  gap: var(--s5);
+  padding: var(--s5);
+  background: var(--mondrian-black);
+  margin: 0 5px 5px 5px;
+  min-height: 64px;
 }
 
 .suggestion-content {
   display: flex;
   align-items: center;
-  gap: var(--s3);
+  gap: var(--s4);
   flex: 1;
   min-width: 0;
 }
 
 .suggestion-icon {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--surface-card);
-  border: 1px solid var(--surface-elevated);
+  background: rgba(232,185,49,0.12);
+  border: 1px solid rgba(232,185,49,0.3);
 }
 .suggestion-icon svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   color: var(--mondrian-yellow);
 }
 
 .suggestion-text {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  line-height: 1.4;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--mondrian-white);
+  line-height: 1.5;
+  opacity: 0.85;
 }
 .suggestion-framework {
   font-family: var(--font-mono);
-  font-weight: 600;
+  font-weight: 500;
   color: var(--mondrian-yellow);
 }
 .suggestion-area {
   font-family: var(--font-mono);
-  font-weight: 600;
-  color: var(--color-danger);
+  font-weight: 500;
+  color: var(--mondrian-red);
 }
 
 .btn-run {
   font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 1px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 0 var(--s5);
   min-height: var(--touch-min);
   min-width: 100px;
-  background: var(--color-primary);
-  color: var(--text-primary);
+  background: var(--mondrian-yellow);
+  color: var(--mondrian-black);
   border: none;
   cursor: pointer;
-  transition: background var(--transition-fast);
+  transition: background var(--transition-fast), transform 0.15s ease;
   flex-shrink: 0;
 }
 .btn-run:hover {
-  background: #3B7BFF;
+  background: #D4A82A;
+  transform: translateY(-1px);
+}
+.btn-run:active {
+  transform: scale(0.97);
 }
 
 /* ============================================
@@ -489,39 +527,42 @@ body {
 .cascade-alerts {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  margin-bottom: var(--s5);
+  gap: 5px;
+  padding: 5px;
+  background: var(--mondrian-black);
 }
 
 .alert-card {
   display: flex;
   align-items: center;
-  gap: var(--s4);
-  padding: var(--s3) var(--s5);
-  background: var(--surface-base);
-  border-left: var(--grid-width-heavy) solid;
+  gap: var(--s5);
+  padding: var(--s4) var(--s5);
+  background: var(--mondrian-white);
+  border-left: 5px solid;
   min-height: var(--s8);
 }
-.alert-card.contradiction { border-left-color: var(--color-danger); }
-.alert-card.convergence { border-left-color: var(--color-primary); }
-.alert-card.invalidation { border-left-color: var(--color-warning); }
+.alert-card.contradiction { border-left-color: var(--mondrian-red); }
+.alert-card.convergence { border-left-color: var(--mondrian-blue); }
+.alert-card.invalidation { border-left-color: var(--mondrian-yellow); }
 
 .alert-type-badge {
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-muted);
+  letter-spacing: 0.14em;
+  color: var(--mondrian-black);
   flex-shrink: 0;
-  width: 100px;
+  width: 110px;
+  opacity: 0.6;
 }
 
 .alert-text {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--mondrian-black);
   flex: 1;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .alert-actions {
@@ -533,67 +574,95 @@ body {
 .btn {
   font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 0 var(--s3);
   min-height: var(--touch-min);
   min-width: var(--touch-min);
-  border: none;
+  border: 1px solid rgba(26,26,26,0.2);
+  border-radius: 0;
   cursor: pointer;
-  transition: opacity var(--transition-fast), background var(--transition-fast);
+  transition: all var(--transition-fast);
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(8px);
 }
-.btn:hover { opacity: 0.85; }
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: scale(0.97); }
 
-.btn-approve { background: var(--color-success); color: var(--text-primary); }
-.btn-reject { background: var(--color-danger); color: var(--text-primary); }
-.btn-defer { background: var(--surface-elevated); color: var(--text-secondary); }
+.btn-approve {
+  background: rgba(45,107,74,0.1);
+  color: var(--accent-green);
+  border-color: var(--accent-green);
+}
+.btn-approve:hover {
+  background: var(--accent-green);
+  color: var(--mondrian-white);
+}
+.btn-reject {
+  background: rgba(194,59,34,0.1);
+  color: var(--mondrian-red);
+  border-color: var(--mondrian-red);
+}
+.btn-reject:hover {
+  background: var(--mondrian-red);
+  color: var(--mondrian-white);
+}
+.btn-defer {
+  background: rgba(26,26,26,0.05);
+  color: var(--mondrian-black);
+  border-color: var(--mondrian-gray);
+}
+.btn-defer:hover {
+  background: var(--mondrian-gray);
+  color: var(--mondrian-black);
+}
 
 /* --- Mondrian Section Grid --- */
 .mondrian-grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
-  grid-template-rows: auto auto;
-  gap: var(--grid-width);
-  background: var(--grid-line);
-  border: var(--grid-width) solid var(--grid-line);
+  grid-auto-rows: minmax(160px, 1fr);
+  gap: 5px;
+  background: var(--mondrian-black);
+  padding: 0 5px 5px 5px;
 }
 
 .section-card {
-  background: var(--surface-base);
-  padding: var(--s4);
+  padding: 28px 24px;
   cursor: pointer;
-  transition: background var(--transition-fast);
   position: relative;
-  min-height: calc(var(--touch-min) * 2);
+  overflow: hidden;
+  transition: transform var(--transition-slow), box-shadow var(--transition-slow);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  min-height: calc(var(--touch-min) * 2);
+  opacity: 0;
+  animation: cellAssemble 0.6s ease forwards;
 }
 .section-card:hover {
-  background: var(--surface-card);
+  transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 10;
 }
 .section-card.span-2 {
   grid-row: span 2;
 }
 
-/* Section card accent zones -- Mondrian color blocks */
-.section-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--grid-width-heavy);
+@keyframes cellAssemble {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
-.section-card:nth-child(1)::before { background: var(--mondrian-blue); }
-.section-card:nth-child(2)::before { background: var(--mondrian-yellow); }
-.section-card:nth-child(3)::before { background: var(--mondrian-red); }
-.section-card:nth-child(4)::before { background: var(--mondrian-yellow); }
-.section-card:nth-child(5)::before { background: var(--mondrian-blue); }
+
+/* Section card color assignments */
+.section-card:nth-child(1) { background: var(--mondrian-blue); color: var(--mondrian-white); }
+.section-card:nth-child(2) { background: var(--mondrian-yellow); color: var(--mondrian-black); }
+.section-card:nth-child(3) { background: var(--mondrian-white); color: var(--mondrian-black); }
+.section-card:nth-child(4) { background: var(--mondrian-white); color: var(--mondrian-black); }
+.section-card:nth-child(5) { background: var(--mondrian-red); color: var(--mondrian-white); }
 
 .section-health {
   position: absolute;
@@ -608,28 +677,28 @@ body {
 .health-gap { background: var(--color-danger); box-shadow: 0 0 6px var(--color-danger); }
 
 .section-name {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 0.5px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   margin-bottom: var(--s2);
+  opacity: 0.7;
 }
 
 .section-count {
-  font-family: var(--font-mono);
-  font-size: var(--text-2xl);
+  font-family: var(--font-headline);
+  font-size: 36px;
   font-weight: 700;
-  color: var(--text-primary);
   line-height: 1;
 }
 
 .section-label {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-muted);
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+  margin-top: var(--s1);
 }
 
 /* ============================================
@@ -638,7 +707,20 @@ body {
 .graph-view {
   display: flex;
   flex-direction: column;
-  gap: var(--s4);
+  gap: 5px;
+  padding: 5px;
+  background: var(--mondrian-black);
+  min-height: calc(100vh - 56px - 36px);
+}
+
+.graph-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  background: var(--mondrian-white);
+  padding: var(--s3) var(--s5);
 }
 
 .graph-filters {
@@ -648,32 +730,54 @@ body {
 }
 
 .filter-btn {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: 600;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 500;
   padding: 0 var(--s4);
   min-height: var(--touch-min);
-  background: var(--surface-card);
-  color: var(--text-muted);
-  border: 1px solid var(--surface-elevated);
+  background: transparent;
+  color: var(--mondrian-black);
+  border: 1px solid var(--mondrian-gray);
   cursor: pointer;
   transition: all var(--transition-fast);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.12em;
 }
 .filter-btn:hover {
-  background: var(--surface-elevated);
-  color: var(--text-secondary);
+  border-color: var(--mondrian-black);
 }
 .filter-btn.active {
-  background: var(--color-primary);
-  color: var(--text-primary);
-  border-color: var(--color-primary);
+  background: var(--mondrian-black);
+  color: var(--mondrian-white);
+  border-color: var(--mondrian-black);
+}
+
+.graph-search input {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--mondrian-white);
+  color: var(--mondrian-black);
+  border: var(--grid-border-thin);
+  padding: 0 var(--s4);
+  min-height: var(--touch-min);
+  min-width: 200px;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+.graph-search input:focus {
+  border-color: var(--mondrian-yellow);
+}
+.graph-search input::placeholder {
+  color: var(--mondrian-gray);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .graph-container {
-  background: var(--surface-base);
-  border: var(--grid-width) solid var(--grid-line);
+  background: var(--mondrian-white);
+  flex: 1;
   min-height: 400px;
   display: flex;
   align-items: center;
@@ -682,60 +786,47 @@ body {
   overflow: hidden;
 }
 
-/* Decorative Mondrian grid overlay for the placeholder */
-.graph-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--s4);
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  z-index: 1;
-}
-.graph-placeholder svg {
-  width: 48px;
-  height: 48px;
-  opacity: 0.3;
-}
-
-/* Decorative graph background -- Mondrian composition */
+/* Decorative Mondrian grid background */
 .graph-bg {
   position: absolute;
   inset: 0;
   display: grid;
   grid-template-columns: 3fr 1fr 2fr;
   grid-template-rows: 2fr 1fr 1fr;
-  gap: var(--grid-width);
-  background: var(--grid-line);
-  opacity: 0.15;
+  gap: 5px;
+  background: var(--mondrian-black);
+  opacity: 0.08;
 }
-.graph-bg-cell { background: var(--surface-base); }
-.graph-bg-cell:nth-child(2) { background: var(--mondrian-blue); opacity: 0.3; }
-.graph-bg-cell:nth-child(5) { background: var(--mondrian-red); opacity: 0.2; }
-.graph-bg-cell:nth-child(7) { background: var(--mondrian-yellow); opacity: 0.25; }
+.graph-bg-cell { background: var(--mondrian-white); }
+.graph-bg-cell:nth-child(2) { background: var(--mondrian-blue); }
+.graph-bg-cell:nth-child(5) { background: var(--mondrian-red); }
+.graph-bg-cell:nth-child(7) { background: var(--mondrian-yellow); }
 
-.graph-search {
+.graph-placeholder {
   display: flex;
-  gap: var(--s2);
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s4);
+  z-index: 1;
 }
-.graph-search input {
+.graph-placeholder svg {
+  width: 48px;
+  height: 48px;
+  color: var(--mondrian-black);
+  opacity: 0.2;
+}
+.graph-placeholder-title {
+  font-family: var(--font-headline);
+  font-size: 20px;
+  color: var(--mondrian-black);
+  opacity: 0.4;
+}
+.graph-placeholder-sub {
   font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  background: var(--surface-card);
-  color: var(--text-primary);
-  border: 1px solid var(--surface-elevated);
-  padding: 0 var(--s4);
-  min-height: var(--touch-min);
-  min-width: 200px;
-  outline: none;
-  transition: border-color var(--transition-fast);
-}
-.graph-search input:focus {
-  border-color: var(--color-accent);
-}
-.graph-search input::placeholder {
-  color: var(--text-muted);
+  font-size: 10px;
+  color: var(--mondrian-black);
+  opacity: 0.3;
+  letter-spacing: 0.05em;
 }
 
 /* ============================================
@@ -744,17 +835,30 @@ body {
 .chain-view {
   display: flex;
   flex-direction: column;
-  gap: var(--s5);
+  gap: 5px;
+  padding: 5px;
+  background: var(--mondrian-black);
+  min-height: calc(100vh - 56px - 36px);
 }
 
+.chain-header-bar {
+  background: var(--mondrian-white);
+  padding: var(--s4) var(--s5);
+}
 .chain-label {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--mondrian-black);
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  opacity: 0.6;
 }
 
+.chain-track-wrapper {
+  background: var(--mondrian-white);
+  padding: var(--s5);
+}
 .chain-track {
   display: flex;
   align-items: center;
@@ -765,30 +869,31 @@ body {
 }
 
 .chain-node {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: 600;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   white-space: nowrap;
   padding: 0 var(--s4);
   min-height: var(--touch-min);
   display: flex;
   align-items: center;
-  background: var(--surface-base);
-  border: 2px solid var(--surface-elevated);
+  background: var(--mondrian-white);
+  border: var(--grid-border-thin);
   cursor: pointer;
   transition: all var(--transition-fast);
-  color: var(--text-secondary);
+  color: var(--mondrian-black);
   flex-shrink: 0;
+  text-transform: uppercase;
 }
 .chain-node:hover {
-  background: var(--surface-card);
-  border-color: var(--mondrian-blue);
-  color: var(--text-primary);
+  background: var(--mondrian-gray);
+  transform: translateY(-1px);
 }
 .chain-node.active {
   background: var(--mondrian-blue);
   border-color: var(--mondrian-blue);
-  color: var(--text-primary);
+  color: var(--mondrian-white);
 }
 
 .chain-arrow {
@@ -801,23 +906,25 @@ body {
 .chain-arrow svg {
   width: 20px;
   height: 20px;
-  color: var(--text-muted);
+  color: var(--mondrian-black);
+  opacity: 0.3;
 }
 
 /* Chain detail panel */
 .chain-detail {
-  background: var(--surface-base);
-  border: var(--grid-width) solid var(--grid-line);
-  border-left: var(--grid-width-heavy) solid var(--mondrian-blue);
-  padding: var(--s5);
+  background: var(--mondrian-white);
+  border-left: 5px solid var(--mondrian-blue);
+  padding: var(--s6) var(--s5);
+  flex: 1;
 }
 
 .chain-detail-title {
-  font-family: var(--font-mono);
-  font-size: var(--text-lg);
+  font-family: var(--font-headline);
+  font-size: 24px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--mondrian-black);
   margin-bottom: var(--s3);
+  line-height: 1.25;
 }
 
 .chain-detail-stats {
@@ -831,19 +938,23 @@ body {
   align-items: center;
   gap: var(--s2);
   font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  color: var(--text-muted);
+  font-size: 11px;
+  color: var(--mondrian-black);
+  opacity: 0.6;
 }
 .chain-stat-value {
-  font-weight: 700;
-  color: var(--mondrian-yellow);
+  font-weight: 600;
+  color: var(--mondrian-blue);
+  opacity: 1;
 }
 
 .chain-detail-desc {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  line-height: 1.6;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--mondrian-black);
+  line-height: 1.7;
   max-width: 60ch;
+  opacity: 0.85;
 }
 
 /* ============================================
@@ -852,34 +963,40 @@ body {
 .claims-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--grid-width);
-  background: var(--grid-line);
-  border: var(--grid-width) solid var(--grid-line);
+  gap: 5px;
+  background: var(--mondrian-black);
+  padding: 5px;
 }
 
 .claim-card {
-  background: var(--surface-base);
-  padding: var(--s4) var(--s5);
-  border-left: var(--grid-width-heavy) solid;
+  background: var(--mondrian-white);
+  padding: var(--s5);
+  border-left: 5px solid;
   cursor: pointer;
-  transition: background var(--transition-fast);
+  transition: transform var(--transition-slow), box-shadow var(--transition-slow);
   min-height: calc(var(--touch-min) * 2);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: var(--s3);
 }
-.claim-card:hover { background: var(--surface-card); }
+.claim-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 10;
+}
 
-.claim-card.untested { border-left-color: var(--text-muted); }
-.claim-card.supported { border-left-color: var(--color-success); }
-.claim-card.contradicted { border-left-color: var(--color-danger); }
-.claim-card.stale { border-left-color: var(--color-warning); }
+.claim-card.untested { border-left-color: var(--mondrian-gray); }
+.claim-card.supported { border-left-color: var(--accent-green); }
+.claim-card.contradicted { border-left-color: var(--mondrian-red); }
+.claim-card.stale { border-left-color: var(--mondrian-yellow); }
 
 .claim-text {
-  font-size: var(--text-sm);
-  color: var(--text-primary);
-  line-height: 1.5;
+  font-family: var(--font-headline);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--mondrian-black);
+  line-height: 1.4;
 }
 
 .claim-meta {
@@ -891,36 +1008,37 @@ body {
 .claim-section {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-muted);
-  letter-spacing: 0.5px;
+  color: var(--mondrian-black);
+  letter-spacing: 0.05em;
+  opacity: 0.5;
 }
 
 .validity-badge {
   font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.06em;
   padding: var(--s1) var(--s2);
   display: inline-flex;
   align-items: center;
   gap: var(--s1);
 }
 .validity-badge.untested {
-  background: var(--surface-elevated);
-  color: var(--text-muted);
+  background: var(--mondrian-gray);
+  color: var(--mondrian-black);
 }
 .validity-badge.supported {
-  background: var(--color-success);
-  color: var(--text-primary);
+  background: var(--accent-green);
+  color: var(--mondrian-white);
 }
 .validity-badge.contradicted {
-  background: var(--color-danger);
-  color: var(--text-primary);
+  background: var(--mondrian-red);
+  color: var(--mondrian-white);
 }
 .validity-badge.stale {
-  background: var(--color-warning);
-  color: var(--text-inverse);
+  background: var(--mondrian-yellow);
+  color: var(--mondrian-black);
 }
 
 .claim-evidence {
@@ -928,13 +1046,15 @@ body {
   gap: var(--s3);
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-muted);
+  color: var(--mondrian-black);
+  opacity: 0.5;
 }
-.claim-evidence .for { color: var(--color-success); }
-.claim-evidence .against { color: var(--color-danger); }
+.claim-evidence .for { color: var(--accent-green); opacity: 1; }
+.claim-evidence .against { color: var(--mondrian-red); opacity: 1; }
 
 /* ============================================
    FOOTER STATUS BAR
+   Matches topbar style -- black background
    ============================================ */
 .footer {
   display: flex;
@@ -942,12 +1062,13 @@ body {
   justify-content: space-between;
   padding: 0 var(--s5);
   min-height: 36px;
-  background: var(--surface-base);
-  border-top: 1px solid var(--surface-elevated);
+  background: var(--mondrian-black);
+  border-top: var(--grid-border);
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-muted);
+  color: var(--mondrian-gray);
   gap: var(--s4);
+  letter-spacing: 0.03em;
 }
 
 .footer-section {
@@ -964,22 +1085,26 @@ body {
   flex-shrink: 0;
 }
 .status-dot.connected {
-  background: var(--color-success);
-  box-shadow: 0 0 4px var(--color-success);
+  background: var(--accent-green);
+  box-shadow: 0 0 4px var(--accent-green);
 }
 .status-dot.disconnected {
-  background: var(--color-danger);
+  background: var(--mondrian-red);
 }
 
 /* ============================================
-   RESPONSIVE -- Collapse to single column
+   RESPONSIVE -- Collapse to single column at 640px
    ============================================ */
 @media (max-width: 640px) {
-  .header {
+  .topbar {
     flex-direction: column;
+    height: auto;
     padding: var(--s3);
     gap: var(--s2);
-    min-height: auto;
+  }
+  .topbar-nav {
+    flex-wrap: wrap;
+    justify-content: center;
   }
   .mullins {
     grid-template-columns: 1fr;
@@ -1001,6 +1126,11 @@ body {
   .btn-run {
     width: 100%;
   }
+  .alert-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s3);
+  }
 }
 </style>
 </head>
@@ -1009,46 +1139,45 @@ body {
 <div class="platform" role="application" aria-label="MindrianOS Platform">
 
   <!-- ==========================================
-       HEADER
+       TOPBAR -- Export template pattern
        ========================================== -->
-  <header class="header" role="banner">
-    <div class="header-left">
-      <div class="logo" aria-hidden="true">
-        <div class="logo-block"></div>
-        <div class="logo-block"></div>
-        <div class="logo-block"></div>
-        <div class="logo-block"></div>
+  <header class="topbar" role="banner">
+    <div class="topbar-left">
+      <div class="topbar-logo" aria-hidden="true">
+        <div class="topbar-logo-block r"></div>
+        <div class="topbar-logo-block b"></div>
+        <div class="topbar-logo-block y"></div>
       </div>
-      <span class="header-title">MindrianOS</span>
-      <span class="venture-badge" id="venture-stage">Pre-Opportunity</span>
+      <span class="topbar-title">MindrianOS</span>
+      <span class="topbar-badge" id="venture-stage">Pre-Opportunity</span>
     </div>
 
-    <nav class="view-tabs" role="tablist" aria-label="Platform views">
-      <button class="tab active" role="tab" aria-selected="true" aria-controls="view-mullins" data-view="mullins">
+    <nav class="topbar-nav" role="tablist" aria-label="Platform views">
+      <button class="active" role="tab" aria-selected="true" aria-controls="view-mullins" data-view="mullins">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <rect x="1" y="1" width="6" height="6"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="9" width="6" height="6"/><rect x="9" y="9" width="6" height="6"/>
         </svg>
         Mullins
       </button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="view-room" data-view="room">
+      <button role="tab" aria-selected="false" aria-controls="view-room" data-view="room">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <rect x="1" y="1" width="14" height="14" rx="1"/><line x1="1" y1="6" x2="15" y2="6"/><line x1="6" y1="6" x2="6" y2="15"/>
         </svg>
         Room
       </button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="view-graph" data-view="graph">
+      <button role="tab" aria-selected="false" aria-controls="view-graph" data-view="graph">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <circle cx="4" cy="4" r="2"/><circle cx="12" cy="4" r="2"/><circle cx="8" cy="12" r="2"/><line x1="5.5" y1="5" x2="6.5" y2="10.5"/><line x1="10.5" y1="5" x2="9.5" y2="10.5"/><line x1="6" y1="4" x2="10" y2="4"/>
         </svg>
         Graph
       </button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="view-chain" data-view="chain">
+      <button role="tab" aria-selected="false" aria-controls="view-chain" data-view="chain">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <rect x="1" y="5" width="4" height="6" rx="1"/><rect x="6" y="5" width="4" height="6" rx="1"/><rect x="11" y="5" width="4" height="6" rx="1"/><line x1="5" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="11" y2="8"/>
         </svg>
         Chain
       </button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="view-claims" data-view="claims">
+      <button role="tab" aria-selected="false" aria-controls="view-claims" data-view="claims">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path d="M3 8l3 3 7-7"/>
         </svg>
@@ -1066,7 +1195,7 @@ body {
     <div class="view" id="view-mullins" role="tabpanel" aria-label="Mullins Assessment">
       <div class="mullins">
 
-        <!-- IS IT REAL? (Blue) -->
+        <!-- IS IT REAL? (Blue cell) -->
         <div class="mullins-column real">
           <div class="mullins-header">Is It Real?</div>
 
@@ -1130,7 +1259,7 @@ body {
           </div>
         </div>
 
-        <!-- CAN WE WIN? (Yellow) -->
+        <!-- CAN WE WIN? (Yellow cell) -->
         <div class="mullins-column win">
           <div class="mullins-header">Can We Win?</div>
 
@@ -1194,7 +1323,7 @@ body {
           </div>
         </div>
 
-        <!-- IS IT WORTH IT? (Red) -->
+        <!-- IS IT WORTH IT? (Red cell) -->
         <div class="mullins-column worth">
           <div class="mullins-header">Is It Worth It?</div>
 
@@ -1259,7 +1388,7 @@ body {
         </div>
       </div>
 
-      <!-- Brain Suggestion -->
+      <!-- Brain Suggestion -- dark panel like topbar -->
       <div class="brain-suggestion">
         <div class="suggestion-content">
           <div class="suggestion-icon">
@@ -1337,7 +1466,7 @@ body {
     <!-- ========== VIEW 3: GRAPH ========== -->
     <div class="view" id="view-graph" role="tabpanel" aria-label="Knowledge Graph" aria-hidden="true">
       <div class="graph-view">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--s3);">
+        <div class="graph-toolbar">
           <div class="graph-filters" role="group" aria-label="Edge type filters">
             <button class="filter-btn active" data-filter="all">All</button>
             <button class="filter-btn" data-filter="tensions">Tensions</button>
@@ -1369,8 +1498,8 @@ body {
               <line x1="16" y1="14" x2="20" y2="32"/><line x1="32" y1="14" x2="28" y2="32"/>
               <line x1="17" y1="12" x2="31" y2="12"/><line x1="15" y1="36" x2="19" y2="36"/><line x1="29" y1="36" x2="33" y2="36"/>
             </svg>
-            <span>Cytoscape.js graph renders here</span>
-            <span style="font-size: 10px; opacity: 0.5;">INFORMS / CONTRADICTS / CONVERGES / ENABLES</span>
+            <span class="graph-placeholder-title">Knowledge Graph</span>
+            <span class="graph-placeholder-sub">INFORMS / CONTRADICTS / CONVERGES / ENABLES</span>
           </div>
         </div>
       </div>
@@ -1379,30 +1508,34 @@ body {
     <!-- ========== VIEW 4: CHAIN ========== -->
     <div class="view" id="view-chain" role="tabpanel" aria-label="Framework Chain Explorer" aria-hidden="true">
       <div class="chain-view">
-        <div class="chain-label">FEEDS_INTO chain from Brain</div>
+        <div class="chain-header-bar">
+          <div class="chain-label">FEEDS_INTO chain from Brain</div>
+        </div>
 
-        <div class="chain-track" role="list" aria-label="Framework chain">
-          <div class="chain-node" tabindex="0" role="listitem" data-framework="beautiful-question">Beautiful Question</div>
-          <div class="chain-arrow" aria-hidden="true">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="10" x2="16" y2="10"/><polyline points="12,6 16,10 12,14"/></svg>
+        <div class="chain-track-wrapper">
+          <div class="chain-track" role="list" aria-label="Framework chain">
+            <div class="chain-node" tabindex="0" role="listitem" data-framework="beautiful-question">Beautiful Question</div>
+            <div class="chain-arrow" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="10" x2="16" y2="10"/><polyline points="12,6 16,10 12,14"/></svg>
+            </div>
+            <div class="chain-node" tabindex="0" role="listitem" data-framework="domain-selection">Domain Selection</div>
+            <div class="chain-arrow" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="10" x2="16" y2="10"/><polyline points="12,6 16,10 12,14"/></svg>
+            </div>
+            <div class="chain-node active" tabindex="0" role="listitem" data-framework="pws-value-proposition" aria-current="true">PWS Value Proposition</div>
+            <div class="chain-arrow" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="10" x2="16" y2="10"/><polyline points="12,6 16,10 12,14"/></svg>
+            </div>
+            <div class="chain-node" tabindex="0" role="listitem" data-framework="jobs-to-be-done">Jobs to Be Done</div>
+            <div class="chain-arrow" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="10" x2="16" y2="10"/><polyline points="12,6 16,10 12,14"/></svg>
+            </div>
+            <div class="chain-node" tabindex="0" role="listitem" data-framework="process-mapping">Process Mapping</div>
+            <div class="chain-arrow" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="10" x2="16" y2="10"/><polyline points="12,6 16,10 12,14"/></svg>
+            </div>
+            <div class="chain-node" tabindex="0" role="listitem" data-framework="reverse-salient">Reverse Salient</div>
           </div>
-          <div class="chain-node" tabindex="0" role="listitem" data-framework="domain-selection">Domain Selection</div>
-          <div class="chain-arrow" aria-hidden="true">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="10" x2="16" y2="10"/><polyline points="12,6 16,10 12,14"/></svg>
-          </div>
-          <div class="chain-node active" tabindex="0" role="listitem" data-framework="pws-value-proposition" aria-current="true">PWS Value Proposition</div>
-          <div class="chain-arrow" aria-hidden="true">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="10" x2="16" y2="10"/><polyline points="12,6 16,10 12,14"/></svg>
-          </div>
-          <div class="chain-node" tabindex="0" role="listitem" data-framework="jobs-to-be-done">Jobs to Be Done</div>
-          <div class="chain-arrow" aria-hidden="true">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="10" x2="16" y2="10"/><polyline points="12,6 16,10 12,14"/></svg>
-          </div>
-          <div class="chain-node" tabindex="0" role="listitem" data-framework="process-mapping">Process Mapping</div>
-          <div class="chain-arrow" aria-hidden="true">
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="10" x2="16" y2="10"/><polyline points="12,6 16,10 12,14"/></svg>
-          </div>
-          <div class="chain-node" tabindex="0" role="listitem" data-framework="reverse-salient">Reverse Salient</div>
         </div>
 
         <div class="chain-detail">
@@ -1468,7 +1601,7 @@ body {
           <div class="claim-text">Regulatory approval takes 6 months</div>
           <div class="claim-evidence">
             <span class="for">1 supporting</span>
-            <span style="color: var(--color-warning);">data > 90 days old</span>
+            <span style="color: var(--mondrian-yellow);">data > 90 days old</span>
           </div>
           <div class="claim-meta">
             <span class="claim-section">legal-ip</span>
@@ -1481,7 +1614,7 @@ body {
   </main>
 
   <!-- ==========================================
-       FOOTER STATUS BAR
+       FOOTER STATUS BAR -- Matches topbar
        ========================================== -->
   <footer class="footer" role="contentinfo">
     <div class="footer-section">
@@ -1497,7 +1630,7 @@ body {
 /* ============================================
    VIEW SWITCHING -- Tab-based with ARIA
    ============================================ */
-const tabs = document.querySelectorAll('.tab');
+const tabs = document.querySelectorAll('.topbar-nav button');
 const views = document.querySelectorAll('.view');
 
 function switchView(viewId) {
@@ -1530,7 +1663,7 @@ tabs.forEach(tab => {
 });
 
 // Keyboard navigation for tabs
-document.querySelector('.view-tabs').addEventListener('keydown', (e) => {
+document.querySelector('.topbar-nav').addEventListener('keydown', (e) => {
   const tabArray = Array.from(tabs);
   const currentIndex = tabArray.indexOf(document.activeElement);
   if (currentIndex === -1) return;
