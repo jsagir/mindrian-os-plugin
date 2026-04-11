@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MindrianOS Platform</title>
+<style>
+/* ============================================
+   DE STIJL DESIGN TOKENS
+   ============================================ */
+:root {
+  /* Mondrian palette */
+  --red: #C23B22;
+  --blue: #2A5DB0;
+  --yellow: #F2C12E;
+  --black: #1A1A1A;
+  --white: #F8F6F0;
+  --gray: #E5E0D8;
+  --dark-gray: #3A3A3A;
+
+  /* Semantic */
+  --success: #2D8F4E;
+  --warning: #D4A017;
+  --danger: #C23B22;
+  --info: #2A5DB0;
+  --muted: #8A8478;
+
+  /* Spacing */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+
+  /* Typography */
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  background: var(--black);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ============================================
+   PLATFORM SHELL -- The Universal Container
+   ============================================ */
+
+.platform {
+  display: grid;
+  grid-template-rows: 48px 1fr 36px;
+  height: 100vh;
+  max-height: 600px;
+}
+
+/* --- Header Bar --- */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--s4);
+  background: var(--dark-gray);
+  border-bottom: 3px solid var(--red);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+
+.logo {
+  display: flex;
+  gap: 2px;
+}
+.logo-block {
+  width: 12px;
+  height: 12px;
+}
+.logo-block.r { background: var(--red); }
+.logo-block.b { background: var(--blue); }
+.logo-block.y { background: var(--yellow); }
+.logo-block.w { background: var(--white); }
+
+.header-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.venture-badge {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 2px 8px;
+  border: 1px solid var(--muted);
+  border-radius: 2px;
+}
+
+/* --- View Tabs --- */
+.view-tabs {
+  display: flex;
+  gap: 2px;
+}
+.tab {
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+.tab:hover { color: var(--white); }
+.tab.active {
+  color: var(--white);
+  border-bottom-color: var(--yellow);
+}
+
+/* --- Main Content Area --- */
+.content {
+  overflow-y: auto;
+  padding: var(--s4);
+}
+
+/* --- Footer Status Bar --- */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--s4);
+  background: var(--dark-gray);
+  border-top: 1px solid #444;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 4px;
+}
+.status-dot.connected { background: var(--success); }
+.status-dot.disconnected { background: var(--danger); }
+
+/* ============================================
+   VIEW: MULLINS ASSESSMENT (Home View)
+   ============================================ */
+
+.mullins {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 3px;
+  margin-bottom: var(--s5);
+}
+
+.mullins-column {
+  background: var(--dark-gray);
+  border-top: 4px solid;
+  padding: var(--s4);
+}
+.mullins-column.real { border-color: var(--blue); }
+.mullins-column.win { border-color: var(--yellow); }
+.mullins-column.worth { border-color: var(--red); }
+
+.mullins-header {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--s4);
+}
+
+.mullins-cell {
+  margin-bottom: var(--s3);
+  padding: var(--s3);
+  background: rgba(255,255,255,0.04);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.mullins-cell:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.cell-question {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: var(--s2);
+}
+
+.cell-bar {
+  height: 6px;
+  background: #333;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.cell-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+.cell-fill.high { background: var(--success); }
+.cell-fill.mid { background: var(--warning); }
+.cell-fill.low { background: var(--danger); }
+.cell-fill.none { background: #444; }
+
+.cell-score {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: right;
+  margin-top: 2px;
+}
+
+.mullins-evidence {
+  margin-top: var(--s4);
+  padding-top: var(--s3);
+  border-top: 1px solid #444;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+/* ============================================
+   VIEW: COMMAND CENTER (Room Dashboard)
+   ============================================ */
+
+.mondrian-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 3px;
+  margin-bottom: var(--s5);
+}
+
+.section-card {
+  background: var(--dark-gray);
+  padding: var(--s3);
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+.section-card:hover { background: #444; }
+
+.section-name {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: var(--s2);
+}
+.section-count {
+  font-size: 20px;
+  font-weight: 700;
+}
+.section-label {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.section-health {
+  position: absolute;
+  top: var(--s2);
+  right: var(--s2);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.health-good { background: var(--success); }
+.health-warning { background: var(--warning); }
+.health-gap { background: var(--danger); }
+
+/* Cascade alerts */
+.cascade-alerts {
+  margin-bottom: var(--s5);
+}
+.alert-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--dark-gray);
+  padding: var(--s3) var(--s4);
+  margin-bottom: 2px;
+  border-left: 3px solid;
+}
+.alert-card.contradiction { border-color: var(--danger); }
+.alert-card.convergence { border-color: var(--info); }
+.alert-card.invalidation { border-color: var(--warning); }
+
+.alert-text {
+  font-size: 12px;
+  flex: 1;
+}
+.alert-type {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  margin-right: var(--s4);
+}
+
+.alert-actions {
+  display: flex;
+  gap: var(--s2);
+}
+.btn {
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.15s;
+}
+.btn-approve { background: var(--success); color: white; }
+.btn-reject { background: var(--danger); color: white; }
+.btn-defer { background: var(--muted); color: white; }
+.btn:hover { opacity: 0.85; }
+
+/* ============================================
+   VIEW: KNOWLEDGE GRAPH
+   ============================================ */
+
+.graph-container {
+  background: var(--dark-gray);
+  border-radius: 2px;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.graph-placeholder {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.graph-controls {
+  position: absolute;
+  top: var(--s3);
+  right: var(--s3);
+  display: flex;
+  gap: var(--s2);
+}
+.graph-btn {
+  padding: 4px 8px;
+  font-size: 10px;
+  background: rgba(0,0,0,0.5);
+  color: var(--white);
+  border: 1px solid #555;
+  cursor: pointer;
+}
+
+/* ============================================
+   VIEW: CHAIN EXPLORER
+   ============================================ */
+
+.chain {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s4) 0;
+  overflow-x: auto;
+}
+.chain-node {
+  padding: var(--s3) var(--s4);
+  background: var(--dark-gray);
+  border: 2px solid var(--blue);
+  border-radius: 2px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chain-node:hover { background: var(--blue); }
+.chain-node.active { background: var(--blue); }
+.chain-arrow {
+  color: var(--muted);
+  font-size: 16px;
+}
+
+/* ============================================
+   VIEW: ASSUMPTION TRACKER
+   ============================================ */
+
+.assumptions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+}
+
+.assumption-card {
+  background: var(--dark-gray);
+  padding: var(--s3);
+  border-left: 3px solid;
+}
+.assumption-card.untested { border-color: var(--muted); }
+.assumption-card.supported { border-color: var(--success); }
+.assumption-card.contradicted { border-color: var(--danger); }
+.assumption-card.stale { border-color: var(--warning); }
+
+.assumption-claim {
+  font-size: 12px;
+  margin-bottom: var(--s2);
+}
+.assumption-meta {
+  font-size: 10px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+}
+.validity-badge {
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.validity-badge.untested { background: #555; }
+.validity-badge.supported { background: var(--success); }
+.validity-badge.contradicted { background: var(--danger); }
+.validity-badge.stale { background: var(--warning); color: var(--black); }
+
+/* ============================================
+   SHARED: Suggested Next Action
+   ============================================ */
+
+.suggested-next {
+  background: linear-gradient(135deg, var(--dark-gray), #2a2a2a);
+  border: 1px solid var(--blue);
+  padding: var(--s4);
+  margin-top: var(--s5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.suggested-text {
+  font-size: 12px;
+}
+.suggested-framework {
+  font-weight: 600;
+  color: var(--yellow);
+}
+.btn-run {
+  padding: 6px 16px;
+  background: var(--blue);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+.btn-run:hover { background: #3A6DC0; }
+</style>
+</head>
+<body>
+
+<div class="platform">
+  <!-- ==========================================
+       HEADER -- Always visible, shows room context
+       ========================================== -->
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">
+        <div class="logo-block r"></div>
+        <div class="logo-block b"></div>
+        <div class="logo-block y"></div>
+        <div class="logo-block w"></div>
+      </div>
+      <span class="header-title">MindrianOS</span>
+      <span class="venture-badge">Pre-Opportunity</span>
+    </div>
+    <div class="view-tabs">
+      <button class="tab active" data-view="mullins">Mullins</button>
+      <button class="tab" data-view="command">Room</button>
+      <button class="tab" data-view="graph">Graph</button>
+      <button class="tab" data-view="chain">Chain</button>
+      <button class="tab" data-view="assumptions">Claims</button>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       CONTENT -- Switches based on active view
+       ========================================== -->
+  <div class="content">
+
+    <!-- VIEW: Mullins Assessment (DEFAULT HOME) -->
+    <div class="view" id="view-mullins">
+      <div class="mullins">
+        <!-- Is It Real? -->
+        <div class="mullins-column real">
+          <div class="mullins-header" style="color: var(--blue)">Is It Real?</div>
+
+          <div class="mullins-cell" onclick="drillDown('market-exists')">
+            <div class="cell-question">Market exists?</div>
+            <div class="cell-bar"><div class="cell-fill high" style="width: 80%"></div></div>
+            <div class="cell-score">80% -- 4 artifacts</div>
+          </div>
+
+          <div class="mullins-cell" onclick="drillDown('problem-real')">
+            <div class="cell-question">Problem is real?</div>
+            <div class="cell-bar"><div class="cell-fill high" style="width: 100%"></div></div>
+            <div class="cell-score">100% -- 6 artifacts</div>
+          </div>
+
+          <div class="mullins-cell" onclick="drillDown('solution-works')">
+            <div class="cell-question">Solution works?</div>
+            <div class="cell-bar"><div class="cell-fill low" style="width: 25%"></div></div>
+            <div class="cell-score">25% -- 1 artifact</div>
+          </div>
+
+          <div class="mullins-evidence">
+            <span>Evidence: 11</span>
+            <span style="color: var(--danger)">Gaps: 3</span>
+          </div>
+        </div>
+
+        <!-- Can We Win? -->
+        <div class="mullins-column win">
+          <div class="mullins-header" style="color: var(--yellow)">Can We Win?</div>
+
+          <div class="mullins-cell" onclick="drillDown('competitive-advantage')">
+            <div class="cell-question">Competitive advantage?</div>
+            <div class="cell-bar"><div class="cell-fill mid" style="width: 60%"></div></div>
+            <div class="cell-score">60% -- 3 artifacts</div>
+          </div>
+
+          <div class="mullins-cell" onclick="drillDown('team-execute')">
+            <div class="cell-question">Team can execute?</div>
+            <div class="cell-bar"><div class="cell-fill high" style="width: 85%"></div></div>
+            <div class="cell-score">85% -- 5 artifacts</div>
+          </div>
+
+          <div class="mullins-cell" onclick="drillDown('timing-right')">
+            <div class="cell-question">Timing is right?</div>
+            <div class="cell-bar"><div class="cell-fill mid" style="width: 45%"></div></div>
+            <div class="cell-score">45% -- 2 artifacts</div>
+          </div>
+
+          <div class="mullins-evidence">
+            <span>Evidence: 10</span>
+            <span style="color: var(--warning)">Gaps: 2</span>
+          </div>
+        </div>
+
+        <!-- Is It Worth It? -->
+        <div class="mullins-column worth">
+          <div class="mullins-header" style="color: var(--red)">Is It Worth It?</div>
+
+          <div class="mullins-cell" onclick="drillDown('revenue-potential')">
+            <div class="cell-question">Revenue potential?</div>
+            <div class="cell-bar"><div class="cell-fill none" style="width: 0%"></div></div>
+            <div class="cell-score">-- no evidence</div>
+          </div>
+
+          <div class="mullins-cell" onclick="drillDown('risk-acceptable')">
+            <div class="cell-question">Risk acceptable?</div>
+            <div class="cell-bar"><div class="cell-fill none" style="width: 0%"></div></div>
+            <div class="cell-score">-- no evidence</div>
+          </div>
+
+          <div class="mullins-cell" onclick="drillDown('aligned-goals')">
+            <div class="cell-question">Aligned with goals?</div>
+            <div class="cell-bar"><div class="cell-fill low" style="width: 15%"></div></div>
+            <div class="cell-score">15% -- 1 artifact</div>
+          </div>
+
+          <div class="mullins-evidence">
+            <span>Evidence: 1</span>
+            <span style="color: var(--danger)">Gaps: 5</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggested Next Action (Brain-routed) -->
+      <div class="suggested-next">
+        <div class="suggested-text">
+          Your weakest area is <span class="suggested-framework">"Is It Worth It?"</span> with 5 gaps.
+          Brain suggests: <span class="suggested-framework">Financial Feasibility Analysis</span>
+        </div>
+        <button class="btn-run" onclick="runMethodology('financial-feasibility')">Run It</button>
+      </div>
+    </div>
+
+    <!-- VIEW: Command Center (Room Dashboard) -->
+    <div class="view" id="view-command" style="display:none">
+      <!-- Cascade Alerts -->
+      <div class="cascade-alerts">
+        <div class="alert-card contradiction">
+          <span class="alert-type">Contradiction</span>
+          <span class="alert-text">Market analysis says "no competitors" but competitive analysis lists 3 direct competitors</span>
+          <div class="alert-actions">
+            <button class="btn btn-approve" onclick="handleCascade('approve', 'c1')">Approve</button>
+            <button class="btn btn-reject" onclick="handleCascade('reject', 'c1')">Reject</button>
+            <button class="btn btn-defer" onclick="handleCascade('defer', 'c1')">Defer</button>
+          </div>
+        </div>
+        <div class="alert-card convergence">
+          <span class="alert-type">Convergence</span>
+          <span class="alert-text">"Supply chain" appears in 4 sections -- emerging pattern</span>
+          <div class="alert-actions">
+            <button class="btn btn-approve" onclick="handleCascade('approve', 'v1')">Acknowledge</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mondrian Section Grid -->
+      <div class="mondrian-grid">
+        <div class="section-card" onclick="openSection('problem-definition')" style="grid-row: span 2">
+          <div class="section-health health-good"></div>
+          <div class="section-name">problem-definition</div>
+          <div class="section-count">6</div>
+          <div class="section-label">artifacts</div>
+        </div>
+        <div class="section-card" onclick="openSection('market-analysis')">
+          <div class="section-health health-warning"></div>
+          <div class="section-name">market-analysis</div>
+          <div class="section-count">3</div>
+          <div class="section-label">artifacts</div>
+        </div>
+        <div class="section-card" onclick="openSection('competitive-analysis')">
+          <div class="section-health health-good"></div>
+          <div class="section-name">competitive</div>
+          <div class="section-count">4</div>
+          <div class="section-label">artifacts</div>
+        </div>
+        <div class="section-card" onclick="openSection('solution-design')">
+          <div class="section-health health-gap"></div>
+          <div class="section-name">solution-design</div>
+          <div class="section-count">1</div>
+          <div class="section-label">artifact</div>
+        </div>
+        <div class="section-card" onclick="openSection('financial-model')">
+          <div class="section-health health-gap"></div>
+          <div class="section-name">financial-model</div>
+          <div class="section-count">0</div>
+          <div class="section-label">empty</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: Knowledge Graph -->
+    <div class="view" id="view-graph" style="display:none">
+      <div class="graph-container">
+        <div class="graph-controls">
+          <button class="graph-btn">All</button>
+          <button class="graph-btn">Tensions</button>
+          <button class="graph-btn">Patterns</button>
+          <button class="graph-btn">HSI</button>
+        </div>
+        <div class="graph-placeholder">[Cytoscape.js graph renders here -- nodes: artifacts, edges: INFORMS/CONTRADICTS/CONVERGES]</div>
+      </div>
+    </div>
+
+    <!-- VIEW: Framework Chain Explorer -->
+    <div class="view" id="view-chain" style="display:none">
+      <div style="font-size: 11px; color: var(--muted); margin-bottom: var(--s3)">FEEDS_INTO chain from Brain (click any node to explore)</div>
+      <div class="chain">
+        <div class="chain-node active">Beautiful Question</div>
+        <div class="chain-arrow">--></div>
+        <div class="chain-node">Domain Selection</div>
+        <div class="chain-arrow">--></div>
+        <div class="chain-node">PWS Value Proposition</div>
+        <div class="chain-arrow">--></div>
+        <div class="chain-node">Jobs to Be Done</div>
+        <div class="chain-arrow">--></div>
+        <div class="chain-node">Process Mapping</div>
+        <div class="chain-arrow">--></div>
+        <div class="chain-node">Reverse Salient</div>
+      </div>
+      <div style="margin-top: var(--s5)">
+        <div style="font-size: 13px; font-weight: 600; margin-bottom: var(--s3)">PWS Value Proposition</div>
+        <div style="font-size: 12px; color: var(--muted); line-height: 1.5">
+          16 frameworks feed into this. 17 frameworks chain from it. This is the hub of the entire methodology.
+          The three gates -- Is it Real? Can we Win? Is it Worth it? -- must each be addressed with evidence before proceeding.
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: Assumption Tracker -->
+    <div class="view" id="view-assumptions" style="display:none">
+      <div class="assumptions-grid">
+        <div class="assumption-card supported">
+          <div class="assumption-claim">Customer segment is healthcare providers in rural areas</div>
+          <div class="assumption-meta">
+            <span>problem-definition</span>
+            <span class="validity-badge supported">supported</span>
+          </div>
+        </div>
+        <div class="assumption-card contradicted">
+          <div class="assumption-claim">No direct competitors exist in this space</div>
+          <div class="assumption-meta">
+            <span>competitive-analysis</span>
+            <span class="validity-badge contradicted">contradicted</span>
+          </div>
+        </div>
+        <div class="assumption-card untested">
+          <div class="assumption-claim">Unit economics work at $29/month price point</div>
+          <div class="assumption-meta">
+            <span>financial-model</span>
+            <span class="validity-badge untested">untested</span>
+          </div>
+        </div>
+        <div class="assumption-card stale">
+          <div class="assumption-claim">Regulatory approval takes 6 months</div>
+          <div class="assumption-meta">
+            <span>legal-ip</span>
+            <span class="validity-badge stale">stale</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==========================================
+       FOOTER -- Status bar
+       ========================================== -->
+  <div class="footer">
+    <div>
+      <span class="status-dot connected"></span>
+      Brain connected -- 21K nodes
+    </div>
+    <div>room.db: 23 nodes, 47 edges</div>
+    <div>Larry -- Ask mode (turn 2)</div>
+  </div>
+</div>
+
+<script>
+/* ============================================
+   VIEW SWITCHING -- Tab-based navigation
+   ============================================ */
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    // Update tabs
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    // Switch views
+    document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+    document.getElementById('view-' + tab.dataset.view).style.display = '';
+  });
+});
+
+/* ============================================
+   MCP APP COMMUNICATION (placeholder)
+   In production: import { App } from '@modelcontextprotocol/ext-apps'
+   ============================================ */
+
+// Placeholder for MCP App bidirectional communication
+const app = {
+  connected: false,
+
+  connect() {
+    this.connected = true;
+    console.log('MCP App connected');
+  },
+
+  // Receive data from tool call
+  ontoolresult(result) {
+    const data = JSON.parse(result.content.find(c => c.type === 'text').text);
+    renderView(data);
+  },
+
+  // Call back to MindrianOS server
+  async callServerTool(params) {
+    console.log('callServerTool:', params);
+    // In production: return await realApp.callServerTool(params);
+    return { content: [{ type: 'text', text: '{}' }] };
+  },
+
+  // Send intent to Larry (Shopify pattern)
+  async updateContext(ctx) {
+    console.log('Intent sent to Larry:', ctx);
+    // In production: return await realApp.updateContext(ctx);
+  }
+};
+
+/* ============================================
+   ACTION HANDLERS -- User interactions
+   ============================================ */
+
+function drillDown(cellId) {
+  // Click a Mullins cell -- show evidence for that question
+  app.updateContext({
+    type: 'user-intent',
+    data: { action: 'drill-down', target: cellId }
+  });
+}
+
+function runMethodology(framework) {
+  // "Run It" button -- tell Larry to run a framework
+  app.updateContext({
+    type: 'user-intent',
+    data: { action: 'run-methodology', framework: framework }
+  });
+}
+
+function handleCascade(action, alertId) {
+  // APPROVE/REJECT/DEFER on cascade alerts
+  app.callServerTool({
+    name: 'file_artifact',
+    arguments: { action: action, target: alertId }
+  });
+}
+
+function openSection(section) {
+  // Click a section card -- switch to wiki view or drill down
+  app.updateContext({
+    type: 'user-intent',
+    data: { action: 'explore-section', section: section }
+  });
+}
+
+/* ============================================
+   DATA RENDERING (called when tool result arrives)
+   ============================================ */
+
+function renderView(data) {
+  // In production: parse data.view_type and render appropriate content
+  // data.mullins -> update Mullins cells
+  // data.room_state -> update Command Center
+  // data.graph -> render Cytoscape
+  // data.chain -> render framework chain
+  // data.assumptions -> render assumption cards
+  console.log('Rendering:', data);
+}
+
+// Auto-connect on load
+app.connect();
+</script>
+
+</body>
+</html>
