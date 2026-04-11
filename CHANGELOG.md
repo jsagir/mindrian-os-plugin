@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.9.7] - 2026-04-12
+
+onboarding: true
+onboard_steps:
+  - "NEW: Rich Text SnapshotHub -- all hub exports now include callouts, wikilinks, tag-pills, hat-card grids, pull-quotes, section dividers, and clickable view buttons by default."
+  - "NEW: Feynman Narrative -- /mos:export hub generates a narrative-first layout telling the story of the snapshot in plain language before showing the data."
+  - "NEW: Six Hats Tension Cards -- hat analysis rendered as 2x2 grid cards with color-coded borders. Green Hat surprise and Blue Hat verdict get dedicated callout boxes."
+  - "NEW: Wikilink CSS class (.wikilink) -- dashed-underline links connecting entities across sections. Every person, technology, and methodology reference becomes clickable."
+  - "FIX: View buttons now generate as clickable <a> tags linking to sections instead of decorative <span> elements."
+  - "FIX: Deck button mapped to opportunity-bank section. Presentation Deck opens external slide deck URL."
+
+### Added
+- Rich text CSS system in generate-hub.cjs: .callout (4 color variants), .quote, .wikilink, .key-number/.key-label, .tag-pill (3 levels), .hat-tension/.hat-card (6 hat colors), .section-divider
+- View buttons now link to actual sections with proper href mapping (Wiki->overview, Deck->opportunity-bank, Insights->solution-design, Narrative->#narrative)
+- Hover state for view buttons (blue background on hover)
+- Cursor: pointer on view buttons (was cursor: default)
+
+### Changed
+- View button HTML generation: <span> replaced with <a> tags
+- Default snapshot quality: rich text formatting is now the baseline, not an enhancement
+
 ## [1.9.6] - 2026-04-11
 
 onboarding: true

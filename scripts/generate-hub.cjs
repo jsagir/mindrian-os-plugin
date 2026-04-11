@@ -934,14 +934,106 @@ body {
   background: var(--white);
   border: 1px solid var(--gray-200);
   color: var(--gray-700);
-  cursor: default;
+  cursor: pointer;
+  text-decoration: none;
   transition: all 0.2s;
+}
+
+.view-btn:hover {
+  background: var(--blue);
+  color: var(--white);
+  border-color: var(--blue);
 }
 
 .view-btn:first-child {
   background: var(--dark);
   color: var(--white);
   border-color: var(--dark);
+}
+
+/* -- RICH TEXT: Callouts, Quotes, Wikilinks, Tags, Hat Cards -- */
+.callout {
+  border-left: 4px solid var(--yellow);
+  padding: 16px 20px;
+  background: rgba(200,164,60,0.06);
+  margin: 20px 0;
+  border-radius: 0 8px 8px 0;
+}
+.callout-red { border-left-color: var(--red); background: rgba(166,61,47,0.06); }
+.callout-blue { border-left-color: var(--blue); background: rgba(30,58,110,0.06); }
+.callout-teal { border-left-color: var(--teal); background: rgba(42,107,94,0.06); }
+
+.quote {
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--gray-700);
+  border-left: 3px solid var(--gray-300);
+  padding: 12px 20px;
+  margin: 20px 0;
+}
+.quote .attribution { font-size: 0.85rem; font-style: normal; color: var(--gray-500); margin-top: 8px; }
+
+.wikilink {
+  color: var(--blue);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--blue);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.wikilink:hover { color: var(--red); border-bottom-color: var(--red); }
+
+.key-number { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--yellow); }
+.key-label { font-size: 0.85rem; color: var(--gray-500); text-transform: uppercase; letter-spacing: 1px; }
+
+.tag-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 2px 4px 2px 0;
+}
+.tag-high { background: rgba(166,61,47,0.15); color: var(--red); }
+.tag-medium { background: rgba(200,164,60,0.15); color: #9a7d2e; }
+.tag-low { background: rgba(42,107,94,0.15); color: var(--teal); }
+
+.hat-tension {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 16px 0;
+}
+.hat-card {
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+}
+.hat-card h5 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.hat-white h5 { color: #666; }
+.hat-red h5 { color: #c0392b; }
+.hat-black h5 { color: #2c3e50; }
+.hat-yellow h5 { color: #d4ac0d; }
+.hat-green h5 { color: #27ae60; }
+.hat-blue h5 { color: #2980b9; }
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 32px 0 24px;
+  color: var(--gray-500);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+.section-divider::before, .section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gray-200);
 }
 
 /* -- MAIN -- */
@@ -2128,10 +2220,22 @@ function generateHtml(room) {
     navTabs += `\n    <a class="nav-tab" href="#${toSectionId(section.id)}">${escapeHtml(section.label)}</a>`;
   }
 
-  // Build data room views row
+  // Build data room views row -- clickable links to sections
+  const viewSectionMap = {
+    'Wiki': '#overview',
+    'Graph Intelligence': '#overview',
+    'Constellation': '#overview',
+    'Dashboard': '#overview',
+    'Deck': '#' + (room.sections.find(s => s.id === 'opportunity-bank') ? toSectionId('opportunity-bank') : 'overview'),
+    'Insights': '#' + (room.sections.find(s => s.id === 'solution-design') ? toSectionId('solution-design') : 'overview'),
+    'Diagrams': '#overview',
+    'Narrative': '#narrative',
+    'Synthesis': '#overview',
+  };
   let viewsHtml = '';
   for (const view of DATA_ROOM_VIEWS) {
-    viewsHtml += `<span class="view-btn">${escapeHtml(view)}</span>\n    `;
+    const href = viewSectionMap[view] || '#overview';
+    viewsHtml += `<a class="view-btn" href="${href}">${escapeHtml(view)}</a>\n    `;
   }
 
   // Build overview
