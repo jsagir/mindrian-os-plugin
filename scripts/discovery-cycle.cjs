@@ -7,7 +7,7 @@
  *
  * Step sequence:
  *   1. Pre-flight -- check which pipeline outputs exist
- *   2. Export ANALOGOUS_TO edges from SQLite to .mindrian/analogy-edges.json
+ *   2. Export ANALOGOUS_TO edges from KuzuDB to .mindrian/analogy-edges.json
  *   3. HSI -> Whitespace(between) -- run discover-hsi-whitespace.py
  *   4. RS -> Whitespace(downstream) -- run discover-rs-whitespace.py
  *   5. Analogy -> Whitespace(transfer) -- run discover-analogy-whitespace.py
@@ -100,7 +100,7 @@ function preflight(roomDir, requestedSteps, opts) {
     embeddings: fileExists(path.join(mindrianDir, 'whitespace-embeddings.json')),
     brain_baseline: fileExists(path.join(mindrianDir, 'brain-baseline.json')),
     analogy_edges: fileExists(path.join(mindrianDir, 'analogy-edges.json')),
-    graph_available: false,
+    sqlite_available: false,
     python_available: false,
     python_version: null,
     steps_will_run: [],
@@ -122,13 +122,12 @@ function preflight(roomDir, requestedSteps, opts) {
     report.python_available = false;
   }
 
-  // Check graph availability (SQLite via lazygraph-ops)
+  // Check SQLite (LazyGraph) availability
   try {
-    require(path.join(__dirname, '..', 'lib', 'core', 'lazygraph-ops.cjs'));
-    const roomDbPath = path.join(roomDir, '.mindrian', 'room.db');
-    report.graph_available = fs.existsSync(roomDbPath);
+    require('better-sqlite3');
+    report.sqlite_available = true;
   } catch {
-    report.graph_available = false;
+    report.sqlite_available = false;
   }
 
   // Load data summaries for reporting
@@ -187,7 +186,7 @@ function preflight(roomDir, requestedSteps, opts) {
 }
 
 // ---------------------------------------------------------------------------
-// Step 2: Export ANALOGOUS_TO edges from SQLite
+// Step 2: Export ANALOGOUS_TO edges from KuzuDB
 // ---------------------------------------------------------------------------
 
 async function exportAnalogyEdges(roomDir, opts) {
@@ -198,21 +197,23 @@ async function exportAnalogyEdges(roomDir, opts) {
     const { db, conn } = await lazygraphOps.openGraph(roomDir);
 
     try {
-      const rows = conn.prepare(
-        "SELECT source AS source_id, target AS target_id, properties FROM edges WHERE type = 'ANALOGOUS_TO'"
-      ).all();
+      const rows = await lazygraphOps.queryGraph(conn,
+        `MATCH (a:Artifact)-[r:ANALOGOUS_TO]->(b:Artifact)
+         RETURN a.id AS source_id, b.id AS target_id,
+                r.analogy_distance AS distance,
+                r.structural_fitness AS fitness,
+                r.source_domain AS domain,
+                r.transfer_map AS transfer_map`
+      );
 
-      const edges = rows.map(r => {
-        const props = JSON.parse(r.properties || '{}');
-        return {
-          source_id: r.source_id || '',
-          target_id: r.target_id || '',
-          analogy_distance: props.analogy_distance || 'near',
-          structural_fitness: props.structural_fitness || 0,
-          source_domain: props.source_domain || '',
-          transfer_map: props.transfer_map || '',
-        };
-      });
+      const edges = rows.map(r => ({
+        source_id: r.source_id || '',
+        target_id: r.target_id || '',
+        analogy_distance: r.distance || 'near',
+        structural_fitness: r.fitness || 0,
+        source_domain: r.domain || '',
+        transfer_map: r.transfer_map || '',
+      }));
 
       writeJSON(outputPath, { edges, exported_at: new Date().toISOString() });
       verbose(`Exported ${edges.length} ANALOGOUS_TO edges to analogy-edges.json`, opts.verbose);
@@ -222,7 +223,7 @@ async function exportAnalogyEdges(roomDir, opts) {
       await lazygraphOps.closeGraph(db);
     }
   } catch (err) {
-    verbose(`Graph edge export skipped: ${err.message}`, opts.verbose);
+    verbose(`KuzuDB edge export skipped: ${err.message}`, opts.verbose);
     return { exported: false, reason: err.message };
   }
 }
@@ -389,7 +390,7 @@ async function runDiscoveryCycle(roomDir, options = {}) {
     return runDryRun(resolvedRoom, report, opts);
   }
 
-  // Step 2: Export ANALOGOUS_TO edges from SQLite
+  // Step 2: Export ANALOGOUS_TO edges from KuzuDB
   log('Discovery Cycle: exporting ANALOGOUS_TO edges...');
   const edgeExport = await exportAnalogyEdges(resolvedRoom, opts);
   if (edgeExport.exported) {
@@ -474,8 +475,8 @@ function runDryRun(roomDir, report, opts) {
     `  HSI results:     ${report.hsi_results ? `FOUND (${report.data_summary.hsi || 'loaded'})` : 'MISSING'}`,
     `  Embeddings:      ${report.embeddings ? `FOUND (${report.data_summary.embeddings || 'loaded'})` : 'MISSING'}`,
     `  Brain baseline:  ${report.brain_baseline ? `FOUND (${report.data_summary.brain_baseline || 'loaded'})` : 'MISSING'}`,
-    `  Analogy edges:   ${report.analogy_edges ? 'FOUND (pre-exported)' : 'MISSING (will export from graph or use HSI fallback)'}`,
-    `  Graph DB:        ${report.graph_available ? 'AVAILABLE' : 'NOT AVAILABLE (analogy step uses HSI fallback)'}`,
+    `  Analogy edges:   ${report.analogy_edges ? 'FOUND (pre-exported)' : 'MISSING (will export from KuzuDB or use HSI fallback)'}`,
+    `  SQLite:          ${report.sqlite_available ? 'AVAILABLE' : 'NOT AVAILABLE (analogy step uses HSI fallback)'}`,
     `  Python:          ${report.python_available ? report.python_version : 'NOT FOUND'}`,
     '',
     `  Steps that will run:  ${report.steps_will_run.length > 0 ? report.steps_will_run.join(', ') : '(none)'}`,

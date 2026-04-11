@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * hsi-to-kuzu.cjs -- KuzuDB Edge Writer for HSI Results
- * ======================================================
+ * hsi-to-lazygraph.cjs -- SQLite Edge Writer for HSI Results
+ * ========================================================
  * Reads .hsi-results.json and creates HSI_CONNECTION and REVERSE_SALIENT
- * edges in KuzuDB with hsi_score, lsa_sim, semantic_sim metadata.
+ * edges in LazyGraph SQLite with hsi_score, lsa_sim, semantic_sim metadata.
  *
- * Usage: node scripts/hsi-to-kuzu.cjs /path/to/room
+ * Usage: node scripts/hsi-to-lazygraph.cjs /path/to/room
  *
  * Follows the open-use-close pattern established in Phase 15.
  */
@@ -29,7 +29,7 @@ function esc(str) {
 async function main() {
   const roomDir = process.argv[2];
   if (!roomDir) {
-    process.stderr.write('Usage: node scripts/hsi-to-kuzu.cjs /path/to/room\n');
+    process.stderr.write('Usage: node scripts/hsi-to-lazygraph.cjs /path/to/room\n');
     process.exit(1);
   }
 

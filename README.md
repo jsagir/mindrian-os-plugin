@@ -377,7 +377,7 @@ MindrianOS-Plugin/
 ├── lib/
 │   ├── core/                   # Shared modules (room-ops, state-ops, graph-ops,
 │   │                           #   meeting-ops, opportunity-ops, persona-ops,
-│   │                           #   lazygraph-ops, section-registry, kuzu-ops)
+│   │                           #   lazygraph-ops, section-registry, nl-graph-queries)
 │   ├── mcp/                    # MCP tools, resources, prompts, Larry context
 │   └── parity/                 # CLI/MCP parity check (CI gate)
 ├── mcp-server-brain/           # Brain hosting server
@@ -389,8 +389,8 @@ MindrianOS-Plugin/
 │   ├── git-ops                 # Git integration (7 subcommands)
 │   ├── compute-hsi.py          # HSI dual similarity (sklearn TF-IDF + embeddings)
 │   ├── detect-reverse-salients.py  # Cross-section innovation detection
-│   ├── hsi-to-graph.cjs         # SQLite edge bridge for HSI results
-│   ├── build-graph-from-kuzu.cjs   # graph.json generated from SQLite graph
+│   ├── hsi-to-lazygraph.cjs    # SQLite edge bridge for HSI results
+│   ├── build-graph-from-sqlite.cjs  # graph.json generated from SQLite
 │   ├── cross-room-detect.cjs   # Multi-room relationship detection
 │   └── check-hsi-deps          # Python dependency checker
 ├── references/                 # PWS frameworks, meeting protocols, personas

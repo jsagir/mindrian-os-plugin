@@ -65,7 +65,7 @@ The "create a room" message is misleading since the room exists and is active.
 - `scripts/serve-dashboard` - likely same issue
 - `scripts/generate-presentation.cjs` - takes room dir as CLI arg (ok)
 - `scripts/compute-state` - takes room dir as CLI arg (ok)
-- `scripts/build-graph-from-kuzu.cjs` - takes room dir as CLI arg (ok)
+- `scripts/build-graph-from-sqlite.cjs` - takes room dir as CLI arg (ok)
 - `scripts/compute-hsi.py` - takes room dir as CLI arg (ok)
 
 **Pattern:** Scripts that take room dir as a CLI argument work fine.
@@ -134,7 +134,7 @@ Warning: command failed: bash "scripts/build-graph" "rooms/align-x-milken" ...
 Warning: command failed: bash "scripts/analyze-room" "rooms/align-x-milken"
 ```
 
-These scripts don't exist in v1.5.0 (replaced by `build-graph-from-kuzu.cjs`
+These scripts don't exist in v1.5.0 (replaced by `build-graph-from-sqlite.cjs`
 and `compute-hsi.py`). The generator still tries to call the old scripts
 and shows warnings.
 
@@ -237,5 +237,5 @@ in some contexts while the wiki shows it as empty (different skip logic).
 
 4. **Multi-room is the default now.** All scripts written for single-room (`./room`)
    need an audit pass for registry-aware resolution. The v1.5.0 scripts (compute-hsi,
-   build-graph-from-kuzu, hsi-to-kuzu) correctly take room dir as CLI arg. The
+   build-graph-from-sqlite, hsi-to-lazygraph) correctly take room dir as CLI arg. The
    older scripts (serve-wiki, serve-dashboard) don't.

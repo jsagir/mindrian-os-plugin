@@ -30,10 +30,17 @@ Commands:
   meeting compute-team [roomDir]   Run compute-team script
   graph build [roomDir] [outputPath]  Generate knowledge graph JSON
   graph build-sqlite [roomDir] [outputPath]  Build graph.json from SQLite (primary)
+<<<<<<< HEAD
   graph index [roomDir] <filePath>   Index single artifact in room graph
   graph rebuild [roomDir]            Rebuild entire room graph from room artifacts
   graph query [roomDir] "<sql>"      Execute SQL query against room graph
   graph stats [roomDir]              Show room graph node/edge statistics
+=======
+  graph index [roomDir] <filePath>   Index single artifact in LazyGraph (SQLite)
+  graph rebuild [roomDir]            Rebuild entire LazyGraph from room artifacts
+  graph query [roomDir] "<sql>"      Execute SQL query against LazyGraph
+  graph stats [roomDir]              Show LazyGraph node/edge statistics
+>>>>>>> worktree-agent-a7c8282c
   opportunity scan [roomDir]     Context-driven grant discovery
   opportunity list [roomDir]     List filed opportunities
   opportunity file [roomDir] [dataJson]  File an opportunity
@@ -169,8 +176,12 @@ async function main() {
           output(result, raw, JSON.stringify(result));
           break;
         }
+<<<<<<< HEAD
         case 'build-sqlite':
         case 'build-kuzu': { // backward-compat alias
+=======
+        case 'build-sqlite': {
+>>>>>>> worktree-agent-a7c8282c
           const outputPath = argv[3]; // optional 4th arg
           const result = graphOps.buildGraphFromKuzu(roomDir, outputPath);
           output(result, raw, JSON.stringify(result));

@@ -130,7 +130,7 @@ async function run() {
     console.log('T6:error=' + e.message);
   }
 
-  // [7] graph.json from build-graph-from-kuzu contains meeting and speaker nodes
+  // [7] graph.json from build-graph-from-sqlite contains meeting and speaker nodes
   try {
     // Rebuild with meeting artifact
     await conn.query('MATCH (n) DETACH DELETE n');
@@ -138,19 +138,19 @@ async function run() {
     await lg.migrateSchema(conn);
     await lg.indexArtifact(conn, TEST_DIR + '/room', TEST_DIR + '/room/market-analysis/investor-segment.md');
 
-    // Close DB first, then run build-graph-from-kuzu
+    // Close DB first, then run build-graph-from-sqlite
     await lg.closeGraph(db);
 
     const { execSync } = require('child_process');
     const graphJsonPath = TEST_DIR + '/room/.presentation/graph.json';
     try {
-      execSync('node \"' + '$SCRIPT_DIR' + '/scripts/build-graph-from-kuzu.cjs\" \"' + TEST_DIR + '/room\" \"' + graphJsonPath + '\"', {
+      execSync('node \"' + '$SCRIPT_DIR' + '/scripts/build-graph-from-sqlite.cjs\" \"' + TEST_DIR + '/room\" \"' + graphJsonPath + '\"', {
         timeout: 15000,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe']
       });
     } catch (_) {
-      // KuzuDB segfault on exit is expected
+      // Error on exit is handled gracefully
     }
 
     if (fs.existsSync(graphJsonPath)) {

@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * whitespace-to-kuzu.cjs -- KuzuDB Writer for Whitespace Gap Detection Results
- * ==============================================================================
+ * whitespace-to-lazygraph.cjs -- SQLite Writer for Whitespace Gap Detection Results
+ * ==================================================================================
  * Reads .mindrian/whitespace-results.json and creates WhitespaceZone nodes,
  * WHITESPACE_DETECTED edges, WHITESPACE_NEAR edges, and updates artifact
- * novelty_score values in KuzuDB.
+ * novelty_score values in LazyGraph SQLite.
  *
- * Usage: node scripts/whitespace-to-kuzu.cjs /path/to/room
+ * Usage: node scripts/whitespace-to-lazygraph.cjs /path/to/room
  *
- * Follows the open-use-close pattern established in hsi-to-kuzu.cjs (Phase 15).
+ * Follows the open-use-close pattern established in hsi-to-lazygraph.cjs (Phase 15).
  */
 
 'use strict';
@@ -59,7 +59,7 @@ function shortHash(input) {
 async function main() {
   const roomDir = process.argv[2];
   if (!roomDir) {
-    process.stderr.write('Usage: node scripts/whitespace-to-kuzu.cjs /path/to/room\n');
+    process.stderr.write('Usage: node scripts/whitespace-to-lazygraph.cjs /path/to/room\n');
     process.exit(1);
   }
 
@@ -218,7 +218,7 @@ async function main() {
     );
 
   } catch (e) {
-    process.stderr.write(`whitespace-to-kuzu error: ${e.message}\n`);
+    process.stderr.write(`whitespace-to-lazygraph error: ${e.message}\n`);
     process.exit(1);
   } finally {
     if (db) {

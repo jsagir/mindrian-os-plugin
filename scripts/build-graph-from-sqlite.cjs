@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * MindrianOS Plugin -- SQLite-sourced Cytoscape JSON Graph Builder
- * Queries SQLite (room.db) as primary graph source and outputs
- * Cytoscape JSON matching the build-graph script output structure.
+ * Queries LazyGraph SQLite (.mindrian/room.db) as primary graph source
+ * and outputs Cytoscape JSON matching the build-graph script output structure.
  *
  * Usage: node build-graph-from-sqlite.cjs <roomDir> [outputPath]
  *   roomDir    - Absolute path to room directory
@@ -47,10 +47,10 @@ function getColor(section) {
     process.exit(0);
   }
 
-  const dbPath = path.join(path.resolve(roomDir), '.mindrian', 'room.db');
+  const lazygraphPath = path.join(path.resolve(roomDir), '.lazygraph');
 
-  // Graceful degradation: no .mindrian/room.db means no SQLite data
-  if (!fs.existsSync(dbPath)) {
+  // Graceful degradation: no .lazygraph means no KuzuDB data
+  if (!fs.existsSync(lazygraphPath)) {
     process.exit(0);
   }
 
@@ -73,12 +73,12 @@ function getColor(section) {
     let edgeIdx = 0;
 
     // -- Query Section nodes --
-    const sectionRows = conn.prepare(
-      "SELECT id AS name, json_extract(properties, '$.label') AS label FROM nodes WHERE type = 'Section'"
-    ).all();
+    const sectionRows = await lgOps.queryGraph(conn,
+      "MATCH (s:Section) RETURN s.name AS name, s.label AS label"
+    );
     for (const row of sectionRows) {
-      const name = row.name;
-      const label = row.label || (name || '').replace(/-/g, ' ').toUpperCase();
+      const name = row.name || row['s.name'];
+      const label = row.label || row['s.label'] || (name || '').replace(/-/g, ' ').toUpperCase();
       nodes.push({
         data: {
           id: name,
@@ -113,22 +113,22 @@ function getColor(section) {
     }
 
     // -- Query Artifact nodes --
-    const artifactRows = conn.prepare(
-      "SELECT id, json_extract(properties, '$.title') AS title, json_extract(properties, '$.section') AS section, json_extract(properties, '$.methodology') AS methodology, json_extract(properties, '$.created') AS created FROM nodes WHERE type = 'Artifact'"
-    ).all();
+    const artifactRows = await lgOps.queryGraph(conn,
+      "MATCH (a:Artifact) RETURN a.id AS id, a.title AS title, a.section AS section, a.methodology AS methodology, a.created AS created"
+    );
     for (const row of artifactRows) {
-      const id = row.id;
-      const section = row.section || '';
+      const id = row.id || row['a.id'];
+      const section = row.section || row['a.section'] || '';
       const spectral = spectralProfiles[id] || {};
 
       nodes.push({
         data: {
           id: id,
-          label: row.title || '',
+          label: row.title || row['a.title'] || '',
           section: section,
           color: getColor(section),
-          methodology: row.methodology || '',
-          created: row.created || '',
+          methodology: row.methodology || row['a.methodology'] || '',
+          created: row.created || row['a.created'] || '',
           layer: 'content',
           parent: section,
           // Spectral OM-HMM profile (FABRIC-03)
@@ -141,17 +141,18 @@ function getColor(section) {
       });
     }
 
-    // -- Query Meeting nodes (if any exist) --
+    // -- Query Meeting nodes (if table exists) --
     try {
-      const meetingRows = conn.prepare(
-        "SELECT id, json_extract(properties, '$.name') AS name, json_extract(properties, '$.date') AS date FROM nodes WHERE type = 'Meeting'"
-      ).all();
+      const meetingRows = await lgOps.queryGraph(conn,
+        "MATCH (m:Meeting) RETURN m.id AS id, m.name AS name, m.date AS date"
+      );
       for (const row of meetingRows) {
+        const id = row.id || row['m.id'];
         nodes.push({
           data: {
-            id: row.id,
-            label: row.name || '',
-            meeting_date: row.date || '',
+            id: id,
+            label: row.name || row['m.name'] || '',
+            meeting_date: row.date || row['m.date'] || '',
             color: '#D4A843',
             layer: 'content',
           },
@@ -159,20 +160,21 @@ function getColor(section) {
         });
       }
     } catch (_) {
-      // Meeting nodes may not exist -- skip silently
+      // Meeting table may not exist -- skip silently
     }
 
-    // -- Query Speaker nodes (if any exist) --
+    // -- Query Speaker nodes (if table exists) --
     try {
-      const speakerRows = conn.prepare(
-        "SELECT id, json_extract(properties, '$.name') AS name, json_extract(properties, '$.role') AS role FROM nodes WHERE type = 'Speaker'"
-      ).all();
+      const speakerRows = await lgOps.queryGraph(conn,
+        "MATCH (s:Speaker) RETURN s.id AS id, s.name AS name, s.role AS role"
+      );
       for (const row of speakerRows) {
+        const id = row.id || row['s.id'];
         nodes.push({
           data: {
-            id: row.id,
-            label: row.name || '',
-            role: row.role || '',
+            id: id,
+            label: row.name || row['s.name'] || '',
+            role: row.role || row['s.role'] || '',
             color: '#1E3A6E',
             layer: 'content',
           },
@@ -180,20 +182,21 @@ function getColor(section) {
         });
       }
     } catch (_) {
-      // Speaker nodes may not exist -- skip silently
+      // Speaker table may not exist -- skip silently
     }
 
-    // -- Query Assumption nodes (if any exist) --
+    // -- Query Assumption nodes (if table exists) --
     try {
-      const assumptionRows = conn.prepare(
-        "SELECT id, json_extract(properties, '$.claim') AS claim, json_extract(properties, '$.status') AS status FROM nodes WHERE type = 'Assumption'"
-      ).all();
+      const assumptionRows = await lgOps.queryGraph(conn,
+        "MATCH (a:Assumption) RETURN a.id AS id, a.claim AS claim, a.status AS status"
+      );
       for (const row of assumptionRows) {
+        const id = row.id || row['a.id'];
         nodes.push({
           data: {
-            id: row.id,
-            label: row.claim || '',
-            status: row.status || '',
+            id: id,
+            label: row.claim || row['a.claim'] || '',
+            status: row.status || row['a.status'] || '',
             color: '#C8A43C',
             layer: 'intelligence',
           },
@@ -201,31 +204,41 @@ function getColor(section) {
         });
       }
     } catch (_) {
-      // Assumption nodes may not exist -- skip silently
+      // Assumption table may not exist -- skip silently
     }
 
-    // -- Query ALL edges --
-    const edgeRows = conn.prepare(
-      "SELECT source AS src, type AS relType, target AS tgt FROM edges"
-    ).all();
+    // -- Query ALL edges with properties per type --
+    // Generic edge query (catches all types)
+    const edgeRows = await lgOps.queryGraph(conn,
+      "MATCH (a)-[r]->(b) RETURN coalesce(a.id, a.name) AS src, label(r) AS relType, coalesce(b.id, b.name) AS tgt"
+    );
+
+    // Also try Section-keyed edges (name instead of id)
+    let sectionEdgeRows = [];
+    try {
+      sectionEdgeRows = await lgOps.queryGraph(conn,
+        "MATCH (a)-[r]->(b) WHERE a.name IS NOT NULL OR b.name IS NOT NULL RETURN coalesce(a.id, a.name) AS src, label(r) AS relType, coalesce(b.id, b.name) AS tgt"
+      );
+    } catch (_) {
+      // Fall through -- edgeRows already captures most edges
+    }
 
     // -- Query typed edge properties for Constellation view --
     // HSI_CONNECTION properties (FABRIC-04)
     const hsiEdgeProps = {};
     try {
-      const hsiRows = conn.prepare(
-        "SELECT source AS src, target AS tgt, properties FROM edges WHERE type = 'HSI_CONNECTION'"
-      ).all();
+      const hsiRows = await lgOps.queryGraph(conn,
+        "MATCH (a:Artifact)-[r:HSI_CONNECTION]->(b:Artifact) RETURN a.id AS src, b.id AS tgt, r.hsi_score AS hsi_score, r.lsa_sim AS lsa_sim, r.semantic_sim AS semantic_sim, r.surprise_type AS surprise_type, r.breakthrough_potential AS breakthrough_potential, r.tier AS tier"
+      );
       for (const r of hsiRows) {
-        const props = JSON.parse(r.properties || '{}');
-        const key = `${r.src}-HSI_CONNECTION-${r.tgt}`;
+        const key = `${r.src || r['a.id']}-HSI_CONNECTION-${r.tgt || r['b.id']}`;
         hsiEdgeProps[key] = {
-          hsi_score: props.hsi_score || 0,
-          lsa_sim: props.lsa_sim || 0,
-          semantic_sim: props.semantic_sim || 0,
-          surprise_type: props.surprise_type || '',
-          breakthrough_potential: props.breakthrough_potential || 0,
-          tier: props.tier || '',
+          hsi_score: r.hsi_score || r['r.hsi_score'] || 0,
+          lsa_sim: r.lsa_sim || r['r.lsa_sim'] || 0,
+          semantic_sim: r.semantic_sim || r['r.semantic_sim'] || 0,
+          surprise_type: r.surprise_type || r['r.surprise_type'] || '',
+          breakthrough_potential: r.breakthrough_potential || r['r.breakthrough_potential'] || 0,
+          tier: r.tier || r['r.tier'] || '',
         };
       }
     } catch (_) {}
@@ -233,18 +246,17 @@ function getColor(section) {
     // REVERSE_SALIENT properties (FABRIC-05)
     const rsEdgeProps = {};
     try {
-      const rsRows = conn.prepare(
-        "SELECT source AS src, target AS tgt, properties FROM edges WHERE type = 'REVERSE_SALIENT'"
-      ).all();
+      const rsRows = await lgOps.queryGraph(conn,
+        "MATCH (a:Section)-[r:REVERSE_SALIENT]->(b:Section) RETURN a.name AS src, b.name AS tgt, r.differential_score AS diff, r.innovation_type AS itype, r.innovation_thesis AS thesis, r.source_artifact AS src_art, r.target_artifact AS tgt_art"
+      );
       for (const r of rsRows) {
-        const props = JSON.parse(r.properties || '{}');
-        const key = `${r.src}-REVERSE_SALIENT-${r.tgt}`;
+        const key = `${r.src || r['a.name']}-REVERSE_SALIENT-${r.tgt || r['b.name']}`;
         rsEdgeProps[key] = {
-          differential_score: props.differential_score || 0,
-          innovation_type: props.innovation_type || '',
-          innovation_thesis: props.innovation_thesis || '',
-          source_artifact: props.source_artifact || '',
-          target_artifact: props.target_artifact || '',
+          differential_score: r.diff || r['r.differential_score'] || 0,
+          innovation_type: r.itype || r['r.innovation_type'] || '',
+          innovation_thesis: r.thesis || r['r.innovation_thesis'] || '',
+          source_artifact: r.src_art || r['r.source_artifact'] || '',
+          target_artifact: r.tgt_art || r['r.target_artifact'] || '',
         };
       }
     } catch (_) {}
@@ -252,18 +264,17 @@ function getColor(section) {
     // ANALOGOUS_TO properties (FABRIC-06)
     const analogyEdgeProps = {};
     try {
-      const analogyRows = conn.prepare(
-        "SELECT source AS src, target AS tgt, properties FROM edges WHERE type = 'ANALOGOUS_TO'"
-      ).all();
+      const analogyRows = await lgOps.queryGraph(conn,
+        "MATCH (a:Artifact)-[r:ANALOGOUS_TO]->(b:Artifact) RETURN a.id AS src, b.id AS tgt, r.analogy_distance AS dist, r.structural_fitness AS fit, r.source_domain AS domain, r.transfer_map AS tmap, r.discovery_method AS method"
+      );
       for (const r of analogyRows) {
-        const props = JSON.parse(r.properties || '{}');
-        const key = `${r.src}-ANALOGOUS_TO-${r.tgt}`;
+        const key = `${r.src || r['a.id']}-ANALOGOUS_TO-${r.tgt || r['b.id']}`;
         analogyEdgeProps[key] = {
-          analogy_distance: props.analogy_distance || 'near',
-          structural_fitness: props.structural_fitness || 0,
-          source_domain: props.source_domain || '',
-          transfer_map: props.transfer_map || '{}',
-          discovery_method: props.discovery_method || '',
+          analogy_distance: r.dist || r['r.analogy_distance'] || 'near',
+          structural_fitness: r.fit || r['r.structural_fitness'] || 0,
+          source_domain: r.domain || r['r.source_domain'] || '',
+          transfer_map: r.tmap || r['r.transfer_map'] || '{}',
+          discovery_method: r.method || r['r.discovery_method'] || '',
         };
       }
     } catch (_) {}
@@ -271,16 +282,15 @@ function getColor(section) {
     // STRUCTURALLY_ISOMORPHIC properties
     const isoEdgeProps = {};
     try {
-      const isoRows = conn.prepare(
-        "SELECT source AS src, target AS tgt, properties FROM edges WHERE type = 'STRUCTURALLY_ISOMORPHIC'"
-      ).all();
+      const isoRows = await lgOps.queryGraph(conn,
+        "MATCH (a:Section)-[r:STRUCTURALLY_ISOMORPHIC]->(b:Section) RETURN a.name AS src, b.name AS tgt, r.isomorphism_score AS score, r.mapped_elements AS mapped, r.source AS source"
+      );
       for (const r of isoRows) {
-        const props = JSON.parse(r.properties || '{}');
-        const key = `${r.src}-STRUCTURALLY_ISOMORPHIC-${r.tgt}`;
+        const key = `${r.src || r['a.name']}-STRUCTURALLY_ISOMORPHIC-${r.tgt || r['b.name']}`;
         isoEdgeProps[key] = {
-          isomorphism_score: props.isomorphism_score || 0,
-          mapped_elements: props.mapped_elements || '{}',
-          source: props.source || '',
+          isomorphism_score: r.score || r['r.isomorphism_score'] || 0,
+          mapped_elements: r.mapped || r['r.mapped_elements'] || '{}',
+          source: r.source || r['r.source'] || '',
         };
       }
     } catch (_) {}
@@ -288,27 +298,27 @@ function getColor(section) {
     // RESOLVES_VIA properties
     const resolveEdgeProps = {};
     try {
-      const resolveRows = conn.prepare(
-        "SELECT source AS src, target AS tgt, properties FROM edges WHERE type = 'RESOLVES_VIA'"
-      ).all();
+      const resolveRows = await lgOps.queryGraph(conn,
+        "MATCH (a:Artifact)-[r:RESOLVES_VIA]->(b:Artifact) RETURN a.id AS src, b.id AS tgt, r.resolution_type AS rtype, r.triz_principle AS triz, r.analogy_source AS asrc, r.confidence AS conf"
+      );
       for (const r of resolveRows) {
-        const props = JSON.parse(r.properties || '{}');
-        const key = `${r.src}-RESOLVES_VIA-${r.tgt}`;
+        const key = `${r.src || r['a.id']}-RESOLVES_VIA-${r.tgt || r['b.id']}`;
         resolveEdgeProps[key] = {
-          resolution_type: props.resolution_type || 'direct',
-          triz_principle: props.triz_principle || '',
-          analogy_source: props.analogy_source || '',
-          confidence: props.confidence || 0,
+          resolution_type: r.rtype || r['r.resolution_type'] || 'direct',
+          triz_principle: r.triz || r['r.triz_principle'] || '',
+          analogy_source: r.asrc || r['r.analogy_source'] || '',
+          confidence: r.conf || r['r.confidence'] || 0,
         };
       }
     } catch (_) {}
 
     const seenEdges = new Set();
+    const allEdgeRows = [...edgeRows, ...sectionEdgeRows];
 
-    for (const row of edgeRows) {
-      const src = row.src;
-      const tgt = row.tgt;
-      const relType = row.relType;
+    for (const row of allEdgeRows) {
+      const src = row.src || row['src'];
+      const tgt = row.tgt || row['tgt'];
+      const relType = row.relType || row['relType'];
       if (!src || !tgt || !relType) continue;
 
       const edgeKey = `${src}-${relType}-${tgt}`;

@@ -63,40 +63,35 @@ function extractKeywords(titles) {
 }
 
 /**
- * Query artifact titles from a room's KuzuDB.
+ * Query artifact titles from a room's LazyGraph SQLite.
  * Opens DB, queries, closes -- open-use-close pattern.
  * @param {string} roomPath - Absolute path to the room
  * @returns {Promise<string[]>} Array of artifact titles
  */
 async function getArtifactTitles(roomPath) {
-  const lazygraphDir = path.join(roomPath, '.lazygraph');
-  if (!fs.existsSync(lazygraphDir)) return [];
+  const dbPath = path.join(roomPath, '.mindrian', 'room.db');
+  if (!fs.existsSync(dbPath)) return [];
 
-  let kuzu;
+  let lazygraph;
   try {
-    kuzu = require('kuzu');
+    lazygraph = require(path.join(__dirname, '..', 'lib', 'core', 'lazygraph-ops.cjs'));
   } catch (_) {
-    return []; // KuzuDB not installed
+    return []; // lazygraph-ops not available
   }
 
   let db = null;
-  let conn = null;
   try {
-    db = new kuzu.Database(lazygraphDir, 0, false, false, 256 * 1024 * 1024);
-    conn = new kuzu.Connection(db);
-    const result = await conn.query('MATCH (a:Artifact) RETURN a.title');
-    const titles = [];
-    while (result.hasNext()) {
-      const row = await result.getNext();
-      const val = row['a.title'];
-      if (val) titles.push(val);
-    }
-    return titles;
+    const result = await lazygraph.openGraph(roomPath);
+    db = result.db;
+    const conn = result.conn;
+    const rows = conn.prepare(
+      "SELECT json_extract(properties, '$.title') AS title FROM nodes WHERE type = 'Artifact'"
+    ).all();
+    return rows.map(r => r.title).filter(Boolean);
   } catch (_) {
     return []; // DB error -- skip this room
   } finally {
-    try { if (conn) conn.close(); } catch (_) {}
-    try { if (db) db.close(); } catch (_) {}
+    if (db) { try { await lazygraph.closeGraph(db); } catch (_) {} }
   }
 }
 
