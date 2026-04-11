@@ -315,7 +315,7 @@ function collectGraph(roomDir) {
 
 function collectGraphData(roomDir, graph) {
   const roomDbPath = path.join(roomDir, '.mindrian', 'room.db');
-  if (!fs.existsSync(lazygraphDir)) return { available: false };
+  if (!fs.existsSync(roomDbPath)) return { available: false };
 
   // Reuse the same SQLite graph query pattern from generate-export.cjs
   const queryScript = [
@@ -325,7 +325,7 @@ function collectGraphData(roomDir, graph) {
     "  try {",
     "    const { db: d, conn } = await lgOps.openGraph('" + roomDir.replace(/\\/g, '\\\\') + "');",
     "    db = d;",
-    "    const edges = await lgOps.queryGraph(conn, \"MATCH (a)-[r]->(b) RETURN label(r) AS relType, coalesce(a.id, a.name) AS src, coalesce(b.id, b.name) AS tgt\");",
+    "    const edges = await lgOps.queryGraph(conn, \"SELECT source AS src, target AS tgt, type AS relType FROM edges\");",
     "    const stats = await lgOps.graphStats(conn);",
     "    await lgOps.closeGraph(db);",
     "    console.log(JSON.stringify({ edges, stats }));",
