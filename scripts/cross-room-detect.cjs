@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
  * MindrianOS Plugin -- Cross-Room Concept Detection
- * Scans KuzuDB artifact titles across rooms, finds shared keywords,
+ * Scans SQLite artifact titles across rooms, finds shared keywords,
  * and records cross-room relationships in proactive intelligence.
  *
  * Usage: node cross-room-detect.cjs <roomDir> [workspaceDir]
  *
  * Exits 0 gracefully when no registry exists or single room (nothing to cross-reference).
- * Each room's KuzuDB is opened and closed independently (read-only MATCH queries only).
+ * Each room's SQLite graph is opened and closed independently (read-only MATCH queries only).
  */
 
 'use strict';

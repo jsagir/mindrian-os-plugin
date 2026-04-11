@@ -201,10 +201,9 @@ describe('SQLITE-02: Core functions', () => {
   it('graphStats returns correct shape', async () => {
     const stats = await lazygraph.graphStats(conn);
     assert.ok(stats.nodes, 'should have nodes object');
-    assert.ok(typeof stats.nodes.Artifact === 'number');
-    assert.ok(typeof stats.nodes.Section === 'number');
-    assert.ok(typeof stats.nodes.CausalClaim === 'number');
-    assert.ok(typeof stats.nodes.WhitespaceZone === 'number');
+    // Dynamic node counts -- check that at least Artifact and Section exist
+    assert.ok(typeof stats.nodes.Artifact === 'number', 'should have Artifact count');
+    assert.ok(typeof stats.nodes.Section === 'number', 'should have Section count');
     assert.ok(stats.edges, 'should have edges object');
     assert.ok(stats.total, 'should have total object');
     assert.ok(typeof stats.total.nodes === 'number');

@@ -4,7 +4,7 @@
 /**
  * MindrianOS Plugin -- Data Room Export Generator
  * Reads a room/ directory, collects sections, artifacts, intelligence,
- * graph data, and optional KuzuDB edges, then injects everything into
+ * graph data, and optional SQLite graph edges, then injects everything into
  * the export-template.html to produce a self-contained HTML file.
  *
  * Usage: node scripts/generate-export.cjs [ROOM_DIR] [OUTPUT_PATH]

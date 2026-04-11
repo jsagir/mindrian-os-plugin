@@ -7,7 +7,7 @@
  *
  * Step sequence:
  *   1. Pre-flight -- check which pipeline outputs exist
- *   2. Export ANALOGOUS_TO edges from KuzuDB to .mindrian/analogy-edges.json
+ *   2. Export ANALOGOUS_TO edges from SQLite to .mindrian/analogy-edges.json
  *   3. HSI -> Whitespace(between) -- run discover-hsi-whitespace.py
  *   4. RS -> Whitespace(downstream) -- run discover-rs-whitespace.py
  *   5. Analogy -> Whitespace(transfer) -- run discover-analogy-whitespace.py
@@ -186,7 +186,7 @@ function preflight(roomDir, requestedSteps, opts) {
 }
 
 // ---------------------------------------------------------------------------
-// Step 2: Export ANALOGOUS_TO edges from KuzuDB
+// Step 2: Export ANALOGOUS_TO edges from SQLite
 // ---------------------------------------------------------------------------
 
 async function exportAnalogyEdges(roomDir, opts) {
@@ -223,7 +223,7 @@ async function exportAnalogyEdges(roomDir, opts) {
       await lazygraphOps.closeGraph(db);
     }
   } catch (err) {
-    verbose(`KuzuDB edge export skipped: ${err.message}`, opts.verbose);
+    verbose(`SQLite edge export skipped: ${err.message}`, opts.verbose);
     return { exported: false, reason: err.message };
   }
 }
@@ -390,7 +390,7 @@ async function runDiscoveryCycle(roomDir, options = {}) {
     return runDryRun(resolvedRoom, report, opts);
   }
 
-  // Step 2: Export ANALOGOUS_TO edges from KuzuDB
+  // Step 2: Export ANALOGOUS_TO edges from SQLite
   log('Discovery Cycle: exporting ANALOGOUS_TO edges...');
   const edgeExport = await exportAnalogyEdges(resolvedRoom, opts);
   if (edgeExport.exported) {
@@ -475,7 +475,7 @@ function runDryRun(roomDir, report, opts) {
     `  HSI results:     ${report.hsi_results ? `FOUND (${report.data_summary.hsi || 'loaded'})` : 'MISSING'}`,
     `  Embeddings:      ${report.embeddings ? `FOUND (${report.data_summary.embeddings || 'loaded'})` : 'MISSING'}`,
     `  Brain baseline:  ${report.brain_baseline ? `FOUND (${report.data_summary.brain_baseline || 'loaded'})` : 'MISSING'}`,
-    `  Analogy edges:   ${report.analogy_edges ? 'FOUND (pre-exported)' : 'MISSING (will export from KuzuDB or use HSI fallback)'}`,
+    `  Analogy edges:   ${report.analogy_edges ? 'FOUND (pre-exported)' : 'MISSING (will export from SQLite or use HSI fallback)'}`,
     `  SQLite:          ${report.sqlite_available ? 'AVAILABLE' : 'NOT AVAILABLE (analogy step uses HSI fallback)'}`,
     `  Python:          ${report.python_available ? report.python_version : 'NOT FOUND'}`,
     '',

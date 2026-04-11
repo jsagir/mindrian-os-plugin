@@ -317,7 +317,7 @@ function collectGraphData(roomDir, graph) {
   const roomDbPath = path.join(roomDir, '.mindrian', 'room.db');
   if (!fs.existsSync(lazygraphDir)) return { available: false };
 
-  // Reuse the same KuzuDB sync query pattern from generate-export.cjs
+  // Reuse the same SQLite graph query pattern from generate-export.cjs
   const queryScript = [
     "const lgOps = require('" + path.join(SCRIPT_DIR, '..', 'lib', 'core', 'lazygraph-ops.cjs').replace(/\\/g, '\\\\') + "');",
     "(async () => {",
