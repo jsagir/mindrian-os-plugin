@@ -165,17 +165,10 @@ After confirmation, write the results:
 }
 ```
 
-<<<<<<< HEAD
 3. **Call the bridge script** to write confirmed claims to the room graph:
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/scripts/causal-to-graph.cjs" "room/"
-=======
-3. **Call the bridge script** to write confirmed claims to LazyGraph SQLite:
-
-```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/causal-to-lazygraph.cjs" "room/"
->>>>>>> worktree-agent-a7c8282c
 ```
 
 4. **Handle bridge errors:**
@@ -220,11 +213,7 @@ Explain what to look for rather than returning an empty table. Help the user und
 ```
 {warning} Knowledge graph not initialized
   JSON saved to room/.causal-extract.json (claims preserved)
-<<<<<<< HEAD
   Fix: Run /mos:setup graph then re-run the bridge with: node scripts/causal-to-graph.cjs room/
-=======
-  Fix: Run /mos:setup graph then re-run the bridge with: node scripts/causal-to-lazygraph.cjs room/
->>>>>>> worktree-agent-a7c8282c
 ```
 
 ## When Complete
