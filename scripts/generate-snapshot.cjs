@@ -309,7 +309,7 @@ function scanRoom(roomDir) {
     } catch (_) {}
   }
 
-  // 9. Spectral summary from STATE.md or .lazygraph
+  // 9. Spectral summary from STATE.md or .mindrian/room.db
   let meanOmhmm = 0;
   let meanSpectralGap = 0;
   // Try reading from state

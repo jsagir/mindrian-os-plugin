@@ -152,8 +152,8 @@ async function main() {
     // Skip current room
     if (otherRoomAbs === currentRoomAbs) continue;
 
-    // Skip rooms without .lazygraph
-    if (!fs.existsSync(path.join(otherRoomAbs, '.lazygraph'))) continue;
+    // Skip rooms without .mindrian/room.db
+    if (!fs.existsSync(path.join(otherRoomAbs, '.mindrian', 'room.db'))) continue;
 
     scanned++;
 

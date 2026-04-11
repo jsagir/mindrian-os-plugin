@@ -314,7 +314,7 @@ function collectGraph(roomDir) {
 }
 
 function collectGraphData(roomDir, graph) {
-  const lazygraphDir = path.join(roomDir, '.lazygraph');
+  const roomDbPath = path.join(roomDir, '.mindrian', 'room.db');
   if (!fs.existsSync(lazygraphDir)) return { available: false };
 
   // Reuse the same KuzuDB sync query pattern from generate-export.cjs

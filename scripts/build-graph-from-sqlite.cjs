@@ -47,9 +47,9 @@ function getColor(section) {
     process.exit(0);
   }
 
-  const lazygraphPath = path.join(path.resolve(roomDir), '.lazygraph');
+  const roomDbPath = path.join(path.resolve(roomDir), '.mindrian', 'room.db');
 
-  // Graceful degradation: no .lazygraph means no KuzuDB data
+  // Graceful degradation: no room.db means no graph data
   if (!fs.existsSync(lazygraphPath)) {
     process.exit(0);
   }
