@@ -40,7 +40,7 @@ const LIGHT_TEXT_SECTIONS = new Set([
   'team-execution', 'legal-ip', 'financial-model', 'personas'
 ]);
 
-const SKIP_DIRS = new Set(['.lazygraph', 'meetings', 'team', 'exports']);
+const SKIP_DIRS = new Set(['.lazygraph', '.mindrian', 'meetings', 'team', 'exports']);
 const SKIP_FILES = new Set(['ROOM.md', 'STATE.md', 'MINTO.md', 'USER.md', 'ROOM-INTELLIGENCE.md', 'MEETINGS-INTELLIGENCE.md']);
 
 // ── Helpers ──

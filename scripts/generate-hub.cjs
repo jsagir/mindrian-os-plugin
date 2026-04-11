@@ -30,7 +30,7 @@ const SKIP_FILES = new Set([
 ]);
 
 const SKIP_DIRS = new Set([
-  '.lazygraph', '.sparks', '.snapshots', 'exports', 'assets', 'personas'
+  '.lazygraph', '.mindrian', '.sparks', '.snapshots', 'exports', 'assets', 'personas'
 ]);
 
 // Standard sections in display order

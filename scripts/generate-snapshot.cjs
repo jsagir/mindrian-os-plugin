@@ -33,7 +33,7 @@ const { execSync } = require('child_process');
 
 // -- Constants --
 
-const SKIP_DIRS = new Set(['.lazygraph', '.sparks', '.snapshots', 'meetings', 'team', 'exports', 'assets', 'personas']);
+const SKIP_DIRS = new Set(['.lazygraph', '.mindrian', '.sparks', '.snapshots', 'meetings', 'team', 'exports', 'assets', 'personas']);
 const SKIP_FILES = new Set([
   'ROOM.md', 'STATE.md', 'MINTO.md', 'USER.md', 'JTBD.md',
   'ROOM-INTELLIGENCE.md', 'MEETINGS-INTELLIGENCE.md',

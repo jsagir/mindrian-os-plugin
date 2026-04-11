@@ -60,7 +60,7 @@ function buildRoomSchema(roomDir) {
   const sections = [];
   try {
     const entries = fs.readdirSync(roomDir, { withFileTypes: true });
-    const skipDirs = new Set(['.lazygraph', 'meetings', 'team', 'exports', 'assets', 'personas']);
+    const skipDirs = new Set(['.lazygraph', '.mindrian', 'meetings', 'team', 'exports', 'assets', 'personas']);
 
     for (const entry of entries) {
       if (!entry.isDirectory()) continue;

@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.9.6] - 2026-04-11
+
+onboarding: true
+onboard_steps:
+  - "BREAKING: KuzuDB replaced with SQLite. Your Data Room graph now lives at room/.mindrian/room.db with WAL mode for concurrent access. Run /mos:room rebuild-graph to migrate."
+  - "NEW: Memory system -- Larry remembers who you are (L0), what facts are current (L1), session history (L2), and conversation fragments (L3). Assumptions tracked with validity lifecycle."
+  - "NEW: Natural language graph queries -- ask Larry about your room's connections in plain English. 10 built-in query patterns."
+  - "NEW: Brain normalization -- 280 duplicate concepts merged, 73 contamination nodes removed, 20 new framework chains added."
+  - "NEW: 4 intelligence algorithms -- blindspot coverage, Bayesian surprise, element novelty, disruption index."
+
+### Changed
+- **SQLite replaces KuzuDB** -- lazygraph-ops.cjs fully rewritten from KuzuDB/Cypher to better-sqlite3/SQL (762 lines, 21 exports, 52 tests). Dead dependency removed. Room graph at room/.mindrian/room.db with WAL mode for concurrent plugin + MCP access.
+- **Intelligence cascade updated** -- checks .mindrian/room.db instead of .lazygraph/. Script references updated (hsi-to-graph.cjs, causal-to-graph.cjs, whitespace-to-graph.cjs).
+- **28+ files migrated** -- all scripts, CLI, MCP tools, wiki, presentation generators updated from KuzuDB to SQLite.
+
+### Added
+- **Memory system** (memory-ops.cjs) -- 13 exports: identity (L0), facts with temporal validity (L1), sessions (L2), fragments (L3), assumption tracking with validity lifecycle (untested/supported/contradicted/stale). 35 tests.
+- **NL graph queries** (nl-graph-queries.cjs) -- 10 natural language query templates: contradictions, neighbors, paths, stats, section artifacts, HSI connections, reverse salients, causal claims, whitespace zones, convergence.
+- **Migration tool** (migrate-lazygraph.cjs) -- rebuild-from-artifacts approach with --dry-run, --force, --help.
+- **Brain normalization** -- 280 "The X" prefix dupes merged, 73 file path nodes removed, 20 FEEDS_INTO edges added (leadership -> PWS methodology chains). Brain: 7,931 -> 7,578 concepts, 147 -> 167 FEEDS_INTO.
+- **Wave 1 algorithms** -- compute-blindspot-mass.py (Good-Turing coverage), compute-bayesian-surprise.py (leave-one-out cosine shift), compute-element-novelty.py (per-artifact novelty), compute-disruption-index.py (CD index).
+- **Larry server instructions** -- 114-line full personality for MCP server (voice, Ask-Tell dial, mode engine, framework delivery, tool usage patterns). Zero reduction from plugin personality.
+
+### Removed
+- **kuzu** npm dependency removed from package.json
+- Deleted orphaned scripts: hsi-to-lazygraph.cjs, causal-to-lazygraph.cjs, whitespace-to-lazygraph.cjs, build-graph-from-kuzu.cjs
+
 ## [1.9.4] - 2026-04-09
 
 onboarding: true
