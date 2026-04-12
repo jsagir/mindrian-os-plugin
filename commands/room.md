@@ -251,6 +251,59 @@ Write a ROOM.md with:
 
 Larry adds a brief observation about the addition.
 
+## Subcommand: linkify
+
+**Trigger:** `/mos:room linkify` or `/mos:room linkify <room-name>`
+
+### Step 1: Check for Room
+
+Run `bash scripts/resolve-room` to find the active room. If it exits non-zero, use the 3-line error format:
+```
+x No Data Room found
+  Why: No room under ~/MindrianRooms/ or legacy room/ in workspace
+  Fix: /mos:new-project
+```
+
+STOP.
+
+### Step 2: Warn Before Mutation
+
+Linkify modifies room files IN PLACE -- no export, no copy. Show the warning:
+
+```
+  ! Linkify will inject wikilinks, branded footers, and content reformatting
+    into files in {room path} directly. This is not reversible via this command.
+
+    Continue? (y/N)
+```
+
+If user declines, abort with no changes.
+
+### Step 3: Run Linkify
+
+```bash
+node bin/mindrian-tools.cjs room linkify {room-name if provided}
+```
+
+The router forwards to scripts/vault-export-orchestrator.cjs with `--in-place`, which runs the same 7-script pipeline on the source room without the copy step. The orchestrator prints `[vault] >>>` progress lines. Let them stream through.
+
+### Step 4: Confirm (Shape E Mini Report)
+
+```
+  Action: room linkify (in-place)
+  Room:   {room path}
+  Files:  {N} markdown files touched
+  Added:  wikilinks, branded footers, Welcome doc, VAULT-RULES.md
+
+  Your room is now Obsidian-ready. Open it in Obsidian to see wikilinks and the graph view.
+
+  > /mos:vault                         Export to a separate vault folder instead
+  > /mos:room view                     Launch the live dashboard
+```
+
+Larry adds a brief observation about what changed. Example:
+- "Wikilinks injected across 14 team references and 9 section cross-links. Your room graph just gained structure."
+
 ## Subcommand: export
 
 **Trigger:** `/mos:room export` or `/mos:room export --format standalone`
