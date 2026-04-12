@@ -439,15 +439,30 @@ function stripBlockElements(text) {
   return text.replace(BLOCK_ELEMS_RE, '');
 }
 
+function findAllSystemFiles(rootDir) {
+  const found = [];
+  const SKIP = new Set(['.git', 'node_modules', '.obsidian', '.lazygraph', '.mindrian', '.context', '.planning']);
+  const SYSTEM_NAMES = new Set(['STATE.md', 'ROOM.md']);
+  function walk(dir) {
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch (_) { return; }
+    for (const e of entries) {
+      if (SKIP.has(e.name)) continue;
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (e.isFile() && SYSTEM_NAMES.has(e.name)) found.push(p);
+    }
+  }
+  walk(rootDir);
+  return found;
+}
+
 function passTerminalCleanup(room) {
   // Include system files here too since STATE.md contains the worst offenders.
+  // Recursively find all STATE.md / ROOM.md files (top-level + sub-rooms).
   const filesToProcess = room.contentFiles.map((f) => f.path);
-  const systemToo = [
-    path.join(room.roomDir, 'STATE.md'),
-    path.join(room.roomDir, 'ROOM.md'),
-  ];
-  for (const p of systemToo) {
-    if (fs.existsSync(p)) filesToProcess.push(p);
+  for (const p of findAllSystemFiles(room.roomDir)) {
+    filesToProcess.push(p);
   }
 
   for (const absPath of filesToProcess) {
