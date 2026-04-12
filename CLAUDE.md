@@ -167,6 +167,7 @@ MindrianOS-Plugin/
 13. **Rejection is data** — when a user rejects a suggestion, the reason becomes a graph node. "Why not" teaches the system as much as "yes."
 14. **Bidirectional stage progression** — ventures don't progress linearly. A well-defined problem can regress to ill-defined after market feedback. The system supports regression with history preservation.
 15. **ICM Layer 0 everywhere** — every directory in the Data Room MUST have a ROOM.md identity file. No exceptions. Whether it's a room section, sub-room, team profile folder, meeting archive, or opportunity bank — if it's a directory, it gets ROOM.md. This is the contract between the folder and every agent that touches it. Folders without identity cause misfiling and lost context across all surfaces (CLI, Desktop, Cowork).
+16. **Obsidian Vault Nested Structure (v1.9.7)** — every artifact in a .mos vault MUST sit in its own named folder in a nested structure. Never place a bare .md file in a section root. Always: `section/artifact-name/artifact-name.md`. This enables Obsidian graph view, per-artifact attachments (images, data files), per-artifact ROOM.md identity, and clean wikilink resolution. Example: `opportunity-bank/opp-01-quantum-brain-imaging/opp-01-quantum-brain-imaging.md` not `opportunity-bank/opp-01-quantum-brain-imaging.md`. The folder IS the artifact. The .md file IS the content. Attachments, related analysis, and sub-findings live alongside it. This rule applies to ALL surfaces (CLI exports to vault, Desktop filing, Cowork shared rooms).
 
 ---
 

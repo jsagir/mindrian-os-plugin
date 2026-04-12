@@ -29,6 +29,7 @@ onboard_steps:
 ### Changed
 - View button HTML generation: <span> replaced with <a> tags
 - Default snapshot quality: rich text formatting is now the baseline, not an enhancement
+- **RULE: Obsidian Vault Nested Structure** -- every artifact in a .mos vault MUST sit in its own named folder (`section/artifact-name/artifact-name.md`). Enables Obsidian graph view, per-artifact attachments, clean wikilinks. Applies to all surfaces (CLI, Desktop, Cowork).
 
 ## [1.9.6] - 2026-04-11
 
