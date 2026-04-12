@@ -8,6 +8,8 @@
 
 'use strict';
 
+const { execFileSync } = require('child_process');
+const path = require('path');
 const { output, error } = require('../lib/core/index.cjs');
 const roomOps = require('../lib/core/room-ops.cjs');
 const stateOps = require('../lib/core/state-ops.cjs');
@@ -61,7 +63,10 @@ Commands:
   bank-opportunity [roomDir] <json>   Bank an opportunity from conversation (room or scratchpad)
   record-decision --room DIR --key KEY --decision approve|reject|defer [--reason "..."] [--source-artifact ID] [--target-artifact ID]
                                      Record user decision on a proactive intelligence finding
-  detect-integrations                Detect all integration statuses (env, MCP, filesystem)`;
+  detect-integrations                Detect all integration statuses (env, MCP, filesystem)
+  vault [room] [--path <target>] [--in-place]
+                                  Export room as Obsidian vault (or linkify in-place)
+  room linkify [room]             Retroactively inject wikilinks + footers in-place (WIKI-08)`;
 
 async function main() {
   const argv = process.argv.slice(2);
@@ -90,6 +95,20 @@ async function main() {
         case 'analyze': {
           const result = roomOps.analyzeRoom(roomDir);
           output({ output: result }, raw, result);
+          break;
+        }
+        case 'linkify': {
+          const orchestrator = path.resolve(__dirname, '..', 'scripts', 'vault-export-orchestrator.cjs');
+          // User invocation forms:
+          //   room linkify                 -> orchestrator --in-place (resolves active room)
+          //   room linkify <room>          -> orchestrator <room> --in-place
+          const extra = argv.slice(2);
+          const args = extra.length > 0 ? [...extra, '--in-place'] : ['--in-place'];
+          try {
+            execFileSync(process.execPath, [orchestrator, ...args], { stdio: 'inherit' });
+          } catch (err) {
+            error(`room linkify failed: ${err.message}`);
+          }
           break;
         }
         default:
@@ -641,6 +660,17 @@ async function main() {
       // No room or room not found -- bank to scratchpad
       const spResult = scratchpadOps.writeScratchpadEntry('opportunity', bkData);
       output(spResult, raw, JSON.stringify(spResult));
+      break;
+    }
+
+    case 'vault': {
+      const orchestrator = path.resolve(__dirname, '..', 'scripts', 'vault-export-orchestrator.cjs');
+      const forwarded = argv.slice(1);
+      try {
+        execFileSync(process.execPath, [orchestrator, ...forwarded], { stdio: 'inherit' });
+      } catch (err) {
+        error(`vault export failed: ${err.message}`);
+      }
       break;
     }
 
