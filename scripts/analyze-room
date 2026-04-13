@@ -216,6 +216,7 @@ print()
 print("## Cross-References")
 
 cross_ref_found = False
+xref_source_files = set()  # NATIVE-03: files participating in xref edges, to wikilink at scan time
 for section in ALL_SECTIONS:
     section_dir = room_path / section
     for f in md_files(section_dir):
@@ -228,6 +229,7 @@ for section in ALL_SECTIONS:
                 continue
             if re.search(rf'\[\[{re.escape(target)}\]\]|room/{re.escape(target)}', content):
                 cross_ref_found = True
+                xref_source_files.add(str(f))
                 # Try visual-ops formatting via node, fallback to plain
                 formatted = f"{section} INFORMS {target}"
                 try:
@@ -248,6 +250,7 @@ for section in ALL_SECTIONS:
                 continue
             if re.search(rf'contradict.*{re.escape(target)}|conflict.*{re.escape(target)}|inconsisten.*{re.escape(target)}', content, re.IGNORECASE):
                 cross_ref_found = True
+                xref_source_files.add(str(f))
                 formatted = f"{section} CONTRADICTS {target}"
                 try:
                     lib_path = os.path.join(SCRIPT_DIR, '..', 'lib', 'core', 'visual-ops.cjs')
@@ -263,6 +266,28 @@ for section in ALL_SECTIONS:
 
 if not cross_ref_found:
     print("No cross-reference edges detected yet.")
+
+# NATIVE-03: wikilink every source file that participates in an xref edge,
+# so cross-referenced artifacts arrive pre-linked rather than waiting for a
+# retroactive /mos:room linkify pass. Soft-fails: any error here is logged to
+# stderr but never breaks analyze-room.
+wikilink_script = os.path.join(SCRIPT_DIR, 'wikilink-file.cjs')
+wikilinked = 0
+if xref_source_files and os.path.isfile(wikilink_script):
+    for src in sorted(xref_source_files):
+        try:
+            r = subprocess.run(
+                ['node', wikilink_script, ROOM_DIR, src],
+                capture_output=True, text=True, timeout=5
+            )
+            if r.returncode == 0:
+                wikilinked += 1
+            else:
+                sys.stderr.write(f"[analyze-room] wikilink-file failed for {src}: {r.stderr.strip()}\n")
+        except Exception as e:
+            sys.stderr.write(f"[analyze-room] wikilink-file error for {src}: {e}\n")
+    if wikilinked:
+        print(f"WIKILINK_SWEEP:xref:{wikilinked}:wikilinked {wikilinked} xref source files")
 
 print()
 
@@ -757,6 +782,8 @@ echo ""
 echo "## Cross-References"
 
 cross_ref_found=false
+# NATIVE-03: collect xref source files for post-detection wikilinking sweep
+XREF_SOURCE_FILES=""
 for section in "${ALL_SECTIONS[@]}"; do
   section_dir="${ROOM_DIR}/${section}"
   [ -d "$section_dir" ] || continue
@@ -770,6 +797,7 @@ for section in "${ALL_SECTIONS[@]}"; do
       [ "$target" = "$section" ] && continue
       if grep -qE "\[\[$target\]\]|room/$target" "$f" 2>/dev/null; then
         cross_ref_found=true
+        XREF_SOURCE_FILES="${XREF_SOURCE_FILES}${f}"$'\n'
         # Format edge with visual-ops symbols (graceful degradation)
         FORMATTED_EDGE=$(node -e "
           const v = require('$SCRIPT_DIR/../lib/core/visual-ops.cjs');
@@ -785,6 +813,7 @@ for section in "${ALL_SECTIONS[@]}"; do
       [ "$target" = "$section" ] && continue
       if echo "$content" | grep -iqE "contradict.*$target|conflict.*$target|inconsisten.*$target" 2>/dev/null; then
         cross_ref_found=true
+        XREF_SOURCE_FILES="${XREF_SOURCE_FILES}${f}"$'\n'
         FORMATTED_EDGE=$(node -e "
           const v = require('$SCRIPT_DIR/../lib/core/visual-ops.cjs');
           console.log(v.formatEdge('$section', '$target', 'CONTRADICTS'));
@@ -797,6 +826,27 @@ done
 
 if ! $cross_ref_found; then
   echo "No cross-reference edges detected yet."
+fi
+
+# NATIVE-03: wikilink every source file that participates in an xref edge,
+# so cross-referenced artifacts arrive pre-linked rather than waiting for
+# /mos:room linkify. Soft-fails: any error is logged to stderr but never
+# breaks analyze-room's exit code.
+WIKILINK_SCRIPT="${SCRIPT_DIR}/wikilink-file.cjs"
+if [ -n "$XREF_SOURCE_FILES" ] && [ -f "$WIKILINK_SCRIPT" ]; then
+  wl_count=0
+  # Dedupe via sort -u
+  while IFS= read -r src; do
+    [ -z "$src" ] && continue
+    if node "$WIKILINK_SCRIPT" "$ROOM_DIR" "$src" >/dev/null 2>>/tmp/analyze-room-wikilink.err; then
+      wl_count=$((wl_count + 1))
+    else
+      echo "[analyze-room] wikilink-file failed for $src" >&2
+    fi
+  done < <(printf '%s' "$XREF_SOURCE_FILES" | sort -u)
+  if [ "$wl_count" -gt 0 ]; then
+    echo "WIKILINK_SWEEP:xref:${wl_count}:wikilinked ${wl_count} xref source files"
+  fi
 fi
 
 echo ""

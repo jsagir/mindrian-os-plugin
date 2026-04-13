@@ -5,6 +5,37 @@
 
 set -euo pipefail
 
+# ---------------------------------------------------------------------------
+# Workspace guard (added 2026-04-13 after wrong-workspace incident).
+# See docs/autopsies/2026-04-13-wrong-workspace-incident.md
+#
+# ~/.claude/plugins/ is where Claude Code installs plugins for READ access.
+# It is NOT a dev workspace. Dev work must happen in ~/MindrianOS-Plugin/.
+# Commits to the plugin cache directory never reach github and silently
+# diverge from the real release pipeline. We prevent that here.
+# ---------------------------------------------------------------------------
+if [[ "${PWD}" == "${HOME}/.claude/plugins/"* ]] \
+   || [[ "${PWD}" == "/home/jsagi/.claude/plugins/"* ]] \
+   || [[ "${PWD}" == "/Users/"*"/.claude/plugins/"* ]]; then
+  cat >&2 <<'EOF'
+
+  WORKSPACE GUARD TRIPPED
+
+  You are running MindrianOS session-start from inside the plugin cache
+  directory. This is the install location, not a dev workspace.
+
+  Dev work must happen in ~/MindrianOS-Plugin/.
+
+  If you are developing: cd ~/MindrianOS-Plugin && claude
+  If you are a user reading the plugin: you are in the right place but
+  should not be running scripts manually here.
+
+  See docs/autopsies/2026-04-13-wrong-workspace-incident.md
+
+EOF
+  exit 1
+fi
+
 # Cross-platform file modification time (epoch seconds)
 portable_stat_mtime() {
   local file="$1"

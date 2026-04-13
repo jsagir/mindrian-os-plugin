@@ -356,6 +356,12 @@ Include ALL provenance fields:
 
 When writing the artifact content, auto-insert [[concept-name]] links for key concepts that connect this segment to other parts of the Data Room. Use [[section-name]] for cross-section references (existing pattern) and [[concept-name]] for domain concepts, frameworks, or recurring themes. Examples: [[wicked-problems]], [[assumption-tracking]], [[market-sizing]], [[competitive-moat]]. These wikilinks feed the knowledge graph -- build-graph parses them into concept nodes and REFERENCES edges. Users can also manually add [[wikilinks]] to any room artifact at any time.
 
+**Native wikilink injection (NATIVE-01/02):** Immediately after writing each filed artifact, run:
+```bash
+node scripts/wikilink-file.cjs "$ROOM_DIR" "$ARTIFACT_PATH"
+```
+This uses `lib/vault/wikilink-builder.cjs` to inject team-name wikilinks at write time so the artifact arrives pre-linked. Errors are logged but non-fatal -- filing never aborts because of a wikilink pass.
+
 Speaker contributions are tracked via computed backlinks in PROFILE.md (run by compute-team), not by filing copies to speaker subfolders.
 
 Track: total segments filed, total rejected, sections touched.
@@ -555,6 +561,19 @@ Filed to: room/{section}/YYYY-MM-DD-{slug}.md
 Speaker: {name} ({role})
 Type: {segment_type}
 ```
+
+**Native wikilink injection (NATIVE-01/02):** After writing each filed-to stub AND the meeting summary.md, run the wikilink wrapper to inject team links and filed-to footer lines at write time:
+```bash
+# For each filed-to stub
+node scripts/wikilink-file.cjs "$ROOM_DIR" "$STUB_PATH" \
+  --filed-to-target="{section}/YYYY-MM-DD-{slug}.md" \
+  --meeting-slug="YYYY-MM-DD-{meeting-name}"
+
+# For the meeting summary
+node scripts/wikilink-file.cjs "$ROOM_DIR" "$SUMMARY_PATH" \
+  --meeting-slug="YYYY-MM-DD-{meeting-name}"
+```
+See `lib/vault/wikilink-builder.cjs` for the canonical builders. The wrapper fails soft -- if the room has zero team profiles or scan errors, filing still completes cleanly.
 
 ### Create Compact Root Reference
 

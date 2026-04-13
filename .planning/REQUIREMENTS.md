@@ -1,147 +1,187 @@
-# Requirements: v2.0 Mindrian Platform -- SQLite + MCP Server
+# Requirements: Obsidian Vault Export v1.9.8
 
-**Defined:** 2026-04-10
-**Core Value:** Ship MindrianOS intelligence as a platform -- any LLM host gets routed tools, interactive UI (MCP Apps), and a room memory system. Replace dead KuzuDB with SQLite. Co-develop plugin and MCP server from shared core.
+**Defined:** 2026-04-12
+**Core Value:** Any Data Room becomes a fully-branded Obsidian vault with one command -- Obsidian as the third visual surface of MindrianOS
 
-## SQLite Migration
+## Vault Command (VAULT)
 
-- [x] **SQLITE-01**: Room graph stored in SQLite (nodes + edges tables) at room/.mindrian/room.db replacing .lazygraph/
-- [x] **SQLITE-02**: All 27 lazygraph-ops.cjs exports work identically with SQLite backend (same function signatures)
-- [x] **SQLITE-03**: WAL mode enabled for concurrent read access (plugin + MCP server simultaneously)
-- [x] **SQLITE-04**: Memory layer: identity table (L0), facts table with valid_from/invalidated_at (L1), sessions table (L2), fragments table (L3)
-- [x] **SQLITE-05**: Assumption tracking table with validity lifecycle (untested/supported/contradicted/stale) and evidence linking
-- [ ] **SQLITE-06**: Natural language graph queries -- Larry translates user questions to SQL, no Cypher exposure to users
-- [ ] **SQLITE-07**: Migration tool converts existing .lazygraph/ data to room.db (or rebuilds from artifacts)
-- [x] **SQLITE-08**: All 24+ files touching KuzuDB updated (scripts, CLI, MCP tools, wiki, cascade)
-- [ ] **SQLITE-09**: kuzu npm package removed from dependencies
+- [ ] **VAULT-01**: User can run `/mos:vault` to export the active room as an Obsidian-ready vault folder
+- [ ] **VAULT-02**: User can specify a target path (`/mos:vault --path ~/Downloads`) or get a sensible default
+- [ ] **VAULT-03**: Vault export resolves symlinked sub-rooms into real folder copies
+- [ ] **VAULT-04**: Vault export skips binary caches (.lazygraph, .context, .mindrian, node_modules, .git)
+- [ ] **VAULT-05**: Vault export includes Snapshot view folder (exports/, dashboard HTML files)
+- [ ] **VAULT-06**: Vault export works on any room (active room, named room, or path to room folder)
 
-## MCP Server (Goal-Oriented Tools)
+## Wikilink Engine (WIKI)
 
-**Design principle:** Tools are goals, not endpoints. Each tool orchestrates the full internal pipeline. The LLM picks a tool matching the user's intent -- the server does all chaining. Brain queries, Room analysis, HSI scoring, and UI attachment happen INSIDE each tool. The moat (methodology chaining) lives in server code, not in exposed subcommand documentation.
+- [x] **WIKI-01**: Wikilink injector links team member names to their PROFILE.md (first occurrence per file, skip self-links, skip YAML frontmatter)
+- [x] **WIKI-02**: Wikilink injector links filed-to stubs to target artifacts and source meetings
+- [x] **WIKI-03**: Wikilink injector adds "Filed Artifacts" section to meeting summaries with links to filed-to contents
+- [x] **WIKI-04**: Wikilink injector converts section names in STATE.md and ROOM.md to [[section/ROOM.md|name]] links
+- [x] **WIKI-05**: Wikilink injector adds sub-room navigation (parent + sibling links) to sub-room ROOM.md files
+- [x] **WIKI-06**: Wikilink injector handles rooms with zero team profiles gracefully (skip team linking)
+- [x] **WIKI-07**: Wikilink injector is idempotent (running twice produces same result, no duplicate links)
+- [ ] **WIKI-08**: User can run `/mos:room linkify` to retroactively inject wikilinks into the active room in-place
 
-- [ ] **MCP-01**: 10 goal-oriented tools where each orchestrates complete internal pipeline, returns JSON data + _meta.ui.resourceUri for MCP App
-- [ ] **MCP-02**: explore_opportunity(description) -- chains domain exploration + reverse salient + S-curve + JTBD + HSI internally, attaches Knowledge Graph Explorer UI
-- [ ] **MCP-03**: validate_idea(claim) -- chains Mullins Triple Validation + Six Hats + Ackoff + assumption creation internally, attaches Mullins Assessment UI
-- [ ] **MCP-04**: file_artifact(content, section) -- triggers full filing cascade (classify, graph-index, HSI, cross-ref scan, assumption check), attaches updated Command Center UI
-- [ ] **MCP-05**: whats_weak() -- runs analyze-room + reverse salients + blindspot coverage + bias scan + Brain routing, attaches Command Center + Bias Heatmap UI
-- [ ] **MCP-06**: grade_my_work() -- runs full grading rubric with Brain calibration + evidence mapping, attaches Grading Scorecard UI
-- [ ] **MCP-07**: red_team(target) -- adversarial stress-test orchestrating Devil's Advocate + Black Hat + investor perspective + Brain failure pattern matching, attaches Red Team Report UI
-- [ ] **MCP-08**: detect_bias(target) -- systematic bias scan (confirmation, survivorship, anchoring, selection) across room evidence with balance scoring, attaches Bias Heatmap UI
-- [ ] **MCP-09**: file_meeting(transcript) -- full meeting pipeline (parse, extract speakers, file segments, team update, cascade), attaches Meeting Timeline UI
-- [ ] **MCP-10**: whats_next() -- Brain-routed suggestion based on room state + venture stage + FEEDS_INTO chain traversal, attaches Chain Explorer UI
-- [ ] **MCP-11**: track_assumption(claim, evidence) -- create/update assumption with validity lifecycle + evidence linking, attaches Assumption Dashboard UI
-- [ ] **MCP-12**: Larry Lite server instructions (200-line methodology instinct, not personality) -- teaches host LLMs WHEN to call which tool based on user intent
-- [ ] **MCP-13**: stdio transport (local Desktop) + Streamable HTTP transport (remote/OpenClaw) on same server instance
-- [ ] **MCP-14**: Shared lib/core/*.cjs contract -- every core module callable from both plugin hooks and MCP tool handlers
-- [ ] **MCP-15**: Text-to-Cypher + Cypher-to-Text wrapped INSIDE tools that need Brain (not exposed as separate tools) -- natural language in, readable insights out
-- [ ] **MCP-16**: Brain-driven tool selection -- given user intent, Brain's ADDRESSES_PROBLEM_TYPE + FEEDS_INTO graph determines which goal-oriented tool(s) to invoke and in what order. Server can auto-chain tools when Brain recommends a sequence.
-- [ ] **MCP-17**: Brain-driven agent spawning -- Brain's FrameworkAgent nodes (10 agents: ReverseSalientAgent, HSIAgent, JTBDAgent, etc.) determine which specialist agent to spawn for deep analysis. MCP server spawns agents as sub-tool-calls with isolated context.
-- [ ] **MCP-18**: Dynamic tool recommendation -- after any tool completes, Brain suggests the next logical tool based on FEEDS_INTO chains and current room state. Returned in tool response as `_meta.suggested_next`.
+## Obsidian Kit (KIT)
 
-## MCP Apps (Interactive UI)
+- [ ] **KIT-01**: Vault export drops a .obsidian/ folder with De Stijl CSS snippet (mindrian-destijl.css)
+- [ ] **KIT-02**: CSS theme includes: Mondrian color-bar headers, gold wikilinks, dark mode, colored sidebar, Mondrian hr dividers, table styling
+- [ ] **KIT-03**: Vault export drops graph.json with section-colored node groups (problem=red, business=blue, financial=gold, competitive=cyan, solution=green, team=purple, meetings=gray)
+- [ ] **KIT-04**: Vault export drops appearance.json enabling De Stijl snippet and dark mode
+- [ ] **KIT-05**: Graph config hides orphans, shows arrows, and uses De Stijl-tuned force layout
 
-- [ ] **APP-01**: Upgrade existing 3 apps (dashboard, wiki, graph) to use ext-apps App class with bidirectional callServerTool
-- [ ] **APP-02**: PWS Value Proposition / Mullins Assessment -- 3-column interactive card (Is it Real / Can We Win / Is it Worth It) with live evidence mapping from room artifacts, click-to-drill per cell, Brain-routed methodology suggestions per weak cell
-- [ ] **APP-03**: Room Command Center -- Mondrian-grid dashboard with section health, APPROVE/REJECT/DEFER buttons, mode selection widget, suggested next panel
-- [ ] **APP-04**: Knowledge Graph Explorer -- interactive Cytoscape.js graph in-chat with pan/zoom/filter, edge type toggles, click-to-article, search
-- [ ] **APP-05**: Wiki Browser -- nested room structure as hyperlinked pages, section drill-down, artifact content, backlinks
-- [ ] **APP-06**: Mermaid/Flowchart Viewer -- methodology chains, causal diagrams, system maps rendered as interactive Mermaid in-chat
-- [ ] **APP-07**: Meeting Timeline -- visual timeline with speaker bubbles, decision points, action items, click-to-drill
-- [ ] **APP-08**: FEEDS_INTO Chain Explorer -- visual framework chain navigator showing Brain methodology sequences, click framework to see next + why
-- [ ] **APP-09**: Mode Selection Card -- entry point for new users, 3 visual buttons (Explore+Capture, Deep Analysis, Quick File), persona-aware
-- [ ] **APP-10**: De Stijl component library -- shared CSS tokens, Mondrian grid primitives, health bars, badges, reusable across all apps
-- [ ] **APP-11**: All apps use Shopify intent pattern -- UI bubbles intents to Larry, Larry takes action with full context
-- [ ] **APP-12**: Form blocks -- structured input collection for meeting filing, room creation, methodology configuration
-- [ ] **APP-13**: Data tables -- sortable results, artifact lists, search output with ranked relevance
-- [ ] **APP-14**: Chart panels -- bar/line/pie/KPI for room analytics, section coverage, HSI scores, coverage percentages
-- [ ] **APP-15**: Action panels -- approve/retry/compare/branch into next tool action from UI, cascade decision buttons
-- [ ] **APP-16**: Wizard/stepper -- multi-step onboarding, guided room setup, methodology pipeline progress
-- [ ] **APP-17**: Red Team Report -- attack vectors as severity-rated cards with "Defend" action buttons, each defense tracked as assumption with evidence
-- [ ] **APP-18**: Bias Heatmap -- section-level bias risk visualization (confirmation=dark red, anchoring=yellow, balanced=green), click to see specific bias instances
-- [ ] **APP-19**: Assumption Validity Dashboard -- visual assumption lifecycle cards stacked by section, color-coded validity (green=supported, yellow=untested, red=contradicted, gray=stale), evidence for/against per assumption
+## Branded Footers (BRAND)
 
-## Co-Development Infrastructure
+- [ ] **BRAND-01**: Every content artifact gets a MindrianOS branded footer (section, date, room path)
+- [ ] **BRAND-02**: Footer format varies by file type: content, team profile, meeting, persona, xref, filed-to
+- [ ] **BRAND-03**: Footer injection skips system files (ROOM.md, STATE.md, TEAM-STATE.md, CLAUDE.md, TODOS.md, etc.)
+- [ ] **BRAND-04**: Footer injection is idempotent (skip files that already have a MindrianOS footer)
 
-- [ ] **CODEV-01**: Shared lib/core/ contract -- every core module exports both sync and async, plugin and MCP server import same functions
-- [ ] **CODEV-02**: Dual-ship CI rule -- PR check validates new MCP tools have matching plugin commands (and vice versa)
-- [ ] **CODEV-03**: Test harness -- validates both plugin hooks and MCP tool calls produce identical results for same inputs
+## Welcome Doc (WELCOME)
 
-## Cross-Platform Testing
+- [ ] **WELCOME-01**: Vault export generates a "Welcome to MindrianOS.md" landing page wired to all room files
+- [ ] **WELCOME-02**: Welcome doc uses Obsidian callouts ([!tip], [!warning], [!quote], [!info], [!example]) for rich formatting
+- [ ] **WELCOME-03**: Welcome doc includes: room overview, section table with artifact links, gap warnings, sub-room architecture, team roster, meeting intelligence, cross-references, graph color legend, command reference
+- [ ] **WELCOME-04**: Welcome doc adapts to room contents (skip sections that don't apply)
 
-- [ ] **TEST-01**: MCP Apps render correctly on Claude Desktop
-- [ ] **TEST-02**: MCP Apps render correctly on ChatGPT (verify Apps SDK compatibility)
-- [ ] **TEST-03**: MCP server works on OpenClaw via stdio transport
-- [ ] **TEST-04**: Guard for Claude.ai postMessage bug (issue #47) in all app HTML
+## Section Intelligence Files (SECTION)
 
-## Future Requirements (Deferred)
+- [ ] **SECTION-01**: Vault export generates a STATE.md for every section folder that lacks one -- artifact count, completeness percentage, last updated date, gap status, contributor list
+- [ ] **SECTION-02**: Vault export generates a MINTO.md (Minto/MECE structured reasoning) for every section folder that has 1+ artifacts -- argument structure, what we know, key claims, evidence gaps, MECE issue tree
+- [ ] **SECTION-03**: Per-section STATE.md includes wikilinks to all artifacts in the section and to the parent room STATE.md
+- [ ] **SECTION-04**: Per-section MINTO.md includes wikilinks to the artifacts it reasons over, to related sections (cross-references), and to the section's ROOM.md (parent MOC)
+- [ ] **SECTION-05**: Section STATE.md and MINTO.md are generated for sub-room sections too (recursive through all nested sub-rooms)
+- [ ] **SECTION-06**: The trifecta (ROOM.md + STATE.md + MINTO.md) at each section folder forms the MOC tier-1 anchor -- ROOM.md is identity, STATE.md is status, MINTO.md is reasoning
+- [ ] **SECTION-07**: Generation skips sections with zero artifacts (STATE.md still generated showing empty status, MINTO.md skipped -- nothing to reason over)
 
-- OpenClaw cousin plugin (dedicated skill files, channel adapters)
-- Session conversation auto-capture into fragments table via hooks
-- MCP Apps for: Grading Scorecard, Opportunity Board, Pipeline Monitor, Persona Gallery
-- Cross-room ATTACH database queries
-- MCP Apps offline mode / state persistence across conversations
-- MemPalace-style AAAK compression for memory tiers
-- 3D knowledge graph (Three.js MCP App)
+## Vault Architecture Rulings (ARCH)
+
+- [x] **ARCH-01**: Artifact note titles are claim sentences, not labels (e.g. "ALIGN is a smart lobby system" not "Core Problem Reframe") -- applied during vault export rename
+- [ ] **ARCH-02**: Section ROOM.md files serve as MOC (Map of Content) hubs linking only to entry-point artifacts, not every sub-note
+- [ ] **ARCH-03**: Welcome doc is the Home Note (tier-0 MOC) linking to section MOCs (tier-1), which link to permanent notes (tier-2)
+- [ ] **ARCH-04**: Every artifact frontmatter includes vault-aware properties: `related` (serendipity links), `parent-moc` (structural hierarchy), `sources` (meeting/methodology), `status` (active/validated/stale)
+- [x] **ARCH-05**: Two link types enforced: serendipity links inline in body text (cross-domain connections, xref insights) vs structural links in frontmatter + footer (hierarchy, parent-moc, filed-to)
+- [x] **ARCH-06**: Link quality filter -- every injected wikilink must be explainable in one sentence; dense meaningful links beat maximum links
+- [ ] **ARCH-07**: Vault structure follows 3-tier hierarchy: Home Note (Welcome) -> MOC hubs (section ROOM.md) -> Permanent notes (artifacts)
+
+## Vault Ruling System (RULES)
+
+- [ ] **RULES-01**: Every vault ships with a `VAULT-RULES.md` design system doc at root -- De Stijl token definitions, color meanings, typography hierarchy, symbol vocabulary, callout mapping, formatting rules per file type
+- [ ] **RULES-02**: De Stijl color token mapping documented and enforced: red=#C83D2F (problem/critical), blue=#2B5BA5 (business/structural), yellow/gold=#E8A838 (financial/action), cyan=#4A9EAF (competitive/info), green=#4A8C5C (solution/success), purple=#8B5CF6 (team), gray=#6B6B6B (meetings/muted)
+- [x] **RULES-03**: Obsidian callout type mapping enforced across ALL content files (not just Welcome): `[!warning]`=gap/blocker, `[!tip]`=action/recommendation, `[!quote]`=meeting source/attribution, `[!info]`=methodology/explanation, `[!example]`=case/architecture, `[!success]`=convergence/validated, `[!abstract]`=summary/overview, `[!important]`=decision/commitment
+- [x] **RULES-04**: Every content artifact reformatted with rich Obsidian-native elements: callouts for key insights, blockquotes for direct quotes with speaker attribution wikilinks, tables for structured data, horizontal rules as Mondrian dividers between sections
+- [x] **RULES-05**: Decision 16 nested folder structure enforced: every artifact sits in its own named folder (`section/artifact-name/artifact-name.md`) enabling per-artifact attachments, sub-findings, and clean graph nodes
+- [ ] **RULES-06**: Typography hierarchy enforced: H1=document title (red underbar), H2=major section (blue left bar), H3=subsection (gold text), H4=detail level (cyan uppercase). Consistent across all files.
+- [x] **RULES-07**: Symbol vocabulary adapted for Obsidian from CLI UI system: use Obsidian-native callouts instead of ANSI glyphs, Markdown tables instead of box-drawing, wikilinks instead of file paths. No raw terminal symbols in vault files.
+- [ ] **RULES-08**: Every vault ships with a `.obsidian/templates/` folder containing MindrianOS note templates: new-artifact, new-meeting-note, new-team-profile, new-xref -- each with correct frontmatter schema and callout structure pre-filled
+- [ ] **RULES-09**: Frontmatter schema contract: every artifact MUST have `type`, `section`, `created`, `room`. Content artifacts add `methodology`, `sources`, `related`, `parent-moc`, `status`. Meeting artifacts add `speakers`, `filed-to`. Team profiles add `role`, `expertise`, `contributions`.
+- [ ] **RULES-10**: Graph view ruling: nodes sized by connection count (hub files larger), edges colored by relationship type (gold=serendipity/xref, white=structural/hierarchy, red=contradiction), labels visible at zoom level
+
+## Vault Import -- Obsidian to Data Room (IMPORT)
+
+- [x] **IMPORT-01**: User can run `/mos:vault import --path ~/my-vault` to convert an existing Obsidian vault into a MindrianOS Data Room
+- [x] **IMPORT-02**: Import scans all .md files and classifies them into room sections (problem-definition, business-model, market-analysis, competitive-analysis, solution-design, financial-model, legal-ip, team-execution, team, meetings) using content analysis + frontmatter hints
+- [x] **IMPORT-03**: Import creates the room/ folder structure with ROOM.md identity files at every level (ICM Layer 0)
+- [x] **IMPORT-04**: Import generates STATE.md at room level and per-section level from the classified content
+- [x] **IMPORT-05**: Import generates MINTO.md (structured reasoning) for each section that received 1+ classified artifacts
+- [x] **IMPORT-06**: Import detects person names in content and generates team/ profiles with wikilinked contributions
+- [x] **IMPORT-07**: Import detects meeting notes (date patterns, attendee lists, action items) and files them into meetings/ with proper metadata
+- [x] **IMPORT-08**: Import preserves existing Obsidian wikilinks and converts them to room-relative paths
+- [x] **IMPORT-09**: Import generates a classification report showing where each source note was filed, confidence score, and any notes that couldn't be classified (placed in an inbox/ folder for manual routing)
+- [x] **IMPORT-10**: Import adds MindrianOS branded footers, De Stijl frontmatter schema, and callout formatting to all imported artifacts
+- [x] **IMPORT-11**: After import, the room is immediately usable with all /mos: commands -- Larry can grade it, diagnose it, run methodologies on it
+- [x] **IMPORT-12**: Import works on non-Obsidian Markdown folders too (any folder of .md files) -- Obsidian-specific features (wikilinks, frontmatter) are bonuses, not requirements
+
+## Native Filing Wikilinks (NATIVE)
+
+- [x] **NATIVE-01**: file-meeting filing adds wikilinks to newly created artifacts (team names, section refs)
+- [x] **NATIVE-02**: Room-passive filing skill adds wikilinks when filing new entries
+- [x] **NATIVE-03**: xref generation includes wikilinks to source and target files
+- [x] **NATIVE-04**: Team profile creation includes wikilinked contribution table
+
+## Future Requirements (v2)
+
+- Obsidian plugin (sidebar for Larry, command palette, auto-complete wikilinks)
+- Live sync between CLI room and Obsidian vault (file watcher)
+- Canvas view generation (.canvas files)
+- Obsidian Dataview queries for room intelligence
 
 ## Out of Scope
 
-- Replacing Neo4j Brain with SQLite (Brain stays remote, Cypher-native, the moat)
-- Full Larry personality in MCP server (host LLMs get Larry Lite methodology instinct, not voice)
-- MCP Apps for Cursor/Windsurf (no MCP Apps support yet -- tools-only on those platforms)
-- Mobile/native apps (MCP Apps covers this via chat clients)
-- Payment processing (handled externally)
+- Terminal plugin installation -- plugin ecosystem unreliable (polyipseity archived)
+- Obsidian community plugin marketplace publishing -- premature
+- Two-way sync (Obsidian edits back to CLI room) -- unidirectional export is safer for v1
+- Custom Obsidian plugin development -- defer to v2
 
 ## Traceability
 
-| REQ | Phase | Status |
-|-----|-------|--------|
-| SQLITE-01 | Phase 77: SQLite Foundation | Complete |
-| SQLITE-02 | Phase 77: SQLite Foundation | Complete |
-| SQLITE-03 | Phase 77: SQLite Foundation | Complete |
-| SQLITE-04 | Phase 78: Memory Layer + Assumptions | Complete |
-| SQLITE-05 | Phase 78: Memory Layer + Assumptions | Complete |
-| SQLITE-06 | Phase 79: SQLite Migration + Cleanup | Pending |
-| SQLITE-07 | Phase 79: SQLite Migration + Cleanup | Pending |
-| SQLITE-08 | Phase 79: SQLite Migration + Cleanup | Complete |
-| SQLITE-09 | Phase 79: SQLite Migration + Cleanup | Pending |
-| MCP-01 | Phase 81: MCP Server Core | Pending |
-| MCP-02 | Phase 82: Goal-Oriented Tools | Pending |
-| MCP-03 | Phase 82: Goal-Oriented Tools | Pending |
-| MCP-04 | Phase 82: Goal-Oriented Tools | Pending |
-| MCP-05 | Phase 82: Goal-Oriented Tools | Pending |
-| MCP-06 | Phase 82: Goal-Oriented Tools | Pending |
-| MCP-07 | Phase 82: Goal-Oriented Tools | Pending |
-| MCP-08 | Phase 82: Goal-Oriented Tools | Pending |
-| MCP-09 | Phase 82: Goal-Oriented Tools | Pending |
-| MCP-10 | Phase 82: Goal-Oriented Tools | Pending |
-| MCP-11 | Phase 82: Goal-Oriented Tools | Pending |
-| MCP-12 | Phase 81: MCP Server Core | Pending |
-| MCP-13 | Phase 81: MCP Server Core | Pending |
-| MCP-14 | Phase 81: MCP Server Core | Pending |
-| MCP-15 | Phase 82: Goal-Oriented Tools | Pending |
-| APP-01 | Phase 80: De Stijl Component Library + App Foundation | Pending |
-| APP-02 | Phase 84: MCP Apps - Core Views | Pending |
-| APP-03 | Phase 84: MCP Apps - Core Views | Pending |
-| APP-04 | Phase 84: MCP Apps - Core Views | Pending |
-| APP-05 | Phase 84: MCP Apps - Core Views | Pending |
-| APP-06 | Phase 85: MCP Apps - Methodology + Meeting | Pending |
-| APP-07 | Phase 85: MCP Apps - Methodology + Meeting | Pending |
-| APP-08 | Phase 85: MCP Apps - Methodology + Meeting | Pending |
-| APP-09 | Phase 85: MCP Apps - Methodology + Meeting | Pending |
-| APP-10 | Phase 80: De Stijl Component Library + App Foundation | Pending |
-| APP-11 | Phase 80: De Stijl Component Library + App Foundation | Pending |
-| APP-12 | Phase 86: MCP Apps - Interaction Primitives | Pending |
-| APP-13 | Phase 86: MCP Apps - Interaction Primitives | Pending |
-| APP-14 | Phase 86: MCP Apps - Interaction Primitives | Pending |
-| APP-15 | Phase 86: MCP Apps - Interaction Primitives | Pending |
-| APP-16 | Phase 86: MCP Apps - Interaction Primitives | Pending |
-| APP-17 | Phase 85: MCP Apps - Methodology + Meeting | Pending |
-| APP-18 | Phase 85: MCP Apps - Methodology + Meeting | Pending |
-| APP-19 | Phase 84: MCP Apps - Core Views | Pending |
-| CODEV-01 | Phase 83: Co-Development Infrastructure | Pending |
-| CODEV-02 | Phase 83: Co-Development Infrastructure | Pending |
-| CODEV-03 | Phase 83: Co-Development Infrastructure | Pending |
-| TEST-01 | Phase 87: Cross-Platform Testing | Pending |
-| TEST-02 | Phase 87: Cross-Platform Testing | Pending |
-| TEST-03 | Phase 87: Cross-Platform Testing | Pending |
-| TEST-04 | Phase 87: Cross-Platform Testing | Pending |
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| VAULT-01 | Phase 78 | Pending |
+| VAULT-02 | Phase 78 | Pending |
+| VAULT-03 | Phase 78 | Pending |
+| VAULT-04 | Phase 78 | Pending |
+| VAULT-05 | Phase 78 | Pending |
+| VAULT-06 | Phase 78 | Pending |
+| WIKI-01 | Phase 76 | Complete |
+| WIKI-02 | Phase 76 | Complete |
+| WIKI-03 | Phase 76 | Complete |
+| WIKI-04 | Phase 76 | Complete |
+| WIKI-05 | Phase 76 | Complete |
+| WIKI-06 | Phase 76 | Complete |
+| WIKI-07 | Phase 76 | Complete |
+| WIKI-08 | Phase 78 | Pending |
+| KIT-01 | Phase 77 | Pending |
+| KIT-02 | Phase 77 | Pending |
+| KIT-03 | Phase 77 | Pending |
+| KIT-04 | Phase 77 | Pending |
+| KIT-05 | Phase 77 | Pending |
+| BRAND-01 | Phase 76 | Pending |
+| BRAND-02 | Phase 76 | Pending |
+| BRAND-03 | Phase 76 | Pending |
+| BRAND-04 | Phase 76 | Pending |
+| WELCOME-01 | Phase 77 | Pending |
+| WELCOME-02 | Phase 77 | Pending |
+| WELCOME-03 | Phase 77 | Pending |
+| WELCOME-04 | Phase 77 | Pending |
+| NATIVE-01 | Phase 79 | Complete |
+| NATIVE-02 | Phase 79 | Complete |
+| NATIVE-03 | Phase 79 | Complete |
+| NATIVE-04 | Phase 79 | Complete |
+| ARCH-01 | Phase 76 | Complete |
+| ARCH-02 | Phase 77 | Pending |
+| ARCH-03 | Phase 77 | Pending |
+| ARCH-04 | Phase 76 | Pending |
+| ARCH-05 | Phase 76 | Complete |
+| ARCH-06 | Phase 76 | Complete |
+| ARCH-07 | Phase 77 | Pending |
+| SECTION-01 | Phase 77 | Pending |
+| SECTION-02 | Phase 77 | Pending |
+| SECTION-03 | Phase 77 | Pending |
+| SECTION-04 | Phase 77 | Pending |
+| SECTION-05 | Phase 77 | Pending |
+| SECTION-06 | Phase 77 | Pending |
+| SECTION-07 | Phase 77 | Pending |
+| RULES-01 | Phase 77 | Pending |
+| RULES-02 | Phase 77 | Pending |
+| RULES-03 | Phase 76 | Complete |
+| RULES-04 | Phase 76 | Complete |
+| RULES-05 | Phase 76 | Complete |
+| RULES-06 | Phase 77 | Pending |
+| RULES-07 | Phase 76 | Complete |
+| RULES-08 | Phase 77 | Pending |
+| RULES-09 | Phase 76 | Pending |
+| RULES-10 | Phase 77 | Pending |
+| IMPORT-01 | Phase 80 | Complete |
+| IMPORT-02 | Phase 80 | Complete |
+| IMPORT-03 | Phase 80 | Complete |
+| IMPORT-04 | Phase 80 | Complete |
+| IMPORT-05 | Phase 80 | Complete |
+| IMPORT-06 | Phase 80 | Complete |
+| IMPORT-07 | Phase 80 | Complete |
+| IMPORT-08 | Phase 80 | Complete |
+| IMPORT-09 | Phase 80 | Complete |
+| IMPORT-10 | Phase 80 | Complete |
+| IMPORT-11 | Phase 80 | Complete |
+| IMPORT-12 | Phase 80 | Complete |

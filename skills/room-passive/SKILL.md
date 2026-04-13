@@ -71,6 +71,40 @@ When methodology produces an artifact:
 3. Uncertain classification: analyze content and suggest best section
 4. Cross-room relevance: file to primary, mention secondary
 
+### Wikilink Injection on Filing (NATIVE-02)
+
+**Rule:** Whenever you write a new artifact into the active room (via any skill, command, or direct edit), the artifact MUST arrive with wikilinks already present. Do NOT leave wikilinking to a retroactive batch pass -- wikilinks are part of the artifact's birth, not a later cleanup.
+
+**How (preferred -- call the wrapper):**
+
+After writing a new file, immediately run:
+```bash
+node scripts/wikilink-file.cjs "$ROOM_DIR" "$NEW_FILE_PATH" \
+  [--filed-to-target="market-analysis/2026-04-09-tam.md"] \
+  [--meeting-slug="2026-04-09-align-strategy-session"]
+```
+
+The wrapper loads `lib/vault/room-scanner.cjs` + `lib/vault/wikilink-builder.cjs`, scans the room once, injects team-name wikilinks into the new file's body, and (if a meeting slug is given) appends a filed-to footer. Errors are logged to stderr but never abort filing -- backward compatibility is non-negotiable.
+
+**How (manual -- when running the wrapper is not feasible):**
+
+Inject wikilinks directly while writing the artifact:
+
+- **Team members:** First occurrence of each team member display name in the body -> `[[team/{category}/{slug}/PROFILE.md|{Display Name}]]`. Longer names beat prefixes (e.g., "Avital Leibovich" wins over "Avital"). Never self-link (the person's own PROFILE.md stays plain).
+- **Section references** in STATE.md / ROOM.md -> `[[{section}/ROOM.md|{section}]]`
+- **Filed-to stubs** (one stub per filed artifact under `meetings/{slug}/filed-to/`) -> include BOTH lines:
+  ```
+  -> Full artifact: [[{section}/{artifact-filename}.md]]
+  <- Source meeting: [[meetings/{slug}/summary.md|{Meeting Display Name}]]
+  ```
+- **Meeting display name** is the slug with the `YYYY-MM-DD-` prefix stripped and the remainder title-cased ("2026-04-09-align-strategy-session" -> "Align Strategy Session").
+
+**Graceful fallback (WIKI-06):** If the room has zero team profiles or zero meetings, skip that link type. Do not crash, do not invent targets.
+
+**Idempotence:** Never double-link. If `[[...|Name]]` already exists for a display name, don't add another occurrence of the same link. If a filed-to footer line already exists, do not duplicate it.
+
+**Canonical builder module:** See `lib/vault/wikilink-builder.cjs` -- it exports `buildTeamLinks`, `buildSectionLink`, `buildMeetingLink`, `buildFiledToFooter`, `injectFiledToFooter` as pure functions. The `scripts/wikilink-file.cjs` wrapper is the preferred filing-time entry point. Phase 76's retroactive `scripts/vault-wikilink-injector.cjs` remains available for whole-room sweeps.
+
 ## Active Room Lock (Multi-Room)
 
 When `.rooms/registry.json` exists:

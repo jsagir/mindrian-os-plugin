@@ -1,0 +1,297 @@
+/* ============================================================
+   MindrianOS De Stijl Theme for Obsidian
+   Visual identity system for Data Room vaults
+   ============================================================ */
+
+/* --- Root Variables: De Stijl Palette --- */
+:root {
+  --mn-red: #C83D2F;
+  --mn-blue: #2B5BA5;
+  --mn-yellow: #E8A838;
+  --mn-black: #1A1A1A;
+  --mn-white: #F5F0E8;
+  --mn-gray: #6B6B6B;
+  --mn-cream: #FAF7F0;
+  --mn-dark-panel: #0D0D0D;
+  --mn-gold: #D4A843;
+  --mn-cyan: #4A9EAF;
+  --mn-green: #4A8C5C;
+
+  /* Section colors */
+  --mn-problem: #C83D2F;
+  --mn-business: #2B5BA5;
+  --mn-financial: #E8A838;
+  --mn-competitive: #4A9EAF;
+  --mn-solution: #4A8C5C;
+  --mn-team: #8B5CF6;
+  --mn-market: #D4A843;
+  --mn-meetings: #6B6B6B;
+  --mn-legal: #9B4DCA;
+  --mn-opportunity: #E8A838;
+}
+
+/* --- Base: Dark Mode Foundation --- */
+.theme-dark {
+  --background-primary: #0F0F0F;
+  --background-secondary: #161616;
+  --background-modifier-border: #2A2A2A;
+  --text-normal: #E8E4DC;
+  --text-muted: #8A8A8A;
+  --text-faint: #5A5A5A;
+  --text-accent: var(--mn-yellow);
+  --interactive-accent: var(--mn-blue);
+}
+
+/* --- Typography --- */
+.markdown-rendered {
+  font-family: 'Inter', 'SF Pro Text', -apple-system, sans-serif;
+  line-height: 1.7;
+  color: var(--text-normal);
+}
+
+/* --- Headers: Mondrian Color Bars --- */
+.markdown-rendered h1 {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 1.8em;
+  color: var(--mn-white);
+  border-bottom: 4px solid var(--mn-red);
+  padding-bottom: 8px;
+  margin-top: 2em;
+  letter-spacing: -0.02em;
+}
+
+.markdown-rendered h2 {
+  font-weight: 600;
+  font-size: 1.4em;
+  color: var(--mn-white);
+  border-left: 4px solid var(--mn-blue);
+  padding-left: 12px;
+  margin-top: 1.8em;
+}
+
+.markdown-rendered h3 {
+  font-weight: 600;
+  font-size: 1.15em;
+  color: var(--mn-yellow);
+  margin-top: 1.4em;
+}
+
+.markdown-rendered h4 {
+  font-weight: 600;
+  font-size: 1em;
+  color: var(--mn-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.85em;
+}
+
+/* --- Links: Gold Wikilinks --- */
+.markdown-rendered a.internal-link {
+  color: var(--mn-gold);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(212, 168, 67, 0.3);
+  transition: border-color 0.2s ease;
+}
+
+.markdown-rendered a.internal-link:hover {
+  border-bottom-color: var(--mn-gold);
+  background: rgba(212, 168, 67, 0.08);
+}
+
+.markdown-rendered a.internal-link.is-unresolved {
+  color: var(--mn-gray);
+  border-bottom-style: dashed;
+}
+
+/* --- Blockquotes: Gold Accent Panel --- */
+.markdown-rendered blockquote {
+  border-left: 3px solid var(--mn-gold);
+  background: rgba(212, 168, 67, 0.05);
+  padding: 12px 16px;
+  margin: 1em 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.markdown-rendered blockquote p {
+  color: var(--mn-white);
+  font-style: normal;
+}
+
+/* --- Code Blocks: Dark Panel Treatment --- */
+.markdown-rendered pre {
+  background: var(--mn-dark-panel);
+  border: 1px solid #2A2A2A;
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.markdown-rendered code {
+  background: rgba(26, 26, 26, 0.6);
+  color: var(--mn-cyan);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+/* --- Tables: Clean Grid --- */
+.markdown-rendered table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+}
+
+.markdown-rendered th {
+  background: var(--mn-black);
+  color: var(--mn-yellow);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8em;
+  letter-spacing: 0.06em;
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--mn-red);
+  text-align: left;
+}
+
+.markdown-rendered td {
+  padding: 8px 14px;
+  border-bottom: 1px solid #2A2A2A;
+}
+
+.markdown-rendered tr:hover td {
+  background: rgba(43, 91, 165, 0.06);
+}
+
+/* --- Tags: Pill Style --- */
+.tag {
+  background: rgba(43, 91, 165, 0.15);
+  color: var(--mn-blue);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: 500;
+}
+
+/* --- Horizontal Rules: Mondrian Divider --- */
+.markdown-rendered hr {
+  border: none;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--mn-red) 0%,
+    var(--mn-red) 25%,
+    var(--mn-yellow) 25%,
+    var(--mn-yellow) 50%,
+    var(--mn-blue) 50%,
+    var(--mn-blue) 75%,
+    var(--mn-black) 75%,
+    var(--mn-black) 100%
+  );
+  margin: 2em 0;
+}
+
+/* --- Lists: Clean Bullets --- */
+.markdown-rendered ul > li::marker {
+  color: var(--mn-red);
+}
+
+.markdown-rendered ol > li::marker {
+  color: var(--mn-blue);
+  font-weight: 600;
+}
+
+/* --- Bold & Italic --- */
+.markdown-rendered strong {
+  color: var(--mn-white);
+  font-weight: 700;
+}
+
+.markdown-rendered em {
+  color: var(--mn-cyan);
+  font-style: italic;
+}
+
+/* --- YAML Frontmatter --- */
+.frontmatter-container {
+  background: var(--mn-dark-panel);
+  border: 1px solid #2A2A2A;
+  border-left: 3px solid var(--mn-blue);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.85em;
+}
+
+/* --- MindrianOS Footer Signature --- */
+/* Style the "Filed by MindrianOS" footer blocks */
+.markdown-rendered p:last-of-type:has(+ :not(*)),
+.markdown-rendered blockquote:last-child {
+  font-size: 0.85em;
+}
+
+/* --- File Explorer: Section Color Coding --- */
+.nav-file-title[data-path^="problem-definition"] { border-left: 3px solid var(--mn-problem); }
+.nav-file-title[data-path^="business-model"] { border-left: 3px solid var(--mn-business); }
+.nav-file-title[data-path^="financial-model"] { border-left: 3px solid var(--mn-financial); }
+.nav-file-title[data-path^="competitive-analysis"] { border-left: 3px solid var(--mn-competitive); }
+.nav-file-title[data-path^="solution-design"] { border-left: 3px solid var(--mn-solution); }
+.nav-file-title[data-path^="team"] { border-left: 3px solid var(--mn-team); }
+.nav-file-title[data-path^="market-analysis"] { border-left: 3px solid var(--mn-market); }
+.nav-file-title[data-path^="meetings"] { border-left: 3px solid var(--mn-meetings); }
+.nav-file-title[data-path^="legal-ip"] { border-left: 3px solid var(--mn-legal); }
+.nav-file-title[data-path^="opportunity-bank"] { border-left: 3px solid var(--mn-opportunity); }
+.nav-file-title[data-path^="sub-rooms"] { border-left: 3px solid var(--mn-cyan); }
+
+.nav-folder-title[data-path^="problem-definition"] { color: var(--mn-problem); }
+.nav-folder-title[data-path^="business-model"] { color: var(--mn-business); }
+.nav-folder-title[data-path^="financial-model"] { color: var(--mn-financial); }
+.nav-folder-title[data-path^="competitive-analysis"] { color: var(--mn-competitive); }
+.nav-folder-title[data-path^="solution-design"] { color: var(--mn-solution); }
+.nav-folder-title[data-path^="team"] { color: var(--mn-team); }
+.nav-folder-title[data-path^="market-analysis"] { color: var(--mn-market); }
+.nav-folder-title[data-path^="meetings"] { color: var(--mn-meetings); }
+.nav-folder-title[data-path^="legal-ip"] { color: var(--mn-legal); }
+.nav-folder-title[data-path^="opportunity-bank"] { color: var(--mn-opportunity); }
+.nav-folder-title[data-path^="sub-rooms"] { color: var(--mn-cyan); }
+
+/* --- Sidebar Styling --- */
+.workspace-leaf-content[data-type="file-explorer"] {
+  font-size: 0.9em;
+}
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mn-blue);
+}
+
+/* --- Graph View Overrides --- */
+.graph-view.color-fill-focused {
+  color: var(--mn-yellow);
+}
+
+.graph-view.color-line {
+  color: rgba(255, 255, 255, 0.15);
+}
+
+.graph-view.color-text {
+  color: var(--mn-white);
+}
+
+/* --- Empty State --- */
+.empty-state-title {
+  color: var(--mn-yellow);
+}
+
+/* --- Status Bar --- */
+.status-bar {
+  background: var(--mn-dark-panel);
+  border-top: 1px solid var(--mn-red);
+  font-size: 0.8em;
+}
