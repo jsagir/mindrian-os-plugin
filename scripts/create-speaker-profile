@@ -38,6 +38,141 @@ USAGE
   exit 0
 fi
 
+# ---------------------------------------------------------------------------
+# Phase 80 extension: --layout=import --role-bucket=<bucket>
+#
+# When --layout=import is passed, materialize the COMPLETE team profile tree
+# per Decision 15 (ROOM.md everywhere) + Decision 16 (nested artifact layout):
+#   team/{role-bucket}/{slug}/{slug}.md
+#   team/{role-bucket}/{slug}/ROOM.md
+#   team/{role-bucket}/{slug}/mentions.md
+#   team/{role-bucket}/{slug}/responsibilities.md
+#   team/{role-bucket}/{slug}/contracts/ROOM.md
+#
+# Usage: create-speaker-profile <room_dir> --layout=import --role-bucket=core-team <slug> <display-name>
+#
+# Legacy 4-arg invocations are unchanged.
+# ---------------------------------------------------------------------------
+
+LAYOUT=""
+ROLE_BUCKET=""
+POSITIONAL=()
+for arg in "$@"; do
+  case "$arg" in
+    --layout=*)      LAYOUT="${arg#--layout=}" ;;
+    --role-bucket=*) ROLE_BUCKET="${arg#--role-bucket=}" ;;
+    *)               POSITIONAL+=("$arg") ;;
+  esac
+done
+
+if [[ "$LAYOUT" == "import" ]]; then
+  if [[ -z "$ROLE_BUCKET" ]]; then
+    echo "ERROR: --layout=import requires --role-bucket=<bucket>" >&2
+    exit 1
+  fi
+  if [[ ${#POSITIONAL[@]} -lt 3 ]]; then
+    echo "ERROR: --layout=import requires: <room_dir> <slug> <display-name>" >&2
+    exit 1
+  fi
+  ROOM_DIR="${POSITIONAL[0]}"
+  IMPORT_SLUG="${POSITIONAL[1]}"
+  IMPORT_DISPLAY="${POSITIONAL[2]}"
+
+  if [[ ! -d "$ROOM_DIR" ]]; then
+    echo "ERROR: Room directory does not exist: $ROOM_DIR" >&2
+    exit 1
+  fi
+
+  PROFILE_DIR="${ROOM_DIR}/team/${ROLE_BUCKET}/${IMPORT_SLUG}"
+  mkdir -p "${PROFILE_DIR}/contracts"
+
+  TODAY=$(date +%Y-%m-%d)
+
+  cat > "${PROFILE_DIR}/ROOM.md" <<ROOMEOF
+---
+icm_layer: 0
+type: speaker-profile
+speaker: ${IMPORT_DISPLAY}
+role_bucket: ${ROLE_BUCKET}
+generated_by: phase-80-vault-import
+---
+# ${IMPORT_DISPLAY}
+
+${ROLE_BUCKET} member. ICM Layer 0 identity for this person folder.
+
+## Contents
+- [[${IMPORT_SLUG}.md]] main profile
+- [[mentions.md]] all wikilinked mentions across the room
+- [[responsibilities.md]] responsibilities
+- [[contracts/]] contracts and agreements
+ROOMEOF
+
+  cat > "${PROFILE_DIR}/${IMPORT_SLUG}.md" <<PROFEOF
+---
+name: ${IMPORT_DISPLAY}
+slug: ${IMPORT_SLUG}
+role_bucket: ${ROLE_BUCKET}
+status: active
+created_by: phase-80-vault-import
+last_updated: ${TODAY}
+---
+
+# ${IMPORT_DISPLAY}
+
+**Role bucket:** ${ROLE_BUCKET}
+
+## Context
+
+(populated from manifest + mentions during enrichment)
+
+## Responsibilities
+
+See [[responsibilities.md]].
+
+## Mentions
+
+See [[mentions.md]].
+PROFEOF
+
+  cat > "${PROFILE_DIR}/mentions.md" <<MENTEOF
+---
+type: mentions-index
+person: ${IMPORT_DISPLAY}
+---
+# Mentions of ${IMPORT_DISPLAY}
+
+(empty stub -- enricher populates this with wikilinked references across the room)
+MENTEOF
+
+  cat > "${PROFILE_DIR}/responsibilities.md" <<RESPEOF
+---
+type: responsibilities
+person: ${IMPORT_DISPLAY}
+---
+# Responsibilities -- ${IMPORT_DISPLAY}
+
+(empty stub)
+RESPEOF
+
+  cat > "${PROFILE_DIR}/contracts/ROOM.md" <<CROOMEOF
+---
+icm_layer: 0
+type: contracts-folder
+person: ${IMPORT_DISPLAY}
+---
+# Contracts -- ${IMPORT_DISPLAY}
+
+Contracts and agreements involving this person.
+CROOMEOF
+
+  echo "$PROFILE_DIR"
+  exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# Legacy path (unchanged): positional 4-arg invocation
+# ---------------------------------------------------------------------------
+
 # Validate arguments
 if [[ $# -lt 4 ]]; then
   echo "ERROR: 4 arguments required: room_dir, speaker-slug, speaker-role, display-name" >&2
