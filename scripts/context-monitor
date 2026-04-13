@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// MindrianOS Statusline — ships with the plugin
+// MindrianOS Statusline - ships with the plugin
 // Shows: project name │ room section context │ venture stage │ gaps │ context window
 // Reads JSON from stdin (Claude Code statusline API)
 
