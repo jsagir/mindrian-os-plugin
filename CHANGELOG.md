@@ -9,6 +9,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.10.2] - 2026-04-14
+
+onboarding: true
+onboard_steps:
+  - "NEW: Feynman-MINTO hybrid reasoning. /mos:reason generates structured MINTO artifacts that think in plain-English Feynman stories first, then lift the story into pyramid form. Tier-1 runs in your existing Claude session at zero external cost."
+  - "NEW: /mos:reason --regenerate-all migration. One command rewrites every existing MINTO.md in the room to the new Feynman-MINTO format. A tier-0 safety pass backs up the old files to .migration-backup/<stamp>/ before the tier-1 loop starts, so rollback is always a folder copy away."
+  - "NEW: Tier-0 fallback with AAAK footer. When narrative context is missing or malformed, the generator still produces a readable MINTO with the AAAK attribution footer. The filesystem is never left in a broken state."
+
+### Why v1.10.1 was skipped
+
+v1.10.1 was drafted around an AAAK-as-footer proposal that treated the attribution library as the narrative surface. During the 2026-04-13 planning session the user reframed the problem: MINTO artifacts should read like Feynman explanations first and compress into pyramid form second. AAAK belongs on the bottom of tier-0 fallback as an attribution artifact, not as the narrative engine. The Feynman-MINTO reframe superseded the AAAK-only plan before any 1.10.1 commit landed, so the version number was retired. The superseded plan documents live at `.planning/phases/81-feynman-minto-hybrid/_superseded/` for historical trace.
+
+### Added
+- `lib/memory/feynman-prompts.cjs` -- inlined prompt library for the four Feynman phases (problem frame, plain-English walkthrough, pyramid lift, structural fidelity check). Single source of truth, drift-tested against the slash command body.
+- `lib/memory/narrative-schema.cjs` -- Zod-free schema validator for narrative inputs. Rejects malformed narratives and routes them to tier-0 fallback.
+- `scripts/vault-section-minto-generator.cjs` split into `--plan` and `--write` subcommands. `--plan` emits the reasoning plan without touching disk. `--write` executes the plan and produces the MINTO.md artifact. This separation is what lets the slash command orchestrate multi-phase reasoning cleanly.
+- `scripts/vault-section-minto-generator.cjs` gains `runTier0` single entry point. Tier-0 always produces a MINTO.md with the AAAK footer so no section is ever left without a readable file.
+- `commands/mos-reason.md` rewritten as the Feynman-MINTO orchestrator. Nine-step execution protocol that Claude follows in-session. No external API, no key, no meter.
+- `scripts/vault-regenerate-all.cjs` migration helper. Walks every section with artifacts, backs up existing MINTO.md files to `.migration-backup/<YYYY-MM-DD-HHMMSS>/`, runs tier-0 regeneration as a safety net, and writes per-section `report.md`. Invoked by `/mos:reason --regenerate-all` as the tier-0 pre-pass before the tier-1 per-section loop.
+- `scripts/vault-regenerate-all.test.cjs` integration test. Uses `MINTO_FROZEN_DATE=2026-04-14` for determinism.
+- Test fixtures with frozen baselines at `test-fixtures/feynman/sections/fixture-{small,medium,large}/`. Regression-locked tier-0 output for three sections, so any accidental drift in the pre-81 structural logic fails the suite immediately.
+- `lib/memory/run-feynman-tests.cjs` central test runner. Now registers 6 test files covering prompt drift, narrative schema, generator split, frozen baselines, integration, and regenerate-all migration.
+
+### Architecture Note -- Why This Has No LLM API Machinery
+
+The architectural principle of Phase 81 is: **Claude IS the LLM, the slash command runs in the user's existing Claude session, there is no external API call in this plugin and therefore nothing to meter**. During planning the user caught an early draft that had budget caps, monthly limits, and ANTHROPIC_API_KEY wiring:
+
+> ANTHROPIC_API_KEY but they run in an llm! why key?
+
+The reframe is the whole point. `/mos:reason` is a slash command. It executes inside a Claude Code session that is already paid for by the user. The inlined prompts in `lib/memory/feynman-prompts.cjs` are loaded as context and Claude runs them. No `fetch` call, no key, no cost, no budget. The plugin ships Decision #1 (one-command install, zero config) fully preserved. A user who just installed the plugin and never set any environment variable gets tier-1 Feynman-MINTO reasoning on their first `/mos:reason` invocation.
+
+Phase 81 Revision 1 had the budget machinery. Phase 81 Revision 2 deleted it. The Revision 1 plan docs are archived at `.planning/phases/81-feynman-minto-hybrid/_superseded/` and the Revision 2 correction is captured in `81-CONTEXT.md`. Anyone grepping the codebase will find zero references to `ANTHROPIC_API_KEY`, zero cost counters, zero monthly caps. That is not an oversight. That is the architecture.
+
+### Semver Deviation
+
+Per strict semver this release would normally be `1.11.0` because it adds a new public command mode (`/mos:reason --regenerate-all`) and a new migration script. The user chose `1.10.2` as a patch-style release so the `1.11.0` slot can be reserved for release pipeline hardening per `docs/NEXT-RELEASE-v1.11.0-beta.1.md`. This is a deliberate, documented deviation from semver. Feature scope of 1.10.2 is larger than a patch release would normally carry.
+
+### Forward Pointer -- v3.0 MCP Sampling
+
+When the MindrianOS MCP server ships in v3.0, the `generate_minto` tool will use the same `lib/memory/feynman-prompts.cjs` module via the MCP protocol's `sampling/createMessage` primitive. Headless invocations (Claude Desktop, Cowork, automated pipelines) will get tier-1 Feynman-MINTO output without needing a Claude Code slash-command session. The prompt library was intentionally designed to be callable from both surfaces. See `.planning/PROJECT.md` v3.0 Backlog for the sampling integration plan.
+
+### Retired
+- `FEYNMINTO-05` (per-run budget) -- retired. No meter, nothing to budget against. Slash command runs in the user's existing Claude session.
+- `FEYNMINTO-06` (monthly cap) -- retired. Same reason. There is no external API invocation to cap.
+
+### Files
+- `lib/memory/feynman-prompts.cjs` (new)
+- `lib/memory/feynman-prompts.test.cjs` (new)
+- `lib/memory/feynman-prompts-drift.test.cjs` (new)
+- `lib/memory/narrative-schema.cjs` (new)
+- `lib/memory/narrative-schema.test.cjs` (new)
+- `lib/memory/run-feynman-tests.cjs` (new)
+- `scripts/vault-section-minto-generator.cjs` (rewritten with --plan / --write / runTier0)
+- `scripts/vault-section-minto-generator.test.cjs` (new)
+- `scripts/vault-section-minto-generator.integration.test.cjs` (new)
+- `scripts/vault-regenerate-all.cjs` (new)
+- `scripts/vault-regenerate-all.test.cjs` (new)
+- `commands/mos-reason.md` (rewritten as Feynman-MINTO orchestrator, gains --regenerate-all section)
+- `test-fixtures/feynman/sections/fixture-small/` (new)
+- `test-fixtures/feynman/sections/fixture-medium/` (new)
+- `test-fixtures/feynman/sections/fixture-large/` (new)
+
 ## [1.10.0] - 2026-04-13
 
 onboarding: true
