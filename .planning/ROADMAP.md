@@ -140,4 +140,4 @@ Phases execute in numeric order: 76 -> 77 -> 78 -> 79 -> 80
 | 77. Obsidian Kit + Welcome Doc | 0/TBD | Complete    | 2026-04-12 |
 | 78. /mos:vault Command + /mos:room linkify | 0/2 | Complete    | 2026-04-12 |
 | 79. Native Filing Wikilinks | 2/2 | Complete    | 2026-04-13 |
-| 80. Vault Import -- Obsidian to Data Room | 1/6 | In Progress|  |
+| 80. Vault Import -- Obsidian to Data Room | 2/6 | In Progress|  |

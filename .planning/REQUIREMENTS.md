@@ -85,8 +85,8 @@
 - [ ] **IMPORT-03**: Import creates the room/ folder structure with ROOM.md identity files at every level (ICM Layer 0)
 - [ ] **IMPORT-04**: Import generates STATE.md at room level and per-section level from the classified content
 - [ ] **IMPORT-05**: Import generates MINTO.md (structured reasoning) for each section that received 1+ classified artifacts
-- [ ] **IMPORT-06**: Import detects person names in content and generates team/ profiles with wikilinked contributions
-- [ ] **IMPORT-07**: Import detects meeting notes (date patterns, attendee lists, action items) and files them into meetings/ with proper metadata
+- [x] **IMPORT-06**: Import detects person names in content and generates team/ profiles with wikilinked contributions
+- [x] **IMPORT-07**: Import detects meeting notes (date patterns, attendee lists, action items) and files them into meetings/ with proper metadata
 - [ ] **IMPORT-08**: Import preserves existing Obsidian wikilinks and converts them to room-relative paths
 - [ ] **IMPORT-09**: Import generates a classification report showing where each source note was filed, confidence score, and any notes that couldn't be classified (placed in an inbox/ folder for manual routing)
 - [ ] **IMPORT-10**: Import adds MindrianOS branded footers, De Stijl frontmatter schema, and callout formatting to all imported artifacts
@@ -178,8 +178,8 @@
 | IMPORT-03 | Phase 80 | Pending |
 | IMPORT-04 | Phase 80 | Pending |
 | IMPORT-05 | Phase 80 | Pending |
-| IMPORT-06 | Phase 80 | Pending |
-| IMPORT-07 | Phase 80 | Pending |
+| IMPORT-06 | Phase 80 | Complete |
+| IMPORT-07 | Phase 80 | Complete |
 | IMPORT-08 | Phase 80 | Pending |
 | IMPORT-09 | Phase 80 | Pending |
 | IMPORT-10 | Phase 80 | Pending |
