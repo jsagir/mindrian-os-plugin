@@ -1,0 +1,17 @@
+{
+  "section": "problem-definition",
+  "essence": "Founders lose weeks because nothing tracks how one insight silently invalidates claims in other parts of the venture.",
+  "plain_language": "Insights land in one doc but never update the others. By the time a contradiction surfaces in front of an investor, the founder spends two weeks repairing trust. The cost is always time, never thinking.",
+  "governing_thought": "The core problem is temporal, not intellectual: every insight creates hidden cascades across sections, and the founder pays in weeks for contradictions nobody caught in time.",
+  "mental_model": {
+    "analogy": "It is like running a kitchen where every station has its own clock and none of them are synced.",
+    "mapping": "Each venture section is a station. Each artifact is a ticket. When one station updates, the others keep firing on their old timers. The head chef catches the mismatch only when plates reach the pass. By then, the table is already waiting.",
+    "limits": "Unlike a kitchen, venture cascades are silent and nobody hears the bell."
+  },
+  "sweet_spot": "The venture is a near-decomposable hierarchy where hidden relationships between subsystems decide survival. Insight is cheap. The scarce resource is the interval between insight and validated decision. Compress that interval by making cascades visible the moment they happen, and every other venture metric improves as a side effect.",
+  "key_claims": [
+    "Every artifact in a section becomes a checkable claim with an explicit validity window.",
+    "Cross-section scans catch contradictions the founder would otherwise miss until a rehearsal.",
+    "Rejection reasons feed the next scan so the system gets smarter with every decision."
+  ]
+}
