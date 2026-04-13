@@ -2,7 +2,7 @@
 name: mos-reason
 command: mos:reason
 description: Generate Feynman-MINTO reasoning for room sections (tier-1, in-session, zero external cost)
-usage: /mos:reason [--section <name>]
+usage: /mos:reason [--section <name>] [--regenerate-all]
 allowed-tools:
   - Read
   - Write
@@ -21,6 +21,34 @@ You are the orchestrator of the Feynman-MINTO hybrid reasoning engine. This slas
 **Tri-polar surface coverage (FEYNMINTO-10):** this slash command works identically on Claude Code CLI, Claude Desktop, and Cowork because all three surfaces run slash commands inside the same Claude session model. There is no surface-specific code path. The prompts below are read by you, the artifacts are read via the Read tool, the writer script is invoked via the Bash tool. All three surfaces support all three.
 
 ## Execution Protocol (follow these steps exactly, in order)
+
+### Step 0: Handle --regenerate-all (migration mode)
+
+If the user passed `--regenerate-all`, this is a migration run that rewrites
+every existing MINTO.md in the room to the post-81 Feynman-MINTO format.
+
+Before the main per-section loop begins, run the deterministic backup and
+tier-0 safety pass via the Bash tool:
+
+```
+node scripts/vault-regenerate-all.cjs <roomDir>
+```
+
+The helper creates `<roomDir>/.migration-backup/YYYY-MM-DD-HHMMSS/`, copies
+every pre-existing `MINTO.md` into it preserving the section sub-path, and
+runs `runTier0` for every section so the filesystem is in a readable state
+even if the tier-1 loop below aborts midway through. It also writes a
+per-section `report.md` in the backup directory.
+
+Surface the helper's stdout to the user so they can see the backup location.
+Then continue with Steps 1 through 9 below exactly as written. The tier-1
+loop will overwrite the tier-0 files with Feynman-MINTO narrative produced
+in your session. Net effect: the backup folder holds the pre-migration
+state, the final files hold the tier-1 narrative, and there is no data
+loss regardless of where in the loop an error happens.
+
+If `--regenerate-all` is NOT present, skip this step entirely and start at
+Step 1.
 
 ### Step 1: Identify the active room and target sections
 
