@@ -68,6 +68,7 @@ const { syncClassificationsToManifest } = require(path.join(pluginRoot, 'lib/imp
 const { writeImportsRoomMd } = require(path.join(pluginRoot, 'lib/import/room-md-scaffolder.cjs'));
 const { reverseManifest } = require(path.join(pluginRoot, 'lib/import/manifest.cjs'));
 const { generateImportReport } = require(path.join(pluginRoot, 'lib/import/report.cjs'));
+const { runMosSmokeTest, renderSmokeTestSection } = require(path.join(pluginRoot, 'lib/import/smoke-test.cjs'));
 
 const STAGE_CONTRACT_DIR = path.join(pluginRoot, 'templates/import/stage-contracts');
 
@@ -469,7 +470,18 @@ function stage03cFileMeetings(manifest, roomDir, importId, lazygraphBroken) {
 // ---------------------------------------------------------------------------
 function writeImportReport(manifest, importDir, opts) {
   const md = generateImportReport(manifest, opts || {});
-  fs.writeFileSync(path.join(importDir, 'IMPORT-REPORT.md'), md);
+  let final = md;
+  // Phase 80-06 (IMPORT-11): append /mos: Usability Check section from smoke test.
+  // The report.cjs placeholder is replaced in-place if present.
+  if (opts && opts.smokeTestResult) {
+    const section = renderSmokeTestSection(opts.smokeTestResult);
+    if (/## \/mos: Usability Check[\s\S]*?(?=\n## |\n?$)/.test(final)) {
+      final = final.replace(/## \/mos: Usability Check[\s\S]*?(?=\n## |\n?$)/, section.replace(/\n+$/, '\n'));
+    } else {
+      final = final + '\n' + section;
+    }
+  }
+  fs.writeFileSync(path.join(importDir, 'IMPORT-REPORT.md'), final);
 }
 
 // ---------------------------------------------------------------------------
@@ -779,8 +791,21 @@ function run(argv) {
   manifest.status = 'complete';
   writeManifest(manifestPath, manifest);
 
-  // Final report
-  writeImportReport(manifest, importDir);
+  // ----- Stage 05 (Phase 80-06): /mos: usability smoke test -----
+  let smokeResult = null;
+  try {
+    smokeResult = runMosSmokeTest(dst, { pluginRoot: pluginRoot });
+    manifest.smoke_test = smokeResult;
+    writeManifest(manifestPath, manifest);
+    if (!smokeResult.passed) {
+      process.stderr.write('warning: /mos: smoke test did NOT pass -- see IMPORT-REPORT.md /mos: Usability Check section\n');
+    }
+  } catch (e) {
+    process.stderr.write('warning: smoke test threw: ' + e.message + '\n');
+  }
+
+  // Final report (with smoke test result injected)
+  writeImportReport(manifest, importDir, { smokeTestResult: smokeResult });
 
   process.stdout.write('[vault-import] complete: ' + manifest.files.length + ' files, ' + manifest.people.length + ' people, ' + manifest.meetings.length + ' meetings\n');
   process.stdout.write('  import_id=' + importId + '\n');
