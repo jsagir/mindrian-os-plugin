@@ -12,6 +12,81 @@ const visual = require('../lib/core/visual-ops.cjs');
 const os = require('os');
 const crypto = require('crypto');
 
+// Map room section name to short exploration-stage label shown in the statusline.
+// Derived from the most recently modified section so the user sees what area
+// they are actively exploring at a glance. Unknown sections map to uppercased
+// hyphen-stripped name as a safe fallback.
+const EXPLORATION_LABELS = {
+  'problem-definition': 'PROBLEM',
+  'solution-design': 'SOLUTION',
+  'business-model': 'BUSINESSCASE',
+  'market-analysis': 'MARKET',
+  'competitive-analysis': 'COMPETITION',
+  'financial-model': 'FINANCE',
+  'legal-ip': 'LEGAL',
+  'team-execution': 'TEAM',
+  'team': 'TEAM',
+  'assets': 'ASSETS',
+  'exports': 'EXPORTS',
+  'meetings': 'MEETINGS',
+  'opportunity-bank': 'OPPORTUNITIES',
+  'funding': 'FUNDING'
+};
+
+/**
+ * Detect the active GSD workflow phase from .planning/ state.
+ * Prefers an explicit current-phase marker; falls back to the newest phase
+ * directory under .planning/phases/.
+ * @param {string} dir - Workspace current directory
+ * @returns {string} Phase label like "Phase 81" or empty string
+ */
+function detectActiveWorkflow(dir) {
+  try {
+    const statePath = path.join(dir, '.planning', 'STATE.md');
+    if (fs.existsSync(statePath)) {
+      const content = fs.readFileSync(statePath, 'utf8');
+      const phaseMatch = content.match(/current[_\s-]*phase[:\s]+(\d+(?:\.\d+)?)/i) ||
+                         content.match(/active[_\s-]*phase[:\s]+(\d+(?:\.\d+)?)/i);
+      if (phaseMatch) return 'Phase ' + phaseMatch[1];
+    }
+    const phasesDir = path.join(dir, '.planning', 'phases');
+    if (fs.existsSync(phasesDir)) {
+      // Pick the phase directory with the most recently touched content.
+      // "Newest mtime" is a better proxy for "active phase" than "highest
+      // number" because scaffolded-but-unexecuted future phases can leapfrog
+      // the phase you are actually working on.
+      const phases = fs.readdirSync(phasesDir, { withFileTypes: true })
+        .filter(d => d.isDirectory() && /^\d+/.test(d.name))
+        .map(d => {
+          const p = path.join(phasesDir, d.name);
+          let newest = 0;
+          try {
+            const entries = fs.readdirSync(p);
+            for (const e of entries) {
+              try {
+                const st = fs.statSync(path.join(p, e));
+                if (st.mtimeMs > newest) newest = st.mtimeMs;
+              } catch (_) {}
+            }
+            if (newest === 0) newest = fs.statSync(p).mtimeMs;
+          } catch (_) {
+            newest = 0;
+          }
+          return {
+            name: d.name,
+            num: parseFloat(d.name.match(/^(\d+(?:\.\d+)?)/)[1]),
+            mtime: newest
+          };
+        })
+        .sort((a, b) => b.mtime - a.mtime);
+      if (phases.length > 0) {
+        return 'Phase ' + phases[0].num;
+      }
+    }
+  } catch (e) {}
+  return '';
+}
+
 /**
  * Get per-room bridge file path at ~/.mindrian/bridge/{room-hash}.json
  * @param {string} [roomDir] - Room directory path for hashing
@@ -145,11 +220,40 @@ process.stdin.on('end', () => {
 
         // Build room status parts (De Stijl visual identity)
         const parts = [];
-        parts.push(`${visual.ANSI.cyan}${visual.ANSI.bold}${visual.SYMBOLS.brand} ${projectName}${visual.ANSI.reset}`);
+
+        // LARRY brand marker (always present when room is active)
+        // Gold to echo the teaching persona color in De Stijl palette.
+        const gold = visual.ANSI.gold || visual.ANSI.amber || '\x1b[38;2;245;194;66m';
+        parts.push(`${gold}${visual.ANSI.bold}\u25C9 LARRY${visual.ANSI.reset}`);
+
+        // Project name + breadcrumb to the currently-active section.
+        // currentSection comes from the most-recently-modified section walk above.
+        let projectCrumb = `${visual.ANSI.cyan}${visual.ANSI.bold}${visual.SYMBOLS.brand} ${projectName}${visual.ANSI.reset}`;
+        if (currentSection) {
+          projectCrumb += ` ${visual.ANSI.muted}\u25B6${visual.ANSI.reset} ${visual.ANSI.cyan}${currentSection}${visual.ANSI.reset}`;
+        }
+        parts.push(projectCrumb);
+
         if (stage) {
           const stageSym = visual.stageSymbol(stage);
           parts.push(`${visual.ANSI.amethyst}${stageSym} ${stage}${visual.ANSI.reset}`);
         }
+
+        // Exploration stage: what area is the user actively working in right now?
+        // Derived from currentSection via EXPLORATION_LABELS map, with a safe
+        // uppercase fallback for unknown sections.
+        if (currentSection) {
+          const explorationLabel = EXPLORATION_LABELS[currentSection] ||
+            currentSection.replace(/-/g, ' ').toUpperCase();
+          parts.push(`${visual.ANSI.yellow}\u25CE ${explorationLabel}${visual.ANSI.reset}`);
+        }
+
+        // Active GSD workflow (phase number) if .planning/ is present.
+        const workflow = detectActiveWorkflow(dir);
+        if (workflow) {
+          parts.push(`${visual.ANSI.green}\u26A1 ${workflow}${visual.ANSI.reset}`);
+        }
+
         const healthSym = gaps === 0 ? visual.SYMBOLS.health.populated : visual.SYMBOLS.health.empty;
         parts.push(`${healthSym} ${sectionCount} sections`);
         if (gaps > 0) {
