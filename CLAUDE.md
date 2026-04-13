@@ -1,10 +1,28 @@
 # MindrianOS Plugin — Claude Code Project Guide
 
 > **Repo:** MindrianOS-Plugin (commercial Claude Code + Cowork plugin)
-> **Working directory:** /home/jsagi/MindrianOS-Plugin/
+> **Working directory:** /home/jsagi/MindrianOS-Plugin/ (THE ONLY DEV WORKSPACE)
 > **Related:**
 >   - /home/jsagi/MindrianOS/ — V4 research, design docs, Claude Desktop project specs
 >   - /home/jsagi/MindrianV2/ — V2 production (25 bot prompts, mode engine, intelligence pipeline)
+
+---
+
+## WORKSPACE GUARD (READ FIRST — ADDED 2026-04-13)
+
+**`~/.claude/plugins/mindrian-os/` is NOT a dev workspace. It is a plugin install cache.**
+
+Every commit, every git operation, every GSD phase must run from `/home/jsagi/MindrianOS-Plugin/`. Running from the plugin cache silently diverges from GitHub and from every user's install.
+
+**Before starting any session:**
+1. `pwd` — confirm you are in `/home/jsagi/MindrianOS-Plugin/`, not in `~/.claude/plugins/*`
+2. `git fetch origin main` — never work on a stale clone
+3. `git log origin/main..HEAD` — if non-empty, you are ahead; check why
+4. `git log HEAD..origin/main` — if non-empty, you are behind; pull before starting
+
+**If the session-start hook trips the workspace guard**, you are in the wrong place. `cd ~/MindrianOS-Plugin` and restart the session.
+
+**Incident reference:** On 2026-04-13 a full v1.9.8 milestone (phases 76-80, 42 commits, Obsidian vault import) was executed in the plugin cache directory by mistake. The work was recovered via `git format-patch` + `git am --3way` but it took a full investigation to detect. Read `docs/autopsies/2026-04-13-wrong-workspace-incident.md` before you start, so you understand why this rule exists.
 
 ---
 

@@ -9,6 +9,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.10.0] - 2026-04-13
+
+onboarding: true
+onboard_steps:
+  - "NEW: /mos:vault import -- reverse direction of the vault export. Point at any Obsidian vault or folder of .md files and convert it into a fully-structured MindrianOS Data Room with one command. 4-stage ICM pipeline (ingest, classify, route, enrich) with interactive review gate, undo support, and post-import smoke test."
+  - "NEW: Team profile materialization. Imported people land in team/{core-team,consultants,advisors,investors,board,unassigned}/{slug}/ with full ROOM.md, profile, mentions, responsibilities, and contracts/ subfolder. Role detection via keyword heuristics, reassignable at the review gate."
+  - "NEW: Inbox sub-branching. Unclassified imports land in inbox/suggested/ (conf 0.45-0.74) or inbox/unclassified/ (conf < 0.45) -- first-class sections, not a tmp folder."
+  - "NEW: Native filing wikilinks (Phase 79) -- new artifacts created through /mos:file-meeting, scripts/analyze-room xref, and scripts/create-speaker-profile arrive pre-linked. No retroactive injection needed."
+  - "NEW: Branded output on every imported artifact -- MindrianOS footer, canonical De Stijl frontmatter schema, callout promotion for author/attendees/date/tags source fields."
+  - "NEW: Post-import /mos: Usability Check in IMPORT-REPORT.md -- runs compute-state (mindrian-tools fallback) against the imported room, asserts at least one populated canonical section."
+  - "NEW: Workspace guard in scripts/session-start -- refuses to run if PWD is under ~/.claude/plugins/. Prevents the wrong-workspace parallel-development incident from 2026-04-13 from happening again. See .planning/autopsies/2026-04-13-wrong-workspace-incident.md."
+  - "FIX: Merged two parallel development universes (phases 76-80 Obsidian vault import + v1.9.6-1.9.9 SnapshotHub + SQLite migration + lobby generator + /mos:mullins) into a single unified release. No work lost, no rollback."
+
+### Added
+- lib/import/ module: manifest.cjs, vault-scanner.cjs, classifications-sync.cjs, person-detector.cjs, meeting-detector.cjs, router.cjs, enricher.cjs, room-md-scaffolder.cjs, report.cjs, branding.cjs, smoke-test.cjs (11 modules, 12/12 test files green)
+- scripts/vault-import.cjs -- single CJS entry point for /mos:vault import. Drives the 4-stage pipeline, handles Case A (no existing room), Case B (existing room merge), Case C (nested room refusal), Case D (.obsidian/ detection)
+- scripts/wikilink-batch.cjs -- perf helper for bulk wikilink injection
+- scripts/create-speaker-profile -- new --layout=import --role-bucket=<bucket> flag to materialize team profiles during import
+- 3 fixture vaults under lib/import/test-fixtures/ (tiny-vault, obsidian-vault, collision-vault)
+- 4 stage-contract templates at templates/import/stage-contracts/ (01-ingest, 02-classify, 03-route, 04-enrich)
+- references/import-config.md -- Layer 3 reference for confidence thresholds, role keywords, frontmatter promotion map
+- lib/import/PRECONDITIONS.md -- known-issues doc for bin/mindrian-tools.cjs lazygraph-ops / better-sqlite3 failure (smoke test and /mos:vault import both route around it)
+- commands/vault.md gains the `import` subcommand section with Larry-led review gate workflow
+- **Workspace guard**: scripts/session-start refuses to execute under ~/.claude/plugins/ (prevents cache-dir parallel development)
+- **Release process mandate**: .claude/includes/release-process.md documents the 5-gate version consistency rule (CHANGELOG + plugin.json + package.json + git tag + marketplace.json.source.ref all must agree) and the workspace rule
+- **Incident autopsy**: .planning/autopsies/2026-04-13-wrong-workspace-incident.md documents the parallel-development incident, detection, and transplant recovery so future sessions see the failure mode on CLAUDE.md load
+
+### Changed
+- **CLAUDE.md** gains a WORKSPACE GUARD section at the top pointing at the autopsy doc
+- **bin/mindrian-tools.cjs** merged with both universes' additions (vault export + vault import + lobby generator + mullins command)
+- **skills/room-passive/SKILL.md** now references the Phase 79 wikilink builder (auto-wikilink on filing) alongside the merged branding rules
+- **scripts/create-speaker-profile** extended with import layout, retaining the default speaker-profile generator behavior
+
+### Merged from v1.9.6 through v1.9.9 (parallel development reconciliation)
+- v1.9.6: SQLite replaces KuzuDB (762 lines, 21 exports, 52 tests), memory system (13 exports, 35 tests), natural language graph queries (10 templates), Brain normalization (280 dupes merged, 20 chains added), 4 intelligence algorithms
+- v1.9.7: Rich Text SnapshotHub (callouts, wikilinks, tag-pills, hat-card grids, pull-quotes), Feynman Narrative layout, Six Hats Tension Cards, .wikilink CSS class, Obsidian Vault Nested Structure rule
+- v1.9.8: SnapshotHub brand lockup (logo top-right, "Made by Mindrian" footer)
+- v1.9.9: /mos:mullins command, lobby generator
+
 ## [1.9.9] - 2026-04-13
 
 onboarding: true
