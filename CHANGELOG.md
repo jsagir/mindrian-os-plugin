@@ -9,6 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.9.9] - 2026-04-13
+
+onboarding: true
+onboard_steps:
+  - "NEW: Lobby generator -- /mos:snapshot now produces BOTH index.html (3-door editorial lobby) and hub.html (full museum). Run it on any room and get a warm De Stijl landing page that adaptively picks doors based on what your room actually has."
+  - "NEW: /mos:mullins -- John Mullins' 7 Domains Model. Seven-dimensional opportunity stress-test (market x2, industry x2, team x3). Scored 1-5 per domain. Weakest domain caps the opportunity. Files to business-model/."
+  - "NEW: Door Selection Engine -- the lobby detects Feynman Deck, Bank of Opportunities, Investment Thesis, Mullins, Deep Grade, Six Hats, Devil's Advocate, Meetings, and Knowledge Graph, then picks top 2 for the flanks. Door 2 (center) is always the Full Data Room."
+  - "NEW: Starter doors for empty rooms -- if fewer than 2 deliverables exist, invitation cards (Define The Problem, Explore The Market) fill the grid. The lobby is never broken, never empty."
+  - "NEW: tagline: frontmatter field in STATE.md -- set an editorial one-liner for the lobby display title. Falls back to venture name + first sentence of problem-definition."
+
+### Added
+- **`scripts/generate-lobby.cjs`** -- 520-line standalone lobby generator. Zero npm dependencies. Produces `exports/index.html` as the 3-door editorial landing page. Reference visual: my-finance-room.vercel.app.
+- **`commands/mullins.md`** -- /mos:mullins slash command. Conversational walkthrough of Mullins 7 Domains with Quick Pass (15 min) and Deep Dive (45 min) modes.
+- **`references/methodology/mullins-7-domains.md`** -- full framework reference with the 7 domain definitions, scoring rules, and cross-framework chaining.
+
+### Changed
+- **`/mos:snapshot` now emits TWO files** instead of one. Both generators run in sequence: `generate-hub.cjs` produces `hub.html` (museum, full content), then `generate-lobby.cjs` produces `index.html` (3-door lobby, linking to hub.html). The `exports/` folder deploys as-is to Vercel with the lobby served as the site root.
+- **`commands/snapshot.md`** updated with the two-output contract, door selection priority, and the new implementation steps.
+
+### Why
+The current `hub.html` is a museum: every artifact visible on one scroll. Good for reference, overwhelming as a first impression. The new `index.html` lobby is the opposite: three curated doors that adapt to what the room has. You walk into the lobby, you see three doors, you pick one. This is the shareable artifact. The museum becomes what you show *after* the lobby has done its job.
+
+The Mullins command closes a gap in the methodology commands -- /mos:lean-canvas covers business model structure, but nothing previously stress-tested opportunity viability across market/industry/team simultaneously. Mullins is the most rigorous framework published for this purpose and is now a first-class door in the lobby.
+
+### Files
+- `scripts/generate-lobby.cjs` (new, 520 lines)
+- `commands/mullins.md` (new)
+- `references/methodology/mullins-7-domains.md` (new)
+- `commands/snapshot.md` (updated implementation + contract)
+
 ## [1.9.8] - 2026-04-13
 
 onboarding: false
