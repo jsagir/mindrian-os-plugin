@@ -91,7 +91,7 @@
 - [x] **IMPORT-09**: Import generates a classification report showing where each source note was filed, confidence score, and any notes that couldn't be classified (placed in an inbox/ folder for manual routing)
 - [ ] **IMPORT-10**: Import adds MindrianOS branded footers, De Stijl frontmatter schema, and callout formatting to all imported artifacts
 - [ ] **IMPORT-11**: After import, the room is immediately usable with all /mos: commands -- Larry can grade it, diagnose it, run methodologies on it
-- [ ] **IMPORT-12**: Import works on non-Obsidian Markdown folders too (any folder of .md files) -- Obsidian-specific features (wikilinks, frontmatter) are bonuses, not requirements
+- [x] **IMPORT-12**: Import works on non-Obsidian Markdown folders too (any folder of .md files) -- Obsidian-specific features (wikilinks, frontmatter) are bonuses, not requirements
 
 ## Native Filing Wikilinks (NATIVE)
 
@@ -184,4 +184,4 @@
 | IMPORT-09 | Phase 80 | Complete |
 | IMPORT-10 | Phase 80 | Pending |
 | IMPORT-11 | Phase 80 | Pending |
-| IMPORT-12 | Phase 80 | Pending |
+| IMPORT-12 | Phase 80 | Complete |
