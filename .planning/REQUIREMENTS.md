@@ -82,13 +82,13 @@
 
 - [ ] **IMPORT-01**: User can run `/mos:vault import --path ~/my-vault` to convert an existing Obsidian vault into a MindrianOS Data Room
 - [x] **IMPORT-02**: Import scans all .md files and classifies them into room sections (problem-definition, business-model, market-analysis, competitive-analysis, solution-design, financial-model, legal-ip, team-execution, team, meetings) using content analysis + frontmatter hints
-- [ ] **IMPORT-03**: Import creates the room/ folder structure with ROOM.md identity files at every level (ICM Layer 0)
-- [ ] **IMPORT-04**: Import generates STATE.md at room level and per-section level from the classified content
-- [ ] **IMPORT-05**: Import generates MINTO.md (structured reasoning) for each section that received 1+ classified artifacts
+- [x] **IMPORT-03**: Import creates the room/ folder structure with ROOM.md identity files at every level (ICM Layer 0)
+- [x] **IMPORT-04**: Import generates STATE.md at room level and per-section level from the classified content
+- [x] **IMPORT-05**: Import generates MINTO.md (structured reasoning) for each section that received 1+ classified artifacts
 - [x] **IMPORT-06**: Import detects person names in content and generates team/ profiles with wikilinked contributions
 - [x] **IMPORT-07**: Import detects meeting notes (date patterns, attendee lists, action items) and files them into meetings/ with proper metadata
-- [ ] **IMPORT-08**: Import preserves existing Obsidian wikilinks and converts them to room-relative paths
-- [ ] **IMPORT-09**: Import generates a classification report showing where each source note was filed, confidence score, and any notes that couldn't be classified (placed in an inbox/ folder for manual routing)
+- [x] **IMPORT-08**: Import preserves existing Obsidian wikilinks and converts them to room-relative paths
+- [x] **IMPORT-09**: Import generates a classification report showing where each source note was filed, confidence score, and any notes that couldn't be classified (placed in an inbox/ folder for manual routing)
 - [ ] **IMPORT-10**: Import adds MindrianOS branded footers, De Stijl frontmatter schema, and callout formatting to all imported artifacts
 - [ ] **IMPORT-11**: After import, the room is immediately usable with all /mos: commands -- Larry can grade it, diagnose it, run methodologies on it
 - [ ] **IMPORT-12**: Import works on non-Obsidian Markdown folders too (any folder of .md files) -- Obsidian-specific features (wikilinks, frontmatter) are bonuses, not requirements
@@ -175,13 +175,13 @@
 | RULES-10 | Phase 77 | Pending |
 | IMPORT-01 | Phase 80 | Pending |
 | IMPORT-02 | Phase 80 | Complete |
-| IMPORT-03 | Phase 80 | Pending |
-| IMPORT-04 | Phase 80 | Pending |
-| IMPORT-05 | Phase 80 | Pending |
+| IMPORT-03 | Phase 80 | Complete |
+| IMPORT-04 | Phase 80 | Complete |
+| IMPORT-05 | Phase 80 | Complete |
 | IMPORT-06 | Phase 80 | Complete |
 | IMPORT-07 | Phase 80 | Complete |
-| IMPORT-08 | Phase 80 | Pending |
-| IMPORT-09 | Phase 80 | Pending |
+| IMPORT-08 | Phase 80 | Complete |
+| IMPORT-09 | Phase 80 | Complete |
 | IMPORT-10 | Phase 80 | Pending |
 | IMPORT-11 | Phase 80 | Pending |
 | IMPORT-12 | Phase 80 | Pending |
