@@ -139,5 +139,5 @@ Phases execute in numeric order: 76 -> 77 -> 78 -> 79 -> 80
 | 76. Wikilink Engine + Branded Footers | 0/3 | Complete    | 2026-04-12 |
 | 77. Obsidian Kit + Welcome Doc | 0/TBD | Complete    | 2026-04-12 |
 | 78. /mos:vault Command + /mos:room linkify | 0/2 | Complete    | 2026-04-12 |
-| 79. Native Filing Wikilinks | 2/2 | Complete   | 2026-04-13 |
+| 79. Native Filing Wikilinks | 2/2 | Complete    | 2026-04-13 |
 | 80. Vault Import -- Obsidian to Data Room | 0/TBD | Not started | - |
