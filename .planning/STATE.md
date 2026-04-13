@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.9.8
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 79-02-PLAN.md
-last_updated: "2026-04-13T06:28:36.412Z"
+status: executing
+stopped_at: Completed 80-01-PLAN.md
+last_updated: "2026-04-13T10:37:13.729Z"
 last_activity: 2026-04-13
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 11
-  completed_plans: 8
+  total_plans: 17
+  completed_plans: 9
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 79 — native-filing-wikilinks
+**Current focus:** Phase 80 — vault-import-obsidian-to-data-room
 
 ## Current Position
 
-Phase: 80
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 80 (vault-import-obsidian-to-data-room) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
 Last activity: 2026-04-13
 
 Progress: [░░░░░░░░░░] 0%
@@ -60,6 +60,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 75-onboarding-redesign P01 | 3min | 2 tasks | 1 files |
 | Phase 79-native-filing-wikilinks P01 | 5min | 2 tasks | 5 files |
 | Phase 79 P02 | 12min | 2 tasks | 2 files |
+| Phase 80 P01 | 20min | 2 tasks | 24 files |
 
 ### Decisions
 
@@ -85,6 +86,9 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 75-onboarding-redesign]: Mode-first onboarding: teach three ways to work before asking who the user is
 - [Phase 75-onboarding-redesign]: Knight framing is practical with persona examples, not academic theory
 - [Phase 79]: analyze-room reinterpretation: wikilink xref source files (no on-disk xref files exist)
+- [Phase 80]: [Phase 80-01] MANIFEST schema_version 1.0 locked; writeManifest refuses any manifest without it
+- [Phase 80]: [Phase 80-01] run-all-tests spawns each test file as child process to isolate assert failures
+- [Phase 80]: [Phase 80-01] bin/mindrian-tools.cjs broken via better-sqlite3/lazygraph-ops chain; 80-05 must route /mos:vault import directly through scripts/vault-import.cjs
 
 ### Pending Todos
 
@@ -100,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-13T06:17:59.612Z
-Stopped at: Completed 79-02-PLAN.md
+Last session: 2026-04-13T10:37:13.726Z
+Stopped at: Completed 80-01-PLAN.md
 Resume file: None

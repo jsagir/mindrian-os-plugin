@@ -81,7 +81,7 @@
 ## Vault Import -- Obsidian to Data Room (IMPORT)
 
 - [ ] **IMPORT-01**: User can run `/mos:vault import --path ~/my-vault` to convert an existing Obsidian vault into a MindrianOS Data Room
-- [ ] **IMPORT-02**: Import scans all .md files and classifies them into room sections (problem-definition, business-model, market-analysis, competitive-analysis, solution-design, financial-model, legal-ip, team-execution, team, meetings) using content analysis + frontmatter hints
+- [x] **IMPORT-02**: Import scans all .md files and classifies them into room sections (problem-definition, business-model, market-analysis, competitive-analysis, solution-design, financial-model, legal-ip, team-execution, team, meetings) using content analysis + frontmatter hints
 - [ ] **IMPORT-03**: Import creates the room/ folder structure with ROOM.md identity files at every level (ICM Layer 0)
 - [ ] **IMPORT-04**: Import generates STATE.md at room level and per-section level from the classified content
 - [ ] **IMPORT-05**: Import generates MINTO.md (structured reasoning) for each section that received 1+ classified artifacts
@@ -174,7 +174,7 @@
 | RULES-09 | Phase 76 | Pending |
 | RULES-10 | Phase 77 | Pending |
 | IMPORT-01 | Phase 80 | Pending |
-| IMPORT-02 | Phase 80 | Pending |
+| IMPORT-02 | Phase 80 | Complete |
 | IMPORT-03 | Phase 80 | Pending |
 | IMPORT-04 | Phase 80 | Pending |
 | IMPORT-05 | Phase 80 | Pending |
