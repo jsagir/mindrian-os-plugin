@@ -170,6 +170,38 @@ Defined causal engine architecture. This milestone executes the Brain graph enri
 
 ## v3.0 Backlog (Captured Ideas)
 
+### FIRST-CLASS v3.0 SCOPE ITEM: MCP Sampling migration for Feynman-MINTO (bridge from Phase 81)
+
+**Context.** Phase 81 (v1.10.2 Feynman-MINTO Hybrid) ships the tier-1 LLM path via direct Anthropic Messages API using native `fetch` and the `ANTHROPIC_API_KEY` env var (see `.planning/phases/81-feynman-minto-hybrid/81-RESEARCH.md` Q(b) resolution). This was the correct choice for v1.10.2 because the v3.x MCP server with sampling support is not built yet, and inverting dependency order to build an MCP server as a prerequisite for Phase 81 would have blocked the bridge release indefinitely.
+
+**The tradeoff Phase 81 accepts.** Users must set `ANTHROPIC_API_KEY` to get tier-1 Feynman-MINTO. This partially bends CLAUDE.md Decision #1 (one-command install). Tier-0 fallback (pre-81 deterministic MINTO + AAAK footer) preserves zero-config for users without a key, so the plugin still works with one command. But the ideal end state is that the user's existing Claude Code / Desktop / Cowork session provides the LLM, with no second API key and no second billing relationship.
+
+**The v3.0 migration.** MCP Sampling (`sampling/createMessage` in the MCP spec) is the mechanism. Once the MindrianOS MCP server is built:
+1. The MCP server registers sampling capability in its initialization handshake
+2. `lib/memory/llm-call.cjs` gains a second code path that, when running inside an MCP server context, calls `server.createMessage(...)` instead of shelling out to Anthropic via fetch
+3. The host (Claude Code / Desktop / Cowork) serves the completion from the user's existing session, billed to the user's existing plan
+4. `ANTHROPIC_API_KEY` becomes optional rather than required for tier-1
+5. CLAUDE.md Decision #1 is fully restored for tier-1 Feynman-MINTO
+
+**Non-blocking for Phase 81.** Ship Phase 81 as-is with the direct-fetch path. The v3.0 MCP sampling migration is an additive enhancement, not a rewrite. The `llm-call.cjs` abstraction in 81-01 is specifically designed so the sampling path can be added later without touching `feynman-stages.cjs` or the generator.
+
+**v3.0 milestone scope must include:**
+- MCP Sampling capability on the MindrianOS MCP server (`@modelcontextprotocol/sdk` 1.27.1+ supports this)
+- Dual-path `llm-call.cjs` (detect MCP context, prefer sampling, fall back to direct fetch, then tier-0)
+- CHANGELOG entry retiring the `ANTHROPIC_API_KEY` requirement for tier-1 when in MCP context
+- Regression test that Feynman-MINTO works identically via sampling and via direct fetch (same fixtures, same structural assertions)
+- Docs update: "one-command install" fully restored for Desktop/Cowork tier-1 users
+
+**References.**
+- `.planning/phases/81-feynman-minto-hybrid/81-CONTEXT.md` D-7 (LLM path abstraction was designed for this migration)
+- `.planning/phases/81-feynman-minto-hybrid/81-RESEARCH.md` Q(b) (why direct fetch now, why MCP sampling later)
+- MCP spec: https://modelcontextprotocol.io/docs/concepts/sampling
+- `@modelcontextprotocol/sdk` `server.createMessage(...)` API
+
+---
+
+### Other v3.0 Backlog Items
+
 - Opportunity Bank (room section + proactive grant discovery agents)
 - Funding Room (non-dilutive/dilutive/grants sub-rooms, GSD-style process per grant)
 - AI Team Member Personas (domain experts generated from intelligence + Bono perspectives)
