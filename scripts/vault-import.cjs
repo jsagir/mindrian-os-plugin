@@ -66,6 +66,8 @@ const { routeFiles } = require(path.join(pluginRoot, 'lib/import/router.cjs'));
 const { enrichRoom } = require(path.join(pluginRoot, 'lib/import/enricher.cjs'));
 const { syncClassificationsToManifest } = require(path.join(pluginRoot, 'lib/import/classifications-sync.cjs'));
 const { writeImportsRoomMd } = require(path.join(pluginRoot, 'lib/import/room-md-scaffolder.cjs'));
+const { reverseManifest } = require(path.join(pluginRoot, 'lib/import/manifest.cjs'));
+const { generateImportReport } = require(path.join(pluginRoot, 'lib/import/report.cjs'));
 
 const STAGE_CONTRACT_DIR = path.join(pluginRoot, 'templates/import/stage-contracts');
 
@@ -463,33 +465,120 @@ function stage03cFileMeetings(manifest, roomDir, importId, lazygraphBroken) {
 }
 
 // ---------------------------------------------------------------------------
-// IMPORT-REPORT.md (minimal; full render deferred to 80-05)
+// IMPORT-REPORT.md -- delegates to lib/import/report.cjs (Plan 80-05)
 // ---------------------------------------------------------------------------
-function writeImportReport(manifest, importDir) {
-  const lines = [];
-  lines.push('---');
-  lines.push('date: ' + (manifest.import_id || '').slice(0, 10));
-  lines.push('main_topic: ' + (manifest.main_topic || ''));
-  lines.push('source_vault: ' + (manifest.source_vault || ''));
-  lines.push('total_files: ' + manifest.files.length);
-  lines.push('status: ' + manifest.status);
-  lines.push('---');
-  lines.push('');
-  lines.push('# Import Report -- ' + manifest.import_id);
-  lines.push('');
-  lines.push('## Summary');
-  lines.push('- Files: ' + manifest.files.length);
-  lines.push('- People detected: ' + (manifest.people || []).length);
-  lines.push('- Meetings detected: ' + (manifest.meetings || []).length);
-  lines.push('- Collisions: ' + (manifest.collisions || []).length);
-  lines.push('- Warnings: ' + (manifest.warnings || []).length);
-  lines.push('');
-  lines.push('## Stage states');
-  lines.push('```json');
-  lines.push(JSON.stringify(manifest.stage_states, null, 2));
-  lines.push('```');
-  lines.push('');
-  fs.writeFileSync(path.join(importDir, 'IMPORT-REPORT.md'), lines.join('\n'));
+function writeImportReport(manifest, importDir, opts) {
+  const md = generateImportReport(manifest, opts || {});
+  fs.writeFileSync(path.join(importDir, 'IMPORT-REPORT.md'), md);
+}
+
+// ---------------------------------------------------------------------------
+// Undo (Plan 80-05) -- move routed files to imports/{id}/undone/,
+// remove scoped ROOM.md/MINTO.md, mark report UNDONE. Idempotent.
+// ---------------------------------------------------------------------------
+function runUndo(importId, roomDir) {
+  const dst = path.resolve(roomDir || process.cwd());
+  const importDir = path.join(dst, 'imports', importId);
+  const manifestPath = path.join(importDir, '01-ingest/output/MANIFEST.json');
+  if (!fs.existsSync(manifestPath)) {
+    process.stderr.write('error: import manifest not found: ' + manifestPath + '\n');
+    return 1;
+  }
+  const manifest = readManifest(manifestPath);
+
+  // Idempotent: already undone -> exit 0 silently
+  if (manifest.undo && manifest.undo.is_undone) {
+    process.stdout.write('[vault-import] undo: already undone (' + importId + ')\n');
+    return 0;
+  }
+
+  const plan = reverseManifest(manifest);
+  const undoneRoot = path.join(importDir, 'undone');
+  fs.mkdirSync(undoneRoot, { recursive: true });
+
+  // Move routed files to undone/ (preserving their destination_path shape)
+  let moved = 0;
+  for (const move of plan.moves) {
+    if (!fs.existsSync(move.from)) continue;
+    const target = path.join(undoneRoot, path.relative(dst, move.from));
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    try {
+      fs.renameSync(move.from, target);
+      moved += 1;
+    } catch (e) {
+      // Fall back to copy + unlink so we survive cross-device boundaries
+      try {
+        fs.copyFileSync(move.from, target);
+        fs.unlinkSync(move.from);
+        moved += 1;
+      } catch (e2) {
+        manifest.warnings = manifest.warnings || [];
+        manifest.warnings.push({ type: 'undo_move_failed', context: move.from + ': ' + e2.message });
+      }
+    }
+  }
+
+  // Remove generated ROOM.md files scoped to this import's destination folders
+  const removed = { rooms_md: 0, minto: 0 };
+  for (const relPath of plan.rooms_md_to_remove || []) {
+    // rooms_md_to_remove holds destination_folder + ROOM.md (already absolute
+    // path from manifest). Normalize: if not absolute, resolve against dst.
+    const abs = path.isAbsolute(relPath) ? relPath : path.join(dst, relPath);
+    if (fs.existsSync(abs)) {
+      try { fs.unlinkSync(abs); removed.rooms_md += 1; } catch (e) { /* soft */ }
+    }
+  }
+  for (const relPath of plan.minto_stubs_to_remove || []) {
+    const abs = path.isAbsolute(relPath) ? relPath : path.join(dst, relPath);
+    if (fs.existsSync(abs)) {
+      try { fs.unlinkSync(abs); removed.minto += 1; } catch (e) { /* soft */ }
+    }
+  }
+
+  // Also scan the destination folders referenced by manifest.files and remove
+  // ROOM.md / MINTO.md if they live inside an artifact folder that is now empty
+  // (or contains only ROOM.md / MINTO.md). This catches enricher output that
+  // reverseManifest doesn't enumerate explicitly.
+  const touchedFolders = new Set();
+  for (const f of manifest.files || []) {
+    if (f.destination_folder) {
+      touchedFolders.add(path.isAbsolute(f.destination_folder) ? f.destination_folder : path.join(dst, f.destination_folder));
+    }
+  }
+  for (const folder of touchedFolders) {
+    if (!fs.existsSync(folder)) continue;
+    const entries = fs.readdirSync(folder);
+    const nonMeta = entries.filter(function (n) { return n !== 'ROOM.md' && n !== 'MINTO.md' && n !== 'STATE.md'; });
+    if (nonMeta.length === 0) {
+      for (const meta of ['ROOM.md', 'MINTO.md', 'STATE.md']) {
+        const p = path.join(folder, meta);
+        if (fs.existsSync(p)) {
+          try {
+            fs.unlinkSync(p);
+            if (meta === 'ROOM.md') removed.rooms_md += 1;
+            if (meta === 'MINTO.md') removed.minto += 1;
+          } catch (e) { /* soft */ }
+        }
+      }
+      // Attempt to remove the empty folder itself
+      try { fs.rmdirSync(folder); } catch (e) { /* soft */ }
+    }
+  }
+
+  // Mark manifest and re-render report
+  manifest.undo = {
+    is_undone: true,
+    undone_at: new Date().toISOString(),
+    undone_to_directory: path.relative(dst, undoneRoot),
+    files_moved: moved,
+    rooms_md_removed: removed.rooms_md,
+    minto_stubs_removed: removed.minto
+  };
+  writeManifest(manifestPath, manifest);
+  writeImportReport(manifest, importDir);
+
+  process.stdout.write('[vault-import] undo complete: ' + moved + ' files moved, ' + removed.rooms_md + ' ROOM.md removed, ' + removed.minto + ' MINTO.md removed\n');
+  return 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -498,6 +587,9 @@ function writeImportReport(manifest, importDir) {
 function run(argv) {
   const args = parseArgs(argv);
   if (args.help) { printUsage(); return 0; }
+  if (args.undo) {
+    return runUndo(args.undo, args.room);
+  }
   if (!args.path) {
     process.stderr.write('error: --path is required\n');
     printUsage();
@@ -716,5 +808,7 @@ module.exports = {
   ensureFullImportTree: ensureFullImportTree,
   stage03bMaterializeTeam: stage03bMaterializeTeam,
   stage03cFileMeetings: stage03cFileMeetings,
+  runUndo: runUndo,
+  writeImportReport: writeImportReport,
   run: run
 };

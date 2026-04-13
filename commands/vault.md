@@ -73,6 +73,54 @@ Larry adds a brief observation about the export. Examples:
 - "The vault has 47 markdown files across 6 sections. Three empty sections will show as gaps in the graph view."
 - "Wikilinks injected across 12 team profiles and 8 meeting summaries. Open the graph view in Obsidian to see the structural shape."
 
+## Subcommand: import (Phase 80 / IMPORT-01)
+
+**Trigger:** `/mos:vault import --path <vault-dir>` or `/mos:vault import --path <vault-dir> --room <room-dir>` or `/mos:vault import --undo <import-id>`
+
+This mode is the reverse of export. It converts any Obsidian vault or folder of Markdown files into a fully-structured MindrianOS Data Room. Content classifier routes notes to sections, person detector builds team profiles, meeting detector files meetings, Obsidian wikilinks preserve and convert to room-relative paths, and a permanent IMPORT-REPORT.md is filed under `room/imports/{date}-{topic}/`.
+
+> **Routing note (PRECONDITIONS.md):** `bin/mindrian-tools.cjs` is currently broken by a better-sqlite3 / lazygraph-ops MODULE_NOT_FOUND. Route `/mos:vault import` directly to `node scripts/vault-import.cjs`, never through `mindrian-tools.cjs`.
+
+### Step 1: Parse flags
+
+- `--path <dir>` (required for import run) source vault path
+- `--room <dir>` (optional) target room path; defaults to the active room from `scripts/resolve-room`
+- `--yes` skip the interactive review gate (auto-approve Stage 02 to Stage 03)
+- `--dry-run` run Stages 01 and 02 only, stop before any file moves, nothing to undo
+- `--move` consume source files (default is COPY)
+- `--topic <slug>` override the auto-extracted main-topic slug
+- `--undo <import-id>` reverse a previously completed import
+
+### Step 2: Run the pipeline
+
+Invoke directly:
+
+```bash
+node scripts/vault-import.cjs --path <vault> --room <room>
+```
+
+This drives the 4-stage ICM pipeline: 01-ingest (scan + manifest), 02-classify (stub + person + meeting detectors), 03-route (file moves with collision + inbox sub-branching), 03b (team profile materialization via `scripts/create-speaker-profile --layout=import`), 03c (meeting filing with direct-copy fallback), 04-enrich (ROOM.md + per-section STATE.md + MINTO stubs + wikilinks).
+
+### Step 3: Review gate (interactive default)
+
+If `--yes` was NOT passed, pause after Stage 02 and present the classifications to the user. Larry:
+
+1. Opens `room/imports/{id}/02-classify/output/classifications.md` and reads the classification table
+2. For each row, evaluates the classifier's guess against the file content and the venture context, and edits section or decision cells with the Edit tool when a better assignment is warranted
+3. Writes the edits back into `MANIFEST.json` via `lib/import/classifications-sync.cjs` using `syncClassificationsToManifest(classificationsMdPath, manifestPath)` - this is the canonical Larry-classification persistence path from the phase 80 locked fixes
+4. Writes the marker file `room/imports/{id}/02-classify/output/.approved` to signal that Stage 03 can proceed without re-running the stub classifier (the orchestrator skipStub logic reads this marker)
+5. Presents the summary in Body Shape E and asks the user to confirm. On confirmation, Larry re-invokes `node scripts/vault-import.cjs` with the same flags (Stage 03 picks up from the approved classifications automatically)
+
+### Step 4: Report and undo
+
+After Stage 04, `lib/import/report.cjs::generateImportReport` renders `room/imports/{id}/IMPORT-REPORT.md` with date, main-topic slug, classification table, people detected, meetings detected, warnings, and a `## /mos: Usability Check` placeholder that Phase 80-06 populates with the post-import smoke test result.
+
+Undo via `--undo <import-id>`: reads MANIFEST.json in reverse, moves routed files into `room/imports/{id}/undone/` (never deletes), removes generated ROOM.md and MINTO.md scoped to those files, and writes `UNDONE: true` into IMPORT-REPORT.md. Idempotent.
+
+### Step 5: Render Body Shape E summary
+
+On success, present a mini report: total files ingested, by-section breakdown, people detected, meetings detected, and one proactive next step ("Run /mos:reason on problem-definition to populate the MINTO stubs.").
+
 ## Subcommand: --in-place (alias for /mos:room linkify)
 
 **Trigger:** `/mos:vault --in-place`

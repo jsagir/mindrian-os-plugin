@@ -33,6 +33,10 @@ declare -a section_statuses=()
 declare -a section_dates=()
 total_entries=0
 
+# Plan 80-05 Task 2: dynamic section discovery confirmed.
+# This glob walks every top-level folder under room/, so inbox/ (with its
+# suggested/ and unclassified/ sub-branches added by Phase 80 vault-import)
+# is picked up automatically without any hard-coded section list.
 for section_dir in "$ROOM_DIR"/*/; do
   [ -d "$section_dir" ] || continue
   section_name=$(basename "$section_dir")
