@@ -199,8 +199,12 @@ cleanGenerated();
 }
 
 // ------------------------------------------------------------------
-// 6. --write with invalid narrative is rejected.
+// 6. --write with invalid narrative falls through to tier-0 (81-03).
+//    Pre-81-03 this was a hard error. Phase 81-03 changed the contract:
+//    schema-invalid narratives emit a warning to stderr and route to
+//    runTier0() instead of throwing.
 // ------------------------------------------------------------------
+cleanGenerated();
 {
   const badPath = path.join(REPO_ROOT, 'test-fixtures', 'feynman', '_bad.json');
   fs.writeFileSync(badPath, JSON.stringify({ section: 'problem-definition' }));
@@ -213,19 +217,32 @@ cleanGenerated();
       '--narrative',
       badPath,
     ]);
-    assert.notStrictEqual(
+    assert.strictEqual(
       res.status,
       0,
-      '--write with invalid narrative should fail'
+      '--write with invalid narrative should fall through to tier-0, got status ' +
+        res.status +
+        ': ' +
+        res.stderr
     );
     assert.ok(
-      /narrative schema validation failed/.test(res.stderr),
-      'expected schema error on stderr, got: ' + res.stderr
+      /schema validation/.test(res.stderr),
+      'expected schema-validation warning on stderr, got: ' + res.stderr
+    );
+    assert.ok(
+      fs.existsSync(MINTO_TARGET),
+      'invalid narrative fallthrough did not produce MINTO.md'
+    );
+    const content = fs.readFileSync(MINTO_TARGET, 'utf-8');
+    assert.ok(
+      content.indexOf('## AAAK Compressed') !== -1,
+      'tier-0 fallthrough output missing AAAK footer'
     );
   } finally {
     if (fs.existsSync(badPath)) fs.unlinkSync(badPath);
   }
 }
+cleanGenerated();
 
 // ------------------------------------------------------------------
 // 7. --write with no --narrative falls through to tier-0 pre-81 path.
@@ -255,6 +272,16 @@ cleanGenerated();
   assert.ok(
     /methodology: minto-pyramid/.test(content),
     'pre-81 methodology marker missing'
+  );
+  // Phase 81-03: tier-0 now appends an AAAK compressed footer.
+  assert.ok(
+    content.indexOf('## AAAK Compressed') !== -1,
+    'tier-0 output missing AAAK footer'
+  );
+  // Phase 81-03: tier-0 should log a warning to stderr.
+  assert.ok(
+    /no narrative provided/.test(res.stderr),
+    'tier-0 no-narrative warning missing from stderr: ' + res.stderr
   );
 }
 

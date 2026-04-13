@@ -290,6 +290,221 @@ function testWritePhase(fx) {
   fs.unlinkSync(mintoPath);
 }
 
+function testFrozenBaselineRegression() {
+  // Phase 81-03: assert that tier-0 output for each fixture is byte-identical
+  // to the frozen baseline captured under MINTO_FROZEN_DATE=2026-04-14.
+  const baselineDir = path.join(
+    REPO_ROOT,
+    'test-fixtures',
+    'feynman',
+    'expected-tier0-baseline'
+  );
+  const triples = [
+    { name: 'fixture-small', section: 'problem-definition' },
+    { name: 'fixture-medium', section: 'market-analysis' },
+    { name: 'fixture-large', section: 'solution-design' },
+  ];
+  for (const t of triples) {
+    const roomDir = path.join(
+      REPO_ROOT,
+      'test-fixtures',
+      'feynman',
+      'sections',
+      t.name
+    );
+    const res = runCmd([roomDir, '--write', '--section', t.section]);
+    assert.strictEqual(
+      res.status,
+      0,
+      t.name + ' tier-0 --write failed: ' + res.stderr
+    );
+    assert.ok(
+      /tier-0 path: no narrative provided/.test(res.stderr),
+      t.name + ' missing no-narrative warning on stderr: ' + res.stderr
+    );
+    const mintoPath = path.join(roomDir, t.section, 'MINTO.md');
+    assert.ok(
+      fs.existsSync(mintoPath),
+      t.name + ' tier-0 MINTO.md not created'
+    );
+    const actual = fs.readFileSync(mintoPath, 'utf-8');
+
+    // AAAK footer sentinel must be present.
+    assert.ok(
+      actual.indexOf('## AAAK Compressed') !== -1,
+      t.name + ' tier-0 output missing AAAK footer'
+    );
+    assert.ok(
+      actual.indexOf('<!-- aaak-end -->') !== -1,
+      t.name + ' tier-0 output missing aaak-end marker'
+    );
+
+    // Em-dash scan.
+    scanForbiddenDashes(actual, t.name + ' tier-0 MINTO.md');
+
+    // Byte-equivalence with frozen baseline.
+    const baselinePath = path.join(baselineDir, t.name + '-tier0.md');
+    const expected = fs.readFileSync(baselinePath, 'utf-8');
+    assert.strictEqual(
+      actual,
+      expected,
+      t.name + ' tier-0 output drifted from frozen baseline ' + baselinePath
+    );
+
+    // Clean up.
+    fs.unlinkSync(mintoPath);
+  }
+}
+
+function testInvalidNarrativeFallthrough() {
+  // Phase 81-03: invalid narrative (key_claims length 2) must fall through
+  // to tier-0 with a schema-validation warning on stderr, not throw.
+  const roomDir = path.join(
+    REPO_ROOT,
+    'test-fixtures',
+    'feynman',
+    'sections',
+    'fixture-small'
+  );
+  const section = 'problem-definition';
+  const invalidNarrative = path.join(
+    REPO_ROOT,
+    'test-fixtures',
+    'feynman',
+    'narratives',
+    'fixture-small-invalid.json'
+  );
+  const res = runCmd([
+    roomDir,
+    '--write',
+    '--section',
+    section,
+    '--narrative',
+    invalidNarrative,
+  ]);
+  assert.strictEqual(
+    res.status,
+    0,
+    'invalid narrative should fall through to tier-0, got status ' +
+      res.status +
+      ': ' +
+      res.stderr
+  );
+  assert.ok(
+    /schema validation/.test(res.stderr),
+    'invalid narrative missing schema-validation warning: ' + res.stderr
+  );
+  const mintoPath = path.join(roomDir, section, 'MINTO.md');
+  assert.ok(
+    fs.existsSync(mintoPath),
+    'invalid narrative fallthrough did not create MINTO.md'
+  );
+  const content = fs.readFileSync(mintoPath, 'utf-8');
+  assert.ok(
+    content.indexOf('## AAAK Compressed') !== -1,
+    'invalid narrative fallthrough missing AAAK footer'
+  );
+
+  // Byte-equivalence with the fixture-small frozen baseline.
+  const baseline = fs.readFileSync(
+    path.join(
+      REPO_ROOT,
+      'test-fixtures',
+      'feynman',
+      'expected-tier0-baseline',
+      'fixture-small-tier0.md'
+    ),
+    'utf-8'
+  );
+  assert.strictEqual(
+    content,
+    baseline,
+    'invalid narrative fallthrough did not produce frozen baseline output'
+  );
+  fs.unlinkSync(mintoPath);
+}
+
+function testMalformedNarrativeFallthrough() {
+  // Phase 81-03: unparseable JSON file must fall through to tier-0 with a
+  // parse-failed warning on stderr.
+  const os = require('node:os');
+  const roomDir = path.join(
+    REPO_ROOT,
+    'test-fixtures',
+    'feynman',
+    'sections',
+    'fixture-small'
+  );
+  const section = 'problem-definition';
+  const tmpFile = path.join(
+    os.tmpdir(),
+    'mos-invalid-narrative-' + process.pid + '-' + Date.now() + '.json'
+  );
+  fs.writeFileSync(tmpFile, 'not json content at all { [ garbage');
+  try {
+    const res = runCmd([
+      roomDir,
+      '--write',
+      '--section',
+      section,
+      '--narrative',
+      tmpFile,
+    ]);
+    assert.strictEqual(
+      res.status,
+      0,
+      'malformed narrative should fall through to tier-0: ' + res.stderr
+    );
+    assert.ok(
+      /parse failed/.test(res.stderr),
+      'malformed narrative missing parse-failed warning: ' + res.stderr
+    );
+    const mintoPath = path.join(roomDir, section, 'MINTO.md');
+    assert.ok(
+      fs.existsSync(mintoPath),
+      'malformed narrative fallthrough did not create MINTO.md'
+    );
+    const content = fs.readFileSync(mintoPath, 'utf-8');
+    assert.ok(
+      content.indexOf('## AAAK Compressed') !== -1,
+      'malformed narrative fallthrough missing AAAK footer'
+    );
+    fs.unlinkSync(mintoPath);
+  } finally {
+    if (fs.existsSync(tmpFile)) fs.unlinkSync(tmpFile);
+  }
+}
+
+function testTier1NoAaakFooter() {
+  // Phase 81-03 R-4: tier-1 output is born compressed and should NOT
+  // carry the AAAK footer sentinel. Only tier-0 gets the footer.
+  const fx = FIXTURES[0]; // fixture-small
+  const res = runCmd([
+    fx.roomDir,
+    '--write',
+    '--section',
+    fx.section,
+    '--narrative',
+    fx.narrative,
+  ]);
+  assert.strictEqual(
+    res.status,
+    0,
+    'tier-1 happy path failed: ' + res.stderr
+  );
+  const mintoPath = path.join(fx.roomDir, fx.section, 'MINTO.md');
+  const content = fs.readFileSync(mintoPath, 'utf-8');
+  assert.ok(
+    content.indexOf('## AAAK Compressed') === -1,
+    'tier-1 output should not contain AAAK footer sentinel'
+  );
+  assert.ok(
+    content.indexOf('<!-- aaak-end -->') === -1,
+    'tier-1 output should not contain aaak-end marker'
+  );
+  fs.unlinkSync(mintoPath);
+}
+
 function testPromptDriftGlobal() {
   const body = fs.readFileSync(MOS_REASON, 'utf-8');
   const pairs = [
@@ -308,7 +523,9 @@ function testPromptDriftGlobal() {
 
 function run() {
   let passed = 0;
-  const total = FIXTURES.length * 2 + 1; // plan + write per fixture + global drift
+  // plan + write per fixture, global drift, frozen baseline, invalid narrative,
+  // malformed narrative, tier-1 no AAAK.
+  const total = FIXTURES.length * 2 + 5;
   for (const fx of FIXTURES) {
     testPlanPhase(fx);
     passed += 1;
@@ -321,6 +538,22 @@ function run() {
   testPromptDriftGlobal();
   passed += 1;
   process.stdout.write('  PASS global prompt drift (library-inlined parity)\n');
+
+  testFrozenBaselineRegression();
+  passed += 1;
+  process.stdout.write('  PASS frozen tier-0 baseline regression (3 fixtures)\n');
+
+  testInvalidNarrativeFallthrough();
+  passed += 1;
+  process.stdout.write('  PASS invalid narrative fallthrough to tier-0\n');
+
+  testMalformedNarrativeFallthrough();
+  passed += 1;
+  process.stdout.write('  PASS malformed narrative fallthrough to tier-0\n');
+
+  testTier1NoAaakFooter();
+  passed += 1;
+  process.stdout.write('  PASS tier-1 output has no AAAK footer\n');
 
   process.stdout.write(
     '\nvault-section-minto-generator.integration.test.cjs: ' +
