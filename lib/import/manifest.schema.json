@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mindrian.ai/schemas/import-manifest-1.0.json",
+  "title": "MindrianOS Import Manifest",
+  "description": "Shape contract for MANIFEST.json written by the Phase 80 vault import pipeline. Used by lib/import/manifest.cjs for runtime assertions.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "import_id",
+    "created_at",
+    "source_vault",
+    "mode",
+    "status",
+    "stage_states",
+    "files",
+    "people",
+    "meetings",
+    "collisions",
+    "warnings",
+    "undo"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "import_id": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "source_vault": { "type": "string" },
+    "destination_room": { "type": ["string", "null"] },
+    "mode": { "type": "string", "enum": ["copy", "move", "symlink"] },
+    "status": { "type": "string", "enum": ["in_progress", "complete", "failed", "undone"] },
+    "main_topic": { "type": ["string", "null"] },
+    "main_topic_source": { "type": ["string", "null"] },
+    "stage_states": {
+      "type": "object",
+      "required": ["ingest", "classify", "route", "enrich"],
+      "properties": {
+        "ingest": {
+          "type": "object",
+          "required": ["status", "completed_at", "files_scanned"],
+          "properties": {
+            "status": { "type": "string" },
+            "completed_at": { "type": ["string", "null"] },
+            "files_scanned": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "classify": {
+          "type": "object",
+          "required": ["status", "completed_at", "human_edited", "edits_count"],
+          "properties": {
+            "status": { "type": "string" },
+            "completed_at": { "type": ["string", "null"] },
+            "human_edited": { "type": "boolean" },
+            "edits_count": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "route": {
+          "type": "object",
+          "required": ["status", "completed_at", "files_moved", "collisions"],
+          "properties": {
+            "status": { "type": "string" },
+            "completed_at": { "type": ["string", "null"] },
+            "files_moved": { "type": "integer", "minimum": 0 },
+            "collisions": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "enrich": {
+          "type": "object",
+          "required": ["status", "completed_at", "wikilinks_added", "rooms_md_created", "minto_stubs_created"],
+          "properties": {
+            "status": { "type": "string" },
+            "completed_at": { "type": ["string", "null"] },
+            "wikilinks_added": { "type": "integer", "minimum": 0 },
+            "rooms_md_created": { "type": "integer", "minimum": 0 },
+            "minto_stubs_created": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "source_path", "source_size", "source_mtime", "source_hash"],
+        "properties": {
+          "id": { "type": "string" },
+          "source_path": { "type": "string" },
+          "source_abs_path": { "type": "string" },
+          "source_size": { "type": "integer" },
+          "source_mtime": { "type": "string" },
+          "source_hash": { "type": "string" },
+          "source_frontmatter": { "type": "object" },
+          "source_wikilinks": { "type": "array", "items": { "type": "string" } },
+          "parent_folder": { "type": ["string", "null"] },
+          "classification": {
+            "type": "object",
+            "properties": {
+              "section": { "type": "string" },
+              "confidence": { "type": "number" },
+              "evidence": { "type": "string" },
+              "decision": { "type": "string", "enum": ["AUTO", "SUGGEST", "INBOX"] },
+              "stage": { "type": "string" }
+            }
+          },
+          "user_overrides": { "type": "object" },
+          "destination_section": { "type": ["string", "null"] },
+          "destination_folder": { "type": ["string", "null"] },
+          "destination_path": { "type": ["string", "null"] },
+          "destination_abs_path": { "type": ["string", "null"] },
+          "collision": { "type": "boolean" },
+          "collision_original_target": { "type": ["string", "null"] },
+          "enrichment": { "type": "object" }
+        }
+      }
+    },
+    "people": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "slug"],
+        "properties": {
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "detection_tier": { "type": "string" },
+          "detection_confidence": { "type": "number" },
+          "role_guess": { "type": "string" },
+          "role_evidence": { "type": "string" },
+          "role_user_confirmed": { "type": "boolean" },
+          "profile_path": { "type": "string" },
+          "mentions_count": { "type": "integer" },
+          "mention_files": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "meetings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" },
+          "source_file_id": { "type": "string" },
+          "detected_date": { "type": "string" },
+          "detected_attendees": { "type": "array", "items": { "type": "string" } },
+          "detection_signals": { "type": "array", "items": { "type": "string" } },
+          "routed_to": { "type": "string" },
+          "filed_via_file_meeting": { "type": "boolean" }
+        }
+      }
+    },
+    "collisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source_file_id", "reason"],
+        "properties": {
+          "source_file_id": { "type": "string" },
+          "intended_target": { "type": ["string", "null"] },
+          "actual_target": { "type": ["string", "null"] },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "file_id": { "type": "string" },
+          "field": { "type": "string" },
+          "target": { "type": "string" },
+          "context": { "type": "string" }
+        }
+      }
+    },
+    "undo": {
+      "type": "object",
+      "required": ["is_undone"],
+      "properties": {
+        "is_undone": { "type": "boolean" },
+        "undone_at": { "type": ["string", "null"] },
+        "undone_to_directory": { "type": ["string", "null"] }
+      }
+    }
+  }
+}
