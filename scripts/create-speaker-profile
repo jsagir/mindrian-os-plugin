@@ -152,8 +152,24 @@ last_updated: ${TODAY}
 
 ## Contributions
 
-[Computed by compute-team -- do not edit manually]
+*(no contributions filed yet)*
+
+<!-- Computed by compute-team. Rows are wikilinked at file-meeting time. -->
 EOF
+
+# NATIVE-04: post-process the freshly-written PROFILE.md through wikilink-file.cjs
+# so any team name mentions, section references, and meeting links arrive
+# pre-wikilinked. Self-links to this profile are suppressed via ownProfilePath
+# inside wikilink-builder. Soft-fails: a wikilink error must never break profile
+# creation -- the file is still valid Markdown without the [[...]] decorations.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WIKILINK_SCRIPT="${SCRIPT_DIR}/wikilink-file.cjs"
+PROFILE_FILE="${PROFILE_DIR}/PROFILE.md"
+if [[ -f "$WIKILINK_SCRIPT" ]]; then
+  if ! node "$WIKILINK_SCRIPT" "$ROOM_DIR" "$PROFILE_FILE" >/dev/null 2>&1; then
+    echo "[create-speaker-profile] wikilink-file pass failed (non-fatal) for $PROFILE_FILE" >&2
+  fi
+fi
 
 # Output the created path
 echo "$PROFILE_DIR"
