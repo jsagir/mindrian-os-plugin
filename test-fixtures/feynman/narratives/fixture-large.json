@@ -1,0 +1,19 @@
+{
+  "section": "solution-design",
+  "essence": "The system is a near-decomposable hierarchy on the filesystem where each section checks its neighbors for contradictions only when asked.",
+  "plain_language": "Every room section is a folder that minds its own business until something it owns might affect another folder. The scanner walks the tree, the cascade detector proposes edges, and the user decides what to accept. One filesystem. No database. No drift.",
+  "governing_thought": "The architecture makes contradiction detection tractable by splitting the venture into near-decomposable sections and doing work only at the boundaries where one section can invalidate another.",
+  "mental_model": {
+    "analogy": "It is like a neighborhood where each house keeps its own books and a postman only rings when one house's bill affects another.",
+    "mapping": "Each room section is a house with its own ledger. The scanner is the postman who knows the street. The cascade detector is the rule that says a change in house A may matter to house B. The user is the homeowner who signs for the letter or refuses it. Nothing moves until a change at one address might affect another.",
+    "limits": "Unlike a neighborhood, the houses have no walls between rooms, so the postman sometimes misreads which house a letter belongs to."
+  },
+  "sweet_spot": "The filesystem is the database. Every section is a folder with its own state. The scanner reads, the cascade detector proposes, the user approves. Tier-0 falls back to the pre-phase-81 renderer plus AAAK when no reasoner is present. Graph and Brain are optional enrichments that never gate features. CLI, Desktop, and Cowork run the same engine through different chrome. The whole design fits the one-command install rule because every layer degrades gracefully to plain markdown on disk.",
+  "key_claims": [
+    "Sections are near-decomposable subsystems so a change inside one does not force every other section to recompute.",
+    "The filesystem is the database; adding a DB would create a dual source of truth that would drift.",
+    "The cascade detector surfaces five edge types (INFORMS, CONTRADICTS, CONVERGES, INVALIDATES, ENABLES) as proposals, never auto-applied.",
+    "Tier-0 fallback activates when no Claude session is in the loop and produces a deterministic MINTO plus AAAK footer.",
+    "CLI, Desktop, and Cowork surfaces run the same engine because slash commands and MCP tools share one core."
+  ]
+}
