@@ -131,23 +131,23 @@ Plans:
   6. Works on any folder of .md files -- Obsidian-specific features (wikilinks, frontmatter, .obsidian/) are bonuses, not requirements
 **Plans**: TBD
 
-### Phase 81: Feynman-MINTO Hybrid
-**Goal**: Every MINTO.md is born compressed. /mos:reason produces narrative content (essence, mental model, governing thought, key claims, argument structure) via the Feynman engine while keeping structural parts (MECE tree, cross-refs, navigation, sources) deterministic and free. Tier-1 default uses ~4 LLM calls at ~$0.05-0.10 per run. Tier-0 fallback produces deterministic MINTO + AAAK footer when LLM unavailable or budget exceeded. Ships as v1.10.2 (semver deviation from user directive, documented in CHANGELOG).
-**Depends on**: Phase 80 (vault-section-minto-generator.cjs is the generator being rewritten) + committed AAAK library at lib/memory/aaak-compress.cjs (tier-0 fallback primitive, 21/21 tests green)
-**Requirements**: FEYNMINTO-01, FEYNMINTO-02, FEYNMINTO-03, FEYNMINTO-04, FEYNMINTO-05, FEYNMINTO-06, FEYNMINTO-07, FEYNMINTO-08, FEYNMINTO-09, FEYNMINTO-10
+### Phase 81: Feynman-MINTO Hybrid (REVISION 2)
+**Goal**: Every MINTO.md is born compressed via Feynman reasoning. /mos:reason is a slash command orchestrator: Claude (the host session) reads the prompt, runs Feynman stages 1/2/4/5 natively in its own context, and hands structured narrative JSON to a deterministic CJS helper that merges narrative with structural parts and writes the final MINTO.md. Zero external API calls, zero ANTHROPIC_API_KEY, zero per-run cost budget - the cost is whatever the user's existing Claude session already costs. Tier-0 fallback (pre-81 deterministic MINTO + AAAK footer) activates only when the generator is invoked from a bare shell or cron with no Claude in the loop. Ships as v1.10.2 (semver deviation from user directive, documented in CHANGELOG).
+**Depends on**: Phase 80 (vault-section-minto-generator.cjs is the generator being split into plan and write subcommands) + committed AAAK library at lib/memory/aaak-compress.cjs (tier-0 fallback primitive, 21/21 tests green, not modified)
+**Requirements**: FEYNMINTO-01, FEYNMINTO-02, FEYNMINTO-03, FEYNMINTO-04, FEYNMINTO-07, FEYNMINTO-08, FEYNMINTO-09, FEYNMINTO-10 (FEYNMINTO-05 and FEYNMINTO-06 retired, no meter)
 **Success Criteria** (what must be TRUE):
-  1. /mos:reason produces MINTO files under 1500 tokens when LLM is available (FEYNMINTO-01)
-  2. Structural parts of MINTO (frontmatter, MECE tree, cross-refs, sources, navigation) remain deterministic and free, generated with zero LLM calls (FEYNMINTO-02)
-  3. Tier-1 path uses Feynman stages 1 (essence), 2 (plain language), 4 (mental model), and 5 (sweet spot) via library functions in lib/memory/feynman-stages.cjs (FEYNMINTO-03, FEYNMINTO-09)
+  1. /mos:reason produces MINTO files under 1500 tokens when narrative JSON is provided (FEYNMINTO-01)
+  2. Structural parts of MINTO (frontmatter, MECE tree, cross-refs, sources, navigation) remain deterministic and free, produced by the --plan and --write subcommands of vault-section-minto-generator.cjs with zero external calls (FEYNMINTO-02)
+  3. commands/mos-reason.md is a slash command orchestrator that tells Claude to run Feynman stages 1/2/4/5 in-session and produce narrative JSON conforming to the R-3 schema (FEYNMINTO-03)
   4. Stages 3 (expose confusion) and 6 (teach it back) are intentionally skipped in automated generation because they require human review gates
-  5. Tier-0 fallback activates cleanly when LLM is unreachable, API errors, or cost budget trips, producing deterministic MINTO + AAAK footer instead (FEYNMINTO-04, FEYNMINTO-08)
-  6. Per-run cost budget enforced at $0.15 default, configurable, with per-user monthly cap of $10 default (FEYNMINTO-05, FEYNMINTO-06)
-  7. /mos:reason --regenerate-all migrates pre-81 MINTOs to post-81 format with a backup to .migration-backup/YYYY-MM-DD/ first (FEYNMINTO-07)
-  8. LLM invocation is abstracted via lib/memory/llm-call.cjs so the same code path works across CLI (Claude Code plugin context), Desktop (MCP tool invocation), and Cowork surfaces (FEYNMINTO-10)
-  9. Pre-81 deterministic MINTO generator is preserved as the tier-0 fallback path, not deleted or modified beyond fallback wiring
-  10. CHANGELOG [1.10.2] entry documents: why v1.10.1 was skipped, tier-1/tier-0 architecture, cost model, migration path, and the semver deviation
-**Plans**: 5 plans expected (81-01 foundation, 81-02 Feynman stages 1+2, 81-03 Feynman stages 4+5, 81-04 generator rewrite + tier fallback, 81-05 commands + migration + release)
-**Authority**: .planning/phases/81-feynman-minto-hybrid/81-CONTEXT.md (full architectural decisions D-1 through D-8, open questions, non-goals)
+  5. Tier-0 fallback activates when vault-section-minto-generator.cjs is invoked without a --narrative flag (no Claude session in the loop), producing deterministic MINTO plus AAAK footer (FEYNMINTO-04, FEYNMINTO-08)
+  6. lib/memory/feynman-prompts.cjs holds the four Feynman stage prompts as string constants, the single source of truth for both the slash command orchestrator and the future v3.0 MCP Sampling tool (FEYNMINTO-09)
+  7. /mos:reason --regenerate-all migrates pre-81 MINTOs to post-81 format with a backup to .migration-backup/YYYY-MM-DD/ first, and emits a report of old-size vs new-size and tier used per section (FEYNMINTO-07)
+  8. Slash command orchestrator works natively on CLI, Desktop, and Cowork because all three run slash commands in the same Claude session model; no llm-call.cjs, no API key, no surface-specific code (FEYNMINTO-10)
+  9. Pre-81 deterministic MINTO generator code path is preserved byte-equivalent as tier-0 fallback, validated by a frozen expected-tier0-baseline.md snapshot regression test
+  10. CHANGELOG [1.10.2] entry documents: why v1.10.1 was skipped, slash-command-as-orchestrator architecture, why there is no API key or cost budget (Claude IS the LLM), migration path, the semver deviation, and a forward pointer to v3.0 MCP Sampling for headless tool invocations
+**Plans**: 4 plans expected (81-01 foundation with plan/write subcommands + prompts + schema, 81-02 slash command orchestrator + fixture narratives, 81-03 generator rewrite + tier-0 fallback, 81-04 migration + release)
+**Authority**: .planning/phases/81-feynman-minto-hybrid/81-CONTEXT.md (REVISION 2 at top supersedes Revision 1; Revision 1 preserved in _superseded/ subfolder for historical trace of the architectural mistake that was caught 2026-04-14)
 
 ## Progress
 

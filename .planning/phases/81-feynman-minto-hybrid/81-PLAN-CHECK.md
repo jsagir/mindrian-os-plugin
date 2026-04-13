@@ -1,148 +1,115 @@
 ---
 phase: "81"
 reviewer: gsd-plan-checker
-created: 2026-04-13
+created: 2026-04-14
+revision: 2
 verdict: PASS_WITH_NOTES
 ---
 
-# Phase 81 Plan Check
+# Phase 81 Plan Check (Revision 2)
 
 ## Verdict: PASS_WITH_NOTES
 
-All five plans are goal-backward complete, dependency-consistent, hard-constraint compliant (zero em-dashes, zero ESM, zero TypeScript, zero forbidden test frameworks, AAAK untouched), and every FEYNMINTO requirement traces to at least one plan's `requirements` frontmatter field with runnable verification. The five release gates for v1.10.2 are each explicitly owned by a 81-05 task. Two minor notes and several observations are attached below; none of them block execution.
+All four Revision 2 plans (81-01 through 81-04) are architecturally aligned with the CONTEXT.md Revision 2 reframe. Zero Revision 1 machinery appears as active scope; all mentions of `llm-call.cjs`, `budget-ops.cjs`, `ANTHROPIC_API_KEY`, `/mos:budget`, FEYNMINTO-05, and FEYNMINTO-06 appear only in "Out of Scope" negations or as explicit RETIRED markers. Every active FEYNMINTO requirement (01, 02, 03, 04, 07, 08, 09, 10) is covered by at least one plan. Zero em-dashes detected across all four files. CJS-only, node built-in assert only, zero new runtime dependencies. Dependency chain is linear and correctly declared as `parallel_safe: false`. All five release gates are addressed in 81-04 (with gate 5, marketplace.json, correctly flagged as a cross-repo user handoff). A small number of NOTE-level observations are recorded below; none are blockers.
+
+## Revision 2 Architecture Compliance
+
+- `llm-call.cjs`: OK - appears only in 81-01 Out of Scope negation and in `_superseded/` (not read).
+- `budget-ops.cjs`: OK - same.
+- `__test_fetch_shim.cjs`: OK - not referenced in any active plan.
+- `/mos:budget` command: OK - appears only in 81-01 Out of Scope negation.
+- `ANTHROPIC_API_KEY`: OK - appears only in 81-01 Out of Scope and 81-03 Out of Scope as explicit negation.
+- `fetch('https://api.anthropic.com...')` or similar: OK - no such reference.
+- Cost budget/meter/cap machinery: OK - absent from all active plans.
+- FEYNMINTO-05 / FEYNMINTO-06 as active: OK - appear only as RETIRED markers in 81-04 task 1 and Requirements Covered.
+- Tier-0 trigger framing: OK - correctly described as "no narrative provided" / "no Claude in the loop" in 81-03 (R-4 language), not "LLM unreachable" or "budget exceeded".
+
+All architectural tripwires pass.
 
 ## Coverage Matrix
 
-| Requirement | Plan(s) with frontmatter coverage | Tasks that implement | Verified |
+| Requirement | Plan(s) | Verified | Notes |
 |---|---|---|---|
-| FEYNMINTO-01 | 81-02, 81-03, 81-04, 81-05 | 81-04 task 10 (token count assertion < 1500), per-stage output bounds in 81-02/03 | yes |
-| FEYNMINTO-02 | 81-04, 81-05 | 81-04 task 6/9 (byte-equivalent baseline preserves structural helpers) | yes |
-| FEYNMINTO-03 | 81-01, 81-02, 81-03, 81-05 | 81-01 stage signatures, 81-02 stages 1+2 bodies, 81-03 stages 4+5 bodies + runFullPipeline | yes |
-| FEYNMINTO-04 | 81-04, 81-05 | 81-04 task 6/7 tier fallback dispatch + AAAK footer, scenarios b/c/d/e | yes |
-| FEYNMINTO-05 | 81-01, 81-05 | 81-01 tasks 3/4 budget-ops + llm-call gate, 81-05 `/mos:budget per-run` subcommand | yes |
-| FEYNMINTO-06 | 81-01, 81-05 | 81-01 budget-ops monthly cap, 81-05 `/mos:budget cap` subcommand | yes |
-| FEYNMINTO-07 | 81-05 | 81-05 tasks 1-3 regenerate-all + migration fixture + tests | yes |
-| FEYNMINTO-08 | 81-04, 81-05 | 81-04 task 2 baseline capture + task 9 byte-equivalent assertion | yes |
-| FEYNMINTO-09 | 81-01, 81-02, 81-03, 81-05 | Static grep assertion in feynman-stages.test.cjs forbidding execSync/spawn | yes |
-| FEYNMINTO-10 | 81-01, 81-05 | 81-01 task 4 llm-call.cjs with fetch + MCP-stub surface detection, Decision #17 in 81-05 | yes |
+| FEYNMINTO-01 | 81-02 (integration test 15000-char bound), 81-04 (finalization) | yes | Bound is a conservative char proxy for the 1500-token target. Acceptable. |
+| FEYNMINTO-02 | 81-01, 81-03 | yes | `--plan` and `--write` subcommands, zero external calls. |
+| FEYNMINTO-03 | 81-01 (foundation), 81-02 (orchestrator) | yes | Prompts live in `lib/memory/feynman-prompts.cjs`, consumed by `commands/reason.md`. |
+| FEYNMINTO-04 | 81-03 | yes | Tier-0 fallback wired via `runTier0()` single entry point. |
+| FEYNMINTO-05 | RETIRED | - | Correctly marked RETIRED in 81-04, not re-introduced. |
+| FEYNMINTO-06 | RETIRED | - | Same. |
+| FEYNMINTO-07 | 81-04 | yes | `--regenerate-all` with backup directory and report file. |
+| FEYNMINTO-08 | 81-03 | yes | Frozen baseline snapshot + regression test in `scripts/vault-section-minto-generator.integration.test.cjs`. |
+| FEYNMINTO-09 | 81-01, 81-02 | yes | Single source of truth in library; drift check in 81-02 task 7 enforces equality between library exports and `commands/reason.md` inlined copies. |
+| FEYNMINTO-10 | 81-02 | yes | Tri-polar surface coverage addressed in Requirements Covered: "works natively on CLI, Desktop, and Cowork because all three surfaces run slash commands in the same Claude session model; no surface-specific code". |
 
-Every FEYNMINTO requirement appears in at least one plan's `requirements` field AND has a task that actually implements it AND has a runnable verification command. No requirement is silently dropped, double-covered redundantly, or only covered by a vague "implement" task.
+Exhaustive cross-check against PROJECT.md / ROADMAP.md: no requirements relevant to Phase 81 are silently dropped. The only two requirements absent from active plans are FEYNMINTO-05 and FEYNMINTO-06, which are correctly RETIRED per Revision 2.
 
 ## Issues Found
 
-### BLOCK (must fix before execution)
-
+### BLOCK
 None.
 
-### NOTE (should fix, non-blocking)
+### NOTE
 
-**1. [dependency_correctness / parallelism] 81-02 and 81-03 both modify `lib/memory/feynman-stages.cjs`, which is parallel-risky even if disjoint function bodies.**
-- Plans: 81-02, 81-03
-- Problem: Both plans are marked `parallel_safe: true` and touch the same file. 81-03's Risks section correctly identifies the merge-conflict risk and prescribes a land-order ("land 81-02 first, then 81-03 with runFullPipeline added on top"). This is a correct mitigation but it means the plans are NOT truly parallel-executable without serialization at commit time. The `parallel_safe: true` flag in frontmatter slightly overstates this. The underlying risk is documented in 81-03's Risks section and is manageable, so this is a NOTE not a BLOCK.
-- Suggestion: Either (a) change 81-03's frontmatter to `parallel_safe: true` but add a `commit_order: after-81-02` hint, or (b) accept the documented mitigation as-is. The orchestrator should understand the "commit 81-02 first, then 81-03" rule even though both can run concurrently in separate sessions.
+1. **Filename deviation from CONTEXT.md is consistent but double-documented.** CONTEXT.md R-2 says `commands/mos-reason.md`. All four plans use `commands/reason.md` and cite the actual existing filename. 81-01 and 81-02 Deviation Notes record this. 81-03 and 81-04 inherit the choice implicitly (they modify the same file). Not a blocker because the planner has correctly surfaced the deviation and the file actually exists. Recommendation: a one-line note in 81-04's Deviation Notes that Decision 17's description of the slash command should also say `commands/reason.md`, so CLAUDE.md does not drift from reality.
 
-**2. [scope_sanity] 81-01 has 9 tasks and 81-05 has 20 tasks, both exceeding the 2-3 task target.**
-- Plans: 81-01, 81-05
-- Problem: 81-01 creates 9 discrete file groups (llm-call, budget-ops, feynman-prompts, feynman-stages skeleton, fetch shim, test runner, ROOM.md scaffold, plus test files for each). 81-05 has 20 tasks because it bundles commands + migration + docs + the 5 release gates. Per the plan-checker rubric, 4 is a warning and 5+ is normally a blocker.
-- Why it is a NOTE and not a BLOCK here: the tasks in both plans are small and each one maps to an atomic commit. 81-01 is foundation-plumbing: every task is either a single-file-plus-test pair or a trivial scaffold (ROOM.md, .gitkeep). None of them is complex work. 81-05 is largely mechanical release-pipeline execution where each "task" is one gate. Splitting 81-05 into sub-plans would create dependency sequencing overhead without reducing the total work. Both plans have clear Files-to-create, Files-to-modify, and explicit acceptance criteria per task, which is the real quality measure.
-- Suggestion: Accept as-is, but flag to the orchestrator that 81-01 and 81-05 will each take a larger execution window than a typical single-plan phase. If execution context starts degrading mid-plan, split 81-05 into 81-05a (commands + migration) and 81-05b (release gates). No pre-execution split required.
+2. **Scope size at borderline for 81-01 and 81-04.** 81-01 has 10 numbered tasks and touches or creates 7 files. 81-04 has 12 tasks and touches 8 files plus a cross-repo handoff. Both are within the defensible range for "foundation" and "release" plans respectively, but the margin is thin. 81-02 (8 tasks) and 81-03 (9 tasks) are comfortable. No split required; flagging so execution phase can watch context usage.
 
-### OBSERVATION (fyi, no action required)
+3. **`MINTO_FROZEN_DATE` adoption is plan-by-plan rather than centralized.** 81-01 risk section acknowledges that `today()` in the preserved renderer may need wrapping. 81-03 risk section independently proposes the same wrapping. The planner's Deviation Notes flagged this as "MINTO_FROZEN_DATE env var OR regex-strip-date, both documented, user picks". The two plans do not explicitly hand off the chosen approach to each other. Recommendation: during execution of 81-01 task 7/8, commit to the env-var approach and record it in the Deviation Notes of both 81-01 and 81-03 so the frozen baseline in 81-03 is captured under the same convention.
 
-- **`attachAaakFooter` verification.** Phase constraint says AAAK is read-only. 81-04's Risks section includes a conditional branch for creating `lib/memory/aaak-footer.cjs` wrapper IF `attachAaakFooter` does not already exist in `aaak-compress.cjs`. Spot-check of `lib/memory/aaak-compress.cjs` confirms `attachAaakFooter` IS exported (line 393 of the current file), so the conditional path is not needed at execution time. The wrapper-fallback plan is still a good defensive measure in case the function is renamed between now and execution.
-- **81-05 task 20 (post-hoc CHANGELOG cost update) is a clever anti-drift measure.** It lets 81-02's actual measured pricing flow back into the release CHANGELOG before the tag is cut. This is good discipline. Keep it.
-- **81-04's tier-0 baseline capture happens at task 2, before any generator modifications land.** This is the correct order and 81-04's Risks section explicitly calls it out. Good.
-- **`scripts/release.sh` exists** (confirmed by spot-check, 6423 bytes, executable). 81-05 task 18 tells the executor to prefer it over manual gates. Good.
-- **The `--tier-0` flag is correctly added to `scripts/vault-section-minto-generator.cjs` in 81-04 task 6, not to `bin/mindrian-tools.cjs`.** This keeps the CLI flag close to the script that consumes it. 81-05 does not re-add it anywhere, avoiding duplication.
-- **The Feynman engine skill at `~/.claude/skills/feynman-engine/` is never referenced as a modification target in any of the five plans.** Every plan that mentions the skill (81-01 prompts, 81-02 model notes, 81-04/05 verification checks) does so as a read-only reference. Constraint honored.
-- **Stages 3 and 6 skip invariant is enforced with multiple overlapping guards**: comment markers in `feynman-stages.cjs`, `STAGES_3_AND_6_SKIPPED_NOTE` constant, static grep assertion in test, negative assertion on `_pipeline_meta.stages` in 81-03 full-pipeline test. Defense-in-depth is appropriate given this rule is easy to violate accidentally.
-- **Recorded-fixture pattern is implemented consistently** across 81-01 (shim + test runner), 81-02 (stage1/2 fixtures), 81-03 (stage4/5 + full-pipeline fixtures), 81-04 (sample-section fixture + pre-81 baseline), 81-05 (migration-room fixture). The pattern aligns with 81-RESEARCH Section 3.
-- **Tri-polar tradeoff is documented honestly** in 81-RESEARCH Section 2 (direct fetch requires `ANTHROPIC_API_KEY` on CLI/Desktop/Cowork; tier-0 fallback preserves Decision #1 zero-config promise). Plans reference this tradeoff rather than pretending it does not exist. The future v3.0 MCP sampling migration path is noted as downstream.
-- **Decision #17 addition goes to BOTH `CLAUDE.md` and `.claude/includes/decisions.md`.** Without this, the include drift would be invisible to readers of CLAUDE.md alone. 81-05 tasks 9 and 10 handle both files.
+4. **Fixture section folder structure vs Decision 16 compliance is asserted but not independently verified in this review.** 81-01 task 5 and 81-02 tasks 1-2 claim each fixture artifact lives in a named nested folder under `section/artifact-name/artifact-name.md`. This is correct per Decision 16. Flagging only because the runtime check (`node -e "require('./lib/vault/room-scanner.cjs').scanRoom(...)"`) is the acceptance test, and if that helper does not exist at the referenced path, the tasks will fail at execution time. Recommendation: as the first sub-step of 81-01 task 5, run `ls lib/vault/room-scanner.cjs` to confirm the helper exists before authoring the fixture.
 
-## Parallelism Verification
+5. **Integration test drift check in 81-02 task 7 is described but not fully specified.** The test is supposed to "extract the inlined prompt strings via regex-delimited blocks or named HTML comments" from `commands/reason.md` and assert equality with library exports. The plan leaves the delimiter choice to implementation. This is fine for a plan, but the execution agent will need to decide on HTML comment sentinels (e.g., `<!-- STAGE_1_ESSENCE start -->`) before writing `commands/reason.md` in task 6, so tasks 6 and 7 cannot be completed in isolation. Recommendation: execute task 6 and task 7 as a single commit pair.
 
-**Claim:** 81-02 and 81-03 are `parallel_safe: true` relative to each other.
+### OBSERVATION
 
-**Evidence:**
-- Both plans modify `lib/memory/feynman-stages.cjs`.
-- 81-02 fills in stubs for `feynmanStage1_essence` and `feynmanStage2_plainLanguage`.
-- 81-03 fills in stubs for `feynmanStage4_mentalModel`, `feynmanStage5_sweetSpot`, AND adds a new function `runFullPipeline`.
-- Each of stage1, stage2, stage4, stage5 is a discrete function body created (as a stub) in 81-01.
-- The `runFullPipeline` addition is append-only to the module and references stages 1-5 only at call time, not at load time.
+1. 81-02 task 6's temp file path uses `/tmp/mos-reason-<section>-<timestamp>.json` with `<roomDir>/.mos-reason-tmp/` as fallback. Both are documented in the slash command body per the Deviation Notes. Good.
 
-**Verdict:** The claim is CORRECT in principle - git's line-level merge handles disjoint function body edits cleanly. HOWEVER, true parallel execution still has two pitfalls:
-1. If 81-03 commits `runFullPipeline` before 81-02 lands stages 1 and 2, the full-pipeline integration test in 81-03 will fail because stages 1/2 still throw NotImplementedError. This is a detectable failure, not a silent wrong, but it wastes an execution cycle.
-2. Header comment updates in the same file (both plans update the comment block at the top) can conflict on a single line if both plans rewrite the full comment.
+2. 81-04 Risk 3 correctly identifies the hazard that `vault-regenerate-all.cjs` runs tier-0 unconditionally and notes the backup directory plus subsequent tier-1 loop as the belt-and-suspenders mitigation. The belt-and-suspenders reasoning is sound.
 
-Both pitfalls are mitigated by 81-03's Risks section prescribing "land 81-02 first, then 81-03". The orchestrator should treat this as "parallel-capable, sequential-commit-preferred" rather than "true parallel". Refuting the claim outright would be wrong - the parallel-safe flag is a structural honesty about the fact that no function body is touched by both plans.
+3. 81-04 correctly refuses beta-gating. Feature work ships to stable; the release-process include's beta rule applies to release infrastructure (release.sh, hooks, migration scripts), not to feature phases. The plan documents this explicitly.
 
-## Release Gate Verification (81-05)
+4. The `FEYNMINTO_FROZEN_DATE` env-var used in every verification block is the right determinism primitive. Consistent across all four plans.
 
-| Gate | Owner task | Artifact | Status |
+5. Every plan's Verification block includes a `grep -rn $'\u2014' ... && exit 1 || exit 0` em-dash guard. The guard excludes the plan files themselves, which is correct: the plan files contain hyphens only (verified: 0 em-dashes in 81-01/02/03/04).
+
+## Dependency Chain Verification
+
+| Plan | depends_on | parallel_safe | Correct? |
 |---|---|---|---|
-| 1. CHANGELOG.md [1.10.2] entry with 5 mandatory points (why 1.10.1 skipped, tier architecture, cost model, migration, semver deviation) | Task 11 | Full draft inline in 81-05 under "CHANGELOG Entry" | OK - all five points explicitly present in the draft |
-| 2. `.claude-plugin/plugin.json` version -> 1.10.2 | Task 13 | 1-line bump | OK |
-| 3. `package.json` version -> 1.10.2 | Task 14 | 1-line bump | OK |
-| 4. Git tag `v1.10.2` created and pushed | Tasks 16 + 19 | commit + tag + push | OK |
-| 5. `~/mindrian-marketplace/.claude-plugin/marketplace.json` updated with `source.ref: v1.10.2` | Task 17 | Flagged as USER INSTRUCTION (cross-repo write) | OK - correctly handled as user-in-the-loop, not pretended-to-be-automated |
+| 81-01 | [] | false | yes |
+| 81-02 | ["81-01"] | false | yes |
+| 81-03 | ["81-01", "81-02"] | false | yes |
+| 81-04 | ["81-03"] | false | yes |
 
-Additionally, task 18 prefers `scripts/release.sh` if it exists (it does) for automated gate execution with manual fallback. Task 20 reserves a post-hoc update slot for CHANGELOG cost figures observed during 81-02 fixture recording. The Version Consistency block in 81-05 Verification explicitly checks plugin.json, package.json, CHANGELOG, and git tag are all in sync.
+Linear 81-01 -> 81-02 -> 81-03 -> 81-04 chain confirmed. No `parallel_safe: true` declarations present. The Revision 1 "stages 1+2 vs stages 4+5" split is correctly dissolved: there is no parallel Feynman-stage plan pair.
 
-**Beta-gating check:** 81-05 explicitly ships as stable `1.10.2`, not `1.10.2-beta.N`. Phase 81 is a feature release, not release infrastructure. The CHANGELOG version header reads `[1.10.2]`. The Risks section pre-flags any executor who might misread this.
+## Release Gate Verification (81-04)
 
-**All five gates accounted for. Zero gate drift.**
+| Gate | Addressed in 81-04 | Task |
+|---|---|---|
+| 1. CHANGELOG.md [1.10.2] entry with all 7 required points | yes | task 8 |
+| 2. `.claude-plugin/plugin.json` version = 1.10.2 | yes | task 9 |
+| 3. `package.json` version = 1.10.2 | yes | task 10 |
+| 4. git tag v1.10.2 | yes | task 12 (user-supervised close) |
+| 5. marketplace.json `source.ref: v1.10.2` | flagged as cross-repo user handoff | Scope section + task 12 footnote |
+
+Gate 5 is correctly flagged as a cross-repo handoff because `~/mindrian-marketplace/` is a separate repository. This matches the release-process.md instruction that the user must run that update manually (or the future `scripts/release.sh` will, once it exists). No beta-gating; feature work ships to stable.
 
 ## Deviation Audit
 
-The planner self-flagged deviations in each plan's "Deviation Notes" section. Walking through every one:
+| # | Deviation | Documented In | Accepted? |
+|---|---|---|---|
+| 1 | `commands/reason.md` not `commands/mos-reason.md` | 81-01, 81-02 Deviation Notes | Accepted. Actual file on disk wins. |
+| 2 | Inline prompts into slash command + drift-check test | 81-02 Deviation Notes + task 7 | Accepted. Drift check restores SSoT guarantee. |
+| 3 | Temp file `/tmp/` primary with `<roomDir>/.mos-reason-tmp/` fallback | 81-02 Deviation Notes | Accepted. Addresses Cowork container edge case. |
+| 4 | Single `runTier0()` entry point | 81-03 Deviation Notes + task 9 | Accepted. Maintainability justification holds. |
+| 5 | Tier-0 pre-pass before tier-1 regen loop in `--regenerate-all` | 81-04 Deviation Notes + Risk 3 | Accepted. Belt-and-suspenders mitigation is sound; backup dir alone is sufficient, tier-0 pre-pass is strict improvement. |
+| 6 | `MINTO_FROZEN_DATE` env var OR regex-strip-date | 81-01 Risk + 81-03 Risk | Accepted but see NOTE 3: commit to one approach during execution of 81-01 and hand off to 81-03. |
 
-**81-01 deviations:**
-
-1. **`lib/memory/budget-ops.cjs` location** (user instruction overrides 81-RESEARCH proposal of `lib/core/budget-ops.cjs`). ACCEPTED - honors the user instruction, trivial to rename if reversed.
-2. **Parsers implemented in 81-01, not 81-02.** ACCEPTED - scope shift forward, reduces 81-02/03 scope, net positive.
-3. **`run-memory-tests.cjs` added in 81-01.** ACCEPTED - 81-RESEARCH Wave 0 scheduling.
-4. **No MCP branch implementation (stub only).** ACCEPTED - matches 81-RESEARCH and CONTEXT's D-7 fallback-ready design.
-5. **No changes to Feynman engine skill.** ACCEPTED - matches 81-RESEARCH Section 5 and hard constraint.
-
-**81-02 deviations:**
-
-6. **Sonnet vs Haiku A/B deferred to plan execution time.** ACCEPTED - within "Claude's Discretion" per 81-RESEARCH, stays Sonnet by default, follow-up task documents observation.
-7. **`stage1-context.json` sibling fixture added.** ACCEPTED - additive to 81-RESEARCH, makes stage 2 fixtures self-contained, diffable.
-8. **`scripts/record-feynman-fixtures.cjs` helper added.** ACCEPTED - quality-of-life improvement, can refuse to commit broken fixtures.
-
-**81-03 deviations:**
-
-9. **`runFullPipeline` orchestrator added in 81-03, not 81-04.** ACCEPTED - reduces 81-04 wiring complexity, puts budget defense-in-depth in one place, additive to 81-RESEARCH not contradictory.
-10. **`full-pipeline/expected-shape.json` is a schema-lite file, not a recorded LLM response.** ACCEPTED - avoids redundancy with per-stage fixtures, clean design choice.
-11. **Parallelism strategy documented in Risks.** ACCEPTED (see Parallelism Verification above).
-
-**81-04 deviations:**
-
-12. **Pre-81 entry point becomes `renderSectionMintoTier0` as an ALIAS, not a rename.** ACCEPTED - reduces blast radius, additive.
-13. **Conditional `lib/memory/aaak-footer.cjs` wrapper if `attachAaakFooter` missing.** ACCEPTED as pre-flagged fallback. Spot-check confirms `attachAaakFooter` exists today, so the wrapper path will not trigger, but the defensive planning is good.
-14. **`--tier-0` CLI flag lives in `vault-section-minto-generator.cjs`, not `bin/mindrian-tools.cjs`.** ACCEPTED - matches where `process.argv` is already consumed in that script.
-15. **`expected-tier0-baseline.md` is a frozen committed snapshot, captured at task 2 before generator changes.** ACCEPTED - makes regressions visible via `git diff` instead of being laundered through test runtime.
-
-**81-05 deviations:**
-
-16. **`.planning/REQUIREMENTS.md` may not exist yet; task 8 creates it if missing.** ACCEPTED - conditional path based on repo state is the right call.
-17. **Marketplace ref update is USER INSTRUCTION, not automated in-plan.** ACCEPTED - cross-repo write correctly flagged, not pretended to be automated.
-18. **Release commit packaging: CHANGELOG + plugin.json + package.json + 81-05 code in one "release:" commit.** ACCEPTED - per release-process.md convention.
-19. **No beta suffix (ships as `1.10.2` stable).** ACCEPTED - Phase 81 is feature release per 81-RESEARCH Section 7 and user directive, beta gating does not apply.
-20. **Decision #17 added to BOTH `CLAUDE.md` and `.claude/includes/decisions.md`.** ACCEPTED - prevents invisible drift because CLAUDE.md reads the include.
-
-**All 20 documented deviations are reasonable and justified. Zero undocumented deviations detected in spot-checks of plan content against CONTEXT and RESEARCH.**
+All six planner-flagged deviations are documented with justification. None are contested.
 
 ## Recommendation
 
-Proceed to execution via `/gsd:execute-phase 81` (recommended: new session to keep planning context clean).
+Proceed to execution via `/gsd:execute-phase 81` (fresh session recommended).
 
-Two NOTE-level observations are documented above. Neither blocks execution. The orchestrator should:
-1. Execute 81-01 first (foundation, serial, blocks everything).
-2. Execute 81-02 before committing 81-03 to avoid the disjoint-function-body merge pitfall (both sessions can run in parallel, but commit 81-02 before 81-03).
-3. Execute 81-04 after both 81-02 and 81-03 have landed.
-4. Execute 81-05 last, using `scripts/release.sh 1.10.2` for gates 13-17 where possible.
-5. Expect 81-01 and 81-05 to each consume more context than a typical single-plan execution window - consider a fresh session per plan if context pressure mounts.
-
-Plans verified. Phase 81 is cleared for execution.
+The five NOTE items above are optional refinements and do not block execution. They can be addressed inline during implementation or rolled into the post-execution verifier pass. The plans are architecturally sound against the Revision 2 reframe, the coverage matrix is complete for all active requirements, the dependency chain is strictly linear, and the release gates are all addressed.
