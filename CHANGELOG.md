@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.10.3] - 2026-04-14
+
+onboarding: true
+onboard_steps:
+  - "Restart Claude Code to see the new statusline with LARRY marker, section breadcrumb, exploration label, and active phase indicator"
+  - "The statusline now shows project > current-section so you can see which room area you are actively working in at a glance"
+  - "Active GSD phase detection uses newest-mtime heuristic so scaffolded-but-unexecuted future phases do not leapfrog the phase you are actually in"
+
+### Added
+
+- **LARRY brand marker in statusline.** Gold marker prefixed to the statusline whenever a room is active, so every session visibly reinforces that Larry is the teaching partner, not a generic agent.
+- **Section breadcrumb in statusline.** The project name is now followed by a right-pointing arrow and the most recently modified section, giving at-a-glance awareness of which area of the room the user is working in. Uses the currentSection tracking that was already computed but not displayed.
+- **Exploration stage label in statusline.** Maps the current section to a short uppercase label (PROBLEM / SOLUTION / BUSINESSCASE / MARKET / COMPETITION / FINANCE / LEGAL / TEAM / ASSETS / EXPORTS / MEETINGS / OPPORTUNITIES / FUNDING) via a lookup table, with a safe uppercased-hyphen-stripped fallback for unknown sections. Makes the current exploration focus visible without opening any file.
+- **Active GSD phase indicator in statusline.** New detectActiveWorkflow function reads .planning/STATE.md for an explicit current-phase marker, and falls back to the newest-mtime phase directory under .planning/phases/. Uses newest mtime rather than highest phase number so scaffolded-but-unexecuted future phase directories do not leapfrog the phase the user is actually working on.
+
+### Changed
+
+- **scripts/context-monitor graceful degradation.** Every new statusline element is conditional. If currentSection cannot be resolved, the breadcrumb and exploration label are simply omitted. If .planning does not exist, the phase indicator is omitted. Existing statusline parts (project name, venture stage, section count, gap count, model, context bar) render unchanged when any new element is missing.
+
+### Fixed
+
+- **Pre-existing em-dash in context-monitor header comment.** Replaced with a hyphen to comply with the repo-wide no-em-dashes rule. Not introduced by v1.10.3 but owned by the release since the file was touched.
+
+### Notes
+
+v1.10.3 is a small UX-polish patch release that lands on top of v1.10.2 (Feynman-MINTO Hybrid). It is separate from the smart-notebook-as-cofounder work captured in .planning/research/smart-notebook-cofounder.md, which was originally targeted at v1.10.3 but has been shifted to v1.10.4 so this statusline patch can ship today without waiting on the larger architectural research to complete. The smart-notebook milestone (Mullins 7-domain scaffold extension, three-level section/collection/artifact hierarchy, co-founder synthesis voice) remains the next feature milestone after v1.10.3.
+
 ## [1.10.2] - 2026-04-14
 
 onboarding: true
