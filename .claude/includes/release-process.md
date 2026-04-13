@@ -44,6 +44,52 @@ The marketplace `source` URL **must include a `ref` field** pointing at a git ta
 
 Without `ref`, Claude Code clones whatever `origin/main` HEAD is at install time. Users then can never pin themselves to a stable version. Every install and every auto-update becomes a roll-the-dice. **Pinning the ref is non-negotiable.**
 
+## How Users Actually Receive Updates (read this before you panic about staleness)
+
+**A stale user is not a bug. It is a feature.**
+
+Third-party plugin marketplaces in Claude Code intentionally do NOT auto-push updates. This is a safety decision by Anthropic: users should never get breaking changes pushed to them without explicit consent. The 2026-04-13 Lawrence incident partially looked like a "pipeline broken" issue, but the staleness half of it was correct-by-design. Lawrence's install never got updated because he never asked for an update.
+
+### Two independent update channels
+
+Claude Code has two separate auto-update mechanisms. Both are off by default for third-party plugins:
+
+| Channel | How users enable/disable | Default for 3rd-party |
+|---|---|---|
+| Marketplace auto-update | `/plugin` -> Marketplaces -> select marketplace -> toggle auto-update | OFF |
+| Claude Code release channel | `/config` -> Auto-update channel: `stable` or `latest` | `stable` (1 week behind) |
+
+### The two-command manual upgrade path (what you tell users to run)
+
+```bash
+/plugin marketplace update                      # refreshes the catalog
+claude plugin update mos@mindrian-marketplace   # installs the latest version
+```
+
+The first command is the one most users forget exists. If a user reports "I don't see the new version", 90% of the time the answer is "run `/plugin marketplace update` first, then the catalog will show v1.10.0 available".
+
+### When writing release notes or user-facing docs
+
+Always include the two-command upgrade path, not just the install path. Never apologize for users being stale -- it is correct-by-design behavior. If they want to be on the edge, they can enable marketplace auto-update themselves.
+
+### Pre-release versions for beta testing
+
+For release infrastructure changes (the release pipeline itself, hooks, migration scripts -- anything that is too dangerous to ship cold), use pre-release suffixes:
+
+```json
+{ "version": "1.11.0-beta.1" }
+```
+
+Users opt in with:
+
+```bash
+claude plugin update mos@mindrian-marketplace --version 1.11.0-beta.1
+```
+
+Only users who explicitly ask for a beta get it. Everyone else stays on stable. When the beta is validated, promote by re-releasing as `1.11.0` without the suffix.
+
+**Release infrastructure ALWAYS ships as a beta first.** `/mos:doctor`, `release.sh`, pre-push hooks, session-start guards, migration scripts -- all of these go out as `X.Y.Z-beta.N` and get promoted after at least one external user (currently Lawrence) confirms they work. Bugs in release infrastructure are the hardest to recover from -- a broken release script can prevent you from shipping its own fix. Beta gating is the only safe path.
+
 ## The Standard Release Process
 
 Every time you push changes to the plugin repo, follow this exact process:

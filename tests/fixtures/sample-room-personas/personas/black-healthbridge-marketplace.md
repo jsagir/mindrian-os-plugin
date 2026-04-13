@@ -7,7 +7,7 @@ generated_from:
   - competitive-analysis
   - market-analysis
   - problem-definition
-generated_date: 2026-03-25
+generated_date: 2026-04-11
 room_hash: 0c4c0ea
 disclaimer: "This is a perspective lens generated from your room data. It is NOT professional advice. Validate all insights with qualified professionals."
 ---
@@ -41,4 +41,4 @@ Rural communities face a critical healthcare access deficit. Over 60 million Ame
 - **vs White (Facts & Data):** We often align, but I emphasize financial risks while they focus on metrics.
 
 ---
-*This is a perspective lens generated from your room data. It is NOT professional advice. Validate all insights with qualified professionals. Generated from room state on 2026-03-25.*
+*This is a perspective lens generated from your room data. It is NOT professional advice. Validate all insights with qualified professionals. Generated from room state on 2026-04-11.*
