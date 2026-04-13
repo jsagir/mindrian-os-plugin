@@ -1,8 +1,8 @@
 ---
-name: reason
+name: mos-reason
 command: mos:reason
-description: Analyze room sections using Minto/MECE structured reasoning
-usage: /mos:reason <subcommand> [section] [options]
+description: Generate Feynman-MINTO reasoning for room sections (tier-1, in-session, zero external cost)
+usage: /mos:reason [--section <name>]
 allowed-tools:
   - Read
   - Write
@@ -10,101 +10,241 @@ allowed-tools:
   - Glob
 ---
 
-# Reasoning Engine
+# /mos:reason -- Feynman-MINTO Orchestrator (Phase 81 Revision 2)
 
-Analyze room sections using Minto/MECE structured reasoning. Larry captures WHY each section matters, tracks confidence levels, and identifies cross-section dependencies.
+You are the orchestrator of the Feynman-MINTO hybrid reasoning engine. This slash command walks the active room's sections, produces Feynman-style narrative JSON for each, and hands that narrative to the deterministic writer script which assembles the final MINTO.md.
 
-## Usage
+**You are the LLM.** No API key is set, no external model is called, no per-run budget is tracked. The cost to the user is whatever their existing Claude session already costs them for any other slash command. Same meter, no new meter.
 
-```
-/mos:reason generate [section]    Generate REASONING.md for a section (or all sections)
-/mos:reason get <section>         View existing reasoning for a section
-/mos:reason verify <section>      Check verification criteria status
-/mos:reason run <section>         Execute full methodology run (6 steps)
-/mos:reason list                  Show reasoning status for all sections
-/mos:reason frontmatter <section> [field]  Read/write reasoning frontmatter
-```
+**Stages 3 (Expose Confusion) and 6 (Teach It Back) are intentionally skipped** in this automated pipeline per phase 81 Decision D-2. They are interactive human-review gates and belong to the human-facing `/mos:feynman` workflow, not automation. Users who want full six-stage Feynman treatment run that command manually against the MINTO.md output.
 
-### Subcommands
+**Tri-polar surface coverage (FEYNMINTO-10):** this slash command works identically on Claude Code CLI, Claude Desktop, and Cowork because all three surfaces run slash commands inside the same Claude session model. There is no surface-specific code path. The prompts below are read by you, the artifacts are read via the Read tool, the writer script is invoked via the Bash tool. All three surfaces support all three.
 
-**generate** -- Create REASONING.md from template. Larry fills content during conversation.
-- Without section argument: generates templates for ALL discovered sections
-- With section: generates for that specific section only
-- Overwrites existing REASONING.md (regenerate from fresh template)
+## Execution Protocol (follow these steps exactly, in order)
 
-**get** -- Read existing reasoning content and parsed frontmatter for a section.
+### Step 1: Identify the active room and target sections
 
-**verify** -- Returns verification criteria (`must_be_true` list), dependency info (`requires`, `provides`, `affects`), and current verification status.
+The active room is the current working directory unless the user passed a different room path. Use `pwd` via Bash if unsure.
 
-**run** -- Execute a full 6-step methodology run on a section:
-1. Diagnose -- identify section state and gaps
-2. Select framework -- choose appropriate methodology
-3. Apply -- run the selected framework
-4. File -- save reasoning artifacts
-5. Cross-reference -- find dependencies with other sections
-6. Update graph -- create REASONING_INFORMS edges in LazyGraph
+If the user passed `--section <name>`, the target set is exactly that one section. Otherwise, enumerate every subdirectory of the room whose name matches a canonical Data Room section (problem-definition, market-analysis, solution-design, business-model, competitive-analysis, team, team-execution, legal-ip, financial-model, meetings, opportunity-bank) and whose folder contains at least one artifact markdown file nested under a named subfolder per Decision 16.
 
-**list** -- Show all sections with reasoning status, confidence summary, verification status, and Brain enrichment flag.
+Skip empty sections silently. A section with no artifacts has nothing to reason about.
 
-**frontmatter** -- Read or write individual frontmatter fields in a section's REASONING.md. Without a field argument, returns the full frontmatter object.
+### Step 2: Invoke the plan phase for each target section
 
-## Examples
+For each target section, run via the Bash tool:
 
 ```
-# Generate reasoning templates for all sections
-/mos:reason generate
-
-# Generate for a specific section
-/mos:reason generate problem-definition
-
-# View reasoning for market analysis
-/mos:reason get market-analysis
-
-# Check what must be true for a section
-/mos:reason verify solution-design
-
-# Run full methodology analysis on a section
-/mos:reason run competitive-analysis
-
-# See reasoning status across the room
-/mos:reason list
-
-# Read a specific frontmatter field
-/mos:reason frontmatter problem-definition confidence
-
-# Check verification status
-/mos:reason frontmatter team-execution verification
+node scripts/vault-section-minto-generator.cjs <roomDir> --plan --section <section-name>
 ```
 
-## How It Works
+Capture stdout. It is a JSON object conforming to the shape:
 
-The reasoning engine provides STRUCTURE. Larry provides CONTENT.
+```
+{
+  "section_path": "...",
+  "section_name": "...",
+  "artifacts": [ { "path": "...", "title": "...", "excerpt": "..." }, ... ],
+  "target_minto_path": "...",
+  "structural": { "frontmatter": {...}, "mece_tree": "...", "cross_refs": [...], "sources": [...], "navigation": {...}, "gaps": [...], "governing_thought_placeholder": "..." }
+}
+```
 
-1. `generate` creates a REASONING.md template with the locked Minto/MECE frontmatter schema
-2. Larry fills it with specific analysis during conversation -- claims, confidence ratings, verification criteria
-3. The filled reasoning persists in `.reasoning/{section}/REASONING.md`
-4. Future sessions read `.reasoning/` artifacts to understand section state without re-analyzing
-5. Cross-section dependencies (`requires`, `provides`, `affects`) feed LazyGraph edges
+Parse the JSON. If the artifacts array is empty, skip the section. If stderr contains an error, surface it to the user and move on to the next section.
 
-## Larry Integration
+### Step 3: Read the artifacts in full
 
-Larry reads existing `.reasoning/` artifacts at session start to understand section state without re-analyzing. The reasoning frontmatter (confidence levels, verification status, dependency graph) gives Larry immediate context about what is known, what is uncertain, and what connects where.
+Each entry in `artifacts` has a `path` relative to the section directory. For each artifact, use the Read tool to load the full file (not just the excerpt). The excerpts in the payload are first-line previews; Feynman stages 1, 2, 4, 5 need the full body to do honest work.
 
-When Larry generates reasoning content, it follows the Minto Pyramid structure:
-- **Situation** -- current state of affairs
-- **Complication** -- what changed or challenges the situation
-- **Question** -- the key question this section answers
-- **Answer** -- the section's core argument
+### Step 4: Apply Feynman stages 1, 2, 4, 5 in your own reasoning
 
-Claims are rated using MECE confidence levels (high/medium/low) with specific evidence citations.
+You apply the four prompts below in sequence to the section artifacts. Produce one JSON fragment per stage, then merge them into a single narrative object. Do not call any external tool for this step. You are the reasoner.
 
-## Tri-Surface Delivery
+Substitute `{section_name}` with the actual section slug and `{artifacts}` with a rendered list of `- Title: excerpt` pairs (or the full artifact bodies if you prefer; the prompts work on either).
 
-| Surface | How It Works |
-|---------|-------------|
-| **CLI** | `/mos:reason` commands with blockquote thinking traces |
-| **Desktop** | MCP tools (`reasoning` tool group) + resources (`reasoning://state`, `reasoning://section/{name}`) + `reason-section` prompt |
-| **Cowork** | Shared `.reasoning/` directory -- all team members see the same reasoning state |
+<!-- STAGE_1_ESSENCE start -->
+You are running Feynman Stage 1 (Reduce to Essence) on a Data Room section.
+
+Section: {section_name}
+
+Artifacts in this section:
+{artifacts}
+
+Task: read the artifacts above and strip the section to its irreducible
+fundamental truth. Remove jargon, remove implementation detail, remove
+anything that a smart reader would already know. What remains is the one
+essential claim this section makes about the venture.
+
+Constraints:
+- One sentence only.
+- Maximum 200 characters.
+- Plain language, concrete nouns, active verbs.
+- No hyphens used as dashes. No em-dashes. No en-dashes.
+- No hedging phrases like "it seems" or "arguably".
+- If the section contains no usable signal, return a one-sentence honest
+  placeholder describing the gap rather than fabricating content.
+
+Output contract: return a single JSON object on one line, no prose, no
+markdown fences. Shape:
+{"essence": "<one sentence max 200 chars>"}
+<!-- STAGE_1_ESSENCE end -->
+
+<!-- STAGE_2_PLAIN_LANGUAGE start -->
+You are running Feynman Stage 2 (Translate to Plain Language) on a Data
+Room section.
+
+Section: {section_name}
+
+Artifacts in this section:
+{artifacts}
+
+Task: rewrite what this section is saying as if you were explaining it to
+a smart generalist investor who sees a thousand pitches a year. Short
+sentences. Everyday words. Concrete descriptions over abstract terms. No
+academic tone. The reader should feel the point is obvious on first read.
+
+Constraints:
+- Exactly two sentences.
+- Maximum 400 characters total including spaces.
+- Zero hyphens acting as dashes. Zero em-dashes. Zero en-dashes.
+- No filler phrases like "in essence" or "at a high level".
+- Replace any word you would not say out loud in a conversation.
+- If you need jargon, you do not yet understand it.
+
+Output contract: return a single JSON object on one line, no prose, no
+markdown fences. Shape:
+{"plain_language": "<two sentences max 400 chars total>"}
+<!-- STAGE_2_PLAIN_LANGUAGE end -->
+
+<!-- STAGE_4_MENTAL_MODEL start -->
+You are running Feynman Stage 4 (Build Mental Model) on a Data Room
+section.
+
+Section: {section_name}
+
+Artifacts in this section:
+{artifacts}
+
+Task: build one analogy that makes this section instantly graspable.
+Name a familiar source domain. Map two to four specific pieces of the
+source domain onto the target concept. Then state where the analogy
+breaks so the reader does not over-extend it.
+
+Constraints:
+- analogy: one sentence naming the analogy. Maximum 150 characters.
+- mapping: two to four sentences describing how the source maps to the
+  target. Maximum 500 characters total.
+- limits: one sentence stating where the analogy stops being accurate.
+  Maximum 150 characters.
+- Zero em-dashes. Zero en-dashes. Hyphens only when joining compound words.
+- The analogy must be something a non-technical reader already knows.
+- If no honest analogy fits, return a one-sentence analogy of the gap
+  itself rather than forcing a bad fit.
+
+Output contract: return a single JSON object on one line, no prose, no
+markdown fences. Shape:
+{"mental_model": {"analogy": "<max 150>", "mapping": "<max 500>", "limits": "<max 150>"}}
+<!-- STAGE_4_MENTAL_MODEL end -->
+
+<!-- STAGE_5_SWEET_SPOT start -->
+You are running Feynman Stage 5 (Simplify Until It Breaks) on a Data Room
+section. You also produce the Minto-style governing thought and key claims
+for the MINTO.md header in the same pass.
+
+Section: {section_name}
+
+Artifacts in this section:
+{artifacts}
+
+Task: find the simplest version of this section that is still true.
+Keep stripping detail until the next strip would make it wrong. That is
+the sweet spot. Then state the governing thought (the single top-of-pyramid
+claim this section makes) and the three to five key claims that support it.
+
+Constraints:
+- governing_thought: one sentence, maximum 250 characters, Minto-style
+  top-of-pyramid claim for this section.
+- sweet_spot: two to four sentences, maximum 600 characters total, the
+  understanding you want the reader to carry away.
+- key_claims: array of 3 to 5 strings. Each claim maximum 200 characters.
+  Each claim in plain language, each claim supporting the governing
+  thought, each claim independently checkable against the artifacts.
+- Zero em-dashes. Zero en-dashes. Hyphens only for compound words.
+- No repetition across claims. No filler claims added to reach the minimum.
+  If only three honest claims exist, return three.
+
+Output contract: return a single JSON object on one line, no prose, no
+markdown fences. Shape:
+{"governing_thought": "<max 250>", "sweet_spot": "<max 600>", "key_claims": ["<max 200>", "<max 200>", "<max 200>"]}
+<!-- STAGE_5_SWEET_SPOT end -->
+
+### Step 5: Assemble the narrative JSON object
+
+Merge the four stage outputs into one object conforming to the R-3 schema from `.planning/phases/81-feynman-minto-hybrid/81-CONTEXT.md`:
+
+```
+{
+  "section": "<section-name>",
+  "essence": "<from stage 1>",
+  "plain_language": "<from stage 2>",
+  "governing_thought": "<from stage 5>",
+  "mental_model": { "analogy": "...", "mapping": "...", "limits": "..." },
+  "sweet_spot": "<from stage 5>",
+  "key_claims": [ "...", "...", "..." ]
+}
+```
+
+No em-dashes (U+2014) or en-dashes (U+2013) in any string. Hyphens only for compound words. The deterministic validator in `lib/memory/narrative-schema.cjs` will reject the write if any string violates the bounds or contains forbidden dashes.
+
+### Step 6: Write the narrative JSON to a temp file
+
+Primary path:
+
+```
+/tmp/mos-reason-<section-name>-<timestamp>.json
+```
+
+If `/tmp` is not writable (containerized Cowork environments sometimes are not), fall back to:
+
+```
+<roomDir>/.mos-reason-tmp/<section-name>-<timestamp>.json
+```
+
+Create the fallback directory first via `mkdir -p` if needed. `<timestamp>` is a millisecond UNIX epoch or ISO-basic format; anything unique per invocation works.
+
+Use the Write tool to emit the JSON file. Validate it is parseable by running `node -e "JSON.parse(require('fs').readFileSync('<path>','utf-8'))"` via Bash before proceeding. If parse fails, fix the JSON and try again.
+
+### Step 7: Invoke the write phase
+
+Run via Bash:
+
+```
+node scripts/vault-section-minto-generator.cjs <roomDir> --write --section <section-name> --narrative <tempfile-path>
+```
+
+Capture stdout and stderr. A successful run prints `wrote MINTO.md: <abs-path>`. A schema violation prints `ERROR: narrative schema validation failed: ...` and exits non-zero. If it fails, leave the temp file in place for debugging, surface the error to the user, and move on to the next section.
+
+### Step 8: Clean up the temp file
+
+On success, `rm` the temp file via Bash. On failure, keep it so the user can inspect it.
+
+### Step 9: Report per-section results
+
+After all sections are processed, report one line per section in the format:
+
+```
+<section-name>: <old-tokens> -> <new-tokens> tokens, tier-1 (Feynman-MINTO)
+```
+
+Approximate token count from character count divided by 4. Old token count comes from reading the pre-existing MINTO.md (if any) before the write phase ran; 0 if the file did not exist. Note sections that were skipped (empty or error) on their own lines.
+
+End with a single summary line: `/mos:reason complete -- N sections regenerated, M skipped`.
+
+## Notes
+
+- Decision 17 (slash-command-as-orchestrator, no external API, no budget machinery) lands in CHANGELOG during plan 81-04. This slash command IS Decision 17 in practice.
+- The four prompt strings inlined above are duplicated from `lib/memory/feynman-prompts.cjs` verbatim. A drift-check test at `lib/memory/feynman-prompts-drift.test.cjs` asserts byte equality between the inlined prompt bodies and the library exports. If you edit one, you must edit the other or the test will fail.
+- The tier-0 fallback path (no Claude session in the loop, bare-shell invocation) is wired in plan 81-03 and is not the concern of this slash command.
 
 ---
-*MindrianOS Reasoning Engine -- structured critical thinking as persistent artifacts.*
+*MindrianOS Feynman-MINTO orchestrator. Phase 81 Revision 2. Claude is the LLM.*
