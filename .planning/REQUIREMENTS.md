@@ -97,8 +97,8 @@
 
 - [x] **NATIVE-01**: file-meeting filing adds wikilinks to newly created artifacts (team names, section refs)
 - [x] **NATIVE-02**: Room-passive filing skill adds wikilinks when filing new entries
-- [ ] **NATIVE-03**: xref generation includes wikilinks to source and target files
-- [ ] **NATIVE-04**: Team profile creation includes wikilinked contribution table
+- [x] **NATIVE-03**: xref generation includes wikilinks to source and target files
+- [x] **NATIVE-04**: Team profile creation includes wikilinked contribution table
 
 ## Future Requirements (v2)
 
@@ -147,8 +147,8 @@
 | WELCOME-04 | Phase 77 | Pending |
 | NATIVE-01 | Phase 79 | Complete |
 | NATIVE-02 | Phase 79 | Complete |
-| NATIVE-03 | Phase 79 | Pending |
-| NATIVE-04 | Phase 79 | Pending |
+| NATIVE-03 | Phase 79 | Complete |
+| NATIVE-04 | Phase 79 | Complete |
 | ARCH-01 | Phase 76 | Complete |
 | ARCH-02 | Phase 77 | Pending |
 | ARCH-03 | Phase 77 | Pending |

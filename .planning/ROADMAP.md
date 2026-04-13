@@ -49,7 +49,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - [x] **Phase 76: Wikilink Engine + Branded Footers** - Node.js CJS scripts for wikilink injection (team, filed-to, meetings, sections, sub-rooms) and MindrianOS branded footers on every artifact (completed 2026-04-12)
 - [x] **Phase 77: Obsidian Kit + Welcome Doc** - Static .obsidian/ config (De Stijl CSS, graph colors, appearance) and Welcome doc generator (completed 2026-04-12)
 - [x] **Phase 78: /mos:vault Command + /mos:room linkify** - User-facing commands that orchestrate vault export and retroactive wikilink injection (completed 2026-04-12)
-- [ ] **Phase 79: Native Filing Wikilinks** - Modify existing filing pathways to inject wikilinks at creation time
+- [x] **Phase 79: Native Filing Wikilinks** - Modify existing filing pathways to inject wikilinks at creation time (completed 2026-04-13)
 - [ ] **Phase 80: Vault Import -- Obsidian to Data Room** - Convert any Obsidian vault or Markdown folder into a MindrianOS Data Room
 
 ## Phase Details
@@ -139,5 +139,5 @@ Phases execute in numeric order: 76 -> 77 -> 78 -> 79 -> 80
 | 76. Wikilink Engine + Branded Footers | 0/3 | Complete    | 2026-04-12 |
 | 77. Obsidian Kit + Welcome Doc | 0/TBD | Complete    | 2026-04-12 |
 | 78. /mos:vault Command + /mos:room linkify | 0/2 | Complete    | 2026-04-12 |
-| 79. Native Filing Wikilinks | 1/2 | In Progress|  |
+| 79. Native Filing Wikilinks | 2/2 | Complete   | 2026-04-13 |
 | 80. Vault Import -- Obsidian to Data Room | 0/TBD | Not started | - |
