@@ -316,6 +316,60 @@ function renderSectionMinto(section, artifacts, room) {
 // ---------- Phase 81-01: plan/write subcommand support ----------
 
 const { validateNarrative } = require('../lib/memory/narrative-schema.cjs');
+const {
+  compressToAaak,
+  attachAaakFooter,
+} = require('../lib/memory/aaak-compress.cjs');
+
+// ---------- Phase 81-03: tier-0 single entry point ----------
+
+/**
+ * Run the tier-0 deterministic path: pre-81 renderSectionMinto content
+ * plus an AAAK compressed footer. This is the single entry point for all
+ * three tier-0 branches:
+ *
+ *   1. --write without --narrative (intentional tier-0)
+ *   2. --write --narrative <path> where the file fails to parse
+ *   3. --write --narrative <path> where the schema is invalid
+ *
+ * @param {object} args
+ * @param {string} args.roomDir - absolute path to room directory
+ * @param {string} args.sectionName - section slug
+ * @param {boolean} [args.dryRun=false]
+ * @returns {{tier: string, path: string, size: number, warnings: string[]}}
+ */
+function runTier0(args) {
+  const roomDir = args.roomDir;
+  const sectionName = args.sectionName;
+  const dryRun = !!args.dryRun;
+
+  const resolved = resolveSection(roomDir, sectionName);
+  // Pre-81 structural generation, preserved byte-equivalent.
+  const structuralBody = renderSectionMinto(
+    resolved.section,
+    resolved.artifacts,
+    resolved.room
+  );
+  // Deterministic AAAK compression of the structural body.
+  const aaak = compressToAaak(structuralBody, {
+    section: resolved.section.name,
+    room: resolved.room.roomName,
+  });
+  const content = attachAaakFooter(structuralBody, aaak);
+  const target = path.join(resolved.section.dir, 'MINTO.md');
+
+  if (dryRun) {
+    process.stdout.write(
+      'would write tier-0 MINTO.md: ' + target + ' (' + content.length + ' bytes)\n'
+    );
+    return { tier: 'tier-0', path: target, size: content.length, warnings: [] };
+  }
+  const tmp = target + '.tmp';
+  fs.writeFileSync(tmp, content);
+  fs.renameSync(tmp, target);
+  process.stdout.write('wrote tier-0 MINTO.md: ' + target + '\n');
+  return { tier: 'tier-0', path: target, size: content.length, warnings: [] };
+}
 
 function resolveSection(roomDir, sectionName) {
   const room = scanRoom(roomDir);
@@ -549,27 +603,63 @@ function renderFeynmanMinto(structural, narrative, room, section, artifacts) {
 
 function writeSectionFromNarrative(roomDir, sectionName, narrativePath, opts) {
   const options = opts || {};
-  const resolved = resolveSection(roomDir, sectionName);
 
-  const raw = fs.readFileSync(narrativePath, 'utf-8');
+  // Phase 81-03: soft validation with fallthrough to runTier0.
+  // Malformed file, unparseable JSON, or invalid schema all route to
+  // tier-0 with a warning printed to stderr.
+  let raw;
+  try {
+    raw = fs.readFileSync(narrativePath, 'utf-8');
+  } catch (e) {
+    process.stderr.write(
+      'WARN tier-0 path: narrative file read failed: ' +
+        narrativePath +
+        ': ' +
+        e.message +
+        '\n'
+    );
+    return runTier0({
+      roomDir: roomDir,
+      sectionName: sectionName,
+      dryRun: options.dryRun,
+    });
+  }
+
   let narrative;
   try {
     narrative = JSON.parse(raw);
   } catch (e) {
-    throw new Error(
-      'narrative JSON parse failed: ' + narrativePath + ': ' + e.message
-    );
-  }
-  const v = validateNarrative(narrative);
-  if (!v.valid) {
-    throw new Error(
-      'narrative schema validation failed: ' +
+    process.stderr.write(
+      'WARN tier-0 path: narrative JSON parse failed: ' +
         narrativePath +
         ': ' +
-        v.errors.join('; ')
+        e.message +
+        ', falling back to tier-0\n'
     );
+    return runTier0({
+      roomDir: roomDir,
+      sectionName: sectionName,
+      dryRun: options.dryRun,
+    });
   }
 
+  const v = validateNarrative(narrative);
+  if (!v.valid) {
+    process.stderr.write(
+      'WARN tier-0 path: narrative-json failed schema validation: ' +
+        narrativePath +
+        ': ' +
+        v.errors.join('; ') +
+        ', falling back to tier-0\n'
+    );
+    return runTier0({
+      roomDir: roomDir,
+      sectionName: sectionName,
+      dryRun: options.dryRun,
+    });
+  }
+
+  const resolved = resolveSection(roomDir, sectionName);
   const structural = buildStructuralPayload(
     resolved.room,
     resolved.section,
@@ -588,13 +678,13 @@ function writeSectionFromNarrative(roomDir, sectionName, narrativePath, opts) {
     process.stdout.write(
       'would write MINTO.md: ' + target + ' (' + content.length + ' bytes)\n'
     );
-    return { path: target, content: content, outcome: 'planned' };
+    return { tier: 'tier-1', path: target, content: content, outcome: 'planned' };
   }
   const tmp = target + '.tmp';
   fs.writeFileSync(tmp, content);
   fs.renameSync(tmp, target);
   process.stdout.write('wrote MINTO.md: ' + target + '\n');
-  return { path: target, content: content, outcome: 'written' };
+  return { tier: 'tier-1', path: target, content: content, outcome: 'written' };
 }
 
 // ---------- Idempotent write ----------
@@ -692,12 +782,17 @@ if (require.main === module) {
         process.exit(1);
       }
       if (!NARRATIVE_PATH) {
-        // Phase 81-01: no narrative means fall through to tier-0 path.
-        // 81-03 will wire the AAAK footer here. For 81-01 the behavior is
-        // byte-equivalent to the pre-81 deterministic generator.
-        generateAllSectionMintos(ROOM_DIR, {
+        // Phase 81-03: no narrative means tier-0 path. Route through the
+        // single runTier0 entry point which appends an AAAK footer.
+        process.stderr.write(
+          'WARN tier-0 path: no narrative provided, running tier-0 for section ' +
+            SECTION_FILTER +
+            '\n'
+        );
+        runTier0({
+          roomDir: ROOM_DIR,
+          sectionName: SECTION_FILTER,
           dryRun: DRY_RUN,
-          sectionFilter: SECTION_FILTER,
         });
       } else {
         writeSectionFromNarrative(ROOM_DIR, SECTION_FILTER, NARRATIVE_PATH, {
@@ -732,4 +827,6 @@ module.exports = {
   renderFeynmanMinto,
   buildStructuralPayload,
   buildArtifactPayload,
+  // Phase 81-03 additions
+  runTier0,
 };
