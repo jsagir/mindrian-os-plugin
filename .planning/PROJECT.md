@@ -168,6 +168,28 @@ Agent + Teaching Layer Wiring:
 **Previous milestone (v1.7.0 Causal Reasoning Layer):**
 Defined causal engine architecture. This milestone executes the Brain graph enrichment that v1.7.0 designed but never ran.
 
+## Notion Template Gap Close (Captured 2026-04-14)
+
+Compared against a third-party Notion "Problem Worth Solving" template the user shared on 2026-04-14. The Notion template has six structural features MindrianOS does not, all of which are cheap to adopt and complement the dynamic-intelligence wins MindrianOS already owns. Captured as a focused backlog so they do not get lost between Phase 81 (v1.10.2, landed) and the v1.11.0 release-pipeline work.
+
+1. **Per-section one-liner STATEMENT (HIGH value).** Notion forces a single-sentence callout at the top of Problem, Solution, Business Model, Market Analysis. MindrianOS has ROOM.md + STATE.md + (v1.10.2) MINTO.md essence field, but none surface as "this is THE sentence for this section, always visible." Phase 81 solves the same psychology at the artifact level; this would do it at the section level. Implementation: promote an `essence` or `statement` frontmatter field in ROOM.md rendering, or add a `STATEMENT.md` per section. Candidate for v1.10.3 or v1.11.0 scope.
+
+2. **Latest Deck persistent slot (HIGH value).** A top-level always-visible slot for the current pitch deck. MindrianOS has `exports/` but no concept of "the current canonical deck." When an investor opens the room they should not have to hunt. Implementation: `room/deck/` section with a `LATEST.md` that `/mos:export thesis` updates on each run, or a pinned slot in ROOM.md.
+
+3. **Marketing and Sales split from Market Analysis (MEDIUM value).** Notion treats these as distinct sections. MindrianOS conflates them in `market-analysis/`. Different JTBD: market-analysis answers "is there a market," marketing-sales answers "how do we reach and convert." Simon's near-decomposability argument applies. Implementation: add `marketing-sales/` as a new room section, update session-start room map, update classifier in vault import.
+
+4. **Funding Options as a room section (MEDIUM value).** MindrianOS has `/mos:funding` and the opportunity-bank skill but no `funding/` room section. A section would make grants and investors a first-class subsystem visible in the graph, not just command output. Small structural lift, big visibility win.
+
+5. **Value Proposition as a top-level section (LOW-MEDIUM value).** Notion treats VP as a peer section between Problem and Business Model. MindrianOS folds it into one or the other. Arguably VP IS the hinge and deserves its own room. Lower priority because `/mos:value-proposition` skill already exists.
+
+6. **Self-guiding room (MEDIUM value).** Notion embeds its own usage instructions INSIDE the page. A stranger can open a Notion template without a CLI, without Larry, and know what to do. MindrianOS equivalents (`/mos:onboard`, session-start nudges) only work through the CLI. The Dror-activates-alone success criterion from user context lives here. Implementation: enhance ROOM.md bootstrapping so the room is self-explanatory in Obsidian and on GitHub too, not just via Larry. Candidate companion for items 1 and 2.
+
+**Honest summary.** The Notion template wins on static user-facing clarity (one-liners, latest-deck slot, self-guiding, finer-grained sections). MindrianOS wins on dynamic intelligence (graph, MINTO reasoning, meetings, proactive surfacing, now Feynman-MINTO). The Notion wins are all cheap structural additions, not new architecture. Items 1, 2, 4 are the priority set because they are small lifts with high visibility impact and they align with the Dror-activates-alone forcing function from the user context file.
+
+**What NOT to steal from Notion.** The template has no relationship graph, no MINTO reasoning, no meeting intelligence, no proactive discovery, no filing cascade, no Brain enrichment, and no methodology commands. MindrianOS keeps all of that. The gap close is additive.
+
+---
+
 ## v3.0 Backlog (Captured Ideas)
 
 ### FIRST-CLASS v3.0 SCOPE ITEM: MCP Sampling migration for Feynman-MINTO (bridge from Phase 81)
