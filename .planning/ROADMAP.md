@@ -42,7 +42,8 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 
 </details>
 
-- **v1.9.8 Obsidian Vault Export** - Phases 76-79 (in progress)
+- **v1.9.8 Obsidian Vault Export** - Phases 76-80 (SHIPPED as v1.10.0 on 2026-04-13)
+- **v1.10.2 Feynman-MINTO Hybrid** - Phase 81 (in progress)
 
 ## Phases
 
@@ -51,6 +52,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - [x] **Phase 78: /mos:vault Command + /mos:room linkify** - User-facing commands that orchestrate vault export and retroactive wikilink injection (completed 2026-04-12)
 - [x] **Phase 79: Native Filing Wikilinks** - Modify existing filing pathways to inject wikilinks at creation time (completed 2026-04-13)
 - [x] **Phase 80: Vault Import -- Obsidian to Data Room** - Convert any Obsidian vault or Markdown folder into a MindrianOS Data Room (completed 2026-04-13)
+- [ ] **Phase 81: Feynman-MINTO Hybrid** - MINTO.md files born compressed via Feynman engine stages 1, 2, 4, 5. Tier-1 default (LLM-backed, ~4 calls, ~$0.05-0.10/run), tier-0 fallback (deterministic MINTO + AAAK footer). Ships as v1.10.2.
 
 ## Phase Details
 
@@ -128,6 +130,24 @@ Plans:
   5. After import, `/mos:status`, `/mos:grade`, `/mos:diagnose` and all other commands work immediately on the imported room
   6. Works on any folder of .md files -- Obsidian-specific features (wikilinks, frontmatter, .obsidian/) are bonuses, not requirements
 **Plans**: TBD
+
+### Phase 81: Feynman-MINTO Hybrid
+**Goal**: Every MINTO.md is born compressed. /mos:reason produces narrative content (essence, mental model, governing thought, key claims, argument structure) via the Feynman engine while keeping structural parts (MECE tree, cross-refs, navigation, sources) deterministic and free. Tier-1 default uses ~4 LLM calls at ~$0.05-0.10 per run. Tier-0 fallback produces deterministic MINTO + AAAK footer when LLM unavailable or budget exceeded. Ships as v1.10.2 (semver deviation from user directive, documented in CHANGELOG).
+**Depends on**: Phase 80 (vault-section-minto-generator.cjs is the generator being rewritten) + committed AAAK library at lib/memory/aaak-compress.cjs (tier-0 fallback primitive, 21/21 tests green)
+**Requirements**: FEYNMINTO-01, FEYNMINTO-02, FEYNMINTO-03, FEYNMINTO-04, FEYNMINTO-05, FEYNMINTO-06, FEYNMINTO-07, FEYNMINTO-08, FEYNMINTO-09, FEYNMINTO-10
+**Success Criteria** (what must be TRUE):
+  1. /mos:reason produces MINTO files under 1500 tokens when LLM is available (FEYNMINTO-01)
+  2. Structural parts of MINTO (frontmatter, MECE tree, cross-refs, sources, navigation) remain deterministic and free, generated with zero LLM calls (FEYNMINTO-02)
+  3. Tier-1 path uses Feynman stages 1 (essence), 2 (plain language), 4 (mental model), and 5 (sweet spot) via library functions in lib/memory/feynman-stages.cjs (FEYNMINTO-03, FEYNMINTO-09)
+  4. Stages 3 (expose confusion) and 6 (teach it back) are intentionally skipped in automated generation because they require human review gates
+  5. Tier-0 fallback activates cleanly when LLM is unreachable, API errors, or cost budget trips, producing deterministic MINTO + AAAK footer instead (FEYNMINTO-04, FEYNMINTO-08)
+  6. Per-run cost budget enforced at $0.15 default, configurable, with per-user monthly cap of $10 default (FEYNMINTO-05, FEYNMINTO-06)
+  7. /mos:reason --regenerate-all migrates pre-81 MINTOs to post-81 format with a backup to .migration-backup/YYYY-MM-DD/ first (FEYNMINTO-07)
+  8. LLM invocation is abstracted via lib/memory/llm-call.cjs so the same code path works across CLI (Claude Code plugin context), Desktop (MCP tool invocation), and Cowork surfaces (FEYNMINTO-10)
+  9. Pre-81 deterministic MINTO generator is preserved as the tier-0 fallback path, not deleted or modified beyond fallback wiring
+  10. CHANGELOG [1.10.2] entry documents: why v1.10.1 was skipped, tier-1/tier-0 architecture, cost model, migration path, and the semver deviation
+**Plans**: 5 plans expected (81-01 foundation, 81-02 Feynman stages 1+2, 81-03 Feynman stages 4+5, 81-04 generator rewrite + tier fallback, 81-05 commands + migration + release)
+**Authority**: .planning/phases/81-feynman-minto-hybrid/81-CONTEXT.md (full architectural decisions D-1 through D-8, open questions, non-goals)
 
 ## Progress
 
