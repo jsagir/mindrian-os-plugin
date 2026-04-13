@@ -41,13 +41,32 @@ const SECTION_FILTER =
   sectionFlagIdx !== -1 && argv[sectionFlagIdx + 1]
     ? argv[sectionFlagIdx + 1]
     : null;
-const roomArg = argv.find(
-  (a, i) => !a.startsWith('--') && argv[i - 1] !== '--section'
-);
+
+// Phase 81-01: --plan and --write subcommand flags.
+const PLAN_FLAG = argv.includes('--plan');
+const WRITE_FLAG = argv.includes('--write');
+const narrativeFlagIdx = argv.indexOf('--narrative');
+const NARRATIVE_PATH =
+  narrativeFlagIdx !== -1 && argv[narrativeFlagIdx + 1]
+    ? argv[narrativeFlagIdx + 1]
+    : null;
+
+// roomArg: first positional that is not a flag value.
+// Values of --section and --narrative are consumed by their flags.
+const FLAG_VALUE_INDICES = new Set();
+if (sectionFlagIdx !== -1) FLAG_VALUE_INDICES.add(sectionFlagIdx + 1);
+if (narrativeFlagIdx !== -1) FLAG_VALUE_INDICES.add(narrativeFlagIdx + 1);
+const roomArg = argv.find(function (a, i) {
+  if (a.startsWith('--')) return false;
+  if (FLAG_VALUE_INDICES.has(i)) return false;
+  return true;
+});
 
 function usage() {
   process.stderr.write(
-    'Usage: node scripts/vault-section-minto-generator.cjs <roomDir> [--dry-run] [--section <name>]\n'
+    'Usage: node scripts/vault-section-minto-generator.cjs <roomDir> [--dry-run] [--section <name>]\n' +
+      '       node scripts/vault-section-minto-generator.cjs --plan <roomDir> --section <name>\n' +
+      '       node scripts/vault-section-minto-generator.cjs --write <roomDir> --section <name> --narrative <jsonFile>\n'
   );
 }
 
@@ -74,6 +93,9 @@ const GAP_HEURISTICS = {
 // ---------- Helpers ----------
 
 function today() {
+  // Phase 81-01: allow deterministic date injection for test fixtures.
+  // When unset (production), behavior is byte-equivalent to pre-81.
+  if (process.env.MINTO_FROZEN_DATE) return process.env.MINTO_FROZEN_DATE;
   const d = new Date();
   const y = d.getUTCFullYear();
   const m = String(d.getUTCMonth() + 1).padStart(2, '0');
@@ -291,6 +313,290 @@ function renderSectionMinto(section, artifacts, room) {
   ].join('\n');
 }
 
+// ---------- Phase 81-01: plan/write subcommand support ----------
+
+const { validateNarrative } = require('../lib/memory/narrative-schema.cjs');
+
+function resolveSection(roomDir, sectionName) {
+  const room = scanRoom(roomDir);
+  const sections = walkAllSections(room);
+  const section = sections.find(function (s) {
+    return s.name === sectionName;
+  });
+  if (!section) {
+    throw new Error(
+      'section not found in room: ' +
+        sectionName +
+        ' (available: ' +
+        sections.map(function (s) { return s.name; }).join(', ') +
+        ')'
+    );
+  }
+  const artifacts = collectSectionArtifacts(section.dir, room.contentFiles);
+  return { room: room, section: section, artifacts: artifacts };
+}
+
+function buildStructuralPayload(room, section, artifacts) {
+  // Reuse the existing deterministic helpers so there is one source of
+  // truth for the structural content. Nothing here calls the LLM.
+  const governingPlaceholder = deriveGoverningThought(section, artifacts);
+  const meceTree = deriveMeceTree(section, artifacts, section.dir);
+  const gaps = deriveGaps(section, artifacts);
+  const siblings = findRelatedSections(section, room);
+  const sources = artifacts.map(function (f) {
+    return path.relative(section.dir, f.path).split(path.sep).join('/');
+  });
+  const parentRel = path
+    .relative(section.dir, path.join(section.parentRoomDir, 'STATE.md'))
+    .split(path.sep)
+    .join('/');
+
+  return {
+    frontmatter: {
+      type: 'section-minto',
+      section: section.name,
+      created: today(),
+      room: room.roomName,
+      'parent-moc': 'ROOM.md',
+      methodology: 'feynman-minto',
+      sources: sources,
+      related: siblings.map(function (s) { return '../' + s + '/MINTO.md'; }),
+      status: 'active',
+    },
+    mece_tree: meceTree,
+    cross_refs: siblings,
+    sources: sources,
+    navigation: {
+      parent_room: parentRel,
+      room_name: room.roomName,
+      section_name: section.name,
+    },
+    gaps: gaps,
+    governing_thought_placeholder: governingPlaceholder,
+  };
+}
+
+function buildArtifactPayload(section, artifacts) {
+  return artifacts.map(function (f) {
+    const base = path.basename(f.path, '.md');
+    const title = slugToTitle(base);
+    const rel = path.relative(section.dir, f.path).split(path.sep).join('/');
+    return {
+      path: rel,
+      title: title,
+      excerpt: firstBodyLine(f.path),
+    };
+  });
+}
+
+function emitSectionPlanPayload(roomDir, sectionName) {
+  const resolved = resolveSection(roomDir, sectionName);
+  const structural = buildStructuralPayload(
+    resolved.room,
+    resolved.section,
+    resolved.artifacts
+  );
+  const artifactList = buildArtifactPayload(
+    resolved.section,
+    resolved.artifacts
+  );
+  const targetMinto = path
+    .relative(
+      resolved.room.roomDir,
+      path.join(resolved.section.dir, 'MINTO.md')
+    )
+    .split(path.sep)
+    .join('/');
+  const payload = {
+    section_path: path
+      .relative(resolved.room.roomDir, resolved.section.dir)
+      .split(path.sep)
+      .join('/'),
+    section_name: resolved.section.name,
+    artifacts: artifactList,
+    target_minto_path: targetMinto,
+    structural: structural,
+  };
+  return payload;
+}
+
+function renderFeynmanMinto(structural, narrative, room, section, artifacts) {
+  const title = slugToTitle(section.name);
+  const date = structural.frontmatter.created;
+  const mm = narrative.mental_model;
+
+  // Frontmatter (YAML-ish, consistent with pre-81 style).
+  const fm = structural.frontmatter;
+  const fmLines = [
+    '---',
+    'type: ' + fm.type,
+    'section: ' + fm.section,
+    'created: ' + fm.created,
+    'room: ' + fm.room,
+    'parent-moc: ' + fm['parent-moc'],
+    'methodology: ' + fm.methodology,
+    'sources: [' + fm.sources.join(', ') + ']',
+    'related: [' + fm.related.join(', ') + ']',
+    'status: ' + fm.status,
+    '---',
+  ];
+
+  const keyClaimLines = [];
+  narrative.key_claims.forEach(function (claim, i) {
+    keyClaimLines.push('### Claim ' + (i + 1));
+    keyClaimLines.push('');
+    keyClaimLines.push('> [!example] Claim');
+    keyClaimLines.push('> ' + claim);
+    keyClaimLines.push('');
+  });
+
+  const crossRefLines =
+    structural.cross_refs.length === 0
+      ? ['- *(no sibling sections to cross-reference)*']
+      : structural.cross_refs.map(function (s) {
+          return '- [[../' + s + '/MINTO.md|' + s + ' reasoning]]';
+        });
+
+  const sourceArtifactLines = artifacts.map(function (f) {
+    const base = path.basename(f.path, '.md');
+    const rel = path.relative(section.dir, f.path).split(path.sep).join('/');
+    return '- [[' + rel + '|' + slugToTitle(base) + ']]';
+  });
+
+  const gapLines = structural.gaps.map(function (g) { return '> - ' + g; });
+
+  return [].concat(
+    fmLines,
+    [
+      '',
+      '# ' + title + ' -- Feynman-MINTO Reasoning',
+      '',
+      '> [!abstract] Governing Thought',
+      '> ' + narrative.governing_thought,
+      '',
+      '## Essence',
+      '',
+      '> [!quote] Irreducible Truth',
+      '> ' + narrative.essence,
+      '',
+      '## Plain Language',
+      '',
+      narrative.plain_language,
+      '',
+      '## Mental Model',
+      '',
+      '> [!tip] Analogy',
+      '> ' + mm.analogy,
+      '',
+      '**Mapping:** ' + mm.mapping,
+      '',
+      '**Where it breaks:** ' + mm.limits,
+      '',
+      '## Sweet Spot',
+      '',
+      narrative.sweet_spot,
+      '',
+      '## Key Claims',
+      '',
+    ],
+    keyClaimLines,
+    [
+      '## MECE Issue Tree',
+      '',
+      structural.mece_tree,
+      '',
+      '## Evidence Gaps',
+      '',
+      '> [!warning] Missing Evidence',
+    ],
+    gapLines,
+    [
+      '',
+      '## Cross-References',
+      '',
+    ],
+    crossRefLines,
+    [
+      '',
+      '## Source Artifacts',
+      '',
+    ],
+    sourceArtifactLines,
+    [
+      '',
+      '## Navigation',
+      '',
+      '- Section identity: [[ROOM.md|' + section.name + ' ROOM]]',
+      '- Section status: [[STATE.md|' + section.name + ' STATE]]',
+      '- Parent room: [[' +
+        structural.navigation.parent_room +
+        '|' +
+        room.roomName +
+        ']]',
+      '',
+      '---',
+      '*Filed by MindrianOS -- Feynman-MINTO -- ' +
+        date +
+        ' -- ' +
+        room.roomName +
+        '/' +
+        section.name +
+        '*',
+      '',
+    ]
+  ).join('\n');
+}
+
+function writeSectionFromNarrative(roomDir, sectionName, narrativePath, opts) {
+  const options = opts || {};
+  const resolved = resolveSection(roomDir, sectionName);
+
+  const raw = fs.readFileSync(narrativePath, 'utf-8');
+  let narrative;
+  try {
+    narrative = JSON.parse(raw);
+  } catch (e) {
+    throw new Error(
+      'narrative JSON parse failed: ' + narrativePath + ': ' + e.message
+    );
+  }
+  const v = validateNarrative(narrative);
+  if (!v.valid) {
+    throw new Error(
+      'narrative schema validation failed: ' +
+        narrativePath +
+        ': ' +
+        v.errors.join('; ')
+    );
+  }
+
+  const structural = buildStructuralPayload(
+    resolved.room,
+    resolved.section,
+    resolved.artifacts
+  );
+  const content = renderFeynmanMinto(
+    structural,
+    narrative,
+    resolved.room,
+    resolved.section,
+    resolved.artifacts
+  );
+  const target = path.join(resolved.section.dir, 'MINTO.md');
+
+  if (options.dryRun) {
+    process.stdout.write(
+      'would write MINTO.md: ' + target + ' (' + content.length + ' bytes)\n'
+    );
+    return { path: target, content: content, outcome: 'planned' };
+  }
+  const tmp = target + '.tmp';
+  fs.writeFileSync(tmp, content);
+  fs.renameSync(tmp, target);
+  process.stdout.write('wrote MINTO.md: ' + target + '\n');
+  return { path: target, content: content, outcome: 'written' };
+}
+
 // ---------- Idempotent write ----------
 
 function writeOrPrint(targetPath, content, dryRun) {
@@ -373,10 +679,38 @@ if (require.main === module) {
     process.exit(1);
   }
   try {
-    generateAllSectionMintos(ROOM_DIR, {
-      dryRun: DRY_RUN,
-      sectionFilter: SECTION_FILTER,
-    });
+    if (PLAN_FLAG) {
+      if (!SECTION_FILTER) {
+        process.stderr.write('ERROR: --plan requires --section <name>\n');
+        process.exit(1);
+      }
+      const payload = emitSectionPlanPayload(ROOM_DIR, SECTION_FILTER);
+      process.stdout.write(JSON.stringify(payload, null, 2) + '\n');
+    } else if (WRITE_FLAG) {
+      if (!SECTION_FILTER) {
+        process.stderr.write('ERROR: --write requires --section <name>\n');
+        process.exit(1);
+      }
+      if (!NARRATIVE_PATH) {
+        // Phase 81-01: no narrative means fall through to tier-0 path.
+        // 81-03 will wire the AAAK footer here. For 81-01 the behavior is
+        // byte-equivalent to the pre-81 deterministic generator.
+        generateAllSectionMintos(ROOM_DIR, {
+          dryRun: DRY_RUN,
+          sectionFilter: SECTION_FILTER,
+        });
+      } else {
+        writeSectionFromNarrative(ROOM_DIR, SECTION_FILTER, NARRATIVE_PATH, {
+          dryRun: DRY_RUN,
+        });
+      }
+    } else {
+      // Legacy / bare-shell path: preserved verbatim.
+      generateAllSectionMintos(ROOM_DIR, {
+        dryRun: DRY_RUN,
+        sectionFilter: SECTION_FILTER,
+      });
+    }
   } catch (e) {
     process.stderr.write('ERROR: ' + e.message + '\n');
     process.exit(2);
@@ -392,4 +726,10 @@ module.exports = {
   deriveMeceTree,
   deriveGaps,
   findRelatedSections,
+  // Phase 81-01 additions
+  emitSectionPlanPayload,
+  writeSectionFromNarrative,
+  renderFeynmanMinto,
+  buildStructuralPayload,
+  buildArtifactPayload,
 };
