@@ -34,3 +34,4 @@ mcp-server-brain/package-lock.json
 .planning/
 node_modules/
 .claude/worktrees/
+.superpowers/
