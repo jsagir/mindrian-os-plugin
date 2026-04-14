@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.10.7] - 2026-04-14
+
+### Added
+- Cross-session scope injection: session-start now injects ACTIVE ROOM CONTEXT and Cross-Room Policy into every Claude session, reading the active room from ~/MindrianRooms/.rooms/registry.json (Tier 1)
+- Sealed room walker: session-start walks ~/MindrianRooms/ for any subdirectory containing GUARDRAIL.md and surfaces sealed rooms with their first 3 hard-rule lines quoted (Tier 1)
+- Filesystem write interception: a new PreToolUse hook blocks Write/Edit/MultiEdit operations that target a non-active room under ~/MindrianRooms/, with actionable /mos:rooms switch hints. Sealed rooms block unconditionally. (Tier 1.5)
+- Mid-session intent classifier: a new UserPromptSubmit hook scores the user message against every room in the registry plus every sealed room on the machine and warns when the highest-scoring room is not the active one (Tier 2)
+- Honesty layer in larry-personality: new "## Honesty about memory" section forbids the phrase "I do not have that in working memory" and requires "let me search" language before filesystem recall
+
+### Fixed
+- Statusline wrapper bundle: scripts/statusline-mos now ships as a plugin file. session-start auto-installs it to ~/.claude/statusline-mos and migrates settings.json from the hardcoded context-monitor path to the wrapper path. Detection-driven, idempotent, non-clobbering for users who hand-fixed their config.
+- Cross-session leak (8 vectors): Jonathan Sagir caught a witnessed failure on 2026-04-14 where a single Claude Code session leaked content from the sealed rashut-hadshanut-ai room across recall, drafting, methodology execution, filesystem writes, recovery pivots, Hebrew translation filing, mid-session topic recognition, and honesty-layer collapse. v1.10.7 closes vectors 1 through 8 via Tier 1 + Tier 1.5 + Tier 2 + Honesty Layer. See .planning/research/cross-session-memory-and-room-intent.md and .planning/phases/83-cross-session-scope-injection/83-CONTEXT.md for the full analysis.
+
+### Changed
+- Smart-notebook milestone slot shifts v1.10.6 -> v1.10.7 -> v1.10.8. Sixth shift in this v1.10.x patch line. Smart-notebook in v1.10.8 will promote the SQLite memory layer at lib/core/memory-ops.cjs to load-bearing and deliver real persistent cross-session memory (Tier 3), voice-log per room, and synthesis voice room-scoping.
+- This release acknowledges openly: MindrianOS does not yet have real cross-session memory. What ships here is read-time scope injection, write-time scope interception, message-time intent classification, and a language rule preventing the assistant from calling filesystem search "memory". Real memory wiring is v1.10.8.
+
 ## [1.10.5] - 2026-04-14
 
 onboarding: true
