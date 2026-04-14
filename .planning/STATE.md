@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.9.8
 milestone_name: milestone
 status: executing
-stopped_at: Completed 84-02-PLAN.md
-last_updated: "2026-04-14T17:40:03.527Z"
+stopped_at: "Completed 84-03-PLAN.md: session lifecycle wiring shipped, RECENT SESSIONS block live, 10/10 Phase 83 + 12/12 Feynman tests green"
+last_updated: "2026-04-14T18:15:43.765Z"
 last_activity: 2026-04-14
 progress:
   total_phases: 12
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 84 (smart-notebook) — EXECUTING
-Plan: 3 of 9
+Plan: 4 of 9
 Status: Ready to execute
 Last activity: 2026-04-14
 
@@ -66,6 +66,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 80 P06 | 25min | 2 tasks | 7 files |
 | Phase 84 P01 | 5min | 5 tasks | 1 files |
 | Phase 84 P02 | 4min | 5 tasks | 2 files |
+| Phase 84 P03 | 25min | 5 tasks | 6 files |
 
 ### Decisions
 
@@ -98,6 +99,8 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 80]: Stage 03c defaults to direct-copy meeting filing fallback per PRECONDITIONS.md (lazygraph-ops broken)
 - [Phase 84]: Phase 84-01: schema-only additive migration; no room column on new tables (room.db is per-room)
 - [Phase 84]: 84-02: composition module room-db.cjs instead of modifying lazygraph-ops.cjs
+- [Phase 84]: memory-lifecycle.cjs resolves active room internally via Phase 83 canonical registry, eliminating need for shared bash helper across four hooks
+- [Phase 84]: post-compact creates new session id rather than continuing pre-compact id; compact is a context discontinuity from Claude's perspective
 
 ### Pending Todos
 
@@ -113,6 +116,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-14T17:40:03.523Z
-Stopped at: Completed 84-02-PLAN.md
+Last session: 2026-04-14T18:15:43.759Z
+Stopped at: Completed 84-03-PLAN.md: session lifecycle wiring shipped, RECENT SESSIONS block live, 10/10 Phase 83 + 12/12 Feynman tests green
 Resume file: None

@@ -102,10 +102,10 @@
 
 ## Smart Notebook / Memory Promotion (SMART)
 
-- [ ] **SMART-84-01**: Extend initMemorySchema with 4 additive tables (scaffold_log, voice_log, held_contradictions, decisions_index) and indexes, CREATE IF NOT EXISTS, existing tables byte-identical
+- [x] **SMART-84-01**: Extend initMemorySchema with 4 additive tables (scaffold_log, voice_log, held_contradictions, decisions_index) and indexes, CREATE IF NOT EXISTS, existing tables byte-identical
 - [x] **SMART-84-02**: Compose memory-ops.initMemorySchema with lazygraph-ops.openGraph behind new lib/core/room-db.cjs openRoomDb entry point
-- [ ] **SMART-84-03**: Session lifecycle wiring at SessionStart (startSession, getSessionHistory), Stop/PostCompact (addFragment), PreCompact (endSession), scoped to active room from registry
-- [ ] **SMART-84-04**: RECENT SESSIONS block injection into session-start context, additive to Phase 83 ACTIVE ROOM CONTEXT block
+- [x] **SMART-84-03**: Session lifecycle wiring at SessionStart (startSession, getSessionHistory), Stop/PostCompact (addFragment), PreCompact (endSession), scoped to active room from registry
+- [x] **SMART-84-04**: RECENT SESSIONS block injection into session-start context, additive to Phase 83 ACTIVE ROOM CONTEXT block
 - [ ] **SMART-84-05**: Mullins 20-section canonical scaffold shipped as JSON data (lib/scaffold/tier-0-mullins.json) + loader, 3 seed Tier 0 sections materializable by default (stakeholder-analysis, decisions, assumptions)
 - [ ] **SMART-84-06**: /mos:organize gains --materialize-section and --show-scaffold subcommands, logs each materialization to scaffold_log
 - [ ] **SMART-84-07**: lib/core/voice-retrieval.cjs scopedRead primitive refuses cross-room reads and sealed rooms at query time
@@ -164,10 +164,10 @@
 | NATIVE-02 | Phase 79 | Complete |
 | NATIVE-03 | Phase 79 | Complete |
 | NATIVE-04 | Phase 79 | Complete |
-| SMART-84-01 | Phase 84 | In Progress |
+| SMART-84-01 | Phase 84 | Complete |
 | SMART-84-02 | Phase 84 | Complete |
-| SMART-84-03 | Phase 84 | Pending |
-| SMART-84-04 | Phase 84 | Pending |
+| SMART-84-03 | Phase 84 | Complete |
+| SMART-84-04 | Phase 84 | Complete |
 | SMART-84-05 | Phase 84 | Pending |
 | SMART-84-06 | Phase 84 | Pending |
 | SMART-84-07 | Phase 84 | Pending |
