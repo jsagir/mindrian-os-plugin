@@ -12,26 +12,113 @@ const visual = require('../lib/core/visual-ops.cjs');
 const os = require('os');
 const crypto = require('crypto');
 
-// Map room section name to short exploration-stage label shown in the statusline.
-// Derived from the most recently modified section so the user sees what area
-// they are actively exploring at a glance. Unknown sections map to uppercased
-// hyphen-stripped name as a safe fallback.
+// Map room section name to short exploration-stage label plus thematic
+// emoji. Derived from the most recently modified section so the user
+// sees what area they are actively exploring at a glance. Unknown
+// sections map to uppercased hyphen-stripped name with a generic marker.
+// Emoji inclusion per user directive 2026-04-14 overrides the repo-wide
+// no-emoji rule for the statusline surface specifically. See rule doc
+// in ui-system skill for the carve-out.
 const EXPLORATION_LABELS = {
-  'problem-definition': 'PROBLEM',
-  'solution-design': 'SOLUTION',
-  'business-model': 'BUSINESSCASE',
-  'market-analysis': 'MARKET',
-  'competitive-analysis': 'COMPETITION',
-  'financial-model': 'FINANCE',
-  'legal-ip': 'LEGAL',
-  'team-execution': 'TEAM',
-  'team': 'TEAM',
-  'assets': 'ASSETS',
-  'exports': 'EXPORTS',
-  'meetings': 'MEETINGS',
-  'opportunity-bank': 'OPPORTUNITIES',
-  'funding': 'FUNDING'
+  'problem-definition':     { label: 'PROBLEM',       emoji: '\u{1F3AF}' }, // target
+  'solution-design':        { label: 'SOLUTION',      emoji: '\u{1F4A1}' }, // lightbulb
+  'business-model':         { label: 'BUSINESSCASE',  emoji: '\u{1F4B0}' }, // money bag
+  'market-analysis':        { label: 'MARKET',        emoji: '\u{1F4CA}' }, // bar chart
+  'competitive-analysis':   { label: 'COMPETITION',   emoji: '\u{2694}\u{FE0F}' }, // crossed swords
+  'financial-model':        { label: 'FINANCE',       emoji: '\u{1F4B5}' }, // dollar banknote
+  'legal-ip':               { label: 'LEGAL',         emoji: '\u{2696}\u{FE0F}' }, // scales of justice
+  'team-execution':         { label: 'TEAM',          emoji: '\u{1F465}' }, // busts in silhouette
+  'team':                   { label: 'TEAM',          emoji: '\u{1F465}' },
+  'assets':                 { label: 'ASSETS',        emoji: '\u{1F3A8}' }, // artist palette
+  'exports':                { label: 'EXPORTS',       emoji: '\u{1F4E4}' }, // outbox tray
+  'meetings':               { label: 'MEETINGS',      emoji: '\u{1F5E3}\u{FE0F}' }, // speaking head
+  'opportunity-bank':       { label: 'OPPORTUNITIES', emoji: '\u{1F381}' }, // wrapped gift
+  'funding':                { label: 'FUNDING',       emoji: '\u{1F48E}' }  // gem stone
 };
+
+/**
+ * Detect whether the Brain MCP is configured for this user. Returns
+ * 'connected', 'disconnected', or 'unknown'. The detection is a proxy,
+ * not a live health check: we look for the MINDRIAN_BRAIN_KEY env var
+ * (which the plugin's brain-connector skill expects) and optionally for
+ * a brain health bridge file if it exists. A real liveness check would
+ * require an MCP round-trip, which the statusline cannot do synchronously.
+ * @returns {'connected'|'disconnected'|'unknown'}
+ */
+function detectBrainStatus() {
+  try {
+    if (process.env.MINDRIAN_BRAIN_KEY && process.env.MINDRIAN_BRAIN_KEY.length > 0) {
+      const health = path.join(os.homedir(), '.mindrian', 'bridge', 'brain-health.json');
+      if (fs.existsSync(health)) {
+        try {
+          const h = JSON.parse(fs.readFileSync(health, 'utf8'));
+          if (h && h.status === 'ok') return 'connected';
+          if (h && h.status === 'error') return 'disconnected';
+        } catch (e) {}
+      }
+      return 'connected';
+    }
+  } catch (e) {}
+  return 'disconnected';
+}
+
+/**
+ * Read the current MindrianOS plugin version from .claude-plugin/plugin.json.
+ * Tries MINDRIAN_OS_ROOT env var first (set by settings.json), then falls
+ * back to the script's parent directory. Returns empty string on any failure.
+ * @returns {string} Version string like "1.10.4" or empty string
+ */
+function readPluginVersion() {
+  // Prefer __dirname-relative path (the plugin.json that ships with
+  // whichever copy of the script is actually running). Fall back to
+  // MINDRIAN_OS_ROOT env var only if the dirname path does not resolve.
+  // This matters in dev: the dev workspace may be ahead of the installed
+  // plugin cache that the env var points at.
+  const candidates = [
+    path.resolve(__dirname, '..'),
+    process.env.MINDRIAN_OS_ROOT
+  ].filter(Boolean);
+  for (const root of candidates) {
+    try {
+      const pluginJson = path.join(root, '.claude-plugin', 'plugin.json');
+      if (fs.existsSync(pluginJson)) {
+        const data = JSON.parse(fs.readFileSync(pluginJson, 'utf8'));
+        if (data && data.version) return data.version;
+      }
+    } catch (e) {}
+  }
+  return '';
+}
+
+/**
+ * Build a high-attention flashing UPDATE banner with per-letter rainbow
+ * coloring, bold, ANSI blink, and a dark background highlight. Used when
+ * the update-check bridge file reports UPDATE_AVAILABLE. Terminals that
+ * ignore blink still render the per-letter bold rainbow on a highlighted
+ * background, which is visually distinctive on its own.
+ * @returns {string} ANSI-wrapped UPDATE banner
+ */
+function flashingUpdate() {
+  const colors = [
+    '\x1b[38;2;255;80;80m',
+    '\x1b[38;2;255;160;60m',
+    '\x1b[38;2;255;230;80m',
+    '\x1b[38;2;80;255;120m',
+    '\x1b[38;2;80;200;255m',
+    '\x1b[38;2;200;120;255m'
+  ];
+  const letters = 'UPDATE'.split('');
+  const blink = '\x1b[5m';
+  const bold = '\x1b[1m';
+  const bg = '\x1b[48;2;20;20;40m';
+  const reset = '\x1b[0m';
+  let out = `${bg} `;
+  for (let i = 0; i < letters.length; i++) {
+    out += `${blink}${bold}${bg}${colors[i % colors.length]}${letters[i]}`;
+  }
+  out += `${bg} ${reset}`;
+  return out;
+}
 
 /**
  * Detect the active GSD workflow phase from .planning/ state.
@@ -167,41 +254,36 @@ process.stdin.on('end', () => {
       const legacy = path.join(dir, 'room');
       if (fs.existsSync(legacy)) roomDir = legacy;
     }
+    // Resolve the active room display name from the registry if present,
+    // otherwise fall back to STATE.md project_name or directory basename.
+    let roomName = '';
+    if (fs.existsSync(registryPath)) {
+      try {
+        const reg = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+        if (reg.active && reg.rooms[reg.active]) {
+          roomName = reg.rooms[reg.active].name || reg.active;
+        }
+      } catch (e) {}
+    }
+
     if (roomDir) {
       try {
-        // Project name from room STATE.md or directory name
-        let projectName = path.basename(dir);
+        if (!roomName) roomName = path.basename(dir);
         const roomState = path.join(roomDir, 'STATE.md');
-        let stage = '';
 
         if (fs.existsSync(roomState)) {
           const content = fs.readFileSync(roomState, 'utf8');
-          const stageMatch = content.match(/venture_stage:\s*(.+)/);
-          if (stageMatch) stage = stageMatch[1].trim();
           const nameMatch = content.match(/project_name:\s*(.+)/);
-          if (nameMatch) projectName = nameMatch[1].trim();
+          if (nameMatch) roomName = nameMatch[1].trim();
         }
 
-        // Count sections and gaps
+        // Walk sections only to find the most recently modified one
+        // (the current exploration focus). Everything else about
+        // sections (counts, gaps, phase, stage, exploration label)
+        // was removed from the statusline per user spec 2026-04-14.
         const sections = fs.readdirSync(roomDir, { withFileTypes: true })
           .filter(d => d.isDirectory() && !d.name.startsWith('.'));
-        const sectionCount = sections.length;
 
-        let gaps = 0;
-        let activeSections = [];
-        for (const s of sections) {
-          const sPath = path.join(roomDir, s.name);
-          try {
-            const mdFiles = fs.readdirSync(sPath).filter(f => f.endsWith('.md') && f !== 'STATE.md');
-            if (mdFiles.length === 0) {
-              gaps++;
-            } else {
-              activeSections.push(s.name);
-            }
-          } catch (e) {}
-        }
-
-        // Find most recently modified section (what user is working in)
         let currentSection = '';
         let latestMtime = 0;
         for (const s of sections) {
@@ -219,69 +301,78 @@ process.stdin.on('end', () => {
         }
 
         // Build room status parts (De Stijl visual identity)
+        // Per user spec 2026-04-14: the room marker carries the ACTIVE
+        // ROOM NAME (not a static LARRY label), followed by the current
+        // section as a status breadcrumb. No venture stage, no section
+        // count, no gap count, no phase indicator, no exploration label.
         const parts = [];
 
-        // LARRY brand marker (always present when room is active)
-        // Gold to echo the teaching persona color in De Stijl palette.
+        // Room name with house emoji prefix. Gold bold for brand identity.
         const gold = visual.ANSI.gold || visual.ANSI.amber || '\x1b[38;2;245;194;66m';
-        parts.push(`${gold}${visual.ANSI.bold}\u25C9 LARRY${visual.ANSI.reset}`);
-
-        // Project name + breadcrumb to the currently-active section.
-        // currentSection comes from the most-recently-modified section walk above.
-        let projectCrumb = `${visual.ANSI.cyan}${visual.ANSI.bold}${visual.SYMBOLS.brand} ${projectName}${visual.ANSI.reset}`;
+        let roomCrumb = `\u{1F3E0} ${gold}${visual.ANSI.bold}${roomName}${visual.ANSI.reset}`;
         if (currentSection) {
-          projectCrumb += ` ${visual.ANSI.muted}\u25B6${visual.ANSI.reset} ${visual.ANSI.cyan}${currentSection}${visual.ANSI.reset}`;
+          // Section breadcrumb with folder emoji. Muted arrow separator.
+          roomCrumb += ` ${visual.ANSI.muted}\u25B6${visual.ANSI.reset} \u{1F4C2} ${visual.ANSI.cyan}${currentSection}${visual.ANSI.reset}`;
         }
-        parts.push(projectCrumb);
+        parts.push(roomCrumb);
 
-        if (stage) {
-          const stageSym = visual.stageSymbol(stage);
-          parts.push(`${visual.ANSI.amethyst}${stageSym} ${stage}${visual.ANSI.reset}`);
-        }
-
-        // Exploration stage: what area is the user actively working in right now?
-        // Derived from currentSection via EXPLORATION_LABELS map, with a safe
-        // uppercase fallback for unknown sections.
+        // Exploration stage label with thematic emoji per stage
+        // (target, lightbulb, money bag, bar chart, etc). Derived from
+        // currentSection via EXPLORATION_LABELS map. Unknown sections
+        // fall back to a generic magnifying-glass emoji plus uppercase
+        // section name.
         if (currentSection) {
-          const explorationLabel = EXPLORATION_LABELS[currentSection] ||
-            currentSection.replace(/-/g, ' ').toUpperCase();
-          parts.push(`${visual.ANSI.yellow}\u25CE ${explorationLabel}${visual.ANSI.reset}`);
+          const stageEntry = EXPLORATION_LABELS[currentSection];
+          const emoji = stageEntry ? stageEntry.emoji : '\u{1F50D}';
+          const label = stageEntry ? stageEntry.label : currentSection.replace(/-/g, ' ').toUpperCase();
+          parts.push(`${emoji} ${visual.ANSI.yellow}${label}${visual.ANSI.reset}`);
         }
 
-        // Active GSD workflow (phase number) if .planning/ is present.
-        const workflow = detectActiveWorkflow(dir);
-        if (workflow) {
-          parts.push(`${visual.ANSI.green}\u26A1 ${workflow}${visual.ANSI.reset}`);
+        // MindrianOS plugin brand (brain emoji) + current version +
+        // persistent /mos:update hint. The green circle plus the
+        // literal command is a zero-runtime-cost nudge that works on
+        // airgapped machines, independent of any update-detection
+        // pipeline. Honest about what it is: a reminder, not a signal.
+        const pluginVersion = readPluginVersion();
+        const updateHint = `\u{1F504} ${visual.ANSI.dim}/mos:update${visual.ANSI.reset}`;
+        let pluginPart = `\u{1F9E0} ${visual.ANSI.cyan}MindrianOS${visual.ANSI.reset}`;
+        if (pluginVersion) {
+          pluginPart += ` ${visual.ANSI.dim}v${pluginVersion}${visual.ANSI.reset}`;
         }
+        pluginPart += ` ${updateHint}`;
+        parts.push(pluginPart);
 
-        const healthSym = gaps === 0 ? visual.SYMBOLS.health.populated : visual.SYMBOLS.health.empty;
-        parts.push(`${healthSym} ${sectionCount} sections`);
-        if (gaps > 0) {
-          parts.push(`${visual.ANSI.red}${visual.SYMBOLS.health.empty} ${gaps} gaps${visual.ANSI.reset}`);
+        // Brain connection status. Green DNA if MINDRIAN_BRAIN_KEY is
+        // set (with optional health-bridge confirmation). Red DNA if
+        // not configured. This is a proxy, not a live health check -
+        // the statusline cannot do an MCP round-trip synchronously.
+        const brainStatus = detectBrainStatus();
+        if (brainStatus === 'connected') {
+          parts.push(`\u{1F9EC} ${visual.ANSI.green}BRAIN${visual.ANSI.reset}`);
+        } else if (brainStatus === 'disconnected') {
+          parts.push(`\u{1F9EC} ${visual.ANSI.red}BRAIN${visual.ANSI.reset}`);
         }
 
         roomInfo = parts.join(` ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} `);
       } catch (e) {}
+    } else {
+      // No room resolved. Still show the plugin version so users outside
+      // any room know which MindrianOS is running.
+      const pluginVersion = readPluginVersion();
+      if (pluginVersion) {
+        roomInfo = `${visual.ANSI.cyan}${visual.SYMBOLS.brand} MindrianOS${visual.ANSI.reset} ${visual.ANSI.dim}v${pluginVersion}${visual.ANSI.reset}`;
+      }
     }
 
-    // --- Update check ---
-    let updateBadge = '';
-    try {
-      const updateCache = path.join(os.homedir(), '.mindrian', 'bridge', 'update-check.json');
-      if (fs.existsSync(updateCache)) {
-        const lines = fs.readFileSync(updateCache, 'utf8').split('\n');
-        if (lines[1] && lines[1].trim() === 'UPDATE_AVAILABLE') {
-          updateBadge = `${visual.ANSI.yellow}\u2B06 /mos:update${visual.ANSI.reset} ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} `;
-        }
-      }
-    } catch (e) {}
-
     // --- Output ---
+    // The update nudge is baked into the plugin version element now.
+    // No separate update-check read; no dependency on a bridge file
+    // that nothing writes.
     if (roomInfo) {
-      process.stdout.write(`${updateBadge}${roomInfo} ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} ${visual.ANSI.dim}${model}${visual.ANSI.reset}${ctx}`);
+      process.stdout.write(`${roomInfo} ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} ${visual.ANSI.dim}${model}${visual.ANSI.reset}${ctx}`);
     } else {
       const dirname = path.basename(dir);
-      process.stdout.write(`${updateBadge}${visual.ANSI.dim}${model}${visual.ANSI.reset} ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} ${visual.ANSI.dim}${dirname}${visual.ANSI.reset}${ctx}`);
+      process.stdout.write(`${visual.ANSI.dim}${model}${visual.ANSI.reset} ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} ${visual.ANSI.dim}${dirname}${visual.ANSI.reset}${ctx}`);
     }
   } catch (e) {
     // Silent fail

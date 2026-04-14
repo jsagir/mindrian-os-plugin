@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.10.4] - 2026-04-14
+
+onboarding: true
+onboard_steps:
+  - "Restart Claude Code to see the refreshed statusline. The LARRY marker is now replaced with the active room name, venture stage and section and gap counts are removed, and the MindrianOS plugin version is always visible with a persistent /mos:update hint."
+  - "New Brain connection indicator. Green BRAIN means MINDRIAN_BRAIN_KEY is configured (Brain MCP available). Red BRAIN means not configured."
+  - "Emojis are now allowed in the statusline only. Every other surface (slash-command output, MINTO files, CHANGELOG entries, dashboard bodies, PDF exports) continues to follow the repo-wide no-emoji rule."
+
+### Added
+
+- **Active room name as the statusline brand marker.** The gold marker on the left of the statusline now carries the active room name from `.rooms/registry.json` or `STATE.md project_name`, replacing the static LARRY label. Users running multiple rooms see at a glance which one is active.
+- **Current MindrianOS plugin version always visible.** `readPluginVersion()` prefers `__dirname`-relative `plugin.json` so dev workspaces show their own version and installed plugin caches show theirs. The persistent `/mos:update` hint with a green circle appears next to the version as a zero-runtime-cost reminder that users can check for updates manually.
+- **Brain connection status indicator.** New `detectBrainStatus()` function renders a green BRAIN marker when `MINDRIAN_BRAIN_KEY` is set (with optional confirmation from `~/.mindrian/bridge/brain-health.json` if the brain-connector skill has written one) and a red BRAIN marker when not configured. This is a configuration proxy, not a live MCP round-trip, because the statusline cannot do synchronous MCP calls.
+- **Emoji thematic mapping for exploration stages.** Each venture section now renders with a thematic emoji: 🎯 PROBLEM, 💡 SOLUTION, 💰 BUSINESSCASE, 📊 MARKET, crossed-swords COMPETITION, 💵 FINANCE, scales LEGAL, 👥 TEAM, 🎨 ASSETS, outbox EXPORTS, speaking-head MEETINGS, 🎁 OPPORTUNITIES, 💎 FUNDING.
+- **Emoji prefixes on statusline elements.** 🏠 for room name, 📂 for section breadcrumb, 🧠 for MindrianOS plugin brand, 🔄 for `/mos:update` hint, 🧬 for BRAIN status.
+- **ui-system skill carve-out.** `skills/ui-system/SKILL.md` now documents that the Claude Code statusline rendered by `scripts/context-monitor` is excepted from the repo-wide no-emoji rule per user directive 2026-04-14. Every other surface (slash-command output, MINTO files, CHANGELOG prose, dashboards, PDFs, reports) continues to follow the rule without exception.
+
+### Changed
+
+- **Venture stage, section count, gap count, active GSD phase indicator, and exploration uppercase label** all **removed** from the statusline per user spec 2026-04-14. The line is now shorter and signal-dense: room name + section breadcrumb + exploration emoji + MindrianOS version + update hint + Brain status + model + context bar. Anything removed is still available via `/mos:status`, `/mos:room view`, `/mos:progress`, and other commands that need the full room map.
+- **Exploration label kept** after the initial removal proposal, on user clarification. The label sits next to the section breadcrumb to give both the section path and the thematic exploration area at a glance.
+- **Update detection write side remains unbuilt.** The old yellow arrow `/mos:update` badge read from a bridge file that nothing wrote; it was effectively dead code. v1.10.4 replaces it with the always-visible persistent hint, which is honest about what it is (a reminder, not a signal) and works on airgapped machines without any detection pipeline.
+
+### Notes
+
+v1.10.4 is a small UX-polish patch release that lands on top of v1.10.3 (prior statusline upgrade with LARRY marker + breadcrumb + exploration label + active phase). It is separate from the smart-notebook-as-cofounder work captured in `.planning/research/smart-notebook-cofounder.md` and `.planning/research/smart-notebook-cofounder-appendix.md`, which was originally targeted at v1.10.3, then v1.10.4, and has now been shifted to v1.10.5 so this statusline polish can ship today. The smart-notebook milestone (Mullins 7-domain scaffold extension, three-level section/collection/artifact hierarchy, co-founder synthesis voice) remains the next feature milestone after v1.10.4.
+
+The unused `flashingUpdate()` helper in `scripts/context-monitor` is retained as dead code on user instruction 2026-04-14 for future reuse if an update-detection write side ships later.
+
 ## [1.10.3] - 2026-04-14
 
 onboarding: true

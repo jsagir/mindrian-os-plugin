@@ -80,6 +80,8 @@ Action + source at top. Changes: section + `[before -> after]` + description. Ne
 
 **NO EMOJI. EVER.**
 
+Carve-out (2026-04-14, user directive): the Claude Code statusline rendered by `scripts/context-monitor` is **excepted** from this rule. The statusline is a passive signal surface rendered by the host terminal, not a MindrianOS command output body, and the user has authorized emoji use there specifically. Every other surface (slash-command output, artifact generation, MINTO.md files, CHANGELOG entries, reports, dashboard HTML bodies, PDF exports, printed logs) must continue to honor the no-emoji rule without exception. If you are reading this and about to add emoji to any surface other than `scripts/context-monitor`, stop.
+
 ## 4. Color Contract
 
 5 ANSI colors with fixed meaning. Color is NEVER decoration.
