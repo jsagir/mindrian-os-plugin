@@ -9,56 +9,9 @@ purpose: Short-horizon queued work that is ready to execute but not yet started.
 
 ## NEXT UP
 
-### [NEXT] v1.10.5 - Wiki artifact injection fix (Lawrence bug)
+### [NEXT] v1.10.6 - Smart-notebook-as-cofounder milestone
 
-**Trigger.** Lawrence Aronhime reported on 2026-04-13 23:23 that `scripts/generate-presentation.cjs` `collectSections` function never populates an `artifacts` array. The wiki template (`templates/presentation/wiki.html`) expects `sec.artifacts` to be an array of `{filename, title, content}` objects but the generator only emits `{id, label, color, entryCount, summary}`. Every wiki sidebar click shows an empty article pane. Lawrence workarounded on his own machine by injecting content directly into `ROOM_DATA`. Every other beta tester still hits the empty-wiki bug. The bug has been sitting since v1.9.6 (4/11). Eight subsequent releases never touched the file.
-
-**Research.** Complete and parked at `.planning/research/wiki-artifact-injection-bloat-analysis.md` (798 lines, zero em-dashes, all 8 research questions answered). Key findings:
-
-1. **The MINTO-as-primary hunch is partially wrong.** Real MINTO.md files measure 3.6-5.5 KB per section, not the 1.5 KB I was guessing, AND the wiki template has no section-home render path today. Teaching it one is 50+ lines of new template JS. Defer MINTO-as-primary to a later release (probably the smart-notebook milestone).
-2. **The math does not require compression.** Fixture artifacts average 600-800 bytes. A 2 MB cap comfortably holds 700+ mature artifacts. No current beta tester is close. Naive inline fix just works with sensible caps.
-3. **Free leverage of v1.10.2 Feynman-MINTO:** when a section has a `MINTO.md` file, upgrade `sec.summary` to read its `governing_thought` frontmatter field as a more meaningful one-liner than the current title extraction. Pre-81 rooms still work via fallback.
-
-**Bloat budget.** 5 MB total HTML = break point (GitHub/Vercel first-paint, iOS Safari parse cliff). 2 MB injected markdown = generator hard cap (leaves 3 MB for template + marked.js + styles). 20 KB per artifact = per-file cap (truncate + banner).
-
-**The fix.** Exact changes to `scripts/generate-presentation.cjs`:
-
-- **Lines 155-191 (`collectSections`):** populate `artifacts: [{filename, title, content, excerpt, date}]` inside the existing loop
-- **Line 58 (`SKIP_FILES`):** align with `lib/vault/room-scanner.cjs` `SYSTEM_FILES` constant so ROOM.md, STATE.md, MINTO.md, baselines, migration-backups, _superseded/, .mos/ are excluded
-- **Line 193 (`collectMinto`):** stays room-level for dashboard path. NEW helper `collectSectionMinto(sectionPath)` for per-section summary upgrade.
-- **Per-artifact size cap:** 20 KB. Over cap: truncate and append "... content truncated, open source file for rest."
-- **Per-room total cap:** 2 MB injected markdown. Over cap: hard stop with warning logged + in-wiki banner "Some articles truncated for file size."
-- **`sec.summary` upgrade:** if `<sectionDir>/MINTO.md` exists, read its `governing_thought` frontmatter. Fallback to current title extraction.
-
-**Template contract (verified in research).** The wiki template at `templates/presentation/wiki.html` already expects this shape:
-```
-{
-  "artifacts": [
-    { "filename": "...", "title": "...", "content": "<raw markdown>" }
-  ]
-}
-```
-Key template lines: 236-243 (index build), 265-267 (sidebar), 328-355 (article render), 345 (`art.content`), 355 (`marked.parse`). Template already bundles `marked.js`. No new library needed. Nothing to escape.
-
-**Phases (3h40m total).**
-
-- **A (45 min)** - wire the artifacts array, add per-artifact 20 KB cap, add SYSTEM_FILES exclusion alignment
-- **B (30 min)** - add per-room 2 MB cap with warning + in-wiki banner
-- **C (30 min)** - per-section MINTO `governing_thought` upgrade for `sec.summary`
-- **D (60 min)** - fixture-based tests against `test-fixtures/feynman/sections/fixture-{small,medium,large}/` asserting artifacts populated, shape matches template contract, cap triggers, summary upgrade works when MINTO present
-- **E (35 min)** - CHANGELOG entry, version bump, 5-gate release (CHANGELOG + plugin.json + package.json + git tag v1.10.5 + marketplace.json source.ref), marketplace push
-
-**Top 3 risks.**
-
-1. Silent truncation at 2 MB cap. Mitigation: warning log + in-wiki banner.
-2. Wikilinks to SYSTEM_FILES render as muted dead spans. Pre-existing issue, not new with this fix.
-3. Large meeting transcripts outside `meetings/` could push a section over the room cap. Mitigation: per-artifact 20 KB cap catches this first.
-
-**Ships as v1.10.5 direct to stable (not beta).** Feature bug fix, not release infrastructure. Same tactical same-day pattern as v1.10.3 and v1.10.4. Smart-notebook milestone shifts v1.10.5 -> v1.10.6.
-
-**CHANGELOG [1.10.5] draft text is in the research doc section 9.** Credits Lawrence by name, references the 2026-04-13 23:23 report, explicitly notes the fix leverages v1.10.2 Feynman-MINTO infrastructure for summary upgrades.
-
-**Authority to execute.** Waiting on user go. Say "ship v1.10.5" and execute all 5 phases + release pipeline + marketplace update.
+Promoted to [NEXT] on 2026-04-14 after v1.10.5 (Lawrence wiki artifact injection fix, Phase 82) shipped same-day. See the QUEUED section below for full research context (978 + 821 lines of pass 1 + pass 2 research). Waiting on user to say "write the memo" to generate the plan-phase-ready CONTEXT document at `.planning/phases/_backlog/v1.10.6-smart-notebook.md`.
 
 ---
 
@@ -91,6 +44,7 @@ Research complete across two passes:
 
 ## DECISIONS RESOLVED THIS SESSION (archive when cleaning up)
 
+- v1.10.5 Wiki Artifact Injection Fix, Phase 82 (collectSections populates sec.artifacts, per-artifact 20 KB cap, per-room 2 MB cap, collectSectionMinto summary upgrade leveraging v1.10.2 Feynman-MINTO, 9 fixture tests, SKIP_FILES aligned with SYSTEM_FILES). Lawrence Aronhime bug report 2026-04-13 23:23. SHIPPED 2026-04-14. Smart-notebook milestone shifted v1.10.5 -> v1.10.6 (fourth slot shift).
 - v1.10.3 statusline upgrade (LARRY marker + section breadcrumb + exploration label + active phase) - SHIPPED 2026-04-14
 - v1.10.4 statusline redesign (room name + MindrianOS brand + version + Brain status + thematic emojis + ui-system carve-out) - SHIPPED 2026-04-14
 - v1.10.2 Feynman-MINTO Hybrid (slash-command orchestrator, no API key, per-section MINTO compression) - SHIPPED 2026-04-14

@@ -9,6 +9,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.10.5] - 2026-04-14
+
+onboarding: true
+onboard_steps:
+  - "Restart Claude Code to receive the wiki artifact injection fix. The /mos:snapshot wiki view sidebar will now render full article content when you click any section. Previously every article pane was empty because the generator was not populating sec.artifacts. Re-run /mos:present (or /mos:snapshot) against your room to regenerate the wiki HTML with embedded article content."
+  - "New: per-section MINTO summary upgrade. When a room has been regenerated to the v1.10.2 Feynman-MINTO format, the wiki sidebar now shows each section's governing thought as the summary line instead of the title-extracted fallback. Pre-81 rooms continue to use the title-extraction summary unchanged via the H1 fallback path, so no data migration is required."
+  - "New: defensive bloat caps. The generator now caps each artifact at 20 KB and each room at 2 MB of injected markdown so single-file wiki snapshots never exceed the 5 MB break point. Over-cap rooms get a stderr warning and an in-wiki yellow banner. No current beta room is anywhere near these limits. Upgrade path: /plugin marketplace update then claude plugin update mos@mindrian-marketplace."
+
+### Fixed
+
+- **Wiki template empty-artifacts bug.** `/mos:snapshot` exports and other presentation generator outputs were producing sections with `sec.artifacts = []`, so clicking any section in the wiki sidebar showed no article content. The template at `templates/presentation/wiki.html` was designed to consume artifact data the generator at `scripts/generate-presentation.cjs` `collectSections` never populated. Reported by Lawrence Aronhime (lawrence@mindrian.ai) on 2026-04-13 23:23 after he built a same-night workaround on his own machine by injecting artifact content directly into `ROOM_DATA`. The bug had been sitting in `collectSections` since v1.9.6 (2026-04-11) and survived eight subsequent releases (v1.9.7, v1.9.8, v1.9.9, v1.10.0, v1.10.2, v1.10.3, v1.10.4) because nothing touched that file across those eight releases.
+
+### Added
+
+- **sec.artifacts populated per template contract.** `scripts/generate-presentation.cjs` `collectSections` now emits an `artifacts` array of `{filename, title, content, excerpt, date}` objects per file in each section, matching the wiki template render contract verified at `templates/presentation/wiki.html` lines 236-355. Title extraction uses the frontmatter `title` field, then the first h1, then the filename fallback. Excerpt is the first 200 chars of the body stripped of frontmatter and h1. Date prefers the frontmatter `date` field, then the file mtime as YYYY-MM-DD. Order within each section is newest-first by date with no-date files at the bottom by filename.
+- **buildArtifactEntry helper** in `scripts/generate-presentation.cjs` is the new pure function that converts a markdown file path into the artifact JSON shape. Pure, returns null on unreadable, no I/O outside the existing `safeRead` and `fs.statSync` helpers.
+- **Per-artifact 20 KB size cap with truncation banner.** Artifacts over the 20 KB threshold get content truncated at the nearest paragraph break with an explicit truncation banner appended pointing the reader at the source file path.
+- **Per-room 2 MB injected-markdown cap.** Total artifact content across all sections is capped at 2,097,152 bytes (2 MiB) so single-file wiki HTML never approaches the 5 MB break point (GitHub and Vercel first-paint budget, iOS Safari parse cliff). Real fixture artifacts measure 600-800 bytes average and no current beta cohort room is anywhere near the cap. The cap is defensive infrastructure, not an active constraint today.
+- **stderr warning on bloat cap activation.** When the per-room cap fires, the generator logs `WARN: room exceeded 2 MB injected-markdown cap, X artifacts truncated, Y artifacts dropped` to stderr in a single log-scrapable line.
+- **In-wiki bloat banner.** When the cap fires, the wiki template renders a yellow callout at the top of the sidebar reading `Snapshot truncated. Some articles were truncated or omitted to keep this snapshot under 5 MB. Open the source files for full content.` so users know some artifacts were truncated for file size.
+- **collectSectionMinto helper** in `scripts/generate-presentation.cjs` reads per-section `MINTO.md`, parses frontmatter, returns the `governing_thought` field. Pure helper, returns null on absence, no logging.
+- **sec.summary upgrade leveraging v1.10.2 Feynman-MINTO infrastructure.** When a section has a per-section `MINTO.md` with a non-empty `governing_thought` field (produced by the v1.10.2 Feynman-MINTO generator at `scripts/vault-section-minto-generator.cjs`), the wiki sidebar now displays the governing thought as the section summary instead of the title extraction. This is a free leverage of the v1.10.2 work: rooms that have been regenerated to Feynman-MINTO format get a more meaningful summary line for free, with no schema migration and no breaking change.
+- **Backwards compatibility for pre-81 rooms.** Rooms that have not been regenerated to Feynman-MINTO format (no per-section `MINTO.md` files) continue to use the title-extraction summary unchanged. The H1 fallback path produces byte-identical summary output to pre-82 behavior.
+- **SKIP_FILES alignment with SYSTEM_FILES.** `scripts/generate-presentation.cjs` now imports `SYSTEM_FILES` directly from `lib/vault/room-scanner.cjs` (lines 345-349 export), so the exclusion set is canonical: ROOM.md, STATE.md, MINTO.md, frozen tier-0 baselines, files under `.migration-backup/`, files under `_superseded/`, files under `.mos/`. No drift risk because there is one source of truth.
+- **Test coverage.** New `scripts/generate-presentation.test.cjs` with 9 test cases covering artifact shape, SYSTEM_FILES exclusion, per-artifact cap, per-room cap with stderr capture via `spawnSync`, summary upgrade with MINTO present, summary fallback without MINTO, ordering within section, title-extraction preference, and backwards-compat regression on fixture-medium. All 9 pass. Registered with `lib/memory/run-feynman-tests.cjs` central runner (now 7/7 test files green). Uses node built-in `assert`, no new runtime dependencies.
+
+### Changed
+
+- **scripts/generate-presentation.cjs collectSections** rewritten to populate the `artifacts` array, track the per-room byte counter, set the `bloatNotice` field on the room data, and call `collectSectionMinto` for each section. Existing fields (id, label, color, entryCount, summary) are unchanged in shape but `summary` now upgrades when MINTO is present. This is a free leverage of the v1.10.2 Feynman-MINTO infrastructure for section summary upgrades: no new generator runs, no schema migration, just reading a field that is already there when present.
+- **templates/presentation/wiki.html** sidebar render block now emits the bloat banner div at the top when `roomData.bloatNotice` is non-empty. Uses an inline yellow callout style consistent with the De Stijl palette.
+- **scripts/generate-presentation.cjs main()** now exports the helpers via `module.exports` and guards the `main()` call with `require.main === module` so the file can be required from tests without triggering a generator run. Strictly additive, CLI behavior unchanged.
+
+### Notes
+
+The fix leverages v1.10.2 Feynman-MINTO infrastructure for free section summary upgrades. Rooms regenerated to Feynman-MINTO format get the more meaningful `governing_thought` summary; pre-81 rooms get the title-extraction fallback unchanged. No data migration is required. Existing exported wiki.html files do not auto-regenerate; users must re-run `/mos:present` (or `/mos:snapshot`) against their room to pick up the fix.
+
+`scripts/generate-presentation.cjs` `collectMinto` at line 346 (room-level dashboard generator helper) is byte-identical to its pre-v1.10.5 form. The v1.10.5 fix only modifies `collectSections` and adds the new `buildArtifactEntry` and `collectSectionMinto` helpers as siblings.
+
+The smart-notebook-as-cofounder milestone (Mullins 7-domain scaffold extension, three-level section/collection/artifact hierarchy, co-founder synthesis voice) was originally targeted at v1.10.5. It has been shifted to v1.10.6 so this Lawrence-bug fix could ship same-day per the user's directive. This is the fourth slot shift for smart-notebook in the v1.10.x patch line (v1.10.3 to v1.10.4 to v1.10.5 to v1.10.6). The smart-notebook research artifacts at `.planning/research/smart-notebook-cofounder.md` and `smart-notebook-cofounder-appendix.md` remain authoritative for the v1.10.6 work.
+
+Upgrade path: standard two-command `/plugin marketplace update` followed by `claude plugin update mos@mindrian-marketplace`. Users on `stable` auto-update channel will receive this release within one week; users who want it immediately run the two commands above.
+
+### Credit
+
+Bug reported by Lawrence Aronhime (lawrence@mindrian.ai, Prof., Johns Hopkins Carey Business School) on 2026-04-13 23:23. Lawrence has been running beta builds since v1.9.x and holds the lawrence@mindrian.ai admin Brain API key issued 2026-03-26. He built a same-night workaround on his own machine by injecting artifact data directly into `ROOM_DATA`, then filed the bug for the rest of the beta cohort. Eight releases shipped between his report and this fix. Thank you, Lawrence.
+
 ## [1.10.4] - 2026-04-14
 
 onboarding: true
