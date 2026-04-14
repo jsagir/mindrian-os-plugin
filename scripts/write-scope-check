@@ -1,3 +1,12 @@
 #!/usr/bin/env bash
-# stub, implemented by 83-06
-exit 0
+# Phase 83-06: Filesystem write interception (Tier 1.5).
+#
+# Thin bash wrapper around scripts/write-scope-check.cjs so this script
+# can be invoked via hooks/run-hook.cmd, which always `exec bash`s the
+# target file regardless of shebang. The real implementation lives in
+# the sibling .cjs file so helpers stay in a single Node module.
+#
+# Passes stdin through to node unchanged. Propagates exit code.
+set -eu
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec node "${SCRIPT_DIR}/write-scope-check.cjs" "$@"
