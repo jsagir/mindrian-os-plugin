@@ -1,3 +1,12 @@
 #!/usr/bin/env bash
-# stub, implemented by 83-07
-exit 0
+# Phase 83-07: Mid-session intent classifier (Tier 2).
+#
+# Thin bash wrapper around scripts/intent-classifier.cjs. Exists because
+# hooks/run-hook.cmd unconditionally `exec bash`s the target file, so a
+# pure `#!/usr/bin/env node` script would be mis-dispatched. Same pattern
+# as scripts/write-scope-check from 83-06.
+#
+# Passes stdin through unchanged. Propagates exit code.
+set -eu
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec node "${SCRIPT_DIR}/intent-classifier.cjs" "$@"
