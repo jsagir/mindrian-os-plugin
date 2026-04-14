@@ -355,6 +355,22 @@ function collectMinto(roomDir) {
   return { governing_thought: governingThought, levels };
 }
 
+// Phase 82-03: section-level MINTO lookup. Reads <sectionDir>/MINTO.md
+// if present, parses the frontmatter, and returns the governing_thought
+// string. Returns null when the file is absent, unreadable, or has no
+// non-empty governing_thought. Graceful: no throwing, no logging on the
+// absent path because pre-81 rooms legitimately have no per-section MINTO
+// files. Sibling to collectMinto (room-level) above; the two helpers stay
+// distinct so readers see the layer separation at a glance.
+function collectSectionMinto(sectionDir) {
+  const mintoPath = path.join(sectionDir, 'MINTO.md');
+  const content = safeRead(mintoPath);
+  if (!content) return null;
+  const fm = parseFrontmatter(content);
+  const gt = (fm.governing_thought || '').trim();
+  return gt.length > 0 ? gt : null;
+}
+
 function collectOpportunities(roomDir) {
   const oppDir = path.join(roomDir, 'opportunity-bank');
   const files = safeReadDir(oppDir).filter(f => f.endsWith('.md') && f !== 'ROOM.md');
