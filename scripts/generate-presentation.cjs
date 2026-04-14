@@ -270,8 +270,15 @@ function collectSections(roomDir) {
     const entryCount = mdFilePaths.length;
     totalArtifacts += entryCount;
 
+    // Phase 82-03: upgrade the section summary using the per-section
+    // MINTO.md governing_thought when present. Falls back to the pre-82-03
+    // title-extraction path when MINTO.md is absent or has no governing
+    // thought, so pre-81 rooms produce identical output to the prior build.
     let summary = '';
-    if (entryCount > 0) {
+    const sectionMinto = collectSectionMinto(sectionDir);
+    if (sectionMinto) {
+      summary = sectionMinto;
+    } else if (entryCount > 0) {
       const firstContent = safeRead(mdFilePaths[0]);
       if (firstContent) summary = extractTitle(firstContent, mdFiles[0]);
     }
