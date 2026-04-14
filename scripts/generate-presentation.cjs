@@ -121,6 +121,12 @@ function safeReadDir(dirPath, opts) {
 // Per-artifact cap: 20 KB, truncated at paragraph boundary with a note banner.
 const ARTIFACT_BYTE_CAP = 20480; // 20 KB
 
+// Phase 82-02: per-room total injected-markdown cap.
+// 2 MiB exact. Counts only artifact content bytes (not metadata, template, or JS).
+// When exceeded, the over-cap artifact has its content stripped (sidebar metadata
+// stays intact) and a stderr warning is logged once per generator run.
+const ROOM_INJECTION_CAP_BYTES = 2 * 1024 * 1024; // 2097152
+
 function buildArtifactEntry(filePath, sectionDir) {
   const raw = safeRead(filePath);
   if (!raw || !raw.trim()) return null;
@@ -241,6 +247,16 @@ function collectSections(roomDir) {
   const sections = [];
   let totalArtifacts = 0;
 
+  // Phase 82-02: per-room 2 MiB injected-markdown cap state.
+  // injectedBytes counts only the content strings that survive the cap.
+  // truncatedCount and droppedCount are tracked separately so the warning
+  // format can distinguish per-artifact 20 KB truncations from per-room
+  // content strips. Today they both increment in the same over-cap branch;
+  // the dual counter shape leaves room for a future "drop entirely" path.
+  let injectedBytes = 0;
+  let truncatedCount = 0;
+  let droppedCount = 0;
+
   const entries = safeReadDir(roomDir, { withFileTypes: true });
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
@@ -263,7 +279,7 @@ function collectSections(roomDir) {
     // Phase 82-01: build per-artifact entries for wiki injection.
     // Sort by date descending; entries lacking a date fall to the bottom
     // sorted by filename ascending.
-    const artifacts = mdFilePaths
+    const rawArtifacts = mdFilePaths
       .map(fp => buildArtifactEntry(fp, sectionDir))
       .filter(Boolean)
       .sort((a, b) => {
@@ -275,6 +291,20 @@ function collectSections(roomDir) {
         if (!a.date && b.date) return 1;
         return a.filename.localeCompare(b.filename);
       });
+
+    // Phase 82-02: apply the per-room 2 MiB cap to content bytes.
+    // Over-cap artifacts keep their metadata (filename, title, excerpt, date)
+    // so the sidebar still lists them, but their content is stripped.
+    const artifacts = rawArtifacts.map(art => {
+      const entryBytes = Buffer.byteLength(art.content || '', 'utf8');
+      if (injectedBytes + entryBytes > ROOM_INJECTION_CAP_BYTES) {
+        truncatedCount += 1;
+        droppedCount += 1;
+        return Object.assign({}, art, { content: '' });
+      }
+      injectedBytes += entryBytes;
+      return art;
+    });
 
     const color = SECTION_COLORS[dirName] || '#D4CFC7';
     const label = dirName.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -289,7 +319,21 @@ function collectSections(roomDir) {
     });
   }
 
-  return { sections, totalArtifacts };
+  // Phase 82-02: emit a single stderr warning line if the cap fired.
+  // Format is locked by 82-CONTEXT.md section Bloat caps. console.error
+  // writes to stderr, not stdout, so the generator's normal stdout output
+  // stays clean for log scrapers.
+  let bloatNotice = '';
+  if (droppedCount > 0) {
+    console.error(
+      'WARN: room exceeded 2 MB injected-markdown cap, ' +
+      truncatedCount + ' artifacts truncated, ' +
+      droppedCount + ' artifacts dropped'
+    );
+    bloatNotice = 'Some articles were truncated or omitted to keep this snapshot under 5 MB. Open the source files for full content.';
+  }
+
+  return { sections, totalArtifacts, bloatNotice };
 }
 
 function collectMinto(roomDir) {
