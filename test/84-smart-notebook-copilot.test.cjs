@@ -798,12 +798,53 @@ async function case16() {
 // ---------------------------------------------------------------------------
 
 async function case17() {
+  // 84-09 lives. Default: still skip-gated so CI is not impacted by shell
+  // invocations. Run with SKIP_SELF_UPDATE=0 to exercise the real script.
   if (process.env.SKIP_SELF_UPDATE !== '0') return 'skip';
-  // Implementation deferred to 84-09. When 84-09 lands and flips
-  // SKIP_SELF_UPDATE=0, this case will exercise the rewritten self-update
-  // script against a fixture cache and assert the new version directory
-  // appears alongside the old one.
-  throw new Error('case 17 unskipped but not yet implemented; flip SKIP_SELF_UPDATE only after 84-09');
+
+  const dir = mkFixtureDir('case17');
+  try {
+    // Build a cache root with a v1.0.0 "previous install" and a v1.0.1
+    // source fixture the rewritten self-update will clone from.
+    const cacheRoot = path.join(dir, 'mos');
+    const prevDir = path.join(cacheRoot, '1.0.0');
+    fs.mkdirSync(path.join(prevDir, '.claude-plugin'), { recursive: true });
+    fs.writeFileSync(
+      path.join(prevDir, '.claude-plugin', 'plugin.json'),
+      JSON.stringify({ version: '1.0.0' })
+    );
+
+    const srcDir = path.join(dir, 'fixture-v101');
+    fs.mkdirSync(path.join(srcDir, '.claude-plugin'), { recursive: true });
+    fs.mkdirSync(path.join(srcDir, 'commands'), { recursive: true });
+    fs.writeFileSync(
+      path.join(srcDir, '.claude-plugin', 'plugin.json'),
+      JSON.stringify({ version: '1.0.1' })
+    );
+    fs.writeFileSync(path.join(srcDir, 'commands', 'noop.md'), '# noop\n');
+
+    const script = path.join(REPO_ROOT, 'scripts', 'self-update');
+    const r = spawnSync('bash', [script, 'install'], {
+      env: Object.assign({}, process.env, {
+        NODE_ENV: 'test',
+        CACHE_ROOT: cacheRoot,
+        SELF_UPDATE_SOURCE_DIR: srcDir,
+      }),
+      encoding: 'utf8',
+    });
+    assert.strictEqual(r.status, 0, 'self-update exited 0; stderr=' + r.stderr);
+    assert.ok(r.stdout.indexOf('UPDATED') !== -1, 'stdout includes UPDATED');
+    assert.ok(
+      fs.existsSync(path.join(cacheRoot, '1.0.1', '.claude-plugin', 'plugin.json')),
+      'new version dir created alongside old'
+    );
+    assert.ok(
+      fs.existsSync(path.join(cacheRoot, '1.0.0', '.claude-plugin', 'plugin.json')),
+      'old version dir left untouched (no rename, no delete)'
+    );
+  } finally {
+    rmFixture(dir);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -813,7 +854,68 @@ async function case17() {
 
 async function case18() {
   if (process.env.SKIP_SELF_UPDATE !== '0') return 'skip';
-  throw new Error('case 18 unskipped but not yet implemented; flip SKIP_SELF_UPDATE only after 84-09');
+
+  const dir = mkFixtureDir('case18');
+  try {
+    const cacheRoot = path.join(dir, 'mos');
+    const prevDir = path.join(cacheRoot, '1.0.0');
+    fs.mkdirSync(path.join(prevDir, '.claude-plugin'), { recursive: true });
+    fs.writeFileSync(
+      path.join(prevDir, '.claude-plugin', 'plugin.json'),
+      JSON.stringify({ version: '1.0.0' })
+    );
+    // .env in the previous install must be preserved into the new one.
+    const envContent = 'SECRET=keep-me\nANOTHER=value\n';
+    fs.writeFileSync(path.join(prevDir, '.env'), envContent);
+
+    const srcDir = path.join(dir, 'fixture-v101');
+    fs.mkdirSync(path.join(srcDir, '.claude-plugin'), { recursive: true });
+    fs.mkdirSync(path.join(srcDir, 'commands'), { recursive: true });
+    fs.writeFileSync(
+      path.join(srcDir, '.claude-plugin', 'plugin.json'),
+      JSON.stringify({ version: '1.0.1' })
+    );
+    fs.writeFileSync(path.join(srcDir, 'commands', 'noop.md'), '# noop\n');
+
+    const script = path.join(REPO_ROOT, 'scripts', 'self-update');
+    const r = spawnSync('bash', [script, 'install'], {
+      env: Object.assign({}, process.env, {
+        NODE_ENV: 'test',
+        CACHE_ROOT: cacheRoot,
+        SELF_UPDATE_SOURCE_DIR: srcDir,
+      }),
+      encoding: 'utf8',
+    });
+    assert.strictEqual(r.status, 0, 'self-update exited 0; stderr=' + r.stderr);
+
+    const newEnvPath = path.join(cacheRoot, '1.0.1', '.env');
+    assert.ok(fs.existsSync(newEnvPath), '.env preserved into new version');
+    assert.strictEqual(fs.readFileSync(newEnvPath, 'utf8'), envContent, '.env content matches');
+
+    // Old .env also intact (cp -n, not mv).
+    assert.strictEqual(
+      fs.readFileSync(path.join(prevDir, '.env'), 'utf8'),
+      envContent,
+      'old .env still intact'
+    );
+
+    // Security gate: rejecting a non-/tmp, non-test path must exit without
+    // touching the cache. Use NODE_ENV empty and a path outside /tmp.
+    const badR = spawnSync('bash', [script, 'install'], {
+      env: Object.assign({}, process.env, {
+        NODE_ENV: '',
+        CACHE_ROOT: cacheRoot,
+        SELF_UPDATE_SOURCE_DIR: '/etc/passwd',
+      }),
+      encoding: 'utf8',
+    });
+    assert.ok(
+      badR.stdout.indexOf('UPDATE_FAILED') !== -1,
+      'security gate rejected non-/tmp non-test source'
+    );
+  } finally {
+    rmFixture(dir);
+  }
 }
 
 // ---------------------------------------------------------------------------

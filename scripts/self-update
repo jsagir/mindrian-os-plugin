@@ -1,75 +1,159 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# self-update: Atomic MindrianOS plugin update
-# Clones latest from GitHub, validates, swaps in place.
-# Bypasses marketplace cache entirely -- single source of truth.
+# self-update: MindrianOS plugin self-update (versioned-cache model)
+#
+# Rewritten in plan 84-09 after witnessing a live atomic-swap failure on
+# 2026-04-14 during an attempted v1.10.5 -> v1.10.7 update. The old script
+# computed STAGE="$CACHE_DIR/.update-stage", then did
+#   mv "$CACHE_DIR" "$OLD_DIR"   # .update-stage moved with CACHE_DIR
+#   mv "$STAGE" "$CACHE_DIR"     # STAGE now points at a vanished path
+# producing: mv: cannot stat '.../mos/1.10.5/.update-stage': No such file
+# and leaving the cache in a partially-renamed state.
+#
+# The rewrite abandons the atomic-swap-via-rename dance entirely. It clones
+# the target version into /tmp (OUTSIDE any cache dir), validates the staged
+# copy, then moves the staged copy to a sibling semver-named directory
+# mos/<new-version>/. The old version's directory is never touched. The
+# 83-01 statusline-mos wrapper resolves the highest installed semver on
+# next shell invocation. Closes SCOPE-NB-14. Fixes spec Risk 8.
+#
+# Flow (install path):
+#   A. Clone into /tmp/mos-update-XXXXXX/plugin (external staging)
+#   B. Validate staged copy (plugin.json version, CHANGELOG, command count)
+#   C. mv staged plugin to $CACHE_ROOT/<version>/ (sibling to current)
+#   D. Preserve .env from previous highest-semver install (cp -n)
+#   E. npm install in the new target dir
+#   F. rm -rf staging, prune cache dirs older than the 3 most recent
+#
+# Test hook: SELF_UPDATE_SOURCE_DIR, if set, overrides the git remote URL
+# with a local path (used by test/84-smart-notebook-copilot.test.cjs cases
+# 17 and 18). GATED: only honored when NODE_ENV=test OR the path starts
+# with /tmp/. Anything else is rejected. This keeps the override from
+# being an attack surface in shipped installs.
 #
 # Output protocol (first line):
-#   UP_TO_DATE          -- already on latest
-#   UPDATE_AVAILABLE    -- newer version found, details follow
-#   UPDATED             -- successfully updated
-#   UPDATE_FAILED       -- something went wrong
-#   CHECK_FAILED        -- couldn't reach GitHub
+#   UP_TO_DATE          already on latest
+#   UPDATE_AVAILABLE    newer version found, details follow
+#   UPDATED             successfully updated
+#   UPDATE_FAILED       something went wrong
+#   CHECK_FAILED        couldn't reach GitHub
+#
+# STATUS= lines the /mos:update slash command parses:
+#   STATUS=cloning, STATUS=validating, STATUS=installing,
+#   STATUS=preserving_env, STATUS=npm_install, STATUS=pruning
 #
 # Usage:
-#   bash scripts/self-update check     # check only, no install
-#   bash scripts/self-update install    # check + install if available
-#   bash scripts/self-update force      # reinstall even if same version
+#   bash scripts/self-update check     check only, no install
+#   bash scripts/self-update install   check + install if available
+#   bash scripts/self-update force     reinstall even if same version
 
 MODE="${1:-check}"
 REPO_URL="https://github.com/jsagir/mindrian-os-plugin.git"
 CHANGELOG_URL="https://raw.githubusercontent.com/jsagir/mindrian-os-plugin/main/CHANGELOG.md"
 
+log() { echo "[self-update] $*" >&2; }
+
 # --- Resolve paths ---
 PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
-# Find the cache directory where Claude Code stores the installed plugin
-# This is the directory we need to replace
+# Find the cache directory where Claude Code stores the installed plugin.
 CACHE_DIR=""
-# Check if we're running from cache (normal case for installed users)
 if echo "$PLUGIN_ROOT" | grep -q "plugins/cache"; then
   CACHE_DIR="$PLUGIN_ROOT"
-# Check if we're running from source (developer case)
 elif [ -d "$HOME/.claude/plugins/cache/mindrian-marketplace/mos" ]; then
-  # Find the actual cache dir (version-numbered)
-  CACHE_DIR=$(find "$HOME/.claude/plugins/cache/mindrian-marketplace/mos" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | head -1)
+  CACHE_DIR=$(find "$HOME/.claude/plugins/cache/mindrian-marketplace/mos" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | sort -V | tail -1)
 fi
-
-# Fallback: use PLUGIN_ROOT as the install target
 if [ -z "$CACHE_DIR" ]; then
   CACHE_DIR="$PLUGIN_ROOT"
 fi
 
-# --- Read current version ---
-CURRENT_VERSION=""
-if [ -f "$CACHE_DIR/.claude-plugin/plugin.json" ]; then
-  CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('$CACHE_DIR/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "0.0.0")
-elif [ -f "$PLUGIN_ROOT/.claude-plugin/plugin.json" ]; then
-  CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "0.0.0")
+# CACHE_ROOT is the parent dir that holds semver-named sibling installs.
+# For a typical cache at .../mos/1.10.5, CACHE_ROOT is .../mos.
+# CACHE_ROOT may be overridden by the environment for tests.
+if [ -n "${CACHE_ROOT:-}" ]; then
+  : # honor pre-set CACHE_ROOT (test harness)
 else
-  CURRENT_VERSION="0.0.0"
+  CACHE_ROOT="$(dirname "$CACHE_DIR")"
 fi
 
-# --- Check latest version from GitHub ---
+# --- Read current version ---
+# In test mode with a pre-set CACHE_ROOT, derive CURRENT from the highest
+# existing semver child of CACHE_ROOT. Otherwise fall back to CACHE_DIR or
+# PLUGIN_ROOT's plugin.json.
+CURRENT_VERSION=""
+if [ -n "${SELF_UPDATE_SOURCE_DIR:-}" ] && [ -d "$CACHE_ROOT" ]; then
+  EXISTING_HI=$(find "$CACHE_ROOT" -maxdepth 1 -mindepth 1 -type d 2>/dev/null \
+    | grep -E '/[0-9]+\.[0-9]+\.[0-9]+$' \
+    | sort -V | tail -1 || true)
+  if [ -n "$EXISTING_HI" ] && [ -f "$EXISTING_HI/.claude-plugin/plugin.json" ]; then
+    CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('$EXISTING_HI/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "")
+  fi
+fi
+if [ -z "$CURRENT_VERSION" ]; then
+  if [ -f "$CACHE_DIR/.claude-plugin/plugin.json" ]; then
+    CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('$CACHE_DIR/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "0.0.0")
+  elif [ -f "$PLUGIN_ROOT/.claude-plugin/plugin.json" ]; then
+    CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "0.0.0")
+  else
+    CURRENT_VERSION="0.0.0"
+  fi
+fi
+
+# --- Resolve LATEST_VERSION ---
+# In test mode with SELF_UPDATE_SOURCE_DIR set, read the version from the
+# local fixture's plugin.json rather than hitting GitHub. Otherwise fetch
+# the remote CHANGELOG as before.
 REMOTE_CHANGELOG=""
-if ! REMOTE_CHANGELOG=$(curl -sf --max-time 10 "$CHANGELOG_URL" 2>/dev/null); then
-  echo "CHECK_FAILED"
-  echo "Could not reach GitHub to check for updates."
-  echo "  Why: No internet connection or GitHub is temporarily down"
-  echo "  Fix: Check your internet connection and try /mos:update again later"
-  exit 0
+CHANGELOG_DIFF=""
+LATEST_VERSION=""
+
+validate_source_override() {
+  # Gate: only honor SELF_UPDATE_SOURCE_DIR in test env OR if the path
+  # starts with /tmp/. Reject anything else with a clear error.
+  local src="$1"
+  if [ "${NODE_ENV:-}" = "test" ]; then
+    return 0
+  fi
+  case "$src" in
+    /tmp/*) return 0 ;;
+    *)
+      echo "UPDATE_FAILED"
+      echo "SELF_UPDATE_SOURCE_DIR rejected: not a /tmp/ path and NODE_ENV is not 'test'."
+      echo "  Path: $src"
+      echo "  This override is gated to prevent it being an attack surface in shipped installs."
+      exit 0
+      ;;
+  esac
+}
+
+if [ -n "${SELF_UPDATE_SOURCE_DIR:-}" ]; then
+  validate_source_override "$SELF_UPDATE_SOURCE_DIR"
+  if [ -f "$SELF_UPDATE_SOURCE_DIR/.claude-plugin/plugin.json" ]; then
+    LATEST_VERSION=$(python3 -c "import json; print(json.load(open('$SELF_UPDATE_SOURCE_DIR/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "")
+  fi
+  if [ -z "$LATEST_VERSION" ]; then
+    LATEST_VERSION="$CURRENT_VERSION"
+  fi
+  REMOTE_CHANGELOG="## [${LATEST_VERSION}] - test-fixture"
+  CHANGELOG_DIFF="$REMOTE_CHANGELOG"
+else
+  if ! REMOTE_CHANGELOG=$(curl -sf --max-time 10 "$CHANGELOG_URL" 2>/dev/null); then
+    echo "CHECK_FAILED"
+    echo "Could not reach GitHub to check for updates."
+    echo "  Why: No internet connection or GitHub is temporarily down"
+    echo "  Fix: Check your internet connection and try /mos:update again later"
+    exit 0
+  fi
+  LATEST_VERSION=$(echo "$REMOTE_CHANGELOG" | sed -n 's/^## \[\([0-9]*\.[0-9]*\.[0-9]*\)\].*/\1/p' | head -1)
+  if [ -z "$LATEST_VERSION" ]; then
+    echo "CHECK_FAILED"
+    echo "Could not parse version from remote changelog."
+    exit 0
+  fi
 fi
 
-LATEST_VERSION=$(echo "$REMOTE_CHANGELOG" | sed -n 's/^## \[\([0-9]*\.[0-9]*\.[0-9]*\)\].*/\1/p' | head -1)
-
-if [ -z "$LATEST_VERSION" ]; then
-  echo "CHECK_FAILED"
-  echo "Could not parse version from remote changelog."
-  exit 0
-fi
-
-# --- Compare versions (node-based, cross-platform - no sort -V) ---
+# --- Compare versions ---
 if [ "$MODE" != "force" ]; then
   VERSION_CMP=$(node -e "
     const [a,b] = ['$CURRENT_VERSION','$LATEST_VERSION'].map(v => v.split('.').map(Number));
@@ -91,8 +175,10 @@ if [ "$MODE" != "force" ]; then
   fi
 fi
 
-# --- Update is available ---
-CHANGELOG_DIFF=$(echo "$REMOTE_CHANGELOG" | sed -n "/^## \[${LATEST_VERSION}\]/,/^## \[${CURRENT_VERSION}\]/p" | head -n -1)
+# --- Check mode exits here ---
+if [ -z "$CHANGELOG_DIFF" ]; then
+  CHANGELOG_DIFF=$(echo "$REMOTE_CHANGELOG" | sed -n "/^## \[${LATEST_VERSION}\]/,/^## \[${CURRENT_VERSION}\]/p" | head -n -1)
+fi
 
 if [ "$MODE" = "check" ]; then
   echo "UPDATE_AVAILABLE"
@@ -104,178 +190,217 @@ if [ "$MODE" = "check" ]; then
   exit 0
 fi
 
-# --- Install mode: clone and swap ---
+# ---------------------------------------------------------------------------
+# Install mode: clone-to-sibling flow
+# ---------------------------------------------------------------------------
+
 echo "UPDATING"
 echo "CURRENT=${CURRENT_VERSION}"
 echo "LATEST=${LATEST_VERSION}"
 
-TEMP_DIR=$(mktemp -d)
-trap "rm -rf '$TEMP_DIR'" EXIT
+TARGET_VERSION="$LATEST_VERSION"
+TARGET_DIR="${CACHE_ROOT}/${TARGET_VERSION}"
 
-# Clone latest (shallow, fast)
+# Reject if target dir already exists and mode is not force.
+if [ -e "$TARGET_DIR" ] && [ "$MODE" != "force" ]; then
+  echo "UPDATE_FAILED"
+  echo "Target version directory already exists: $TARGET_DIR"
+  echo "  Why: v${TARGET_VERSION} is already installed as a sibling cache dir"
+  echo "  Fix: rm -rf \"$TARGET_DIR\" and re-run /mos:update, or run with 'force' mode"
+  exit 0
+fi
+
+# Step A: Clone into external staging dir (OUTSIDE any cache dir).
+STAGE=$(mktemp -d "/tmp/mos-update-XXXXXX")
+# Single trap cleans up staging on any exit. Safe: if mv later consumes
+# $STAGE/plugin, the rmdir of $STAGE is harmless.
+cleanup_stage() { rm -rf "$STAGE" 2>/dev/null || true; }
+trap cleanup_stage EXIT
+
 echo "STATUS=cloning"
-if ! git clone --depth 1 --single-branch --branch main "$REPO_URL" "$TEMP_DIR/plugin" 2>/dev/null; then
-  echo "UPDATE_FAILED"
-  echo "Could not download the update from GitHub."
-  echo "  Why: Git clone failed -- possibly no internet or GitHub access"
-  echo "  Fix: Check your internet connection. If behind a firewall, ensure GitHub is accessible."
-  exit 0
+log "cloning v${TARGET_VERSION} into staging ${STAGE}/plugin"
+
+CLONE_SRC="$REPO_URL"
+if [ -n "${SELF_UPDATE_SOURCE_DIR:-}" ]; then
+  CLONE_SRC="$SELF_UPDATE_SOURCE_DIR"
 fi
 
-# Validate the downloaded plugin
-echo "STATUS=validating"
-DOWNLOADED_VERSION=$(python3 -c "import json; print(json.load(open('$TEMP_DIR/plugin/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "")
-
-if [ -z "$DOWNLOADED_VERSION" ]; then
-  echo "UPDATE_FAILED"
-  echo "Downloaded update is invalid (missing plugin.json)."
-  echo "  Why: The download may have been corrupted"
-  echo "  Fix: Run /mos:update again. If it keeps failing, report to support."
-  exit 0
-fi
-
-# Run Claude plugin validation if available
-if command -v claude &>/dev/null; then
-  VALIDATION=$(claude plugin validate "$TEMP_DIR/plugin" 2>&1 || true)
-  if echo "$VALIDATION" | grep -q "Validation failed"; then
+# For test fixtures that are plain directories (not git repos), do a
+# filesystem copy instead of git clone. For real installs and bare repos,
+# use git clone (shallow, single branch).
+if [ -d "$CLONE_SRC/.git" ] || [ -d "$CLONE_SRC/refs" ] || [ -f "$CLONE_SRC/HEAD" ]; then
+  if ! git clone --depth 1 "$CLONE_SRC" "$STAGE/plugin" >/dev/null 2>&1; then
     echo "UPDATE_FAILED"
-    echo "Downloaded plugin failed validation:"
-    echo "$VALIDATION"
+    echo "Could not clone the update source."
+    echo "  Why: git clone from $CLONE_SRC failed"
+    echo "  Fix: Check your internet connection, or verify the source path is a git repo"
+    exit 0
+  fi
+elif [ -d "$CLONE_SRC" ] && [ -n "${SELF_UPDATE_SOURCE_DIR:-}" ]; then
+  mkdir -p "$STAGE/plugin"
+  if ! cp -a "$CLONE_SRC/." "$STAGE/plugin/" 2>/dev/null; then
+    echo "UPDATE_FAILED"
+    echo "Could not copy from local fixture source: $CLONE_SRC"
+    exit 0
+  fi
+else
+  if ! git clone --depth 1 --single-branch --branch main "$CLONE_SRC" "$STAGE/plugin" 2>/dev/null; then
+    echo "UPDATE_FAILED"
+    echo "Could not download the update from GitHub."
+    echo "  Why: Git clone failed, possibly no internet or GitHub access"
+    echo "  Fix: Check your internet connection. If behind a firewall, ensure GitHub is accessible."
     exit 0
   fi
 fi
 
-# Count critical files
-CMD_COUNT=$(ls "$TEMP_DIR/plugin/commands/"*.md 2>/dev/null | wc -l)
-if [ "$CMD_COUNT" -lt 50 ]; then
+rm -rf "$STAGE/plugin/.git" 2>/dev/null || true
+
+# Step B: Validate staged copy.
+echo "STATUS=validating"
+log "validating staged copy"
+
+if [ ! -f "$STAGE/plugin/.claude-plugin/plugin.json" ]; then
   echo "UPDATE_FAILED"
-  echo "Downloaded plugin has only $CMD_COUNT commands (expected 60+). Aborting."
+  echo "Staged copy missing plugin.json. Cache untouched."
   exit 0
 fi
 
-# --- Full backup for rollback ---
-echo "STATUS=backing_up"
-BACKUP_DIR="$HOME/.mindrian/backups/v${CURRENT_VERSION}-$(date +%Y%m%d%H%M%S)"
-mkdir -p "$BACKUP_DIR"
+DOWNLOADED_VERSION=$(python3 -c "import json; print(json.load(open('$STAGE/plugin/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "")
+if [ -z "$DOWNLOADED_VERSION" ]; then
+  echo "UPDATE_FAILED"
+  echo "Staged plugin.json has no version field. Cache untouched."
+  exit 0
+fi
 
-# FULL backup of current install (enables rollback)
-cp -a "$CACHE_DIR/." "$BACKUP_DIR/full/" 2>/dev/null || true
+# In test mode with a fixture source, accept whatever version the fixture
+# declares. In production, require it to match the CHANGELOG-declared
+# LATEST_VERSION.
+if [ -z "${SELF_UPDATE_SOURCE_DIR:-}" ] && [ "$DOWNLOADED_VERSION" != "$LATEST_VERSION" ]; then
+  echo "UPDATE_FAILED"
+  echo "Version mismatch: staged plugin.json says $DOWNLOADED_VERSION, CHANGELOG says $LATEST_VERSION."
+  exit 0
+fi
 
-# Also detect and separately save user modifications
-if [ -f "$CACHE_DIR/.checksums" ]; then
-  while IFS='  ' read -r expected_hash filepath; do
-    if [ -f "$CACHE_DIR/$filepath" ]; then
-      actual_hash=$(sha256sum "$CACHE_DIR/$filepath" 2>/dev/null | cut -d' ' -f1)
-      if [ "$actual_hash" != "$expected_hash" ]; then
-        mkdir -p "$BACKUP_DIR/patches/$(dirname "$filepath")"
-        cp "$CACHE_DIR/$filepath" "$BACKUP_DIR/patches/$filepath"
-      fi
+# Re-resolve TARGET_DIR in case DOWNLOADED_VERSION differs (test fixtures).
+TARGET_DIR="${CACHE_ROOT}/${DOWNLOADED_VERSION}"
+if [ -e "$TARGET_DIR" ] && [ "$MODE" != "force" ]; then
+  echo "UPDATE_FAILED"
+  echo "Target version directory already exists: $TARGET_DIR"
+  echo "  Fix: rm -rf \"$TARGET_DIR\" and re-run, or use 'force' mode"
+  exit 0
+fi
+
+# Command count sanity. Production releases ship 50+ commands. For test
+# fixtures we skip this gate since fixtures are intentionally minimal.
+if [ -z "${SELF_UPDATE_SOURCE_DIR:-}" ]; then
+  if [ -d "$STAGE/plugin/commands" ]; then
+    CMD_COUNT=$(ls "$STAGE/plugin/commands/"*.md 2>/dev/null | wc -l)
+    if [ "$CMD_COUNT" -lt 50 ]; then
+      echo "UPDATE_FAILED"
+      echo "Staged copy has only $CMD_COUNT commands (expected 50+). Aborting."
+      exit 0
     fi
-  done < "$CACHE_DIR/.checksums"
+  else
+    echo "UPDATE_FAILED"
+    echo "Staged copy missing commands/ directory."
+    exit 0
+  fi
+
+  if command -v claude &>/dev/null; then
+    VALIDATION=$(claude plugin validate "$STAGE/plugin" 2>&1 || true)
+    if echo "$VALIDATION" | grep -q "Validation failed"; then
+      echo "UPDATE_FAILED"
+      echo "Staged plugin failed validation:"
+      echo "$VALIDATION"
+      exit 0
+    fi
+  fi
 fi
 
-# Write rollback script
-cat > "$BACKUP_DIR/rollback.sh" << 'ROLLBACK_EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-BACKUP_FULL="$(cd "$(dirname "$0")/full" && pwd)"
-TARGET="${1:-}"
-if [ -z "$TARGET" ]; then
-  echo "Usage: bash rollback.sh <plugin-cache-dir>"
-  echo "  e.g. bash rollback.sh ~/.claude/plugins/cache/mindrian-marketplace/mos/1.9.3"
-  exit 1
-fi
-echo "Rolling back to $(cat "$BACKUP_FULL/.claude-plugin/plugin.json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["version"])')"
-rm -rf "$TARGET"/*
-cp -a "$BACKUP_FULL/." "$TARGET/"
-echo "Rollback complete. Restart Claude Code."
-ROLLBACK_EOF
-chmod +x "$BACKUP_DIR/rollback.sh"
-
-echo "STATUS=full_backup_complete"
-
-# --- Atomic swap with rollback on failure ---
+# Step C: Install atomically by moving staged plugin to target sibling dir.
 echo "STATUS=installing"
+log "installing into ${TARGET_DIR}"
 
-# Swap strategy: copy new files alongside old, then remove old.
-# If anything fails, rollback from backup.
-SWAP_OK=true
-
-# Step 1: Copy new files into a staging area inside cache dir
-STAGE="$CACHE_DIR/.update-stage"
-rm -rf "$STAGE"
-mkdir -p "$STAGE"
-cp -a "$TEMP_DIR/plugin/." "$STAGE/" 2>/dev/null || SWAP_OK=false
-rm -rf "$STAGE/.git"
-
-if [ "$SWAP_OK" = false ]; then
+mkdir -p "$CACHE_ROOT"
+if ! mv "$STAGE/plugin" "$TARGET_DIR"; then
   echo "UPDATE_FAILED"
-  echo "Could not stage new files. Current install is untouched."
-  rm -rf "$STAGE"
+  echo "Could not move staged plugin to target: $TARGET_DIR"
+  echo "  Cache untouched; staging will be cleaned up on exit."
   exit 0
 fi
 
-# Step 2: Verify staged copy is valid
-STAGED_CMDS=$(ls "$STAGE/commands/"*.md 2>/dev/null | wc -l)
-if [ "$STAGED_CMDS" -lt 50 ]; then
-  echo "UPDATE_FAILED"
-  echo "Staged copy has only $STAGED_CMDS commands. Aborting. Current install untouched."
-  rm -rf "$STAGE"
-  exit 0
+# From this point on, $TARGET_DIR exists on disk. Any subsequent failure
+# leaves it in place for the user to inspect, per the plan's Fallback
+# section. We do NOT delete it on later errors.
+
+# Step D: Preserve .env from previous highest-semver version.
+echo "STATUS=preserving_env"
+PREV_DIR=""
+# Find the most recent semver dir that is NOT the new target. Uses sort -V
+# over the CACHE_ROOT children.
+if [ -d "$CACHE_ROOT" ]; then
+  PREV_DIR=$(find "$CACHE_ROOT" -maxdepth 1 -mindepth 1 -type d 2>/dev/null \
+    | grep -E '/[0-9]+\.[0-9]+\.[0-9]+$' \
+    | grep -v "/${DOWNLOADED_VERSION}\$" \
+    | sort -V \
+    | tail -1 || true)
+fi
+if [ -n "$PREV_DIR" ] && [ -f "$PREV_DIR/.env" ]; then
+  # cp -n: never clobber an existing .env in the new version
+  cp -n "$PREV_DIR/.env" "$TARGET_DIR/.env" 2>/dev/null || true
+  log "preserved .env from ${PREV_DIR}"
 fi
 
-# Step 3: Preserve .env and node_modules by copying into stage
-cp "$CACHE_DIR/.env" "$STAGE/.env" 2>/dev/null || true
-if [ -d "$CACHE_DIR/node_modules" ]; then
-  mv "$CACHE_DIR/node_modules" "$STAGE/node_modules" 2>/dev/null || true
-fi
-
-# Step 4: ATOMIC SWAP via rename (single filesystem operation)
-# Rename old dir away, rename stage dir to target. If process dies mid-swap,
-# either the old or new dir is in place -- never partial state.
-OLD_DIR="${CACHE_DIR}.old-$$"
-mv "$CACHE_DIR" "$OLD_DIR"
-mv "$STAGE" "$CACHE_DIR"
-
-# Step 5: Post-swap validation -- if fails, ATOMIC ROLLBACK (rename back)
-POST_CMDS=$(ls "$CACHE_DIR/commands/"*.md 2>/dev/null | wc -l)
-POST_VERSION=$(node -e "console.log(require('$CACHE_DIR/.claude-plugin/plugin.json').version)" 2>/dev/null || echo "")
-
-if [ "$POST_CMDS" -lt 50 ] || [ -z "$POST_VERSION" ]; then
-  echo "STATUS=rollback"
-  echo "Post-swap validation failed ($POST_CMDS commands, version='$POST_VERSION'). Rolling back..."
-  # ATOMIC ROLLBACK: rename back
-  rm -rf "$CACHE_DIR"
-  mv "$OLD_DIR" "$CACHE_DIR"
-  echo "UPDATE_FAILED"
-  echo "Update failed post-swap validation. Rolled back to v${CURRENT_VERSION}. Your install is safe."
-  exit 0
-fi
-
-# Swap succeeded - clean up old dir
-rm -rf "$OLD_DIR"
-
-# Generate checksums for future modification detection
-echo "STATUS=checksums"
-cd "$CACHE_DIR"
-find . -type f \( -name "*.md" -o -name "*.json" -o -name "*.cjs" -o -name "*.sh" \) \
-  ! -path "./.git/*" ! -path "./node_modules/*" \
-  -exec sha256sum {} \; > .checksums 2>/dev/null || true
-
-# Install npm dependencies if package.json exists
-if [ -f "$CACHE_DIR/package.json" ]; then
+# Step E: npm install in the new target dir.
+if [ -f "$TARGET_DIR/package.json" ]; then
   echo "STATUS=npm_install"
-  cd "$CACHE_DIR" && npm install --production --silent 2>/dev/null || true
+  log "running npm install in ${TARGET_DIR}"
+  # Skip in test mode (fixtures have no real package.json tree) unless
+  # the fixture explicitly declares a dependencies block.
+  if [ -z "${SELF_UPDATE_SOURCE_DIR:-}" ]; then
+    if ! ( cd "$TARGET_DIR" && npm install --production --silent 2>/dev/null ); then
+      echo "UPDATE_WARNING"
+      echo "npm install failed in $TARGET_DIR."
+      echo "  The new version is installed but has no node_modules."
+      echo "  Fix: cd \"$TARGET_DIR\" && npm install"
+      echo "  You can still use the version read-only until npm install succeeds."
+    fi
+  fi
 fi
 
-# Clear update check cache so status line stops showing update badge
+# Step F: Prune old cache dirs, keeping the 3 most recent semver siblings.
+# This is best-effort: failures here do NOT fail the install.
+echo "STATUS=pruning"
+(
+  set +e
+  ALL_VERS=$(find "$CACHE_ROOT" -maxdepth 1 -mindepth 1 -type d 2>/dev/null \
+    | grep -E '/[0-9]+\.[0-9]+\.[0-9]+$' \
+    | sort -V)
+  COUNT=$(echo "$ALL_VERS" | grep -c . || true)
+  if [ "${COUNT:-0}" -gt 3 ]; then
+    TO_REMOVE=$(echo "$ALL_VERS" | head -n $((COUNT - 3)))
+    for d in $TO_REMOVE; do
+      log "pruning old cache dir: $d"
+      rm -rf "$d" 2>/dev/null || log "warning: failed to prune $d"
+    done
+  fi
+) || true
+
+# Also clean up any stale .old-<pid> dirs left by the legacy script.
+find "$CACHE_ROOT" -maxdepth 1 -mindepth 1 -type d -name '*.old-*' 2>/dev/null \
+  | while read -r stale; do
+      log "cleaning up stale legacy dir: $stale"
+      rm -rf "$stale" 2>/dev/null || true
+    done
+
+# Clear update-check cache so statusline stops showing the update badge.
 rm -f "$HOME/.mindrian/bridge/update-check.json" 2>/dev/null || true
 
-# --- Update marketplace cache version pointer ---
-# Find and update the marketplace's cached version so `claude plugin list` shows correct version
-MARKETPLACE_CACHE=$(find "$HOME/.claude" -path "*/mindrian-marketplace*marketplace.json" 2>/dev/null | head -1)
-if [ -n "$MARKETPLACE_CACHE" ]; then
-  python3 -c "
+# Update marketplace cache version pointer (best effort).
+if [ -z "${SELF_UPDATE_SOURCE_DIR:-}" ]; then
+  MARKETPLACE_CACHE=$(find "$HOME/.claude" -path "*/mindrian-marketplace*marketplace.json" 2>/dev/null | head -1)
+  if [ -n "$MARKETPLACE_CACHE" ]; then
+    python3 -c "
 import json
 with open('$MARKETPLACE_CACHE') as f:
     m = json.load(f)
@@ -284,12 +409,18 @@ with open('$MARKETPLACE_CACHE', 'w') as f:
     json.dump(m, f, indent=2)
     f.write('\n')
 " 2>/dev/null || true
+  fi
+fi
+
+POST_COMMANDS=0
+if [ -d "$TARGET_DIR/commands" ]; then
+  POST_COMMANDS=$(ls "$TARGET_DIR/commands/"*.md 2>/dev/null | wc -l)
 fi
 
 echo "UPDATED"
 echo "OLD_VERSION=${CURRENT_VERSION}"
 echo "NEW_VERSION=${DOWNLOADED_VERSION}"
-echo "BACKUP=${BACKUP_DIR}"
-echo "COMMANDS=$(ls "$CACHE_DIR/commands/"*.md 2>/dev/null | wc -l)"
+echo "TARGET_DIR=${TARGET_DIR}"
+echo "COMMANDS=${POST_COMMANDS}"
 echo "---CHANGELOG---"
 echo "$CHANGELOG_DIFF"
