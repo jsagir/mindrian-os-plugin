@@ -260,6 +260,22 @@ function collectSections(roomDir) {
       if (firstContent) summary = extractTitle(firstContent, mdFiles[0]);
     }
 
+    // Phase 82-01: build per-artifact entries for wiki injection.
+    // Sort by date descending; entries lacking a date fall to the bottom
+    // sorted by filename ascending.
+    const artifacts = mdFilePaths
+      .map(fp => buildArtifactEntry(fp, sectionDir))
+      .filter(Boolean)
+      .sort((a, b) => {
+        if (a.date && b.date) {
+          if (a.date === b.date) return a.filename.localeCompare(b.filename);
+          return b.date.localeCompare(a.date);
+        }
+        if (a.date && !b.date) return -1;
+        if (!a.date && b.date) return 1;
+        return a.filename.localeCompare(b.filename);
+      });
+
     const color = SECTION_COLORS[dirName] || '#D4CFC7';
     const label = dirName.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
@@ -269,6 +285,7 @@ function collectSections(roomDir) {
       color,
       entryCount,
       summary,
+      artifacts,
     });
   }
 
