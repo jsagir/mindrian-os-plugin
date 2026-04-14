@@ -2,7 +2,7 @@
 
 - **Date**: 2026-04-14
 - **Target release**: v1.10.8
-- **Phase**: 84 (plans 84-01/02/03 already shipped; this spec governs 84-04 through 84-09)
+- **Phase**: 84 (plans 84-01/02/03 already shipped; this spec governs 84-04 through 84-10)
 - **Status**: design approved after review + external research + reshape, spec in review
 - **Supersedes**: reverted commit `23d4318` (straw-man spec that did not reflect actual repo state) and `.planning/phases/84-smart-notebook/` Revision 1 plan files for 84-04 through 84-09 (uncommitted drafts that will be replaced when `writing-plans` runs)
 - **Authority trail**:
@@ -158,9 +158,11 @@ Per-room remains the structural default. Phase 83 scope-by-construction still ho
 
 6. **Voice-log writer + reader (plan 84-07)**. Extends `scripts/memory-lifecycle.cjs stop` to populate `voice_log` with structured rows built from the session's fragments (not just the current stub). Extends `scripts/on-stop` to read the voice_log tail at session end and surface a short "session summary" alongside existing cascade output. This closes the "nobody reads the store" anti-pattern at v1.10.8 time: writer AND reader both ship together. Essential per the external research Q3 finding that shipping just the writer would reinvent the bug Phase 84 was meant to fix.
 
-7. **Honesty layer sibling section + 5-gate release (plan 84-09)**. Adds `### When memory is real (v1.10.8 and later)` sub-section to `skills/larry-personality/SKILL.md`, placed immediately after the existing `### No fake recall` sub-section. Narrows (does not replace) the Phase 83-08 rule: "I have that in memory" becomes a TRUE statement when the finding comes from the graph-backed `readGraphFindings()` path. Still forbidden for cross-room content, still forbidden for sealed rooms, still forbidden for older-than-history-limit content. The 83-08 test stays byte-identical and still passes; a new test asserts the sibling section exists and lexically follows the 83-08 section. Then the 5-gate release sequence: CHANGELOG [1.10.8] entry, `plugin.json` 1.10.7 -> 1.10.8, `package.json` 1.10.7 -> 1.10.8, git tag `v1.10.8`, marketplace.json version + source.ref pinned.
+7. **Self-update script rewrite for versioned-cache model (plan 84-09)**. Rewrites `scripts/self-update` to stop fighting the versioned cache model. The current script uses `STAGE="$CACHE_DIR/.update-stage"` where `$CACHE_DIR` is the version-named dir (e.g., `mos/1.10.5/`), then does `mv $CACHE_DIR $OLD_DIR` followed by `mv $STAGE $CACHE_DIR`. The first `mv` takes `.update-stage` with it (because it is inside `$CACHE_DIR`), so the second `mv` reads a stale path and fails. This was observed live on 2026-04-14 during an attempted v1.10.5 -> v1.10.7 update on the project lead's machine and left the cache in a broken state that required manual recovery (the staged v1.10.7 install was moved from `1.10.5.old-807316/.update-stage` to `mos/1.10.7/` by hand). The rewrite drops the atomic swap dance entirely: clone the target version into a new sibling directory `mos/<new-version>/` via a fresh `git clone` + `git checkout <tag>`, never touch the previous version's directory, let the 83-01 statusline-mos wrapper resolve highest-semver automatically. Preserve `.env` and user modifications via the existing backup step (which was working correctly; it was only the atomic swap that failed). The new script has four steps: (a) clone target version to staging area OUTSIDE any version dir (e.g., `/tmp/mos-update-$$`), (b) validate staged copy, (c) `mv` staging area to `mos/<new-version>/`, (d) run `npm install` in the new dir. No rename-to-old, no in-place swap, no mv-reorder hazard. Closes SCOPE-NB-14.
 
-Plan 84-08 covers tests for all of the above (see Testing section).
+8. **Honesty layer sibling section + 5-gate release (plan 84-10)**. Adds `### When memory is real (v1.10.8 and later)` sub-section to `skills/larry-personality/SKILL.md`, placed immediately after the existing `### No fake recall` sub-section. Narrows (does not replace) the Phase 83-08 rule: "I have that in memory" becomes a TRUE statement when the finding comes from the graph-backed `readGraphFindings()` path. Still forbidden for cross-room content, still forbidden for sealed rooms, still forbidden for older-than-history-limit content. The 83-08 test stays byte-identical and still passes; a new test asserts the sibling section exists and lexically follows the 83-08 section. Then the 5-gate release sequence: CHANGELOG [1.10.8] entry, `plugin.json` 1.10.7 -> 1.10.8, `package.json` 1.10.7 -> 1.10.8, git tag `v1.10.8`, marketplace.json version + source.ref pinned.
+
+Plan 84-08 covers tests for all of the above including self-update fixtures (see Testing section).
 
 ## Data flow
 
@@ -233,10 +235,12 @@ Specific test coverage in plan 84-08:
 14. Honesty layer sibling section: SKILL.md contains both `### No fake recall` (Phase 83-08, unchanged) and `### When memory is real (v1.10.8 and later)`, and the lexical order is preserved (83-08 first, 84 sibling second)
 15. Phase 83 test regression: all existing 83-04/05/06/07/08 tests still pass after 84 lands (run the full runner as part of 84-08 pre-commit check)
 16. Mullins scaffold loader: fixture scaffold JSON, assert `listSections()` returns 20, `getSection()` returns correct shape, `sectionExists("market")` returns true
+17. Self-update happy path: fixture cache with `mos/1.10.5/`, run rewritten self-update targeting `1.10.6`, assert `mos/1.10.6/` exists alongside `mos/1.10.5/`, both dirs intact, new version `plugin.json` reports 1.10.6, statusline-mos wrapper resolves to 1.10.6
+18. Self-update preserves `.env` and node_modules: fixture `mos/1.10.5/.env` with test content, run update, assert `mos/1.10.6/.env` has identical content, `mos/1.10.6/node_modules` present, old `mos/1.10.5/.env` untouched
 
 Insight-ID-shape requirement (reviewer finding I4): graph findings MUST use the same insight shape and ID derivation as `parseAnalyzeOutput()` produces, so `shouldSuppress()` repeat-count keying works. Explicit test case 4 above validates this.
 
-## Plan chain (v1.10.8, six plans, linear, parallel_safe: false)
+## Plan chain (v1.10.8, seven plans, linear, parallel_safe: false)
 
 | # | Plan | Size | Est min |
 |---|---|---|---|
@@ -245,9 +249,10 @@ Insight-ID-shape requirement (reviewer finding I4): graph findings MUST use the 
 | 84-06 | UserPromptSubmit graph-findings injection in intent-classifier.cjs (env-gated, top-3 cap, default ON, kill switch) | large | 75 |
 | 84-07 | Voice-log writer + reader: extend memory-lifecycle stop + on-stop integration | medium | 60 |
 | 84-08 | Fixture-based tests (16 cases covering all above plus Phase 83 regression guard) | large | 90 |
-| 84-09 | Honesty layer sibling section + CHANGELOG [1.10.8] + version bumps + git tag + marketplace 5-gate release | medium | 60 |
+| 84-09 | Self-update script rewrite for versioned-cache model (drop atomic-swap, clone to sibling dir, preserve .env and mods) | medium | 60 |
+| 84-10 | Honesty layer sibling section + CHANGELOG [1.10.8] + version bumps + git tag + marketplace 5-gate release | medium | 60 |
 
-**Total: ~7-8 hours. Single long session or split across two.**
+**Total: ~8-9 hours. Single long session or split across two.**
 
 Plans are linear (`parallel_safe: false`), each depends on the previous. 84-05 is the largest because it combines the Stakeholder node type and the bridge into one plan; splitting them would force two commits touching the same file boundary in lazygraph-ops / proactive-intelligence, which is worse than one focused commit.
 
@@ -305,6 +310,7 @@ Plans are linear (`parallel_safe: false`), each depends on the previous. 84-05 i
 - **SCOPE-NB-11**: `skills/larry-personality/SKILL.md` contains both `### No fake recall` (Phase 83, unchanged) and `### When memory is real (v1.10.8 and later)` sub-sections; the 83 test still passes and a new test asserts the sibling
 - **SCOPE-NB-12**: Phase 83 test regression guard: all existing 83-04/05/06/07/08 tests remain green
 - **SCOPE-NB-13**: CHANGELOG [1.10.8] entry, `plugin.json` 1.10.8, `package.json` 1.10.8, git tag `v1.10.8`, marketplace.json version + source.ref pinned. All 5 gates green
+- **SCOPE-NB-14**: `scripts/self-update` successfully installs a new version into a sibling `mos/<version>/` cache directory without moving, renaming, or deleting the previous version's directory. User modifications and `.env` are preserved via the existing backup path. The 83-01 statusline-mos wrapper resolves to the highest installed version after install completes. Fixture-based tests in 84-08 validate the behavior before 84-10 ships
 
 ## Risks
 
@@ -322,6 +328,8 @@ Plans are linear (`parallel_safe: false`), each depends on the previous. 84-05 i
 
 7. **Env gate default ON contradicts the reviewer's earlier OFF recommendation.** Reviewer I3 suggested OFF for byte-identical Phase 83 behavior on upgrade. External research (Mem0/Zep 15-point LongMemEval gap, Dependabot case) flipped this to ON with top-3 cap as the suppression mechanism. The kill switch `MINDRIAN_COPILOT_INJECT_FINDINGS=0` provides escape for any user who wants Phase 83-byte-identical behavior. Mitigation: the decision is explicitly locked here after weighing both inputs; documented in the CHANGELOG; kill switch instructions in the release notes.
 
+8. **Release-infrastructure bug class (witnessed 2026-04-14).** During this design session, an attempted `scripts/self-update install` from v1.10.5 to v1.10.7 failed on the project lead's machine at the atomic-swap step, leaving the cache in a half-state (old `1.10.5` renamed to `1.10.5.old-807316`, new v1.10.7 stranded inside `.update-stage`). Root cause: the script's `$STAGE` variable is computed as `$CACHE_DIR/.update-stage` then `$CACHE_DIR` is renamed away, leaving `$STAGE` pointing at a path that no longer exists. The v1.10.7 self-update script is byte-identical to v1.10.5, so every v1.10.5 user hits the same failure on their next update. Recovery requires manual `mv` from the `.old-<pid>` directory. Mitigation: plan 84-09 rewrites the script using a clone-to-sibling model that is structurally immune to the bug class. Fixture tests in 84-08 validate the new behavior. Plan 84-10 (5-gate release) only proceeds if 84-09 tests pass. If the rewrite itself has bugs, plan 84-10 is held until 84-09 is re-executed.
+
 ## Locked decisions (all 6 brainstorm questions answered)
 
 1. **Path C2 + Z**: Hybrid path (bridge + UserPromptSubmit + Mullins scaffold) with Stakeholder node type added in v1.10.8 via option Z (minimal + metadata JSON blob, power/interest/stance deferred to v1.11.x as edge properties).
@@ -330,10 +338,11 @@ Plans are linear (`parallel_safe: false`), each depends on the previous. 84-05 i
 4. **Suppression budget for the bridge**: top-3 cap per UserPromptSubmit injection. Honesty layer remains about language not volume.
 5. **Mullins scaffold rigidity**: template, not mandatory skeleton. Users can skip the scaffold entirely.
 6. **Voice-log reader for v1.10.8**: writer AND reader both land in v1.10.8 (plan 84-07). Deferring the reader would recreate the anti-pattern Phase 84 was meant to fix.
+7. **Self-update rewrite in scope for v1.10.8 as plan 84-09** (user decision "go", accepting recommendation A during GSD dispatch on 2026-04-14). Not hotfixed as v1.10.7.1 because release-infrastructure beta-gating rules in `.claude/includes/release-process.md` make a hotfix slower than v1.10.8 itself. Not deferred to v1.10.9 because every v1.10.5 user would hit the same install failure between now and v1.10.9. v1.10.8 ships as a safely upgradeable patch for the entire v1.10.5 install base.
 
 ## Definition of done
 
-1. All 6 plans (84-04 through 84-09) shipped with atomic commits, each with a `feat(84-NN):` or `test(84-NN):` message and Co-Authored-By footer.
+1. All 7 plans (84-04 through 84-10) shipped with atomic commits, each with a `feat(84-NN):` or `test(84-NN):` message and Co-Authored-By footer.
 2. `lib/memory/run-feynman-tests.cjs` runner reports all previously-passing test files still green plus the new 84-08 file, on the day of execution (exact count is whatever the registration shows at that time, not a hardcoded number).
 3. `plugin.json`, `package.json`, git tag, and `~/mindrian-marketplace/.claude-plugin/marketplace.json` all show 1.10.8 / v1.10.8.
 4. CHANGELOG [1.10.8] entry present at top crediting the v1.10.8 reshape story and the v1.11.x Stakeholder Intelligence milestone as the next milestone.
@@ -360,4 +369,4 @@ The reverted spec at commit 23d4318 is preserved in git history (`git show 23d43
 ---
 
 **Design status**: written, in review.
-**Next step on approval**: invoke `superpowers:writing-plans` to generate 84-04 through 84-09 plan files in `.planning/phases/84-smart-notebook/`, replacing the existing Revision 1 drafts on disk.
+**Next step on approval**: invoke `superpowers:writing-plans` (via `/gsd:plan-phase 84`) to generate 84-04 through 84-10 plan files in `.planning/phases/84-smart-notebook/`, replacing the existing Revision 1 drafts on disk.
