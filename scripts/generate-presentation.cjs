@@ -651,7 +651,7 @@ function main() {
   }
 
   // -- 2. Collect all data --
-  const { sections, totalArtifacts } = collectSections(roomDir);
+  const { sections, totalArtifacts, bloatNotice } = collectSections(roomDir);
   const minto = collectMinto(roomDir);
   const opportunities = collectOpportunities(roomDir);
   const assets = collectAssets(roomDir);
@@ -686,6 +686,7 @@ function main() {
     sectionColors: SECTION_COLORS,
     state: { name: ventureName, stage },
     currentView: 'graph',
+    bloatNotice: bloatNotice || '',
   };
 
   // -- 4. Run analyze-room for intelligence --
