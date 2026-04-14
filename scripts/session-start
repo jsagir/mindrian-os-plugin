@@ -443,6 +443,99 @@ else
   fi
 fi
 
+# ---------------------------------------------------------------------------
+# ACTIVE ROOM CONTEXT injection (Phase 83-02, SCOPE-INJ-01/03)
+#
+# Reads ~/MindrianRooms/.rooms/registry.json "active" field, resolves the
+# room path and project name from its STATE.md, and appends a locked
+# ACTIVE ROOM CONTEXT + CROSS-ROOM POLICY block to $context. Graceful
+# no-registry / no-active fallback: block is omitted silently, no error.
+# See .planning/phases/83-cross-session-scope-injection/83-02-PLAN.md
+# ---------------------------------------------------------------------------
+inject_active_room_context() {
+  # Resolve MindrianRooms root (3-way fallback).
+  local rooms_root=""
+  if [ -n "${MINDRIAN_ROOMS_ROOT:-}" ]; then
+    rooms_root="${MINDRIAN_ROOMS_ROOT}"
+  elif [ -d "${HOME}/MindrianRooms" ]; then
+    rooms_root="${HOME}/MindrianRooms"
+  else
+    local found
+    found=$(find "${HOME}" -maxdepth 2 -type d -name MindrianRooms 2>/dev/null | head -1 || true)
+    if [ -n "$found" ]; then
+      rooms_root="$found"
+    fi
+  fi
+
+  if [ -z "$rooms_root" ]; then
+    echo "[scope-injection] no MindrianRooms root resolved, skipping" >&2
+    return 0
+  fi
+
+  local registry="${rooms_root}/.rooms/registry.json"
+  if [ ! -f "$registry" ]; then
+    echo "[scope-injection] no registry at ${registry}, skipping" >&2
+    return 0
+  fi
+
+  # Extract active field via python3 (already a session-start dependency).
+  local active
+  active=$(python3 -c "
+import json, sys
+try:
+    with open(sys.argv[1], 'r') as f:
+        d = json.load(f)
+    a = d.get('active', '') or ''
+    print(a.strip())
+except Exception:
+    pass
+" "$registry" 2>/dev/null || echo "")
+
+  if [ -z "$active" ]; then
+    echo "[scope-injection] registry active field empty, skipping" >&2
+    return 0
+  fi
+
+  local active_path="${rooms_root}/${active}"
+  if [ ! -d "$active_path" ]; then
+    echo "[scope-injection] active room directory missing: ${active_path}, skipping" >&2
+    return 0
+  fi
+
+  # Parse project name from STATE.md frontmatter (bounded read, prompt-injection safe).
+  local project="unspecified"
+  local state_md="${active_path}/STATE.md"
+  if [ -f "$state_md" ]; then
+    local raw
+    raw=$(head -n 30 "$state_md" 2>/dev/null | grep -m1 '^project:' | sed 's/^project:[[:space:]]*//' || true)
+    # Strip backticks, newlines, and trim whitespace. Cap at 120 chars.
+    raw=$(printf '%s' "$raw" | tr -d '`' | tr -d '\r\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | cut -c1-120)
+    if [ -n "$raw" ]; then
+      project="$raw"
+    fi
+  fi
+
+  # Section focus from statusline tracking file if present.
+  local section_focus="no current section"
+  local tracking="${HOME}/.mindrian/statusline-section"
+  if [ -f "$tracking" ]; then
+    local sraw
+    sraw=$(head -n 1 "$tracking" 2>/dev/null | tr -d '\r\n' | cut -c1-120 || true)
+    if [ -n "$sraw" ]; then
+      section_focus="$sraw"
+    fi
+  fi
+
+  # Build and append the locked block. Format is mandated by
+  # 83-02-PLAN.md section 5 and 83-CONTEXT.md REVISION 2.
+  local block
+  block="\n\n## ACTIVE ROOM CONTEXT\n\nYou are scoped to the room: ${active}\nPath: ${active_path}\nProject: ${project}\nSection focus: ${section_focus}\n\n## CROSS-ROOM POLICY\n\nWhen the user mentions a room name or topic that maps to a different\nroom than the active one, you must:\n1. Acknowledge the mismatch out loud and name both rooms\n2. Ask whether to switch the active room or continue in the current scope\n3. Refuse to draft artifacts that belong to a different room without\n   explicit user confirmation of intent\n4. Never file content derived from another room into the active room"
+
+  context="${context}${block}"
+}
+
+inject_active_room_context || true
+
 # Auto-configure statusline: install the statusline-mos wrapper and point
 # settings.json at it. The wrapper resolves the latest installed cache version
 # at runtime, so settings.json never needs to be rewritten when a new
