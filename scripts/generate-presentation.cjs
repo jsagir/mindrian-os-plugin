@@ -116,6 +116,87 @@ function safeReadDir(dirPath, opts) {
   }
 }
 
+// Phase 82-01: build a single artifact entry for wiki injection.
+// Returns { filename, title, content, excerpt, date } or null if unreadable/empty.
+// Per-artifact cap: 20 KB, truncated at paragraph boundary with a note banner.
+const ARTIFACT_BYTE_CAP = 20480; // 20 KB
+
+function buildArtifactEntry(filePath, sectionDir) {
+  const raw = safeRead(filePath);
+  if (!raw || !raw.trim()) return null;
+
+  const fm = parseFrontmatter(raw);
+
+  // Strip frontmatter from body for title/excerpt/content extraction.
+  let body = raw;
+  const fmMatch = raw.match(/^---\n[\s\S]*?\n---\n?/);
+  if (fmMatch) body = raw.slice(fmMatch[0].length);
+
+  // Title: frontmatter > first h1 > filename.
+  let title = fm.title || '';
+  if (!title) {
+    const h1 = body.match(/^# (.+)$/m);
+    title = h1 ? h1[1].trim() : path.basename(filePath, '.md');
+  }
+
+  // Excerpt: first 200 chars of body with the first h1 line stripped,
+  // truncated at a word boundary with an ellipsis if cut.
+  const bodyForExcerpt = body.replace(/^# .+$/m, '').trim();
+  const plain = bodyForExcerpt.replace(/\s+/g, ' ').trim();
+  let excerpt;
+  if (plain.length <= 200) {
+    excerpt = plain;
+  } else {
+    const slice = plain.slice(0, 200);
+    const lastSpace = slice.lastIndexOf(' ');
+    excerpt = (lastSpace > 0 ? slice.slice(0, lastSpace) : slice) + '...';
+  }
+
+  // Date: frontmatter > file mtime (YYYY-MM-DD).
+  let date = fm.date || '';
+  if (!date) {
+    try {
+      const stat = fs.statSync(filePath);
+      date = new Date(stat.mtimeMs).toISOString().slice(0, 10);
+    } catch (_) {
+      date = '';
+    }
+  }
+
+  // Per-artifact 20 KB cap. Truncate at nearest paragraph break to avoid
+  // cutting mid-sentence, then append the truncation banner. Sized on the
+  // full raw content (including frontmatter) since that is what is shipped
+  // to the wiki viewer.
+  let content = raw;
+  if (Buffer.byteLength(content, 'utf8') > ARTIFACT_BYTE_CAP) {
+    // Slice down by byte budget. Use Buffer to avoid mid-codepoint cuts.
+    const buf = Buffer.from(content, 'utf8');
+    let cutBuf = buf.slice(0, ARTIFACT_BYTE_CAP);
+    let cut = cutBuf.toString('utf8');
+    // Drop the trailing partial codepoint if any (toString handles this,
+    // but we still want to back up to a paragraph boundary).
+    const lastPara = cut.lastIndexOf('\n\n');
+    if (lastPara > 0) cut = cut.slice(0, lastPara);
+
+    let relPath;
+    try {
+      relPath = path.relative(sectionDir, filePath) || path.basename(filePath);
+    } catch (_) {
+      relPath = path.basename(filePath);
+    }
+    const banner = '\n\n---\n\n**Note:** This article was truncated at 20 KB for file size. Open the source file at ' + relPath + ' to read the full content.';
+    content = cut + banner;
+  }
+
+  return {
+    filename: path.basename(filePath),
+    title,
+    content,
+    excerpt,
+    date,
+  };
+}
+
 // Recursively find all .md files in a directory tree
 function findMdFiles(dirPath, skipFiles) {
   const results = [];
