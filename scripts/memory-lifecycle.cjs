@@ -190,6 +190,88 @@ async function cmdSessionStart(roomDir) {
 }
 
 // ---------------------------------------------------------------------------
+// Helpers: fragment harvest + artifact/contradiction extraction (84-07)
+// ---------------------------------------------------------------------------
+
+const FRAGMENT_HARVEST_CAP = 500;
+
+function loadAllFragments(db, sessionId) {
+  try {
+    const rows = db.prepare(
+      'SELECT id, role, content, timestamp FROM fragments WHERE session_id = ? ORDER BY timestamp ASC, id ASC LIMIT ?'
+    ).all(sessionId, FRAGMENT_HARVEST_CAP);
+    return Array.isArray(rows) ? rows : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function pickFirstByRole(fragments, role) {
+  for (const f of fragments) {
+    if (f && f.role === role && typeof f.content === 'string' && f.content) return f;
+  }
+  return null;
+}
+
+function pickLastByRole(fragments, role) {
+  for (let i = fragments.length - 1; i >= 0; i--) {
+    const f = fragments[i];
+    if (f && f.role === role && typeof f.content === 'string' && f.content) return f;
+  }
+  return null;
+}
+
+function extractArtifactIds(fragments) {
+  // Naive scan: pick obvious artifact-id-shaped tokens from content (paths,
+  // [[wikilinks]], OPP-XX style ids). Best-effort, dedupe, cap at 25.
+  const out = new Set();
+  const wikilink = /\[\[([^\]]+)\]\]/g;
+  const idLike = /\b([A-Z]{2,6}-\d{2,5})\b/g;
+  for (const f of fragments) {
+    if (!f || typeof f.content !== 'string') continue;
+    let m;
+    while ((m = wikilink.exec(f.content)) !== null) {
+      if (m[1]) out.add(m[1].trim());
+      if (out.size >= 25) return Array.from(out);
+    }
+    while ((m = idLike.exec(f.content)) !== null) {
+      if (m[1]) out.add(m[1]);
+      if (out.size >= 25) return Array.from(out);
+    }
+  }
+  return Array.from(out);
+}
+
+function loadContradictionIds(roomDir) {
+  // Best-effort read of .proactive-intelligence.json contradictions section.
+  // Empty array on any failure (advisory contract).
+  try {
+    const p = path.join(roomDir, '.proactive-intelligence.json');
+    if (!fs.existsSync(p)) return [];
+    const j = JSON.parse(fs.readFileSync(p, 'utf8'));
+    if (!j) return [];
+    const candidates = j.contradictions || j.held_contradictions || [];
+    if (!Array.isArray(candidates)) return [];
+    return candidates
+      .map((c) => (c && (c.id || c.contradiction_id)) || null)
+      .filter((x) => x !== null && x !== undefined)
+      .slice(0, 25);
+  } catch (_) {
+    return [];
+  }
+}
+
+function resolveSessionCommand(db, sessionId) {
+  try {
+    const row = db.prepare('SELECT methodology_used FROM sessions WHERE id = ?').get(sessionId);
+    if (row && typeof row.methodology_used === 'string' && row.methodology_used) {
+      return row.methodology_used;
+    }
+  } catch (_) { /* fall through */ }
+  return 'session-summary';
+}
+
+// ---------------------------------------------------------------------------
 // Subcommand: stop
 // ---------------------------------------------------------------------------
 
@@ -214,13 +296,66 @@ async function cmdStop(roomDir) {
       open_questions: [],
       artifacts_filed: [],
     });
-    await memory.writeVoiceLogStub(handle.db, {
-      command: 'session-summary',
-      answer_summary: summary || null,
-    });
+
+    // 84-07 writer: build a structured voice_log row from session fragments.
+    // If there are no fragments at all, fall through to the stub for parity
+    // with v1.10.8 behavior.
+    const fragments = loadAllFragments(handle.db, pointer.id);
+    if (fragments.length > 0) {
+      const firstUser = pickFirstByRole(fragments, 'user');
+      const lastAssistant = pickLastByRole(fragments, 'assistant');
+      const command = resolveSessionCommand(handle.db, pointer.id);
+      const question = firstUser ? firstUser.content : null;
+      const answerSummary = (lastAssistant && lastAssistant.content) || summary || null;
+      const artifactsCited = extractArtifactIds(fragments);
+      const contradictionsFlagged = loadContradictionIds(roomDir);
+
+      await memory.writeVoiceLogRow(handle.db, {
+        command: command,
+        question: question,
+        answer_summary: answerSummary,
+        artifacts_cited: artifactsCited,
+        confidence: null,
+        contradictions_flagged: contradictionsFlagged,
+      });
+    } else {
+      await memory.writeVoiceLogStub(handle.db, {
+        command: 'session-summary',
+        answer_summary: summary || null,
+      });
+    }
   } finally {
     await closeRoomDb(handle);
     deletePointer(roomDir);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Subcommand: read-voice-tail (84-07 reader API)
+// ---------------------------------------------------------------------------
+
+async function cmdReadVoiceTail(roomDir, _sessionIdArg) {
+  // sessionIdArg accepted for forward compatibility; v1.10.8 voice_log has no
+  // session_id column so we return the latest row for the active room db.
+  // Empty stdout literal "null" on no row, on error, or on missing room.
+  const { openRoomDb, closeRoomDb } = require(ROOM_DB_MODULE);
+  const memory = require(path.join(__dirname, '..', 'lib', 'core', 'memory-ops.cjs'));
+
+  let handle = null;
+  try {
+    handle = await openRoomDb(roomDir);
+    const row = await memory.readVoiceLogTail(handle.db);
+    if (!row) {
+      process.stdout.write('null\n');
+      return;
+    }
+    process.stdout.write(JSON.stringify(row) + '\n');
+  } catch (_) {
+    process.stdout.write('null\n');
+  } finally {
+    if (handle) {
+      try { await closeRoomDb(handle); } catch (_) { /* ignore */ }
+    }
   }
 }
 
@@ -278,22 +413,34 @@ async function cmdPostCompact(roomDir) {
 
 function usage() {
   process.stderr.write(
-    'usage: memory-lifecycle.cjs <session-start|stop|pre-compact|post-compact> [roomDir]\n'
+    'usage: memory-lifecycle.cjs <session-start|stop|pre-compact|post-compact|read-voice-tail> [sessionIdOrRoomDir] [roomDir]\n'
   );
 }
 
 async function main() {
   const sub = process.argv[2];
-  const argPath = process.argv[3];
 
   if (!sub) {
     usage();
     process.exit(1);
   }
 
+  // read-voice-tail has a different argv shape: arg[3] is the session id (for
+  // forward compat), arg[4] is the optional roomDir override. All other
+  // subcommands accept arg[3] as roomDir.
+  let argPath;
+  let voiceSessionArg;
+  if (sub === 'read-voice-tail') {
+    voiceSessionArg = process.argv[3];
+    argPath = process.argv[4];
+  } else {
+    argPath = process.argv[3];
+  }
+
   const roomDir = effectiveRoomDir(argPath);
   if (!roomDir) {
     // Graceful no-op: no active room, no registry, or room missing.
+    if (sub === 'read-voice-tail') process.stdout.write('null\n');
     process.exit(0);
   }
 
@@ -303,6 +450,7 @@ async function main() {
       case 'stop': await cmdStop(roomDir); break;
       case 'pre-compact': await cmdPreCompact(roomDir); break;
       case 'post-compact': await cmdPostCompact(roomDir); break;
+      case 'read-voice-tail': await cmdReadVoiceTail(roomDir, voiceSessionArg); break;
       default:
         usage();
         process.exit(1);
@@ -313,6 +461,7 @@ async function main() {
     if (process.env.MINDRIAN_MEMORY_DEBUG === '1') {
       process.stderr.write('[memory-lifecycle] ' + sub + ' failed: ' + (err && err.message ? err.message : String(err)) + '\n');
     }
+    if (sub === 'read-voice-tail') process.stdout.write('null\n');
     process.exit(0);
   }
 }

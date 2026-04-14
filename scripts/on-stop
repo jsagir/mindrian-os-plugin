@@ -178,14 +178,55 @@ SESSIONEOF
 fi
 
 # Phase 84-03: memory-lifecycle stop hook. Writes session-summary fragment,
-# closes the active-room session row, writes a voice_log stub, and unlinks
-# the .mindrian/current-session.json pointer. Graceful no-op when no active
-# room. Strictly additive to on-stop's existing STATE.md and analytics flow.
+# closes the active-room session row, writes a voice_log row (84-07 writer)
+# from session fragments, and unlinks the .mindrian/current-session.json
+# pointer. Graceful no-op when no active room. Strictly additive to on-stop's
+# existing STATE.md and analytics flow.
 if command -v node >/dev/null 2>&1 && [ -f "${PLUGIN_ROOT}/scripts/memory-lifecycle.cjs" ]; then
   node "${PLUGIN_ROOT}/scripts/memory-lifecycle.cjs" stop >/dev/null 2>&1 || true
 fi
 
-# Output minimal success JSON
-printf '{"status": "ok"}\n'
+# Phase 84-07 reader: surface a one-line session summary built from the
+# voice_log row just written by the writer above. Advisory: any failure
+# (missing node, missing row, parse error, missing room db) leaves
+# VOICE_SUMMARY_LINE empty and the hook output unchanged.
+VOICE_SUMMARY_LINE=""
+if command -v node >/dev/null 2>&1 && [ -f "${PLUGIN_ROOT}/scripts/memory-lifecycle.cjs" ]; then
+  VOICE_TAIL_JSON=$(node "${PLUGIN_ROOT}/scripts/memory-lifecycle.cjs" read-voice-tail "" 2>/dev/null || echo "null")
+  if [ -n "$VOICE_TAIL_JSON" ] && [ "$VOICE_TAIL_JSON" != "null" ]; then
+    VOICE_SUMMARY_LINE=$(VOICE_TAIL_JSON="$VOICE_TAIL_JSON" node -e "
+      try {
+        const j = JSON.parse(process.env.VOICE_TAIL_JSON || 'null');
+        if (!j) { process.exit(0); }
+        const cmd = (j.command || 'session').toString();
+        const cited = Array.isArray(j.artifacts_cited) ? j.artifacts_cited.length : 0;
+        const flagged = Array.isArray(j.contradictions_flagged) ? j.contradictions_flagged.length : 0;
+        const ts = (j.timestamp || '').toString().slice(0, 19).replace('T', ' ');
+        const ans = (j.answer_summary || '').toString().replace(/\s+/g, ' ').slice(0, 120);
+        const head = 'SESSION SUMMARY: ' + cmd + ' | ' + cited + ' artifacts | ' + flagged + ' contradictions | ' + ts + 'Z';
+        process.stdout.write(ans ? (head + ' | ' + ans) : head);
+      } catch (_) { /* advisory: stay silent */ }
+    " 2>/dev/null || echo "")
+  fi
+fi
+
+# Output success JSON. If the voice-log reader produced a summary line,
+# attach it to hookSpecificOutput.additionalContext so Claude sees it on the
+# next turn. Otherwise emit the minimal status payload (Phase 83 contract).
+if [ -n "$VOICE_SUMMARY_LINE" ]; then
+  ADDITIONAL_CONTEXT="$VOICE_SUMMARY_LINE" node -e "
+    const ctx = process.env.ADDITIONAL_CONTEXT || '';
+    const out = {
+      status: 'ok',
+      hookSpecificOutput: {
+        hookEventName: 'Stop',
+        additionalContext: ctx
+      }
+    };
+    process.stdout.write(JSON.stringify(out) + '\n');
+  " 2>/dev/null || printf '{"status": "ok"}\n'
+else
+  printf '{"status": "ok"}\n'
+fi
 
 exit 0
