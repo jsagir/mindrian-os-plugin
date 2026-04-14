@@ -1,11 +1,36 @@
-# Phase 83: Cross-Session Scope Injection + Wrapper Fix - Context
+# Phase 83: Cross-Session Scope + Write Interception + Intent Classifier + Honesty Layer - Context
 
 **Gathered:** 2026-04-14
-**Status:** Ready for planning
-**Source:** PRD Express Path (.planning/research/cross-session-memory-and-room-intent.md)
-**Trigger:** Witnessed cross-session leak 2026-04-14 (rashut-hadshanut-ai content pulled into align-x-milken session)
+**Status:** Ready for planning (REVISION 2 - scope expanded after witnessing 8 leak vectors in one session)
+**Source:** PRD Express Path (.planning/research/cross-session-memory-and-room-intent.md) plus the witnessed second-session transcript pasted by user 2026-04-14
+**Trigger:** Witnessed cross-session leak 2026-04-14 (rashut-hadshanut-ai content pulled into align-x-milken session) AND extended transcript showing the leak pattern repeating across 8 distinct vectors in the same session
 **Target release:** v1.10.7
 **Slot impact:** Smart-notebook milestone shifts v1.10.6 -> v1.10.7 -> v1.10.8 (sixth shift in this v1.10.x patch line)
+
+## REVISION 2 (2026-04-14 - scope expanded after second transcript)
+
+The original Revision 1 of this CONTEXT scoped Phase 83 to Tier 1 only (read-time scope injection + sealed room surfacing + wrapper fix). The user pasted a second transcript shortly after which showed the cross-session leak repeating across 8 distinct vectors in a single session. Tier 1 alone is necessary but not sufficient. Specifically:
+
+**The 8 witnessed leak vectors:**
+
+1. **Recall leak.** Claude pulled full content from the sealed rashut-hadshanut-ai room into the active align-x-milken session by filesystem search after a topic name match. GUARDRAIL.md was not consulted.
+2. **Drafting leak.** Claude generated 19 separate text artifacts (Hebrew + English warm-intro variants) in the active session that are conceptually owned by the rashut room.
+3. **Methodology leak.** /feynman-engine ran the 6-stage pipeline on a problem statement derived entirely from the rashut room content, producing Stage 5 sweet spot and Stage 6 teach-back that became artifacts in the wrong session context.
+4. **Filing leak (filesystem write).** Claude wrote MindrianRooms/align-x-milken/mindrianos-feynman-onepager.html to disk - a 308-line HTML artifact derived from rashut content, physically saved into the wrong room directory.
+5. **Recovery-pivot leak.** When the user said "adam adam is not milken !!!!" Claude pivoted the case study CONTENT to Synteris but kept the file at the same align-x-milken path. The pivot was content-only, not location-aware.
+6. **Hebrew version leak.** The Hebrew translation was saved to a third room (MindrianRooms/mindrianOS/) - so the same artifact lineage now exists across 3 rooms (rashut-conceptual, align-x-milken-physical-en, mindrianOS-physical-he). None are the right home.
+7. **Topic recognition wins repeatedly.** Each turn that mentioned a phrase from the rashut deck pulled rashut context into the response. Topic recognition wins over scope at every message, not just at session start. Mid-session drift is the dominant failure mode.
+8. **Honesty layer collapse.** Larry said "I don't have that in working memory right now" then immediately produced 21 entries of detail from a sealed room via filesystem search. Calling retrieval "memory" sets the user up to trust it as if it were stored state. The user explicitly named this in the transcript.
+
+**Implication:** Tier 1 (session-start scope injection) is necessary but addresses only vector 7 partially and does nothing for vectors 1-6 or vector 8. Phase 83 must expand to cover all 8 vectors in v1.10.7. Real persistent cross-session memory (Tier 3) still defers to v1.10.8 smart-notebook because it requires the SQLite memory layer wiring which is its own architectural lift. But Tier 1.5 (filesystem write interception), Tier 2 (mid-session intent classifier), and the honesty layer (no fake recall) all ship in v1.10.7.
+
+**Scope change:** plan decomposition expands from 5 plans to 8 plans. Sequential, all parallel_safe: false. Total estimated work ~6 hours, still same-day shippable.
+
+**What stays in v1.10.8 smart-notebook:**
+- Real persistent cross-session memory layer (Phase 78 SQLite wiring)
+- Voice-log per room
+- Synthesis voice room-scoping
+- Tier 4 architectural changes (per-session room scope, hard-refuse semantics via filesystem wrapper interception)
 
 <domain>
 ## Phase Boundary
@@ -159,7 +184,17 @@ Tests use node built-in assert. Register with whichever central runner is the ri
 <specifics>
 ## Specific Ideas
 
-### Phase plan decomposition (5 plans expected)
+### REVISION 2 expanded plan decomposition (8 plans)
+
+The 5-plan decomposition below is from Revision 1 (Tier 1 only). Revision 2 expands to 8 plans to cover all 8 leak vectors witnessed in the second transcript. Plans 83-01 through 83-05 stay roughly as they were (with minor adjustments). New plans 83-06, 83-07, 83-08 are added.
+
+- **83-06 Filesystem write interception (Tier 1.5).** Wrap the Write tool path in a room-scope check. When the active room is X but the file path target is `~/MindrianRooms/Y/...`, the system either refuses, prompts, or auto-redirects per locked policy. This closes leak vectors 4, 5, and 6 (filing leak, recovery-pivot leak, Hebrew version leak). Implementation: a hook script that runs on PreToolUse for Write/Edit/MultiEdit tools, reads the active room from `.rooms/registry.json`, parses the file path argument, compares the destination room (parsed from `~/MindrianRooms/<room>/...` segment) against the active room, and either blocks (default) or warns. ~60 minutes.
+
+- **83-07 Mid-session intent classifier hook (Tier 2).** A new hook fires on UserPromptSubmit (or equivalent mid-session entry point). Reads the user message, scans for room-name mentions and topic-fingerprint matches against all rooms in the registry plus all sealed rooms in `~/MindrianRooms/`. If the strongest match is NOT the active room, surfaces a soft warning to Claude that gets injected into the next assistant turn context: "User just mentioned <other room name>. Active room is <active>. Acknowledge mismatch and confirm intent before proceeding." Closes leak vectors 1, 2, 3, and 7. ~75 minutes.
+
+- **83-08 Honesty layer in larry-personality skill.** Update `skills/larry-personality/SKILL.md` to add an explicit no-fake-recall rule. When Claude is asked "do you remember X" and the X content is not in current session context, the correct response language is "let me search for that" or "I do not have that loaded - looking now" - NOT "I do not have that in working memory" followed by retrieval. The phrase "working memory" implies stored state that does not exist; using it after a successful filesystem search makes the prior denial a lie. Add a rule, add 3 examples of correct vs incorrect language, add a test that asserts Claude follows the rule on a fixture conversation. Closes leak vector 8. ~30 minutes.
+
+### Phase plan decomposition (Revision 1, 5 plans - SUPERSEDED by the 8-plan Revision 2 expansion above)
 
 The research recommends 5 plans matching the Phase 82 cadence. Each plan is small and atomic:
 
