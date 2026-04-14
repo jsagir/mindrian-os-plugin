@@ -177,6 +177,14 @@ SESSIONEOF
   fi
 fi
 
+# Phase 84-03: memory-lifecycle stop hook. Writes session-summary fragment,
+# closes the active-room session row, writes a voice_log stub, and unlinks
+# the .mindrian/current-session.json pointer. Graceful no-op when no active
+# room. Strictly additive to on-stop's existing STATE.md and analytics flow.
+if command -v node >/dev/null 2>&1 && [ -f "${PLUGIN_ROOT}/scripts/memory-lifecycle.cjs" ]; then
+  node "${PLUGIN_ROOT}/scripts/memory-lifecycle.cjs" stop >/dev/null 2>&1 || true
+fi
+
 # Output minimal success JSON
 printf '{"status": "ok"}\n'
 

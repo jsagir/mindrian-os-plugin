@@ -101,6 +101,14 @@ ${user_context}
 ---USER_CONTEXT_END---
 SAVEFILE
 
+# Phase 84-03: memory-lifecycle pre-compact hook. Closes the active session
+# row via endSession but KEEPS the .mindrian/current-session.json pointer
+# because post-compact will overwrite it with a new session id. Graceful
+# no-op when no active room or no pointer.
+if command -v node >/dev/null 2>&1 && [ -f "${PLUGIN_ROOT}/scripts/memory-lifecycle.cjs" ]; then
+  node "${PLUGIN_ROOT}/scripts/memory-lifecycle.cjs" pre-compact >/dev/null 2>&1 || true
+fi
+
 printf '{"status": "saved", "file": "%s"}\n' "$SAVE_FILE"
 
 exit 0

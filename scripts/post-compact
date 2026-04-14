@@ -124,6 +124,16 @@ escape_for_json() {
 
 escaped_context=$(escape_for_json "$context")
 
+# Phase 84-03: memory-lifecycle post-compact hook. Opens a NEW session row
+# (compact is a context discontinuity), overwrites the pointer file, and
+# writes a role='post-compact' marker fragment so the boundary is
+# discoverable in the fragments table. Graceful no-op when no active room.
+# Note: this path runs only when pre-compact-state.json exists; the
+# no-save-file branch execs session-start which has its own memory wiring.
+if command -v node >/dev/null 2>&1 && [ -f "${PLUGIN_ROOT}/scripts/memory-lifecycle.cjs" ]; then
+  node "${PLUGIN_ROOT}/scripts/memory-lifecycle.cjs" post-compact >/dev/null 2>&1 || true
+fi
+
 # Output context injection
 if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
   printf '{\n  "additional_context": "%s"\n}\n' "$escaped_context"
