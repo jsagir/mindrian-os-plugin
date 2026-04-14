@@ -339,8 +339,123 @@ function main() {
   return 0;
 }
 
+// ---------------------------------------------------------------------------
+// Phase 84-06: graph-findings injection (env-gated, default ON)
+//
+// Reads the active room's .proactive-intelligence.json and writes the top 3
+// non-suppressed insights to stdout as an additionalContext block. The block
+// is appended after any topic-mismatch warning emitted by main().
+//
+// Kill switch: set MINDRIAN_COPILOT_INJECT_FINDINGS=0 for byte-identical
+// Phase 83 behavior. Any non-zero/unset value enables injection.
+//
+// Hard cap of 3 findings IS the suppression mechanism (Dependabot lesson:
+// push channels without built-in caps become noise). No config to raise it.
+//
+// Failure discipline: ALL errors swallowed silently. If anything goes wrong,
+// nothing is written and the hook exits 0. The user prompt is never
+// disrupted. Closes SCOPE-NB-08.
+// ---------------------------------------------------------------------------
+
+const FINDINGS_BUDGET_MS = 200;
+const FINDINGS_RESERVED_MS = 50; // require >= 50ms remaining of the 200ms budget
+const FINDINGS_SUPPRESS_THRESHOLD = 3; // mirrors lib/core/proactive-intelligence.cjs
+const FINDINGS_CAP = 3;
+
+function injectionEnabled() {
+  const v = process.env.MINDRIAN_COPILOT_INJECT_FINDINGS;
+  if (v === undefined || v === null || v === '') return true;
+  if (v === '0' || v === 'false') return false;
+  return true;
+}
+
+function confidenceRank(c) {
+  if (typeof c !== 'string') return 0;
+  const lc = c.toLowerCase();
+  if (lc === 'high') return 3;
+  if (lc === 'medium' || lc === 'med') return 2;
+  if (lc === 'low') return 1;
+  return 0;
+}
+
+function formatFinding(insight) {
+  const type = (insight && typeof insight.type === 'string') ? insight.type : 'insight';
+  const message = (insight && typeof insight.message === 'string') ? insight.message : '';
+  return type + ': ' + message;
+}
+
+function injectGraphFindings(injectionStart) {
+  // Budget guard: require enough remaining headroom of the 200ms budget.
+  const elapsed = Date.now() - injectionStart;
+  if (elapsed > (FINDINGS_BUDGET_MS - FINDINGS_RESERVED_MS)) return;
+
+  const root = resolveMindrianRoomsRoot();
+  if (!root) return;
+  const reg = readRegistry(root);
+  const active = activeRoomFromRegistry(reg);
+  if (!active) return;
+
+  const filePath = path.join(root, active, '.proactive-intelligence.json');
+  let raw;
+  try {
+    raw = fs.readFileSync(filePath, 'utf8');
+  } catch (_) {
+    return;
+  }
+
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (_) {
+    return;
+  }
+
+  const insights = (data && Array.isArray(data.insights)) ? data.insights : [];
+  if (insights.length === 0) return;
+
+  // Filter: drop suppressed (times_shown >= threshold).
+  const live = [];
+  for (const ins of insights) {
+    if (!ins || typeof ins !== 'object') continue;
+    const shown = (typeof ins.times_shown === 'number') ? ins.times_shown : 0;
+    if (shown >= FINDINGS_SUPPRESS_THRESHOLD) continue;
+    live.push(ins);
+  }
+  if (live.length === 0) return;
+
+  // Deterministic sort: confidence desc, then stable original order.
+  // (Stable sort is guaranteed in V8 since Node 12.)
+  const decorated = live.map(function (ins, idx) {
+    return { ins: ins, idx: idx, rank: confidenceRank(ins.confidence) };
+  });
+  decorated.sort(function (a, b) {
+    if (b.rank !== a.rank) return b.rank - a.rank;
+    return a.idx - b.idx;
+  });
+
+  const top = decorated.slice(0, FINDINGS_CAP);
+  if (top.length === 0) return;
+
+  // Re-check budget before writing; if we blew it, skip silently.
+  if ((Date.now() - injectionStart) > (FINDINGS_BUDGET_MS - FINDINGS_RESERVED_MS)) return;
+
+  const lines = ['## GRAPH FINDINGS (top 3)', ''];
+  for (let i = 0; i < top.length; i++) {
+    lines.push((i + 1) + '. ' + formatFinding(top[i].ins));
+  }
+  process.stdout.write(lines.join('\n') + '\n');
+}
+
 try {
+  const injectionStart = Date.now();
   const code = main();
+  if (injectionEnabled()) {
+    try {
+      injectGraphFindings(injectionStart);
+    } catch (_) {
+      // Fail-silent: never disrupt the prompt.
+    }
+  }
   process.exit(typeof code === 'number' ? code : 0);
 } catch (_) {
   // Fail-silent on any unexpected error. Classifier is advisory.
