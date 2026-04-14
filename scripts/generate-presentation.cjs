@@ -24,6 +24,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { SYSTEM_FILES } = require('../lib/vault/room-scanner.cjs');
 
 // -- Constants --
 
@@ -55,7 +56,10 @@ const SECTION_COLORS = {
 };
 
 const SKIP_DIRS = new Set(['.lazygraph', '.mindrian', 'meetings', 'team', 'exports', '.git']);
-const SKIP_FILES = new Set(['ROOM.md', 'STATE.md', 'MINTO.md', 'USER.md', 'ROOM-INTELLIGENCE.md', 'MEETINGS-INTELLIGENCE.md']);
+// Aligned with room-scanner.cjs SYSTEM_FILES (Phase 82-01). Keeping the
+// SKIP_FILES name as an alias allows future divergence if a generator-only
+// skip is ever needed, without forcing a rename across call sites.
+const SKIP_FILES = SYSTEM_FILES;
 
 // -- Helpers --
 
