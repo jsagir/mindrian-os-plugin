@@ -443,33 +443,49 @@ else
   fi
 fi
 
-# Auto-configure statusline — ALWAYS use MindrianOS status line when plugin is installed
-# The context-monitor script handles both room and no-room cases gracefully
+# Auto-configure statusline: install the statusline-mos wrapper and point
+# settings.json at it. The wrapper resolves the latest installed cache version
+# at runtime, so settings.json never needs to be rewritten when a new
+# MindrianOS version ships. See scripts/statusline-mos and plan 83-01.
 CLAUDE_CONFIG_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 CLAUDE_SETTINGS="${CLAUDE_CONFIG_DIR}/settings.json"
-MONITOR_PATH="${PLUGIN_ROOT}/scripts/context-monitor"
-if [ -f "$CLAUDE_SETTINGS" ]; then
+WRAPPER_SRC="${PLUGIN_ROOT}/scripts/statusline-mos"
+WRAPPER_DST="${CLAUDE_CONFIG_DIR}/statusline-mos"
+
+# Step A: install (refresh) the wrapper on every session start. Idempotent.
+if [ -f "$WRAPPER_SRC" ]; then
+  mkdir -p "$CLAUDE_CONFIG_DIR" 2>/dev/null || true
+  cp "$WRAPPER_SRC" "$WRAPPER_DST" 2>/dev/null || true
+  chmod +x "$WRAPPER_DST" 2>/dev/null || true
+fi
+
+# Step B: detection-driven settings.json migration.
+# Only rewrite when the current statusLine command contains "context-monitor"
+# but does NOT already contain "statusline-mos". This preserves user
+# customizations and is idempotent across repeated session starts.
+if [ -f "$CLAUDE_SETTINGS" ] && [ -f "$WRAPPER_DST" ]; then
   CURRENT_STATUSLINE=$(python3 -c "import json; d=json.load(open('$CLAUDE_SETTINGS')); sl=d.get('statusLine',{}); print(sl.get('command',''))" 2>/dev/null || echo "")
-  if [[ "$CURRENT_STATUSLINE" != *"context-monitor"* ]]; then
-    # Save the current statusline as fallback, set MindrianOS as active
-    # Use resolved MONITOR_PATH (not $PLUGIN_ROOT which won't expand on user machines)
+  if [[ "$CURRENT_STATUSLINE" == *"context-monitor"* ]] && [[ "$CURRENT_STATUSLINE" != *"statusline-mos"* ]]; then
     python3 -c "
 import json, sys
-monitor = sys.argv[1]
+wrapper = sys.argv[1]
 settings = sys.argv[2]
 with open(settings, 'r') as f:
     d = json.load(f)
-if d.get('statusLine') and 'context-monitor' not in d['statusLine'].get('command',''):
-    d['_savedStatusLine'] = d['statusLine']
-d['statusLine'] = {'type': 'command', 'command': 'node \"' + monitor + '\"'}
-with open(settings, 'w') as f:
-    json.dump(d, f, indent=2)
-" "$MONITOR_PATH" "$CLAUDE_SETTINGS" 2>/dev/null || true
+cur = d.get('statusLine', {})
+cur_cmd = cur.get('command', '') if isinstance(cur, dict) else ''
+if 'context-monitor' in cur_cmd and 'statusline-mos' not in cur_cmd:
+    if '_savedStatusLine' not in d:
+        d['_savedStatusLine'] = cur
+    d['statusLine'] = {'type': 'command', 'command': 'bash \"' + wrapper + '\"'}
+    with open(settings, 'w') as f:
+        json.dump(d, f, indent=2)
+" "$WRAPPER_DST" "$CLAUDE_SETTINGS" 2>/dev/null || true
   fi
 fi
 
 # Check for updates (async, non-blocking, max 3 second timeout)
-# Only check once per day — cache result
+# Only check once per day - cache result
 UPDATE_CACHE="/tmp/mindrian-update-check"
 TODAY=$(date -u +"%Y-%m-%d")
 SHOULD_CHECK=true
