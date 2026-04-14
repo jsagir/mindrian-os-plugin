@@ -719,6 +719,31 @@ fi
 walk_sealed_rooms || true
 unset SEALED_ROOMS_ROOT
 
+# ---------------------------------------------------------------------------
+# Phase 84-03: RECENT SESSIONS IN THIS ROOM injection (additive to Phase 83).
+#
+# Calls scripts/memory-lifecycle.cjs session-start which:
+#   1. Resolves the active room from ~/MindrianRooms/.rooms/registry.json
+#      (same registry Phase 83 ACTIVE ROOM CONTEXT block uses)
+#   2. Opens room/.mindrian/room.db via lib/core/room-db.cjs (lazygraph +
+#      memory schema in a single idempotent call)
+#   3. Inserts a new sessions row and writes .mindrian/current-session.json
+#   4. Formats the previous N sessions into a RECENT SESSIONS markdown
+#      block and prints it to stdout
+#
+# The output is appended to $context AFTER the Phase 83 ACTIVE ROOM CONTEXT
+# block. If no active room, no registry, or first session in the room, the
+# output is empty and the concatenation is a no-op. Phase 83 block remains
+# byte-identical. See .planning/phases/84-smart-notebook/84-03-PLAN.md
+# ---------------------------------------------------------------------------
+memory_block=""
+if [ -x "$(command -v node)" ] && [ -f "${PLUGIN_ROOT}/scripts/memory-lifecycle.cjs" ]; then
+  memory_block=$(node "${PLUGIN_ROOT}/scripts/memory-lifecycle.cjs" session-start 2>/dev/null || true)
+fi
+if [ -n "$memory_block" ]; then
+  context="${context}\n\n${memory_block}"
+fi
+
 # Auto-configure statusline: install the statusline-mos wrapper and point
 # settings.json at it. The wrapper resolves the latest installed cache version
 # at runtime, so settings.json never needs to be rewritten when a new
