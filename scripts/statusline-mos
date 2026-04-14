@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# MindrianOS statusline resolver
+# ----------------------------------
+# Always execs the context-monitor script from the latest installed
+# version of mos@mindrian-marketplace, regardless of which cache directory
+# Claude Code has materialized. This is a self-healing wrapper so
+# ~/.claude/settings.json never needs to be edited when a new MindrianOS
+# version ships. The legacy ~/.claude/plugins/mindrian-os/ install path
+# is intentionally NOT consulted; that path is inert and stuck at v1.10.0.
+#
+# Created 2026-04-14 in response to a Lawrence-class observation:
+# v1.10.4 statusline redesign and v1.10.5 wiki fix shipped to the
+# marketplace cache, but a fresh Claude Code session was still rendering
+# the v1.10.0 legacy statusline because settings.json pointed at the
+# legacy path. This wrapper makes that class of bug structurally
+# impossible to hit again.
+
+set -euo pipefail
+
+CACHE_ROOT="${HOME}/.claude/plugins/cache/mindrian-marketplace/mos"
+
+if [ ! -d "${CACHE_ROOT}" ]; then
+  # Cache directory does not exist (mos plugin not installed via marketplace).
+  # Fall back silently: emit nothing so Claude Code's default statusline renders.
+  exit 0
+fi
+
+# Find the highest semver version directory under the cache root.
+# Versions are directory names like "1.10.5", "1.10.4", etc.
+# sort -V handles semver natively.
+LATEST_VERSION="$(ls -1 "${CACHE_ROOT}" 2>/dev/null | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)"
+
+if [ -z "${LATEST_VERSION}" ]; then
+  exit 0
+fi
+
+CONTEXT_MONITOR="${CACHE_ROOT}/${LATEST_VERSION}/scripts/context-monitor"
+
+if [ ! -x "${CONTEXT_MONITOR}" ] && [ ! -f "${CONTEXT_MONITOR}" ]; then
+  exit 0
+fi
+
+# Set MINDRIAN_OS_ROOT so the context-monitor's plugin-version resolution
+# prefers the cache copy (matches the script that is actually running).
+export MINDRIAN_OS_ROOT="${CACHE_ROOT}/${LATEST_VERSION}"
+
+exec node "${CONTEXT_MONITOR}"
