@@ -734,7 +734,6 @@ async function case13() {
 // ---------------------------------------------------------------------------
 
 async function case14() {
-  if (process.env.SKIP_84_10 !== '0') return 'skip';
   const skillPath = path.join(REPO_ROOT, 'skills', 'larry-personality', 'SKILL.md');
   const src = fs.readFileSync(skillPath, 'utf8');
   const idxNoFake = src.indexOf('### No fake recall');
