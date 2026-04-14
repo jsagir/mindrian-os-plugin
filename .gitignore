@@ -12,6 +12,12 @@ dashboard/graph.json
 *.db-wal
 *.db-shm
 
+# Phase 84-03: per-room memory runtime state. Real rooms live outside the
+# repo at ~/MindrianRooms/<name>, but any in-repo fixture or cache must
+# never commit room.db, the session pointer, or WAL shards.
+.mindrian/
+**/.mindrian/current-session.json
+
 # Environment and secrets
 .env
 .env.local
