@@ -536,6 +536,189 @@ except Exception:
 
 inject_active_room_context || true
 
+# ---------------------------------------------------------------------------
+# SEALED ROOMS walker (Phase 83-03, SCOPE-INJ-02/06)
+#
+# Walks the MindrianRooms root at top level for any subdirectory containing
+# a GUARDRAIL.md file, parses the first 3 prose lines (after stripping
+# frontmatter, h1 title, code fences), and appends a locked SEALED ROOMS
+# block to $context. Treats GUARDRAIL.md content as untrusted user data:
+# strip backticks, newlines, fences; join 3 lines with " | " separator.
+# Alphabetical order, cap at 10 rooms with "and N more" suffix. Hard 500ms
+# budget via background subshell + wait loop; partial results on timeout.
+# Graceful empty fallback: block omitted entirely, no error.
+# See .planning/phases/83-cross-session-scope-injection/83-03-PLAN.md
+# ---------------------------------------------------------------------------
+walk_sealed_rooms() {
+  # Resolve MindrianRooms root (same 3-way fallback as 83-02).
+  local rooms_root=""
+  if [ -n "${MINDRIAN_ROOMS_ROOT:-}" ]; then
+    rooms_root="${MINDRIAN_ROOMS_ROOT}"
+  elif [ -d "${HOME}/MindrianRooms" ]; then
+    rooms_root="${HOME}/MindrianRooms"
+  else
+    local found
+    found=$(find "${HOME}" -maxdepth 2 -type d -name MindrianRooms 2>/dev/null | head -1 || true)
+    if [ -n "$found" ]; then
+      rooms_root="$found"
+    fi
+  fi
+
+  if [ -z "$rooms_root" ] || [ ! -d "$rooms_root" ]; then
+    echo "[sealed-walker] no MindrianRooms root resolved, skipping" >&2
+    return 0
+  fi
+
+  # Run the walk + parse in a background subshell, write result to tempfile,
+  # enforce a 500ms hard cap via a wait loop. Partial results are acceptable.
+  local tmp
+  tmp=$(mktemp 2>/dev/null || echo "/tmp/mos-sealed-$$")
+  : > "$tmp"
+
+  (
+    # List top-level GUARDRAIL.md files, maxdepth 2 (root/<room>/GUARDRAIL.md).
+    # Do NOT follow symlinks (no -L) to avoid loops.
+    find "$rooms_root" -maxdepth 2 -mindepth 2 -type f -name GUARDRAIL.md -print0 2>/dev/null \
+      | python3 -c '
+import sys, os, re
+
+data = sys.stdin.buffer.read()
+paths = [p.decode("utf-8", "replace") for p in data.split(b"\x00") if p]
+
+def parse_guardrail(path):
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            raw_lines = f.readlines()
+    except Exception:
+        return ""
+    # Cap scan to first 200 lines defensively.
+    lines = raw_lines[:200]
+    # Strip YAML frontmatter if present at top.
+    if lines and lines[0].strip() == "---":
+        end = None
+        for i in range(1, len(lines)):
+            if lines[i].strip() == "---":
+                end = i
+                break
+        if end is not None:
+            lines = lines[end+1:]
+    # Strip leading h1 title (first non-blank line if it starts with "# ").
+    idx = 0
+    while idx < len(lines) and lines[idx].strip() == "":
+        idx += 1
+    if idx < len(lines) and lines[idx].lstrip().startswith("# "):
+        lines = lines[idx+1:]
+    # Now scan first 30 lines of remaining content, skipping code fences,
+    # collect first 3 non-blank prose lines.
+    window = lines[:30]
+    in_fence = False
+    prose = []
+    for ln in window:
+        stripped = ln.strip()
+        if stripped.startswith("```"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        if not stripped:
+            continue
+        # Sanitize: strip backticks, collapse whitespace, drop newlines.
+        clean = stripped.replace("`", "")
+        clean = re.sub(r"\s+", " ", clean).strip()
+        # Also drop any stray pipe chars that would collide with separator.
+        # Keep pipes but escape to space to be safe for the join format.
+        clean = clean.replace("|", " ")
+        clean = re.sub(r"\s+", " ", clean).strip()
+        if clean:
+            prose.append(clean[:240])
+        if len(prose) >= 3:
+            break
+    return " | ".join(prose)
+
+root = os.environ.get("SEALED_ROOMS_ROOT", "")
+results = []
+for p in paths:
+    room_dir = os.path.dirname(p)
+    name = os.path.basename(room_dir)
+    if not name or name.startswith("."):
+        continue
+    rel = os.path.relpath(room_dir, root) if root else room_dir
+    rules = parse_guardrail(p)
+    results.append((name, rel, rules))
+
+results.sort(key=lambda r: r[0].lower())
+total = len(results)
+capped = results[:10]
+for name, rel, rules in capped:
+    # Emit one room per line, tab-separated: name \t rel \t rules
+    print(f"{name}\t{rel}\t{rules}")
+if total > 10:
+    print(f"__MORE__\t{total - 10}\t")
+' > "$tmp" 2>/dev/null
+  ) &
+  local walker_pid=$!
+
+  # 500ms wait loop (10 x 50ms). Kill if still running.
+  local waited=0
+  while [ $waited -lt 10 ]; do
+    if ! kill -0 "$walker_pid" 2>/dev/null; then
+      break
+    fi
+    sleep 0.05
+    waited=$((waited + 1))
+  done
+  if kill -0 "$walker_pid" 2>/dev/null; then
+    kill "$walker_pid" 2>/dev/null || true
+    echo "[sealed-walker] 500ms budget exceeded, using partial results" >&2
+  fi
+  wait "$walker_pid" 2>/dev/null || true
+
+  # Read the tempfile and build the block.
+  if [ ! -s "$tmp" ]; then
+    rm -f "$tmp" 2>/dev/null || true
+    return 0
+  fi
+
+  local body=""
+  local more_line=""
+  while IFS=$'\t' read -r name rel rules; do
+    if [ "$name" = "__MORE__" ]; then
+      more_line="... and ${rel} more sealed rooms (run /mos:rooms list-sealed for the full set)"
+      continue
+    fi
+    if [ -z "$name" ]; then
+      continue
+    fi
+    if [ -z "$rules" ]; then
+      rules="(no hard rules parsed)"
+    fi
+    body="${body}\n- ${name} (path: ${rel})\n  Hard rules: ${rules}"
+  done < "$tmp"
+  rm -f "$tmp" 2>/dev/null || true
+
+  if [ -z "$body" ]; then
+    return 0
+  fi
+
+  local header="## SEALED ROOMS (DO NOT LEAK CONTENT INTO THIS SESSION)\n\nThe following rooms exist on this machine and are sealed by GUARDRAIL.md.\nYou must NOT pull content from them, draft artifacts about them, or\nreference them in this session unless the user explicitly switches to\none of them via /mos:rooms switch <name>."
+
+  local block="\n\n${header}\n${body}"
+  if [ -n "$more_line" ]; then
+    block="${block}\n${more_line}"
+  fi
+
+  context="${context}${block}"
+}
+
+# Export rooms_root into env for the python subshell via SEALED_ROOMS_ROOT.
+if [ -n "${MINDRIAN_ROOMS_ROOT:-}" ]; then
+  export SEALED_ROOMS_ROOT="${MINDRIAN_ROOMS_ROOT}"
+elif [ -d "${HOME}/MindrianRooms" ]; then
+  export SEALED_ROOMS_ROOT="${HOME}/MindrianRooms"
+fi
+walk_sealed_rooms || true
+unset SEALED_ROOMS_ROOT
+
 # Auto-configure statusline: install the statusline-mos wrapper and point
 # settings.json at it. The wrapper resolves the latest installed cache version
 # at runtime, so settings.json never needs to be rewritten when a new
