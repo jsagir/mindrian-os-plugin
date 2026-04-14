@@ -100,6 +100,21 @@
 - [x] **NATIVE-03**: xref generation includes wikilinks to source and target files
 - [x] **NATIVE-04**: Team profile creation includes wikilinked contribution table
 
+## Smart Notebook / Memory Promotion (SMART)
+
+- [ ] **SMART-84-01**: Extend initMemorySchema with 4 additive tables (scaffold_log, voice_log, held_contradictions, decisions_index) and indexes, CREATE IF NOT EXISTS, existing tables byte-identical
+- [x] **SMART-84-02**: Compose memory-ops.initMemorySchema with lazygraph-ops.openGraph behind new lib/core/room-db.cjs openRoomDb entry point
+- [ ] **SMART-84-03**: Session lifecycle wiring at SessionStart (startSession, getSessionHistory), Stop/PostCompact (addFragment), PreCompact (endSession), scoped to active room from registry
+- [ ] **SMART-84-04**: RECENT SESSIONS block injection into session-start context, additive to Phase 83 ACTIVE ROOM CONTEXT block
+- [ ] **SMART-84-05**: Mullins 20-section canonical scaffold shipped as JSON data (lib/scaffold/tier-0-mullins.json) + loader, 3 seed Tier 0 sections materializable by default (stakeholder-analysis, decisions, assumptions)
+- [ ] **SMART-84-06**: /mos:organize gains --materialize-section and --show-scaffold subcommands, logs each materialization to scaffold_log
+- [ ] **SMART-84-07**: lib/core/voice-retrieval.cjs scopedRead primitive refuses cross-room reads and sealed rooms at query time
+- [ ] **SMART-84-08**: Voice-log markdown writer at .mos/voice-log/<date>-<slug>.md per room, plus voice_log table index, stub writer called from PostCompact and Stop
+- [ ] **SMART-84-09**: Intent classifier memory augmentation behind MINDRIAN_INTENT_CLASSIFIER_USE_MEMORY=1 env var, reads recent fragments via scopedRead, default off, preserves 83-07 fixture behavior
+- [ ] **SMART-84-10**: Fixture-based test suite covering memory wiring, scaffold loader, scopedRead guards, classifier augmentation, voice-log writer
+- [ ] **SMART-84-11**: Honesty layer sibling section in skills/larry-personality/SKILL.md ("When memory is real") added directly after existing 83-08 "No fake recall" sub-section, existing content byte-identical
+- [ ] **SMART-84-12**: v1.10.8 5-gate release (CHANGELOG, plugin.json, package.json, git tag, marketplace.json ref pin) per release-process.md Version Consistency Rule
+
 ## Future Requirements (v2)
 
 - Obsidian plugin (sidebar for Larry, command palette, auto-complete wikilinks)
@@ -149,6 +164,18 @@
 | NATIVE-02 | Phase 79 | Complete |
 | NATIVE-03 | Phase 79 | Complete |
 | NATIVE-04 | Phase 79 | Complete |
+| SMART-84-01 | Phase 84 | In Progress |
+| SMART-84-02 | Phase 84 | Complete |
+| SMART-84-03 | Phase 84 | Pending |
+| SMART-84-04 | Phase 84 | Pending |
+| SMART-84-05 | Phase 84 | Pending |
+| SMART-84-06 | Phase 84 | Pending |
+| SMART-84-07 | Phase 84 | Pending |
+| SMART-84-08 | Phase 84 | Pending |
+| SMART-84-09 | Phase 84 | Pending |
+| SMART-84-10 | Phase 84 | Pending |
+| SMART-84-11 | Phase 84 | Pending |
+| SMART-84-12 | Phase 84 | Pending |
 | ARCH-01 | Phase 76 | Complete |
 | ARCH-02 | Phase 77 | Pending |
 | ARCH-03 | Phase 77 | Pending |

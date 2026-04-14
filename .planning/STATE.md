@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.9.8
 milestone_name: milestone
 status: executing
-stopped_at: Completed 80-06-PLAN.md
-last_updated: "2026-04-14T12:21:12.892Z"
-last_activity: 2026-04-14 -- Phase 84 execution started
+stopped_at: Completed 84-02-PLAN.md
+last_updated: "2026-04-14T17:40:03.527Z"
+last_activity: 2026-04-14
 progress:
   total_phases: 12
   completed_phases: 1
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 84 (smart-notebook) — EXECUTING
-Plan: 1 of 9
-Status: Executing Phase 84
-Last activity: 2026-04-14 -- Phase 84 execution started
+Plan: 3 of 9
+Status: Ready to execute
+Last activity: 2026-04-14
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -64,6 +64,8 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 80 P02 | 15m | 2 tasks | 4 files |
 | Phase 80 P04 | 30 | 2 tasks | 3 files |
 | Phase 80 P06 | 25min | 2 tasks | 7 files |
+| Phase 84 P01 | 5min | 5 tasks | 1 files |
+| Phase 84 P02 | 4min | 5 tasks | 2 files |
 
 ### Decisions
 
@@ -94,6 +96,8 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 80]: [Phase 80-01] bin/mindrian-tools.cjs broken via better-sqlite3/lazygraph-ops chain; 80-05 must route /mos:vault import directly through scripts/vault-import.cjs
 - [Phase 80]: Role re-inference in orchestrator covers person-detector narrow-window limitation (Jane Doe co-founder case)
 - [Phase 80]: Stage 03c defaults to direct-copy meeting filing fallback per PRECONDITIONS.md (lazygraph-ops broken)
+- [Phase 84]: Phase 84-01: schema-only additive migration; no room column on new tables (room.db is per-room)
+- [Phase 84]: 84-02: composition module room-db.cjs instead of modifying lazygraph-ops.cjs
 
 ### Pending Todos
 
@@ -109,6 +113,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-13T18:00:46.116Z
-Stopped at: Completed 80-06-PLAN.md
+Last session: 2026-04-14T17:40:03.523Z
+Stopped at: Completed 84-02-PLAN.md
 Resume file: None

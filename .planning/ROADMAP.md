@@ -45,7 +45,8 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - **v1.9.8 Obsidian Vault Export** - Phases 76-80 (SHIPPED as v1.10.0 on 2026-04-13)
 - **v1.10.2 Feynman-MINTO Hybrid** - Phase 81 (SHIPPED 2026-04-14)
 - **v1.10.5 Wiki Artifact Injection Fix** - Phase 82 (SHIPPED 2026-04-14)
-- **v1.10.7 Cross-Session Scope Injection + Wrapper Fix** - Phase 83 (in progress)
+- **v1.10.7 Cross-Session Scope Injection + Wrapper Fix** - Phase 83 (SHIPPED 2026-04-14)
+- **v1.10.8 Smart Notebook (Memory Promotion)** - Phase 84 (in progress)
 
 ## Phases
 
@@ -57,6 +58,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - [x] **Phase 81: Feynman-MINTO Hybrid** - MINTO.md files born compressed via Feynman engine stages 1, 2, 4, 5. Tier-1 default (slash-command orchestrator inside Claude session, no API key, no budget), tier-0 fallback (deterministic MINTO + AAAK footer). Shipped as v1.10.2 on 2026-04-14.
 - [x] **Phase 82: Wiki Artifact Injection Fix** - Populate sec.artifacts in scripts/generate-presentation.cjs collectSections so the wiki template has content to render. Added per-artifact 20 KB cap and per-room 2 MB cap to prevent HTML bloat. Upgraded sec.summary to read MINTO.md governing_thought when present (free leverage of v1.10.2 Feynman-MINTO infrastructure). Reported by Lawrence Aronhime 2026-04-13 23:23, bug sat unfixed across 8 releases. Shipped as v1.10.5 on 2026-04-14.
 - [ ] **Phase 83: Cross-Session Scope Injection + Wrapper Fix** - Inject ACTIVE ROOM context block into Claude's session-start prompt so cross-session memory is bounded by room scope and Claude refuses to leak content from other rooms without explicit user acknowledgment. Surface every room with a GUARDRAIL.md as a sealed-room with its hard rules quoted. Bundle the parked statusline wrapper fix (settings.json no longer hardcodes legacy plugin path; wrapper resolves latest cache version). Triggered by witnessed cross-session leak where Claude pulled rashut-hadshanut-ai content into an align-x-milken scoped session and drafted a Hebrew intro line that belonged to the sealed room. Ships as v1.10.7.
+- [ ] **Phase 84: Smart Notebook (Memory Promotion + Tier 0 Scaffold Seed)** - Promote the SQLite memory layer at lib/core/memory-ops.cjs to load-bearing per the v1.10.7 CHANGELOG lock. Wire startSession / addFragment / endSession into SessionStart / Stop / PreCompact / PostCompact hooks. Inject RECENT SESSIONS IN THIS ROOM block into session-start (additive to Phase 83 blocks). Ship 3 Tier 0 sections (stakeholder-analysis, decisions, assumptions). Ship the 20-section Mullins canonical scaffold as read-only data via lib/scaffold/tier-0-mullins.json. Voice-log per room (markdown + SQLite voice_log table). lib/core/voice-retrieval.cjs scopedRead primitive (refuses cross-room reads, refuses sealed rooms). Honesty layer sibling section authorizing real-memory statements when active room memory holds the content. Direct to v1.10.8 stable.
 
 ## Phase Details
 
