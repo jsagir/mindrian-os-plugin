@@ -924,4 +924,21 @@ function parseIntelligence(output) {
   return { gaps, convergence, contradictions };
 }
 
-main();
+if (require.main === module) {
+  main();
+} else {
+  // Phase 82-04: expose helpers for fixture-based unit tests. Requiring the
+  // module for tests must not trigger a generator run, so main() is guarded
+  // by the require.main check above. CLI behavior is unchanged.
+  module.exports = {
+    collectSections,
+    collectSectionMinto,
+    collectMinto,
+    buildArtifactEntry,
+    parseFrontmatter,
+    extractTitle,
+    safeRead,
+    ROOM_INJECTION_CAP_BYTES,
+    ARTIFACT_BYTE_CAP,
+  };
+}
