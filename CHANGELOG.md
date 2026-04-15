@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.10.10] - 2026-04-15
+
+Same-day hotfix-of-the-hotfix following v1.10.9. Single bug, single fix.
+
+### Fixed
+
+- **scripts/on-stop hook validation error**: The Stop hook was emitting `hookSpecificOutput` with `hookEventName: "Stop"`, but the Claude Code 2.1.x hook schema restricts `hookSpecificOutput` to `PreToolUse`, `UserPromptSubmit`, and `PostToolUse` only. Stop hooks must use top-level fields (`continue`, `systemMessage`, `stopReason`, etc.). On every session stop, users saw `Stop hook error: Hook JSON output validation failed - (root): Invalid input` and the SESSION SUMMARY line from Phase 84-07 voice-log reader was silently dropped. Now uses `systemMessage` which is the correct field per the schema and produces no validation noise. Witnessed on Windows v1.10.9 install within 30 minutes of v1.10.9 shipping. Phase 84-07 introduced the bug (the implementation copied the `hookSpecificOutput.additionalContext` pattern from the UserPromptSubmit hook where it IS valid). Phase 85 did not catch it because the regression only manifests on actual Claude Code session stops, not in the feynman test suite.
+
+### Note for v1.10.9 users
+
+If you installed v1.10.9 and saw repeated Stop hook validation errors after every interaction, this is the fix. Run `/plugin marketplace update` then `claude plugin update mos@mindrian-marketplace` to upgrade. No Node version change, no breaking changes — all v1.10.9 functionality is preserved exactly.
+
 ## [1.10.9] - 2026-04-15
 
 Windows hotfix and Mac parity release. Ships Phase 85 (10 plans) addressing cross-platform issues witnessed in production on 2026-04-15 from two independent field reports (LASZLO-001 from László Személyi on Windows, LAWRENCE-001 from Lawrence Aronhime on Mac). Also ships the MOSDeckEngine skill (YC-grade pitch deck generator).

@@ -211,22 +211,26 @@ if command -v node >/dev/null 2>&1 && [ -f "${PLUGIN_ROOT}/scripts/memory-lifecy
 fi
 
 # Output success JSON. If the voice-log reader produced a summary line,
-# attach it to hookSpecificOutput.additionalContext so Claude sees it on the
-# next turn. Otherwise emit the minimal status payload (Phase 83 contract).
+# attach it via systemMessage (the Stop-hook field that surfaces text to
+# Claude on the next turn). Stop hooks DO NOT support hookSpecificOutput
+# at all - that field is restricted to PreToolUse, UserPromptSubmit, and
+# PostToolUse per the Claude Code 2.1.x hook schema. Earlier versions of
+# this code emitted hookSpecificOutput.additionalContext which produced
+# a validation error on every stop ("Hook JSON output validation failed
+# - (root): Invalid input"). Witnessed live on Windows 2026-04-15 in
+# v1.10.9, fixed for v1.10.10. systemMessage is the correct field per
+# the schema and produces no validation noise.
 if [ -n "$VOICE_SUMMARY_LINE" ]; then
-  ADDITIONAL_CONTEXT="$VOICE_SUMMARY_LINE" node -e "
-    const ctx = process.env.ADDITIONAL_CONTEXT || '';
+  SYSTEM_MESSAGE="$VOICE_SUMMARY_LINE" node -e "
+    const msg = process.env.SYSTEM_MESSAGE || '';
     const out = {
-      status: 'ok',
-      hookSpecificOutput: {
-        hookEventName: 'Stop',
-        additionalContext: ctx
-      }
+      continue: true,
+      systemMessage: msg
     };
     process.stdout.write(JSON.stringify(out) + '\n');
-  " 2>/dev/null || printf '{"status": "ok"}\n'
+  " 2>/dev/null || printf '{"continue": true}\n'
 else
-  printf '{"status": "ok"}\n'
+  printf '{"continue": true}\n'
 fi
 
 exit 0
