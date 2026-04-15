@@ -128,7 +128,13 @@ function runSessionStart(home, mindrianRoomsRoot) {
   const env = Object.assign({}, process.env, {
     HOME: home,
     CLAUDE_CONFIG_DIR: path.join(home, '.claude'),
-    CLAUDE_PLUGIN_ROOT: '1'
+    CLAUDE_PLUGIN_ROOT: '1',
+    // Plan 85-01 added a Node 22.5.0 preflight to session-start that soft
+    // fails (exit 0) when running under older Node. This CI host may be on
+    // Node 20; the fixture simulates a sufficient Node environment so the
+    // scope-injection assertions (which run AFTER the preflight) exercise
+    // the real code path.
+    SESSION_START_NODE_PREFLIGHT_SKIP: '1'
   });
   if (mindrianRoomsRoot) {
     env.MINDRIAN_ROOMS_ROOT = mindrianRoomsRoot;

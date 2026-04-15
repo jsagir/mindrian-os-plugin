@@ -36,6 +36,33 @@ EOF
   exit 1
 fi
 
+# ---------------------------------------------------------------------------
+# Node version preflight (added 2026-04-15 for v1.10.9, plan 85-01).
+#
+# MindrianOS v1.10.9+ requires Node >= 22.5.0 for node:sqlite. If the
+# installed Node is older, print a friendly upgrade message and exit 0.
+# This is a SOFT fail: session-start is non-critical and must NEVER hard-
+# fail the Claude Code launch. The plugin continues with reduced
+# functionality (banner may show unknown, memory layer may no-op) rather
+# than crashing the user's shell. SESSION_START_NODE_PREFLIGHT_SKIP=1
+# bypasses this check for the preflight test fixture.
+# ---------------------------------------------------------------------------
+if [ -z "${SESSION_START_NODE_PREFLIGHT_SKIP:-}" ]; then
+  NODE_VERSION_RAW=$(node -e "process.stdout.write(process.versions.node)" 2>/dev/null || echo "")
+  if [ -n "$NODE_VERSION_RAW" ]; then
+    NODE_OK=$(node -e "
+      var v = (process.env.FORCE_NODE_VERSION || process.versions.node).split('.').map(Number);
+      var major = v[0] || 0, minor = v[1] || 0;
+      process.stdout.write((major > 22 || (major === 22 && minor >= 5)) ? 'ok' : 'old');
+    " 2>/dev/null || echo "ok")
+    if [ "$NODE_OK" = "old" ]; then
+      DETECTED="${FORCE_NODE_VERSION:-$NODE_VERSION_RAW}"
+      echo "MindrianOS v1.10.9+ requires Node >= 22.5.0. You are running Node ${DETECTED}. Please upgrade Node (nvm install 22, fnm install 22, or your package manager) and restart Claude Code. Plugin will continue with reduced functionality until Node is upgraded." >&2
+      exit 0
+    fi
+  fi
+fi
+
 # Cross-platform file modification time (epoch seconds)
 portable_stat_mtime() {
   local file="$1"
@@ -53,8 +80,11 @@ PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 WORK_DIR="${PWD}"
 ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR") || ROOM_DIR=""
 
-# Read current version from plugin.json
-PLUGIN_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "unknown")
+# Read current version from plugin.json via Node (python3 is a Microsoft
+# Store alias stub on Windows and produces the "vunknown" banner). Node
+# is a hard plugin dependency, so this path works everywhere. See
+# plan 85-01 for the full python3-to-node migration.
+PLUGIN_VERSION=$(node -e "try{console.log(require('$PLUGIN_ROOT/.claude-plugin/plugin.json').version)}catch(e){console.log('unknown')}" 2>/dev/null || echo "unknown")
 
 # Version marker for update detection (D-01, D-02)
 LAST_VERSION_FILE="$HOME/.mindrian-last-version"
@@ -286,7 +316,7 @@ if [ -d "$ROOM_DIR" ]; then
 
   # Detect integrations
   INTEG_OUTPUT=$(node "${PLUGIN_ROOT}/bin/mindrian-tools.cjs" detect-integrations 2>/dev/null || echo "{}")
-  INTEG_COUNT=$(echo "$INTEG_OUTPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(sum(1 for v in d.values() if v.get('status')=='connected'))" 2>/dev/null || echo "0")
+  INTEG_COUNT=$(echo "$INTEG_OUTPUT" | node -e "let s='';process.stdin.on('data',c=>s+=c);process.stdin.on('end',()=>{try{const d=JSON.parse(s);console.log(Object.values(d).filter(v=>v&&v.status==='connected').length)}catch(_){console.log(0)}})" 2>/dev/null || echo "0")
 
   if [ "$INTEG_COUNT" -gt 0 ]; then
     context="${context}\n\nIntegrations: ${INTEG_COUNT} connected"
@@ -317,30 +347,26 @@ if [ -d "$ROOM_DIR" ]; then
   # Multi-room context (ROOM-05)
   REGISTRY="${WORK_DIR}/.rooms/registry.json"
   if [ -f "$REGISTRY" ]; then
-    room_count=$(python3 -c "
-import json
-r = json.load(open('$REGISTRY'))
-print(len(r.get('rooms', {})))
-" 2>/dev/null || echo "0")
+    room_count=$(node -e "try{const r=require('$REGISTRY');console.log(Object.keys(r.rooms||{}).length)}catch(_){console.log(0)}" 2>/dev/null || echo "0")
 
     if [ "$room_count" -gt 1 ]; then
-      other_rooms=$(python3 -c "
-import json, datetime
-r = json.load(open('$REGISTRY'))
-active = r.get('active', '')
-lines = []
-for name, room in r.get('rooms', {}).items():
-    if name == active:
-        continue
-    status = room.get('status', 'parked')
-    sym = chr(9654) if status == 'parked' else chr(9655)
-    display_name = room.get('venture_name', name)
-    line = f'  {sym} {display_name:<25s} {status}'
-    lines.append(line)
-if lines:
-    print('\n'.join(lines[:5]))
-if len(lines) > 5:
-    print(f'  ...and {len(lines)-5} more (/mos:rooms list)')
+      other_rooms=$(node -e "
+try {
+  const r = require('$REGISTRY');
+  const active = r.active || '';
+  const rooms = r.rooms || {};
+  const lines = [];
+  for (const name of Object.keys(rooms)) {
+    if (name === active) continue;
+    const room = rooms[name] || {};
+    const status = room.status || 'parked';
+    const sym = status === 'parked' ? String.fromCharCode(9654) : String.fromCharCode(9655);
+    const display = room.venture_name || name;
+    lines.push('  ' + sym + ' ' + display.padEnd(25).slice(0, 25) + ' ' + status);
+  }
+  if (lines.length) console.log(lines.slice(0, 5).join('\n'));
+  if (lines.length > 5) console.log('  ...and ' + (lines.length - 5) + ' more (/mos:rooms list)');
+} catch (_) {}
 " 2>/dev/null || echo "")
 
       if [ -n "$other_rooms" ]; then
@@ -478,18 +504,11 @@ inject_active_room_context() {
     return 0
   fi
 
-  # Extract active field via python3 (already a session-start dependency).
+  # Extract active field via node (python3 is a Microsoft Store alias
+  # stub on Windows; node is a hard plugin dependency so it works
+  # everywhere). Ported from inline python3 in plan 85-01.
   local active
-  active=$(python3 -c "
-import json, sys
-try:
-    with open(sys.argv[1], 'r') as f:
-        d = json.load(f)
-    a = d.get('active', '') or ''
-    print(a.strip())
-except Exception:
-    pass
-" "$registry" 2>/dev/null || echo "")
+  active=$(node -e "try{const d=require(process.argv[1]);const a=(d.active||'').toString();process.stdout.write(a.trim())}catch(_){}" "$registry" 2>/dev/null || echo "")
 
   if [ -z "$active" ]; then
     echo "[scope-injection] registry active field empty, skipping" >&2
@@ -575,86 +594,22 @@ walk_sealed_rooms() {
   tmp=$(mktemp 2>/dev/null || echo "/tmp/mos-sealed-$$")
   : > "$tmp"
 
+  # Gate the GUARDRAIL parser on python3 availability. On Windows without
+  # real python3 (e.g. Microsoft Store alias stub), the sealed-room walker
+  # is a no-op and the session-start hook continues without sealed-room
+  # context. Plan 85-06 will replace this with a node-native walker.
+  if ! command -v python3 >/dev/null 2>&1; then
+    echo "[skip] python3 feature gated: sealed-room GUARDRAIL walker" >&2
+    return 0
+  fi
+
   (
     # List top-level GUARDRAIL.md files, maxdepth 2 (root/<room>/GUARDRAIL.md).
-    # Do NOT follow symlinks (no -L) to avoid loops.
+    # Do NOT follow symlinks (no -L) to avoid loops. Parser body lives in
+    # scripts/sealed-walker.py (extracted in plan 85-01 so session-start
+    # stays free of inline python invocations).
     find "$rooms_root" -maxdepth 2 -mindepth 2 -type f -name GUARDRAIL.md -print0 2>/dev/null \
-      | python3 -c '
-import sys, os, re
-
-data = sys.stdin.buffer.read()
-paths = [p.decode("utf-8", "replace") for p in data.split(b"\x00") if p]
-
-def parse_guardrail(path):
-    try:
-        with open(path, "r", encoding="utf-8", errors="replace") as f:
-            raw_lines = f.readlines()
-    except Exception:
-        return ""
-    # Cap scan to first 200 lines defensively.
-    lines = raw_lines[:200]
-    # Strip YAML frontmatter if present at top.
-    if lines and lines[0].strip() == "---":
-        end = None
-        for i in range(1, len(lines)):
-            if lines[i].strip() == "---":
-                end = i
-                break
-        if end is not None:
-            lines = lines[end+1:]
-    # Strip leading h1 title (first non-blank line if it starts with "# ").
-    idx = 0
-    while idx < len(lines) and lines[idx].strip() == "":
-        idx += 1
-    if idx < len(lines) and lines[idx].lstrip().startswith("# "):
-        lines = lines[idx+1:]
-    # Now scan first 30 lines of remaining content, skipping code fences,
-    # collect first 3 non-blank prose lines.
-    window = lines[:30]
-    in_fence = False
-    prose = []
-    for ln in window:
-        stripped = ln.strip()
-        if stripped.startswith("```"):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        if not stripped:
-            continue
-        # Sanitize: strip backticks, collapse whitespace, drop newlines.
-        clean = stripped.replace("`", "")
-        clean = re.sub(r"\s+", " ", clean).strip()
-        # Also drop any stray pipe chars that would collide with separator.
-        # Keep pipes but escape to space to be safe for the join format.
-        clean = clean.replace("|", " ")
-        clean = re.sub(r"\s+", " ", clean).strip()
-        if clean:
-            prose.append(clean[:240])
-        if len(prose) >= 3:
-            break
-    return " | ".join(prose)
-
-root = os.environ.get("SEALED_ROOMS_ROOT", "")
-results = []
-for p in paths:
-    room_dir = os.path.dirname(p)
-    name = os.path.basename(room_dir)
-    if not name or name.startswith("."):
-        continue
-    rel = os.path.relpath(room_dir, root) if root else room_dir
-    rules = parse_guardrail(p)
-    results.append((name, rel, rules))
-
-results.sort(key=lambda r: r[0].lower())
-total = len(results)
-capped = results[:10]
-for name, rel, rules in capped:
-    # Emit one room per line, tab-separated: name \t rel \t rules
-    print(f"{name}\t{rel}\t{rules}")
-if total > 10:
-    print(f"__MORE__\t{total - 10}\t")
-' > "$tmp" 2>/dev/null
+      | python3 "${SCRIPT_DIR}/sealed-walker.py" > "$tmp" 2>/dev/null
   ) &
   local walker_pid=$!
 
@@ -765,22 +720,22 @@ fi
 # but does NOT already contain "statusline-mos". This preserves user
 # customizations and is idempotent across repeated session starts.
 if [ -f "$CLAUDE_SETTINGS" ] && [ -f "$WRAPPER_DST" ]; then
-  CURRENT_STATUSLINE=$(python3 -c "import json; d=json.load(open('$CLAUDE_SETTINGS')); sl=d.get('statusLine',{}); print(sl.get('command',''))" 2>/dev/null || echo "")
+  CURRENT_STATUSLINE=$(node -e "try{const d=require('$CLAUDE_SETTINGS');const sl=d.statusLine||{};process.stdout.write((sl.command||'').toString())}catch(_){}" 2>/dev/null || echo "")
   if [[ "$CURRENT_STATUSLINE" == *"context-monitor"* ]] && [[ "$CURRENT_STATUSLINE" != *"statusline-mos"* ]]; then
-    python3 -c "
-import json, sys
-wrapper = sys.argv[1]
-settings = sys.argv[2]
-with open(settings, 'r') as f:
-    d = json.load(f)
-cur = d.get('statusLine', {})
-cur_cmd = cur.get('command', '') if isinstance(cur, dict) else ''
-if 'context-monitor' in cur_cmd and 'statusline-mos' not in cur_cmd:
-    if '_savedStatusLine' not in d:
-        d['_savedStatusLine'] = cur
-    d['statusLine'] = {'type': 'command', 'command': 'bash \"' + wrapper + '\"'}
-    with open(settings, 'w') as f:
-        json.dump(d, f, indent=2)
+    node -e "
+try {
+  const fs = require('fs');
+  const wrapper = process.argv[1];
+  const settings = process.argv[2];
+  const d = JSON.parse(fs.readFileSync(settings, 'utf8'));
+  const cur = d.statusLine || {};
+  const curCmd = (cur && typeof cur === 'object') ? (cur.command || '') : '';
+  if (curCmd.indexOf('context-monitor') !== -1 && curCmd.indexOf('statusline-mos') === -1) {
+    if (!('_savedStatusLine' in d)) d._savedStatusLine = cur;
+    d.statusLine = { type: 'command', command: 'bash \"' + wrapper + '\"' };
+    fs.writeFileSync(settings, JSON.stringify(d, null, 2));
+  }
+} catch (_) {}
 " "$WRAPPER_DST" "$CLAUDE_SETTINGS" 2>/dev/null || true
   fi
 fi
