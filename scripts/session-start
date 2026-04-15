@@ -80,11 +80,16 @@ PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 WORK_DIR="${PWD}"
 ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR") || ROOM_DIR=""
 
-# Read current version from plugin.json via Node (python3 is a Microsoft
-# Store alias stub on Windows and produces the "vunknown" banner). Node
-# is a hard plugin dependency, so this path works everywhere. See
-# plan 85-01 for the full python3-to-node migration.
-PLUGIN_VERSION=$(node -e "try{console.log(require('$PLUGIN_ROOT/.claude-plugin/plugin.json').version)}catch(e){console.log('unknown')}" 2>/dev/null || echo "unknown")
+# Read current version from plugin.json via platform.cjs (plan 85-06 sweep).
+# python3 is a Microsoft Store alias stub on Windows and produces "vunknown".
+# platform.cjs.readPluginJsonVersion is a fail-safe Node-native read.
+PLUGIN_VERSION=$(node -e "try{process.stdout.write(require('$PLUGIN_ROOT/lib/core/platform.cjs').readPluginJsonVersion('$PLUGIN_ROOT'))}catch(e){process.stdout.write('unknown')}" 2>/dev/null || echo "unknown")
+
+# plan 85-06 (WIN-FIX-H-02): resolve banner script path via platform.cjs so
+# future .cmd wrappers on win32 can be substituted without editing session-
+# start. On linux/darwin this returns ${PLUGIN_ROOT}/scripts/banner with a
+# forward slash; on win32 it returns the same with a backslash.
+BANNER_SCRIPT=$(node -e "try{process.stdout.write(require('$PLUGIN_ROOT/lib/core/platform.cjs').resolveHookScript('banner','$PLUGIN_ROOT'))}catch(e){process.stdout.write('$SCRIPT_DIR/banner')}" 2>/dev/null || echo "${SCRIPT_DIR}/banner")
 
 # Version marker for update detection (D-01, D-02)
 LAST_VERSION_FILE="$HOME/.mindrian-last-version"
@@ -384,13 +389,14 @@ try {
   # Combine: stable prefix + dynamic suffix
   context="${stable_prefix}${context}\n\nThe user has an active Data Room."
 else
-  # Cold start: show De Stijl Mondrian banner on EVERY cold start (no room detected)
+  # Cold start: show De Stijl Mondrian banner on EVERY cold start (no room detected).
+  # Banner path resolved via platform.cjs.resolveHookScript (plan 85-06).
   if [ -n "$LAST_VERSION" ] && [ "$LAST_VERSION" != "$PLUGIN_VERSION" ]; then
     # Plugin was updated -- show version transition banner
-    bash "${SCRIPT_DIR}/banner" "$PLUGIN_VERSION" "$LAST_VERSION" >&2 2>/dev/null || true
+    bash "${BANNER_SCRIPT}" "$PLUGIN_VERSION" "$LAST_VERSION" >&2 2>/dev/null || true
   else
     # Standard cold start or first install -- show current version banner
-    bash "${SCRIPT_DIR}/banner" "$PLUGIN_VERSION" >&2 2>/dev/null || true
+    bash "${BANNER_SCRIPT}" "$PLUGIN_VERSION" >&2 2>/dev/null || true
   fi
 
   # Determine onboarding type from LAST_VERSION markers (kept separate from banner)

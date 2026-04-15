@@ -17,10 +17,22 @@ COLS=${COLUMNS:-$(tput cols 2>/dev/null || echo 120)}
 VERSION="${1:-}"
 OLD_VERSION="${2:-}"
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
 if [ -z "$VERSION" ]; then
-  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-  PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-  VERSION=$(python3 -c "import json; print(json.load(open('${PLUGIN_ROOT}/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "")
+  # plan 85-06: read via platform.cjs (no python3 dependency on Windows).
+  VERSION=$(node -e "try{process.stdout.write(require('${PLUGIN_ROOT}/lib/core/platform.cjs').readPluginJsonVersion('${PLUGIN_ROOT}'))}catch(e){process.stdout.write('unknown')}" 2>/dev/null || echo "")
+fi
+
+# plan 85-06 (WIN-FIX-H-02/H-03): platform-aware banner gating. On terminals
+# that do not support UTF-8 (Windows cmd.exe / PowerShell without chcp 65001,
+# or LANG=C locales), the block-letter banner renders as mojibake. Detect
+# supportsUtf8 via platform.cjs and fall back to an ASCII-safe banner.
+# BANNER_FORCE_ASCII=1 forces the fallback path for testing.
+SUPPORTS_UTF8=$(node -e "try{var p=require('${PLUGIN_ROOT}/lib/core/platform.cjs');p.__resetForTests();process.stdout.write(p.detectPlatform().supportsUtf8?'1':'0')}catch(e){process.stdout.write('1')}" 2>/dev/null || echo "1")
+if [ "${BANNER_FORCE_ASCII:-0}" = "1" ]; then
+  SUPPORTS_UTF8="0"
 fi
 
 # De Stijl Mondrian palette -- 24-bit ANSI
@@ -39,6 +51,40 @@ if [ -n "$OLD_VERSION" ]; then
   VER_TRANSITION="v${OLD_VERSION} -> v${VERSION}"
 else
   VER_TRANSITION=""
+fi
+
+# ============================================================================
+# ASCII fallback banner (plan 85-06 / WIN-FIX-H-03)
+# Rendered when platform.cjs reports supportsUtf8=false or code page is not
+# 65001 (Windows cmd.exe / PowerShell without UTF-8, LANG=C locales).
+# Same semantic content as the UTF-8 variant: identity, tagline, version.
+# Box drawing replaced with +, -, |, =. No 24-bit ANSI colors because
+# consoles that lack UTF-8 often lack truecolor support too.
+# ============================================================================
+if [ "$SUPPORTS_UTF8" = "0" ]; then
+  if [ -n "$VER_TRANSITION" ]; then
+    VDISPLAY="$VER_TRANSITION"
+  else
+    VDISPLAY="$VER"
+  fi
+  printf '\n'
+  printf '  +============================================================================+\n'
+  printf '  |                                                                            |\n'
+  printf '  |                           M I N D R I A N - O S                            |\n'
+  printf '  |                                                                            |\n'
+  printf '  |                        Wicked problems. Navigated.                         |\n'
+  printf '  |                                                                            |\n'
+  printf '  +----------------------------------------------------------------------------+\n'
+  VLEN=${#VDISPLAY}
+  VPAD_TOTAL=$(( 76 - VLEN ))
+  VLP=$(( VPAD_TOTAL / 2 ))
+  VRP=$(( VPAD_TOTAL - VLP ))
+  printf '  |%*s%s%*s|\n' "$VLP" '' "$VDISPLAY" "$VRP" ''
+  printf '  +============================================================================+\n'
+  printf '\n'
+  printf '  mindrian.ai | Jonathan Sagir | linkedin.com/in/jonathansagir\n'
+  printf '\n'
+  exit 0
 fi
 
 if [ "$COLS" -ge 100 ]; then

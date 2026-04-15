@@ -56,8 +56,9 @@ pipeline_state=$(sed -n '/^---PIPELINE_STATE_START---$/,/^---PIPELINE_STATE_END-
 # Extract user context
 user_context=$(sed -n '/^---USER_CONTEXT_START---$/,/^---USER_CONTEXT_END---$/p' "$SAVE_FILE" | sed '1d;$d')
 
-# Read plugin version
-PLUGIN_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "unknown")
+# Read plugin version via platform.cjs (plan 85-06, WIN-FIX-B-02 sweep).
+# python3 is a Microsoft Store alias stub on Windows and produces "vunknown".
+PLUGIN_VERSION=$(node -e "try{process.stdout.write(require('$PLUGIN_ROOT/lib/core/platform.cjs').readPluginJsonVersion('$PLUGIN_ROOT'))}catch(e){process.stdout.write('unknown')}" 2>/dev/null || echo "unknown")
 
 # Build restored context
 context="[MindrianOS Post-Compact Recovery] v${PLUGIN_VERSION}\n\nContext was autocompacted. Here is your restored room state:\n"

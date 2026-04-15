@@ -7,8 +7,9 @@ set -euo pipefail
 PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CHANGELOG_URL="https://raw.githubusercontent.com/jsagir/mindrian-os-plugin/main/CHANGELOG.md"
 
-# Read current version from plugin.json
-if ! CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null); then
+# Read current version from plugin.json via platform.cjs (plan 85-06 sweep).
+CURRENT_VERSION=$(node -e "try{process.stdout.write(require('$PLUGIN_ROOT/lib/core/platform.cjs').readPluginJsonVersion('$PLUGIN_ROOT'))}catch(e){process.stdout.write('unknown')}" 2>/dev/null || echo "unknown")
+if [ -z "$CURRENT_VERSION" ] || [ "$CURRENT_VERSION" = "unknown" ]; then
   echo "CHECK_FAILED"
   echo "Cannot read plugin version. Your install may be corrupted."
   echo "  Fix: Run /mos:update force to reinstall"

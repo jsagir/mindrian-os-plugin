@@ -5,7 +5,8 @@ set -euo pipefail
 # Output contract: line 1 = status, subsequent lines = key=value pairs
 
 PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "unknown")
+# plan 85-06: platform.cjs version read (no python3 dependency).
+CURRENT_VERSION=$(node -e "try{process.stdout.write(require('$PLUGIN_ROOT/lib/core/platform.cjs').readPluginJsonVersion('$PLUGIN_ROOT'))}catch(e){process.stdout.write('unknown')}" 2>/dev/null || echo "unknown")
 
 MARKER="$HOME/.mindrian-onboarded"
 

@@ -86,8 +86,8 @@ fi
 # Compute state for the new room
 state_output=$("${SCRIPT_DIR}/compute-state" "$NEW_ROOM" 2>/dev/null || echo "Error computing state")
 
-# Read plugin version
-PLUGIN_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "unknown")
+# Read plugin version via platform.cjs (plan 85-06 sweep).
+PLUGIN_VERSION=$(node -e "try{process.stdout.write(require('$PLUGIN_ROOT/lib/core/platform.cjs').readPluginJsonVersion('$PLUGIN_ROOT'))}catch(e){process.stdout.write('unknown')}" 2>/dev/null || echo "unknown")
 
 # Build context for the new room
 room_name=$(basename "$NEW_ROOM")
