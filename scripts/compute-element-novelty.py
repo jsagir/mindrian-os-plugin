@@ -22,6 +22,11 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Auto-install Python ML deps if missing (v1.10.9, plan 85-10, LAWRENCE-001)
+sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
+from ensure_ml_deps import ensure
+ensure(["numpy", "scikit-learn", "sentence-transformers"])
+
 # --- Guarded imports ---
 
 try:
