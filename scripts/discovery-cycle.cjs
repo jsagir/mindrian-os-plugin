@@ -124,7 +124,7 @@ function preflight(roomDir, requestedSteps, opts) {
 
   // Check SQLite (LazyGraph) availability
   try {
-    require('better-sqlite3');
+    require('node:sqlite');
     report.sqlite_available = true;
   } catch {
     report.sqlite_available = false;

@@ -59,10 +59,10 @@ describe('SQLITE-03: WAL concurrent access', () => {
   });
 
   it('WAL mode is active on database', async () => {
-    const Database = require('better-sqlite3');
+    const { DatabaseSync } = require('node:sqlite');
     const dbPath = path.join(roomDir, '.mindrian', 'room.db');
-    const db = new Database(dbPath, { readonly: true });
-    const result = db.pragma('journal_mode');
+    const db = new DatabaseSync(dbPath, { open: true, readOnly: true });
+    const result = db.prepare('PRAGMA journal_mode').all();
     assert.deepStrictEqual(result, [{ journal_mode: 'wal' }]);
     db.close();
   });
@@ -71,16 +71,15 @@ describe('SQLITE-03: WAL concurrent access', () => {
     const dbPath = path.join(roomDir, '.mindrian', 'room.db');
 
     // Create a helper script for the child process
-    // Use absolute path to better-sqlite3 so child process can resolve it
-    const betterSqlitePath = require.resolve('better-sqlite3');
+    // node:sqlite is a Node builtin on Node >=22.5 so no path resolution needed
     const childScript = path.join(roomDir, 'child-reader.cjs');
     fs.writeFileSync(childScript, `
       'use strict';
-      const Database = require(${JSON.stringify(betterSqlitePath)});
+      const { DatabaseSync } = require('node:sqlite');
       const dbPath = process.argv[2];
       try {
-        const db = new Database(dbPath, { readonly: true });
-        db.pragma('journal_mode = WAL');
+        const db = new DatabaseSync(dbPath, { open: true, readOnly: true });
+        db.exec('PRAGMA journal_mode = WAL');
         const rows = db.prepare('SELECT COUNT(*) AS cnt FROM nodes').all();
         db.close();
         process.send({ success: true, count: rows[0].cnt });
@@ -93,9 +92,9 @@ describe('SQLITE-03: WAL concurrent access', () => {
     const child = fork(childScript, [dbPath], { stdio: ['pipe', 'pipe', 'pipe', 'ipc'] });
 
     // Parent reads simultaneously
-    const Database = require('better-sqlite3');
-    const parentDb = new Database(dbPath, { readonly: true });
-    parentDb.pragma('journal_mode = WAL');
+    const { DatabaseSync } = require('node:sqlite');
+    const parentDb = new DatabaseSync(dbPath, { open: true, readOnly: true });
+    parentDb.exec('PRAGMA journal_mode = WAL');
     const parentRows = parentDb.prepare('SELECT COUNT(*) AS cnt FROM nodes').all();
     parentDb.close();
 
@@ -114,19 +113,19 @@ describe('SQLITE-03: WAL concurrent access', () => {
   });
 
   it('reader does not block during write', async () => {
-    const Database = require('better-sqlite3');
+    const { DatabaseSync } = require('node:sqlite');
     const dbPath = path.join(roomDir, '.mindrian', 'room.db');
 
-    const reader = new Database(dbPath, { readonly: true });
-    reader.pragma('journal_mode = WAL');
+    const reader = new DatabaseSync(dbPath, { open: true, readOnly: true });
+    reader.exec('PRAGMA journal_mode = WAL');
 
     // Read count before
     const before = reader.prepare('SELECT COUNT(*) AS cnt FROM nodes').get();
 
     // Write from a separate connection
-    const writer = new Database(dbPath);
-    writer.pragma('journal_mode = WAL');
-    writer.pragma('foreign_keys = ON');
+    const writer = new DatabaseSync(dbPath);
+    writer.exec('PRAGMA journal_mode = WAL');
+    writer.exec('PRAGMA foreign_keys = ON');
     writer.prepare(
       "INSERT INTO nodes (id, type, properties) VALUES (?, 'Artifact', ?) ON CONFLICT(id) DO UPDATE SET properties = excluded.properties"
     ).run('concurrent-test-artifact', JSON.stringify({ title: 'Concurrent Test', section: 'test' }));
@@ -139,7 +138,7 @@ describe('SQLITE-03: WAL concurrent access', () => {
     reader.close();
 
     // Clean up the test node
-    const cleanup = new Database(dbPath);
+    const cleanup = new DatabaseSync(dbPath);
     cleanup.prepare("DELETE FROM nodes WHERE id = 'concurrent-test-artifact'").run();
     cleanup.close();
   });

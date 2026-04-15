@@ -14,7 +14,7 @@
  *   roomsHome - Override ~/MindrianRooms (default: $MINDRIAN_ROOMS_HOME or ~/MindrianRooms)
  *
  * Exit codes:
- *   0 - Success or graceful skip (no registry, no better-sqlite3, etc.)
+ *   0 - Success or graceful skip (no registry, no node:sqlite, etc.)
  *   Never exits non-zero (fire-and-forget, D-16)
  */
 
@@ -33,7 +33,7 @@ const DB_PATH = path.join(DB_DIR, 'rooms.db');
  * Initialize SQLite schema for room hierarchy.
  * Creates Room, RoomGroup, and VentureStage node tables plus relationship tables.
  * All operations are IF NOT EXISTS -- safe to call repeatedly.
- * @param {import('better-sqlite3').Database} db - better-sqlite3 Database instance
+ * @param {import('node:sqlite').DatabaseSync} db - node:sqlite DatabaseSync instance
  */
 function initRoomSchema(db) {
   db.exec(`
@@ -81,7 +81,7 @@ function initRoomSchema(db) {
 
 /**
  * Seed the 5 VentureStage nodes (matching Brain taxonomy).
- * @param {import('better-sqlite3').Database} db - better-sqlite3 Database instance
+ * @param {import('node:sqlite').DatabaseSync} db - node:sqlite DatabaseSync instance
  */
 function seedStages(db) {
   const stages = ['Pre-Opportunity', 'Discovery', 'Validation', 'Design', 'Investment'];
@@ -142,7 +142,7 @@ function detectGroups(rooms) {
 /**
  * Sync rooms and groups to SQLite.
  * Uses INSERT OR REPLACE for idempotent upserts.
- * @param {import('better-sqlite3').Database} db - better-sqlite3 Database instance
+ * @param {import('node:sqlite').DatabaseSync} db - node:sqlite DatabaseSync instance
  * @param {object} registry - Parsed registry.json
  */
 function syncRooms(db, registry) {
@@ -227,12 +227,12 @@ function main() {
     process.exit(0);
   }
 
-  // Try to load better-sqlite3
-  let Database;
+  // Try to load node:sqlite (Node >=22.5.0 builtin)
+  let DatabaseSync;
   try {
-    Database = require('better-sqlite3');
+    ({ DatabaseSync } = require('node:sqlite'));
   } catch (_) {
-    process.stderr.write('sync-rooms-graph: better-sqlite3 not available, skipping local graph sync\n');
+    process.stderr.write('sync-rooms-graph: node:sqlite not available (requires Node >=22.5.0), skipping local graph sync\n');
     process.exit(0);
   }
 
@@ -240,9 +240,9 @@ function main() {
   let db = null;
   try {
     fs.mkdirSync(DB_DIR, { recursive: true });
-    db = new Database(DB_PATH);
-    db.pragma('journal_mode = WAL');
-    db.pragma('foreign_keys = ON');
+    db = new DatabaseSync(DB_PATH);
+    db.exec('PRAGMA journal_mode = WAL');
+    db.exec('PRAGMA foreign_keys = ON');
 
     initRoomSchema(db);
     seedStages(db);
