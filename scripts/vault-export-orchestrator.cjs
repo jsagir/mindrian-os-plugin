@@ -46,15 +46,21 @@ Usage:
   node scripts/vault-export-orchestrator.cjs <room> --in-place     Linkify named room in place
 
 Flags:
-  --path <dir>   Override target parent dir (default: ~/MindrianRooms-Vaults/)
-  --in-place     Skip copy step; operate on source room directly
-  --help, -h     Show this help
+  --path <dir>       Override target parent dir (default: ~/MindrianRooms-Vaults/)
+  --in-place         Skip copy step; operate on source room directly
+  --mode <value>     Export mode: vault (default, Obsidian-only, excludes .mindrian/)
+                     or transplant (full room bridge, includes .mindrian/ so room.db
+                     travels with the room between machines)
+  --source <dir>     Explicit source path (advanced; bypasses room resolution)
+  --target <dir>     Explicit target path (advanced; bypasses default target layout)
+  --copy-only        Stop after the copy step; skip pipeline + vault-kit (test hook)
+  --help, -h         Show this help
 `;
 
 // ---------- Argument parsing ----------
 
 function parseArgs(argv) {
-  const args = { room: null, targetParent: null, inPlace: false, help: false };
+  const args = { room: null, targetParent: null, inPlace: false, help: false, mode: 'vault', source: null, target: null, copyOnly: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--help' || a === '-h') {
@@ -63,9 +69,28 @@ function parseArgs(argv) {
       args.inPlace = true;
     } else if (a === '--path') {
       args.targetParent = argv[++i];
+    } else if (a === '--mode') {
+      args.mode = argv[++i];
+    } else if (a.startsWith('--mode=')) {
+      args.mode = a.slice('--mode='.length);
+    } else if (a === '--source') {
+      args.source = argv[++i];
+    } else if (a.startsWith('--source=')) {
+      args.source = a.slice('--source='.length);
+    } else if (a === '--target') {
+      args.target = argv[++i];
+    } else if (a.startsWith('--target=')) {
+      args.target = a.slice('--target='.length);
+    } else if (a === '--copy-only') {
+      args.copyOnly = true;
     } else if (!a.startsWith('--') && args.room == null) {
       args.room = a;
     }
+  }
+  if (args.mode !== 'vault' && args.mode !== 'transplant') {
+    errorExit([
+      'x invalid --mode: ' + args.mode + '. expected: vault | transplant',
+    ]);
   }
   return args;
 }
@@ -154,7 +179,8 @@ function resolveTargetPath(sourcePath, flagPath, inPlace) {
 
 // ---------- Copy step (VAULT-03, VAULT-04, VAULT-05) ----------
 
-const SKIP_PATTERNS = [
+// Vault mode: Obsidian-only export. Excludes .mindrian/ (room.db, memory, proactive-intelligence).
+const SKIP_PATTERNS_VAULT = [
   '.lazygraph',
   '.context',
   '.mindrian',
@@ -162,6 +188,18 @@ const SKIP_PATTERNS = [
   '.git',
   '.obsidian',
 ];
+
+// Transplant mode: full room bridge. Includes .mindrian/ so room.db travels with the room.
+// As of v1.10.9 node:sqlite is platform-agnostic so .mindrian/room.db works on any supported OS.
+const SKIP_PATTERNS_TRANSPLANT = [
+  '.lazygraph',
+  '.context',
+  'node_modules',
+  '.git',
+  '.obsidian',
+];
+
+let SKIP_PATTERNS = SKIP_PATTERNS_VAULT;
 
 function hasRsync() {
   try {
@@ -307,13 +345,27 @@ async function main() {
     process.exit(0);
   }
 
-  const sourcePath = resolveRoomPath(args.room);
-  const targetPath = resolveTargetPath(sourcePath, args.targetParent, args.inPlace);
+  // Select exclusion list based on export mode (vault | transplant).
+  SKIP_PATTERNS = args.mode === 'transplant' ? SKIP_PATTERNS_TRANSPLANT : SKIP_PATTERNS_VAULT;
+  process.stdout.write(cyan('[vault-export] mode=' + args.mode) + '\n');
+
+  let sourcePath;
+  if (args.source) {
+    sourcePath = path.resolve(expandHome(args.source));
+    if (!fs.existsSync(sourcePath)) {
+      errorExit(['x --source path does not exist: ' + sourcePath]);
+    }
+  } else {
+    sourcePath = resolveRoomPath(args.room);
+  }
+  const targetPath = args.target
+    ? path.resolve(expandHome(args.target))
+    : resolveTargetPath(sourcePath, args.targetParent, args.inPlace);
   const mode = args.inPlace ? 'in-place' : 'export';
 
   process.stdout.write(cyan('[vault] >>> Source: ' + sourcePath) + '\n');
   process.stdout.write(cyan('[vault] >>> Target: ' + targetPath) + '\n');
-  process.stdout.write(cyan('[vault] >>> Mode:   ' + mode) + '\n');
+  process.stdout.write(cyan('[vault] >>> Mode:   ' + mode + ' (' + args.mode + ')') + '\n');
 
   if (args.inPlace) {
     process.stderr.write('[WARN] In-place mode: modifying files in ' + sourcePath + ' directly\n');
@@ -321,6 +373,11 @@ async function main() {
     process.stdout.write(cyan('[vault] >>> Copying room (skip filter + symlink resolution)') + '\n');
     const method = doCopy(sourcePath, targetPath);
     process.stdout.write(cyan('[vault] >>> Copy complete (' + method + ')') + '\n');
+  }
+
+  if (args.copyOnly) {
+    process.stdout.write(cyan('[vault] >>> --copy-only: skipping pipeline + vault-kit') + '\n');
+    return;
   }
 
   for (const [label, script] of PIPELINE) {

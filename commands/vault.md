@@ -21,9 +21,34 @@ You are Larry. This command exports any Data Room as a complete Obsidian-ready v
 
 Parse the user's input to determine flags and target room.
 
+## Modes (v1.10.9+)
+
+Vault export supports two modes via the `--mode` flag. Default is `vault` so existing callers see zero behavioral change.
+
+| Mode | Includes `.mindrian/`? | Use When |
+|------|------------------------|----------|
+| `vault` (default) | No | Obsidian-first export. Sharing human-readable venture content without the intelligence layer. This is the v1.10.8 behavior, preserved exactly. |
+| `transplant` | Yes | Full room bridge. Moving a room between machines, forking for a collaborator, archiving with full state. `.mindrian/room.db`, memory, and proactive-intelligence travel with the export. |
+
+### Examples
+
+```bash
+# Vault mode (default, current behavior)
+/mos:vault align-ecosystem
+/mos:vault align-ecosystem --mode vault
+
+# Transplant mode (new in v1.10.9)
+/mos:vault align-ecosystem --mode transplant
+/mos:vault align-ecosystem --mode transplant --path ~/transplants/
+```
+
+**Transplant mode and SQLite:** transplant exports carry the room's SQLite database (`.mindrian/room.db`). As of v1.10.9 the plugin uses Node.js built-in `node:sqlite` (via Finding E migration from `better-sqlite3`), which is platform-agnostic. The same exported `.mindrian/room.db` works on Windows, Linux, and macOS without recompiling native bindings. This was NOT true in v1.10.8 and earlier, where `better-sqlite3` shipped platform-specific compiled bindings that failed on win32 arm64. See `CHANGELOG.md` [1.10.9] entry for full context.
+
+**Transplant exports are larger.** A mature room's `.mindrian/room.db` can be tens to hundreds of megabytes. Plan your destination storage accordingly.
+
 ## Subcommand: default (export)
 
-**Trigger:** `/mos:vault` or `/mos:vault <room-name>` or `/mos:vault --path <dir>` or `/mos:vault <room> --path <dir>`
+**Trigger:** `/mos:vault` or `/mos:vault <room-name>` or `/mos:vault --path <dir>` or `/mos:vault <room> --path <dir>` or `/mos:vault <room> --mode transplant`
 
 ### Step 1: Check for Room
 
@@ -42,13 +67,14 @@ STOP.
 Invoke the orchestrator via the CLI router:
 
 ```bash
-node bin/mindrian-tools.cjs vault {room-arg} {--path <dir> if provided}
+node bin/mindrian-tools.cjs vault {room-arg} {--path <dir> if provided} {--mode <value> if provided}
 ```
 
 Rules for the room arg:
 - If user passed a room name (e.g. `/mos:vault align-ecosystem`), forward it
 - If user passed only flags, omit the room arg (orchestrator resolves active room)
 - Always forward `--path <dir>` if present
+- Always forward `--mode <vault|transplant>` if present; when absent, mode defaults to `vault`
 
 The orchestrator prints its own progress (cyan `[vault] >>>` lines). Let its output stream through.
 
