@@ -11,12 +11,25 @@ set -euo pipefail
 # producing: mv: cannot stat '.../mos/1.10.5/.update-stage': No such file
 # and leaving the cache in a partially-renamed state.
 #
-# The rewrite abandons the atomic-swap-via-rename dance entirely. It clones
-# the target version into /tmp (OUTSIDE any cache dir), validates the staged
-# copy, then moves the staged copy to a sibling semver-named directory
-# mos/<new-version>/. The old version's directory is never touched. The
-# 83-01 statusline-mos wrapper resolves the highest installed semver on
-# next shell invocation. Closes SCOPE-NB-14. Fixes spec Risk 8.
+# The rewrite avoids atomic-swap-via-rename on Windows (where it fails on
+# locked directories that are in-use by a running Claude Code session) by
+# using a platform-aware install step. POSIX (linux, darwin) continues to
+# use the fast atomic mv path. Windows uses cp -a + rm -rf. The final
+# install runs from a bootstrap script at $HOME/.mindrian/update-bootstrap-$$.sh
+# (Finding J-5, Phase 85-09) so that self-update can exec away before the
+# plugin directory containing self-update itself is overwritten, sidestepping
+# the bash-buffers-by-byte-offset self-overwrite hazard.
+#
+# All plugin.json reads go through readPluginJsonVersion() which wraps
+# node -e on require(). python3 is avoided entirely because on Windows
+# Git Bash it is either the Microsoft Store alias stub or chokes on
+# virtual /tmp/ paths (Finding J-2, LASZLO-001).
+#
+# The target version is cloned into /tmp (OUTSIDE any cache dir), validated
+# in the staged copy, then handed to the bootstrap for the sibling-install
+# step. The old version's directory is never touched. The 83-01 statusline-mos
+# wrapper resolves the highest installed semver on next shell invocation.
+# Closes SCOPE-NB-14. Fixes spec Risk 8. Fixes Finding J (LASZLO-001).
 #
 # Flow (install path):
 #   A. Clone into /tmp/mos-update-XXXXXX/plugin (external staging)
@@ -57,6 +70,51 @@ log() { echo "[self-update] $*" >&2; }
 # --- Resolve paths ---
 PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
+# --- readPluginJsonVersion helper (Phase 85-09, Finding J-2) ---
+# Reads the version field of a plugin.json via node's native JSON loader.
+# Replaces the python3-based reads that failed on Windows Git Bash either
+# because python3 resolved to the Microsoft Store alias stub or because
+# python3 mis-interpreted Git Bash virtual /tmp/ paths as literal C:\tmp\.
+# Node is a hard runtime dependency of the plugin so availability is
+# guaranteed. Bash expands path arguments before node sees them, so Git
+# Bash virtual paths are resolved correctly.
+#
+# Usage:
+#   VER=$(readPluginJsonVersion /path/to/plugin-root)
+#   VER=$(readPluginJsonVersion /path/to/plugin-root || echo "")
+#
+# Takes a single argument: the plugin root directory (the one containing
+# .claude-plugin/plugin.json). Prints the version to stdout on success,
+# nothing on failure (caller uses || echo "" fallback as before).
+readPluginJsonVersion() {
+  local root="$1"
+  if [ -z "$root" ] || [ ! -f "$root/.claude-plugin/plugin.json" ]; then
+    return 1
+  fi
+  node -e "try { console.log(require(process.argv[1]).version || ''); } catch (e) { process.exit(1); }" "$root/.claude-plugin/plugin.json" 2>/dev/null
+}
+
+# --- Platform detection (Phase 85-09, Finding J-3) ---
+# Picks INSTALL_METHOD=copy on Windows, INSTALL_METHOD=rename elsewhere.
+# Prefers lib/core/platform.cjs when available (the canonical source of
+# truth from plan 85-01). Falls back to uname -s for backward compat with
+# old self-update copies that predate platform.cjs on disk.
+PLATFORM_OS=""
+if [ -f "$PLUGIN_ROOT/lib/core/platform.cjs" ]; then
+  PLATFORM_OS=$(node -e "try { console.log(require(process.argv[1]).detectPlatform().os); } catch (e) { process.exit(1); }" "$PLUGIN_ROOT/lib/core/platform.cjs" 2>/dev/null || echo "")
+fi
+if [ -z "$PLATFORM_OS" ]; then
+  case "$(uname -s 2>/dev/null)" in
+    MINGW*|MSYS*|CYGWIN*) PLATFORM_OS="win32" ;;
+    Darwin)               PLATFORM_OS="darwin" ;;
+    *)                    PLATFORM_OS="linux" ;;
+  esac
+fi
+case "$PLATFORM_OS" in
+  win32) INSTALL_METHOD="copy" ;;
+  *)     INSTALL_METHOD="rename" ;;
+esac
+
 # Find the cache directory where Claude Code stores the installed plugin.
 CACHE_DIR=""
 if echo "$PLUGIN_ROOT" | grep -q "plugins/cache"; then
@@ -87,18 +145,21 @@ if [ -n "${SELF_UPDATE_SOURCE_DIR:-}" ] && [ -d "$CACHE_ROOT" ]; then
     | grep -E '/[0-9]+\.[0-9]+\.[0-9]+$' \
     | sort -V | tail -1 || true)
   if [ -n "$EXISTING_HI" ] && [ -f "$EXISTING_HI/.claude-plugin/plugin.json" ]; then
-    CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('$EXISTING_HI/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "")
+    CURRENT_VERSION=$(readPluginJsonVersion "$EXISTING_HI" 2>/dev/null || echo "")
   fi
 fi
 if [ -z "$CURRENT_VERSION" ]; then
   if [ -f "$CACHE_DIR/.claude-plugin/plugin.json" ]; then
-    CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('$CACHE_DIR/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "0.0.0")
+    CURRENT_VERSION=$(readPluginJsonVersion "$CACHE_DIR" 2>/dev/null || echo "0.0.0")
   elif [ -f "$PLUGIN_ROOT/.claude-plugin/plugin.json" ]; then
-    CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_ROOT/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "0.0.0")
+    CURRENT_VERSION=$(readPluginJsonVersion "$PLUGIN_ROOT" 2>/dev/null || echo "0.0.0")
   else
     CURRENT_VERSION="0.0.0"
   fi
 fi
+# Guard: empty fallback on the CACHE/PLUGIN branches becomes 0.0.0 to
+# preserve prior semantics (those sites used "0.0.0" as the fallback).
+if [ -z "$CURRENT_VERSION" ]; then CURRENT_VERSION="0.0.0"; fi
 
 # --- Resolve LATEST_VERSION ---
 # In test mode with SELF_UPDATE_SOURCE_DIR set, read the version from the
@@ -130,7 +191,7 @@ validate_source_override() {
 if [ -n "${SELF_UPDATE_SOURCE_DIR:-}" ]; then
   validate_source_override "$SELF_UPDATE_SOURCE_DIR"
   if [ -f "$SELF_UPDATE_SOURCE_DIR/.claude-plugin/plugin.json" ]; then
-    LATEST_VERSION=$(python3 -c "import json; print(json.load(open('$SELF_UPDATE_SOURCE_DIR/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "")
+    LATEST_VERSION=$(readPluginJsonVersion "$SELF_UPDATE_SOURCE_DIR" 2>/dev/null || echo "")
   fi
   if [ -z "$LATEST_VERSION" ]; then
     LATEST_VERSION="$CURRENT_VERSION"
@@ -265,7 +326,7 @@ if [ ! -f "$STAGE/plugin/.claude-plugin/plugin.json" ]; then
   exit 0
 fi
 
-DOWNLOADED_VERSION=$(python3 -c "import json; print(json.load(open('$STAGE/plugin/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "")
+DOWNLOADED_VERSION=$(readPluginJsonVersion "$STAGE/plugin" 2>/dev/null || echo "")
 if [ -z "$DOWNLOADED_VERSION" ]; then
   echo "UPDATE_FAILED"
   echo "Staged plugin.json has no version field. Cache untouched."
@@ -317,110 +378,50 @@ if [ -z "${SELF_UPDATE_SOURCE_DIR:-}" ]; then
   fi
 fi
 
-# Step C: Install atomically by moving staged plugin to target sibling dir.
-echo "STATUS=installing"
-log "installing into ${TARGET_DIR}"
-
-mkdir -p "$CACHE_ROOT"
-if ! mv "$STAGE/plugin" "$TARGET_DIR"; then
-  echo "UPDATE_FAILED"
-  echo "Could not move staged plugin to target: $TARGET_DIR"
-  echo "  Cache untouched; staging will be cleaned up on exit."
-  exit 0
-fi
-
-# From this point on, $TARGET_DIR exists on disk. Any subsequent failure
-# leaves it in place for the user to inspect, per the plan's Fallback
-# section. We do NOT delete it on later errors.
-
-# Step D: Preserve .env from previous highest-semver version.
-echo "STATUS=preserving_env"
-PREV_DIR=""
-# Find the most recent semver dir that is NOT the new target. Uses sort -V
-# over the CACHE_ROOT children.
-if [ -d "$CACHE_ROOT" ]; then
-  PREV_DIR=$(find "$CACHE_ROOT" -maxdepth 1 -mindepth 1 -type d 2>/dev/null \
-    | grep -E '/[0-9]+\.[0-9]+\.[0-9]+$' \
-    | grep -v "/${DOWNLOADED_VERSION}\$" \
-    | sort -V \
-    | tail -1 || true)
-fi
-if [ -n "$PREV_DIR" ] && [ -f "$PREV_DIR/.env" ]; then
-  # cp -n: never clobber an existing .env in the new version
-  cp -n "$PREV_DIR/.env" "$TARGET_DIR/.env" 2>/dev/null || true
-  log "preserved .env from ${PREV_DIR}"
-fi
-
-# Step E: npm install in the new target dir.
-if [ -f "$TARGET_DIR/package.json" ]; then
-  echo "STATUS=npm_install"
-  log "running npm install in ${TARGET_DIR}"
-  # Skip in test mode (fixtures have no real package.json tree) unless
-  # the fixture explicitly declares a dependencies block.
-  if [ -z "${SELF_UPDATE_SOURCE_DIR:-}" ]; then
-    if ! ( cd "$TARGET_DIR" && npm install --production --silent 2>/dev/null ); then
-      echo "UPDATE_WARNING"
-      echo "npm install failed in $TARGET_DIR."
-      echo "  The new version is installed but has no node_modules."
-      echo "  Fix: cd \"$TARGET_DIR\" && npm install"
-      echo "  You can still use the version read-only until npm install succeeds."
-    fi
+# Step C+: Bootstrap handoff (Phase 85-09, Finding J-5).
+# The install step + post-install housekeeping all move into a standalone
+# bootstrap script at $HOME/.mindrian/update-bootstrap-$$.sh. self-update
+# exec's into the bootstrap as its final command so that bash is no
+# longer reading from a script file whose enclosing directory is about to
+# be mutated by the install. The bootstrap runs from a fixed path outside
+# the plugin tree and is not overwritten by any install method.
+log "writing bootstrap handoff"
+BOOTSTRAP_DIR="$HOME/.mindrian"
+mkdir -p "$BOOTSTRAP_DIR"
+BOOTSTRAP_PATH="$BOOTSTRAP_DIR/update-bootstrap-$$.sh"
+BOOTSTRAP_TEMPLATE="$PLUGIN_ROOT/lib/update-bootstrap.sh.template"
+if [ ! -f "$BOOTSTRAP_TEMPLATE" ]; then
+  # Try the staged copy if the current plugin tree does not have it yet
+  # (users upgrading from a pre-85-09 self-update will not have the
+  # template on disk at PLUGIN_ROOT, but the STAGE does).
+  if [ -f "$STAGE/plugin/lib/update-bootstrap.sh.template" ]; then
+    BOOTSTRAP_TEMPLATE="$STAGE/plugin/lib/update-bootstrap.sh.template"
+  else
+    echo "UPDATE_FAILED"
+    echo "Bootstrap template not found: lib/update-bootstrap.sh.template"
+    exit 0
   fi
 fi
+cp "$BOOTSTRAP_TEMPLATE" "$BOOTSTRAP_PATH"
+chmod +x "$BOOTSTRAP_PATH"
 
-# Step F: Prune old cache dirs, keeping the 3 most recent semver siblings.
-# This is best-effort: failures here do NOT fail the install.
-echo "STATUS=pruning"
-(
-  set +e
-  ALL_VERS=$(find "$CACHE_ROOT" -maxdepth 1 -mindepth 1 -type d 2>/dev/null \
-    | grep -E '/[0-9]+\.[0-9]+\.[0-9]+$' \
-    | sort -V)
-  COUNT=$(echo "$ALL_VERS" | grep -c . || true)
-  if [ "${COUNT:-0}" -gt 3 ]; then
-    TO_REMOVE=$(echo "$ALL_VERS" | head -n $((COUNT - 3)))
-    for d in $TO_REMOVE; do
-      log "pruning old cache dir: $d"
-      rm -rf "$d" 2>/dev/null || log "warning: failed to prune $d"
-    done
-  fi
-) || true
+# Stash CHANGELOG_DIFF on disk for the bootstrap to emit at the end.
+CHANGELOG_TMP="$BOOTSTRAP_DIR/update-changelog-$$.txt"
+printf '%s\n' "$CHANGELOG_DIFF" > "$CHANGELOG_TMP" 2>/dev/null || true
 
-# Also clean up any stale .old-<pid> dirs left by the legacy script.
-find "$CACHE_ROOT" -maxdepth 1 -mindepth 1 -type d -name '*.old-*' 2>/dev/null \
-  | while read -r stale; do
-      log "cleaning up stale legacy dir: $stale"
-      rm -rf "$stale" 2>/dev/null || true
-    done
-
-# Clear update-check cache so statusline stops showing the update badge.
-rm -f "$HOME/.mindrian/bridge/update-check.json" 2>/dev/null || true
-
-# Update marketplace cache version pointer (best effort).
-if [ -z "${SELF_UPDATE_SOURCE_DIR:-}" ]; then
-  MARKETPLACE_CACHE=$(find "$HOME/.claude" -path "*/mindrian-marketplace*marketplace.json" 2>/dev/null | head -1)
-  if [ -n "$MARKETPLACE_CACHE" ]; then
-    python3 -c "
-import json
-with open('$MARKETPLACE_CACHE') as f:
-    m = json.load(f)
-m['plugins'][0]['version'] = '$DOWNLOADED_VERSION'
-with open('$MARKETPLACE_CACHE', 'w') as f:
-    json.dump(m, f, indent=2)
-    f.write('\n')
-" 2>/dev/null || true
-  fi
+# Test-mode flag: the bootstrap skips npm install + marketplace write
+# when the test fixture source is in play.
+BOOTSTRAP_TEST_MODE=""
+if [ -n "${SELF_UPDATE_SOURCE_DIR:-}" ]; then
+  BOOTSTRAP_TEST_MODE="test"
 fi
 
-POST_COMMANDS=0
-if [ -d "$TARGET_DIR/commands" ]; then
-  POST_COMMANDS=$(ls "$TARGET_DIR/commands/"*.md 2>/dev/null | wc -l)
-fi
+# Clear the EXIT trap so the bootstrap can own $STAGE cleanup. Otherwise
+# the trap would rm -rf $STAGE before the bootstrap's mv/cp has a chance
+# to consume it.
+trap - EXIT
 
-echo "UPDATED"
-echo "OLD_VERSION=${CURRENT_VERSION}"
-echo "NEW_VERSION=${DOWNLOADED_VERSION}"
-echo "TARGET_DIR=${TARGET_DIR}"
-echo "COMMANDS=${POST_COMMANDS}"
-echo "---CHANGELOG---"
-echo "$CHANGELOG_DIFF"
+log "exec-ing bootstrap for ${PLATFORM_OS} install method (${INSTALL_METHOD})"
+exec bash "$BOOTSTRAP_PATH" \
+  "$STAGE" "$TARGET_DIR" "$PLATFORM_OS" "$CACHE_ROOT" \
+  "$DOWNLOADED_VERSION" "$CURRENT_VERSION" "$CHANGELOG_TMP" "$BOOTSTRAP_TEST_MODE"

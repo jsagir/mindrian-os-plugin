@@ -1,0 +1,145 @@
+#!/usr/bin/env bash
+# update-bootstrap.sh -- J-5 self-update install handoff (Phase 85-09).
+#
+# Purpose: perform the final install + post-install steps AFTER
+# scripts/self-update has exec'd away. Because this script runs from a
+# fixed path under $HOME/.mindrian/ (not inside the plugin tree), it is
+# NOT overwritten when the install replaces the plugin cache directory.
+# This sidesteps the "bash buffers by byte offset" self-overwrite hazard
+# documented in Finding J-5 of LASZLO-001.
+#
+# Arguments (positional):
+#   $1 STAGE              absolute path to staging dir containing plugin/
+#   $2 TARGET_DIR         absolute path to final install sibling directory
+#   $3 PLATFORM_OS        one of: win32 | darwin | linux
+#   $4 CACHE_ROOT         parent directory of semver-named sibling installs
+#   $5 DOWNLOADED_VERSION the version being installed
+#   $6 CURRENT_VERSION    the version being replaced
+#   $7 CHANGELOG_FILE     path to file containing CHANGELOG_DIFF text
+#   $8 TEST_MODE          "test" to skip npm install/marketplace update
+#
+# Install method branch (J-3):
+#   win32          cp -a + rm -rf  (Windows cannot rename in-use dirs)
+#   darwin|linux   mv              (atomic rename, fast, correct on POSIX)
+
+set -uo pipefail
+
+STAGE="${1:-}"
+TARGET_DIR="${2:-}"
+PLATFORM_OS="${3:-linux}"
+CACHE_ROOT="${4:-}"
+DOWNLOADED_VERSION="${5:-}"
+CURRENT_VERSION="${6:-}"
+CHANGELOG_FILE="${7:-}"
+TEST_MODE="${8:-}"
+
+if [ -z "$STAGE" ] || [ -z "$TARGET_DIR" ]; then
+  echo "UPDATE_FAILED"
+  echo "update-bootstrap: missing STAGE or TARGET_DIR argument"
+  exit 1
+fi
+
+cleanup_on_error() {
+  local ec=$?
+  rm -rf "$TARGET_DIR" 2>/dev/null || true
+  echo "UPDATE_FAILED"
+  echo "update-bootstrap: install step failed (exit $ec); TARGET_DIR rolled back"
+  rm -rf "$STAGE" 2>/dev/null || true
+  exit "$ec"
+}
+trap cleanup_on_error ERR
+
+# Step C: install via platform-aware method.
+echo "STATUS=installing"
+mkdir -p "$CACHE_ROOT"
+case "$PLATFORM_OS" in
+  win32)
+    mkdir -p "$TARGET_DIR"
+    cp -a "$STAGE/plugin/." "$TARGET_DIR/"
+    rm -rf "$STAGE/plugin"
+    ;;
+  *)
+    mv "$STAGE/plugin" "$TARGET_DIR"
+    ;;
+esac
+
+# Disarm rollback: past this point, $TARGET_DIR exists and must be kept
+# even if later best-effort steps (npm, pruning, marketplace) fail.
+trap - ERR
+
+# Step D: preserve .env from previous highest-semver sibling.
+echo "STATUS=preserving_env"
+PREV_DIR=""
+if [ -d "$CACHE_ROOT" ]; then
+  PREV_DIR=$(find "$CACHE_ROOT" -maxdepth 1 -mindepth 1 -type d 2>/dev/null \
+    | grep -E '/[0-9]+\.[0-9]+\.[0-9]+$' \
+    | grep -v "/${DOWNLOADED_VERSION}\$" \
+    | sort -V | tail -1 || true)
+fi
+if [ -n "$PREV_DIR" ] && [ -f "$PREV_DIR/.env" ]; then
+  cp -n "$PREV_DIR/.env" "$TARGET_DIR/.env" 2>/dev/null || true
+fi
+
+# Step E: npm install (skipped in test mode).
+if [ "$TEST_MODE" != "test" ] && [ -f "$TARGET_DIR/package.json" ]; then
+  echo "STATUS=npm_install"
+  ( cd "$TARGET_DIR" && npm install --production --silent 2>/dev/null ) || {
+    echo "UPDATE_WARNING"
+    echo "npm install failed in $TARGET_DIR. You can still use the version read-only until 'cd \"$TARGET_DIR\" && npm install' succeeds."
+  }
+fi
+
+# Step F: prune old cache siblings, keep 3 most recent. Best-effort.
+echo "STATUS=pruning"
+(
+  set +e
+  ALL_VERS=$(find "$CACHE_ROOT" -maxdepth 1 -mindepth 1 -type d 2>/dev/null \
+    | grep -E '/[0-9]+\.[0-9]+\.[0-9]+$' | sort -V)
+  COUNT=$(echo "$ALL_VERS" | grep -c . || true)
+  if [ "${COUNT:-0}" -gt 3 ]; then
+    TO_REMOVE=$(echo "$ALL_VERS" | head -n $((COUNT - 3)))
+    for d in $TO_REMOVE; do rm -rf "$d" 2>/dev/null || true; done
+  fi
+) || true
+
+find "$CACHE_ROOT" -maxdepth 1 -mindepth 1 -type d -name '*.old-*' 2>/dev/null \
+  | while read -r stale; do rm -rf "$stale" 2>/dev/null || true; done
+
+rm -f "$HOME/.mindrian/bridge/update-check.json" 2>/dev/null || true
+
+# Marketplace cache version pointer (best-effort, skipped in test mode).
+if [ "$TEST_MODE" != "test" ]; then
+  MARKETPLACE_CACHE=$(find "$HOME/.claude" -path "*/mindrian-marketplace*marketplace.json" 2>/dev/null | head -1)
+  if [ -n "$MARKETPLACE_CACHE" ]; then
+    node -e "
+const fs = require('fs');
+try {
+  const m = JSON.parse(fs.readFileSync(process.argv[1], 'utf8'));
+  if (m && Array.isArray(m.plugins) && m.plugins[0]) {
+    m.plugins[0].version = process.argv[2];
+    fs.writeFileSync(process.argv[1], JSON.stringify(m, null, 2) + '\n');
+  }
+} catch (e) {}
+" "$MARKETPLACE_CACHE" "$DOWNLOADED_VERSION" 2>/dev/null || true
+  fi
+fi
+
+POST_COMMANDS=0
+if [ -d "$TARGET_DIR/commands" ]; then
+  POST_COMMANDS=$(ls "$TARGET_DIR/commands/"*.md 2>/dev/null | wc -l)
+fi
+
+echo "UPDATED"
+echo "OLD_VERSION=${CURRENT_VERSION}"
+echo "NEW_VERSION=${DOWNLOADED_VERSION}"
+echo "TARGET_DIR=${TARGET_DIR}"
+echo "COMMANDS=${POST_COMMANDS}"
+echo "---CHANGELOG---"
+if [ -n "$CHANGELOG_FILE" ] && [ -f "$CHANGELOG_FILE" ]; then
+  cat "$CHANGELOG_FILE"
+  rm -f "$CHANGELOG_FILE" 2>/dev/null || true
+fi
+
+rm -rf "$STAGE" 2>/dev/null || true
+rm -f "$0" 2>/dev/null || true
+exit 0
