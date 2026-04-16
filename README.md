@@ -9,15 +9,15 @@
   [Prof. Lawrence Aronhime](https://www.linkedin.com/in/lawrence-aronhime-8363894/) over 30+ years at Johns Hopkins University.
   Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
 
-  [![Plugin Version](https://img.shields.io/badge/plugin-v1.9.3_Graph_Visualization-blue)](https://github.com/jsagir/mindrian-os-plugin)
-  [![Commands](https://img.shields.io/badge/commands-66-green)](https://github.com/jsagir/mindrian-os-plugin)
-  [![MCP Tools](https://img.shields.io/badge/MCP_tools-64_(9_routers)-teal)](https://github.com/jsagir/mindrian-os-plugin)
-  [![MCP Apps](https://img.shields.io/badge/MCP_Apps-3_(dashboard,_wiki,_graph)-cyan)](https://github.com/jsagir/mindrian-os-plugin)
-  [![Agents](https://img.shields.io/badge/agents-8-orange)](https://github.com/jsagir/mindrian-os-plugin)
-  [![Hooks](https://img.shields.io/badge/hooks-9-red)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Plugin Version](https://img.shields.io/badge/plugin-v1.10.10-blue)](https://github.com/jsagir/mindrian-os-plugin)
+  [![License](https://img.shields.io/badge/license-BSL_1.1-orange)](https://github.com/jsagir/mindrian-os-plugin/blob/main/LICENSE)
+  [![Commands](https://img.shields.io/badge/commands-71+-green)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Skills](https://img.shields.io/badge/skills-10-cyan)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Agents](https://img.shields.io/badge/agents-13-orange)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Hooks](https://img.shields.io/badge/hooks-11-red)](https://github.com/jsagir/mindrian-os-plugin)
   [![Edge Types](https://img.shields.io/badge/edge_types-12-yellow)](https://github.com/jsagir/mindrian-os-plugin)
   [![Brain Nodes](https://img.shields.io/badge/brain_nodes-32K+-purple)](https://github.com/jsagir/mindrian-os-plugin)
-  [![Brain Edges](https://img.shields.io/badge/brain_edges-114_FEEDS__INTO,_100_TYPICAL__AT,_15_PREREQUISITE-blueviolet)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Node](https://img.shields.io/badge/node-%3E%3D22.5.0-brightgreen)](https://github.com/jsagir/mindrian-os-plugin)
   [![Surfaces](https://img.shields.io/badge/surfaces-CLI_+_Desktop_+_Cowork-brightgreen)](https://github.com/jsagir/mindrian-os-plugin)
 
   [Website](https://mindrianos-jsagirs-projects.vercel.app) |
@@ -26,6 +26,25 @@
   [Roadmap](https://mindrianos-jsagirs-projects.vercel.app/roadmap)
 
 </div>
+
+---
+
+## What MindrianOS Actually Does (v1.10.10)
+
+You give it your documents, your proposals, your meeting transcripts, your half-formed ideas. It files them into a structured Data Room, builds a knowledge graph of relationships between them (INFORMS, CONTRADICTS, CONVERGES, INVALIDATES), and then surfaces what you cannot see on your own:
+
+- **Whitespace** -- what's missing from your thinking relative to 77 methodology frameworks (`/mos:whitespace`)
+- **Hidden connections** -- surprising cross-domain patterns between your artifacts (`/mos:find-connections`)
+- **Reverse salients** -- where your expanding system is lagging behind itself (`/mos:find-bottlenecks`)
+- **Innovation scoring** -- which domain crossings have the highest untapped potential (`/mos:score-innovation`)
+- **Convergence signals** -- themes appearing across 3+ artifacts that you haven't noticed
+- **Contradictions** -- places where your own work disagrees with itself
+
+The intelligence layer queries a local SQLite graph (room.db) using targeted SQL -- not brute-force context scanning. A question like "what contradicts my market analysis?" costs ~3,500 tokens (surgical graph query + relevant artifact excerpts), not ~200,000 tokens (reading the entire room). **57x cheaper. Better answers.**
+
+Every discovery gets filed into an **Opportunity Bank** -- a scored, ranked collection of insights you can draw from for proposals, pitches, partnerships, and pivots. The Opportunity Bank compounds: every methodology session adds to it, every meeting transcript enriches it, every new artifact creates new edges.
+
+**The result:** a professor used MindrianOS for 2 days on a DOE proposal and his team lead said "Interesting. This is helpful." An M Ventures partner asked "what does proactive mean?" three times -- then the system generated a deck where every slide answered a question she asked in the meeting. A Windows beta tester reported a bug with 5 screenshots, and the fix shipped in under 12 hours.
 
 ---
 
@@ -470,8 +489,32 @@ The Room becomes a living, adaptive intelligence hub:
 - **RoomHub:** Living adaptive intelligence hub for any Room. Adaptive Room detection (venture/website/research/general) tailors the entire experience to your project type.
 - **SnapshotHub:** `/mos:snapshot` exports a 7-view standalone HTML -- Overview, Library, Narrative, Synthesis, Blueprint, Constellation, Chat -- from your Room's current state.
 - **12-Thread Constellation Graph:** Interactive knowledge graph with De Stijl colors and spectral coloring. 12 edge types rendered as a navigable constellation.
-- **Generative Fabric Chat:** Query your KuzuDB graph via natural language directly inside the SnapshotHub. Ask questions, get answers grounded in your room data.
+- **Generative Fabric Chat:** Query your graph via natural language directly inside the SnapshotHub. Ask questions, get answers grounded in your room data.
 - **JTBD-Powered Contextual Discovery:** Every 3-7 turns, Larry surfaces the next command you should run based on your current state and the Jobs-To-Be-Done framework. Commands find you, not the other way around.
+
+### v1.10.0-v1.10.5 Obsidian Vault Export + Feynman-MINTO + Wiki Fix (shipped 2026-04-12 to 2026-04-14)
+- **Obsidian Vault Export:** `/mos:vault` exports your Data Room as a fully-branded Obsidian vault with wikilinks, branded footers, and a welcome doc. `/mos:vault --mode=transplant` includes the SQLite database for room-to-room bridging.
+- **Feynman-MINTO Hybrid:** Every MINTO.md reasoning file is born compressed via Feynman engine stages 1/2/4/5. Tier-1 default runs inside the Claude session (zero API key, zero per-run cost). Tier-0 fallback is deterministic.
+- **Wiki Artifact Injection Fix:** Wiki template now shows real article content when users click sections. Per-artifact 20KB cap, per-room 2MB cap. MINTO.md governing_thought as section summary. Bug reported by Lawrence Aronhime.
+
+### v1.10.7 Cross-Session Scope Injection (shipped 2026-04-14)
+Stops Claude from leaking content across rooms in cross-session memory. Active Room context block injected into session-start. Sealed-room guardrails quoted in system prompt. Write-scope-check hook blocks cross-room writes at the PreToolUse level. Triggered by a witnessed cross-session leak in production.
+
+### v1.10.8 Smart Notebook Co-Pilot (shipped 2026-04-14)
+Mullins 20-section scaffold. Stakeholder node type in the graph. Graph-to-proactive-intelligence bridge. UserPromptSubmit graph-findings injection. Voice-log writer + reader. Self-update rewrite for versioned-cache model.
+
+### v1.10.9 + v1.10.10 Windows Hotfix + Mac Parity (shipped 2026-04-15)
+The cross-platform release. 10 plans, 12 commits, 2 releases in one day:
+- **BREAKING: Node.js 22.5.0 is now the minimum.** Migrated from better-sqlite3 (native bindings) to Node.js builtin node:sqlite. Eliminates the Windows native-binding failure class permanently.
+- **MOSDeckEngine skill:** YC-grade pitch deck generator using Feynman 6-stage first-principles decomposition. Ask Larry to make a deck.
+- **Brain Cypher fix (Finding I):** brain-client.cjs was sending the wrong parameter name to Brain MCP, silently breaking every Cypher-based query path. Whitespace gap detection, causal edges, graph enrichment -- all were degraded without alerting users. Now fixed.
+- **Windows self-update fix (Finding J, LASZLO-001):** Reported by Laszlo Szemelyi (Neumann Technology Platform, Hungary). Five sub-findings: python3 path resolution, directory rename on locked files, script self-overwriting, fix-never-persists loop, and a bootstrap handoff pattern.
+- **Run-hook.cmd exit code (Finding F, security-adjacent):** The sealed-room write guard was silently inert on Windows for two releases. Now the guard actually fires.
+- **Cross-platform dispatch:** lib/core/platform.cjs centralizes OS detection, terminal code page handling, and hook path resolution. Session-start banner renders correctly on Windows, Mac, and Linux.
+- **Whitespace pipeline auto-install:** Python ML dependencies (numpy, scikit-learn, sentence-transformers) auto-install on first run via scripts/lib/ensure_ml_deps.py. Works on Mac stock Python.
+- **Vault export dual-mode:** --mode=vault (Obsidian-only, default) and --mode=transplant (includes .mindrian/ for room bridging).
+- **v1.10.10 same-day hotfix:** Fixed on-stop hook validation error (hookSpecificOutput is not valid on Stop hooks, now uses systemMessage). Caught within 30 minutes of v1.10.9 shipping, fixed and pushed within 12 minutes.
+- **Credits:** Laszlo Szemelyi for the Windows self-update report. Lawrence Aronhime for the structured Mac environment audit.
 
 ---
 
@@ -516,6 +559,16 @@ Everything runs locally. Your Data Room is a folder on your machine. No data lea
 
 ## License
 
-Proprietary. Copyright Jonathan Sagir & PWS / Mindrian.
+**Business Source License 1.1 (BSL 1.1)**
+
+Source is open to read, use, and contribute to. Free for personal, academic, and internal business use -- including running MindrianOS as an installed plugin for your own projects, even if those projects are commercial.
+
+Commercial use (offering MindrianOS or a derivative as a paid service to third parties) requires a commercial license. Contact: jsagir@gmail.com
+
+Converts to Apache License 2.0 on 2030-04-16.
+
+Same licensing model as MariaDB, CockroachDB, HashiCorp (Terraform), and Sentry. The rationale: the plugin distribution layer is open (that is the adoption channel). The proprietary intelligence layer (Brain MCP) is the moat and is never distributed.
+
+Copyright (c) 2024-2026 Jonathan Sagir. All rights reserved.
 
 For licensing inquiries: [mindrian.ai](https://mindrian.ai)
