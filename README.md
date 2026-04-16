@@ -5,8 +5,8 @@
 
   **Your project becomes your co-founder.**
 
-  Powered by PWS -- the practical innovation methodology developed by
-  [Prof. Lawrence Aronhime](https://www.linkedin.com/in/lawrence-aronhime-8363894/) over 30+ years at Johns Hopkins University.
+  Powered by PWS -- the practical innovation methodology developed
+  over 30+ years at Johns Hopkins University.
   Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
 
   [![Plugin Version](https://img.shields.io/badge/plugin-v1.10.10-blue)](https://github.com/jsagir/mindrian-os-plugin)
@@ -44,7 +44,7 @@ The intelligence layer queries a local SQLite graph (room.db) using targeted SQL
 
 Every discovery gets filed into an **Opportunity Bank** -- a scored, ranked collection of insights you can draw from for proposals, pitches, partnerships, and pivots. The Opportunity Bank compounds: every methodology session adds to it, every meeting transcript enriches it, every new artifact creates new edges.
 
-**The result:** a professor used MindrianOS for 2 days on a DOE proposal and his team lead said "Interesting. This is helpful." An M Ventures partner asked "what does proactive mean?" three times -- then the system generated a deck where every slide answered a question she asked in the meeting. A Windows beta tester reported a bug with 5 screenshots, and the fix shipped in under 12 hours.
+**The result:** a researcher used MindrianOS for 2 days on a federal proposal and his team lead said "Interesting. This is helpful." A corporate VC partner asked "what does proactive mean?" three times -- then the system generated a deck where every slide answered a question she asked in the meeting. A beta tester reported a bug with 5 screenshots, and the fix shipped in under 12 hours.
 
 ---
 
@@ -114,7 +114,7 @@ Restart Desktop. 6 hierarchical tools, 5 resources, 5 prompts appear. Larry work
 
 ### Larry -- Your Thinking Partner
 
-Not a chatbot. A teaching agent modeled on Prof. Aronhime's methodology:
+Not a chatbot. A teaching agent modeled on 30+ years of classroom methodology:
 
 - **Provocative** -- "You're thinking about this as a marketplace problem. What if it's actually a logistics problem?"
 - **Structured** -- 26 PWS frameworks applied invisibly, earned through conversation
@@ -495,7 +495,7 @@ The Room becomes a living, adaptive intelligence hub:
 ### v1.10.0-v1.10.5 Obsidian Vault Export + Feynman-MINTO + Wiki Fix (shipped 2026-04-12 to 2026-04-14)
 - **Obsidian Vault Export:** `/mos:vault` exports your Data Room as a fully-branded Obsidian vault with wikilinks, branded footers, and a welcome doc. `/mos:vault --mode=transplant` includes the SQLite database for room-to-room bridging.
 - **Feynman-MINTO Hybrid:** Every MINTO.md reasoning file is born compressed via Feynman engine stages 1/2/4/5. Tier-1 default runs inside the Claude session (zero API key, zero per-run cost). Tier-0 fallback is deterministic.
-- **Wiki Artifact Injection Fix:** Wiki template now shows real article content when users click sections. Per-artifact 20KB cap, per-room 2MB cap. MINTO.md governing_thought as section summary. Bug reported by Lawrence Aronhime.
+- **Wiki Artifact Injection Fix:** Wiki template now shows real article content when users click sections. Per-artifact 20KB cap, per-room 2MB cap. MINTO.md governing_thought as section summary.
 
 ### v1.10.7 Cross-Session Scope Injection (shipped 2026-04-14)
 Stops Claude from leaking content across rooms in cross-session memory. Active Room context block injected into session-start. Sealed-room guardrails quoted in system prompt. Write-scope-check hook blocks cross-room writes at the PreToolUse level. Triggered by a witnessed cross-session leak in production.
@@ -508,13 +508,13 @@ The cross-platform release. 10 plans, 12 commits, 2 releases in one day:
 - **BREAKING: Node.js 22.5.0 is now the minimum.** Migrated from better-sqlite3 (native bindings) to Node.js builtin node:sqlite. Eliminates the Windows native-binding failure class permanently.
 - **MOSDeckEngine skill:** YC-grade pitch deck generator using Feynman 6-stage first-principles decomposition. Ask Larry to make a deck.
 - **Brain Cypher fix (Finding I):** brain-client.cjs was sending the wrong parameter name to Brain MCP, silently breaking every Cypher-based query path. Whitespace gap detection, causal edges, graph enrichment -- all were degraded without alerting users. Now fixed.
-- **Windows self-update fix (Finding J, LASZLO-001):** Reported by Laszlo Szemelyi (Neumann Technology Platform, Hungary). Five sub-findings: python3 path resolution, directory rename on locked files, script self-overwriting, fix-never-persists loop, and a bootstrap handoff pattern.
+- **Windows self-update fix (Finding J):** Five sub-findings: python3 path resolution, directory rename on locked files, script self-overwriting, fix-never-persists loop, and a bootstrap handoff pattern. Reported by an external beta tester.
 - **Run-hook.cmd exit code (Finding F, security-adjacent):** The sealed-room write guard was silently inert on Windows for two releases. Now the guard actually fires.
 - **Cross-platform dispatch:** lib/core/platform.cjs centralizes OS detection, terminal code page handling, and hook path resolution. Session-start banner renders correctly on Windows, Mac, and Linux.
 - **Whitespace pipeline auto-install:** Python ML dependencies (numpy, scikit-learn, sentence-transformers) auto-install on first run via scripts/lib/ensure_ml_deps.py. Works on Mac stock Python.
 - **Vault export dual-mode:** --mode=vault (Obsidian-only, default) and --mode=transplant (includes .mindrian/ for room bridging).
 - **v1.10.10 same-day hotfix:** Fixed on-stop hook validation error (hookSpecificOutput is not valid on Stop hooks, now uses systemMessage). Caught within 30 minutes of v1.10.9 shipping, fixed and pushed within 12 minutes.
-- **Credits:** Laszlo Szemelyi for the Windows self-update report. Lawrence Aronhime for the structured Mac environment audit.
+- **Credits:** External beta testers for the Windows self-update report and the structured Mac environment audit that drove this release.
 
 ---
 
@@ -530,7 +530,7 @@ Everything runs locally. Your Data Room is a folder on your machine. No data lea
 - **Marketplace**: [github.com/jsagir/mindrian-marketplace](https://github.com/jsagir/mindrian-marketplace)
 - **Brain Access**: [Request API Key](https://mindrianos-jsagirs-projects.vercel.app/brain-access)
 - **PWS LinkedIn**: [Problems Worth Solving](https://www.linkedin.com/company/problem-solving-workspace/)
-- **Prof. Lawrence Aronhime**: [LinkedIn](https://www.linkedin.com/in/lawrence-aronhime-8363894/)
+- **PWS Methodology**: Developed over 30+ years at Johns Hopkins University
 - **Jonathan Sagir**: [LinkedIn](https://www.linkedin.com/in/jonathansagir/)
 
 ---
