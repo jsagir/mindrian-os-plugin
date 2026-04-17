@@ -2,13 +2,17 @@
 
 Neo4j Aura graph -- 21K+ nodes, 65K+ relationships. Larry's teaching intelligence.
 
-## MCP Tool Naming
+## How Brain Connects
 
-Setup writes `.mcp.json` with server names `neo4j-brain` and `pinecone-brain`. Tools become:
-- `mcp__neo4j-brain__read_neo4j_cypher` -- execute Cypher queries
-- `mcp__neo4j-brain__write_neo4j_cypher` -- write operations (admin only)
-- `mcp__neo4j-brain__get_neo4j_schema` -- introspect schema
-- `mcp__pinecone-brain__search-records` -- vector similarity search
+**CLI:** `brain-client.cjs` calls the Brain HTTP API directly using `MINDRIAN_BRAIN_KEY` from `.env` or `~/.mindrian.env`. No MCP config needed. Functions: `brain.query(cypher)`, `brain.search(text)`, `brain.schema()`.
+
+**Desktop/Cowork:** Add Brain as an MCP server in `claude_desktop_config.json` or Cowork settings. Server name: `mindrian-brain`. Tools become:
+- `mcp__mindrian-brain__brain_query` -- execute Cypher queries
+- `mcp__mindrian-brain__brain_write` -- write operations (admin only)
+- `mcp__mindrian-brain__brain_schema` -- introspect schema
+- `mcp__mindrian-brain__brain_search` -- semantic search via Pinecone
+
+Note: Brain is NOT configured in the plugin's `.mcp.json` (that file is for the local mindrian-os stdio server only). Brain config lives in user settings because it requires a per-user API key.
 
 ## Node Types
 

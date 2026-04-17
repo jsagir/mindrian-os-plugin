@@ -10,7 +10,7 @@ Reference for `lib/core/integration-registry.cjs` -- documents how each integrat
 
 | Field | Value |
 |-------|-------|
-| **Detection** | `MINDRIAN_BRAIN_KEY` env var OR `mindrian-brain` in .mcp.json |
+| **Detection** | `MINDRIAN_BRAIN_KEY` env var (from `.env`, `~/.mindrian.env`, or system env) |
 | **Benefit** | Enhanced framework suggestions, grading calibration, cross-domain connections |
 | **Setup** | `/mos:setup brain` |
 
