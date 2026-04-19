@@ -255,10 +255,11 @@ L5 Decision  : Navigation Engine reads L3 to pick skill/command/framework
 
 | Phase | Name | Release | Layer | Status |
 |---|---|---|---|---|
-| **87** | Security + Cascade Refactor + Localhost Dashboard | v1.10.11 + v1.10.12 | infra + L4 | CONTEXT ready |
+| **87** | Security + Cascade Refactor + Localhost Dashboard | v1.10.11 + v1.10.12 | infra + L4 | SHIPPED 2026-04-19 |
 | **88** | Per-Folder Memory Triple Wiring | v1.10.13 | L2 foundation | CONTEXT filed |
+| **88.1** | UI/UX Polish + MINTO Surface Plumbing | v1.10.14 | L4 surfaces + hygiene | CONTEXT filed 2026-04-20 |
 | **89** | Reverse-Salient Engine | v1.10.x | L5 support (local) | 7 plans existing |
-| **90** | Brain Derivation Layer | v1.10.14 | L2 Brain-on-top | CONTEXT filed |
+| **90** | Brain Derivation Layer | v1.10.15 | L2 Brain-on-top | CONTEXT filed |
 | **91** | Navigation Engine | v1.11.0 | L5 Decision | CONTEXT filed |
 | **92** | Discord/Zulip multi-surface (candidate) | v1.11.x | L4 surface | research only |
 | **93** | Goose extension (candidate) | v1.11.x | L4 surface | research only |
@@ -288,6 +289,9 @@ Stream A security (Cypher sanitization, API key perms, HSI timeout, write-lock a
 
 **Phase 88 -- Per-Folder Memory Triple Wiring** (v1.10.13)
 Wires ROOM.md + STATE.md + Feynman-MINTO.md as a coordinated cross-session memory triple. Five wires (post-write freshness, on-stop snapshot, session-start injection, pre/post-compact resilience, decision_log persistence) + unified read contract `lib/core/folder-memory.cjs` + invariants module (`lib/core/feynman-minto-invariants.cjs`) + guardian for lifecycle enforcement. 13+ plans across 6 waves. Prerequisite for Brain Derivation Layer and Navigation Engine. See 88-CONTEXT.md.
+
+**Phase 88.1 -- UI/UX Polish + MINTO Surface Plumbing** (v1.10.14)
+Closes the gap between what ships (66 commands, 8 agents, 20+ skills, 9 hooks, 1 statusline) and the Claude Code 2.1.x UX reference bar. Three workstreams: (A) MINTO surface plumbing -- statusline segment, /mos:status summaries, SessionStart banner all consume Phase 88's wired memory triple via governing_thought. (B) Description-driven UX -- slash command frontmatter hygiene sweep across 66 commands, README permissions.allow block, subagent PROACTIVELY audit. (C) Hook output primitives -- systemMessage retrofit on 9 existing hooks plus two new hooks borrowed from arscontexta (frontmatter schema validation, async artifact auto-commit inside .room-root subtrees). 10 plans across 4 waves, ~3-4 days. Wave 1+2 can ship as v1.10.13.1 hotfix if Phase 88 slips. Deferred: output styles (GSD-skip rationale), conversational onboarding redesign (milestone-sized), meta-ask skill (standalone feature), monitors/OSC progress bars (niche). See 88.1-CONTEXT.md.
 
 **Phase 89 -- Reverse-Salient Engine** (v1.10.x)
 7 plans on disk (pre-existing). Hughes 1983 reverse-salient detection for the lagging component in an expanding venture. Can optionally consume reasoning_health_score from Phase 88 folder-memory signal. Ships independently; not blocking other phases.
