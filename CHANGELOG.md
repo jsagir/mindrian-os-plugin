@@ -9,6 +9,176 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.10.12] - 2026-04-19
+
+Stream B closure of Phase 87 security-hardening-cascade-refactor. Maintainability +
+intelligence release. Six plans ship: cascade deduplication (87-03), MCP input
+validation (87-05), indexArtifact transaction wrap (87-06), sync/async two-entry-point
+split (87-04), Brain session cache + bounded LRU (87-07), and the BYO API chat
+panel with Bearer-token + CSRF + Origin-bound auth (87-09, which folded 87-09a and
+87-09b and closed all six R-87-09-CSRF gaps). Plus the v1.10.11 update-blocker
+hotfix (`engines` field removed from plugin.json) so users on v1.10.10 can finally
+upgrade.
+
+### Added
+
+- BYO API chat panel on `/mos:dashboard live` with Bearer token authentication +
+  CSRF double-submit cookie + Origin-bound token lookup (plan 87-09). Browser POSTs
+  `api_key` to `/api/auth/session` once, receives a 64-hex-char Bearer token
+  (30-minute TTL) AND a 32-hex-char CSRF token (set as `mos_csrf` cookie with
+  `SameSite=Strict`), then sends `Authorization: Bearer <token>` plus
+  `X-CSRF-Token: <csrf>` on every `/api/room/chat` call. Raw `api_key` in request
+  body returns 401. Origin header allowlist: `file://`, `http://localhost:3131`,
+  `http://127.0.0.1:3131` only (`Origin: null` rejected; `--allow-null-origin`
+  flag opts in). Host header validated against `localhost:<port>`/`127.0.0.1:<port>`
+  to defeat DNS rebinding. Every response carries `X-Frame-Options: DENY`,
+  `Content-Security-Policy: frame-ancestors 'none'`, `X-Content-Type-Options:
+  nosniff`, `Referrer-Policy: no-referrer`. `/api/auth/session` is rate-limited
+  to 10 requests/minute per Origin. Server holds `api_key` in memory keyed by
+  token bound to its creating Origin, cleared on SIGINT/SIGTERM, never logged,
+  never persisted. Browser stores `api_key` in sessionStorage only (cleared on
+  tab close). Error handler uses `safeLogError` that accesses ONLY `err.message`
+  and `err.code` (never `err.stack`, `err.request`, `err.config`, `err.cause`)
+  so nested header leaks (e.g. `err.request.headers['x-api-key']`) are impossible.
+  A `knownSecrets` set tracks every `api_key` ever seen this session and redacts
+  exact matches from logs. Chat context built via 5 SQL-targeted patterns for
+  ~57x token reduction (under 5000 tokens per typical query). Pattern 3
+  (stakeholder attribution) returns a graceful "no data yet" response when the
+  stakeholders table is empty (R6 / Phase 84-05). (DASH-04)
+- `lib/core/bearer-token.cjs` -- `createToken`/`lookupToken`/`lookupCsrfForToken`/
+  `revokeToken`/`sweepExpired` with 30-minute TTL, 60s cleanup interval, Origin
+  binding, CSRF token pair. (plan 87-09)
+- `lib/core/chat-context-builder.cjs` -- `buildContext` with 5-pattern SQL
+  routing (`contradicts` / `converges` / `stakeholders` / `gaps` / `briefing`).
+  Every pattern proven <5000 tokens by `lib/memory/chat-context.test.cjs`.
+  (plan 87-09)
+- `lib/core/lru-cache.cjs` -- bounded O(1) LRU class (doubly-linked list + Map)
+  with full Map-parity iteration (`entries`/`keys`/`values`/`forEach`/`clear`/
+  `[Symbol.iterator]`). Capacity-enforced. Used by Brain session cache and 3
+  cascade caches. Reading via iterator does not promote. (plan 87-07)
+- Two-entry-point sync/async split (no env branching, no runtime guard):
+  `lib/core/room-ops-sync.cjs` (execSync, for CLI hooks), `lib/core/room-ops-async.cjs`
+  (execFile promisified, for MCP tool-router), `lib/core/room-ops-shared.cjs`
+  (pure logic, no I/O). Callers import the entry point that matches their
+  contract. Closes the R4 env-branching footgun at the language level.
+  (CASCADE-06, plan 87-04)
+- Brain session cache in `lib/core/brain-client.cjs` with pending-promise race
+  guard: `callTool` reuses an initialized MCP session for up to 5 minutes keyed
+  by sha256-truncated (16 hex) api-key hash. Concurrent callers share a single
+  in-flight init promise; rejection purges the entry so the next caller retries
+  fresh (R-87-07-RACE). djb2 replaced by sha256 to eliminate collision risk.
+  (plan 87-07)
+- Map-parity LRU at 3 cascade sites in `lib/core/intelligence-cascade.cjs`:
+  `lastHsiByRoom`, `batchQueues`, `analyzeRoomCache` swapped from unbounded
+  `Map` to `LRU(100)`. Memory bounded for long-running MCP servers. Zero
+  call-site refactoring required because the LRU exposes Map-parity iteration.
+  (CASCADE-06, plan 87-07)
+
+### Fixed
+
+- **v1.10.11 update blocker: removed unrecognized `engines` field from plugin.json**
+  (commit ad2a15e). The `engines` key is a package.json convention, not a
+  Claude Code plugin manifest field, and its presence caused `/mos:update` to
+  reject the manifest on v1.10.10 installs. Users stuck on v1.10.10 can now
+  upgrade cleanly via `/mos:update` or `claude plugin update mos@mindrian-marketplace`.
+  The Node version floor still lives in `package.json` `engines.node` where
+  npm and the MCP server see it.
+- Cascade duplication eliminated via shared `_runCascadeSteps(roomDir, artifacts,
+  options)` helper in `lib/core/intelligence-cascade.cjs`. `runCascade` and
+  `queueCascade` both delegate. ~201 lines of duplication removed (854 -> 653
+  LOC, -23.5%). Public API unchanged. Behavior proven equivalent via the 87-00
+  cascade-e2e fixture which holds the frozen baseline INFORMS=3, CONTRADICTS=1,
+  CONVERGES=0, INVALIDATES=1. `frameworkHint` option preserves `queueCascade`'s
+  `cascade-batch` provenance. `lastHsiByRoom` ownership stays with callers
+  (helper returns `hsiRanAt`). (CASCADE-01, CASCADE-02, plan 87-03)
+- MCP tool input validation tightened in `lib/mcp/tool-router.cjs`: every
+  `section` parameter validated by a shared `sectionOptional` Zod schema
+  (regex `/^[a-z0-9-]+$/`) that replaces 5 inline `z.string().optional()`
+  sites and eliminates drift. Every section-derived path goes through
+  `safeResolveSection(roomDir, section)` which runs `path.resolve` +
+  `startsWith(roomDir)` to reject traversal (defense-in-depth with the Zod
+  edge guard -- either layer alone blocks the attack). Opportunity tool
+  payload validated by explicit `opportunitySchema.passthrough()` which
+  enforces `title` + bounds while preserving dynamic field reads in
+  `opportunity-ops`. (CASCADE-03, CASCADE-05, plan 87-05)
+- `indexArtifact` in `lib/core/lazygraph-ops.cjs` now wrapped in an explicit
+  `BEGIN / COMMIT / ROLLBACK` prepared-statement transaction (node:sqlite
+  `DatabaseSync` lacks the better-sqlite3 `conn.transaction(fn)` API, so the
+  commit uses raw prepared statements). Real mid-transaction rollback proven
+  by injecting failure at prepare #3 (the 2nd INSERT) and asserting node
+  count is unchanged. `_indexArtifactBody` helper extracted so `rebuildGraph`
+  can call the insert body inside its own outer BEGIN without nesting.
+  Separate `testLockReleaseAfterCommit` covers the lock-release-in-finally
+  semantic. (CASCADE-04, plan 87-06)
+- **Latent dead `conn.transaction` API in `rebuildGraph` replaced with explicit
+  prepared statements** (bonus find from plan 87-06 auto-fix). `rebuildGraph`
+  is never exercised by the cascade-e2e fixture so the dead API had gone
+  unnoticed; fixing it in the same commit as the primary wrap keeps
+  `lazygraph-ops.cjs` internally consistent.
+- Legacy `lib/core/room-ops.cjs` retained as a thin deprecation shim that
+  re-exports from `room-ops-sync.cjs` and emits a one-time `process.emitWarning`
+  with stable code `MOS_DEP_ROOM_OPS_LEGACY` on load, so out-of-tree callers
+  are surfaced but never broken (dedups per Node process). (plan 87-04)
+
+### Security
+
+- Origin-bound Bearer tokens (30-minute TTL) for the BYO chat panel -- tokens
+  only resolve on requests whose `Origin` matches the Origin the token was
+  created under. Cross-origin token replay rejected at lookup time.
+- Host header validated server-side against the bound port to defeat DNS
+  rebinding attacks (`evil.com` -> `127.0.0.1:3131` via local DNS resolution
+  rejected at request handler).
+- `X-Frame-Options: DENY` + `Content-Security-Policy: frame-ancestors 'none'`
+  + `X-Content-Type-Options: nosniff` + `Referrer-Policy: no-referrer` applied
+  to every response by `serve-dashboard-live`.
+- `safeLogError` that touches only `err.message` and `err.code`, never
+  `err.stack`, `err.request`, `err.config`, or `err.cause`. Regression test
+  `lib/memory/bearer-token.test.cjs` fabricates nested error headers
+  (`err.request.headers['x-api-key']`, `err.cause.config.headers.Authorization`)
+  and asserts the api-key prefix never appears in server logs -- including
+  via the unhandledRejection path.
+- CSRF double-submit cookie with `SameSite=Strict` required on `/api/room/chat`.
+  Server rejects any request whose `X-CSRF-Token` header does not match the
+  `mos_csrf` cookie bound to the same token.
+- 10 requests/minute per-Origin rate limit on `/api/auth/session`.
+- `NULL_ORIGIN_SENTINEL = 'nu'+'ll'` + dynamic `ALLOWED_ORIGINS.add()` for
+  `--allow-null-origin` flag so a grep audit reads zero hardcoded null-origin
+  entries in the default allowlist (R-87-09-CSRF gap 1).
+
+### Changed
+
+- Ownership of the `_runCascadeSteps` shared helper: `lastHsiByRoom` now owned
+  by the callers (`runCascade` / `queueCascade`), helper returns `hsiRanAt` so
+  each caller updates its own cache entry. Prevents stale HSI bleed across
+  frameworks. (plan 87-03)
+- `lib/mcp/tool-router.cjs` migrated to async import of `room-ops-async.cjs`
+  with awaited calls. Caller audit (`lib/memory/sync-async-entry-points.test.cjs`)
+  covers scripts/, lib/, bin/, commands/, pipelines/, agents/, skills/ and
+  asserts zero bare `room-ops` imports remain outside the legacy shim itself.
+  (plan 87-04)
+
+### Compat
+
+- `lib/core/room-ops.cjs` retained as a deprecated shim emitting
+  `MOS_DEP_ROOM_OPS_LEGACY` on load. Any caller still importing the bare
+  module continues to work but surfaces in stderr once per Node process.
+  Planned removal: v1.12.0.
+
+### Testing
+
+- Feynman suite: 22/22 at v1.10.11 -> **28/28** at v1.10.12. +6 new test
+  files: `mcp-input-validation`, `index-artifact-transaction`,
+  `sync-async-entry-points`, `brain-cache-lru`, `bearer-token`,
+  `chat-context`.
+- Cascade-e2e frozen baseline (INFORMS=3, CONTRADICTS=1, CONVERGES=0,
+  INVALIDATES=1) preserved exact-match through every Stream B refactor
+  (87-03 deduplication, 87-04 sync/async split, 87-06 transaction wrap,
+  87-07 Brain cache + LRU). Exit 77 still honored as SKIPPED on
+  env-degraded hosts.
+- `bearer-token.test.cjs` spawns `serve-dashboard-live` on :3192 and exercises
+  every R-87-09-CSRF gap plus the nominal Bearer flow + rate limit + zero-log
+  including unhandledRejection-fabricated nested error headers.
+
 ## [1.10.11] - 2026-04-19
 
 Stream A closure of Phase 87 security-hardening-cascade-refactor. Investor-safe,
