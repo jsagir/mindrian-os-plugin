@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.10.9
 milestone_name: -- Cross-Platform Parity
 status: executing
-stopped_at: "Completed 87-05-PLAN.md (MCP input validation: SECTION_RE + sectionOptional + safeResolveSection + opportunitySchema; 5 section sites patched; 35 new test assertions; feynman 23/23). Wave 2 progressing: 87-03 + 87-05 DONE. Next: 87-06 indexArtifact transaction, then Wave 3 (87-04 sync/async split + 87-07 Brain cache)."
-last_updated: "2026-04-19T18:39:48.590Z"
+stopped_at: "Completed 87-06-PLAN.md (indexArtifact transaction wrap: explicit BEGIN/COMMIT/ROLLBACK via node:sqlite prepared statements, not conn.transaction(fn) which is a better-sqlite3 API unavailable on DatabaseSync; _indexArtifactBody helper factored out for rebuildGraph reuse; 4 tests in index-artifact-transaction.test.cjs including testMidTransactionRollback with prove-regression fence; feynman 24/24; cascade-e2e baseline preserved exact-match). Wave 2 COMPLETE: 87-03 + 87-05 + 87-06 DONE. Next: Wave 3 (87-04 sync/async split + 87-07 Brain cache)."
+last_updated: "2026-04-19T19:02:29.229Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 13
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 87 (security-hardening-cascade-refactor) — EXECUTING
-Plan: 8 of 13
+Plan: 9 of 13
 Status: Ready to execute
 Last activity: 2026-04-19
 
@@ -74,6 +74,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 87-security-hardening-cascade-refactor P08 | 43min | 3 tasks | 6 files |
 | Phase 87 P03 | 30min | 1 tasks | 2 files |
 | Phase 87-security-hardening-cascade-refactor P05 | 8min | 2 tasks | 3 files |
+| Phase 87 P06 | 14min | 2 tasks | 3 files |
 
 ### Decisions
 
@@ -131,6 +132,9 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 87-security-hardening-cascade-refactor]: Phase 87-05: Shared sectionOptional Zod schema replaces 5 inline z.string().optional() sites in tool-router.cjs; single definition eliminates drift
 - [Phase 87-security-hardening-cascade-refactor]: Phase 87-05: safeResolveSection() is defense-in-depth (Zod regex at MCP edge + path.resolve startsWith at fs I/O boundary); either layer alone blocks traversal, both must pass
 - [Phase 87-security-hardening-cascade-refactor]: Phase 87-05: opportunitySchema.passthrough() enforces title+bounds while preserving opportunity-ops dynamic field reads; 4 non-section optional string params at 755/785/836/873 explicitly out of scope
+- [Phase 87-security-hardening-cascade-refactor]: Phase 87-06: node:sqlite DatabaseSync lacks conn.transaction(fn) (better-sqlite3 API only); use explicit BEGIN/COMMIT/ROLLBACK prepared statements; extract _indexArtifactBody helper so rebuildGraph can call insert body inside its own outer BEGIN without nesting
+- [Phase 87-security-hardening-cascade-refactor]: Phase 87-06: Rollback test injection point is prepare #3 (2nd INSERT), not prepare #2 (1st INSERT); throwing on prepare #2 would fire BEFORE any real write (nothing to rollback, test passes even without wrap); prepare #3 ensures at least 1 INSERT fired so countAfter - countBefore == 1 is the true regression signal
+- [Phase 87-security-hardening-cascade-refactor]: Phase 87-06: Pre-existing rebuildGraph (never exercised by cascade-e2e) referenced the same dead conn.transaction API; fixed in same commit as Rule 1 auto-fix to keep lazygraph-ops.cjs internally consistent; graph-ops.cjs + write-lock.cjs unchanged (87-02 atomic lock remains outer guard)
 
 ### Pending Todos
 
@@ -146,6 +150,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T18:39:48.580Z
-Stopped at: Completed 87-05-PLAN.md (MCP input validation: SECTION_RE + sectionOptional + safeResolveSection + opportunitySchema; 5 section sites patched; 35 new test assertions; feynman 23/23). Wave 2 progressing: 87-03 + 87-05 DONE. Next: 87-06 indexArtifact transaction, then Wave 3 (87-04 sync/async split + 87-07 Brain cache).
+Last session: 2026-04-19T19:02:29.221Z
+Stopped at: Completed 87-06-PLAN.md (indexArtifact transaction wrap: explicit BEGIN/COMMIT/ROLLBACK via node:sqlite prepared statements, not conn.transaction(fn) which is a better-sqlite3 API unavailable on DatabaseSync; _indexArtifactBody helper factored out for rebuildGraph reuse; 4 tests in index-artifact-transaction.test.cjs including testMidTransactionRollback with prove-regression fence; feynman 24/24; cascade-e2e baseline preserved exact-match). Wave 2 COMPLETE: 87-03 + 87-05 + 87-06 DONE. Next: Wave 3 (87-04 sync/async split + 87-07 Brain cache).
 Resume file: None
