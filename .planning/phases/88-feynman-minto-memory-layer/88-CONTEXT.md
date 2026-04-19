@@ -134,7 +134,17 @@ Every future consumer imports this module. Skills, hooks, the eventual Navigatio
 
 ## Plans (13 plans, 6 waves)
 
-### Wave 0 — Schema and read contract
+### Wave 0 — Schema, read contract, and invariants contract
+
+**88-00-B: Feynman-MINTO Invariants Module (ADDED 2026-04-19)**
+- New module `lib/core/feynman-minto-invariants.cjs`
+- Single source of truth for what "properly managed" means
+- Export: `validate(filePath) -> {valid, violations[], severity}`
+- Violation categories: existence, schema, freshness, coherence, atomicity
+- Severity: `critical` (file unreadable), `error` (breaks contract), `warning` (drift), `info` (cosmetic)
+- Consumed by all 88-* plans that write Feynman-MINTO, plus 88-13 guardian
+- 20+ fixture tests across violation types
+- Depends on: 88-00 (schema extension). Wave 0.
 
 **88-00: Feynman-MINTO frontmatter schema extension**
 - Add fields: `last_generated_at`, `last_artifact_write_seen_at`, `reasoning_health_score`, `flagged_weaknesses[]`, `decision_log[]`
@@ -185,6 +195,14 @@ Every future consumer imports this module. Skills, hooks, the eventual Navigatio
 - Runs synchronously during UserPromptSubmit (non-blocking from Claude's perspective)
 - Tests: queue drains at UserPromptSubmit, session crash preserves queue, drain is idempotent
 - Depends on: 88-02. Wave 1.
+
+**88-04-B: Atomic Write Contract for Generator (ADDED 2026-04-19)**
+- Modify `scripts/vault-section-minto-generator.cjs` to always write via tmpfile + atomic rename (fs.openSync wx pattern from Phase 87-02 write-lock fix)
+- fsync before rename for crash safety
+- Generator calls 88-00-B invariants validator on output BEFORE rename; if output violates invariants, reject write and preserve existing file
+- Returns `{success, violations[]}` to caller
+- Tests: concurrent writes safe, mid-write crash leaves consistent state, invariant-violation rejection tested
+- Depends on: 88-00-B. Wave 1.
 
 ### Wave 2 — Session boundary wiring
 
@@ -249,7 +267,17 @@ Every future consumer imports this module. Skills, hooks, the eventual Navigatio
 - Tests: dual-write consistency, rollback on partial failure
 - Depends on: 88-10. Wave 4.
 
-### Wave 5 — Release
+### Wave 5 — Guardian + Release
+
+**88-13: Feynman-MINTO Guardian (boundary enforcement, ADDED 2026-04-19)**
+- New standalone script `scripts/feynman-minto-guardian.cjs`
+- Three enforcement points:
+  1. **session-start**: walk active sections, validate each Feynman-MINTO via 88-00-B invariants, enqueue regen for critical violations, surface violations in TRIPLE_CONTEXT
+  2. **on-stop**: walk active sections after debouncer drain, verify invariants hold, write `.mindrian/invariant-report.json` for any remaining violations
+  3. **pre-commit hook**: extend Phase 87-01a's ROOM.md+MINTO.md existence check to also run invariants validator; block commit on critical/error-level violations
+- Self-healing when possible: missing files get enqueued for regen; malformed frontmatter gets repaired; drift gets flagged for next session
+- Tests: broken file triggers repair at session-start, critical violation blocks commit, drift surfaces at on-stop
+- Depends on: 88-00-B, 88-06, 88-07. Wave 5 (before release gate 88-12).
 
 **88-12: v1.10.13 five-gate release**
 - CHANGELOG [1.10.13]: per-folder memory triple wiring. Five wires, read contract, decision log. Prerequisite for Navigation Engine.
@@ -263,20 +291,21 @@ Every future consumer imports this module. Skills, hooks, the eventual Navigatio
 ## Wave execution plan
 
 ```
-Wave 0 (parallel): 88-00 schema, 88-01 folder-memory.cjs read contract
-Wave 1 (parallel): 88-02 debouncer, 88-03 ROOM.md recompiler, 88-04 post-write wire, 88-05 background runner
+Wave 0 (parallel): 88-00-B invariants, 88-00 schema, 88-01 folder-memory.cjs read contract
+Wave 1 (parallel): 88-02 debouncer, 88-03 ROOM.md recompiler, 88-04 post-write wire, 88-04-B atomic write contract, 88-05 background runner
 Wave 2 (serial):   88-06 on-stop snapshot -> 88-07 session-start triple injection
 Wave 3 (parallel): 88-08 pre-compact snapshot, 88-09 post-compact reinjection
 Wave 4 (serial):   88-10 decision-capture -> 88-11 cascade dual-write
-Wave 5:            88-12 release gate
+Wave 5 (serial):   88-13 guardian enforcement -> 88-12 release gate
 ```
 
-Estimated total: 7-10 days. Slightly larger than original scope because ROOM.md reference recompilation joins the wiring work.
+Estimated total: 8-12 days. Scope expanded 2026-04-19 with three invariant-enforcement plans (88-00-B, 88-04-B, 88-13) to meet "properly managed at all times" bar. Now 16 plans across 6 waves.
 
 ## Dependencies
 
-- Phase 87 v1.10.11 must ship first (security fixes + localhost dashboard)
-- Phase 87 v1.10.12 must ship first (cascade refactor eliminates duplication)
+- **Phase 87 v1.10.11 MUST ship first** (security fixes + 87-01a ROOM+MINTO hook + localhost dashboard + 87-02 atomic write-lock pattern that Phase 88's debouncer reuses)
+- **Phase 87 v1.10.12 preferred but not strictly required** (cascade refactor + async split reduces surface-area risk during 88-03 post-write hook integration; can proceed in parallel with 88 if needed)
+- Phase 88 can technically start after v1.10.11 ships if schedule pressure demands, treating v1.10.12 cascade refactor as a concurrent dependency to coordinate but not block
 - Node 22.5+ (shipped Phase 85)
 - Feynman-MINTO generator (shipped Phase 81)
 - ROOM.md invariant (shipped, CLAUDE.md decision #15)
