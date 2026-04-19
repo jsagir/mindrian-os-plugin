@@ -215,7 +215,22 @@ Plans:
   6. Feynman tests green throughout (22+ test files expected)
   7. ROOM.md + MINTO.md invariant enforced on every folder
   8. 5-gate release: CHANGELOG, plugin.json 1.10.11, package.json 1.10.11, tag v1.10.11, marketplace pin
-**Plans**: 10 plans, 5 waves (87-01 security, 87-02 write-lock, 87-03 cascade, 87-04 async, 87-05 MCP validation, 87-06 transactions, 87-07 caching, 87-08 dashboard, 87-09 BYO chat, 87-10 release)
+**Plans**: 13 plans across 6 waves (milestone split: Stream A v1.10.11 + Stream B v1.10.12)
+
+Plans:
+- [x] 87-00-PLAN.md -- Cascade e2e integration test fixture (wave 0, gates 87-03; CASCADE-01, CASCADE-02)
+- [ ] 87-01-PLAN.md -- Cypher sanitization + API key permissions + HSI timeout (wave 1, Stream A; SEC-01, SEC-02, SEC-03)
+- [ ] 87-01a-PLAN.md -- ROOM.md + MINTO.md git pre-commit hook installer (wave 1, Stream A; SEC-04)
+- [ ] 87-02-PLAN.md -- Write lock atomic creation via openSync 'wx' (wave 1, Stream A; SEC-04, CASCADE-04)
+- [ ] 87-08-PLAN.md -- Localhost live dashboard at :3131 with SSE + 127.0.0.1 bind guard (wave 1, Stream A; DASH-01..06)
+- [ ] 87-10-PLAN.md -- v1.10.11 release gate (wave 5, Stream A; 5-gate release)
+- [ ] 87-03-PLAN.md -- Cascade deduplication via _runCascadeSteps (wave 2, Stream B, gated by 87-00; CASCADE-01, CASCADE-02)
+- [ ] 87-05-PLAN.md -- MCP input validation (Zod regex + path traversal guard + opportunity schema) (wave 2, Stream B; CASCADE-03, CASCADE-05)
+- [ ] 87-06-PLAN.md -- indexArtifact BEGIN/COMMIT transaction + write-lock outer guard (wave 2, Stream B; CASCADE-04)
+- [ ] 87-04-PLAN.md -- Sync/async two-entry-point split (room-ops-sync + async + shared) (wave 3, Stream B; CASCADE-06)
+- [ ] 87-07-PLAN.md -- Brain session cache (5-min TTL) + LRU eviction (cap 100) (wave 3, Stream B; CASCADE-06)
+- [ ] 87-09-PLAN.md -- BYO API chat panel with Bearer token auth (folds 87-09a plumbing + 87-09b stakeholders verification) (wave 4, Stream B; DASH-04)
+- [ ] 87-10-v2-PLAN.md -- v1.10.12 release gate (wave 5, Stream B; 5-gate release)
 **Authority**: .planning/phases/87-security-hardening-cascade-refactor/87-CONTEXT.md
 
 ## Planned Pipeline (post v1.10.11) -- organized 2026-04-19

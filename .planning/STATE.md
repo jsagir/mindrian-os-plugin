@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.10.10
-milestone_name: -- Memory Layer + Navigation
+milestone: v1.10.9
+milestone_name: -- Cross-Platform Parity
 status: executing
-stopped_at: "Phases 88, 90, 91 CONTEXT filed. Pipeline organized: 87 (security+dashboard) -> 88 (memory triple) -> 89 (reverse-salient) -> 90 (Brain derivation) -> 91 (Navigation Engine v1.11.0)."
-last_updated: "2026-04-19T05:18:20.040Z"
-last_activity: 2026-04-15 -- Phase 85 execution started
+stopped_at: "Completed 87-00-PLAN.md (cascade e2e acceptance gate). Feynman suite 18/18 green. Ready for Wave 1: 87-01, 87-01a, 87-02, 87-08."
+last_updated: "2026-04-19T10:35:44.874Z"
+last_activity: 2026-04-19
 progress:
   total_phases: 13
   completed_phases: 2
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 85 — windows-hotfix-v1.10.9
+**Current focus:** Phase 87 — security-hardening-cascade-refactor
 
 ## Current Position
 
-Phase: 85 (windows-hotfix-v1.10.9) — EXECUTING
-Plan: 1 of 9
-Status: Executing Phase 85
-Last activity: 2026-04-15 -- Phase 85 execution started
+Phase: 87 (security-hardening-cascade-refactor) — EXECUTING
+Plan: 2 of 13
+Status: Ready to execute
+Last activity: 2026-04-19
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -67,6 +67,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 84 P01 | 5min | 5 tasks | 1 files |
 | Phase 84 P02 | 4min | 5 tasks | 2 files |
 | Phase 84 P03 | 25min | 5 tasks | 6 files |
+| Phase 87 P00 | 45min | 2 tasks | 17 files |
 
 ### Decisions
 
@@ -101,6 +102,9 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 84]: 84-02: composition module room-db.cjs instead of modifying lazygraph-ops.cjs
 - [Phase 84]: memory-lifecycle.cjs resolves active room internally via Phase 83 canonical registry, eliminating need for shared bash helper across four hooks
 - [Phase 84]: post-compact creates new session id rather than continuing pre-compact id; compact is a context discontinuity from Claude's perspective
+- [Phase 87-00]: Cascade e2e fixture copies seed-room into tmpDir/rooms/ to satisfy intelligence-cascade.isRoomFile() guard
+- [Phase 87-00]: Frozen baseline uses exact-match assertions (strictEqual), not soft `>= 1` thresholds, so 80% edge regressions cannot pass silently
+- [Phase 87-00]: Feynman runner now treats exit 77 as SKIPPED (POSIX test-infra-broken convention), preventing env degradation from masquerading as regression
 
 ### Pending Todos
 
@@ -116,6 +120,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T05:18:20.035Z
-Stopped at: Phases 88, 90, 91 CONTEXT filed. Pipeline organized: 87 (security+dashboard) -> 88 (memory triple) -> 89 (reverse-salient) -> 90 (Brain derivation) -> 91 (Navigation Engine v1.11.0).
+Last session: 2026-04-19T10:35:44.874Z
+Stopped at: Completed 87-00-PLAN.md (cascade e2e acceptance gate). Feynman suite 18/18 green. Ready for Wave 1: 87-01, 87-01a, 87-02, 87-08.
 Resume file: .planning/ROADMAP.md
