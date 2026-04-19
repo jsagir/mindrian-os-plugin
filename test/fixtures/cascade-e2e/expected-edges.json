@@ -1,0 +1,22 @@
+{
+  "_comment": "Frozen baseline for 87-03 acceptance gate. Regenerate via ./generate-baseline. Do NOT edit by hand.",
+  "_seed_version": "2026-04-19",
+  "_captured_at": "2026-04-19T10:08:55.321Z",
+  "_hsi_available_at_capture": true,
+  "edges": {
+    "INFORMS": {
+      "hard": 3
+    },
+    "CONTRADICTS": {
+      "hard": 1
+    },
+    "CONVERGES": {
+      "hard_if_hsi": 0,
+      "soft_if_no_hsi": 0
+    },
+    "INVALIDATES": {
+      "hard_if_hsi": 1,
+      "soft_if_no_hsi": 0
+    }
+  }
+}

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# generate-baseline -- regenerate expected-edges.json from current seed data
+# Usage: bash test/fixtures/cascade-e2e/generate-baseline
+# Writes: test/fixtures/cascade-e2e/expected-edges.json
+#
+# Rerun this script any time the seed data changes. The JSON it produces
+# becomes the frozen baseline that cascade-e2e.test.cjs asserts exact-match
+# against. DO NOT edit expected-edges.json by hand -- always regenerate via
+# this script.
+#
+# Business Source License 1.1 -- see repository LICENSE.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Delegate to the test harness in --snapshot mode. The harness runs the
+# cascade against the seed room, reads edge counts from room.db, and writes
+# the baseline JSON. Exit code 0 on success, 77 on env-skip (no baseline
+# written), 1 on cascade failure.
+exec node "${SCRIPT_DIR}/cascade-e2e.test.cjs" --snapshot
