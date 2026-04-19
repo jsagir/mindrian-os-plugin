@@ -218,27 +218,40 @@ Plans:
 **Plans**: 10 plans, 5 waves (87-01 security, 87-02 write-lock, 87-03 cascade, 87-04 async, 87-05 MCP validation, 87-06 transactions, 87-07 caching, 87-08 dashboard, 87-09 BYO chat, 87-10 release)
 **Authority**: .planning/phases/87-security-hardening-cascade-refactor/87-CONTEXT.md
 
-## Planned (post v1.10.11) -- UI/UX Pathways arc
+## Planned (post v1.10.11) -- Memory Layer + Navigation arc
 
-Source: `.planning/research/ui-ux-pathways/` (migrated 2026-04-18 from mindrianos-venture room, where they were filed in category violation). The arc turns the browser into a bidirectional control surface that DRIVES Claude Code, not just displays room state. Zero-token rendering because the browser reads filesystem + room.db directly.
+Source: `.planning/research/ui-ux-pathways/` (migrated 2026-04-18 from mindrianos-venture) + 2026-04-19 architecture audit (per-folder memory triple + L1-L5 layered architecture).
 
-**Phase 89 candidate -- Skill Offer Engine** (see `skill-offer-engine.md`)
-Intent + Graph + MINTO triangulation for dynamic skill invocation. ~100 lines wired into UserPromptSubmit. The missing link between static skill activation and room intelligence. NOTE: handoff doc labels this Phase 88, but Phase 88 slot is already taken by reverse-salient-engine. Needs renumbering decision.
+**Phase 88 -- Per-Folder Memory Triple Wiring (v1.10.13)** READY FOR PLAN
+See `.planning/phases/88-feynman-minto-memory-layer/88-CONTEXT.md`. Wires ROOM.md + STATE.md + Feynman-MINTO.md as a coordinated cross-session memory triple. Five wires (post-write freshness, on-stop snapshot, session-start injection, pre/post-compact resilience, decision_log persistence) plus unified read contract `lib/core/folder-memory.cjs`. Prerequisite for Navigation Engine.
 
-**Phase 90 candidate -- Discord / Zulip bridge** (extends `byo-api-and-surfaces.md`)
-Multi-surface: Same localhost API surfaces the plugin to chat platforms where teams already work.
+**Phase 89 -- Reverse-Salient Engine** EXISTING (was 88, renumbered 2026-04-19)
+7 plans on disk. Can optionally consume reasoning_health_score from Phase 88 folder-memory signal.
 
-**Phase 91 candidate -- Goose extension** (see `goose-extension-path.md`)
-MindrianOS MCP server plugs into Block's Goose as an extension. Goose provides the visual conversation shell, MindrianOS provides the methodology intelligence. ACP enables Claude Code as sub-provider for heavy lifting.
+**Phase 90 candidate -- Navigation Engine** (was Skill Offer Engine)
+Reads L3 Navigation substrate (SQL edges + Feynman-MINTO compressed reasoning via folder-memory.cjs) to decide which skill / command / framework fires next. 5-signal triangulation: ICM scope + SQL relations + Feynman-MINTO reasoning + Brain patterns + intent/persona. See `skill-offer-engine.md` for origin; scope expanded per 2026-04-19 architecture audit.
+
+**Phase 91 candidate -- Discord / Zulip bridge**
+Multi-surface: same localhost API surfaces the plugin to chat platforms where teams work.
+
+**Phase 92 candidate -- Goose extension** (see `goose-extension-path.md`)
+MindrianOS MCP server plugs into Block's Goose.
 
 **Supporting research (not phase-bound):**
-- `architecture-vision.md` -- full bidirectional control surface (MindrianOS Desktop)
-- `alternatives-considered.md` -- Quarto / Electron / Chrome ext / Tauri / PWA ranked; Node HTTP inside plugin wins
+- `architecture-vision.md` -- bidirectional control surface (MindrianOS Desktop)
+- `alternatives-considered.md` -- Quarto / Electron / Chrome ext / Tauri / PWA; Node HTTP inside plugin wins
 - `lazygraph-chat-architecture.md` -- chat panel reading SQLite graph
 - `token-economics.md` -- why zero tokens, how it stays that way
-- `ttfv-reverse-salient.md` -- "verbal fails, live demos convert" -- the motivation
+- `ttfv-reverse-salient.md` -- "verbal fails, live demos convert"
 
-**Conflict to resolve:** handoff-2026-04-17 calls Skill Offer Engine "Phase 88" but phases/88-reverse-salient-engine/ already exists with 7 plans. User must decide: renumber reverse-salient or assign Skill Offer Engine to 89.
+**Five-layer architecture (from 2026-04-19 audit):**
+- L1 ICM Identity -- ROOM.md per folder
+- L2 Memory -- per-folder triple (ROOM.md + STATE.md + Feynman-MINTO.md) + room.db SQL edges
+- L3 Navigation -- SQL edges + Feynman-MINTO compressed reasoning as pathfinding substrate
+- L4 Assets -- wiki, dashboard, deck, exports (rendered views of L3)
+- L5 Decision -- Navigation Engine reads L3 to decide skill/command/framework firing
+
+Phase 88 wires L2 memory triple through cross-session lifecycle. Phase 90 consumes it for L5 decisions.
 
 ## Progress
 
