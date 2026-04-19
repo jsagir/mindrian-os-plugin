@@ -37,6 +37,16 @@ if [ -z "$REPO_ROOT" ]; then
   exit 0
 fi
 
+# Resolve the installer's own directory so we can locate the guard source
+# even when installing into a DIFFERENT repo (test harness scenario) or when
+# the current repo is not the plugin repo (user runs the installer against
+# their own room repo). We read the sibling scripts/hooks/ directory relative
+# to this file rather than relative to the target repo root.
+SCRIPT_SRC_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)
+if [ -z "$SCRIPT_SRC_DIR" ]; then
+  SCRIPT_SRC_DIR="$(dirname "${BASH_SOURCE[0]}")"
+fi
+
 # R-87-01a-WIN: resolve effective hooks/pre-commit path via --git-path.
 # This returns the correct path in git-worktree checkouts, where the
 # working-tree's .git is a FILE pointing at the linked git dir under
@@ -54,8 +64,8 @@ case "$HOOKS_PRECOMMIT" in
 esac
 HOOKS_DIR=$(dirname "$HOOKS_PRECOMMIT")
 
-GUARD_SRC="$REPO_ROOT/scripts/hooks/pre-commit-room-minto-guard.sh"
-GUARD_CMD_SRC="$REPO_ROOT/scripts/hooks/pre-commit-room-minto-guard.cmd"
+GUARD_SRC="$SCRIPT_SRC_DIR/hooks/pre-commit-room-minto-guard.sh"
+GUARD_CMD_SRC="$SCRIPT_SRC_DIR/hooks/pre-commit-room-minto-guard.cmd"
 HOOK_DST="$HOOKS_PRECOMMIT"
 HOOK_CMD_DST="$HOOKS_DIR/pre-commit.cmd"
 
