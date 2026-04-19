@@ -17,8 +17,5 @@
     "data-room",
     "thinking-partner",
     "larry"
-  ],
-  "engines": {
-    "node": ">=22.5.0"
-  }
+  ]
 }
