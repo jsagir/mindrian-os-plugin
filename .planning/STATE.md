@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.10.9
 milestone_name: -- Cross-Platform Parity
 status: executing
-stopped_at: "Completed 87-02-PLAN.md (atomic write-lock + 20-worker concurrency fence). Feynman suite 19/19 green (was 18/18). Wave 1 remaining: 87-01, 87-01a, 87-08."
-last_updated: "2026-04-19T11:05:15.985Z"
+stopped_at: "Completed 87-01-PLAN.md (security trifecta: SEC-01 Cypher sanitization + SEC-02 API key permissions + SEC-03 HSI timeout). Feynman 20/20 green (was 19/19). Wave 1 Stream A remaining: 87-01a, 87-08."
+last_updated: "2026-04-19T11:28:28.696Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 13
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 87 (security-hardening-cascade-refactor) — EXECUTING
-Plan: 3 of 13
+Plan: 4 of 13
 Status: Ready to execute
 Last activity: 2026-04-19
 
@@ -69,6 +69,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 84 P03 | 25min | 5 tasks | 6 files |
 | Phase 87 P00 | 45min | 2 tasks | 17 files |
 | Phase 87 P02 | 17min | 2 tasks | 4 files |
+| Phase 87-security-hardening-cascade-refactor P01 | 14min | 2 tasks | 4 files |
 
 ### Decisions
 
@@ -109,6 +110,9 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 87-02]: Atomic write-lock via fs.openSync(lockPath, 'wx'); EEXIST triggers staleness/PID-liveness cleanup + single retry; same-PID re-acquire keeps writeFileSync per m11 rationale
 - [Phase 87-02]: Concurrency fence winner sleeps 500ms post-acquire so PID liveness check rejects all losers (proves the openSync primitive, not the dead-PID cleanup fallback)
 - [Phase 87-02]: Standalone worker file (not inline template string) for cross-platform path-escape safety; test forks it directly via child_process.fork
+- [Phase 87-security-hardening-cascade-refactor]: Phase 87-01: Whitelist sanitization /[a-zA-Z0-9 ._-]/ over escape-based defence; applied at 8 Cypher interpolation sites in brain-client.cjs
+- [Phase 87-security-hardening-cascade-refactor]: Phase 87-01: API key file permission check rejects any group/world-read bit (mode & 0o077 != 0); Windows returns true with stderr warning since NTFS ACLs are outside POSIX mode semantics
+- [Phase 87-security-hardening-cascade-refactor]: Phase 87-01: Named constant HSI_TIMEOUT_MS = 30000 replaces 12 magic-number 5000ms sites in intelligence-cascade.cjs; preserves 2 intentional 15000ms sites for generate-presentation.cjs
 
 ### Pending Todos
 
@@ -124,6 +128,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T11:05:15.979Z
-Stopped at: Completed 87-02-PLAN.md (atomic write-lock + 20-worker concurrency fence). Feynman suite 19/19 green (was 18/18). Wave 1 remaining: 87-01, 87-01a, 87-08.
+Last session: 2026-04-19T11:28:28.692Z
+Stopped at: Completed 87-01-PLAN.md (security trifecta: SEC-01 Cypher sanitization + SEC-02 API key permissions + SEC-03 HSI timeout). Feynman 20/20 green (was 19/19). Wave 1 Stream A remaining: 87-01a, 87-08.
 Resume file: None
