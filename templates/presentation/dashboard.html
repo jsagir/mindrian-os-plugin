@@ -1138,5 +1138,13 @@ function toggleTheme() {
   });
 })();
 </script>
+<!--
+  Phase 87-09 (v1.10.12) BYO API chat mount point.
+  serve-dashboard-live injects the chat-panel.html payload inside a
+  <div id="mos-chat-container"> just before </body>. v1.10.11 shipped
+  dashboard-only; this comment is the marker that crosses the
+  Stream-A -> Stream-B transition. Do not remove.
+  @include: chat-panel.html id=mos-chat-container
+-->
 </body>
 </html>
