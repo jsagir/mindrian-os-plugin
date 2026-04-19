@@ -1092,5 +1092,51 @@ function toggleTheme() {
   html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
 }
 </script>
+<!-- Phase 87-08 live SSE client (License: BUSL-1.1). NO chat panel in v1.10.11. Chat ships in 87-09. -->
+<script>
+(function () {
+  if (typeof EventSource === 'undefined') return;  // graceful fallback for static view
+  try {
+    var es = new EventSource('/events');
+    es.addEventListener('artifact-changed', function (e) {
+      var d = {}; try { d = JSON.parse(e.data); } catch (_) {}
+      var wiki = document.getElementById('wiki-panel');
+      if (wiki && d && d.section) {
+        fetch('/api/room/section/' + encodeURIComponent(d.section))
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            wiki.dispatchEvent(new CustomEvent('mos:section-refresh', { detail: data }));
+          })
+          .catch(function () {});
+      }
+    });
+    es.addEventListener('edge-added', function (e) {
+      var d = {}; try { d = JSON.parse(e.data); } catch (_) {}
+      if (typeof cy !== 'undefined' && cy && d && d.source && d.target && d.type) {
+        try { cy.add({ group: 'edges', data: d }); } catch (_) {}
+      }
+    });
+    es.addEventListener('intelligence-alert', function (e) {
+      try { console.log('[dashboard] intelligence-alert', JSON.parse(e.data)); } catch (_) {}
+    });
+  } catch (_) { /* static view or EventSource disabled */ }
+  document.addEventListener('click', function (ev) {
+    var a = ev.target && ev.target.closest ? ev.target.closest('.wikilink') : null;
+    if (a) {
+      ev.preventDefault();
+      var target = a.getAttribute('data-target');
+      window.dispatchEvent(new CustomEvent('mos:navigate', { detail: { target: target } }));
+    }
+  });
+  window.addEventListener('load', function () {
+    if (typeof cy !== 'undefined' && cy && typeof cy.on === 'function') {
+      cy.on('tap', 'node', function (evt) {
+        var id = evt.target && evt.target.data ? evt.target.data('id') : null;
+        if (id) window.dispatchEvent(new CustomEvent('mos:navigate', { detail: { target: id } }));
+      });
+    }
+  });
+})();
+</script>
 </body>
 </html>
