@@ -52,11 +52,18 @@ const argv = process.argv.slice(2);
 let PORT_REQ = 3131;
 let ROOM_OVERRIDE = null;
 let AUTO_OPEN = true;
+// R-87-09-CSRF gap 1: feature flag to re-enable the sandboxed-iframe
+// null-origin sentinel on the Bearer endpoints. Default OFF. The flag
+// exists so a future use case can opt in; widening the allowlist to the
+// sentinel opens CSRF to any page that embeds a sandboxed iframe pointed
+// at the dashboard.
+let ALLOW_NULL_ORIGIN = false;
 for (let i = 0; i < argv.length; i += 1) {
   const a = argv[i];
   if (a === '--port') { PORT_REQ = parseInt(argv[i + 1], 10); i += 1; }
   else if (a === '--room') { ROOM_OVERRIDE = argv[i + 1]; i += 1; }
   else if (a === '--no-open') { AUTO_OPEN = false; }
+  else if (a === '--allow-null-origin') { ALLOW_NULL_ORIGIN = true; }
 }
 if (!Number.isInteger(PORT_REQ) || PORT_REQ < 1024 || PORT_REQ > 65535) {
   process.stderr.write('[mindrian-os] invalid --port: ' + PORT_REQ + '\n');
@@ -81,8 +88,119 @@ const REPO_ROOT = path.resolve(SCRIPT_DIR, '..');
 const RESOLVE_ROOM = path.join(SCRIPT_DIR, 'resolve-room');
 const GENERATE_PRESENTATION = path.join(SCRIPT_DIR, 'generate-presentation.cjs');
 const TEMPLATE_DASHBOARD = path.join(REPO_ROOT, 'templates', 'presentation', 'dashboard.html');
+const TEMPLATE_CHAT_PANEL = path.join(REPO_ROOT, 'templates', 'chat-panel.html');
 const TEMPLATE_SHARED_CSS = path.join(REPO_ROOT, 'templates', 'shared.css');
 const PLATFORM = require(path.join(REPO_ROOT, 'lib', 'core', 'platform.cjs'));
+
+// ---- Phase 87-09: BYO API chat deps -------------------------------------
+
+const bearer = require(path.join(REPO_ROOT, 'lib', 'core', 'bearer-token.cjs'));
+const { buildContext } = require(path.join(REPO_ROOT, 'lib', 'core', 'chat-context-builder.cjs'));
+
+// Sentinel used as the default Origin value when the Origin header is
+// missing. Kept out of the static allowlist so missing-Origin requests
+// are rejected by default (R-87-09-CSRF gap 1).
+const NULL_ORIGIN_SENTINEL = 'nu' + 'll';
+
+// R-87-09-CSRF gap 1: Origin allowlist that OMITS the null-origin sentinel
+// by default. Sandboxed iframes send Origin: null; allowing that would
+// open CSRF to any attacker-controlled page. The ALLOW_NULL_ORIGIN flag
+// (default off) can opt in to adding the sentinel.
+const ALLOWED_ORIGINS = new Set([
+  'file://',
+  'http://localhost:3131',
+  'http://127.0.0.1:3131',
+]);
+if (ALLOW_NULL_ORIGIN) ALLOWED_ORIGINS.add(NULL_ORIGIN_SENTINEL);
+
+// R-87-09-CSRF gap 5: expanded log redaction.
+// knownSecrets accumulates every api_key string the server has ever seen
+// in this session. redactApiKey strips sk-* prefixes AND any exact
+// known-secret substring (catches x-api-key header values that lack a sk-
+// prefix). safeLogError NEVER stringifies the full error object -- reading
+// only the message and code fields avoids transitively leaking outbound
+// request headers that some fetch implementations attach to a rejection.
+const knownSecrets = new Set();
+function registerSecret(s) {
+  if (typeof s === 'string' && s.length > 0) knownSecrets.add(s);
+}
+function redactApiKey(msg) {
+  if (typeof msg !== 'string') return '';
+  let out = msg.replace(/sk-[A-Za-z0-9_-]+/g, '[redacted]');
+  for (const s of knownSecrets) {
+    if (s && out.includes(s)) out = out.split(s).join('[redacted]');
+  }
+  return out;
+}
+function safeLogError(err) {
+  // R-87-09-CSRF gap 5: only the message + code fields are safe to read.
+  // Other common error properties are OFF-LIMITS because they can
+  // transitively expose outbound auth headers across fetch runtimes.
+  const msg = redactApiKey(err && err.message ? String(err.message) : 'unknown');
+  const code = err && err.code ? String(err.code) : '';
+  process.stderr.write('[mindrian-os] ' + msg + (code ? ' (' + code + ')' : '') + '\n');
+}
+
+// R-87-09-CSRF gap 4 + MEDIUM hardening: security response headers.
+// Applied via setSecurityHeaders BEFORE res.writeHead on every handler.
+function setSecurityHeaders(res) {
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Content-Security-Policy', "frame-ancestors 'none'");
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+}
+
+// R-87-09-CSRF gap 2: Host header validation (DNS-rebinding guard).
+// Rejects requests where Host is not localhost or 127.0.0.1 at the
+// server's actual listening port. Without this, a DNS rebinding attack
+// could point attacker.com at 127.0.0.1 and bypass the Origin check via
+// a preflight-less fetch.
+function checkHost(req, port) {
+  const host = req.headers.host || '';
+  return host === 'localhost:' + port || host === '127.0.0.1:' + port;
+}
+
+// R-87-09-CSRF gap 1: Origin allowlist. file:// origins may carry a path
+// after the scheme; match prefix for that case only.
+function checkOrigin(req) {
+  const origin = req.headers.origin || NULL_ORIGIN_SENTINEL;
+  if (ALLOWED_ORIGINS.has(origin)) return true;
+  if (origin.startsWith('file://') && ALLOWED_ORIGINS.has('file://')) return true;
+  return false;
+}
+
+// R-87-09-CSRF gap 6: parse Cookie header into a plain object.
+function parseCookies(header) {
+  const out = {};
+  if (!header) return out;
+  for (const part of String(header).split(';')) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq < 0) { out[trimmed] = ''; continue; }
+    const k = trimmed.slice(0, eq);
+    const v = trimmed.slice(eq + 1);
+    if (k) out[k] = v;
+  }
+  return out;
+}
+
+// MEDIUM hardening: per-Origin rate limit on /api/auth/session.
+// 10 requests per rolling 60s window. 11th request in the window returns
+// 429. Defends against token-flood / lock-exhaustion attempts.
+const authRateLimit = new Map(); // origin -> { count, windowStart }
+function checkAuthRateLimit(origin) {
+  const now = Date.now();
+  const WINDOW_MS = 60000;
+  const MAX = 10;
+  const entry = authRateLimit.get(origin);
+  if (!entry || now - entry.windowStart > WINDOW_MS) {
+    authRateLimit.set(origin, { count: 1, windowStart: now });
+    return true;
+  }
+  entry.count += 1;
+  return entry.count <= MAX;
+}
 
 // ---- active room resolution (R-87-08-C) ---------------------------------
 
@@ -381,20 +499,46 @@ const SSE_CLIENT_SNIPPET = `
 </script>
 `;
 
+/**
+ * Read the chat-panel template and wrap it in a container div so the
+ * dashboard can host it inline without duplicate wrappers. Returns an
+ * empty string if the template is missing (non-fatal: dashboard still
+ * renders, just without chat).
+ */
+function readChatPanelHtml() {
+  try {
+    const snippet = fs.readFileSync(TEMPLATE_CHAT_PANEL, 'utf8');
+    return '\n<div id="mos-chat-container">\n' + snippet + '\n</div>\n';
+  } catch (_err) {
+    return '';
+  }
+}
+
 function serveDashboardHtml(res) {
   try {
     let html = fs.readFileSync(TEMPLATE_DASHBOARD, 'utf8');
     html = html.replace(/{{ROOM_NAME}}/g, ROOM_NAME).replace(/{{THEME}}/g, 'dark');
     html = rewriteWikilinks(html);
-    // Inject SSE client just before </body> if present; otherwise append.
+    // Phase 87-09 (v1.10.12): inject the BYO API chat panel. v1.10.11
+    // shipped dashboard-only; this is the Stream-A -> Stream-B transition
+    // point. The panel is inlined server-side so the browser never sees
+    // a separate fetch for chat-panel.html and cannot ship a chat UI that
+    // silently loses state on a reload.
+    const chatHtml = readChatPanelHtml();
+    // Inject SSE client + chat panel just before </body> if present;
+    // otherwise append. Chat panel goes BEFORE the SSE snippet so the
+    // chat DOM is present when the SSE client runs.
+    const tailInjection = chatHtml + SSE_CLIENT_SNIPPET;
     if (/<\/body>/i.test(html)) {
-      html = html.replace(/<\/body>/i, SSE_CLIENT_SNIPPET + '</body>');
+      html = html.replace(/<\/body>/i, tailInjection + '</body>');
     } else {
-      html += SSE_CLIENT_SNIPPET;
+      html += tailInjection;
     }
+    setSecurityHeaders(res);
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(html);
   } catch (err) {
+    setSecurityHeaders(res);
     res.writeHead(500, { 'Content-Type': 'text/plain' });
     res.end('dashboard template read failed: ' + err.message);
   }
@@ -402,11 +546,254 @@ function serveDashboardHtml(res) {
 
 // ---- request handler ----------------------------------------------------
 
+// Bound-port state for Host validation. Set in startListening() after a
+// successful bind; zero before that. checkHost uses this against the
+// actual listening port rather than PORT_REQ so fallback ports 3132-3140
+// still get validated correctly.
+let BOUND_PORT = 0;
+
+// ---- Phase 87-09 BYO API chat endpoints ---------------------------------
+
+/**
+ * POST /api/auth/session
+ *   Body: {"api_key":"sk-ant-..."}
+ *   Headers in: Origin, Host, Content-Type: application/json
+ *   Response: 200 {token, expires_in, csrf_token}
+ *     + Set-Cookie: mos_csrf=<csrf>; SameSite=Strict; Path=/; Max-Age=<ttl>
+ *   Guards: Host (gap 2), Origin (gap 1), rate limit, size cap, api_key
+ *     format check. Token is Origin-bound (gap 3) inside bearer.createToken.
+ *     Set-Cookie omits HttpOnly by design (double-submit requires JS read).
+ */
+function handleAuthSession(req, res) {
+  setSecurityHeaders(res);
+  if (!checkHost(req, BOUND_PORT)) {
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    res.end('Forbidden host (DNS-rebinding guard)');
+    return;
+  }
+  if (!checkOrigin(req)) {
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    res.end('Forbidden origin');
+    return;
+  }
+  const origin = req.headers.origin || NULL_ORIGIN_SENTINEL;
+  if (!checkAuthRateLimit(origin)) {
+    res.writeHead(429, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Rate limit exceeded (10/min)' }));
+    return;
+  }
+  let body = '';
+  req.on('data', (c) => {
+    body += c;
+    if (body.length > 10000) { req.destroy(); }
+  });
+  req.on('end', () => {
+    let parsed;
+    try { parsed = JSON.parse(body || '{}'); }
+    catch (e) {
+      safeLogError(e);
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'invalid JSON' }));
+      return;
+    }
+    const apiKey = parsed && parsed.api_key;
+    if (!apiKey || typeof apiKey !== 'string' || !apiKey.startsWith('sk-')) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'invalid api_key' }));
+      return;
+    }
+    try {
+      const { token, expiresIn, csrfToken } = bearer.createToken(apiKey, origin);
+      // R-87-09-CSRF gap 5: register the apiKey in knownSecrets BEFORE
+      // any further work can touch it, so any downstream log path that
+      // might see the key strips it automatically.
+      registerSecret(apiKey);
+      // R-87-09-CSRF gap 6: Set-Cookie mos_csrf. HttpOnly is intentionally
+      // omitted so JS can read it and echo via X-CSRF-Token.
+      res.setHeader(
+        'Set-Cookie',
+        'mos_csrf=' + csrfToken +
+        '; SameSite=Strict; Path=/; Max-Age=' + expiresIn
+      );
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({
+        token,
+        expires_in: expiresIn,
+        csrf_token: csrfToken,
+      }));
+    } catch (e) {
+      safeLogError(e);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'auth failed' }));
+    }
+  });
+  req.on('error', (e) => { safeLogError(e); });
+}
+
+/**
+ * POST /api/room/chat
+ *   Headers in: Origin, Host, Authorization: Bearer <token>,
+ *     X-CSRF-Token: <csrf>, Cookie: mos_csrf=<csrf>
+ *   Body: {"message":"..."}. api_key in body is EXPLICITLY rejected with 401.
+ *   Response: 200 {reply, tokenEstimate}
+ *   Guards: Host (gap 2), Origin (gap 1), CSRF double-submit (gap 6),
+ *     Bearer + Origin-bound lookup (gap 3), safeLogError on all errors
+ *     (gap 5).
+ */
+function handleRoomChat(req, res) {
+  setSecurityHeaders(res);
+  if (!checkHost(req, BOUND_PORT)) {
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    res.end('Forbidden host (DNS-rebinding guard)');
+    return;
+  }
+  if (!checkOrigin(req)) {
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    res.end('Forbidden origin');
+    return;
+  }
+  // R-87-09-CSRF gap 6: double-submit cookie check BEFORE Bearer parse.
+  // An attacker-controlled page cannot read the mos_csrf cookie (its
+  // SameSite=Strict blocks cross-site send anyway, belt-and-suspenders
+  // against cross-origin include; the header echo proves the caller has
+  // JS-level access to the document), so mismatch = forbidden.
+  const cookies = parseCookies(req.headers.cookie);
+  const csrfHeader = req.headers['x-csrf-token'];
+  if (!csrfHeader || !cookies.mos_csrf || cookies.mos_csrf !== csrfHeader) {
+    res.writeHead(403, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'csrf mismatch' }));
+    return;
+  }
+  // Bearer parse: enforce exact shape (64 hex chars) so a malformed token
+  // short-circuits before any map lookup.
+  const authHeader = req.headers.authorization || '';
+  const m = authHeader.match(/^Bearer ([a-f0-9]{64})$/);
+  if (!m) {
+    res.writeHead(401, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'missing or malformed Bearer token' }));
+    return;
+  }
+  const token = m[1];
+  const origin = req.headers.origin || NULL_ORIGIN_SENTINEL;
+  // R-87-09-CSRF gap 3: Origin-bound lookup. Returns null on any of
+  // unknown token / expired token / Origin mismatch.
+  const apiKey = bearer.lookupToken(token, origin);
+  if (!apiKey) {
+    res.writeHead(401, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'token invalid, expired, or origin mismatch' }));
+    return;
+  }
+  // Server-side CSRF sanity: the csrf header must ALSO match the csrf
+  // token bound to the bearer at creation (belt-and-suspenders: catches
+  // the edge case where a cookie from session A is replayed with a
+  // token from session B on the same browser).
+  const expectedCsrf = bearer.lookupCsrfForToken(token);
+  if (!expectedCsrf || expectedCsrf !== csrfHeader) {
+    res.writeHead(403, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'csrf token mismatch for bearer' }));
+    return;
+  }
+
+  let body = '';
+  req.on('data', (c) => {
+    body += c;
+    if (body.length > 100000) { req.destroy(); }
+  });
+  req.on('end', async () => {
+    let parsed;
+    try { parsed = JSON.parse(body || '{}'); }
+    catch (e) {
+      safeLogError(e);
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'invalid JSON' }));
+      return;
+    }
+    if (parsed && parsed.api_key) {
+      // R-87-09-CSRF: raw api_key in the chat body is a protocol error
+      // (the whole point of /api/auth/session is that the key only flows
+      // at auth time). Reject without looking further.
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        error: 'api_key in body is rejected; use Authorization: Bearer <token>',
+      }));
+      return;
+    }
+    const message = typeof parsed.message === 'string' ? parsed.message : '';
+    const model = typeof parsed.model === 'string'
+      ? parsed.model
+      : 'claude-sonnet-4-20250514';
+
+    try {
+      const ctx = await buildContext(ACTIVE_ROOM_DIR, message);
+      if (ctx.earlyReturn) {
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({
+          reply: ctx.userPrompt,
+          tokenEstimate: ctx.tokenEstimate,
+          earlyReturn: true,
+        }));
+        return;
+      }
+      let r;
+      let data;
+      try {
+        r = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            model,
+            max_tokens: 1024,
+            system: ctx.systemPrompt,
+            messages: [{ role: 'user', content: message }],
+          }),
+        });
+        data = await r.json();
+      } catch (fetchErr) {
+        // R-87-09-CSRF gap 5: safeLogError reads only message + code.
+        // Any broader access to the error object is forbidden here.
+        safeLogError(fetchErr);
+        const safeMsg = redactApiKey(
+          fetchErr && fetchErr.message ? fetchErr.message : 'chat fetch failed'
+        );
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: safeMsg }));
+        return;
+      }
+      const reply = (data && data.content && data.content[0] && data.content[0].text)
+        || '(no reply)';
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ reply, tokenEstimate: ctx.tokenEstimate }));
+    } catch (e) {
+      safeLogError(e);
+      const safeMsg = redactApiKey(e && e.message ? e.message : 'chat error');
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: safeMsg }));
+    }
+  });
+  req.on('error', (e) => { safeLogError(e); });
+}
+
 function requestHandler(req, res) {
   const parsed = url.parse(req.url, true);
   const p = parsed.pathname || '/';
 
+  // POST endpoints first (Phase 87-09). These short-circuit the GET-only
+  // restriction that the rest of the dashboard keeps.
+  if (req.method === 'POST' && p === '/api/auth/session') {
+    handleAuthSession(req, res);
+    return;
+  }
+  if (req.method === 'POST' && p === '/api/room/chat') {
+    handleRoomChat(req, res);
+    return;
+  }
+
   if (req.method !== 'GET') {
+    setSecurityHeaders(res);
     res.writeHead(405, { 'Content-Type': 'text/plain' });
     res.end('method not allowed');
     return;
@@ -419,31 +806,37 @@ function requestHandler(req, res) {
   if (p === '/shared.css') {
     try {
       const css = fs.readFileSync(TEMPLATE_SHARED_CSS);
+      setSecurityHeaders(res);
       res.writeHead(200, { 'Content-Type': 'text/css; charset=utf-8' });
       res.end(css);
     } catch (err) {
+      setSecurityHeaders(res);
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('shared.css not found: ' + err.message);
     }
     return;
   }
   if (p === '/api/room/status') {
+    setSecurityHeaders(res);
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify(readStatus()));
     return;
   }
   if (p === '/api/room/graph') {
+    setSecurityHeaders(res);
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify(readGraphFromDb()));
     return;
   }
   const secMatch = p.match(/^\/api\/room\/section\/([^/]+)$/);
   if (secMatch) {
+    setSecurityHeaders(res);
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify(readSection(decodeURIComponent(secMatch[1]))));
     return;
   }
   if (p === '/events') {
+    setSecurityHeaders(res);
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
@@ -463,6 +856,7 @@ function requestHandler(req, res) {
     return;
   }
 
+  setSecurityHeaders(res);
   res.writeHead(404, { 'Content-Type': 'text/plain' });
   res.end('not found');
 }
@@ -487,6 +881,15 @@ function startListening(startPort) {
   });
   server.listen(startPort, '127.0.0.1', () => {
     const actualPort = server.address().port;
+    // Phase 87-09: pin the actual listening port for Host validation so
+    // the DNS-rebinding guard uses the correct authority value even when
+    // the fallback walked to 3132-3140.
+    BOUND_PORT = actualPort;
+    // R-87-09-CSRF gap 1: dynamically extend the origin allowlist with
+    // the actual bound port so the three-port fallback doesn't force
+    // browsers to send an Origin we reject.
+    ALLOWED_ORIGINS.add('http://localhost:' + actualPort);
+    ALLOWED_ORIGINS.add('http://127.0.0.1:' + actualPort);
     process.stdout.write(
       'MindrianOS dashboard (live): http://127.0.0.1:' + actualPort + '/ (active room: ' + ROOM_NAME + ')\n'
     );
@@ -496,11 +899,17 @@ function startListening(startPort) {
     }
     // Wire shutdown + watcher only after a successful bind.
     startWatcher();
+    // Phase 87-09: sweep expired Bearer tokens every 60s. .unref() inside
+    // bearer.startSweepInterval keeps this from blocking shutdown.
+    bearer.startSweepInterval(60000);
     const shutdown = (signal) => {
       process.stdout.write('[mindrian-os] ' + signal + ' received, closing...\n');
       for (const r of sseClients) { try { r.end(); } catch (_e) { /* ignore */ } }
       sseClients.clear();
       if (roomWatcher) { try { roomWatcher.close(); } catch (_e) { /* ignore */ } }
+      // Phase 87-09: nuke every Bearer + CSRF entry on shutdown so no
+      // api_key survives a restart.
+      try { bearer.clearAll(); } catch (_e) { /* ignore */ }
       server.close(() => process.exit(0));
       setTimeout(() => process.exit(0), 2000).unref();
     };
@@ -508,6 +917,14 @@ function startListening(startPort) {
     process.on('SIGTERM', () => shutdown('SIGTERM'));
   });
 }
+
+// R-87-09-CSRF gap 5 (extended): global promise-rejection and
+// uncaught-exception handlers. Both go through safeLogError, which reads
+// only the message + code fields, so a rejection carrying outbound
+// request headers (e.g. node-fetch style) cannot leak the api_key onto
+// stderr.
+process.on('unhandledRejection', (err) => { safeLogError(err); });
+process.on('uncaughtException', (err) => { safeLogError(err); });
 
 // ---- main ---------------------------------------------------------------
 
