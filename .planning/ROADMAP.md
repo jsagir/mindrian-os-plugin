@@ -218,40 +218,86 @@ Plans:
 **Plans**: 10 plans, 5 waves (87-01 security, 87-02 write-lock, 87-03 cascade, 87-04 async, 87-05 MCP validation, 87-06 transactions, 87-07 caching, 87-08 dashboard, 87-09 BYO chat, 87-10 release)
 **Authority**: .planning/phases/87-security-hardening-cascade-refactor/87-CONTEXT.md
 
-## Planned (post v1.10.11) -- Memory Layer + Navigation arc
+## Planned Pipeline (post v1.10.11) -- organized 2026-04-19
 
-Source: `.planning/research/ui-ux-pathways/` (migrated 2026-04-18 from mindrianos-venture) + 2026-04-19 architecture audit (per-folder memory triple + L1-L5 layered architecture).
+Source: `.planning/research/ui-ux-pathways/` (migrated 2026-04-18) + 2026-04-19 architecture conversation (five-layer stack + per-folder memory quadruple).
 
-**Phase 88 -- Per-Folder Memory Triple Wiring (v1.10.13)** READY FOR PLAN
-See `.planning/phases/88-feynman-minto-memory-layer/88-CONTEXT.md`. Wires ROOM.md + STATE.md + Feynman-MINTO.md as a coordinated cross-session memory triple. Five wires (post-write freshness, on-stop snapshot, session-start injection, pre/post-compact resilience, decision_log persistence) plus unified read contract `lib/core/folder-memory.cjs`. Prerequisite for Navigation Engine.
+### Five-Layer Architecture (authoritative)
 
-**Phase 89 -- Reverse-Salient Engine** EXISTING (was 88, renumbered 2026-04-19)
-7 plans on disk. Can optionally consume reasoning_health_score from Phase 88 folder-memory signal.
+```
+L1 Identity  : ROOM.md per folder (ICM Layer 0)
+L2 Memory    : Per-folder quadruple + room.db SQL edges
+                - ROOM.md       (identity + compiled references)
+                - STATE.md      (quantitative state)
+                - Feynman-MINTO (compressed logical flow, <1500 tokens/section)
+                - BRAIN.md      (Brain-authored derivation layer on top)
+L3 Navigation: SQL edges + Feynman-MINTO + BRAIN patterns = pathfinding substrate
+L4 Assets    : wiki, dashboard, deck, exports (rendered views of L3)
+L5 Decision  : Navigation Engine reads L3 to pick skill/command/framework
+```
 
-**Phase 90 candidate -- Navigation Engine** (was Skill Offer Engine)
-Reads L3 Navigation substrate (SQL edges + Feynman-MINTO compressed reasoning via folder-memory.cjs) to decide which skill / command / framework fires next. 5-signal triangulation: ICM scope + SQL relations + Feynman-MINTO reasoning + Brain patterns + intent/persona. See `skill-offer-engine.md` for origin; scope expanded per 2026-04-19 architecture audit.
+### Phase Sequence (locked 2026-04-19)
 
-**Phase 91 candidate -- Discord / Zulip bridge**
-Multi-surface: same localhost API surfaces the plugin to chat platforms where teams work.
+| Phase | Name | Release | Layer | Status |
+|---|---|---|---|---|
+| **87** | Security + Cascade Refactor + Localhost Dashboard | v1.10.11 + v1.10.12 | infra + L4 | CONTEXT ready |
+| **88** | Per-Folder Memory Triple Wiring | v1.10.13 | L2 foundation | CONTEXT filed |
+| **89** | Reverse-Salient Engine | v1.10.x | L5 support (local) | 7 plans existing |
+| **90** | Brain Derivation Layer | v1.10.14 | L2 Brain-on-top | CONTEXT filed |
+| **91** | Navigation Engine | v1.11.0 | L5 Decision | CONTEXT filed |
+| **92** | Discord/Zulip multi-surface (candidate) | v1.11.x | L4 surface | research only |
+| **93** | Goose extension (candidate) | v1.11.x | L4 surface | research only |
 
-**Phase 92 candidate -- Goose extension** (see `goose-extension-path.md`)
-MindrianOS MCP server plugs into Block's Goose.
+### Dependency Graph
 
-**Supporting research (not phase-bound):**
-- `architecture-vision.md` -- bidirectional control surface (MindrianOS Desktop)
-- `alternatives-considered.md` -- Quarto / Electron / Chrome ext / Tauri / PWA; Node HTTP inside plugin wins
-- `lazygraph-chat-architecture.md` -- chat panel reading SQLite graph
-- `token-economics.md` -- why zero tokens, how it stays that way
-- `ttfv-reverse-salient.md` -- "verbal fails, live demos convert"
+```
+                ┌─ Phase 87 (security + dashboard) ───┐
+                │                                     │
+                └─> Phase 88 (memory triple) ─────────┤
+                                      │                │
+                                      ├─> Phase 89 (reverse-salient, optional consumer)
+                                      │                │
+                                      └─> Phase 90 (Brain derivation) ─┐
+                                                                        │
+                                                                        └─> Phase 91 (Navigation Engine)
+                                                                                      │
+                                                                                      └─> Phase 92/93 (multi-surface)
+```
 
-**Five-layer architecture (from 2026-04-19 audit):**
-- L1 ICM Identity -- ROOM.md per folder
-- L2 Memory -- per-folder triple (ROOM.md + STATE.md + Feynman-MINTO.md) + room.db SQL edges
-- L3 Navigation -- SQL edges + Feynman-MINTO compressed reasoning as pathfinding substrate
-- L4 Assets -- wiki, dashboard, deck, exports (rendered views of L3)
-- L5 Decision -- Navigation Engine reads L3 to decide skill/command/framework firing
+Phase 91 is the destination. Phases 87, 88, 90 are prerequisites. Phase 89 is parallel (can ship before, during, or after Brain layer).
 
-Phase 88 wires L2 memory triple through cross-session lifecycle. Phase 90 consumes it for L5 decisions.
+### Phase Summaries
+
+**Phase 87 -- Security + Cascade Refactor + Localhost Dashboard** (v1.10.11 + v1.10.12)
+Stream A security (Cypher sanitization, API key perms, HSI timeout, write-lock atomic) + Stream C localhost dashboard ship as v1.10.11 (investor-safe demo-ready). Stream B refactor (cascade dedup, async split via two entry points, MCP validation, transactions, Brain cache, LRU) + BYO API chat panel with Bearer token auth ship as v1.10.12. Audit R1-R7 folded, split locked. See 87-CONTEXT.md.
+
+**Phase 88 -- Per-Folder Memory Triple Wiring** (v1.10.13)
+Wires ROOM.md + STATE.md + Feynman-MINTO.md as a coordinated cross-session memory triple. Five wires (post-write freshness, on-stop snapshot, session-start injection, pre/post-compact resilience, decision_log persistence) + unified read contract `lib/core/folder-memory.cjs` + invariants module (`lib/core/feynman-minto-invariants.cjs`) + guardian for lifecycle enforcement. 13+ plans across 6 waves. Prerequisite for Brain Derivation Layer and Navigation Engine. See 88-CONTEXT.md.
+
+**Phase 89 -- Reverse-Salient Engine** (v1.10.x)
+7 plans on disk (pre-existing). Hughes 1983 reverse-salient detection for the lagging component in an expanding venture. Can optionally consume reasoning_health_score from Phase 88 folder-memory signal. Ships independently; not blocking other phases.
+
+**Phase 90 -- Brain Derivation Layer** (v1.10.14)
+Lets the Brain excavate the local triple (Phase 88) and produce a persistent authored layer on top: BRAIN.md per section containing pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, ProblemType classification, cross-room contradiction flags. Extends memory triple to quadruple. Graceful degradation when Brain offline. 10 plans across 5 waves. Prerequisite for Navigation Engine. See 90-CONTEXT.md.
+
+**Phase 91 -- Navigation Engine** (v1.11.0, minor version bump)
+Reads L3 Navigation substrate (SQL + quadruple memory) to decide which skill, command, or framework fires each turn. Five-signal triangulation: ICM + SQL + Feynman-MINTO + BRAIN + intent/persona. Persona durability (USER.md first-class). Visible dial in statusline. /mos:explain-decision command. Problem-type-aware routing. FEEDS_INTO framework chain composition. 10 plans across 5 waves. See 91-CONTEXT.md.
+
+**Phase 92 -- Discord/Zulip multi-surface** (candidate, v1.11.x)
+Same localhost API (Phase 87-08) surfaces the plugin to chat platforms. Teams collaborate where they already work. See `byo-api-and-surfaces.md`.
+
+**Phase 93 -- Goose extension** (candidate, v1.11.x)
+MindrianOS MCP server plugs into Block's Goose as an extension. Goose provides the visual conversation shell; MindrianOS provides the methodology intelligence. See `goose-extension-path.md`.
+
+### Supporting Research (research-only, not phase-bound)
+
+- `.planning/research/ui-ux-pathways/architecture-vision.md` -- bidirectional control surface
+- `.planning/research/ui-ux-pathways/alternatives-considered.md` -- Quarto/Electron/Chrome ext/Tauri/PWA ranked
+- `.planning/research/ui-ux-pathways/lazygraph-chat-architecture.md` -- 57x SQL-targeted chat pattern
+- `.planning/research/ui-ux-pathways/token-economics.md` -- zero-token rendering math
+- `.planning/research/ui-ux-pathways/ttfv-reverse-salient.md` -- "verbal fails, live demos convert"
+- `.planning/research/ui-ux-pathways/byo-api-and-surfaces.md` -- API surface design
+- `.planning/research/navigation-engine-brain-interface.md` (to be filed by Phase 90-09)
 
 ## Progress
 

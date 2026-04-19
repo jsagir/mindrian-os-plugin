@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.10.9
 milestone_name: -- Cross-Platform Parity
 status: executing
-stopped_at: "Phase 88 CONTEXT filed: Per-Folder Memory Triple Wiring (ROOM.md + STATE.md + Feynman-MINTO). 13 plans, 6 waves, v1.10.13 target."
-last_updated: "2026-04-19T04:11:40.648Z"
+stopped_at: "Phases 88, 90, 91 CONTEXT filed. Pipeline organized: 87 (security+dashboard) -> 88 (memory triple) -> 89 (reverse-salient) -> 90 (Brain derivation) -> 91 (Navigation Engine v1.11.0)."
+last_updated: "2026-04-19T05:18:20.040Z"
 last_activity: 2026-04-15 -- Phase 85 execution started
 progress:
   total_phases: 13
@@ -116,6 +116,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T04:11:40.640Z
-Stopped at: Phase 88 CONTEXT filed: Per-Folder Memory Triple Wiring (ROOM.md + STATE.md + Feynman-MINTO). 13 plans, 6 waves, v1.10.13 target.
-Resume file: .planning/phases/88-feynman-minto-memory-layer/88-CONTEXT.md
+Last session: 2026-04-19T05:18:20.035Z
+Stopped at: Phases 88, 90, 91 CONTEXT filed. Pipeline organized: 87 (security+dashboard) -> 88 (memory triple) -> 89 (reverse-salient) -> 90 (Brain derivation) -> 91 (Navigation Engine v1.11.0).
+Resume file: .planning/ROADMAP.md
