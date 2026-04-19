@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.10.9
 milestone_name: -- Cross-Platform Parity
 status: executing
-stopped_at: "Completed 87-01a-PLAN.md (ROOM.md + MINTO.md pre-commit guard + worktree-safe installer + session-start self-heal + 7-test regression suite). Feynman 21/21 green (was 20/20). Wave 1 Stream A remaining: 87-08 (localhost dashboard)."
-last_updated: "2026-04-19T11:56:02.764Z"
+stopped_at: "Completed 87-03-PLAN.md (cascade deduplication: _runCascadeSteps shared helper; 854 -> 653 lines; 87-00 fixture exact-match; feynman 22/22). Wave 2 progressing: 87-03 DONE. Next: 87-05 MCP input validation, 87-06 indexArtifact transaction, then Wave 3 (87-04 sync/async split + 87-07 Brain cache)."
+last_updated: "2026-04-19T18:23:24.901Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 13
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 87 (security-hardening-cascade-refactor) — EXECUTING
-Plan: 5 of 13
+Plan: 7 of 13
 Status: Ready to execute
 Last activity: 2026-04-19
 
@@ -71,6 +71,8 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 87 P02 | 17min | 2 tasks | 4 files |
 | Phase 87-security-hardening-cascade-refactor P01 | 14min | 2 tasks | 4 files |
 | Phase 87-security-hardening-cascade-refactor P01a | 19min | 3 tasks | 6 files |
+| Phase 87-security-hardening-cascade-refactor P08 | 43min | 3 tasks | 6 files |
+| Phase 87 P03 | 30min | 1 tasks | 2 files |
 
 ### Decisions
 
@@ -118,6 +120,13 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 87-security-hardening-cascade-refactor]: Phase 87-01a: worktree-safe install path via git rev-parse --git-path hooks/pre-commit, NOT --show-toplevel/.git/hooks/ (breaks on linked worktrees where .git is a file)
 - [Phase 87-security-hardening-cascade-refactor]: Phase 87-01a: Windows GUI enforcement path is session-start re-install + CI, not the .cmd wrapper (wrapper is a non-silent fallback when git-bash is missing)
 - [Phase 87-security-hardening-cascade-refactor]: Phase 87-01a: symlink-safe walker via pwd -P + VISITED associative array; guard walker terminates on cycle in one iteration not infinite loop
+- [Phase 87-security-hardening-cascade-refactor]: Phase 87-08: scripts/serve-dashboard-live is a NEW Node HTTP server co-existing with the untouched legacy bash scripts/serve-dashboard (R-87-08-A). /mos:dashboard live routes to new; /mos:dashboard bare routes to legacy.
+- [Phase 87-security-hardening-cascade-refactor]: Phase 87-08: openBrowser(url) helper in platform.cjs uses strict regex ^https?://(127.0.0.1|localhost)(:\d+)?(/|$) and argv-array child_process.spawn; rejects evil.com, file:///, and http://localhost.evil.com subdomain-trick.
+- [Phase 87-security-hardening-cascade-refactor]: Phase 87-08: active room resolution delegated to scripts/resolve-room (R-87-08-C); zero bare .rooms/registry.json reads in the server.
+- [Phase 87-security-hardening-cascade-refactor]: Phase 87-08: MOS_BIND_ALL=1 aborts startup with exit 2; server binds 127.0.0.1 only; port fallback 3131-3140 on EADDRINUSE.
+- [Phase 87-security-hardening-cascade-refactor]: Phase 87-08: v1.10.11 dashboard ships WITHOUT chat panel; grep -c 'chat-panel|mos-chat-container|mos-chat-form|mos-api-key' dashboard.html == 0; chat arrives in 87-09.
+- [Phase 87-03]: _runCascadeSteps private helper: runCascade + queueCascade delegate, lastHsiByRoom owned by callers (helper returns hsiRanAt), frameworkHint option preserves queueCascade 'cascade-batch' provenance
+- [Phase 87-03]: Cascade dedup: 854 -> 653 lines (-201, -23.5%); 87-00 cascade-e2e baseline stays exact-match {INFORMS:3, CONTRADICTS:1, CONVERGES:0, INVALIDATES:1}; security-trifecta structural assertions migrated from 12 -> 6 HSI_TIMEOUT_MS sites (semantic invariants preserved)
 
 ### Pending Todos
 
@@ -133,6 +142,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T11:56:02.761Z
-Stopped at: Completed 87-01a-PLAN.md (ROOM.md + MINTO.md pre-commit guard + worktree-safe installer + session-start self-heal + 7-test regression suite). Feynman 21/21 green (was 20/20). Wave 1 Stream A remaining: 87-08 (localhost dashboard).
+Last session: 2026-04-19T18:23:20.898Z
+Stopped at: Completed 87-03-PLAN.md (cascade deduplication: _runCascadeSteps shared helper; 854 -> 653 lines; 87-00 fixture exact-match; feynman 22/22). Wave 2 progressing: 87-03 DONE. Next: 87-05 MCP input validation, 87-06 indexArtifact transaction, then Wave 3 (87-04 sync/async split + 87-07 Brain cache).
 Resume file: None
