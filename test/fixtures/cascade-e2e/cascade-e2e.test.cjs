@@ -5,6 +5,8 @@
  * Cascade E2E Integration Test (Plan 87-00)
  * ==========================================
  *
+ * BSL 1.1. Copyright (c) Mindrian 2026.
+ *
  * Acceptance gate for Plan 87-03 (intelligence cascade deduplication refactor).
  *
  * Copies test/fixtures/cascade-e2e/seed-room/ into a hermetic tmp dir under
