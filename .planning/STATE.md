@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.10.9
 milestone_name: -- Cross-Platform Parity
 status: executing
-stopped_at: "Completed 87-00-PLAN.md (cascade e2e acceptance gate). Feynman suite 18/18 green. Ready for Wave 1: 87-01, 87-01a, 87-02, 87-08."
-last_updated: "2026-04-19T10:35:44.874Z"
+stopped_at: "Completed 87-02-PLAN.md (atomic write-lock + 20-worker concurrency fence). Feynman suite 19/19 green (was 18/18). Wave 1 remaining: 87-01, 87-01a, 87-08."
+last_updated: "2026-04-19T11:05:15.985Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 13
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 87 (security-hardening-cascade-refactor) — EXECUTING
-Plan: 2 of 13
+Plan: 3 of 13
 Status: Ready to execute
 Last activity: 2026-04-19
 
@@ -68,6 +68,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 84 P02 | 4min | 5 tasks | 2 files |
 | Phase 84 P03 | 25min | 5 tasks | 6 files |
 | Phase 87 P00 | 45min | 2 tasks | 17 files |
+| Phase 87 P02 | 17min | 2 tasks | 4 files |
 
 ### Decisions
 
@@ -105,6 +106,9 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 87-00]: Cascade e2e fixture copies seed-room into tmpDir/rooms/ to satisfy intelligence-cascade.isRoomFile() guard
 - [Phase 87-00]: Frozen baseline uses exact-match assertions (strictEqual), not soft `>= 1` thresholds, so 80% edge regressions cannot pass silently
 - [Phase 87-00]: Feynman runner now treats exit 77 as SKIPPED (POSIX test-infra-broken convention), preventing env degradation from masquerading as regression
+- [Phase 87-02]: Atomic write-lock via fs.openSync(lockPath, 'wx'); EEXIST triggers staleness/PID-liveness cleanup + single retry; same-PID re-acquire keeps writeFileSync per m11 rationale
+- [Phase 87-02]: Concurrency fence winner sleeps 500ms post-acquire so PID liveness check rejects all losers (proves the openSync primitive, not the dead-PID cleanup fallback)
+- [Phase 87-02]: Standalone worker file (not inline template string) for cross-platform path-escape safety; test forks it directly via child_process.fork
 
 ### Pending Todos
 
@@ -120,6 +124,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T10:35:44.874Z
-Stopped at: Completed 87-00-PLAN.md (cascade e2e acceptance gate). Feynman suite 18/18 green. Ready for Wave 1: 87-01, 87-01a, 87-02, 87-08.
-Resume file: .planning/ROADMAP.md
+Last session: 2026-04-19T11:05:15.979Z
+Stopped at: Completed 87-02-PLAN.md (atomic write-lock + 20-worker concurrency fence). Feynman suite 19/19 green (was 18/18). Wave 1 remaining: 87-01, 87-01a, 87-08.
+Resume file: None
