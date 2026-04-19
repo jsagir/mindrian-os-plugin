@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.9.8
-milestone_name: milestone
+milestone: v1.10.9
+milestone_name: -- Cross-Platform Parity
 status: executing
-stopped_at: "Completed 84-03-PLAN.md: session lifecycle wiring shipped, RECENT SESSIONS block live, 10/10 Phase 83 + 12/12 Feynman tests green"
-last_updated: "2026-04-14T18:15:43.765Z"
-last_activity: 2026-04-14
+stopped_at: Phase 87 context revised with R1-R7 audit decisions folded. Split into v1.10.11 + v1.10.12 locked. Phase 88 renamed to 89.
+last_updated: "2026-04-19T02:58:30.110Z"
+last_activity: 2026-04-15 -- Phase 85 execution started
 progress:
-  total_phases: 12
-  completed_phases: 1
-  total_plans: 26
-  completed_plans: 17
+  total_phases: 13
+  completed_phases: 2
+  total_plans: 36
+  completed_plans: 28
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 84 — smart-notebook
+**Current focus:** Phase 85 — windows-hotfix-v1.10.9
 
 ## Current Position
 
-Phase: 84 (smart-notebook) — EXECUTING
-Plan: 4 of 9
-Status: Ready to execute
-Last activity: 2026-04-14
+Phase: 85 (windows-hotfix-v1.10.9) — EXECUTING
+Plan: 1 of 9
+Status: Executing Phase 85
+Last activity: 2026-04-15 -- Phase 85 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -116,6 +116,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-14T18:15:43.759Z
-Stopped at: Completed 84-03-PLAN.md: session lifecycle wiring shipped, RECENT SESSIONS block live, 10/10 Phase 83 + 12/12 Feynman tests green
-Resume file: None
+Last session: 2026-04-19T02:58:30.102Z
+Stopped at: Phase 87 context revised with R1-R7 audit decisions folded. Split into v1.10.11 + v1.10.12 locked. Phase 88 renamed to 89.
+Resume file: .planning/phases/87-security-hardening-cascade-refactor/87-CONTEXT.md

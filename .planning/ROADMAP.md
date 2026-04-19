@@ -200,7 +200,45 @@ Plans:
 **Plans**: 7 plans expected (85-01 platform.cjs helper + python3-to-node migration, 85-02 node:sqlite migration across 12 call sites, 85-03 dependency removal + engine bump + full feynman test run, 85-04 run-hook.cmd regression fixture, 85-05 vault export dual-mode + docs, 85-06 session-start banner cross-platform rendering, 85-07 5-gate release)
 **Authority**: .planning/phases/85-windows-hotfix-v1.10.9/85-CONTEXT.md (Windows QA report from 2026-04-15 mindrianos-venture room session with 24-scenario breakdown, root cause analysis, and risk register)
 
-**Late-scope note (2026-04-15)**: Plan 85-10 added late-scope 2026-04-15: MOSDeckEngine skill drop-in from user-scope to plugin-scope (shipping invariant), Mac stat -c portable fallback in 4 scripts (Lawrence Aronhime QA, LAWRENCE-001), whitespace pipeline Python ML dep auto-install via shared scripts/lib/ensure_ml_deps.py bootstrap helper. Does not modify prior plan scope.
+**Late-scope note (2026-04-15)**: Plan 85-10 added late-scope 2026-04-15: MOSDeckEngine skill drop-in from user-scope to plugin-scope (shipping invariant), Mac stat -c portable fallback in 4 scripts (LAWRENCE-001), whitespace pipeline Python ML dep auto-install via shared scripts/lib/ensure_ml_deps.py bootstrap helper. Does not modify prior plan scope.
+
+### Phase 87: Security Hardening + Cascade Refactor + Localhost Dashboard (v1.10.11)
+**Goal**: Three converging workstreams into one milestone: (A) Security -- fix confirmed Cypher injection + API key permissions + HSI timeout + write-lock atomic. (B) Architecture -- cascade deduplication, async MCP I/O, input validation, transaction safety, Brain session caching, LRU eviction. (C) Product -- localhost live dashboard at :3131 with SQLite graph + wikilink navigation + SSE live-reload + BYO API chat panel (57x token cost reduction via targeted graph queries). Driven by external code review validation on 2026-04-16 (1 confirmed P0, 8 confirmed P1s, 3 false positives debunked) plus the UI/UX pathways architecture from solution-design/ui-ux-pathways/.
+**Depends on**: v1.10.10 shipped, Node 22.5+ floor, room.db populated, templates/ with De Stijl CSS, lib/core/platform.cjs
+**Requirements**: SEC-01 through SEC-04, CASCADE-01 through CASCADE-06, DASH-01 through DASH-06
+**Success Criteria**:
+  1. Zero Cypher interpolation in brain-client.cjs
+  2. /mos:dashboard live opens browser within 2 seconds showing typed edges from room.db
+  3. Filing artifact in terminal updates browser within 1 second via SSE
+  4. BYO API chat returns Larry response in under 5K tokens context
+  5. Cascade duplication eliminated (shared _runCascadeSteps function)
+  6. Feynman tests green throughout (22+ test files expected)
+  7. ROOM.md + MINTO.md invariant enforced on every folder
+  8. 5-gate release: CHANGELOG, plugin.json 1.10.11, package.json 1.10.11, tag v1.10.11, marketplace pin
+**Plans**: 10 plans, 5 waves (87-01 security, 87-02 write-lock, 87-03 cascade, 87-04 async, 87-05 MCP validation, 87-06 transactions, 87-07 caching, 87-08 dashboard, 87-09 BYO chat, 87-10 release)
+**Authority**: .planning/phases/87-security-hardening-cascade-refactor/87-CONTEXT.md
+
+## Planned (post v1.10.11) -- UI/UX Pathways arc
+
+Source: `.planning/research/ui-ux-pathways/` (migrated 2026-04-18 from mindrianos-venture room, where they were filed in category violation). The arc turns the browser into a bidirectional control surface that DRIVES Claude Code, not just displays room state. Zero-token rendering because the browser reads filesystem + room.db directly.
+
+**Phase 89 candidate -- Skill Offer Engine** (see `skill-offer-engine.md`)
+Intent + Graph + MINTO triangulation for dynamic skill invocation. ~100 lines wired into UserPromptSubmit. The missing link between static skill activation and room intelligence. NOTE: handoff doc labels this Phase 88, but Phase 88 slot is already taken by reverse-salient-engine. Needs renumbering decision.
+
+**Phase 90 candidate -- Discord / Zulip bridge** (extends `byo-api-and-surfaces.md`)
+Multi-surface: Same localhost API surfaces the plugin to chat platforms where teams already work.
+
+**Phase 91 candidate -- Goose extension** (see `goose-extension-path.md`)
+MindrianOS MCP server plugs into Block's Goose as an extension. Goose provides the visual conversation shell, MindrianOS provides the methodology intelligence. ACP enables Claude Code as sub-provider for heavy lifting.
+
+**Supporting research (not phase-bound):**
+- `architecture-vision.md` -- full bidirectional control surface (MindrianOS Desktop)
+- `alternatives-considered.md` -- Quarto / Electron / Chrome ext / Tauri / PWA ranked; Node HTTP inside plugin wins
+- `lazygraph-chat-architecture.md` -- chat panel reading SQLite graph
+- `token-economics.md` -- why zero tokens, how it stays that way
+- `ttfv-reverse-salient.md` -- "verbal fails, live demos convert" -- the motivation
+
+**Conflict to resolve:** handoff-2026-04-17 calls Skill Offer Engine "Phase 88" but phases/88-reverse-salient-engine/ already exists with 7 plans. User must decide: renumber reverse-salient or assign Skill Offer Engine to 89.
 
 ## Progress
 
