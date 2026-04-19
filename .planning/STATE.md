@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.10.9
 milestone_name: -- Cross-Platform Parity
 status: executing
-stopped_at: "Completed 87-06-PLAN.md (indexArtifact transaction wrap: explicit BEGIN/COMMIT/ROLLBACK via node:sqlite prepared statements, not conn.transaction(fn) which is a better-sqlite3 API unavailable on DatabaseSync; _indexArtifactBody helper factored out for rebuildGraph reuse; 4 tests in index-artifact-transaction.test.cjs including testMidTransactionRollback with prove-regression fence; feynman 24/24; cascade-e2e baseline preserved exact-match). Wave 2 COMPLETE: 87-03 + 87-05 + 87-06 DONE. Next: Wave 3 (87-04 sync/async split + 87-07 Brain cache)."
-last_updated: "2026-04-19T19:02:29.229Z"
+stopped_at: "Completed 87-04-PLAN.md (sync/async split: lib/core/room-ops-sync.cjs + room-ops-async.cjs + room-ops-shared.cjs; lib/core/room-ops.cjs retained as deprecation shim emitting MOS_DEP_ROOM_OPS_LEGACY; MCP tool-router migrated to await async entry; CLI bin/mindrian-tools.cjs + scripts/render-viz migrated to explicit sync import; R-87-04-AUDIT caller audit across 7 dirs (scripts/ lib/ bin/ commands/ pipelines/ agents/ skills/) = 0 bare imports; key-set parity + AsyncFunction constructor assertion enforced by new lib/memory/sync-async-entry-points.test.cjs; feynman 25/25 (was 24); cascade-e2e baseline preserved exact). Wave 3 PARTIAL: 87-04 DONE. Next: 87-07 Brain session caching + LRU."
+last_updated: "2026-04-19T19:22:59.886Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 13
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 87 (security-hardening-cascade-refactor) — EXECUTING
-Plan: 9 of 13
+Plan: 10 of 13
 Status: Ready to execute
 Last activity: 2026-04-19
 
@@ -75,6 +75,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 87 P03 | 30min | 1 tasks | 2 files |
 | Phase 87-security-hardening-cascade-refactor P05 | 8min | 2 tasks | 3 files |
 | Phase 87 P06 | 14min | 2 tasks | 3 files |
+| Phase 87-security-hardening-cascade-refactor P04 | 8min | 2 tasks | 9 files |
 
 ### Decisions
 
@@ -135,6 +136,10 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 87-security-hardening-cascade-refactor]: Phase 87-06: node:sqlite DatabaseSync lacks conn.transaction(fn) (better-sqlite3 API only); use explicit BEGIN/COMMIT/ROLLBACK prepared statements; extract _indexArtifactBody helper so rebuildGraph can call insert body inside its own outer BEGIN without nesting
 - [Phase 87-security-hardening-cascade-refactor]: Phase 87-06: Rollback test injection point is prepare #3 (2nd INSERT), not prepare #2 (1st INSERT); throwing on prepare #2 would fire BEFORE any real write (nothing to rollback, test passes even without wrap); prepare #3 ensures at least 1 INSERT fired so countAfter - countBefore == 1 is the true regression signal
 - [Phase 87-security-hardening-cascade-refactor]: Phase 87-06: Pre-existing rebuildGraph (never exercised by cascade-e2e) referenced the same dead conn.transaction API; fixed in same commit as Rule 1 auto-fix to keep lazygraph-ops.cjs internally consistent; graph-ops.cjs + write-lock.cjs unchanged (87-02 atomic lock remains outer guard)
+- [Phase 87-04]: Two distinct entry points (room-ops-sync.cjs + room-ops-async.cjs) + pure-logic shared (room-ops-shared.cjs) eliminate the R4 env-branching footgun at the language level; require-time choice replaces runtime guard
+- [Phase 87-04]: Key-set parity enforced programmatically (Object.keys(sync).sort().join() === Object.keys(async).sort().join()) AND every async export is AsyncFunction (constructor.name check) -- future maintainer cannot drift signatures without breaking the test
+- [Phase 87-04]: Legacy lib/core/room-ops.cjs retained as thin re-export shim with one-time process.emitWarning (code MOS_DEP_ROOM_OPS_LEGACY) so accidental out-of-tree callers are surfaced but not broken; dedups per Node process automatically
+- [Phase 87-04]: resolveRoom moved to shared module (pure fs+JSON); async module wraps it in async fn so AsyncFunction constructor assertion is uniform across every exported name
 
 ### Pending Todos
 
@@ -150,6 +155,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T19:02:29.221Z
-Stopped at: Completed 87-06-PLAN.md (indexArtifact transaction wrap: explicit BEGIN/COMMIT/ROLLBACK via node:sqlite prepared statements, not conn.transaction(fn) which is a better-sqlite3 API unavailable on DatabaseSync; _indexArtifactBody helper factored out for rebuildGraph reuse; 4 tests in index-artifact-transaction.test.cjs including testMidTransactionRollback with prove-regression fence; feynman 24/24; cascade-e2e baseline preserved exact-match). Wave 2 COMPLETE: 87-03 + 87-05 + 87-06 DONE. Next: Wave 3 (87-04 sync/async split + 87-07 Brain cache).
+Last session: 2026-04-19T19:22:59.873Z
+Stopped at: Completed 87-04-PLAN.md (sync/async split: lib/core/room-ops-sync.cjs + room-ops-async.cjs + room-ops-shared.cjs; lib/core/room-ops.cjs retained as deprecation shim emitting MOS_DEP_ROOM_OPS_LEGACY; MCP tool-router migrated to await async entry; CLI bin/mindrian-tools.cjs + scripts/render-viz migrated to explicit sync import; R-87-04-AUDIT caller audit across 7 dirs (scripts/ lib/ bin/ commands/ pipelines/ agents/ skills/) = 0 bare imports; key-set parity + AsyncFunction constructor assertion enforced by new lib/memory/sync-async-entry-points.test.cjs; feynman 25/25 (was 24); cascade-e2e baseline preserved exact). Wave 3 PARTIAL: 87-04 DONE. Next: 87-07 Brain session caching + LRU.
 Resume file: None
