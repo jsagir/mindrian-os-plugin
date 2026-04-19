@@ -746,6 +746,34 @@ try {
   fi
 fi
 
+# ---------------------------------------------------------------------------
+# Phase 87-01a (SEC-04): ensure ROOM.md + MINTO.md pre-commit hook installed.
+# Self-healing: re-installs if missing or drifted. Worktree-aware via
+# `git rev-parse --git-path hooks/pre-commit` (R-87-01a-WIN). This defeats
+# the "--no-verify slipped through once and now the hook file is gone"
+# anti-pattern. On subsequent sessions the hook is always restored.
+# Non-fatal: any failure is swallowed so session-start never blocks startup.
+# ---------------------------------------------------------------------------
+if command -v git >/dev/null 2>&1; then
+  SETUP_HOOKS_REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "")
+  if [ -n "$SETUP_HOOKS_REPO_ROOT" ] && [ -x "$SETUP_HOOKS_REPO_ROOT/scripts/setup-hooks.sh" ]; then
+    GUARD_SRC="$SETUP_HOOKS_REPO_ROOT/scripts/hooks/pre-commit-room-minto-guard.sh"
+    # R-87-01a-WIN: use --git-path so worktrees resolve the correct hooks dir
+    HOOK_REL=$(git rev-parse --git-path hooks/pre-commit 2>/dev/null || echo "")
+    if [ -n "$HOOK_REL" ]; then
+      case "$HOOK_REL" in
+        /*) HOOK_DST="$HOOK_REL" ;;
+        *)  HOOK_DST="$SETUP_HOOKS_REPO_ROOT/$HOOK_REL" ;;
+      esac
+    else
+      HOOK_DST="$SETUP_HOOKS_REPO_ROOT/.git/hooks/pre-commit"
+    fi
+    if [ ! -f "$HOOK_DST" ] || ! cmp -s "$GUARD_SRC" "$HOOK_DST" 2>/dev/null; then
+      bash "$SETUP_HOOKS_REPO_ROOT/scripts/setup-hooks.sh" >/dev/null 2>&1 || true
+    fi
+  fi
+fi
+
 # Check for updates (async, non-blocking, max 3 second timeout)
 # Only check once per day - cache result
 UPDATE_CACHE="/tmp/mindrian-update-check"
