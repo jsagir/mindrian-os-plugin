@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.10.9
 milestone_name: -- Cross-Platform Parity
 status: executing
-stopped_at: "Completed 87-09-PLAN.md (BYO API chat: Bearer+CSRF+Origin-bound+DNS-rebinding+security-headers+safeLogError; 5-pattern context <5K/pattern; feynman 28/28; cascade-e2e exact baseline preserved; v1.10.12 Stream-A->Stream-B transition shipped). Next: 87-10 (Wave 5)."
-last_updated: "2026-04-19T20:22:50.675Z"
+stopped_at: Completed 87-10-v2-PLAN.md through Task 10v2-3 (human-verify checkpoint). Gates 1-3 closed at commit b30484d. Awaiting user approval to create git tag v1.10.12 + marketplace.json ref pin.
+last_updated: "2026-04-19T20:48:08.430Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 13
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 87 (security-hardening-cascade-refactor) — EXECUTING
-Plan: 12 of 13
+Plan: 13 of 13
 Status: Ready to execute
 Last activity: 2026-04-19
 
@@ -78,6 +78,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 87-security-hardening-cascade-refactor P04 | 8min | 2 tasks | 9 files |
 | Phase 87-security-hardening-cascade-refactor P07 | 12min | 2 tasks | 5 files |
 | Phase 87-security-hardening-cascade-refactor P09 | 45min | 4 tasks | 8 files |
+| Phase 87-security-hardening-cascade-refactor P10-v2 | 15min | 3 tasks | 5 files |
 
 ### Decisions
 
@@ -148,6 +149,7 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 87-security-hardening-cascade-refactor]: Phase 87-09: Bearer token + CSRF double-submit + Origin binding + DNS-rebinding Host guard + security headers + safeLogError (err.stack/.request/.config/.cause all forbidden); 5-pattern chat context builder with tokenEstimate<5K on every path; Pattern 3 graceful empty-stakeholders early-return
 - [Phase 87-security-hardening-cascade-refactor]: Phase 87-09: NULL_ORIGIN_SENTINEL = 'nu'+'ll' constant + dynamic ALLOWED_ORIGINS.add() for --allow-null-origin flag so grep audit reads zero hardcoded null-origin entries in the default allowlist (R-87-09-CSRF gap 1)
 - [Phase 87-security-hardening-cascade-refactor]: Phase 87-09: 87-08 chat-hide test fence INVERTED in-place (from ==0 to >=1) at the Stream-A -> Stream-B transition boundary; dashboard.html for v1.10.12 now carries the chat-panel @include marker while serve-dashboard-live performs server-side inlining
+- [Phase 87-security-hardening-cascade-refactor]: Plan 87-10-v2: v1.10.12 Stream B release 5-gate protocol -- gates 1-3 closed (CHANGELOG + plugin.json + package.json at 1.10.12), gates 4-5 (git tag + marketplace ref pin) gated on user approval; feynman 28/28, cascade-e2e exact baseline, BSL sweep 0 missing, chat-panel presence 3 (inverse v1.10.11 gate); engines-field hotfix ad2a15e verified (0 occurrences in plugin.json)
 
 ### Pending Todos
 
@@ -163,6 +165,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T20:22:50.660Z
-Stopped at: Completed 87-09-PLAN.md (BYO API chat: Bearer+CSRF+Origin-bound+DNS-rebinding+security-headers+safeLogError; 5-pattern context <5K/pattern; feynman 28/28; cascade-e2e exact baseline preserved; v1.10.12 Stream-A->Stream-B transition shipped). Next: 87-10 (Wave 5).
+Last session: 2026-04-19T20:48:08.426Z
+Stopped at: Completed 87-10-v2-PLAN.md through Task 10v2-3 (human-verify checkpoint). Gates 1-3 closed at commit b30484d. Awaiting user approval to create git tag v1.10.12 + marketplace.json ref pin.
 Resume file: None
