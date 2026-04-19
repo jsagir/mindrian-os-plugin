@@ -9,6 +9,158 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.10.11] - 2026-04-19
+
+Stream A closure of Phase 87 security-hardening-cascade-refactor. Investor-safe,
+demo-ready floor. Six plans shipped: cascade e2e acceptance-gate fixture (87-00),
+security trifecta (87-01), ROOM.md + MINTO.md pre-commit hook (87-01a), atomic
+write-lock (87-02), localhost live dashboard (87-08), plus this release-gate
+plan (87-10). Stream B (cascade refactor + BYO chat) follows in v1.10.12.
+
+### Added
+
+- **Cascade e2e acceptance-gate fixture** (plan 87-00). `test/fixtures/cascade-e2e/`
+  ships a hermetic seeded room (3 cross-linked artifacts across 3 sections) plus
+  a frozen baseline (`expected-edges.json`: INFORMS=3, CONTRADICTS=1, CONVERGES=0,
+  INVALIDATES=1) plus an integration test that asserts observed edge counts
+  against the baseline using `strictEqual` (no soft `>= 1` thresholds). This is
+  the acceptance gate for 87-03's cascade deduplication refactor in v1.10.12 --
+  if the refactor changes observable cascade behavior, the test exits 1 and
+  the refactor must be rolled back. Feynman runner now treats POSIX exit 77 as
+  SKIPPED (test-infra-broken) so env degradation cannot masquerade as regression.
+- **ROOM.md + MINTO.md git pre-commit hook** (SEC-04, plan 87-01a).
+  `scripts/setup-hooks.sh` installs a pre-commit guard enforcing CLAUDE.md
+  decision #15 (every Data Room directory must hold ROOM.md + MINTO.md) at
+  commit time. Scoped via `.room-root` sentinel so only Data Room subtrees
+  are enforced; plugin source commits pass unconditionally (R-C4 regression
+  fix). Worktree-safe install via `git rev-parse --git-path hooks/pre-commit`
+  (linked-worktree compatible). Windows `.cmd` companion bridges to git-bash
+  when available, falls back to a non-silent stderr skip message otherwise.
+  Symlink-safe walker (pwd -P + VISITED associative array) terminates on
+  cycle in one iteration. Session-start re-installs the hook every session,
+  defeating accidental `--no-verify` drift on subsequent sessions. Known
+  limitation: a single `--no-verify` bypass on one commit still slips through,
+  but session-start restores enforcement for all subsequent commits. Server-
+  side enforcement (GitHub Action at push time) is deliberately out of scope
+  for v1.10.11.
+- **`/mos:dashboard live` localhost dashboard** (DASH-01..06, plan 87-08).
+  Live knowledge-graph view at http://127.0.0.1:3131 via the NEW
+  `scripts/serve-dashboard-live` Node HTTP server (514 lines). Reads
+  room.db directly via `node:sqlite` for typed edges (INFORMS / CONTRADICTS
+  / CONVERGES / INVALIDATES), watches the room folder recursively with
+  fs.watch, and pushes Server-Sent Events to connected browsers on file
+  changes. Zero tokens for ongoing rendering. Clickable wikilinks and
+  graph nodes dispatch `mos:navigate` events. De Stijl palette from
+  `templates/shared.css`. Coexists with the legacy `scripts/serve-dashboard`
+  bash script (Python http.server on port 8420, one-shot static snapshot)
+  which continues to back the bare `/mos:dashboard` command untouched
+  (R-87-08-A coexistence lock). Binds 127.0.0.1 ONLY; `MOS_BIND_ALL=1`
+  aborts startup with exit 2. Port fallback 3131-3140 on EADDRINUSE.
+  Active room resolved via the canonical `scripts/resolve-room` resolver
+  (zero bare `.rooms/registry.json` reads). Measured: 302 ms startup,
+  594 ms SSE latency (file touch to event delivered).
+- **`platform.openBrowser(url)` helper** in `lib/core/platform.cjs` (plan 87-08)
+  with strict localhost-only regex guard
+  `^https?://(127\.0\.0\.1|localhost)(:\d+)?(/|$)`. Subdomain-trick URLs
+  (`http://localhost.evil.com/`) are rejected by the trailing `(/|$)`
+  constraint. Uses argv-array `child_process.spawn` only -- never
+  `exec` with template-string concatenation. Honors `MINDRIAN_OPEN_BROWSER_DISABLE`,
+  `MINDRIAN_TEST_MODE`, and `CI` env vars (runs the URL guard, skips the
+  spawn) so test suites never hijack the developer's browser.
+- **`/mos:dashboard` slash-command subcommands**: `live`, `stop`, `open`,
+  plus the bare legacy path (plan 87-08). Three-surface note included:
+  the live subcommand spawns a local Node process, which Claude Desktop
+  does not permit; Desktop users fall back to the bare command.
+
+### Fixed
+
+- **Cypher injection vulnerability in brain-client.cjs** (SEC-01, plan 87-01).
+  `sanitizeCypherInput()` with whitelist `/[a-zA-Z0-9 ._-]/` is now applied at
+  8 Cypher interpolation sites (smartSearch Neo4j fallback, enrichCausalEdges
+  section keywords + problemType, hatAwareRecommend safeProblemType + avoid
+  patterns, suggestValidationSteps problem + domain, getFrameworkChain
+  entryFramework). The legacy `.replace(/"/g, '\\"')` pattern only escaped
+  one metacharacter and was trivially bypassable via backtick, newline,
+  `${...}` expansion, or Cypher comment (`//`). Numeric interpolants
+  (`maxDepth`, `minConf`, `topK`) are now `Number()`-coerced and bounded
+  via `Math.max`/`Math.min` for defence-in-depth. Helpers exposed via
+  `module.exports._test` keep the public API surface unchanged.
+- **API key file permission check** (SEC-02, plan 87-01). `checkFilePermissions()`
+  gates both `getApiKey()` candidate paths (`process.cwd()/.env` and
+  `~/.mindrian.env`). Files with any group or world read bit set
+  (`mode & 0o077 != 0`) are rejected with a one-shot stderr warning
+  instructing `chmod 600`. 0600 and 0400 pass; 0644 and 0664 are rejected.
+  Linux/macOS only; Windows returns true with a one-shot stderr warning
+  (NTFS ACLs are outside POSIX mode semantics). **UPGRADE NOTE: Users with
+  permissive .env files at 0644 or 0664 must `chmod 600 ~/.mindrian.env`
+  OR export `MINDRIAN_BRAIN_KEY` as a shell env var** -- otherwise the key
+  stops auto-loading after upgrade. This is a safe regression: before the
+  patch, the key was readable by any user on a multi-tenant box.
+- **HSI compute timeout bumped 5000 ms -> 30000 ms** (SEC-03, plan 87-01).
+  New `HSI_TIMEOUT_MS = 30000` named constant in `intelligence-cascade.cjs`
+  replaces 12 magic-number sites (compute-hsi.py, detect-reverse-salients.py,
+  hsi-to-graph.cjs, classify-insight, check-hsi-deps, compute-state). Real
+  rooms with 50+ artifacts were aborting mid-run under the 5 s ceiling,
+  producing partial `.hsi-results.json` files and stale edges. The 2
+  intentional 15000 ms sites for `generate-presentation.cjs` (runCascade +
+  queueCascade) remain untouched.
+- **Write lock acquire is now atomic** (SEC-04 / CASCADE-04, plan 87-02).
+  `acquireLock` uses `fs.openSync(lockPath, 'wx')` which fails with
+  EEXIST if the file exists -- the canonical Node pattern for
+  create-if-not-exists without TOCTOU. Pre-patch `existsSync` +
+  `writeFileSync` sequence had a theoretical race that 87-06's
+  indexArtifact transaction in v1.10.12 would have amplified. All prior
+  paths preserved: staleness cleanup (age > STALE_THRESHOLD_MS), PID
+  liveness via `process.kill(pid, 0)`, corrupt-file cleanup, same-PID
+  re-acquire (retains `writeFileSync` per m11 rationale). Retry budget = 1;
+  second EEXIST throws a distinct `"SQLite write lock could not be acquired
+  after retry"` error so pathological churn is distinguishable from normal
+  contention. Proven by a 20-worker concurrency fence
+  (`lib/memory/write-lock-atomic.test.cjs`) wired into the Feynman runner.
+
+### Security
+
+- v1.10.11 is the investor-safe demo-ready floor: Cypher injection closed,
+  API key permissions enforced, HSI premature-abort eliminated, write-lock
+  TOCTOU race closed, ROOM.md + MINTO.md invariant enforced at commit time,
+  dashboard binds 127.0.0.1 only (MOS_BIND_ALL refused), openBrowser refuses
+  non-localhost URLs. Bearer-token BYO chat is deferred to v1.10.12.
+- Feynman suite grew 17/17 -> 22/22 across Stream A: + cascade-e2e (87-00),
+  + write-lock-atomic (87-02), + security-trifecta (87-01), + room-minto-hook
+  (87-01a), + dashboard-server (87-08).
+- Zero new runtime dependencies. BSL 1.1 headers on every new file in
+  `scripts/`, `lib/`, `commands/`, `templates/`, `test/fixtures/`. BSL
+  sweep is dynamic (enumerated via `git diff --name-only --diff-filter=A
+  v1.10.10..HEAD`) so late-added files cannot slip through
+  (R-87-10-BSL-SWEEP).
+
+### Credits
+
+- External code review 2026-04-16 surfaced the 1 P0 + 8 P1 findings that
+  Stream A addresses. 1 flagged P0 (lazygraph SQL injection) was validated
+  as a false positive (parameterized queries) and no action was taken on it.
+- Adversarial cross-AI review 2026-04-19 contributed the R1-R7 audit risks
+  that reshaped the phase plan: the milestone split (v1.10.11 investor-safe
+  vs v1.10.12 maintainability), the .room-root scoping primitive for the
+  pre-commit hook, the e2e fixture as a mandatory acceptance gate for the
+  cascade refactor, the two-entry-point async/sync split design, and the
+  Bearer-token BYO chat design (v1.10.12).
+
+### Upgrade instructions
+
+Two-command upgrade path:
+
+```bash
+/plugin marketplace update
+claude plugin update mos@mindrian-marketplace
+```
+
+If your `.env` or `~/.mindrian.env` is at mode 0644 (common default on
+many systems), run `chmod 600 ~/.mindrian.env` first, or export
+`MINDRIAN_BRAIN_KEY` directly in your shell. Otherwise `brain_query`
+and other Cypher-dependent paths will degrade to empty-baseline mode
+after upgrade (with a one-shot stderr warning explaining the cause).
+
 ## [1.10.10] - 2026-04-15
 
 Same-day hotfix-of-the-hotfix following v1.10.9. Single bug, single fix.
