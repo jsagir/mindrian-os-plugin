@@ -45,7 +45,8 @@ switch (subcmd) {
     // Read room sections
     let sections = [];
     try {
-      const roomOps = require(path.join('${PLUGIN_ROOT}', 'lib', 'core', 'room-ops.cjs'));
+      // Phase 87-04: CLI bash shim uses the sync entry point explicitly.
+      const roomOps = require(path.join('${PLUGIN_ROOT}', 'lib', 'core', 'room-ops-sync.cjs'));
       const sectionData = roomOps.listSections(roomDir);
       if (sectionData && sectionData.sections) {
         // Read STATE.md for venture stage

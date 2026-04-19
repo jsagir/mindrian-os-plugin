@@ -11,7 +11,9 @@
 const { execFileSync } = require('child_process');
 const path = require('path');
 const { output, error } = require('../lib/core/index.cjs');
-const roomOps = require('../lib/core/room-ops.cjs');
+// Phase 87-04: CLI path uses the sync entry point directly (self-documenting).
+// The legacy './room-ops.cjs' shim still works but emits a DeprecationWarning.
+const roomOps = require('../lib/core/room-ops-sync.cjs');
 const stateOps = require('../lib/core/state-ops.cjs');
 const meetingOps = require('../lib/core/meeting-ops.cjs');
 const graphOps = require('../lib/core/graph-ops.cjs');
