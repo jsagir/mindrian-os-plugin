@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.10.9
 milestone_name: -- Cross-Platform Parity
 status: executing
-stopped_at: "Completed 87-03-PLAN.md (cascade deduplication: _runCascadeSteps shared helper; 854 -> 653 lines; 87-00 fixture exact-match; feynman 22/22). Wave 2 progressing: 87-03 DONE. Next: 87-05 MCP input validation, 87-06 indexArtifact transaction, then Wave 3 (87-04 sync/async split + 87-07 Brain cache)."
-last_updated: "2026-04-19T18:23:24.901Z"
+stopped_at: "Completed 87-05-PLAN.md (MCP input validation: SECTION_RE + sectionOptional + safeResolveSection + opportunitySchema; 5 section sites patched; 35 new test assertions; feynman 23/23). Wave 2 progressing: 87-03 + 87-05 DONE. Next: 87-06 indexArtifact transaction, then Wave 3 (87-04 sync/async split + 87-07 Brain cache)."
+last_updated: "2026-04-19T18:39:48.590Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 13
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 87 (security-hardening-cascade-refactor) — EXECUTING
-Plan: 7 of 13
+Plan: 8 of 13
 Status: Ready to execute
 Last activity: 2026-04-19
 
@@ -73,6 +73,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 87-security-hardening-cascade-refactor P01a | 19min | 3 tasks | 6 files |
 | Phase 87-security-hardening-cascade-refactor P08 | 43min | 3 tasks | 6 files |
 | Phase 87 P03 | 30min | 1 tasks | 2 files |
+| Phase 87-security-hardening-cascade-refactor P05 | 8min | 2 tasks | 3 files |
 
 ### Decisions
 
@@ -127,6 +128,9 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 87-security-hardening-cascade-refactor]: Phase 87-08: v1.10.11 dashboard ships WITHOUT chat panel; grep -c 'chat-panel|mos-chat-container|mos-chat-form|mos-api-key' dashboard.html == 0; chat arrives in 87-09.
 - [Phase 87-03]: _runCascadeSteps private helper: runCascade + queueCascade delegate, lastHsiByRoom owned by callers (helper returns hsiRanAt), frameworkHint option preserves queueCascade 'cascade-batch' provenance
 - [Phase 87-03]: Cascade dedup: 854 -> 653 lines (-201, -23.5%); 87-00 cascade-e2e baseline stays exact-match {INFORMS:3, CONTRADICTS:1, CONVERGES:0, INVALIDATES:1}; security-trifecta structural assertions migrated from 12 -> 6 HSI_TIMEOUT_MS sites (semantic invariants preserved)
+- [Phase 87-security-hardening-cascade-refactor]: Phase 87-05: Shared sectionOptional Zod schema replaces 5 inline z.string().optional() sites in tool-router.cjs; single definition eliminates drift
+- [Phase 87-security-hardening-cascade-refactor]: Phase 87-05: safeResolveSection() is defense-in-depth (Zod regex at MCP edge + path.resolve startsWith at fs I/O boundary); either layer alone blocks traversal, both must pass
+- [Phase 87-security-hardening-cascade-refactor]: Phase 87-05: opportunitySchema.passthrough() enforces title+bounds while preserving opportunity-ops dynamic field reads; 4 non-section optional string params at 755/785/836/873 explicitly out of scope
 
 ### Pending Todos
 
@@ -142,6 +146,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-19T18:23:20.898Z
-Stopped at: Completed 87-03-PLAN.md (cascade deduplication: _runCascadeSteps shared helper; 854 -> 653 lines; 87-00 fixture exact-match; feynman 22/22). Wave 2 progressing: 87-03 DONE. Next: 87-05 MCP input validation, 87-06 indexArtifact transaction, then Wave 3 (87-04 sync/async split + 87-07 Brain cache).
+Last session: 2026-04-19T18:39:48.580Z
+Stopped at: Completed 87-05-PLAN.md (MCP input validation: SECTION_RE + sectionOptional + safeResolveSection + opportunitySchema; 5 section sites patched; 35 new test assertions; feynman 23/23). Wave 2 progressing: 87-03 + 87-05 DONE. Next: 87-06 indexArtifact transaction, then Wave 3 (87-04 sync/async split + 87-07 Brain cache).
 Resume file: None
