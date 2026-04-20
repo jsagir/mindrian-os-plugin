@@ -18,24 +18,92 @@ Author: Jonathan Sagir with Claude-as-Larry
 - The user is not a "founder," "researcher," or "operator" in the abstract. The user is a person walking through a wicked problem (Rittel and Webber 1973).
 - Every feature is judged by whether it reduces time between insight and validated decision for that specific navigator in that specific stage of their journey.
 - The room is the navigator's working memory made legible. The graph is their nervous system.
-- Larry is the voice that walks beside them. Not above them, not instead of them.
+- Larry is the pedagogical guide who walks beside the navigator. Not above them, not instead of them. Larry operates with Brain (Full Loop) or without Brain (Local Only). The pedagogy is intrinsic to Larry, not dependent on Brain availability. When the Brain is unreachable, Larry still teaches from local context, local graph, and Tier 0 methodology fallbacks. When the Brain is reachable, Larry's teaching is enriched but never replaced.
 
 ---
 
-## Part 2 - Persona as Network (Role Blend)
+## Part 2 - The Team Around the Navigator
 
-Roles are not single-choice. A user is a blend of roles weighted by context. The canonical role set:
+The user is the wicked navigator. Mindrian spawns a context-built team around them, generated per-session from two engines and armed with four affordances. The team never impersonates the navigator. The team argues, proposes, disagrees, evidences. The navigator decides.
 
-- Founder (commercial thesis, runway, market)
-- Researcher (hypothesis, evidence, novelty)
-- Operator (execution, process, ship)
-- Investor (portfolio, thesis fit, exit)
-- Mentor (pattern matching, guidance, pedagogy)
-- Domain Expert (field-specific depth)
+### Engine 1 - Domain Exploration
 
-A blend is the weighted tuple over these roles (e.g. Founder 0.6 + Researcher 0.4). Blends are inferred, not declared - the room's artifacts, the meetings filed, and the frameworks the user reaches for are stronger signal than any self-label.
+Five decomposition lenses: Disciplinary, Stakeholder, System, Temporal, Scale.
 
-JTBD note: a user's Job-To-Be-Done shifts with blend. A Founder-heavy blend pulls for commercial framing; a Researcher-heavy blend pulls for evidence framing. Larry modulates accordingly.
+Output: Primary domains -> subdomains -> focus areas. Each node carries supporting evidence, dissenting evidence, emerging trends. Cross-domain convergence, synergy, and conflict are mapped.
+
+### Engine 2 - BONO Orchestration
+
+Classifies the problem on two axes: definition clarity (UDP / IDP / WDP) and system complexity (Simple / Complex / Wicked). Picks the hat sequence from four canonical patterns:
+
+- Innovation (UDP-Simple/Complex): Blue -> White -> Red -> Green -> Yellow -> Black -> Blue
+- Strategic (IDP/WDP-Complex/Wicked): Blue -> White -> Black -> Yellow -> Green -> Red -> Blue
+- Crisis (any-Wicked): Blue -> Red -> White -> Black -> Yellow -> Green -> Blue
+- Product (iterative): Blue -> Green -> Yellow -> Black -> Blue (loops)
+
+Instantiates one team member per hat in the selected sequence.
+
+### Team member identity
+
+  Hat        de Bono cognitive stance (White / Red / Black / Yellow / Green / Blue).
+  Name       main domain (from Engine 1).
+  Surname    sub-domain specialization (from Engine 1).
+  Archetype  optional fallback tag when decomposition is thin. One of seven SME lenses (Founder / Researcher / Operator / Investor / Mentor / Domain Expert / Student).
+
+Example (CAR-T biotech, IDP-Wicked, Strategic sequence):
+
+  Blue    Dr. Orchestrator Session
+  White   Dr. Oncology Immunotherapy
+  Black   Dr. Regulatory IND
+  Yellow  Dr. Finance BioPharma
+  Green   Dr. Operations ClinicalTrials
+  Red     Dr. Strategic Moat
+  Blue    Dr. Orchestrator Synthesis
+
+### Team affordances (all scoped by Part 8)
+
+  BRAIN QUERY       Mid-thought methodology lookups. Stateless, no user data egress. Any hat can query the teaching graph during its turn.
+
+  SUB-AGENT SPAWN   Delegate deep-dive work to specialized agents (research, opportunity-scanner, persona-analyst, investor, grading). Sub-agent inherits hat context, returns structured finding.
+
+  OPPORTUNITY BANK  Always ambient. Three interactions:
+                    - REACT    respond to a banked opportunity in current context.
+                    - REFLECT  find patterns across multiple banked items.
+                    - ADD      contribute a new opportunity with HSI score and domain tags.
+                    All bank operations are local. Never egresses per Part 8.
+
+  TOOL ACCESS       Three access classes. Every team member has all three, scoped by hat and Part 8:
+
+                    - LOCAL GRAPH   Read and navigate the room's knowledge graph. SQL and Cypher queries, multi-hop traversals, cascade tracing, cross-relationship pattern matching. Every team member is expected to walk the graph before speaking.
+
+                    - REMOTE BRAIN  Call, read, and use Brain intelligence. Methodology queries, framework chaining rules, teaching patterns calibrated from the curriculum. Stateless per Part 8. Queries carry only generic handles (framework names, phase identifiers, problem types), never user content.
+
+                    - EXTERNAL WEB  Hat-scoped. White: Tavily + arxiv for data and research. Green: patents + arxiv + deep-research for innovation. Black: failure-case and risk searches. Yellow: success-case and benefit searches. Red: no external tool (intuition only). Blue: synthesis across the other hats' returns.
+
+### Operating modes
+
+  Serial    Hat sequence runs in order. Chain handoffs per BONO pattern.
+  Parallel  All hats speak simultaneously on the same prompt.
+
+### Output flow
+
+Team output flows into the next Decision Gate's tri-context panels (LOCAL + BRAIN + SIGNAL). The navigator decides APPROVE / REJECT with reason / DEFER. Approved opportunities cascade to the Bank. Every decision becomes a typed graph edge in the user's local graph.
+
+### The 9-role taxonomy
+
+Used as archetype tags (for team members) AND as navigator regulatory types (for Part 8 protections):
+
+  Founder / P3 Entrepreneur           trade secrets, strategic IP
+  Researcher / P2                     pre-publication priority
+  Researcher.IND / P2.IND             HIPAA, FDA 21 CFR Part 11, IRB
+  Founder.grant / P.grant             attorney-client privilege
+  Investor / P1 Portfolio Evaluator   LPA deal-flow confidentiality
+  Operator                            (no added regulatory layer)
+  Mentor                              (no added regulatory layer)
+  Domain Expert                       (no added regulatory layer)
+  Student / S                         FERPA
+
+Citations: de Bono 1985 (Six Thinking Hats); Berger 2014 (A More Beautiful Question); Ulwick 2016 (Jobs-to-be-Done); Christensen 2016 (Competing Against Luck); Adizes 1988 (Corporate Lifecycles, PAEI); Heifetz and Linsky 2002 (Adaptive Leadership); Collins 2001 (First Who Then What); Tuckman 1965 (team stages).
 
 ### Part 2a - The Hero's Arc (Journey Stage)
 
@@ -133,6 +201,29 @@ This means a canonical breach is any code path that writes user-specific bytes t
 Allowed Brain queries carry only generic framework handles and phase identifiers. "What chains from SWOT to Porter Five Forces at phase 2?" is allowed. "Here is Lawrence's financial model - what does the Brain say?" is a breach.
 
 Any feature that is ambiguous on this boundary goes through separate legal review - not a flag on this one.
+
+### Personas this architecture protects
+
+  P1 Portfolio Evaluator / Investor   LPA deal-flow confidentiality
+  P2 Researcher                       pre-publication priority
+  P2.IND Translational                HIPAA, FDA 21 CFR Part 11, IRB
+  P3 Entrepreneur / Founder           trade secrets, strategic IP
+  P.grant Grant-Seeker                attorney-client privilege
+  S Student                           FERPA
+
+For all of them, this architecture is not a feature. It is the precondition for using Mindrian at all.
+
+### PR gate (vendor-neutral enforcement)
+
+Every PR touching mcp-server-brain/, lib/core/brain-*, or any MCP tool that queries the Brain must pass the brain-boundary-scan check and receive explicit review from a Canon Custodian before merge.
+
+The scan answers a single question: "Does this PR add any endpoint, parameter, log line, or side-channel that causes user data to reach the Brain?" If yes, the PR is blocked pending architectural and legal review. If the author is unsure, the default answer is yes, block.
+
+The scan, the required check, and the review chain are enforced at the repository layer, not the policy layer. Tool selection (GitHub required checks, CODEOWNERS, stacked-PR enforcement, etc.) is an implementation detail documented separately.
+
+### Violations are bugs
+
+"Just this small exception" is the exact thought that breeds every privacy breach. The answer is no. The boundary is not negotiable. Cross-user intelligence, if ever built, is a separate product with a separate installer and a separate legal review. Not a flag on this one.
 ```
 
 ---
@@ -169,19 +260,80 @@ The canon adds the navigation axis (role-blend x journey-stage) and the security
 
 ## Appendix D - Canonization Provenance
 
-This canon was surfaced during a working session on 2026-04-20 on branch `ui/destijl-rebuild`. The 8 principles emerged in the following sequence:
+This canon was forged in conversation between Jonathan Sagir (founder) and Claude-as-Larry on 2026-04-20 (branch `ui/destijl-rebuild`). It evolved through a sequence of user corrections that sharpened the framing at each step:
 
-1. Wicked navigator framing landed first - the user is a person walking a wicked problem, not an abstract "founder."
-2. Persona-as-network (role blend) surfaced when a single-role model failed to describe real users.
-3. Hero's arc (Campbell's 12-stage monomyth) was added as the second axis - persona = role-blend x journey-stage.
-4. Brain query returned 10 codifiable methodologies, which clarified what the Brain is (methodology repository) and is not (user data store).
-5. The tri-context Decision Gate was recognized as the universal UX primitive for every material choice in the system.
-6. "Every choice is graph data" was formalized - approve, reject, defer each produce typed edges; "why not" is more valuable than "yes."
-7. The product-as-venture (dog-fooding) mandate was made explicit - the plugin must honor its own canon.
-8. The graph boundary (Part 8) was locked as a security constitution - LOCAL never flows to BRAIN; a canonical breach is a constitutional violation, not a privacy preference.
+1. **Drift-detection need surfaced.** Phases 80-91 showed drift between stated intent and delivered artifacts. Brain query returned 10 codifiable methodologies; top 3 recommended were JTBD-Trace, MECE-Coverage, Cynefin-Domain-Drift.
 
-Conversation transcript reference: session 2026-04-20, branch `ui/destijl-rebuild`.
+2. **User correction 1: "Personas are network, not tree."** Corrected the model from hierarchical taxonomy to network of roles. Established persona-blend as weighted tuple inferred from context.
+
+3. **User correction 2: "User is the wicked NAVIGATOR, not the wicked problem. Mindrian = compass + map."** Corrected the subject of wickedness. Problem space is wicked (Rittel and Webber). Venture is nested (Simon). User navigates both.
+
+4. **User correction 3: Campbell's monomyth as categorization axis.** Added journey-stage as second dimension. Persona = role-blend x journey-stage.
+
+5. **User correction 4: "Brain = repo of strategic thinking tools. Data is local. Local does the thinking."** Architectural invariant. Brain is methodology only, never data. Security became constitutional, not policy.
+
+6. **User correction 5: Personas reframed as AI TEAM around navigator, not navigator's identity.** Each team member wears a de Bono hat plus SME lens, built from room context. Team complements the navigator regardless of the user's own role.
+
+7. **User correction 6: JTBD-oriented chaining with beautiful questions per role.** Brain validated Six Thinking Hats, Beautiful Question Framework (Berger), Adaptive Leadership, First Who Then What, Tuckman, and Red Teaming as graph-backed anchors.
+
+8. **User correction 7: The team-assembly pipeline is two engines plus four affordances.** Engine 1 decomposes topic (five lenses). Engine 2 classifies problem (UDP/IDP/WDP x Simple/Complex/Wicked) and runs BONO hat sequences. Team members have BRAIN QUERY, SUB-AGENT SPAWN, OPPORTUNITY BANK (REACT/REFLECT/ADD), and TOOL ACCESS affordances.
+
+9. **User correction 8: Part 8 must carry persona protection table + PR gate + "violations are bugs" paragraph.** Amendment commit added these after initial canon drift was detected and corrected, using the canon's own mechanism on itself.
+
+10. **User correction 9: "Larry with or without Brain is the pedagogical guide."** Larry's pedagogy is intrinsic, not dependent on Brain availability. Teaching persists in Local Only mode.
+
+Conversation transcript reference: session 2026-04-20, branch `ui/destijl-rebuild`. First canon draft shipped at commit 528abdd; cross-references at b7d95bd; amendment at this commit.
 
 ---
 
-_Mindrian Canon v1.0 - MindrianOS Plugin_
+## Appendix E - Beautiful Questions + Team Composition Rules + Handoff Triggers
+
+### Beautiful questions (per SME archetype, Berger 2014 framework)
+
+Each archetype opens with one question when instantiated as a team member:
+
+  Founder        What if we are solving the wrong problem?
+  Researcher     Why do we believe this is true?
+  Operator       How would we actually ship this Monday?
+  Investor       What has to be true for this to return 10x?
+  Mentor         What did you learn that surprised you?
+  Domain Expert  Where does this break against physical reality?
+  Student        What would I ask if I did not already have an answer?
+
+### Team composition rules (Brain-validated)
+
+  R1  Problem discovery / Pre-Opportunity stage
+      -> Researcher/White + Student/Green + Mentor/Red + Founder/Yellow
+
+  R2  Ill-Defined to Well-Defined transition
+      -> Founder/Yellow + Investor/Black + Domain Expert/White + Operator/Blue
+
+  R3  Thesis build / Investment stage
+      -> Investor/Black + Researcher/White + Operator/Blue + Mentor/Red
+
+  R4  Wicked problem (8-10 wickedness score)
+      -> Founder/Yellow + Investor/Black + Researcher/White + Student/Green + Mentor/Blue
+
+  R5  Grant or translational track (P.grant, P2.IND)
+      -> Researcher/White + Domain Expert/Black + Operator/Blue
+
+  R6  Stuck or regression detected
+      -> Mentor/Red + Student/Green + Devil's Advocate (Red Team)/Black
+
+### Handoff triggers (chain mechanics)
+
+  1. Risk surface identified     Yellow Hat Founder -> Black Hat Investor
+  2. Evidence thin               Any hat -> White Hat Researcher
+  3. Plan without owner          Green Hat Student -> Blue Hat Operator
+  4. Navigator stuck / circular  Current hat -> Red Hat Mentor
+  5. Jargon density high         Any hat -> Green Hat Student
+
+Larry surfaces each handoff as a single Decision Gate line:
+
+  "[Incoming member] is ready. Accept, reshape, or stay where we are?"
+
+The navigator always decides.
+
+---
+
+_Mindrian Canon v1.1 - MindrianOS Plugin_
