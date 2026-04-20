@@ -59,6 +59,125 @@ Action + source at top. Changes: section + `[before -> after]` + description. Ne
 
 **Methodology commands** use no shape for conversational output. Filing confirmation uses Shape E.
 
+### Shape F: Selector Block (AskUserQuestion family)
+
+Shape F is the interactive selector family. It is the ruling-system implementation of the tri-context Decision Gate (see `docs/MINDRIAN-CANON.md` Part 3). Every command with a genuine fork renders its choice through one of five F sub-shapes. No command invents a bespoke selector.
+
+All five sub-shapes share a common envelope:
+- Header = Zone 1 header + decision-gate marker (`filled-square`).
+- Three-context strip below header: LOCAL / BRAIN / SIGNAL (`down-triangle` per context).
+- Prompt line (`right-triangle-filled`) asks the actual question.
+- Options list uses keyboard shortcuts identical across sub-shapes: up-arrow / down-arrow (or J / K) to navigate, Enter to select, `?` to open inspect panel, Esc to cancel.
+- Free-Text slot is ALWAYS the last option. The navigator can always escape the vocabulary.
+- RECOMMENDED marker appears on at most one option, only when Brain confidence >= 0.7 (Phase 88.2 invariant). In Mode B (Local Only), no option is marked.
+
+The ten canonical verbs (from canon Part 3) are: Run Methodology / Reformulate / Spawn Sub-Agent / Navigate Graph / Devil's Advocate / Scenario Plan / Synthesize / Bank Opportunity / Defer / Free-Text. Each sub-shape below draws from this vocabulary.
+
+#### Shape F.1 - Next Move
+
+Purpose: Default selector after any discuss chunk. The most-used shape.
+
+When to use: End of team discussion, end of methodology session, any insight checkpoint where the navigator must pick the next verb.
+
+Header format:
+```
+[filled-square] [CONTEXT] - NEXT MOVE             - decision gate
+[down-triangle] LOCAL   / BRAIN   / SIGNAL
+[right-triangle-filled] Choose next move:
+```
+
+Options: 3-5 drawn from the canonical ten verbs. Free-Text is always the last option.
+
+Verb constraints: Any of the ten canonical verbs is permitted. Typical slate = Run Methodology / Navigate Graph / Devil's Advocate / Bank Opportunity / Free-Text.
+
+Keyboard: up-arrow / down-arrow (or J / K) to navigate, Enter to select, `?` to inspect, Esc to cancel.
+
+State-update hook: append to STATE.md Decisions section with timestamp + chosen verb + context snapshot. A typed edge is added to the local graph: (navigator) -[CHOSE {verb}]-> (current-artifact).
+
+#### Shape F.2 - Path Control
+
+Purpose: When the navigator is choosing structure, not content. Plan / Replan variants. Ties to Claude Code Plan Mode.
+
+When to use: Entering a methodology chain, transitioning between pipeline stages, user signals they want to step back and re-plan instead of continuing tactical work.
+
+Header format:
+```
+[filled-square] [CONTEXT] - PATH CONTROL          - decision gate
+[down-triangle] LOCAL   / BRAIN   / SIGNAL
+[right-triangle-filled] Choose path:
+```
+
+Options: 3-5. Free-Text is always the last option.
+
+Verb constraints: Drawn from Run Methodology / Reformulate / Scenario Plan / Defer / Free-Text. Path Control does not typically surface Navigate Graph or Bank Opportunity (those are tactical, not structural).
+
+Keyboard: up-arrow / down-arrow (or J / K) to navigate, Enter to select, `?` to inspect, Esc to cancel.
+
+State-update hook: update STATE.md Current Position.Plan field with the chosen plan name. A typed edge is added: (navigator) -[CHOSE_PATH {plan}]-> (phase-node).
+
+#### Shape F.3 - Rabbit-Hole Depth
+
+Purpose: Before deep-diving. Sets how far the navigator wants to chase a branch.
+
+When to use: User has chosen to explore a specific topic, artifact, or contradiction. Shape F.3 gates how much energy to spend before returning.
+
+Header format:
+```
+[filled-square] [CONTEXT] - DEPTH                 - decision gate
+[down-triangle] LOCAL   / BRAIN   / SIGNAL
+[right-triangle-filled] How deep?
+```
+
+Options: exactly 5 (fixed vocabulary, NOT drawn from the ten verbs): Shallow / Medium / Deep / Extreme / Back. Free-Text is not offered in F.3 - depth is a closed axis. Back returns to the previous shape.
+
+Verb constraints: F.3 is the one sub-shape whose option set is NOT the canonical verb vocabulary. It is a depth scalar. The verb that follows F.3 is chosen by the calling command.
+
+Keyboard: up-arrow / down-arrow (or J / K) to navigate, Enter to select, `?` to inspect, Esc to cancel.
+
+State-update hook: a TodoWrite row is created with a depth tag (`depth:shallow`, `depth:medium`, `depth:deep`, `depth:extreme`). The row owns the subsequent exploration work. No STATE.md Decisions entry until the exploration completes.
+
+#### Shape F.4 - Insight Extraction
+
+Purpose: When a branch has enough material. Close-out selector for a discuss chunk.
+
+When to use: The navigator has been exploring a topic and the material is rich enough to harvest. F.4 decides what artifact (if any) to produce.
+
+Header format:
+```
+[filled-square] [CONTEXT] - INSIGHTS              - decision gate
+[down-triangle] LOCAL   / BRAIN   / SIGNAL
+[right-triangle-filled] Extract what?
+```
+
+Options: exactly 5 (fixed vocabulary): Key insights / + contradictions / + actions / Create artifact draft / Back. Free-Text is not offered in F.4 - extraction scope is a closed ladder. Back returns to the previous shape.
+
+Verb constraints: F.4 wraps the canonical verb Synthesize. Options are progressive scopes of what the Synthesize verb will produce. Create artifact draft is the handoff verb into Shape E (Action Report) downstream.
+
+Keyboard: up-arrow / down-arrow (or J / K) to navigate, Enter to select, `?` to inspect, Esc to cancel.
+
+State-update hook: append a synthesis note to STATE.md Accumulated Context. If "Create artifact draft" is selected, additionally create a TodoWrite row for drafting. A typed edge is added: (navigator) -[SYNTHESIZED {scope}]-> (discuss-chunk).
+
+#### Shape F.5 - Branch Resolution
+
+Purpose: When multiple paths exist. The navigator is returning from parallel exploration and must decide how branches converge.
+
+When to use: User has explored two or more branches (via Scenario Plan, Compare Ventures, or manual fork). F.5 decides whether to continue one, merge them, compare them formally, park one for later, or drop one.
+
+Header format:
+```
+[filled-square] [CONTEXT] - BRANCH                - decision gate
+[down-triangle] LOCAL   / BRAIN   / SIGNAL
+[right-triangle-filled] Resolve branch:
+```
+
+Options: 3-5 drawn from: Continue / Merge / Compare / Park / Drop. Free-Text is always the last option. Typical slate = Continue / Merge / Compare / Park / Free-Text.
+
+Verb constraints: F.5 is specialized to branch-resolution semantics. Continue maps to Run Methodology on the chosen branch. Merge maps to Synthesize across branches. Compare maps to Scenario Plan in compare mode. Park maps to Defer. Drop is the terminal Reject-with-reason path.
+
+Keyboard: up-arrow / down-arrow (or J / K) to navigate, Enter to select, `?` to inspect, Esc to cancel.
+
+State-update hook: append to STATE.md Decisions section naming the resolved branch and the resolution verb. A typed edge is added: (branch-root) -[RESOLVED {verb}]-> (target). Parked branches additionally create a milestone-audit TodoWrite row.
+
 ## 3. Symbol Vocabulary
 
 12 glyphs. One meaning each. No overloading.
