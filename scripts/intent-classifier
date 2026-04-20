@@ -7,6 +7,100 @@
 # as scripts/write-scope-check from 83-06.
 #
 # Passes stdin through unchanged. Propagates exit code.
+#
+# ---------------------------------------------------------------------------
+# Phase 88-05: background regen runner ("lazy commit" for MINTO regen).
+#
+# On every UserPromptSubmit the debouncer drains queue items older than 30s,
+# appends them to .mindrian/pending-tier1-regen.json (atomic tmp+rename), and
+# spawns tier-0 regens in the BACKGROUND via
+#   node scripts/vault-section-minto-generator.cjs --write <roomDir> --section <name>
+# (no --narrative flag = tier-0 fallback path from Phase 81).
+#
+# Implementation detail: the drain + pending-append + generator-spawn are
+# all consolidated into ONE node invocation to amortize cold-start cost.
+# Spawning 20 bash+node subshells would blow the 2000ms UserPromptSubmit
+# timeout; a single node process forks the regens via child_process.spawn
+# with detached + unref for true fire-and-forget, and returns in ~100-300ms
+# even under a 20-entry burst.
+#
+# After the drain block runs, stdin is still intact for the node classifier
+# (bash `exec` below replaces the shell process; the classifier consumes
+# stdin as before). The drain block does NOT read from the bash wrapper's
+# stdin.
+#
+# Every call is wrapped in `|| true` + `2>/dev/null` so a broken dependency
+# can never break the user-facing prompt-submit path (soft-fail contract).
+#
+# Debouncer CLI: node <script>/minto-debouncer.cjs drain <roomDir> --older-than=30000 --timeout=500
+# ---------------------------------------------------------------------------
 set -eu
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# --- Phase 88-05 drain block (fires BEFORE exec to preserve stdin) ---------
+{
+  ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" 2>/dev/null) || ROOM_DIR=""
+  if [ -n "$ROOM_DIR" ] && [ -d "$ROOM_DIR" ] && [ -d "$ROOM_DIR/.mindrian" ]; then
+    DEBOUNCER_SCRIPT="${SCRIPT_DIR}/minto-debouncer.cjs"
+    GEN_SCRIPT="${SCRIPT_DIR}/vault-section-minto-generator.cjs"
+    # All-in-one: drain via debouncer API, atomically append drained
+    # entries to pending-tier1-regen.json, spawn tier-0 regens in the
+    # background via child_process.spawn (detached+unref). Exits 0 on
+    # any internal error so the hook never surfaces a failure.
+    MOS_ROOM_DIR="$ROOM_DIR" \
+    MOS_DEBOUNCER_SCRIPT="$DEBOUNCER_SCRIPT" \
+    MOS_GEN_SCRIPT="$GEN_SCRIPT" \
+    node -e '
+      (function main() {
+        var fs = require("fs");
+        var path = require("path");
+        var cp = require("child_process");
+        var roomDir = process.env.MOS_ROOM_DIR;
+        if (!roomDir) return;
+        var debouncerScript = process.env.MOS_DEBOUNCER_SCRIPT;
+        var genScript = process.env.MOS_GEN_SCRIPT;
+        // drain via programmatic API (avoids a cold-node fork)
+        var drained = [];
+        try {
+          var debouncer = require(debouncerScript);
+          drained = debouncer.drain(roomDir, { timeoutMs: 500, olderThanMs: 30000 });
+        } catch (_) { /* minto-debouncer.cjs drain best-effort */ return; }
+        if (!Array.isArray(drained) || drained.length === 0) return;
+        // Atomic append to pending-tier1-regen.json (tmp + rename).
+        try {
+          var p = path.join(roomDir, ".mindrian", "pending-tier1-regen.json");
+          var pending = { version: 1, pending: [] };
+          try {
+            var raw = fs.readFileSync(p, "utf8");
+            var parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.pending)) pending = parsed;
+          } catch (_) { /* first write */ }
+          pending.pending = pending.pending.concat(drained);
+          var tmp = p + ".tmp." + process.pid;
+          fs.writeFileSync(tmp, JSON.stringify(pending, null, 2));
+          fs.renameSync(tmp, p);
+        } catch (_) { /* pending-tier1-regen write best-effort */ }
+        // Spawn tier-0 regens in BACKGROUND (detached + unref = fire-and-
+        // forget). Dedupe sections so bursts on the same section fire once.
+        var seen = {};
+        for (var i = 0; i < drained.length; i++) {
+          var e = drained[i];
+          if (!e || typeof e.section !== "string") continue;
+          if (seen[e.section]) continue;
+          seen[e.section] = true;
+          try {
+            var child = cp.spawn(
+              process.execPath,
+              [genScript, "--write", roomDir, "--section", e.section],
+              { detached: true, stdio: "ignore" }
+            );
+            child.unref();
+          } catch (_) { /* swallow -- hook soft-fail */ }
+        }
+      })();
+    ' 2>/dev/null || true
+  fi
+} 2>/dev/null || true
+# --- end Phase 88-05 drain block ------------------------------------------
+
 exec node "${SCRIPT_DIR}/intent-classifier.cjs" "$@"
