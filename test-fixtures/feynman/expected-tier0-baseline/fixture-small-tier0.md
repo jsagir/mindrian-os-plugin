@@ -8,6 +8,11 @@ methodology: minto-pyramid
 sources: [assumption-staleness/assumption-staleness.md, hidden-cascade-failures/hidden-cascade-failures.md, time-to-decision-gap/time-to-decision-gap.md]
 related: []
 status: active
+last_generated_at: "2026-04-14T00:00:00Z"
+last_artifact_write_seen_at: null
+reasoning_health_score: null
+flagged_weaknesses: []
+decision_log: []
 ---
 
 # Problem Definition -- Minto Reasoning
@@ -82,8 +87,8 @@ status: active
 
 > [!summary] AAAK Record
 > **Format:** Assertion -> Assumption -> Action -> Knowledge
-> **Compression ratio:** 3.6x
-> **Tokens:** 182 compressed from 653 source
+> **Compression ratio:** 3.8x
+> **Tokens:** 182 compressed from 689 source
 > **Method:** tier-0-heuristic
 
 ### Assertion

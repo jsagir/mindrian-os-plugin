@@ -103,6 +103,226 @@ function today() {
   return `${y}-${m}-${day}`;
 }
 
+// Phase 88-00: ISO-8601 timestamp for last_generated_at. Honors
+// MINTO_FROZEN_TIMESTAMP for deterministic test fixtures.
+function nowIso() {
+  if (process.env.MINTO_FROZEN_TIMESTAMP) {
+    return process.env.MINTO_FROZEN_TIMESTAMP;
+  }
+  // Seconds precision: .000Z truncated so byte diffs between runs are
+  // clean (no sub-second jitter in human-read frontmatter).
+  return new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+}
+
+// ---------- Phase 88-00: v88 frontmatter preservation ----------
+//
+// When regenerating MINTO.md, four v88 fields must be preserved from the
+// previous file:
+//   - last_artifact_write_seen_at (set by 88-04 post-write hook)
+//   - reasoning_health_score      (computed by 88-01 readTriple)
+//   - flagged_weaknesses          (populated by 88-13 guardian)
+//   - decision_log                (cross-session decision continuity)
+//
+// last_generated_at is NOT preserved -- it advances on every write.
+//
+// The parser below is a narrow-dialect frontmatter reader that extracts
+// exactly these four fields. It mirrors the dialect supported by
+// lib/core/feynman-minto-invariants.cjs so the two modules agree on what
+// a Feynman-MINTO frontmatter looks like. Zero new dependencies.
+
+function readPreservedV88Fields(targetPath) {
+  const defaults = {
+    last_artifact_write_seen_at: null,
+    reasoning_health_score: null,
+    flagged_weaknesses: [],
+    decision_log: [],
+  };
+  let raw;
+  try {
+    raw = fs.readFileSync(targetPath, 'utf8');
+  } catch (_) {
+    return defaults;
+  }
+  const fmMatch = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
+  if (!fmMatch) return defaults;
+  const fmText = fmMatch[1];
+  const lines = fmText.split(/\r?\n/);
+
+  const out = Object.assign({}, defaults);
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // last_artifact_write_seen_at: "ISO" | null
+    let m = line.match(/^last_artifact_write_seen_at:\s*(.*)$/);
+    if (m) {
+      const v = m[1].trim();
+      if (v.length > 0 && v !== 'null') {
+        out.last_artifact_write_seen_at = stripQuotes(v);
+      }
+      continue;
+    }
+
+    // reasoning_health_score: number | null
+    m = line.match(/^reasoning_health_score:\s*(.*)$/);
+    if (m) {
+      const v = m[1].trim();
+      if (v.length > 0 && v !== 'null') {
+        const num = Number(v);
+        if (Number.isFinite(num)) out.reasoning_health_score = num;
+      }
+      continue;
+    }
+
+    // flagged_weaknesses: [a, b] or block list
+    m = line.match(/^flagged_weaknesses:\s*(.*)$/);
+    if (m) {
+      const v = m[1].trim();
+      if (v.startsWith('[') && v.endsWith(']')) {
+        // Flow-style array.
+        const inner = v.slice(1, -1).trim();
+        if (inner.length > 0) {
+          out.flagged_weaknesses = inner
+            .split(',')
+            .map(function (s) { return stripQuotes(s.trim()); })
+            .filter(function (s) { return s.length > 0; });
+        }
+        continue;
+      }
+      // Block list: read `  - item` continuation lines.
+      const items = [];
+      let j = i + 1;
+      while (j < lines.length) {
+        const nxt = lines[j];
+        const it = nxt.match(/^\s+-\s+(.*)$/);
+        if (!it) break;
+        items.push(stripQuotes(it[1].trim()));
+        j += 1;
+      }
+      out.flagged_weaknesses = items;
+      continue;
+    }
+
+    // decision_log: [] (empty) OR block list of objects
+    m = line.match(/^decision_log:\s*(.*)$/);
+    if (m) {
+      const rest = m[1].trim();
+      if (rest === '[]') continue; // empty
+      // Block list: walk continuation lines indented with at least 2 spaces.
+      const entries = [];
+      let j = i + 1;
+      let current = null;
+      while (j < lines.length) {
+        const nxt = lines[j];
+        if (/^[A-Za-z_]/.test(nxt)) break; // next top-level key
+        if (/^\s*$/.test(nxt)) {
+          j += 1;
+          continue;
+        }
+        const head = nxt.match(/^\s+-\s+([A-Za-z_][A-Za-z0-9_]*):\s*(.*)$/);
+        if (head) {
+          if (current) entries.push(current);
+          current = {};
+          current[head[1]] = stripQuotes(head[2]);
+          j += 1;
+          continue;
+        }
+        const cont = nxt.match(
+          /^\s+([A-Za-z_][A-Za-z0-9_]*):\s*(.*)$/
+        );
+        if (cont && current) {
+          current[cont[1]] = stripQuotes(cont[2]);
+          j += 1;
+          continue;
+        }
+        break;
+      }
+      if (current) entries.push(current);
+      out.decision_log = entries;
+      continue;
+    }
+  }
+
+  return out;
+}
+
+function stripQuotes(s) {
+  if (typeof s !== 'string') return s;
+  const t = s.trim();
+  if (
+    (t.startsWith('"') && t.endsWith('"')) ||
+    (t.startsWith("'") && t.endsWith("'"))
+  ) {
+    return t.slice(1, -1);
+  }
+  return t;
+}
+
+// Render the five v88 fields as frontmatter lines (in canonical order).
+// Returns an array of lines (no trailing newline). Caller splices into the
+// frontmatter right before the closing `---` delimiter.
+function renderV88FrontmatterLines(preserved) {
+  const lines = [];
+  lines.push('last_generated_at: "' + nowIso() + '"');
+
+  const laws = preserved.last_artifact_write_seen_at;
+  if (laws === null || laws === undefined) {
+    lines.push('last_artifact_write_seen_at: null');
+  } else {
+    lines.push('last_artifact_write_seen_at: "' + laws + '"');
+  }
+
+  const rhs = preserved.reasoning_health_score;
+  if (rhs === null || rhs === undefined) {
+    lines.push('reasoning_health_score: null');
+  } else {
+    lines.push('reasoning_health_score: ' + String(rhs));
+  }
+
+  const fw = Array.isArray(preserved.flagged_weaknesses)
+    ? preserved.flagged_weaknesses
+    : [];
+  if (fw.length === 0) {
+    lines.push('flagged_weaknesses: []');
+  } else {
+    lines.push(
+      'flagged_weaknesses: [' +
+        fw.map(function (s) { return '"' + String(s).replace(/"/g, '\\"') + '"'; }).join(', ') +
+        ']'
+    );
+  }
+
+  const dl = Array.isArray(preserved.decision_log) ? preserved.decision_log : [];
+  if (dl.length === 0) {
+    lines.push('decision_log: []');
+  } else {
+    lines.push('decision_log:');
+    dl.forEach(function (entry) {
+      const keys = Object.keys(entry);
+      if (keys.length === 0) return;
+      // session_id first (canonical), then remaining keys in insertion order.
+      const ordered = [];
+      if ('session_id' in entry) ordered.push('session_id');
+      for (const k of keys) {
+        if (k !== 'session_id') ordered.push(k);
+      }
+      ordered.forEach(function (k, i) {
+        const v = entry[k];
+        const quoted = typeof v === 'string'
+          ? '"' + v.replace(/"/g, '\\"') + '"'
+          : String(v);
+        if (i === 0) {
+          lines.push('  - ' + k + ': ' + quoted);
+        } else {
+          lines.push('    ' + k + ': ' + quoted);
+        }
+      });
+    });
+  }
+
+  return lines;
+}
+
 function collectSectionArtifacts(sectionDir, contentFiles) {
   return contentFiles
     .filter((f) => f.path.startsWith(sectionDir + path.sep))
@@ -216,7 +436,7 @@ function findRelatedSections(currentSection, room) {
 
 // ---------- Rendering ----------
 
-function renderSectionMinto(section, artifacts, room) {
+function renderSectionMinto(section, artifacts, room, preserved) {
   const title = slugToTitle(section.name);
   const date = today();
   const parentRel = path
@@ -256,6 +476,18 @@ function renderSectionMinto(section, artifacts, room) {
     return `- [[${rel}|${slugToTitle(base)}]]`;
   });
 
+  // Phase 88-00: five v88 frontmatter fields appended after existing
+  // structural keys, before the closing `---`. Preserved values come from
+  // the previous file (if any); last_generated_at is always fresh.
+  const v88Lines = renderV88FrontmatterLines(
+    preserved || {
+      last_artifact_write_seen_at: null,
+      reasoning_health_score: null,
+      flagged_weaknesses: [],
+      decision_log: [],
+    }
+  );
+
   return [
     '---',
     'type: section-minto',
@@ -267,6 +499,7 @@ function renderSectionMinto(section, artifacts, room) {
     `sources: [${sourcesArr.join(', ')}]`,
     `related: [${relatedArr.join(', ')}]`,
     'status: active',
+    ...v88Lines,
     '---',
     '',
     `# ${title} -- Minto Reasoning`,
@@ -344,11 +577,15 @@ function runTier0(args) {
   const dryRun = !!args.dryRun;
 
   const resolved = resolveSection(roomDir, sectionName);
+  const target = path.join(resolved.section.dir, 'MINTO.md');
+  // Phase 88-00: read-before-write so v88 fields preserve across regen.
+  const preserved = readPreservedV88Fields(target);
   // Pre-81 structural generation, preserved byte-equivalent.
   const structuralBody = renderSectionMinto(
     resolved.section,
     resolved.artifacts,
-    resolved.room
+    resolved.room,
+    preserved
   );
   // Deterministic AAAK compression of the structural body.
   const aaak = compressToAaak(structuralBody, {
@@ -356,7 +593,6 @@ function runTier0(args) {
     room: resolved.room.roomName,
   });
   const content = attachAaakFooter(structuralBody, aaak);
-  const target = path.join(resolved.section.dir, 'MINTO.md');
 
   if (dryRun) {
     process.stdout.write(
@@ -474,10 +710,22 @@ function emitSectionPlanPayload(roomDir, sectionName) {
   return payload;
 }
 
-function renderFeynmanMinto(structural, narrative, room, section, artifacts) {
+function renderFeynmanMinto(structural, narrative, room, section, artifacts, preserved) {
   const title = slugToTitle(section.name);
   const date = structural.frontmatter.created;
   const mm = narrative.mental_model;
+
+  // Phase 88-00: five v88 frontmatter fields appended after existing
+  // structural keys, before the closing `---`. Preserved values come from
+  // the previous file (if any); last_generated_at is always fresh.
+  const v88Lines = renderV88FrontmatterLines(
+    preserved || {
+      last_artifact_write_seen_at: null,
+      reasoning_health_score: null,
+      flagged_weaknesses: [],
+      decision_log: [],
+    }
+  );
 
   // Frontmatter (YAML-ish, consistent with pre-81 style).
   const fm = structural.frontmatter;
@@ -492,6 +740,7 @@ function renderFeynmanMinto(structural, narrative, room, section, artifacts) {
     'sources: [' + fm.sources.join(', ') + ']',
     'related: [' + fm.related.join(', ') + ']',
     'status: ' + fm.status,
+    ...v88Lines,
     '---',
   ];
 
@@ -660,6 +909,9 @@ function writeSectionFromNarrative(roomDir, sectionName, narrativePath, opts) {
   }
 
   const resolved = resolveSection(roomDir, sectionName);
+  const target = path.join(resolved.section.dir, 'MINTO.md');
+  // Phase 88-00: read-before-write so v88 fields preserve across regen.
+  const preserved = readPreservedV88Fields(target);
   const structural = buildStructuralPayload(
     resolved.room,
     resolved.section,
@@ -670,9 +922,9 @@ function writeSectionFromNarrative(roomDir, sectionName, narrativePath, opts) {
     narrative,
     resolved.room,
     resolved.section,
-    resolved.artifacts
+    resolved.artifacts,
+    preserved
   );
-  const target = path.join(resolved.section.dir, 'MINTO.md');
 
   if (options.dryRun) {
     process.stdout.write(
@@ -742,8 +994,10 @@ function generateAllSectionMintos(roomDir, opts = {}) {
       continue;
     }
 
-    const content = renderSectionMinto(section, artifacts, room);
     const target = path.join(section.dir, 'MINTO.md');
+    // Phase 88-00: read-before-write so v88 fields preserve across regen.
+    const preserved = readPreservedV88Fields(target);
+    const content = renderSectionMinto(section, artifacts, room, preserved);
     const outcome = writeOrPrint(target, content, dryRun);
     results[outcome] = (results[outcome] || 0) + 1;
   }

@@ -8,6 +8,11 @@ methodology: minto-pyramid
 sources: [buyer-persona/buyer-persona.md, channel-fit/channel-fit.md, incumbent-gap/incumbent-gap.md, pricing-anchor/pricing-anchor.md, tam-estimate/tam-estimate.md, wedge-segment/wedge-segment.md]
 related: []
 status: active
+last_generated_at: "2026-04-14T00:00:00Z"
+last_artifact_write_seen_at: null
+reasoning_health_score: null
+flagged_weaknesses: []
+decision_log: []
 ---
 
 # Market Analysis -- Minto Reasoning
@@ -100,8 +105,8 @@ status: active
 
 > [!summary] AAAK Record
 > **Format:** Assertion -> Assumption -> Action -> Knowledge
-> **Compression ratio:** 6.4x
-> **Tokens:** 117 compressed from 751 source
+> **Compression ratio:** 6.7x
+> **Tokens:** 117 compressed from 788 source
 > **Method:** tier-0-heuristic
 
 ### Assertion

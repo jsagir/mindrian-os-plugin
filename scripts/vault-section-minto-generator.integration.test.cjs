@@ -129,6 +129,8 @@ function runCmd(args, opts) {
     {
       env: Object.assign({}, process.env, {
         MINTO_FROZEN_DATE: '2026-04-14',
+        // Phase 88-00: freeze last_generated_at for baseline determinism.
+        MINTO_FROZEN_TIMESTAMP: '2026-04-14T00:00:00Z',
       }),
       encoding: 'utf-8',
     },
