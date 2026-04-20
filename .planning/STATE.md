@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.10.9
 milestone_name: -- Cross-Platform Parity
 status: executing
-stopped_at: Completed 87-10-v2-PLAN.md through Task 10v2-3 (human-verify checkpoint). Gates 1-3 closed at commit b30484d. Awaiting user approval to create git tag v1.10.12 + marketplace.json ref pin.
-last_updated: "2026-04-19T22:55:26.665Z"
-last_activity: 2026-04-19 -- Phase 88 execution started
+stopped_at: Completed 88-02-PLAN.md -- minto-debouncer queue shipped at 80a0f52; feynman suite 33/33
+last_updated: "2026-04-20T08:47:04.244Z"
+last_activity: 2026-04-20
 progress:
   total_phases: 13
   completed_phases: 2
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 88 (feynman-minto-memory-layer) — EXECUTING
-Plan: 1 of 16
-Status: Executing Phase 88
-Last activity: 2026-04-19 -- Phase 88 execution started
+Plan: 5 of 16
+Status: Ready to execute
+Last activity: 2026-04-20 - Completed quick task 260420-gg7: MINDRIAN-CANON.md
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -79,6 +79,10 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 87-security-hardening-cascade-refactor P07 | 12min | 2 tasks | 5 files |
 | Phase 87-security-hardening-cascade-refactor P09 | 45min | 4 tasks | 8 files |
 | Phase 87-security-hardening-cascade-refactor P10-v2 | 15min | 3 tasks | 5 files |
+| Phase 88 P00-B | 5min | 1 tasks | 3 files |
+| Phase Phase 88-00 P00 | 20min | 2 tasks | 11 files |
+| Phase 88 P01 | 12min | 1 tasks | 4 files |
+| Phase Phase 88 PP02 | 25min | 1 tasks | 4 files |
 
 ### Decisions
 
@@ -150,6 +154,20 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 87-security-hardening-cascade-refactor]: Phase 87-09: NULL_ORIGIN_SENTINEL = 'nu'+'ll' constant + dynamic ALLOWED_ORIGINS.add() for --allow-null-origin flag so grep audit reads zero hardcoded null-origin entries in the default allowlist (R-87-09-CSRF gap 1)
 - [Phase 87-security-hardening-cascade-refactor]: Phase 87-09: 87-08 chat-hide test fence INVERTED in-place (from ==0 to >=1) at the Stream-A -> Stream-B transition boundary; dashboard.html for v1.10.12 now carries the chat-panel @include marker while serve-dashboard-live performs server-side inlining
 - [Phase 87-security-hardening-cascade-refactor]: Plan 87-10-v2: v1.10.12 Stream B release 5-gate protocol -- gates 1-3 closed (CHANGELOG + plugin.json + package.json at 1.10.12), gates 4-5 (git tag + marketplace ref pin) gated on user approval; feynman 28/28, cascade-e2e exact baseline, BSL sweep 0 missing, chat-panel presence 3 (inverse v1.10.11 gate); engines-field hotfix ad2a15e verified (0 occurrences in plugin.json)
+- [Phase 88]: [Phase 88-00-B]: Hand-written YAML parser over js-yaml: zero-new-dep invariant preserved; narrow dialect (scalars, ISO timestamps, string arrays, flat-object arrays) fits 150-line deterministic parser
+- [Phase 88]: [Phase 88-00-B]: SEVERITY and CATEGORIES exported as Object.freeze() so downstream Phase 88 consumers (88-01, 88-04-B, 88-13) cannot mutate the shared contract
+- [Phase 88]: [Phase 88-00-B]: Severity aggregation via ordered constant array index lookup; MAX across violations (critical > error > warning > info); null when no violations
+- [Phase 88]: [Phase 88-00-B]: em-dash detection scans four narrative surfaces (governing_thought, key_claims, mece_arguments, body) to enforce feedback_no_emdashes project hard rule uniformly
+- [Phase Phase 88-00]: Read-before-write preservation at runTier0+writeSectionFromNarrative entry points; last_generated_at always advances; sentinel zero 1970-01-01T00:00:00Z marks never-regenerated-under-v88
+- [Phase Phase 88-00]: validateStructural accepts pre-v88 payloads (back-compat opt-in); validateDecisionLogEntry as separate export for 88-10 chokepoint; atomic migration via openSync 'wx' composes with Phase 87-02 write-lock
+- [Phase 88]: [Phase 88-01]: Three-file two-entry-point architecture (folder-memory-shared + folder-memory + folder-memory-async) copies Phase 87-04 room-ops pattern exactly; sync for CLI hooks, async for MCP Desktop, shared pure logic consumed by both; key-set parity + AsyncFunction constructor assertion enforced in test
+- [Phase 88]: [Phase 88-01]: computeStale precedence -- invariant_violation > parse_failed > never_generated (sentinel 1970-01-01) > missing_timestamps (field absent) > artifacts_newer_than_minto > fresh; sentinel vs absent carry different semantics for 88-13 guardian (regen vs repair)
+- [Phase 88]: [Phase 88-01]: STATE.md minto_health emission stays '--' placeholder; consumers derive qualitative signal from reasoning branch's reasoning_health_score (compute-state verified to emit zero MINTO/reasoning tokens); single-sources quantitative vs qualitative
+- [Phase 88]: [Phase 88-01]: Best-effort parse on critical invariant violation -- governing_thought and decision_log still surface; only is_stale flips and stale_reason documents why; downstream consumers render sanitized content with staleness annotation rather than hiding the section entirely
+- [Phase Phase 88]: [Phase 88-02]: minto-debouncer queue with 10s earliest-wins coalescing window; atomic tmp+fsync+rename writes bracketed by Phase 87-02 write-lock; 12-attempt exponential-backoff lock retry with half-jitter rides out 5-20 concurrent producers without starvation
+- [Phase Phase 88]: [Phase 88-02]: self-healing queue reader returns empty shape on ENOENT/SyntaxError/shape-mismatch/version-mismatch with one stderr warning; debouncer is best-effort coalescing valve not correctness boundary, so dropping a crash-corrupted queue is preferable to crashing a bash hook
+- [Phase Phase 88]: [Phase 88-02]: Atomics.wait sync sleep on SharedArrayBuffer Int32Array for CLI hook scripts with no event loop; busy-wait fallback if SAB disabled; future sync-sleep needs (rate limiters, retry loops) should copy this primitive
+- [Phase Phase 88]: [Phase 88-02]: drain returns partial results on timeout rather than throwing; wall-clock checked at three gates (pre-lock, post-lock, mid-partition); any entries not processed stay queued for next drain -- consumer-friendly API for bounded-budget callers (on-stop 5s, intent-classifier session-start)
 
 ### Pending Todos
 
@@ -163,8 +181,14 @@ Progress: [░░░░░░░░░░] 0%
 
 None yet.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260420-gg7 | Draft MINDRIAN-CANON.md product canon with 8 principles + cross-references | 2026-04-20 | b7d95bd | [260420-gg7-draft-mindrian-canon-md-product-canon-wi](./quick/260420-gg7-draft-mindrian-canon-md-product-canon-wi/) |
+
 ## Session Continuity
 
-Last session: 2026-04-19T20:48:08.426Z
-Stopped at: Completed 87-10-v2-PLAN.md through Task 10v2-3 (human-verify checkpoint). Gates 1-3 closed at commit b30484d. Awaiting user approval to create git tag v1.10.12 + marketplace.json ref pin.
+Last session: 2026-04-20T08:47:04.238Z
+Stopped at: Completed 88-02-PLAN.md -- minto-debouncer queue shipped at 80a0f52; feynman suite 33/33
 Resume file: None
