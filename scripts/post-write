@@ -1,14 +1,50 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# post-write -- PostToolUse handler for Write operations
+# post-write -- PostToolUse handler for Write, Edit, and MultiEdit
 # Routes to classify-insight for room file classification
 # Routes to file-asset for binary file detection
+# Phase 88-04: also fires the per-section freshness triple when a write
+# lands inside a Data Room section (detected via .room-root sentinel):
+#   1. Enqueue MINTO regen via minto-debouncer (synchronous, fast)
+#   2. Recompile ROOM.md references (backgrounded)
+#   3. Stamp last_artifact_write_seen_at on MINTO.md frontmatter (backgrounded)
+# System files (ROOM.md/STATE.md/MINTO.md) stamp only. Non-.md files skip
+# enqueue + recompile. Stamp and recompile are spawned BACKGROUNDED so the
+# user-visible hook return is not serialized on the write-lock.
 #
-# Called by run-hook.cmd when PostToolUse fires after Write tool usage.
+# Called by run-hook.cmd when PostToolUse fires after Write/Edit/MultiEdit.
 # Claude Code passes hook data as JSON on stdin (PostToolUse schema):
-#   { "tool_name": "Write", "tool_input": { "file_path": "..." }, ... }
+#   { "tool_name": "Write"|"Edit"|"MultiEdit", "tool_input": { "file_path": "..." }, ... }
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Phase 88-04: detect whether FILE_PATH lives inside a Data Room section by
+# walking up for the .room-root sentinel. On hit, echoes "<roomDir>|<section>"
+# to stdout and returns 0. On miss, returns 1. Section name is the first
+# directory under the room root. Cap hops at 12 to avoid pathological loops.
+detect_room_section() {
+  local file_path="$1"
+  local dir
+  dir=$(dirname "$file_path")
+  local hops=0
+  while [ "$dir" != "/" ] && [ "$dir" != "." ] && [ "$hops" -lt 12 ]; do
+    if [ -e "$dir/.room-root" ]; then
+      # dir is the room root. section = first path component under dir.
+      local rel="${file_path#$dir/}"
+      local section="${rel%%/*}"
+      # Guard: the file must actually be under a section, not directly
+      # in the room root.
+      if [ -n "$section" ] && [ "$section" != "$rel" ]; then
+        printf '%s|%s\n' "$dir" "$section"
+        return 0
+      fi
+      return 1
+    fi
+    dir=$(dirname "$dir")
+    hops=$((hops + 1))
+  done
+  return 1
+}
 
 # Read file path from stdin JSON (Claude Code hook API),
 # fall back to $1 or TOOL_INPUT_PATH for backward compatibility
@@ -31,6 +67,61 @@ fi
 
 if [[ -z "$FILE_PATH" ]]; then
   exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# Phase 88-04: triple-fire on room section writes.
+#
+# Fires BEFORE the existing cascade block so the freshness wires land even
+# when the legacy cascade path is skipped (e.g. fixture rooms that do not
+# carry STATE.md at the room root). Detection uses the .room-root sentinel
+# from Phase 87-01a, which is distinct from (and complementary to) the
+# STATE.md walk used below for the cascade.
+#
+# Latency contract (88-04):
+#   - Target: < 300ms user-visible foreground under uncontended conditions.
+#   - Hard ceiling: 3000ms hook timeout (hooks.json).
+#   - Under 20-writer Cowork contention: stamp + recompile serialize on the
+#     room-level write-lock, but both are spawned BACKGROUNDED so the
+#     user-visible hook return is NOT gated on them. Only the debouncer
+#     enqueue runs in the foreground; it is a single tiny JSON write that
+#     completes in single-digit ms.
+#
+# Safety: every call is wrapped in `|| true` so a broken dependency cannot
+# break the hook. The final `exit 0` at the bottom of this script is the
+# soft-fail guarantee.
+# ---------------------------------------------------------------------------
+if ROOM_SECTION_INFO=$(detect_room_section "$FILE_PATH" 2>/dev/null); then
+  ROOM_DIR="${ROOM_SECTION_INFO%|*}"
+  SECTION="${ROOM_SECTION_INFO##*|}"
+  BASENAME=$(basename "$FILE_PATH")
+
+  # Stamp ALWAYS fires (even for system-file writes -- section mtime
+  # changed). BACKGROUNDED so it never serializes on the write-lock during
+  # the user-visible hook return.
+  ( node "${SCRIPT_DIR}/stamp-artifact-write.cjs" "$ROOM_DIR/$SECTION" >/dev/null 2>&1 || true ) &
+
+  # Enqueue regen + recompile ROOM.md references only for non-system .md
+  # files. ROOM.md/STATE.md/MINTO.md are the TARGETS of reasoning, not
+  # artifact signals -- they must not trigger regen or they create
+  # infinite loops with the regen worker.
+  case "$BASENAME" in
+    ROOM.md|STATE.md|MINTO.md)
+      : # system file: stamp only, skip enqueue + recompile
+      ;;
+    *.md)
+      # Debouncer CLI: node <script>/minto-debouncer.cjs enqueue <roomDir> <section> <reason>
+      # Synchronous (fast JSON write); soft-fail via || true.
+      DEBOUNCER_SCRIPT="${SCRIPT_DIR}/minto-debouncer.cjs"
+      node "$DEBOUNCER_SCRIPT" enqueue "$ROOM_DIR" "$SECTION" "post-write:$BASENAME" >/dev/null 2>&1 || true
+      # Recompile ROOM.md references BACKGROUNDED. Do not block the hook
+      # return on the recompile write-lock wait.
+      ( node "${SCRIPT_DIR}/recompile-room-references.cjs" "$ROOM_DIR/$SECTION" >/dev/null 2>&1 || true ) &
+      ;;
+    *)
+      : # non-.md files (.txt, .pdf, .png, ...): skip enqueue + recompile
+      ;;
+  esac
 fi
 
 # Resolve active room for guard check
@@ -98,3 +189,9 @@ if [ -n "$room_dir" ]; then
 
   echo "$CASCADE_STATUS"
 fi
+
+# Phase 88-04: explicit exit 0 -- the PostToolUse hook is a soft-fail channel.
+# Any failure upstream (cascade, triple-fire, stamp, debouncer, recompile)
+# must NOT propagate as a non-zero exit that could surface to the user as a
+# broken Write/Edit/MultiEdit tool call.
+exit 0
