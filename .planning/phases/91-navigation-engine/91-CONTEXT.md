@@ -22,6 +22,7 @@ invariants:
   - CJS only, no build step
   - All prior phases' tests stay green
   - BSL 1.1 license
+canon_parts: [Part 2, Part 2a, Part 3, Appendix E]
 ---
 
 # Phase 91: Navigation Engine

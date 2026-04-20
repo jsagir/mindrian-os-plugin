@@ -26,11 +26,28 @@ Author: Jonathan Sagir with Claude-as-Larry
 
 The user is the wicked navigator. Mindrian spawns a context-built team around them, generated per-session from two engines and armed with four affordances. The team never impersonates the navigator. The team argues, proposes, disagrees, evidences. The navigator decides.
 
-### Engine 1 - Domain Exploration
+### Engine 1 - Domain Exploration (Act 1 in Context)
 
-Five decomposition lenses: Disciplinary, Stakeholder, System, Temporal, Scale.
+Engine 1 is the full Act 1 intelligence surface that runs before the team spawns. It is code-driven, powered by embeddings and HSI scoring infrastructure already shipped in the plugin.
 
-Output: Primary domains -> subdomains -> focus areas. Each node carries supporting evidence, dissenting evidence, emerging trends. Cross-domain convergence, synergy, and conflict are mapped.
+Three layers, each algorithmic:
+
+  DECOMPOSITION       Five lenses (Disciplinary, Stakeholder, System, Temporal, Scale). Primary domains -> subdomains -> focus areas. Each node carries supporting evidence, dissenting evidence, emerging trends.
+
+  WHITESPACE MAP      Code-driven. /mos:whitespace wraps Python scripts that compute whitespace zones using sentence-transformers + LSA against the room's artifact corpus. Every whitespace node is a candidate Opportunity Bank ADD, HSI-scored for filing priority.
+
+  REVERSE SALIENT +   Code-driven. Python scripts compute reverse salients (Hughes 1983 framework)
+  CROSS-DOMAIN MATCH  against Pinecone embeddings (1,427 methodology nodes in Brain's semantic index). Cross-domain analogies surface where embedding similarity crosses threshold but source domains differ. Every match is a candidate Opportunity Bank ADD with HSI score. Command-level wrappers: /mos:find-bottlenecks, /mos:find-connections, /mos:find-analogies, /mos:score-innovation.
+
+Output: enriched domain tree where every node carries its internal decomposition AND its Act 1 intelligence payload (whitespace + reverse salients + cross-domain analogies, all HSI-scored). Engine 2 (BONO Orchestration) reads this payload to shape the team and its beautiful questions.
+
+Act 1 runs per session. Results cache to STATE.md with source-hash invalidation. Opportunity Bank ADDs surface at the next Decision Gate for user approval (APPROVE cascades to bank; REJECT reason becomes graph data per Part 4; DEFER queues to milestone audit).
+
+Code references:
+- `scripts/hsi-*` (Python, sentence-transformers + LSA)
+- Pinecone 1,427 embeddings (Brain semantic search infrastructure)
+- Existing /mos: commands: /mos:whitespace, /mos:find-bottlenecks, /mos:find-connections, /mos:find-analogies, /mos:score-innovation
+- Phase 89 (reverse-salient-engine) formalizes the reverse-salient algorithm as a standalone engine consumed by Engine 1
 
 ### Engine 2 - BONO Orchestration
 
@@ -329,6 +346,8 @@ This canon was forged in conversation between Jonathan Sagir (founder) and Claud
 
 10. **User correction 9: "Larry with or without Brain is the pedagogical guide."** Larry's pedagogy is intrinsic, not dependent on Brain availability. Teaching persists in Local Only mode.
 
+11. **User correction 10: "Engine 1 is Act 1, code-driven via embeddings + HSI."** Engine 1 is not just 5-lens decomposition. It is the full Act 1 intelligence surface: decomposition + whitespace map + reverse salient + cross-domain match, all algorithmic, all feeding Opportunity Bank ADDs with HSI scores. Powered by existing Python scripts (sentence-transformers + LSA) and Pinecone embeddings (1,427 methodology nodes). Phase 89 formalizes the reverse-salient algorithm.
+
 Conversation transcript reference: session 2026-04-20, branch `ui/destijl-rebuild`. First canon draft shipped at commit 528abdd; cross-references at b7d95bd; amendment at this commit.
 
 ---
@@ -383,4 +402,4 @@ The navigator always decides.
 
 ---
 
-_Mindrian Canon v1.2 - MindrianOS Plugin_
+_Mindrian Canon v1.3 - MindrianOS Plugin_

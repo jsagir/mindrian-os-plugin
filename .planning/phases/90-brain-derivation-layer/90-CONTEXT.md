@@ -20,6 +20,7 @@ invariants:
   - CJS only, no build step
   - Feynman tests stay green; new brain-derivation tests added
   - BSL 1.1 license
+canon_parts: [Part 2, Part 3, Part 8]
 ---
 
 # Phase 90: Brain Derivation Layer

@@ -370,6 +370,7 @@ Features that operate independently of MWP layers add surface area, not moat dep
 @.claude/includes/decisions.md
 @.claude/includes/release-process.md
 @docs/MINDRIAN-CANON.md
+@docs/CANON-PHASE-MAP.md
 
 See also: docs/ENV-TUNING.md for environment variable optimization.
 
