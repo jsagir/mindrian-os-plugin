@@ -522,4 +522,10 @@ A system that implements only individual layers (e.g., folder structure without 
 
 ---
 
+## 8. Relationship to Mindrian Canon
+
+MWP specifies the 7-layer integrated protocol. The Mindrian Canon (`docs/MINDRIAN-CANON.md`) specifies the navigation axis (role-blend x journey-stage) and the security constitution (Brain is methodology repository, never data repository) that sit above MWP. Canon-conformant implementations also honor MWP conformance clause 7.1. See Appendix A of the Canon for the mapping.
+
+---
+
 _MWP Specification v1.0 - MindrianOS Plugin_

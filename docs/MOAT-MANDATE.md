@@ -135,4 +135,10 @@ Prompts can be copied. The integrated system that makes them compound cannot.
 
 ---
 
+## Relationship to Mindrian Canon
+
+The moat described here is the technical integration surface. The Mindrian Canon (`docs/MINDRIAN-CANON.md`) names the product philosophy that sits above it: the user is a wicked navigator, the Brain never receives user data, every rejection is graph-local intelligence. Deepening the moat without honoring the canon produces a technically impressive product that violates its own constitution.
+
+---
+
 _Moat Mandate v1.0 - MindrianOS Plugin_
