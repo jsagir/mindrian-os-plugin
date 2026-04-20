@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "mcp": "node bin/mindrian-mcp-server.cjs",
-    "parity": "node lib/parity/check-parity.cjs"
+    "parity": "node lib/parity/check-parity.cjs",
+    "migrate-minto-v88": "node scripts/migrate-minto-schema-v88.cjs"
   },
   "dependencies": {
     "@ig3/markdown-it-wikilinks": "^1.0.2",
