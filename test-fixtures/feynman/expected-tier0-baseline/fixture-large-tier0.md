@@ -1,4 +1,5 @@
 ---
+schema_version: "1.0"
 type: section-minto
 section: solution-design
 created: 2026-04-14
@@ -8,6 +9,7 @@ methodology: minto-pyramid
 sources: [aaak-fallback/aaak-fallback.md, architecture-overview/architecture-overview.md, brain-bridge/brain-bridge.md, cascade-detector/cascade-detector.md, cli-surface/cli-surface.md, cowork-surface/cowork-surface.md, data-layer/data-layer.md, desktop-surface/desktop-surface.md, export-pipeline/export-pipeline.md, graph-sync/graph-sync.md, reasoning-renderer/reasoning-renderer.md, scanner-engine/scanner-engine.md]
 related: []
 status: active
+governing_thought: "Solution Design synthesizes 12 artifacts into a coherent argument for this section of the venture."
 last_generated_at: "2026-04-14T00:00:00Z"
 last_artifact_write_seen_at: null
 reasoning_health_score: null
@@ -117,8 +119,8 @@ decision_log: []
 
 > [!summary] AAAK Record
 > **Format:** Assertion -> Assumption -> Action -> Knowledge
-> **Compression ratio:** 7.1x
-> **Tokens:** 164 compressed from 1169 source
+> **Compression ratio:** 7.3x
+> **Tokens:** 164 compressed from 1205 source
 > **Method:** tier-0-heuristic
 
 ### Assertion

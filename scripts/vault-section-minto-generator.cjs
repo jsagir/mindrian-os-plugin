@@ -51,6 +51,18 @@ const NARRATIVE_PATH =
     ? argv[narrativeFlagIdx + 1]
     : null;
 
+// Phase 88-04-B: test-only invariant-rejection mock flag. Behind MOS_TEST=1
+// so production cannot accidentally inject synthetic violations. Accepted
+// values: "error" | "warning" | "critical" (null = real validator).
+let MOCK_INVARIANTS_FAIL_CLI = null;
+for (const a of argv) {
+  const m = a.match(/^--mock-invariants-fail=(.+)$/);
+  if (m) {
+    MOCK_INVARIANTS_FAIL_CLI = m[1];
+    break;
+  }
+}
+
 // roomArg: first positional that is not a flag value.
 // Values of --section and --narrative are consumed by their flags.
 const FLAG_VALUE_INDICES = new Set();
@@ -488,8 +500,14 @@ function renderSectionMinto(section, artifacts, room, preserved) {
     }
   );
 
+  // Phase 88-04-B: invariants validator (88-00-B) requires schema_version
+  // and governing_thought as top-level frontmatter keys. Tier-0 reuses the
+  // derived placeholder governingThought so the contract is satisfied even
+  // without an LLM-produced narrative.
+  const gtTier0Escaped = String(governingThought).replace(/"/g, '\\"');
   return [
     '---',
+    'schema_version: "' + FEYNMAN_MINTO_SCHEMA_VERSION + '"',
     'type: section-minto',
     `section: ${section.name}`,
     `created: ${date}`,
@@ -499,6 +517,7 @@ function renderSectionMinto(section, artifacts, room, preserved) {
     `sources: [${sourcesArr.join(', ')}]`,
     `related: [${relatedArr.join(', ')}]`,
     'status: active',
+    'governing_thought: "' + gtTier0Escaped + '"',
     ...v88Lines,
     '---',
     '',
@@ -554,6 +573,20 @@ const {
   attachAaakFooter,
 } = require('../lib/memory/aaak-compress.cjs');
 
+// Phase 88-04-B: atomic write contract -- invariants validator and write-lock.
+// Required so broken narratives / torn reads cannot contaminate cross-session
+// memory. The validator lives in lib/core/ and is the single source of truth
+// for "properly managed" per 88-00-B. acquireLock / releaseLock reuse the
+// Phase 87-02 openSync('wx') primitive so concurrent producers (post-write +
+// debouncer + on-stop drain) cannot corrupt the rename race.
+const feynmanMintoInvariants = require('../lib/core/feynman-minto-invariants.cjs');
+const { acquireLock, releaseLock } = require('../lib/core/write-lock.cjs');
+
+// Phase 88-04-B: schema_version constant emitted into every MINTO.md
+// frontmatter. Required by the invariants validator (88-00-B) so the
+// atomic write gate accepts generator output.
+const FEYNMAN_MINTO_SCHEMA_VERSION = '1.0';
+
 // ---------- Phase 81-03: tier-0 single entry point ----------
 
 /**
@@ -598,13 +631,40 @@ function runTier0(args) {
     process.stdout.write(
       'would write tier-0 MINTO.md: ' + target + ' (' + content.length + ' bytes)\n'
     );
-    return { tier: 'tier-0', path: target, size: content.length, warnings: [] };
+    return {
+      tier: 'tier-0',
+      path: target,
+      size: content.length,
+      warnings: [],
+      envelope: {
+        success: true,
+        violations: [],
+        bytes_written: content.length,
+        elapsed_ms: 0,
+        path: target,
+      },
+    };
   }
-  const tmp = target + '.tmp';
-  fs.writeFileSync(tmp, content);
-  fs.renameSync(tmp, target);
-  process.stdout.write('wrote tier-0 MINTO.md: ' + target + '\n');
-  return { tier: 'tier-0', path: target, size: content.length, warnings: [] };
+  // Phase 88-04-B: atomic write + invariants gate + write-lock rename race.
+  const env = atomicWriteMinto(target, content, roomDir);
+  if (env.success) {
+    process.stdout.write('wrote tier-0 MINTO.md: ' + target + '\n');
+  } else {
+    process.stderr.write(
+      'tier-0 write REJECTED by invariants gate for ' +
+        target +
+        ': ' +
+        JSON.stringify(env.violations) +
+        '\n'
+    );
+  }
+  return {
+    tier: 'tier-0',
+    path: target,
+    size: env.success ? content.length : 0,
+    warnings: env.violations,
+    envelope: env,
+  };
 }
 
 function resolveSection(roomDir, sectionName) {
@@ -727,10 +787,15 @@ function renderFeynmanMinto(structural, narrative, room, section, artifacts, pre
     }
   );
 
-  // Frontmatter (YAML-ish, consistent with pre-81 style).
+  // Frontmatter (YAML-ish, consistent with pre-81 style). Phase 88-04-B
+  // adds schema_version and governing_thought as top-level keys so the
+  // invariants validator (88-00-B) accepts the tier-1 output. The
+  // governing_thought comes straight from the Feynman narrative JSON.
   const fm = structural.frontmatter;
+  const gtTier1Escaped = String(narrative.governing_thought || '').replace(/"/g, '\\"');
   const fmLines = [
     '---',
+    'schema_version: "' + FEYNMAN_MINTO_SCHEMA_VERSION + '"',
     'type: ' + fm.type,
     'section: ' + fm.section,
     'created: ' + fm.created,
@@ -740,6 +805,7 @@ function renderFeynmanMinto(structural, narrative, room, section, artifacts, pre
     'sources: [' + fm.sources.join(', ') + ']',
     'related: [' + fm.related.join(', ') + ']',
     'status: ' + fm.status,
+    'governing_thought: "' + gtTier1Escaped + '"',
     ...v88Lines,
     '---',
   ];
@@ -850,6 +916,218 @@ function renderFeynmanMinto(structural, narrative, room, section, artifacts, pre
   ).join('\n');
 }
 
+// ---------- Phase 88-04-B: atomic write contract ----------
+//
+// Every MINTO.md publish goes through atomicWriteMinto(). Sequence:
+//   1. openSync(tmp, 'wx')           -- exclusive create, EEXIST cleanup
+//   2. writeSync + fsyncSync         -- crash-safe durability
+//   3. closeSync                     -- release fd
+//   4. invariants.validate(tmp)      -- gate BEFORE rename so a broken
+//                                       narrative cannot overwrite a valid
+//                                       previous MINTO.md
+//   5. acquireLock(roomDir)          -- Phase 87-02 primitive; serializes
+//                                       concurrent renames across producers
+//   6. renameSync(tmp, target)       -- atomic publish
+//   7. releaseLock(roomDir)
+//
+// Tmp naming convention: <target>.tmp.<pid>.minto
+// Phase 88-13 guardian sweeps stale orphans matching this pattern at
+// session-start (mid-write SIGKILL leaves orphans; guardian cleans them).
+//
+// Test hooks (all gated behind MOS_TEST=1 so production is unaffected):
+//   MOS_TRACE_FS=1                   -- stderr logs "TRACE_FS fsyncSync"
+//                                       and "TRACE_FS renameSync" lines so
+//                                       Test 7 can assert ordering.
+//   MOS_TEST_ABORT_AFTER_FSYNC=1     -- exit(42) AFTER fsync but BEFORE
+//                                       rename, leaving an orphan tmp and
+//                                       preserving the previous MINTO.md.
+//                                       Proves Test 3 crash-safety.
+
+// Mock severity parsing is CLI-level (parsed from argv in the entry block).
+// Default is null meaning "use the real validator".
+let MOCK_INVARIANTS_FAIL = null;
+
+function traceFs(name) {
+  if (process.env.MOS_TRACE_FS === '1') {
+    process.stderr.write('TRACE_FS ' + name + '\n');
+  }
+}
+
+// Synthetic violations injected when MOS_TEST=1 and --mock-invariants-fail is
+// set. Lets Test 4 (ERROR rejection) and Test 5 (WARNING passthrough) verify
+// the gate behavior without engineering a 1500-token narrative.
+function buildMockViolations(severityName) {
+  const SEV = feynmanMintoInvariants.SEVERITY;
+  const CAT = feynmanMintoInvariants.CATEGORIES;
+  if (severityName === 'error') {
+    return [
+      {
+        category: CAT.SCHEMA,
+        severity: SEV.ERROR,
+        message: 'mock-invariants-fail=error injected for test',
+      },
+    ];
+  }
+  if (severityName === 'warning') {
+    return [
+      {
+        category: CAT.COHERENCE,
+        severity: SEV.WARNING,
+        message: 'mock-invariants-fail=warning injected for test',
+      },
+    ];
+  }
+  if (severityName === 'critical') {
+    return [
+      {
+        category: CAT.ATOMICITY,
+        severity: SEV.CRITICAL,
+        message: 'mock-invariants-fail=critical injected for test',
+      },
+    ];
+  }
+  return [];
+}
+
+function atomicWriteMinto(mintoPath, content, roomDir) {
+  const start = Date.now();
+  const tmpPath = mintoPath + '.tmp.' + process.pid + '.minto';
+  const SEV = feynmanMintoInvariants.SEVERITY;
+
+  let fd;
+  try {
+    fd = fs.openSync(tmpPath, 'wx');
+  } catch (e) {
+    if (e.code === 'EEXIST') {
+      // Stale tmp from a prior crash with the same pid slot. Clear and
+      // retry once; Phase 88-13 guardian is the long-term sweeper.
+      try { fs.unlinkSync(tmpPath); } catch (_) {}
+      fd = fs.openSync(tmpPath, 'wx');
+    } else {
+      throw e;
+    }
+  }
+
+  try {
+    fs.writeSync(fd, content);
+    traceFs('fsyncSync');
+    fs.fsyncSync(fd);
+  } finally {
+    try { fs.closeSync(fd); } catch (_) {}
+  }
+
+  // Test hook: simulate mid-write crash. Exit before rename so the previous
+  // MINTO.md stays intact and an orphan tmp is left for guardian cleanup.
+  if (
+    process.env.MOS_TEST === '1' &&
+    process.env.MOS_TEST_ABORT_AFTER_FSYNC === '1'
+  ) {
+    process.stderr.write(
+      'TEST_HOOK abort-after-fsync: exiting before rename (tmp=' + tmpPath + ')\n'
+    );
+    process.exit(42);
+  }
+
+  // --- Invariants gate ---
+  let validation;
+  if (
+    process.env.MOS_TEST === '1' &&
+    MOCK_INVARIANTS_FAIL !== null
+  ) {
+    const mockViolations = buildMockViolations(MOCK_INVARIANTS_FAIL);
+    // Derive severity from the highest-severity synthetic violation.
+    const order = [SEV.INFO, SEV.WARNING, SEV.ERROR, SEV.CRITICAL];
+    let maxIdx = -1;
+    for (const v of mockViolations) {
+      const idx = order.indexOf(v.severity);
+      if (idx > maxIdx) maxIdx = idx;
+    }
+    validation = {
+      valid: mockViolations.length === 0,
+      violations: mockViolations,
+      severity: maxIdx === -1 ? null : order[maxIdx],
+    };
+  } else {
+    validation = feynmanMintoInvariants.validate(tmpPath);
+  }
+
+  const blocking = validation.violations.filter(function (v) {
+    return v.severity === SEV.CRITICAL || v.severity === SEV.ERROR;
+  });
+  if (blocking.length > 0) {
+    // Broken output -- do NOT overwrite the previous MINTO.md. Clean up.
+    try { fs.unlinkSync(tmpPath); } catch (_) {}
+    return {
+      success: false,
+      violations: validation.violations,
+      bytes_written: 0,
+      elapsed_ms: Date.now() - start,
+      path: mintoPath,
+    };
+  }
+
+  // --- Atomic publish under lock ---
+  // Concurrent producers race on the lock; the primitive throws when
+  // another live PID owns it. Retry with backoff so bursty post-write +
+  // debouncer + on-stop drains do not need coordination above this layer.
+  // A final lock-failure still unlinks the tmp to avoid orphan leaks.
+  let locked = false;
+  let lockErr = null;
+  const LOCK_RETRIES = 12;
+  const LOCK_BASE_MS = 25;
+  const LOCK_CAP_MS = 1600;
+  for (let attempt = 0; attempt < LOCK_RETRIES; attempt++) {
+    try {
+      acquireLock(roomDir);
+      locked = true;
+      lockErr = null;
+      break;
+    } catch (e) {
+      lockErr = e;
+      // Exponential backoff with half-jitter; synchronous so we do not
+      // need event-loop integration in hook scripts.
+      const backoff = Math.min(LOCK_CAP_MS, LOCK_BASE_MS * Math.pow(2, attempt));
+      const sleep = Math.floor(backoff / 2 + Math.random() * (backoff / 2));
+      const end = Date.now() + sleep;
+      while (Date.now() < end) { /* busy-wait per 88-02 sync primitive */ }
+    }
+  }
+  if (!locked) {
+    // Lock acquisition exhausted retries. Unlink tmp so disk stays clean;
+    // surface as blocking violation so the caller does not assume success.
+    try { fs.unlinkSync(tmpPath); } catch (_) {}
+    return {
+      success: false,
+      violations: validation.violations.concat([{
+        category: feynmanMintoInvariants.CATEGORIES.ATOMICITY,
+        severity: SEV.ERROR,
+        message: 'write-lock acquire failed after ' + LOCK_RETRIES + ' retries: ' +
+          (lockErr && lockErr.message || lockErr),
+      }]),
+      bytes_written: 0,
+      elapsed_ms: Date.now() - start,
+      path: mintoPath,
+    };
+  }
+
+  try {
+    traceFs('renameSync');
+    fs.renameSync(tmpPath, mintoPath);
+  } finally {
+    if (locked) {
+      try { releaseLock(roomDir); } catch (_) {}
+    }
+  }
+
+  return {
+    success: true,
+    violations: validation.violations,
+    bytes_written: content.length,
+    elapsed_ms: Date.now() - start,
+    path: mintoPath,
+  };
+}
+
 function writeSectionFromNarrative(roomDir, sectionName, narrativePath, opts) {
   const options = opts || {};
 
@@ -930,18 +1208,46 @@ function writeSectionFromNarrative(roomDir, sectionName, narrativePath, opts) {
     process.stdout.write(
       'would write MINTO.md: ' + target + ' (' + content.length + ' bytes)\n'
     );
-    return { tier: 'tier-1', path: target, content: content, outcome: 'planned' };
+    return {
+      tier: 'tier-1',
+      path: target,
+      content: content,
+      outcome: 'planned',
+      envelope: {
+        success: true,
+        violations: [],
+        bytes_written: content.length,
+        elapsed_ms: 0,
+        path: target,
+      },
+    };
   }
-  const tmp = target + '.tmp';
-  fs.writeFileSync(tmp, content);
-  fs.renameSync(tmp, target);
-  process.stdout.write('wrote MINTO.md: ' + target + '\n');
-  return { tier: 'tier-1', path: target, content: content, outcome: 'written' };
+  // Phase 88-04-B: atomic write + invariants gate. A rejection keeps the
+  // previous MINTO.md intact; caller inspects envelope.success.
+  const env = atomicWriteMinto(target, content, roomDir);
+  if (env.success) {
+    process.stdout.write('wrote MINTO.md: ' + target + '\n');
+  } else {
+    process.stderr.write(
+      'tier-1 write REJECTED by invariants gate for ' +
+        target +
+        ': ' +
+        JSON.stringify(env.violations) +
+        '\n'
+    );
+  }
+  return {
+    tier: 'tier-1',
+    path: target,
+    content: content,
+    outcome: env.success ? 'written' : 'rejected',
+    envelope: env,
+  };
 }
 
 // ---------- Idempotent write ----------
 
-function writeOrPrint(targetPath, content, dryRun) {
+function writeOrPrint(targetPath, content, dryRun, roomDir) {
   let existing = null;
   try {
     existing = fs.readFileSync(targetPath, 'utf-8');
@@ -958,6 +1264,25 @@ function writeOrPrint(targetPath, content, dryRun) {
     );
     return 'planned';
   }
+  // Phase 88-04-B: route legacy bare-shell path through the same atomic
+  // contract so batch regenerations cannot produce torn reads or let a
+  // broken narrative overwrite a previous valid MINTO.md.
+  if (roomDir) {
+    const env = atomicWriteMinto(targetPath, content, roomDir);
+    if (env.success) {
+      process.stdout.write(`wrote MINTO.md: ${targetPath}\n`);
+      return 'written';
+    }
+    process.stderr.write(
+      'bare-shell write REJECTED for ' +
+        targetPath +
+        ': ' +
+        JSON.stringify(env.violations) +
+        '\n'
+    );
+    return 'skipped';
+  }
+  // Legacy fallback (no roomDir known) -- preserve pre-88-04-B semantics.
   const tmp = targetPath + '.tmp';
   fs.writeFileSync(tmp, content);
   fs.renameSync(tmp, targetPath);
@@ -998,7 +1323,10 @@ function generateAllSectionMintos(roomDir, opts = {}) {
     // Phase 88-00: read-before-write so v88 fields preserve across regen.
     const preserved = readPreservedV88Fields(target);
     const content = renderSectionMinto(section, artifacts, room, preserved);
-    const outcome = writeOrPrint(target, content, dryRun);
+    // Phase 88-04-B: pass the room directory so writeOrPrint can route
+    // through the atomic write contract (openSync 'wx' + fsync +
+    // invariants gate + acquireLock + rename).
+    const outcome = writeOrPrint(target, content, dryRun, roomDir);
     results[outcome] = (results[outcome] || 0) + 1;
   }
 
@@ -1035,6 +1363,17 @@ if (require.main === module) {
         process.stderr.write('ERROR: --write requires --section <name>\n');
         process.exit(1);
       }
+      // Phase 88-04-B: propagate CLI mock flag to the atomic-write gate.
+      // Gated by MOS_TEST=1 inside atomicWriteMinto; belt-and-suspenders
+      // check here keeps production config changes visibly rejected.
+      if (MOCK_INVARIANTS_FAIL_CLI && process.env.MOS_TEST !== '1') {
+        process.stderr.write(
+          'ERROR: --mock-invariants-fail requires MOS_TEST=1 (test-only flag)\n'
+        );
+        process.exit(1);
+      }
+      MOCK_INVARIANTS_FAIL = MOCK_INVARIANTS_FAIL_CLI;
+      let result;
       if (!NARRATIVE_PATH) {
         // Phase 81-03: no narrative means tier-0 path. Route through the
         // single runTier0 entry point which appends an AAAK footer.
@@ -1043,15 +1382,21 @@ if (require.main === module) {
             SECTION_FILTER +
             '\n'
         );
-        runTier0({
+        result = runTier0({
           roomDir: ROOM_DIR,
           sectionName: SECTION_FILTER,
           dryRun: DRY_RUN,
         });
       } else {
-        writeSectionFromNarrative(ROOM_DIR, SECTION_FILTER, NARRATIVE_PATH, {
+        result = writeSectionFromNarrative(ROOM_DIR, SECTION_FILTER, NARRATIVE_PATH, {
           dryRun: DRY_RUN,
         });
+      }
+      // Phase 88-04-B: machine-parsable envelope. Callers (88-04 post-write
+      // hook, 88-06 on-stop drain, 88-13 guardian) read this to know
+      // whether the write landed or the invariants gate rejected it.
+      if (result && result.envelope) {
+        process.stdout.write(JSON.stringify(result.envelope) + '\n');
       }
     } else {
       // Legacy / bare-shell path: preserved verbatim.
@@ -1083,4 +1428,6 @@ module.exports = {
   buildArtifactPayload,
   // Phase 81-03 additions
   runTier0,
+  // Phase 88-04-B addition
+  atomicWriteMinto,
 };
