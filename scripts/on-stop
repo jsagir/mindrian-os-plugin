@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 # on-stop: Stop hook handler for MindrianOS
 # Computes STATE.md from filesystem truth and persists it to room/STATE.md
+#
+# Phase 88-06 extends on-stop with the per-section memory triple close-out:
+#   1. Drain the minto-debouncer queue (1500ms budget, olderThanMs=0).
+#   2. Recompile ROOM.md references for every active section.
+#   3. Walk sections and call folder-memory.readTriple() to capture the
+#      full triple signal.
+#   4. Write .mindrian/session-snapshot.json (consumed by session-start
+#      in Phase 88-07).
+#   5. Write .mindrian/minto-stale.json for any sections whose reasoning
+#      is stale after the drain.
+# Total Phase 88 budget ~1500ms (1500 drain + recompile-in-parallel +
+# snapshot under 500ms), leaving slack under the 3000ms hook timeout.
+# STATE.md write path (Phase 84 contract) is preserved byte-for-byte.
 
 set -euo pipefail
 
@@ -209,6 +222,131 @@ if command -v node >/dev/null 2>&1 && [ -f "${PLUGIN_ROOT}/scripts/memory-lifecy
     " 2>/dev/null || echo "")
   fi
 fi
+
+# --- Phase 88-06: triple snapshot (Wave 2, session close-out) ---
+# Drains the minto-debouncer queue, recompiles ROOM.md references for
+# every active section, captures per-section triple via readTriple, and
+# writes .mindrian/session-snapshot.json + .mindrian/minto-stale.json.
+# Bounded to ~1500ms drain + parallel recompiles + sub-500ms snapshot so
+# the 3000ms Stop-hook budget absorbs slack. Every step soft-fails (|| true)
+# so a Phase 88 failure cannot break the Stop-hook exit-0 contract. The
+# Phase 84 STATE.md write above is preserved byte-for-byte.
+if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" ]; then
+  PHASE88_START_MS=$(node -e "process.stdout.write(String(Date.now()))" 2>/dev/null || echo 0)
+
+  # 1. Drain the debouncer queue. olderThanMs=0 flushes everything; 1500ms
+  # wall-clock budget leaves slack for recompile + snapshot inside the
+  # 3000ms hook timeout. Partial drain leaves remainder queued for next
+  # session-start (88-05 drain-at-prompt is the next opportunity).
+  node "${SCRIPT_DIR}/minto-debouncer.cjs" drain "${ROOM_DIR}" --timeout=1500 --older-than=0 >/dev/null 2>&1 || true
+
+  # 2. Recompile ROOM.md references for every top-level section in parallel.
+  # Each recompile has its own 400ms timeout; the outer wait caps total at
+  # ~800ms wall-clock even for 20-section rooms. mtime-conflict skips are
+  # expected (recompiler exits 0 with stderr warning in that case).
+  for SECTION_DIR in "${ROOM_DIR}"/*/; do
+    [ -d "$SECTION_DIR" ] || continue
+    [ -f "${SECTION_DIR}ROOM.md" ] || continue
+    ( timeout 0.4 node "${SCRIPT_DIR}/recompile-room-references.cjs" "${SECTION_DIR%/}" >/dev/null 2>&1 || true ) &
+  done
+  # Wait at most ~1s for recompiles to finish, then move on. Background
+  # recompiles that exceed the budget are orphaned -- they finish when they
+  # finish but the hook does not wait on them.
+  ( sleep 1 && kill $(jobs -p) 2>/dev/null || true ) &
+  WAIT_KILL_PID=$!
+  wait $(jobs -p) 2>/dev/null || true
+  kill "$WAIT_KILL_PID" 2>/dev/null || true
+
+  # 3-5. Walk sections, readTriple per section, write snapshot + stale JSON.
+  # Single Node invocation amortizes cold-start cost. Atomic tmp+rename
+  # so a crash mid-write leaves the previous snapshot intact. Every failure
+  # path funnels through || true so the outer hook exits 0 regardless.
+  ROOM_DIR_ENV="${ROOM_DIR}" PLUGIN_ROOT_ENV="${PLUGIN_ROOT}" node -e '
+    "use strict";
+    const fs = require("fs");
+    const path = require("path");
+    const roomDir = process.env.ROOM_DIR_ENV;
+    const pluginRoot = process.env.PLUGIN_ROOT_ENV;
+    let fm;
+    try {
+      fm = require(path.join(pluginRoot, "lib", "core", "folder-memory.cjs"));
+    } catch (_e) {
+      process.exit(0);
+    }
+    const sections = {};
+    const stale = [];
+    let entries = [];
+    try {
+      entries = fs.readdirSync(roomDir, { withFileTypes: true })
+        .filter((d) => d.isDirectory() && d.name[0] !== ".");
+    } catch (_e) {
+      entries = [];
+    }
+    for (const d of entries) {
+      const sp = path.join(roomDir, d.name);
+      // Skip sections that have no ROOM.md (not an active section, per
+      // ICM Layer 0 decision 15 in CLAUDE.md).
+      try {
+        if (!fs.existsSync(path.join(sp, "ROOM.md"))) continue;
+      } catch (_e) { continue; }
+      let triple;
+      try {
+        triple = fm.readTriple(sp);
+      } catch (e) {
+        stale.push({
+          section: d.name,
+          reason: "readtriple_failed",
+          error: String(e && e.message || e),
+          last_generated_at: null,
+        });
+        continue;
+      }
+      sections[d.name] = triple;
+      if (triple && triple.reasoning && triple.reasoning.is_stale) {
+        stale.push({
+          section: d.name,
+          reason: triple.reasoning.stale_reason || "unknown",
+          last_generated_at: triple.reasoning.last_generated_at || null,
+        });
+      }
+    }
+    const snapshotAt = new Date().toISOString();
+    const snapshot = {
+      version: 1,
+      session_id: process.env.CLAUDE_SESSION_ID || ("sess-" + Date.now()),
+      snapshot_at: snapshotAt,
+      active_room: roomDir,
+      sections: sections,
+    };
+    const snapPath = path.join(roomDir, ".mindrian", "session-snapshot.json");
+    try {
+      const tmp = snapPath + ".tmp." + process.pid;
+      fs.writeFileSync(tmp, JSON.stringify(snapshot, null, 2));
+      fs.renameSync(tmp, snapPath);
+    } catch (_e) { /* soft-fail */ }
+    if (stale.length > 0) {
+      const stalePath = path.join(roomDir, ".mindrian", "minto-stale.json");
+      try {
+        const tmp2 = stalePath + ".tmp." + process.pid;
+        fs.writeFileSync(tmp2, JSON.stringify({
+          version: 1,
+          at: snapshotAt,
+          sections: stale,
+        }, null, 2));
+        fs.renameSync(tmp2, stalePath);
+      } catch (_e) { /* soft-fail */ }
+    }
+  ' >/dev/null 2>&1 || true
+
+  # Best-effort observability: elapsed-ms trace into a room-local log. Bounded
+  # appends so the file stays small; no rotation needed in v1.
+  PHASE88_END_MS=$(node -e "process.stdout.write(String(Date.now()))" 2>/dev/null || echo 0)
+  PHASE88_ELAPSED=$((PHASE88_END_MS - PHASE88_START_MS))
+  printf '%s on-stop-phase88 elapsed_ms=%s\n' \
+    "$(date -u +%FT%TZ)" "$PHASE88_ELAPSED" \
+    >> "${ROOM_DIR}/.mindrian/session-close.log" 2>/dev/null || true
+fi
+# --- end Phase 88-06 ---
 
 # Output success JSON. If the voice-log reader produced a summary line,
 # attach it via systemMessage (the Stop-hook field that surfaces text to
