@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.10.9
-milestone_name: -- Cross-Platform Parity
+milestone: v1.11.0
+milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 88-02-PLAN.md -- minto-debouncer queue shipped at 80a0f52; feynman suite 33/33
-last_updated: "2026-04-20T08:47:04.244Z"
-last_activity: 2026-04-20
+stopped_at: Completed 88-09-PLAN.md -- post-compact TRIPLE_CONTEXT re-injection wired; byte-identity with session-start enforced; feynman 43 files registered; 9 new Phase 88-09 tests all passing
+last_updated: "2026-04-23T09:50:01.743Z"
+last_activity: 2026-04-23
 progress:
-  total_phases: 13
+  total_phases: 15
   completed_phases: 2
-  total_plans: 36
-  completed_plans: 28
-  percent: 0
+  total_plans: 63
+  completed_plans: 46
+  percent: 35
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 88 — feynman-minto-memory-layer
+**Current focus:** Phase 88 -- feynman-minto-memory-layer (v1.11.0 milestone)
 
 ## Current Position
 
-Phase: 88 (feynman-minto-memory-layer) — EXECUTING
-Plan: 5 of 16
+Phase: 88 (feynman-minto-memory-layer) -- EXECUTING
+Plan: 12 of 16
 Status: Ready to execute
-Last activity: 2026-04-20 - Completed quick task 260420-gg7: MINDRIAN-CANON.md
+Last activity: 2026-04-23
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [###░░░░░░░] 35%
 
 ## Performance Metrics
 
@@ -83,6 +83,13 @@ Progress: [░░░░░░░░░░] 0%
 | Phase Phase 88-00 P00 | 20min | 2 tasks | 11 files |
 | Phase 88 P01 | 12min | 1 tasks | 4 files |
 | Phase Phase 88 PP02 | 25min | 1 tasks | 4 files |
+| Phase 88 P03 | 15min | 1 tasks | 4 files |
+| Phase 88 P04-B | 15min | 1 tasks | 8 files |
+| Phase 88 P04 | 91min | 3 tasks | 7 files |
+| Phase 88 P05 | 63min | 1 tasks | 3 files |
+| Phase 88 P06 | 15min | 1 tasks | 2 files |
+| Phase 88 P07 | 60min | 2 tasks | 7 files |
+| Phase 88 P09 | 15min | 1 tasks | 2 files |
 
 ### Decisions
 
@@ -168,6 +175,30 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase Phase 88]: [Phase 88-02]: self-healing queue reader returns empty shape on ENOENT/SyntaxError/shape-mismatch/version-mismatch with one stderr warning; debouncer is best-effort coalescing valve not correctness boundary, so dropping a crash-corrupted queue is preferable to crashing a bash hook
 - [Phase Phase 88]: [Phase 88-02]: Atomics.wait sync sleep on SharedArrayBuffer Int32Array for CLI hook scripts with no event loop; busy-wait fallback if SAB disabled; future sync-sleep needs (rate limiters, retry loops) should copy this primitive
 - [Phase Phase 88]: [Phase 88-02]: drain returns partial results on timeout rather than throwing; wall-clock checked at three gates (pre-lock, post-lock, mid-partition); any entries not processed stay queued for next drain -- consumer-friendly API for bounded-budget callers (on-stop 5s, intent-classifier session-start)
+- [Phase 88]: [Phase 88-03]: ROOM.md references recompiler deterministic + atomic + composes with Phase 87-02 write-lock via exponential-backoff retry (12 attempts, 25ms base, 1600ms cap, half-jitter); machine-managed region delimited by <!-- BEGIN/END REFERENCES --> markers identical to 88-01 folder-memory reader; identity prose preservation verified byte-for-byte across recompiles
+- [Phase 88]: [Phase 88-03]: mtime-conflict detection via .mindrian/recompile-stamps.json with 1000ms slack for fs timestamp granularity; double-check pattern (pre-lock AND post-lock) defends against stamp refresh during backoff; stamp advances even on no-op recompile to keep next comparison honest; CLI exits 0 on mtime_conflict (expected outcome, warning to stderr) -- closes risk #7 silent stomp of manual edits
+- [Phase 88]: [Phase 88-03]: Wikilinks emit as [[target]] when label==target (standard Obsidian rendering + grep-friendly dedup) and [[target|label]] when they differ; alphabetical stable sort on target is the determinism anchor that makes 88-06 on-stop snapshot diffs meaningful
+- [Phase 88]: [Phase 88-04-B]: 7-step atomic write (openSync 'wx' + fsync + validate + acquireLock + rename + releaseLock) with invariants gate BEFORE rename; broken narratives cannot overwrite previous MINTO.md; machine-parsable envelope {success, violations[], bytes_written, elapsed_ms, path} on stdout for 88-04/88-06/88-13 consumers
+- [Phase 88]: [Phase 88-04-B]: Exponential-backoff lock retry (12 attempts, 25-1600ms cap, half-jitter) composes with Phase 87-02 acquireLock primitive so 5-20 concurrent producers converge without starvation; tmp naming <target>.tmp.<pid>.minto lets 88-13 guardian sweep orphans and correlate to producer pid
+- [Phase 88]: [Phase 88-04-B]: Rule 1 auto-fix -- 88-00-B YAML parser regex extended from [A-Za-z_][A-Za-z0-9_]* to [A-Za-z_][A-Za-z0-9_-]* in 3 key-parse sites to accept dashes in key names like parent-moc; Rule 2 auto-fix -- schema_version + governing_thought added as top-level frontmatter keys in both tier-0 and tier-1 paths so invariants validator accepts generator output
+- [Phase 88]: [Phase 88-04]: Post-write triple-fire wired -- detect_room_section via .room-root walker; stamp + recompile BACKGROUNDED (disowned subshells) so user-visible hook return is decoupled from write-lock contention under 20-writer Cowork load; debouncer enqueue stays synchronous (single-digit-ms JSON write) to preserve 10s coalesce ordering; system files ROOM/STATE/MINTO stamp only (no enqueue, no recompile) to prevent MINTO-rewrite livelock
+- [Phase 88]: [Phase 88-04]: hooks.json PostToolUse matcher widened Write -> Write|Edit|MultiEdit for parity with PreToolUse; Edit-in-place of existing artifacts now fires freshness wires (pre-88-04, edits silently drifted MINTO + ROOM.md within one session); scripts/post-write gets explicit exit 0 soft-fail boundary under set -euo pipefail so cascade/triple-fire failures cannot propagate as user-visible tool-call failures
+- [Phase 88]: [Phase 88-04]: stamp-artifact-write helper composes with Phase 87-02 write-lock via 12-attempt exponential-backoff retry with half-jitter (mirrors 88-02 debouncer + 88-03 recompiler primitives); atomic tmp+fsync+rename with .tmp.<pid> naming; defensive pending-stamps fallback at .mindrian/pending-stamps/<section>.json when MINTO.md is absent or malformed (88-05 regen worker will merge on next generation)
+- [Phase 88]: [Phase 88-05]: drain-at-prompt lazy commit -- UserPromptSubmit fires on every user turn, drains items older than 30s, appends to .mindrian/pending-tier1-regen.json atomically, spawns tier-0 regens in BACKGROUND via child_process.spawn(detached,unref,stdio:ignore); session crashes preserve queue and next hook picks up where we left off
+- [Phase 88]: [Phase 88-05]: consolidated single-node drain over three-bash-call pipeline -- 20-entry burst collapsed from 2696ms to 777ms by amortizing Node cold-start cost across drain + pending-append + fork-scheduling; programmatic debouncer.drain() API used instead of CLI subprocess to avoid second cold-node fork
+- [Phase 88]: [Phase 88-05]: pending-tier1-regen.json as inter-phase bridge with APPEND-only semantics -- 88-05 is producer (appends drained entries), 88-07 session-start is consumer (surfaces 'N sections have tier-0 pending tier-1 upgrade' prompt); history preserved across sessions so 88-07 has full visibility
+- [Phase 88-06]: on-stop close-out: olderThanMs=0 (flush everything) + timeoutMs=1500 (not PLAN 5000) to respect 3000ms hooks.json Stop-hook budget; debouncer partial-on-timeout guarantees nothing lost (88-05 at-prompt drain next session)
+- [Phase 88-06]: Parallel per-section recompile with outer wait cap (~1000ms) instead of sequential N*400ms; orphaned recompiles finish async but hook does not block; 88-13 guardian can surface orphans via .mindrian/session-close.log elapsed traces
+- [Phase 88-06]: Single inlined Node -e block for readTriple walk + atomic snapshot + stale ledger: amortizes cold-start cost (saved ~2s vs three bash subcalls) and sidesteps bin/mindrian-tools.cjs better-sqlite3 coupling; env-var context transfer via ROOM_DIR_ENV + PLUGIN_ROOT_ENV
+- [Phase 88-06]: session-snapshot.json + minto-stale.json both schema v1; atomic tmp.<pid>+rename per file; readtriple_failed error path appends to stale list with section-specific error so one broken section cannot crash the whole snapshot walk (graceful-degradation propagated from 88-01)
+- [Phase 88-06]: Phase 84 STATE.md contract preserved byte-for-byte: Phase 88 block is strictly ADDITIVE, sits AFTER Phase 84 STATE.md write + memory-lifecycle + voice-log reader; Test 6 is the explicit regression fence (any future edit removing compute-state call breaks the test)
+- [Phase 88]: Phase 88-07: DEFAULT_BUDGET_TOKENS = 5000 grounded in measured 3825-token session-start baseline (not 20% heuristic); SESSION_START_BUDGET_TOKENS env override lets power users rescale
+- [Phase 88]: Phase 88-07: Null reasoning_health_score sorts FIRST (weakest-most / highest-priority-to-surface) under budget pressure -- matches pedagogical goal of surfacing weakest triples first
+- [Phase 88]: Phase 88-07: Snapshot-first read with live readTriple fallback -- three-tier graceful degradation (snapshot -> live -> empty) makes session-start robust to 88-06 producer failure
+- [Phase 88]: Phase 88-07: Bash env-propagation fix --  does NOT propagate VAR into subshell; use  for correct scoping. Same pattern as 88-06 on-stop
+- [Phase 88]: [Phase 88-09] Byte-identity enforced via Test 9 rather than shared-helper extraction: session-start + post-compact have near-duplicate node -e blocks; extraction to scripts/emit-triple-context.cjs deferred because (a) hook budgets (3000ms / 5000ms) already tight; (b) Test 9 is deterministic CI gate for drift
+- [Phase 88]: [Phase 88-09] stderr diagnostic 'post-compact: snapshot missing: fell back to live read' kept verbatim from PLAN so 88-13 guardian's log-scrape regex can match both this hook and future consumers that copy the pattern
+- [Phase 88]: [Phase 88-09] Snapshot-first / live-fallback / empty-OK three-tier ladder copies 88-07 contract verbatim; only filename differs (pre-compact-snapshot.json vs session-snapshot.json); four-phase producer-consumer architecture now symmetric (88-06->88-07, 88-08->88-09)
 
 ### Pending Todos
 
@@ -189,6 +220,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-20T08:47:04.238Z
-Stopped at: Completed 88-02-PLAN.md -- minto-debouncer queue shipped at 80a0f52; feynman suite 33/33
+Last session: 2026-04-23T09:49:50.151Z
+Stopped at: Completed 88-09-PLAN.md -- post-compact TRIPLE_CONTEXT re-injection wired; byte-identity with session-start enforced; feynman 43 files registered; 9 new Phase 88-09 tests all passing
 Resume file: None

@@ -1,4 +1,8 @@
-# Roadmap: Obsidian Vault Export v1.9.8
+# Roadmap: Memory Triple + Navigation Engine v1.11.0
+
+## Active Milestone: v1.11.0 Memory Triple + Navigation Engine
+
+Current in-progress milestone covering Phases 88, 88.1, 89, 90, 91. Releases as v1.10.13 (Phase 88), v1.10.14 (Phase 88.1), v1.10.15 (Phase 90), and v1.11.0 (Phase 91 destination). See `## Milestones`, `## Phases`, and `## Planned Pipeline` below for detail.
 
 ## Overview
 
@@ -46,7 +50,10 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - **v1.10.2 Feynman-MINTO Hybrid** - Phase 81 (SHIPPED 2026-04-14)
 - **v1.10.5 Wiki Artifact Injection Fix** - Phase 82 (SHIPPED 2026-04-14)
 - **v1.10.7 Cross-Session Scope Injection + Wrapper Fix** - Phase 83 (SHIPPED 2026-04-14)
-- **v1.10.8 Smart Notebook (Memory Promotion)** - Phase 84 (in progress)
+- **v1.10.8 Smart Notebook (Memory Promotion)** - Phase 84 (SHIPPED 2026-04-15)
+- **v1.10.9 Windows Hotfix Cross-Platform Parity** - Phase 85 (SHIPPED 2026-04-15)
+- **v1.10.11 + v1.10.12 Security Hardening + Cascade + Dashboard** - Phase 87 (SHIPPED 2026-04-19)
+- **v1.11.0 Memory Triple + Navigation Engine** - Phases 88, 88.1, 89, 90, 91 (IN PROGRESS)
 
 ## Phases
 
@@ -58,7 +65,14 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - [x] **Phase 81: Feynman-MINTO Hybrid** - MINTO.md files born compressed via Feynman engine stages 1, 2, 4, 5. Tier-1 default (slash-command orchestrator inside Claude session, no API key, no budget), tier-0 fallback (deterministic MINTO + AAAK footer). Shipped as v1.10.2 on 2026-04-14.
 - [x] **Phase 82: Wiki Artifact Injection Fix** - Populate sec.artifacts in scripts/generate-presentation.cjs collectSections so the wiki template has content to render. Added per-artifact 20 KB cap and per-room 2 MB cap to prevent HTML bloat. Upgraded sec.summary to read MINTO.md governing_thought when present (free leverage of v1.10.2 Feynman-MINTO infrastructure). Reported by Lawrence Aronhime 2026-04-13 23:23, bug sat unfixed across 8 releases. Shipped as v1.10.5 on 2026-04-14.
 - [x] **Phase 83: Cross-Session Scope Injection + Wrapper Fix** - Inject ACTIVE ROOM context block into Claude's session-start prompt so cross-session memory is bounded by room scope and Claude refuses to leak content from other rooms without explicit user acknowledgment. Surface every room with a GUARDRAIL.md as a sealed-room with its hard rules quoted. Bundle the parked statusline wrapper fix (settings.json no longer hardcodes legacy plugin path; wrapper resolves latest cache version). Triggered by witnessed cross-session leak where Claude pulled rashut-hadshanut-ai content into an align-x-milken scoped session and drafted a Hebrew intro line that belonged to the sealed room. Shipped as v1.10.7 on 2026-04-14.
-- [ ] **Phase 84: Smart Notebook (Co-Pilot reshape)** - v1.10.8 ships the notebook writing surface (Mullins 20-section scaffold) AND the co-pilot inject channel (graph-to-proactive-intelligence bridge + UserPromptSubmit hook) in one hybrid release. Plans 84-01/02/03 are DONE (memory-ops schema extended with 4 event-log tables, room-db.cjs composition module, memory-lifecycle.cjs wired into session-start + stop + pre/post-compact hooks). Plans 84-04 through 84-10 remain: Mullins scaffold loader, Stakeholder node type + bridge function, UserPromptSubmit graph-findings injection (env-gated, default ON, top-3 cap), voice-log writer + reader, fixture tests, self-update script rewrite for versioned-cache model (triggered by witnessed failure 2026-04-14), honesty layer sibling section + 5-gate release. **Spec authority**: `docs/superpowers/specs/2026-04-14-phase-84-smart-notebook-co-pilot-design.md` (committed at `eb89500`). Research authority: `docs/research/2026-04-14-stakeholder-graph-deep-research.md` and `docs/research/2026-04-14-feynman-minto-scn-benchmark.md` (v1.11.x Stakeholder Intelligence milestone brief). Direct to v1.10.8 stable.
+- [x] **Phase 84: Smart Notebook (Co-Pilot reshape)** - v1.10.8 ships the notebook writing surface (Mullins 20-section scaffold) AND the co-pilot inject channel (graph-to-proactive-intelligence bridge + UserPromptSubmit hook) in one hybrid release. Plans 84-01/02/03 done, 84-04 through 84-10 done. Shipped as v1.10.8 on 2026-04-15.
+- [x] **Phase 85: Windows Hotfix v1.10.9 Cross-Platform Parity** - Restore full v1.10.8 feature parity on Windows via node:sqlite migration (better-sqlite3 replacement), hooks/run-hook.cmd exit-code propagation, vault-export .mindrian inclusion, python3-to-platform-dispatch helper, session-start version banner fix. Node 22.5+ engine floor. Shipped as v1.10.9 on 2026-04-15.
+- [x] **Phase 87: Security Hardening + Cascade Refactor + Localhost Dashboard** - Stream A (v1.10.11): Cypher sanitization + API key permissions + HSI timeout + write-lock atomic + ROOM.md+MINTO.md pre-commit hook + localhost live dashboard at :3131. Stream B (v1.10.12): cascade dedup + sync/async entry-point split + MCP input validation + indexArtifact transaction + Brain session cache with LRU eviction + BYO API chat panel with Bearer auth. Shipped 2026-04-19.
+- [ ] **Phase 88: Per-Folder Memory Triple Wiring** - Wire ROOM.md + STATE.md + Feynman-MINTO.md as a coordinated cross-session memory triple via five lifecycle wires (post-write freshness, on-stop snapshot, session-start TRIPLE_CONTEXT injection, pre/post-compact resilience, decision_log persistence) + unified read contract `lib/core/folder-memory.cjs` + invariants module + guardian. 8/16 plans shipped (88-00-B, 88-00, 88-01, 88-02, 88-03, 88-04-B, 88-04, 88-05). Releases as v1.10.13.
+- [ ] **Phase 88.1: UI/UX Polish + MINTO Surface Plumbing** - Close gap between 71 shipped commands and the Claude Code 2.1.x polish bar. Four workstreams: MINTO surface plumbing (statusline + /mos:status + SessionStart banner consume governing_thought), description-driven UX sweep across 71 commands plus README permissions block, hook output primitives (systemMessage retrofit on 9 hooks plus two new hooks for schema validation and async artifact auto-commit), README as 7th surface. CONTEXT filed 2026-04-20. Releases as v1.10.14.
+- [ ] **Phase 89: Reverse-Salient Engine** - Hughes 1983 reverse-salient detection for lagging components in an expanding venture. Computes embedding-distance lag signal per section, optional consumer of Phase 88 reasoning_health_score. 7 plans on disk, zero summaries. Ships independently.
+- [ ] **Phase 90: Brain Derivation Layer** - Lets the Brain excavate the local triple (Phase 88) and produce a persistent authored BRAIN.md per section with pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, cross-room contradiction flags. Extends triple to quadruple. Graceful degradation when Brain offline. CONTEXT filed. Releases as v1.10.15.
+- [ ] **Phase 91: Navigation Engine** - L5 Decision layer reading the L3 Navigation substrate (SQL + quadruple memory) to decide which skill/command/framework fires each turn. Five-signal triangulation (ICM + SQL + Feynman-MINTO + BRAIN + intent/persona). Persona durability via USER.md. Visible dial in statusline. /mos:explain-decision command. CONTEXT filed. Destination phase. Releases as v1.11.0.
 
 ## Phase Details
 
@@ -233,6 +247,111 @@ Plans:
 - [x] 87-10-v2-PLAN.md -- v1.10.12 release gate (wave 5, Stream B; 5-gate release)
 **Authority**: .planning/phases/87-security-hardening-cascade-refactor/87-CONTEXT.md
 
+### Phase 88: Per-Folder Memory Triple Wiring
+**Goal**: Wire the per-folder memory triple (ROOM.md + STATE.md + Feynman-MINTO.md) through the session lifecycle so it functions as true cross-session memory. STATE.md is already wired on-stop. ROOM.md is partially wired (created, not re-compiled as references change). Feynman-MINTO is unwired (zero skills read it, no hook regenerates it). This phase closes both gaps via five wires + unified read contract + invariants + guardian.
+**Depends on**: Phase 87 v1.10.11 (security + 87-01a pre-commit hook + 87-02 atomic write-lock), Phase 81 (Feynman-MINTO file type), Phase 84 (room.db), CLAUDE.md decision #15 (ROOM.md per folder)
+**Requirements**: Five wires (post-write freshness, on-stop snapshot, session-start TRIPLE_CONTEXT injection, pre/post-compact resilience, decision_log persistence) + `lib/core/folder-memory.cjs` read contract + `lib/core/feynman-minto-invariants.cjs` + `scripts/feynman-minto-guardian.cjs`
+**Success Criteria** (what must be TRUE):
+  1. Feynman-MINTO.md files auto-regenerate within 30s of room section artifact writes
+  2. ROOM.md references auto-recompile within 200ms of artifact writes, machine-managed region delimited, manual content preserved
+  3. STATE.md on-stop contract unchanged and green
+  4. `lib/core/folder-memory.cjs` exposes unified readTriple(); at least one skill consumes it by Wave 4
+  5. session-start injects TRIPLE_CONTEXT block for active sections under 20% of session-start budget
+  6. Triple signal survives compaction (pre/post-compact wires functional)
+  7. decision_log persists APPROVE/REJECT/DEFER across sessions; Session B Larry references Session A decisions
+  8. Cross-session acceptance test passes (file weak-TAM artifact + defer in Session A; open Session B; Larry references prior flag)
+  9. Feynman tests stay green (17/17 at phase start, 38/38 at 88-05 ship point) throughout
+  10. 5-gate release: CHANGELOG 1.10.13, plugin.json 1.10.13, package.json 1.10.13, git tag v1.10.13, marketplace pin
+**Plans**: 16 plans across 6 waves
+Plans:
+- [x] 88-00-B-PLAN.md -- Feynman-MINTO Invariants Module (existence, schema, freshness, coherence, atomicity categories; critical/error/warning/info severity)
+- [x] 88-00-PLAN.md -- Feynman-MINTO frontmatter schema extension (last_generated_at, last_artifact_write_seen_at, reasoning_health_score, flagged_weaknesses, decision_log)
+- [x] 88-01-PLAN.md -- `lib/core/folder-memory.cjs` read contract (readTriple returns unified ROOM + STATE + reasoning signal)
+- [x] 88-02-PLAN.md -- `scripts/minto-debouncer.cjs` queue with 10s coalescing window (atomic writes, self-healing reader, Atomics.wait sync sleep)
+- [x] 88-03-PLAN.md -- ROOM.md references recompiler (deterministic, atomic, machine-managed region, mtime conflict detection)
+- [x] 88-04-B-PLAN.md -- Atomic write contract for Feynman-MINTO generator (tmpfile + fsync + invariants gate + atomic rename)
+- [x] 88-04-PLAN.md -- post-write hook triple-fire (stamp + recompile + debouncer enqueue; Write/Edit/MultiEdit parity)
+- [x] 88-05-PLAN.md -- UserPromptSubmit drain background regen runner (30s staleness threshold, detached child spawn, pending-tier1-regen bridge)
+- [x] 88-06-PLAN.md -- on-stop close-out snapshot (drain debouncer 5s timeout, recompile ROOM refs, write session-snapshot.json)
+- [x] 88-07-PLAN.md -- session-start TRIPLE_CONTEXT injection block with budget cap
+- [x] 88-08-PLAN.md -- pre-compact triple snapshot (atomic write, 2s hook timeout)
+- [x] 88-09-PLAN.md -- post-compact TRIPLE_CONTEXT re-injection with lazy-read fallback
+- [ ] 88-10-PLAN.md -- decision-capture helper writes to decision_log with 20-entry cap + monthly archive
+- [ ] 88-11-PLAN.md -- APPROVE/REJECT/DEFER cascade dual-write to graph + decision_log
+- [ ] 88-12-PLAN.md -- v1.10.13 5-gate release
+- [ ] 88-13-PLAN.md -- Feynman-MINTO Guardian boundary enforcement (session-start validate, on-stop verify, pre-commit extend)
+**Authority**: .planning/phases/88-feynman-minto-memory-layer/88-CONTEXT.md
+
+### Phase 88.1: UI/UX Polish + MINTO Surface Plumbing
+**Goal**: Close the gap between MindrianOS shipped surface (71 commands, 9 skills, 8 agents, 10+ hooks) and the Claude Code 2.1.x polish bar for a moat-depth plugin. Four workstreams: MINTO surface plumbing wired to Phase 88 governing_thought, description-driven UX sweep, hook output primitive retrofit, README as 7th surface. Boring hygiene that raises the trust floor before Phase 88.2 adds interactive Selector Block primitives on top.
+**Depends on**: Phase 88 v1.10.13 (triple wired, governing_thought stable across sessions)
+**Requirements**: Workstream A (statusline MINTO segment, /mos:status MINTO summaries, SessionStart MINTO banner) + Workstream B (71 command description hygiene sweep, README permissions block, agent PROACTIVELY audit) + Workstream C (systemMessage retrofit on 9 hooks, schema validation hook, async artifact auto-commit hook) + Workstream D (README 3-paragraph user-expectation setter)
+**Success Criteria** (what must be TRUE):
+  1. Statusline reads active section governing_thought via folder-memory.cjs within 300ms render budget
+  2. /mos:status replaces raw artifact counts with 1-line governing_thought per filled section
+  3. SessionStart banner shows top-3 most-recently-modified sections' governing_thoughts
+  4. 71 command descriptions under 60 chars, verb-first, user vocabulary, under-promise pattern
+  5. README ships permissions.allow block matching real no-prompt usage
+  6. All 9 existing hooks produce systemMessage output (no silent hooks)
+  7. Feynman tests stay green (currently 28/28 at v1.10.12 HEAD)
+  8. MWP moat deepened (every plan connects to a moat layer)
+  9. 5-gate release: CHANGELOG 1.10.14, plugin.json 1.10.14, package.json 1.10.14, git tag v1.10.14, marketplace pin
+**Plans**: 10 plans across 4 waves (not yet filed)
+**Authority**: .planning/phases/88.1-uiux-polish/88.1-CONTEXT.md
+
+### Phase 89: Reverse-Salient Engine
+**Goal**: Formalize Hughes 1983 reverse-salient detection as a standalone engine that identifies the lagging component in an expanding venture. Computes per-section embedding-distance lag signals and attack vectors. Optional consumer of Phase 88 reasoning_health_score. Ships independently of Phase 88/90/91; not blocking other phases.
+**Depends on**: Existing Python HSI pipeline (sentence-transformers + LSA), existing Pinecone 1,427 methodology embeddings; no hard blockers
+**Requirements**: Reverse-salient algorithm extraction, per-section lag computation, attack-vector generation, CLI integration (/mos:find-bottlenecks wraps engine), Brain signal consumption path
+**Success Criteria** (what must be TRUE):
+  1. Reverse-salient algorithm computes lag signal per room section deterministically
+  2. /mos:find-bottlenecks surfaces top-N lagging components with attack vectors
+  3. Graceful degradation when embeddings absent (tier-0 fallback to structural signal)
+  4. Feynman tests stay green throughout
+  5. Optional integration path with Phase 88 reasoning_health_score exercised in fixture
+**Plans**: 7 plans on disk (89-01 through 89-07), zero SUMMARYs
+Plans:
+- [ ] 89-01-PLAN.md -- (existing, pre-scoped)
+- [ ] 89-02-PLAN.md -- (existing, pre-scoped)
+- [ ] 89-03-PLAN.md -- (existing, pre-scoped)
+- [ ] 89-04-PLAN.md -- (existing, pre-scoped)
+- [ ] 89-05-PLAN.md -- (existing, pre-scoped)
+- [ ] 89-06-PLAN.md -- (existing, pre-scoped)
+- [ ] 89-07-PLAN.md -- (existing, pre-scoped)
+**Authority**: .planning/phases/89-reverse-salient-engine/89-CONTEXT.md (plus ALGORITHM-SOURCE.md, PLAN-CHECK.md, PLAN.md, RESEARCH.md)
+
+### Phase 90: Brain Derivation Layer
+**Goal**: Let the Brain excavate the per-folder memory triple (Phase 88) and produce a persistent authored layer on top. Each section carries an optional BRAIN.md with Brain-authored pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, and cross-room contradiction flags. Derivation is persistent (git-trackable), versioned (governing_thought_hash invalidation), staleness-aware, offline-tolerant, query-optimized. Triple becomes quadruple. Moat becomes visible.
+**Depends on**: Phase 88 (triple foundation), existing brain-connector skill (ambient enrichment to be extended not replaced), existing brain-client.cjs
+**Requirements**: BRAIN.md schema with governing_thought_hash invalidation, derivation pipeline, `folder-memory.cjs` readQuadruple extension, /mos:brain-derive command, graceful offline degradation, room-scope respect (never cross GUARDRAIL.md boundaries)
+**Success Criteria** (what must be TRUE):
+  1. BRAIN.md per section is optional; absence is valid when Brain offline or irrelevant
+  2. governing_thought_hash invalidates derivations automatically when MINTO changes
+  3. Graceful degradation: Brain unavailable does not block session or crash system
+  4. Brain derivations respect active room scope
+  5. `folder-memory.cjs readQuadruple()` extends readTriple() additively; consumers can migrate incrementally
+  6. Feynman tests stay green + new brain-derivation tests
+  7. 5-gate release: CHANGELOG 1.10.15, plugin.json 1.10.15, package.json 1.10.15, git tag v1.10.15, marketplace pin
+**Plans**: 10 plans across 5 waves (not yet filed)
+**Authority**: .planning/phases/90-brain-derivation-layer/90-CONTEXT.md
+
+### Phase 91: Navigation Engine
+**Goal**: Ship the L5 Decision layer that picks which skill, command, or framework fires based on triangulated signals across ICM + SQL + Feynman-MINTO + BRAIN + live intent/persona. Today skill activation is primitive (file-state and env only). The engine makes activation context-aware, brain-aware, and reasoning-aware. Visible dial position, persistent Larry persona, and skill discoverability emerge as properties of correct engine selection rather than separate features. This is where the product thesis "speed up the eureka moment" becomes operational.
+**Depends on**: Phase 88 (triple foundation + invariants), Phase 90 (Brain-authored layer), existing UserPromptSubmit hook, existing USER.md persona detection
+**Requirements**: Five-signal triangulation function, decision_trace emitter, persona durability via USER.md (Explicit/Implicit schema aligned to Brain), /mos:explain-decision command, visible dial surface, problem-type-aware routing, framework chain composition feed
+**Success Criteria** (what must be TRUE):
+  1. Engine reads via folder-memory.cjs readQuadruple (never parses files directly)
+  2. Every engine decision includes a trace of which signals contributed
+  3. Engine respects active room scope (never fires skills from other rooms)
+  4. Engine completes within UserPromptSubmit timeout (2s); never blocks user turn
+  5. Graceful degradation: Brain layer absent falls back to triple-only decisions
+  6. Persona durability: USER.md first-class; one taxonomy matched to Brain 2-persona schema
+  7. /mos:explain-decision surfaces trace for any prior turn
+  8. All prior phases' tests stay green
+  9. 5-gate release: CHANGELOG 1.11.0, plugin.json 1.11.0, package.json 1.11.0, git tag v1.11.0, marketplace pin (MINOR version bump opens v1.11.x milestone line)
+**Plans**: 10 plans across 5 waves (not yet filed)
+**Authority**: .planning/phases/91-navigation-engine/91-CONTEXT.md
+
 ## Planned Pipeline (post v1.10.11) -- organized 2026-04-19
 
 Source: `.planning/research/ui-ux-pathways/` (migrated 2026-04-18) + 2026-04-19 architecture conversation (five-layer stack + per-folder memory quadruple).
@@ -256,7 +375,7 @@ L5 Decision  : Navigation Engine reads L3 to pick skill/command/framework
 | Phase | Name | Release | Layer | Status |
 |---|---|---|---|---|
 | **87** | Security + Cascade Refactor + Localhost Dashboard | v1.10.11 + v1.10.12 | infra + L4 | SHIPPED 2026-04-19 |
-| **88** | Per-Folder Memory Triple Wiring | v1.10.13 | L2 foundation | CONTEXT filed |
+| **88** | Per-Folder Memory Triple Wiring | v1.10.13 | L2 foundation | EXECUTING (8/16 plans; 88-00-B, 88-00, 88-01, 88-02, 88-03, 88-04-B, 88-04, 88-05 shipped) |
 | **88.1** | UI/UX Polish + MINTO Surface Plumbing | v1.10.14 | L4 surfaces + hygiene | CONTEXT filed 2026-04-20 |
 | **89** | Reverse-Salient Engine | v1.10.x | L5 support (local) | 7 plans existing |
 | **90** | Brain Derivation Layer | v1.10.15 | L2 Brain-on-top | CONTEXT filed |
@@ -288,7 +407,7 @@ Phase 91 is the destination. Phases 87, 88, 90 are prerequisites. Phase 89 is pa
 Stream A security (Cypher sanitization, API key perms, HSI timeout, write-lock atomic) + Stream C localhost dashboard ship as v1.10.11 (investor-safe demo-ready). Stream B refactor (cascade dedup, async split via two entry points, MCP validation, transactions, Brain cache, LRU) + BYO API chat panel with Bearer token auth ship as v1.10.12. Audit R1-R7 folded, split locked. See 87-CONTEXT.md.
 
 **Phase 88 -- Per-Folder Memory Triple Wiring** (v1.10.13)
-Wires ROOM.md + STATE.md + Feynman-MINTO.md as a coordinated cross-session memory triple. Five wires (post-write freshness, on-stop snapshot, session-start injection, pre/post-compact resilience, decision_log persistence) + unified read contract `lib/core/folder-memory.cjs` + invariants module (`lib/core/feynman-minto-invariants.cjs`) + guardian for lifecycle enforcement. 13+ plans across 6 waves. Prerequisite for Brain Derivation Layer and Navigation Engine. See 88-CONTEXT.md.
+Wires ROOM.md + STATE.md + Feynman-MINTO.md as a coordinated cross-session memory triple. Five wires (post-write freshness, on-stop snapshot, session-start injection, pre/post-compact resilience, decision_log persistence) + unified read contract `lib/core/folder-memory.cjs` + invariants module (`lib/core/feynman-minto-invariants.cjs`) + guardian for lifecycle enforcement. 16 plans across 6 waves. EXECUTING -- 8/16 plans shipped (88-00-B, 88-00, 88-01, 88-02, 88-03, 88-04-B, 88-04, 88-05); 8 remaining. Prerequisite for Brain Derivation Layer and Navigation Engine. See 88-CONTEXT.md.
 
 **Phase 88.1 -- UI/UX Polish + MINTO Surface Plumbing** (v1.10.14)
 Closes the gap between what ships (66 commands, 8 agents, 20+ skills, 9 hooks, 1 statusline) and the Claude Code 2.1.x UX reference bar. Three workstreams: (A) MINTO surface plumbing -- statusline segment, /mos:status summaries, SessionStart banner all consume Phase 88's wired memory triple via governing_thought. (B) Description-driven UX -- slash command frontmatter hygiene sweep across 66 commands, README permissions.allow block, subagent PROACTIVELY audit. (C) Hook output primitives -- systemMessage retrofit on 9 existing hooks plus two new hooks borrowed from arscontexta (frontmatter schema validation, async artifact auto-commit inside .room-root subtrees). 10 plans across 4 waves, ~3-4 days. Wave 1+2 can ship as v1.10.13.1 hotfix if Phase 88 slips. Deferred: output styles (GSD-skip rationale), conversational onboarding redesign (milestone-sized), meta-ask skill (standalone feature), monitors/OSC progress bars (niche). See 88.1-CONTEXT.md.
