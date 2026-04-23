@@ -253,13 +253,19 @@ function checkCache(cachePath, forceRefresh) {
  * @param {string} cachePath - Path to cache file
  * @param {string[]} queries - Query strings used
  * @param {object[]} papers - Fetched papers
+ * @param {object[]} [queryOutcomes] - Per-query outcome objects (Phase 88.6-03).
+ *   Shape: { query, status, papers_returned, http_status? }. Optional for
+ *   backwards compatibility with callers that have not been upgraded.
  */
-function writeCache(cachePath, queries, papers) {
+function writeCache(cachePath, queries, papers, queryOutcomes) {
   const data = {
     timestamp: new Date().toISOString(),
     queries,
     papers,
   };
+  if (Array.isArray(queryOutcomes)) {
+    data.queryOutcomes = queryOutcomes;
+  }
 
   fs.mkdirSync(path.dirname(cachePath), { recursive: true });
   fs.writeFileSync(cachePath, JSON.stringify(data, null, 2), 'utf-8');
@@ -284,9 +290,16 @@ function sleep(ms) {
 /**
  * Query Semantic Scholar API for a single query string.
  *
+ * Phase 88.6-03: return shape upgraded from bare Paper[] to a richer
+ * { papers, status, http_status? } object so the caller can persist
+ * per-query telemetry (rate-limit vs error vs success) for downstream
+ * graceful-degradation reporting. Previously rate-limits and errors
+ * were logged to stderr only; the caller could not tell rate-limit
+ * from empty-match.
+ *
  * @param {string} query - Search query
  * @param {number} limit - Max results per query
- * @returns {Promise<object[]>} Array of paper objects
+ * @returns {Promise<{papers: object[], status: 'ok'|'rate_limited'|'api_error'|'network_error'|'timeout', http_status?: number}>}
  */
 async function searchPapers(query, limit = 10) {
   const url = `${API_BASE}?query=${encodeURIComponent(query)}&limit=${limit}&fields=${FIELDS}`;
@@ -307,34 +320,42 @@ async function searchPapers(query, limit = 10) {
     if (!response.ok) {
       if (response.status === 429) {
         console.error(`  Rate limited on query "${query}", skipping`);
-        return [];
+        return { papers: [], status: 'rate_limited', http_status: 429 };
       }
       console.error(`  API error ${response.status} for query "${query}", skipping`);
-      return [];
+      return { papers: [], status: 'api_error', http_status: response.status };
     }
 
     const data = await response.json();
-    return data.data || [];
+    return { papers: data.data || [], status: 'ok' };
   } catch (e) {
     if (e.name === 'AbortError') {
       console.error(`  Timeout on query "${query}" (${REQUEST_TIMEOUT_MS}ms), skipping`);
-    } else {
-      console.error(`  Network error on query "${query}": ${e.message}`);
+      return { papers: [], status: 'timeout' };
     }
-    return [];
+    console.error(`  Network error on query "${query}": ${e.message}`);
+    return { papers: [], status: 'network_error' };
   }
 }
 
 /**
  * Fetch papers across multiple queries, deduplicating by paperId.
  *
+ * Phase 88.6-03: returns { papers, queries } where queries[] is the
+ * per-query outcome ledger (status + papers_returned + optional
+ * http_status). Downstream callers (whitespace-command.cjs cmdExternal)
+ * read this ledger to render rate-limit-aware graceful-degradation
+ * warnings. Queries that never ran (early break on maxPapers cap)
+ * surface as status:'not_attempted' so counts always match input.length.
+ *
  * @param {string[]} queries - Array of query strings
  * @param {number} maxPapers - Total paper cap
- * @returns {Promise<object[]>} Deduplicated papers
+ * @returns {Promise<{papers: object[], queries: Array<{query: string, status: string, papers_returned: number, http_status?: number}>}>}
  */
 async function fetchAllPapers(queries, maxPapers) {
   const seen = new Set();
   const allPapers = [];
+  const queryOutcomes = [];
 
   const perQueryLimit = Math.ceil(maxPapers / Math.max(queries.length, 1));
 
@@ -342,9 +363,10 @@ async function fetchAllPapers(queries, maxPapers) {
     const query = queries[i];
     console.log(`  Query ${i + 1}/${queries.length}: "${query}"`);
 
-    const papers = await searchPapers(query, Math.min(perQueryLimit, 20));
+    const result = await searchPapers(query, Math.min(perQueryLimit, 20));
+    let papersReturnedThisQuery = 0;
 
-    for (const paper of papers) {
+    for (const paper of result.papers) {
       if (!paper.paperId || seen.has(paper.paperId)) continue;
       // Filter: require non-empty abstract and year >= 2015
       if (!paper.abstract || paper.abstract.length < 10) continue;
@@ -359,9 +381,17 @@ async function fetchAllPapers(queries, maxPapers) {
         citationCount: paper.citationCount || 0,
         fieldsOfStudy: paper.fieldsOfStudy || [],
       });
+      papersReturnedThisQuery++;
 
       if (allPapers.length >= maxPapers) break;
     }
+
+    queryOutcomes.push({
+      query,
+      status: result.status,
+      papers_returned: papersReturnedThisQuery,
+      ...(result.http_status ? { http_status: result.http_status } : {}),
+    });
 
     if (allPapers.length >= maxPapers) break;
 
@@ -371,7 +401,17 @@ async function fetchAllPapers(queries, maxPapers) {
     }
   }
 
-  return allPapers;
+  // If loop broke early due to maxPapers cap, fill remaining queries as
+  // "not_attempted" so the ledger length always matches queries.length.
+  for (let j = queryOutcomes.length; j < queries.length; j++) {
+    queryOutcomes.push({
+      query: queries[j],
+      status: 'not_attempted',
+      papers_returned: 0,
+    });
+  }
+
+  return { papers: allPapers, queries: queryOutcomes };
 }
 
 // ---------------------------------------------------------------------------
@@ -400,12 +440,23 @@ async function main() {
     console.log(`  Queries: ${(cached.queries || []).join('; ')}`);
     console.log(`  Cached at: ${cached.timestamp}`);
 
+    // Phase 88.6-03: replay per-query telemetry from cache when present.
+    // Pre-88.6-03 caches stored `cached.queries` as string[] (raw strings);
+    // synthesize backwards-compatible outcomes with papers_returned:null
+    // ("unknown") so downstream code doesn't treat them as rate-limit hits.
+    const replayedQueries = Array.isArray(cached.queryOutcomes)
+      ? cached.queryOutcomes
+      : (Array.isArray(cached.queries)
+          ? cached.queries.map(q => ({ query: q, status: 'ok', papers_returned: null }))
+          : []);
+
     // Write output from cache
     fs.mkdirSync(mindrianDir, { recursive: true });
     fs.writeFileSync(outputPath, JSON.stringify({
       source: 'semantic_scholar',
       timestamp: cached.timestamp,
       from_cache: true,
+      queries: replayedQueries,
       papers,
     }, null, 2), 'utf-8');
 
@@ -424,6 +475,7 @@ async function main() {
       source: 'semantic_scholar',
       timestamp: new Date().toISOString(),
       from_cache: false,
+      queries: [],
       papers: [],
     }, null, 2), 'utf-8');
     return;
@@ -435,27 +487,34 @@ async function main() {
   console.log(`Fetching papers (max ${maxPapers})...`);
 
   let papers;
+  let queryOutcomes;
   try {
-    papers = await fetchAllPapers(queries, maxPapers);
+    const result = await fetchAllPapers(queries, maxPapers);
+    papers = result.papers;
+    queryOutcomes = result.queries;
   } catch (e) {
     console.error(`\nNetwork error: Could not reach Semantic Scholar API.`);
     console.error(`  Error: ${e.message}`);
     console.error(`  If you have cached data, run without --force-refresh.`);
 
-    // Write empty output
+    // Write empty output (Phase 88.6-03: include empty queries[] for
+    // schema consistency so downstream readers can always do
+    // `data.queries.length` without a defensive undefined check).
     fs.mkdirSync(mindrianDir, { recursive: true });
     fs.writeFileSync(outputPath, JSON.stringify({
       source: 'semantic_scholar',
       timestamp: new Date().toISOString(),
       from_cache: false,
       error: e.message,
+      queries: [],
       papers: [],
     }, null, 2), 'utf-8');
     return;
   }
 
-  // Step 4: Write cache
-  writeCache(cachePath, queries, papers);
+  // Step 4: Write cache (include per-query telemetry so cache-hit replay
+  // can surface the real status distribution, not just paper counts).
+  writeCache(cachePath, queries, papers, queryOutcomes);
 
   // Step 5: Write output
   fs.mkdirSync(mindrianDir, { recursive: true });
@@ -463,6 +522,7 @@ async function main() {
     source: 'semantic_scholar',
     timestamp: new Date().toISOString(),
     from_cache: false,
+    queries: queryOutcomes,
     papers,
   }, null, 2), 'utf-8');
 
