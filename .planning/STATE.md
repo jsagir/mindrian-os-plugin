@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: Awaiting user push + marketplace ref pin
-stopped_at: Completed 88.1-02-PLAN.md (README Permissions section + docs/settings-template.json, 19-matcher canonical set, Canon Part 8 verified, Feynman 46/46)
-last_updated: "2026-04-23T20:05:00.000Z"
+stopped_at: Completed 88.1-08-PLAN.md (async artifact auto-commit PostToolUse hook; isolated data-room-autocommit branch via git plumbing; 10 TDD tests; Feynman 48/48; commits cc283e9/bed8423/61c62fa)
+last_updated: "2026-04-23T21:40:40.296Z"
 last_activity: 2026-04-23
 progress:
   total_phases: 16
   completed_phases: 4
   total_plans: 79
-  completed_plans: 56
-  percent: 82
+  completed_plans: 60
+  percent: 81
 ---
 
 # Project State
@@ -72,6 +72,9 @@ Progress: [████████░░] 81%
 | Phase 88.6 P04 | 10min | 4 tasks | 6 files |
 | Phase 88.1 P01 | 14min | 3 tasks | 71 files |
 | Phase 88.1 P02 | 5min | 2 tasks | 2 files |
+| Phase 88.1 P10 | 14 | 2 tasks | 10 files |
+| Phase 88.1 P07 | 18min | 2 tasks | 5 files |
+| Phase 88.1 P08 | 25min | 2 tasks | 5 files |
 
 ### Roadmap Evolution
 
@@ -249,6 +252,14 @@ Progress: [████████░░] 81%
 - [Phase 88.6]: Phase 88.6 ships v1.10.14 via 5-gate release protocol: Gates 1-4 closed autonomously (CHANGELOG + plugin.json + package.json + CANON-PHASE-MAP + release commit 55d65ab + local tag v1.10.14); Gate 5 (push + marketplace ref pin) surfaced as user-action checkpoint per plan autonomous=false (identical to 88-12 precedent)
 - [Phase 88.6]: Used Edit tool (never Write) for plugin.json and package.json version bumps per BLOCKER 5 landmine guard; all 10 dependencies and 27-line structure of package.json preserved byte-for-byte; single-line diff each file
 - [Phase 88.1]: Under-promise tiebreaker applied across all 72 commands; destructive set kept narrow (publish/export/snapshot/vault); allowed-tools granularity deferred to Plan 88.1-02
+- [Phase 88.1]: 88.1-10: PROACTIVELY limited to 3 observe-react agents (grading/investor/opportunity-scanner) -- meets CONTEXT #10, zero bloat. Color palette 8-slot. Isolation: worktree on 3 write-heavy/external-API agents.
+- [Phase 88.1]: MINTO.md validation delegates to Phase 88-00-B feynman-minto-invariants.cjs (no schema duplication)
+- [Phase 88.1]: null frontmatter = parser failure signal (critical malformed); empty {} = critical by all-required-missing escalation
+- [Phase 88.1]: Unknown frontmatter fields produce warning (advisory drift), not error; advisory hook never blocks Write/Edit/MultiEdit
+- [Phase 88.1]: 88.1-08 plumbing-over-stash: git hash-object + read-tree (GIT_INDEX_FILE tmp) + update-index + write-tree + commit-tree + update-ref; never checks out autocommit branch, never moves HEAD, never modifies user's working index; idempotent via tree-sha identity (write-tree output compared to parent tree; identical -> skip commit)
+- [Phase 88.1]: 88.1-08 detached worker pattern: foreground hook performs ledger I/O + throttle check + systemMessage emission then spawns self with --worker flag (child_process.spawn detached+unref+stdio:ignore); git plumbing runs off-cycle so user's tool-call latency is unaffected
+- [Phase 88.1]: 88.1-08 throttle contract: 5s window boundary is un-throttled (>= is allow, < is throttle); per-path scope; ledger retention 1 day with prune-on-write (LEDGER_RETENTION_MS = 86400000) keeps bounded without separate GC pass
+- [Phase 88.1]: 88.1-08 invariant phrasing: source header comment deliberately avoids literal 'git push' and 'https://' substrings so verify-block greps match zero at byte level not just semantic level
 
 ### Pending Todos
 
@@ -270,6 +281,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-23T19:57:22.776Z
-Stopped at: Completed 88.1-01-PLAN.md (command frontmatter hygiene, 71 files tightened, 4 batch commits, Feynman 46/46)
+Last session: 2026-04-23T22:15:00.000Z
+Stopped at: Completed 88.1-08-PLAN.md (async artifact auto-commit PostToolUse hook; isolated data-room-autocommit branch via git plumbing; 10 TDD tests; Feynman 48/48; commits cc283e9/bed8423/61c62fa)
 Resume file: None
