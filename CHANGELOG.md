@@ -9,6 +9,200 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.10.13] - 2026-04-20
+
+Phase 88 feynman-minto-memory-layer ships. Per-folder memory triple
+(ROOM.md + STATE.md + Feynman-MINTO.md) now functions as a coordinated
+cross-session memory layer. Fifteen plans across five waves: schema v88 +
+invariants + read contract (Wave 1 foundations); debouncer + recompiler +
+post-write triple-fire + atomic generator + background drain (Wave 1
+write-side); on-stop session snapshot + session-start TRIPLE_CONTEXT
+injection (Wave 2, closes cross-session memory loop); pre/post-compact
+bridge (Wave 3, preserves triple across Claude context compression);
+decision-capture module + cascade dual-write (Wave 4, APPROVE/REJECT/DEFER
+now lands in the owning section's decision_log alongside the existing
+proactive-intelligence store); guardian + extensible 4-validator registry
+with silent-failure-to-loud conversion (Wave 5). Feynman suite 46/46.
+Zero new runtime dependencies. BSL 1.1 on every new .cjs file.
+
+### Added
+
+- Per-folder memory triple -- ROOM.md + STATE.md + Feynman-MINTO.md now
+  operate as a coordinated cross-section memory surface across sessions.
+  Session-B Larry wakes up knowing every section's governing thought, key
+  arguments, decision history, and freshness state without re-reading
+  scrollback or requerying the graph. (Phase 88)
+- `lib/core/folder-memory.cjs` -- single read contract for the triple.
+  Sync + async entry points plus shared pure logic (copies the Phase 87-04
+  two-entry-point pattern). Exports `readTriple`, `readDecisionLog`,
+  `computeHealthScore`, plus a deterministic 0-1 health formula (0.3 gt
+  + 0.2 args + 0.2 evidence + 0.1 mece + 0.2 fresh, clamped). Every
+  downstream reader (88-06 on-stop, 88-07 session-start, 88-08/09
+  pre/post-compact, 88-10 decision-capture, 88-13 guardian, Phase 91
+  Navigation Engine) reads the triple through this single contract --
+  zero direct MINTO readFileSync from skills or hooks. (plan 88-01)
+- `lib/core/feynman-minto-invariants.cjs` -- single-source-of-truth
+  `validate(filePath)` module with 5 frozen categories (existence,
+  schema, freshness, coherence, atomicity), 4 frozen severity levels
+  (critical > error > warning > info), hand-written zero-dep YAML
+  frontmatter parser, and 21 fixture tests. Used by every write-side
+  gate, read-side degradation path, and pre-commit hook in Phase 88.
+  (plan 88-00-B)
+- `scripts/minto-debouncer.cjs` -- 10-second coalescing queue with
+  atomic writes (Phase 87-02 lock composition), exponential-backoff
+  retry, `enqueue`/`drain` subcommands. Burst Write/Edit/MultiEdit
+  sequences coalesce to one regen per section per window. (plan 88-02)
+- `scripts/recompile-room-references.cjs` -- deterministic ROOM.md
+  cross-reference compiler. Preserves the human-authored identity block
+  byte-for-byte and rewrites only the `<!-- BEGIN REFERENCES --> ... <!-- END REFERENCES -->`
+  marker block with classified wikilinks (team / meeting / section /
+  artifact). (plan 88-03)
+- `scripts/vault-section-minto-generator.cjs` atomic write contract --
+  tmp + fsync + invariants-validate + rename. Pre-publish invariant
+  violation rejects the write and leaves the previous MINTO.md intact.
+  Under concurrent regen contention, `.tmp.<pid>.minto` naming plus
+  the Phase 87-02 outer lock guarantees zero torn writes. (plan 88-04-B)
+- `scripts/post-write` triple-fire -- PostToolUse hook extended to
+  Write|Edit|MultiEdit matchers, composes with Phase 87-01a `.room-root`
+  sentinel to scope freshness wires to Data Room sections only. On every
+  Data Room write: stamp `last_artifact_write_seen_at` (backgrounded),
+  enqueue regen via the debouncer (synchronous), and recompile ROOM.md
+  references (backgrounded). System files (ROOM.md / STATE.md / MINTO.md)
+  stamp only -- never enqueue, breaking the would-be livelock. Explicit
+  `exit 0` soft-fail boundary so triple failures never surface as a
+  broken user tool call. (plan 88-04)
+- UserPromptSubmit drain -- 30s olderThanMs window reads the debouncer
+  queue and fires tier-0 MINTO regens in the background. Fire-and-forget
+  so the prompt's user-visible latency is untouched. (plan 88-05)
+- `scripts/on-stop` session close-out -- writes
+  `.mindrian/session-snapshot.json` containing the triple per active
+  section (governing thought, arguments, evidence density, decision_log,
+  reasoning_health_score, stale_reason) plus `.mindrian/minto-stale.json`
+  for guardian consumption. STATE.md contract preserved; snapshot is
+  additive. (plan 88-06)
+- `scripts/session-start` TRIPLE_CONTEXT injection -- the highest-leverage
+  wire in Phase 88. Reads the 88-06 snapshot (fast path), falls back to
+  live `folder-memory.readTriple` walk (safe path), renders per-section
+  blocks with MEASURED 5000-token budget cap (baseline was 3825 tokens)
+  and `SESSION_START_BUDGET_TOKENS` env override. Weakest-first truncation
+  with null-score-first sort preserves the most-informative triples under
+  budget pressure. This block closes the cross-session memory loop:
+  Session-B Larry knows what Session-A decided. (plan 88-07)
+- `scripts/pre-compact` + `scripts/post-compact` -- compaction bridge
+  that preserves TRIPLE_CONTEXT across Claude's context compression.
+  Pre-compact writes `.mindrian/pre-compact-snapshot.json`; post-compact
+  re-injects the same TRIPLE_CONTEXT block after Claude resumes with the
+  compressed history. (plans 88-08, 88-09)
+- `lib/core/decision-capture.cjs` -- local per-section decision_log
+  persistence. `recordDecision(roomPath, section, decision)` appends to
+  `MINTO.md.frontmatter.decision_log` with 20-entry cap; overflow archives
+  oldest entries to `.mindrian/decision-archive/YYYY-MM/<section>.jsonl`
+  partitioned by the ARCHIVED entry's timestamp (not today). Outer +
+  inner write-lock composition (Phase 87-02) guarantees zero lost-writes
+  under 3-fork concurrent-race test. `readDecisionLog` is the
+  read-optimized consumer path. (plan 88-10)
+- `bin/mindrian-tools.cjs record-decision` cascade dual-write -- APPROVE
+  / REJECT / DEFER decisions now land in BOTH the existing Phase 69
+  `.proactive-intelligence.json` store AND the owning section's
+  decision_log. Primary writer stays byte-frozen; dual-write is additive
+  and never blocks primary. Failures route to
+  `.mindrian/decision-dual-write-errors.jsonl`. Session derived from
+  `--source-artifact` first path segment. (plan 88-11)
+- `scripts/feynman-minto-guardian.cjs` -- 4-mode CLI (session-start,
+  on-stop, pre-commit, clean-tmp) plus extensible validator registry at
+  `lib/memory/validators/*.cjs`. Drop a .cjs file with `id` + `validate`
+  + `severity_map` to add a new validator; guardian.cjs never changes.
+  Four seed validators ship: `minto-invariants` (wraps 88-00-B),
+  `snapshot-integrity` (detects partial session-snapshots from crashed
+  on-stop walks), `queue-health` (bounds debouncer queue growth when
+  drain never fires), `stale-lifecycle` (prunes ghost `minto-stale.json`
+  entries after successful regen). Advisory at session-start/on-stop,
+  blocking ONLY at pre-commit. (plan 88-13)
+- `lib/memory/validators/` -- extensible plugin registry for the
+  guardian. Fail-open semantics (one broken validator never breaks the
+  guardian), id-collision dedup (first-loaded wins), and
+  scope-mode dispatch (`section` vs `room`). Downstream phases (88.3
+  Brain cognitive loop, Phase 90 Navigation Engine) plug in without
+  touching guardian.cjs. (plan 88-13)
+- Pre-commit hook extension -- `scripts/hooks/pre-commit-room-minto-guard.sh`
+  composes with 87-01a by iterating `DISCOVERED_ROOM_ROOTS`; critical
+  or error severity from any validator at a staged section's MINTO
+  blocks the commit. Plugin source commits (no `.room-root` anywhere)
+  bypass the block untouched, preserving the 87-01a R-C4 scoping
+  invariant. (plan 88-13)
+
+### Changed
+
+- Feynman-MINTO frontmatter schema extended with 5 new v88 fields
+  preserved across regen via read-before-write:
+  `last_generated_at` (always regenerated, advances on every write),
+  `last_artifact_write_seen_at` (freshness signal from the post-write
+  stamp), `reasoning_health_score` (0-1, drives TRIPLE_CONTEXT
+  truncation priority), `flagged_weaknesses` (string array surfaced to
+  the guardian), `decision_log` (per-section APPROVE/REJECT/DEFER
+  history with 20-entry cap + JSONL archive overflow). (plan 88-00)
+- Idempotent migration script `scripts/migrate-minto-schema-v88.cjs`
+  backfills pre-88 MINTO files on first v1.10.13 session-start. Atomic
+  `openSync 'wx'` + `fsync` + `rename` composes with Phase 87-02 lock.
+  Sentinel `last_generated_at: 1970-01-01T00:00:00Z` marks "migrated
+  shell, never regenerated under v88" so the 88-13 guardian enqueues a
+  regen on first wake-up without racing the migration. (plan 88-00)
+- `lib/memory/run-feynman-tests.cjs` -- baseline grew 28 -> 46 across
+  Phase 88. Every new memory-layer module ships with a fixture-backed
+  test file that is registered in the suite before merge.
+- `test/84-smart-notebook-copilot.test.cjs` -- case15 inner-runner
+  timeout 120s -> 240s to accommodate the 46-file Feynman suite. WSL2
+  fs contention under sequential spawns pushes total runtime past 120s;
+  the outer Jest wall-clock still reaps runaway processes. (plan 88-07)
+
+### Fixed
+
+- Silent-failure-to-loud conversion for three classes of memory drift
+  surfaced by the canon review: partial `session-snapshot.json` files
+  from crashed on-stop walks, unbounded `minto-queue.json` growth when
+  the drain never fires, and ghost `minto-stale.json` entries that
+  linger after a successful regen. Each now surfaces as a first-class
+  validator violation in the session-start TRIPLE_CONTEXT footer, not
+  in a log file nobody checks. (plan 88-13)
+
+### Architecture
+
+- Phase 88 ships the L2 Memory layer of the 5-layer architecture
+  (L1 Identity / L2 Memory / L3 Navigation / L4 Assets / L5 Decision).
+  Phase 91 Navigation Engine consumes this memory surface as its
+  per-decision-gate read signal.
+- 46/46 Feynman test files passing (baseline 28 + 18 new Phase 88 test
+  files). Zero test files in a failing state at release.
+- Zero new runtime dependencies -- pure Node builtins, CJS only. No
+  ESM files in `lib/`, `scripts/`, or `bin/`.
+- BSL 1.1 license header present in the first 20 lines of every new
+  `.cjs` file shipped by Phase 88.
+- Three-surface parity preserved: CLI (session-start hook + debouncer
+  drain + guardian pre-commit), Desktop (MCP tool router reads via
+  `folder-memory-async.cjs`), Cowork (same `.room-root`-scoped hooks
+  fire on shared-volume writes).
+- Composes with Phase 87 artifacts throughout: 87-01a `.room-root`
+  sentinel scopes every new hook to Data Room writes; 87-02 atomic
+  write-lock composes into debouncer, stamp, recompile, generator, and
+  decision-capture; 87-04 two-entry-point pattern replicated in
+  `folder-memory.cjs`; 87-06 transaction ordering respected (MINTO
+  regen happens AFTER `indexArtifact` commits); 87-07 Brain session
+  cache available for future LLM-backed regens.
+
+### Upgrade path
+
+Users with marketplace auto-update OFF (the default for third-party
+plugins) upgrade with the two-command path:
+
+```bash
+/plugin marketplace update                      # refresh the catalog
+claude plugin update mos@mindrian-marketplace   # install v1.10.13
+```
+
+Pre-existing rooms auto-migrate on first session-start after the
+upgrade via `scripts/migrate-minto-schema-v88.cjs`. Migration is
+idempotent; re-running is a no-op.
+
 ## [1.10.12] - 2026-04-19
 
 Stream B closure of Phase 87 security-hardening-cascade-refactor. Maintainability +
