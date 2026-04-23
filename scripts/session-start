@@ -677,6 +677,22 @@ fi
 # --- end Phase 88-07 ---
 
 # ---------------------------------------------------------------------------
+# Phase 88-13: Feynman-MINTO guardian, session-start health check.
+#
+# Walks active sections, runs every registered validator, enqueues regen
+# intents via the debouncer for any critical violation, and cleans orphan
+# tmp files left behind by 88-04-B mid-write crashes. BACKGROUNDED with
+# soft-fail so the guardian can NEVER block session-start under its 10s
+# budget. Guardian is advisory at runtime; only pre-commit mode exits 2.
+# See .planning/phases/88-feynman-minto-memory-layer/88-13-SUMMARY.md
+# ---------------------------------------------------------------------------
+if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ]; then
+  ( node "${PLUGIN_ROOT}/scripts/feynman-minto-guardian.cjs" session-start "${ROOM_DIR}" >/dev/null 2>&1 || true ) &
+  ( node "${PLUGIN_ROOT}/scripts/feynman-minto-guardian.cjs" clean-tmp "${ROOM_DIR}" >/dev/null 2>&1 || true ) &
+fi
+# --- end Phase 88-13 guardian session-start ---
+
+# ---------------------------------------------------------------------------
 # SEALED ROOMS walker (Phase 83-03, SCOPE-INJ-02/06)
 #
 # Walks the MindrianRooms root at top level for any subdirectory containing

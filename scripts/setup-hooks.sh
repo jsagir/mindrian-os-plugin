@@ -3,11 +3,19 @@
 #
 # BSL 1.1. Copyright (c) Mindrian 2026.
 #
-# Purpose (SEC-04 / Phase 87-01a):
+# Purpose (SEC-04 / Phase 87-01a + Phase 88-13):
 #   Install the pre-commit hook that enforces the ROOM.md + MINTO.md
 #   invariant (CLAUDE.md decision #15) scoped to `.room-root` subtrees.
 #   Plugin source commits are NEVER blocked -- the guard fires only inside
 #   Data Room subtrees.
+#
+#   Phase 88-13 extends the same installed hook to run the feynman-minto
+#   guardian in pre-commit mode against every discovered Data Room root.
+#   The guardian runs every registered validator from lib/memory/validators/
+#   and exits 2 on critical/error severity. Lifecycle validators
+#   (snapshot-integrity, queue-health, stale-lifecycle) are room-scoped
+#   health signals and do NOT block commits at runtime, but the core
+#   minto-invariants validator does.
 #
 # Worktree safety (R-87-01a-WIN):
 #   The effective hooks/pre-commit path is resolved via

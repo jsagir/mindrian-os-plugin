@@ -128,4 +128,58 @@ if [ "$VIOLATIONS" -gt 0 ]; then
   exit 2
 fi
 
+# ---------------------------------------------------------------------------
+# Phase 88-13 guardian: block commit on critical/error invariant violations.
+#
+# Iterates over each DISCOVERED room root from the find_room_root loop above
+# (NOT a nonexistent top-level $ROOM_DIR variable). For each unique Data Room
+# root that owns staged files, runs the Feynman-MINTO guardian in pre-commit
+# mode. The guardian runs every registered validator against each section
+# whose staged file lives under it and exits 2 on critical/error severity.
+#
+# Plugin source commits (no .room-root ancestor anywhere) never reach this
+# block because the find_room_root loop above has nothing to add to
+# DISCOVERED_ROOM_ROOTS for them. See 88-13-SUMMARY.md.
+# ---------------------------------------------------------------------------
+#
+# Re-walk staged dirs to collect unique Data Room roots (dedup). The 87-01a
+# loop above only needs the immediate dir; we need the ancestor root.
+declare -A _DISCOVERED_ROOTS
+for _dir in $STAGED_DIRS; do
+  [ -z "$_dir" ] && continue
+  [ "$_dir" = "." ] && continue
+  _root=$(find_room_root "$_dir" 2>/dev/null || echo "")
+  if [ -n "$_root" ]; then
+    _DISCOVERED_ROOTS["$_root"]=1
+  fi
+done
+
+# Locate the plugin root for the guardian script. Prefer $PLUGIN_ROOT if set
+# by the caller; otherwise walk up from this script's directory.
+_GUARDIAN_PLUGIN_ROOT="${PLUGIN_ROOT:-}"
+if [ -z "$_GUARDIAN_PLUGIN_ROOT" ]; then
+  _SELF_DIR=$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd -P)
+  # The installed hook lives at <repo>/.git/hooks/pre-commit (or worktree equiv);
+  # its siblings in this source file live at <repo>/scripts/hooks/. Walk up to
+  # find scripts/feynman-minto-guardian.cjs.
+  _candidate="$REPO_ROOT_REAL"
+  if [ -f "$_candidate/scripts/feynman-minto-guardian.cjs" ]; then
+    _GUARDIAN_PLUGIN_ROOT="$_candidate"
+  fi
+fi
+
+if [ -n "$_GUARDIAN_PLUGIN_ROOT" ] && [ -f "$_GUARDIAN_PLUGIN_ROOT/scripts/feynman-minto-guardian.cjs" ] && command -v node >/dev/null 2>&1; then
+  for _discovered_room in "${!_DISCOVERED_ROOTS[@]}"; do
+    [ -z "$_discovered_room" ] && continue
+    node "$_GUARDIAN_PLUGIN_ROOT/scripts/feynman-minto-guardian.cjs" pre-commit "$_discovered_room"
+    _GUARDIAN_EXIT=$?
+    if [ "$_GUARDIAN_EXIT" -ne 0 ]; then
+      echo "" >&2
+      echo "MindrianOS pre-commit guard: commit blocked by feynman-minto-guardian in room: $_discovered_room" >&2
+      echo "Fix violations or use --no-verify at your own risk." >&2
+      exit "$_GUARDIAN_EXIT"
+    fi
+  done
+fi
+
 exit 0

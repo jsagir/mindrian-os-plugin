@@ -345,6 +345,16 @@ if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" 
   printf '%s on-stop-phase88 elapsed_ms=%s\n' \
     "$(date -u +%FT%TZ)" "$PHASE88_ELAPSED" \
     >> "${ROOM_DIR}/.mindrian/session-close.log" 2>/dev/null || true
+
+  # --- Phase 88-13 guardian: on-stop invariant verification + stale ghost pruning
+  # Runs every registered validator (minto-invariants + snapshot-integrity +
+  # queue-health + stale-lifecycle) AFTER the 88-06 drain + snapshot lands,
+  # writes .mindrian/invariant-report.json atomically, and CONSUMES
+  # stale-lifecycle ghost warnings to prune stale.json in-place. Timeout 1s
+  # so the guardian cannot eat into the 3000ms Stop-hook budget. Advisory
+  # (never exits non-zero). See 88-13-SUMMARY.md.
+  timeout 1 node "${PLUGIN_ROOT}/scripts/feynman-minto-guardian.cjs" on-stop "${ROOM_DIR}" >/dev/null 2>&1 || true
+  # --- end Phase 88-13 guardian on-stop ---
 fi
 # --- end Phase 88-06 ---
 
