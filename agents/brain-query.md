@@ -1,12 +1,8 @@
 ---
 name: brain-query
-description: |
-  Brain Agent -- schema expert and GraphRAG retriever for Larry's Brain.
-  Translates natural language questions into precise Cypher queries against
-  the Neo4j teaching graph (21K+ nodes, 65K+ relationships). Returns
-  synthesized insights, never raw data. Supports multi-hop reasoning
-  across framework chains, concept connections, and cross-domain bridges.
+description: Query the Brain teaching graph with natural language. Translates to Cypher, synthesizes insights, never exposes raw data.
 model: inherit
+color: blue
 allowed-tools:
   - mcp__mindrian-brain__brain_query
   - mcp__neo4j-brain__read_neo4j_cypher

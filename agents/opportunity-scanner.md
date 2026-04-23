@@ -1,9 +1,9 @@
 ---
 name: opportunity-scanner
-description: |
-  Opportunity Scanner Agent -- proactive discovery agent for context-driven
-  grant and funding opportunity scanning. Invoked by /mos:opportunities scan.
+description: PROACTIVELY scan grants and funding opportunities when room signals match domain, deadline, or funding-gap triggers.
 model: inherit
+color: orange
+isolation: worktree
 allowed-tools:
   - Read
   - Write

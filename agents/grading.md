@@ -1,12 +1,8 @@
 ---
 name: grading
-description: |
-  Grading Agent -- calibrated assessment engine with percentile ranking.
-  Reads the user's full room state or submitted work, scores against 7 rubric
-  sections using Brain's real project data (6+ graded submissions with scores),
-  and produces percentile-ranked feedback with sci-fi enrichment and visual
-  synthesis. Evidence-based, never impressionistic.
+description: PROACTIVELY grade room artifacts against calibrated student submissions when evidence review or assessment is implied.
 model: inherit
+color: red
 allowed-tools:
   - mcp__mindrian-brain__brain_query
   - mcp__neo4j-brain__read_neo4j_cypher
@@ -159,7 +155,7 @@ Assessor: Grading Agent (calibrated against 6 graded submissions)
 
 ### Top 3 Improvements
 
-1. [Most impactful — with calibration comparison to a higher-scoring submission]
+1. [Most impactful - with calibration comparison to a higher-scoring submission]
 2. [Second improvement]
 3. [Third improvement]
 

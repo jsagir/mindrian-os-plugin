@@ -1,9 +1,8 @@
 ---
 name: persona-analyst
-description: |
-  Persona Analyst Agent -- handles persona invocation and multi-perspective
-  analysis using De Bono Six Thinking Hats from room data.
+description: Invoke De Bono hats and multi-perspective analysis when the user asks for a hat, persona, or tension-map view.
 model: inherit
+color: yellow
 allowed-tools:
   - Read
   - Write

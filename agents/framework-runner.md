@@ -1,11 +1,9 @@
 ---
 name: framework-runner
-description: |
-  Framework Runner -- isolated execution agent for autonomous methodology
-  sessions. Receives a selected framework and room context, executes the
-  full methodology session, files the artifact, and returns a structured
-  summary. Operates in its own context window to keep main session clean.
+description: Execute one /mos:* methodology per invocation in an isolated context. Files the artifact and returns a structured summary.
 model: inherit
+color: green
+isolation: worktree
 allowed-tools:
   - Read
   - Write

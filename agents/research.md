@@ -1,10 +1,9 @@
 ---
 name: research
-description: |
-  Research Agent -- external intelligence gatherer. Web search via Tavily,
-  cross-reference with Brain's semantic index, synthesize into room
-  artifacts with full provenance. Factual, evidential, precise.
+description: Gather and verify external intelligence via Tavily + Brain cross-reference. Files sourced artifacts with provenance.
 model: inherit
+color: blue
+isolation: worktree
 allowed-tools:
   - mcp__tavily-mcp__tavily-search
   - mcp__tavily-mcp__tavily-extract
