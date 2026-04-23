@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 88-09-PLAN.md -- post-compact TRIPLE_CONTEXT re-injection wired; byte-identity with session-start enforced; feynman 43 files registered; 9 new Phase 88-09 tests all passing
-last_updated: "2026-04-23T09:50:01.743Z"
+stopped_at: Completed 88-10-PLAN.md (decision-capture module)
+last_updated: "2026-04-23T10:29:24.636Z"
 last_activity: 2026-04-23
 progress:
   total_phases: 15
   completed_phases: 2
   total_plans: 63
-  completed_plans: 46
+  completed_plans: 47
   percent: 35
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 88 (feynman-minto-memory-layer) -- EXECUTING
-Plan: 12 of 16
+Plan: 13 of 16
 Status: Ready to execute
 Last activity: 2026-04-23
 
@@ -90,6 +90,7 @@ Progress: [###░░░░░░░] 35%
 | Phase 88 P06 | 15min | 1 tasks | 2 files |
 | Phase 88 P07 | 60min | 2 tasks | 7 files |
 | Phase 88 P09 | 15min | 1 tasks | 2 files |
+| Phase 88-feynman-minto-memory-layer P10 | 12m | 1 tasks | 3 files |
 
 ### Decisions
 
@@ -199,6 +200,9 @@ Progress: [###░░░░░░░] 35%
 - [Phase 88]: [Phase 88-09] Byte-identity enforced via Test 9 rather than shared-helper extraction: session-start + post-compact have near-duplicate node -e blocks; extraction to scripts/emit-triple-context.cjs deferred because (a) hook budgets (3000ms / 5000ms) already tight; (b) Test 9 is deterministic CI gate for drift
 - [Phase 88]: [Phase 88-09] stderr diagnostic 'post-compact: snapshot missing: fell back to live read' kept verbatim from PLAN so 88-13 guardian's log-scrape regex can match both this hook and future consumers that copy the pattern
 - [Phase 88]: [Phase 88-09] Snapshot-first / live-fallback / empty-OK three-tier ladder copies 88-07 contract verbatim; only filename differs (pre-compact-snapshot.json vs session-snapshot.json); four-phase producer-consumer architecture now symmetric (88-06->88-07, 88-08->88-09)
+- [Phase 88-feynman-minto-memory-layer]: Outer + inner write-lock composition: outer lock serializes the read-modify-write; inner lock serializes the rename; same-pid re-acquire is a no-throw overwrite per write-lock.cjs.
+- [Phase 88-feynman-minto-memory-layer]: Archive month from archived entry timestamp (not today) keeps partitions chronologically coherent for future full-history queries.
+- [Phase 88-feynman-minto-memory-layer]: JSONL append-only archive; fs.appendFileSync is POSIX-atomic for small lines. Prior lines never rewritten (Test 4 invariant).
 
 ### Pending Todos
 
@@ -220,6 +224,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-23T09:49:50.151Z
-Stopped at: Completed 88-09-PLAN.md -- post-compact TRIPLE_CONTEXT re-injection wired; byte-identity with session-start enforced; feynman 43 files registered; 9 new Phase 88-09 tests all passing
+Last session: 2026-04-23T10:29:24.628Z
+Stopped at: Completed 88-10-PLAN.md (decision-capture module)
 Resume file: None

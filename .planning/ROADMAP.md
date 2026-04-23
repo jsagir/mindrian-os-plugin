@@ -276,7 +276,7 @@ Plans:
 - [x] 88-07-PLAN.md -- session-start TRIPLE_CONTEXT injection block with budget cap
 - [x] 88-08-PLAN.md -- pre-compact triple snapshot (atomic write, 2s hook timeout)
 - [x] 88-09-PLAN.md -- post-compact TRIPLE_CONTEXT re-injection with lazy-read fallback
-- [ ] 88-10-PLAN.md -- decision-capture helper writes to decision_log with 20-entry cap + monthly archive
+- [x] 88-10-PLAN.md -- decision-capture helper writes to decision_log with 20-entry cap + monthly archive
 - [ ] 88-11-PLAN.md -- APPROVE/REJECT/DEFER cascade dual-write to graph + decision_log
 - [ ] 88-12-PLAN.md -- v1.10.13 5-gate release
 - [ ] 88-13-PLAN.md -- Feynman-MINTO Guardian boundary enforcement (session-start validate, on-stop verify, pre-commit extend)
