@@ -568,6 +568,158 @@ inject_active_room_context() {
 inject_active_room_context || true
 
 # ---------------------------------------------------------------------------
+# Phase 88.1-06: SessionStart MINTO banner (navigator re-entry affordance)
+#
+# Emits a compact 4-line banner AFTER the Phase 83 ACTIVE ROOM CONTEXT
+# block and BEFORE the Phase 88-07 TRIPLE_CONTEXT block. Format:
+#
+#   MindrianOS v${version}
+#   Room: ${room_slug}
+#   Focus (top 3 recently-active sections):
+#     ${glyph1} ${section1}: "${gt1_truncated}"
+#     ${glyph2} ${section2}: "${gt2_truncated}"
+#     ${glyph3} ${section3}: "${gt3_truncated}"
+#
+# Ordering contract: identity (ACTIVE ROOM) -> focus snapshot (this
+# banner) -> full per-section memory (TRIPLE_CONTEXT). The banner is
+# the re-entry affordance per Canon Part 1; TRIPLE_CONTEXT below is
+# the full LOCAL context per Canon Part 3.
+#
+# Budget policy: banner reserves ~200 tokens when all 3 rows render.
+# Under tight SESSION_START_BUDGET_TOKENS the formatter drops rows in
+# reverse order (3rd -> 2nd -> 1st), then drops the focus-header
+# entirely, leaving brand + room visible. TRIPLE_CONTEXT below honors
+# its own 5000-token default budget independently.
+#
+# Soft-fail contract: `env node -e ... 2>/dev/null || echo ""` means
+# any internal failure (malformed triple, missing module, stat error)
+# emits nothing and session-start continues. Banner errors NEVER block
+# startup.
+#
+# Part 8 boundary: triples are read via lib/core/folder-memory.cjs
+# readTriple (the canonical Phase 88-01 contract). Version is read from
+# .claude-plugin/plugin.json (LOCAL). Zero Brain / fetch / external
+# calls in the payload.
+#
+# Plan 88.1-04 cache reuse: the formatter's classifyHealth +
+# truncateGoverningThought come from lib/core/statusline-cache.cjs so
+# the banner glyph is byte-identical with statusline + /mos:status.
+# ---------------------------------------------------------------------------
+if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ]; then
+  BANNER_MINTO=$(env ROOM_DIR_ENV="${ROOM_DIR}" PLUGIN_ROOT_ENV="${PLUGIN_ROOT}" node -e '
+    "use strict";
+    const fs = require("fs");
+    const path = require("path");
+    const roomDir = process.env.ROOM_DIR_ENV;
+    const pluginRoot = process.env.PLUGIN_ROOT_ENV;
+    try {
+      const fmt = require(path.join(pluginRoot, "lib", "memory", "sessionstart-banner-formatter.cjs"));
+      const fm = require(path.join(pluginRoot, "lib", "core", "folder-memory.cjs"));
+      // Plan 88.1-04 cache reuse: warm statusline-cache for the top-3
+      // sections so the next statusline tick hits the cache. Cache module
+      // is optional; banner still renders without it.
+      let cache = null;
+      try {
+        cache = require(path.join(pluginRoot, "lib", "core", "statusline-cache.cjs"));
+      } catch (_e) { cache = null; }
+
+      // Derive room slug from the room directory basename. Callers can
+      // override via MINDRIAN_ROOM_SLUG but default is reliable.
+      const roomSlug = process.env.MINDRIAN_ROOM_SLUG || path.basename(roomDir);
+
+      // Enumerate subdirs with ROOM.md; compute effective activity mtime
+      // per section as max(section_root_mtime, MINTO.md mtime, max
+      // artifact .md mtime). Caller owns fs reads so the formatter stays
+      // pure (Part 8).
+      let entries = [];
+      try {
+        entries = fs.readdirSync(roomDir, { withFileTypes: true })
+          .filter((d) => d.isDirectory() && d.name[0] !== ".");
+      } catch (_e) { entries = []; }
+
+      const triples = {};
+      for (const d of entries) {
+        const sp = path.join(roomDir, d.name);
+        try {
+          if (!fs.existsSync(path.join(sp, "ROOM.md"))) continue;
+          // Warm-cache lookup first; fall through to readTriple on miss.
+          let t = null;
+          if (cache && typeof cache.getCached === "function") {
+            const hit = cache.getCached(roomDir, sp);
+            if (hit && hit.fresh && hit.value) t = hit.value;
+          }
+          if (!t) {
+            t = fm.readTriple(sp);
+            if (cache && typeof cache.setCached === "function") {
+              try { cache.setCached(roomDir, sp, t); } catch (_e) {}
+            }
+          }
+
+          // Compute effective activity mtime.
+          let mtime = 0;
+          try {
+            const sstat = fs.statSync(sp);
+            if (sstat && sstat.mtimeMs) mtime = Math.max(mtime, sstat.mtimeMs);
+          } catch (_e) {}
+          try {
+            const mpath = path.join(sp, "MINTO.md");
+            if (fs.existsSync(mpath)) {
+              const mst = fs.statSync(mpath);
+              if (mst && mst.mtimeMs) mtime = Math.max(mtime, mst.mtimeMs);
+            }
+          } catch (_e) {}
+          try {
+            const items = fs.readdirSync(sp);
+            for (const n of items) {
+              if (n[0] === ".") continue;
+              if (!n.endsWith(".md")) continue;
+              if (n === "ROOM.md" || n === "STATE.md" || n === "MINTO.md" || n === "TEAM-STATE.md") continue;
+              const fst = fs.statSync(path.join(sp, n));
+              if (fst && fst.mtimeMs) mtime = Math.max(mtime, fst.mtimeMs);
+            }
+          } catch (_e) {}
+
+          // Attach the effective mtime onto the reasoning payload for
+          // the formatter top-3 selector. Non-destructive decoration.
+          if (t && t.reasoning && typeof t.reasoning === "object") {
+            t.reasoning._mtime = mtime;
+          }
+          triples[d.name] = t;
+        } catch (_e) { /* skip this section */ }
+      }
+
+      // Resolve version dynamically (never hardcoded; release-safe).
+      const version = fmt.readPluginVersion(pluginRoot);
+
+      // Budget: reserve ~200 tokens for the banner. Under very tight
+      // total budget the formatter drops rows to fit.
+      let budget = fmt.BANNER_RESERVE_TOKENS || 200;
+      const envBudget = parseInt(process.env.SESSION_START_BUDGET_TOKENS || "", 10);
+      if (Number.isFinite(envBudget) && envBudget > 0 && envBudget < 1000) {
+        // Under very tight total budget (< 1000), proportionally shrink
+        // the banner share so TRIPLE_CONTEXT still has room downstream.
+        budget = Math.max(50, Math.floor(envBudget * 0.2));
+      }
+
+      const out = fmt.formatBanner({
+        roomRoot: roomDir,
+        roomSlug: roomSlug,
+        triples: triples,
+        version: version,
+        budget: budget,
+      });
+      process.stdout.write(out || "");
+    } catch (_e) { /* soft-fail: emit nothing */ }
+  ' 2>/dev/null || echo "")
+  if [ -n "${BANNER_MINTO}" ]; then
+    context="${context}
+
+${BANNER_MINTO}"
+  fi
+fi
+# --- end Phase 88.1-06 banner ---
+
+# ---------------------------------------------------------------------------
 # Phase 88-07: TRIPLE_CONTEXT injection (per-section memory triple)
 #
 # Wakes Larry up per-section with what references belong, what state the
