@@ -1,6 +1,6 @@
 ---
 name: onboard
-description: Interactive MindrianOS walkthrough -- Larry teaches three ways to work, then builds context about you
+description: Walk through MindrianOS and build your first room
 body_shape: B (Semantic Tree)
 body_shape_detail: Steps as conversational flow, context building as nested nodes
 ui_reference: skills/ui-system/SKILL.md

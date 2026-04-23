@@ -1,6 +1,6 @@
 ---
 name: radar
-description: Track Claude capabilities that could enhance MindrianOS
+description: Track Claude capabilities that may help MindrianOS
 allowed-tools:
   - Read
   - Write

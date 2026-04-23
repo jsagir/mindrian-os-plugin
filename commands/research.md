@@ -1,6 +1,7 @@
 ---
 name: research
-description: External web research with Brain cross-reference -- find evidence for your venture
+description: Research the web and cross-reference with Brain
+argument-hint: [topic]
 allowed-tools:
   - Read
   - Bash

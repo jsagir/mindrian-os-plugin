@@ -1,6 +1,6 @@
 ---
 name: present
-description: Generate your room's 6-view visual presentation and open it in browser
+description: Generate the 6-view presentation and open it
 body_shape: E (Action Report)
 body_shape_detail: Generation results as action items, 6 views listed as outputs
 ui_reference: skills/ui-system/SKILL.md

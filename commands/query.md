@@ -1,6 +1,7 @@
 ---
 name: query
-description: Query your project knowledge graph with natural language -- ask about relationships, contradictions, and themes across your Data Room
+description: Query the knowledge graph in natural language
+argument-hint: [question]
 allowed-tools:
   - Read
   - Bash

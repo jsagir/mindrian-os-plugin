@@ -1,6 +1,7 @@
 ---
 name: new-project
-description: Start a new venture project with Larry -- he'll explore your idea and create your Data Room
+description: Start a new venture project and create its room
+argument-hint: [name]
 allowed-tools:
   - Read
   - Write

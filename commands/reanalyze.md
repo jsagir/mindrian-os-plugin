@@ -1,6 +1,6 @@
 ---
 name: reanalyze
-description: Re-run intelligence on your filed meetings -- find new patterns, connections, and action items
+description: Re-analyze filed meetings for new patterns
 body_shape: E (Action Report)
 body_shape_detail: Before/after delta showing new insights discovered
 ui_reference: skills/ui-system/SKILL.md

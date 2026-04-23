@@ -1,6 +1,7 @@
 ---
 name: room
-description: Manage your Data Room -- launch the visual dashboard, view sections, add rooms, export for investors
+description: View, launch, or navigate the Data Room
+argument-hint: [overview|<section>]
 body_shape_overview: B (Semantic Tree)
 body_shape_section: C (Room Card)
 ui_reference: skills/ui-system/SKILL.md

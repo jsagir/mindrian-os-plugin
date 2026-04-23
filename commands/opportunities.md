@@ -1,6 +1,7 @@
 ---
 name: opportunities
-description: Context-driven grant discovery and opportunity management
+description: Discover and manage grants in the Opportunity Bank
+argument-hint: [list|add|scan]
 body_shape: E (Action Report)
 allowed-tools:
   - Read

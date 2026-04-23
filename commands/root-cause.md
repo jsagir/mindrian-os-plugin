@@ -1,6 +1,6 @@
 ---
 name: root-cause
-description: Trace problems to their root cause using 5 Whys, Fishbone, Fault Tree, Barrier, or Change Analysis
+description: Trace root cause via 5-Whys, Fishbone, Fault Tree
 allowed-tools:
   - Read
   - Write

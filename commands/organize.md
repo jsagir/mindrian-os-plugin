@@ -1,6 +1,7 @@
 ---
 name: organize
-description: Navigate room hierarchy as a wicked problem - tree view, graph-informed proposals, virtual projections, confirmed moves
+description: Navigate room hierarchy with graph-aware tree
+argument-hint: [tree|propose|compound]
 body_shape: B (Semantic Tree)
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:

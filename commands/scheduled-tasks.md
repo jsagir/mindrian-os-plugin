@@ -1,6 +1,6 @@
 ---
 name: scheduled-tasks
-description: Cowork scheduled task definitions for proactive intelligence -- daily briefing, prediction tracking, competitor watch, news scan, scout sentinel
+description: Define Cowork scheduled tasks for the room
 body_shape: E (Action Report)
 ui_reference: skills/ui-system/SKILL.md
 surface: cowork

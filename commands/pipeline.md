@@ -1,6 +1,7 @@
 ---
 name: pipeline
-description: Run a multi-step methodology sequence -- frameworks chain output to input
+description: Chain a multi-step methodology pipeline
+argument-hint: [pipeline-name]
 allowed-tools:
   - Read
   - Write

@@ -1,6 +1,7 @@
 ---
 name: rooms
-description: Manage multiple project rooms - list, create, switch, park, archive
+description: List, switch, or archive project rooms
+argument-hint: [list|switch|archive|park]
 body_shape: B (Semantic Tree)
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:

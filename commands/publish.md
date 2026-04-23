@@ -1,6 +1,8 @@
 ---
 name: publish
-description: Deploy the Data Room presentation to Vercel -- guided setup, selective publishing, privacy controls
+description: Publish the Data Room presentation to Vercel
+argument-hint: [--all|<view>]
+disable-model-invocation: true
 allowed-tools:
   - Read
   - Write

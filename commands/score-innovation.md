@@ -1,6 +1,6 @@
 ---
 name: score-innovation
-description: Score cross-domain innovation opportunities -- qualitative HSI assessment across domain pairs
+description: Score cross-domain innovation via HSI
 allowed-tools:
   - Read
   - Write
