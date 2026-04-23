@@ -30,6 +30,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { ensureBrainBaseline } = require('./ensure-brain-baseline.cjs');
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -388,6 +389,18 @@ async function runDiscoveryCycle(roomDir, options = {}) {
   // Dry-run mode: return pre-flight report without executing
   if (opts.dryRun) {
     return runDryRun(resolvedRoom, report, opts);
+  }
+
+  // Step 1b: Ensure Brain baseline (auto-fire per Phase 88.6-01)
+  // All three discover-* Python scripts need .mindrian/brain-baseline.json to
+  // produce non-zero results. Pre-88.6, if it was missing they silently returned
+  // 0 zones. Now we auto-fetch or log offline status explicitly.
+  log('Discovery Cycle: ensuring Brain baseline...');
+  const baselineResult = ensureBrainBaseline(resolvedRoom, { verbose: opts.verbose });
+  if (!baselineResult.ensured) {
+    log(`  Brain baseline: ${baselineResult.reason} -- discover-* scripts will produce 0 zones without baseline embeddings`);
+  } else if (baselineResult.fetched) {
+    log('  Brain baseline: fetched successfully');
   }
 
   // Step 2: Export ANALOGOUS_TO edges from SQLite
