@@ -620,6 +620,78 @@ async function main() {
         }
       }
 
+      // --- Phase 88 dual-write to decision_log (additive; primary write already completed) ---
+      //
+      // Primary writer above (proactive-intelligence.cjs + optional graph edge) is
+      // authoritative and byte-frozen. This block is a tertiary convenience write that
+      // lands the decision in the owning section's Feynman-MINTO decision_log for
+      // session-start TRIPLE_CONTEXT injection (88-07). Section is derived from
+      // --source-artifact; without a derivable section, dual-write is a documented
+      // skip (NOT a failure: no error log entry). Any failure of the dual-write is
+      // logged to .mindrian/decision-dual-write-errors.jsonl and then swallowed;
+      // CLI exit 0 is preserved because primary write already succeeded.
+      try {
+        const path = require('path');
+        const fs = require('fs');
+        let derivedSection = null;
+        if (rdSourceArtifact) {
+          const roomAbs = path.resolve(rdRoom);
+          const absArt = path.isAbsolute(rdSourceArtifact)
+            ? rdSourceArtifact
+            : path.join(roomAbs, rdSourceArtifact);
+          const rel = path.relative(roomAbs, absArt);
+          if (!rel.startsWith('..') && !path.isAbsolute(rel)) {
+            const firstSeg = rel.split(path.sep)[0];
+            if (firstSeg && firstSeg !== '.' && !firstSeg.startsWith('.')) {
+              derivedSection = firstSeg;
+            }
+          } else {
+            process.stderr.write(
+              'record-decision: --source-artifact outside --room; dual-write skipped\n'
+            );
+          }
+        }
+        if (derivedSection) {
+          const { recordDecision: persistDecision } = require('../lib/core/decision-capture.cjs');
+          const decision = {
+            session_id: process.env.CLAUDE_SESSION_ID || 'sess-' + Date.now(),
+            timestamp: new Date().toISOString(),
+            action: rdKey,
+            user_response: rdDecision,
+            reason: rdReason || '(no reason)',
+          };
+          const dualResult = persistDecision(rdRoom, derivedSection, decision);
+          if (!dualResult || dualResult.success === false) {
+            const errPath = path.join(
+              path.resolve(rdRoom),
+              '.mindrian',
+              'decision-dual-write-errors.jsonl'
+            );
+            try {
+              fs.mkdirSync(path.dirname(errPath), { recursive: true });
+              fs.appendFileSync(
+                errPath,
+                JSON.stringify({
+                  timestamp: new Date().toISOString(),
+                  reason: 'decision_log_failed',
+                  decision,
+                  violations: (dualResult && dualResult.violations) || [],
+                }) + '\n'
+              );
+            } catch (logErr) {
+              process.stderr.write(
+                'dual-write error logging failed: ' + logErr.message + '\n'
+              );
+            }
+          }
+        }
+      } catch (e) {
+        process.stderr.write(
+          'decision-capture dual-write error: ' + (e && e.message ? e.message : e) + '\n'
+        );
+      }
+      // --- end Phase 88 ---
+
       const rdOutput = {
         recorded: true,
         decision: rdDecision,
