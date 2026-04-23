@@ -759,8 +759,13 @@ async function case15() {
     throw new Error('runner not found at ' + runner);
   }
   const env = Object.assign({}, process.env, { SKIP_META_REGRESSION: '1' });
+  // 240000ms (was 120000): the Feynman suite now runs 41 files including
+  // Phase 88-07 session-start integration tests that spawn real bash
+  // processes. WSL2 fs contention under sequential spawns pushes total
+  // runtime past 120s; 240s leaves slack without hiding true hangs (the
+  // outer Jest wall-clock still reaps runaway processes).
   const res = spawnSync(process.execPath, [runner], {
-    env: env, timeout: 120000, encoding: 'utf8',
+    env: env, timeout: 240000, encoding: 'utf8',
   });
   assert.strictEqual(res.status, 0, 'feynman runner exit 0');
   const out = res.stdout || '';

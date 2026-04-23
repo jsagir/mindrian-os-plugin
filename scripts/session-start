@@ -2,6 +2,12 @@
 # session-start: SessionStart hook handler for MindrianOS
 # Loads room context into Claude's additionalContext for session continuity
 # Must complete in under 2 seconds
+#
+# Phase 88-07 addition: after Phase 83 ACTIVE ROOM CONTEXT, inject a
+# TRIPLE_CONTEXT block per active section via lib/memory/triple-context-
+# formatter.cjs. Reads .mindrian/session-snapshot.json (88-06 producer)
+# with fallback to live folder-memory.readTriple walk. Budget-capped via
+# SESSION_START_BUDGET_TOKENS env var (default 5000).
 
 set -euo pipefail
 
@@ -560,6 +566,115 @@ inject_active_room_context() {
 }
 
 inject_active_room_context || true
+
+# ---------------------------------------------------------------------------
+# Phase 88-07: TRIPLE_CONTEXT injection (per-section memory triple)
+#
+# Wakes Larry up per-section with what references belong, what state the
+# section is in, what the governing thought is, what arguments support it,
+# and what decisions the user has already made. Consumes 88-06's
+# .mindrian/session-snapshot.json when present; falls back to live
+# folder-memory.readTriple walk when the snapshot is missing (e.g. first
+# session after install, or the room was modified outside a previous Stop).
+#
+# Ordering contract: this block MUST appear AFTER the Phase 83 ACTIVE ROOM
+# CONTEXT block (which anchors the room identity) and BEFORE the SEALED
+# ROOMS walker (which scopes cross-room policy). Test 7 asserts the
+# ACTIVE ROOM CONTEXT -> TRIPLE_CONTEXT sequence.
+#
+# Budget: the formatter enforces DEFAULT_BUDGET_TOKENS = 5000 (grounded in
+# a measured baseline ~3825-token session-start emission; see
+# .planning/phases/88-feynman-minto-memory-layer/88-07-SUMMARY.md). Users
+# override via SESSION_START_BUDGET_TOKENS env var; the env propagates into
+# the node -e subshell automatically (process.env inheritance).
+#
+# Soft-fail contract: the || echo "" + 2>/dev/null on the outer node
+# invocation means any failure inside the Node payload (malformed JSON,
+# readTriple throw, formatter crash) emits nothing and the hook exits 0.
+# See lib/memory/session-start-triple-injection.test.cjs Test 8.
+#
+# No direct MINTO.md reads: goes through lib/core/folder-memory.cjs per
+# the 88-01 read contract (Phase 88 decision: readTriple is the ONLY
+# supported way to read the triple).
+# ---------------------------------------------------------------------------
+if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" ]; then
+  # env-prefix inside a command substitution does NOT propagate; we use `env`
+  # to set ROOM_DIR_ENV + PLUGIN_ROOT_ENV for the node -e subshell only.
+  # SESSION_START_BUDGET_TOKENS is inherited automatically via the outer
+  # process env (no explicit forwarding needed).
+  TRIPLE_CONTEXT=$(env ROOM_DIR_ENV="${ROOM_DIR}" PLUGIN_ROOT_ENV="${PLUGIN_ROOT}" node -e '
+    "use strict";
+    const fs = require("fs");
+    const path = require("path");
+    const roomDir = process.env.ROOM_DIR_ENV;
+    const pluginRoot = process.env.PLUGIN_ROOT_ENV;
+    try {
+      const fm = require(path.join(pluginRoot, "lib", "core", "folder-memory.cjs"));
+      const fmt = require(path.join(pluginRoot, "lib", "memory", "triple-context-formatter.cjs"));
+      // 1. Try snapshot-first (88-06 producer contract). Falls through to
+      // live readTriple walk if snapshot is missing or malformed.
+      let sections = {};
+      try {
+        const snapPath = path.join(roomDir, ".mindrian", "session-snapshot.json");
+        if (fs.existsSync(snapPath)) {
+          const raw = fs.readFileSync(snapPath, "utf8");
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.sections && typeof parsed.sections === "object") {
+            sections = parsed.sections;
+          }
+        }
+      } catch (_e) { /* malformed snapshot -> fallback below */ }
+      // 2. Fallback: walk sections via folder-memory.readTriple. Triggered
+      // when snapshot is absent, unparseable, or empty.
+      if (!sections || Object.keys(sections).length === 0) {
+        let entries = [];
+        try {
+          entries = fs.readdirSync(roomDir, { withFileTypes: true })
+            .filter((d) => d.isDirectory() && d.name[0] !== ".");
+        } catch (_e) { entries = []; }
+        sections = {};
+        for (const d of entries) {
+          const sp = path.join(roomDir, d.name);
+          try {
+            if (!fs.existsSync(path.join(sp, "ROOM.md"))) continue;
+            sections[d.name] = fm.readTriple(sp);
+          } catch (_e) { /* skip this section */ }
+        }
+      }
+      // 3. Read optional pending-tier1-regen.json (88-05 producer).
+      let pendingTier1 = null;
+      try {
+        const ptp = path.join(roomDir, ".mindrian", "pending-tier1-regen.json");
+        if (fs.existsSync(ptp)) {
+          const pj = JSON.parse(fs.readFileSync(ptp, "utf8"));
+          pendingTier1 = Array.isArray(pj) ? pj : (pj && pj.pending) || [];
+        }
+      } catch (_e) { pendingTier1 = null; }
+      // 4. Read optional minto-stale.json (88-06 producer).
+      let staleReport = null;
+      try {
+        const msp = path.join(roomDir, ".mindrian", "minto-stale.json");
+        if (fs.existsSync(msp)) {
+          const sj = JSON.parse(fs.readFileSync(msp, "utf8"));
+          staleReport = Array.isArray(sj) ? sj : (sj && sj.sections) || [];
+        }
+      } catch (_e) { staleReport = null; }
+      // 5. Format and emit.
+      const block = fmt.formatTripleContext({
+        sections: sections,
+        pendingTier1: pendingTier1,
+        staleReport: staleReport,
+      });
+      process.stdout.write(block || "");
+    } catch (_e) { /* soft-fail: emit nothing */ }
+  ' 2>/dev/null || echo "")
+  if [ -n "${TRIPLE_CONTEXT}" ]; then
+    context="${context}
+
+${TRIPLE_CONTEXT}"
+  fi
+fi
+# --- end Phase 88-07 ---
 
 # ---------------------------------------------------------------------------
 # SEALED ROOMS walker (Phase 83-03, SCOPE-INJ-02/06)
