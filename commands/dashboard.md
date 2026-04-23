@@ -1,9 +1,9 @@
 ---
 name: dashboard
-description: Data Room dashboard. `/mos:dashboard live` opens the live Node server at http://127.0.0.1:3131 (NEW). `/mos:dashboard` (no subcommand) runs the legacy bash snapshot on port 8420.
+description: Open the Data Room dashboard (live or snapshot)
 body_shape: raw
 ui_reference: skills/ui-system/SKILL.md
-argument-hint: "live | stop | open | (empty = legacy snapshot)"
+argument-hint: [live|stop|open]
 allowed-tools:
   - Bash
   - Read

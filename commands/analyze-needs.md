@@ -1,6 +1,6 @@
 ---
 name: analyze-needs
-description: Discover what progress customers are really trying to make -- Jobs To Be Done with opportunity scoring
+description: Score customer jobs with importance and satisfaction
 allowed-tools:
   - Read
   - Write

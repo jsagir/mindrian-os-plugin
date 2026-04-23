@@ -1,6 +1,6 @@
 ---
 name: explore-domains
-description: Map your domain territory -- where opposites collide and opportunity hides (IKA scoring)
+description: Map domains through IKA + Feynman decomposition
 allowed-tools:
   - Read
   - Write

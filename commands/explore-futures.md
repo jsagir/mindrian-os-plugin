@@ -1,6 +1,6 @@
 ---
 name: explore-futures
-description: Strategic foresight by synthesizing TTA, Scenario, and S-Curve frameworks -- connect dots across rooms
+description: Synthesize TTA + Scenario + S-Curve futures
 allowed-tools:
   - Read
   - Write

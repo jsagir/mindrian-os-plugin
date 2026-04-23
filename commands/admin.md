@@ -1,6 +1,7 @@
 ---
 name: admin
-description: Brain API key management -- hidden admin panel
+description: Manage Brain API keys from the admin panel
+argument-hint: [subcommand]
 body_shape: A (Mondrian Board)
 ui_reference: skills/ui-system/SKILL.md
 visibility: admin

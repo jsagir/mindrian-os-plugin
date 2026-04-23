@@ -1,6 +1,7 @@
 ---
 name: act
-description: Let Larry autonomously select and run the best methodology for your current state
+description: Run Larry's best-pick methodology for your room state
+argument-hint: [--chain] [--swarm] [--dry-run]
 body_shape: E (Action Report)
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:

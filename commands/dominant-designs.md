@@ -1,6 +1,6 @@
 ---
 name: dominant-designs
-description: Analyze dominant designs using Utterback-Abernathy model -- find where standards are cracking
+description: Spot dominant designs with Utterback-Abernathy
 allowed-tools:
   - Read
   - Write

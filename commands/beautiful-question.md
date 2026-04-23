@@ -1,6 +1,6 @@
 ---
 name: beautiful-question
-description: Reframe your challenge into a question worth answering -- Why / What If / How
+description: Reframe a challenge as Why / What-if / How
 allowed-tools:
   - Read
   - Write

@@ -1,6 +1,6 @@
 ---
 name: analyze-timing
-description: Read the S-Curve clock on technology evolution -- assess eras, dominant designs, and transition points
+description: Place a technology on the S-Curve timing clock
 allowed-tools:
   - Read
   - Write

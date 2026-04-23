@@ -1,6 +1,7 @@
 ---
 name: causal
-description: Extract, trace, and predict causal relationships in your room's knowledge graph
+description: Trace causal edges in the room's graph
+argument-hint: [extract|trace|predict]
 allowed-tools:
   - Read
   - Write

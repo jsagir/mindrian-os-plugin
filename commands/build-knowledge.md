@@ -1,6 +1,6 @@
 ---
 name: build-knowledge
-description: Climb Ackoff's DIKW Pyramid -- separate data from information from knowledge from wisdom
+description: Climb Ackoff's DIKW pyramid across the room
 allowed-tools:
   - Read
   - Write

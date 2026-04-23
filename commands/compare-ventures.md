@@ -1,6 +1,6 @@
 ---
 name: compare-ventures
-description: Who else did something like this -- and what happened?
+description: Compare against ventures that tried this before
 allowed-tools:
   - Read
   - mcp__mindrian-brain__brain_query

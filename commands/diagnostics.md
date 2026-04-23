@@ -1,6 +1,6 @@
 ---
 name: diagnostics
-description: Wave-1 algorithmic fingerprint, disruption coverage novelty surprise
+description: Run Wave-1 algorithmic fingerprint on the room
 body_shape: E
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:

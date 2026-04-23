@@ -1,6 +1,6 @@
 ---
 name: deep-grade
-description: Calibrated venture assessment -- scored against 100+ real projects
+description: Grade a venture against 100+ calibrated projects
 allowed-tools:
   - Read
   - Bash

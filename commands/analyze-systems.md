@@ -1,6 +1,6 @@
 ---
 name: analyze-systems
-description: Decompose complex systems into layers -- find where leverage lives
+description: Decompose a system into layers and leverage points
 allowed-tools:
   - Read
   - Write

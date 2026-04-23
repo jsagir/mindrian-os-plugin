@@ -1,6 +1,6 @@
 ---
 name: diagnose
-description: Classify your problem type and get matched to the right methodology commands
+description: Classify problem type against the PWS matrix
 allowed-tools:
   - Read
   - Write
