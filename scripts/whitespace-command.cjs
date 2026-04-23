@@ -539,23 +539,77 @@ function cmdExternal(roomDir) {
     return;
   }
 
-  // Run Semantic Scholar query
+  // Pre-step (Phase 88.6-03): ensure Brain baseline exists so downstream
+  // interpretation of external whitespace has cross-domain context. External
+  // whitespace can run without baseline (unlike cmdMap/cmdDiscover which
+  // hard-depend on it); log a note and continue.
+  const baselineResult = ensureBrainBaseline(roomDir, { verbose: false });
+  if (!baselineResult.ensured) {
+    console.log(`${C.YELLOW}Note: Brain baseline unavailable for cross-domain comparison.${C.RESET}`);
+  }
+
+  // Step 1 (Phase 88.6-03): run Semantic Scholar query. Do NOT early-return
+  // on execSync throw -- inspect the post-run state of external-papers.json
+  // and count queries by the status enum that query-semantic-scholar.cjs
+  // now persists (ok / rate_limited / api_error / network_error / timeout /
+  // not_attempted). This lets partial-result flows continue and surface
+  // rate-limit warnings in Zone 3 rather than failing the whole pipeline.
   console.log(`${C.GRAY}Querying Semantic Scholar...${C.RESET}`);
-  let result = runScript(`node "${scholarScript}" "${roomDir}"`);
-  if (result && result.error) {
-    printError('Semantic Scholar query failed', result.message, '/mos:whitespace external');
+  const scholarResult = runScript(`node "${scholarScript}" "${roomDir}"`);
+  const papersPath = path.join(roomDir, '.mindrian', 'external-papers.json');
+  const scholarFileExists = fileExists(papersPath);
+  const scholarData = scholarFileExists ? readJSON(papersPath) : null;
+
+  // Task 0 guarantees queries[] is present in external-papers.json. Fall
+  // back defensively for cache files written by pre-88.6-03 versions.
+  const queryOutcomes = Array.isArray(scholarData && scholarData.queries) ? scholarData.queries : [];
+  const totalQueries = queryOutcomes.length;
+  const rateLimitedQueries = queryOutcomes.filter(q => q.status === 'rate_limited').length;
+  const errorQueries = queryOutcomes.filter(
+    q => q.status === 'api_error' || q.status === 'network_error' || q.status === 'timeout'
+  ).length;
+  const successfulQueries = queryOutcomes.filter(q => q.status === 'ok').length;
+  const papersFetched = Array.isArray(scholarData && scholarData.papers) ? scholarData.papers.length : 0;
+
+  // Fail-explicit condition: scholar file absent, OR file reports top-level
+  // `error`, OR zero successful queries AND zero papers. Rate-limited alone
+  // is NOT fatal -- partial results still surface.
+  const scholarFailedEntirely = !scholarFileExists
+    || (scholarData && scholarData.error)
+    || (successfulQueries === 0 && papersFetched === 0);
+
+  if (scholarFailedEntirely) {
+    const why = scholarData && scholarData.error
+      ? scholarData.error
+      : (rateLimitedQueries > 0
+          ? `All ${totalQueries} queries rate-limited`
+          : (totalQueries === 0
+              ? 'No queries generated (room may lack content)'
+              : 'All queries failed or returned no papers'));
+    printError('Semantic Scholar unavailable',
+      why,
+      '/mos:whitespace external (retry in 60 seconds if rate-limited)');
+    // scholarResult is intentionally inspected only as a side-channel signal.
+    // The authoritative state is external-papers.json on disk.
+    if (scholarResult && scholarResult.error && !scholarData) {
+      console.log(`${C.GRAY}  (subprocess signal: ${scholarResult.message})${C.RESET}`);
+    }
     return;
   }
 
-  // Run external whitespace computation
-  console.log(`${C.GRAY}Computing external whitespace...${C.RESET}`);
-  result = runScript(`python3 "${externalScript}" "${roomDir}"`);
-  if (result && result.error) {
-    printError('External whitespace computation failed', result.message, '/mos:whitespace external');
+  // Step 2 (Phase 88.6-03): run python3 compute-external-whitespace only
+  // if scholar step did not fail entirely. Report the successful/total
+  // ratio so the user sees real coverage.
+  console.log(`${C.GRAY}Computing external whitespace (${papersFetched} papers, ${successfulQueries}/${totalQueries} queries OK)...${C.RESET}`);
+  const computeResult = runScript(`python3 "${externalScript}" "${roomDir}"`);
+  if (computeResult && computeResult.error) {
+    printError('External whitespace computation failed',
+      computeResult.message || 'unknown',
+      '/mos:whitespace external');
     return;
   }
 
-  // Read results
+  // Step 3: render 4-zone output. Read results.
   const externalPath = path.join(roomDir, '.mindrian', 'external-whitespace-results.json');
   const data = readJSON(externalPath);
 
@@ -591,6 +645,19 @@ function cmdExternal(roomDir) {
       const rel = (p.relevance || 0).toFixed(2);
       console.log(`  ${prefix} ${title} (${year}) -- relevance: ${rel}`);
     });
+  }
+
+  // Zone 3 intelligence strip (Phase 88.6-03): surface rate-limit / error
+  // counts when partial results were shown so the user knows coverage may
+  // be reduced and the cause is external throttling, not empty-result.
+  if (rateLimitedQueries > 0 || errorQueries > 0) {
+    console.log('');
+    if (rateLimitedQueries > 0) {
+      console.log(`  ${SYM.WARN} ${rateLimitedQueries} of ${totalQueries} Semantic Scholar queries rate-limited (partial results shown)`);
+    }
+    if (errorQueries > 0) {
+      console.log(`  ${SYM.WARN} ${errorQueries} of ${totalQueries} Semantic Scholar queries errored (partial results shown)`);
+    }
   }
 }
 
