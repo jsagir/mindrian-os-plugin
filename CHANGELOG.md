@@ -9,6 +9,96 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.10.14] - 2026-04-23
+
+Phase 88.6 python-algorithm-wiring ships. Orchestration-only release closing
+the orphan-value gap between 15 verified Python algorithms and the /mos:*
+command surface. Zero new algorithms; every change is wiring, graceful
+degradation, interpretation strings, and release discipline. Four Wave-1
+scalars (Funk and Owen-Smith Disruption Index, Good-Turing Blindspot
+Coverage, Centroid-Distance Element Novelty, Leave-One-Out Bayesian Surprise)
+are now exposed via /mos:diagnostics with plain-English interpretation per
+metric. Baseline auto-fire eliminates the silent-zero production bug in
+discover-* pipelines via a shared ensure-brain-baseline helper. External
+Semantic Scholar orchestration handles rate limits gracefully with real
+per-query telemetry persisted in external-papers.json queries[]. Evidence:
+2026-04-23 smoke test on ~/MindrianRooms/mindrianOS/ (207 artifacts, 77
+Brain frameworks, CD = -0.7092, coverage = 0.667). Canon Parts 6, 7, 8
+honored. Feynman suite 46/46.
+
+### Added
+
+- /mos:diagnostics command exposing 4 Wave-1 algorithms (Funk and Owen-Smith
+  Disruption Index, Good-Turing Blindspot Coverage, Centroid-Distance Element
+  Novelty, Leave-One-Out Bayesian Surprise) with plain-English interpretation
+  strings per metric. Shape E (Action Report) output per UI System with
+  4-zone rendering (header panel, metric rows, conditional intelligence
+  strip, action footer). New dispatcher `scripts/diagnostics-command.cjs`
+  (345 lines) and new surface `commands/diagnostics.md` (144 lines). Ground-
+  truth field paths verified empirically against Python script outputs
+  (disruption-index.json, blindspot-coverage.json, element-novelty.json,
+  surprise-scores.json). (Phase 88.6 Plan 02)
+- /mos:diagnostics discoverable via `/mos:help` -- entry added to Intelligence
+  + Brain group with JTBD description, plus color mapping reference updated
+  and command count bumped 66 -> 67. (Phase 88.6 Plan 02 gap-closure)
+- Shared baseline auto-fire helper `scripts/ensure-brain-baseline.cjs` (117
+  lines) factored out of whitespace-command.cjs; now called by both
+  `scripts/discovery-cycle.cjs` and `scripts/whitespace-command.cjs` cmdMap,
+  cmdDiscover, and cmdExternal. Idempotent on repeat calls. Closes the
+  silent-zero production bug where discover-* pipelines produced 0 zones
+  when `.mindrian/brain-baseline.json` was missing. (Phase 88.6 Plan 01)
+- Per-query telemetry persistence in `scripts/query-semantic-scholar.cjs`:
+  external-papers.json now includes a top-level `queries[]` array of
+  `{query, status, papers_returned, http_status?}` objects with 6-value
+  status enum (ok / rate_limited / api_error / network_error / timeout /
+  not_attempted). Cache payload carries queryOutcomes so cache-hit replay
+  surfaces real status distribution. Backwards compatible with pre-88.6-03
+  caches. Unlocks real rate-limit reporting in cmdExternal. (Phase 88.6
+  Plan 03 Task 0)
+- Rate-limit-aware orchestration for `/mos:whitespace external`: pipeline
+  continues with partial results when some Semantic Scholar queries are
+  rate-limited, reports "N of M queries rate-limited" in Zone 3 Intelligence
+  Strip by reading real queries[] telemetry, and fails explicitly with
+  "Semantic Scholar unavailable" 3-line error only when the full corpus is
+  unreachable (no file, top-level error, or zero successful queries AND
+  zero papers). commands/whitespace.md documents the new Rate-Limit
+  Behavior section. (Phase 88.6 Plan 03 Task 1)
+
+### Fixed
+
+- Silent production bug in four Python scripts (compute-whitespace-gaps.py,
+  discover-hsi-whitespace.py, discover-rs-whitespace.py,
+  discover-analogy-whitespace.py) that previously returned 0 zones without
+  any diagnostic message when brain-baseline.json was missing. Now the
+  shared helper auto-fetches on demand or shows an explicit "baseline
+  unavailable -- Brain offline" message to stderr. Exit code 2 (not 1)
+  distinguishes offline from invocation errors so callers can route
+  appropriately. Closes the issue surfaced in the 2026-04-23 smoke test
+  audit of mindrianOS.
+
+### Changed
+
+- docs/CANON-PHASE-MAP.md Part 2 Engine 1 table rows updated to reflect
+  Phase 88.6 completion of the wiring gap for Whitespace Map + Reverse
+  Salient + Cross-Domain Match. New "Wave-1 Algorithmic Fingerprint" row
+  cites /mos:diagnostics as the command surface for the 4 Wave-1 scalars.
+  Version history row added for v1.3 at 2026-04-23.
+
+### Canon
+
+- Phase 88.6 python-algorithm-wiring is an orchestration-only phase closing
+  the orphan-value gap between 15 verified Python algorithms and the
+  user-facing /mos:* command surface. Zero new algorithms; all changes are
+  wiring, graceful degradation, interpretation strings, and release
+  discipline. Evidence: 2026-04-23 smoke test on ~/MindrianRooms/mindrianOS/
+  (207 artifacts, 77 Brain frameworks, CD = -0.7092, coverage = 0.667).
+  Honors Canon Part 6 (Product-as-Venture Dog-Fooding Mandate -- release
+  discipline IS part of the venture), Part 7 (Reuse Before Build -- all
+  three plans extend existing surfaces rather than create new ones), and
+  Part 8 (Graph Boundary -- zero user data egress in external Semantic
+  Scholar pipeline; queries[] telemetry is LOCAL-only; all 4 Wave-1
+  algorithms read .mindrian/*.json with no Brain payload construction).
+
 ## [1.10.13] - 2026-04-20
 
 Phase 88 feynman-minto-memory-layer ships. Per-folder memory triple

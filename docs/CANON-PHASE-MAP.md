@@ -42,9 +42,12 @@ Every phase plan that touches a canon concept must declare `canon_parts:` in its
 | Status  | Layer | Implementation | Reference |
 |---------|-------|----------------|-----------|
 | shipped | Decomposition | /mos:explore-domains, lib/core/domain-ops.cjs | commands/explore-domains.md |
-| shipped | Whitespace Map | /mos:whitespace + Python hsi-* scripts (sentence-transformers + LSA) | commands/whitespace.md, scripts/hsi-* |
-| shipped | Reverse Salient + Cross-Domain Match | /mos:find-bottlenecks, /mos:find-connections, /mos:find-analogies, /mos:score-innovation + Pinecone 1,427 embeddings | commands/find-*.md, scripts/hsi-*, Pinecone index |
+| shipped | Whitespace Map | /mos:whitespace + Python hsi-* scripts (sentence-transformers + LSA); baseline auto-fire (Phase 88.6 Plan 01), external corpus rate-limit orchestration (Phase 88.6 Plan 03) | commands/whitespace.md, scripts/hsi-*, scripts/ensure-brain-baseline.cjs, scripts/query-semantic-scholar.cjs |
+| shipped | Reverse Salient + Cross-Domain Match | /mos:find-bottlenecks, /mos:find-connections, /mos:find-analogies, /mos:score-innovation + Pinecone 1,427 embeddings; Wave-1 scalars surfaced via /mos:diagnostics (Phase 88.6 Plan 02) | commands/find-*.md, scripts/hsi-*, Pinecone index, commands/diagnostics.md |
+| shipped | Wave-1 Algorithmic Fingerprint | /mos:diagnostics runs compute-disruption-index, compute-blindspot-mass, compute-element-novelty, compute-bayesian-surprise with interpretation strings (Phase 88.6 Plan 02) | commands/diagnostics.md, scripts/diagnostics-command.cjs |
 | planned | Reverse-Salient formal engine | Phase 89 reverse-salient-engine | .planning/phases/89-reverse-salient-engine/ |
+
+Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm layer and the user-facing command surface: 4 Wave-1 algorithms (Disruption Index, Blindspot Coverage, Element Novelty, Bayesian Surprise) are now exposed via /mos:diagnostics; baseline auto-fire eliminates the silent-zero production bug in discover-* pipelines; external Semantic Scholar orchestration handles rate limits gracefully (with real per-query telemetry persisted in external-papers.json queries[]). Evidence: 2026-04-23 smoke test on mindrianOS room, CD = -0.7092, coverage = 0.667, 4 of 5 Semantic Scholar queries returning data.
 
 ### Part 2a - The Hero's Arc (Journey Stage)
 
@@ -60,6 +63,7 @@ Every phase plan that touches a canon concept must declare `canon_parts:` in its
 | shipped | UI vocabulary contract (De Stijl) | Phase 80 commit history |
 | planned | Shape F Selector Block rollout (F.1-F.5) | Phase 88.2 uiux-selector-block |
 | planned | Hook primitives (rendering substrate) | Phase 88.1 uiux-polish |
+| planned | PWS VP 3 human-in-the-loop gates (canonical instance of Part 3) | Phase 88.5 pws-vp-scaffold |
 | planned | Option generation tier-awareness (Mode A/B/Tier 0) | Phase 90 brain-derivation-layer |
 | planned | Navigation Engine (decision production) | Phase 91 navigation-engine |
 
@@ -79,6 +83,13 @@ Every phase plan that touches a canon concept must declare `canon_parts:` in its
 | shipped | Evidence tier property on claims | Phase 81 feynman-minto-hybrid |
 | shipped | /mos:grade vs /mos:deep-grade tiering | commands/grade.md, commands/deep-grade.md |
 | planned | Confidence-gated RECOMMENDED (>= 0.7) | Phase 88.2 uiux-selector-block |
+| planned | GRADE-derived tiers on PWS VP research artifacts | Phase 88.5 pws-vp-scaffold |
+
+### Part 2 - Team Around Navigator (extension)
+
+| Status  | Phase / Component | Reference |
+|---------|-------------------|-----------|
+| planned | PWS VP AI team review (Six Hats + Belbin + PAEI) before each gate | Phase 88.5 pws-vp-scaffold |
 
 ### Part 6 - Product-as-Venture (Dog-Fooding Mandate)
 
@@ -146,6 +157,7 @@ Every phase plan that touches a canon concept must declare `canon_parts:` in its
 | v1.1          | 58c1ba3  | 2026-04-20 | Team-around-navigator + Part 8 teeth + Appendix E. |
 | v1.2          | a19ae7e  | 2026-04-20 | MindrianOS-native UI vocabulary + Shape F.1-F.5 + 88.2 alignment. |
 | v1.3          | TBD      | 2026-04-20 | Engine 1 Act 1 code-driven (whitespace + reverse salient + cross-domain match via embeddings + HSI). |
+| v1.3 (kept)   | TBD      | 2026-04-23 | Phase 88.6 (v1.10.14) wired 4 Wave-1 algorithms + baseline auto-fire + external rate-limit handling. No canon text change; map row updates only. |
 
 ---
 

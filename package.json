@@ -1,6 +1,6 @@
 {
   "name": "mindrian-os-plugin",
-  "version": "1.10.13",
+  "version": "1.10.14",
   "description": "MindrianOS MCP server - Larry thinks with you through PWS methodology via Claude Desktop and Cowork",
   "private": true,
   "scripts": {
