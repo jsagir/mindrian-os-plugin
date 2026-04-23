@@ -964,16 +964,76 @@ escape_for_json() {
 
 escaped_context=$(escape_for_json "$context")
 
+# 88.1-03: systemMessage retrofit.
+# Compute a tight one-line status string the user sees alongside the
+# additionalContext injection. Reports room slug + active section count +
+# aggregate MINTO health glyph (Canon Part 2 vocabulary: check/warn/low/--).
+# LOCAL-only (Canon Part 8): never references Brain endpoints. Soft-fail
+# at every boundary -- on any failure the systemMessage is "loaded room:
+# <slug>" with unknown section count / health glyph, and session-start
+# still exits 0 with its additionalContext payload intact.
+SYSTEM_MESSAGE=""
+if [ -n "${ROOM_DIR:-}" ] && [ -d "${ROOM_DIR}" ]; then
+  ROOM_SLUG=$(basename "${ROOM_DIR}" 2>/dev/null || echo "unknown")
+  SESSION_START_SM=$(env ROOM_DIR_ENV="${ROOM_DIR}" PLUGIN_ROOT_ENV="${PLUGIN_ROOT}" node -e '
+    "use strict";
+    try {
+      const fs = require("fs");
+      const path = require("path");
+      const roomDir = process.env.ROOM_DIR_ENV;
+      const pluginRoot = process.env.PLUGIN_ROOT_ENV;
+      const fm = require(path.join(pluginRoot, "lib", "core", "folder-memory.cjs"));
+      const fmt = require(path.join(pluginRoot, "lib", "memory", "triple-context-formatter.cjs"));
+      let entries = [];
+      try {
+        entries = fs.readdirSync(roomDir, { withFileTypes: true })
+          .filter((d) => d.isDirectory() && d.name[0] !== ".");
+      } catch (_e) { entries = []; }
+      const scores = [];
+      let sectionCount = 0;
+      for (const d of entries) {
+        const sp = path.join(roomDir, d.name);
+        try {
+          if (!fs.existsSync(path.join(sp, "ROOM.md"))) continue;
+          sectionCount += 1;
+          const t = fm.readTriple(sp);
+          if (t && t.reasoning && typeof t.reasoning.reasoning_health_score === "number") {
+            scores.push(t.reasoning.reasoning_health_score);
+          }
+        } catch (_e) { /* skip this section */ }
+      }
+      let median = null;
+      if (scores.length > 0) {
+        const sorted = scores.slice().sort((a, b) => a - b);
+        const mid = Math.floor(sorted.length / 2);
+        median = sorted.length % 2 === 0
+          ? (sorted[mid - 1] + sorted[mid]) / 2
+          : sorted[mid];
+      }
+      const glyph = fmt.classifyHealth(median);
+      process.stdout.write(sectionCount + "|" + glyph);
+    } catch (_e) { process.stdout.write("0|--"); }
+  ' 2>/dev/null || echo "0|--")
+  SECTION_COUNT="${SESSION_START_SM%|*}"
+  HEALTH_GLYPH="${SESSION_START_SM##*|}"
+  SYSTEM_MESSAGE="loaded room: ${ROOM_SLUG}, ${SECTION_COUNT} active sections, MINTO health ${HEALTH_GLYPH}"
+else
+  SYSTEM_MESSAGE="session-start: no active room"
+fi
+escaped_sysmsg=$(escape_for_json "$SYSTEM_MESSAGE")
+
 # Output context injection as JSON
 # Cursor hooks expect additional_context
 # Claude Code hooks expect hookSpecificOutput.additionalContext
 # Only emit the field consumed by the current platform to avoid double injection
+# 88.1-03: systemMessage is a sibling field on the JSON envelope per the
+# Claude Code 2.1.x hook spec; rendered as a one-line status to the user.
 if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
-  printf '{\n  "additional_context": "%s"\n}\n' "$escaped_context"
+  printf '{\n  "additional_context": "%s",\n  "systemMessage": "%s"\n}\n' "$escaped_context" "$escaped_sysmsg"
 elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
-  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$escaped_context"
+  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  },\n  "systemMessage": "%s"\n}\n' "$escaped_context" "$escaped_sysmsg"
 else
-  printf '{\n  "additional_context": "%s"\n}\n' "$escaped_context"
+  printf '{\n  "additional_context": "%s",\n  "systemMessage": "%s"\n}\n' "$escaped_context" "$escaped_sysmsg"
 fi
 
 exit 0

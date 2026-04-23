@@ -358,6 +358,60 @@ if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" 
 fi
 # --- end Phase 88-06 ---
 
+# 88.1-03: systemMessage retrofit. Extend the existing stop-hook
+# systemMessage emission with a tight one-line drain/health summary so the
+# user sees the hook acted even when no voice-log tail is available. Uses
+# Canon Part 2 glyph vocabulary for the aggregate post-drain health score.
+# LOCAL-only (Canon Part 8): never references Brain endpoints.
+STOP_SUMMARY_LINE=""
+if [ -n "${ROOM_DIR:-}" ] && [ -d "${ROOM_DIR}" ]; then
+  ROOM_SLUG=$(basename "${ROOM_DIR}" 2>/dev/null || echo "unknown")
+  STOP_SM=$(env ROOM_DIR_ENV="${ROOM_DIR}" PLUGIN_ROOT_ENV="${PLUGIN_ROOT}" node -e '
+    "use strict";
+    try {
+      const fs = require("fs");
+      const path = require("path");
+      const roomDir = process.env.ROOM_DIR_ENV;
+      const pluginRoot = process.env.PLUGIN_ROOT_ENV;
+      const fmt = require(path.join(pluginRoot, "lib", "memory", "triple-context-formatter.cjs"));
+      // Prefer the freshly-written session-snapshot.json (captured above).
+      // Fallback to live read if snapshot missing or empty.
+      let sections = {};
+      try {
+        const snapPath = path.join(roomDir, ".mindrian", "session-snapshot.json");
+        if (fs.existsSync(snapPath)) {
+          const parsed = JSON.parse(fs.readFileSync(snapPath, "utf8"));
+          if (parsed && parsed.sections && typeof parsed.sections === "object") {
+            sections = parsed.sections;
+          }
+        }
+      } catch (_e) { /* fall through */ }
+      const scores = [];
+      let sectionCount = 0;
+      for (const name of Object.keys(sections)) {
+        sectionCount += 1;
+        const t = sections[name];
+        if (t && t.reasoning && typeof t.reasoning.reasoning_health_score === "number") {
+          scores.push(t.reasoning.reasoning_health_score);
+        }
+      }
+      let median = null;
+      if (scores.length > 0) {
+        const sorted = scores.slice().sort((a, b) => a - b);
+        const mid = Math.floor(sorted.length / 2);
+        median = sorted.length % 2 === 0
+          ? (sorted[mid - 1] + sorted[mid]) / 2
+          : sorted[mid];
+      }
+      const glyph = fmt.classifyHealth(median);
+      process.stdout.write(sectionCount + "|" + glyph);
+    } catch (_e) { process.stdout.write("0|--"); }
+  ' 2>/dev/null || echo "0|--")
+  SECTION_COUNT="${STOP_SM%|*}"
+  HEALTH_GLYPH="${STOP_SM##*|}"
+  STOP_SUMMARY_LINE="session snapshot saved, ${SECTION_COUNT} sections drained, health ${HEALTH_GLYPH}"
+fi
+
 # Output success JSON. If the voice-log reader produced a summary line,
 # attach it via systemMessage (the Stop-hook field that surfaces text to
 # Claude on the next turn). Stop hooks DO NOT support hookSpecificOutput
@@ -368,17 +422,27 @@ fi
 # - (root): Invalid input"). Witnessed live on Windows 2026-04-15 in
 # v1.10.9, fixed for v1.10.10. systemMessage is the correct field per
 # the schema and produces no validation noise.
-if [ -n "$VOICE_SUMMARY_LINE" ]; then
-  SYSTEM_MESSAGE="$VOICE_SUMMARY_LINE" node -e "
-    const msg = process.env.SYSTEM_MESSAGE || '';
-    const out = {
-      continue: true,
-      systemMessage: msg
-    };
-    process.stdout.write(JSON.stringify(out) + '\n');
-  " 2>/dev/null || printf '{"continue": true}\n'
+# 88.1-03: prefer STOP_SUMMARY_LINE (drain + health); fall back to voice-tail
+# only when no room is active. Both paths emit a systemMessage so stop is
+# never silent on success.
+FINAL_SM=""
+if [ -n "$STOP_SUMMARY_LINE" ] && [ -n "$VOICE_SUMMARY_LINE" ]; then
+  FINAL_SM="${STOP_SUMMARY_LINE} | ${VOICE_SUMMARY_LINE}"
+elif [ -n "$STOP_SUMMARY_LINE" ]; then
+  FINAL_SM="$STOP_SUMMARY_LINE"
+elif [ -n "$VOICE_SUMMARY_LINE" ]; then
+  FINAL_SM="$VOICE_SUMMARY_LINE"
 else
-  printf '{"continue": true}\n'
+  FINAL_SM="session ended: no active room"
 fi
+
+SYSTEM_MESSAGE="$FINAL_SM" node -e "
+  const msg = process.env.SYSTEM_MESSAGE || '';
+  const out = {
+    continue: true,
+    systemMessage: msg
+  };
+  process.stdout.write(JSON.stringify(out) + '\n');
+" 2>/dev/null || printf '{"continue": true}\n'
 
 exit 0

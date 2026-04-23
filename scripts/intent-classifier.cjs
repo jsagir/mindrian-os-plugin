@@ -335,7 +335,26 @@ function main() {
       'related to it must be authored from inside that room (see 83-06).';
   }
 
-  process.stdout.write(warning + '\n');
+  // 88.1-03: systemMessage retrofit. Emit a JSON envelope so Claude Code
+  // 2.1.x renders a one-line status alongside the additionalContext
+  // injection. LOCAL-only (Canon Part 8): room slugs only, no user prompt
+  // text echoed. Silent on the happy path (no message when rooms match).
+  const systemMessage = 'intent mismatch: suggested room ' + best.name +
+    ' (score ' + otherCount + ') outweighs active room ' + activeDisplay +
+    ' (score ' + activeCountDisplay + ')';
+  const envelope = {
+    hookSpecificOutput: {
+      hookEventName: 'UserPromptSubmit',
+      additionalContext: warning
+    },
+    systemMessage: systemMessage
+  };
+  try {
+    process.stdout.write(JSON.stringify(envelope) + '\n');
+  } catch (_e) {
+    // Last-resort fallback: raw text (preserves pre-retrofit behavior).
+    process.stdout.write(warning + '\n');
+  }
   return 0;
 }
 

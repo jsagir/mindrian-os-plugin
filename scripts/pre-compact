@@ -27,7 +27,8 @@ ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR") || ROOM_DIR=""
 
 if [ ! -d "$ROOM_DIR" ]; then
   # No room -- nothing to preserve
-  printf '{"status": "no_room"}\n'
+  # 88.1-03: systemMessage retrofit -- always announce what pre-compact did.
+  printf '{"status": "no_room", "systemMessage": "pre-compact: no active room, nothing to preserve"}\n'
   exit 0
 fi
 
@@ -222,6 +223,24 @@ if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" 
 fi
 # --- end Phase 88-08 ---
 
-printf '{"status": "saved", "file": "%s"}\n' "$SAVE_FILE"
+# 88.1-03: systemMessage retrofit. Read the snapshot we just wrote to extract
+# the section count and any truncation flag; fall back to "saved" if the
+# snapshot was not written. LOCAL-only (Canon Part 8).
+SECTION_COUNT=0
+if [ -f "${ROOM_DIR}/.mindrian/pre-compact-snapshot.json" ]; then
+  SECTION_COUNT=$(node -e '
+    try {
+      const fs = require("fs");
+      const p = process.argv[1];
+      const j = JSON.parse(fs.readFileSync(p, "utf8"));
+      const n = j && j.sections ? Object.keys(j.sections).length : 0;
+      process.stdout.write(String(n));
+    } catch (_e) { process.stdout.write("0"); }
+  ' "${ROOM_DIR}/.mindrian/pre-compact-snapshot.json" 2>/dev/null || echo 0)
+fi
+ROOM_SLUG=$(basename "${ROOM_DIR}" 2>/dev/null || echo "unknown")
+SYSTEM_MESSAGE="triple snapshot written for ${ROOM_SLUG} (${SECTION_COUNT} sections)"
+
+printf '{"status": "saved", "file": "%s", "systemMessage": "%s"}\n' "$SAVE_FILE" "$SYSTEM_MESSAGE"
 
 exit 0

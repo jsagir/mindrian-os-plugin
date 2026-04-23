@@ -167,10 +167,24 @@ if [ -n "$room_dir" ]; then
   # Run cascade in foreground so we can capture and report status
   CASCADE_OUTPUT=$(node "${PLUGIN_ROOT}/bin/mindrian-tools.cjs" cascade "$room_dir" "$FILE_PATH" --raw 2>/dev/null) || CASCADE_OUTPUT='{"error":"cascade failed"}'
 
+  # 88.1-03: systemMessage retrofit. Derive a tight one-line status reporting
+  # which section fired the regen/recompile cascade plus the triggering
+  # artifact basename. LOCAL-only (Canon Part 8): never leaks file content.
+  # Soft-fail: if detect_room_section did not populate SECTION/BASENAME (write
+  # outside a room), fall back to a generic "cascade complete" line.
+  SM_SECTION="${SECTION:-unknown}"
+  SM_BASENAME="${BASENAME:-$(basename "$FILE_PATH" 2>/dev/null || echo unknown)}"
+  if [ "$SM_SECTION" = "unknown" ]; then
+    SM_TEXT="post-write: cascade complete for $(basename "$FILE_PATH" 2>/dev/null || echo file)"
+  else
+    SM_TEXT="queued MINTO regen for ${SM_SECTION}, recompiled references (${SM_BASENAME})"
+  fi
+
   # Extract key status fields for a compact report
   # Use jq if available, otherwise output raw
+  # 88.1-03: systemMessage sibling added to the JSON envelope.
   if command -v jq >/dev/null 2>&1; then
-    CASCADE_STATUS=$(echo "$CASCADE_OUTPUT" | jq -c '{
+    CASCADE_STATUS=$(echo "$CASCADE_OUTPUT" | SM_TEXT="$SM_TEXT" jq -c '{
       cascade_status: "complete",
       classification: .classification,
       git_commit: .gitCommit.status,
@@ -180,11 +194,12 @@ if [ -n "$room_dir" ]; then
         new: .proactiveIntelligence.new,
         suppressed: .proactiveIntelligence.suppressed,
         newFindings: .proactiveIntelligence.newFindings
-      }
-    }' 2>/dev/null) || CASCADE_STATUS='{"cascade_status":"complete","raw":true}'
+      },
+      systemMessage: env.SM_TEXT
+    }' 2>/dev/null) || CASCADE_STATUS="{\"cascade_status\":\"complete\",\"raw\":true,\"systemMessage\":\"${SM_TEXT//\"/\\\"}\"}"
   else
     # No jq -- wrap raw output with status marker
-    CASCADE_STATUS="{\"cascade_status\":\"complete\"}"
+    CASCADE_STATUS="{\"cascade_status\":\"complete\",\"systemMessage\":\"${SM_TEXT//\"/\\\"}\"}"
   fi
 
   echo "$CASCADE_STATUS"

@@ -131,7 +131,20 @@ function readStdinSync() {
 
 function allow() { process.exit(0); }
 
-function block(message) {
+// 88.1-03: systemMessage retrofit. Pre-emit a JSON envelope on stdout with
+// systemMessage BEFORE writing the block reason to stderr and exiting 2.
+// Claude Code 2.1.x renders systemMessage from stdout JSON regardless of
+// exit code; the stderr text remains the authoritative block reason per
+// the hook spec. Silent on allow (no message when everything is fine).
+// LOCAL-only (Canon Part 8): room slugs only, no file payload echoed.
+function emitSystemMessage(sysMsg) {
+  try {
+    process.stdout.write(JSON.stringify({ systemMessage: sysMsg }) + '\n');
+  } catch (_e) { /* best-effort */ }
+}
+
+function block(message, systemMessage) {
+  if (systemMessage) emitSystemMessage(systemMessage);
   process.stderr.write(message);
   if (!message.endsWith('\n')) process.stderr.write('\n');
   process.exit(2);
@@ -188,7 +201,8 @@ function main() {
   if (sealed) {
     return block(
       'Blocked: write to sealed room ' + targetRoom + ' denied. This room is sealed by GUARDRAIL.md and cannot be written from another scope.\n' +
-      'To authorize, run: /mos:rooms switch ' + targetRoom
+      'To authorize, run: /mos:rooms switch ' + targetRoom,
+      'blocked write to sealed room ' + targetRoom + ' (active: ' + activeRoom + ')'
     );
   }
 
@@ -196,7 +210,8 @@ function main() {
     return block(
       'Blocked: write to ' + targetRoom + ' denied. Active room is ' + activeRoom + '.\n' +
       'To authorize, run: /mos:rooms switch ' + targetRoom + '\n' +
-      '(Or save the artifact in the active room if it belongs there.)'
+      '(Or save the artifact in the active room if it belongs there.)',
+      'blocked write to ' + targetRoom + ': active room is ' + activeRoom
     );
   }
 

@@ -383,6 +383,36 @@ function runOnStop(roomDir, validators) {
     try { writeJsonAtomic(reportPath, report); }
     catch (e) { logWarn('writing invariant-report failed: ' + (e && e.message || e)); }
   }
+  // 88.1-03: systemMessage retrofit. Emit a one-line status to stdout
+  // (wrapped in a JSON envelope) ONLY when the worst severity across any
+  // section or room-scoped validator is >= error. Info- and warning-level
+  // violations stay silent per reviewer R5 (avoid verification fatigue).
+  // Canon Part 2 glyph: always 'low' when reporting violations (by
+  // definition at error/critical). LOCAL-only (Canon Part 8): section names
+  // only, no MINTO payload echoed.
+  try {
+    let worstIdx = -1;
+    let worstSection = null;
+    let worstCategory = null;
+    let worstSeverity = null;
+    for (const s of Object.keys(report.sections)) {
+      const entry = report.sections[s];
+      for (const v of (entry.violations || [])) {
+        const idx = SEVERITY_ORDER.indexOf(v.severity);
+        if (idx > worstIdx) {
+          worstIdx = idx;
+          worstSection = s;
+          worstCategory = (v && v.category) || 'unknown';
+          worstSeverity = v.severity;
+        }
+      }
+    }
+    if (worstIdx >= SEVERITY_ORDER.indexOf('error')) {
+      const loc = worstSection === '__room__' ? 'room' : 'section ' + worstSection;
+      const msg = 'guardian: ' + worstSeverity + ' in ' + loc + ' (' + worstCategory + ', glyph low)';
+      process.stdout.write(JSON.stringify({ systemMessage: msg }) + '\n');
+    }
+  } catch (_e) { /* advisory: never break on-stop on sysmsg failure */ }
   return 0;
 }
 
