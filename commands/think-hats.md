@@ -1,6 +1,6 @@
 ---
 name: think-hats
-description: Force perspective shifts with Six Thinking Hats -- diagnose defaults, rotate through all six, map tensions
+description: Rotate through De Bono's Six Thinking Hats
 allowed-tools:
   - Read
   - Write

@@ -1,6 +1,6 @@
 ---
 name: status
-description: See where your project stands -- room state, venture stage, and what to do next
+description: Show room state, stage, and suggested next step
 body_shape: A (Mondrian Board)
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:

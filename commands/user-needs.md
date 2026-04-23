@@ -1,6 +1,6 @@
 ---
 name: user-needs
-description: Map user processes and find where importance meets dissatisfaction -- opportunity through observation
+description: Map user needs with importance vs satisfaction
 allowed-tools:
   - Read
   - Write

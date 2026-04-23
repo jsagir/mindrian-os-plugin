@@ -1,6 +1,6 @@
 ---
 name: speakers
-description: See who has been in your meetings -- roles, expertise, and what they brought to the table
+description: Show who spoke in your meetings and their roles
 body_shape: C (Room Card)
 body_shape_detail: Each speaker as a card with role, expertise, meeting count
 ui_reference: skills/ui-system/SKILL.md

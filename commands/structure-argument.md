@@ -1,6 +1,6 @@
 ---
 name: structure-argument
-description: Decompose messy thinking with Minto Pyramid -- SCQA framing and MECE issue trees
+description: Structure an argument with Minto + SCQA + MECE
 allowed-tools:
   - Read
   - Write

@@ -1,6 +1,8 @@
 ---
 name: snapshot
-description: Generate a Data Room export package -- 3-door editorial lobby plus full-content museum
+description: Package a Data Room snapshot for sharing
+argument-hint: [<room-path>] [--open]
+disable-model-invocation: true
 usage: /mos:snapshot [ROOM_PATH] [--output PATH] [--open]
 category: export
 surface: cli, desktop, cowork

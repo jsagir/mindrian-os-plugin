@@ -1,6 +1,7 @@
 ---
 name: update
-description: Check for MindrianOS updates, display changelog, backup your modifications
+description: Check for MindrianOS updates and show changelog
+argument-hint: [check|apply|skip]
 allowed-tools:
   - Bash
   - Read

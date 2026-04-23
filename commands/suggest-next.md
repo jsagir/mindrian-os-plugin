@@ -1,6 +1,6 @@
 ---
 name: suggest-next
-description: Graph-informed recommendation -- what should you work on next?
+description: Suggest the next move using the room graph
 allowed-tools:
   - Read
   - mcp__mindrian-brain__brain_query

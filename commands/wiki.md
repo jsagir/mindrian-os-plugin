@@ -1,6 +1,6 @@
 ---
 name: wiki
-description: Open the Data Room wiki — browse room sections as Wikipedia-style pages
+description: Open the Data Room wiki of room sections
 body_shape: D (Document View)
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:

@@ -1,6 +1,7 @@
 ---
 name: setup
-description: Configure optional integrations -- surface detection, Brain MCP, Velma audio transcription, HSI, meetings
+description: Configure optional integrations (Brain, Velma)
+argument-hint: [brain|velma|graph]
 allowed-tools:
   - Read
   - Write

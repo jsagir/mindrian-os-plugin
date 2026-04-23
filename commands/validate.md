@@ -1,6 +1,6 @@
 ---
 name: validate
-description: Validate ideas with evidence using importance-satisfaction mapping and Six Thinking Hats
+description: Validate ideas via importance-satisfaction scoring
 allowed-tools:
   - Read
   - Write

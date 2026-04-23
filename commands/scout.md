@@ -1,6 +1,6 @@
 ---
 name: scout
-description: Run all sentinel intelligence tasks -- health check, deadline scan, competitor watch, HSI recomputation, and state snapshot
+description: Run sentinel scans across the room
 body_shape: E (Action Report)
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:

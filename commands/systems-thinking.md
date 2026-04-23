@@ -1,6 +1,6 @@
 ---
 name: systems-thinking
-description: See the feedback loops, stocks, and flows that drive your system
+description: Map feedback loops, stocks, and flows
 allowed-tools:
   - Read
   - Write

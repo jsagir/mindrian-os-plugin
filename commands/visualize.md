@@ -1,6 +1,7 @@
 ---
 name: visualize
-description: Open rich visual diagrams in the browser -- room structure, knowledge graph, chains, timelines
+description: Open room diagrams in the browser
+argument-hint: [structure|graph|chart]
 body_shape: D (Document View)
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:

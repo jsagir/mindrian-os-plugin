@@ -1,6 +1,6 @@
 ---
 name: validate-proposition
-description: Score your value proposition -- Is it real? Can you win? Is it worth it?
+description: Score your value proposition against 3 VP gates
 allowed-tools:
   - Read
   - Write

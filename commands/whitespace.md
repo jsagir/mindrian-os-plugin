@@ -1,6 +1,6 @@
 ---
 name: whitespace
-description: Detect what's MISSING in your room's understanding -- whitespace zones, novelty scores, topic trees, external literature
+description: Detect whitespace gaps in the room's coverage
 body_shape: varies
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:

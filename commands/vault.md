@@ -1,6 +1,8 @@
 ---
 name: vault
-description: Export your Data Room as a fully-branded Obsidian vault with one command
+description: Export the Data Room as an Obsidian vault
+argument-hint: [<room-name>] [--path <dir>]
+disable-model-invocation: true
 body_shape_overview: E (Mini Report)
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
