@@ -19,12 +19,13 @@ allowed-tools:
 You are Larry. This command runs the full Sentinel Intelligence suite -- five automated tasks that monitor room health, track deadlines, watch competitors, recompute innovation scores, and snapshot state for future comparison.
 
 **Modes:**
-- `/mos:scout` -- run all 5 sentinel tasks
+- `/mos:scout` -- run all 5 sentinel tasks + query efficiency telemetry summary
 - `/mos:scout health` -- health check only (compare STATE.md vs last snapshot)
 - `/mos:scout deadlines` -- deadline scan only (funding/ and opportunity-bank/)
 - `/mos:scout competitors` -- competitor watch only (web search tracked competitors)
 - `/mos:scout hsi` -- HSI recomputation only (compute-hsi + detect-reverse-salients + hsi-to-graph)
 - `/mos:scout snapshot` -- state snapshot only (copy STATE.md to .snapshots/)
+- `/mos:scout efficiency` -- query efficiency telemetry summary only (aggregate JSONL, render median + top 5 + threshold status)
 
 ## UI Format
 
@@ -166,6 +167,29 @@ Report:
 - Any new reverse salients detected
 - Whether room graph was updated
 
+## Step 5b: Query Efficiency Telemetry (SENT-08)
+
+Aggregate the query-efficiency JSONL produced by the 88.1-16 PostToolUse hook at `~/.mindrian/telemetry/query-efficiency.jsonl`. This summary surfaces whether the 57x token-efficiency claim (Canon Part 6) is holding up in real usage. Release gate (Plan 88.1-11) consumes the threshold status before tagging.
+
+```bash
+node "${PLUGIN_ROOT}/scripts/scout-telemetry-aggregator.cjs"
+```
+
+Options the user can pass through as `/mos:scout efficiency --days=30` or similar:
+- `--days=N` -- window size in days (default 7)
+- `--all` -- no window filter (all-time aggregation)
+- `--json` -- machine-readable JSON output (release gate uses this)
+
+Report the result verbatim. The aggregator emits:
+- event count in the window
+- median ratio + mean ratio
+- top 5 commands by ratio (per-command max)
+- threshold status: `PASS` (median >= 40x) | `RETUNE` (median < 40x) | `NO_DATA` (empty window)
+
+If the JSONL file does not exist yet, the aggregator prints "no events in window yet. Run a /mos:* query first." -- this is normal for fresh installs and is not an error.
+
+Expose the threshold status prominently in the final Sentinel summary (Step 6).
+
 ## Step 6: Generate Summary
 
 After all tasks complete, present a unified summary using the E body shape:
@@ -181,12 +205,14 @@ After all tasks complete, present a unified summary using the E body shape:
   ■ Competitors: [N scanned, N contradictions | NOT TRACKED]
   ■ HSI:        [N pairs scored, N reverse salients | SKIPPED]
   ■ Snapshot:   [STATE-YYYY-MM-DD.md created]
+  ■ Efficiency: [median R.RRx over N events, PASS | RETUNE | NO_DATA]
 
   [If any critical findings, show Intelligence Strip here]
 
   ──────────────────────────────────────────────
   Next steps:
   ▷ /mos:scout health        Re-run health check only
+  ▷ /mos:scout efficiency    Query efficiency telemetry summary only
   ▷ /mos:challenge-assumptions  Address contradictions found
   ▷ /mos:funding             Review approaching deadlines
   ▷ /mos:score-innovation    Deep-dive into HSI connections
