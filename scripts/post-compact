@@ -109,6 +109,127 @@ fi
 
 context="${context}\n\nYou are Larry. The session was autocompacted. Continue helping the user with their venture. Reference the restored state above to maintain continuity."
 
+# ---------------------------------------------------------------------------
+# Phase 88-09: TRIPLE_CONTEXT re-injection after compaction
+#
+# After Claude compresses conversation context, re-inject the per-section
+# memory triple block (ROOM identity + STATE summary + MINTO reasoning)
+# so Larry wakes up with the same awareness he had at session-start.
+#
+# Read path (three-tier graceful degradation):
+#   1. Try .mindrian/pre-compact-snapshot.json (88-08 producer, kind:"pre-
+#      compact") as the primary source -- this is the freshest triple
+#      snapshot captured inside the 2000ms PreCompact budget before
+#      Claude wiped context.
+#   2. Fallback: walk sections via lib/core/folder-memory.readTriple()
+#      when the snapshot is missing, malformed, or empty. Logs
+#      "snapshot missing: fell back to live read" to stderr.
+#   3. Empty result -> emit nothing (block absent from output; no crash).
+#
+# Uses the SAME formatter as 88-07 session-start (lib/memory/triple-
+# context-formatter.cjs) so the emitted block is byte-identical to
+# session-start's Phase 88-07 output given the same inputs. This is the
+# single-formatter rule: consumers (session-start / post-compact) must
+# not duplicate rendering logic. The near-duplicate Node payload is
+# tolerated because extracting a shared scripts/emit-triple-context.cjs
+# adds process-spawn overhead to already-tight hook budgets; Test 9 in
+# lib/memory/post-compact-reinjection.test.cjs enforces byte-identity as
+# the regression guard.
+#
+# Soft-fail contract: every boundary funnels through `|| echo ""` + the
+# 2>/dev/null redirect. The worst case is that the TRIPLE_CONTEXT block
+# is absent from the re-injection -- the legacy Phase 83 context is
+# still emitted, so Larry still has venture_stage / STATE.md / last
+# artifacts. Post-compact NEVER crashes the PostCompact hook.
+#
+# Budget: the PostCompact hook timeout is 3000ms (hooks.json line 35).
+# Phase 88-09 reuses the same formatter that caps at DEFAULT_BUDGET_
+# TOKENS=5000 (see 88-07). Test 7 asserts wall-clock < 2500ms for a
+# 20-section snapshot read + format.
+# ---------------------------------------------------------------------------
+if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" ]; then
+  TRIPLE_CONTEXT=$(env ROOM_DIR_ENV="${ROOM_DIR}" PLUGIN_ROOT_ENV="${PLUGIN_ROOT}" node -e '
+    "use strict";
+    var fs = require("fs");
+    var path = require("path");
+    var roomDir = process.env.ROOM_DIR_ENV;
+    var pluginRoot = process.env.PLUGIN_ROOT_ENV;
+    try {
+      var fm = require(path.join(pluginRoot, "lib", "core", "folder-memory.cjs"));
+      var fmt = require(path.join(pluginRoot, "lib", "memory", "triple-context-formatter.cjs"));
+      // 1. Try snapshot-first (88-08 pre-compact-snapshot.json). Falls
+      // through to live readTriple walk if snapshot missing or malformed.
+      var sections = {};
+      var usedSnapshot = false;
+      try {
+        var snapPath = path.join(roomDir, ".mindrian", "pre-compact-snapshot.json");
+        if (fs.existsSync(snapPath)) {
+          var raw = fs.readFileSync(snapPath, "utf8");
+          var parsed = JSON.parse(raw);
+          if (parsed && parsed.sections && typeof parsed.sections === "object") {
+            sections = parsed.sections;
+            usedSnapshot = Object.keys(sections).length > 0;
+          }
+        }
+      } catch (_e) {
+        // malformed snapshot; fall through to live walk below
+        process.stderr.write("post-compact: snapshot malformed, falling back\n");
+      }
+      // 2. Fallback: walk sections via folder-memory.readTriple. Triggered
+      // when snapshot is absent, unparseable, or empty.
+      if (!usedSnapshot) {
+        process.stderr.write("post-compact: snapshot missing: fell back to live read\n");
+        var entries = [];
+        try {
+          entries = fs.readdirSync(roomDir, { withFileTypes: true })
+            .filter(function (d) { return d.isDirectory() && d.name[0] !== "."; });
+        } catch (_e) { entries = []; }
+        sections = {};
+        for (var i = 0; i < entries.length; i += 1) {
+          var d = entries[i];
+          var sp = path.join(roomDir, d.name);
+          try {
+            if (!fs.existsSync(path.join(sp, "ROOM.md"))) continue;
+            sections[d.name] = fm.readTriple(sp);
+          } catch (_e) { /* skip this section */ }
+        }
+      }
+      // 3. Read optional pending-tier1-regen.json (88-05 producer).
+      var pendingTier1 = null;
+      try {
+        var ptp = path.join(roomDir, ".mindrian", "pending-tier1-regen.json");
+        if (fs.existsSync(ptp)) {
+          var pj = JSON.parse(fs.readFileSync(ptp, "utf8"));
+          pendingTier1 = Array.isArray(pj) ? pj : (pj && pj.pending) || [];
+        }
+      } catch (_e) { pendingTier1 = null; }
+      // 4. Read optional minto-stale.json (88-06 producer).
+      var staleReport = null;
+      try {
+        var msp = path.join(roomDir, ".mindrian", "minto-stale.json");
+        if (fs.existsSync(msp)) {
+          var sj = JSON.parse(fs.readFileSync(msp, "utf8"));
+          staleReport = Array.isArray(sj) ? sj : (sj && sj.sections) || [];
+        }
+      } catch (_e) { staleReport = null; }
+      // 5. Format via the SAME formatter session-start uses (byte-identity
+      // invariant enforced by Test 9 in post-compact-reinjection.test.cjs).
+      var block = fmt.formatTripleContext({
+        sections: sections,
+        pendingTier1: pendingTier1,
+        staleReport: staleReport,
+      });
+      process.stdout.write(block || "");
+    } catch (_e) { /* soft-fail: emit nothing */ }
+  ' || echo "")
+  if [ -n "${TRIPLE_CONTEXT}" ]; then
+    context="${context}
+
+${TRIPLE_CONTEXT}"
+  fi
+fi
+# --- end Phase 88-09 ---
+
 # Clean up temp file after successful restore
 rm -f "$SAVE_FILE"
 
