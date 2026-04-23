@@ -1,6 +1,6 @@
 ---
 name: find-analogies
-description: Discover cross-domain analogies for your venture problem using SAPPhIRE + TRIZ
+description: Find cross-domain analogies with SAPPhIRE + TRIZ
 body_shape: D (Comparison Matrix)
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:

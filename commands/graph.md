@@ -1,6 +1,6 @@
 ---
 name: graph
-description: Explore your knowledge graph -- ask questions about connections, patterns, and gaps in natural language
+description: Explore the knowledge graph by asking questions
 body_shape: C (Room Card)
 body_shape_detail: Query results as cards, graph stats as header
 ui_reference: skills/ui-system/SKILL.md

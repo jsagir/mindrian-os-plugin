@@ -1,6 +1,7 @@
 ---
 name: help
-description: See what Larry can help with -- commands grouped by flow, tldr-style
+description: List commands grouped by flow (tldr-style)
+argument-hint: [command-name]
 body_shape: B (Semantic Tree)
 body_shape_detail: -- (inline, no zones)
 ui_reference: skills/ui-system/SKILL.md

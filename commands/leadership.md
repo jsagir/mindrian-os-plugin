@@ -1,6 +1,6 @@
 ---
 name: leadership
-description: Leadership coaching -- what kind of leader does your team actually need?
+description: Diagnose the leadership shape your team needs
 allowed-tools:
   - Read
   - Write

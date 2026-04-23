@@ -1,6 +1,6 @@
 ---
 name: find-connections
-description: Cross-domain pattern discovery -- what connects to your work?
+description: Find cross-domain patterns that touch your work
 allowed-tools:
   - Read
   - mcp__mindrian-brain__brain_query

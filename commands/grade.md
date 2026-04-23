@@ -1,6 +1,6 @@
 ---
 name: grade
-description: Grade your venture's problem discovery quality -- 6-component weighted scoring with letter grade
+description: Grade problem-discovery quality (6 components)
 allowed-tools:
   - Read
   - Write

@@ -1,6 +1,6 @@
 ---
 name: hat-briefing
-description: Consolidated De Bono Six Thinking Hats perspective report from persistent hat memory
+description: Consolidate Six Hats briefings from hat memory
 body_shape: C (Dashboard Grid)
 body_shape_detail: 6-panel hat grid + synthesis strip
 ui_reference: skills/ui-system/SKILL.md

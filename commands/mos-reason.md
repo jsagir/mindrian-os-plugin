@@ -1,7 +1,7 @@
 ---
 name: mos-reason
 command: mos:reason
-description: Generate Feynman-MINTO reasoning for room sections (tier-1, in-session, zero external cost)
+description: Generate Feynman-MINTO reasoning for a section
 usage: /mos:reason [--section <name>] [--regenerate-all]
 allowed-tools:
   - Read

@@ -1,6 +1,7 @@
 ---
 name: models
-description: View and manage model routing profiles for MindrianOS agents
+description: View or switch model-routing profiles
+argument-hint: [list|set|show]
 body_shape: C (Information Card)
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:

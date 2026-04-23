@@ -1,6 +1,8 @@
 ---
 name: export
-description: Generate professional De Stijl exports from your Data Room -- dashboard, thesis, summary, report, or profile
+description: Export a Data Room view to De Stijl HTML
+argument-hint: [hub|thesis|summary|report]
+disable-model-invocation: true
 body_shape: E (Action Report)
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:

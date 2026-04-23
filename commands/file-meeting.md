@@ -1,6 +1,7 @@
 ---
 name: file-meeting
-description: File a meeting transcript into your Data Room -- paste text, provide a file, or transcribe audio via Velma
+description: File a meeting transcript into the Data Room
+argument-hint: [--latest|--paste|<file>]
 allowed-tools:
   - Read
   - Write

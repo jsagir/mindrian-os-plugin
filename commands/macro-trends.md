@@ -1,6 +1,6 @@
 ---
 name: macro-trends
-description: Map macro-level changes reshaping a domain -- PEST analysis, destruction patterns, multi-order consequences
+description: Map macro changes with PEST across a domain
 allowed-tools:
   - Read
   - Write

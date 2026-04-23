@@ -1,6 +1,6 @@
 ---
 name: map-unknowns
-description: Map what you know, don't know, and can't see -- Known/Unknown Matrix
+description: Map known, unknown, and unknowable (Rumsfeld)
 allowed-tools:
   - Read
   - Write

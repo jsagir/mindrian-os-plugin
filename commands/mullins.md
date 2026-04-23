@@ -1,6 +1,6 @@
 ---
 name: mullins
-description: Mullins 7 Domains Model -- stress-test a business opportunity across market, industry, and team dimensions
+description: Run Mullins 7-Domains on a business opportunity
 allowed-tools:
   - Read
   - Write

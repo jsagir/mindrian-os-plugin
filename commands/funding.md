@@ -1,6 +1,7 @@
 ---
 name: funding
-description: Track grant opportunities through the funding lifecycle
+description: Track grant opportunities through their lifecycle
+argument-hint: [list|add|update]
 body_shape: B (Semantic Tree)
 allowed-tools:
   - Read

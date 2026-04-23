@@ -1,6 +1,6 @@
 ---
 name: explore-trends
-description: Push trends to their extreme to find problems hiding in the future -- Trending to the Absurd
+description: Push trends to extremes to surface future problems
 allowed-tools:
   - Read
   - Write
