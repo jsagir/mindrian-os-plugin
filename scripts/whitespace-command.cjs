@@ -24,6 +24,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { ensureBrainBaseline } = require('./ensure-brain-baseline.cjs');
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -144,27 +145,12 @@ function cmdMap(roomDir) {
   }
 
   // Ensure Brain baseline exists (enables EMBED-02/EMBED-04 gap-against-Brain detection)
-  const baselinePath = path.join(mindrianDir, 'brain-baseline.json');
-  if (!fileExists(baselinePath)) {
-    const fetchCjs = path.join(SCRIPTS_DIR, 'fetch-brain-baseline.cjs');
-    const fetchPy = path.join(SCRIPTS_DIR, 'fetch-brain-baseline.py');
-    if (fileExists(fetchCjs) && fileExists(fetchPy)) {
-      console.log(`${C.GRAY}Fetching Brain consensus baseline...${C.RESET}`);
-      const brainResult = runScript(`node "${fetchCjs}" --room "${roomDir}"`);
-      const brainDataPath = path.join(mindrianDir, 'brain-data.json');
-      if (!brainResult || !brainResult.error) {
-        if (fileExists(brainDataPath)) {
-          console.log(`${C.GRAY}Embedding Brain baseline...${C.RESET}`);
-          runScript(`python3 "${fetchPy}" --input "${brainDataPath}" --room "${roomDir}"`);
-        }
-      }
-      if (!fileExists(baselinePath)) {
-        console.log(`${C.YELLOW}Note: Brain baseline unavailable -- gap detection will run without Brain consensus.${C.RESET}`);
-        console.log(`${C.YELLOW}Novelty scoring and gap-against-Brain detection (EMBED-02/04) will be skipped.${C.RESET}`);
-      }
-    } else {
-      console.log(`${C.YELLOW}Note: Brain baseline scripts not found -- running without Brain consensus.${C.RESET}`);
-    }
+  // Auto-fire per Phase 88.6-01. Graceful degradation: offline -> continue with
+  // unexplained 0 scores rather than crash, but user sees explicit reason.
+  const baselineResult = ensureBrainBaseline(roomDir, { verbose: false });
+  if (!baselineResult.ensured) {
+    console.log(`${C.YELLOW}Note: Brain baseline unavailable -- gap detection will run without Brain consensus.${C.RESET}`);
+    console.log(`${C.YELLOW}Novelty scoring and gap-against-Brain detection (EMBED-02/04) will be skipped.${C.RESET}`);
   }
 
   // Run whitespace gaps computation
@@ -620,6 +606,12 @@ function cmdDiscover(roomDir) {
       'discovery-cycle.cjs missing from scripts/',
       '/mos:setup');
     return;
+  }
+
+  // Pre-step: ensure Brain baseline exists so discover-* Python scripts produce signal
+  const baselineResult = ensureBrainBaseline(roomDir, { verbose: false });
+  if (!baselineResult.ensured) {
+    console.log(`${C.YELLOW}Note: Brain baseline unavailable -- discovery will run but may produce 0 zones across all pipelines.${C.RESET}`);
   }
 
   console.log(`${C.GRAY}Running Discovery Cycle (HSI + RS + Analogy)...${C.RESET}`);
