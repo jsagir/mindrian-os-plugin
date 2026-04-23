@@ -68,7 +68,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - [x] **Phase 84: Smart Notebook (Co-Pilot reshape)** - v1.10.8 ships the notebook writing surface (Mullins 20-section scaffold) AND the co-pilot inject channel (graph-to-proactive-intelligence bridge + UserPromptSubmit hook) in one hybrid release. Plans 84-01/02/03 done, 84-04 through 84-10 done. Shipped as v1.10.8 on 2026-04-15.
 - [x] **Phase 85: Windows Hotfix v1.10.9 Cross-Platform Parity** - Restore full v1.10.8 feature parity on Windows via node:sqlite migration (better-sqlite3 replacement), hooks/run-hook.cmd exit-code propagation, vault-export .mindrian inclusion, python3-to-platform-dispatch helper, session-start version banner fix. Node 22.5+ engine floor. Shipped as v1.10.9 on 2026-04-15.
 - [x] **Phase 87: Security Hardening + Cascade Refactor + Localhost Dashboard** - Stream A (v1.10.11): Cypher sanitization + API key permissions + HSI timeout + write-lock atomic + ROOM.md+MINTO.md pre-commit hook + localhost live dashboard at :3131. Stream B (v1.10.12): cascade dedup + sync/async entry-point split + MCP input validation + indexArtifact transaction + Brain session cache with LRU eviction + BYO API chat panel with Bearer auth. Shipped 2026-04-19.
-- [ ] **Phase 88: Per-Folder Memory Triple Wiring** - Wire ROOM.md + STATE.md + Feynman-MINTO.md as a coordinated cross-session memory triple via five lifecycle wires (post-write freshness, on-stop snapshot, session-start TRIPLE_CONTEXT injection, pre/post-compact resilience, decision_log persistence) + unified read contract `lib/core/folder-memory.cjs` + invariants module + guardian. 8/16 plans shipped (88-00-B, 88-00, 88-01, 88-02, 88-03, 88-04-B, 88-04, 88-05). Releases as v1.10.13.
+- [x] **Phase 88: Per-Folder Memory Triple Wiring** - Wire ROOM.md + STATE.md + Feynman-MINTO.md as a coordinated cross-session memory triple via five lifecycle wires (post-write freshness, on-stop snapshot, session-start TRIPLE_CONTEXT injection, pre/post-compact resilience, decision_log persistence) + unified read contract `lib/core/folder-memory.cjs` + invariants module + guardian. 8/16 plans shipped (88-00-B, 88-00, 88-01, 88-02, 88-03, 88-04-B, 88-04, 88-05). Releases as v1.10.13. (completed 2026-04-23)
 - [ ] **Phase 88.1: UI/UX Polish + MINTO Surface Plumbing** - Close gap between 71 shipped commands and the Claude Code 2.1.x polish bar. Four workstreams: MINTO surface plumbing (statusline + /mos:status + SessionStart banner consume governing_thought), description-driven UX sweep across 71 commands plus README permissions block, hook output primitives (systemMessage retrofit on 9 hooks plus two new hooks for schema validation and async artifact auto-commit), README as 7th surface. CONTEXT filed 2026-04-20. Releases as v1.10.14.
 - [ ] **Phase 89: Reverse-Salient Engine** - Hughes 1983 reverse-salient detection for lagging components in an expanding venture. Computes embedding-distance lag signal per section, optional consumer of Phase 88 reasoning_health_score. 7 plans on disk, zero summaries. Ships independently.
 - [ ] **Phase 90: Brain Derivation Layer** - Lets the Brain excavate the local triple (Phase 88) and produce a persistent authored BRAIN.md per section with pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, cross-room contradiction flags. Extends triple to quadruple. Graceful degradation when Brain offline. CONTEXT filed. Releases as v1.10.15.
@@ -278,9 +278,19 @@ Plans:
 - [x] 88-09-PLAN.md -- post-compact TRIPLE_CONTEXT re-injection with lazy-read fallback
 - [x] 88-10-PLAN.md -- decision-capture helper writes to decision_log with 20-entry cap + monthly archive
 - [x] 88-11-PLAN.md -- APPROVE/REJECT/DEFER cascade dual-write to graph + decision_log
-- [ ] 88-12-PLAN.md -- v1.10.13 5-gate release
-- [ ] 88-13-PLAN.md -- Feynman-MINTO Guardian boundary enforcement (session-start validate, on-stop verify, pre-commit extend)
+- [x] 88-12-PLAN.md -- v1.10.13 5-gate release
+- [x] 88-13-PLAN.md -- Feynman-MINTO Guardian boundary enforcement (session-start validate, on-stop verify, pre-commit extend)
 **Authority**: .planning/phases/88-feynman-minto-memory-layer/88-CONTEXT.md
+
+### Phase 88.6: python-algorithm-wiring (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 88
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 88.6 to break down)
 
 ### Phase 88.1: UI/UX Polish + MINTO Surface Plumbing
 **Goal**: Close the gap between MindrianOS shipped surface (71 commands, 9 skills, 8 agents, 10+ hooks) and the Claude Code 2.1.x polish bar for a moat-depth plugin. Four workstreams: MINTO surface plumbing wired to Phase 88 governing_thought, description-driven UX sweep, hook output primitive retrofit, README as 7th surface. Boring hygiene that raises the trust floor before Phase 88.2 adds interactive Selector Block primitives on top.

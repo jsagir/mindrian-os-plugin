@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 88-11-PLAN.md (record-decision dual-write wired)
-last_updated: "2026-04-23T10:49:58.201Z"
+stopped_at: Completed 88-12-PLAN.md (v1.10.13 release gates 1-4 closed; gates 5a/5b awaiting user push + marketplace pin)
+last_updated: "2026-04-23T16:05:30.041Z"
 last_activity: 2026-04-23
 progress:
   total_phases: 15
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 63
-  completed_plans: 48
+  completed_plans: 50
   percent: 35
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 88 (feynman-minto-memory-layer) -- EXECUTING
-Plan: 14 of 16
+Plan: 16 of 16
 Status: Ready to execute
 Last activity: 2026-04-23
 
@@ -92,6 +92,8 @@ Progress: [###░░░░░░░] 35%
 | Phase 88 P09 | 15min | 1 tasks | 2 files |
 | Phase 88-feynman-minto-memory-layer P10 | 12m | 1 tasks | 3 files |
 | Phase 88-feynman-minto-memory-layer P11 | 15m | 1 tasks | 3 files |
+| Phase 88 P13 | 45min | 1 tasks | 13 files |
+| Phase 88 P12 | 25min | 2 tasks | 4 files |
 
 ### Decisions
 
@@ -207,6 +209,12 @@ Progress: [###░░░░░░░] 35%
 - [Phase 88-feynman-minto-memory-layer]: Additive tertiary write pattern: proactive-intelligence.cjs authoritative, decision-capture.cjs read-optimized; primary writer byte-frozen; dual-write never blocks
 - [Phase 88-feynman-minto-memory-layer]: Skip-not-error for missing-section: no --source-artifact OR outside --room is a documented skip with no error log entry; only real failures (no_minto, schema violations) trigger .mindrian/decision-dual-write-errors.jsonl
 - [Phase 88-feynman-minto-memory-layer]: Section derivation from --source-artifact first path segment (relative or absolute); outer try/catch wraps whole block so require-time errors are also swallowed; CLI exit 0 always
+- [Phase 88]: Phase 88-13: Four seed validators (not one) -- extensibility tested by diversity; three silent-failure modes (partial snapshot, unbounded queue, ghost stale entries) become first-class validators at plan one
+- [Phase 88]: Phase 88-13: Advisory at runtime + blocking only at pre-commit -- never block session-start over triple-health; enforce only at lock-in moment
+- [Phase 88]: Phase 88-13: Validator registry fail-open -- one broken validator never breaks the whole registry (Test 12 fence); downstream phases (88.3 Brain, Phase 90 Nav) extend without touching guardian.cjs
+- [Phase 88]: Phase 88-13: Stale-lifecycle scope narrowed to invariants-owned reasons (invariant_violation, parse_failed); folder-memory-owned reasons (never_generated, missing_timestamps, artifacts_newer_than_minto) skipped so 88-06 legitimate staleness is never pruned
+- [Phase 88]: Phase 88-13: Pre-commit hook composes with 87-01a via DISCOVERED_ROOM_ROOTS in the same installer-delivered guard script; plugin source commits bypass untouched
+- [Phase 88]: v1.10.13 ships via partial-autonomous 5-gate protocol: gates 1-4 closed autonomously (CHANGELOG entry, version bumps, local commit+tag); gates 5a/5b (push + marketplace pin) surfaced as user-action checkpoint because they require user credentials and cross workspace boundaries
 
 ### Pending Todos
 
@@ -228,6 +236,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-23T10:49:48.500Z
-Stopped at: Completed 88-11-PLAN.md (record-decision dual-write wired)
+Last session: 2026-04-23T16:05:25.233Z
+Stopped at: Completed 88-12-PLAN.md (v1.10.13 release gates 1-4 closed; gates 5a/5b awaiting user push + marketplace pin)
 Resume file: None
