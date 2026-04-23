@@ -2,7 +2,7 @@
 
 ## Active Milestone: v1.11.0 Memory Triple + Navigation Engine
 
-Current in-progress milestone covering Phases 88, 88.1, 89, 90, 91. Releases as v1.10.13 (Phase 88), v1.10.14 (Phase 88.1), v1.10.15 (Phase 90), and v1.11.0 (Phase 91 destination). See `## Milestones`, `## Phases`, and `## Planned Pipeline` below for detail.
+Current in-progress milestone covering Phases 88, 88.6, 88.1, 89, 90, 91. Releases (consolidated 2026-04-23): v1.10.13 Phase 88 SHIPPED, v1.10.14 Phase 88.6 URGENT bug fix, v1.10.15 Phase 88.1 polish, v1.10.16 Phase 89 reverse-salient, v1.10.17 Phase 90 Brain derivation, v1.11.0 Phase 91 destination. See `## Milestones`, `## Phases`, and `## Planned Pipeline` below for detail.
 
 ## Overview
 
@@ -69,9 +69,10 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - [x] **Phase 85: Windows Hotfix v1.10.9 Cross-Platform Parity** - Restore full v1.10.8 feature parity on Windows via node:sqlite migration (better-sqlite3 replacement), hooks/run-hook.cmd exit-code propagation, vault-export .mindrian inclusion, python3-to-platform-dispatch helper, session-start version banner fix. Node 22.5+ engine floor. Shipped as v1.10.9 on 2026-04-15.
 - [x] **Phase 87: Security Hardening + Cascade Refactor + Localhost Dashboard** - Stream A (v1.10.11): Cypher sanitization + API key permissions + HSI timeout + write-lock atomic + ROOM.md+MINTO.md pre-commit hook + localhost live dashboard at :3131. Stream B (v1.10.12): cascade dedup + sync/async entry-point split + MCP input validation + indexArtifact transaction + Brain session cache with LRU eviction + BYO API chat panel with Bearer auth. Shipped 2026-04-19.
 - [x] **Phase 88: Per-Folder Memory Triple Wiring** - Wire ROOM.md + STATE.md + Feynman-MINTO.md as a coordinated cross-session memory triple via five lifecycle wires (post-write freshness, on-stop snapshot, session-start TRIPLE_CONTEXT injection, pre/post-compact resilience, decision_log persistence) + unified read contract `lib/core/folder-memory.cjs` + invariants module + guardian. 8/16 plans shipped (88-00-B, 88-00, 88-01, 88-02, 88-03, 88-04-B, 88-04, 88-05). Releases as v1.10.13. (completed 2026-04-23)
-- [ ] **Phase 88.1: UI/UX Polish + MINTO Surface Plumbing** - Close gap between 71 shipped commands and the Claude Code 2.1.x polish bar. Four workstreams: MINTO surface plumbing (statusline + /mos:status + SessionStart banner consume governing_thought), description-driven UX sweep across 71 commands plus README permissions block, hook output primitives (systemMessage retrofit on 9 hooks plus two new hooks for schema validation and async artifact auto-commit), README as 7th surface. CONTEXT filed 2026-04-20. Releases as v1.10.14.
-- [ ] **Phase 89: Reverse-Salient Engine** - Hughes 1983 reverse-salient detection for lagging components in an expanding venture. Computes embedding-distance lag signal per section, optional consumer of Phase 88 reasoning_health_score. 7 plans on disk, zero summaries. Ships independently.
-- [ ] **Phase 90: Brain Derivation Layer** - Lets the Brain excavate the local triple (Phase 88) and produce a persistent authored BRAIN.md per section with pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, cross-room contradiction flags. Extends triple to quadruple. Graceful degradation when Brain offline. CONTEXT filed. Releases as v1.10.15.
+- [x] **Phase 88.6: Python Algorithm Wiring (URGENT)** - Close orphan-value gap between 15 verified Python algorithms and user-facing /mos:* commands. Fix silent production bug (baseline not auto-fired in discover-* pipelines), expose 4 orphan Wave-1 algorithms (surprise, disruption, novelty, blindspot) via new /mos:diagnostics command, wrap two-step external whitespace flow behind single command with rate-limit graceful degradation. Evidence: 2026-04-23 smoke test on ~/MindrianRooms/mindrianOS/ (207 artifacts, 77 Brain frameworks, CD = -0.7092, coverage = 0.667). Orchestration-only phase, zero new algorithms. Releases as v1.10.14. (completed 2026-04-23)
+- [x] **Phase 88.1: UI/UX Polish + MINTO Surface Plumbing** - Close gap between 71 shipped commands and the Claude Code 2.1.x polish bar. Four workstreams: MINTO surface plumbing (statusline + /mos:status + SessionStart banner consume governing_thought), description-driven UX sweep across 71 commands plus README permissions block, hook output primitives (systemMessage retrofit on 9 hooks plus two new hooks for schema validation and async artifact auto-commit), README as 7th surface. CONTEXT filed 2026-04-20. Releases as v1.10.15 (version bumped 2026-04-23 to avoid conflict with 88.6 bug fix). (completed 2026-04-23)
+- [ ] **Phase 89: Reverse-Salient Engine** - Hughes 1983 reverse-salient detection for lagging components in an expanding venture. Computes embedding-distance lag signal per section, optional consumer of Phase 88 reasoning_health_score. 8 plans on disk, zero summaries (checkbox corrected 2026-04-23 after false-complete mark detected in audit). Ships independently as v1.10.16.
+- [ ] **Phase 90: Brain Derivation Layer** - Lets the Brain excavate the local triple (Phase 88) and produce a persistent authored BRAIN.md per section with pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, cross-room contradiction flags. Extends triple to quadruple. Graceful degradation when Brain offline. CONTEXT filed. Releases as v1.10.17.
 - [ ] **Phase 91: Navigation Engine** - L5 Decision layer reading the L3 Navigation substrate (SQL + quadruple memory) to decide which skill/command/framework fires each turn. Five-signal triangulation (ICM + SQL + Feynman-MINTO + BRAIN + intent/persona). Persona durability via USER.md. Visible dial in statusline. /mos:explain-decision command. CONTEXT filed. Destination phase. Releases as v1.11.0.
 
 ## Phase Details
@@ -282,15 +283,25 @@ Plans:
 - [x] 88-13-PLAN.md -- Feynman-MINTO Guardian boundary enforcement (session-start validate, on-stop verify, pre-commit extend)
 **Authority**: .planning/phases/88-feynman-minto-memory-layer/88-CONTEXT.md
 
-### Phase 88.6: python-algorithm-wiring (INSERTED)
-
-**Goal:** [Urgent work - to be planned]
-**Requirements**: TBD
-**Depends on:** Phase 88
-**Plans:** 0 plans
-
+### Phase 88.6: Python Algorithm Wiring (v1.10.14)
+**Goal**: Close the orphan-value gap between the Python algorithm layer (15 verified scripts) and the user-facing product surface (/mos:* commands). Fix one silent production bug (discover-* pipelines silently return 0 zones when brain-baseline.json missing), expose four orphan Wave-1 algorithms (Funk and Owen-Smith Disruption Index, Good-Turing Blindspot Mass, Centroid-Distance Element Novelty, Leave-One-Out Bayesian Surprise) via new /mos:diagnostics command, wrap two-step external whitespace flow behind single command surface with rate-limit graceful degradation. Orchestration-only phase, zero new algorithms. Triggered by mid-milestone discovery during Rubos meeting (John Shorter, Ryan Lewis) where Ryan's technical questions prompted an audit that surfaced the orphan-value gap.
+**Depends on**: Phase 88 v1.10.13 (shipped), Node 22.5+, existing Python scripts (scripts/compute-*.py, scripts/discover-*.py, scripts/fetch-brain-baseline.cjs, scripts/query-semantic-scholar.cjs, scripts/compute-external-whitespace.py)
+**Requirements**: WIRING-88.6-01-baseline-auto-fire, WIRING-88.6-01-graceful-offline, WIRING-88.6-02-diagnostics-surface, WIRING-88.6-02-wave1-algorithms-exposed, WIRING-88.6-02-interpretation-strings, WIRING-88.6-03-external-orchestration, WIRING-88.6-03-rate-limit-graceful, WIRING-88.6-04-release-gate
+**Success Criteria** (what must be TRUE):
+  1. Running /mos:whitespace map, /mos:whitespace discover, /mos:whitespace external, or node scripts/discovery-cycle.cjs on a room without .mindrian/brain-baseline.json auto-fetches the baseline OR prints explicit 'baseline unavailable, Brain offline' message -- never silent zero
+  2. /mos:diagnostics runs all four Wave-1 scripts and renders a 4-row Shape E (Action Report) output with interpretation strings per metric; discoverable via /mos:help
+  3. /mos:whitespace external orchestrates Semantic Scholar query then compute-external-whitespace as a single command; reports 'N of M queries rate-limited' when partial; fails explicitly with 'Semantic Scholar unavailable' only when entire corpus unreachable
+  4. Canon Part 7 (Reuse Before Build) honored: /mos:diagnostics justification documented (orthogonal to /mos:grade pedagogical rubric); /mos:whitespace external extends existing surface
+  5. Canon Part 8 (Graph Boundary) honored: no user-specific strings egress to Brain in any of the three pipelines; external papers are SIGNAL (public data), flow LOCAL only
+  6. Empirical smoke test on ~/MindrianRooms/mindrianOS/: 4 Wave-1 metrics render with plausible values matching CONTEXT.md baseline (CD ~= -0.71, coverage ~= 0.667, novelty mean ~= 0.08)
+  7. 5-gate release: CHANGELOG 1.10.14, plugin.json 1.10.14, package.json 1.10.14, git tag v1.10.14, marketplace pin (Gates 1-3 autonomous; Gates 4-5 user-action checkpoint per v1.10.13 protocol)
+**Plans**: 4 plans across 3 waves
 Plans:
-- [ ] TBD (run /gsd:plan-phase 88.6 to break down)
+- [x] 88.6-01-baseline-auto-fire-PLAN.md -- Shared scripts/ensure-brain-baseline.cjs helper + wire into discovery-cycle.cjs and whitespace-command.cjs (Wave 1)
+- [~] 88.6-02-diagnostics-command-PLAN.md -- /mos:diagnostics command + scripts/diagnostics-command.cjs dispatcher + /mos:help listing update (Wave 1). **Partial**: dispatcher shipped (commit c2e02ca, 345 lines). SUMMARY backfilled 2026-04-23 with 3 Known Gaps to resolve in 88.6-04: commands/diagnostics.md untracked, commands/help.md not updated, human-verify checkpoint unrecorded.
+- [x] 88.6-03-external-whitespace-orchestration-PLAN.md -- query-semantic-scholar.cjs per-query telemetry (Task 0, commit b297acf) + rate-limit-aware cmdExternal (Task 1, commit 674a3ce) + whitespace.md external subcommand doc (Task 2, commit 3d550ad). Wave 2, depended on 88.6-01. Live smoke-tested: Semantic Scholar 429 captured and surfaced end-to-end via status:'rate_limited' telemetry. Feynman suite 46/46 passing.
+- [x] 88.6-04-release-gates-PLAN.md -- CHANGELOG/plugin.json/package.json v1.10.14 bump (surgical Edit, preserve 10 deps) + CANON-PHASE-MAP update + Workspace Guard + 5-gate release checkpoint (Wave 3, depends on 88.6-01, 88.6-02, 88.6-03) + MUST resolve the 3 Known Gaps from 88.6-02 before CHANGELOG can claim /mos:diagnostics as a user-facing command
+**Authority**: .planning/phases/88.6-python-algorithm-wiring/CONTEXT.md (filed 2026-04-23, empirical evidence from 2026-04-23 smoke test on ~/MindrianRooms/mindrianOS/)
 
 ### Phase 88.1: UI/UX Polish + MINTO Surface Plumbing
 **Goal**: Close the gap between MindrianOS shipped surface (71 commands, 9 skills, 8 agents, 10+ hooks) and the Claude Code 2.1.x polish bar for a moat-depth plugin. Four workstreams: MINTO surface plumbing wired to Phase 88 governing_thought, description-driven UX sweep, hook output primitive retrofit, README as 7th surface. Boring hygiene that raises the trust floor before Phase 88.2 adds interactive Selector Block primitives on top.
@@ -321,7 +332,7 @@ Plans:
   5. Optional integration path with Phase 88 reasoning_health_score exercised in fixture
 **Plans**: 7 plans on disk (89-01 through 89-07), zero SUMMARYs
 Plans:
-- [ ] 89-01-PLAN.md -- (existing, pre-scoped)
+- [x] 89-01-PLAN.md -- (existing, pre-scoped)
 - [ ] 89-02-PLAN.md -- (existing, pre-scoped)
 - [ ] 89-03-PLAN.md -- (existing, pre-scoped)
 - [ ] 89-04-PLAN.md -- (existing, pre-scoped)
@@ -386,6 +397,7 @@ L5 Decision  : Navigation Engine reads L3 to pick skill/command/framework
 |---|---|---|---|---|
 | **87** | Security + Cascade Refactor + Localhost Dashboard | v1.10.11 + v1.10.12 | infra + L4 | SHIPPED 2026-04-19 |
 | **88** | Per-Folder Memory Triple Wiring | v1.10.13 | L2 foundation | EXECUTING (8/16 plans; 88-00-B, 88-00, 88-01, 88-02, 88-03, 88-04-B, 88-04, 88-05 shipped) |
+| **88.6** | Python Algorithm Wiring (URGENT) | v1.10.14 | orchestration | 4 plans filed 2026-04-23 |
 | **88.1** | UI/UX Polish + MINTO Surface Plumbing | v1.10.14 | L4 surfaces + hygiene | CONTEXT filed 2026-04-20 |
 | **89** | Reverse-Salient Engine | v1.10.x | L5 support (local) | 7 plans existing |
 | **90** | Brain Derivation Layer | v1.10.15 | L2 Brain-on-top | CONTEXT filed |
@@ -396,20 +408,22 @@ L5 Decision  : Navigation Engine reads L3 to pick skill/command/framework
 ### Dependency Graph
 
 ```
-                ┌─ Phase 87 (security + dashboard) ───┐
-                │                                     │
-                └─> Phase 88 (memory triple) ─────────┤
-                                      │                │
-                                      ├─> Phase 89 (reverse-salient, optional consumer)
-                                      │                │
-                                      └─> Phase 90 (Brain derivation) ─┐
-                                                                        │
-                                                                        └─> Phase 91 (Navigation Engine)
-                                                                                      │
-                                                                                      └─> Phase 92/93 (multi-surface)
+                +- Phase 87 (security + dashboard) ---+
+                |                                     |
+                +-> Phase 88 (memory triple) ---------+
+                                      |                |
+                                      +-> Phase 88.6 (python wiring, orchestration-only)
+                                      |                |
+                                      +-> Phase 89 (reverse-salient, optional consumer)
+                                      |                |
+                                      +-> Phase 90 (Brain derivation) --+
+                                                                        |
+                                                                        +-> Phase 91 (Navigation Engine)
+                                                                                      |
+                                                                                      +-> Phase 92/93 (multi-surface)
 ```
 
-Phase 91 is the destination. Phases 87, 88, 90 are prerequisites. Phase 89 is parallel (can ship before, during, or after Brain layer).
+Phase 91 is the destination. Phases 87, 88, 90 are prerequisites. Phase 88.6 is orchestration-only and ships as v1.10.14 between Phase 88 and Phase 88.1. Phase 89 is parallel (can ship before, during, or after Brain layer).
 
 ### Phase Summaries
 
@@ -418,6 +432,9 @@ Stream A security (Cypher sanitization, API key perms, HSI timeout, write-lock a
 
 **Phase 88 -- Per-Folder Memory Triple Wiring** (v1.10.13)
 Wires ROOM.md + STATE.md + Feynman-MINTO.md as a coordinated cross-session memory triple. Five wires (post-write freshness, on-stop snapshot, session-start injection, pre/post-compact resilience, decision_log persistence) + unified read contract `lib/core/folder-memory.cjs` + invariants module (`lib/core/feynman-minto-invariants.cjs`) + guardian for lifecycle enforcement. 16 plans across 6 waves. EXECUTING -- 8/16 plans shipped (88-00-B, 88-00, 88-01, 88-02, 88-03, 88-04-B, 88-04, 88-05); 8 remaining. Prerequisite for Brain Derivation Layer and Navigation Engine. See 88-CONTEXT.md.
+
+**Phase 88.6 -- Python Algorithm Wiring** (v1.10.14)
+Orchestration-only phase closing the orphan-value gap surfaced by the 2026-04-23 Rubos meeting audit. Plan 01: shared baseline auto-fire helper fixing the silent-zero bug in discover-* pipelines. Plan 02: /mos:diagnostics command exposing 4 Wave-1 algorithms (Funk and Owen-Smith Disruption Index, Good-Turing Blindspot Mass Coverage, Element Novelty, Bayesian Surprise) with interpretation strings. Plan 03: rate-limit-aware external whitespace orchestration + v1.10.14 5-gate release. Zero new algorithms; every change is wiring, graceful degradation, or interpretation strings. Empirical basis: CD = -0.7092, coverage = 0.667, novelty mean = 0.083 on mindrianOS room. See 88.6-CONTEXT.md.
 
 **Phase 88.1 -- UI/UX Polish + MINTO Surface Plumbing** (v1.10.14)
 Closes the gap between what ships (66 commands, 8 agents, 20+ skills, 9 hooks, 1 statusline) and the Claude Code 2.1.x UX reference bar. Three workstreams: (A) MINTO surface plumbing -- statusline segment, /mos:status summaries, SessionStart banner all consume Phase 88's wired memory triple via governing_thought. (B) Description-driven UX -- slash command frontmatter hygiene sweep across 66 commands, README permissions.allow block, subagent PROACTIVELY audit. (C) Hook output primitives -- systemMessage retrofit on 9 existing hooks plus two new hooks borrowed from arscontexta (frontmatter schema validation, async artifact auto-commit inside .room-root subtrees). 10 plans across 4 waves, ~3-4 days. Wave 1+2 can ship as v1.10.13.1 hotfix if Phase 88 slips. Deferred: output styles (GSD-skip rationale), conversational onboarding redesign (milestone-sized), meta-ask skill (standalone feature), monitors/OSC progress bars (niche). See 88.1-CONTEXT.md.

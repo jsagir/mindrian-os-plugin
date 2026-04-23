@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
-status: Awaiting user push + marketplace ref pin
-stopped_at: Completed 88.1-08-PLAN.md (async artifact auto-commit PostToolUse hook; isolated data-room-autocommit branch via git plumbing; 10 TDD tests; Feynman 48/48; commits cc283e9/bed8423/61c62fa)
-last_updated: "2026-04-23T21:40:40.296Z"
+status: completed
+stopped_at: Completed 89-01-PLAN.md (rs_math + rs-engine Mode A internal; commits 220b2ec/56d0113; Feynman 52/52; 15 pairs on fixture)
+last_updated: "2026-04-23T23:53:15.284Z"
 last_activity: 2026-04-23
 progress:
   total_phases: 16
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 79
-  completed_plans: 60
+  completed_plans: 67
   percent: 81
 ---
 
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 89
-Plan: Not started
-Status: Awaiting user push + marketplace ref pin
+Plan: 89-02 (next; 89-01 completed 2026-04-23)
+Status: 89-01 shipped on main (Mode A internal single-room); Phase 89 Wave 1 complete, Wave 2 pending
 
 Last 88.6-04 commits (main):
 
@@ -75,6 +75,8 @@ Progress: [████████░░] 81%
 | Phase 88.1 P10 | 14 | 2 tasks | 10 files |
 | Phase 88.1 P07 | 18min | 2 tasks | 5 files |
 | Phase 88.1 P08 | 25min | 2 tasks | 5 files |
+| Phase 88.1 P05 | 13m24s | 3 tasks | 6 files |
+| Phase 89 P01 | 12 minutes | 2 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -260,6 +262,11 @@ Progress: [████████░░] 81%
 - [Phase 88.1]: 88.1-08 detached worker pattern: foreground hook performs ledger I/O + throttle check + systemMessage emission then spawns self with --worker flag (child_process.spawn detached+unref+stdio:ignore); git plumbing runs off-cycle so user's tool-call latency is unaffected
 - [Phase 88.1]: 88.1-08 throttle contract: 5s window boundary is un-throttled (>= is allow, < is throttle); per-path scope; ledger retention 1 day with prune-on-write (LEDGER_RETENTION_MS = 86400000) keeps bounded without separate GC pass
 - [Phase 88.1]: 88.1-08 invariant phrasing: source header comment deliberately avoids literal 'git push' and 'https://' substrings so verify-block greps match zero at byte level not just semantic level
+- [Phase 88.1]: 88.1-05 ship /mos:status Shape E renderer reusing Plan 88.1-04 cache + classifyHealth + truncateGoverningThought byte-identically; 12 TDD tests; Canon Part 2/3/5/8 preserved; 4th L3/L4 surface with coherent glyph vocabulary
+- [Phase 89]: Plan 89-01: Filename is lib/core/rs_math.py (underscore) not rs-math.py (hyphen) because Python cannot import hyphenated module names and the plan's own verify block imports via from lib.core.rs_math
+- [Phase 89]: Plan 89-01: REVERSE_SALIENT coexistence is per-edge via properties.source not per-table; lazygraph-ops has no dedicated table, hsi-sourced edges survive rs-engine cleanup via json_extract scoping
+- [Phase 89]: Plan 89-01: Artifacts read from filesystem walk room/*.md not room.db; no artifacts table exists in lazygraph-ops schema; matches compute-hsi.py precedent exactly
+- [Phase 89]: Plan 89-01: Pinecone inference embedding (RS_EMBEDDING_MODEL=multilingual-e5-large cold path) raises NotImplementedError with pointer to Plans 89-03/89-05 per PLAN-CHECK Gap 1; MiniLM is 89-01 default
 
 ### Pending Todos
 
@@ -281,6 +288,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-23T22:15:00.000Z
-Stopped at: Completed 88.1-08-PLAN.md (async artifact auto-commit PostToolUse hook; isolated data-room-autocommit branch via git plumbing; 10 TDD tests; Feynman 48/48; commits cc283e9/bed8423/61c62fa)
+Last session: 2026-04-23T23:52:54.657Z
+Stopped at: Completed 89-01-PLAN.md (rs_math + rs-engine Mode A internal; commits 220b2ec/56d0113; Feynman 52/52; 15 pairs on fixture)
 Resume file: None
