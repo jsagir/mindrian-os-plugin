@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git tag:*)",
+      "Bash(node bin/mindrian-tools.cjs:*)",
+      "Bash(node scripts/*.cjs:*)",
+      "Bash(python3 scripts/*.py:*)",
+      "Read(**)",
+      "Write(~/MindrianRooms/**)",
+      "Write(./.mindrian/**)",
+      "Write(./exports/**)",
+      "Write(/tmp/**)",
+      "WebFetch(domain:api.grants.gov)",
+      "WebFetch(domain:api.tavily.com)",
+      "WebFetch(domain:api.semanticscholar.org)"
+    ]
+  }
+}
