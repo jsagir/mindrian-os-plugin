@@ -82,6 +82,45 @@ Larry starts talking. The Room starts listening. KuzuDB builds your knowledge gr
 
 ---
 
+## Permissions
+
+MindrianOS is read-heavy on your workspace and write-heavy only on `~/MindrianRooms/` (your rooms) and `./.mindrian/` (session state). It never writes to brain.mindrian.ai. Every `/mos:*` command respects the [Canon Part 8 Graph Boundary](docs/MINDRIAN-CANON.md#part-8---the-graph-boundary-security-constitution): your artifacts, decisions, and meetings stay local.
+
+Two options for handling permission prompts:
+
+### Option 1: Nuclear -- `--dangerously-skip-permissions`
+
+Start Claude Code with `claude --dangerously-skip-permissions` and no prompts fire for the session. Appropriate for methodology workflow because the read/write surface is bounded (workspace + your rooms). Review the flag's [full warning](https://docs.claude.com/en/docs/claude-code/settings#permissions-dangerous) before using it.
+
+### Option 2: Granular -- `settings.json` pre-approval
+
+Paste the canonical matcher set from [`docs/settings-template.json`](docs/settings-template.json) into `~/.claude/settings.json`. Granular per-subcommand matchers (`Bash(git diff:*)` not bare `Bash`) give fine-grained control without friction:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(node bin/mindrian-tools.cjs:*)",
+      "Bash(node scripts/*.cjs:*)",
+      "Read(**)",
+      "Write(~/MindrianRooms/**)",
+      "Write(./.mindrian/**)",
+      "WebFetch(domain:api.grants.gov)",
+      "WebFetch(domain:api.tavily.com)"
+    ]
+  }
+}
+```
+
+Full list in `docs/settings-template.json` (19 matchers). Copy the whole block; Claude Code merges it with any existing `permissions.allow` entries.
+
+**When to use which**: Option 1 if you trust the surface and want zero friction. Option 2 if you run MindrianOS alongside other plugins whose permission scope you prefer to control separately.
+
+---
+
 ## Three Ways to Use MindrianOS
 
 | Surface | Setup | Best For |
