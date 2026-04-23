@@ -48,6 +48,22 @@ Every discovery gets filed into an **Opportunity Bank** -- a scored, ranked coll
 
 ---
 
+## Before Your First Session
+
+### What a Room Is
+
+A Room is not a folder-full-of-docs. It is a Living Data Room: filesystem + intelligence layer + cross-relationship scan, all local, all yours. Every time you file an artifact (a proposal, a meeting, a half-formed idea), MindrianOS scans the other sections of the Room and surfaces edges like INFORMS, CONTRADICTS, and CONVERGES, so Larry can tell you what changed in the rest of the venture. You start a Room with `/mos:new-project` and switch between Rooms with `/mos:rooms`. The Room is the venture treated as a nested system you navigate, not a repository you archive things into.
+
+### Permissions
+
+MindrianOS is read-heavy on your workspace and write-heavy only on `~/MindrianRooms/` and `./.mindrian/`, which means permission prompts fire often on a methodology session. The simplest stance is to start Claude Code with `claude --dangerously-skip-permissions` for the session, so nothing interrupts the work. If you would rather keep per-tool gating, paste the canonical 19-matcher block from `docs/settings-template.json` into `~/.claude/settings.json` and every prompt you would have seen becomes pre-approved. Both stances are valid; pick by how you like to work. Full matchers and the tradeoff write-up: see [Permissions](#permissions).
+
+### Commands and Larry
+
+Two ways into the same logic: type the command, or tell Larry what you want. If you know the move, `/mos:find-analogies` is the keyboard shortcut that gets you straight to the 5-stage TRIZ pipeline. If you do not yet know the framework, saying "find me a design analogy from biology for my pricing problem" to Larry in plain English gets you to the same place, with teaching along the way. Both paths point at the same underlying methodology; the command is the shortcut, the conversation is the teacher, and neither is better than the other. Larry is the pedagogical guide either way, with or without Brain access.
+
+---
+
 ## Quick Start
 
 ### Option A: One-Line Install (recommended)
