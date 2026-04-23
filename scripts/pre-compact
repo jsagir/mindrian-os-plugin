@@ -109,6 +109,119 @@ if command -v node >/dev/null 2>&1 && [ -f "${PLUGIN_ROOT}/scripts/memory-lifecy
   node "${PLUGIN_ROOT}/scripts/memory-lifecycle.cjs" pre-compact >/dev/null 2>&1 || true
 fi
 
+# --- Phase 88-08: pre-compact triple snapshot (Wave 3, compaction bridge) ---
+# Captures the per-section memory triple (ROOM + STATE + MINTO) via
+# folder-memory.readTriple() and writes .mindrian/pre-compact-snapshot.json
+# BEFORE Claude compresses conversation context. Phase 88-09 post-compact
+# reads this snapshot and re-injects TRIPLE_CONTEXT so session memory
+# survives the compaction boundary.
+#
+# Budget: 2000ms hook timeout per hooks.json line 24. Internal budget
+# MAX_MS=1800 leaves 200ms slack for Claude's own teardown. MAX_SECTIONS=20
+# caps the captured-set so a 50+ section room cannot starve the budget.
+#
+# Truncation ordering: weakest reasoning_health_score first (ascending;
+# null -> -1 for "never generated / parse failed" sections). Highest-score
+# sections are elided first because they are the least-informative ones
+# for Larry after compaction (same algorithm as 88-07 session-start
+# formatter; shared contract).
+#
+# Schema: kind:"pre-compact" distinguishes from 88-06 session-snapshot.json.
+# 88-09 reader routes on snap.kind to pick the correct consumer path.
+#
+# Soft-fail at every step (|| true). The legacy pre-compact-state.json
+# write above is preserved byte-for-byte -- Phase 88-08 is strictly
+# ADDITIVE.
+if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" ]; then
+  ROOM_DIR_ENV="${ROOM_DIR}" PLUGIN_ROOT_ENV="${PLUGIN_ROOT}" node -e '
+    "use strict";
+    var fs = require("fs");
+    var path = require("path");
+    var roomDir = process.env.ROOM_DIR_ENV;
+    var pluginRoot = process.env.PLUGIN_ROOT_ENV;
+    var START = Date.now();
+    var MAX_SECTIONS = 20;
+    var MAX_MS = 1800;
+    var fm;
+    try {
+      fm = require(path.join(pluginRoot, "lib", "core", "folder-memory.cjs"));
+    } catch (_e) {
+      process.exit(0);
+    }
+    var entries = [];
+    try {
+      entries = fs.readdirSync(roomDir, { withFileTypes: true })
+        .filter(function (d) { return d.isDirectory() && d.name[0] !== "."; });
+    } catch (_e) {
+      entries = [];
+    }
+    // Pass 1: capture triples for every section with ROOM.md, bounded
+    // by MAX_MS so a pathological room cannot blow the 2000ms budget.
+    // Sections beyond the budget count toward truncated_count.
+    var captured = [];
+    var budgetTruncated = 0;
+    for (var i = 0; i < entries.length; i += 1) {
+      var d = entries[i];
+      if ((Date.now() - START) > MAX_MS) {
+        // Remaining sections are time-budget-truncated.
+        budgetTruncated += (entries.length - i);
+        break;
+      }
+      var sp = path.join(roomDir, d.name);
+      try {
+        if (!fs.existsSync(path.join(sp, "ROOM.md"))) continue;
+      } catch (_e) { continue; }
+      var triple;
+      try {
+        triple = fm.readTriple(sp);
+      } catch (_e) {
+        // Quarantine the section; do not crash the walk.
+        triple = null;
+      }
+      if (triple) {
+        captured.push({ name: d.name, triple: triple });
+      }
+    }
+    // Pass 2: sort weakest-first (ascending reasoning_health_score;
+    // null / undefined -> -1 so "never generated" surfaces first, same
+    // as 88-07 formatter contract). Then take first MAX_SECTIONS.
+    captured.sort(function (a, b) {
+      var ka = a.triple && a.triple.reasoning && typeof a.triple.reasoning.reasoning_health_score === "number"
+        ? a.triple.reasoning.reasoning_health_score
+        : -1;
+      var kb = b.triple && b.triple.reasoning && typeof b.triple.reasoning.reasoning_health_score === "number"
+        ? b.triple.reasoning.reasoning_health_score
+        : -1;
+      if (ka !== kb) return ka - kb;
+      return a.name.localeCompare(b.name);
+    });
+    var emitted = captured.slice(0, MAX_SECTIONS);
+    var capTruncated = captured.length - emitted.length;
+    var truncatedCount = capTruncated + budgetTruncated;
+    var sections = {};
+    for (var j = 0; j < emitted.length; j += 1) {
+      sections[emitted[j].name] = emitted[j].triple;
+    }
+    var snapshot = {
+      version: 1,
+      kind: "pre-compact",
+      session_id: process.env.CLAUDE_SESSION_ID || ("sess-" + Date.now()),
+      snapshot_at: new Date().toISOString(),
+      active_room: roomDir,
+      sections: sections,
+      truncated: truncatedCount > 0,
+      truncated_count: truncatedCount
+    };
+    var snapPath = path.join(roomDir, ".mindrian", "pre-compact-snapshot.json");
+    try {
+      var tmp = snapPath + ".tmp." + process.pid;
+      fs.writeFileSync(tmp, JSON.stringify(snapshot, null, 2));
+      fs.renameSync(tmp, snapPath);
+    } catch (_e) { /* soft-fail */ }
+  ' >/dev/null 2>&1 || true
+fi
+# --- end Phase 88-08 ---
+
 printf '{"status": "saved", "file": "%s"}\n' "$SAVE_FILE"
 
 exit 0
