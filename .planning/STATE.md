@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
-status: executing
-stopped_at: Completed 88-12-PLAN.md (v1.10.13 release gates 1-4 closed; gates 5a/5b awaiting user push + marketplace pin)
-last_updated: "2026-04-23T16:05:30.041Z"
+status: Awaiting user push + marketplace ref pin
+stopped_at: Completed 88.1-02-PLAN.md (README Permissions section + docs/settings-template.json, 19-matcher canonical set, Canon Part 8 verified, Feynman 46/46)
+last_updated: "2026-04-23T20:05:00.000Z"
 last_activity: 2026-04-23
 progress:
-  total_phases: 15
-  completed_phases: 3
-  total_plans: 63
-  completed_plans: 50
-  percent: 35
+  total_phases: 16
+  completed_phases: 4
+  total_plans: 79
+  completed_plans: 56
+  percent: 82
 ---
 
 # Project State
@@ -25,12 +25,32 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 88 (feynman-minto-memory-layer) -- EXECUTING
-Plan: 16 of 16
-Status: Ready to execute
+Phase: 89
+Plan: Not started
+Status: Awaiting user push + marketplace ref pin
+
+Last 88.6-04 commits (main):
+
+- 0abf6cf feat(88.6-02): add /mos:diagnostics command surface (Gap #1 closure)
+- df63773 feat(88.6-02): wire /mos:diagnostics into commands/help.md (Gap #2 closure)
+- 55d65ab release: v1.10.14 -- Phase 88.6 python-algorithm-wiring (Gates 1-4)
+
+Tag: v1.10.14 -> 55d65ab (LOCAL, not pushed)
+
+Known Gaps (CLOSED in 88.6-04):
+
+- commands/diagnostics.md: TRACKED via 0abf6cf
+- commands/help.md /mos:diagnostics entry: ADDED via df63773
+- Human-verify checkpoint: persisted to .planning/phases/88.6-python-algorithm-wiring/88.6-02-HUMAN-UAT.md as post-release soak (non-blocking)
+
+Awaiting user action (Gate 5):
+
+- 5a: git push origin main --tags
+- 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
+
 Last activity: 2026-04-23
 
-Progress: [###░░░░░░░] 35%
+Progress: [████████░░] 81%
 
 ## Performance Metrics
 
@@ -47,6 +67,15 @@ Progress: [###░░░░░░░] 35%
 | - | - | - | - |
 
 ## Accumulated Context
+
+| Phase 88.6 P01 | 10min | 4 tasks | 3 files |
+| Phase 88.6 P04 | 10min | 4 tasks | 6 files |
+| Phase 88.1 P01 | 14min | 3 tasks | 71 files |
+| Phase 88.1 P02 | 5min | 2 tasks | 2 files |
+
+### Roadmap Evolution
+
+- Phase 88.6 inserted after Phase 88: python-algorithm-wiring (URGENT) -- Close orphan-value gap between 15 verified Python algorithms and user-facing product surface. Fixes silent production bug in discover-* pipeline (baseline not auto-fired) and exposes 4 orphan Wave-1 algorithms (surprise, disruption, novelty, blindspot). Evidence: smoke test 2026-04-23 on mindrianOS data room. See CONTEXT.md in phase dir.
 
 | Phase 71 P01 | 4min | 2 tasks | 3 files |
 | Phase 71 P02 | 3min | 2 tasks | 2 files |
@@ -215,6 +244,11 @@ Progress: [###░░░░░░░] 35%
 - [Phase 88]: Phase 88-13: Stale-lifecycle scope narrowed to invariants-owned reasons (invariant_violation, parse_failed); folder-memory-owned reasons (never_generated, missing_timestamps, artifacts_newer_than_minto) skipped so 88-06 legitimate staleness is never pruned
 - [Phase 88]: Phase 88-13: Pre-commit hook composes with 87-01a via DISCOVERED_ROOM_ROOTS in the same installer-delivered guard script; plugin source commits bypass untouched
 - [Phase 88]: v1.10.13 ships via partial-autonomous 5-gate protocol: gates 1-4 closed autonomously (CHANGELOG entry, version bumps, local commit+tag); gates 5a/5b (push + marketplace pin) surfaced as user-action checkpoint because they require user credentials and cross workspace boundaries
+- [Phase 88.6]: Extract baseline-fetch into shared ensure-brain-baseline.cjs helper (Canon Part 7 Reuse Before Build) rather than duplicate inline across discovery-cycle.cjs and whitespace-command.cjs
+- [Phase 88.6]: Helper exits 2 (not 1) on Brain offline so callers distinguish offline vs invocation error; never throws, always returns result object
+- [Phase 88.6]: Phase 88.6 ships v1.10.14 via 5-gate release protocol: Gates 1-4 closed autonomously (CHANGELOG + plugin.json + package.json + CANON-PHASE-MAP + release commit 55d65ab + local tag v1.10.14); Gate 5 (push + marketplace ref pin) surfaced as user-action checkpoint per plan autonomous=false (identical to 88-12 precedent)
+- [Phase 88.6]: Used Edit tool (never Write) for plugin.json and package.json version bumps per BLOCKER 5 landmine guard; all 10 dependencies and 27-line structure of package.json preserved byte-for-byte; single-line diff each file
+- [Phase 88.1]: Under-promise tiebreaker applied across all 72 commands; destructive set kept narrow (publish/export/snapshot/vault); allowed-tools granularity deferred to Plan 88.1-02
 
 ### Pending Todos
 
@@ -236,6 +270,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-23T16:05:25.233Z
-Stopped at: Completed 88-12-PLAN.md (v1.10.13 release gates 1-4 closed; gates 5a/5b awaiting user push + marketplace pin)
+Last session: 2026-04-23T19:57:22.776Z
+Stopped at: Completed 88.1-01-PLAN.md (command frontmatter hygiene, 71 files tightened, 4 batch commits, Feynman 46/46)
 Resume file: None
