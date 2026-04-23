@@ -363,12 +363,20 @@ Summary line:
 node "${CLAUDE_PLUGIN_ROOT}/scripts/whitespace-command.cjs" ROOM_DIR external
 ```
 
-If Plan 02 scripts (query-semantic-scholar.cjs, compute-external-whitespace.py) are not yet installed, the dispatcher shows:
+If the scripts are not yet installed, the dispatcher shows:
 
 ```
 x External corpus not configured
   Why: Phase 66 Plan 02 scripts not installed yet
   Fix: /mos:whitespace external (available after Plan 02 deployment)
+```
+
+When Semantic Scholar is fully unreachable (network failure or every query rate-limited), the dispatcher shows (Phase 88.6-03):
+
+```
+x Semantic Scholar unavailable
+  Why: All queries rate-limited or network failure
+  Fix: /mos:whitespace external (retry in 60 seconds if rate-limited)
 ```
 
 ### Step 2: Render 4-Zone Output (when available)
@@ -395,10 +403,14 @@ x External corpus not configured
   \- [paper_title] ([year]) -- relevance: [score]
 ```
 
-**Zone 3 -- Intelligence Strip** (conditional):
+**Zone 3 -- Intelligence Strip** (conditional, max 3 signals, Phase 88.6-03):
 ```
-  &#9889; External literature reveals [N] cross-domain connections
+  warning N of M Semantic Scholar queries rate-limited (partial results shown)
+  warning N of M Semantic Scholar queries errored (partial results shown)
+  lightning External literature reveals [N] cross-domain connections
 ```
+
+All three signals can appear together when partial results still surface cross-domain connections. Glyph names in backticks refer to the 12 approved glyphs from `skills/ui-system/SKILL.md` Section 3.
 
 **Zone 4 -- Action Footer:**
 ```
@@ -406,6 +418,12 @@ x External corpus not configured
   > /mos:whitespace discover                Run full Discovery Cycle
   > /mos:research [topic]                   Deep-dive into a finding
 ```
+
+### Rate-Limit Behavior
+
+Semantic Scholar free tier enforces a max of 1 request per second. When burst queries trigger 429 responses, rate-limited queries are logged and skipped; the pipeline continues with whatever papers returned. The Zone 3 warning surfaces `N of M queries rate-limited` so the user knows coverage may be partial and the cause is external throttling, not empty-result. Per-query outcomes (`ok` / `rate_limited` / `api_error` / `network_error` / `timeout` / `not_attempted`) are persisted in `.mindrian/external-papers.json` under the top-level `queries[]` array so the dispatcher shows real telemetry rather than guessing. Retrying after 60 seconds typically recovers the full set because the cache (7-day TTL) preserves successful results from the first pass.
+
+Canon Part 8 Graph Boundary: external papers are SIGNAL (public data) per canon Part 8. They flow LOCAL only (to `{roomDir}/.mindrian/external-papers.json`), never to Brain. No user-specific strings are ever sent to Semantic Scholar or Brain in this pipeline. The query keywords are extracted from local artifact titles and framework names, sent to the public Semantic Scholar API over HTTPS, and the returned abstracts stay on disk in the room.
 
 ## Subcommand: discover
 
