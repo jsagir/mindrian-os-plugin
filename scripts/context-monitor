@@ -9,6 +9,18 @@ const fs = require('fs');
 const path = require('path');
 const visual = require('../lib/core/visual-ops.cjs');
 
+// Phase 88.1-04: statusline MINTO segment helpers. LOCAL-only per Canon
+// Part 8. Lazy-required inside the resolver so a missing module (unlikely
+// in a properly-installed plugin) leaves the pre-88 statusline unchanged.
+let statuslineCache = null;
+let folderMemory = null;
+try {
+  statuslineCache = require('../lib/core/statusline-cache.cjs');
+} catch (_e) { /* graceful fallback, pre-88 output */ }
+try {
+  folderMemory = require('../lib/core/folder-memory.cjs');
+} catch (_e) { /* graceful fallback, pre-88 output */ }
+
 const os = require('os');
 const crypto = require('crypto');
 
@@ -175,6 +187,144 @@ function detectActiveWorkflow(dir) {
 }
 
 /**
+ * Phase 88.1-04 -- resolve the active section path inside a room. Tries in
+ * order:
+ *   1. roomDir/.mindrian/active-section.json (written by Phase 84 smart-
+ *      notebook when it detects a per-section focus). Must carry a
+ *      "section" string field resolvable to an existing directory.
+ *   2. Most-recently-modified direct subdirectory of roomDir that contains
+ *      a MINTO.md file. This matches the "currentSection" heuristic the
+ *      rest of the statusline already uses.
+ *   3. null  -> caller skips the MINTO segment entirely.
+ *
+ * The function is defensive: every fs op is try/catch, every return path
+ * yields either a valid absolute path or null. Never throws.
+ *
+ * @param {string} roomDir - Absolute path to the active room
+ * @returns {string|null} Absolute path to the active section or null
+ */
+function resolveActiveSectionPath(roomDir) {
+  if (!roomDir) return null;
+  try {
+    const activeJson = path.join(roomDir, '.mindrian', 'active-section.json');
+    if (fs.existsSync(activeJson)) {
+      try {
+        const data = JSON.parse(fs.readFileSync(activeJson, 'utf8'));
+        if (data && typeof data.section === 'string' && data.section.length > 0) {
+          // Accept absolute or room-relative path.
+          const candidate = path.isAbsolute(data.section)
+            ? data.section
+            : path.join(roomDir, data.section);
+          if (fs.existsSync(candidate) && fs.statSync(candidate).isDirectory()) {
+            return candidate;
+          }
+        }
+      } catch (_e) { /* fall through to mtime fallback */ }
+    }
+  } catch (_e) {}
+
+  // Fallback: most-recently-modified section containing MINTO.md.
+  try {
+    const entries = fs.readdirSync(roomDir, { withFileTypes: true })
+      .filter(function (d) { return d.isDirectory() && !d.name.startsWith('.'); });
+    let best = null;
+    let bestMtime = 0;
+    for (const d of entries) {
+      const sectionPath = path.join(roomDir, d.name);
+      const mintoPath = path.join(sectionPath, 'MINTO.md');
+      try {
+        if (!fs.existsSync(mintoPath)) continue;
+        const st = fs.statSync(mintoPath);
+        if (st.mtimeMs > bestMtime) {
+          bestMtime = st.mtimeMs;
+          best = sectionPath;
+        }
+      } catch (_e) {}
+    }
+    return best;
+  } catch (_e) {
+    return null;
+  }
+}
+
+/**
+ * Phase 88.1-04 -- build the MINTO segment for the statusline. Wrapped in
+ * try/catch at the caller; this helper itself also defends every path so
+ * any failure yields empty string and leaves the pre-88 output unchanged.
+ *
+ * Flow:
+ *   - Resolve the active section via resolveActiveSectionPath.
+ *   - Hit the 5s TTL cache (lib/core/statusline-cache.cjs).
+ *   - On miss, readTriple via lib/core/folder-memory.cjs + setCached.
+ *   - Extract reasoning.governing_thought + reasoning_health_score + is_stale.
+ *   - If governing_thought null / empty / stale -> empty string (skip segment).
+ *   - Else: "<glyph> <truncated-governing-thought>" in Canon Part 2 vocabulary.
+ *
+ * Canon Part 3: LOCAL-only. No BRAIN read, no SIGNAL read. No external
+ * network. No user-content egress.
+ *
+ * @param {string} roomDir - Absolute path to the active room
+ * @returns {string} The rendered MINTO segment or '' (skip)
+ */
+function buildMintoSegment(roomDir) {
+  if (!statuslineCache || !folderMemory) return '';
+  if (!roomDir) return '';
+
+  const sectionPath = resolveActiveSectionPath(roomDir);
+  if (!sectionPath) return '';
+
+  let triple = null;
+  try {
+    const cached = statuslineCache.getCached(roomDir, sectionPath);
+    if (cached && cached.fresh && cached.value) {
+      triple = cached.value;
+    } else {
+      // Cold path: live read through Phase 88-01 contract.
+      triple = folderMemory.readTriple(sectionPath);
+      try { statuslineCache.setCached(roomDir, sectionPath, triple); } catch (_) {}
+    }
+  } catch (_e) {
+    return '';
+  }
+
+  if (!triple || !triple.reasoning) return '';
+  const reasoning = triple.reasoning;
+
+  // Graceful fallback: if the reasoning block is absent, stale, or the
+  // governing_thought is null/empty, skip the segment entirely. This
+  // preserves the "zero new failure modes" invariant from the PLAN.
+  if (!reasoning.exists) return '';
+  if (reasoning.is_stale) return '';
+  const gt = reasoning.governing_thought;
+  if (gt === null || gt === undefined || typeof gt !== 'string' || gt.length === 0) {
+    return '';
+  }
+
+  const glyph = statuslineCache.classifyHealth(
+    typeof reasoning.reasoning_health_score === 'number'
+      ? reasoning.reasoning_health_score
+      : null
+  );
+  // "--" glyph signals absent/indeterminate score; in that case we still
+  // skip because the PLAN's fallback contract says "stale or null -> skip".
+  if (glyph === '--') return '';
+
+  const truncated = statuslineCache.truncateGoverningThought(gt);
+
+  // Canon Part 2 color vocabulary (matches hook systemMessage + /mos:status):
+  //   check -> green
+  //   warn  -> yellow
+  //   low   -> red
+  let glyphColor = visual.ANSI.muted;
+  if (glyph === 'check') glyphColor = visual.ANSI.green;
+  else if (glyph === 'warn') glyphColor = visual.ANSI.yellow;
+  else if (glyph === 'low') glyphColor = visual.ANSI.red;
+
+  return glyphColor + glyph + visual.ANSI.reset + ' ' +
+    visual.ANSI.dim + truncated + visual.ANSI.reset;
+}
+
+/**
  * Get per-room bridge file path at ~/.mindrian/bridge/{room-hash}.json
  * @param {string} [roomDir] - Room directory path for hashing
  * @returns {string} Bridge file path
@@ -327,6 +477,15 @@ process.stdin.on('end', () => {
           const label = stageEntry ? stageEntry.label : currentSection.replace(/-/g, ' ').toUpperCase();
           parts.push(`${emoji} ${visual.ANSI.yellow}${label}${visual.ANSI.reset}`);
         }
+
+        // Phase 88.1-04 -- MINTO governing_thought segment. Canon Part 3
+        // LOCAL-only (no BRAIN, no SIGNAL). 5s TTL cache + 300ms budget +
+        // graceful fallback. Entire helper is wrapped in try/catch below so
+        // any failure leaves the pre-88 statusline output unchanged.
+        try {
+          const mintoSeg = buildMintoSegment(roomDir);
+          if (mintoSeg) parts.push(mintoSeg);
+        } catch (_e) { /* graceful fallback */ }
 
         // MindrianOS plugin brand (brain emoji) + current version +
         // persistent /mos:update hint. The green circle plus the
