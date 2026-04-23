@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 88-10-PLAN.md (decision-capture module)
-last_updated: "2026-04-23T10:29:24.636Z"
+stopped_at: Completed 88-11-PLAN.md (record-decision dual-write wired)
+last_updated: "2026-04-23T10:49:58.201Z"
 last_activity: 2026-04-23
 progress:
   total_phases: 15
   completed_phases: 2
   total_plans: 63
-  completed_plans: 47
+  completed_plans: 48
   percent: 35
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 88 (feynman-minto-memory-layer) -- EXECUTING
-Plan: 13 of 16
+Plan: 14 of 16
 Status: Ready to execute
 Last activity: 2026-04-23
 
@@ -91,6 +91,7 @@ Progress: [###░░░░░░░] 35%
 | Phase 88 P07 | 60min | 2 tasks | 7 files |
 | Phase 88 P09 | 15min | 1 tasks | 2 files |
 | Phase 88-feynman-minto-memory-layer P10 | 12m | 1 tasks | 3 files |
+| Phase 88-feynman-minto-memory-layer P11 | 15m | 1 tasks | 3 files |
 
 ### Decisions
 
@@ -203,6 +204,9 @@ Progress: [###░░░░░░░] 35%
 - [Phase 88-feynman-minto-memory-layer]: Outer + inner write-lock composition: outer lock serializes the read-modify-write; inner lock serializes the rename; same-pid re-acquire is a no-throw overwrite per write-lock.cjs.
 - [Phase 88-feynman-minto-memory-layer]: Archive month from archived entry timestamp (not today) keeps partitions chronologically coherent for future full-history queries.
 - [Phase 88-feynman-minto-memory-layer]: JSONL append-only archive; fs.appendFileSync is POSIX-atomic for small lines. Prior lines never rewritten (Test 4 invariant).
+- [Phase 88-feynman-minto-memory-layer]: Additive tertiary write pattern: proactive-intelligence.cjs authoritative, decision-capture.cjs read-optimized; primary writer byte-frozen; dual-write never blocks
+- [Phase 88-feynman-minto-memory-layer]: Skip-not-error for missing-section: no --source-artifact OR outside --room is a documented skip with no error log entry; only real failures (no_minto, schema violations) trigger .mindrian/decision-dual-write-errors.jsonl
+- [Phase 88-feynman-minto-memory-layer]: Section derivation from --source-artifact first path segment (relative or absolute); outer try/catch wraps whole block so require-time errors are also swallowed; CLI exit 0 always
 
 ### Pending Todos
 
@@ -224,6 +228,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-23T10:29:24.628Z
-Stopped at: Completed 88-10-PLAN.md (decision-capture module)
+Last session: 2026-04-23T10:49:48.500Z
+Stopped at: Completed 88-11-PLAN.md (record-decision dual-write wired)
 Resume file: None
