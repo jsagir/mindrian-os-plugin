@@ -91,6 +91,16 @@
             "timeout": 3000
           }
         ]
+      },
+      {
+        "matcher": "Read|Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/query-efficiency-telemetry.cjs\"",
+            "timeout": 1500
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
