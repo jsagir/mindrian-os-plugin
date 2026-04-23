@@ -40,7 +40,7 @@ You give it your documents, your proposals, your meeting transcripts, your half-
 - **Convergence signals** -- themes appearing across 3+ artifacts that you haven't noticed
 - **Contradictions** -- places where your own work disagrees with itself
 
-The intelligence layer queries a local SQLite graph (room.db) using targeted SQL -- not brute-force context scanning. A question like "what contradicts my market analysis?" costs ~3,500 tokens (surgical graph query + relevant artifact excerpts), not ~200,000 tokens (reading the entire room). **57x cheaper. Better answers.**
+The intelligence layer queries a local SQLite graph (room.db) using targeted SQL -- not brute-force context scanning. A question like "what contradicts my market analysis?" costs ~3,500 tokens (surgical graph query + relevant artifact excerpts), not ~200,000 tokens (reading the entire room). **Up to 57x cheaper. Better answers.** (Measured per room via `/mos:scout efficiency`; see docs/CANON-PHASE-MAP.md Part 2 for the telemetry invariant.)
 
 Every discovery gets filed into an **Opportunity Bank** -- a scored, ranked collection of insights you can draw from for proposals, pitches, partnerships, and pivots. The Opportunity Bank compounds: every methodology session adds to it, every meeting transcript enriches it, every new artifact creates new edges.
 

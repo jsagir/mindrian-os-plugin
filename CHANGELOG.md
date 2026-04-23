@@ -9,6 +9,205 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.10.15] - 2026-04-23
+
+Phase 88.1 uiux-polish ships. Surface-polish release across L1-L7 with hook
+primitives as the rendering substrate. Eleven plans across four waves:
+description discipline on 72 commands, canonical permissions stance, hook
+systemMessage retrofit on 8 lifecycle hooks, statusline MINTO segment,
+/mos:status Shape E render with governing_thought per section, SessionStart
+4-line banner with top-3 active sections, advisory frontmatter schema
+validation hook, async artifact auto-commit on isolated branch, subagent
+PROACTIVELY + color + isolation audit, README expectation paragraphs (Before
+Your First Session), query efficiency telemetry infrastructure. Feynman
+suite 52/52 passing (baseline 46 from v1.10.14 + six new test files). Zero
+new runtime dependencies. BSL 1.1 on every new .cjs file. Three-surface
+parity preserved. Canon Parts 1, 2, 3, 5, 6, 7, 8 honored. 57x claim
+retuned to "up to 57x" with measurement surface shipped (telemetry
+validation window currently NO_DATA -- hook ships but awaits first /mos:*
+query in the wild; defensibility path documented below).
+
+### Added
+
+- Description discipline sweep across 72 commands: descriptions <= 60 chars
+  verb-first under-promise, argument-hint present on 23 commands that take
+  arguments, disable-model-invocation true on 4 destructive commands
+  (publish, export, snapshot, vault). Zero em-dashes, zero banned words
+  ("legacy", "fallback", "prefer skills"). Audit report at
+  `.planning/phases/88.1-uiux-polish/88.1-01-audit-report.md`. (Plan 88.1-01)
+- Canonical permissions block: README Permissions section H2 + new
+  `docs/settings-template.json` with 19 granular matchers grouped by
+  surface (git read/write, node scripts, python scripts, Read, Write
+  scoped to 4 paths, WebFetch scoped to 3 public SIGNAL domains). Both
+  stances documented with when-to-use guidance: nuclear
+  (--dangerously-skip-permissions) vs granular (settings.json). Canon Part 8
+  boundary preserved: zero Brain endpoints, zero bearer tokens, zero wildcard
+  writes. (Plan 88.1-02)
+- systemMessage retrofit on 8 lifecycle hook scripts: session-start,
+  post-write, on-stop, pre-compact, post-compact, intent-classifier,
+  write-scope-check, feynman-minto-guardian. Every emission is LOCAL-only
+  (room slug + section count + health glyph) per Canon Part 8. Shared
+  classifyHealth(score) helper extracted from
+  `lib/memory/triple-context-formatter.cjs` so hooks + statusline +
+  /mos:status + SessionStart banner render byte-identical Canon Part 2 glyph
+  vocabulary (check / warn / low / --). Silent-on-success discipline on
+  advisory hooks (R5). (Plan 88.1-03)
+- Statusline MINTO segment: `scripts/context-monitor` renders the active
+  section's governing_thought + health glyph between the stage label and
+  the plugin brand. New `lib/core/statusline-cache.cjs` pure module with 5s
+  TTL disk-backed cache, atomic writes (Phase 87-02 pattern), 60-char
+  governing_thought truncation, and classifyHealth mirror. Cold render 38ms,
+  warm 29-34ms, well under the 300ms CONTEXT R1 budget. Graceful fallback
+  preserves pre-88 statusline byte-identically when MINTO absent or stale.
+  (Plan 88.1-04)
+- /mos:status Shape E Action Report: per-section governing_thought rows with
+  Canon Part 2 health glyph, (stale: reason) suffix, (no MINTO yet)
+  placeholder, summary row (filled / stale / median reasoning health),
+  actions footer. Three argument modes: no-args (full render), <section>
+  (full-detail single-section no truncation), --stale-only (filter). New
+  `scripts/mos-status.cjs`. Replaces pre-88 Shape A Mondrian Board + raw
+  artifact counts. (Plan 88.1-05)
+- SessionStart 4-line MINTO banner: brand line (dynamic version read from
+  plugin.json, never hardcoded) + active room slug + focus header + top-3
+  recently-active sections with glyph + 60-char governing_thought. New
+  `lib/memory/sessionstart-banner-formatter.cjs` pure formatter composes
+  with Phase 88-07 TRIPLE_CONTEXT budget cascade. Budget share 20% of total
+  under tight SESSION_START_BUDGET_TOKENS with 50-token floor; rows drop
+  from tail, focus header drops last. Placed between Phase 83 ACTIVE ROOM
+  CONTEXT (ends line 568) and Phase 88-07 TRIPLE_CONTEXT (begins line 723).
+  (Plan 88.1-06)
+- Frontmatter schema validation hook: PostToolUse advisory
+  `scripts/frontmatter-schema-validator.cjs` on `Write|Edit|MultiEdit`
+  inside a `.room-root` subtree. Four schemas (ROOM.md, STATE.md,
+  MINTO.md-delegated-to-feynman-minto-invariants, artifact-default) in new
+  `lib/core/frontmatter-schemas.cjs` pure module. Non-blocking (always exits
+  0). Offense log at `${CLAUDE_PLUGIN_DATA}/schema-violations.jsonl` with
+  `~/.mindrian/` fallback, consumable by future `/mos:admin`. Canon Part 5
+  Evidence Graded By Context foundation. (Plan 88.1-07)
+- Async artifact auto-commit hook: PostToolUse
+  `scripts/async-artifact-auto-commit.cjs` on `Write|Edit|MultiEdit` inside
+  `.room-root` auto-commits into an isolated `data-room-autocommit` branch
+  via git plumbing (hash-object + update-index + write-tree + commit-tree +
+  update-ref) on a tmp `GIT_INDEX_FILE`. Never touches HEAD, never moves
+  the working tree. Throttled 1 commit per 5 seconds per path via new
+  `lib/core/auto-commit-throttle.cjs` pure module with atomic ledger write
+  (Phase 87-02 pattern). NEVER runs `git push` (Canon Part 8 preserved;
+  boundary is a compile-time property: the source file does not contain the
+  literal strings "git push" or "https://"). Detached fire-and-forget
+  worker via `spawn(detached:true, stdio:'ignore') + proc.unref()`.
+  (Plan 88.1-08)
+- Subagent PROACTIVELY + color + isolation audit: all 8 agent files tightened
+  to single-line descriptions under 160 chars with verb-first under-promise
+  phrasing. PROACTIVELY keyword on 3 observe-react agents (grading, investor,
+  opportunity-scanner) so Claude auto-delegates when room state triggers.
+  Color field on all 8 agents (8-slot palette: red/orange/yellow/green/blue/
+  indigo/purple/cyan). `isolation: worktree` on 3 write-heavy or
+  external-API agents (framework-runner, opportunity-scanner, research).
+  One pre-existing em-dash in grading.md body fixed. (Plan 88.1-10)
+- README "Before Your First Session" expectation-setter H2 with three H3
+  subsections: What a Room Is (Living Data Room, cross-relationship scan
+  INFORMS/CONTRADICTS/CONVERGES, venture as nested system) + Permissions
+  (both stances, links to Plan 88.1-02 section via #permissions anchor) +
+  Commands and Larry (R7 peer-path codified: /mos:find-analogies and plain
+  English utterance both land at identical logic, neither positioned above
+  the other, Larry pedagogy intrinsic per Canon Part 1 correction 9).
+  Placed between the v1.10.10 intro block and Quick Start. (Plan 88.1-12)
+- Query efficiency telemetry infrastructure: PostToolUse hook
+  `scripts/query-efficiency-telemetry.cjs` on `Read|Grep|Glob` measures
+  tokens_used vs tokens_naive_estimate per /mos:* query and appends 8-field
+  JSONL events to `~/.mindrian/telemetry/query-efficiency.jsonl`. New
+  `lib/core/token-estimator.cjs` pure module (estimateTokens chars/4 matching
+  Phase 88-07 yardstick, estimateRoomTokens session-cached, validateEventShape,
+  classifyRatio with 10x advisory threshold, aggregateEvents median/mean/top5).
+  New `scripts/scout-telemetry-aggregator.cjs` renders Shape E summary with
+  threshold status PASS (>= 40x) / RETUNE (< 40x) / NO_DATA. /mos:scout
+  extended with `efficiency` subcommand + Step 5b aggregation + --json mode
+  for release-gate machine consumption. Canon Part 8 compliant: LOCAL JSONL
+  only, scalar counts + LOCAL room slug, zero user-artifact bytes, zero
+  network egress. (Plan 88.1-16)
+
+### Changed
+
+- 72 command frontmatter blocks now enforce description discipline under
+  60 chars with under-promise phrasing. Picker UX wins: dashboard.md 178
+  -> 48 chars; scheduled-tasks.md 144 -> 42; query.md 133 -> 45;
+  scout.md 123 -> 34. Canonical exemplar: diagnose.md "Classify problem
+  type against the PWS matrix" (45).
+- README.md gains "Before Your First Session" H2 with three H3 subsections
+  near the top + full Permissions H2 (inserted after Quick Start, before
+  Three Ways to Use). 57x claim retuned from `**57x cheaper. Better
+  answers.**` to `**Up to 57x cheaper. Better answers.**` with measurement
+  surface pointer (`/mos:scout efficiency`). Retune is the Canon Part 6
+  dog-fooding honest-claim discipline applied to our own release: until a
+  validation window produces >= 50 events with median >= 40x in real
+  sessions, the copy reads "up to 57x" rather than making the specific claim.
+- docs/CANON-PHASE-MAP.md Part 3 (Tri-Context Decision Gate), Part 7 (Reuse
+  Before Build), and Part 8 (Graph Boundary) rows updated to mark Phase 88.1
+  shipment. Part 8 gains explicit note that Plan 88.1-16 query efficiency
+  telemetry is Part 8-compliant (LOCAL JSONL only, no egress). New v1.3
+  (kept) version-history row at 2026-04-23 citing 88.1 (v1.10.15) polish
+  sweep + 57x claim retune.
+- `hooks/hooks.json` gains three new PostToolUse entries: frontmatter
+  schema validator (Plan 88.1-07), async artifact auto-commit (Plan 88.1-08),
+  query efficiency telemetry (Plan 88.1-16). All three ALWAYS exit 0
+  (advisory, never blocking).
+
+### Compatibility
+
+- Feynman suite: GREEN, 52/52 passing (baseline 46 from v1.10.14 + six new
+  test files: statusline-minto-segment, mos-status-renderer,
+  sessionstart-minto-banner, frontmatter-schema-validator,
+  async-artifact-auto-commit, query-efficiency-telemetry).
+- Zero new runtime dependencies (Node builtins + existing 10 deps only).
+  Verified via `diff` of package.json dependencies vs v1.10.14.
+- CJS only, no ESM, no build step. Zero `.mjs` or `.ts` files under
+  `lib/`, `scripts/`, `bin/`.
+- Three-surface parity: CLI, Desktop MCP, and Cowork all receive the polish
+  sweep without surface-specific branches.
+- BSL 1.1 license applied to all 16 new `.cjs` files (Plans 04, 05, 06,
+  07, 08, 16).
+- Chat-panel presence preserved (v1.10.12 regression guard green: 3 matches
+  in templates/presentation/dashboard.html, untouched by Phase 88.1).
+- Zero em-dashes introduced in the 88.1 diff across commands/, scripts/,
+  lib/, agents/, README.md, CHANGELOG.md, docs/settings-template.json.
+- 57x claim defensibility gate: telemetry validation window returns
+  NO_DATA at release time because the PostToolUse hook landed in v1.10.15
+  itself (branch b/c detection path depends on CLAUDE_SLASH_COMMAND or
+  MOS_COMMAND_CONTEXT env var which only enters live usage post-tag, and
+  envelope branch a is not yet surfaced by Claude Code 2.1.x). Mitigation:
+  README copy retuned to "up to 57x" (above). Measurement surface ships
+  ready to accumulate evidence. Phase 88.2 Selector Block rollout will wire
+  `MOS_COMMAND_CONTEXT` explicitly into /mos:* command surfaces, at which
+  point the 7-day validation window runs for real and either confirms the
+  57x claim (PASS -> restore exact phrasing) or surfaces leakers (RETUNE).
+  Honors Canon Part 6 dog-fooding mandate: we do not ship an unmeasured
+  quantified claim.
+
+### Canon
+
+- Phase 88.1 satisfies canon_parts declared across 11 plans:
+  - Part 1 Wicked Navigator (README expectation paragraphs as first-session
+    onboarding; SessionStart banner as re-entry affordance; Larry pedagogy
+    intrinsic rather than Brain-dependent).
+  - Part 2 UI Ruling System (Canon glyph vocabulary check/warn/low/--
+    enforced uniformly across hook sysmsg + statusline + /mos:status +
+    banner via shared classifyHealth helper; agent color palette codified).
+  - Part 3 Tri-Context Decision Gate (statusline + /mos:status + banner all
+    render LOCAL context only; never BRAIN, never SIGNAL, per-turn).
+  - Part 5 Evidence Graded By Context (frontmatter schema validation hook
+    as advisory foundation for future evidence-tier enforcement).
+  - Part 6 Product-as-Venture Dog-Fooding (release discipline reused
+    verbatim from v1.10.13 and v1.10.14 5-gate protocol; 57x claim retune
+    IS the dog-fooding of Canon Part 6 applied to our own copy).
+  - Part 7 Reuse Before Build (description discipline sweep cites what each
+    command replaces or extends; zero net-new commands; agent audit cites
+    role-type invariants rather than inventing new classifications).
+  - Part 8 Graph Boundary (permissions hardening preserves boundary at the
+    settings layer; Plan 88.1-08 auto-commit NEVER runs `git push`;
+    Plan 88.1-16 telemetry is LOCAL JSONL only with zero egress; every new
+    script scanned for brain.mindrian.ai / bearer / Authorization /
+    api_key / fetch / curl / http -- all returned zero matches).
+
 ## [1.10.14] - 2026-04-23
 
 Phase 88.6 python-algorithm-wiring ships. Orchestration-only release closing

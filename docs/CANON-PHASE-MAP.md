@@ -62,7 +62,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 |---------|-------------------|-----------|
 | shipped | UI vocabulary contract (De Stijl) | Phase 80 commit history |
 | planned | Shape F Selector Block rollout (F.1-F.5) | Phase 88.2 uiux-selector-block |
-| planned | Hook primitives (rendering substrate) | Phase 88.1 uiux-polish |
+| shipped | Hook primitives (rendering substrate) + statusline / /mos:status / SessionStart banner LOCAL-context surfaces | Phase 88.1 uiux-polish (Plans 03, 04, 05, 06); v1.10.15 |
 | planned | PWS VP 3 human-in-the-loop gates (canonical instance of Part 3) | Phase 88.5 pws-vp-scaffold |
 | planned | Option generation tier-awareness (Mode A/B/Tier 0) | Phase 90 brain-derivation-layer |
 | planned | Navigation Engine (decision production) | Phase 91 navigation-engine |
@@ -103,7 +103,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 | Status  | Phase / Component | Reference |
 |---------|-------------------|-----------|
 | shipped | /gsd:plan-phase gating | .claude/get-shit-done/ workflows |
-| planned | Description discipline (cite what you replace) | Phase 88.1 uiux-polish |
+| shipped | Description discipline sweep across 72 commands + 8 agents (under-promise, verb-first, argument-hint, disable-model-invocation on destructive) | Phase 88.1 uiux-polish (Plans 01, 10, 12); v1.10.15 |
 
 ### Part 8 - The Graph Boundary (Security Constitution)
 
@@ -111,7 +111,9 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 |---------|-------------------|-----------|
 | shipped | Brain MCP architecture (no user data egress) | mcp-server-brain/, .mcp.json |
 | shipped | Security cascade refactor | Phase 87 security-hardening-cascade-refactor |
-| planned | Permissions block hardening | Phase 88.1 uiux-polish |
+| shipped | Permissions block hardening (README Permissions H2 + docs/settings-template.json with 19 granular matchers; git push excluded; 3 WebFetch public SIGNAL domains only; no bare Write wildcard) | Phase 88.1 uiux-polish (Plan 02); v1.10.15 |
+| shipped | Plan 88.1-16 query efficiency telemetry is Part 8-compliant (LOCAL JSONL at ~/.mindrian/telemetry/query-efficiency.jsonl; scalar counts + LOCAL slug only; zero network surface in hook or aggregator) | Phase 88.1 uiux-polish (Plan 16); v1.10.15 |
+| shipped | Plan 88.1-08 async auto-commit is Part 8-compliant (isolated data-room-autocommit branch; NEVER git push; plumbing via tmp GIT_INDEX_FILE never moves HEAD) | Phase 88.1 uiux-polish (Plan 08); v1.10.15 |
 | planned | Brain derivation layer preserving boundary | Phase 90 brain-derivation-layer |
 | pending | check-brain-boundary.cjs PR gate | Not yet scaffolded. Stub proposed. |
 
@@ -158,6 +160,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 | v1.2          | a19ae7e  | 2026-04-20 | MindrianOS-native UI vocabulary + Shape F.1-F.5 + 88.2 alignment. |
 | v1.3          | TBD      | 2026-04-20 | Engine 1 Act 1 code-driven (whitespace + reverse salient + cross-domain match via embeddings + HSI). |
 | v1.3 (kept)   | TBD      | 2026-04-23 | Phase 88.6 (v1.10.14) wired 4 Wave-1 algorithms + baseline auto-fire + external rate-limit handling. No canon text change; map row updates only. |
+| v1.3 (kept)   | TBD      | 2026-04-23 | Phase 88.1 (v1.10.15) polish sweep shipped -- L1-L7 surfaces + hook primitives + statusline/mos:status/SessionStart banner LOCAL-context render + 57x claim retuned to "up to 57x" with telemetry validation surface shipped (Plan 88.1-16; defensibility gate documented in CHANGELOG). No canon text change; map row updates only. |
 
 ---
 
