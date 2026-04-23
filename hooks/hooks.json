@@ -71,6 +71,16 @@
             "timeout": 3000
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/frontmatter-schema-validator.cjs\"",
+            "timeout": 2000
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
