@@ -81,6 +81,16 @@
             "timeout": 2000
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/async-artifact-auto-commit.cjs\"",
+            "timeout": 3000
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
