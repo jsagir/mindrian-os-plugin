@@ -582,6 +582,105 @@ const {
 const feynmanMintoInvariants = require('../lib/core/feynman-minto-invariants.cjs');
 const { acquireLock, releaseLock } = require('../lib/core/write-lock.cjs');
 
+// Phase 90-02: post-regen hook for the brain-derivation queue. After a
+// successful MINTO.md write, compare prior governing_thought sha256 against
+// the new value's sha256. If they differ, enqueue brain-derivation so the
+// next UserPromptSubmit drains and refreshes BRAIN.md asynchronously.
+//
+// Canon Part 8: the queue carries ONLY the section slug + sha256 hash pair
+// + ISO timestamp + reason. The governing_thought TEXT never appears in
+// the queue. Queue module is required lazily so the generator stays usable
+// in test environments where the queue module may not be on the path.
+const crypto = require('node:crypto');
+
+function brainDerivationQueueModule() {
+  try {
+    return require('../lib/core/brain-derivation-queue.cjs');
+  } catch (_e) {
+    return null;
+  }
+}
+
+// Extract governing_thought from a MINTO.md raw body. Mirrors the parser
+// used by parseMintoMd (lib/core/folder-memory-shared.cjs). Frontmatter
+// scalar OR first body line under "## Governing Thought" heading.
+function extractGoverningThought(raw) {
+  if (typeof raw !== 'string' || raw.length === 0) return '';
+  const fmMatch = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (fmMatch) {
+    const fm = fmMatch[1];
+    const m = fm.match(/^governing_thought:\s*(.+)$/m);
+    if (m) {
+      let v = m[1].trim();
+      if ((v.startsWith('"') && v.endsWith('"')) ||
+          (v.startsWith("'") && v.endsWith("'"))) {
+        v = v.slice(1, -1);
+      }
+      // Unescape standard YAML double-quote escapes.
+      v = v.replace(/\\"/g, '"');
+      return v;
+    }
+  }
+  // Body fallback: first non-empty paragraph after the "## Governing Thought" heading.
+  const bodyIdx = raw.indexOf('## Governing Thought');
+  if (bodyIdx !== -1) {
+    const slice = raw.slice(bodyIdx).split(/\r?\n/);
+    for (let i = 1; i < slice.length; i++) {
+      const t = slice[i].trim();
+      if (!t) continue;
+      if (t.startsWith('#')) break;
+      if (t.startsWith('>')) {
+        return t.replace(/^>+\s*/, '').trim();
+      }
+      return t;
+    }
+  }
+  return '';
+}
+
+function sha256GoverningThought(text) {
+  return 'sha256:' + crypto.createHash('sha256')
+    .update(String(text == null ? '' : text).normalize('NFC'))
+    .digest('hex');
+}
+
+// Read the prior MINTO.md (if present) and return its governing_thought
+// sha256, or null when no prior file exists. Called BEFORE the new write
+// lands so the post-write enqueue hook can detect a change.
+function readPriorGoverningThoughtHash(targetPath) {
+  let raw;
+  try {
+    raw = fs.readFileSync(targetPath, 'utf-8');
+  } catch (_e) {
+    return null;
+  }
+  const gt = extractGoverningThought(raw);
+  if (!gt) return null;
+  return sha256GoverningThought(gt);
+}
+
+// Post-regen hook: after MINTO.md is successfully written, compare hashes
+// and enqueue brain-derivation when they differ. Soft-fail on any error
+// so the generator's primary contract is never broken by a queue failure.
+function tryEnqueueBrainDerivation(roomDir, mintoPath, newContent, priorHash) {
+  try {
+    const Q = brainDerivationQueueModule();
+    if (!Q) return;
+    const sectionDir = path.dirname(mintoPath);
+    const sectionSlug = path.basename(sectionDir);
+    // Sanity: only enqueue when section name is a valid slug (skips
+    // top-level room-root MINTO.md cases where the dirname is the room).
+    const slugSafe = /^[a-z0-9][a-z0-9_-]{0,63}$/.test(sectionSlug);
+    if (!slugSafe) return;
+    const newGt = extractGoverningThought(newContent);
+    const newHash = sha256GoverningThought(newGt);
+    if (priorHash !== null && priorHash === newHash) return; // no change
+    Q.enqueue(roomDir, sectionSlug, priorHash, newHash, 'governing_thought_changed');
+  } catch (_e) {
+    // Soft-fail: queue enqueue must never disrupt MINTO write.
+  }
+}
+
 // Phase 88-04-B: schema_version constant emitted into every MINTO.md
 // frontmatter. Required by the invariants validator (88-00-B) so the
 // atomic write gate accepts generator output.
@@ -994,6 +1093,12 @@ function atomicWriteMinto(mintoPath, content, roomDir) {
   const tmpPath = mintoPath + '.tmp.' + process.pid + '.minto';
   const SEV = feynmanMintoInvariants.SEVERITY;
 
+  // Phase 90-02: capture prior governing_thought hash BEFORE the write so
+  // the post-rename enqueue can detect a real change. Soft-fail on read
+  // failure (no prior file -> priorHash stays null -> first regen always
+  // enqueues, which is the correct cold-start behavior).
+  const priorGoverningThoughtHash = readPriorGoverningThoughtHash(mintoPath);
+
   let fd;
   try {
     fd = fs.openSync(tmpPath, 'wx');
@@ -1118,6 +1223,12 @@ function atomicWriteMinto(mintoPath, content, roomDir) {
       try { releaseLock(roomDir); } catch (_) {}
     }
   }
+
+  // Phase 90-02: post-regen hook into the brain-derivation queue. Compares
+  // governing_thought sha256 against the prior file's hash captured before
+  // the write. Soft-fails internally so a queue error never breaks the
+  // primary MINTO contract.
+  tryEnqueueBrainDerivation(roomDir, mintoPath, content, priorGoverningThoughtHash);
 
   return {
     success: true,

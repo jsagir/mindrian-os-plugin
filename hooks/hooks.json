@@ -112,6 +112,15 @@
             "timeout": 2000
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/brain-derivation-drain.cjs\"",
+            "timeout": 2000
+          }
+        ]
       }
     ],
     "FileChanged": [
