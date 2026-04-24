@@ -754,6 +754,13 @@ if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" 
   # to set ROOM_DIR_ENV + PLUGIN_ROOT_ENV for the node -e subshell only.
   # SESSION_START_BUDGET_TOKENS is inherited automatically via the outer
   # process env (no explicit forwarding needed).
+  #
+  # Phase 90-03: this block now ALSO computes Brain staleness per section
+  # via lib/core/brain-md-staleness.cjs and enqueues regen for stale
+  # sections through lib/core/brain-derivation-queue.cjs. The scan is
+  # LOCAL-only per Canon Part 8 (no content queries to Brain). Feature
+  # flag: BRAIN_STALENESS_SKIP=1 disables the Brain annotation and enqueue
+  # paths, restoring pre-90-03 behavior byte-for-byte (emergency disable).
   TRIPLE_CONTEXT=$(env ROOM_DIR_ENV="${ROOM_DIR}" PLUGIN_ROOT_ENV="${PLUGIN_ROOT}" node -e '
     "use strict";
     const fs = require("fs");
@@ -763,6 +770,15 @@ if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" 
     try {
       const fm = require(path.join(pluginRoot, "lib", "core", "folder-memory.cjs"));
       const fmt = require(path.join(pluginRoot, "lib", "memory", "triple-context-formatter.cjs"));
+      // Phase 90-03 integration modules (loaded lazily; soft-fail if unavailable).
+      let brainStale = null;
+      let brainQueue = null;
+      if (process.env.BRAIN_STALENESS_SKIP !== "1") {
+        try { brainStale = require(path.join(pluginRoot, "lib", "core", "brain-md-staleness.cjs")); }
+        catch (_e) { brainStale = null; }
+        try { brainQueue = require(path.join(pluginRoot, "lib", "core", "brain-derivation-queue.cjs")); }
+        catch (_e) { brainQueue = null; }
+      }
       // 1. Try snapshot-first (88-06 producer contract). Falls through to
       // live readTriple walk if snapshot is missing or malformed.
       let sections = {};
@@ -811,13 +827,74 @@ if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" 
           staleReport = Array.isArray(sj) ? sj : (sj && sj.sections) || [];
         }
       } catch (_e) { staleReport = null; }
-      // 5. Format and emit.
-      const block = fmt.formatTripleContext({
-        sections: sections,
-        pendingTier1: pendingTier1,
-        staleReport: staleReport,
-      });
-      process.stdout.write(block || "");
+      // 5. Phase 90-03: compute Brain staleness per section, attach to
+      // sections[name].brain, and enqueue regen for sections whose
+      // recommended_action === "enqueue_regen". Enqueue is fired-and-forget:
+      // the drain runs on next UserPromptSubmit (Phase 90-02). Brain-offline
+      // suppresses enqueue. Room-wide suppression: if NO section has a
+      // BRAIN.md on disk, we do not render any Brain line (backward-compat
+      // for users who have never run a derivation yet).
+      //
+      // brain-md-staleness is an async module, so we run an async IIFE.
+      // When skipped (BRAIN_STALENESS_SKIP=1 or module unavailable), we
+      // still need to format + emit the TRIPLE_CONTEXT block synchronously
+      // (no Brain annotations attached).
+      (async function () {
+        if (brainStale) {
+          const enqueueJobs = [];
+          let anyBrainMdSeen = false;
+          for (const name of Object.keys(sections)) {
+            const sp = path.join(roomDir, name);
+            let brainRes = null;
+            try {
+              // readTriple is the source of truth for governing_thought.
+              // Snapshot path may have a pre-fetched triple; refresh via
+              // readTriple for the most-current hash.
+              const triple = fm.readTriple(sp);
+              brainRes = await brainStale.computeBrainStaleness(sp, triple);
+              if (brainRes && brainRes.exists === true) anyBrainMdSeen = true;
+            } catch (_e) { brainRes = null; }
+            if (brainRes) {
+              sections[name] = sections[name] || {};
+              sections[name].brain = brainRes;
+              if (brainRes.recommended_action === "enqueue_regen" && brainQueue) {
+                enqueueJobs.push({ section: name, sectionPath: sp, brainRes: brainRes });
+              }
+            }
+          }
+          // Backward-compat: suppress "absent" lines when no section has
+          // ever been derived. Rooms with zero BRAIN.md would otherwise
+          // see noisy "Brain derivation: absent" annotations everywhere.
+          if (!anyBrainMdSeen) {
+            for (const name of Object.keys(sections)) {
+              if (sections[name] && sections[name].brain && sections[name].brain.staleness === "absent") {
+                delete sections[name].brain;
+              }
+            }
+          }
+          // Fire-and-forget enqueues (advisory; do not block).
+          for (const job of enqueueJobs) {
+            try {
+              const triple = fm.readTriple(job.sectionPath);
+              const currentGt = (triple && triple.reasoning && triple.reasoning.governing_thought != null)
+                ? String(triple.reasoning.governing_thought) : "";
+              const cryp = require("crypto");
+              const newHash = "sha256:" + cryp.createHash("sha256").update(currentGt.normalize("NFC")).digest("hex");
+              const prevHash = job.brainRes.stale_reason === "governing_thought_changed"
+                ? null
+                : newHash;
+              brainQueue.enqueue(roomDir, job.section, prevHash, newHash, "session_start_stale");
+            } catch (_e) { /* advisory; do not block session-start */ }
+          }
+        }
+        // 6. Format and emit (always runs, even when Brain staleness skipped).
+        const block = fmt.formatTripleContext({
+          sections: sections,
+          pendingTier1: pendingTier1,
+          staleReport: staleReport,
+        });
+        process.stdout.write(block || "");
+      })().catch(function (_e) { /* soft-fail: emit nothing */ });
     } catch (_e) { /* soft-fail: emit nothing */ }
   ' 2>/dev/null || echo "")
   if [ -n "${TRIPLE_CONTEXT}" ]; then
@@ -826,7 +903,7 @@ if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" 
 ${TRIPLE_CONTEXT}"
   fi
 fi
-# --- end Phase 88-07 ---
+# --- end Phase 88-07 / Phase 90-03 ---
 
 # ---------------------------------------------------------------------------
 # Phase 88-13: Feynman-MINTO guardian, session-start health check.
