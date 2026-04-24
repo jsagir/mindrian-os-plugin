@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: completed
-stopped_at: Completed 89-01-PLAN.md (rs_math + rs-engine Mode A internal; commits 220b2ec/56d0113; Feynman 52/52; 15 pairs on fixture)
-last_updated: "2026-04-23T23:53:15.284Z"
-last_activity: 2026-04-23
+stopped_at: Completed 89-02-PLAN.md (external corpus fetcher rs_corpus.py + Mode B dispatch on rs-engine.py; commits 5b98418/e0bc38f; end-to-end Mode B smoke: 1000-doc corpus on autonomous drones topic, 50 pairs both directions, openalex=997 arxiv=3; Feynman baseline 51/52 preserved)
+last_updated: "2026-04-24T03:25:00.000Z"
+last_activity: 2026-04-24
 progress:
   total_phases: 16
   completed_phases: 5
   total_plans: 79
-  completed_plans: 67
-  percent: 81
+  completed_plans: 69
+  percent: 82
 ---
 
 # Project State
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 89
-Plan: 89-02 (next; 89-01 completed 2026-04-23)
-Status: 89-01 shipped on main (Mode A internal single-room); Phase 89 Wave 1 complete, Wave 2 pending
+Plan: 89-03 (next; 89-01 + 89-06 + 89-02 completed through 2026-04-24)
+Status: 89-01 + 89-06 + 89-02 shipped on main. 89-01 provides rs-engine Mode A internal; 89-06 provides the Obsidian bridge artifact writer (pure lib/core/bridge-writer.cjs + scripts/write-bridge-artifacts.cjs CLI); 89-02 provides the external corpus fetcher (lib/core/rs_corpus.py with OpenAlex/arXiv/Tavily tier chain) + Mode B dispatch on scripts/rs-engine.py. Plans 89-03 (Pinecone embed cache for multilingual-e5-large), 89-04 (cross-room), 89-05 (hybrid), 89-07 (release wiring) still pending. Bridge-writer schema-tolerant resolver already accepts Mode B pair shape so 89-04 and 89-05 outputs will flow unchanged.
 
 Last 88.6-04 commits (main):
 
@@ -77,6 +77,8 @@ Progress: [████████░░] 81%
 | Phase 88.1 P08 | 25min | 2 tasks | 5 files |
 | Phase 88.1 P05 | 13m24s | 3 tasks | 6 files |
 | Phase 89 P01 | 12 minutes | 2 tasks | 4 files |
+| Phase 89 P06 | ~45 minutes | 2 tasks | 2 files |
+| Phase 89 P02 | ~40 minutes | 2 tasks | 2 files |
 
 ### Roadmap Evolution
 
