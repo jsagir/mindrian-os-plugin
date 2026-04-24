@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: verifying
-stopped_at: Completed 90-04-read-quadruple-PLAN.md
-last_updated: "2026-04-24T04:04:19.325Z"
+stopped_at: Completed 90-brain-derivation-layer/90-05-brain-md-invariants-validator-PLAN.md
+last_updated: "2026-04-24T06:08:32.739Z"
 last_activity: 2026-04-24
 progress:
-  total_phases: 16
-  completed_phases: 5
-  total_plans: 90
-  completed_plans: 77
+  total_phases: 19
+  completed_phases: 6
+  total_plans: 99
+  completed_plans: 85
   percent: 82
 ---
 
@@ -96,6 +96,7 @@ Progress: [████████░░] 82%
 | Phase 90-brain-derivation-layer P01 | 45 | 2 tasks | 3 files |
 | Phase 90-brain-derivation-layer P03 | 35m | 2 tasks | 5 files |
 | Phase 90-brain-derivation-layer P04 | 35 | 2 tasks | 4 files |
+| Phase 90-brain-derivation-layer P05 | 45 | 1 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -302,6 +303,9 @@ Progress: [████████░░] 82%
 - [Phase 90-brain-derivation-layer]: readQuadruple is additive: readTriple signature/return unchanged; back-compat gate enforced by Phase 88-01 test (15/15) + key-set parity test (17/17)
 - [Phase 90-brain-derivation-layer]: OPTIONAL_SECTION_HEADINGS duplicated byte-for-byte in folder-memory-shared (flat lib/core dep graph preserved per 88-01; parity test catches drift)
 - [Phase 90-brain-derivation-layer]: brain-offline exemption in isQuadrupleFresh (transient network != derivation staleness; derivation_timeout stays stale)
+- [Phase 90-brain-derivation-layer]: Plug into Phase 88-13 registry, not guardian.cjs. Zero guardian edits. Three-tripwire Canon Part 8 enforcement now active (schema doc + prompt-builder allow-list + body-text scan).
+- [Phase 90-brain-derivation-layer]: Lazy folder-memory require in validator enables Check A staleness fallback when guardian does not pre-populate ctx.triple; preserves fail-open semantics.
+- [Phase 90-brain-derivation-layer]: canon_boundary cap at 5 violations per BRAIN.md (anti-spam). BRAIN.md absence returns zero violations (mirrors stale-lifecycle pattern).
 
 ### Pending Todos
 
@@ -323,6 +327,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-24T04:04:19.320Z
-Stopped at: Completed 90-04-read-quadruple-PLAN.md
+Last session: 2026-04-24T06:08:32.732Z
+Stopped at: Completed 90-brain-derivation-layer/90-05-brain-md-invariants-validator-PLAN.md
 Resume file: None
