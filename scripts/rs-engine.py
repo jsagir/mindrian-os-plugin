@@ -78,6 +78,10 @@ from lib.core.rs_corpus import (  # noqa: E402
     fetch_corpus,
     topic_slug,
 )
+from lib.core.rs_rooms import (  # noqa: E402
+    load_multi_room_corpus,
+    summarize_corpus,
+)
 # Plan 89-03 wires the Pinecone rs-external cache for Mode B. The import is
 # optional so Mode A (internal) remains usable without Pinecone installed --
 # rs_cache has a guarded import of the pinecone SDK.
@@ -539,6 +543,222 @@ def run_mode_internal(
     return result
 
 
+# --- Cross-room (Mode A multi-room) runner -----------------------------------
+
+# Overshoot multiplier for cross-room filtering. After abs-diff top-k, we
+# discard any pair whose two artifacts live in the same room. A modest 3x
+# overshoot keeps the post-filter yield close to the requested topk even when
+# a few of the strongest pairs happen to be intra-room. Larger overshoots
+# pay an O(k log k) cost but are wasted if yield is already >= topk.
+CROSS_ROOM_OVERSHOOT = 3
+CROSS_ROOM_WARN_SHARE = 0.05  # warn when any room contributes < 5% of corpus
+
+
+def run_mode_cross_room(
+    room_paths: Sequence[str],
+    topk: int,
+    threshold: float,
+    no_thesis: bool,
+) -> Dict:
+    """Mode A multi-room: scan N rooms and keep only cross-room pairs.
+
+    Output contract (per plan):
+      - metadata.mode == "cross-room"
+      - metadata.rooms == [room_id, ...] in input order
+      - every pair has source_room != target_room
+      - pairs carry source_room / target_room / source_artifact / target_artifact
+
+    The cross-room summary table is printed to stderr by the caller; this
+    function only computes the payload.
+    """
+    corpus = load_multi_room_corpus(room_paths)
+    room_ids = []
+    seen = set()
+    for art in corpus:
+        rid = art["room_id"]
+        if rid not in seen:
+            room_ids.append(rid)
+            seen.add(rid)
+
+    if len(corpus) < 10:
+        # The authoritative algorithm's LSA fit needs enough documents to
+        # produce stable topic keywords. Below 10, cross-room signal is
+        # unreliable. Plan's canonical threshold.
+        print(
+            f"[rs-engine] Only {len(corpus)} artifacts across "
+            f"{len(room_paths)} rooms. Need >= 10 for cross-room mode.",
+            file=sys.stderr,
+        )
+        return {
+            "metadata": {
+                "mode": "cross-room",
+                "rooms": room_ids,
+                "room_paths": [str(Path(rp).resolve()) for rp in room_paths],
+                "artifact_count": len(corpus),
+                "room_counts": summarize_corpus(corpus),
+                "topk_requested": topk,
+                "threshold": threshold,
+                "no_thesis": bool(no_thesis),
+                "thesis_generated": False,
+                "pair_matrix": {},
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "engine_version": ENGINE_VERSION,
+            },
+            "pairs": [],
+        }
+
+    if len({a["room_id"] for a in corpus}) < 2:
+        # All usable artifacts came from a single room; no cross-room pair
+        # is possible by construction. Emit an empty-pairs result with a
+        # clear message rather than silently running the algorithm.
+        print(
+            "[rs-engine] All artifacts come from a single room; "
+            "cross-room filter yields zero pairs by construction.",
+            file=sys.stderr,
+        )
+        return {
+            "metadata": {
+                "mode": "cross-room",
+                "rooms": room_ids,
+                "room_paths": [str(Path(rp).resolve()) for rp in room_paths],
+                "artifact_count": len(corpus),
+                "room_counts": summarize_corpus(corpus),
+                "topk_requested": topk,
+                "threshold": threshold,
+                "no_thesis": bool(no_thesis),
+                "thesis_generated": False,
+                "pair_matrix": {},
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "engine_version": ENGINE_VERSION,
+            },
+            "pairs": [],
+        }
+
+    # Share-skew warning (plan Risk 1). Any room contributing < 5% of the
+    # corpus can skew LSA toward the dominant rooms' vocabulary.
+    room_counts = summarize_corpus(corpus)
+    total = len(corpus)
+    for rid, count in room_counts.items():
+        share = count / total if total else 0.0
+        if share < CROSS_ROOM_WARN_SHARE:
+            print(
+                f"[rs-engine] Warning: room {rid!r} contributes "
+                f"{count}/{total} artifacts ({share:.1%}); LSA may skew "
+                f"away from it.",
+                file=sys.stderr,
+            )
+
+    # Build the multi-room corpus as if it were one flat artifact list. The
+    # engine's LSA fit + abs-diff top-k run byte-identical to Mode A; only
+    # the post-filter step is new.
+    texts = [f"{a['title']}\n{a['text']}" for a in corpus]
+
+    lsa_matrix = build_lsa_matrix(texts)
+
+    # Semantic signal: use the same path as Mode A single-room. We embed
+    # into a transient cache in the FIRST room's .mindrian-less root. The
+    # cache lives alongside the cross-room results file so multi-room
+    # embeddings cannot collide with a single-room Mode A cache on the same
+    # first-room path (different artifact-id shapes).
+    first_room_dir = Path(room_paths[0]).resolve()
+    cache_dir = first_room_dir / ".rs-engine-cross-room-cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    # Remap to the compute_embeddings contract (it expects artifact["id"]).
+    # Use global_id so cache keys stay unique across rooms.
+    cache_artifacts = [
+        {"id": a["global_id"], "text": a["text"]}
+        for a in corpus
+    ]
+    embeddings, model_used = compute_embeddings(cache_artifacts, cache_dir)
+    if embeddings is None:
+        print(
+            "rs-engine: no embedder available; semantic matrix set to identity",
+            file=sys.stderr,
+        )
+        n = len(corpus)
+        sem_matrix = np.eye(n, dtype=np.float32)
+    else:
+        sem_matrix = semantic_similarity_matrix(embeddings)
+
+    # Overshoot so post-filter still yields topk when some pairs are intra-room.
+    overshoot_k = max(topk * CROSS_ROOM_OVERSHOOT, topk + 10)
+    top_pairs = abs_diff_topk(lsa_matrix, sem_matrix, k=overshoot_k)
+
+    # Cross-room filter + pair matrix accumulator.
+    pair_dicts: List[Dict] = []
+    pair_matrix: Dict[str, int] = {}
+    for i, j, signed, absv in top_pairs:
+        if absv < threshold:
+            continue
+        a_i, a_j = corpus[i], corpus[j]
+        if a_i["room_id"] == a_j["room_id"]:
+            continue  # intra-room pair -- discard.
+        src_room = a_i["room_id"]
+        tgt_room = a_j["room_id"]
+        # Canonical pair-matrix key: sort room_ids so (A, B) == (B, A) counts.
+        pm_key = " x ".join(sorted([src_room, tgt_room]))
+        pair_matrix[pm_key] = pair_matrix.get(pm_key, 0) + 1
+        pair_dicts.append({
+            "source_artifact_id": a_i["global_id"],
+            "source_artifact": a_i["artifact_id"],
+            "source_room": src_room,
+            "source_title": a_i["title"],
+            "source_section": a_i["section"],
+            "source_path": a_i["path"],
+            "target_artifact_id": a_j["global_id"],
+            "target_artifact": a_j["artifact_id"],
+            "target_room": tgt_room,
+            "target_title": a_j["title"],
+            "target_section": a_j["section"],
+            "target_path": a_j["path"],
+            "lsa_score": round(float(lsa_matrix[i, j]), 4),
+            "semantic_score": round(float(sem_matrix[i, j]), 4),
+            "signed_diff": round(float(signed), 4),
+            "abs_diff": round(float(absv), 4),
+            "direction": classify_direction(signed),
+        })
+        if len(pair_dicts) >= topk:
+            break
+
+    result = {
+        "metadata": {
+            "mode": "cross-room",
+            "rooms": room_ids,
+            "room_paths": [str(Path(rp).resolve()) for rp in room_paths],
+            "artifact_count": len(corpus),
+            "room_counts": room_counts,
+            "topk_requested": topk,
+            "threshold": threshold,
+            "embedding_model": model_used,
+            "thesis_generated": False,
+            "no_thesis": bool(no_thesis),
+            "edges_written": 0,  # Mode A multi-room does NOT write room.db edges.
+            "pair_matrix": pair_matrix,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "engine_version": ENGINE_VERSION,
+        },
+        "pairs": pair_dicts,
+    }
+    return result
+
+
+def _print_cross_room_summary(result: Dict) -> None:
+    """Print the plan-canonical Room-A x Room-B | Bridges table to stderr."""
+    matrix = result.get("metadata", {}).get("pair_matrix") or {}
+    if not matrix:
+        print("[rs-engine] No cross-room bridges found.", file=sys.stderr)
+        return
+    # Sort pair keys by bridge count desc, then alphabetically for stability.
+    rows = sorted(matrix.items(), key=lambda kv: (-kv[1], kv[0]))
+    max_key_len = max(len(k) for k, _ in rows)
+    header_key = "Room pair".ljust(max_key_len)
+    print(f"\n{header_key} | Bridges", file=sys.stderr)
+    print(f"{'-' * max_key_len}-+--------", file=sys.stderr)
+    for key, count in rows:
+        print(f"{key.ljust(max_key_len)} | {count}", file=sys.stderr)
+    print("", file=sys.stderr)
+
+
 # --- Mode B runner -----------------------------------------------------------
 
 def _write_corpus_jsonl(corpus_dir: Path, docs: Sequence[Dict]) -> Path:
@@ -955,6 +1175,7 @@ def build_parser() -> argparse.ArgumentParser:
         epilog=(
             "Three-surface usage:\n"
             "  CLI     python scripts/rs-engine.py --mode internal --room ./room\n"
+            "          python scripts/rs-engine.py --rooms ~/rooms/a ~/rooms/b ~/rooms/c --topk 50\n"
             "          python scripts/rs-engine.py --mode external --topic 'quantum biology' --room ./room\n"
             "  Desktop invoked by ReverseSalientAgent conversational trigger\n"
             "          (Plan 89-07).\n"
@@ -973,6 +1194,17 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument("--room", required=False, help="Path to room directory (Mode A / B / C).")
+    parser.add_argument(
+        "--rooms",
+        nargs="+",
+        required=False,
+        help=(
+            "Two or more room paths for cross-room Mode A (Plan 89-04). "
+            "Rediscovers bridges between user projects. Mutually exclusive "
+            "with --room. Results land in the FIRST room's .rs-engine-results.json "
+            "with metadata.mode='cross-room'."
+        ),
+    )
     parser.add_argument(
         "--topic",
         required=False,
@@ -1017,6 +1249,77 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
+    # Cross-room Mode A multi-room (Plan 89-04). --rooms is mutually
+    # exclusive with --room. When --rooms is set, --mode is ignored
+    # (cross-room is implicitly "internal multi-room").
+    if args.rooms:
+        if args.room:
+            print(
+                "rs-engine: --rooms and --room are mutually exclusive. "
+                "Pick one.",
+                file=sys.stderr,
+            )
+            return 2
+        if len(args.rooms) < 2:
+            print(
+                "rs-engine: --rooms requires at least two room paths for "
+                "cross-room mode.",
+                file=sys.stderr,
+            )
+            return 2
+        if args.mode == "external":
+            print(
+                "rs-engine: --mode external is incompatible with --rooms. "
+                "Use --room for external mode.",
+                file=sys.stderr,
+            )
+            return 2
+
+        topk = max(1, args.topk)
+        threshold = max(0.0, args.threshold)
+
+        try:
+            result = run_mode_cross_room(
+                args.rooms,
+                topk=topk,
+                threshold=threshold,
+                no_thesis=args.no_thesis,
+            )
+        except NotImplementedError as e:
+            print(f"rs-engine: {e}", file=sys.stderr)
+            return 3
+        except ValueError as e:
+            print(f"rs-engine: {e}", file=sys.stderr)
+            return 2
+        except Exception as e:  # pragma: no cover -- defensive envelope
+            print(f"rs-engine: error: {e}", file=sys.stderr)
+            return 1
+
+        # Output lands in the FIRST room's .rs-engine-results.json by
+        # default (per plan). --output overrides if supplied.
+        first_room_dir = Path(args.rooms[0]).resolve()
+        if not first_room_dir.is_dir():
+            print(
+                f"rs-engine: first room {first_room_dir} is not a directory; "
+                f"cannot write results.",
+                file=sys.stderr,
+            )
+            return 1
+        output_path = _write_results(first_room_dir, result, args.output)
+
+        _write_cowork_symlink(first_room_dir, output_path)
+        _print_cross_room_summary(result)
+
+        meta = result["metadata"]
+        print(
+            f"rs-engine: {len(result['pairs'])} cross-room pairs from "
+            f"{meta['artifact_count']} artifacts across "
+            f"{len(meta['rooms'])} rooms written to {output_path} "
+            f"(model={meta.get('embedding_model', 'n/a')})",
+            file=sys.stderr,
+        )
+        return 0
+
     if args.mode == "hybrid":
         # Plan 89-05 wires Mode C (hybrid). Fail loud so users do not
         # silently run the wrong algorithm.
@@ -1029,7 +1332,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     if not args.room:
         print(
-            f"rs-engine: --room is required for --mode {args.mode}",
+            f"rs-engine: --room is required for --mode {args.mode} "
+            f"(or pass --rooms for cross-room mode)",
             file=sys.stderr,
         )
         return 2
