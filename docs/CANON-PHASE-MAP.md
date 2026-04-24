@@ -35,7 +35,7 @@ Every phase plan that touches a canon concept must declare `canon_parts:` in its
 | shipped | /mos:persona, /mos:think-hats, /mos:hat-briefing | commands/ + agents/persona-analyst.md |
 | shipped | Engine 2 (BONO Orchestration) | skills/bono-innovation + commands/think-hats.md |
 | planned | Team composition rules (Appendix E) | Phase 91 navigation-engine |
-| planned | Brain-derived team enrichment | Phase 90 brain-derivation-layer |
+| shipped | Brain-derived team enrichment | Phase 90 brain-derivation-layer (v1.10.18) -- BRAIN.md per-section carries Pattern Matches + Cross-Domain Analogies + Wicked Indicators + Unfilled Opportunity Matches + Framework Chain Predictions + Assessment Thinking-Chain Position + Problem-Type Classification + Cross-Room Contradiction Flags; Phase 91 Navigation Engine consumes via frozen v1 interface contract |
 
 ### Part 2 Engine 1 - Act 1 Intelligence Surface (v1.3)
 
@@ -64,7 +64,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 | planned | Shape F Selector Block rollout (F.1-F.5) | Phase 88.2 uiux-selector-block |
 | shipped | Hook primitives (rendering substrate) + statusline / /mos:status / SessionStart banner LOCAL-context surfaces | Phase 88.1 uiux-polish (Plans 03, 04, 05, 06); v1.10.15 |
 | planned | PWS VP 3 human-in-the-loop gates (canonical instance of Part 3) | Phase 88.5 pws-vp-scaffold |
-| planned | Option generation tier-awareness (Mode A/B/Tier 0) | Phase 90 brain-derivation-layer |
+| shipped | Option generation tier-awareness (Mode A/B/Tier 0) | Phase 90 brain-derivation-layer (v1.10.18) Plan 90-09 -- frozen v1 interface contract at .planning/research/navigation-engine-brain-interface.md Section 5 maps Mode A (Brain reachable + confidence >= 0.7 gate) / Mode B (Brain unreachable; no RECOMMENDED marker) / Tier 0 (BRAIN.md absent; hardcoded minimal set) for Phase 91 Navigation Engine |
 | planned | Navigation Engine (decision production) | Phase 91 navigation-engine |
 
 ### Part 4 - Every Choice Is Graph Data
@@ -74,6 +74,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 | shipped | Cascade edges (INFORMS/CONTRADICTS/CONVERGES/INVALIDATES/ENABLES) | Phase 84 smart-notebook, Phase 87 security-hardening-cascade-refactor |
 | shipped | Opportunity Bank with HSI scoring | lib/core/opportunity-ops.cjs, scripts/hsi-* |
 | shipped | Feynman-MINTO memory triple | Phase 88 feynman-minto-memory-layer |
+| shipped | BRAIN.md per-folder memory quadruple (additive on top of triple) | Phase 90 brain-derivation-layer (v1.10.18) -- readQuadruple composes triple + brain field; readTriple remains byte-identical (Phase 88-01 15/15 tests preserved); sync + async entry points with AsyncFunction key-set parity; isQuadrupleFresh predicate exempts brain_offline from derivation staleness |
 | shipped | Reverse salient as graph signal | Phase 89 reverse-salient-engine (v1.10.16) -- Mode A writes REVERSE_SALIENT edges into room.db with properties.source='rs-engine' (coexists with hsi-sourced edges); cross-room and hybrid modes emit pairs with direction + signed_diff as bridge artifacts for Decision Gate approval per Canon Part 3 | scripts/rs-engine.py, lib/core/bridge-writer.cjs |
 
 ### Part 5 - Evidence Is Graded By Context
@@ -114,7 +115,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 | shipped | Permissions block hardening (README Permissions H2 + docs/settings-template.json with 19 granular matchers; git push excluded; 3 WebFetch public SIGNAL domains only; no bare Write wildcard) | Phase 88.1 uiux-polish (Plan 02); v1.10.15 |
 | shipped | Plan 88.1-16 query efficiency telemetry is Part 8-compliant (LOCAL JSONL at ~/.mindrian/telemetry/query-efficiency.jsonl; scalar counts + LOCAL slug only; zero network surface in hook or aggregator) | Phase 88.1 uiux-polish (Plan 16); v1.10.15 |
 | shipped | Plan 88.1-08 async auto-commit is Part 8-compliant (isolated data-room-autocommit branch; NEVER git push; plumbing via tmp GIT_INDEX_FILE never moves HEAD) | Phase 88.1 uiux-polish (Plan 08); v1.10.15 |
-| planned | Brain derivation layer preserving boundary | Phase 90 brain-derivation-layer |
+| shipped | Brain derivation layer preserving boundary | Phase 90 brain-derivation-layer (v1.10.18) -- 5 independent Canon Part 8 tripwires: schema leak heuristic scan (Plan 90-00) + deriveSection single-chokepoint buildBrainQueryContext (Plan 90-01) + registry brain-md-invariants body-text scan at guardian checkpoints (Plan 90-05) + cross-room aggregator sanitizeDetailScalar + JSON.stringify output audit (Plan 90-06) + cross-scenario BRAIN.md sweep across 14 graceful-degradation fixtures (Plan 90-08). Zero user-content egress; every Brain query carries only generic framework handles + phase identifiers + sha256 hashes + enum scalars. |
 | pending | check-brain-boundary.cjs PR gate | Not yet scaffolded. Stub proposed. |
 
 ### Appendix A - Relationship to MWP
@@ -162,6 +163,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 | v1.3 (kept)   | TBD      | 2026-04-23 | Phase 88.6 (v1.10.14) wired 4 Wave-1 algorithms + baseline auto-fire + external rate-limit handling. No canon text change; map row updates only. |
 | v1.3 (kept)   | TBD      | 2026-04-23 | Phase 88.1 (v1.10.15) polish sweep shipped -- L1-L7 surfaces + hook primitives + statusline/mos:status/SessionStart banner LOCAL-context render + 57x claim retuned to "up to 57x" with telemetry validation surface shipped (Plan 88.1-16; defensibility gate documented in CHANGELOG). No canon text change; map row updates only. |
 | v1.3 (kept)   | TBD      | 2026-04-24 | Phase 89 (v1.10.16) reverse-salient-engine shipped -- Canon Part 2 Engine 1 Act 1 formal reverse-salient engine promoted from planned to shipped: 4-mode rs-engine.py CLI (internal / cross-room / external / hybrid) + 5 pure Python helper modules (rs_math, rs_corpus, rs_cache, rs_rooms, rs_hybrid) + Obsidian nested bridge-writer + De Stijl Cytoscape.js mind map. Part 8 preserved: rs-external Pinecone index holds ONLY public OpenAlex/arXiv metadata; zero user-content egress. No canon text change; map row updates only. |
+| v1.3 (kept)   | TBD      | 2026-04-20 | Phase 90 (v1.10.18) brain-derivation-layer shipped -- BRAIN.md fourth per-folder memory file lands; folder-memory extends from triple to quadruple additively (readTriple byte-identical); /mos:brain-derive 4 modes (section / --all / --cross-room / --dry-run) with Shape E Action Report; governing_thought_hash auto-invalidation + session-start staleness scan + enqueue-then-drain queue; cross-room contradiction aggregation scoped by Phase 83 .rooms/registry.json with sealed-room + per-room opt-out + absolute-path scope guard; 5 independent Canon Part 8 tripwires defended under 14 graceful-degradation scenarios; Phase 91 Navigation Engine interface contract frozen at v1 in .planning/research/navigation-engine-brain-interface.md. Part 3 Option generation tier-awareness + Part 8 Brain derivation layer + Part 2 Brain-derived team enrichment + L2 BRAIN.md quadruple rows all promoted from planned to shipped. Zero new runtime dependencies. Canon Part 8 release audit: zero forbidden matches across 10 production files. No canon text change; map row updates only. Note: v1.10.17 was burned as a YAML frontmatter hotfix; Phase 90 ships at v1.10.18. |
 
 ---
 

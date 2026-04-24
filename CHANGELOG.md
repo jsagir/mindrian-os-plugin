@@ -9,6 +9,198 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.10.18] - 2026-04-20
+
+Phase 90 Brain Derivation Layer ships. BRAIN.md lands as the fourth
+per-folder memory file on top of the Phase 88 triple, extending per-folder
+memory from triple to quadruple while keeping readTriple byte-identical for
+every Phase 88 consumer. Readers opt into the richer quadruple by calling
+the new additive readQuadruple entry point. Derivation is Brain-authored,
+versioned, and auto-invalidated on governing_thought change. Five
+independent Canon Part 8 tripwires defend the constitutional boundary
+across schema, prompt builders, invariants validator, cross-room
+aggregator, and a cross-scenario BRAIN.md body sweep. The derivation
+surface is proven fail-safe under 14 graceful-degradation scenarios
+covering Brain-offline, rate-limit, schema drift, ENOSPC, EACCES, and
+concurrent-write races. /mos:brain-derive ships with four orthogonal
+modes (section / --all / --cross-room / --dry-run) rendering the Phase
+88.6 Shape E Action Report. Phase 91 Navigation Engine consumes this
+layer through a frozen v1 interface contract filed at
+.planning/research/navigation-engine-brain-interface.md. Phase 90 adds
+zero new runtime dependencies, preserves all 10 existing deps
+byte-for-byte, and keeps three-surface parity across CLI, Desktop, and
+Cowork. Feynman suite grows from 52 to 62 registered files (10 new test
+suites covering every Phase 90 surface). Canon Parts 2, 3, 6, 7, 8
+honored throughout. v1.10.17 was burned as a hotfix for YAML frontmatter
+parse errors (entry below); Phase 90 ships at v1.10.18.
+
+### Added
+
+- **BRAIN.md: the fourth per-folder memory file.** A Brain-authored
+  derivation layer that sits on top of the Phase 88 triple (ROOM.md +
+  MINTO.md + REASONING.md). Per-section carries: Pattern Matches,
+  Cross-Domain Analogies, Wicked Indicators, Unfilled Opportunity
+  Matches, Framework Chain Predictions, Assessment Thinking-Chain
+  Position, Problem-Type Classification, Cross-Room Contradiction Flags
+  (opt-in), and optional HSI signals. Schema is frozen at v1 with a
+  STALE_REASON enum + OPTIONAL_SECTION_HEADINGS vocabulary. The
+  frontmatter carries governing_thought_hash so a change in the section's
+  MINTO.md auto-invalidates the derivation. Schema doc at
+  docs/BRAIN-MD-SCHEMA.md (Phase 90 Plans 00 + 01).
+
+- **/mos:brain-derive slash command (4 modes).** Four orthogonal knobs
+  on a single dispatcher: `section` (single), `--all` (every section
+  in the active room), `--cross-room` (enable Phase 83-scoped
+  cross-room contradiction aggregation), `--dry-run` (cost estimator;
+  zero Brain calls, zero BRAIN.md writes). Output is a Shape E Action
+  Report per Canon Part 3 (body shape ported byte-identically from
+  Phase 88.6 diagnostics). Streaming stderr progress kicks in above
+  3 sections. Rate-limit mid-batch converts remaining sections to
+  structural skips; partial completion is valid. `allowed-tools`
+  narrowed to `Bash(node *)` (Phase 90 Plan 07).
+
+- **folder-memory readQuadruple() extension.** readTriple signature
+  and return remain byte-identical (15/15 Phase 88-01 tests continue
+  to pass). readQuadruple is a new composed entry that layers
+  parseBrainMd + emptyBrain + attachBrainToTriple on top of the
+  existing triple. Sync and async entry points both ship with
+  AsyncFunction key-set parity enforced by a test. A new
+  isQuadrupleFresh predicate exempts transient `brain_offline`
+  staleness from "derivation stale" so a brief network outage does
+  not cascade (Phase 90 Plan 04).
+
+- **Five independent Canon Part 8 tripwires.** Schema leak heuristic
+  scan (Plan 00) + deriveSection single-chokepoint
+  buildBrainQueryContext (Plan 01) + registry brain-md-invariants
+  body-text scan at guardian checkpoints (Plan 05) + cross-room
+  aggregator sanitizeDetailScalar + JSON.stringify output audit
+  (Plan 06) + cross-scenario BRAIN.md sweep across every graceful-
+  degradation fixture (Plan 08). A bug in any one tripwire produces
+  detection via the other four. Defense in depth for the
+  constitutional boundary.
+
+- **Cross-room contradiction aggregation.** Scoped by Phase 83
+  .rooms/registry.json (zero new registry format; zero Phase 83 code
+  edits). Sealed-room contract via GUARDRAIL.md preserved byte-for-
+  byte. Per-room opt-out via ROOM.md `brain_cross_room: false`.
+  Absolute-path scope guard: every peer resolved through
+  path.resolve + startsWith(~/MindrianRooms/); out-of-scope paths
+  (symlink escapes, relative traversals) are skipped. Output is
+  structural-only: slug-safe strings, frozen contradiction-type
+  enums (hash_divergence / framework_contradiction /
+  problem_type_mismatch), sha256 hash prefixes, scalar confidence.
+  Opt-in per-call, default off (Phase 90 Plan 06).
+
+- **Phase 91 Navigation Engine interface contract (v1 frozen).** Spec
+  filed at `.planning/research/navigation-engine-brain-interface.md`
+  (523 lines, 11 sections). Freezes the read path (readQuadruple as
+  sole entry), the consumed fields + weight table (0.35 pattern_matches
+  + 0.20 framework_chain_predictions + 0.15 cross_domain_analogies +
+  0.10 wicked_indicators + 0.10 unfilled_opportunity_matches + 0.05
+  assessment_thinking_chain_position + 0.05 problemtype_classification
+  = 1.0), the staleness weight pairs (fresh 1.0 / age_exceeded 0.7 /
+  governing_thought_changed 0.3 / brain_graph_version_mismatch 0.5 /
+  brain_offline 0.9 / derivation_timeout 0.2 / parse_failed 0.0), the
+  tier mode mapping, the RECOMMENDED confidence gate at >= 0.7 (Mode
+  A only), the signal triangulation procedure, and the Canon Part 8
+  boundary for Phase 91 (Navigation Engine is READ-ONLY against
+  BRAIN.md; all derivation routes through Plan 90-02 enqueue -> Plan
+  90-01 deriveSection). INTERFACE_VERSION=1 with bump discipline baked
+  in (Phase 90 Plan 09).
+
+### Infrastructure
+
+- **Governing-thought change trigger.** A post-regen hook in
+  `scripts/vault-section-minto-generator.cjs` calls
+  `tryEnqueueBrainDerivation` which adds a section to
+  `brain-derivation-queue.json` using the same atomic-write pattern
+  from Phase 88-02 / 88-04-B. Drain fires non-blocking on
+  UserPromptSubmit via a detached child spawn; the parent returns
+  within 100ms regardless of queue depth. Queue survives crashes via
+  atomic `openSync(wx) + writeFileSync + fsyncSync + renameSync`.
+  Soft cap 500 / hard cap 1000. Section-as-unique-key idempotency
+  (replace on hash change, dedupe on hash equality). Stale-queue-
+  race guard re-reads the live triple at drain time and skips when
+  the current hash has diverged from the queued hash. Frozen reason
+  vocabulary: governing_thought_changed / session_start_stale /
+  manual_invocation / cross_room_aggregation. Brain-offline entries
+  stay queued and drain catches up when Brain returns (Phase 90
+  Plan 02).
+
+- **Session-start Brain-staleness scan.** Precedence (first-match-
+  wins): file-missing -> absent; frontmatter-parse-fail ->
+  stale/parse_failed; hash mismatch -> stale/governing_thought_changed;
+  age > STALE_AGE_DAYS -> stale/age_exceeded; brain_graph_version
+  below current schema -> stale/brain_graph_version_mismatch; else
+  fresh. Brain-reachable stale sections enqueue a regen with the live
+  governing_thought hash recomputed at enqueue-time; Brain-offline
+  stale sections downgrade to enqueue_when_brain_online so drain
+  catches up when Brain returns. Backward-compat: rooms with zero
+  BRAIN.md files emit no annotations. Per-section staleness surfaces
+  in the existing Phase 88-07 TRIPLE_CONTEXT block (weakest-first
+  sort preserved). Env overrides: `BRAIN_STALE_AGE_DAYS` (threshold
+  tunable) + `BRAIN_STALENESS_SKIP=1` (byte-stable emergency bypass)
+  (Phase 90 Plan 03).
+
+- **brain-md-invariants validator (Phase 88-13 registry plugin).**
+  Drops into `lib/memory/validators/` for auto-discovery; zero
+  guardian.cjs edits. Wraps Plan 90-00 validateSchema with parse-
+  failure short-circuit (prevents cascade noise on malformed
+  frontmatter). Schema fatal + attribution errors (author !=
+  "brain") block at guardian checkpoints. Staleness and
+  canon_boundary (body-text leak scan) surface as warnings in the
+  invariant-report. Fail-open confirmed: a validator throw exits
+  guardian 0 and other validators continue. Six canon_boundary
+  patterns (email / currency / quoted-person / meeting / SSN /
+  phone); 5-violation cap prevents report spam (Phase 90 Plan 05).
+
+- **Graceful-degradation end-to-end suite.** 14 scenarios plus 2
+  cross-cutting audits covering Brain-offline (permanent +
+  intermittent) / API quota exhausted / timeout mid-derivation /
+  schema drift / malformed Brain response / network partition /
+  EACCES / ENOSPC on atomic rename / concurrent deriveSection on
+  same section / Canon Part 8 under ordinary operation + under
+  timeout / corrupt peer room in cross-room aggregator / concurrent
+  session-start staleness scans. Each scenario asserts four
+  invariants: no crash / no orphan tmpfile / structured
+  result.success boolean / retry-path where semantically meaningful.
+  Cross-cutting A1 sweep scans every BRAIN.md landed during the
+  suite against the frozen FORBIDDEN_PATTERNS set; A2 sweep scans
+  every tmp root for `BRAIN.md.tmp.*.brain` orphans. Full suite
+  runs in ~337ms (90x headroom under 30s budget) (Phase 90 Plan 08).
+
+### Changed
+
+- **Per-folder memory expands from triple to quadruple.** readTriple
+  still works byte-for-byte for every Phase 88 consumer. readQuadruple
+  is additive; consumers who want the brain field opt in by calling
+  the new entry point. No field renamed, no field removed, no shape
+  change to the existing triple return.
+
+### Canon Phase Map
+
+- Part 3 Tri-Context Decision Gate: Option generation tier-awareness
+  (Mode A / B / Tier 0) shipped (cites Plan 90-09).
+- Part 8 Graph Boundary: Brain derivation layer preserving boundary
+  shipped (5-tripwire evidence; cites Plans 90-00 + 90-01 + 90-05 +
+  90-06 + 90-08).
+- L2 Memory: BRAIN.md quadruple row noted alongside the Phase 88
+  triple.
+
+### Upgrade path
+
+Two-command manual upgrade per `.claude/includes/release-process.md`:
+
+```
+/plugin marketplace update
+claude plugin update mos@mindrian-marketplace
+```
+
+Auto-update is off by default for third-party plugins. Users on
+v1.10.16 or v1.10.17 run the two commands above. No Node version
+change. No breaking changes. readTriple callers see zero behavioral
+drift; readQuadruple callers are new.
+
 ## [1.10.17] - 2026-04-24
 
 Hotfix for YAML frontmatter parse errors in three command files introduced by
