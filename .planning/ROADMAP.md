@@ -377,7 +377,7 @@ Plans:
 Plans:
 - [x] 89.1a-01-PLAN.md -- Substrate loader core + generic-handle query builder chokepoint + preSendAudit tripwire (Wave 1; SC-01, SC-02, SC-05)
 - [x] 89.1a-02-PLAN.md -- Local cache + atomic persistence + drop-in invariants validator (Wave 2; SC-04, SC-05)
-- [ ] 89.1a-03-PLAN.md -- 14-scenario adversarial fixture suite + A1/A2 cross-scenario sweeps + Feynman registration (Wave 3; SC-03, SC-05, SC-06)
+- [x] 89.1a-03-PLAN.md -- 14-scenario adversarial fixture suite + A1/A2 cross-scenario sweeps + Feynman registration (Wave 3; SC-03, SC-05, SC-06)
 - [ ] 89.1a-04-PLAN.md -- Phase gate transcript + live Brain smoke test + human-verify phase close (Wave 3; SC-07)
 **Authority**: .planning/milestones/v1.11.0-KICKOFF.md §5 (Engine Architecture), §4 (Architecture - Canon Part 8 Compliant), §8 (Canon Compliance Plan), §9 (Implementation Guidance); .planning/milestones/v1.12.0-LIVE-VALIDATION-2026-04-24.md §4 (bidirectional NL-graph architecture context)
 

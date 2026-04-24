@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 89.1a-02-PLAN.md (Tasks 1-2, cache persistence + drop-in validator shipped; Plan 03 adversarial fixture suite next)
-last_updated: "2026-04-24T14:47:04.867Z"
+stopped_at: Completed 89.1a-03-PLAN.md
+last_updated: "2026-04-24T15:29:49.634Z"
 last_activity: 2026-04-24
 progress:
   total_phases: 20
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 89.1a (Brain Methodology Substrate Loader) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 
 Phase 90-02 commits (main, NOT yet pushed):
@@ -103,6 +103,7 @@ Progress: [████████░░] 82%
 | Phase 88.7 PDOGFOOD-ROOM-UPGRADE | 4.5min | 2 tasks | 15 files |
 | Phase 89.1a P01 | 4m10s | 2 tasks | 2 files |
 | Phase 89.1a P02 | 6m1s | 2 tasks | 2 files |
+| Phase 89.1a P03 | 37m | 2 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -334,6 +335,7 @@ Progress: [████████░░] 82%
 - [Phase 89.1a]: Plan 89.1a-02: Pitfall 5 partial_cache guard at TWO layers (readCache rejects + validator cache_partial_pull/critical); defense-in-depth against any single-layer bug
 - [Phase 89.1a]: Plan 89.1a-02: MINDRIAN_BRAIN_SUBSTRATE_TTL_DAYS env override bounded [1, 3650] days; out-of-range clamps to DEFAULT_TTL_DAYS=30 so bad env value degrades gracefully vs crashing session-start
 - [Phase 89.1a]: Plan 89.1a-02: Validator Check D JSON.stringify-scans entry.metadata only (not embedding); embeddings are Float64 arrays and any regex hit there would be a mis-encoded string smuggled as array element -- caught by shape check E.3 instead
+- [Phase 89.1a]: Plan 03: 14-scenario adversarial fixture suite + Feynman runner registration; baseline advanced 62 -> 63; A1 + A2 sweeps clean (0 forbidden matches across 6 landed caches, 0 orphan tmpfiles across 14 roomDirs)
 
 ### Pending Todos
 
@@ -355,6 +357,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-24T14:46:53.045Z
-Stopped at: Completed 89.1a-02-PLAN.md (Tasks 1-2, cache persistence + drop-in validator shipped; Plan 03 adversarial fixture suite next)
+Last session: 2026-04-24T15:29:43.790Z
+Stopped at: Completed 89.1a-03-PLAN.md
 Resume file: None
