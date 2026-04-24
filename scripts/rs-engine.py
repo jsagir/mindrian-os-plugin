@@ -78,6 +78,22 @@ from lib.core.rs_corpus import (  # noqa: E402
     fetch_corpus,
     topic_slug,
 )
+# Plan 89-03 wires the Pinecone rs-external cache for Mode B. The import is
+# optional so Mode A (internal) remains usable without Pinecone installed --
+# rs_cache has a guarded import of the pinecone SDK.
+try:
+    from lib.core.rs_cache import (  # noqa: E402
+        namespace_slug as _rs_cache_namespace_slug,
+        get_namespace_freshness as _rs_cache_freshness,
+        upsert_corpus as _rs_cache_upsert,
+        fetch_all_from_namespace as _rs_cache_fetch_all,
+        is_fresh as _rs_cache_is_fresh,
+        TTL_DAYS as _RS_CACHE_TTL_DAYS,
+    )
+    _RS_CACHE_AVAILABLE = True
+except Exception as _rs_cache_import_err:  # pragma: no cover -- defensive
+    _RS_CACHE_AVAILABLE = False
+    _rs_cache_import_err_msg = str(_rs_cache_import_err)
 
 
 # --- Constants ---------------------------------------------------------------
@@ -570,6 +586,80 @@ def _corpus_docs_to_artifacts(docs: Sequence[Dict]) -> List[Dict]:
     return artifacts
 
 
+def _records_to_artifacts(records: Sequence[Dict]) -> List[Dict]:
+    """Shape rs_cache records (id + values + metadata) into artifact dicts.
+
+    Plan 89-03 warm path: records come straight from Pinecone and carry the
+    abstract in metadata['abstract'], the public DOI in metadata['doi'],
+    and the human title in metadata['title']. Integrated-embedding values
+    live in record['values']; we attach them so the caller can build the
+    semantic matrix directly without re-embedding.
+    """
+    artifacts: List[Dict] = []
+    for rec in records:
+        rid = rec.get("id") or ""
+        meta = rec.get("metadata", {}) or {}
+        abstract = (meta.get("abstract") or "").strip()
+        if not abstract:
+            # A namespace record without a usable abstract cannot feed LSA;
+            # silently drop, matching the 89-02 empty-abstract filter.
+            continue
+        source = (meta.get("source") or "external").strip() or "external"
+        title = (meta.get("title") or "").strip() or rid
+        # Reconstruct a stable artifact id matching Mode B's cold path shape
+        # (source/slug). This keeps pair ids comparable between warm and
+        # cold runs over the same topic.
+        eid_slug = re.sub(r"[^a-zA-Z0-9]+", "-", rid).strip("-")
+        if not eid_slug:
+            eid_slug = re.sub(r"[^a-zA-Z0-9]+", "-", title or "untitled").strip("-")
+        artifact_id = f"{source}/{eid_slug}"
+        artifacts.append({
+            "id": artifact_id,
+            "section": source,
+            "title": title,
+            "path": f"https://doi.org/{meta['doi']}" if meta.get("doi") else rid,
+            "text": abstract,
+            "year": meta.get("year") or None,
+            "authors": [],
+            "doi": meta.get("doi") or None,
+            "_pinecone_values": rec.get("values") or [],
+        })
+    return artifacts
+
+
+def _pinecone_path_available() -> Tuple[bool, str]:
+    """Return (ok, reason). Reason is empty on success, explanatory on skip."""
+    if not _RS_CACHE_AVAILABLE:
+        return False, f"rs_cache import failed: {globals().get('_rs_cache_import_err_msg', 'unknown')}"
+    if not os.environ.get("PINECONE_API_KEY"):
+        return False, "PINECONE_API_KEY not set"
+    model_env = os.environ.get("RS_EMBEDDING_MODEL", "").strip().lower()
+    if model_env == "minilm":
+        return False, "RS_EMBEDDING_MODEL=minilm (user opted out of Pinecone path)"
+    return True, ""
+
+
+def _build_sem_matrix_from_records(artifacts: Sequence[Dict]) -> Optional[np.ndarray]:
+    """Build the pairwise cosine similarity matrix from cached embeddings.
+
+    Returns None if any artifact is missing a vector (triggers fallback to
+    local embedding path). All vectors must share dimensionality.
+    """
+    vectors: List[List[float]] = []
+    for a in artifacts:
+        v = a.get("_pinecone_values") or []
+        if not v:
+            return None
+        vectors.append(list(v))
+    if not vectors:
+        return None
+    dim = len(vectors[0])
+    if any(len(v) != dim for v in vectors):
+        return None
+    matrix = np.asarray(vectors, dtype=np.float32)
+    return semantic_similarity_matrix(matrix)
+
+
 def run_mode_external(
     room_dir: Path,
     topic: str,
@@ -577,23 +667,127 @@ def run_mode_external(
     threshold: float,
     no_thesis: bool,
 ) -> Tuple[Dict, Path]:
-    """Mode B: fetch external corpus, run LSA + abs_diff, write results.
+    """Mode B: fetch external corpus (cached via Pinecone), run LSA + abs_diff.
 
-    Returns the result dict and the output directory (so the CLI can choose
-    the results file path without re-deriving the slug).
+    Plan 89-03 wiring: the Pinecone rs-external index caches embedded
+    corpora per topic. On each call:
+      1. Compute namespace for topic (rs_cache.namespace_slug).
+      2. Check freshness. If < 30 days, skip fetch and use the cached
+         vectors directly (warm path).
+      3. Else, fetch_corpus -> upsert_corpus -> fetch_all_from_namespace
+         (cold path; Pinecone embeds server-side via multilingual-e5-large).
+      4. Fall back to the Plan 89-02 local path (fetch_corpus + local
+         MiniLM embedding) when Pinecone is unavailable or the user opts
+         out via RS_EMBEDDING_MODEL=minilm.
+
+    Returns (result dict, corpus_dir) -- CLI writes results JSON inside
+    corpus_dir at {room}/research/{topic-slug}/.rs-engine-results.json.
     """
     slug = topic_slug(topic)
     if not slug:
         raise ValueError("topic slug resolved to empty string")
     corpus_dir = room_dir / "research" / slug
+    corpus_dir.mkdir(parents=True, exist_ok=True)
 
     # Overshoot target_n so dedup + threshold filtering can still hit topk.
     target_n = max(topk * 20, topk * 2)
-    docs = fetch_corpus(topic, target_n=target_n)
 
-    corpus_path = _write_corpus_jsonl(corpus_dir, docs)
+    # Freshness + cache decision.
+    pinecone_ok, pinecone_skip_reason = _pinecone_path_available()
+    cache_mode = "bypass"
+    cache_age_days: Optional[float] = None
+    cache_namespace: Optional[str] = None
+    records: List[Dict] = []
+    docs: List[Dict] = []
 
-    if len(docs) < 2:
+    if pinecone_ok:
+        ns = _rs_cache_namespace_slug(topic)
+        cache_namespace = ns
+        try:
+            cache_age_days = _rs_cache_freshness(ns)
+        except Exception as e:
+            print(f"rs-engine: Pinecone freshness check failed ({e})", file=sys.stderr)
+            cache_age_days = None
+
+        if _rs_cache_is_fresh(cache_age_days, ttl_days=_RS_CACHE_TTL_DAYS):
+            # WARM path: namespace is within TTL. Skip fetch.
+            cache_mode = "warm"
+            print(
+                f"[rs-engine] Cache hit (age={cache_age_days:.1f} days, "
+                f"ttl={_RS_CACHE_TTL_DAYS}). Using Pinecone namespace {ns}.",
+                file=sys.stderr,
+            )
+            try:
+                records = _rs_cache_fetch_all(ns, limit=target_n)
+            except Exception as e:
+                print(
+                    f"rs-engine: warm-path fetch failed ({e}); "
+                    f"falling back to cold path.",
+                    file=sys.stderr,
+                )
+                records = []
+                cache_mode = "bypass"
+
+        if cache_mode != "warm":
+            # COLD path: fetch from external APIs, upsert to Pinecone,
+            # then re-fetch so the vectors come from Pinecone's server-side
+            # embedding (not a local re-compute).
+            age_label = "unset" if cache_age_days is None else f"{cache_age_days:.1f} days"
+            print(
+                f"[rs-engine] Cache miss (age={age_label}). "
+                f"Fetching corpus for topic {topic!r}...",
+                file=sys.stderr,
+            )
+            docs = fetch_corpus(topic, target_n=target_n)
+            if len(docs) >= 2:
+                try:
+                    _rs_cache_upsert(topic, docs)
+                    cache_mode = "cold"
+                    # Re-read from Pinecone so semantic matrix uses the
+                    # server-side multilingual-e5-large vectors.
+                    records = _rs_cache_fetch_all(ns, limit=target_n)
+                except Exception as e:
+                    print(
+                        f"rs-engine: Pinecone upsert/fetch failed ({e}); "
+                        f"falling back to local embedding path.",
+                        file=sys.stderr,
+                    )
+                    records = []
+                    cache_mode = "bypass"
+    else:
+        # Pinecone path not available -- preserve Plan 89-02 behavior.
+        print(
+            f"[rs-engine] Pinecone cache skipped ({pinecone_skip_reason}); "
+            f"using Plan 89-02 local embedding path.",
+            file=sys.stderr,
+        )
+
+    # Provenance sidecar: keep _corpus.jsonl in both paths.
+    # Warm path has no fresh fetch; docs stays empty but we still want the
+    # sidecar to exist (stale from prior cold run). If absent, skip quietly
+    # so the warm path does not accidentally wipe prior provenance.
+    if docs:
+        corpus_path = _write_corpus_jsonl(corpus_dir, docs)
+    else:
+        corpus_path = corpus_dir / "_corpus.jsonl"
+        if not corpus_path.exists():
+            # Warm path with no prior sidecar (first time the namespace is
+            # warm on this machine). Create an empty file so downstream
+            # readers do not trip on a missing path.
+            corpus_path.write_text("", encoding="utf-8")
+
+    # Build artifacts + texts depending on path taken.
+    if records:
+        artifacts = _records_to_artifacts(records)
+    else:
+        # Fallback to Plan 89-02 behavior.
+        if not docs:
+            docs = fetch_corpus(topic, target_n=target_n)
+            corpus_path = _write_corpus_jsonl(corpus_dir, docs)
+        artifacts = _corpus_docs_to_artifacts(docs)
+
+    # Early out if the usable-artifact count collapses.
+    if len(artifacts) < 2:
         return (
             {
                 "metadata": {
@@ -603,8 +797,13 @@ def run_mode_external(
                     "room_dir": str(room_dir),
                     "corpus_dir": str(corpus_dir),
                     "corpus_path": str(corpus_path),
-                    "corpus_size": len(docs),
-                    "tier_counts": _count_by_source(docs),
+                    "corpus_size": len(docs) if docs else len(records),
+                    "artifact_count": len(artifacts),
+                    "tier_counts": _count_by_source(docs) if docs else {},
+                    "cache_mode": cache_mode,
+                    "cache_age_days": round(cache_age_days, 2) if cache_age_days is not None else None,
+                    "cache_namespace": cache_namespace,
+                    "cache_ttl_days": _RS_CACHE_TTL_DAYS if pinecone_ok else None,
                     "topk_requested": topk,
                     "threshold": threshold,
                     "no_thesis": bool(no_thesis),
@@ -617,29 +816,43 @@ def run_mode_external(
             corpus_dir,
         )
 
-    artifacts = _corpus_docs_to_artifacts(docs)
     texts = [f"{a['title']}\n{a['text']}" for a in artifacts]
 
     # Structural signal (authoritative topic-keyword-membership LSA).
     lsa_matrix = build_lsa_matrix(texts)
 
-    # Semantic signal. Mode B final embedding path (Pinecone inference on
-    # multilingual-e5-large) lands in Plan 89-03; here we honor the same
-    # MiniLM-or-identity fallback as Mode A so the pipeline runs end-to-end
-    # without the cold path being wired. Cache lives under corpus_dir so the
-    # external corpus keeps a stable provenance footprint separate from the
-    # room's own .rs-engine-cache.json.
-    embeddings, model_used = compute_embeddings(artifacts, corpus_dir)
-    if embeddings is None:
-        print(
-            "rs-engine: no embedder available for Mode B; "
-            "semantic matrix set to identity (Plan 89-03 wires Pinecone inference)",
-            file=sys.stderr,
-        )
-        n = len(artifacts)
-        sem_matrix = np.eye(n, dtype=np.float32)
+    # Semantic signal. Warm/cold path: vectors come straight from Pinecone.
+    # Bypass path: fall back to Plan 89-02's local embedder.
+    sem_matrix: Optional[np.ndarray] = None
+    model_used: str
+    if cache_mode in ("warm", "cold") and records:
+        sem_matrix = _build_sem_matrix_from_records(artifacts)
+        if sem_matrix is not None:
+            model_used = "multilingual-e5-large"
+        else:
+            # Vectors missing -- rare but defensible. Drop to local path.
+            print(
+                "rs-engine: Pinecone records missing values; "
+                "falling back to local embedding for semantic matrix.",
+                file=sys.stderr,
+            )
+            embeddings, model_used = compute_embeddings(artifacts, corpus_dir)
+            sem_matrix = (
+                semantic_similarity_matrix(embeddings)
+                if embeddings is not None
+                else np.eye(len(artifacts), dtype=np.float32)
+            )
     else:
-        sem_matrix = semantic_similarity_matrix(embeddings)
+        embeddings, model_used = compute_embeddings(artifacts, corpus_dir)
+        if embeddings is None:
+            print(
+                "rs-engine: no embedder available for Mode B; "
+                "semantic matrix set to identity.",
+                file=sys.stderr,
+            )
+            sem_matrix = np.eye(len(artifacts), dtype=np.float32)
+        else:
+            sem_matrix = semantic_similarity_matrix(embeddings)
 
     top_pairs = abs_diff_topk(lsa_matrix, sem_matrix, k=topk)
 
@@ -674,9 +887,13 @@ def run_mode_external(
             "room_dir": str(room_dir),
             "corpus_dir": str(corpus_dir),
             "corpus_path": str(corpus_path),
-            "corpus_size": len(docs),
+            "corpus_size": len(docs) if docs else len(records),
             "artifact_count": len(artifacts),
-            "tier_counts": _count_by_source(docs),
+            "tier_counts": _count_by_source(docs) if docs else {},
+            "cache_mode": cache_mode,
+            "cache_age_days": round(cache_age_days, 2) if cache_age_days is not None else None,
+            "cache_namespace": cache_namespace,
+            "cache_ttl_days": _RS_CACHE_TTL_DAYS if pinecone_ok else None,
             "topk_requested": topk,
             "threshold": threshold,
             "embedding_model": model_used,
