@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
-status: "90-00 brain-md-schema shipped on main. lib/core/brain-md-schema.cjs (528 lines, validateSchema entry + 8 frozen exports, 5 violation categories, Canon Part 8 leak heuristics), lib/memory/brain-md-schema.test.cjs (18/18 pass, registered in Feynman suite -- baseline 52 -> 53), docs/BRAIN-MD-SCHEMA.md (250 lines, 7 sections). Zero new runtime deps, zero em-dashes, BSL 1.1, mirrors Phase 88-00-B shape with zero cross-import (flat lib/core graph). Commits: 03207e1 (RED test), 9e3e4cc (GREEN impl + registration), 1a8c455 (schema doc). Next: Plan 90-01 brain-derivation-core (final Wave 0 plan)."
-stopped_at: Completed 90-00-brain-md-schema-PLAN.md
-last_updated: "2026-04-24T02:31:40.392Z"
+status: verifying
+stopped_at: Completed 90-01 brain-derivation-core plan
+last_updated: "2026-04-24T02:53:04.173Z"
 last_activity: 2026-04-24
 progress:
   total_phases: 16
   completed_phases: 5
   total_plans: 90
-  completed_plans: 73
+  completed_plans: 74
   percent: 82
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 90
 Plan: 90-00 COMPLETE (Wave 0 Plan 1 of 2)
-Status: 90-00 brain-md-schema shipped on main. lib/core/brain-md-schema.cjs (528 lines, validateSchema entry + 8 frozen exports, 5 violation categories, Canon Part 8 leak heuristics), lib/memory/brain-md-schema.test.cjs (18/18 pass, registered in Feynman suite -- baseline 52 -> 53), docs/BRAIN-MD-SCHEMA.md (250 lines, 7 sections). Zero new runtime deps, zero em-dashes, BSL 1.1, mirrors Phase 88-00-B shape with zero cross-import (flat lib/core graph). Commits: 03207e1 (RED test), 9e3e4cc (GREEN impl + registration), 1a8c455 (schema doc). Next: Plan 90-01 brain-derivation-core (final Wave 0 plan).
+Status: Phase complete — ready for verification
 
 Prior: 89-01 + 89-02 + 89-03 + 89-04 + 89-05 + 89-06 shipped on main. 89-05 ships Mode C (hybrid) via lib/core/rs_hybrid.py (unified corpus builder + cross-corpus pair filter) and scripts/rs-engine.py --mode hybrid wiring. Warm/cold/bypass paths inherited from Plan 89-03 unchanged. Pairs carry hybrid=True metadata + room_artifact + external_doc structs + Mode A-compatible source_*/target_* fields so Plan 89-06 bridge-writer consumes hybrid output through its schema-tolerant resolver without edits. Plan 89-07 (ReverseSalientAgent wiring + release dashboard) is the remaining Phase 89 plan.
 
@@ -85,6 +85,7 @@ Progress: [████████░░] 82%
 | Phase 89 P04 | ~45min | 2 tasks | 2 files |
 | Phase 89 P05 | ~45min | 2 tasks | 2 files |
 | Phase 90 P00 | 30 | 2 tasks | 4 files |
+| Phase 90-brain-derivation-layer P01 | 45 | 2 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -282,6 +283,11 @@ Progress: [████████░░] 82%
 - [Phase 90]: [Phase 90-00]: BRAIN.md schema validator ships as standalone module mirroring Phase 88-00-B invariants shape byte-identically (validateSchema returns {valid, violations[], severity} so Plan 90-05 registry wraps without adapter); narrow YAML parser is a scoped copy not a cross-import, preserving flat lib/core dependency graph per 88-01 key-decision
 - [Phase 90]: [Phase 90-00]: Canon Part 8 boundary baked into schema layer (not retrofitted runtime guard): 5-pattern frozen regex set (email / currency / quoted-person / meeting fragment / SSN-like) scans every frontmatter scalar and emits canon_boundary/warning with action_hint canon_part8_review; heuristics over-flag deliberately -- false-positive cost is one-line review, false-negative cost is constitutional breach
 - [Phase 90]: [Phase 90-00]: author field frozen to literal 'brain'; non-brain authors are attribution/error (constitutional per Canon Part 2, not schema shape miss); BRAIN.md self-attribution is the contract that lets the quadruple readers distinguish Brain-authored derivation from user / Larry artifacts
+- [Phase 90-brain-derivation-layer]: buildBrainQueryContext is the Canon Part 8 chokepoint: the only function in brain-derivation.cjs that reads user-specific triple fields; every field exits as a sha256 hash, bounded integer, scalar in [0,1], frozen enum, or slug-safe section name
+- [Phase 90-brain-derivation-layer]: Every prompt builder validates ctx against frozen ALLOWED_CTX_KEYS at function entry; TypeError on forbidden or out-of-range keys (defense-in-depth for Canon Part 8)
+- [Phase 90-brain-derivation-layer]: Fixture Test 13 (positive allow-list audit) + Test 14 (negative Lawrence/5M/revenue leak test) prove the Canon Part 8 boundary holds at CI time, not by comment
+- [Phase 90-brain-derivation-layer]: Atomic write tmpfile naming /BRAIN.md.tmp.<rand>.brain/ follows Phase 88-04-B pattern: openSync wx -> write -> fsync -> validateSchema -> rename; any ERROR/CRITICAL severity aborts with tmpfile cleanup
+- [Phase 90-brain-derivation-layer]: deriveSection NEVER throws: graceful failure at every external boundary returns a structured result object (brain_unavailable / triple_incomplete / derivation_timeout / rate_limited / auth_failed / schema_rejected / fs_error)
 
 ### Pending Todos
 
@@ -303,6 +309,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-24T02:30:44.752Z
-Stopped at: Completed 90-00-brain-md-schema-PLAN.md
+Last session: 2026-04-24T02:52:47.737Z
+Stopped at: Completed 90-01 brain-derivation-core plan
 Resume file: None
