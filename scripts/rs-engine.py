@@ -82,6 +82,18 @@ from lib.core.rs_rooms import (  # noqa: E402
     load_multi_room_corpus,
     summarize_corpus,
 )
+# Plan 89-05 wires Mode C (hybrid) via rs_hybrid. Import is optional at the
+# top so Mode A / Mode B remain importable when rs_hybrid is missing; the
+# hybrid dispatch in main() raises a clear error if the import failed.
+try:
+    from lib.core.rs_hybrid import (  # noqa: E402
+        build_unified_corpus as _rs_hybrid_build,
+        filter_cross_corpus_pairs as _rs_hybrid_filter,
+    )
+    _RS_HYBRID_AVAILABLE = True
+except Exception as _rs_hybrid_import_err:  # pragma: no cover -- defensive
+    _RS_HYBRID_AVAILABLE = False
+    _rs_hybrid_import_err_msg = str(_rs_hybrid_import_err)
 # Plan 89-03 wires the Pinecone rs-external cache for Mode B. The import is
 # optional so Mode A (internal) remains usable without Pinecone installed --
 # rs_cache has a guarded import of the pinecone SDK.
@@ -110,6 +122,17 @@ RESULTS_FILENAME = ".rs-engine-results.json"
 DEFAULT_TOPK = 100
 DEFAULT_THRESHOLD = 0.30
 ENGINE_VERSION = "1"
+
+# Mode C (hybrid) post-filter overshoot. After abs-diff top-k over the
+# unified corpus, we discard any intra-corpus pair (room-room or
+# external-external) and keep only cross-corpus pairs. An overshoot of
+# 10x the requested topk gives enough headroom to reach topk on realistic
+# corpora where room artifacts (O(100)) are dwarfed by external docs
+# (O(2000)) and most of the strongest abs-diff pairs would be
+# external-external by volume alone. Smaller overshoots silently shrink
+# delivered pair count below topk; larger overshoots waste O(k log k)
+# sort work. Plan 89-05 Detailed Steps specify 10x.
+HYBRID_OVERSHOOT = 10
 
 
 # --- Artifact discovery ------------------------------------------------------
@@ -1136,6 +1159,262 @@ def _count_by_source(docs: Sequence[Dict]) -> Dict[str, int]:
     return counts
 
 
+# --- Mode C (hybrid) runner --------------------------------------------------
+
+# Design note on semantic similarity for the unified corpus (Plan 89-05):
+#   The external side carries cached 1024-dim multilingual-e5-large vectors
+#   when the Pinecone path is available. The room side carries no vectors
+#   on first run. Mixing 1024-dim (external) with 384-dim local MiniLM
+#   (room) would be a dimensional bug (plan Risk 1). The safe path is to
+#   embed the entire unified corpus in a single model space -- local
+#   MiniLM via compute_embeddings() -- so both sides share 384-dim and the
+#   pairwise cosine is well-defined. The cached e5-large vectors are
+#   retained on the external-doc side metadata for future callers
+#   (Plan 89-07 may surface them for downstream reranking) but do not
+#   drive the hybrid abs-diff pass.
+
+
+def run_mode_hybrid(
+    room_dir: Path,
+    topic: str,
+    topk: int,
+    threshold: float,
+    no_thesis: bool,
+    external_target: int = 2000,
+) -> Tuple[Dict, Path]:
+    """Mode C: unified room + external corpus with cross-corpus filter.
+
+    The killer feature of Phase 89: rediscovers external-domain concepts
+    that have a structural match in the user's room but never entered the
+    room's vocabulary, and vice versa. Consumed downstream by the Plan
+    89-06 bridge-writer for Obsidian rendering.
+
+    Returns (result dict, corpus_dir) -- CLI writes results JSON inside
+    corpus_dir at {room}/research/{topic-slug}/.rs-engine-results.json.
+
+    Cross-corpus contract:
+      - metadata.mode == "hybrid"
+      - metadata.hybrid == True (explicit flag per plan must_haves[2])
+      - every pair has origin mismatch: one room side, one external side
+      - pair_dicts carry both room_artifact_id and external_doc fields
+      - direction is the standard Mode A / Mode B signed classification
+
+    Edge cases:
+      - rs_hybrid import failed: raise NotImplementedError early so the
+        CLI surfaces a clear "cannot run Mode C" message.
+      - Empty room corpus: return empty pairs with metadata preserved so
+        downstream readers do not trip on missing keys.
+      - Empty external corpus (rare -- cold fetch returned nothing):
+        same empty-pairs result. Caller sees metadata.external_count=0.
+      - Unified corpus < 10 artifacts: skip LSA (same threshold the
+        cross-room path uses). LSA topic keywords are unstable below
+        this size.
+    """
+    if not _RS_HYBRID_AVAILABLE:
+        raise NotImplementedError(
+            "rs-engine: --mode hybrid requires lib.core.rs_hybrid. "
+            f"Import failed: {globals().get('_rs_hybrid_import_err_msg', 'unknown')}"
+        )
+
+    # Build the unified corpus + origin mask via rs_hybrid.
+    corpus, origin_mask, hybrid_meta = _rs_hybrid_build(
+        str(room_dir),
+        topic,
+        external_target=external_target,
+    )
+    slug = hybrid_meta.get("topic_slug") or topic_slug(topic)
+    if not slug:
+        raise ValueError("topic slug resolved to empty string")
+    corpus_dir = room_dir / "research" / slug
+    corpus_dir.mkdir(parents=True, exist_ok=True)
+
+    room_count = int(hybrid_meta.get("room_count", 0))
+    external_count = int(hybrid_meta.get("external_count", 0))
+
+    def _empty_result(reason: str) -> Tuple[Dict, Path]:
+        print(f"[rs-engine hybrid] {reason}", file=sys.stderr)
+        return (
+            {
+                "metadata": {
+                    "mode": "hybrid",
+                    "hybrid": True,
+                    "topic": topic,
+                    "topic_slug": slug,
+                    "room_dir": str(room_dir),
+                    "corpus_dir": str(corpus_dir),
+                    "room_id": hybrid_meta.get("room_id"),
+                    "room_count": room_count,
+                    "external_count": external_count,
+                    "artifact_count": room_count + external_count,
+                    "cache_mode": hybrid_meta.get("cache_mode"),
+                    "cache_age_days": hybrid_meta.get("cache_age_days"),
+                    "cache_namespace": hybrid_meta.get("cache_namespace"),
+                    "cache_ttl_days": hybrid_meta.get("cache_ttl_days"),
+                    "topk_requested": topk,
+                    "threshold": threshold,
+                    "no_thesis": bool(no_thesis),
+                    "thesis_generated": False,
+                    "edges_written": 0,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "engine_version": ENGINE_VERSION,
+                    "skip_reason": reason,
+                },
+                "pairs": [],
+            },
+            corpus_dir,
+        )
+
+    # Edge: no room artifacts -- cross-corpus filter yields zero pairs by
+    # construction; save the LSA compute.
+    if room_count == 0:
+        return _empty_result(
+            "Room has no indexable .md artifacts; cross-corpus filter "
+            "yields zero pairs by construction."
+        )
+    # Edge: no external corpus.
+    if external_count == 0:
+        return _empty_result(
+            f"External corpus for topic {topic!r} is empty (cache_mode="
+            f"{hybrid_meta.get('cache_mode')}); cross-corpus filter "
+            f"yields zero pairs by construction."
+        )
+    # Edge: combined corpus too small for stable LSA topic-keyword fit.
+    if len(corpus) < 10:
+        return _empty_result(
+            f"Unified corpus has only {len(corpus)} artifacts; need >= 10 "
+            f"for stable LSA fit."
+        )
+
+    # Structural signal over the unified vocabulary.
+    texts = [f"{a.get('title','')}\n{a['text']}" for a in corpus]
+    lsa_matrix = build_lsa_matrix(texts)
+
+    # Semantic signal: embed the full unified corpus in one model space so
+    # the sem_matrix is dimensionally homogeneous. Room and external share
+    # the SAME model by construction (Plan Risk 1 mitigation). We reuse
+    # compute_embeddings (MiniLM-or-cache) and scope the cache to the
+    # research/{slug}/ directory to avoid polluting Mode A's room-root
+    # .rs-engine-cache.json -- different corpus shape, different keys.
+    cache_artifacts = [
+        {"id": c["global_id"], "text": t}
+        for c, t in zip(corpus, texts)
+    ]
+    embeddings, model_used = compute_embeddings(cache_artifacts, corpus_dir)
+    if embeddings is None:
+        print(
+            "rs-engine hybrid: no embedder available; "
+            "semantic matrix set to identity.",
+            file=sys.stderr,
+        )
+        n = len(corpus)
+        sem_matrix = np.eye(n, dtype=np.float32)
+    else:
+        sem_matrix = semantic_similarity_matrix(embeddings)
+
+    # Overshoot top-k, then post-filter to cross-corpus only.
+    overshoot_k = max(topk * HYBRID_OVERSHOOT, topk + 10)
+    raw_pairs = abs_diff_topk(lsa_matrix, sem_matrix, k=overshoot_k)
+
+    cross_pairs = _rs_hybrid_filter(raw_pairs, origin_mask, topk)
+
+    # Apply threshold + build full pair dicts with room_artifact / external_doc.
+    pair_dicts: List[Dict] = []
+    for cp in cross_pairs:
+        absv = cp["abs_diff"]
+        if absv < threshold:
+            continue
+        i, j = cp["i"], cp["j"]
+        room_idx = cp["room_side"]
+        ext_idx = cp["external_side"]
+        room_art = corpus[room_idx]
+        ext_doc = corpus[ext_idx]
+        signed = cp["signed_diff"]
+
+        # Preserve the standard Mode A / Mode B fields (source_*/target_*)
+        # so the bridge-writer resolvePairIdentity picks them up without
+        # per-mode branches. Canonical orientation: source = room side,
+        # target = external side. This maps the signed-direction
+        # interpretation from plan must_haves[3]:
+        #   structural_transfer (signed > 0):
+        #       "your work has the vocabulary, world has the concept"
+        #   semantic_implementation (signed < 0):
+        #       "your concept exists in the world's vocabulary"
+        pair_dicts.append({
+            "source_artifact_id": room_art["global_id"],
+            "source_artifact": room_art.get("artifact_id") or room_art["global_id"],
+            "source_room": room_art.get("room_id"),
+            "source_section": room_art.get("section"),
+            "source_title": room_art.get("title", ""),
+            "source_path": room_art.get("path", ""),
+            "target_artifact_id": ext_doc["global_id"],
+            "target_external_id": ext_doc.get("external_id") or ext_doc["global_id"],
+            "target_doi": ext_doc.get("doi"),
+            "target_source": ext_doc.get("source"),
+            "target_title": ext_doc.get("title", ""),
+            "target_url": ext_doc.get("path", ""),
+            "target_year": ext_doc.get("year"),
+            # Rich cross-corpus annotations consumed by Plan 89-06 bridge
+            # writer and Plan 89-07 release dashboard.
+            "room_artifact": {
+                "global_id": room_art["global_id"],
+                "artifact_id": room_art.get("artifact_id"),
+                "room_id": room_art.get("room_id"),
+                "section": room_art.get("section"),
+                "title": room_art.get("title", ""),
+                "path": room_art.get("path", ""),
+            },
+            "external_doc": {
+                "global_id": ext_doc["global_id"],
+                "external_id": ext_doc.get("external_id"),
+                "source": ext_doc.get("source"),
+                "title": ext_doc.get("title", ""),
+                "doi": ext_doc.get("doi"),
+                "year": ext_doc.get("year"),
+                "url": ext_doc.get("path", ""),
+            },
+            "lsa_score": round(float(lsa_matrix[i, j]), 4),
+            "semantic_score": round(float(sem_matrix[i, j]), 4),
+            "signed_diff": round(float(signed), 4),
+            "abs_diff": round(float(absv), 4),
+            "direction": classify_direction(signed),
+        })
+
+    result = {
+        "metadata": {
+            "mode": "hybrid",
+            "hybrid": True,
+            "topic": topic,
+            "topic_slug": slug,
+            "room_dir": str(room_dir),
+            "corpus_dir": str(corpus_dir),
+            "room_id": hybrid_meta.get("room_id"),
+            "room_count": room_count,
+            "external_count": external_count,
+            "artifact_count": len(corpus),
+            "cache_mode": hybrid_meta.get("cache_mode"),
+            "cache_age_days": hybrid_meta.get("cache_age_days"),
+            "cache_namespace": hybrid_meta.get("cache_namespace"),
+            "cache_ttl_days": hybrid_meta.get("cache_ttl_days"),
+            "topk_requested": topk,
+            "threshold": threshold,
+            "embedding_model": model_used,
+            "no_thesis": bool(no_thesis),
+            "thesis_generated": False,
+            # Mode C does NOT write REVERSE_SALIENT edges into room.db.
+            # Plan 89-06 bridge-writer produces the user-visible artifact
+            # surface; Plan 89-07 wires the optional room.db edge with
+            # properties.source='rs-engine-hybrid' alongside the agent.
+            "edges_written": 0,
+            "hybrid_overshoot": HYBRID_OVERSHOOT,
+            "external_target": external_target,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "engine_version": ENGINE_VERSION,
+        },
+        "pairs": pair_dicts,
+    }
+    return result, corpus_dir
+
+
 # --- Cowork tri-polar surface ------------------------------------------------
 
 def _write_cowork_symlink(room_dir: Path, results_path: Path) -> None:
@@ -1170,13 +1449,15 @@ def build_parser() -> argparse.ArgumentParser:
             "topic-keyword-membership LSA + signed abs-diff detection "
             "algorithm. Mode A runs on a single room; Mode B fetches an "
             "external research corpus (OpenAlex, arXiv, Tavily); Mode C "
-            "(hybrid) lands in Plan 89-05."
+            "(hybrid) unifies the room with an external corpus and keeps only "
+            "cross-corpus pairs -- the killer feature of Phase 89."
         ),
         epilog=(
             "Three-surface usage:\n"
             "  CLI     python scripts/rs-engine.py --mode internal --room ./room\n"
             "          python scripts/rs-engine.py --rooms ~/rooms/a ~/rooms/b ~/rooms/c --topk 50\n"
             "          python scripts/rs-engine.py --mode external --topic 'quantum biology' --room ./room\n"
+            "          python scripts/rs-engine.py --mode hybrid --topic 'quantum biology' --room ./room --topk 30\n"
             "  Desktop invoked by ReverseSalientAgent conversational trigger\n"
             "          (Plan 89-07).\n"
             "  Cowork  set COWORK=1 to symlink results under 00_Context/.\n"
@@ -1190,7 +1471,7 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "internal=Mode A (single room, Plan 89-01); "
             "external=Mode B (research corpus, Plan 89-02); "
-            "hybrid=Mode C (lands in Plan 89-05)."
+            "hybrid=Mode C (room x external unified matrix, Plan 89-05)."
         ),
     )
     parser.add_argument("--room", required=False, help="Path to room directory (Mode A / B / C).")
@@ -1238,6 +1519,16 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--external-target",
+        type=int,
+        default=2000,
+        help=(
+            "Max external docs to include in --mode hybrid's unified corpus "
+            "(default 2000; clamped to rs_hybrid.MAX_EXTERNAL_TARGET). "
+            "Ignored for Mode A / Mode B."
+        ),
+    )
+    parser.add_argument(
         "--output",
         default=None,
         help=f"Output JSON path (default: {{room}}/{RESULTS_FILENAME}).",
@@ -1271,6 +1562,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             print(
                 "rs-engine: --mode external is incompatible with --rooms. "
                 "Use --room for external mode.",
+                file=sys.stderr,
+            )
+            return 2
+        if args.mode == "hybrid":
+            print(
+                "rs-engine: --mode hybrid is incompatible with --rooms. "
+                "Hybrid unifies ONE room with an external corpus; use --room "
+                "for hybrid mode.",
                 file=sys.stderr,
             )
             return 2
@@ -1320,16 +1619,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         )
         return 0
 
-    if args.mode == "hybrid":
-        # Plan 89-05 wires Mode C (hybrid). Fail loud so users do not
-        # silently run the wrong algorithm.
-        print(
-            "rs-engine: --mode hybrid is not wired in Plan 89-02. "
-            "Track Plan 89-05 (hybrid).",
-            file=sys.stderr,
-        )
-        return 2
-
     if not args.room:
         print(
             f"rs-engine: --room is required for --mode {args.mode} "
@@ -1341,7 +1630,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     room_dir = Path(args.room).resolve()
     # Allow the room directory to be auto-created for Mode B when it does
     # not exist yet. Mode A still requires an existing room. This matches
-    # the plan's end-to-end smoke which targets /tmp/test-room.
+    # the plan's end-to-end smoke which targets /tmp/test-room. Hybrid
+    # Mode C requires an existing room (its whole point is room x external).
     if args.mode == "external" and not room_dir.exists():
         try:
             room_dir.mkdir(parents=True, exist_ok=True)
@@ -1364,6 +1654,34 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 no_thesis=args.no_thesis,
             )
             output_path = _write_results(room_dir, result, args.output)
+        elif args.mode == "hybrid":
+            if not args.topic:
+                print(
+                    "rs-engine: --topic is required for --mode hybrid",
+                    file=sys.stderr,
+                )
+                return 2
+            result, corpus_dir = run_mode_hybrid(
+                room_dir,
+                topic=args.topic,
+                topk=topk,
+                threshold=threshold,
+                no_thesis=args.no_thesis,
+                external_target=args.external_target,
+            )
+            default_path = corpus_dir / RESULTS_FILENAME
+            if args.output:
+                output_path = Path(args.output).resolve()
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                output_path.write_text(
+                    json.dumps(result, indent=2), encoding="utf-8",
+                )
+            else:
+                default_path.parent.mkdir(parents=True, exist_ok=True)
+                default_path.write_text(
+                    json.dumps(result, indent=2), encoding="utf-8",
+                )
+                output_path = default_path
         else:  # args.mode == "external"
             if not args.topic:
                 print(
@@ -1411,12 +1729,21 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             f"{output_path} (model={meta['embedding_model']}, edges={meta['edges_written']})",
             file=sys.stderr,
         )
+    elif args.mode == "hybrid":
+        print(
+            f"rs-engine: {len(result['pairs'])} cross-corpus pairs from "
+            f"{meta.get('room_count', 0)} room + {meta.get('external_count', 0)} "
+            f"external = {meta.get('artifact_count', 0)} artifacts "
+            f"(cache={meta.get('cache_mode', 'n/a')}) written to {output_path} "
+            f"(model={meta.get('embedding_model', 'n/a')})",
+            file=sys.stderr,
+        )
     else:
         tiers = meta.get("tier_counts", {})
         tier_str = ", ".join(f"{k}={v}" for k, v in tiers.items()) or "empty"
         print(
             f"rs-engine: {len(result['pairs'])} pairs from "
-            f"{meta.get('artifact_count', 0)} artifacts (corpus={meta['corpus_size']}, "
+            f"{meta.get('artifact_count', 0)} artifacts (corpus={meta.get('corpus_size', 0)}, "
             f"{tier_str}) written to {output_path} "
             f"(model={meta.get('embedding_model', 'n/a')})",
             file=sys.stderr,
