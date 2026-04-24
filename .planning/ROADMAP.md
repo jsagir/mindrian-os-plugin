@@ -333,11 +333,11 @@ Plans:
 **Plans**: 7 plans on disk (89-01 through 89-07), zero SUMMARYs
 Plans:
 - [x] 89-01-PLAN.md -- (existing, pre-scoped)
-- [ ] 89-02-PLAN.md -- (existing, pre-scoped)
-- [ ] 89-03-PLAN.md -- (existing, pre-scoped)
+- [x] 89-02-PLAN.md -- (existing, pre-scoped)
+- [x] 89-03-PLAN.md -- (existing, pre-scoped)
 - [ ] 89-04-PLAN.md -- (existing, pre-scoped)
 - [ ] 89-05-PLAN.md -- (existing, pre-scoped)
-- [ ] 89-06-PLAN.md -- (existing, pre-scoped)
+- [x] 89-06-PLAN.md -- (existing, pre-scoped)
 - [ ] 89-07-PLAN.md -- (existing, pre-scoped)
 **Authority**: .planning/phases/89-reverse-salient-engine/89-CONTEXT.md (plus ALGORITHM-SOURCE.md, PLAN-CHECK.md, PLAN.md, RESEARCH.md)
 
