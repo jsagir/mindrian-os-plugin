@@ -74,6 +74,10 @@ from lib.core.rs_math import (  # noqa: E402
     build_lsa_matrix,
     classify_direction,
 )
+from lib.core.rs_corpus import (  # noqa: E402
+    fetch_corpus,
+    topic_slug,
+)
 
 
 # --- Constants ---------------------------------------------------------------
@@ -519,6 +523,182 @@ def run_mode_internal(
     return result
 
 
+# --- Mode B runner -----------------------------------------------------------
+
+def _write_corpus_jsonl(corpus_dir: Path, docs: Sequence[Dict]) -> Path:
+    """Persist the raw fetched corpus for provenance.
+
+    One JSON document per line keeps the file streaming-friendly and easy to
+    diff. Plan 89-03 will key the Pinecone upsert on (source, external_id)
+    read directly from this file.
+    """
+    corpus_dir.mkdir(parents=True, exist_ok=True)
+    path = corpus_dir / "_corpus.jsonl"
+    with path.open("w", encoding="utf-8") as fh:
+        for doc in docs:
+            fh.write(json.dumps(doc, ensure_ascii=False) + "\n")
+    return path
+
+
+def _corpus_docs_to_artifacts(docs: Sequence[Dict]) -> List[Dict]:
+    """Shape fetched docs into the artifact dict the rest of the engine
+    expects (id, section, title, path, text)."""
+    artifacts: List[Dict] = []
+    for doc in docs:
+        external_id = doc.get("external_id") or ""
+        source = doc.get("source") or "external"
+        # Build an artifact id that is stable across runs and unique within
+        # the corpus. External ids can contain URL characters; stripping to
+        # an id-friendly slug keeps downstream SQLite/Pinecone keys predictable.
+        eid_slug = re.sub(r"[^a-zA-Z0-9]+", "-", external_id).strip("-")
+        if not eid_slug:
+            eid_slug = re.sub(r"[^a-zA-Z0-9]+", "-", doc.get("title") or "untitled").strip("-")
+        artifact_id = f"{source}/{eid_slug}"
+        text = (doc.get("abstract") or "").strip()
+        if not text:
+            continue
+        artifacts.append({
+            "id": artifact_id,
+            "section": source,
+            "title": (doc.get("title") or "").strip() or external_id,
+            "path": doc.get("url") or external_id,
+            "text": text,
+            "year": doc.get("year"),
+            "authors": doc.get("authors", []),
+            "doi": doc.get("doi"),
+        })
+    return artifacts
+
+
+def run_mode_external(
+    room_dir: Path,
+    topic: str,
+    topk: int,
+    threshold: float,
+    no_thesis: bool,
+) -> Tuple[Dict, Path]:
+    """Mode B: fetch external corpus, run LSA + abs_diff, write results.
+
+    Returns the result dict and the output directory (so the CLI can choose
+    the results file path without re-deriving the slug).
+    """
+    slug = topic_slug(topic)
+    if not slug:
+        raise ValueError("topic slug resolved to empty string")
+    corpus_dir = room_dir / "research" / slug
+
+    # Overshoot target_n so dedup + threshold filtering can still hit topk.
+    target_n = max(topk * 20, topk * 2)
+    docs = fetch_corpus(topic, target_n=target_n)
+
+    corpus_path = _write_corpus_jsonl(corpus_dir, docs)
+
+    if len(docs) < 2:
+        return (
+            {
+                "metadata": {
+                    "mode": "external",
+                    "topic": topic,
+                    "topic_slug": slug,
+                    "room_dir": str(room_dir),
+                    "corpus_dir": str(corpus_dir),
+                    "corpus_path": str(corpus_path),
+                    "corpus_size": len(docs),
+                    "tier_counts": _count_by_source(docs),
+                    "topk_requested": topk,
+                    "threshold": threshold,
+                    "no_thesis": bool(no_thesis),
+                    "thesis_generated": False,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "engine_version": ENGINE_VERSION,
+                },
+                "pairs": [],
+            },
+            corpus_dir,
+        )
+
+    artifacts = _corpus_docs_to_artifacts(docs)
+    texts = [f"{a['title']}\n{a['text']}" for a in artifacts]
+
+    # Structural signal (authoritative topic-keyword-membership LSA).
+    lsa_matrix = build_lsa_matrix(texts)
+
+    # Semantic signal. Mode B final embedding path (Pinecone inference on
+    # multilingual-e5-large) lands in Plan 89-03; here we honor the same
+    # MiniLM-or-identity fallback as Mode A so the pipeline runs end-to-end
+    # without the cold path being wired. Cache lives under corpus_dir so the
+    # external corpus keeps a stable provenance footprint separate from the
+    # room's own .rs-engine-cache.json.
+    embeddings, model_used = compute_embeddings(artifacts, corpus_dir)
+    if embeddings is None:
+        print(
+            "rs-engine: no embedder available for Mode B; "
+            "semantic matrix set to identity (Plan 89-03 wires Pinecone inference)",
+            file=sys.stderr,
+        )
+        n = len(artifacts)
+        sem_matrix = np.eye(n, dtype=np.float32)
+    else:
+        sem_matrix = semantic_similarity_matrix(embeddings)
+
+    top_pairs = abs_diff_topk(lsa_matrix, sem_matrix, k=topk)
+
+    pair_dicts: List[Dict] = []
+    for i, j, signed, absv in top_pairs:
+        if absv < threshold:
+            continue
+        a_i, a_j = artifacts[i], artifacts[j]
+        pair_dicts.append({
+            "source_artifact_id": a_i["id"],
+            "source_title": a_i["title"],
+            "source_section": a_i["section"],
+            "source_url": a_i.get("path", ""),
+            "source_doi": a_i.get("doi"),
+            "target_artifact_id": a_j["id"],
+            "target_title": a_j["title"],
+            "target_section": a_j["section"],
+            "target_url": a_j.get("path", ""),
+            "target_doi": a_j.get("doi"),
+            "lsa_score": round(float(lsa_matrix[i, j]), 4),
+            "semantic_score": round(float(sem_matrix[i, j]), 4),
+            "signed_diff": round(float(signed), 4),
+            "abs_diff": round(float(absv), 4),
+            "direction": classify_direction(signed),
+        })
+
+    result = {
+        "metadata": {
+            "mode": "external",
+            "topic": topic,
+            "topic_slug": slug,
+            "room_dir": str(room_dir),
+            "corpus_dir": str(corpus_dir),
+            "corpus_path": str(corpus_path),
+            "corpus_size": len(docs),
+            "artifact_count": len(artifacts),
+            "tier_counts": _count_by_source(docs),
+            "topk_requested": topk,
+            "threshold": threshold,
+            "embedding_model": model_used,
+            "thesis_generated": False,
+            "no_thesis": bool(no_thesis),
+            "edges_written": 0,  # Mode B does NOT write room.db edges.
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "engine_version": ENGINE_VERSION,
+        },
+        "pairs": pair_dicts,
+    }
+    return result, corpus_dir
+
+
+def _count_by_source(docs: Sequence[Dict]) -> Dict[str, int]:
+    counts: Dict[str, int] = {}
+    for d in docs:
+        src = d.get("source") or "unknown"
+        counts[src] = counts.get(src, 0) + 1
+    return counts
+
+
 # --- Cowork tri-polar surface ------------------------------------------------
 
 def _write_cowork_symlink(room_dir: Path, results_path: Path) -> None:
@@ -551,12 +731,14 @@ def build_parser() -> argparse.ArgumentParser:
         description=(
             "Reverse Salient Engine (Phase 89). Faithfully ports the Kwan 2023 "
             "topic-keyword-membership LSA + signed abs-diff detection "
-            "algorithm. Mode A runs on a single room; Modes B/C (external "
-            "corpus, hybrid) are added in Plans 89-04 / 89-05."
+            "algorithm. Mode A runs on a single room; Mode B fetches an "
+            "external research corpus (OpenAlex, arXiv, Tavily); Mode C "
+            "(hybrid) lands in Plan 89-05."
         ),
         epilog=(
             "Three-surface usage:\n"
             "  CLI     python scripts/rs-engine.py --mode internal --room ./room\n"
+            "          python scripts/rs-engine.py --mode external --topic 'quantum biology' --room ./room\n"
             "  Desktop invoked by ReverseSalientAgent conversational trigger\n"
             "          (Plan 89-07).\n"
             "  Cowork  set COWORK=1 to symlink results under 00_Context/.\n"
@@ -567,9 +749,22 @@ def build_parser() -> argparse.ArgumentParser:
         "--mode",
         choices=["internal", "external", "hybrid"],
         default="internal",
-        help="internal=Mode A (single room, Plan 89-01); external/hybrid land in 89-04/05.",
+        help=(
+            "internal=Mode A (single room, Plan 89-01); "
+            "external=Mode B (research corpus, Plan 89-02); "
+            "hybrid=Mode C (lands in Plan 89-05)."
+        ),
     )
-    parser.add_argument("--room", required=False, help="Path to room directory (Mode A / C).")
+    parser.add_argument("--room", required=False, help="Path to room directory (Mode A / B / C).")
+    parser.add_argument(
+        "--topic",
+        required=False,
+        help=(
+            "Free-text research topic (required for --mode external). "
+            "Normalized to a kebab-case slug via lib.core.rs_corpus.topic_slug "
+            "for consistent {room}/research/{topic-slug}/ paths."
+        ),
+    )
     parser.add_argument(
         "--topk",
         type=int,
@@ -605,48 +800,106 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    if args.mode != "internal":
-        # Plans 89-04 / 89-05 wire these modes. Fail loud with pointer so
-        # users do not silently run the wrong algorithm.
+    if args.mode == "hybrid":
+        # Plan 89-05 wires Mode C (hybrid). Fail loud so users do not
+        # silently run the wrong algorithm.
         print(
-            f"rs-engine: --mode {args.mode} is not wired in Plan 89-01. "
-            "Track Plans 89-04 (multi-room) and 89-05 (hybrid).",
+            "rs-engine: --mode hybrid is not wired in Plan 89-02. "
+            "Track Plan 89-05 (hybrid).",
             file=sys.stderr,
         )
         return 2
 
     if not args.room:
-        print("rs-engine: --room is required for --mode internal", file=sys.stderr)
+        print(
+            f"rs-engine: --room is required for --mode {args.mode}",
+            file=sys.stderr,
+        )
         return 2
 
     room_dir = Path(args.room).resolve()
+    # Allow the room directory to be auto-created for Mode B when it does
+    # not exist yet. Mode A still requires an existing room. This matches
+    # the plan's end-to-end smoke which targets /tmp/test-room.
+    if args.mode == "external" and not room_dir.exists():
+        try:
+            room_dir.mkdir(parents=True, exist_ok=True)
+        except OSError as e:
+            print(f"rs-engine: could not create {room_dir}: {e}", file=sys.stderr)
+            return 1
     if not room_dir.is_dir():
         print(f"rs-engine: {room_dir} is not a directory", file=sys.stderr)
         return 1
 
+    topk = max(1, args.topk)
+    threshold = max(0.0, args.threshold)
+
     try:
-        result = run_mode_internal(
-            room_dir,
-            topk=max(1, args.topk),
-            threshold=max(0.0, args.threshold),
-            no_thesis=args.no_thesis,
-        )
+        if args.mode == "internal":
+            result = run_mode_internal(
+                room_dir,
+                topk=topk,
+                threshold=threshold,
+                no_thesis=args.no_thesis,
+            )
+            output_path = _write_results(room_dir, result, args.output)
+        else:  # args.mode == "external"
+            if not args.topic:
+                print(
+                    "rs-engine: --topic is required for --mode external",
+                    file=sys.stderr,
+                )
+                return 2
+            result, corpus_dir = run_mode_external(
+                room_dir,
+                topic=args.topic,
+                topk=topk,
+                threshold=threshold,
+                no_thesis=args.no_thesis,
+            )
+            # Default external output: {room}/research/{topic-slug}/.rs-engine-results.json
+            default_path = corpus_dir / RESULTS_FILENAME
+            if args.output:
+                output_path = Path(args.output).resolve()
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                output_path.write_text(
+                    json.dumps(result, indent=2), encoding="utf-8",
+                )
+            else:
+                default_path.parent.mkdir(parents=True, exist_ok=True)
+                default_path.write_text(
+                    json.dumps(result, indent=2), encoding="utf-8",
+                )
+                output_path = default_path
     except NotImplementedError as e:
         print(f"rs-engine: {e}", file=sys.stderr)
         return 3
+    except ValueError as e:
+        print(f"rs-engine: {e}", file=sys.stderr)
+        return 2
     except Exception as e:  # pragma: no cover - defensive envelope
         print(f"rs-engine: error: {e}", file=sys.stderr)
         return 1
 
-    output_path = _write_results(room_dir, result, args.output)
     _write_cowork_symlink(room_dir, output_path)
 
     meta = result["metadata"]
-    print(
-        f"rs-engine: {len(result['pairs'])}/{meta['artifact_count']} pairs written to "
-        f"{output_path} (model={meta['embedding_model']}, edges={meta['edges_written']})",
-        file=sys.stderr,
-    )
+    if args.mode == "internal":
+        print(
+            f"rs-engine: {len(result['pairs'])}/{meta['artifact_count']} pairs written to "
+            f"{output_path} (model={meta['embedding_model']}, edges={meta['edges_written']})",
+            file=sys.stderr,
+        )
+    else:
+        tiers = meta.get("tier_counts", {})
+        tier_str = ", ".join(f"{k}={v}" for k, v in tiers.items()) or "empty"
+        print(
+            f"rs-engine: {len(result['pairs'])} pairs from "
+            f"{meta.get('artifact_count', 0)} artifacts (corpus={meta['corpus_size']}, "
+            f"{tier_str}) written to {output_path} "
+            f"(model={meta.get('embedding_model', 'n/a')})",
+            file=sys.stderr,
+        )
     return 0
 
 
