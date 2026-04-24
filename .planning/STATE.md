@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: verifying
-stopped_at: Completed 90-02 governing-thought-change-trigger plan
-last_updated: "2026-04-24T06:30:00.000Z"
+stopped_at: Completed 90-03-session-start-staleness-scan-PLAN.md
+last_updated: "2026-04-24T03:37:57.139Z"
 last_activity: 2026-04-24
 progress:
   total_phases: 16
   completed_phases: 5
   total_plans: 90
   completed_plans: 76
-  percent: 84
+  percent: 82
 ---
 
 # Project State
@@ -27,9 +27,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 90 -- brain-derivation-layer
 Plan: 90-02 COMPLETE (Wave 1 Plan 1 of 9). Wave 0 plans 90-00 + 90-01 + Wave 1 plan 90-02 all shipped.
-Status: Phase in progress -- 8 plans remaining (90-03 session-start-staleness-scan, 90-04 read-quadruple, 90-05 brain-md-invariants-validator, 90-06 cross-room-aggregation, 90-07 mos-brain-derive-command, 90-08 graceful-degradation-suite, 90-09 navigation-engine-interface-spec, 90-10 release-gates).
+Status: Phase complete — ready for verification
 
 Phase 90-02 commits (main, NOT yet pushed):
+
 - bae9926 test(90-02): add failing tests for brain-derivation-queue (RED)
 - 0f31873 feat(90-02): implement brain-derivation-queue (GREEN, 15/15 passing)
 - 6d9eeb7 feat(90-02): wire post-regen hook + UserPromptSubmit drain (19/19 passing)
@@ -93,6 +94,7 @@ Progress: [████████░░] 82%
 | Phase 89 P05 | ~45min | 2 tasks | 2 files |
 | Phase 90 P00 | 30 | 2 tasks | 4 files |
 | Phase 90-brain-derivation-layer P01 | 45 | 2 tasks | 3 files |
+| Phase 90-brain-derivation-layer P03 | 35m | 2 tasks | 5 files |
 
 ### Roadmap Evolution
 
@@ -295,6 +297,7 @@ Progress: [████████░░] 82%
 - [Phase 90-brain-derivation-layer]: Fixture Test 13 (positive allow-list audit) + Test 14 (negative Lawrence/5M/revenue leak test) prove the Canon Part 8 boundary holds at CI time, not by comment
 - [Phase 90-brain-derivation-layer]: Atomic write tmpfile naming /BRAIN.md.tmp.<rand>.brain/ follows Phase 88-04-B pattern: openSync wx -> write -> fsync -> validateSchema -> rename; any ERROR/CRITICAL severity aborts with tmpfile cleanup
 - [Phase 90-brain-derivation-layer]: deriveSection NEVER throws: graceful failure at every external boundary returns a structured result object (brain_unavailable / triple_incomplete / derivation_timeout / rate_limited / auth_failed / schema_rejected / fs_error)
+- [Phase 90-brain-derivation-layer]: Plan 90-03 staleness precedence: missing > parse_failed > hash_mismatch > age > version > fresh; Canon Part 8 invariant proved by Test 13 fixture audit (zero content queries during scan)
 
 ### Pending Todos
 
@@ -316,6 +319,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-24T02:52:47.737Z
-Stopped at: Completed 90-01 brain-derivation-core plan
+Last session: 2026-04-24T03:37:46.207Z
+Stopped at: Completed 90-03-session-start-staleness-scan-PLAN.md
 Resume file: None
