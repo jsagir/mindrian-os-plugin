@@ -72,7 +72,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - [x] **Phase 88.6: Python Algorithm Wiring (URGENT)** - Close orphan-value gap between 15 verified Python algorithms and user-facing /mos:* commands. Fix silent production bug (baseline not auto-fired in discover-* pipelines), expose 4 orphan Wave-1 algorithms (surprise, disruption, novelty, blindspot) via new /mos:diagnostics command, wrap two-step external whitespace flow behind single command with rate-limit graceful degradation. Evidence: 2026-04-23 smoke test on ~/MindrianRooms/mindrianOS/ (207 artifacts, 77 Brain frameworks, CD = -0.7092, coverage = 0.667). Orchestration-only phase, zero new algorithms. Releases as v1.10.14. (completed 2026-04-23)
 - [x] **Phase 88.1: UI/UX Polish + MINTO Surface Plumbing** - Close gap between 71 shipped commands and the Claude Code 2.1.x polish bar. Four workstreams: MINTO surface plumbing (statusline + /mos:status + SessionStart banner consume governing_thought), description-driven UX sweep across 71 commands plus README permissions block, hook output primitives (systemMessage retrofit on 9 hooks plus two new hooks for schema validation and async artifact auto-commit), README as 7th surface. CONTEXT filed 2026-04-20. Releases as v1.10.15 (version bumped 2026-04-23 to avoid conflict with 88.6 bug fix). (completed 2026-04-23)
 - [x] **Phase 89: Reverse-Salient Engine** - Hughes 1983 reverse-salient detection for lagging components in an expanding venture. Computes embedding-distance lag signal per section, optional consumer of Phase 88 reasoning_health_score. 8 plans on disk, zero summaries (checkbox corrected 2026-04-23 after false-complete mark detected in audit). Ships independently as v1.10.16. (completed 2026-04-24)
-- [ ] **Phase 90: Brain Derivation Layer** - Lets the Brain excavate the local triple (Phase 88) and produce a persistent authored BRAIN.md per section with pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, cross-room contradiction flags. Extends triple to quadruple. Graceful degradation when Brain offline. CONTEXT filed. Releases as v1.10.17.
+- [x] **Phase 90: Brain Derivation Layer** - Lets the Brain excavate the local triple (Phase 88) and produce a persistent authored BRAIN.md per section with pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, cross-room contradiction flags. Extends triple to quadruple. Graceful degradation when Brain offline. CONTEXT filed. Releases as v1.10.17. (completed 2026-04-24)
 - [ ] **Phase 91: Navigation Engine** - L5 Decision layer reading the L3 Navigation substrate (SQL + quadruple memory) to decide which skill/command/framework fires each turn. Five-signal triangulation (ICM + SQL + Feynman-MINTO + BRAIN + intent/persona). Persona durability via USER.md. Visible dial in statusline. /mos:explain-decision command. CONTEXT filed. Destination phase. Releases as v1.11.0.
 
 ## Phase Details
@@ -288,10 +288,10 @@ Plans:
 **Goal:** [Urgent work - to be planned]
 **Requirements**: TBD
 **Depends on:** Phase 88
-**Plans:** 0 plans
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 88.7 to break down)
+- [x] TBD (run /gsd:plan-phase 88.7 to break down) (completed 2026-04-24)
 
 ### Phase 88.6: Python Algorithm Wiring (v1.10.14)
 **Goal**: Close the orphan-value gap between the Python algorithm layer (15 verified scripts) and the user-facing product surface (/mos:* commands). Fix one silent production bug (discover-* pipelines silently return 0 zones when brain-baseline.json missing), expose four orphan Wave-1 algorithms (Funk and Owen-Smith Disruption Index, Good-Turing Blindspot Mass, Centroid-Distance Element Novelty, Leave-One-Out Bayesian Surprise) via new /mos:diagnostics command, wrap two-step external whitespace flow behind single command surface with rate-limit graceful degradation. Orchestration-only phase, zero new algorithms. Triggered by mid-milestone discovery during Rubos meeting (John Shorter, Ryan Lewis) where Ryan's technical questions prompted an audit that surfaced the orphan-value gap.
@@ -351,6 +351,36 @@ Plans:
 - [ ] 89-07-PLAN.md -- (remaining: ReverseSalientAgent + release wiring)
 **Authority**: .planning/phases/89-reverse-salient-engine/89-CONTEXT.md (plus ALGORITHM-SOURCE.md, PLAN-CHECK.md, PLAN.md, RESEARCH.md)
 
+### Phase 89.1a: Brain Methodology Substrate Loader
+**Goal**: Build the Brain-to-Local methodology substrate pipeline that is the prerequisite to the v1.11.0 reverse-salient rewiring. Pull the 1,427 canonical methodology embeddings from the Brain Pinecone index into a local substrate cache, via a generic-handle query builder that enforces Canon Part 8 on every outbound query (no user data ever reaches Brain). Local cache persists with TTL and atomic write-then-rename to .mindrian/brain-substrate-cache.json. Adversarial fixture tests inherit the Phase 90 5-tripwire pattern.
+**Depends on**: Phase 90 Brain Derivation Layer (Canon Part 8 5-tripwire pattern shipped in v1.10.18), existing brain-client.cjs chokepoint, existing Pinecone methodology index (pws-brain namespaces), Phase 89 v1.10.16 primitives (rs_math.py Kwan LSA + rs_cache.py Pinecone e5-large — keep, do not replace)
+**Requirements**:
+- `lib/core/rs-brain-substrate.cjs` that pulls 1,427 Brain methodology embeddings via generic-handle queries and hydrates a local substrate usable by the RS algorithm
+- Generic-handle query builder (single chokepoint) enforcing Canon Part 8 allow-list on every outbound Brain query (framework IDs, phase IDs, problem types, enum scalars only — NEVER artifact bodies, venture names, meeting content, proprietary numbers)
+- Local substrate cache at `.mindrian/brain-substrate-cache.json` with TTL-driven invalidation and atomic persistence (write-to-tmp then rename)
+- Fixture test suite with adversarial payloads (leaked user section bytes, leaked venture names, malformed payload injection) verifying zero user-content bytes reach Brain — inherits Phase 90 5-tripwire pattern (schema doc + prompt-builder allow-list + invariants validator + aggregator sanitize+audit + graceful-degradation sweep)
+- Graceful degradation: Brain offline → cached substrate served if fresh, stale-cache served with warning if past TTL but present, tier-0 empty-substrate mode if no cache and no Brain
+- Three-surface compatibility (CLI + Desktop MCP + Cowork)
+- Zero new runtime dependencies (native fetch + existing brain-client.cjs + existing fs.promises)
+- BSL 1.1 header on all new source (CJS + tests)
+- Zero em-dashes (hyphens only)
+- `canon_parts:` frontmatter declaring Part 7 (Reuse Before Build — extends Phase 90 tripwire pattern, reuses brain-client.cjs) and Part 8 (Graph Boundary — the core invariant this phase defends)
+**Success Criteria** (what must be TRUE):
+  1. `lib/core/rs-brain-substrate.cjs` exports `loadSubstrate({forceRefresh})` returning the 1,427-embedding methodology substrate from cache or fresh Brain pull
+  2. Every outbound Brain query passes through the single generic-handle query builder chokepoint; no other code path may call brain-client directly for methodology embeddings
+  3. Adversarial fixture suite (≥6 scenarios covering leaked artifact bytes, leaked venture names, leaked meeting transcript fragments, leaked proprietary numbers, malformed payload injection, oversized payload) all FAIL the query before bytes leave the process
+  4. Local substrate cache persists to `.mindrian/brain-substrate-cache.json` with TTL metadata (default 30d per kickoff §15) and atomic write-then-rename (tmp file + rename)
+  5. Graceful degradation verified: Brain offline → fresh cache returns substrate, stale cache returns with warning, no cache returns tier-0 empty substrate without crash
+  6. Feynman test suite stays green + new `lib/memory/test-rs-brain-substrate.cjs` registers with `lib/memory/run-feynman-tests.cjs`
+  7. NO release gate — bundled into v1.11.0 final ship at Phase 91.x per milestone §7 (no mid-milestone releases per user Intent 3)
+**Plans**: 4 plans across 3 waves (filed 2026-04-24)
+Plans:
+- [x] 89.1a-01-PLAN.md -- Substrate loader core + generic-handle query builder chokepoint + preSendAudit tripwire (Wave 1; SC-01, SC-02, SC-05)
+- [ ] 89.1a-02-PLAN.md -- Local cache + atomic persistence + drop-in invariants validator (Wave 2; SC-04, SC-05)
+- [ ] 89.1a-03-PLAN.md -- 14-scenario adversarial fixture suite + A1/A2 cross-scenario sweeps + Feynman registration (Wave 3; SC-03, SC-05, SC-06)
+- [ ] 89.1a-04-PLAN.md -- Phase gate transcript + live Brain smoke test + human-verify phase close (Wave 3; SC-07)
+**Authority**: .planning/milestones/v1.11.0-KICKOFF.md §5 (Engine Architecture), §4 (Architecture - Canon Part 8 Compliant), §8 (Canon Compliance Plan), §9 (Implementation Guidance); .planning/milestones/v1.12.0-LIVE-VALIDATION-2026-04-24.md §4 (bidirectional NL-graph architecture context)
+
 ### Phase 90: Brain Derivation Layer
 **Goal**: Let the Brain excavate the per-folder memory triple (Phase 88) and produce a persistent authored layer on top. Each section carries an optional BRAIN.md with Brain-authored pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, and cross-room contradiction flags. Derivation is persistent (git-trackable), versioned (governing_thought_hash invalidation), staleness-aware, offline-tolerant, query-optimized. Triple becomes quadruple. Moat becomes visible.
 **Depends on**: Phase 88 (triple foundation), existing brain-connector skill (ambient enrichment to be extended not replaced), existing brain-client.cjs
@@ -380,7 +410,19 @@ Plans:
   7. /mos:explain-decision surfaces trace for any prior turn
   8. All prior phases' tests stay green
   9. 5-gate release: CHANGELOG 1.11.0, plugin.json 1.11.0, package.json 1.11.0, git tag v1.11.0, marketplace pin (MINOR version bump opens v1.11.x milestone line)
-**Plans**: 10 plans across 5 waves (not yet filed)
+**Plans**: 11 plans across 5 waves
+Plans:
+- [ ] 91-00-navigation-engine-core-PLAN.md -- lib/core/navigation-engine.cjs L5 Decision core with decide() + structured 5-signal triangulation + Section 4 staleness multipliers + Section 5 tier modes + Section 6 RECOMMENDED gate + Section 8 8-field trace contract (NAV-CORE-01..05)
+- [ ] 91-01-user-md-persona-durability-PLAN.md -- lib/core/user-md-ops.cjs + persona-taxonomy.cjs promoting persona to first-class USER.md artifact; Larry 3-persona -> Brain 2-persona translation; atomic write + update threshold (NAV-PERSONA-01..04)
+- [ ] 91-02-userpromptsubmit-integration-PLAN.md -- scripts/intent-classifier.cjs calls engine per turn with 1200ms hard timeout; decision_trace persistence to .mindrian/decision-traces/<session>.json with 50-entry rotation (NAV-INTEGRATION-01..03)
+- [ ] 91-03-skill-activation-routing-PLAN.md -- lib/core/skill-activation-router.cjs precedence layer; Canon Part 3 10-verb vocabulary enforced; engine precedence when opinionated, legacy fallback when silent (NAV-ROUTING-01..03)
+- [ ] 91-04-next-step-offer-presentation-PLAN.md -- lib/core/offer-presenter.cjs with grounding rule + Section 6 RECOMMENDED marker respected + max-1-per-turn + 2-ignore suppression + offer-history persistence (NAV-OFFER-01..03)
+- [ ] 91-05-mos-explain-decision-command-PLAN.md -- commands/explain-decision.md + scripts/explain-decision-command.cjs rendering full trace per turn; --last N + --session flags; graceful fallback (NAV-EXPLAIN-01..03)
+- [ ] 91-06-statusline-dial-PLAN.md -- lib/core/nav-dial.cjs + scripts/context-monitor segment; Larry dial Investigate | Blend | Insight driven by engine state; Plan 88.1-04 cache pattern reused (NAV-DIAL-01..03)
+- [ ] 91-07-problem-type-routing-PLAN.md -- lib/core/problem-type-router.cjs UDP/IDP/WDP/Wicked routing from BRAIN.md problemtype_classification; Canon Appendix E R4 wicked escalation; brain-client.isAvailable() scalar upgrade (NAV-PROBLEM-TYPE-01..04)
+- [ ] 91-08-framework-chain-composition-PLAN.md -- lib/core/framework-chain-composer.cjs FEEDS_INTO chain proposal from BRAIN.md framework_chain_predictions; user override recorded as graph data (NAV-CHAIN-01..04)
+- [ ] 91-09-nav-invariants-validator-PLAN.md -- lib/memory/validators/navigation-invariants.cjs drop-in registry validator; 5 invariants (trace completeness, RECOMMENDED mode gate, weight clamp, malformed trace, unknown verb); scope=room (NAV-INVARIANTS-01..03)
+- [ ] 91-10-v1.11.0-release-gate-PLAN.md -- 5-gate release (CHANGELOG, plugin.json, package.json, git tag v1.11.0, marketplace ref pin); minor version bump per D-06 architectural shift (NAV-RELEASE-01, NAV-RELEASE-GATES-01)
 **Authority**: .planning/phases/91-navigation-engine/91-CONTEXT.md
 
 ## Planned Pipeline (post v1.10.11) -- organized 2026-04-19

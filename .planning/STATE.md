@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
-status: verifying
-stopped_at: Completed 90-09-navigation-engine-interface-spec-PLAN.md
-last_updated: "2026-04-24T07:22:41.754Z"
+status: executing
+stopped_at: Completed 89.1a-01-PLAN.md (Tasks 1-2, chokepoint + preSendAudit shipped; Plan 02 cache persistence next)
+last_updated: "2026-04-24T14:36:13.315Z"
 last_activity: 2026-04-24
 progress:
   total_phases: 20
-  completed_phases: 6
-  total_plans: 100
-  completed_plans: 89
+  completed_phases: 8
+  total_plans: 111
+  completed_plans: 91
   percent: 82
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 88 -- feynman-minto-memory-layer (v1.11.0 milestone)
+**Current focus:** Phase 89.1a — Brain Methodology Substrate Loader
 
 ## Current Position
 
-Phase: 90 -- brain-derivation-layer
-Plan: 90-02 COMPLETE (Wave 1 Plan 1 of 9). Wave 0 plans 90-00 + 90-01 + Wave 1 plan 90-02 all shipped.
-Status: Phase complete — ready for verification
+Phase: 89.1a (Brain Methodology Substrate Loader) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
 
 Phase 90-02 commits (main, NOT yet pushed):
 
@@ -100,6 +100,8 @@ Progress: [████████░░] 82%
 | Phase 90-brain-derivation-layer P06 | 50m | 1 tasks | 3 files |
 | Phase 90-brain-derivation-layer P07 | 20 | 2 tasks | 5 files |
 | Phase 90-brain-derivation-layer P09 | 25 | 1 tasks | 1 files |
+| Phase 88.7 PDOGFOOD-ROOM-UPGRADE | 4.5min | 2 tasks | 15 files |
+| Phase 89.1a P01 | 4m10s | 2 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -322,6 +324,11 @@ Progress: [████████░░] 82%
 - [Phase 90-brain-derivation-layer]: Plan 90-09: RECOMMENDED marker is Mode A + pattern_matches candidate confidence >= 0.7 (Canon Part 3 invariant); Mode B and Tier 0 NEVER render the marker because ranking without Brain-authored confidence would be arbitrary
 - [Phase 90-brain-derivation-layer]: Plan 90-09: Navigation Engine is READ-ONLY against BRAIN.md; fresh derivations route through Plan 90-02 enqueue -> Plan 90-01 deriveSection chokepoint; direct brain-client.query/search/smartSearch FORBIDDEN; Cypher embedding of BRAIN.md body FORBIDDEN (Canon Part 8 Section 9)
 - [Phase 90-brain-derivation-layer]: Plan 90-09: Section 8 freezes 8 decision_trace fields Phase 91 MUST emit (version, staleness, stale_reason, weight_applied, recommended_confidence, recommended_marker_rendered, tier_mode, sections_consumed); zero-weight decisions still emit trace for /mos:explain-decision
+- [Phase 88.7]: DOGFOOD-ROOM-UPGRADE Tier A: MINTO prerequisite blocker fixed via Phase 88 tier-0 generator (Rule 3 auto-fix); 7/7 BRAIN.md derived local-only; Canon Part 8 clean; Tier B/C/D deferred to interactive sessions per plan
+- [Phase 89.1a]: Plan 89.1a-01: FORBIDDEN_PATTERNS re-exported (not redefined) from cross-room-aggregator; require-time guard throws on length < 6 so refactors are loud not silent
+- [Phase 89.1a]: Plan 89.1a-01: validateCtx throws TypeError (never returns boolean) so silent false-return cannot smuggle user-specific bytes past buildBrainSubstrateQuery
+- [Phase 89.1a]: Plan 89.1a-01: Pitfall 1 guard covers BOTH Pinecone fallback shapes (result.error=pinecone_quota_exhausted AND result._source=neo4j_fallback); neither is substrate-quality so neither gets cached
+- [Phase 89.1a]: Plan 89.1a-01: loadSubstrate wrapped in top-level try/catch returns {success:true, substrate:[], mode:B3} on any exception so callers never need a try/catch
 
 ### Pending Todos
 
@@ -343,6 +350,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-24T07:22:25.566Z
-Stopped at: Completed 90-09-navigation-engine-interface-spec-PLAN.md
+Last session: 2026-04-24T14:36:13.307Z
+Stopped at: Completed 89.1a-01-PLAN.md (Tasks 1-2, chokepoint + preSendAudit shipped; Plan 02 cache persistence next)
 Resume file: None
