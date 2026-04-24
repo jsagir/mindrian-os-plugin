@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
-status: executing
-stopped_at: Completed 89.1a-03-PLAN.md
-last_updated: "2026-04-24T15:29:49.634Z"
+status: verifying
+stopped_at: Completed 89.1a-04-PLAN.md (Phase Gate + Live Brain Smoke)
+last_updated: "2026-04-24T16:07:21.114Z"
 last_activity: 2026-04-24
 progress:
   total_phases: 20
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 89.1a (Brain Methodology Substrate Loader) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 
 Phase 90-02 commits (main, NOT yet pushed):
 
@@ -104,6 +104,7 @@ Progress: [████████░░] 82%
 | Phase 89.1a P01 | 4m10s | 2 tasks | 2 files |
 | Phase 89.1a P02 | 6m1s | 2 tasks | 2 files |
 | Phase 89.1a P03 | 37m | 2 tasks | 2 files |
+| Phase 89.1a P04 | 22m34s | 3 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -336,6 +337,9 @@ Progress: [████████░░] 82%
 - [Phase 89.1a]: Plan 89.1a-02: MINDRIAN_BRAIN_SUBSTRATE_TTL_DAYS env override bounded [1, 3650] days; out-of-range clamps to DEFAULT_TTL_DAYS=30 so bad env value degrades gracefully vs crashing session-start
 - [Phase 89.1a]: Plan 89.1a-02: Validator Check D JSON.stringify-scans entry.metadata only (not embedding); embeddings are Float64 arrays and any regex hit there would be a mis-encoded string smuggled as array element -- caught by shape check E.3 instead
 - [Phase 89.1a]: Plan 03: 14-scenario adversarial fixture suite + Feynman runner registration; baseline advanced 62 -> 63; A1 + A2 sweeps clean (0 forbidden matches across 6 landed caches, 0 orphan tmpfiles across 14 roomDirs)
+- [Phase 89.1a]: Plan 89.1a-04 Phase Gate: 9/9 asserts PASS; I1-I8 invariant coverage proven; zero new runtime deps; bundled_release honored (no CHANGELOG/plugin.json/package.json changes)
+- [Phase 89.1a]: Plan 89.1a-04 Live Brain smoke: status PASS with Mode B3 observed vs A3 expected; root cause is pre-existing brain-client response shape {result:{hits:[]}} vs pullFromBrain expected {matches:[]}; Canon Part 8 wire-contract proven clean (audit line outcome=pass with generic handles only)
+- [Phase 89.1a]: Plan 89.1a-04 deferred-items filed: brain-client vs pullFromBrain shape mismatch owned by Phase 89.1 planner; two remediation options proposed (pullFromBrain shape adapter OR brain-client searchWithVectors new method); neither alters Canon Part 8 contract
 
 ### Pending Todos
 
@@ -357,6 +361,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-24T15:29:43.790Z
-Stopped at: Completed 89.1a-03-PLAN.md
+Last session: 2026-04-24T16:07:09.549Z
+Stopped at: Completed 89.1a-04-PLAN.md (Phase Gate + Live Brain Smoke)
 Resume file: None
