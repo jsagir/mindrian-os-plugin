@@ -176,7 +176,8 @@ Each command gets a colored ■ block matching its job category. Descriptions ar
   ├─ {Y}■{X} /mos:funding                {M}Track non-dilutive funding from discovery to submission{X}
   ├─ {Y}■{X} /mos:suggest-next           {M}Get a graph-informed recommendation on what to do next{X}
   ├─ {Y}■{X} /mos:deep-grade             {M}Get percentile-ranked scoring against real student ventures{X}
-  └─ {Y}■{X} /mos:diagnostics            {M}Wave-1 algorithmic fingerprint -- disruption, coverage, novelty, surprise{X}
+  ├─ {Y}■{X} /mos:diagnostics            {M}Wave-1 algorithmic fingerprint -- disruption, coverage, novelty, surprise{X}
+  └─ {Y}■{X} /mos:brain-derive           {M}Force-refresh BRAIN.md for section(s) now -- single, --all, or --cross-room{X}
 
   {M}▼ Working Sessions{X}
   ├─ {R}■{X} /mos:act                    {M}Larry picks the right framework -- you just describe the problem{X}
@@ -369,7 +370,7 @@ structure-argument, lean-canvas, analyze-systems, systems-thinking, find-bottlen
 think-hats, challenge-assumptions, scenario-plan, explore-futures, dominant-designs, find-analogies, score-innovation, persona, leadership, act --swarm, persona --parallel
 
 ### YELLOW (Intelligence + Brain)
-query, graph, research, find-connections, compare-ventures, scout, opportunities, funding, suggest-next, deep-grade, diagnostics, file-meeting, reanalyze, speakers, research --broad
+query, graph, research, find-connections, compare-ventures, scout, opportunities, funding, suggest-next, deep-grade, diagnostics, brain-derive, file-meeting, reanalyze, speakers, research --broad
 
 ### GREEN (Output + Export)
 export, present, dashboard, wiki, visualize, publish, reason
