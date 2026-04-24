@@ -400,7 +400,7 @@ L5 Decision  : Navigation Engine reads L3 to pick skill/command/framework
 | **88.6** | Python Algorithm Wiring (URGENT) | v1.10.14 | orchestration | 4 plans filed 2026-04-23 |
 | **88.1** | UI/UX Polish + MINTO Surface Plumbing | v1.10.14 | L4 surfaces + hygiene | CONTEXT filed 2026-04-20 |
 | **89** | Reverse-Salient Engine | v1.10.x | L5 support (local) | 7 plans existing |
-| **90** | Brain Derivation Layer | v1.10.15 | L2 Brain-on-top | CONTEXT filed |
+| **90** | Brain Derivation Layer | v1.10.17 | L2 Brain-on-top | EXECUTING (3/11 plans; 90-00, 90-01, 90-02 shipped) |
 | **91** | Navigation Engine | v1.11.0 | L5 Decision | CONTEXT filed |
 | **92** | Discord/Zulip multi-surface (candidate) | v1.11.x | L4 surface | research only |
 | **93** | Goose extension (candidate) | v1.11.x | L4 surface | research only |

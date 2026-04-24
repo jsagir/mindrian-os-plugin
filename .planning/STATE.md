@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: verifying
-stopped_at: Completed 90-01 brain-derivation-core plan
-last_updated: "2026-04-24T02:53:04.173Z"
+stopped_at: Completed 90-02 governing-thought-change-trigger plan
+last_updated: "2026-04-24T06:30:00.000Z"
 last_activity: 2026-04-24
 progress:
   total_phases: 16
   completed_phases: 5
   total_plans: 90
-  completed_plans: 74
-  percent: 82
+  completed_plans: 76
+  percent: 84
 ---
 
 # Project State
@@ -25,9 +25,16 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 90
-Plan: 90-00 COMPLETE (Wave 0 Plan 1 of 2)
-Status: Phase complete — ready for verification
+Phase: 90 -- brain-derivation-layer
+Plan: 90-02 COMPLETE (Wave 1 Plan 1 of 9). Wave 0 plans 90-00 + 90-01 + Wave 1 plan 90-02 all shipped.
+Status: Phase in progress -- 8 plans remaining (90-03 session-start-staleness-scan, 90-04 read-quadruple, 90-05 brain-md-invariants-validator, 90-06 cross-room-aggregation, 90-07 mos-brain-derive-command, 90-08 graceful-degradation-suite, 90-09 navigation-engine-interface-spec, 90-10 release-gates).
+
+Phase 90-02 commits (main, NOT yet pushed):
+- bae9926 test(90-02): add failing tests for brain-derivation-queue (RED)
+- 0f31873 feat(90-02): implement brain-derivation-queue (GREEN, 15/15 passing)
+- 6d9eeb7 feat(90-02): wire post-regen hook + UserPromptSubmit drain (19/19 passing)
+
+Phase 90-02 outcome: BRAIN.md regeneration follows Feynman-MINTO automatically. Post-regen hook in vault-section-minto-generator.cjs captures prior governing_thought sha256, compares against new value, enqueues brain-derivation when they differ. UserPromptSubmit drain spawns detached deriveSection child per eligible queue entry; parent exits within 100ms so user turn never waits. Canon Part 8 preserved: queue carries section + sha256 hash pairs + ISO timestamp + reason ONLY (Test 12 audits against forbidden substrings on adversarial fixture). Feynman suite advanced 54 -> 55 (baseline+1 per plan contract).
 
 Prior: 89-01 + 89-02 + 89-03 + 89-04 + 89-05 + 89-06 shipped on main. 89-05 ships Mode C (hybrid) via lib/core/rs_hybrid.py (unified corpus builder + cross-corpus pair filter) and scripts/rs-engine.py --mode hybrid wiring. Warm/cold/bypass paths inherited from Plan 89-03 unchanged. Pairs carry hybrid=True metadata + room_artifact + external_doc structs + Mode A-compatible source_*/target_* fields so Plan 89-06 bridge-writer consumes hybrid output through its schema-tolerant resolver without edits. Plan 89-07 (ReverseSalientAgent wiring + release dashboard) is the remaining Phase 89 plan.
 
