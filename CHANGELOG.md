@@ -9,6 +9,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.10.17] - 2026-04-24
+
+Hotfix for YAML frontmatter parse errors in three command files introduced by
+the Phase 88.1 frontmatter hygiene sweep (v1.10.15). The self-update validator
+caught these before any user install took damage -- the 5-gate release
+protocol doing its job. Patch release, fix-only, no feature change. Phase 89
+reverse-salient-engine behavior byte-identical. Phase 90 brain-derivation-
+layer work remains unshipped (continues in v1.10.18+). Upstream bug root
+cause: multi-bracket argument-hint values (e.g. `[--chain] [--swarm]
+[--dry-run]`) are parsed by YAML as implicit flow-sequence mapping pairs and
+require a colon between bracket groups, which is absent in shell-style hints.
+Single-bracket hints (e.g. `[pipeline-name]`) parse cleanly as flow sequences
+and were not affected. Fix: single-quote the offending values so YAML treats
+them as plain strings. 72/72 command files + 8/8 agent files now parse
+cleanly through gray-matter regression sweep.
+
+### Fixed
+
+- `commands/act.md` line 4 -- `argument-hint` single-quoted. Was
+  `[--chain] [--swarm] [--dry-run]`, now `'[--chain] [--swarm] [--dry-run]'`.
+  YAML parser now reads the value as a string; command metadata loads at
+  plugin load instead of silently dropping `name`, `description`,
+  `body_shape`, `ui_reference`, and `allowed-tools` fields (including the
+  four Brain MCP tool allowances).
+- `commands/vault.md` line 4 -- `argument-hint` single-quoted. Was
+  `[<room-name>] [--path <dir>]`, now `'[<room-name>] [--path <dir>]'`.
+  Restores `disable-model-invocation: true`, `body_shape_overview`,
+  `ui_reference`, and `allowed-tools` at plugin load time.
+- `commands/snapshot.md` line 4 -- `argument-hint` single-quoted. Was
+  `[<room-path>] [--open]`, now `'[<room-path>] [--open]'`. Restores
+  `disable-model-invocation: true`, `usage`, `category`, `surface`,
+  `requires`, and `allowed-tools` at plugin load time.
+
+### Notes
+
+- Self-update validator on v1.10.12 installs refused to install v1.10.16
+  cleanly (validation gate on staged copy). Nothing was ever written to the
+  user's plugin cache directory. The fix ships as a hotfix branched from
+  `origin/main` at v1.10.16 HEAD, isolating in-flight Phase 90 WIP from
+  the release commit range.
+- Two-command upgrade path per docs/release-process.md: users on v1.10.12
+  or v1.10.16 run `/plugin marketplace update` then `claude plugin update
+  mos@mindrian-marketplace`. Auto-update path not enabled by default for
+  third-party plugins; manual upgrade is correct-by-design.
+- Canon Part 7 (Reuse Before Build) honored: no new code, only YAML
+  single-quote wrapping on three existing files.
+- Canon Part 8 preserved: zero Brain egress surface change; pure
+  plugin-layer patch.
+- Three-surface parity preserved: CLI / Desktop / Cowork all load the
+  three affected commands identically once frontmatter parses cleanly.
+
 ## [1.10.16] - 2026-04-24
 
 Phase 89 reverse-salient-engine ships. Canon Part 2 Engine 1 Act 1 formal

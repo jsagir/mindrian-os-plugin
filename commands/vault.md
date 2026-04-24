@@ -1,7 +1,7 @@
 ---
 name: vault
 description: Export the Data Room as an Obsidian vault
-argument-hint: [<room-name>] [--path <dir>]
+argument-hint: '[<room-name>] [--path <dir>]'
 disable-model-invocation: true
 body_shape_overview: E (Mini Report)
 ui_reference: skills/ui-system/SKILL.md
