@@ -283,6 +283,16 @@ Plans:
 - [x] 88-13-PLAN.md -- Feynman-MINTO Guardian boundary enforcement (session-start validate, on-stop verify, pre-commit extend)
 **Authority**: .planning/phases/88-feynman-minto-memory-layer/88-CONTEXT.md
 
+### Phase 88.7: power-demo-multipage-export (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 88
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 88.7 to break down)
+
 ### Phase 88.6: Python Algorithm Wiring (v1.10.14)
 **Goal**: Close the orphan-value gap between the Python algorithm layer (15 verified scripts) and the user-facing product surface (/mos:* commands). Fix one silent production bug (discover-* pipelines silently return 0 zones when brain-baseline.json missing), expose four orphan Wave-1 algorithms (Funk and Owen-Smith Disruption Index, Good-Turing Blindspot Mass, Centroid-Distance Element Novelty, Leave-One-Out Bayesian Surprise) via new /mos:diagnostics command, wrap two-step external whitespace flow behind single command surface with rate-limit graceful degradation. Orchestration-only phase, zero new algorithms. Triggered by mid-milestone discovery during Rubos meeting (John Shorter, Ryan Lewis) where Ryan's technical questions prompted an audit that surfaced the orphan-value gap.
 **Depends on**: Phase 88 v1.10.13 (shipped), Node 22.5+, existing Python scripts (scripts/compute-*.py, scripts/discover-*.py, scripts/fetch-brain-baseline.cjs, scripts/query-semantic-scholar.cjs, scripts/compute-external-whitespace.py)

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: verifying
-stopped_at: Completed 90-brain-derivation-layer/90-06-cross-room-aggregation-PLAN.md
-last_updated: "2026-04-24T06:24:56.678Z"
+stopped_at: Completed 90-09-navigation-engine-interface-spec-PLAN.md
+last_updated: "2026-04-24T07:22:41.754Z"
 last_activity: 2026-04-24
 progress:
-  total_phases: 19
+  total_phases: 20
   completed_phases: 6
-  total_plans: 99
-  completed_plans: 86
+  total_plans: 100
+  completed_plans: 89
   percent: 82
 ---
 
@@ -98,10 +98,13 @@ Progress: [████████░░] 82%
 | Phase 90-brain-derivation-layer P04 | 35 | 2 tasks | 4 files |
 | Phase 90-brain-derivation-layer P05 | 45 | 1 tasks | 3 files |
 | Phase 90-brain-derivation-layer P06 | 50m | 1 tasks | 3 files |
+| Phase 90-brain-derivation-layer P07 | 20 | 2 tasks | 5 files |
+| Phase 90-brain-derivation-layer P09 | 25 | 1 tasks | 1 files |
 
 ### Roadmap Evolution
 
 - Phase 88.6 inserted after Phase 88: python-algorithm-wiring (URGENT) -- Close orphan-value gap between 15 verified Python algorithms and user-facing product surface. Fixes silent production bug in discover-* pipeline (baseline not auto-fired) and exposes 4 orphan Wave-1 algorithms (surprise, disruption, novelty, blindspot). Evidence: smoke test 2026-04-23 on mindrianOS data room. See CONTEXT.md in phase dir.
+- Phase 88.7 inserted after Phase 88: power-demo-multipage-export (URGENT) -- Ship /mos:power-demo: evidence-grounded multi-page HTML site for first-contact viewers. Consumes 88.6 outputs. 3-door lobby (thesis/intelligence/provenance), persistent sidebar nav, hover tooltips, timeline page, De Stijl rich text. Parallel-safe with phases 89/90/91. Target: Rubos round two demo on mindrianOS room itself. See CONTEXT.md in phase dir.
 
 | Phase 71 P01 | 4min | 2 tasks | 3 files |
 | Phase 71 P02 | 3min | 2 tasks | 2 files |
@@ -311,6 +314,14 @@ Progress: [████████░░] 82%
 - [Phase 90-brain-derivation-layer]: Phase 90-06: Phase 83 .rooms/registry.json + GUARDRAIL.md reuse preserved byte-for-byte; zero Phase 83 code edits
 - [Phase 90-brain-derivation-layer]: Phase 90-06: cross_room_scan:false default; opt-in per-call (plan 90-07 surfaces --cross-room flag); aggregator lazy-required in brain-derivation.cjs so default-off path adds zero require-graph cost
 - [Phase 90-brain-derivation-layer]: Phase 90-06: Three frozen contradiction types (hash_divergence, framework_contradiction, problem_type_mismatch); detail_scalar primitive-only, strings <=40 chars, zero forbidden regex hits
+- [Phase 90-brain-derivation-layer]: Four invocation modes (single / --all / --cross-room / --dry-run) orthogonal on single dispatch() call
+- [Phase 90-brain-derivation-layer]: Streaming progress threshold: N > 3 sections emits stderr lines; Shape E still renders on stdout
+- [Phase 90-brain-derivation-layer]: Rate-limit mid-batch short-circuits remaining deriveSection calls; partial completion is valid
+- [Phase 90-brain-derivation-layer]: Canon Part 8 by wrapping: dispatcher adds ZERO new Brain surface; every Brain call proxied through deriveSection
+- [Phase 90-brain-derivation-layer]: Plan 90-09: INTERFACE_VERSION=1 frozen; readQuadruple is the ONLY Navigation Engine read path (direct fs FORBIDDEN); Section 3.2 weight table sums to 1.0 on required sections (0.35 pattern_matches highest; 0.20 framework_chain_predictions); brain_offline exemption (0.9 multiplier, not 0.0) matches Plan 90-04 isQuadrupleFresh
+- [Phase 90-brain-derivation-layer]: Plan 90-09: RECOMMENDED marker is Mode A + pattern_matches candidate confidence >= 0.7 (Canon Part 3 invariant); Mode B and Tier 0 NEVER render the marker because ranking without Brain-authored confidence would be arbitrary
+- [Phase 90-brain-derivation-layer]: Plan 90-09: Navigation Engine is READ-ONLY against BRAIN.md; fresh derivations route through Plan 90-02 enqueue -> Plan 90-01 deriveSection chokepoint; direct brain-client.query/search/smartSearch FORBIDDEN; Cypher embedding of BRAIN.md body FORBIDDEN (Canon Part 8 Section 9)
+- [Phase 90-brain-derivation-layer]: Plan 90-09: Section 8 freezes 8 decision_trace fields Phase 91 MUST emit (version, staleness, stale_reason, weight_applied, recommended_confidence, recommended_marker_rendered, tier_mode, sections_consumed); zero-weight decisions still emit trace for /mos:explain-decision
 
 ### Pending Todos
 
@@ -332,6 +343,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-24T06:24:43.812Z
-Stopped at: Completed 90-brain-derivation-layer/90-06-cross-room-aggregation-PLAN.md
+Last session: 2026-04-24T07:22:25.566Z
+Stopped at: Completed 90-09-navigation-engine-interface-spec-PLAN.md
 Resume file: None
