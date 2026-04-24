@@ -45,7 +45,7 @@ Every phase plan that touches a canon concept must declare `canon_parts:` in its
 | shipped | Whitespace Map | /mos:whitespace + Python hsi-* scripts (sentence-transformers + LSA); baseline auto-fire (Phase 88.6 Plan 01), external corpus rate-limit orchestration (Phase 88.6 Plan 03) | commands/whitespace.md, scripts/hsi-*, scripts/ensure-brain-baseline.cjs, scripts/query-semantic-scholar.cjs |
 | shipped | Reverse Salient + Cross-Domain Match | /mos:find-bottlenecks, /mos:find-connections, /mos:find-analogies, /mos:score-innovation + Pinecone 1,427 embeddings; Wave-1 scalars surfaced via /mos:diagnostics (Phase 88.6 Plan 02) | commands/find-*.md, scripts/hsi-*, Pinecone index, commands/diagnostics.md |
 | shipped | Wave-1 Algorithmic Fingerprint | /mos:diagnostics runs compute-disruption-index, compute-blindspot-mass, compute-element-novelty, compute-bayesian-surprise with interpretation strings (Phase 88.6 Plan 02) | commands/diagnostics.md, scripts/diagnostics-command.cjs |
-| planned | Reverse-Salient formal engine | Phase 89 reverse-salient-engine | .planning/phases/89-reverse-salient-engine/ |
+| shipped | Reverse-Salient formal engine | Phase 89 reverse-salient-engine (v1.10.16) -- rs_math + rs_corpus + rs_cache + rs_rooms + rs_hybrid helpers + 4-mode rs-engine.py CLI + bridge-writer + De Stijl Cytoscape.js mind map | lib/core/rs_*.py, scripts/rs-engine.py, scripts/write-bridge-artifacts.cjs, lib/core/bridge-writer.cjs |
 
 Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm layer and the user-facing command surface: 4 Wave-1 algorithms (Disruption Index, Blindspot Coverage, Element Novelty, Bayesian Surprise) are now exposed via /mos:diagnostics; baseline auto-fire eliminates the silent-zero production bug in discover-* pipelines; external Semantic Scholar orchestration handles rate limits gracefully (with real per-query telemetry persisted in external-papers.json queries[]). Evidence: 2026-04-23 smoke test on mindrianOS room, CD = -0.7092, coverage = 0.667, 4 of 5 Semantic Scholar queries returning data.
 
@@ -74,7 +74,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 | shipped | Cascade edges (INFORMS/CONTRADICTS/CONVERGES/INVALIDATES/ENABLES) | Phase 84 smart-notebook, Phase 87 security-hardening-cascade-refactor |
 | shipped | Opportunity Bank with HSI scoring | lib/core/opportunity-ops.cjs, scripts/hsi-* |
 | shipped | Feynman-MINTO memory triple | Phase 88 feynman-minto-memory-layer |
-| planned | Reverse salient as graph signal | Phase 89 reverse-salient-engine |
+| shipped | Reverse salient as graph signal | Phase 89 reverse-salient-engine (v1.10.16) -- Mode A writes REVERSE_SALIENT edges into room.db with properties.source='rs-engine' (coexists with hsi-sourced edges); cross-room and hybrid modes emit pairs with direction + signed_diff as bridge artifacts for Decision Gate approval per Canon Part 3 | scripts/rs-engine.py, lib/core/bridge-writer.cjs |
 
 ### Part 5 - Evidence Is Graded By Context
 
@@ -161,6 +161,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 | v1.3          | TBD      | 2026-04-20 | Engine 1 Act 1 code-driven (whitespace + reverse salient + cross-domain match via embeddings + HSI). |
 | v1.3 (kept)   | TBD      | 2026-04-23 | Phase 88.6 (v1.10.14) wired 4 Wave-1 algorithms + baseline auto-fire + external rate-limit handling. No canon text change; map row updates only. |
 | v1.3 (kept)   | TBD      | 2026-04-23 | Phase 88.1 (v1.10.15) polish sweep shipped -- L1-L7 surfaces + hook primitives + statusline/mos:status/SessionStart banner LOCAL-context render + 57x claim retuned to "up to 57x" with telemetry validation surface shipped (Plan 88.1-16; defensibility gate documented in CHANGELOG). No canon text change; map row updates only. |
+| v1.3 (kept)   | TBD      | 2026-04-24 | Phase 89 (v1.10.16) reverse-salient-engine shipped -- Canon Part 2 Engine 1 Act 1 formal reverse-salient engine promoted from planned to shipped: 4-mode rs-engine.py CLI (internal / cross-room / external / hybrid) + 5 pure Python helper modules (rs_math, rs_corpus, rs_cache, rs_rooms, rs_hybrid) + Obsidian nested bridge-writer + De Stijl Cytoscape.js mind map. Part 8 preserved: rs-external Pinecone index holds ONLY public OpenAlex/arXiv metadata; zero user-content egress. No canon text change; map row updates only. |
 
 ---
 

@@ -9,6 +9,222 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.10.16] - 2026-04-24
+
+Phase 89 reverse-salient-engine ships. Canon Part 2 Engine 1 Act 1 formal
+reverse-salient engine lands across six waves: authoritative Hughes 1983 /
+Kwan 2023 LSA + signed abs-diff algorithm port, tiered external corpus
+fetcher (OpenAlex + arXiv + Tavily), Pinecone rs-external lazy-TTL cache
+with multilingual-e5-large integrated embedding, cross-room multi-project
+mode, hybrid room-x-external unified-corpus mode, and Obsidian nested
+bridge artifact writer with De Stijl Cytoscape.js mind map. Five new pure
+Python helper modules (rs_math, rs_corpus, rs_cache, rs_rooms, rs_hybrid)
+plus scripts/rs-engine.py 4-mode CLI and scripts/write-bridge-artifacts.cjs
+Obsidian renderer. Warm external-corpus runs drop to ~15s via Pinecone
+cache; bypass path preserves Plan 89-02 byte-identical behavior when
+Pinecone is unavailable (CLAUDE.md Decision 8 Tier 0 functionality).
+Feynman suite 52/52 passing. Zero new runtime dependencies beyond
+pinecone>=5.0.0 added to requirements-hsi.txt (Python-side only; plugin
+JS deps unchanged). BSL 1.1 on every new .py/.cjs file. Canon Parts 2, 3,
+4, 6, 7, 8 honored. Three-surface parity preserved across CLI, Desktop
+ReverseSalientAgent wiring, and Cowork 00_Context/ mirror.
+
+### Added
+
+- Reverse salient math substrate `lib/core/rs_math.py` (287 lines):
+  authoritative port of the Kwan 2023 algorithm from source/lsa.py +
+  source/comparison.py. Seven helpers: build_tfidf_svd,
+  extract_topic_keywords, count_topic_membership (topic-keyword membership
+  counting preserved verbatim -- cosine-on-SVD substitution would change
+  the signal entirely per ALGORITHM-SOURCE.md line 72 warning),
+  normalize_and_l1_similarity, abs_diff_topk (iterative argmax with
+  upper-triangle masking and symmetric cleanup so no (i,i) self-pair ever
+  wins and no (j,i) mirror duplicates), classify_direction, build_lsa_matrix.
+  NLTK stopwords dependency dropped in favor of TfidfVectorizer built-in
+  English stopword list (no NLTK download required). (Plan 89-01)
+- Mode A single-room CLI `scripts/rs-engine.py` (654 lines initial, 1755
+  at Phase 89 end): `--mode internal --room PATH [--topk 100] [--threshold
+  0.30] [--no-thesis] [--output PATH]`. Walks `room/*.md` on the
+  filesystem (same pattern as scripts/compute-hsi.py:discover_artifacts --
+  no room.db artifacts table exists). Writes `.rs-engine-results.json`
+  with pair dicts carrying source_artifact_id, target_artifact_id,
+  lsa_score, semantic_score, signed_diff, abs_diff, direction
+  (structural_transfer | semantic_implementation). Writes REVERSE_SALIENT
+  edges into `room.db` when present, with `properties.source='rs-engine'`
+  so hsi-sourced edges coexist untouched (per-edge scoping, not per-table
+  -- lazygraph-ops schema has no dedicated REVERSE_SALIENT table). JSON
+  sidecar embedding cache `.rs-engine-cache.json` keyed by artifact id +
+  content SHA256[:16] + model name; warm rerun drops from ~4s cold to
+  ~0.9s warm on the 6-artifact fixture. (Plan 89-01)
+- External corpus fetcher `lib/core/rs_corpus.py` (468 lines): OpenAlex
+  primary, arXiv secondary, Tavily fallback (gated by TAVILY_API_KEY).
+  Seven exports: fetch_corpus, fetch_openalex, fetch_arxiv, fetch_tavily,
+  invert_abstract (reconstructs OpenAlex abstract_inverted_index per
+  RESEARCH Pitfall 3), dedupe (DOI-preferred, normalized-title fallback,
+  first-seen ordering), topic_slug. OpenAlex cursor pagination with
+  polite-pool User-Agent + mailto: (OPENALEX_EMAIL env); arXiv Atom XML
+  parsing with 0.35s spacing respecting ~3 req/s soft cap. Empty-abstract
+  filter at every tier so target_n counts usable docs. MAX_TARGET_N=20000
+  hard ceiling so misconfigured --topk cannot balloon external API usage.
+  Skips Scopus, Semantic Scholar direct, USPTO direct, PubMed. (Plan 89-02)
+- Mode B external wiring `--mode external --topic "..." --room PATH`
+  produces signed-differential pairs across the freshly-fetched literature
+  corpus; corpus persisted to `{room}/research/{topic-slug}/_corpus.jsonl`
+  for provenance; results at `{room}/research/{topic-slug}/.rs-engine-results.json`.
+  Overshoot formula `max(topk*20, topk*2)` preserves delivered pair count
+  after dedup attrition on small --topk values. Pair dicts carry source_doi,
+  source_url, target_doi, target_url alongside Mode A artifact-id fields
+  (Plan 89-06 resolvePairIdentity schema-tolerant across both shapes).
+  Auto-creates room dir for --mode external; Mode A existing-check
+  preserved. (Plan 89-02)
+- Pinecone rs-external lazy-TTL cache `lib/core/rs_cache.py` (479 lines):
+  Velma-pattern wrapper around integrated-embedding Pinecone index with
+  multilingual-e5-large field-map text->abstract on us-east-1 aws. Nine
+  public entries: namespace_slug, ensure_index (idempotent create +
+  readiness polling via desc.status.ready attribute form per scripts/
+  consolidate-pinecone.py precedent), get_namespace_freshness (samples
+  one record via list()+fetch() -- raw-vector query() fails on integrated-
+  embedding indexes), upsert_corpus (batches of 96 matching Pinecone
+  inference limit, single shared fetched_at timestamp per batch for single-
+  sample freshness inference), query_namespace, fetch_all_from_namespace,
+  is_fresh, plus INDEX_NAME, TTL_DAYS=30, MAX_NAMESPACE_VECTORS=10000
+  (raises with sharding hint rather than silently truncating). Per-topic
+  namespace keyed by topic_slug. Timezone-aware datetime.now(timezone.utc)
+  replaces deprecated utcnow. (Plan 89-03)
+- Mode B Pinecone warm/cold/bypass state machine: warm path reads 1024-dim
+  e5-large vectors from rs-external namespace if age < 30 days, skipping
+  fetch entirely; cold path fetches via fetch_corpus + upsert_corpus +
+  re-fetch from Pinecone (re-reading server-side vectors rather than
+  locally-embedded ones guarantees warm/cold semantic consistency on
+  repeated runs); bypass path falls through to Plan 89-02 local MiniLM
+  behavior byte-identical when PINECONE_API_KEY is unset or
+  RS_EMBEDDING_MODEL=minilm. New metadata fields cache_mode (warm | cold
+  | bypass), cache_age_days, cache_namespace, cache_ttl_days surface on
+  every Mode B result JSON so downstream consumers can render warm-vs-cold
+  provenance without re-computing freshness. Live smoke: 400-doc cold upsert
+  for "nv diamond magnetometry" followed by warm run hit at age=0.0 days,
+  20 pairs. (Plan 89-03)
+- Cross-room Mode A extension via `lib/core/rs_rooms.py` (193 lines) and
+  new `--rooms PATH [PATH ...]` CLI argument (nargs='+'): walks each room's
+  filesystem per-room, tags every artifact with room_id (basename) and
+  global_id (f"{room_id}::{artifact_id}") for uniqueness, skips .git /
+  .lazygraph / .mindrian / node_modules / .obsidian and the three metadata
+  files (STATE.md, ROOM.md, MINTO.md). Basename-collision disambiguator
+  suffixes duplicate room_ids with -2, -3. `CROSS_ROOM_OVERSHOOT=3` keeps
+  delivered pair count near topk after intra-room discards on up-to-67%
+  intra-room fraction; `CROSS_ROOM_WARN_SHARE=0.05` warns on stderr when
+  any room contributes less than 5% of the corpus (plan Risk 1 mitigation:
+  prevents silent LSA skew). Separate cache directory
+  `.rs-engine-cross-room-cache/` prevents collision with Mode A single-room
+  cache keyed by per-room artifact_id. Mutually exclusive with --room and
+  --mode external; requires at least two paths. `pair_matrix` metadata
+  surfaces cross-room bridge counts keyed on sorted room-id tuples. Mode
+  A multi-room writes NO room.db edges (cross-room pairs span rooms, no
+  single room.db owns them). `<10` artifact threshold and all-single-room
+  edge cases return well-formed empty-pairs JSON with clear stderr
+  messages. (Plan 89-04)
+- Hybrid Mode C via `lib/core/rs_hybrid.py` (586 lines) and
+  `--mode hybrid --room PATH --topic "..." [--external-target N]`:
+  build_unified_corpus returns (corpus, origin_mask, metadata) where
+  origin_mask is a numpy bool array (True=room, False=external) for O(1)
+  cross-corpus filtering. Room-side loader reuses scripts/rs-engine.py:
+  discover_artifacts byte-for-byte so Mode A and Mode C see identical
+  artifact inclusion rules. External-side reuses Plan 89-03 rs_cache
+  warm/cold/bypass state machine verbatim. Full unified corpus embedded
+  in one MiniLM 384-dim model space for dimensional homogeneity on the
+  pairwise cosine matrix; cached e5-large vectors retained on external_doc
+  for future downstream reranking. `HYBRID_OVERSHOOT=10` multiplier on
+  abs_diff_topk keeps post-filter yield near topk on realistic corpora
+  (O(100) room vs O(2000) external means >99% strongest by volume are
+  external-external). filter_cross_corpus_pairs canonically orients
+  room_side/external_side. `--external-target` defaults to 2000, clamped
+  to MAX_EXTERNAL_TARGET=5000 (defense-in-depth against misconfigured
+  callers blowing memory on a 50kx50k similarity matrix). Every hybrid
+  pair carries BOTH Mode A-compatible source_artifact_id/source_section/
+  source_title/target_* fields AND richer room_artifact/external_doc
+  structs so Plan 89-06 bridge-writer resolvePairIdentity handles all
+  modes through one resolver. Mode C writes NO room.db edges. `--rooms +
+  --mode hybrid` is a guard rail (exit 2); `--mode hybrid` without --topic
+  is a guard rail. Live smoke: 3 room + 200 external unified corpus,
+  cross-corpus pairs in 15.7s warm (<30s target). (Plan 89-05)
+- Obsidian bridge artifact renderer `lib/core/bridge-writer.cjs` (427
+  lines, pure): seven exports slugifyPair, resolvePairIdentity,
+  renderBridgeArtifact, renderRoomMd, renderSectionRoomMd, renderIndex,
+  renderMindMap. Schema-tolerant resolvePairIdentity collapses Mode A
+  internal (section + artifact_id), Mode B cross-room (source_room +
+  source_artifact), and Mode C hybrid (room_artifact + external_doc) into
+  a single 8-field identity struct consumed by every renderer -- one
+  module spans all four modes without per-mode branches. Dual Brain
+  framework citation in every bridge frontmatter (brain_framework_classical
+  = "framework:reverse-salient-analysis" + brain_framework_algorithmic =
+  "framework:algorithmic-generation-of-reverse-salient-solutions") per
+  ROADMAP SC-5. v1.9.7 nested folder rule: folder-name.md matches folder
+  name; ICM Layer 0 Decision 15: section ROOM.md + per-bridge ROOM.md.
+  Dataview _index.md with TABLE query aggregates bridge list. (Plan 89-06)
+- Bridge-writer CLI `scripts/write-bridge-artifacts.cjs` (140 lines,
+  chmod +x): `--results PATH --room PATH` consumes rs-engine JSON, walks
+  pairs, writes nested `opportunity-bank/cross-room-bridges/bridge-NNN-slug/`
+  folders with body + ROOM.md per v1.9.7 + ICM Layer 0. Exit 2 on missing
+  or invalid JSON; exit 3 on empty pairs. On 15-pair fixture: 15 bridge
+  folders + 16 ROOM.md (1 section + 15 bridges) + _index.md + mindmap.html
+  written. (Plan 89-06)
+- De Stijl Cytoscape.js mind map `mindmap.html`: generated per-run at
+  `cross-room-bridges/mindmap.html`. Inline De Stijl hex palette
+  (#A63D2F red, #1E3A6E blue, #C8A43C yellow, #2A6B5E teal, #F5F0E8
+  cream, #1a1a1a dark) inside Cytoscape style objects because CSS var()
+  does not resolve inside Cytoscape Canvas rendering. Direction-colored
+  edges (red structural_transfer, yellow semantic_implementation); cose
+  layout; header cites both Brain framework nodes. Cytoscape.js 3.28.1
+  via CDN -- reuses the "Cytoscape.js via CDN in dashboard HTML" STACK row
+  without adding an npm dependency. ROADMAP SC-7 satisfied. (Plan 89-06)
+- `pinecone>=5.0.0` added to `requirements-hsi.txt` (Python-side only,
+  local install verified 8.1.0; no change to plugin package.json
+  dependencies). (Plan 89-03)
+
+### Changed
+
+- `scripts/rs-engine.py` grows from 654 lines (Plan 89-01) to 1755 lines
+  (Plan 89-05 end) as Modes B, C, and --rooms dispatch land; Mode A path
+  byte-identical across all five waves (verified on /tmp/rs-test-room
+  6-artifact fixture on every plan: 15 pairs + 15 REVERSE_SALIENT edges
+  regression-checked pre- and post-commit). Mode B path byte-identical
+  from Plan 89-02 through 89-05 on the bypass branch.
+- `docs/CANON-PHASE-MAP.md` Part 2 Engine 1 "Reverse-Salient formal
+  engine" row promoted from `planned` to `shipped` with Phase 89 citation.
+  Version-history gains v1.3 (kept) 2026-04-24 row for Phase 89
+  (v1.10.16) reverse-salient engine shipment. No canon text change; map
+  row updates only.
+
+### Notes
+
+- Cost transparency (documented in `/mos:find-cross-room-bridges`
+  command help): internal + cross-room modes are $0 (pure filesystem +
+  local MiniLM); external and hybrid modes are ~$0.40-$1.10 per cold
+  run (OpenAlex free + arXiv free + Tavily metered + Pinecone integrated
+  embedding) and $0 on warm cache within 30-day TTL; `--no-thesis`
+  disables LSA fit for $0 runs on any mode.
+- Tri-polar surface: CLI direct invocation; Desktop ReverseSalientAgent
+  conversational trigger (Brain stub delegated to CrossDomainInnovationAgent
+  per RESEARCH Q6 -- simpler than duplicating APPLIES_TO edges, inherits
+  via DELEGATES_TO); Cowork `_write_cowork_symlink` mirrors results into
+  `00_Context/rs-engine-results.json` when `COWORK=1`. Team members share
+  the warm Pinecone cache per-namespace transparently.
+- Phase 89 planner had a consistent filename rendering bug: all five
+  plans (89-01 rs_math, 89-02 rs_corpus, 89-03 rs_cache, 89-04 rs_rooms,
+  89-05 rs_hybrid) listed hyphenated module filenames in frontmatter
+  while their own verify blocks imported underscore forms. Python cannot
+  import hyphenated module names; every plan applied Rule 3 Blocking
+  auto-fix to underscore filenames. Module contents match plan specs
+  verbatim; only filenames changed.
+- Canon Part 8 Graph Boundary preserved across all six waves: zero Brain
+  queries in the algorithm engine (Brain integration for ReverseSalientAgent
+  is Desktop-surface wiring only); external corpus stored in rs-external
+  Pinecone index holds ONLY public OpenAlex/arXiv metadata (DOI, title,
+  year, abstract, source, fetched_at) -- SIGNAL-to-infrastructure egress,
+  categorically distinct from LOCAL-to-BRAIN egress the Part 8
+  constitution forbids. User room content, user decisions, user meetings,
+  user assumptions never flow through rs-external.
+
 ## [1.10.15] - 2026-04-23
 
 Phase 88.1 uiux-polish ships. Surface-polish release across L1-L7 with hook
