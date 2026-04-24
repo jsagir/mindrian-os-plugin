@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
-status: 89-01 + 89-06 + 89-02 shipped on main. 89-01 provides rs-engine Mode A internal; 89-06 provides the Obsidian bridge artifact writer (pure lib/core/bridge-writer.cjs + scripts/write-bridge-artifacts.cjs CLI); 89-02 provides the external corpus fetcher (lib/core/rs_corpus.py with OpenAlex/arXiv/Tavily tier chain) + Mode B dispatch on scripts/rs-engine.py. Plans 89-03 (Pinecone embed cache for multilingual-e5-large), 89-04 (cross-room), 89-05 (hybrid), 89-07 (release wiring) still pending. Bridge-writer schema-tolerant resolver already accepts Mode B pair shape so 89-04 and 89-05 outputs will flow unchanged.
-stopped_at: Completed 89-03-PLAN.md (rs_cache + rs-engine Mode B Pinecone wiring; commits 01ba505/e70cbba; Feynman 52/52; live warm/cold/bypass smoke passed; BSL-1.1; 0 em-dashes)
-last_updated: "2026-04-24T00:49:04.054Z"
-last_activity: 2026-04-23
+status: "90-00 brain-md-schema shipped on main. lib/core/brain-md-schema.cjs (528 lines, validateSchema entry + 8 frozen exports, 5 violation categories, Canon Part 8 leak heuristics), lib/memory/brain-md-schema.test.cjs (18/18 pass, registered in Feynman suite -- baseline 52 -> 53), docs/BRAIN-MD-SCHEMA.md (250 lines, 7 sections). Zero new runtime deps, zero em-dashes, BSL 1.1, mirrors Phase 88-00-B shape with zero cross-import (flat lib/core graph). Commits: 03207e1 (RED test), 9e3e4cc (GREEN impl + registration), 1a8c455 (schema doc). Next: Plan 90-01 brain-derivation-core (final Wave 0 plan)."
+stopped_at: Completed 90-00-brain-md-schema-PLAN.md
+last_updated: "2026-04-24T02:31:40.392Z"
+last_activity: 2026-04-24
 progress:
   total_phases: 16
   completed_phases: 5
-  total_plans: 79
-  completed_plans: 70
-  percent: 81
+  total_plans: 90
+  completed_plans: 73
+  percent: 82
 ---
 
 # Project State
@@ -25,9 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 89
-Plan: 89-03 (next; 89-01 + 89-06 + 89-02 completed through 2026-04-24)
-Status: 89-01 + 89-06 + 89-02 shipped on main. 89-01 provides rs-engine Mode A internal; 89-06 provides the Obsidian bridge artifact writer (pure lib/core/bridge-writer.cjs + scripts/write-bridge-artifacts.cjs CLI); 89-02 provides the external corpus fetcher (lib/core/rs_corpus.py with OpenAlex/arXiv/Tavily tier chain) + Mode B dispatch on scripts/rs-engine.py. Plans 89-03 (Pinecone embed cache for multilingual-e5-large), 89-04 (cross-room), 89-05 (hybrid), 89-07 (release wiring) still pending. Bridge-writer schema-tolerant resolver already accepts Mode B pair shape so 89-04 and 89-05 outputs will flow unchanged.
+Phase: 90
+Plan: 90-00 COMPLETE (Wave 0 Plan 1 of 2)
+Status: 90-00 brain-md-schema shipped on main. lib/core/brain-md-schema.cjs (528 lines, validateSchema entry + 8 frozen exports, 5 violation categories, Canon Part 8 leak heuristics), lib/memory/brain-md-schema.test.cjs (18/18 pass, registered in Feynman suite -- baseline 52 -> 53), docs/BRAIN-MD-SCHEMA.md (250 lines, 7 sections). Zero new runtime deps, zero em-dashes, BSL 1.1, mirrors Phase 88-00-B shape with zero cross-import (flat lib/core graph). Commits: 03207e1 (RED test), 9e3e4cc (GREEN impl + registration), 1a8c455 (schema doc). Next: Plan 90-01 brain-derivation-core (final Wave 0 plan).
+
+Prior: 89-01 + 89-02 + 89-03 + 89-04 + 89-05 + 89-06 shipped on main. 89-05 ships Mode C (hybrid) via lib/core/rs_hybrid.py (unified corpus builder + cross-corpus pair filter) and scripts/rs-engine.py --mode hybrid wiring. Warm/cold/bypass paths inherited from Plan 89-03 unchanged. Pairs carry hybrid=True metadata + room_artifact + external_doc structs + Mode A-compatible source_*/target_* fields so Plan 89-06 bridge-writer consumes hybrid output through its schema-tolerant resolver without edits. Plan 89-07 (ReverseSalientAgent wiring + release dashboard) is the remaining Phase 89 plan.
 
 Last 88.6-04 commits (main):
 
@@ -48,9 +50,9 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-04-23
+Last activity: 2026-04-24
 
-Progress: [████████░░] 81%
+Progress: [████████░░] 82%
 
 ## Performance Metrics
 
@@ -80,6 +82,9 @@ Progress: [████████░░] 81%
 | Phase 89 P06 | ~45 minutes | 2 tasks | 2 files |
 | Phase 89 P02 | ~40 minutes | 2 tasks | 2 files |
 | Phase 89 P89-03 | 55m | 2 tasks | 3 files |
+| Phase 89 P04 | ~45min | 2 tasks | 2 files |
+| Phase 89 P05 | ~45min | 2 tasks | 2 files |
+| Phase 90 P00 | 30 | 2 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -271,6 +276,12 @@ Progress: [████████░░] 81%
 - [Phase 89]: Plan 89-01: Artifacts read from filesystem walk room/*.md not room.db; no artifacts table exists in lazygraph-ops schema; matches compute-hsi.py precedent exactly
 - [Phase 89]: Plan 89-01: Pinecone inference embedding (RS_EMBEDDING_MODEL=multilingual-e5-large cold path) raises NotImplementedError with pointer to Plans 89-03/89-05 per PLAN-CHECK Gap 1; MiniLM is 89-01 default
 - [Phase 89]: Plan 89-03 rs-external Pinecone cache: 30-day lazy TTL, warm/cold/bypass paths, server-side multilingual-e5-large preserves warm/cold consistency, bypass path preserves Plan 89-02 byte-identical
+- [Phase 89]: Plan 89-04 cross-room Mode A: --rooms loads N rooms with global_id uniqueness, CROSS_ROOM_OVERSHOOT=3 post-filter, pair_matrix metadata for bridge count table, no room.db edges (cross-room pairs belong to N-room graph)
+- [Phase 89]: Plan 89-05 hybrid Mode C: lib/core/rs_hybrid.py unified corpus builder + cross-corpus pair filter; MiniLM-over-unified-corpus (not split embed) guarantees dimensional homogeneity (plan Risk 1 mitigation); HYBRID_OVERSHOOT=10 handles O(2000) external vs O(100) room volume imbalance; Plan 89-06 bridge-writer consumes hybrid pairs unchanged via schema-tolerant resolver
+- [Phase 89]: Plan 89-05 Part 8 boundary preserved: room content read locally and used in-process only; external corpus stored in rs-external is strictly public OpenAlex/arXiv metadata; unified corpus lives only in memory during engine run; zero Brain queries
+- [Phase 90]: [Phase 90-00]: BRAIN.md schema validator ships as standalone module mirroring Phase 88-00-B invariants shape byte-identically (validateSchema returns {valid, violations[], severity} so Plan 90-05 registry wraps without adapter); narrow YAML parser is a scoped copy not a cross-import, preserving flat lib/core dependency graph per 88-01 key-decision
+- [Phase 90]: [Phase 90-00]: Canon Part 8 boundary baked into schema layer (not retrofitted runtime guard): 5-pattern frozen regex set (email / currency / quoted-person / meeting fragment / SSN-like) scans every frontmatter scalar and emits canon_boundary/warning with action_hint canon_part8_review; heuristics over-flag deliberately -- false-positive cost is one-line review, false-negative cost is constitutional breach
+- [Phase 90]: [Phase 90-00]: author field frozen to literal 'brain'; non-brain authors are attribution/error (constitutional per Canon Part 2, not schema shape miss); BRAIN.md self-attribution is the contract that lets the quadruple readers distinguish Brain-authored derivation from user / Larry artifacts
 
 ### Pending Todos
 
@@ -292,6 +303,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-24T00:48:57.358Z
-Stopped at: Completed 89-03-PLAN.md (rs_cache + rs-engine Mode B Pinecone wiring; commits 01ba505/e70cbba; Feynman 52/52; live warm/cold/bypass smoke passed; BSL-1.1; 0 em-dashes)
+Last session: 2026-04-24T02:30:44.752Z
+Stopped at: Completed 90-00-brain-md-schema-PLAN.md
 Resume file: None

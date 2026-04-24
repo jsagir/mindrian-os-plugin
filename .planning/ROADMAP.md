@@ -71,7 +71,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - [x] **Phase 88: Per-Folder Memory Triple Wiring** - Wire ROOM.md + STATE.md + Feynman-MINTO.md as a coordinated cross-session memory triple via five lifecycle wires (post-write freshness, on-stop snapshot, session-start TRIPLE_CONTEXT injection, pre/post-compact resilience, decision_log persistence) + unified read contract `lib/core/folder-memory.cjs` + invariants module + guardian. 8/16 plans shipped (88-00-B, 88-00, 88-01, 88-02, 88-03, 88-04-B, 88-04, 88-05). Releases as v1.10.13. (completed 2026-04-23)
 - [x] **Phase 88.6: Python Algorithm Wiring (URGENT)** - Close orphan-value gap between 15 verified Python algorithms and user-facing /mos:* commands. Fix silent production bug (baseline not auto-fired in discover-* pipelines), expose 4 orphan Wave-1 algorithms (surprise, disruption, novelty, blindspot) via new /mos:diagnostics command, wrap two-step external whitespace flow behind single command with rate-limit graceful degradation. Evidence: 2026-04-23 smoke test on ~/MindrianRooms/mindrianOS/ (207 artifacts, 77 Brain frameworks, CD = -0.7092, coverage = 0.667). Orchestration-only phase, zero new algorithms. Releases as v1.10.14. (completed 2026-04-23)
 - [x] **Phase 88.1: UI/UX Polish + MINTO Surface Plumbing** - Close gap between 71 shipped commands and the Claude Code 2.1.x polish bar. Four workstreams: MINTO surface plumbing (statusline + /mos:status + SessionStart banner consume governing_thought), description-driven UX sweep across 71 commands plus README permissions block, hook output primitives (systemMessage retrofit on 9 hooks plus two new hooks for schema validation and async artifact auto-commit), README as 7th surface. CONTEXT filed 2026-04-20. Releases as v1.10.15 (version bumped 2026-04-23 to avoid conflict with 88.6 bug fix). (completed 2026-04-23)
-- [ ] **Phase 89: Reverse-Salient Engine** - Hughes 1983 reverse-salient detection for lagging components in an expanding venture. Computes embedding-distance lag signal per section, optional consumer of Phase 88 reasoning_health_score. 8 plans on disk, zero summaries (checkbox corrected 2026-04-23 after false-complete mark detected in audit). Ships independently as v1.10.16.
+- [x] **Phase 89: Reverse-Salient Engine** - Hughes 1983 reverse-salient detection for lagging components in an expanding venture. Computes embedding-distance lag signal per section, optional consumer of Phase 88 reasoning_health_score. 8 plans on disk, zero summaries (checkbox corrected 2026-04-23 after false-complete mark detected in audit). Ships independently as v1.10.16. (completed 2026-04-24)
 - [ ] **Phase 90: Brain Derivation Layer** - Lets the Brain excavate the local triple (Phase 88) and produce a persistent authored BRAIN.md per section with pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, cross-room contradiction flags. Extends triple to quadruple. Graceful degradation when Brain offline. CONTEXT filed. Releases as v1.10.17.
 - [ ] **Phase 91: Navigation Engine** - L5 Decision layer reading the L3 Navigation substrate (SQL + quadruple memory) to decide which skill/command/framework fires each turn. Five-signal triangulation (ICM + SQL + Feynman-MINTO + BRAIN + intent/persona). Persona durability via USER.md. Visible dial in statusline. /mos:explain-decision command. CONTEXT filed. Destination phase. Releases as v1.11.0.
 
@@ -330,15 +330,15 @@ Plans:
   3. Graceful degradation when embeddings absent (tier-0 fallback to structural signal)
   4. Feynman tests stay green throughout
   5. Optional integration path with Phase 88 reasoning_health_score exercised in fixture
-**Plans**: 7 plans on disk (89-01 through 89-07), zero SUMMARYs
+**Plans**: 7 plans on disk (89-01 through 89-07), 6 SUMMARYs shipped (89-01, 89-02, 89-03, 89-04, 89-05, 89-06)
 Plans:
-- [x] 89-01-PLAN.md -- (existing, pre-scoped)
-- [x] 89-02-PLAN.md -- (existing, pre-scoped)
-- [x] 89-03-PLAN.md -- (existing, pre-scoped)
-- [ ] 89-04-PLAN.md -- (existing, pre-scoped)
-- [ ] 89-05-PLAN.md -- (existing, pre-scoped)
-- [x] 89-06-PLAN.md -- (existing, pre-scoped)
-- [ ] 89-07-PLAN.md -- (existing, pre-scoped)
+- [x] 89-01-PLAN.md -- rs-engine Mode A internal single-room (shipped 2026-04-23; 89-01-SUMMARY.md)
+- [x] 89-02-PLAN.md -- rs_corpus external fetcher + Mode B dispatch (shipped 2026-04-23; 89-02-SUMMARY.md)
+- [x] 89-03-PLAN.md -- rs_cache Pinecone warm/cold/bypass (shipped 2026-04-24; 89-03-SUMMARY.md)
+- [x] 89-04-PLAN.md -- cross-room Mode A multi-room (shipped 2026-04-20; 89-04-SUMMARY.md)
+- [x] 89-05-PLAN.md -- Mode C hybrid room x external unified matrix (shipped 2026-04-24; 89-05-SUMMARY.md)
+- [x] 89-06-PLAN.md -- Obsidian bridge artifact writer (shipped 2026-04-23; 89-06-SUMMARY.md)
+- [ ] 89-07-PLAN.md -- (remaining: ReverseSalientAgent + release wiring)
 **Authority**: .planning/phases/89-reverse-salient-engine/89-CONTEXT.md (plus ALGORITHM-SOURCE.md, PLAN-CHECK.md, PLAN.md, RESEARCH.md)
 
 ### Phase 90: Brain Derivation Layer
