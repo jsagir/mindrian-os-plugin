@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: verifying
-stopped_at: Completed 90-brain-derivation-layer/90-05-brain-md-invariants-validator-PLAN.md
-last_updated: "2026-04-24T06:08:32.739Z"
+stopped_at: Completed 90-brain-derivation-layer/90-06-cross-room-aggregation-PLAN.md
+last_updated: "2026-04-24T06:24:56.678Z"
 last_activity: 2026-04-24
 progress:
   total_phases: 19
   completed_phases: 6
   total_plans: 99
-  completed_plans: 85
+  completed_plans: 86
   percent: 82
 ---
 
@@ -97,6 +97,7 @@ Progress: [████████░░] 82%
 | Phase 90-brain-derivation-layer P03 | 35m | 2 tasks | 5 files |
 | Phase 90-brain-derivation-layer P04 | 35 | 2 tasks | 4 files |
 | Phase 90-brain-derivation-layer P05 | 45 | 1 tasks | 3 files |
+| Phase 90-brain-derivation-layer P06 | 50m | 1 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -306,6 +307,10 @@ Progress: [████████░░] 82%
 - [Phase 90-brain-derivation-layer]: Plug into Phase 88-13 registry, not guardian.cjs. Zero guardian edits. Three-tripwire Canon Part 8 enforcement now active (schema doc + prompt-builder allow-list + body-text scan).
 - [Phase 90-brain-derivation-layer]: Lazy folder-memory require in validator enables Check A staleness fallback when guardian does not pre-populate ctx.triple; preserves fail-open semantics.
 - [Phase 90-brain-derivation-layer]: canon_boundary cap at 5 violations per BRAIN.md (anti-spam). BRAIN.md absence returns zero violations (mirrors stale-lifecycle pattern).
+- [Phase 90-brain-derivation-layer]: Phase 90-06: Four-layer Canon Part 8 enforcement -- ALLOWED_ROOT + GUARDRAIL.md + per-room brain_cross_room:false + sanitizeDetailScalar/JSON.stringify audit; ships the fourth tripwire of Phase 90
+- [Phase 90-brain-derivation-layer]: Phase 90-06: Phase 83 .rooms/registry.json + GUARDRAIL.md reuse preserved byte-for-byte; zero Phase 83 code edits
+- [Phase 90-brain-derivation-layer]: Phase 90-06: cross_room_scan:false default; opt-in per-call (plan 90-07 surfaces --cross-room flag); aggregator lazy-required in brain-derivation.cjs so default-off path adds zero require-graph cost
+- [Phase 90-brain-derivation-layer]: Phase 90-06: Three frozen contradiction types (hash_divergence, framework_contradiction, problem_type_mismatch); detail_scalar primitive-only, strings <=40 chars, zero forbidden regex hits
 
 ### Pending Todos
 
@@ -327,6 +332,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-24T06:08:32.732Z
-Stopped at: Completed 90-brain-derivation-layer/90-05-brain-md-invariants-validator-PLAN.md
+Last session: 2026-04-24T06:24:43.812Z
+Stopped at: Completed 90-brain-derivation-layer/90-06-cross-room-aggregation-PLAN.md
 Resume file: None
