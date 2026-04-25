@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 89.1-01-PLAN.md (brain-client shape adapter; live Mode A3 unblocked)
-last_updated: "2026-04-25T05:06:14.829Z"
+stopped_at: Completed 89.1-02-PLAN.md (rs-domain-analyzer + 11/11 fixture suite + Canon Part 8 ExternalEgressViolation)
+last_updated: "2026-04-25T05:13:57.779Z"
 last_activity: 2026-04-25
 progress:
   total_phases: 22
   completed_phases: 9
   total_plans: 120
-  completed_plans: 96
+  completed_plans: 97
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 89.1 (Domain Analysis + Query Generation Matrix) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 
 Phase 90-02 commits (main, NOT yet pushed):
@@ -106,6 +106,7 @@ Progress: [████████░░] 82%
 | Phase 89.1a P03 | 37m | 2 tasks | 2 files |
 | Phase 89.1a P04 | 22m34s | 3 tasks | 3 files |
 | Phase 89.1 P01 | 27min | 2 tasks | 5 files |
+| Phase 89.1 P02 | 3m11s | 1 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -345,6 +346,9 @@ Progress: [████████░░] 82%
 - [Phase 89.1]: Plan 89.1-01: Substrate entries on live wire path carry Pinecone _score (now entry.score) instead of 1024-dim embedding; validator Check E relaxed to embedding-or-score; strict 1024-dim cosine deferred to 89.2/89.5 if/when raw Pinecone fetch lands
 - [Phase 89.1]: Plan 89.1-01: Cache schema _completeness vocabulary added (full-vectors | score-only | partial); pre-89.1a caches without this field treated as full-vectors by readers (back-compat preserved across 89.1a-03 14/14 fixture suite)
 - [Phase 89.1]: Plan 89.1-01: Live Brain Mode A3 verified post-fix: count=100, has_score=true, has_embedding=false; Canon Part 8 chokepoint preserved (buildBrainSubstrateQuery + preSendAudit untouched, count==6 each); evidence in 89.1-LIVE-A3-VERIFY.md
+- [Phase 89.1]: Plan 89.1-02: ExternalEgressViolation as sibling of BrainBoundaryViolation, not reuse. Brain-inbound and external-outbound surfaces are semantically distinct; sharing the class would conflate two bottlenecks.
+- [Phase 89.1]: Plan 89.1-02: Deterministic n-gram intersection scoring formula baseScore * (1 + intersection/topicLen) over LLM-call decomposition; CLI surface has no LLM; same input -> byte-identical output (Test 7 fence).
+- [Phase 89.1]: Plan 89.1-02: Three Canon Part 8 tripwires per egress surface: pre-input scan + per-field scrubScalar + JSON.stringify pre-return audit; ExternalEgressViolation thrown on any composite hit before egress.
 
 ### Pending Todos
 
@@ -366,6 +370,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-25T05:06:14.812Z
-Stopped at: Completed 89.1-01-PLAN.md (brain-client shape adapter; live Mode A3 unblocked)
+Last session: 2026-04-25T05:13:57.765Z
+Stopped at: Completed 89.1-02-PLAN.md (rs-domain-analyzer + 11/11 fixture suite + Canon Part 8 ExternalEgressViolation)
 Resume file: None
