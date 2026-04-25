@@ -339,6 +339,60 @@ If no pending requests:
   ▷ /mos:admin usage             View usage statistics
 ```
 
+## Step 10: Subcommand -- brain-write
+
+**Self-teaching intro:** "Files a methodology-canon edge into Brain Neo4j. The single Brain-write of milestone v1.11.0 is the USES_TECHNIQUE edge from rss-phase-1 to tech-domain-analysis (Phase 89.1 closes the kickoff §3 Audit Finding 'Domain analysis prerequisite half-canonized'). This is methodology canon, NOT user data. Canon Part 8 is preserved -- only frozen node IDs are written. Idempotent: re-running returns 0 new edges if already filed."
+
+**Default mode is dry-run.** The user must pass `--execute` explicitly to actually mutate the graph.
+
+Run via Bash:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/admin-brain-write.cjs" --dry-run 2>&1
+```
+
+Show the dry-run output to the user, including the pre-check counts and the MERGE Cypher.
+
+**If the user confirms with `/mos:admin brain-write --execute`**, run:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/admin-brain-write.cjs" --execute 2>&1
+```
+
+Then read the audit log to confirm:
+
+```bash
+tail -1 ~/.mindrian/admin-brain-write.jsonl
+```
+
+Show the audit line to the user. Format the output with the standard 4-zone anatomy.
+
+### Zone 1
+
+```
+╭─ ADMIN PANEL ── Brain Canon Write ─────────────────────╮
+│                                                          │
+```
+
+### Zone 2
+
+Display the script output directly. Highlight `edges_after=N` line and the audit log entry.
+
+### Zone 4
+
+```
+  ▶ /mos:admin brain-write --execute   File the canon edge (mutates Brain)
+  ▷ tail -1 ~/.mindrian/admin-brain-write.jsonl   Verify audit log
+```
+
+**Frozen canonical IDs (do not parameterize):**
+- Source ProcessStep id: `rss-phase-1`
+- Target Technique id: `tech-domain-analysis`
+
+The wrapper script hardcodes both. Any drift is a Canon Part 8 boundary breach.
+
+**Three-surface note: This subcommand is CLI-only.** Desktop MCP and Cowork users have no admin authority and never see /mos:admin. The Step 1 identity gate already enforces this.
+
 ## Voice Rules
 
 - Larry's voice throughout. Terse, structural, confident.
