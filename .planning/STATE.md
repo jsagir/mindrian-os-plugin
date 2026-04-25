@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 89.1-02-PLAN.md (rs-domain-analyzer + 11/11 fixture suite + Canon Part 8 ExternalEgressViolation)
-last_updated: "2026-04-25T05:13:57.779Z"
+stopped_at: Completed 89.1-03-PLAN.md (rs-query-matrix + 11/11 fixture suite + 60-query fixed-order template + Canon Part 8 query audit)
+last_updated: "2026-04-25T05:22:05.504Z"
 last_activity: 2026-04-25
 progress:
   total_phases: 22
   completed_phases: 9
   total_plans: 120
-  completed_plans: 97
+  completed_plans: 98
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 89.1 (Domain Analysis + Query Generation Matrix) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
 
 Phase 90-02 commits (main, NOT yet pushed):
@@ -107,6 +107,7 @@ Progress: [████████░░] 82%
 | Phase 89.1a P04 | 22m34s | 3 tasks | 3 files |
 | Phase 89.1 P01 | 27min | 2 tasks | 5 files |
 | Phase 89.1 P02 | 3m11s | 1 tasks | 2 files |
+| Phase 89.1 P03 | 3m32s | 1 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -349,6 +350,10 @@ Progress: [████████░░] 82%
 - [Phase 89.1]: Plan 89.1-02: ExternalEgressViolation as sibling of BrainBoundaryViolation, not reuse. Brain-inbound and external-outbound surfaces are semantically distinct; sharing the class would conflate two bottlenecks.
 - [Phase 89.1]: Plan 89.1-02: Deterministic n-gram intersection scoring formula baseScore * (1 + intersection/topicLen) over LLM-call decomposition; CLI surface has no LLM; same input -> byte-identical output (Test 7 fence).
 - [Phase 89.1]: Plan 89.1-02: Three Canon Part 8 tripwires per egress surface: pre-input scan + per-field scrubScalar + JSON.stringify pre-return audit; ExternalEgressViolation thrown on any composite hit before egress.
+- [Phase 89.1]: Plan 89.1-03: ExternalEgressViolation defined locally as SIBLING (not shared with rs-domain-analyzer); each module's own subclass keeps stack traces and audit logs unambiguous (continues 89.1-02 sibling decision)
+- [Phase 89.1]: Plan 89.1-03: Two Canon Part 8 tripwires per egress surface = validateAnalysis pre-input scan + auditQuery post-template scan; sufficient for surfaces consuming already-validated scalars (vs three-tripwire on rs-domain-analyzer where per-field scrubbing also fires)
+- [Phase 89.1]: Plan 89.1-03: 4 x 15 fixed-order template arrays (60 deterministic queries) over hash-seeded shuffle; same input -> byte-identical output across N invocations; no random selection in CLI surface
+- [Phase 89.1]: Plan 89.1-03: T1 happy-path test asserts canonical 'every query mentions A or B' guarantee (60/60) instead of substring-count threshold (>=40 of A AND >=40 of B); captures the load-bearing invariant without coupling to template-specific text choices
 
 ### Pending Todos
 
@@ -370,6 +375,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-25T05:13:57.765Z
-Stopped at: Completed 89.1-02-PLAN.md (rs-domain-analyzer + 11/11 fixture suite + Canon Part 8 ExternalEgressViolation)
+Last session: 2026-04-25T05:21:51.670Z
+Stopped at: Completed 89.1-03-PLAN.md (rs-query-matrix + 11/11 fixture suite + 60-query fixed-order template + Canon Part 8 query audit)
 Resume file: None
