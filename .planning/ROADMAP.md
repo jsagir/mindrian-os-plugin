@@ -381,6 +381,36 @@ Plans:
 - [x] 89.1a-04-PLAN.md -- Phase gate transcript + live Brain smoke test + human-verify phase close (Wave 3; SC-07)
 **Authority**: .planning/milestones/v1.11.0-KICKOFF.md §5 (Engine Architecture), §4 (Architecture - Canon Part 8 Compliant), §8 (Canon Compliance Plan), §9 (Implementation Guidance); .planning/milestones/v1.12.0-LIVE-VALIDATION-2026-04-24.md §4 (bidirectional NL-graph architecture context)
 
+### Phase 89.1: Domain Analysis + Query Generation Matrix
+**Goal**: Add Domain Analysis as the missing FIRST step of the reverse-salient framework (closing the user Intent 1 gap from v1.11.0 kickoff). Ship `lib/core/rs-domain-analyzer.cjs` running Sequential-Thinking-style decomposition (concepts + terminology + methods + breakthroughs) per topic, and `lib/core/rs-query-matrix.cjs` generating the 15-query x 4-category matrix (A intersect B, A leads to B, B leads to A, adjacent) that drives downstream external research fetching in 89.2. Consume the Brain methodology substrate shipped by Phase 89.1a. RESOLVE the deferred brain-client search response shape mismatch (filed at .planning/phases/89.1a-brain-methodology-substrate-loader/deferred-items.md item 1) so loadSubstrate Mode A3 actually returns embedding-bearing methodology vectors under live Brain. File the ONE legitimate Brain-write of v1.11.0: USES_TECHNIQUE edge from rss-phase-1 to tech-domain-analysis (methodology canon evolution, NOT user data).
+**Depends on**: Phase 89.1a (Brain Methodology Substrate Loader -- shipped 2026-04-24); existing brain-client.cjs; existing rs-brain-substrate.cjs + rs-brain-substrate-prompts.cjs; /mos:admin admin path for the canon Brain-write
+**Requirements**:
+- `lib/core/rs-domain-analyzer.cjs` -- per-topic domain analysis producing structured output {primary_domain, concepts[], terminology[], methods[], breakthroughs[], boundary_flag, adjacent_domains[]}; uses Sequential Thinking style decomposition; consumes Brain methodology substrate for canonical concept seeding
+- `lib/core/rs-query-matrix.cjs` -- generates 60 queries (15 per category x 4 categories: A intersect B, A leads to B, B leads to A, adjacent) from a Domain Analysis output; query strings are external-fetcher ready (no semantic noise, single-concept anchors)
+- Resolve brain-client shape mismatch: implement chosen remediation (shape adapter inside pullFromBrain OR new searchWithVectors method per deferred-items.md options 1/2). Either path must preserve Canon Part 8 chokepoint + allow-list + preSendAudit
+- File USES_TECHNIQUE edge: `MATCH (p:ProcessStep {id: "rss-phase-1"}), (t:Technique {id: "tech-domain-analysis"}) MERGE (p)-[:USES_TECHNIQUE]->(t)` via /mos:admin brain-write path; this is the ONE allowed Brain-write of v1.11.0; rollback Cypher captured in SUMMARY
+- Live A3 mode verification: re-run the 89.1a-LIVE-BRAIN-SMOKE.md test post-fix; cache must populate with non-empty embeddings and Mode A3 reported, not Mode B3
+- Adversarial fixture coverage extension: domain analyzer + query matrix outputs MUST pass the same FORBIDDEN_PATTERNS scan that 89.1a applies to Brain queries (so leaked user content cannot enter the query matrix that gets sent to external fetchers in 89.2)
+- Three-surface compatibility (CLI + Desktop MCP + Cowork)
+- Zero new runtime dependencies; CJS only; BSL 1.1 header on all new source; zero em-dashes
+- `canon_parts:` frontmatter declaring Part 7 (Reuse: extends 89.1a + brain-client without forking) and Part 8 (the Brain-write is methodology canon evolution, NOT user data; chokepoint preserved)
+**Success Criteria** (what must be TRUE):
+  1. `rs-domain-analyzer.cjs` exports `analyzeDomain(topic, opts)` returning the structured 7-field output
+  2. `rs-query-matrix.cjs` exports `generateQueryMatrix(domain_analysis, opts)` returning 60 queries (15 per category x 4 categories)
+  3. brain-client shape mismatch resolved: `loadSubstrate({forceRefresh: true})` returns Mode A3 with `embedding_count > 0` against live Brain (replaces Mode B3 fallback observed in 89.1a smoke)
+  4. USES_TECHNIQUE edge filed in Brain via /mos:admin; SUMMARY captures Cypher used + rollback Cypher; /mos:admin audit log records the single write
+  5. Domain analyzer + query matrix outputs pass FORBIDDEN_PATTERNS scan (no user content reachable to downstream fetchers)
+  6. Feynman test suite stays green + new test files registered (test-rs-domain-analyzer.cjs + test-rs-query-matrix.cjs minimum)
+  7. NO release gate -- bundled into v1.11.0 final ship at Phase 91.x per milestone §7
+**Plans**: 5 plans across 3 waves (filed 2026-04-25)
+Plans:
+- [ ] 89.1-01-PLAN.md -- brain-client shape adapter inside pullFromBrain (Option 1 locked) + validator Check E embedding-or-score relaxation + adversarial shape suite (Wave 1; SC-03)
+- [ ] 89.1-02-PLAN.md -- rs-domain-analyzer.cjs deterministic 7-field decomposition + Canon Part 8 output audit + 11-scenario fixture suite (Wave 2; SC-01, partial SC-05)
+- [ ] 89.1-03-PLAN.md -- rs-query-matrix.cjs 60-query 4-category fixed-order template + Canon Part 8 per-query audit + 11-scenario fixture suite (Wave 2; SC-02, partial SC-05)
+- [ ] 89.1-04-PLAN.md -- USES_TECHNIQUE Brain-write canonization via /mos:admin brain-write + admin-brain-write.cjs one-shot wrapper + canon-write evidence doc (Wave 3; SC-04)
+- [ ] 89.1-05-PLAN.md -- Phase Gate transcript + Feynman registration (baseline 63 -> 65) + live A3 re-verification + canon edge live read (Wave 3; SC-06, SC-07)
+**Authority**: .planning/milestones/v1.11.0-KICKOFF.md §5 (Phase 1 Topic + Domain Analysis), §3 (Audit findings -- "Domain analysis prerequisite half-canonized"), §8 (Canon Canonization ONE Brain Write); .planning/phases/89.1a-brain-methodology-substrate-loader/deferred-items.md (brain-client shape mismatch to resolve); .planning/phases/89.1a-brain-methodology-substrate-loader/89.1a-LIVE-BRAIN-SMOKE.md (live Brain evidence + observed-vs-expected diff)
+
 ### Phase 90: Brain Derivation Layer
 **Goal**: Let the Brain excavate the per-folder memory triple (Phase 88) and produce a persistent authored layer on top. Each section carries an optional BRAIN.md with Brain-authored pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, and cross-room contradiction flags. Derivation is persistent (git-trackable), versioned (governing_thought_hash invalidation), staleness-aware, offline-tolerant, query-optimized. Triple becomes quadruple. Moat becomes visible.
 **Depends on**: Phase 88 (triple foundation), existing brain-connector skill (ambient enrichment to be extended not replaced), existing brain-client.cjs
