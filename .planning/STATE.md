@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
-status: verifying
-stopped_at: Completed 89.1a-04-PLAN.md (Phase Gate + Live Brain Smoke)
-last_updated: "2026-04-24T16:32:18.759Z"
-last_activity: 2026-04-24
+status: executing
+stopped_at: Completed 89.1-01-PLAN.md (brain-client shape adapter; live Mode A3 unblocked)
+last_updated: "2026-04-25T05:06:14.829Z"
+last_activity: 2026-04-25
 progress:
-  total_phases: 20
-  completed_phases: 8
-  total_plans: 111
-  completed_plans: 91
+  total_phases: 22
+  completed_phases: 9
+  total_plans: 120
+  completed_plans: 96
   percent: 82
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 89.1a — Brain Methodology Substrate Loader
+**Current focus:** Phase 89.1 — Domain Analysis + Query Generation Matrix
 
 ## Current Position
 
-Phase: 90
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 89.1 (Domain Analysis + Query Generation Matrix) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
 
 Phase 90-02 commits (main, NOT yet pushed):
 
@@ -58,7 +58,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-04-24
+Last activity: 2026-04-25
 
 Progress: [████████░░] 82%
 
@@ -105,6 +105,7 @@ Progress: [████████░░] 82%
 | Phase 89.1a P02 | 6m1s | 2 tasks | 2 files |
 | Phase 89.1a P03 | 37m | 2 tasks | 2 files |
 | Phase 89.1a P04 | 22m34s | 3 tasks | 3 files |
+| Phase 89.1 P01 | 27min | 2 tasks | 5 files |
 
 ### Roadmap Evolution
 
@@ -340,6 +341,10 @@ Progress: [████████░░] 82%
 - [Phase 89.1a]: Plan 89.1a-04 Phase Gate: 9/9 asserts PASS; I1-I8 invariant coverage proven; zero new runtime deps; bundled_release honored (no CHANGELOG/plugin.json/package.json changes)
 - [Phase 89.1a]: Plan 89.1a-04 Live Brain smoke: status PASS with Mode B3 observed vs A3 expected; root cause is pre-existing brain-client response shape {result:{hits:[]}} vs pullFromBrain expected {matches:[]}; Canon Part 8 wire-contract proven clean (audit line outcome=pass with generic handles only)
 - [Phase 89.1a]: Plan 89.1a-04 deferred-items filed: brain-client vs pullFromBrain shape mismatch owned by Phase 89.1 planner; two remediation options proposed (pullFromBrain shape adapter OR brain-client searchWithVectors new method); neither alters Canon Part 8 contract
+- [Phase 89.1]: Plan 89.1-01: Locked Option 1 (shape adapter inside pullFromBrain) over Option 2 (new brain-client method); Pinecone searchRecords MCP returns no values today, Option 2 needs MCP server tool surface expansion (out of repo scope); adapter localized to rs-brain-substrate.cjs preserves Canon Part 7
+- [Phase 89.1]: Plan 89.1-01: Substrate entries on live wire path carry Pinecone _score (now entry.score) instead of 1024-dim embedding; validator Check E relaxed to embedding-or-score; strict 1024-dim cosine deferred to 89.2/89.5 if/when raw Pinecone fetch lands
+- [Phase 89.1]: Plan 89.1-01: Cache schema _completeness vocabulary added (full-vectors | score-only | partial); pre-89.1a caches without this field treated as full-vectors by readers (back-compat preserved across 89.1a-03 14/14 fixture suite)
+- [Phase 89.1]: Plan 89.1-01: Live Brain Mode A3 verified post-fix: count=100, has_score=true, has_embedding=false; Canon Part 8 chokepoint preserved (buildBrainSubstrateQuery + preSendAudit untouched, count==6 each); evidence in 89.1-LIVE-A3-VERIFY.md
 
 ### Pending Todos
 
@@ -361,6 +366,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-24T16:07:09.549Z
-Stopped at: Completed 89.1a-04-PLAN.md (Phase Gate + Live Brain Smoke)
+Last session: 2026-04-25T05:06:14.812Z
+Stopped at: Completed 89.1-01-PLAN.md (brain-client shape adapter; live Mode A3 unblocked)
 Resume file: None
