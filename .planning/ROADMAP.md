@@ -449,7 +449,16 @@ Plans:
   11. Per-source rate-limit graceful degradation verified (mock 429 response + verify telemetry capture + verify graceful empty result)
   12. Feynman test suite stays green + new test files registered (8 new test files minimum: one per new module + one per fetcher integration smoke); baseline 65 -> 73+
   13. NO release gate -- bundled into v1.11.0 final ship at Phase 91.x per milestone §7
-**Plans**: 7-9 plans across 3-4 waves (to be filed by /gsd:plan-phase 89.2)
+**Plans**: 8 plans across 4 waves
+Plans:
+- [ ] 89.2-01-egress-primitives-PLAN.md -- shared ExternalEgressViolation + FORBIDDEN_PATTERNS re-export + per-source telemetry primitive (Wave 1; SC-10, SC-11)
+- [ ] 89.2-02-fetcher-academic-PLAN.md -- 6-source academic fetcher (OpenAlex+arXiv+Scopus+PubMed+IEEE+Nature) + chokepoint + drop-in validator + 12+6 fixture suite (Wave 2; SC-01, SC-10, SC-11)
+- [ ] 89.2-03-fetcher-patents-PLAN.md -- Google Patents + USPTO fetcher + chokepoint + drop-in validator + 11+6 fixture suite (Wave 2; SC-02, SC-10, SC-11)
+- [ ] 89.2-04-fetcher-industry-PLAN.md -- Tavily-orchestrated industry fetcher with two-layer audit + chokepoint + drop-in validator + 10+6 fixture suite (Wave 2; SC-03, SC-10, SC-11)
+- [ ] 89.2-05-fetcher-experts-PLAN.md -- experts post-processor (no egress; auditQueryObject defense in depth) + 11 fixture suite (Wave 2; SC-04, SC-10)
+- [ ] 89.2-06-preprocessor-and-differential-scorer-PLAN.md -- rs-pinecone-bridge + rs-preprocessor (Phase 2 deterministic 5-field) + rs-differential-scorer (Phase 3 dual-floor 0.3/0.2/0.2) + strict 1024-dim cosine via existing rs_cache.py + 24 fixture scenarios (Wave 3; SC-05, SC-06)
+- [ ] 89.2-07-classifier-breakthrough-thesis-PLAN.md -- innovation classifier (3 enum) + breakthrough scorer (5-dimension 0-10) + thesis generator (template fill) + 27 fixture scenarios (Wave 3; SC-07, SC-08, SC-09)
+- [ ] 89.2-08-feynman-registration-and-phase-gate-PLAN.md -- Feynman registration sweep (66 -> 76) + Phase Gate transcript (9G + 5E asserts) + VERIFICATION.md (13 SCs) (Wave 4; SC-12, SC-13)
 **Authority**: .planning/milestones/v1.11.0-RESUME-89.2.md (cross-session handoff doc); .planning/milestones/v1.11.0-KICKOFF.md §5 (Phase 1.5 + Phase 2 + Phase 3 + Phase 4 of canonical framework), §6 (chain mechanism downstream context), §7 (bundled milestone), §8 (Canon Part 8 + Part 7), §9 (implementation guidance + graceful degradation), §15 (open questions for planner to resolve); .planning/phases/89.1a-brain-methodology-substrate-loader/ (substrate loader contract); .planning/phases/89.1-domain-analysis-and-query-matrix/ (60-query matrix + ExternalEgressViolation pattern + Phase Gate template)
 
 ### Phase 90: Brain Derivation Layer
