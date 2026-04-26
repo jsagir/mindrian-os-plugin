@@ -407,7 +407,7 @@ Plans:
 - [x] 89.1-01-PLAN.md -- brain-client shape adapter inside pullFromBrain (Option 1 locked) + validator Check E embedding-or-score relaxation + adversarial shape suite (Wave 1; SC-03)
 - [x] 89.1-02-PLAN.md -- rs-domain-analyzer.cjs deterministic 7-field decomposition + Canon Part 8 output audit + 11-scenario fixture suite (Wave 2; SC-01, partial SC-05)
 - [x] 89.1-03-PLAN.md -- rs-query-matrix.cjs 60-query 4-category fixed-order template + Canon Part 8 per-query audit + 11-scenario fixture suite (Wave 2; SC-02, partial SC-05)
-- [ ] 89.1-04-PLAN.md -- USES_TECHNIQUE Brain-write canonization via /mos:admin brain-write + admin-brain-write.cjs one-shot wrapper + canon-write evidence doc (Wave 3; SC-04)
+- [x] 89.1-04-PLAN.md -- USES_TECHNIQUE Brain-write canonization via /mos:admin brain-write + admin-brain-write.cjs one-shot wrapper + canon-write evidence doc (Wave 3; SC-04)
 - [ ] 89.1-05-PLAN.md -- Phase Gate transcript + Feynman registration (baseline 63 -> 65) + live A3 re-verification + canon edge live read (Wave 3; SC-06, SC-07)
 **Authority**: .planning/milestones/v1.11.0-KICKOFF.md §5 (Phase 1 Topic + Domain Analysis), §3 (Audit findings -- "Domain analysis prerequisite half-canonized"), §8 (Canon Canonization ONE Brain Write); .planning/phases/89.1a-brain-methodology-substrate-loader/deferred-items.md (brain-client shape mismatch to resolve); .planning/phases/89.1a-brain-methodology-substrate-loader/89.1a-LIVE-BRAIN-SMOKE.md (live Brain evidence + observed-vs-expected diff)
 
@@ -558,3 +558,13 @@ Phases execute in numeric order: 76 -> 77 -> 78 -> 79 -> 80
 | 78. /mos:vault Command + /mos:room linkify | 0/2 | Complete    | 2026-04-12 |
 | 79. Native Filing Wikilinks | 2/2 | Complete    | 2026-04-13 |
 | 80. Vault Import -- Obsidian to Data Room | 6/6 | Complete   | 2026-04-13 |
+
+### Phase 92: Refactor constitution and trust layer -- formalizes audit-driven refactor work (Constitution v1.1, Directive 1 validation, Directive 2 consolidation, Directive 3 unidirectional flow + Trust Layer)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 91
+**Plans:** 4/5 plans executed
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 92 to break down)
