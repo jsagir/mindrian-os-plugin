@@ -77,7 +77,7 @@ const os = require('node:os');
 const { spawnSync } = require('node:child_process');
 
 // ---------- Soft-fail envelope ----------
-// v1.10.18 hotfix 2026-04-26: Claude Code 2.x added `additionalProperties: false` to the
+// v1.10.19 (hotfixes shipped 2026-04-26): Claude Code 2.x added `additionalProperties: false` to the
 // hook output schema. Top-level `systemMessage` and `additionalContext` are no
 // longer accepted -- they must be wrapped in `hookSpecificOutput`. Without
 // this fix, every Read/Grep/Glob fires "Hook JSON output validation failed"
@@ -97,7 +97,7 @@ function emitEnvelope(systemMessage) {
 }
 
 function exitSilent() {
-  // v1.10.18 hotfix 2026-04-26: previously called emitEnvelope(null) which wrote an
+  // v1.10.19 (hotfixes shipped 2026-04-26): previously called emitEnvelope(null) which wrote an
   // invalid JSON envelope. Silent now means truly silent -- exit 0 with no
   // stdout output at all. Schema validation passes by emitting nothing.
   process.exit(0);

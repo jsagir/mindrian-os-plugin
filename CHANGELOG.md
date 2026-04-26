@@ -9,26 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
-## [1.10.18] - 2026-04-20
+## [1.10.19] - 2026-04-26
 
-### Hotfix 2026-04-26 (in-version patch -- no version bump)
+Patch release that ships two same-day hotfixes initially attempted as in-version patches to v1.10.18. The in-version mechanism failed in the field: a v1.10.18 user running `/mos:update` was told "you're on the latest" because version comparison was `1.10.18 == 1.10.18`, even though the v1.10.18 tag had been force-moved to the hotfix commit. Promoting to a real patch-bump (1.10.19) so every standard update tool sees the diff. The 1.10.x minor baseline is preserved -- planning artifacts (Phase 91 navigation-engine, Phase 92 refactor work) continue to reference the 1.10.x line.
 
-This is an in-place patch to v1.10.18. The version number is intentionally NOT bumped so future planning artifacts (Phase 91 navigation-engine, Phase 92 refactor work) continue to reference the same baseline. The `v1.10.18` git tag is moved to point at this hotfix commit; the marketplace ref serves the patched code on fresh installs. Existing installs need to reinstall to pick up the fix.
-
-#### Fixed
+### Fixed (Hotfix 1: hook output schema)
 - **CRITICAL: Hook output schema compatibility with Claude Code 2.x.** Three hook scripts (`scripts/query-efficiency-telemetry.cjs`, `scripts/write-scope-check.cjs`, `scripts/feynman-minto-guardian.cjs`) emitted JSON with top-level `systemMessage` / `additionalContext` fields. Claude Code 2.x rejects these via `additionalProperties: false`, causing every Read/Grep/Glob and Write/Edit call to fire "Hook JSON output validation failed -- (root): Invalid input" in the user's terminal. Plugin appeared broken on every recent Claude Code install. Fixed by wrapping output in the canonical `hookSpecificOutput` envelope per the official hooks reference (https://docs.anthropic.com/en/docs/claude-code/hooks). Silent exits now emit zero stdout (was: invalid JSON with null fields).
 - Reported by Aryeh Holtzberg (PWS IRIS 2025) on 2026-04-26. Reference fixes in graphify v0.3.21 (2026-04-09) and oh-my-claudecode v4.11.5 ("fix(hooks): wrap wiki hook additionalContext in hookSpecificOutput").
 
-#### Fixed (second hotfix, same day)
+### Fixed (Hotfix 2: plugin registry sync)
 - **CRITICAL: `/mos:update` and `scripts/self-update` bypassed Claude Code's plugin registry.** The previous implementation copied plugin files to `~/.claude/plugins/cache/...` but did NOT update `~/.claude/plugins/installed_plugins.json` or `~/.claude/settings.json :: enabledPlugins`. Result: cache had the new version, registry didn't, plugin loader silently ignored the install. Slash commands disappeared. Users restarted, saw nothing, assumed the plugin was broken. Confirmed in field by Aryeh Holtzberg on 2026-04-26 -- matches Anthropic-tracked issues #11357, #12457, #14815, #17832 (all describe `installed_plugins.json` and cache drifting out of sync, plugin appearing installed but not loading).
 - **Fix: native delegation.** `commands/update.md` rewritten to call Claude Code's native `claude plugin marketplace update` + `claude plugin update mos@mindrian-marketplace` (slash form: `/plugin marketplace update` + `/plugin update mos@mindrian-marketplace`). These commands keep all four registry files in sync atomically. Constitutional rationale: Canon Part 7 -- Reuse Before Build. We had a homegrown installer; the platform already had one that worked.
 - **Deprecation: `scripts/self-update`** is now a no-op stub that emits a clear migration message and exits non-zero. The 427-line original is preserved at `scripts/self-update.deprecated-2026-04-26.bak` for reference. Existing automation (cron jobs, CI) gets a clear migration path instead of silent breakage.
 
-#### Added
-- Pre-release compatibility scan: `scripts/check-hook-schema-compatibility.cjs` scans every hook script for forbidden output patterns before any version bump. Top-level `systemMessage`, top-level `additionalContext`, and naked `JSON.stringify({systemMessage: ...})` patterns now fail the release gate. See `docs/RELEASE-GATES.md`. This gate is mandatory before every future version tag.
+### Added
+- **Pre-release hook compatibility scan**: `scripts/check-hook-schema-compatibility.cjs` scans every hook script for forbidden output patterns before any version bump. Top-level `systemMessage`, top-level `additionalContext`, and naked `JSON.stringify({systemMessage: ...})` patterns now fail the release gate. See `docs/RELEASE-GATES.md`. This gate is mandatory before every future version tag.
+- **SHA-based update detection** in `/mos:update`: compares the local installed-commit SHA against the remote `v<version>` git tag SHA, surfacing in-version hotfixes (cases where the version string matches but the tag was force-moved). Belt-and-suspenders defense alongside semver comparison so users on a corrupted in-version build can still detect the fix is available.
 
-#### Phase 90 plan amendment
-The brain-derivation-layer phase ships the same v1.10.18 capability set; both hotfixes (hook output schema + plugin loader registry sync) are appended to its release notes as in-version correctives. See `.planning/phases/90-brain-derivation-layer/90-HOTFIX-2026-04-26.md`.
+### Process change
+- **In-version patches are deprecated as a distribution mechanism.** v1.10.18 was force-tagged twice during the 2026-04-26 hotfix attempts; both attempts hit the same wall: existing users running version-comparison-based update tools never saw the diff. Going forward, every fix that reaches users ships with a patch-level version bump. The 1.10.18 git tag now points at the original Phase 90 release commit; v1.10.19 is the canonical home for the hotfixes.
+
+### Phase 90 plan amendment
+Both hotfixes are appended to Phase 90 (brain-derivation-layer) release notes as patch-level correctives. See `.planning/phases/90-brain-derivation-layer/90-HOTFIX-2026-04-26.md` for the failure-mode autopsy and constitutional rationale.
+
+## [1.10.18] - 2026-04-20
 
 ### Original release notes
 

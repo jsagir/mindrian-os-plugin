@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# self-update: DEPRECATED 2026-04-26 (v1.10.18 hotfix)
+# self-update: DEPRECATED 2026-04-26 (v1.10.19)
 #
 # This script is intentionally a no-op stub. The previous implementation
 # (preserved at scripts/self-update.deprecated-2026-04-26.bak, 427 lines,

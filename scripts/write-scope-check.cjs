@@ -133,7 +133,7 @@ function allow() { process.exit(0); }
 
 // 88.1-03: systemMessage retrofit. Pre-emit a JSON envelope on stdout with
 // the warning context BEFORE writing the block reason to stderr and exiting 2.
-// v1.10.18 hotfix 2026-04-26: Claude Code 2.x schema added `additionalProperties: false`,
+// v1.10.19 (hotfixes shipped 2026-04-26): Claude Code 2.x schema added `additionalProperties: false`,
 // so top-level `systemMessage` is rejected. Wrap in `hookSpecificOutput` per
 // the new schema. The stderr text remains the authoritative block reason.
 // Silent on allow (no JSON emitted when everything is fine).

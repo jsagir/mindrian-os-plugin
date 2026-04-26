@@ -12,7 +12,7 @@ allowed-tools:
 
 You are Larry. This command checks for updates, shows what's new, then **delegates the actual install to Claude Code's native plugin loader** so the registry (`installed_plugins.json` + `enabledPlugins`) stays in sync with the cache.
 
-## Why native delegation (v1.10.18 hotfix 2026-04-26)
+## Why native delegation (v1.10.19 (hotfixes shipped 2026-04-26))
 
 The previous version of this command shelled out to `scripts/self-update install`, which copied files to the cache directory but **did not update `~/.claude/plugins/installed_plugins.json` or `~/.claude/settings.json` `enabledPlugins`**. The result: Claude Code's plugin loader never registered the new version. Slash commands disappeared. Users restarted, saw nothing, and assumed the plugin was broken.
 
@@ -28,34 +28,44 @@ The fix is structural: defer to Claude Code's native commands. They keep all fou
 
 ## Update Check Flow
 
-### Step 1: Compare local vs latest version
+### Step 1: Run SHA-aware version check
 
-Read local version:
 ```bash
-node -e "console.log(require('${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json').version)"
+node "${CLAUDE_PLUGIN_ROOT}/scripts/check-version-and-sha.cjs"
 ```
 
-Fetch latest from GitHub:
+This script compares BOTH the semver version string AND the underlying git commit SHA, distinguishing four states:
+- `UP_TO_DATE` -- both version and SHA match
+- `VERSION_DIFFERS` -- standard semver upgrade available
+- `SHA_DIFFERS_INVERSION_HOTFIX` -- same version, but the v<version> tag was force-moved (in-version hotfix). **This is the case standard version-only checkers miss.**
+- `NETWORK_ERROR` / `ERROR` -- couldn't run the check
+
+Parse `STATUS=...` from the first line.
+
+### Step 2: Decide based on STATUS
+
+**If `STATUS=UP_TO_DATE`:**
+> "You're running the latest, v{LOCAL_VERSION} (SHA {LOCAL_SHA}). Nothing to update."
+
+**If `STATUS=NETWORK_ERROR`:**
+> "Couldn't reach GitHub: {REASON}. Your current version works fine. Try again later."
+Done.
+
+**If `STATUS=SHA_DIFFERS_INVERSION_HOTFIX`:**
+> "Heads up -- you're on v{LOCAL_VERSION} (SHA {LOCAL_SHA}) but the v{LATEST_VERSION} tag has been force-moved to SHA {REMOTE_TAG_SHA}. That means an in-version hotfix shipped under the same tag and you're missing it."
+> "This is exactly the case Aryeh hit on 2026-04-26 -- standard `claude plugin update` may or may not detect it, so we'll force a clean re-install."
+
+Continue to Step 3, then run Step 5 with the recovery path:
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/jsagir/mindrian-os-plugin/main/.claude-plugin/plugin.json" | node -e "console.log(JSON.parse(require('fs').readFileSync(0)).version)"
+claude plugin install mos@mindrian-marketplace --force 2>&1
+# OR if --force is unsupported:
+claude plugin uninstall mos@mindrian-marketplace && \
+  claude plugin marketplace update && \
+  claude plugin install mos@mindrian-marketplace
 ```
 
-If unable to fetch (network failure):
-> "Couldn't reach GitHub. Check your connection and try again. Your current version works fine."
-Done.
-
-### Step 2: Decide
-
-**If local == latest:**
-> "You're running the latest, v{version}. Nothing to update."
-
-But also tell them about the in-version hotfix mechanism:
-> "Note: even on the latest version number, hotfixes can ship under the same tag. If something feels broken, run `/mos:update force` to re-pull v{version} from GitHub."
-
-Done.
-
-**If local != latest:**
-Continue to Step 3.
+**If `STATUS=VERSION_DIFFERS`:**
+Continue to Step 3 (standard upgrade flow).
 
 ### Step 3: Show what's new
 
@@ -111,10 +121,24 @@ claude plugin update mos@mindrian-marketplace 2>&1
 Stream output. If non-zero exit, fall back instructions:
 > "Native update failed: {stderr}. Two recovery paths -- (1) try `/plugin update mos@mindrian-marketplace` from inside this session, or (2) `/plugin install mos@mindrian-marketplace` for a clean re-install. Either path keeps the registry in sync."
 
-### Step 6: Verify and instruct restart
+### Step 6: Migrate stale user-settings paths
 
-If both steps succeeded:
-> "Done. v{latest} installed via Claude Code's plugin loader -- registry, cache, and `enabledPlugins` are all in sync. Restart Claude Code (close and reopen the terminal, or kill and re-run `claude`) to pick it up. After restart, run `/mos:help` to confirm commands are reachable."
+Run the user-settings migration to clean up any stale version-pinned paths the deprecated self-update wrote into `~/.claude/settings.json`:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/migrate-stale-user-settings.cjs" --apply
+```
+
+If the migrator finds and removes stale entries, surface that to the user:
+> "Cleaned {N} stale path(s) from your user settings.json. The plugin's own `${CLAUDE_PLUGIN_ROOT}`-based paths now take effect. A backup was saved to settings.json.bak.<timestamp> in case you need to roll back."
+
+If no findings, mention it briefly:
+> "User settings clean -- no stale paths."
+
+### Step 7: Verify and instruct restart
+
+If all steps succeeded:
+> "Done. v{latest} installed via Claude Code's plugin loader -- registry, cache, and `enabledPlugins` are all in sync. User settings checked for stale paths. Restart Claude Code (close and reopen the terminal, or kill and re-run `claude`) to pick it up. After restart, run `/mos:help` to confirm commands are reachable, and look for the Mindrian statusline at the bottom of the terminal."
 
 ## Force Mode
 

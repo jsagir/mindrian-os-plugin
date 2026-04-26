@@ -410,7 +410,7 @@ function runOnStop(roomDir, validators) {
     if (worstIdx >= SEVERITY_ORDER.indexOf('error')) {
       const loc = worstSection === '__room__' ? 'room' : 'section ' + worstSection;
       const msg = 'guardian: ' + worstSeverity + ' in ' + loc + ' (' + worstCategory + ', glyph low)';
-      // v1.10.18 hotfix 2026-04-26: wrap in hookSpecificOutput per Claude Code 2.x schema
+      // v1.10.19 (hotfixes shipped 2026-04-26): wrap in hookSpecificOutput per Claude Code 2.x schema
       // (additionalProperties: false rejects top-level systemMessage). Function
       // is runOnStop, so hookEventName is 'Stop'.
       const payload = {

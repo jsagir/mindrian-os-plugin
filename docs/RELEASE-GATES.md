@@ -58,15 +58,54 @@ When a new Claude Code release breaks something else, the pattern is:
 
 This is the dog-fooding loop applied to plugin compatibility -- every regression we hit becomes a permanent gate so we never hit it twice.
 
+## Gate 2 -- SHA-Aware Update Detection (advisory, not blocking)
+
+**Script:** `scripts/check-version-and-sha.cjs`
+
+**What it does:** compares both the local plugin version AND the local commit SHA against the remote `v<version>` git tag. Detects three states version-only checkers miss:
+- `SHA_DIFFERS_INVERSION_HOTFIX` -- same version, but tag was force-moved
+- `LOCAL_SHA=unknown` -- registry is missing gitCommitSha (manual `claude plugin install` recommended)
+- `NETWORK_ERROR` -- gracefully degrades
+
+**Why it matters:** `claude plugin update` and `/mos:update` both rely on version comparison. When an in-version hotfix ships under the same tag, version comparison shows "no change available" and users stay broken. SHA comparison catches it.
+
+**Wired into:** `/mos:update` Step 1.
+
+**Run manually:**
+```bash
+node scripts/check-version-and-sha.cjs
+```
+
+## Gate 3 -- Stale User-Settings Migration (advisory, not blocking)
+
+**Script:** `scripts/migrate-stale-user-settings.cjs`
+
+**What it does:** scans `~/.claude/settings.json` for version-pinned absolute paths to MindrianOS scripts (a side-effect of the deprecated self-update writing absolute paths into user settings). Removes plugin-owned keys (`statusLine`, `hooks`) so the plugin's own `${CLAUDE_PLUGIN_ROOT}`-based config takes effect. Backs up settings.json before modification.
+
+**Why it matters:** user-level settings override plugin-level settings. Stale absolute paths in user settings render the plugin's own correct config inert. This is what hid Aryeh's statusline after the v1.10.19 install -- his user settings still pointed at `1.10.13/scripts/context-monitor`.
+
+**Wired into:** `/mos:update` Step 6 (post-install).
+
+**Run manually:**
+```bash
+# Dry run (default)
+node scripts/migrate-stale-user-settings.cjs
+
+# Actually edit (creates backup first)
+node scripts/migrate-stale-user-settings.cjs --apply
+```
+
 ## Future Gates (planned)
 
-- **Gate 2 -- Slash command frontmatter compatibility** (when Claude Code adds new required fields)
-- **Gate 3 -- Skill SKILL.md frontmatter** (per recent skill-system changes)
-- **Gate 4 -- MCP server protocol version** (when MCP SDK bumps major)
-- **Gate 5 -- Marketplace manifest** (per CLAUDE.md release-process invariants 1-5)
+- **Gate 4 -- Slash command frontmatter compatibility** (when Claude Code adds new required fields)
+- **Gate 5 -- Skill SKILL.md frontmatter** (per recent skill-system changes)
+- **Gate 6 -- MCP server protocol version** (when MCP SDK bumps major)
+- **Gate 7 -- Marketplace manifest invariants** (per CLAUDE.md release-process gates 1-5)
 
 ## History
 
 | Date | Version | Trigger | Gate added |
 |---|---|---|---|
-| 2026-04-26 | v1.10.18 hotfix | Aryeh Holtzberg hit hook schema rejection on every Read/Grep/Glob in v1.10.18; in-version patch (no version bump) | Gate 1 (this gate) |
+| 2026-04-26 | v1.10.19 | Aryeh Holtzberg hit hook schema rejection on every Read/Grep/Glob in v1.10.18 | Gate 1 (hook schema) |
+| 2026-04-26 | v1.10.19 | Aryeh on v1.10.18 corrupted-but-flagged-latest after first hotfix's in-version tag move | Gate 2 (SHA-aware detection) |
+| 2026-04-26 | v1.10.19 | Aryeh's statusline failed to render after install because user settings.json had stale `1.10.13/scripts/context-monitor` from old self-update | Gate 3 (settings migration) |

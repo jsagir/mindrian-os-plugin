@@ -9,7 +9,7 @@
  * Background: Claude Code 2.x added `additionalProperties: false` to the
  * hook output schema. Top-level `systemMessage` and top-level `additionalContext`
  * are no longer accepted -- they must be wrapped in a `hookSpecificOutput`
- * envelope with a valid `hookEventName`. v1.10.18 hotfix (2026-04-26) landed after
+ * envelope with a valid `hookEventName`. v1.10.19 (hotfixes shipped 2026-04-26) landed after
  * Aryeh Holtzberg (PWS IRIS 2025) hit "Hook JSON output validation failed"
  * on every Read/Grep/Glob in v1.10.18.
  *
