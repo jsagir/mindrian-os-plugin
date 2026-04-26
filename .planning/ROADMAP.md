@@ -453,7 +453,7 @@ Plans:
   13. NO release gate -- bundled into v1.11.0 final ship at Phase 91.x per milestone §7
 **Plans**: 8 plans across 4 waves
 Plans:
-- [ ] 89.2-01-egress-primitives-PLAN.md -- shared ExternalEgressViolation + FORBIDDEN_PATTERNS re-export + per-source telemetry primitive (Wave 1; SC-10, SC-11)
+- [x] 89.2-01-egress-primitives-PLAN.md -- shared ExternalEgressViolation + FORBIDDEN_PATTERNS re-export + per-source telemetry primitive (Wave 1; SC-10, SC-11)
 - [ ] 89.2-02-fetcher-academic-PLAN.md -- 6-source academic fetcher (OpenAlex+arXiv+Scopus+PubMed+IEEE+Nature) + chokepoint + drop-in validator + 12+6 fixture suite (Wave 2; SC-01, SC-10, SC-11)
 - [ ] 89.2-03-fetcher-patents-PLAN.md -- Google Patents + USPTO fetcher + chokepoint + drop-in validator + 11+6 fixture suite (Wave 2; SC-02, SC-10, SC-11)
 - [ ] 89.2-04-fetcher-industry-PLAN.md -- Tavily-orchestrated industry fetcher with two-layer audit + chokepoint + drop-in validator + 10+6 fixture suite (Wave 2; SC-03, SC-10, SC-11)
@@ -616,7 +616,7 @@ Phases execute in numeric order: 76 -> 77 -> 78 -> 79 -> 80
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 91
-**Plans:** 5/5 plans complete
+**Plans:** 1/8 plans executed
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 92 to break down)

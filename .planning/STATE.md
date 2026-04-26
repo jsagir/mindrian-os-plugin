@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
-status: verifying
-stopped_at: "Completed 89.1-05-PLAN.md (Phase 89.1 close: Feynman 64->66, Phase Gate 13/13 PASS, Live A3 + canon edge confirmed)"
-last_updated: "2026-04-26T14:35:50.442Z"
+status: executing
+stopped_at: "Completed 89.2-01-PLAN.md (Wave 1 foundation: shared ExternalEgressViolation + FORBIDDEN_PATTERNS re-export + telemetry primitive; 8/8 + A1 + A2 green; 89.2 ready for Wave 2 parallel fetcher plans)"
+last_updated: "2026-04-26T19:31:26.764Z"
 last_activity: 2026-04-26
 progress:
-  total_phases: 23
+  total_phases: 24
   completed_phases: 10
-  total_plans: 120
-  completed_plans: 100
+  total_plans: 128
+  completed_plans: 101
   percent: 82
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 89.1 — Domain Analysis + Query Generation Matrix
+**Current focus:** Phase 89.2 — External Research Fetching (EXPANDED)
 
 ## Current Position
 
-Phase: 90
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 89.2 (External Research Fetching (EXPANDED)) — EXECUTING
+Plan: 2 of 8
+Status: Ready to execute
 
 Phase 90-02 commits (main, NOT yet pushed):
 
@@ -110,6 +110,7 @@ Progress: [████████░░] 82%
 | Phase 89.1 P03 | 3m32s | 1 tasks | 2 files |
 | Phase 89.1 P04 | 1h45m | 3 tasks | 2 files |
 | Phase 89.1 P05 | 28min | 3 tasks | 4 files |
+| Phase 89.2 P01 | 5min | 1 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -361,6 +362,10 @@ Progress: [████████░░] 82%
 - [Phase 89.1]: Phase Gate format = 89.1a mirror G1-G9 + E1-E4 extension; 13/13 PASS captured against base 1313777..HEAD 6873cdc
 - [Phase 89.1]: Live A3 + canon edge probes ran inline (Brain reachable from session); E1 mode=A3 substrate_length=25; E2 USES_TECHNIQUE edges=1
 - [Phase 89.1]: Pre-commit hook side-effect (user's v1.10.18 hotfix) caught + isolated; Phase 89.1 commits touch zero release artifacts
+- [Phase 89.2]: Plan 89.2-01: ExternalEgressViolation EXTRACTED to lib/core/rs-egress-violations.cjs (Canon Part 7 reuse); 89.1 per-module sibling subclasses preserved unchanged for back-compat; new 89.2 fetchers MUST require shared module
+- [Phase 89.2]: Plan 89.2-01: FORBIDDEN_PATTERNS re-exported BYTE-FOR-BYTE from cross-room-aggregator via lib/core/rs-egress-prompts.cjs with require-time guard (length < 6 throws); mirrors 89.1a rs-brain-substrate-prompts.cjs pattern
+- [Phase 89.2]: Plan 89.2-01: Telemetry path locked GLOBAL ~/.mindrian/telemetry/external-papers.json (NOT per-room); per-source budget is per-user resource; mirrors Phase 88.6-03 precedent direction
+- [Phase 89.2]: Plan 89.2-01: Telemetry sha256(query_text).slice(0,16) hex prefix; literal query_text NEVER persists to disk (Canon Part 8 fence at telemetry layer; Test 6 + independent oracle confirm)
 
 ### Pending Todos
 
@@ -382,6 +387,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-26T14:09:32.712Z
-Stopped at: Completed 89.1-05-PLAN.md (Phase 89.1 close: Feynman 64->66, Phase Gate 13/13 PASS, Live A3 + canon edge confirmed)
+Last session: 2026-04-26T19:31:26.743Z
+Stopped at: Completed 89.2-01-PLAN.md (Wave 1 foundation: shared ExternalEgressViolation + FORBIDDEN_PATTERNS re-export + telemetry primitive; 8/8 + A1 + A2 green; 89.2 ready for Wave 2 parallel fetcher plans)
 Resume file: None
