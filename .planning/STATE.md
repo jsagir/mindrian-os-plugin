@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 89.2-05-fetcher-experts-PLAN.md
-last_updated: "2026-04-26T21:17:49.760Z"
+stopped_at: Completed 89.2-06-preprocessor-and-differential-scorer-PLAN.md
+last_updated: "2026-04-26T21:34:04.571Z"
 last_activity: 2026-04-26
 progress:
   total_phases: 24
   completed_phases: 10
   total_plans: 128
-  completed_plans: 105
+  completed_plans: 106
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 89.2 (External Research Fetching (EXPANDED)) — EXECUTING
-Plan: 5 of 8
+Plan: 6 of 8
 Status: Ready to execute
 
 Phase 90-02 commits (main, NOT yet pushed):
@@ -115,6 +115,7 @@ Progress: [████████░░] 82%
 | Phase 89.2 P03 | 6m | 1 tasks | 2 files |
 | Phase 89.2 P04 | 12m | 1 tasks | 3 files |
 | Phase 89.2 P05 | 18min | 1 tasks | 2 files |
+| Phase 89.2 P06 | 11min | 3 tasks | 6 files |
 
 ### Roadmap Evolution
 
@@ -377,6 +378,10 @@ Progress: [████████░░] 82%
 - [Phase 89.2]: Plan 89.2-04 introduced TWO-LAYER auditQueryString chokepoint -- Layer 1 on user query, Layer 2 on each refined sub-query (after template substitution); proves defense-in-depth across full FORBIDDEN_PATTERNS family on both user-input and template-override vectors via Tests 10 + 11
 - [Phase 89.2]: Plan 89.2-04 INDUSTRY_SOURCES gate scopes per-source / per-entry validator checks to 'tavily' only (mirrors PATENTS_SOURCES Pattern 7 from 89.2-03); prevents duplicate warnings across academic + patents + industry validators on shared global ledger
 - [Phase 89.2]: Plan 89.2-05: experts post-processor with PUBLIC_EMAIL_SOURCES locked to ['openalex']; defense-in-depth auditQueryObject pre-return scan even though no network egress; composite (name|orcid) dedup; 12/12 + A1 sweep clean
+- [Phase 89.2]: Plan 89.2-06: Pair-wise LSA via embedded sklearn TfidfVectorizer + TruncatedSVD subset is a DELIBERATE Canon Part 7 carve-out (rs_math.py is corpus-level; 2-doc mini-corpus produces degenerate IDF + 1-component SVD that does NOT correspond to Kwan 2023). Documented in plan must_haves + CJS file header + embedded Python lsaBridgeScript header (3 locations); acceptance grep enforces >= 2 CARVE-OUT hits in differential-scorer.
+- [Phase 89.2]: Plan 89.2-06: Strict 1024-dim cosine via Pinecone-direct (Option a from CONTEXT.md) using EXISTING rs_cache.py::fetch_all_from_namespace v1.10.16 contract (already returns 1024-dim values). NO new Pinecone API surface; bridge is a thin JSON-over-stdio shim. NO Wave-0 prerequisite plan needed.
+- [Phase 89.2]: Plan 89.2-06: Strict > comparisons in dual-floor filter (NOT >=); exact-threshold case lsa=0.2 bert=0.2 -> passes=false (Test 5 regression fence). Pedagogically the floor is a DETECTION filter, not borderline-acceptance.
+- [Phase 89.2]: Plan 89.2-06: Embedded Python BSL discipline -- every embedded Python script literal carries '# BSL 1.1' as first line (W4 fix). Embedded source treated as licensable surface. Acceptance grep enforces >= 2 hits in any CJS file containing embedded Python.
 
 ### Pending Todos
 
@@ -398,6 +403,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-26T21:17:49.754Z
-Stopped at: Completed 89.2-05-fetcher-experts-PLAN.md
+Last session: 2026-04-26T21:34:03.638Z
+Stopped at: Completed 89.2-06-preprocessor-and-differential-scorer-PLAN.md
 Resume file: None
