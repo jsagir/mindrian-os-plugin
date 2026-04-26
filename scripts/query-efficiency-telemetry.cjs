@@ -77,20 +77,29 @@ const os = require('node:os');
 const { spawnSync } = require('node:child_process');
 
 // ---------- Soft-fail envelope ----------
+// v1.10.18 hotfix 2026-04-26: Claude Code 2.x added `additionalProperties: false` to the
+// hook output schema. Top-level `systemMessage` and `additionalContext` are no
+// longer accepted -- they must be wrapped in `hookSpecificOutput`. Without
+// this fix, every Read/Grep/Glob fires "Hook JSON output validation failed"
+// in the user's terminal. See: https://docs.anthropic.com/en/docs/claude-code/hooks
 
 function emitEnvelope(systemMessage) {
+  if (!systemMessage) return; // silent exit -- never emit JSON when no message
   try {
     const payload = {
-      additionalContext: null,
-      systemMessage: systemMessage === undefined ? null : systemMessage,
-      suppressOutput: false,
+      hookSpecificOutput: {
+        hookEventName: 'PostToolUse',
+        additionalContext: String(systemMessage),
+      },
     };
     process.stdout.write(JSON.stringify(payload) + '\n');
   } catch (_e) { /* best-effort */ }
 }
 
 function exitSilent() {
-  emitEnvelope(null);
+  // v1.10.18 hotfix 2026-04-26: previously called emitEnvelope(null) which wrote an
+  // invalid JSON envelope. Silent now means truly silent -- exit 0 with no
+  // stdout output at all. Schema validation passes by emitting nothing.
   process.exit(0);
 }
 

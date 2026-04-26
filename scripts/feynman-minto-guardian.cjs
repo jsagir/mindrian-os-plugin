@@ -410,7 +410,16 @@ function runOnStop(roomDir, validators) {
     if (worstIdx >= SEVERITY_ORDER.indexOf('error')) {
       const loc = worstSection === '__room__' ? 'room' : 'section ' + worstSection;
       const msg = 'guardian: ' + worstSeverity + ' in ' + loc + ' (' + worstCategory + ', glyph low)';
-      process.stdout.write(JSON.stringify({ systemMessage: msg }) + '\n');
+      // v1.10.18 hotfix 2026-04-26: wrap in hookSpecificOutput per Claude Code 2.x schema
+      // (additionalProperties: false rejects top-level systemMessage). Function
+      // is runOnStop, so hookEventName is 'Stop'.
+      const payload = {
+        hookSpecificOutput: {
+          hookEventName: 'Stop',
+          additionalContext: msg,
+        },
+      };
+      process.stdout.write(JSON.stringify(payload) + '\n');
     }
   } catch (_e) { /* advisory: never break on-stop on sysmsg failure */ }
   return 0;

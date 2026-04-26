@@ -132,14 +132,22 @@ function readStdinSync() {
 function allow() { process.exit(0); }
 
 // 88.1-03: systemMessage retrofit. Pre-emit a JSON envelope on stdout with
-// systemMessage BEFORE writing the block reason to stderr and exiting 2.
-// Claude Code 2.1.x renders systemMessage from stdout JSON regardless of
-// exit code; the stderr text remains the authoritative block reason per
-// the hook spec. Silent on allow (no message when everything is fine).
+// the warning context BEFORE writing the block reason to stderr and exiting 2.
+// v1.10.18 hotfix 2026-04-26: Claude Code 2.x schema added `additionalProperties: false`,
+// so top-level `systemMessage` is rejected. Wrap in `hookSpecificOutput` per
+// the new schema. The stderr text remains the authoritative block reason.
+// Silent on allow (no JSON emitted when everything is fine).
 // LOCAL-only (Canon Part 8): room slugs only, no file payload echoed.
 function emitSystemMessage(sysMsg) {
+  if (!sysMsg) return;
   try {
-    process.stdout.write(JSON.stringify({ systemMessage: sysMsg }) + '\n');
+    const payload = {
+      hookSpecificOutput: {
+        hookEventName: 'PreToolUse',
+        additionalContext: String(sysMsg),
+      },
+    };
+    process.stdout.write(JSON.stringify(payload) + '\n');
   } catch (_e) { /* best-effort */ }
 }
 

@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.10.18] - 2026-04-20
 
+### Hotfix 2026-04-26 (in-version patch -- no version bump)
+
+This is an in-place patch to v1.10.18. The version number is intentionally NOT bumped so future planning artifacts (Phase 91 navigation-engine, Phase 92 refactor work) continue to reference the same baseline. The `v1.10.18` git tag is moved to point at this hotfix commit; the marketplace ref serves the patched code on fresh installs. Existing installs need to reinstall to pick up the fix.
+
+#### Fixed
+- **CRITICAL: Hook output schema compatibility with Claude Code 2.x.** Three hook scripts (`scripts/query-efficiency-telemetry.cjs`, `scripts/write-scope-check.cjs`, `scripts/feynman-minto-guardian.cjs`) emitted JSON with top-level `systemMessage` / `additionalContext` fields. Claude Code 2.x rejects these via `additionalProperties: false`, causing every Read/Grep/Glob and Write/Edit call to fire "Hook JSON output validation failed -- (root): Invalid input" in the user's terminal. Plugin appeared broken on every recent Claude Code install. Fixed by wrapping output in the canonical `hookSpecificOutput` envelope per the official hooks reference (https://docs.anthropic.com/en/docs/claude-code/hooks). Silent exits now emit zero stdout (was: invalid JSON with null fields).
+- Reported by Aryeh Holtzberg (PWS IRIS 2025) on 2026-04-26. Reference fixes in graphify v0.3.21 (2026-04-09) and oh-my-claudecode v4.11.5 ("fix(hooks): wrap wiki hook additionalContext in hookSpecificOutput").
+
+#### Added
+- Pre-release compatibility scan: `scripts/check-hook-schema-compatibility.cjs` scans every hook script for forbidden output patterns before any version bump. Top-level `systemMessage`, top-level `additionalContext`, and naked `JSON.stringify({systemMessage: ...})` patterns now fail the release gate. See `docs/RELEASE-GATES.md`. This gate is mandatory before every future version tag.
+
+#### Phase 90 plan amendment
+The brain-derivation-layer phase ships the same v1.10.18 capability set; the hook output schema compatibility patch is appended to its release notes as an in-version corrective. See `.planning/phases/90-brain-derivation-layer/90-HOTFIX-2026-04-26.md`.
+
+### Original release notes
+
 Phase 90 Brain Derivation Layer ships. BRAIN.md lands as the fourth
 per-folder memory file on top of the Phase 88 triple, extending per-folder
 memory from triple to quadruple while keeping readTriple byte-identical for
