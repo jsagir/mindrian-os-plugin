@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: "Completed 89.2-01-PLAN.md (Wave 1 foundation: shared ExternalEgressViolation + FORBIDDEN_PATTERNS re-export + telemetry primitive; 8/8 + A1 + A2 green; 89.2 ready for Wave 2 parallel fetcher plans)"
-last_updated: "2026-04-26T19:31:26.764Z"
+stopped_at: Completed 89.2-02-fetcher-academic
+last_updated: "2026-04-26T19:44:50.737Z"
 last_activity: 2026-04-26
 progress:
   total_phases: 24
   completed_phases: 10
   total_plans: 128
-  completed_plans: 101
+  completed_plans: 102
   percent: 82
 ---
 
@@ -111,6 +111,7 @@ Progress: [████████░░] 82%
 | Phase 89.1 P04 | 1h45m | 3 tasks | 2 files |
 | Phase 89.1 P05 | 28min | 3 tasks | 4 files |
 | Phase 89.2 P01 | 5min | 1 tasks | 4 files |
+| Phase 89.2 P02 | 10m | 1 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -366,6 +367,9 @@ Progress: [████████░░] 82%
 - [Phase 89.2]: Plan 89.2-01: FORBIDDEN_PATTERNS re-exported BYTE-FOR-BYTE from cross-room-aggregator via lib/core/rs-egress-prompts.cjs with require-time guard (length < 6 throws); mirrors 89.1a rs-brain-substrate-prompts.cjs pattern
 - [Phase 89.2]: Plan 89.2-01: Telemetry path locked GLOBAL ~/.mindrian/telemetry/external-papers.json (NOT per-room); per-source budget is per-user resource; mirrors Phase 88.6-03 precedent direction
 - [Phase 89.2]: Plan 89.2-01: Telemetry sha256(query_text).slice(0,16) hex prefix; literal query_text NEVER persists to disk (Canon Part 8 fence at telemetry layer; Test 6 + independent oracle confirm)
+- [Phase 89.2]: 89.2-02: CJS re-implementation of OpenAlex+arXiv (rather than wrapping rs_corpus.py via child_process); rs_corpus.py remains valid for legacy callers
+- [Phase 89.2]: 89.2-02: Single-chokepoint URL builder pattern (buildAcademicQuery) + single-fetch-call-site (fetchWithTimeout); static grep Test 12 enforces both invariants
+- [Phase 89.2]: 89.2-02: External validator scope=global (not room) because telemetry is per-user; mirrors snapshot-integrity, queue-health, stale-lifecycle pattern
 
 ### Pending Todos
 
@@ -387,6 +391,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-26T19:31:26.743Z
-Stopped at: Completed 89.2-01-PLAN.md (Wave 1 foundation: shared ExternalEgressViolation + FORBIDDEN_PATTERNS re-export + telemetry primitive; 8/8 + A1 + A2 green; 89.2 ready for Wave 2 parallel fetcher plans)
+Last session: 2026-04-26T19:44:41.415Z
+Stopped at: Completed 89.2-02-fetcher-academic
 Resume file: None
