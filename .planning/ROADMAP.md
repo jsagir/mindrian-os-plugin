@@ -74,7 +74,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - [x] **Phase 89: Reverse-Salient Engine** - Hughes 1983 reverse-salient detection for lagging components in an expanding venture. Computes embedding-distance lag signal per section, optional consumer of Phase 88 reasoning_health_score. 8 plans on disk, zero summaries (checkbox corrected 2026-04-23 after false-complete mark detected in audit). Ships independently as v1.10.16. (completed 2026-04-24)
 - [x] **Phase 89.1a: Brain Methodology Substrate Loader** - Pull 1,427 methodology embeddings from Brain Pinecone via canon-compliant chokepoint. 4 plans, 7/7 SCs PASS. Bundled into v1.11.0. (completed 2026-04-25)
 - [x] **Phase 89.1: Domain Analysis + Query Generation Matrix** - rs-domain-analyzer.cjs (Sequential-Thinking 7-field decomposition) + rs-query-matrix.cjs (60-query 4-category matrix) + brain-client shape adapter resolving 89.1a deferred item + USES_TECHNIQUE Brain canonization edge (the ONE Brain-write of v1.11.0). 5 plans, 7/7 SCs PASS, Phase Gate 13/13 PASS. Bundled into v1.11.0. (completed 2026-04-26)
-- [ ] **Phase 89.2: External Research Fetching (EXPANDED) + Preprocessing + Scoring + Thesis + Experts** - Phase 1.5 + 2 + 3 + 4 of canonical reverse-salient framework per kickoff §5. Consumes 89.1's 60-query matrix; ships 4 fetchers (academic / patents / industry / experts) + preprocessor + differential scorer + innovation classifier + breakthrough scorer + thesis generator. Every fetcher inherits Canon Part 8 5-tripwire pattern (chokepoint + ExternalEgressViolation + auditQuery + drop-in validator + adversarial fixtures). Per-source rate-limit graceful degradation per Phase 88.6-03. Bundled into v1.11.0 final ship at Phase 91.x.
+- [x] **Phase 89.2: External Research Fetching (EXPANDED) + Preprocessing + Scoring + Thesis + Experts** - Phase 1.5 + 2 + 3 + 4 of canonical reverse-salient framework per kickoff §5. Consumes 89.1's 60-query matrix; ships 4 fetchers (academic / patents / industry / experts) + preprocessor + differential scorer + innovation classifier + breakthrough scorer + thesis generator. Every fetcher inherits Canon Part 8 5-tripwire pattern (chokepoint + ExternalEgressViolation + auditQuery + drop-in validator + adversarial fixtures). Per-source rate-limit graceful degradation per Phase 88.6-03. Bundled into v1.11.0 final ship at Phase 91.x. (completed 2026-04-26)
 - [x] **Phase 90: Brain Derivation Layer** - Lets the Brain excavate the local triple (Phase 88) and produce a persistent authored BRAIN.md per section with pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, cross-room contradiction flags. Extends triple to quadruple. Graceful degradation when Brain offline. CONTEXT filed. Releases as v1.10.17. (completed 2026-04-24)
 - [ ] **Phase 91: Navigation Engine** - L5 Decision layer reading the L3 Navigation substrate (SQL + quadruple memory) to decide which skill/command/framework fires each turn. Five-signal triangulation (ICM + SQL + Feynman-MINTO + BRAIN + intent/persona). Persona durability via USER.md. Visible dial in statusline. /mos:explain-decision command. CONTEXT filed. Destination phase. Releases as v1.11.0.
 
@@ -460,7 +460,7 @@ Plans:
 - [x] 89.2-05-fetcher-experts-PLAN.md -- experts post-processor (no egress; auditQueryObject defense in depth) + 11 fixture suite (Wave 2; SC-04, SC-10)
 - [x] 89.2-06-preprocessor-and-differential-scorer-PLAN.md -- rs-pinecone-bridge + rs-preprocessor (Phase 2 deterministic 5-field) + rs-differential-scorer (Phase 3 dual-floor 0.3/0.2/0.2) + strict 1024-dim cosine via existing rs_cache.py + 24 fixture scenarios (Wave 3; SC-05, SC-06)
 - [x] 89.2-07-classifier-breakthrough-thesis-PLAN.md -- innovation classifier (3 enum) + breakthrough scorer (5-dimension 0-10) + thesis generator (template fill) + 27 fixture scenarios (Wave 3; SC-07, SC-08, SC-09)
-- [ ] 89.2-08-feynman-registration-and-phase-gate-PLAN.md -- Feynman registration sweep (66 -> 76) + Phase Gate transcript (9G + 5E asserts) + VERIFICATION.md (13 SCs) (Wave 4; SC-12, SC-13)
+- [x] 89.2-08-feynman-registration-and-phase-gate-PLAN.md -- Feynman registration sweep (66 -> 76) + Phase Gate transcript (9G + 5E asserts) + VERIFICATION.md (13 SCs) (Wave 4; SC-12, SC-13)
 **Authority**: .planning/milestones/v1.11.0-RESUME-89.2.md (cross-session handoff doc); .planning/milestones/v1.11.0-KICKOFF.md §5 (Phase 1.5 + Phase 2 + Phase 3 + Phase 4 of canonical framework), §6 (chain mechanism downstream context), §7 (bundled milestone), §8 (Canon Part 8 + Part 7), §9 (implementation guidance + graceful degradation), §15 (open questions for planner to resolve); .planning/phases/89.1a-brain-methodology-substrate-loader/ (substrate loader contract); .planning/phases/89.1-domain-analysis-and-query-matrix/ (60-query matrix + ExternalEgressViolation pattern + Phase Gate template)
 
 ### Phase 90: Brain Derivation Layer
@@ -616,7 +616,7 @@ Phases execute in numeric order: 76 -> 77 -> 78 -> 79 -> 80
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 91
-**Plans:** 7/8 plans executed
+**Plans:** 8/8 plans complete
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 92 to break down)
