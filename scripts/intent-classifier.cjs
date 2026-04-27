@@ -656,7 +656,7 @@ function persistDecisionTrace(roomDir, sessionId, traceEntry) {
   } catch (_) { /* fire-and-forget */ }
 }
 
-function formatEngineDecisionBlock(decision) {
+function formatEngineDecisionBlock(decision, routing) {
   if (!decision || typeof decision !== 'object') return '';
   const trace = decision.decision_trace || {};
   const fireSkill = decision.fire_skill === null || decision.fire_skill === undefined
@@ -690,9 +690,21 @@ function formatEngineDecisionBlock(decision) {
     'persona_updates: ' + persona,
     'tier_mode: ' + tierMode,
     'brain_md_recommended_marker_rendered: ' + recommended,
-    '',
-    'Why: ' + why,
   ];
+  // Phase 91-03: append router output (routing_source + activated_skills)
+  // when the caller has computed it. Two new lines summarize which
+  // activation set won (engine vs legacy vs mixed) and which skills are
+  // active for this turn after composition.
+  if (routing && typeof routing === 'object') {
+    const routingSource = typeof routing.source === 'string' ? routing.source : 'legacy';
+    const activated = Array.isArray(routing.activated_skills)
+      ? '[' + routing.activated_skills.join(', ') + ']'
+      : '[]';
+    lines.push('activated_skills: ' + activated);
+    lines.push('routing_source: ' + routingSource);
+  }
+  lines.push('');
+  lines.push('Why: ' + why);
   return lines.join('\n');
 }
 
@@ -706,6 +718,67 @@ function navTestSleepMs() {
 
 function navTestThrowing() {
   return process.env.MOS_NAV_TEST_THROW === '1';
+}
+
+// Phase 91-03: integration test stub for engine output. When set, the
+// run-navigation-engine path overrides the decision's fire_skill (and
+// optionally suppress_skills) so end-to-end tests can exercise the
+// router without mocking the engine module. Production behavior is
+// unchanged when env vars are unset (string equality, never coerced
+// from absent values).
+//   MOS_NAV_TEST_FIRE_SKILL=<verb>          -> set decision.fire_skill
+//   MOS_NAV_TEST_FIRE_SKILL=__NULL__        -> force decision.fire_skill = null
+//   MOS_NAV_TEST_SUPPRESS_SKILLS=a,b,c      -> set decision.suppress_skills (csv)
+function navTestFireSkill() {
+  const v = process.env.MOS_NAV_TEST_FIRE_SKILL;
+  if (typeof v !== 'string' || v.length === 0) return undefined;
+  if (v === '__NULL__') return null;
+  return v;
+}
+
+function navTestSuppressSkills() {
+  const v = process.env.MOS_NAV_TEST_SUPPRESS_SKILLS;
+  if (typeof v !== 'string' || v.length === 0) return undefined;
+  return v.split(',').map(function (s) { return s.trim(); }).filter(function (s) { return s.length > 0; });
+}
+
+// Phase 91-03: compute the pre-91 (legacy) skill activation set based
+// on observable file-state and env-var toggles. The router composes
+// this with the engine decision per Canon Part 7 (Reuse Before Build):
+// when engine is silent, this is the activation that fires; when
+// engine is opinionated, this is the input the suppress list operates
+// on. Skills observed:
+//   - larry-personality      always-on (no activation directive)
+//   - context-engine         always-on (no activation directive)
+//   - room-passive           when active room resolves
+//   - room-proactive         when active room resolves
+// Env-var toggles honored:
+//   MOS_NO_SKILL_<name>=1     -> remove from set
+//   MOS_FORCE_SKILL_<name>=1  -> add to set even if file-state misses
+function computeLegacyActivation(roomDir) {
+  const set = [];
+  const seen = new Set();
+  function add(name) {
+    if (typeof name !== 'string' || name.length === 0) return;
+    if (seen.has(name)) return;
+    if (process.env['MOS_NO_SKILL_' + name] === '1') return;
+    seen.add(name);
+    set.push(name);
+  }
+  add('larry-personality');
+  add('context-engine');
+  if (roomDir) {
+    add('room-passive');
+    add('room-proactive');
+  }
+  // FORCE_SKILL allows enabling a skill that file-state would not
+  // activate. Iterate env keys looking for the prefix.
+  for (const key of Object.keys(process.env)) {
+    if (key.indexOf('MOS_FORCE_SKILL_') === 0 && process.env[key] === '1') {
+      add(key.slice('MOS_FORCE_SKILL_'.length));
+    }
+  }
+  return set;
 }
 
 function navTestCounterPath() {
@@ -851,6 +924,18 @@ function runNavigationEngine(roomDir, sessionId) {
           if (decision === null || decision === undefined) {
             return resolve(null);
           }
+          // Phase 91-03 integration test stubs: when MOS_NAV_TEST_FIRE_SKILL
+          // is set, override the engine's fire_skill so the router can be
+          // exercised end-to-end without mocking the engine module. The
+          // env vars are never set in production.
+          const stubFire = navTestFireSkill();
+          if (stubFire !== undefined) {
+            decision.fire_skill = stubFire;
+          }
+          const stubSuppress = navTestSuppressSkills();
+          if (stubSuppress !== undefined) {
+            decision.suppress_skills = stubSuppress;
+          }
           const elapsedMs = Date.now() - startedAt;
           resolve({ decision: decision, elapsed_ms: elapsedMs });
         })
@@ -910,7 +995,25 @@ try {
       const sessionId = resolveSessionId(roomDir);
       navP = emitEngineDecisionBlock(roomDir, sessionId).then(function (out) {
         if (!out || !out.decision) return null;
-        // Compose trace entry.
+        // Phase 91-03: compose engine decision with legacy file-state +
+        // env activation through the skill-activation-router. The router
+        // enforces Canon Part 3 closed 10-verb vocabulary on engine
+        // outputs and falls back to legacy when engine is silent.
+        // Lazy-require so missing module degrades gracefully (the engine
+        // block still emits with routing absent).
+        let routing = null;
+        try {
+          const router = require(
+            path.join(__dirname, '..', 'lib', 'core', 'skill-activation-router.cjs')
+          );
+          const legacyActivation = computeLegacyActivation(roomDir);
+          routing = router.routeActivation(out.decision, legacyActivation);
+        } catch (_e) {
+          routing = null;
+        }
+        // Compose trace entry. Persist routing source/notes alongside
+        // engine trace so /mos:explain-decision (Plan 91-05) surfaces
+        // which activation set won.
         const turnNo = appendTraceTurnNumber(roomDir, sessionId);
         const baseTrace = (out.decision && out.decision.decision_trace) || {};
         const traceEntry = Object.assign({}, baseTrace, {
@@ -918,9 +1021,18 @@ try {
           at: new Date().toISOString(),
           elapsed_ms: out.elapsed_ms,
         });
+        if (routing && typeof routing === 'object') {
+          traceEntry.routing_source = routing.source;
+          traceEntry.routing_reason = routing.reason;
+          traceEntry.routing_activated_skills = routing.activated_skills;
+          traceEntry.routing_suppressed_skills = routing.suppressed_skills;
+          if (Array.isArray(routing.trace_notes) && routing.trace_notes.length > 0) {
+            traceEntry.routing_trace_notes = routing.trace_notes;
+          }
+        }
         persistDecisionTrace(roomDir, sessionId, traceEntry);
         // Emit additionalContext block.
-        const block = formatEngineDecisionBlock(out.decision);
+        const block = formatEngineDecisionBlock(out.decision, routing);
         if (block && block.length > 0) {
           try { process.stdout.write(block + '\n'); } catch (_) {}
         }
