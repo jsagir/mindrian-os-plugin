@@ -625,7 +625,7 @@ Plans:
 - [x] 91-03-skill-activation-routing-PLAN.md -- lib/core/skill-activation-router.cjs precedence layer; Canon Part 3 10-verb vocabulary enforced; engine precedence when opinionated, legacy fallback when silent (NAV-ROUTING-01..03)
 - [x] 91-04-next-step-offer-presentation-PLAN.md -- lib/core/offer-presenter.cjs with grounding rule + Section 6 RECOMMENDED marker respected + max-1-per-turn + 2-ignore suppression + offer-history persistence (NAV-OFFER-01..03)
 - [x] 91-05-mos-explain-decision-command-PLAN.md -- commands/explain-decision.md + scripts/explain-decision-command.cjs rendering full trace per turn; --last N + --session flags; graceful fallback (NAV-EXPLAIN-01..03)
-- [ ] 91-06-statusline-dial-PLAN.md -- lib/core/nav-dial.cjs + scripts/context-monitor segment; Larry dial Investigate | Blend | Insight driven by engine state; Plan 88.1-04 cache pattern reused (NAV-DIAL-01..03)
+- [x] 91-06-statusline-dial-PLAN.md -- lib/core/nav-dial.cjs + scripts/context-monitor segment; Larry dial Investigate | Blend | Insight driven by engine state; Plan 88.1-04 cache pattern reused (NAV-DIAL-01..03)
 - [ ] 91-07-problem-type-routing-PLAN.md -- lib/core/problem-type-router.cjs UDP/IDP/WDP/Wicked routing from BRAIN.md problemtype_classification; Canon Appendix E R4 wicked escalation; brain-client.isAvailable() scalar upgrade (NAV-PROBLEM-TYPE-01..04)
 - [ ] 91-08-framework-chain-composition-PLAN.md -- lib/core/framework-chain-composer.cjs FEEDS_INTO chain proposal from BRAIN.md framework_chain_predictions; user override recorded as graph data (NAV-CHAIN-01..04)
 - [ ] 91-09-nav-invariants-validator-PLAN.md -- lib/memory/validators/navigation-invariants.cjs drop-in registry validator; 5 invariants (trace completeness, RECOMMENDED mode gate, weight clamp, malformed trace, unknown verb); scope=room (NAV-INVARIANTS-01..03)
@@ -766,7 +766,7 @@ Phases execute in numeric order: 76 -> 77 -> 78 -> 79 -> 80
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 91
-**Plans:** 6/11 plans executed
+**Plans:** 7/11 plans executed
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 92 to break down)
