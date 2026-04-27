@@ -9,6 +9,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.11.0-beta.1] - 2026-04-27
+
+Beta release of the Reverse Salient (RS) Discovery Engine for opt-in testers (Justin / Aryeh). Stable users on v1.10.19 are NOT auto-updated; opt-in is explicit. Phase 91 Navigation Engine is NOT yet wired -- coming in beta.2. Tester sign-off promotes to stable v1.11.0 in Phase 91.5.
+
+### Tester Opt-In
+
+Run these two commands in order to install this beta:
+
+```bash
+/plugin marketplace update
+claude plugin update mos@mindrian-marketplace --version 1.11.0-beta.1
+```
+
+To leave the beta, drop the `--version` flag and run `claude plugin update mos@mindrian-marketplace` -- next refresh resolves back to stable v1.10.19.
+
+### Added
+
+- **RS Discovery Engine end-to-end orchestrator** (`scripts/rs-discovery-engine.cjs`, Phase 89.5). Top-level pipeline chaining Domain Analysis -> Query Matrix -> Fetchers -> Preprocessor -> Differential Scorer -> Innovation Classifier -> Breakthrough Scorer -> Thesis Generator -> Output Layer -> Chain Feeder.
+- **Phase 89.1a: substrate.** Brain query plumbing + Canon Part 8 chokepoint preserving NEVER-user-data-to-Brain across all RS surfaces.
+- **Phase 89.1: Domain Analysis + 60-Query Matrix.** `rs-domain-analysis.cjs` + `rs-query-matrix.cjs::generateQueryMatrix` produce the canonical 60-query matrix consumed by every fetcher.
+- **Phase 89.2: Fetchers + Preprocessor + Scoring + Thesis.** 4 external fetchers (academic / patents / industry / experts) each carrying the 5-tripwire Canon Part 8 pattern (chokepoint + ExternalEgressViolation + auditQuery + drop-in validator + adversarial fixtures). Per-source rate-limit graceful degradation per Phase 88.6-03. Differential scorer + innovation classifier + breakthrough scorer + thesis generator complete the pipeline.
+- **Phase 89.3: Output Layer.** `rs-neo4j-writer.cjs` (Aura schema: RSDiscovery / ReverseSalient / Innovation / Paper / Author / Institution + DISCOVERED / DERIVED_FROM / ENABLES / AUTHORED_BY / AFFILIATED_WITH edges), `rs-sqlite-mirror.cjs` (Tier 0 fallback when Aura absent), `rs-mind-map.cjs` (5-branch Cytoscape: Direct Intersections / Structural Transfer / Semantic Implementation / Discovered RS / Innovation Ecosystem), `rs-expert-mapper.cjs` (Cypher MATCH against user's Aura).
+- **Phase 89.4: Chain Wiring.** `rs-chain-feeder.cjs` codifies engine choreography across the broader MindrianOS engine ecosystem (HSI / Navigation Engine / Scenario / Opportunity / Team-Assembly). Canon Part 3 10-verb closed vocabulary enforced (validateVerb). Skill-spawn rules ship per RS type and breakthrough score.
+- **Phase 89.5: Bidirectional NL-Graph Surface.** Text->Query (`rs-text-to-query.cjs`): natural language -> Cypher/SQL -> 3-graph triangulation across room.db + LazyGraph Aura + Brain methodology, with Canon Part 8 chokepoint preserved. Query->Text (`rs-query-to-text.cjs`): raw graph results -> Larry-voiced NL explanation with pedagogical framing + venture context + cross-ref enrichment.
+- **4 new CLI commands:** `/mos:rs-fetch`, `/mos:rs-thesis`, `/mos:rs-experts`, `/mos:rs-explain`. All three surfaces (CLI + Desktop MCP + Cowork) verified at 89.5 closure.
+- **Pre-release tripwires (this gate).** `scripts/release-beta-preflight.sh` refuses tag operations when plugin.json version does not match `-beta.N` suffix. `scripts/release-beta-smoke.sh` runs a fresh-clone + plugin-install + `/mos:rs-fetch` smoke against the COMMITTED release state (commit -> smoke -> tag ordering) BEFORE tag creation, per release-process.md beta-gating mandate.
+- **TESTER-NOTES.md** at `.planning/release/v1.11.0-beta.1-TESTER-NOTES.md` with opt-in instructions, 4 CLI commands, known limitations, and feedback channel.
+
+### Known Limitations
+
+1. **Navigation Engine is not yet wired** (Phase 91; coming in v1.11.0-beta.2). Skill activation remains the legacy file-state + env behavior in beta.1. RS commands work fine; the engine that picks RS commands automatically does not.
+2. **Aura write path requires LazyGraph connected.** SQLite Tier 0 fallback works when Aura is absent. Aura write only fires when LazyGraph is enabled via `/mos:setup graph`.
+
+### Phase Gate
+
+Phase 89.5 closed 2026-04-27 with 9/9 SCs verified; Phase Gate CONDITIONAL PASS; Feynman runner baseline 85 -> 90 (5 new fixture suites registered). v1.11.0-beta.1 readiness gate cleared.
+
 ## [1.10.19] - 2026-04-26
 
 Patch release that ships two same-day hotfixes initially attempted as in-version patches to v1.10.18. The in-version mechanism failed in the field: a v1.10.18 user running `/mos:update` was told "you're on the latest" because version comparison was `1.10.18 == 1.10.18`, even though the v1.10.18 tag had been force-moved to the hotfix commit. Promoting to a real patch-bump (1.10.19) so every standard update tool sees the diff. The 1.10.x minor baseline is preserved -- planning artifacts (Phase 91 navigation-engine, Phase 92 refactor work) continue to reference the 1.10.x line.
