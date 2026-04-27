@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 89.2-08-feynman-registration-and-phase-gate-PLAN.md
-last_updated: "2026-04-26T22:19:01.831Z"
-last_activity: 2026-04-26
+stopped_at: Completed 89.3-01-rs-neo4j-writer-PLAN.md
+last_updated: "2026-04-27T06:16:40.619Z"
+last_activity: 2026-04-27
 progress:
-  total_phases: 24
+  total_phases: 25
   completed_phases: 11
-  total_plans: 128
-  completed_plans: 108
+  total_plans: 133
+  completed_plans: 109
   percent: 82
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 89.2 — External Research Fetching (EXPANDED)
+**Current focus:** Phase 89.3 — 5-branch Mind Map + Aura Schema
 
 ## Current Position
 
-Phase: 89.2 (External Research Fetching (EXPANDED)) — EXECUTING
-Plan: 8 of 8
+Phase: 89.3 (5-branch Mind Map + Aura Schema) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
 
 Phase 90-02 commits (main, NOT yet pushed):
@@ -58,7 +58,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-04-26
+Last activity: 2026-04-27
 
 Progress: [████████░░] 82%
 
@@ -118,6 +118,7 @@ Progress: [████████░░] 82%
 | Phase 89.2 P06 | 11min | 3 tasks | 6 files |
 | Phase 89.2 P07 | 7 | 3 tasks | 6 files |
 | Phase 89.2 P08 | 12min | 3 tasks | 4 files |
+| Phase 89.3 P01 | 35min | 2 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -386,6 +387,8 @@ Progress: [████████░░] 82%
 - [Phase 89.2]: Plan 89.2-06: Embedded Python BSL discipline -- every embedded Python script literal carries '# BSL 1.1' as first line (W4 fix). Embedded source treated as licensable surface. Acceptance grep enforces >= 2 hits in any CJS file containing embedded Python.
 - [Phase 89.2]: Classifier 3-enum strict > rule + Frozen-order tie-break for dominant_dimension + Pure string-concat thesis template (grep-able anchors)
 - [Phase 89.2]: Phase 89.2 closure: 11 new fixture suites registered (baseline 66 -> 77; +11 exceeds ROADMAP +8 target via 89.1 baseline correction +1 + W3 standalone pinecone-bridge +1); Phase Gate CONDITIONAL PASS at commit 367ffbf (13 PASS + 1 CONDITIONAL G8 for 3 pre-existing failures all OUTSIDE 89.2 commit range); VERIFICATION.md 13/13 SCs PASS. Bundled into v1.11.0 final ship at Phase 91.x.
+- [Phase 89.3]: Plan 89.3-01: deterministic sha256-derived ids (not random UUIDs) for the 3 core RS nodes -- the only way to make Cypher MERGE truly idempotent in REAL Aura. Same {q,d,c} -> same ids -> MERGE matches PRIMARY KEY -> zero new mutations on re-run. aura_op_id stays random (per-op telemetry, not a node id).
+- [Phase 89.3]: Plan 89.3-01: AuraUnreachableError as a separate class from ExternalEgressViolation -- tier-dispatch signal vs security violation are semantically different, conflating them would muddy stack traces and audit logs. Mirrors rs-egress-violations.cjs rationale.
 
 ### Pending Todos
 
@@ -407,6 +410,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-26T22:18:53.237Z
-Stopped at: Completed 89.2-08-feynman-registration-and-phase-gate-PLAN.md
+Last session: 2026-04-27T06:16:30.821Z
+Stopped at: Completed 89.3-01-rs-neo4j-writer-PLAN.md
 Resume file: None
