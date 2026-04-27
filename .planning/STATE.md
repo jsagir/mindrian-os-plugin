@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 91-00-navigation-engine-core-PLAN.md
-last_updated: "2026-04-27T17:31:30.407Z"
+stopped_at: Completed 91-01-user-md-persona-durability-PLAN.md
+last_updated: "2026-04-27T18:12:32.511Z"
 last_activity: 2026-04-27
 progress:
   total_phases: 28
   completed_phases: 14
   total_plans: 143
-  completed_plans: 123
+  completed_plans: 124
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 91 (Navigation Engine) — EXECUTING
-Plan: 2 of 11
+Plan: 3 of 11
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -145,6 +145,7 @@ Progress: [████████░░] 82%
 | Phase 89.5 P03 | 8m | 2 tasks | 2 files |
 | Phase 89.5 P04 | 18m | 2 tasks | 2 files |
 | Phase 91 P00 | 20 | 2 tasks | 4 files |
+| Phase 91 P01 | 35min | 2 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -447,6 +448,9 @@ Progress: [████████░░] 82%
 - [Phase 91]: Per-turn quadruple cache via local function-scoped binding instead of module-level cache - cross-turn caching impossible by construction
 - [Phase 91]: Section 8 trace emitted on every decision including Tier 0 - /mos:explain-decision can render zero-weight paths instead of blank panels
 - [Phase 91]: Closed verb-to-skill-family map (10 verbs -> 10 slugs) - no prose-to-skill inference, future verbs require canon amendment + code change
+- [Phase 91]: D-03 Larry-to-Brain persona translation is many-to-one (TTO+Business -> Explicit; Researcher -> Implicit); inverse intentionally not exported because non-invertible without USER.md context
+- [Phase 91]: ROLE_BLEND_AXES has 7 entries (Founder/Researcher/Operator/Investor/Mentor/Domain Expert/Student); regulatory subtypes (Researcher.IND, Founder.grant) excluded -- they are Part 8 regulatory layers on top of base roles, not first-class blend axes
+- [Phase 91]: USER.md three-consecutive-turn rule prevents per-turn thrashing on persona detection flips; user_override bypass (signal.source=user_override) wins regardless of confidence + consecutive count for /mos:persona --set
 
 ### Pending Todos
 
@@ -468,6 +472,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-27T17:31:21.250Z
-Stopped at: Completed 91-00-navigation-engine-core-PLAN.md
+Last session: 2026-04-27T18:12:32.498Z
+Stopped at: Completed 91-01-user-md-persona-durability-PLAN.md
 Resume file: None
