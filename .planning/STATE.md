@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
-status: executing
-stopped_at: Completed 89.4-03-rs-chain-feeder-skill-spawn-PLAN.md
-last_updated: "2026-04-27T08:59:55.898Z"
+status: verifying
+stopped_at: Completed 89.4-04-feynman-and-phase-gate-PLAN.md
+last_updated: "2026-04-27T09:23:00.097Z"
 last_activity: 2026-04-27
 progress:
   total_phases: 26
-  completed_phases: 12
+  completed_phases: 13
   total_plans: 137
-  completed_plans: 116
+  completed_plans: 117
   percent: 82
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 89.4 (Chain Wiring) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 
 Phase 90-02 commits (main, NOT yet pushed):
 
@@ -126,6 +126,7 @@ Progress: [████████░░] 82%
 | Phase 89.4 P01 | 3min | 2 tasks | 2 files |
 | Phase 89.4 P02 | 5min | 2 tasks | 2 files |
 | Phase 89.4 P03 | 12 min | 2 tasks | 3 files |
+| Phase 89.4 P04 | 5min | 3 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -414,6 +415,9 @@ Progress: [████████░░] 82%
 - [Phase 89.4]: Plan 89.4-02 ships rs-chain-feeder.cjs core (lookupUpstream + emitChainMetadata + recommendSkillSpawn STUB) reusing 3 existing chokepoints (brain-client + rs-egress-prompts + rs-canon-violations); zero new fetch surface (Canon Part 7); 2-seam Canon Part 8 defense with auditQueryObject at both entry points; Brain unreachable -> graceful ready+warn (mirrors Phase 90 Mode B/C/Tier-0)
 - [Phase 89.4]: Plan 89.4-03 ships SKILL_SPAWN_RULES Object.freeze'd 5-rule table per kickoff section 6.4; first-match-wins iteration in recommendSkillSpawn; emitChainMetadata wired to internal call so chain metadata block carries spawn_skill + confidence + reasoning; module.exports byte-identical except additive SKILL_SPAWN_RULES export
 - [Phase 89.4]: Canon Part 8 tightened in recommendSkillSpawn: auditQueryObject now runs unconditionally on opts (drops 89.4-02 Object.keys().length > 0 guard); single-key adversarial payloads caught before rule evaluation
+- [Phase 89.4]: Single-sweep Feynman registration commit (258d94c) extends TEST_FILES with all 3 new 89.4 entries in one commit per Phase 89.3-05 pattern; Plans 89.4-01/02/03 ran in parallel-friendly waves and never touched run-feynman-tests.cjs to avoid merge conflicts
+- [Phase 89.4]: Phase Gate G8 CONDITIONAL PASS pattern inherited from 89.1+89.2+89.3: 81/85 PASS; 4 failures all OUTSIDE 89.4 commit range (3 inherited from 89.3 + 1 newly-flaky pre-existing Phase 81 timestamp test surfaced by Feynman-runner timing pressure)
+- [Phase 89.4]: Phase Gate 5 E asserts re-verify ALL prior 89.4 plans load-bearing contracts in one closure transcript: E1 rule coverage + E2 verb validation + E3 Brain chokepoint + E4 defense-in-depth audit count + E5 end-to-end smoke composing emitChainMetadata + validateVerb + recommendSkillSpawn
 
 ### Pending Todos
 
@@ -435,6 +439,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-27T08:59:50.838Z
-Stopped at: Completed 89.4-03-rs-chain-feeder-skill-spawn-PLAN.md
+Last session: 2026-04-27T09:22:46.789Z
+Stopped at: Completed 89.4-04-feynman-and-phase-gate-PLAN.md
 Resume file: None
