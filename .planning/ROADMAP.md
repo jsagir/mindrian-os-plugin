@@ -78,8 +78,10 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - [x] **Phase 89.3: 5-branch Mind Map + Full Neo4j Schema Deployment** - Output Layer of canonical RS framework per kickoff §5. Ships rs-neo4j-writer.cjs (Aura Cypher: RSDiscovery / ReverseSalient / Innovation / Paper / Author / Institution + DISCOVERED / DERIVED_FROM / ENABLES / AUTHORED_BY / AFFILIATED_WITH edges) + rs-sqlite-mirror.cjs (Tier 0 fallback when Aura absent) + rs-mind-map.cjs (5-branch Cytoscape: Direct Intersections / Structural Transfer / Semantic Implementation / Discovered RS / Innovation Ecosystem) + rs-expert-mapper.cjs (Cypher MATCH against user's Aura: authors + institutions + citations) + bridge-writer enhancement (thesis + breakthrough score on existing v1.10.16 module). Bundled into v1.11.0 final ship at Phase 91.x. (completed 2026-04-27)
 - [x] **Phase 89.4: Chain Wiring Upstream + Downstream** - Chain Mechanism per kickoff §6 (USER LOAD-BEARING INTENT 7). Upstream awareness: rs-discovery-engine queries Brain for chain context (problem_type x stage) before running; pauses for systems-thinking / hsi_semantic_surprise_analysis / Cynefin completion when needed. Downstream emission: every ReverseSalient output carries chain metadata (canonical Part 3 verb suggestion + FEEDS_INTO downstream framework + skill spawn rule per §6.4). Ships rs-chain-feeder.cjs (codifies engine choreography across HSI / Navigation Engine / future Scenario+Opportunity+Team-Assembly engines via Brain FEEDS_INTO topology) + Canon Part 3 10-verb vocabulary enforcement (validateVerb) + skill-spawn rule table (high breakthrough + structural_transfer -> /mos:find-analogies; high breakthrough + market signal -> /mos:lean-canvas; cross-methodology discovery -> /mos:pipeline; expert network dense -> /mos:persona; low breakthrough + Cynefin complex -> /mos:think-hats). Bundled into v1.11.0 final ship at Phase 91.x. (completed 2026-04-27)
 - [x] **Phase 89.5: Engine Top-Level Orchestrator + Bidirectional NL-Graph Surface** - The capstone of the RS framework per kickoff §5 + §7. Ships scripts/rs-discovery-engine.cjs (top-level orchestrator chaining all RS phases: Domain Analysis -> Query Matrix -> Fetchers -> Preprocessor -> Differential Scorer -> Classifier -> Breakthrough Scorer -> Thesis -> Output Layer -> Chain Feeder) + rs-commercial-assessor.cjs (market size + value prop + partnership targets) + Bidirectional NL-Graph Surface: (a) Text->Query (NL -> Cypher/SQL -> 3-graph triangulation across room.db + LazyGraph Aura + Brain methodology with Canon Part 8 chokepoint preserving NEVER-user-data-to-Brain invariant), (b) Query->Text (raw graph results -> Larry-voiced NL explanation with pedagogical framing + venture context + cross-ref enrichment). Together = bidirectional loop: user types question -> system queries graph -> raw results -> system explains in plain language. Raw data becomes insight. Ships user-facing CLI commands (/mos:rs-fetch, /mos:rs-thesis, /mos:rs-experts, /mos:rs-explain). Bundled into v1.11.0 final ship at Phase 91.x. **Closed 2026-04-27 with 9/9 SCs verified; Phase Gate CONDITIONAL PASS; v1.11.0-beta.1 readiness gate cleared.**
+- [ ] **Phase 89.6: v1.11.0-beta.1 Release Gate (RS Framework Beta)** - Ship the RS framework (89.1a + 89.1 + 89.2 + 89.3 + 89.4 + 89.5) as v1.11.0-beta.1 to opt-in testers (Justin/Aryeh). 5-gate release with -beta.1 suffix: CHANGELOG entry + plugin.json version + package.json version + git tag v1.11.0-beta.1 + marketplace ref pin. Stable users (v1.10.19) NOT auto-updated. Testers opt in via `claude plugin update mos@mindrian-marketplace --version 1.11.0-beta.1`. Per release-process.md beta-gating mandate: release infrastructure + new product surface ALWAYS ship as beta first; tester sign-off promotes to stable.
 - [x] **Phase 90: Brain Derivation Layer** - Lets the Brain excavate the local triple (Phase 88) and produce a persistent authored BRAIN.md per section with pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, cross-room contradiction flags. Extends triple to quadruple. Graceful degradation when Brain offline. CONTEXT filed. Releases as v1.10.17. (completed 2026-04-24)
-- [ ] **Phase 91: Navigation Engine** - L5 Decision layer reading the L3 Navigation substrate (SQL + quadruple memory) to decide which skill/command/framework fires each turn. Five-signal triangulation (ICM + SQL + Feynman-MINTO + BRAIN + intent/persona). Persona durability via USER.md. Visible dial in statusline. /mos:explain-decision command. CONTEXT filed. Destination phase. Releases as v1.11.0.
+- [ ] **Phase 91: Navigation Engine** - L5 Decision layer reading the L3 Navigation substrate (SQL + quadruple memory) to decide which skill/command/framework fires each turn. Five-signal triangulation (ICM + SQL + Feynman-MINTO + BRAIN + intent/persona). Persona durability via USER.md. Visible dial in statusline. /mos:explain-decision command. CONTEXT filed. Destination phase. Releases as v1.11.0-beta.2 (full milestone complete; Justin/Aryeh + wider tester opt-in via `--version 1.11.0-beta.2`; release gate at Plan 91-10 relabeled from v1.11.0 to v1.11.0-beta.2).
+- [ ] **Phase 91.5: v1.11.0 Stable Promotion** - After Phase 91 ships v1.11.0-beta.2 AND testers confirm no regressions (~3-5 day soak), promote beta.2 to stable v1.11.0. Tiny phase but real: re-release without -beta suffix. 5-gate: CHANGELOG entry promoting beta.2 to stable + plugin.json 1.11.0 + package.json 1.11.0 + git tag v1.11.0 + marketplace ref pin to v1.11.0. Auto-update channel users get v1.11.0 silently; users on `--version 1.11.0-beta.2` are equivalent (no breaking changes between beta.2 and stable; only the suffix is removed).
 
 ## Phase Details
 
@@ -560,6 +562,32 @@ Plans:
   - [x] 89.5-05-PLAN.md -- 4 CLI commands (/mos:rs-fetch, /mos:rs-thesis, /mos:rs-experts, /mos:rs-explain) + Feynman registration (baseline 85 -> 90) + Phase Gate (9G + 5E asserts; CONDITIONAL PASS) + VERIFICATION (9/9 SCs passed)
 **Authority**: .planning/milestones/v1.11.0-KICKOFF.md §5 (Engine Architecture top-level orchestrator); §7 (89.5 4-5 plans bundled with Bidirectional NL-Graph Surface load-bearing description); .planning/milestones/v1.12.0-LIVE-VALIDATION-2026-04-24.md §4 (bidirectional NL-graph context forward reference); .planning/research/navigation-engine-brain-interface.md (frozen v1 contract for Brain query shape consumption)
 
+### Phase 89.6: v1.11.0-beta.1 Release Gate (RS Framework Beta)
+**Goal**: Ship the complete v1.11.0 RS framework (89.1a + 89.1 + 89.2 + 89.3 + 89.4 + 89.5) as v1.11.0-beta.1 to opt-in testers. The RS framework is functionally complete after 89.5; this phase wraps it for tester consumption WITHOUT promoting to the stable channel. Per release-process.md beta-gating mandate, new product surface always ships as beta first; tester sign-off promotes to stable in Phase 91.5. Stable users (currently v1.10.19) NOT auto-updated -- they must explicitly opt in via `claude plugin update mos@mindrian-marketplace --version 1.11.0-beta.1`. Justin and Aryeh are the named first testers; their feedback shapes any patches before Phase 91 ships beta.2.
+**Depends on**: Phase 89.5 (RS framework code-complete with 9/9 SCs verified; Phase Gate CONDITIONAL PASS); existing scripts/release.sh (or equivalent release tooling); existing marketplace.json
+**Requirements**:
+- 5-gate beta release with explicit -beta.1 suffix:
+  1. CHANGELOG.md entry under `## [1.11.0-beta.1] - YYYY-MM-DD` documenting the RS framework feature set (89.1a substrate + 89.1 domain analysis + 89.2 fetchers/preprocessor/scoring/thesis + 89.3 Aura schema + 89.4 chain wiring + 89.5 NL-graph)
+  2. plugin.json `"version": "1.11.0-beta.1"`
+  3. package.json `"version": "1.11.0-beta.1"`
+  4. Git tag `v1.11.0-beta.1` annotated with release notes pointing to CHANGELOG
+  5. Marketplace `~/mindrian-marketplace/.claude-plugin/marketplace.json` `source.ref` updated to `v1.11.0-beta.1`
+- Tester invitation document at .planning/release/v1.11.0-beta.1-TESTER-NOTES.md describing: opt-in command, 4 new CLI commands (/mos:rs-fetch, /mos:rs-thesis, /mos:rs-experts, /mos:rs-explain), known limitations (Navigation Engine not yet wired -- coming in beta.2), feedback channel
+- Pre-release smoke test against the tagged commit: clone fresh into temp dir, install plugin from marketplace ref `v1.11.0-beta.1`, run /mos:rs-fetch on a sample topic in a sample room, verify Phase Gate-style transcript renders, verify zero release artifact regressions
+- Stable channel preserved: any user NOT explicitly opting in stays on v1.10.19. Marketplace source.ref points at v1.11.0-beta.1 BUT the marketplace UI MUST show beta versions as opt-in only (per Claude Code marketplace beta-gating semantics)
+- Three-surface compatibility (CLI + Desktop MCP + Cowork) -- the 4 new CLI commands MUST work uniformly
+- `canon_parts: [part-7, part-8]` + `bundled_release: false` (this IS the release; not bundled)
+**Success Criteria** (what must be TRUE):
+  1. CHANGELOG.md has `## [1.11.0-beta.1] - YYYY-MM-DD` entry with RS framework summary
+  2. plugin.json + package.json both at exactly `1.11.0-beta.1`
+  3. Git tag `v1.11.0-beta.1` exists and points at the release commit
+  4. Marketplace source.ref pinned to `v1.11.0-beta.1`
+  5. Pre-release smoke test passes: fresh install via opt-in command resolves to v1.11.0-beta.1; /mos:rs-fetch runs end-to-end; Phase Gate transcript renders
+  6. Stable users on v1.10.19 confirmed NOT auto-updated (auto-update channel test)
+  7. TESTER-NOTES.md filed with opt-in command + feature summary + known limitations
+**Plans**: 1 plan (release-gate-PLAN.md)
+**Authority**: .planning/milestones/v1.11.0-KICKOFF.md §7 (bundled milestone); .claude/includes/release-process.md (5-gate release + beta-gating mandate); user release strategy filed 2026-04-27 in conversation transcript (after 89.5 -> beta.1; after 91 -> beta.2; after tester sign-off -> stable v1.11.0)
+
 ### Phase 90: Brain Derivation Layer
 **Goal**: Let the Brain excavate the per-folder memory triple (Phase 88) and produce a persistent authored layer on top. Each section carries an optional BRAIN.md with Brain-authored pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, and cross-room contradiction flags. Derivation is persistent (git-trackable), versioned (governing_thought_hash invalidation), staleness-aware, offline-tolerant, query-optimized. Triple becomes quadruple. Moat becomes visible.
 **Depends on**: Phase 88 (triple foundation), existing brain-connector skill (ambient enrichment to be extended not replaced), existing brain-client.cjs
@@ -601,8 +629,33 @@ Plans:
 - [ ] 91-07-problem-type-routing-PLAN.md -- lib/core/problem-type-router.cjs UDP/IDP/WDP/Wicked routing from BRAIN.md problemtype_classification; Canon Appendix E R4 wicked escalation; brain-client.isAvailable() scalar upgrade (NAV-PROBLEM-TYPE-01..04)
 - [ ] 91-08-framework-chain-composition-PLAN.md -- lib/core/framework-chain-composer.cjs FEEDS_INTO chain proposal from BRAIN.md framework_chain_predictions; user override recorded as graph data (NAV-CHAIN-01..04)
 - [ ] 91-09-nav-invariants-validator-PLAN.md -- lib/memory/validators/navigation-invariants.cjs drop-in registry validator; 5 invariants (trace completeness, RECOMMENDED mode gate, weight clamp, malformed trace, unknown verb); scope=room (NAV-INVARIANTS-01..03)
-- [ ] 91-10-v1.11.0-release-gate-PLAN.md -- 5-gate release (CHANGELOG, plugin.json, package.json, git tag v1.11.0, marketplace ref pin); minor version bump per D-06 architectural shift (NAV-RELEASE-01, NAV-RELEASE-GATES-01)
+- [ ] 91-10-v1.11.0-beta.2-release-gate-PLAN.md -- 5-gate beta release (CHANGELOG entry with -beta.2 suffix + plugin.json 1.11.0-beta.2 + package.json 1.11.0-beta.2 + git tag v1.11.0-beta.2 + marketplace ref pin to v1.11.0-beta.2); per beta-gating mandate stable users on v1.10.19 NOT auto-updated; testers opt-in via `--version 1.11.0-beta.2`; promotion to stable v1.11.0 happens in Phase 91.5 after tester sign-off (NAV-RELEASE-01, NAV-RELEASE-GATES-01)
 **Authority**: .planning/phases/91-navigation-engine/91-CONTEXT.md
+
+### Phase 91.5: v1.11.0 Stable Promotion
+**Goal**: After Phase 91 ships v1.11.0-beta.2 AND testers (Justin/Aryeh + wider opt-in pool) confirm zero regressions through a 3-5 day soak period, promote v1.11.0-beta.2 to stable v1.11.0. Tiny phase but real -- it requires its own commit + tag + marketplace re-pin so the auto-update channel users get the stable release, and so users currently on `--version 1.11.0-beta.2` continue to work without changes (no breaking diff between beta.2 and stable; only the suffix is removed). Per release-process.md "Pre-release versions for beta testing" + "How Users Actually Receive Updates", this is the canonical promote-to-stable workflow.
+**Depends on**: Phase 91 (v1.11.0-beta.2 shipped at Plan 91-10); tester sign-off (3-5 day soak documented in TESTER-NOTES); zero regressions reported by testers
+**Requirements**:
+- Pre-promotion check: read tester feedback channel (Slack / Discord / GitHub issues channel per TESTER-NOTES); document any issues raised + resolutions in PROMOTE-NOTES.md
+- 5-gate stable release with NO beta suffix:
+  1. CHANGELOG.md entry under `## [1.11.0] - YYYY-MM-DD` consolidating beta.1 + beta.2 entries; note "Promoted from v1.11.0-beta.2 after tester sign-off (3-5 day soak; zero regressions)"
+  2. plugin.json `"version": "1.11.0"` (drops -beta.2 suffix)
+  3. package.json `"version": "1.11.0"` (drops -beta.2 suffix)
+  4. Git tag `v1.11.0` annotated with release notes
+  5. Marketplace `source.ref` updated from `v1.11.0-beta.2` to `v1.11.0`
+- Verify NO breaking diff between beta.2 and stable: code at v1.11.0 stable should be byte-identical to v1.11.0-beta.2 except for the version-suffix changes in CHANGELOG/plugin.json/package.json
+- Auto-update channel test: users on stable channel should now see v1.11.0 available; users on `--version 1.11.0-beta.2` should continue working (the marketplace shouldn't disrupt explicit version pins)
+- `canon_parts: [part-7]` (reuse-only; no new code) + `bundled_release: false` (this IS the stable release)
+**Success Criteria** (what must be TRUE):
+  1. CHANGELOG.md has `## [1.11.0] - YYYY-MM-DD` consolidating both betas
+  2. plugin.json + package.json at exactly `1.11.0` (no suffix)
+  3. Git tag `v1.11.0` exists at the promotion commit
+  4. Marketplace source.ref pinned to `v1.11.0`
+  5. PROMOTE-NOTES.md documents tester feedback resolution + soak duration
+  6. Auto-update channel users confirmed receiving v1.11.0 (smoke test on a fresh install)
+  7. Existing beta.2 testers confirmed unaffected (their `--version 1.11.0-beta.2` pin still resolves)
+**Plans**: 1 plan (stable-promotion-PLAN.md)
+**Authority**: .claude/includes/release-process.md (5-gate release + beta promotion section); user release strategy filed 2026-04-27 (after 91 -> beta.2; after tester sign-off -> stable v1.11.0); .planning/release/v1.11.0-beta.1-TESTER-NOTES.md (Phase 89.6 deliverable; informs feedback channel for this promotion)
 
 ## Planned Pipeline (post v1.10.11) -- organized 2026-04-19
 
