@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 89.3-02-rs-sqlite-mirror-PLAN.md
-last_updated: "2026-04-27T06:26:21.023Z"
+stopped_at: Completed 89.3-03-rs-mind-map-PLAN.md
+last_updated: "2026-04-27T06:40:39.756Z"
 last_activity: 2026-04-27
 progress:
   total_phases: 25
   completed_phases: 11
   total_plans: 133
-  completed_plans: 110
+  completed_plans: 111
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 89.3 (5-branch Mind Map + Aura Schema) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
 
 Phase 90-02 commits (main, NOT yet pushed):
@@ -120,6 +120,7 @@ Progress: [████████░░] 82%
 | Phase 89.2 P08 | 12min | 3 tasks | 4 files |
 | Phase 89.3 P01 | 35min | 2 tasks | 3 files |
 | Phase 89.3 P02 | 5min | 1 tasks | 2 files |
+| Phase 89.3 P03 | 8min | 1 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -392,6 +393,10 @@ Progress: [████████░░] 82%
 - [Phase 89.3]: Plan 89.3-01: AuraUnreachableError as a separate class from ExternalEgressViolation -- tier-dispatch signal vs security violation are semantically different, conflating them would muddy stack traces and audit logs. Mirrors rs-egress-violations.cjs rationale.
 - [Phase 89.3]: Tier 0 SQLite writer mirrors Tier 1 Aura writer byte-for-byte: same writeDiscovery signature, same return shape, same deterministic sha256 ids. Dispatch layer (Plan 89.3-05) routes uniformly via err.name (AuraUnreachableError vs SQLiteUnreachableError).
 - [Phase 89.3]: INSERT OR REPLACE on PRIMARY KEY is the SQL equivalent of Cypher MERGE. Combined with sha256-deterministic ids, re-running writeDiscovery yields zero new rows -- proven via SELECT COUNT before/after.
+- [Phase 89.3]: Plan 89.3-03: 5 branches frozen in BRANCHES export with exact name strings (case + space matter); downstream consumers (dashboard, /mos:rs-mind-map command) match on these strings directly
+- [Phase 89.3]: Plan 89.3-03: Canon Part 8 audit on HTML output (the DISPLAY surface) not raw data. Data source is trusted (user's OWN graph; no Brain query); rendered HTML may flow to dashboard or be exported -- audit at the display boundary catches leaks regardless of pipeline origin
+- [Phase 89.3]: Plan 89.3-03: ALL 5 branch keys always present in result.branches with empty arrays for missing branches -- the fixed key set is a contract with downstream renderers; conditional branch presence would force every consumer to write defensive checks
+- [Phase 89.3]: Plan 89.3-03: HTML wrapper byte-reuses dashboard cytoscape@3.33.1 CDN URL; zero new runtime deps; CYTOSCAPE_CDN_URL constant is single source of truth so any future Cytoscape bump touches both files together
 
 ### Pending Todos
 
@@ -413,6 +418,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-27T06:26:21.014Z
-Stopped at: Completed 89.3-02-rs-sqlite-mirror-PLAN.md
+Last session: 2026-04-27T06:40:26.814Z
+Stopped at: Completed 89.3-03-rs-mind-map-PLAN.md
 Resume file: None
