@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 91-02-userpromptsubmit-integration-PLAN.md
-last_updated: "2026-04-27T18:52:54.604Z"
+stopped_at: Completed 91-03-skill-activation-routing-PLAN.md
+last_updated: "2026-04-27T19:19:42.393Z"
 last_activity: 2026-04-27
 progress:
   total_phases: 28
   completed_phases: 14
   total_plans: 143
-  completed_plans: 125
+  completed_plans: 126
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 91 (Navigation Engine) — EXECUTING
-Plan: 4 of 11
+Plan: 5 of 11
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -147,6 +147,7 @@ Progress: [████████░░] 82%
 | Phase 91 P00 | 20 | 2 tasks | 4 files |
 | Phase 91 P01 | 35min | 2 tasks | 4 files |
 | Phase 91 P02 | 33min | 1 tasks | 4 files |
+| Phase 91 P03 | 21min | 2 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -455,6 +456,8 @@ Progress: [████████░░] 82%
 - [Phase 91]: Wave 1 brainAvailable hard-coded false: zero Brain network in UserPromptSubmit hot path; Plan 91-07 opts into isAvailable() later
 - [Phase 91]: Engine block emits LAST in additionalContext (below Phase 83 + Phase 84 emissions) so Larry's most attentive zone carries the decision rationale
 - [Phase 91]: Empty stdin skips engine block to preserve Phase 83's silent-exit contract; engine has nothing useful to decide on empty turns
+- [Phase 91]: Plan 91-03: Canon Part 3 closed 10-verb vocabulary enforced at the routing layer (skill-activation-router.cjs validateVerb/canonicalizeVerb gate every engine fire_skill output; unknowns rejected with canon_part_3_unknown_verb_rejected trace note instead of silent passthrough)
+- [Phase 91]: Plan 91-03: Pure-function precedence layer over preserved legacy (engine wins when fire_skill set; mixed when only suppress_skills populated; legacy preserved byte-equivalent when engine silent). Contradictory fire-vs-suppress resolved deterministically with fire winning over self-suppress.
 
 ### Pending Todos
 
@@ -476,6 +479,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-27T18:52:44.946Z
-Stopped at: Completed 91-02-userpromptsubmit-integration-PLAN.md
+Last session: 2026-04-27T19:19:33.310Z
+Stopped at: Completed 91-03-skill-activation-routing-PLAN.md
 Resume file: None
