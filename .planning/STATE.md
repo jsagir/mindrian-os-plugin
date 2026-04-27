@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
-status: verifying
-stopped_at: Completed 89.3-05-bridge-writer-and-phase-gate-PLAN.md (Phase 89.3 closure)
-last_updated: "2026-04-27T07:17:01.382Z"
+status: executing
+stopped_at: Completed 89.4-01-rs-canon-violations-PLAN.md
+last_updated: "2026-04-27T07:39:06.459Z"
 last_activity: 2026-04-27
 progress:
-  total_phases: 25
+  total_phases: 26
   completed_phases: 12
-  total_plans: 133
-  completed_plans: 113
+  total_plans: 137
+  completed_plans: 114
   percent: 82
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 89.3 — 5-branch Mind Map + Aura Schema
+**Current focus:** Phase 89.4 — Chain Wiring
 
 ## Current Position
 
-Phase: 89.3 (5-branch Mind Map + Aura Schema) — EXECUTING
-Plan: 5 of 5
-Status: Phase complete — ready for verification
+Phase: 89.4 (Chain Wiring) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
 
 Phase 90-02 commits (main, NOT yet pushed):
 
@@ -123,6 +123,7 @@ Progress: [████████░░] 82%
 | Phase 89.3 P03 | 8min | 1 tasks | 2 files |
 | Phase 89.3 P04 | 14 | 1 tasks | 2 files |
 | Phase 89.3 P05 | 20min | 3 tasks | 6 files |
+| Phase 89.4 P01 | 3min | 2 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -405,6 +406,9 @@ Progress: [████████░░] 82%
 - [Phase 89.3]: bridge-writer.cjs renderBridgeArtifact ENHANCED in place with 2 OPTIONAL frontmatter fields (thesis + breakthrough_score); module.exports byte-identical so existing v1.10.16 consumers unaffected (regression test verified)
 - [Phase 89.3]: Single-sweep Feynman registration in Plan 89.3-05 Task 2 (5 new entries; baseline 77 -> 82) avoids Wave-1/Wave-2/Wave-3 plan-level contention on TEST_FILES array
 - [Phase 89.3]: Phase 89.3 Phase Gate CONDITIONAL PASS (13/14 + G8 inherits 3 pre-existing failures all OUTSIDE 89.3 commit range; 9/9 ROADMAP SCs verified)
+- [Phase 89.4]: Plan 89.4-01: CanonVerbViolation lives in own module rs-canon-violations.cjs (not co-located with rs-egress-violations.cjs) per Canon Part 7 semantic distinction; closed-vocabulary enforcement is NOT egress; both classes share .name + .meta anatomy for uniform err.name caller wrapping
+- [Phase 89.4]: Plan 89.4-01: empty string '' throws CanonVerbViolation (NOT TypeError); type-vs-membership distinction means typeof check is the type gate while membership check (CANONICAL_VERBS.includes) is the vocabulary gate; empty string passes type but fails membership so CanonVerbViolation surfaces with meta.attempted_verb=''
+- [Phase 89.4]: Plan 89.4-01: validateVerb returns input string verbatim (not boolean true) on success; lets callers chain inline (const v = validateVerb(input, surface)); mirrors auditQueryString return-value pattern from 89.2-01
 
 ### Pending Todos
 
@@ -426,6 +430,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-27T07:17:01.373Z
-Stopped at: Completed 89.3-05-bridge-writer-and-phase-gate-PLAN.md (Phase 89.3 closure)
+Last session: 2026-04-27T07:38:52.630Z
+Stopped at: Completed 89.4-01-rs-canon-violations-PLAN.md
 Resume file: None
