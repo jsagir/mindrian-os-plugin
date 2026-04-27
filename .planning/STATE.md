@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 89.5-04-PLAN.md (rs-discovery-engine top-level orchestrator)
-last_updated: "2026-04-27T10:24:57.386Z"
+stopped_at: Completed 89.5-05-PLAN.md (CLI commands + Feynman registration + Phase Gate + VERIFICATION; Phase 89.5 closed; v1.11.0-beta.1 readiness gate cleared)
+last_updated: "2026-04-27T10:58:44Z"
 last_activity: 2026-04-27
 progress:
   total_phases: 27
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 142
-  completed_plans: 121
+  completed_plans: 122
   percent: 82
 ---
 
@@ -25,9 +25,22 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 89.5 (Engine + NL-Graph) — EXECUTING
-Plan: 4 of 5
-Status: Ready to execute
+Phase: 89.5 (Engine + NL-Graph) — COMPLETED
+Plan: 5 of 5 (closure complete)
+Status: Phase 89.5 closed; v1.11.0-beta.1 readiness gate cleared
+
+Phase 89.5 closure (this session):
+
+- 2df70f3 feat(89.5-05): add 4 user-facing command markdowns (/mos:rs-fetch + /mos:rs-thesis + /mos:rs-experts + /mos:rs-explain)
+- 5f28041 feat(89.5-05): add 4 command CJS scripts wrapping 89.5 library modules
+- 386ba6d test(89.5-05): add e2e CLI smoke test for /mos:rs-explain (6 scenarios; all GREEN)
+- b2ef4f3 test(89.5-05): register 5 new 89.5 fixture suites in Feynman runner; baseline 85 -> 90
+- 8687fb5 docs(89.5-05): Phase Gate transcript -- 9G + 5E asserts; CONDITIONAL PASS
+- 427d872 docs(89.5-05): VERIFICATION report -- 9/9 SCs passed; phase complete; v1.11.0-beta.1 readiness gate cleared
+
+Phase 89.5 outcome: capstone of the Reverse Salient framework shipped. 4 user-facing CLI commands surface the full pipeline + bidirectional NL-Graph loop across CLI / Desktop MCP / Cowork uniformly. End-to-end smoke (6 scenarios) verifies happy path + Mode B + Tier 0 + Canon Part 8 adversarial. Feynman runner advanced 85 -> 90 (5 new fixtures); 88/90 PASS with NET IMPROVEMENT (4 -> 2 inherited failures from 89.4). Phase Gate CONDITIONAL PASS; VERIFICATION 9/9 SCs passed. Bundled-release contract honored: zero CHANGELOG.md / plugin.json / package.json diffs in 89.5 commit range.
+
+Next: v1.11.0-beta.1 release gate sub-phase (NEW; to be filed between 89.5 and 91 per kickoff section 7).
 
 Phase 90-02 commits (main, NOT yet pushed):
 
