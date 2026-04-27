@@ -9,6 +9,100 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.11.0] - 2026-04-28
+
+Stable release shipping the Phase 91 Navigation Engine on top of the Phase 89.5 Reverse Salient Discovery surface that was incubated in v1.11.0-beta.1. The beta strategy was retired in favor of a single stable promotion: every v1.10.19 user upgrades atomically to v1.11.0 via the standard two-command upgrade path. Both engines (RS Discovery + Navigation Engine) ship live and integrated. Zero breaking changes. Skill activation remains a no-op when the engine has no opinion, so existing automation continues unchanged.
+
+### How to upgrade
+
+Run these two commands in order:
+
+```bash
+/plugin marketplace update
+claude plugin update mos@mindrian-marketplace
+```
+
+The first command refreshes the marketplace catalog so v1.11.0 becomes visible. The second command installs it. This is the canonical two-command path documented in `.claude/includes/release-process.md` -- third-party plugins do not auto-push updates, by design.
+
+### Added (Phase 91 Navigation Engine -- L5 Decision layer)
+
+#### Navigation Engine Core (Plans 91-00 through 91-02)
+
+- **`lib/core/navigation-engine.cjs decide(turn, context)`**: rule-based five-signal decision function composing ICM scope + SQL relations + Feynman-MINTO reasoning + BRAIN.md derivations + intent/persona into a typed decision struct (`fire_skill`, `offer_next_step`, `suppress_skills`, `persona_updates`, `decision_trace`). Pure module, never throws. Cold-path 1.42ms / warm-path 0.052us against the 800ms / 300ms budgets specified in the navigation-engine-brain-interface v1 contract (562x cold headroom, 5,769x warm headroom).
+- **`lib/core/navigation-engine-shared.cjs`**: frozen tables (`STALENESS_MULTIPLIERS`, `CANONICAL_VERBS` 10-entry Canon Part 3 vocabulary, `SECTION_WEIGHTS` Section 3.2 contract) and pure helpers (`applyStalenessMultiplier`, `resolveTierMode`, `emptyDecision`, `emptyDecisionTrace`).
+- **Persona durability via USER.md**: Larry's 3-persona detection (TTO / Researcher / Business) maps to Brain's 2-persona schema (Explicit / Implicit) through `lib/core/persona-taxonomy.cjs` translation table. Persona is now a first-class per-user artifact persisted in USER.md across sessions, not an ephemeral keyword detection. `lib/core/user-md-ops.cjs` provides Phase 87-02-pattern atomic read / write / detect-update with a 6-reason update-decision tree (first_detection / user_override / no_change / confidence_below_threshold / awaiting_consecutive_signal / threshold_met).
+- **UserPromptSubmit hook integration** (`scripts/intent-classifier.cjs`): the engine now runs every user turn under a 1200ms Promise.race hard timeout. Decision traces persist atomically to `.mindrian/decision-traces/<session>.json` with 50-entry rotation. Engine output emits a `NAVIGATION DECISION (engine v1)` block to additionalContext so Larry's response respects the chosen rationale. Engine timeout / throw / module-absent paths gracefully fall back to pre-91 classifier behavior byte-for-byte.
+
+#### Skill Routing & Offer Presentation (Plans 91-03, 91-04)
+
+- **`lib/core/skill-activation-router.cjs`**: pure router composing engine `fire_skill` / `suppress_skills` with the pre-91 file-state + env activation set. Three precedence rules (engine / mixed / legacy) with explicit reason codes. Canon Part 3 closed-vocabulary enforced at the router boundary: unknown verbs are rejected with a trace note rather than silently propagating.
+- **`lib/core/offer-presenter.cjs`**: `presentOffer(decision, history, ctx)` renders one grounded next-step suggestion per turn with a three-tier noise gate (`one_offer_per_turn`, `consecutive_ignores_threshold`, `ungrounded_reason`, `generic_reason`). Offer history persists to `.mindrian/offer-history.json` with 100-entry rotation. Wave-1 substring heuristic classifies each turn outcome as `acted` or `ignored` so the engine can suppress repeat suggestions after two ignores. Section 6 RECOMMENDED gate respected (Mode A + confidence >= 0.7) without re-evaluation -- the presenter trusts the trace.
+
+#### Audit & Visibility (Plans 91-05, 91-06)
+
+- **`/mos:explain-decision`**: new slash command renders the decision trace for the user's last N turns. Default renders the most recent decision; `--last N` renders N most recent (clamped to traces.length); `--session SESSIONID` overrides default session resolution. Output includes BRAIN.md signal block, RECOMMENDED marker block, five-signal triangulation, chosen_rationale, and optional Routing + Offer blocks. Always exits 0 (audit lens, never blocking). `disable-model-invocation: true` so the model never auto-fires it.
+- **Larry dial in statusline** (`lib/core/nav-dial.cjs` + `scripts/context-monitor` integration): visible three-position dial (`Larry: Investigate | Blend | Insight`) renders between the MINTO governing-thought segment and the plugin brand. Position derives from engine state per turn (tier_mode + weight_applied + insight markers `synthesize` / `insight` / `converge`), grounded in the same `.mindrian/decision-traces/<session>.json` file `/mos:explain-decision` reads. Dial is suppressed when the engine has not yet spoken (`glyph='--'` + `highlight=null`).
+
+#### Smart Routing (Plans 91-07, 91-08)
+
+- **Problem-type-aware skill routing** (`lib/core/problem-type-router.cjs`): engine reads BRAIN.md `problemtype_classification` and routes skills per locked decision D-08:
+  - **UDP** (Undefined) -> Exploration skills (5 verbs)
+  - **IDP** (Ill-Defined) -> Definition-Seeking skills (5 verbs)
+  - **WDP** (Well-Defined) -> Execution skills (5 verbs)
+  - **Wicked** (any base type with `wicked_score >= 8`) -> Soft-Systems family per Canon Appendix E rule R4 (4 verbs)
+  - The wicked override overlays base routing, preserving the base reason in parens for `/mos:explain-decision` auditability. Routing biases, never forces; `fire_skill` is set only when no higher-priority signal has populated it AND confidence >= 0.5.
+- **FEEDS_INTO framework chain composition** (`lib/core/framework-chain-composer.cjs`): when the user completes framework A, the engine pre-loads framework B from BRAIN.md `framework_chain_predictions` (FEEDS_INTO edges with confidence + phase indicators). Composable methodology becomes real -- the Brain-flagged unfilled Opportunity from the audit is now a shipped surface. Confidence gating: < 0.5 -> suppress (noise floor); >= 0.5 -> proposal; >= 0.7 -> `recommended_eligible:true`. User override (turn-2 different `/mos:` command vs `ctx.lastTurnOffer`) captured as graph data per Canon Part 4: `chosen_rationale` records the rejection and `trace.chain_override_recorded:true` flags the next-scan signal.
+
+#### Wave-3 Brain Availability Upgrade (Plan 91-07)
+
+- `scripts/intent-classifier.cjs runNavigationEngine` swaps the Wave-1 hard-coded `brainAvailable=false` stub for a guarded `brain-client.isAvailable()` scalar lookup. Three failure modes default to safe `false` (require fails / function missing / function throws). Canon Part 8 Section 9.3 boundary preserved: only the boolean handle crosses; zero user content is sent to Brain at decision time.
+
+#### Navigation Invariants Validator (Plan 91-09)
+
+- **`lib/memory/validators/navigation-invariants.cjs`**: registry-compatible drop-in for the Phase 88-13 guardian. Five invariants enforced across the navigation-engine-brain-interface v1 contract:
+  - **INV-1** `trace_missing_field` -- 8 Section 8 brain_md_* fields must be present on every persisted trace
+  - **INV-2** `recommended_in_wrong_mode` -- Canon Part 3 Section 6 mode_a gate (RECOMMENDED markers only allowed under Mode A)
+  - **INV-3** `weight_clamp_breach` -- weight_applied must be in [0.0, 1.0]
+  - **INV-4** `trace_file_malformed` -- per-file isolation; one bad file does not stop scanning siblings
+  - **INV-5** `unknown_verb_passed` -- Canon Part 3 vocabulary check on `fire_skill` (graceful when CANONICAL_VERBS module absent)
+  - Three guardian modes wired (session-start advisory / on-stop advisory / pre-commit blocking) with the fail-open semantics inherited from Phase 88-13.
+
+### Changed
+
+- **Skill activation precedence**: when the engine has an opinion, engine output overrides legacy file-state + env activation. When the engine is silent or times out (1200ms hard cap), legacy activation continues unchanged. This is an architectural shift -- per locked decision D-06 it warrants a minor version bump (1.10.19 -> 1.11.0), not a patch.
+- **`scripts/intent-classifier.cjs`**: trailing emission block now appends `NAVIGATION DECISION (engine v1)` to additionalContext after the Phase 83 mismatch warning and Phase 84 graph findings. Larry reads top-down; the engine decision wraps the prior context at the bottom of his prompt where he is most attentive.
+- **`scripts/context-monitor` (statusline)**: dial segment renders between MINTO segment and plugin brand. Pre-91 statusline output stays byte-identical when the dial module is absent (degraded-install lazy-require fallback).
+- **`commands/help.md`**: `/mos:explain-decision` listed under Infrastructure group (paired with `/mos:status`, `/mos:room`, `/mos:rooms` -- read-only diagnostic surfaces).
+
+### Migration
+
+- **Zero breaking changes.** Engine enhances, never breaks. Users on 1.10.19 upgrade to 1.11.0 with zero manual steps and zero behavior regressions.
+- Pre-91 file-state + env activation preserved as fallback when the engine has no opinion.
+- Existing commands / skills / agents unchanged in behavior; the routing layer is purely additive.
+- Canon Part 8 boundary verified across all 11 Phase 91 production files: zero `brain-client.query|search|smartSearch` matches on hot-path code. Navigation Engine is a pure LOCAL reader of pre-derived BRAIN.md content; no Brain network queries fire at decision time.
+- **Minor version bump (1.10.19 -> 1.11.0)** acknowledges the architectural shift in skill activation per locked decision D-06. Semver-consistent with the Canon Part 3 closed-vocabulary expansion boundary: the 10 canonical verbs are unchanged, but the routing surface that consumes them is new.
+
+### Tests
+
+- Feynman runner: 98/100 passing, 0 skipped, 2 inherited fails preserved (`84-smart-notebook-copilot` 15/16 and `test-self-update-platform` 19/24 -- both predate Phase 91 per the 91-05 / 91-06 SUMMARYs and are out-of-scope per Rule 3 scope boundary).
+- Phase 88-01 `folder-memory.test.cjs` back-compat: 15/15 passing.
+- Phase 90-04 `folder-memory-quadruple.test.cjs` back-compat: 17/17 passing.
+- Phase 91 ships ~10 new test suites (one per plan): `navigation-engine-core.test.cjs` (33), `user-md-persona.test.cjs` (22), `userpromptsubmit-integration.test.cjs` (12), `skill-activation-router.test.cjs` (17), `offer-presenter.test.cjs` (17), `explain-decision-command.test.cjs` (14), `nav-dial.test.cjs` (17), `problem-type-router.test.cjs` (24), `framework-chain-composer.test.cjs` (18), `navigation-invariants.test.cjs` (16). All registered in the Feynman runner.
+
+### Canon Compliance
+
+- **Part 2 (Team Around Navigator)**: persona durability + insight-rationale keyword detection (`{synthesize, insight, converge}`) hook into Canon Part 3 verb 7 (Synthesize) and Canon Part 4 cross-relationship signal (Converge).
+- **Part 3 (Tri-Context Decision Gate)**: closed 10-verb vocabulary enforced at the skill-activation router boundary; Section 6 RECOMMENDED gate (Mode A + confidence >= 0.7) respected by the offer presenter without re-evaluation.
+- **Part 4 (Every Choice Is Graph Data)**: user override of a chain suggestion captures `chain_override_recorded:true` in the decision trace; `chosen_rationale` records the rejection reason. The next cross-relationship scan reads it.
+- **Part 6 (Product-as-Venture Dog-Fooding Mandate)**: this release gate is the canonical commit moment where Phase 91's canon obligations are audited.
+- **Part 7 (Reuse Before Build)**: the engine repurposes the existing `commands/explain-decision.md` skill-offer-engine concept; legacy file-state activation is preserved verbatim under the engine; the dial mirrors `classifyHealth` rather than cross-requires it.
+- **Part 8 (Graph Boundary)**: zero `brain-client.query|search|smartSearch` matches across all 11 Phase 91 production files. Brain availability check uses only the boolean `isAvailable()` scalar (Section 9.3 compliant). The composer reads ONLY the LOCAL `quadruple.brain.sections.framework_chain_predictions` body that pre-derivation populated hours earlier inside the buildBrainQueryContext chokepoint. Zero Brain queries fire at engine time.
+
+### Credits
+
+- Navigation Engine Interface v1 contract frozen in Phase 90 Plan 09 (`.planning/research/navigation-engine-brain-interface.md`). Phase 91 consumes it.
+- Tyler Slowak meeting quote ("my students almost unanimously said, 'We love the slider'") drove the dial as a shipped pedagogical surface, not a research wish.
+
 ## [1.11.0-beta.1] - 2026-04-27
 
 Beta release of the Reverse Salient (RS) Discovery Engine for opt-in testers (Justin / Aryeh). Stable users on v1.10.19 are NOT auto-updated; opt-in is explicit. Phase 91 Navigation Engine is NOT yet wired -- coming in beta.2. Tester sign-off promotes to stable v1.11.0 in Phase 91.5.
