@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 91-07-problem-type-routing-PLAN.md
-last_updated: "2026-04-27T20:49:12.808Z"
+stopped_at: Completed 91-08-framework-chain-composition-PLAN.md
+last_updated: "2026-04-27T21:02:31.103Z"
 last_activity: 2026-04-27
 progress:
   total_phases: 28
   completed_phases: 14
   total_plans: 143
-  completed_plans: 130
+  completed_plans: 131
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 91 (Navigation Engine) — EXECUTING
-Plan: 9 of 11
+Plan: 10 of 11
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -152,6 +152,7 @@ Progress: [████████░░] 82%
 | Phase 91 P05 | 28min | 2 tasks | 5 files |
 | Phase 91 P06 | 20 | 2 tasks | 4 files |
 | Phase 91 P07 | 30min | 3 tasks | 4 files |
+| Phase 91 P08 | 7min | 2 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -473,6 +474,7 @@ Progress: [████████░░] 82%
 - [Phase 91]: Wicked override overlays base routing per Canon Appendix E R4
 - [Phase 91]: Out-of-range confidence becomes null (no silent clamp)
 - [Phase 91]: Brain-availability check is 3-layer guarded (require/function/throw)
+- [Phase 91]: Plan 91-08: Framework chain composition shipped. lib/core/framework-chain-composer.cjs (parseFrameworkChainSection + detectCompletedFramework + proposeNextFramework) reads BRAIN.md framework_chain_predictions FEEDS_INTO edges and proposes next framework. Engine integrates at decide() with lazy-require + try/catch; chain offer set when no higher-priority signal claims offer_next_step. Confidence gating: 0.5 noise floor + 0.7 RECOMMENDED. User override (turn-2 different /mos: command vs lastTurnOffer) -> REJECTED chain trace per Canon Part 4. Canon Part 8 boundary preserved (zero brain-client/fetch/curl). 18/18 tests green; 156 prior 91-* tests still pass.
 
 ### Pending Todos
 
@@ -494,6 +496,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-27T20:49:07.155Z
-Stopped at: Completed 91-07-problem-type-routing-PLAN.md
+Last session: 2026-04-27T21:02:20.386Z
+Stopped at: Completed 91-08-framework-chain-composition-PLAN.md
 Resume file: None

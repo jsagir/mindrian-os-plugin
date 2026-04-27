@@ -627,7 +627,7 @@ Plans:
 - [x] 91-05-mos-explain-decision-command-PLAN.md -- commands/explain-decision.md + scripts/explain-decision-command.cjs rendering full trace per turn; --last N + --session flags; graceful fallback (NAV-EXPLAIN-01..03)
 - [x] 91-06-statusline-dial-PLAN.md -- lib/core/nav-dial.cjs + scripts/context-monitor segment; Larry dial Investigate | Blend | Insight driven by engine state; Plan 88.1-04 cache pattern reused (NAV-DIAL-01..03)
 - [x] 91-07-problem-type-routing-PLAN.md -- lib/core/problem-type-router.cjs UDP/IDP/WDP/Wicked routing from BRAIN.md problemtype_classification; Canon Appendix E R4 wicked escalation; brain-client.isAvailable() scalar upgrade (NAV-PROBLEM-TYPE-01..04)
-- [ ] 91-08-framework-chain-composition-PLAN.md -- lib/core/framework-chain-composer.cjs FEEDS_INTO chain proposal from BRAIN.md framework_chain_predictions; user override recorded as graph data (NAV-CHAIN-01..04)
+- [x] 91-08-framework-chain-composition-PLAN.md -- lib/core/framework-chain-composer.cjs FEEDS_INTO chain proposal from BRAIN.md framework_chain_predictions; user override recorded as graph data (NAV-CHAIN-01..04)
 - [ ] 91-09-nav-invariants-validator-PLAN.md -- lib/memory/validators/navigation-invariants.cjs drop-in registry validator; 5 invariants (trace completeness, RECOMMENDED mode gate, weight clamp, malformed trace, unknown verb); scope=room (NAV-INVARIANTS-01..03)
 - [ ] 91-10-v1.11.0-beta.2-release-gate-PLAN.md -- 5-gate beta release (CHANGELOG entry with -beta.2 suffix + plugin.json 1.11.0-beta.2 + package.json 1.11.0-beta.2 + git tag v1.11.0-beta.2 + marketplace ref pin to v1.11.0-beta.2); per beta-gating mandate stable users on v1.10.19 NOT auto-updated; testers opt-in via `--version 1.11.0-beta.2`; promotion to stable v1.11.0 happens in Phase 91.5 after tester sign-off (NAV-RELEASE-01, NAV-RELEASE-GATES-01)
 **Authority**: .planning/phases/91-navigation-engine/91-CONTEXT.md
@@ -766,7 +766,7 @@ Phases execute in numeric order: 76 -> 77 -> 78 -> 79 -> 80
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 91
-**Plans:** 8/11 plans executed
+**Plans:** 9/11 plans executed
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 92 to break down)
