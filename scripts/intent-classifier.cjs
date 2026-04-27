@@ -942,9 +942,38 @@ function runNavigationEngine(roomDir, sessionId) {
         sectionPath: sectionPath,
         sessionId: sessionId,
       };
+
+      // Phase 91-07 Wave 3 upgrade: real brain-client.isAvailable()
+      // scalar lookup. Per Canon Part 8 Section 9.3, isAvailable() is
+      // an EXPLICITLY PERMITTED boolean scalar -- no user content
+      // egress, no network when cached. The brain-client query, search,
+      // and smartSearch entry points remain FORBIDDEN from the
+      // Navigation Engine flow (no parentheses on purpose so a literal
+      // grep guard for forbidden-call patterns reports zero matches in
+      // this file).
+      //
+      // Failure modes:
+      //   - require fails (module missing in degraded environments)
+      //   - isAvailable not a function (older brain-client builds)
+      //   - isAvailable throws (unexpected internal fault)
+      // All three default brainAvailable to false, which is the safe
+      // path: the engine gracefully degrades to mode_b (when BRAIN.md
+      // carries brain_offline) or tier_0 (when BRAIN.md is absent).
+      let brainAvailable = false;
+      try {
+        const brainClient = require(
+          path.join(__dirname, '..', 'lib', 'core', 'brain-client.cjs')
+        );
+        if (typeof brainClient.isAvailable === 'function') {
+          brainAvailable = !!brainClient.isAvailable();
+        }
+      } catch (_e) {
+        brainAvailable = false;
+      }
+
       const context = {
         quadruple: quadruple,
-        brainAvailable: false, // Wave 1 is LOCAL-only per Canon Part 8
+        brainAvailable: brainAvailable,
         userPersona: userPersona,
         intentSignal: null,
       };
