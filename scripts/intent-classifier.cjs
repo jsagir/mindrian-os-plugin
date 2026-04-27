@@ -656,7 +656,7 @@ function persistDecisionTrace(roomDir, sessionId, traceEntry) {
   } catch (_) { /* fire-and-forget */ }
 }
 
-function formatEngineDecisionBlock(decision, routing) {
+function formatEngineDecisionBlock(decision, routing, offerLine) {
   if (!decision || typeof decision !== 'object') return '';
   const trace = decision.decision_trace || {};
   const fireSkill = decision.fire_skill === null || decision.fire_skill === undefined
@@ -705,6 +705,15 @@ function formatEngineDecisionBlock(decision, routing) {
   }
   lines.push('');
   lines.push('Why: ' + why);
+  // Phase 91-04: append the offer-presenter output (one-line grounded
+  // suggestion, optional RECOMMENDED marker) after the Why line so it
+  // is the LAST thing Larry sees in additionalContext. Skipped when
+  // null (offer suppressed by grounding rule, per-turn cap, or
+  // consecutive-ignore window).
+  if (typeof offerLine === 'string' && offerLine.length > 0) {
+    lines.push('');
+    lines.push(offerLine);
+  }
   return lines.join('\n');
 }
 
@@ -740,6 +749,27 @@ function navTestSuppressSkills() {
   const v = process.env.MOS_NAV_TEST_SUPPRESS_SKILLS;
   if (typeof v !== 'string' || v.length === 0) return undefined;
   return v.split(',').map(function (s) { return s.trim(); }).filter(function (s) { return s.length > 0; });
+}
+
+// Phase 91-04: integration test stubs for offer_next_step. Injected
+// AFTER decide() returns so end-to-end tests can exercise the offer
+// presenter without mocking the engine module. Mirrors Plan 91-03's
+// MOS_NAV_TEST_FIRE_SKILL pattern. Production behavior is unchanged
+// when env vars are unset.
+//   MOS_NAV_TEST_OFFER_COMMAND=<cmd>     -> set decision.offer_next_step.command
+//   MOS_NAV_TEST_OFFER_COMMAND=__NULL__  -> force decision.offer_next_step = null
+//   MOS_NAV_TEST_OFFER_REASON=<reason>   -> set decision.offer_next_step.reason
+function navTestOfferCommand() {
+  const v = process.env.MOS_NAV_TEST_OFFER_COMMAND;
+  if (typeof v !== 'string' || v.length === 0) return undefined;
+  if (v === '__NULL__') return null;
+  return v;
+}
+
+function navTestOfferReason() {
+  const v = process.env.MOS_NAV_TEST_OFFER_REASON;
+  if (typeof v !== 'string' || v.length === 0) return undefined;
+  return v;
 }
 
 // Phase 91-03: compute the pre-91 (legacy) skill activation set based
@@ -936,6 +966,19 @@ function runNavigationEngine(roomDir, sessionId) {
           if (stubSuppress !== undefined) {
             decision.suppress_skills = stubSuppress;
           }
+          // Phase 91-04: offer_next_step stub injection.
+          const stubOfferCmd = navTestOfferCommand();
+          if (stubOfferCmd !== undefined) {
+            if (stubOfferCmd === null) {
+              decision.offer_next_step = null;
+            } else {
+              const stubOfferReason = navTestOfferReason();
+              decision.offer_next_step = {
+                command: stubOfferCmd,
+                reason: typeof stubOfferReason === 'string' ? stubOfferReason : '',
+              };
+            }
+          }
           const elapsedMs = Date.now() - startedAt;
           resolve({ decision: decision, elapsed_ms: elapsedMs });
         })
@@ -1011,6 +1054,89 @@ try {
         } catch (_e) {
           routing = null;
         }
+
+        // Phase 91-04: offer presenter integration.
+        //
+        // Step 1 (close the ignore-loop on the previous turn): if the
+        // most recent history entry is 'shown' for this same session,
+        // reclassify it as 'acted' (user invoked the suggested command)
+        // or 'ignored' (user did not). This is the simple Wave-1
+        // heuristic from PLAN: classifyTurnOutcome on the previous
+        // 'shown' record using the current STDIN_MESSAGE.
+        //
+        // Step 2 (present this turn's offer if any): call presentOffer
+        // and, when an offer renders, record a 'shown' outcome so the
+        // next turn can reclassify it. If the engine returned null
+        // offer or grounding rejected it, no shown record is written.
+        //
+        // Lazy-require so missing module degrades gracefully (the
+        // engine + routing block still emits with no Offer line).
+        let offerLine = null;
+        try {
+          const presenter = require(
+            path.join(__dirname, '..', 'lib', 'core', 'offer-presenter.cjs')
+          );
+
+          // Step 1: reclassify previous 'shown' record (if any) using
+          // the user's current message as the acted/ignored signal.
+          try {
+            const history = presenter.readOfferHistory(roomDir);
+            const arr = (history && Array.isArray(history.history)) ? history.history : [];
+            // Walk backwards to find the most recent entry for this
+            // session; reclassify if and only if its outcome is 'shown'.
+            for (let i = arr.length - 1; i >= 0; i -= 1) {
+              const e = arr[i];
+              if (!e || typeof e !== 'object') continue;
+              if (e.session_id === sessionId && e.outcome === 'shown') {
+                const newOutcome = presenter.classifyTurnOutcome(
+                  { command: e.command }, STDIN_MESSAGE
+                );
+                // In-place update + atomic rewrite.
+                e.outcome = newOutcome;
+                try {
+                  const fp = path.join(roomDir, '.mindrian', 'offer-history.json');
+                  const tmpDir = path.join(roomDir, '.mindrian');
+                  try { fs.mkdirSync(tmpDir, { recursive: true }); } catch (_) {}
+                  const rnd = Math.random().toString(36).slice(2, 10);
+                  const tmpPath = fp + '.tmp.' + process.pid + '.' + rnd;
+                  fs.writeFileSync(tmpPath, JSON.stringify(history, null, 2));
+                  fs.renameSync(tmpPath, fp);
+                } catch (_) { /* best-effort reclassification */ }
+                break;
+              }
+              // Stop walking once we hit any non-'shown' entry for this
+              // session (older turns are already classified).
+              if (e.session_id === sessionId) break;
+            }
+          } catch (_) { /* ignore-loop is best-effort */ }
+
+          // Step 2: present this turn's offer (if engine produced one).
+          let history2;
+          try { history2 = presenter.readOfferHistory(roomDir); } catch (_) {
+            history2 = { version: 1, history: [] };
+          }
+          const sessionCtx = { offeredThisTurn: false, sessionId: sessionId };
+          let presented;
+          try {
+            presented = presenter.presentOffer(out.decision, history2, sessionCtx);
+          } catch (_) { presented = null; }
+          if (presented && typeof presented.offerLine === 'string' && presented.offerLine.length > 0) {
+            offerLine = presented.offerLine;
+            // Record 'shown' so next turn can reclassify.
+            try {
+              const offer = (out.decision && out.decision.offer_next_step) || {};
+              presenter.recordOfferOutcome(roomDir, {
+                outcome: 'shown',
+                session_id: sessionId,
+                command: typeof offer.command === 'string' ? offer.command : null,
+                reason: typeof offer.reason === 'string' ? offer.reason : null,
+              });
+            } catch (_) { /* fire-and-forget */ }
+          }
+        } catch (_e) {
+          offerLine = null;
+        }
+
         // Compose trace entry. Persist routing source/notes alongside
         // engine trace so /mos:explain-decision (Plan 91-05) surfaces
         // which activation set won.
@@ -1030,9 +1156,14 @@ try {
             traceEntry.routing_trace_notes = routing.trace_notes;
           }
         }
+        // Phase 91-04: persist the rendered offer line (or null) into
+        // the decision trace for /mos:explain-decision (Plan 91-05).
+        if (typeof offerLine === 'string' && offerLine.length > 0) {
+          traceEntry.offer_rendered = offerLine;
+        }
         persistDecisionTrace(roomDir, sessionId, traceEntry);
         // Emit additionalContext block.
-        const block = formatEngineDecisionBlock(out.decision, routing);
+        const block = formatEngineDecisionBlock(out.decision, routing, offerLine);
         if (block && block.length > 0) {
           try { process.stdout.write(block + '\n'); } catch (_) {}
         }
