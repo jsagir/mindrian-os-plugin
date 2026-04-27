@@ -136,7 +136,16 @@ test('no mismatch when message matches active room', () => {
       root
     );
     assert.strictEqual(res.status, 0, 'exit should be 0');
-    assert.strictEqual(res.stdout, '', 'no warning should be emitted, got: ' + res.stdout);
+    // Phase 91-02: Phase 91 Navigation Engine fires per UserPromptSubmit.
+    // The Phase 83 Intent Mismatch warning still must NOT appear on a
+    // matching message. The engine block CAN appear (it does on every
+    // turn in 91-02+) and it does NOT count as a "warning" for Phase 83
+    // purposes. Assert specifically that no Phase 83 mismatch warning
+    // is emitted, while tolerating the engine block.
+    assert.equal(
+      res.stdout.indexOf('Intent mismatch detected'), -1,
+      'no Phase 83 mismatch warning should be emitted; got stdout=' + res.stdout
+    );
   } finally {
     cleanup(fixture);
   }

@@ -29,6 +29,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
+const crypto = require('node:crypto');
 
 const BUDGET_MS = 200;
 const STOP_WORDS = new Set([
@@ -261,12 +262,19 @@ function extractMessage(raw) {
 // Main
 // ---------------------------------------------------------------------------
 
+// Phase 91-02: stdin is read ONCE at module-init time so the engine
+// integration block can short-circuit on empty messages. The original
+// Phase 83 main() reads it again, but readStdinSync of fd 0 returns ''
+// on second call (EOF) -- which is fine because main() also early-
+// exits on empty message. We pass the raw stdin in via module scope.
+const STDIN_RAW = readStdinSync();
+const STDIN_MESSAGE = extractMessage(STDIN_RAW);
+
 function main() {
   const start = Date.now();
   const deadline = start + BUDGET_MS;
 
-  const raw = readStdinSync();
-  const message = extractMessage(raw);
+  const message = STDIN_MESSAGE;
   if (!message) return 0;
 
   const root = resolveMindrianRoomsRoot();
@@ -465,6 +473,421 @@ function injectGraphFindings(injectionStart) {
   process.stdout.write(lines.join('\n') + '\n');
 }
 
+// ---------------------------------------------------------------------------
+// Phase 91-02: Navigation Engine integration block.
+//
+// On every UserPromptSubmit hook invocation we resolve the active section,
+// read the quadruple + USER.md, call navigation-engine.decide() with a
+// 1200ms hard timeout, persist a decision_trace under
+// .mindrian/decision-traces/<session-id>.json (atomic + 50-entry rotation),
+// and emit a NAVIGATION DECISION (engine v1) block to additionalContext.
+//
+// Canon Part 8 (Graph Boundary): this block is LOCAL-only. brainAvailable
+// is hard-coded to false in Wave 1; Plan 91-07 (Wave 3) opts into the
+// scalar brain-client.isAvailable() handle. ZERO Brain network surface
+// is added here. The decision-trace JSON file is LOCAL.
+//
+// Risk 2 mitigation (engine latency): Promise.race against a 1200ms
+// timeout leaves 800ms hook headroom before the 2000ms ceiling fires.
+// Risk 6 mitigation (trace budget): persisted to disk, rotated at 50
+// entries (drop oldest 10), atomic tmp+rename writes.
+//
+// Failure discipline: any throw or timeout inside this block returns null
+// engineDecision. The Phase 83 classifier flow continues unchanged. No
+// stderr noise on the happy or failure path.
+// ---------------------------------------------------------------------------
+
+const NAV_HARD_TIMEOUT_MS = 1200;
+const TRACE_ROTATE_AT = 50;
+const TRACE_KEEP_AFTER_ROTATE = 40;
+
+function resolveActiveSectionPathForRoom(roomDir) {
+  if (!roomDir) return null;
+  try {
+    const activeJson = path.join(roomDir, '.mindrian', 'active-section.json');
+    if (fs.existsSync(activeJson)) {
+      try {
+        const data = JSON.parse(fs.readFileSync(activeJson, 'utf8'));
+        if (data && typeof data.section === 'string' && data.section.length > 0) {
+          const candidate = path.isAbsolute(data.section)
+            ? data.section
+            : path.join(roomDir, data.section);
+          if (fs.existsSync(candidate) && fs.statSync(candidate).isDirectory()) {
+            return candidate;
+          }
+        }
+      } catch (_e) { /* fall through */ }
+    }
+  } catch (_e) {}
+  // Fallback: most-recently-modified subdir containing MINTO.md.
+  try {
+    const entries = fs.readdirSync(roomDir, { withFileTypes: true })
+      .filter(function (d) { return d.isDirectory() && !d.name.startsWith('.'); });
+    let best = null;
+    let bestMtime = 0;
+    for (const d of entries) {
+      const sectionPath = path.join(roomDir, d.name);
+      const mintoPath = path.join(sectionPath, 'MINTO.md');
+      try {
+        if (!fs.existsSync(mintoPath)) continue;
+        const st = fs.statSync(mintoPath);
+        if (st.mtimeMs > bestMtime) {
+          bestMtime = st.mtimeMs;
+          best = sectionPath;
+        }
+      } catch (_e) {}
+    }
+    return best;
+  } catch (_e) {
+    return null;
+  }
+}
+
+function resolveRoomsRootForNav() {
+  // Wider env-var acceptance than Phase 83 resolveMindrianRoomsRoot.
+  // Phase 83 uses MINDRIAN_ROOMS_ROOT; resolve-room (the bash sibling)
+  // uses MINDRIAN_ROOMS_HOME. The Phase 91 hot path accepts either so
+  // tests + bash + node converge on the same fixture without divergent
+  // env conventions.
+  const envRoot = process.env.MINDRIAN_ROOMS_ROOT;
+  if (envRoot && fs.existsSync(envRoot)) return envRoot;
+  const envHome = process.env.MINDRIAN_ROOMS_HOME;
+  if (envHome && fs.existsSync(envHome)) return envHome;
+  return resolveMindrianRoomsRoot();
+}
+
+function resolveActiveRoomDir() {
+  const root = resolveRoomsRootForNav();
+  if (!root) return null;
+  const reg = readRegistry(root);
+  if (!reg) return null;
+  const active = activeRoomFromRegistry(reg);
+  if (!active) return null;
+  // Registry entries may carry a "path" field (relative or absolute).
+  // Default: <root>/<active-name>.
+  let candidate = path.join(root, active);
+  try {
+    if (reg.rooms && typeof reg.rooms === 'object' && reg.rooms[active]) {
+      const meta = reg.rooms[active];
+      if (meta && typeof meta.path === 'string' && meta.path.length > 0) {
+        candidate = path.isAbsolute(meta.path)
+          ? meta.path
+          : path.join(root, meta.path);
+      }
+    }
+  } catch (_) { /* fall back to default */ }
+  try {
+    if (fs.existsSync(candidate) && fs.statSync(candidate).isDirectory()) {
+      return candidate;
+    }
+  } catch (_) {}
+  return null;
+}
+
+function resolveSessionId(roomDir) {
+  const env = process.env.CLAUDE_SESSION_ID;
+  if (typeof env === 'string' && env.length > 0) return env;
+  // Fallback: sha256(roomDir + ISO-date).slice(0,12). Date precision day
+  // means same room on same day shares a session file when the env hint
+  // is missing -- acceptable per the plan's Section "Session ID
+  // resolution".
+  try {
+    const day = new Date().toISOString().slice(0, 10);
+    return crypto.createHash('sha256').update((roomDir || '') + day)
+      .digest('hex').slice(0, 12);
+  } catch (_) {
+    return 'unknown';
+  }
+}
+
+function persistDecisionTrace(roomDir, sessionId, traceEntry) {
+  // Fire-and-forget. Any error is swallowed; the engine block never
+  // disrupts the user prompt.
+  try {
+    const dir = path.join(roomDir, '.mindrian', 'decision-traces');
+    try { fs.mkdirSync(dir, { recursive: true }); } catch (_) {}
+    const filePath = path.join(dir, sessionId + '.json');
+    let data = { version: 1, session_id: sessionId, traces: [] };
+    try {
+      const raw = fs.readFileSync(filePath, 'utf8');
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object' && Array.isArray(parsed.traces)) {
+        data = parsed;
+        if (data.session_id !== sessionId) data.session_id = sessionId;
+        if (data.version !== 1) data.version = 1;
+      }
+    } catch (_) { /* first write OR corruption -> reset */ }
+    data.traces.push(traceEntry);
+    // Rotate per Plan 91-02 contract: when length exceeds 50, drop the
+    // oldest 10 entries before write. Result: keep last 40 + the just-
+    // pushed current = 41 entries on disk after a rotation event.
+    if (data.traces.length > TRACE_ROTATE_AT) {
+      data.traces = data.traces.slice(10);
+    }
+    // Atomic tmp + rename. Defensive open with 'wx' to fail-fast on
+    // stale tmp.
+    const rnd = Math.random().toString(36).slice(2, 10);
+    const tmpPath = filePath + '.tmp.' + process.pid + '.' + rnd + '.trace';
+    let fd;
+    try {
+      fd = fs.openSync(tmpPath, 'wx');
+    } catch (e) {
+      if (e && e.code === 'EEXIST') {
+        try { fs.unlinkSync(tmpPath); } catch (_) {}
+        fd = fs.openSync(tmpPath, 'wx');
+      } else {
+        return;
+      }
+    }
+    try {
+      fs.writeSync(fd, JSON.stringify(data, null, 2));
+      try { fs.fsyncSync(fd); } catch (_) {
+        // ENOTSUP on tmpfs / overlayfs / Windows ImDisk. Best-effort
+        // durability is acceptable for decision-trace.
+      }
+    } finally {
+      try { fs.closeSync(fd); } catch (_) {}
+    }
+    try {
+      fs.renameSync(tmpPath, filePath);
+    } catch (_) {
+      try { fs.unlinkSync(tmpPath); } catch (_) {}
+    }
+  } catch (_) { /* fire-and-forget */ }
+}
+
+function formatEngineDecisionBlock(decision) {
+  if (!decision || typeof decision !== 'object') return '';
+  const trace = decision.decision_trace || {};
+  const fireSkill = decision.fire_skill === null || decision.fire_skill === undefined
+    ? 'null' : String(decision.fire_skill);
+  const suppressSkills = Array.isArray(decision.suppress_skills)
+    ? '[' + decision.suppress_skills.join(', ') + ']'
+    : '[]';
+  let offer = 'null';
+  if (decision.offer_next_step && typeof decision.offer_next_step === 'object') {
+    const cmd = decision.offer_next_step.command || '';
+    const reason = decision.offer_next_step.reason || '';
+    offer = '{command: ' + cmd + ', reason: ' + reason + '}';
+  }
+  let persona = 'null';
+  if (decision.persona_updates && typeof decision.persona_updates === 'object') {
+    const pu = decision.persona_updates;
+    persona = '{archetype: ' + (pu.archetype || 'null')
+      + ', problem_type: ' + (pu.problem_type || 'null')
+      + ', venture_stage: ' + (pu.venture_stage || 'null') + '}';
+  }
+  const tierMode = trace.brain_md_tier_mode || 'tier_0';
+  const recommended = trace.brain_md_recommended_marker_rendered === true
+    ? 'true' : 'false';
+  const why = trace.chosen_rationale || '';
+  const lines = [
+    '## NAVIGATION DECISION (engine v1)',
+    '',
+    'fire_skill: ' + fireSkill,
+    'suppress_skills: ' + suppressSkills,
+    'offer_next_step: ' + offer,
+    'persona_updates: ' + persona,
+    'tier_mode: ' + tierMode,
+    'brain_md_recommended_marker_rendered: ' + recommended,
+    '',
+    'Why: ' + why,
+  ];
+  return lines.join('\n');
+}
+
+function navTestSleepMs() {
+  const v = process.env.MOS_NAV_TEST_SLEEP;
+  if (!v) return 0;
+  const n = parseInt(v, 10);
+  if (!isNaN(n) && n > 0) return n;
+  return 0;
+}
+
+function navTestThrowing() {
+  return process.env.MOS_NAV_TEST_THROW === '1';
+}
+
+function navTestCounterPath() {
+  const v = process.env.MOS_NAV_TEST_COUNTER;
+  if (typeof v === 'string' && v.length > 0) return v;
+  return null;
+}
+
+function bumpReadCounter(counterFile) {
+  if (!counterFile) return;
+  try {
+    let n = 0;
+    try {
+      const raw = fs.readFileSync(counterFile, 'utf8');
+      const parsed = parseInt(String(raw).trim(), 10);
+      if (!isNaN(parsed)) n = parsed;
+    } catch (_) {}
+    n += 1;
+    try { fs.mkdirSync(path.dirname(counterFile), { recursive: true }); } catch (_) {}
+    fs.writeFileSync(counterFile, String(n));
+  } catch (_) { /* counter is best-effort */ }
+}
+
+function deferredSleep(ms) {
+  return new Promise(function (resolve) { setTimeout(resolve, ms); });
+}
+
+function callDecideWithTimeout(decideFn, turn, ctx, hardTimeoutMs) {
+  // Promise.race: decide() runs synchronously and returns its result;
+  // we wrap it in a microtask so race can compete cleanly. The sleep
+  // arm resolves to a sentinel symbol so we can distinguish timeout.
+  const TIMEOUT_SENTINEL = '__nav_timeout__';
+  const decidePromise = new Promise(function (resolve) {
+    // Honor MOS_NAV_TEST_SLEEP by deferring decide() execution.
+    const sleepMs = navTestSleepMs();
+    const launch = function () {
+      try {
+        const result = decideFn(turn, ctx);
+        resolve(result);
+      } catch (e) {
+        // Throws inside decide become structured engine_fault decisions
+        // upstream; if it bubbled here treat as null fallback.
+        resolve(null);
+      }
+    };
+    if (sleepMs > 0) {
+      setTimeout(launch, sleepMs);
+    } else {
+      // Defer to next microtask so Promise.race actually races.
+      setImmediate(launch);
+    }
+  });
+  const timeoutPromise = deferredSleep(hardTimeoutMs).then(function () {
+    return TIMEOUT_SENTINEL;
+  });
+  return Promise.race([decidePromise, timeoutPromise]).then(function (val) {
+    if (val === TIMEOUT_SENTINEL) return null;
+    return val;
+  });
+}
+
+function runNavigationEngine(roomDir, sessionId) {
+  // Returns Promise<{decision, elapsed_ms} | null>. Never throws.
+  return new Promise(function (resolve) {
+    const startedAt = Date.now();
+    try {
+      // Test-only fast paths.
+      if (navTestThrowing()) {
+        return resolve(null);
+      }
+      // Lazy-require so missing deps in Tier 0 environments do not blow
+      // up the classifier hot path.
+      let navEngine;
+      let folderMemory;
+      let userMdOps;
+      try {
+        navEngine = require(
+          path.join(__dirname, '..', 'lib', 'core', 'navigation-engine.cjs')
+        );
+        folderMemory = require(
+          path.join(__dirname, '..', 'lib', 'core', 'folder-memory.cjs')
+        );
+        userMdOps = require(
+          path.join(__dirname, '..', 'lib', 'core', 'user-md-ops.cjs')
+        );
+      } catch (_e) {
+        return resolve(null);
+      }
+
+      const sectionPath = resolveActiveSectionPathForRoom(roomDir);
+      if (!sectionPath) {
+        // No section to read; engine returns Tier 0 fallback. Still
+        // useful to emit + persist so /mos:explain-decision has a row.
+      }
+
+      // Per-turn quadruple cache: a single read, observed by tests via
+      // MOS_NAV_TEST_COUNTER.
+      let quadruple = null;
+      if (sectionPath) {
+        const counterFile = navTestCounterPath();
+        bumpReadCounter(counterFile);
+        try {
+          quadruple = folderMemory.readQuadruple(sectionPath);
+        } catch (_e) {
+          quadruple = null;
+        }
+      }
+
+      // USER.md persona read (graceful on absent / malformed).
+      let userMd = null;
+      try {
+        const userPath = path.join(roomDir, 'USER.md');
+        userMd = userMdOps.readUserMd(userPath);
+      } catch (_e) {
+        userMd = null;
+      }
+
+      // Build context.userPersona shape expected by the engine's
+      // buildIntentPersona reader (Plan 91-00).
+      let userPersona = null;
+      if (userMd && typeof userMd === 'object') {
+        userPersona = {
+          archetype: userMd.canonical_role || null,
+          problem_type: userMd.problem_type === 'unknown' ? null : userMd.problem_type,
+          venture_stage: userMd.venture_stage === 'unknown' ? null : userMd.venture_stage,
+        };
+      }
+
+      const turn = {
+        userText: null, // hot path does not forward prompt content
+        sectionPath: sectionPath,
+        sessionId: sessionId,
+      };
+      const context = {
+        quadruple: quadruple,
+        brainAvailable: false, // Wave 1 is LOCAL-only per Canon Part 8
+        userPersona: userPersona,
+        intentSignal: null,
+      };
+
+      callDecideWithTimeout(navEngine.decide, turn, context, NAV_HARD_TIMEOUT_MS)
+        .then(function (decision) {
+          if (decision === null || decision === undefined) {
+            return resolve(null);
+          }
+          const elapsedMs = Date.now() - startedAt;
+          resolve({ decision: decision, elapsed_ms: elapsedMs });
+        })
+        .catch(function () { resolve(null); });
+    } catch (_e) {
+      resolve(null);
+    }
+  });
+}
+
+function emitEngineDecisionBlock(roomDir, sessionId) {
+  // Synchronous-from-caller wrapper that drives the async engine and
+  // blocks the event loop only as long as the hard timeout. Used at the
+  // tail of the classifier process so the user turn never proceeds
+  // without the decision in hand.
+  const result = runNavigationEngine(roomDir, sessionId);
+  // Bridge promise to sync exit by pumping the event loop. Node 18+
+  // does not expose deasync; we rely on process.exit happening from a
+  // .then callback below. The function returns the promise; caller
+  // awaits before exiting.
+  return result;
+}
+
+function appendTraceTurnNumber(roomDir, sessionId) {
+  // Compute next turn number based on existing trace file.
+  try {
+    const filePath = path.join(roomDir, '.mindrian', 'decision-traces', sessionId + '.json');
+    const raw = fs.readFileSync(filePath, 'utf8');
+    const parsed = JSON.parse(raw);
+    if (parsed && Array.isArray(parsed.traces) && parsed.traces.length > 0) {
+      const last = parsed.traces[parsed.traces.length - 1];
+      if (last && typeof last.turn === 'number') return last.turn + 1;
+    }
+  } catch (_) {}
+  return 1;
+}
+
 try {
   const injectionStart = Date.now();
   const code = main();
@@ -475,7 +898,44 @@ try {
       // Fail-silent: never disrupt the prompt.
     }
   }
-  process.exit(typeof code === 'number' ? code : 0);
+  // Phase 91-02 navigation engine block (always LAST so the decision
+  // appears below any Phase 83 / Phase 84 emissions in additionalContext).
+  // Skipped on empty stdin to preserve Phase 83's silent-exit contract;
+  // the engine has no useful turn to decide on an empty message.
+  let navP = Promise.resolve(null);
+  try {
+    if (STDIN_MESSAGE && STDIN_MESSAGE.length > 0) {
+    const roomDir = resolveActiveRoomDir();
+    if (roomDir) {
+      const sessionId = resolveSessionId(roomDir);
+      navP = emitEngineDecisionBlock(roomDir, sessionId).then(function (out) {
+        if (!out || !out.decision) return null;
+        // Compose trace entry.
+        const turnNo = appendTraceTurnNumber(roomDir, sessionId);
+        const baseTrace = (out.decision && out.decision.decision_trace) || {};
+        const traceEntry = Object.assign({}, baseTrace, {
+          turn: turnNo,
+          at: new Date().toISOString(),
+          elapsed_ms: out.elapsed_ms,
+        });
+        persistDecisionTrace(roomDir, sessionId, traceEntry);
+        // Emit additionalContext block.
+        const block = formatEngineDecisionBlock(out.decision);
+        if (block && block.length > 0) {
+          try { process.stdout.write(block + '\n'); } catch (_) {}
+        }
+        return null;
+      }).catch(function () { return null; });
+    }
+    }
+  } catch (_) { /* engine block is fire-and-forget */ }
+  // Wait for engine to settle (bounded by NAV_HARD_TIMEOUT_MS) before
+  // exiting so the additionalContext write lands before stdout closes.
+  navP.then(function () {
+    process.exit(typeof code === 'number' ? code : 0);
+  }, function () {
+    process.exit(typeof code === 'number' ? code : 0);
+  });
 } catch (_) {
   // Fail-silent on any unexpected error. Classifier is advisory.
   process.exit(0);
