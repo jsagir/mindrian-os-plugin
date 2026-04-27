@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 91-06-statusline-dial-PLAN.md
-last_updated: "2026-04-27T20:30:40.749Z"
+stopped_at: Completed 91-07-problem-type-routing-PLAN.md
+last_updated: "2026-04-27T20:49:12.808Z"
 last_activity: 2026-04-27
 progress:
   total_phases: 28
   completed_phases: 14
   total_plans: 143
-  completed_plans: 129
+  completed_plans: 130
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 91 (Navigation Engine) — EXECUTING
-Plan: 8 of 11
+Plan: 9 of 11
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -151,6 +151,7 @@ Progress: [████████░░] 82%
 | Phase 91-navigation-engine P04 | 21min | 2 tasks | 4 files |
 | Phase 91 P05 | 28min | 2 tasks | 5 files |
 | Phase 91 P06 | 20 | 2 tasks | 4 files |
+| Phase 91 P07 | 30min | 3 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -468,6 +469,10 @@ Progress: [████████░░] 82%
 - [Phase 91]: Default render is exactly 1 trace, the most recent; --last clamps silently to traces.length
 - [Phase 91]: Always exit 0 (audit lens never throws); absent + malformed + no-active-room each emit advisory text
 - [Phase 91]: Larry dial: pure module + caller does I/O; mirror classifyHealth byte-identically with 88.1-04 (test-enforced); three-position dial fits 60-char visible budget; insight markers {synthesize, insight, converge} are a closed Canon-aligned keyword set; dial suppressed on no-signal state to keep statusline quiet pre-engine
+- [Phase 91]: Problem-type routing biases, never forces (D-08)
+- [Phase 91]: Wicked override overlays base routing per Canon Appendix E R4
+- [Phase 91]: Out-of-range confidence becomes null (no silent clamp)
+- [Phase 91]: Brain-availability check is 3-layer guarded (require/function/throw)
 
 ### Pending Todos
 
@@ -489,6 +494,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-27T20:30:40.743Z
-Stopped at: Completed 91-06-statusline-dial-PLAN.md
+Last session: 2026-04-27T20:49:07.155Z
+Stopped at: Completed 91-07-problem-type-routing-PLAN.md
 Resume file: None
