@@ -492,7 +492,12 @@ Plans:
   7. lazygraph-ops.cjs EDGE_TYPES extended without forking; Canon Part 7 verified
   8. Feynman test suite stays green + new tests registered (baseline 77 -> 82+)
   9. NO release gate -- bundled into v1.11.0 final ship at Phase 91.x per milestone §7
-**Plans**: 4-5 plans (to be filed by /gsd:plan-phase 89.3)
+**Plans**: 5 plans
+- [ ] 89.3-01-rs-neo4j-writer-PLAN.md -- Aura Cypher writer for canonical RS schema (RSDiscovery / ReverseSalient / Innovation / Paper / Author / Institution + 5 edges); idempotent MERGE + rollback Cypher capture; extends lazygraph-ops EDGE_TYPES in place (Canon Part 7); auditQueryObject defense-in-depth pre-write (Canon Part 8)
+- [ ] 89.3-02-rs-sqlite-mirror-PLAN.md -- Tier 0 SQLite writer with same writeDiscovery API surface as 89.3-01; INSERT OR REPLACE for idempotency; deterministic ids (sha256 of stable identity); rollback SQL capture; reuses lazygraph.openGraph
+- [ ] 89.3-03-rs-mind-map-PLAN.md -- 5-branch Cytoscape generator (Direct Intersections / Structural Transfer / Semantic Implementation / Discovered RS / Innovation Ecosystem); Tier 0/1 read paths; HTML wrapper using existing dashboard cytoscape@3.33.1 CDN (zero new deps)
+- [ ] 89.3-04-rs-expert-mapper-PLAN.md -- Cypher MATCH+MERGE resolver for 89.2-05 mapExperts output; Tier 1 full resolution; Tier 0 graceful degradation with friendly note (resolution_quality flag); 2-seam Canon Part 8 audit (pre-Cypher + pre-return)
+- [ ] 89.3-05-bridge-writer-and-phase-gate-PLAN.md -- bridge-writer enhancement (thesis + breakthrough_score frontmatter; backward-compat regression test) + Feynman registration sweep (5 new tests; baseline 77 -> 82) + Phase Gate transcript (9 G + 5 E asserts) + VERIFICATION.md (9 SCs)
 **Authority**: .planning/milestones/v1.11.0-KICKOFF.md §5 (Output Layer module enumeration: rs-neo4j-writer + rs-sqlite-mirror + rs-mind-map + rs-expert-mapper); §9 (graceful degradation Tier 0 / Tier 1); .planning/phases/89.2-external-research-fetching/89.2-VERIFICATION.md (predecessor delivers the input pairs this phase persists)
 
 ### Phase 89.4: Chain Wiring (Upstream + Downstream)
