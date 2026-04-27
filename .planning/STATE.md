@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 91-04-next-step-offer-presentation-PLAN.md
-last_updated: "2026-04-27T19:46:29.616Z"
+stopped_at: Completed 91-05-mos-explain-decision-command-PLAN.md
+last_updated: "2026-04-27T20:05:55.654Z"
 last_activity: 2026-04-27
 progress:
   total_phases: 28
   completed_phases: 14
   total_plans: 143
-  completed_plans: 127
+  completed_plans: 128
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 91 (Navigation Engine) — EXECUTING
-Plan: 6 of 11
+Plan: 7 of 11
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -149,6 +149,7 @@ Progress: [████████░░] 82%
 | Phase 91 P02 | 33min | 1 tasks | 4 files |
 | Phase 91 P03 | 21min | 2 tasks | 4 files |
 | Phase 91-navigation-engine P04 | 21min | 2 tasks | 4 files |
+| Phase 91 P05 | 28min | 2 tasks | 5 files |
 
 ### Roadmap Evolution
 
@@ -462,6 +463,9 @@ Progress: [████████░░] 82%
 - [Phase 91-navigation-engine]: Plan 91-04: RECOMMENDED gate respect at presenter, not re-evaluation -- engine is the single chokepoint
 - [Phase 91-navigation-engine]: Plan 91-04: Three-tier noise gate with stable suppression codes (one_offer_per_turn / consecutive_ignores_threshold / ungrounded_reason / generic_reason) for /mos:explain-decision rendering
 - [Phase 91-navigation-engine]: Plan 91-04: Wave-1 substring heuristic for ignore detection -- false positives on auto-acted are higher cost than false negatives
+- [Phase 91]: /mos:explain-decision is the user-facing audit surface for the Navigation Engine; pure read of decision-traces JSON; never writes back
+- [Phase 91]: Default render is exactly 1 trace, the most recent; --last clamps silently to traces.length
+- [Phase 91]: Always exit 0 (audit lens never throws); absent + malformed + no-active-room each emit advisory text
 
 ### Pending Todos
 
@@ -483,6 +487,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-27T19:46:21.139Z
-Stopped at: Completed 91-04-next-step-offer-presentation-PLAN.md
+Last session: 2026-04-27T20:05:47.565Z
+Stopped at: Completed 91-05-mos-explain-decision-command-PLAN.md
 Resume file: None
