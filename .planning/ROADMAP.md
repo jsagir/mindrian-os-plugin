@@ -621,7 +621,7 @@ Plans:
 Plans:
 - [x] 91-00-navigation-engine-core-PLAN.md -- lib/core/navigation-engine.cjs L5 Decision core with decide() + structured 5-signal triangulation + Section 4 staleness multipliers + Section 5 tier modes + Section 6 RECOMMENDED gate + Section 8 8-field trace contract (NAV-CORE-01..05)
 - [x] 91-01-user-md-persona-durability-PLAN.md -- lib/core/user-md-ops.cjs + persona-taxonomy.cjs promoting persona to first-class USER.md artifact; Larry 3-persona -> Brain 2-persona translation; atomic write + update threshold (NAV-PERSONA-01..04)
-- [ ] 91-02-userpromptsubmit-integration-PLAN.md -- scripts/intent-classifier.cjs calls engine per turn with 1200ms hard timeout; decision_trace persistence to .mindrian/decision-traces/<session>.json with 50-entry rotation (NAV-INTEGRATION-01..03)
+- [x] 91-02-userpromptsubmit-integration-PLAN.md -- scripts/intent-classifier.cjs calls engine per turn with 1200ms hard timeout; decision_trace persistence to .mindrian/decision-traces/<session>.json with 50-entry rotation (NAV-INTEGRATION-01..03)
 - [ ] 91-03-skill-activation-routing-PLAN.md -- lib/core/skill-activation-router.cjs precedence layer; Canon Part 3 10-verb vocabulary enforced; engine precedence when opinionated, legacy fallback when silent (NAV-ROUTING-01..03)
 - [ ] 91-04-next-step-offer-presentation-PLAN.md -- lib/core/offer-presenter.cjs with grounding rule + Section 6 RECOMMENDED marker respected + max-1-per-turn + 2-ignore suppression + offer-history persistence (NAV-OFFER-01..03)
 - [ ] 91-05-mos-explain-decision-command-PLAN.md -- commands/explain-decision.md + scripts/explain-decision-command.cjs rendering full trace per turn; --last N + --session flags; graceful fallback (NAV-EXPLAIN-01..03)
@@ -766,7 +766,7 @@ Phases execute in numeric order: 76 -> 77 -> 78 -> 79 -> 80
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 91
-**Plans:** 2/11 plans executed
+**Plans:** 3/11 plans executed
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 92 to break down)
