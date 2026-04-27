@@ -21,6 +21,14 @@ try {
   folderMemory = require('../lib/core/folder-memory.cjs');
 } catch (_e) { /* graceful fallback, pre-88 output */ }
 
+// Phase 91-06: Larry dial helper (pure resolver + formatter). LOCAL-only
+// per Canon Part 8. Lazy-required so a missing module on a degraded
+// install leaves the pre-91 statusline byte-identical.
+let navDial = null;
+try {
+  navDial = require('../lib/core/nav-dial.cjs');
+} catch (_e) { /* graceful fallback, pre-91 output */ }
+
 const os = require('os');
 const crypto = require('crypto');
 
@@ -325,6 +333,117 @@ function buildMintoSegment(roomDir) {
 }
 
 /**
+ * Phase 91-06 -- resolve the active session id for the dial trace read.
+ * Resolution chain (first match wins):
+ *   1. process.env.CLAUDE_SESSION_ID
+ *   2. roomDir/.mindrian/current-session.json {"session_id": "..."}
+ *   3. most-recent .mindrian/decision-traces/*.json by mtime
+ *   4. null  -> caller skips the dial segment entirely
+ *
+ * Defensive: every fs op is try/catch. Never throws.
+ *
+ * @param {string} roomDir - Absolute path to the active room
+ * @returns {string|null} session id or null
+ */
+function resolveSessionIdForDial(roomDir) {
+  try {
+    const env = process.env.CLAUDE_SESSION_ID;
+    if (typeof env === 'string' && env.length > 0) return env;
+  } catch (_e) {}
+  try {
+    const pointer = path.join(roomDir, '.mindrian', 'current-session.json');
+    if (fs.existsSync(pointer)) {
+      try {
+        const parsed = JSON.parse(fs.readFileSync(pointer, 'utf8'));
+        if (parsed && typeof parsed.session_id === 'string'
+            && parsed.session_id.length > 0) {
+          return parsed.session_id;
+        }
+      } catch (_e) { /* fall through to mtime */ }
+    }
+  } catch (_e) {}
+  // Mtime fallback over decision-traces/*.json.
+  try {
+    const dir = path.join(roomDir, '.mindrian', 'decision-traces');
+    if (!fs.existsSync(dir)) return null;
+    const entries = fs.readdirSync(dir);
+    let best = null;
+    let bestMtime = -1;
+    for (const e of entries) {
+      if (!e.endsWith('.json')) continue;
+      const fp = path.join(dir, e);
+      try {
+        const st = fs.statSync(fp);
+        if (st.isFile() && st.mtimeMs > bestMtime) {
+          bestMtime = st.mtimeMs;
+          best = e.slice(0, -5);
+        }
+      } catch (_e) {}
+    }
+    return best;
+  } catch (_e) { return null; }
+}
+
+/**
+ * Phase 91-06 -- build the Larry dial segment for the statusline. Mirrors
+ * the buildMintoSegment shape (Plan 88.1-04). Wrapped in try/catch at the
+ * caller; this helper itself also defends every path so any failure yields
+ * empty string and leaves the pre-91 statusline output unchanged.
+ *
+ * Flow:
+ *   - Resolve active session via resolveSessionIdForDial.
+ *   - Read .mindrian/decision-traces/<session>.json.
+ *   - Take the last trace entry (traces[traces.length - 1]).
+ *   - Call nav-dial.resolveDialPosition(trace).
+ *   - Call nav-dial.formatDialSegment(position).
+ *   - Return string (or '' on any failure).
+ *
+ * Canon Part 3: LOCAL-only. No BRAIN read, no SIGNAL read. No external
+ * network. No user-content egress. Reads only the same trace file
+ * /mos:explain-decision reads.
+ *
+ * @param {string} roomDir - Absolute path to the active room
+ * @returns {string} The rendered dial segment or '' (skip)
+ */
+function buildDialSegment(roomDir) {
+  if (!navDial) return '';
+  if (!roomDir) return '';
+
+  const sessionId = resolveSessionIdForDial(roomDir);
+  if (!sessionId) return '';
+
+  let trace = null;
+  try {
+    const fp = path.join(roomDir, '.mindrian', 'decision-traces',
+      sessionId + '.json');
+    if (!fs.existsSync(fp)) return '';
+    const raw = fs.readFileSync(fp, 'utf8');
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.traces)) {
+      return '';
+    }
+    if (parsed.traces.length === 0) return '';
+    trace = parsed.traces[parsed.traces.length - 1];
+  } catch (_e) {
+    return '';
+  }
+
+  try {
+    const position = navDial.resolveDialPosition(trace);
+    // Suppress dial when no trace was effectively useful (Investigate / --
+    // with no highlight): the caller already shows the pre-engine state by
+    // its absence. Keeps the statusline quiet when the engine has not
+    // spoken yet.
+    if (position && position.glyph === '--' && position.highlight === null) {
+      return '';
+    }
+    return navDial.formatDialSegment(position);
+  } catch (_e) {
+    return '';
+  }
+}
+
+/**
  * Get per-room bridge file path at ~/.mindrian/bridge/{room-hash}.json
  * @param {string} [roomDir] - Room directory path for hashing
  * @returns {string} Bridge file path
@@ -485,6 +604,17 @@ process.stdin.on('end', () => {
         try {
           const mintoSeg = buildMintoSegment(roomDir);
           if (mintoSeg) parts.push(mintoSeg);
+        } catch (_e) { /* graceful fallback */ }
+
+        // Phase 91-06 -- Larry dial segment (Investigate | Blend | Insight).
+        // Canon Part 3: dial position derived from latest engine decision
+        // trace (.mindrian/decision-traces/<session>.json -- same source
+        // /mos:explain-decision reads). Canon Part 8 LOCAL-only. Inserted
+        // between MINTO and plugin brand so the user reads room state ->
+        // reasoning -> engine position in left-to-right order.
+        try {
+          const dialSeg = buildDialSegment(roomDir);
+          if (dialSeg) parts.push(dialSeg);
         } catch (_e) { /* graceful fallback */ }
 
         // MindrianOS plugin brand (brain emoji) + current version +
