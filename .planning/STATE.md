@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 89.5-05-PLAN.md (CLI commands + Feynman registration + Phase Gate + VERIFICATION; Phase 89.5 closed; v1.11.0-beta.1 readiness gate cleared)
-last_updated: "2026-04-27T10:58:44Z"
+stopped_at: Completed 91-00-navigation-engine-core-PLAN.md
+last_updated: "2026-04-27T17:31:30.407Z"
 last_activity: 2026-04-27
 progress:
-  total_phases: 27
+  total_phases: 28
   completed_phases: 14
-  total_plans: 142
-  completed_plans: 122
+  total_plans: 143
+  completed_plans: 123
   percent: 82
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 89.5 — Engine + NL-Graph
+**Current focus:** Phase 91 — Navigation Engine
 
 ## Current Position
 
-Phase: 89.5 (Engine + NL-Graph) — COMPLETED
-Plan: 5 of 5 (closure complete)
-Status: Phase 89.5 closed; v1.11.0-beta.1 readiness gate cleared
+Phase: 91 (Navigation Engine) — EXECUTING
+Plan: 2 of 11
+Status: Ready to execute
 
 Phase 89.5 closure (this session):
 
@@ -144,6 +144,7 @@ Progress: [████████░░] 82%
 | Phase 89.5-engine-and-nl-graph P02 | 8m | 2 tasks | 2 files |
 | Phase 89.5 P03 | 8m | 2 tasks | 2 files |
 | Phase 89.5 P04 | 18m | 2 tasks | 2 files |
+| Phase 91 P00 | 20 | 2 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -443,6 +444,9 @@ Progress: [████████░░] 82%
 - [Phase 89.5-engine-and-nl-graph]: 89.5-02: buildBrainQueryFromNL is THE single chokepoint for any Brain query construction from NL input across the codebase; defended by 3 audit seams (SEAM A input + SEAM 1+2 internal + SEAM C output) + entity-extractor scalar audits = 4 independent tripwires
 - [Phase 89.5]: Plan 89.5-03: Query-to-Text Larry-voiced explainer ships frozen VOICE_TEMPLATES (5 kinds x 3-4 = 16 templates) + deterministic FNV-1a template selection + Mode A/B/Tier-0 quadruple-aware enrichment via folder-memory.readQuadruple + 2-seam Canon Part 8 defense (input + post-render audits). NO runtime LLM. 12/12 tests pass.
 - [Phase 89.5]: Plan 89.5-04 ships rs-discovery-engine top-level orchestrator: 17-module composition + Tier 0/1 dispatch with AuraUnreachableError catch + Mode A/B graceful via chain-feeder chokepoint reuse + Canon Part 8 input audit at gate; 9/9 fixtures pass
+- [Phase 91]: Per-turn quadruple cache via local function-scoped binding instead of module-level cache - cross-turn caching impossible by construction
+- [Phase 91]: Section 8 trace emitted on every decision including Tier 0 - /mos:explain-decision can render zero-weight paths instead of blank panels
+- [Phase 91]: Closed verb-to-skill-family map (10 verbs -> 10 slugs) - no prose-to-skill inference, future verbs require canon amendment + code change
 
 ### Pending Todos
 
@@ -464,6 +468,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-27T10:24:50.381Z
-Stopped at: Completed 89.5-04-PLAN.md (rs-discovery-engine top-level orchestrator)
+Last session: 2026-04-27T17:31:21.250Z
+Stopped at: Completed 91-00-navigation-engine-core-PLAN.md
 Resume file: None
