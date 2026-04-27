@@ -553,7 +553,7 @@ Plans:
   8. Feynman test suite stays green + new tests registered (~85 -> ~90+)
   9. NO release gate -- bundled into v1.11.0 final ship at Phase 91.x per milestone §7
 **Plans**: 5 plans across 3 waves
-  - [ ] 89.5-01-PLAN.md -- rs-commercial-assessor.cjs (deterministic 3-field commercial layer; deferred from kickoff §5 Phase 4)
+  - [x] 89.5-01-PLAN.md -- rs-commercial-assessor.cjs (deterministic 3-field commercial layer; deferred from kickoff §5 Phase 4)
   - [ ] 89.5-02-PLAN.md -- rs-nl-to-query.cjs (Bidirectional NL-Graph Text->Query; HARDEST Canon Part 8 surface in v1.11.0; >=6 adversarial fixtures)
   - [ ] 89.5-03-PLAN.md -- rs-query-to-text.cjs (Bidirectional NL-Graph Query->Text; Larry-voiced explanation with frozen voice templates)
   - [ ] 89.5-04-PLAN.md -- scripts/rs-discovery-engine.cjs (top-level orchestrator chaining all 89.1-89.5 modules; Tier 0/Mode B graceful)
@@ -713,7 +713,7 @@ Phases execute in numeric order: 76 -> 77 -> 78 -> 79 -> 80
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 91
-**Plans:** 4/4 plans complete
+**Plans:** 1/5 plans executed
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 92 to break down)

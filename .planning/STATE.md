@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
-status: verifying
-stopped_at: Completed 89.4-04-feynman-and-phase-gate-PLAN.md
-last_updated: "2026-04-27T09:23:00.097Z"
+status: executing
+stopped_at: Completed 89.5-01-PLAN.md
+last_updated: "2026-04-27T09:49:07.384Z"
 last_activity: 2026-04-27
 progress:
-  total_phases: 26
+  total_phases: 27
   completed_phases: 13
-  total_plans: 137
-  completed_plans: 117
+  total_plans: 142
+  completed_plans: 118
   percent: 82
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 89.4 — Chain Wiring
+**Current focus:** Phase 89.5 — Engine + NL-Graph
 
 ## Current Position
 
-Phase: 89.4 (Chain Wiring) — EXECUTING
-Plan: 4 of 4
-Status: Phase complete — ready for verification
+Phase: 89.5 (Engine + NL-Graph) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
 
 Phase 90-02 commits (main, NOT yet pushed):
 
@@ -127,6 +127,7 @@ Progress: [████████░░] 82%
 | Phase 89.4 P02 | 5min | 2 tasks | 2 files |
 | Phase 89.4 P03 | 12 min | 2 tasks | 3 files |
 | Phase 89.4 P04 | 5min | 3 tasks | 3 files |
+| Phase 89.5-01 P01 | 18m | 2 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -418,6 +419,9 @@ Progress: [████████░░] 82%
 - [Phase 89.4]: Single-sweep Feynman registration commit (258d94c) extends TEST_FILES with all 3 new 89.4 entries in one commit per Phase 89.3-05 pattern; Plans 89.4-01/02/03 ran in parallel-friendly waves and never touched run-feynman-tests.cjs to avoid merge conflicts
 - [Phase 89.4]: Phase Gate G8 CONDITIONAL PASS pattern inherited from 89.1+89.2+89.3: 81/85 PASS; 4 failures all OUTSIDE 89.4 commit range (3 inherited from 89.3 + 1 newly-flaky pre-existing Phase 81 timestamp test surfaced by Feynman-runner timing pressure)
 - [Phase 89.4]: Phase Gate 5 E asserts re-verify ALL prior 89.4 plans load-bearing contracts in one closure transcript: E1 rule coverage + E2 verb validation + E3 Brain chokepoint + E4 defense-in-depth audit count + E5 end-to-end smoke composing emitChainMetadata + validateVerb + recommendSkillSpawn
+- [Phase 89.5-01]: rs-commercial-assessor bucket vocabulary expanded from 5 to 6 (added unknown-bucket safe-default for missing breakthrough_score; canon-amend discipline preserved)
+- [Phase 89.5-01]: rs-commercial-assessor token vocabulary expanded from [bridge_concept] to [BRIDGE]/[SOURCE]/[TARGET] so rendered value-prop surfaces both sides of cross-domain pair (12-char-distinct stem invariant satisfied)
+- [Phase 89.5-01]: Both-must-satisfy bucket selection: signals AND score must clear each threshold pair so single-dimension cannot inflate market estimate
 
 ### Pending Todos
 
@@ -439,6 +443,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-27T09:22:46.789Z
-Stopped at: Completed 89.4-04-feynman-and-phase-gate-PLAN.md
+Last session: 2026-04-27T09:48:54.156Z
+Stopped at: Completed 89.5-01-PLAN.md
 Resume file: None
