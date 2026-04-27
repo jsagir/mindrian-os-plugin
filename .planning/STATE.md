@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 91-03-skill-activation-routing-PLAN.md
-last_updated: "2026-04-27T19:19:42.393Z"
+stopped_at: Completed 91-04-next-step-offer-presentation-PLAN.md
+last_updated: "2026-04-27T19:46:29.616Z"
 last_activity: 2026-04-27
 progress:
   total_phases: 28
   completed_phases: 14
   total_plans: 143
-  completed_plans: 126
+  completed_plans: 127
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 91 (Navigation Engine) — EXECUTING
-Plan: 5 of 11
+Plan: 6 of 11
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -148,6 +148,7 @@ Progress: [████████░░] 82%
 | Phase 91 P01 | 35min | 2 tasks | 4 files |
 | Phase 91 P02 | 33min | 1 tasks | 4 files |
 | Phase 91 P03 | 21min | 2 tasks | 4 files |
+| Phase 91-navigation-engine P04 | 21min | 2 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -458,6 +459,9 @@ Progress: [████████░░] 82%
 - [Phase 91]: Empty stdin skips engine block to preserve Phase 83's silent-exit contract; engine has nothing useful to decide on empty turns
 - [Phase 91]: Plan 91-03: Canon Part 3 closed 10-verb vocabulary enforced at the routing layer (skill-activation-router.cjs validateVerb/canonicalizeVerb gate every engine fire_skill output; unknowns rejected with canon_part_3_unknown_verb_rejected trace note instead of silent passthrough)
 - [Phase 91]: Plan 91-03: Pure-function precedence layer over preserved legacy (engine wins when fire_skill set; mixed when only suppress_skills populated; legacy preserved byte-equivalent when engine silent). Contradictory fire-vs-suppress resolved deterministically with fire winning over self-suppress.
+- [Phase 91-navigation-engine]: Plan 91-04: RECOMMENDED gate respect at presenter, not re-evaluation -- engine is the single chokepoint
+- [Phase 91-navigation-engine]: Plan 91-04: Three-tier noise gate with stable suppression codes (one_offer_per_turn / consecutive_ignores_threshold / ungrounded_reason / generic_reason) for /mos:explain-decision rendering
+- [Phase 91-navigation-engine]: Plan 91-04: Wave-1 substring heuristic for ignore detection -- false positives on auto-acted are higher cost than false negatives
 
 ### Pending Todos
 
@@ -479,6 +483,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-27T19:19:33.310Z
-Stopped at: Completed 91-03-skill-activation-routing-PLAN.md
+Last session: 2026-04-27T19:46:21.139Z
+Stopped at: Completed 91-04-next-step-offer-presentation-PLAN.md
 Resume file: None
