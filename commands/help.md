@@ -207,6 +207,7 @@ Each command gets a colored ■ block matching its job category. Descriptions ar
   ├─ {T}■{X} /mos:room                   {M}Browse your Data Room sections and launch the dashboard{X}
   ├─ {T}■{X} /mos:rooms                  {M}Manage multiple ventures -- switch, park, archive{X}
   ├─ {T}■{X} /mos:organize               {M}Restructure your room hierarchy with graph-informed proposals{X}
+  ├─ {T}■{X} /mos:explain-decision       {M}Show why Larry made the calls he made on the last turn{X}
   ├─ {T}■{X} /mos:update                 {M}Check if a newer version of MindrianOS is available{X}
   └─ {T}■{X} /mos:splash                 {M}Show the Mondrian banner{X}
 ```
