@@ -552,7 +552,12 @@ Plans:
   7. Canon Part 8 verified: Brain query audit on every Brain call from NL-to-Query; user content never crosses outbound boundary
   8. Feynman test suite stays green + new tests registered (~85 -> ~90+)
   9. NO release gate -- bundled into v1.11.0 final ship at Phase 91.x per milestone §7
-**Plans**: 4-5 plans (to be filed by /gsd:plan-phase 89.5)
+**Plans**: 5 plans across 3 waves
+  - [ ] 89.5-01-PLAN.md -- rs-commercial-assessor.cjs (deterministic 3-field commercial layer; deferred from kickoff §5 Phase 4)
+  - [ ] 89.5-02-PLAN.md -- rs-nl-to-query.cjs (Bidirectional NL-Graph Text->Query; HARDEST Canon Part 8 surface in v1.11.0; >=6 adversarial fixtures)
+  - [ ] 89.5-03-PLAN.md -- rs-query-to-text.cjs (Bidirectional NL-Graph Query->Text; Larry-voiced explanation with frozen voice templates)
+  - [ ] 89.5-04-PLAN.md -- scripts/rs-discovery-engine.cjs (top-level orchestrator chaining all 89.1-89.5 modules; Tier 0/Mode B graceful)
+  - [ ] 89.5-05-PLAN.md -- 4 CLI commands (/mos:rs-fetch, /mos:rs-thesis, /mos:rs-experts, /mos:rs-explain) + Feynman registration + Phase Gate + VERIFICATION
 **Authority**: .planning/milestones/v1.11.0-KICKOFF.md §5 (Engine Architecture top-level orchestrator); §7 (89.5 4-5 plans bundled with Bidirectional NL-Graph Surface load-bearing description); .planning/milestones/v1.12.0-LIVE-VALIDATION-2026-04-24.md §4 (bidirectional NL-graph context forward reference); .planning/research/navigation-engine-brain-interface.md (frozen v1 contract for Brain query shape consumption)
 
 ### Phase 90: Brain Derivation Layer
