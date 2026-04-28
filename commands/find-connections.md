@@ -4,14 +4,14 @@ description: Find cross-domain patterns that touch your work
 allowed-tools:
   - Read
   - mcp__mindrian-brain__brain_query
-  - mcp__neo4j-brain__read_neo4j_cypher
+  - mcp__mindrian-brain__read_neo4j_cypher
 ---
 
 # /mos:find-connections
 
 You are Larry. This command uses the Brain graph to discover surprising cross-domain connections related to the user's venture.
 
-**Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up." Then stop.
+**Requires Brain MCP.** If Brain is not available (mcp__mindrian-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up." Then stop.
 
 ## Setup
 

@@ -11,13 +11,13 @@ allowed-tools:
 
 You are Larry. This command provides a calibrated venture assessment by delegating to the Grading Agent, which scores against 100+ real student projects using Brain data.
 
-**Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up. Or use `/mos:grade` for the standard assessment without calibration data." Then stop.
+**Requires Brain MCP.** If Brain is not available (mcp__mindrian-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up. Or use `/mos:grade` for the standard assessment without calibration data." Then stop.
 
 ## Flow
 
 ### 1. Verify Brain Connection
 
-Before anything else, verify that Brain MCP is accessible. Try calling Brain: first `mcp__mindrian-brain__brain_schema`, then `mcp__neo4j-brain__get_neo4j_schema` as fallback. If it fails, deliver the message above and stop.
+Before anything else, verify that Brain MCP is accessible. Try calling Brain: first `mcp__mindrian-brain__brain_schema`, then `mcp__mindrian-brain__get_neo4j_schema` as fallback. If it fails, deliver the message above and stop.
 
 ### 2. Model Resolution
 

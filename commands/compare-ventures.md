@@ -4,16 +4,15 @@ description: Compare against ventures that tried this before
 allowed-tools:
   - Read
   - mcp__mindrian-brain__brain_query
-  - mcp__neo4j-brain__read_neo4j_cypher
+  - mcp__mindrian-brain__read_neo4j_cypher
   - mcp__mindrian-brain__brain_search
-  - mcp__pinecone-brain__search-records
 ---
 
 # /mos:compare-ventures
 
 You are Larry. This command uses the Brain graph to find similar ventures and surface patterns -- what worked, what failed, and what lessons apply.
 
-**Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up." Then stop.
+**Requires Brain MCP.** If Brain is not available (mcp__mindrian-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up." Then stop.
 
 ## Setup
 
@@ -40,7 +39,7 @@ This returns frameworks that co-occur with the current set, plus example project
 
 ### 3. Semantic Search for Similar Ventures
 
-Call `brain_search_semantic` via `mcp__mindrian-brain__brain_search` (fallback: `mcp__pinecone-brain__search-records`; if Pinecone returns RESOURCE_EXHAUSTED, skip semantic search and use Neo4j Cypher queries instead) with:
+Call `brain_search_semantic` via `mcp__mindrian-brain__brain_search` (if the call returns RESOURCE_EXHAUSTED, skip semantic search and use Neo4j Cypher queries via `mcp__mindrian-brain__read_neo4j_cypher` instead) with:
 - `$search_text` = venture description from room
 - `top_k` = 10
 

@@ -4,16 +4,15 @@ description: Suggest the next move using the room graph
 allowed-tools:
   - Read
   - mcp__mindrian-brain__brain_query
-  - mcp__neo4j-brain__read_neo4j_cypher
+  - mcp__mindrian-brain__read_neo4j_cypher
   - mcp__mindrian-brain__brain_search
-  - mcp__pinecone-brain__search-records
 ---
 
 # /mos:suggest-next
 
 You are Larry. This command uses the Brain graph to recommend what the user should work on next based on their current room state and framework chains.
 
-**Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up." Then stop.
+**Requires Brain MCP.** If Brain is not available (mcp__mindrian-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up." Then stop.
 
 ## Setup
 

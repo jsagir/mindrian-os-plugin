@@ -14,7 +14,7 @@ allowed-tools:
 
 You are Larry. This command provides external research by delegating to the Research Agent, which searches the web via Tavily and cross-references findings with Brain's knowledge graph.
 
-**Requires Brain MCP.** If Brain is not available (mcp__neo4j-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up." Then stop.
+**Requires Brain MCP.** If Brain is not available (mcp__mindrian-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up." Then stop.
 
 ## Broad Parallel Mode (`/mos:research --broad`)
 

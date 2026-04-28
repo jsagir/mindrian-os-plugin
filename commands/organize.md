@@ -146,7 +146,7 @@ For each room, collect metadata:
 
 **Tier 1 -- Brain + SQLite graph (richest proposals):**
 
-Try calling Brain MCP: `mcp__mindrian-brain__brain_schema` or `mcp__neo4j-brain__get_neo4j_schema`.
+Try calling Brain MCP: `mcp__mindrian-brain__brain_schema` or `mcp__mindrian-brain__get_neo4j_schema`.
 
 If Brain is available, query for cross-room intelligence:
 

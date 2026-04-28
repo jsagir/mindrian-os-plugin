@@ -7,7 +7,7 @@ allowed-tools:
   - Bash
   - Read
   - mcp__mindrian-brain__brain_query
-  - mcp__neo4j-brain__read_neo4j_cypher
+  - mcp__mindrian-brain__read_neo4j_cypher
 ---
 
 # /mos:rs-explain
