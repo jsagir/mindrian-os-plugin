@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 91-08-framework-chain-composition-PLAN.md
-last_updated: "2026-04-27T21:02:31.103Z"
-last_activity: 2026-04-27
+stopped_at: Completed 94-03-brain-mcp-server-resolution-PLAN.md
+last_updated: "2026-04-28T21:04:06.533Z"
+last_activity: 2026-04-28
 progress:
-  total_phases: 28
-  completed_phases: 14
-  total_plans: 143
-  completed_plans: 131
+  total_phases: 30
+  completed_phases: 15
+  total_plans: 153
+  completed_plans: 136
   percent: 82
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 91 — Navigation Engine
+**Current focus:** Phase 94 — v1-11-2-tester-driven-fixer
 
 ## Current Position
 
-Phase: 91 (Navigation Engine) — EXECUTING
-Plan: 10 of 11
+Phase: 94 (v1-11-2-tester-driven-fixer) — EXECUTING
+Plan: 2 of 10
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -71,7 +71,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-04-27
+Last activity: 2026-04-28
 
 Progress: [████████░░] 82%
 
@@ -153,11 +153,13 @@ Progress: [████████░░] 82%
 | Phase 91 P06 | 20 | 2 tasks | 4 files |
 | Phase 91 P07 | 30min | 3 tasks | 4 files |
 | Phase 91 P08 | 7min | 2 tasks | 4 files |
+| Phase 94 P03 | 22min | 4 tasks | 20 files |
 
 ### Roadmap Evolution
 
 - Phase 88.6 inserted after Phase 88: python-algorithm-wiring (URGENT) -- Close orphan-value gap between 15 verified Python algorithms and user-facing product surface. Fixes silent production bug in discover-* pipeline (baseline not auto-fired) and exposes 4 orphan Wave-1 algorithms (surprise, disruption, novelty, blindspot). Evidence: smoke test 2026-04-23 on mindrianOS data room. See CONTEXT.md in phase dir.
 - Phase 88.7 inserted after Phase 88: power-demo-multipage-export (URGENT) -- Ship /mos:power-demo: evidence-grounded multi-page HTML site for first-contact viewers. Consumes 88.6 outputs. 3-door lobby (thesis/intelligence/provenance), persistent sidebar nav, hover tooltips, timeline page, De Stijl rich text. Parallel-safe with phases 89/90/91. Target: Rubos round two demo on mindrianOS room itself. See CONTEXT.md in phase dir.
+- Phase 93 added: v1.11.1 Hotfix -- Install Cache Drift Recovery + Brain Telemetry Visibility (HOTFIX, 3-hour scope). Two production bugs surfaced via dog-fooding during tester onboarding prep. (1) Install cache drift Incident #2 of 2026-04-13 pattern: live install at ~/.claude/plugins/mindrian-os/ stuck on 1.10.10 while marketplace cache had 1.11.0 cached and ready; plugin manager reported "already at latest" while plugin.json said 1.10.10. Affects all users silently. (2) Brain telemetry column-name mismatch: brain-admin.cjs reads request_count + last_used_at; auth.cjs writes total_requests + last_request_at; auth.cjs logUsage() inserts to brain_usage_log with key_id but actual column is api_key. Result: brain_usage_log has 0 rows after 452 captured requests, all silently rejected. Confirmed via Supabase schema probe. Recovery for cache drift executed in current session (mv backup + cp -aT from marketplace cache); restored ~/.claude/plugins/mindrian-os to 1.11.0 with .stale-1.10.10-20260428-095548 backup retained. Phase scope: D1 brain-admin.cjs + auth.cjs column fixes (6 lines, 2 commits), D2 /mos:doctor command with --fix flag for drift detection + auto-recovery, D3 docs/autopsies/2026-04-28-install-cache-drift-incident.md including diagnostic anti-pattern lesson ("don't trust git log when cwd may inherit a parent .git; always git -C <abspath> + test -d <path>/.git first"), D4 regression test for cp -aT recovery, D5 Anthropic upstream bug report draft (held until /mos:doctor exists). Out of scope (deferred to v1.12): /mos:admin narrative command, session-start drift detection extension. Constraints: hotfix discipline (no feature additions, only bug fixes + safety net), same 5-gate release pipeline as v1.11.0.
 
 | Phase 71 P01 | 4min | 2 tasks | 3 files |
 | Phase 71 P02 | 3min | 2 tasks | 2 files |
@@ -496,6 +498,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-27T21:02:20.386Z
-Stopped at: Completed 91-08-framework-chain-composition-PLAN.md
+Last session: 2026-04-28T21:04:06.526Z
+Stopped at: Completed 94-03-brain-mcp-server-resolution-PLAN.md
 Resume file: None

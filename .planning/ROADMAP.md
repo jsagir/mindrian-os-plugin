@@ -82,6 +82,7 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - [x] **Phase 90: Brain Derivation Layer** - Lets the Brain excavate the local triple (Phase 88) and produce a persistent authored BRAIN.md per section with pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, cross-room contradiction flags. Extends triple to quadruple. Graceful degradation when Brain offline. CONTEXT filed. Releases as v1.10.17. (completed 2026-04-24)
 - [x] **Phase 91: Navigation Engine** - L5 Decision layer reading the L3 Navigation substrate (SQL + quadruple memory) to decide which skill/command/framework fires each turn. Five-signal triangulation (ICM + SQL + Feynman-MINTO + BRAIN + intent/persona). Persona durability via USER.md. Visible dial in statusline. /mos:explain-decision command. CONTEXT filed. Destination phase. Releases as v1.11.0-beta.2 (full milestone complete; Justin/Aryeh + wider tester opt-in via `--version 1.11.0-beta.2`; release gate at Plan 91-10 relabeled from v1.11.0 to v1.11.0-beta.2). (completed 2026-04-28)
 - [ ] **Phase 91.5: v1.11.0 Stable Promotion** - After Phase 91 ships v1.11.0-beta.2 AND testers confirm no regressions (~3-5 day soak), promote beta.2 to stable v1.11.0. Tiny phase but real: re-release without -beta suffix. 5-gate: CHANGELOG entry promoting beta.2 to stable + plugin.json 1.11.0 + package.json 1.11.0 + git tag v1.11.0 + marketplace ref pin to v1.11.0. Auto-update channel users get v1.11.0 silently; users on `--version 1.11.0-beta.2` are equivalent (no breaking changes between beta.2 and stable; only the suffix is removed).
+- [ ] **Phase 94: v1.11.2 Tester-Driven Fixer (QA-Rescoped 2026-04-28T19:50Z)** - Hotfix release addressing 4 P0 ship-blockers caught by automated QA harness (rs-fetch broken pipeline + Brain unreachable from /mos:* commands + bundled mcp-server-brain missing deps + WebSearch fallback chain missing) plus Lawrence's loudest UX bugs (94-01 statusline DONE on main; 94-06 room classifier strict-mode pending) plus 3 P1 quick wins (em-dashes wiki.md, U+2717 cross-mark, /mos:explain-decision footer). 10 plans total. Original 13-plan scope archived at .archive-pre-qa-rescope/; deferred items routed to v1.11.3 (P1 polish: body_shape sweep, migration disambig, macOS path audit, FEEDS_INTO schema, verification docs, upstream bug report) and v1.12.0 (new feature surface: 5 methodology commands, persona-aware Pre-Mortem, find-analogies script, tester nudge, multi-room canonical doc). Target: 12-20 hour sprint, 1-2 days. 5-gate release as v1.11.2 with CHANGELOG narrative: "v1.11.2 fixes pipeline-level ship-blockers caught within hours of v1.11.0 launch by an automated QA harness running against the shipped binary."
 
 ## Phase Details
 
@@ -770,3 +771,50 @@ Phases execute in numeric order: 76 -> 77 -> 78 -> 79 -> 80
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 92 to break down)
+
+### Phase 93: v1.11.1 Hotfix: Install Cache Drift Recovery + Brain Telemetry Visibility
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 92
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 93 to break down)
+
+### Phase 94: v1.11.2 Tester-Driven Fixer (QA-Rescoped 2026-04-28T19:50Z)
+
+**Goal:** Ship v1.11.2 as a true hotfix release addressing 4 P0 ship-blockers caught by the automated QA harness running against shipped v1.11.0, plus Lawrence's loudest UX bugs, plus 3 P1 quick wins. Source-of-truth bug list at `~/mos-qa-quantum-v1.11.0/V1.11.2-HOTFIX-HANDOFF.md` (625 lines, 29 KB). Original 13-plan scope archived at `.archive-pre-qa-rescope/`.
+
+**Requirements**:
+- 10 plans (1 SHIPPED, 6 P0, 3 P1, 1 release gate)
+- 4 P0 ship-blockers: rs-fetch thesis-merge handoff bug; Brain MCP-server name resolution; bundled mcp-server-brain missing deps; MCP-stack WebSearch fallback chain
+- 1 P0 Lawrence UX: room classifier strict-mode (statusline already shipped via 94-01)
+- 3 P1 quick wins: em-dashes in commands/wiki.md; U+2717 cross-mark in commands/admin.md + help.md; /mos:explain-decision missing action footer
+- 5-gate release with CHANGELOG narrative leading with "ship-blockers caught by automated QA harness"
+- Verification step pattern added to release docs: `jq -r .version ~/.claude/plugins/mindrian-os/.claude-plugin/plugin.json` expected `1.11.2`
+- Canon Part 8 boundary preserved (no Brain query surface change; only MCP server-name standardization)
+- Three-surface compatibility (CLI + Desktop MCP + Cowork)
+
+**Depends on:** Phase 91 (Navigation Engine shipped); Phase 89.5 (rs-discovery-engine producer-side); Phase 89.2 (4 fetcher modules); existing brain-client.cjs chokepoint; existing 5-gate release pipeline; QA handoff brief.
+
+**Source signals:**
+- QA handoff brief 2026-04-28T19:35Z (~/mos-qa-quantum-v1.11.0/V1.11.2-HOTFIX-HANDOFF.md) -- FIX-1, FIX-2, FIX-3, FIX-4, FIX-5, FIX-7, FIX-8 (also FIX-9, 10, 11 deferred to v1.11.3)
+- Lawrence Aronhime live test transcript 2026-04-28 -- statusline (94-01 DONE), classifier (94-06 pending)
+- Jonathan install-cache drift incident -- routed to v1.11.3 /mos:doctor scope (extended from prior phase work)
+
+**Plans (target, 10 total):**
+- [x] 94-01-statusline-active-room-fix (P0 Lawrence UX) -- SHIPPED on main: commits 567fea8 RED, 93f1cfa GREEN, 906fb18 wire, 18e1751 async parity
+- [x] 94-02-rs-fetch-thesis-merge-fix (P0 ship-blocker, was FIX-1)
+- [x] 94-03-brain-mcp-server-resolution (P0 ship-blocker, was FIX-2)
+- [ ] 94-04-mcp-server-brain-deps (P0 ship-blocker, was FIX-3)
+- [ ] 94-05-mcp-stack-fallback-chain (P0 ship-blocker, was FIX-4)
+- [ ] 94-06-room-classifier-strict-mode (P0 Lawrence UX)
+- [ ] 94-07-em-dashes-wiki-md (P1 quick win, was FIX-5)
+- [ ] 94-08-u2717-cross-mark-replacement (P1 quick win, was FIX-7)
+- [ ] 94-09-explain-decision-action-footer (P1 quick win, was FIX-8)
+- [ ] 94-10-v1.11.2-release-gate (release)
+
+**Deferred to v1.11.3:** body_shape compliance sweep (FIX-6); chain-feeder Mode A guard (FIX-9); NL-to-query intent broaden (FIX-10); migration script disambiguation; macOS hardcoded path audit; FEEDS_INTO vs IS_PART_OF schema; verification docs; Anthropic upstream bug report.
+
+**Deferred to v1.12.0:** 5 new methodology commands (white-space-mapping, market-positioning, innovation-of-meaning, leveraging-resources, four-actions-framework); persona-aware Pre-Mortem; find-analogies script entry point (FIX-11); tester follow-up nudge automation; multi-room canonical context pattern doc.
