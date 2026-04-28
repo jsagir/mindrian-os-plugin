@@ -251,7 +251,10 @@ async function cmdList() {
   header('Brain API Keys');
   console.log(`  ${C.dim}Lists all API keys with status, plan, and usage info.${C.reset}\n`);
 
-  const keys = await supa('GET', 'brain_api_keys?select=email,name,plan,is_active,expires_at,last_used_at,request_count&order=created_at.desc');
+  // NOTE (v1.11.1): Read total_requests + last_request_at — the columns auth.cjs actually
+  // writes to. Earlier code read request_count + last_used_at, which were stale/dead columns
+  // and silently displayed zero for every key. See docs/autopsies/2026-04-28-install-cache-drift-incident.md.
+  const keys = await supa('GET', 'brain_api_keys?select=email,name,plan,is_active,expires_at,last_request_at,total_requests&order=created_at.desc');
 
   if (!Array.isArray(keys) || keys.length === 0) {
     console.log(`  ${C.dim}No keys found.${C.reset}`);
@@ -269,7 +272,7 @@ async function cmdList() {
     const statusPad = k.is_active ? 'active' : 'revoked';
     const email = k.email.length > 28 ? k.email.slice(0, 26) + '..' : k.email;
     const name = (k.name || '').length > 14 ? k.name.slice(0, 12) + '..' : (k.name || '-');
-    console.log(`  ${email.padEnd(30)} ${name.padEnd(16)} ${k.plan.padEnd(8)} ${status}${' '.repeat(10 - statusPad.length)} ${formatDate(k.expires_at).padEnd(28)} ${String(k.request_count).padEnd(10)}`);
+    console.log(`  ${email.padEnd(30)} ${name.padEnd(16)} ${k.plan.padEnd(8)} ${status}${' '.repeat(10 - statusPad.length)} ${formatDate(k.expires_at).padEnd(28)} ${String(k.total_requests || 0).padEnd(10)}`);
   }
 
   console.log(`\n  ${C.dim}Total: ${keys.length} key(s)${C.reset}`);
@@ -280,7 +283,7 @@ async function cmdUsage(flags) {
   header('Brain API Key Usage');
   console.log(`  ${C.dim}Shows request counts and last-used timestamps.${C.reset}\n`);
 
-  let query = 'brain_api_keys?select=email,name,plan,request_count,last_used_at,is_active&order=request_count.desc';
+  let query = 'brain_api_keys?select=email,name,plan,total_requests,last_request_at,is_active&order=total_requests.desc';
   if (flags.email) {
     query += `&email=eq.${encodeURIComponent(flags.email)}`;
   }
@@ -299,8 +302,8 @@ async function cmdUsage(flags) {
     field('Name', k.name || '-');
     field('Plan', k.plan);
     field('Status', status);
-    field('Requests', String(k.request_count));
-    field('Last used', formatLastUsed(k.last_used_at));
+    field('Requests', String(k.total_requests || 0));
+    field('Last used', formatLastUsed(k.last_request_at));
     console.log();
   }
 

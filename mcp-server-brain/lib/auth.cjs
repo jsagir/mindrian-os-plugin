@@ -99,6 +99,12 @@ async function updateKeyRow(id, fields) {
 
 /**
  * Insert a row into brain_usage_log.
+ *
+ * NOTE (v1.11.1): The brain_usage_log table column is `api_key`, not `key_id`.
+ * The previous code passed key_id which Supabase rejected with PGRST204
+ * (column not found). Errors were swallowed by the fire-and-forget .catch()
+ * upstream, so brain_usage_log silently received zero rows after 452 captured
+ * requests across 10 active users. See docs/autopsies/2026-04-28-install-cache-drift-incident.md.
  */
 async function logUsage(keyId, toolName) {
   const url = supabaseUrl('brain_usage_log');
@@ -106,7 +112,7 @@ async function logUsage(keyId, toolName) {
     method: 'POST',
     headers: supabaseHeaders(),
     body: JSON.stringify({
-      key_id: keyId,
+      api_key: keyId,
       tool_name: toolName || 'unknown',
     }),
   });
