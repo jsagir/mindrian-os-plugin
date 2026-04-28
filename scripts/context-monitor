@@ -523,10 +523,28 @@ process.stdin.on('end', () => {
       const legacy = path.join(dir, 'room');
       if (fs.existsSync(legacy)) roomDir = legacy;
     }
-    // Resolve the active room display name from the registry if present,
-    // otherwise fall back to STATE.md project_name or directory basename.
+
+    // Phase 94-01: STATE.md frontmatter current_room is the canonical
+    // active-room source. Statusline is a derived read-only view.
+    // Lawrence Aronhime (2026-04-28) hit "look at the bottom. It still
+    // says core power" 4x in 38 minutes because the prior implementation
+    // derived roomName from a stale source. getCurrentRoom() reads
+    // STATE.md per invocation -- no caching across calls -- so /mos:rooms
+    // switches propagate on the next prompt cycle's natural re-render.
     let roomName = '';
-    if (fs.existsSync(registryPath)) {
+    if (folderMemory && typeof folderMemory.getCurrentRoom === 'function') {
+      try {
+        const cr = folderMemory.getCurrentRoom(dir);
+        if (cr && typeof cr.slug === 'string' && cr.slug.length > 0) {
+          roomName = cr.slug;
+        }
+      } catch (_e) { /* graceful fallback */ }
+    }
+
+    // Fallback chain when STATE.md current_room absent (Tier 0):
+    //   1. Registry rooms[active].name (legacy display name)
+    //   2. Workspace dir basename
+    if (!roomName && fs.existsSync(registryPath)) {
       try {
         const reg = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
         if (reg.active && reg.rooms[reg.active]) {
@@ -538,13 +556,6 @@ process.stdin.on('end', () => {
     if (roomDir) {
       try {
         if (!roomName) roomName = path.basename(dir);
-        const roomState = path.join(roomDir, 'STATE.md');
-
-        if (fs.existsSync(roomState)) {
-          const content = fs.readFileSync(roomState, 'utf8');
-          const nameMatch = content.match(/project_name:\s*(.+)/);
-          if (nameMatch) roomName = nameMatch[1].trim();
-        }
 
         // Walk sections only to find the most recently modified one
         // (the current exploration focus). Everything else about
