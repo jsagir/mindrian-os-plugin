@@ -406,6 +406,31 @@ async function runDiscovery(topic, opts) {
     commercial.push(commercialEntry);
   }
 
+  // Phase 94-02 thesis-merge fix.
+  //
+  // The Phase 4 Synthesis loop above pushes generated thesis strings into
+  // theses[] in lockstep with breakthroughs[]. The downstream writer
+  // (rs-sqlite-mirror.writeDiscovery) declares thesis as a REQUIRED_FIELD
+  // at lib/core/rs-sqlite-mirror.cjs line 61 and rejects any payload
+  // whose thesis is not a non-empty string (validateRequiredFields lines
+  // 121-130). Pre-94-02, breakthroughs[i] never carried thesis, so
+  // writerPayload selection at lines 429-435 dropped it on the floor and
+  // /mos:rs-fetch tier 0 threw TypeError before ever writing a row.
+  //
+  // We fold theses[i] into breakthroughs[i] here, after Phase 4 closes
+  // and before Output Layer reads breakthroughs[0] as writerPayload.
+  // theses[i] is a string on the success path (rs-thesis-generator
+  // line 167-176) and an {error, reason} envelope on validation failure;
+  // we coerce non-string thesis to the same 'no_thesis' sentinel the
+  // empty-fallback branch uses below so the consumer schema is honored
+  // even on degenerate upstream input.
+  for (let i = 0; i < breakthroughs.length; i += 1) {
+    const t = theses[i];
+    breakthroughs[i] = Object.assign({}, breakthroughs[i], {
+      thesis: (typeof t === 'string' && t.length > 0) ? t : 'no_thesis',
+    });
+  }
+
   // Expert mapper resolves authors to Aura nodes (Tier 1) or SQLite
   // (Tier 0). Pass tier hints through opts.
   const expertMapperOpts = {};
@@ -432,6 +457,13 @@ async function runDiscovery(topic, opts) {
         query_concept: (typeof topic === 'string' && topic.length > 0) ? topic : 'topic',
         doc_concept: 'no_results',
         classification: 'structural_transfer',
+        // Phase 94-02: rs-sqlite-mirror REQUIRED_FIELDS line 61 declares
+        // thesis mandatory. Empty-discovery branch carries a sentinel
+        // string (not the plan's locked-decision object stub; consumer
+        // validateRequiredFields requires non-empty string per lines
+        // 121-130 of lib/core/rs-sqlite-mirror.cjs). Producer + consumer
+        // agree on string shape.
+        thesis: 'no_thesis',
       };
 
   let written = null;
