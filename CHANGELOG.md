@@ -9,6 +9,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.11.1-beta.1] - 2026-04-28
+
+Hotfix release surfacing two production bugs caught during dog-fooding by tester onboarding prep. Ships as beta first per the release-infrastructure beta-gating rule (`/mos:doctor` is in the gated list). Promotion to `1.11.1` stable expected after one external user (Lawrence) validates the bundle. Phase 93.
+
+### Why this is a beta
+
+`/mos:doctor` is a new command that performs filesystem mutations (backup-then-replace recovery) when given `--fix`. Per `.claude/includes/release-process.md`: "Release infrastructure ALWAYS ships as a beta first. /mos:doctor, release.sh, pre-push hooks, session-start guards, migration scripts -- all of these go out as X.Y.Z-beta.N". Bug fixes in the bundle are therefore beta-gated for one extra day.
+
+### How to opt into the beta
+
+```bash
+claude plugin update mos@mindrian-marketplace --version 1.11.1-beta.1
+```
+
+Stable users on 1.11.0 are not affected.
+
+### Fixed (Phase 93 D1: Brain telemetry visibility)
+
+- **`mcp-server-brain/brain-admin.cjs`** column-name mismatch (5 occurrences across `cmdList` + `cmdUsage`): read `total_requests` and `last_request_at` instead of stale/dead `request_count` and `last_used_at`. Result: `/mos:admin keys` and `/mos:admin usage` now display real adoption numbers instead of universal zero. Verified post-fix: jsagir Desktop=378, Leah Aronhime=37, Lawrence Aronhime=26, plus six smaller users — matches Supabase ground truth.
+- **`mcp-server-brain/lib/auth.cjs`** `logUsage()` insert column: write to `api_key` instead of nonexistent `key_id`. Previous code silently dropped 452 telemetry events with `PGRST204` errors swallowed by an upstream fire-and-forget `.catch()`. Brain usage log now fills correctly from this release forward; tool-level granularity restored.
+
+### Added (Phase 93 D2: install-cache drift recovery)
+
+- **`/mos:doctor`** new command (`commands/doctor.md` + `scripts/doctor.cjs`). Diagnoses install-cache drift by comparing live install at `~/.claude/plugins/mindrian-os/.claude-plugin/plugin.json` against highest semver in `~/.claude/plugins/cache/mindrian-marketplace/mos/`. Read-only by default (`/mos:doctor`). With `--fix`, performs backup-then-replace recovery: renames stale install to `.stale-<version>-<timestamp>` and copies the latest cached version via `cp -aT`. Verifies post-recovery `plugin.json` matches expected; rolls back on copy failure. Exit codes 0 (healthy) / 1 (drift detected) / 2 (recovered) / 3 (internal error). JSON mode for hooks and regression tests.
+
+### Added (Phase 93 D4: regression test)
+
+- **`scripts/test-doctor-recovery.cjs`** isolated regression test. Builds throwaway test environment via `mkdtemp`, populates fake stale install + multi-version marketplace cache, runs `doctor.cjs` as child process with `HOME` override. 4 test cases, 17 assertions, all passing: drift detection (exit 1) / `--fix` auto-recovery (exit 2 with backup created and stale content preserved) / healthy state no-op (exit 0) / `--fix` on healthy install no-op (exit 0).
+
+### Documented (Phase 93 D3 + D5)
+
+- **`docs/autopsies/2026-04-28-install-cache-drift-incident.md`** captures Incident #2 of the install-cache-drift pattern (15 days after Incident #1 from 2026-04-13) plus the orthogonal Brain telemetry column-name bug. Documents the diagnostic anti-pattern: "don't trust `git log` when cwd may inherit a parent `.git`; always `git -C <abspath>` + `test -d <path>/.git` first." Recovery procedure and prevention measures (shipped vs deferred to v1.12).
+- **`docs/upstream-reports/2026-04-28-claude-plugin-update-misreports-state.md`** Anthropic upstream bug report draft (held until `/mos:doctor` lands, which it does in this release). Documents the symptom: `claude plugin update` reportedly returns "already at latest" while `plugin.json` is multiple versions behind the marketplace cache. Reproduction hypothesis, severity assessment, two reasonable fix paths.
+
+### Out of scope (deferred to v1.12)
+
+- `/mos:admin narrative` command (~150 LOC, feature not bug)
+- Session-start drift detector that auto-runs `/mos:doctor`
+- Workspace guard extended from commit-time to session-start drift detection
+- Telemetry error counter + admin diagnostic surface (replaces silent `console.error`)
+- Schema-drift CI check for brain-admin.cjs read path
+
+### Upgrade path
+
+Beta opt-in (above) lands all four fixes immediately. After Lawrence beta validation, version `1.11.1` (no suffix) supersedes and the standard two-command upgrade path applies:
+
+```bash
+/plugin marketplace update
+claude plugin update mos@mindrian-marketplace
+```
+
 ## [1.11.0] - 2026-04-28
 
 Stable release shipping the Phase 91 Navigation Engine on top of the Phase 89.5 Reverse Salient Discovery surface that was incubated in v1.11.0-beta.1. The beta strategy was retired in favor of a single stable promotion: every v1.10.19 user upgrades atomically to v1.11.0 via the standard two-command upgrade path. Both engines (RS Discovery + Navigation Engine) ship live and integrated. Zero breaking changes. Skill activation remains a no-op when the engine has no opinion, so existing automation continues unchanged.
