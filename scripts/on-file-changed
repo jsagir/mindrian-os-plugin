@@ -13,7 +13,10 @@ PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 FILE_PATH="${1:-${TOOL_INPUT_PATH:-}}"
 
 if [ -z "$FILE_PATH" ]; then
-  printf '{"status": "no_file"}\n'
+  # 95-04: silent on diagnostic paths. FileChanged allows
+  # {continue, stopReason, suppressOutput, systemMessage}; `status` is
+  # not in the set. No message needed for diagnostic exits.
+  # silent: no file path
   exit 0
 fi
 
@@ -22,26 +25,26 @@ WORK_DIR="${PWD}"
 ACTIVE_ROOM=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR" 2>/dev/null) || ACTIVE_ROOM=""
 
 if [ -z "$ACTIVE_ROOM" ]; then
-  printf '{"status": "no_room"}\n'
+  # silent: no active room
   exit 0
 fi
 
 # Only process files within the active room
 case "$FILE_PATH" in
   "${ACTIVE_ROOM}"/*) ;; # File is in active room -- proceed
-  *) printf '{"status": "outside_room"}\n'; exit 0 ;;
+  *) exit 0 ;; # silent: outside room
 esac
 
 # Skip STATE.md and ROOM.md (infrastructure files, not artifacts)
 basename_file=$(basename "$FILE_PATH")
 if [[ "$basename_file" == "STATE.md" ]] || [[ "$basename_file" == "ROOM.md" ]] || [[ "$basename_file" == "TEAM-STATE.md" ]] || [[ "$basename_file" == "MEETINGS-INTELLIGENCE.md" ]]; then
-  printf '{"status": "skipped_infra"}\n'
+  # silent: skipped infra
   exit 0
 fi
 
 # Skip hidden files and directories
 case "$FILE_PATH" in
-  */.*) printf '{"status": "skipped_hidden"}\n'; exit 0 ;;
+  */.*) exit 0 ;; # silent: skipped hidden
 esac
 
 # Delegate to post-write for the full cascade

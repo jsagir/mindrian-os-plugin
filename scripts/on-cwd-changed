@@ -9,6 +9,24 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
+# ---------------------------------------------------------------------------
+# Phase 95-04: CwdChanged envelope helper.
+#
+# Allowed top-level keys per Claude Code 2.x CwdChanged schema:
+#   continue, stopReason, suppressOutput, systemMessage
+# CwdChanged does NOT accept hookSpecificOutput. Pre-fix the success path
+# emitted `{hookSpecificOutput: {hookEventName: "SessionStart", ...}}`
+# which violates the per-event allowed key set.
+# ---------------------------------------------------------------------------
+emit_cwd_changed_envelope() {
+  local msg="$1"
+  if [ -z "$msg" ]; then return 0; fi
+  jq -nc --arg m "$msg" '{
+    systemMessage: $m,
+    suppressOutput: false
+  }'
+}
+
 # New working directory (passed by hook or use PWD)
 NEW_DIR="${1:-$PWD}"
 
@@ -34,8 +52,9 @@ if [ -z "$NEW_ROOM" ]; then
 fi
 
 if [ -z "$NEW_ROOM" ]; then
-  # No room at new directory -- nothing to switch
-  printf '{"status": "no_room"}\n'
+  # 95-04: silent on diagnostic paths. CwdChanged does not accept
+  # status at root. No message needed for the no-room case.
+  # silent: no room at new directory
   exit 0
 fi
 
@@ -43,8 +62,7 @@ fi
 OLD_ROOM=$("${SCRIPT_DIR}/resolve-room" "$PWD" 2>/dev/null) || OLD_ROOM=""
 
 if [ "$NEW_ROOM" = "$OLD_ROOM" ]; then
-  # Same room -- no switch needed
-  printf '{"status": "same_room"}\n'
+  # silent: same room - no switch needed
   exit 0
 fi
 
@@ -109,13 +127,20 @@ escaped_context=$(escape_for_json "$context")
 # Track room switch in analytics
 bash "${SCRIPT_DIR}/track-analytics" room-switch 2>/dev/null &
 
-# Output context injection
+# Phase 95-04: CwdChanged does NOT accept hookSpecificOutput per the
+# Claude Code 2.x schema. Stdout carries only systemMessage. The full
+# room state is no longer surfaced through stdout, but the next
+# SessionStart fires anyway and re-injects active-room context.
+#
+# Phase 95-01 audit: this Cursor branch (CURSOR_PLUGIN_ROOT-gated) is
+# invalid for Claude Code 2.x but valid for Cursor's hook system. The
+# divergence is intentional. See .planning/phases/95-bash-hook-envelope-and-cascade-side-channel/95-01-AUDIT.md row #9.
 if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
+  # Cursor branch: kept for compatibility. See 95-01-AUDIT.md row #9.
   printf '{\n  "additional_context": "%s"\n}\n' "$escaped_context"
-elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
-  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$escaped_context"
 else
-  printf '{\n  "additional_context": "%s"\n}\n' "$escaped_context"
+  # Claude path: schema-compliant CwdChanged envelope (systemMessage only).
+  emit_cwd_changed_envelope "Switched to room: ${room_name}"
 fi
 
 exit 0

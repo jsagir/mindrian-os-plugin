@@ -23,12 +23,34 @@ portable_find_mtime() {
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
+# ---------------------------------------------------------------------------
+# Phase 95-04: SubagentStop envelope helper.
+#
+# Allowed top-level keys per Claude Code 2.x SubagentStop schema:
+#   continue, stopReason, suppressOutput, systemMessage, decision, reason,
+#   hookSpecificOutput
+# SubagentStop accepts hookSpecificOutput.additionalContext (with
+# hookEventName: "SubagentStop"). Pre-fix the script emitted
+# {"status": "..."} shapes; `status` is not in the allowed set.
+# ---------------------------------------------------------------------------
+emit_subagent_stop_envelope() {
+  local msg="$1"
+  if [ -z "$msg" ]; then return 0; fi
+  jq -nc --arg m "$msg" '{
+    hookSpecificOutput: {
+      hookEventName: "SubagentStop",
+      additionalContext: $m
+    }
+  }'
+}
+
 # Resolve active room
 WORK_DIR="${PWD}"
 ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR" 2>/dev/null) || ROOM_DIR=""
 
 if [ ! -d "$ROOM_DIR" ]; then
-  printf '{"status": "no_room"}\n'
+  # 95-04: silent on diagnostic paths.
+  # silent: no active room
   exit 0
 fi
 
@@ -53,7 +75,7 @@ while IFS= read -r line; do
 done < <(portable_find_mtime "$ROOM_DIR" -name "*.md" -not -name "STATE.md" -not -name "ROOM.md" -not -name "TEAM-STATE.md" -not -name "MEETINGS-INTELLIGENCE.md" -not -path "*/.mindrian/*" -not -path "*/.intelligence/*" 2>/dev/null | sort -rn | head -20)
 
 if [ ${#modified_files[@]} -eq 0 ]; then
-  printf '{"status": "no_modified_files"}\n'
+  # silent: no modified files in cutoff window
   exit 0
 fi
 
@@ -71,8 +93,14 @@ for file_path in "${modified_files[@]}"; do
     */.*) continue ;;
   esac
 
-  # Run post-write cascade in background for each file
-  bash "${SCRIPT_DIR}/post-write" "$file_path" 2>/dev/null &
+  # Run post-write cascade in background for each file. Redirect BOTH
+  # stdout and stderr to /dev/null so the post-write hook's own envelope
+  # (PostToolUse hookSpecificOutput) does not leak into on-agent-complete's
+  # stdout, which carries the SubagentStop envelope. Without this, the
+  # consumer would receive a multi-line stream that no longer parses as a
+  # single JSON object. Rule 3 (Blocking) fix discovered in Plan 95-04
+  # Task 2 GREEN test run.
+  bash "${SCRIPT_DIR}/post-write" "$file_path" >/dev/null 2>&1 &
   cascade_count=$((cascade_count + 1))
 done
 
@@ -85,6 +113,9 @@ done
 # Track subagent completion
 bash "${SCRIPT_DIR}/track-analytics" agent-complete 2>/dev/null &
 
-printf '{"status": "cascaded", "files_processed": %d}\n' "$cascade_count"
+# 95-04: schema-compliant SubagentStop envelope. The cascade summary lives
+# in hookSpecificOutput.additionalContext (allowed for SubagentStop per the
+# Claude Code 2.x schema).
+emit_subagent_stop_envelope "agent cascade: $cascade_count files processed"
 
 exit 0

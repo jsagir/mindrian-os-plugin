@@ -19,12 +19,31 @@ portable_stat_mtime() {
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
+# ---------------------------------------------------------------------------
+# Phase 95-04: TaskCompleted envelope helper.
+#
+# Allowed top-level keys per Claude Code 2.x TaskCompleted schema:
+#   continue, stopReason, suppressOutput, systemMessage, decision, reason
+# TaskCompleted does NOT accept hookSpecificOutput. Pre-fix the success
+# path emitted `{hookSpecificOutput: {hookEventName: "TaskCompleted", ...}}`
+# which is invalid even with the correct hookEventName.
+# ---------------------------------------------------------------------------
+emit_task_completed_envelope() {
+  local msg="$1"
+  if [ -z "$msg" ]; then return 0; fi
+  jq -nc --arg m "$msg" '{
+    systemMessage: $m,
+    suppressOutput: false
+  }'
+}
+
 # Resolve active room
 WORK_DIR="${PWD}"
 ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR" 2>/dev/null) || ROOM_DIR=""
 
 if [ ! -d "$ROOM_DIR" ]; then
-  printf '{"status": "no_room"}\n'
+  # 95-04: silent on diagnostic paths.
+  # silent: no active room
   exit 0
 fi
 
@@ -150,13 +169,22 @@ if [ -n "$context" ]; then
 
   escaped_context=$(escape_for_json "$context")
 
-  if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
-    printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "TaskCompleted",\n    "additionalContext": "%s"\n  }\n}\n' "$escaped_context"
-  else
+  # Phase 95-04: TaskCompleted does NOT accept hookSpecificOutput per
+  # authoritative docs. Stdout carries only systemMessage.
+  #
+  # Phase 95-01 audit: this Cursor branch (CURSOR_PLUGIN_ROOT-gated) is
+  # invalid for Claude Code 2.x but valid for Cursor's hook system. The
+  # divergence is intentional. See .planning/phases/95-bash-hook-envelope-and-cascade-side-channel/95-01-AUDIT.md row #11.
+  if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
+    # Cursor branch: kept for compatibility. See 95-01-AUDIT.md row #11.
     printf '{\n  "additional_context": "%s"\n}\n' "$escaped_context"
+  else
+    # Claude path: schema-compliant TaskCompleted envelope (no hSO).
+    emit_task_completed_envelope "$context"
   fi
 else
-  printf '{"status": "ok", "venture_stage": "%s"}\n' "${venture_stage:-unknown}"
+  # silent: no staleness/readiness summary to surface
+  :
 fi
 
 exit 0

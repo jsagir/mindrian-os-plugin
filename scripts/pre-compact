@@ -21,14 +21,37 @@ portable_find_mtime() {
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
+# ---------------------------------------------------------------------------
+# Phase 95-04: PreCompact envelope helper.
+#
+# Allowed top-level keys per Claude Code 2.x PreCompact schema:
+#   continue, stopReason, suppressOutput, systemMessage, decision, reason,
+#   hookSpecificOutput
+#
+# Recommended emission: { systemMessage: $msg, suppressOutput: false }.
+# Empty input -> silent (zero bytes). Non-empty -> single JSON line.
+# Mirrors Plan 95-02's emit_post_tool_use_envelope pattern; per-event
+# inner shape differs because PreCompact has no required hookEventName
+# additionalContext channel.
+# ---------------------------------------------------------------------------
+emit_pre_compact_envelope() {
+  local msg="$1"
+  if [ -z "$msg" ]; then return 0; fi
+  jq -nc --arg m "$msg" '{
+    systemMessage: $m,
+    suppressOutput: false
+  }'
+}
+
 # Determine working directory and resolve active room
 WORK_DIR="${PWD}"
 ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR") || ROOM_DIR=""
 
 if [ ! -d "$ROOM_DIR" ]; then
   # No room -- nothing to preserve
-  # 88.1-03: systemMessage retrofit -- always announce what pre-compact did.
-  printf '{"status": "no_room", "systemMessage": "pre-compact: no active room, nothing to preserve"}\n'
+  # 95-04: schema-compliant envelope (systemMessage only; status root key
+  # was rejected by Claude Code 2.x's additionalProperties:false rule).
+  emit_pre_compact_envelope "pre-compact: no active room, nothing to preserve"
   exit 0
 fi
 
@@ -241,6 +264,10 @@ fi
 ROOM_SLUG=$(basename "${ROOM_DIR}" 2>/dev/null || echo "unknown")
 SYSTEM_MESSAGE="triple snapshot written for ${ROOM_SLUG} (${SECTION_COUNT} sections)"
 
-printf '{"status": "saved", "file": "%s", "systemMessage": "%s"}\n' "$SAVE_FILE" "$SYSTEM_MESSAGE"
+# 95-04: schema-compliant envelope (systemMessage only). The $SAVE_FILE path
+# is no longer surfaced in stdout because `file` is not in the PreCompact
+# allowed key set. Callers who need the path read STATE.md or grep
+# ~/.mindrian/bridge/.
+emit_pre_compact_envelope "$SYSTEM_MESSAGE"
 
 exit 0

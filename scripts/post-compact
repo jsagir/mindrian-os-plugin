@@ -20,6 +20,57 @@ portable_stat_mtime() {
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
+# ---------------------------------------------------------------------------
+# Phase 95-04: PostCompact envelope + side-channel helpers.
+#
+# Allowed top-level keys per Claude Code 2.x PostCompact schema:
+#   continue, stopReason, suppressOutput, systemMessage
+# PostCompact does NOT accept hookSpecificOutput (per 95-RESEARCH.md
+# Section 2 + authoritative docs verified 2026-04-29). Pre-fix the script
+# emitted `{hookSpecificOutput: {hookEventName: "SessionStart", ...}}`
+# which violates the per-event allowed key set on TWO counts (hSO not
+# accepted; hookEventName "SessionStart" wrong even if it were).
+#
+# The full restored context that used to be carried as additionalContext
+# relocates to <roomDir>/.mindrian/last-post-compact.md (atomic mktemp +
+# mv -f, mirroring Plan 95-02's cascade side-channel writer). This is
+# WRITE-ONLY in Phase 95; the CONSUMER (next session-start reading the
+# file) is deferred to Phase 95.5+. Plan 95-05 CHANGELOG ### Audit Notes
+# explicitly discloses the half-wired status per release-process.md
+# transparency.
+# ---------------------------------------------------------------------------
+
+# Emit a Claude Code 2.x compliant PostCompact envelope. Empty input ->
+# silent. Non-empty -> single JSON line with systemMessage only.
+emit_post_compact_envelope() {
+  local msg="$1"
+  if [ -z "$msg" ]; then return 0; fi
+  jq -nc --arg m "$msg" '{
+    systemMessage: $m,
+    suppressOutput: false
+  }'
+}
+
+# Write the full restored context to <roomDir>/.mindrian/last-post-compact.md
+# atomically. Soft-fail at every step. Markdown plain-text (NOT JSON) since
+# the future consumer will inject the block as additionalContext or read it
+# verbatim. Same atomic pattern as Plan 95-02 cascade side-channel writer.
+write_post_compact_side_channel() {
+  local room_dir="$1"
+  local restored_context="$2"
+
+  [ -z "$room_dir" ] && return 0
+  [ -z "$restored_context" ] && return 0
+
+  local side_dir="$room_dir/.mindrian"
+  mkdir -p "$side_dir" 2>/dev/null || return 0
+
+  local tmp
+  tmp=$(mktemp "$side_dir/.last-post-compact.md.XXXXXX" 2>/dev/null) || return 0
+  printf '%s\n' "$restored_context" > "$tmp" 2>/dev/null || { rm -f "$tmp" 2>/dev/null; return 0; }
+  mv -f "$tmp" "$side_dir/last-post-compact.md" 2>/dev/null || { rm -f "$tmp" 2>/dev/null; return 0; }
+}
+
 SAVE_DIR="$HOME/.mindrian/bridge"
 mkdir -p "$SAVE_DIR"
 SAVE_FILE="$SAVE_DIR/pre-compact-state.json"
@@ -275,14 +326,26 @@ ROOM_SLUG_POSTC=$(basename "${ROOM_DIR:-unknown}" 2>/dev/null || echo "unknown")
 POSTC_SYSMSG="restored TRIPLE_CONTEXT for ${ROOM_SLUG_POSTC} (${POST_SECTION_COUNT} sections from pre-compact snapshot)"
 escaped_postc_sysmsg=$(escape_for_json "$POSTC_SYSMSG")
 
-# Output context injection
-# 88.1-03: systemMessage sibling added alongside additionalContext.
+# Phase 95-04: PostCompact does NOT accept hookSpecificOutput per the
+# Claude Code 2.x schema. Stdout carries only a brief systemMessage; the
+# full restored context lands in the side-channel file for forward
+# compatibility. The CONSUMER (next session-start reading this file) is
+# NOT YET WIRED in Phase 95 - deferred to Phase 95.5 or 96. Plan 95-05
+# CHANGELOG explicitly discloses the half-wired status per
+# release-process.md transparency.
+write_post_compact_side_channel "$ROOM_DIR" "$context"
+
+# Phase 95-01 audit: this Cursor branch (CURSOR_PLUGIN_ROOT-gated) is
+# invalid for Claude Code 2.x but valid for Cursor's hook system. The
+# divergence is intentional. See .planning/phases/95-bash-hook-envelope-and-cascade-side-channel/95-01-AUDIT.md row #4.
 if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
+  # Cursor branch: kept for compatibility (gated by CURSOR_PLUGIN_ROOT).
+  # Cursor's hook system tolerates additional_context; it is invalid for
+  # Claude Code 2.x but never fires inside Claude Code.
   printf '{\n  "additional_context": "%s",\n  "systemMessage": "%s"\n}\n' "$escaped_context" "$escaped_postc_sysmsg"
-elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
-  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  },\n  "systemMessage": "%s"\n}\n' "$escaped_context" "$escaped_postc_sysmsg"
 else
-  printf '{\n  "additional_context": "%s",\n  "systemMessage": "%s"\n}\n' "$escaped_context" "$escaped_postc_sysmsg"
+  # Claude path: schema-compliant PostCompact envelope (systemMessage only).
+  emit_post_compact_envelope "$POSTC_SYSMSG"
 fi
 
 exit 0
