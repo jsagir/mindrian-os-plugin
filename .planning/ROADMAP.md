@@ -830,3 +830,34 @@ Plans:
 - [x] 94.1-01 mos-heal-command (commits 9585db4 RED, 3934198 GREEN orchestrator, c2d2c97 slash command, d22dc6a install doc, SUMMARY)
 
 **Outcome:** /mos:heal ships as v1.11.1 GA closing artifact. 10-step orchestrator wraps 4 shipped scripts (migrate-lazygraph, vault-section-state-generator, vault-section-minto-generator, compute-state) per Canon Part 7 reuse-before-build. heal-log.json envelope captures cascade as graph data per Canon Part 4. LOCAL-only operation per Canon Part 8 (brain-derivation-queue read-only; drain deferred to v1.12). 6/6 fixture tests green; Feynman runner advanced 106 -> 107. Three v1.12 candidates filed in deferred-items.md with explicit re-trigger conditions (BUG-1 FEYNMINTO budget; BUG-2 brain-queue drain; BUG-5 auto-section-scaffold).
+
+### Phase 95: Bash Hook Envelope Hygiene + Cascade Side-Channel (PLANNED 2026-04-29)
+
+**Goal:** Fix bash `scripts/post-write` PostToolUse envelope to be schema-valid; relocate cascade payload to a LOCAL side-channel file at `<roomDir>/.mindrian/last-cascade.json`; restore the silently-broken-since-Phase-88.1-03 mid-session intelligence injection feature in `skills/room-proactive/SKILL.md`; audit and fix the 6 other schema-violating bash hooks (pre-compact, post-compact, on-file-changed, on-cwd-changed, on-agent-complete, on-task-complete) found by the 95-01 audit; extend `tests/test-hook-envelope-shape.cjs` to fence all bash hook stdout shapes per lifecycle event; ship as v1.12.0 (the SKILL.md restoration is a Changed feature, not just Fixed).
+
+**Requirements:** [BASH-95-01, BASH-95-02, BASH-95-03, BASH-95-04, BASH-95-05, BASH-95-06, BASH-95-07]
+
+**Depends on:** Phase 94 (v1.11.2 release - shipped 2026-04-29; Phase 95 is the FIRST work after v1.11.2 lands per decision-phase-95-sequencing.md).
+
+**Source signals:**
+- Original symptom: `PostToolUse:Write hook error - Hook JSON output validation failed - (root): Invalid input` reported 2026-04-29.
+- Investigation: `.planning/debug/post-write-hook-envelope-invalid-input.md`.
+- v1.11.2 patched the two `.cjs` PostToolUse hooks (Phase 94). The bash hook + cascade side-channel were intentionally deferred to keep that release tight.
+- 95-RESEARCH.md Section 4 audit pre-found 6 additional schema-violating bash hooks beyond `post-write`.
+
+**Plans (target, 5 total):**
+- [ ] 95-01-bash-hook-envelope-audit-report (audit; produces 95-01-AUDIT.md)
+- [ ] 95-02-post-write-side-channel-writer (post-write fix + atomic side-channel writer)
+- [ ] 95-03-room-proactive-skill-cascade-restoration (SKILL.md contract update; cool-UI cascade render)
+- [ ] 95-04-bash-hooks-envelope-fix-batch (apply audit findings to 6 schema-violating hooks; spot-audit 2 .cjs wrappers; extend regression test)
+- [ ] 95-05-regression-test-extension-and-release-gate (full suite + 5-gate release v1.12.0)
+
+**Acceptance criteria** (from 95-CONTEXT.md):
+- A1: Bash post-write emits schema-valid envelope.
+- A2: `<roomDir>/.mindrian/last-cascade.json` written atomically on every cascade.
+- A3: SKILL.md reads side-channel; mid-session intelligence injection observable.
+- A4: All 9 other bash hooks audited; envelope bugs fixed in this phase (no split to 95.2).
+- A5: Regression test fences all bash hook stdout shapes per-event.
+- A6: CHANGELOG entries (Fixed for envelope hygiene + Changed for restored room-proactive feature).
+- A7: Version bump 1.11.2 -> 1.12.0.
+
