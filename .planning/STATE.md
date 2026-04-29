@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 94.1-01-mos-heal-command-PLAN.md
-last_updated: "2026-04-29T10:51:46.745Z"
+stopped_at: Completed 95-01-bash-hook-envelope-audit-report-PLAN.md
+last_updated: "2026-04-29T18:54:09.773Z"
 last_activity: 2026-04-29
 progress:
-  total_phases: 31
+  total_phases: 32
   completed_phases: 16
-  total_plans: 154
-  completed_plans: 143
+  total_plans: 159
+  completed_plans: 144
   percent: 82
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 94 — v1-11-2-tester-driven-fixer
+**Current focus:** Phase 95 — bash-hook-envelope-and-cascade-side-channel
 
 ## Current Position
 
-Phase: 94.1
-Plan: Not started
+Phase: 95 (bash-hook-envelope-and-cascade-side-channel) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -158,6 +158,7 @@ Progress: [████████░░] 82%
 | Phase 94-v1-11-2-tester-driven-fixer P05 | 35min | 5 tasks | 9 files |
 | Phase 94-v1-11-2-tester-driven-fixer P06 | 71min | 3 tasks | 5 files |
 | Phase 94-v1-11-2-tester-driven-fixer P09 | 14min | 3 tasks | 3 files |
+| Phase 95 P01 | 4min | 3 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -486,6 +487,8 @@ Progress: [████████░░] 82%
 - [Phase 94-v1-11-2-tester-driven-fixer]: 94-05: Approach A injection-seam pattern (opts.tavily/webSearch/cacheReader) wires Anthropic native WebSearch as the universal fallback floor for rs-fetcher-industry; envelope wrap on academic+patents+experts; Section-8 trace web_research_tier field; commands/research.md hard-stop removed
 - [Phase 94-v1-11-2-tester-driven-fixer]: Plan 94-06: room classifier strict-mode override (numeric / explicit slug / quoted exact name) wired at top of intent-classifier.cjs room-resolution path; routing_source: 'strict_mode' graph edge per Canon Part 4. Pure-function helper module under lib/core/ allows test access without booting classifier hot path. 3 of 4 Lawrence callouts fenced; callout 4 (natural language 'the curriculum room') deferred to v1.11.3.
 - [Phase 94-v1-11-2-tester-driven-fixer]: Plan 94-09: action footer for /mos:explain-decision wired into all 7 exit paths via actionFooter() helper; 4-zone rule satisfied; 4/4 fixture tests; renderTrace prefix byte-identical to pre-94-09 (Plan 91-05 14/14 tests preserved)
+- [Phase 95]: Phase 95 do NOT split to 95.2 - 6 extra envelope bugs found but mechanically uniform fixes; single Plan 95-04 absorbs without quality loss
+- [Phase 95]: Cursor-branch divergence in 4 hooks left as-is per CLAUDE.md tri-polar rule (CLI/Desktop/Cowork only); CURSOR_PLUGIN_ROOT-gated branches never fire inside Claude Code
 
 ### Pending Todos
 
@@ -507,6 +510,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-29T10:37:36.228Z
-Stopped at: Completed 94.1-01-mos-heal-command-PLAN.md
+Last session: 2026-04-29T18:54:09.763Z
+Stopped at: Completed 95-01-bash-hook-envelope-audit-report-PLAN.md
 Resume file: None

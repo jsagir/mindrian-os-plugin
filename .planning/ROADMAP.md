@@ -846,7 +846,7 @@ Plans:
 - 95-RESEARCH.md Section 4 audit pre-found 6 additional schema-violating bash hooks beyond `post-write`.
 
 **Plans (target, 5 total):**
-- [ ] 95-01-bash-hook-envelope-audit-report (audit; produces 95-01-AUDIT.md)
+- [x] 95-01-bash-hook-envelope-audit-report (audit; produces 95-01-AUDIT.md)
 - [ ] 95-02-post-write-side-channel-writer (post-write fix + atomic side-channel writer)
 - [ ] 95-03-room-proactive-skill-cascade-restoration (SKILL.md contract update; cool-UI cascade render)
 - [ ] 95-04-bash-hooks-envelope-fix-batch (apply audit findings to 6 schema-violating hooks; spot-audit 2 .cjs wrappers; extend regression test)
