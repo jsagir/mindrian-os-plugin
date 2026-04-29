@@ -117,8 +117,8 @@
 
 ## Bash Hook Envelope Hygiene + Cascade Side-Channel (BASH-95)
 
-- [ ] **BASH-95-01**: Bash `scripts/post-write` emits a Claude Code 2.x schema-valid PostToolUse envelope - top-level keys subset of `{decision, reason, continue, stopReason, suppressOutput, systemMessage, hookSpecificOutput}`; `additionalContext` lives ONLY inside `hookSpecificOutput`.
-- [ ] **BASH-95-02**: `<roomDir>/.mindrian/last-cascade.json` is written atomically on every successful cascade; payload contains 7 documented keys (timestamp, file_path, section, cascade_status, classification, git_commit, graph_index, proactive_intelligence); LOCAL-only per Canon Part 8.
+- [x] **BASH-95-01**: Bash `scripts/post-write` emits a Claude Code 2.x schema-valid PostToolUse envelope - top-level keys subset of `{decision, reason, continue, stopReason, suppressOutput, systemMessage, hookSpecificOutput}`; `additionalContext` lives ONLY inside `hookSpecificOutput`.
+- [x] **BASH-95-02**: `<roomDir>/.mindrian/last-cascade.json` is written atomically on every successful cascade; payload contains 7 documented keys (timestamp, file_path, section, cascade_status, classification, git_commit, graph_index, proactive_intelligence); LOCAL-only per Canon Part 8.
 - [ ] **BASH-95-03**: `skills/room-proactive/SKILL.md` OLD cascade detection contract (current lines 80-113, including the `## Mid-Session Intelligence` block AND the `## After Filing: Decision Capture` introduction + `### When to Present` block which carry OLD `cascade_status.proactive_intelligence` framing) replaced with side-channel reader contract; the prose APPROVE/REJECT/DEFER renderer (`### How to Present` heading through `Do NOT follow up...` line - current lines 114-160) preserved BYTE-IDENTICAL via anchored-diff verification; mid-session intelligence injection (Phase 88.1-03 feature) functions in production for the first time since shipped.
 - [ ] **BASH-95-04**: All 9 other bash hooks (session-start, pre-compact, post-compact, on-stop, write-scope-check, intent-classifier, on-file-changed, on-cwd-changed, on-agent-complete, on-task-complete) audited per lifecycle event; envelope violations fixed.
 - [ ] **BASH-95-05**: `tests/test-hook-envelope-shape.cjs` extended to fence ALL bash hook stdout shapes by lifecycle event (per-event allowed-key sets enforced).
@@ -222,8 +222,8 @@
 | IMPORT-10 | Phase 80 | Complete |
 | IMPORT-11 | Phase 80 | Complete |
 | IMPORT-12 | Phase 80 | Complete |
-| BASH-95-01 | Phase 95 | Pending |
-| BASH-95-02 | Phase 95 | Pending |
+| BASH-95-01 | Phase 95 | Complete |
+| BASH-95-02 | Phase 95 | Complete |
 | BASH-95-03 | Phase 95 | Pending |
 | BASH-95-04 | Phase 95 | Pending |
 | BASH-95-05 | Phase 95 | Pending |

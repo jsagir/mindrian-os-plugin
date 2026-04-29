@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 95-01-bash-hook-envelope-audit-report-PLAN.md
-last_updated: "2026-04-29T18:54:09.773Z"
+stopped_at: Completed 95-02-post-write-side-channel-writer-PLAN.md
+last_updated: "2026-04-29T18:57:31.295Z"
 last_activity: 2026-04-29
 progress:
   total_phases: 32
   completed_phases: 16
   total_plans: 159
-  completed_plans: 144
+  completed_plans: 145
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 95 (bash-hook-envelope-and-cascade-side-channel) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -159,6 +159,7 @@ Progress: [████████░░] 82%
 | Phase 94-v1-11-2-tester-driven-fixer P06 | 71min | 3 tasks | 5 files |
 | Phase 94-v1-11-2-tester-driven-fixer P09 | 14min | 3 tasks | 3 files |
 | Phase 95 P01 | 4min | 3 tasks | 4 files |
+| Phase 95 P02 | 6min26s | 2 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -489,6 +490,9 @@ Progress: [████████░░] 82%
 - [Phase 94-v1-11-2-tester-driven-fixer]: Plan 94-09: action footer for /mos:explain-decision wired into all 7 exit paths via actionFooter() helper; 4-zone rule satisfied; 4/4 fixture tests; renderTrace prefix byte-identical to pre-94-09 (Plan 91-05 14/14 tests preserved)
 - [Phase 95]: Phase 95 do NOT split to 95.2 - 6 extra envelope bugs found but mechanically uniform fixes; single Plan 95-04 absorbs without quality loss
 - [Phase 95]: Cursor-branch divergence in 4 hooks left as-is per CLAUDE.md tri-polar rule (CLI/Desktop/Cowork only); CURSOR_PLUGIN_ROOT-gated branches never fire inside Claude Code
+- [Phase 95]: Side-channel cascade payload at <roomDir>/.mindrian/last-cascade.json with atomic mktemp+mv-f write; bash post-write emits hookSpecificOutput.additionalContext envelope only
+- [Phase 95]: Test sandbox uses MINDRIAN_ROOMS_HOME + Strategy-0 .rooms/registry.json so post-write active-room guard recognizes synthetic room and lets cascade fire
+- [Phase 95]: Dog-food smoke step deferred per CLAUDE.md Decision #16 nested-structure rule; regression test fixtures provide equivalent evidence via spawnSync
 
 ### Pending Todos
 
@@ -510,6 +514,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-29T18:54:09.763Z
-Stopped at: Completed 95-01-bash-hook-envelope-audit-report-PLAN.md
+Last session: 2026-04-29T18:57:21.818Z
+Stopped at: Completed 95-02-post-write-side-channel-writer-PLAN.md
 Resume file: None
