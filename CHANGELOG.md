@@ -9,6 +9,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.12.0] - 2026-04-29
+
+Closes Phase 95. Brings 7 bash hooks into Claude Code 2.x per-event envelope-schema compliance. Restores the Phase 88.1-03 mid-session intelligence injection feature that has been silently broken since it shipped. Cascade payload relocates to a LOCAL side-channel JSON file at `<roomDir>/.mindrian/last-cascade.json` (Canon Part 8 LOCAL-only). 3 new regression tests fence the contracts. Three-surface compatible (CLI / Desktop MCP / Cowork) via shared hooks bundle.
+
+This is a feature-restoration release. The room-proactive skill's APPROVE/REJECT/DEFER cascade flow now actually fires. Users who have lived with silence on this surface for months should expect cross-section impact prompts (gap / contradiction / convergence) after Write/Edit/MultiEdit inside a recognized Data Room section.
+
+### Changed
+
+- **Mid-session intelligence injection (Phase 88.1-03 feature) now functions in production for the first time since shipped.** The `room-proactive` skill receives cascade findings from `<roomDir>/.mindrian/last-cascade.json` after every Write/Edit/MultiEdit cascade. Expect cross-section impact prompts (gap / contradiction / convergence) after writes inside a recognized Data Room section. The prose APPROVE/REJECT/DEFER decision flow is unchanged; only the data source is fixed. To suppress, see `/mos:skills disable room-proactive`. (Plan 95-03)
+- **room-proactive cascade-finding render adopts the cool-UI style canon.** Banner with thin horizontal rules + status grid with glyph vocabulary + soft prose explanation. NO emoji, NO em-dashes. Mirrors `.planning/research/cool-ui-style-reference.md`. (Plan 95-03)
+
+### Fixed
+
+- **Bash `scripts/post-write` PostToolUse envelope hygiene.** Replaced 6-key root JSON envelope (`cascade_status`, `classification`, `git_commit`, `graph_index`, `proactive_intelligence`, `systemMessage`) with the schema-compliant `{hookSpecificOutput: {hookEventName: "PostToolUse", additionalContext: <one-line>}}`. Mirrors the v1.10.19 / v1.11.2 reference patches. Stops "Hook JSON output validation failed" errors on every cascade. (Plan 95-02)
+- **Bash `scripts/pre-compact` PreCompact envelope hygiene.** Replaced `{"status": ..., "file": ...}` root keys with `{systemMessage}`. (Plan 95-04)
+- **Bash `scripts/post-compact` PostCompact envelope hygiene.** PostCompact does NOT accept `hookSpecificOutput` per Claude Code 2.x schema; replaced with `{systemMessage}` only. Full restored context relocates to `<roomDir>/.mindrian/last-post-compact.md` side-channel. (Plan 95-04)
+- **Bash `scripts/on-file-changed` FileChanged envelope hygiene.** All 5 diagnostic-path emissions converted to silent exits (FileChanged accepts only `{continue, stopReason, suppressOutput, systemMessage}`; status root key violated schema). (Plan 95-04)
+- **Bash `scripts/on-cwd-changed` CwdChanged envelope hygiene.** Replaced `{"status": ...}` and `hookSpecificOutput` (CwdChanged does not accept hSO) with `{systemMessage: "Switched to room: <slug>"}`. (Plan 95-04)
+- **Bash `scripts/on-agent-complete` SubagentStop envelope hygiene.** Replaced `{"status": "cascaded", "files_processed": ...}` root keys with `{hookSpecificOutput: {hookEventName: "SubagentStop", additionalContext: ...}}`. Background post-write child stdout redirected to /dev/null to prevent dual-JSON parent-stream collision. (Plan 95-04)
+- **Bash `scripts/on-task-complete` TaskCompleted envelope hygiene.** TaskCompleted does NOT accept `hookSpecificOutput` per docs; replaced with `{systemMessage}` only. Status root keys removed. (Plan 95-04)
+
+### Added
+
+- **`<roomDir>/.mindrian/last-cascade.json` cascade payload side-channel file.** Atomic-write-via-mktemp-and-rename(2) inside the room's `.mindrian/` directory. LOCAL-only per Canon Part 8; never network. Contains classification + gitCommit + graphIndex + proactiveIntelligence (with newFindings array). Read by the `room-proactive` skill on cascade completion. (Plan 95-02)
+- **`<roomDir>/.mindrian/last-post-compact.md` post-compaction context side-channel file.** Mirrors the cascade side-channel pattern; preserves the full restored context that PostCompact's stdout-only schema cannot carry. Consumed by next session-start when needed. (Plan 95-04)
+- **`tests/test-cascade-side-channel.cjs` regression fence.** 5 scenarios fencing bash post-write envelope shape + atomic side-channel write. (Plan 95-02)
+- **`tests/test-room-proactive-side-channel.cjs` SKILL.md contract fence.** 6 scenarios fencing the side-channel-reader contract + cool-UI render directive. (Plan 95-03)
+- **`tests/test-hook-envelope-shape.cjs` extended.** 6 new per-event bash-hook scenarios (PreCompact, PostCompact, FileChanged, CwdChanged, SubagentStop, TaskCompleted) + new helpers `runBashHook` and `assertEnvelopeShapePerEvent`. (Plan 95-04)
+
+### Audit Notes
+
+- 95-01-AUDIT.md filed at `.planning/phases/95-bash-hook-envelope-and-cascade-side-channel/95-01-AUDIT.md`. Documents per-script envelope shape against authoritative Claude Code 2.x schema, recommended actions, Cursor-branch divergence (4 hooks: session-start, post-compact, on-cwd-changed, on-task-complete - intentionally untouched; Cursor is not a target surface).
+- Cursor-branch annotations added to scripts/post-compact, scripts/on-cwd-changed, scripts/on-task-complete pointing back to the audit. scripts/session-start divergence is documented in 95-01-AUDIT.md text only (not annotated in code; B2 scope discipline).
+- **PostCompact context preservation is half-wired in v1.12.0** (W2 plan-checker disclosure per release-process.md transparency). The scripts/post-compact hook now WRITES the full restored context to `<roomDir>/.mindrian/last-post-compact.md` (mirroring Plan 95-02's cascade side-channel pattern). The CONSUMER - the next session-start reading this file and re-injecting context - is NOT YET WIRED. Consumer phase: 95.5 or 96. For Phase 95, the goal is to STOP DROPPING the context (the previous emission tripped Claude Code 2.x's `additionalProperties: false` rule on PostCompact). The full-loop wire-up is queued. No user action required; the file simply accumulates compaction snapshots locally per Canon Part 8 until a future phase consumes them.
+- Pre-existing fixture failures unrelated to envelope work (test/84-smart-notebook-copilot.test.cjs phase-83-regression-guard; tests/test-self-update-platform.cjs 5 platform-branch assertions) carry over from v1.11.2; logged at `.planning/phases/95-bash-hook-envelope-and-cascade-side-channel/deferred-items.md`. The 27/27 envelope-related scenarios introduced or extended by Phase 95 are 100% GREEN.
+
+### Phase summary
+
+```
+Phase 95 -- bash-hook-envelope-and-cascade-side-channel:
+  95-01 bash-hook-envelope-audit-report          SHIPPED  3 commits
+  95-02 post-write-side-channel-writer           SHIPPED  3 commits
+  95-03 room-proactive-skill-cascade-restoration SHIPPED  3 commits
+  95-04 bash-hooks-envelope-fix-batch            SHIPPED  3 commits
+  95-05 regression-test-extension-release-gate   SHIPPED  this release
+
+Feynman runner: 27/27 envelope scenarios GREEN (16 + 5 + 6).
+```
+
+### Upgrade
+
+```bash
+/plugin marketplace update
+claude plugin update mos@mindrian-marketplace
+```
+
+After upgrade, the bash post-write "Hook JSON output validation failed" line that has been firing on every Write/Edit/MultiEdit since Phase 88.1-03 shipped is gone. The room-proactive cascade APPROVE/REJECT/DEFER flow begins firing for the first time since 88.1-03 shipped.
+
 ## [1.11.2] - 2026-04-29
 
 Hotfix release. Closes the noisy half of the PostToolUse:Write envelope bug that has been firing two "Hook JSON output validation failed -- (root): Invalid input" lines on every Write/Edit/MultiEdit since Phase 88.1 shipped. Mirrors the v1.10.19 fix pattern from `query-efficiency-telemetry.cjs`, applied to the two `.cjs` hooks that were missed during that hotfix sweep. Synthetic byte-level reproduction confirms valid envelopes on every code path; 5/5 new regression tests + 32/32 pre-existing tests pass.
