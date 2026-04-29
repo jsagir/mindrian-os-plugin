@@ -9,6 +9,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.11.2] - 2026-04-29
+
+Hotfix release. Closes the noisy half of the PostToolUse:Write envelope bug that has been firing two "Hook JSON output validation failed -- (root): Invalid input" lines on every Write/Edit/MultiEdit since Phase 88.1 shipped. Mirrors the v1.10.19 fix pattern from `query-efficiency-telemetry.cjs`, applied to the two `.cjs` hooks that were missed during that hotfix sweep. Synthetic byte-level reproduction confirms valid envelopes on every code path; 5/5 new regression tests + 32/32 pre-existing tests pass.
+
+### Fixed
+
+- PostToolUse:Write hooks `scripts/frontmatter-schema-validator.cjs` and `scripts/async-artifact-auto-commit.cjs` no longer emit `additionalContext` at JSON root, which Claude Code 2.x rejects as `(root): Invalid input`. Mirrors the v1.10.19 fix pattern from `scripts/query-efficiency-telemetry.cjs`. Silent path now emits zero bytes; message path emits `{hookSpecificOutput: {hookEventName: 'PostToolUse', additionalContext: <string>}}` only. Soft-fail invariant preserved (outer try/catch unchanged; always exit 0). Fix surface: `emitEnvelope()` and `exitSilent()` helpers in both files, plus updated header comment blocks documenting the v1.11.2 envelope shape.
+- New regression test `tests/test-hook-envelope-shape.cjs` fences all 4 PostToolUse stdout emitters (frontmatter-schema-validator, async-artifact-auto-commit, query-efficiency-telemetry reference, plus shared invariants) against the Claude Code 2.x allowed top-level key set `{decision, reason, continue, stopReason, suppressOutput, systemMessage, hookSpecificOutput}`. Asserts: silent path emits zero bytes; message path emits valid envelope; `additionalContext` never appears at top level; `hookSpecificOutput` carries `hookEventName: 'PostToolUse'` + string `additionalContext`; hooks always exit 0. Registered in `lib/memory/run-feynman-tests.cjs` after `query-efficiency-telemetry.test.cjs`.
+
+### Deferred to v1.11.3 (or v1.12.0 if SKILL.md contract change is treated as feature)
+
+- **Phase 95 -- Bash hook envelope hygiene + cascade side-channel.** Filed at `.planning/phases/95-bash-hook-envelope-and-cascade-side-channel/95-CONTEXT.md`. Three problems intentionally deferred from v1.11.2 to keep this hotfix tight: (1) bash `scripts/post-write` still emits 5 unknown root keys (`cascade_status`, `classification`, `git_commit`, `graph_index`, `proactive_intelligence`) -- silently tolerated today because it carries a recognized `systemMessage`, but same class-of-bug as the .cjs hooks; (2) **the room-proactive intelligence loop (Phase 88.1-03 mid-session intelligence injection feature) has been silently broken since it shipped** -- `skills/room-proactive/SKILL.md` reads `cascade_status.proactive_intelligence.newFindings` from `additionalContext`, but the bash hook has always written it at JSON root, so the skill has been receiving nothing for months. Cosmetic noise is gone in v1.11.2, but the cascade loop is still not firing. Fix is to move cascade payload to a LOCAL side-channel file (`<roomDir>/.mindrian/last-cascade.json`, atomic write) and update SKILL.md to read from it. (3) All other bash hooks dispatched through `hooks/run-hook.cmd` (session-start, pre-compact, on-stop, write-scope-check, intent-classifier, on-file-changed, on-cwd-changed, on-agent-complete, on-task-complete) are unaudited. Re-trigger with `/gsd:plan-phase 95` after this release.
+
+### Phase summary
+
+```
+Phase 94-10 v1.11.2-release-gate              SHIPPED  (envelope hotfix scope)
+  Patch 1  scripts/frontmatter-schema-validator.cjs   APPLIED
+  Patch 2  scripts/async-artifact-auto-commit.cjs     APPLIED
+  Test     tests/test-hook-envelope-shape.cjs         CREATED + REGISTERED
+  Tests    5/5 new + 32/32 pre-existing               GREEN
+
+Phase 95 -- bash-hook-envelope-and-cascade-side-channel
+  IMMEDIATE NEXT after v1.11.2 ships. Filed in 95-CONTEXT.md.
+```
+
+### Upgrade
+
+```bash
+/plugin marketplace update
+claude plugin update mos@mindrian-marketplace
+```
+
+After upgrade, the two "Hook JSON output validation failed" lines per Write/Edit/MultiEdit are gone. The bash post-write hook's "post-write: cascade complete for X.md" line is unchanged (untouched in this release; addressed in Phase 95).
+
 ## [1.11.1] - 2026-04-29
 
 Promotes `v1.11.1-beta.1` to GA. Stacks Phase 94 Tester-Driven Fixer (8 P0/P1 plans surfaced from Lawrence Aronhime's QA harness on 2026-04-28) plus Phase 94.1 `/mos:heal` command on top of the beta hotfix. Single coherent release covering tester-discovered bugs + the room-wiring heal command users need after upgrading from v1.10.x.

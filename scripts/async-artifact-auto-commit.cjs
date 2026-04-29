@@ -36,10 +36,10 @@
  *   { "tool_name": "Write"|"Edit"|"MultiEdit",
  *     "tool_input": { "file_path": "<abs path>", ... } }
  *
- * Stdout (JSON envelope, one line):
- *   { "additionalContext": null,
- *     "systemMessage": "auto-committed to data-room-autocommit" | null,
- *     "suppressOutput": false }
+ * Stdout (Claude Code 2.x PostToolUse envelope, one line on emit):
+ *   With message:  { "hookSpecificOutput": { "hookEventName": "PostToolUse",
+ *                                            "additionalContext": "auto-committed to data-room-autocommit" } }
+ *   Silent path:   no stdout output at all (process exits 0 silently).
  *
  * Canon:
  *   Part 4 Every Choice Is Graph Data -- auto-commits preserve the provenance
@@ -59,20 +59,33 @@ const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
 
 // ---------- Soft-fail envelope ----------
+// v1.11.2 (2026-04-29): completes the v1.10.19 schema-compliance sweep that
+// missed this hook. Claude Code 2.x added `additionalProperties: false` to
+// the PostToolUse output schema. Top-level `systemMessage` and
+// `additionalContext` are no longer accepted -- they must be wrapped in
+// `hookSpecificOutput`. Without this fix, every Write/Edit/MultiEdit fires
+// "Hook JSON output validation failed -- (root): Invalid input" in the
+// user's terminal. Reference fix: scripts/query-efficiency-telemetry.cjs
+// (v1.10.19). See: https://docs.anthropic.com/en/docs/claude-code/hooks
 
 function emitEnvelope(systemMessage) {
+  if (!systemMessage) return; // silent exit -- never emit JSON when no message
   try {
     const payload = {
-      additionalContext: null,
-      systemMessage: systemMessage === undefined ? null : systemMessage,
-      suppressOutput: false,
+      hookSpecificOutput: {
+        hookEventName: 'PostToolUse',
+        additionalContext: String(systemMessage),
+      },
     };
     process.stdout.write(JSON.stringify(payload) + '\n');
   } catch (_e) { /* best-effort */ }
 }
 
 function exitSilent() {
-  emitEnvelope(null);
+  // v1.11.2 (2026-04-29): previously called emitEnvelope(null) which wrote an
+  // invalid JSON envelope on every Write/Edit/MultiEdit outside a room.
+  // Silent now means truly silent -- exit 0 with no stdout output. Schema
+  // validation passes by emitting nothing.
   process.exit(0);
 }
 

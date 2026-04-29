@@ -7,6 +7,27 @@ purpose: Short-horizon queued work that is ready to execute but not yet started.
 
 # TODO Queue
 
+## IMMEDIATE NEXT (after v1.11.2 ships)
+
+### [IMMEDIATE-NEXT] Phase 95 - Bash hook envelope + cascade side-channel
+
+**Filed:** 2026-04-29 (this session)
+**Spec:** `.planning/phases/95-bash-hook-envelope-and-cascade-side-channel/95-CONTEXT.md`
+**Trigger:** v1.11.2 release gate closes (Phase 94-10).
+
+Three problems in one phase:
+1. Bash `scripts/post-write` emits a non-conforming PostToolUse envelope (5 unknown root keys: cascade_status, classification, git_commit, graph_index, proactive_intelligence). Same class-of-bug as the `.cjs` hooks fixed in v1.11.2, just hidden today because it carries a recognized `systemMessage` alongside.
+2. **Latent feature regression** - the room-proactive intelligence loop (Phase 88.1-03) has been silently broken since it shipped. `skills/room-proactive/SKILL.md` reads `cascade_status.proactive_intelligence.newFindings` from `additionalContext`; the bash hook has always written it at JSON root. The skill has been receiving nothing. Mid-session intelligence injection has never functioned in production.
+3. All other bash hooks dispatched through `hooks/run-hook.cmd` (session-start, pre-compact, on-stop, write-scope-check, intent-classifier, on-file-changed, on-cwd-changed, on-agent-complete, on-task-complete) are unaudited. Each lifecycle event has its own envelope schema. v1.11.2 left them alone.
+
+Fix shape: move cascade payload to `<roomDir>/.mindrian/last-cascade.json` (LOCAL, atomic write); bash post-write emits only allowed envelope keys; SKILL.md updated to read from side-channel; regression test extends Phase 94 fence to cover all bash hooks per-event.
+
+Start with: `/gsd:plan-phase 95` once v1.11.2 ships. Expect 4-6 plans. If audit surfaces 2+ extra envelope bugs, split into 95.1 + 95.2.
+
+Origin: `.planning/debug/post-write-hook-envelope-invalid-input.md` Follow-Ups, deferred from v1.11.2 to keep release scope tight per A1-only checkpoint.
+
+---
+
 ## NEXT UP
 
 ### [NEXT] v1.10.8 - Smart-notebook-as-cofounder milestone
