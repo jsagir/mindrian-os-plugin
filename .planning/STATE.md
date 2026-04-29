@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 95-03-room-proactive-skill-cascade-restoration-PLAN.md
-last_updated: "2026-04-29T19:09:09.074Z"
+stopped_at: Completed 95-04-bash-hooks-envelope-fix-batch-PLAN.md
+last_updated: "2026-04-29T19:14:31.821Z"
 last_activity: 2026-04-29
 progress:
   total_phases: 32
   completed_phases: 16
   total_plans: 159
-  completed_plans: 146
+  completed_plans: 147
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 95 (bash-hook-envelope-and-cascade-side-channel) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -161,6 +161,7 @@ Progress: [████████░░] 82%
 | Phase 95 P01 | 4min | 3 tasks | 4 files |
 | Phase 95 P02 | 6min26s | 2 tasks | 3 files |
 | Phase 95 P03 | 4min51s | 2 tasks | 5 files |
+| Phase 95 P04 | 25min | 3 tasks | 8 files |
 
 ### Roadmap Evolution
 
@@ -495,6 +496,10 @@ Progress: [████████░░] 82%
 - [Phase 95]: Test sandbox uses MINDRIAN_ROOMS_HOME + Strategy-0 .rooms/registry.json so post-write active-room guard recognizes synthetic room and lets cascade fire
 - [Phase 95]: Dog-food smoke step deferred per CLAUDE.md Decision #16 nested-structure rule; regression test fixtures provide equivalent evidence via spawnSync
 - [Phase 95]: Plan 95-03: room-proactive SKILL.md detection block rewritten to read side-channel JSON; OLD cascade_status.proactive_intelligence framings removed; cool-UI render contract added per cool-ui-style-reference.md; lines 114-160 byte-identical preserved
+- [Phase 95]: Per-event helper inner shape differs by lifecycle event (PreCompact / CwdChanged / TaskCompleted: systemMessage only; PostCompact: systemMessage only AND side-channel for full context; SubagentStop: hookSpecificOutput.additionalContext; FileChanged: silent diagnostic exits) per 95-RESEARCH.md Section 2 authoritative allowed-key table
+- [Phase 95]: PostCompact side-channel file path is <roomDir>/.mindrian/last-post-compact.md (Markdown plain text, NOT JSON); WRITTEN by Phase 95 but NOT YET CONSUMED at next session-start; consumer deferred to Phase 95.5+; CHANGELOG transparency note in Plan 95-05
+- [Phase 95]: scripts/session-start NOT modified (B2 plan-checker scope-leak fix); Cursor-branch divergence on session-start documented in 95-01-AUDIT.md text only; Cursor-branch annotations applied to 3 hooks already in files_modified (post-compact, on-cwd-changed, on-task-complete)
+- [Phase 95]: scripts/on-agent-complete background post-write redirect to /dev/null (Rule 3 auto-fix discovered in GREEN test run): without this redirect the child PostToolUse envelope leaks into parent SubagentStop stdout, breaking single-JSON-object parse for cascade-path scenario
 
 ### Pending Todos
 
@@ -516,6 +521,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-29T19:09:09.064Z
-Stopped at: Completed 95-03-room-proactive-skill-cascade-restoration-PLAN.md
+Last session: 2026-04-29T19:14:17.311Z
+Stopped at: Completed 95-04-bash-hooks-envelope-fix-batch-PLAN.md
 Resume file: None
