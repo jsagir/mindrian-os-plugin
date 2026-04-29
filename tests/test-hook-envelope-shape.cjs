@@ -63,6 +63,38 @@ const ALLOWED_TOP_LEVEL = new Set([
   'hookSpecificOutput',
 ]);
 
+// ----------------------------------------------------------------------------
+// Phase 95-04 (v1.11.3+): per-lifecycle-event allowed top-level key Sets.
+// Source: 95-RESEARCH.md Section 2 "Per-Event Hook Schema Reference"
+// (verified against authoritative Claude Code 2.x docs 2026-04-29).
+//
+// Master rule: additionalProperties: false. Any key not in the per-event Set
+// is invalid. PostCompact, FileChanged, CwdChanged, TaskCompleted do NOT
+// accept hookSpecificOutput at all; the per-event scenarios below assert
+// that absence in addition to the allowed-key subset check.
+// ----------------------------------------------------------------------------
+const ALLOWED_PRE_COMPACT = new Set([
+  'continue', 'stopReason', 'suppressOutput', 'systemMessage',
+  'decision', 'reason', 'hookSpecificOutput',
+]);
+const ALLOWED_POST_COMPACT = new Set([
+  'continue', 'stopReason', 'suppressOutput', 'systemMessage',
+]); // NO hookSpecificOutput
+const ALLOWED_FILE_CHANGED = new Set([
+  'continue', 'stopReason', 'suppressOutput', 'systemMessage',
+]); // NO hookSpecificOutput
+const ALLOWED_CWD_CHANGED = new Set([
+  'continue', 'stopReason', 'suppressOutput', 'systemMessage',
+]); // NO hookSpecificOutput
+const ALLOWED_SUBAGENT_STOP = new Set([
+  'continue', 'stopReason', 'suppressOutput', 'systemMessage',
+  'decision', 'reason', 'hookSpecificOutput',
+]);
+const ALLOWED_TASK_COMPLETED = new Set([
+  'continue', 'stopReason', 'suppressOutput', 'systemMessage',
+  'decision', 'reason',
+]); // NO hookSpecificOutput
+
 let passed = 0;
 let failed = 0;
 
@@ -128,6 +160,26 @@ function runHook(scriptPath, envelope, opts) {
   };
 }
 
+// Phase 95-04: bash-hook variant. Spawns `bash <scriptPath>` instead of
+// `node <scriptPath>`. Mirrors tests/test-cascade-side-channel.cjs's
+// runBashHook helper byte-identically so the per-event scenarios stay
+// independent of node-script vs bash-script path differences.
+function runBashHook(scriptPath, envelope, opts) {
+  const o = opts || {};
+  const res = spawnSync('bash', [scriptPath], {
+    encoding: 'utf8',
+    input: JSON.stringify(envelope),
+    timeout: o.timeoutMs || 5000,
+    cwd: o.cwd || process.cwd(),
+    env: Object.assign({}, process.env, o.env || {}),
+  });
+  return {
+    stdout: res.stdout || '',
+    stderr: res.stderr || '',
+    status: typeof res.status === 'number' ? res.status : -1,
+  };
+}
+
 // Assert that stdout is either empty (silent) or a single JSON line that
 // satisfies the Claude Code 2.x PostToolUse contract.
 function assertEnvelopeShape(stdout, label) {
@@ -173,6 +225,100 @@ function assertEnvelopeShape(stdout, label) {
         label + ': hookSpecificOutput.additionalContext must be a string');
     }
   }
+}
+
+// Phase 95-04: per-event envelope-shape assertion. Mirrors
+// assertEnvelopeShape but takes a per-event allowed-key Set and an expected
+// hookEventName. If hookEventName is null, the function additionally asserts
+// that `hookSpecificOutput` is NOT a top-level key (events like PostCompact,
+// FileChanged, CwdChanged, TaskCompleted that do NOT accept hSO per the
+// Claude Code 2.x schema).
+function assertEnvelopeShapePerEvent(stdout, label, allowedKeys, hookEventName) {
+  const trimmed = stdout.trim();
+  if (trimmed === '') return; // silent path -- nothing more to assert
+
+  let payload;
+  try {
+    payload = JSON.parse(trimmed);
+  } catch (e) {
+    throw new Error(label + ': stdout is not valid JSON: ' + trimmed);
+  }
+  assert.equal(typeof payload, 'object',
+    label + ': stdout JSON must be an object');
+  assert.notEqual(payload, null,
+    label + ': stdout JSON must not be null');
+
+  // Every top-level key must be in the per-event allowed Set.
+  for (const k of Object.keys(payload)) {
+    if (!allowedKeys.has(k)) {
+      throw new Error(
+        label + ': disallowed top-level key "' + k + '". stdout=' + trimmed
+      );
+    }
+  }
+
+  // additionalContext NEVER at root (universal rule).
+  assert.equal(
+    Object.prototype.hasOwnProperty.call(payload, 'additionalContext'),
+    false,
+    label + ': "additionalContext" must NOT be a top-level key'
+  );
+
+  // If hookEventName is null, the event does not accept hookSpecificOutput.
+  if (hookEventName === null) {
+    assert.equal(
+      Object.prototype.hasOwnProperty.call(payload, 'hookSpecificOutput'),
+      false,
+      label + ': this event does NOT accept hookSpecificOutput at root'
+    );
+  } else if (Object.prototype.hasOwnProperty.call(payload, 'hookSpecificOutput')) {
+    const hso = payload.hookSpecificOutput;
+    assert.equal(typeof hso, 'object',
+      label + ': hookSpecificOutput must be an object');
+    assert.notEqual(hso, null,
+      label + ': hookSpecificOutput must not be null');
+    assert.equal(hso.hookEventName, hookEventName,
+      label + ': hookSpecificOutput.hookEventName must equal "' + hookEventName + '"');
+    if (Object.prototype.hasOwnProperty.call(hso, 'additionalContext')) {
+      assert.equal(typeof hso.additionalContext, 'string',
+        label + ': hookSpecificOutput.additionalContext must be a string');
+    }
+  }
+}
+
+// Phase 95-04: makeRoomRoot variant matching tests/test-cascade-side-channel.cjs
+// Strategy 0 layout (registry + .room-root + STATE.md + section dir). Caller
+// passes env.MINDRIAN_ROOMS_HOME = scratch so scripts/resolve-room locates
+// the synthetic room as active. Without this, hooks resolve the user's real
+// active room and the active-room guards skip the cascade -- breaking the
+// message-path scenarios.
+function makeStrategy0Room(scratch) {
+  const roomName = 'test-room';
+  const roomDir = path.join(scratch, roomName);
+  const sectionDir = path.join(roomDir, 'problem-definition');
+  fs.mkdirSync(sectionDir, { recursive: true });
+  fs.writeFileSync(path.join(roomDir, '.room-root'), '');
+  fs.writeFileSync(path.join(roomDir, 'STATE.md'), '# Test room state\n');
+  fs.mkdirSync(path.join(roomDir, '.mindrian'), { recursive: true });
+
+  const registryDir = path.join(scratch, '.rooms');
+  fs.mkdirSync(registryDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(registryDir, 'registry.json'),
+    JSON.stringify({
+      active: roomName,
+      rooms: { [roomName]: { path: roomName } },
+    }, null, 2)
+  );
+  return { scratch, roomDir, sectionDir };
+}
+
+// Phase 95-04: emit a uniquely-named FAIL line on assertion failure so the
+// RED gate can count the named scenarios via grep -cE on the enumerated set.
+function failNamed(scenarioName, err) {
+  failed += 1;
+  process.stdout.write('  FAIL ' + scenarioName + '\n');
+  process.stderr.write('FAIL: ' + scenarioName + ' - ' + (err && err.message ? err.message : String(err)) + '\n');
 }
 
 // ---------- Per-hook scenario runners ----------
@@ -341,11 +487,350 @@ function runQueryEfficiencyTelemetryFence() {
   })();
 }
 
+// ============================================================================
+// Phase 95-04: per-event bash hook envelope scenarios
+// ============================================================================
+//
+// 6 scenario runners, one per fixed bash hook. Each uses runBashHook +
+// assertEnvelopeShapePerEvent against the per-event allowed-key Set defined
+// near the top of this file.
+//
+// RED gate (B3 fix): scenarios that find a violation emit a uniquely-named
+// "FAIL: <scenario-name>" line on stderr. The verify gate counts >=6 named
+// FAIL lines from the enumerated set:
+//   1. pre-compact silent-path
+//   2. pre-compact message-path
+//   3. post-compact
+//   4. on-cwd-changed success-path
+//   5. on-agent-complete cascade-path
+//   6. on-task-complete summary-path
+// (on-file-changed is NOT in the floor; its diagnostic paths may already
+// exit silent when the synthetic envelope shape skips them.)
+//
+// After Plan 95-04 Task 2 GREEN, all scenarios pass and zero FAIL lines
+// remain.
+
+const PRE_COMPACT = path.join(REPO, 'scripts', 'pre-compact');
+const POST_COMPACT = path.join(REPO, 'scripts', 'post-compact');
+const ON_FILE_CHANGED = path.join(REPO, 'scripts', 'on-file-changed');
+const ON_CWD_CHANGED = path.join(REPO, 'scripts', 'on-cwd-changed');
+const ON_AGENT_COMPLETE = path.join(REPO, 'scripts', 'on-agent-complete');
+const ON_TASK_COMPLETE = path.join(REPO, 'scripts', 'on-task-complete');
+
+function runPreCompactScenarios() {
+  // ----- silent path (no active room) -----
+  (function silentNoRoom() {
+    const scenarioName = 'pre-compact silent-path';
+    const label = 'pre-compact: silent path (no active room)';
+    const scratch = makeScratchDir('pc-silent');
+    try {
+      // No registry, no room -- resolve-room returns nothing, hook hits
+      // the no-room emission line.
+      const { stdout, status } = runBashHook(PRE_COMPACT, {}, {
+        cwd: scratch,
+        env: { MINDRIAN_ROOMS_HOME: scratch },
+      });
+      assert.equal(status, 0, label + ': hook must exit 0');
+      assertEnvelopeShapePerEvent(stdout, label, ALLOWED_PRE_COMPACT, 'PreCompact');
+      ok(label);
+    } catch (e) {
+      failNamed(scenarioName, e);
+    } finally {
+      rmrf(scratch);
+    }
+  })();
+
+  // ----- message path (active room with STATE.md) -----
+  (function messagePathActiveRoom() {
+    const scenarioName = 'pre-compact message-path';
+    const label = 'pre-compact: message path (active room)';
+    const scratch = makeScratchDir('pc-msg');
+    try {
+      const { roomDir } = makeStrategy0Room(scratch);
+      const { stdout, status } = runBashHook(PRE_COMPACT, {}, {
+        cwd: roomDir,
+        env: { MINDRIAN_ROOMS_HOME: scratch, HOME: scratch },
+      });
+      assert.equal(status, 0, label + ': hook must exit 0');
+      assertEnvelopeShapePerEvent(stdout, label, ALLOWED_PRE_COMPACT, 'PreCompact');
+      ok(label);
+    } catch (e) {
+      failNamed(scenarioName, e);
+    } finally {
+      rmrf(scratch);
+    }
+  })();
+}
+
+function runPostCompactScenarios() {
+  // PostCompact: NO hookSpecificOutput at root; allowed keys subset of
+  // {continue, stopReason, suppressOutput, systemMessage}.
+  (function envelopeShape() {
+    const scenarioName = 'post-compact';
+    const label = 'post-compact: envelope-shape valid';
+    const scratch = makeScratchDir('pcompact');
+    try {
+      const { roomDir } = makeStrategy0Room(scratch);
+      // Seed the bridge save file so post-compact takes the restore path
+      // (otherwise it execs session-start, which is out of scope).
+      const bridgeDir = path.join(scratch, '.mindrian', 'bridge');
+      fs.mkdirSync(bridgeDir, { recursive: true });
+      const saveFile = path.join(bridgeDir, 'pre-compact-state.json');
+      fs.writeFileSync(saveFile,
+        'TIMESTAMP=2026-04-29T00:00:00Z\n' +
+        'ROOM_DIR=' + roomDir + '\n' +
+        'VENTURE_STAGE=Pre-Opportunity\n' +
+        'TOTAL_ENTRIES=0\n' +
+        '---STATE_MD_START---\n# state\n---STATE_MD_END---\n' +
+        '---LAST_ARTIFACTS_START---\n---LAST_ARTIFACTS_END---\n' +
+        '---MINTO_CONFIDENCE_START---\n---MINTO_CONFIDENCE_END---\n' +
+        '---PIPELINE_STATE_START---\n---PIPELINE_STATE_END---\n' +
+        '---USER_CONTEXT_START---\n---USER_CONTEXT_END---\n');
+      const { stdout, status } = runBashHook(POST_COMPACT, {}, {
+        cwd: roomDir,
+        env: {
+          MINDRIAN_ROOMS_HOME: scratch,
+          HOME: scratch,
+          CLAUDE_PLUGIN_ROOT: REPO, // force the Claude branch (not Cursor)
+        },
+      });
+      assert.equal(status, 0, label + ': hook must exit 0');
+      // PostCompact: no hookSpecificOutput. Pass null as hookEventName to
+      // assert hSO is NOT at root.
+      assertEnvelopeShapePerEvent(stdout, label, ALLOWED_POST_COMPACT, null);
+      ok(label);
+    } catch (e) {
+      failNamed(scenarioName, e);
+    } finally {
+      rmrf(scratch);
+    }
+  })();
+}
+
+function runOnFileChangedScenarios() {
+  // FileChanged: emit nothing on diagnostic paths (after fix). Allowed
+  // keys subset of {continue, stopReason, suppressOutput, systemMessage};
+  // NO hookSpecificOutput. Note: NOT in the RED floor (B3 fix).
+  (function silentDiagnostic() {
+    const scenarioName = 'on-file-changed silent-diagnostic';
+    const label = 'on-file-changed: silent on diagnostic paths';
+    try {
+      // Empty file path -> hook hits "no_file" path. Should emit silent
+      // (after fix) or {"status": "no_file"} (before fix -> RED).
+      const { stdout, status } = runBashHook(ON_FILE_CHANGED, {}, {});
+      assert.equal(status, 0, label + ': hook must exit 0');
+      assertEnvelopeShapePerEvent(stdout, label, ALLOWED_FILE_CHANGED, null);
+      ok(label);
+    } catch (e) {
+      failNamed(scenarioName, e);
+    }
+  })();
+}
+
+function runOnCwdChangedScenarios() {
+  // CwdChanged: NO hookSpecificOutput. Allowed keys subset of
+  // {continue, stopReason, suppressOutput, systemMessage}.
+
+  // ----- silent path (no room) -----
+  (function silentNoRoom() {
+    const scenarioName = 'on-cwd-changed silent-no-room';
+    const label = 'on-cwd-changed: silent on no-room';
+    const scratch = makeScratchDir('cwd-silent');
+    try {
+      const { stdout, status } = runBashHook(ON_CWD_CHANGED, {}, {
+        cwd: scratch,
+        env: { MINDRIAN_ROOMS_HOME: scratch },
+      });
+      assert.equal(status, 0, label + ': hook must exit 0');
+      assertEnvelopeShapePerEvent(stdout, label, ALLOWED_CWD_CHANGED, null);
+      ok(label);
+    } catch (e) {
+      failNamed(scenarioName, e);
+    } finally {
+      rmrf(scratch);
+    }
+  })();
+
+  // ----- success path (active room resolved) -----
+  (function successPath() {
+    const scenarioName = 'on-cwd-changed success-path';
+    const label = 'on-cwd-changed: success path (active room resolved)';
+    const scratch = makeScratchDir('cwd-success');
+    try {
+      const { roomDir } = makeStrategy0Room(scratch);
+      // Seed an OLD active room different from roomDir so the same-room
+      // short-circuit at line 45 doesn't fire. We do this by passing an
+      // alternate cwd that resolves to a different room ... but easier:
+      // pass the section dir as NEW_DIR (arg $1) since the hook's walk-up
+      // logic finds STATE.md and the OLD_ROOM resolves via PWD which is
+      // outside the room.
+      const { stdout, status } = runBashHook(ON_CWD_CHANGED, {}, {
+        cwd: scratch, // PWD outside any room -> OLD_ROOM = ""
+        env: { MINDRIAN_ROOMS_HOME: scratch, CLAUDE_PLUGIN_ROOT: REPO },
+        // Note: the hook uses $1 OR $PWD as NEW_DIR; bash with stdin
+        // input but no positional arg defaults to $PWD which is scratch.
+        // The walk-up from scratch/test-room/problem-definition won't fire
+        // because cwd is scratch (above the room). To force success, we
+        // need to pass the room as NEW_DIR. spawnSync bash + arg:
+      });
+      assert.equal(status, 0, label + ': hook must exit 0');
+      assertEnvelopeShapePerEvent(stdout, label, ALLOWED_CWD_CHANGED, null);
+      ok(label);
+    } catch (e) {
+      failNamed(scenarioName, e);
+    } finally {
+      rmrf(scratch);
+    }
+  })();
+
+  // ----- success path (forced via positional arg = roomDir) -----
+  (function successPathArg() {
+    const scenarioName = 'on-cwd-changed success-path';
+    const label = 'on-cwd-changed: success path with NEW_DIR arg';
+    const scratch = makeScratchDir('cwd-arg');
+    try {
+      const { roomDir } = makeStrategy0Room(scratch);
+      const res = spawnSync('bash', [ON_CWD_CHANGED, roomDir], {
+        encoding: 'utf8',
+        input: '',
+        timeout: 5000,
+        cwd: scratch,
+        env: Object.assign({}, process.env, {
+          MINDRIAN_ROOMS_HOME: scratch,
+          CLAUDE_PLUGIN_ROOT: REPO,
+        }),
+      });
+      const stdout = res.stdout || '';
+      const status = typeof res.status === 'number' ? res.status : -1;
+      assert.equal(status, 0, label + ': hook must exit 0');
+      assertEnvelopeShapePerEvent(stdout, label, ALLOWED_CWD_CHANGED, null);
+      ok(label);
+    } catch (e) {
+      failNamed(scenarioName, e);
+    } finally {
+      rmrf(scratch);
+    }
+  })();
+}
+
+function runOnAgentCompleteScenarios() {
+  // SubagentStop: accepts hookSpecificOutput.additionalContext. Allowed keys
+  // include hookSpecificOutput.
+
+  // ----- silent path (no room) -----
+  (function silentNoRoom() {
+    const scenarioName = 'on-agent-complete silent-no-room';
+    const label = 'on-agent-complete: silent on no-room';
+    const scratch = makeScratchDir('ac-silent');
+    try {
+      const { stdout, status } = runBashHook(ON_AGENT_COMPLETE, {}, {
+        cwd: scratch,
+        env: { MINDRIAN_ROOMS_HOME: scratch },
+      });
+      assert.equal(status, 0, label + ': hook must exit 0');
+      assertEnvelopeShapePerEvent(stdout, label, ALLOWED_SUBAGENT_STOP, 'SubagentStop');
+      ok(label);
+    } catch (e) {
+      failNamed(scenarioName, e);
+    } finally {
+      rmrf(scratch);
+    }
+  })();
+
+  // ----- cascade path (recently modified files) -----
+  (function cascadePath() {
+    const scenarioName = 'on-agent-complete cascade-path';
+    const label = 'on-agent-complete: cascade path (recently modified files)';
+    const scratch = makeScratchDir('ac-cascade');
+    try {
+      const { roomDir, sectionDir } = makeStrategy0Room(scratch);
+      // Drop a recently modified .md file inside the section so the
+      // 30-second cutoff sees it.
+      const artifactDir = path.join(sectionDir, 'fresh-artifact');
+      fs.mkdirSync(artifactDir, { recursive: true });
+      fs.writeFileSync(path.join(artifactDir, 'fresh-artifact.md'),
+        '---\nname: fresh-artifact\n---\n# Body\n');
+      const { stdout, status } = runBashHook(ON_AGENT_COMPLETE, {}, {
+        cwd: roomDir,
+        env: { MINDRIAN_ROOMS_HOME: scratch },
+      });
+      assert.equal(status, 0, label + ': hook must exit 0');
+      assertEnvelopeShapePerEvent(stdout, label, ALLOWED_SUBAGENT_STOP, 'SubagentStop');
+      ok(label);
+    } catch (e) {
+      failNamed(scenarioName, e);
+    } finally {
+      rmrf(scratch);
+    }
+  })();
+}
+
+function runOnTaskCompleteScenarios() {
+  // TaskCompleted: NO hookSpecificOutput. Allowed keys subset of
+  // {continue, stopReason, suppressOutput, systemMessage, decision, reason}.
+
+  // ----- silent path (no room) -----
+  (function silentNoRoom() {
+    const scenarioName = 'on-task-complete silent-no-room';
+    const label = 'on-task-complete: silent on no-room';
+    const scratch = makeScratchDir('tc-silent');
+    try {
+      const { stdout, status } = runBashHook(ON_TASK_COMPLETE, {}, {
+        cwd: scratch,
+        env: { MINDRIAN_ROOMS_HOME: scratch },
+      });
+      assert.equal(status, 0, label + ': hook must exit 0');
+      assertEnvelopeShapePerEvent(stdout, label, ALLOWED_TASK_COMPLETED, null);
+      ok(label);
+    } catch (e) {
+      failNamed(scenarioName, e);
+    } finally {
+      rmrf(scratch);
+    }
+  })();
+
+  // ----- summary path (active room with venture_stage frontmatter) -----
+  (function summaryPath() {
+    const scenarioName = 'on-task-complete summary-path';
+    const label = 'on-task-complete: summary path (active room)';
+    const scratch = makeScratchDir('tc-summary');
+    try {
+      const { roomDir } = makeStrategy0Room(scratch);
+      // STATE.md with venture_stage so the readiness signal block fires.
+      fs.writeFileSync(path.join(roomDir, 'STATE.md'),
+        '---\nventure_stage: Pre-Opportunity\n---\n# state\n');
+      const { stdout, status } = runBashHook(ON_TASK_COMPLETE, {}, {
+        cwd: roomDir,
+        env: {
+          MINDRIAN_ROOMS_HOME: scratch,
+          CLAUDE_PLUGIN_ROOT: REPO,
+        },
+      });
+      assert.equal(status, 0, label + ': hook must exit 0');
+      // TaskCompleted: no hookSpecificOutput. Pass null.
+      assertEnvelopeShapePerEvent(stdout, label, ALLOWED_TASK_COMPLETED, null);
+      ok(label);
+    } catch (e) {
+      failNamed(scenarioName, e);
+    } finally {
+      rmrf(scratch);
+    }
+  })();
+}
+
 // ---------- Drive all scenarios ----------
 
 runFrontmatterValidatorScenarios();
 runAsyncAutoCommitScenarios();
 runQueryEfficiencyTelemetryFence();
+
+// Phase 95-04: per-event bash hook scenarios.
+runPreCompactScenarios();
+runPostCompactScenarios();
+runOnFileChangedScenarios();
+runOnCwdChangedScenarios();
+runOnAgentCompleteScenarios();
+runOnTaskCompleteScenarios();
 
 // ---------- Report ----------
 
