@@ -32,7 +32,14 @@ Schema-violating hooks (FIX in 95-02 or 95-04): post-write, pre-compact, post-co
 
 ## Spot-Audit Notes (.cjs wrappers)
 
-[Plan 95-04 will fill these in after spot-checking write-scope-check.cjs and intent-classifier.cjs. If both are clean, document "no envelope violations found in spot-audit". If a violation surfaces, list it here and add to 95-04 task scope. If 2+ surface, planner reconvenes per CONTEXT.md split-to-95.2 threshold.]
+Spot-audit performed 2026-04-29 as part of Plan 95-04. Both .cjs wrappers checked end-to-end:
+
+| Script | Emission Sites | Schema-Valid? | Notes |
+|--------|----------------|---------------|-------|
+| scripts/write-scope-check.cjs | Line 150 (`emitSystemMessage` -> `JSON.stringify({hookSpecificOutput: {hookEventName: "PreToolUse", additionalContext}})`). Single emission site. | YES | PreToolUse allowed top-level keys per 95-RESEARCH.md §2: `{continue, stopReason, suppressOutput, systemMessage, hookSpecificOutput}`. Inner `hookEventName: "PreToolUse"` is correct. Block path uses exit 2 + stderr; allow path is silent (no stdout). The v1.10.19 hotfix comment block at lines 134-139 cites the schema explicitly. |
+| scripts/intent-classifier.cjs | Line 338 (`emitStrictModeOverride`): `{hookSpecificOutput: {hookEventName: "UserPromptSubmit", additionalContext}, systemMessage}`. Line 482 (intent-mismatch): same envelope. Line 485 (fallback): plain text. Line 594 (`injectGraphFindings`): plain text "## GRAPH FINDINGS (top 3) ...". Line 1318 (`formatEngineDecisionBlock`): plain text "## NAVIGATION DECISION (engine v1) ...". | YES | UserPromptSubmit allowed top-level keys per 95-RESEARCH.md §2: `{continue, stopReason, suppressOutput, systemMessage, decision, reason, hookSpecificOutput}`. UserPromptSubmit additionally accepts plain stdout (non-JSON) as additionalContext per the same §2 note. All five emission sites conform. The 88.1-03 systemMessage retrofit comment block at lines 467-473 cites the schema. |
+
+No envelope violations found in spot-audit. CONTEXT.md split-to-95.2 threshold ("if 2+ extra envelope bugs surface") is NOT met for the .cjs wrappers. All bug fixes ship in Phase 95.
 
 ## .cjs Reference Patches (v1.10.19 + v1.11.2) - Confirmed Clean
 
