@@ -46,6 +46,85 @@ detect_room_section() {
   return 1
 }
 
+# ---------------------------------------------------------------------------
+# Phase 95-02: bash post-write envelope hygiene + cascade side-channel.
+#
+# Cascade payload used to live at JSON ROOT alongside `systemMessage`
+# (cascade_status, classification, git_commit, graph_index,
+# proactive_intelligence). Claude Code 2.x's PostToolUse schema sets
+# `additionalProperties: false`, which rejects every unknown root key.
+# Result: (a) "Hook JSON output validation failed" tripped on every
+# cascade, and (b) the room-proactive skill received nothing because
+# the envelope was silently dropped or partially surfaced.
+#
+# Phase 95-02 fix:
+# 1. Stdout becomes ONE JSON object with `hookSpecificOutput` only.
+#    additionalContext carries the existing tight one-line systemMessage.
+# 2. The full cascade payload moves to <roomDir>/.mindrian/last-cascade.json,
+#    written atomically (mktemp inside SIDE_DIR + mv -f for POSIX-atomic
+#    rename(2) on the same filesystem). LOCAL only - never network surface
+#    per Canon Part 8.
+# 3. The skills/room-proactive/SKILL.md trigger contract (Plan 95-03) reads
+#    the side-channel file when it sees one of the two recognized
+#    additionalContext prefixes:
+#       ^post-write: cascade complete
+#       ^queued MINTO regen
+# ---------------------------------------------------------------------------
+
+# Emit a Claude Code 2.x compliant PostToolUse advisory envelope.
+# Empty input -> silent (zero bytes). Non-empty -> single JSON line.
+emit_post_tool_use_envelope() {
+  local msg="$1"
+  if [ -z "$msg" ]; then return 0; fi
+  jq -nc --arg m "$msg" '{
+    hookSpecificOutput: {
+      hookEventName: "PostToolUse",
+      additionalContext: $m
+    }
+  }'
+}
+
+# Write cascade payload atomically to <roomDir>/.mindrian/last-cascade.json.
+# Soft-fail at every step: a permission error, missing jq, or torn temp file
+# MUST NOT break the post-write hook.
+write_cascade_side_channel() {
+  local room_dir="$1"
+  local file_path="$2"
+  local section="$3"
+  local cascade_output="$4"
+
+  [ -z "$room_dir" ] && return 0
+  [ -z "$cascade_output" ] && return 0
+
+  local side_dir="$room_dir/.mindrian"
+  mkdir -p "$side_dir" 2>/dev/null || return 0
+
+  local payload
+  payload=$(jq -nc \
+    --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+    --arg fp "$file_path" \
+    --arg sec "$section" \
+    --argjson cascade "$cascade_output" \
+    '{
+      timestamp: $ts,
+      file_path: $fp,
+      section: $sec,
+      cascade_status: "complete",
+      classification: ($cascade.classification // null),
+      git_commit: ($cascade.gitCommit // null),
+      graph_index: ($cascade.graphIndex // null),
+      proactive_intelligence: ($cascade.proactiveIntelligence // null)
+    }' 2>/dev/null) || return 0
+
+  # Atomic write via mktemp inside SIDE_DIR (same-filesystem invariant) +
+  # mv -f. POSIX-portable form: no `-p` flag (BSD/macOS divergence; the
+  # template path itself dictates the directory).
+  local tmp
+  tmp=$(mktemp "$side_dir/.last-cascade.json.XXXXXX" 2>/dev/null) || return 0
+  printf '%s\n' "$payload" > "$tmp" 2>/dev/null || { rm -f "$tmp" 2>/dev/null; return 0; }
+  mv -f "$tmp" "$side_dir/last-cascade.json" 2>/dev/null || { rm -f "$tmp" 2>/dev/null; return 0; }
+}
+
 # Read file path from stdin JSON (Claude Code hook API),
 # fall back to $1 or TOOL_INPUT_PATH for backward compatibility
 if [ -t 0 ]; then
@@ -180,29 +259,12 @@ if [ -n "$room_dir" ]; then
     SM_TEXT="queued MINTO regen for ${SM_SECTION}, recompiled references (${SM_BASENAME})"
   fi
 
-  # Extract key status fields for a compact report
-  # Use jq if available, otherwise output raw
-  # 88.1-03: systemMessage sibling added to the JSON envelope.
-  if command -v jq >/dev/null 2>&1; then
-    CASCADE_STATUS=$(echo "$CASCADE_OUTPUT" | SM_TEXT="$SM_TEXT" jq -c '{
-      cascade_status: "complete",
-      classification: .classification,
-      git_commit: .gitCommit.status,
-      graph_index: .graphIndex.status,
-      proactive_intelligence: {
-        status: .proactiveIntelligence.status,
-        new: .proactiveIntelligence.new,
-        suppressed: .proactiveIntelligence.suppressed,
-        newFindings: .proactiveIntelligence.newFindings
-      },
-      systemMessage: env.SM_TEXT
-    }' 2>/dev/null) || CASCADE_STATUS="{\"cascade_status\":\"complete\",\"raw\":true,\"systemMessage\":\"${SM_TEXT//\"/\\\"}\"}"
-  else
-    # No jq -- wrap raw output with status marker
-    CASCADE_STATUS="{\"cascade_status\":\"complete\",\"systemMessage\":\"${SM_TEXT//\"/\\\"}\"}"
-  fi
-
-  echo "$CASCADE_STATUS"
+  # 95-02: side-channel write + envelope-only stdout.
+  # The full cascade payload (classification + gitCommit + graphIndex +
+  # proactiveIntelligence) goes into <roomDir>/.mindrian/last-cascade.json.
+  # Stdout is ONLY the schema-valid envelope advisory.
+  write_cascade_side_channel "$room_dir" "$FILE_PATH" "${SECTION:-unknown}" "$CASCADE_OUTPUT"
+  emit_post_tool_use_envelope "$SM_TEXT"
 fi
 
 # Phase 88-04: explicit exit 0 -- the PostToolUse hook is a soft-fail channel.
