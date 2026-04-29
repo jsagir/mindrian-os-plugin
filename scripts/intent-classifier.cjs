@@ -102,6 +102,35 @@ function registeredRoomNames(reg) {
   return [];
 }
 
+// ---------------------------------------------------------------------------
+// Phase 94-06: Room classifier strict-mode override
+// ---------------------------------------------------------------------------
+//
+// When the user is unambiguous (numeric position, explicit slug, quoted
+// exact name), bypass the similarity heuristic and resolve directly. The
+// override emits a Section-8 decision-trace edge with
+// routing_source: 'strict_mode' per Canon Part 4. Canon Part 3 (10-verb
+// vocabulary) preserved: strict-mode is a routing OVERRIDE, not a new
+// verb. Canon Part 7 (reuse before build): the detector lives in its
+// own pure-function module under lib/core/ so unit tests can require it
+// without booting the classifier hot path.
+//
+// Order of precedence (locked in plan 94-06 CONTEXT.md decisions):
+//   1. numeric          'switch to 8' or '8'              -> registry[N-1]
+//   2. explicit slug    'curriculum-redesign-fall-2026'    -> exact slug
+//                       '/mos:rooms <slug>'
+//   3. quoted name      '"Beta"' / '"Curriculum Redesign"' -> name OR slug
+//   4. fall through     -> existing similarity heuristic (unchanged)
+//
+// First match wins. Lawrence Aronhime's 2026-04-28 callouts 1, 2, 4 are
+// fenced by this layer. Callout 3 ("the curriculum room", natural
+// language) is known-deferred to v1.11.3.
+const strictModeMod = require(
+  path.join(__dirname, '..', 'lib', 'core', 'room-classifier-strict-mode.cjs')
+);
+const detectStrictMode = strictModeMod.detectStrictMode;
+const STRICT_MODE_ROUTING_SOURCE = strictModeMod.STRICT_MODE_ROUTING_SOURCE;
+
 function isSealed(root, roomName) {
   try {
     return fs.existsSync(path.join(root, roomName, 'GUARDRAIL.md'));
@@ -270,6 +299,70 @@ function extractMessage(raw) {
 const STDIN_RAW = readStdinSync();
 const STDIN_MESSAGE = extractMessage(STDIN_RAW);
 
+// ---------------------------------------------------------------------------
+// Phase 94-06: emitStrictModeOverride
+//
+// Writes the strict-mode override warning to stdout (additionalContext per
+// the UserPromptSubmit hook contract) AND a Section-8 decision-trace edge
+// with routing_source: 'strict_mode' per Canon Part 4. The trace edge is
+// persisted under <activeRoomDir>/.mindrian/decision-traces/<session>.json
+// using the same writer as the Phase 91-02 navigation-engine block so
+// /mos:explain-decision (Plan 91-05) surfaces the override consistently
+// with all other routing decisions.
+//
+// Failure discipline: any throw is swallowed; the user prompt is never
+// disrupted. If trace persistence fails, the stdout warning still emits.
+// ---------------------------------------------------------------------------
+function emitStrictModeOverride(strictMatch, activeSlug, roomsRoot) {
+  const overrideWarning =
+    'Strict-mode override: input "' + strictMatch.input + '" matches room ' +
+    strictMatch.slug + ' (pattern: ' + strictMatch.pattern + ', position-' +
+    'or-slug-or-quoted-name match). Active room is ' + activeSlug + '. ' +
+    'Acknowledge the explicit room reference in your next reply. Confirm ' +
+    'with the user whether to switch rooms before drafting any artifact ' +
+    'related to ' + strictMatch.slug + '.';
+
+  const systemMessage =
+    'strict-mode override: input matches room ' + strictMatch.slug +
+    ' (pattern: ' + strictMatch.pattern + ') but active room is ' + activeSlug;
+
+  const envelope = {
+    hookSpecificOutput: {
+      hookEventName: 'UserPromptSubmit',
+      additionalContext: overrideWarning,
+    },
+    systemMessage: systemMessage,
+  };
+
+  try {
+    process.stdout.write(JSON.stringify(envelope) + '\n');
+  } catch (_e) {
+    // Last-resort fallback: raw text.
+    try { process.stdout.write(overrideWarning + '\n'); } catch (_e2) {}
+  }
+
+  // Persist a Section-8 decision-trace edge so /mos:explain-decision
+  // surfaces this override alongside engine + legacy + mixed routings.
+  // Best-effort; never throws back to main().
+  try {
+    const activeRoomDir = path.join(roomsRoot, activeSlug);
+    if (!fs.existsSync(activeRoomDir)) return;
+    const sessionId = resolveSessionId(activeRoomDir);
+    const turn = appendTraceTurnNumber(activeRoomDir, sessionId);
+    const traceEntry = {
+      turn: turn,
+      at: new Date().toISOString(),
+      routing_source: STRICT_MODE_ROUTING_SOURCE,
+      routing_reason: 'strict_mode_pattern_matched',
+      strict_mode_pattern: strictMatch.pattern,
+      strict_mode_input: strictMatch.input,
+      resolved_slug: strictMatch.slug,
+      active_slug_before: activeSlug,
+    };
+    persistDecisionTrace(activeRoomDir, sessionId, traceEntry);
+  } catch (_e) { /* fire-and-forget */ }
+}
+
 function main() {
   const start = Date.now();
   const deadline = start + BUDGET_MS;
@@ -285,6 +378,34 @@ function main() {
   const registered = registeredRoomNames(reg);
 
   if (Date.now() > deadline) return 0;
+
+  // ----- Phase 94-06: Strict-mode override (top of room-resolution path) -----
+  //
+  // When the user's input is unambiguous (numeric position, explicit slug,
+  // or quoted exact name), bypass the similarity heuristic and resolve
+  // directly. The override emits a Section-8 trace edge with
+  // routing_source: 'strict_mode' per Canon Part 4. The similarity
+  // heuristic stays as fallback for ambiguous natural-language input.
+  //
+  // This block fires BEFORE the similarity loop and can short-circuit
+  // main() with an explicit override warning. The standard similarity
+  // path is unchanged when strict-mode does not match.
+  const strictMatch = detectStrictMode(message, reg);
+  if (strictMatch && active && strictMatch.slug !== active) {
+    // User's input matched a strict-mode pattern AND the matched room is
+    // NOT the active room. Emit a high-confidence override warning + a
+    // Section-8 trace edge that downstream readers can attribute to the
+    // strict-mode layer.
+    emitStrictModeOverride(strictMatch, active, root);
+    return 0;
+  }
+  // If strictMatch is non-null AND matches the active room, we silence
+  // (the user is just confirming the active room; no warning needed).
+  if (strictMatch && active && strictMatch.slug === active) {
+    return 0;
+  }
+  // strictMatch is null: continue to similarity heuristic (existing path).
+  // ----- end Phase 94-06 strict-mode override -----
 
   const sealedRooms = discoverSealedRooms(root, deadline);
   if (Date.now() > deadline) return 0;
