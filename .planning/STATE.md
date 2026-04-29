@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
-status: executing
-stopped_at: Completed 95-04-bash-hooks-envelope-fix-batch-PLAN.md
-last_updated: "2026-04-29T19:14:31.821Z"
+status: verifying
+stopped_at: Completed 95-05-regression-test-extension-and-release-gate-PLAN.md (Phase 95 SHIPPED as v1.12.0)
+last_updated: "2026-04-29T19:53:03.991Z"
 last_activity: 2026-04-29
 progress:
   total_phases: 32
-  completed_phases: 16
+  completed_phases: 17
   total_plans: 159
-  completed_plans: 147
+  completed_plans: 148
   percent: 82
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 95 (bash-hook-envelope-and-cascade-side-channel) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
+Status: Phase complete — ready for verification
 
 Phase 89.5 closure (this session):
 
@@ -162,6 +162,7 @@ Progress: [████████░░] 82%
 | Phase 95 P02 | 6min26s | 2 tasks | 3 files |
 | Phase 95 P03 | 4min51s | 2 tasks | 5 files |
 | Phase 95 P04 | 25min | 3 tasks | 8 files |
+| Phase 95 P05 | 27 | 7 tasks | 7 files |
 
 ### Roadmap Evolution
 
@@ -500,6 +501,9 @@ Progress: [████████░░] 82%
 - [Phase 95]: PostCompact side-channel file path is <roomDir>/.mindrian/last-post-compact.md (Markdown plain text, NOT JSON); WRITTEN by Phase 95 but NOT YET CONSUMED at next session-start; consumer deferred to Phase 95.5+; CHANGELOG transparency note in Plan 95-05
 - [Phase 95]: scripts/session-start NOT modified (B2 plan-checker scope-leak fix); Cursor-branch divergence on session-start documented in 95-01-AUDIT.md text only; Cursor-branch annotations applied to 3 hooks already in files_modified (post-compact, on-cwd-changed, on-task-complete)
 - [Phase 95]: scripts/on-agent-complete background post-write redirect to /dev/null (Rule 3 auto-fix discovered in GREEN test run): without this redirect the child PostToolUse envelope leaks into parent SubagentStop stdout, breaking single-JSON-object parse for cascade-path scenario
+- [Phase 95]: v1.12.0 ships direct (not beta). Feature-restoration release; Phase 88.1-03 mid-session intelligence injection now functions for the first time since shipped.
+- [Phase 95]: 27/27 envelope-related regression scenarios GREEN (16 + 5 + 6). 3 pre-existing fixture failures (Phase 84 + Phase 85 self-update) deferred per SCOPE BOUNDARY rule; release impact: none.
+- [Phase 95]: PostCompact context preservation half-wired in v1.12.0: writer landed (scripts/post-compact -> last-post-compact.md), consumer queued for Phase 95.5 / 96. Disclosure in CHANGELOG ### Audit Notes per release-process.md transparency.
 
 ### Pending Todos
 
@@ -521,6 +525,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-29T19:14:17.311Z
-Stopped at: Completed 95-04-bash-hooks-envelope-fix-batch-PLAN.md
+Last session: 2026-04-29T19:52:52.708Z
+Stopped at: Completed 95-05-regression-test-extension-and-release-gate-PLAN.md (Phase 95 SHIPPED as v1.12.0)
 Resume file: None
