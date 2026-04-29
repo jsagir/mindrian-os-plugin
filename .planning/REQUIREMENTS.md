@@ -122,8 +122,8 @@
 - [x] **BASH-95-03**: `skills/room-proactive/SKILL.md` OLD cascade detection contract (current lines 80-113, including the `## Mid-Session Intelligence` block AND the `## After Filing: Decision Capture` introduction + `### When to Present` block which carry OLD `cascade_status.proactive_intelligence` framing) replaced with side-channel reader contract; the prose APPROVE/REJECT/DEFER renderer (`### How to Present` heading through `Do NOT follow up...` line - current lines 114-160) preserved BYTE-IDENTICAL via anchored-diff verification; mid-session intelligence injection (Phase 88.1-03 feature) functions in production for the first time since shipped.
 - [x] **BASH-95-04**: All 9 other bash hooks (session-start, pre-compact, post-compact, on-stop, write-scope-check, intent-classifier, on-file-changed, on-cwd-changed, on-agent-complete, on-task-complete) audited per lifecycle event; envelope violations fixed.
 - [x] **BASH-95-05**: `tests/test-hook-envelope-shape.cjs` extended to fence ALL bash hook stdout shapes by lifecycle event (per-event allowed-key sets enforced).
-- [ ] **BASH-95-06**: CHANGELOG.md `[1.12.0]` entry contains BOTH `### Fixed` (envelope hygiene) AND `### Changed` (room-proactive cascade restoration) sections.
-- [ ] **BASH-95-07**: Version bump 1.11.2 -> 1.12.0 across all 5 release gates (CHANGELOG.md, .claude-plugin/plugin.json, package.json, git tag v1.12.0, ~/mindrian-marketplace/.claude-plugin/marketplace.json ref pin).
+- [x] **BASH-95-06**: CHANGELOG.md `[1.12.0]` entry contains BOTH `### Fixed` (envelope hygiene) AND `### Changed` (room-proactive cascade restoration) sections.
+- [x] **BASH-95-07**: Version bump 1.11.2 -> 1.12.0 across all 5 release gates (CHANGELOG.md, .claude-plugin/plugin.json, package.json, git tag v1.12.0, ~/mindrian-marketplace/.claude-plugin/marketplace.json ref pin).
 
 ## Future Requirements (v2)
 
@@ -227,5 +227,5 @@
 | BASH-95-03 | Phase 95 | Complete |
 | BASH-95-04 | Phase 95 | Complete |
 | BASH-95-05 | Phase 95 | Complete |
-| BASH-95-06 | Phase 95 | Pending |
-| BASH-95-07 | Phase 95 | Pending |
+| BASH-95-06 | Phase 95 | Complete |
+| BASH-95-07 | Phase 95 | Complete |

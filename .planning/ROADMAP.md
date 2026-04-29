@@ -850,7 +850,7 @@ Plans:
 - [x] 95-02-post-write-side-channel-writer (post-write fix + atomic side-channel writer)
 - [x] 95-03-room-proactive-skill-cascade-restoration (SKILL.md contract update; cool-UI cascade render)
 - [x] 95-04-bash-hooks-envelope-fix-batch (apply audit findings to 6 schema-violating hooks; spot-audit 2 .cjs wrappers; extend regression test)
-- [ ] 95-05-regression-test-extension-and-release-gate (full suite + 5-gate release v1.12.0)
+- [x] 95-05-regression-test-extension-and-release-gate (full suite + 5-gate release v1.12.0)
 
 **Acceptance criteria** (from 95-CONTEXT.md):
 - A1: Bash post-write emits schema-valid envelope.
@@ -860,4 +860,6 @@ Plans:
 - A5: Regression test fences all bash hook stdout shapes per-event.
 - A6: CHANGELOG entries (Fixed for envelope hygiene + Changed for restored room-proactive feature).
 - A7: Version bump 1.11.2 -> 1.12.0.
+
+**Outcome:** Phase 95 ships as v1.12.0 (2026-04-29). 7 bash hooks envelope-clean against Claude Code 2.x schema. `<roomDir>/.mindrian/last-cascade.json` and `<roomDir>/.mindrian/last-post-compact.md` side-channel files installed (LOCAL only per Canon Part 8). `room-proactive` skill restored to functional state for the first time since Phase 88.1-03 shipped (Plan 95-03). Three regression tests fence the bash hook envelope shapes + side-channel atomic write + SKILL.md contract (27/27 envelope scenarios GREEN: 16 + 5 + 6). Cursor-branch divergence intentionally preserved per `.planning/phases/95-bash-hook-envelope-and-cascade-side-channel/95-01-AUDIT.md`. PostCompact context-preservation half-wired (writer landed; consumer queued for Phase 95.5/96 per release-process.md transparency).
 
