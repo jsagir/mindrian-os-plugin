@@ -810,9 +810,9 @@ Plans:
 - [x] 94-04-mcp-server-brain-deps (P0 ship-blocker, was FIX-3)
 - [x] 94-05-mcp-stack-fallback-chain (P0 ship-blocker, was FIX-4)
 - [x] 94-06-room-classifier-strict-mode (P0 Lawrence UX)
-- [ ] 94-07-em-dashes-wiki-md (P1 quick win, was FIX-5)
-- [ ] 94-08-u2717-cross-mark-replacement (P1 quick win, was FIX-7)
-- [ ] 94-09-explain-decision-action-footer (P1 quick win, was FIX-8)
+- [x] 94-07-em-dashes-wiki-md (P1 quick win, was FIX-5)
+- [x] 94-08-u2717-cross-mark-replacement (P1 quick win, was FIX-7)
+- [x] 94-09-explain-decision-action-footer (P1 quick win, was FIX-8)
 - [ ] 94-10-v1.11.2-release-gate (release)
 
 **Deferred to v1.11.3:** body_shape compliance sweep (FIX-6); chain-feeder Mode A guard (FIX-9); NL-to-query intent broaden (FIX-10); migration script disambiguation; macOS hardcoded path audit; FEEDS_INTO vs IS_PART_OF schema; verification docs; Anthropic upstream bug report.
