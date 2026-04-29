@@ -60,6 +60,23 @@ fi
 echo "  . Installing dependencies..."
 npm install --quiet --no-audit --no-fund 2>/dev/null
 
+# Step 3b (Phase 94-04): bundled mcp-server-brain dependencies.
+# Optional/legacy path. Users on the canonical 'mindrian-brain' MCP via
+# their own Neo4j MCP do NOT need this. See docs/install/BRAIN-SETUP.md
+# for the recommended v1.11.2 wiring.
+# Tier 0 graceful: when the directory or package.json is absent (advanced
+# user removed it, or a stripped-down install) the hook silently skips
+# instead of erroring per Canon Decision 8.
+if [ -d "mcp-server-brain" ] && [ -f "mcp-server-brain/package.json" ]; then
+  echo "  . Installing bundled mcp-server-brain dependencies (optional)..."
+  if (cd mcp-server-brain && npm install --quiet --no-audit --no-fund 2>/dev/null); then
+    echo "    bundled Brain server deps ready"
+  else
+    echo "    WARN: mcp-server-brain npm install failed (non-fatal)."
+    echo "          See docs/install/BRAIN-SETUP.md for the canonical-name path."
+  fi
+fi
+
 # Step 4: Create symlinks for commands
 echo "  . Registering commands..."
 COMMANDS_DIR="${CLAUDE_DIR}/commands"
