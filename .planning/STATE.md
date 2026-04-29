@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 94-03-brain-mcp-server-resolution-PLAN.md
-last_updated: "2026-04-28T21:04:06.533Z"
-last_activity: 2026-04-28
+stopped_at: Completed 94-04-mcp-server-brain-deps-PLAN.md
+last_updated: "2026-04-29T04:02:24.582Z"
+last_activity: 2026-04-29
 progress:
   total_phases: 30
   completed_phases: 15
   total_plans: 153
-  completed_plans: 136
+  completed_plans: 137
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 94 (v1-11-2-tester-driven-fixer) — EXECUTING
-Plan: 2 of 10
+Plan: 3 of 10
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -71,7 +71,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-04-28
+Last activity: 2026-04-29
 
 Progress: [████████░░] 82%
 
@@ -154,6 +154,7 @@ Progress: [████████░░] 82%
 | Phase 91 P07 | 30min | 3 tasks | 4 files |
 | Phase 91 P08 | 7min | 2 tasks | 4 files |
 | Phase 94 P03 | 22min | 4 tasks | 20 files |
+| Phase 94-v1-11-2-tester-driven-fixer P04 | 18min | 4 tasks | 6 files |
 
 ### Roadmap Evolution
 
@@ -477,6 +478,7 @@ Progress: [████████░░] 82%
 - [Phase 91]: Out-of-range confidence becomes null (no silent clamp)
 - [Phase 91]: Brain-availability check is 3-layer guarded (require/function/throw)
 - [Phase 91]: Plan 91-08: Framework chain composition shipped. lib/core/framework-chain-composer.cjs (parseFrameworkChainSection + detectCompletedFramework + proposeNextFramework) reads BRAIN.md framework_chain_predictions FEEDS_INTO edges and proposes next framework. Engine integrates at decide() with lazy-require + try/catch; chain offer set when no higher-priority signal claims offer_next_step. Confidence gating: 0.5 noise floor + 0.7 RECOMMENDED. User override (turn-2 different /mos: command vs lastTurnOffer) -> REJECTED chain trace per Canon Part 4. Canon Part 8 boundary preserved (zero brain-client/fetch/curl). 18/18 tests green; 156 prior 91-* tests still pass.
+- [Phase 94-v1-11-2-tester-driven-fixer]: 94-04: three-layer safety (install hook + env template + drift check) ships v1.11.2 bundled-Brain mitigations; bundled mcp-server-brain officially deprecated in BRAIN-SETUP.md Section 6 in favor of users pointing canonical 'mindrian-brain' at their own Neo4j MCP
 
 ### Pending Todos
 
@@ -498,6 +500,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-28T21:04:06.526Z
-Stopped at: Completed 94-03-brain-mcp-server-resolution-PLAN.md
+Last session: 2026-04-29T04:02:17.861Z
+Stopped at: Completed 94-04-mcp-server-brain-deps-PLAN.md
 Resume file: None

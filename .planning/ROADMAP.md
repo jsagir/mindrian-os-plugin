@@ -807,7 +807,7 @@ Plans:
 - [x] 94-01-statusline-active-room-fix (P0 Lawrence UX) -- SHIPPED on main: commits 567fea8 RED, 93f1cfa GREEN, 906fb18 wire, 18e1751 async parity
 - [x] 94-02-rs-fetch-thesis-merge-fix (P0 ship-blocker, was FIX-1)
 - [x] 94-03-brain-mcp-server-resolution (P0 ship-blocker, was FIX-2)
-- [ ] 94-04-mcp-server-brain-deps (P0 ship-blocker, was FIX-3)
+- [x] 94-04-mcp-server-brain-deps (P0 ship-blocker, was FIX-3)
 - [ ] 94-05-mcp-stack-fallback-chain (P0 ship-blocker, was FIX-4)
 - [ ] 94-06-room-classifier-strict-mode (P0 Lawrence UX)
 - [ ] 94-07-em-dashes-wiki-md (P1 quick win, was FIX-5)
