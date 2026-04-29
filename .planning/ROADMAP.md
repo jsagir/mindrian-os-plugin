@@ -819,12 +819,14 @@ Plans:
 
 **Deferred to v1.12.0:** 5 new methodology commands (white-space-mapping, market-positioning, innovation-of-meaning, leveraging-resources, four-actions-framework); persona-aware Pre-Mortem; find-analogies script entry point (FIX-11); tester follow-up nudge automation; multi-room canonical context pattern doc.
 
-### Phase 94.1: v1-11-1-mos-heal-command (INSERTED)
+### Phase 94.1: v1-11-1-mos-heal-command (SHIPPED)
 
-**Goal:** [Urgent work - to be planned]
-**Requirements**: TBD
+**Goal:** Ship /mos:heal slash command + scripts/heal-command.cjs orchestrator wrapping the 10-step room wiring heal recipe (dog-fooded on mindrianOS room 2026-04-29)
+**Requirements**: None (closing artifact for v1.11.1 GA)
 **Depends on:** Phase 94
-**Plans:** 0 plans
+**Plans:** 1 of 1 complete
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 94.1 to break down)
+- [x] 94.1-01 mos-heal-command (commits 9585db4 RED, 3934198 GREEN orchestrator, c2d2c97 slash command, d22dc6a install doc, SUMMARY)
+
+**Outcome:** /mos:heal ships as v1.11.1 GA closing artifact. 10-step orchestrator wraps 4 shipped scripts (migrate-lazygraph, vault-section-state-generator, vault-section-minto-generator, compute-state) per Canon Part 7 reuse-before-build. heal-log.json envelope captures cascade as graph data per Canon Part 4. LOCAL-only operation per Canon Part 8 (brain-derivation-queue read-only; drain deferred to v1.12). 6/6 fixture tests green; Feynman runner advanced 106 -> 107. Three v1.12 candidates filed in deferred-items.md with explicit re-trigger conditions (BUG-1 FEYNMINTO budget; BUG-2 brain-queue drain; BUG-5 auto-section-scaffold).
