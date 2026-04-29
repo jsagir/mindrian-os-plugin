@@ -22,7 +22,7 @@ This skill activates when `scripts/resolve-room` finds any active room with entr
 | /mos:status | All HIGH + MEDIUM findings grouped by type. |
 | /mos:room --insights | Full analysis including LOW with interpretation. |
 | Methodology session | NEVER interrupt. Save for next SessionStart. |
-| PostToolUse (cascade complete) | Check cascade_status.proactive_intelligence.newFindings. If non-empty, present max 2 for APPROVE/REJECT/DEFER using Decision Capture flow. |
+| PostToolUse (cascade complete) | When additionalContext matches `^post-write: cascade complete` OR `^queued MINTO regen`, read `<roomDir>/.mindrian/last-cascade.json`. If `proactive_intelligence.newFindings` is non-empty, present max 2 for APPROVE/REJECT/DEFER using Decision Capture flow. |
 
 ## Gap Detection
 
@@ -79,33 +79,79 @@ Same domain/customer/risk/theme in 3+ artifacts from different methodologies. Ph
 
 ## Mid-Session Intelligence
 
-When cascade_status appears in additionalContext (from a post-write hook completing), check for new findings:
+When the post-write cascade completes, the bash hook emits a tight one-line `additionalContext` advisory and writes the full cascade payload to a side-channel file at `<roomDir>/.mindrian/last-cascade.json`. This skill reads the side-channel file when it sees the trigger pattern, then renders findings using the cool-UI style canon (banner with rules + status grid + Shape A summary - NEVER raw prose).
 
 ### Detection
 
-Look for `proactive_intelligence.newFindings` in the cascade_status JSON. If the array is non-empty, there are new intelligence findings from the filing that just occurred.
+The post-write hook's `additionalContext` matches one of two patterns:
+- `^post-write: cascade complete for ` (writes outside a recognized room section; payload is minimal)
+- `^queued MINTO regen for ` (writes inside a section; payload is full)
+
+When EITHER pattern fires, read `<roomDir>/.mindrian/last-cascade.json` (where `<roomDir>` is the path returned by `scripts/resolve-room` - the active room). Use the Read tool. The file is LOCAL only per Canon Part 8; never query the Brain or any network surface during this read.
 
 ### Behavior
 
-1. If `newFindings` has 1+ items with confidence >= 0.60: present using the "After Filing: Decision Capture" flow below
-2. If `newFindings` is empty or all items have confidence < 0.60: do not interrupt -- the cascade ran but found nothing new
-3. If `proactive_intelligence.suppressed` > 0: silently note that repeat findings were filtered -- do NOT mention suppression to the user
+1. If the side-channel file does not exist or fails to parse: the cascade did not produce intelligence. Do nothing. Soft-fail.
+2. If `proactive_intelligence.newFindings` is empty or missing: the cascade ran but found nothing new. Do nothing.
+3. If `proactive_intelligence.suppressed > 0`: silently note the suppression count. Do NOT mention it to the user.
+4. If `newFindings` has 1+ items with `confidence >= 0.60`: present using the "After Filing: Decision Capture" flow below. Max 2 findings (highest confidence first).
+5. If a finding has `isNew: false`: it is a previously-seen finding with new evidence. Present with the "I've seen this signal before" framing.
+6. NEVER interrupt during a methodology session. Save for next non-methodology turn.
+
+### Render Contract (cool-UI style canon)
+
+The cascade-finding render uses the cool-UI style from `.planning/research/cool-ui-style-reference.md`. Specifically:
+
+- **Banner** with thin horizontal rules (`━`) and a `►` separator. Title format: ` ROOM ► CASCADE FINDINGS` (one leading space; ALL CAPS; no em-dash).
+- **Status grid** with two-space indent, glyph at column 0, label-then-value with alignment whitespace (no colons; alignment IS the punctuation). Glyph vocabulary is fixed:
+  - `◆` active / in-flight / configured (use for section + artifact rows)
+  - `⚠` warning / contradiction (use for contradiction findings)
+  - `⚡` urgent / convergence (use for convergence findings)
+  - `⬜` gap / pending (use for gap findings)
+  - `▶` next-action callout (single row at bottom of grid pointing to the decision verbs)
+- **Soft prose paragraph** below the grid: 2-3 sentences explaining WHY this finding matters in this venture's context. Plain prose, not bullets.
+- **Decision prompt** routes through the existing prose APPROVE/REJECT/DEFER flow (see "After Filing: Decision Capture" below). The F.0 AskUserQuestion selector is INTENTIONALLY deferred to Phase 88.2 / Phase 97 per `room/decisions/decision-phase-95-sequencing.md`. Phase 95 only changes WHERE the finding payload comes from, not the renderer itself.
+
+Example render (one contradiction finding, confidence 0.78):
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ ROOM ► CASCADE FINDINGS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ◆ section          problem-definition
+  ◆ artifact         customer-discovery-2026-04-29.md
+  ⚠ contradiction    customer-type vs market-size (confidence 0.78)
+  ▶ next             APPROVE / REJECT / DEFER
+
+The customer-type claim in this artifact (mid-market enterprise) sits in
+tension with the market-size assumption you filed in business-model
+last week (SMB segment). Worth reconciling before the next funding round.
+```
+
+NO emoji. NO em-dashes. Glyphs only. Aligned columns. The alignment IS the punctuation.
 
 ### New Evidence Indicator
 
-If a finding has `isNew: false`, it means this is a PREVIOUSLY SEEN finding that has NEW EVIDENCE (confidence or message changed). Present it with context:
+If a finding has `isNew: false`, it means this is a PREVIOUSLY SEEN finding that has NEW EVIDENCE (confidence or message changed). Present with the "I've seen this signal before" framing in the soft prose paragraph below the grid:
 
-"I've seen this signal before, but new evidence just shifted it. [Finding message]. Confidence is now [0.xx] (was different before)."
+"I have seen this signal before, but new evidence just shifted it. [finding message]. Confidence is now [0.xx] (was different before)."
 
 This distinguishes updated findings from brand-new discoveries and helps the user understand why they are seeing something again.
 
+### Why a side-channel file (not in-band JSON)
+
+The PostToolUse envelope's `additionalContext` is a one-line string. The cascade payload contains structured data (classification, gitCommit, graphIndex, proactiveIntelligence with arrays of findings). Embedding it in the `additionalContext` string would (a) blow past the practical line-length budget, (b) require the skill to parse JSON-in-a-string, (c) couple the skill's contract to envelope-schema churn. The side-channel keeps the envelope clean and the data structured. This pattern is canonical in the plugin (see Phase 88-08 `pre-compact-snapshot.json`, Phase 88-06 `session-snapshot.json`). LOCAL only per Canon Part 8.
+
+NOTE: This contract REPLACES the previous load-bearing-broken-since-88.1-03 detection that read the cascade payload from the PostToolUse `additionalContext` envelope. The bash hook never wrote the cascade payload at the location the skill expected. Phase 95 corrects the data flow by relocating the payload to the side-channel file. The prose APPROVE/REJECT/DEFER renderer below (existing APPROVE/REJECT/DEFER flow at "After Filing: Decision Capture") is BYTE-IDENTICAL to current - only the input source has changed.
+
 ## After Filing: Decision Capture
 
-When the post-write cascade completes and returns `newFindings` in `cascade_status.proactive_intelligence`, present findings to the user for decision.
+When the post-write cascade completes and the side-channel reader (above) finds `newFindings` in `<roomDir>/.mindrian/last-cascade.json`, present findings to the user for decision.
 
 ### When to Present
 
-- ONLY when cascade_status includes `proactive_intelligence.newFindings` with 1+ items
+- ONLY when the side-channel file exists AND `proactive_intelligence.newFindings` has 1+ items
 - ONLY present findings with confidence >= 0.60
 - Max 2 findings per filing (pick highest confidence)
 - NEVER present during a methodology session (save for next filing)
