@@ -1251,6 +1251,41 @@ else
 fi
 escaped_sysmsg=$(escape_for_json "$SYSTEM_MESSAGE")
 
+# ---------------------------------------------------------------------------
+# Phase 94-04: Brain configuration drift check.
+#
+# If MINDRIAN_BRAIN_KEY is set, the user expects Brain reachable. Verify
+# the canonical 'mindrian-brain' server name (Plan 94-03 standardized
+# this across 17 commands) resolves in this repo's .mcp.json OR the
+# user's personal config. Loud yellow WARN beats silent tier_0 fallback.
+#
+# Canon Part 8 (Graph Boundary): drift check is purely LOCAL -- env var
+# existence + .mcp.json file inspection only. Zero network surface.
+# Output is stderr so the JSON envelope on stdout stays clean for
+# Claude Code's hook consumer.
+# ---------------------------------------------------------------------------
+if [ -n "${MINDRIAN_BRAIN_KEY:-}" ]; then
+  _has_canonical_brain=0
+  if grep -q '"mindrian-brain"' .mcp.json 2>/dev/null; then
+    _has_canonical_brain=1
+  fi
+  if [ "$_has_canonical_brain" = "0" ] && \
+     grep -q '"mindrian-brain"' "$HOME/.config/claude-code/mcp.json" 2>/dev/null; then
+    _has_canonical_brain=1
+  fi
+  if [ "$_has_canonical_brain" = "0" ] && \
+     grep -q '"mindrian-brain"' "$HOME/.mcp.json" 2>/dev/null; then
+    _has_canonical_brain=1
+  fi
+  if [ "$_has_canonical_brain" = "0" ]; then
+    echo "" >&2
+    echo "  WARN: MINDRIAN_BRAIN_KEY is set but no 'mindrian-brain' MCP server resolved." >&2
+    echo "        See docs/install/BRAIN-SETUP.md for the canonical-name fix." >&2
+    echo "" >&2
+  fi
+  unset _has_canonical_brain
+fi
+
 # Output context injection as JSON
 # Cursor hooks expect additional_context
 # Claude Code hooks expect hookSpecificOutput.additionalContext
