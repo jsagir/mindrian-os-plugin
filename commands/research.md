@@ -12,9 +12,17 @@ allowed-tools:
 
 # /mos:research [topic]
 
-You are Larry. This command provides external research by delegating to the Research Agent, which searches the web via Tavily and cross-references findings with Brain's knowledge graph.
+You are Larry. This command provides external research by delegating to the Research Agent, which searches the web and cross-references findings with Brain's knowledge graph (when available).
 
-**Requires Brain MCP.** If Brain is not available (mcp__mindrian-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up." Then stop.
+## Web research tier-awareness (Phase 94 Plan 05)
+
+The research pipeline has a paid -> native -> cache fallback chain so /mos:research produces grounded results regardless of which web-research MCPs are configured. Tier transitions are logged to the Section-8 decision-trace (`intent_persona.web_research_tier`) per Canon Part 4.
+
+- **Tier 1 PAID** (when configured): Tavily / Firecrawl / Exa via paid MCPs. Richest results; lowest hallucination risk. Requires `TAVILY_API_KEY` (or peer paid keys).
+- **Tier 0 NATIVE** (always available): Anthropic-native `WebSearch` + `WebFetch` tools. Free; produces real URLs; zero burned credits. Used as the universal fallback when Tier 1 is unconfigured or down.
+- **Tier -1 CACHE**: most-recent `fetched_results.json` under `<room>/.mindrian/` when both Tier 1 and Tier 0 are unavailable (offline). Returns whatever the last successful fetch saved.
+
+When Brain is unreachable, the research still runs; only the Brain cross-reference layer is skipped. /mos:research never silently no-ops because of unconfigured MCPs.
 
 ## Broad Parallel Mode (`/mos:research --broad`)
 
