@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 95-02-post-write-side-channel-writer-PLAN.md
-last_updated: "2026-04-29T18:57:31.295Z"
+stopped_at: Completed 95-03-room-proactive-skill-cascade-restoration-PLAN.md
+last_updated: "2026-04-29T19:09:09.074Z"
 last_activity: 2026-04-29
 progress:
   total_phases: 32
   completed_phases: 16
   total_plans: 159
-  completed_plans: 145
+  completed_plans: 146
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 95 (bash-hook-envelope-and-cascade-side-channel) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -160,6 +160,7 @@ Progress: [████████░░] 82%
 | Phase 94-v1-11-2-tester-driven-fixer P09 | 14min | 3 tasks | 3 files |
 | Phase 95 P01 | 4min | 3 tasks | 4 files |
 | Phase 95 P02 | 6min26s | 2 tasks | 3 files |
+| Phase 95 P03 | 4min51s | 2 tasks | 5 files |
 
 ### Roadmap Evolution
 
@@ -493,6 +494,7 @@ Progress: [████████░░] 82%
 - [Phase 95]: Side-channel cascade payload at <roomDir>/.mindrian/last-cascade.json with atomic mktemp+mv-f write; bash post-write emits hookSpecificOutput.additionalContext envelope only
 - [Phase 95]: Test sandbox uses MINDRIAN_ROOMS_HOME + Strategy-0 .rooms/registry.json so post-write active-room guard recognizes synthetic room and lets cascade fire
 - [Phase 95]: Dog-food smoke step deferred per CLAUDE.md Decision #16 nested-structure rule; regression test fixtures provide equivalent evidence via spawnSync
+- [Phase 95]: Plan 95-03: room-proactive SKILL.md detection block rewritten to read side-channel JSON; OLD cascade_status.proactive_intelligence framings removed; cool-UI render contract added per cool-ui-style-reference.md; lines 114-160 byte-identical preserved
 
 ### Pending Todos
 
@@ -514,6 +516,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-29T18:57:21.818Z
-Stopped at: Completed 95-02-post-write-side-channel-writer-PLAN.md
+Last session: 2026-04-29T19:09:09.064Z
+Stopped at: Completed 95-03-room-proactive-skill-cascade-restoration-PLAN.md
 Resume file: None

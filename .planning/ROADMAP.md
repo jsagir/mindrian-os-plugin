@@ -848,7 +848,7 @@ Plans:
 **Plans (target, 5 total):**
 - [x] 95-01-bash-hook-envelope-audit-report (audit; produces 95-01-AUDIT.md)
 - [x] 95-02-post-write-side-channel-writer (post-write fix + atomic side-channel writer)
-- [ ] 95-03-room-proactive-skill-cascade-restoration (SKILL.md contract update; cool-UI cascade render)
+- [x] 95-03-room-proactive-skill-cascade-restoration (SKILL.md contract update; cool-UI cascade render)
 - [ ] 95-04-bash-hooks-envelope-fix-batch (apply audit findings to 6 schema-violating hooks; spot-audit 2 .cjs wrappers; extend regression test)
 - [ ] 95-05-regression-test-extension-and-release-gate (full suite + 5-gate release v1.12.0)
 
