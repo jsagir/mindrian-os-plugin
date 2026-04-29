@@ -342,7 +342,7 @@ Load the command's `.md` file from `commands/` to get accurate description and u
 
 If the command doesn't exist (or is hidden by the visibility guard):
 ```
-✗ Unknown command: [command]
+x Unknown command: [command]
   Why: No matching /mos: command found
   Fix: /mos:help --all
 ```

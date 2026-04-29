@@ -39,7 +39,7 @@ Check if the current user is authorized to use this command.
 If **none** of these conditions are met, render the 3-line error and STOP:
 
 ```
-✗ Command not found: admin
+x Command not found: admin
   Why: Not an admin user
   Fix: /mos:help
 ```
@@ -159,7 +159,7 @@ Display the brain-admin.cjs output directly. It is already well-formatted with i
 
 **If no email provided**, show error:
 ```
-✗ Missing email
+x Missing email
   Why: approve requires an email address
   Fix: /mos:admin approve user@example.com
 ```
@@ -196,7 +196,7 @@ node "${CLAUDE_PLUGIN_ROOT}/mcp-server-brain/brain-admin.cjs" create --email [em
 
 **If no email provided**, show error:
 ```
-✗ Missing email
+x Missing email
   Why: revoke requires an email address
   Fix: /mos:admin revoke user@example.com
 ```
@@ -246,7 +246,7 @@ node "${CLAUDE_PLUGIN_ROOT}/mcp-server-brain/brain-admin.cjs" revoke --email [em
 
 **If missing email or days**, show error:
 ```
-✗ Missing arguments
+x Missing arguments
   Why: extend requires email and days
   Fix: /mos:admin extend user@example.com 30
 ```
