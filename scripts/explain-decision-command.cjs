@@ -345,6 +345,25 @@ function renderTrace(t) {
   return lines.join('\n');
 }
 
+// Phase 94-09: Action Footer per skills/ui-system/SKILL.md 4-zone rule.
+// Section 1 Zone 4 declares the Action Footer "NEVER omitted". Pre-94-09
+// this script's output ended with `---` separator and no Next: footer,
+// violating the rule. Per QA handoff Section 3 FIX-8, append a footer
+// with 3 canonical /mos:* commands so the user always has a navigable
+// next step after inspecting a decision trace. Verbs map to Canon Part 3
+// 10-verb vocabulary: /mos:status -> Synthesize (room health),
+// /mos:act -> Run Methodology, /mos:suggest-next -> Free-Text /
+// Spawn Sub-Agent (engine-driven recommendation).
+function actionFooter() {
+  return [
+    '',
+    'Next:  /mos:status         see room health',
+    '       /mos:act            run a methodology',
+    '       /mos:suggest-next   let the engine pick',
+    '',
+  ].join('\n');
+}
+
 function renderHeader(sessionId, count, totalAvailable) {
   const lines = [];
   lines.push('# Navigation Engine Decision Trace');
@@ -388,6 +407,8 @@ function main() {
     process.stdout.write('No active room found.\n');
     process.stdout.write('  Why: registry.json missing or no active room set.\n');
     process.stdout.write('  Fix: /mos:rooms switch <slug>\n');
+    // Phase 94-09: Action Footer per ui-system 4-zone rule (NEVER omitted).
+    process.stdout.write(actionFooter());
     process.exit(0);
     return;
   }
@@ -397,6 +418,8 @@ function main() {
     process.stdout.write('No decisions recorded for this session.\n');
     process.stdout.write('  Why: no decision-traces found under ' + roomDir + '/.mindrian/decision-traces/\n');
     process.stdout.write('  Fix: send a prompt to Larry to record a decision; then re-run /mos:explain-decision.\n');
+    // Phase 94-09: Action Footer per ui-system 4-zone rule.
+    process.stdout.write(actionFooter());
     process.exit(0);
     return;
   }
@@ -407,11 +430,15 @@ function main() {
       process.stdout.write('Decision trace file could not be parsed.\n');
       process.stdout.write('  Session: ' + sessionId + '\n');
       process.stdout.write('  File: .mindrian/decision-traces/' + sessionId + '.json\n');
+      // Phase 94-09: Action Footer per ui-system 4-zone rule.
+      process.stdout.write(actionFooter());
       process.exit(0);
       return;
     }
     process.stdout.write('No decisions recorded for this session.\n');
     process.stdout.write('  Session: ' + sessionId + '\n');
+    // Phase 94-09: Action Footer per ui-system 4-zone rule.
+    process.stdout.write(actionFooter());
     process.exit(0);
     return;
   }
@@ -420,6 +447,10 @@ function main() {
   if (traces.length === 0) {
     process.stdout.write('No decisions recorded for this session.\n');
     process.stdout.write('  Session: ' + sessionId + '\n');
+    // Phase 94-09: Action Footer per ui-system 4-zone rule. Empty-path
+    // (T4) graceful render: the user always gets a navigable next step
+    // even when no decisions are recorded yet.
+    process.stdout.write(actionFooter());
     process.exit(0);
     return;
   }
@@ -434,6 +465,12 @@ function main() {
   for (const t of slice) {
     process.stdout.write(renderTrace(t) + '\n\n');
   }
+  // Phase 94-09: Action Footer per ui-system 4-zone rule. Appended at the
+  // END of the rendered output, AFTER the last trace's closing `---`
+  // separator, so renderTrace() output is byte-identical to pre-94-09 up
+  // to and including the closing `---`. The footer is purely additive at
+  // the tail per the QA handoff Section 3 FIX-8 verbatim suggestion.
+  process.stdout.write(actionFooter());
   process.exit(0);
 }
 
@@ -444,6 +481,8 @@ if (require.main === module) {
     // Defense-in-depth: never throw to the user. Print advisory and exit 0.
     process.stdout.write('Decision trace could not be rendered.\n');
     process.stdout.write('  Reason: ' + (err && err.message ? err.message : 'unknown') + '\n');
+    // Phase 94-09: Action Footer per ui-system 4-zone rule.
+    process.stdout.write(actionFooter());
     process.exit(0);
   }
 }
@@ -456,4 +495,5 @@ module.exports = {
   renderTrace: renderTrace,
   renderHeader: renderHeader,
   classifyTier: classifyTier,
+  actionFooter: actionFooter,
 };
