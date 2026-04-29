@@ -9,6 +9,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.11.1] - 2026-04-29
+
+Promotes `v1.11.1-beta.1` to GA. Stacks Phase 94 Tester-Driven Fixer (8 P0/P1 plans surfaced from Lawrence Aronhime's QA harness on 2026-04-28) plus Phase 94.1 `/mos:heal` command on top of the beta hotfix. Single coherent release covering tester-discovered bugs + the room-wiring heal command users need after upgrading from v1.10.x.
+
+### Added
+
+- `/mos:heal` command (Plan 94.1-01). 10-step room wiring heal orchestrator wrapping existing primitives (`migrate-lazygraph.cjs`, `vault-section-state-generator.cjs`, `vault-section-minto-generator.cjs`, `compute-state`). Idempotent. Writes `.mindrian/heal-log.json` envelope. Mega-section MINTO failures gracefully degrade to `tier-0` fallback (FEYNMINTO-01 budget fix deferred to v1.12). Brain-derivation-queue read-only in v1.11.1 (drain hook deferred to v1.12). Backup created at `.heal-backup/<TS>/` before any mutation. Recipe sourced from dog-fooding session on the `mindrianOS` room (2026-04-29).
+- WebSearch + WebFetch graceful-degradation fallback for `/mos:research` and `rs-fetcher-industry` (Plan 94-05). Any user without paid keys (Tavily, Firecrawl, Exa) now gets grounded research via Anthropic native WebSearch. New `{tier, source, results}` envelope across all 4 `rs-fetcher-*` modules with backward-compat domain keys (`signals`, `papers`, `patents`, `experts`) preserved. Section-8 trace schema gains `web_research_tier` field.
+- `/mos:explain-decision` action footer per `skills/ui-system/SKILL.md` 4-zone contract (Plan 94-09).
+- Section-8 trace edge `routing_source: 'strict_mode'` when room classifier override fires (Plan 94-06).
+- `lib/core/folder-memory.cjs getCurrentRoom()` canonical read API for STATE.md `current_room` field (Plan 94-01); statusline + scripts read through this single chokepoint.
+
+### Fixed
+
+- **P0 ship-blocker:** `rs-discovery-engine` Phase 4 Synthesis loop dropped `thesis` on the writerPayload handoff, causing `/mos:rs-fetch` to throw `TypeError: rs-sqlite-mirror: missing required field: thesis` on every tier-0 run. Producer now folds `theses[i]` into `breakthroughs[i]` before output; empty-fallback envelope carries `thesis: 'no_thesis'` sentinel. Consumer schema authority untouched (Plan 94-02).
+- **P0 ship-blocker:** Three inconsistent Brain MCP server names (`mcp__neo4j-brain__`, `mcp__mindrian-brain__`, `mcp__pinecone-brain__`) standardized to single canonical `mindrian-brain` server across 17 command files. `/mos:*` Brain commands previously failed silently when frontmatter referenced non-canonical names; now consistent (Plan 94-03).
+- **P0 ship-blocker:** Bundled `mcp-server-brain/` did not auto-`npm install` on plugin install; required env vars (`SUPABASE_URL`, `MINDRIAN_BRAIN_KEY`, `OPENAI_API_KEY`, etc.) had no template. `install.sh` now runs post-install hook; `.env.brain.template` ships with 7 required-var documentation; `scripts/session-start` runs drift check (Plan 94-04).
+- **P0 UX bug:** Room classifier drifted on natural-language inputs ("switch to 8", "curriculum redesign") to similarly-named rooms ("core power"). New strict-mode override module `lib/core/room-classifier-strict-mode.cjs` handles numeric / slug / quoted patterns deterministically with Section-8 trace edge for graph data (Plan 94-06). Lawrence's loudest UX bug from QA harness 2026-04-28.
+- **P0 statusline drift:** `/mos:rooms` switches did not propagate to bottom-of-screen room indicator. `lib/core/folder-memory.cjs getCurrentRoom()` now reads STATE.md `current_room` field as canonical source; `scripts/context-monitor` consumes through this API (Plan 94-01).
+- 3 em-dash (U+2014) violations in `commands/wiki.md` (Plan 94-07).
+- 5 U+2717 (✗ heavy ballot x) violations in `commands/admin.md` and `commands/help.md` (Plan 94-08).
+
+### Changed
+
+- `commands/research.md` body removes `"Requires Brain MCP. Then stop."` hard-stop directive. Fresh installs without Brain now get graceful research-tier degradation (Plan 94-05).
+
+### Deferred to v1.12 (logged in `.planning/phases/94-v1-11-2-tester-driven-fixer/deferred-items.md`)
+
+- **BUG-1 FEYNMINTO-01 token budget for mega-sections.** Sections with 40+ artifacts cannot regenerate tier-1 MINTO because rendered source list consumes the 1500-token body budget. `/mos:heal` graceful-degrades (status `blocked_feynminto_01` + tier-0 fallback). Budget relaxation OR sub-section hierarchy planned for v1.12.
+- **BUG-2 brain-derivation-queue auto-drain.** Queue accumulates entries on `governing_thought_changed` events but has no drain processor. `/mos:heal` reports queue depth + age; does not drain. v1.12 ships an on-stop OR session-start hook.
+- **BUG-5 Section auto-creation on plugin upgrade.** When v1.11.0 added `legal-ip` as canonical, existing rooms did not get the section auto-scaffolded. `/mos:heal` Step 2 covers post-upgrade users; auto-scaffold-on-upgrade remains v1.12 work.
+- **Plan 94-10 v1.11.2-release-gate.** Plan file preserved as a v1.X.Y release-gate template. Re-trigger when shipping the next patch as v1.11.2 instead of jumping to v1.12.0.
+
+### Phase summary
+
+```
+Phase 94 Tester-Driven Fixer (v1.11.0 -> v1.11.1):
+  94-01 statusline-active-room-fix              SHIPPED  4 commits
+  94-02 rs-fetch-thesis-merge-fix               SHIPPED  3 commits  P0
+  94-03 brain-mcp-server-resolution             SHIPPED  4 commits  P0
+  94-04 mcp-server-brain-deps                   SHIPPED  4 commits  P0
+  94-05 mcp-stack-fallback-chain                SHIPPED  5 commits  P0
+  94-06 room-classifier-strict-mode             SHIPPED  4 commits  P0
+  94-07 em-dashes-wiki-md                       SHIPPED  2 commits
+  94-08 u2717-cross-mark-replacement            SHIPPED  2 commits
+  94-09 explain-decision-action-footer          SHIPPED  3 commits  P1
+
+Phase 94.1 v1-11-1-mos-heal-command:
+  94.1-01 mos-heal-command                      SHIPPED  5 commits
+
+Feynman runner: 107 fixture files (baseline +5 from v1.11.0).
+```
+
+### Upgrade
+
+```bash
+/plugin marketplace update
+claude plugin update mos@mindrian-marketplace
+```
+
+After upgrade, run `/mos:heal` once on each existing room to bring v1.10.x rooms to v1.11.0 conformance.
+
 ## [1.11.1-beta.1] - 2026-04-28
 
 Hotfix release surfacing two production bugs caught during dog-fooding by tester onboarding prep. Ships as beta first per the release-infrastructure beta-gating rule (`/mos:doctor` is in the gated list). Promotion to `1.11.1` stable expected after one external user (Lawrence) validates the bundle. Phase 93.
