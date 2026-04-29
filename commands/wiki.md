@@ -36,8 +36,8 @@ bash scripts/serve-wiki --export
 
 ## Flags
 
-- **No flags** — Opens wiki in browser at localhost:8421
-- **`--export`** — Generates a static HTML bundle in `export/wiki/` that can be:
+- **No flags** - Opens wiki in browser at localhost:8421
+- **`--export`** - Generates a static HTML bundle in `export/wiki/` that can be:
   - Deployed to Render or Vercel for team sharing
   - Sent as a zip file
   - Hosted anywhere as static files
@@ -65,4 +65,4 @@ New users get an automatic guided tour:
 - Port: 8421 (auto-increments if busy, range 8421-8430)
 - Read-only: edit files in your IDE, wiki auto-refreshes via file watcher
 - Graph dashboard remains at port 8420 via /mos:visualize
-- Chat panel is present (stub — full Larry integration coming)
+- Chat panel is present (stub - full Larry integration coming)
