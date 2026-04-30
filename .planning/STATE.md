@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 95.1-01-PLAN.md
-last_updated: "2026-04-30T10:05:35.910Z"
+stopped_at: Completed 95.1-02-PLAN.md
+last_updated: "2026-04-30T10:16:40.088Z"
 last_activity: 2026-04-30
 progress:
   total_phases: 33
   completed_phases: 17
   total_plans: 168
-  completed_plans: 150
+  completed_plans: 151
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 95.1 (mos-doctor-drift-detection-and-self-heal) — EXECUTING
-Plan: 3 of 9
+Plan: 4 of 9
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -165,6 +165,7 @@ Progress: [████████░░] 82%
 | Phase 95 P05 | 27 | 7 tasks | 7 files |
 | Phase 95.1 P00 | 1m19s | 1 tasks | 1 files |
 | Phase 95.1 P95.1-01 | 3min | 1 tasks | 11 files |
+| Phase 95.1 P02 | 13min | 1 tasks | 7 files |
 
 ### Roadmap Evolution
 
@@ -509,6 +510,7 @@ Progress: [████████░░] 82%
 - [Phase 95]: PostCompact context preservation half-wired in v1.12.0: writer landed (scripts/post-compact -> last-post-compact.md), consumer queued for Phase 95.5 / 96. Disclosure in CHANGELOG ### Audit Notes per release-process.md transparency.
 - [Phase 95.1]: Phase 95.1 REQ-IDs (DOCTOR-95.1-01..08) added to REQUIREMENTS.md as ## Plugin Self-Healing Diagnostics (DOCTOR-95.1) block, mirroring BASH-95-* convention; 8 traceability rows appended
 - [Phase 95.1]: 95.1-01 fixture seed: plan listed 9 files, Phase 87-01a guard required 11 (added seed-artifact/ROOM.md+MINTO.md). Wave 0 + Wave 1 should treat 11 as canonical fixture count.
+- [Phase 95.1]: Plan 95.1-02 honored pre-existing test-generate-section-intelligence.cjs from Plan 95.1-03 commit 76f60f6 instead of overwriting; defensive MINDRIAN_ROOMS_HOME guard wired into spawn helpers (DRY chokepoint)
 
 ### Pending Todos
 
@@ -530,6 +532,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-30T10:05:35.879Z
-Stopped at: Completed 95.1-01-PLAN.md
+Last session: 2026-04-30T10:16:40.078Z
+Stopped at: Completed 95.1-02-PLAN.md
 Resume file: None
