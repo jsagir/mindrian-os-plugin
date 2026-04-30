@@ -863,3 +863,13 @@ Plans:
 
 **Outcome:** Phase 95 ships as v1.12.0 (2026-04-29). 7 bash hooks envelope-clean against Claude Code 2.x schema. `<roomDir>/.mindrian/last-cascade.json` and `<roomDir>/.mindrian/last-post-compact.md` side-channel files installed (LOCAL only per Canon Part 8). `room-proactive` skill restored to functional state for the first time since Phase 88.1-03 shipped (Plan 95-03). Three regression tests fence the bash hook envelope shapes + side-channel atomic write + SKILL.md contract (27/27 envelope scenarios GREEN: 16 + 5 + 6). Cursor-branch divergence intentionally preserved per `.planning/phases/95-bash-hook-envelope-and-cascade-side-channel/95-01-AUDIT.md`. PostCompact context-preservation half-wired (writer landed; consumer queued for Phase 95.5/96 per release-process.md transparency).
 
+
+### Phase 95.1: mos:doctor drift detection and self-heal (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 95
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 95.1 to break down)
