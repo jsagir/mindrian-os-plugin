@@ -562,7 +562,7 @@ function renderHumanReport(report) {
 
   // Compute stage label for Zone 1 per D-12 stage values.
   let stage = 'no-drift';
-  if (report.fixRequested && report.recovered) stage = 'recovered';
+  if (report.fixRequested && report.classARecovered) stage = 'recovered';
   else if (report.fixRequested) stage = 'recovering';
   else if (report.drift && report.drift.detected) stage = 'drift-detected';
   // Additional class-driven drift detection added by 95.1 plans 05+06 will populate
@@ -576,9 +576,9 @@ function renderHumanReport(report) {
     if (report.drift.detected) {
       bodyRows.push(`  ${C.yellow}■${C.reset} install-cache              ${C.yellow}⚠${C.reset} drift detected`);
       bodyRows.push(`     ${C.dim}live${C.reset}    ${C.yellow}${report.install.version}${C.reset} ${C.dim}→${C.reset} ${C.green}${report.cache.latest}${C.reset}`);
-      if (report.recovered) {
-        bodyRows.push(`     ${C.green}✓${C.reset} recovered to ${C.green}${report.recovered.recoveredVersion}${C.reset}`);
-        bodyRows.push(`     ${C.dim}backup ${report.recovered.backup}${C.reset}`);
+      if (report.classARecovered) {
+        bodyRows.push(`     ${C.green}✓${C.reset} recovered to ${C.green}${report.classARecovered.recoveredVersion}${C.reset}`);
+        bodyRows.push(`     ${C.dim}backup ${report.classARecovered.backup}${C.reset}`);
       } else if (report.fixRequested) {
         bodyRows.push(`     ${C.red}⚠${C.reset} recovery failed: ${report.recoveryError || 'unknown'}`);
       }
@@ -715,10 +715,10 @@ function main() {
     dev: devResult,
     drift: { detected: false },
     fixRequested: flags.fix,
-    recovered: null,
+    classARecovered: null, // class A install-cache recovery result (single object)
     recoveryError: null,
     checks: {},     // class B/C/D/E/F results land here.
-    recoveries: [], // --fix dispatch results land here (per-tool entries).
+    recovered: [],  // unified array of recovery records across all classes.
   };
 
   // Drift detection (class A).
@@ -732,11 +732,13 @@ function main() {
     }
   }
 
-  // Class A recovery (existing behavior preserved).
+  // Class A recovery (existing behavior preserved; result also pushed onto
+  // the unified report.recovered array for class B/C/D/E/F co-existence).
   if (flags.fix && report.drift.detected) {
     const result = performRecovery(installResult.version, cacheResult.latest);
     if (result.status === 'ok') {
-      report.recovered = result;
+      report.classARecovered = result;
+      report.recovered.push({ tool: 'install-cache', status: 'ok', version: result.recoveredVersion, backup: result.backup });
     } else {
       report.recoveryError = result.detail;
     }
@@ -768,12 +770,13 @@ function main() {
   if (flags.fix && flags.roomMd && report.checks['room-md'] && report.checks['room-md'].status === 'warn') {
     try {
       const recovery = performRoomMdRecovery(report.checks['room-md']);
-      report.recoveries.push(recovery);
+      // performRoomMdRecovery already attached tool: 'generate-section-intelligence'.
+      report.recovered.push(recovery);
       // Re-pull the post-fix check so the report reflects remediation state.
       try { report.checks['room-md'] = checkRoomMd(); }
       catch (err) { report.checks['room-md'] = { status: 'error', detail: err.message, missing: [] }; }
     } catch (err) {
-      report.recoveries.push({ status: 'error', detail: err.message, tool: 'generate-section-intelligence' });
+      report.recovered.push({ status: 'error', detail: err.message, tool: 'generate-section-intelligence' });
     }
   }
 
@@ -794,7 +797,7 @@ function main() {
   }
   if (installResult.status !== 'ok' || cacheResult.status !== 'ok') process.exit(3);
   if (!report.drift.detected) process.exit(0);
-  if (report.recovered) process.exit(2);
+  if (report.classARecovered) process.exit(2);
   process.exit(1);
 }
 
