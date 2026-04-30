@@ -1,7 +1,9 @@
 ---
 name: doctor
-description: Diagnose and optionally repair MindrianOS install — detects install-cache drift, version mismatches, and offers one-shot recovery
-argument-hint: [--fix]
+description: Diagnose and optionally repair MindrianOS install — detects install-cache drift, .room-root sentinel gaps, active-room guard silence, surface-verification gaps, ROOM.md/MINTO.md drift, and UI Ruling System compliance
+argument-hint: [--fix] [--cascade-rooms] [--verify-surface] [--room-md] [--ui-compliance] [--all] [--json]
+body_shape: E (Action Report)
+body_shape_detail: per-class status rows with [before → after] pattern, summary totals, F.1 Next Move selector when drift detected without --fix
 allowed-tools:
   - Bash
   - Read
@@ -31,9 +33,16 @@ The backup is preserved indefinitely. After 24 hours of normal use, the user can
 
 Look at the user's invocation:
 
-- `/mos:doctor` (no flag) → run read-only diagnostic
-- `/mos:doctor --fix` → run diagnostic + auto-recover if drift is detected
+- `/mos:doctor` (no flag) → run install-cache class A diagnostic only (default; fast)
+- `/mos:doctor --all` → run all classes A-F (per D-09 flag-selectors model)
+- `/mos:doctor --cascade-rooms` → class B (.room-root sentinel) + class C (active-room guard silence) checks
+- `/mos:doctor --verify-surface` → class D live cascade end-to-end via test/fixtures/cascade-surface-e2e/
+- `/mos:doctor --room-md` → class E (ROOM.md/MINTO.md presence under .room-root subtrees)
+- `/mos:doctor --ui-compliance` → class F (UI Ruling System scan across commands/*.md and scripts/*.cjs)
+- `/mos:doctor --fix` → diagnostic + auto-recovery for any class that supports --fix (class A, B, E)
 - `/mos:doctor --json` → machine-readable output (for hooks / regression tests)
+
+Combine flags freely: `/mos:doctor --all --json --fix`.
 
 ## Step 2: Execute
 
@@ -51,7 +60,7 @@ node ~/.claude/plugins/mindrian-os/scripts/doctor.cjs $ARGUMENTS
 
 ## Step 3: Render the output
 
-The script outputs a self-contained 4-zone Mondrian Board with header, content, and exit status. Display the script's stdout directly. Do not re-format.
+The script outputs a 4-zone Shape E (Action Report) per skills/ui-system/SKILL.md. Display the script's stdout directly. Do not re-format. Do not strip ANSI color codes.
 
 ## Exit codes
 
@@ -81,46 +90,53 @@ Surface this command proactively when:
 ## Example output (healthy)
 
 ```
-╭─ MindrianOS Doctor ──────────────────────────────────╮
+-- MindrianOS -- doctor -- no-drift --
 
-  ✓  Install cache up to date
-     Live install: 1.11.0 (matches marketplace latest)
+  ■ install-cache              ✓ healthy (1.12.0)
+  ■ dev-source                 ✓ consistent (1.12.0)
 
-  ✓  Dev source consistent (plugin.json + package.json both at 1.11.0)
+  Summary: 2 healthy / 0 drift / 0 warnings
 
-╰──────────────────────────────────────────────────────╯
+  ▶ /mos:status                  # room state overview
+  ▷ /mos:doctor --all          # re-run all classes
+  ▷ /mos:doctor --json         # machine-readable output
 ```
 
 ## Example output (drift detected, no --fix)
 
 ```
-╭─ MindrianOS Doctor ──────────────────────────────────╮
+-- MindrianOS -- doctor -- drift-detected --
 
-  ⚠  Install cache drift detected
-     Live install:        1.10.10
-     Marketplace latest:  1.11.0
-     Available cached:    1.10.12, 1.10.17, 1.11.0
+  ■ install-cache              ⚠ drift detected
+     live    1.10.10 → 1.11.0
 
-     Run: /mos:doctor --fix
-     This will back up the stale install and replace with 1.11.0.
+  Summary: 0 healthy / 1 drift / 0 warnings
 
-╰──────────────────────────────────────────────────────╯
+  [F.1 Next Move]
+   ▶ Run /mos:doctor --fix
+   ▷ Defer
+   ▷ Free-Text
+
+  ▶ /mos:doctor --fix --all     # auto-recover all drift classes
+  ▷ /mos:rooms                 # inspect known rooms
+  ▷ /mos:doctor --json         # machine-readable output
 ```
 
 ## Example output (recovery successful)
 
 ```
-╭─ MindrianOS Doctor ──────────────────────────────────╮
+-- MindrianOS -- doctor -- recovered --
 
-  ⚠  Install cache drift detected
-     Live install:        1.10.10
-     Marketplace latest:  1.11.0
-     Available cached:    1.10.12, 1.10.17, 1.11.0
+  ■ install-cache              ⚠ drift detected
+     live    1.10.10 → 1.11.0
+     ✓ recovered to 1.11.0
+     backup /home/jsagi/.claude/plugins/mindrian-os.stale-1.10.10-20260428-095548
 
-     ✓  Recovered to 1.11.0
-     backup: /home/jsagi/.claude/plugins/mindrian-os.stale-1.10.10-20260428-095548
+  Summary: 0 healthy / 0 drift / 0 warnings
 
-╰──────────────────────────────────────────────────────╯
+  ▶ /mos:status                  # room state overview
+  ▷ /mos:doctor --all          # re-run all classes
+  ▷ /mos:doctor --json         # machine-readable output
 ```
 
 After successful recovery, suggest:
@@ -129,3 +145,5 @@ After successful recovery, suggest:
 Recovery applied. Run /clear to refresh the context window
 so Larry picks up the new plugin code.
 ```
+
+Note: per D-19, the renderer above is structural. Larry handles narrative interpretation of any drift finding when surfacing conversationally (e.g., "what does this mean?"). See references/personality/voice-dna.md for voice patterns.
