@@ -55,6 +55,7 @@ function parseArgs(argv) {
     fix: false, json: false, verbose: false,
     cascadeRooms: false, verifySurface: false, roomMd: false, uiCompliance: false,
     all: false, simulateWrite: null,
+    scanCommandsDir: null, scanScriptsDir: null,
   };
   for (const arg of argv) {
     if (arg === '--fix') flags.fix = true;
@@ -66,6 +67,8 @@ function parseArgs(argv) {
     else if (arg === '--ui-compliance') flags.uiCompliance = true;
     else if (arg === '--all') flags.all = true;
     else if (arg.startsWith('--simulate-write=')) flags.simulateWrite = arg.slice('--simulate-write='.length);
+    else if (arg.startsWith('--scan-commands=')) flags.scanCommandsDir = arg.slice('--scan-commands='.length);
+    else if (arg.startsWith('--scan-scripts=')) flags.scanScriptsDir = arg.slice('--scan-scripts='.length);
     else if (arg === '--help' || arg === '-h') {
       console.log(usageText());
       process.exit(0);
@@ -98,6 +101,8 @@ Behavior flags:
   --json               machine-readable output (for hooks / regression tests)
   --verbose, -v        extra diagnostic detail
   --simulate-write=<p> simulate a PWD write at <p> for class C active-room mismatch
+  --scan-commands=<d>  override commands/ scan dir for class F (default: ./commands)
+  --scan-scripts=<d>   override scripts/ scan dir for class F (default: ./scripts)
   --help, -h           print this usage
 
 Exit codes:
@@ -545,6 +550,240 @@ function performRoomMdRecovery(checkResult) {
   };
 }
 
+// -- Class F: UI Ruling System compliance check ----------------------
+//
+// Per CONTEXT D-13 + D-14 + skills/ui-system/SKILL.md:
+//   (a) commands/*.md frontmatter MUST declare body_shape (sub-check a)
+//   (b) scripts/*.cjs MUST NOT contain unauthorized box-drawing chars or
+//       glyphs outside the 12-glyph allowlist (sub-check b)
+//   (c) command output renderers MUST emit Zone 1 header + Zone 4 action
+//       footer patterns (sub-check c, best-effort)
+//
+// CRITICAL self-referential design: every forbidden char in regex source
+// uses Unicode escape sequences (\uXXXX). This file's SOURCE therefore
+// contains zero literal forbidden chars, so running this detector against
+// scripts/doctor.cjs reports zero violations. Validates Pitfall 3 from
+// 95.1-RESEARCH.md: Plan 95.1-04 cleaned the file; Plan 95.1-06 must not
+// re-introduce forbidden chars when implementing the scanner. Comments
+// reference Unicode codepoint names ONLY -- never the literal characters.
+//
+// Per D-13: --fix for class F is detect-only in 95.1 (auto-rewriting
+// renderer code is out of scope; defer to 95.2 or human review).
+
+// Forbidden box-drawing characters (D-11). Unicode escapes ONLY in the
+// regex source so this file's SOURCE never contains literal box chars
+// (the detector would flag itself when scanning scripts/doctor.cjs).
+//   U+256D BOX DRAWINGS LIGHT ARC DOWN AND RIGHT  (curved top-left)
+//   U+256E BOX DRAWINGS LIGHT ARC DOWN AND LEFT   (curved top-right)
+//   U+256F BOX DRAWINGS LIGHT ARC UP AND LEFT     (curved bottom-right)
+//   U+2570 BOX DRAWINGS LIGHT ARC UP AND RIGHT    (curved bottom-left)
+//   U+250C BOX DRAWINGS LIGHT DOWN AND RIGHT
+//   U+2510 BOX DRAWINGS LIGHT DOWN AND LEFT
+//   U+2514 BOX DRAWINGS LIGHT UP AND RIGHT
+//   U+2518 BOX DRAWINGS LIGHT UP AND LEFT
+//   U+2502 BOX DRAWINGS LIGHT VERTICAL
+//   U+2500 BOX DRAWINGS LIGHT HORIZONTAL
+//   U+2501 BOX DRAWINGS HEAVY HORIZONTAL
+const FORBIDDEN_BOX_CHARS = new RegExp(
+  '[' +
+  '\u256D\u256E\u256F\u2570' +  // curved corners (top-l/r, bottom-r/l)
+  '\u250C\u2510\u2514\u2518' +  // light corners
+  '\u2502' +                       // light vertical
+  '\u2500\u2501' +                // horizontal (light + heavy)
+  ']'
+);
+
+// Forbidden glyphs (D-13). Unicode escapes ONLY for the same reason as
+// above. Bare U+26A0 WARNING SIGN (without variation selector) is APPROVED
+// per the 12-glyph vocabulary; only U+26A0 followed by U+FE0F (variation
+// selector forcing emoji presentation) is forbidden.
+//   U+2717 BALLOT X
+//   U+2718 HEAVY BALLOT X
+//   U+2715 MULTIPLICATION X
+//   U+274C CROSS MARK
+//   U+2753 BLACK QUESTION MARK ORNAMENT
+//   U+2755 WHITE EXCLAMATION MARK ORNAMENT
+//   U+2757 HEAVY EXCLAMATION MARK SYMBOL
+//   U+26A0 + U+FE0F  WARNING SIGN with emoji presentation
+const FORBIDDEN_GLYPHS = new RegExp(
+  '[\u2717\u2718\u2715]' +  // ballot X variants + multiplication X
+  '|\u274C' +                  // cross mark
+  '|\u2753' +                  // black question mark ornament
+  '|\u2755' +                  // white exclamation mark ornament
+  '|\u2757' +                  // heavy exclamation mark
+  '|\u26A0\uFE0F'             // warning sign with emoji presentation
+);
+
+// Carve-out: scripts/context-monitor is the documented emoji exception
+// (SKILL.md §3 + 2026-04-14 user directive).
+const FILES_EMOJI_CARVE_OUT = ['context-monitor'];
+
+// Renderer-pattern detection (sub-check c). A file is treated as a renderer
+// if it contains lines.push(. Renderers must include Zone 1 header pattern
+// (-- WORD -- WORD --) and Zone 4 action pattern (▶ /mos:).
+const RENDERER_INDICATOR = /lines\.push\(/;
+const ZONE_1_RENDERER_PATTERN = /-- [\w-]+(?: -- [\w-]+)+ --/;
+const ZONE_4_RENDERER_PATTERN = /▶ \/mos:/;
+
+function extractFrontmatterField(filePath, field) {
+  let content;
+  try { content = fs.readFileSync(filePath, 'utf8'); }
+  catch (_) { return null; }
+  const m = content.match(/^---\s*\n([\s\S]*?)\n---/m);
+  if (!m) return null;
+  const fm = m[1];
+  const fieldRegex = new RegExp('^' + field + ':\\s*(.+)$', 'm');
+  const fieldMatch = fm.match(fieldRegex);
+  return fieldMatch ? fieldMatch[1].trim() : null;
+}
+
+function isCarveOutFile(filePath) {
+  for (const carve of FILES_EMOJI_CARVE_OUT) {
+    if (filePath.endsWith(carve) || filePath.endsWith(carve + '.cjs')) return true;
+  }
+  return false;
+}
+
+// Scan a single .cjs file line-by-line for forbidden box chars + glyphs.
+// Returns an array of violation entries {kind, file, line, snippet, char}.
+function scanScriptFile(filePath, repoRoot) {
+  let content;
+  try { content = fs.readFileSync(filePath, 'utf8'); }
+  catch (_) { return []; }
+  const violations = [];
+  const relFile = repoRoot ? path.relative(repoRoot, filePath) : filePath;
+  const carveOut = isCarveOutFile(filePath);
+  const fileLines = content.split('\n');
+  for (let i = 0; i < fileLines.length; i++) {
+    const ln = fileLines[i];
+    const boxMatch = ln.match(FORBIDDEN_BOX_CHARS);
+    if (boxMatch) {
+      violations.push({
+        kind: 'unauthorized-box-char',
+        file: relFile,
+        line: i + 1,
+        char: boxMatch[0],
+        snippet: ln.trim().slice(0, 80),
+      });
+    }
+    if (!carveOut) {
+      const glyphMatch = ln.match(FORBIDDEN_GLYPHS);
+      if (glyphMatch) {
+        violations.push({
+          kind: 'unauthorized-glyph',
+          file: relFile,
+          line: i + 1,
+          char: glyphMatch[0],
+          snippet: ln.trim().slice(0, 80),
+        });
+      }
+    }
+  }
+  // Sub-check (c): renderer Zone 1 + Zone 4 patterns. Best-effort; only
+  // flag when the file IS a renderer (contains lines.push() calls) AND is
+  // missing the canonical patterns.
+  if (RENDERER_INDICATOR.test(content)) {
+    if (!ZONE_1_RENDERER_PATTERN.test(content)) {
+      violations.push({
+        kind: 'renderer-missing-zone1',
+        file: relFile,
+        line: 0,
+        detail: 'renderer file lacks Zone 1 header pattern (-- X -- Y --)',
+      });
+    }
+    if (!ZONE_4_RENDERER_PATTERN.test(content)) {
+      violations.push({
+        kind: 'renderer-missing-zone4',
+        file: relFile,
+        line: 0,
+        detail: 'renderer file lacks Zone 4 action footer pattern (>/mos: marker)',
+      });
+    }
+  }
+  return violations;
+}
+
+// Class F: UI Ruling System compliance scanner. Three sub-checks per D-13:
+// (a) commands/*.md frontmatter body_shape presence
+// (b) scripts/*.cjs forbidden chars + glyphs
+// (c) renderer Zone 1 + Zone 4 patterns (best-effort)
+//
+// Test contract per tests/test-doctor-class-f.cjs:
+//   --scan-commands=<dir> overrides commands scan dir (defaults to ./commands)
+//   --scan-scripts=<dir>  overrides scripts scan dir (defaults to ./scripts)
+//   Returns {status: 'ok'|'warn', violations: [{kind, file, ...}], counts}
+//   kind values: 'missing-body-shape', 'unauthorized-box-char',
+//                'unauthorized-glyph', 'renderer-missing-zone1',
+//                'renderer-missing-zone4'
+function checkUIRulingCompliance(opts) {
+  const o = opts || {};
+  const repoRoot = o.repoRoot || path.resolve(__dirname, '..');
+  const commandsDir = o.scanCommandsDir || path.join(repoRoot, 'commands');
+  const scriptsDir = o.scanScriptsDir || path.join(repoRoot, 'scripts');
+
+  const violations = [];
+
+  // Sub-check (a): commands/*.md frontmatter body_shape presence.
+  if (fs.existsSync(commandsDir)) {
+    let cmdFiles;
+    try {
+      cmdFiles = fs.readdirSync(commandsDir).filter(function (f) { return f.endsWith('.md'); });
+    } catch (_) { cmdFiles = []; }
+    for (const f of cmdFiles) {
+      const filePath = path.join(commandsDir, f);
+      const bodyShape = extractFrontmatterField(filePath, 'body_shape');
+      if (!bodyShape) {
+        violations.push({
+          kind: 'missing-body-shape',
+          file: path.relative(repoRoot, filePath),
+          detail: 'frontmatter is missing body_shape field',
+        });
+      }
+    }
+  }
+
+  // Sub-check (b) + (c): scripts/*.cjs scan.
+  if (fs.existsSync(scriptsDir)) {
+    let scriptFiles;
+    try {
+      scriptFiles = fs.readdirSync(scriptsDir).filter(function (f) { return f.endsWith('.cjs'); });
+    } catch (_) { scriptFiles = []; }
+    for (const f of scriptFiles) {
+      const filePath = path.join(scriptsDir, f);
+      const fileViolations = scanScriptFile(filePath, repoRoot);
+      for (const v of fileViolations) violations.push(v);
+    }
+  }
+
+  // Aggregate counts per kind for the report consumer.
+  const counts = {
+    missingBodyShape: 0,
+    unauthorizedBoxChar: 0,
+    unauthorizedGlyph: 0,
+    rendererMissingZone1: 0,
+    rendererMissingZone4: 0,
+  };
+  for (const v of violations) {
+    if (v.kind === 'missing-body-shape') counts.missingBodyShape += 1;
+    else if (v.kind === 'unauthorized-box-char') counts.unauthorizedBoxChar += 1;
+    else if (v.kind === 'unauthorized-glyph') counts.unauthorizedGlyph += 1;
+    else if (v.kind === 'renderer-missing-zone1') counts.rendererMissingZone1 += 1;
+    else if (v.kind === 'renderer-missing-zone4') counts.rendererMissingZone4 += 1;
+  }
+
+  return {
+    status: violations.length === 0 ? 'ok' : 'warn',
+    detail: violations.length === 0
+      ? 'all scanned files comply with UI Ruling System SKILL.md sections 1-4'
+      : violations.length + ' violation(s) across commands/ and scripts/',
+    violations,
+    counts,
+    fixable: false, // D-13: --fix is detect-only in 95.1
+    fixDeferredTo: '95.2 or human review',
+    scannedDirs: { commands: commandsDir, scripts: scriptsDir },
+  };
+}
+
 // -- Renderers -------------------------------------------------------
 
 // Phase 95.1-04 retrofit: 4-zone Shape E (Action Report) per skills/ui-system/SKILL.md.
@@ -764,7 +1003,20 @@ function main() {
     catch (err) { report.checks['room-md'] = { status: 'error', detail: err.message, missing: [] }; }
   }
 
-  // Class F: UI Ruling System scan -- wired in Plan 95.1-06 (next plan).
+  // Class F: UI Ruling System scan (D-13 + D-14). --scan-commands and
+  // --scan-scripts allow tests to override the default ./commands and
+  // ./scripts directories with scratch fixtures. Per D-13, --fix is
+  // detect-only in 95.1 (no recovery dispatch).
+  if (flags.uiCompliance) {
+    try {
+      report.checks['ui-compliance'] = checkUIRulingCompliance({
+        scanCommandsDir: flags.scanCommandsDir,
+        scanScriptsDir: flags.scanScriptsDir,
+      });
+    } catch (err) {
+      report.checks['ui-compliance'] = { status: 'error', detail: err.message, violations: [] };
+    }
+  }
 
   // Class E --fix dispatch: invoke generator + re-check.
   if (flags.fix && flags.roomMd && report.checks['room-md'] && report.checks['room-md'].status === 'warn') {
