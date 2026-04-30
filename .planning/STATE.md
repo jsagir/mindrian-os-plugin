@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: verifying
-stopped_at: Completed 95-05-regression-test-extension-and-release-gate-PLAN.md (Phase 95 SHIPPED as v1.12.0)
-last_updated: "2026-04-29T19:53:03.991Z"
+stopped_at: Phase 95.1 context gathered
+last_updated: "2026-04-30T08:27:25.072Z"
 last_activity: 2026-04-29
 progress:
-  total_phases: 32
+  total_phases: 33
   completed_phases: 17
   total_plans: 159
   completed_plans: 148
@@ -526,6 +526,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-29T19:52:52.708Z
-Stopped at: Completed 95-05-regression-test-extension-and-release-gate-PLAN.md (Phase 95 SHIPPED as v1.12.0)
-Resume file: None
+Last session: 2026-04-30T08:27:25.031Z
+Stopped at: Phase 95.1 context gathered
+Resume file: .planning/phases/95.1-mos-doctor-drift-detection-and-self-heal/95.1-CONTEXT.md
