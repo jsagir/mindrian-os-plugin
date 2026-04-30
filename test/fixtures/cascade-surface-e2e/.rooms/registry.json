@@ -1,0 +1,8 @@
+{
+  "active": "surface-e2e-room",
+  "rooms": {
+    "surface-e2e-room": {
+      "path": "surface-e2e-room"
+    }
+  }
+}
