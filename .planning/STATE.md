@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 95.1-06-PLAN.md
-last_updated: "2026-04-30T18:15:14.288Z"
+stopped_at: Completed 95.1-07-PLAN.md (Task 1 staged dogfood-room for Plan 08; Task 2 committed live runner upgrade 0372eda; Task 3 checkpoint auto-approved)
+last_updated: "2026-04-30T18:31:39.025Z"
 last_activity: 2026-04-30
 progress:
   total_phases: 33
   completed_phases: 17
   total_plans: 168
-  completed_plans: 155
+  completed_plans: 156
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 95.1 (mos-doctor-drift-detection-and-self-heal) — EXECUTING
-Plan: 8 of 9
+Plan: 9 of 9
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -170,6 +170,7 @@ Progress: [████████░░] 82%
 | Phase 95.1 P04 | 16min | 3 tasks | 3 files |
 | Phase 95.1 P05 | 7min | 3 tasks | 1 files |
 | Phase 95.1 P06 | 7min | 1 tasks | 2 files |
+| Phase 95.1 P07 | 18min | 3 tasks | 21 files |
 
 ### Roadmap Evolution
 
@@ -524,6 +525,8 @@ Progress: [████████░░] 82%
 - [Phase 95.1]: classFlagsActive graceful-degradation exit branch (95.1-05): when any new class flag is active, doctor returns exit 0 regardless of class A install-cache state per Canon Part 8
 - [Phase 95.1]: Class F detector uses new RegExp(string-with-\u-escapes) so detector source contains zero literal forbidden chars (Pitfall 3 self-referential design)
 - [Phase 95.1]: Plan 95.1-02 test scenario 1 substring-overlap bug fixed in scope: 'noncompliant.md' contains 'compliant.md' as substring; switched filter to path.basename exact match (Rule 1)
+- [Phase 95.1]: Plan 07: Atomic staging deferral (Pitfall 3) — dogfood-room files (sentinel + 20 generated ROOM.md/MINTO.md) staged but NOT committed in this plan; deferred to Plan 95.1-08 release commit
+- [Phase 95.1]: Plan 07: Class D stub upgraded to live spawnSync runner asserting cascade-surface-e2e 8-key shape; cross-platform Windows-no-bash skip preserves graceful-degradation per Canon Part 8
 
 ### Pending Todos
 
@@ -545,6 +548,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-30T18:15:04.746Z
-Stopped at: Completed 95.1-06-PLAN.md
+Last session: 2026-04-30T18:31:29.949Z
+Stopped at: Completed 95.1-07-PLAN.md (Task 1 staged dogfood-room for Plan 08; Task 2 committed live runner upgrade 0372eda; Task 3 checkpoint auto-approved)
 Resume file: None
