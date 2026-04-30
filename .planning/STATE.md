@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 95.1-03-PLAN.md
-last_updated: "2026-04-30T10:22:35.821Z"
+stopped_at: Completed 95.1-04-PLAN.md
+last_updated: "2026-04-30T10:42:38.641Z"
 last_activity: 2026-04-30
 progress:
   total_phases: 33
   completed_phases: 17
   total_plans: 168
-  completed_plans: 152
+  completed_plans: 153
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 95.1 (mos-doctor-drift-detection-and-self-heal) — EXECUTING
-Plan: 5 of 9
+Plan: 6 of 9
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -167,6 +167,7 @@ Progress: [████████░░] 82%
 | Phase 95.1 P95.1-01 | 3min | 1 tasks | 11 files |
 | Phase 95.1 P02 | 13min | 1 tasks | 7 files |
 | Phase 95.1-mos-doctor-drift-detection-and-self-heal P03 | 17min | 1 tasks | 2 files |
+| Phase 95.1 P04 | 16min | 3 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -515,6 +516,7 @@ Progress: [████████░░] 82%
 - [Phase 95.1-mos-doctor-drift-detection-and-self-heal]: Plan 95.1-03: Hand-rolled minimal frontmatter inside scripts/generate-section-intelligence.cjs (D-03); no require of vault-section-{state,minto}-generator.cjs even though their schema is the reference
 - [Phase 95.1-mos-doctor-drift-detection-and-self-heal]: Plan 95.1-03: Reframed SKILL.md §7 error glyph from cross-mark to ⚠ to stay inside the approved 12-glyph vocabulary; 3-line error/Why/Fix structure preserved
 - [Phase 95.1-mos-doctor-drift-detection-and-self-heal]: Plan 95.1-03: Created tests/test-generate-section-intelligence.cjs as a Rule-3 deviation before implementing the generator (Plan 95.1-02 ran in parallel and retroactively adopted the file; commit cfad796 cites commit 76f60f6 explicitly)
+- [Phase 95.1]: Plan 95.1-04: doctor.cjs renderHumanReport retrofitted to 4-zone Shape E; F.1 selector ships as structural marker (canonical AskUserQuestion deferred to Phase 88.2)
 
 ### Pending Todos
 
@@ -536,6 +538,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-30T10:22:25.228Z
-Stopped at: Completed 95.1-03-PLAN.md
+Last session: 2026-04-30T10:42:32.807Z
+Stopped at: Completed 95.1-04-PLAN.md
 Resume file: None
