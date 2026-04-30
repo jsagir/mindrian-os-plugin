@@ -447,16 +447,50 @@ function checkCascadeRoomsActive(simulateWritePath) {
   };
 }
 
-// -- Class D: surface verification (STUB; live runner deferred to Plan 95.1-07) ----
+// -- Class D: surface verification (LIVE runner; upgraded by Plan 95.1-07) -----
 
-// Class D execution lives in tests/test-cascade-surface-e2e.cjs (Plan
-// 95.1-02). Wired into doctor's runtime path by Plan 95.1-07 (integration).
-// For now, this stub reports skip with a pointer to the test command.
+// Class D end-to-end test lives at tests/test-cascade-surface-e2e.cjs (Plan
+// 95.1-02). This function spawns the test runner programmatically and asserts
+// the 8-key shape per D-06. Cross-platform: bash required for the post-write
+// hook spawn inside the test; on Windows-without-git-bash, we skip the test
+// (mirroring the test's own self-skip behavior per RESEARCH cross-platform note).
 function checkSurfaceVerification() {
+  const { spawnSync } = require('child_process');
+  const repoRoot = path.resolve(__dirname, '..');
+  const testPath = path.join(repoRoot, 'tests', 'test-cascade-surface-e2e.cjs');
+  if (!fs.existsSync(testPath)) {
+    return {
+      status: 'skip',
+      detail: 'class D test runner not found at ' + path.relative(repoRoot, testPath),
+      runner: testPath,
+    };
+  }
+  // Cross-platform: bash required for the post-write hook spawn inside the test.
+  // On Windows-without-git-bash, the test will skip itself; we mirror by skipping here.
+  if (process.platform === 'win32') {
+    const bashCheck = spawnSync('bash', ['--version'], { encoding: 'utf8' });
+    if (bashCheck.status !== 0) {
+      return {
+        status: 'skip',
+        detail: 'class D requires bash; not found on Windows host',
+        runner: path.relative(repoRoot, testPath),
+      };
+    }
+  }
+  const res = spawnSync('node', [testPath], {
+    encoding: 'utf8',
+    timeout: 30000,
+    cwd: repoRoot,
+  });
   return {
-    status: 'skip',
-    detail: 'class D end-to-end test runs separately: node tests/test-cascade-surface-e2e.cjs',
-    runner: 'tests/test-cascade-surface-e2e.cjs',
+    status: res.status === 0 ? 'ok' : 'warn',
+    detail: res.status === 0
+      ? 'side-channel 8-key shape verified end-to-end'
+      : 'live cascade test failed (exit ' + res.status + ')',
+    exitCode: res.status,
+    runner: path.relative(repoRoot, testPath),
+    stdout: (res.stdout || '').slice(-500),
+    stderr: (res.stderr || '').slice(-500),
   };
 }
 
