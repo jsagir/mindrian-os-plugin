@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 95.1-04-PLAN.md
-last_updated: "2026-04-30T10:42:38.641Z"
+stopped_at: Completed 95.1-05-PLAN.md
+last_updated: "2026-04-30T10:51:33.360Z"
 last_activity: 2026-04-30
 progress:
   total_phases: 33
   completed_phases: 17
   total_plans: 168
-  completed_plans: 153
+  completed_plans: 154
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 95.1 (mos-doctor-drift-detection-and-self-heal) — EXECUTING
-Plan: 6 of 9
+Plan: 7 of 9
 Status: Ready to execute
 
 Phase 89.5 closure (this session):
@@ -168,6 +168,7 @@ Progress: [████████░░] 82%
 | Phase 95.1 P02 | 13min | 1 tasks | 7 files |
 | Phase 95.1-mos-doctor-drift-detection-and-self-heal P03 | 17min | 1 tasks | 2 files |
 | Phase 95.1 P04 | 16min | 3 tasks | 3 files |
+| Phase 95.1 P05 | 7min | 3 tasks | 1 files |
 
 ### Roadmap Evolution
 
@@ -517,6 +518,9 @@ Progress: [████████░░] 82%
 - [Phase 95.1-mos-doctor-drift-detection-and-self-heal]: Plan 95.1-03: Reframed SKILL.md §7 error glyph from cross-mark to ⚠ to stay inside the approved 12-glyph vocabulary; 3-line error/Why/Fix structure preserved
 - [Phase 95.1-mos-doctor-drift-detection-and-self-heal]: Plan 95.1-03: Created tests/test-generate-section-intelligence.cjs as a Rule-3 deviation before implementing the generator (Plan 95.1-02 ran in parallel and retroactively adopted the file; commit cfad796 cites commit 76f60f6 explicitly)
 - [Phase 95.1]: Plan 95.1-04: doctor.cjs renderHumanReport retrofitted to 4-zone Shape E; F.1 selector ships as structural marker (canonical AskUserQuestion deferred to Phase 88.2)
+- [Phase 95.1]: MINDRIAN_ROOMS_HOME canonical (95.1-05): chose env-var name from scripts/resolve-room over CONTEXT D-05 phrasing per RESEARCH Open Q1
+- [Phase 95.1]: report.recovered unified array contract (95.1-05): backwards-compat split into report.classARecovered (single-object class A) + report.recovered (array spanning all classes) to honor test-doctor-class-e.cjs Scenario 3 contract
+- [Phase 95.1]: classFlagsActive graceful-degradation exit branch (95.1-05): when any new class flag is active, doctor returns exit 0 regardless of class A install-cache state per Canon Part 8
 
 ### Pending Todos
 
@@ -538,6 +542,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-30T10:42:32.807Z
-Stopped at: Completed 95.1-04-PLAN.md
+Last session: 2026-04-30T10:51:27.271Z
+Stopped at: Completed 95.1-05-PLAN.md
 Resume file: None

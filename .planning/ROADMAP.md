@@ -869,7 +869,7 @@ Plans:
 **Goal:** Extend Phase 93's `/mos:doctor` (currently class A only) with detectors for 5 silent-failure drift classes (B/C/D/E/F) surfaced by v1.12.0 fresh-session smoke. Build the missing `scripts/generate-section-intelligence.cjs` generator. Retrofit `/mos:doctor` itself for UI Ruling System compliance. Use the dogfood `room/` subtree as integration test fixture. Ship as v1.12.1-beta.1.
 **Requirements**: DOCTOR-95.1-01, DOCTOR-95.1-02, DOCTOR-95.1-03, DOCTOR-95.1-04, DOCTOR-95.1-05, DOCTOR-95.1-06, DOCTOR-95.1-07, DOCTOR-95.1-08
 **Depends on:** Phase 95
-**Plans:** 5/9 plans executed
+**Plans:** 6/9 plans executed
 
 Plans:
 - [x] 95.1-00-PLAN.md — Add DOCTOR-95.1-01..08 requirements to REQUIREMENTS.md (Wave 0 foundation)
@@ -877,7 +877,7 @@ Plans:
 - [x] 95.1-02-PLAN.md — Write 7 RED test skeletons + register in run-feynman-tests.cjs (Wave 0 tests)
 - [x] 95.1-03-PLAN.md — Build scripts/generate-section-intelligence.cjs (Wave 1 generator)
 - [x] 95.1-04-PLAN.md — Retrofit scripts/doctor.cjs renderHumanReport + commands/doctor.md to Shape E + 12-glyph compliance (Wave 1 renderer; runs BEFORE class F detector per Pitfall 3)
-- [ ] 95.1-05-PLAN.md — Implement class B/C cascade-rooms detector + class E room-md detector + class D stub (Wave 1 detectors)
+- [x] 95.1-05-PLAN.md — Implement class B/C cascade-rooms detector + class E room-md detector + class D stub (Wave 1 detectors)
 - [ ] 95.1-06-PLAN.md — Implement class F UI compliance detector (Wave 1 — runs AFTER renderer retrofit)
 - [ ] 95.1-07-PLAN.md — Dogfood room cleanup + .room-root + generator run (atomic) + class D stub upgrade to live runner (Wave 2 integration)
 - [ ] 95.1-08-PLAN.md — v1.12.1-beta.1 release: CHANGELOG + plugin.json + package.json + git tag + Anthropic upstream bug report draft (Wave 2 release)
