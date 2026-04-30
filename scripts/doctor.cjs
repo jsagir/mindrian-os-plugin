@@ -51,30 +51,59 @@ const C = {
 // -- Argument parsing ------------------------------------------------
 
 function parseArgs(argv) {
-  const flags = { fix: false, json: false, verbose: false };
+  const flags = {
+    fix: false, json: false, verbose: false,
+    cascadeRooms: false, verifySurface: false, roomMd: false, uiCompliance: false,
+    all: false, simulateWrite: null,
+  };
   for (const arg of argv) {
     if (arg === '--fix') flags.fix = true;
     else if (arg === '--json') flags.json = true;
     else if (arg === '--verbose' || arg === '-v') flags.verbose = true;
+    else if (arg === '--cascade-rooms') flags.cascadeRooms = true;
+    else if (arg === '--verify-surface') flags.verifySurface = true;
+    else if (arg === '--room-md') flags.roomMd = true;
+    else if (arg === '--ui-compliance') flags.uiCompliance = true;
+    else if (arg === '--all') flags.all = true;
+    else if (arg.startsWith('--simulate-write=')) flags.simulateWrite = arg.slice('--simulate-write='.length);
     else if (arg === '--help' || arg === '-h') {
       console.log(usageText());
       process.exit(0);
     }
   }
+  // --all activates every class flag.
+  if (flags.all) {
+    flags.cascadeRooms = true;
+    flags.verifySurface = true;
+    flags.roomMd = true;
+    flags.uiCompliance = true;
+  }
   return flags;
 }
 
 function usageText() {
-  return `Usage: doctor.cjs [--fix] [--json] [--verbose]
+  return `Usage: doctor.cjs [flags]
 
-  doctor                 read-only diagnostic
-  doctor --fix           run backup-then-replace recovery if drift detected
-  doctor --json          machine-readable output
+Default (no flag) runs class A install-cache check only.
+
+Class flags (combine freely; --all activates them all):
+  --cascade-rooms      class B (.room-root sentinel) + class C (active-room guard silence)
+  --verify-surface     class D (live cascade end-to-end against test fixture)
+  --room-md            class E (ROOM.md/MINTO.md presence under .room-root)
+  --ui-compliance      class F (UI Ruling System scan)
+  --all                activate all class flags
+
+Behavior flags:
+  --fix                attempt auto-recovery for each class that supports it
+  --json               machine-readable output (for hooks / regression tests)
+  --verbose, -v        extra diagnostic detail
+  --simulate-write=<p> simulate a PWD write at <p> for class C active-room mismatch
+  --help, -h           print this usage
 
 Exit codes:
-  0  healthy, no drift
-  1  drift detected (read-only)
-  2  drift detected and recovered (--fix)
+  0  healthy, no drift across activated classes
+  1  drift detected (read-only mode)
+  2  drift detected and recovered (--fix mode)
   3  internal error
 `;
 }
@@ -219,6 +248,97 @@ function copyRecursive(src, dst) {
 
 function shellQuote(s) {
   return "'" + String(s).replace(/'/g, "'\\''") + "'";
+}
+
+// -- Shared helpers for class B/C/E checks ---------------------------
+
+const SKIP_DIRS = new Set([
+  '.git', '.mindrian', '.context', '.lazygraph', '.rooms',
+  'node_modules', '.next', 'dist', 'build', '.cache',
+]);
+
+// Pure Node port of scripts/post-write detect_room_section() lines 25-47
+// + scripts/hooks/pre-commit-room-minto-guard.sh find_room_root() symlink
+// safety. Returns the absolute roomDir (the directory containing
+// .room-root) or null if the walk does not find a sentinel within 12 hops.
+function findRoomRoot(filePath) {
+  let dir = path.dirname(filePath);
+  const visited = new Set();
+  let hops = 0;
+  while (dir !== '/' && dir !== '.' && hops < 12) {
+    let real;
+    try { real = fs.realpathSync(dir); } catch (_) { return null; }
+    if (visited.has(real)) break;
+    visited.add(real);
+    if (fs.existsSync(path.join(real, '.room-root'))) return real;
+    dir = path.dirname(real);
+    hops += 1;
+  }
+  return null;
+}
+
+// Read ~/MindrianRooms/.rooms/registry.json (or MINDRIAN_ROOMS_HOME override)
+// and return { roomsHome, registry, registryPath } or null when missing/
+// unreadable. Honors the canonical env-var name MINDRIAN_ROOMS_HOME used by
+// scripts/resolve-room line 34.
+function readRegistry() {
+  const home = process.env.MINDRIAN_ROOMS_HOME || path.join(HOME, 'MindrianRooms');
+  const registryPath = path.join(home, '.rooms', 'registry.json');
+  if (!fs.existsSync(registryPath)) return null;
+  try {
+    const raw = fs.readFileSync(registryPath, 'utf8');
+    const reg = JSON.parse(raw);
+    return { roomsHome: home, registry: reg, registryPath };
+  } catch (_) { return null; }
+}
+
+// Walk subdirectories under rootDir, returning absolute paths. Skips
+// SKIP_DIRS and respects maxDepth (default 8). Used by class E to enumerate
+// section + sub-section directories under a .room-root.
+function listSubdirs(rootDir, opts) {
+  const o = opts || {};
+  const recursive = o.recursive !== false;
+  const maxDepth = typeof o.maxDepth === 'number' ? o.maxDepth : 8;
+  const results = [];
+  function walk(dir, depth) {
+    if (depth > maxDepth) return;
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
+    catch (_) { return; }
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      if (SKIP_DIRS.has(entry.name)) continue;
+      const sub = path.join(dir, entry.name);
+      results.push(sub);
+      if (recursive) walk(sub, depth + 1);
+    }
+  }
+  walk(rootDir, 0);
+  return results;
+}
+
+// Spawn scripts/generate-section-intelligence.cjs as a child process. Used
+// by class E --fix to remediate missing ROOM.md/MINTO.md across a room
+// subtree. Returns a normalized result with status/stdout/stderr/exitCode.
+function invokeGenerator(targetDir, opts) {
+  const { spawnSync } = require('child_process');
+  const o = opts || {};
+  const recursive = o.recursive !== false;
+  const force = !!o.force;
+  const generatorPath = path.join(__dirname, 'generate-section-intelligence.cjs');
+  if (!fs.existsSync(generatorPath)) {
+    return { status: 'error', detail: 'generator not found at ' + generatorPath, stdout: '', stderr: '', exitCode: -1 };
+  }
+  const args = [generatorPath, targetDir];
+  if (recursive) args.push('--recursive');
+  if (force) args.push('--force');
+  const res = spawnSync('node', args, { encoding: 'utf8', timeout: 30000 });
+  return {
+    status: res.status === 0 ? 'ok' : 'error',
+    stdout: res.stdout || '',
+    stderr: res.stderr || '',
+    exitCode: typeof res.status === 'number' ? res.status : -1,
+  };
 }
 
 // -- Renderers -------------------------------------------------------
