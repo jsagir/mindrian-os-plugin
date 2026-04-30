@@ -118,8 +118,10 @@ function runDoctorJson(scratch, args) {
         && v.kind === 'missing-body-shape');
     assert.equal(hits.length, 1,
       label + ': must flag noncompliant.md exactly once with kind missing-body-shape');
+    // Use path.basename to compare exact filenames (not substring) so
+    // 'noncompliant.md' does not falsely match the 'compliant.md' substring.
     const compliantHits = f.violations.filter((v) =>
-      v && v.file && v.file.indexOf('compliant.md') !== -1);
+      v && v.file && path.basename(v.file) === 'compliant.md');
     assert.equal(compliantHits.length, 0,
       label + ': must NOT flag compliant.md');
     ok(label);
