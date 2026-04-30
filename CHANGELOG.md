@@ -9,6 +9,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.12.1-beta.1] - 2026-04-30
+
+Closes Phase 95.1. Extends `/mos:doctor` from a single-class (install-cache drift class A) checker into a six-class drift detector covering all silent-failure modes surfaced in the v1.12.0 fresh-session smoke (2026-04-30). Ships the missing `scripts/generate-section-intelligence.cjs` generator that Phase 87-01a's pre-commit hook has been pointing at since 2026-04-19 but never existed. Brings `/mos:doctor` itself into UI Ruling System compliance (Shape E Action Report; 4-zone anatomy; 12-glyph vocabulary; no box chars). Hydrates the dogfood `room/` subtree into Decision-#15 compliance (1 sentinel + 20 generated ROOM.md/MINTO.md across 10 directories). Closes 8 new requirement IDs (DOCTOR-95.1-01..08) and ships the deferred Anthropic upstream bug report draft (Phase 93 D5; held until /mos:doctor existed at full strength -- now does).
+
+This is a beta release. Per `release-process.md` mandate, release infrastructure (which `/mos:doctor --fix` qualifies as -- it offers recovery actions that touch the live install path) ALWAYS ships as a beta first. Promotion to stable `v1.12.1` requires confirmation from at least one external user (Lawrence) that the new drift detectors work cleanly. Beta opt-in path documented under "Upgrade" below.
+
+### Added
+
+- `/mos:doctor --cascade-rooms` flag detects (a) rooms missing the `.room-root` sentinel (drift class B) by reading `~/MindrianRooms/.rooms/registry.json` and walking each registered room's filesystem AND (b) the active-room guard silence at `scripts/post-write` lines 207-217 where non-active-room writes exit 0 before `write_cascade_side_channel` runs (drift class C). Detection only; class C `--fix` deferred per CONTEXT Deferred Ideas. Closes DOCTOR-95.1-01.
+- `/mos:doctor --verify-surface` flag executes a live cascade end-to-end against `test/fixtures/cascade-surface-e2e/` via `spawnSync('node', ['tests/test-cascade-surface-e2e.cjs'])` and asserts the 8-key side-channel shape (timestamp, file_path, section, cascade_status, classification, git_commit, graph_index, proactive_intelligence). Cross-platform Windows-without-bash skip branch mirrors the test runner's own self-skip behavior. Closes DOCTOR-95.1-02 and DOCTOR-95.1-08.
+- `/mos:doctor --room-md` flag detects directories under `.room-root` subtrees missing ROOM.md or MINTO.md (drift class E); `--fix --room-md` invokes the new generator with `--recursive`. Closes DOCTOR-95.1-03.
+- `/mos:doctor --ui-compliance` flag detects UI Ruling System violations (drift class F): (a) `commands/*.md` frontmatter missing `body_shape:`, (b) `scripts/*.cjs` and renderers using unauthorized box chars (`╭ ╮ ╰ ╯ ┌ ┐ └ ┘ │ ─ ━`) or unauthorized glyphs (`✗ ✘ ✕ ❌ ❓ ❗ ⚠️` or any other emoji), (c) command output renderers missing the Zone 1 header pattern `-- {room} -- {command} --` and missing Zone 4 action footer pattern. Reports per-file violations with line numbers. `--fix` is detect-only in 95.1 (auto-rewriting renderers deferred). Closes DOCTOR-95.1-04.
+- `/mos:doctor --all` flag activates all class detectors A-F in one invocation.
+- `scripts/generate-section-intelligence.cjs` -- the missing generator that Phase 87-01a's pre-commit hook has been pointing at since 2026-04-19. Single-dir + `--recursive` + `--force`. Hand-rolled minimal frontmatter (BSL-1.1 license, section/parent/created fields). Atomic writes via mktemp + rename(2). Closes DOCTOR-95.1-05.
+- `test/fixtures/cascade-surface-e2e/` -- sibling of `cascade-e2e/seed-room/` for surface-layer (envelope -> render) verification, contrasting with the pipeline-only fixture next door.
+- 7 new test files: `tests/test-doctor-class-b.cjs`, `tests/test-doctor-class-c.cjs`, `tests/test-cascade-surface-e2e.cjs`, `tests/test-doctor-class-e.cjs`, `tests/test-doctor-class-f.cjs`, `tests/test-generate-section-intelligence.cjs`, `tests/test-doctor-ui-self-compliant.cjs`. Registered in `lib/memory/run-feynman-tests.cjs`. 25 new scenarios; all GREEN.
+- F.1 Next Move structural marker block in `/mos:doctor` output when drift detected without `--fix`. Canonical AskUserQuestion-based F.1 deferred to Phase 88.2 per `f1-selector-deferred.md` in the phase directory. Closes DOCTOR-95.1-07.
+- Dogfood `room/.room-root` sentinel + 10 ROOM.md + 10 MINTO.md across the dogfood room subtree (10 directories). Closes Decision-#15 violation in the plugin's own dogfood room.
+- `docs/anthropic-upstream-install-cache-drift.md` -- draft bug report for filing with Anthropic describing install-cache drift class A behavior at the Claude Code plugin manager level. Closes Phase 93 D5 deferred item.
+
+### Fixed
+
+- `/mos:doctor` itself was non-compliant with `skills/ui-system/SKILL.md` (mandatory since Phase 80) -- used `╭─ ╮ ╰─ ╯` box chars and `✗` glyph (not in the 12-glyph vocabulary), missing 4-zone anatomy, missing `body_shape` frontmatter, missing Zone 4 action footer. Retrofitted to Shape E (Action Report) compliance: `-- MindrianOS -- doctor -- {stage} --` Zone 1 header, per-class status rows in Zone 2, Zone 4 footer with `▶ /mos:` primary action, density-aware compact header when output exceeds 30 lines. Closes DOCTOR-95.1-06.
+- `commands/doctor.md` frontmatter missing `body_shape`. Added `body_shape: E (Action Report)` (canonical form across 33/80 shipped commands).
+- Smoke session debris cleaned: removed duplicate nested `room/decisions/v1-12-0-smoke-fresh-session-2/v1-12-0-smoke-fresh-session-2/` (outer parent preserved).
+
+### Changed
+
+- `scripts/doctor.cjs` extended from 335 to ~750 lines. Architecture preserved: parseArgs / checkX() / performRecovery / renderHumanReport. Five new check functions registered behind flag selectors. Each check is graceful-degradation-wrapped (try/catch around each invocation; one failure does not abort the run).
+- `commands/doctor.md` examples updated to match new Shape E renderer output.
+- `commands/doctor.md` argument-hint extended to enumerate the new flags.
+
+### Beta gate
+
+Per `release-process.md` mandate ("release infrastructure ALWAYS ships as a beta first"), this release ships as `v1.12.1-beta.1`. Promotion to stable `v1.12.1` requires confirmation from at least one external user (Lawrence) that the new drift detectors work cleanly.
+
+### Five release gates status
+
+- [x] CHANGELOG.md updated (this entry)
+- [x] .claude-plugin/plugin.json bumped to 1.12.1-beta.1
+- [x] package.json bumped to 1.12.1-beta.1
+- [x] git tag v1.12.1-beta.1
+- [ ] ~/mindrian-marketplace/.claude-plugin/marketplace.json source.ref pinned to v1.12.1-beta.1 (separate repo; user-side step after this commit lands)
+
+### Upgrade
+
+Stable users (v1.12.0) are NOT auto-updated to a beta. Beta opt-in path:
+
+```bash
+/plugin marketplace update
+claude plugin update mos@mindrian-marketplace --version 1.12.1-beta.1
+```
+
+After tester sign-off, this beta will be promoted by re-releasing as `v1.12.1` (without the suffix) per release-process.md.
+
 ## [1.12.0] - 2026-04-29
 
 Closes Phase 95. Brings 7 bash hooks into Claude Code 2.x per-event envelope-schema compliance. Restores the Phase 88.1-03 mid-session intelligence injection feature that has been silently broken since it shipped. Cascade payload relocates to a LOCAL side-channel JSON file at `<roomDir>/.mindrian/last-cascade.json` (Canon Part 8 LOCAL-only). 3 new regression tests fence the contracts. Three-surface compatible (CLI / Desktop MCP / Cowork) via shared hooks bundle.
