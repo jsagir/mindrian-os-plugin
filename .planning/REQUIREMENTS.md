@@ -125,6 +125,17 @@
 - [x] **BASH-95-06**: CHANGELOG.md `[1.12.0]` entry contains BOTH `### Fixed` (envelope hygiene) AND `### Changed` (room-proactive cascade restoration) sections.
 - [x] **BASH-95-07**: Version bump 1.11.2 -> 1.12.0 across all 5 release gates (CHANGELOG.md, .claude-plugin/plugin.json, package.json, git tag v1.12.0, ~/mindrian-marketplace/.claude-plugin/marketplace.json ref pin).
 
+## Plugin Self-Healing Diagnostics (DOCTOR-95.1)
+
+- [ ] **DOCTOR-95.1-01**: `/mos:doctor --cascade-rooms` flag detects (a) rooms missing the `.room-root` sentinel (drift class B) by reading `~/MindrianRooms/.rooms/registry.json` and walking each registered room's filesystem AND (b) the active-room guard silence at `scripts/post-write` lines 207-217 where non-active-room writes exit 0 before `write_cascade_side_channel` runs (drift class C). Detection only; class C `--fix` is deferred per CONTEXT Deferred Ideas.
+- [ ] **DOCTOR-95.1-02**: `/mos:doctor --verify-surface` flag executes a live cascade end-to-end against `test/fixtures/cascade-surface-e2e/` via `spawnSync('bash', [POST_WRITE], { env: { MINDRIAN_ROOMS_HOME: <fixture> } })`, then asserts `<fixtureRoom>/.mindrian/last-cascade.json` exists and contains all 8 root keys (timestamp, file_path, section, cascade_status, classification, git_commit, graph_index, proactive_intelligence) per D-04, D-05, D-06.
+- [ ] **DOCTOR-95.1-03**: `/mos:doctor --room-md` flag detects directories under `.room-root` subtrees missing ROOM.md or MINTO.md (drift class E); `--fix --room-md` invokes `scripts/generate-section-intelligence.cjs` with `--recursive` per D-09.
+- [ ] **DOCTOR-95.1-04**: `/mos:doctor --ui-compliance` flag detects (a) `commands/*.md` frontmatter missing `body_shape:`, (b) `scripts/*.cjs` and renderers using unauthorized box chars (╭ ╮ ╰ ╯ ┌ ┐ └ ┘ │ ─ ━) or unauthorized glyphs (✗ ✘ ✕ ❌ ❓ ❗ ⚠️ or any emoji other than the `scripts/context-monitor` carve-out), (c) command output renderers missing the Zone 1 header pattern `-- {room} -- {command} --` and missing Zone 4 action footer pattern (drift class F per D-13). Reports per-file violations with line numbers. `--fix` is detect-only in 95.1.
+- [ ] **DOCTOR-95.1-05**: `scripts/generate-section-intelligence.cjs` exists. CLI: `node scripts/generate-section-intelligence.cjs <dir> [--recursive] [--force]`. Default scope = ONE directory. With `--recursive`, walks the whole subtree from the anchor. Idempotent: skip if ROOM.md or MINTO.md exists; `--force` overrides per D-01, D-02, D-03. Hand-rolled minimal frontmatter per D-03 (NOT imported from `vault-section-{state,minto}-generator.cjs`). Atomic write via mktemp + rename(2) on same filesystem.
+- [ ] **DOCTOR-95.1-06**: `/mos:doctor` itself complies with UI Ruling System §1-§4: (a) `commands/doctor.md` frontmatter contains `body_shape: E (Action Report)` (canonical form per 33/80 shipped commands incl. heal.md and act.md); (b) `scripts/doctor.cjs renderHumanReport` emits a Zone 1 header `-- MindrianOS -- doctor -- {stage} --` and a Zone 4 action footer with 2-3 grounded `/mos:` commands; (c) `scripts/doctor.cjs` contains zero unauthorized box chars (╭ ╮ ╰ ╯) and zero unauthorized glyphs (✗); (d) only the 12 approved glyphs from SKILL.md §3 are used (■ ▼ ▶ ▷ ├─ └─ ✓ • ⚠ ⚡ ⬜ →) per D-10..D-13.
+- [ ] **DOCTOR-95.1-07**: `/mos:doctor` (no `--fix`) renders an F.1 Next Move selector when drift is detected, BEFORE the Zone 4 action footer, with options: "Run /mos:doctor --fix" / "Defer" / "Free-Text" per D-18. Implementation strategy: until Phase 88.2 ships AskUserQuestion for Shape F, render the selector as a non-interactive structural marker block in the report; Larry handles the conversational selection per D-19. Mark the AskUserQuestion canonical implementation as a deferred 88.2 follow-up file `f1-selector-deferred.md` in the phase directory.
+- [ ] **DOCTOR-95.1-08**: `test/fixtures/cascade-surface-e2e/` exists as a SIBLING of `test/fixtures/cascade-e2e/seed-room/` (NOT a subdirectory) per D-04 and per <specifics>. Layout: `.room-root` + STATE.md + ROOM.md + MINTO.md + `.rooms/registry.json` + `problem-definition/ROOM.md` + `problem-definition/MINTO.md` + `problem-definition/seed-artifact/seed-artifact.md` (Decision #16 nested). Includes `cascade-surface-e2e/README.md` documenting the contrast with `cascade-e2e/seed-room/` (pipeline-level vs surface-level).
+
 ## Future Requirements (v2)
 
 - Obsidian plugin (sidebar for Larry, command palette, auto-complete wikilinks)
@@ -229,3 +240,11 @@
 | BASH-95-05 | Phase 95 | Complete |
 | BASH-95-06 | Phase 95 | Complete |
 | BASH-95-07 | Phase 95 | Complete |
+| DOCTOR-95.1-01 | Phase 95.1 | Pending |
+| DOCTOR-95.1-02 | Phase 95.1 | Pending |
+| DOCTOR-95.1-03 | Phase 95.1 | Pending |
+| DOCTOR-95.1-04 | Phase 95.1 | Pending |
+| DOCTOR-95.1-05 | Phase 95.1 | Pending |
+| DOCTOR-95.1-06 | Phase 95.1 | Pending |
+| DOCTOR-95.1-07 | Phase 95.1 | Pending |
+| DOCTOR-95.1-08 | Phase 95.1 | Pending |
