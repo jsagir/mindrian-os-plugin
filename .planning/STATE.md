@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 95.1-07-PLAN.md (Task 1 staged dogfood-room for Plan 08; Task 2 committed live runner upgrade 0372eda; Task 3 checkpoint auto-approved)
-last_updated: "2026-04-30T18:31:39.025Z"
+stopped_at: Phase 95.1 v1.12.1-beta.1 shipped
+last_updated: "2026-04-30T18:40:34.713Z"
 last_activity: 2026-04-30
 progress:
   total_phases: 33
-  completed_phases: 17
+  completed_phases: 18
   total_plans: 168
-  completed_plans: 156
+  completed_plans: 157
   percent: 82
 ---
 
@@ -548,6 +548,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-30T18:31:29.949Z
-Stopped at: Completed 95.1-07-PLAN.md (Task 1 staged dogfood-room for Plan 08; Task 2 committed live runner upgrade 0372eda; Task 3 checkpoint auto-approved)
-Resume file: None
+Last session: 2026-04-30T18:40:34.702Z
+Stopped at: Phase 95.1 v1.12.1-beta.1 shipped
+Resume file: .planning/phases/95.1-mos-doctor-drift-detection-and-self-heal/95.1-08-SUMMARY.md
