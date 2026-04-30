@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
-status: verifying
-stopped_at: Phase 95.1 context gathered
-last_updated: "2026-04-30T08:27:25.072Z"
-last_activity: 2026-04-29
+status: executing
+stopped_at: Completed 95.1-00-PLAN.md
+last_updated: "2026-04-30T09:59:58.503Z"
+last_activity: 2026-04-30
 progress:
   total_phases: 33
   completed_phases: 17
-  total_plans: 159
-  completed_plans: 148
+  total_plans: 168
+  completed_plans: 149
   percent: 82
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 95 — bash-hook-envelope-and-cascade-side-channel
+**Current focus:** Phase 95.1 — mos-doctor-drift-detection-and-self-heal
 
 ## Current Position
 
-Phase: 95 (bash-hook-envelope-and-cascade-side-channel) — EXECUTING
-Plan: 5 of 5
-Status: Phase complete — ready for verification
+Phase: 95.1 (mos-doctor-drift-detection-and-self-heal) — EXECUTING
+Plan: 2 of 9
+Status: Ready to execute
 
 Phase 89.5 closure (this session):
 
@@ -71,7 +71,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-04-29
+Last activity: 2026-04-30
 
 Progress: [████████░░] 82%
 
@@ -163,6 +163,7 @@ Progress: [████████░░] 82%
 | Phase 95 P03 | 4min51s | 2 tasks | 5 files |
 | Phase 95 P04 | 25min | 3 tasks | 8 files |
 | Phase 95 P05 | 27 | 7 tasks | 7 files |
+| Phase 95.1 P00 | 1m19s | 1 tasks | 1 files |
 
 ### Roadmap Evolution
 
@@ -505,6 +506,7 @@ Progress: [████████░░] 82%
 - [Phase 95]: v1.12.0 ships direct (not beta). Feature-restoration release; Phase 88.1-03 mid-session intelligence injection now functions for the first time since shipped.
 - [Phase 95]: 27/27 envelope-related regression scenarios GREEN (16 + 5 + 6). 3 pre-existing fixture failures (Phase 84 + Phase 85 self-update) deferred per SCOPE BOUNDARY rule; release impact: none.
 - [Phase 95]: PostCompact context preservation half-wired in v1.12.0: writer landed (scripts/post-compact -> last-post-compact.md), consumer queued for Phase 95.5 / 96. Disclosure in CHANGELOG ### Audit Notes per release-process.md transparency.
+- [Phase 95.1]: Phase 95.1 REQ-IDs (DOCTOR-95.1-01..08) added to REQUIREMENTS.md as ## Plugin Self-Healing Diagnostics (DOCTOR-95.1) block, mirroring BASH-95-* convention; 8 traceability rows appended
 
 ### Pending Todos
 
@@ -526,6 +528,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-30T08:27:25.031Z
-Stopped at: Phase 95.1 context gathered
-Resume file: .planning/phases/95.1-mos-doctor-drift-detection-and-self-heal/95.1-CONTEXT.md
+Last session: 2026-04-30T09:59:53.400Z
+Stopped at: Completed 95.1-00-PLAN.md
+Resume file: None

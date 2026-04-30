@@ -869,10 +869,10 @@ Plans:
 **Goal:** Extend Phase 93's `/mos:doctor` (currently class A only) with detectors for 5 silent-failure drift classes (B/C/D/E/F) surfaced by v1.12.0 fresh-session smoke. Build the missing `scripts/generate-section-intelligence.cjs` generator. Retrofit `/mos:doctor` itself for UI Ruling System compliance. Use the dogfood `room/` subtree as integration test fixture. Ship as v1.12.1-beta.1.
 **Requirements**: DOCTOR-95.1-01, DOCTOR-95.1-02, DOCTOR-95.1-03, DOCTOR-95.1-04, DOCTOR-95.1-05, DOCTOR-95.1-06, DOCTOR-95.1-07, DOCTOR-95.1-08
 **Depends on:** Phase 95
-**Plans:** 9 plans
+**Plans:** 1/9 plans executed
 
 Plans:
-- [ ] 95.1-00-PLAN.md — Add DOCTOR-95.1-01..08 requirements to REQUIREMENTS.md (Wave 0 foundation)
+- [x] 95.1-00-PLAN.md — Add DOCTOR-95.1-01..08 requirements to REQUIREMENTS.md (Wave 0 foundation)
 - [ ] 95.1-01-PLAN.md — Seed test/fixtures/cascade-surface-e2e/ sibling fixture (Wave 0 fixture)
 - [ ] 95.1-02-PLAN.md — Write 7 RED test skeletons + register in run-feynman-tests.cjs (Wave 0 tests)
 - [ ] 95.1-03-PLAN.md — Build scripts/generate-section-intelligence.cjs (Wave 1 generator)
