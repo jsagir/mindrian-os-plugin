@@ -1,0 +1,349 @@
+{
+  "version": 1,
+  "canon_parts": [2, "2a", 3, 7],
+  "entries": [
+    {
+      "id": "decide-pursue",
+      "one_line": "Decide if a venture / opportunity / approach is worth pursuing.",
+      "cues": [
+        "should we pursue",
+        "go / no-go",
+        "is this worth",
+        "kill it or keep it",
+        "pivot",
+        "double down"
+      ],
+      "methodology_hooks": [
+        "/mos:diagnose",
+        "/mos:build-thesis",
+        "/mos:value-proposition",
+        "/mos:lean-canvas"
+      ],
+      "next_move_verbs": [
+        "Run Methodology",
+        "Devil's Advocate",
+        "Scenario Plan",
+        "Synthesize"
+      ],
+      "completion_shape": "APPROVE/REJECT decision edge in graph + Decisions row in STATE.md",
+      "operator_affinity": ["BUILD_ROOM", "METHODOLOGY"],
+      "persona_affinity": ["Founder", "Investor"]
+    },
+    {
+      "id": "find-problem",
+      "one_line": "Find the problem worth solving (not the symptom, the root).",
+      "cues": [
+        "what's the real problem",
+        "why are users",
+        "wrong problem",
+        "five whys",
+        "root cause",
+        "first principles"
+      ],
+      "methodology_hooks": [
+        "/mos:beautiful-question",
+        "/mos:root-cause",
+        "/mos:user-needs",
+        "/mos:analyze-needs"
+      ],
+      "next_move_verbs": [
+        "Reformulate",
+        "Run Methodology",
+        "Navigate Graph",
+        "Devil's Advocate",
+        "Synthesize"
+      ],
+      "completion_shape": "new artifact at room/problem-definition/ with reformulated problem statement",
+      "operator_affinity": ["EXPLORE_CAPTURE", "BUILD_ROOM"],
+      "persona_affinity": ["Researcher", "Founder"]
+    },
+    {
+      "id": "understand-market",
+      "one_line": "Understand the market for this idea — size, structure, dynamics.",
+      "cues": [
+        "market size",
+        "TAM SAM SOM",
+        "competitors",
+        "industry",
+        "market dynamics",
+        "Porter"
+      ],
+      "methodology_hooks": [
+        "/mos:macro-trends",
+        "/mos:mullins",
+        "/mos:dominant-designs",
+        "/mos:explore-trends"
+      ],
+      "next_move_verbs": [
+        "Run Methodology",
+        "Spawn Sub-Agent",
+        "Navigate Graph",
+        "Synthesize"
+      ],
+      "completion_shape": "populated room/market-analysis/ with mullins or dominant-designs artifact",
+      "operator_affinity": ["METHODOLOGY", "BUILD_ROOM"],
+      "persona_affinity": ["Researcher", "Investor"]
+    },
+    {
+      "id": "find-bottleneck",
+      "one_line": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
+      "cues": [
+        "lagging",
+        "stuck",
+        "reverse salient",
+        "blocking",
+        "bottleneck",
+        "what's slow",
+        "what's holding us back"
+      ],
+      "methodology_hooks": [
+        "/mos:rs-fetch",
+        "/mos:find-bottlenecks",
+        "/mos:systems-thinking",
+        "/mos:analyze-systems"
+      ],
+      "next_move_verbs": [
+        "Run Methodology",
+        "Spawn Sub-Agent",
+        "Navigate Graph",
+        "Synthesize"
+      ],
+      "completion_shape": "rs-thesis artifact filed + REVERSE_SALIENT edges in graph",
+      "operator_affinity": ["METHODOLOGY"],
+      "persona_affinity": ["Researcher", "Operator"]
+    },
+    {
+      "id": "prepare-pitch",
+      "one_line": "Prepare for an investor / partner / customer meeting.",
+      "cues": [
+        "investor",
+        "pitch deck",
+        "demo day",
+        "fundraising",
+        "meeting on Tuesday",
+        "stakeholder review"
+      ],
+      "methodology_hooks": [
+        "/mos:build-thesis",
+        "/mos:present",
+        "/mos:hat-briefing",
+        "/mos:persona"
+      ],
+      "next_move_verbs": [
+        "Run Methodology",
+        "Synthesize",
+        "Spawn Sub-Agent",
+        "Devil's Advocate",
+        "Navigate Graph"
+      ],
+      "completion_shape": "rendered presentation HTML + STATE.md MEETING-PREP entry",
+      "operator_affinity": ["BUILD_ROOM"],
+      "persona_affinity": ["Founder", "Investor"]
+    },
+    {
+      "id": "validate-idea",
+      "one_line": "Test if an idea / hypothesis / claim holds up under scrutiny.",
+      "cues": [
+        "test if",
+        "validate",
+        "does this hold up",
+        "stress-test",
+        "challenge",
+        "Devil's Advocate",
+        "red team"
+      ],
+      "methodology_hooks": [
+        "/mos:validate",
+        "/mos:challenge-assumptions",
+        "/mos:think-hats",
+        "/mos:map-unknowns"
+      ],
+      "next_move_verbs": [
+        "Devil's Advocate",
+        "Run Methodology",
+        "Spawn Sub-Agent",
+        "Reformulate",
+        "Synthesize"
+      ],
+      "completion_shape": "validation entry in room/assumptions/ with status (validated / invalidated / needs-data)",
+      "operator_affinity": ["METHODOLOGY"],
+      "persona_affinity": ["Researcher", "Investor"]
+    },
+    {
+      "id": "compare-options",
+      "one_line": "Compare alternatives across criteria — choose between A/B/C.",
+      "cues": [
+        "compare",
+        "A vs B",
+        "tradeoffs",
+        "options",
+        "alternatives",
+        "scenarios",
+        "decision matrix"
+      ],
+      "methodology_hooks": [
+        "/mos:compare-ventures",
+        "/mos:scenario-plan",
+        "/mos:deep-grade"
+      ],
+      "next_move_verbs": [
+        "Scenario Plan",
+        "Run Methodology",
+        "Spawn Sub-Agent",
+        "Synthesize"
+      ],
+      "completion_shape": "Shape G (Comparison Matrix, ships in Phase 101) artifact + decision edge",
+      "operator_affinity": ["METHODOLOGY", "DECISION_GATE"],
+      "persona_affinity": ["Founder", "Operator"]
+    },
+    {
+      "id": "connect-domains",
+      "one_line": "Find cross-domain analogues — what does this look like in another field?",
+      "cues": [
+        "analogous",
+        "similar to",
+        "from another domain",
+        "cross-domain",
+        "biology of",
+        "what's the equivalent in"
+      ],
+      "methodology_hooks": [
+        "/mos:find-analogies",
+        "/mos:find-connections",
+        "/mos:explore-domains"
+      ],
+      "next_move_verbs": [
+        "Run Methodology",
+        "Spawn Sub-Agent",
+        "Navigate Graph",
+        "Synthesize"
+      ],
+      "completion_shape": "ANALOGY edge or CROSS_DOMAIN edge in graph + opportunity bank ADD candidate",
+      "operator_affinity": ["METHODOLOGY"],
+      "persona_affinity": ["Researcher", "Domain Expert"]
+    },
+    {
+      "id": "surface-contradiction",
+      "one_line": "Notice and resolve internal contradictions in the room.",
+      "cues": [
+        "contradicts",
+        "doesn't match",
+        "earlier we said",
+        "inconsistent",
+        "this conflicts with",
+        "challenge our own"
+      ],
+      "methodology_hooks": [
+        "/mos:challenge-assumptions",
+        "/mos:persona",
+        "/mos:think-hats"
+      ],
+      "next_move_verbs": [
+        "Devil's Advocate",
+        "Navigate Graph",
+        "Reformulate",
+        "Synthesize"
+      ],
+      "completion_shape": "CONTRADICTS edge resolution (one side INVALIDATED or both PARKED with reason)",
+      "operator_affinity": ["BUILD_ROOM"],
+      "persona_affinity": ["Mentor", "Domain Expert"]
+    },
+    {
+      "id": "plan-execution",
+      "one_line": "Plan the next 90 days — milestones, owners, dates.",
+      "cues": [
+        "plan",
+        "next 90 days",
+        "milestones",
+        "roadmap",
+        "what's next",
+        "execution plan",
+        "OKRs"
+      ],
+      "methodology_hooks": [
+        "/mos:act",
+        "/mos:pipeline",
+        "/mos:scenario-plan"
+      ],
+      "next_move_verbs": [
+        "Run Methodology",
+        "Spawn Sub-Agent",
+        "Synthesize",
+        "Bank Opportunity",
+        "Defer"
+      ],
+      "completion_shape": "Shape H (Timeline, ships in Phase 101) artifact + STATE.md milestones section",
+      "operator_affinity": ["BUILD_ROOM", "METHODOLOGY"],
+      "persona_affinity": ["Operator", "Founder"]
+    },
+    {
+      "id": "file-meeting",
+      "one_line": "Capture and route meeting intelligence into the room.",
+      "cues": [
+        "transcript",
+        "meeting",
+        "Velma",
+        "spoke with",
+        "spoke to",
+        "call yesterday"
+      ],
+      "methodology_hooks": [
+        "/mos:file-meeting",
+        "/mos:speakers",
+        "/mos:reanalyze"
+      ],
+      "next_move_verbs": [
+        "Run Methodology",
+        "Synthesize",
+        "Navigate Graph",
+        "Bank Opportunity"
+      ],
+      "completion_shape": "filed transcript + cascade edges (INFORMS / CONTRADICTS / CONVERGES)",
+      "operator_affinity": ["METHODOLOGY"],
+      "persona_affinity": ["Operator", "Mentor"]
+    },
+    {
+      "id": "audit-room",
+      "one_line": "Audit Data Room health — gaps, drift, evidence tier, decision quality.",
+      "cues": [
+        "is the room healthy",
+        "audit",
+        "drift",
+        "what's missing",
+        "gaps",
+        "deep grade"
+      ],
+      "methodology_hooks": [
+        "/mos:grade",
+        "/mos:deep-grade",
+        "/mos:heal",
+        "/mos:doctor",
+        "/mos:diagnostics"
+      ],
+      "next_move_verbs": [
+        "Run Methodology",
+        "Devil's Advocate",
+        "Navigate Graph",
+        "Synthesize",
+        "Defer"
+      ],
+      "completion_shape": "/mos:grade or /mos:deep-grade Shape E report + STATE.md HEALTH section",
+      "operator_affinity": ["METHODOLOGY"],
+      "persona_affinity": ["Mentor", "Operator"]
+    },
+    {
+      "id": "explore",
+      "one_line": "No specific job — general thinking, talking, ranging.",
+      "cues": [],
+      "methodology_hooks": [],
+      "next_move_verbs": [
+        "Free-Text",
+        "Run Methodology",
+        "Defer"
+      ],
+      "completion_shape": "none — explore is the steady state until a job crystallizes",
+      "operator_affinity": ["JUST_TALK", "EXPLORE_CAPTURE"],
+      "persona_affinity": []
+    }
+  ]
+}
