@@ -1,0 +1,114 @@
+{
+  "_meta": {
+    "schema_version": "0.1-stub",
+    "phase": "100-02",
+    "stub_note": "Minimal stub authored by Plan 100-02 (Rule 3 deviation) to unblock the classifier ahead of sibling Plan 100-01 landing. Replace with the canonical taxonomy when 100-01 ships. Cue lists, methodology_hooks, operator_affinity, and verb_set are sourced from 100-RESEARCH.md §2.",
+    "founding_phase": 100
+  },
+  "jtbds": [
+    {
+      "id": "decide-pursue",
+      "one_line": "Decide if a venture / opportunity / approach is worth pursuing.",
+      "cues": ["should we pursue", "go/no-go", "go no go", "is this worth", "kill it", "double down", "pivot"],
+      "methodology_hooks": ["/mos:diagnose", "/mos:build-thesis", "/mos:value-proposition", "/mos:lean-canvas"],
+      "operator_affinity": ["BUILD_ROOM", "METHODOLOGY", "DECISION_GATE"],
+      "verb_set": ["Run Methodology", "Devil's Advocate", "Scenario Plan", "Synthesize"]
+    },
+    {
+      "id": "find-problem",
+      "one_line": "Find the problem worth solving (root cause, not symptom).",
+      "cues": ["real problem", "wrong problem", "five whys", "root cause", "first principles", "why are users"],
+      "methodology_hooks": ["/mos:beautiful-question", "/mos:root-cause", "/mos:user-needs", "/mos:analyze-needs"],
+      "operator_affinity": ["EXPLORE_CAPTURE", "BUILD_ROOM"],
+      "verb_set": ["Reformulate", "Run Methodology", "Navigate Graph", "Devil's Advocate", "Synthesize"]
+    },
+    {
+      "id": "understand-market",
+      "one_line": "Understand the market for this idea -- size, structure, dynamics.",
+      "cues": ["market size", "tam sam som", "competitors", "industry", "market dynamics", "porter"],
+      "methodology_hooks": ["/mos:macro-trends", "/mos:mullins", "/mos:dominant-designs", "/mos:explore-trends"],
+      "operator_affinity": ["METHODOLOGY", "BUILD_ROOM"],
+      "verb_set": ["Run Methodology", "Spawn Sub-Agent", "Compare-Options", "Navigate Graph", "Synthesize"]
+    },
+    {
+      "id": "find-bottleneck",
+      "one_line": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
+      "cues": ["lagging", "stuck", "reverse salient", "blocking", "bottleneck", "what's slow", "holding us back"],
+      "methodology_hooks": ["/mos:rs-fetch", "/mos:find-bottlenecks", "/mos:systems-thinking", "/mos:analyze-systems"],
+      "operator_affinity": ["METHODOLOGY"],
+      "verb_set": ["Run Methodology", "Spawn Sub-Agent", "Navigate Graph", "Synthesize"]
+    },
+    {
+      "id": "prepare-pitch",
+      "one_line": "Prepare for an investor / partner / customer meeting.",
+      "cues": ["investor", "pitch deck", "demo day", "fundraising", "stakeholder review", "meeting on tuesday"],
+      "methodology_hooks": ["/mos:build-thesis", "/mos:present", "/mos:hat-briefing", "/mos:persona"],
+      "operator_affinity": ["BUILD_ROOM"],
+      "verb_set": ["Run Methodology", "Synthesize", "Spawn Sub-Agent", "Devil's Advocate", "Navigate Graph"]
+    },
+    {
+      "id": "validate-idea",
+      "one_line": "Test if an idea / hypothesis / claim holds up under scrutiny.",
+      "cues": ["test if", "validate", "does this hold up", "stress-test", "challenge", "red team", "devil's advocate"],
+      "methodology_hooks": ["/mos:validate", "/mos:challenge-assumptions", "/mos:think-hats", "/mos:map-unknowns"],
+      "operator_affinity": ["METHODOLOGY"],
+      "verb_set": ["Devil's Advocate", "Run Methodology", "Spawn Sub-Agent", "Reformulate", "Synthesize"]
+    },
+    {
+      "id": "compare-options",
+      "one_line": "Compare alternatives across criteria -- choose between A/B/C.",
+      "cues": ["compare", "a vs b", "tradeoffs", "alternatives", "scenarios", "decision matrix"],
+      "methodology_hooks": ["/mos:compare-ventures", "/mos:scenario-plan", "/mos:deep-grade"],
+      "operator_affinity": ["METHODOLOGY", "DECISION_GATE"],
+      "verb_set": ["Scenario Plan", "Run Methodology", "Spawn Sub-Agent", "Synthesize"]
+    },
+    {
+      "id": "connect-domains",
+      "one_line": "Find cross-domain analogues -- what does this look like in another field?",
+      "cues": ["analogous", "similar to", "from another domain", "cross-domain", "biology of", "equivalent in"],
+      "methodology_hooks": ["/mos:find-analogies", "/mos:find-connections", "/mos:explore-domains"],
+      "operator_affinity": ["METHODOLOGY"],
+      "verb_set": ["Run Methodology", "Spawn Sub-Agent", "Navigate Graph", "Synthesize"]
+    },
+    {
+      "id": "surface-contradiction",
+      "one_line": "Notice and resolve internal contradictions in the room.",
+      "cues": ["contradicts", "doesn't match", "earlier we said", "inconsistent", "this conflicts", "challenge our own"],
+      "methodology_hooks": ["/mos:challenge-assumptions", "/mos:persona", "/mos:think-hats"],
+      "operator_affinity": ["BUILD_ROOM"],
+      "verb_set": ["Devil's Advocate", "Navigate Graph", "Reformulate", "Synthesize"]
+    },
+    {
+      "id": "plan-execution",
+      "one_line": "Plan the next 90 days -- milestones, owners, dates.",
+      "cues": ["plan", "next 90 days", "milestones", "roadmap", "what's next", "execution plan", "okrs"],
+      "methodology_hooks": ["/mos:act", "/mos:pipeline", "/mos:scenario-plan"],
+      "operator_affinity": ["BUILD_ROOM", "METHODOLOGY"],
+      "verb_set": ["Run Methodology", "Spawn Sub-Agent", "Synthesize", "Bank Opportunity", "Defer"]
+    },
+    {
+      "id": "file-meeting",
+      "one_line": "Capture and route meeting intelligence into the room.",
+      "cues": ["transcript", "meeting", "velma", "spoke with", "spoke to", "call yesterday"],
+      "methodology_hooks": ["/mos:file-meeting", "/mos:speakers", "/mos:reanalyze"],
+      "operator_affinity": ["METHODOLOGY"],
+      "verb_set": ["Run Methodology", "Synthesize", "Navigate Graph", "Bank Opportunity"]
+    },
+    {
+      "id": "audit-room",
+      "one_line": "Audit Data Room health -- gaps, drift, evidence tier, decision quality.",
+      "cues": ["is the room healthy", "audit", "drift", "what's missing", "gaps", "deep grade"],
+      "methodology_hooks": ["/mos:grade", "/mos:deep-grade", "/mos:heal", "/mos:doctor", "/mos:diagnostics"],
+      "operator_affinity": ["METHODOLOGY"],
+      "verb_set": ["Run Methodology", "Devil's Advocate", "Navigate Graph", "Synthesize", "Defer"]
+    },
+    {
+      "id": "explore",
+      "one_line": "No specific job -- general thinking, talking, ranging.",
+      "cues": [],
+      "methodology_hooks": [],
+      "operator_affinity": ["JUST_TALK", "EXPLORE_CAPTURE"],
+      "verb_set": ["Free-Text", "Run Methodology", "Defer"]
+    }
+  ]
+}
