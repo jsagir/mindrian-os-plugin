@@ -151,29 +151,48 @@ function computePriorities(violations, currentJtbd, taxonomy) {
   return weighted.slice(0, 5);
 }
 
-function computeOperatorShapeMismatches(violations, operator, repoRoot) {
+function computeOperatorShapeMismatches(violations, operator, repoRoot, scanCommandsDir) {
   const expected = expectedShapeFamily(operator);
   const expectedSet = new Set(expected);
   const out = [];
-  if (!Array.isArray(violations)) return out;
-  // Inspect each command-md file referenced in violations (de-duped). For
-  // missing-body-shape, body_shape is absent so the letter extractor returns
-  // null and we skip; doctor.cjs already counted that violation. For
-  // declared-but-mismatched, we record an informational entry.
   const seenFiles = new Set();
-  for (const v of violations) {
-    if (!v || typeof v.file !== 'string') continue;
-    if (seenFiles.has(v.file)) continue;
-    seenFiles.add(v.file);
-    // We accept any path that LOOKS like a command file (ends in .md) since
-    // doctor's --scan-commands override may produce non-'commands/' relative
-    // paths in hermetic scratch tests.
-    if (!/\.md$/i.test(v.file)) continue;
-    const abs = path.isAbsolute(v.file) ? v.file : path.join(repoRoot, v.file);
-    const letter = extractBodyShapeLetter(abs);
+
+  // Strategy 1 (preferred): when scanCommandsDir is provided, walk it directly.
+  // This is the hermetic-test path AND the production path when the doctor
+  // scan ran against an override directory; doctor's relative-path output may
+  // not start with 'commands/' for scratch fixtures, so we go to the source.
+  // Strategy 2 (fallback): when no scanCommandsDir is given, derive the file
+  // list from doctor.violations[] (de-duped). Either path inspects each
+  // command-md file's frontmatter body_shape and records mismatches.
+  let fileList = [];
+  if (scanCommandsDir && fs.existsSync(scanCommandsDir)) {
+    let entries;
+    try {
+      entries = fs.readdirSync(scanCommandsDir).filter(function (f) {
+        return /\.md$/i.test(f);
+      });
+    } catch (_) { entries = []; }
+    for (const f of entries) {
+      const abs = path.join(scanCommandsDir, f);
+      const rel = path.relative(repoRoot, abs);
+      fileList.push({ file: rel, abs: abs });
+    }
+  } else if (Array.isArray(violations)) {
+    for (const v of violations) {
+      if (!v || typeof v.file !== 'string') continue;
+      if (seenFiles.has(v.file)) continue;
+      seenFiles.add(v.file);
+      if (!/\.md$/i.test(v.file)) continue;
+      const abs = path.isAbsolute(v.file) ? v.file : path.join(repoRoot, v.file);
+      fileList.push({ file: v.file, abs: abs });
+    }
+  }
+
+  for (const item of fileList) {
+    const letter = extractBodyShapeLetter(item.abs);
     if (letter && !expectedSet.has(letter)) {
       out.push({
-        file: v.file,
+        file: item.file,
         declared: letter,
         expected_family: expected.slice(),
         operator: operator,
@@ -276,7 +295,7 @@ function pollOnce(opts) {
   const uiCompliance = doctor.data;
   const violations = Array.isArray(uiCompliance.violations) ? uiCompliance.violations : [];
 
-  const operatorShapeMismatches = computeOperatorShapeMismatches(violations, operator, PLUGIN_ROOT);
+  const operatorShapeMismatches = computeOperatorShapeMismatches(violations, operator, PLUGIN_ROOT, opts.scanCommandsDir);
   const priorities = computePriorities(violations, currentJtbd, _taxonomy);
 
   const envelope = {
