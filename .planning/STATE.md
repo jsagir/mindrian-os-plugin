@@ -4,13 +4,13 @@ milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
 stopped_at: Completed 99-04 (Operator-Aware Hooks)
-last_updated: "2026-05-01T09:55:40.265Z"
+last_updated: "2026-05-01T10:03:52.926Z"
 last_activity: 2026-05-01
 progress:
-  total_phases: 33
-  completed_phases: 18
-  total_plans: 168
-  completed_plans: 157
+  total_phases: 34
+  completed_phases: 21
+  total_plans: 170
+  completed_plans: 160
   percent: 82
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 99 — conversation-operator-state-machine
+**Current focus:** Phase 100 — jtbd-inference-engine
 
 ## Current Position
 
-Phase: 99
+Phase: 95.1
 Plan: Not started
-Status: Executing Phase 99
+Status: Executing Phase 100
 
 Resume note (2026-05-01): PC died after `/gsd:plan-phase 99 --auto` completed. Phase 99 PLAN files (99-01..99-05) sit on disk under `.planning/phases/99-conversation-operator-state-machine/` (gitignored per `.planning/` rule). Last commit `fbfe3e6` (CONTEXT + DISCUSSION-LOG only). No `feat(99-XX)` commits — execution never started. Phase 95.1 is closed (9/9 plans, see `a563850`); 95.1 is no longer current focus. Local commits ahead of `origin/main` by 1 (`fbfe3e6` unpushed).
 

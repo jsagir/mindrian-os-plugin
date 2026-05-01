@@ -78,10 +78,10 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 - [x] **Phase 89.3: 5-branch Mind Map + Full Neo4j Schema Deployment** - Output Layer of canonical RS framework per kickoff §5. Ships rs-neo4j-writer.cjs (Aura Cypher: RSDiscovery / ReverseSalient / Innovation / Paper / Author / Institution + DISCOVERED / DERIVED_FROM / ENABLES / AUTHORED_BY / AFFILIATED_WITH edges) + rs-sqlite-mirror.cjs (Tier 0 fallback when Aura absent) + rs-mind-map.cjs (5-branch Cytoscape: Direct Intersections / Structural Transfer / Semantic Implementation / Discovered RS / Innovation Ecosystem) + rs-expert-mapper.cjs (Cypher MATCH against user's Aura: authors + institutions + citations) + bridge-writer enhancement (thesis + breakthrough score on existing v1.10.16 module). Bundled into v1.11.0 final ship at Phase 91.x. (completed 2026-04-27)
 - [x] **Phase 89.4: Chain Wiring Upstream + Downstream** - Chain Mechanism per kickoff §6 (USER LOAD-BEARING INTENT 7). Upstream awareness: rs-discovery-engine queries Brain for chain context (problem_type x stage) before running; pauses for systems-thinking / hsi_semantic_surprise_analysis / Cynefin completion when needed. Downstream emission: every ReverseSalient output carries chain metadata (canonical Part 3 verb suggestion + FEEDS_INTO downstream framework + skill spawn rule per §6.4). Ships rs-chain-feeder.cjs (codifies engine choreography across HSI / Navigation Engine / future Scenario+Opportunity+Team-Assembly engines via Brain FEEDS_INTO topology) + Canon Part 3 10-verb vocabulary enforcement (validateVerb) + skill-spawn rule table (high breakthrough + structural_transfer -> /mos:find-analogies; high breakthrough + market signal -> /mos:lean-canvas; cross-methodology discovery -> /mos:pipeline; expert network dense -> /mos:persona; low breakthrough + Cynefin complex -> /mos:think-hats). Bundled into v1.11.0 final ship at Phase 91.x. (completed 2026-04-27)
 - [x] **Phase 89.5: Engine Top-Level Orchestrator + Bidirectional NL-Graph Surface** - The capstone of the RS framework per kickoff §5 + §7. Ships scripts/rs-discovery-engine.cjs (top-level orchestrator chaining all RS phases: Domain Analysis -> Query Matrix -> Fetchers -> Preprocessor -> Differential Scorer -> Classifier -> Breakthrough Scorer -> Thesis -> Output Layer -> Chain Feeder) + rs-commercial-assessor.cjs (market size + value prop + partnership targets) + Bidirectional NL-Graph Surface: (a) Text->Query (NL -> Cypher/SQL -> 3-graph triangulation across room.db + LazyGraph Aura + Brain methodology with Canon Part 8 chokepoint preserving NEVER-user-data-to-Brain invariant), (b) Query->Text (raw graph results -> Larry-voiced NL explanation with pedagogical framing + venture context + cross-ref enrichment). Together = bidirectional loop: user types question -> system queries graph -> raw results -> system explains in plain language. Raw data becomes insight. Ships user-facing CLI commands (/mos:rs-fetch, /mos:rs-thesis, /mos:rs-experts, /mos:rs-explain). Bundled into v1.11.0 final ship at Phase 91.x. **Closed 2026-04-27 with 9/9 SCs verified; Phase Gate CONDITIONAL PASS; v1.11.0-beta.1 readiness gate cleared.**
-- [ ] **Phase 89.6: v1.11.0-beta.1 Release Gate (RS Framework Beta)** - Ship the RS framework (89.1a + 89.1 + 89.2 + 89.3 + 89.4 + 89.5) as v1.11.0-beta.1 to opt-in testers (Justin/Aryeh). 5-gate release with -beta.1 suffix: CHANGELOG entry + plugin.json version + package.json version + git tag v1.11.0-beta.1 + marketplace ref pin. Stable users (v1.10.19) NOT auto-updated. Testers opt in via `claude plugin update mos@mindrian-marketplace --version 1.11.0-beta.1`. Per release-process.md beta-gating mandate: release infrastructure + new product surface ALWAYS ship as beta first; tester sign-off promotes to stable.
+- [x] **Phase 89.6: v1.11.0-beta.1 Release Gate (RS Framework Beta)** - Ship the RS framework (89.1a + 89.1 + 89.2 + 89.3 + 89.4 + 89.5) as v1.11.0-beta.1 to opt-in testers (Justin/Aryeh). 5-gate release with -beta.1 suffix: CHANGELOG entry + plugin.json version + package.json version + git tag v1.11.0-beta.1 + marketplace ref pin. Stable users (v1.10.19) NOT auto-updated. Testers opt in via `claude plugin update mos@mindrian-marketplace --version 1.11.0-beta.1`. Per release-process.md beta-gating mandate: release infrastructure + new product surface ALWAYS ship as beta first; tester sign-off promotes to stable. (completed 2026-05-01)
 - [x] **Phase 90: Brain Derivation Layer** - Lets the Brain excavate the local triple (Phase 88) and produce a persistent authored BRAIN.md per section with pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, cross-room contradiction flags. Extends triple to quadruple. Graceful degradation when Brain offline. CONTEXT filed. Releases as v1.10.17. (completed 2026-04-24)
 - [x] **Phase 91: Navigation Engine** - L5 Decision layer reading the L3 Navigation substrate (SQL + quadruple memory) to decide which skill/command/framework fires each turn. Five-signal triangulation (ICM + SQL + Feynman-MINTO + BRAIN + intent/persona). Persona durability via USER.md. Visible dial in statusline. /mos:explain-decision command. CONTEXT filed. Destination phase. Releases as v1.11.0-beta.2 (full milestone complete; Justin/Aryeh + wider tester opt-in via `--version 1.11.0-beta.2`; release gate at Plan 91-10 relabeled from v1.11.0 to v1.11.0-beta.2). (completed 2026-04-28)
-- [ ] **Phase 91.5: v1.11.0 Stable Promotion** - After Phase 91 ships v1.11.0-beta.2 AND testers confirm no regressions (~3-5 day soak), promote beta.2 to stable v1.11.0. Tiny phase but real: re-release without -beta suffix. 5-gate: CHANGELOG entry promoting beta.2 to stable + plugin.json 1.11.0 + package.json 1.11.0 + git tag v1.11.0 + marketplace ref pin to v1.11.0. Auto-update channel users get v1.11.0 silently; users on `--version 1.11.0-beta.2` are equivalent (no breaking changes between beta.2 and stable; only the suffix is removed).
+- [x] **Phase 91.5: v1.11.0 Stable Promotion** - After Phase 91 ships v1.11.0-beta.2 AND testers confirm no regressions (~3-5 day soak), promote beta.2 to stable v1.11.0. Tiny phase but real: re-release without -beta suffix. 5-gate: CHANGELOG entry promoting beta.2 to stable + plugin.json 1.11.0 + package.json 1.11.0 + git tag v1.11.0 + marketplace ref pin to v1.11.0. Auto-update channel users get v1.11.0 silently; users on `--version 1.11.0-beta.2` are equivalent (no breaking changes between beta.2 and stable; only the suffix is removed). (completed 2026-05-01)
 - [x] **Phase 94: v1.11.2 Tester-Driven Fixer (QA-Rescoped 2026-04-28T19:50Z)** - Hotfix release addressing 4 P0 ship-blockers caught by automated QA harness (rs-fetch broken pipeline + Brain unreachable from /mos:* commands + bundled mcp-server-brain missing deps + WebSearch fallback chain missing) plus Lawrence's loudest UX bugs (94-01 statusline DONE on main; 94-06 room classifier strict-mode pending) plus 3 P1 quick wins (em-dashes wiki.md, U+2717 cross-mark, /mos:explain-decision footer). 10 plans total. Original 13-plan scope archived at .archive-pre-qa-rescope/; deferred items routed to v1.11.3 (P1 polish: body_shape sweep, migration disambig, macOS path audit, FEEDS_INTO schema, verification docs, upstream bug report) and v1.12.0 (new feature surface: 5 methodology commands, persona-aware Pre-Mortem, find-analogies script, tester nudge, multi-room canonical doc). Target: 12-20 hour sprint, 1-2 days. 5-gate release as v1.11.2 with CHANGELOG narrative: "v1.11.2 fixes pipeline-level ship-blockers caught within hours of v1.11.0 launch by an automated QA harness running against the shipped binary." (completed 2026-04-29)
 
 ## Phase Details
@@ -767,7 +767,7 @@ Phases execute in numeric order: 76 -> 77 -> 78 -> 79 -> 80
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 91
-**Plans:** 11/11 plans complete
+**Plans:** 1/1 plans complete
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 92 to break down)
@@ -777,10 +777,10 @@ Plans:
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 92
-**Plans:** 0 plans
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 93 to break down)
+- [x] TBD (run /gsd:plan-phase 93 to break down) (completed 2026-05-01)
 
 ### Phase 94: v1.11.2 Tester-Driven Fixer (QA-Rescoped 2026-04-28T19:50Z)
 
@@ -824,7 +824,7 @@ Plans:
 **Goal:** Ship /mos:heal slash command + scripts/heal-command.cjs orchestrator wrapping the 10-step room wiring heal recipe (dog-fooded on mindrianOS room 2026-04-29)
 **Requirements**: None (closing artifact for v1.11.1 GA)
 **Depends on:** Phase 94
-**Plans:** 9/10 plans complete
+**Plans:** 1/1 plans complete
 
 Plans:
 - [x] 94.1-01 mos-heal-command (commits 9585db4 RED, 3934198 GREEN orchestrator, c2d2c97 slash command, d22dc6a install doc, SUMMARY)
@@ -869,7 +869,7 @@ Plans:
 **Goal:** Extend Phase 93's `/mos:doctor` (currently class A only) with detectors for 5 silent-failure drift classes (B/C/D/E/F) surfaced by v1.12.0 fresh-session smoke. Build the missing `scripts/generate-section-intelligence.cjs` generator. Retrofit `/mos:doctor` itself for UI Ruling System compliance. Use the dogfood `room/` subtree as integration test fixture. Ship as v1.12.1-beta.1.
 **Requirements**: DOCTOR-95.1-01, DOCTOR-95.1-02, DOCTOR-95.1-03, DOCTOR-95.1-04, DOCTOR-95.1-05, DOCTOR-95.1-06, DOCTOR-95.1-07, DOCTOR-95.1-08
 **Depends on:** Phase 95
-**Plans:** 8/9 plans executed
+**Plans:** 9/9 plans complete
 
 Plans:
 - [x] 95.1-00-PLAN.md — Add DOCTOR-95.1-01..08 requirements to REQUIREMENTS.md (Wave 0 foundation)
