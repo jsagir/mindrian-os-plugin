@@ -182,6 +182,62 @@ function main() {
     manual: false,
   });
 
+  // === Phase 103-05 additive: across-session promotion ===
+  // Wrapped in try/catch so a failure in this block NEVER throws upward.
+  // Phase 100 Stop hook behavior remains byte-identical above.
+  try {
+    const acrossSession = require(path.join(PLUGIN_ROOT, 'lib', 'hmi', 'across-session-memory.cjs'));
+    if (typeof acrossSession.isGlobalOptOut === 'function' && !acrossSession.isGlobalOptOut()) {
+      // Resolve roomSlug from roomDir via registry walk. Mirrors
+      // resolveActiveRoom's registry layout (active_room + abs_path) but
+      // also tolerates the across-session-memory `path` convention.
+      let roomSlug = null;
+      try {
+        const home = process.env.MINDRIAN_ROOMS_HOME || path.join(os.homedir(), 'MindrianRooms');
+        const regPath = path.join(home, '.rooms', 'registry.json');
+        if (fs.existsSync(regPath)) {
+          const reg = JSON.parse(fs.readFileSync(regPath, 'utf8'));
+          const rooms = (reg && Array.isArray(reg.rooms)) ? reg.rooms : [];
+          const target = path.resolve(roomDir);
+          const entry = rooms.find(function (x) {
+            if (!x) return false;
+            const candidate = (typeof x.abs_path === 'string' && x.abs_path) ||
+                              (typeof x.path === 'string' && x.path) || null;
+            if (!candidate) return false;
+            const rd = path.isAbsolute(candidate) ? candidate : path.join(home, candidate);
+            try { return path.resolve(rd) === target; } catch (_e) { return false; }
+          });
+          roomSlug = entry && entry.slug ? entry.slug : path.basename(roomDir);
+        } else {
+          roomSlug = path.basename(roomDir);
+        }
+      } catch (_e) { roomSlug = path.basename(roomDir); }
+
+      // Build within-session snapshot for the promotion gate. The gate
+      // (>=3 turns OR manual) is enforced inside promoteIfEligible.
+      try {
+        const cur = jtbdState.getCurrent(roomDir);
+        const hist = (typeof jtbdState.history === 'function') ? jtbdState.history(roomDir, 50) : [];
+        if (cur && cur.jtbd && cur.jtbd !== 'explore') {
+          // turn_count: count history rows targeting the current jtbd
+          // (matches the gate-side fallback in across-session-memory).
+          const turnCount = (typeof cur.turn_count === 'number')
+            ? cur.turn_count
+            : hist.filter(function (h) { return h && h.to === cur.jtbd; }).length;
+          acrossSession.promoteIfEligible(roomSlug, {
+            current: Object.assign({}, cur, { turn_count: turnCount }),
+            history: hist,
+          });
+        }
+      } catch (_e) { /* graceful */ }
+    }
+  } catch (err) {
+    // NEVER throw upward -- Phase 100 Stop hook must remain reliable.
+    process.stderr.write('[jtbd-update] across-session promote error: ' +
+      String(err && err.message ? err.message.slice(0, 200) : 'unknown') + '\n');
+  }
+  // === End Phase 103-05 additive ===
+
   if (DEBUG) {
     const dt = typeof performance !== 'undefined' ? (performance.now() - t0).toFixed(2) : '?';
     const c = typeof result.confidence === 'number' ? result.confidence.toFixed(3) : '?';
