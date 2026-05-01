@@ -447,23 +447,25 @@ function runNudge(home, currentRoomSlug) {
       context: { active_room: 'room-a', active_section: null, methodology_in_flight: null, decision_gate_pending: null },
       history: [],
     }));
-    // Pre-seed within-session jtbd-state with a 3-turn-count current jtbd so promoteIfEligible
-    // gate is met after this stop hook's classifier transition (or even without it).
+    // Pre-seed within-session jtbd-state with a DIFFERENT current jtbd so the
+    // classifier's find-bottleneck output IS a real transition. Pre-populate
+    // the history with two prior find-bottleneck rows so post-transition
+    // turn_count for find-bottleneck reaches 3 (>= NOISE_FLOOR_TURNS in
+    // promoteIfEligible).
     const now = new Date().toISOString();
     fs.writeFileSync(path.join(t.roomA, '.mindrian', 'jtbd-state.json'), JSON.stringify({
       version: 1,
       current: {
-        jtbd: 'find-bottleneck',
-        confidence: 0.8,
+        jtbd: 'understand-market',
+        confidence: 0.7,
         entered_at: now,
-        evidence: ['seed'],
+        evidence: ['seed-different'],
         expires_at: null,
-        turn_count: 3,
       },
       history: [
-        { from: 'explore', to: 'find-bottleneck', trigger: 'auto', at: now, evidence: ['seed'] },
-        { from: 'find-bottleneck', to: 'find-bottleneck', trigger: 'auto', at: now, evidence: ['seed'] },
-        { from: 'find-bottleneck', to: 'find-bottleneck', trigger: 'auto', at: now, evidence: ['seed'] },
+        { from: 'explore', to: 'find-bottleneck', trigger: 'auto', at: now, evidence: [] },
+        { from: 'find-bottleneck', to: 'find-bottleneck', trigger: 'auto', at: now, evidence: [] },
+        { from: 'find-bottleneck', to: 'understand-market', trigger: 'auto', at: now, evidence: [] },
       ],
     }, null, 2));
     // Capture state file mtime + content BEFORE running.
