@@ -27,7 +27,11 @@
       ],
       "completion_shape": "APPROVE/REJECT decision edge in graph + Decisions row in STATE.md",
       "operator_affinity": ["BUILD_ROOM", "METHODOLOGY"],
-      "persona_affinity": ["Founder", "Investor"]
+      "persona_affinity": ["Founder", "Investor"],
+      "completion_pattern": {
+        "cascade_edge": "decision_edge:APPROVE|decision_edge:REJECT",
+        "state_md_key": "Decisions"
+      }
     },
     {
       "id": "find-problem",
@@ -55,7 +59,11 @@
       ],
       "completion_shape": "new artifact at room/problem-definition/ with reformulated problem statement",
       "operator_affinity": ["EXPLORE_CAPTURE", "BUILD_ROOM"],
-      "persona_affinity": ["Researcher", "Founder"]
+      "persona_affinity": ["Researcher", "Founder"],
+      "completion_pattern": {
+        "artifact_glob": "**/problem-definition/**/*.md",
+        "cascade_edge": "INFORMS"
+      }
     },
     {
       "id": "understand-market",
@@ -82,7 +90,10 @@
       ],
       "completion_shape": "populated room/market-analysis/ with mullins or dominant-designs artifact",
       "operator_affinity": ["METHODOLOGY", "BUILD_ROOM"],
-      "persona_affinity": ["Researcher", "Investor"]
+      "persona_affinity": ["Researcher", "Investor"],
+      "completion_pattern": {
+        "artifact_glob": "**/market-analysis/**/*.md"
+      }
     },
     {
       "id": "find-bottleneck",
@@ -110,7 +121,11 @@
       ],
       "completion_shape": "rs-thesis artifact filed + REVERSE_SALIENT edges in graph",
       "operator_affinity": ["METHODOLOGY"],
-      "persona_affinity": ["Researcher", "Operator"]
+      "persona_affinity": ["Researcher", "Operator"],
+      "completion_pattern": {
+        "artifact_glob": "**/rs-thesis*.md",
+        "cascade_edge": "REVERSE_SALIENT"
+      }
     },
     {
       "id": "prepare-pitch",
@@ -138,7 +153,11 @@
       ],
       "completion_shape": "rendered presentation HTML + STATE.md MEETING-PREP entry",
       "operator_affinity": ["BUILD_ROOM"],
-      "persona_affinity": ["Founder", "Investor"]
+      "persona_affinity": ["Founder", "Investor"],
+      "completion_pattern": {
+        "artifact_glob": "**/exports/*.html|**/dashboard*.html",
+        "state_md_key": "MEETING-PREP"
+      }
     },
     {
       "id": "validate-idea",
@@ -167,7 +186,10 @@
       ],
       "completion_shape": "validation entry in room/assumptions/ with status (validated / invalidated / needs-data)",
       "operator_affinity": ["METHODOLOGY"],
-      "persona_affinity": ["Researcher", "Investor"]
+      "persona_affinity": ["Researcher", "Investor"],
+      "completion_pattern": {
+        "artifact_glob": "**/assumptions/**/*.md"
+      }
     },
     {
       "id": "compare-options",
@@ -194,7 +216,10 @@
       ],
       "completion_shape": "Shape G (Comparison Matrix, ships in Phase 101) artifact + decision edge",
       "operator_affinity": ["METHODOLOGY", "DECISION_GATE"],
-      "persona_affinity": ["Founder", "Operator"]
+      "persona_affinity": ["Founder", "Operator"],
+      "completion_pattern": {
+        "artifact_glob": "**/comparison-matrix*.md|**/scenario-plan*.md"
+      }
     },
     {
       "id": "connect-domains",
@@ -220,7 +245,10 @@
       ],
       "completion_shape": "ANALOGY edge or CROSS_DOMAIN edge in graph + opportunity bank ADD candidate",
       "operator_affinity": ["METHODOLOGY"],
-      "persona_affinity": ["Researcher", "Domain Expert"]
+      "persona_affinity": ["Researcher", "Domain Expert"],
+      "completion_pattern": {
+        "cascade_edge": "CROSS_DOMAIN|ANALOGY"
+      }
     },
     {
       "id": "surface-contradiction",
@@ -246,7 +274,10 @@
       ],
       "completion_shape": "CONTRADICTS edge resolution (one side INVALIDATED or both PARKED with reason)",
       "operator_affinity": ["BUILD_ROOM"],
-      "persona_affinity": ["Mentor", "Domain Expert"]
+      "persona_affinity": ["Mentor", "Domain Expert"],
+      "completion_pattern": {
+        "cascade_edge": "CONTRADICTS"
+      }
     },
     {
       "id": "plan-execution",
@@ -274,7 +305,10 @@
       ],
       "completion_shape": "Shape H (Timeline, ships in Phase 101) artifact + STATE.md milestones section",
       "operator_affinity": ["BUILD_ROOM", "METHODOLOGY"],
-      "persona_affinity": ["Operator", "Founder"]
+      "persona_affinity": ["Operator", "Founder"],
+      "completion_pattern": {
+        "state_md_key": "Roadmap|Milestones"
+      }
     },
     {
       "id": "file-meeting",
@@ -300,7 +334,11 @@
       ],
       "completion_shape": "filed transcript + cascade edges (INFORMS / CONTRADICTS / CONVERGES)",
       "operator_affinity": ["METHODOLOGY"],
-      "persona_affinity": ["Operator", "Mentor"]
+      "persona_affinity": ["Operator", "Mentor"],
+      "completion_pattern": {
+        "artifact_glob": "**/meetings/**/*.md",
+        "cascade_edge": "INFORMS|CONVERGES"
+      }
     },
     {
       "id": "audit-room",
@@ -329,7 +367,11 @@
       ],
       "completion_shape": "/mos:grade or /mos:deep-grade Shape E report + STATE.md HEALTH section",
       "operator_affinity": ["METHODOLOGY"],
-      "persona_affinity": ["Mentor", "Operator"]
+      "persona_affinity": ["Mentor", "Operator"],
+      "completion_pattern": {
+        "artifact_glob": "**/health-report*.md|**/grade*.md",
+        "state_md_key": "HEALTH"
+      }
     },
     {
       "id": "explore",
@@ -343,7 +385,8 @@
       ],
       "completion_shape": "none — explore is the steady state until a job crystallizes",
       "operator_affinity": ["JUST_TALK", "EXPLORE_CAPTURE"],
-      "persona_affinity": []
+      "persona_affinity": [],
+      "completion_pattern": null
     }
   ]
 }
