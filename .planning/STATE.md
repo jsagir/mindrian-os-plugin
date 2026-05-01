@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Phase 99 context gathered
-last_updated: "2026-05-01T07:56:17.326Z"
+stopped_at: Completed 99-04 (Operator-Aware Hooks)
+last_updated: "2026-05-01T09:31:28.475Z"
 last_activity: 2026-05-01 -- Phase 99 execution started
 progress:
-  total_phases: 33
-  completed_phases: 18
-  total_plans: 168
-  completed_plans: 157
+  total_phases: 31
+  completed_phases: 9
+  total_plans: 64
+  completed_plans: 98
   percent: 82
 ---
 
@@ -173,6 +173,7 @@ Progress: [████████░░] 82%
 | Phase 95.1 P05 | 7min | 3 tasks | 1 files |
 | Phase 95.1 P06 | 7min | 1 tasks | 2 files |
 | Phase 95.1 P07 | 18min | 3 tasks | 21 files |
+| Phase 99 P04 | 7 | 3 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -529,6 +530,8 @@ Progress: [████████░░] 82%
 - [Phase 95.1]: Plan 95.1-02 test scenario 1 substring-overlap bug fixed in scope: 'noncompliant.md' contains 'compliant.md' as substring; switched filter to path.basename exact match (Rule 1)
 - [Phase 95.1]: Plan 07: Atomic staging deferral (Pitfall 3) — dogfood-room files (sentinel + 20 generated ROOM.md/MINTO.md) staged but NOT committed in this plan; deferred to Plan 95.1-08 release commit
 - [Phase 95.1]: Plan 07: Class D stub upgraded to live spawnSync runner asserting cascade-surface-e2e 8-key shape; cross-platform Windows-no-bash skip preserves graceful-degradation per Canon Part 8
+- [Phase 99]: 99-04: Stop hook is a no-op (state already current after each transition); did NOT extend operator.cjs to keep 99-01's 12-scenario test suite byte-stable
+- [Phase 99]: 99-04: PostToolUse uses broad matcher (Write|Edit|MultiEdit|Read|Grep|Glob|AskUserQuestion|Bash|Task|TodoWrite) so AskUserQuestion->DECISION_GATE branch fires reliably; active-room guard handles noisy file-path cases
 
 ### Pending Todos
 
@@ -550,6 +553,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-01T05:38:04.896Z
-Stopped at: Phase 99 context gathered
-Resume file: .planning/phases/99-conversation-operator-state-machine/99-CONTEXT.md
+Last session: 2026-05-01T09:31:16.825Z
+Stopped at: Completed 99-04 (Operator-Aware Hooks)
+Resume file: None
