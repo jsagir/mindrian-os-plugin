@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "rooms": [
+    { "slug": "room-a", "path": "room-a" },
+    { "slug": "room-b", "path": "room-b" }
+  ]
+}
