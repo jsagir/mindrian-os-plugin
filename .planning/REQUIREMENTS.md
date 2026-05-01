@@ -150,6 +150,16 @@
 - Two-way sync (Obsidian edits back to CLI room) -- unidirectional export is safer for v1
 - Custom Obsidian plugin development -- defer to v2
 
+## JTBD Inference Engine (HMI-100)
+
+- [ ] **HMI-100-01**: `lib/hmi/jtbd-taxonomy.json` exists. Contains 13 entries (12 first-class jobs from KICKOFF + `explore` fallback). Each entry has: `id`, `one_line`, `cues[]`, `methodology_hooks[]`, `next_move_verbs[]` (4-6 verbs drawn from Canon Part 3 vocabulary), `completion_shape`, `operator_affinity[]`, `persona_affinity[]`. Schema validated by `tests/test-jtbd-taxonomy.cjs`. Per CONTEXT D-02, D-13, D-14.
+- [ ] **HMI-100-02**: `lib/hmi/jtbd-classifier.cjs` exists. Exports `classify({ userMessage, room, operator, decisionsRecency }) -> { jtbd, confidence, evidence[] }`. Heuristic only (no LLM round-trip). 3 input strata weighted 0.5/0.3/0.2. JUST_TALK guard raises threshold to 0.8. Below 0.6 (or 0.8 for JUST_TALK), returns `{ jtbd: null, ... }`. Latency < 5ms warm. Per CONTEXT D-03, D-04, D-05; RESEARCH §3 algorithm.
+- [ ] **HMI-100-03**: `lib/hmi/jtbd-state.cjs` exists. Exports `getCurrent(roomDir)`, `setCurrent(roomDir, jtbd, confidence, evidence, trigger)`, `clear(roomDir)`, `history(roomDir, n=20)`. State file at `<roomDir>/.mindrian/jtbd-state.json` per D-06. Atomic write via mktemp + rename. History bounded at 50 entries (oldest spill to a future Phase 103 cross-session store). 24h staleness rule per D-07 + RESEARCH §7 pitfall 4.
+- [ ] **HMI-100-04**: `commands/jtbd.md` + `scripts/jtbd-command.cjs` exist. `/mos:jtbd` shows current state (Shape E). `/mos:jtbd set [<jtbd>]` (no arg → F.1 picker, with arg → manual override with trigger `manual`). `/mos:jtbd clear` returns null. `/mos:jtbd list` shows 13 entries. `/mos:jtbd history` shows last 20 transitions. Frontmatter: `body_shape: E (Action Report)`. Renderer 95.1-compliant: 4-zone anatomy, 12-glyph vocabulary, 5-color contract. Per CONTEXT D-09, D-10.
+- [ ] **HMI-100-05**: `hooks/hooks.json` registers `UserPromptSubmit` and `Stop` hooks calling `node scripts/jtbd-update.cjs <event>`. The script: reads operator + active room + user message + STATE.md decisions recency, calls classifier, writes state if a transition occurs (current.jtbd changes OR confidence shifts > 0.15). Graceful degradation per RESEARCH §7 pitfall 5: try/catch wrap; classifier-error logs but never fails Larry's turn. Per CONTEXT D-11, D-12.
+- [ ] **HMI-100-06**: `lib/hmi/ROOM.md` exists per CLAUDE.md Decision #15. Identifies the lib/hmi/ subtree as the home for HMI primitives (Phase 100 ships taxonomy + classifier + state; Phases 101-105 add selectors, renderer extensions, manifest schema, polling extensions). MINTO.md per Decision #15 not required at lib level (the .room-root cascade scope is room/, not lib/). ROOM.md frontmatter declares Phase 100 as the founding phase.
+- [ ] **HMI-100-07**: `test/fixtures/jtbd-inference/seed-room/` exists as a sibling of `test/fixtures/cascade-e2e/seed-room/` (NOT a subdirectory) per the Phase 95.1 D-04 sibling-not-subdir pattern. Layout: `.room-root` + STATE.md (with seeded Decisions section recency for stratum-3 testing) + 30 seed user messages in `seed-messages.json` (5 per top-7 JTBD + 5 ambiguous + JUST_TALK + no-room edge cases) per RESEARCH §5 test stubs. Fixture is hermetic via `MINDRIAN_ROOMS_HOME` env override per Phase 95.1 D-05.
+
 ## Traceability
 
 | Requirement | Phase | Status |
@@ -248,3 +258,10 @@
 | DOCTOR-95.1-06 | Phase 95.1 | Complete |
 | DOCTOR-95.1-07 | Phase 95.1 | Complete |
 | DOCTOR-95.1-08 | Phase 95.1 | Complete |
+| HMI-100-01 | Phase 100 | Pending |
+| HMI-100-02 | Phase 100 | Pending |
+| HMI-100-03 | Phase 100 | Pending |
+| HMI-100-04 | Phase 100 | Pending |
+| HMI-100-05 | Phase 100 | Pending |
+| HMI-100-06 | Phase 100 | Pending |
+| HMI-100-07 | Phase 100 | Pending |
