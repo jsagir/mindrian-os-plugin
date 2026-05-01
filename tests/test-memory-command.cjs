@@ -147,8 +147,12 @@ async function captureDispatch(args, opts) {
   const buf = [];
   const origLog = console.log;
   const origErr = console.error;
+  const origStdoutWrite = process.stdout.write.bind(process.stdout);
+  const origStderrWrite = process.stderr.write.bind(process.stderr);
   console.log = function () { buf.push(Array.prototype.slice.call(arguments).map(String).join(' ')); };
   console.error = function () { buf.push(Array.prototype.slice.call(arguments).map(String).join(' ')); };
+  process.stdout.write = function (chunk) { buf.push(String(chunk)); return true; };
+  process.stderr.write = function (chunk) { buf.push(String(chunk)); return true; };
   let err = null;
   try {
     const cmd = require(SCRIPT_PATH);
@@ -161,8 +165,10 @@ async function captureDispatch(args, opts) {
   } finally {
     console.log = origLog;
     console.error = origErr;
+    process.stdout.write = origStdoutWrite;
+    process.stderr.write = origStderrWrite;
   }
-  return { out: buf.join('\n'), err: err };
+  return { out: buf.join(''), err: err };
 }
 
 // Strip ANSI escape sequences so glyph + box-char audits run on the visible
@@ -171,9 +177,13 @@ function stripAnsi(s) {
   return String(s).replace(/\x1b\[[0-9;]*m/g, '');
 }
 
-// 95.1 forbidden box chars (from skills/ui-system/SKILL.md + Phase 88 audit).
-// Curved + straight rounded corners + horizontal + vertical pipes.
-const FORBIDDEN_BOX = /[╭╮╯╰┌┐└┘│─━]/;
+// 95.1 forbidden box chars: chars that are NOT in the approved 12-glyph
+// vocabulary. The SKILL canon approves `branch` (├─) and `last-branch` (└─),
+// so U+2514 (└), U+251C (├), and U+2500 (─) are valid parts of those glyphs
+// and MUST NOT be flagged. Forbidden = curved corners (U+256D-2570),
+// remaining straight corners (U+250C ┌, U+2510 ┐, U+2518 ┘), and the
+// vertical pipe (U+2502 │). Heavy horizontal U+2501 stays forbidden.
+const FORBIDDEN_BOX = /[╭╮╯╰┌┐┘│━]/;
 // Forbidden glyph family: X-marks + question/exclamation + warning-with-VS16
 // + common emoji ranges. NOTE: U+2713 check + U+26A0 warning bare + U+26A1
 // lightning + U+25A0/B6/B7/BC/B2 are APPROVED, so they are NOT in this regex.
