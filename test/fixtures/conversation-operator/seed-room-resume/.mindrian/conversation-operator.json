@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "current": "BUILD_ROOM",
+  "previous": "EXPLORE_CAPTURE",
+  "entered_at": "2026-05-01T10:42:00.000Z",
+  "context": {
+    "active_room": "seed-room-resume",
+    "active_section": "research",
+    "methodology_in_flight": null,
+    "decision_gate_pending": null
+  },
+  "history": [
+    { "op": "JUST_TALK", "from": null, "to": "JUST_TALK", "trigger": "session_start", "ts": "2026-05-01T10:30:00.000Z" },
+    { "op": "EXPLORE_CAPTURE", "from": "JUST_TALK", "to": "EXPLORE_CAPTURE", "trigger": "user_message", "ts": "2026-05-01T10:35:00.000Z" },
+    { "op": "BUILD_ROOM", "from": "EXPLORE_CAPTURE", "to": "BUILD_ROOM", "trigger": "mos_command", "ts": "2026-05-01T10:42:00.000Z" }
+  ]
+}

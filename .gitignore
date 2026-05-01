@@ -17,6 +17,14 @@ dashboard/graph.json
 # never commit room.db, the session pointer, or WAL shards.
 .mindrian/
 **/.mindrian/current-session.json
+# Phase 99-01 exception: the conversation-operator fixture committs deterministic
+# state files (cold-start .gitkeep + resume conversation-operator.json) needed
+# by tests/test-operator-state.cjs. Hook side-channel artifacts
+# (auto-commit-throttle.json, last-cascade.json, pending-stamps/) remain ignored.
+!test/fixtures/conversation-operator/seed-room/.mindrian/
+!test/fixtures/conversation-operator/seed-room/.mindrian/.gitkeep
+!test/fixtures/conversation-operator/seed-room-resume/.mindrian/
+!test/fixtures/conversation-operator/seed-room-resume/.mindrian/conversation-operator.json
 
 # Environment and secrets
 .env
