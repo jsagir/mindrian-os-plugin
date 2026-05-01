@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "comment": "Phase 99-02 heuristic classifier rules. Tunable without code edits. Schema documented in 99-02-PLAN.md task 1.",
+  "tool_markers": [
+    { "pattern_type": "regex", "pattern": "^/mos:room\\b", "target_op": "BUILD_ROOM", "weight": 0.95, "trigger": "mos_command" },
+    { "pattern_type": "regex", "pattern": "^/mos:operator\\b", "target_op": null, "weight": 0.0, "trigger": null, "comment": "no transition; just shows state" },
+    { "pattern_type": "regex", "pattern": "^/mos:status\\b", "target_op": null, "weight": 0.0, "trigger": null, "comment": "diagnostic; does not change operator" },
+    { "pattern_type": "regex", "pattern": "^/mos:[a-z-]+", "target_op": "METHODOLOGY", "weight": 0.95, "trigger": "mos_command" },
+    { "pattern_type": "literal", "pattern": "/exit", "target_op": "BUILD_ROOM", "weight": 0.95, "trigger": "mos_command", "from_required": "METHODOLOGY" }
+  ],
+  "intent_patterns": [
+    { "pattern_type": "literal_ci", "pattern": "just talking", "target_op": "JUST_TALK", "weight": 0.7 },
+    { "pattern_type": "literal_ci", "pattern": "set this aside", "target_op": "JUST_TALK", "weight": 0.7 },
+    { "pattern_type": "literal_ci", "pattern": "off topic", "target_op": "JUST_TALK", "weight": 0.6 },
+    { "pattern_type": "literal_ci", "pattern": "by the way", "target_op": "JUST_TALK", "weight": 0.3 },
+    { "pattern_type": "literal_ci", "pattern": "let's file this", "target_op": "BUILD_ROOM", "weight": 0.7 },
+    { "pattern_type": "literal_ci", "pattern": "lets file this", "target_op": "BUILD_ROOM", "weight": 0.7 },
+    { "pattern_type": "literal_ci", "pattern": "add to the room", "target_op": "BUILD_ROOM", "weight": 0.7 },
+    { "pattern_type": "literal_ci", "pattern": "file this", "target_op": "BUILD_ROOM", "weight": 0.6 },
+    { "pattern_type": "literal_ci", "pattern": "save this", "target_op": "BUILD_ROOM", "weight": 0.6 },
+    { "pattern_type": "literal_ci", "pattern": "capture this", "target_op": "BUILD_ROOM", "weight": 0.6 },
+    { "pattern_type": "literal_ci", "pattern": "interesting", "target_op": "EXPLORE_CAPTURE", "weight": 0.4 },
+    { "pattern_type": "literal_ci", "pattern": "worth noting", "target_op": "EXPLORE_CAPTURE", "weight": 0.5 },
+    { "pattern_type": "literal_ci", "pattern": "did you know", "target_op": "EXPLORE_CAPTURE", "weight": 0.4 },
+    { "pattern_type": "literal_ci", "pattern": "i noticed", "target_op": "EXPLORE_CAPTURE", "weight": 0.5 },
+    { "pattern_type": "literal_ci", "pattern": "i wonder", "target_op": "EXPLORE_CAPTURE", "weight": 0.4 }
+  ],
+  "entity_signals": [
+    { "pattern_type": "regex", "pattern": "\\b[A-Z][a-z]+\\s+[A-Z][a-z]+\\b", "name": "person_full_name", "boost_op": "EXPLORE_CAPTURE", "weight": 0.3 },
+    { "pattern_type": "regex_ci", "pattern": "\\b(by|before|deadline|due|eod|eow)\\b", "name": "deadline_word", "boost_op": "EXPLORE_CAPTURE", "weight": 0.3 },
+    { "pattern_type": "regex", "pattern": "\\bQ[1-4]\\b", "name": "fiscal_quarter", "boost_op": "EXPLORE_CAPTURE", "weight": 0.3 },
+    { "pattern_type": "regex_ci", "pattern": "\\b(venture|startup|company|project)\\s+[\"']?[A-Z]", "name": "venture_name", "boost_op": "EXPLORE_CAPTURE", "weight": 0.3 }
+  ],
+  "thresholds": {
+    "transition_min_confidence": 0.6,
+    "tool_marker_override_floor": 0.95
+  }
+}
