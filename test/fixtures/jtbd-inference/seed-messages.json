@@ -1,0 +1,40 @@
+[
+  { "msg": "should we pursue this venture or kill it", "expected_jtbd": "decide-pursue", "operator": "BUILD_ROOM", "min_confidence": 0.6 },
+  { "msg": "go/no-go time -- is this worth our energy", "expected_jtbd": "decide-pursue", "operator": "BUILD_ROOM", "min_confidence": 0.6 },
+  { "msg": "kill it or double down on this product", "expected_jtbd": "decide-pursue", "operator": "BUILD_ROOM", "min_confidence": 0.6 },
+  { "msg": "should we pursue or pivot this approach", "expected_jtbd": "decide-pursue", "operator": "BUILD_ROOM", "min_confidence": 0.6 },
+
+  { "msg": "what is the real problem here, the wrong problem", "expected_jtbd": "find-problem", "operator": "EXPLORE_CAPTURE", "min_confidence": 0.6 },
+  { "msg": "five whys root cause analysis on this", "expected_jtbd": "find-problem", "operator": "EXPLORE_CAPTURE", "min_confidence": 0.6 },
+  { "msg": "why are users dropping off, root cause please", "expected_jtbd": "find-problem", "operator": "EXPLORE_CAPTURE", "min_confidence": 0.6 },
+  { "msg": "first principles on what the real problem is", "expected_jtbd": "find-problem", "operator": "EXPLORE_CAPTURE", "min_confidence": 0.6 },
+
+  { "msg": "what is the bottleneck blocking us, what is slow", "expected_jtbd": "find-bottleneck", "operator": "METHODOLOGY", "min_confidence": 0.6 },
+  { "msg": "we are stuck and lagging, what is holding us back", "expected_jtbd": "find-bottleneck", "operator": "METHODOLOGY", "min_confidence": 0.6 },
+  { "msg": "identify the reverse salient that is blocking progress", "expected_jtbd": "find-bottleneck", "operator": "METHODOLOGY", "min_confidence": 0.6 },
+  { "msg": "something is lagging and blocking our roadmap", "expected_jtbd": "find-bottleneck", "operator": "METHODOLOGY", "min_confidence": 0.6 },
+
+  { "msg": "our investor pitch deck for demo day next week", "expected_jtbd": "prepare-pitch", "operator": "BUILD_ROOM", "min_confidence": 0.6 },
+  { "msg": "fundraising prep with stakeholder review tomorrow", "expected_jtbd": "prepare-pitch", "operator": "BUILD_ROOM", "min_confidence": 0.6 },
+  { "msg": "investor meeting on tuesday for the pitch deck", "expected_jtbd": "prepare-pitch", "operator": "BUILD_ROOM", "min_confidence": 0.6 },
+  { "msg": "prepare the pitch deck for the investor demo day", "expected_jtbd": "prepare-pitch", "operator": "BUILD_ROOM", "min_confidence": 0.6 },
+
+  { "msg": "test if this hypothesis holds up, validate it", "expected_jtbd": "validate-idea", "operator": "METHODOLOGY", "min_confidence": 0.6 },
+  { "msg": "stress-test and challenge our assumptions, red team", "expected_jtbd": "validate-idea", "operator": "METHODOLOGY", "min_confidence": 0.6 },
+  { "msg": "does this hold up under devil's advocate scrutiny", "expected_jtbd": "validate-idea", "operator": "METHODOLOGY", "min_confidence": 0.6 },
+  { "msg": "validate the claim and red team the proposal", "expected_jtbd": "validate-idea", "operator": "METHODOLOGY", "min_confidence": 0.6 },
+
+  { "msg": "plan the next 90 days, milestones and roadmap", "expected_jtbd": "plan-execution", "operator": "BUILD_ROOM", "min_confidence": 0.6 },
+  { "msg": "what is next on the execution plan and OKRs", "expected_jtbd": "plan-execution", "operator": "BUILD_ROOM", "min_confidence": 0.6 },
+  { "msg": "ninety day plan with milestones for the roadmap", "expected_jtbd": "plan-execution", "operator": "BUILD_ROOM", "min_confidence": 0.6 },
+  { "msg": "execution plan for the next 90 days, what is next", "expected_jtbd": "plan-execution", "operator": "BUILD_ROOM", "min_confidence": 0.6 },
+
+  { "msg": "hello there how are you doing today", "expected_jtbd": null, "operator": null, "min_confidence": 0, "case": "ambiguous" },
+  { "msg": "that sounds interesting tell me more about it", "expected_jtbd": null, "operator": "BUILD_ROOM", "min_confidence": 0, "case": "ambiguous" },
+  { "msg": "I have an idea I want to share with you", "expected_jtbd": null, "operator": null, "min_confidence": 0, "case": "ambiguous" },
+
+  { "msg": "should we pursue this or kill it pivot", "expected_jtbd": null, "operator": "JUST_TALK", "min_confidence": 0, "case": "just_talk_guard" },
+  { "msg": "real problem with the root cause of users", "expected_jtbd": null, "operator": "JUST_TALK", "min_confidence": 0, "case": "just_talk_guard" },
+
+  { "msg": "what is the bottleneck blocking progress", "expected_jtbd": null, "operator": "METHODOLOGY", "min_confidence": 0, "case": "no_room" }
+]
