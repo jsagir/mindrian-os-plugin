@@ -253,6 +253,129 @@ let taxonomy;
   }
 })();
 
+// ---------- Phase 103-01: completion_pattern field assertions (HMI-103-05) ----------
+//
+// Phase 100 ships a TEXT `completion_shape` description per JTBD. Phase 103-05
+// (`scripts/memory-completion-detector.cjs`) needs a programmatic detector to
+// fire on cascade output (D-08). This assertion class formalizes the prose
+// contract into a structured `{artifact_glob, cascade_edge, state_md_key}`
+// object per JTBD without breaking the existing schema-version 1.
+//
+// Pattern dictionary: 103-RESEARCH.md §4.3 (verbatim).
+
+const COMPLETION_PATTERN_KEYS = new Set([
+  'artifact_glob',
+  'cascade_edge',
+  'state_md_key',
+]);
+
+(function assertCompletionPatternKeyExists() {
+  const name = 'every entry has a completion_pattern field defined';
+  try {
+    for (const e of taxonomy.entries) {
+      if (!('completion_pattern' in e)) {
+        throw new Error(
+          'entry "' + e.id + '" missing completion_pattern key'
+        );
+      }
+    }
+    pass(name);
+  } catch (err) {
+    fail(name, err);
+  }
+})();
+
+(function assertExploreCompletionPatternNull() {
+  const name = 'explore.completion_pattern === null (RESEARCH §4.3)';
+  try {
+    const explore = taxonomy.entries.find(function (e) {
+      return e.id === 'explore';
+    });
+    if (!explore) {
+      throw new Error('no explore entry to check');
+    }
+    if (explore.completion_pattern !== null) {
+      throw new Error(
+        'explore.completion_pattern must be null literally, got ' +
+          JSON.stringify(explore.completion_pattern)
+      );
+    }
+    pass(name);
+  } catch (err) {
+    fail(name, err);
+  }
+})();
+
+(function assertNonExploreCompletionPatternIsObject() {
+  const name = 'every non-explore entry has a non-null object completion_pattern';
+  try {
+    for (const e of taxonomy.entries) {
+      if (e.id === 'explore') continue;
+      const p = e.completion_pattern;
+      if (
+        !p ||
+        typeof p !== 'object' ||
+        Array.isArray(p)
+      ) {
+        throw new Error(
+          'entry "' + e.id + '" completion_pattern must be a non-null object'
+        );
+      }
+    }
+    pass(name);
+  } catch (err) {
+    fail(name, err);
+  }
+})();
+
+(function assertCompletionPatternKeysSubset() {
+  const name =
+    'completion_pattern keys are subset of {artifact_glob, cascade_edge, state_md_key}';
+  try {
+    for (const e of taxonomy.entries) {
+      if (e.id === 'explore') continue;
+      const p = e.completion_pattern;
+      if (!p || typeof p !== 'object') continue;
+      for (const k of Object.keys(p)) {
+        if (!COMPLETION_PATTERN_KEYS.has(k)) {
+          throw new Error(
+            'entry "' + e.id + '" has unexpected completion_pattern key "' +
+              k + '"'
+          );
+        }
+      }
+    }
+    pass(name);
+  } catch (err) {
+    fail(name, err);
+  }
+})();
+
+(function assertCompletionPatternHasOnePopulated() {
+  const name =
+    'every non-explore completion_pattern has at least one populated sub-field';
+  try {
+    for (const e of taxonomy.entries) {
+      if (e.id === 'explore') continue;
+      const p = e.completion_pattern;
+      if (!p || typeof p !== 'object') continue;
+      const hasOne =
+        (typeof p.artifact_glob === 'string' && p.artifact_glob.length > 0) ||
+        (typeof p.cascade_edge === 'string' && p.cascade_edge.length > 0) ||
+        (typeof p.state_md_key === 'string' && p.state_md_key.length > 0);
+      if (!hasOne) {
+        throw new Error(
+          'entry "' + e.id +
+            '" completion_pattern needs at least one populated sub-field'
+        );
+      }
+    }
+    pass(name);
+  } catch (err) {
+    fail(name, err);
+  }
+})();
+
 // ---------- Final summary ----------
 
 const total = passed + failed;
