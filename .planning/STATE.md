@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Phase 95.1 v1.12.1-beta.1 shipped
-last_updated: "2026-04-30T18:40:34.713Z"
+stopped_at: Completed 99-01-PLAN.md
+last_updated: "2026-05-01T08:09:46.106Z"
 last_activity: 2026-04-30
 progress:
-  total_phases: 33
-  completed_phases: 18
-  total_plans: 168
-  completed_plans: 157
+  total_phases: 31
+  completed_phases: 9
+  total_plans: 64
+  completed_plans: 98
   percent: 82
 ---
 
@@ -171,6 +171,7 @@ Progress: [████████░░] 82%
 | Phase 95.1 P05 | 7min | 3 tasks | 1 files |
 | Phase 95.1 P06 | 7min | 1 tasks | 2 files |
 | Phase 95.1 P07 | 18min | 3 tasks | 21 files |
+| Phase 99 P01 | 6min | 3 tasks | 13 files |
 
 ### Roadmap Evolution
 
@@ -527,6 +528,9 @@ Progress: [████████░░] 82%
 - [Phase 95.1]: Plan 95.1-02 test scenario 1 substring-overlap bug fixed in scope: 'noncompliant.md' contains 'compliant.md' as substring; switched filter to path.basename exact match (Rule 1)
 - [Phase 95.1]: Plan 07: Atomic staging deferral (Pitfall 3) — dogfood-room files (sentinel + 20 generated ROOM.md/MINTO.md) staged but NOT committed in this plan; deferred to Plan 95.1-08 release commit
 - [Phase 95.1]: Plan 07: Class D stub upgraded to live spawnSync runner asserting cascade-surface-e2e 8-key shape; cross-platform Windows-no-bash skip preserves graceful-degradation per Canon Part 8
+- [Phase 99]: Validate before resolve: validate() runs against literal 'previous' marker before transition() resolves it to state.previous (D-08 rule table records 'previous' literally)
+- [Phase 99]: Atomic write via crypto.randomBytes hex suffix + fs.renameSync in same dir; same-dir rename guarantees POSIX-atomic semantics without exec(mktemp)
+- [Phase 99]: OPERATOR_TRANSITION graph edge graceful skip when .room-graph/room.db absent; state file write still succeeds (Decision #8 Tier 0 invariant)
 
 ### Pending Todos
 
@@ -548,6 +552,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-30T18:40:34.702Z
-Stopped at: Phase 95.1 v1.12.1-beta.1 shipped
-Resume file: .planning/phases/95.1-mos-doctor-drift-detection-and-self-heal/95.1-08-SUMMARY.md
+Last session: 2026-05-01T08:09:34.042Z
+Stopped at: Completed 99-01-PLAN.md
+Resume file: None
