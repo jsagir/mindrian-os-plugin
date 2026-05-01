@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Phase 95.1 v1.12.1-beta.1 shipped
-last_updated: "2026-04-30T18:40:34.713Z"
-last_activity: 2026-04-30
+stopped_at: Phase 99 context gathered
+last_updated: "2026-05-01T07:56:17.326Z"
+last_activity: 2026-05-01 -- Phase 99 execution started
 progress:
   total_phases: 33
   completed_phases: 18
@@ -21,13 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 95.1 — mos-doctor-drift-detection-and-self-heal
+**Current focus:** Phase 99 — conversation-operator-state-machine
 
 ## Current Position
 
-Phase: 95.1 (mos-doctor-drift-detection-and-self-heal) — EXECUTING
-Plan: 9 of 9
-Status: Ready to execute
+Phase: 99 (conversation-operator-state-machine) — EXECUTING
+Plan: 1 of 5
+Status: Executing Phase 99
+
+Resume note (2026-05-01): PC died after `/gsd:plan-phase 99 --auto` completed. Phase 99 PLAN files (99-01..99-05) sit on disk under `.planning/phases/99-conversation-operator-state-machine/` (gitignored per `.planning/` rule). Last commit `fbfe3e6` (CONTEXT + DISCUSSION-LOG only). No `feat(99-XX)` commits — execution never started. Phase 95.1 is closed (9/9 plans, see `a563850`); 95.1 is no longer current focus. Local commits ahead of `origin/main` by 1 (`fbfe3e6` unpushed).
 
 Phase 89.5 closure (this session):
 
@@ -71,7 +73,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-04-30
+Last activity: 2026-05-01 -- Phase 99 execution started
 
 Progress: [████████░░] 82%
 
@@ -548,6 +550,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-30T18:40:34.702Z
-Stopped at: Phase 95.1 v1.12.1-beta.1 shipped
-Resume file: .planning/phases/95.1-mos-doctor-drift-detection-and-self-heal/95.1-08-SUMMARY.md
+Last session: 2026-05-01T05:38:04.896Z
+Stopped at: Phase 99 context gathered
+Resume file: .planning/phases/99-conversation-operator-state-machine/99-CONTEXT.md
