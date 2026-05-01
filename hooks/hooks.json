@@ -12,6 +12,16 @@
             "statusMessage": "Loading room context..."
           }
         ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/operator-update.cjs\"",
+            "timeout": 3000
+          }
+        ]
       }
     ],
     "PreCompact": [
@@ -44,6 +54,15 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" on-stop",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/operator-update.cjs\"",
             "timeout": 3000
           }
         ]
@@ -101,6 +120,16 @@
             "timeout": 1500
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|Read|Grep|Glob|AskUserQuestion|Bash|Task|TodoWrite",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/operator-update.cjs\"",
+            "timeout": 3000
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -119,6 +148,15 @@
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/brain-derivation-drain.cjs\"",
             "timeout": 2000
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/operator-update.cjs\"",
+            "timeout": 3000
           }
         ]
       }
