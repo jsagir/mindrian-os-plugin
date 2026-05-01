@@ -298,11 +298,15 @@ function runCmd(args, env) {
   const scratch = makeScratchDir('t07');
   try {
     const reg = setupSyntheticRegistry(scratch, {
-      state: { current: 'JUST_TALK', previous: null, history: [] },
+      state: { current: 'BUILD_ROOM', previous: null, history: [] },
     });
     const before = readState(reg.roomDir);
-    // JUST_TALK -> METHODOLOGY is not in any rule with manual_set trigger.
-    const res = runCmd(['set', 'METHODOLOGY'], { MINDRIAN_ROOMS_HOME: scratch });
+    // BUILD_ROOM -> EXPLORE_CAPTURE is not in any rule (rule 2 only permits
+    // JUST_TALK as the source). Wave-1 integration expanded the schema to 9
+    // rules incl. 2 ANY-source overrides (ANY -> BUILD_ROOM, ANY -> METHODOLOGY)
+    // so most "set" targets are reachable from JUST_TALK; this is the surviving
+    // invalid-transition case under manual_set.
+    const res = runCmd(['set', 'EXPLORE_CAPTURE'], { MINDRIAN_ROOMS_HOME: scratch });
     assert.equal(res.status, 1, 'invalid transition: exit 1; got ' + res.status);
     assert.ok(
       res.stderr.toLowerCase().indexOf('rejected') !== -1
@@ -576,13 +580,15 @@ const VS16_WARNING = new RegExp('\u26A0\uFE0F', 'g');
   const scratch = makeScratchDir('t19');
   try {
     const reg = setupSyntheticRegistry(scratch, {
-      state: { current: 'JUST_TALK', previous: null, history: [] },
+      state: { current: 'BUILD_ROOM', previous: null, history: [] },
     });
     const statePath = path.join(reg.roomDir, '.mindrian', 'conversation-operator.json');
     const beforeStat = fs.statSync(statePath);
     const beforeMtime = beforeStat.mtimeMs;
-    // Invalid transition: JUST_TALK -> METHODOLOGY with manual_set.
-    const res = runCmd(['set', 'METHODOLOGY'], { MINDRIAN_ROOMS_HOME: scratch });
+    // Invalid transition: BUILD_ROOM -> EXPLORE_CAPTURE with manual_set
+    // (rule 2 only permits JUST_TALK as the source; surviving invalid case
+    // under the post-integration 9-rule schema).
+    const res = runCmd(['set', 'EXPLORE_CAPTURE'], { MINDRIAN_ROOMS_HOME: scratch });
     assert.equal(res.status, 1, 'invalid transition: exit 1');
     const afterStat = fs.statSync(statePath);
     const afterMtime = afterStat.mtimeMs;
