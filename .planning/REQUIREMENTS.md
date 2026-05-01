@@ -160,6 +160,15 @@
 - [ ] **HMI-100-06**: `lib/hmi/ROOM.md` exists per CLAUDE.md Decision #15. Identifies the lib/hmi/ subtree as the home for HMI primitives (Phase 100 ships taxonomy + classifier + state; Phases 101-105 add selectors, renderer extensions, manifest schema, polling extensions). MINTO.md per Decision #15 not required at lib level (the .room-root cascade scope is room/, not lib/). ROOM.md frontmatter declares Phase 100 as the founding phase.
 - [ ] **HMI-100-07**: `test/fixtures/jtbd-inference/seed-room/` exists as a sibling of `test/fixtures/cascade-e2e/seed-room/` (NOT a subdirectory) per the Phase 95.1 D-04 sibling-not-subdir pattern. Layout: `.room-root` + STATE.md (with seeded Decisions section recency for stratum-3 testing) + 30 seed user messages in `seed-messages.json` (5 per top-7 JTBD + 5 ambiguous + JUST_TALK + no-room edge cases) per RESEARCH §5 test stubs. Fixture is hermetic via `MINDRIAN_ROOMS_HOME` env override per Phase 95.1 D-05.
 
+## Selector Library (HMI-101)
+
+- [ ] **HMI-101-01**: `lib/hmi/shape-f6-renderer.cjs` exists. Implements Shape F.6 (JTBD-aware Next Move). Inherits keyboard contract from Phase 88.2 F.1. Verb list drawn from `lib/hmi/jtbd-taxonomy.json` `entries[i].next_move_verbs[]`. Free-Text always last (D-10 hardcoded). Mode B suppresses RECOMMENDED marker (D-05). Falls through to F.1 if jtbd null or verb set degenerate.
+- [ ] **HMI-101-02**: `lib/hmi/shape-g-renderer.cjs` exists. Implements Shape G (Comparison Matrix). Render-only in v1. Inputs: options (>= 3), criteria (>= 2), cells. Cell text clamped to 12 chars + ellipsis; criterion clamped to 10 chars. Falls through to Shape E if dimensions degenerate. 12-glyph vocabulary enforced; column separator `|` allowed.
+- [ ] **HMI-101-03**: `lib/hmi/shape-h-renderer.cjs` exists. Implements Shape H (Timeline / Roadmap). Render-only in v1. Inputs: start, end (ISO dates), milestones[] (>= 1), title?, width? (default 60, max 80). Markers `■`. Crowded milestones (< 3 cols apart) stack labels vertically. Empty milestones → 3-line error.
+- [ ] **HMI-101-04**: `lib/hmi/selector-dispatcher.cjs` exists. Single integration point for Phase 102 renderer + Phase 104 per-command code. Logic: F + jtbd-non-null → F.6; F + jtbd-null → F.1 (delegate to 88.2); G → G; H → H; else → passthrough sentinel (caller renders A-E per skills/ui-system/SKILL.md).
+- [ ] **HMI-101-05**: Mode B graceful per Canon Part 3 Rule 2. Tier check at dispatcher entry (defense in depth). Brain-unreachable Zone 1 prefix `Brain unreachable; running on local graph only.` rendered before any F.6 / G / H output. RECOMMENDED markers suppressed.
+- [ ] **HMI-101-06**: Phase 88.2 (uiux-selector-block) deliverables for F.1-F.5 are referenced by F.6 inheritance. If 88.2 has not yet shipped at Phase 101 execution time, F.6 ships its own keyboard-contract layer using the AskUserQuestion structural marker pattern from Phase 95.1 D-18, deferred to 88.2 follow-up.
+
 ## Traceability
 
 | Requirement | Phase | Status |
@@ -265,3 +274,9 @@
 | HMI-100-05 | Phase 100 | Pending |
 | HMI-100-06 | Phase 100 | Pending |
 | HMI-100-07 | Phase 100 | Pending |
+| HMI-101-01 | Phase 101 | Pending |
+| HMI-101-02 | Phase 101 | Pending |
+| HMI-101-03 | Phase 101 | Pending |
+| HMI-101-04 | Phase 101 | Pending |
+| HMI-101-05 | Phase 101 | Pending |
+| HMI-101-06 | Phase 101 | Pending |
