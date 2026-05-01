@@ -136,6 +136,15 @@
 - [x] **DOCTOR-95.1-07**: `/mos:doctor` (no `--fix`) renders an F.1 Next Move selector when drift is detected, BEFORE the Zone 4 action footer, with options: "Run /mos:doctor --fix" / "Defer" / "Free-Text" per D-18. Implementation strategy: until Phase 88.2 ships AskUserQuestion for Shape F, render the selector as a non-interactive structural marker block in the report; Larry handles the conversational selection per D-19. Mark the AskUserQuestion canonical implementation as a deferred 88.2 follow-up file `f1-selector-deferred.md` in the phase directory.
 - [x] **DOCTOR-95.1-08**: `test/fixtures/cascade-surface-e2e/` exists as a SIBLING of `test/fixtures/cascade-e2e/seed-room/` (NOT a subdirectory) per D-04 and per <specifics>. Layout: `.room-root` + STATE.md + ROOM.md + MINTO.md + `.rooms/registry.json` + `problem-definition/ROOM.md` + `problem-definition/MINTO.md` + `problem-definition/seed-artifact/seed-artifact.md` (Decision #16 nested). Includes `cascade-surface-e2e/README.md` documenting the contrast with `cascade-e2e/seed-room/` (pipeline-level vs surface-level).
 
+## Context-Aware Rendering (RENDER-102)
+
+- [ ] **RENDER-102-01**: `lib/render/render-v2.cjs` exposes a stable `render(zones, mode, operator, tier)` import surface (5-arg variant `render(zones, mode, operator, tier, jtbd?)` permitted as additive 5th positional) that supersedes the Phase 99-03 pass-through stub without breaking the existing 8-scenario `lib/render/render-v2.test.cjs` contract regression fence (Phase 99-03 envelope shape -- exactly 6 keys `{zones, mode, operator, tier, rendered, _stub}` -- preserved when `_stub: 'phase-99-03'`; Phase 102 mode emits `rendered: true` with the same 6-key envelope plus payload extensions).
+- [ ] **RENDER-102-02**: Operator-aware compaction is enforced output-side per Canon Part 3 § The 3-layer loop and Phase 99 CONTEXT.md D-16: `JUST_TALK` -> prose-only (no zones, no Shape rendering); `EXPLORE_CAPTURE` -> prose with Shape E only on crystallization signal; `BUILD_ROOM` -> full 4-zone anatomy (Zone 1 header + Zone 2 body + Zone 3 detail + Zone 4 footer); `METHODOLOGY` -> no shape mid-session, Shape E at gate; `DECISION_GATE` -> Shape F.x selector (one of F.1/F.2/F.3/F.4/F.5) with keyboard-only options. Renderer rejects any zone payload that violates the operator's compaction contract with a structured error carrying `code: 'render_v2_compaction_violation'`.
+- [ ] **RENDER-102-03**: Zone 4 (action footer) is JTBD-aware: when called with the 5th `jtbd` arg, the renderer maps the JTBD handle through `lib/render/JTBD-PALETTES.md` to a deterministic palette + verb-suggestion vocabulary drawn ONLY from the 10 MindrianOS-native verbs (Canon Part 3 § The 10 verbs); when `jtbd` is absent or unmapped, Zone 4 falls back to the Tier 0 minimal verb set (Run Methodology / Reformulate / Free-Text). Renderer NEVER invents a verb outside the 10-verb closed vocabulary (Canon amendment required for additions).
+- [ ] **RENDER-102-04**: Provenance envelope: every Phase 102 render result carries `_provenance: { renderer: 'render-v2', version: '102', operator, tier, mode, jtbd?: string|null }` (non-enumerable hint or plain field both acceptable; tests assert on `_provenance.renderer === 'render-v2'` AND `_provenance.version === '102'` AND operator passthrough). Provenance is LOCAL-only per Canon Part 8: zero Brain queries during render, zero network IO, zero filesystem reads outside of `lib/render/JTBD-PALETTES.md`.
+- [ ] **RENDER-102-05**: Color overlay: Zone 1 header and Zone 4 footer accept a JTBD-derived palette overlay (5-color De Stijl token set per UI Ruling System §1) applied via terminal SGR sequences in `mode === 'cli'` (no overlay applied in `mode === 'desktop'` or `mode === 'cowork'` -- those surfaces own their own theming). Overlay is purely cosmetic; the canonical text content of every zone is byte-identical with overlay disabled (regression fence test asserts strip-ANSI equality between `MOS_NO_COLOR=1` render and default render).
+- [ ] **RENDER-102-06**: Phase 99-03 import-surface invariant: the 5-canonical-operator `OPERATORS` frozen export (Object.freeze of `['JUST_TALK', 'EXPLORE_CAPTURE', 'BUILD_ROOM', 'METHODOLOGY', 'DECISION_GATE']`) and the `module.exports = { render, OPERATORS }` shape from `lib/render/render-v2.cjs` are byte-stable across the 99-03 -> 102 swap; the 8 IIFE scenarios in `lib/render/render-v2.test.cjs` continue to pass unchanged as a Phase 99-03 -> 102 contract regression fence (per `lib/memory/run-feynman-tests.cjs` registration comment lines 944-955).
+
 ## Future Requirements (v2)
 
 - Obsidian plugin (sidebar for Larry, command palette, auto-complete wikilinks)
@@ -280,3 +289,9 @@
 | HMI-101-04 | Phase 101 | Pending |
 | HMI-101-05 | Phase 101 | Pending |
 | HMI-101-06 | Phase 101 | Pending |
+| RENDER-102-01 | Phase 102 | Pending |
+| RENDER-102-02 | Phase 102 | Pending |
+| RENDER-102-03 | Phase 102 | Pending |
+| RENDER-102-04 | Phase 102 | Pending |
+| RENDER-102-05 | Phase 102 | Pending |
+| RENDER-102-06 | Phase 102 | Pending |
