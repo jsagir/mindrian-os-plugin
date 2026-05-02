@@ -206,6 +206,15 @@
 
 - [ ] **HMI-105-06**: `test/fixtures/hmi-compliance-polling/` exists as a SIBLING of `test/fixtures/memory-continuity/` (NOT a subdirectory) per Phase 95.1 D-04 sibling-not-subdir pattern. Layout: `.room-root` + `commands/sample-pass.md` (frontmatter compliant: body_shape: E, serves_jtbd: ["audit-room"]) + `commands/sample-warn.md` (missing serves_jtbd) + `commands/sample-fail.md` (unauthorized box chars in fixture rendered output) + `.rooms/registry.json` + `.mindrian/compliance-state.json` (seeded with synthetic per-command rows). Hermetic via `MINDRIAN_ROOMS_HOME` env override per Phase 95.1 D-05. The fixture exists for Wave 1 plans (105-01..05) to load before Plan 105-00 (this Wave-0 plan) sets up the requirement IDs + test stubs.
 
+## Selector Block Rollout (UISEL-88.2)
+
+- [ ] **UISEL-88.2-01**: `lib/hmi/shape-f1-renderer.cjs` exists. Implements Shape F.1 (Next Move) canonical renderer per skills/ui-system/SKILL.md §2 Shape F.1. 3-5 options drawn from canonical 10-verb vocabulary (Canon Part 3); Free-Text always last (hardcoded). RECOMMENDED marker (`▶`) only when Mode A AND Brain confidence >= 0.7 (Phase 88.2 invariant); Mode B suppresses marker. Keyboard contract: up-arrow / down-arrow (or J/K) to navigate, Enter to select, `?` to inspect, Esc to cancel. Glyph vocabulary: only `▶ ▷ ■ • →` allowed in body. Replaces lib/hmi/shape-f1-fallback.cjs as the dispatcher's preferred F.1 module (fallback retained for back-compat per CONTEXT.md "no breaking changes" invariant).
+- [ ] **UISEL-88.2-02**: `lib/hmi/shape-f2-renderer.cjs` exists. Implements Shape F.2 (Path Control) per SKILL.md §2 Shape F.2. 3-5 options drawn from {Run Methodology, Reformulate, Scenario Plan, Defer, Free-Text}; Free-Text always last. State-update hook updates STATE.md `Current Position.Plan` field. Mode A/B render contract identical to F.1. Used by `/mos:act` plan-mode collapse + `/mos:diagnose` replan branch.
+- [ ] **UISEL-88.2-03**: `lib/hmi/shape-f3-renderer.cjs` exists. Implements Shape F.3 (Rabbit-Hole Depth) per SKILL.md §2 Shape F.3. EXACTLY 5 fixed options: Shallow / Medium / Deep / Extreme / Back. NOT drawn from canonical verb vocabulary; depth is a closed scalar axis. NO Free-Text slot (closed). State-update hook creates a TodoWrite row tagged `depth:{shallow|medium|deep|extreme}`. Used by `/mos:grade` and `/mos:deep-grade` rubric-dimension drilling and `/mos:pipeline` rabbit-hole entry.
+- [ ] **UISEL-88.2-04**: `lib/hmi/shape-f4-renderer.cjs` exists. Implements Shape F.4 (Insight Extraction) per SKILL.md §2 Shape F.4. EXACTLY 5 fixed options: Key insights / + contradictions / + actions / Create artifact draft / Back. NOT Free-Text-bearing (closed ladder). Wraps the canonical Synthesize verb. State-update hook appends to STATE.md `Accumulated Context`; "Create artifact draft" additionally creates a TodoWrite drafting row. Used by `/mos:analyze-needs` discuss-chunk close-out.
+- [ ] **UISEL-88.2-05**: `lib/hmi/shape-f5-renderer.cjs` exists. Implements Shape F.5 (Branch Resolution) per SKILL.md §2 Shape F.5. 3-5 options drawn from {Continue, Merge, Compare, Park, Drop, Free-Text}; Free-Text always last when present. Branch-resolution semantics: Continue -> Run Methodology on chosen branch; Merge -> Synthesize across branches; Compare -> Scenario Plan in compare mode; Park -> Defer; Drop -> Reject-with-reason terminal path. State-update hook appends Decisions row + writes typed edge `(branch-root) -[RESOLVED {verb}]-> (target)`. Used by `/mos:file-meeting` section routing and `/mos:find-analogies` cross-domain branch resolution.
+- [ ] **UISEL-88.2-06**: `lib/hmi/selector-telemetry.cjs` + operator-aware integration in `lib/hmi/selector-dispatcher.cjs`. Telemetry: every selector presentation AND every response writes a one-line JSONL record to `~/.mindrian/telemetry/selector.jsonl` per CONTEXT invariant. Record schema: `{ts, room_slug_sha256, sub_shape, mode, options_count, recommended_present, response_index, response_was_free_text, latency_ms}`. LOCAL only per Canon Part 8 (no Brain egress; sha256-hashed room slug, NEVER user content). Bounded at 10000 lines via FIFO truncation (Phase 100-03 D-06 pattern). Operator-aware integration: `pickShape()` reads `lib/conversation/operator.cjs` `getCurrent(roomDir)` and gates which sub-shapes are admissible per Canon Part 3 § The 3-layer loop / Phase 102 RENDER-102-02 (DECISION_GATE -> F.x admissible; JUST_TALK -> dispatcher refuses with `code: 'render_v2_compaction_violation'` style error; other operators map per CONTEXT.md authority docs). Backward compatible: operator absent / state-file-missing degrades to permissive (current Phase 101 behavior preserved).
+
 ## Traceability
 
 | Requirement | Phase | Status |
@@ -335,3 +344,9 @@
 | HMI-105-04 | Phase 105 | Pending |
 | HMI-105-05 | Phase 105 | Pending |
 | HMI-105-06 | Phase 105 | Pending |
+| UISEL-88.2-01 | Phase 88.2 | Pending |
+| UISEL-88.2-02 | Phase 88.2 | Pending |
+| UISEL-88.2-03 | Phase 88.2 | Pending |
+| UISEL-88.2-04 | Phase 88.2 | Pending |
+| UISEL-88.2-05 | Phase 88.2 | Pending |
+| UISEL-88.2-06 | Phase 88.2 | Pending |
