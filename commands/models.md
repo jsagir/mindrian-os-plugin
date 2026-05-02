@@ -3,6 +3,7 @@ name: models
 description: View or switch model-routing profiles
 argument-hint: [list|set|show]
 body_shape: C (Information Card)
+serves_jtbd: ["compare-options"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

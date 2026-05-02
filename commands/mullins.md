@@ -1,6 +1,7 @@
 ---
 name: mullins
 description: Run Mullins 7-Domains on a business opportunity
+serves_jtbd: ["understand-market"]
 allowed-tools:
   - Read
   - Write

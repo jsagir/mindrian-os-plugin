@@ -3,6 +3,7 @@ name: mos-reason
 command: mos:reason
 description: Generate Feynman-MINTO reasoning for a section
 usage: /mos:reason [--section <name>] [--regenerate-all]
+serves_jtbd: ["explore"]
 allowed-tools:
   - Read
   - Write
