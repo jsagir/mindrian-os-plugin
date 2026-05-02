@@ -910,5 +910,13 @@ Plans:
 
 **Canon parts:** Part 3 (statusline is a LOCAL-context surface for the Decision Gate), Part 6 (dog-fooding -- testers reported 2026-05-02 they can't see MindrianOS while it eats their context), Part 8 (telemetry must stay LOCAL: JSONL with sha256-hashed room slug, never raw content).
 
-**Plans:** TBD (planner Wave 0 will declare; CONTEXT.md sketches a heuristic 3-wave breakdown across 5-7 plans).
+**Plans:** 6 plans
+
+Plans:
+- [ ] 106-00-PLAN.md — Wave 0 scaffold (REQ IDs + test stubs + fixture directories + ROADMAP plans list)
+- [ ] 106-01-PLAN.md — D-01 self-healing settings via SessionStart hook (productionize migrate-stale-user-settings.cjs)
+- [ ] 106-02-PLAN.md — D-02 context-monitor token-budget + operator + JTBD broadcast glyphs
+- [ ] 106-03-PLAN.md — D-03 doctor.cjs class G invisibility detection + one-time banner + --fix dispatch
+- [ ] 106-04-PLAN.md — D-04 fallback echo + D-06 surface-detect helper (CLI / Desktop / Cowork heuristics)
+- [ ] 106-05-PLAN.md — D-05 tester onboarding gate + v1.12.5 release gate (CHANGELOG + plugin.json + package.json + git tag + marketplace ref)
 
