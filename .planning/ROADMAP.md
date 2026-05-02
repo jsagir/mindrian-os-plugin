@@ -898,3 +898,17 @@ Plans:
 - [ ] 104-01-PLAN.md - Sweep edit: add `serves_jtbd:` to all 84 commands per the verbatim mapping table (Wave 1)
 - [ ] 104-02-PLAN.md - Verification harness: every-command-declares + every-JTBD-has-1-command tests (Wave 2 - depends on 104-01)
 - [ ] 104-03-PLAN.md - Backward-compat regression fence + CHANGELOG v1.12.4 entry (Wave 2 - depends on 104-01)
+
+
+### Phase 106: Statusline Visibility + Context-Window Broadcast
+
+**Goal:** Make the MindrianOS statusline the persistent visibility surface testers can rely on. Self-heal `settings.json` `statusLine` path drift on session start (D-01); broadcast token-budget percent + active operator + active JTBD into the rendered statusline (D-02); detect when the statusline is silently invisible and surface a one-time repair banner via `/mos:doctor` drift class G (D-03); fall back to a Larry-rendered prose state echo when the statusline primitive cannot fire -- Desktop, Cowork, or post-detect repair window (D-04); validate visibility at first session post-install through tester onboarding (D-05); and route per-surface (CLI rich line / Desktop response footer / Cowork shared widget -- Cowork details deferred) (D-06). Ship as v1.12.5. Backward compat invariant: existing v1.12.x statusline behavior preserved when token-broadcast feature flag is off; auto-heal is additive and never overwrites a hand-edited `settings.json` without confirmation.
+
+**Requirements**: STATUS-106-01, STATUS-106-02, STATUS-106-03, STATUS-106-04, STATUS-106-05, STATUS-106-06
+
+**Depends on:** Phase 95.1 (`/mos:doctor` drift detector framework -- D-03 extends it with class G). Reuses already-shipped substrate from Phase 83 (`scripts/statusline-mos`), Phase 99 (`lib/conversation/operator.cjs`), Phase 100 (`lib/hmi/jtbd-state.cjs`), and the `lib/hmi/tier-check.cjs` module (Mode A/B/Tier 0 -- for color-threshold gating per UI Ruling System 5-color contract).
+
+**Canon parts:** Part 3 (statusline is a LOCAL-context surface for the Decision Gate), Part 6 (dog-fooding -- testers reported 2026-05-02 they can't see MindrianOS while it eats their context), Part 8 (telemetry must stay LOCAL: JSONL with sha256-hashed room slug, never raw content).
+
+**Plans:** TBD (planner Wave 0 will declare; CONTEXT.md sketches a heuristic 3-wave breakdown across 5-7 plans).
+

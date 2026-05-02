@@ -38,13 +38,15 @@ Out of scope:
 
 ### Six deliverables (canonical)
 
-**D-01: SELF-HEALING STATUSLINE**
-- `settings.json` `statusLine` field resolves via plugin manager API, NOT hardcoded path
-- On session start, `scripts/statusline-mos` auto-detects its own canonical install path
-- `settings.json` template regenerates per session if path drifts (`cp -aT` recovery from cache, mirroring Phase 93 install-cache drift recovery pattern)
+**D-01: SELF-HEALING STATUSLINE** *(corrected 2026-05-03 from RESEARCH.md findings)*
+- Plugin's own `settings.json` `statusLine.command` already resolves via `${CLAUDE_PLUGIN_ROOT}` template substitution — that part is already correct and ships today
+- The real drift source is **stale `~/.claude/settings.json` USER-LEVEL `statusLine` overrides** written by the deprecated `scripts/self-update`. These pin the statusline to a hardcoded install-cache path that goes stale on plugin update
+- Productionize `scripts/migrate-stale-user-settings.cjs` (already shipped as Phase 90 hotfix from the 2026-04-26 Aryeh Holtzberg incident) into a SessionStart hook that detects + removes stale user-level overrides on every session
+- Phase 90 is the canonical reference for this pattern, NOT Phase 93. The `cp -aT` install-cache recovery from Phase 93 solves a different problem (plugin file drift, not settings.json override drift)
 
-**D-02: CONTEXT-WINDOW BROADCAST**
-- Add `📊 [percent]%` token budget indicator to statusline
+**D-02: CONTEXT-WINDOW BROADCAST** *(corrected 2026-05-03 from RESEARCH.md findings)*
+- Token-budget signal source: Claude Code passes session data to the statusline script via **stdin JSON**. Token usage is at `data.context_window.{used_percentage, context_window_size, total_input_tokens, current_usage}`. The shipped `scripts/context-monitor` (lines 469-470) already reads this correctly — D-02 wires the same read into `scripts/statusline-mos`. There are NO `CLAUDE_CONTEXT_USED_TOKENS` / `CLAUDE_CONTEXT_MAX_TOKENS` env vars; any "fallback to estimating from session-start metadata" is unnecessary and must NOT be implemented
+- Add `📊 [percent]%` token budget indicator to statusline (sourced from `data.context_window.used_percentage`)
   - Color thresholds via 5-color De Stijl contract: 🟢 < 50% / 🟡 50-80% / 🔴 > 80%
 - Add `🎯 [active-jtbd]` (e.g. `🎯 find-bottleneck`) — read from `lib/hmi/jtbd-state.cjs`
 - Add `⚙️ [active-operator]` (e.g. `⚙️ METHODOLOGY`) — read from `lib/conversation/operator.cjs`
@@ -121,9 +123,9 @@ Heuristic phase plan structure (for the planner to refine into formal PLAN.md fi
 | 1 | 106-01, 106-02, 106-03 | Self-healing settings (D-01) + token broadcast (D-02) + invisibility detector + class G doctor (D-03) — file-disjoint, parallel-safe |
 | 2 | 106-04, 106-05 | Fallback signaling (D-04) + onboarding validation (D-05) + per-surface (D-06 — CLI scope only; Desktop/Cowork deferred) |
 
-Token-budget signal source: Claude Code's runtime exposes `process.env.CLAUDE_CONTEXT_USED_TOKENS` and `process.env.CLAUDE_CONTEXT_MAX_TOKENS` (verify at planner time; if absent, fall back to estimating from session-start metadata).
+Token-budget signal source *(corrected 2026-05-03)*: Claude Code passes session data to the statusline script via **stdin JSON**. Read `data.context_window.used_percentage` (and the underlying `context_window_size` / `total_input_tokens` / `current_usage` if needed for finer rendering). The shipped `scripts/context-monitor` already does this at lines 469-470 — Phase 106 reuses the same read in `scripts/statusline-mos`. The original `CLAUDE_CONTEXT_USED_TOKENS` env-var hypothesis was falsified by the researcher — those env vars do not exist; do not implement a fallback for them.
 
-Invisibility detector uses the same pattern as Phase 95.1's class A install-cache drift detector — spawn subprocess, validate stdout prefix, surface one-time banner.
+Invisibility detector *(sharpened 2026-05-03)*: cannot rely on Claude Code reporting render failure. Must check three signals: (a) stale `~/.claude/settings.json` user-level `statusLine` paths that don't exist on disk, (b) plugin-level `statusLine.command` resolution against `${CLAUDE_PLUGIN_ROOT}`, (c) `scripts/statusline-mos` isolated execution producing the expected `🏠 MindrianOS-Plugin` prefix. Pattern still mirrors Phase 95.1's drift-class detectors (class A-F precedent), but the input signals are different.
 
 Fallback echo wires into the existing session-start hook (Phase 99-04 pattern).
 
