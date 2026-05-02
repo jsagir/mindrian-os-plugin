@@ -1,6 +1,7 @@
 ---
 name: radar
 description: Track Claude capabilities that may help MindrianOS
+serves_jtbd: ["understand-market"]
 allowed-tools:
   - Read
   - Write

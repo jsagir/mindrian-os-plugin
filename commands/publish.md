@@ -2,6 +2,7 @@
 name: publish
 description: Publish the Data Room presentation to Vercel
 argument-hint: [--all|<view>]
+serves_jtbd: ["prepare-pitch"]
 disable-model-invocation: true
 allowed-tools:
   - Read

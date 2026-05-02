@@ -3,6 +3,7 @@ name: reanalyze
 description: Re-analyze filed meetings for new patterns
 body_shape: E (Action Report)
 body_shape_detail: Before/after delta showing new insights discovered
+serves_jtbd: ["file-meeting"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash
