@@ -3,6 +3,7 @@ name: visualize
 description: Open room diagrams in the browser
 argument-hint: [structure|graph|chart]
 body_shape: D (Document View)
+serves_jtbd: ["audit-room", "prepare-pitch"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash

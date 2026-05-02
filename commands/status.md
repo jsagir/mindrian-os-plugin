@@ -3,6 +3,7 @@ name: status
 description: Show governing thought per section + health glyphs
 argument-hint: "[section] [--stale-only]"
 body_shape: E (Action Report)
+serves_jtbd: ["audit-room", "explore"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash(node scripts/mos-status.cjs:*)

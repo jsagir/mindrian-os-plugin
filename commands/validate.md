@@ -1,6 +1,7 @@
 ---
 name: validate
 description: Validate ideas via importance-satisfaction scoring
+serves_jtbd: ["validate-idea"]
 allowed-tools:
   - Read
   - Write

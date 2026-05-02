@@ -1,6 +1,7 @@
 ---
 name: systems-thinking
 description: Map feedback loops, stocks, and flows
+serves_jtbd: ["find-bottleneck"]
 allowed-tools:
   - Read
   - Write

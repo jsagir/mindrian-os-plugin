@@ -1,6 +1,7 @@
 ---
 name: suggest-next
 description: Suggest the next move using the room graph
+serves_jtbd: ["plan-execution", "explore"]
 allowed-tools:
   - Read
   - mcp__mindrian-brain__brain_query

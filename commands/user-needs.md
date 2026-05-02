@@ -1,6 +1,7 @@
 ---
 name: user-needs
 description: Map user needs with importance vs satisfaction
+serves_jtbd: ["find-problem"]
 allowed-tools:
   - Read
   - Write

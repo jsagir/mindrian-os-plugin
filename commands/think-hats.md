@@ -1,6 +1,7 @@
 ---
 name: think-hats
 description: Rotate through De Bono's Six Thinking Hats
+serves_jtbd: ["explore", "compare-options"]
 allowed-tools:
   - Read
   - Write

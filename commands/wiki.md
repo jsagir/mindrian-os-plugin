@@ -2,6 +2,7 @@
 name: wiki
 description: Open the Data Room wiki of room sections
 body_shape: D (Document View)
+serves_jtbd: ["audit-room", "prepare-pitch"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash

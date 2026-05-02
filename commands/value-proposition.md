@@ -1,6 +1,7 @@
 ---
 name: validate-proposition
 description: Score your value proposition against 3 VP gates
+serves_jtbd: ["validate-idea", "prepare-pitch"]
 allowed-tools:
   - Read
   - Write
