@@ -2,6 +2,7 @@
 name: rs-explain
 description: Bidirectional NL-Graph entry point. NL question to graph queries to Larry-voiced explanation.
 body_shape: E (Action Report)
+serves_jtbd: ["find-bottleneck"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash
