@@ -2,6 +2,7 @@
 name: diagnostics
 description: Run Wave-1 algorithmic fingerprint on the room
 body_shape: E
+serves_jtbd: ["audit-room"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash

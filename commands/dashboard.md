@@ -2,6 +2,7 @@
 name: dashboard
 description: Open the Data Room dashboard (live or snapshot)
 body_shape: raw
+serves_jtbd: ["audit-room", "prepare-pitch"]
 ui_reference: skills/ui-system/SKILL.md
 argument-hint: [live|stop|open]
 allowed-tools:

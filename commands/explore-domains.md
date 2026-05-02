@@ -1,6 +1,7 @@
 ---
 name: explore-domains
 description: Map domains through IKA + Feynman decomposition
+serves_jtbd: ["find-problem", "understand-market", "explore"]
 allowed-tools:
   - Read
   - Write

@@ -1,6 +1,7 @@
 ---
 name: diagnose
 description: Classify problem type against the PWS matrix
+serves_jtbd: ["decide-pursue"]
 allowed-tools:
   - Read
   - Write

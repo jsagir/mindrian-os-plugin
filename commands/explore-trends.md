@@ -1,6 +1,7 @@
 ---
 name: explore-trends
 description: Push trends to extremes to surface future problems
+serves_jtbd: ["understand-market", "explore"]
 allowed-tools:
   - Read
   - Write

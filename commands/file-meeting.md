@@ -2,6 +2,7 @@
 name: file-meeting
 description: File a meeting transcript into the Data Room
 argument-hint: [--latest|--paste|<file>]
+serves_jtbd: ["file-meeting"]
 allowed-tools:
   - Read
   - Write

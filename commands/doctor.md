@@ -4,6 +4,7 @@ description: Diagnose and optionally repair MindrianOS install — detects insta
 argument-hint: [--fix] [--cascade-rooms] [--verify-surface] [--room-md] [--ui-compliance] [--all] [--json]
 body_shape: E (Action Report)
 body_shape_detail: per-class status rows with [before → after] pattern, summary totals, F.1 Next Move selector when drift detected without --fix
+serves_jtbd: ["audit-room"]
 allowed-tools:
   - Bash
   - Read
