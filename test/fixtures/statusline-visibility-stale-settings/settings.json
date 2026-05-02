@@ -1,0 +1,6 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "node /home/fixture/.claude/plugins/cache/mindrian-marketplace/mos/1.10.13/scripts/context-monitor"
+  }
+}
