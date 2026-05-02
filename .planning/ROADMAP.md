@@ -891,7 +891,7 @@ Plans:
 
 **Depends on:** Phase 100 (jtbd-taxonomy.json - 13 canonical JTBD ids; declarations must match these) + Phase 101 (selector-dispatcher.cjs - already routes by JTBD; Phase 104 just feeds it).
 
-**Plans:** 4 plans
+**Plans:** 3/4 plans complete
 
 Plans:
 - [ ] 104-00-PLAN.md - Add JTBDCONS-104-01..05 requirements + Wave-0 test stubs (Wave 0 foundation)
