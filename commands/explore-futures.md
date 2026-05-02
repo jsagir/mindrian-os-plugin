@@ -1,6 +1,7 @@
 ---
 name: explore-futures
 description: Synthesize TTA + Scenario + S-Curve futures
+serves_jtbd: ["compare-options", "explore"]
 allowed-tools:
   - Read
   - Write

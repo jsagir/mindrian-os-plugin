@@ -1,6 +1,7 @@
 ---
 name: compare-ventures
 description: Compare against ventures that tried this before
+serves_jtbd: ["compare-options"]
 allowed-tools:
   - Read
   - mcp__mindrian-brain__brain_query

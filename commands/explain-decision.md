@@ -1,6 +1,7 @@
 ---
 description: Show Navigation Engine decision trace for last turn
 argument-hint: "[--last N] [--session SESSIONID]"
+serves_jtbd: ["audit-room"]
 disable-model-invocation: true
 allowed-tools: Bash(node *)
 ---

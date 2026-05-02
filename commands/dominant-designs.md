@@ -1,6 +1,7 @@
 ---
 name: dominant-designs
 description: Spot dominant designs with Utterback-Abernathy
+serves_jtbd: ["understand-market"]
 allowed-tools:
   - Read
   - Write

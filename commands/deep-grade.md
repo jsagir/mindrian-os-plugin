@@ -1,6 +1,7 @@
 ---
 name: deep-grade
 description: Grade a venture against 100+ calibrated projects
+serves_jtbd: ["audit-room", "compare-options"]
 allowed-tools:
   - Read
   - Bash
