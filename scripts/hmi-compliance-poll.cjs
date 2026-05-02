@@ -323,18 +323,89 @@ function pollOnce(opts) {
 // ----- CLI -----
 
 function parseArgs(argv) {
-  const out = { once: true, json: false, scanCommandsDir: null, scanScriptsDir: null };
+  const out = { once: true, json: false, hook: false, scanCommandsDir: null, scanScriptsDir: null };
   for (const a of argv) {
     if (a === '--once') out.once = true;
     else if (a === '--json') out.json = true;
+    else if (a === '--hook') out.hook = true;
     else if (a.indexOf('--scan-commands=') === 0) out.scanCommandsDir = a.slice('--scan-commands='.length);
     else if (a.indexOf('--scan-scripts=') === 0) out.scanScriptsDir = a.slice('--scan-scripts='.length);
   }
   return out;
 }
 
+// ----- Hook wrapper (Phase 105-03) -----
+// BASH-95-01 envelope schema: top-level keys subset of
+//   { decision, reason, continue, stopReason, suppressOutput,
+//     systemMessage, hookSpecificOutput }
+// additionalContext lives ONLY inside hookSpecificOutput.
+// This hook fires on Stop, runs pollOnce() in a defensive try/catch,
+// and ALWAYS exits 0 emitting { continue: true, suppressOutput: true }.
+// It NEVER blocks the user's turn (D-01 invariant from 105-CONTEXT).
+const HOOK_ALLOWED_KEYS = new Set([
+  'decision',
+  'reason',
+  'continue',
+  'stopReason',
+  'suppressOutput',
+  'systemMessage',
+  'hookSpecificOutput',
+]);
+
+function emitHookEnvelope(obj) {
+  const filtered = {};
+  for (const k of Object.keys(obj || {})) {
+    if (HOOK_ALLOWED_KEYS.has(k)) filtered[k] = obj[k];
+  }
+  if (filtered.continue === undefined) filtered.continue = true;
+  process.stdout.write(JSON.stringify(filtered));
+  process.exit(0);
+}
+
+function silentHookSuccess() {
+  emitHookEnvelope({ continue: true, suppressOutput: true });
+}
+
+function readStdinJson() {
+  try {
+    const raw = fs.readFileSync(0, 'utf8');
+    if (!raw || !raw.trim()) return {};
+    return JSON.parse(raw);
+  } catch (_e) {
+    return {};
+  }
+}
+
+function hookMain() {
+  // Read BASH-95-01 envelope from stdin.
+  const env = readStdinJson();
+  const evt = env.hook_event_name || env.hookEventName || process.env.HOOK_EVENT_NAME || null;
+
+  // Only Stop fires the poll. All other events: silent success (no work done).
+  // Defensive: if event is missing entirely (malformed stdin), silent success.
+  if (evt !== 'Stop') return silentHookSuccess();
+
+  // Fire the poll. Wrapped in try/catch so any failure is swallowed and the
+  // hook chain is NEVER blocked (D-01).
+  try {
+    pollOnce({});
+  } catch (e) {
+    process.stderr.write('[hmi-poll-hook] pollOnce error: '
+      + String((e && e.message) || 'unknown').slice(0, 200) + '\n');
+  }
+
+  return silentHookSuccess();
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
+
+  // Hook mode: read stdin, route by event, write BASH-95-01 envelope.
+  if (args.hook) {
+    return hookMain();
+  }
+
+  // CLI mode: legacy --once / --json behavior preserved byte-identically.
   const result = pollOnce({
     scanCommandsDir: args.scanCommandsDir,
     scanScriptsDir:  args.scanScriptsDir,
@@ -349,6 +420,7 @@ if (require.main === module) {
   try { main(); }
   catch (e) {
     process.stderr.write('[hmi-poll] uncaught: ' + String(e.message || 'unknown').slice(0, 200) + '\n');
+    // In hook mode the catch above already exited; this is the CLI-mode net.
     process.exit(0);
   }
 }
@@ -367,5 +439,10 @@ module.exports = {
     atomicWriteSideChannel: atomicWriteSideChannel,
     makeProvenance: makeProvenance,
     parseArgs: parseArgs,
+    HOOK_ALLOWED_KEYS: HOOK_ALLOWED_KEYS,
+    emitHookEnvelope: emitHookEnvelope,
+    silentHookSuccess: silentHookSuccess,
+    readStdinJson: readStdinJson,
+    hookMain: hookMain,
   },
 };
