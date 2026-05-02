@@ -2,6 +2,7 @@
 name: query
 description: Query the knowledge graph in natural language
 argument-hint: [question]
+serves_jtbd: ["audit-room", "explore"]
 allowed-tools:
   - Read
   - Bash

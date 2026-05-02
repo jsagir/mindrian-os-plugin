@@ -2,6 +2,7 @@
 name: persona
 description: Generate Six-Hats lenses from room data
 body_shape: C (Room Card)
+serves_jtbd: ["prepare-pitch"]
 allowed-tools:
   - Read
   - Write

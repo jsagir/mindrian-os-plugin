@@ -2,6 +2,7 @@
 name: pipeline
 description: Chain a multi-step methodology pipeline
 argument-hint: [pipeline-name]
+serves_jtbd: ["plan-execution"]
 allowed-tools:
   - Read
   - Write
