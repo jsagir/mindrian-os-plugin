@@ -881,3 +881,20 @@ Plans:
 - [x] 95.1-06-PLAN.md — Implement class F UI compliance detector (Wave 1 — runs AFTER renderer retrofit)
 - [x] 95.1-07-PLAN.md — Dogfood room cleanup + .room-root + generator run (atomic) + class D stub upgrade to live runner (Wave 2 integration)
 - [ ] 95.1-08-PLAN.md — v1.12.1-beta.1 release: CHANGELOG + plugin.json + package.json + git tag + Anthropic upstream bug report draft (Wave 2 release)
+
+
+### Phase 104: Per-Command JTBD Declarations
+
+**Goal:** Sweep edit across all 84 files in `commands/*.md` adding `serves_jtbd:` to YAML frontmatter so the Phase 101-04 selector-dispatcher (already shipped, already reading JTBD) gets a real signal from every command file. Phase 104 is mostly a declaration sweep + verification harness, not new code: NO new commands ship, NO dispatcher logic changes, NO taxonomy changes. Backward compat invariant: commands without `serves_jtbd:` continue to work (selector falls through to F.1). Plan 104-01 encodes the verbatim JTBD-to-command mapping table; Plan 104-02 ships the every-command-declares + every-JTBD-has-1-command verification tests; Plan 104-03 ships the backward-compat regression fence and updates CHANGELOG for v1.12.4.
+
+**Requirements**: JTBDCONS-104-01, JTBDCONS-104-02, JTBDCONS-104-03, JTBDCONS-104-04, JTBDCONS-104-05
+
+**Depends on:** Phase 100 (jtbd-taxonomy.json - 13 canonical JTBD ids; declarations must match these) + Phase 101 (selector-dispatcher.cjs - already routes by JTBD; Phase 104 just feeds it).
+
+**Plans:** 4 plans
+
+Plans:
+- [ ] 104-00-PLAN.md - Add JTBDCONS-104-01..05 requirements + Wave-0 test stubs (Wave 0 foundation)
+- [ ] 104-01-PLAN.md - Sweep edit: add `serves_jtbd:` to all 84 commands per the verbatim mapping table (Wave 1)
+- [ ] 104-02-PLAN.md - Verification harness: every-command-declares + every-JTBD-has-1-command tests (Wave 2 - depends on 104-01)
+- [ ] 104-03-PLAN.md - Backward-compat regression fence + CHANGELOG v1.12.4 entry (Wave 2 - depends on 104-01)
