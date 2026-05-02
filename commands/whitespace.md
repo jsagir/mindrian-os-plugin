@@ -2,6 +2,7 @@
 name: whitespace
 description: Detect whitespace gaps in the room's coverage
 body_shape: varies
+serves_jtbd: ["connect-domains", "find-problem"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash

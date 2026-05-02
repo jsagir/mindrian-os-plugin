@@ -4,6 +4,7 @@ description: Export the Data Room as an Obsidian vault
 argument-hint: '[<room-name>] [--path <dir>]'
 disable-model-invocation: true
 body_shape_overview: E (Mini Report)
+serves_jtbd: ["prepare-pitch"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

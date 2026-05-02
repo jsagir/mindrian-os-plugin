@@ -1,6 +1,7 @@
 ---
 name: structure-argument
 description: Structure an argument with Minto + SCQA + MECE
+serves_jtbd: ["validate-idea", "explore"]
 allowed-tools:
   - Read
   - Write
