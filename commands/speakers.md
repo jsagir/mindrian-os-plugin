@@ -3,6 +3,7 @@ name: speakers
 description: Show who spoke in your meetings and their roles
 body_shape: C (Room Card)
 body_shape_detail: Each speaker as a card with role, expertise, meeting count
+serves_jtbd: ["file-meeting"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

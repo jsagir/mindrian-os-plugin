@@ -2,6 +2,7 @@
 name: scout
 description: Run sentinel scans across the room
 body_shape: E (Action Report)
+serves_jtbd: ["explore", "understand-market"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

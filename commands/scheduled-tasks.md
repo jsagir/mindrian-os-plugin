@@ -2,6 +2,7 @@
 name: scheduled-tasks
 description: Define Cowork scheduled tasks for the room
 body_shape: E (Action Report)
+serves_jtbd: ["plan-execution"]
 ui_reference: skills/ui-system/SKILL.md
 surface: cowork
 allowed-tools:
