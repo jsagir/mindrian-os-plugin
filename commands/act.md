@@ -3,6 +3,7 @@ name: act
 description: Run Larry's best-pick methodology for your room state
 argument-hint: '[--chain] [--swarm] [--dry-run]'
 body_shape: E (Action Report)
+serves_jtbd: ["plan-execution"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

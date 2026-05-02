@@ -1,6 +1,7 @@
 ---
 description: Derive BRAIN.md for section(s) now
 argument-hint: "[section] [--all] [--cross-room] [--dry-run]"
+serves_jtbd: ["audit-room"]
 disable-model-invocation: false
 allowed-tools: Bash(node *)
 ---

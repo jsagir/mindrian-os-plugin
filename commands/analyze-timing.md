@@ -1,6 +1,7 @@
 ---
 name: analyze-timing
 description: Place a technology on the S-Curve timing clock
+serves_jtbd: ["understand-market"]
 allowed-tools:
   - Read
   - Write

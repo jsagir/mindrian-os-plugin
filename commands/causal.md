@@ -2,6 +2,7 @@
 name: causal
 description: Trace causal edges in the room's graph
 argument-hint: [extract|trace|predict]
+serves_jtbd: ["find-problem", "find-bottleneck"]
 allowed-tools:
   - Read
   - Write

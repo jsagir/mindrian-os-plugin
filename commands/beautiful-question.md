@@ -1,6 +1,7 @@
 ---
 name: beautiful-question
 description: Reframe a challenge as Why / What-if / How
+serves_jtbd: ["find-problem", "explore"]
 allowed-tools:
   - Read
   - Write

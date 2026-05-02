@@ -1,6 +1,7 @@
 ---
 name: build-knowledge
 description: Climb Ackoff's DIKW pyramid across the room
+serves_jtbd: ["explore"]
 allowed-tools:
   - Read
   - Write
