@@ -1,6 +1,7 @@
 ---
 name: scenario-plan
 description: Build a 2x2 scenario matrix of plausible futures
+serves_jtbd: ["compare-options", "plan-execution"]
 allowed-tools:
   - Read
   - Write

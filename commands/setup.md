@@ -2,6 +2,7 @@
 name: setup
 description: Configure optional integrations (Brain, Velma)
 argument-hint: [brain|velma|graph]
+serves_jtbd: ["explore"]
 allowed-tools:
   - Read
   - Write

@@ -2,6 +2,7 @@
 name: snapshot
 description: Package a Data Room snapshot for sharing
 argument-hint: '[<room-path>] [--open]'
+serves_jtbd: ["prepare-pitch", "audit-room"]
 disable-model-invocation: true
 usage: /mos:snapshot [ROOM_PATH] [--output PATH] [--open]
 category: export

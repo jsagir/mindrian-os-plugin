@@ -2,6 +2,7 @@
 name: splash
 description: Display the MindrianOS Mondrian banner
 body_shape: raw
+serves_jtbd: ["explore"]
 allowed-tools:
   - Bash
 ---

@@ -1,6 +1,7 @@
 ---
 name: score-innovation
 description: Score cross-domain innovation via HSI
+serves_jtbd: ["compare-options", "validate-idea"]
 allowed-tools:
   - Read
   - Write
