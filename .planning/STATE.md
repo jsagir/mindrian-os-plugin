@@ -4,8 +4,8 @@ milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
 stopped_at: Completed 99-04 (Operator-Aware Hooks)
-last_updated: "2026-05-01T20:28:36.403Z"
-last_activity: 2026-05-01
+last_updated: "2026-05-02T07:44:06.363Z"
+last_activity: 2026-05-02
 progress:
   total_phases: 34
   completed_phases: 21
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 101 — selector-library-jtbd-aware
+**Current focus:** Phase 105 — hmi-compliance-polling
 
 ## Current Position
 
-Phase: 103
+Phase: 105
 Plan: Not started
-Status: Executing Phase 101
+Status: Executing Phase 105
 
 Resume note (2026-05-01): PC died after `/gsd:plan-phase 99 --auto` completed. Phase 99 PLAN files (99-01..99-05) sit on disk under `.planning/phases/99-conversation-operator-state-machine/` (gitignored per `.planning/` rule). Last commit `fbfe3e6` (CONTEXT + DISCUSSION-LOG only). No `feat(99-XX)` commits — execution never started. Phase 95.1 is closed (9/9 plans, see `a563850`); 95.1 is no longer current focus. Local commits ahead of `origin/main` by 1 (`fbfe3e6` unpushed).
 
@@ -73,7 +73,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-01
+Last activity: 2026-05-02
 
 Progress: [████████░░] 82%
 

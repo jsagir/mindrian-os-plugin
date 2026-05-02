@@ -9,6 +9,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.12.3] - 2026-05-02
+
+The conversation operator + JTBD inference + selector library + context-aware rendering + memory continuity + HMI compliance polling stack — six phases shipped as the v1.12.3 dependency layer that downstream features (Phase 104 per-command JTBD declarations, Phase 88.2 Shape F.1 polish, sprites Workspace v2.0) consume as their substrate.
+
+### Added
+
+**Phase 99 — Conversation Operator State Machine (5 plans, 68/68 tests):**
+- `lib/conversation/operator.cjs` per-room state primitive with 5 operators (JUST_TALK / EXPLORE_CAPTURE / BUILD_ROOM / METHODOLOGY / DECISION_GATE) and 9 transition rules
+- `lib/conversation/classifier.cjs` heuristic NL classifier (no LLM round-trip, 0.6 confidence threshold, externalized rules JSON)
+- `lib/render/render-v2.cjs` renderer integration contract (replaced in Phase 102 with full impl)
+- `commands/operator.md` + `scripts/operator-command.cjs` user-facing command
+- `scripts/operator-update.cjs` hook lifecycle wiring (SessionStart + Stop + PostToolUse + UserPromptSubmit)
+- Atomic state writes via mktemp + rename, OPERATOR_TRANSITION typed graph edges (Canon Part 4)
+- 50-entry bounded history with drop-oldest rotation
+
+**Phase 100 — JTBD Inference Engine (6 plans, 48/48 tests):**
+- `lib/hmi/jtbd-taxonomy.json` canonical 13-entry taxonomy (12 first-class JTBDs + explore fallback)
+- `lib/hmi/jtbd-classifier.cjs` heuristic classifier with three weighted strata (token cues 0.5 / operator affinity 0.3 / recency 0.2)
+- `lib/hmi/jtbd-state.cjs` per-room state I/O at `<roomDir>/.mindrian/jtbd-state.json` with 24h staleness rule and atomic writes
+- `commands/jtbd.md` + `scripts/jtbd-command.cjs` user-facing command (5 subcommands: show/set/clear/list/history)
+- `scripts/jtbd-update.cjs` hook lifecycle (UserPromptSubmit + Stop)
+
+**Phase 101 — JTBD-Aware Selector Library (6 plans, 37/37 tests):**
+- Shape F.6 (`lib/hmi/shape-f6-renderer.cjs`) — JTBD-aware Next Move selector
+- Shape G (`lib/hmi/shape-g-renderer.cjs`) — comparison matrix renderer
+- Shape H (`lib/hmi/shape-h-renderer.cjs`) — timeline / roadmap renderer with milestone markers
+- `lib/hmi/selector-dispatcher.cjs` — single integration point for Phase 102/104
+- `lib/hmi/shape-f1-fallback.cjs` — F.1 fallback when F.6 fallthroughs
+- `lib/hmi/tier-check.cjs` — Mode A / Mode B / Tier 0 graceful degradation per Canon Part 3
+
+**Phase 102 — Context-Aware Rendering (6 plans, 55/55 tests):**
+- `lib/render/render-v2.cjs` canonical implementation (486 lines, 5 layers composed)
+- Token-budget-aware compaction layer
+- JTBD-aware Zone 4 (closed 10-verb vocabulary per JTBD)
+- LOCAL-only `_provenance` envelope with 4-tripwire Canon Part 8 defense
+- CLI color overlay (TTY-gated, byte-stability invariant preserved via strip-ANSI)
+- `lib/render/render.cjs` v1 backward-compat shim
+- `lib/render/JTBD-PALETTES.md` 13-JTBD palette + verb map
+
+**Phase 103 — Memory Continuity Layer (6 plans, 119/119 tests):**
+- Layer 2 across-session memory (`lib/hmi/across-session-memory.cjs`) at `~/MindrianRooms/.memory/across-session.json` with O_EXCL lockfile + 200ms retry budget
+- Layer 3 cross-room memory (`lib/hmi/cross-room-memory.cjs`) with Mode A/B aggregation and 5-tripwire Canon Part 8 defense
+- `commands/memory.md` + `scripts/memory-command.cjs` (6 subcommands)
+- `scripts/memory-completion-detector.cjs` PostToolUse hook
+- `scripts/memory-resume-nudge.cjs` SessionStart hook
+- `lib/hmi/jtbd-taxonomy.json` extended additively with `completion_pattern` field per entry
+
+**Phase 105 — HMI Compliance Polling (5 plans, 41/41 tests):**
+- `scripts/hmi-compliance-poll.cjs` orchestrator (shells `doctor.cjs --ui-compliance`, applies operator-aware shape selector and JTBD-aware priority weighting, writes atomic side-channel at `<roomDir>/.mindrian/last-hmi-poll.json`)
+- `commands/hmi-status.md` + `scripts/hmi-status-command.cjs` read-only Shape E status renderer (5 envelope status branches)
+- Hook wrapper extending the poll script with BASH-95-01 envelope schema (Stop event, never blocks user turn)
+- E2E integration test covering real Stop → poll → side-channel → render flow
+
+### Changed
+
+- `lib/memory/run-feynman-tests.cjs` registers all v1.12.3 test suites (Phase 99-04 hooks, Phase 100 JTBD, Phase 101 selector, Phase 102 render-v2 layers, Phase 103 memory continuity, Phase 105 compliance polling)
+- `hooks/hooks.json` extended with 6 new sibling entries across SessionStart / Stop / PostToolUse / UserPromptSubmit (existing Phase 99/100/103 entries byte-identical)
+- `.planning/REQUIREMENTS.md` registers OPERATOR-99-* + HMI-100-* + HMI-101-* + RENDER-102-* + HMI-103-* + HMI-105-* requirement IDs
+
+### Why this matters
+
+v1.12.3 closes the dependency layer Phase 99 CONTEXT.md called out in 2026-04-30: "Phase 99 + 100 + 101 + 102 + 103 + 105 = the v1.12.3 dependency layer that downstream features consume as their substrate". With this layer in place, Phase 104 (per-command JTBD declarations across 80+ commands), Phase 88.2 (Shape F.1 canonical AskUserQuestion picker), and Sprites Workspace v2.0 can consume operator + JTBD + selector + render + memory + compliance signals as a unified contract instead of each feature re-inferring them turn-by-turn.
+
+Total: 33 plans across 6 phases, 368 test assertions GREEN at release gate, zero cross-phase regressions, Canon Part 8 LOCAL-only invariant preserved across all new code (audited via grep + 5-tripwire defense layers in Phase 90 / 102 / 103).
+
 ## [1.12.1-beta.1] - 2026-04-30
 
 Closes Phase 95.1. Extends `/mos:doctor` from a single-class (install-cache drift class A) checker into a six-class drift detector covering all silent-failure modes surfaced in the v1.12.0 fresh-session smoke (2026-04-30). Ships the missing `scripts/generate-section-intelligence.cjs` generator that Phase 87-01a's pre-commit hook has been pointing at since 2026-04-19 but never existed. Brings `/mos:doctor` itself into UI Ruling System compliance (Shape E Action Report; 4-zone anatomy; 12-glyph vocabulary; no box chars). Hydrates the dogfood `room/` subtree into Decision-#15 compliance (1 sentinel + 20 generated ROOM.md/MINTO.md across 10 directories). Closes 8 new requirement IDs (DOCTOR-95.1-01..08) and ships the deferred Anthropic upstream bug report draft (Phase 93 D5; held until /mos:doctor existed at full strength -- now does).
