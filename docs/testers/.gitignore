@@ -1,0 +1,8 @@
+# Welcome emails contain live Brain API keys — never commit
+outbox/*-welcome.md
+outbox/*-key.md
+outbox/keys/
+
+# Update notices (release announcements) ARE safe to commit — they contain
+# no secrets, just the plain release-note body.
+!outbox/*-update.md
