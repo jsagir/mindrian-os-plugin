@@ -2,6 +2,7 @@
 name: rs-thesis
 description: Read the thesis for a prior Reverse Salient discovery
 body_shape: E (Action Report)
+serves_jtbd: ["find-bottleneck"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash

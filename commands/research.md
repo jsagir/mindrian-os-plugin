@@ -2,6 +2,7 @@
 name: research
 description: Research the web and cross-reference with Brain
 argument-hint: [topic]
+serves_jtbd: ["explore", "understand-market"]
 allowed-tools:
   - Read
   - Bash

@@ -4,6 +4,7 @@ description: View, launch, or navigate the Data Room
 argument-hint: [overview|<section>]
 body_shape_overview: B (Semantic Tree)
 body_shape_section: C (Room Card)
+serves_jtbd: ["audit-room"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

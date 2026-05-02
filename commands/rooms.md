@@ -3,6 +3,7 @@ name: rooms
 description: List, switch, or archive project rooms
 argument-hint: [list|switch|archive|park]
 body_shape: B (Semantic Tree)
+serves_jtbd: ["audit-room"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

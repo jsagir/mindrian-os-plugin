@@ -1,6 +1,7 @@
 ---
 name: root-cause
 description: Trace root cause via 5-Whys, Fishbone, Fault Tree
+serves_jtbd: ["find-problem"]
 allowed-tools:
   - Read
   - Write
