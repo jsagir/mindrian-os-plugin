@@ -9,6 +9,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.12.4] - 2026-05-02
+
+The release where v1.12.3's substrate becomes visible. Phase 88.2 ships the canonical De Stijl picker (5 sub-shapes plus selector telemetry) so every Larry "choose between options" moment uses MindrianOS's UI vocabulary instead of generic AskUserQuestion. Phase 104 retrofits 80+ /mos: commands with `serves_jtbd:` declarations so Larry's next-move suggestions actually adapt per command per active JTBD. Together: testers feel the v1.12.3 promise become real.
+
+### Added
+
+**Phase 88.2 - Selector Block UI Library (5 plans, 60 sub-shape + telemetry tests):**
+- Shape F.1 canonical Next Move renderer (`lib/hmi/shape-f1-renderer.cjs`) - 10-verb canonical vocabulary, Free-Text always last, RECOMMENDED `▶` marker only at Mode A + Brain confidence >= 0.7 (12/12 tests)
+- Shape F.2 Path Control renderer (`lib/hmi/shape-f2-renderer.cjs`) - 5-verb constrained subset for plan/replan moments (10/10 tests)
+- Shape F.3 Rabbit-Hole Depth renderer (`lib/hmi/shape-f3-renderer.cjs`) - exactly 5 closed options (Shallow / Medium / Deep / Extreme / Back); no Free-Text, no RECOMMENDED (7/7 tests)
+- Shape F.4 Insight Extraction renderer (`lib/hmi/shape-f4-renderer.cjs`) - exactly 5 closed options (Key insights / + contradictions / + actions / Create artifact draft / Back) (7/7 tests)
+- Shape F.5 Branch Resolution renderer (`lib/hmi/shape-f5-renderer.cjs`) - Continue / Merge / Compare / Park / Drop with Free-Text last (12/12 tests)
+- Selector telemetry (`lib/hmi/selector-telemetry.cjs`) - LOCAL JSONL emitter at `~/.mindrian/telemetry/selector.jsonl`, sha256-hashed room slug, 10000-line FIFO bound, zero Brain egress per Canon Part 8 (12/12 tests)
+- Operator-aware dispatcher integration (`lib/hmi/selector-dispatcher.cjs` extended) - F.1..F.5 routing per active operator, JUST_TALK refuses F.x with `render_v2_compaction_violation`, AskUserQuestion structural-marker trailer `[AskUserQuestion contract: shape=F.X verbs=N]` on every render
+
+**Phase 104 - Per-Command JTBD Declarations (4 plans, 8 backward-compat tests + declarations + coverage):**
+- Sweep across 80+ `commands/*.md` files: every command now declares `serves_jtbd:` in frontmatter (drawn from the 13-entry Phase 100-01 taxonomy)
+- JTBD-to-command mapping matrix at `.planning/phases/104-per-command-jtbd-declarations/104-01-mapping-matrix.md`
+- `tests/test-command-jtbd-declarations.cjs` - every-command-declares assertion (closed-vocab enforcement, latency < 500ms warm)
+- `tests/test-command-jtbd-coverage.cjs` - every-JTBD-has->=1-command coverage scan (orphan detection for all 13 entries including `explore` fallback)
+- `tests/test-command-jtbd-backward-compat.cjs` - backward-compat regression fence: synthetic command without `serves_jtbd:` falls through to F.1 (NOT F.6) without throwing (8/8 assertions)
+
+### Changed
+
+- `lib/hmi/selector-dispatcher.cjs` (Phase 101-04) extended with operator-aware sub-shape routing for F.1..F.5; existing F (jtbd-routed -> F.6), G, H, A-E paths byte-stable
+- `lib/hmi/shape-f1-fallback.cjs` preserved for backward-compat; new `shape-f1-renderer.cjs` is the dispatcher's preferred F.1 module
+- `lib/memory/run-feynman-tests.cjs` registers all v1.12.4 test suites (88.2 sub-shapes + telemetry + 104 declaration coverage + backward-compat)
+- Every existing /mos: command's frontmatter gains `serves_jtbd:` field (3 commands that already declared from Phase 100/103/105 left byte-identical)
+
+### Why this matters
+
+v1.12.3 captured the signal (operator + JTBD + memory + selector library); v1.12.4 makes the signal *consumed* by 80+ commands and *visibly polished* via the 5 new sub-shape renderers. The result: when Larry asks you to choose between options, the picker uses the De Stijl Mondrian vocabulary instead of generic Claude Code prompts. When you set a JTBD with `/mos:jtbd set find-bottleneck`, every methodology command surfaces different next-move options tailored to that job.
+
+### Tester impact
+
+- Visible immediately: every selector now has the 4-zone De Stijl picker with 12-glyph + 5-color contract
+- Visible immediately: setting a JTBD changes what /mos:explore-domains, /mos:rs-fetch, /mos:think-hats, /mos:hat-briefing each suggest as next-moves
+- Selector telemetry runs LOCAL only - never leaves your machine, never carries user content (sha256 room slug + scalar response indices only)
+
+### Compatibility
+
+- No breaking changes. Commands without `serves_jtbd:` continue to work (selector falls through to F.1), pinned by `tests/test-command-jtbd-backward-compat.cjs` regression fence.
+- JUST_TALK operator refuses F.x sub-shapes by design (operators stay out of the way during plain dialogue).
+- Mode A vs Mode B vs Tier 0 graceful degradation per Canon Part 3 - RECOMMENDED markers suppress when Brain unreachable.
+
+### Notes
+
+- Canon Part 7 (Reuse Before Build): the existing Phase 101-04 dispatcher already reads JTBD; Phase 104 only feeds it.
+- Canon Part 8 (Graph Boundary): `serves_jtbd:` declarations are LOCAL frontmatter, never queried against Brain. Selector telemetry emits LOCAL JSONL only, never network.
+- Phase 87 zero-deps invariant honored across both phases.
+
 ## [1.12.3] - 2026-05-02
 
 The conversation operator + JTBD inference + selector library + context-aware rendering + memory continuity + HMI compliance polling stack — six phases shipped as the v1.12.3 dependency layer that downstream features (Phase 104 per-command JTBD declarations, Phase 88.2 Shape F.1 polish, sprites Workspace v2.0) consume as their substrate.
