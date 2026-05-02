@@ -1,6 +1,7 @@
 ---
 name: analyze-needs
 description: Score customer jobs with importance and satisfaction
+serves_jtbd: ["find-problem"]
 allowed-tools:
   - Read
   - Write

@@ -1,6 +1,7 @@
 ---
 name: build-thesis
 description: Run the Ten-Questions investment thesis gate
+serves_jtbd: ["decide-pursue", "prepare-pitch"]
 allowed-tools:
   - Read
   - Write

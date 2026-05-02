@@ -1,6 +1,7 @@
 ---
 name: challenge-assumptions
 description: Stress-test assumptions with Devil's Advocate
+serves_jtbd: ["validate-idea", "surface-contradiction"]
 allowed-tools:
   - Read
   - Write

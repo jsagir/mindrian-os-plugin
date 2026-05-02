@@ -1,6 +1,7 @@
 ---
 name: analyze-systems
 description: Decompose a system into layers and leverage points
+serves_jtbd: ["find-bottleneck"]
 allowed-tools:
   - Read
   - Write
