@@ -1,6 +1,7 @@
 ---
 name: find-connections
 description: Find cross-domain patterns that touch your work
+serves_jtbd: ["connect-domains"]
 allowed-tools:
   - Read
   - mcp__mindrian-brain__brain_query

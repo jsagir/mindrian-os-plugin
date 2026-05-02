@@ -1,6 +1,7 @@
 ---
 name: find-bottlenecks
 description: Find lagging components via Reverse Salient
+serves_jtbd: ["find-bottleneck"]
 allowed-tools:
   - Read
   - Write

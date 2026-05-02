@@ -4,6 +4,7 @@ description: List commands grouped by flow (tldr-style)
 argument-hint: [command-name]
 body_shape: B (Semantic Tree)
 body_shape_detail: -- (inline, no zones)
+serves_jtbd: ["explore"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

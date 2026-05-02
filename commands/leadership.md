@@ -1,6 +1,7 @@
 ---
 name: leadership
 description: Diagnose the leadership shape your team needs
+serves_jtbd: ["explore"]
 allowed-tools:
   - Read
   - Write
