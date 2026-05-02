@@ -2,6 +2,7 @@
 name: new-project
 description: Start a new venture project and create its room
 argument-hint: [name]
+serves_jtbd: ["explore"]
 allowed-tools:
   - Read
   - Write

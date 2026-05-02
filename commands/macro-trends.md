@@ -1,6 +1,7 @@
 ---
 name: macro-trends
 description: Map macro changes with PEST across a domain
+serves_jtbd: ["understand-market"]
 allowed-tools:
   - Read
   - Write

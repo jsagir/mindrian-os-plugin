@@ -4,6 +4,7 @@ description: Show or manually set the conversation operator (JUST_TALK / EXPLORE
 argument-hint: [history] [set <op>] [reset] [--json]
 body_shape: E (Action Report)
 body_shape_detail: current state + last 5 history (default), full history (history subcommand), Shape F.1 picker (set subcommand), Shape F.4 confirmation (reset subcommand)
+serves_jtbd: ["explore"]
 allowed-tools:
   - Bash
   - Read

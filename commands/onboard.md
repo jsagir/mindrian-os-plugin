@@ -3,6 +3,7 @@ name: onboard
 description: Walk through MindrianOS and build your first room
 body_shape: B (Semantic Tree)
 body_shape_detail: Steps as conversational flow, context building as nested nodes
+serves_jtbd: ["explore"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

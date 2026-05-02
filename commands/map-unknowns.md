@@ -1,6 +1,7 @@
 ---
 name: map-unknowns
 description: Map known, unknown, and unknowable (Rumsfeld)
+serves_jtbd: ["validate-idea"]
 allowed-tools:
   - Read
   - Write
