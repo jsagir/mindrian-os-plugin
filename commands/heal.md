@@ -4,6 +4,7 @@ description: Heal a room's structural drift after plugin upgrade
 argument-hint: "[room-dir]"
 body_shape: E (Action Report)
 body_shape_detail: 10-step heal table mirrors recipe provenance section
+serves_jtbd: ["audit-room"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash

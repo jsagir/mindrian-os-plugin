@@ -1,6 +1,7 @@
 ---
 name: grade
 description: Grade problem-discovery quality (6 components)
+serves_jtbd: ["audit-room"]
 allowed-tools:
   - Read
   - Write

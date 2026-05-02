@@ -2,6 +2,7 @@
 name: find-analogies
 description: Find cross-domain analogies with SAPPhIRE + TRIZ
 body_shape: D (Comparison Matrix)
+serves_jtbd: ["connect-domains"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

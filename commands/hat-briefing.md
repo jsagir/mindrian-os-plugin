@@ -3,6 +3,7 @@ name: hat-briefing
 description: Consolidate Six Hats briefings from hat memory
 body_shape: C (Dashboard Grid)
 body_shape_detail: 6-panel hat grid + synthesis strip
+serves_jtbd: ["prepare-pitch"]
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

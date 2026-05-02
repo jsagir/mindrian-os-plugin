@@ -3,6 +3,7 @@ name: funding
 description: Track grant opportunities through their lifecycle
 argument-hint: [list|add|update]
 body_shape: B (Semantic Tree)
+serves_jtbd: ["prepare-pitch", "decide-pursue"]
 allowed-tools:
   - Read
   - Write

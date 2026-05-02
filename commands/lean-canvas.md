@@ -1,6 +1,7 @@
 ---
 name: lean-canvas
 description: Fill the Lean Canvas in one page (9 boxes)
+serves_jtbd: ["prepare-pitch", "validate-idea"]
 allowed-tools:
   - Read
   - Write
