@@ -1082,9 +1082,12 @@ function renderHumanReport(report) {
   // Slot for class B/C/D/E/F/G rows -- populated by Plans 95.1-05 + 95.1-06
   // and Plan 106-03 via report.checks.* extension. Each new check reads from
   // report.checks[name] and pushes rows in the same Shape-E format:
-  // filled-square + class label + status glyph + detail. Glyphs come from
-  // the 12-glyph vocabulary already used by classes A-F (✓/⚠/✗/⊘) so the
-  // class F UI compliance scanner does not flag this renderer.
+  // filled-square + class label + status glyph + detail. Glyphs match the
+  // existing class A pattern: green check for ok, yellow warn for warn,
+  // red warn for error (mirrors line 1067 'cannot read state'), dim slash
+  // for skip. Class F UI compliance scanner approves these glyphs (U+2717
+  // BALLOT X is forbidden; U+26A0 WARN and U+2298 CIRCLED DIVISION SLASH
+  // are approved per the 12-glyph vocabulary).
   if (report.checks) {
     const stl = report.checks['statusline-visibility'];
     if (stl) {
@@ -1092,7 +1095,7 @@ function renderHumanReport(report) {
       let color;
       if (stl.status === 'ok') { glyph = '✓'; color = C.green; }
       else if (stl.status === 'warn') { glyph = '⚠'; color = C.yellow; }
-      else if (stl.status === 'error') { glyph = '✗'; color = C.red; }
+      else if (stl.status === 'error') { glyph = '⚠'; color = C.red; }
       else { glyph = '⊘'; color = C.dim; } // skip
       bodyRows.push('  ' + color + '■' + C.reset + ' statusline-visibility       ' + color + glyph + C.reset + ' ' + (stl.detail || stl.status));
     }
