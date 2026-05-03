@@ -50,6 +50,22 @@ function runDoctor(home, extraEnv, extraArgs) {
   if (!extraEnv || extraEnv.CLAUDE_DESKTOP === undefined) {
     delete env.CLAUDE_DESKTOP;
   }
+  // Plan 106-04 swapped doctor.cjs Step 0 from a bare CLAUDE_DESKTOP=1 probe to
+  // the canonical lib/statusline/surface-detect.cjs helper, which treats non-TTY
+  // child processes as DESKTOP by safe default (and would skip class G). Tests
+  // 1-4 below exercise the four detection branches AS IF the doctor is running
+  // on CLI. Force the surface explicitly so child-process spawnSync (no TTY)
+  // does not get reclassified to DESKTOP. Tests that want a non-CLI surface
+  // (Test 5: CLAUDE_DESKTOP=1 -> skip) opt out by passing CLAUDE_DESKTOP via
+  // extraEnv; in that case we do NOT inject the SURFACE override so the
+  // CLAUDE_DESKTOP probe still drives the detector.
+  const wantsNonCli = extraEnv
+    && (extraEnv.CLAUDE_DESKTOP !== undefined
+        || extraEnv.COWORK_SESSION_ID !== undefined
+        || extraEnv.MINDRIAN_STATUSLINE_SURFACE !== undefined);
+  if (!wantsNonCli) {
+    env.MINDRIAN_STATUSLINE_SURFACE = 'CLI';
+  }
   const args = [DOCTOR, '--statusline-visibility', '--json'].concat(extraArgs || []);
   const r = spawnSync('node', args, { env, encoding: 'utf8' });
   let report = null;

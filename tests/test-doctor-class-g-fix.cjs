@@ -46,6 +46,11 @@ function makeTmpHome(fixtureSubdir) {
 function runDoctor(home, extraArgs) {
   const env = Object.assign({}, process.env, { HOME: home, USERPROFILE: home });
   delete env.CLAUDE_DESKTOP;
+  // Plan 106-04 swapped doctor.cjs Step 0 to call lib/statusline/surface-detect.cjs
+  // which treats non-TTY child processes as DESKTOP -> skip class G. Force CLI
+  // explicitly so --fix integration tests exercise the recovery path on the
+  // intended surface.
+  env.MINDRIAN_STATUSLINE_SURFACE = 'CLI';
   const args = [DOCTOR, '--statusline-visibility', '--json'].concat(extraArgs || []);
   const r = spawnSync('node', args, { env, encoding: 'utf8' });
   let report = null;

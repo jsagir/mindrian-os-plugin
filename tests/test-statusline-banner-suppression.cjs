@@ -2,13 +2,14 @@
 'use strict';
 
 /*
- * Phase 106-03 Task 3 -- statusline-visibility banner suppression contract test.
+ * Phase 106 Plan 03 + Plan 04 -- statusline banner suppression contract test.
  *
- * Plan 106-03 ships the SUPPRESSION CONTRACT (the JSON shape + 24h timing
- * arithmetic + version-bump invalidation). Plan 106-04 ships the actual
- * hook script scripts/statusline-fallback-echo.cjs that consumes this
- * contract. Fencing the contract here means 106-04 cannot drift away from
- * the agreed shape without breaking this test.
+ * Plan 106-03 fenced the SUPPRESSION CONTRACT (the JSON shape + 24h timing
+ * arithmetic + version-bump invalidation) inline. Plan 106-04 extracted
+ * shouldSuppress() into lib/statusline/banner-suppression.cjs as a shared
+ * module consumed by both this test and scripts/statusline-fallback-echo.cjs.
+ * The 5 fenced assertions below are byte-identical to the 106-03 originals --
+ * they enforce the same contract, now sourced from the shared module.
  *
  * Touch-file at ~/.mindrian/banner-state/statusline-visibility-warned.json
  * Shape:
@@ -26,10 +27,6 @@
  *   - last_warned is a parseable ISO timestamp, AND
  *   - last_warned is within 24h of `now`.
  *
- * Plan 106-04 SHOULD extract shouldSuppress() into a shared module so this
- * test can require() it directly instead of the inline copy below. For
- * Plan 106-03, the contract is enforced via the local copy + assertions.
- *
  * Registered in lib/memory/run-feynman-tests.cjs (Plan 106-00 Task 3).
  */
 
@@ -42,22 +39,11 @@ const PLUGIN_VERSION = JSON.parse(
   fs.readFileSync(path.join(REPO_ROOT, '.claude-plugin', 'plugin.json'), 'utf8')
 ).version;
 
-// Suppression-logic CONTRACT (Plan 106-03 fences this; Plan 106-04
-// implements scripts/statusline-fallback-echo.cjs which MUST consume the
-// same logic). If Plan 106-04 extracts this into a shared module, swap
-// the inline copy for a require(...).
-function shouldSuppress(touchFileContent, currentVersion, now) {
-  if (now === undefined) now = Date.now();
-  if (!touchFileContent) return false;
-  if (touchFileContent.installed_version !== currentVersion) return false;
-  if (touchFileContent.status !== 'warn' && touchFileContent.status !== 'error') return false;
-  if (!touchFileContent.last_warned) return false;
-  const warnedAt = Date.parse(touchFileContent.last_warned);
-  if (Number.isNaN(warnedAt)) return false;
-  const ageMs = now - warnedAt;
-  const TWENTY_FOUR_HOURS = 24 * 3600 * 1000;
-  return ageMs < TWENTY_FOUR_HOURS;
-}
+// Plan 106-04 extracted shouldSuppress() into lib/statusline/banner-suppression.cjs.
+// This test now require()s the canonical module instead of carrying an inline
+// copy. The 5 fenced assertions below remain byte-identical -- they enforce
+// the same contract as before, now sourced from the shared module.
+const { shouldSuppress } = require('../lib/statusline/banner-suppression.cjs');
 
 let passed = 0;
 let failed = 0;

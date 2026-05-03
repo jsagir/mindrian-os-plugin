@@ -865,17 +865,33 @@ function stripAnsi(s) {
 function checkStatuslineVisibility() {
   const evidence = [];
 
-  // Step 0 -- surface detection. Plan 106-04 will replace this with the
-  // canonical surface-detect helper. For Phase 106-03 the contract is a
-  // simple env-var probe so the plan can ship + tests can fence the
-  // skip semantic.
-  if (process.env.CLAUDE_DESKTOP === '1') {
-    return {
-      status: 'skip',
-      detail: 'Desktop has no statusline primitive -- D-04 fallback applies',
-      evidence: ['CLAUDE_DESKTOP=1 detected'],
-      recoverable: false,
-    };
+  // Step 0 -- surface detection via lib/statusline/surface-detect.cjs (Plan 106-04).
+  // CLAUDE_DESKTOP=1, COWORK_SESSION_ID, /sessions dir, non-TTY heuristics
+  // all roll up into one canonical helper. CLI is the only surface where
+  // the statusline render is the visibility source; DESKTOP and COWORK
+  // route through the D-04 fallback echo (scripts/statusline-fallback-echo.cjs).
+  try {
+    const mod = require(path.resolve(__dirname, '..', 'lib', 'statusline', 'surface-detect.cjs'));
+    const surface = mod.detectStatuslineSurface();
+    if (surface !== 'CLI') {
+      return {
+        status: 'skip',
+        detail: surface + ' has no statusline primitive -- D-04 fallback applies',
+        evidence: ['surface=' + surface + ' (via lib/statusline/surface-detect.cjs)'],
+        recoverable: false,
+      };
+    }
+  } catch (_e) {
+    // Graceful: if the helper cannot load, fall back to the original env-var
+    // probe so the doctor never blocks itself.
+    if (process.env.CLAUDE_DESKTOP === '1') {
+      return {
+        status: 'skip',
+        detail: 'Desktop has no statusline primitive -- D-04 fallback applies',
+        evidence: ['CLAUDE_DESKTOP=1 detected (fallback path)'],
+        recoverable: false,
+      };
+    }
   }
 
   // Step 1 -- ~/.claude/settings.json user-level drift.
