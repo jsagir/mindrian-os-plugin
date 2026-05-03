@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 108-02-PLAN.md (PROVENANCE.md contract spec + 10-assertion test harness; Wave 1 parallel-safe with 108-01 RECONCILIATION.md)
-last_updated: "2026-05-03T11:14:17.613Z"
+stopped_at: Completed 108-04-PLAN.md (parallel with 108-03)
+last_updated: "2026-05-03T11:27:27.483Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 43
   completed_phases: 22
   total_plans: 187
-  completed_plans: 172
+  completed_plans: 173
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 108 (graph-memory-schema-reconciliation) — EXECUTING
-Plan: 3 of 7
+Plan: 4 of 7
 Status: Ready to execute
 
 Phase 106-04 closure (2026-05-03):
@@ -212,6 +212,7 @@ Progress: [████████░░] 82%
 | Phase 108-graph-memory-schema-reconciliation P00 | 11min | 3 tasks | 11 files |
 | Phase 108-graph-memory-schema-reconciliation P01 | 18min | 2 tasks | 2 files |
 | Phase 108 P02 | 17min | 2 tasks | 2 files |
+| Phase 108-graph-memory-schema-reconciliation P04 | 9min | 2 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -583,6 +584,8 @@ Progress: [████████░░] 82%
 - [Phase 108-graph-memory-schema-reconciliation]: Plan 108-01: CONTAINS marked RESERVED (deferred to Phase 112 Room Budding) - 'explicit only if needed for cross-room traversal' per CONTEXT D-01 IS the RESERVED pattern.
 - [Phase 108]: Plan 108-02: PROVENANCE.md framed unambiguously as CONTRACT spec, not migration; every MUST/required scoped to Phase 109 implementation per Codex tightening 2026-05-03
 - [Phase 108]: Plan 108-02: Verbatim Column-Type Specification block added mirroring CONTEXT D-02 lines 107-120 byte-for-byte; serves test harness AND Phase 109 copy-paste reference
+- [Phase 108-graph-memory-schema-reconciliation]: 108-04: In-house YAML parser embedded in test rather than added as dep (zero npm deps per Phase 87 invariant; pattern reused from lib/core/opportunity-ops.cjs:24-118)
+- [Phase 108-graph-memory-schema-reconciliation]: 108-04: All 23 EDGE_TYPES from lib/core/lazygraph-ops.cjs:25 included as EXISTS rows in aliases.yml (RESEARCH 2.4 + Pitfall 3 defense; without this the pre-commit hook in Plan 108-05 would false-positive on legitimate production code)
 
 ### Pending Todos
 
@@ -604,6 +607,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-03T11:14:17.602Z
-Stopped at: Completed 108-02-PLAN.md (PROVENANCE.md contract spec + 10-assertion test harness; Wave 1 parallel-safe with 108-01 RECONCILIATION.md)
+Last session: 2026-05-03T11:27:27.469Z
+Stopped at: Completed 108-04-PLAN.md (parallel with 108-03)
 Resume file: None
