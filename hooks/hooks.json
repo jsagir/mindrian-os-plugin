@@ -42,6 +42,26 @@
             "timeout": 2000
           }
         ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/statusline-fallback-echo.cjs\"",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-onboard-statusline.cjs\"",
+            "timeout": 2000
+          }
+        ]
       }
     ],
     "PreCompact": [
