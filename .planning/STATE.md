@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 99-04 (Operator-Aware Hooks)
-last_updated: "2026-05-02T21:36:03.292Z"
-last_activity: 2026-05-02
+stopped_at: "Completed 106-00 (Wave 0 scaffold: REQ IDs + 10 test stubs + 3 fixtures + ROADMAP plans list)"
+last_updated: "2026-05-03T04:17:14.873Z"
+last_activity: 2026-05-03
 progress:
-  total_phases: 36
+  total_phases: 38
   completed_phases: 21
-  total_plans: 174
-  completed_plans: 163
+  total_plans: 178
+  completed_plans: 164
   percent: 82
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 105 — hmi-compliance-polling
+**Current focus:** Phase 106 — statusline-visibility-context-window-broadcast
 
 ## Current Position
 
-Phase: 104
-Plan: Not started
-Status: Executing Phase 105
+Phase: 106 (statusline-visibility-context-window-broadcast) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
 
 Resume note (2026-05-01): PC died after `/gsd:plan-phase 99 --auto` completed. Phase 99 PLAN files (99-01..99-05) sit on disk under `.planning/phases/99-conversation-operator-state-machine/` (gitignored per `.planning/` rule). Last commit `fbfe3e6` (CONTEXT + DISCUSSION-LOG only). No `feat(99-XX)` commits — execution never started. Phase 95.1 is closed (9/9 plans, see `a563850`); 95.1 is no longer current focus. Local commits ahead of `origin/main` by 1 (`fbfe3e6` unpushed).
 
@@ -73,7 +73,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-02
+Last activity: 2026-05-03
 
 Progress: [████████░░] 82%
 
@@ -174,6 +174,7 @@ Progress: [████████░░] 82%
 | Phase 95.1 P06 | 7min | 1 tasks | 2 files |
 | Phase 95.1 P07 | 18min | 3 tasks | 21 files |
 | Phase 99 P04 | 7 | 3 tasks | 4 files |
+| Phase 106 P00 | 9min | 3 tasks | 18 files |
 
 ### Roadmap Evolution
 
@@ -533,6 +534,9 @@ Progress: [████████░░] 82%
 - [Phase 95.1]: Plan 07: Class D stub upgraded to live spawnSync runner asserting cascade-surface-e2e 8-key shape; cross-platform Windows-no-bash skip preserves graceful-degradation per Canon Part 8
 - [Phase 99]: 99-04: Stop hook is a no-op (state already current after each transition); did NOT extend operator.cjs to keep 99-01's 12-scenario test suite byte-stable
 - [Phase 99]: 99-04: PostToolUse uses broad matcher (Write|Edit|MultiEdit|Read|Grep|Glob|AskUserQuestion|Bash|Task|TodoWrite) so AskUserQuestion->DECISION_GATE branch fires reliably; active-room guard handles noisy file-path cases
+- [Phase 106]: Wave 0 scaffolds REQ IDs + test stubs + fixtures + ROADMAP plans list together (not deferred to Wave 1) so plans 106-01..05 inherit a hermetic substrate the moment they start
+- [Phase 106]: Stub owning-plan number embedded in BOTH the comment AND the console.log string so downstream-plan ownership is grep-able from the test file alone (no separate manifest)
+- [Phase 106]: 10 stubs land at end of TEST_FILES array (NOT mid-array insertion) preserving byte-stability of every existing entry; matches Phase 87 zero-side-effects invariant
 
 ### Pending Todos
 
@@ -554,6 +558,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-01T09:31:16.825Z
-Stopped at: Completed 99-04 (Operator-Aware Hooks)
+Last session: 2026-05-03T04:17:14.866Z
+Stopped at: Completed 106-00 (Wave 0 scaffold: REQ IDs + 10 test stubs + 3 fixtures + ROADMAP plans list)
 Resume file: None
