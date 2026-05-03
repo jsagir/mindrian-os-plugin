@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 108-04-PLAN.md (parallel with 108-03)
-last_updated: "2026-05-03T11:27:27.483Z"
+stopped_at: Completed 108-03-PLAN.md (TRUTH-STATES.md closed 8-state taxonomy + 10-assertion test harness; Wave 2 parallel-safe with 108-04 aliases.yml)
+last_updated: "2026-05-03T11:48:14.423Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 43
   completed_phases: 22
   total_plans: 187
-  completed_plans: 173
+  completed_plans: 174
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 108 (graph-memory-schema-reconciliation) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
 
 Phase 106-04 closure (2026-05-03):
@@ -213,6 +213,7 @@ Progress: [████████░░] 82%
 | Phase 108-graph-memory-schema-reconciliation P01 | 18min | 2 tasks | 2 files |
 | Phase 108 P02 | 17min | 2 tasks | 2 files |
 | Phase 108-graph-memory-schema-reconciliation P04 | 9min | 2 tasks | 2 files |
+| Phase 108-graph-memory-schema-reconciliation P03 | 30min | 2 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -586,6 +587,9 @@ Progress: [████████░░] 82%
 - [Phase 108]: Plan 108-02: Verbatim Column-Type Specification block added mirroring CONTEXT D-02 lines 107-120 byte-for-byte; serves test harness AND Phase 109 copy-paste reference
 - [Phase 108-graph-memory-schema-reconciliation]: 108-04: In-house YAML parser embedded in test rather than added as dep (zero npm deps per Phase 87 invariant; pattern reused from lib/core/opportunity-ops.cjs:24-118)
 - [Phase 108-graph-memory-schema-reconciliation]: 108-04: All 23 EDGE_TYPES from lib/core/lazygraph-ops.cjs:25 included as EXISTS rows in aliases.yml (RESEARCH 2.4 + Pitfall 3 defense; without this the pre-commit hook in Plan 108-05 would false-positive on legitimate production code)
+- [Phase 108-graph-memory-schema-reconciliation]: 8-state truth-state set is CLOSED: net-new states require canon amendment, not plan deviation
+- [Phase 108-graph-memory-schema-reconciliation]: status_aliases mapping is fixed: untested->proposed, supported->validated, contradicted->invalidated, stale->stale (per RESEARCH section 4)
+- [Phase 108-graph-memory-schema-reconciliation]: transitionStatus(nodeId, fromStatus, toStatus, actorId, reason) chokepoint contract specified for Phase 109; runtime enforcement is Phase 109 not 108
 
 ### Pending Todos
 
@@ -607,6 +611,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-03T11:27:27.469Z
-Stopped at: Completed 108-04-PLAN.md (parallel with 108-03)
+Last session: 2026-05-03T11:48:08.187Z
+Stopped at: Completed 108-03-PLAN.md (TRUTH-STATES.md closed 8-state taxonomy + 10-assertion test harness; Wave 2 parallel-safe with 108-04 aliases.yml)
 Resume file: None
