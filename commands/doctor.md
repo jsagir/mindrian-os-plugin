@@ -1,7 +1,7 @@
 ---
 name: doctor
-description: Diagnose and optionally repair MindrianOS install — detects install-cache drift, .room-root sentinel gaps, active-room guard silence, surface-verification gaps, ROOM.md/MINTO.md drift, and UI Ruling System compliance
-argument-hint: [--fix] [--cascade-rooms] [--verify-surface] [--room-md] [--ui-compliance] [--all] [--json]
+description: Diagnose and optionally repair MindrianOS install — detects install-cache drift, .room-root sentinel gaps, active-room guard silence, surface-verification gaps, ROOM.md/MINTO.md drift, UI Ruling System compliance, and statusline visibility drift
+argument-hint: [--fix] [--cascade-rooms] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--all] [--json]
 body_shape: E (Action Report)
 body_shape_detail: per-class status rows with [before → after] pattern, summary totals, F.1 Next Move selector when drift detected without --fix
 serves_jtbd: ["audit-room"]
@@ -35,12 +35,13 @@ The backup is preserved indefinitely. After 24 hours of normal use, the user can
 Look at the user's invocation:
 
 - `/mos:doctor` (no flag) → run install-cache class A diagnostic only (default; fast)
-- `/mos:doctor --all` → run all classes A-F (per D-09 flag-selectors model)
+- `/mos:doctor --all` → run all classes A-G (per D-09 flag-selectors model)
 - `/mos:doctor --cascade-rooms` → class B (.room-root sentinel) + class C (active-room guard silence) checks
 - `/mos:doctor --verify-surface` → class D live cascade end-to-end via test/fixtures/cascade-surface-e2e/
 - `/mos:doctor --room-md` → class E (ROOM.md/MINTO.md presence under .room-root subtrees)
 - `/mos:doctor --ui-compliance` → class F (UI Ruling System scan across commands/*.md and scripts/*.cjs)
-- `/mos:doctor --fix` → diagnostic + auto-recovery for any class that supports --fix (class A, B, E)
+- `/mos:doctor --statusline-visibility` → class G — checks user-settings drift, plugin install integrity, and statusline-mos isolated execution
+- `/mos:doctor --fix` → diagnostic + auto-recovery for any class that supports --fix (class A, B, E, G)
 - `/mos:doctor --json` → machine-readable output (for hooks / regression tests)
 
 Combine flags freely: `/mos:doctor --all --json --fix`.

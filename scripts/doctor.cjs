@@ -54,6 +54,7 @@ function parseArgs(argv) {
   const flags = {
     fix: false, json: false, verbose: false,
     cascadeRooms: false, verifySurface: false, roomMd: false, uiCompliance: false,
+    statuslineVisibility: false,
     all: false, simulateWrite: null,
     scanCommandsDir: null, scanScriptsDir: null,
   };
@@ -65,6 +66,7 @@ function parseArgs(argv) {
     else if (arg === '--verify-surface') flags.verifySurface = true;
     else if (arg === '--room-md') flags.roomMd = true;
     else if (arg === '--ui-compliance') flags.uiCompliance = true;
+    else if (arg === '--statusline-visibility') flags.statuslineVisibility = true;
     else if (arg === '--all') flags.all = true;
     else if (arg.startsWith('--simulate-write=')) flags.simulateWrite = arg.slice('--simulate-write='.length);
     else if (arg.startsWith('--scan-commands=')) flags.scanCommandsDir = arg.slice('--scan-commands='.length);
@@ -80,6 +82,7 @@ function parseArgs(argv) {
     flags.verifySurface = true;
     flags.roomMd = true;
     flags.uiCompliance = true;
+    flags.statuslineVisibility = true;
   }
   return flags;
 }
@@ -90,11 +93,12 @@ function usageText() {
 Default (no flag) runs class A install-cache check only.
 
 Class flags (combine freely; --all activates them all):
-  --cascade-rooms      class B (.room-root sentinel) + class C (active-room guard silence)
-  --verify-surface     class D (live cascade end-to-end against test fixture)
-  --room-md            class E (ROOM.md/MINTO.md presence under .room-root)
-  --ui-compliance      class F (UI Ruling System scan)
-  --all                activate all class flags
+  --cascade-rooms          class B (.room-root sentinel) + class C (active-room guard silence)
+  --verify-surface         class D (live cascade end-to-end against test fixture)
+  --room-md                class E (ROOM.md/MINTO.md presence under .room-root)
+  --ui-compliance          class F (UI Ruling System scan)
+  --statusline-visibility  class G (user-settings drift, plugin install integrity, statusline-mos isolated execution)
+  --all                    activate all class flags
 
 Behavior flags:
   --fix                attempt auto-recovery for each class that supports it
@@ -818,6 +822,207 @@ function checkUIRulingCompliance(opts) {
   };
 }
 
+// -- Class G: statusline visibility (Phase 106-03) -------------------
+//
+// Per Phase 106 D-03 / RESEARCH §4.3: Claude Code provides no signal when
+// the statusline fails to render. Class G probes four signals locally:
+//   1. Stale ~/.claude/settings.json statusLine.command pinned at a
+//      version-cache path that no longer exists (the 2026-04-26 Aryeh
+//      Holtzberg incident pattern). Status: warn / recoverable=true.
+//   2. Plugin's own settings.json statusLine.command points at a file
+//      that does not resolve. Status: error / recoverable=false (broken
+//      install, --fix cannot help).
+//   3. statusline-mos isolated execution: spawn the script with synthetic
+//      stdin payload; require exit 0 + a recognizable brand prefix in
+//      stdout (after stripping ANSI). Status: error/warn / recoverable=false.
+//   4. disableAllHooks=true in user settings. Status: warn / recoverable=
+//      false (user opt-out; --fix would not unblock).
+//
+// Surface detect (Plan 106-04 will swap this for the surface-detect
+// helper): CLAUDE_DESKTOP=1 -> status=skip (Desktop has no statusline
+// primitive; D-04 fallback applies).
+//
+// --fix dispatch: when status='warn' AND recoverable, performStatuslineFix()
+// spawns scripts/migrate-stale-user-settings.cjs --apply --quiet (D-01),
+// re-runs checkStatuslineVisibility, and pushes the recovery record onto
+// report.recovered[].
+//
+// Locked --fix language per RESEARCH Open Question #6:
+//   "removes stale user-settings.json statusLine override so plugin-level
+//    config takes effect"
+// (NOT "regenerates" -- removal is the mechanism; plugin-level config wins
+// the merge once the user-level entry is gone.)
+
+const STALE_STATUSLINE_PATH_REGEX = /plugins[\/\\]cache[\/\\][^\/\\]+[\/\\]mos[\/\\]\d+\.\d+\.\d+[\/\\]/;
+
+// Strip ANSI escape sequences before brand-prefix matching. The plugin's
+// statusline emits ANSI color codes BEFORE the brand glyph, so a naive
+// startsWith check would always fail.
+function stripAnsi(s) {
+  return String(s || '').replace(/\[[0-9;]*m/g, '');
+}
+
+function checkStatuslineVisibility() {
+  const evidence = [];
+
+  // Step 0 -- surface detection. Plan 106-04 will replace this with the
+  // canonical surface-detect helper. For Phase 106-03 the contract is a
+  // simple env-var probe so the plan can ship + tests can fence the
+  // skip semantic.
+  if (process.env.CLAUDE_DESKTOP === '1') {
+    return {
+      status: 'skip',
+      detail: 'Desktop has no statusline primitive -- D-04 fallback applies',
+      evidence: ['CLAUDE_DESKTOP=1 detected'],
+      recoverable: false,
+    };
+  }
+
+  // Step 1 -- ~/.claude/settings.json user-level drift.
+  const userSettingsPath = path.join(os.homedir(), '.claude', 'settings.json');
+  let userSettings = null;
+  try {
+    if (fs.existsSync(userSettingsPath)) {
+      userSettings = JSON.parse(fs.readFileSync(userSettingsPath, 'utf8'));
+    }
+  } catch (_e) { /* ignore parse errors; treat as null */ }
+
+  if (userSettings && userSettings.disableAllHooks === true) {
+    return {
+      status: 'warn',
+      detail: 'disableAllHooks=true blocks statusline',
+      evidence: [userSettingsPath + ': disableAllHooks=true'],
+      recoverable: false,
+    };
+  }
+  if (userSettings && userSettings.statusLine && typeof userSettings.statusLine.command === 'string') {
+    const cmd = userSettings.statusLine.command;
+    if (STALE_STATUSLINE_PATH_REGEX.test(cmd)) {
+      // Extract a path token from the command string. Try a unix or windows
+      // absolute-path match first.
+      const match = cmd.match(/(\/[^\s"']+|[A-Za-z]:\\[^\s"']+)/);
+      const candidate = match ? match[0] : cmd;
+      if (!fs.existsSync(candidate)) {
+        return {
+          status: 'warn',
+          detail: 'stale user-settings statusLine path',
+          evidence: [userSettingsPath + ': command points at non-existent ' + candidate],
+          recoverable: true,
+        };
+      }
+    }
+  }
+
+  // Step 2 -- plugin's own settings.json statusLine.command must resolve.
+  const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..');
+  const pluginSettingsPath = path.join(pluginRoot, 'settings.json');
+  let pluginSettings = null;
+  try {
+    if (fs.existsSync(pluginSettingsPath)) {
+      pluginSettings = JSON.parse(fs.readFileSync(pluginSettingsPath, 'utf8'));
+    }
+  } catch (_e) { /* ignore */ }
+  if (pluginSettings && pluginSettings.statusLine && typeof pluginSettings.statusLine.command === 'string') {
+    // Manually substitute ${CLAUDE_PLUGIN_ROOT} so we can verify the file exists.
+    const resolved = pluginSettings.statusLine.command.replace(/\$\{CLAUDE_PLUGIN_ROOT\}/g, pluginRoot);
+    const targetMatch = resolved.match(/(\/[^\s"']+|[A-Za-z]:\\[^\s"']+)/);
+    const target = targetMatch ? targetMatch[0] : null;
+    if (target && !fs.existsSync(target)) {
+      return {
+        status: 'error',
+        detail: 'plugin install corrupt',
+        evidence: ['plugin statusLine.command resolves to non-existent ' + target],
+        recoverable: false,
+      };
+    }
+    if (target) evidence.push('plugin statusLine.command resolved to ' + target);
+  }
+
+  // Step 3 -- statusline-mos isolated execution. Synthetic stdin + 1500ms
+  // timeout so a hanging script is treated as broken.
+  const statuslineMos = path.join(pluginRoot, 'scripts', 'statusline-mos');
+  if (!fs.existsSync(statuslineMos)) {
+    return {
+      status: 'error',
+      detail: 'plugin install corrupt',
+      evidence: ['scripts/statusline-mos missing at ' + statuslineMos],
+      recoverable: false,
+    };
+  }
+  const SYNTHETIC = {
+    model: { display_name: 'Test' },
+    workspace: { current_dir: '/tmp' },
+    context_window: { used_percentage: 0, remaining_percentage: 100, context_window_size: 200000 },
+  };
+  let r;
+  try {
+    r = require('child_process').spawnSync(statuslineMos, [], {
+      input: JSON.stringify(SYNTHETIC),
+      encoding: 'utf8',
+      timeout: 1500,
+    });
+  } catch (err) {
+    return {
+      status: 'error',
+      detail: 'statusline-mos spawn failed: ' + err.message,
+      evidence: [],
+      recoverable: false,
+    };
+  }
+  if (r.status !== 0) {
+    return {
+      status: 'error',
+      detail: 'statusline-mos exit ' + r.status,
+      evidence: [r.stderr ? r.stderr.slice(0, 500) : '(no stderr)'],
+      recoverable: false,
+    };
+  }
+  const out = stripAnsi(r.stdout || '').trim();
+  // Brand prefix per lib/core/visual-ops.cjs SYMBOLS.brand (⬡ hexagon)
+  // followed by a space + 'MindrianOS'. The bash wrapper statusline-mos
+  // execs context-monitor which produces this prefix on every healthy run.
+  // Empty stdout (cache not populated yet) is also acceptable -- the
+  // wrapper exits 0 silently in that case to let Claude Code render its
+  // default statusline. We only fail when stdout is non-empty AND lacks
+  // the brand prefix.
+  if (out.length > 0) {
+    const validPrefix = out.startsWith('⬡ MindrianOS') || out.startsWith('🏠 MindrianOS');
+    if (!validPrefix) {
+      return {
+        status: 'warn',
+        detail: 'script output unexpected',
+        evidence: ['first 80 chars: ' + out.slice(0, 80)],
+        recoverable: false,
+      };
+    }
+    evidence.push('statusline-mos produced expected brand prefix');
+  } else {
+    evidence.push('statusline-mos exited 0 with no output (cache not populated; default Claude Code statusline applies)');
+  }
+  return {
+    status: 'ok',
+    detail: 'statusline rendering correctly',
+    evidence,
+    recoverable: false,
+  };
+}
+
+function performStatuslineFix(_currentCheck) {
+  const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..');
+  const migrator = path.join(pluginRoot, 'scripts', 'migrate-stale-user-settings.cjs');
+  const r = require('child_process').spawnSync('node', [migrator, '--apply', '--quiet'], {
+    encoding: 'utf8',
+    timeout: 5000,
+  });
+  return {
+    tool: 'migrate-stale-user-settings',
+    action: 'removes stale user-settings.json statusLine override so plugin-level config takes effect',
+    exit_code: typeof r.status === 'number' ? r.status : -1,
+    stdout: (r.stdout || '').slice(0, 500),
+    stderr: (r.stderr || '').slice(0, 500),
+  };
+}
+
 // -- Renderers -------------------------------------------------------
 
 // Phase 95.1-04 retrofit: 4-zone Shape E (Action Report) per skills/ui-system/SKILL.md.
@@ -874,13 +1079,26 @@ function renderHumanReport(report) {
   }
   // status=skip silently omitted (acceptable for end users without dev clone).
 
-  // Slot for class B/C/D/E/F rows -- populated by Plans 95.1-05 + 95.1-06 via
-  // report.checks.* extension. Each new check reads from report.checks[name]
-  // and pushes rows in the same Shape-E format: filled-square + class label
-  // + status glyph + detail.
+  // Slot for class B/C/D/E/F/G rows -- populated by Plans 95.1-05 + 95.1-06
+  // and Plan 106-03 via report.checks.* extension. Each new check reads from
+  // report.checks[name] and pushes rows in the same Shape-E format:
+  // filled-square + class label + status glyph + detail. Glyphs come from
+  // the 12-glyph vocabulary already used by classes A-F (✓/⚠/✗/⊘) so the
+  // class F UI compliance scanner does not flag this renderer.
   if (report.checks) {
+    const stl = report.checks['statusline-visibility'];
+    if (stl) {
+      let glyph;
+      let color;
+      if (stl.status === 'ok') { glyph = '✓'; color = C.green; }
+      else if (stl.status === 'warn') { glyph = '⚠'; color = C.yellow; }
+      else if (stl.status === 'error') { glyph = '✗'; color = C.red; }
+      else { glyph = '⊘'; color = C.dim; } // skip
+      bodyRows.push('  ' + color + '■' + C.reset + ' statusline-visibility       ' + color + glyph + C.reset + ' ' + (stl.detail || stl.status));
+    }
     for (const [name, _check] of Object.entries(report.checks)) {
       if (name === 'install-cache') continue; // already handled above.
+      if (name === 'statusline-visibility') continue; // rendered above.
       // Future: render check.detail rows here using the same idiom.
     }
   }
@@ -975,12 +1193,12 @@ function main() {
   const cacheResult = checkMarketplaceCache();
   const devResult = checkDevSourceConsistency();
 
-  // Detect whether any class B/C/D/E/F flag was activated -- when YES the
+  // Detect whether any class B/C/D/E/F/G flag was activated -- when YES the
   // doctor run is in "class-flag mode" (graceful degradation per Canon Part
   // 8 invariant): class A install/cache issues become informational, never
   // hard exits, and warnings from new checks return 0 unless --fix-failed.
   const classFlagsActive = flags.cascadeRooms || flags.verifySurface
-    || flags.roomMd || flags.uiCompliance;
+    || flags.roomMd || flags.uiCompliance || flags.statuslineVisibility;
 
   const report = {
     install: installResult,
@@ -1052,6 +1270,17 @@ function main() {
     }
   }
 
+  // Class G: statusline visibility (Phase 106-03). Probes user-settings drift,
+  // plugin install integrity, statusline-mos isolated execution, and
+  // disableAllHooks user opt-out.
+  if (flags.statuslineVisibility) {
+    try {
+      report.checks['statusline-visibility'] = checkStatuslineVisibility();
+    } catch (err) {
+      report.checks['statusline-visibility'] = { status: 'error', detail: err.message };
+    }
+  }
+
   // Class E --fix dispatch: invoke generator + re-check.
   if (flags.fix && flags.roomMd && report.checks['room-md'] && report.checks['room-md'].status === 'warn') {
     try {
@@ -1063,6 +1292,24 @@ function main() {
       catch (err) { report.checks['room-md'] = { status: 'error', detail: err.message, missing: [] }; }
     } catch (err) {
       report.recovered.push({ status: 'error', detail: err.message, tool: 'generate-section-intelligence' });
+    }
+  }
+
+  // Class G --fix dispatch: invoke migrate-stale-user-settings.cjs + re-check.
+  // Gated on status='warn' AND recoverable=true so disableAllHooks (recoverable
+  // false) never triggers the migrator -- the user opted out of hooks; --fix
+  // cannot help, see RESEARCH §4.3.
+  if (flags.fix && flags.statuslineVisibility
+      && report.checks['statusline-visibility']
+      && report.checks['statusline-visibility'].status === 'warn'
+      && report.checks['statusline-visibility'].recoverable !== false) {
+    try {
+      const recovery = performStatuslineFix(report.checks['statusline-visibility']);
+      report.recovered.push(recovery);
+      try { report.checks['statusline-visibility'] = checkStatuslineVisibility(); }
+      catch (err) { report.checks['statusline-visibility'] = { status: 'error', detail: err.message }; }
+    } catch (err) {
+      report.recovered.push({ status: 'error', detail: err.message, tool: 'migrate-stale-user-settings' });
     }
   }
 
