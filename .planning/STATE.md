@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: "Wave 1 complete: 106-01 + 106-02 + 106-03 all closed (D-01 self-heal + D-02 broadcast + D-03 doctor class G); 16 commits + 27 new tests; ready for phase verification"
-last_updated: "2026-05-03T09:35:00.000Z"
+stopped_at: "Phase 106 Plan 04 complete: D-04 fallback echo + D-06 surface-detect helper shipped; lib/statusline/* + scripts/statusline-fallback-echo.cjs + doctor.cjs Step 0 swap + 18 own + 14 sibling regression tests PASS; STATUS-106-04 + STATUS-106-06 Complete; only Plan 106-05 release gate remains"
+last_updated: "2026-05-03T11:30:00.000Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 38
@@ -26,8 +26,16 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 106 (statusline-visibility-context-window-broadcast) — EXECUTING
-Plan: 4 of 6 complete (Wave 1 closed: 106-01 + 106-02 + 106-03 all on main; 106-04 + 106-05 still planned-only)
-Status: Wave 1 done; cherry-pick reconciliation closed conflict between 106-01 worktree and 106-02/03 mainline; ready for phase verification
+Plan: 5 of 6 complete (Wave 1 + 106-04 of Wave 2 closed; only 106-05 release gate remains)
+Status: 106-04 done (D-04 fallback echo + D-06 surface-detect helper shipped); 18 own tests + 14 sibling regression tests PASS; doctor.cjs Class F UI scan reports 0 NEW violations; Feynman runner 164/169 (parity with Wave-1 baseline)
+
+Phase 106-04 closure (2026-05-03):
+
+- 735ea4f test(106-04): replace 3 Wave 0 stubs with RED tests for D-04 + D-06
+- 63ce69f feat(106-04): add lib/statusline + statusline-fallback-echo (D-04 + D-06 GREEN)
+- 4c20515 refactor(106-04): swap doctor.cjs Step 0 + banner-test require + class-g surface override
+
+Phase 106-04 outcome: D-04 fallback echo + D-06 per-surface routing shipped. lib/statusline/banner-suppression.cjs extracts the inline shouldSuppress() contract from 106-03; lib/statusline/surface-detect.cjs is the canonical detectStatuslineSurface() returning 'CLI' | 'DESKTOP' | 'COWORK' literals (distinct from lib/mcp/surface-detect.cjs which uses lowercase + transport field for MCP server startup); scripts/statusline-fallback-echo.cjs composes a Larry-rendered prose state echo for surfaces where the rich statusline cannot fire (Desktop has no statusline primitive; Cowork's widget surface is partial); scripts/doctor.cjs Step 0 inline CLAUDE_DESKTOP=1 probe replaced with require + helper call (graceful catch-block fallback preserves Test 5 regression contract); tests/test-statusline-banner-suppression.cjs swapped from inline copy to require('../lib/statusline/banner-suppression.cjs') (5/5 PASS byte-identical). 32 assertions across 6 test files all PASS (6 + 7 + 5 + 5 + 6 + 3). One deviation Rule 3: tests/test-doctor-class-g.cjs + test-doctor-class-g-fix.cjs runDoctor() helpers updated to inject MINDRIAN_STATUSLINE_SURFACE=CLI when the test does not opt out via CLAUDE_DESKTOP / COWORK_SESSION_ID — non-TTY child-process spawnSync would otherwise be reclassified to DESKTOP by the new helper (safe-default branch) and skip class G. STATUS-106-04 + STATUS-106-06 flipped to Complete. Only STATUS-106-05 + v1.12.5 release gate remain (Plan 106-05).
 
 Phase 106-01 closure (2026-05-03):
 

@@ -910,13 +910,98 @@ Plans:
 
 **Canon parts:** Part 3 (statusline is a LOCAL-context surface for the Decision Gate), Part 6 (dog-fooding -- testers reported 2026-05-02 they can't see MindrianOS while it eats their context), Part 8 (telemetry must stay LOCAL: JSONL with sha256-hashed room slug, never raw content).
 
-**Plans:** 4/6 plans executed
+**Plans:** 5/6 plans executed
 
 Plans:
 - [x] 106-00-PLAN.md — Wave 0 scaffold (REQ IDs + test stubs + fixture directories + ROADMAP plans list)
 - [x] 106-01-PLAN.md — D-01 self-healing settings via SessionStart hook (productionize migrate-stale-user-settings.cjs)
 - [x] 106-02-PLAN.md — D-02 context-monitor token-budget + operator + JTBD broadcast glyphs
 - [x] 106-03-PLAN.md — D-03 doctor.cjs class G invisibility detection + one-time banner + --fix dispatch
-- [ ] 106-04-PLAN.md — D-04 fallback echo + D-06 surface-detect helper (CLI / Desktop / Cowork heuristics)
+- [x] 106-04-PLAN.md — D-04 fallback echo + D-06 surface-detect helper (CLI / Desktop / Cowork heuristics)
 - [ ] 106-05-PLAN.md — D-05 tester onboarding gate + v1.12.5 release gate (CHANGELOG + plugin.json + package.json + git tag + marketplace ref)
+
+
+### Phases 108–113: Graph Memory Cluster — Cross-Cutting Note
+
+**Opportunity Bank is the key reference point across all five phases** (per user directive 2026-05-03). The Bank (Canon Part 2 Engine 1; `lib/core/opportunity-ops.cjs` + `opportunity-extractor.cjs`; HSI-scored, domain-tagged, REACT/REFLECT/ADD interactions, always-ambient, LOCAL-only per Canon Part 8) threads through every phase: 108 formalizes `opportunity` as a first-class node + `BANKED_BY` / `RANKS_OPPORTUNITY` / `ANSWERS_OPPORTUNITY` edges; 109 ships `findRelevantOpportunities` as a navigation primitive AND surfaces `banked_opportunities` in every Brain Packet; 110 includes `opportunity_react` / `opportunity_reflect` / `opportunity_rank` Brain jobs and treats banked opportunities as ambient context in every packet; 112 boosts opportunity nodes in PPR + RRF when JTBD matches their domain tags + treats opportunity coherence as a Room Budding signal; 113 ports the Bank for free with the SQLite-WASM port and makes Canon Part 2 "always ambient" + Canon Part 8 "LOCAL-only" *trivially* true in the browser.
+
+The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain a venture reasoning graph, not a generic document graph."** Pinned forever at the top of Phase 112.
+
+---
+
+### Phase 108: Graph Memory Schema Reconciliation (REGISTERED 2026-05-03)
+
+**Goal:** Prevent schema drift before Phase 109 ships the SQL navigation spine. Reconcile the Codex-proposed claim/assumption/evidence/decision/open-question taxonomy against existing Mindrian edge/node reality (Phase 87 typed edges, Phase 89 REVERSE_SALIENT, Phase 90 BRAIN.md, Phase 88 Feynman-MINTO triple, Phase 99 across-session memory) — and formalize `opportunity` as a first-class node type alongside the new claim/assumption/evidence taxonomy. Ship six document-only deliverables: canonical node taxonomy, canonical edge taxonomy, provenance field contract, truth-state taxonomy (proposed/confirmed/rejected/stale/superseded/needs_evidence/validated/invalidated), alias table, "do not invent parallel schema" pre-commit guardrail. Embed the Canon Part 9 (Memory Locality and Interpretation) amendment proposal as a deliverable; ratification deferred to Phase 109 release gate. **Zero implementation in this phase by design** — the discipline is reconcile first, implement second.
+
+**Requirements**: RECONCILE-108-01, RECONCILE-108-02, RECONCILE-108-03, RECONCILE-108-04, RECONCILE-108-05, RECONCILE-108-06
+
+**Depends on:** Read-only dependency on Phase 87 (cascade refactor — INFORMS / CONTRADICTS / CONVERGES / INVALIDATES / ENABLES), Phase 88 (Feynman-MINTO triple), Phase 89 (REVERSE_SALIENT edge), Phase 90 (BRAIN.md derivation + proposed-vs-confirmed pattern), Phase 99 (smart-notebook + across-session memory). No code changes to those phases; Phase 108 documents and reconciles only.
+
+**Canon parts:** Part 4 (Every Choice Is Graph Data), Part 7 (Reuse Before Build — must justify any NEW node/edge type per the alias table), Part 9 (Memory Locality and Interpretation — proposed amendment ratified at Phase 109 release gate).
+
+**Plans:** TBD by `/gsd:plan-phase 108` — heuristic estimate 6-7 plans across 3 waves
+
+**Authority**: `.planning/phases/108-graph-memory-schema-reconciliation/108-CONTEXT.md`. Research provenance: `.planning/research/2026-05-03-codex-graph-memory-proposal.md` and `.planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md`.
+
+
+### Phase 109: SQL Context-Memory Navigation Spine (REGISTERED 2026-05-03 — LOAD-BEARING)
+
+**Goal:** Make `room.db` the primary local context, memory, and insight navigation engine for Larry. Ship eight navigation-behavior deliverables: focus node model (every session has one current focus), typed neighborhood retrieval (ranked nodes by edge type + depth + recency + confidence + section relevance), memory event log (events not just latest state), six insight query primitives (`find_contradictions`, `find_unsupported_claims`, `find_blocking_assumptions`, `find_stale_decisions`, `find_open_questions`, `find_recent_changes`), navigation API (`lib/core/navigation.cjs` — single chokepoint; pre-commit hook fails any direct `room.db` access elsewhere), Brain Packet Builder (`buildBrainPacket(job, focusNodeId)` — schema lives in Phase 110), Brain Result Ingestion (Brain writes always land as `review_status: proposed`), Room Home Driver (replaces ad-hoc folder scans). **Acceptance test:** given a focus node, Mindrian retrieves+ranks+explains+packets WITHOUT scanning the whole Room (instrumented: zero file reads beyond SQLite WAL during the flow). **Canon Part 9 ratified at this release gate** (merged from `.planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md` into `docs/MINDRIAN-CANON.md`).
+
+**Requirements**: NAV-109-01, NAV-109-02, NAV-109-03, NAV-109-04, NAV-109-05, NAV-109-06, NAV-109-07, NAV-109-08, NAV-109-09
+
+**Depends on:** Phase 108 (HARD prerequisite — schema reconciliation must ship first; Phase 109 cannot start while taxonomy is unfrozen). Reuses Phase 99 operator state, Phase 100 JTBD state, Phase 106 statusline (extends to surface active focus), Phase 90 BRAIN.md derivation pattern (proposed-vs-confirmed precedent).
+
+**Canon parts:** Part 1 (Wicked Navigator — working memory made legible), Part 3 (Tri-Context Decision Gate — consumes navigation output as the LOCAL context), Part 4 (Every Choice Is Graph Data — every state change is a memory_event), Part 8 (Graph Boundary — D-06 + D-07 honor it; Phase 110 hardens via wire schema), Part 9 (Memory Locality and Interpretation — RATIFIED here).
+
+**Plans:** TBD by `/gsd:plan-phase 109` — heuristic estimate 9-12 plans across 4 waves
+
+**Authority**: `.planning/phases/109-sql-context-memory-navigation-spine/109-CONTEXT.md`. The phase guardrail (Codex via Jonathan, 2026-05-03): "Do not let Phase 109 become 'more SQL tables.' It must define navigation behavior."
+
+
+### Phase 110: Brain Context Packet Contract (REGISTERED 2026-05-03 — STUB)
+
+**Goal:** Turn Canon Part 8 from "we audit for leaks" into "the wire format makes leaks structurally harder." Ship a typed JSON Schema for Brain Context Packets, per-job allowed input/output shapes for the closed-vocabulary Brain jobs (`select_methodology`, `suggest_next_move`, `detect_contradiction`, `summarize_neighborhood`, `classify_room_budding`, `rank_assumptions`, `generate_feynman_explanation`, `strengthen_minto`, `prepare_investor_brief`), privacy modes with explicit user opt-in, schema validator middleware in `lib/core/brain-client.cjs` (invalid packets refuse to send, invalid responses refuse to ingest), test suite proving Canon Part 8 invariants hold for every shipped job type, dual-path rollout (legacy free-form + typed packet) deprecating to typed-only.
+
+**Requirements**: TBD (PACKET-110-01..NN — defined when CONTEXT.md is expanded post Phase 109)
+
+**Depends on:** Phase 109 (uses `buildBrainPacket` and `storeBrainSuggestions` APIs from the navigation spine).
+
+**Canon parts:** Part 8 (Graph Boundary — hardened from procedural to architectural), Part 9 (Memory Locality — Brain reasons over packets, never raw memory).
+
+**Plans:** TBD — phase is stubbed; full CONTEXT to be expanded after Phase 109 navigation API is reviewed.
+
+**Authority**: `.planning/phases/110-brain-context-packet-contract/110-CONTEXT.md` (stub).
+
+
+### Phase 112: GraphRAG-Informed Room Retrieval + Room Budding (REGISTERED 2026-05-03 — STUB)
+
+**Goal:** Bring lessons from `automataIA/graphrag-rs` into Mindrian's typed-edge spine WITHOUT flattening the venture-reasoning ontology. Add to Phase 109's navigation API: dual-level retrieval (low-level entity/claim/artifact + high-level folder/community), RRF fusion at k=60, personalized PageRank rooted at the active focus node (not global), semantic dedup pre-pass at ~0.85 cosine, local embedding cache in `room.db` with backend chain (Ollama → ONNX-WASM → hash fallback), optional Leiden communities over typed edges. Visible product feature: **Room Budding** — when Phase 106 context-window pressure + topic drift cross threshold, Larry surfaces "This thread has become Anthropic partnership strategy. Create a linked Room?" — APPROVE writes BUDDED_FROM + SHARES_ASSUMPTION_WITH edges (names reserved in Phase 108).
+
+**Requirements**: TBD (RETRIEVE-112-01..NN — defined when CONTEXT.md is expanded post Phase 106 + Phase 109)
+
+**Depends on:** Phase 106 (statusline + context-window broadcast — Room Budding triggers off context pressure) AND Phase 109 (SQL navigation spine — retrieval algorithms run over the navigation API). HARD on both.
+
+**Canon parts:** Part 1 (Wicked Navigator — Room Budding is the hero's-journey sub-quest), Part 4 (Every Choice Is Graph Data — BUDDED_FROM edges), Part 9 (Memory Locality — retrieval over SQL spine, never raw scan).
+
+**Plans:** TBD — phase is stubbed; full CONTEXT to be expanded after Phase 106 ships AND Phase 109 navigation API is reviewed.
+
+**Operating constraint** (Codex's strongest line, applies above all other phases here): "Do not let GraphRAG flatten Mindrian's richer ontology. Mindrian should remain a venture reasoning graph, not a generic document graph."
+
+**Authority**: `.planning/phases/112-graphrag-retrieval-room-budding/112-CONTEXT.md` (stub). Note: Phase 111 is taken (`cascade-decomposition`) — that is why this phase is 112, not 111.
+
+
+### Phase 113: WASM Everywhere Spike (REGISTERED 2026-05-03 — STRATEGIC SPIKE, DEFERRED)
+
+**Goal:** Strategic spike, NOT a feature phase. graphrag-rs proved the full GraphRAG pipeline runs 100% in the browser (sql.js + WebLLM + ONNX-WASM + IndexedDB). This spike asks: can MindrianOS do the same, and if yes, does it REPLACE the hosted v3.0 "Everywhere" thesis (Arc 6 per `MILESTONES-NAMING.md`), COEXIST with it as a privacy-first variant, or get REJECTED on quality/scale limits? Spike output: working browser demo (single-user, single-room, no server) + decision memo at `docs/strategy/2027-v3-wasm-vs-hosted-decision.md`. If REPLACE or COEXIST, `MILESTONES-NAMING.md` Arc 6 thesis gets rewritten in the same release.
+
+**Requirements**: TBD — spike-grade; small team, time-boxed, output is memo + demo not a product release.
+
+**Depends on:** Phase 112 (proven retrieval stack to port) AND a v3.0 strategy decision (Arc 6 "Everywhere" recalibration must be on the table — not yet on the calendar). Both HARD.
+
+**Canon parts:** Part 1 (Wicked Navigator — distribution beyond CLI), Part 8 (Graph Boundary — strengthened: no server means no leakage surface), Part 9 (Memory Locality — IndexedDB IS the local mind in the browser).
+
+**Plans:** TBD — likely 1-2 plans only (this is research, not implementation).
+
+**Authority**: `.planning/phases/113-wasm-everywhere-spike/113-CONTEXT.md` (stub). The thesis question this spike answers: *"Does Mindrian's intelligence survive without infrastructure?"*
 

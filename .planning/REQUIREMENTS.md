@@ -365,6 +365,6 @@
 | STATUS-106-01 | Phase 106 | Complete |
 | STATUS-106-02 | Phase 106 | Complete |
 | STATUS-106-03 | Phase 106 | Complete |
-| STATUS-106-04 | Phase 106 | Pending |
+| STATUS-106-04 | Phase 106 | Complete |
 | STATUS-106-05 | Phase 106 | Pending |
-| STATUS-106-06 | Phase 106 | Pending |
+| STATUS-106-06 | Phase 106 | Complete |
