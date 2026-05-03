@@ -33,14 +33,20 @@
  * make sense for actual user customization, not for stale auto-written paths.
  *
  * USAGE:
- *   node scripts/migrate-stale-user-settings.cjs           # dry run
- *   node scripts/migrate-stale-user-settings.cjs --apply   # actually edit
+ *   node scripts/migrate-stale-user-settings.cjs               # dry run
+ *   node scripts/migrate-stale-user-settings.cjs --apply       # actually edit
+ *   node scripts/migrate-stale-user-settings.cjs --auto        # detect-only, hook envelope
+ *   node scripts/migrate-stale-user-settings.cjs --auto --quiet # hook-friendly: envelope-only stdout
  *
  * Output:
  *   Reports each detected stale entry. Apply mode backs up settings.json
- *   to settings.json.bak.<timestamp> before editing.
+ *   to settings.json.bak.<timestamp> before editing. Auto mode emits a
+ *   Claude Code SessionStart envelope (continue:true + optional
+ *   additionalContext warning); never modifies the user's file.
  *
- * Reference: Phase 90 hotfix doc 2026-04-26.
+ * Reference: Phase 90 hotfix doc 2026-04-26 (initial dry-run/--apply tool).
+ *            Phase 106-01 D-01 productionizes --auto + --quiet for the
+ *            SessionStart hook (STATUS-106-01).
  */
 
 'use strict';
@@ -50,7 +56,10 @@ const path = require('node:path');
 const os = require('node:os');
 
 const SETTINGS_PATH = path.join(os.homedir(), '.claude', 'settings.json');
-const APPLY = process.argv.includes('--apply');
+const argv = process.argv.slice(2);
+const APPLY = argv.includes('--apply');
+const AUTO  = argv.includes('--auto');
+const QUIET = argv.includes('--quiet');
 
 // Patterns that identify a stale MOS path:
 // - Contains "plugins/cache/.../mos/<version>/" (version-pinned, indicates
@@ -58,6 +67,33 @@ const APPLY = process.argv.includes('--apply');
 // - Or absolute path containing /mindrian-os/ or /mos/ + /scripts/
 const STALE_PATH_REGEX = /plugins[\/\\]cache[\/\\][^\/\\]+[\/\\]mos[\/\\]\d+\.\d+\.\d+[\/\\]/;
 const PLUGIN_OWNS_KEYS = ['statusLine', 'hooks'];
+
+// ----- envelope schema allowlist (Phase 95 BASH-95-01; mirrored from operator-update.cjs) -----
+// Phase 106-01 D-01: --auto mode emits a Claude Code SessionStart envelope so the
+// migrator can run as a hook without printing free-form text. --quiet suppresses
+// header chatter so stdout is envelope-only when both flags are combined.
+const ENVELOPE_ALLOWED = new Set([
+  'decision',
+  'reason',
+  'continue',
+  'stopReason',
+  'suppressOutput',
+  'systemMessage',
+  'hookSpecificOutput',
+]);
+
+function emitEnvelope(obj) {
+  const filtered = {};
+  for (const k of Object.keys(obj || {})) {
+    if (ENVELOPE_ALLOWED.has(k)) filtered[k] = obj[k];
+  }
+  if (filtered.continue === undefined) filtered.continue = true;
+  process.stdout.write(JSON.stringify(filtered));
+}
+
+function logHeader(line) {
+  if (!QUIET) console.log(line);
+}
 
 function loadSettings() {
   if (!fs.existsSync(SETTINGS_PATH)) {
@@ -119,40 +155,83 @@ function applyMigration(settings, findings) {
 }
 
 function main() {
-  console.log(`migrate-stale-user-settings: scanning ${SETTINGS_PATH}`);
-  console.log(`Mode: ${APPLY ? 'APPLY (will edit)' : 'DRY RUN (no changes)'}`);
-  console.log('');
+  logHeader(`migrate-stale-user-settings: scanning ${SETTINGS_PATH}`);
+  let mode;
+  if (AUTO) mode = 'AUTO (detect-only, hook envelope)';
+  else if (APPLY) mode = 'APPLY (will edit)';
+  else mode = 'DRY RUN (no changes)';
+  logHeader(`Mode: ${mode}`);
+  logHeader('');
 
   const settings = loadSettings();
   if (!settings) {
-    console.log('No settings.json found or parse failed -- nothing to migrate.');
+    logHeader('No settings.json found or parse failed -- nothing to migrate.');
+    if (AUTO) {
+      // Hook-friendly mode: emit empty envelope and exit 0.
+      emitEnvelope({ continue: true });
+    }
+    process.exit(0);
+  }
+
+  // Phase 106-01: disableAllHooks edge case. When the user has disabled all hooks
+  // in their settings.json, --auto cannot self-heal anything (the migrator hook
+  // itself would not have run, but if it did via direct CLI we still surface the
+  // distinct guidance). Per RESEARCH section 3.3 this gets its own envelope message
+  // so users see why /mos:doctor --fix won't help.
+  if (AUTO && settings.disableAllHooks === true) {
+    emitEnvelope({
+      continue: true,
+      hookSpecificOutput: {
+        hookEventName: 'SessionStart',
+        additionalContext: 'MindrianOS hooks are disabled in your settings. Set disableAllHooks=false to re-enable the statusline.',
+      },
+    });
     process.exit(0);
   }
 
   const findings = findStaleEntries(settings);
 
-  if (findings.length === 0) {
-    console.log('PASS: no stale MOS paths detected in user settings.');
+  if (AUTO) {
+    // Hook-friendly mode: detect only, never modify, emit envelope.
+    // Findings are not printed; envelope carries the warning instead.
+    if (findings.length > 0) {
+      emitEnvelope({
+        continue: true,
+        hookSpecificOutput: {
+          hookEventName: 'SessionStart',
+          additionalContext: 'MindrianOS settings drift detected. Run /mos:doctor --fix to repair.',
+        },
+      });
+    } else {
+      emitEnvelope({ continue: true });
+    }
     process.exit(0);
   }
 
-  console.log(`Found ${findings.length} stale entr${findings.length === 1 ? 'y' : 'ies'}:`);
-  console.log('');
-  for (const f of findings) {
-    console.log(`  Key:    ${f.key}`);
-    console.log(`  Value:  ${JSON.stringify(f.value).slice(0, 120)}`);
-    console.log(`  Action: ${f.action}`);
-    console.log(`  Reason: ${f.reason}`);
+  if (findings.length === 0) {
+    logHeader('PASS: no stale MOS paths detected in user settings.');
+    process.exit(0);
+  }
+
+  if (!QUIET) {
+    console.log(`Found ${findings.length} stale entr${findings.length === 1 ? 'y' : 'ies'}:`);
     console.log('');
+    for (const f of findings) {
+      console.log(`  Key:    ${f.key}`);
+      console.log(`  Value:  ${JSON.stringify(f.value).slice(0, 120)}`);
+      console.log(`  Action: ${f.action}`);
+      console.log(`  Reason: ${f.reason}`);
+      console.log('');
+    }
   }
 
   if (APPLY) {
     applyMigration(settings, findings);
-    console.log('');
-    console.log('Migration complete. Restart Claude Code for changes to take effect.');
+    logHeader('');
+    logHeader('Migration complete. Restart Claude Code for changes to take effect.');
   } else {
-    console.log('Run with --apply to perform the migration.');
-    console.log('A backup will be created before any changes.');
+    logHeader('Run with --apply to perform the migration.');
+    logHeader('A backup will be created before any changes.');
   }
 }
 
