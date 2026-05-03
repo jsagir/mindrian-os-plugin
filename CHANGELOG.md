@@ -9,6 +9,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.12.5.1] - 2026-05-03
+
+Hotfix on top of 1.12.5. The D-06 surface-detect helper was misclassifying every
+Claude Code CLI sub-process invocation (Bash tool, statusline shell-exec, hooks,
+doctor.cjs) as DESKTOP because `process.stdin.isTTY` is `undefined` in any
+non-TTY child. The misclassification cascade-suppressed the D-02 statusline
+broadcast and forced the D-03 visibility check to short-circuit with
+`"status": "skip"`. v1.12.5 testers saw no brand glyph and no token broadcast
+on CLI even though the rest of Phase 106 was wired correctly.
+
+### Fixed
+
+- `lib/statusline/surface-detect.cjs` adds a new step 4 that returns `'CLI'`
+  when `process.env.CLAUDE_CODE_ENTRYPOINT === 'cli'`. This signal is set by
+  Claude Code on the parent process and propagates to every child, so it
+  survives non-TTY sub-process invocation. Claude Desktop's spawned stdio
+  MCP servers do NOT inherit this var, so the read is CLI-exclusive.
+  Existing precedence preserved: explicit `MINDRIAN_STATUSLINE_SURFACE`
+  override still wins (step 1), Cowork signals still win (step 2),
+  `CLAUDE_DESKTOP=1` still wins (step 3). The legacy `process.stdin.isTTY`
+  branch becomes step 5 (raw shell fallback for non-CC contexts).
+- `/mos:doctor --statusline-visibility` now reports `"status": "ok"` with
+  `"statusline rendering correctly"` evidence on CLI sessions instead of
+  the prior `"status": "skip"` with `"DESKTOP has no statusline primitive"`.
+
+### Test
+
+- `tests/test-surface-detect.cjs` extended from 6 to 10 tests:
+  - Test 7 regression guard (`CLAUDE_CODE_ENTRYPOINT=cli` + non-TTY -> CLI)
+  - Test 8 precedence (`CLAUDE_DESKTOP=1` outranks the new step 4)
+  - Test 9 precedence (`COWORK_SESSION_ID` outranks the new step 4)
+  - Test 10 strict-equality on the literal (entrypoint=mcp does NOT trigger CLI)
+- All 10 tests pass.
+
+### Note on version literal
+
+Ships as `1.12.5.1` (4-segment) by explicit user override. Not strict semver;
+release-process canon prescribed `1.12.6-beta.1` (release infrastructure beta-
+first). Override accepted because the fix is a pure-additive precedence rule
+with full test coverage and zero behavior change for non-CC and Desktop/Cowork
+surfaces.
+
 ## [1.12.5] - 2026-05-03
 
 The release where MindrianOS becomes visible while it works. Phase 106 makes the

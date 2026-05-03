@@ -102,9 +102,61 @@ try {
   pass('Test 6 (explicit override beats env)');
 } catch (e) { failTest('Test 6 (explicit override beats env)', e); }
 
+// Test 7: CLAUDE_CODE_ENTRYPOINT='cli' + non-TTY stdin -> CLI.
+// This is the regression guard for the v1.12.5 bug where CC-CLI Bash-tool
+// invocations (always non-TTY) fell through to default DESKTOP, suppressing
+// the D-02 statusline broadcast and the D-03 visibility check.
+try {
+  const r = run({ CLAUDE_CODE_ENTRYPOINT: 'cli', PATH: process.env.PATH });
+  assert.strictEqual(r.status, 0, 'exit 0; stderr=' + r.stderr);
+  assert.strictEqual(r.stdout.trim(), 'CLI',
+    'non-TTY child with CLAUDE_CODE_ENTRYPOINT=cli must classify as CLI');
+  pass('Test 7 (CLAUDE_CODE_ENTRYPOINT=cli + non-TTY -> CLI; regression guard)');
+} catch (e) { failTest('Test 7 (CLAUDE_CODE_ENTRYPOINT=cli + non-TTY -> CLI)', e); }
+
+// Test 8: CLAUDE_DESKTOP=1 wins over CLAUDE_CODE_ENTRYPOINT=cli.
+// Defensive ordering: if Anthropic ever ships a Desktop build that also
+// exports CLAUDE_CODE_ENTRYPOINT=cli, the explicit Desktop flag overrides.
+try {
+  const r = run({
+    CLAUDE_DESKTOP: '1',
+    CLAUDE_CODE_ENTRYPOINT: 'cli',
+    PATH: process.env.PATH,
+  });
+  assert.strictEqual(r.status, 0);
+  assert.strictEqual(r.stdout.trim(), 'DESKTOP',
+    'CLAUDE_DESKTOP must outrank CLAUDE_CODE_ENTRYPOINT');
+  pass('Test 8 (CLAUDE_DESKTOP=1 outranks CLAUDE_CODE_ENTRYPOINT=cli)');
+} catch (e) { failTest('Test 8 (CLAUDE_DESKTOP outranks entrypoint)', e); }
+
+// Test 9: COWORK_SESSION_ID wins over CLAUDE_CODE_ENTRYPOINT=cli.
+// Never misclassify a Cowork session as CLI just because someone runs
+// `claude` inside it.
+try {
+  const r = run({
+    COWORK_SESSION_ID: 'abc123',
+    CLAUDE_CODE_ENTRYPOINT: 'cli',
+    PATH: process.env.PATH,
+  });
+  assert.strictEqual(r.status, 0);
+  assert.strictEqual(r.stdout.trim(), 'COWORK',
+    'COWORK_SESSION_ID must outrank CLAUDE_CODE_ENTRYPOINT');
+  pass('Test 9 (COWORK_SESSION_ID outranks CLAUDE_CODE_ENTRYPOINT=cli)');
+} catch (e) { failTest('Test 9 (COWORK outranks entrypoint)', e); }
+
+// Test 10: strict-equality on the entrypoint literal -- only 'cli' triggers.
+// Future CC entrypoints (e.g. 'mcp', 'ide') must NOT silently classify as CLI.
+try {
+  const r = run({ CLAUDE_CODE_ENTRYPOINT: 'mcp', PATH: process.env.PATH });
+  assert.strictEqual(r.status, 0);
+  assert.strictEqual(r.stdout.trim(), 'DESKTOP',
+    'unrecognized entrypoint value must fall through to default');
+  pass('Test 10 (CLAUDE_CODE_ENTRYPOINT=mcp does not trigger CLI)');
+} catch (e) { failTest('Test 10 (entrypoint strict-equality)', e); }
+
 if (failed > 0) {
   console.log('\n' + failed + ' test(s) FAILED');
   process.exit(1);
 }
-console.log('\nAll 6 tests PASS');
+console.log('\nAll 10 tests PASS');
 process.exit(0);
