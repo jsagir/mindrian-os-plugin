@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: "Completed 106-00 (Wave 0 scaffold: REQ IDs + 10 test stubs + 3 fixtures + ROADMAP plans list)"
-last_updated: "2026-05-03T04:17:14.873Z"
+stopped_at: "Completed 106-02 (D-02 context-window broadcast: operator + JTBD + token-budget glyphs wired into scripts/context-monitor; 7-test broadcast suite + 3-glyph carve-out fence replace Wave 0 stubs; STATUS-106-02 Complete)"
+last_updated: "2026-05-03T06:25:00.000Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 38
   completed_phases: 21
   total_plans: 178
-  completed_plans: 164
+  completed_plans: 165
   percent: 82
 ---
 
@@ -26,7 +26,17 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 106 (statusline-visibility-context-window-broadcast) — EXECUTING
-Plan: 2 of 4
+Plan: 2 of 6 complete (Wave 1 in flight; 106-01 + 106-03 running in parallel)
+Status: 106-02 done; awaiting Wave 1 sibling completion before Wave 2 dispatch
+
+Phase 106-02 closure (2026-05-03):
+
+- f9e2ab7 test(106-02): replace Wave 0 stub with real D-02 broadcast test (RED)
+- 03dea1f feat(106-02): wire operator + JTBD + token-budget glyphs into context-monitor (GREEN)
+- 516956f test(106-02): replace Wave 0 stub with glyph-isolation carve-out fence
+
+Phase 106-02 outcome: D-02 context-window broadcast delivered. scripts/context-monitor renders 📊 token-budget glyph on every ctx threshold branch (50/65/80 contract preserved per researcher lock), ⚙️ {operator} when current != JUST_TALK, 🎯 {jtbd} when JTBD state present, and ⚠ compaction-imminent text replacing the skull glyph at >=80%. 7-test broadcast suite + 3-glyph carve-out fence (📊 🎯 ⚙️ exclusive; ⚠ pre-existing in 10 production files, sanity-only) replace Wave 0 stubs. Feynman 165/169 = exact baseline match (zero new failures). STATUS-106-02 flipped to Complete. Two deviations documented in 106-02-SUMMARY.md: auto-compact-aware test inputs (Tests 2/3 input fixup) and exclusive-vs-shared glyph split in fence.
+
 Status: Ready to execute
 
 Resume note (2026-05-01): PC died after `/gsd:plan-phase 99 --auto` completed. Phase 99 PLAN files (99-01..99-05) sit on disk under `.planning/phases/99-conversation-operator-state-machine/` (gitignored per `.planning/` rule). Last commit `fbfe3e6` (CONTEXT + DISCUSSION-LOG only). No `feat(99-XX)` commits — execution never started. Phase 95.1 is closed (9/9 plans, see `a563850`); 95.1 is no longer current focus. Local commits ahead of `origin/main` by 1 (`fbfe3e6` unpushed).
