@@ -931,7 +931,7 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 
 ### Phase 108: Graph Memory Schema Reconciliation (REGISTERED 2026-05-03)
 
-**Goal:** Prevent schema drift before Phase 109 ships the SQL navigation spine. Reconcile the Codex-proposed claim/assumption/evidence/decision/open-question taxonomy against existing Mindrian edge/node reality (Phase 87 typed edges, Phase 89 REVERSE_SALIENT, Phase 90 BRAIN.md, Phase 88 Feynman-MINTO triple, Phase 99 across-session memory) — and formalize `opportunity` as a first-class node type alongside the new claim/assumption/evidence taxonomy. Ship six document-only deliverables: canonical node taxonomy, canonical edge taxonomy, provenance field contract, truth-state taxonomy (proposed/confirmed/rejected/stale/superseded/needs_evidence/validated/invalidated), alias table, "do not invent parallel schema" pre-commit guardrail. Embed the Canon Part 9 (Memory Locality and Interpretation) amendment proposal as a deliverable; ratification deferred to Phase 109 release gate. **Zero implementation in this phase by design** — the discipline is reconcile first, implement second.
+**Goal:** Prevent schema drift before Phase 109 ships the SQL navigation spine. Reconcile the Codex-proposed claim/assumption/evidence/decision/open-question taxonomy against existing Mindrian edge/node reality — including the FULL 23-edge production set in `lib/core/lazygraph-ops.cjs:25` (NOT just the Phase 87/89 subset; the alias guardrail must include all 23 or it false-positives shipped edges as drift) — and formalize `opportunity` as a first-class node type alongside the new claim/assumption/evidence taxonomy. Ship six document-first deliverables: RECONCILIATION.md (nodes + edges), PROVENANCE.md (contract spec), TRUTH-STATES.md (8-state taxonomy + status_aliases), aliases.yml (machine-readable resolution table), `scripts/check-schema-aliases.cjs` + `scripts/install-pre-commit.sh` (opt-in pre-commit guardrail; `.git/hooks/pre-commit` itself is NOT tracked — contributors run the installer once after cloning), and PART-9-PROPOSAL.md (Canon Part 9 cross-reference checklist + ratification path). Embed the Canon Part 9 (Memory Locality and Interpretation) amendment proposal as a deliverable; ratification deferred to Phase 109 release gate. **No runtime schema migration in this phase by design** — Phase 108 specifies contracts; Phase 109 implements them. The discipline is reconcile first, migrate second.
 
 **Requirements**: RECONCILE-108-01, RECONCILE-108-02, RECONCILE-108-03, RECONCILE-108-04, RECONCILE-108-05, RECONCILE-108-06
 
@@ -939,10 +939,10 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 
 **Canon parts:** Part 4 (Every Choice Is Graph Data), Part 7 (Reuse Before Build — must justify any NEW node/edge type per the alias table), Part 9 (Memory Locality and Interpretation — proposed amendment ratified at Phase 109 release gate).
 
-**Plans:** 1/7 plans executed
+**Plans:** 2/7 plans executed
 
 - [x] 108-00-PLAN.md - Wave 0: REQ-IDs + ROADMAP entry + 7 test stub registration
-- [ ] 108-01-PLAN.md - Wave 1: RECONCILIATION.md (D-01 nodes + D-02 edges; all 23 EDGE_TYPES + 14 Codex nodes + corrections from RESEARCH 2.4)
+- [x] 108-01-PLAN.md - Wave 1: RECONCILIATION.md (D-01 nodes + D-02 edges; all 23 EDGE_TYPES + 14 Codex nodes + corrections from RESEARCH 2.4)
 - [ ] 108-02-PLAN.md - Wave 1: PROVENANCE.md (D-02 contract spec only, no SQL migration)
 - [ ] 108-03-PLAN.md - Wave 2: TRUTH-STATES.md (D-03 closed-set + status_aliases + transition table + auto-stale rule)
 - [ ] 108-04-PLAN.md - Wave 2: aliases.yml (D-04 machine-readable resolution table + status_aliases section)

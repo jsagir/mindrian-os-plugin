@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: "Completed 108-00-PLAN.md (Wave-0 substrate: 6 RECONCILE-108 REQ-IDs + 7 test stubs + registry)"
-last_updated: "2026-05-03T10:17:29.778Z"
+stopped_at: Completed 108-01-PLAN.md (parallel executor; 108-02 also in wave 1)
+last_updated: "2026-05-03T11:03:19.695Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 43
   completed_phases: 22
   total_plans: 187
-  completed_plans: 170
+  completed_plans: 171
   percent: 82
 ---
 
@@ -210,6 +210,7 @@ Progress: [████████░░] 82%
 | Phase 99 P04 | 7 | 3 tasks | 4 files |
 | Phase 106 P00 | 9min | 3 tasks | 18 files |
 | Phase 108-graph-memory-schema-reconciliation P00 | 11min | 3 tasks | 11 files |
+| Phase 108-graph-memory-schema-reconciliation P01 | 18min | 2 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -575,6 +576,10 @@ Progress: [████████░░] 82%
 - [Phase 108-graph-memory-schema-reconciliation]: Substrate-only Wave 0: REQ-IDs + ROADMAP entry + test stubs ship in this plan; document deliverables (RECONCILIATION/PROVENANCE/TRUTH-STATES/aliases/PART-9-PROPOSAL) defer to Waves 1-3
 - [Phase 108-graph-memory-schema-reconciliation]: test-part-9-invariant.cjs is a CROSS-PHASE dependency stub - remains a stub through ALL of Phase 108; lights up only after Phase 109 ships nodes.review_status column (RESEARCH Pitfall 6)
 - [Phase 108-graph-memory-schema-reconciliation]: Append-only registry insertion in lib/memory/run-feynman-tests.cjs (matches Phase 100/104/105/106 chronological-append precedent; new phases never reorder existing entries)
+- [Phase 108-graph-memory-schema-reconciliation]: Plan 108-01: SUPPORTS marked NEW (distinct edge from ENABLES) per RESEARCH 2.1; aliasing collapses Part 5 evidence-vs-Part 4 unblock semantics. Open Question #1 forwarded to Phase 109.
+- [Phase 108-graph-memory-schema-reconciliation]: Plan 108-01: opportunity row split into filesystem feature (EXISTS) + graph node (NEW); 3 opportunity edges (BANKED_BY/RANKS_OPPORTUNITY/ANSWERS_OPPORTUNITY) marked NEW per RESEARCH 2.4 grep verification (zero code matches 2026-05-03).
+- [Phase 108-graph-memory-schema-reconciliation]: Plan 108-01: assumption marked EXTEND (not NEW) - assumptions table at memory-ops.cjs:64-74 already exists with closed validity enum; Phase 109 promotes table rows to graph nodes.
+- [Phase 108-graph-memory-schema-reconciliation]: Plan 108-01: CONTAINS marked RESERVED (deferred to Phase 112 Room Budding) - 'explicit only if needed for cross-room traversal' per CONTEXT D-01 IS the RESERVED pattern.
 
 ### Pending Todos
 
@@ -596,6 +601,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-03T10:17:19.827Z
-Stopped at: Completed 108-00-PLAN.md (Wave-0 substrate: 6 RECONCILE-108 REQ-IDs + 7 test stubs + registry)
+Last session: 2026-05-03T11:03:19.684Z
+Stopped at: Completed 108-01-PLAN.md (parallel executor; 108-02 also in wave 1)
 Resume file: None
