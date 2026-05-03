@@ -32,6 +32,16 @@
             "timeout": 3000
           }
         ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/migrate-stale-user-settings.cjs\" --auto --quiet",
+            "timeout": 2000
+          }
+        ]
       }
     ],
     "PreCompact": [
