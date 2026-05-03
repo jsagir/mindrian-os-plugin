@@ -1,0 +1,408 @@
+# .planning/phases/108-graph-memory-schema-reconciliation/aliases.yml
+# Schema version: 1
+#
+# Purpose: machine-readable mapping of Codex-proposed terms (and any future
+# parallel-schema attempts) to existing canonical terms. Loaded by the pre-commit
+# hook (Plan 108-05) at commit time. Mirrors RECONCILIATION.md (Plan 108-01)
+# in machine-readable form.
+#
+# HARD RULE: every entry has resolution in {EXISTS, EXTEND, NEW, RESERVED}.
+# HARD RULE: every entry has a non-empty canon_parts list.
+# HARD RULE: RESERVED entries carry deferred_to_phase.
+# HARD RULE: zero em-dashes or en-dashes anywhere in this file.
+#
+# Future contributors who try to invent new edge or node names get
+# pointed here. Net-new table names not in the alias resolution column
+# fail the pre-commit hook.
+
+schema_version: 1
+phase: 108
+canon_part: 9
+
+# ============================================================================
+# EDGE ALIASES
+# ============================================================================
+
+edge_aliases:
+
+  # --- Codex-proposed edges (17 entries) ---
+
+  - codex_term: INFORMS
+    resolution: EXISTS
+    canonical_name: INFORMS
+    source_phase: 87
+    canon_parts: [Part 4]
+    notes: "Phase 87 cascade refactor edge. In production at lib/core/lazygraph-ops.cjs:25."
+
+  - codex_term: CONTRADICTS
+    resolution: EXISTS
+    canonical_name: CONTRADICTS
+    source_phase: 87
+    canon_parts: [Part 4]
+    notes: "Phase 87 cascade refactor edge. Has confidence property at line 354."
+
+  - codex_term: CONVERGES
+    resolution: EXISTS
+    canonical_name: CONVERGES
+    source_phase: 87
+    canon_parts: [Part 4]
+
+  - codex_term: INVALIDATES
+    resolution: EXISTS
+    canonical_name: INVALIDATES
+    source_phase: 87
+    canon_parts: [Part 4]
+
+  - codex_term: ENABLES
+    resolution: EXISTS
+    canonical_name: ENABLES
+    source_phase: 87
+    canon_parts: [Part 4]
+    notes: "Distinct semantics from SUPPORTS (X unblocks Y vs evidence E supports claim C)."
+
+  - codex_term: SUPPORTS
+    resolution: NEW
+    canonical_name: SUPPORTS
+    canon_parts: [Part 4, Part 5, Part 9]
+    notes: "Distinct from ENABLES. Evidence to claim semantics. See RECONCILIATION.md row SUPPORTS for Canon Part 7 reuse-before-build justification."
+
+  - codex_term: DEPENDS_ON
+    resolution: NEW
+    canonical_name: DEPENDS_ON
+    canon_parts: [Part 4, Part 9]
+    notes: "Decision/assumption dependency tracking. Phase 87 INFORMS is informational, not load-bearing."
+
+  - codex_term: EVIDENCES
+    resolution: EXTEND
+    canonical_name: SUPPORTS
+    direction: reverse
+    canon_parts: [Part 4, Part 5, Part 9]
+    notes: "Reverse direction of SUPPORTS. Implementation: add direction property; do NOT create separate edge type."
+
+  - codex_term: ASSUMES
+    resolution: NEW
+    canonical_name: ASSUMES
+    canon_parts: [Part 4, Part 9]
+    notes: "Decision to assumption edge. Distinct from DEPENDS_ON (structural) and SUPPORTS (evidential)."
+
+  - codex_term: DECIDES
+    resolution: NEW
+    canonical_name: DECIDES
+    canon_parts: [Part 4, Part 9]
+    notes: "Session/event to decision edge. Captures who/when. Existing decisions_index table at memory-ops.cjs:113 is attached via this edge."
+
+  - codex_term: RAISES_QUESTION
+    resolution: NEW
+    canonical_name: RAISES_QUESTION
+    canon_parts: [Part 4, Part 9]
+    notes: "Artifact to open_question edge. Distinct from CONTRADICTS (between claims)."
+
+  - codex_term: REPLACES
+    resolution: NEW
+    canonical_name: REPLACES
+    canon_parts: [Part 4, Part 9]
+    notes: "Decision to decision edge for supersession. Distinct from INVALIDATES (claim-level)."
+
+  - codex_term: CONTAINS
+    resolution: RESERVED
+    canonical_name: CONTAINS
+    deferred_to_phase: 112
+    canon_parts: [Part 4, Part 9]
+    notes: "Folder hierarchy is implicit in filesystem (ICM Layer 4). Name locked here; ratification deferred to Phase 112 Room Budding which proves the cross-room traversal use case."
+
+  - codex_term: STATES
+    resolution: EXTEND
+    canonical_name: EXTRACTED_FROM
+    direction: reverse
+    canon_parts: [Part 4]
+    notes: "Reverse direction of existing EXTRACTED_FROM (CausalClaim to Artifact). Same edge, opposite direction."
+
+  - codex_term: MENTIONS_ENTITY
+    resolution: NEW
+    canonical_name: MENTIONS_ENTITY
+    canon_parts: [Part 4, Part 9]
+    notes: "Entity-resolution edge. No existing weak-reference edge."
+
+  - codex_term: BUDDED_FROM
+    resolution: RESERVED
+    canonical_name: BUDDED_FROM
+    deferred_to_phase: 112
+    canon_parts: [Part 9]
+    notes: "Room to room edge. Name locked here; behavior + ratification deferred to Phase 112 Room Budding."
+
+  - codex_term: SHARES_ASSUMPTION_WITH
+    resolution: RESERVED
+    canonical_name: SHARES_ASSUMPTION_WITH
+    deferred_to_phase: 112
+    canon_parts: [Part 9]
+    notes: "Room to room edge via shared assumption node. Name locked here. Same RESERVED pattern as BUDDED_FROM."
+
+  # --- Opportunity edges (RESEARCH section 2.4 correction: NEW not EXISTS) ---
+
+  - codex_term: BANKED_BY
+    resolution: NEW
+    canonical_name: BANKED_BY
+    canon_parts: [Part 2 Engine 1, Part 4, Part 9]
+    related_existing_filesystem: lib/core/opportunity-ops.cjs
+    notes: "Artifact/decision/whitespace-scan to opportunity edge. Filesystem Opportunity Bank exists (lib/core/opportunity-ops.cjs); graph edge does NOT (verified by grep 2026-05-03)."
+
+  - codex_term: RANKS_OPPORTUNITY
+    resolution: NEW
+    canonical_name: RANKS_OPPORTUNITY
+    canon_parts: [Part 2 Engine 1, Part 4, Part 9]
+    notes: "HSI score to opportunity edge. Zero code references."
+
+  - codex_term: ANSWERS_OPPORTUNITY
+    resolution: NEW
+    canonical_name: ANSWERS_OPPORTUNITY
+    canon_parts: [Part 2 Engine 1, Part 4, Part 9]
+    notes: "Decision/claim to opportunity edge. Captures opportunity resolution."
+
+  # --- EXISTS edges NOT named in Codex proposal (RESEARCH section 2.4 correction #1: 17 unacknowledged edges) ---
+  # These rows MUST be present so the pre-commit hook does not flag legitimate
+  # production code that creates indices or references these edge names.
+
+  - codex_term: REVERSE_SALIENT
+    resolution: EXISTS
+    canonical_name: REVERSE_SALIENT
+    source_phase: 89
+    canon_parts: [Part 4]
+    notes: "Phase 89 reverse-salient-engine edge."
+
+  - codex_term: BELONGS_TO
+    resolution: EXISTS
+    canonical_name: BELONGS_TO
+    canon_parts: [Part 4]
+    notes: "Section/folder membership edge."
+
+  - codex_term: REASONING_INFORMS
+    resolution: EXISTS
+    canonical_name: REASONING_INFORMS
+    source_phase: 88
+    canon_parts: [Part 4]
+    notes: "Phase 88 Feynman-MINTO reasoning edge."
+
+  - codex_term: HSI_CONNECTION
+    resolution: EXISTS
+    canonical_name: HSI_CONNECTION
+    source_phase: 88.6
+    canon_parts: [Part 2 Engine 1, Part 4]
+
+  - codex_term: ANALOGOUS_TO
+    resolution: EXISTS
+    canonical_name: ANALOGOUS_TO
+    canon_parts: [Part 2 Engine 1, Part 4]
+
+  - codex_term: STRUCTURALLY_ISOMORPHIC
+    resolution: EXISTS
+    canonical_name: STRUCTURALLY_ISOMORPHIC
+    canon_parts: [Part 2 Engine 1, Part 4]
+
+  - codex_term: RESOLVES_VIA
+    resolution: EXISTS
+    canonical_name: RESOLVES_VIA
+    canon_parts: [Part 4]
+    notes: "TRIZ-style resolution edge with resolution_type property at lazygraph-ops.cjs:632."
+
+  - codex_term: CAUSES
+    resolution: EXISTS
+    canonical_name: CAUSES
+    canon_parts: [Part 4]
+
+  - codex_term: ROOT_CAUSE_OF
+    resolution: EXISTS
+    canonical_name: ROOT_CAUSE_OF
+    canon_parts: [Part 4]
+
+  - codex_term: CASCADES_TO
+    resolution: EXISTS
+    canonical_name: CASCADES_TO
+    source_phase: 87
+    canon_parts: [Part 4]
+    notes: "Phase 87 cascade edge with cascade_type property at lazygraph-ops.cjs:721."
+
+  - codex_term: EXTRACTED_FROM
+    resolution: EXISTS
+    canonical_name: EXTRACTED_FROM
+    canon_parts: [Part 4]
+    notes: "CausalClaim to Artifact provenance edge at lazygraph-ops.cjs:701. STATES (Codex) aliases to this with reverse direction."
+
+  - codex_term: WHITESPACE_DETECTED
+    resolution: EXISTS
+    canonical_name: WHITESPACE_DETECTED
+    source_phase: 88.6
+    canon_parts: [Part 2 Engine 1, Part 4]
+
+  - codex_term: WHITESPACE_NEAR
+    resolution: EXISTS
+    canonical_name: WHITESPACE_NEAR
+    source_phase: 88.6
+    canon_parts: [Part 2 Engine 1, Part 4]
+
+  - codex_term: DISCOVERY_CYCLE_SOURCE
+    resolution: EXISTS
+    canonical_name: DISCOVERY_CYCLE_SOURCE
+    canon_parts: [Part 4]
+
+  - codex_term: DISCOVERED
+    resolution: EXISTS
+    canonical_name: DISCOVERED
+    canon_parts: [Part 2 Engine 1, Part 4]
+
+  - codex_term: DERIVED_FROM
+    resolution: EXISTS
+    canonical_name: DERIVED_FROM
+    source_phase: 90
+    canon_parts: [Part 4, Part 9]
+
+  - codex_term: AUTHORED_BY
+    resolution: EXISTS
+    canonical_name: AUTHORED_BY
+    source_phase: 84.5
+    canon_parts: [Part 2, Part 4]
+
+  - codex_term: AFFILIATED_WITH
+    resolution: EXISTS
+    canonical_name: AFFILIATED_WITH
+    source_phase: 84.5
+    canon_parts: [Part 2, Part 4]
+
+# ============================================================================
+# NODE ALIASES
+# ============================================================================
+
+node_aliases:
+
+  # --- Codex-proposed nodes (14 entries) ---
+
+  - codex_term: room
+    resolution: EXISTS
+    canonical_name: room
+    source_phase: 83
+    canon_parts: [Part 1, Part 4]
+    notes: "Existing room registry at ~/MindrianRooms/.rooms/registry.json."
+
+  - codex_term: folder
+    resolution: EXISTS
+    canonical_name: folder
+    canon_parts: [Part 4]
+    notes: "Filesystem-implicit; ROOM.md identity files (ICM Layer 0, Decision #15)."
+
+  - codex_term: artifact
+    resolution: EXISTS
+    canonical_name: Artifact
+    source_phase: 84
+    canon_parts: [Part 4]
+    related_existing: Artifact
+    notes: "Markdown file with frontmatter. Tracked as Artifact node type at lazygraph-ops.cjs:315-321."
+
+  - codex_term: claim
+    resolution: NEW
+    canonical_name: claim
+    canon_parts: [Part 4, Part 5, Part 9]
+    related_existing: CausalClaim
+    notes: "General Claim node. CausalClaim becomes a subtype with claim_type='causal' (Phase 109 Open Question #2)."
+
+  - codex_term: assumption
+    resolution: EXTEND
+    canonical_name: assumption
+    related_existing_table: assumptions
+    canon_parts: [Part 4, Part 9]
+    notes: "Existing assumptions table at memory-ops.cjs:64-74 promoted to graph nodes with provenance columns + status_aliases mapping for validity enum."
+
+  - codex_term: evidence
+    resolution: NEW
+    canonical_name: evidence
+    canon_parts: [Part 4, Part 5, Part 9]
+    notes: "No existing evidence table or node type. Currently embedded in artifact body or evidence/ folder Markdown."
+
+  - codex_term: decision
+    resolution: EXTEND
+    canonical_name: decision
+    related_existing_table: decisions_index
+    canon_parts: [Part 3, Part 4, Part 9]
+    notes: "decisions_index table at memory-ops.cjs:113 promoted to first-class graph nodes via DECIDES edge."
+
+  - codex_term: open_question
+    resolution: NEW
+    canonical_name: open_question
+    canon_parts: [Part 4, Part 9]
+    notes: "sessions.open_questions is JSON array property; not a first-class entity."
+
+  - codex_term: entity
+    resolution: NEW
+    canonical_name: entity
+    canon_parts: [Part 4, Part 9]
+    notes: "Entity-resolution layer for MENTIONS_ENTITY edge. No existing layer."
+
+  - codex_term: meeting
+    resolution: EXTEND
+    canonical_name: meeting
+    canon_parts: [Part 4]
+    notes: "Phase 6 ships meeting artifacts as Artifact nodes with methodology=meeting-intelligence. EXTEND to first-class with structured properties."
+
+  - codex_term: opportunity_filesystem
+    resolution: EXISTS
+    canonical_name: opportunity
+    canon_parts: [Part 2 Engine 1]
+    related_existing_filesystem: lib/core/opportunity-ops.cjs
+    notes: "Filesystem Opportunity Bank. HSI-scored, domain-tagged, REACT/REFLECT/ADD interactions, always-ambient, LOCAL-only per Canon Part 8."
+
+  - codex_term: opportunity
+    resolution: NEW
+    canonical_name: opportunity
+    canon_parts: [Part 2 Engine 1, Part 4, Part 9]
+    related_existing_filesystem: lib/core/opportunity-ops.cjs
+    notes: "RESEARCH section 2.4 correction: graph node type does NOT exist (verified by grep 2026-05-03). Phase 109 promotes filesystem entries to graph nodes."
+
+  - codex_term: brain_insight
+    resolution: NEW
+    canonical_name: brain_insight
+    canon_parts: [Part 4, Part 8, Part 9]
+    notes: "Brain-returned advisory items; always review_status='proposed' per Canon Part 9 contract. Phase 110 wires the packet contract."
+
+  - codex_term: memory_event
+    resolution: NEW
+    canonical_name: memory_event
+    canon_parts: [Part 4, Part 9]
+    notes: "facts table at memory-ops.cjs:31 is fact log, not state-transition event log. Dedicated memory_event table is genuinely new."
+
+  - codex_term: human_review
+    resolution: NEW
+    canonical_name: human_review
+    canon_parts: [Part 4, Part 9]
+    notes: "Captures the human decision that promoted a proposed node to confirmed (or rejected). Provenance for Canon Part 9 invariant."
+
+  # --- Existing non-Codex nodes (RESEARCH section 2.3 addition) ---
+
+  - codex_term: Section
+    resolution: EXISTS
+    canonical_name: Section
+    canon_parts: [Part 4]
+    notes: "Folder section node type at lazygraph-ops.cjs:317, 326. Not in Codex proposal."
+
+  - codex_term: CausalClaim
+    resolution: EXISTS
+    canonical_name: CausalClaim
+    canon_parts: [Part 4, Part 5]
+    notes: "First-class node at lazygraph-ops.cjs:670-680 with cause/mechanism/effect/confidence/evidence/source_artifact properties. Phase 109 may subsume into general claim (Open Question #2)."
+
+  - codex_term: Stakeholder
+    resolution: EXISTS
+    canonical_name: Stakeholder
+    source_phase: 84.5
+    canon_parts: [Part 2, Part 4]
+    notes: "Person/org/coalition/role at lazygraph-ops.cjs:53-65 with type validation (closed enum at line 71). Not in Codex proposal."
+
+# ============================================================================
+# STATUS ALIASES (D-03 reconciliation with existing assumptions.validity enum)
+# ============================================================================
+# Source: TRUTH-STATES.md (Plan 108-03). Mirrored here in machine-readable form
+# for the Phase 109 migration script that maps existing assumptions.validity
+# rows to the new review_status taxonomy.
+
+status_aliases:
+  untested: proposed
+  supported: validated
+  contradicted: invalidated
+  stale: stale
