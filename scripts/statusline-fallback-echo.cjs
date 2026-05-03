@@ -1,0 +1,213 @@
+#!/usr/bin/env node
+'use strict';
+
+/*
+ * Copyright (c) 2026 Mindrian. BSL 1.1.
+ *
+ * Phase 106 Plan 04 -- statusline fallback echo (D-04 + D-06).
+ *
+ * SessionStart hook script. Composes a Larry-rendered prose state echo
+ * for surfaces where the rich statusline cannot fire:
+ *   - Claude Desktop (no statusline primitive)
+ *   - Cowork (deferred widget; interim Desktop-style echo)
+ *   - CLI post-detect repair window (banner suppression contract)
+ *
+ * Echo shape (CONTEXT.md D-04):
+ *   [MindrianOS v1.12.5 active . room: <slug> . operator: <op> . jtbd: <jtbd> . context: <pct>%]
+ *
+ * (separator is U+00B7 MIDDLE DOT, not the ASCII period; matches the
+ * canonical D-04 example in CONTEXT.md.)
+ *
+ * Sources:
+ *   - operator: lib/conversation/operator.cjs getCurrent(roomDir)
+ *   - jtbd: lib/hmi/jtbd-state.cjs getCurrent(roomDir)
+ *   - context: ~/.mindrian/bridge/{md5(workspaceDir).slice(0,8)}.json (written
+ *     by scripts/context-monitor every assistant-message turn)
+ *   - version: .claude-plugin/plugin.json
+ *
+ * Routing:
+ *   - surface 'CLI'     -> emit empty envelope (statusline carries the data)
+ *   - surface 'DESKTOP' -> emit envelope with hookSpecificOutput.additionalContext
+ *   - surface 'COWORK'  -> emit envelope with additionalContext (Phase 107 will
+ *                          refine the widget shape; interim Desktop-style is OK)
+ *
+ * Gating (in order):
+ *   1. Surface = CLI -> no echo, exit 0 with {continue: true}
+ *   2. Banner-suppression touch-file with shouldSuppress() = true -> no echo
+ *   3. MINDRIAN_STATUSLINE_FALLBACK_ECHO env override:
+ *        '1' -> always echo (regardless of 30d flip)
+ *        '0' -> never echo (regardless of 30d flip)
+ *   4. 30-day default-flip: if no override AND ~/.mindrian-onboarded line 2
+ *      ISO date is more than 30 days old -> no echo. Otherwise echo.
+ *      No marker file -> treat as fresh install (echo).
+ *
+ * Defensive: NEVER blocks the hook chain. Always emits {continue: true}
+ * on any internal error. Per scripts/operator-update.cjs canonical pattern.
+ *
+ * Pure CJS, node built-ins only, zero npm deps (Phase 87 invariant).
+ */
+
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+const crypto = require('node:crypto');
+
+const ENVELOPE_ALLOWED = new Set([
+  'decision', 'reason', 'continue', 'stopReason',
+  'suppressOutput', 'systemMessage', 'hookSpecificOutput',
+]);
+
+function emitEnvelope(obj) {
+  const filtered = {};
+  for (const k of Object.keys(obj || {})) {
+    if (ENVELOPE_ALLOWED.has(k)) filtered[k] = obj[k];
+  }
+  if (filtered.continue === undefined) filtered.continue = true;
+  process.stdout.write(JSON.stringify(filtered));
+  process.exit(0);
+}
+
+function emitEmpty() { emitEnvelope({ continue: true }); }
+
+// Guard against any unexpected throw -- never block the hook chain.
+process.on('uncaughtException', () => emitEmpty());
+
+function safeRead(file) {
+  try { return fs.readFileSync(file, 'utf8'); } catch (_e) { return null; }
+}
+
+function safeJson(file) {
+  const t = safeRead(file);
+  if (t === null) return null;
+  try { return JSON.parse(t); } catch (_e) { return null; }
+}
+
+function readPluginVersion() {
+  const here = path.resolve(__dirname, '..', '.claude-plugin', 'plugin.json');
+  const j = safeJson(here);
+  return (j && j.version) ? j.version : 'unknown';
+}
+
+function bridgePath(workspaceDir) {
+  const hash = crypto.createHash('md5').update(workspaceDir).digest('hex').slice(0, 8);
+  return path.join(os.homedir(), '.mindrian', 'bridge', hash + '.json');
+}
+
+function bannerTouchPath() {
+  return path.join(os.homedir(), '.mindrian', 'banner-state', 'statusline-visibility-warned.json');
+}
+
+function onboardMarkerPath() {
+  return path.join(os.homedir(), '.mindrian-onboarded');
+}
+
+function isWithin30Days() {
+  const marker = safeRead(onboardMarkerPath());
+  if (marker === null) return true; // fresh install -> default-on
+  const lines = marker.split('\n').filter(Boolean);
+  if (lines.length < 2) return true; // malformed marker -> default-on
+  const isoDate = lines[1].trim();
+  const t = Date.parse(isoDate);
+  if (Number.isNaN(t)) return true;
+  const ageMs = Date.now() - t;
+  return ageMs < 30 * 24 * 3600 * 1000;
+}
+
+function shouldEchoBy30DayFlip() {
+  const env = process.env.MINDRIAN_STATUSLINE_FALLBACK_ECHO;
+  if (env === '1') return true;
+  if (env === '0') return false;
+  return isWithin30Days();
+}
+
+function bannerSuppressing() {
+  try {
+    const tf = safeJson(bannerTouchPath());
+    if (!tf) return false;
+    const ver = readPluginVersion();
+    const mod = require(path.resolve(__dirname, '..', 'lib', 'statusline', 'banner-suppression.cjs'));
+    return mod.shouldSuppress(tf, ver);
+  } catch (_e) {
+    return false;
+  }
+}
+
+function detectSurface() {
+  try {
+    const mod = require(path.resolve(__dirname, '..', 'lib', 'statusline', 'surface-detect.cjs'));
+    return mod.detectStatuslineSurface();
+  } catch (_e) {
+    return 'DESKTOP';
+  }
+}
+
+function compose(workspaceDir) {
+  const ver = readPluginVersion();
+
+  let operatorStr = '-';
+  try {
+    const op = require(path.resolve(__dirname, '..', 'lib', 'conversation', 'operator.cjs'));
+    const state = op.getCurrent(workspaceDir);
+    if (state && state.current) operatorStr = state.current;
+  } catch (_e) { /* graceful */ }
+
+  let jtbdStr = '-';
+  try {
+    const jtbdState = require(path.resolve(__dirname, '..', 'lib', 'hmi', 'jtbd-state.cjs'));
+    const j = jtbdState.getCurrent(workspaceDir);
+    if (j && j.jtbd) jtbdStr = j.jtbd;
+  } catch (_e) { /* graceful */ }
+
+  let ctxStr = '-';
+  const bridge = safeJson(bridgePath(workspaceDir));
+  if (bridge && typeof bridge.ctx_pct === 'number') {
+    ctxStr = bridge.ctx_pct + '%';
+  }
+
+  const slug = path.basename(workspaceDir) || 'room';
+
+  // Separator below is U+00B7 MIDDLE DOT (not in FORBIDDEN_GLYPHS,
+  // not in any carve-out gating). Matches the CONTEXT.md D-04 example.
+  return '[MindrianOS v' + ver + ' active · room: ' + slug
+    + ' · operator: ' + operatorStr
+    + ' · jtbd: ' + jtbdStr
+    + ' · context: ' + ctxStr + ']';
+}
+
+// Read stdin -- Claude Code SessionStart envelope. We only need it for
+// workspace_dir; if stdin is empty/unparseable we fall back to cwd.
+let input = '';
+const inputTimeout = setTimeout(() => doneReadingStdin(), 500);
+process.stdin.setEncoding('utf8');
+process.stdin.on('data', (chunk) => { input += chunk; });
+process.stdin.on('end', () => doneReadingStdin());
+process.stdin.on('error', () => doneReadingStdin());
+
+let doneCalled = false;
+function doneReadingStdin() {
+  if (doneCalled) return;
+  doneCalled = true;
+  clearTimeout(inputTimeout);
+
+  let workspaceDir = process.cwd();
+  try {
+    const data = JSON.parse(input);
+    if (data && data.workspace && typeof data.workspace.current_dir === 'string') {
+      workspaceDir = data.workspace.current_dir;
+    }
+  } catch (_e) { /* default to cwd */ }
+
+  const surface = detectSurface();
+  if (surface === 'CLI') return emitEmpty();
+  if (bannerSuppressing()) return emitEmpty();
+  if (!shouldEchoBy30DayFlip()) return emitEmpty();
+
+  const echo = compose(workspaceDir);
+  emitEnvelope({
+    continue: true,
+    hookSpecificOutput: {
+      hookEventName: 'SessionStart',
+      additionalContext: echo,
+    },
+  });
+}
