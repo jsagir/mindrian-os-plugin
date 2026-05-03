@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 108-03-PLAN.md (TRUTH-STATES.md closed 8-state taxonomy + 10-assertion test harness; Wave 2 parallel-safe with 108-04 aliases.yml)
-last_updated: "2026-05-03T11:48:14.423Z"
+stopped_at: Completed 108-05-PLAN.md (scripts/check-schema-aliases.cjs hook substrate + scripts/install-pre-commit.sh installer + 5 SQL fixtures + 7-test fixture suite; D-05 schema drift guard live at developer commit time)
+last_updated: "2026-05-03T11:58:28.610Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 43
   completed_phases: 22
   total_plans: 187
-  completed_plans: 174
+  completed_plans: 175
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 108 (graph-memory-schema-reconciliation) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 
 Phase 106-04 closure (2026-05-03):
@@ -214,6 +214,7 @@ Progress: [████████░░] 82%
 | Phase 108 P02 | 17min | 2 tasks | 2 files |
 | Phase 108-graph-memory-schema-reconciliation P04 | 9min | 2 tasks | 2 files |
 | Phase 108-graph-memory-schema-reconciliation P03 | 30min | 2 tasks | 2 files |
+| Phase 108 P05 | 10min | 3 tasks | 8 files |
 
 ### Roadmap Evolution
 
@@ -590,6 +591,9 @@ Progress: [████████░░] 82%
 - [Phase 108-graph-memory-schema-reconciliation]: 8-state truth-state set is CLOSED: net-new states require canon amendment, not plan deviation
 - [Phase 108-graph-memory-schema-reconciliation]: status_aliases mapping is fixed: untested->proposed, supported->validated, contradicted->invalidated, stale->stale (per RESEARCH section 4)
 - [Phase 108-graph-memory-schema-reconciliation]: transitionStatus(nodeId, fromStatus, toStatus, actorId, reason) chokepoint contract specified for Phase 109; runtime enforcement is Phase 109 not 108
+- [Phase 108]: 108-05: hook substrate is CJS-importable (not just CLI) so test suite asserts behavior via require() with no child-process spawning
+- [Phase 108]: 108-05: ALLOWED_EXISTING_TABLES hardcoded (12 names from lazygraph-ops.cjs + memory-ops.cjs) because aliases.yml maps Codex node terms to graph node types, not SQL table names
+- [Phase 108]: 108-05: buildAllowedTableSet includes RESERVED entries so future Phase 112 commits creating budded_from-table are not blocked by hook bootstrapping order
 
 ### Pending Todos
 
@@ -611,6 +615,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-03T11:48:08.187Z
-Stopped at: Completed 108-03-PLAN.md (TRUTH-STATES.md closed 8-state taxonomy + 10-assertion test harness; Wave 2 parallel-safe with 108-04 aliases.yml)
+Last session: 2026-05-03T11:58:19.317Z
+Stopped at: Completed 108-05-PLAN.md (scripts/check-schema-aliases.cjs hook substrate + scripts/install-pre-commit.sh installer + 5 SQL fixtures + 7-test fixture suite; D-05 schema drift guard live at developer commit time)
 Resume file: None
