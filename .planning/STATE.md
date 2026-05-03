@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: "Completed 106-00 (Wave 0 scaffold: REQ IDs + 10 test stubs + 3 fixtures + ROADMAP plans list)"
-last_updated: "2026-05-03T04:17:14.873Z"
+stopped_at: "Completed 106-01 (D-01 self-healing statusline: --auto + --quiet flags + envelope-shape stdout + disableAllHooks edge case + SessionStart hook entry + 6-test hermetic suite replaces Wave 0 stub; STATUS-106-01 Complete)"
+last_updated: "2026-05-03T06:34:00.000Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 38
   completed_phases: 21
   total_plans: 178
-  completed_plans: 164
-  percent: 82
+  completed_plans: 166
+  percent: 83
 ---
 
 # Project State
@@ -26,7 +26,25 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 106 (statusline-visibility-context-window-broadcast) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 6 complete (Wave 1 nearly done; 106-01 just landed; 106-03 already on main)
+Status: Wave 1 closing; Wave 2 (106-04 + 106-05) ready to dispatch after orchestrator validation
+
+Phase 106-01 closure (2026-05-03):
+
+- 1feb772 feat(106-01): add --auto and --quiet flags to migrate-stale-user-settings.cjs
+- 649781f feat(106-01): wire migrate-stale-user-settings.cjs into SessionStart hook
+- e27ff89 test(106-01): replace Wave 0 stub with real 6-test suite for migrate-stale-user-settings
+
+Phase 106-01 outcome: D-01 self-healing statusline delivered. scripts/migrate-stale-user-settings.cjs extended additively from 130 -> 238 lines: --auto detect-only mode emits Claude Code SessionStart envelope (continue:true + optional hookSpecificOutput.additionalContext warning) without modifying user's settings.json; --quiet suppresses headers; ENVELOPE_ALLOWED Set + emitEnvelope helper mirrored from operator-update.cjs (Phase 95 BASH-95-01 invariant); disableAllHooks edge case branch with distinct guidance message; existing --apply path byte-identical (Test 4 + Test 5 prove). hooks/hooks.json SessionStart array length 3 -> 4; new entry calls migrator with --auto --quiet at 2000ms timeout. tests/test-stale-settings-migration.cjs Wave 0 stub replaced with 162-line 6-test hermetic suite (detect/clean/no-file/apply/idempotent/disabled); all pass. STATUS-106-01 flipped to Complete. Backward-compat invariant preserved: AUTO is detect-only by canonical contract; --apply mutation gated behind explicit /mos:doctor --fix invocation (Plan 106-03).
+
+Phase 106-02 closure (2026-05-03):
+
+- f9e2ab7 test(106-02): replace Wave 0 stub with real D-02 broadcast test (RED)
+- 03dea1f feat(106-02): wire operator + JTBD + token-budget glyphs into context-monitor (GREEN)
+- 516956f test(106-02): replace Wave 0 stub with glyph-isolation carve-out fence
+
+Phase 106-02 outcome: D-02 context-window broadcast delivered. scripts/context-monitor renders 📊 token-budget glyph on every ctx threshold branch (50/65/80 contract preserved per researcher lock), ⚙️ {operator} when current != JUST_TALK, 🎯 {jtbd} when JTBD state present, and ⚠ compaction-imminent text replacing the skull glyph at >=80%. 7-test broadcast suite + 3-glyph carve-out fence (📊 🎯 ⚙️ exclusive; ⚠ pre-existing in 10 production files, sanity-only) replace Wave 0 stubs. Feynman 165/169 = exact baseline match (zero new failures). STATUS-106-02 flipped to Complete. Two deviations documented in 106-02-SUMMARY.md: auto-compact-aware test inputs (Tests 2/3 input fixup) and exclusive-vs-shared glyph split in fence.
+
 Status: Ready to execute
 
 Resume note (2026-05-01): PC died after `/gsd:plan-phase 99 --auto` completed. Phase 99 PLAN files (99-01..99-05) sit on disk under `.planning/phases/99-conversation-operator-state-machine/` (gitignored per `.planning/` rule). Last commit `fbfe3e6` (CONTEXT + DISCUSSION-LOG only). No `feat(99-XX)` commits — execution never started. Phase 95.1 is closed (9/9 plans, see `a563850`); 95.1 is no longer current focus. Local commits ahead of `origin/main` by 1 (`fbfe3e6` unpushed).
