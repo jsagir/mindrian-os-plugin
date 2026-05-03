@@ -9,6 +9,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.12.5] - 2026-05-03
+
+The release where MindrianOS becomes visible while it works. Phase 106 makes the
+statusline the persistent visibility surface testers can rely on: self-heals stale
+settings overrides on session start, broadcasts token-budget percent + active
+operator + active JTBD into the rendered statusline, detects when the statusline
+is silently invisible and surfaces a one-time repair banner via /mos:doctor class
+G, falls back to a Larry-rendered prose echo on Desktop / Cowork / post-detect
+repair, validates visibility on first install, and routes per-surface.
+
+User explicit override 2026-05-03: ships as plain v1.12.5, NOT v1.12.5-beta.N.
+The release-process canon prescribes beta-first for releases that touch
+SessionStart hooks (this release adds three: D-01 migrator, D-04 fallback echo,
+D-05 onboarding gate), but the user accepted the rollback risk in exchange for
+shipping the drift-fixes directly to all users on next marketplace refresh.
+
+### Added
+
+**Phase 106 - Statusline Visibility + Context-Window Broadcast (5 plans, 37+ own-plan tests):**
+
+- D-01 self-healing stale-user-settings hook (`scripts/migrate-stale-user-settings.cjs --auto --quiet` + 4th SessionStart entry, 2000ms timeout). Detects `~/.claude/settings.json` user-level `statusLine.command` overrides pinned at version-cache paths (the 2026-04-26 incident pattern); --auto mode is detect-only and never overwrites a hand-edited file (6/6 hermetic tests).
+- D-02 context-window broadcast in `scripts/context-monitor`: 📊 token-budget chart glyph at every threshold branch, 🎯 active JTBD glyph from `lib/hmi/jtbd-state.cjs`, ⚙️ active operator glyph from `lib/conversation/operator.cjs` (skipped on JUST_TALK default), ⚠ compaction-imminent literal text replacing the prior skull glyph at >=80%. Threshold contract preserved at 50/65/80. Glyph carve-out fence enforces these emoji appear ONLY in the carve-out file (7/7 broadcast tests + 1/1 fence test).
+- D-03 invisibility detection + auto-repair via `/mos:doctor` class G (`scripts/doctor.cjs` extended, four detection branches: stale user-settings / broken plugin install / statusline-mos isolated execution / disableAllHooks); --fix dispatch spawns the migrator with locked-language action; 24h banner suppression contract fenced as a shared module at `lib/statusline/banner-suppression.cjs`. 14/14 own-plan tests.
+- D-04 fallback echo (`scripts/statusline-fallback-echo.cjs`) - Larry-rendered prose state echo for Desktop / Cowork / post-detect repair window: `[MindrianOS v1.12.5 active · room: <slug> · operator: <op> · jtbd: <jtbd> · context: <pct>%]`. 30-day default-on flip via `~/.mindrian-onboarded` install date; explicit `MINDRIAN_STATUSLINE_FALLBACK_ECHO` env override beats the flip in either direction (12/12 hermetic tests).
+- D-06 surface-detect helper at `lib/statusline/surface-detect.cjs` returning `'CLI' | 'DESKTOP' | 'COWORK'` (never null, never throws). Replaces the placeholder env-var probe in `scripts/doctor.cjs` Step 0 with the canonical helper. 6/6 hermetic tests.
+- D-05 onboarding gate (`scripts/check-onboard-statusline.cjs`) fires once per fresh install + once per upgrade; touch-file at `~/.mindrian/onboarding/statusline-onboarded.json` with `{installed_version, completed_at}` invalidates on version bump so testers re-confirm visibility on each upgrade. 6/6 hermetic tests.
+- `lib/statusline/` directory ships with ROOM.md per ICM Layer 0 mandate.
+
+### Fixed
+
+- Stale `~/.claude/settings.json` user-level `statusLine.command` paths pinned at deleted version-cache directories (root cause of testers reporting blank statusline post-update; now auto-detected and surfaced via /mos:doctor).
+- `scripts/context-monitor` skull glyph at >=80% context replaced with explicit "compaction-imminent" warning text.
+- `scripts/doctor.cjs` Step 0 surface detection no longer hard-codes `process.env.CLAUDE_DESKTOP === '1'`; routes through the canonical surface-detect helper so Cowork (COWORK_SESSION_ID env or /sessions dir) is also detected.
+
+### Changed
+
+- `hooks/hooks.json` SessionStart array grows from 4 entries to 6: adds statusline-fallback-echo (D-04) and check-onboard-statusline (D-05). All silent in the no-drift / CLI / already-onboarded case; only emit additionalContext when there is something the tester needs to see.
+- `tests/test-statusline-banner-suppression.cjs` refactored: inline `shouldSuppress` contract removed; now requires `lib/statusline/banner-suppression.cjs` (the shared module Plan 106-04 extracted).
+
+### Upgrade path
+
+```bash
+/plugin marketplace update
+claude plugin update mos@mindrian-marketplace
+```
+
 ## [1.12.4] - 2026-05-02
 
 The release where v1.12.3's substrate becomes visible. Phase 88.2 ships the canonical De Stijl picker (5 sub-shapes plus selector telemetry) so every Larry "choose between options" moment uses MindrianOS's UI vocabulary instead of generic AskUserQuestion. Phase 104 retrofits 80+ /mos: commands with `serves_jtbd:` declarations so Larry's next-move suggestions actually adapt per command per active JTBD. Together: testers feel the v1.12.3 promise become real.
