@@ -113,41 +113,50 @@ function payloadFor(room, usedPct) {
   setJtbd(room, 'find-bottleneck');
   const r = runMonitor(room, payloadFor(room, 25));
   assert.strictEqual(r.status, 0, 'exit 0 (stderr: ' + r.stderr + ')');
-  assert.match(r.stdout, /⚙/, 'operator gear glyph');
+  assert.match(r.stdout, /⚙️/, 'operator gear glyph');
   assert.match(r.stdout, /BUILD_ROOM/, 'operator name rendered');
-  assert.match(r.stdout, /\u{1F3AF}/u, 'jtbd target glyph');
+  assert.match(r.stdout, /🎯/, 'jtbd target glyph');
   assert.match(r.stdout, /find-bottleneck/, 'jtbd name rendered');
-  assert.match(r.stdout, /\u{1F4CA}/u, 'token-budget chart glyph');
+  assert.match(r.stdout, /📊/, 'token-budget chart glyph');
   assert.ok(/\d+%/.test(r.stdout), 'percentage rendered');
   assert.ok(!/compaction-imminent/.test(r.stdout), 'no warning under 80');
   rmTmp(room);
   console.log('PASS: Test 1 (operator + jtbd + token at 25%)');
 }
 
-// Test 2: 75% (sienna band per 50/65/80 threshold)
+// Test 2: input 60% -> displayed ~72% (sienna band per 50/65/80 threshold).
+// scripts/context-monitor lines 491-493 transform raw used_percentage via the
+// AUTO_COMPACT_BUFFER (16.5%) math: usable = ((remaining-16.5)/(100-16.5))*100
+// then displayed_used = round(100 - usable). For input 60%, remaining=40,
+// usable=(40-16.5)/83.5*100=28.14, displayed = round(71.86) = 72. That lands
+// in the 65 <= used < 80 sienna branch. No compaction warning.
 {
   const room = makeRoom();
-  const r = runMonitor(room, payloadFor(room, 75));
+  const r = runMonitor(room, payloadFor(room, 60));
   assert.strictEqual(r.status, 0, 'exit 0 (stderr: ' + r.stderr + ')');
-  assert.match(r.stdout, /\u{1F4CA}/u, 'token-budget glyph at 75%');
+  assert.match(r.stdout, /📊/, 'token-budget glyph at sienna band');
   assert.ok(/\d+%/.test(r.stdout), 'percentage rendered');
-  assert.ok(!/compaction-imminent/.test(r.stdout), 'no warning at 75 (under 80)');
+  assert.ok(!/compaction-imminent/.test(r.stdout), 'no warning in sienna band');
   rmTmp(room);
-  console.log('PASS: Test 2 (75% renders sienna, no warning)');
+  console.log('PASS: Test 2 (sienna band renders, no warning)');
 }
 
-// Test 3: 85% triggers compaction-imminent (replaces skull)
+// Test 3: input 85% -> displayed 100% (auto-compact math saturates at 100).
+// remaining=15, usable=max(0,(15-16.5)/83.5*100)=0, displayed=100. That hits
+// the >=80 branch which renders the compaction-imminent warning text wrapped
+// in blink-red ANSI. The literal skull glyph (\u{1F480}) MUST NOT appear -- it
+// was replaced as part of D-02.
 {
   const room = makeRoom();
   const r = runMonitor(room, payloadFor(room, 85));
   assert.strictEqual(r.status, 0, 'exit 0 (stderr: ' + r.stderr + ')');
-  assert.match(r.stdout, /\u{1F4CA}/u, 'token-budget glyph at 85%');
+  assert.match(r.stdout, /📊/, 'token-budget glyph at warning band');
   assert.ok(/\d+%/.test(r.stdout), 'percentage rendered');
   assert.match(r.stdout, /⚠ compaction-imminent/, 'warning text present');
   assert.ok(!r.stdout.includes('\u{1F480}'), 'no skull glyph');
   assert.match(r.stdout, /\x1b\[5;31m/, 'blink-red ANSI present');
   rmTmp(room);
-  console.log('PASS: Test 3 (85% shows warning, no skull)');
+  console.log('PASS: Test 3 (warning band shows compaction-imminent, no skull)');
 }
 
 // Test 4: missing operator state -> no gear glyph
@@ -156,7 +165,7 @@ function payloadFor(room, usedPct) {
   // no setOperator call
   const r = runMonitor(room, payloadFor(room, 25));
   assert.strictEqual(r.status, 0, 'exit 0 (stderr: ' + r.stderr + ')');
-  assert.ok(!/⚙/.test(r.stdout), 'no operator glyph when state absent (defaults to JUST_TALK suppressed)');
+  assert.ok(!/⚙️/.test(r.stdout), 'no operator glyph when state absent (defaults to JUST_TALK suppressed)');
   rmTmp(room);
   console.log('PASS: Test 4 (no operator state file -> no gear glyph)');
 }
@@ -167,7 +176,7 @@ function payloadFor(room, usedPct) {
   // no setJtbd call
   const r = runMonitor(room, payloadFor(room, 25));
   assert.strictEqual(r.status, 0, 'exit 0 (stderr: ' + r.stderr + ')');
-  assert.ok(!/\u{1F3AF}/u.test(r.stdout), 'no jtbd glyph when state absent');
+  assert.ok(!/🎯/.test(r.stdout), 'no jtbd glyph when state absent');
   rmTmp(room);
   console.log('PASS: Test 5 (no jtbd state file -> no target glyph)');
 }
@@ -178,7 +187,7 @@ function payloadFor(room, usedPct) {
   setOperator(room, 'JUST_TALK');
   const r = runMonitor(room, payloadFor(room, 25));
   assert.strictEqual(r.status, 0, 'exit 0 (stderr: ' + r.stderr + ')');
-  assert.ok(!/⚙/.test(r.stdout), 'JUST_TALK default not broadcast');
+  assert.ok(!/⚙️/.test(r.stdout), 'JUST_TALK default not broadcast');
   rmTmp(room);
   console.log('PASS: Test 6 (JUST_TALK default suppressed)');
 }
@@ -188,7 +197,7 @@ function payloadFor(room, usedPct) {
   const room = makeRoom();
   const r = runMonitor(room, payloadFor(room, null));
   assert.strictEqual(r.status, 0, 'exit 0 (stderr: ' + r.stderr + ')');
-  assert.ok(!/\u{1F4CA}/u.test(r.stdout), 'no token-budget glyph when used_percentage is null');
+  assert.ok(!/📊/.test(r.stdout), 'no token-budget glyph when used_percentage is null');
   rmTmp(room);
   console.log('PASS: Test 7 (null used_percentage -> no token glyph)');
 }

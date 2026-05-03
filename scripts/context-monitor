@@ -494,14 +494,21 @@ process.stdin.on('end', () => {
       const filled = Math.floor(used / 10);
       const bar = '\u2588'.repeat(filled) + '\u2591'.repeat(10 - filled);
 
+      // Phase 106-D02: prepend token-budget chart glyph to every ctx branch.
+      // Threshold contract preserved at 50/65/80 (researcher locked); skull
+      // glyph at >=80% replaced with literal "compaction-imminent" warning
+      // text wrapped in the same blink-red ANSI envelope. Glyphs land as raw
+      // UTF-8 codepoints (not \u{...} escapes) so the Phase 106-02 carve-out
+      // regression fence (tests/test-statusline-glyph-isolation.cjs) finds
+      // them via includes() and the doctor Class F scanner can match them.
       if (used < 50) {
-        ctx = ` ${visual.ANSI.green}${bar} ${used}%${visual.ANSI.reset}`;
+        ctx = ` 📊 ${visual.ANSI.green}${bar} ${used}%${visual.ANSI.reset}`;
       } else if (used < 65) {
-        ctx = ` ${visual.ANSI.yellow}${bar} ${used}%${visual.ANSI.reset}`;
+        ctx = ` 📊 ${visual.ANSI.yellow}${bar} ${used}%${visual.ANSI.reset}`;
       } else if (used < 80) {
-        ctx = ` ${visual.ANSI.sienna}${bar} ${used}%${visual.ANSI.reset}`;
+        ctx = ` 📊 ${visual.ANSI.sienna}${bar} ${used}%${visual.ANSI.reset}`;
       } else {
-        ctx = ` \x1b[5;31m\u{1F480} ${bar} ${used}%\x1b[0m`;
+        ctx = ` 📊 \x1b[5;31m⚠ compaction-imminent ${bar} ${used}%\x1b[0m`;
       }
     }
 
@@ -626,6 +633,33 @@ process.stdin.on('end', () => {
         try {
           const dialSeg = buildDialSegment(roomDir);
           if (dialSeg) parts.push(dialSeg);
+        } catch (_e) { /* graceful fallback */ }
+
+        // Phase 106-D02: Active operator glyph (skipped on JUST_TALK default)
+        // Source: lib/conversation/operator.cjs getCurrent(roomDir) -- pure
+        // local read, < 1ms budget, graceful fallback to JUST_TALK on error.
+        // We DO NOT broadcast JUST_TALK because every cold-start room defaults
+        // to it; surfacing the default would just be noise. Canon Part 8
+        // LOCAL-only: never queries Brain.
+        try {
+          const operator = require('../lib/conversation/operator.cjs');
+          const opState = operator.getCurrent(roomDir);
+          if (opState && opState.current && opState.current !== 'JUST_TALK') {
+            parts.push(`⚙️ ${visual.ANSI.dim}${opState.current}${visual.ANSI.reset}`);
+          }
+        } catch (_e) { /* graceful fallback - never blank statusline */ }
+
+        // Phase 106-D02: Active JTBD glyph (skipped when getCurrent returns null)
+        // Source: lib/hmi/jtbd-state.cjs getCurrent(roomDir) -- returns null
+        // when state file absent OR current is null OR not an object. The 24h
+        // staleness rule lives inside isStale() not getCurrent(); we trust
+        // whatever non-null current the engine wrote. Canon Part 8 LOCAL-only.
+        try {
+          const jtbdState = require('../lib/hmi/jtbd-state.cjs');
+          const jtbdCurrent = jtbdState.getCurrent(roomDir);
+          if (jtbdCurrent && jtbdCurrent.jtbd) {
+            parts.push(`🎯 ${visual.ANSI.dim}${jtbdCurrent.jtbd}${visual.ANSI.reset}`);
+          }
         } catch (_e) { /* graceful fallback */ }
 
         // MindrianOS plugin brand (brain emoji) + current version +
