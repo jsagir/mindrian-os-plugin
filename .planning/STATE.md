@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 108-05-PLAN.md (scripts/check-schema-aliases.cjs hook substrate + scripts/install-pre-commit.sh installer + 5 SQL fixtures + 7-test fixture suite; D-05 schema drift guard live at developer commit time)
-last_updated: "2026-05-03T11:58:28.610Z"
+stopped_at: Completed 108-06-PLAN.md (PART-9-PROPOSAL.md + CANON-PHASE-MAP.md Part 9 (proposed) subsection + 8-assertion canon-crossref-completeness test harness; Phase 108 graph-memory-schema-reconciliation complete - 6 of 7 Wave-0 stubs filled, ready for verification gate)
+last_updated: "2026-05-03T12:11:47.967Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 43
-  completed_phases: 22
+  completed_phases: 23
   total_plans: 187
-  completed_plans: 175
+  completed_plans: 176
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 108 (graph-memory-schema-reconciliation) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
 
 Phase 106-04 closure (2026-05-03):
@@ -215,6 +215,7 @@ Progress: [████████░░] 82%
 | Phase 108-graph-memory-schema-reconciliation P04 | 9min | 2 tasks | 2 files |
 | Phase 108-graph-memory-schema-reconciliation P03 | 30min | 2 tasks | 2 files |
 | Phase 108 P05 | 10min | 3 tasks | 8 files |
+| Phase 108-graph-memory-schema-reconciliation P06 | 16min | 3 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -594,6 +595,9 @@ Progress: [████████░░] 82%
 - [Phase 108]: 108-05: hook substrate is CJS-importable (not just CLI) so test suite asserts behavior via require() with no child-process spawning
 - [Phase 108]: 108-05: ALLOWED_EXISTING_TABLES hardcoded (12 names from lazygraph-ops.cjs + memory-ops.cjs) because aliases.yml maps Codex node terms to graph node types, not SQL table names
 - [Phase 108]: 108-05: buildAllowedTableSet includes RESERVED entries so future Phase 112 commits creating budded_from-table are not blocked by hook bootstrapping order
+- [Phase 108-graph-memory-schema-reconciliation]: Plan 108-06: legend-section exemption (Tests 4 + 5 in test-canon-crossref-completeness.cjs skip rows inside '## Resolution Categories' H2 because legend rows define column-value vocabulary, not reconciliation decisions; 8/8 PASS)
+- [Phase 108-graph-memory-schema-reconciliation]: Plan 108-06: docs/MINDRIAN-CANON.md non-edit guard is constitutional (test asserts ^##\s+Part 9\s does NOT match in canon); Phase 109 release gate is the canonical Part 9 ratification trigger
+- [Phase 108-graph-memory-schema-reconciliation]: Phase 108 graph-memory-schema-reconciliation complete: 6 of 7 Wave-0 stubs filled (test-canon-crossref-completeness.cjs is the last); test-part-9-invariant.cjs intentionally remains a stub through all of Phase 108 (lights up only after Phase 109 ships nodes.review_status column per RESEARCH Pitfall 6); Phase 108 is ready for verification
 
 ### Pending Todos
 
@@ -615,6 +619,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-03T11:58:19.317Z
-Stopped at: Completed 108-05-PLAN.md (scripts/check-schema-aliases.cjs hook substrate + scripts/install-pre-commit.sh installer + 5 SQL fixtures + 7-test fixture suite; D-05 schema drift guard live at developer commit time)
+Last session: 2026-05-03T12:11:47.922Z
+Stopped at: Completed 108-06-PLAN.md (PART-9-PROPOSAL.md + CANON-PHASE-MAP.md Part 9 (proposed) subsection + 8-assertion canon-crossref-completeness test harness; Phase 108 graph-memory-schema-reconciliation complete - 6 of 7 Wave-0 stubs filled, ready for verification gate)
 Resume file: None
