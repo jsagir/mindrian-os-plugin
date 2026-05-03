@@ -910,7 +910,7 @@ Plans:
 
 **Canon parts:** Part 3 (statusline is a LOCAL-context surface for the Decision Gate), Part 6 (dog-fooding -- testers reported 2026-05-02 they can't see MindrianOS while it eats their context), Part 8 (telemetry must stay LOCAL: JSONL with sha256-hashed room slug, never raw content).
 
-**Plans:** 5/6 plans executed
+**Plans:** 6/6 plans complete — Phase 106 SHIPPED as v1.12.5 (2026-05-03)
 
 Plans:
 - [x] 106-00-PLAN.md — Wave 0 scaffold (REQ IDs + test stubs + fixture directories + ROADMAP plans list)
@@ -918,7 +918,7 @@ Plans:
 - [x] 106-02-PLAN.md — D-02 context-monitor token-budget + operator + JTBD broadcast glyphs
 - [x] 106-03-PLAN.md — D-03 doctor.cjs class G invisibility detection + one-time banner + --fix dispatch
 - [x] 106-04-PLAN.md — D-04 fallback echo + D-06 surface-detect helper (CLI / Desktop / Cowork heuristics)
-- [ ] 106-05-PLAN.md — D-05 tester onboarding gate + v1.12.5 release gate (CHANGELOG + plugin.json + package.json + git tag + marketplace ref)
+- [x] 106-05-PLAN.md — D-05 tester onboarding gate + v1.12.5 release gate (CHANGELOG + plugin.json + package.json + git tag + marketplace ref) ✓ SHIPPED
 
 
 ### Phases 108–113: Graph Memory Cluster — Cross-Cutting Note
@@ -939,9 +939,9 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 
 **Canon parts:** Part 4 (Every Choice Is Graph Data), Part 7 (Reuse Before Build — must justify any NEW node/edge type per the alias table), Part 9 (Memory Locality and Interpretation — proposed amendment ratified at Phase 109 release gate).
 
-**Plans:** 7 plans
+**Plans:** 1/7 plans executed
 
-- [ ] 108-00-PLAN.md - Wave 0: REQ-IDs + ROADMAP entry + 7 test stub registration
+- [x] 108-00-PLAN.md - Wave 0: REQ-IDs + ROADMAP entry + 7 test stub registration
 - [ ] 108-01-PLAN.md - Wave 1: RECONCILIATION.md (D-01 nodes + D-02 edges; all 23 EDGE_TYPES + 14 Codex nodes + corrections from RESEARCH 2.4)
 - [ ] 108-02-PLAN.md - Wave 1: PROVENANCE.md (D-02 contract spec only, no SQL migration)
 - [ ] 108-03-PLAN.md - Wave 2: TRUTH-STATES.md (D-03 closed-set + status_aliases + transition table + auto-stale rule)

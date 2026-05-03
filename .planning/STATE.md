@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: "Phase 106 Plan 04 complete: D-04 fallback echo + D-06 surface-detect helper shipped; lib/statusline/* + scripts/statusline-fallback-echo.cjs + doctor.cjs Step 0 swap + 18 own + 14 sibling regression tests PASS; STATUS-106-04 + STATUS-106-06 Complete; only Plan 106-05 release gate remains"
-last_updated: "2026-05-03T11:30:00.000Z"
+stopped_at: "Completed 108-00-PLAN.md (Wave-0 substrate: 6 RECONCILE-108 REQ-IDs + 7 test stubs + registry)"
+last_updated: "2026-05-03T10:17:29.778Z"
 last_activity: 2026-05-03
 progress:
-  total_phases: 38
-  completed_phases: 21
-  total_plans: 178
-  completed_plans: 168
-  percent: 83
+  total_phases: 43
+  completed_phases: 22
+  total_plans: 187
+  completed_plans: 170
+  percent: 82
 ---
 
 # Project State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 106 — statusline-visibility-context-window-broadcast
+**Current focus:** Phase 108 — graph-memory-schema-reconciliation
 
 ## Current Position
 
-Phase: 106 (statusline-visibility-context-window-broadcast) — EXECUTING
-Plan: 5 of 6 complete (Wave 1 + 106-04 of Wave 2 closed; only 106-05 release gate remains)
-Status: 106-04 done (D-04 fallback echo + D-06 surface-detect helper shipped); 18 own tests + 14 sibling regression tests PASS; doctor.cjs Class F UI scan reports 0 NEW violations; Feynman runner 164/169 (parity with Wave-1 baseline)
+Phase: 108 (graph-memory-schema-reconciliation) — EXECUTING
+Plan: 2 of 7
+Status: Ready to execute
 
 Phase 106-04 closure (2026-05-03):
 
@@ -209,6 +209,7 @@ Progress: [████████░░] 82%
 | Phase 95.1 P07 | 18min | 3 tasks | 21 files |
 | Phase 99 P04 | 7 | 3 tasks | 4 files |
 | Phase 106 P00 | 9min | 3 tasks | 18 files |
+| Phase 108-graph-memory-schema-reconciliation P00 | 11min | 3 tasks | 11 files |
 
 ### Roadmap Evolution
 
@@ -571,6 +572,9 @@ Progress: [████████░░] 82%
 - [Phase 106]: Wave 0 scaffolds REQ IDs + test stubs + fixtures + ROADMAP plans list together (not deferred to Wave 1) so plans 106-01..05 inherit a hermetic substrate the moment they start
 - [Phase 106]: Stub owning-plan number embedded in BOTH the comment AND the console.log string so downstream-plan ownership is grep-able from the test file alone (no separate manifest)
 - [Phase 106]: 10 stubs land at end of TEST_FILES array (NOT mid-array insertion) preserving byte-stability of every existing entry; matches Phase 87 zero-side-effects invariant
+- [Phase 108-graph-memory-schema-reconciliation]: Substrate-only Wave 0: REQ-IDs + ROADMAP entry + test stubs ship in this plan; document deliverables (RECONCILIATION/PROVENANCE/TRUTH-STATES/aliases/PART-9-PROPOSAL) defer to Waves 1-3
+- [Phase 108-graph-memory-schema-reconciliation]: test-part-9-invariant.cjs is a CROSS-PHASE dependency stub - remains a stub through ALL of Phase 108; lights up only after Phase 109 ships nodes.review_status column (RESEARCH Pitfall 6)
+- [Phase 108-graph-memory-schema-reconciliation]: Append-only registry insertion in lib/memory/run-feynman-tests.cjs (matches Phase 100/104/105/106 chronological-append precedent; new phases never reorder existing entries)
 
 ### Pending Todos
 
@@ -592,6 +596,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-03T08:32:00.000Z
-Stopped at: Completed 106-03 (D-03 doctor class G statusline-visibility detection + --fix dispatch + 24h banner suppression contract)
+Last session: 2026-05-03T10:17:19.827Z
+Stopped at: Completed 108-00-PLAN.md (Wave-0 substrate: 6 RECONCILE-108 REQ-IDs + 7 test stubs + registry)
 Resume file: None
