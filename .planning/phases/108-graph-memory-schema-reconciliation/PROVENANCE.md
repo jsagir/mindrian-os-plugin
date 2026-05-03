@@ -29,6 +29,21 @@ The following six fields are specified by this Phase 108 contract. Phase 109 shi
 | `created_at` | INTEGER | NOT NULL | (none) | Unix epoch ms. Phase 109 enforces NOT NULL. |
 | `last_seen_at` | INTEGER | NOT NULL | (none) | Unix epoch ms. Drives the stale-marking auto-job (see TRUTH-STATES.md, Plan 108-03). Phase 109 enforces NOT NULL. |
 
+### Verbatim Column-Type Specification (Phase 109 reference)
+
+The contract column types stated as a single SQL fragment for Phase 109 to copy verbatim into its `nodes` table migration. Phase 108 ships this as specification text only; Phase 109 ships the actual `ALTER TABLE` and `CREATE TABLE` migration code.
+
+```
+source_path        TEXT NOT NULL    -- where the node came from (file path, meeting ID, event ID)
+created_by         TEXT NOT NULL    -- enum: 'user' | 'larry' | 'import' | 'brain' | 'system'
+confidence         REAL             -- 0.0-1.0; nullable for confirmed nodes
+review_status      TEXT NOT NULL    -- enum from truth-state taxonomy; default 'proposed'
+created_at         INTEGER NOT NULL -- unix epoch ms
+last_seen_at       INTEGER NOT NULL -- unix epoch ms
+```
+
+This block matches CONTEXT.md D-02 lines 107-120 verbatim (modulo en-dash to hyphen conversion per project hard rule).
+
 ## Optional Fields (Phase 109 contract; populated when applicable)
 
 The following three fields are specified as optional under this contract. Phase 109 ships them as nullable columns; population is scoped to the situations described in the Purpose column.
