@@ -118,6 +118,16 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 | shipped | Brain derivation layer preserving boundary | Phase 90 brain-derivation-layer (v1.10.18) -- 5 independent Canon Part 8 tripwires: schema leak heuristic scan (Plan 90-00) + deriveSection single-chokepoint buildBrainQueryContext (Plan 90-01) + registry brain-md-invariants body-text scan at guardian checkpoints (Plan 90-05) + cross-room aggregator sanitizeDetailScalar + JSON.stringify output audit (Plan 90-06) + cross-scenario BRAIN.md sweep across 14 graceful-degradation fixtures (Plan 90-08). Zero user-content egress; every Brain query carries only generic framework handles + phase identifiers + sha256 hashes + enum scalars. |
 | pending | check-brain-boundary.cjs PR gate | Not yet scaffolded. Stub proposed. |
 
+### Part 9 (proposed) - Memory Locality and Interpretation
+
+| Status   | Phase / Component | Reference |
+|----------|-------------------|-----------|
+| proposed | Phase 108 graph-memory-schema-reconciliation (proposal) | .planning/phases/108-graph-memory-schema-reconciliation/PART-9-PROPOSAL.md + .planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md |
+| planned  | Phase 109 sql-context-memory-navigation-spine (implementation + ratification at release gate) | .planning/phases/109-sql-context-memory-navigation-spine/109-CONTEXT.md (load-bearing) |
+| planned  | Phase 110 brain-context-packet-contract (Brain wire enforcement makes Part 9 structurally hard, not just procedurally audited) | .planning/phases/110-brain-context-packet-contract/110-CONTEXT.md (stub) |
+
+Phase 108 ships the proposal cross-reference document and the schema reconciliation deliverables that make the Part 9 contract testable. Phase 109 ratifies Part 9 at its release gate by merging the proposal text from `.planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md` into `docs/MINDRIAN-CANON.md` as a new Part 9. Phase 110 hardens the Brain wire schema so Part 8 enforcement (LOCAL to BRAIN: NO) is structurally enforced, not just procedurally audited. The trio (108 + 109 + 110) constitutes the Part 9 implementing cluster.
+
 ### Appendix A - Relationship to MWP
 
 | Status  | Phase / Component | Reference |
