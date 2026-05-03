@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: "Completed 106-02 (D-02 context-window broadcast: operator + JTBD + token-budget glyphs wired into scripts/context-monitor; 7-test broadcast suite + 3-glyph carve-out fence replace Wave 0 stubs; STATUS-106-02 Complete)"
-last_updated: "2026-05-03T06:25:00.000Z"
+stopped_at: "Wave 1 complete: 106-01 + 106-02 + 106-03 all closed (D-01 self-heal + D-02 broadcast + D-03 doctor class G); 16 commits + 27 new tests; ready for phase verification"
+last_updated: "2026-05-03T09:35:00.000Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 38
   completed_phases: 21
   total_plans: 178
-  completed_plans: 165
-  percent: 82
+  completed_plans: 168
+  percent: 83
 ---
 
 # Project State
@@ -26,8 +26,24 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 106 (statusline-visibility-context-window-broadcast) — EXECUTING
-Plan: 2 of 6 complete (Wave 1 in flight; 106-01 + 106-03 running in parallel)
-Status: 106-02 done; awaiting Wave 1 sibling completion before Wave 2 dispatch
+Plan: 4 of 6 complete (Wave 1 closed: 106-01 + 106-02 + 106-03 all on main; 106-04 + 106-05 still planned-only)
+Status: Wave 1 done; cherry-pick reconciliation closed conflict between 106-01 worktree and 106-02/03 mainline; ready for phase verification
+
+Phase 106-01 closure (2026-05-03):
+
+- 69a50f0 feat(106-01): add --auto and --quiet flags to migrate-stale-user-settings.cjs (cherry-picked from 1feb772)
+- fcfde53 feat(106-01): wire migrate-stale-user-settings.cjs into SessionStart hook (cherry-picked from 649781f)
+- 4efdf83 test(106-01): replace Wave 0 stub with real 6-test suite for migrate-stale-user-settings (cherry-picked from e27ff89)
+
+Phase 106-01 outcome: D-01 self-healing statusline delivered. scripts/migrate-stale-user-settings.cjs extended additively from 130 -> 238 lines: --auto detect-only mode emits Claude Code SessionStart envelope (continue:true + optional hookSpecificOutput.additionalContext warning) without modifying user's settings.json; --quiet suppresses headers; ENVELOPE_ALLOWED Set + emitEnvelope helper mirrored from operator-update.cjs (Phase 95 BASH-95-01 invariant); disableAllHooks edge case branch with distinct guidance message; existing --apply path byte-identical (Test 4 + Test 5 prove). hooks/hooks.json SessionStart array length 3 -> 4; new entry calls migrator with --auto --quiet at 2000ms timeout. tests/test-stale-settings-migration.cjs Wave 0 stub replaced with 162-line 6-test hermetic suite (detect/clean/no-file/apply/idempotent/disabled); all pass. STATUS-106-01 flipped to Complete. Backward-compat invariant preserved: AUTO is detect-only by canonical contract; --apply mutation gated behind explicit /mos:doctor --fix invocation (Plan 106-03). Note: original commits 1feb772/649781f/e27ff89/e5eece5 stayed on worktree-agent-a80b5962c780c4728 branch; orchestrator cherry-picked the four onto main as 69a50f0/fcfde53/4efdf83/[final docs commit] resolving conflicts in REQUIREMENTS/ROADMAP/STATE in favor of the union of 106-01/02/03 status updates.
+
+Phase 106-03 closure (2026-05-03):
+
+- 14074e3 feat(106-03): add /mos:doctor class G statusline-visibility detector + --fix dispatch
+- 8892789 test(106-03): replace Wave 0 stub with real class G detection tests
+- 1adf26b test(106-03): replace Wave 0 stubs with --fix integration + banner suppression contract tests
+
+Phase 106-03 outcome: D-03 invisibility detection + auto-repair shipped. /mos:doctor --statusline-visibility flag mirrors classes A-F pattern; checkStatuslineVisibility() covers 4 detection branches (stale user-settings, broken plugin install, statusline-mos isolated execution, disableAllHooks=true) with CLAUDE_DESKTOP=1 skip; performStatuslineFix() spawns migrate-stale-user-settings.cjs --apply --quiet with locked-language action field; commands/doctor.md flag table updated. 14 real tests replace 3 Wave 0 stubs (6 detection + 3 --fix dispatch + 5 banner suppression contract). Class F UI compliance scan: 0 violations on doctor.cjs. Two deviations auto-resolved: validPrefix glyph mismatch (plan said 🏠 MindrianOS-Plugin; reality is ⬡ MindrianOS U+2B21 with ANSI codes — fixed via stripAnsi + accept both prefixes) and renderer error glyph collision (plan used ✗ which is in class F FORBIDDEN_GLYPHS — fixed via red ⚠ matching class A pattern). STATUS-106-03 flipped to Complete. Banner suppression shouldSuppress(touchFileContent, currentVersion, now) function fenced inline; Plan 106-04 should extract it to lib/statusline/banner-suppression.cjs for sharing with statusline-fallback-echo.cjs.
 
 Phase 106-02 closure (2026-05-03):
 
