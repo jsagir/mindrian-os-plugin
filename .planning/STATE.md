@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 108-01-PLAN.md (parallel executor; 108-02 also in wave 1)
-last_updated: "2026-05-03T11:03:19.695Z"
+stopped_at: Completed 108-02-PLAN.md (PROVENANCE.md contract spec + 10-assertion test harness; Wave 1 parallel-safe with 108-01 RECONCILIATION.md)
+last_updated: "2026-05-03T11:14:17.613Z"
 last_activity: 2026-05-03
 progress:
   total_phases: 43
   completed_phases: 22
   total_plans: 187
-  completed_plans: 171
+  completed_plans: 172
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 108 (graph-memory-schema-reconciliation) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 
 Phase 106-04 closure (2026-05-03):
@@ -211,6 +211,7 @@ Progress: [████████░░] 82%
 | Phase 106 P00 | 9min | 3 tasks | 18 files |
 | Phase 108-graph-memory-schema-reconciliation P00 | 11min | 3 tasks | 11 files |
 | Phase 108-graph-memory-schema-reconciliation P01 | 18min | 2 tasks | 2 files |
+| Phase 108 P02 | 17min | 2 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -580,6 +581,8 @@ Progress: [████████░░] 82%
 - [Phase 108-graph-memory-schema-reconciliation]: Plan 108-01: opportunity row split into filesystem feature (EXISTS) + graph node (NEW); 3 opportunity edges (BANKED_BY/RANKS_OPPORTUNITY/ANSWERS_OPPORTUNITY) marked NEW per RESEARCH 2.4 grep verification (zero code matches 2026-05-03).
 - [Phase 108-graph-memory-schema-reconciliation]: Plan 108-01: assumption marked EXTEND (not NEW) - assumptions table at memory-ops.cjs:64-74 already exists with closed validity enum; Phase 109 promotes table rows to graph nodes.
 - [Phase 108-graph-memory-schema-reconciliation]: Plan 108-01: CONTAINS marked RESERVED (deferred to Phase 112 Room Budding) - 'explicit only if needed for cross-room traversal' per CONTEXT D-01 IS the RESERVED pattern.
+- [Phase 108]: Plan 108-02: PROVENANCE.md framed unambiguously as CONTRACT spec, not migration; every MUST/required scoped to Phase 109 implementation per Codex tightening 2026-05-03
+- [Phase 108]: Plan 108-02: Verbatim Column-Type Specification block added mirroring CONTEXT D-02 lines 107-120 byte-for-byte; serves test harness AND Phase 109 copy-paste reference
 
 ### Pending Todos
 
@@ -601,6 +604,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-03T11:03:19.684Z
-Stopped at: Completed 108-01-PLAN.md (parallel executor; 108-02 also in wave 1)
+Last session: 2026-05-03T11:14:17.602Z
+Stopped at: Completed 108-02-PLAN.md (PROVENANCE.md contract spec + 10-assertion test harness; Wave 1 parallel-safe with 108-01 RECONCILIATION.md)
 Resume file: None

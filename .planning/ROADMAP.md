@@ -939,11 +939,11 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 
 **Canon parts:** Part 4 (Every Choice Is Graph Data), Part 7 (Reuse Before Build — must justify any NEW node/edge type per the alias table), Part 9 (Memory Locality and Interpretation — proposed amendment ratified at Phase 109 release gate).
 
-**Plans:** 2/7 plans executed
+**Plans:** 3/7 plans executed
 
 - [x] 108-00-PLAN.md - Wave 0: REQ-IDs + ROADMAP entry + 7 test stub registration
 - [x] 108-01-PLAN.md - Wave 1: RECONCILIATION.md (D-01 nodes + D-02 edges; all 23 EDGE_TYPES + 14 Codex nodes + corrections from RESEARCH 2.4)
-- [ ] 108-02-PLAN.md - Wave 1: PROVENANCE.md (D-02 contract spec only, no SQL migration)
+- [x] 108-02-PLAN.md - Wave 1: PROVENANCE.md (D-02 contract spec only, no SQL migration)
 - [ ] 108-03-PLAN.md - Wave 2: TRUTH-STATES.md (D-03 closed-set + status_aliases + transition table + auto-stale rule)
 - [ ] 108-04-PLAN.md - Wave 2: aliases.yml (D-04 machine-readable resolution table + status_aliases section)
 - [ ] 108-05-PLAN.md - Wave 3: scripts/check-schema-aliases.cjs pre-commit hook (D-05) + 5 fixture tests + .git/hooks/pre-commit installer
