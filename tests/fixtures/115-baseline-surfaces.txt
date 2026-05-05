@@ -1,0 +1,127 @@
+# Phase 115 baseline -- pre-115 snapshot of 8 surface anchor lines
+# Generated: 2026-05-05T22:07:28+03:00
+# Each section is the head-of-file or anchor-line excerpt sufficient to prove the rewrite landed in 115-01/02/03.
+
+## D-02 /mos:splash (commands/splash.md head)
+---
+name: splash
+description: Display the MindrianOS Mondrian banner
+body_shape: raw
+serves_jtbd: ["explore"]
+allowed-tools:
+  - Bash
+---
+
+# /mos:splash
+
+Display the MindrianOS De Stijl Mondrian banner on demand.
+
+## What to do
+
+Run the banner script. It auto-reads the version from plugin.json -- no arguments needed:
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/banner"
+```
+
+The banner is purely visual -- no context injection, no state changes, no room modifications.
+
+After showing the banner, say nothing else. Let the art speak.
+
+## D-03 /mos:new-project (commands/new-project.md Step 3 opener)
+51:Start with: **"I'm Larry. What are you working on?"**
+52-
+
+## D-04 marketing line (README hero + plugin.json description)
+<div align="center">
+  <img src="https://mindrianos-jsagirs-projects.vercel.app/logo_dark.svg" alt="MindrianOS" width="160" />
+
+  # MindrianOS
+
+  **Your project becomes your co-founder.**
+
+  Powered by PWS -- the practical innovation methodology developed
+  over 30+ years at Johns Hopkins University.
+  Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
+
+  [![Plugin Version](https://img.shields.io/badge/plugin-v1.10.10-blue)](https://github.com/jsagir/mindrian-os-plugin)
+  [![License](https://img.shields.io/badge/license-BSL_1.1-orange)](https://github.com/jsagir/mindrian-os-plugin/blob/main/LICENSE)
+  [![Commands](https://img.shields.io/badge/commands-71+-green)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Skills](https://img.shields.io/badge/skills-10-cyan)](https://github.com/jsagir/mindrian-os-plugin)
+
+## D-05 Dror 2.0 criteria (docs/testers/REGISTRY.md or test-subject doc -- capture grep)
+docs/testers/STYLE-GUIDE.md:127:Without these the email becomes a corporate update. With these it's a letter from the founder.
+docs/testers/STYLE-GUIDE.md:152:**TO field:** always `jsagir@gmail.com` (founder's address). BCC recipients never see each other's emails. Privacy preserved.
+docs/testers/STYLE-GUIDE.md:188:10. Surface draft to founder for review + send
+docs/testers/STYLE-GUIDE.md:198:**Exception:** if the founder explicitly overrides this guide for a specific release ("more technical this time" / "shorter this time" / "thank Lawrence specifically for X"), apply the override and document it in the outbox file's frontmatter as a `style_deviation:` field with reason.
+
+## D-06 agents/larry-extended.md initialPrompt + first-line
+---
+name: larry-extended
+description: Larry, the PWS methodology teaching partner. Engage for venture conversations, methodology guidance, and room reasoning.
+model: inherit
+color: purple
+skills:
+  - larry-personality
+  - context-engine
+  - room-passive
+  - room-proactive
+initialPrompt: "I'm Larry. What are you working on?"
+---
+
+You are Larry -- a thinking partner modeled on Prof. Lawrence Aronhime. NOT a textbook, NOT a framework dispenser. If your response looks like a PDF, start over.
+
+First line to new users: "I'm Larry. What are you working on?"
+
+## Voice
+
+Conversational. Provocative. Concise. Warm but demanding. 3-8 sentences default. Quick: 2-3. Longer ONLY when asked.
+
+## D-07 commands/onboard.md Step 1 opening framing
+## Step 1: The Three Ways to Work
+
+Very simply -- there are three ways to use MindrianOS. Pick the one that fits how you think.
+
+Present the three modes with their JTBD statements. These MUST match the session-start mode menu exactly:
+
+```
+======
+How do you want to work today?
+
+  [1] Just Talk
+      "Help me think through something -- no strings attached"
+      Larry explores with you. Nothing saved. Pure thinking partner.
+
+  [2] Explore + Capture
+      "Help me explore -- and catch the structure as it emerges"
+      Larry talks AND detects patterns, personas, opportunities.
+      When you are ready, everything seeds a Data Room.
+
+  [3] Build a Room
+      "I know what I am building -- let me set up the room first"
+      Jump straight to /mos:new-project and start working.
+
+Type 1, 2, or 3 -- or just start talking (defaults to Mode 1).
+======
+```
+
+
+## D-08 README.md hero tagline
+<div align="center">
+  <img src="https://mindrianos-jsagirs-projects.vercel.app/logo_dark.svg" alt="MindrianOS" width="160" />
+
+  # MindrianOS
+
+  **Your project becomes your co-founder.**
+
+  Powered by PWS -- the practical innovation methodology developed
+  over 30+ years at Johns Hopkins University.
+  Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
+
+  [![Plugin Version](https://img.shields.io/badge/plugin-v1.10.10-blue)](https://github.com/jsagir/mindrian-os-plugin)
+  [![License](https://img.shields.io/badge/license-BSL_1.1-orange)](https://github.com/jsagir/mindrian-os-plugin/blob/main/LICENSE)
+  [![Commands](https://img.shields.io/badge/commands-71+-green)](https://github.com/jsagir/mindrian-os-plugin)
+  [![Skills](https://img.shields.io/badge/skills-10-cyan)](https://github.com/jsagir/mindrian-os-plugin)
+
+## D-09 website hero (out-of-repo placeholder; baseline fetched manually if needed)
+(out-of-repo: ~/mindrian-website/; not snapshotted in this fixture)
