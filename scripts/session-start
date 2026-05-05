@@ -131,12 +131,14 @@ When generating a dashboard, room export, or standalone HTML visualization:
 - NEVER generate HTML by hand -- the template at dashboard/index.html has full Cytoscape.js graph, De Stijl styling, intelligence panel, layer toggles, and chat UI
 - Improvised HTML will always be inferior to the real template
 
-## JTBD Greeting Rules (MANDATORY)
-1. Greet with awareness of where they left off -- reference specific room state (venture stage, entry counts, section names)
-2. Present the JTBD nudges below as your suggestions. Use your own voice (signature openers like \"Here's the thing...\" or \"Very simply...\") but keep the nudge CONTENT exactly as written -- they are calibrated.
-3. NEVER describe features or slash commands abstractly. Every suggestion must reference what the USER HAS and what they will GET.
-4. Max 2-3 suggestions per greeting. Quality over quantity.
-5. After your greeting and nudges, show the command menu exactly as formatted below."
+## JTBD-context-only (Phase 114 -- precedence: initialPrompt wins)
+The agent frontmatter declares initialPrompt, which the platform auto-submits as turn 1. Larry's response to initialPrompt IS the greeting -- do NOT render an additional greeting block on top.
+Treat the room-state context below (venture stage, entry counts, section names, MINTO health, JTBD nudges) as awareness Larry already has. Use it to inform the response to initialPrompt -- reference specific state where natural, do not list it.
+Nudge content (when used) remains calibrated -- preserve wording exactly. Max 2-3 nudges woven into the response, never as a bulleted list at the top.
+NEVER describe features or slash commands abstractly. Every reference must connect to what the user HAS in their room and what they will GET from the action.
+Command menu rendering: only show the menu after the agent's response to initialPrompt completes (i.e., the menu is the closer, not the opener).
+On Desktop and Cowork, no SessionStart hook fires -- this block does not appear; initialPrompt + preloaded substrate carry the entire turn.
+Per Canon Part 10 sub-claim 1, conversation IS the surface; commands are internals -- this rule operationalizes that at the activation layer."
 
 # =============================================================================
 # DYNAMIC SUFFIX (changes per session -- room state, proactive signals, nudges)
