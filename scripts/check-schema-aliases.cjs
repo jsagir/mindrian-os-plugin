@@ -261,9 +261,12 @@ function formatViolation(v) {
 }
 
 // ----------------------------------------------------------------------------
-// Read staged content via git diff --cached.
+// Read staged content via git diff --cached. Used by the default
+// schema-aliases scan. Renamed to *_default in Plan 109-06 because the new
+// --check-chokepoint subcommand introduces a per-file readStagedContent
+// helper with different semantics (path -> content vs full diff blob).
 // ----------------------------------------------------------------------------
-function readStagedContent() {
+function readStagedContent_default() {
   const result = spawnSync('git', ['diff', '--cached', '--unified=0'], {
     cwd: REPO_ROOT,
     encoding: 'utf8'
@@ -285,11 +288,136 @@ function checkSqlAgainstAliases(sqlText, filePath) {
 
 module.exports = { checkSqlAgainstAliases, parseAliasesYaml, buildAllowedTableSet, formatViolation, ALLOWED_EXISTING_TABLES };
 
+// ============================================================================
+// Phase 109-06 - --check-chokepoint subcommand. Scans staged JS/CJS/MJS files
+// for direct require('./room-db.cjs') / require('./lazygraph-ops.cjs') /
+// require('./memory-ops.cjs') outside the allow-list. Per RESEARCH section 3.2
+// + Open Question 11.7 (single mega-script with sub-commands per check).
+//
+// Canon Part 7 (Reuse Before Build): extends Phase 108-05 substrate; same
+// installer; zero new npm dependencies; reuses existing in-house seam.
+// Canon Part 8 (Graph Boundary): zero Brain queries; LOCAL-only enforcement.
+// Canon Part 9 (Memory Locality): the chokepoint enforces that every module
+// touching the graph routes through navigation.cjs - the single-source-of-truth
+// principle Canon Part 9 ratifies.
+// ============================================================================
+
+const ALLOWED_DIRECT_IMPORT = [
+  /^lib\/core\/navigation\.cjs$/,
+  /^lib\/core\/navigation\//,
+  /^lib\/core\/room-db\.cjs$/,
+  /^lib\/core\/lazygraph-ops\.cjs$/,
+  /^lib\/core\/memory-ops\.cjs$/,
+  /^lib\/core\/opportunity-ops\.cjs$/,
+  /^tests\//,
+  /^scripts\/migrate-/,
+  // v1.14.0 backward-compat grandfather (per CONTEXT.md L353-358; deprecation cycle in v1.14+):
+  /^lib\/hmi\/across-session-memory\.cjs$/,
+  /^lib\/core\/brain-derivation\.cjs$/,
+  /^scripts\/compute-state$/,
+  // Phase 108 substrate self-reference (migration scripts directory):
+  /^lib\/core\/migrations\//,
+];
+
+const BANNED_PATTERNS = [
+  // Relative paths ending in the protected basename. Covers:
+  //   require('./room-db.cjs')
+  //   require('../room-db.cjs')
+  //   require('../core/memory-ops.cjs')
+  //   require('../../lib/core/room-db.cjs')
+  // The leading anchor is one or two dots (relative path prefix); the body is
+  // any number of intermediate path segments before the protected basename.
+  /require\(['"]\.\.?\/[^'"]*?(room-db|lazygraph-ops|memory-ops)\.cjs['"]\)/,
+  // Bare absolute-style paths: require('lib/core/room-db.cjs').
+  /require\(['"]lib\/core\/(room-db|lazygraph-ops|memory-ops)\.cjs['"]\)/,
+];
+
+function isAllowedPath(p) {
+  const normalized = p.replace(/\\/g, '/');
+  return ALLOWED_DIRECT_IMPORT.some((rx) => rx.test(normalized));
+}
+
+function getStagedFiles() {
+  const env = process.env.MINDRIAN_HOOK_STAGED_FILES;
+  if (typeof env === 'string') {
+    return env.split('\n').map((s) => s.trim()).filter(Boolean);
+  }
+  // Production: git diff --cached --name-only --diff-filter=ACM.
+  try {
+    const r = spawnSync('git', ['diff', '--cached', '--name-only', '--diff-filter=ACM'], { cwd: REPO_ROOT, encoding: 'utf8' });
+    if (r.status !== 0) return [];
+    return (r.stdout || '').split('\n').map((s) => s.trim()).filter(Boolean);
+  } catch (_) {
+    return [];
+  }
+}
+
+function readStagedContent(filePath) {
+  // Hermetic-test seam: read from MINDRIAN_HOOK_STAGED_CONTENT_DIR/<path> when set.
+  const contentDir = process.env.MINDRIAN_HOOK_STAGED_CONTENT_DIR;
+  const candidates = [];
+  if (contentDir) candidates.push(path.join(contentDir, filePath));
+  candidates.push(path.join(REPO_ROOT, filePath));
+  for (const c of candidates) {
+    try {
+      if (fs.existsSync(c)) return fs.readFileSync(c, 'utf8');
+    } catch (_) { /* fall through */ }
+  }
+  // Production fallback: git show :<file> for staged content.
+  try {
+    const r = spawnSync('git', ['show', ':' + filePath], { cwd: REPO_ROOT, encoding: 'utf8' });
+    if (r.status === 0) return r.stdout || '';
+  } catch (_) { /* ignore */ }
+  return '';
+}
+
+function checkChokepoint() {
+  const staged = getStagedFiles();
+  const violations = [];
+  for (const filePath of staged) {
+    if (!/\.(cjs|js|mjs)$/.test(filePath)) continue;
+    if (isAllowedPath(filePath)) continue;
+    const content = readStagedContent(filePath);
+    if (!content) continue;
+    const lines = content.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      for (const rx of BANNED_PATTERNS) {
+        const m = lines[i].match(rx);
+        if (m) {
+          violations.push({ file: filePath, line: i + 1, match: m[0] });
+        }
+      }
+    }
+  }
+  if (violations.length === 0) {
+    process.exit(0);
+  }
+  process.stderr.write('[check-chokepoint] FAIL: direct require of room-db / lazygraph-ops / memory-ops outside allow-list:\n');
+  for (const v of violations) {
+    process.stderr.write('  ' + v.file + ':' + v.line + ': ' + v.match + '\n');
+  }
+  process.stderr.write('Route the access through lib/core/navigation.cjs or add the path to the ALLOWED_DIRECT_IMPORT list in scripts/check-schema-aliases.cjs.\n');
+  process.exit(1);
+}
+
+module.exports.checkChokepoint = checkChokepoint;
+module.exports.ALLOWED_DIRECT_IMPORT = ALLOWED_DIRECT_IMPORT;
+module.exports.BANNED_PATTERNS = BANNED_PATTERNS;
+
 // ----------------------------------------------------------------------------
 // CLI entry point.
 // ----------------------------------------------------------------------------
 if (require.main === module) {
   const args = process.argv.slice(2);
+
+  // Phase 109-06: --check-chokepoint subcommand short-circuits the default
+  // schema-aliases scan. The pre-commit installer can invoke either or both
+  // independently; this dispatch keeps each check single-purpose.
+  if (args.includes('--check-chokepoint')) {
+    checkChokepoint();
+    return;
+  }
+
   let sqlText = '';
   let filePath = '<staged>';
 
@@ -299,7 +427,7 @@ if (require.main === module) {
     filePath = args[1];
     sqlText = fs.readFileSync(args[1], 'utf8');
   } else {
-    const staged = readStagedContent();
+    const staged = readStagedContent_default();
     sqlText = staged.content;
   }
 
