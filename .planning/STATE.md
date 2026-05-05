@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: "Completed 109-02-PLAN.md (Focus Node Model: session_focus migration + focus.cjs helpers + 🎯 statusline glyph + Phase 106-02 fence amendment)"
-last_updated: "2026-05-05T06:21:39.138Z"
+stopped_at: Completed 109-04-PLAN.md
+last_updated: "2026-05-05T07:52:14.408Z"
 last_activity: 2026-05-05
 progress:
   total_phases: 43
   completed_phases: 23
   total_plans: 197
-  completed_plans: 178
+  completed_plans: 179
   percent: 82
 ---
 
@@ -217,6 +217,7 @@ Progress: [████████░░] 82%
 | Phase 108 P05 | 10min | 3 tasks | 8 files |
 | Phase 108-graph-memory-schema-reconciliation P06 | 16min | 3 tasks | 3 files |
 | Phase 109 P02 | 811 | 3 tasks | 8 files |
+| Phase 109-sql-context-memory-navigation-spine P04 | 15min | 2 tasks | 5 files |
 
 ### Roadmap Evolution
 
@@ -602,6 +603,7 @@ Progress: [████████░░] 82%
 - [Phase 109]: Plan 109-02 chose room:<roomId> as auto-focus rule 3 fallback (NOT a new governing_thought node type) per RESEARCH section 4.2 to avoid amending the frozen Phase 108 aliases.yml
 - [Phase 109]: Plan 109-02 made openRoomDb synchronous returning bare DatabaseSync handle per plan's Step 4 explicit instruction; documented as parallel-worktree merge surface for orchestrator
 - [Phase 109]: Plan 109-02 amended Phase 106-02 glyph fence to permit 🎯 in BOTH JTBD and focus contexts per RESEARCH Open Question 11.8
+- [Phase 109-sql-context-memory-navigation-spine]: Plan 109-04: Closed 13-function navigation chokepoint shipped (lib/core/navigation.cjs); recursive CTE getNeighborhood with frozen edge weights and cycle guard; promoteNodeStatus enforcing 8 documented Phase 108 truth-state transitions; perf budgets crushed on 10K-node room (cold 0.79ms, warm p95 1.35ms vs 50ms budget)
 
 ### Pending Todos
 
@@ -623,6 +625,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-05T06:21:39.125Z
-Stopped at: Completed 109-02-PLAN.md (Focus Node Model: session_focus migration + focus.cjs helpers + 🎯 statusline glyph + Phase 106-02 fence amendment)
+Last session: 2026-05-05T07:52:07.429Z
+Stopped at: Completed 109-04-PLAN.md
 Resume file: None
