@@ -9,6 +9,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.13.0-beta.2] - 2026-05-05
+
+### Added
+
+- Phase 114 (larry-default-activation): subagent skill preload mechanism. `agents/larry-extended.md` frontmatter now declares `skills: [larry-personality, context-engine, room-passive, room-proactive]` -- the four-skill substrate is structurally preloaded into Larry's main-thread agent context at session start, every session, every surface (CLI / Desktop / Cowork).
+- Phase 114: `initialPrompt:` placeholder on `agents/larry-extended.md` ("I'm Larry. What are you working on?") so turn 1 is automatically Larry-led without any /mos:* invocation. Phase 115 will refine this to the polished Beautiful Question opener.
+- Phase 114: `paths:` glob scoping on `skills/room-passive/SKILL.md` and `skills/room-proactive/SKILL.md` -- defense-in-depth against context-budget bloat when user is outside any room directory.
+- Phase 114 (SEED-003 A1): `"alwaysLoad": true` on the local `mindrian-os` MCP server in `.mcp.json`. Tools surface from turn 1, no Tool Search 10% threshold deferral wait. Requires Claude Code 2.1.121+.
+- Wave 0 verification suite at `tests/test-114-*.sh` (4 sub-tests + orchestrator + voice rubric + baseline fixture + manual checklist).
+
+### Changed
+
+- `settings.json`: removed the unsupported `skills:` array. Per Anthropic's plugin schema, plugin `settings.json` only honors the `agent` and `subagentStatusLine` keys -- the array had been silently ignored. Activation now flows through the supported subagent preload mechanism (above).
+- `scripts/session-start`: SessionStart additionalContext JTBD greeting block reframed as context-only when `initialPrompt` is active. Prevents double-greet (initialPrompt fires AND SessionStart instructs another greeting). On Desktop/Cowork (no SessionStart hook), `initialPrompt` is the only first-turn surface -- no conflict.
+
+### Deferred (out of Phase 114 scope, documented for traceability)
+
+- Brain MCP `alwaysLoad: true`: user-side configuration, not plugin-distributed. Users who run Brain MCP can enable it themselves; Phase 114 does not modify user-side `.mcp.json`. SEED-003 A1's Brain portion remains dormant.
+- `brain-connector` skill env-conditional gating: today's behavior (description-matching driven activation) is unchanged after `settings.json` cleanup. The previous `{ when: env:MINDRIAN_BRAIN_KEY }` syntax was unsupported. If env-conditional gating becomes desired, file as a separate backlog item or use SKILL.md `paths:` field.
+- Polished Beautiful Question first-turn copy: deferred to Phase 115 (Owned Emotion + Dual-Path First Touch).
+- 5-gate sync rule item 5 (~/mindrian-marketplace marketplace.json `source.ref` pinning to `v1.13.0-beta.2`) is handled at the milestone promotion gate, not in this repo.
+
+### Promotion Gate
+
+Per `.planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md` `## Empathy Audit Protocol`: 3 fresh testers, 15-minute silent observation per surface (CLI / Desktop / Cowork). Promotion blocked until 2/3 report substrate-active turn-1 experience AND Hooked audit re-score >= 38. Manual checklist for testers is at `tests/manual/114-acceptance.md`.
+
+### Canon Conformance
+
+- Implements Canon Part 10 sub-claim 1 ("Larry IS the product") at the activation layer.
+- Conforms to Canon Part 8 (Graph Boundary): all four mechanisms (skills preload, agent setting, initialPrompt, alwaysLoad MCP) are LOCAL-only; no LOCAL -> BRAIN egress.
+- Composes cleanly with Phase 91 Navigation Engine (lib/core/skill-activation-router.cjs `routeActivation` legacy fallback path preserved). Phase 91 integration suite reports 0 new failures introduced by Phase 114.
+
 ## [1.13.0-beta.1] - 2026-05-05
 
 **Beta release.** Ships Phase 108 (graph memory schema reconciliation) and
