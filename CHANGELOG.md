@@ -9,6 +9,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.13.0-beta.3] - 2026-05-05
+
+### Added
+
+- **Phase 115 -- Owned Emotion + Dual-Path First Touch.** Single owned emotion ("I'm stuck on a decision I can't name") rewrites all 8 first-touch surfaces -- `/mos:splash` copy, `/mos:new-project` opener, README hero, `/mos:onboard` Step 1 framing, agents/larry-extended.md initialPrompt, Dror 2.0 test subject criteria, marketing line, and out-of-repo website hero (deliverable in `docs/copy/115-website-hero.md`). Implements Canon Part 10 sub-claim 2 ("Conversation IS the surface"). [phase 115-01]
+- **Persona-aware turn-1 rendering mechanism.** New `persona_variants:` frontmatter map on `agents/larry-extended.md` carrying 1 default + 9 Canon Appendix C hirer variants (founder + researcher + investor written; researcher_ind + founder_grant + operator + mentor + domain_expert + student aliased to default until future role_blend schema extension). Agent body renders the matching variant by reading USER.md `role_blend` highest-weight key; cold-start falls back to default. [phase 115-03]
+- **Dual-path opener.** New `lib/core/dual-path-detector.cjs` (5-feature additive score: word_count + newline_density + section_header + domain_marker + stuck_language with -3 negative weight). Threshold +3 -> upload, -3 -> type, else ambiguous (explicit fallback). 16-fixture unit test (`lib/core/dual-path-detector.test.cjs`). New `lib/core/shallow-doc-parser.cjs` extracts 1 user + 1 venture + 1-3 claim nodes; routes through Phase 109 `lib/core/navigation.cjs setFocus` + `memory_event` API. Two new MCP tools (`detect_dual_path`, `extract_shallow`) registered in `bin/mindrian-mcp-server.cjs` for Desktop / Cowork tri-polar coverage. [phase 115-02]
+- **Spec-strings source-of-truth.** New `lib/copy/115-spec-strings.cjs` frozen module exporting D-02..D-09 verbatim spec strings; all 8 surfaces import from it (Pitfall 1 mitigation). [phase 115-00]
+- **5-tester async validation infrastructure.** Email template (`tests/fixtures/115-validation-email-template.md`), 5x4 rubric (`tests/fixtures/115-tester-rubric.md`), 3-tester empathy-audit checklist (`tests/manual/115-acceptance.md`), and pre-committed D-20 rollback procedure (`tests/manual/115-rollback-procedure.md`). [phase 115-00]
+- **Phase 115 verification orchestrator + 2 sub-tests.** `tests/test-115-owned-emotion.sh` calls 4 sub-tests: validation-template (AC-115-01), surfaces-grep (AC-115-02), dual-path-integration (AC-115-03), persona-variants (AC-115-04). All 4 ACs verified via single command. [phase 115-04]
+
+### Changed
+
+- `agents/larry-extended.md` `initialPrompt` updated from Phase 114 placeholder ("I'm Larry. What are you working on?") to D-17 spec verbatim ("I'm Larry. What decision is stuck? (Tell me, or paste a doc/CV.)"). The new value is byte-exact equal to `lib/copy/115-spec-strings.cjs` `INITIAL_PROMPT_DEFAULT`.
+- `README.md` hero tagline updated from "Your project becomes your co-founder" to "For founders stuck on a decision they can't name" (D-04 / D-08 marketing line).
+- `commands/onboard.md` Step 1 leads with the D-07 emotion paragraph BEFORE the methodology pitch. Voice rules + symbol vocabulary unchanged.
+- `commands/new-project.md` Step 3 opener uses D-03 verbatim. Voice rules + Steps 4-9 unchanged.
+- `commands/splash.md` prints D-02 owned-emotion tagline after the banner script.
+- `docs/testers/REGISTRY.md` Protocol section now documents Dror 2.0 test subject criteria (D-05) before the "Adding a tester" subsection.
+
+### Manual action items
+
+- **POST-MERGE WEBSITE EDIT:** apply the website hero rewrite from `docs/copy/115-website-hero.md` to `~/mindrian-website/[hero file]`. The website repo is independent of MindrianOS-Plugin; this is NOT auto-applied. The deliverable + step-by-step is in `docs/copy/115-website-hero.md`.
+- **VALIDATION WEEK:** dispatch `tests/fixtures/115-validation-email-template.md` to the 5-tester cohort (Lawrence Aronhime + Justin Stitzlein + Aryeh Holtzberg + Adam Peters + Shmuel Schuman) per D-13 (async, 48h reply window). Synthesize replies into `tests/fixtures/115-tester-rubric.md`.
+- **D-20 ROLLBACK GATE (Pitfall 5 pre-commit):** if validation lands < 4-of-5 vivid recent memory, execute `tests/manual/115-rollback-procedure.md` step-by-step. Pre-committed; no live deliberation.
+- **MARKETPLACE Gate 5 (deferred):** ref-pin `~/mindrian-marketplace/.claude-plugin/marketplace.json` `source.ref` to `v1.13.0-beta.3` ONLY after the 5-tester async validation passes 4-of-5 AND the 3-tester live empathy audit (`tests/manual/115-acceptance.md`) reports 2/3 pass. Until then, Phase 115 ships as a LOCAL-ONLY tagged build (no `git push`, no marketplace ref-pin).
+
+### Audit notes
+
+- Phase 91 Feynman runner non-regression: PASS. No NEW failures reference Phase 115 artifacts (`dual-path-detector`, `shallow-doc-parser`, `115-spec-strings`, `persona_variants`, `larry-extended`, `115-` patterns). Pre-existing inherited failures from prior phases (83/84/106) are acceptable per Phase 89.5 + Phase 106-02 baseline contract. Runner reports 171/176 pass; 5 failures are all from prior-phase test files (smart-notebook, self-update-platform, post-compact-reinjection, decision-capture, statusline-glyph-isolation).
+- Phase 114 substrate-preload non-regression: PASS. Skills array (4 entries), model: inherit, color: purple, name preserved byte-identical. settings.json `agent: larry-extended` preserved.
+- Canon Part 8 audit (Graph Boundary): PASS. No LOCAL -> BRAIN egress paths introduced. Variant strings are plugin-distributed; USER.md role_blend reading is local; dual-path detector classification + shallow-doc-parser writes are local-only. Phase 121 telemetry payloads carry enum scalars + booleans + integers + sha256 hashes only (no user-content substrings). Pre-existing brain-boundary-scan hook (Phase 87) passes.
+- Phase 109 chokepoint adherence: PASS. New code in `lib/core/dual-path-detector.cjs` and `lib/core/shallow-doc-parser.cjs` does NOT require `room-db.cjs` directly. All graph writes route through `lib/core/navigation.cjs` (setFocus + memory_event API).
+- AC-115-01..04 verification: 4/4 PASS via `bash tests/test-115-owned-emotion.sh`.
+
 ## [1.13.0-beta.2] - 2026-05-05
 
 ### Added
