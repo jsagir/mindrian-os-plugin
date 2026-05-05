@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 109-04-PLAN.md
-last_updated: "2026-05-05T07:52:14.408Z"
+stopped_at: Completed 109-05-PLAN.md
+last_updated: "2026-05-05T08:16:10.599Z"
 last_activity: 2026-05-05
 progress:
   total_phases: 43
   completed_phases: 23
   total_plans: 197
-  completed_plans: 179
+  completed_plans: 181
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 109 (sql-context-memory-navigation-spine) — EXECUTING
-Plan: 2 of 10
+Plan: 3 of 10
 Status: Ready to execute
 
 Phase 106-04 closure (2026-05-03):
@@ -218,6 +218,8 @@ Progress: [████████░░] 82%
 | Phase 108-graph-memory-schema-reconciliation P06 | 16min | 3 tasks | 3 files |
 | Phase 109 P02 | 811 | 3 tasks | 8 files |
 | Phase 109-sql-context-memory-navigation-spine P04 | 15min | 2 tasks | 5 files |
+| Phase 109 P06 | 824 | 2 tasks | 3 files |
+| Phase 109 P05 | 25min | 2 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -604,6 +606,10 @@ Progress: [████████░░] 82%
 - [Phase 109]: Plan 109-02 made openRoomDb synchronous returning bare DatabaseSync handle per plan's Step 4 explicit instruction; documented as parallel-worktree merge surface for orchestrator
 - [Phase 109]: Plan 109-02 amended Phase 106-02 glyph fence to permit 🎯 in BOTH JTBD and focus contexts per RESEARCH Open Question 11.8
 - [Phase 109-sql-context-memory-navigation-spine]: Plan 109-04: Closed 13-function navigation chokepoint shipped (lib/core/navigation.cjs); recursive CTE getNeighborhood with frozen edge weights and cycle guard; promoteNodeStatus enforcing 8 documented Phase 108 truth-state transitions; perf budgets crushed on 10K-node room (cold 0.79ms, warm p95 1.35ms vs 50ms budget)
+- [Phase 109]: Plan 109-06: Single mega-script with --check-chokepoint subcommand vs new parallel script (chose mega-script per RESEARCH OQ 11.7); BANNED_PATTERNS broadened to relative-path-with-protected-basename to catch require('../core/memory-ops.cjs')
+- [Phase 109]: Closed kind enum for renderExplanation (6 cases): contradiction, unsupported, blocking, stale, open, opportunity; canon amendment required to add a 7th kind
+- [Phase 109]: findRelevantOpportunities scores ALL opportunity nodes room-wide (Canon Part 2 always-ambient); depth=99 fallback for non-reachable; composite = 0.5*hsi + 0.3*distScore + 0.2*jtbdScore
+- [Phase 109]: findStaleDecisions uses 30-day threshold per RESEARCH 2.5 simplification (5 sessions = 30 days); opts.staleAfterSessions preserved for API compat
 
 ### Pending Todos
 
@@ -625,6 +631,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-05T07:52:07.429Z
-Stopped at: Completed 109-04-PLAN.md
+Last session: 2026-05-05T08:16:10.586Z
+Stopped at: Completed 109-05-PLAN.md
 Resume file: None

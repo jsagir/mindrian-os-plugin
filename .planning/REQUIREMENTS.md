@@ -244,7 +244,7 @@
 
 - [x] **NAV-109-03**: Memory Event Log. `memory_event` is a first-class node type per Phase 108 RECONCILIATION.md L104; rows live in the unified `nodes` table (NOT a separate `memory_events` table). 15 closed-set event types (14 from CONTEXT D-03 plus `state_alias_migration` per Phase 108 TRUTH-STATES.md L68). JS validation rejects event_type values outside the closed enum. `findRecentChanges(sinceEpochMs)` is a single SELECT against `WHERE type = 'memory_event' AND created_at > :since` driven by the new `idx_nodes_type` plus `idx_nodes_created_at` indices. Per CONTEXT D-03 + RESEARCH section 2.4.
 
-- [ ] **NAV-109-04**: Insight Query Primitives. `lib/core/navigation.cjs` exports the 7 closed-vocabulary functions per CONTEXT D-04: `findContradictions`, `findUnsupportedClaims`, `findBlockingAssumptions`, `findStaleDecisions`, `findOpenQuestions`, `findRecentChanges`, `findRelevantOpportunities`. Each returns a typed result plus templated explanation string using the typed edge labels per RESEARCH section 2.5 (zero LLM in the loop). `findRelevantOpportunities` ranks via the formula `weightHsi (0.5) times normalize(hsiScore) plus weightDistance (0.3) times graphDistanceScore plus weightJtbd (0.2) times jtbdMatchScore` per RESEARCH section 5.
+- [x] **NAV-109-04**: Insight Query Primitives. `lib/core/navigation.cjs` exports the 7 closed-vocabulary functions per CONTEXT D-04: `findContradictions`, `findUnsupportedClaims`, `findBlockingAssumptions`, `findStaleDecisions`, `findOpenQuestions`, `findRecentChanges`, `findRelevantOpportunities`. Each returns a typed result plus templated explanation string using the typed edge labels per RESEARCH section 2.5 (zero LLM in the loop). `findRelevantOpportunities` ranks via the formula `weightHsi (0.5) times normalize(hsiScore) plus weightDistance (0.3) times graphDistanceScore plus weightJtbd (0.2) times jtbdMatchScore` per RESEARCH section 5.
 
 - [x] **NAV-109-05**: Navigation API surface. `lib/core/navigation.cjs` exports exactly 13 functions per CONTEXT D-05 (closed surface). Pre-commit hook extends `scripts/check-schema-aliases.cjs` (Plan 108-05 substrate) with the chokepoint check: any new `require('lib/core/room-db.cjs')` outside the allow-list (navigation.cjs, navigation/*.cjs, room-db.cjs self, lazygraph-ops.cjs co-module, memory-ops.cjs co-module, opportunity-ops.cjs legacy, tests/, scripts/migrate-) fails the commit. Same script per RESEARCH section 3.2 (single mega-script per Open Question 11.7); installer (scripts/install-pre-commit.sh) does NOT change. Per CONTEXT D-05 + RESEARCH section 3.
 
@@ -411,7 +411,7 @@
 | NAV-109-01 | Phase 109 | Complete |
 | NAV-109-02 | Phase 109 | Complete |
 | NAV-109-03 | Phase 109 | Complete |
-| NAV-109-04 | Phase 109 | Pending |
+| NAV-109-04 | Phase 109 | Complete |
 | NAV-109-05 | Phase 109 | Complete |
 | NAV-109-06 | Phase 109 | Pending |
 | NAV-109-07 | Phase 109 | Pending |
