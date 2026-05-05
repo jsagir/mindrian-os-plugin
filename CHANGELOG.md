@@ -9,6 +9,134 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.13.0-beta.1] - 2026-05-05
+
+**Beta release.** Ships Phase 108 (graph memory schema reconciliation) and
+Phase 109 (SQL Context-Memory Navigation Spine), the load-bearing substrate
+for the Memory Locality cluster (Canon Part 9). Beta-gated per
+release-process.md doctrine because this release ships SQLite migrations that
+run on every user's `room.db` at session start; testers (Lawrence + 4 in
+docs/testers/) opt in via `--version 1.13.0-beta.1` before promotion to plain
+1.13.0.
+
+### Added
+
+#### Phase 108 - Graph Memory Schema Reconciliation
+
+- `RECONCILIATION.md`, `PROVENANCE.md`, `TRUTH-STATES.md`, `aliases.yml`,
+  `scripts/check-schema-aliases.cjs` + `install-pre-commit.sh`,
+  `PART-9-PROPOSAL.md` + `CANON-PHASE-MAP.md` Part 9 (proposed) subsection.
+- 9 provenance fields contract per node; closed 8-state truth-state taxonomy
+  with 8 documented transitions; pre-commit drift guard scanning staged
+  diffs against alias rules.
+
+#### Phase 109 - SQL Context-Memory Navigation Spine
+
+The load-bearing phase in the graph-memory cluster (108 / 109 / 110 / 112 /
+113). Turns `room.db` into Mindrian's local mind: the authoritative context,
+memory, and insight navigation engine. Larry stops scanning folders and
+starts navigating a graph.
+
+- **D-01 Focus Node Model** (Plan 109-02): `session_focus` table + auto-focus
+  cascade (JTBD anchor -> DECISION_GATE recent unconfirmed -> STATE.md
+  governing thought) + statusline 🎯 glyph. NAV-109-01.
+- **D-02 Typed Neighborhood Retrieval** (Plan 109-04): single recursive CTE
+  returning ranked typed neighbors with `edge_path` + `score`. Pure SQL.
+  Sub-ms on 10K-node rooms (0.79ms cold / 1.35ms warm p95). NAV-109-02.
+- **D-03 Memory Event Log** (Plan 109-03): `memory-events.cjs` with
+  closed-15 EVENT_TYPES enum + `logEvent` writer + `findRecentChanges`
+  reader. Time-ordered, queryable. Every confirmation, rejection,
+  decision, brain proposal, user correction is a typed `memory_event` row.
+  NAV-109-03.
+- **D-04 7 Insight Query Primitives** (Plan 109-05): `findContradictions`,
+  `findUnsupportedClaims`, `findBlockingAssumptions`, `findStaleDecisions`,
+  `findOpenQuestions`, `findRecentChanges`, `findRelevantOpportunities`
+  (HSI score + graph distance + JTBD relevance). Each is a SINGLE SELECT,
+  zero LLM in the loop. NAV-109-04.
+- **D-05 Navigation API chokepoint** (Plan 109-04 + 109-06):
+  `lib/core/navigation.cjs` is the closed 14-export surface. Plan 109-06
+  extends Phase 108-05 pre-commit hook with `--check-chokepoint` subcommand
+  scanning staged diffs for direct `require('./room-db.cjs')` outside the
+  allow-list. Runtime soft-defense audit log writes to
+  `~/.mindrian/telemetry/navigation-bypass.jsonl` (LOCAL JSONL, sha256-hashed
+  slug). NAV-109-05.
+- **D-06 Brain Packet Builder** (Plan 109-07): `buildBrainPacket` returns a
+  plain JS object carrying ONLY enum scalars, sha256 hashes, framework
+  handles, and phase identifiers. Adversarial Part-8-leak test injects
+  user-content fixtures and asserts ZERO traces in packet output.
+  NAV-109-06.
+- **D-07 Brain Result Ingestion** (Plan 109-08): `storeBrainSuggestions`
+  writes Brain's advisory response to `room.db` as nodes with
+  `review_status: 'proposed'`, `created_by: 'brain'`. NEVER `confirmed`.
+  Confirmation is the human-in-the-loop Decision Gate (Canon Part 3).
+  NAV-109-07.
+- **D-08 Room Home Driver** (Plan 109-09): `getRoomHomeView` composes a
+  9-key view (current thesis + confirmed facts + risky assumptions +
+  evidence + contradictions + open questions + recent changes + banked
+  opportunities + next move) from SQL navigation primitives. Replaces
+  ad-hoc folder scans. NAV-109-08.
+- **Idempotent migrations** (Plan 109-01): `phase-109-nodes-provenance.cjs`
+  promotes the existing assumptions table to first-class graph nodes
+  carrying the 9 provenance fields per Plan 108-02. Sentinel-row guarded;
+  safe to apply twice.
+
+### Changed
+
+- `openRoomDb` (lib/core/room-db.cjs) is now SYNCHRONOUS, returning the bare
+  `node:sqlite` `DatabaseSync` handle instead of the legacy `{ db, conn }`
+  async tuple. The async tuple shape was a leak from `lazygraph-ops.cjs`
+  `openGraph`. The navigation API and all 109-* helpers consume the bare
+  `db`. `closeRoomDb` is tolerant of both shapes during the merge cycle.
+  `scripts/memory-lifecycle.cjs` updated with backward-compatibility shim
+  (`const handle = { db: openRoomDb(roomDir) }`) preserving all internal
+  `handle.db.X` call sites unchanged.
+- Phase 106-02 statusline glyph fence amended to permit 🎯 (focus glyph)
+  alongside the existing exclusive set per Plan 109 RESEARCH OQ 11.8.
+
+### Capability Radar
+
+- `references/capability-radar/changelog-cache.md` populated for the first
+  time via `/mos:radar --fetch` (Claude Code 2.1.109 -> 2.1.128).
+- 11 new Claude Code capabilities folded into the curated index (Opus 4.7,
+  alwaysLoad MCP, hooks-as-MCP-tools, PostToolUse updatedToolOutput,
+  .zip plugin distribution, /mcp tool count + 0-tool flagging, forked
+  subagents on external builds, agent frontmatter mcpServers, /usage,
+  /focus, push notifications, claude project purge, MCP auto-retry,
+  concurrent MCP startup, /skills filter).
+- v1.13.0 adoption candidates ranked in `.planning/seeds/SEED-003`: A1
+  alwaysLoad Brain MCP, A2 hooks-as-MCP-callers refactor, A3 Part 8
+  sanitization hook, A4 forked subagents + per-agent mcpServers, A5
+  .zip distribution as beta channel.
+
+### Canon
+
+- Canon Part 9 (Memory Locality and Interpretation) status: **proposed**.
+  Formal `docs/MINDRIAN-CANON.md` amendment pending; will land before
+  promotion to plain `1.13.0`.
+
+### Testing
+
+- 13 new Phase 109 navigation tests, all GREEN.
+- 36/36 across-session-memory regression suite GREEN.
+- Wave-0 RED test stubs (acceptance, canon-part-9-ratification) left RED
+  for the v1.14+ acceptance gate.
+
+### Beta Promotion Path
+
+Promote to plain `1.13.0` after at least one external tester (Lawrence)
+confirms a clean upgrade. Issues to watch:
+
+- `room.db` migration on legacy rooms with assumptions older than the
+  9-field provenance schema.
+- Pre-commit hook installation on testers without the Phase 108-05 hook.
+- Statusline 🎯 glyph rendering on older Claude Code versions.
+
+Tester install:
+
+```
+claude plugin update mos@mindrian-marketplace --version 1.13.0-beta.1
+```
+
 ## [1.12.5.1] - 2026-05-03
 
 Hotfix on top of 1.12.5. The D-06 surface-detect helper was misclassifying every
