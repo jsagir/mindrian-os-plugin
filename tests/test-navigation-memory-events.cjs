@@ -6,15 +6,47 @@ const { ok, equal, deepEqual } = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
+const { DatabaseSync } = require('node:sqlite');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const { openRoomDb } = require(path.join(REPO_ROOT, 'lib', 'core', 'room-db.cjs'));
 const events = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation', 'memory-events.cjs'));
+
+// Bootstrap the post-Plan-109-01 nodes schema directly. Plan 109-01 ships an
+// idempotent migration on lib/core/room-db.cjs openRoomDb that adds 9 provenance
+// columns plus the 7 indices to the legacy 3-column nodes table. This test runs
+// in a parallel worktree where Plan 109-01's migration has not been applied yet,
+// so the test bootstraps the same schema directly via DatabaseSync to stay
+// hermetic and runnable in isolation. Post-merge the test still passes because
+// it owns its own tmp room.db and never reads from a shared file.
+function bootstrapNodesSchema(db) {
+  db.exec(
+    "CREATE TABLE IF NOT EXISTS nodes (" +
+      "id TEXT PRIMARY KEY, " +
+      "type TEXT NOT NULL, " +
+      "properties TEXT DEFAULT '{}', " +
+      "source_path TEXT NOT NULL, " +
+      "created_by TEXT NOT NULL CHECK(created_by IN ('user', 'larry', 'import', 'brain', 'system')), " +
+      "confidence REAL, " +
+      "review_status TEXT NOT NULL DEFAULT 'proposed' CHECK(review_status IN ('proposed', 'confirmed', 'rejected', 'stale', 'superseded', 'needs_evidence', 'validated', 'invalidated')), " +
+      "created_at INTEGER NOT NULL, " +
+      "last_seen_at INTEGER NOT NULL, " +
+      "source_section TEXT, " +
+      "confirmed_by TEXT, " +
+      "confirmed_at INTEGER" +
+    "); " +
+    "CREATE INDEX IF NOT EXISTS idx_nodes_type ON nodes(type); " +
+    "CREATE INDEX IF NOT EXISTS idx_nodes_review_status ON nodes(review_status); " +
+    "CREATE INDEX IF NOT EXISTS idx_nodes_created_at ON nodes(created_at);"
+  );
+}
 
 function makeRoom() {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'phase-109-events-'));
   fs.mkdirSync(path.join(tmp, '.mindrian'), { recursive: true });
-  const db = openRoomDb(tmp);
+  const db = new DatabaseSync(path.join(tmp, '.mindrian', 'room.db'));
+  db.exec('PRAGMA journal_mode = WAL');
+  db.exec('PRAGMA foreign_keys = ON');
+  bootstrapNodesSchema(db);
   // Seed a target node for events that reference one.
   db.prepare("INSERT OR IGNORE INTO nodes (id, type, properties, source_path, created_by, confidence, review_status, created_at, last_seen_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
     .run('claim:target-1', 'claim', '{}', 'fixture', 'user', 0.7, 'confirmed', Date.now(), Date.now());
