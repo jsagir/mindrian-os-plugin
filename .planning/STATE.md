@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 115-01-PLAN.md (5/5 surface rewrites; D-02+D-03+D-05+D-07+D-08 landed byte-exact; em-dash scrub absorbed in REGISTRY.md task)
-last_updated: "2026-05-05T19:23:40.185Z"
+stopped_at: Completed 115-02-PLAN.md
+last_updated: "2026-05-05T19:32:03.822Z"
 last_activity: 2026-05-05
 progress:
   total_phases: 43
@@ -638,6 +638,9 @@ Progress: [████████░░] 82%
 - [Phase 115]: Plan 115-01 import pattern: every Phase 115 first-touch surface quotes lib/copy/115-spec-strings.cjs constant value byte-exact and surface body comment names the constant for executor-recognition (Pitfall 1 mitigation at the rendering layer)
 - [Phase 115]: Plan 115-01 D-07 inserted BEFORE existing 'Very simply -- there are three ways' paragraph rather than replacing it, preserving voice DNA continuity per D-07 explicit constraint (voice rules + symbol vocabulary stay locked)
 - [Phase 115]: Plan 115-01 in-scope CLAUDE.md hard-rule auto-fix: 4 pre-existing em-dashes in docs/testers/REGISTRY.md (3 in tester table notes, 1 in Adding-a-tester step 5) replaced with ASCII hyphens as part of Task 5 commit (Rule 1/2 auto-fix per project-wide no-em-dashes hard rule)
+- [Phase 115]: Plan 115-02: Spec-locked DISCRETION-03 regex byte-exact; tuned fixture prose around case-insensitive quirks (LP\b matches 'help', IND\b matches 'kind', ARR matches 'arrive') instead of amending spec
+- [Phase 115]: Plan 115-02: shallow-doc-parser routes through Phase 109 navigation.cjs setFocus + safeRecord wrapper; never directly requires room-db.cjs (Canon Part 8 boundary)
+- [Phase 115]: Plan 115-02: 2 MCP tools (detect_dual_path + extract_shallow) registered in bin/mindrian-mcp-server.cjs with zod schemas closing Pitfall 6 (tri-polar Desktop/Cowork coverage) in this plan rather than deferring
 
 ### Pending Todos
 
@@ -659,6 +662,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-05T19:23:26.605Z
-Stopped at: Completed 115-01-PLAN.md (5/5 surface rewrites; D-02+D-03+D-05+D-07+D-08 landed byte-exact; em-dash scrub absorbed in REGISTRY.md task)
+Last session: 2026-05-05T19:32:03.776Z
+Stopped at: Completed 115-02-PLAN.md
 Resume file: None
