@@ -1,8 +1,35 @@
-# Roadmap: Memory Triple + Navigation Engine v1.11.0
+# Roadmap: The Closed Loop v1.13.0
 
-## Active Milestone: v1.11.0 Memory Triple + Navigation Engine
+## Active Milestone: v1.13.0 "The Closed Loop" (renamed Arc 4 -- was "Every Hirer")
 
-Current in-progress milestone covering Phases 88, 88.6, 88.1, 89, 90, 91. Releases (consolidated 2026-04-23): v1.10.13 Phase 88 SHIPPED, v1.10.14 Phase 88.6 URGENT bug fix, v1.10.15 Phase 88.1 polish, v1.10.16 Phase 89 reverse-salient, v1.10.17 Phase 90 Brain derivation, v1.11.0 Phase 91 destination. See `## Milestones`, `## Phases`, and `## Planned Pipeline` below for detail.
+**Status:** v1.13.0-beta.1 SHIPPED 2026-05-05 (plugin commit afcea5f, marketplace a37b073). Phase 108 + Phase 109 substrate landed. beta.2 next.
+
+**Thesis:** Turn MindrianOS from "the back half of a hook" into a closed habit loop with first-15-minute imprint. Larry leads. SQL graph remembers. Brain reasons as a constant. Conversation IS the front door. Commands are internals.
+
+**Hooked Model audit:** baseline 27/70 (2026-04-12), target 58/70 by v1.13.0 final. Per-axis movement projection in canonical roadmap.
+
+**Beta progression:**
+- v1.13.0-beta.1 SHIPPED -- Substrate (Phase 108 + 109)
+- v1.13.0-beta.2 -- "Larry leads" (Phase 88.2 finish + 89-07 finish + 114 + 115 + SEED-003 A1+A4)
+- v1.13.0-beta.3 -- "Loop closes + reward fires" (Phase 116 + 117 + SEED-003 A3)
+- v1.13.0 final -- "Full closed loop" (Phase 118 + 119 + 120 + SEED-003 A2)
+
+**Canonical plan:** `.planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md`
+**Resume entry point:** `.planning/SESSION-HANDOFF.md`
+**Constitutional thesis:** `docs/CANON-PART-10-PROPOSAL-conversation-as-product.md` (ratifies at v1.13.0 final release gate, parallel to Part 9 at Phase 109 release gate)
+
+**Provenance:** Synthesized 2026-05-05 in 4-hour deep-dive session combining /mos:think-hats + /mos:beautiful-question + recovery of 2026-04-12 dormant Hooked Model 4-fix audit + capabilities radar pass on Claude Code 2.1.x adoption + foundation audit of phases 88-109. The "Every Hirer" thesis was deemed still command-centric; "The Closed Loop" reframes around conversation-first golden path.
+
+**Phase 114 (larry-default-activation) -- 3 plans planned:**
+- [ ] 114-00-PLAN.md -- Skill activation policy (subagent skill preload + agent frontmatter + settings.json cleanup + paths scoping + SessionStart JTBD refactor) [requirements: AC-114-01, AC-114-02]
+- [x] 114-01-PLAN.md -- .mcp.json alwaysLoad on mindrian-os local server (SEED-003 A1) [requirements: AC-114-03]
+- [ ] 114-02-PLAN.md -- Wave 0 verification + Phase 91 non-regression + v1.13.0-beta.2 release plumbing [requirements: AC-114-04]
+
+---
+
+## Previous Active Milestone: v1.11.0 Memory Triple + Navigation Engine -- SHIPPED 2026-05-01
+
+Phases 88, 88.6, 88.1, 89, 90, 91. Releases: v1.10.13 Phase 88 SHIPPED, v1.10.14 Phase 88.6 URGENT bug fix, v1.10.15 Phase 88.1 polish, v1.10.16 Phase 89 reverse-salient, v1.10.17 Phase 90 Brain derivation, v1.11.0 Phase 91 destination, v1.11.0 stable promotion via Phase 91.5. v1.11.2 hotfix (Phase 94) shipped 2026-04-29. v1.12.x point releases (1.12.0 -> 1.12.5.1) consumed by Phase 95.1 doctor work + Phase 106 statusline visibility.
 
 ## Overview
 

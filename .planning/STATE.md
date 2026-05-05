@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.11.0
-milestone_name: Memory Triple + Navigation Engine
+milestone: v1.13.0
+milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 109-05-PLAN.md
-last_updated: "2026-05-05T08:16:10.599Z"
-last_activity: 2026-05-05
+stopped_at: Completed 114-01-PLAN.md
+last_updated: "2026-05-05T13:59:07.122Z"
+last_activity: 2026-05-05 -- Phase 114 execution started
 progress:
   total_phases: 43
   completed_phases: 23
   total_plans: 197
-  completed_plans: 181
+  completed_plans: 182
   percent: 82
 ---
 
@@ -21,13 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 109 — sql-context-memory-navigation-spine
+**Current focus:** Phase 114 — larry-default-activation
 
 ## Current Position
 
-Phase: 109 (sql-context-memory-navigation-spine) — EXECUTING
-Plan: 3 of 10
-Status: Ready to execute
+Phase: 114 (larry-default-activation) — EXECUTING
+Milestone: v1.13.0 The Closed Loop -- 4-beta progression
+Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
+Next phase: 114 (larry-default-activation) -- in beta.2
+Plan: 1 of 3
+Status: Executing Phase 114
+
+**For full context, read these in order:**
+
+1. `.planning/SESSION-HANDOFF.md` (resume entry point, read first)
+2. `.planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md` (canonical plan)
+3. `docs/CANON-PART-10-PROPOSAL-conversation-as-product.md` (constitutional thesis)
+4. `.planning/MILESTONES-NAMING.md` Arc 4 entry (renamed 2026-05-05)
 
 Phase 106-04 closure (2026-05-03):
 
@@ -107,7 +117,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-05
+Last activity: 2026-05-05 -- Phase 114 execution started
 
 Progress: [████████░░] 82%
 
@@ -220,6 +230,7 @@ Progress: [████████░░] 82%
 | Phase 109-sql-context-memory-navigation-spine P04 | 15min | 2 tasks | 5 files |
 | Phase 109 P06 | 824 | 2 tasks | 3 files |
 | Phase 109 P05 | 25min | 2 tasks | 4 files |
+| Phase 114-larry-default-activation P01 | 4min | 1 tasks | 1 files |
 
 ### Roadmap Evolution
 
@@ -610,6 +621,8 @@ Progress: [████████░░] 82%
 - [Phase 109]: Closed kind enum for renderExplanation (6 cases): contradiction, unsupported, blocking, stale, open, opportunity; canon amendment required to add a 7th kind
 - [Phase 109]: findRelevantOpportunities scores ALL opportunity nodes room-wide (Canon Part 2 always-ambient); depth=99 fallback for non-reachable; composite = 0.5*hsi + 0.3*distScore + 0.2*jtbdScore
 - [Phase 109]: findStaleDecisions uses 30-day threshold per RESEARCH 2.5 simplification (5 sessions = 30 days); opts.staleAfterSessions preserved for API compat
+- [Phase 114-larry-default-activation]: Scope alwaysLoad to mindrian-os ONLY in plugin .mcp.json. Brain MCP alwaysLoad remains user-side opt-in (out of scope per 114-CONTEXT.md). The plugin does not distribute Brain MCP config.
+- [Phase 114-larry-default-activation]: alwaysLoad placed as the LAST key in the mindrian-os entry (order: command, args, alwaysLoad), matching RESEARCH Code Example 2 convention. Boolean true (JSON literal), never the string 'true'.
 
 ### Pending Todos
 
@@ -631,6 +644,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-05T08:16:10.586Z
-Stopped at: Completed 109-05-PLAN.md
+Last session: 2026-05-05T13:58:58.501Z
+Stopped at: Completed 114-01-PLAN.md
 Resume file: None
