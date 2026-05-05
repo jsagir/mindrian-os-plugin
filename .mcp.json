@@ -2,7 +2,8 @@
   "mcpServers": {
     "mindrian-os": {
       "command": "node",
-      "args": ["bin/mindrian-mcp-server.cjs"]
+      "args": ["bin/mindrian-mcp-server.cjs"],
+      "alwaysLoad": true
     }
   }
 }
