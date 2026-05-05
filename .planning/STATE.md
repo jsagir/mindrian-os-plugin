@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 115-02-PLAN.md
-last_updated: "2026-05-05T19:32:03.822Z"
+stopped_at: Completed 115-04-PLAN.md (Phase 115 verification cap-stone + v1.13.0-beta.3 release)
+last_updated: "2026-05-05T19:51:45.241Z"
 last_activity: 2026-05-05
 progress:
   total_phases: 43
@@ -29,7 +29,7 @@ Phase: 115 (owned-emotion-dual-path-first-touch) — EXECUTING
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
 
 **For full context, read these in order:**
@@ -235,6 +235,7 @@ Progress: [████████░░] 82%
 | Phase 114 P02 | 35 | 8 tasks | 11 files |
 | Phase 115 P00 | 6m 19s | 7 tasks | 7 files |
 | Phase 115 P01 | 3m 19s | 5 tasks | 5 files |
+| Phase 115 P04 | 13min | 6 tasks | 6 files |
 
 ### Roadmap Evolution
 
@@ -641,6 +642,8 @@ Progress: [████████░░] 82%
 - [Phase 115]: Plan 115-02: Spec-locked DISCRETION-03 regex byte-exact; tuned fixture prose around case-insensitive quirks (LP\b matches 'help', IND\b matches 'kind', ARR matches 'arrive') instead of amending spec
 - [Phase 115]: Plan 115-02: shallow-doc-parser routes through Phase 109 navigation.cjs setFocus + safeRecord wrapper; never directly requires room-db.cjs (Canon Part 8 boundary)
 - [Phase 115]: Plan 115-02: 2 MCP tools (detect_dual_path + extract_shallow) registered in bin/mindrian-mcp-server.cjs with zod schemas closing Pitfall 6 (tri-polar Desktop/Cowork coverage) in this plan rather than deferring
+- [Phase 115]: Plan 115-04: Phase 115 ships as v1.13.0-beta.3 (Phase 114 burned beta.2); Marketplace Gate 5 deferred to validation-week promotion gate; local git tag NOT pushed per CLAUDE.md Git Safety Protocol; Phase 91 inherited failures (5/176) acceptable per Phase 89.5 + Phase 106-02 baseline contract; zero NEW Phase 115 failures in non-regression scan
+- [Phase 115]: Plan 115-04: 4-AC orchestrator pattern (sibling of test-114-larry-default-activation.sh) replicable for Phase 116/117/118/119/120; source-of-truth import in tests (lib/copy/115-spec-strings.cjs imported by tests/test-115-surfaces-grep.sh) ensures drift in EITHER spec OR surface trips the test (Pitfall 1 generalized at test layer)
 
 ### Pending Todos
 
@@ -662,6 +665,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-05T19:32:03.776Z
-Stopped at: Completed 115-02-PLAN.md
+Last session: 2026-05-05T19:51:45.233Z
+Stopped at: Completed 115-04-PLAN.md (Phase 115 verification cap-stone + v1.13.0-beta.3 release)
 Resume file: None
