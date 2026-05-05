@@ -170,15 +170,29 @@ function payloadFor(room, usedPct) {
   console.log('PASS: Test 4 (no operator state file -> no gear glyph)');
 }
 
-// Test 5: missing jtbd state -> no target glyph
+// Phase 109-02 amendment: 🎯 glyph is shared with the focus broadcast
+// (D-01 Focus Node Model). Per RESEARCH Open Question 11.8 the planner
+// amended this fence rather than introducing a new glyph; the auto-focus
+// rule 1 cascade uses the JTBD anchor so the two signals are semantically
+// correlated. The exclusivity invariants for 📊 (token-budget) and ⚙️
+// (operator) remain unchanged.
+//
+// Test 5 broadened semantics: 🎯 is absent only when BOTH JTBD state AND
+// active session focus are absent. The current hermetic fixture never
+// seeds session_focus, so the post-amendment assertion still holds: no
+// JTBD + no focus row -> no 🎯 glyph. Once Phase 109-02 wires the
+// statusline-mos focus_segment into context-monitor in a follow-up plan,
+// the inverse case (focus set, JTBD null -> 🎯 present) becomes
+// independently testable; this fence will accept 🎯 in that context.
+// Test 5: missing jtbd state AND no session_focus row -> no target glyph
 {
   const room = makeRoom();
-  // no setJtbd call
+  // no setJtbd call; no session_focus seed
   const r = runMonitor(room, payloadFor(room, 25));
   assert.strictEqual(r.status, 0, 'exit 0 (stderr: ' + r.stderr + ')');
-  assert.ok(!/🎯/.test(r.stdout), 'no jtbd glyph when state absent');
+  assert.ok(!/🎯/.test(r.stdout), 'no 🎯 glyph when neither JTBD nor focus is active (Phase 109-02 amended fence)');
   rmTmp(room);
-  console.log('PASS: Test 5 (no jtbd state file -> no target glyph)');
+  console.log('PASS: Test 5 (no jtbd state file AND no focus -> no target glyph)');
 }
 
 // Test 6: operator current=JUST_TALK -> no gear glyph (default state suppressed)

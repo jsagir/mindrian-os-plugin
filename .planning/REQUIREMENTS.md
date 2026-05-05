@@ -242,7 +242,7 @@
 
 - [ ] **NAV-109-02**: Typed Neighborhood Retrieval. `lib/core/navigation.cjs` exports `getNeighborhood(focusNodeId, { maxDepth = 2, topK = 20 })`. Single recursive CTE returns ranked typed neighbors with `edge_path` (JSON array of node ids), `depth`, `edge_type_in`, plus the 9 provenance fields. Frozen edge weights per CONTEXT D-02 (CONTRADICTS / INVALIDATES = 1.0; DEPENDS_ON / ASSUMES = 0.9; SUPPORTS / EVIDENCES = 0.8; INFORMS / ENABLES = 0.6; CONVERGES / MENTIONS_ENTITY = 0.4). Composite score per RESEARCH section 2.1: edge_type_weight times 0.4 plus recency times 0.2 plus confidence times 0.2 plus section_relevance times 0.2. Performance: <50ms warm p95 on 10K-node room. Zero LLM calls. Zero Brain calls. Per CONTEXT D-02 + RESEARCH section 2.1.
 
-- [ ] **NAV-109-03**: Memory Event Log. `memory_event` is a first-class node type per Phase 108 RECONCILIATION.md L104; rows live in the unified `nodes` table (NOT a separate `memory_events` table). 15 closed-set event types (14 from CONTEXT D-03 plus `state_alias_migration` per Phase 108 TRUTH-STATES.md L68). JS validation rejects event_type values outside the closed enum. `findRecentChanges(sinceEpochMs)` is a single SELECT against `WHERE type = 'memory_event' AND created_at > :since` driven by the new `idx_nodes_type` plus `idx_nodes_created_at` indices. Per CONTEXT D-03 + RESEARCH section 2.4.
+- [x] **NAV-109-03**: Memory Event Log. `memory_event` is a first-class node type per Phase 108 RECONCILIATION.md L104; rows live in the unified `nodes` table (NOT a separate `memory_events` table). 15 closed-set event types (14 from CONTEXT D-03 plus `state_alias_migration` per Phase 108 TRUTH-STATES.md L68). JS validation rejects event_type values outside the closed enum. `findRecentChanges(sinceEpochMs)` is a single SELECT against `WHERE type = 'memory_event' AND created_at > :since` driven by the new `idx_nodes_type` plus `idx_nodes_created_at` indices. Per CONTEXT D-03 + RESEARCH section 2.4.
 
 - [ ] **NAV-109-04**: Insight Query Primitives. `lib/core/navigation.cjs` exports the 7 closed-vocabulary functions per CONTEXT D-04: `findContradictions`, `findUnsupportedClaims`, `findBlockingAssumptions`, `findStaleDecisions`, `findOpenQuestions`, `findRecentChanges`, `findRelevantOpportunities`. Each returns a typed result plus templated explanation string using the typed edge labels per RESEARCH section 2.5 (zero LLM in the loop). `findRelevantOpportunities` ranks via the formula `weightHsi (0.5) times normalize(hsiScore) plus weightDistance (0.3) times graphDistanceScore plus weightJtbd (0.2) times jtbdMatchScore` per RESEARCH section 5.
 
@@ -410,7 +410,7 @@
 | RECONCILE-108-06 | Phase 108 | Complete |
 | NAV-109-01 | Phase 109 | Pending |
 | NAV-109-02 | Phase 109 | Pending |
-| NAV-109-03 | Phase 109 | Pending |
+| NAV-109-03 | Phase 109 | Complete |
 | NAV-109-04 | Phase 109 | Pending |
 | NAV-109-05 | Phase 109 | Pending |
 | NAV-109-06 | Phase 109 | Pending |

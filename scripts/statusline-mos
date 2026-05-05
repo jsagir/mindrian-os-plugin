@@ -44,4 +44,55 @@ fi
 # prefers the cache copy (matches the script that is actually running).
 export MINDRIAN_OS_ROOT="${CACHE_ROOT}/${LATEST_VERSION}"
 
+# Phase 109-02: compute active session focus and emit a 🎯 focus glyph prefix
+# when getActiveFocus returns non-null. The focus_segment is best-effort: any
+# error in the navigation API or sqlite handle silently degrades to an empty
+# prefix (Canon Part 8 LOCAL-only by construction; statusline must never
+# block or throw). The 🎯 glyph is shared with the Phase 106-02 JTBD broadcast
+# per the amended fence in tests/test-context-monitor-d02-broadcast.cjs (see
+# the Phase 109-02 amendment block); auto-focus rule 1 makes the two signals
+# semantically correlated. The prefix prints BEFORE exec so the statusline
+# composes as: <focus_segment><context-monitor stdout>.
+focus_segment=""
+if [ -n "${MINDRIAN_ROOM:-}" ] && [ -n "${session_id:-}" ]; then
+  focus_data=$(MINDRIAN_OS_ROOT="${MINDRIAN_OS_ROOT}" \
+    MINDRIAN_ROOM="${MINDRIAN_ROOM}" \
+    SESSION_ID="${session_id}" \
+    node -e "
+      const path = require('node:path');
+      try {
+        const root = process.env.MINDRIAN_OS_ROOT || '';
+        const room = process.env.MINDRIAN_ROOM;
+        const sess = process.env.SESSION_ID;
+        const { openRoomDb } = require(path.join(root, 'lib', 'core', 'room-db.cjs'));
+        const focus = require(path.join(root, 'lib', 'core', 'navigation', 'focus.cjs'));
+        const db = openRoomDb(room);
+        const f = focus.getActiveFocus(db, sess);
+        try { db.close(); } catch (_) { /* ignore */ }
+        if (f) process.stdout.write(JSON.stringify(f));
+      } catch (_) { /* statusline never throws */ }
+    " 2>/dev/null)
+  if [ -n "$focus_data" ]; then
+    focus_short=$(printf '%s' "$focus_data" | node -e "
+      let buf = '';
+      process.stdin.on('data', (d) => { buf += d; });
+      process.stdin.on('end', () => {
+        try {
+          const f = JSON.parse(buf);
+          const id = (f.focusNodeId || '').split(':').slice(1).join(':') || (f.focusNodeId || '');
+          const trimmed = id.length > 24 ? id.slice(0, 21) + '...' : id;
+          process.stdout.write((f.focusType || 'focus') + ':' + trimmed);
+        } catch (_) { /* ignore */ }
+      });
+    " 2>/dev/null)
+    if [ -n "$focus_short" ]; then
+      focus_segment="🎯 ${focus_short} "
+    fi
+  fi
+fi
+
+if [ -n "$focus_segment" ]; then
+  printf '%s' "$focus_segment"
+fi
+
 exec node "${CONTEXT_MONITOR}"
