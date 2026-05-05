@@ -236,6 +236,26 @@
 
 - [x] **RECONCILE-108-06**: `PART-9-PROPOSAL.md` ships at `.planning/phases/108-graph-memory-schema-reconciliation/PART-9-PROPOSAL.md` as a cross-reference checklist binding every reconciliation decision to Canon Parts 1, 4, 5, 7, 8, 9 (proposed). The file does NOT duplicate the Part 9 text (which lives at `.planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md`); it references that file and walks the traceability matrix from RESEARCH §7. `docs/CANON-PHASE-MAP.md` gains a "Part 9 (proposed)" row pointing at Phases 108 (proposal), 109 (implementation + ratification at release gate), 110 (Brain wire enforcement). Phase 108 explicitly does NOT edit `docs/MINDRIAN-CANON.md` (Phase 109 release gate ratifies; per CONTEXT D-06 + RESEARCH Anti-Pattern #2).
 
+## SQL Context-Memory Navigation Spine (NAV-109)
+
+- [ ] **NAV-109-01**: Focus Node Model. `lib/core/navigation.cjs` exports `getActiveFocus(sessionId)` and `setFocus(sessionId, nodeId, setBy)`. Focus is persistent in `room.db` via `session_focus` table (PRIMARY KEY session_id; foreign key to nodes.id; set_by closed-enum CHECK constraint with values user/larry/auto-from-jtbd/auto-from-operator/auto-from-state). Switching focus writes a `memory_event` of type `focus_changed`. Auto-focus cascade per CONTEXT D-01: rule 1 active JTBD anchor; rule 2 most recent unconfirmed decision when operator is DECISION_GATE; rule 3 room root node `room:<roomId>`. Statusline glyph 🎯 surfaces active focus per Phase 106-02 fence amendment. Per CONTEXT D-01 + RESEARCH section 4.
+
+- [ ] **NAV-109-02**: Typed Neighborhood Retrieval. `lib/core/navigation.cjs` exports `getNeighborhood(focusNodeId, { maxDepth = 2, topK = 20 })`. Single recursive CTE returns ranked typed neighbors with `edge_path` (JSON array of node ids), `depth`, `edge_type_in`, plus the 9 provenance fields. Frozen edge weights per CONTEXT D-02 (CONTRADICTS / INVALIDATES = 1.0; DEPENDS_ON / ASSUMES = 0.9; SUPPORTS / EVIDENCES = 0.8; INFORMS / ENABLES = 0.6; CONVERGES / MENTIONS_ENTITY = 0.4). Composite score per RESEARCH section 2.1: edge_type_weight times 0.4 plus recency times 0.2 plus confidence times 0.2 plus section_relevance times 0.2. Performance: <50ms warm p95 on 10K-node room. Zero LLM calls. Zero Brain calls. Per CONTEXT D-02 + RESEARCH section 2.1.
+
+- [ ] **NAV-109-03**: Memory Event Log. `memory_event` is a first-class node type per Phase 108 RECONCILIATION.md L104; rows live in the unified `nodes` table (NOT a separate `memory_events` table). 15 closed-set event types (14 from CONTEXT D-03 plus `state_alias_migration` per Phase 108 TRUTH-STATES.md L68). JS validation rejects event_type values outside the closed enum. `findRecentChanges(sinceEpochMs)` is a single SELECT against `WHERE type = 'memory_event' AND created_at > :since` driven by the new `idx_nodes_type` plus `idx_nodes_created_at` indices. Per CONTEXT D-03 + RESEARCH section 2.4.
+
+- [ ] **NAV-109-04**: Insight Query Primitives. `lib/core/navigation.cjs` exports the 7 closed-vocabulary functions per CONTEXT D-04: `findContradictions`, `findUnsupportedClaims`, `findBlockingAssumptions`, `findStaleDecisions`, `findOpenQuestions`, `findRecentChanges`, `findRelevantOpportunities`. Each returns a typed result plus templated explanation string using the typed edge labels per RESEARCH section 2.5 (zero LLM in the loop). `findRelevantOpportunities` ranks via the formula `weightHsi (0.5) times normalize(hsiScore) plus weightDistance (0.3) times graphDistanceScore plus weightJtbd (0.2) times jtbdMatchScore` per RESEARCH section 5.
+
+- [ ] **NAV-109-05**: Navigation API surface. `lib/core/navigation.cjs` exports exactly 13 functions per CONTEXT D-05 (closed surface). Pre-commit hook extends `scripts/check-schema-aliases.cjs` (Plan 108-05 substrate) with the chokepoint check: any new `require('lib/core/room-db.cjs')` outside the allow-list (navigation.cjs, navigation/*.cjs, room-db.cjs self, lazygraph-ops.cjs co-module, memory-ops.cjs co-module, opportunity-ops.cjs legacy, tests/, scripts/migrate-) fails the commit. Same script per RESEARCH section 3.2 (single mega-script per Open Question 11.7); installer (scripts/install-pre-commit.sh) does NOT change. Per CONTEXT D-05 + RESEARCH section 3.
+
+- [ ] **NAV-109-06**: Brain Packet Builder. `lib/core/navigation.cjs` exports `buildBrainPacket(job, focusNodeId)` returning a plain JS object per the shape in CONTEXT D-06. `banked_opportunities` field carries top-3 by HSI plus distance plus JTBD with sha256-hashed ids, generic domain tags only, HSI bands (high `>=70` / medium `>=40` / low), composite scores rounded to 2 decimals. NEVER raw bodies. Inherits the Phase 90 buildBrainQueryContext 5-tripwire pattern. Per CONTEXT D-06 + RESEARCH section 7. Phase 109 ships the BUILDER; Phase 110 ships the schema validation.
+
+- [ ] **NAV-109-07**: Brain Result Ingestion. `lib/core/navigation.cjs` exports `storeBrainSuggestions(packetResult, sessionId)` writing each suggestion as a `brain_insight` node with `created_by = 'brain'`, `review_status = 'proposed'`, `confirmed_by IS NULL`, `source_path` starting with `brain:job:`. Logs ONE `memory_event` of type `brain_suggestion_received` per ingestion (not one per insight). Edge proposals from Brain land with `properties.review_status = 'proposed'`. Phase 108 invariant SQL query (PROVENANCE.md L79-89) returns 0 rows post-ingestion. Per CONTEXT D-07 + RESEARCH section 8.
+
+- [ ] **NAV-109-08**: Room Home Driver. `lib/core/navigation.cjs` exports `getRoomHomeView(roomId)` composing the navigation primitives into the shape per CONTEXT D-08 (currentThesis / confirmedFacts / riskyAssumptions / evidence / contradictions / openQuestions / recentChanges / bankedOpportunities / nextMove). Composition not duplication: id-set comparison test asserts no payload field re-derives data already in another field. Phase 90 BRAIN.md derivation 4-release deprecation cycle per RESEARCH section 6.2 (alias in v1.14.0 keeps byte-identical output; default flips in v1.15.0; folder path removed v1.16.0). Per CONTEXT D-08 + RESEARCH section 6.
+
+- [ ] **NAV-109-09**: Canon Part 9 ratification at release gate. The Phase 109 release commit merges proposed Part 9 text from `.planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md` into `docs/MINDRIAN-CANON.md` immediately before `## Appendix A - Relationship to MWP`. `docs/CANON-PHASE-MAP.md` Part 9 (proposed) row updates from `proposed`/`planned` to `shipped` for Phases 108 and 109 (Phase 110 stays `planned`). Appendix D Canonization Provenance gains entry 12 attributing Codex external research input. NO other Phase 109 plan touches the canon files. Per CONTEXT D-09 + RESEARCH section 9.
+
 ## Traceability
 
 | Requirement | Phase | Status |
@@ -388,3 +408,12 @@
 | RECONCILE-108-04 | Phase 108 | Complete |
 | RECONCILE-108-05 | Phase 108 | Complete |
 | RECONCILE-108-06 | Phase 108 | Complete |
+| NAV-109-01 | Phase 109 | Pending |
+| NAV-109-02 | Phase 109 | Pending |
+| NAV-109-03 | Phase 109 | Pending |
+| NAV-109-04 | Phase 109 | Pending |
+| NAV-109-05 | Phase 109 | Pending |
+| NAV-109-06 | Phase 109 | Pending |
+| NAV-109-07 | Phase 109 | Pending |
+| NAV-109-08 | Phase 109 | Pending |
+| NAV-109-09 | Phase 109 | Pending |
