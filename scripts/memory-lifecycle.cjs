@@ -169,7 +169,7 @@ async function cmdSessionStart(roomDir) {
   const { openRoomDb, closeRoomDb } = require(ROOM_DB_MODULE);
   const memory = require(path.join(__dirname, '..', 'lib', 'core', 'memory-ops.cjs'));
 
-  const handle = await openRoomDb(roomDir);
+  const handle = { db: openRoomDb(roomDir) };
   try {
     const session = await memory.startSession(handle.db);
     writePointer(roomDir, session.id, session.started_at);
@@ -282,7 +282,7 @@ async function cmdStop(roomDir) {
   const { openRoomDb, closeRoomDb } = require(ROOM_DB_MODULE);
   const memory = require(path.join(__dirname, '..', 'lib', 'core', 'memory-ops.cjs'));
 
-  const handle = await openRoomDb(roomDir);
+  const handle = { db: openRoomDb(roomDir) };
   try {
     const summary = summarizeSession(handle.db, pointer.id);
     await memory.addFragment(handle.db, {
@@ -343,7 +343,7 @@ async function cmdReadVoiceTail(roomDir, _sessionIdArg) {
 
   let handle = null;
   try {
-    handle = await openRoomDb(roomDir);
+    handle = { db: openRoomDb(roomDir) };
     const row = await memory.readVoiceLogTail(handle.db);
     if (!row) {
       process.stdout.write('null\n');
@@ -370,7 +370,7 @@ async function cmdPreCompact(roomDir) {
   const { openRoomDb, closeRoomDb } = require(ROOM_DB_MODULE);
   const memory = require(path.join(__dirname, '..', 'lib', 'core', 'memory-ops.cjs'));
 
-  const handle = await openRoomDb(roomDir);
+  const handle = { db: openRoomDb(roomDir) };
   try {
     const summary = summarizeSession(handle.db, pointer.id);
     await memory.endSession(handle.db, pointer.id, {
@@ -393,7 +393,7 @@ async function cmdPostCompact(roomDir) {
   const { openRoomDb, closeRoomDb } = require(ROOM_DB_MODULE);
   const memory = require(path.join(__dirname, '..', 'lib', 'core', 'memory-ops.cjs'));
 
-  const handle = await openRoomDb(roomDir);
+  const handle = { db: openRoomDb(roomDir) };
   try {
     const session = await memory.startSession(handle.db);
     writePointer(roomDir, session.id, session.started_at);
