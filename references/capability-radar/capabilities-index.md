@@ -1,12 +1,18 @@
 # Claude Capabilities Index for MindrianOS
 
-Last updated: 2026-03-22
+Last updated: 2026-05-05 (folded in Claude Code 2.1.110 → 2.1.128 via /mos:radar --fetch)
 
-This reference is curated. Run `/mos:radar --fetch` to check the Claude Code changelog for recent additions.
+This reference is curated. Run `/mos:radar --fetch` to check the Claude Code changelog for recent additions. Adoption candidates from the most recent fetch are tracked in `.planning/seeds/SEED-003-claude-code-2-1-x-capability-adoption.md`.
 
 ---
 
 ## models
+
+### Opus 4.7 (xhigh effort tier)
+- **What:** Current top-tier model. `/effort` slider exposes a maximum-reasoning xhigh tier. Auto mode available for Max subscribers.
+- **MindrianOS relevance:** Default `executor_model: "opus"` resolves to 4.7. xhigh tier is overkill for most plans but worth it for the load-bearing migration phases (108, 109). `/effort` slider lets users dial reasoning depth without leaving the conversation.
+- **Status:** available
+- **Since:** Claude Code 2.1.111
 
 ### Opus 4.6 (1M Context)
 - **What:** Extended thinking, adaptive reasoning, 128K max output tokens, 1M context window
@@ -42,6 +48,48 @@ This reference is curated. Run `/mos:radar --fetch` to check the Claude Code cha
 - **Status:** available
 - **Since:** 2025 Q3
 
+### Hooks Can Invoke MCP Tools Natively (`type: "mcp_tool"`)
+- **What:** Hook entries can declare `type: "mcp_tool"` and call any registered MCP tool directly, without spawning a Node child process
+- **MindrianOS relevance:** Removes the `lib/core/brain-client.cjs` proxy layer. Eliminates a class of "hook timed out at 2000ms" failures. Direct moat deepening per the MWP mandate. Tracked as adoption candidate A2 in SEED-003.
+- **Status:** available
+- **Since:** Claude Code 2.1.118
+
+### PostToolUse `updatedToolOutput` (Tool-Output Rewrite)
+- **What:** PostToolUse hooks can rewrite a tool's output via `hookSpecificOutput.updatedToolOutput` before the model sees it
+- **MindrianOS relevance:** Structural enforcement of Canon Part 8. Sanitize Brain MCP responses to redact accidental user-data echo at runtime. Closes the gap noted in CANON-PHASE-MAP.md (Part 8 row, "PR gate pending"). Tracked as adoption candidate A3 in SEED-003.
+- **Status:** available
+- **Since:** Claude Code 2.1.121
+
+### `/usage` (replaces `/cost` + `/stats`)
+- **What:** Unified usage/cost reporting command; replaces the two prior commands
+- **MindrianOS relevance:** Statusline `📊` token-budget glyph (Phase 106-02) should track the new command's output schema. Single-line update.
+- **Status:** available
+- **Since:** Claude Code 2.1.118
+
+### `/skills` Type-to-Filter
+- **What:** Skills picker now has a type-to-filter search box
+- **MindrianOS relevance:** Improves discoverability of MindrianOS's 30+ skills. No code change required on the plugin side.
+- **Status:** available
+- **Since:** Claude Code 2.1.121
+
+### `/ultrareview` Built-in
+- **What:** Built-in parallel code-review command (also available as non-interactive `claude ultrareview [target]`)
+- **MindrianOS relevance:** May overlap with MindrianOS's own `/ultrareview`. Verify; if Anthropic's built-in is sufficient, delegate to it and remove the MindrianOS duplication.
+- **Status:** available
+- **Since:** Claude Code 2.1.111
+
+### `${CLAUDE_EFFORT}` in Skills
+- **What:** Skills can read `${CLAUDE_EFFORT}` to calibrate verbosity/depth based on the user's current `/effort` setting
+- **MindrianOS relevance:** Larry skills (larry-personality, larry-extended) can match teaching depth to user effort. xhigh effort = deeper Feynman decomposition; low effort = terse navigation.
+- **Status:** available
+- **Since:** Claude Code 2.1.120
+
+### `claude project purge`
+- **What:** Subcommand to delete all Claude Code state at a path with `--dry-run`, `-y`, `-i`, `--all` flags
+- **MindrianOS relevance:** Clean-slate command for testers when an install goes sideways. Mention in tester onboarding docs.
+- **Status:** available
+- **Since:** Claude Code 2.1.126
+
 ### Background Tasks (run_in_background)
 - **What:** Async command execution that runs without blocking the main conversation
 - **MindrianOS relevance:** Potential for non-blocking Room analysis, export generation, and Brain queries that don't interrupt the user's flow.
@@ -76,6 +124,30 @@ This reference is curated. Run `/mos:radar --fetch` to check the Claude Code cha
 - **Status:** experimental
 - **Since:** 2026 Q1
 
+### Forked Subagents on External Builds (`CLAUDE_CODE_FORK_SUBAGENT=1`)
+- **What:** True forked subagents enabled outside Anthropic-internal builds via opt-in env var
+- **MindrianOS relevance:** Substrate for Canon Part 2 Engine 2 (BONO Orchestration) — spawning hat-instantiated team members in parallel. Tracked as adoption candidate A4 in SEED-003.
+- **Status:** available (opt-in)
+- **Since:** Claude Code 2.1.117
+
+### Agent Frontmatter `mcpServers` Declaration
+- **What:** Individual agent files can declare required MCP servers in frontmatter; loaded for main-thread sessions via `--agent`
+- **MindrianOS relevance:** Per-agent Brain MCP scoping. `mos-research` can require Brain without polluting global config; `mos-investor` (synthesis hat) can opt out. Tracked in SEED-003 A4.
+- **Status:** available
+- **Since:** Claude Code 2.1.117
+
+### Push Notification Tool for Remote Control
+- **What:** Built-in tool for asynchronously notifying the user (push notification surface)
+- **MindrianOS relevance:** Larry can ping the user when Brain finishes an enrichment cycle, when a proactive scan finds a contradiction, or when a long-running methodology completes. Today these only surface if the user is actively in the session.
+- **Status:** available
+- **Since:** Claude Code 2.1.110
+
+### `/focus` View
+- **What:** Toggleable focus view in the TUI
+- **MindrianOS relevance:** Aligns with Canon's focus-node concept (Phase 109 D-01). Statusline `🎯` glyph should coordinate with `/focus` state — when user is in focus view, render the focus node prominently.
+- **Status:** available
+- **Since:** Claude Code 2.1.110
+
 ---
 
 ## plugins_mcp
@@ -86,11 +158,53 @@ This reference is curated. Run `/mos:radar --fetch` to check the Claude Code cha
 - **Status:** available
 - **Since:** 2025 Q4
 
+### `--plugin-dir` Accepts `.zip` Archives
+- **What:** `claude --plugin-dir <path>` now accepts a `.zip` archive in addition to a directory
+- **MindrianOS relevance:** Beta-tester distribution side-channel. Today: marketplace tag is the only sanctioned path; beta gating requires marketplace.json to advertise the version. Zip channel decouples — hand a tester a single `.zip` without touching marketplace state. Tracked as adoption candidate A5 in SEED-003.
+- **Status:** available
+- **Since:** Claude Code 2.1.128
+
+### `claude plugin validate` (Expanded Manifest)
+- **What:** Plugin validation command accepts a wider set of manifest fields
+- **MindrianOS relevance:** `plugin.json` can declare more metadata that the marketplace honors. Audit current manifest against new accepted fields when planning v1.13.0.
+- **Status:** available
+- **Since:** Claude Code 2.1.120
+
+### Plugin Dependency Auto-Resolution
+- **What:** Plugin dependencies are auto-resolved from configured marketplaces
+- **MindrianOS relevance:** Simplifies coupling between MindrianOS and Brain MCP if Brain ever ships as a separate marketplace plugin (currently bundled).
+- **Status:** available
+- **Since:** Claude Code 2.1.117
+
 ### MCP Tool Search
 - **What:** Auto-discovers available MCP tools at 10% context threshold
 - **MindrianOS relevance:** Brain MCP discovery. When Brain is connected, Claude automatically finds Neo4j query tools without explicit configuration.
 - **Status:** available
 - **Since:** 2025 Q4
+
+### MCP `alwaysLoad` Server Config
+- **What:** `alwaysLoad: true` in `.mcp.json` skips tool-search deferral and surfaces server tools from turn 1
+- **MindrianOS relevance:** **Eliminates Brain MCP cold-start window.** Today Larry's first session response is "Brain-blind" until the 10% discovery threshold fires. With `alwaysLoad`, Mode A (Full Loop) per Canon Part 3 starts at turn 1. Single biggest leverage adoption per SEED-003 A1.
+- **Status:** available
+- **Since:** Claude Code 2.1.121
+
+### MCP Auto-Retry on Transient Startup Errors
+- **What:** MCP servers auto-retry transient startup errors up to 3 times
+- **MindrianOS relevance:** Brain MCP reliability improvement. Reduces "Brain unavailable" Tier 0 fallbacks caused by network blips during boot.
+- **Status:** available
+- **Since:** Claude Code 2.1.121
+
+### Concurrent MCP Server Connections (Default)
+- **What:** Multiple MCP servers connect concurrently at startup instead of serially
+- **MindrianOS relevance:** Faster session start when MindrianOS users have Brain + other MCP servers configured (Notion, Gmail, etc.). Net positive for plugin UX.
+- **Status:** available
+- **Since:** Claude Code 2.1.117
+
+### `/mcp` Tool Count + Zero-Tool Flagging
+- **What:** `/mcp` command shows the tool count for connected servers and flags servers that connected with 0 tools
+- **MindrianOS relevance:** Direct diagnostic for Brain MCP failure modes. When a tester says "Brain isn't responding," step 1 becomes `/mcp` — if Brain shows 0 tools, the failure mode is now visible. Candidate for `/mos:doctor --brain` integration.
+- **Status:** available
+- **Since:** Claude Code 2.1.128
 
 ### Plugin Hooks
 - **What:** SessionStart, SessionStop, and PostToolUse events available to plugins
