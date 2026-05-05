@@ -3,7 +3,7 @@
 
   # MindrianOS
 
-  **Your project becomes your co-founder.**
+  **For founders stuck on a decision they can't name.**
 
   Powered by PWS -- the practical innovation methodology developed
   over 30+ years at Johns Hopkins University.
