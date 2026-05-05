@@ -4,6 +4,11 @@ description: >
   Data Room awareness, filing intelligence, and passive monitoring. Active when
   room/ exists -- gives Larry project structure context and filing guidance.
 activation: "resolve_room:active"
+paths:
+  - "**/STATE.md"
+  - "**/ROOM.md"
+  - "**/MindrianRooms/**"
+  - "**/.rooms/**"
 ---
 
 # Room Passive -- Awareness + Filing Intelligence

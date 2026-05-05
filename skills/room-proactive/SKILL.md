@@ -4,6 +4,11 @@ description: >
   Proactive Data Room intelligence. Surfaces gaps, contradictions, and convergence
   signals. Active when room/ exists with entries.
 activation: "resolve_room:active"
+paths:
+  - "**/STATE.md"
+  - "**/ROOM.md"
+  - "**/MindrianRooms/**"
+  - "**/.rooms/**"
 ---
 
 # Room Proactive -- Gap, Contradiction, and Convergence Detection
