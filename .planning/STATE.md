@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 109-05-PLAN.md
-last_updated: "2026-05-05T08:16:10.599Z"
+stopped_at: Completed 109-08-PLAN.md
+last_updated: "2026-05-05T08:34:42.311Z"
 last_activity: 2026-05-05
 progress:
-  total_phases: 43
-  completed_phases: 23
-  total_plans: 197
-  completed_plans: 181
+  total_phases: 38
+  completed_phases: 13
+  total_plans: 69
+  completed_plans: 119
   percent: 82
 ---
 
@@ -220,6 +220,7 @@ Progress: [████████░░] 82%
 | Phase 109-sql-context-memory-navigation-spine P04 | 15min | 2 tasks | 5 files |
 | Phase 109 P06 | 824 | 2 tasks | 3 files |
 | Phase 109 P05 | 25min | 2 tasks | 4 files |
+| Phase 109-sql-context-memory-navigation-spine P08 | 4 | 2 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -610,6 +611,8 @@ Progress: [████████░░] 82%
 - [Phase 109]: Closed kind enum for renderExplanation (6 cases): contradiction, unsupported, blocking, stale, open, opportunity; canon amendment required to add a 7th kind
 - [Phase 109]: findRelevantOpportunities scores ALL opportunity nodes room-wide (Canon Part 2 always-ambient); depth=99 fallback for non-reachable; composite = 0.5*hsi + 0.3*distScore + 0.2*jtbdScore
 - [Phase 109]: findStaleDecisions uses 30-day threshold per RESEARCH 2.5 simplification (5 sessions = 30 days); opts.staleAfterSessions preserved for API compat
+- [Phase 109-sql-context-memory-navigation-spine]: 109-08: Brain CAN'T write trusted memory: every brain_insight node is created_by='brain' AND review_status='proposed' AND confirmed_by NULL at insertion. Canon Part 9 LOAD-BEARING.
+- [Phase 109-sql-context-memory-navigation-spine]: 109-08: ONE brain_suggestion_received memory_event per ingestion call (NOT per insight, per RESEARCH 8.3); event itself is review_status='confirmed' + created_by='system' because it records a fact.
 
 ### Pending Todos
 
@@ -631,6 +634,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-05T08:16:10.586Z
-Stopped at: Completed 109-05-PLAN.md
+Last session: 2026-05-05T08:34:42.300Z
+Stopped at: Completed 109-08-PLAN.md
 Resume file: None
