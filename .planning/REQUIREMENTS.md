@@ -238,7 +238,7 @@
 
 ## SQL Context-Memory Navigation Spine (NAV-109)
 
-- [ ] **NAV-109-01**: Focus Node Model. `lib/core/navigation.cjs` exports `getActiveFocus(sessionId)` and `setFocus(sessionId, nodeId, setBy)`. Focus is persistent in `room.db` via `session_focus` table (PRIMARY KEY session_id; foreign key to nodes.id; set_by closed-enum CHECK constraint with values user/larry/auto-from-jtbd/auto-from-operator/auto-from-state). Switching focus writes a `memory_event` of type `focus_changed`. Auto-focus cascade per CONTEXT D-01: rule 1 active JTBD anchor; rule 2 most recent unconfirmed decision when operator is DECISION_GATE; rule 3 room root node `room:<roomId>`. Statusline glyph 🎯 surfaces active focus per Phase 106-02 fence amendment. Per CONTEXT D-01 + RESEARCH section 4.
+- [x] **NAV-109-01**: Focus Node Model. `lib/core/navigation.cjs` exports `getActiveFocus(sessionId)` and `setFocus(sessionId, nodeId, setBy)`. Focus is persistent in `room.db` via `session_focus` table (PRIMARY KEY session_id; foreign key to nodes.id; set_by closed-enum CHECK constraint with values user/larry/auto-from-jtbd/auto-from-operator/auto-from-state). Switching focus writes a `memory_event` of type `focus_changed`. Auto-focus cascade per CONTEXT D-01: rule 1 active JTBD anchor; rule 2 most recent unconfirmed decision when operator is DECISION_GATE; rule 3 room root node `room:<roomId>`. Statusline glyph 🎯 surfaces active focus per Phase 106-02 fence amendment. Per CONTEXT D-01 + RESEARCH section 4.
 
 - [ ] **NAV-109-02**: Typed Neighborhood Retrieval. `lib/core/navigation.cjs` exports `getNeighborhood(focusNodeId, { maxDepth = 2, topK = 20 })`. Single recursive CTE returns ranked typed neighbors with `edge_path` (JSON array of node ids), `depth`, `edge_type_in`, plus the 9 provenance fields. Frozen edge weights per CONTEXT D-02 (CONTRADICTS / INVALIDATES = 1.0; DEPENDS_ON / ASSUMES = 0.9; SUPPORTS / EVIDENCES = 0.8; INFORMS / ENABLES = 0.6; CONVERGES / MENTIONS_ENTITY = 0.4). Composite score per RESEARCH section 2.1: edge_type_weight times 0.4 plus recency times 0.2 plus confidence times 0.2 plus section_relevance times 0.2. Performance: <50ms warm p95 on 10K-node room. Zero LLM calls. Zero Brain calls. Per CONTEXT D-02 + RESEARCH section 2.1.
 
@@ -408,7 +408,7 @@
 | RECONCILE-108-04 | Phase 108 | Complete |
 | RECONCILE-108-05 | Phase 108 | Complete |
 | RECONCILE-108-06 | Phase 108 | Complete |
-| NAV-109-01 | Phase 109 | Pending |
+| NAV-109-01 | Phase 109 | Complete |
 | NAV-109-02 | Phase 109 | Pending |
 | NAV-109-03 | Phase 109 | Complete |
 | NAV-109-04 | Phase 109 | Pending |

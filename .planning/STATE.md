@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 108-06-PLAN.md (PART-9-PROPOSAL.md + CANON-PHASE-MAP.md Part 9 (proposed) subsection + 8-assertion canon-crossref-completeness test harness; Phase 108 graph-memory-schema-reconciliation complete - 6 of 7 Wave-0 stubs filled, ready for verification gate)
-last_updated: "2026-05-03T12:11:47.967Z"
-last_activity: 2026-05-03
+stopped_at: "Completed 109-02-PLAN.md (Focus Node Model: session_focus migration + focus.cjs helpers + 🎯 statusline glyph + Phase 106-02 fence amendment)"
+last_updated: "2026-05-05T06:21:39.138Z"
+last_activity: 2026-05-05
 progress:
   total_phases: 43
   completed_phases: 23
-  total_plans: 187
-  completed_plans: 176
+  total_plans: 197
+  completed_plans: 178
   percent: 82
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 108 — graph-memory-schema-reconciliation
+**Current focus:** Phase 109 — sql-context-memory-navigation-spine
 
 ## Current Position
 
-Phase: 108 (graph-memory-schema-reconciliation) — EXECUTING
-Plan: 7 of 7
+Phase: 109 (sql-context-memory-navigation-spine) — EXECUTING
+Plan: 2 of 10
 Status: Ready to execute
 
 Phase 106-04 closure (2026-05-03):
@@ -107,7 +107,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-03
+Last activity: 2026-05-05
 
 Progress: [████████░░] 82%
 
@@ -216,6 +216,7 @@ Progress: [████████░░] 82%
 | Phase 108-graph-memory-schema-reconciliation P03 | 30min | 2 tasks | 2 files |
 | Phase 108 P05 | 10min | 3 tasks | 8 files |
 | Phase 108-graph-memory-schema-reconciliation P06 | 16min | 3 tasks | 3 files |
+| Phase 109 P02 | 811 | 3 tasks | 8 files |
 
 ### Roadmap Evolution
 
@@ -598,6 +599,9 @@ Progress: [████████░░] 82%
 - [Phase 108-graph-memory-schema-reconciliation]: Plan 108-06: legend-section exemption (Tests 4 + 5 in test-canon-crossref-completeness.cjs skip rows inside '## Resolution Categories' H2 because legend rows define column-value vocabulary, not reconciliation decisions; 8/8 PASS)
 - [Phase 108-graph-memory-schema-reconciliation]: Plan 108-06: docs/MINDRIAN-CANON.md non-edit guard is constitutional (test asserts ^##\s+Part 9\s does NOT match in canon); Phase 109 release gate is the canonical Part 9 ratification trigger
 - [Phase 108-graph-memory-schema-reconciliation]: Phase 108 graph-memory-schema-reconciliation complete: 6 of 7 Wave-0 stubs filled (test-canon-crossref-completeness.cjs is the last); test-part-9-invariant.cjs intentionally remains a stub through all of Phase 108 (lights up only after Phase 109 ships nodes.review_status column per RESEARCH Pitfall 6); Phase 108 is ready for verification
+- [Phase 109]: Plan 109-02 chose room:<roomId> as auto-focus rule 3 fallback (NOT a new governing_thought node type) per RESEARCH section 4.2 to avoid amending the frozen Phase 108 aliases.yml
+- [Phase 109]: Plan 109-02 made openRoomDb synchronous returning bare DatabaseSync handle per plan's Step 4 explicit instruction; documented as parallel-worktree merge surface for orchestrator
+- [Phase 109]: Plan 109-02 amended Phase 106-02 glyph fence to permit 🎯 in BOTH JTBD and focus contexts per RESEARCH Open Question 11.8
 
 ### Pending Todos
 
@@ -619,6 +623,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-03T12:11:47.922Z
-Stopped at: Completed 108-06-PLAN.md (PART-9-PROPOSAL.md + CANON-PHASE-MAP.md Part 9 (proposed) subsection + 8-assertion canon-crossref-completeness test harness; Phase 108 graph-memory-schema-reconciliation complete - 6 of 7 Wave-0 stubs filled, ready for verification gate)
+Last session: 2026-05-05T06:21:39.125Z
+Stopped at: Completed 109-02-PLAN.md (Focus Node Model: session_focus migration + focus.cjs helpers + 🎯 statusline glyph + Phase 106-02 fence amendment)
 Resume file: None
