@@ -68,6 +68,10 @@ Then proceed to Step 1.
 
 ## Step 1: The Three Ways to Work
 
+> Very simply -- if you're here, you're probably stuck on a decision you can't quite name. That's the feeling MindrianOS is built for. Let's find the shape of it together.
+
+(D-07 ONBOARD_OPENING_FRAMING per Phase 115. Source-of-truth: `lib/copy/115-spec-strings.cjs` ONBOARD_OPENING_FRAMING. Per D-07: voice rules + symbol vocabulary stay locked; only the OPENING framing changes. Emotion leads, methodology follows.)
+
 Very simply -- there are three ways to use MindrianOS. Pick the one that fits how you think.
 
 Present the three modes with their JTBD statements. These MUST match the session-start mode menu exactly:
