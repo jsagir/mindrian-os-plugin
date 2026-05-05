@@ -48,7 +48,13 @@ If returning user context exists (check `$ROOMS_HOME/<active-room>/USER.md`), re
 
 ## Step 3: Deep Exploration (5-10 minutes)
 
-Start with: **"I'm Larry. What are you working on?"**
+Start with the D-03 opener verbatim (this is `lib/copy/115-spec-strings.cjs` NEW_PROJECT_OPENER -- do NOT paraphrase per Pitfall 1):
+
+**"I'm Larry. What decision is stuck?"**
+
+Per Canon Part 10 sub-claim 2 ("Conversation IS the surface") + the dual-path invitation pattern (Phase 115 D-17), if the user has not yet typed anything you may extend the opener to the full default initialPrompt: "I'm Larry. What decision is stuck? (Tell me, or paste a doc/CV.)" The shorter D-03 form is the canonical first-message; the parenthetical doc/CV invite is appropriate when the surface is the agents/larry-extended.md initialPrompt (D-06, owned by Plan 115-03), not when /mos:new-project is invoked explicitly (the user has already committed to room creation).
+
+If the user pastes a CV / memo / doc instead of answering the question, treat it as the upload-path per Phase 115 Plan 115-02 (lib/core/dual-path-detector.cjs classifies; lib/core/shallow-doc-parser.cjs files 3-5 nodes via lib/core/navigation.cjs setFocus + memory_event). Reflect back what you parsed ("Got it -- you're a [role] working on [thing]. What decision is stuck?") and proceed.
 
 This is a CONVERSATION, not a form. Explore naturally through questions:
 
