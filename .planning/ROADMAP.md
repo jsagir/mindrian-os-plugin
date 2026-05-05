@@ -962,7 +962,21 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 
 **Canon parts:** Part 1 (Wicked Navigator — working memory made legible), Part 3 (Tri-Context Decision Gate — consumes navigation output as the LOCAL context), Part 4 (Every Choice Is Graph Data — every state change is a memory_event), Part 8 (Graph Boundary — D-06 + D-07 honor it; Phase 110 hardens via wire schema), Part 9 (Memory Locality and Interpretation — RATIFIED here).
 
-**Plans:** TBD by `/gsd:plan-phase 109` — heuristic estimate 9-12 plans across 4 waves
+**Plans:** 12 plans across 5 waves.
+
+Plans:
+- [ ] 109-00-PLAN.md - Wave 0 substrate (16 test stubs + fs-instrument helper + 500-node fixture seed + 10K-node generator + REQUIREMENTS plus ROADMAP updates)
+- [ ] 109-01-PLAN.md - Wave 1 schema migration (atomic two-step idempotent ALTER TABLE plus re-create-table; status_aliases backfill; identity sentinel)
+- [ ] 109-02-PLAN.md - Wave 1 D-01 Focus Node Model (session_focus table; getActiveFocus/setFocus; auto-focus cascade; statusline glyph)
+- [ ] 109-03-PLAN.md - Wave 1 D-03 Memory Event Log (15-event closed enum validation; findRecentChanges single-SELECT)
+- [ ] 109-04-PLAN.md - Wave 2 D-02 Navigation API skeleton plus D-02 Neighborhood retrieval CTE (lib/core/navigation.cjs chokepoint module; recursive CTE with edge weight CASE)
+- [ ] 109-05-PLAN.md - Wave 2 D-04 7 insight query primitives (findContradictions through findRelevantOpportunities; templated explanation strings; zero LLM)
+- [ ] 109-06-PLAN.md - Wave 2 D-05 chokepoint pre-commit hook extension (scripts/check-schema-aliases.cjs --check-chokepoint flag; runtime soft-defense audit log)
+- [ ] 109-07-PLAN.md - Wave 3 D-06 Brain Packet Builder (buildBrainPacket plain JS object; banked_opportunities scalar policy; 5-tripwire Part 8 enforcement)
+- [ ] 109-08-PLAN.md - Wave 3 D-07 Brain Result Ingestion (storeBrainSuggestions writes proposed-only; brain_suggestion_received memory_event; Phase 108 invariant SQL)
+- [ ] 109-09-PLAN.md - Wave 3 D-08 Room Home Driver (getRoomHomeView composition; Phase 90 deriveSection alias-first migration)
+- [ ] 109-10-PLAN.md - Wave 4 acceptance test instrumentation (the load-bearing release gate; fs proxy assertion of zero non-SQLite reads)
+- [ ] 109-11-PLAN.md - Wave 4 D-09 Canon Part 9 ratification plus release commit (MINDRIAN-CANON.md Part 9 insert; CANON-PHASE-MAP.md row updates; v1.14.0 release)
 
 **Authority**: `.planning/phases/109-sql-context-memory-navigation-spine/109-CONTEXT.md`. The phase guardrail (Codex via Jonathan, 2026-05-03): "Do not let Phase 109 become 'more SQL tables.' It must define navigation behavior."
 
