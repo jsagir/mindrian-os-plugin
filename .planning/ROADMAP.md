@@ -23,7 +23,7 @@
 **Phase 114 (larry-default-activation) -- 3 plans planned:**
 - [x] 114-00-PLAN.md -- Skill activation policy (subagent skill preload + agent frontmatter + settings.json cleanup + paths scoping + SessionStart JTBD refactor) [requirements: AC-114-01, AC-114-02]
 - [x] 114-01-PLAN.md -- .mcp.json alwaysLoad on mindrian-os local server (SEED-003 A1) [requirements: AC-114-03]
-- [ ] 114-02-PLAN.md -- Wave 0 verification + Phase 91 non-regression + v1.13.0-beta.2 release plumbing [requirements: AC-114-04]
+- [x] 114-02-PLAN.md -- Wave 0 verification + Phase 91 non-regression + v1.13.0-beta.2 release plumbing [requirements: AC-114-04]
 
 ---
 

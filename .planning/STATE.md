@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 114-00-PLAN.md
-last_updated: "2026-05-05T14:01:32.436Z"
+stopped_at: Completed 115-00-PLAN.md
+last_updated: "2026-05-05T19:14:53.353Z"
 last_activity: 2026-05-05
 progress:
   total_phases: 43
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 114 — larry-default-activation
+**Current focus:** Phase 115 — owned-emotion-dual-path-first-touch
 
 ## Current Position
 
-Phase: 114 (larry-default-activation) — EXECUTING
+Phase: 115 (owned-emotion-dual-path-first-touch) — EXECUTING
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: 2 of 3
+Plan: 2 of 5
 Status: Ready to execute
 
 **For full context, read these in order:**
@@ -232,6 +232,8 @@ Progress: [████████░░] 82%
 | Phase 109 P05 | 25min | 2 tasks | 4 files |
 | Phase 114-larry-default-activation P01 | 4min | 1 tasks | 1 files |
 | Phase 114-larry-default-activation P00 | 13min | 4 tasks | 5 files |
+| Phase 114 P02 | 35 | 8 tasks | 11 files |
+| Phase 115 P00 | 6m 19s | 7 tasks | 7 files |
 
 ### Roadmap Evolution
 
@@ -625,6 +627,13 @@ Progress: [████████░░] 82%
 - [Phase 114-larry-default-activation]: Scope alwaysLoad to mindrian-os ONLY in plugin .mcp.json. Brain MCP alwaysLoad remains user-side opt-in (out of scope per 114-CONTEXT.md). The plugin does not distribute Brain MCP config.
 - [Phase 114-larry-default-activation]: alwaysLoad placed as the LAST key in the mindrian-os entry (order: command, args, alwaysLoad), matching RESEARCH Code Example 2 convention. Boolean true (JSON literal), never the string 'true'.
 - [Phase 114-larry-default-activation]: Phase 114-00: subagent skills preload + initialPrompt replace probabilistic description-matching with structural turn-1 activation across CLI/Desktop/Cowork; settings.json cleaned of unsupported keys; SessionStart JTBD reframed as context-only
+- [Phase 114]: Wave 0 verification suite shipped (5 bash tests + voice rubric + baseline fixture + manual checklist) -- structural complement to empathy audit
+- [Phase 114]: v1.13.0-beta.2 release plumbing synchronized (CHANGELOG + plugin.json + package.json + local git tag); push deferred to milestone promotion gate per beta-channel ship rule
+- [Phase 114]: Phase 91 navigation engine: 6 pre-existing failures (84/85/88/88.1/88.5/106-era tests) classified (c) unrelated regression; 0 new failures from Phase 114; do not block per Task 7 acceptance
+- [Phase 115]: 115-00: Spec strings live in frozen lib/copy/115-spec-strings.cjs single source of truth; all 8 surfaces in 115-01/02/03 import rather than hardcoding (Pitfall 1 mitigation)
+- [Phase 115]: 115-00: Fallback emotion #1 ('I have a pile of insights and I can't see the shape of them.') ranked + verbatim spec strings pre-committed in tests/manual/115-rollback-procedure.md before validation week begins (Pitfall 5)
+- [Phase 115]: 115-00: D-20 rollback mutates lib/copy/115-spec-strings.cjs string VALUES only; persona_variants frontmatter shape, dual-path-detector, shallow-doc-parser stay intact (mechanism-vs-copy split)
+- [Phase 115]: 115-00: 30-day stickiness shortfall is OUT OF SCOPE for D-20 rollback; routes to Phase 116 Unresolved Tension Hook acceleration, not back to 115
 
 ### Pending Todos
 
@@ -646,6 +655,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-05T14:01:32.422Z
-Stopped at: Completed 114-00-PLAN.md
+Last session: 2026-05-05T19:14:39.697Z
+Stopped at: Completed 115-00-PLAN.md
 Resume file: None
