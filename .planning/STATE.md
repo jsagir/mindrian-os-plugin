@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 115-00-PLAN.md
-last_updated: "2026-05-05T19:14:53.353Z"
+stopped_at: Completed 115-01-PLAN.md (5/5 surface rewrites; D-02+D-03+D-05+D-07+D-08 landed byte-exact; em-dash scrub absorbed in REGISTRY.md task)
+last_updated: "2026-05-05T19:23:40.185Z"
 last_activity: 2026-05-05
 progress:
   total_phases: 43
@@ -29,7 +29,7 @@ Phase: 115 (owned-emotion-dual-path-first-touch) — EXECUTING
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 
 **For full context, read these in order:**
@@ -234,6 +234,7 @@ Progress: [████████░░] 82%
 | Phase 114-larry-default-activation P00 | 13min | 4 tasks | 5 files |
 | Phase 114 P02 | 35 | 8 tasks | 11 files |
 | Phase 115 P00 | 6m 19s | 7 tasks | 7 files |
+| Phase 115 P01 | 3m 19s | 5 tasks | 5 files |
 
 ### Roadmap Evolution
 
@@ -634,6 +635,9 @@ Progress: [████████░░] 82%
 - [Phase 115]: 115-00: Fallback emotion #1 ('I have a pile of insights and I can't see the shape of them.') ranked + verbatim spec strings pre-committed in tests/manual/115-rollback-procedure.md before validation week begins (Pitfall 5)
 - [Phase 115]: 115-00: D-20 rollback mutates lib/copy/115-spec-strings.cjs string VALUES only; persona_variants frontmatter shape, dual-path-detector, shallow-doc-parser stay intact (mechanism-vs-copy split)
 - [Phase 115]: 115-00: 30-day stickiness shortfall is OUT OF SCOPE for D-20 rollback; routes to Phase 116 Unresolved Tension Hook acceleration, not back to 115
+- [Phase 115]: Plan 115-01 import pattern: every Phase 115 first-touch surface quotes lib/copy/115-spec-strings.cjs constant value byte-exact and surface body comment names the constant for executor-recognition (Pitfall 1 mitigation at the rendering layer)
+- [Phase 115]: Plan 115-01 D-07 inserted BEFORE existing 'Very simply -- there are three ways' paragraph rather than replacing it, preserving voice DNA continuity per D-07 explicit constraint (voice rules + symbol vocabulary stay locked)
+- [Phase 115]: Plan 115-01 in-scope CLAUDE.md hard-rule auto-fix: 4 pre-existing em-dashes in docs/testers/REGISTRY.md (3 in tester table notes, 1 in Adding-a-tester step 5) replaced with ASCII hyphens as part of Task 5 commit (Rule 1/2 auto-fix per project-wide no-em-dashes hard rule)
 
 ### Pending Todos
 
@@ -655,6 +659,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-05T19:14:39.697Z
-Stopped at: Completed 115-00-PLAN.md
+Last session: 2026-05-05T19:23:26.605Z
+Stopped at: Completed 115-01-PLAN.md (5/5 surface rewrites; D-02+D-03+D-05+D-07+D-08 landed byte-exact; em-dash scrub absorbed in REGISTRY.md task)
 Resume file: None
