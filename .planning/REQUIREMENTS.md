@@ -252,7 +252,7 @@
 
 - [ ] **NAV-109-07**: Brain Result Ingestion. `lib/core/navigation.cjs` exports `storeBrainSuggestions(packetResult, sessionId)` writing each suggestion as a `brain_insight` node with `created_by = 'brain'`, `review_status = 'proposed'`, `confirmed_by IS NULL`, `source_path` starting with `brain:job:`. Logs ONE `memory_event` of type `brain_suggestion_received` per ingestion (not one per insight). Edge proposals from Brain land with `properties.review_status = 'proposed'`. Phase 108 invariant SQL query (PROVENANCE.md L79-89) returns 0 rows post-ingestion. Per CONTEXT D-07 + RESEARCH section 8.
 
-- [ ] **NAV-109-08**: Room Home Driver. `lib/core/navigation.cjs` exports `getRoomHomeView(roomId)` composing the navigation primitives into the shape per CONTEXT D-08 (currentThesis / confirmedFacts / riskyAssumptions / evidence / contradictions / openQuestions / recentChanges / bankedOpportunities / nextMove). Composition not duplication: id-set comparison test asserts no payload field re-derives data already in another field. Phase 90 BRAIN.md derivation 4-release deprecation cycle per RESEARCH section 6.2 (alias in v1.14.0 keeps byte-identical output; default flips in v1.15.0; folder path removed v1.16.0). Per CONTEXT D-08 + RESEARCH section 6.
+- [x] **NAV-109-08**: Room Home Driver. `lib/core/navigation.cjs` exports `getRoomHomeView(roomId)` composing the navigation primitives into the shape per CONTEXT D-08 (currentThesis / confirmedFacts / riskyAssumptions / evidence / contradictions / openQuestions / recentChanges / bankedOpportunities / nextMove). Composition not duplication: id-set comparison test asserts no payload field re-derives data already in another field. Phase 90 BRAIN.md derivation 4-release deprecation cycle per RESEARCH section 6.2 (alias in v1.14.0 keeps byte-identical output; default flips in v1.15.0; folder path removed v1.16.0). Per CONTEXT D-08 + RESEARCH section 6.
 
 - [ ] **NAV-109-09**: Canon Part 9 ratification at release gate. The Phase 109 release commit merges proposed Part 9 text from `.planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md` into `docs/MINDRIAN-CANON.md` immediately before `## Appendix A - Relationship to MWP`. `docs/CANON-PHASE-MAP.md` Part 9 (proposed) row updates from `proposed`/`planned` to `shipped` for Phases 108 and 109 (Phase 110 stays `planned`). Appendix D Canonization Provenance gains entry 12 attributing Codex external research input. NO other Phase 109 plan touches the canon files. Per CONTEXT D-09 + RESEARCH section 9.
 
@@ -415,5 +415,5 @@
 | NAV-109-05 | Phase 109 | Complete |
 | NAV-109-06 | Phase 109 | Pending |
 | NAV-109-07 | Phase 109 | Pending |
-| NAV-109-08 | Phase 109 | Pending |
+| NAV-109-08 | Phase 109 | Complete |
 | NAV-109-09 | Phase 109 | Pending |

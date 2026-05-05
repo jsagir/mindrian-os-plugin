@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 109-05-PLAN.md
-last_updated: "2026-05-05T08:16:10.599Z"
+stopped_at: Completed 109-09-PLAN.md
+last_updated: "2026-05-05T08:42:18.995Z"
 last_activity: 2026-05-05
 progress:
-  total_phases: 43
-  completed_phases: 23
-  total_plans: 197
-  completed_plans: 181
+  total_phases: 38
+  completed_phases: 13
+  total_plans: 69
+  completed_plans: 120
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 109 (sql-context-memory-navigation-spine) — EXECUTING
-Plan: 3 of 10
+Plan: 4 of 10
 Status: Ready to execute
 
 Phase 106-04 closure (2026-05-03):
@@ -220,6 +220,7 @@ Progress: [████████░░] 82%
 | Phase 109-sql-context-memory-navigation-spine P04 | 15min | 2 tasks | 5 files |
 | Phase 109 P06 | 824 | 2 tasks | 3 files |
 | Phase 109 P05 | 25min | 2 tasks | 4 files |
+| Phase 109-sql-context-memory-navigation-spine P09 | 11m 41s | 2 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -610,6 +611,8 @@ Progress: [████████░░] 82%
 - [Phase 109]: Closed kind enum for renderExplanation (6 cases): contradiction, unsupported, blocking, stale, open, opportunity; canon amendment required to add a 7th kind
 - [Phase 109]: findRelevantOpportunities scores ALL opportunity nodes room-wide (Canon Part 2 always-ambient); depth=99 fallback for non-reachable; composite = 0.5*hsi + 0.3*distScore + 0.2*jtbdScore
 - [Phase 109]: findStaleDecisions uses 30-day threshold per RESEARCH 2.5 simplification (5 sessions = 30 days); opts.staleAfterSessions preserved for API compat
+- [Phase 109-sql-context-memory-navigation-spine]: Room Home composition-not-duplication enforced at SELECT IN-clause level (validated state excluded from risky IN-clause); confirmedFacts and riskyAssumptions id sets disjoint by query-time guarantee
+- [Phase 109-sql-context-memory-navigation-spine]: nextMove templated default ships in Phase 109; opts.brainAvailable + opts.getBrainAdvisory forward-compat seam exists for Phase 110 Brain advisory wiring without API surface change
 
 ### Pending Todos
 
@@ -631,6 +634,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-05T08:16:10.586Z
-Stopped at: Completed 109-05-PLAN.md
+Last session: 2026-05-05T08:42:11.823Z
+Stopped at: Completed 109-09-PLAN.md
 Resume file: None
