@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.11.0
 milestone_name: Memory Triple + Navigation Engine
 status: executing
-stopped_at: Completed 108-03-PLAN.md (TRUTH-STATES.md closed 8-state taxonomy + 10-assertion test harness; Wave 2 parallel-safe with 108-04 aliases.yml)
-last_updated: "2026-05-03T11:48:14.423Z"
-last_activity: 2026-05-03
+stopped_at: "Completed 109-00-PLAN.md (Wave 0 substrate: 9 NAV-109-XX requirement IDs locked + 15 RED test stubs + fs-instrument helper + 500-node fixture + 10K-node generator + ROADMAP enumerated 12-plan list)"
+last_updated: "2026-05-05T06:27:39.492Z"
+last_activity: 2026-05-05
 progress:
-  total_phases: 43
-  completed_phases: 22
-  total_plans: 187
-  completed_plans: 174
+  total_phases: 38
+  completed_phases: 13
+  total_plans: 69
+  completed_plans: 116
   percent: 82
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 108 (graph-memory-schema-reconciliation) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 
 Phase 106-04 closure (2026-05-03):
@@ -107,7 +107,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-03
+Last activity: 2026-05-05
 
 Progress: [████████░░] 82%
 
@@ -214,6 +214,7 @@ Progress: [████████░░] 82%
 | Phase 108 P02 | 17min | 2 tasks | 2 files |
 | Phase 108-graph-memory-schema-reconciliation P04 | 9min | 2 tasks | 2 files |
 | Phase 108-graph-memory-schema-reconciliation P03 | 30min | 2 tasks | 2 files |
+| Phase 109-sql-context-memory-navigation-spine P00 | 20min | 4 tasks | 19 files |
 
 ### Roadmap Evolution
 
@@ -590,6 +591,9 @@ Progress: [████████░░] 82%
 - [Phase 108-graph-memory-schema-reconciliation]: 8-state truth-state set is CLOSED: net-new states require canon amendment, not plan deviation
 - [Phase 108-graph-memory-schema-reconciliation]: status_aliases mapping is fixed: untested->proposed, supported->validated, contradicted->invalidated, stale->stale (per RESEARCH section 4)
 - [Phase 108-graph-memory-schema-reconciliation]: transitionStatus(nodeId, fromStatus, toStatus, actorId, reason) chokepoint contract specified for Phase 109; runtime enforcement is Phase 109 not 108
+- [Phase 109-sql-context-memory-navigation-spine]: Wave 0 ships zero behavior; 15 RED test stubs + 1 SHIPPABLE fs-instrument helper define the contract Plans 109-01..09 fill
+- [Phase 109-sql-context-memory-navigation-spine]: Sample-room seed.sql is 1297 lines explicit INSERT OR IGNORE (idempotent); 10K-node generator is programmatic with deterministic LCG seed 0x09109109
+- [Phase 109-sql-context-memory-navigation-spine]: fs-instrument.cjs ships SHIPPABLE (not stub); allow-list of room.db + WAL/SHM/journal companions; Plan 109-10 acceptance test consumes directly per RESEARCH section 10.2
 
 ### Pending Todos
 
@@ -611,6 +615,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-03T11:48:08.187Z
-Stopped at: Completed 108-03-PLAN.md (TRUTH-STATES.md closed 8-state taxonomy + 10-assertion test harness; Wave 2 parallel-safe with 108-04 aliases.yml)
+Last session: 2026-05-05T06:27:27.022Z
+Stopped at: Completed 109-00-PLAN.md (Wave 0 substrate: 9 NAV-109-XX requirement IDs locked + 15 RED test stubs + fs-instrument helper + 500-node fixture + 10K-node generator + ROADMAP enumerated 12-plan list)
 Resume file: None
