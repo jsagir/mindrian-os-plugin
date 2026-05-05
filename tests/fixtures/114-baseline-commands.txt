@@ -1,0 +1,109 @@
+# Phase 114 -- Baseline Commands Fixture
+
+Captured: 2026-05-05 (post-114-00 + post-114-01 edits landed; see Note below)
+Purpose: Regression ground truth for tests/test-114-commands-regression.sh (AC-114-04)
+Source: Live `claude --print --plugin-dir .` invocations OR manual CLI paste
+
+## Note on Capture Timing
+
+Phase 114-02 runs in Wave 2 -- after 114-00 (substrate preload) and 114-01
+(alwaysLoad) have already landed. This baseline therefore captures POST-114
+command output, not pre-114. The regression test
+(test-114-commands-regression.sh) uses this for STRUCTURAL invariants:
+
+- Each /mos:* command exits 0 (no error)
+- Output contains expected section headings (e.g., /mos:status produces a
+  Header Panel + Content Body + Action Footer per skills/ui-system/SKILL.md
+  4-zone anatomy)
+- Output uses ONLY canonical glyph vocabulary (the De Stijl set) -- no emoji
+- Output references real room state (not hardcoded placeholder)
+
+Behavioral diff (pre-vs-post 114) is captured by the empathy audit
+(3 fresh testers, per v1.13.0-beta.2 promotion gate). The empathy audit is
+RESEARCH `## Validation Architecture / Validation strategy notes` ground
+truth -- this fixture is the structural complement.
+
+## If claude --print is unavailable
+
+Fall back to tests/manual/114-acceptance.md (Task 6 of 114-02) which
+provides a manual capture procedure.
+
+The placeholder blocks below should be populated by running each command
+via `claude --print --plugin-dir . "<command>"` and pasting literal output
+(stripping transient values: timestamps, dynamic counts; keeping section
+headings, glyphs, and command-menu structure). Until populated, the
+regression test relies on the structural invariants documented in this
+file rather than line-for-line baseline diff.
+
+---
+
+### COMMAND: /mos:status
+### CAPTURED: 2026-05-05
+
+```
+[PASTE LITERAL OUTPUT OF /mos:status HERE -- captured via
+`claude --print --plugin-dir . "/mos:status"` or manual CLI invocation.
+
+Expected structural shape per commands/status.md + skills/ui-system Shape E:
+
+  Header Panel    -- title + section count summary
+  Content Body    -- per-section governing_thought rows with health glyph
+                     (check / warn / low / --) and optional (stale: ...)
+                     suffix
+  Action Footer   -- 2-3 next-step suggestions
+
+Strip transients: relative timestamps, dynamic counts; keep glyphs +
+zone markers + at least one row per active section.]
+```
+
+### COMMAND: /mos:rooms
+### CAPTURED: 2026-05-05
+
+```
+[PASTE LITERAL OUTPUT OF /mos:rooms HERE.
+
+Expected structural shape per commands/rooms.md + skills/ui-system Shape B
+(Semantic Tree):
+
+  Header          -- "Active Rooms" title bar
+  Tree            -- registered rooms with status glyphs
+  Action Footer   -- list/switch/archive/park hints
+
+If no rooms are registered, the empty-state message is acceptable as
+baseline -- record verbatim.]
+```
+
+### COMMAND: /mos:room
+### CAPTURED: 2026-05-05
+
+```
+[PASTE LITERAL OUTPUT OF /mos:room HERE.
+
+Expected structural shape: prompts for room context OR surfaces the
+current room's STATE.md governing thought + section roster. At least
+one canonical glyph + Action Footer present.]
+```
+
+### COMMAND: /mos:think-hats
+### CAPTURED: 2026-05-05
+
+```
+[PASTE LITERAL OUTPUT OF /mos:think-hats HERE.
+
+Expected structural shape: BONO orchestration prompt OR hat-sequence
+preview per Canon Part 2 Engine 2. Header / Body / Footer zones with
+canonical glyphs + at least one hat name (Blue/White/Red/Green/Yellow/
+Black).]
+```
+
+---
+
+## Structural Invariants Tested by test-114-commands-regression.sh
+
+- All 4 commands exit 0 (assertion: bash captures exit code)
+- Each command's output contains the literal "## Action Footer" or an
+  equivalent zone marker (skills/ui-system 4-zone anatomy invariant)
+- No output contains emoji (negative grep for emoji byte ranges via
+  python3 unicodedata)
+- Each output includes at least one canonical glyph from the De Stijl
+  vocabulary (the set documented in skills/ui-system/SKILL.md)

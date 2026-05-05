@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 114-01-PLAN.md
-last_updated: "2026-05-05T13:59:07.122Z"
-last_activity: 2026-05-05 -- Phase 114 execution started
+stopped_at: Completed 114-00-PLAN.md
+last_updated: "2026-05-05T14:01:32.436Z"
+last_activity: 2026-05-05
 progress:
   total_phases: 43
   completed_phases: 23
@@ -29,8 +29,8 @@ Phase: 114 (larry-default-activation) — EXECUTING
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: 1 of 3
-Status: Executing Phase 114
+Plan: 2 of 3
+Status: Ready to execute
 
 **For full context, read these in order:**
 
@@ -117,7 +117,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-05 -- Phase 114 execution started
+Last activity: 2026-05-05
 
 Progress: [████████░░] 82%
 
@@ -231,6 +231,7 @@ Progress: [████████░░] 82%
 | Phase 109 P06 | 824 | 2 tasks | 3 files |
 | Phase 109 P05 | 25min | 2 tasks | 4 files |
 | Phase 114-larry-default-activation P01 | 4min | 1 tasks | 1 files |
+| Phase 114-larry-default-activation P00 | 13min | 4 tasks | 5 files |
 
 ### Roadmap Evolution
 
@@ -623,6 +624,7 @@ Progress: [████████░░] 82%
 - [Phase 109]: findStaleDecisions uses 30-day threshold per RESEARCH 2.5 simplification (5 sessions = 30 days); opts.staleAfterSessions preserved for API compat
 - [Phase 114-larry-default-activation]: Scope alwaysLoad to mindrian-os ONLY in plugin .mcp.json. Brain MCP alwaysLoad remains user-side opt-in (out of scope per 114-CONTEXT.md). The plugin does not distribute Brain MCP config.
 - [Phase 114-larry-default-activation]: alwaysLoad placed as the LAST key in the mindrian-os entry (order: command, args, alwaysLoad), matching RESEARCH Code Example 2 convention. Boolean true (JSON literal), never the string 'true'.
+- [Phase 114-larry-default-activation]: Phase 114-00: subagent skills preload + initialPrompt replace probabilistic description-matching with structural turn-1 activation across CLI/Desktop/Cowork; settings.json cleaned of unsupported keys; SessionStart JTBD reframed as context-only
 
 ### Pending Todos
 
@@ -644,6 +646,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-05T13:58:58.501Z
-Stopped at: Completed 114-01-PLAN.md
+Last session: 2026-05-05T14:01:32.422Z
+Stopped at: Completed 114-00-PLAN.md
 Resume file: None

@@ -21,7 +21,7 @@
 **Provenance:** Synthesized 2026-05-05 in 4-hour deep-dive session combining /mos:think-hats + /mos:beautiful-question + recovery of 2026-04-12 dormant Hooked Model 4-fix audit + capabilities radar pass on Claude Code 2.1.x adoption + foundation audit of phases 88-109. The "Every Hirer" thesis was deemed still command-centric; "The Closed Loop" reframes around conversation-first golden path.
 
 **Phase 114 (larry-default-activation) -- 3 plans planned:**
-- [ ] 114-00-PLAN.md -- Skill activation policy (subagent skill preload + agent frontmatter + settings.json cleanup + paths scoping + SessionStart JTBD refactor) [requirements: AC-114-01, AC-114-02]
+- [x] 114-00-PLAN.md -- Skill activation policy (subagent skill preload + agent frontmatter + settings.json cleanup + paths scoping + SessionStart JTBD refactor) [requirements: AC-114-01, AC-114-02]
 - [x] 114-01-PLAN.md -- .mcp.json alwaysLoad on mindrian-os local server (SEED-003 A1) [requirements: AC-114-03]
 - [ ] 114-02-PLAN.md -- Wave 0 verification + Phase 91 non-regression + v1.13.0-beta.2 release plumbing [requirements: AC-114-04]
 
