@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 117-03-PLAN.md (Wave 2 F.1 surface; 5 new exports + BQ_TEMPLATE_REGISTRY; 33 GREEN tests; 77 cumulative Phase 117 GREEN; Brain 8.4/8.5/8.7 invariants honored; Desktop tri-polar fallback shipped)
-last_updated: "2026-05-06T22:41:26.779Z"
+stopped_at: Completed 117-04-PLAN.md (Wave 2 SEED-003 A3 sanitizer + LOCAL-only audit; 6th Canon Part 8 tripwire; 23 GREEN tests; 100 cumulative Phase 117 GREEN; AUTOEXPLORE-117-17 invariant LOCKED)
+last_updated: "2026-05-06T23:07:01.978Z"
 last_activity: 2026-05-06 -- Phase 95.5 execution started
 progress:
   total_phases: 51
   completed_phases: 26
   total_plans: 220
-  completed_plans: 201
+  completed_plans: 204
   percent: 82
 ---
 
@@ -251,6 +251,7 @@ Progress: [████████░░] 82%
 | Phase 117 P01 | 17min | 2 tasks | 7 files |
 | Phase 117 P02 | 22min | 2 tasks | 6 files |
 | Phase 117 P03 | 28 | 4 tasks | 7 files |
+| Phase 117 P117-04 | 25min | 2 tasks | 5 files |
 
 ### Roadmap Evolution
 
@@ -688,6 +689,9 @@ Progress: [████████░░] 82%
 - [Phase 117-02]: scripts/auto-explore-fire.cjs detached background child: Promise.all([discovery-cycle.cjs --steps all, rs-engine.py --mode hybrid]) with 30s per-pipeline + 60s total cap; atomic temp+rename write of room/.mindrian/auto-explore-<material_id>.json; markCompleted/markFailed transitions; uncaughtException + unhandledRejection backstops (always exits 0)
 - [Phase 117-02]: Canon Part 8 boundary tightening (vs 117-01): bare-substring grep regression on 'brain-client' returns 0 in lib/agents/auto-explore-agent.cjs + scripts/auto-explore-fire.cjs (literal token elided in comments per 117-02 plan AC; same precedent as 117-01's ADDRESSES_PROBLEM_TYPE elision)
 - [Phase 117]: F.1 verbs locked at [Explore, Skip, Later]; INFORMS edge type (delta vs Phase 116 RESOLVES_VIA); RECOMMENDED at >= 0.7 per Phase 88.2; BQ_TEMPLATE_REGISTRY local-constant in v1 with verbatim Brain canonical names; W6 atomic re-persist; B2 Desktop fallback slash command
+- [Phase 117]: 117-04 v1 sanitizer ships PII pattern redaction ONLY; non-allowlist redaction DISABLED until Phase 121 telemetry calibrates (RESEARCH 4.6 risk T4)
+- [Phase 117]: 117-04 6th Canon Part 8 tripwire shipped via PostToolUse mcp__brain_.* hook with hookSpecificOutput.updatedToolOutput envelope per SEED-003 A3
+- [Phase 117]: 117-04 AUTOEXPLORE-117-17 LOCAL-only routing invariant LOCKED via grep regression + maintainer-visible Brain §8.7 comment block above detectFirstMaterial citing Cypher Q7
 
 ### Pending Todos
 
@@ -711,6 +715,6 @@ yet.
 
 ## Session Continuity
 
-Last session: 2026-05-06T22:41:10.585Z
-Stopped at: Completed 117-03-PLAN.md (Wave 2 F.1 surface; 5 new exports + BQ_TEMPLATE_REGISTRY; 33 GREEN tests; 77 cumulative Phase 117 GREEN; Brain 8.4/8.5/8.7 invariants honored; Desktop tri-polar fallback shipped)
+Last session: 2026-05-06T23:06:43.100Z
+Stopped at: Completed 117-04-PLAN.md (Wave 2 SEED-003 A3 sanitizer + LOCAL-only audit; 6th Canon Part 8 tripwire; 23 GREEN tests; 100 cumulative Phase 117 GREEN; AUTOEXPLORE-117-17 invariant LOCKED)
 Resume file: None
