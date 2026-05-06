@@ -891,6 +891,16 @@ Plans:
 **Outcome:** Phase 95 ships as v1.12.0 (2026-04-29). 7 bash hooks envelope-clean against Claude Code 2.x schema. `<roomDir>/.mindrian/last-cascade.json` and `<roomDir>/.mindrian/last-post-compact.md` side-channel files installed (LOCAL only per Canon Part 8). `room-proactive` skill restored to functional state for the first time since Phase 88.1-03 shipped (Plan 95-03). Three regression tests fence the bash hook envelope shapes + side-channel atomic write + SKILL.md contract (27/27 envelope scenarios GREEN: 16 + 5 + 6). Cursor-branch divergence intentionally preserved per `.planning/phases/95-bash-hook-envelope-and-cascade-side-channel/95-01-AUDIT.md`. PostCompact context-preservation half-wired (writer landed; consumer queued for Phase 95.5/96 per release-process.md transparency).
 
 
+### Phase 95.2: Install Cache Atomic Recovery + SessionStart Preflight (INSERTED)
+
+**Goal:** Harden the install-cache recovery path in `scripts/doctor.cjs` after a third occurrence of the install-cache failure family on the dogfood machine (2026-05-06; live install dir missing while two stale backups sit alongside). Three deliverables: D1 atomic-swap recovery (eliminate half-done state), D2 class A `--fix` eligibility for `install.status === "missing"` (currently only fires on `drift.detected: true`), D3 SessionStart preflight class-A check + warning surface. Ships as v1.13.0-beta.6 hotfix between beta.4 (in-flight) and the beta.2 thesis work. Forward-protective only -- machines already in missing-install state get the patch via `--fix` from cache, which already works.
+**Requirements**: DOCTOR-95.2-01, DOCTOR-95.2-02, DOCTOR-95.2-03, DOCTOR-95.2-04, DOCTOR-95.2-05, DOCTOR-95.2-06, DOCTOR-95.2-07, DOCTOR-95.2-08, DOCTOR-95.2-09
+**Depends on:** Phase 95.1 (extends `scripts/doctor.cjs`; no parallel surface)
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 95.2 to break down)
+
 ### Phase 95.1: mos:doctor drift detection and self-heal (INSERTED)
 
 **Goal:** Extend Phase 93's `/mos:doctor` (currently class A only) with detectors for 5 silent-failure drift classes (B/C/D/E/F) surfaced by v1.12.0 fresh-session smoke. Build the missing `scripts/generate-section-intelligence.cjs` generator. Retrofit `/mos:doctor` itself for UI Ruling System compliance. Use the dogfood `room/` subtree as integration test fixture. Ship as v1.12.1-beta.1.
@@ -1039,6 +1049,36 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 **Plans:** TBD — likely 1-2 plans only (this is research, not implementation).
 
 **Authority**: `.planning/phases/113-wasm-everywhere-spike/113-CONTEXT.md` (stub). The thesis question this spike answers: *"Does Mindrian's intelligence survive without infrastructure?"*
+
+
+### Phase 116: Unresolved Tension Hook (PLANNED 2026-05-06 -- READY FOR EXECUTION)
+
+**Goal**: Persistent tension surfacing -- every state transition registers a `pending_tension` that re-surfaces via `SessionStart` hook in Larry's voice using F.1 Next Move selector. Closes the habit loop (Eyal/Hooked) so MindrianOS becomes "tool that calls you back" not "tool you summon." Load-bearing LOOP-CLOSURE fix from the dormant 2026-04-12 Hooked audit (both audits scored Loop Closure at exactly 3/10). Implements Canon Part 10 sub-claim 3 (persistent conversation across sessions).
+
+**Requirements**: TENSION-116-DETECT, TENSION-116-SURFACE, TENSION-116-DECAY, TENSION-116-TELEMETRY, TENSION-116-F1, TENSION-116-PERSIST -- plus 5 Wave-0 substrate IDs (TENSION-116-01-EVENT-TYPES-EXTEND, TENSION-116-02-WAVE-0-TEST-STUBS, TENSION-116-03-FEYNMAN-RUNNER-REGISTER, TENSION-116-04-CYPHER-PATCH-DRAFT, TENSION-116-05-OFFLINE-SNAPSHOT) refined during planning per CONTEXT.md D-01..D-10. Distribution: 116-00 holds all 5 Wave-0 IDs; 116-01 holds DETECT + PERSIST; 116-02 holds SURFACE + F1; 116-03 holds DECAY; 116-04 holds TELEMETRY.
+
+**Depends on**: Phase 88.2 finish (F.1 selector -- shipped beta.4), Phase 109 (navigation.cjs -- shipped v1.11.0), Phase 90 (BRAIN.md quadruple -- shipped v1.10.18). NOT dependent on Phase 89-07 (89-07 -> Phase 117).
+
+**Canon parts**: Part 4 (Every Choice Is Graph Data), Part 8 (Graph Boundary), Part 10 sub-claim 3 (persistent conversation). Beta target: **v1.13.0-beta.5** (between in-flight beta.4 (89-07) and pending beta.6 (Phase 95.2 hotfix)).
+
+**Plans**: 5 plans
+- [ ] 116-00-PLAN.md -- EVENT_TYPES extension (Set 21 -> 26) + 5 Wave-0 RED test stubs + scaffold harness + cypher patch + offline snapshot (9 deliverables; mirrors 89-07-00)
+- [ ] 116-01-PLAN.md -- Detection substrate: lib/memory/pending-tension-store.cjs (10 exports) + lib/core/navigation/insights.cjs findSurfaceableTensions + scripts/preflight-tension-surface.cjs SessionStart hook entry #7
+- [ ] 116-02-PLAN.md -- F.1 surface: lib/agents/tension-hook-agent.cjs (4 exports incl. surfaceFinding + handleUserResponse + buildResolvedViaEdge) + RESOLVES_VIA cascade edge
+- [ ] 116-03-PLAN.md -- Decay state machine: evaluateAndDecay + getDecayCandidates + 3-strikes rule + cross-session JSONL replay + boundary case
+- [ ] 116-04-PLAN.md -- Telemetry + release: 5 emit helpers (emitDetected/Surfaced/Resolved/Decayed/Skipped) + Canon Part 8 substring audit + AGENTIC-SURFACING-PATTERN.md update + R1 byte-equal regression assertion + 5-gate v1.13.0-beta.5 release plumbing
+
+**Success Criteria**:
+1. File a contradiction across two artifacts; navigation `findContradictions` returns it.
+2. Close session, reopen; tension surfaces in Larry's voice via F.1.
+3. User selects "resolve" / "later" / "skip" via F.1 -- all three paths emit correct memory_event + JSONL state transition.
+4. Resolved tension never re-surfaces; ignored tension re-queues with surfacing_count++.
+5. After 3 surfacings of same tension without resolution, state → `dropped`; `tension_decayed` event fires.
+6. Hooked audit Loop Closure axis: 3/10 → 8/10 measured at beta.3 release gate.
+7. Canon Part 8 audit: zero user-content strings in any memory_event payload (sha256-only).
+8. Three-surface smoke: CLI + Desktop + Cowork all surface the same F.1 render given same JSONL state.
+
+**Authority**: `.planning/phases/116-unresolved-tension-hook/116-CONTEXT.md` (D-01..D-10 locked 2026-05-06 via /gsd:discuss-phase). Source spec: `~/MindrianRooms/mindrian/mindrian-ecosystem/sub-rooms/website/mindrianos-conversion-fix/solution-design/unresolved-tension-hook-spec.md`.
 
 
 ---
