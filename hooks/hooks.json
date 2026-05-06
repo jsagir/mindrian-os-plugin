@@ -62,6 +62,16 @@
             "timeout": 2000
           }
         ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/preflight-tension-surface.cjs\"",
+            "timeout": 3000
+          }
+        ]
       }
     ],
     "PreCompact": [

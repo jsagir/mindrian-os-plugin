@@ -1,0 +1,217 @@
+#!/usr/bin/env node
+/*
+ * Copyright (c) 2026 Mindrian. BSL 1.1.
+ *
+ * Phase 116-01 Wave 1 -- SessionStart preflight tension surface hook.
+ * Hook entry #7 in hooks/hooks.json SessionStart matcher 'startup|clear|compact'.
+ *
+ * Per CONTEXT.md D-01 + D-05: lazy detection at SessionStart via the Phase 109
+ * navigation chokepoint (findSurfaceableTensions). Per D-07 + D-07a: JSONL is
+ * the decay state machine ground truth. Per D-09 + D-10: silent on zero
+ * candidates / Tier 0 / db_not_initialized.
+ *
+ * Envelope contract (RESEARCH Section 5.1; verified scripts/check-onboard-statusline.cjs):
+ *   { continue: true,
+ *     hookSpecificOutput: { hookEventName: 'SessionStart',
+ *                           additionalContext: '<Larry-voice directive>' } }
+ *
+ * ALWAYS exits 0 (RESEARCH Section 7.3); never blocks the hook chain.
+ *
+ * Graph-native HARD RULE:
+ *   - Reads route through lib/core/navigation.cjs (Phase 109 D-06 chokepoint).
+ *   - Brain MCP is OUT of this hook's surface (Canon Part 8 boundary).
+ *   - process.stdout.write goes through emitEnvelope() helper only -- the
+ *     stdout write IS the SessionStart envelope mechanism, not a side-channel.
+ *
+ * Pure CJS, node built-ins only. Zero new runtime dependencies.
+ */
+'use strict';
+
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+
+// ---------- Envelope helpers (mirrors scripts/check-onboard-statusline.cjs) ----------
+
+const ENVELOPE_ALLOWED = new Set([
+  'decision', 'reason', 'continue', 'stopReason',
+  'suppressOutput', 'systemMessage', 'hookSpecificOutput',
+]);
+
+function emitEnvelope(envelope) {
+  const filtered = {};
+  for (const k of Object.keys(envelope || {})) {
+    if (ENVELOPE_ALLOWED.has(k)) filtered[k] = envelope[k];
+  }
+  if (filtered.continue === undefined) filtered.continue = true;
+  process.stdout.write(JSON.stringify(filtered));
+  process.exit(0);
+}
+
+function emitEmpty() {
+  emitEnvelope({ continue: true });
+}
+
+process.on('uncaughtException', () => emitEmpty());
+
+// ---------- Room resolution ----------
+
+function resolveRoomDir() {
+  if (typeof process.env.MINDRIAN_ROOM_DIR === 'string' && process.env.MINDRIAN_ROOM_DIR.length > 0) {
+    return process.env.MINDRIAN_ROOM_DIR;
+  }
+  return process.cwd();
+}
+
+function roomSlugFromDir(roomDir) {
+  return path.basename(roomDir);
+}
+
+// ---------- Larry-voice directive composition ----------
+
+/**
+ * Compose the additionalContext directive paragraph per RESEARCH Section 5.3.
+ *
+ * The verbatim source-spec quote rendering (lines 80-97 of the source spec)
+ * requires fetching the artifact body text from the graph, which is the
+ * job of Wave 2 (116-02 wires F.1 dispatch + the verbatim quote fetch).
+ * This v1 directive carries the section names + tension_id and INSTRUCTS
+ * Larry to fetch the verbatim node text via lib/core/navigation.cjs on
+ * his first turn before rendering the quoted citation.
+ */
+function composeLarryVoiceDirective(args) {
+  const tid = String(args.tension_id || '');
+  const ss = String(args.source_section || 'unspecified-section');
+  const ts = String(args.target_section || 'unspecified-section');
+  const sNode = String(args.source_node_id || '');
+  const tNode = String(args.target_node_id || '');
+  const lines = [
+    'PENDING TENSION (load-bearing for v1.13.0 closed loop):',
+    '',
+    'I was thinking about something you wrote.',
+    'Earlier in ' + ss + ' you filed a claim. Later in ' + ts + ' you wrote'
+      + ' something that pulls in the opposite direction.',
+    'These two are in tension. Which one is true?',
+    '',
+    'INSTRUCTION FOR LARRY: At your first turn, fetch the verbatim node text'
+      + ' for source_node_id=' + sNode + ' and target_node_id=' + tNode
+      + ' via lib/core/navigation.cjs (read-only), render the quoted Larry-voice'
+      + ' citation per docs/AGENTIC-SURFACING-PATTERN.md Section 5,',
+    'then dispatch F.1 Next Move selector via AskUserQuestion with verbs ='
+      + ' ["Resolve", "Later", "Skip"].',
+    'Tension id = ' + tid + '.',
+    'When the user picks an option, call lib/memory/pending-tension-store.cjs'
+      + ' markSurfaced() / markResolved() / requeue() with this tension_id so'
+      + ' the JSONL state machine stays consistent.',
+  ];
+  return lines.join('\n');
+}
+
+// ---------- Main flow ----------
+
+function main() {
+  let navigation;
+  let pendingStore;
+  try {
+    navigation = require('../lib/core/navigation.cjs');
+    pendingStore = require('../lib/memory/pending-tension-store.cjs');
+  } catch (_e) {
+    // Substrate missing -- pre-Phase-109 install or partial repo. Silent.
+    return emitEmpty();
+  }
+
+  const roomDir = resolveRoomDir();
+  const roomSlug = roomSlugFromDir(roomDir);
+  const dbPath = path.join(roomDir, '.mindrian', 'room.db');
+
+  // Tier 0: room.db missing (pre-Phase-109 user / brand-new room). Silent per D-10.
+  if (!fs.existsSync(dbPath)) {
+    return emitEmpty();
+  }
+
+  // Lazy require of node:sqlite so any environment lacking the experimental
+  // module degrades gracefully (Tier 0).
+  let DatabaseSync;
+  try {
+    ({ DatabaseSync } = require('node:sqlite'));
+  } catch (_e) {
+    return emitEmpty();
+  }
+
+  let db;
+  try {
+    db = new DatabaseSync(dbPath);
+  } catch (_e) {
+    return emitEmpty();
+  }
+
+  try {
+    let candidates = [];
+    try {
+      candidates = navigation.findSurfaceableTensions(db, roomSlug, {
+        roomSlug: roomSlug,
+        limit: 1,
+        includeConvergence: true,
+      });
+    } catch (_e) {
+      candidates = [];
+    }
+
+    // D-09: silent when navigation returns zero candidates.
+    if (!Array.isArray(candidates) || candidates.length === 0) {
+      return emitEmpty();
+    }
+
+    const top = candidates[0];
+
+    // Append a queued entry to the JSONL state machine. Idempotent: re-running
+    // the hook on the same tension_id is a no-op for the readback because the
+    // LWW replay collapses to the most-recent entry (RESEARCH Section 6.4).
+    try {
+      pendingStore.appendTension(roomSlug, {
+        tension_id: top.tension_id,
+        type: top.tension_type,
+        source_edge_ids: [String(top.edge_id)],
+        source_node_ids: [top.source_node_id, top.target_node_id],
+        created_at: Date.now(),
+        state: 'queued',
+        surfacing_count: 0,
+        last_surfaced_at: null,
+        last_response: null,
+        context_signature: {
+          source_section: top.source_section || '',
+          target_section: top.target_section || '',
+          tension_kind_label: top.tension_type,
+        },
+      });
+    } catch (_e) {
+      // JSONL write failed -- defensively continue and still emit the directive
+      // so the user is not silently stuck. The next session start will re-attempt
+      // the JSONL append (idempotent by tension_id LWW).
+    }
+
+    const additionalContext = composeLarryVoiceDirective({
+      tension_id: top.tension_id,
+      source_section: top.source_section,
+      target_section: top.target_section,
+      source_node_id: top.source_node_id,
+      target_node_id: top.target_node_id,
+    });
+
+    return emitEnvelope({
+      continue: true,
+      hookSpecificOutput: {
+        hookEventName: 'SessionStart',
+        additionalContext: additionalContext,
+      },
+    });
+  } finally {
+    try { db.close(); } catch (_e) { /* graceful close */ }
+  }
+}
+
+try {
+  main();
+} catch (_e) {
+  emitEmpty();
+}
