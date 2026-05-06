@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 88.2-05-PLAN.md
-last_updated: "2026-05-06T04:47:46.741Z"
+stopped_at: Completed 88.2-06-PLAN.md (Phase 88.2 finish)
+last_updated: "2026-05-06T05:39:09.600Z"
 last_activity: 2026-05-06
 progress:
   total_phases: 43
@@ -29,7 +29,7 @@ Phase: 88.2 (uiux-selector-block) — EXECUTING
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 
 **For full context, read these in order:**
@@ -239,6 +239,7 @@ Progress: [████████░░] 82%
 | Phase 88.2 P02 | 3min | 2 tasks | 2 files |
 | Phase 88.2-uiux-selector-block P03 | 25min | 2 tasks | 9 files |
 | Phase 88.2 P05 | 25 | 2 tasks | 6 files |
+| Phase 88.2 P06 | 35min | 3 tasks | 7 files |
 
 ### Roadmap Evolution
 
@@ -651,6 +652,9 @@ Progress: [████████░░] 82%
 - [Phase 88.2-uiux-selector-block]: 88.2-03: F.1/F.2/F.5 renderers extended additively with optional personaContext (D-AMEND-04 option a). Cold-start preserves existing baselines byte-stable; warm renders ' ({personaContext} lens)' suffix. Renderers stay PURE; dispatcher supplies the string.
 - [Phase 88.2-uiux-selector-block]: 88.2-03: selector-telemetry dual-surface mirror via Phase 109 logEvent chokepoint (D-AMEND-02 Option B). Uses node:sqlite DatabaseSync (project standard, NOT better-sqlite3). MINDRIAN_DISABLE_MEMORY_EVENT=1 env var added as resilience flag for pre-Phase-109 users. JSONL primary surface unaffected by mirror failure.
 - [Phase 88.2]: Plan 88.2-05 (FINISH) shipped: F.0 Mini Decision Gate renderer (3 verbs Approve/Reject/Defer; closed-vocab; persona-AGNOSTIC; border_style:'single') + REJECTED_BECAUSE typed-edge helper via Phase 109 logEvent (eventType selector_rejection_captured) + dispatcher F_SUBSHAPES extended with 'F.0' + JUST_TALK refuse inheritance + AskUserQuestion trailer; 16/16 + 10/10 + 19/19 + 9/9 tests GREEN; R1 sha256 byte-equal preserved on shape-f6-renderer.cjs (Phase 101-01); UISEL-88.2-07 closed
+- [Phase 88.2]: F.6 Plan Review Round shipped at collision-safe path lib/hmi/shape-f6-plan-review-renderer.cjs (R1 invariant: Phase 101-01 shape-f6-renderer.cjs sha256 byte-equal pre/post)
+- [Phase 88.2]: decoy-tier Tier 0/1/2 dispatcher ships with caller-supplied brainAvailable boolean overriding env-var fallback (test isolation; production semantic preserved)
+- [Phase 88.2]: Phase 88.2-uiux-selector-block FINISH: 7 of 7 plans shipped; UISEL-88.2-01 through UISEL-88.2-09 closed; Shape F family complete (F.0 + F.1-F.5 + F.6)
 
 ### Pending Todos
 
@@ -674,6 +678,6 @@ yet.
 
 ## Session Continuity
 
-Last session: 2026-05-06T04:47:46.732Z
-Stopped at: Completed 88.2-05-PLAN.md
+Last session: 2026-05-06T05:39:00.205Z
+Stopped at: Completed 88.2-06-PLAN.md (Phase 88.2 finish)
 Resume file: None
