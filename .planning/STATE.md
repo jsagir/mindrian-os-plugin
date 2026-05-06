@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 95.2-01-PLAN.md
-last_updated: "2026-05-06T15:36:52.223Z"
+stopped_at: Completed 95.2-00-PLAN.md
+last_updated: "2026-05-06T15:39:43.928Z"
 last_activity: 2026-05-06 -- Phase 95.2 execution started
 progress:
   total_phases: 45
   completed_phases: 25
   total_plans: 208
-  completed_plans: 192
+  completed_plans: 193
   percent: 82
 ---
 
@@ -246,6 +246,7 @@ Progress: [████████░░] 82%
 | Phase 116-unresolved-tension-hook P00 | 4min | 3 tasks | 10 files |
 | Phase 116-unresolved-tension-hook P02 | 14min | 2 tasks | 3 files |
 | Phase 95.2 P01 | 22min | 2 tasks | 5 files |
+| Phase 95.2 P00 | 25 | 2 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -674,6 +675,8 @@ Progress: [████████░░] 82%
 - [Phase 116-unresolved-tension-hook]: Wave-0 test stubs PASS today (not RED): scaffold-only stubs verify only EVENT_TYPES substrate; real assertions referencing pending-tension-store.cjs and preflight-tension-surface.cjs land in Waves 1-4 as those modules ship (89-07-00 stub-then-fill precedent)
 - [Phase 116-unresolved-tension-hook]: Cypher patch lands as FILE at Wave 0 but is NOT applied: Brain integrity preserved until v1.13.0-beta.5 release; MERGE shape is idempotent so post-release apply is safe (89-07 Q5 precedent)
 - [Phase 116-unresolved-tension-hook]: Offline snapshot has SCHEMA SHAPE only with framework_chain_predictions empty array: D-02 honors neutral citation framing (no Brain framework chain consumed in v1); forward-compat scaffold for v1.13.x tuning post-empathy-audit
+- [Phase 95.2]: D-01..D-04 atomic-swap recovery: cp -> verify -> two-step rename pattern with rollback on commit failure
+- [Phase 95.2]: D-05/D-06 missing-install class A eligibility: drift.detected fires on install.status === 'missing' with cache available; drift.reason discriminator added
 
 ### Pending Todos
 
@@ -697,6 +700,6 @@ yet.
 
 ## Session Continuity
 
-Last session: 2026-05-06T15:36:52.215Z
-Stopped at: Completed 95.2-01-PLAN.md
+Last session: 2026-05-06T15:39:35.884Z
+Stopped at: Completed 95.2-00-PLAN.md
 Resume file: None

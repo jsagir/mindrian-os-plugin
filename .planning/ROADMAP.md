@@ -896,10 +896,10 @@ Plans:
 **Goal:** Harden the install-cache recovery path in `scripts/doctor.cjs` after a third occurrence of the install-cache failure family on the dogfood machine (2026-05-06; live install dir missing while two stale backups sit alongside). Three deliverables: D1 atomic-swap recovery (eliminate half-done state), D2 class A `--fix` eligibility for `install.status === "missing"` (currently only fires on `drift.detected: true`), D3 SessionStart preflight class-A check + warning surface. Ships as v1.13.0-beta.6 hotfix between beta.4 (in-flight) and the beta.2 thesis work. Forward-protective only -- machines already in missing-install state get the patch via `--fix` from cache, which already works.
 **Requirements**: DOCTOR-95.2-01, DOCTOR-95.2-02, DOCTOR-95.2-03, DOCTOR-95.2-04, DOCTOR-95.2-05, DOCTOR-95.2-06, DOCTOR-95.2-07, DOCTOR-95.2-08, DOCTOR-95.2-09
 **Depends on:** Phase 95.1 (extends `scripts/doctor.cjs`; no parallel surface)
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
-- [ ] 95.2-00-PLAN.md -- Atomic-swap performRecovery + missing-state class-A eligibility + MINDRIAN_PLUGIN_HOME env override + tests/test-doctor-atomic-swap.cjs (Wave 0; parallel with 95.2-01)
+- [x] 95.2-00-PLAN.md -- Atomic-swap performRecovery + missing-state class-A eligibility + MINDRIAN_PLUGIN_HOME env override + tests/test-doctor-atomic-swap.cjs (Wave 0; parallel with 95.2-01)
 - [x] 95.2-01-PLAN.md -- SessionStart preflight via scripts/preflight-doctor.cjs (8th hooks.json entry) + scripts/doctor-preflight-format.cjs helper + 2 new test files (Wave 0; parallel with 95.2-00)
 - [ ] 95.2-02-PLAN.md -- Autopsy 2026-05-06 + dogfood self-test + 5-gate v1.13.0-beta.6 release (Gate 5 marketplace ref-pin DEFERRED) + canon-phase-map update (Wave 1; depends on 95.2-00 + 95.2-01)
 
