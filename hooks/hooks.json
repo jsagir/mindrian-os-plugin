@@ -72,6 +72,16 @@
             "timeout": 3000
           }
         ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/preflight-doctor.cjs\"",
+            "timeout": 2000
+          }
+        ]
       }
     ],
     "PreCompact": [
