@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 88.2-06-PLAN.md (Phase 88.2 finish)
-last_updated: "2026-05-06T05:39:09.600Z"
+stopped_at: Completed 89-07-00-PLAN.md (Wave-0 scaffold)
+last_updated: "2026-05-06T07:58:52.987Z"
 last_activity: 2026-05-06
 progress:
   total_phases: 43
   completed_phases: 23
-  total_plans: 197
-  completed_plans: 182
+  total_plans: 200
+  completed_plans: 183
   percent: 82
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 88.2 — uiux-selector-block
+**Current focus:** Phase 89 — reverse-salient-engine
 
 ## Current Position
 
-Phase: 88.2 (uiux-selector-block) — EXECUTING
+Phase: 89 (reverse-salient-engine) — EXECUTING
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: 3 of 5
+Plan: 2 of 11
 Status: Ready to execute
 
 **For full context, read these in order:**
@@ -240,6 +240,7 @@ Progress: [████████░░] 82%
 | Phase 88.2-uiux-selector-block P03 | 25min | 2 tasks | 9 files |
 | Phase 88.2 P05 | 25 | 2 tasks | 6 files |
 | Phase 88.2 P06 | 35min | 3 tasks | 7 files |
+| Phase 89-reverse-salient-engine P89-07-00 | 6min | 3 tasks | 13 files |
 
 ### Roadmap Evolution
 
@@ -655,6 +656,7 @@ Progress: [████████░░] 82%
 - [Phase 88.2]: F.6 Plan Review Round shipped at collision-safe path lib/hmi/shape-f6-plan-review-renderer.cjs (R1 invariant: Phase 101-01 shape-f6-renderer.cjs sha256 byte-equal pre/post)
 - [Phase 88.2]: decoy-tier Tier 0/1/2 dispatcher ships with caller-supplied brainAvailable boolean overriding env-var fallback (test isolation; production semantic preserved)
 - [Phase 88.2]: Phase 88.2-uiux-selector-block FINISH: 7 of 7 plans shipped; UISEL-88.2-01 through UISEL-88.2-09 closed; Shape F family complete (F.0 + F.1-F.5 + F.6)
+- [Phase 89-reverse-salient-engine]: Phase 89-07 Wave 0: EVENT_TYPES extended to 21; 12-file Wave-0 contract on disk; ReverseSalientAgent stub-then-fill pattern templated for sibling agentic surfaces (116/117/118/120)
 
 ### Pending Todos
 
@@ -678,6 +680,6 @@ yet.
 
 ## Session Continuity
 
-Last session: 2026-05-06T05:39:00.205Z
-Stopped at: Completed 88.2-06-PLAN.md (Phase 88.2 finish)
+Last session: 2026-05-06T07:58:45.591Z
+Stopped at: Completed 89-07-00-PLAN.md (Wave-0 scaffold)
 Resume file: None

@@ -1040,3 +1040,24 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 
 **Authority**: `.planning/phases/113-wasm-everywhere-spike/113-CONTEXT.md` (stub). The thesis question this spike answers: *"Does Mindrian's intelligence survive without infrastructure?"*
 
+
+---
+
+## Backlog (parking lot — unscheduled, not phase-bound)
+
+### Testers Feedback Hub (Canny-style) — REGISTERED 2026-05-06
+
+**Goal:** Build a public testers feedback / changelog / voting hub for MindrianOS, modeled exactly on https://timeosai.canny.io/. Use to (a) ship update posts the testers can read + comment on, (b) collect feature requests with upvotes, (c) surface a public roadmap with status tracking (Under Review / Planned / In Progress / Complete).
+
+**Why now:** Current tester cohort (Lawrence, Adam, Aryeh, Justin) has no canonical channel for asynchronous feedback or visibility into what's shipped vs in-flight. Email + 1:1 doesn't scale past 5 testers. Canny.io pattern is the proven shape.
+
+**Reference:** https://timeosai.canny.io/
+
+**Open questions:**
+- Self-host (Canny is paid) or use Canny directly?
+- Public, or auth-gated to invited testers only?
+- Sync with `docs/testers/<name>/` directories or replace them?
+- Tie to a domain (e.g. feedback.mindrian.dev) or live under main marketing site?
+
+**Status:** Unscheduled — promote to a numbered phase when current tester onboarding stabilizes.
+
