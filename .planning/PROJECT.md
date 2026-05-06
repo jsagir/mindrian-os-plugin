@@ -353,4 +353,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-06 after Phase 116 (unresolved-tension-hook) complete — second consumer of AGENTIC-SURFACING-PATTERN.md after 89-07; closes Hooked Model Loop Closure axis (3/10 -> 8/10 projected, validation week gated). v1.13.0-beta.5 LOCAL tagged.*
+*Last updated: 2026-05-06 after Phase 95.2 (install-cache-atomic-recovery-sessionstart-preflight) complete -- v1.13.0-beta.6 hotfix shipped LOCAL with empirical dogfood signal (Canon Part 6 D-13 mandate honored). Three-phase same-day shipping cluster: 89-07 ReverseSalientAgent (beta.4) + 116 unresolved-tension-hook (beta.5) + 95.2 install-cache hotfix (beta.6).*
