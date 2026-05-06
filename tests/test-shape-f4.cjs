@@ -2,12 +2,12 @@
 /*
  * Copyright (c) 2026 Mindrian. BSL 1.1.
  *
- * Phase 88.2-02 Task 4 -- Test harness for Shape F.4 (Insight Extraction).
+ * Phase 88.2-02 Task 2 -- Test harness for Shape F.4 (Insight Extraction).
  *
  * Implementing plan:
  *   .planning/phases/88.2-uiux-selector-block/88.2-02-PLAN.md
  *
- * 7 assertions:
+ * 10 assertions:
  *   1. fixed_vocabulary       -- contract.verbs is exactly the 5-element ladder
  *   2. body_has_all_options   -- Zone 2 body contains each label once
  *   3. body_numeric_prefixes  -- lines numbered 1..5 sequentially
@@ -16,6 +16,12 @@
  *                                AND verbs does not contain 'Free-Text'
  *   6. header_overridable     -- { header: 'X' } -> zones.header === 'X'
  *   7. glyph_audit            -- only ASCII + ▷ + newline; no box chars
+ *   8. persona_agnostic       -- D-AMEND-04: personaContext is IGNORED;
+ *                                no header suffix; no 'lens' marker
+ *   9. verbs_override_ignored -- caller-supplied verbs[] override is IGNORED
+ *                                (closed-vocab is non-negotiable)
+ *  10. closed_vocab_carve_out -- contract.freeTextOffered === false
+ *                                (dispatcher carve-out preserves closed-vocab)
  *
  * Exit 0 on full pass, non-zero on any failure.
  */
@@ -211,12 +217,114 @@
     if (ok) pass('glyph_audit');
   }
 
+  // ---- Assertion 8: persona_agnostic (D-AMEND-04) ----
+  // F.4 is a closed-vocab shape per CONTEXT.md D-AMEND-04: it does NOT accept
+  // personaContext. Even if a caller passes one, the renderer must IGNORE it
+  // (no header suffix, no 'lens' marker, no body annotation). Persona narration
+  // is the agent body's job (Larry), not the renderer's.
+  {
+    const f4 = freshRenderer().renderShapeF4;
+    const personas = ['founder', 'researcher', 'investor', 'student', 'mentor'];
+    let ok = true;
+    for (const persona of personas) {
+      const result = f4({ tier: 2, personaContext: persona });
+      if (typeof result.zones.header !== 'string') {
+        fail('persona_agnostic', 'header not string for persona ' + persona);
+        ok = false;
+        break;
+      }
+      if (result.zones.header.indexOf(persona) !== -1) {
+        fail('persona_agnostic', 'header contains personaContext suffix "' + persona + '": ' + JSON.stringify(result.zones.header));
+        ok = false;
+        break;
+      }
+      if (result.zones.header.toLowerCase().indexOf('lens') !== -1) {
+        fail('persona_agnostic', 'header contains "lens" suffix for persona ' + persona + ': ' + JSON.stringify(result.zones.header));
+        ok = false;
+        break;
+      }
+      if (result.zones.body.indexOf(persona) !== -1) {
+        fail('persona_agnostic', 'body contains persona name "' + persona + '"');
+        ok = false;
+        break;
+      }
+    }
+    if (ok) pass('persona_agnostic');
+  }
+
+  // ---- Assertion 9: verbs_override_ignored ----
+  // F.4 is closed-vocab. Caller-supplied verbs[] override must be IGNORED.
+  // The 5-element ladder is constant and non-negotiable.
+  {
+    const f4 = freshRenderer().renderShapeF4;
+    const overrides = [
+      ['Foo', 'Bar'],
+      ['1', '2', '3', '4', '5'],
+      [],
+      ['Key insights', 'Free-Text'], // even partial-real input must be rejected
+    ];
+    let ok = true;
+    for (const verbsOverride of overrides) {
+      const result = f4({ tier: 2, verbs: verbsOverride });
+      if (!Array.isArray(result.contract.verbs) || result.contract.verbs.length !== EXPECTED.length) {
+        fail('verbs_override_ignored', 'verbs length ' + (result.contract.verbs && result.contract.verbs.length) + ' != ' + EXPECTED.length + ' for override ' + JSON.stringify(verbsOverride));
+        ok = false;
+        break;
+      }
+      for (let i = 0; i < EXPECTED.length; i++) {
+        if (result.contract.verbs[i] !== EXPECTED[i]) {
+          fail('verbs_override_ignored', 'verbs[' + i + '] = ' + JSON.stringify(result.contract.verbs[i]) + ' != ' + EXPECTED[i] + ' for override ' + JSON.stringify(verbsOverride));
+          ok = false;
+          break;
+        }
+      }
+      if (!ok) break;
+      // Body must also reflect the closed ladder regardless of override.
+      for (const label of EXPECTED) {
+        if (result.zones.body.indexOf(label) === -1) {
+          fail('verbs_override_ignored', 'body missing canonical label ' + label + ' for override ' + JSON.stringify(verbsOverride));
+          ok = false;
+          break;
+        }
+      }
+      if (!ok) break;
+    }
+    if (ok) pass('verbs_override_ignored');
+  }
+
+  // ---- Assertion 10: closed_vocab_carve_out ----
+  // contract.freeTextOffered === false MUST be set so the dispatcher's
+  // ensureFreeTextLast carve-out (lib/hmi/selector-dispatcher.cjs) preserves
+  // the closed-vocab invariant. The flag is the contract surface the
+  // dispatcher reads at lib/hmi/selector-dispatcher.cjs:125.
+  {
+    const f4 = freshRenderer().renderShapeF4;
+    const variants = [
+      f4(),
+      f4({}),
+      f4({ tier: 0 }),
+      f4({ tier: 1 }),
+      f4({ tier: 2 }),
+      f4({ header: 'custom' }),
+      f4({ tier: 2, recommendedVerb: 'Key insights', personaContext: 'researcher' }),
+    ];
+    let ok = true;
+    for (const result of variants) {
+      if (result.contract.freeTextOffered !== false) {
+        fail('closed_vocab_carve_out', 'freeTextOffered = ' + JSON.stringify(result.contract.freeTextOffered) + ' (must be exactly false)');
+        ok = false;
+        break;
+      }
+    }
+    if (ok) pass('closed_vocab_carve_out');
+  }
+
   // ---- Summary ----
   if (failures.length > 0) {
     process.stdout.write('\n' + failures.length + ' failure(s):\n');
     for (const f of failures) process.stdout.write('  - ' + f + '\n');
     process.exit(1);
   }
-  process.stdout.write('\n7/7 assertions passed.\n');
+  process.stdout.write('\nF.4 OK 10/10 assertions passed.\n');
   process.exit(0);
 })();
