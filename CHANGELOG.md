@@ -9,6 +9,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.13.0-beta.5] - 2026-05-06
+
+### Added
+
+- **Phase 116 -- Unresolved Tension Hook ship (LOAD-BEARING for v1.13.0 closed loop).** Persistent tension surfacing across sessions: SessionStart hook reads Phase 109 navigation findSurfaceableTensions (room-wide CONTRADICTS sorted DESC, fallback to CONVERGES, filtered against JSONL state per D-03b); when a candidate is found, the hook writes a Larry-voice directive to hookSpecificOutput.additionalContext instructing Claude to dispatch F.1 Next Move selector with verbs ['Resolve', 'Later', 'Skip']. User's pick routes through lib/agents/tension-hook-agent.cjs handleUserResponse: RESOLVE -> markResolved + RESOLVES_VIA cascade edge via lazygraph-ops.upsertEdge + tension_resolved memory_event; LATER -> requeue (no event); SKIP -> append last_response='SKIP' + tension_skipped event. After 3 surfacings without resolution, evaluateAndDecay() pre-pass on next SessionStart transitions tension to 'dropped' + emits tension_decayed event for Phase 121 trajectory-telemetry consumption. Implements Canon Part 4 (Every Choice Is Graph Data) + Part 8 (Graph Boundary; zero user-content in any memory_event payload) + Part 10 sub-claim 3 (persistent conversation across sessions). Closes the habit loop (Eyal/Hooked) so MindrianOS becomes "tool that calls you back" not "tool you summon" (largest single-phase Loop Closure axis lift per dormant 2026-04-12 Hooked audit). [phases 116-00 / 01 / 02 / 03 / 04]
+- **`lib/agents/tension-hook-agent.cjs`** -- 9 exported functions: composeFinding, surfaceFinding, buildResolvedViaEdge, handleUserResponse, emitDetected, emitSurfaced, emitResolved, emitDecayed, emitSkipped. Mirrors lib/agents/reverse-salient-agent.cjs skeleton (Steps 5+6 of docs/AGENTIC-SURFACING-PATTERN.md) with SessionStart trigger replacing detect-and-surface and F.1 dispatch replacing F.0.
+- **`lib/memory/pending-tension-store.cjs`** -- 10 exported functions: computeTensionId, jsonlPath, appendTension, readTensions, markSurfaced, markResolved, markDropped, requeue, evaluateAndDecay, getDecayCandidates. JSONL append-only state store at ~/.mindrian/pending-tensions/<roomSlug>.jsonl (workspace-guard-clean per D-07b; OUTSIDE plugin repo via os.homedir()). LWW replay semantics; POSIX-atomic appendFileSync for sub-PIPE_BUF lines.
+- **`scripts/preflight-tension-surface.cjs`** -- SessionStart hook entry #7 in hooks/hooks.json. Lazy detection (no per-write LLM cost per D-01). 3000ms timeout. Always exits 0 (RESEARCH Section 7.3). 4 telemetry emit sites (Tier 0 / no-candidates / decay-batch / success).
+- **`lib/core/navigation/insights.cjs`** -- new `findSurfaceableTensions(db, roomId, opts)` function joining JSONL state. Phase 109 closed surface extends 13 -> 14 functions (re-exported via lib/core/navigation.cjs).
+- **`tests/test-tension-hook-{detection,persistence,decay,f1-integration,rendering,telemetry}.cjs`** -- 6 new test files registered in `lib/memory/run-feynman-tests.cjs`. 89 assertions across 6 suites (15 detection + 14 persistence + 15 decay + 15 F.1 integration + 10 rendering + 20 telemetry; all pass via `node --test`).
+- **`tests/test-116-00-scaffold.sh`** -- Wave-0 scaffold harness asserting EVENT_TYPES extension + 5 stub registration + zero em-dashes.
+- **`cypher/phase116-tension-hook-completion.cypher`** -- Brain stub completion patch (idempotent MERGE; applied post-empathy-audit per 89-07 Q5 precedent).
+- **`.mindrian/tension-framework-snapshot.json`** -- offline fallback shape for graceful Brain degradation.
+
+### Changed
+
+- `lib/core/navigation/memory-events.cjs` `EVENT_TYPES` Set extended with 5 strings: tension_detected, tension_surfaced, tension_resolved, tension_decayed, tension_skipped (size 21 -> 26). Same Wave-0 extension pattern Phase 88.2-00 + Phase 89-07-00 used.
+- `docs/AGENTIC-SURFACING-PATTERN.md` Phase 116 row promoted from planned to SHIPPED with v1.13.0-beta.5 reference + module path citation.
+- `hooks/hooks.json` SessionStart array length 6 -> 7 with preflight-tension-surface.cjs entry.
+
+### Manual action items
+
+- **POST-RELEASE: apply Cypher patch** at `cypher/phase116-tension-hook-completion.cypher` against the Brain (brain.mindrian.ai) via `claude_ai_brain_query` MCP or equivalent. Idempotent (MERGE not CREATE); safe to re-apply. The patch only carries framework-name handles + plugin path + version scalar -- zero user content. Per RESEARCH Q5: verify post-application by re-querying the UnresolvedTensionHook node and confirming IMPLEMENTS_SUBCLAIM + CONSUMES_PATTERN + READS_VIA + SURFACES_VIA edges land.
+- **VALIDATION WEEK:** dispatch hook to a populated test room (Lawrence + 4 in docs/testers/REGISTRY.md) gated on `--version 1.13.0-beta.5`. Empathy audit (4-of-5 testers) confirms Larry-voice neutral citation framing felt right (per Hooked Loop Closure 3/10 -> 8/10 expected lift; AC-6).
+- **MARKETPLACE Gate 5 (DEFERRED):** ref-pin `~/mindrian-marketplace/.claude-plugin/marketplace.json` `source.ref` to `v1.13.0-beta.5` ONLY after the empathy audit passes 4-of-5 AND the integration smoke against 3 user rooms confirms tensions surface meaningfully. Until then, Phase 116 ships as a LOCAL-ONLY tagged build (no `git push --tags`, no marketplace ref-pin) -- same gate Phase 89-07 + Phase 115 used.
+
+### Audit notes
+
+- **Canon Part 4 (Every Choice Is Graph Data): PASS.** Every F.1 response produces a typed edge or JSONL transition: RESOLVE -> RESOLVES_VIA cascade edge via upsertEdge + JSONL state='resolved'; LATER -> JSONL state='queued' (re-enter on next session); SKIP -> JSONL last_response='SKIP'. Decay -> JSONL state='dropped'. All 4 cascade outcomes exercised in tests/test-tension-hook-decay.cjs + tests/test-tension-hook-f1-integration.cjs.
+- **Canon Part 8 (Graph Boundary): PASS.** Hook script + agent module + JSONL store NEVER require room-db.cjs (Phase 109 D-06 chokepoint). NEVER require brain-client (zero Brain runtime queries). Every memory_event payload substring-audited for forbidden keys (body_text, source_title, target_title) AND test marker strings (SECRET BODY TEXT, SECRET SOURCE TITLE, SECRET TARGET TITLE) per the 89-07 precedent at tests/test-reverse-salient-telemetry.cjs:90-120. JSONL workspace-guard-clean (~/.mindrian/pending-tensions/ via os.homedir(); OUTSIDE plugin repo per D-07b).
+- **Canon Part 10 sub-claim 3 (persistent conversation across sessions): PASS.** SessionStart hook re-engages on tensions that crossed the prior session boundary; JSONL is the durable ground truth across sessions; LWW replay verified via tests/test-tension-hook-decay.cjs cross-session simulation.
+- **R1 invariant preserved:** sha256 of lib/hmi/shape-f6-renderer.cjs == 1792535860abc791222bf0ecf59599d66e49ad9cc1606b3d8679fca2922150cf (Phase 101-01 sealed surface; 116 deliberately did not touch it).
+- **Phase 89-07 reference implementation non-regression: PASS.** Telemetry pattern reused byte-for-byte with field substitutions per RESEARCH Section 4.5. EVENT_TYPES Set 21 -> 26 (additive only).
+- **Phase 88.2-05 F.1 selector non-regression: PASS.** F.1 dispatch via pickShape({requestedShape:'F.1', payload.verbs:['Resolve','Later','Skip']}) renders 4 visible rows + Free-Text auto-appended; identical render across CLI / Desktop / Cowork (D-08 verified via 88.2-05 tri-polar ship).
+- **Phase 109 navigation chokepoint adherence: PASS.** New navigation function findSurfaceableTensions added inside lib/core/navigation/insights.cjs (NOT in agent or hook code); existing 13 closed-surface functions byte-equal preserved.
+- **Phase 91 Feynman runner: zero NEW failures referencing Phase 116 artifacts.** Pre-existing inherited failures from prior phases acceptable per Phase 89.5 + Phase 106-02 baseline contract.
+
+### Deferred (out of Phase 116 scope, documented for traceability)
+
+- Cross-room tensions (defer to v1.14.0 + Phase 110 brain-context-packet-contract for safe cross-room edge enumeration)
+- AI-suggested resolutions (Phase 118+ MVA reward path)
+- Push notifications (CC 2.1.110 push-notification tool with explicit opt-in only; v1.14.0)
+- Persona-keyed tension framing (D-02 locked neutral citation; Phase 117 may revisit)
+- Stage-aware selection weighting (D-03c locked spec defaults; future tuning surface if beta.3 empathy audit shows underperformance)
+- 89-07 reverse_salient_acted_on response='DEFER' consumer integration (per RESEARCH OQ-4 v1.13.x follow-on)
+- /mos:tension status CLI command (per RESEARCH OQ-8 v1.13.x ergonomic gap closure)
+- JSONL compaction (per RESEARCH Section 6.4; defer to v1.13.x housekeeping unless beta.3 reveals growth issues)
+
 ## [1.13.0-beta.4] - 2026-05-06
 
 ### Added

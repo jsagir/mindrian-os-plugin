@@ -159,7 +159,7 @@ The 4 cross-phase consumers of this pattern (in addition to Phase 89-07 itself):
 | Phase | Agent | detect() binding |
 |-------|-------|------------------|
 | 89-07 reverse-salient-engine | ReverseSalientAgent | runs scripts/rs-engine.py (4 modes); top-k pairs by signed_diff magnitude |
-| 116 unresolved-tension-hook | (Phase 116 agent) | scans pending_tensions JSONL + memory_event rows for `reverse_salient_acted_on response='DEFER'` older than threshold |
+| 116 unresolved-tension-hook (SHIPPED v1.13.0-beta.5) | TensionHookAgent (lib/agents/tension-hook-agent.cjs) + scripts/preflight-tension-surface.cjs | SessionStart hook reads Phase 109 navigation findSurfaceableTensions; lib/memory/pending-tension-store.cjs holds JSONL ground truth; F.1 dispatch via lib/hmi/selector-dispatcher.cjs; 5 new memory_event types (tension_detected, tension_surfaced, tension_resolved, tension_decayed, tension_skipped) |
 | 117 auto-explore-domains-on-first-material | (Phase 117 agent) | first-material-uploaded trigger fires `/mos:explore-domains` background job; surfaces top discovery |
 | 118 30-second-mva-reward-before-investment | (Phase 118 agent) | first 45-second conversation with material density above threshold; one-shot surfacing |
 | 120 breakthrough-scan-Category-G | (Phase 120 agent) | highest-nutrition variable-reward type (Category G); periodic background scan |
@@ -265,7 +265,7 @@ Reference implementation:
 
 Phase 116/117/118/120 stub paths (consumers of this pattern):
 
-- `.planning/phases/116-unresolved-tension-hook/CONTEXT.md` (Phase 116, sub-claim 3, session-start surfacing of DEFER'd findings)
+- `.planning/phases/116-unresolved-tension-hook/116-CONTEXT.md` (Phase 116 SHIPPED v1.13.0-beta.5; sub-claim 3 LOAD-BEARING implementation: SessionStart hook re-engages on contradiction/convergence tensions via F.1 + JSONL state machine + Canon Part 8 telemetry mirror)
 - `.planning/phases/117-auto-explore-domains-on-first-material/CONTEXT.md` (Phase 117, sub-claim 5, material-upload trigger)
 - `.planning/phases/118-30-second-mva-reward-before-investment/CONTEXT.md` (Phase 118, first-touch one-shot surfacing)
 - `.planning/phases/120-breakthrough-scan-category-g/CONTEXT.md` (Phase 120, highest-nutrition Category G periodic scan)
