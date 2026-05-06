@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "phase": "117",
+  "purpose": "Offline fallback shape for auto-explore-agent when Brain unreachable.",
+  "canon_part_8_compliant": true,
+  "canonical_chain_order": [
+    "Define Domain and Sub-Domain",
+    "Identify Trends to Exploit",
+    "Identify Reverse Salients",
+    "Cross-Domain Match (value-add)"
+  ],
+  "cross_domain_formula": {
+    "surprise_score": "similarity * domain_distance",
+    "gate": "cosine > threshold AND different_domains",
+    "default_threshold": 0.85,
+    "source": "Brain RESEARCH Section 8.3 cynefin-cross-domain-detector"
+  },
+  "lens_count_drift_acknowledged": {
+    "brain_count": 4,
+    "canon_count": 5,
+    "axis": "lens_count",
+    "use_canon": true,
+    "drift_event_emitted_at": "117-05"
+  },
+  "graceful_degradation_reason_for_fallback": "Phase 117 reads only LOCAL pre-derived BRAIN.md per RESEARCH Section 4.6; this snapshot is forward-compat scaffold for v1.13.x tuning if Brain wire is added.",
+  "wave_0_deliverable": true,
+  "shipped_at": "2026-05-06"
+}
