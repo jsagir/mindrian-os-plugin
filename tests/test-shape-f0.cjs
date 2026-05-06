@@ -109,22 +109,18 @@ test('buildRejectedBecauseEdge rejects out-of-range confidence_self_report', () 
 });
 
 test('buildRejectedBecauseEdge writes typed edge to room.db on success', () => {
-  let Database;
-  let db;
+  // Project standard: node:sqlite DatabaseSync per lib/core/lazygraph-ops.cjs.
+  // better-sqlite3 documented as broken in lib/import/PRECONDITIONS.md.
+  let DatabaseSync;
   try {
-    Database = require('better-sqlite3');
-    const probeRoom = mkTmpRoom();
-    const probePath = path.join(probeRoom, '.mindrian', 'probe.db');
-    db = new Database(probePath);
-    db.close();
-    fs.rmSync(probeRoom, { recursive: true, force: true });
+    ({ DatabaseSync } = require('node:sqlite'));
   } catch (e) {
-    console.log('SKIP: better-sqlite3 not loadable (' + (e && e.code ? e.code : 'unknown') + ')');
+    console.log('SKIP: node:sqlite not available (' + (e && e.code ? e.code : 'unknown') + ')');
     return;
   }
   const room = mkTmpRoom();
-  const dbPath = path.join(room, '.mindrian', path.basename(room) + '.db');
-  db = new Database(dbPath);
+  const dbPath = path.join(room, '.mindrian', 'room.db');
+  let db = new DatabaseSync(dbPath);
   db.exec("CREATE TABLE IF NOT EXISTS nodes (id TEXT PRIMARY KEY, type TEXT, properties TEXT, source_path TEXT, created_by TEXT, confidence REAL, review_status TEXT, created_at INTEGER, last_seen_at INTEGER);");
   db.close();
   const r = buildRejectedBecauseEdge({
@@ -135,7 +131,7 @@ test('buildRejectedBecauseEdge writes typed edge to room.db on success', () => {
     confidence_self_report: 4,
   });
   assert.equal(r.ok, true);
-  const db2 = new Database(dbPath);
+  const db2 = new DatabaseSync(dbPath);
   const row = db2.prepare("SELECT json_extract(properties,'$.event_type') AS et, json_extract(properties,'$.reason') AS reason, json_extract(properties,'$.parent_decision_id') AS pid, json_extract(properties,'$.actor_id') AS aid, json_extract(properties,'$.confidence_self_report') AS conf, json_extract(properties,'$.rejected_at') AS at FROM nodes WHERE type='memory_event'").get();
   assert.equal(row.et, 'selector_rejection_captured');
   assert.equal(row.reason, 'this changes the assumption');

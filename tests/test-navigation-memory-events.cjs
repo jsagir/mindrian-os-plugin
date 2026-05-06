@@ -59,8 +59,9 @@ function cleanup(tmp) {
 
 function test1_enumCount() {
   ok(events.EVENT_TYPES instanceof Set, 'EVENT_TYPES is a Set');
-  equal(events.EVENT_TYPES.size, 15, 'exactly 15 event types');
-  const required = ['node_created', 'status_promoted', 'status_rejected', 'status_stale', 'status_superseded', 'focus_changed', 'brain_query_sent', 'brain_suggestion_received', 'edge_added', 'edge_removed', 'opportunity_added', 'opportunity_reacted', 'opportunity_reflected', 'opportunity_answered', 'state_alias_migration'];
+  // Phase 88.2-00 Wave 0 extended EVENT_TYPES from 15 to 19 (4 new selector_*+f6_round_completed strings per D-AMEND-02 telemetry mirror).
+  equal(events.EVENT_TYPES.size, 19, 'exactly 19 event types (15 Phase 109 baseline + 4 Phase 88.2-00 selector mirror)');
+  const required = ['node_created', 'status_promoted', 'status_rejected', 'status_stale', 'status_superseded', 'focus_changed', 'brain_query_sent', 'brain_suggestion_received', 'edge_added', 'edge_removed', 'opportunity_added', 'opportunity_reacted', 'opportunity_reflected', 'opportunity_answered', 'state_alias_migration', 'selector_presentation', 'selector_response', 'selector_rejection_captured', 'f6_round_completed'];
   for (const t of required) ok(events.EVENT_TYPES.has(t), 'EVENT_TYPES contains: ' + t);
 }
 
