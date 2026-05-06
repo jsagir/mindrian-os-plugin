@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 117-00-PLAN.md (Wave 0 substrate; size 31 + 12 stubs + scaffold + cypher + snapshot)
-last_updated: "2026-05-06T20:57:49.472Z"
+stopped_at: Completed 117-01-PLAN.md (Wave 1 detection substrate; 28 GREEN tests; LOCAL-only routing invariant honored)
+last_updated: "2026-05-06T21:25:11.450Z"
 last_activity: 2026-05-06
 progress:
   total_phases: 51
   completed_phases: 26
   total_plans: 220
-  completed_plans: 195
+  completed_plans: 196
   percent: 82
 ---
 
@@ -248,6 +248,7 @@ Progress: [████████░░] 82%
 | Phase 95.2 P01 | 22min | 2 tasks | 5 files |
 | Phase 95.2 P00 | 25 | 2 tasks | 3 files |
 | Phase 117 P00 | 9min | 3 tasks | 17 files |
+| Phase 117 P01 | 17min | 2 tasks | 7 files |
 
 ### Roadmap Evolution
 
@@ -702,6 +703,6 @@ yet.
 
 ## Session Continuity
 
-Last session: 2026-05-06T20:57:38.733Z
-Stopped at: Completed 117-00-PLAN.md (Wave 0 substrate; size 31 + 12 stubs + scaffold + cypher + snapshot)
+Last session: 2026-05-06T21:25:11.436Z
+Stopped at: Completed 117-01-PLAN.md (Wave 1 detection substrate; 28 GREEN tests; LOCAL-only routing invariant honored)
 Resume file: None

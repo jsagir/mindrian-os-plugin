@@ -61,6 +61,50 @@ Research complete across two passes:
 
 **Waiting on user:** synthesis memo at `.planning/phases/_backlog/v1.10.6-smart-notebook.md` distilling both research files into a plan-phase-ready CONTEXT document (~150 lines, handoff-ready for `/gsd:new-milestone v1.10.6` or `/gsd:add-phase`). When user says "write the memo," generate it from both research files.
 
+### [v1.14.0 QUEUED] Mindrian Wiki Sprint - JTBD/User-Journey-Mapping-Oriented Completion
+
+**Filed:** 2026-05-06 (memo); methodology spine added 2026-05-07 (Brain-validated)
+**Memo:** `.planning/phases/_backlog/v1.14-mindrian-wiki-sprint.md` (231 lines)
+**Trigger to expand into Phase 104 CONTEXT:** Path C ships (Phase 110 + Phase 114 merged) AND user says "expand the wiki sprint memo into Phase 104 CONTEXT."
+**Parent phase to revive:** Phase 104 (currently scaffolded but empty; rename: per-command-ui-wrapping → per-room-wiki-completeness).
+
+**Why now (vs v1.13.x patch):** Path C is mid-flight with Phase 110 + 114 ahead. Mixing wiki UX work into a release cycle that is shipping wire-schema enforcement and Larry-default-activation creates scope leakage and ships nothing cleanly. v1.14.0 final is the correct slot.
+
+**Methodology spine (Brain-validated 2026-05-07 via Neo4j Aura, Mode A confidence ≥ 0.7):**
+- Design Thinking → JTBD (prereq) → **User Journey Mapping** (primary method, TYPICAL_AT "Opportunity Identified") → Process Mapping → Reverse Salient Analysis (already shipped Phase 89).
+- The four `HAS_PROCESS_STEP` nodes Brain returned for User Journey Mapping (Cast a Wide Net / Track Multiple Dimensions / Find Hidden Problems / Follow Workarounds) map 1:1 onto the four user-facing deliverables.
+- Brain edge `User Journey Mapping REVEALS "Making the Invisible Visible"` matched RECOMMENDED-marker threshold for the gap-visualization scope.
+- This is methodology continuation, not detour: the chain terminates at Phase 89 work already shipped.
+
+**Scope shape (5 sub-plans under revived Phase 104, ~8 working days):**
+1. **104-01** — `scripts/resolve-room` shared module + ANSI strip + diagnostic empty-state messages. Fixes Lawrence's P1 blocker open since 2026-03-31. Without this, the sprint does NOT ship. ~1 day.
+2. **104-02** — Graph as wiki homepage + auto-create wiki on `/mos:new-project`. Both mandated in Phase 19 CONTEXT but never shipped. ~1 day. Maps to UJM "Cast a Wide Net".
+3. **104-03** — Wikipedia zones (infobox sidebar from frontmatter, "what links here" backlinks, "see also" from INFORMS/ENABLES, red-link gap indicators). Substrate exists in `lib/wiki/graph-links.cjs` (`getBacklinks`, `getSeeAlso`). ~2 days. Maps to UJM "Track Multiple Dimensions" + "Find Hidden Problems".
+4. **104-04** — Click-red-wikilink-to-research + Phase 32-02 chat tool-call wiring. Wiring point exists (`window.__mosChatPanel.onToolCall`, `window.__mosGraph`). ~2 days. Maps to UJM "Follow Workarounds".
+5. **104-05** — 9-tier freshness frontmatter + content gap dashboard + multi-layout Cytoscape with clustering. ~2 days. Maps to UJM "Find Hidden Problems" + "Track Multiple Dimensions".
+
+**What we TAKE from LLM-Wiki (5 patterns, JTBD-filtered):**
+1. Click-red-wikilink-to-research (highest leverage)
+2. WebSocket chat sidebar with tool-calls (Larry-in-the-wiki)
+3. Content gap dashboard (visualize what room-proactive detects)
+4. 9-tier freshness/TTL frontmatter
+5. Multi-layout Cytoscape with clustering
+
+**What we DO NOT take (6 patterns, off-JTBD):** 4 themes, canvas/whiteboard, FSRS spaced repetition, daily notes/journal, frontmatter SQL query language, per-agent Sonnet/Haiku frontmatter (last belongs in a separate cost-of-goods sweep).
+
+**What we FINISH from past Mindrian plans (5 long-promised items from Phase 19 March 2026):** Wikipedia-zone information architecture, graph-as-homepage, auto-create-on-new-project, talk-page = REASONING.md per section, light/dark theme toggle persisted to localStorage.
+
+**Branding rules (non-negotiable, per Phase 21 Decisions D-11/D-12/D-13):** De Stijl 5-color palette only (cream `#F5F0E8`, Mondrian red `#A63D2F`, blue `#1E3A6E`, yellow `#C8A43C`, green `#2D6B4A`); 12-glyph vocabulary; no emoji; Bebas Neue (display) + system-ui (body); De Stijl symbols on section headers consistent with statusline + dashboard.
+
+**Out of scope (do not let it slip in):** Phase 88.2 F-shape rollout (orthogonal interactive-primitive work); per-agent model frontmatter (separate cost-of-goods sweep); spaced repetition / canvas / journal / theme proliferation; frontmatter SQL query language (defer to v1.15+).
+
+**Open questions for the planning session (when memo expands to CONTEXT):**
+1. Confirm Phase 104 revival vs. fresh phase number (recommend revive 104).
+2. Confirm v1.14.0 final slot vs. v1.13.x patch (recommend v1.14.0 final).
+3. Tester preview for Lawrence before general release (recommend yes; canonical user-finder for wiki UX).
+
+**Origin context:** triggered by user reaction to LLM-Wiki repo (github.com/Oshayr/LLM-Wiki) on 2026-05-06: "I tried such a wiki with /mos:wiki and wikilinks but this one looks better." Companion artifacts in `~/MindrianRooms/mindrian/mindrianOS/competitive-analysis/2026-05-06-llm-wiki-and-command-surface/` and `~/MindrianRooms/mindrian/mindrianOS/research/2026-05-06-intelligence-layer-schematic/`.
+
 ---
 
 ## DECISIONS RESOLVED THIS SESSION (archive when cleaning up)
