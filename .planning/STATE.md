@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 117-01-PLAN.md (Wave 1 detection substrate; 28 GREEN tests; LOCAL-only routing invariant honored)
-last_updated: "2026-05-06T21:25:11.450Z"
-last_activity: 2026-05-06
+stopped_at: Completed 117-02-PLAN.md (Wave 1 triple-filter composition + auto-fire detached child; 38 GREEN tests; Brain Section 8.1/8.3/8.4/8.7 invariants honored)
+last_updated: "2026-05-07T00:30:00.000Z"
+last_activity: 2026-05-06 -- Phase 95.5 execution started
 progress:
   total_phases: 51
   completed_phases: 26
   total_plans: 220
-  completed_plans: 196
+  completed_plans: 197
   percent: 82
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 117 — auto-explore-domains-on-first-material
+**Current focus:** Phase 95.5 — post-compact-memory-pipeline-consumer
 
 ## Current Position
 
-Phase: 117 (auto-explore-domains-on-first-material) — EXECUTING
+Phase: 95.5 (post-compact-memory-pipeline-consumer) — EXECUTING
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: 2 of 6
-Status: Ready to execute
+Plan: 1 of 6
+Status: Executing Phase 95.5
 
 **For full context, read these in order:**
 
@@ -117,7 +117,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-06
+Last activity: 2026-05-06 -- Phase 95.5 execution started
 
 Progress: [████████░░] 82%
 
@@ -249,6 +249,7 @@ Progress: [████████░░] 82%
 | Phase 95.2 P00 | 25 | 2 tasks | 3 files |
 | Phase 117 P00 | 9min | 3 tasks | 17 files |
 | Phase 117 P01 | 17min | 2 tasks | 7 files |
+| Phase 117 P02 | 22min | 2 tasks | 6 files |
 
 ### Roadmap Evolution
 
@@ -680,6 +681,11 @@ Progress: [████████░░] 82%
 - [Phase 95.2]: D-01..D-04 atomic-swap recovery: cp -> verify -> two-step rename pattern with rollback on commit failure
 - [Phase 95.2]: D-05/D-06 missing-install class A eligibility: drift.detected fires on install.status === 'missing' with cache available; drift.reason discriminator added
 - [Phase 117]: Phase 117 ships in v1.13.0-beta.7; Wave 0 lands EVENT_TYPES size 26 -> 31 + 12 stubs + scaffold harness + idempotent Brain cypher (Engine1Layer cluster + cross-domain formula property) + offline snapshot encoding canonical_chain_order + cross_domain_formula + lens_count_drift_acknowledged
+- [Phase 117-02]: CANONICAL_CHAIN_ORDER frozen at ['domain','trends','reverse-salients','cross-domain'] (Brain Section 8.1) + CROSS_DOMAIN_THRESHOLD frozen at 0.85 (Brain Section 8.3 default; matches Phase 89-07 dedup gate)
+- [Phase 117-02]: Cross-domain surprise formula = similarity * domain_distance (Brain Section 8.3); commutative, deterministic, never throws; integration-tested in compose pipeline
+- [Phase 117-02]: HSIAnalysis schema extension fields (top_differential / semantic_surprise / category_errors_identified / top_differential_score) ship as null/empty SHAPE CONTRACT; population by F.1 surface lands in 117-03
+- [Phase 117-02]: scripts/auto-explore-fire.cjs detached background child: Promise.all([discovery-cycle.cjs --steps all, rs-engine.py --mode hybrid]) with 30s per-pipeline + 60s total cap; atomic temp+rename write of room/.mindrian/auto-explore-<material_id>.json; markCompleted/markFailed transitions; uncaughtException + unhandledRejection backstops (always exits 0)
+- [Phase 117-02]: Canon Part 8 boundary tightening (vs 117-01): bare-substring grep regression on 'brain-client' returns 0 in lib/agents/auto-explore-agent.cjs + scripts/auto-explore-fire.cjs (literal token elided in comments per 117-02 plan AC; same precedent as 117-01's ADDRESSES_PROBLEM_TYPE elision)
 
 ### Pending Todos
 
@@ -703,6 +709,6 @@ yet.
 
 ## Session Continuity
 
-Last session: 2026-05-06T21:25:11.436Z
-Stopped at: Completed 117-01-PLAN.md (Wave 1 detection substrate; 28 GREEN tests; LOCAL-only routing invariant honored)
+Last session: 2026-05-07T00:30:00.000Z
+Stopped at: Completed 117-02-PLAN.md (Wave 1 triple-filter composition + auto-fire detached child; 38 GREEN tests; Brain Section 8.1/8.3/8.4/8.7 invariants honored)
 Resume file: None

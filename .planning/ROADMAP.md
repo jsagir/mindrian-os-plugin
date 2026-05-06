@@ -1122,7 +1122,7 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 
 **Canon parts:** Part 2 Engine 1 (Act 1 intelligence surface — auto-fires the triple filter), Part 3 (Tri-Context Decision Gate — F.1 surface), Part 10 sub-claim 5 (triple-filter math runs automatically). Beta target: **v1.13.0-beta.3** ("Loop closes + reward fires" — pairs with Phase 116).
 
-**Plans:** 2/6 plans executed
+**Plans:** 3/6 plans executed (117-00 Wave 0 substrate scaffold; 117-01 Wave 1 detection substrate -- JSONL ledger + PostToolUse fingerprint hook + agent skeleton + SessionStart drain; 117-02 Wave 1 triple-filter composition -- composeAutoExploreFinding with Brain Section 8.1 canonical-chain-order primary axis + Section 8.3 cross-domain formula + Section 8.4 HSIAnalysis schema extension shape contract + auto-explore-fire.cjs detached background child)
 
 **Authority**: `.planning/phases/117-auto-explore-domains-on-first-material/117-CONTEXT.md` (stub). Source spec: `docs/CANON-PART-10-PROPOSAL-conversation-as-product.md` (sub-claim 5).
 
