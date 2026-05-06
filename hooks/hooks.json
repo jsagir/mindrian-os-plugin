@@ -92,6 +92,16 @@
             "timeout": 2000
           }
         ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/preflight-auto-explore.cjs\"",
+            "timeout": 3000
+          }
+        ]
       }
     ],
     "PreCompact": [
@@ -205,6 +215,16 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/memory-completion-detector.cjs\"",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/auto-explore-fingerprint.cjs\"",
             "timeout": 3000
           }
         ]
