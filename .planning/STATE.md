@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 89-07-00-PLAN.md (Wave-0 scaffold)
-last_updated: "2026-05-06T07:58:52.987Z"
+stopped_at: Completed 89-07-01-PLAN.md (Wave-1 substrate)
+last_updated: "2026-05-06T08:42:06.150Z"
 last_activity: 2026-05-06
 progress:
   total_phases: 43
   completed_phases: 23
   total_plans: 200
-  completed_plans: 183
+  completed_plans: 184
   percent: 82
 ---
 
@@ -29,7 +29,7 @@ Phase: 89 (reverse-salient-engine) — EXECUTING
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: 2 of 11
+Plan: 3 of 11
 Status: Ready to execute
 
 **For full context, read these in order:**
@@ -241,6 +241,7 @@ Progress: [████████░░] 82%
 | Phase 88.2 P05 | 25 | 2 tasks | 6 files |
 | Phase 88.2 P06 | 35min | 3 tasks | 7 files |
 | Phase 89-reverse-salient-engine P89-07-00 | 6min | 3 tasks | 13 files |
+| Phase 89-reverse-salient-engine P89-07-01 | 36min | 2 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -657,6 +658,9 @@ Progress: [████████░░] 82%
 - [Phase 88.2]: decoy-tier Tier 0/1/2 dispatcher ships with caller-supplied brainAvailable boolean overriding env-var fallback (test isolation; production semantic preserved)
 - [Phase 88.2]: Phase 88.2-uiux-selector-block FINISH: 7 of 7 plans shipped; UISEL-88.2-01 through UISEL-88.2-09 closed; Shape F family complete (F.0 + F.1-F.5 + F.6)
 - [Phase 89-reverse-salient-engine]: Phase 89-07 Wave 0: EVENT_TYPES extended to 21; 12-file Wave-0 contract on disk; ReverseSalientAgent stub-then-fill pattern templated for sibling agentic surfaces (116/117/118/120)
+- [Phase 89-reverse-salient-engine]: Wave-1 mapping basis: rs-engine OUTPUT direction field (not invocation MODE) drives the 5-way cascade-edge selection per RESEARCH SCOPE B Section 2
+- [Phase 89-reverse-salient-engine]: Generic upsertEdge(conn, {type, source, target, properties}) primitive added to lazygraph-ops.cjs as the typed-edge chokepoint reusable by Phase 89-07 Wave 2/3 + Phase 116/117/118/120 sibling agents (Canon Part 7 reuse-before-build)
+- [Phase 89-reverse-salient-engine]: Lazy require pattern for emitFindingEdge: lazygraph-ops required INSIDE function body (not at module load) so cascade-emit tests substitute require.cache slot before first emit call without forcing agent module re-require
 
 ### Pending Todos
 
@@ -680,6 +684,6 @@ yet.
 
 ## Session Continuity
 
-Last session: 2026-05-06T07:58:45.591Z
-Stopped at: Completed 89-07-00-PLAN.md (Wave-0 scaffold)
+Last session: 2026-05-06T08:41:54.334Z
+Stopped at: Completed 89-07-01-PLAN.md (Wave-1 substrate)
 Resume file: None
