@@ -353,4 +353,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-05 after v1.7.0 Causal Reasoning Layer milestone start*
+*Last updated: 2026-05-06 after Phase 89 (reverse-salient-engine) complete — ReverseSalientAgent ships as canonical agentic-surfacing template, v1.13.0-beta.4 LOCAL tagged*

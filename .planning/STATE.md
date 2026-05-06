@@ -4,13 +4,13 @@ milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
 stopped_at: Completed 89-07-02-PLAN.md (Wave-2 F.0 + persona + telemetry)
-last_updated: "2026-05-06T09:11:55.125Z"
+last_updated: "2026-05-06T09:57:05.398Z"
 last_activity: 2026-05-06
 progress:
   total_phases: 43
-  completed_phases: 23
+  completed_phases: 24
   total_plans: 200
-  completed_plans: 185
+  completed_plans: 186
   percent: 82
 ---
 
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 89 (reverse-salient-engine) — EXECUTING
+Phase: 89.1
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: 4 of 11
+Plan: Not started
 Status: Ready to execute
 
 **For full context, read these in order:**
