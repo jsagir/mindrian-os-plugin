@@ -9,6 +9,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.13.0-beta.8] - 2026-05-07
+
+### Added
+
+- **Phase 117: Auto-Explore-Domains on First Material.** First material upload (Write|Edit|MultiEdit on a file inside a room with a `.room-root` sentinel) auto-fires the triple-filter math layer (whitespace + reverse salient + cross-domain match) in a detached background process. Findings surface within ~10s on the user's next turn via F.1 Decision Gate (verbs: Explore / Skip / Later). Canon Part 10 sub-claim 5 (triple-filter math runs automatically) implemented. Brain Section 8.1 canonical chain order locked (domain -> trends -> reverse-salients -> cross-domain). Brain Section 8.3 cross-domain formula locked (surprise = similarity * domain_distance; threshold 0.85). Brain Section 8.4 HSIAnalysis schema extension shipped. Brain Section 8.5 BQ-anchored Larry voice via BQ_TEMPLATE_REGISTRY (4 templates: cross-domain, reverse-salients, domain, trends). Brain Section 8.7 LOCAL-only detection routing invariant locked. [phases 117-00 / 01 / 02 / 03 / 04 / 05]
+- **SEED-003 A3 sanitizer (Phase 117-04).** PostToolUse hook on `mcp__brain_*` tool calls applies PII pattern redaction (SSN, email, phone, money, ISO date, file paths) via `hookSpecificOutput.updatedToolOutput`. Closes the check-brain-boundary.cjs PR gate gap noted in CANON-PHASE-MAP.md Part 8 row. Phase 90's 5 Canon Part 8 tripwires + this 6th = 6 total.
+- **brain_canon_drift_observed event.** Surfaces FourLenses (Brain) vs FiveLenses (Canon) drift to Phase 121 audit corpus per Brain Section 8.6. Idempotent within session via in-memory cache; payload axis=lens_count, brain_count=4, canon_count=5.
+- **6 new telemetry events.** auto_explore_fired, auto_explore_finding_surfaced, auto_explore_user_response, auto_explore_skipped, auto_explore_sanitizer_hit, brain_canon_drift_observed. All scalar-only payloads per Canon Part 8. JSONL persistence at ~/.mindrian/telemetry/selector.jsonl + room.db memory_event dual-surface mirror.
+- **18 phase requirements.** AUTOEXPLORE-117-01..18 (12 from RESEARCH Section 5 Validation Architecture + 6 from Section 8 Brain Substrate enrichment).
+- **`scripts/hooked-rescore-117.cjs` (REQ-117-12 Path A harness).** Reads auto_explore_* JSONL telemetry, computes Hooked (Eyal 2014) Variable Reward score per `VR = surfaced * distribution_weight * time_factor`, outputs markdown rescore at `docs/empathy-audit/auto-explore-117-rescore.md`. Manual invocation only.
+
+### Verified
+
+- Canon Part 8 substring audit: zero user-content strings (body_text, source_title, target_title, file_content, cv_content) in any auto_explore_* event payload (sha256-only).
+- AUTOEXPLORE-117-17 LOCAL-only routing: zero ADDRESSES_PROBLEM_TYPE substrings across 4 auto-explore modules.
+- R1 invariant preserved: lib/hmi/shape-f6-renderer.cjs sha256 byte-equal == 1792535860abc791222bf0ecf59599d66e49ad9cc1606b3d8679fca2922150cf.
+- 6 telemetry emit helpers exported (W5 verification): emitFired, emitFindingSurfaced, emitUserResponse, emitSkipped, emitSanitizerHit, emitBrainCanonDrift.
+- EVENT_TYPES Set extended to size 32 (15 baseline + 4 selector + 2 reverse-salient + 5 tension + 5 auto-explore + 1 drift).
+- 32 tests pass: 15 telemetry + 4 brain-canon-drift + 5 Canon Part 8 + 8 rate-limit.
+- Zero em-dashes across all Phase 117 deliverables.
+- Marketplace ref-pin DEFERRED to post-empathy-audit per Phase 89-07 / 115 / 116-04 / 95.5 precedent.
+
+### Substrate
+
+- Phase 89-07 ReverseSalientAgent (SHIPPED v1.13.0-beta.4) -- pattern template, F.0 surface, cascade emit.
+- Phase 116 Unresolved Tension Hook (SHIPPED v1.13.0-beta.5) -- JSONL persistence, telemetry mirror pattern.
+- Phase 95.2 install-cache atomic recovery + SessionStart preflight (SHIPPED v1.13.0-beta.6).
+- Phase 95.5 post-compact memory pipeline consumer (SHIPPED v1.13.0-beta.7).
+- Phase 109 SQL Navigation Spine (SHIPPED v1.11.0) -- chokepoint reads, EVENT_TYPES, memory_event log.
+- Phase 88.2 F-shape Selectors (SHIPPED beta.4) -- F.1 dispatch via lib/hmi/selector-dispatcher.cjs.
+- Phase 88.6 Wave-1 algorithm wiring (SHIPPED v1.10.14) -- ensure-brain-baseline graceful-degradation pattern.
+- Phase 90 BRAIN.md quadruple (SHIPPED v1.10.18) -- folderMemory.readQuadruple, LOCAL Brain context.
+
+### Beta sequencing note
+
+Phase 117 was originally targeted at v1.13.0-beta.3 per CANON-PHASE-MAP.md, then re-coordinated through beta.7 in the orchestrator brief. Phase 95.5 shipped at beta.7 first (post-compact memory pipeline closure 2026-05-07), so Phase 117 promotes to beta.8 standalone per the plan's contingency line ("if executor finds beta.5 active, bumps to beta.6 and notes pair-ship"). Same precedent.
+
 ## [1.13.0-beta.7] - 2026-05-07
 
 ### Fixed

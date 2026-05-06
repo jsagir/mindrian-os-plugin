@@ -1112,19 +1112,27 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 **Authority**: `.planning/phases/116-unresolved-tension-hook/116-CONTEXT.md` (D-01..D-10 locked 2026-05-06 via /gsd:discuss-phase). Source spec: `~/MindrianRooms/mindrian/mindrian-ecosystem/sub-rooms/website/mindrianos-conversion-fix/solution-design/unresolved-tension-hook-spec.md`.
 
 
-### Phase 117: Auto-Explore-Domains on First Material (REGISTERED 2026-05-05 — STUB)
+### Phase 117: Auto-Explore-Domains on First Material (SHIPPED v1.13.0-beta.8 2026-05-07)
 
-**Goal:** When material lands in the room (CV uploaded, transcript filed, conversation paragraph typed), auto-invoke `/mos:explore-domains` as a background job, trigger HSI scoring + reverse salient + cross-domain match in parallel, and surface findings as a single Decision Gate option ("I scanned your CV — here's what I found. Want to explore?") via the F.1 Next Move selector. The user never has to remember to invoke the math layer. Implements Canon Part 10 sub-claim 5 (triple-filter math runs automatically). SEED-003 A3 `updatedToolOutput` sanitizer pairs here for Part 8 hardening.
+**Goal:** When material lands in the room (CV uploaded, transcript filed, conversation paragraph typed), auto-invoke `/mos:explore-domains` as a background job, trigger HSI scoring + reverse salient + cross-domain match in parallel, and surface findings as a single Decision Gate option ("I scanned your CV; here's what I found. Want to explore?") via the F.1 Next Move selector. The user never has to remember to invoke the math layer. Implements Canon Part 10 sub-claim 5 (triple-filter math runs automatically). SEED-003 A3 `updatedToolOutput` sanitizer pairs here for Part 8 hardening.
 
-**Requirements**: TBD (AUTOEXPLORE-117-01..NN — defined when CONTEXT.md is expanded; current stub captures scope + acceptance criteria only)
+**Requirements**: AUTOEXPLORE-117-01 through AUTOEXPLORE-117-18 (18 IDs):
+- AUTOEXPLORE-117-01..12 from RESEARCH Section 5 Validation Architecture (PostToolUse fingerprint, JSONL ledger, detached fire, atomic write, drain UserPromptSubmit, F.1 surface, sanitizer hook, telemetry events, rate-limit, Canon Part 8 audit, REQ-117-12 rescore, hybrid-mode degradation)
+- AUTOEXPLORE-117-13..18 from RESEARCH Section 8 Brain Substrate enrichment (canonical chain order, cross-domain formula, HSIAnalysis schema, BQ-anchored Larry voice, LOCAL-only routing, brain-canon-drift event)
 
-**Depends on:** Phase 89-07 finish (ReverseSalientAgent — beta.4 in flight) AND Phase 109 (SQL navigation spine — shipped v1.11.0). HARD on both. Phase 110 (Brain Context Packet Contract — promoted to beta.3 via Path C 2026-05-05) recommended before any Brain-touching wire is hardened in 117.
+**Depends on:** Phase 89-07 finish (ReverseSalientAgent -- shipped v1.13.0-beta.4) AND Phase 109 (SQL navigation spine -- shipped v1.11.0). HARD on both. Phase 110 (Brain Context Packet Contract -- promoted to beta.3 via Path C 2026-05-05) recommended before any Brain-touching wire is hardened in 117.
 
-**Canon parts:** Part 2 Engine 1 (Act 1 intelligence surface — auto-fires the triple filter), Part 3 (Tri-Context Decision Gate — F.1 surface), Part 10 sub-claim 5 (triple-filter math runs automatically). Beta target: **v1.13.0-beta.3** ("Loop closes + reward fires" — pairs with Phase 116).
+**Canon parts:** Part 2 Engine 1 (Act 1 intelligence surface -- auto-fires the triple filter), Part 3 (Tri-Context Decision Gate -- F.1 surface), Part 4 (Every Choice Is Graph Data -- INFORMS cascade on EXPLORE), Part 6 (Product-as-Venture -- dog-fooded on plugin room), Part 8 (Graph Boundary -- 6th tripwire via SEED-003 A3), Part 10 sub-claim 5 (triple-filter math runs automatically). Beta target: **v1.13.0-beta.8** standalone (Phase 95.5 took beta.7 first; Phase 117 promotes to beta.8 per plan contingency).
 
-**Plans:** 6/6 plans complete
+**Plans:** 6 plans (SHIPPED v1.13.0-beta.8 2026-05-07):
+- [x] 117-00-PLAN.md -- Wave 0 substrate (EVENT_TYPES + 11 test stubs + scaffold + cypher + snapshot)
+- [x] 117-01-PLAN.md -- Detection substrate (explored-materials-store + fingerprint hook + agent skeleton)
+- [x] 117-02-PLAN.md -- Triple-filter composition (canonical chain order + cross-domain formula + auto-fire detached child)
+- [x] 117-03-PLAN.md -- Decision Gate F.1 surface (UserPromptSubmit drain + HSIAnalysis schema + BQ-anchored Larry voice)
+- [x] 117-04-PLAN.md -- SEED-003 A3 sanitizer + LOCAL-only routing audit (Canon Part 8 6th tripwire)
+- [x] 117-05-PLAN.md -- Telemetry + brain-canon drift + v1.13.0-beta.8 release plumbing
 
-**Authority**: `.planning/phases/117-auto-explore-domains-on-first-material/117-CONTEXT.md` (stub). Source spec: `docs/CANON-PART-10-PROPOSAL-conversation-as-product.md` (sub-claim 5).
+**Authority**: `.planning/phases/117-auto-explore-domains-on-first-material/117-CONTEXT.md`. Source spec: `docs/CANON-PART-10-PROPOSAL-conversation-as-product.md` (sub-claim 5).
 
 
 ### Phase 118: 30-Second MVA + Reward-Before-Investment Rule (REGISTERED 2026-05-05 — STUB)
