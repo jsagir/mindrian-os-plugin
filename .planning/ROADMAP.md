@@ -1083,6 +1083,81 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 **Authority**: `.planning/phases/116-unresolved-tension-hook/116-CONTEXT.md` (D-01..D-10 locked 2026-05-06 via /gsd:discuss-phase). Source spec: `~/MindrianRooms/mindrian/mindrian-ecosystem/sub-rooms/website/mindrianos-conversion-fix/solution-design/unresolved-tension-hook-spec.md`.
 
 
+### Phase 117: Auto-Explore-Domains on First Material (REGISTERED 2026-05-05 — STUB)
+
+**Goal:** When material lands in the room (CV uploaded, transcript filed, conversation paragraph typed), auto-invoke `/mos:explore-domains` as a background job, trigger HSI scoring + reverse salient + cross-domain match in parallel, and surface findings as a single Decision Gate option ("I scanned your CV — here's what I found. Want to explore?") via the F.1 Next Move selector. The user never has to remember to invoke the math layer. Implements Canon Part 10 sub-claim 5 (triple-filter math runs automatically). SEED-003 A3 `updatedToolOutput` sanitizer pairs here for Part 8 hardening.
+
+**Requirements**: TBD (AUTOEXPLORE-117-01..NN — defined when CONTEXT.md is expanded; current stub captures scope + acceptance criteria only)
+
+**Depends on:** Phase 89-07 finish (ReverseSalientAgent — beta.4 in flight) AND Phase 109 (SQL navigation spine — shipped v1.11.0). HARD on both. Phase 110 (Brain Context Packet Contract — promoted to beta.3 via Path C 2026-05-05) recommended before any Brain-touching wire is hardened in 117.
+
+**Canon parts:** Part 2 Engine 1 (Act 1 intelligence surface — auto-fires the triple filter), Part 3 (Tri-Context Decision Gate — F.1 surface), Part 10 sub-claim 5 (triple-filter math runs automatically). Beta target: **v1.13.0-beta.3** ("Loop closes + reward fires" — pairs with Phase 116).
+
+**Plans:** TBD — phase is stubbed; six sub-plans anticipated (117-00 first-material detection hook, 117-01 auto-invocation wiring, 117-02 triple-filter composition, 117-03 Decision Gate F.1 surface, 117-04 SEED-003 A3 sanitizer integration, 117-05 telemetry integration with Phase 121).
+
+**Authority**: `.planning/phases/117-auto-explore-domains-on-first-material/117-CONTEXT.md` (stub). Source spec: `docs/CANON-PART-10-PROPOSAL-conversation-as-product.md` (sub-claim 5).
+
+
+### Phase 118: 30-Second MVA + Reward-Before-Investment Rule (REGISTERED 2026-05-05 — STUB)
+
+**Goal:** Build a 45-second-budget pipeline (UserPromptSubmit prompt-hook + 6-parallel-agent dispatch + Feynman deck auto-generation + Vercel ephemeral deploy) that delivers tangible reward BEFORE the user has invested any setup ceremony. The MVA output IS the room scaffold — the room emerges as a side effect of receiving the MVA, not as a precondition. Hooked Fix 2 from the dormant 2026-04-12 audit. Action axis (B=MAP) target: 3/10 → 8/10 (largest single Action move).
+
+**Requirements**: TBD (MVA-118-01..NN — defined when CONTEXT.md is expanded; current stub captures scope + acceptance criteria + 45-second budget enforcement)
+
+**Depends on:** Phase 114 (Larry default activation), Phase 115 (owned-emotion dual-path first-touch), Phase 116 (unresolved tension hook), Phase 117 (auto-explore wires the math layer). HARD on all four.
+
+**Canon parts:** Part 2 (Team Around Navigator — 6-agent parallel dispatch), Part 4 (Every Choice Is Graph Data — MVA findings cascade), Part 5 (Evidence Is Graded By Context — MVA outputs carry tier markers), Part 10 sub-claim 3 (room generates as receipt, not entry point). Beta target: **v1.13.0 final**.
+
+**Plans:** TBD — phase is stubbed; six sub-plans anticipated (118-00 prompt-hook + intent capture, 118-01 6-agent dispatch architecture, 118-02 Feynman deck auto-generation, 118-03 Vercel ephemeral deploy integration, 118-04 45-second budget enforcement + graceful degradation, 118-05 reward-before-investment sequencing rule).
+
+**Authority**: `.planning/phases/118-30-second-mva-reward-before-investment/118-CONTEXT.md` (stub). Source specs: `~/MindrianRooms/mindrian/mindrian-ecosystem/sub-rooms/website/mindrianos-conversion-fix/solution-design/the-30-second-mva.md` + `reward-before-investment-rule.md`.
+
+
+### Phase 119: Room-as-Receipt Invariant (REGISTERED 2026-05-05 — STUB)
+
+**Goal:** Auto-`/mos:new-project` wrapper — when a first conversation or material upload happens with no active room, the room scaffold generates as a side effect of analysis. The user never explicitly creates a room. Architecture remains visible and useful; framing flips from "create a room first" to "receive a room as the receipt of conversation." Implements Canon Part 10 sub-claim 3 (rooms are receipts, not entry points).
+
+**Requirements**: TBD (ROOMRECEIPT-119-01..NN — defined when CONTEXT.md is expanded; current stub captures scope + acceptance criteria)
+
+**Depends on:** Phase 114 (Larry default activation), Phase 115 (owned-emotion dual-path first-touch), Phase 117 (auto-explore wires the analysis), Phase 118 (MVA delivers reward before invest). HARD on all four.
+
+**Canon parts:** Part 2 (Team Around Navigator — team spawns into the auto-created room), Part 6 (Product-as-Venture — the dog-fooding mandate enforces this on the plugin's own room too), Part 10 sub-claim 3 (rooms are receipts). Beta target: **v1.13.0 final**.
+
+**Plans:** TBD — phase is stubbed; three sub-plans anticipated (119-00 no-active-room detection + auto-creation trigger, 119-01 inferred-name resolver from first material, 119-02 side-effect room scaffold generation).
+
+**Authority**: `.planning/phases/119-room-as-receipt-invariant/119-CONTEXT.md` (stub). Source: `~/MindrianRooms/mindrian/mindrianOS/problem-definition/2026-05-05-beautiful-question-first-turn.md` (synthesis source).
+
+
+### Phase 120: Breakthrough Scan / Category G (REGISTERED 2026-05-05 — STUB)
+
+**Goal:** Session-start scanner reads existing room content, detects 4 breakthrough pattern types (convergence, contradiction-resolved, cross-domain analogy, reverse-salient closed), renders them in Larry-voice with positive-framing rules ("you cracked X" not "you missed X"), surfaces via F.4 Insight Extraction selector. Hooked Fix 3 from the dormant 2026-04-12 audit. The "highest-nutrition variable reward" type — the user's own breakthroughs surfaced back at them, making investment directly reload reward. Variable Reward axis target: 7/10 (post Phase 117) → 9/10 + Trigger Internal +3.
+
+**Requirements**: TBD (BREAKTHROUGH-120-01..NN — defined when CONTEXT.md is expanded; current stub captures scope + acceptance criteria + 4 detector types)
+
+**Depends on:** Phase 109 (SQL navigation spine — reads room.db + Memory Event Log) AND Phase 117 (auto-explore wires the math layer that feeds breakthrough patterns). HARD on both.
+
+**Canon parts:** Part 2 Engine 1 (Act 1 intelligence — pattern detection over local graph), Part 10 sub-claim 5 (variable reward fires automatically). Beta target: **v1.13.0 final**.
+
+**Plans:** TBD — phase is stubbed; four sub-plans anticipated (120-00 4-pattern detector implementation, 120-01 session-start scanner integration, 120-02 Larry-voice positive-framing rules, 120-03 F.4 Insight Extraction selector wiring).
+
+**Authority**: `.planning/phases/120-breakthrough-scan-category-g/120-CONTEXT.md` (stub). Source spec: `~/MindrianRooms/mindrian/mindrian-ecosystem/sub-rooms/website/mindrianos-conversion-fix/solution-design/breakthrough-scan-category-g.md`.
+
+
+### Phase 121: Trajectory Telemetry (REGISTERED 2026-05-05 — STUB, INSTRUMENTATION-ONLY)
+
+**Goal:** Capture structured trajectory data across the v1.13.0 beta progression so SEED-002 (agent-lightning lab loop) has a corpus when its activation triggers fire post-v1.13.0. INSTRUMENTATION ONLY — no processing pipeline, no training loop, no model interaction. JSONL writer appends to `~/.mindrian/telemetry/v1.13/*.jsonl` with date/size rotation. Hook integration points: PostToolUse for `/mos:*` invocations, empathy audit harness, Hooked audit re-score, Phase 116 tension engagement, Phase 117 auto-explore acceptance. Pre-commit Part 8 guard validates every telemetry write for forbidden content patterns. Captured data persists locally; future SEED-002 consumption is on Jonathan's lab machine ONLY — never user machines, never a server, never a Brain endpoint.
+
+**Requirements**: TBD (TELEMETRY-121-01..NN — defined when CONTEXT.md is expanded; current stub captures schema sketch + 6 event types + Part 8 compliance plan)
+
+**Depends on:** Phase 109 (SQL navigation spine — shipped beta.1; Memory Event Log is the substrate). Capture points 121-03 / 121-04 depend on Phase 116 / Phase 117 respectively. Stable runtime ordering: scaffolding ships beta.1 (or beta.1.5 housekeeping); capture begins beta.2; runs through final.
+
+**Canon parts:** Part 8 (Graph Boundary — telemetry is LOCAL-ONLY by constitutional requirement; no payload may include Brain query content, room artifact content, or user-specific bytes). Beta target: scaffolding in **beta.1 / beta.1.5**, capture from **beta.2**, runs through **final**.
+
+**Plans:** TBD — phase is stubbed; six sub-plans anticipated (121-00 schema definition + writer module, 121-01 PostToolUse hook for `/mos:*`, 121-02 empathy-audit harness hook, 121-03 Phase 116 tension-engagement capture, 121-04 Phase 117 auto-explore acceptance capture, 121-05 documentation + Part 8 compliance audit). ~12 hours total (~1.5 days, slightly over the 1-day estimate).
+
+**Authority**: `.planning/phases/121-trajectory-telemetry/121-CONTEXT.md` (stub). Related seed: `.planning/seeds/SEED-002-agent-lightning-lab-loop.md`. Future consumption pattern: arXiv 2508.03680 (agent-lightning paper).
+
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
