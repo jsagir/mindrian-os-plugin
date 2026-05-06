@@ -4,13 +4,13 @@ milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
 stopped_at: Completed 117-04-PLAN.md (Wave 2 SEED-003 A3 sanitizer + LOCAL-only audit; 6th Canon Part 8 tripwire; 23 GREEN tests; 100 cumulative Phase 117 GREEN; AUTOEXPLORE-117-17 invariant LOCKED)
-last_updated: "2026-05-06T23:07:01.978Z"
-last_activity: 2026-05-06 -- Phase 95.5 execution started
+last_updated: "2026-05-06T23:19:10.970Z"
+last_activity: 2026-05-06
 progress:
   total_phases: 51
-  completed_phases: 26
+  completed_phases: 27
   total_plans: 220
-  completed_plans: 204
+  completed_plans: 205
   percent: 82
 ---
 
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 95.5 (post-compact-memory-pipeline-consumer) — EXECUTING
+Phase: 104
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: 1 of 6
+Plan: Not started
 Status: Executing Phase 95.5
 
 **For full context, read these in order:**
@@ -117,7 +117,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-06 -- Phase 95.5 execution started
+Last activity: 2026-05-06
 
 Progress: [████████░░] 82%
 
