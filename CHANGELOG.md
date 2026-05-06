@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.13.0-beta.7] - 2026-05-07
+
+### Fixed
+- **Post-compact memory pipeline consumer wiring (Phase 95.5):** closes the half-wired pipeline shipped in v1.12.0 (Phase 95-04 wrote the side-channel file but no consumer existed). Now `scripts/restore-post-compact-context.cjs` (NEW, 274 lines, per D-01) reads `<roomDir>/.mindrian/last-post-compact.md` at SessionStart, validates the YAML frontmatter stamp (D-04 source_room_path + source_room_slug + written_at + schema_version) against the active room from `~/MindrianRooms/.rooms/registry.json` (registry-first resolution; STATE.md anchor fallback), and re-injects TRIPLE_CONTEXT via `hookSpecificOutput.additionalContext` so Larry wakes up after auto-compact aware of pre-compact MINTO content. Cross-room mismatch triggers HARD SKIP + forensic-rename to `.last-post-compact-cross-room-skip-<ISO>-<epoch_ms>.md` (Canon Part 8). Successful consume forensic-renames to `.last-post-compact-consumed-<ISO>-<epoch_ms>.md` so subsequent re-runs do not re-inject stale post-compact context. Stale files (mtime >600s) are skipped + deleted (matches scripts/post-compact's existing 600s threshold). Belt-and-suspenders D-04b: file mtime cross-checked against registry `last_opened` to defeat lingering post-room-switch staleness.
+
+### Added
+- **`scripts/post-compact` D-04 frontmatter stamp back-port (Phase 95.5 Plan 01):** the WRITE side now prepends `source_room_path` + `source_room_slug` + `written_at` + `schema_version: 1` to `<roomDir>/.mindrian/last-post-compact.md`. Atomic mktemp + mv -f preserved. macOS date fallback chain handles `%3N` unsupported case (GNU date millisecond ISO -> BSD date second ISO -> literal `unknown`).
+- **`lib/memory/post-compact-reinjection.test.cjs` 9-scenario rewrite (Phase 95.5 Plans 00 + 04):** D-05 contract -- write-side file presence + body byte-identity + frontmatter stamp + read-side happy path + staleness skip+delete + cross-room HARD SKIP + post-consume forensic preserve + Tier 0 silence + byte-identity invariant. Replaces the deprecated 7/9-failing stdout-shape contract from Phase 88-09. Test 9 explicitly enforces Pitfall 2 avoidance: consumer re-derives via live readTriple + formatTripleContext, never parses the side-channel body.
+- **`hooks/hooks.json` SessionStart entry wiring (Phase 95.5 Plan 03):** wires `scripts/restore-post-compact-context.cjs` with matcher `startup|clear|compact` and timeout 3000ms (matching PostCompact 88-09 invariant). Idempotent Node JSON.parse + push + JSON.stringify(data, null, 2) re-serialization (95.2 B4 fix precedent; never Edit-tool string surgery). 8 prior entries byte-stable.
+- **`tests/test-95.5-00-scaffold.sh`:** Wave-0 scaffold harness asserting 9 RED test stubs + consumer stub require-able + Feynman registration intact + zero em-dashes + zero forbidden network surface.
+
+### Provenance
+- Triangulation: closes the gap left by Phase 95-04 (write-side ship 2026-04-29; consumer deferred to Phase 95.5+). Memory entry `project_post_compact_memory_pipeline.md` transitions HALF-WIRED -> FULLY-WIRED.
+- Reuse before build per Canon Part 7: extends `scripts/preflight-doctor.cjs` template (95.2 Finding C precedent), reuses `lib/memory/triple-context-formatter.cjs::formatTripleContext` (Phase 88-07 single source of truth), reuses `lib/core/folder-memory.cjs::getCurrentRoom` + `readTriple` (Phase 88-01 + 94-01).
+- Graph boundary per Canon Part 8: zero network surface (no remote calls, no Brain access). Cross-room HARD SKIP enforces per-room memory locality (Canon Part 9 forward-reference).
+- Dog-fooded per Canon Part 6: SessionStart hook chain entry verified locally via end-to-end smoke against synthesized fixture before commit; consumer returned `{"continue":true}` on Tier 0 cold start as designed.
+
+### Audit Notes
+- Marketplace ref-pin (Gate 5) DEFERRED: forward-protective hotfix; users on v1.13.0-beta.6 already have the WRITE-side stamp absent + side-channel file accumulating, so the READ-side consumer is purely additive (closing the half-wired gap). No regression risk to existing installs. Same gate Phase 95.2 (beta.6) + Phase 89-07 (beta.4) + Phase 116 (beta.5) used.
+- Three-surface validation: SessionStart hooks fire on Claude Code CLI natively + Desktop natively (CC 2.x); Cowork shared `00_Context/` per-user-local assumption preserved (RESEARCH section 10 -- Q3 deferred to Cowork tester smoke).
+- R1 byte-equal preserved on lib/hmi/shape-f6-renderer.cjs (sha256 = 1792535860abc791222bf0ecf59599d66e49ad9cc1606b3d8679fca2922150cf).
+- Phase 91 Feynman runner: zero NEW failures matching FAIL.*(post-compact|restore-post-compact|triple-context). Existing 9/9 GREEN baseline on `node lib/memory/post-compact-reinjection.test.cjs`.
+- Canon Part 8 audit clean: zero matches on `require\(.*room-db` and zero matches on `brain-client|fetch|http|curl|brain.mindrian|tavily` in scripts/restore-post-compact-context.cjs.
+
 ## [1.13.0-beta.6] - 2026-05-06
 
 ### Fixed
