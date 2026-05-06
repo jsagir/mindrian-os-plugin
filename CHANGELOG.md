@@ -9,6 +9,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.13.0-beta.4] - 2026-05-06
+
+### Added
+
+- **Phase 89-07 -- ReverseSalientAgent agentic surfacing finish.** ReverseSalientAgent ships as the canonical agentic-surfacing template for the Mindrian "suggestively-intelligent Larry" pattern (Canon Part 2 Engine 1 Act 1 + Canon Part 4 + Canon Part 10 sub-claim 5). Agent reads via Phase 109 navigation.cjs chokepoint (5 functions); writes typed cascade edges (INFORMS / CONTRADICTS / CONVERGES / INVALIDATES / ENABLES) per Phase 87; surfaces findings via F.0 Mini Decision Gate (Phase 88.2-05); mirrors telemetry via memory_event (88.2-03); reads Phase 90 BRAIN.md quadruple for framework-chaining context (LOCAL only, Canon Part 8); persona-aware F.0 header suffix from Phase 115 role_blend. Two new EVENT_TYPES strings: `reverse_salient_detected`, `reverse_salient_acted_on` (size 19 -> 21). [phase 89-07-00 / 01 / 02 / 03]
+- **`lib/agents/reverse-salient-agent.cjs`** -- substrate that composes Phase 109 navigation reads, Phase 90 brain reads, Phase 87 cascade writes, Phase 88.2 F.0 dispatch, Phase 115 persona suffix into the canonical surfacing skeleton. 13 exported functions: `gatherFocusContext`, `gatherBrainContext`, `composeFinding`, `mapDirectionToCascadeEdge`, `runRsEngine`, `emitFindingEdge`, `detectAndSurface`, `surfaceFinding`, `handleUserResponse`, `resolvePersonaKey`, `resolvePersonaSuffix`, `emitDetected`, `emitActedOn`.
+- **`agents/reverse-salient-agent.md`** -- agent definition file (sibling to larry-extended; persona_variants frontmatter for 7 canonical role keys + 2 aliases + default).
+- **`lib/core/reverse-salient-persona-suffix.cjs`** -- 7-key role_blend -> suffix map. founder = "shipping risk"; researcher = "evidence gap"; investor = "thesis fragility"; operator = "execution gap"; mentor = "coaching wedge"; domain_expert = "physical-reality friction"; student = "understanding gap"; default = "lagging component".
+- **`docs/AGENTIC-SURFACING-PATTERN.md`** -- canonical 5-step skeleton documentation for Phase 116/117/118/120. Same skeleton, different `detect()` per consumer phase.
+- **`commands/find-bottlenecks.md` Agent-First Flow extension** -- the existing /mos:find-bottlenecks command now invokes ReverseSalientAgent BEFORE the standard methodology dialogue (Q3 recommendation: extend, don't add /mos:find-cross-room-bridges).
+- **`cypher/phase89-07-rs-agent-completion.cypher`** -- ReverseSalientAgent Brain stub completion via DELEGATES_TO CrossDomainInnovationAgent + APPLIES_TO inheritance + IMPLEMENTED_BY (Q5 recommendation: idempotent MERGE; applied post-release; documented in Manual action items below).
+- **5 new test files** (`tests/test-reverse-salient-{agent,cascade-emit,f0-integration,persona,telemetry}.cjs`) registered in `lib/memory/run-feynman-tests.cjs`. All PASS via `node --test` (99/99 across 5 suites).
+- **2 new scaffold tests** (`tests/test-89-07-00-scaffold.sh`, `tests/test-89-07-pattern-doc.sh`).
+
+### Changed
+
+- `lib/core/navigation/memory-events.cjs` `EVENT_TYPES` Set extended with 2 strings: `reverse_salient_detected` + `reverse_salient_acted_on` (size 19 -> 21). Same Wave-0 extension pattern Phase 88.2-00 used.
+- `commands/find-bottlenecks.md` extended with Agent-First Flow section; original Setup / Session Flow / When Complete sections preserved as fallback when agent finds nothing or is suppressed.
+- `lib/core/lazygraph-ops.cjs` adds generic `upsertEdge(conn, {type, source, target, properties})` primitive (Phase 89-07-01) reusable as the typed-edge chokepoint across Phase 116/117/118/120 sibling agents.
+
+### Manual action items
+
+- **POST-RELEASE: apply Cypher patch** at `cypher/phase89-07-rs-agent-completion.cypher` against the Brain (brain.mindrian.ai) via `claude_ai_brain_query` MCP or equivalent. Idempotent (MERGE not CREATE); safe to re-apply. The patch only carries framework-name handles + plugin path + version scalar -- zero user content. Per RESEARCH Q5: verify post-application by re-querying the ReverseSalientAgent node and confirming DELEGATES_TO + APPLIES_TO + IMPLEMENTED_BY edges land.
+- **VALIDATION WEEK:** dispatch agent to a populated test room (Lawrence + 4 in docs/testers/REGISTRY.md) gated on `--version 1.13.0-beta.4`. Empathy audit confirms 4-of-5 testers report "the persona suffix framing felt right" (RESEARCH Confidence: LOW on suffix wording; tunable post-audit).
+- **MARKETPLACE Gate 5 (deferred):** ref-pin `~/mindrian-marketplace/.claude-plugin/marketplace.json` `source.ref` to `v1.13.0-beta.4` ONLY after the empathy audit passes 4-of-5 AND the integration smoke against 3 user rooms confirms the agent surfaces meaningful findings. Until then, Phase 89-07 ships as a LOCAL-ONLY tagged build (no `git push --tags`, no marketplace ref-pin) -- same gate Phase 115 beta.3 used.
+
+### Audit notes
+
+- Canon Part 8 (Graph Boundary): PASS. Agent never sends user content to Brain. Only reads pre-derived BRAIN.md quadruple (LOCAL file). Brain stays at brain.mindrian.ai untouched at Wave 3 close. Verified by module-import whitelist + payload audit (`tests/test-reverse-salient-telemetry.cjs` Canon Part 8 audit assertion).
+- Canon Part 4 (Every Choice Is Graph Data): PASS. Every F.0 response produces a typed edge (cascade on APPROVE; REJECTED_BECAUSE on REJECT; DEFERRED memory_event on DEFER). All 5 cascade types {INFORMS / CONTRADICTS / CONVERGES / INVALIDATES / ENABLES} exercised in `tests/test-reverse-salient-cascade-emit.cjs`.
+- Phase 109 chokepoint adherence: PASS. New code in `lib/agents/reverse-salient-agent.cjs` does NOT require `room-db.cjs` directly. Anti-pattern grep ban verified at every commit.
+- Phase 88.2 F.0 dispatcher non-regression: PASS. R1 invariant `lib/hmi/shape-f6-renderer.cjs` sha256 byte-equal preserved (`1792535860abc791222bf0ecf59599d66e49ad9cc1606b3d8679fca2922150cf`).
+- Phase 90 BRAIN.md quadruple non-regression: PASS.
+- Phase 115 persona-aware turn-1 non-regression: PASS.
+- Phase 91 Feynman runner: zero NEW failures referencing Phase 89-07 artifacts. Pre-existing inherited failures from prior phases (83/84/106) acceptable per Phase 89.5 + Phase 106-02 baseline contract.
+- 4 graph-native HARD RULE invariants from 89-07-VALIDATION.md: 1 PASS (Wave 1+2 cascade-edge tests), 2 PASS (navigation chokepoint adherence grep), 3 PASS (Canon Part 8 payload audit), 4 PASS (F.0 dispatcher integration test).
+
+### Deferred (out of Phase 89-07 scope, documented for traceability)
+
+- Phase 116 unresolved-tension-hook session-start surfacer: 116-CONTEXT.md scaffolded; consumer of agent's emit contract; depends on this phase landing first.
+- Phase 117 auto-explore-domains-on-first-material auto-fire: 117-CONTEXT.md scaffolded; consumer of agent's emit contract; depends on this phase landing first.
+- Phase 110 brain-context-packet-contract typed wire format: per Path C reroute. Net interaction is forward-compat (89-07 doesn't send Brain packets). Phase 110 ship order does NOT block 89-07.
+- `/mos:find-cross-room-bridges` new command: deferred per Q3 recommendation; existing `/mos:find-bottlenecks` extends to cover all modes.
+
+### Canon Conformance
+
+- Implements Canon Part 2 Engine 1 Act 1 (formal reverse-salient agentic surface; previously the rs-engine substrate was the shipped layer; 89-07 adds the agentic wrapper).
+- Implements Canon Part 4 (every reverse-salient finding becomes typed graph data via cascade edges + REJECTED_BECAUSE + DEFERRED memory_event).
+- Implements Canon Part 10 sub-claim 5 (proposed) -- "the test of intelligence is non-obvious opportunity surfacing through conversational Decision Gate."
+- Composes cleanly with proposed Canon Part 9 substrate via Phase 109 navigation.cjs adherence.
+
 ## [1.13.0-beta.3] - 2026-05-05
 
 ### Added
