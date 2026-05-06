@@ -146,6 +146,14 @@ function main() {
   }
 
   try {
+    // Phase 116-03 Wave 3: evaluate decay BEFORE selecting candidates so
+    // 3-strikes transitions land in JSONL ground truth (per CONTEXT.md D-03a).
+    // findSurfaceableTensions filters dropped per D-03b (already implemented in
+    // 116-01). Wave 4 (116-04) consumes decayResult.droppedTensionIds to emit
+    // tension_decayed memory_event for Phase 121 trajectory-telemetry.
+    const decayResult = pendingStore.evaluateAndDecay(roomSlug);
+    void decayResult; // Wave-4 telemetry will mirror droppedTensionIds.
+
     let candidates = [];
     try {
       candidates = navigation.findSurfaceableTensions(db, roomSlug, {
