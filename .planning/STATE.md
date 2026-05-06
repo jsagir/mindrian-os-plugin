@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 115-04-PLAN.md (Phase 115 verification cap-stone + v1.13.0-beta.3 release)
-last_updated: "2026-05-05T19:51:45.241Z"
-last_activity: 2026-05-05
+stopped_at: Completed 88.2-02-PLAN.md (F.3 + F.4 closed-vocab verification)
+last_updated: "2026-05-06T04:33:08.547Z"
+last_activity: 2026-05-06 -- Phase 88.2 execution started
 progress:
   total_phases: 43
   completed_phases: 23
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 115 — owned-emotion-dual-path-first-touch
+**Current focus:** Phase 88.2 — uiux-selector-block
 
 ## Current Position
 
-Phase: 115 (owned-emotion-dual-path-first-touch) — EXECUTING
+Phase: 88.2 (uiux-selector-block) — EXECUTING
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: 4 of 5
-Status: Ready to execute
+Plan: 1 of 5
+Status: Executing Phase 88.2
 
 **For full context, read these in order:**
 
@@ -117,7 +117,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-05
+Last activity: 2026-05-06 -- Phase 88.2 execution started
 
 Progress: [████████░░] 82%
 
@@ -236,6 +236,7 @@ Progress: [████████░░] 82%
 | Phase 115 P00 | 6m 19s | 7 tasks | 7 files |
 | Phase 115 P01 | 3m 19s | 5 tasks | 5 files |
 | Phase 115 P04 | 13min | 6 tasks | 6 files |
+| Phase 88.2 P02 | 3min | 2 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -644,6 +645,7 @@ Progress: [████████░░] 82%
 - [Phase 115]: Plan 115-02: 2 MCP tools (detect_dual_path + extract_shallow) registered in bin/mindrian-mcp-server.cjs with zod schemas closing Pitfall 6 (tri-polar Desktop/Cowork coverage) in this plan rather than deferring
 - [Phase 115]: Plan 115-04: Phase 115 ships as v1.13.0-beta.3 (Phase 114 burned beta.2); Marketplace Gate 5 deferred to validation-week promotion gate; local git tag NOT pushed per CLAUDE.md Git Safety Protocol; Phase 91 inherited failures (5/176) acceptable per Phase 89.5 + Phase 106-02 baseline contract; zero NEW Phase 115 failures in non-regression scan
 - [Phase 115]: Plan 115-04: 4-AC orchestrator pattern (sibling of test-114-larry-default-activation.sh) replicable for Phase 116/117/118/119/120; source-of-truth import in tests (lib/copy/115-spec-strings.cjs imported by tests/test-115-surfaces-grep.sh) ensures drift in EITHER spec OR surface trips the test (Pitfall 1 generalized at test layer)
+- [Phase 88.2]: F.3 + F.4 closed-vocab renderers verified conformant on disk; tests extended from 7 to 10 assertions adding D-AMEND-04 persona-agnostic guarantee + closed-vocab caller-override-ignore + dispatcher carve-out flag invariant; renderer modules byte-equal pre/post
 
 ### Pending Todos
 
@@ -665,6 +667,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-05T19:51:45.233Z
-Stopped at: Completed 115-04-PLAN.md (Phase 115 verification cap-stone + v1.13.0-beta.3 release)
+Last session: 2026-05-06T04:33:08.537Z
+Stopped at: Completed 88.2-02-PLAN.md (F.3 + F.4 closed-vocab verification)
 Resume file: None
