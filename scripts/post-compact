@@ -34,10 +34,10 @@ PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 # The full restored context that used to be carried as additionalContext
 # relocates to <roomDir>/.mindrian/last-post-compact.md (atomic mktemp +
 # mv -f, mirroring Plan 95-02's cascade side-channel writer). This is
-# WRITE-ONLY in Phase 95; the CONSUMER (next session-start reading the
-# file) is deferred to Phase 95.5+. Plan 95-05 CHANGELOG ### Audit Notes
-# explicitly discloses the half-wired status per release-process.md
-# transparency.
+# WRITE-ONLY in Phase 95; the CONSUMER lands in Phase 95.5 as
+# `scripts/restore-post-compact-context.cjs`. This function now prepends
+# a D-04 YAML frontmatter stamp so the consumer can enforce cross-room
+# boundary.
 # ---------------------------------------------------------------------------
 
 # Emit a Claude Code 2.x compliant PostCompact envelope. Empty input ->
@@ -55,6 +55,13 @@ emit_post_compact_envelope() {
 # atomically. Soft-fail at every step. Markdown plain-text (NOT JSON) since
 # the future consumer will inject the block as additionalContext or read it
 # verbatim. Same atomic pattern as Plan 95-02 cascade side-channel writer.
+#
+# Phase 95.5 D-04 back-port: prepend YAML frontmatter stamp before the existing
+# context body. Atomic mktemp + mv -f preserved. The stamp carries source_room_path
+# + source_room_slug + written_at + schema_version so the SessionStart consumer
+# (scripts/restore-post-compact-context.cjs) can enforce cross-room boundary
+# (Canon Part 8). macOS date lacks `%3N` so chain falls back to second-precision
+# ISO if needed.
 write_post_compact_side_channel() {
   local room_dir="$1"
   local restored_context="$2"
@@ -65,9 +72,24 @@ write_post_compact_side_channel() {
   local side_dir="$room_dir/.mindrian"
   mkdir -p "$side_dir" 2>/dev/null || return 0
 
+  local room_slug
+  room_slug=$(basename "$room_dir" 2>/dev/null || echo "unknown")
+  local written_at
+  written_at=$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ 2>/dev/null) || \
+    written_at=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null) || \
+    written_at="unknown"
+
   local tmp
   tmp=$(mktemp "$side_dir/.last-post-compact.md.XXXXXX" 2>/dev/null) || return 0
-  printf '%s\n' "$restored_context" > "$tmp" 2>/dev/null || { rm -f "$tmp" 2>/dev/null; return 0; }
+  {
+    printf -- '---\n'
+    printf 'source_room_path: %s\n' "$room_dir"
+    printf 'source_room_slug: %s\n' "$room_slug"
+    printf 'written_at: %s\n' "$written_at"
+    printf 'schema_version: 1\n'
+    printf -- '---\n\n'
+    printf '%s\n' "$restored_context"
+  } > "$tmp" 2>/dev/null || { rm -f "$tmp" 2>/dev/null; return 0; }
   mv -f "$tmp" "$side_dir/last-post-compact.md" 2>/dev/null || { rm -f "$tmp" 2>/dev/null; return 0; }
 }
 
