@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.13.0-beta.4",
+  "captured_at": null,
+  "frameworks": [
+    {
+      "name": "Reverse Salient Analysis",
+      "grounded_by": ["Hughes 1983 (Networks of Power)"],
+      "core_principles": [],
+      "case_studies": [],
+      "feeds_into": [],
+      "fed_by": [],
+      "stages": [],
+      "problem_types": [],
+      "agents": ["ReverseSalientAgent"]
+    },
+    {
+      "name": "Algorithmic Generation of Reverse Salient Solutions",
+      "grounded_by": ["Medici Effect", "Hofstadter Surfaces and Essences"],
+      "core_principles": [],
+      "case_studies": [],
+      "feeds_into": ["Reverse Salient Analysis"],
+      "fed_by": [],
+      "stages": [],
+      "problem_types": [],
+      "agents": ["CrossDomainInnovationAgent"]
+    }
+  ],
+  "graceful_fallback": true,
+  "note": "Empty arrays at Wave 0; Wave 1 may populate from a one-time brain-connector run (LOCAL-only; no user-content sent)."
+}
