@@ -98,6 +98,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 |----------|-------------------|-----------|
 | ambient  | Plugin repo IS the venture | This map + canon are dog-fooding artifacts |
 | proposed | Drift Detection Engine | Phase 92 drift-detection-engine (not yet scaffolded) |
+| shipped  | Phase 95.2 install-cache atomic recovery + dogfood self-test (D-13 mandate) | Phase 95.2 install-cache-atomic-recovery-sessionstart-preflight (v1.13.0-beta.6) -- third autopsy in install-cache failure family; live recovery proven against synthesized missing state on dogfood machine. See .planning/phases/95.2-.../95.2-DOGFOOD-VERIFICATION.md. |
 
 ### Part 7 - Reuse Before Build
 
@@ -105,6 +106,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 |---------|-------------------|-----------|
 | shipped | /gsd:plan-phase gating | .claude/get-shit-done/ workflows |
 | shipped | Description discipline sweep across 72 commands + 8 agents (under-promise, verb-first, argument-hint, disable-model-invocation on destructive) | Phase 88.1 uiux-polish (Plans 01, 10, 12); v1.10.15 |
+| shipped | Phase 95.2 extends scripts/doctor.cjs (Phase 95.1 install-cache recovery substrate) without forking; reuses fs.cpSync from vault-export-orchestrator.cjs:233; SessionStart preflight reuses Phase 106-05 hook template pattern from check-onboard-statusline.cjs | Phase 95.2 install-cache-atomic-recovery-sessionstart-preflight (v1.13.0-beta.6) |
 
 ### Part 8 - The Graph Boundary (Security Constitution)
 
@@ -117,6 +119,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 | shipped | Plan 88.1-08 async auto-commit is Part 8-compliant (isolated data-room-autocommit branch; NEVER git push; plumbing via tmp GIT_INDEX_FILE never moves HEAD) | Phase 88.1 uiux-polish (Plan 08); v1.10.15 |
 | shipped | Brain derivation layer preserving boundary | Phase 90 brain-derivation-layer (v1.10.18) -- 5 independent Canon Part 8 tripwires: schema leak heuristic scan (Plan 90-00) + deriveSection single-chokepoint buildBrainQueryContext (Plan 90-01) + registry brain-md-invariants body-text scan at guardian checkpoints (Plan 90-05) + cross-room aggregator sanitizeDetailScalar + JSON.stringify output audit (Plan 90-06) + cross-scenario BRAIN.md sweep across 14 graceful-degradation fixtures (Plan 90-08). Zero user-content egress; every Brain query carries only generic framework handles + phase identifiers + sha256 hashes + enum scalars. |
 | pending | check-brain-boundary.cjs PR gate | Not yet scaffolded. Stub proposed. |
+| shipped | Phase 95.2 SessionStart preflight is purely LOCAL (zero network surface; preflight-doctor.cjs spawns local doctor.cjs --json subprocess only; no fetch/http/curl; no Brain MCP calls) | Phase 95.2 install-cache-atomic-recovery-sessionstart-preflight (v1.13.0-beta.6); verified by `grep -E "fetch\|http\|curl\|brain.mindrian\|tavily" scripts/preflight-doctor.cjs` returning 0 |
 
 ### Part 9 (proposed) - Memory Locality and Interpretation
 
@@ -127,6 +130,38 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 | planned  | Phase 110 brain-context-packet-contract (Brain wire enforcement makes Part 9 structurally hard, not just procedurally audited) | .planning/phases/110-brain-context-packet-contract/110-CONTEXT.md (stub) |
 
 Phase 108 ships the proposal cross-reference document and the schema reconciliation deliverables that make the Part 9 contract testable. Phase 109 ratifies Part 9 at its release gate by merging the proposal text from `.planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md` into `docs/MINDRIAN-CANON.md` as a new Part 9. Phase 110 hardens the Brain wire schema so Part 8 enforcement (LOCAL to BRAIN: NO) is structurally enforced, not just procedurally audited. The trio (108 + 109 + 110) constitutes the Part 9 implementing cluster.
+
+### Part 10 (proposed) - Conversation as Product
+
+| Status   | Phase / Component | Reference |
+|----------|-------------------|-----------|
+| proposed | docs/CANON-PART-10-PROPOSAL-conversation-as-product.md | Constitutional thesis: "Larry IS the product. Conversation IS the surface. Rooms are receipts. Commands are internals." Five sub-claims. Synthesized 2026-05-05. Ratifies at v1.13.0 final release gate (parallel to Part 9 at Phase 109 release gate), gated on Hooked re-score >= 55 AND empathy audit confirming 4/5 testers report "thinking partner" experience. |
+| planned  | Phase 114 larry-default-activation (sub-claim 1: Larry IS the product) | .planning/phases/114-larry-default-activation/CONTEXT.md (stub) |
+| planned  | Phase 115 owned-emotion-dual-path-first-touch (sub-claim 2: Conversation IS the surface) | .planning/phases/115-owned-emotion-dual-path-first-touch/CONTEXT.md (stub) |
+| planned  | Phase 116 unresolved-tension-hook (sub-claim 3: persistent conversation across sessions) | .planning/phases/116-unresolved-tension-hook/CONTEXT.md (stub) |
+| planned  | Phase 117 auto-explore-domains-on-first-material (sub-claim 5: triple-filter math automatic) | .planning/phases/117-auto-explore-domains-on-first-material/CONTEXT.md (stub) |
+| planned  | Phase 118 30-second-mva-reward-before-investment (sub-claim 3: room generates as receipt) | .planning/phases/118-30-second-mva-reward-before-investment/CONTEXT.md (stub) |
+| planned  | Phase 119 room-as-receipt-invariant (sub-claim 3: formal invariant) | .planning/phases/119-room-as-receipt-invariant/CONTEXT.md (stub) |
+| planned  | Phase 120 breakthrough-scan-category-g (sub-claim 5: variable reward) | .planning/phases/120-breakthrough-scan-category-g/CONTEXT.md (stub) |
+| planned  | Phase 100 jtbd-inference-engine -- DEFERRED to v1.14.0 (sub-claim 4: commands as internals) | .planning/phases/100-jtbd-inference-engine/ |
+
+Phases 114-120 implement Part 10 across the v1.13.0 milestone. Phase 100 (JTBD Inference Engine, deferred to v1.14.0) implements sub-claim 4 (commands fully internal). Until v1.14.0, commands stay user-facing as a fallback while Larry routes via heuristic.
+
+### v1.13.0 "The Closed Loop" milestone phases (multi-part canon mapping)
+
+| Status   | Phase / Component | Canon Parts | Beta | Reference |
+|----------|-------------------|-------------|------|-----------|
+| planned  | Phase 88.2 uiux-selector-block FINISH (3 plans remain) | Part 3 (F-shapes) | beta.2 | .planning/phases/88.2-uiux-selector-block/ -- LOAD-BEARING for Phase 116 tension resolution menu |
+| planned  | Phase 89-07 ReverseSalientAgent FINISH (1 plan remain) | Part 2 Engine 1 | beta.2 | .planning/phases/89-reverse-salient-engine/ -- LOAD-BEARING for Phase 117 cross-domain |
+| planned  | Phase 114 larry-default-activation | Part 2, Part 3, Part 10 | beta.2 | sub-claim 1 of Part 10 |
+| planned  | Phase 115 owned-emotion-dual-path-first-touch | Part 2a, Part 5, Part 10 | beta.2 | sub-claim 2 of Part 10 |
+| planned  | Phase 110 brain-context-packet-contract -- PROMOTED FROM v1.14.0 [Path C 2026-05-05] | Part 8, Part 9 | beta.3 | Structural Part 8 enforcement before Phase 121 telemetry accumulates |
+| planned  | Phase 116 unresolved-tension-hook | Part 4, Part 8, Part 10 | beta.3 | Hooked Fix 1 (load-bearing closer); sub-claim 3 |
+| planned  | Phase 117 auto-explore-domains-on-first-material | Part 2 Engine 1, Part 3, Part 10 | beta.3 | sub-claim 5 of Part 10 |
+| planned  | Phase 118 30-second-mva-reward-before-investment | Part 2, Part 4, Part 5, Part 10 | final | Hooked Fix 2 |
+| planned  | Phase 119 room-as-receipt-invariant | Part 2, Part 6, Part 10 | final | sub-claim 3 of Part 10 |
+| planned  | Phase 120 breakthrough-scan-category-g | Part 2 Engine 1, Part 10 | final | Hooked Fix 3 (Category G) |
+| planned  | Phase 121 trajectory-telemetry | Part 8 | beta.1.5 -> final | .planning/phases/121-trajectory-telemetry/121-CONTEXT.md (stub); feeds SEED-002 |
 
 ### Appendix A - Relationship to MWP
 

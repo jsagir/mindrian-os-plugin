@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.13.0-beta.6] - 2026-05-06
+
+### Fixed
+- **Install-cache atomic recovery (Phase 95.2):** `scripts/doctor.cjs --fix` now uses a true atomic-swap pattern (cp via `fs.cpSync` to `install.new` then version verify then two-step rename) so a failed copy mid-recovery never leaves the system in a half-done state. Replaces the prior shell-out `cp -aT` with a Windows-functional `fs.cpSync` call (proven at `scripts/vault-export-orchestrator.cjs:233`). Adds new exit code 4 for the "recovery attempted but rolled back to backup state" case (D-03). Prevents the 2026-05-06 missing-install incident family. See `docs/autopsies/2026-05-06-install-dir-missing-incident.md`.
+- **`--fix` eligibility for missing install (Phase 95.2):** `/mos:doctor --fix` now triggers when `install.status === "missing"` (previously only when drift was detected between two readable installs). Unblocks recovery for users whose install dir is gone. JSON contract additions: `install.recoverable` (boolean) + `drift.reason: "install-missing"` discriminator. Existing field semantics byte-stable.
+- **SessionStart preflight (Phase 95.2):** New `scripts/preflight-doctor.cjs` runs as the 8th SessionStart hook entry, spawning `node scripts/doctor.cjs --json` (1500ms timeout) and emitting a Claude Code envelope with `hookSpecificOutput.systemMessage` carrying a one-line ANSI-yellow warning when drift or missing-install is detected. Suppressed on healthy installs. Honors both `MOS_NO_COLOR=1` (CONTEXT.md D-09 parity) and standard `NO_COLOR=1` (project convention). Three-surface caveat: SessionStart fires on Claude Code CLI only; Desktop and Cowork users get the recovery path but not the preflight warning.
+
+### Added
+- `MINDRIAN_PLUGIN_HOME` env override on `scripts/doctor.cjs` for hermetic regression testing (analog to `MINDRIAN_ROOMS_HOME` from Phase 95.1 D-05).
+- `tests/test-doctor-atomic-swap.cjs`: 9-scenario regression test (success / missing-install / cp-failure / verify-failure-via-bad-version / verify-failure-via-injection / rollback / rename-old-failure-via-injection / JSON shape stability / renderer auto-fire). Registered in `lib/memory/run-feynman-tests.cjs`.
+- `tests/test-doctor-preflight-format.cjs`: unit test for the warning formatter.
+- `tests/test-session-start-preflight.sh`: integration test for the preflight hook (self-skips when 95.2-00 hasn't landed; cross-wave race protection).
+
+### Provenance
+- Triangulation: third incident in the install-cache failure family. See autopsies `docs/autopsies/2026-04-13-wrong-workspace-incident.md`, `docs/autopsies/2026-04-28-install-cache-drift-incident.md`, `docs/autopsies/2026-05-06-install-dir-missing-incident.md`.
+- Dog-fooded per Canon Part 6: patched doctor was self-tested against jsagir's actual missing-install state before merge. See `.planning/phases/95.2-install-cache-atomic-recovery-sessionstart-preflight/95.2-DOGFOOD-VERIFICATION.md`.
+- Reuse before build per Canon Part 7: extends Phase 95.1's `scripts/doctor.cjs`; no parallel surface.
+- Graph boundary per Canon Part 8: SessionStart preflight is purely LOCAL (zero network surface, no Brain queries, no telemetry).
+- Marketplace ref-pin (Gate 5) DEFERRED for 95.2: forward-protective hotfix; users in missing-install state recover via `/mos:doctor --fix` from cache without needing a marketplace bump (their cache already has 1.12.5+).
+
 ## [1.13.0-beta.5] - 2026-05-06
 
 ### Added
