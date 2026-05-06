@@ -10,10 +10,20 @@ trigger_when: |
   Surface during /gsd:new-milestone or /gsd:plan-phase if ANY of:
   - Phase 110 (brain-context-packet-contract) AND Phase 114 (larry-default-activation) BOTH merged to main
   - User runs /gsd:new-milestone v1.14.0 (or /gsd:new-milestone with v1.14.x flag)
-  - User explicitly says "expand the wiki sprint memo into Phase 104 CONTEXT"
+  - User explicitly says "expand the wiki sprint memo into Phase 126 CONTEXT"
   - A new tester reports wiki UX issue (recurrence of Lawrence's 2026-03-31 P1 blocker class)
   - Lawrence Aronhime asks about wiki state or sub-room navigation
   - Any phase in beta touches scripts/serve-wiki, lib/wiki/*, scripts/serve-dashboard*, dashboard/*, lib/vault/wikilink-builder.cjs
+phase_number_correction: |
+  Originally drafted as "Phase 104 revival" against the empty
+  104-per-command-ui-wrapping placeholder directory. On 2026-05-07 evening,
+  audit revealed Phase 104 is allocated to per-command-jtbd-declarations
+  (3/4 plans shipped in v1.13.0; 104-00 Wave 0 pending). The empty
+  placeholder was removed. Wiki sprint reassigned to Phase 126 (next
+  available; 122 = Researcher Wedge, 123 = SnapshotHub, 124 = JTBD
+  Inference, 125 = Selector JTBD-aware are claimed). Phase 104 finishing
+  is FUSED into v1.14.0 as foundational completion (104-00 Wave 0 is the
+  first plan to land in v1.14.0-beta.1).
 scope: Medium-Large
 estimated_effort: ~8 working days at Phase 82 cadence
 canon_parts: [Part 1 (Wicked Navigator), Part 3 (Tri-Context Decision Gate), Part 6 (Dog-Fooding Mandate)]

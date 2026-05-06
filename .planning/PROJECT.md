@@ -199,12 +199,12 @@ explicitly with thesis, methodology spine, and hard release gate.
 
 **Why fuse SnapshotHub into v1.14.0:** Wiki and SnapshotHub share renderer DNA — both consume the same markdown source-of-truth, use the same `lib/wiki/page-renderer.cjs` + `@ig3/markdown-it-wikilinks` plugin + `lib/wiki/graph-links.cjs`, render with the same De Stijl tokens, and `dashboard/export-template.html` (2462 lines, shipped) already proves one pipeline serves both audiences. SnapshotHub IS the wiki "going public" — same artifact, packaged for external sharing. Splitting them would mean maintaining two renderer pipelines that should be one.
 
-**Scope (revived Phase 104, 5 sub-plans, ~8 working days):**
-- 104-01: wire `scripts/resolve-room` into serve-wiki / serve-dashboard / serve-presentation; ANSI strip; diagnostic empty-state. Closes Lawrence's P1 blocker open since 2026-03-31.
-- 104-02: graph as wiki homepage + auto-create on `/mos:new-project` (Phase 19 mandates from March 2026, never shipped).
-- 104-03: Wikipedia zones (infobox + backlinks + see-also + red-link) + section-to-section `[[wikilink]]` hyperlink wiring + cross-room link resolution.
-- 104-04: click-red-wikilink-to-research + Phase 32-02 chat tool-call wiring (Larry-in-the-wiki).
-- 104-05: 9-tier freshness frontmatter + content gap dashboard + multi-layout Cytoscape with clustering + neighborhood highlighting.
+**Scope (Phase 126 NEW per-room-wiki-completeness, 5 sub-plans, ~8 working days, PLUS Phase 104 finish 104-00 Wave 0; Phase 104 3/4 plans already shipped in v1.13.0):**
+- 126-01: wire `scripts/resolve-room` into serve-wiki / serve-dashboard / serve-presentation; ANSI strip; diagnostic empty-state. Closes Lawrence's P1 blocker open since 2026-03-31.
+- 126-02: graph as wiki homepage + auto-create on `/mos:new-project` (Phase 19 mandates from March 2026, never shipped).
+- 126-03: Wikipedia zones (infobox + backlinks + see-also + red-link) + section-to-section `[[wikilink]]` hyperlink wiring + cross-room link resolution.
+- 126-04: click-red-wikilink-to-research + Phase 32-02 chat tool-call wiring (Larry-in-the-wiki).
+- 126-05: 9-tier freshness frontmatter + content gap dashboard + multi-layout Cytoscape with clustering + neighborhood highlighting.
 
 **Plus deferred from Closed Loop / fused into v1.14.0:** Phase 124 (JTBD Inference Engine, was Phase 100), Phase 125 (Selector library JTBD-aware, was Phase 101), Phase 112 (GraphRAG retrieval + Room Budding), **Phase 123 (SnapshotHub MVP, FUSED 2026-05-07 — same renderer pipeline as wiki, consumes SEED-003 A5)**, SEED-001 (sub-room atomic wiring), SEED-004 (write-scope-check nested-room bug). **Splits to v1.14.5:** Phase 122 (Researcher Wedge /mos:gate, was Phase 107) — different thesis (opportunity-gating, not visibility).
 
@@ -212,7 +212,7 @@ explicitly with thesis, methodology spine, and hard release gate.
 
 **HARD release gate:** Lawrence Aronhime tester preview on a multi-room install confirming all 6 user-facing behaviors (room resolution, graph homepage, auto-create, section hyperlinks, cross-room links, red-link rendering). Without his sign-off, v1.14.0 ships only beta — not final. Per Canon Part 6 Dog-Fooding Mandate.
 
-**Trigger to expand into Phase 104 CONTEXT:** Path C closes (Phase 110 + Phase 114 both merged to main) AND user explicitly says "expand the wiki sprint memo into Phase 104 CONTEXT."
+**Trigger to expand into Phase 126 CONTEXT:** Path C closes (Phase 110 + Phase 114 both merged to main) AND user explicitly says "expand the wiki sprint memo into Phase 126 CONTEXT."
 
 **Provenance:** triggered by user reaction to LLM-Wiki repo (github.com/Oshayr/LLM-Wiki) on 2026-05-06 — "I tried such a wiki with /mos:wiki and wikilinks but this one looks better." 13/13 claim validation against current code 2026-05-07. Brand discipline + JTBD orientation is the moat, not feature parity.
 
@@ -389,4 +389,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-07 after Phase 95.5 (post-compact-memory-pipeline-consumer) shipped as v1.13.0-beta.7. Closes the half-wired Phase 95-04 pipeline; READ-side consumer + D-04 YAML stamp + hooks.json wiring + 9/9 D-05 GREEN tests + Canon Part 8 audit clean. Ships substrate that v1.14.0 "The Visible Room" Plan 104-05 will reuse for the content gap dashboard.*
+*Last updated: 2026-05-07 after Phase 95.5 (post-compact-memory-pipeline-consumer) shipped as v1.13.0-beta.7. Closes the half-wired Phase 95-04 pipeline; READ-side consumer + D-04 YAML stamp + hooks.json wiring + 9/9 D-05 GREEN tests + Canon Part 8 audit clean. Ships substrate that v1.14.0 "The Visible Room" Plan 126-05 will reuse for the content gap dashboard.*
