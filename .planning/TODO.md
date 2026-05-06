@@ -61,9 +61,11 @@ Research complete across two passes:
 
 **Waiting on user:** synthesis memo at `.planning/phases/_backlog/v1.10.6-smart-notebook.md` distilling both research files into a plan-phase-ready CONTEXT document (~150 lines, handoff-ready for `/gsd:new-milestone v1.10.6` or `/gsd:add-phase`). When user says "write the memo," generate it from both research files.
 
-### [v1.14.0 QUEUED] Mindrian Wiki Sprint - JTBD/User-Journey-Mapping-Oriented Completion
+### [v1.14.0 QUEUED — PROMOTE TO NEXT UP WHEN v1.13.0 SHIPS] Mindrian Wiki + SnapshotHub Sprint - "The Visible Room" arc (Wiki + SnapshotHub fused; one renderer, two surfaces)
 
-**Filed:** 2026-05-06 (memo); methodology spine added 2026-05-07 (Brain-validated)
+**PROMOTION TRIGGER (mandatory):** the moment `git tag v1.13.0` lands on origin (i.e. v1.13.0 final ships, not a beta), MOVE this entry from QUEUED to NEXT UP and remove this trigger line. v1.14.0 is the immediate successor; no other milestone should claim NEXT UP between v1.13.0 final ship and v1.14.0 kickoff. Per `.planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md` Post-Ship Handoff Checklist step 7.
+
+**Filed:** 2026-05-06 (memo); methodology spine added 2026-05-07 (Brain-validated); SnapshotHub fused into v1.14.0 2026-05-07 evening (shared renderer DNA argument)
 **Memo:** `.planning/phases/_backlog/v1.14-mindrian-wiki-sprint.md` (231 lines)
 **Trigger to expand into Phase 104 CONTEXT:** Path C ships (Phase 110 + Phase 114 merged) AND user says "expand the wiki sprint memo into Phase 104 CONTEXT."
 **Parent phase to revive:** Phase 104 (currently scaffolded but empty; rename: per-command-ui-wrapping → per-room-wiki-completeness).
