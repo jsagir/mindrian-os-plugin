@@ -189,6 +189,8 @@ function main() {
       try {
         store.markFailed(roomSlug, detection.material_id, reason);
       } catch (_e) { /* never throw */ }
+      // Phase 117-05 telemetry: suppression path emits auto_explore_skipped.
+      try { agent.emitSkipped(roomDir, { material_id: detection.material_id, suppress_reason: reason, tier: detection.tier || 0 }); } catch (_e) { /* never throw */ }
     }
     return emitEmpty();
   }
@@ -204,6 +206,8 @@ function main() {
     try {
       store.markFailed(roomSlug, detection.material_id, 'rate_limited');
     } catch (_e) { /* never throw */ }
+    // Phase 117-05 telemetry: rate-limited suppression.
+    try { agent.emitSkipped(roomDir, { material_id: detection.material_id, suppress_reason: 'rate_limited', tier: detection.tier || 0 }); } catch (_e) { /* never throw */ }
     return emitEmpty();
   }
 
@@ -212,6 +216,8 @@ function main() {
     try {
       store.markFailed(roomSlug, detection.material_id, 'daily_cap_exceeded');
     } catch (_e) { /* never throw */ }
+    // Phase 117-05 telemetry: daily-cap suppression.
+    try { agent.emitSkipped(roomDir, { material_id: detection.material_id, suppress_reason: 'daily_cap_exceeded', tier: detection.tier || 0 }); } catch (_e) { /* never throw */ }
     return emitEmpty();
   }
 
@@ -238,6 +244,19 @@ function main() {
     // JSONL append failed -- defensively continue; SessionStart sweep will
     // catch any orphaned spawn at next session boundary (5min stale rule).
   }
+
+  // Phase 117-05 telemetry: emit auto_explore_fired immediately before
+  // spawning the detached fire child. Scalar-only payload per Canon Part 8.
+  try {
+    agent.emitFired(roomDir, {
+      material_id: detection.material_id,
+      relative_file_path: relativeFilePath,
+      room_slug: roomSlug,
+      tier: detection.tier || 1,
+      surfacing_count: 0,
+      brain_baseline_present: false,
+    });
+  } catch (_e) { /* never throw */ }
 
   // Spawn detached: scripts/auto-explore-fire.cjs (lands in 117-02). When the
   // child script does not yet exist (Wave 1 tests), skip the spawn but still

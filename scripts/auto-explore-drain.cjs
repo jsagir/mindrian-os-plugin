@@ -204,6 +204,17 @@ function main() {
 
   if (!surface || !surface.surfaced) return emitEmpty();
 
+  // Phase 117-05 telemetry: emit auto_explore_finding_surfaced before
+  // additionalContext writes. Use the populated finding from surface so
+  // top_differential_score is non-null per RESEARCH Section 11 schema.
+  try {
+    agent.emitFindingSurfaced(roomDir, {
+      finding: surface.finding || top,
+      surfacing_count: 1,
+      tier: tier,
+    });
+  } catch (_e) { /* never throw */ }
+
   // Mark surfaced=true in ledger so next turn does not re-emit.
   try {
     store.appendMaterial(roomSlug, {

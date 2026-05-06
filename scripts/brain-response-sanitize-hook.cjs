@@ -18,7 +18,18 @@
 'use strict';
 
 const fs = require('node:fs');
+const path = require('node:path');
 const sanitizer = require('../lib/core/brain-response-sanitize.cjs');
+
+// Phase 117-05 telemetry: emit auto_explore_sanitizer_hit when sanitize()
+// modifies input. Lazy require to keep hook fast when no Brain tool fires.
+let _agentRef;
+function _getAgent() {
+  if (_agentRef !== undefined) return _agentRef;
+  try { _agentRef = require('../lib/agents/auto-explore-agent.cjs'); }
+  catch (_e) { _agentRef = null; }
+  return _agentRef;
+}
 
 /**
  * ENVELOPE_ALLOWED -- the keys we will pass through to stdout.
@@ -62,7 +73,53 @@ function main() {
       // Passthrough for non-Brain tools.
       return emitPassthrough();
     }
-    const envelope = sanitizer.buildEnvelope(toolName, input.tool_response);
+    // Phase 117-05 telemetry: detect redactions BEFORE building envelope so
+    // we can emit one auto_explore_sanitizer_hit per matched pattern.
+    const text = (input.tool_response && typeof input.tool_response.text === 'string')
+      ? input.tool_response.text
+      : '';
+    const detailed = sanitizer.sanitizeDetailed(text);
+    if (detailed && detailed.redactions) {
+      const agent = _getAgent();
+      if (agent && typeof agent.emitSanitizerHit === 'function') {
+        // Resolve roomDir from cwd; if no .room-root chain present the agent
+        // emit helper falls back to graceful no-op (telemetry path is JSONL
+        // primary at ~/.mindrian/telemetry/selector.jsonl per Phase 88.2-03).
+        const roomDir = (function () {
+          let cur = process.cwd();
+          const root = path.parse(cur).root;
+          let hops = 0;
+          while (cur && cur !== root && hops < 12) {
+            try { if (fs.existsSync(path.join(cur, '.room-root'))) return cur; } catch (_e) { /* ignore */ }
+            cur = path.dirname(cur);
+            hops += 1;
+          }
+          return process.cwd();
+        })();
+        for (const patName of Object.keys(detailed.redactions)) {
+          const count = Number(detailed.redactions[patName]) || 0;
+          if (count > 0) {
+            try {
+              agent.emitSanitizerHit(roomDir, {
+                tool_name: toolName,
+                pattern_name: patName,
+                redaction_count: count,
+              });
+            } catch (_e) { /* never throw */ }
+          }
+        }
+      }
+    }
+    // Build envelope with sanitized text (re-use sanitized output from detailed).
+    const envelope = {
+      continue: true,
+      hookSpecificOutput: {
+        hookEventName: 'PostToolUse',
+        updatedToolOutput: {
+          text: (detailed && typeof detailed.text === 'string') ? detailed.text : sanitizer.sanitize(text),
+        },
+      },
+    };
     return emitEnvelope(envelope);
   } catch (_e) {
     return emitPassthrough();

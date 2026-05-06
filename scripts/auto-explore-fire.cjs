@@ -203,6 +203,8 @@ async function main() {
       // candidates produced"); this is more informative for Phase 121 telemetry
       // than the lower-level 'discovery_cycle_missing' / 'rs_engine_missing'.
       try { store.markFailed(roomSlug, material_id, 'all_pipelines_empty'); } catch (_e) { /* ignore */ }
+      // Phase 117-05 telemetry: suppression path emits auto_explore_skipped.
+      try { agent.emitSkipped(roomDir, { material_id: material_id, suppress_reason: 'all_pipelines_empty', tier: 1 }); } catch (_e) { /* ignore */ }
       process.exit(0);
     }
 
@@ -226,14 +228,24 @@ async function main() {
 
     if (!finding) {
       try { store.markFailed(roomSlug, material_id, 'all_pipelines_empty'); } catch (_e) { /* ignore */ }
+      // Phase 117-05 telemetry: suppression path emits auto_explore_skipped.
+      try { agent.emitSkipped(roomDir, { material_id: material_id, suppress_reason: 'all_pipelines_empty', tier: 1 }); } catch (_e) { /* ignore */ }
       process.exit(0);
     }
+
+    // Phase 117-05 telemetry: a finding emerged -- the natural trigger point
+    // to surface the FourLenses (Brain) vs FiveLenses (Canon) drift signal
+    // per Brain Section 8.6 + AUTOEXPLORE-117-18. Idempotent within session
+    // via in-memory cache; safe to call from every fire invocation.
+    try { agent.emitBrainCanonDrift(roomDir); } catch (_e) { /* ignore */ }
 
     // Step 5: Write finding JSON to room/.mindrian/auto-explore-<material_id>.json.
     const findingPath = path.join(roomDir, '.mindrian', 'auto-explore-' + material_id + '.json');
     const wrote = atomicWriteJson(findingPath, finding);
     if (!wrote) {
       try { store.markFailed(roomSlug, material_id, 'room_dir_not_writable'); } catch (_e) { /* ignore */ }
+      // Phase 117-05 telemetry: suppression path emits auto_explore_skipped.
+      try { agent.emitSkipped(roomDir, { material_id: material_id, suppress_reason: 'room_dir_not_writable', tier: 1 }); } catch (_e) { /* ignore */ }
       process.exit(0);
     }
 
@@ -249,6 +261,8 @@ async function main() {
   } catch (_e) {
     // Outer catch -- never let an exception escape; mark failed and exit 0.
     try { store.markFailed(roomSlug, material_id, 'ledger_replay_failed'); } catch (_e2) { /* ignore */ }
+    // Phase 117-05 telemetry: outer-catch emits auto_explore_skipped with ledger_replay_failed.
+    try { agent.emitSkipped(roomDir, { material_id: material_id, suppress_reason: 'ledger_replay_failed', tier: 1 }); } catch (_e2) { /* ignore */ }
     process.exit(0);
   }
 }
