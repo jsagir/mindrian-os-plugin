@@ -389,4 +389,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-06 after Phase 95.2 (install-cache-atomic-recovery-sessionstart-preflight) complete -- v1.13.0-beta.6 hotfix shipped LOCAL with empirical dogfood signal (Canon Part 6 D-13 mandate honored). Three-phase same-day shipping cluster: 89-07 ReverseSalientAgent (beta.4) + 116 unresolved-tension-hook (beta.5) + 95.2 install-cache hotfix (beta.6).*
+*Last updated: 2026-05-07 after Phase 95.5 (post-compact-memory-pipeline-consumer) shipped as v1.13.0-beta.7. Closes the half-wired Phase 95-04 pipeline; READ-side consumer + D-04 YAML stamp + hooks.json wiring + 9/9 D-05 GREEN tests + Canon Part 8 audit clean. Ships substrate that v1.14.0 "The Visible Room" Plan 104-05 will reuse for the content gap dashboard.*
