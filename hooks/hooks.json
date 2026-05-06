@@ -82,6 +82,16 @@
             "timeout": 2000
           }
         ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/preflight-release-drift.cjs\"",
+            "timeout": 2000
+          }
+        ]
       }
     ],
     "PreCompact": [
