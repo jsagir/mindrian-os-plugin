@@ -6,7 +6,7 @@
  *
  * Implementing plan: .planning/phases/88.2-uiux-selector-block/88.2-03-PLAN.md
  *
- * 12 assertions per plan <behavior>:
+ * 14 assertions per plan (12 original + 2 added by 88.2-03 D-AMEND-04):
  *   1.  api_shape                  -- renderShapeF5({tier:1}) returns valid envelope; contract.shape='F.5'
  *   2.  default_branch_verbs       -- with no `verbs` arg, contract.verbs === BRANCH_RESOLUTION_VERBS
  *   3.  free_text_last_invariant   -- with verbs:['Continue','Drop'], output ends with 'Free-Text'
@@ -19,6 +19,8 @@
  *  10.  header_default             -- zones.header matches '-- mindrianOS -- branch -- resolve --'
  *  11.  header_override            -- with header:'CUSTOM', zones.header === 'CUSTOM'
  *  12.  glyph_audit                -- zero unauthorized glyphs in source
+ *  13.  persona_context_cold_start -- personaContext absent -> NO 'lens)' suffix; contract.personaContext === null
+ *  14.  persona_context_warm       -- personaContext='founder' -> '(founder lens)' in header
  *
  * Exit 0 on full pass, non-zero on any failure.
  */
@@ -200,12 +202,44 @@
     }
   }
 
+  // ---- Assertion 13: persona_context_cold_start ----
+  // Cold-start (no personaContext) -> NO suffix; contract.personaContext === null.
+  // Existing 88.2-04 default-header behavior must be byte-stable.
+  {
+    const out = renderShapeF5({ tier: 2 });
+    if (out.zones.header.indexOf(' lens)') !== -1) {
+      fail('persona_context_cold_start',
+        'cold-start carried unexpected lens suffix: ' + JSON.stringify(out.zones.header));
+    } else if (out.contract.personaContext !== null) {
+      fail('persona_context_cold_start',
+        'contract.personaContext should be null; got ' + JSON.stringify(out.contract.personaContext));
+    } else {
+      pass('persona_context_cold_start');
+    }
+  }
+
+  // ---- Assertion 14: persona_context_warm ----
+  // Caller supplies 'founder' -> header carries '(founder lens)'; contract
+  // surfaces the value back for dispatcher telemetry.
+  {
+    const out = renderShapeF5({ tier: 2, personaContext: 'founder' });
+    if (out.zones.header.indexOf('(founder lens)') === -1) {
+      fail('persona_context_warm',
+        'header missing (founder lens) suffix: ' + JSON.stringify(out.zones.header));
+    } else if (out.contract.personaContext !== 'founder') {
+      fail('persona_context_warm',
+        'contract.personaContext should be founder; got ' + JSON.stringify(out.contract.personaContext));
+    } else {
+      pass('persona_context_warm');
+    }
+  }
+
   // ---- Summary ----
   if (failures.length > 0) {
     process.stdout.write('\n' + failures.length + ' failure(s):\n');
     for (const f of failures) process.stdout.write('  - ' + f + '\n');
     process.exit(1);
   }
-  process.stdout.write('\nF.5 OK 12/12\n');
+  process.stdout.write('\nF.5 OK 14/14\n');
   process.exit(0);
 })();

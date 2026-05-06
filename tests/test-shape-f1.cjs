@@ -6,7 +6,7 @@
  *
  * Implementing plan: .planning/phases/88.2-uiux-selector-block/88.2-01-PLAN.md
  *
- * 12 assertions per plan:
+ * 14 assertions per plan (12 original + 2 added by 88.2-03 D-AMEND-04):
  *   1.  api_shape                 -- zones + contract structural fields
  *   2.  default_canonical_verbs   -- default verbs == CANONICAL_VERBS (10), Free-Text last
  *   3.  free_text_last_invariant  -- caller without Free-Text gets Free-Text auto-appended last
@@ -19,6 +19,8 @@
  *   10. header_default            -- default header matches SKILL.md §2 default form
  *   11. header_override           -- explicit `header` arg wins
  *   12. contract_keyboard         -- contract.keyboard === 'askuserquestion'
+ *   13. persona_context_cold_start -- personaContext absent -> NO 'lens)' suffix; contract.personaContext === null
+ *   14. persona_context_warm       -- personaContext='founder' -> '(founder lens)' in header; contract surfaces value
  *
  * Exit 0 on full pass, non-zero on any failure.
  */
@@ -184,12 +186,36 @@
       'contract_keyboard', 'got=' + JSON.stringify(r.contract.keyboard));
   }
 
+  // ---- 13: persona_context_cold_start ----
+  // Cold-start (no personaContext) -> NO suffix; contract.personaContext === null.
+  // Existing 88.2-01 default-header behavior must be byte-stable.
+  {
+    const out = renderShapeF1({ tier: 2 });
+    const ok = out.zones.header.indexOf(' lens)') === -1
+      && out.contract.personaContext === null;
+    assert(ok, 'persona_context_cold_start',
+      'header=' + JSON.stringify(out.zones.header)
+      + ' contract.personaContext=' + JSON.stringify(out.contract.personaContext));
+  }
+
+  // ---- 14: persona_context_warm ----
+  // Caller supplies 'founder' -> header carries '(founder lens)'; contract
+  // surfaces the value back for dispatcher telemetry.
+  {
+    const out = renderShapeF1({ tier: 2, personaContext: 'founder' });
+    const ok = out.zones.header.indexOf('(founder lens)') !== -1
+      && out.contract.personaContext === 'founder';
+    assert(ok, 'persona_context_warm',
+      'header=' + JSON.stringify(out.zones.header)
+      + ' contract.personaContext=' + JSON.stringify(out.contract.personaContext));
+  }
+
   // ---- Summary ----
   if (failures.length > 0) {
     process.stdout.write('\n' + failures.length + ' failure(s):\n');
     for (const f of failures) process.stdout.write('  - ' + f + '\n');
     process.exit(1);
   }
-  process.stdout.write('\nF.1 OK 12/12\n');
+  process.stdout.write('\nF.1 OK 14/14\n');
   process.exit(0);
 })();

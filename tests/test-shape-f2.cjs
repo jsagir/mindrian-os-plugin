@@ -6,7 +6,7 @@
  *
  * Implementing plan: .planning/phases/88.2-uiux-selector-block/88.2-01-PLAN.md
  *
- * 10 assertions per plan:
+ * 12 assertions per plan (10 original + 2 added by 88.2-03 D-AMEND-04):
  *   1.  api_shape                  -- zones + contract structural fields
  *   2.  default_path_control_verbs -- default verbs == PATH_CONTROL_VERBS (5), Free-Text last
  *   3.  free_text_last_invariant   -- caller without Free-Text gets Free-Text auto-appended last
@@ -17,6 +17,8 @@
  *   8.  header_override            -- explicit `header` arg wins
  *   9.  contract_shape             -- contract.shape === 'F.2'
  *   10. glyph_audit                -- body contains zero forbidden glyphs
+ *   11. persona_context_cold_start -- personaContext absent -> NO 'lens)' suffix; contract.personaContext === null
+ *   12. persona_context_warm       -- personaContext='founder' -> '(founder lens)' in header
  *
  * Exit 0 on full pass, non-zero on any failure.
  */
@@ -161,12 +163,36 @@
     if (ok) pass('glyph_audit');
   }
 
+  // ---- 11: persona_context_cold_start ----
+  // Cold-start (no personaContext) -> NO suffix; contract.personaContext === null.
+  // Existing 88.2-01 default-header behavior must be byte-stable.
+  {
+    const out = renderShapeF2({ tier: 2 });
+    const ok = out.zones.header.indexOf(' lens)') === -1
+      && out.contract.personaContext === null;
+    assert(ok, 'persona_context_cold_start',
+      'header=' + JSON.stringify(out.zones.header)
+      + ' contract.personaContext=' + JSON.stringify(out.contract.personaContext));
+  }
+
+  // ---- 12: persona_context_warm ----
+  // Caller supplies 'founder' -> header carries '(founder lens)'; contract
+  // surfaces the value back for dispatcher telemetry.
+  {
+    const out = renderShapeF2({ tier: 2, personaContext: 'founder' });
+    const ok = out.zones.header.indexOf('(founder lens)') !== -1
+      && out.contract.personaContext === 'founder';
+    assert(ok, 'persona_context_warm',
+      'header=' + JSON.stringify(out.zones.header)
+      + ' contract.personaContext=' + JSON.stringify(out.contract.personaContext));
+  }
+
   // ---- Summary ----
   if (failures.length > 0) {
     process.stdout.write('\n' + failures.length + ' failure(s):\n');
     for (const f of failures) process.stdout.write('  - ' + f + '\n');
     process.exit(1);
   }
-  process.stdout.write('\nF.2 OK 10/10\n');
+  process.stdout.write('\nF.2 OK 12/12\n');
   process.exit(0);
 })();
