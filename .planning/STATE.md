@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 89-07-02-PLAN.md (Wave-2 F.0 + persona + telemetry)
-last_updated: "2026-05-06T09:57:05.398Z"
+stopped_at: Completed 116-00-PLAN.md (Wave 0 scaffold preflight)
+last_updated: "2026-05-06T12:30:43.193Z"
 last_activity: 2026-05-06
 progress:
-  total_phases: 43
+  total_phases: 45
   completed_phases: 24
-  total_plans: 200
-  completed_plans: 186
+  total_plans: 208
+  completed_plans: 187
   percent: 82
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 89 — reverse-salient-engine
+**Current focus:** Phase 116 — unresolved-tension-hook
 
 ## Current Position
 
-Phase: 89.1
+Phase: 116 (unresolved-tension-hook) — EXECUTING
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: Not started
+Plan: 2 of 5
 Status: Ready to execute
 
 **For full context, read these in order:**
@@ -243,6 +243,7 @@ Progress: [████████░░] 82%
 | Phase 89-reverse-salient-engine P89-07-00 | 6min | 3 tasks | 13 files |
 | Phase 89-reverse-salient-engine P89-07-01 | 36min | 2 tasks | 4 files |
 | Phase 89-reverse-salient-engine P89-07-02 | 22min | 2 tasks | 5 files |
+| Phase 116-unresolved-tension-hook P00 | 4min | 3 tasks | 10 files |
 
 ### Roadmap Evolution
 
@@ -250,6 +251,7 @@ Progress: [████████░░] 82%
 - Phase 88.7 inserted after Phase 88: power-demo-multipage-export (URGENT) -- Ship /mos:power-demo: evidence-grounded multi-page HTML site for first-contact viewers. Consumes 88.6 outputs. 3-door lobby (thesis/intelligence/provenance), persistent sidebar nav, hover tooltips, timeline page, De Stijl rich text. Parallel-safe with phases 89/90/91. Target: Rubos round two demo on mindrianOS room itself. See CONTEXT.md in phase dir.
 - Phase 94.1 inserted after Phase 94: v1-11-1-mos-heal-command (URGENT) -- Ship /mos:heal slash command + scripts/heal-command.cjs orchestrator wrapping the 10-step room wiring heal recipe (dog-fooded on mindrianOS room 2026-04-29 at ~/MindrianRooms/mindrianOS/methodology/2026-04-29-v1-11-0-room-wiring-heal-process.md). Replaces 94-09 + 94-10 in the v1.11.1 GA stack per pivot decision (deferred-items.md). Plans 94-09 (action-footer polish) and 94-10 (v1.11.2 release-gate) deferred with explicit re-trigger conditions. v1.12 candidate items (FEYNMINTO-01 budget; brain-derivation-queue drain; auto-section-scaffold) named in deferred-items.md.
 - Phase 93 added: v1.11.1 Hotfix -- Install Cache Drift Recovery + Brain Telemetry Visibility (HOTFIX, 3-hour scope). Two production bugs surfaced via dog-fooding during tester onboarding prep. (1) Install cache drift Incident #2 of 2026-04-13 pattern: live install at ~/.claude/plugins/mindrian-os/ stuck on 1.10.10 while marketplace cache had 1.11.0 cached and ready; plugin manager reported "already at latest" while plugin.json said 1.10.10. Affects all users silently. (2) Brain telemetry column-name mismatch: brain-admin.cjs reads request_count + last_used_at; auth.cjs writes total_requests + last_request_at; auth.cjs logUsage() inserts to brain_usage_log with key_id but actual column is api_key. Result: brain_usage_log has 0 rows after 452 captured requests, all silently rejected. Confirmed via Supabase schema probe. Recovery for cache drift executed in current session (mv backup + cp -aT from marketplace cache); restored ~/.claude/plugins/mindrian-os to 1.11.0 with .stale-1.10.10-20260428-095548 backup retained. Phase scope: D1 brain-admin.cjs + auth.cjs column fixes (6 lines, 2 commits), D2 /mos:doctor command with --fix flag for drift detection + auto-recovery, D3 docs/autopsies/2026-04-28-install-cache-drift-incident.md including diagnostic anti-pattern lesson ("don't trust git log when cwd may inherit a parent .git; always git -C <abspath> + test -d <path>/.git first"), D4 regression test for cp -aT recovery, D5 Anthropic upstream bug report draft (held until /mos:doctor exists). Out of scope (deferred to v1.12): /mos:admin narrative command, session-start drift detection extension. Constraints: hotfix discipline (no feature additions, only bug fixes + safety net), same 5-gate release pipeline as v1.11.0.
+- Phase 95.2 inserted after Phase 95: install-cache-atomic-recovery-sessionstart-preflight (URGENT) -- Hardens the install plumbing surfaced by 2026-05-06 dogfood `/mos:doctor --all --json` run on jsagir's machine. Live install dir at `~/.claude/plugins/mindrian-os/` was missing entirely while two stale backups (`mindrian-os.stale-1.10.10-20260428-095548`, `mindrian-os.stale-1.11.0-20260430-083458`) sit alongside in `~/.claude/plugins/`. This is the third occurrence of the install-cache failure family (2026-04-13 wrong-workspace incident + 2026-04-28 install-cache drift incident now joined by 2026-05-06 missing-install-dir incident) -- root cause is non-atomic recovery in scripts/doctor.cjs --fix path: `mv install -> install.stale-X` succeeds, `cp -aT cache install` fails or crashes mid-copy, leaves the system with no live install. Class A doctor logic compounds the problem by treating `install.status === "missing"` as a warning (drift.detected: false) so --fix is not even surfaced as a Next Move. Phase 95.2 deliverables: D1 atomic-swap recovery (cp to install.new, version verify, two-step rename install->install.stale + install.new->install; eliminates half-done state from ever existing), D2 class A --fix eligibility when install.status === "missing" not just on drift detected (currently `drift.detected: false` short-circuits recovery for the missing case), D3 SessionStart preflight class-A check + warning surface (catches drift/missing before user hits a broken command, leverages the existing SessionStart hook that already prints the v1.12.5.1 banner). Scope guard: hotfix discipline -- no new feature surface, only hardens existing recovery. Doctor self-reference: `--all --json` output literally points at this slot via `"fixDeferredTo": "95.2 or human review"` on class F UI compliance findings (separate concern, not addressed here). Milestone: ships as v1.13.0-beta.6 hotfix between beta.4 (in-flight) and beta.2 thesis work; preserves Hooked Model beta narrative while keeping install plumbing trustworthy through the rest of v1.13.0. Canon Parts 6 (dog-fooding mandate -- this plugin is itself a venture; install path is part of the venture surface) + 7 (reuse-before-build -- extends Phase 95.1 doctor infrastructure rather than a parallel surface). Predecessor: Phase 95.1 mos-doctor-drift-detection-and-self-heal. Two prior autopsies in docs/autopsies/ (2026-04-13, 2026-04-28); 2026-05-06 third autopsy to be filed during plan-phase.
 - Phase 95.1 inserted after Phase 95: mos-doctor-drift-detection-and-self-heal (URGENT) -- Extend Phase 93's /mos:doctor command (currently handles drift class A install-cache drift only) with FIVE new silent-failure drift classes surfaced via v1.12.0 fresh-session smoke + late-stage TUI audit (2026-04-30, see room/decisions/v1-12-0-smoke-test/v1-12-0-smoke-test.md, .planning/phases/95-bash-hook-envelope-and-cascade-side-channel/deferred-items-supplement.md, .planning/phases/95.1-mos-doctor-drift-detection-and-self-heal/95.1-DISCUSSION-LOG.md). (B) missing .room-root sentinel: room/ exists but detect_room_section returns no-match because sentinel was never committed; cascade pipeline silently skips. (C) active-room guard silence: post-write evaluates resolve-room "$PWD" against file path; non-active-room writes exit 0 before write_cascade_side_channel; no log, no advisory, indistinguishable from a bug. (D) surface-layer verification gap: phases 80-87 cascade pipeline tested via test/fixtures/cascade-e2e/seed-room/ exclusively; envelope -> Claude Code schema validator -> room-proactive skill -> user render path NEVER tested end-to-end; explains why Phase 88.1-03 + Claude Code 2.x schema tightening combo broke the loop unobserved for ~10 phases. (E) ROOM.md/MINTO.md cascade: dogfood room/ subtree fully non-compliant with Decision #15 (zero ROOM.md, zero MINTO.md across 12 subdirs); Phase 87-01a's pre-commit guard correctly enforces but ships with remediation pointer to scripts/generate-section-intelligence.cjs which has never existed in the repo. (F) UI Ruling System compliance gap: /mos:doctor itself ships non-compliant with skills/ui-system/SKILL.md (mandatory since Phase 80) -- missing 4-zone anatomy, missing body_shape frontmatter, uses unauthorized glyphs (box chars + ✗ not in 12-glyph vocabulary), missing Action Footer; Phase 93's hotfix discipline never retrofitted compliance. Phase 95.1 deliverables: D1 extend /mos:doctor with B/C/D/E/F checks (flag selectors --cascade-rooms / --verify-surface / --room-md / --ui-compliance per D-09), D2 build the missing scripts/generate-section-intelligence.cjs (single-dir + --recursive, skip-if-exists, hand-rolled minimal frontmatter per D-01..D-03), D3 use the dogfood room as integration test fixture, D4 add live-cascade end-to-end test at test/fixtures/cascade-surface-e2e/ (MINDRIAN_ROOMS_ROOT env override, 8-key shape PASS criteria per D-04..D-06), D5 retrofit /mos:doctor itself for UI compliance (Shape E body, glyph cleanup, 4-zone anatomy, F.1 selector for --fix per D-10..D-19). Milestone: v1.12.1 patch (D-07).
 - Phase 102 inserted after Phase 101: context-aware-rendering -- Promote `lib/render/render-v2.cjs` from the Phase 99-03 pass-through stub into the JTBD-aware Phase 102 implementation. Wave 1 = Plan 102-00 (this plan: 6 RENDER-102-* requirement IDs registered + 5 Wave-0 test stubs reserved + lib/render/JTBD-PALETTES.md filed) executed in parallel with sibling Plan 102-01 (render-v2.cjs implementation + Phase 99-03 import-surface byte-stable shim). RENDER-102-01 stable signature `render(zones, mode, operator, tier[, jtbd])`; RENDER-102-02 operator-aware compaction (5 operators -> 5 shape regimes per Canon Part 3 § 3-layer loop); RENDER-102-03 JTBD-aware Zone 4 verb selection drawn from the closed 10-verb MindrianOS-native vocabulary mapped via JTBD-PALETTES.md; RENDER-102-04 _provenance envelope LOCAL-only per Canon Part 8; RENDER-102-05 De Stijl 5-color overlay (cli only; MOS_NO_COLOR=1 strip-ANSI byte-identical fence); RENDER-102-06 Phase 99-03 import-surface byte-stable across the swap (8 IIFE scenarios in lib/render/render-v2.test.cjs preserved unchanged). Mirrors HMI-100/101 block structure. Sibling 102-01 owns the render-v2.cjs muscle; this plan owns the seam (REQ-IDs + test paths + palette asset).
 
@@ -666,6 +668,10 @@ Progress: [████████░░] 82%
 - [Phase 89-reverse-salient-engine]: Wave 2: researcher_ind aliases to 'evidence gap'; founder_grant aliases to 'submission risk' in lib/core/reverse-salient-persona-suffix.cjs (RESEARCH executor discretion)
 - [Phase 89-reverse-salient-engine]: Wave 2: Telemetry NEVER carries reject reason text; reverse_salient_acted_on includes only reason_present boolean. Reason text lives in REJECTED_BECAUSE typed edge (graph-local). Canon Part 8 scalar-only telemetry preserved
 - [Phase 89-reverse-salient-engine]: Wave 2: DEFER emits reverse_salient_acted_on with response='DEFER' rather than separate DEFERRED memory_event type; Phase 116 unresolved-tension-hook reads existing acted_on event with response='DEFER' filter
+- [Phase 116-unresolved-tension-hook]: EVENT_TYPES additive tail-append (size 21 -> 26): Object.freeze invariant preserved, no reorder; provenance comment block cites D-04 + D-04b + D-06 from 116-CONTEXT.md and 89-07 dual-surface telemetry mirror precedent
+- [Phase 116-unresolved-tension-hook]: Wave-0 test stubs PASS today (not RED): scaffold-only stubs verify only EVENT_TYPES substrate; real assertions referencing pending-tension-store.cjs and preflight-tension-surface.cjs land in Waves 1-4 as those modules ship (89-07-00 stub-then-fill precedent)
+- [Phase 116-unresolved-tension-hook]: Cypher patch lands as FILE at Wave 0 but is NOT applied: Brain integrity preserved until v1.13.0-beta.5 release; MERGE shape is idempotent so post-release apply is safe (89-07 Q5 precedent)
+- [Phase 116-unresolved-tension-hook]: Offline snapshot has SCHEMA SHAPE only with framework_chain_predictions empty array: D-02 honors neutral citation framing (no Brain framework chain consumed in v1); forward-compat scaffold for v1.13.x tuning post-empathy-audit
 
 ### Pending Todos
 
@@ -689,6 +695,6 @@ yet.
 
 ## Session Continuity
 
-Last session: 2026-05-06T09:11:41.721Z
-Stopped at: Completed 89-07-02-PLAN.md (Wave-2 F.0 + persona + telemetry)
+Last session: 2026-05-06T12:30:27.085Z
+Stopped at: Completed 116-00-PLAN.md (Wave 0 scaffold preflight)
 Resume file: None

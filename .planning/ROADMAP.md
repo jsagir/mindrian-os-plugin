@@ -1062,7 +1062,7 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 **Canon parts**: Part 4 (Every Choice Is Graph Data), Part 8 (Graph Boundary), Part 10 sub-claim 3 (persistent conversation). Beta target: **v1.13.0-beta.5** (between in-flight beta.4 (89-07) and pending beta.6 (Phase 95.2 hotfix)).
 
 **Plans**: 5 plans
-- [ ] 116-00-PLAN.md -- EVENT_TYPES extension (Set 21 -> 26) + 5 Wave-0 RED test stubs + scaffold harness + cypher patch + offline snapshot (9 deliverables; mirrors 89-07-00)
+- [x] 116-00-PLAN.md -- EVENT_TYPES extension (Set 21 -> 26) + 5 Wave-0 RED test stubs + scaffold harness + cypher patch + offline snapshot (9 deliverables; mirrors 89-07-00)
 - [ ] 116-01-PLAN.md -- Detection substrate: lib/memory/pending-tension-store.cjs (10 exports) + lib/core/navigation/insights.cjs findSurfaceableTensions + scripts/preflight-tension-surface.cjs SessionStart hook entry #7
 - [ ] 116-02-PLAN.md -- F.1 surface: lib/agents/tension-hook-agent.cjs (4 exports incl. surfaceFinding + handleUserResponse + buildResolvedViaEdge) + RESOLVES_VIA cascade edge
 - [ ] 116-03-PLAN.md -- Decay state machine: evaluateAndDecay + getDecayCandidates + 3-strikes rule + cross-session JSONL replay + boundary case
