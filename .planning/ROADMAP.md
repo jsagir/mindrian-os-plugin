@@ -1122,7 +1122,7 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 
 **Canon parts:** Part 2 Engine 1 (Act 1 intelligence surface — auto-fires the triple filter), Part 3 (Tri-Context Decision Gate — F.1 surface), Part 10 sub-claim 5 (triple-filter math runs automatically). Beta target: **v1.13.0-beta.3** ("Loop closes + reward fires" — pairs with Phase 116).
 
-**Plans:** TBD — phase is stubbed; six sub-plans anticipated (117-00 first-material detection hook, 117-01 auto-invocation wiring, 117-02 triple-filter composition, 117-03 Decision Gate F.1 surface, 117-04 SEED-003 A3 sanitizer integration, 117-05 telemetry integration with Phase 121).
+**Plans:** 1/6 plans executed
 
 **Authority**: `.planning/phases/117-auto-explore-domains-on-first-material/117-CONTEXT.md` (stub). Source spec: `docs/CANON-PART-10-PROPOSAL-conversation-as-product.md` (sub-claim 5).
 

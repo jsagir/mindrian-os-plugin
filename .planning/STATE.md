@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 95.2-00-PLAN.md
-last_updated: "2026-05-06T18:03:12.715Z"
+stopped_at: Completed 117-00-PLAN.md (Wave 0 substrate; size 31 + 12 stubs + scaffold + cypher + snapshot)
+last_updated: "2026-05-06T20:57:49.472Z"
 last_activity: 2026-05-06
 progress:
-  total_phases: 45
+  total_phases: 51
   completed_phases: 26
-  total_plans: 208
-  completed_plans: 194
+  total_plans: 220
+  completed_plans: 195
   percent: 82
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 95.2 — install-cache-atomic-recovery-sessionstart-preflight
+**Current focus:** Phase 117 — auto-explore-domains-on-first-material
 
 ## Current Position
 
-Phase: 104
+Phase: 117 (auto-explore-domains-on-first-material) — EXECUTING
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: Not started
-Status: Executing Phase 95.2
+Plan: 2 of 6
+Status: Ready to execute
 
 **For full context, read these in order:**
 
@@ -247,6 +247,7 @@ Progress: [████████░░] 82%
 | Phase 116-unresolved-tension-hook P02 | 14min | 2 tasks | 3 files |
 | Phase 95.2 P01 | 22min | 2 tasks | 5 files |
 | Phase 95.2 P00 | 25 | 2 tasks | 3 files |
+| Phase 117 P00 | 9min | 3 tasks | 17 files |
 
 ### Roadmap Evolution
 
@@ -677,6 +678,7 @@ Progress: [████████░░] 82%
 - [Phase 116-unresolved-tension-hook]: Offline snapshot has SCHEMA SHAPE only with framework_chain_predictions empty array: D-02 honors neutral citation framing (no Brain framework chain consumed in v1); forward-compat scaffold for v1.13.x tuning post-empathy-audit
 - [Phase 95.2]: D-01..D-04 atomic-swap recovery: cp -> verify -> two-step rename pattern with rollback on commit failure
 - [Phase 95.2]: D-05/D-06 missing-install class A eligibility: drift.detected fires on install.status === 'missing' with cache available; drift.reason discriminator added
+- [Phase 117]: Phase 117 ships in v1.13.0-beta.7; Wave 0 lands EVENT_TYPES size 26 -> 31 + 12 stubs + scaffold harness + idempotent Brain cypher (Engine1Layer cluster + cross-domain formula property) + offline snapshot encoding canonical_chain_order + cross_domain_formula + lens_count_drift_acknowledged
 
 ### Pending Todos
 
@@ -700,6 +702,6 @@ yet.
 
 ## Session Continuity
 
-Last session: 2026-05-06T15:39:35.884Z
-Stopped at: Completed 95.2-00-PLAN.md
+Last session: 2026-05-06T20:57:38.733Z
+Stopped at: Completed 117-00-PLAN.md (Wave 0 substrate; size 31 + 12 stubs + scaffold + cypher + snapshot)
 Resume file: None
