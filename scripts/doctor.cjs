@@ -32,9 +32,13 @@ const os = require('os');
 // -- Paths -----------------------------------------------------------
 
 const HOME = os.homedir();
-const INSTALL_DIR = path.join(HOME, '.claude/plugins/mindrian-os');
+// Phase 95.2 D-14: optional MINDRIAN_PLUGIN_HOME override mirrors the
+// MINDRIAN_ROOMS_HOME pattern from 95.1 (line 294). Tests set this to a
+// scratch dir; production users never set it -- defaults to ~/.claude/plugins.
+const PLUGIN_HOME = process.env.MINDRIAN_PLUGIN_HOME || path.join(HOME, '.claude/plugins');
+const INSTALL_DIR = path.join(PLUGIN_HOME, 'mindrian-os');
 const INSTALL_PLUGIN_JSON = path.join(INSTALL_DIR, '.claude-plugin/plugin.json');
-const MARKETPLACE_CACHE_DIR = path.join(HOME, '.claude/plugins/cache/mindrian-marketplace/mos');
+const MARKETPLACE_CACHE_DIR = path.join(PLUGIN_HOME, 'cache/mindrian-marketplace/mos');
 
 // -- ANSI colors -----------------------------------------------------
 
@@ -218,45 +222,112 @@ function checkDevSourceConsistency() {
 }
 
 // -- Recovery --------------------------------------------------------
+// Phase 95.2 D-01..D-04: atomic-swap recovery.
+// Pattern: cp -> verify -> two-step rename. Destructive ops only after
+// non-destructive verification has passed. POSIX rename(2) is atomic on
+// the same filesystem (~/.claude/plugins/ is single-mount in practice).
+// For cross-fs (EXDEV) we fall back to cpSync+rmSync per safeRename().
 
-function performRecovery(installVersion, latestCacheVersion) {
+function performRecoveryAtomic(installVersion, latestCacheVersion) {
   const sourceDir = path.join(MARKETPLACE_CACHE_DIR, latestCacheVersion);
   if (!fs.existsSync(sourceDir)) {
-    return { status: 'error', detail: `marketplace cache for ${latestCacheVersion} not found at ${sourceDir}` };
+    return { status: 'error', detail: `marketplace cache for ${latestCacheVersion} not found at ${sourceDir}`, stage: 'precheck' };
   }
-  // Generate timestamp for backup
+  const installNewDir = INSTALL_DIR + '.new';
   const ts = new Date().toISOString().replace(/[:.]/g, '').replace(/T/, '-').slice(0, 15);
-  const backupDir = path.join(HOME, `.claude/plugins/mindrian-os.stale-${installVersion}-${ts}`);
-  // Step 1: rename current install to backup
+  // Finding F: 'missing' is more truthful than 'unknown' when the install dir doesn't exist.
+  const backupTag = installVersion || (fs.existsSync(INSTALL_DIR) ? 'unknown' : 'missing');
+  const backupDir = path.join(PLUGIN_HOME, `mindrian-os.stale-${backupTag}-${ts}`);
+
+  // Phase 1: prepare install.new (cleanup any stale install.new from a prior failed run -- recover-the-recoverer logic)
   try {
-    fs.renameSync(INSTALL_DIR, backupDir);
+    if (fs.existsSync(installNewDir)) fs.rmSync(installNewDir, { recursive: true, force: true });
   } catch (err) {
-    return { status: 'error', detail: `failed to back up stale install: ${err.message}` };
+    return { status: 'error', detail: `failed to clean prior install.new: ${err.message}`, stage: 'cleanup-installnew' };
   }
-  // Step 2: copy marketplace cache to install location
+
+  // Finding E: hermetic test injection point.
+  if (process.env.MOS_TEST_FORCE_FAIL === 'copy') {
+    return { status: 'error', detail: 'MOS_TEST_FORCE_FAIL=copy injection', stage: 'cp', installNewDir };
+  }
+
+  // Phase 2: cp via fs.cpSync (Finding A; replaces the prior shell-out copy -- Windows-functional, no exec)
   try {
-    copyRecursive(sourceDir, INSTALL_DIR);
+    fs.cpSync(sourceDir, installNewDir, { recursive: true, dereference: false, preserveTimestamps: true });
   } catch (err) {
-    // Try to restore the backup
-    try { fs.renameSync(backupDir, INSTALL_DIR); } catch (_) {}
-    return { status: 'error', detail: `failed to copy marketplace cache: ${err.message} (rollback attempted)` };
+    // install untouched; install.new may be incomplete -- leave for inspection.
+    return { status: 'error', detail: `cp failed: ${err.message}`, stage: 'cp', installNewDir };
   }
-  // Step 3: verify
+
+  // Phase 3: structural version verify (D-02). Read plugin.json from install.new ONLY; do not load any plugin code.
+  if (process.env.MOS_TEST_FORCE_FAIL === 'verify') {
+    return { status: 'error', detail: 'MOS_TEST_FORCE_FAIL=verify injection', stage: 'verify', installNewDir };
+  }
+  try {
+    const pj = JSON.parse(fs.readFileSync(path.join(installNewDir, '.claude-plugin/plugin.json'), 'utf8'));
+    if (pj.version !== latestCacheVersion) {
+      return { status: 'error', detail: `verify failed: install.new version is ${pj.version}, expected ${latestCacheVersion}`, stage: 'verify', installNewDir };
+    }
+  } catch (err) {
+    return { status: 'error', detail: `verify failed: ${err.message}`, stage: 'verify', installNewDir };
+  }
+
+  // Phase 4: two-step atomic-swap.
+  // Phase 4a: mv install -> install.stale-X (only if install exists). Finding D safeRename for cross-fs.
+  let backedUp = false;
+  if (fs.existsSync(INSTALL_DIR)) {
+    if (process.env.MOS_TEST_FORCE_FAIL === 'rename-old') {
+      return { status: 'error', detail: 'MOS_TEST_FORCE_FAIL=rename-old injection', stage: 'backup-mv', installNewDir };
+    }
+    try {
+      safeRename(INSTALL_DIR, backupDir);
+      backedUp = true;
+    } catch (err) {
+      // install untouched (rename didn't complete); install.new left for inspection.
+      return { status: 'error', detail: `backup mv failed: ${err.message}`, stage: 'backup-mv', installNewDir };
+    }
+  }
+
+  // Phase 4b: mv install.new -> install. The atomic moment.
+  if (process.env.MOS_TEST_FORCE_FAIL === 'commit') {
+    // Simulate post-backup commit failure -> trigger D-03 rollback path.
+    if (backedUp) {
+      try { safeRename(backupDir, INSTALL_DIR); } catch (_) { /* double failure; user must recover manually */ }
+    }
+    return { status: 'error', detail: 'recovery failed -- live install restored from backup; investigate manually', stage: 'commit-rollback', exitCode: 4 };
+  }
+  try {
+    safeRename(installNewDir, INSTALL_DIR);
+  } catch (err) {
+    // D-03 rollback: restore from backup so live install is recovered to pre-recovery state.
+    if (backedUp) {
+      try { safeRename(backupDir, INSTALL_DIR); }
+      catch (_) { /* double failure; backup remains on disk for manual recovery */ }
+    }
+    return { status: 'error', detail: `recovery failed -- live install restored from backup; investigate manually (root: ${err.message})`, stage: 'commit-rollback', exitCode: 4 };
+  }
+
+  // Phase 5: post-swap verification (cheap re-check; should-never-fail given Phase 3 already passed).
   const after = checkInstallVersion();
   if (after.status !== 'ok' || after.version !== latestCacheVersion) {
-    return { status: 'error', detail: `post-recovery verification failed: install version is ${after.version || 'unknown'}, expected ${latestCacheVersion}`, backup: backupDir };
+    return { status: 'error', detail: `post-swap verify mismatch: install version is ${after.version || 'unknown'}, expected ${latestCacheVersion}`, backup: backedUp ? backupDir : null };
   }
-  return { status: 'ok', backup: backupDir, recoveredVersion: latestCacheVersion };
+  return { status: 'ok', backup: backedUp ? backupDir : null, recoveredVersion: latestCacheVersion };
 }
 
-function copyRecursive(src, dst) {
-  // Use cp -aT — preserves attributes, treats dst as the new target (no nesting)
-  const { execSync } = require('child_process');
-  execSync(`cp -aT ${shellQuote(src)} ${shellQuote(dst)}`);
-}
-
-function shellQuote(s) {
-  return "'" + String(s).replace(/'/g, "'\\''") + "'";
+// Finding D: rename(2) is atomic on the same filesystem; cpSync+rmSync fallback for EXDEV.
+function safeRename(src, dst) {
+  try {
+    fs.renameSync(src, dst);
+  } catch (err) {
+    if (err && err.code === 'EXDEV') {
+      // Cross-filesystem move; copy + delete (NOT atomic, but only path that works across mounts).
+      fs.cpSync(src, dst, { recursive: true, dereference: false, preserveTimestamps: true });
+      fs.rmSync(src, { recursive: true, force: true });
+      return;
+    }
+    throw err;
+  }
 }
 
 // -- Shared helpers for class B/C/E checks ---------------------------
@@ -1231,7 +1302,7 @@ function main() {
     recovered: [],  // unified array of recovery records across all classes.
   };
 
-  // Drift detection (class A).
+  // Drift detection (class A) -- widened in Phase 95.2 D-05/D-06.
   if (installResult.status === 'ok' && cacheResult.status === 'ok') {
     if (installResult.parsed && cacheResult.latestParsed) {
       const cmp = cmpVersion(installResult.parsed, cacheResult.latestParsed);
@@ -1240,17 +1311,33 @@ function main() {
         compare: cmp,
       };
     }
+  } else if (installResult.status === 'missing'
+             && cacheResult.status === 'ok'
+             && cacheResult.versions
+             && cacheResult.versions.length > 0) {
+    // Phase 95.2 D-05: missing install with available cache is a recoverable drift case.
+    report.drift = { detected: true, reason: 'install-missing' };
   }
+
+  // Phase 95.2 D-07: install.recoverable (pure addition; preserves byte-stability of existing fields).
+  // True iff the cache holds at least one valid version. Lets automation distinguish
+  // 'can fix automatically' from 'needs manual intervention' without parsing cache.versions[].
+  report.install.recoverable = (cacheResult.status === 'ok' && cacheResult.versions && cacheResult.versions.length > 0);
 
   // Class A recovery (existing behavior preserved; result also pushed onto
   // the unified report.recovered array for class B/C/D/E/F co-existence).
+  // Phase 95.2 D-01..D-04: now uses performRecoveryAtomic with two-step atomic-swap.
   if (flags.fix && report.drift.detected) {
-    const result = performRecovery(installResult.version, cacheResult.latest);
+    const result = performRecoveryAtomic(installResult.version, cacheResult.latest);
     if (result.status === 'ok') {
       report.classARecovered = result;
       report.recovered.push({ tool: 'install-cache', status: 'ok', version: result.recoveredVersion, backup: result.backup });
     } else {
       report.recoveryError = result.detail;
+      // Phase 95.2 D-03: distinguish rollback exit (code 4) from regular failure (code 1).
+      if (result.exitCode === 4 || result.stage === 'commit-rollback') {
+        report.recoveryRolledBack = true;
+      }
     }
   }
 
@@ -1347,10 +1434,18 @@ function main() {
   if (classFlagsActive) {
     process.exit(0);
   }
-  if (installResult.status !== 'ok' || cacheResult.status !== 'ok') process.exit(3);
-  if (!report.drift.detected) process.exit(0);
+  // Phase 95.2 exit-code chain (additive; preserves existing 0/1/2/3 semantics, adds 4).
+  // 0 = healthy (no drift detected).
+  // 1 = drift detected (read-only mode OR --fix didn't run).
+  // 2 = drift detected and recovered via --fix.
+  // 3 = internal error (cache unreadable, or install in 'error' state -- not 'missing').
+  // 4 = recovery attempted but rolled back to backup state (D-03).
+  if (cacheResult.status !== 'ok') process.exit(3);
+  if (installResult.status === 'error') process.exit(3);
+  if (report.recoveryRolledBack) process.exit(4);
   if (report.classARecovered) process.exit(2);
-  process.exit(1);
+  if (report.drift.detected) process.exit(1);
+  process.exit(0);
 }
 
 main();
