@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 116-00-PLAN.md (Wave 0 scaffold preflight)
-last_updated: "2026-05-06T12:30:43.193Z"
+stopped_at: Completed 116-01-PLAN.md (Wave 1 detection substrate)
+last_updated: "2026-05-06T13:00:00.000Z"
 last_activity: 2026-05-06
 progress:
   total_phases: 45
   completed_phases: 24
   total_plans: 208
-  completed_plans: 187
+  completed_plans: 188
   percent: 82
 ---
 
@@ -29,8 +29,8 @@ Phase: 116 (unresolved-tension-hook) — EXECUTING
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: 2 of 5
-Status: Ready to execute
+Plan: 3 of 5
+Status: Ready to execute (Wave 1 substrate shipped; Wave 2 F.1 dispatch next)
 
 **For full context, read these in order:**
 
