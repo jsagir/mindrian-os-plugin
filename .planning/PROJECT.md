@@ -353,4 +353,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-06 after Phase 89 (reverse-salient-engine) complete — ReverseSalientAgent ships as canonical agentic-surfacing template, v1.13.0-beta.4 LOCAL tagged*
+*Last updated: 2026-05-06 after Phase 116 (unresolved-tension-hook) complete — second consumer of AGENTIC-SURFACING-PATTERN.md after 89-07; closes Hooked Model Loop Closure axis (3/10 -> 8/10 projected, validation week gated). v1.13.0-beta.5 LOCAL tagged.*

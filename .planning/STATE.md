@@ -4,13 +4,13 @@ milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
 stopped_at: Completed 116-02-PLAN.md (F.1 surface + RESOLVES_VIA cascade)
-last_updated: "2026-05-06T12:59:12.238Z"
+last_updated: "2026-05-06T13:56:58.751Z"
 last_activity: 2026-05-06
 progress:
   total_phases: 45
-  completed_phases: 24
+  completed_phases: 25
   total_plans: 208
-  completed_plans: 189
+  completed_plans: 191
   percent: 82
 ---
 
@@ -25,11 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 116 (unresolved-tension-hook) — EXECUTING
+Phase: 116
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: 4 of 5
+Plan: Not started
 Status: Ready to execute
 
 **For full context, read these in order:**
