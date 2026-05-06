@@ -112,6 +112,7 @@ function composeLarryVoiceDirective(args) {
 function main() {
   let navigation;
   let pendingStore;
+  let agent;
   try {
     navigation = require('../lib/core/navigation.cjs');
     pendingStore = require('../lib/memory/pending-tension-store.cjs');
@@ -119,13 +120,36 @@ function main() {
     // Substrate missing -- pre-Phase-109 install or partial repo. Silent.
     return emitEmpty();
   }
+  // Lazy-loaded; agent is optional for telemetry only -- load failure must
+  // never block the hook (Wave-4 telemetry is best-effort per CONTEXT.md D-04).
+  try {
+    agent = require('../lib/agents/tension-hook-agent.cjs');
+  } catch (_e) {
+    agent = null;
+  }
 
   const roomDir = resolveRoomDir();
   const roomSlug = roomSlugFromDir(roomDir);
   const dbPath = path.join(roomDir, '.mindrian', 'room.db');
 
   // Tier 0: room.db missing (pre-Phase-109 user / brand-new room). Silent per D-10.
+  // Wave 4: still emit tension_detected per Pitfall 5 (CONTEXT.md D-04c). The
+  // emit best-effort returns {ok:false, reason:'db_not_initialized'} because
+  // the mirror needs the same db that doesn't exist; the silent envelope still fires.
   if (!fs.existsSync(dbPath)) {
+    if (agent) {
+      try {
+        agent.emitDetected(roomDir, { id: '', tension_type: '' }, {
+          tier: 0,
+          surfaced: false,
+          suppress_reason: 'tier_0',
+          surfacing_count: 0,
+          source_edge_count: 0,
+          brain_offline_flag: true,
+          selection_priority: 0,
+        });
+      } catch (_e) { /* never throw on telemetry */ }
+    }
     return emitEmpty();
   }
 
@@ -152,7 +176,28 @@ function main() {
     // 116-01). Wave 4 (116-04) consumes decayResult.droppedTensionIds to emit
     // tension_decayed memory_event for Phase 121 trajectory-telemetry.
     const decayResult = pendingStore.evaluateAndDecay(roomSlug);
-    void decayResult; // Wave-4 telemetry will mirror droppedTensionIds.
+
+    // Wave 4: emit one tension_decayed event per dropped tension_id (D-04b).
+    // evaluation_pass_id ties the batch to a single decay sweep so Phase 121
+    // can join the population without depending on wall-clock equality.
+    if (agent
+        && decayResult
+        && Array.isArray(decayResult.droppedTensionIds)
+        && decayResult.droppedTensionIds.length > 0) {
+      const passId = require('node:crypto')
+        .createHash('sha256')
+        .update(roomSlug + ':' + Date.now())
+        .digest('hex')
+        .slice(0, 32);
+      for (const tid of decayResult.droppedTensionIds) {
+        try {
+          agent.emitDecayed(roomDir, tid, {
+            surfacing_count: 3,
+            evaluation_pass_id: passId,
+          });
+        } catch (_e) { /* never throw on telemetry */ }
+      }
+    }
 
     let candidates = [];
     try {
@@ -166,7 +211,23 @@ function main() {
     }
 
     // D-09: silent when navigation returns zero candidates.
+    // Wave 4: still emit tension_detected per Pitfall 5 (D-04c) with
+    // suppress_reason='no_candidates' so Phase 121 trajectory-telemetry
+    // sees the suppression cohort.
     if (!Array.isArray(candidates) || candidates.length === 0) {
+      if (agent) {
+        try {
+          agent.emitDetected(roomDir, { id: '', tension_type: '' }, {
+            tier: 1,
+            surfaced: false,
+            suppress_reason: 'no_candidates',
+            surfacing_count: 0,
+            source_edge_count: 0,
+            brain_offline_flag: true,
+            selection_priority: 0,
+          });
+        } catch (_e) { /* never throw on telemetry */ }
+      }
       return emitEmpty();
     }
 
@@ -196,6 +257,38 @@ function main() {
       // JSONL write failed -- defensively continue and still emit the directive
       // so the user is not silently stuck. The next session start will re-attempt
       // the JSONL append (idempotent by tension_id LWW).
+    }
+
+    // Wave 4: emit tension_detected (surfaced:true) + tension_surfaced after
+    // appendTension lands the queued state. The Canon-Part-8-clean finding
+    // built here carries IDs + section names ONLY (no body_text / titles).
+    const finding = {
+      id: top.tension_id,
+      tension_type: top.tension_type,
+      source_node_id: top.source_node_id,
+      target_node_id: top.target_node_id,
+      source_section: top.source_section,
+      target_section: top.target_section,
+    };
+    if (agent) {
+      try {
+        agent.emitDetected(roomDir, finding, {
+          tier: 1,
+          surfaced: true,
+          suppress_reason: null,
+          surfacing_count: 0,
+          source_edge_count: 1,
+          brain_offline_flag: true,
+          selection_priority: top.tension_type === 'contradiction' ? 1 : 2,
+        });
+      } catch (_e) { /* never throw on telemetry */ }
+      try {
+        agent.emitSurfaced(roomDir, finding, {
+          tier: 1,
+          surfacing_count: 1,
+          f1_verb_count: 4,
+        });
+      } catch (_e) { /* never throw on telemetry */ }
     }
 
     const additionalContext = composeLarryVoiceDirective({
