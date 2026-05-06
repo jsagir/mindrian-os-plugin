@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 116-02-PLAN.md (F.1 surface + RESOLVES_VIA cascade)
-last_updated: "2026-05-06T13:56:58.751Z"
-last_activity: 2026-05-06
+stopped_at: Completed 95.2-01-PLAN.md
+last_updated: "2026-05-06T15:36:52.223Z"
+last_activity: 2026-05-06 -- Phase 95.2 execution started
 progress:
   total_phases: 45
   completed_phases: 25
   total_plans: 208
-  completed_plans: 191
+  completed_plans: 192
   percent: 82
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 116 — unresolved-tension-hook
+**Current focus:** Phase 95.2 — install-cache-atomic-recovery-sessionstart-preflight
 
 ## Current Position
 
-Phase: 116
+Phase: 95.2 (install-cache-atomic-recovery-sessionstart-preflight) — EXECUTING
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: Not started
-Status: Ready to execute
+Plan: 1 of 3
+Status: Executing Phase 95.2
 
 **For full context, read these in order:**
 
@@ -117,7 +117,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-06
+Last activity: 2026-05-06 -- Phase 95.2 execution started
 
 Progress: [████████░░] 82%
 
@@ -245,6 +245,7 @@ Progress: [████████░░] 82%
 | Phase 89-reverse-salient-engine P89-07-02 | 22min | 2 tasks | 5 files |
 | Phase 116-unresolved-tension-hook P00 | 4min | 3 tasks | 10 files |
 | Phase 116-unresolved-tension-hook P02 | 14min | 2 tasks | 3 files |
+| Phase 95.2 P01 | 22min | 2 tasks | 5 files |
 
 ### Roadmap Evolution
 
@@ -696,6 +697,6 @@ yet.
 
 ## Session Continuity
 
-Last session: 2026-05-06T12:59:12.230Z
-Stopped at: Completed 116-02-PLAN.md (F.1 surface + RESOLVES_VIA cascade)
+Last session: 2026-05-06T15:36:52.215Z
+Stopped at: Completed 95.2-01-PLAN.md
 Resume file: None
