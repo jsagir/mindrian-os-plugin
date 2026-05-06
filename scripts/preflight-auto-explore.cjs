@@ -3,6 +3,7 @@
  * Copyright (c) 2026 Mindrian. BSL 1.1.
  *
  * Phase 117-01 Wave 1 -- SessionStart preflight + stale-sweep recovery.
+ * Phase 117-03 Wave 2 -- SessionStart drain extension (orphan recovery + Desktop fallback).
  *
  * In Wave 1 this hook ONLY:
  *   1. Resolves roomDir + roomSlug
@@ -12,12 +13,18 @@
  *      detection can fire fresh)
  *   3. Exits envelope continue:true (no additionalContext yet)
  *
- * In Wave 2 (117-03) this hook gains:
- *   4. Glob room/.mindrian/auto-explore-*.json for completed-but-unsurfaced findings
- *   5. Compose Larry-voice directive in additionalContext
- *   6. Set state='surfaced' in ledger after directive emits
+ * In Wave 2 (this plan) this hook ALSO:
+ *   4. Globs room/.mindrian/auto-explore-*.json for completed-but-unsurfaced findings
+ *   5. Mirrors auto-explore-drain.cjs flow (selectTopFinding + surfaceFinding)
+ *   6. Composes Larry-voice directive in additionalContext (hookEventName='SessionStart')
+ *   7. Marks surfaced=true in ledger after directive emits
  *
- * Per Canon Part 8: zero outbound network surface, zero brain-client require.
+ * This is the SessionStart-recovery path: orphan findings from a previous
+ * session OR Desktop-mode users (no PostToolUse hook on Desktop) recover
+ * via SessionStart instead of UserPromptSubmit. The two drains share logic
+ * but differ in hookEventName.
+ *
+ * Per Canon Part 8: zero outbound network surface, zero remote-MCP-client require.
  * Per Phase 109 D-06: zero direct room-db.cjs require (chokepoint preserved).
  *
  * ALWAYS exits 0; never blocks the hook chain. uncaughtException catcher
@@ -27,8 +34,19 @@
  */
 'use strict';
 
+const fs = require('node:fs');
 const path = require('node:path');
+
 const store = require('../lib/memory/explored-materials-store.cjs');
+
+// Lazy-loaded; agent is optional for the drain extension only -- load failure
+// must never block the SessionStart hook chain (Wave-1 sweep still runs).
+let agent = null;
+try {
+  agent = require('../lib/agents/auto-explore-agent.cjs');
+} catch (_e) {
+  agent = null;
+}
 
 // ---------- Envelope helpers (mirrors scripts/preflight-tension-surface.cjs) ----------
 
@@ -36,6 +54,8 @@ const ENVELOPE_ALLOWED = new Set([
   'decision', 'reason', 'continue', 'stopReason',
   'suppressOutput', 'systemMessage', 'hookSpecificOutput',
 ]);
+const HOOK_EVENT_NAME = 'SessionStart';
+const MAX_FINDINGS_PER_TURN = 1;
 
 function emitEnvelope(envelope) {
   const filtered = {};
@@ -57,11 +77,6 @@ function emitEmpty() {
 // must NEVER trip the user's session start.
 process.on('uncaughtException', () => emitEmpty());
 
-// Defensive: process.on('unhandledRejection') not attached because Wave 1
-// preflight has zero async surface (sweepStaleInFlight is sync). Wave 2
-// (117-03) adds the UserPromptSubmit drain which DOES touch async fs ops;
-// at that point an unhandledRejection catcher will be added alongside.
-
 // ---------- Room resolution ----------
 
 function resolveRoomDir() {
@@ -73,6 +88,142 @@ function resolveRoomDir() {
 
 function roomSlugFromDir(roomDir) {
   return path.basename(roomDir);
+}
+
+// ---------- Finding file globber (mirrors auto-explore-drain.cjs) ----------
+
+function readFindingFiles(roomDir) {
+  const dir = path.join(roomDir, '.mindrian');
+  if (!fs.existsSync(dir)) return [];
+  let entries;
+  try {
+    entries = fs.readdirSync(dir);
+  } catch (_e) {
+    return [];
+  }
+  const out = [];
+  for (const name of entries) {
+    if (!name.startsWith('auto-explore-')) continue;
+    if (!name.endsWith('.json')) continue;
+    if (name.indexOf('.tmp.') !== -1) continue;
+    const full = path.join(dir, name);
+    try {
+      const raw = fs.readFileSync(full, 'utf8');
+      const finding = JSON.parse(raw);
+      if (finding && finding.id && finding.material_id) out.push(finding);
+    } catch (_e) {
+      // skip corrupt
+    }
+  }
+  return out;
+}
+
+// ---------- Larry-voice directive (BQ-anchored per Brain Section 8.5) ----------
+
+function composeDirective(finding, bqLine) {
+  const tid = String(finding.id || '');
+  const sec = String(finding.source_section || 'this material');
+  const tdScore = Number(finding.top_differential_score || 0);
+  const lines = [
+    'PENDING AUTO-EXPLORE FINDING (load-bearing for v1.13.0 closed loop):',
+    '',
+    'I scanned your ' + sec + '. ' + bqLine,
+    '',
+    'Top differential: ' + String(finding.top_differential || '<unspecified>') +
+      '  (score ' + tdScore.toFixed(3) + ')',
+  ];
+  if (tdScore >= 0.7) {
+    lines.push('');
+    lines.push('RECOMMENDED: Explore (top_differential_score >= 0.7 per Phase 88.2 invariant).');
+  }
+  lines.push('');
+  lines.push('INSTRUCTION FOR LARRY: At this turn, render the BQ-anchored line above');
+  lines.push('verbatim, then dispatch F.1 Next Move selector via AskUserQuestion with');
+  lines.push('verbs = ["Explore", "Skip", "Later"]. Finding id = ' + tid + '.');
+  lines.push('When user picks an option, call lib/agents/auto-explore-agent.cjs::handleUserResponse');
+  lines.push('with this finding_id and the user-pick verb.');
+  return lines.join('\n');
+}
+
+// ---------- Top finding selection (cap to MAX_FINDINGS_PER_TURN) ----------
+
+function selectTopFinding(findings, ledgerEntries) {
+  const respondedIds = new Set();
+  const surfacedNotResponded = new Set();
+  for (const e of ledgerEntries) {
+    if (!e || !e.material_id) continue;
+    if (e.user_response) respondedIds.add(e.material_id);
+    else if (e.surfaced === true) surfacedNotResponded.add(e.material_id);
+  }
+  const eligible = findings.filter(function (f) {
+    return !respondedIds.has(f.material_id) && !surfacedNotResponded.has(f.material_id);
+  });
+  if (eligible.length === 0) return null;
+  if (!agent || typeof agent.populateHSIAnalysis !== 'function') {
+    // Agent unavailable: fall back to score-only ranking.
+    eligible.sort(function (a, b) { return Number(b.score || 0) - Number(a.score || 0); });
+    return eligible[0];
+  }
+  const populated = eligible.map(function (f) { return agent.populateHSIAnalysis(f); });
+  populated.sort(function (a, b) {
+    return Number(b.top_differential_score || 0) - Number(a.top_differential_score || 0);
+  });
+  return populated.slice(0, MAX_FINDINGS_PER_TURN)[0];
+}
+
+// ---------- Drain extension (Wave 2) ----------
+
+function tryDrain(roomDir, roomSlug) {
+  if (!agent || typeof agent.surfaceFinding !== 'function') return null;
+  const findings = readFindingFiles(roomDir);
+  if (findings.length === 0) return null;
+
+  let ledger = [];
+  try {
+    ledger = store.readMaterials(roomSlug);
+  } catch (_e) {
+    ledger = [];
+  }
+
+  const top = selectTopFinding(findings, ledger);
+  if (!top) return null;
+
+  const operator = String(process.env.MINDRIAN_OPERATOR || 'AUTONOMOUS');
+  const tier = Number.isFinite(Number(process.env.MINDRIAN_TIER)) ? Number(process.env.MINDRIAN_TIER) : 1;
+
+  let surface;
+  try {
+    surface = agent.surfaceFinding({
+      finding: top,
+      roomDir: roomDir,
+      operator: operator,
+      tier: tier,
+    });
+  } catch (_e) {
+    return null;
+  }
+
+  if (!surface || !surface.surfaced) return null;
+
+  // Mark surfaced=true in ledger.
+  try {
+    store.appendMaterial(roomSlug, {
+      material_id: String(top.material_id),
+      file_path_sha256: String(top.file_path_sha256 || ''),
+      relative_file_path: '',
+      mtime_seconds: 0,
+      fired_at: Date.now(),
+      state: 'completed',
+      finding_count: 1,
+      surfaced: true,
+      user_response: null,
+      responded_at: null,
+      suppress_reason: null,
+      in_flight_since: null,
+    });
+  } catch (_e) { /* graceful */ }
+
+  return composeDirective(top, surface.bq_line || '');
 }
 
 // ---------- Main ----------
@@ -87,13 +238,29 @@ function main() {
     return emitEmpty();
   }
 
-  // Wave 1: 5-min stale-sweep recovery only.
-  // Wave 2 (117-03) will add UserPromptSubmit drain + F.1 surface composition.
+  // Wave 1: 5-min stale-sweep recovery.
   try {
     store.sweepStaleInFlight(roomSlug, { staleMs: 300000 });
   } catch (_e) {
-    // Sweep failure is benign -- the next session start will retry; the user
-    // is never blocked. Log nothing per dual-surface telemetry contract.
+    // Sweep failure is benign -- the next session start will retry.
+  }
+
+  // Wave 2: drain orphan findings from previous session OR Desktop fallback.
+  let directive = null;
+  try {
+    directive = tryDrain(roomDir, roomSlug);
+  } catch (_e) {
+    directive = null;
+  }
+
+  if (directive) {
+    return emitEnvelope({
+      continue: true,
+      hookSpecificOutput: {
+        hookEventName: 'SessionStart',
+        additionalContext: directive,
+      },
+    });
   }
 
   return emitEmpty();
