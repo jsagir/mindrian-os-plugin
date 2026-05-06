@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 89-07-01-PLAN.md (Wave-1 substrate)
-last_updated: "2026-05-06T08:42:06.150Z"
+stopped_at: Completed 89-07-02-PLAN.md (Wave-2 F.0 + persona + telemetry)
+last_updated: "2026-05-06T09:11:55.125Z"
 last_activity: 2026-05-06
 progress:
   total_phases: 43
   completed_phases: 23
   total_plans: 200
-  completed_plans: 184
+  completed_plans: 185
   percent: 82
 ---
 
@@ -29,7 +29,7 @@ Phase: 89 (reverse-salient-engine) — EXECUTING
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
 Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: 3 of 11
+Plan: 4 of 11
 Status: Ready to execute
 
 **For full context, read these in order:**
@@ -242,6 +242,7 @@ Progress: [████████░░] 82%
 | Phase 88.2 P06 | 35min | 3 tasks | 7 files |
 | Phase 89-reverse-salient-engine P89-07-00 | 6min | 3 tasks | 13 files |
 | Phase 89-reverse-salient-engine P89-07-01 | 36min | 2 tasks | 4 files |
+| Phase 89-reverse-salient-engine P89-07-02 | 22min | 2 tasks | 5 files |
 
 ### Roadmap Evolution
 
@@ -661,6 +662,10 @@ Progress: [████████░░] 82%
 - [Phase 89-reverse-salient-engine]: Wave-1 mapping basis: rs-engine OUTPUT direction field (not invocation MODE) drives the 5-way cascade-edge selection per RESEARCH SCOPE B Section 2
 - [Phase 89-reverse-salient-engine]: Generic upsertEdge(conn, {type, source, target, properties}) primitive added to lazygraph-ops.cjs as the typed-edge chokepoint reusable by Phase 89-07 Wave 2/3 + Phase 116/117/118/120 sibling agents (Canon Part 7 reuse-before-build)
 - [Phase 89-reverse-salient-engine]: Lazy require pattern for emitFindingEdge: lazygraph-ops required INSIDE function body (not at module load) so cascade-emit tests substitute require.cache slot before first emit call without forcing agent module re-require
+- [Phase 89-reverse-salient-engine]: Wave 2: Suppression checks (tier=0, JUST_TALK) short-circuit BEFORE pickShape() so the agent owns canonical suppress_reason vocabulary ('tier_0' / 'just_talk') rather than translating dispatcher error codes
+- [Phase 89-reverse-salient-engine]: Wave 2: researcher_ind aliases to 'evidence gap'; founder_grant aliases to 'submission risk' in lib/core/reverse-salient-persona-suffix.cjs (RESEARCH executor discretion)
+- [Phase 89-reverse-salient-engine]: Wave 2: Telemetry NEVER carries reject reason text; reverse_salient_acted_on includes only reason_present boolean. Reason text lives in REJECTED_BECAUSE typed edge (graph-local). Canon Part 8 scalar-only telemetry preserved
+- [Phase 89-reverse-salient-engine]: Wave 2: DEFER emits reverse_salient_acted_on with response='DEFER' rather than separate DEFERRED memory_event type; Phase 116 unresolved-tension-hook reads existing acted_on event with response='DEFER' filter
 
 ### Pending Todos
 
@@ -684,6 +689,6 @@ yet.
 
 ## Session Continuity
 
-Last session: 2026-05-06T08:41:54.334Z
-Stopped at: Completed 89-07-01-PLAN.md (Wave-1 substrate)
+Last session: 2026-05-06T09:11:41.721Z
+Stopped at: Completed 89-07-02-PLAN.md (Wave-2 F.0 + persona + telemetry)
 Resume file: None
