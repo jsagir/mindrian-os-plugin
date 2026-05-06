@@ -237,6 +237,8 @@ Test 4 of test-auto-explore-fire.cjs (end-to-end fire on tmp room) takes ~60s be
 - VERIFIED: CANONICAL_CHAIN_ORDER === ['domain','trends','reverse-salients','cross-domain']
 - VERIFIED: CROSS_DOMAIN_THRESHOLD === 0.85
 
+**Final commit:** `f38c226` (docs metadata + STATE + ROADMAP).
+
 ---
 *Phase: 117-auto-explore-domains-on-first-material*
 *Completed: 2026-05-07*
