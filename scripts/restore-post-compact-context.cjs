@@ -82,33 +82,54 @@ function parseStamp(content) {
 }
 
 // --- Step 3: active-room resolution (RESEARCH Q4 recommendation) ---
+//
+// Resolution strategy:
+//   1. Read canonical registry at ~/MindrianRooms/.rooms/registry.json --
+//      this is the AUTHORITATIVE source for both room path AND last_opened
+//      (D-04b belt-and-suspenders mtime cross-check).
+//   2. Fall back to lib/core/folder-memory.cjs::getCurrentRoom(workDir) --
+//      Phase 94-01 STATE.md contract. Returns { slug, path: <STATE.md
+//      absolute path>, source }. We derive the room dir via dirname()
+//      since in all 3 resolveCanonicalStateMd strategies, dirname(STATE.md)
+//      is the room directory by construction. last_opened unavailable on
+//      this path -- D-04b becomes a no-op (returns true / "trust file").
+//
+// Registry-first ordering is correct because:
+//   (a) the registry is per-user globally canonical (cwd-independent)
+//   (b) registry exposes last_opened; STATE.md does not
+//   (c) STATE.md slug + cwd-relative resolution can mis-target if user's
+//       cwd happens to contain a STATE.md unrelated to the active room.
 function getActiveRoom(workDir) {
+  // Strategy 1: canonical registry read.
+  try {
+    const registryPath = path.join(os.homedir(), 'MindrianRooms', '.rooms', 'registry.json');
+    const reg = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+    if (reg && reg.active && reg.rooms && reg.rooms[reg.active]) {
+      const entry = reg.rooms[reg.active];
+      let roomPath = entry.path;
+      if (!path.isAbsolute(roomPath)) {
+        const root = (reg.root || '~/MindrianRooms').replace(/^~/, os.homedir());
+        roomPath = path.resolve(root, roomPath);
+      }
+      return {
+        slug: reg.active,
+        path: roomPath,
+        last_opened: entry.last_opened || null,
+      };
+    }
+  } catch (_) {}
+  // Strategy 2: STATE.md anchor via folder-memory.cjs.
   try {
     const fm = require(path.join(__dirname, '..', 'lib', 'core', 'folder-memory.cjs'));
     if (typeof fm.getCurrentRoom === 'function') {
       const r = fm.getCurrentRoom(workDir);
       if (r && r.slug && r.path) {
-        return { slug: r.slug, path: r.path, last_opened: null };
+        const roomDir = path.dirname(r.path);
+        return { slug: r.slug, path: roomDir, last_opened: null };
       }
     }
   } catch (_) {}
-  // Fallback: read canonical registry directly.
-  try {
-    const registryPath = path.join(os.homedir(), 'MindrianRooms', '.rooms', 'registry.json');
-    const reg = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
-    if (!reg || !reg.active || !reg.rooms || !reg.rooms[reg.active]) return null;
-    const entry = reg.rooms[reg.active];
-    let roomPath = entry.path;
-    if (!path.isAbsolute(roomPath)) {
-      const root = (reg.root || '~/MindrianRooms').replace(/^~/, os.homedir());
-      roomPath = path.resolve(root, roomPath);
-    }
-    return {
-      slug: reg.active,
-      path: roomPath,
-      last_opened: entry.last_opened || null,
-    };
-  } catch (_) { return null; }
+  return null;
 }
 
 // --- Step 4: cross-room validation (D-04 + D-04b) ---
