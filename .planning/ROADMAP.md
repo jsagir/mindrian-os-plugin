@@ -1053,6 +1053,35 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 **Authority**: `.planning/phases/113-wasm-everywhere-spike/113-CONTEXT.md` (stub). The thesis question this spike answers: *"Does Mindrian's intelligence survive without infrastructure?"*
 
 
+### Phase 95.5: Post-Compact Memory Pipeline -- Consumer Wiring (REGISTERED 2026-05-06 -- READY FOR DISCUSSION)
+
+**Goal**: Close the half-wired post-compact memory pipeline. Phase 95-04 ships the WRITE side: scripts/post-compact saves the full restored TRIPLE_CONTEXT (per-section memory triple: Feynman + MINTO + Brain) to `<roomDir>/.mindrian/last-post-compact.md` as a side-channel file because Claude Code 2.x PostCompact schema does NOT accept hookSpecificOutput. Phase 95.5 ships the READ side: a session-start consumer that reads the side-channel file and re-injects the TRIPLE_CONTEXT block into the next session as additionalContext, so memory survives auto-compact boundaries inside a single session (not just across full session restarts). Also updates the now-stale `lib/memory/post-compact-reinjection.test.cjs` (7/9 failing today) to assert the new contract: side-channel file presence + content + freshness, not the deprecated stdout TRIPLE_CONTEXT shape.
+
+**Requirements**: POSTCOMPACT-95.5-01 (consumer reads side-channel file at session-start), POSTCOMPACT-95.5-02 (re-injects via additionalContext on the SessionStart envelope), POSTCOMPACT-95.5-03 (cleanup after consume to prevent stale re-injection on a later truly-fresh session), POSTCOMPACT-95.5-04 (test suite asserts new contract; old stdout assertions retired), POSTCOMPACT-95.5-05 (byte-identity invariant: post-compact write + session-start read produce the same TRIPLE_CONTEXT block as pure session-start emit, given identical inputs)
+
+**Depends on**: Phase 95-04 (write-side side-channel writer -- shipped) + Phase 88-08 (pre-compact-snapshot.json producer -- shipped) + Phase 88-07 (triple-context-formatter.cjs single source of truth -- shipped)
+
+**Canon parts**: Part 9 (Memory Locality and Interpretation -- the entire pipeline keeps user content LOCAL throughout; no Brain egress at any point) + Part 7 (Reuse Before Build -- session-start consumer extends existing scripts/session-start hook, does not fork)
+
+**Plans**: 6 plans (planned 2026-05-06 via /gsd:plan-phase 95.5)
+- [ ] 95.5-00-PLAN.md -- Wave 0 scaffold: 9 RED test stubs (D-05 contract) + consumer stub at scripts/restore-post-compact-context.cjs + tests/test-95.5-00-scaffold.sh + Feynman runner registration confirmation
+- [ ] 95.5-01-PLAN.md -- Back-port scripts/post-compact write side: D-04 YAML frontmatter stamp (source_room_path + source_room_slug + written_at + schema_version: 1) at lines 58-72; atomic mktemp + mv -f preserved
+- [ ] 95.5-02-PLAN.md -- Build consumer scripts/restore-post-compact-context.cjs: 8 helper functions + main, mirrors preflight-doctor.cjs template, implements D-01..D-04 + D-04b + D-07
+- [ ] 95.5-03-PLAN.md -- Wire hooks/hooks.json SessionStart entry #9 (length 8 -> 9): idempotent Node JSON.stringify re-serialization (95.2 B4 fix precedent), matcher startup|clear|compact, timeout 3000ms
+- [ ] 95.5-04-PLAN.md -- Test suite GREEN flip: 9/9 tests pass against shipped scripts/post-compact stamp + scripts/restore-post-compact-context.cjs consumer; Phase 91 Feynman HARD STOP gate clean
+- [ ] 95.5-05-PLAN.md -- Release plumbing: 5-gate version sync (CHANGELOG + plugin.json + package.json + LOCAL git tag v1.13.0-beta.7); marketplace ref-pin DEFERRED per 95.2 precedent
+
+**Success Criteria** (what must be TRUE):
+1. After auto-compact in a session with an active room: the next user turn renders with TRIPLE_CONTEXT visible in Claude's working context (verifiable by asserting Larry references section-specific MINTO content the user filed pre-compact)
+2. session-start consumer reads `<roomDir>/.mindrian/last-post-compact.md` if present + fresh (< 10 min old, mirroring post-compact's pre-compact-state.json staleness contract)
+3. Stale or absent side-channel file -> session-start falls back to its existing live readTriple walk (no regression)
+4. After successful consumption, the side-channel file is removed (or marked consumed) so the NEXT genuinely-fresh session does not re-inject stale post-compact context
+5. `lib/memory/post-compact-reinjection.test.cjs` updated: 9/9 pass against new contract (side-channel file shape + freshness + byte-identity invariant); old stdout assertions retired
+6. Phase 91 Feynman runner: zero NEW failures referencing post-compact / reinjection / triple-context
+
+**Authority**: `.planning/phases/95.5-post-compact-memory-pipeline-consumer/95.5-CONTEXT.md` (TBD via /gsd:discuss-phase 95.5). Source spec: scripts/post-compact comment block lines 23-37 ("CONSUMER ... NOT YET WIRED in Phase 95 - deferred to Phase 95.5 or 96"); memory project_post_compact_memory_pipeline.md.
+
+
 ### Phase 116: Unresolved Tension Hook (PLANNED 2026-05-06 -- READY FOR EXECUTION)
 
 **Goal**: Persistent tension surfacing -- every state transition registers a `pending_tension` that re-surfaces via `SessionStart` hook in Larry's voice using F.1 Next Move selector. Closes the habit loop (Eyal/Hooked) so MindrianOS becomes "tool that calls you back" not "tool you summon." Load-bearing LOOP-CLOSURE fix from the dormant 2026-04-12 Hooked audit (both audits scored Loop Closure at exactly 3/10). Implements Canon Part 10 sub-claim 3 (persistent conversation across sessions).
