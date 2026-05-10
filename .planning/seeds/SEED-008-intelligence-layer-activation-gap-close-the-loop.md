@@ -55,6 +55,10 @@ companion_artifacts:
 
 The "insight sensors" the Brain's beautiful-question node asked for are not a vague aspiration -- they are a concrete, enumerable set. This list is the contract for *what* the Navigation Engine / proactive hooks must fire (the *how* is the 3-sub-loop scope above). It splits into event-driven sensors and scheduled sensors.
 
+**The rigorous, executable version of this list is `docs/UI-UX-CONVERGENCE-2026-05-10/00c-TRIGGER-MAP.md`** -- Brain-derived (Mode A): the stage-axis sensors (Pre-Opportunity -> Opportunity Identified -> Problem Validation -> Well-Defined Problem -> Ready to Build, from the Brain's `TYPICAL_AT` edges) with their problem-type gates, the event-driven sensors INCLUDING the **deep-research escalation sensor** (the strictest gate on the map: fire only when cheap-layer-thin OR load-bearing-claim-with-low-evidence-near-commit OR hat-affordance-includes-it; scoped White->arxiv / Green->patents+arxiv+deep-research / Black->failure-cases, and by section), the scheduled sensors (incl. `/mos:scout`), the meta/orchestrator commands, the local-graph contract (reads/writes per trigger), the memory-context contract (the 3 layers), and the closed-loop cycle. The prose tables below are the summary; `00c` is the spec.
+
+**Important correction (2026-05-10):** the Navigation Engine -- **Phase 91** -- already SHIPPED (v1.11.0, 2026-05-01: `lib/core/navigation-engine.cjs` `decide()`, the UserPromptSubmit integration, the 8-field trace contract, the tier modes). The gap is not "build Phase 91" -- it is "wire the shipped engine to the graph + Brain + the trigger map": `decide()` returns `fire_skill: null` / `routing_source: legacy` because it reads file-presence, not `{local graph + BRAIN.md + 00c}`. The v1.13.0 closing-the-loop work is therefore *wiring* (candidate vehicle: a new small phase "91.6 navigation-engine-graph-wiring", ~2-3 days, OR fold into Phase 95 + Phase 109). This is the single change that flips `routing_source: legacy -> engine`. See `00c` Section 9.
+
 **Event-driven sensors (fire on a conversation/state signal):**
 
 | Signal | Fires | Phase(s) | Today's status |
