@@ -85,7 +85,7 @@ yet executed; otherwise becomes a standalone follow-up phase (Phase 115.1).
    blocks, version-comparison helpers).
 
 4. A sibling scanner (`scripts/check-no-emdash.cjs`) blocks em-dashes
-   (`--` / `—` / `–`) from any greeting-copy file. Catches the
+   (double-hyphen `--`, U+2014 EM DASH, U+2013 EN DASH) from any greeting-copy file. Catches the
    second half of the original 2026-05-07 finding.
 
 5. Dogfood verification: a test stamps `1.99.0-test` into plugin.json,
@@ -98,7 +98,17 @@ yet executed; otherwise becomes a standalone follow-up phase (Phase 115.1).
 Related code and decisions found in the current codebase:
 
 - `scripts/session-start` lines 440-484 -- the no-room mode-routing branch
-  that currently inlines the v1.12.0 "Three ways" copy with em-dashes.
+  that inlines hard-coded greeting copy with no version stamp. The 2026-05-07
+  stale-install report observed em-dashes in this section from a v1.12.0-era
+  cached version of the plugin running on a Windows tester machine; the
+  CURRENT canonical source at HEAD uses double-hyphens (`--`), NOT em-dashes
+  (U+2014). The em-dash issue is therefore a STALE-INSTALL surface, not a
+  current-source bug. The version-stamp gap (no `[MindrianOS v{version}]`
+  prefix on the greeting header) IS still present in current source and is
+  the load-bearing reverse-salient for this seed. A future Phase 115 plan-phase
+  reading this breadcrumb should NOT conclude the seed is closeable just
+  because em-dashes are absent from current source -- check the version-stamp
+  presence FIRST.
 - `lib/copy/115-spec-strings.cjs` -- existing canonical-copy module from
   Phase 115 (`INITIAL_PROMPT_DEFAULT`, `NEW_PROJECT_OPENER`). The
   version-stamp helper should land here as `firstTouchHeader(version)`.

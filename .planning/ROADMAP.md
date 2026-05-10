@@ -891,6 +891,16 @@ Plans:
 **Outcome:** Phase 95 ships as v1.12.0 (2026-04-29). 7 bash hooks envelope-clean against Claude Code 2.x schema. `<roomDir>/.mindrian/last-cascade.json` and `<roomDir>/.mindrian/last-post-compact.md` side-channel files installed (LOCAL only per Canon Part 8). `room-proactive` skill restored to functional state for the first time since Phase 88.1-03 shipped (Plan 95-03). Three regression tests fence the bash hook envelope shapes + side-channel atomic write + SKILL.md contract (27/27 envelope scenarios GREEN: 16 + 5 + 6). Cursor-branch divergence intentionally preserved per `.planning/phases/95-bash-hook-envelope-and-cascade-side-channel/95-01-AUDIT.md`. PostCompact context-preservation half-wired (writer landed; consumer queued for Phase 95.5/96 per release-process.md transparency).
 
 
+### Phase 95.6: install-cache-windows-hardening-and-skill-loop-resilience (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 95
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 95.6 to break down)
+
 ### Phase 95.2: Install Cache Atomic Recovery + SessionStart Preflight (INSERTED)
 
 **Goal:** Harden the install-cache recovery path in `scripts/doctor.cjs` after a third occurrence of the install-cache failure family on the dogfood machine (2026-05-06; live install dir missing while two stale backups sit alongside). Three deliverables: D1 atomic-swap recovery (eliminate half-done state), D2 class A `--fix` eligibility for `install.status === "missing"` (currently only fires on `drift.detected: true`), D3 SessionStart preflight class-A check + warning surface. Ships as v1.13.0-beta.6 hotfix between beta.4 (in-flight) and the beta.2 thesis work. Forward-protective only -- machines already in missing-install state get the patch via `--fix` from cache, which already works.
