@@ -25,16 +25,23 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 104
+Phase: 95.6 (install-cache-windows-hardening-and-skill-loop-resilience) -- CRITICAL URGENCY
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
-Beta: beta.1 SHIPPED 2026-05-05 (substrate: Phase 108 + Phase 109)
-Next phase: 114 (larry-default-activation) -- in beta.2
-Plan: Not started
-Status: Executing Phase 95.5
+Beta: beta.9 (target 2026-06-01 per NATO Defense College Rome June course; ideal 2026-05-23 for 8-day Lawrence dogfood window)
+Next phase: 95.6 plan-phase invocation -- 7 planning artifacts ready (see `.planning/phases/95.6-install-cache-windows-hardening-and-skill-loop-resilience/`)
+Plan: 95.6-01-PLAN.md exists (D-02 rename, partial); generate remaining 9-10 plans via `/gsd:plan-phase 95.6`
+Status: 95.6 planning artifacts complete + committed (a7ec823); awaiting plan-phase generation + Tier 1 execution
+Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
+Soft deadline: 2026-05-11 EOD (maintainer's public commitment to Lawrence + Gary on 2026-05-09 install call)
+
+**Why 95.6 displaced 114 as the next phase (2026-05-10):**
+
+Phase 114 (larry-default-activation) was the prior "next phase" per the v1.13.0 beta.2 plan. Phase 95.6 was inserted urgently after 2026-05-08 Wave-2 critical tester (Gary Laben, Hopkins advisory board head) install failure on Windows 11 surfaced 6 distinct production bugs in the install-cache failure family. The NATO Defense College Rome June 2026 deadline gates 95.6's Tier 1 minimum-viable subset (D-02 + D-03 + D-01 + D-05a + D-09) hard. Phase 114 stays in queue but moves to AFTER 95.6 ships as v1.13.0-beta.9. Phase 95.5 (post-compact memory pipeline consumer) is REGISTERED but not actively executing; "Status: Executing Phase 95.5" line was stale and corrected here.
 
 **For full context, read these in order:**
 
-1. `.planning/SESSION-HANDOFF.md` (resume entry point, read first)
+0. `.planning/phases/95.6-install-cache-windows-hardening-and-skill-loop-resilience/95.6-CONTEXT.md` (Priority Hierarchy at top, 11 decisions D-01..D-11, Companion Artifacts section listing reading order)
+1. `.planning/SESSION-HANDOFF.md` (resume entry point, read second)
 2. `.planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md` (canonical plan)
 3. `docs/CANON-PART-10-PROPOSAL-conversation-as-product.md` (constitutional thesis)
 4. `.planning/MILESTONES-NAMING.md` Arc 4 entry (renamed 2026-05-05)
