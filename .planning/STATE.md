@@ -721,7 +721,7 @@ yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260420-gg7 | Draft MINDRIAN-CANON.md product canon with 8 principles + cross-references | 2026-04-20 | b7d95bd | [260420-gg7-draft-mindrian-canon-md-product-canon-wi](./quick/260420-gg7-draft-mindrian-canon-md-product-canon-wi/) |
-| 260510-or6 | docs/UI-UX-CONVERGENCE-2026-05-10 bundle -- 11 files: diagnose, JTBD, systems analysis, two reverse salients, contradiction audit, 10-decision survey, tester-evidence design brief, Minto convergence + dev-phase instructions, live-Brain Mode-A re-run, activation-gap critical finding | 2026-05-10 | d17726c | [260510-or6-create-docs-ui-ux-convergence-2026-05-10](./quick/260510-or6-create-docs-ui-ux-convergence-2026-05-10/) |
+| 260510-or6 | docs/UI-UX-CONVERGENCE-2026-05-10 bundle -- 11 files: diagnose, JTBD, systems analysis, two reverse salients, contradiction audit, 10-decision survey, tester-evidence design brief, Minto convergence + dev-phase instructions, live-Brain Mode-A re-run, activation-gap critical finding | 2026-05-10 | 9ab9a77 | [260510-or6-create-docs-ui-ux-convergence-2026-05-10](./quick/260510-or6-create-docs-ui-ux-convergence-2026-05-10/) |
 
 ## Session Continuity
 
