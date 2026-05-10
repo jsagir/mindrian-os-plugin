@@ -99,14 +99,14 @@ async function executeBundle(bundle, opts) {
   // Execute SQL against room.db when present and tier permits.
   if (bundle && bundle.sql && opts.room_dir) {
     try {
-      const conn = await lazygraphOps.openGraph(opts.room_dir);
+      const { conn, db } = await lazygraphOps.openGraph(opts.room_dir);
       try {
         const sqlRows = await lazygraphOps.queryGraph(conn, bundle.sql, bundle.sql_params || []);
         if (Array.isArray(sqlRows)) {
           for (let i = 0; i < sqlRows.length; i += 1) out.rows.push(sqlRows[i]);
         }
       } finally {
-        if (typeof lazygraphOps.closeGraph === 'function') await lazygraphOps.closeGraph(conn);
+        if (typeof lazygraphOps.closeGraph === 'function') await lazygraphOps.closeGraph(db);
       }
     } catch (err) {
       // Local SQL failure is non-fatal at the bundle level; trace via _errors.

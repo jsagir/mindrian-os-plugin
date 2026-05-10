@@ -102,7 +102,7 @@ function detectTier(opts) {
 
 async function readThesisTier0(discoveryId, roomDir) {
   const dbPath = path.join(roomDir, '.mindrian', 'room.db');
-  const conn = await lazygraphOps.openGraph(roomDir);
+  const { conn, db } = await lazygraphOps.openGraph(roomDir);
   try {
     const sql = 'SELECT id, thesis, rs_type, breakthrough_score, room_slug, created_at FROM rs_discoveries WHERE id = ? LIMIT 1';
     const rows = await lazygraphOps.queryGraph(conn, sql, [discoveryId]);
@@ -119,7 +119,7 @@ async function readThesisTier0(discoveryId, roomDir) {
       },
     };
   } finally {
-    if (typeof lazygraphOps.closeGraph === 'function') await lazygraphOps.closeGraph(conn);
+    if (typeof lazygraphOps.closeGraph === 'function') await lazygraphOps.closeGraph(db);
     void dbPath; // referenced for future symbolic helpers
   }
 }
