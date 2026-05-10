@@ -28,9 +28,9 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 95.6 (install-cache-windows-hardening-and-skill-loop-resilience) -- CRITICAL URGENCY
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.9 (target 2026-06-01 per NATO Defense College Rome June course; ideal 2026-05-23 for 8-day Lawrence dogfood window)
-Next phase: 95.6 plan-phase invocation -- 7 planning artifacts ready (see `.planning/phases/95.6-install-cache-windows-hardening-and-skill-loop-resilience/`)
-Plan: 95.6-01-PLAN.md exists (D-02 rename, partial); generate remaining 9-10 plans via `/gsd:plan-phase 95.6`
-Status: 95.6 planning artifacts complete + committed (a7ec823); awaiting plan-phase generation + Tier 1 execution
+Next phase: 95.6 EXECUTION -- `/gsd:execute-phase 95.6` (plans complete + checked 2026-05-10)
+Plan: 95.6 fully planned -- 10 plans (95.6-01..10) across 4 waves. Wave 0 = 95.6-02 (test scaffold + `skills/mullins-scaffold/SKILL.md` backfill + `tests/manual/95.6-windows-cold-install-acceptance.md` + `tests/run-all.sh` wiring). Wave 1 = 95.6-01 (D-02 rename), 03 (D-03 install.sh skill-loop hardening), 04 (D-01 Windows long-path preflight), 05 (D-09 statusline + /mos:doctor class H + first-session auto-doctor), 06 (D-05a release.sh Step 9.5 npm gate). Wave 2 = 95.6-07 (D-05b/c, Tier 2, defer_to_beta:10), 08 (D-05d/e/f + D-10 + D-11, Tier 2), 09 (D-04/06/07 docs+compliance, Tier 3). Wave 3 = 95.6-10 (D-08 release gate -- bundle v1.13.0-beta.9 per CLAUDE.md MANDATORY release process, gated on `tests/run-all-956.sh` green AND the Windows cold-install manual gate as a BLOCKING human-verify checkpoint).
+Status: 95.6 plans complete + plan-checked (1 blocker + 2 nits found and fixed in revision); 95.6-RESEARCH.md gained a "## Validation Architecture" section and 95.6-VALIDATION.md created (Nyquist Dimension 8, commit aad8efe); ROADMAP.md Phase 95.6 row finalized. READY FOR `/gsd:execute-phase 95.6` -- Tier 1 set (01,02,03,04,05,06,10) gates beta.9; Tier 2/3 (07,08,09) defer to beta.10 under NATO pressure.
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: 2026-05-11 EOD (maintainer's public commitment to Lawrence + Gary on 2026-05-09 install call)
 
@@ -124,7 +124,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-10 - Completed quick task 260510-or6: docs/UI-UX-CONVERGENCE-2026-05-10 bundle (UI/UX convergence + activation-gap critical finding)
+Last activity: 2026-05-10 - Planned Phase 95.6 (10 plans, checked + revised; ready for /gsd:execute-phase 95.6) + quick task 260510-or6 (UI-UX convergence bundle + SEED-008)
 
 Progress: [████████░░] 82%
 
