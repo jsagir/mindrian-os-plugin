@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 95.5 — post-compact-memory-pipeline-consumer
+**Current focus:** Phase 95.6 (install-cache-windows-hardening-and-skill-loop-resilience) -- 10 plans complete + plan-checked 2026-05-10; READY for `/gsd:execute-phase 95.6` (HARD deadline 2026-06-01, NATO). Phase 95.5 (post-compact-memory-pipeline-consumer) is registered but not actively executing. New v1.13.0 phases added 2026-05-10: 91.6 (navigation-engine-graph-wiring) + 95.7 (sentinel-and-instrumentation-hardening) -- see `.planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md` Phase Inventory + `.planning/seeds/SEED-008` + `docs/UI-UX-CONVERGENCE-2026-05-10/`.
 
 ## Current Position
 
