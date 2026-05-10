@@ -12,7 +12,7 @@
 - v1.13.0-beta.1 SHIPPED -- Substrate (Phase 108 + 109)
 - v1.13.0-beta.2 -- "Larry leads" (Phase 88.2 finish + 89-07 finish + 114 + 115 + SEED-003 A1+A4)
 - v1.13.0-beta.3 -- "Loop closes + reward fires" (Phase 116 + 117 + SEED-003 A3)
-- v1.13.0 final -- "Full closed loop" (Phase 118 + 119 + 120 + SEED-003 A2)
+- v1.13.0 final -- "Full closed loop" (Phase 118 + 119 + 120 + Phase 121.5 terminal-coherence capstone + SEED-003 A2) -- Phase 121.5 is the LAST phase before the FINAL RELEASE GATE
 
 **Canonical plan:** `.planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md`
 **Resume entry point:** `.planning/SESSION-HANDOFF.md`
@@ -1203,6 +1203,23 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 **Plans:** TBD — phase is stubbed; six sub-plans anticipated (121-00 schema definition + writer module, 121-01 PostToolUse hook for `/mos:*`, 121-02 empathy-audit harness hook, 121-03 Phase 116 tension-engagement capture, 121-04 Phase 117 auto-explore acceptance capture, 121-05 documentation + Part 8 compliance audit). ~12 hours total (~1.5 days, slightly over the 1-day estimate).
 
 **Authority**: `.planning/phases/121-trajectory-telemetry/121-CONTEXT.md` (stub). Related seed: `.planning/seeds/SEED-002-agent-lightning-lab-loop.md`. Future consumption pattern: arXiv 2508.03680 (agent-lightning paper).
+
+
+### Phase 121.5: Terminal Coherence Capstone (INSERTED — REGISTERED 2026-05-10, STUB, LAST PHASE BEFORE v1.13.0 FINAL RELEASE GATE)
+
+**Goal:** Take everything v1.13.0 already built — Larry-by-default (114), the owned emotion (115), the tension hook (116), the auto-explore reward (117), the selector library (88.2), the context-aware renderer (102), the statusline broadcast (106), the JTBD engine (100/104), the MINTO surface plumbing (88.1) — and make the **Claude Code terminal** express it as ONE coherent product instead of N independently-shipped surfaces. Acknowledge first, plan second, ship third, then the gate. Eight sub-plans: (A) SessionStart Coordinator — single script, precedence ladder, hard token budget, ends the ~11-injector turn-1 flood that causes Larry's occasional session-start incoherence; (B) `body_shape:` frontmatter sweep across the ~47 undeclared commands + ship `output-styles/destijl.md` with `force-for-plugin: true` (system-prompt-level 4-zone enforcement, verified-real CC feature); (C) SKILL.md v2 reconciliation — add Shape F.0/F.6, fold in Phase 102's dual palette, resolve the `🎯` overload + "JTBD" word collision; (D) two-row statusline (identity row + situation row) + `references/visual/palette.json` as canonical De Stijl palette source-of-truth + wire `statusline-mos` as the canonical `settings.json` path; (E) render-v2 disposition decision + close Phase 102 with a VERIFICATION.md; (F) version-of-record stamp on every first-touch surface (SEED-007 absorption) + stale-copy scanner; (G) truth-telling + housekeeping — delete the stray empty `.planning/phases/40-hook-expansion/` dir, fix the Phase 88.7 ROADMAP "1/1 complete" lie, audit `context-monitor`'s active-phase mtime scan; (H) the coherence smoke test — fresh-install walk where a human reads the terminal at every step and can answer who/job/runway/next. This phase introduces NO new product surface — consolidation only (Canon Part 7). It is the precondition for the Canon Part 10 ratification at the final gate: if the terminal is incoherent, "conversation as the product" isn't demonstrated.
+
+**Requirements**: TBD (COHERENCE-121.5-01..NN — defined when CONTEXT.md is expanded; five Open Design Decisions must be resolved with Jonathan before `/gsd:plan-phase 121.5`: the SessionStart precedence ladder, the combined token budget, palette keep-vs-rebrand, `🎯`/"JTBD" disambiguate-vs-document, render-v2 wire-vs-freeze).
+
+**Depends on:** Phases 88.1, 88.2, 102, 104, 105, 106 (shipped); 114, 115, 116 (human-needed gates pending); 117 (shipped); 119 (final wave); 121 (spans beta.1→final). **Dependents:** the v1.13.0 FINAL RELEASE GATE (this is the last substantive work before it); Canon Part 10 ratification. Runtime ordering: runs AFTER 118/119/120/121, immediately BEFORE the FINAL RELEASE GATE.
+
+**Canon parts:** Part 3 (UI Ruling System enforcement pass), Part 4 (coordinator decisions + compliance signals mirror to telemetry; no side-channel printing), Part 7 (consolidation only — any NEW file must REPLACE/reconcile N existing things), Part 8 (coordinator telemetry is local-only, scalar/enum/hash payloads only), Part 10 (the terminal must coherently express "conversation as the product" — precondition for ratification). Beta target: **v1.13.0 final** (last phase before the FINAL RELEASE GATE).
+
+**Plans:** TBD — phase is stubbed; eight sub-plans anticipated (121.5-00 design-decision resolution + plan structure, 121.5-01 SessionStart Coordinator, 121.5-02 body_shape sweep + output style, 121.5-03 SKILL.md v2 reconciliation, 121.5-04 two-row statusline + palette.json + statusline-mos wiring, 121.5-05 render-v2 disposition + Phase 102 closure, 121.5-06 version-of-record + stale-copy scanner, 121.5-07 housekeeping + truth-telling, 121.5-08 coherence smoke test + final-gate-readiness sign-off). ~3-4 days.
+
+**Reference doc (TREAT AS REFERENCE, NOT SPEC):** `.planning/phases/121.5-terminal-coherence-capstone/121.5-REFERENCE-destijl-guide-annotated.md` — an external "De Stijl Full UI/UX Implementation Guide" verified against Claude Code docs 2026-05-10. ~1/3 buildable (output-style `force-for-plugin`, two-row statusline, the semantic vocabulary), ~1/3 regression (env-var-room-state via UserPromptSubmit hooks — the bridge file already exists for exactly this reason; skill-frontmatter SessionStart hooks), ~1/3 fabricated (custom theme JSON files, `statusLine.refreshInterval`). The annotated copy carries the verdicts inline.
+
+**Authority**: `.planning/phases/121.5-terminal-coherence-capstone/121.5-CONTEXT.md` (stub, scaffolded 2026-05-10). Related seed: `.planning/seeds/SEED-007-version-dynamic-first-touch-greeting.md` (absorbed as sub-plan F). Audit provenance: three UI/UX audits + the parallel-research SessionStart-flood note, all 2026-05-10.
 
 
 ---

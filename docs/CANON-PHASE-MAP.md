@@ -162,6 +162,7 @@ Phases 114-120 implement Part 10 across the v1.13.0 milestone. Phase 100 (JTBD I
 | planned  | Phase 119 room-as-receipt-invariant | Part 2, Part 6, Part 10 | final | sub-claim 3 of Part 10 |
 | planned  | Phase 120 breakthrough-scan-category-g | Part 2 Engine 1, Part 10 | final | Hooked Fix 3 (Category G) |
 | planned  | Phase 121 trajectory-telemetry | Part 8 | beta.1.5 -> final | .planning/phases/121-trajectory-telemetry/121-CONTEXT.md (stub); feeds SEED-002 |
+| planned  | Phase 121.5 terminal-coherence-capstone -- LAST PHASE before FINAL RELEASE GATE | Part 3, Part 4, Part 7, Part 8, Part 10 | final | .planning/phases/121.5-terminal-coherence-capstone/121.5-CONTEXT.md (stub, scaffolded 2026-05-10). Consolidates every UI/UX surface shipped across v1.13.0 into one coherent Claude Code terminal experience: SessionStart Coordinator, body_shape sweep + output-styles/destijl.md (force-for-plugin), SKILL.md v2 reconciliation, two-row statusline + canonical palette.json, render-v2 disposition + Phase 102 closure, version-of-record first-touch (SEED-007 absorbed), housekeeping/truth-telling, coherence smoke test. NO new surface -- Part 7 consolidation only. Precondition for Part 10 ratification at the gate. Reference: 121.5-REFERENCE-destijl-guide-annotated.md (external De Stijl guide, verified vs CC docs, ~1/3 buildable). |
 
 ### Appendix A - Relationship to MWP
 
