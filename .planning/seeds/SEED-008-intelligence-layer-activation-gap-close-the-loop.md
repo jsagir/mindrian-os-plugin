@@ -51,6 +51,31 @@ companion_artifacts:
 2. **The Brain / web loop (medium; Part-8-constrained).** Heuristic "insight sensors" first (the Brain's own `action: Create smart triggers` -- plural, lightweight): first-material -> `explore-domains` + `brain_framework_chain($problem_type, $current_frameworks)`; methodology moment -> Brain `CHAINS_TO` query; external-fact reference -> WebSearch, hat-scoped per Canon Part 2; JTBD set -> re-weight selector menus + Brain queries (Phase 104). The `brain_framework_chain` / `brain_find_patterns` patterns already exist in `references/brain/query-patterns.md` -- nobody calls them automatically. Cheap v1.
 3. **The unifier (Phase 91 full Navigation Engine).** Replaces the heuristic sensors with a calibrated classifier. The v2.
 
+## The Trigger List -- what the activation layer must auto-fire (added 2026-05-10)
+
+The "insight sensors" the Brain's beautiful-question node asked for are not a vague aspiration -- they are a concrete, enumerable set. This list is the contract for *what* the Navigation Engine / proactive hooks must fire (the *how* is the 3-sub-loop scope above). It splits into event-driven sensors and scheduled sensors.
+
+**Event-driven sensors (fire on a conversation/state signal):**
+
+| Signal | Fires | Phase(s) | Today's status |
+|---|---|---|---|
+| First material in a session (paste of a doc / first substantive turn) | `/mos:explore-domains` (5-lens decomposition) + `/mos:whitespace` (HSI gap map) + `brain_framework_chain($problem_type)` | 117, 91 | not wired (empty room, Lawrence's P1) |
+| Conversation has a "lagging component" shape ("X is holding everything back", "the bottleneck is...") | `/mos:find-bottlenecks` / the reverse-salient engine (rs-fetch) | 89 (engine shipped), 91 | engine works; never auto-triggered |
+| Methodology decision point reached | `brain_framework_chain` (CHAINS_TO next-framework) | 91 | the query pattern exists in `references/brain/query-patterns.md`, never auto-invoked |
+| External-fact reference (competitor / market / state-of-the-art) | WebSearch, hat-scoped per Canon Part 2 (White=data/arxiv, Green=patents, Black=failure-cases) | 91 | not wired |
+| JTBD set or changed | re-weight selector menus + re-weight Brain queries via `ADDRESSES_PROBLEM_TYPE` | 104 | signal captured (v1.12.3); not consumed |
+| Artifact filed | cross-relationship cascade scan -> surface findings to Larry mid-session | 88.1-03 (broken since shipped), 95 (plumbing fix), 91 (Larry acts on it) | computed; never delivered |
+| Milestone / gate approach | breakthrough scan / Category G (Phase 120) + investor-objection surface | 120, 91 | not wired |
+
+**Scheduled sensors (fire on a cadence -- session-start-throttled or cron; the `/mos:scout` command's own doc flags "CronCreate deferred; until then `/mos:scout` is the manual trigger"):**
+
+| Cadence | Fires | Notes |
+|---|---|---|
+| Weekly / session-start-throttled | `/mos:scout` -- the full sentinel suite: snapshot + health-check + deadline-monitor + competitor-watch + HSI-recompute + opportunity-scan + efficiency-telemetry | The command itself says it should be scheduled. It is not. It is the manual trigger. |
+| Same (sub-tasks of scout, each itself a sensor) | the **whitespace map recompute** (HSI), the **reverse-salient detection** (HSI), the **opportunity-bank scan** (grants / domain match -- CLAUDE.md says "session-start IS the trigger" for this, but the 0-events telemetry says it is not firing), the **competitor watch** (web, hat-scoped) | These are the named workflows the maintainer flagged 2026-05-10: "scout + whitespace mapper + rs-find-breakthroughs + opportunity scanner must be on the trigger list." |
+
+**Hard prerequisite (today's `/mos:scout` run, 2026-05-10):** before scout goes on the auto-trigger list, the 5 bugs the scout surfaced in the sentinel + instrumentation layer MUST be fixed -- auto-firing a buggy scout broadcasts noise on a schedule. (1) `sentinel-health-check` line 132 arithmetic syntax error; (2) `hsi-to-graph.cjs` -> `NOT NULL constraint failed: nodes.source_path` -- HSI edges never reach the local SQLite graph (a graph-write bug, sibling of the SEED-008 "local graph written-not-navigated" thread; relates to Phase 109); (3) the HSI / reverse-salient scanner includes `.heal-backup/` -> backup dirs pollute the results (2 of the 3 "reverse salients" on 2026-05-10 were backup duplicates of one signal); (4) the query-efficiency telemetry hook (Phase 88.1-16) logged 0 events despite a session running ~a dozen `/mos:*` commands -- the 57x-claim gate the release process "consumes before tagging" is meaningless if the hook is not capturing; (5) the deadline monitor's scope is `funding/` + `opportunity-bank/` only -- it misses phase deadlines in `.planning/STATE.md`, so it reported "CLEAR" while the NATO 2026-06-01 deadline is 22 days out. **The maintainer's 2026-05-10 directive: address these in v1.13.0, not v1.14 -- candidate vehicle = a new small Phase 95.7 "sentinel-and-instrumentation-hardening" (~1 day), sharing the Wave-2 window with the audit's proposed 95.7/95.8/95.9, OR folded into Phase 95 (bug #4 fits the bash-hook-envelope scope) + Phase 109 (bug #2 fits the graph-spine scope).**
+
 ## Acceptance Contract -- Non-Negotiable: the loop must FIRE, not merely exist
 
 The v1.13.0 FINAL RELEASE GATE must include a "loop fires" test (promote it from acceptance criterion to gate blocker). A scripted dogfood session in a real room (e.g. the `mindrianOS` plugin room, per Canon Part 6) must show ALL of:
