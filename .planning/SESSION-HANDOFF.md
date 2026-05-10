@@ -1,242 +1,94 @@
 ---
-created: 2026-05-05
-purpose: Resume entry point for any future Claude Code session
-read_first: true
-authority: canonical handoff document
-points_to: .planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md
+type: session-handoff
+updated: 2026-05-10
+milestone: v1.13.0 "The Closed Loop"
+mode: per-phase autonomous (execute ONE phase per session, autonomous within, stop between)
+next_action: paste the "RESUME PROMPT" below into a fresh Claude Code session in /home/jsagi/MindrianOS-Plugin/
 ---
 
-# SESSION HANDOFF -- Read This First
+# Session Handoff -- v1.13.0 "The Closed Loop"
 
-If you are a Claude Code session that just opened on this repo, **start
-here**. This document tells you what's active, what's in flight, and
-what the next executable action is.
-
----
-
-## Project state at a glance (as of 2026-05-05)
-
-- **Active milestone:** v1.13.0 "The Closed Loop"
-- **Beta status:** v1.13.0-beta.1 SHIPPED 2026-05-05 (plugin commit
-  `afcea5f`, marketplace `a37b073`)
-- **Plugin version:** 1.13.0-beta.1
-- **Git tag:** v1.13.0-beta.1 (pushed to origin)
-- **Next action:** `/gsd:plan-phase 114-larry-default-activation`
-- **Next milestone (parked):** v1.14.0 "The Visible Room" — Wiki + SnapshotHub fused under one renderer pipeline. Triggers when Phase 110 + 114 both merge to main. See: `.planning/milestones/v1.14.0-VISIBLE-ROOM-ROADMAP.md` + `.planning/seeds/SEED-006-mindrian-wiki-sprint-the-visible-room.md`. HARD release gate: Lawrence Aronhime tester preview.
-
-## After v1.13.0 ships — IMMEDIATE NEXT
-
-When v1.13.0 final tag pushes, the **next executable action** is:
+## RESUME PROMPT (paste this into a fresh Claude Code session in /home/jsagi/MindrianOS-Plugin/)
 
 ```
-/gsd:new-milestone v1.14.0
+Resuming v1.13.0 "The Closed Loop" work for MindrianOS-Plugin. MODE: per-phase
+autonomous -- execute exactly ONE phase to completion this session (autonomous
+WITHIN the phase), then report and STOP. Do NOT run /gsd:autonomous (the
+whole-milestone runner). Do NOT push to origin or cut a release tag without me
+(human-gated per CLAUDE.md). I'll come back and say "next" for each subsequent phase.
+
+START OF SESSION:
+1. `pwd` -- confirm /home/jsagi/MindrianOS-Plugin/ (NOT ~/.claude/plugins/*).
+   `git fetch origin main` -- local `main` was 0-behind at end of 2026-05-10; if
+   there's drift now, stop and tell me.
+2. Read in order: .planning/STATE.md (current position; points at Phase 95.6) ·
+   .planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md (Phase Inventory + the
+   "Loop-fires gate" + the "wire Phase 91" notes) · .planning/seeds/SEED-008-
+   intelligence-layer-activation-gap-close-the-loop.md (the activation gap + the
+   trigger list -- the milestone's load-bearing constraint) · docs/UI-UX-CONVERGENCE-
+   2026-05-10/00-INDEX.md (the strategic-context bundle).
+
+THIS SESSION'S PHASE: 95.6 (install-cache-windows-hardening-and-skill-loop-
+resilience). Fully planned -- 10 plans (95.6-01..10), plan-checked, Codex-review
+fixes in (the full_slug contradiction in 95.6-01 is resolved; 95.6-06 has the npm
+payload gate). Run:
+
+    /gsd:execute-phase 95.6 --auto --no-transition
+
+Wave 0 = 95.6-02 (test scaffold + skills/mullins-scaffold/SKILL.md backfill +
+tests/manual/95.6-windows-cold-install-acceptance.md + tests/run-all.sh wiring).
+Wave 1 = 95.6-01 (Phase 92 dir rename), 03 (install.sh skill-loop hardening),
+04 (Windows long-path preflight), 05 (statusline + /mos:doctor class H +
+first-session auto-doctor), 06 (release.sh Step 9.5 npm gate). Wave 2 = 95.6-
+07/08/09 (Tier 2/3, defer_to_beta:10 -- if budget is tight, stop after Wave 1's
+Tier 1 set and tell me). Wave 3 = 95.6-10 (release gate; it has a
+checkpoint:human-verify for the Windows cold-install manual gate -- STOP there and
+surface it to me clearly; that gate needs Gary, async, and the actual npm publish /
+release-tag steps need my sign-off).
+
+AT END OF SESSION, REPORT: what each 95.6-NN-SUMMARY.md says (vs the plan -- note
+executor deviations, Rule 1/2/3) · `git log --oneline` of this session's atomic
+commits · /mos:doctor output (drift check) · the state of the Windows cold-install
+gate (started? blocked on Gary?) · whether tests/run-all-956.sh is green · the next
+phase in the queue + what it needs from me.
+
+QUEUE AFTER 95.6 (do NOT touch this session -- just know the order): 88.2 FINISH
+(3 plans) + 89-07 FINISH (1 plan) [small; /gsd:plan-phase --auto then execute is
+fine] -> 117 [has CONTEXT; /gsd:plan-phase 117 --auto -> review -> execute] -> 91.6
+(navigation-engine-graph-wiring -- THE ARCHITECTURAL KEYSTONE: the routing_source
+legacy->engine flip; the SEED-008 loop-fires gate depends on it. DO NOT auto-discuss
+-- /gsd:discuss-phase 91.6 INTERACTIVE with me, then /gsd:plan-phase 91.6, then
+/gsd:review --phase 91.6, then execute. Spec = docs/UI-UX-CONVERGENCE-2026-05-10/
+00c-TRIGGER-MAP.md) -> 95.7 (needs my numbering-reconciliation decision vs the
+production-readiness audit's proposed 95.7/95.8/95.9) -> the heavies (110, 116, 118,
+119, 120, 121, 121.5 -- /gsd:review the plans before executing).
+
+CONSTRAINTS:
+- Hard deadline: NATO Defense College Rome 2026-06-01 gates Phase 95.6 Tier 1
+  (the beta.9 set). 95.6 is the priority -- do NOT let work drift to beta.2 phases
+  (114, 115) before 95.6's Tier 1 ships.
+- The SEED-008 "loop fires" 5-check test is the v1.13.0 final gate -- if the loop
+  doesn't fire (routing_source: engine / WebSearch / auto-explore-on-first-material
+  / cascade surfaced / BRAIN.md derived), the milestone gets renamed. Don't lose
+  track of it.
+- Release process when 95.6-10 fires: CHANGELOG + plugin.json + package.json +
+  git tag + marketplace.json ref + npm publish (with the `files` allowlist +
+  `npm pack --dry-run` review per the 95.6-06 payload gate) -- all of it, per
+  CLAUDE.md. Release infra ships as beta first -> v1.13.0-beta.9 is correct. But
+  the actual `git push --tags` + marketplace pin = me, not you.
+
+That's the session. Execute 95.6, report, STOP. I'll say "next" for 88.2/89-07.
 ```
 
-That command will:
-1. Auto-surface SEED-006 (and SEED-001, SEED-003 A5, SEED-004) per their trigger conditions
-2. Read `.planning/milestones/v1.14.0-VISIBLE-ROOM-ROADMAP.md` as the canonical scope
-3. Set up the Phase 104 revival workspace
-4. Update `STATE.md` and `MILESTONES.md` to v1.14.0
+For subsequent days the prompt is just `next` (the assistant has the queue from its report), or cold-start: `/gsd:execute-phase <N> --auto --no-transition` with the same "report then stop" framing.
 
-If you opened a fresh session and v1.13.0 has shipped but v1.14.0 hasn't been
-opened yet — that is the next move. Do NOT scope-creep v1.13.0 patches; do
-NOT skip to v2.0 or v1.15.0; v1.14.0 is the immediate successor and
-consolidates all post-v1.13.0 deferred phases under "Make the invisible
-visible — inside and outside the room." Wiki and SnapshotHub were fused
-2026-05-07 because they share renderer DNA.
+## Where things stand (end of 2026-05-10 session)
 
-## What v1.13.0 IS
-
-> Turn MindrianOS from "the back half of a hook" into a closed habit
-> loop with first-15-minute imprint. Larry leads. SQL graph remembers.
-> Brain reasons as a constant. Conversation IS the front door.
-> Commands are internals.
-
-This milestone collapses two previously-separate threads into one:
-
-1. The dormant Hooked Model 4-fix plan from 2026-04-12 (originally
-   targeted at v1.9.9, never shipped, score audit 27/70).
-2. The conversational-front design synthesized in the 2026-05-05
-   `/mos:think-hats` + `/mos:beautiful-question` deep-dive session.
-
-Hooked audit baseline 27/70, target 58/70 by v1.13.0 final.
-
-## Discovery path -- read these in order
-
-1. **THIS DOCUMENT** (`.planning/SESSION-HANDOFF.md`) -- you are here
-2. **Canonical roadmap** (`.planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md`)
-   -- full beta progression, phase inventory, Hooked math, Agent-
-   Lightning long arc, Arc 4 reconciliation, audit gap closure,
-   empathy audit protocol, promotion gates
-3. **Constitutional thesis** (`docs/CANON-PART-10-PROPOSAL-conversation-as-product.md`)
-   -- Canon Part 10 proposal: "Larry IS the product. Conversation IS the
-   surface. Rooms are receipts. Commands are internals." Ratifies at
-   v1.13.0 final release gate
-4. **Arc rename** (`.planning/MILESTONES-NAMING.md` Arc 4 entry)
-   -- Arc 4 renamed from "Every Hirer" to "The Closed Loop" 2026-05-05
-5. **Phase-canon map** (`docs/CANON-PHASE-MAP.md`)
-   -- Phases 114-121 mapped to canon parts; Part 10 proposed section
-
-## Beta progression
-
-| Beta | Status | Codename | Phases | Hooked Score |
-|------|--------|----------|--------|--------------|
-| beta.1 | ✅ shipped 2026-05-05 | Substrate | 108, 109 | 27 (baseline) |
-| beta.2 | next | Larry leads | 88.2 finish, 89-07 finish, 114, 115 | -> ~38 |
-| beta.3 | scoped | Loop closes + reward | 116, 117 | -> ~50 |
-| final | scoped | Full closed loop | 118, 119, 120 | -> ~58 (target) |
-
-Plus Phase 121 Trajectory Telemetry running across all betas.
-Plus SEED-003 substrate adoptions: A1 (beta.2), A4 (beta.2), A3 (beta.3),
-A2 (final), A5 (deferred to v1.14.0).
-
-## What just shipped in beta.1
-
-Phase 108 + Phase 109 substrate landed:
-- Memory Event Log + 🎯 statusline focus glyph
-- Idempotent migrations
-- Canon Part 8 leak test (9th tripwire)
-- Brain auto-confirm regression (proposed-only by default)
-
-## Remaining gates before v1.13.0 final
-
-22 items between beta.1 and v1.13.0 final. Categories:
-- 3 constitutional (Part 9 ratify, Part 10 ratify, MILESTONES-NAMING commit)
-- 4 substrate adoptions (SEED-003 A1-A4)
-- 2 load-bearing finishes (Phase 88.2, Phase 89-07)
-- 5 housekeeping (retire empty phases, delete fork folders, backfill 103 SUMMARY, document gaps)
-- 8 new phase planning + execution (Phase 114-121 except 121 stub)
-- 3 per-beta release gates (empathy audit + Hooked re-score per beta)
-- 1 validation (Lawrence + 4 testers)
-- 2 verification + cleanup (gsd-verifier + worktree drops)
-- 3 bugs + cascade refresh (SEED-004, SEED-005, room cascade)
-
-Full enumeration in canonical roadmap, "Pre-v1.13.0 Phase Disposition"
-section + "Promotion Gates Summary" table.
-
-## Execution order (1-by-1, perfect order)
-
-Per canonical roadmap step-by-step:
-
-1. **beta.1 promotion gates (parallel session may own these)**
-   - Lawrence validation
-   - Canon Part 9 ratification commit
-   - gsd-verifier on Phase 109
-   - Worktree branch drops (5 worktree-agent-* branches)
-
-2. **beta.1.5 housekeeping (this session or next)**
-   - Retire Phase 81, 83, 88.5, 92 (4x /gsd:remove-phase, ~5 min each)
-   - Delete fork folders 104-ui-wrapping + 106-v1-12-3-release-gate
-   - Backfill Phase 103 SUMMARY files
-   - Document gaps 86, 96, 97, 98, 107 in ROADMAP.md
-   - Investigate Phase 88.3, 88.4 (read CONTEXT, decide)
-
-3. **Phase 121 Trajectory Telemetry scaffolding (1.5 days)**
-   - `/gsd:plan-phase 121-trajectory-telemetry`
-   - Runs across all betas; capture starts in beta.2
-
-4. **Phase 114 Larry-Default Activation (2 days, beta.2)**
-   - `/gsd:plan-phase 114-larry-default-activation`
-
-5. **Phase 115 Owned Emotion + Dual-Path First Touch (3 days, beta.2)**
-   - `/gsd:plan-phase 115-owned-emotion-dual-path-first-touch`
-   - Includes 5-subject validation of "stuck on a decision I can't name"
-
-6. **Phase 88.2 finish (5-7 days, beta.2)**
-   - 3 remaining plans; load-bearing for Phase 116
-
-7. **Phase 89-07 finish (1-2 days, beta.2)**
-   - 1 remaining plan; load-bearing for Phase 117
-
-8. **beta.2 release gate**
-   - Empathy audit: 3 fresh testers, 15-min observation
-   - Hooked re-score >= 38
-   - 5-gate release pipeline -> v1.13.0-beta.2
-
-9. **Phase 116 Unresolved Tension Hook (3 days, beta.3)**
-10. **Phase 117 Auto-Explore-Domains (3 days, beta.3)**
-11. **beta.3 release gate** (return-rate signal + Hooked >= 50)
-12. **Phase 118 30-Second MVA (5 days, final)**
-13. **Phase 119 Room-as-Receipt (1 day, final)**
-14. **Phase 120 Breakthrough Scan (3 days, final)**
-15. **v1.13.0 final release gate** (Dror 2.0 + Hooked >= 55 + Part 10 ratification empathy gate)
-
-## Where every artifact from the 2026-05-05 session lives
-
-### Canonical (.planning/)
-- `.planning/STATE.md` -- updated to v1.13.0 active
-- `.planning/ROADMAP.md` -- v1.13.0 promoted to active
-- `.planning/MILESTONES-NAMING.md` -- Arc 4 renamed to "The Closed Loop"
-- `.planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md` -- canonical roadmap
-- `.planning/SESSION-HANDOFF.md` -- this document
-- `.planning/seeds/SEED-002-agent-lightning-lab-loop.md` -- updated trigger
-- `.planning/seeds/SEED-004-write-scope-check-nested-room-bug.md` -- new
-- `.planning/seeds/SEED-005-strict-mode-numeric-match-false-positive.md` -- new
-- `.planning/phases/114-larry-default-activation/114-CONTEXT.md` -- stub
-- `.planning/phases/115-owned-emotion-dual-path-first-touch/115-CONTEXT.md` -- stub
-- `.planning/phases/116-unresolved-tension-hook/116-CONTEXT.md` -- stub
-- `.planning/phases/117-auto-explore-domains-on-first-material/117-CONTEXT.md` -- stub
-- `.planning/phases/118-30-second-mva-reward-before-investment/118-CONTEXT.md` -- stub
-- `.planning/phases/119-room-as-receipt-invariant/119-CONTEXT.md` -- stub
-- `.planning/phases/120-breakthrough-scan-category-g/120-CONTEXT.md` -- stub
-- `.planning/phases/121-trajectory-telemetry/121-CONTEXT.md` -- stub
-
-### Constitutional (docs/)
-- `docs/CANON-PHASE-MAP.md` -- Part 10 proposed section + v1.13.0 phase block
-- `docs/CANON-PART-10-PROPOSAL-conversation-as-product.md` -- Part 10 proposal
-
-### Room artifacts (mindrianOS dog-fooded room)
-- `~/MindrianRooms/mindrian/mindrianOS/solution-design/2026-05-05-think-hats-discoverability-intelligence-test.md`
-- `~/MindrianRooms/mindrian/mindrianOS/solution-design/2026-05-05-v1-13-0-milestone-summary.md`
-- `~/MindrianRooms/mindrian/mindrianOS/problem-definition/2026-05-05-beautiful-question-first-turn.md`
-
-### Recovered prior work (cross-referenced from canonical roadmap)
-- `~/MindrianRooms/mindrian/mindrian-ecosystem/sub-rooms/website/mindrianos-conversion-fix/solution-design/`
-  - `merged-hooked-audit.md` -- 27/70 audit, 4-fix shipping plan
-  - `unresolved-tension-hook-spec.md` -- Phase 116 ready spec
-  - `the-30-second-mva.md` -- Phase 118 ready spec
-  - `the-owned-emotion.md` -- Phase 115 ready spec
-  - `breakthrough-scan-category-g.md` -- Phase 120 ready spec
-  - `empathy-audit-protocol.md` -- per-beta gate protocol
-  - `dror-2.0-test-protocol.md` -- final-beta tester protocol
-
-## What is NOT in the plan (deliberately)
-
-- v1.14.0 Researcher Wedge + Brain Membrane + SnapshotHub MVP (next milestone)
-- v2.0 Wicked Surface (Arc 5)
-- v3.0 Everywhere (Arc 6, 2027)
-- SEED-001 sub-room atomic wiring (deferred to v1.14.0)
-- SEED-002 agent-lightning lab loop activation (gated on Phase 121
-  corpus >= 100 entries)
-- Phase 100 JTBD Inference Engine (deferred to v1.14.0; rebuilds atop
-  closed loop)
-- Phase 110 Brain Context Packet Contract (deferred to v1.14.0; pairs
-  with Researcher Wedge external delivery)
-
-## If you are confused about state
-
-Run these in order:
-1. `cat .planning/STATE.md` -- current milestone + position
-2. `cat .planning/SESSION-HANDOFF.md` -- this document
-3. `cat .planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md` -- full plan
-4. `git log --oneline -20` -- recent commits
-5. `git status` -- working tree state
-
-If those four don't reorient you, you are in a different repo or a
-different branch. Check `pwd` and `git branch --show-current`.
-
-## Provenance
-
-This handoff document was authored 2026-05-05 at the conclusion of a
-4+ hour deep-dive session between Jonathan Sagir and Claude-as-Larry
-across two parallel sessions. Purpose: ensure ANY future Claude Code
-session can resume the v1.13.0 GSD execution plan with zero
-conversation-context transfer.
-
-If you are reading this in a fresh session, the plan is intact.
-Start with `/gsd:plan-phase 114-larry-default-activation` and the
-canonical roadmap will guide every step from there.
-
----
-
-_SESSION-HANDOFF -- MindrianOS Plugin v1.13.0_
+- **Git:** `main` at `cd573ca`, pushed, in sync with origin (ahead 0 / behind 0). Working tree clean. Active room reset to `mindrian-opportunities`.
+- **Phase 95.6:** fully planned -- 10 plans, plan-checked + revised (1 blocker + 2 nits fixed), then 4 Codex-review findings folded in (full_slug contradiction in 95.6-01 removed; npm payload gate added to 95.6-06; 95.6-VALIDATION.md status clarified; 91.6/95.7 plan-slot note in STATE.md). `95.6-VALIDATION.md` exists (Nyquist). READY for `/gsd:execute-phase 95.6 --auto --no-transition`. HARD deadline 2026-06-01 (NATO).
+- **New v1.13.0 phases added 2026-05-10:** 91.6 (navigation-engine-graph-wiring -- wires the shipped Phase 91 `decide()` to the graph + BRAIN.md + the trigger map; flips `routing_source: legacy -> engine`; LOAD-BEARING for the loop-fires gate) and 95.7 (sentinel-and-instrumentation-hardening -- the 5 bugs the 2026-05-10 /mos:scout run surfaced; prereq for putting scout on the auto-trigger list). Both are CONTEXT stubs -- expand via `/gsd:discuss-phase` before planning. In the v1.13.0-CLOSED-LOOP-ROADMAP.md Phase Inventory.
+- **The activation gap (SEED-008):** the load-bearing finding -- the moat ("the graph that knows WHEN to use WHICH tool") is dormant because nothing triggers it (64 external Brain calls ever; `routing_source: legacy` every turn; the cascade pipeline has never delivered mid-session; BRAIN.md often absent forcing tier_0). Bigger than the Brain -- the local graph is written-not-navigated, the memory queue doesn't drain. SEED-008 carries the trigger list; `docs/UI-UX-CONVERGENCE-2026-05-10/00c-TRIGGER-MAP.md` is the rigorous spec. Embedded in the roadmap as a release-gate blocker. Ratifies alongside Canon Part 10.
+- **The strategic bundle:** `docs/UI-UX-CONVERGENCE-2026-05-10/` (13 files) -- the audit, the dominant-design thesis ("queryable assistant" is the dominant design; MindrianOS's discontinuity is *initiative* -- but it's designed, not shipped), the trigger map, the JTBD/systems/reverse-salient analyses, the contradiction audit (~13), the tester-evidence design brief, the Minto convergence + dev-phase instructions (file `08`), the critical finding (file `09`, with the six disruption-deepening moves).
+- **Known bugs logged:** SEED-004 (write-scope-check nested-room-path -- the guard mistakes `mindrian/` for a room slug), FEYNMINTO-01/BUG-1 (MINTO regen breaks on 40+-artifact sections -- hit it on `solution-design`), the room-classifier false-positive (matches "MindrianOS" tokens to parked rooms), and the 5 scout bugs (now Phase 95.7).
+- **Velocity calibration:** demonstrated phase rate ~10-12/week when actively executing; ~0/week the last week (planning only). At the maintainer's stated 4-8 phases/week: v1.13.0 final around June 2026 (mid-to-late June for the final tag, beta.9 by late May, NATO comfortably ahead) -- contingent on sustained execution budget. If execution stalls, Q4.
+- **The leftover to clean:** `~/MindrianRooms/mindrian/mindrianOS/solution-design/MINTO.md.pre-handwrite-2026-05-10.bak` -- delete once the hand-written MINTO is confirmed good or /mos:reason regenerates it post-FEYNMINTO-01-fix. (Also: a digest artifact was filed at `mindrianOS/solution-design/2026-05-10-ui-ux-convergence-and-activation-gap/` and `solution-design/MINTO.md` was hand-written -- both in that parked room, not the plugin repo.)
