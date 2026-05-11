@@ -7,8 +7,10 @@
  * typical user home path.
  *
  * Owning plan: 95.6-01 (the D-02 rename). This suite passes only AFTER Plan
- * 95.6-01 has run; if the 189-char dir
- *   92-refactor-constitution-and-trust-layer-formalizes-audit-driven-refactor-work-constitution-v1-1-directive-1-validation-directive-2-consolidation-directive-3-unidirectional-flow-trust-layer
+ * 95.6-01 has run; if the old 189-char phase-92 leaf
+ *   92-refactor-...-trust-layer  (full descriptive form preserved as the
+ *   "## Searchability Note" body section in
+ *   .planning/phases/92-trust-layer-refactor/92-CONTEXT.md)
  * still exists, this is expected RED until then. Plan 95.6-01 is Wave 1 and
  * has NO dependency on this plan (95.6-02) -- it can run before OR after Wave 0.
  * The release-gate plan (95.6-10) re-runs the full suite, so GREEN-by-then is
@@ -21,11 +23,22 @@
  *      specific assertion that no `92-*` leaf exceeds 60 (the 03.1-* leaf at
  *      80 chars is out of 95.6 scope; we report the global max but only the
  *      92 leaf is a hard assertion);
- *   2. `git grep` for the old 189-char path string returns 0 files outside
- *      the renamed dir and the whitelisted historical quote in
- *      docs/testers/gary-laben/FEEDBACK.md (skip gracefully if git absent);
+ *   2. `git grep` for the old long-path string returns 0 files that are NOT
+ *      legitimately-historical records of the old name. The whitelist of
+ *      historical records is: the tester feedback quote, the install-failure
+ *      autopsy, the STATE.md bug-narrative log entry, this test file, and any
+ *      file under the 95.6 phase directory (the phase that specs the rename).
+ *      A "dangling reference" is one that uses the old name as a live path you
+ *      would follow; a quote inside a bug autopsy is not. Skip gracefully if
+ *      git is absent.
  *   3. `git log --follow` on the renamed dir is non-empty (rename history
  *      preserved); skip gracefully if git absent or the dir does not exist.
+ *
+ * NOTE on self-reference: the search needle below is assembled from string
+ * fragments so this test file's own source does NOT contain the contiguous
+ * substring it greps for. (Belt + suspenders: the test file is also on the
+ * Check-2 whitelist.) This is why you will not see the literal
+ * "92-refactor-constitution-..." token written out anywhere in this file.
  */
 
 const assert = require('node:assert');
@@ -35,9 +48,29 @@ const { execSync } = require('node:child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const PHASES_DIR = path.join(REPO_ROOT, '.planning', 'phases');
-const OLD_92_LEAF = '92-refactor-constitution-and-trust-layer-formalizes-audit-driven-refactor-work-constitution-v1-1-directive-1-validation-directive-2-consolidation-directive-3-unidirectional-flow-trust-layer';
+
+// Assembled from fragments so this source file does not contain the contiguous
+// token that Check 2 greps for (see the NOTE in the header comment).
+const OLD_92_NEEDLE = ['92-refactor', 'constitution', 'and', 'trust', 'layer'].join('-');
+const OLD_92_LEAF = [
+  OLD_92_NEEDLE,
+  'formalizes-audit-driven-refactor-work-constitution-v1-1',
+  'directive-1-validation-directive-2-consolidation-directive-3-unidirectional-flow-trust-layer',
+].join('-');
 const NEW_92_LEAF = '92-trust-layer-refactor';
 const LEAF_CAP = 60;
+
+// Files that legitimately contain the old long name as a historical / spec
+// record (not as a live filesystem path). These are NOT dangling references.
+const CHECK2_WHITELIST = new Set([
+  'docs/testers/gary-laben/FEEDBACK.md',                       // verbatim tester transcript quote
+  'docs/autopsies/2026-05-09-gary-laben-install-failure.md',   // install-failure autopsy
+  '.planning/STATE.md',                                        // bug-narrative log entry (frozen)
+  'tests/test-92-rename-no-long-leaves.cjs',                   // this file (defensive; needle is fragmented anyway)
+]);
+// Any file under this prefix is the 95.6 phase that specs the D-02 rename and
+// is allowed to quote the old name.
+const CHECK2_WHITELIST_PREFIX = '.planning/phases/95.6-install-cache-windows-hardening-and-skill-loop-resilience/';
 
 function gitAvailable() {
   try { execSync('git --version', { cwd: REPO_ROOT, stdio: 'pipe' }); return true; } catch (_e) { return false; }
@@ -80,16 +113,16 @@ try {
   } else {
     let hits = '';
     try {
-      hits = execSync('git grep -l --color=never "92-refactor-constitution-and-trust-layer" -- . ":(exclude).planning/phases/' + NEW_92_LEAF + '"', { cwd: REPO_ROOT, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
+      hits = execSync('git grep -l --color=never ' + JSON.stringify(OLD_92_NEEDLE) + ' -- . ":(exclude).planning/phases/' + NEW_92_LEAF + '"', { cwd: REPO_ROOT, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
     } catch (e) {
       // git grep exits 1 when there are no matches; that is the happy path.
       if (e.status === 1) hits = '';
       else throw e;
     }
     const files = hits.split('\n').map((s) => s.trim()).filter(Boolean)
-      .filter((f) => f !== 'docs/testers/gary-laben/FEEDBACK.md'); // whitelisted historical quote
+      .filter((f) => !CHECK2_WHITELIST.has(f) && !f.startsWith(CHECK2_WHITELIST_PREFIX));
     assert.deepStrictEqual(files, [], 'no non-whitelisted file references the old 189-char path; offenders: ' + JSON.stringify(files));
-    pass('Check 2 (no dangling old-path refs outside the whitelist)');
+    pass('Check 2 (no dangling old-path refs outside the historical-record whitelist)');
   }
 } catch (err) { failTest('Check 2 (no dangling old-path refs)', err); }
 
