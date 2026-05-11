@@ -9,17 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
-## [1.13.0-beta.10] - 2026-05-11
+## [Unreleased] -- v1.13.0-beta.10 (in progress)
+
+beta.10 is the v1.13.0 CAPSTONE -- its headline content is the **Workflow Layer** (framework <-> command registry + reliable invocation; spec at `.planning/WORKFLOW-LAYER-SPEC.md`), not yet built. The items below are what has landed on `main` toward beta.10 so far; the entry will be finalized (dated, full feature list) when the Workflow Layer ships.
 
 ### Changed
 
-- **npm package renamed: `@mindrian/os` -> `@mindrian_os/cli`.** The `@mindrian` npm scope never existed (the registry returns `{"error":"Scope not found"}`), so `@mindrian/os` could never be published. The maintainer created the `@mindrian_os` org on npm on 2026-05-11; the package now lives at `@mindrian_os/cli`. The `mindrian-os` CLI command (the `bin` entry in `package.json`) is unchanged. Forward-looking references updated in `scripts/release.sh`, `docs/install/PACKAGING-PATHS.md`, and `tests/manual/95.6-windows-cold-install-acceptance.md`. The first npm-published version is `1.13.0-beta.10`, under the corrected name.
+- **npm package renamed: `@mindrian/os` -> `@mindrian_os/cli`.** The `@mindrian` npm scope never existed (the registry returns `{"error":"Scope not found"}`), so `@mindrian/os` could never be published. The maintainer created the `@mindrian_os` org on npm on 2026-05-11; the package now lives at `@mindrian_os/cli`. The `mindrian-os` CLI command (the `bin` entry in `package.json`) is unchanged. `package.json` + `.claude-plugin/plugin.json` bumped to `1.13.0-beta.10` (in progress). Forward-looking references updated in `scripts/release.sh`, `docs/install/PACKAGING-PATHS.md`, `tests/manual/95.6-windows-cold-install-acceptance.md`, `tests/test-release-npm-gate.sh`. The first npm-published version will be `1.13.0-beta.10`, under the corrected name. (The `[1.13.0-beta.9]` entry below is left intact as the historical record of the pre-rename release -- which shipped to GitHub and the marketplace as `v1.13.0-beta.9` but was never published to npm because the `@mindrian` scope didn't exist.)
 
 ### Notes
 
-- Re-cut of the `1.13.0-beta.9` content under the corrected package name -- no plugin behavior changes vs beta.9. beta.9 contains: all of Phase 95.6 (install-cache Windows hardening, Tier 1 + Tier 2 + Tier 3, decisions D-01 through D-11), the `test1_enumCount` floor fix, and the retroactive `117-VERIFICATION.md`. See the `[1.13.0-beta.9]` entry below for the full feature list; that entry is left intact as the historical record of the pre-rename release (which shipped to GitHub and the marketplace as `v1.13.0-beta.9`).
 - The Windows cold-install acceptance gate (`tests/manual/95.6-windows-cold-install-acceptance.md`) remains waived (maintainer decision, 2026-05-11). Promotion to a clean `1.13.0` (no suffix) should still wait on a Windows tester run.
-- Install paths live with this release: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.10`, direct `install.sh` from the `v1.13.0-beta.10` tag, and `npx @mindrian_os/cli@next` once the npm publish lands.
+- beta.9 content (carried forward into beta.10): all of Phase 95.6 (install-cache Windows hardening, Tier 1 + Tier 2 + Tier 3, decisions D-01 through D-11), the `test1_enumCount` floor fix, the retroactive `117-VERIFICATION.md`. See the `[1.13.0-beta.9]` entry below for the full feature list.
 
 ## [1.13.0-beta.9] - 2026-05-11
 

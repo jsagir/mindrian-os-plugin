@@ -7,6 +7,22 @@ purpose: Short-horizon queued work that is ready to execute but not yet started.
 
 # TODO Queue
 
+## CRITICAL — v1.13.0 CAPSTONE (target: beta.10)
+
+### [CRITICAL · beta.10 capstone] Workflow Layer — framework ↔ command registry + reliable invocation
+
+**Filed:** 2026-05-11
+**Spec:** `.planning/WORKFLOW-LAYER-SPEC.md` (spec-locked)
+**Priority:** CRITICAL (highest) — flagged by user as the highest need — but ships **LATE, as `v1.13.0-beta.10`**: it is the capstone that closes the loop, not a beta.2 bolt-on. Reason: it stands on foundations that are themselves in-flight v1.13.0 work (navigation engine 91/91.6, larry-default-activation 114, operator state machine 99, SQL graph + memory triple 108/109, persona 115, cascade hooks 116/117, brain-cleanup Phase 5). Build it *knowing* what all of 1.13.0 delivers so it makes maximal use of each piece (see the "What it leverages" section of the spec — this is a hard requirement, not a nice-to-have). Hard dep: brain-cleanup Phase 5 (Workflow Layer Phase 3 only); brain-cleanup Phase 4 is DONE. Formalize via `/gsd:insert-phase` / `/gsd:add-phase` in the beta.10 band with the spec as the brief.
+
+**The need:** Larry can read the Brain's methodology chains (`Framework -[:FEEDS_INTO]-> Framework`) but cannot reliably turn "the methodology suggests X" into "run `/mos:x`" — the mapping is not 1:1, some frameworks have no command, and Larry currently names commands from memory (and sometimes invents ones that don't exist). Fix = a `framework ↔ command` registry derived from each command's own frontmatter, CI-validated against the Brain's framework names, with the resolver as the *only* path from framework→command (Larry never names a `/mos:` from memory), and the navigation hook as the trigger. **The Brain stays methodology-pure — commands never enter it (Canon Part 8).**
+
+**Five reliability rules:** (1) `frameworks:` in command frontmatter is the single source of truth. (2) `data/command-registry.json` is generated + CI-checked; drift is impossible to commit. (3) `lib/workflow/command-resolver.cjs` is the only door; Larry emits only commands the resolver returned. (4) the navigation engine (engine v1) calls the resolver on every message — invocation is computed, not recalled. (5) degrade-don't-fabricate: no command for a framework → "run it manually," never a made-up command.
+
+**CRITICAL PATH ordering:** the retrofit (Phase 1) + registry (Phase 2) must do the *algorithmic* command cohort FIRST — `/mos:score-innovation` (HSI), `/mos:whitespace`, `/mos:explore-domains` (IKA+Feynman), `/mos:research` + `/mos:think-hats` + `/mos:persona` + `/mos:hat-briefing` (deep research + Six Hats), `/mos:rs-fetch`/`/mos:rs-experts`/`/mos:rs-thesis`/`/mos:rs-explain`/`/mos:find-bottlenecks` (Reverse Salient pipeline), `/mos:find-connections`/`/mos:find-analogies`/`/mos:compare-ventures`, `/mos:diagnostics`/`/mos:causal`/`/mos:mos-reason`/`/mos:root-cause`, `/mos:analyze-needs`/`/mos:validate`/`/mos:grade`/`/mos:deep-grade`/`/mos:mullins`, `/mos:systems-thinking`/`/mos:analyze-systems`/`/mos:analyze-timing`/`/mos:dominant-designs`, `/mos:structure-argument`/`/mos:build-thesis`/`/mos:build-knowledge`/`/mos:map-unknowns`/`/mos:beautiful-question`/`/mos:lean-canvas`/`/mos:scenario-plan`/`/mos:macro-trends`/`/mos:explore-trends`/`/mos:explore-futures`/`/mos:value-proposition` — these get registered + chain-composable before the utility commands.
+
+**Phasing:** (1) frontmatter contract + retrofit (algorithmic cohort first), (2) registry + generator + CI tripwire, (3) resolver + chain-recommender [depends on brain-cleanup Phase 5: `enrichCausalEdges` → `FEEDS_INTO` rewrite], (4) wire `/mos:suggest-next` + `/mos:pipeline` + `/mos:act`, (5) skill cleanup (`pws-methodology`, `brain-connector`) + docs (`docs/WORKFLOWS.md`, `THE-BRAIN.md`) + end-to-end. Phases 1, 2, 4-partial, 5-docs can start immediately; Phase 3 waits on brain-cleanup Phase 5.
+
 ## IMMEDIATE NEXT (after v1.11.2 ships)
 
 ### [IMMEDIATE-NEXT] Phase 95 - Bash hook envelope + cascade side-channel
