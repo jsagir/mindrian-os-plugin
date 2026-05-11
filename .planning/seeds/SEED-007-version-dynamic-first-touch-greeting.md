@@ -143,3 +143,23 @@ stamp) was correct. The fix architecture (single-source greeting copy +
 no-emdash scanner + version-dynamic stamp) was agreed. Execution was
 deferred pending Phase 115 plan refresh. This seed carries the agreement
 forward.
+
+## Scope updates
+
+2026-05-10 (Phase 95.6 D-07): scanner pattern 3 added -- `BSL[- ]?1\.1` near
+`open[- ]?source`. Trigger: Phase 95.6 D-06 (the BSL-1.1 mislabel that
+institutional IT review + cautious AI tooling would flag). The scanner now
+covers em-dash (pattern 1) + stale-version-literal (pattern 2) +
+BSL-open-source-mislabel (pattern 3); implemented at
+`scripts/check-first-touch-drift.cjs` with a test at
+`tests/test-first-touch-drift-scanner.cjs`. Pattern 1 + pattern 3 scan the
+broad doc-surface set (README.md, install.sh, .claude-plugin/plugin.json,
+commands/splash.md, commands/onboard.md, commands/help.md,
+skills/larry-personality/SKILL.md, lib/copy/115-spec-strings.cjs,
+agents/larry-extended.md); pattern 2 is deliberately scoped to the pure
+greeting-copy surfaces only (lib/copy/115-spec-strings.cjs, commands/splash.md)
+because README.md / install.sh carry legitimate version histories and
+agents/larry-extended.md carries persona-aliasing version prose -- SEED-007's
+full pattern-2 rollout across all five first-touch copy surfaces remains
+Phase 115's job. This 95.6 D-07 work does not change SEED-007's `status`,
+`binds_to_phase`, or `binds_to_milestone`.
