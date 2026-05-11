@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 95.6-04-PLAN.md
-last_updated: "2026-05-11T17:42:46.900Z"
+stopped_at: Completed 95.6-05-PLAN.md
+last_updated: "2026-05-11T17:56:02.966Z"
 last_activity: 2026-05-11
 progress:
   total_phases: 52
   completed_phases: 28
   total_plans: 230
-  completed_plans: 210
+  completed_plans: 211
   percent: 82
 ---
 
@@ -29,7 +29,7 @@ Phase: 95.6 (install-cache-windows-hardening-and-skill-loop-resilience) — EXEC
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.9 (target 2026-06-01 per NATO Defense College Rome June course; ideal 2026-05-23 for 8-day Lawrence dogfood window)
 Next phase: 95.6 EXECUTION -- `/gsd:execute-phase 95.6` (plans complete + checked 2026-05-10)
-Plan: 5 of 10
+Plan: 6 of 10
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: 2026-05-11 EOD (maintainer's public commitment to Lawrence + Gary on 2026-05-09 install call)
@@ -263,6 +263,7 @@ Progress: [████████░░] 82%
 | Phase 95.6 P01 | 20min | 2 tasks | 4 files |
 | Phase 95.6 P03 | 8 min | 2 tasks | 2 files |
 | Phase 95.6 P04 | 12 min | 1 tasks | 2 files |
+| Phase 95.6 P05 | 40min | 3 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -711,6 +712,7 @@ Progress: [████████░░] 82%
 - [Phase 95.6]: D-02 rename: 189-char phase-92 leaf -> .planning/phases/92-trust-layer-refactor/ via git mv (R100, history preserved). Original descriptive name preserved as a ## Searchability Note body section in new 92-CONTEXT.md, NOT a full_slug frontmatter field (REC-11). v1.11.0 milestone-audit phase: refs repointed; FEEDBACK.md / autopsy / STATE.md line 273 / 95.6 phase artifacts left verbatim (historical/spec records). test-92-rename-no-long-leaves.cjs Rule-1-fixed (needle assembled from fragments to avoid self-match; whitelist widened) and now GREEN 3/3.
 - [Phase 95.6]: install.sh skill-loop pre-filters on SKILL.md; missing-SKILL.md dirs WARN to stderr and the script continues (D-03 part b; fixes the bug that broke Gary Laben's install)
 - [Phase 95.6]: install.sh D-01: OS detection (MOS_TEST_FORCE_OS-testable) + enable_longpaths_on_windows() preflight before clone + stale-partial-clone cleanup in Step 2
+- [Phase 95.6]: D-09 closed: install.sh writes the statusLine block FIRST via idempotent register_statusline() + records .install-receipt.json; /mos:doctor class H detects install-incomplete (missing statusLine block / halted receipt) + --fix re-stamps the block idempotently; first-session SessionStart hook auto-runs /mos:doctor and surfaces all-green-or-what-is-missing
 
 ### Pending Todos
 
@@ -735,6 +737,6 @@ yet.
 
 ## Session Continuity
 
-Last session: 2026-05-11T17:42:41.992Z
-Stopped at: Completed 95.6-04-PLAN.md
+Last session: 2026-05-11T17:55:57.501Z
+Stopped at: Completed 95.6-05-PLAN.md
 Resume file: None
