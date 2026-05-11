@@ -12,6 +12,15 @@ set -euo pipefail
 REPO="https://github.com/jsagir/mindrian-os-plugin.git"
 INSTALL_DIR="${HOME}/.claude/plugins/mindrian-os"
 CLAUDE_DIR="${HOME}/.claude"
+# Phase 95.6 D-09: hoisted up from old Step 7 so register_statusline() (which
+# runs FIRST, before any cp/ln loop) can write the canonical statusLine block.
+SETTINGS_FILE="${CLAUDE_DIR}/settings.json"
+# Phase 95.6 D-09 / R-01: the install receipt. install.sh appends one
+# {name,exit} entry per step and stamps completed_at at the very end; a halted
+# install leaves a partial receipt on disk -- which is what /mos:doctor class H
+# reads to tell you what is missing. The receipt lives INSIDE $INSTALL_DIR, so
+# it can only be written once the clone (Step 2) has run.
+RECEIPT_FILE="${INSTALL_DIR}/.install-receipt.json"
 
 # Phase 95.6 D-01: OS detection (testable via MOS_TEST_FORCE_OS).
 # `windows`/`Windows`/`WINDOWS` force Windows; MINGW*/MSYS*/CYGWIN* are what
@@ -44,6 +53,69 @@ enable_longpaths_on_windows() {
   git config --global core.longpaths true
   echo "  . Long-path support enabled"
   echo ""
+}
+
+# Phase 95.6 D-09: write the MindrianOS statusLine block into the user's
+# ~/.claude/settings.json. Runs FIRST in install order (right after the
+# node+git preflight and the clone), BEFORE any cp/ln loop, so it survives
+# even if a later step fails -- the "silent install-incomplete" fix. The
+# block shape matches what scripts/doctor.cjs class G/H expects: a
+# `bash "<install-dir>/scripts/statusline-mos"` command. Idempotent: a
+# second run does not duplicate or corrupt the block.
+register_statusline() {
+  echo "  . Registering statusline..."
+  mkdir -p "$CLAUDE_DIR" 2>/dev/null || true
+  if [ ! -f "$SETTINGS_FILE" ]; then echo '{}' > "$SETTINGS_FILE"; fi
+  node -e "
+const fs = require('fs');
+const p = '$SETTINGS_FILE';
+let s = {};
+try { s = JSON.parse(fs.readFileSync(p, 'utf8')); } catch (e) {}
+if (!s || typeof s !== 'object') s = {};
+const want = { type: 'command', command: 'bash \"$INSTALL_DIR/scripts/statusline-mos\"' };
+const cur = s.statusLine;
+if (!cur || typeof cur !== 'object' || cur.command !== want.command) {
+  s.statusLine = want;
+  fs.writeFileSync(p, JSON.stringify(s, null, 2));
+  console.log('    statusLine block written');
+} else {
+  console.log('    statusLine block already present');
+}
+"
+}
+
+# Phase 95.6 D-09 / R-01: incremental install-receipt helpers. Every call is
+# best-effort (2>/dev/null || true) -- a receipt write must NEVER abort the
+# install (the receipt is diagnostic, not load-bearing).
+PLUGIN_VERSION="unknown"
+receipt_refresh_version() {
+  PLUGIN_VERSION=$(node -e "try{process.stdout.write(require('$INSTALL_DIR/.claude-plugin/plugin.json').version||'unknown')}catch(e){process.stdout.write('unknown')}" 2>/dev/null || echo unknown)
+}
+receipt_init() {
+  receipt_refresh_version
+  mkdir -p "$INSTALL_DIR" 2>/dev/null || true
+  node -e "require('fs').writeFileSync('$RECEIPT_FILE', JSON.stringify({version:'$PLUGIN_VERSION',completed_at:null,steps:[]},null,2))" 2>/dev/null || true
+}
+receipt_step() {  # $1 = step name, $2 = exit code
+  node -e "
+const fs=require('fs'); const p='$RECEIPT_FILE';
+let r={version:'$PLUGIN_VERSION',completed_at:null,steps:[]};
+try{r=JSON.parse(fs.readFileSync(p,'utf8'))}catch(e){}
+if(!r||typeof r!=='object'){r={version:'$PLUGIN_VERSION',completed_at:null,steps:[]}}
+if(!Array.isArray(r.steps)){r.steps=[]}
+r.steps.push({name:'$1',exit:Number('$2')||0});
+fs.writeFileSync(p,JSON.stringify(r,null,2));
+" 2>/dev/null || true
+}
+receipt_done() {
+  node -e "
+const fs=require('fs'); const p='$RECEIPT_FILE';
+let r={version:'$PLUGIN_VERSION',completed_at:null,steps:[]};
+try{r=JSON.parse(fs.readFileSync(p,'utf8'))}catch(e){}
+if(!r||typeof r!=='object'){r={version:'$PLUGIN_VERSION',completed_at:null,steps:[]}}
+r.completed_at=new Date().toISOString();
+fs.writeFileSync(p,JSON.stringify(r,null,2));
+" 2>/dev/null || true
 }
 
 echo ""
@@ -103,6 +175,13 @@ else
   cd "$INSTALL_DIR"
 fi
 
+# Phase 95.6 D-09 / R-01: now that $INSTALL_DIR exists, start the install
+# receipt and backfill the steps that already completed (the node+git
+# preflight and the clone). Every receipt call is best-effort.
+receipt_init
+receipt_step preflight 0
+receipt_step clone 0
+
 # Step 3: Install npm dependencies
 echo "  . Installing dependencies..."
 npm install --quiet --no-audit --no-fund 2>/dev/null
@@ -124,6 +203,14 @@ if [ -d "mcp-server-brain" ] && [ -f "mcp-server-brain/package.json" ]; then
   fi
 fi
 
+# Phase 95.6 D-09: register the statusLine block FIRST -- before any cp/ln
+# loop -- so a failure in a later registration step can never again leave the
+# statusline unstamped (the Gary Laben 2026-05-08 + Jonathan "other machine"
+# symptom). This must run after the clone (so $INSTALL_DIR exists) and after
+# 95.6-04's Windows long-path preflight, but before Step 4.
+register_statusline
+receipt_step register_statusline 0
+
 # Step 4: Create symlinks for commands
 echo "  . Registering commands..."
 COMMANDS_DIR="${CLAUDE_DIR}/commands"
@@ -140,6 +227,7 @@ done
 
 CMD_COUNT=$(ls "$INSTALL_DIR"/commands/*.md | wc -l)
 echo "    $CMD_COUNT commands registered as /mos:*"
+receipt_step register_commands 0
 
 # Step 5: Register skills
 echo "  . Registering skills..."
@@ -178,6 +266,7 @@ if [ "$SKILL_SKIPPED" -gt 0 ]; then
 else
   echo "    $SKILL_REGISTERED skills registered"
 fi
+receipt_step register_skills 0
 
 # Step 6: Register agents
 echo "  . Registering agents..."
@@ -191,12 +280,17 @@ done
 
 AGENT_COUNT=$(ls "$INSTALL_DIR"/agents/*.md | wc -l)
 echo "    $AGENT_COUNT agents registered"
+receipt_step register_agents 0
 
 # Step 7: Configure hooks
+# Note: this node block writes .agent, .hooks.SessionStart and
+# .env.MINDRIAN_OS_ROOT. It never wrote a .statusLine block -- that is
+# register_statusline()'s job and it already ran above (Phase 95.6 D-09).
 echo "  . Configuring hooks..."
-SETTINGS_FILE="${CLAUDE_DIR}/settings.json"
 
-# Create settings.json if it doesn't exist
+# Create settings.json if it doesn't exist (register_statusline already did
+# this when it ran first, but stay defensive in case settings.json was removed
+# between the two steps).
 if [ ! -f "$SETTINGS_FILE" ]; then
   echo '{}' > "$SETTINGS_FILE"
 fi
@@ -239,6 +333,7 @@ settings.env.MINDRIAN_OS_ROOT = '$INSTALL_DIR';
 fs.writeFileSync(path, JSON.stringify(settings, null, 2));
 console.log('    Hooks configured');
 "
+receipt_step configure_hooks 0
 
 # Step 8: Summary
 echo ""
@@ -258,3 +353,8 @@ echo "  ╰───────────────────────
 echo ""
 echo "  Install location: $INSTALL_DIR"
 echo ""
+
+# Phase 95.6 D-09 / R-01: stamp the receipt complete. A halted install never
+# reaches this line, so the receipt on disk stays {completed_at:null} with a
+# partial steps[] list -- which is what /mos:doctor class H reads.
+receipt_done
