@@ -8,6 +8,9 @@ skills:
   - context-engine
   - room-passive
   - room-proactive
+# Phase 95.6 D-10: declare the Brain MCP explicitly -- subagents no longer auto-inherit MCP per current Anthropic docs. mcpServers references the server name from .mcp.json (mindrian-os); skills above inject full content at startup.
+mcpServers:
+  - mindrian-os
 initialPrompt: "I'm Larry. What decision is stuck? (Tell me, or paste a doc/CV.)"
 persona_variants:
   default: "I'm Larry. What decision is stuck? (Tell me, or paste a doc/CV.)"

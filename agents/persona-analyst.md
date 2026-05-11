@@ -9,6 +9,8 @@ allowed-tools:
   - Glob
 ---
 
+<!-- Phase 95.6 D-10: NO Brain or methodology-skill access needed -- this agent synthesizes De Bono hat perspectives from the room's locally-generated persona files (read via Read/Glob), never from the Brain teaching graph; no implicit MCP inheritance. -->
+
 # Persona Analyst Agent
 
 ## Purpose

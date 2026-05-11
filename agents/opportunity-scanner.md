@@ -14,6 +14,8 @@ allowed-tools:
   - mcp__tavily-mcp__tavily-extract
 ---
 
+<!-- Phase 95.6 D-10: external-signal access (WebSearch + mcp__tavily-mcp__*) declared explicitly via allowed-tools; no Brain access needed (grant discovery is a public-signal scan, not a methodology lookup); no implicit MCP inheritance. -->
+
 # Opportunity Scanner Agent
 
 > Proactive discovery agent for context-driven grant and funding opportunity scanning.
