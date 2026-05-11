@@ -96,6 +96,20 @@ Larry starts talking. The Room starts listening. KuzuDB builds your knowledge gr
 /mos:setup hsi
 ```
 
+### A note on permission prompts during install
+
+Claude Code asks you to approve each shell command it runs (clone, npm install,
+symlink creation, settings.json edit). This is expected. A full install triggers
+10 or more prompts. Approve each one. To stop being asked, pick "always allow"
+(option 2) the first time a prompt appears -- the rest of the install run will not
+re-prompt.
+
+If you hit a `WARN: skipping skill ...` line, that is fine: the skipped skill is
+non-critical for first-load and the install continues normally.
+
+Touch-first Windows devices (Surface tablets and similar): connect an external keyboard
+before installing. The "always allow" shortcut and several install steps are keyboard-driven.
+
 ---
 
 ## Permissions
