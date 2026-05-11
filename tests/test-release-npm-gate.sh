@@ -5,7 +5,7 @@
 # RED until Plan 95.6-06 (release.sh Step 9.5 npm publish gate) lands.
 #
 # Per memory entry feedback_release_lockstep_npm: every plugin release publishes
-# @mindrian/os to npm in lockstep. The gate runs AFTER `git push` (Step 9) and
+# @mindrian_os/cli to npm in lockstep. The gate runs AFTER `git push` (Step 9) and
 # BEFORE the local cache update (Step 10). dist-tag logic branches on the version
 # suffix (@next for -beta./alpha./rc./next., @latest for clean X.Y.Z). A
 # MOS_TEST_DRY_RUN=1 path lets the gate be exercised without touching the live
