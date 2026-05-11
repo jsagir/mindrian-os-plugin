@@ -4,7 +4,7 @@ milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
 stopped_at: "Completed 95.6-02-PLAN.md (Wave 0 scaffold: mullins-scaffold SKILL.md backfilled + 7 Wave 0 test files + cold-machine manual gate + run-all.sh wired + run-all-956.sh; run-all-956 RED-by-design 2/8 PASS)"
-last_updated: "2026-05-11T17:17:16.182Z"
+last_updated: "2026-05-11T17:21:01.783Z"
 last_activity: 2026-05-11
 progress:
   total_phases: 52
