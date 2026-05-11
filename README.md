@@ -655,15 +655,18 @@ Everything runs locally. Your Data Room is a folder on your machine. No data lea
 
 ## License
 
-**Business Source License 1.1 (BSL 1.1)**
+**Business Source License 1.1 (BSL-1.1)**
 
-Source is open to read, use, and contribute to. Free for personal, academic, and internal business use -- including running MindrianOS as an installed plugin for your own projects, even if those projects are commercial.
+MindrianOS is source-available, not open source.
+It ships under the Business Source License 1.1 (BSL-1.1) -- a source-available license with a time-deferred conversion to an OSS license.
+
+Source is available to read, use, and contribute to. Free for personal, academic, and internal business use -- including running MindrianOS as an installed plugin for your own projects, even if those projects are commercial.
 
 Commercial use (offering MindrianOS or a derivative as a paid service to third parties) requires a commercial license. Contact: jsagir@gmail.com
 
 Converts to Apache License 2.0 on 2030-04-16.
 
-Same licensing model as MariaDB, CockroachDB, HashiCorp (Terraform), and Sentry. The rationale: the plugin distribution layer is open (that is the adoption channel). The proprietary intelligence layer (Brain MCP) is the moat and is never distributed.
+Same licensing model as MariaDB, CockroachDB, HashiCorp (Terraform), and Sentry. The rationale: the plugin distribution layer is source-available (that is the adoption channel). The proprietary intelligence layer (Brain MCP) is the moat and is never distributed.
 
 Copyright (c) 2024-2026 Jonathan Sagir. All rights reserved.
 
