@@ -896,12 +896,12 @@ Plans:
 **Goal:** Harden the canonical Windows install path (git clone + bash install.sh) against the four failure modes that broke a real Wave-2 tester install on 2026-05-08/09 (Gary Laben, Surface Pro 7), and close the gap between "the install site advertises a path" and "the path actually works on a fresh Windows machine." Tier 1 (gates the NATO Defense College Rome 2026-06-01 deadline; ships as v1.13.0-beta.9): D-02 rename the 189-char phase-92 dir, D-03 install.sh skill-loop hardening + SKILL.md backfill, D-01 Windows long-path preflight + stale-clone cleanup, D-09 statusline registered first + /mos:doctor class H + install receipt + first-session auto-doctor, D-05a release.sh Step 9.5 npm publish gate. Tier 2 (defer to beta.10 if NATO pressure): D-05b/c/d marketplace npm source + bin/cli.js + SessionStart npm-reconcile hook, D-10 subagent capability parity, D-11 reserved-names gate + Deferred Tool Loading note, D-05e/f ZIP/URL + CI pre-bake docs. Tier 3 (defer freely): D-04 README Manual Recovery, D-06 BSL-1.1 source-available sweep, D-07 SEED-007 scanner pattern 3. Plus the case #4 install-failure autopsy.
 **Requirements**: D-01, D-02, D-03, D-04, D-05a, D-05b, D-05c, D-05d, D-05e, D-05f, D-06, D-07, D-08, D-09, D-10, D-11
 **Depends on:** Phase 95.2 (install-cache-atomic-recovery-sessionstart-preflight)
-**Plans:** 2/10 plans executed
+**Plans:** 3/10 plans executed
 
 Plans:
 - [x] 95.6-01-PLAN.md -- D-02: rename .planning/phases/92-... (189-char leaf) to 92-trust-layer-refactor/ [Tier 1, Wave 1]
 - [x] 95.6-02-PLAN.md -- Wave 0: create the 7 missing test files + backfill skills/mullins-scaffold/SKILL.md + the Windows cold-install manual gate + wire tests/run-all.sh [Tier 1, Wave 0]
-- [ ] 95.6-03-PLAN.md -- D-03: install.sh skill-loop pre-filter + WARN-and-continue + README permission-prompt note [Tier 1, Wave 1]
+- [x] 95.6-03-PLAN.md -- D-03: install.sh skill-loop pre-filter + WARN-and-continue + README permission-prompt note [Tier 1, Wave 1]
 - [ ] 95.6-04-PLAN.md -- D-01: install.sh Windows long-path preflight (core.longpaths) + OS detection + stale-partial-clone cleanup [Tier 1, Wave 1]
 - [ ] 95.6-05-PLAN.md -- D-09: register_statusline() first in install.sh + .install-receipt.json + /mos:doctor class H + first-session auto-doctor [Tier 1, Wave 1]
 - [ ] 95.6-06-PLAN.md -- D-05a: scripts/release.sh Step 9.5 npm publish gate + case #4 autopsy + CHANGELOG npm-gap note [Tier 1, Wave 1]
