@@ -30,6 +30,12 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
+const { spawnSync } = require('node:child_process');
+
+// Phase 95.6 D-09: the plugin install dir, used to locate scripts/doctor.cjs
+// for the first-session self-check. Matches how readPluginVersion() below
+// resolves plugin.json (path.resolve(__dirname, '..')).
+const PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..');
 
 const ENVELOPE_ALLOWED = new Set([
   'decision', 'reason', 'continue', 'stopReason',
@@ -75,6 +81,32 @@ function shouldFire() {
   return false; // Same version, already onboarded -> skip
 }
 
+// Phase 95.6 D-09: on a fresh first session, run /mos:doctor --all --json and
+// return a one-line all-green-or-here-is-what-is-missing summary, so a silently
+// incomplete install gets caught and named instead of staying quiet. Canon
+// Part 8: doctor.cjs is purely LOCAL (no network surface -- preflight-doctor.cjs
+// already spawns it). Defensive: on ANY error (doctor missing, timeout, JSON
+// parse failure) return '' and the gate is unchanged -- never blocks the hook.
+function runDoctorSelfCheck() {
+  try {
+    const doctorPath = path.join(PLUGIN_ROOT, 'scripts', 'doctor.cjs');
+    if (!fs.existsSync(doctorPath)) return '';
+    const r = spawnSync(process.execPath, [doctorPath, '--all', '--json'], {
+      timeout: 1500,
+      encoding: 'utf8',
+    });
+    if (!r || !r.stdout) return '';
+    const report = JSON.parse(r.stdout);
+    const checks = (report && report.checks) ? Object.values(report.checks) : [];
+    const bad = checks.filter((c) => c && c.status && c.status !== 'ok' && c.status !== 'skip');
+    if (bad.length === 0) return 'MindrianOS install check: all green.';
+    return 'MindrianOS install check: ' + bad.length
+      + ' item(s) need attention. Run /mos:doctor --fix to resolve, or /mos:doctor --all for details.';
+  } catch (_e) {
+    return '';
+  }
+}
+
 function gateText(ver) {
   return [
     '⬡ MindrianOS v' + ver + ' is active. First-session check:',
@@ -103,11 +135,15 @@ function done() {
   clearTimeout(inputTimeout);
   if (!shouldFire()) return emitEmpty();
   const ver = readPluginVersion();
+  let additionalContext = gateText(ver);
+  // Phase 95.6 D-09: append the /mos:doctor self-check line (best-effort).
+  const doctorLine = runDoctorSelfCheck();
+  if (doctorLine) additionalContext = additionalContext + '\n\n' + doctorLine;
   emitEnvelope({
     continue: true,
     hookSpecificOutput: {
       hookEventName: 'SessionStart',
-      additionalContext: gateText(ver),
+      additionalContext: additionalContext,
     },
   });
 }
