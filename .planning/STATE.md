@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 95.6-05-PLAN.md
-last_updated: "2026-05-11T17:56:02.966Z"
+stopped_at: Completed 95.6-06-PLAN.md
+last_updated: "2026-05-11T18:02:45.337Z"
 last_activity: 2026-05-11
 progress:
   total_phases: 52
   completed_phases: 28
   total_plans: 230
-  completed_plans: 211
+  completed_plans: 212
   percent: 82
 ---
 
@@ -29,7 +29,7 @@ Phase: 95.6 (install-cache-windows-hardening-and-skill-loop-resilience) — EXEC
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.9 (target 2026-06-01 per NATO Defense College Rome June course; ideal 2026-05-23 for 8-day Lawrence dogfood window)
 Next phase: 95.6 EXECUTION -- `/gsd:execute-phase 95.6` (plans complete + checked 2026-05-10)
-Plan: 6 of 10
+Plan: 7 of 10
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: 2026-05-11 EOD (maintainer's public commitment to Lawrence + Gary on 2026-05-09 install call)
@@ -264,6 +264,7 @@ Progress: [████████░░] 82%
 | Phase 95.6 P03 | 8 min | 2 tasks | 2 files |
 | Phase 95.6 P04 | 12 min | 1 tasks | 2 files |
 | Phase 95.6 P05 | 40min | 3 tasks | 3 files |
+| Phase 95.6 P06 | 25min | 2 tasks | 5 files |
 
 ### Roadmap Evolution
 
@@ -713,6 +714,8 @@ Progress: [████████░░] 82%
 - [Phase 95.6]: install.sh skill-loop pre-filters on SKILL.md; missing-SKILL.md dirs WARN to stderr and the script continues (D-03 part b; fixes the bug that broke Gary Laben's install)
 - [Phase 95.6]: install.sh D-01: OS detection (MOS_TEST_FORCE_OS-testable) + enable_longpaths_on_windows() preflight before clone + stale-partial-clone cleanup in Step 2
 - [Phase 95.6]: D-09 closed: install.sh writes the statusLine block FIRST via idempotent register_statusline() + records .install-receipt.json; /mos:doctor class H detects install-incomplete (missing statusLine block / halted receipt) + --fix re-stamps the block idempotently; first-session SessionStart hook auto-runs /mos:doctor and surfaces all-green-or-what-is-missing
+- [Phase 95.6]: 95.6-06: scripts/release.sh Step 9.5 npm publish gate -- between Step 9 (git push) and Step 10 (cache update); dist-tag @next for -beta./alpha./rc./next. suffixes, @latest for clean X.Y.Z; npm pack --dry-run payload review against package.json files allowlist (halts if .planning/ / docs/ / mcp-server-brain/ / tests/ / release.sh in tarball); explicit halt + recovery message on publish failure; MOS_TEST_DRY_RUN=1 escape hatch. package.json: name -> @mindrian/os, private:true removed, files allowlist added. No live npm publish (that is 95.6-10). test-release-npm-gate.sh GREEN; run-all-956.sh 8/8 GREEN.
+- [Phase 95.6]: 95.6-06: CHANGELOG.md gets a [Unreleased] section with the legacy beta.1-beta.8 npm-gap note (those versions stay unpublished; first npm-published version is beta.9 via Step 9.5); 95.6-10 folds it into the beta.9 entry. Case #4 autopsy (docs/autopsies/2026-05-09-gary-laben-install-failure.md) augmented with ## Timeline / ## The family pattern / ## Fixes shipped + 04-REVERSE-SALIENT-INSTALL cross-ref; no Brain key UUIDs leaked.
 
 ### Pending Todos
 
@@ -737,6 +740,6 @@ yet.
 
 ## Session Continuity
 
-Last session: 2026-05-11T17:55:57.501Z
-Stopped at: Completed 95.6-05-PLAN.md
+Last session: 2026-05-11T18:02:36.780Z
+Stopped at: Completed 95.6-06-PLAN.md
 Resume file: None
