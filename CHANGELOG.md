@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [1.13.0-beta.10] - 2026-05-11
+
+### Changed
+
+- **npm package renamed: `@mindrian/os` -> `@mindrian_os/cli`.** The `@mindrian` npm scope never existed (the registry returns `{"error":"Scope not found"}`), so `@mindrian/os` could never be published. The maintainer created the `@mindrian_os` org on npm on 2026-05-11; the package now lives at `@mindrian_os/cli`. The `mindrian-os` CLI command (the `bin` entry in `package.json`) is unchanged. Forward-looking references updated in `scripts/release.sh`, `docs/install/PACKAGING-PATHS.md`, and `tests/manual/95.6-windows-cold-install-acceptance.md`. The first npm-published version is `1.13.0-beta.10`, under the corrected name.
+
+### Notes
+
+- Re-cut of the `1.13.0-beta.9` content under the corrected package name -- no plugin behavior changes vs beta.9. beta.9 contains: all of Phase 95.6 (install-cache Windows hardening, Tier 1 + Tier 2 + Tier 3, decisions D-01 through D-11), the `test1_enumCount` floor fix, and the retroactive `117-VERIFICATION.md`. See the `[1.13.0-beta.9]` entry below for the full feature list; that entry is left intact as the historical record of the pre-rename release (which shipped to GitHub and the marketplace as `v1.13.0-beta.9`).
+- The Windows cold-install acceptance gate (`tests/manual/95.6-windows-cold-install-acceptance.md`) remains waived (maintainer decision, 2026-05-11). Promotion to a clean `1.13.0` (no suffix) should still wait on a Windows tester run.
+- Install paths live with this release: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.10`, direct `install.sh` from the `v1.13.0-beta.10` tag, and `npx @mindrian_os/cli@next` once the npm publish lands.
+
 ## [1.13.0-beta.9] - 2026-05-11
 
 Phase 95.6 -- install-cache Windows hardening + skill-loop resilience. Closes case #4 in the install-cache failure family (the 2026-05-08/09 Gary Laben Windows 11 install). Release infrastructure ships as a beta first per the project release policy; this beta is opt-in only.
