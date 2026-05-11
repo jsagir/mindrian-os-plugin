@@ -13,6 +13,39 @@ REPO="https://github.com/jsagir/mindrian-os-plugin.git"
 INSTALL_DIR="${HOME}/.claude/plugins/mindrian-os"
 CLAUDE_DIR="${HOME}/.claude"
 
+# Phase 95.6 D-01: OS detection (testable via MOS_TEST_FORCE_OS).
+# `windows`/`Windows`/`WINDOWS` force Windows; MINGW*/MSYS*/CYGWIN* are what
+# `uname -s` reports under Git Bash / MSYS2 / Cygwin on Windows; anything else
+# (Linux, Darwin, `linux`, `mac`, ...) is treated as non-Windows.
+case "${MOS_TEST_FORCE_OS:-$(uname -s 2>/dev/null)}" in
+  windows|Windows|WINDOWS|MINGW*|MSYS*|CYGWIN*) IS_WINDOWS=1 ;;
+  *) IS_WINDOWS=0 ;;
+esac
+
+# Phase 95.6 D-01: on Windows + Git Bash, this repo contains paths that can
+# exceed the Windows MAX_PATH limit (260 chars). git refuses to create them
+# unless core.longpaths is enabled. We set it globally (the only scope that
+# affects a fresh clone) and tell the user exactly what changed. On non-Windows
+# this is a no-op pass-through -- no global git config is touched.
+enable_longpaths_on_windows() {
+  [ "$IS_WINDOWS" = "1" ] || return 0
+  if ! command -v git >/dev/null 2>&1; then
+    echo "  x You appear to be on Windows but 'git' is not on PATH." >&2
+    echo "    Install Git for Windows (it includes Git Bash): https://git-scm.com/download/win" >&2
+    echo "    Then re-run this installer from the Git Bash prompt." >&2
+    exit 1
+  fi
+  echo ""
+  echo "  Windows detected. Enabling git long-path support..."
+  echo "  -> running: git config --global core.longpaths true"
+  echo "     (this changes your global git config so the clone can create"
+  echo "      deeply-nested directories; it is the standard fix for the"
+  echo "      Windows 260-character path limit and is safe to leave on)"
+  git config --global core.longpaths true
+  echo "  . Long-path support enabled"
+  echo ""
+}
+
 echo ""
 echo "  ╭────────────────────────────────────────────╮"
 echo "  │                                            │"
@@ -24,6 +57,12 @@ echo ""
 
 # Step 1: Check prerequisites
 echo "  Checking prerequisites..."
+
+# Phase 95.6 D-01: run the Windows long-path preflight FIRST. On Windows with no
+# git on PATH it exits here with the Windows-specific "Git for Windows" message;
+# on Windows with git it sets core.longpaths globally and returns; on non-Windows
+# it returns immediately and the generic checks below run exactly as before.
+enable_longpaths_on_windows
 
 if ! command -v git &>/dev/null; then
   echo "  x Git not found. Install git first: https://git-scm.com"
@@ -50,6 +89,14 @@ if [ -d "$INSTALL_DIR/.git" ]; then
   cd "$INSTALL_DIR"
   git pull --quiet origin main
 else
+  if [ -d "$INSTALL_DIR" ]; then
+    # Phase 95.6 D-01: a directory exists but has no .git -- almost certainly a
+    # partial clone left behind by a prior failed attempt (e.g. a MAX_PATH error
+    # mid-clone). Remove it so the retry is clean and does not re-trigger the
+    # same "Filename too long" failure on the second run.
+    echo "  . Found a partial/incomplete install at $INSTALL_DIR -- removing it before re-cloning"
+    rm -rf "$INSTALL_DIR"
+  fi
   echo "  . Cloning MindrianOS..."
   mkdir -p "$(dirname "$INSTALL_DIR")"
   git clone --quiet "$REPO" "$INSTALL_DIR"

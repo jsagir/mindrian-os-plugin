@@ -73,6 +73,7 @@ run_install() {
     # Guard: if a git still resolves on /usr/bin, skip the no-git assertion.
     if PATH="$path_val" command -v git >/dev/null 2>&1; then
       echo "__GIT_STILL_ON_PATH__" > "$out"
+      echo "$out"
       return 0
     fi
   fi
