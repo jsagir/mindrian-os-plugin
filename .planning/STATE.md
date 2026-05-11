@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: "95.6-10 Task 1 + Task 2 (waived) + Task 3-local complete -- v1.13.0-beta.9 staged: release commit 9ed8280 + tag v1.13.0-beta.9 + CHANGELOG entry 577a668. PENDING (maintainer-gated): git push origin main --tags; npm publish --tag next (needs npm login); ~/mindrian-marketplace marketplace.json bump to 1.13.0-beta.9 + ref pin v1.13.0-beta.9 + push. Run gsd-tools phase complete 95.6 after the push."
-last_updated: "2026-05-11T19:05:00.000Z"
+stopped_at: "95.6-10 -- v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (origin/main 60fe434; tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace master a41964f, mos 1.13.0-beta.9 / ref v1.13.0-beta.9; CHANGELOG entry 577a668; Windows cold-install checkpoint waived). PENDING: npm publish --tag next (needs `npm login` -- no npm auth in env), then gsd-tools phase complete 95.6, then update ~/mindrianos-install-site/ for npx @mindrian/os@next. Then Phase 117."
+last_updated: "2026-05-11T19:35:00.000Z"
 last_activity: 2026-05-11
 progress:
   total_phases: 52
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 95.6 -- all 10 plans complete; v1.13.0-beta.9 staged locally; PENDING maintainer push + npm publish + marketplace ref pin
+**Current focus:** Phase 95.6 -- v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11; only `npm publish` (needs `npm login`) + `gsd-tools phase complete 95.6` remain. Then Phase 117.
 
 ## Current Position
 
-Phase: 95.6 (install-cache-windows-hardening-and-skill-loop-resilience) -- 10/10 PLANS COMPLETE; RELEASE STAGED, NOT YET SHIPPED
+Phase: 95.6 (install-cache-windows-hardening-and-skill-loop-resilience) -- 10/10 PLANS COMPLETE; v1.13.0-beta.9 SHIPPED to GitHub + marketplace (npm publish pending)
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
-Beta: beta.9 -- release commit 9ed8280 + tag v1.13.0-beta.9 staged locally; not pushed/published yet (target 2026-06-01 per NATO Defense College Rome June course; maintainer commitment 2026-05-11)
-Next phase: 95.6 SHIP -- maintainer runs `git push origin main --tags`, `npm publish --tag next` (after `npm login`), and the `~/mindrian-marketplace` marketplace.json bump + `ref: v1.13.0-beta.9` pin + push; then `gsd-tools phase complete 95.6`. Then Phase 117.
-Plan: 10 of 10 -- 95.6-10 Task 1 (CHANGELOG) + Task 2 (Windows cold-install checkpoint WAIVED by maintainer 2026-05-11) + Task 3-local (version bumps + release commit + tag) done; Task 3 push/publish/pin pending.
-Status: v1.13.0-beta.9 staged -- run-all-956.sh 8/8 green; CHANGELOG [1.13.0-beta.9] written (577a668); plugin.json + package.json bumped (9ed8280); tag v1.13.0-beta.9 created. Maintainer-gated remainder: push, npm publish, marketplace ref pin.
+Beta: beta.9 SHIPPED 2026-05-11 -- origin/main 60fe434; tag v1.13.0-beta.9 -> 9ed8280 on GitHub; ~/mindrian-marketplace master a41964f (mos 1.13.0-beta.9, source.ref v1.13.0-beta.9). Install paths live: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag. NOT yet: `npx @mindrian/os@next` (needs the npm publish).
+Next phase: finish 95.6 -- maintainer runs `npm login` then `npm publish --tag next` from /home/jsagi/MindrianOS-Plugin/ (publishes @mindrian/os@1.13.0-beta.9 @next), then `gsd-tools phase complete 95.6`, then updates ~/mindrianos-install-site/ for npx. THEN Phase 117 (which is already SHIPPED v1.13.0-beta.8 -- 6/6 plans done, no VERIFICATION.md; "117 go" likely means run the verifier / a finish pass, not a fresh build).
+Plan: 10 of 10 -- 95.6-10 Task 1 (CHANGELOG 577a668) + Task 2 (Windows cold-install checkpoint WAIVED by maintainer 2026-05-11) + Task 3 (version bumps 9ed8280 + tag + push origin main --tags + ~/mindrian-marketplace ref pin a41964f) done EXCEPT the npm publish (ENEEDAUTH -- needs `npm login`).
+Status: v1.13.0-beta.9 shipped to GitHub + marketplace -- run-all-956.sh 8/8 green; npm publish --dry-run --tag next succeeds (only auth blocks the real publish).
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: 2026-05-11 EOD (maintainer's public commitment to Lawrence + Gary on 2026-05-09 install call)
 
@@ -726,7 +726,8 @@ Progress: [████████░░] 82%
 - [Phase 88.2 deferred RESOLVED]: tests/test-navigation-memory-events.cjs test1_enumCount now asserts EVENT_TYPES.size >= 19 (floor, not exact) -- the enum grew to 32 via 116/117/89-07. 9/9 GREEN. Commit a73a06c.
 - [Phase 95.6]: 95.6-10 Task 1: CHANGELOG [1.13.0-beta.9] - 2026-05-11 entry written (folds the [Unreleased] block + D-01/02/03/09 fixes + 95.6-07/08/09 Tier 2/3 lines + npm-gap note + Windows-cold-install-waiver note + separate-repo follow-ups note); run-all-956.sh 8/8 green; install.sh/doctor.cjs/release.sh syntax OK. Versions not bumped here. Commit 577a668.
 - [Phase 95.6]: 95.6-10 Task 2: Windows cold-install acceptance gate (tests/manual/95.6-windows-cold-install-acceptance.md) WAIVED by maintainer 2026-05-11 ("I will not reach out to Gary; we will do it anyway"). beta.9 ships unverified-on-Windows -- acceptable for an opt-in beta; promotion to clean 1.13.0 should still wait on a Windows cold-install confirmation.
-- [Phase 95.6]: 95.6-10 Task 3-local: scripts/release.sh has no pre-release-suffix bump path, so by-hand: plugin.json + package.json -> 1.13.0-beta.9; release commit 9ed8280; tag v1.13.0-beta.9 created locally. npm pack --dry-run reviewed -- tarball clean (no .planning/ docs/ mcp-server-brain/ tests/ release.sh; the files allowlist works; CHANGELOG.md ~317kB in tarball, noted as bloat-not-leak). PENDING (maintainer-gated, npm whoami=ENEEDAUTH): git push origin main --tags; npm publish --tag next (after npm login); ~/mindrian-marketplace marketplace.json bump to 1.13.0-beta.9 + ref pin v1.13.0-beta.9 + push (do AFTER the tag is pushed). Then gsd-tools phase complete 95.6 (the verifier checks the marketplace ref + npm publish must_haves).
+- [Phase 95.6]: 95.6-10 Task 3: scripts/release.sh has no pre-release-suffix bump path, so by-hand: plugin.json + package.json -> 1.13.0-beta.9; release commit 9ed8280; tag v1.13.0-beta.9. npm pack --dry-run reviewed -- tarball clean (no .planning/ docs/ mcp-server-brain/ tests/ release.sh; files allowlist works; 590 files / 1.8MB packed; CHANGELOG.md ~317kB in tarball, bloat-not-leak).
+- [Phase 95.6]: 95.6-10 SHIP 2026-05-11 (maintainer instruction "I want this pushed across all install types"): git push origin main --tags DONE (origin/main 60fe434; tag v1.13.0-beta.9 -> 9ed8280 on GitHub). ~/mindrian-marketplace/.claude-plugin/marketplace.json: mos -> 1.13.0-beta.9, source.ref -> v1.13.0-beta.9; committed a41964f, pushed origin/master (done AFTER the tag was on GitHub). npm publish --tag next NOT done -- npm whoami=ENEEDAUTH, no ~/.npmrc, no interactive login in env; maintainer must `npm login` then `npm publish --tag next` from MindrianOS-Plugin/, verify `npm view @mindrian/os@next version` == 1.13.0-beta.9, then `gsd-tools phase complete 95.6`, then update ~/mindrianos-install-site/ for npx @mindrian/os@next.
 
 ### Pending Todos
 
@@ -738,8 +739,10 @@ Progress: [████████░░] 82%
 
 ### Blockers/Concerns
 
-- v1.13.0-beta.9 is staged locally (commit 9ed8280 + tag v1.13.0-beta.9) but NOT shipped: the maintainer must run `git push origin main --tags`, `npm publish --tag next` (after `npm login` -- no npm auth in the dev env), and the `~/mindrian-marketplace` marketplace.json bump + `ref: v1.13.0-beta.9` pin + push (do AFTER the tag is on GitHub). Phase 95.6 is not "done" until those land; run `gsd-tools phase complete 95.6` after the push.
+- v1.13.0-beta.9 is on GitHub + the marketplace (2026-05-11) but NOT on npm yet: the maintainer must `npm login` then `npm publish --tag next` from /home/jsagi/MindrianOS-Plugin/ (no npm auth in the dev env -- ENEEDAUTH, no ~/.npmrc), verify `npm view @mindrian/os@next version` == 1.13.0-beta.9, then `gsd-tools phase complete 95.6`, then update ~/mindrianos-install-site/ for the `npx @mindrian/os@next` path. Until then the `npx`/`npm i -g` install path is dead; `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` and direct install.sh work.
 - Windows cold-install gate (tests/manual/95.6-windows-cold-install-acceptance.md) was WAIVED for beta.9 -- still the contract for promoting beta.9 -> clean 1.13.0; needs a Windows tester run before that promotion.
+- Phase 117 (auto-explore-domains-on-first-material) is already SHIPPED v1.13.0-beta.8 (6/6 plans, ROADMAP marks it shipped) but has NO 117-VERIFICATION.md -- a verifier pass is owed before it can be marked formally complete.
+- ~/mindrian-marketplace/.claude-plugin/marketplace.json `description` field is slightly stale ("73 commands ... 13 hooks") -- not updated in the beta.9 ref-pin commit; cosmetic.
 - RESOLVED 2026-05-11: tests/test-navigation-memory-events.cjs test1_enumCount now asserts EVENT_TYPES.size >= 19 (floor). 9/9 GREEN (commit a73a06c). The "One-line fix outstanding" item is closed.
 
 ### Quick Tasks Completed
@@ -751,6 +754,6 @@ Progress: [████████░░] 82%
 
 ## Session Continuity
 
-Last session: 2026-05-11T19:05:00.000Z
-Stopped at: 95.6-10 staged (Task 1 + Task 2 waived + Task 3-local) -- v1.13.0-beta.9 release commit 9ed8280 + tag v1.13.0-beta.9 + CHANGELOG 577a668. Maintainer-gated remainder: git push --tags; npm publish --tag next (needs npm login); ~/mindrian-marketplace marketplace.json bump + ref pin + push. Then gsd-tools phase complete 95.6, then Phase 117.
+Last session: 2026-05-11T19:35:00.000Z
+Stopped at: 95.6-10 -- v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (origin/main 60fe434; tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace master a41964f). Remaining: maintainer runs `npm login` + `npm publish --tag next` (ENEEDAUTH in env), then `gsd-tools phase complete 95.6`, then update ~/mindrianos-install-site/ for npx. Then Phase 117 (already shipped beta.8; owes a 117-VERIFICATION.md).
 Resume file: .planning/phases/95.6-install-cache-windows-hardening-and-skill-loop-resilience/95.6-10-SUMMARY.md
