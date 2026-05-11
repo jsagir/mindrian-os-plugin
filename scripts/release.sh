@@ -89,6 +89,30 @@ if echo "$MVAL" | grep -q "Validation failed"; then
 fi
 echo -e "${GREEN}Marketplace validation passed${NC}"
 
+# --- Step 5b: Reserved-marketplace-name compliance (Phase 95.6 D-11a) ---
+# Anthropic blocks a set of reserved marketplace identifiers
+# (claude-code-marketplace, claude-code-plugins, claude-plugins-official,
+# anthropic-marketplace, anthropic-plugins, agent-skills, knowledge-work-plugins,
+# life-sciences) plus impersonation patterns (official-claude*, anthropic-*-v2,
+# anthropic-tools-v2). If any of these appears as an identifier in plugin.json or
+# the marketplace.json, abort -- a release carrying a reserved name is a footgun.
+# Comment/note lines are filtered out so a docstring mention does not block.
+# Current plugin.json name is "mos" and marketplace.json name is
+# "mindrian-marketplace" -- both clear the list, so this passes today. It is a
+# guardrail against a future rename drifting onto a blocked identifier.
+echo ""
+echo "=== Step 5b: reserved-name compliance check ==="
+RESERVED_HITS=$(grep -E "(claude-code-marketplace|claude-code-plugins|claude-plugins-official|anthropic-marketplace|anthropic-plugins|agent-skills|knowledge-work-plugins|life-sciences|official-claude|anthropic-tools-v2)" \
+  "$PLUGIN_DIR/.claude-plugin/plugin.json" "$MARKETPLACE_DIR/.claude-plugin/marketplace.json" 2>/dev/null \
+  | grep -vE "comment|note|//" || true)
+if [ -n "$RESERVED_HITS" ]; then
+  echo -e "${RED}  x A reserved Anthropic marketplace identifier appears in plugin.json or marketplace.json:${NC}"
+  echo "$RESERVED_HITS"
+  echo "    Rename it before releasing -- Anthropic blocks these identifiers."
+  exit 1
+fi
+echo -e "${GREEN}  No reserved identifiers found${NC}"
+
 # --- Step 6: Check for CHANGELOG entry ---
 cd "$PLUGIN_DIR"
 if ! grep -q "\[$NEW_VERSION\]" CHANGELOG.md 2>/dev/null; then
