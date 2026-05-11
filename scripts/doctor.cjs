@@ -39,6 +39,10 @@ const PLUGIN_HOME = process.env.MINDRIAN_PLUGIN_HOME || path.join(HOME, '.claude
 const INSTALL_DIR = path.join(PLUGIN_HOME, 'mindrian-os');
 const INSTALL_PLUGIN_JSON = path.join(INSTALL_DIR, '.claude-plugin/plugin.json');
 const MARKETPLACE_CACHE_DIR = path.join(PLUGIN_HOME, 'cache/mindrian-marketplace/mos');
+// Phase 95.6 D-09 / R-01: the install receipt install.sh writes incrementally.
+// Class H reads it to confirm the install actually finished and, if not, to
+// name the missing tail steps.
+const INSTALL_RECEIPT_JSON = path.join(INSTALL_DIR, '.install-receipt.json');
 
 // -- ANSI colors -----------------------------------------------------
 
@@ -102,10 +106,12 @@ Class flags (combine freely; --all activates them all):
   --room-md                class E (ROOM.md/MINTO.md presence under .room-root)
   --ui-compliance          class F (UI Ruling System scan)
   --statusline-visibility  class G (user-settings drift, plugin install integrity, statusline-mos isolated execution)
+                           + class H (install-incomplete: missing statusLine block and/or a halted .install-receipt.json)
   --all                    activate all class flags
 
 Behavior flags:
   --fix                attempt auto-recovery for each class that supports it
+                       (class H: re-stamps the canonical statusLine block when missing, idempotently)
   --json               machine-readable output (for hooks / regression tests)
   --verbose, -v        extra diagnostic detail
   --simulate-write=<p> simulate a PWD write at <p> for class C active-room mismatch
@@ -1110,6 +1116,179 @@ function performStatuslineFix(_currentCheck) {
   };
 }
 
+// -- Class H: install-incomplete -------------------------------------
+//
+// Phase 95.6 D-09. The "silent install-incomplete" failure mode: install.sh
+// halted (D-03 bug) or a manual recovery skipped it, so commands + Larry are
+// present but ~/.claude/settings.json has no .statusLine block and the
+// bottom-of-terminal `(hexagon) MindrianOS-Plugin <room> <ctx%>` never renders.
+// Class G assumes a statusLine block exists and checks that it RESOLVES; class H
+// is orthogonal -- it checks the install is structurally COMPLETE:
+//   (a) ~/.claude/plugins/mindrian-os/.install-receipt.json exists and shows
+//       every canonical step ran with completed_at stamped; if a halted
+//       receipt, name the missing tail steps. recoverable iff the only missing
+//       step is register_statusline (then --fix can restamp); otherwise
+//       report-only (re-running install.sh is the user's call).
+//   (b) if no receipt, fall back to: does ~/.claude/settings.json have a
+//       .statusLine block at all? Missing -> warn, recoverable (--fix writes it).
+// Desktop carve-out mirrors class G: CLAUDE_DESKTOP=1 -> status=skip.
+
+const CLASS_H_CANONICAL_STEPS = [
+  'preflight',
+  'clone',
+  'register_statusline',
+  'register_commands',
+  'register_skills',
+  'register_agents',
+  'configure_hooks',
+];
+
+function classHActionString() {
+  return 'writes the canonical MindrianOS statusLine block (bash "<install-dir>/scripts/statusline-mos") into ~/.claude/settings.json';
+}
+
+function userSettingsHasStatusLine() {
+  const userSettingsPath = path.join(os.homedir(), '.claude', 'settings.json');
+  let userSettings = null;
+  try {
+    if (fs.existsSync(userSettingsPath)) {
+      userSettings = JSON.parse(fs.readFileSync(userSettingsPath, 'utf8'));
+    }
+  } catch (_e) { /* treat as no settings */ }
+  const sl = userSettings && userSettings.statusLine;
+  return !!(sl && typeof sl === 'object' && typeof sl.command === 'string' && sl.command.length > 0);
+}
+
+function checkInstallIncomplete() {
+  // Step 0 -- Desktop carve-out (mirror class G).
+  let surface = 'CLI';
+  try {
+    const mod = require(path.resolve(__dirname, '..', 'lib', 'statusline', 'surface-detect.cjs'));
+    surface = mod.detectStatuslineSurface();
+  } catch (_e) {
+    if (process.env.CLAUDE_DESKTOP === '1') surface = 'DESKTOP';
+  }
+  if (surface !== 'CLI') {
+    return {
+      status: 'skip',
+      detail: 'class H (install-incomplete) is CLI-only -- ' + surface + ' has no statusline primitive',
+      evidence: ['surface=' + surface],
+      recoverable: false,
+      action: classHActionString(),
+    };
+  }
+
+  // Step 1 -- read the install receipt, if present.
+  let receipt = null;
+  let receiptParseError = false;
+  if (fs.existsSync(INSTALL_RECEIPT_JSON)) {
+    try {
+      receipt = JSON.parse(fs.readFileSync(INSTALL_RECEIPT_JSON, 'utf8'));
+    } catch (_e) { receiptParseError = true; }
+  }
+
+  if (receipt && typeof receipt === 'object' && !receiptParseError) {
+    const ranNames = Array.isArray(receipt.steps)
+      ? receipt.steps.map((s) => (s && s.name)).filter(Boolean)
+      : [];
+    const missing = CLASS_H_CANONICAL_STEPS.filter((n) => ranNames.indexOf(n) === -1);
+    const completed = receipt.completed_at !== null && receipt.completed_at !== undefined;
+    if (completed && missing.length === 0) {
+      return {
+        status: 'ok',
+        detail: 'install complete (.install-receipt.json shows all ' + CLASS_H_CANONICAL_STEPS.length + ' steps ran)',
+        evidence: ['receipt: ' + INSTALL_RECEIPT_JSON, 'completed_at=' + receipt.completed_at],
+        recoverable: false,
+        action: classHActionString(),
+      };
+    }
+    // Halted install. recoverable only when register_statusline is literally
+    // the one missing step -- then --fix can restamp it. Otherwise re-running
+    // install.sh is the user's call (report-only).
+    const onlyStatuslineMissing = missing.length === 1 && missing[0] === 'register_statusline';
+    return {
+      status: 'warn',
+      detail: 'install halted -- missing steps: ' + (missing.length ? missing.join(', ') : '(none, but completed_at is null)'),
+      evidence: [
+        'receipt: ' + INSTALL_RECEIPT_JSON,
+        'completed_at=' + JSON.stringify(receipt.completed_at),
+        'ran: ' + (ranNames.length ? ranNames.join(', ') : '(none)'),
+      ],
+      missingSteps: missing,
+      recoverable: onlyStatuslineMissing,
+      action: classHActionString(),
+    };
+  }
+
+  // Step 2 -- no usable receipt. Check whether ~/.claude/settings.json has a
+  // statusLine block at all (class H's "EXISTS" check, distinct from class G's
+  // "RESOLVES" check). Missing -> install incomplete, recoverable via --fix.
+  if (userSettingsHasStatusLine()) {
+    return {
+      status: 'ok',
+      detail: 'statusLine block present in ~/.claude/settings.json',
+      evidence: receiptParseError
+        ? ['.install-receipt.json present but not valid JSON; statusLine block check passed']
+        : ['no .install-receipt.json on disk; statusLine block check passed'],
+      recoverable: false,
+      action: classHActionString(),
+    };
+  }
+  return {
+    status: 'warn',
+    detail: 'statusLine block missing from ~/.claude/settings.json (install.sh halted before register_statusline, or a manual recovery skipped it)',
+    evidence: [
+      receiptParseError
+        ? '.install-receipt.json present but not valid JSON'
+        : 'no .install-receipt.json on disk',
+      'no .statusLine block in ' + path.join(os.homedir(), '.claude', 'settings.json'),
+    ],
+    recoverable: true,
+    action: classHActionString(),
+  };
+}
+
+// Class H --fix: write the canonical statusLine block into ~/.claude/settings.json
+// idempotently. Mirrors the SessionStart hook-registration idempotent-write
+// pattern from Phase 95.2. It does NOT re-run the whole install -- it just
+// restamps the statusline; the missing-tail-steps case is report-only.
+function performClassHFix(_currentCheck) {
+  const userSettingsPath = path.join(os.homedir(), '.claude', 'settings.json');
+  const want = {
+    type: 'command',
+    command: 'bash "' + path.join(INSTALL_DIR, 'scripts', 'statusline-mos') + '"',
+  };
+  try {
+    let s = {};
+    if (fs.existsSync(userSettingsPath)) {
+      try { s = JSON.parse(fs.readFileSync(userSettingsPath, 'utf8')); } catch (_e) { s = {}; }
+    }
+    if (!s || typeof s !== 'object') s = {};
+    const cur = s.statusLine;
+    const alreadyGood = cur && typeof cur === 'object' && cur.command === want.command;
+    if (!alreadyGood) {
+      s.statusLine = want;
+      fs.mkdirSync(path.dirname(userSettingsPath), { recursive: true });
+      fs.writeFileSync(userSettingsPath, JSON.stringify(s, null, 2));
+    }
+    return {
+      tool: 'doctor-class-h',
+      action: classHActionString(),
+      exit_code: 0,
+      changed: !alreadyGood,
+      target: userSettingsPath,
+    };
+  } catch (err) {
+    return {
+      tool: 'doctor-class-h',
+      action: classHActionString(),
+      exit_code: -1,
+      changed: false,
+      detail: err.message,
+    };
+  }
+}
+
 // -- Renderers -------------------------------------------------------
 
 // Phase 95.1-04 retrofit: 4-zone Shape E (Action Report) per skills/ui-system/SKILL.md.
@@ -1186,9 +1365,23 @@ function renderHumanReport(report) {
       else { glyph = '⊘'; color = C.dim; } // skip
       bodyRows.push('  ' + color + '■' + C.reset + ' statusline-visibility       ' + color + glyph + C.reset + ' ' + (stl.detail || stl.status));
     }
+    const inc = report.checks['install-incomplete'];
+    if (inc) {
+      let glyph;
+      let color;
+      if (inc.status === 'ok') { glyph = '✓'; color = C.green; }
+      else if (inc.status === 'warn') { glyph = '⚠'; color = C.yellow; }
+      else if (inc.status === 'error') { glyph = '⚠'; color = C.red; }
+      else { glyph = '⊘'; color = C.dim; } // skip
+      bodyRows.push('  ' + color + '■' + C.reset + ' install-incomplete          ' + color + glyph + C.reset + ' ' + (inc.detail || inc.status));
+      if (inc.status === 'warn' && inc.recoverable === true) {
+        bodyRows.push('     ' + C.dim + '-> /mos:doctor --statusline-visibility --fix re-stamps the statusLine block' + C.reset);
+      }
+    }
     for (const [name, _check] of Object.entries(report.checks)) {
       if (name === 'install-cache') continue; // already handled above.
       if (name === 'statusline-visibility') continue; // rendered above.
+      if (name === 'install-incomplete') continue; // rendered above.
       // Future: render check.detail rows here using the same idiom.
     }
   }
@@ -1387,6 +1580,17 @@ function main() {
     }
   }
 
+  // Class H: install-incomplete (Phase 95.6 D-09). Subsumes the missing-
+  // statusLine case. Activated by --statusline-visibility (so the first-session
+  // check /mos:doctor --statusline-visibility surfaces it) and by --all.
+  if (flags.statuslineVisibility) {
+    try {
+      report.checks['install-incomplete'] = checkInstallIncomplete();
+    } catch (err) {
+      report.checks['install-incomplete'] = { status: 'error', detail: err.message, recoverable: false };
+    }
+  }
+
   // Class E --fix dispatch: invoke generator + re-check.
   if (flags.fix && flags.roomMd && report.checks['room-md'] && report.checks['room-md'].status === 'warn') {
     try {
@@ -1416,6 +1620,23 @@ function main() {
       catch (err) { report.checks['statusline-visibility'] = { status: 'error', detail: err.message }; }
     } catch (err) {
       report.recovered.push({ status: 'error', detail: err.message, tool: 'migrate-stale-user-settings' });
+    }
+  }
+
+  // Class H --fix dispatch: re-stamp the canonical statusLine block when it is
+  // missing (status='warn' AND recoverable). The halted-tail-steps case has
+  // recoverable=false (report-only -- doctor does not re-run install.sh).
+  if (flags.fix && flags.statuslineVisibility
+      && report.checks['install-incomplete']
+      && report.checks['install-incomplete'].status === 'warn'
+      && report.checks['install-incomplete'].recoverable === true) {
+    try {
+      const recovery = performClassHFix(report.checks['install-incomplete']);
+      report.recovered.push(recovery);
+      try { report.checks['install-incomplete'] = checkInstallIncomplete(); }
+      catch (err) { report.checks['install-incomplete'] = { status: 'error', detail: err.message, recoverable: false }; }
+    } catch (err) {
+      report.recovered.push({ status: 'error', detail: err.message, tool: 'doctor-class-h' });
     }
   }
 
