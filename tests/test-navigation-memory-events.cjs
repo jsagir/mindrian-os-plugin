@@ -59,8 +59,8 @@ function cleanup(tmp) {
 
 function test1_enumCount() {
   ok(events.EVENT_TYPES instanceof Set, 'EVENT_TYPES is a Set');
-  // Phase 88.2-00 Wave 0 extended EVENT_TYPES from 15 to 19 (4 new selector_*+f6_round_completed strings per D-AMEND-02 telemetry mirror).
-  equal(events.EVENT_TYPES.size, 19, 'exactly 19 event types (15 Phase 109 baseline + 4 Phase 88.2-00 selector mirror)');
+  // EVENT_TYPES is a monotonically growing enum: 15 Phase 109 baseline; Phase 88.2-00 Wave 0 added 4 selector_*/f6_round_completed strings (-> 19); later phases (116 tension_*, 117 auto_explore_*, 89-07 reverse_salient_*, etc.) add more. Assert a FLOOR, not an exact count, so a future phase adding an event type does not break this Phase 109 baseline test. The required-types loop below pins baseline membership.
+  ok(events.EVENT_TYPES.size >= 19, 'at least 19 event types (15 Phase 109 baseline + 4 Phase 88.2-00 selector mirror; later phases add more)');
   const required = ['node_created', 'status_promoted', 'status_rejected', 'status_stale', 'status_superseded', 'focus_changed', 'brain_query_sent', 'brain_suggestion_received', 'edge_added', 'edge_removed', 'opportunity_added', 'opportunity_reacted', 'opportunity_reflected', 'opportunity_answered', 'state_alias_migration', 'selector_presentation', 'selector_response', 'selector_rejection_captured', 'f6_round_completed'];
   for (const t of required) ok(events.EVENT_TYPES.has(t), 'EVENT_TYPES contains: ' + t);
 }
