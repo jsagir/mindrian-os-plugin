@@ -1,13 +1,27 @@
 {
-  "name": "mindrian-os-plugin",
+  "name": "@mindrian/os",
   "version": "1.13.0-beta.8",
   "description": "MindrianOS MCP server - Larry thinks with you through PWS methodology via Claude Desktop and Cowork",
-  "private": true,
   "scripts": {
     "mcp": "node bin/mindrian-mcp-server.cjs",
     "parity": "node lib/parity/check-parity.cjs",
     "migrate-minto-v88": "node scripts/migrate-minto-schema-v88.cjs"
   },
+  "files": [
+    "bin/",
+    "lib/",
+    "pipelines/",
+    "references/",
+    "skills/",
+    "commands/",
+    "agents/",
+    "hooks/",
+    ".claude-plugin/",
+    ".mcp.json",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "dependencies": {
     "@ig3/markdown-it-wikilinks": "^1.0.2",
     "@modelcontextprotocol/ext-apps": "^1.5.0",

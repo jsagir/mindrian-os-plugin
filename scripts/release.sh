@@ -9,8 +9,9 @@
 #   4. Validates marketplace (zero errors or ABORT)
 #   5. Commits both repos
 #   6. Pushes both repos
-#   7. Updates local marketplace cache
-#   8. Runs post-release verification
+#   7. Publishes @mindrian/os to npm in lockstep (@next for betas, @latest for releases) -- Step 9.5
+#   8. Updates local marketplace cache
+#   9. Runs post-release verification
 #
 # This script is the ONLY way to release. No manual pushes.
 
@@ -143,6 +144,57 @@ echo ""
 echo "=== Pushing ==="
 cd "$PLUGIN_DIR" && git push origin main --tags 2>&1
 cd "$MARKETPLACE_DIR" && git push origin master 2>&1
+
+# --- Step 9.5: Publish @mindrian/os to npm in lockstep (Phase 95.6 D-05a) ---
+# Memory canon feedback_release_lockstep_npm: every plugin release publishes
+# @mindrian/os to npm. -beta./alpha./rc./next. suffixes -> @next dist-tag;
+# clean X.Y.Z -> @latest. If publish fails, HALT -- never ship unpublished.
+# MOS_TEST_DRY_RUN=1 exercises the gate without touching the live registry.
+echo ""
+echo "=== Step 9.5: npm publish (@mindrian/os) ==="
+cd "$PLUGIN_DIR"
+NPM_TAG="latest"
+case "$NEW_VERSION" in
+  *-beta.*|*-alpha.*|*-rc.*|*-next.*) NPM_TAG="next" ;;
+esac
+echo "  version: $NEW_VERSION  ->  dist-tag: @$NPM_TAG"
+
+# Payload gate (Codex review 2026-05-10): the published tarball MUST contain ONLY
+# the package.json "files" allowlist -- never .planning/, docs/, mcp-server-brain/,
+# tests/, or scripts/release.sh. Surface the dry-run contents for the release
+# operator to review before the live publish. 95.6-10 re-runs this as a BLOCKING
+# checkpoint before the first live npm publish.
+echo "  --- npm pack --dry-run payload review (allowlist must be the only contents) ---"
+PACK_OUT="$(npm pack --dry-run 2>&1 || true)"
+echo "$PACK_OUT"
+if echo "$PACK_OUT" | grep -Eq '\.planning/|^npm notice .*docs/|mcp-server-brain/|^npm notice .*tests/|release\.sh'; then
+  echo ""
+  echo -e "${RED}  x npm pack payload includes a NON-allowlisted path (.planning/ / docs/ / mcp-server-brain/ / tests/ / release.sh).${NC}"
+  echo "    Publishing this would leak the entire repo (including Brain-key code) into the public npm tarball."
+  echo "    Fix the package.json \"files\" allowlist before re-running. Do NOT publish."
+  exit 1
+fi
+echo "  payload review OK -- only allowlisted paths present"
+
+if [ "${MOS_TEST_DRY_RUN:-0}" = "1" ]; then
+  echo "  [DRY RUN] would run: npm publish --tag $NPM_TAG"
+else
+  if npm publish --tag "$NPM_TAG"; then
+    echo -e "${GREEN}  Published @mindrian/os@$NEW_VERSION to npm (@$NPM_TAG)${NC}"
+  else
+    echo ""
+    echo -e "${RED}  x npm publish failed for @mindrian/os@$NEW_VERSION.${NC}"
+    echo "    The plugin has already been pushed (Step 9), so the lockstep"
+    echo "    contract is now BROKEN until you recover. To recover:"
+    echo "      1. Fix the npm issue (auth: 'npm whoami'; scope: ensure"
+    echo "         package.json name is '@mindrian/os' and you have publish"
+    echo "         rights on the @mindrian org)."
+    echo "      2. Re-run JUST the publish: npm publish --tag $NPM_TAG"
+    echo "      3. Verify: npm view @mindrian/os@$NPM_TAG version"
+    echo "    Do NOT cut another plugin release until npm is in sync."
+    exit 1
+  fi
+fi
 
 # --- Step 10: Update local cache ---
 echo ""
