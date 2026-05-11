@@ -112,6 +112,18 @@
             "timeout": 3000
           }
         ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-npm-reconcile.cjs\"",
+            "timeout": 60000,
+            "async": true,
+            "statusMessage": "Reconciling dependencies..."
+          }
+        ]
       }
     ],
     "PreCompact": [
