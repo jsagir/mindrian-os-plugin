@@ -112,6 +112,33 @@ before installing. The "always allow" shortcut and several install steps are key
 
 ---
 
+## Manual Recovery
+
+If `bash install.sh` halted partway (older versions could do this; current versions warn and continue), here is how to finish the install by hand. This procedure is what a tester's Claude Code reconstructed on 2026-05-08; see `docs/testers/gary-laben/FEEDBACK.md`.
+
+**Step 1 (do this first).** Just re-run it: `bash "$HOME/.claude/plugins/mindrian-os/install.sh"`. Current versions are idempotent and no longer halt on a missing skill file.
+
+**Step 2 (if that still does not work).** Complete it by hand. (1) Symlink the agents, (2) write the `~/.claude/settings.json` fragments (`SessionStart` hook entry, `agent: "larry-extended"`, `env.MINDRIAN_OS_ROOT` pointing at the install dir -- Step 7 of `install.sh` writes exactly these, so the simplest path is re-running the script), (3) stamp the statusline block:
+
+```bash
+INSTALL_DIR="$HOME/.claude/plugins/mindrian-os"
+for f in "$INSTALL_DIR/agents/"*.md; do ln -sf "$f" "$HOME/.claude/agents/$(basename "$f")"; done
+bash "$INSTALL_DIR/install.sh"   # re-run: idempotently writes the settings.json fragments
+node "$INSTALL_DIR/scripts/doctor.cjs" --statusline-visibility --fix
+```
+
+PowerShell users: run the install command from CMD instead (see note below); the `ln -sf` loop has a `New-Item -ItemType SymbolicLink` equivalent if you must do it natively.
+
+**Step 3 (verify).** Inside Claude Code, run `/mos:doctor --all`. It should report all-green or name exactly what is still missing.
+
+### If the install command fails in PowerShell
+
+Open CMD instead: Start menu, type `cmd`, press Enter, then run the install command there. Several testers have had the install work in CMD when it failed in PowerShell.
+
+A note on permission prompts: 10 or more permission prompts during install is normal; see "A note on permission prompts during install" above (pick "always allow", option 2, the first time).
+
+---
+
 ## Permissions
 
 MindrianOS is read-heavy on your workspace and write-heavy only on `~/MindrianRooms/` (your rooms) and `./.mindrian/` (session state). It never writes to brain.mindrian.ai. Every `/mos:*` command respects the [Canon Part 8 Graph Boundary](docs/MINDRIAN-CANON.md#part-8---the-graph-boundary-security-constitution): your artifacts, decisions, and meetings stay local.
