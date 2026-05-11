@@ -39,6 +39,22 @@ for test_script in "$SCRIPT_DIR"/test-*.sh; do
   echo ""
 done
 
+# Phase 95.6: also run the hand-rolled CJS assertion suites. The existing loop
+# above only picks up test-*.sh; the doctor-class / receipt / data-integrity
+# suites are CJS. Fold them into the same TOTAL/PASSED/FAILED accounting.
+for test_cjs in "$SCRIPT_DIR"/test-*.cjs; do
+  [[ -f "$test_cjs" ]] || continue
+  test_name=$(basename "$test_cjs" .cjs)
+  ((TOTAL++))
+  echo "--- Running: $test_name ---"
+  if node "$test_cjs"; then
+    ((PASSED++)); echo ">>> $test_name: PASSED"
+  else
+    ((FAILED++)); FAILED_TESTS+=("$test_name"); echo ">>> $test_name: FAILED"
+  fi
+  echo ""
+done
+
 END_TIME=$(date +%s)
 ELAPSED=$((END_TIME - START_TIME))
 
