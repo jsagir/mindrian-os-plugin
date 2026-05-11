@@ -7,6 +7,9 @@
     "parity": "node lib/parity/check-parity.cjs",
     "migrate-minto-v88": "node scripts/migrate-minto-schema-v88.cjs"
   },
+  "bin": {
+    "mindrian-os": "bin/cli.js"
+  },
   "files": [
     "bin/",
     "lib/",
