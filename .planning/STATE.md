@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 95.6-08-PLAN.md
-last_updated: "2026-05-11T18:15:54.423Z"
+stopped_at: Completed 95.6-09-PLAN.md
+last_updated: "2026-05-11T18:28:33.607Z"
 last_activity: 2026-05-11
 progress:
   total_phases: 52
   completed_phases: 28
   total_plans: 230
-  completed_plans: 214
+  completed_plans: 215
   percent: 82
 ---
 
@@ -29,7 +29,7 @@ Phase: 95.6 (install-cache-windows-hardening-and-skill-loop-resilience) — EXEC
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.9 (target 2026-06-01 per NATO Defense College Rome June course; ideal 2026-05-23 for 8-day Lawrence dogfood window)
 Next phase: 95.6 EXECUTION -- `/gsd:execute-phase 95.6` (plans complete + checked 2026-05-10)
-Plan: 9 of 10
+Plan: 10 of 10
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: 2026-05-11 EOD (maintainer's public commitment to Lawrence + Gary on 2026-05-09 install call)
@@ -267,6 +267,7 @@ Progress: [████████░░] 82%
 | Phase 95.6 P06 | 25min | 2 tasks | 5 files |
 | Phase 95.6 P07 | 2m | 2 tasks | 4 files |
 | Phase 95.6 P08 | 20m | 3 tasks | 13 files |
+| Phase 95.6 P09 | 38min | 3 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -721,6 +722,7 @@ Progress: [████████░░] 82%
 - [Phase 95.6]: bin/cli.js (mindrian-os install|doctor|update) shipped as pure CJS thin wrapper; doctor shells scripts/doctor.cjs (Path C parity), update does git pull --ff-only + bash install.sh, install prints instructions (Path B)
 - [Phase 95.6]: release.sh Step 5b reserved-Anthropic-marketplace-name compliance gate added between Step 5 (marketplace validation) and Step 6 (CHANGELOG); D-05b npm-source marketplace.json flip documented but NOT executed -- gated on npm view @mindrian/os@next version returning the published version (likely beta.10)
 - [Phase 95.6]: 95.6-08: SessionStart npm-reconcile hook (D-05d) + explicit subagent mcpServers/skills (D-10) + Deferred-Tool-Loading note (D-11b) + four-path distribution doc (D-05e/f). Tier 2, executed now.
+- [Phase 95.6]: 95.6-09 D-06: README License section now says 'source-available, not open source'; plugin.json license confirmed BSL-1.1; grep 'BSL.*open.source' returns 0 outside .planning. D-07: scripts/check-first-touch-drift.cjs scanner (pattern 1 em-dash + pattern 2 stale-version-literal scoped to greeting copy + pattern 3 BSL-open-source) + tests/test-first-touch-drift-scanner.cjs 3/3 GREEN; SEED-007 scope-notes mark D-06 as the pattern-3 trigger. D-04: README ## Manual Recovery section (26 lines) from Gary's CC transcript. Out of scope: docs/testers/outbox/ (gitignored) + ~/mindrianos-install-site/ (separate repo) need manual sweeps.
 
 ### Pending Todos
 
@@ -745,6 +747,6 @@ yet.
 
 ## Session Continuity
 
-Last session: 2026-05-11T18:15:47.447Z
-Stopped at: Completed 95.6-08-PLAN.md
+Last session: 2026-05-11T18:28:33.526Z
+Stopped at: Completed 95.6-09-PLAN.md
 Resume file: None

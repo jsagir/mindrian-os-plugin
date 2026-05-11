@@ -896,7 +896,7 @@ Plans:
 **Goal:** Harden the canonical Windows install path (git clone + bash install.sh) against the four failure modes that broke a real Wave-2 tester install on 2026-05-08/09 (Gary Laben, Surface Pro 7), and close the gap between "the install site advertises a path" and "the path actually works on a fresh Windows machine." Tier 1 (gates the NATO Defense College Rome 2026-06-01 deadline; ships as v1.13.0-beta.9): D-02 rename the 189-char phase-92 dir, D-03 install.sh skill-loop hardening + SKILL.md backfill, D-01 Windows long-path preflight + stale-clone cleanup, D-09 statusline registered first + /mos:doctor class H + install receipt + first-session auto-doctor, D-05a release.sh Step 9.5 npm publish gate. Tier 2 (defer to beta.10 if NATO pressure): D-05b/c/d marketplace npm source + bin/cli.js + SessionStart npm-reconcile hook, D-10 subagent capability parity, D-11 reserved-names gate + Deferred Tool Loading note, D-05e/f ZIP/URL + CI pre-bake docs. Tier 3 (defer freely): D-04 README Manual Recovery, D-06 BSL-1.1 source-available sweep, D-07 SEED-007 scanner pattern 3. Plus the case #4 install-failure autopsy.
 **Requirements**: D-01, D-02, D-03, D-04, D-05a, D-05b, D-05c, D-05d, D-05e, D-05f, D-06, D-07, D-08, D-09, D-10, D-11
 **Depends on:** Phase 95.2 (install-cache-atomic-recovery-sessionstart-preflight)
-**Plans:** 8/10 plans executed
+**Plans:** 9/10 plans executed
 
 Plans:
 - [x] 95.6-01-PLAN.md -- D-02: rename .planning/phases/92-... (189-char leaf) to 92-trust-layer-refactor/ [Tier 1, Wave 1]
@@ -907,7 +907,7 @@ Plans:
 - [x] 95.6-06-PLAN.md -- D-05a: scripts/release.sh Step 9.5 npm publish gate + case #4 autopsy + CHANGELOG npm-gap note [Tier 1, Wave 1]
 - [x] 95.6-07-PLAN.md -- D-05b/c + D-11a: bin/cli.js (install/doctor/update) + package.json bin field + reserved-marketplace-names release gate + D-05b npm-source target documented [Tier 2, Wave 2, defer to beta.10 if NATO pressure]
 - [x] 95.6-08-PLAN.md -- D-05d/e/f + D-10 + D-11b: SessionStart npm-reconcile hook + subagent mcpServers/skills frontmatter parity + Deferred Tool Loading note + four-distribution-paths doc [Tier 2, Wave 2, defer to beta.10 if NATO pressure]
-- [ ] 95.6-09-PLAN.md -- D-04/06/07: README ## Manual Recovery section + BSL-1.1 source-available sweep + first-touch-drift scanner pattern 3 + SEED-007 scope-notes update [Tier 3, Wave 2, defer freely]
+- [x] 95.6-09-PLAN.md -- D-04/06/07: README ## Manual Recovery section + BSL-1.1 source-available sweep + first-touch-drift scanner pattern 3 + SEED-007 scope-notes update [Tier 3, Wave 2, defer freely]
 - [ ] 95.6-10-PLAN.md -- D-08 (release gate): bundle v1.13.0-beta.9 per CLAUDE.md MANDATORY release process, gated on the Windows cold-install manual gate (BLOCKING checkpoint) [Tier 1, Wave 3, last]
 
 ### Phase 95.2: Install Cache Atomic Recovery + SessionStart Preflight (INSERTED)
