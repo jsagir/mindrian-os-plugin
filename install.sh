@@ -99,14 +99,38 @@ echo "  . Registering skills..."
 SKILLS_DIR="${CLAUDE_DIR}/skills"
 mkdir -p "$SKILLS_DIR"
 
+SKILL_REGISTERED=0
+SKILL_SKIPPED=0
 for skill_dir in "$INSTALL_DIR"/skills/*/; do
+  [ -d "$skill_dir" ] || continue
   skill_name=$(basename "$skill_dir")
+  # D-03 (Phase 95.6): pre-filter -- a skill dir without SKILL.md is
+  # structurally incomplete. Skills are non-critical for first-load
+  # (commands + agents are the load-bearing surface), so WARN and
+  # continue rather than aborting under strict mode (the -e -u -o
+  # pipefail flags set at the top). This is the bug that broke Gary
+  # Laben's install 2026-05-08/09.
+  if [ ! -f "$skill_dir/SKILL.md" ]; then
+    echo "    WARN: skipping skill $skill_name: no SKILL.md" >&2
+    SKILL_SKIPPED=$((SKILL_SKIPPED + 1))
+    continue
+  fi
   mkdir -p "$SKILLS_DIR/$skill_name"
-  ln -sf "$skill_dir/SKILL.md" "$SKILLS_DIR/$skill_name/SKILL.md" 2>/dev/null || cp "$skill_dir/SKILL.md" "$SKILLS_DIR/$skill_name/SKILL.md"
+  if ln -sf "$skill_dir/SKILL.md" "$SKILLS_DIR/$skill_name/SKILL.md" 2>/dev/null \
+     || cp "$skill_dir/SKILL.md" "$SKILLS_DIR/$skill_name/SKILL.md" 2>/dev/null; then
+    SKILL_REGISTERED=$((SKILL_REGISTERED + 1))
+  else
+    echo "    WARN: skipping skill $skill_name: could not link or copy SKILL.md" >&2
+    SKILL_SKIPPED=$((SKILL_SKIPPED + 1))
+  fi
 done
 
-SKILL_COUNT=$(ls -d "$INSTALL_DIR"/skills/*/ | wc -l)
-echo "    $SKILL_COUNT skills registered"
+SKILL_COUNT="$SKILL_REGISTERED"
+if [ "$SKILL_SKIPPED" -gt 0 ]; then
+  echo "    $SKILL_REGISTERED skills registered ($SKILL_SKIPPED skipped -- see WARN above)"
+else
+  echo "    $SKILL_REGISTERED skills registered"
+fi
 
 # Step 6: Register agents
 echo "  . Registering agents..."
