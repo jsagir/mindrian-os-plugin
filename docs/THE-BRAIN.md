@@ -12,26 +12,29 @@ The Brain is Larry -- not as text, but as accumulated judgment.
 
 ## The Five Layers
 
-### Layer 1: The Framework Graph (Neo4j -- 21K+ nodes, 65K+ relationships)
+### Layer 1: The Framework Graph (Neo4j -- ~16.1K nodes, ~22.5K relationships)
 
 Not a list of frameworks. A GRAPH of how innovation methodology works.
 
-Node types: Framework (275+), Phase (ordered steps per framework), Concept (abstract ideas), ProblemType (Un/Ill/Well-Defined, Wicked), Book (59 analyzed), Tool (59 with PWS mappings), Course (curriculum), Example (graded student work).
+Node types: Framework (748), Phase, Concept (9,353), ProblemType (233), Book (141), Tool (107), Technique (210), Course, Example, ProcessStep (655) -- 27 canonical labels total (see mindrian-deploy/docs/BRAIN-SCHEMA.md section 1).
 
 Critical relationship types (the moat):
-- FEEDS_INTO: Framework chaining rules (Domain Explorer feeds into Bono as hats)
-- TRANSFORMS_OUTPUT_TO: How one outputs become anothers input (sub-domains become personas)
-- CO_OCCURS: Frameworks that naturally pair
-- ADDRESSES_PROBLEM_TYPE: Which framework for which problem class
+- FEEDS_INTO: The load-bearing framework-sequencing edge -- one framework's output becomes the next's input; 163 Framework->Framework edges, ~7.9K traversable chains depth 1-4. (Domain Explorer feeds into Bono as hats.)
+- TRANSFORMS_OUTPUT_TO: How one output becomes another's input (sub-domains become personas)
+- ADDRESSES_PROBLEM_TYPE: Which framework for which problem class (Ill-Defined, Wicked, Well-Defined, Undefined)
 - HAS_PHASE: Ordered phase progressions
 - PREREQUISITE: What must be explored first
 - APPLIED_IN: Real examples with grades
+- CO_OCCURS: (0 in the graph as of Phase 3 -- statistical co-occurrence is kept in a sidecar JSONL, never a Brain edge; see BRAIN-SCHEMA.md section 2a)
+- 28 canonical relationship types total (see BRAIN-SCHEMA.md section 2)
 
 Why unreplicable: Built from 30+ years of teaching. Relationships DISCOVERED through watching 100+ students apply frameworks. Chaining rules come from real classroom observation, not theory.
 
-### Layer 2: The Semantic Embeddings (Pinecone -- 1,427+ vectors)
+### Layer 2: The Semantic Embeddings (Pinecone -- ~1.4K materials embeddings + Neo4j framework index)
 
 384-dimensional embeddings of every teaching material: methodology chapters, framework deep-dives, graded student examples, lecture transcripts. Enables meaning-matching, not keyword-matching. Combined with graph: semantics finds WHAT, graph finds WHY and WHAT NEXT.
+
+Separately, the Neo4j `framework_embeddings` vector index (384-dim, COSINE) now covers all 748 :Framework nodes -- re-embedded in brain-cleanup Phase 5 QUAL-03 using all-MiniLM-L6-v2 (was 6/100 / 23/748 pre-cleanup). The Pinecone materials index (~1.4K teaching materials) and the Neo4j framework vector index are distinct; the former is the semantic search surface, the latter powers framework similarity lookups directly on the graph.
 
 ### Layer 3: The Grading Engine
 
@@ -63,7 +66,7 @@ The user never sees a tool call. They see Larry being brilliant.
 
 ## Without Brain (Tier 0)
 
-Everything works. Embedded references/ has 275 frameworks as text, static chain suggestions, mode algorithm. Tier 0 Larry is good. Tier 1 Larry (with Brain) is a master teacher. The difference is textbook vs professor.
+Everything works. Embedded references/ has a curated subset (~275) of the live graph's 748 :Framework nodes as text, plus static chain suggestions and the mode algorithm. Tier 0 Larry is good. Tier 1 Larry (with Brain) is a master teacher. The difference is textbook vs professor.
 
 ## The Flywheel
 
