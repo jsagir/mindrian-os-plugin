@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [Unreleased]
+
+### Added
+
+- **Phase 95.6 D-05a: `scripts/release.sh` Step 9.5 -- npm publish gate.** Every plugin release now publishes `@mindrian/os` to npm in lockstep. Step 9.5 runs after `git push` (Step 9) and before the local cache update (Step 10): `npm publish --tag next` for `-beta./alpha./rc./next.`-suffixed versions, `--tag latest` for clean `X.Y.Z`. Before the publish it runs `npm pack --dry-run` and halts if the tarball contains any non-allowlisted path (`.planning/`, `docs/`, `mcp-server-brain/`, `tests/`, `release.sh`) -- publishing without the `files` allowlist would leak the entire repo (including Brain-key code) into the public npm tarball. If `npm publish` fails, the release halts with an explicit recovery message; it never silently ships an unpublished version. `MOS_TEST_DRY_RUN=1` exercises the gate without touching the live registry. `package.json` renamed to `@mindrian/os`, `private:true` removed, `"files"` allowlist added (`bin/ lib/ pipelines/ references/ skills/ commands/ agents/ hooks/ .claude-plugin/ .mcp.json README.md LICENSE CHANGELOG.md`).
+- **Case #4 install-failure autopsy.** `docs/autopsies/2026-05-09-gary-laben-install-failure.md` -- the 2026-05-08/09 Gary Laben install (Surface Pro 7, Windows 11, the live 66-minute call), six root causes (Windows MAX_PATH, install.sh skill-loop halt, `@mindrian/os` never published, statusLine never registered, PowerShell-vs-CMD shell variability, permission-prompt fatigue), the install-cache failure family pattern (case #4 after #1 wrong-workspace, #2 Phase 93 drift-recovery, #3 Phase 95.2 atomic-recovery), the Phase 95.6 fixes, and cross-references. Brain key UUIDs redacted per REC-05.
+
+### Notes
+
+- **Note on npm:** `@mindrian/os` versions 1.13.0-beta.1 through 1.13.0-beta.8 were never published to npm (the lockstep publish gate did not exist until this release). Those versions remain unpublished. The first npm-published version is 1.13.0-beta.9, via the new `scripts/release.sh` Step 9.5. (Coordination note for the 95.6-10 release plan: fold this paragraph into the `## [1.13.0-beta.9]` entry when that entry is authored.)
+
 ## [1.13.0-beta.8] - 2026-05-07
 
 ### Added
