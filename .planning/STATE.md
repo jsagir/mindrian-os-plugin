@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 117-04-PLAN.md (Wave 2 SEED-003 A3 sanitizer + LOCAL-only audit; 6th Canon Part 8 tripwire; 23 GREEN tests; 100 cumulative Phase 117 GREEN; AUTOEXPLORE-117-17 invariant LOCKED)
-last_updated: "2026-05-06T23:19:10.970Z"
-last_activity: 2026-05-06
+stopped_at: "Completed 95.6-02-PLAN.md (Wave 0 scaffold: mullins-scaffold SKILL.md backfilled + 7 Wave 0 test files + cold-machine manual gate + run-all.sh wired + run-all-956.sh; run-all-956 RED-by-design 2/8 PASS)"
+last_updated: "2026-05-11T17:17:16.182Z"
+last_activity: 2026-05-11
 progress:
-  total_phases: 51
-  completed_phases: 27
-  total_plans: 220
-  completed_plans: 205
+  total_phases: 52
+  completed_phases: 28
+  total_plans: 230
+  completed_plans: 207
   percent: 82
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 95.6 (install-cache-windows-hardening-and-skill-loop-resilience) -- 10 plans complete + plan-checked 2026-05-10; READY for `/gsd:execute-phase 95.6` (HARD deadline 2026-06-01, NATO). Phase 95.5 (post-compact-memory-pipeline-consumer) is registered but not actively executing. New v1.13.0 phases added 2026-05-10: 91.6 (navigation-engine-graph-wiring) + 95.7 (sentinel-and-instrumentation-hardening) -- BOTH ARE CONTEXT STUBS, and both are load-bearing for the milestone (91.6 = the routing_source legacy->engine flip, the SEED-008 "loop fires" gate; 95.7 = the auto-scout prereq). Before executing past Phase 95.6, run /gsd:plan-phase 91.6 and /gsd:plan-phase 95.7 -- do not let the milestone drift past 95.6 with these unplanned (Codex review 2026-05-10). See `.planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md` Phase Inventory + `.planning/seeds/SEED-008` + `docs/UI-UX-CONVERGENCE-2026-05-10/`.
+**Current focus:** Phase 95.6 — install-cache-windows-hardening-and-skill-loop-resilience
 
 ## Current Position
 
-Phase: 95.6 (install-cache-windows-hardening-and-skill-loop-resilience) -- CRITICAL URGENCY
+Phase: 95.6 (install-cache-windows-hardening-and-skill-loop-resilience) — EXECUTING
 Milestone: v1.13.0 The Closed Loop -- 4-beta progression
 Beta: beta.9 (target 2026-06-01 per NATO Defense College Rome June course; ideal 2026-05-23 for 8-day Lawrence dogfood window)
 Next phase: 95.6 EXECUTION -- `/gsd:execute-phase 95.6` (plans complete + checked 2026-05-10)
-Plan: 95.6 fully planned -- 10 plans (95.6-01..10) across 4 waves. Wave 0 = 95.6-02 (test scaffold + `skills/mullins-scaffold/SKILL.md` backfill + `tests/manual/95.6-windows-cold-install-acceptance.md` + `tests/run-all.sh` wiring). Wave 1 = 95.6-01 (D-02 rename), 03 (D-03 install.sh skill-loop hardening), 04 (D-01 Windows long-path preflight), 05 (D-09 statusline + /mos:doctor class H + first-session auto-doctor), 06 (D-05a release.sh Step 9.5 npm gate). Wave 2 = 95.6-07 (D-05b/c, Tier 2, defer_to_beta:10), 08 (D-05d/e/f + D-10 + D-11, Tier 2), 09 (D-04/06/07 docs+compliance, Tier 3). Wave 3 = 95.6-10 (D-08 release gate -- bundle v1.13.0-beta.9 per CLAUDE.md MANDATORY release process, gated on `tests/run-all-956.sh` green AND the Windows cold-install manual gate as a BLOCKING human-verify checkpoint).
-Status: 95.6 plans complete + plan-checked (1 blocker + 2 nits found and fixed in revision); 95.6-RESEARCH.md gained a "## Validation Architecture" section and 95.6-VALIDATION.md created (Nyquist Dimension 8, commit aad8efe); ROADMAP.md Phase 95.6 row finalized. READY FOR `/gsd:execute-phase 95.6` -- Tier 1 set (01,02,03,04,05,06,10) gates beta.9; Tier 2/3 (07,08,09) defer to beta.10 under NATO pressure.
+Plan: 2 of 10
+Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: 2026-05-11 EOD (maintainer's public commitment to Lawrence + Gary on 2026-05-09 install call)
 
@@ -124,7 +124,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-10 - Planned Phase 95.6 (10 plans, checked + revised; ready for /gsd:execute-phase 95.6) + quick task 260510-or6 (UI-UX convergence bundle + SEED-008)
+Last activity: 2026-05-11
 
 Progress: [████████░░] 82%
 
@@ -259,6 +259,7 @@ Progress: [████████░░] 82%
 | Phase 117 P02 | 22min | 2 tasks | 6 files |
 | Phase 117 P03 | 28 | 4 tasks | 7 files |
 | Phase 117 P117-04 | 25min | 2 tasks | 5 files |
+| Phase 95.6 P02 | 75min | 3 tasks | 12 files |
 
 ### Roadmap Evolution
 
@@ -701,6 +702,9 @@ Progress: [████████░░] 82%
 - [Phase 117]: 117-04 v1 sanitizer ships PII pattern redaction ONLY; non-allowlist redaction DISABLED until Phase 121 telemetry calibrates (RESEARCH 4.6 risk T4)
 - [Phase 117]: 117-04 6th Canon Part 8 tripwire shipped via PostToolUse mcp__brain_.* hook with hookSpecificOutput.updatedToolOutput envelope per SEED-003 A3
 - [Phase 117]: 117-04 AUTOEXPLORE-117-17 LOCAL-only routing invariant LOCKED via grep regression + maintainer-visible Brain §8.7 comment block above detectFirstMaterial citing Cypher Q7
+- [Phase 95.6]: 95.6-02 Wave 0: backfilled skills/mullins-scaffold/SKILL.md (the file whose absence aborted Gary Laben's install.sh skill-loop, D-03 root cause); the contract fix is 95.6-03
+- [Phase 95.6]: 95.6-02: 7 Wave 0 test files created (3 shell, 4 CJS); 6 RED-by-design (test-install-sh-skill-loop->95.6-03, test-install-preflight-longpath->95.6-04, test-doctor-class-h/-h-fix/-install-receipt->95.6-05, test-release-npm-gate->95.6-06), 1 GREEN-or-SKIP (test-92-rename-no-long-leaves->95.6-01). Canonical .install-receipt.json step list documented in tests/test-install-receipt.cjs for 95.6-03/05 to implement against
+- [Phase 95.6]: 95.6-02: tests/run-all.sh now aggregates test-*.cjs suites; tests/run-all-956.sh scoped runner added (RED-by-design until 95.6-01/03/04/05/06 land; release plan 95.6-10 re-runs the full suite GREEN). tests/manual/95.6-windows-cold-install-acceptance.md is the empirical Dimension-8 gate, authoritative over the automated suites, gates v1.13.0-beta.9
 
 ### Pending Todos
 
@@ -725,6 +729,6 @@ yet.
 
 ## Session Continuity
 
-Last session: 2026-05-06T23:06:43.100Z
-Stopped at: Completed 117-04-PLAN.md (Wave 2 SEED-003 A3 sanitizer + LOCAL-only audit; 6th Canon Part 8 tripwire; 23 GREEN tests; 100 cumulative Phase 117 GREEN; AUTOEXPLORE-117-17 invariant LOCKED)
+Last session: 2026-05-11T17:17:03.352Z
+Stopped at: Completed 95.6-02-PLAN.md (Wave 0 scaffold: mullins-scaffold SKILL.md backfilled + 7 Wave 0 test files + cold-machine manual gate + run-all.sh wired + run-all-956.sh; run-all-956 RED-by-design 2/8 PASS)
 Resume file: None
