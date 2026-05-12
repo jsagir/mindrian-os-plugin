@@ -2,17 +2,16 @@
 'use strict';
 
 /**
- * Phase 122 Wave 0 stub - the node entrypoint the scoped 122 bash runner
- * (tests/run-all-122.sh) targets for the command-registry generator + drift
- * tripwire.
+ * Phase 122-02 -- bash-runner node entrypoint for the command-registry
+ * generator + drift tripwire.
  *
- * Filled in by plan 122-02 (re-execs / re-requires
- * lib/memory/command-registry.test.cjs so the bash suite and the Feynman
- * suite stay in lockstep).
+ * This is the file tests/run-all-122.sh (the scoped 122 runner) targets. It
+ * re-requires lib/memory/command-registry.test.cjs so the bash suite and the
+ * Feynman suite (lib/memory/run-feynman-tests.cjs, which also registers that
+ * file) stay in lockstep -- one implementation, two entry points, zero
+ * duplication.
  *
- * Until 122-02 lands this exits 0 with the canonical stub line. The downstream
- * plan swaps the implementation in WITHOUT changing this registered path.
+ * Run: node tests/test-command-registry.cjs   ;   exit 0 on pass.
  */
 
-console.log('Phase 122 Wave 0 stub - to be implemented by plan 122-02');
-process.exit(0);
+require('../lib/memory/command-registry.test.cjs');
