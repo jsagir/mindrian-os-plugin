@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 109-10-PLAN.md
-last_updated: "2026-05-12T09:48:00.496Z"
+stopped_at: Completed 109-11-PLAN.md
+last_updated: "2026-05-12T09:55:54.524Z"
 last_activity: 2026-05-12
 progress:
   total_phases: 53
   completed_phases: 30
   total_plans: 238
-  completed_plans: 222
+  completed_plans: 223
   percent: 93
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 109 (sql-context-memory-navigation-spine) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 2 of 13
+Plan: 3 of 13
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -273,6 +273,7 @@ Progress: [█████████░] 93%
 | Phase 122 P04 | 30 | 3 tasks | 14 files |
 | Phase 122-workflow-layer P05 | 35min | 3 tasks | 16 files |
 | Phase 109-sql-context-memory-navigation-spine P10 | 20min | 2 tasks | 2 files |
+| Phase 109 P11 | 18min | 2 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -745,6 +746,7 @@ Progress: [█████████░] 93%
 - [Phase 109-sql-context-memory-navigation-spine]: Plan 109-10: filled the load-bearing acceptance test (tests/test-navigation-acceptance.cjs) - full navigation flow via the lib/core/navigation.cjs chokepoint under the fs-instrument fs-proxy, asserts ZERO non-SQLite filesystem reads (Canon Part 9 release gate) + shape/privacy/composition; buildBrainPacket measured at ~631 tokens vs the 1200 budget
 - [Phase 109-sql-context-memory-navigation-spine]: Plan 109-10 Task 2 (Case B): getNeighborhood entries were missing the created_at provenance field; surgically added created_at to NEIGHBORHOOD_SQL (both CTE arms + outer SELECT) + the row mapper in lib/core/navigation/neighborhood.cjs; no other navigation submodule changed
 - [Phase 109-sql-context-memory-navigation-spine]: Plan 109-10: lib/memory/run-feynman-tests.cjs NOT modified - only test-navigation-migration-views.cjs is registered from the Phase-109 family; Plan 109-12 must reconcile the registry to add test-navigation-acceptance.cjs and the other Phase-109 suites
+- [Phase 109]: Canon Part 9 (Memory Locality and Interpretation) ratified at the Phase 109 release gate: merged into docs/MINDRIAN-CANON.md (v1.0->v1.4) between Part 8 and Appendix A; Appendix D entry 12 (Codex attribution); CANON-PHASE-MAP Part 9 rows flipped to shipped for Phases 108+109 (110 stays planned)
 
 ### Pending Todos
 
@@ -774,6 +776,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-12T09:47:49.976Z
-Stopped at: Completed 109-10-PLAN.md
+Last session: 2026-05-12T09:55:50.378Z
+Stopped at: Completed 109-11-PLAN.md
 Resume file: None
