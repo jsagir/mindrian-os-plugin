@@ -35,6 +35,30 @@ const path = require('node:path');
 const REPO = path.resolve(__dirname, '..');
 const TAXONOMY_PATH = path.join(REPO, 'lib', 'hmi', 'jtbd-taxonomy.json');
 const COMMANDS_DIR = path.join(REPO, 'commands');
+const COMMAND_REGISTRY_PATH = path.join(REPO, 'data', 'command-registry.json');
+
+// Phase 122-05: data/command-registry.json (generated from each command's
+// frontmatter `name:`) is now the authoritative list of /mos: commands. Some
+// command files declare a `name:` that differs from their filename (e.g.
+// commands/value-proposition.md has `name: validate-proposition`, so the
+// command is /mos:validate-proposition). A methodology_hooks entry resolves if
+// it is a registered command OR (legacy fallback, for hooks the registry does
+// not track yet) a commands/<name>.md file exists.
+function loadRegisteredCommands() {
+  try {
+    const raw = fs.readFileSync(COMMAND_REGISTRY_PATH, 'utf8');
+    const reg = JSON.parse(raw);
+    const set = new Set();
+    if (Array.isArray(reg && reg.commands)) {
+      for (const c of reg.commands) {
+        if (c && typeof c.command === 'string') set.add(c.command);
+      }
+    }
+    return set;
+  } catch (_e) {
+    return new Set(); // degrade: fall back to the commands/<name>.md check below
+  }
+}
 
 // Canon Part 3 ten-verb vocabulary (docs/MINDRIAN-CANON.md Part 3).
 const CANON_VERBS = new Set([
@@ -177,8 +201,9 @@ let taxonomy;
 })();
 
 (function assertHooksExist() {
-  const name = 'every methodology_hooks[] resolves to commands/<name>.md';
+  const name = 'every methodology_hooks[] resolves to a registered /mos: command (or commands/<name>.md)';
   try {
+    const registered = loadRegisteredCommands();
     for (const e of taxonomy.entries) {
       if (!Array.isArray(e.methodology_hooks)) {
         throw new Error(
@@ -191,12 +216,15 @@ let taxonomy;
             'malformed hook "' + h + '" in entry "' + e.id + '"'
           );
         }
+        // Authoritative: the generated command registry. Legacy fallback:
+        // commands/<name>.md exists (for hooks not yet in the registry).
+        if (registered.has(h)) continue;
         const cmdName = h.replace(/^\/mos:/, '');
         const cmdPath = path.join(COMMANDS_DIR, cmdName + '.md');
         if (!fs.existsSync(cmdPath)) {
           throw new Error(
-            'missing command file "' + cmdPath + '" for hook "' + h +
-            '" in entry "' + e.id + '"'
+            'hook "' + h + '" in entry "' + e.id +
+            '" is not a registered command and has no commands/' + cmdName + '.md'
           );
         }
       }

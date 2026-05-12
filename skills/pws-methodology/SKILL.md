@@ -14,9 +14,9 @@ Framework-to-command routing goes through `lib/workflow/command-resolver.cjs` --
 
 The Brain still informs WHICH frameworks to chain (the FEEDS_INTO traversal, via `lib/brain/chain-recommender.cjs` `recommendFrameworkChain` -- framework names + problem-type enums only; Canon Part 8: the Brain holds methodology, never commands). The plugin-local registry holds the framework-to-command mapping. When the Brain is unreachable, the resolver still gives framework -> command from the registry; when there is no registry either, fall back to framework-only advice. Each layer fails to a true statement.
 
-## 26 Methodology Commands
+## Methodology Commands
 
-All follow the same pattern: thin command file + detailed reference loaded on demand. Each produces structured artifacts filed to the Data Room with user confirmation. The authoritative framework -> command index is `data/command-registry.json` (via the resolver); `references/methodology/index.md` is a human-readable mirror.
+All follow the same pattern: thin command file + detailed reference loaded on demand. Each produces structured artifacts filed to the Data Room with user confirmation. The authoritative framework -> command index is `data/command-registry.json` (resolved via `lib/workflow/command-resolver.cjs`); the frontmatter contract is `docs/COMMAND-FRONTMATTER.md`; the closed-loop picture is `docs/WORKFLOWS.md`. (`references/methodology/index.md` is now just a pointer to those -- it no longer hand-maintains a command table.)
 
 ## Framework Routing Rule
 

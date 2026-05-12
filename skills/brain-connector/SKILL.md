@@ -90,19 +90,11 @@ RETURN f.name AS available_framework
 
 ## Brain-Powered Command Suggestions
 
-**The command for a framework is whatever `command-resolver.commandsForFramework(<framework>)` returns** (`lib/workflow/command-resolver.cjs`, reading the generated `data/command-registry.json`) -- or, if none, "run <framework> manually -- there is no /mos: for it". For a chain, use `composeWorkflow(<framework-chain>)`. **Commands NEVER live in the Brain (Canon Part 8): the Brain holds methodology -- the FEEDS_INTO chains, the `recommendFrameworkChain` traversal carries framework names + problem-type enums only, never a command string, never user content; the plugin-local registry holds the framework-to-command mapping.** Larry never names a `/mos:` from memory. If the resolver returns nothing, the answer is "run <framework> manually".
+**The command for a framework is whatever `command-resolver.commandsForFramework(<framework>)` returns** (`lib/workflow/command-resolver.cjs`, reading the generated `data/command-registry.json`) -- or, if none, "run <framework> manually -- there is no /mos: for it". For a chain, use `composeWorkflow(<framework-chain>)`. **Commands NEVER live in the Brain (Canon Part 8): the Brain holds methodology -- the FEEDS_INTO chains -- and the `recommendFrameworkChain` traversal in `lib/brain/chain-recommender.cjs` carries framework names + problem-type enums only, never a command string, never user content; the plugin-local registry holds the framework-to-command mapping.** Larry never names a `/mos:` from memory. If the resolver returns nothing, the answer is "run <framework> manually".
 
-The Brain still ranks WHICH frameworks to suggest next (via the FEEDS_INTO traversal in `lib/brain/chain-recommender.cjs`); turning a recommended framework into a `/mos:` command is the resolver's job, not the Brain's, not memory.
+The Brain ranks WHICH frameworks to suggest next (the FEEDS_INTO traversal in `lib/brain/chain-recommender.cjs`); turning a recommended framework into a `/mos:` command is the resolver's job, not the Brain's, not memory. Fallback when the Brain is unreachable: local Room heuristics from the navigation engine + the `larry-personality` skill -- still resolving any command through `lib/workflow/command-resolver.cjs`.
 
-> The following Command-node prose is dead and is deleted in Phase 122-05 (commands are not Brain nodes); kept here only so the file is never the source of truth in the interim -- the resolver pointer above supersedes it.
-
-Brain has Command nodes linked to Frameworks, VentureStages, SignalTypes. Level 3 intelligence from 100+ real projects.
-
-Query `brain_proactive_command` for ranked suggestions with JTBD framing, trigger conditions, stage impact. Pick top match for current Room Signals. Present via JTBD formula from Command node fields.
-
-Multi-hop: Room frameworks -> FOLLOWS_FRAMEWORK -> Command -> TRIGGERED_BY_SIGNAL -> Signals -> RELEVANT_AT_STAGE -> Stage
-
-Fallback: local Room heuristics from larry-personality provoked suggestions.
+See `docs/WORKFLOWS.md` for the full Brain <-> registry <-> Larry join and the Canon Part 8 boundary.
 
 ## Delegation
 

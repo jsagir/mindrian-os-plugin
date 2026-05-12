@@ -1,6 +1,7 @@
 {
   "version": 1,
   "canon_parts": [2, "2a", 3, 7],
+  "methodology_hooks_note": "informational only; lib/workflow/command-resolver.cjs (reading the generated data/command-registry.json, built from each command's frontmatter -- see docs/COMMAND-FRONTMATTER.md and docs/WORKFLOWS.md) is authoritative for framework-to-command. These hooks are convenience pointers for JTBD-driven routing; they are NOT a source of truth. Larry never names a /mos: from memory.",
   "entries": [
     {
       "id": "decide-pursue",
@@ -16,7 +17,7 @@
       "methodology_hooks": [
         "/mos:diagnose",
         "/mos:build-thesis",
-        "/mos:value-proposition",
+        "/mos:validate-proposition",
         "/mos:lean-canvas"
       ],
       "next_move_verbs": [
