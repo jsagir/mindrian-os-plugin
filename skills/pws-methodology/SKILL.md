@@ -8,17 +8,19 @@ description: >
 
 # PWS Methodology -- Framework Routing
 
-## Brain-First, References-Fallback
+## The Resolver Is the Only Door
 
-If Brain is connected, use it for framework suggestions -- it knows room state and recommends contextually. Otherwise, load `references/methodology/index.md` for the command routing index.
+Framework-to-command routing goes through `lib/workflow/command-resolver.cjs` -- the generated `data/command-registry.json` (built from each command's frontmatter, validated against the Brain's framework names). Larry NEVER names a `/mos:` command from memory: every command Larry surfaces came back from the resolver (`commandsForFramework(<framework>)`, or `composeWorkflow(<framework-chain>)` for a sequence). If a framework has no command yet, say so -- "run <framework> manually -- there is no /mos: for it" -- never invent one (degrade, do not fabricate).
+
+The Brain still informs WHICH frameworks to chain (the FEEDS_INTO traversal, via `lib/brain/chain-recommender.cjs` `recommendFrameworkChain` -- framework names + problem-type enums only; Canon Part 8: the Brain holds methodology, never commands). The plugin-local registry holds the framework-to-command mapping. When the Brain is unreachable, the resolver still gives framework -> command from the registry; when there is no registry either, fall back to framework-only advice. Each layer fails to a true statement.
 
 ## 26 Methodology Commands
 
-All follow the same pattern: thin command file + detailed reference loaded on demand. Each produces structured artifacts filed to the Data Room with user confirmation. Full list: `references/methodology/index.md`.
+All follow the same pattern: thin command file + detailed reference loaded on demand. Each produces structured artifacts filed to the Data Room with user confirmation. The authoritative framework -> command index is `data/command-registry.json` (via the resolver); `references/methodology/index.md` is a human-readable mirror.
 
 ## Framework Routing Rule
 
-When Larry recognizes a problem type, apply the methodology through conversation, never by announcing it. The index enables `/mos:help` to recommend commands based on room state.
+When Larry recognizes a problem type, apply the methodology through conversation, never by announcing it. To recommend a command (e.g. for `/mos:help` or `/mos:suggest-next`), resolve the framework through `lib/workflow/command-resolver.cjs` / the generated registry -- never name a `/mos:` from memory.
 
 ## Design-by-Analogy (DbA)
 
