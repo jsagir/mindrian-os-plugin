@@ -1261,6 +1261,16 @@ Plans:
 - [x] 122-04-PLAN.md -- Wire the navigation engine (the surgical edit) + /mos:suggest-next + /mos:pipeline --from-problem-type/--from-framework + /mos:act --chain + pws-methodology/brain-connector skill prose (wave 4)
 - [x] 122-05-PLAN.md -- Prune the 3 hand-maintained maps + delete brain-connector Command-node prose + docs/WORKFLOWS.md + end-to-end test + Canon Part 8 grep sweep + CHANGELOG beta.10 finalization (wave 5)
 
+### Phase 123: install-lifecycle harness
+
+**Goal:** One install-state truth source so no actor improvises "what version is active, where it's installed, is the install consistent" -- the disease behind the 2026-05-12 Windows-test bug family (doctor crash, stale statusline, byte-stale deployed wrapper, `~/.mindrian-last-version` unknown, the version-number treadmill, hand-rolled releases). Five pieces: (1) `~/.mindrian/install-state.json` written by session-start, read by everyone (statusline / banner / `~/.mindrian-last-version` / `bin/cli.js` / doctor); (2) a deployment-surface manifest (the statusline shim, the `settings.json` statusLine block, the dev-clone pre-commit hook, the `~/.mindrian/*` state files) that session-start reconciles and doctor flags; (3) doctor as the contract checker with an exhaustive drift-class enumeration + `--fix`s + test fixtures -- absorbs **Bug 7** (treat marketplace-cache-only as a healthy topology, not drift); (4) `mindrian-os doctor --acceptance` as the scripted release gate (replaces the hand-run 5-test suite), wired into `release.sh`; (5) `release.sh` owning ALL version bumps incl. pre-releases (`beta.N -> beta.N+1`; it currently mangles pre-release versions, which is why beta.10-13 were hand-rolled), refusing on a dirty repo / pushing only the release commit (a Phase 109 docs commit hitchhiked into the beta.12 push), and fixing Step 9.5's stale `@mindrian_os/cli` name. Also absorbs cache pruning on update and the `@mindrian_os/cli` -> `@mindrian_os/install` doc/test sweep (`docs/install/PACKAGING-PATHS.md`, `tests/manual/95.6-windows-cold-install-acceptance.md`, `tests/test-release-npm-gate.sh`). Builds on what already shipped in v1.13.0-beta.12: `lib/core/active-plugin-root.cjs` (the one resolver) + `scripts/statusline-mos-dispatch` + the `scripts/session-start` Step A migration (the dumb dispatcher shim -- the deployment surface carries zero logic, a wrapper fix in vN+1 reaches users next session with no re-stamp). Spec: `docs/INSTALL-LIFECYCLE-HARNESS.md`. canon_parts: [5, 6] -- Canon Part 6 (dog-fooding: the plugin's install lifecycle must honor the plugin's canon) biting back, with Part 5's evidence-graded gate at the release boundary. Same *shape* as Part 9's memory constitution: a closed set of allowed mutations + a single enforcement chokepoint + human/CI confirmation.
+**Requirements**: TBD (run /gsd:plan-phase 123)
+**Depends on:** Phase 122
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 123 to break down)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
