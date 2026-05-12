@@ -25,10 +25,14 @@ if [ ! -d "${CACHE_ROOT}" ]; then
   exit 0
 fi
 
-# Find the highest semver version directory under the cache root.
-# Versions are directory names like "1.10.5", "1.10.4", etc.
-# sort -V handles semver natively.
-LATEST_VERSION="$(ls -1 "${CACHE_ROOT}" 2>/dev/null | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)"
+# Find the highest version directory under the cache root.
+# Directory names look like "1.12.0", "1.13.0-beta.9", "1.12.5.1", etc.
+# The old anchor ^[0-9]+\.[0-9]+\.[0-9]+$ rejected pre-release suffixes, so a
+# box with 1.12.0 + 1.13.0-beta.9 in the cache picked 1.12.0 as "latest" and
+# rendered the stale statusline from there (and exported the wrong
+# MINDRIAN_OS_ROOT). Accept dotted numeric versions with an optional
+# pre-release tail; sort -V orders them correctly (1.12.0 < 1.13.0-beta.9 < 1.13.0).
+LATEST_VERSION="$(ls -1 "${CACHE_ROOT}" 2>/dev/null | grep -E '^[0-9]+(\.[0-9]+)+(-[A-Za-z0-9.]+)?$' | sort -V | tail -1)"
 
 if [ -z "${LATEST_VERSION}" ]; then
   exit 0
