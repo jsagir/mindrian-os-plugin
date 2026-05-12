@@ -1042,19 +1042,27 @@ Plans:
 **Authority**: `.planning/phases/109-sql-context-memory-navigation-spine/109-CONTEXT.md`. The phase guardrail (Codex via Jonathan, 2026-05-03): "Do not let Phase 109 become 'more SQL tables.' It must define navigation behavior."
 
 
-### Phase 110: Brain Context Packet Contract (REGISTERED 2026-05-03 — STUB)
+### Phase 110: Brain Context Packet Contract (REGISTERED 2026-05-03; CONTEXT + RESEARCH done 2026-05-12; PLANNED 2026-05-12)
 
-**Goal:** Turn Canon Part 8 from "we audit for leaks" into "the wire format makes leaks structurally harder." Ship a typed JSON Schema for Brain Context Packets, per-job allowed input/output shapes for the closed-vocabulary Brain jobs (`select_methodology`, `suggest_next_move`, `detect_contradiction`, `summarize_neighborhood`, `classify_room_budding`, `rank_assumptions`, `generate_feynman_explanation`, `strengthen_minto`, `prepare_investor_brief`), privacy modes with explicit user opt-in, schema validator middleware in `lib/core/brain-client.cjs` (invalid packets refuse to send, invalid responses refuse to ingest), test suite proving Canon Part 8 invariants hold for every shipped job type, dual-path rollout (legacy free-form + typed packet) deprecating to typed-only.
+**Goal:** Turn Canon Part 8 from "we audit for leaks" into "the wire format makes leaks structurally harder." Ship a typed JSON Schema for Brain Context Packets, per-job allowed input/output shapes for the closed-vocabulary Brain jobs (`select_methodology`, `suggest_next_move`, `detect_contradiction`, `summarize_neighborhood`, `classify_room_budding`, `rank_assumptions`, `generate_feynman_explanation`, `strengthen_minto`, `prepare_investor_brief`, `opportunity_react`, `opportunity_reflect`, `opportunity_rank`), privacy modes with explicit user opt-in, schema validator middleware in `lib/core/brain-client.cjs` (invalid packets refuse to send, invalid responses refuse to ingest), test suite proving Canon Part 8 invariants hold for every shipped job type, dual-path rollout (legacy free-form + typed packet) deprecating to typed-only.
 
-**Requirements**: TBD (PACKET-110-01..NN — defined when CONTEXT.md is expanded post Phase 109)
+**Requirements**: PACKET-110-01..09 (registered 2026-05-12 -- see `.planning/REQUIREMENTS.md` "## Brain Context Packet Contract (PACKET-110)"; the `110-00` Wave-0 substrate plan writes the block + the Status rows at execution time)
 
 **Depends on:** Phase 109 (uses `buildBrainPacket` and `storeBrainSuggestions` APIs from the navigation spine).
 
-**Canon parts:** Part 8 (Graph Boundary — hardened from procedural to architectural), Part 9 (Memory Locality — Brain reasons over packets, never raw memory).
+**Canon parts:** Part 8 (Graph Boundary -- hardened from procedural to architectural), Part 9 (Memory Locality -- Brain reasons over packets, never raw memory).
 
-**Plans:** TBD — phase is stubbed; full CONTEXT to be expanded after Phase 109 navigation API is reviewed.
+**Plans:** 6 plans across 4 waves (planned 2026-05-12 via /gsd:plan-phase 110). Target band: v1.13.0-beta.3 (Path C re-route).
 
-**Authority**: `.planning/phases/110-brain-context-packet-contract/110-CONTEXT.md` (stub).
+Plans:
+- [ ] 110-00-PLAN.md - Wave 0 substrate (register PACKET-110-01..09 in REQUIREMENTS.md + ROADMAP; 4 RED test stubs; tests/run-all-110.sh; Feynman-runner registration; 12-job-vocabulary correction)
+- [ ] 110-01-PLAN.md - Wave 1 schema artifact + generator + --check tripwire (data/brain-packet-schema.json + scripts/build-brain-packet-schema.cjs; data/ROOM.md row; fill test-brain-packet-schema-check.cjs)
+- [ ] 110-02-PLAN.md - Wave 1 origin field + EVENT_TYPES extension + privacy-mode resolver (packet.cjs origin/privacy_mode + resolvePrivacyMode; memory-events.cjs +3; regression touches)
+- [ ] 110-03-PLAN.md - Wave 2 sendPacket() validator middleware + response-degrade gate + dual-path warn (brain-client.cjs sendPacket; navigation.cjs logMemoryEvent re-export; reject-hard-degrade-soft)
+- [ ] 110-04-PLAN.md - Wave 3 D-08 layer-2 + pre-commit hook wiring (check-schema-aliases.cjs --check-sendpacket; both hook blocks; setup-hooks re-run; fill test-brain-packet-precommit-hook.cjs)
+- [ ] 110-05-PLAN.md - Wave 3 the D-11 validation suite (fill test-brain-packet-validation-per-job.cjs + test-brain-packet-part8-invariant-per-job.cjs: 12-job in/out + privacy + dual-path + round-trip + adversarial Part-8 sweep)
+
+**Authority**: `.planning/phases/110-brain-context-packet-contract/110-CONTEXT.md` (locked decisions D-00..D-11) + `.planning/phases/110-brain-context-packet-contract/110-RESEARCH.md` (implementation approach + validation architecture) + `.planning/phases/110-brain-context-packet-contract/110-VALIDATION.md` (per-task verification map).
 
 
 ### Phase 112: GraphRAG-Informed Room Retrieval + Room Budding (REGISTERED 2026-05-03 — STUB)
