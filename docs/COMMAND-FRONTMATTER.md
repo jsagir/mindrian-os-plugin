@@ -1,6 +1,8 @@
 # /mos: Command Frontmatter Contract
 
 > The `/mos:` command frontmatter is the single source of truth for the framework <-> command mapping. This doc is the contract. Phase 122 (Workflow Layer) added the five keys below on top of the existing `name` / `description` / `serves_jtbd` / `allowed-tools` / `body_shape` / `argument-hint` / `ui_reference` fields. It sits next to `skills/ui-system/SKILL.md` -- the command-side analogue of the UI ruling system.
+>
+> See also: `docs/WORKFLOWS.md` -- the closed-loop picture (the Brain <-> registry <-> Larry join, the five reliability rules, the Canon Part 8 boundary, the resolver/recommender surface).
 
 ---
 

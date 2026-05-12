@@ -1,4 +1,6 @@
-# The Brain — MindrianOS Moat Architecture
+# The Brain -- MindrianOS Moat Architecture
+
+> See also: `docs/WORKFLOWS.md` -- the framework-to-command layer (Phase 122). The Brain holds methodology (`Framework -[:FEEDS_INTO]-> Framework`); the framework-to-command mapping is plugin-local (`data/command-registry.json`, resolved via `lib/workflow/command-resolver.cjs`). Commands NEVER enter the Brain -- no `Command` node, ever (Canon Part 8).
 
 ## What The Brain IS
 
