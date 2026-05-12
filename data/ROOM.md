@@ -5,7 +5,7 @@ section: data
 purpose: Generated plugin data artifacts -- the command registry and the Brain framework-name snapshot it validates against.
 founding_phase: 122
 phase: 122
-milestone: v1.13.0-beta.10
+milestone: v1.13.0-beta.11
 canon_parts: [7, 8]
 created: 2026-05-12
 ---

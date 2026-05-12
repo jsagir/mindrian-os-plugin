@@ -5,7 +5,7 @@ section: lib/workflow
 purpose: Workflow layer -- the framework <-> command registry resolver. The sole door from "framework" to "/mos: command".
 founding_phase: 122
 phase: 122
-milestone: v1.13.0-beta.10
+milestone: v1.13.0-beta.11
 canon_parts: [7, 8]
 created: 2026-05-12
 ---
