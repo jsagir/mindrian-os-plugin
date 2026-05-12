@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
-status: v1.13.0-beta.9 shipped to GitHub + marketplace -- run-all-956.sh 8/8 green; npm publish --dry-run --tag next succeeds (only auth blocks the real publish).
-stopped_at: "Phase 95.6 COMPLETE (`gsd-tools phase complete 95.6` ran 2026-05-12; 10/10 plans). v1.13.0-beta.9 is the live release (GitHub tag v1.13.0-beta.9 -> 9ed8280; marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). One tracked follow-up: `npm publish` of `@mindrian_os/cli` -- maintainer-gated on an `@mindrian_os` Read+Write + bypass-2FA token (or an OTP); the two tokens tried 2026-05-11 both failed at the registry. Phase 122 (Workflow Layer, the v1.13.0 beta.10 capstone) is PLANNED + plan-checker PASSED + 122-VALIDATION.md nyquist_compliant -- NEXT is `/gsd:execute-phase 122 --auto` (5 plans, 5 linear waves, no checkpoints; `/clear` first -- fresh context). Also queued: the maintainer email follow-up (90-day @mindrian_os Brain key + add-to-testers + styled welcome mail w/ version-aware install link from https://mindrianos-install-site.vercel.app -- needs the maintainer to supply the key + identify the email thread). origin/main = 7e03693 (synced); working tree clean."
-last_updated: "2026-05-12T05:20:26.397Z"
+status: executing
+stopped_at: Completed 122-01-PLAN.md
+last_updated: "2026-05-12T05:43:51.422Z"
 last_activity: 2026-05-12
 progress:
   total_phases: 53
   completed_phases: 29
   total_plans: 235
-  completed_plans: 216
+  completed_plans: 217
   percent: 82
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 122 (Workflow Layer -- framework<->command registry + reliable invocation) -- the v1.13.0 beta.10 CAPSTONE. PLANNED + plan-checker PASSED + Nyquist VALIDATION ready. NEXT: `/gsd:execute-phase 122 --auto` (5 plans, 5 linear waves, no checkpoints -- run in a FRESH session, `/clear` first). Phase 95.6 is COMPLETE (`gsd-tools phase complete 95.6` ran 2026-05-12); its one tracked follow-up is the `npm publish` of `@mindrian_os/cli` -- maintainer-gated on an `@mindrian_os` write + bypass-2FA token (or an OTP). `gsd-tools phase complete` set roadmap-order Phase: 104 as "next", but the maintainer has prioritized Phase 122 as the next execute (the beta.10 capstone, per `.planning/WORKFLOW-LAYER-SPEC.md` target-band).
+**Current focus:** Phase 122 — workflow-layer
 
 ## Current Position
 
-Phase: 122 (Workflow Layer) -- PLANNED, plan-checker PASSED, ready to execute. (gsd-tools phase-complete's roadmap-order pick was 104; the maintainer override is 122 -- the beta.10 capstone.)
+Phase: 122 (workflow-layer) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 5 plans planned (122-01..05); plan-checker PASSED 2026-05-12; 122-VALIDATION.md nyquist_compliant: true.
-Status: Phase 122 ready to execute. Phase 95.6 COMPLETE (one tracked follow-up: npm publish of @mindrian_os/cli, token-blocked). v1.13.0-beta.9 is the live release.
+Plan: 2 of 5
+Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
 
@@ -267,6 +267,7 @@ Progress: [████████░░] 82%
 | Phase 95.6 P07 | 2m | 2 tasks | 4 files |
 | Phase 95.6 P08 | 20m | 3 tasks | 13 files |
 | Phase 95.6 P09 | 38min | 3 tasks | 4 files |
+| Phase 122 P01 | 5min | 3 tasks | 51 files |
 
 ### Roadmap Evolution
 
@@ -727,6 +728,8 @@ Progress: [████████░░] 82%
 - [Phase 95.6]: 95.6-10 Task 2: Windows cold-install acceptance gate (tests/manual/95.6-windows-cold-install-acceptance.md) WAIVED by maintainer 2026-05-11 ("I will not reach out to Gary; we will do it anyway"). beta.9 ships unverified-on-Windows -- acceptable for an opt-in beta; promotion to clean 1.13.0 should still wait on a Windows cold-install confirmation.
 - [Phase 95.6]: 95.6-10 Task 3: scripts/release.sh has no pre-release-suffix bump path, so by-hand: plugin.json + package.json -> 1.13.0-beta.9; release commit 9ed8280; tag v1.13.0-beta.9. npm pack --dry-run reviewed -- tarball clean (no .planning/ docs/ mcp-server-brain/ tests/ release.sh; files allowlist works; 590 files / 1.8MB packed; CHANGELOG.md ~317kB in tarball, bloat-not-leak).
 - [Phase 95.6]: 95.6-10 SHIP 2026-05-11 (maintainer instruction "I want this pushed across all install types"): git push origin main --tags DONE (origin/main 60fe434; tag v1.13.0-beta.9 -> 9ed8280 on GitHub). ~/mindrian-marketplace/.claude-plugin/marketplace.json: mos -> 1.13.0-beta.9, source.ref -> v1.13.0-beta.9; committed a41964f, pushed origin/master (done AFTER the tag was on GitHub). npm publish --tag next NOT done -- npm whoami=ENEEDAUTH, no ~/.npmrc, no interactive login in env; maintainer must `npm login` then `npm publish --tag next` from MindrianOS-Plugin/, verify `npm view @mindrian/os@next version` == 1.13.0-beta.9, then `gsd-tools phase complete 95.6`, then update ~/mindrianos-install-site/ for npx @mindrian/os@next.
+- [Phase 122]: Command frontmatter (kind/frameworks[]/produces/inputs/autonomous_safe) is the single source of truth for the framework<->command mapping; the registry + CI tripwire are generated FROM it, never hand-written
+- [Phase 122]: frameworks: uses exact FEEDS_INTO-linked Brain names where confirmed; long-tail uses cleanest-canonical guess (122-02 --check catches a wrong one)
 
 ### Pending Todos
 
@@ -756,6 +759,6 @@ Progress: [████████░░] 82%
 
 ## Session Continuity
 
-Last session: 2026-05-11T19:35:00.000Z
-Stopped at: 95.6-10 -- v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (origin/main 60fe434; tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace master a41964f). Remaining: maintainer runs `npm login` + `npm publish --tag next` (ENEEDAUTH in env), then `gsd-tools phase complete 95.6`, then update ~/mindrianos-install-site/ for npx. Then Phase 117 (already shipped beta.8; owes a 117-VERIFICATION.md).
-Resume file: .planning/phases/95.6-install-cache-windows-hardening-and-skill-loop-resilience/95.6-10-SUMMARY.md
+Last session: 2026-05-12T05:43:43.626Z
+Stopped at: Completed 122-01-PLAN.md
+Resume file: None
