@@ -1,19 +1,24 @@
 #!/usr/bin/env bash
 # Phase 122 scoped runner -- run before each 122 task commit. Expect RED on the
 # suites whose owning plan has not landed yet (see 122-VALIDATION.md):
-#   GREEN at Wave 0:  test-command-registry.cjs (stub: prints the Wave-0 line, exits 0)
-#   RED-by-design until their owning plan lands -- the stub flips to a real
-#   suite WITHOUT changing the registered path:
-#     test-command-registry.cjs            -> real suite when 122-02 lands
+#   GREEN once their owning plan lands:
+#     test-command-registry.cjs                     -> real suite, 122-02 (landed)
+#     ../lib/memory/chain-recommender.test.cjs       -> 122-03 (landed)
 #   suites appended by downstream plans (not present until their plan lands):
-#     test-chain-recommender.cjs (or chain-recommender.test.cjs)   -> 122-03
-#     test-navigation-hook-resolver.cjs                            -> 122-04
-#     test-suggest-next-workflow.cjs                               -> 122-04
-#     test-workflow-layer-e2e.cjs                                  -> 122-05
+#     test-navigation-hook-resolver.cjs (or ../lib/memory/navigation-hook-resolver.test.cjs) -> 122-04
+#     test-suggest-next-workflow.cjs    (or ../lib/memory/suggest-next-workflow.test.cjs)    -> 122-04
+#     test-workflow-layer-e2e.cjs       (or ../lib/memory/workflow-layer-e2e.test.cjs)       -> 122-05
+#   Note: command-resolver.test.cjs (122-03, landed) runs via the Feynman runner
+#   (lib/memory/run-feynman-tests.cjs TEST_FILES[]) -- it does not need a second
+#   registration here; chain-recommender.test.cjs is listed here too because the
+#   plan asks for it in CJS_SUITES.
 #
 # This runner MUST run to completion (no crash) even when RED suites fail; it
 # prints a per-suite PASS/FAIL line. It exits non-zero if any suite failed --
 # which is EXPECTED while the downstream plans are still in flight.
+#
+# CJS_SUITES entries are resolved relative to this directory (tests/); an entry
+# may be "../lib/..." to reach a suite that lives under lib/.
 #
 # bash only. No emoji. No em-dashes.
 
@@ -26,6 +31,7 @@ SHELL_SUITES=(
 )
 CJS_SUITES=(
   test-command-registry.cjs
+  ../lib/memory/chain-recommender.test.cjs
 )
 
 TOTAL=0
