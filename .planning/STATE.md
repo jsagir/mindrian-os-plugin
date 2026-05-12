@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
-status: executing
-stopped_at: "v1.13.0-beta.9 is the live release (GitHub origin/main was at 3b9476e + tag v1.13.0-beta.9; marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 is IN PROGRESS, not shipped -- its headline content is the WORKFLOW LAYER capstone (framework<->command registry; spec at .planning/WORKFLOW-LAYER-SPEC.md), not yet built. Landed toward beta.10 on local main: commits 40c4211 (npm package rename @mindrian/os -> @mindrian_os/cli, since the @mindrian scope never existed; the @mindrian_os npm org was created 2026-05-11; plugin.json + package.json bumped to 1.13.0-beta.10) + 103a8fb (CHANGELOG: the beta.10 entry is now under '## [Unreleased] -- v1.13.0-beta.10 (in progress)'). NO v1.13.0-beta.10 tag (a premature one was created then deleted). NOT on the marketplace. NEXT: register the Workflow Layer as a GSD phase in the beta.10 band (per WORKFLOW-LAYER-SPEC.md target-band), then DEEP RESEARCH -> plan -> review -> execute (5 build sub-phases; Phase 3 of it has a HARD dep on brain-cleanup Phase 5). The npm publish of @mindrian_os/cli is pending a token with @mindrian_os write + bypass-2FA (the two tokens tried this session: npm_6ob... -> 403 2FA-required; npm_sU4w3K... -> 404 on PUT, scoped before the org existed). Phase 117 already shipped beta.8; 117-VERIFICATION.md filed retroactively (commit 3b9476e). Phase 95.6 done bar `gsd-tools phase complete 95.6` (run after the npm publish lands). PHASE 122 (Workflow Layer -- framework<->command registry + reliable invocation) REGISTERED 2026-05-11 as the v1.13.0 beta.10 CAPSTONE: dir .planning/phases/122-workflow-layer/ (short leaf -- full name in 122-CONTEXT.md, per the 95.6 D-02 MAX_PATH lesson); authority .planning/WORKFLOW-LAYER-SPEC.md (spec-locked); NOT planned -- next is /gsd:research-phase 122 (DEEP RESEARCH FIRST per the maintainer), then /gsd:plan-phase 122 -> /gsd:review --phase 122 -> /gsd:execute-phase 122. HARD DEP for its build sub-phase 3 (resolver + chain recommender): brain-cleanup Phase 5 (enrichCausalEdges -> FEEDS_INTO rewrite); brain-cleanup Phase 4 is DONE; sub-phases 1, 2, 4-partial, 5-docs can start immediately. brain-impact: NONE."
-last_updated: "2026-05-11T20:35:00.000Z"
-last_activity: 2026-05-11
+status: v1.13.0-beta.9 shipped to GitHub + marketplace -- run-all-956.sh 8/8 green; npm publish --dry-run --tag next succeeds (only auth blocks the real publish).
+stopped_at: "Phase 95.6 COMPLETE (`gsd-tools phase complete 95.6` ran 2026-05-12; 10/10 plans). v1.13.0-beta.9 is the live release (GitHub tag v1.13.0-beta.9 -> 9ed8280; marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). One tracked follow-up: `npm publish` of `@mindrian_os/cli` -- maintainer-gated on an `@mindrian_os` Read+Write + bypass-2FA token (or an OTP); the two tokens tried 2026-05-11 both failed at the registry. Phase 122 (Workflow Layer, the v1.13.0 beta.10 capstone) is PLANNED + plan-checker PASSED + 122-VALIDATION.md nyquist_compliant -- NEXT is `/gsd:execute-phase 122 --auto` (5 plans, 5 linear waves, no checkpoints; `/clear` first -- fresh context). Also queued: the maintainer email follow-up (90-day @mindrian_os Brain key + add-to-testers + styled welcome mail w/ version-aware install link from https://mindrianos-install-site.vercel.app -- needs the maintainer to supply the key + identify the email thread). origin/main = 7e03693 (synced); working tree clean."
+last_updated: "2026-05-12T05:20:26.397Z"
+last_activity: 2026-05-12
 progress:
-  total_phases: 52
-  completed_phases: 28
-  total_plans: 230
+  total_phases: 53
+  completed_phases: 29
+  total_plans: 235
   completed_plans: 216
   percent: 82
 ---
@@ -21,18 +21,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 95.6 -- v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11; only `npm publish` (needs `npm login`) + `gsd-tools phase complete 95.6` remain. Then Phase 117.
+**Current focus:** Phase 122 (Workflow Layer -- framework<->command registry + reliable invocation) -- the v1.13.0 beta.10 CAPSTONE. PLANNED + plan-checker PASSED + Nyquist VALIDATION ready. NEXT: `/gsd:execute-phase 122 --auto` (5 plans, 5 linear waves, no checkpoints -- run in a FRESH session, `/clear` first). Phase 95.6 is COMPLETE (`gsd-tools phase complete 95.6` ran 2026-05-12); its one tracked follow-up is the `npm publish` of `@mindrian_os/cli` -- maintainer-gated on an `@mindrian_os` write + bypass-2FA token (or an OTP). `gsd-tools phase complete` set roadmap-order Phase: 104 as "next", but the maintainer has prioritized Phase 122 as the next execute (the beta.10 capstone, per `.planning/WORKFLOW-LAYER-SPEC.md` target-band).
 
 ## Current Position
 
-Phase: 95.6 (install-cache-windows-hardening-and-skill-loop-resilience) -- 10/10 PLANS COMPLETE; v1.13.0-beta.9 SHIPPED to GitHub + marketplace (npm publish pending)
-Milestone: v1.13.0 The Closed Loop -- 4-beta progression
-Beta: beta.9 SHIPPED 2026-05-11 -- origin/main 60fe434; tag v1.13.0-beta.9 -> 9ed8280 on GitHub; ~/mindrian-marketplace master a41964f (mos 1.13.0-beta.9, source.ref v1.13.0-beta.9). Install paths live: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag. NOT yet: `npx @mindrian/os@next` (needs the npm publish).
-Next phase: finish 95.6 -- maintainer runs `npm login` then `npm publish --tag next` from /home/jsagi/MindrianOS-Plugin/ (publishes @mindrian/os@1.13.0-beta.9 @next), then `gsd-tools phase complete 95.6`, then updates ~/mindrianos-install-site/ for npx. THEN Phase 117 (which is already SHIPPED v1.13.0-beta.8 -- 6/6 plans done, no VERIFICATION.md; "117 go" likely means run the verifier / a finish pass, not a fresh build).
-Plan: 10 of 10 -- 95.6-10 Task 1 (CHANGELOG 577a668) + Task 2 (Windows cold-install checkpoint WAIVED by maintainer 2026-05-11) + Task 3 (version bumps 9ed8280 + tag + push origin main --tags + ~/mindrian-marketplace ref pin a41964f) done EXCEPT the npm publish (ENEEDAUTH -- needs `npm login`).
-Status: v1.13.0-beta.9 shipped to GitHub + marketplace -- run-all-956.sh 8/8 green; npm publish --dry-run --tag next succeeds (only auth blocks the real publish).
+Phase: 122 (Workflow Layer) -- PLANNED, plan-checker PASSED, ready to execute. (gsd-tools phase-complete's roadmap-order pick was 104; the maintainer override is 122 -- the beta.10 capstone.)
+Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
+Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
+Plan: 5 plans planned (122-01..05); plan-checker PASSED 2026-05-12; 122-VALIDATION.md nyquist_compliant: true.
+Status: Phase 122 ready to execute. Phase 95.6 COMPLETE (one tracked follow-up: npm publish of @mindrian_os/cli, token-blocked). v1.13.0-beta.9 is the live release.
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
-Soft deadline: 2026-05-11 EOD (maintainer's public commitment to Lawrence + Gary on 2026-05-09 install call)
+Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
 
 **Why 95.6 displaced 114 as the next phase (2026-05-10):**
 
@@ -124,7 +123,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-11
+Last activity: 2026-05-12
 
 Progress: [████████░░] 82%
 
@@ -739,11 +738,13 @@ Progress: [████████░░] 82%
 
 ### Blockers/Concerns
 
-- v1.13.0-beta.9 is on GitHub + the marketplace (2026-05-11) but NOT on npm yet: the maintainer must `npm login` then `npm publish --tag next` from /home/jsagi/MindrianOS-Plugin/ (no npm auth in the dev env -- ENEEDAUTH, no ~/.npmrc), verify `npm view @mindrian/os@next version` == 1.13.0-beta.9, then `gsd-tools phase complete 95.6`, then update ~/mindrianos-install-site/ for the `npx @mindrian/os@next` path. Until then the `npx`/`npm i -g` install path is dead; `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` and direct install.sh work.
-- Windows cold-install gate (tests/manual/95.6-windows-cold-install-acceptance.md) was WAIVED for beta.9 -- still the contract for promoting beta.9 -> clean 1.13.0; needs a Windows tester run before that promotion.
-- Phase 117 (auto-explore-domains-on-first-material) is already SHIPPED v1.13.0-beta.8 (6/6 plans, ROADMAP marks it shipped) but has NO 117-VERIFICATION.md -- a verifier pass is owed before it can be marked formally complete.
+- **The npm publish (Phase 95.6's one tracked follow-up):** the plugin's npm package was renamed `@mindrian/os` -> `@mindrian_os/cli` (the `@mindrian` scope never existed -- `{"error":"Scope not found"}`; the `@mindrian_os` org was created on npm 2026-05-11). `@mindrian_os/cli@1.13.0-beta.10` (the current package.json version; in-progress beta) is NOT published yet -- blocked on a token with **Read+Write on `@mindrian_os` packages + "Bypass two-factor authentication for write actions" enabled** (or `jsagir` running `npm publish --otp=<code>` directly). The two tokens tried 2026-05-11: `npm_6ob...` -> 403 (2FA required); `npm_sU4w3K...` -> 404 on PUT (granular token scoped before the org existed). `npm pack --dry-run` is clean (590 files, no secrets) -- only auth blocks it. Until then the `npx`/`npm i -g` install path is dead; `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh + the install page work. When a working token lands: `npm publish --tag next` -> `npm view @mindrian_os/cli@next version` -> mount the NpmQuickInstall component in ~/mindrianos-install-site/ + redeploy (`vercel --prod`) -> done.
+- Windows cold-install gate (tests/manual/95.6-windows-cold-install-acceptance.md) was WAIVED for beta.9 (maintainer, 2026-05-11) -- still the contract for promoting beta.9/.10 -> a clean 1.13.0; needs a Windows tester run before that promotion.
+- Phase 117 (auto-explore-domains-on-first-material) -- 117-VERIFICATION.md WAS filed retroactively 2026-05-11 (status: passed, 55/55 must-haves, commit 3b9476e). 4 human-verify items pending (live CLI smoke + the post-tester VR gate). Not running `gsd-tools phase complete 117` to avoid clobbering Current Position; the phase is verified-passed.
 - ~/mindrian-marketplace/.claude-plugin/marketplace.json `description` field is slightly stale ("73 commands ... 13 hooks") -- not updated in the beta.9 ref-pin commit; cosmetic.
+- brain-cleanup workspace (~/gsd-workspaces/brain-cleanup/): Phase 5 COMPLETE (the Workflow Layer's hard dep -- the enrichCausalEdges->FEEDS_INTO rewrite); commit 128d47e unpushed there (1 ahead of origin); also has out-of-scope unstaged changes in other repos. Its own next phase is Phase 6 (CI-01 drift tripwire).
 - RESOLVED 2026-05-11: tests/test-navigation-memory-events.cjs test1_enumCount now asserts EVENT_TYPES.size >= 19 (floor). 9/9 GREEN (commit a73a06c). The "One-line fix outstanding" item is closed.
+- RESOLVED 2026-05-12: Phase 95.6 marked complete via `gsd-tools phase complete 95.6` (10/10 plans, no verification-debt warnings). The `gsd-tools` roadmap-order "next" was Phase 104, but the maintainer override is Phase 122 (the beta.10 Workflow Layer capstone).
 
 ### Quick Tasks Completed
 
