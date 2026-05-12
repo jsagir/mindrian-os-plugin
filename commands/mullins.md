@@ -4,7 +4,7 @@ description: Run Mullins 7-Domains on a business opportunity
 serves_jtbd: ["understand-market"]
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
-frameworks: ["Mullins 7-Domains"]
+frameworks: ["Mullins Model"]
 produces: "room/**/mullins/*"
 inputs: []
 autonomous_safe: true

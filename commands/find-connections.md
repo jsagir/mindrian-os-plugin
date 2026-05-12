@@ -4,7 +4,7 @@ description: Find cross-domain patterns that touch your work
 serves_jtbd: ["connect-domains"]
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
-frameworks: ["SAPPhIRE"]
+frameworks: ["Usher's Model of Cumulative Synthesis"]
 produces: "room/**/analogies/*"
 inputs: []
 autonomous_safe: true

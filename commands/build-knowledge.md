@@ -4,7 +4,7 @@ description: Climb Ackoff's DIKW pyramid across the room
 serves_jtbd: ["explore"]
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
-frameworks: ["DIKW"]
+frameworks: ["Ackoff Pyramid"]
 produces: "room/**/knowledge/*"
 inputs: []
 autonomous_safe: true

@@ -4,7 +4,7 @@ description: Structure an argument with Minto + SCQA + MECE
 serves_jtbd: ["validate-idea", "explore"]
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
-frameworks: ["The Pyramid Principle", "MECE"]
+frameworks: ["The Pyramid Principle", "MECE (Mutually Exclusive, Collectively Exhaustive)"]
 produces: "room/**/argument/*"
 inputs: []
 autonomous_safe: true

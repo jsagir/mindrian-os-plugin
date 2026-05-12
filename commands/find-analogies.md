@@ -5,7 +5,7 @@ body_shape: D (Comparison Matrix)
 serves_jtbd: ["connect-domains"]
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
-frameworks: ["TRIZ"]
+frameworks: ["Four Lenses of Innovation"]
 produces: "room/**/analogies/*"
 inputs: []
 autonomous_safe: true
