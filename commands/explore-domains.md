@@ -2,6 +2,12 @@
 name: explore-domains
 description: Map domains through IKA + Feynman decomposition
 serves_jtbd: ["find-problem", "understand-market", "explore"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Domain Selection"]
+produces: "room/problem-definition/domain-decomposition/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

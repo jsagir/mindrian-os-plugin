@@ -2,6 +2,12 @@
 name: explore-trends
 description: Push trends to extremes to surface future problems
 serves_jtbd: ["understand-market", "explore"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["S-Curve Analysis"]
+produces: "room/**/trends/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

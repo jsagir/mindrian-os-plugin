@@ -3,6 +3,12 @@ name: pipeline
 description: Chain a multi-step methodology pipeline
 argument-hint: [pipeline-name]
 serves_jtbd: ["plan-execution"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: meta
+frameworks: []
+produces: null
+inputs: []
+autonomous_safe: false
 allowed-tools:
   - Read
   - Write

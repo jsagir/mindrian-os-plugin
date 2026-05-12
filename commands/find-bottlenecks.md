@@ -2,6 +2,12 @@
 name: find-bottlenecks
 description: Find lagging components via Reverse Salient
 serves_jtbd: ["find-bottleneck"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Reverse Salient Analysis"]
+produces: "room/**/reverse-salients/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

@@ -2,6 +2,12 @@
 name: deep-grade
 description: Grade a venture against 100+ calibrated projects
 serves_jtbd: ["audit-room", "compare-options"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["PWS Triple Validation Compass"]
+produces: "room/**/deep-grades/*"
+inputs: ["3+ room sections populated"]
+autonomous_safe: true
 allowed-tools:
   - Read
   - Bash

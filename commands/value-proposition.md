@@ -2,6 +2,12 @@
 name: validate-proposition
 description: Score your value proposition against 3 VP gates
 serves_jtbd: ["validate-idea", "prepare-pitch"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["PWS Value Proposition"]
+produces: "room/business-model/value-proposition/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

@@ -3,6 +3,12 @@ name: rs-fetch
 description: Run the full Reverse Salient discovery pipeline for a topic
 body_shape: E (Action Report)
 serves_jtbd: ["find-bottleneck", "surface-contradiction"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Reverse Salient Analysis"]
+produces: "room/**/rs-fetch/*"
+inputs: []
+autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash

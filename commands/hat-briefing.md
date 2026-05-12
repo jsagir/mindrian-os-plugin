@@ -4,6 +4,12 @@ description: Consolidate Six Hats briefings from hat memory
 body_shape: C (Dashboard Grid)
 body_shape_detail: 6-panel hat grid + synthesis strip
 serves_jtbd: ["prepare-pitch"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Six Thinking Hats"]
+produces: "room/**/hat-briefing/*"
+inputs: []
+autonomous_safe: false
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

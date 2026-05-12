@@ -2,6 +2,12 @@
 name: think-hats
 description: Rotate through De Bono's Six Thinking Hats
 serves_jtbd: ["explore", "compare-options"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Six Thinking Hats"]
+produces: "room/**/six-hats/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

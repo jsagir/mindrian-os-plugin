@@ -2,6 +2,12 @@
 name: beautiful-question
 description: Reframe a challenge as Why / What-if / How
 serves_jtbd: ["find-problem", "explore"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Beautiful Question Framework"]
+produces: "room/problem-definition/beautiful-question/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

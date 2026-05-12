@@ -2,6 +2,12 @@
 name: analyze-timing
 description: Place a technology on the S-Curve timing clock
 serves_jtbd: ["understand-market"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["S-Curve Analysis"]
+produces: "room/**/timing/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

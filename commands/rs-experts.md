@@ -3,6 +3,12 @@ name: rs-experts
 description: Resolve the expert network for a topic via Aura Cypher MATCH
 body_shape: D (Comparison Matrix)
 serves_jtbd: ["find-bottleneck", "connect-domains"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Reverse Salient Analysis"]
+produces: "room/**/rs-experts/*"
+inputs: []
+autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash

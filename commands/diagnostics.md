@@ -3,6 +3,12 @@ name: diagnostics
 description: Run Wave-1 algorithmic fingerprint on the room
 body_shape: E
 serves_jtbd: ["audit-room"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["HSI Semantic Surprise Analysis Assistant"]
+produces: "room/**/diagnostics/*"
+inputs: []
+autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash

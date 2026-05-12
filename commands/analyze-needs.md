@@ -2,6 +2,12 @@
 name: analyze-needs
 description: Score customer jobs with importance and satisfaction
 serves_jtbd: ["find-problem"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Jobs to Be Done (JTBD)"]
+produces: "room/market-analysis/jtbd-analysis/*"
+inputs: ["a customer segment defined"]
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

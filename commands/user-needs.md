@@ -2,6 +2,12 @@
 name: user-needs
 description: Map user needs with importance vs satisfaction
 serves_jtbd: ["find-problem"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Jobs to Be Done (JTBD)"]
+produces: "room/market-analysis/user-needs/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

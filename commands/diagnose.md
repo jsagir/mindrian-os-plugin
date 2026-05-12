@@ -2,6 +2,12 @@
 name: diagnose
 description: Classify problem type against the PWS matrix
 serves_jtbd: ["decide-pursue"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Problem Definition Transformation Framework"]
+produces: "room/problem-definition/diagnosis/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

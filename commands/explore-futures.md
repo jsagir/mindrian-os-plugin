@@ -2,6 +2,12 @@
 name: explore-futures
 description: Synthesize TTA + Scenario + S-Curve futures
 serves_jtbd: ["compare-options", "explore"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Scenario Planning"]
+produces: "room/**/futures/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

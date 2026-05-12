@@ -3,6 +3,12 @@ name: research
 description: Research the web and cross-reference with Brain
 argument-hint: [topic]
 serves_jtbd: ["explore", "understand-market"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Hypothesis-Driven Problem Solving"]
+produces: "room/**/research/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Bash

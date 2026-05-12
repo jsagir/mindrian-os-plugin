@@ -3,6 +3,12 @@ name: causal
 description: Trace causal edges in the room's graph
 argument-hint: [extract|trace|predict]
 serves_jtbd: ["find-problem", "find-bottleneck"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Root Cause Analysis"]
+produces: "room/**/causal/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

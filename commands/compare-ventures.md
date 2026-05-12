@@ -2,6 +2,12 @@
 name: compare-ventures
 description: Compare against ventures that tried this before
 serves_jtbd: ["compare-options"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["PWS Triple Validation Compass"]
+produces: "room/competitive-analysis/comparison/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - mcp__mindrian-brain__brain_query

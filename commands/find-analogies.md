@@ -3,6 +3,12 @@ name: find-analogies
 description: Find cross-domain analogies with SAPPhIRE + TRIZ
 body_shape: D (Comparison Matrix)
 serves_jtbd: ["connect-domains"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["TRIZ"]
+produces: "room/**/analogies/*"
+inputs: []
+autonomous_safe: true
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

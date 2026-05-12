@@ -2,6 +2,12 @@
 name: macro-trends
 description: Map macro changes with PEST across a domain
 serves_jtbd: ["understand-market"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["PEST Analysis"]
+produces: "room/**/trends/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

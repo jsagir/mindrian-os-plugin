@@ -2,6 +2,12 @@
 name: grade
 description: Grade problem-discovery quality (6 components)
 serves_jtbd: ["audit-room"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["PWS Triple Validation Compass"]
+produces: "room/**/grades/*"
+inputs: ["at least one room section populated"]
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

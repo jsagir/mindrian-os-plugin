@@ -3,6 +3,12 @@ name: persona
 description: Generate Six-Hats lenses from room data
 body_shape: C (Room Card)
 serves_jtbd: ["prepare-pitch"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Six Thinking Hats"]
+produces: "room/team/ai-personas/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

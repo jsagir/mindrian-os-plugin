@@ -2,6 +2,12 @@
 name: build-thesis
 description: Run the Ten-Questions investment thesis gate
 serves_jtbd: ["decide-pursue", "prepare-pitch"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["PWS Value Proposition"]
+produces: "room/**/thesis/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

@@ -2,6 +2,12 @@
 name: lean-canvas
 description: Fill the Lean Canvas in one page (9 boxes)
 serves_jtbd: ["prepare-pitch", "validate-idea"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Lean Canvas"]
+produces: "room/business-model/lean-canvas/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

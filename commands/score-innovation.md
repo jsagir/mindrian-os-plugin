@@ -2,6 +2,12 @@
 name: score-innovation
 description: Score cross-domain innovation via HSI
 serves_jtbd: ["compare-options", "validate-idea"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["HSI Semantic Surprise Analysis Assistant"]
+produces: "room/opportunity-bank/hsi-scores/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

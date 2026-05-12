@@ -2,6 +2,12 @@
 name: dominant-designs
 description: Spot dominant designs with Utterback-Abernathy
 serves_jtbd: ["understand-market"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Dominant Design"]
+produces: "room/**/dominant-designs/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

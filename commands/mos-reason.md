@@ -4,6 +4,12 @@ command: mos:reason
 description: Generate Feynman-MINTO reasoning for a section
 usage: /mos:reason [--section <name>] [--regenerate-all]
 serves_jtbd: ["explore"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["The Pyramid Principle"]
+produces: "room/**/reasoning/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

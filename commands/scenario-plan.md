@@ -2,6 +2,12 @@
 name: scenario-plan
 description: Build a 2x2 scenario matrix of plausible futures
 serves_jtbd: ["compare-options", "plan-execution"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Scenario Planning"]
+produces: "room/**/scenarios/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

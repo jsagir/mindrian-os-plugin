@@ -2,6 +2,12 @@
 name: root-cause
 description: Trace root cause via 5-Whys, Fishbone, Fault Tree
 serves_jtbd: ["find-problem"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Root Cause Analysis"]
+produces: "room/**/root-cause/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

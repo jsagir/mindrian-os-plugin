@@ -2,6 +2,12 @@
 name: map-unknowns
 description: Map known, unknown, and unknowable (Rumsfeld)
 serves_jtbd: ["validate-idea"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Knowns and Unknowns Matrix Framework"]
+produces: "room/**/unknowns/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

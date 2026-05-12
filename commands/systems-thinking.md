@@ -2,6 +2,12 @@
 name: systems-thinking
 description: Map feedback loops, stocks, and flows
 serves_jtbd: ["find-bottleneck"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Systems Thinking"]
+produces: "room/**/systems/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

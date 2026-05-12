@@ -2,6 +2,12 @@
 name: analyze-systems
 description: Decompose a system into layers and leverage points
 serves_jtbd: ["find-bottleneck"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Systems Thinking"]
+produces: "room/**/systems/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

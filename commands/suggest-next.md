@@ -2,6 +2,12 @@
 name: suggest-next
 description: Suggest the next move using the room graph
 serves_jtbd: ["plan-execution", "explore"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: meta
+frameworks: []
+produces: null
+inputs: []
+autonomous_safe: false
 allowed-tools:
   - Read
   - mcp__mindrian-brain__brain_query

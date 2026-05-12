@@ -2,6 +2,12 @@
 name: find-connections
 description: Find cross-domain patterns that touch your work
 serves_jtbd: ["connect-domains"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["SAPPhIRE"]
+produces: "room/**/analogies/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - mcp__mindrian-brain__brain_query

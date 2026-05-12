@@ -2,6 +2,12 @@
 name: validate
 description: Validate ideas via importance-satisfaction scoring
 serves_jtbd: ["validate-idea"]
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Jobs to Be Done (JTBD)"]
+produces: "room/**/validation/*"
+inputs: ["a customer segment defined"]
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write
