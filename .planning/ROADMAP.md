@@ -1020,11 +1020,11 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 
 **Canon parts:** Part 1 (Wicked Navigator — working memory made legible), Part 3 (Tri-Context Decision Gate — consumes navigation output as the LOCAL context), Part 4 (Every Choice Is Graph Data — every state change is a memory_event), Part 8 (Graph Boundary — D-06 + D-07 honor it; Phase 110 hardens via wire schema), Part 9 (Memory Locality and Interpretation — RATIFIED here).
 
-**Plans:** 8/13 plans executed
+**Plans:** 13/13 plans executed
 
 Plans:
 - [x] 109-00-PLAN.md -- Wave 0 substrate: 9 NAV-109 requirement IDs + 16 test stubs + fs-instrument helper + 500-node fixture
-- [x] 109-01-PLAN.md -- nodes-provenance migration (closed-5 created_by + closed-8 review_status + 9 provenance columns); follow-up fix 7d87ed5
+- [x] 109-01-PLAN.md -- nodes-provenance migration (closed-5 created_by + closed-8 review_status + 9 provenance columns); follow-up fix 7d87ed5 (the phase-109-migration-view-drop-collision bug: the table rebuild now drops+recreates every dependent view/trigger via the canonical SQLite 12-step recipe; debug archive 2601229)
 - [x] 109-02-PLAN.md -- session_focus migration + focus.cjs (getActiveFocus / setFocus; auto-focus cascade) [NAV-109-01]
 - [x] 109-03-PLAN.md -- memory-events.cjs (logEvent + 15-event closed set + findRecentChanges) [NAV-109-03]
 - [x] 109-04-PLAN.md -- neighborhood.cjs recursive-CTE ranking + navigation.cjs chokepoint + transitions.cjs promoteNodeStatus [NAV-109-02]
@@ -1035,7 +1035,9 @@ Plans:
 - [x] 109-09-PLAN.md -- room-home.cjs getRoomHomeView per D-08 + Phase 90 regression fence; closed 13-function surface complete [NAV-109-08]
 - [x] 109-10-PLAN.md -- Wave 4: fill the load-bearing acceptance test (full navigation flow via the chokepoint, fs-instrument active, zero non-SQLite reads) [NAV-109-09]
 - [x] 109-11-PLAN.md -- Wave 4: Canon Part 9 ratification (merge into MINDRIAN-CANON.md before Appendix A; flip CANON-PHASE-MAP rows to shipped; v1.4 bump; Appendix D entry 12; fill the ratification test) [NAV-109-09]
-- [ ] 109-12-PLAN.md -- Wave 4: recreate the 4 missing SUMMARYs (109-00/01/07/09) + flip NAV-109-06/07/08 to Complete in REQUIREMENTS.md (bookkeeping recovery)
+- [x] 109-12-PLAN.md -- Wave 4: recreate the 4 missing SUMMARYs (109-00/01/07/09); flip NAV-109-06/07/08 to Complete in REQUIREMENTS.md; re-register the 15 Phase-109 test suites in lib/memory/run-feynman-tests.cjs (bookkeeping recovery / phase-ledger reconciliation)
+
+**Phase 109 ledger note (2026-05-12):** all 13 plans executed; all 9 NAV-109-XX requirements Complete; all 16 Phase-109 test suites pass (run directly + via the Feynman runner). Canon Part 9 (Memory Locality and Interpretation) ratified at the release gate (docs/MINDRIAN-CANON.md v1.3 -> v1.4; Appendix D entry 12; CANON-PHASE-MAP Part 9 rows shipped for 108 + 109). The release commit (CHANGELOG / plugin.json / package.json version bump to whatever version Phase 109 ships in, per the CLAUDE.md 5-gate release process) is the remaining step, OUT OF SCOPE for the phase plans.
 
 **Authority**: `.planning/phases/109-sql-context-memory-navigation-spine/109-CONTEXT.md`. The phase guardrail (Codex via Jonathan, 2026-05-03): "Do not let Phase 109 become 'more SQL tables.' It must define navigation behavior."
 
