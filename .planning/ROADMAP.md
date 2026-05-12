@@ -1237,11 +1237,11 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 **Requirements**: WORKFLOW-122-01, WORKFLOW-122-02, WORKFLOW-122-03, WORKFLOW-122-04, WORKFLOW-122-05, WORKFLOW-122-06, WORKFLOW-122-07, WORKFLOW-122-08, WORKFLOW-122-09, WORKFLOW-122-10, WORKFLOW-122-11 (derived 2026-05-12 from `.planning/WORKFLOW-LAYER-SPEC.md` acceptance criteria + the 5 reliability rules; see `.planning/REQUIREMENTS.md` -> `## Workflow Layer (WORKFLOW-122)`).
 **Depends on:** Phase 121 (sequential placement) + the v1.13.0 surfaces it leverages (91/91.6 navigation engine, 114 larry-default-activation, 99 conversation-operator, 108/109 SQL graph + memory triple, 115 persona, 116/117 cascade hooks). **HARD DEP: brain-cleanup Phase 5** (enrichCausalEdges -> FEEDS_INTO rewrite, in the separate `~/gsd-workspaces/brain-cleanup/` workspace) -- needed for sub-phase 3 (resolver + chain recommender) ONLY; brain-cleanup Phase 4 is DONE; sub-phases 1, 2, 4-partial, 5-docs can start immediately.
 **Authority:** `.planning/WORKFLOW-LAYER-SPEC.md` (spec-locked 2026-05-11). Target band: v1.13.0-beta.10 (the capstone, not a beta.2 bolt-on). brain-impact: NONE (100% plugin-side). Phase directory: `.planning/phases/122-workflow-layer/` (short leaf -- the full descriptive name lives here, not in the path, per the Phase 95.6 D-02 / REC-11 lesson about MAX_PATH).
-**Plans:** 1/5 plans executed
+**Plans:** 2/5 plans executed
 
 Plans:
 - [x] 122-01-PLAN.md -- Frontmatter contract + retrofit (algorithmic cohort first) + docs/COMMAND-FRONTMATTER.md + Wave-0 test scaffold (wave 1)
-- [ ] 122-02-PLAN.md -- Registry generator (scripts/build-command-registry.cjs) + data/command-registry.json + data/framework-names.json + the --check pre-commit drift tripwire (wave 2)
+- [x] 122-02-PLAN.md -- Registry generator (scripts/build-command-registry.cjs) + data/command-registry.json + data/framework-names.json + the --check pre-commit drift tripwire (wave 2)
 - [ ] 122-03-PLAN.md -- lib/workflow/command-resolver.cjs (the only door) + lib/brain/chain-recommender.cjs (FEEDS_INTO traversal, reuse framework-chain-composer) (wave 3)
 - [ ] 122-04-PLAN.md -- Wire the navigation engine (the surgical edit) + /mos:suggest-next + /mos:pipeline --from-problem-type/--from-framework + /mos:act --chain + pws-methodology/brain-connector skill prose (wave 4)
 - [ ] 122-05-PLAN.md -- Prune the 3 hand-maintained maps + delete brain-connector Command-node prose + docs/WORKFLOWS.md + end-to-end test + Canon Part 8 grep sweep + CHANGELOG beta.10 finalization (wave 5)

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 122-01-PLAN.md
-last_updated: "2026-05-12T05:43:51.422Z"
+stopped_at: Completed 122-02-PLAN.md
+last_updated: "2026-05-12T07:02:31.411Z"
 last_activity: 2026-05-12
 progress:
   total_phases: 53
   completed_phases: 29
   total_plans: 235
-  completed_plans: 217
+  completed_plans: 218
   percent: 82
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 122 (workflow-layer) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -268,6 +268,7 @@ Progress: [████████░░] 82%
 | Phase 95.6 P08 | 20m | 3 tasks | 13 files |
 | Phase 95.6 P09 | 38min | 3 tasks | 4 files |
 | Phase 122 P01 | 5min | 3 tasks | 51 files |
+| Phase 122-workflow-layer P02 | 70min | 2 tasks | 13 files |
 
 ### Roadmap Evolution
 
@@ -730,6 +731,8 @@ Progress: [████████░░] 82%
 - [Phase 95.6]: 95.6-10 SHIP 2026-05-11 (maintainer instruction "I want this pushed across all install types"): git push origin main --tags DONE (origin/main 60fe434; tag v1.13.0-beta.9 -> 9ed8280 on GitHub). ~/mindrian-marketplace/.claude-plugin/marketplace.json: mos -> 1.13.0-beta.9, source.ref -> v1.13.0-beta.9; committed a41964f, pushed origin/master (done AFTER the tag was on GitHub). npm publish --tag next NOT done -- npm whoami=ENEEDAUTH, no ~/.npmrc, no interactive login in env; maintainer must `npm login` then `npm publish --tag next` from MindrianOS-Plugin/, verify `npm view @mindrian/os@next version` == 1.13.0-beta.9, then `gsd-tools phase complete 95.6`, then update ~/mindrianos-install-site/ for npx @mindrian/os@next.
 - [Phase 122]: Command frontmatter (kind/frameworks[]/produces/inputs/autonomous_safe) is the single source of truth for the framework<->command mapping; the registry + CI tripwire are generated FROM it, never hand-written
 - [Phase 122]: frameworks: uses exact FEEDS_INTO-linked Brain names where confirmed; long-tail uses cleanest-canonical guess (122-02 --check catches a wrong one)
+- [Phase 122-workflow-layer]: data/command-registry.json is GENERATED from commands/*.md frontmatter by scripts/build-command-registry.cjs; --check (pre-commit hook + Feynman runner) rejects a stale registry or an unresolvable framework -- drift is uncommittable
+- [Phase 122-workflow-layer]: data/framework-names.json = the 105-name FEEDS_INTO-linked Brain :Framework slice (read-only build-time brain.query via --refresh-names) UNION a 4-name curated_extras whitelist; the resolver/registry never touch the Brain at runtime; no write-Cypher anywhere
 
 ### Pending Todos
 
@@ -759,6 +762,6 @@ Progress: [████████░░] 82%
 
 ## Session Continuity
 
-Last session: 2026-05-12T05:43:43.626Z
-Stopped at: Completed 122-01-PLAN.md
+Last session: 2026-05-12T07:02:24.127Z
+Stopped at: Completed 122-02-PLAN.md
 Resume file: None
