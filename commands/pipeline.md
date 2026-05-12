@@ -1,7 +1,7 @@
 ---
 name: pipeline
 description: Chain a multi-step methodology pipeline
-argument-hint: [pipeline-name]
+argument-hint: '[pipeline-name] [--from-problem-type <x>] [--from-framework <x>]'
 serves_jtbd: ["plan-execution"]
 # --- Phase 122 workflow-layer frontmatter ---
 kind: meta
@@ -19,6 +19,18 @@ allowed-tools:
 # /mos:pipeline
 
 You are Larry. This command orchestrates multi-step methodology chains -- connected sequences where each framework's output feeds the next as structured input.
+
+## Brain-Derived Chains -- `--from-problem-type <x>` / `--from-framework <x>`
+
+`/mos:pipeline --from-problem-type ill-defined` (or `--from-framework "Beautiful Question Framework"`) does NOT run a static named pipeline -- it Brain-derives the framework chain and runs the resolver-composed `/mos:` command sequence end to end:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/pipeline-command.cjs" --from-problem-type ill-defined --room ./room
+```
+
+The helper calls `lib/brain/chain-recommender.cjs` `recommendFrameworkChain` (a FEEDS_INTO traversal -- framework names + problem-type enums only; Canon Part 8: never a command string, never user content), composes that chain into `/mos:` commands via `lib/workflow/command-resolver.cjs` `composeWorkflow` (the SOLE framework -> command path, reading only the generated `data/command-registry.json`), and prints the run order. Then run the printed `/mos:` commands in sequence using the Stage Execution Loop machinery below -- one resolved command per step. For a step whose framework has no `/mos:` command, the helper prints "no /mos: for <framework> -- run it manually; continuing"; skip that step (or run the framework manually) and continue. Every command the helper prints exists in the registry -- the resolver only ever returns registered commands, so you never invoke a `/mos:` that does not exist.
+
+`--from-problem-type` accepts the canonical `UDP` / `IDP` / `WDP` tokens and the `undefined` / `ill-defined` / `well-defined` aliases. With neither flag and no named pipeline, the helper falls back to the room's `ProblemType` from `room/STATE.md`.
 
 ## Brain Enhancement (Optional)
 
@@ -44,6 +56,9 @@ Proceed to Setup below with this additional context. Static chains remain the de
 ## Session Flow
 
 ### Chain Selection
+
+**If user passes `--from-problem-type <x>` or `--from-framework <x>`:**
+Run the helper above (`scripts/pipeline-command.cjs`) to Brain-derive the chain and get the resolver-composed `/mos:` run order, then execute those commands in sequence via the Stage Execution Loop. This is the dynamic, graph-derived path -- no `CHAIN.md` file involved.
 
 **If user specifies a pipeline name** (e.g., `/mos:pipeline discovery`):
 Load `pipelines/{name}/CHAIN.md` and proceed to Stage 1.

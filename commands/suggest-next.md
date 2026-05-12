@@ -17,9 +17,23 @@ allowed-tools:
 
 # /mos:suggest-next
 
-You are Larry. This command uses the Brain graph to recommend what the user should work on next based on their current room state and framework chains.
+You are Larry. This command recommends what the user should work on next as a COMMAND SEQUENCE, not just a list of frameworks: it reads the room's ProblemType (and active JTBD), Brain-derives the framework chain, and composes that chain into the exact `/mos:` commands to run, in order.
 
-**Requires Brain MCP.** If Brain is not available (mcp__mindrian-brain tools fail or are not configured), tell the user: "This command needs Larry's Brain connected. Run `/mos:setup brain` to set it up." Then stop.
+## The resolver is the only door
+
+Run the helper to get the resolver-composed command sequence:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/suggest-next-command.cjs" --room ./room
+```
+
+It reads `room/STATE.md` for the ProblemType / active JTBD (or pass `--problem-type <x>` / `--from-framework <x>` explicitly), calls `lib/brain/chain-recommender.cjs` `recommendFrameworkChain` (a FEEDS_INTO traversal -- framework names + problem-type enums only; Canon Part 8: never a command string, never user content), composes the chain into `/mos:` commands via `lib/workflow/command-resolver.cjs` `composeWorkflow` (the SOLE framework -> command path, reading only the generated `data/command-registry.json`), and prints BOTH the framework chain AND the step-numbered command sequence. A framework with no `/mos:` yet renders as "(no /mos: for this -- run it manually)" -- degrade, do not fabricate.
+
+**Larry NEVER names a `/mos:` command from memory.** Every command you surface came back from the resolver via this helper. If you find yourself about to type a `/mos:` you have not seen the resolver return, stop -- run the helper first. Render in Shape B (Semantic Tree) per `skills/ui-system/SKILL.md`; do not invent a format.
+
+When Brain is connected you may additionally weave the co-occurrence narrative below; when it is not, the helper still produces a true command sequence from the registry (framework-only advice degrades gracefully -- still through the resolver).
+
+**Note on Brain MCP:** the deeper "similar venture patterns" enrichment below benefits from Brain. If Brain is not available, skip those queries -- the resolver-composed sequence above still stands.
 
 ## Setup
 
@@ -61,7 +75,7 @@ Combine both query results. Present 2-3 next steps ranked by:
 - Co-occurrence patterns from similar ventures
 
 For each recommendation:
-- **What to do:** Name the framework and the specific `/mos:` command to run
+- **What to do:** Name the framework AND the specific `/mos:` command -- but take the command from the helper's resolver-composed sequence above (or `lib/workflow/command-resolver.cjs` `commandsForFramework(<framework>)`), never from memory. If a framework has no command, say "run <framework> manually -- there is no /mos: for it" rather than inventing one.
 - **Why this sequence:** Cite the relationship type from the graph (e.g., "Explore Domains FEEDS_INTO Analyze Needs with 0.85 confidence -- mapping the landscape first sharpens your customer discovery")
 - **What similar ventures did:** Reference co-occurrence data ("Projects that used Beautiful Question most commonly followed with Explore Domains or Map Unknowns")
 

@@ -211,9 +211,23 @@ Display the thinking trace (Step 4) and the execution plan following the dry-run
      Run /mos:act to execute this plan.
 ```
 
-### Chain Mode (`/mos:act --chain`)
+### Chain Mode (`/mos:act --chain`) -- the autonomy gate
 
-1. Select 3-5 frameworks using the chain selection logic:
+**Before anything else in `--chain` mode, plan + autonomy-gate the chain through the resolver:**
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/act-command.cjs" --chain --room ./room
+```
+
+The helper picks the framework chain for the room state via `lib/brain/chain-recommender.cjs` `recommendFrameworkChain` (a FEEDS_INTO traversal -- framework names + problem-type enums only; Canon Part 8: never a command string, never user content), composes it into `/mos:` commands via `lib/workflow/command-resolver.cjs` `composeWorkflow` (the SOLE framework -> command path, reading only the generated `data/command-registry.json`), calls `validateChainAutonomy(workflow)` FIRST, then walks the steps in order. At the FIRST step whose command is not `autonomous_safe: true` (or whose framework has no `/mos:` command at all), it STOPS and renders a "needs you here" gate (a Shape F.0 / E action report: "[GATE] Chain reached step N: /mos:x for <framework>. This step is not autonomous_safe -- it needs your eyes. [continue] [stop]"). You then:
+- run the `autonomous_safe` prefix steps unattended (dispatch `agents/framework-runner.md` per step, with the checkpoint pause between steps as below),
+- at the gate step, do NOT run it autonomously -- surface the gate to the user and wait. `[continue]` = the user runs that step themselves (or approves running it), then resume the chain from the next step. `[stop]` = halt; what ran above is filed.
+
+You NEVER name a `/mos:` command in `--chain` mode from memory and you NEVER decide a step is safe to run unattended from memory -- the command came back from the resolver and the autonomy decision came back from `validateChainAutonomy` / `data/command-registry.json`'s `autonomous_safe` field. `--chain --from-framework <x>` / `--chain --problem-type <x>` seed the chain explicitly.
+
+Then, for the steps the helper greenlit:
+
+1. Select 3-5 frameworks using the chain selection logic (the helper already did this via the recommender; this list is the same chain):
    - First framework: targets weakest section or most pressing gap
    - Subsequent frameworks: build on previous, guided by Brain `FEEDS_INTO` relationships or natural progression (Exploration -> Analysis -> Synthesis -> Validation)
    - Never select redundant frameworks
