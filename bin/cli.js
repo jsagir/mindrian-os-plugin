@@ -32,18 +32,19 @@
  * (no commander/yargs/meow). process.argv switch-case routing, mirroring
  * bin/mindrian-tools.cjs and ~/.claude/get-shit-done/bin/gsd-tools.cjs.
  *
- * Plugin-root resolution order:
- *   1. MINDRIAN_OS_ROOT env var (tests, dev boxes, hand clones)
- *   2. marketplace install: ~/.claude/plugins/cache/<marketplace>/mos/<version>/
- *      (Claude Code's actual layout for a `claude plugin install mos@...`)
- *   3. legacy hand-clone: ~/.claude/plugins/mindrian-os/
- *   4. null -- not installed
+ * Plugin-root resolution is delegated to lib/core/active-plugin-root.cjs (the
+ * single source of truth: MINDRIAN_OS_ROOT -> installed_plugins.json -> newest
+ * marketplace-cache mos/<version>/ -> legacy clone -> not-found). doctor and
+ * update both read from it; scripts/statusline-mos shells out to its CLI form.
  */
 
 const { spawnSync } = require('node:child_process');
 const path = require('node:path');
 const os = require('node:os');
 const fs = require('node:fs');
+// The ONE plugin-root resolver: installed_plugins.json (temporal truth) first,
+// then the pre-release-tolerant marketplace-cache scan, then a legacy clone.
+const { resolveActivePluginRoot } = require('../lib/core/active-plugin-root.cjs');
 
 const MARKETPLACE = 'jsagir/mindrian-marketplace';
 const PLUGIN_SPEC = 'mos@mindrian-marketplace';
@@ -68,46 +69,6 @@ function hasDoctor(dir) {
   } catch {
     return false;
   }
-}
-
-// Resolve where the installed MindrianOS plugin lives, or null if not found.
-function resolvePluginRoot() {
-  if (process.env.MINDRIAN_OS_ROOT) return process.env.MINDRIAN_OS_ROOT;
-  const home = os.homedir();
-
-  // Marketplace install (current Claude Code): the plugin is named `mos` and
-  // lives at ~/.claude/plugins/cache/<marketplace>/mos/<version>/.
-  const cacheBase = path.join(home, '.claude', 'plugins', 'cache');
-  const found = [];
-  try {
-    for (const mk of fs.readdirSync(cacheBase, { withFileTypes: true })) {
-      if (!mk.isDirectory()) continue;
-      const mosDir = path.join(cacheBase, mk.name, 'mos');
-      let versions;
-      try {
-        versions = fs.readdirSync(mosDir, { withFileTypes: true });
-      } catch {
-        continue;
-      }
-      for (const v of versions) {
-        if (!v.isDirectory()) continue;
-        const candidate = path.join(mosDir, v.name);
-        if (hasDoctor(candidate)) found.push({ dir: candidate, ver: v.name });
-      }
-    }
-  } catch {
-    /* no cache dir -- fall through to legacy */
-  }
-  if (found.length) {
-    found.sort((a, b) => String(a.ver).localeCompare(String(b.ver), undefined, { numeric: true }));
-    return found[found.length - 1].dir;
-  }
-
-  // Legacy hand-clone layout.
-  const legacy = path.join(home, '.claude', 'plugins', 'mindrian-os');
-  if (hasDoctor(legacy)) return legacy;
-
-  return null;
 }
 
 function printUsage() {
@@ -139,7 +100,7 @@ if (!sub || sub.startsWith('-')) {
 
 switch (sub) {
   case 'doctor': {
-    const root = resolvePluginRoot();
+    const { root } = resolveActivePluginRoot();
     if (!root || !hasDoctor(root)) {
       console.error('MindrianOS does not appear to be installed (could not find scripts/doctor.cjs).');
       console.error('Looked under: ' + path.join(os.homedir(), '.claude', 'plugins') + (process.env.MINDRIAN_OS_ROOT ? ' and $MINDRIAN_OS_ROOT' : ''));
@@ -154,7 +115,7 @@ switch (sub) {
 
   case 'update': {
     // Dev clone (MINDRIAN_OS_ROOT or a legacy hand-clone): git pull + re-run install.sh.
-    const root = resolvePluginRoot();
+    const { root } = resolveActivePluginRoot();
     const isDevClone = !!process.env.MINDRIAN_OS_ROOT
       || (root && fs.existsSync(path.join(root, '.git')) && fs.existsSync(path.join(root, 'install.sh')));
     if (isDevClone && root) {

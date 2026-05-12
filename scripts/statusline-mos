@@ -1,52 +1,63 @@
 #!/usr/bin/env bash
 # MindrianOS statusline resolver
 # ----------------------------------
-# Always execs the context-monitor script from the latest installed
-# version of mos@mindrian-marketplace, regardless of which cache directory
-# Claude Code has materialized. This is a self-healing wrapper so
-# ~/.claude/settings.json never needs to be edited when a new MindrianOS
-# version ships. The legacy ~/.claude/plugins/mindrian-os/ install path
-# is intentionally NOT consulted; that path is inert and stuck at v1.10.0.
+# Execs the context-monitor script from the *active* installed version of
+# mos@mindrian-marketplace, regardless of which cache directory Claude Code
+# has materialized. Self-healing wrapper: ~/.claude/settings.json points here
+# and never needs editing when a new MindrianOS version ships.
 #
-# Created 2026-04-14 in response to a Lawrence-class observation:
-# v1.10.4 statusline redesign and v1.10.5 wiki fix shipped to the
-# marketplace cache, but a fresh Claude Code session was still rendering
-# the v1.10.0 legacy statusline because settings.json pointed at the
-# legacy path. This wrapper makes that class of bug structurally
-# impossible to hit again.
+# Plugin-root resolution is delegated to lib/core/active-plugin-root.cjs (the
+# single source of truth across the plugin: MINDRIAN_OS_ROOT ->
+# installed_plugins.json [temporal truth: which install is actually active] ->
+# newest marketplace-cache mos/<version>/ -> legacy clone -> not-found). If that
+# resolver is not present next to this script -- e.g. this is an older deployed
+# copy of the wrapper -- we fall back to a pre-release-tolerant scan of the
+# marketplace cache.
+#
+# History: created 2026-04-14 after v1.10.4/v1.10.5 shipped to the marketplace
+# cache but a fresh session still rendered the v1.10.0 legacy statusline (settings
+# pointed at the legacy path). Then 2026-05-12: the fallback's pure-semver anchor
+# rejected `-beta.N` dirs, so a box with 1.12.0 + 1.13.0-beta.9 picked 1.12.0;
+# regex widened and resolution moved to the shared module.
 
 set -euo pipefail
 
-CACHE_ROOT="${HOME}/.claude/plugins/cache/mindrian-marketplace/mos"
+PLUGIN_ROOT=""
 
-if [ ! -d "${CACHE_ROOT}" ]; then
-  # Cache directory does not exist (mos plugin not installed via marketplace).
-  # Fall back silently: emit nothing so Claude Code's default statusline renders.
+# 1. Canonical resolver, if it's sitting next to this script.
+SELF_DIR="$(cd "$(dirname "$0")" 2>/dev/null && pwd || true)"
+if command -v node >/dev/null 2>&1 && [ -n "${SELF_DIR}" ] && [ -f "${SELF_DIR}/../lib/core/active-plugin-root.cjs" ]; then
+  PLUGIN_ROOT="$(node "${SELF_DIR}/../lib/core/active-plugin-root.cjs" 2>/dev/null || true)"
+fi
+
+# 2. Fallback: newest version dir in the marketplace cache. Directory names look
+#    like "1.12.0", "1.13.0-beta.9", "1.12.5.1"; sort -V orders them correctly
+#    (1.12.0 < 1.13.0-beta.9 < 1.13.0).
+if [ -z "${PLUGIN_ROOT}" ]; then
+  CACHE_ROOT="${HOME}/.claude/plugins/cache/mindrian-marketplace/mos"
+  if [ -d "${CACHE_ROOT}" ]; then
+    LATEST_VERSION="$(ls -1 "${CACHE_ROOT}" 2>/dev/null | grep -E '^[0-9]+(\.[0-9]+)+(-[A-Za-z0-9.]+)?$' | sort -V | tail -1)"
+    if [ -n "${LATEST_VERSION}" ]; then
+      PLUGIN_ROOT="${CACHE_ROOT}/${LATEST_VERSION}"
+    fi
+  fi
+fi
+
+if [ -z "${PLUGIN_ROOT}" ]; then
+  # Plugin not installed / not resolvable: emit nothing so Claude Code's
+  # default statusline renders.
   exit 0
 fi
 
-# Find the highest version directory under the cache root.
-# Directory names look like "1.12.0", "1.13.0-beta.9", "1.12.5.1", etc.
-# The old anchor ^[0-9]+\.[0-9]+\.[0-9]+$ rejected pre-release suffixes, so a
-# box with 1.12.0 + 1.13.0-beta.9 in the cache picked 1.12.0 as "latest" and
-# rendered the stale statusline from there (and exported the wrong
-# MINDRIAN_OS_ROOT). Accept dotted numeric versions with an optional
-# pre-release tail; sort -V orders them correctly (1.12.0 < 1.13.0-beta.9 < 1.13.0).
-LATEST_VERSION="$(ls -1 "${CACHE_ROOT}" 2>/dev/null | grep -E '^[0-9]+(\.[0-9]+)+(-[A-Za-z0-9.]+)?$' | sort -V | tail -1)"
-
-if [ -z "${LATEST_VERSION}" ]; then
-  exit 0
-fi
-
-CONTEXT_MONITOR="${CACHE_ROOT}/${LATEST_VERSION}/scripts/context-monitor"
+CONTEXT_MONITOR="${PLUGIN_ROOT}/scripts/context-monitor"
 
 if [ ! -x "${CONTEXT_MONITOR}" ] && [ ! -f "${CONTEXT_MONITOR}" ]; then
   exit 0
 fi
 
-# Set MINDRIAN_OS_ROOT so the context-monitor's plugin-version resolution
-# prefers the cache copy (matches the script that is actually running).
-export MINDRIAN_OS_ROOT="${CACHE_ROOT}/${LATEST_VERSION}"
+# Export MINDRIAN_OS_ROOT so context-monitor (and the focus probe below) compute
+# everything from the same version this wrapper resolved.
+export MINDRIAN_OS_ROOT="${PLUGIN_ROOT}"
 
 # Phase 109-02: compute active session focus and emit a 🎯 focus glyph prefix
 # when getActiveFocus returns non-null. The focus_segment is best-effort: any
