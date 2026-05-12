@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 # Phase 122 scoped runner -- run before each 122 task commit. Expect RED on the
 # suites whose owning plan has not landed yet (see 122-VALIDATION.md):
-#   GREEN once their owning plan lands:
+#   GREEN once their owning plan lands (all landed -- the phase is complete):
 #     test-command-registry.cjs                          -> real suite, 122-02 (landed)
 #     ../lib/memory/chain-recommender.test.cjs            -> 122-03 (landed)
 #     ../lib/memory/navigation-hook-resolver.test.cjs     -> 122-04 (landed)
 #     ../lib/memory/suggest-next-workflow.test.cjs        -> 122-04 (landed)
-#   suites appended by downstream plans (not present until their plan lands):
-#     test-workflow-layer-e2e.cjs       (or ../lib/memory/workflow-layer-e2e.test.cjs)       -> 122-05
+#     ../lib/memory/workflow-layer-e2e.test.cjs           -> 122-05 (landed)
 #   Note: command-resolver.test.cjs (122-03, landed) runs via the Feynman runner
 #   (lib/memory/run-feynman-tests.cjs TEST_FILES[]) -- it does not need a second
 #   registration here; chain-recommender.test.cjs is listed here too because the
@@ -34,6 +33,7 @@ CJS_SUITES=(
   ../lib/memory/chain-recommender.test.cjs
   ../lib/memory/navigation-hook-resolver.test.cjs
   ../lib/memory/suggest-next-workflow.test.cjs
+  ../lib/memory/workflow-layer-e2e.test.cjs
 )
 
 TOTAL=0
