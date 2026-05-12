@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# MindrianOS statusline dispatcher  -- MINDRIAN-STATUSLINE-DISPATCH
+# ----------------------------------------------------------------------------
+# DEPLOYED SHIM. DO NOT EDIT. Zero logic by design.
+#
+# This file is copied to ~/.claude/statusline-mos by the plugin's session-start
+# hook and is what ~/.claude/settings.json's statusLine command runs. Its only
+# job: find an installed MindrianOS plugin version and `exec` that version's
+# scripts/statusline-mos -- which then resolves the *active* version (via
+# lib/core/active-plugin-root.cjs) and renders the statusline.
+#
+# Why a dumb shim: any bug in the statusline wrapper now lives in the plugin
+# (scripts/statusline-mos), not on the deployment surface. A wrapper fix shipped
+# in plugin vN+1 takes effect on the next session with no re-stamp needed,
+# because this shim resolves at runtime. session-start re-stamps this file only
+# when it isn't already in this form (recognized by the MINDRIAN-STATUSLINE-
+# DISPATCH marker above) -- it never overwrites a non-MindrianOS customization.
+#
+# Bootstrap: this shim cannot `require` the plugin's resolver before it has
+# found the plugin, so it does a minimal pre-release-tolerant scan of the
+# marketplace cache for the newest version dir and hands off to it. The handed-
+# off scripts/statusline-mos does the precise (installed_plugins.json-first)
+# resolution from there.
+# ----------------------------------------------------------------------------
+
+# A statusline must never block or throw. Be forgiving: on any trouble, emit
+# nothing so Claude Code's default statusline renders.
+set -u
+
+_mos_newest_cache_dir() {
+  # Print the newest "<...>/mos/<version>" dir found under any marketplace cache.
+  ls -1d "${HOME}/.claude/plugins/cache/"*"/mos/"*/ 2>/dev/null \
+    | sed 's:/\{1,\}$::' \
+    | grep -E '/[0-9]+(\.[0-9]+)+(-[A-Za-z0-9.]+)?$' \
+    | sort -V \
+    | tail -1
+}
+
+for _base in \
+  "${MINDRIAN_OS_ROOT:-}" \
+  "$(_mos_newest_cache_dir)" \
+  "${HOME}/.claude/plugins/mindrian-os"; do
+  if [ -n "${_base}" ] && [ -f "${_base}/scripts/statusline-mos" ]; then
+    exec bash "${_base}/scripts/statusline-mos"
+  fi
+done
+
+# Nothing resolvable -- emit nothing.
+exit 0

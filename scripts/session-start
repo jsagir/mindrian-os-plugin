@@ -1067,19 +1067,42 @@ if [ -n "$memory_block" ]; then
   context="${context}\n\n${memory_block}"
 fi
 
-# Auto-configure statusline: install the statusline-mos wrapper and point
-# settings.json at it. The wrapper resolves the latest installed cache version
-# at runtime, so settings.json never needs to be rewritten when a new
-# MindrianOS version ships. See scripts/statusline-mos and plan 83-01.
+# Auto-configure statusline: deploy the statusline DISPATCHER shim and point
+# settings.json at it. The shim (scripts/statusline-mos-dispatch) carries zero
+# logic -- it resolves the active plugin version at runtime and exec's that
+# version's scripts/statusline-mos, which does the real work. So a wrapper fix
+# in plugin vN+1 takes effect next session with no further re-stamp, and a
+# wrapper bug never sits stale on the deployment surface. See
+# scripts/statusline-mos-dispatch, scripts/statusline-mos, lib/core/active-plugin-root.cjs.
 CLAUDE_CONFIG_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 CLAUDE_SETTINGS="${CLAUDE_CONFIG_DIR}/settings.json"
-WRAPPER_SRC="${PLUGIN_ROOT}/scripts/statusline-mos"
 WRAPPER_DST="${CLAUDE_CONFIG_DIR}/statusline-mos"
+DISPATCH_SRC="${PLUGIN_ROOT}/scripts/statusline-mos-dispatch"
 
-# Step A: install (refresh) the wrapper on every session start. Idempotent.
-if [ -f "$WRAPPER_SRC" ]; then
+# Step A: deploy / migrate the dispatcher shim. One-time migration from an old
+# logic-bearing wrapper; no-op once it's already the dispatcher; never touches a
+# non-MindrianOS file at that path (don't clobber a user customization).
+if [ -f "$DISPATCH_SRC" ]; then
+  _need_statusline_restamp="yes"
+  if [ -f "$WRAPPER_DST" ]; then
+    if grep -q 'MINDRIAN-STATUSLINE-DISPATCH' "$WRAPPER_DST" 2>/dev/null; then
+      _need_statusline_restamp="no"   # already the dispatcher
+    elif ! grep -q 'MindrianOS statusline' "$WRAPPER_DST" 2>/dev/null; then
+      _need_statusline_restamp="no"   # not a MindrianOS file -- leave it
+    fi
+  fi
+  if [ "$_need_statusline_restamp" = "yes" ]; then
+    mkdir -p "$CLAUDE_CONFIG_DIR" 2>/dev/null || true
+    cp "$DISPATCH_SRC" "$WRAPPER_DST" 2>/dev/null || true
+    chmod +x "$WRAPPER_DST" 2>/dev/null || true
+  fi
+fi
+# Fallback for plugin versions before the dispatcher existed: if the dispatcher
+# source is absent (older PLUGIN_ROOT) but the legacy full wrapper is present,
+# keep the prior behavior so we don't leave the user with no statusline.
+if [ ! -f "$DISPATCH_SRC" ] && [ -f "${PLUGIN_ROOT}/scripts/statusline-mos" ]; then
   mkdir -p "$CLAUDE_CONFIG_DIR" 2>/dev/null || true
-  cp "$WRAPPER_SRC" "$WRAPPER_DST" 2>/dev/null || true
+  cp "${PLUGIN_ROOT}/scripts/statusline-mos" "$WRAPPER_DST" 2>/dev/null || true
   chmod +x "$WRAPPER_DST" 2>/dev/null || true
 fi
 

@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <!-- When onboarding: true, the onboard_steps list is shown to returning users in the What's New flow -->
 <!-- This allows new releases to automatically surface relevant guidance without code changes -->
 
+## [Unreleased] -- v1.13.0-beta.13 (in progress)
+
+### Fixed
+
+- **Statusline deployment-topology gap (the last thread in the install-machinery family).** A Windows live test on beta.12 confirmed: the statusline-wrapper fix shipped in the plugin cache, but `~/.claude/settings.json` runs the *deployed* `~/.claude/statusline-mos`, which `scripts/session-start` had been re-copying from this hook's `PLUGIN_ROOT` every session -- so when the running hook lagged the just-updated version, the deployed copy stayed stale. Fix: `~/.claude/statusline-mos` is now a **dumb dispatcher shim** (`scripts/statusline-mos-dispatch`, marker `MINDRIAN-STATUSLINE-DISPATCH`) -- zero logic, it just finds an installed plugin version and `exec`s that version's `scripts/statusline-mos`, which does the real (installed_plugins.json-first) resolution and rendering. So a wrapper fix in plugin vN+1 reaches every user on their next session with no re-stamp, and a wrapper bug can never sit stale on the deployment surface. `scripts/session-start` Step A now deploys/migrates the dispatcher: one-time migration from an old logic-bearing `~/.claude/statusline-mos`; no-op once it's already the dispatcher; never touches a non-MindrianOS file at that path (it must contain `MindrianOS statusline` to be replaced). Falls back to the prior full-wrapper copy for plugin versions predating the dispatcher. (`scripts/statusline-mos-dispatch` [new], `scripts/session-start`, `scripts/statusline-mos` header.)
+
+### Known open (queued for the next iteration)
+
+- **Bug 7** -- `mindrian-os doctor` false-positives on marketplace-only installs: it reports drift because it checks `~/.claude/plugins/mindrian-os/` (the legacy hand-clone path), which never exists for a `claude plugin install`. The doctor's install-cache check needs to treat "a valid `installed_plugins.json` entry pointing at the marketplace cache" as a healthy topology.
+- **`scripts/release.sh`** -- only handles clean `X.Y.Z` bumps (it choked on the pre-release version, so beta.10/11/12 were hand-rolled); its Step 9.5 still names `@mindrian_os/cli`. Teach it pre-release bumps + the new package name so future betas cut via `release.sh`, not by hand.
+- **Cache pruning on update** -- `~/.claude/plugins/cache/mindrian-marketplace/mos/` accumulates every version (`1.12.0`, `1.13.0-beta.9`, `1.13.0-beta.12`, ...) with no prune.
+- **Doc/test sweep** -- `docs/install/PACKAGING-PATHS.md`, `tests/manual/95.6-windows-cold-install-acceptance.md`, `tests/test-release-npm-gate.sh` still name `@mindrian_os/cli`.
+
 ## [1.13.0-beta.12] - 2026-05-12
 
 The v1.13.0 CAPSTONE release -- headline content is the **Workflow Layer** (Phase 122: framework <-> command registry + reliable invocation; spec at `.planning/WORKFLOW-LAYER-SPEC.md`, doc at `docs/WORKFLOWS.md`) plus the npm-installer overhaul (`npx @mindrian_os/install` is now a real one-command installer), the `@mindrian_os/cli` -> `@mindrian_os/install` rename, and the install-machinery fixes a Windows live test surfaced (doctor/update path resolution, the statusline pre-release blind spot, and the single plugin-root resolver that retires that whole bug family). Version trail to here: `1.13.0-beta.10` (a token-validation npm publish on 2026-05-12 -- now deprecated), `1.13.0-beta.11` (the real npm installer + the package rename, npm-only -- now deprecated, doctor path bug), `1.13.0-beta.12` (this release: the capstone, tagged `v1.13.0-beta.12`, marketplace `source.ref` pinned, `@mindrian_os/install` published with the `@next` dist-tag).

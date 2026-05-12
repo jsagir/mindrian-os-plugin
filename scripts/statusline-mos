@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
-# MindrianOS statusline resolver
+# MindrianOS statusline resolver  (lives in the plugin; runs the real logic)
 # ----------------------------------
 # Execs the context-monitor script from the *active* installed version of
-# mos@mindrian-marketplace, regardless of which cache directory Claude Code
-# has materialized. Self-healing wrapper: ~/.claude/settings.json points here
-# and never needs editing when a new MindrianOS version ships.
+# mos@mindrian-marketplace, regardless of which cache directory Claude Code has
+# materialized. ~/.claude/settings.json points at the deployed dispatcher shim
+# (~/.claude/statusline-mos == scripts/statusline-mos-dispatch), which finds an
+# installed plugin version and exec's this script. So this file is the one place
+# the statusline logic lives -- a fix here ships in the plugin and reaches users
+# on next session with no re-stamp of the deployment surface.
 #
 # Plugin-root resolution is delegated to lib/core/active-plugin-root.cjs (the
 # single source of truth across the plugin: MINDRIAN_OS_ROOT ->
