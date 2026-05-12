@@ -1020,7 +1020,7 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 
 **Canon parts:** Part 1 (Wicked Navigator — working memory made legible), Part 3 (Tri-Context Decision Gate — consumes navigation output as the LOCAL context), Part 4 (Every Choice Is Graph Data — every state change is a memory_event), Part 8 (Graph Boundary — D-06 + D-07 honor it; Phase 110 hardens via wire schema), Part 9 (Memory Locality and Interpretation — RATIFIED here).
 
-**Plans:** 9/13 plans executed
+**Plans:** 7/13 plans executed
 
 Plans:
 - [x] 109-00-PLAN.md -- Wave 0 substrate: 9 NAV-109 requirement IDs + 16 test stubs + fs-instrument helper + 500-node fixture
@@ -1033,7 +1033,7 @@ Plans:
 - [x] 109-07-PLAN.md -- packet.cjs buildBrainPacket per D-06 + 5 Part 8 leak tripwires [NAV-109-06]
 - [x] 109-08-PLAN.md -- ingestion.cjs storeBrainSuggestions (always review_status proposed; Part 9 invariant) [NAV-109-07]
 - [x] 109-09-PLAN.md -- room-home.cjs getRoomHomeView per D-08 + Phase 90 regression fence; closed 13-function surface complete [NAV-109-08]
-- [ ] 109-10-PLAN.md -- Wave 4: fill the load-bearing acceptance test (full navigation flow via the chokepoint, fs-instrument active, zero non-SQLite reads) [NAV-109-09]
+- [x] 109-10-PLAN.md -- Wave 4: fill the load-bearing acceptance test (full navigation flow via the chokepoint, fs-instrument active, zero non-SQLite reads) [NAV-109-09]
 - [ ] 109-11-PLAN.md -- Wave 4: Canon Part 9 ratification (merge into MINDRIAN-CANON.md before Appendix A; flip CANON-PHASE-MAP rows to shipped; v1.4 bump; Appendix D entry 12; fill the ratification test) [NAV-109-09]
 - [ ] 109-12-PLAN.md -- Wave 4: recreate the 4 missing SUMMARYs (109-00/01/07/09) + flip NAV-109-06/07/08 to Complete in REQUIREMENTS.md (bookkeeping recovery)
 
