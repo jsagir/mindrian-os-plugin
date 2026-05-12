@@ -3,7 +3,7 @@
 Authoritative mapping of Mindrian Canon parts to implementing phases.
 Past reach (shipped) and future reach (planned) in one view.
 
-Canon reference: docs/MINDRIAN-CANON.md (v1.3)
+Canon reference: docs/MINDRIAN-CANON.md (v1.4)
 
 ---
 
@@ -123,15 +123,15 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 | shipped | Phase 95.2 SessionStart preflight is purely LOCAL (zero network surface; preflight-doctor.cjs spawns local doctor.cjs --json subprocess only; no fetch/http/curl; no Brain MCP calls) | Phase 95.2 install-cache-atomic-recovery-sessionstart-preflight (v1.13.0-beta.6); verified by `grep -E "fetch\|http\|curl\|brain.mindrian\|tavily" scripts/preflight-doctor.cjs` returning 0 |
 | shipped | Phase 122 workflow-layer registry is plugin-local, validated against Brain framework names at build time via a read-only query (`MATCH (f:Framework) WHERE (f)-[:FEEDS_INTO]-() RETURN f.name`), never written back; `lib/workflow/command-resolver.cjs` makes zero Brain calls; the recommender's Cypher binds only `$seed` (a generic framework handle, sanitized) -- never a command string, never user content; `build-command-registry.cjs` has no write-Cypher; the dead "Brain has Command nodes" prose deleted from `skills/brain-connector/SKILL.md` and `references/brain/command-triggers-schema.md` (latent Part 8 breach in prose removed -- the live Brain has no `Command` label) | Phase 122 workflow-layer (v1.13.0-beta.11); verified by `grep -rE "Brain has Command\|:Command" skills/ agents/ references/` returning 0 + the `lib/memory/workflow-layer-e2e.test.cjs` grep sweep |
 
-### Part 9 (proposed) - Memory Locality and Interpretation
+### Part 9 - Memory Locality and Interpretation
 
 | Status   | Phase / Component | Reference |
 |----------|-------------------|-----------|
-| proposed | Phase 108 graph-memory-schema-reconciliation (proposal) | .planning/phases/108-graph-memory-schema-reconciliation/PART-9-PROPOSAL.md + .planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md |
-| planned  | Phase 109 sql-context-memory-navigation-spine (implementation + ratification at release gate) | .planning/phases/109-sql-context-memory-navigation-spine/109-CONTEXT.md (load-bearing) |
+| shipped  | Phase 108 graph-memory-schema-reconciliation (proposal + frozen taxonomy) | .planning/phases/108-graph-memory-schema-reconciliation/PART-9-PROPOSAL.md |
+| shipped  | Phase 109 sql-context-memory-navigation-spine (implementation + canon ratification at release gate) | .planning/phases/109-sql-context-memory-navigation-spine/109-CONTEXT.md |
 | planned  | Phase 110 brain-context-packet-contract (Brain wire enforcement makes Part 9 structurally hard, not just procedurally audited) | .planning/phases/110-brain-context-packet-contract/110-CONTEXT.md (stub) |
 
-Phase 108 ships the proposal cross-reference document and the schema reconciliation deliverables that make the Part 9 contract testable. Phase 109 ratifies Part 9 at its release gate by merging the proposal text from `.planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md` into `docs/MINDRIAN-CANON.md` as a new Part 9. Phase 110 hardens the Brain wire schema so Part 8 enforcement (LOCAL to BRAIN: NO) is structurally enforced, not just procedurally audited. The trio (108 + 109 + 110) constitutes the Part 9 implementing cluster.
+Phase 108 shipped the proposal cross-reference document and the schema reconciliation deliverables that made the Part 9 contract testable. Phase 109 ratified Part 9 at its release gate by merging the proposal text from `.planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md` into `docs/MINDRIAN-CANON.md` as a new Part 9. Phase 110 hardens the Brain wire schema so Part 8 enforcement (LOCAL to BRAIN: NO) is structurally enforced, not just procedurally audited. The trio (108 + 109 + 110) constitutes the Part 9 implementing cluster.
 
 ### Part 10 (proposed) - Conversation as Product
 
@@ -213,6 +213,7 @@ Phases 114-120 implement Part 10 across the v1.13.0 milestone. Phase 100 (JTBD I
 | v1.3 (kept)   | TBD      | 2026-04-23 | Phase 88.1 (v1.10.15) polish sweep shipped -- L1-L7 surfaces + hook primitives + statusline/mos:status/SessionStart banner LOCAL-context render + 57x claim retuned to "up to 57x" with telemetry validation surface shipped (Plan 88.1-16; defensibility gate documented in CHANGELOG). No canon text change; map row updates only. |
 | v1.3 (kept)   | TBD      | 2026-04-24 | Phase 89 (v1.10.16) reverse-salient-engine shipped -- Canon Part 2 Engine 1 Act 1 formal reverse-salient engine promoted from planned to shipped: 4-mode rs-engine.py CLI (internal / cross-room / external / hybrid) + 5 pure Python helper modules (rs_math, rs_corpus, rs_cache, rs_rooms, rs_hybrid) + Obsidian nested bridge-writer + De Stijl Cytoscape.js mind map. Part 8 preserved: rs-external Pinecone index holds ONLY public OpenAlex/arXiv metadata; zero user-content egress. No canon text change; map row updates only. |
 | v1.3 (kept)   | TBD      | 2026-04-20 | Phase 90 (v1.10.18) brain-derivation-layer shipped -- BRAIN.md fourth per-folder memory file lands; folder-memory extends from triple to quadruple additively (readTriple byte-identical); /mos:brain-derive 4 modes (section / --all / --cross-room / --dry-run) with Shape E Action Report; governing_thought_hash auto-invalidation + session-start staleness scan + enqueue-then-drain queue; cross-room contradiction aggregation scoped by Phase 83 .rooms/registry.json with sealed-room + per-room opt-out + absolute-path scope guard; 5 independent Canon Part 8 tripwires defended under 14 graceful-degradation scenarios; Phase 91 Navigation Engine interface contract frozen at v1 in .planning/research/navigation-engine-brain-interface.md. Part 3 Option generation tier-awareness + Part 8 Brain derivation layer + Part 2 Brain-derived team enrichment + L2 BRAIN.md quadruple rows all promoted from planned to shipped. Zero new runtime dependencies. Canon Part 8 release audit: zero forbidden matches across 10 production files. No canon text change; map row updates only. Note: v1.10.17 was burned as a YAML frontmatter hotfix; Phase 90 ships at v1.10.18. |
+| v1.4          | TBD      | 2026-05-12 | Part 9 (Memory Locality and Interpretation) ratified at the Phase 109 release gate - merged proposal text from .planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md; Appendix D entry 12 (Codex external-research input); CANON-PHASE-MAP Part 9 rows flipped to shipped for Phases 108 + 109; Phase 110 stays planned. |
 
 ---
 
