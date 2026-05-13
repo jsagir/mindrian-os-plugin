@@ -6,7 +6,7 @@
   **The thinking partner for problems worth solving.**
 
   Powered by PWS, the practical innovation methodology developed by
-  [Prof. Lawrence Aronhime](https://www.linkedin.com/in/lawrence-aronhime-8363894/) over 30+ years at Johns Hopkins University.
+  [Prof. Lawrence Aronhime](https://www.linkedin.com/in/lawrence-aronhime-8363894/) over 30+ years of teaching.
   Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
 
   [![Version](https://img.shields.io/badge/v1.13.0-The_Closed_Loop-blue)](CHANGELOG.md)
