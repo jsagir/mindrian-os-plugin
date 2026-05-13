@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: "Completed 123-01-PLAN.md (install-lifecycle-harness: release.sh semver algebra + two-commit form + dirty-repo guard + @mindrian_os/install rename)"
-last_updated: "2026-05-13T07:13:40.199Z"
+stopped_at: Completed 123-02-PLAN.md (commits 3ac1360, 9a10446, 207bbbc)
+last_updated: "2026-05-13T07:26:10.982Z"
 last_activity: 2026-05-13
 progress:
   total_phases: 55
   completed_phases: 31
   total_plans: 251
-  completed_plans: 232
+  completed_plans: 233
   percent: 93
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 123 (install-lifecycle-harness) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 3 of 7
+Plan: 4 of 7
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -279,6 +279,7 @@ Progress: [█████████░] 93%
 | Phase 110 P01 | 11min | 2 tasks | 4 files |
 | Phase 110 P02 | 14m 8s | 2 tasks | 4 files |
 | Phase 123-01 P01 | 4m | 3 tasks | 4 files |
+| Phase 123 P02 | 35m | 3 tasks | 6 files |
 
 ### Roadmap Evolution
 
@@ -761,6 +762,7 @@ Progress: [█████████░] 93%
 - [Phase 123-01]: Plan 123-01 TWO-COMMIT release form: Commit A finalizes vN + tags vN (plugin.json/package.json/marketplace.json all read vN); Commit B advances HEAD to vN+1; main HEAD on B; vN tag on A; marketplace source.ref pinned to vN. Per Phase 123 RESEARCH finding 1, Claude Code reads plugin.json version FIRST, so the one-commit form would break installs from ref:vN.
 - [Phase 123-01]: Plan 123-01 Step 9.5 reordered: npm publish runs BETWEEN Commit A and Commit B (BEFORE Step 9 push), so the published tarball reads NEW_VERSION not NEXT_VERSION. Package renamed @mindrian_os/cli -> @mindrian_os/install (the legacy name from Phase 95.6).
 - [Phase 123-01]: Plan 123-01 semver semantics: --finalize is semver.inc(v,'patch') (strips beta suffix to X.Y.0); --start-prerelease is inc(v,'preminor','beta') then inc(...,'prerelease','beta') for X.(Y+1).0-beta.1. semver@^7.7.4 in devDependencies only (zero runtime deps in @mindrian_os/install tarball).
+- [Phase 123]: Plan 02: EARLY single-writer install-state record + Pitfall-7 fix; manifest with topology_scope; active-plugin-root.cjs exposes topology.
 
 ### Pending Todos
 
@@ -790,6 +792,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-13T07:13:39.515Z
-Stopped at: Completed 123-01-PLAN.md (install-lifecycle-harness: release.sh semver algebra + two-commit form + dirty-repo guard + @mindrian_os/install rename)
+Last session: 2026-05-13T07:26:10.968Z
+Stopped at: Completed 123-02-PLAN.md (commits 3ac1360, 9a10446, 207bbbc)
 Resume file: None

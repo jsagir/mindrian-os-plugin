@@ -502,8 +502,8 @@
 | HARNESS-123-02 | Phase 123 | Complete |
 | HARNESS-123-03 | Phase 123 | Complete |
 | HARNESS-123-04 | Phase 123 | Complete |
-| HARNESS-123-05 | Phase 123 | Pending |
-| HARNESS-123-06 | Phase 123 | Pending |
+| HARNESS-123-05 | Phase 123 | Complete |
+| HARNESS-123-06 | Phase 123 | Complete |
 | HARNESS-123-07 | Phase 123 | Pending |
 | HARNESS-123-08 | Phase 123 | Pending |
 | HARNESS-123-09 | Phase 123 | Pending |
