@@ -2,6 +2,7 @@
 name: lean-canvas
 description: Fill the Lean Canvas in one page (9 boxes)
 serves_jtbd: ["prepare-pitch", "validate-idea"]
+teaching: "When you need the whole business model on one page, /mos:lean-canvas fills the nine boxes from your room data. The fastest way to get a defensible canvas in front of someone."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Lean Canvas"]

@@ -4,6 +4,7 @@ description: View or switch model-routing profiles
 argument-hint: [list|set|show]
 body_shape: C (Information Card)
 serves_jtbd: ["compare-options"]
+teaching: "When you want to see or switch which model routes which kind of work, /mos:models opens the routing profile. Different tasks deserve different models."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

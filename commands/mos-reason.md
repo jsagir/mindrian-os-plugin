@@ -4,6 +4,7 @@ command: mos:reason
 description: Generate Feynman-MINTO reasoning for a section
 usage: /mos:reason [--section <name>] [--regenerate-all]
 serves_jtbd: ["explore"]
+teaching: "When a section needs Feynman-MINTO reasoning generated against its artifacts, /mos:mos-reason produces the pyramid: governing thought down to grounded support. Larry's structured thinking surface."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["The Pyramid Principle"]

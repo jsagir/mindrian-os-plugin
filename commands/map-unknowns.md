@@ -2,6 +2,7 @@
 name: map-unknowns
 description: Map known, unknown, and unknowable (Rumsfeld)
 serves_jtbd: ["validate-idea"]
+teaching: "When you cannot tell what you do not know, /mos:map-unknowns plots known, unknown, and unknowable in a Rumsfeld matrix. The unknowable column is usually where the risk lives."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Knowns and Unknowns Matrix Framework"]

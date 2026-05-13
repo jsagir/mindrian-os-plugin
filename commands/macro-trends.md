@@ -2,6 +2,7 @@
 name: macro-trends
 description: Map macro changes with PEST across a domain
 serves_jtbd: ["understand-market"]
+teaching: "When you need to map the forces shaping a domain, /mos:macro-trends runs PEST across Political, Economic, Social, and Technological dimensions. The wide-angle lens before you zoom in."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["PEST Analysis"]
