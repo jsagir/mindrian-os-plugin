@@ -1303,6 +1303,55 @@ if [ "$PLUGIN_VERSION" != "$LAST_VERSION" ] || [ -z "$LAST_VERSION" ]; then
 fi
 # --- END cache prune ---
 
+# --- BEGIN feynman timeline refresh (Phase 124, best-effort) ---
+# Phase 124-03 (TEMPORAL-124-03). Canon Part 8: LOCAL only -- the timeline-runner
+# reads ONLY room.db via lib/core/navigation.cjs (D-03). Refreshes every section's
+# FEYNMAN.md `## Timeline (auto)` block when the SQL is newer than the rendered
+# watermark (D-09). Best-effort: a failure (`|| true`) never blocks session startup.
+# Mirrors the cache-prune cascade pattern verbatim. The slot is a no-op when no
+# active room is resolvable. The active room is resolved via the same registry
+# resolver used by scripts/brain-derive-command.cjs so the slot works even when
+# the surrounding session-start state does not export ROOM_DIR at this point.
+env PLUGIN_ROOT_FOR_FEYNMAN="$PLUGIN_ROOT" ACTIVE_ROOM_FOR_FEYNMAN="${ROOM_DIR:-}" node -e '
+  try {
+    var fs = require("node:fs");
+    var path = require("node:path");
+    var os = require("node:os");
+    // Resolve active room: prefer the surrounding shell ROOM_DIR; otherwise fall
+    // back to the registry resolver (mirror of scripts/brain-derive-command.cjs).
+    var roomDir = process.env.ACTIVE_ROOM_FOR_FEYNMAN || "";
+    if (!roomDir) {
+      var roomsRoot = process.env.MINDRIAN_ROOMS_ROOT
+        || process.env.MINDRIAN_ROOMS_HOME
+        || path.join(os.homedir(), "MindrianRooms");
+      var regPath = path.join(roomsRoot, ".rooms", "registry.json");
+      if (!fs.existsSync(regPath)) process.exit(0);
+      var reg = JSON.parse(fs.readFileSync(regPath, "utf8"));
+      if (!reg || !reg.active || !reg.rooms || !reg.rooms[reg.active]) process.exit(0);
+      roomDir = path.resolve(roomsRoot, reg.rooms[reg.active].path || reg.active);
+    }
+    if (!fs.existsSync(roomDir)) process.exit(0);
+    // Try to open room.db so the runner can do the watermark check + memory_event log.
+    var db = null;
+    try {
+      var dbPath = path.join(roomDir, ".mindrian", "room.db");
+      if (fs.existsSync(dbPath)) {
+        var sqlite = require("node:sqlite");
+        db = new sqlite.DatabaseSync(dbPath);
+      }
+    } catch (_) { db = null; }
+    var runner = require(process.env.PLUGIN_ROOT_FOR_FEYNMAN + "/lib/core/feynman/timeline-runner.cjs");
+    var result = runner.refreshAll(roomDir, { db: db });
+    if (db) { try { db.close(); } catch (_) {} }
+    if (result && result.refreshed && result.refreshed.length > 0) {
+      process.stderr.write("feynman-timeline-refresh: " + result.refreshed.length + " section(s) refreshed\n");
+    }
+  } catch (e) {
+    process.stderr.write("feynman-timeline-refresh failed: " + (e && e.message) + "\n");
+  }
+' 2>/dev/null || true
+# --- END feynman timeline refresh ---
+
 # ---------------------------------------------------------------------------
 # Phase 87-01a (SEC-04): ensure ROOM.md + MINTO.md pre-commit hook installed.
 # Self-healing: re-installs if missing or drifted. Worktree-aware via
