@@ -498,10 +498,10 @@
 | PACKET-110-07 | Phase 110 | Complete |
 | PACKET-110-08 | Phase 110 | Pending |
 | PACKET-110-09 | Phase 110 | Pending |
-| HARNESS-123-01 | Phase 123 | Pending |
-| HARNESS-123-02 | Phase 123 | Pending |
-| HARNESS-123-03 | Phase 123 | Pending |
-| HARNESS-123-04 | Phase 123 | Pending |
+| HARNESS-123-01 | Phase 123 | Complete |
+| HARNESS-123-02 | Phase 123 | Complete |
+| HARNESS-123-03 | Phase 123 | Complete |
+| HARNESS-123-04 | Phase 123 | Complete |
 | HARNESS-123-05 | Phase 123 | Pending |
 | HARNESS-123-06 | Phase 123 | Pending |
 | HARNESS-123-07 | Phase 123 | Pending |
