@@ -3,6 +3,7 @@ name: causal
 description: Trace causal edges in the room's graph
 argument-hint: [extract|trace|predict]
 serves_jtbd: ["find-problem", "find-bottleneck"]
+teaching: "When you suspect the visible problem is downstream of something else, /mos:causal traces causal edges in the room's graph. Surfaces the upstream causes worth fixing."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Root Cause Analysis"]

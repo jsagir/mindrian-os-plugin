@@ -5,6 +5,7 @@ argument-hint: "[--fix] [--cascade-rooms] [--verify-surface] [--room-md] [--ui-c
 body_shape: E (Action Report)
 body_shape_detail: per-class status rows with [before → after] pattern, summary totals, F.1 Next Move selector when drift detected without --fix
 serves_jtbd: ["audit-room"]
+teaching: "When something feels off with the install, /mos:doctor diagnoses install-cache drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix."
 allowed-tools:
   - Bash
   - Read

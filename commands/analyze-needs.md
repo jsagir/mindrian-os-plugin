@@ -2,6 +2,7 @@
 name: analyze-needs
 description: Score customer jobs with importance and satisfaction
 serves_jtbd: ["find-problem"]
+teaching: "When you need to know which customer jobs matter most, /mos:analyze-needs scores them by importance versus satisfaction. Best after you have a customer segment defined."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Jobs to Be Done (JTBD)"]

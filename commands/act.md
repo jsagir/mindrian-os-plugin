@@ -4,6 +4,7 @@ description: Run Larry's best-pick methodology for your room state
 argument-hint: '[--chain] [--swarm] [--dry-run]'
 body_shape: E (Action Report)
 serves_jtbd: ["plan-execution"]
+teaching: "When you have analyses on the table but no clear next step, /mos:act picks the best-fit methodology for your current room state and runs it. Saves you from analysis paralysis."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: meta
 frameworks: []

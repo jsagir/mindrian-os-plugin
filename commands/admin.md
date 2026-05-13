@@ -4,6 +4,7 @@ description: Manage Brain API keys from the admin panel
 argument-hint: [subcommand]
 body_shape: A (Mondrian Board)
 serves_jtbd: ["audit-room"]
+teaching: "When you need to inspect or rotate Brain API keys, /mos:admin opens the admin panel. Read-only by default; rotation is gated behind a confirm prompt."
 ui_reference: skills/ui-system/SKILL.md
 visibility: admin
 allowed-tools:

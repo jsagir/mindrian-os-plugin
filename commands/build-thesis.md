@@ -2,6 +2,7 @@
 name: build-thesis
 description: Run the Ten-Questions investment thesis gate
 serves_jtbd: ["decide-pursue", "prepare-pitch"]
+teaching: "When you need to know if this venture is worth pursuing, /mos:build-thesis runs the Ten-Questions investment thesis gate. The output is a defensible go / no-go with reasons."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["PWS Value Proposition"]

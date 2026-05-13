@@ -3,6 +3,7 @@ name: diagnostics
 description: Run Wave-1 algorithmic fingerprint on the room
 body_shape: E
 serves_jtbd: ["audit-room"]
+teaching: "When you need a quantitative read on the room, /mos:diagnostics runs the Wave-1 fingerprint: disruption, blindspot, novelty, surprise. Surfaces algorithmic signals humans miss."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["HSI Semantic Surprise Analysis Assistant"]

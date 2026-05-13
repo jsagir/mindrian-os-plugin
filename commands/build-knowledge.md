@@ -2,6 +2,7 @@
 name: build-knowledge
 description: Climb Ackoff's DIKW pyramid across the room
 serves_jtbd: ["explore"]
+teaching: "When you have data but not yet wisdom, /mos:build-knowledge climbs Ackoff's DIKW pyramid across the room. Surfaces what you know, what you can decide, and what is still raw."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Ackoff Pyramid"]
