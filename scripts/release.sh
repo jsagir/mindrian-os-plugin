@@ -1,17 +1,53 @@
 #!/usr/bin/env bash
 # MindrianOS Release Script -- eliminates manual release errors
-# Usage: bash scripts/release.sh [patch|minor|major]
+# Usage:
+#   bash scripts/release.sh --prerelease            # beta.N -> beta.N+1
+#   bash scripts/release.sh --finalize              # X.Y.Z-beta.N -> X.Y.Z (strip suffix)
+#   bash scripts/release.sh --start-prerelease      # X.Y.Z -> X.(Y+1).0-beta.1
+#   bash scripts/release.sh patch                   # semver.inc(v,'patch')
+#   bash scripts/release.sh minor                   # semver.inc(v,'minor')
+#   bash scripts/release.sh major                   # semver.inc(v,'major')
+#
+# Flags:
+#   --allow-ahead    : skip the ahead-of-origin abort (use with care)
+#   --no-next-bump   : skip Commit B (leave main HEAD at NEW_VERSION; rare)
+#
+# Notes on semver semantics (verified against semver@7.7.4):
+#   semver.inc('1.13.0-beta.11','prerelease','beta') -> '1.13.0-beta.12'
+#   semver.inc('1.13.0-beta.11','patch')              -> '1.13.0'   (STRIPS suffix; this IS --finalize)
+#   semver.inc('1.13.0-beta.11','minor')              -> '1.13.0'   (also strips; NOT 1.14.0)
+#   semver.inc('1.13.0-beta.11','major')              -> '2.0.0'
+#   semver.inc('1.13.0','preminor','beta')            -> '1.14.0-beta.0' (call prerelease once more for beta.1)
 #
 # What it does:
-#   1. Validates plugin (zero errors or ABORT)
-#   2. Bumps version in plugin.json
-#   3. Syncs version to marketplace.json
-#   4. Validates marketplace (zero errors or ABORT)
-#   5. Commits both repos
-#   6. Pushes both repos
-#   7. Publishes @mindrian_os/cli to npm in lockstep (@next for betas, @latest for releases) -- Step 9.5
-#   8. Updates local marketplace cache
-#   9. Runs post-release verification
+#   0. Parse bump mode (+ flags). Refuse unknown.
+#   0.5. semver preflight (require node_modules/semver; do NOT auto-npm-install).
+#   1. Compute NEW_VERSION via semver.inc() in a node one-liner.
+#   2. Pre-release verification (scripts/verify-release).
+#   3-6. Bump plugin.json + package.json + marketplace.json (+ source.ref pinned to vN).
+#        Reserved-name compliance check (Step 5b). CHANGELOG entry. Post-bump re-verify.
+#   7. Commit A (release commit): plugin.json/package.json/CHANGELOG.md == vN; tag vN.
+#      Marketplace commit (marketplace.json version + source.ref == vN). The vN
+#      tag points at Commit A so `marketplace.json source.ref: vN` resolves to a
+#      tree whose plugin.json self-reports vN (TWO-COMMIT form, per Phase 123 D-19
+#      research finding 1: Claude Code reads plugin.json version FIRST).
+#   9.5. npm publish @mindrian_os/install at NEW_VERSION (BEFORE Commit B so the
+#        working tree still says vN). dist-tag: @next for -beta./alpha./rc./next.,
+#        @latest for clean X.Y.Z.
+#   7.5. Commit B (next-bump commit, plugin repo only): plugin.json/package.json
+#        -> next pre-release; CHANGELOG `[Unreleased]` heading reset. main HEAD
+#        ends on Commit B. NO tag on Commit B. Marketplace repo gets NO Commit B.
+#   8. Dirty-repo / ahead-of-origin guard: refuse if more than the release commits
+#        are ahead of origin/main (unless --allow-ahead); refuse on dirty tracked
+#        files other than the bumped ones.
+#   9. Push both repos (plugin + marketplace).
+#   10. Update local marketplace cache.
+#   11. Post-release verification.
+#
+# TODO(plan-04): de-dup verify-release calls. Currently 2x (Step 2 + Step 6.5);
+# Plan-04 will wire `mindrian-os doctor --acceptance --pre-tag` (which also calls
+# verify-release) into Step 6.6 and `mindrian-os doctor --acceptance` (full) into
+# Step 9.6, taking the count to 3x. Accept the redundancy now; de-dup later.
 #
 # This script is the ONLY way to release. No manual pushes.
 
@@ -25,26 +61,83 @@ NC='\033[0m'
 PLUGIN_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 MARKETPLACE_DIR="$HOME/mindrian-marketplace"
 
-# --- Step 0: Parse bump type ---
-BUMP="${1:-patch}"
-if [[ "$BUMP" != "patch" && "$BUMP" != "minor" && "$BUMP" != "major" ]]; then
-  echo -e "${RED}Usage: bash scripts/release.sh [patch|minor|major]${NC}"
+# --- Step 0: Parse bump type + flags ---
+BUMP_MODE=""
+ALLOW_AHEAD=0
+NO_NEXT_BUMP=0
+USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump]"
+
+for arg in "$@"; do
+  case "$arg" in
+    --prerelease)        BUMP_MODE="prerelease" ;;
+    --finalize)          BUMP_MODE="finalize" ;;
+    --start-prerelease)  BUMP_MODE="start-prerelease" ;;
+    stable)              BUMP_MODE="finalize" ;;  # alias
+    patch|minor|major)   BUMP_MODE="$arg" ;;
+    --allow-ahead)       ALLOW_AHEAD=1 ;;
+    --no-next-bump)      NO_NEXT_BUMP=1 ;;
+    -h|--help)           echo "$USAGE_BLOCK"; exit 0 ;;
+    *)
+      echo -e "${RED}unknown arg: $arg${NC}"
+      echo "$USAGE_BLOCK"
+      exit 1
+      ;;
+  esac
+done
+
+# --- Step 0.5: semver preflight ---
+if [ ! -d "$PLUGIN_DIR/node_modules/semver" ]; then
+  echo -e "${RED}node_modules/semver missing -- run 'npm install' first.${NC}"
+  echo "  release.sh needs the semver devDep for pre-release bump algebra."
+  echo "  (Do NOT run 'npm install' from inside this script -- the operator must do it.)"
   exit 1
 fi
 
-# --- Step 1: Get current version ---
+# --- Step 1: Get current version + compute NEW_VERSION via semver ---
 CURRENT=$(node -e "console.log(require('$PLUGIN_DIR/.claude-plugin/plugin.json').version)")
 echo -e "${YELLOW}Current version: $CURRENT${NC}"
 
-# Bump version
-IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
-case "$BUMP" in
-  major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
-  minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
-  patch) PATCH=$((PATCH + 1)) ;;
-esac
-NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-echo -e "${GREEN}New version: $NEW_VERSION${NC}"
+# Default bump mode: --prerelease if current has a `-` suffix, else require explicit.
+if [ -z "$BUMP_MODE" ]; then
+  case "$CURRENT" in
+    *-*) BUMP_MODE="prerelease" ;;
+    *)
+      echo -e "${RED}No bump mode passed and current version '$CURRENT' is clean -- specify one of: --prerelease / --finalize / --start-prerelease / patch / minor / major${NC}"
+      exit 1
+      ;;
+  esac
+fi
+
+NEW_VERSION="$(node -e '
+  const semver = require(process.argv[1] + "/node_modules/semver");
+  const cur = require(process.argv[1] + "/.claude-plugin/plugin.json").version;
+  if (!semver.valid(cur)) {
+    console.error("plugin.json version is not valid semver: " + cur + " -- fix it before releasing (e.g. coerce 1.12.5.1 to 1.12.5).");
+    process.exit(1);
+  }
+  const mode = process.argv[2];
+  let out;
+  if (mode === "prerelease") {
+    out = semver.inc(cur, "prerelease", "beta");
+  } else if (mode === "finalize") {
+    out = semver.inc(cur, "patch");
+  } else if (mode === "start-prerelease") {
+    out = semver.inc(cur, "preminor", "beta");
+    out = semver.inc(out, "prerelease", "beta");
+  } else if (mode === "patch" || mode === "minor" || mode === "major") {
+    out = semver.inc(cur, mode);
+  } else {
+    console.error("unknown bump mode: " + mode);
+    process.exit(1);
+  }
+  if (!out) {
+    console.error("semver.inc returned null for cur=" + cur + ", mode=" + mode);
+    process.exit(1);
+  }
+  process.stdout.write(out);
+' "$PLUGIN_DIR" "$BUMP_MODE")" || { echo -e "${RED}version computation failed${NC}"; exit 1; }
+
+echo -e "${GREEN}New version: $NEW_VERSION (mode: $BUMP_MODE)${NC}"
 
 # --- Step 2: Run FULL verification (not just validation) ---
 echo ""
@@ -55,25 +148,32 @@ if ! bash "$PLUGIN_DIR/scripts/verify-release" 2>&1; then
 fi
 echo -e "${GREEN}All verification checks passed${NC}"
 
-# --- Step 3: Bump plugin.json ---
+# --- Step 3: Bump plugin.json AND package.json (5-way version consistency) ---
 cd "$PLUGIN_DIR"
 node -e "
 const fs = require('fs');
 const p = JSON.parse(fs.readFileSync('.claude-plugin/plugin.json', 'utf8'));
 p.version = '$NEW_VERSION';
 fs.writeFileSync('.claude-plugin/plugin.json', JSON.stringify(p, null, 2) + '\n');
+const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+pkg.version = '$NEW_VERSION';
+fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
 "
-echo "Updated plugin.json to $NEW_VERSION"
+echo "Updated plugin.json + package.json to $NEW_VERSION"
 
-# --- Step 4: Bump marketplace.json ---
+# --- Step 4: Bump marketplace.json (version + source.ref pinned to vN) ---
 cd "$MARKETPLACE_DIR"
 node -e "
 const fs = require('fs');
 const m = JSON.parse(fs.readFileSync('.claude-plugin/marketplace.json', 'utf8'));
 m.plugins[0].version = '$NEW_VERSION';
+// Pin source.ref to vN so installs via this marketplace resolve commit A,
+// whose plugin.json says vN (TWO-COMMIT form -- Phase 123 D-19 research finding 1).
+if (!m.plugins[0].source) m.plugins[0].source = {};
+m.plugins[0].source.ref = 'v$NEW_VERSION';
 fs.writeFileSync('.claude-plugin/marketplace.json', JSON.stringify(m, null, 2) + '\n');
 "
-echo "Updated marketplace.json to $NEW_VERSION"
+echo "Updated marketplace.json: version $NEW_VERSION + source.ref v$NEW_VERSION"
 
 # --- Step 5: Validate marketplace ---
 echo ""
@@ -83,7 +183,7 @@ if echo "$MVAL" | grep -q "Validation failed"; then
   echo -e "${RED}ABORT: Marketplace validation failed:${NC}"
   echo "$MVAL"
   # Revert version bumps
-  cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json
+  cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json
   cd "$MARKETPLACE_DIR" && git checkout .claude-plugin/marketplace.json
   exit 1
 fi
@@ -113,15 +213,20 @@ if [ -n "$RESERVED_HITS" ]; then
 fi
 echo -e "${GREEN}  No reserved identifiers found${NC}"
 
-# --- Step 6: Check for CHANGELOG entry ---
+# --- Step 6: Check for CHANGELOG entry (finalize [Unreleased] -> [NEW_VERSION] - <date>) ---
 cd "$PLUGIN_DIR"
-if ! grep -q "\[$NEW_VERSION\]" CHANGELOG.md 2>/dev/null; then
-  echo -e "${YELLOW}WARNING: No CHANGELOG entry for $NEW_VERSION${NC}"
+DATE=$(date +%Y-%m-%d)
+if grep -q "^## \[$NEW_VERSION\]" CHANGELOG.md 2>/dev/null; then
+  echo "CHANGELOG already has [$NEW_VERSION] entry"
+elif grep -qE "^## \[Unreleased\]" CHANGELOG.md 2>/dev/null; then
+  # Finalize the [Unreleased] heading into [NEW_VERSION] - DATE.
+  sed -i "0,/^## \[Unreleased\].*/s//## [$NEW_VERSION] - $DATE/" CHANGELOG.md
+  echo "Finalized CHANGELOG [Unreleased] -> [$NEW_VERSION] - $DATE"
+else
+  echo -e "${YELLOW}WARNING: No CHANGELOG entry for $NEW_VERSION and no [Unreleased] heading${NC}"
   echo "Add one now? (y/n)"
   read -r REPLY
   if [[ "$REPLY" == "y" ]]; then
-    DATE=$(date +%Y-%m-%d)
-    # Prepend entry
     TEMP=$(mktemp)
     echo "## [$NEW_VERSION] - $DATE" > "$TEMP"
     echo "" >> "$TEMP"
@@ -140,42 +245,39 @@ echo "=== Re-verifying after version bump ==="
 REVAL=$(bash "$PLUGIN_DIR/scripts/verify-release" 2>&1 || true)
 if echo "$REVAL" | grep -q "DO NOT RELEASE"; then
   echo -e "${RED}ABORT: Post-bump verification failed. Rolling back version bumps.${NC}"
-  cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json
+  cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md
   cd "$MARKETPLACE_DIR" && git checkout .claude-plugin/marketplace.json
   exit 1
 fi
 echo -e "${GREEN}Post-bump verification passed${NC}"
 
-# --- Step 7: Commit plugin (specific files only - NEVER git add -A) ---
+# --- Step 7: Commit A (release commit) -- finalizes vN, NEVER git add -A ---
+# Commit A holds the version-of-record at vN. The vN git tag points HERE.
+# An install via `marketplace.json source.ref: vN` checks out THIS commit, so
+# Claude Code reads plugin.json.version == vN and self-reports vN. The next-bump
+# (Commit B) follows Step 9.5 below.
 echo ""
-echo "=== Committing plugin ==="
+echo "=== Step 7: Commit A (release commit) -- plugin + marketplace ==="
 cd "$PLUGIN_DIR"
-git add .claude-plugin/plugin.json CHANGELOG.md
-# Add any other modified tracked files (but NOT untracked files)
-git diff --name-only | xargs -r git add
-git commit -m "release: v$NEW_VERSION" || echo "Nothing to commit in plugin"
+git add .claude-plugin/plugin.json package.json CHANGELOG.md
+git commit -m "release: v$NEW_VERSION" || echo "Nothing to commit in plugin (Commit A)"
 git tag "v$NEW_VERSION" 2>/dev/null || echo "Tag v$NEW_VERSION already exists"
 
-# --- Step 8: Commit marketplace (specific files only) ---
-echo ""
-echo "=== Committing marketplace ==="
 cd "$MARKETPLACE_DIR"
-git add .claude-plugin/marketplace.json README.md
+git add .claude-plugin/marketplace.json
 git commit -m "release: sync to v$NEW_VERSION" || echo "Nothing to commit in marketplace"
 
-# --- Step 9: Push both ---
-echo ""
-echo "=== Pushing ==="
-cd "$PLUGIN_DIR" && git push origin main --tags 2>&1
-cd "$MARKETPLACE_DIR" && git push origin master 2>&1
-
-# --- Step 9.5: Publish @mindrian_os/cli to npm in lockstep (Phase 95.6 D-05a) ---
+# --- Step 9.5: Publish @mindrian_os/install at NEW_VERSION (BEFORE Commit B) ---
 # Memory canon feedback_release_lockstep_npm: every plugin release publishes
-# @mindrian_os/cli to npm. -beta./alpha./rc./next. suffixes -> @next dist-tag;
+# @mindrian_os/install to npm. -beta./alpha./rc./next. suffixes -> @next dist-tag;
 # clean X.Y.Z -> @latest. If publish fails, HALT -- never ship unpublished.
 # MOS_TEST_DRY_RUN=1 exercises the gate without touching the live registry.
+#
+# IMPORTANT: Publish runs HERE (after Commit A, before Commit B) so the working
+# tree's package.json says NEW_VERSION (vN). If we published from Commit B's
+# tree, npm would receive NEXT_VERSION (vN+1) -- wrong.
 echo ""
-echo "=== Step 9.5: npm publish (@mindrian_os/cli) ==="
+echo "=== Step 9.5: npm publish (@mindrian_os/install) ==="
 cd "$PLUGIN_DIR"
 NPM_TAG="latest"
 case "$NEW_VERSION" in
@@ -204,21 +306,119 @@ if [ "${MOS_TEST_DRY_RUN:-0}" = "1" ]; then
   echo "  [DRY RUN] would run: npm publish --tag $NPM_TAG"
 else
   if npm publish --tag "$NPM_TAG"; then
-    echo -e "${GREEN}  Published @mindrian_os/cli@$NEW_VERSION to npm (@$NPM_TAG)${NC}"
+    echo -e "${GREEN}  Published @mindrian_os/install@$NEW_VERSION to npm (@$NPM_TAG)${NC}"
   else
     echo ""
-    echo -e "${RED}  x npm publish failed for @mindrian_os/cli@$NEW_VERSION.${NC}"
-    echo "    The plugin has already been pushed (Step 9), so the lockstep"
-    echo "    contract is now BROKEN until you recover. To recover:"
+    echo -e "${RED}  x npm publish failed for @mindrian_os/install@$NEW_VERSION.${NC}"
+    echo "    Commit A has already been made and tagged v$NEW_VERSION (not yet pushed),"
+    echo "    so the lockstep contract is now BROKEN until you recover. To recover:"
     echo "      1. Fix the npm issue (auth: 'npm whoami'; scope: ensure"
-    echo "         package.json name is '@mindrian_os/cli' and you have publish"
-    echo "         rights on the @mindrian org)."
+    echo "         package.json name is '@mindrian_os/install' and you have publish"
+    echo "         rights on the @mindrian_os org)."
     echo "      2. Re-run JUST the publish: npm publish --tag $NPM_TAG"
-    echo "      3. Verify: npm view @mindrian_os/cli@$NPM_TAG version"
+    echo "      3. Verify: npm view @mindrian_os/install@$NPM_TAG version"
+    echo "      4. Then resume by running Commit B + push manually, OR reset"
+    echo "         (git reset --hard HEAD^ + git tag -d v$NEW_VERSION) and re-run release.sh."
     echo "    Do NOT cut another plugin release until npm is in sync."
     exit 1
   fi
 fi
+
+# --- Step 7.5: Commit B (next-bump commit) -- plugin.json/package.json -> next pre-release ---
+# main HEAD ends on Commit B; the vN tag stays on Commit A. The marketplace repo
+# gets NO Commit B -- marketplace.json only ever points at vN.
+if [ "$NO_NEXT_BUMP" = "1" ]; then
+  echo ""
+  echo "=== Step 7.5: Commit B SKIPPED (--no-next-bump) -- main HEAD will be at v$NEW_VERSION ==="
+else
+  echo ""
+  echo "=== Step 7.5: Commit B (next-bump commit) -- plugin repo only ==="
+
+  # Compute NEXT_VERSION: if NEW_VERSION has a `-` suffix, bump the prerelease;
+  # else open a fresh prerelease series (X.Y.(Z+1)-beta.1) via prepatch+prerelease.
+  NEXT_VERSION="$(node -e '
+    const semver = require(process.argv[1] + "/node_modules/semver");
+    const cur = process.argv[2];
+    let out;
+    if (cur.indexOf("-") !== -1) {
+      out = semver.inc(cur, "prerelease", "beta");
+    } else {
+      out = semver.inc(cur, "prepatch", "beta");
+      out = semver.inc(out, "prerelease", "beta");
+    }
+    if (!out) {
+      console.error("semver.inc returned null for next-bump from " + cur);
+      process.exit(1);
+    }
+    process.stdout.write(out);
+  ' "$PLUGIN_DIR" "$NEW_VERSION")" || { echo -e "${RED}next-version computation failed${NC}"; exit 1; }
+
+  echo "  next version: $NEXT_VERSION"
+
+  cd "$PLUGIN_DIR"
+  node -e "
+const fs = require('fs');
+const p = JSON.parse(fs.readFileSync('.claude-plugin/plugin.json', 'utf8'));
+p.version = '$NEXT_VERSION';
+fs.writeFileSync('.claude-plugin/plugin.json', JSON.stringify(p, null, 2) + '\n');
+const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+pkg.version = '$NEXT_VERSION';
+fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+"
+
+  # Reset CHANGELOG: insert [Unreleased] -- vNEXT (in progress) above the finalized [NEW_VERSION] entry.
+  TEMP=$(mktemp)
+  echo "## [Unreleased] -- v$NEXT_VERSION (in progress)" > "$TEMP"
+  echo "" >> "$TEMP"
+  echo "### Added" >> "$TEMP"
+  echo "- " >> "$TEMP"
+  echo "" >> "$TEMP"
+  cat CHANGELOG.md >> "$TEMP"
+  mv "$TEMP" CHANGELOG.md
+
+  git add .claude-plugin/plugin.json package.json CHANGELOG.md
+  git commit -m "chore: bump to v$NEXT_VERSION (next pre-release)" || echo "Nothing to commit in plugin (Commit B)"
+fi
+
+# --- Step 8: Dirty-repo / ahead-of-origin guard (BEFORE the push) ---
+echo ""
+echo "=== Step 8: ahead-of-origin guard ==="
+cd "$PLUGIN_DIR"
+git fetch origin main 2>/dev/null || echo "  (git fetch origin failed -- continuing with cached state)"
+
+AHEAD="$(git log origin/main..HEAD --oneline 2>/dev/null || true)"
+echo "Commits ahead of origin/main:"
+echo "$AHEAD"
+AHEAD_COUNT="$(printf '%s\n' "$AHEAD" | grep -c . || true)"
+EXPECTED=2
+[ "$NO_NEXT_BUMP" = "1" ] && EXPECTED=1
+echo "  expected: $EXPECTED  actual: $AHEAD_COUNT"
+
+if [ "$AHEAD_COUNT" -gt "$EXPECTED" ]; then
+  if [ "$ALLOW_AHEAD" != "1" ]; then
+    echo -e "${RED}Refusing to push: $AHEAD_COUNT commits ahead of origin/main but only $EXPECTED are this release.${NC}"
+    echo "  Push/stash the rest, or pass --allow-ahead to override."
+    exit 1
+  fi
+  echo -e "${YELLOW}  (--allow-ahead set; pushing $AHEAD_COUNT commits)${NC}"
+fi
+
+# Dirty tracked files except the bumped ones:
+DIRTY="$(git status --porcelain --untracked-files=no | awk '{print $2}' \
+  | grep -vE '^(\.claude-plugin/plugin\.json|package\.json|CHANGELOG\.md)$' || true)"
+if [ -n "$DIRTY" ]; then
+  echo -e "${RED}Refusing to push: dirty tracked files that are not part of this release:${NC}"
+  echo "$DIRTY"
+  echo "  Commit, stash, or revert these first."
+  exit 1
+fi
+echo -e "${GREEN}  ahead-of-origin guard passed${NC}"
+
+# --- Step 9: Push both ---
+echo ""
+echo "=== Step 9: Pushing plugin (main + tags) + marketplace ==="
+cd "$PLUGIN_DIR" && git push origin main --tags 2>&1
+cd "$MARKETPLACE_DIR" && git push origin master 2>&1
 
 # --- Step 10: Update local cache ---
 echo ""
