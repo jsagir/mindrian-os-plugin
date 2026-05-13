@@ -1052,10 +1052,10 @@ Plans:
 
 **Canon parts:** Part 8 (Graph Boundary -- hardened from procedural to architectural), Part 9 (Memory Locality -- Brain reasons over packets, never raw memory).
 
-**Plans:** 6 plans across 4 waves (planned 2026-05-12 via /gsd:plan-phase 110). Target band: v1.13.0-beta.3 (Path C re-route).
+**Plans:** 1/6 plans executed
 
 Plans:
-- [ ] 110-00-PLAN.md - Wave 0 substrate (register PACKET-110-01..09 in REQUIREMENTS.md + ROADMAP; 4 RED test stubs; tests/run-all-110.sh; Feynman-runner registration; 12-job-vocabulary correction)
+- [x] 110-00-PLAN.md - Wave 0 substrate (register PACKET-110-01..09 in REQUIREMENTS.md + ROADMAP; 4 RED test stubs; tests/run-all-110.sh; Feynman-runner registration; 12-job-vocabulary correction)
 - [ ] 110-01-PLAN.md - Wave 1 schema artifact + generator + --check tripwire (data/brain-packet-schema.json + scripts/build-brain-packet-schema.cjs; data/ROOM.md row; fill test-brain-packet-schema-check.cjs)
 - [ ] 110-02-PLAN.md - Wave 1 origin field + EVENT_TYPES extension + privacy-mode resolver (packet.cjs origin/privacy_mode + resolvePrivacyMode; memory-events.cjs +3; regression touches)
 - [ ] 110-03-PLAN.md - Wave 2 sendPacket() validator middleware + response-degrade gate + dual-path warn (brain-client.cjs sendPacket; navigation.cjs logMemoryEvent re-export; reject-hard-degrade-soft)
