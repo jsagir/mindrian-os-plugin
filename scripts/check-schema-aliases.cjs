@@ -404,6 +404,78 @@ module.exports.checkChokepoint = checkChokepoint;
 module.exports.ALLOWED_DIRECT_IMPORT = ALLOWED_DIRECT_IMPORT;
 module.exports.BANNED_PATTERNS = BANNED_PATTERNS;
 
+// ============================================================================
+// Phase 110-04 - --check-sendpacket subcommand (D-08 layer 2). Mirrors the
+// --check-chokepoint structure above. Scans staged JS/CJS/MJS files for a
+// bare sendPacket( call site NOT lexically preceded by a buildBrainPacket(
+// call in the same file. The origin string on a Brain Context Packet is
+// in-process-forgeable; the hook + review are the real teeth that catch a
+// packet built outside lib/core/navigation.cjs::buildBrainPacket.
+//
+// Canon Part 8 (Graph Boundary -- D-08 layer 2): three layers, no crypto.
+// Layer 1 (origin string at construction in navigation.cjs) is unforgeable
+// only by convention; this pre-commit guard makes the convention enforced.
+// Layer 3 is the schema-drift tripwire wired into the same pre-commit hook
+// (110-01 build-brain-packet-schema.cjs --check).
+//
+// Canon Part 7 (Reuse Before Build): extends the existing 109-06 substrate
+// (getStagedFiles + readStagedContent + isAllowedPath idiom) rather than a
+// sibling script; same installer; zero new npm dependencies.
+//
+// Canon Part 9 (Memory Locality): the chokepoint enforces that every Brain
+// Context Packet is assembled through the navigation chokepoint, never
+// directly from files / shell / transcript.
+// ============================================================================
+
+const ALLOWED_SENDPACKET_FILES = [
+  /^lib\/core\/brain-client\.cjs$/,
+  /^lib\/core\/navigation\.cjs$/,
+  /^lib\/core\/navigation\//,
+  /^tests\//,
+  /^scripts\//,
+];
+
+function isAllowedSendpacketPath(p) {
+  const normalized = p.replace(/\\/g, '/');
+  return ALLOWED_SENDPACKET_FILES.some(function (rx) { return rx.test(normalized); });
+}
+
+function checkSendpacket() {
+  const staged = getStagedFiles();
+  const violations = [];
+  for (const filePath of staged) {
+    if (!/\.(cjs|js|mjs)$/.test(filePath)) continue;
+    if (isAllowedSendpacketPath(filePath)) continue;
+    const content = readStagedContent(filePath);
+    if (!content) continue;
+    const lines = content.split('\n');
+    // A bare sendPacket( call is OK only if a buildBrainPacket( call appears
+    // earlier in the SAME file. Coarse lexical proximity check: the hook is
+    // the teeth, not a precise data-flow analysis.
+    let sawBuild = false;
+    for (let i = 0; i < lines.length; i++) {
+      if (/\bbuildBrainPacket\s*\(/.test(lines[i])) sawBuild = true;
+      const m = lines[i].match(/\bsendPacket\s*\(/);
+      if (m && !sawBuild) {
+        violations.push({ file: filePath, line: i + 1, match: lines[i].trim().slice(0, 120) });
+      }
+    }
+  }
+  if (violations.length === 0) {
+    process.exit(0);
+  }
+  process.stderr.write('[check-sendpacket] FAIL (D-08 layer 2): a `sendPacket(` call site is not lexically preceded by a `buildBrainPacket(` call. Brain Context Packets must be built ONLY through lib/core/navigation.cjs::buildBrainPacket (D-01 chokepoint).\n');
+  for (const v of violations) {
+    process.stderr.write('  ' + v.file + ':' + v.line + ': ' + v.match + '\n');
+  }
+  process.stderr.write('Build the packet via navigation.buildBrainPacket(...) before calling brain-client.sendPacket(...), or add the path to ALLOWED_SENDPACKET_FILES in scripts/check-schema-aliases.cjs.\n');
+  process.exit(1);
+}
+
+module.exports.checkSendpacket = checkSendpacket;
+module.exports.ALLOWED_SENDPACKET_FILES = ALLOWED_SENDPACKET_FILES;
+module.exports.isAllowedSendpacketPath = isAllowedSendpacketPath;
+
 // ----------------------------------------------------------------------------
 // CLI entry point.
 // ----------------------------------------------------------------------------
@@ -415,6 +487,12 @@ if (require.main === module) {
   // independently; this dispatch keeps each check single-purpose.
   if (args.includes('--check-chokepoint')) {
     checkChokepoint();
+    return;
+  }
+
+  // Phase 110-04: --check-sendpacket subcommand (D-08 layer 2).
+  if (args.includes('--check-sendpacket')) {
+    checkSendpacket();
     return;
   }
 
