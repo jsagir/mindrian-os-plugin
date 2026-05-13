@@ -147,6 +147,37 @@ if git diff --cached --name-only | grep -qE '^(commands/.*\.md|data/command-regi
 fi
 
 # ---------------------------------------------------------------------------
+# Phase 110 guardian: brain-packet-schema drift / malformed-schema tripwire.
+#
+# When data/brain-packet-schema.json or scripts/build-brain-packet-schema.cjs
+# is staged, regenerate the schema in memory and reject the commit if the
+# on-disk schema drifts from the generator output. Mirrors Phase 122 pattern
+# (Reliability rule 2, .planning/WORKFLOW-LAYER-SPEC.md). Canon Part 8: the
+# check never touches the Brain.
+# Recovery on drift: node scripts/build-brain-packet-schema.cjs
+# ---------------------------------------------------------------------------
+if git diff --cached --name-only | grep -qE '^(data/brain-packet-schema\.json|scripts/build-brain-packet-schema\.cjs)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-brain-packet-schema.cjs" ]; then
+    node "$REPO_ROOT/scripts/build-brain-packet-schema.cjs" --check || { echo "brain-packet-schema drift -- run: node scripts/build-brain-packet-schema.cjs --check" >&2; exit 2; }
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Phase 110 guardian (D-08 layer 2): refuse a bare sendPacket( not preceded
+# by buildBrainPacket( in the same staged file. The origin string on a
+# Brain Context Packet is in-process-forgeable; this hook is the real teeth
+# that catches a packet built outside lib/core/navigation.cjs::buildBrainPacket.
+# Allow-list (always allowed): brain-client.cjs / navigation.cjs / navigation/
+# / tests/ / scripts/. Canon Part 8 (Graph Boundary) + Part 9 (Memory Locality).
+# Recovery: build the packet via navigation.buildBrainPacket(...) before
+# calling brain-client.sendPacket(...), or add the path to
+# ALLOWED_SENDPACKET_FILES in scripts/check-schema-aliases.cjs.
+# ---------------------------------------------------------------------------
+if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/check-schema-aliases.cjs" ]; then
+  node "$REPO_ROOT/scripts/check-schema-aliases.cjs" --check-sendpacket || { echo "bare sendPacket( introduced -- per D-08 it must be lexically preceded by buildBrainPacket(" >&2; exit 2; }
+fi
+
+# ---------------------------------------------------------------------------
 # Phase 88-13 guardian: block commit on critical/error invariant violations.
 #
 # Iterates over each DISCOVERED room root from the find_room_root loop above
