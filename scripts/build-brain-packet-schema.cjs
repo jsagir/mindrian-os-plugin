@@ -67,6 +67,11 @@ const SHIPPED_JOBS = Object.freeze([
 // Allow-listed non-job $defs (the shared building blocks). Keep in sync with
 // data/brain-packet-schema.json. Any $def name that is neither a SHIPPED_JOB
 // nor in this set is a closed-vocabulary violation.
+//
+// Phase 125-04 added FrameworkChainHint as a shared $def referenced from
+// LocalGraphSummary.properties.framework_chain_hint (optional; carries the
+// 1-3 hop Brain Cypher slice per Plan 04 D-04). The 12-job D-02 closed-vocab
+// is UNTOUCHED -- FrameworkChainHint is a shared building block, not a job.
 const SHARED_DEFS = new Set([
   'PrivacyMode',
   'Origin',
@@ -78,6 +83,7 @@ const SHARED_DEFS = new Set([
   'ContradictionProjection',
   'UnsupportedProjection',
   'RecentChangeProjection',
+  'FrameworkChainHint',
   'LocalGraphSummary',
   'BrainResponse',
 ]);

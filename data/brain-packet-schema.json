@@ -118,6 +118,33 @@
         "createdAt": { "type": "integer" }
       }
     },
+    "FrameworkChainHint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["edges", "slice_scope", "slice_rationale", "fetched_at"],
+      "properties": {
+        "edges": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from", "to", "hop_distance"],
+            "properties": {
+              "from": { "type": ["string", "null"] },
+              "to": { "type": ["string", "null"] },
+              "confidence": { "type": ["number", "null"] },
+              "transform_description": { "type": ["string", "null"] },
+              "hop_distance": { "type": ["integer", "null"] }
+            }
+          }
+        },
+        "slice_scope": { "type": "integer", "enum": [1, 2, 3] },
+        "slice_rationale": { "type": "string" },
+        "brain_snapshot_id": { "type": ["string", "null"] },
+        "fetched_at": { "type": "string" }
+      }
+    },
     "LocalGraphSummary": {
       "type": "object",
       "additionalProperties": false,
@@ -150,7 +177,8 @@
           "type": "array",
           "items": { "$ref": "#/$defs/RecentChangeProjection" }
         },
-        "banked_opportunities": { "$ref": "#/$defs/BankedOpportunities" }
+        "banked_opportunities": { "$ref": "#/$defs/BankedOpportunities" },
+        "framework_chain_hint": { "$ref": "#/$defs/FrameworkChainHint" }
       }
     },
     "BrainResponse": {
