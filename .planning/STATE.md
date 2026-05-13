@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
-status: executing
-stopped_at: Completed 104.1-01-PLAN.md (build extension + verification scaffold); Plan 02 is deferred to a fresh session per WAVE_FILTER=0 orchestrator instruction
-last_updated: "2026-05-13T20:10:52.121Z"
+status: verifying
+stopped_at: "Completed 104.1-02-PLAN.md (Phase 104.1 ready for /gsd:verify-work)"
+last_updated: "2026-05-13T20:55:22.420Z"
 last_activity: 2026-05-13
 progress:
   total_phases: 58
-  completed_phases: 35
+  completed_phases: 36
   total_plans: 267
-  completed_plans: 253
+  completed_plans: 254
   percent: 93
 ---
 
@@ -29,7 +29,7 @@ Phase: 104.1 (per-command-teaching-content) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
 
@@ -297,6 +297,7 @@ Progress: [█████████░] 93%
 | Phase 124 P02 | 16 | 3 tasks | 3 files |
 | Phase 124 P04 | 224 | 3 tasks | 4 files |
 | Phase 104.1 P01 | 14min | 5 tasks | 8 files |
+| Phase 104.1 P02 | 25min | 5 tasks | 89 files |
 
 ### Roadmap Evolution
 
@@ -809,6 +810,9 @@ Progress: [█████████░] 93%
 - [Phase 104.1]: Build-time derivation of jtbd_label + jtbd_summary from lib/hmi/jtbd-taxonomy.json via serves_jtbd[0] (Canon Part 7 reuse over build); per-command frontmatter never authors these fields
 - [Phase 104.1]: Add serves_jtbd to data/command-registry.json alongside teaching + jtbd_label + jtbd_summary; the derivation test asserts on c.serves_jtbd directly and Phase 125 Plan 05's read path consumes it
 - [Phase 104.1]: Build-script tripwire ships as WARNING in Plan 01 with TODO(104.1-Plan-02) marker; flips to ERROR after Plan 02 content sweep -- prevents breaking the build for every downstream phase
+- [Phase 104.1]: All 86 teaching strings approved verbatim; Task 3 promoted [pending]->[OK] with zero content edits
+- [Phase 104.1]: Sweep-edit script resolves slug via frontmatter name: field (not filename) to handle /mos:validate-proposition routing to value-proposition.md
+- [Phase 104.1]: Build-script --check tripwire flipped from WARNING to ERROR on missing teaching; future drift fails the build
 
 ### Pending Todos
 
@@ -838,6 +842,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-13T20:10:52.109Z
-Stopped at: Completed 104.1-01-PLAN.md (build extension + verification scaffold); Plan 02 is deferred to a fresh session per WAVE_FILTER=0 orchestrator instruction
+Last session: 2026-05-13T20:55:22.404Z
+Stopped at: Completed 104.1-02-PLAN.md (Phase 104.1 ready for /gsd:verify-work)
 Resume file: None
