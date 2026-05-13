@@ -1331,10 +1331,10 @@ Plans:
 **Canon parts:** Part 3 (F-shape selector contract -- F.0 accept / F.1 defer / F.2 reject triad + none-fit affordance); Part 4 (every choice is graph data -- reject/defer emit typed cascade edges); Part 7 (Reuse over build -- ranker sits above shipped resolver, recommender, packet); Part 9 (SQL navigates via local graph + Brain packets as structured context surface; writes route through navigation.cjs chokepoint)
 **Brain impact:** READ-ONLY (1-3 hop FEEDS_INTO Cypher slice; no Brain writes)
 **Requirements:** RANKER-125-00, RANKER-125-01, RANKER-125-02, RANKER-125-03, RANKER-125-04, RANKER-125-05, RANKER-125-06, RANKER-125-07, RANKER-125-08, RANKER-125-09, RANKER-125-10, RANKER-125-11, RANKER-125-12
-**Plans:** 3/9 plans executed
+**Plans:** 4/9 plans executed
 
 Plans:
-- [ ] 125-00-PLAN.md -- navigation.cjs writeEdge primitive (15th re-export; Pass 3 GAP-2 resolution; precedent: Phase 110-03 logMemoryEvent additive) [D7 extension] [wave 0]
+- [x] 125-00-PLAN.md -- navigation.cjs writeEdge primitive (15th re-export; Pass 3 GAP-2 resolution; precedent: Phase 110-03 logMemoryEvent additive) [D7 extension] [wave 0]
 - [x] 125-01-PLAN.md -- navigation.resolveActiveFrameworks + resolveHopDepth + computeInvestmentLevel projection helpers + framework_invoked EVENT_TYPES extension [D1, D2, D3] [wave 1]
 - [x] 125-02-PLAN.md -- Brain Cypher slice query (parameterized 1-3 hop FEEDS_INTO, LIMIT 50, sanitized) via lib/brain/framework-chain-slice.cjs [D2 + Canon Part 8] [wave 1]
 - [ ] 125-03-PLAN.md -- buildBrainPacket extension: framework_chain_hint in local_graph_summary (conditional on active set non-empty) [D4] [wave 2]

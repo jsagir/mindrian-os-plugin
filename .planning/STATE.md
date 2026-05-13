@@ -4,13 +4,13 @@ milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
 stopped_at: Completed 125-02-PLAN.md (Wave 1 parallel)
-last_updated: "2026-05-13T17:08:15.422Z"
+last_updated: "2026-05-13T17:09:42.744Z"
 last_activity: 2026-05-13
 progress:
   total_phases: 57
   completed_phases: 34
   total_plans: 265
-  completed_plans: 247
+  completed_plans: 248
   percent: 93
 ---
 
@@ -292,6 +292,7 @@ Progress: [█████████░] 93%
 | Phase 125-f-selector-ranker P04 | 3min | 1 tasks | 3 files |
 | Phase 125 P01 | 3m 32s | 2 tasks | 3 files |
 | Phase 125 P02 | 3min | 1 tasks | 2 files |
+| Phase 125-f-selector-ranker P00 | 22 min | 2 tasks | 3 files |
 
 ### Roadmap Evolution
 

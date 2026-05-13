@@ -537,7 +537,7 @@
 | HARNESS-123-15 | Phase 123 | Complete |
 | HARNESS-123-16 | Phase 123 | Complete |
 | HARNESS-123-17 | Phase 123 | Pending |
-| RANKER-125-00 | Phase 125 | Pending |
+| RANKER-125-00 | Phase 125 | Complete |
 | RANKER-125-01 | Phase 125 | Complete |
 | RANKER-125-02 | Phase 125 | Complete |
 | RANKER-125-03 | Phase 125 | Complete |
