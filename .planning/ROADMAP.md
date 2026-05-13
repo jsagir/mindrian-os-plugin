@@ -957,6 +957,24 @@ Plans:
 - [x] 104-02-PLAN.md - Verification harness: every-command-declares + every-JTBD-has-1-command tests (Wave 2 - depends on 104-01)
 - [x] 104-03-PLAN.md - Backward-compat regression fence + CHANGELOG v1.12.4 entry (Wave 2 - depends on 104-01)
 
+### Phase 104.1: Per-Command JTBD Content Layer (REGISTERED 2026-05-13 -- HARD DEPENDENCY for Phase 125)
+
+**Goal:** Phase 104 closed without shipping `teaching` + `jtbd_label` + `jtbd_summary` fields that Phase 125 D9 + D11 depend on. Phase 104.1 ships these as a content-only follow-on to Phase 104: per-command frontmatter gains 3 fields (`jtbd_label` = short user-facing handle; `jtbd_summary` = terse 1-line rationale for high-investment users; `teaching` = Larry-voice 1-2 sentence explanation for low-investment users). Phase 125's f-selector-ranker reads these fields and selects content shape by investment_level. NO new commands, NO new logic, NO taxonomy changes -- purely content authoring + the same sweep-edit harness pattern proven in Phase 104.
+
+**Requirements**: [CONTENT-104.1-01..NN -- defined in plan-phase]
+
+**Depends on:** Phase 104 (per-command serves_jtbd declarations, SHIPPED v1.12.4) + Phase 100 (jtbd-taxonomy.json, SHIPPED)
+
+**Dependents:** Phase 125 (F-Selector Ranker; HARD GATE -- Phase 125 execute-phase cannot start until Phase 104.1 ships)
+
+**Target band:** v1.13.0-beta.14 (ships ahead of Phase 125 in the same beta cut OR as a content-only commit immediately before; ~3-4 days of content authoring)
+
+**Canon parts:** Part 3 (F-shape adaptive surface -- content scales with investment level); Part 7 (Reuse over build -- extends Phase 104's content layer pattern)
+
+**Plans:** TBD - run /gsd:discuss-phase 104.1 then /gsd:plan-phase 104.1 (likely 2 plans: 01 = field-schema + content authoring sweep across all 84 commands; 02 = verification harness for every-command-has-3-fields + content-quality QA)
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 104.1 to break down)
 
 ### Phase 106: Statusline Visibility + Context-Window Broadcast
 
@@ -1276,7 +1294,7 @@ Plans:
 **Goal:** One install-state truth source so no actor improvises "what version is active, where it's installed, is the install consistent" -- the disease behind the 2026-05-12 Windows-test bug family (doctor crash, stale statusline, byte-stale deployed wrapper, `~/.mindrian-last-version` unknown, the version-number treadmill, hand-rolled releases). Five pieces: (1) `~/.mindrian/install-state.json` written by session-start, read by everyone (statusline / banner / `~/.mindrian-last-version` / `bin/cli.js` / doctor); (2) a deployment-surface manifest (the statusline shim, the `settings.json` statusLine block, the dev-clone pre-commit hook, the `~/.mindrian/*` state files) that session-start reconciles and doctor flags; (3) doctor as the contract checker with an exhaustive drift-class enumeration + `--fix`s + test fixtures -- absorbs **Bug 7** (treat marketplace-cache-only as a healthy topology, not drift); (4) `mindrian-os doctor --acceptance` as the scripted release gate (replaces the hand-run 5-test suite), wired into `release.sh`; (5) `release.sh` owning ALL version bumps incl. pre-releases (`beta.N -> beta.N+1`; it currently mangles pre-release versions, which is why beta.10-13 were hand-rolled), refusing on a dirty repo / pushing only the release commit (a Phase 109 docs commit hitchhiked into the beta.12 push), and fixing Step 9.5's stale `@mindrian_os/cli` name. Also absorbs cache pruning on update and the `@mindrian_os/cli` -> `@mindrian_os/install` doc/test sweep (`docs/install/PACKAGING-PATHS.md`, `tests/manual/95.6-windows-cold-install-acceptance.md`, `tests/test-release-npm-gate.sh`). Builds on what already shipped in v1.13.0-beta.12: `lib/core/active-plugin-root.cjs` (the one resolver) + `scripts/statusline-mos-dispatch` + the `scripts/session-start` Step A migration (the dumb dispatcher shim -- the deployment surface carries zero logic, a wrapper fix in vN+1 reaches users next session with no re-stamp). Spec: `docs/INSTALL-LIFECYCLE-HARNESS.md`. canon_parts: [5, 6] -- Canon Part 6 (dog-fooding: the plugin's install lifecycle must honor the plugin's canon) biting back, with Part 5's evidence-graded gate at the release boundary. Same *shape* as Part 9's memory constitution: a closed set of allowed mutations + a single enforcement chokepoint + human/CI confirmation.
 **Requirements**: [HARNESS-123-01, HARNESS-123-02, HARNESS-123-03, HARNESS-123-04, HARNESS-123-05, HARNESS-123-06, HARNESS-123-07, HARNESS-123-08, HARNESS-123-09, HARNESS-123-10, HARNESS-123-11, HARNESS-123-12, HARNESS-123-13, HARNESS-123-14, HARNESS-123-15, HARNESS-123-16, HARNESS-123-17]
 **Depends on:** Phase 122
-**Plans:** 6/7 plans executed
+**Plans:** 7/7 plans complete
 
 Plans:
 - [x] 123-01-PLAN.md -- scripts/release.sh overhaul: semver devDep + --prerelease/--finalize/--start-prerelease bump algebra + two-commit form + dirty-repo guard + Step 9.5 @mindrian_os/install rename (wave 1)
@@ -1295,6 +1313,27 @@ Plans:
 **Target band:** v1.13.0-final or v1.14.0 (decide in plan-phase based on whether the auto-section format is judged backwards-compatible with existing FEYNMAN.md consumers)
 **Canon parts:** Part 9 (Memory Locality -- the Larry-explains face), Part 5 (Evidence is graded by context -- "stale" surfaces as a context signal alongside the existing tier)
 **Plans:** TBD - run /gsd:discuss-phase 124 then /gsd:plan-phase 124
+
+### Phase 125: F-Selector Ranker (DESIGN-LOCKED 2026-05-13 + adaptive-questioning lens pass 2)
+
+**Goal:** Ship the ranker that turns the existing framework chain (Brain) + command registry (Phase 122) + JTBD content (Phase 104) + packet enrichment (Phase 110) into a top-K ranked next-move list for F-shape selector consumption. Plus the Phase 110 packet extension carrying the framework chain slice. Plus a continuous-gradient cold-start that does NOT abandon new users. Plus the interaction-loop semantics (D7 reject/defer-as-typed-edge + decay-weight, D8 none-fit affordance + ranker-miss capture, D9 investment-aware 'why' content, D10 callable/trigger split, D11 Phase 104 ships teaching field) that make the F-selector the user-facing adaptive-questioning analogue of /gsd:discuss-phase.
+**Requirements**: [RANKER-125-01..NN -- defined in plan-phase]
+**Depends on:** Phase 122 (command-registry + command-resolver, shipped v1.13.0-beta.11); Phase 122-03 (chain-recommender, shipped); Phase 110 (Brain Context Packet, shipped); Phase 109 (memory_event log + navigation.cjs chokepoint, shipped); Phase 88 + 90 (BRAIN.md / MINTO.md / FEYNMAN.md memory triple/quadruple, shipped); Phase 104 (per-command JTBD content layer + new `teaching` field, IN FLIGHT)
+**Dependents:** Phase 116 (tension hook surfacing -- consumes ranker output for findings PULL mode); Phase 117 (auto-explore -- consumes ranker for PUSH mode at decision gates)
+**Target band:** v1.13.0-beta.14 (per Path E reordering 2026-05-13: Phase 125 ships beta.14 BEFORE Phase 126 install-lifecycle-harness-gaps beta.15, because Step 0 tag-push was already at origin so install hardening is no longer a blocker for testers; ranker's "intelligent Brain-using" payoff lands 1 week sooner)
+**Canon parts:** Part 3 (F-shape selector contract -- F.0 accept / F.1 defer / F.2 reject triad + none-fit affordance); Part 4 (every choice is graph data -- reject/defer emit typed cascade edges); Part 7 (Reuse over build -- ranker sits above shipped resolver, recommender, packet); Part 9 (SQL navigates via local graph + Brain packets as structured context surface; writes route through navigation.cjs chokepoint)
+**Brain impact:** READ-ONLY (1-3 hop FEEDS_INTO Cypher slice; no Brain writes)
+**Plans:** 8 plans (see .planning/phases/125-f-selector-ranker/125-CONTEXT.md plan map)
+
+Plans:
+- [ ] 125-01: navigation.resolveActiveFrameworks + resolveHopDepth + computeInvestmentLevel [D1, D2, D3]
+- [ ] 125-02: Brain Cypher slice query (parameterized 1-3 hop, LIMIT 50) [D2]
+- [ ] 125-03: Packet builder extension (framework_chain_hint in local_graph_summary) [D4]
+- [ ] 125-04: Schema update + ajv validator integration (superset) [D4]
+- [ ] 125-05: f-selector-ranker.cjs (continuous-gradient scoring + JTBD + teaching + content selection by investment + decay-weight integration) [D4, D6, D9]
+- [ ] 125-06: selector-decisions.cjs (recordSelectorDecision + applyDecayWeight + REJECTED/DEFERRED edge writes via navigation.cjs chokepoint) [D7]
+- [ ] 125-07: None-fit affordance: recordSelectorMiss + renderNoneFitAffordance + memory_event payload schema with top_k_offered capture [D8]
+- [ ] 125-08: Documentation + WORKFLOW-LAYER-SPEC + consumer guide (includes selector-decisions + miss capture wiring for Phase 116 + 117 consumers) [D7-D11]
 
 ### Phase 126: install-lifecycle-harness-gaps
 
