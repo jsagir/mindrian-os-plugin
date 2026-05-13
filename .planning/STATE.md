@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: verifying
-stopped_at: Completed 110-05-PLAN.md (commits ec75b47 + 6302162 -- the D-11 validation suite; tests/run-all-110.sh is now 4/4 GREEN; Phase 110 acceptance gate met)
-last_updated: "2026-05-13T08:29:42.441Z"
+stopped_at: Completed 123-07-PLAN.md
+last_updated: "2026-05-13T08:38:03.976Z"
 last_activity: 2026-05-13
 progress:
   total_phases: 55
   completed_phases: 32
   total_plans: 251
-  completed_plans: 239
+  completed_plans: 240
   percent: 93
 ---
 
@@ -286,6 +286,7 @@ Progress: [█████████░] 93%
 | Phase 110 P04 | 6m 32s | 3 tasks | 4 files |
 | Phase 123 P05 | 16m 40s | 3 tasks | 9 files |
 | Phase 110 P05 | 8m 43s | 2 tasks | 2 files |
+| Phase 123 P07 | 1 hour | 4 tasks | 11 files |
 
 ### Roadmap Evolution
 
@@ -777,6 +778,7 @@ Progress: [█████████░] 93%
 - [Phase 123]: Plan-05: cache-prune helper (lib/core/cache-prune.cjs) ships with active-version protection at TWO layers (keep-set always contains activeVersion + fs.rmSync path-basename guard); skip-on-unreadable-installed_plugins.json invariant; session-start runs on-version-change (best-effort, || true); doctor --fix runs unconditionally (recovery). 6/6 hermetic test scenarios PASS. Forward-facing @mindrian_os/cli -> @mindrian_os/install sweep complete (4 doc/test files swept; 7 files deliberately left as historical record per audit table).
 - [Phase 123]: Plan-05 Deviation 1: commit 4453292 (titled feat(110-04)) accidentally swept up Plan 123-05 Task 1 GREEN files (lib/core/cache-prune.cjs + lib/memory/run-feynman-tests.cjs) due to Phase 110-04 using git add -A in parallel. Work is correct on disk; only the commit-message attribution is wrong. Switched to explicit git add <path> for subsequent commits to prevent recurrence.
 - [Phase 110]: Phase 110-05: D-11 validation suite shipped. tests/test-brain-packet-validation-per-job.cjs (117 assertions) + tests/test-brain-packet-part8-invariant-per-job.cjs (144 assertions); 12 D-02 jobs x {in/out validation + brain_packet_rejected log + brain_response_rejected degrade-soft + forged origin throws + round-trip schema validation + 10-tripwire adversarial leak sweep}; privacy-mode 'config caps' enforced at schema layer via per-job in.properties.privacy_mode const; _warnLegacyOnce once-per-session dual-path guard tested. tests/run-all-110.sh 4/4 GREEN. Canon Part 8 hardened from audit to wire-format-structural.
+- [Phase 123]: Phase 123 Plan-07: single Brain-key resolver lib/core/resolve-brain-key.cjs (D-31 order env -> ~/.mindrian.env -> CWD .env -> not-found) consolidates three independent lookups (brain-client, session-start, brain-connector skill) -- SEC-02 POSIX 0o077 reject with explicit reason; session-start emits positive 3-case status line instead of MCP-centric WARN; FLAG-3 env-aware home default; D-36 MCP-vs-HTTP canonical-path stays deferred
 
 ### Pending Todos
 
@@ -806,6 +808,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-13T08:29:35.508Z
-Stopped at: Completed 110-05-PLAN.md (commits ec75b47 + 6302162 -- the D-11 validation suite; tests/run-all-110.sh is now 4/4 GREEN; Phase 110 acceptance gate met)
+Last session: 2026-05-13T08:38:03.957Z
+Stopped at: Completed 123-07-PLAN.md
 Resume file: None

@@ -512,8 +512,8 @@
 | HARNESS-123-12 | Phase 123 | Complete |
 | HARNESS-123-13 | Phase 123 | Complete |
 | HARNESS-123-14 | Phase 123 | Complete |
-| HARNESS-123-15 | Phase 123 | Pending |
-| HARNESS-123-16 | Phase 123 | Pending |
+| HARNESS-123-15 | Phase 123 | Complete |
+| HARNESS-123-16 | Phase 123 | Complete |
 | HARNESS-123-17 | Phase 123 | Pending |
 
 ## Phase 123: install-lifecycle-harness
