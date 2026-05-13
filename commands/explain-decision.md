@@ -2,6 +2,7 @@
 description: Show Navigation Engine decision trace for last turn
 argument-hint: "[--last N] [--session SESSIONID]"
 serves_jtbd: ["audit-room"]
+teaching: "When Larry made a recommendation and you want to know why, /mos:explain-decision shows the Navigation Engine trace for the last turn. Every recommendation has a graph path behind it."
 disable-model-invocation: true
 allowed-tools: Bash(node *)
 ---

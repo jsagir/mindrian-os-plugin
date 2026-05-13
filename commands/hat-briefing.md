@@ -4,6 +4,7 @@ description: Consolidate Six Hats briefings from hat memory
 body_shape: C (Dashboard Grid)
 body_shape_detail: 6-panel hat grid + synthesis strip
 serves_jtbd: ["prepare-pitch"]
+teaching: "When you have run several Six Hats sessions and need them consolidated, /mos:hat-briefing pulls the hat memory into one briefing. Best right before a stakeholder review."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Six Thinking Hats"]

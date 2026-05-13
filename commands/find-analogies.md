@@ -3,6 +3,7 @@ name: find-analogies
 description: Find cross-domain analogies with SAPPhIRE + TRIZ
 body_shape: D (Comparison Matrix)
 serves_jtbd: ["connect-domains"]
+teaching: "When the answer might live in another field, /mos:find-analogies runs SAPPhIRE and TRIZ against your problem to surface cross-domain matches. Most breakthroughs are borrowed structure."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Four Lenses of Innovation"]

@@ -5,6 +5,7 @@ argument-hint: [hub|thesis|summary|report]
 disable-model-invocation: true
 body_shape: E (Action Report)
 serves_jtbd: ["prepare-pitch"]
+teaching: "When you need to share a Data Room view with someone outside the room, /mos:export packages it as a De Stijl HTML artifact. Investor-ready, no install required on their side."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash

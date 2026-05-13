@@ -5,6 +5,7 @@ argument-hint: "[room-dir]"
 body_shape: E (Action Report)
 body_shape_detail: 10-step heal table mirrors recipe provenance section
 serves_jtbd: ["audit-room"]
+teaching: "When a plugin upgrade leaves the room with structural drift, /mos:heal repairs the missing ROOM.md, broken backlinks, and stale section state. Use after every major version bump."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash

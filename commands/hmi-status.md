@@ -5,6 +5,7 @@ argument-hint: "[--json]"
 body_shape: E (Action Report)
 body_shape_detail: 4-zone Shape E rendering of the side-channel at <roomDir>/.mindrian/last-hmi-poll.json (status + counts + top-5 priorities + operator-shape mismatches); --json emits raw envelope; graceful Shape E when poll absent or tier 0
 serves_jtbd: ["audit-room"]
+teaching: "When you need to know how well the UI is honoring the ruling system, /mos:hmi-status shows the latest compliance poll with operator-aware drift summaries. Read-only; fix via /mos:doctor."
 locks_operator: null
 min_tier: 0
 concurrency: sequential

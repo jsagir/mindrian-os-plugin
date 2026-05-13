@@ -2,6 +2,7 @@
 name: find-bottlenecks
 description: Find lagging components via Reverse Salient
 serves_jtbd: ["find-bottleneck"]
+teaching: "When progress feels stuck and you cannot say where, /mos:find-bottlenecks runs Reverse Salient analysis to name the lagging component. Hughes 1983, but for your venture."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Reverse Salient Analysis"]

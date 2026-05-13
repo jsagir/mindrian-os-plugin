@@ -2,6 +2,7 @@
 name: find-connections
 description: Find cross-domain patterns that touch your work
 serves_jtbd: ["connect-domains"]
+teaching: "When you suspect your work touches a pattern in another field, /mos:find-connections traces cross-domain links through the graph. Surfaces the connections you did not know to look for."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Usher's Model of Cumulative Synthesis"]

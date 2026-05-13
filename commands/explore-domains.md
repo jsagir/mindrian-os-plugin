@@ -2,6 +2,7 @@
 name: explore-domains
 description: Map domains through IKA + Feynman decomposition
 serves_jtbd: ["find-problem", "understand-market", "explore"]
+teaching: "When the problem could live in any of several domains, /mos:explore-domains maps the territory through IKA and Feynman decomposition. Surfaces where to look before you commit."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Domain Selection"]

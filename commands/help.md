@@ -5,6 +5,7 @@ argument-hint: [command-name]
 body_shape: B (Semantic Tree)
 body_shape_detail: -- (inline, no zones)
 serves_jtbd: ["explore"]
+teaching: "When you forget which /mos: command does what, /mos:help groups them by flow in tldr style. Start here when the surface feels overwhelming."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read
