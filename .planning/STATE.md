@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: "Completed 110-04-PLAN.md (commits 3e41a36, 4453292, 37146f0) -- D-08 layer-2 pre-commit guard: check-sendpacket + schema-drift hook blocks + setup-hooks re-install + filled test stub"
-last_updated: "2026-05-13T08:18:38.269Z"
+stopped_at: Completed 123-05-PLAN.md (commits e1d3d27, 4453292*, f7e7460, 8d61ffb -- *4453292 mis-credited to Phase 110-04 due to parallel git-add-A; see 123-05-SUMMARY.md Deviation 1)
+last_updated: "2026-05-13T08:21:46.105Z"
 last_activity: 2026-05-13
 progress:
   total_phases: 55
   completed_phases: 31
   total_plans: 251
-  completed_plans: 237
+  completed_plans: 238
   percent: 93
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 123 (install-lifecycle-harness) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -284,6 +284,7 @@ Progress: [█████████░] 93%
 | Phase 110 P03 | 2313 | 2 tasks | 2 files |
 | Phase 123 P04 | 28m | 3 tasks | 4 files |
 | Phase 110 P04 | 6m 32s | 3 tasks | 4 files |
+| Phase 123 P05 | 16m 40s | 3 tasks | 9 files |
 
 ### Roadmap Evolution
 
@@ -772,6 +773,8 @@ Progress: [█████████░] 93%
 - [Phase 123]: Plan-04: doctor --acceptance is the release-gate-as-a-command. 7-point checklist (5 pre-tag) with HARD ABORT (exit 0/1) -- no --allow override. Wired into release.sh Step 6.6 (pre-tag) + Step 9.6 (full). release-beta-smoke.sh retired.
 - [Phase 110]: Plan 110-04: single mega-script subcommand dispatch (Canon Part 7 reuse) -- scripts/check-schema-aliases.cjs hosts three subcommands (default scan + --check-chokepoint + --check-sendpacket) sharing one installer + one env-seam contract
 - [Phase 110]: Plan 110-04: D-08 layer 2 is coarse lexical proximity (same-file sawBuild flag), not precise AST data-flow -- hook is the teeth for the casual-mistake channel, not the adversary channel; precise analysis explicitly out of scope
+- [Phase 123]: Plan-05: cache-prune helper (lib/core/cache-prune.cjs) ships with active-version protection at TWO layers (keep-set always contains activeVersion + fs.rmSync path-basename guard); skip-on-unreadable-installed_plugins.json invariant; session-start runs on-version-change (best-effort, || true); doctor --fix runs unconditionally (recovery). 6/6 hermetic test scenarios PASS. Forward-facing @mindrian_os/cli -> @mindrian_os/install sweep complete (4 doc/test files swept; 7 files deliberately left as historical record per audit table).
+- [Phase 123]: Plan-05 Deviation 1: commit 4453292 (titled feat(110-04)) accidentally swept up Plan 123-05 Task 1 GREEN files (lib/core/cache-prune.cjs + lib/memory/run-feynman-tests.cjs) due to Phase 110-04 using git add -A in parallel. Work is correct on disk; only the commit-message attribution is wrong. Switched to explicit git add <path> for subsequent commits to prevent recurrence.
 
 ### Pending Todos
 
@@ -801,6 +804,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-13T08:18:37.947Z
-Stopped at: Completed 110-04-PLAN.md (commits 3e41a36, 4453292, 37146f0) -- D-08 layer-2 pre-commit guard: check-sendpacket + schema-drift hook blocks + setup-hooks re-install + filled test stub
+Last session: 2026-05-13T08:21:33.552Z
+Stopped at: Completed 123-05-PLAN.md (commits e1d3d27, 4453292*, f7e7460, 8d61ffb -- *4453292 mis-credited to Phase 110-04 due to parallel git-add-A; see 123-05-SUMMARY.md Deviation 1)
 Resume file: None
