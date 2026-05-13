@@ -59,6 +59,36 @@ autonomous_safe: false
 ---
 ```
 
+### `teaching` (new in Phase 104.1)
+
+Larry-voice 1-2 sentence explanation of when to invoke this command. Used by Phase 125 F-Selector Ranker to render investment-aware "why" strings (low-investment users see this; high-investment users see the terser `jtbd_summary` derived from taxonomy; mid-band sees both stitched).
+
+**Constraints:**
+- 1-2 sentences (sentence count <= 2; terminal punctuation: `.`, `!`, `?`)
+- 50-300 characters total
+- NO em-dashes (project hard rule; use double-hyphens `--` or hyphens)
+- Larry-voice: pedagogical tone; ledes with WHY before WHAT; avoids undefined jargon
+- Self-contained: a fresh user should know whether to invoke after reading
+
+**Lede patterns (lean):**
+- "When you [job], [framework] [transform]"
+- "In the [situation], [command] [output]"
+- "Most [users/teams] [problem]; [command] [solution]"
+
+**Example:**
+```yaml
+teaching: "When you need to find which assumption is most fragile, the Devil's Advocate stress-tests the case against itself. Best when an idea feels too clean to be true."
+```
+
+### `jtbd_label` and `jtbd_summary` (derived, NOT authored)
+
+These two registry fields are NEVER written into per-command frontmatter. The Phase 104.1 build script extension (`scripts/build-command-registry.cjs`) derives both at registry-build time from the JTBD taxonomy via `serves_jtbd[0]` per Canon Part 7 (Reuse Before Build).
+
+- `jtbd_label` = capitalize+space-replace of `serves_jtbd[0]` (e.g., `find-bottleneck` -> `Find Bottleneck`)
+- `jtbd_summary` = `lib/hmi/jtbd-taxonomy.json` entry's `one_line` field, verbatim
+
+If `serves_jtbd` is absent or empty, both fields are null in the registry. Phase 125 Plan 05 ranker fails-closed on null per its D6.
+
 ## 4. Picking the right framework name
 
 The string in `frameworks:` must be the EXACT name of the Brain `:Framework` node -- specifically a node that is FEEDS_INTO-linked (the traversable subset, about 105 of the 748 nodes). Near-duplicates exist: `"JTBD"` vs. `"Jobs to Be Done (JTBD)"` vs. `"Jobs-to-be-Done"` -- only one of those resolves. A wrong string FAILS the build, with the list of close matches printed, so a wrong guess is caught at commit time, not shipped.
