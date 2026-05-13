@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 124-02-PLAN.md (3 tasks; timeline runner + EVENT_TYPES +2; 3/4 Phase 124 suites green)
-last_updated: "2026-05-13T17:26:08.474Z"
+stopped_at: Completed 124-03-PLAN.md (4 tasks; session-start cascade slot + /mos:feynman-timeline-refresh command + dispatcher + registry regen; 3/4 Phase 124 suites green; canon-invariant RED for 124-04)
+last_updated: "2026-05-13T17:32:38Z"
 last_activity: 2026-05-13
 progress:
   total_phases: 57
