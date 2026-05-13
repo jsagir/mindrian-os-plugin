@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: "Completed 110-03-PLAN.md (commits 6bd6676, 8b9e326) -- Brain Context Packet wire enforcement: sendPacket + ajv middleware + _warnLegacyOnce + logMemoryEvent re-export"
-last_updated: "2026-05-13T07:51:46.182Z"
+stopped_at: Completed 123-04-PLAN.md (commits 584801b, c9bf670, c54c6af)
+last_updated: "2026-05-13T08:06:56.015Z"
 last_activity: 2026-05-13
 progress:
   total_phases: 55
   completed_phases: 31
   total_plans: 251
-  completed_plans: 235
+  completed_plans: 236
   percent: 93
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 123 (install-lifecycle-harness) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -282,6 +282,7 @@ Progress: [█████████░] 93%
 | Phase 123 P02 | 35m | 3 tasks | 6 files |
 | Phase 123 P03 | 17m | 2 tasks | 6 files |
 | Phase 110 P03 | 2313 | 2 tasks | 2 files |
+| Phase 123 P04 | 28m | 3 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -767,6 +768,7 @@ Progress: [█████████░] 93%
 - [Phase 123]: Plan 02: EARLY single-writer install-state record + Pitfall-7 fix; manifest with topology_scope; active-plugin-root.cjs exposes topology.
 - [Phase 123]: Plan 123-03: classes I + J named (NOT H + I per RESEARCH Pitfall 3 -- class H already shipped); ONE flag --install-state activates both; STRING equality for version-of-record (tolerates non-semver 1.12.5.1); class A --fix carve-out under --install-state; path_within_file schema extension closes the live-dev-box settings.json bug.
 - [Phase 110]: Phase 110-03 shipped: lib/core/brain-client.cjs::sendPacket (D-08 layer-3 origin allowlist + ajv in-validation reject-hard + tools/call name:brain_packet via existing callTool transport with degrade-soft on missing-tool / transport error / null + ajv out-validation reject-hard-degrade-soft + brain_packet_rejected / brain_response_rejected logs) + module-scope lazy Ajv2020 (draft 2020-12, strict:false, allErrors:true, per-job memoized) + _warnLegacyOnce + lib/core/navigation.cjs::logMemoryEvent re-export. ajv NOT in package.json. Schema-shape correction at execution time: pointer is #/$defs/<job>/<half>, not /properties/<half>.
+- [Phase 123]: Plan-04: doctor --acceptance is the release-gate-as-a-command. 7-point checklist (5 pre-tag) with HARD ABORT (exit 0/1) -- no --allow override. Wired into release.sh Step 6.6 (pre-tag) + Step 9.6 (full). release-beta-smoke.sh retired.
 
 ### Pending Todos
 
@@ -796,6 +798,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-13T07:51:41.846Z
-Stopped at: Completed 110-03-PLAN.md (commits 6bd6676, 8b9e326) -- Brain Context Packet wire enforcement: sendPacket + ajv middleware + _warnLegacyOnce + logMemoryEvent re-export
+Last session: 2026-05-13T08:06:55.999Z
+Stopped at: Completed 123-04-PLAN.md (commits 584801b, c9bf670, c54c6af)
 Resume file: None
