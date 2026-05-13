@@ -1442,40 +1442,43 @@ else
 fi
 escaped_sysmsg=$(escape_for_json "$SYSTEM_MESSAGE")
 
-# ---------------------------------------------------------------------------
-# Phase 94-04: Brain configuration drift check.
+# --- BEGIN Brain status (Phase 123, Plan-7) ---
 #
-# If MINDRIAN_BRAIN_KEY is set, the user expects Brain reachable. Verify
-# the canonical 'mindrian-brain' server name (Plan 94-03 standardized
-# this across 17 commands) resolves in this repo's .mcp.json OR the
-# user's personal config. Loud yellow WARN beats silent tier_0 fallback.
+# Brain status emission. Replaces the pre-Plan-7 MCP-centric drift check, which
+# tested only the shell env var MINDRIAN_BRAIN_KEY and missed the standard
+# install (key in ~/.mindrian.env); on an HTTP-path install it also emitted a
+# misleading MCP-server-not-found WARN even when the HTTP client was perfectly
+# healthy. The block below replaces that drift check entirely.
 #
-# Canon Part 8 (Graph Boundary): drift check is purely LOCAL -- env var
-# existence + .mcp.json file inspection only. Zero network surface.
-# Output is stderr so the JSON envelope on stdout stays clean for
-# Claude Code's hook consumer.
+# This block shells out to lib/core/resolve-brain-key.cjs (the single Brain-key
+# resolver) and emits ONE of three positive status lines:
+#
+#   - "Brain: HTTP client active (mindrian-brain.onrender.com)" -- key resolved.
+#   - "Brain: NOT loaded -- permissions too open: ... (run: chmod 600 ~/.mindrian.env)"
+#     -- SEC-02 POSIX permission rejection (POSIX-only -- no-op on Windows).
+#   - "Brain: not configured (Tier 0)" -- no key found anywhere.
+#
+# The SEC-02 rejection routes through this same status channel -- never bare
+# stderr. The resolver returns { key, source, available, reason } as JSON;
+# we parse it with a tiny inline node one-liner (bash has no JSON parser and
+# adding jq as a dependency would couple session-start to a system package).
+#
+# Canon Part 8: the block is purely LOCAL -- the resolver only CHECKS for a
+# key, never calls Brain. The "mindrian-brain.onrender.com" string in the
+# status line is informational prose, not a network call.
 # ---------------------------------------------------------------------------
-if [ -n "${MINDRIAN_BRAIN_KEY:-}" ]; then
-  _has_canonical_brain=0
-  if grep -q '"mindrian-brain"' .mcp.json 2>/dev/null; then
-    _has_canonical_brain=1
-  fi
-  if [ "$_has_canonical_brain" = "0" ] && \
-     grep -q '"mindrian-brain"' "$HOME/.config/claude-code/mcp.json" 2>/dev/null; then
-    _has_canonical_brain=1
-  fi
-  if [ "$_has_canonical_brain" = "0" ] && \
-     grep -q '"mindrian-brain"' "$HOME/.mcp.json" 2>/dev/null; then
-    _has_canonical_brain=1
-  fi
-  if [ "$_has_canonical_brain" = "0" ]; then
-    echo "" >&2
-    echo "  WARN: MINDRIAN_BRAIN_KEY is set but no 'mindrian-brain' MCP server resolved." >&2
-    echo "        See docs/install/BRAIN-SETUP.md for the canonical-name fix." >&2
-    echo "" >&2
-  fi
-  unset _has_canonical_brain
+_BRAIN_KEY_JSON="$(node "$PLUGIN_ROOT/lib/core/resolve-brain-key.cjs" 2>/dev/null || echo '{"available":false,"reason":"resolver failed"}')"
+_BRAIN_AVAILABLE="$(printf '%s' "$_BRAIN_KEY_JSON" | node -e "let s='';process.stdin.on('data',c=>s+=c).on('end',()=>{try{process.stdout.write(String(JSON.parse(s).available));}catch(_){process.stdout.write('false');}})" 2>/dev/null)"
+_BRAIN_REASON="$(printf '%s' "$_BRAIN_KEY_JSON" | node -e "let s='';process.stdin.on('data',c=>s+=c).on('end',()=>{try{const j=JSON.parse(s);process.stdout.write(j.reason||'');}catch(_){process.stdout.write('');}})" 2>/dev/null)"
+if [ "$_BRAIN_AVAILABLE" = "true" ]; then
+  echo "Brain: HTTP client active (mindrian-brain.onrender.com)" >&2
+elif [ -n "$_BRAIN_REASON" ] && printf '%s' "$_BRAIN_REASON" | grep -q "permissions too open"; then
+  echo "Brain: NOT loaded -- $_BRAIN_REASON  (run: chmod 600 ~/.mindrian.env)" >&2
+else
+  echo "Brain: not configured (Tier 0)" >&2
 fi
+unset _BRAIN_KEY_JSON _BRAIN_AVAILABLE _BRAIN_REASON
+# --- END Brain status ---
 
 # Output context injection as JSON
 # Cursor hooks expect additional_context
