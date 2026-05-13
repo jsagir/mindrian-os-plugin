@@ -59,9 +59,9 @@ function cleanup(tmp) {
 
 function test1_enumCount() {
   ok(events.EVENT_TYPES instanceof Set, 'EVENT_TYPES is a Set');
-  // EVENT_TYPES is a monotonically growing enum: 15 Phase 109 baseline; Phase 88.2-00 Wave 0 added 4 selector_*/f6_round_completed strings (-> 19); later phases (116 tension_*, 117 auto_explore_*, 89-07 reverse_salient_*, etc.) add more. Assert a FLOOR, not an exact count, so a future phase adding an event type does not break this Phase 109 baseline test. The required-types loop below pins baseline membership.
-  ok(events.EVENT_TYPES.size >= 19, 'at least 19 event types (15 Phase 109 baseline + 4 Phase 88.2-00 selector mirror; later phases add more)');
-  const required = ['node_created', 'status_promoted', 'status_rejected', 'status_stale', 'status_superseded', 'focus_changed', 'brain_query_sent', 'brain_suggestion_received', 'edge_added', 'edge_removed', 'opportunity_added', 'opportunity_reacted', 'opportunity_reflected', 'opportunity_answered', 'state_alias_migration', 'selector_presentation', 'selector_response', 'selector_rejection_captured', 'f6_round_completed'];
+  // EVENT_TYPES is a monotonically growing enum: 15 Phase 109 baseline; Phase 88.2-00 Wave 0 added 4 selector_*/f6_round_completed strings (-> 19); 89-07-00 added 2 reverse_salient_*; 116-00 added 5 tension_*; 117-00 added 6 auto_explore_*/brain_canon_drift_observed; Phase 110-02 adds 3 brain_* strings (brain_packet_rejected, brain_response_rejected, brain_legacy_path_used) -> floor 22 (19 + 3). Assert a FLOOR, not an exact count, so a future phase adding an event type does not break this baseline. The required-types loop below pins baseline membership AND the Phase 110-02 additions.
+  ok(events.EVENT_TYPES.size >= 22, 'at least 22 event types (Phase 109 baseline 19 + Phase 110-02 3 brain_* extensions; later phases add more): got ' + events.EVENT_TYPES.size);
+  const required = ['node_created', 'status_promoted', 'status_rejected', 'status_stale', 'status_superseded', 'focus_changed', 'brain_query_sent', 'brain_suggestion_received', 'edge_added', 'edge_removed', 'opportunity_added', 'opportunity_reacted', 'opportunity_reflected', 'opportunity_answered', 'state_alias_migration', 'selector_presentation', 'selector_response', 'selector_rejection_captured', 'f6_round_completed', 'brain_packet_rejected', 'brain_response_rejected', 'brain_legacy_path_used'];
   for (const t of required) ok(events.EVENT_TYPES.has(t), 'EVENT_TYPES contains: ' + t);
 }
 
@@ -187,8 +187,24 @@ function test9_findRecentChangesLimitAndOrdering() {
   } finally { cleanup(tmp); }
 }
 
+// Phase 110-02: explicit acceptance check for the 3 new brain_* event types added by
+// PACKET-110-06. The extended EVENT_TYPES Set must accept logEvent calls for each of
+// them (the additive extension idiom mirrors Phase 116-00's 5 tension_* extension).
+function test10_phase110BrainEventsAccepted() {
+  const { tmp, db } = makeRoom();
+  try {
+    const brainEvents = ['brain_packet_rejected', 'brain_response_rejected', 'brain_legacy_path_used'];
+    for (const t of brainEvents) {
+      const r = events.logEvent(db, t, { source_path: 'test:phase-110-02-' + t });
+      ok(r.ok, 'logEvent accepts Phase 110-02 type: ' + t + ': ' + JSON.stringify(r));
+      ok(typeof r.eventId === 'string' && r.eventId.startsWith('memory_event:' + t + ':'));
+    }
+    db.close();
+  } finally { cleanup(tmp); }
+}
+
 function run() {
-  const tests = [test1_enumCount, test2_validEnumAcceptance, test3_invalidEnumRejection, test4_invalidPayload, test5_propertiesMerge, test6_idCollisionResistance, test7_findRecentChangesTimeRange, test8_findRecentChangesEventTypeFilter, test9_findRecentChangesLimitAndOrdering];
+  const tests = [test1_enumCount, test2_validEnumAcceptance, test3_invalidEnumRejection, test4_invalidPayload, test5_propertiesMerge, test6_idCollisionResistance, test7_findRecentChangesTimeRange, test8_findRecentChangesEventTypeFilter, test9_findRecentChangesLimitAndOrdering, test10_phase110BrainEventsAccepted];
   let pass = 0;
   let fail = 0;
   for (const t of tests) {
