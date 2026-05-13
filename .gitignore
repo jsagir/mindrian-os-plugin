@@ -59,3 +59,10 @@ node_modules/
 docs/testers/
 docs/autopsies/*-laben-*.md
 docs/autopsies/*-mohan-*.md
+
+# Internal briefings, transcripts, case studies (private to maintainer)
+docs/LAWRENCE-BRIEFING*.md
+docs/lawrence-briefing.pdf
+docs/tyler-case-study-for-lawrence.pdf
+docs/user-research/
+references/user-research/
