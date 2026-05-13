@@ -86,9 +86,12 @@ function hasProvenance(node) {
   return { ok: missing.length === 0, missing };
 }
 
-function runFlowAndCollect(db) {
+async function runFlowAndCollect(db) {
   // PROXY ACTIVE for the duration of this function. All calls route through the
   // lib/core/navigation.cjs chokepoint; every opts-accepting call carries the _mocks seam.
+  //
+  // Phase 125-03: buildBrainPacket is now async; await the call so the
+  // instrumented fs proxy spans the full Brain Cypher slice fetch path too.
   const m = mocks();
   const out = {};
   out.activeFocus = navigation.getActiveFocus(db, SESSION_ID);
@@ -96,17 +99,17 @@ function runFlowAndCollect(db) {
   out.contradictions = navigation.findContradictions(db, FOCUS_NODE);
   out.opportunities = navigation.findRelevantOpportunities(db, FOCUS_NODE, { topK: 3, _mocks: m });
   out.recentChanges = navigation.findRecentChanges(db, Date.now() - 24 * 60 * 60 * 1000, { limit: 50 });
-  out.packet = navigation.buildBrainPacket(db, 'suggest_next_move', FOCUS_NODE, { _mocks: m });
+  out.packet = await navigation.buildBrainPacket(db, 'suggest_next_move', FOCUS_NODE, { _mocks: m });
   out.home = navigation.getRoomHomeView(db, ROOM_ID, { _mocks: m });
   return out;
 }
 
-function test_zeroNonSqliteReads_andShapes() {
+async function test_zeroNonSqliteReads_andShapes() {
   const { tmp, db } = setupRoom();
   let res;
   try {
     fsInstrument.install({ throwOnViolation: false });
-    try { res = runFlowAndCollect(db); }
+    try { res = await runFlowAndCollect(db); }
     finally { fsInstrument.uninstall(); }
 
     // LOAD-BEARING assertion: zero non-SQLite filesystem reads during the flow.
@@ -192,13 +195,13 @@ function test_zeroNonSqliteReads_andShapes() {
   }
 }
 
-function run() {
+async function run() {
   const tests = [test_zeroNonSqliteReads_andShapes];
   let pass = 0;
   let fail = 0;
   for (const t of tests) {
     try {
-      t();
+      await t();
       pass++;
       process.stdout.write('PASS ' + t.name + '\n');
     } catch (err) {

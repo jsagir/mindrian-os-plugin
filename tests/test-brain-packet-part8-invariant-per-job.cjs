@@ -111,7 +111,8 @@ function defaultMocks() {
   };
 }
 
-function run() {
+// Phase 125-03: buildBrainPacket is now async; run() awaits each call.
+async function run() {
   let assertions = 0;
 
   // Compile the 110-01 schema once. Use the same Ajv2020 + wrapper-with-inline-$defs
@@ -125,7 +126,7 @@ function run() {
   for (const job of D02_JOBS) {
     const { tmp, db } = makeRoomWithForbidden();
     try {
-      const packet = navigation.buildBrainPacket(db, job, 'decision:focus', {
+      const packet = await navigation.buildBrainPacket(db, job, 'decision:focus', {
         _mocks: defaultMocks(),
         roomId: 'test',
       });
@@ -203,9 +204,8 @@ function run() {
   process.stdout.write('test-brain-packet-part8-invariant-per-job: PASS (' + assertions + ' assertions)\n');
 }
 
-try {
-  run();
-} catch (e) {
+// Phase 125-03: run() is async; surface promise rejections cleanly.
+run().catch(function (e) {
   process.stderr.write('FAIL: ' + (e && e.stack ? e.stack : String(e)) + '\n');
   process.exit(1);
-}
+});

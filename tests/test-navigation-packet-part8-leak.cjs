@@ -37,10 +37,11 @@ function cleanup(tmp) { try { fs.rmSync(tmp, { recursive: true, force: true }); 
 
 function defaultMocks() { return { jtbd: { getCurrent: () => ({ current: null }) }, operator: { getCurrent: () => ({ current: null }) } }; }
 
-function run() {
+// Phase 125-03: buildBrainPacket is now async; run() awaits it.
+async function run() {
   const { tmp, db } = makeRoom();
   try {
-    const packet = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    const packet = await navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
     const serialized = JSON.stringify(packet);
 
     // Tripwire 1: no SECRET RAW BODY strings leaked.

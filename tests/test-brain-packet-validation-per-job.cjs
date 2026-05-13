@@ -120,7 +120,7 @@ async function run() {
   for (const job of D02_JOBS) {
     const { tmp, db } = makeRoom();
     try {
-      const goodPacket = navigation.buildBrainPacket(db, job, 'decision:focus', {
+      const goodPacket = await navigation.buildBrainPacket(db, job, 'decision:focus', {
         _mocks: defaultMocks(),
         roomId: 'test',
       });
@@ -201,7 +201,7 @@ async function run() {
     const { tmp, db } = makeRoom();
     const prevEnv = process.env.MINDRIAN_TEST_MODE;
     try {
-      const basePacket = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', {
+      const basePacket = await navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', {
         _mocks: defaultMocks(),
         roomId: 'test',
       });
@@ -259,7 +259,7 @@ async function run() {
   {
     const { tmp, db } = makeRoom();
     try {
-      const capPacket = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', {
+      const capPacket = await navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', {
         _mocks: defaultMocks(),
         roomId: 'test',
         privacyMode: 'allow_filenames',

@@ -59,10 +59,10 @@ function defaultMocks() {
   };
 }
 
-function test1_shape() {
+async function test1_shape() {
   const { tmp, db } = makeRoom();
   try {
-    const p = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    const p = await navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
     // Phase 110-02: origin + privacy_mode added to the top-level key set (D-08 + D-09).
     for (const k of ['packet_version', 'job', 'room_stage', 'origin', 'privacy_mode', 'active_context', 'local_graph_summary', 'constraints']) {
       ok(k in p, 'top-level key present: ' + k);
@@ -73,44 +73,44 @@ function test1_shape() {
   } finally { cleanup(tmp); }
 }
 
-function test2_packetVersion() {
+async function test2_packetVersion() {
   const { tmp, db } = makeRoom();
   try {
-    const p = navigation.buildBrainPacket(db, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    const p = await navigation.buildBrainPacket(db, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
     equal(p.packet_version, '1.0');
     db.close();
   } finally { cleanup(tmp); }
 }
 
-function test3_jobPassthrough() {
+async function test3_jobPassthrough() {
   const { tmp, db } = makeRoom();
   try {
-    const p = navigation.buildBrainPacket(db, 'arbitrary_job_string', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    const p = await navigation.buildBrainPacket(db, 'arbitrary_job_string', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
     equal(p.job, 'arbitrary_job_string');
     db.close();
   } finally { cleanup(tmp); }
 }
 
-function test4_roomStageDefault() {
+async function test4_roomStageDefault() {
   const { tmp, db } = makeRoom();
   try {
-    const p = navigation.buildBrainPacket(db, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    const p = await navigation.buildBrainPacket(db, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
     equal(p.room_stage, 'unknown', 'defaults to unknown when identity.stage absent');
     db.close();
   } finally { cleanup(tmp); }
 
   const { tmp: tmp2, db: db2 } = makeRoom({ stage: 'discovery' });
   try {
-    const p2 = navigation.buildBrainPacket(db2, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    const p2 = await navigation.buildBrainPacket(db2, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
     equal(p2.room_stage, 'discovery', 'reads identity.stage when present');
     db2.close();
   } finally { cleanup(tmp2); }
 }
 
-function test5_activeContextDefaults() {
+async function test5_activeContextDefaults() {
   const { tmp, db } = makeRoom();
   try {
-    const p = navigation.buildBrainPacket(db, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    const p = await navigation.buildBrainPacket(db, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
     equal(p.active_context.jtbd, null, 'jtbd null when no active');
     equal(p.active_context.operator, 'JUST_TALK', 'operator defaults to JUST_TALK');
     equal(p.active_context.focus_node.id, 'decision:focus');
@@ -120,10 +120,10 @@ function test5_activeContextDefaults() {
   } finally { cleanup(tmp); }
 }
 
-function test6_focusSummaryTruncation() {
+async function test6_focusSummaryTruncation() {
   const { tmp, db } = makeRoom();
   try {
-    const p = navigation.buildBrainPacket(db, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    const p = await navigation.buildBrainPacket(db, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
     const s = p.active_context.focus_node.summary;
     ok(s.length <= 120, 'summary <= 120 chars (got ' + s.length + ')');
     if (s.length === 120) ok(s.endsWith('...'), 'truncated summary ends with ...');
@@ -131,10 +131,10 @@ function test6_focusSummaryTruncation() {
   } finally { cleanup(tmp); }
 }
 
-function test7_nearestClaimsTopK() {
+async function test7_nearestClaimsTopK() {
   const { tmp, db } = makeRoom();
   try {
-    const p = navigation.buildBrainPacket(db, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    const p = await navigation.buildBrainPacket(db, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
     ok(p.local_graph_summary.nearest_claims.length <= 5, 'topK=5 enforced (got ' + p.local_graph_summary.nearest_claims.length + ')');
     for (const c of p.local_graph_summary.nearest_claims) {
       for (const k of ['id', 'type', 'summary', 'depth', 'edgeTypeIn', 'score', 'reviewStatus', 'lastSeenAt']) ok(k in c, 'nearest_claim entry has key ' + k);
@@ -146,10 +146,10 @@ function test7_nearestClaimsTopK() {
   } finally { cleanup(tmp); }
 }
 
-function test8_bankedOpportunitiesScalar() {
+async function test8_bankedOpportunitiesScalar() {
   const { tmp, db } = makeRoom();
   try {
-    const p = navigation.buildBrainPacket(db, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    const p = await navigation.buildBrainPacket(db, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
     const bo = p.local_graph_summary.banked_opportunities;
     ok(typeof bo === 'object' && bo !== null);
     ok('count' in bo && typeof bo.count === 'number');
@@ -169,19 +169,19 @@ function test8_bankedOpportunitiesScalar() {
   } finally { cleanup(tmp); }
 }
 
-function test9_constraintsLiteral() {
+async function test9_constraintsLiteral() {
   const { tmp, db } = makeRoom();
   try {
-    const p = navigation.buildBrainPacket(db, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    const p = await navigation.buildBrainPacket(db, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
     deepEqual(p.constraints, { privacy: 'no_raw_artifact_text', max_tokens: 1200 });
     db.close();
   } finally { cleanup(tmp); }
 }
 
-function test10_tokenBudget() {
+async function test10_tokenBudget() {
   const { tmp, db } = makeRoom();
   try {
-    const p = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    const p = await navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
     const sz = JSON.stringify(p).length;
     ok(sz / 4 < 1200, 'packet within 1200 token budget (got ' + (sz / 4).toFixed(1) + ')');
     db.close();
@@ -195,19 +195,19 @@ function test10_tokenBudget() {
 // override; per-call beats config beats default; 'allow_excerpts' caps down absent the
 // Part-3 APPROVE row. constraints.privacy stays as a separate human-readable note.
 
-function test11_originStamp() {
+async function test11_originStamp() {
   const { tmp, db } = makeRoom();
   try {
-    const p = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    const p = await navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
     equal(p.origin, 'navigation_api', 'packet stamps origin: navigation_api (D-08 layer 1)');
     db.close();
   } finally { cleanup(tmp); }
 }
 
-function test12_privacyModeDefault() {
+async function test12_privacyModeDefault() {
   const { tmp, db } = makeRoom();
   try {
-    const p = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    const p = await navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
     ok(['local_summary_only', 'allow_filenames', 'allow_excerpts'].includes(p.privacy_mode), 'packet carries a valid privacy_mode: ' + p.privacy_mode);
     equal(p.privacy_mode, 'local_summary_only', 'default is local_summary_only when no roomDir / no per-call override');
     // constraints.privacy stays as separate human-readable note (NOT replaced by privacy_mode):
@@ -216,51 +216,54 @@ function test12_privacyModeDefault() {
   } finally { cleanup(tmp); }
 }
 
-function test13_privacyModePerCallOverride() {
+async function test13_privacyModePerCallOverride() {
   const { tmp, db } = makeRoom();
   try {
-    const p = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test', privacyMode: 'allow_filenames' });
+    const p = await navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test', privacyMode: 'allow_filenames' });
     equal(p.privacy_mode, 'allow_filenames', 'per-call privacyMode beats default');
     db.close();
   } finally { cleanup(tmp); }
 }
 
-function test14_privacyModeConfigRead() {
+async function test14_privacyModeConfigRead() {
   const { tmp, db } = makeRoom();
   const cfgDir = fs.mkdtempSync(path.join(os.tmpdir(), 'phase-110-02-cfg-'));
   try {
     fs.writeFileSync(path.join(cfgDir, '.config.json'), JSON.stringify({ preferences: { brain_privacy_mode: 'allow_filenames' } }));
-    const p = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test', roomDir: cfgDir });
+    const p = await navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test', roomDir: cfgDir });
     equal(p.privacy_mode, 'allow_filenames', '.config.json preferences.brain_privacy_mode honored when no per-call override');
     db.close();
   } finally { cleanup(tmp); try { fs.rmSync(cfgDir, { recursive: true, force: true }); } catch (_) { /* ignore */ } }
 }
 
-function test15_privacyModeAllowExcerptsCapsDown() {
+async function test15_privacyModeAllowExcerptsCapsDown() {
   const { tmp, db } = makeRoom();
   try {
     // allow_excerpts requires a brain_excerpts APPROVE row in the room graph; no such row was seeded
     // by makeRoom() -- the helper must cap down to local_summary_only (config caps, never raises).
-    const p = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test', privacyMode: 'allow_excerpts' });
+    const p = await navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test', privacyMode: 'allow_excerpts' });
     equal(p.privacy_mode, 'local_summary_only', 'allow_excerpts caps down to local_summary_only absent brain_excerpts APPROVE row');
     db.close();
   } finally { cleanup(tmp); }
 }
 
-function test16_privacyModeUnrecognizedValue() {
+async function test16_privacyModeUnrecognizedValue() {
   const { tmp, db } = makeRoom();
   try {
-    const p = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test', privacyMode: 'garbage_mode' });
+    const p = await navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test', privacyMode: 'garbage_mode' });
     equal(p.privacy_mode, 'local_summary_only', 'unrecognized privacyMode falls back to default');
     db.close();
   } finally { cleanup(tmp); }
 }
 
-function run() {
+// Phase 125-03: buildBrainPacket is now async (it awaits an internal helper
+// that may fetch a Brain Cypher slice for framework_chain_hint). The runner
+// awaits each test function so the sync-vs-async migration is contained.
+async function run() {
   const tests = [test1_shape, test2_packetVersion, test3_jobPassthrough, test4_roomStageDefault, test5_activeContextDefaults, test6_focusSummaryTruncation, test7_nearestClaimsTopK, test8_bankedOpportunitiesScalar, test9_constraintsLiteral, test10_tokenBudget, test11_originStamp, test12_privacyModeDefault, test13_privacyModePerCallOverride, test14_privacyModeConfigRead, test15_privacyModeAllowExcerptsCapsDown, test16_privacyModeUnrecognizedValue];
   let pass = 0; let fail = 0;
   for (const t of tests) {
-    try { t(); pass++; process.stdout.write('PASS ' + t.name + '\n'); }
+    try { await t(); pass++; process.stdout.write('PASS ' + t.name + '\n'); }
     catch (err) { fail++; process.stderr.write('FAIL ' + t.name + ': ' + err.message + '\n' + err.stack + '\n'); }
   }
   process.stdout.write('test-navigation-packet-builder: ' + pass + '/' + tests.length + ' passed\n');
