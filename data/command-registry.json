@@ -253,6 +253,15 @@
       "body_shape": "E (Action Report)"
     },
     {
+      "command": "/mos:feynman-timeline-refresh",
+      "kind": "utility",
+      "frameworks": [],
+      "produces": "room/*/FEYNMAN.md",
+      "inputs": [],
+      "autonomous_safe": true,
+      "body_shape": null
+    },
+    {
       "command": "/mos:file-meeting",
       "kind": "utility",
       "frameworks": [],
