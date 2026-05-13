@@ -5,6 +5,7 @@ argument-hint: '[<room-name>] [--path <dir>]'
 disable-model-invocation: true
 body_shape_overview: E (Mini Report)
 serves_jtbd: ["prepare-pitch"]
+teaching: "When you want the Data Room available in Obsidian for offline reading, /mos:vault exports it as a nested vault with wikilinks intact. Graph view comes free."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

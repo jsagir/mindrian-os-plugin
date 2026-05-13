@@ -4,6 +4,7 @@ description: Show governing thought per section + health glyphs
 argument-hint: "[section] [--stale-only]"
 body_shape: E (Action Report)
 serves_jtbd: ["audit-room", "explore"]
+teaching: "When you need a fast read on the room's current state, /mos:status shows the governing thought per section plus health glyphs. The 10-second status check."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash(node scripts/mos-status.cjs:*)

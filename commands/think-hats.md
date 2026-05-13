@@ -2,6 +2,7 @@
 name: think-hats
 description: Rotate through De Bono's Six Thinking Hats
 serves_jtbd: ["explore", "compare-options"]
+teaching: "When the team keeps wearing the same hat and missing perspectives, /mos:think-hats rotates them through de Bono's six. The discomfort is the point; that is where the new thought lives."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Six Thinking Hats"]

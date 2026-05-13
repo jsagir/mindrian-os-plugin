@@ -2,6 +2,7 @@
 name: systems-thinking
 description: Map feedback loops, stocks, and flows
 serves_jtbd: ["find-bottleneck"]
+teaching: "When the dynamics matter more than the parts, /mos:systems-thinking maps feedback loops, stocks, and flows. Surfaces where the leverage actually lives in the system."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Systems Thinking"]

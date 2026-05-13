@@ -2,6 +2,7 @@
 name: suggest-next
 description: Suggest the next move using the room graph
 serves_jtbd: ["plan-execution", "explore"]
+teaching: "When you finish a step and want Larry to recommend the next move, /mos:suggest-next reads the room graph and proposes 3-5 options with reasons. The Navigation Engine made visible."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: meta
 frameworks: []

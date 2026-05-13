@@ -3,6 +3,7 @@ name: scheduled-tasks
 description: Define Cowork scheduled tasks for the room
 body_shape: E (Action Report)
 serves_jtbd: ["plan-execution"]
+teaching: "When you want Cowork to run something on a schedule against this room, /mos:scheduled-tasks defines the recurring job. Best for nightly grant sweeps or weekly meeting digests."
 ui_reference: skills/ui-system/SKILL.md
 surface: cowork
 allowed-tools:

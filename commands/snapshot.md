@@ -3,6 +3,7 @@ name: snapshot
 description: Package a Data Room snapshot for sharing
 argument-hint: '[<room-path>] [--open]'
 serves_jtbd: ["prepare-pitch", "audit-room"]
+teaching: "When you need a frozen Data Room artifact to share with someone outside the team, /mos:snapshot packages everything into a portable bundle. Read-only by design."
 disable-model-invocation: true
 usage: /mos:snapshot [ROOM_PATH] [--output PATH] [--open]
 category: export

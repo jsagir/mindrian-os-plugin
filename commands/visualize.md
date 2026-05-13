@@ -4,6 +4,7 @@ description: Open room diagrams in the browser
 argument-hint: [structure|graph|chart]
 body_shape: D (Document View)
 serves_jtbd: ["audit-room", "prepare-pitch"]
+teaching: "When you want to see the room as diagrams in a browser, /mos:visualize opens the visual layer. Best when a stakeholder needs the picture, not the prose."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash

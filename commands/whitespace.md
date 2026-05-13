@@ -3,6 +3,7 @@ name: whitespace
 description: Detect whitespace gaps in the room's coverage
 body_shape: varies
 serves_jtbd: ["connect-domains", "find-problem"]
+teaching: "When you suspect a gap exists in the room's coverage of a domain, /mos:whitespace runs HSI scoring across the artifact corpus to find under-explored zones. Best after the room has 20+ entries."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["HSI Semantic Surprise Analysis Assistant"]

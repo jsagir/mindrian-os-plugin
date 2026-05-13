@@ -3,6 +3,7 @@ name: wiki
 description: Open the Data Room wiki of room sections
 body_shape: D (Document View)
 serves_jtbd: ["audit-room", "prepare-pitch"]
+teaching: "When you want to read the Data Room as linked wiki pages, /mos:wiki opens the wiki view. Section by section, with cross-references rendered as hyperlinks."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash

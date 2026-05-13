@@ -3,6 +3,7 @@ name: scout
 description: Run sentinel scans across the room
 body_shape: E (Action Report)
 serves_jtbd: ["explore", "understand-market"]
+teaching: "When you want background scans running across the room without driving them yourself, /mos:scout fires the sentinel checks. The proactive layer, not the reactive one."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

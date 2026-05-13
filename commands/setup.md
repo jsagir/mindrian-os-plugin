@@ -3,6 +3,7 @@ name: setup
 description: Configure optional integrations (Brain, Velma)
 argument-hint: [brain|velma|graph]
 serves_jtbd: ["explore"]
+teaching: "When you want to wire optional integrations like Brain or Velma, /mos:setup walks you through configuration. MindrianOS works without them; they make it work harder."
 allowed-tools:
   - Read
   - Write
