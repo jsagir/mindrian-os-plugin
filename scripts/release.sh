@@ -68,7 +68,8 @@ MARKETPLACE_DIR="$HOME/mindrian-marketplace"
 BUMP_MODE=""
 ALLOW_AHEAD=0
 NO_NEXT_BUMP=0
-USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump]"
+DRY_RUN=0
+USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--dry-run]"
 
 for arg in "$@"; do
   case "$arg" in
@@ -79,6 +80,7 @@ for arg in "$@"; do
     patch|minor|major)   BUMP_MODE="$arg" ;;
     --allow-ahead)       ALLOW_AHEAD=1 ;;
     --no-next-bump)      NO_NEXT_BUMP=1 ;;
+    --dry-run)           DRY_RUN=1 ;;
     -h|--help)           echo "$USAGE_BLOCK"; exit 0 ;;
     *)
       echo -e "${RED}unknown arg: $arg${NC}"
@@ -141,6 +143,81 @@ NEW_VERSION="$(node -e '
 ' "$PLUGIN_DIR" "$BUMP_MODE")" || { echo -e "${RED}version computation failed${NC}"; exit 1; }
 
 echo -e "${GREEN}New version: $NEW_VERSION (mode: $BUMP_MODE)${NC}"
+
+# Plan 123-06 release-flight hot-patch (2026-05-13): true `--dry-run` mode.
+# MOS_TEST_DRY_RUN=1 only skips the npm publish (Step 9.5). For a SAFE pre-release
+# inspection, --dry-run short-circuits the script HERE -- after all version
+# arithmetic is complete and the planned sequence is knowable -- without any
+# filesystem mutation, commit, push, publish, or marketplace edit.
+if [ "$DRY_RUN" = "1" ]; then
+  # Compute the next-bump version (Step 7.5's commit B target) for the preview.
+  NEXT_VERSION="$(node -e '
+    const semver = require(process.argv[1] + "/node_modules/semver");
+    const cur = process.argv[2];
+    const mode = process.argv[3];
+    let out;
+    if (mode === "prerelease" || (mode !== "finalize" && cur.indexOf("-") >= 0)) {
+      out = semver.inc(cur, "prerelease", "beta");
+    } else if (mode === "finalize") {
+      // After finalize, next-bump opens a fresh prerelease at the next patch.
+      out = semver.inc(semver.inc(cur, "patch"), "prerelease", "beta");
+    } else {
+      // patch / minor / major (clean bumps): next-bump opens a -beta.0 on the new version.
+      out = semver.inc(cur, "prerelease", "beta");
+    }
+    process.stdout.write(out || "(unknown)");
+  ' "$PLUGIN_DIR" "$NEW_VERSION" "$BUMP_MODE")" || NEXT_VERSION="(unknown)"
+
+  CURRENT_AHEAD=$(cd "$PLUGIN_DIR" && git rev-list --count origin/main..HEAD 2>/dev/null || echo "?")
+  NPM_TAG_PREVIEW="latest"
+  case "$NEW_VERSION" in *-beta.*|*-alpha.*|*-rc.*|*-next.*) NPM_TAG_PREVIEW="next" ;; esac
+
+  echo ""
+  echo -e "${YELLOW}=== DRY-RUN MODE -- no commits, no pushes, no publishes, no file writes ===${NC}"
+  echo ""
+  echo "Planned release sequence for: $CURRENT -> $NEW_VERSION (mode: $BUMP_MODE)"
+  echo ""
+  echo "  Step 2    : run scripts/verify-release (read-only check; ALREADY PASSED in pre-flight)"
+  echo "  Step 3    : bump .claude-plugin/plugin.json + package.json -> $NEW_VERSION"
+  echo "  Step 4    : bump ~/mindrian-marketplace/.claude-plugin/marketplace.json"
+  echo "              version=$NEW_VERSION + source.ref=v$NEW_VERSION (TWO-COMMIT form; Phase 123 D-19)"
+  echo "  Step 5    : claude plugin validate (marketplace)"
+  echo "  Step 5b   : reserved-name compliance check (Phase 95.6 D-11a)"
+  echo "  Step 6    : CHANGELOG.md entry check + rename [Unreleased] -> [$NEW_VERSION] - \$(date +%F)"
+  echo "  Step 6.5  : post-bump re-verify (scripts/verify-release)"
+  echo "  Step 6.6  : run mindrian-os doctor --acceptance --pre-tag (HARD ABORT on failure)"
+  echo "  Step 7    : commit A on plugin repo -- 'release: v$NEW_VERSION', tag v$NEW_VERSION"
+  echo "              commit on marketplace repo -- 'release: sync to v$NEW_VERSION'"
+  echo "  Step 9.5  : npm publish @mindrian_os/install@$NEW_VERSION --tag $NPM_TAG_PREVIEW"
+  if [ "$NO_NEXT_BUMP" = "1" ]; then
+    echo "  Step 7.5  : SKIPPED (--no-next-bump). main HEAD stays at $NEW_VERSION."
+  else
+    echo "  Step 7.5  : commit B on plugin repo -- bump to $NEXT_VERSION, CHANGELOG [Unreleased] -- v$NEXT_VERSION"
+  fi
+  echo "  Step 8    : dirty-repo / ahead-of-origin guard"
+  echo "              current ahead-of-origin: $CURRENT_AHEAD commit(s); guard would allow up to $([ "$NO_NEXT_BUMP" = "1" ] && echo "1" || echo "2") release commit(s)"
+  if [ "$CURRENT_AHEAD" != "?" ] && [ "$CURRENT_AHEAD" -gt 0 ] && [ "$ALLOW_AHEAD" != "1" ]; then
+    echo "              ${YELLOW}NOTE: $CURRENT_AHEAD pre-existing commit(s) ahead of origin -- the guard will require --allow-ahead to push them with the release${NC}"
+  fi
+  echo "  Step 9    : git push origin main --tags (plugin); git push (marketplace)"
+  echo "  Step 9.6  : run full mindrian-os doctor --acceptance (HARD ABORT on failure;"
+  echo "              tag must be on origin, npm must answer for $NEW_VERSION, npx round-trip must work)"
+  echo "  Step 10   : claude plugin marketplace update mindrian-marketplace"
+  echo "  Step 11   : post-release verification (remote HEAD match, marketplace cache version)"
+  echo ""
+  echo -e "${YELLOW}--- working tree at dry-run time ---${NC}"
+  (cd "$PLUGIN_DIR" && git status --porcelain | head -10 || true)
+  echo ""
+  echo -e "${YELLOW}--- commits ahead of origin (would all push with the release) ---${NC}"
+  (cd "$PLUGIN_DIR" && git log origin/main..HEAD --oneline | head -10 || true)
+  if [ "$CURRENT_AHEAD" != "?" ] && [ "$CURRENT_AHEAD" -gt 10 ]; then
+    echo "  ...and $((CURRENT_AHEAD - 10)) more"
+  fi
+  echo ""
+  echo -e "${GREEN}=== DRY-RUN COMPLETE. No changes made. ===${NC}"
+  echo "To run the actual release: bash scripts/release.sh $BUMP_MODE $([ "$ALLOW_AHEAD" = "1" ] && echo "--allow-ahead ")$([ "$NO_NEXT_BUMP" = "1" ] && echo "--no-next-bump")"
+  exit 0
+fi
 
 # --- Step 2: Run FULL verification (not just validation) ---
 echo ""
