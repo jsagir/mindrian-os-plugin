@@ -26,7 +26,7 @@ These are building blocks. Nobody owns embedding math.
 
 | Who | What They Did | Their IP |
 |-----|-------------|----------|
-| Huan He (SemNovel) | Distance from PubMed universe = novelty | Published academic method, citable but not MindrianOS's |
+| a published researcher (SemNovel) | Distance from PubMed universe = novelty | Published academic method, citable but not MindrianOS's |
 | RND (arXiv 2503.01508) | Relative neighbor density across domains | Published academic method |
 | Cypris | R&D ontology + 500M multi-source data | Proprietary ontology and data pipeline |
 | PatSnap | 140M patent semantic clustering + PatsnapGPT | Proprietary platform and models |

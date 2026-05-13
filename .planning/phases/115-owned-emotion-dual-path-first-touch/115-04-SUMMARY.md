@@ -136,7 +136,7 @@ The plan's `<action>` blocks for Tasks 1-3 were applied verbatim. The plan-speci
 
 Per Phase 115 promotion gate (documented in CHANGELOG and `tests/manual/115-acceptance.md`):
 
-1. **5-tester async empathy audit (D-13 + D-15):** dispatch `tests/fixtures/115-validation-email-template.md` to the 5-tester cohort (Lawrence Aronhime + Justin Stitzlein + Aryeh Holtzberg + Adam Peters + Shmuel Schuman) with 48-hour reply window. Synthesize replies into `tests/fixtures/115-tester-rubric.md`. **Hard threshold (D-20):** 4-of-5 must report a vivid recent memory of being stuck on an unnameable decision. Failure to clear -> execute `tests/manual/115-rollback-procedure.md`.
+1. **5-tester async empathy audit (D-13 + D-15):** dispatch `tests/fixtures/115-validation-email-template.md` to the 5-tester cohort (Lawrence Aronhime + a tester + Aryeh Holtzberg + Adam Peters + a tester) with 48-hour reply window. Synthesize replies into `tests/fixtures/115-tester-rubric.md`. **Hard threshold (D-20):** 4-of-5 must report a vivid recent memory of being stuck on an unnameable decision. Failure to clear -> execute `tests/manual/115-rollback-procedure.md`.
 2. **3-tester live empathy audit:** per `tests/manual/115-acceptance.md`, 15-minute silent observation per surface (CLI / Desktop / Cowork). 2/3 must report substrate-active turn-1 owned-emotion experience.
 3. **POST-MERGE WEBSITE EDIT:** apply `docs/copy/115-website-hero.md` rewrite to `~/mindrian-website/[hero file]` (independent repo; not auto-applied).
 4. **MARKETPLACE Gate 5 (deferred):** ref-pin `~/mindrian-marketplace/.claude-plugin/marketplace.json` `source.ref` to `v1.13.0-beta.3` ONLY after gates 1 + 2 pass.

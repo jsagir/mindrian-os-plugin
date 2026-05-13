@@ -333,7 +333,7 @@ Phase 117 was originally targeted at v1.13.0-beta.3 per CANON-PHASE-MAP.md, then
 ### Manual action items
 
 - **POST-MERGE WEBSITE EDIT:** apply the website hero rewrite from `docs/copy/115-website-hero.md` to `~/mindrian-website/[hero file]`. The website repo is independent of MindrianOS-Plugin; this is NOT auto-applied. The deliverable + step-by-step is in `docs/copy/115-website-hero.md`.
-- **VALIDATION WEEK:** dispatch `tests/fixtures/115-validation-email-template.md` to the 5-tester cohort (Lawrence Aronhime + Justin Stitzlein + Aryeh Holtzberg + Adam Peters + Shmuel Schuman) per D-13 (async, 48h reply window). Synthesize replies into `tests/fixtures/115-tester-rubric.md`.
+- **VALIDATION WEEK:** dispatch `tests/fixtures/115-validation-email-template.md` to the 5-tester cohort (Lawrence Aronhime + a tester + Aryeh Holtzberg + Adam Peters + a tester) per D-13 (async, 48h reply window). Synthesize replies into `tests/fixtures/115-tester-rubric.md`.
 - **D-20 ROLLBACK GATE (Pitfall 5 pre-commit):** if validation lands < 4-of-5 vivid recent memory, execute `tests/manual/115-rollback-procedure.md` step-by-step. Pre-committed; no live deliberation.
 - **MARKETPLACE Gate 5 (deferred):** ref-pin `~/mindrian-marketplace/.claude-plugin/marketplace.json` `source.ref` to `v1.13.0-beta.3` ONLY after the 5-tester async validation passes 4-of-5 AND the 3-tester live empathy audit (`tests/manual/115-acceptance.md`) reports 2/3 pass. Until then, Phase 115 ships as a LOCAL-ONLY tagged build (no `git push`, no marketplace ref-pin).
 
@@ -937,7 +937,7 @@ Stable users on 1.11.0 are not affected.
 
 ### Fixed (Phase 93 D1: Brain telemetry visibility)
 
-- **`mcp-server-brain/brain-admin.cjs`** column-name mismatch (5 occurrences across `cmdList` + `cmdUsage`): read `total_requests` and `last_request_at` instead of stale/dead `request_count` and `last_used_at`. Result: `/mos:admin keys` and `/mos:admin usage` now display real adoption numbers instead of universal zero. Verified post-fix: jsagir Desktop=378, Leah Aronhime=37, Lawrence Aronhime=26, plus six smaller users — matches Supabase ground truth.
+- **`mcp-server-brain/brain-admin.cjs`** column-name mismatch (5 occurrences across `cmdList` + `cmdUsage`): read `total_requests` and `last_request_at` instead of stale/dead `request_count` and `last_used_at`. Result: `/mos:admin keys` and `/mos:admin usage` now display real adoption numbers instead of universal zero. Verified post-fix: jsagir Desktop=378, an admin-key holder=37, Lawrence Aronhime=26, plus six smaller users — matches Supabase ground truth.
 - **`mcp-server-brain/lib/auth.cjs`** `logUsage()` insert column: write to `api_key` instead of nonexistent `key_id`. Previous code silently dropped 452 telemetry events with `PGRST204` errors swallowed by an upstream fire-and-forget `.catch()`. Brain usage log now fills correctly from this release forward; tool-level granularity restored.
 
 ### Added (Phase 93 D2: install-cache drift recovery)
@@ -1066,7 +1066,7 @@ The first command refreshes the marketplace catalog so v1.11.0 becomes visible. 
 
 ## [1.11.0-beta.1] - 2026-04-27
 
-Beta release of the Reverse Salient (RS) Discovery Engine for opt-in testers (Justin / Aryeh). Stable users on v1.10.19 are NOT auto-updated; opt-in is explicit. Phase 91 Navigation Engine is NOT yet wired -- coming in beta.2. Tester sign-off promotes to stable v1.11.0 in Phase 91.5.
+Beta release of the Reverse Salient (RS) Discovery Engine for opt-in testers (the Wave-1 testers). Stable users on v1.10.19 are NOT auto-updated; opt-in is explicit. Phase 91 Navigation Engine is NOT yet wired -- coming in beta.2. Tester sign-off promotes to stable v1.11.0 in Phase 91.5.
 
 ### Tester Opt-In
 
@@ -2878,7 +2878,7 @@ onboard_steps:
 
 onboarding: true
 onboard_steps:
-  - "NEW: /mos:whitespace -- find what's MISSING in your venture. Maps gaps using embedding-space density analysis, based on Huan He's SemNovel research (Yale)."
+  - "NEW: /mos:whitespace -- find what's MISSING in your venture. Maps gaps using embedding-space density analysis, based on the researcher's SemNovel research (Yale)."
   - "MindrianOS now has a Model Data Room -- 168 artifacts across 10 sections, built from 45 meeting transcripts, 43 research papers, 35 PWS frameworks."
   - "HSI Spectral Analysis on real evidence -- 20 cross-domain innovation pairs discovered, reverse salients identified."
 

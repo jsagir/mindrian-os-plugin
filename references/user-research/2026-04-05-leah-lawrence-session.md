@@ -1,7 +1,7 @@
-# User Session: Lawrence + Leah Aronhime -- Blueprint Phase AI Consultancy
+# User Session: Lawrence + an admin-key holder -- Blueprint Phase AI Consultancy
 
 **Date:** 2026-04-05
-**Users:** Lawrence Aronhime (professor, power user), Leah Aronhime (daughter, new user)
+**Users:** Lawrence Aronhime (professor, power user), an admin-key holder (daughter, new user)
 **Environment:** macOS, Sonnet 4.6, Claude Pro, v1.7.1
 **Project:** Blueprint Phase AI Consultancy
 **Duration:** CLI session ~60min, meeting ~1h57m
@@ -63,7 +63,7 @@
 ### Participants
 - **Jonathan Sagir** -- developer, demonstrating MindrianOS
 - **Lawrence Aronhime** -- professor (Larry model), power user, demonstrating to Leah
-- **Leah Aronhime** -- daughter, new user, fashion/design background, has her own Blueprint Phase project
+- **an admin-key holder** -- daughter, new user, fashion/design background, has her own Blueprint Phase project
 
 ### Key User Experience Observations
 

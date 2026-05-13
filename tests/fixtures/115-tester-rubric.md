@@ -14,10 +14,10 @@ Fill this in after all 5 replies arrive. ROW per tester, COLUMN per question.
 | Tester | Q1: Vivid recent memory? (Y/N) | Q2: How recent? (days/weeks/months) | Q3: Current solution adequate? | Q4: Free-text notes |
 |--------|--------------------------------|--------------------------------------|--------------------------------|---------------------|
 | Lawrence Aronhime |  |  |  |  |
-| Justin Stitzlein |  |  |  |  |
+| a tester |  |  |  |  |
 | Aryeh Holtzberg |  |  |  |  |
 | Adam Peters |  |  |  |  |
-| Shmuel Schuman |  |  |  |  |
+| a tester |  |  |  |  |
 
 ## Synthesis tally
 

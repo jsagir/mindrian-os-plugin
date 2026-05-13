@@ -27,7 +27,7 @@ Every UI/UX decision is judged against those two.
 | **"The picker is bolted-on."** | (NEXT-ui-improvements update) | "the generic Claude Code AskUserQuestion" instead of the De Stijl vocabulary. | The one interactive primitive every choice routes through doesn't feel native. |
 | **"Turn 1 didn't meet me where I am."** | (Phase 115 rationale) | "I'm Larry. What are you working on?" -> too open for someone with a specific stuck feeling. Fix: "What decision is stuck?" | First-touch copy. Name the emotion, don't ask a blank question. |
 | **Stray glyphs / em-dashes** | QA sweep + the founder's no-em-dash rule | `✗` (U+2717) crept into 7 command files -- not in the canonical 12-glyph set; em-dashes in `wiki.md`. Both fixed in v1.11.x. | The glyph vocabulary isn't actually enforced. It drifts. |
-| **"What's driving Larry's behavior?"** | Justin / Aryeh (beta opt-in) | Tester notes flag "Navigation Engine not yet wired -- skill activation remains legacy file-state behavior." | Predictability of the system's own routing. (= the activation gap, `09`.) |
+| **"What's driving Larry's behavior?"** | the Wave-1 testers (beta opt-in) | Tester notes flag "Navigation Engine not yet wired -- skill activation remains legacy file-state behavior." | Predictability of the system's own routing. (= the activation gap, `09`.) |
 
 Not in the testers folder, anywhere: a complaint about color, layout, typography, the dashboard's look, or "it's ugly." **Don't gold-plate the aesthetics; the users are hurting on legibility.**
 

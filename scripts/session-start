@@ -159,8 +159,8 @@ env \
       if (m) pathBinVersion = m[1];
     } catch (_) { /* swallow */ }
     // Plan 123-02 amendment (HARNESS-123-05 fix, surfaced 2026-05-13 by Plan-06 pre-flight
-    // class-I --pre-tag gate): prefer the resolver's root basename = what Claude Code actually
-    // has installed per active-plugin-root.cjs's resolution chain, NOT the dev workspace's
+    // class-I --pre-tag gate): prefer the resolver root basename = what Claude Code actually
+    // has installed per active-plugin-root.cjs resolution chain, NOT the dev-workspace
     // plugin.json version (which can lead or lag the live install). The record reflects the
     // LIVE install; class I catches drift, doctor --fix recovers. Fallbacks in order:
     // resolver-root-basename -> installed_plugins.json entry -> dev-workspace plugin.json -> "unknown".

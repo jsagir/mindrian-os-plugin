@@ -167,7 +167,7 @@ operator == DECISION_GATE    → Shape F.x; keyboard only
 
 ### Claude's Discretion
 
-**D-25 (classifier corpus):** The 50-message hand-labeled test corpus referenced in research file 03 §95.2-02 acceptance criterion is Claude's discretion to assemble. Recommended sources: the Justin Stitzlein onboarding session 2026-04-30, Lawrence's curriculum review sessions, Austin's research workflows. > 80% accuracy gate.
+**D-25 (classifier corpus):** The 50-message hand-labeled test corpus referenced in research file 03 §95.2-02 acceptance criterion is Claude's discretion to assemble. Recommended sources: the a tester onboarding session 2026-04-30, Lawrence's curriculum review sessions, Austin's research workflows. > 80% accuracy gate.
 
 **D-26 (history ring-buffer rotation):** Bound at 50 entries (D-06). Rotation strategy (drop oldest vs compact every 10) is Claude's discretion. Default to drop-oldest for simplicity.
 

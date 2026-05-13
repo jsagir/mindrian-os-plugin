@@ -36,7 +36,7 @@ A small follow-on fix in v1.11.3 (or a tiny addendum plan 94-08b in v1.11.2 if s
 
 **Reasoning grounds (3 independent):**
 1. Hughes pattern -- /mos:heal attacks the lagging component (other rooms cannot self-heal without operator in the loop). 94-09 polish advances the front. The asymmetry is wrong.
-2. Customer-blocking filter -- /mos:heal is the only deferred-bug item that any current external user (Justin, Aryeh) is plausibly within 30 days of needing. BUG-1 (FEYNMINTO budget) needs 40+ artifact section first; BUG-2 (queue drain) is invisible to external users.
+2. Customer-blocking filter -- /mos:heal is the only deferred-bug item that any current external user (the Wave-1 testers) is plausibly within 30 days of needing. BUG-1 (FEYNMINTO budget) needs 40+ artifact section first; BUG-2 (queue drain) is invisible to external users.
 3. Release cleanliness -- stacking 94-01..94-08 + 94.1-01 onto v1.11.1-beta.1 yields a single coherent "tester-driven fixes + heal command" GA. Cleaner CHANGELOG narrative than splitting v1.11.1 (8 fixes) and v1.11.2 (heal).
 
 ### Plan 94-09 explain-decision-action-footer (DEFERRED)

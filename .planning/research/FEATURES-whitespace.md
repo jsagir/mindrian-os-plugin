@@ -298,7 +298,7 @@ Features to defer until whitespace detection proves valuable to users.
 - [Information Extraction Novelty -- PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC12919535/) -- Peng X et al., AMIA 2025 [MEDIUM confidence -- 4 novelty categories verified]
 - [MedViz -- arXiv](https://arxiv.org/abs/2601.20709) -- He H et al., 2026 [MEDIUM confidence -- system architecture verified]
 - [MedViz -- medviz.org](https://medviz.org/) -- Live system [HIGH confidence -- exists and is operational]
-- [Huan He -- Yale Profile](https://medicine.yale.edu/profile/huan-he/) -- Lab page [HIGH confidence]
+- [a published researcher -- Yale Profile](https://medicine.yale.edu/profile/huan-he/) -- Lab page [HIGH confidence]
 - Existing HSI Pipeline (scripts/compute-hsi.py) -- Local verification of MiniLM, TF-IDF/SVD, spectral OM-HMM, cosine similarity [HIGH confidence]
 - Existing LazyGraph (lib/core/lazygraph-ops.cjs) -- 16 edge types, HSI_CONNECTION, REVERSE_SALIENT, ANALOGOUS_TO [HIGH confidence]
 

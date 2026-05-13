@@ -343,7 +343,7 @@ These thresholds are derived from statistical requirements for density estimatio
 
 ## Sources
 
-- [SemNovel: Semantic novelty detection using LLM embeddings (PubMed)](https://pubmed.ncbi.nlm.nih.gov/41242670/) - JBI 2025, Huan He et al. (Yale)
+- [SemNovel: Semantic novelty detection using LLM embeddings (PubMed)](https://pubmed.ncbi.nlm.nih.gov/41242670/) - JBI 2025, a published researcher et al. (Yale)
 - [TopicForest: Embedding-driven hierarchical clustering (ScienceDirect)](https://www.sciencedirect.com/science/article/abs/pii/S153204642500187X) - JBI 2025, Chang et al.
 - [Evading the curse of dimensionality in nonparametric density estimation (arXiv)](https://arxiv.org/pdf/1503.03305) - KDE sample requirements in high dimensions
 - [Kernel density estimation (Wikipedia)](https://en.wikipedia.org/wiki/Kernel_density_estimation) - Curse of dimensionality and practical limits (~5 dimensions)

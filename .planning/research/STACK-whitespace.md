@@ -226,5 +226,5 @@ These estimates assume CPU-only (no GPU). The llm-embedder model runs on CPU via
 - [BAAI/llm-embedder - HuggingFace](https://huggingface.co/BAAI/llm-embedder) - Model card, 768-dim, sentence-transformers compatible [HIGH confidence]
 - [umap-learn - PyPI](https://pypi.org/project/umap-learn/) - Current version, scikit-learn compatible [HIGH confidence]
 - [scikit-learn KernelDensity docs](https://scikit-learn.org/stable/modules/density.html) - KDE implementation, curse of dimensionality warning [HIGH confidence]
-- [Huan He - Yale profile](https://medicine.yale.edu/profile/huan-he/) - Research group, related publications [HIGH confidence]
+- [a published researcher - Yale profile](https://medicine.yale.edu/profile/huan-he/) - Research group, related publications [HIGH confidence]
 - [AMIA 2025 TopicForest poster](https://amia.secure-platform.com/symposium/gallery/rounds/82021/details/20256) - Conference presentation [MEDIUM confidence]

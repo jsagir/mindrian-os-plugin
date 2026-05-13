@@ -756,5 +756,5 @@ Brain calls are topic-count-limited (5), not artifact-count-limited. Embedding l
   - `references/brain/query-patterns.md` -- 13 existing patterns [HIGH]
   - `.planning/research/ARCHITECTURE-causal.md` -- cascade extension precedent [HIGH]
 - sklearn.neighbors.BallTree, sklearn.decomposition.PCA -- standard libraries [HIGH]
-- Huan He et al., SemNovel (JBI 2025) -- novelty scoring via embedding distance [MEDIUM, paper confirmed but implementation details from training]
-- Huan He et al., TopicForest (JBI 2025) -- hierarchical gap detection [MEDIUM, same]
+- a published researcher et al., SemNovel (JBI 2025) -- novelty scoring via embedding distance [MEDIUM, paper confirmed but implementation details from training]
+- a published researcher et al., TopicForest (JBI 2025) -- hierarchical gap detection [MEDIUM, same]

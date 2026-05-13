@@ -1,15 +1,15 @@
-# Deep Research: Huan He's Work & Applied Whitespace/Novelty Detection
+# Deep Research: the researcher's Work & Applied Whitespace/Novelty Detection
 
 **Researched:** 2026-04-08
 **Confidence:** HIGH (primary sources verified, algorithms extracted, competitive landscape mapped)
 
-## 1. Huan He -- Full Research Profile
+## 1. a published researcher -- Full Research Profile
 
 **Position:** Research Scientist, Section of Biomedical Informatics & Data Science, Yale School of Medicine
 **Lab:** Clinical NLP Lab (PI: Hua Xu, PhD -- Robert T. McCluskey Professor, Vice Chair for Research)
 **Focus:** Visual analytics + NLP/ML for health-related data exploration
 **Recognition:** Elected AMIA Visual Analytics Working Group Chair-Elect (Nov 2025)
-**Contact:** huan.he@yale.edu, hehuan2112@gmail.com
+**Contact:** [email redacted], [email redacted]
 **Address:** 101 College St, New Haven, CT 06510
 
 ### Core Systems Built
@@ -206,7 +206,7 @@ Cypris identifies a fundamental problem: **patent-only whitespace is misleading.
 
 **What ALL of them miss:** None of these platforms have a METHODOLOGY layer. They find gaps but don't tell you WHY those gaps matter or WHAT framework to use to explore them. MindrianOS has 26 PWS frameworks + Brain graph that knows WHEN to use WHICH framework for WHICH gap type. That's the moat.
 
-## 7. The Integrated Picture -- How Huan He's Work + Applied Methods Combine
+## 7. The Integrated Picture -- How the researcher's Work + Applied Methods Combine
 
 ```
 LAYER 1: EMBEDDING ENGINE (SemNovel method)
@@ -252,14 +252,14 @@ LAYER 5: METHODOLOGY ROUTING (MindrianOS moat -- nobody else has this)
 
 ## Sources
 
-### Primary (Huan He's work)
+### Primary (the researcher's work)
 - [SemNovel -- PubMed](https://pubmed.ncbi.nlm.nih.gov/41242670/)
 - [TopicForest -- ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S153204642500187X)
 - [TopicForest -- LifeScience.net](https://www.lifescience.net/publications/1731202/topicforest-embedding-driven-hierarchical-clusteri/)
 - [MedViz -- arXiv](https://arxiv.org/abs/2601.20709)
-- [Huan He -- Yale Profile](https://medicine.yale.edu/profile/huan-he/)
-- [Huan He -- Personal Site](https://hehuan2112.github.io/)
-- [Huan He -- Google Scholar](https://scholar.google.com/citations?user=OFroytAAAAAJ&hl=en)
+- [a published researcher -- Yale Profile](https://medicine.yale.edu/profile/huan-he/)
+- [a published researcher -- Personal Site]([personal site redacted])
+- [a published researcher -- Google Scholar](https://scholar.google.com/citations?user=OFroytAAAAAJ&hl=en)
 - [AMIA SemNovel Presentation](https://amia.secure-platform.com/symposium/gallery/rounds/82001/details/11353)
 - [AMIA TopicForest Poster](https://amia.secure-platform.com/symposium/gallery/rounds/82021/details/20256)
 - [AMIA MedViz Presentation](https://amia.secure-platform.com/symposium/gallery/rounds/82021/details/20850)

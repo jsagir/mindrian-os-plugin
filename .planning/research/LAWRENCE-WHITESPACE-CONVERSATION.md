@@ -7,8 +7,8 @@
 
 ## Key Ideas & Possibilities (NOT decisions -- these are maybes, not commitments)
 
-### Lawrence Identified Huan He (Yale)
-- Researcher: Huan He, Yale School of Medicine
+### Lawrence Identified a published researcher (Yale)
+- Researcher: a published researcher, Yale School of Medicine
 - Profile: medicine.yale.edu/profile/huan-he/
 - Application: medviz.org
 - Key papers: SemNovel, TopicForest, AMIA 2025 novelty detection
@@ -44,7 +44,7 @@
 
 ### Technical Insight (Jonathan)
 
-> "MindrianOS already embeds room artifacts into exactly this kind of mathematical space. The HSI pipeline does it every time someone files an artifact -- it creates embeddings using the same class of models Huan He uses. But right now, HSI only looks at what's CONNECTED. It finds pairs of artifacts that are surprisingly similar. It never looks at what's MISSING -- the empty spaces in the map where no artifact exists but the shape of the space suggests one SHOULD. Those empty spaces are whitespace."
+> "MindrianOS already embeds room artifacts into exactly this kind of mathematical space. The HSI pipeline does it every time someone files an artifact -- it creates embeddings using the same class of models a published researcher uses. But right now, HSI only looks at what's CONNECTED. It finds pairs of artifacts that are surprisingly similar. It never looks at what's MISSING -- the empty spaces in the map where no artifact exists but the shape of the space suggests one SHOULD. Those empty spaces are whitespace."
 
 ### Analogy to Minto
 - Jonathan: "We did same with Minto that is now a mathematical equation"
@@ -64,7 +64,7 @@ Lawrence used HopGPT to investigate "researchers using empty spaces of an embedd
 2. The business model is premium MCP server (paid tier)
 3. Case studies are needed before licensing
 4. National-scale application (Innovation Authority) is the long-term vision
-5. Drug discovery / biomedical is a natural vertical (Huan He's own domain)
+5. Drug discovery / biomedical is a natural vertical (the researcher's own domain)
 6. Self-referential use: Mindrian should use whitespace mapping to find its OWN research gaps
 
 ---

@@ -52,10 +52,10 @@ pass "Test 6: verbatim vivid-memory probe question present in email template bod
 
 # Test 7: rubric has 5 tester rows + D-20 hard threshold
 grep -qF "Lawrence Aronhime" tests/fixtures/115-tester-rubric.md || fail "Test 7: Lawrence row missing"
-grep -qF "Justin Stitzlein" tests/fixtures/115-tester-rubric.md || fail "Test 7: Justin row missing"
+grep -qF "a tester" tests/fixtures/115-tester-rubric.md || fail "Test 7: Justin row missing"
 grep -qF "Aryeh Holtzberg" tests/fixtures/115-tester-rubric.md || fail "Test 7: Aryeh row missing"
 grep -qF "Adam Peters" tests/fixtures/115-tester-rubric.md || fail "Test 7: Adam row missing"
-grep -qF "Shmuel Schuman" tests/fixtures/115-tester-rubric.md || fail "Test 7: Shmuel row missing"
+grep -qF "a tester" tests/fixtures/115-tester-rubric.md || fail "Test 7: Shmuel row missing"
 grep -qF "Q1 YES count >= 4" tests/fixtures/115-tester-rubric.md || fail "Test 7: D-20 hard threshold (4-of-5) missing from rubric"
 pass "Test 7: rubric has 5 tester rows + D-20 4-of-5 hard threshold"
 
