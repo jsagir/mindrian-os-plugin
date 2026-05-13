@@ -498,3 +498,42 @@
 | PACKET-110-07 | Phase 110 | Pending |
 | PACKET-110-08 | Phase 110 | Pending |
 | PACKET-110-09 | Phase 110 | Pending |
+| HARNESS-123-01 | Phase 123 | Pending |
+| HARNESS-123-02 | Phase 123 | Pending |
+| HARNESS-123-03 | Phase 123 | Pending |
+| HARNESS-123-04 | Phase 123 | Pending |
+| HARNESS-123-05 | Phase 123 | Pending |
+| HARNESS-123-06 | Phase 123 | Pending |
+| HARNESS-123-07 | Phase 123 | Pending |
+| HARNESS-123-08 | Phase 123 | Pending |
+| HARNESS-123-09 | Phase 123 | Pending |
+| HARNESS-123-10 | Phase 123 | Pending |
+| HARNESS-123-11 | Phase 123 | Pending |
+| HARNESS-123-12 | Phase 123 | Pending |
+| HARNESS-123-13 | Phase 123 | Pending |
+| HARNESS-123-14 | Phase 123 | Pending |
+| HARNESS-123-15 | Phase 123 | Pending |
+| HARNESS-123-16 | Phase 123 | Pending |
+| HARNESS-123-17 | Phase 123 | Pending |
+
+## Phase 123: install-lifecycle-harness
+
+| ID | Description | Plan |
+|----|-------------|------|
+| HARNESS-123-01 | `scripts/release.sh` replaces the `IFS='.' read -r MAJOR MINOR PATCH` parse with `semver.inc()`; supports `--prerelease` / `--finalize` / `--start-prerelease` / bare `patch`/`minor`/`major`; `semver` in `devDependencies` only (not `dependencies`, not `files` allowlist) | Plan 01 |
+| HARNESS-123-02 | `release.sh` adopts the TWO-COMMIT next-bump form (commit A finalizes+tags `vN` with `plugin.json == vN`; commit B bumps to `vN+1`; `main` HEAD on B; `marketplace.json source.ref` pinned to `vN`) per RESEARCH override 1 (Claude Code's Version Management spec reads `plugin.json` `version` FIRST) | Plan 01 |
+| HARNESS-123-03 | `release.sh` dirty-repo / ahead-of-origin guard: `git log origin/main..HEAD --oneline` snapshot; push only if delta is exactly the release commit(s); abort with `--allow-ahead` escape; block on dirty tracked files except the bumped files; untracked OK | Plan 01 |
+| HARNESS-123-04 | `release.sh` Step 9.5 renamed: publishes `@mindrian_os/install` (NOT `@mindrian_os/cli`); dist-tag `@next` for pre-release suffixes, `@latest` for clean `X.Y.Z`; `npm pack --dry-run` allowlist gate updated; `tests/test-release-npm-gate.sh` 6 gates updated to match | Plan 01 |
+| HARNESS-123-05 | `~/.mindrian/install-state.json` written by `scripts/session-start` as the single writer, in its earliest steps, unconditionally; full snapshot per D-04 (9 keys: `active_version, active_root, topology, resolved_at, surfaces, installed_plugins_version, statusline_renders_version, last_version_file_value, path_bin_version`); `~/.mindrian-last-version` write folds in; the old line-419 cold-start-only write is removed (Pitfall 7) | Plan 02 |
+| HARNESS-123-06 | `data/deployment-surfaces.json` static manifest with the 6 D-08 surfaces in the D-07 schema; `$HOME` token paths (expanded via `os.homedir()`); `topology_scope: dev-clone` for the pre-commit hook; `data/ROOM.md` updated; `lib/core/active-plugin-root.cjs` extended with a `topology` field | Plan 02 |
+| HARNESS-123-07 | `scripts/doctor.cjs` class I (install-state + topology + 6-way version-of-record, string-equality tolerating non-semver `1.12.5.1`; Bug 7 fix in the legacy-clone check); the `--install-state` flag; the `scripts/doctor.cjs:40` hardcoded `INSTALL_DIR` repointed to `resolveActivePluginRoot()` for the new code | Plan 03 |
+| HARNESS-123-08 | `scripts/doctor.cjs` class J (deployment-surface manifest reconciliation, Desktop/Cowork-skip via `CLAUDE_DESKTOP=1`); walks `data/deployment-surfaces.json`; skips `topology_scope: dev-clone` on a user box | Plan 03 |
+| HARNESS-123-09 | Aggressive `doctor --fix` per D-13 under hard guardrails: auto-recovers missing record / drifted owned surfaces / `~/.mindrian-last-version` mismatch; legacy-clone migration (backup-verify-remove, refuses on uncommitted/unpushed, NEVER touches a dev-clone -- origin-remote + `MINDRIAN_OS_ROOT` belt+suspenders); conservative `installed_plugins.json` repair (backup+repoint+restart-note); flag-only for `not-found` / vanished `$PATH` bin / wrong-statusline-version | Plan 03 |
+| HARNESS-123-10 | Per-class test fixtures (hermetic `MINDRIAN_PLUGIN_HOME` + `HOME` scratch dirs): `tests/test-doctor-class-i.cjs` (6 scenarios incl. the non-semver `1.12.5.1` case + the dev-clone-never-touched case) + `tests/test-doctor-class-j.cjs` (5 scenarios incl. dev-clone-scoped surface skip) | Plan 03 |
+| HARNESS-123-11 | `mindrian-os doctor --acceptance` (5-point per D-14: install-state record + every owned deployment surface + version-of-record + npx round-trip + `doctor --all` exit 0) + `--acceptance --pre-tag` sub-mode (skips the post-publish legs); checklist-runner shape; CALLS `scripts/verify-release` (does not duplicate); the `npx` round-trip runs in a `mktemp` HOME-override sandbox cleaned up in `finally`; no `--allow` override | Plan 04 |
+| HARNESS-123-12 | `scripts/release.sh` calls `doctor --acceptance --pre-tag` (new Step 6.6) BEFORE `git tag`, and full `doctor --acceptance` (new Step 9.6) AFTER the push -- both hard aborts; `scripts/release-beta-smoke.sh` retired (deleted; was hard-pinned to v1.11.0-beta.1) | Plan 04 |
+| HARNESS-123-13 | `lib/core/cache-prune.cjs` -- the cache-prune helper (keeps active + N=2 most recent, never deletes the active, skips entirely if `installed_plugins.json` is unreadable); wired into `session-start` (on-version-change inside the reconcile guard) AND `doctor --fix` (unconditional); `tests/test-cache-prune.cjs` 6 scenarios green | Plan 05 |
+| HARNESS-123-14 | The `@mindrian_os/cli` -> `@mindrian_os/install` doc/test sweep across `docs/install/PACKAGING-PATHS.md`, `tests/manual/95.6-windows-cold-install-acceptance.md`, `docs/INSTALL-LIFECYCLE-HARNESS.md`, `commands/setup.md`, `tests/test-release-npm-gate.sh` (and any other forward-facing surfaces the discovery audit finds); `commands/setup.md:145` URL fix (`mindrianos-jsagirs-projects.vercel.app/brain-access` -> `mindrianos.vercel.app/brain-access`); historical CHANGELOG entries stay as the record | Plan 05 |
+| HARNESS-123-15 | `lib/core/resolve-brain-key.cjs` -- the single Brain-key resolver (order: env -> `~/.mindrian.env` -> CWD `.env` -> not-found; returns `{key, source, available, reason}`; SEC-02 group/world-bit POSIX check sets `available:false` with explicit `reason`; CLI form; Canon Part 8 clean) + the 3 consumer rewirings (`brain-client.cjs::getApiKey()` delegation + docstring fix; `scripts/session-start` Brain block -> 3-case positive status line; `skills/brain-connector/SKILL.md` step-0 + CLI Tool Names row) | Plan 07 |
+| HARNESS-123-16 | SEC-02 `chmod 600 ~/.mindrian.env` on write (POSIX only, no-op on Windows) in `commands/setup.md` (`/mos:setup brain`) + `install.sh` (annotated if it doesn't write the file); `docs/install/BRAIN-SETUP.md` + `.env.brain.template` state Bearer-only + surface the `https://mindrianos.vercel.app/brain-access` request-access URL + `MINDRIAN_BRAIN_URL` override; CHANGELOG `brain.mindrian.ai` prose softened to "currently `*.onrender.com`, moving to `brain.mindrian.ai`" | Plan 07 |
+| HARNESS-123-17 | Cut `v1.13.0-beta.13` via the fixed `release.sh --prerelease` (the real run + the dry-run safety net); carries Plans 01-05 + 07 + the still-pending Phase 109 release commit + Phase 110 docs + the brain-client fix; `docs/CANON-PHASE-MAP.md` updated with Part-6 + Part-7 rows; Windows operator manual `doctor --acceptance` checkpoint documented (gates promotion to clean `1.13.0`) | Plan 06 |
