@@ -2094,7 +2094,24 @@ function performClassJFix(check, opts) {
       recoveries.push({ class: 'deployment-surfaces', surface: s.id, action: 'error', detail: err.message });
     }
   }
-  // TODO Plan-5: unconditional cache prune call lands here.
+  // Plan-5 (HARNESS-123-13): unconditional cache prune. Doctor --fix runs the
+  // prune every time, regardless of version change -- this is recovery (the
+  // operator asked for it), not an automatic post-update tidy.
+  try {
+    const { pruneMarketplaceCache } = require(path.join(__dirname, '..', 'lib', 'core', 'cache-prune.cjs'));
+    const r = pruneMarketplaceCache({ home });
+    if (r.skipped) {
+      recoveries.push({ class: 'deployment-surfaces', surface: 'cache-prune', action: 'skipped', reason: r.reason, ok: null });
+    } else if (r.removed.length > 0) {
+      for (const dir of r.removed) {
+        recoveries.push({ class: 'deployment-surfaces', surface: 'cache-prune', action: 'removed', dir, ok: true });
+      }
+    } else {
+      recoveries.push({ class: 'deployment-surfaces', surface: 'cache-prune', action: 'no-op', kept: r.kept, ok: true });
+    }
+  } catch (e) {
+    recoveries.push({ class: 'deployment-surfaces', surface: 'cache-prune', action: 'errored', error: e.message, ok: false });
+  }
   return recoveries;
 }
 

@@ -1271,6 +1271,32 @@ if [ "$PLUGIN_VERSION" != "$LAST_VERSION" ] || [ -z "$LAST_VERSION" ]; then
 fi
 # --- END install-state manifest reconcile ---
 
+# --- BEGIN cache prune (Phase 123, on version change) ---
+# Phase 123 Plan-05 (HARNESS-123-13). Canon Part 8: LOCAL only -- pure fs ops.
+# Prune stale marketplace-cache version dirs on version change: keep the
+# active version + N=2 most-recent non-active by mtime; everything else gets
+# rmSync'd. NEVER touches the active dir (belt + suspenders inside the
+# helper). Skips entirely if installed_plugins.json is unreadable -- never
+# guesses. Placed AFTER the manifest reconcile so owned surfaces are fresh
+# BEFORE sibling cache dirs get touched. Best-effort: a prune failure
+# (`|| true`) never blocks session startup.
+if [ "$PLUGIN_VERSION" != "$LAST_VERSION" ] || [ -z "$LAST_VERSION" ]; then
+  env PLUGIN_ROOT_FOR_PRUNE="$PLUGIN_ROOT" HOME_FOR_PRUNE="$HOME" node -e '
+    try {
+      var mod = require(process.env.PLUGIN_ROOT_FOR_PRUNE + "/lib/core/cache-prune.cjs");
+      var r = mod.pruneMarketplaceCache({ home: process.env.HOME_FOR_PRUNE });
+      if (r.skipped) {
+        process.stderr.write("cache-prune skipped: " + r.reason + "\n");
+      } else if (r.removed.length > 0) {
+        process.stderr.write("cache-prune removed: " + r.removed.join(", ") + " (kept: " + r.kept.join(", ") + ")\n");
+      }
+    } catch (e) {
+      process.stderr.write("cache-prune failed: " + (e && e.message) + "\n");
+    }
+  ' 2>/dev/null || true
+fi
+# --- END cache prune ---
+
 # ---------------------------------------------------------------------------
 # Phase 87-01a (SEC-04): ensure ROOM.md + MINTO.md pre-commit hook installed.
 # Self-healing: re-installs if missing or drifted. Worktree-aware via
