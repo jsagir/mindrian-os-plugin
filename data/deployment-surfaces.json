@@ -1,0 +1,68 @@
+{
+  "$schema_note": "Hand-maintained. NOT generated. New deployment surface = one entry, no code change. scripts/session-start reconciles owned (owner='session-start') surfaces whose reconcile=='on-version-change' on version change; scripts/doctor.cjs class J (Plan 123-03) walks every entry to flag drift. Path tokens: $HOME is expanded via os.homedir() at read time; <active_root> is the resolveActivePluginRoot() root (from lib/core/active-plugin-root.cjs); <dev_clone_root> is the same root constrained to topology=='dev-clone'. topology_scope=='dev-clone' entries are skipped entirely on a user (non-dev-clone) box. Phase 123 plan 02 (HARNESS-123-06).",
+  "schema_version": 1,
+  "phase": "123-install-lifecycle-harness",
+  "canon_parts": [5, 6],
+  "surfaces": [
+    {
+      "id": "statusline-dispatch-shim",
+      "path": "$HOME/.claude/statusline-mos",
+      "owner": "session-start",
+      "topology_scope": "all",
+      "check_kind": "marker",
+      "expected": "MINDRIAN-STATUSLINE-DISPATCH",
+      "reconcile": "on-version-change",
+      "remediation": "scripts/session-start Step A re-stamps the dispatcher shim on version change; if it stays stale, an antivirus or sync agent may be quarantining the file -- restart Claude Code or run `mindrian-os doctor --fix`."
+    },
+    {
+      "id": "settings-statusline-command",
+      "path": "$HOME/.claude/settings.json",
+      "owner": "session-start",
+      "topology_scope": "all",
+      "check_kind": "exact-value",
+      "expected": "bash \"$HOME/.claude/statusline-mos\"",
+      "reconcile": "on-version-change",
+      "remediation": "scripts/session-start Step B rewrites statusLine.command when it points at the legacy context-monitor wrapper; if a managed-settings layer overrides it, that is expected and the override wins."
+    },
+    {
+      "id": "mindrian-last-version",
+      "path": "$HOME/.mindrian-last-version",
+      "owner": "session-start",
+      "topology_scope": "all",
+      "check_kind": "exact-value",
+      "expected": "<active_version>",
+      "reconcile": "on-version-change",
+      "remediation": "scripts/session-start rewrites it to match active_version on every session (single writer, EARLY -- per Phase 123 D-03 + RESEARCH Override 4). Pitfall 7: the old line-419 write only fired on cold start; the new EARLY write fires unconditionally."
+    },
+    {
+      "id": "install-state-record",
+      "path": "$HOME/.mindrian/install-state.json",
+      "owner": "session-start",
+      "topology_scope": "all",
+      "check_kind": "observed-only",
+      "expected": null,
+      "reconcile": "never",
+      "remediation": "Self -- this surface IS the record. The manifest walker excludes it from its own consistency check. If absent at doctor time: 'run `mindrian-os doctor --fix`' (Plan-03 class I auto-recovers by invoking session-start's record-write path)."
+    },
+    {
+      "id": "plugin-bin-path-entry",
+      "path": "<active_root>/bin",
+      "owner": "claude-code",
+      "topology_scope": "all",
+      "check_kind": "observed-only",
+      "expected": null,
+      "reconcile": "never",
+      "remediation": "Claude Code's plugin loader owns the $PATH entry for `<active_root>/bin`; the manifest records it for the version-of-record cross-check but NEVER writes it. A wrong/vanished entry -> restart Claude Code (its plugin loader re-injects the entry on next launch)."
+    },
+    {
+      "id": "dev-clone-pre-commit-hook",
+      "path": "<dev_clone_root>/.git/hooks/pre-commit",
+      "owner": "session-start",
+      "topology_scope": "dev-clone",
+      "check_kind": "marker",
+      "expected": "check-schema-aliases.cjs",
+      "reconcile": "on-version-change",
+      "remediation": "scripts/session-start idempotently installs/updates the dev-clone pre-commit hook via scripts/install-pre-commit.sh (Phase 108 schema alias drift guard). Skipped entirely on a user (non-dev-clone) box. The marker sentinel is the 'check-schema-aliases.cjs' invocation embedded by install-pre-commit.sh."
+    }
+  ]
+}

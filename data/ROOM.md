@@ -2,17 +2,21 @@
 type: directory-identity
 name: data
 section: data
-purpose: Generated plugin data artifacts -- the command registry and the Brain framework-name snapshot it validates against.
+purpose: Plugin-local data artifacts -- the generated command registry + Brain framework-name snapshot it validates against, the hand-maintained Brain Context Packet schema, and the hand-maintained deployment-surface manifest.
 founding_phase: 122
-phase: 122
-milestone: v1.13.0-beta.12
-canon_parts: [7, 8]
+phase: 123
+milestone: v1.13.0-beta.13
+canon_parts: [5, 6, 7, 8]
 created: 2026-05-12
+updated: 2026-05-13
 ---
 
 # data/
 
-`data/` holds GENERATED plugin-local data artifacts. Phase 122 (the Workflow Layer) is the founding phase. Nothing in this directory is hand-edited -- it is regenerated from source by `scripts/build-command-registry.cjs`.
+`data/` holds plugin-local data artifacts in two layers:
+
+1. **Generated artifacts** (Phase 122 -- the Workflow Layer): `command-registry.json` and `framework-names.json` are regenerated from source by `scripts/build-command-registry.cjs`. Nothing here is hand-edited.
+2. **Hand-maintained artifacts** (Phase 110, Phase 123): `brain-packet-schema.json` is the Brain Context Packet wire schema; `deployment-surfaces.json` is the deployment-surface manifest. Both are validated, not generated.
 
 ## Files in this section
 
@@ -21,6 +25,7 @@ created: 2026-05-12
 | `command-registry.json` | `scripts/build-command-registry.cjs` | The framework <-> command registry: `{ ontology_ref, generated_note, commands[], framework_index, curated_chains[] }`. Built from the `frameworks:` / `kind:` / `produces:` / `inputs:` / `autonomous_safe:` keys in every `commands/*.md` frontmatter. The resolver (`lib/workflow/command-resolver.cjs`) reads only this file at runtime. DO NOT hand-edit -- the pre-commit hook and the Feynman runner reject a stale registry. Regenerate: `node scripts/build-command-registry.cjs`. |
 | `framework-names.json` | `scripts/build-command-registry.cjs --refresh-names` | The committed snapshot of the FEEDS_INTO-linked Brain `:Framework` names (the ~105-name traversable slice, NOT all 748 -- junk like "Amazon" / "Charles Kirschbaum" is excluded) PLUS a small `curated_extras` whitelist of legitimate `:Framework` nodes not yet FEEDS_INTO-linked. The registry validates every `frameworks:` entry against `framework_names UNION curated_extras`; an unresolvable name fails the build. Refresh: `node scripts/build-command-registry.cjs --refresh-names` (a read-only build-time `brain.query`, never at runtime). |
 | `brain-packet-schema.json` | `scripts/build-brain-packet-schema.cjs` (validated, not generated -- hand-maintained source of truth) | The Brain Context Packet wire format (draft 2020-12 JSON Schema): `$defs` per all 12 closed-vocabulary Brain jobs (each carrying an `in` and an `out` shape), shared `$defs` for `LocalGraphSummary` / `BankedOpportunities` / the `privacy_mode` enum / the `packet_version` const / the `origin` enum / the 4 safe-projection shapes, `additionalProperties: false` on every object node (the Canon Part 8 leak-prevention teeth). `lib/core/brain-client.cjs::sendPacket` (Phase 110-03) compiles it once and validates every outbound packet and every Brain response against the job's `in`/`out`. DO NOT hand-edit carelessly -- the pre-commit hook (Phase 110-04) and the Feynman runner reject a malformed schema / a job missing `in`+`out` / an unknown-job `$def` / a missing `additionalProperties: false`. Re-validate: `node scripts/build-brain-packet-schema.cjs --check`. Bound to Phase 110; canon parts 8 + 9. |
+| `deployment-surfaces.json` | hand-maintained (NOT generated, NO `--check` tripwire) | The static deployment-surface manifest read by `scripts/session-start` (for the on-version-change owned-surface reconcile) and `scripts/doctor.cjs` class J (Plan 123-03; for drift flagging). Schema (`{ schema_version, surfaces:[{id, path, owner, topology_scope, check_kind, expected, reconcile, remediation}, ...] }`) is the D-07 contract from `.planning/phases/123-install-lifecycle-harness/123-CONTEXT.md`. Six entries cover: the statusline dispatch shim, the `settings.json` statusLine command, `~/.mindrian-last-version`, the install-state record (self, observed-only), the plugin-bin `$PATH` entry (observed-only), and the dev-clone pre-commit hook (`topology_scope: dev-clone` -- skipped on a user box). Paths use literal `$HOME` / `<active_root>` / `<dev_clone_root>` tokens (no absolute paths). New surface = one JSON entry, no code change. Bound to Phase 123 plan 02 (HARNESS-123-06); canon parts 5 + 6. |
 
 ## Canon Part 8 boundary (plugin-local, validated AGAINST the Brain, never written back)
 
@@ -28,14 +33,15 @@ created: 2026-05-12
 
 ## Decision #15 compliance
 
-Per `CLAUDE.md` Decision #15, every directory carries a ROOM.md identity file. `data/` is bound to Phase 122; subsequent additions update the "Files in this section" table. No MINTO.md required at this level -- the `.room-root` cascade scope is `room/`, not `data/`.
+Per `CLAUDE.md` Decision #15, every directory carries a ROOM.md identity file. `data/` was founded by Phase 122 and extended by Phase 110 (`brain-packet-schema.json`) and Phase 123 (`deployment-surfaces.json`); subsequent additions update the "Files in this section" table. No MINTO.md required at this level -- the `.room-root` cascade scope is `room/`, not `data/`.
 
 ## Cross-references
 
 - Generator: `scripts/build-command-registry.cjs`
 - Schema validator (Phase 110-01): `scripts/build-brain-packet-schema.cjs`
 - Resolver (runtime consumer): `lib/workflow/command-resolver.cjs` (Phase 122-03)
+- Manifest walker (runtime consumer): `scripts/session-start` (Phase 123-02 -- on-version-change reconcile); `scripts/doctor.cjs` class J (Phase 123-03 -- drift flagging)
 - Frontmatter contract: `docs/COMMAND-FRONTMATTER.md`
 - Spec: `.planning/WORKFLOW-LAYER-SPEC.md`
-- Canon: `docs/MINDRIAN-CANON.md` Parts 7, 8 (and Part 9 via `brain-packet-schema.json`)
+- Canon: `docs/MINDRIAN-CANON.md` Parts 5, 6, 7, 8 (and Part 9 via `brain-packet-schema.json`)
 - Sibling identity reference: `lib/workflow/ROOM.md` (Phase 122)
