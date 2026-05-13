@@ -1,0 +1,517 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mindrian.ai/schemas/brain-packet/1.0",
+  "title": "Mindrian Brain Context Packet (v1.0)",
+  "description": "The hand-maintained wire-format contract between lib/core/navigation.cjs::buildBrainPacket and the Brain MCP. One $def per shipped Brain job (D-02 closed vocabulary, 12 jobs) carrying an in shape and an out shape, plus shared $defs (PrivacyMode, Origin, FocusNode, ActiveContext, BankedOpportunities, Constraints, LocalGraphSummary, BrainResponse, the 4 projection $defs that match the safe-projection mappers in lib/core/navigation/packet.cjs). additionalProperties: false on every object node is the Canon Part 8 leak-prevention teeth -- a packet that carries an extra transcript or body field is refused at the wire, not stripped-and-sent. Validate with: node scripts/build-brain-packet-schema.cjs --check",
+  "$defs": {
+    "PrivacyMode": {
+      "type": "string",
+      "enum": ["local_summary_only", "allow_filenames", "allow_excerpts"]
+    },
+    "Origin": {
+      "type": "string",
+      "enum": ["navigation_api", "test_fixture"]
+    },
+    "FocusNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "summary"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": ["string", "null"] },
+        "summary": { "type": "string" }
+      }
+    },
+    "ActiveContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["jtbd", "operator", "focus_node"],
+      "properties": {
+        "jtbd": { "type": ["string", "null"] },
+        "operator": { "type": "string" },
+        "focus_node": { "$ref": "#/$defs/FocusNode" }
+      }
+    },
+    "BankedOpportunities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["count", "items"],
+      "properties": {
+        "count": { "type": "integer", "minimum": 0 },
+        "items": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id_hash", "tags", "hsi_band", "composite_score"],
+            "properties": {
+              "id_hash": { "type": "string", "maxLength": 64 },
+              "tags": {
+                "type": "array",
+                "items": { "type": "string", "maxLength": 40 }
+              },
+              "hsi_band": {
+                "type": "string",
+                "enum": ["high", "medium", "low"]
+              },
+              "composite_score": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+    "Constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "privacy": { "type": "string" },
+        "max_tokens": { "type": "integer" }
+      }
+    },
+    "ClaimProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "summary"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": ["string", "null"] },
+        "summary": { "type": "string" },
+        "depth": { "type": ["integer", "null"] },
+        "edgeTypeIn": { "type": ["string", "null"] },
+        "score": { "type": "number" },
+        "reviewStatus": { "type": ["string", "null"] },
+        "lastSeenAt": { "type": ["integer", "null"] }
+      }
+    },
+    "ContradictionProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claimAId", "claimBId", "depth", "explanation"],
+      "properties": {
+        "claimAId": { "type": ["string", "null"] },
+        "claimBId": { "type": ["string", "null"] },
+        "depth": { "type": "integer" },
+        "explanation": { "type": ["string", "null"] }
+      }
+    },
+    "UnsupportedProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claimId", "type", "reviewStatus", "lastSeenAt", "explanation"],
+      "properties": {
+        "claimId": { "type": ["string", "null"] },
+        "type": { "type": ["string", "null"] },
+        "reviewStatus": { "type": ["string", "null"] },
+        "lastSeenAt": { "type": ["integer", "null"] },
+        "explanation": { "type": ["string", "null"] }
+      }
+    },
+    "RecentChangeProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "eventType", "targetNodeId", "createdAt"],
+      "properties": {
+        "id": { "type": "string" },
+        "eventType": { "type": "string" },
+        "targetNodeId": { "type": ["string", "null"] },
+        "createdAt": { "type": "integer" }
+      }
+    },
+    "LocalGraphSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "nearest_claims",
+        "nearest_assumptions",
+        "contradictions",
+        "unsupported_claims",
+        "recent_changes",
+        "banked_opportunities"
+      ],
+      "properties": {
+        "nearest_claims": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ClaimProjection" }
+        },
+        "nearest_assumptions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ClaimProjection" }
+        },
+        "contradictions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ContradictionProjection" }
+        },
+        "unsupported_claims": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/UnsupportedProjection" }
+        },
+        "recent_changes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RecentChangeProjection" }
+        },
+        "banked_opportunities": { "$ref": "#/$defs/BankedOpportunities" }
+      }
+    },
+    "BrainResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "job_id": { "type": "string" },
+        "suggestions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "suggestion_index": { "type": "integer" },
+              "job_id": { "type": "string" },
+              "summary": { "type": "string" },
+              "methodology": { "type": ["string", "null"] },
+              "body": { "type": "string" },
+              "confidence": { "type": "number" },
+              "graph_updates_proposed": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["source", "target", "type"],
+                  "properties": {
+                    "source": { "type": "string" },
+                    "target": { "type": "string" },
+                    "type": { "type": "string" },
+                    "confidence": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "select_methodology": {
+      "in": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "packet_version",
+          "job",
+          "room_stage",
+          "origin",
+          "privacy_mode",
+          "active_context",
+          "local_graph_summary",
+          "constraints"
+        ],
+        "properties": {
+          "packet_version": { "const": "1.0" },
+          "job": { "const": "select_methodology" },
+          "room_stage": { "type": ["string", "null"] },
+          "origin": { "$ref": "#/$defs/Origin" },
+          "privacy_mode": { "const": "local_summary_only" },
+          "active_context": { "$ref": "#/$defs/ActiveContext" },
+          "local_graph_summary": { "$ref": "#/$defs/LocalGraphSummary" },
+          "constraints": { "$ref": "#/$defs/Constraints" }
+        }
+      },
+      "out": { "$ref": "#/$defs/BrainResponse" }
+    },
+    "suggest_next_move": {
+      "in": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "packet_version",
+          "job",
+          "room_stage",
+          "origin",
+          "privacy_mode",
+          "active_context",
+          "local_graph_summary",
+          "constraints"
+        ],
+        "properties": {
+          "packet_version": { "const": "1.0" },
+          "job": { "const": "suggest_next_move" },
+          "room_stage": { "type": ["string", "null"] },
+          "origin": { "$ref": "#/$defs/Origin" },
+          "privacy_mode": { "const": "local_summary_only" },
+          "active_context": { "$ref": "#/$defs/ActiveContext" },
+          "local_graph_summary": { "$ref": "#/$defs/LocalGraphSummary" },
+          "constraints": { "$ref": "#/$defs/Constraints" }
+        }
+      },
+      "out": { "$ref": "#/$defs/BrainResponse" }
+    },
+    "detect_contradiction": {
+      "in": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "packet_version",
+          "job",
+          "room_stage",
+          "origin",
+          "privacy_mode",
+          "active_context",
+          "local_graph_summary",
+          "constraints"
+        ],
+        "properties": {
+          "packet_version": { "const": "1.0" },
+          "job": { "const": "detect_contradiction" },
+          "room_stage": { "type": ["string", "null"] },
+          "origin": { "$ref": "#/$defs/Origin" },
+          "privacy_mode": { "const": "local_summary_only" },
+          "active_context": { "$ref": "#/$defs/ActiveContext" },
+          "local_graph_summary": { "$ref": "#/$defs/LocalGraphSummary" },
+          "constraints": { "$ref": "#/$defs/Constraints" }
+        }
+      },
+      "out": { "$ref": "#/$defs/BrainResponse" }
+    },
+    "summarize_neighborhood": {
+      "in": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "packet_version",
+          "job",
+          "room_stage",
+          "origin",
+          "privacy_mode",
+          "active_context",
+          "local_graph_summary",
+          "constraints"
+        ],
+        "properties": {
+          "packet_version": { "const": "1.0" },
+          "job": { "const": "summarize_neighborhood" },
+          "room_stage": { "type": ["string", "null"] },
+          "origin": { "$ref": "#/$defs/Origin" },
+          "privacy_mode": { "const": "local_summary_only" },
+          "active_context": { "$ref": "#/$defs/ActiveContext" },
+          "local_graph_summary": { "$ref": "#/$defs/LocalGraphSummary" },
+          "constraints": { "$ref": "#/$defs/Constraints" }
+        }
+      },
+      "out": { "$ref": "#/$defs/BrainResponse" }
+    },
+    "classify_room_budding": {
+      "in": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "packet_version",
+          "job",
+          "room_stage",
+          "origin",
+          "privacy_mode",
+          "active_context",
+          "local_graph_summary",
+          "constraints"
+        ],
+        "properties": {
+          "packet_version": { "const": "1.0" },
+          "job": { "const": "classify_room_budding" },
+          "room_stage": { "type": ["string", "null"] },
+          "origin": { "$ref": "#/$defs/Origin" },
+          "privacy_mode": { "const": "local_summary_only" },
+          "active_context": { "$ref": "#/$defs/ActiveContext" },
+          "local_graph_summary": { "$ref": "#/$defs/LocalGraphSummary" },
+          "constraints": { "$ref": "#/$defs/Constraints" }
+        }
+      },
+      "out": { "$ref": "#/$defs/BrainResponse" }
+    },
+    "rank_assumptions": {
+      "in": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "packet_version",
+          "job",
+          "room_stage",
+          "origin",
+          "privacy_mode",
+          "active_context",
+          "local_graph_summary",
+          "constraints"
+        ],
+        "properties": {
+          "packet_version": { "const": "1.0" },
+          "job": { "const": "rank_assumptions" },
+          "room_stage": { "type": ["string", "null"] },
+          "origin": { "$ref": "#/$defs/Origin" },
+          "privacy_mode": { "const": "local_summary_only" },
+          "active_context": { "$ref": "#/$defs/ActiveContext" },
+          "local_graph_summary": { "$ref": "#/$defs/LocalGraphSummary" },
+          "constraints": { "$ref": "#/$defs/Constraints" }
+        }
+      },
+      "out": { "$ref": "#/$defs/BrainResponse" }
+    },
+    "generate_feynman_explanation": {
+      "in": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "packet_version",
+          "job",
+          "room_stage",
+          "origin",
+          "privacy_mode",
+          "active_context",
+          "local_graph_summary",
+          "constraints"
+        ],
+        "properties": {
+          "packet_version": { "const": "1.0" },
+          "job": { "const": "generate_feynman_explanation" },
+          "room_stage": { "type": ["string", "null"] },
+          "origin": { "$ref": "#/$defs/Origin" },
+          "privacy_mode": { "const": "local_summary_only" },
+          "active_context": { "$ref": "#/$defs/ActiveContext" },
+          "local_graph_summary": { "$ref": "#/$defs/LocalGraphSummary" },
+          "constraints": { "$ref": "#/$defs/Constraints" }
+        }
+      },
+      "out": { "$ref": "#/$defs/BrainResponse" }
+    },
+    "strengthen_minto": {
+      "in": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "packet_version",
+          "job",
+          "room_stage",
+          "origin",
+          "privacy_mode",
+          "active_context",
+          "local_graph_summary",
+          "constraints"
+        ],
+        "properties": {
+          "packet_version": { "const": "1.0" },
+          "job": { "const": "strengthen_minto" },
+          "room_stage": { "type": ["string", "null"] },
+          "origin": { "$ref": "#/$defs/Origin" },
+          "privacy_mode": { "const": "local_summary_only" },
+          "active_context": { "$ref": "#/$defs/ActiveContext" },
+          "local_graph_summary": { "$ref": "#/$defs/LocalGraphSummary" },
+          "constraints": { "$ref": "#/$defs/Constraints" }
+        }
+      },
+      "out": { "$ref": "#/$defs/BrainResponse" }
+    },
+    "prepare_investor_brief": {
+      "in": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "packet_version",
+          "job",
+          "room_stage",
+          "origin",
+          "privacy_mode",
+          "active_context",
+          "local_graph_summary",
+          "constraints"
+        ],
+        "properties": {
+          "packet_version": { "const": "1.0" },
+          "job": { "const": "prepare_investor_brief" },
+          "room_stage": { "type": ["string", "null"] },
+          "origin": { "$ref": "#/$defs/Origin" },
+          "privacy_mode": { "const": "local_summary_only" },
+          "active_context": { "$ref": "#/$defs/ActiveContext" },
+          "local_graph_summary": { "$ref": "#/$defs/LocalGraphSummary" },
+          "constraints": { "$ref": "#/$defs/Constraints" }
+        }
+      },
+      "out": { "$ref": "#/$defs/BrainResponse" }
+    },
+    "opportunity_react": {
+      "in": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "packet_version",
+          "job",
+          "room_stage",
+          "origin",
+          "privacy_mode",
+          "active_context",
+          "local_graph_summary",
+          "constraints"
+        ],
+        "properties": {
+          "packet_version": { "const": "1.0" },
+          "job": { "const": "opportunity_react" },
+          "room_stage": { "type": ["string", "null"] },
+          "origin": { "$ref": "#/$defs/Origin" },
+          "privacy_mode": { "const": "local_summary_only" },
+          "active_context": { "$ref": "#/$defs/ActiveContext" },
+          "local_graph_summary": { "$ref": "#/$defs/LocalGraphSummary" },
+          "constraints": { "$ref": "#/$defs/Constraints" }
+        }
+      },
+      "out": { "$ref": "#/$defs/BrainResponse" }
+    },
+    "opportunity_reflect": {
+      "in": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "packet_version",
+          "job",
+          "room_stage",
+          "origin",
+          "privacy_mode",
+          "active_context",
+          "local_graph_summary",
+          "constraints"
+        ],
+        "properties": {
+          "packet_version": { "const": "1.0" },
+          "job": { "const": "opportunity_reflect" },
+          "room_stage": { "type": ["string", "null"] },
+          "origin": { "$ref": "#/$defs/Origin" },
+          "privacy_mode": { "const": "local_summary_only" },
+          "active_context": { "$ref": "#/$defs/ActiveContext" },
+          "local_graph_summary": { "$ref": "#/$defs/LocalGraphSummary" },
+          "constraints": { "$ref": "#/$defs/Constraints" }
+        }
+      },
+      "out": { "$ref": "#/$defs/BrainResponse" }
+    },
+    "opportunity_rank": {
+      "in": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "packet_version",
+          "job",
+          "room_stage",
+          "origin",
+          "privacy_mode",
+          "active_context",
+          "local_graph_summary",
+          "constraints"
+        ],
+        "properties": {
+          "packet_version": { "const": "1.0" },
+          "job": { "const": "opportunity_rank" },
+          "room_stage": { "type": ["string", "null"] },
+          "origin": { "$ref": "#/$defs/Origin" },
+          "privacy_mode": { "const": "local_summary_only" },
+          "active_context": { "$ref": "#/$defs/ActiveContext" },
+          "local_graph_summary": { "$ref": "#/$defs/LocalGraphSummary" },
+          "constraints": { "$ref": "#/$defs/Constraints" }
+        }
+      },
+      "out": { "$ref": "#/$defs/BrainResponse" }
+    }
+  }
+}

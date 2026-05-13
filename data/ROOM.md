@@ -20,6 +20,7 @@ created: 2026-05-12
 |------|--------------|---------|
 | `command-registry.json` | `scripts/build-command-registry.cjs` | The framework <-> command registry: `{ ontology_ref, generated_note, commands[], framework_index, curated_chains[] }`. Built from the `frameworks:` / `kind:` / `produces:` / `inputs:` / `autonomous_safe:` keys in every `commands/*.md` frontmatter. The resolver (`lib/workflow/command-resolver.cjs`) reads only this file at runtime. DO NOT hand-edit -- the pre-commit hook and the Feynman runner reject a stale registry. Regenerate: `node scripts/build-command-registry.cjs`. |
 | `framework-names.json` | `scripts/build-command-registry.cjs --refresh-names` | The committed snapshot of the FEEDS_INTO-linked Brain `:Framework` names (the ~105-name traversable slice, NOT all 748 -- junk like "Amazon" / "Charles Kirschbaum" is excluded) PLUS a small `curated_extras` whitelist of legitimate `:Framework` nodes not yet FEEDS_INTO-linked. The registry validates every `frameworks:` entry against `framework_names UNION curated_extras`; an unresolvable name fails the build. Refresh: `node scripts/build-command-registry.cjs --refresh-names` (a read-only build-time `brain.query`, never at runtime). |
+| `brain-packet-schema.json` | `scripts/build-brain-packet-schema.cjs` (validated, not generated -- hand-maintained source of truth) | The Brain Context Packet wire format (draft 2020-12 JSON Schema): `$defs` per all 12 closed-vocabulary Brain jobs (each carrying an `in` and an `out` shape), shared `$defs` for `LocalGraphSummary` / `BankedOpportunities` / the `privacy_mode` enum / the `packet_version` const / the `origin` enum / the 4 safe-projection shapes, `additionalProperties: false` on every object node (the Canon Part 8 leak-prevention teeth). `lib/core/brain-client.cjs::sendPacket` (Phase 110-03) compiles it once and validates every outbound packet and every Brain response against the job's `in`/`out`. DO NOT hand-edit carelessly -- the pre-commit hook (Phase 110-04) and the Feynman runner reject a malformed schema / a job missing `in`+`out` / an unknown-job `$def` / a missing `additionalProperties: false`. Re-validate: `node scripts/build-brain-packet-schema.cjs --check`. Bound to Phase 110; canon parts 8 + 9. |
 
 ## Canon Part 8 boundary (plugin-local, validated AGAINST the Brain, never written back)
 
@@ -32,8 +33,9 @@ Per `CLAUDE.md` Decision #15, every directory carries a ROOM.md identity file. `
 ## Cross-references
 
 - Generator: `scripts/build-command-registry.cjs`
+- Schema validator (Phase 110-01): `scripts/build-brain-packet-schema.cjs`
 - Resolver (runtime consumer): `lib/workflow/command-resolver.cjs` (Phase 122-03)
 - Frontmatter contract: `docs/COMMAND-FRONTMATTER.md`
 - Spec: `.planning/WORKFLOW-LAYER-SPEC.md`
-- Canon: `docs/MINDRIAN-CANON.md` Parts 7, 8
+- Canon: `docs/MINDRIAN-CANON.md` Parts 7, 8 (and Part 9 via `brain-packet-schema.json`)
 - Sibling identity reference: `lib/workflow/ROOM.md` (Phase 122)
