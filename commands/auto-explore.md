@@ -1,6 +1,7 @@
 ---
 description: "Manually trigger auto-explore on a specific file (Desktop fallback when PostToolUse hook does not fire per RESEARCH 4.8)"
 argument-hint: "<file_path>"
+serves_jtbd: ["find-problem", "understand-market", "explore"]
 allowed-tools:
   - "Bash"
   - "Read"
