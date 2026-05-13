@@ -142,7 +142,7 @@ Remove `neo4j-brain` and `pinecone-brain` from `.mcp.json` if present.
 
 Ask the user:
 
-> "Do you have a Brain API key? If not, request one at mindrianos-jsagirs-projects.vercel.app/brain-access -- you'll get it within 24 hours."
+> "Do you have a Brain API key? If not, request one at mindrianos.vercel.app/brain-access -- you'll get it within 24 hours."
 
 If the user provides a key:
 
@@ -206,7 +206,7 @@ curl -s -w "\n%{http_code}" --max-time 15 \
 > "Brain connected and verified. Larry just got smarter. Your existing commands now have graph intelligence behind them. Try `/mos:suggest-next`."
 
 **On health OK but key auth failure (401):**
-> "Brain server is up, but your key was rejected. Double-check the key you received, or request a new one at mindrianos-jsagirs-projects.vercel.app/brain-access"
+> "Brain server is up, but your key was rejected. Double-check the key you received, or request a new one at mindrianos.vercel.app/brain-access"
 
 **On health OK but key verification timeout:**
 > "Brain server is up and your key is saved. Verification timed out but that is normal on first connect. Try `/mos:suggest-next` to confirm it works."

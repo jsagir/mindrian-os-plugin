@@ -5,6 +5,15 @@ Date: 2026-05-12
 Author: Jonathan Sagir with Claude-as-Larry
 Canon parts: Part 6 (Product-as-Venture / dog-fooding mandate), Part 5 (Evidence Is Graded By Context)
 
+> **Note (Phase 123 implementation):** this document is the original spec.
+> The planning artifacts at `.planning/phases/123-install-lifecycle-harness/`
+> (CONTEXT + RESEARCH + per-plan PLANs + SUMMARYs) supersede this doc where
+> they differ. References to `scripts/release-beta-smoke.sh` are obsolete --
+> that script was retired in Plan 123-04 and replaced by
+> `mindrian-os doctor --acceptance --pre-tag` (run by `release.sh` before
+> the tag) and the full `mindrian-os doctor --acceptance` (run after the
+> publish).
+
 ---
 
 ## The disease
@@ -88,7 +97,7 @@ This replaces the ad-hoc 5-test suite the Windows tester re-ran by hand every cy
 ### 5. `release.sh` owns versions — pre-releases included — and refuses on a dirty repo
 
 - Teach it `--prerelease` (`beta.N → beta.N+1`). It currently does `IFS='.' read -r MAJOR MINOR PATCH` which mangles `1.13.0-beta.11` (`PATCH=0-beta`); it choked on the pre-release version, which is why beta.10 / 11 / 12 / 13 were hand-rolled.
-- Fix Step 9.5: it still names `@mindrian_os/cli`; the package is `@mindrian_os/install` now.
+- Fix Step 9.5: it used to name `@mindrian_os/cli`; the package is `@mindrian_os/install` now (renamed during the v1.13.0 cycle). Phase 123 Plan-01 finalized the rename across `scripts/release.sh`; Plan-05 finished the doc/test sweep.
 - `plugin.json` is always "the next version to ship." `release.sh` ships it *and* bumps to the next pre-release in the same commit — so there is never a "repo says `beta.11`, registry already has `beta.11`" state, and the CHANGELOG `[Unreleased]` heading tracks the next version instead of being repeatedly re-finalized.
 - Before it pushes: snapshot `git log origin/main..HEAD`, print exactly what is going up, and refuse (or do the release on a branch) if the delta isn't just the release commit — so a parallel process's commits can't hitchhike (a Phase 109 docs commit did, into the beta.12 push).
 
@@ -101,7 +110,7 @@ This replaces the ad-hoc 5-test suite the Windows tester re-ran by hand every cy
 - Bug 7 (doctor false-positive on marketplace-only installs) → piece 3.
 - `release.sh` pre-release support + Step 9.5 package rename → piece 5.
 - Cache pruning on update (`~/.claude/plugins/cache/<marketplace>/mos/` accumulates) → a `session-start` / `doctor --fix` step keyed off `installed_plugins.json` (keep the active version + N most recent; never delete the active one).
-- `@mindrian_os/cli` → `@mindrian_os/install` doc/test sweep (`docs/install/PACKAGING-PATHS.md`, `tests/manual/95.6-windows-cold-install-acceptance.md`, `tests/test-release-npm-gate.sh`) → cleanup, fold into the same phase.
+- `@mindrian_os/cli` → `@mindrian_os/install` doc/test sweep (`docs/install/PACKAGING-PATHS.md`, `tests/manual/95.6-windows-cold-install-acceptance.md`, `tests/test-release-npm-gate.sh`) → cleanup, fold into the same phase. (Done in Plan-05.)
 
 ---
 
@@ -121,5 +130,5 @@ This replaces the ad-hoc 5-test suite the Windows tester re-ran by hand every cy
 2. The install-state record + the deployment-surface manifest (pieces 1 & 2 finished).
 3. `doctor` drift-class enumeration + `--fix`s + fixtures (piece 3, incl. Bug 7).
 4. `mindrian-os doctor --acceptance` + wire it into `release.sh` (piece 4).
-5. Cache pruning + the `@mindrian_os/cli` doc/test sweep (cleanup).
+5. Cache pruning + the `@mindrian_os/cli` → `@mindrian_os/install` doc/test sweep (cleanup).
 6. Cut `v1.13.0-beta.13` (and onward) via the now-fixed `release.sh`; validate with `--acceptance` on a real Windows box before promotion.
