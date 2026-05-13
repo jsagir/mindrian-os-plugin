@@ -1287,6 +1287,15 @@ Plans:
 - [ ] 123-07-PLAN.md -- lib/core/resolve-brain-key.cjs (env -> ~/.mindrian.env -> CWD .env -> not-found; SEC-02 POSIX permission check) + 3 consumer rewirings (brain-client.cjs::getApiKey, session-start Brain status line, brain-connector SKILL.md step 0) + chmod 600 + Bearer-only docs (wave 6)
 - [ ] 123-06-PLAN.md -- cut v1.13.0-beta.13 via the fixed release.sh + docs/CANON-PHASE-MAP.md Part 6 + Part 7 rows + Windows operator manual --acceptance checkpoint gating promotion to clean 1.13.0 (wave 7)
 
+### Phase 124: FEYNMAN.md temporal awareness (REGISTERED 2026-05-13 - STUB)
+
+**Goal:** Make `FEYNMAN.md` aware of when its insights were captured, last touched, and whether they've gone stale -- by appending a hook-regenerated `## Timeline (auto)` section to each `FEYNMAN.md` that reads from the Phase 109 `memory_event` log (`navigation.findRecentChanges` + `navigation.findStaleDecisions` + a "first-captured / last-touched" projection per insight). The human-authored body of `FEYNMAN.md` stays text-pure; the appended section is the machine view -- regenerated on file write, never hand-edited. Canon Part 9 alignment: "Files preserve meaning. SQL remembers and navigates. Brain reasons. Larry explains." -- this is the Larry-explains face of `memory_event`. Out of scope: per-insight inline timestamps in the body (Option A); a sibling TIMELINE.md file (Option D); back-dating SQL events from existing FEYNMAN.md body parse. Discussion 2026-05-13 picked Option B (auto-section); A/D considered and rejected.
+**Requirements**: [TEMPORAL-124-01..NN -- defined in plan-phase]
+**Depends on:** Phase 88 (memory triple: ROOM.md / MINTO.md / FEYNMAN.md), Phase 90 (BRAIN.md quadruple), Phase 109 (memory_event log + findRecentChanges + findStaleDecisions + navigation.cjs chokepoint)
+**Target band:** v1.13.0-final or v1.14.0 (decide in plan-phase based on whether the auto-section format is judged backwards-compatible with existing FEYNMAN.md consumers)
+**Canon parts:** Part 9 (Memory Locality -- the Larry-explains face), Part 5 (Evidence is graded by context -- "stale" surfaces as a context signal alongside the existing tier)
+**Plans:** TBD - run /gsd:discuss-phase 124 then /gsd:plan-phase 124
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
