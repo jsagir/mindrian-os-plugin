@@ -289,7 +289,11 @@ fi
 echo -e "\n${BOLD}12. Git State${NC}"
 
 cd "$PLUGIN_ROOT"
-UNCOMMITTED=$(git status --porcelain 2>/dev/null | grep -v "^??" | wc -l)
+# Plan 123-06 release-flight hot-patch (2026-05-13): `grep -v "^??"` exits 1 when
+# the working tree has only untracked files (no tracked uncommitted changes); under
+# `set -e` that kills the script silently. Wrap with `|| true` so a clean repo is
+# correctly counted as 0.
+UNCOMMITTED=$(git status --porcelain 2>/dev/null | { grep -v "^??" || true; } | wc -l)
 if [ "$UNCOMMITTED" -eq 0 ]; then
   pass "No uncommitted changes in plugin repo"
 else
@@ -298,7 +302,7 @@ fi
 
 if [ -d "$MARKETPLACE_DIR" ]; then
   cd "$MARKETPLACE_DIR"
-  UNCOMMITTED_M=$(git status --porcelain 2>/dev/null | grep -v "^??" | wc -l)
+  UNCOMMITTED_M=$(git status --porcelain 2>/dev/null | { grep -v "^??" || true; } | wc -l)
   if [ "$UNCOMMITTED_M" -eq 0 ]; then
     pass "No uncommitted changes in marketplace repo"
   else
