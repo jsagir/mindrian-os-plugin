@@ -1323,17 +1323,19 @@ Plans:
 **Target band:** v1.13.0-beta.14 (per Path E reordering 2026-05-13: Phase 125 ships beta.14 BEFORE Phase 126 install-lifecycle-harness-gaps beta.15, because Step 0 tag-push was already at origin so install hardening is no longer a blocker for testers; ranker's "intelligent Brain-using" payoff lands 1 week sooner)
 **Canon parts:** Part 3 (F-shape selector contract -- F.0 accept / F.1 defer / F.2 reject triad + none-fit affordance); Part 4 (every choice is graph data -- reject/defer emit typed cascade edges); Part 7 (Reuse over build -- ranker sits above shipped resolver, recommender, packet); Part 9 (SQL navigates via local graph + Brain packets as structured context surface; writes route through navigation.cjs chokepoint)
 **Brain impact:** READ-ONLY (1-3 hop FEEDS_INTO Cypher slice; no Brain writes)
-**Plans:** 8 plans (see .planning/phases/125-f-selector-ranker/125-CONTEXT.md plan map)
+**Requirements:** RANKER-125-00, RANKER-125-01, RANKER-125-02, RANKER-125-03, RANKER-125-04, RANKER-125-05, RANKER-125-06, RANKER-125-07, RANKER-125-08, RANKER-125-09, RANKER-125-10, RANKER-125-11, RANKER-125-12
+**Plans:** 9 plans (see .planning/phases/125-f-selector-ranker/125-CONTEXT.md plan map; Plan 00 added pass 3 post-research per GAP-2 resolution)
 
 Plans:
-- [ ] 125-01: navigation.resolveActiveFrameworks + resolveHopDepth + computeInvestmentLevel [D1, D2, D3]
-- [ ] 125-02: Brain Cypher slice query (parameterized 1-3 hop, LIMIT 50) [D2]
-- [ ] 125-03: Packet builder extension (framework_chain_hint in local_graph_summary) [D4]
-- [ ] 125-04: Schema update + ajv validator integration (superset) [D4]
-- [ ] 125-05: f-selector-ranker.cjs (continuous-gradient scoring + JTBD + teaching + content selection by investment + decay-weight integration) [D4, D6, D9]
-- [ ] 125-06: selector-decisions.cjs (recordSelectorDecision + applyDecayWeight + REJECTED/DEFERRED edge writes via navigation.cjs chokepoint) [D7]
-- [ ] 125-07: None-fit affordance: recordSelectorMiss + renderNoneFitAffordance + memory_event payload schema with top_k_offered capture [D8]
-- [ ] 125-08: Documentation + WORKFLOW-LAYER-SPEC + consumer guide (includes selector-decisions + miss capture wiring for Phase 116 + 117 consumers) [D7-D11]
+- [ ] 125-00-PLAN.md -- navigation.cjs writeEdge primitive (15th re-export; Pass 3 GAP-2 resolution; precedent: Phase 110-03 logMemoryEvent additive) [D7 extension] [wave 0]
+- [ ] 125-01-PLAN.md -- navigation.resolveActiveFrameworks + resolveHopDepth + computeInvestmentLevel projection helpers + framework_invoked EVENT_TYPES extension [D1, D2, D3] [wave 1]
+- [ ] 125-02-PLAN.md -- Brain Cypher slice query (parameterized 1-3 hop FEEDS_INTO, LIMIT 50, sanitized) via lib/brain/framework-chain-slice.cjs [D2 + Canon Part 8] [wave 1]
+- [ ] 125-03-PLAN.md -- buildBrainPacket extension: framework_chain_hint in local_graph_summary (conditional on active set non-empty) [D4] [wave 2]
+- [ ] 125-04-PLAN.md -- Schema superset + ajv validator integration (additionalProperties:false preserved; 12-job D-02 untouched) [D4 + schema invariant] [wave 1]
+- [ ] 125-05-PLAN.md -- f-selector-ranker.cjs: rankForSelector + selectWhyContent + render badges (D4 continuous-gradient scoring + D9 investment-aware why + D7 decay integration via opts injection) [D4, D6, D9, D10] [wave 3]
+- [ ] 125-06-PLAN.md -- selector-decisions.cjs: recordSelectorDecision + applyDecayWeight + shouldExclude + f_selector_decision event_type (REJECTED/DEFERRED edge writes via Plan 00 writeEdge chokepoint) [D7] [wave 3]
+- [ ] 125-07-PLAN.md -- D8 none-fit: recordSelectorMiss + renderNoneFitAffordance + f_selector_miss event_type (memory_event-only; no edge; user_intent LOCAL-only per Canon Part 8) [D8] [wave 3]
+- [ ] 125-08-PLAN.md -- Documentation: F-SELECTOR-CONSUMER-GUIDE.md + WORKFLOW-LAYER-SPEC + docs/WORKFLOWS update + tests/run-all-125.sh aggregator + Feynman runner registration [D7-D11 + RANKER-125-12] [wave 4]
 
 ### Phase 126: install-lifecycle-harness-gaps
 

@@ -515,6 +515,19 @@
 | HARNESS-123-15 | Phase 123 | Complete |
 | HARNESS-123-16 | Phase 123 | Complete |
 | HARNESS-123-17 | Phase 123 | Pending |
+| RANKER-125-00 | Phase 125 | Pending |
+| RANKER-125-01 | Phase 125 | Pending |
+| RANKER-125-02 | Phase 125 | Pending |
+| RANKER-125-03 | Phase 125 | Pending |
+| RANKER-125-04 | Phase 125 | Pending |
+| RANKER-125-05 | Phase 125 | Pending |
+| RANKER-125-06 | Phase 125 | Pending |
+| RANKER-125-07 | Phase 125 | Pending |
+| RANKER-125-08 | Phase 125 | Pending |
+| RANKER-125-09 | Phase 125 | Pending |
+| RANKER-125-10 | Phase 125 | Pending |
+| RANKER-125-11 | Phase 125 | Pending |
+| RANKER-125-12 | Phase 125 | Pending |
 
 ## Phase 123: install-lifecycle-harness
 
@@ -537,3 +550,21 @@
 | HARNESS-123-15 | `lib/core/resolve-brain-key.cjs` -- the single Brain-key resolver (order: env -> `~/.mindrian.env` -> CWD `.env` -> not-found; returns `{key, source, available, reason}`; SEC-02 group/world-bit POSIX check sets `available:false` with explicit `reason`; CLI form; Canon Part 8 clean) + the 3 consumer rewirings (`brain-client.cjs::getApiKey()` delegation + docstring fix; `scripts/session-start` Brain block -> 3-case positive status line; `skills/brain-connector/SKILL.md` step-0 + CLI Tool Names row) | Plan 07 |
 | HARNESS-123-16 | SEC-02 `chmod 600 ~/.mindrian.env` on write (POSIX only, no-op on Windows) in `commands/setup.md` (`/mos:setup brain`) + `install.sh` (annotated if it doesn't write the file); `docs/install/BRAIN-SETUP.md` + `.env.brain.template` state Bearer-only + surface the `https://mindrianos.vercel.app/brain-access` request-access URL + `MINDRIAN_BRAIN_URL` override; CHANGELOG `brain.mindrian.ai` prose softened to "currently `*.onrender.com`, moving to `brain.mindrian.ai`" | Plan 07 |
 | HARNESS-123-17 | Cut `v1.13.0-beta.13` via the fixed `release.sh --prerelease` (the real run + the dry-run safety net); carries Plans 01-05 + 07 + the still-pending Phase 109 release commit + Phase 110 docs + the brain-client fix; `docs/CANON-PHASE-MAP.md` updated with Part-6 + Part-7 rows; Windows operator manual `doctor --acceptance` checkpoint documented (gates promotion to clean `1.13.0`) | Plan 06 |
+
+## Phase 125: F-Selector Ranker
+
+| ID | Description | Plan |
+|----|-------------|------|
+| RANKER-125-00 | `navigation.cjs` gains a 15th re-export `writeEdge({source_id, target_id, edge_type, properties})` (additive Pass 3 GAP-2 resolution); routes through `lib/core/navigation/edges.cjs` internal helper; allowlist gate via `ALLOWED_EDGE_TYPES` Set (initially `DEFERRED`, `REJECTED`; extensible additively per Phase 110-03 logMemoryEvent precedent); UPSERTs into the edges table with same shape as `lazygraph-ops.cjs::upsertEdge` | Plan 00 |
+| RANKER-125-01 | `navigation.resolveActiveFrameworks(roomState)` returns ordered framework list using 4-signal precedence (governing_thought > activeJtbd > BRAIN.md anchors > memory_event recency); empty array on empty roomState; pure synchronous projection helper in `lib/core/navigation/projections.cjs` | Plan 01 |
+| RANKER-125-02 | `navigation.resolveHopDepth(roomState)` returns `{depth: 1|2|3, rationale: string}`; defaults to 3 (WIDE) on ambiguity; D2 thresholds: depth 1 = WDP + strong governing_thought; depth 2 = IDP; depth 3 = wicked / no anchor. `computeInvestmentLevel(roomState)` returns `{level: 0..1, label: string}`; level = min(1.0, framework_invocations / 10); linear 0.1..1.0 across 1..10 invocations. `framework_invoked` added to EVENT_TYPES Set as the counter source. | Plan 01 |
+| RANKER-125-03 | Brain Cypher slice query (parameterized 1..3 hop FEEDS_INTO, LIMIT 50, $active_frameworks + $max_hops only) ships as `lib/brain/framework-chain-slice.cjs::fetchFrameworkChainSlice`; routes through `brain-client.query` + `sanitizeCypherInput`; degrades gracefully when Brain unreachable / throws / invalid params (never throws to caller); Canon Part 8 clean (no user content in Cypher) | Plan 02 |
+| RANKER-125-04 | Brain Cypher slice query routed via `brain-client.query` with `$active_frameworks` (array of sanitized framework name strings) + `$max_hops` (1|2|3 int); read-only; LIMIT 50 enforced in template string; brain_snapshot_id derived as sha256 of result JSON when Brain commit_id unavailable | Plan 02 |
+| RANKER-125-05 | `buildBrainPacket` extension carries `local_graph_summary.framework_chain_hint = {edges, slice_scope, slice_rationale, brain_snapshot_id, fetched_at}` when active set non-empty; field ABSENT (not null, not empty object) when active set empty; existing 6 local_graph_summary fields preserved; Phase 110 packet_version unchanged | Plan 03 |
+| RANKER-125-06 | `data/brain-packet-schema.json` superset: adds `$defs.FrameworkChainHint` + `framework_chain_hint` as OPTIONAL property on `$defs.LocalGraphSummary`; 12-job closed-vocab D-02 UNTOUCHED; `additionalProperties: false` invariant preserved on every object node; ajv2020 validator accepts packets with and without the hint | Plan 04 |
+| RANKER-125-07 | `rankForSelector({jtbd, problemType, focusNodeId, roomState, packetOptional, k=3})` returns Array<{command, jtbd_label, jtbd_summary, teaching, framework, score, why, source, investment_level}>; pure + synchronous + no I/O; D4 continuous-gradient scoring formula; score normalized 0..1; decay-weight applied via opts._applyDecayWeight injection (D7 integration); D6 + D11 fail-closed for missing jtbd_summary OR teaching; cold-start (empty roomState) returns at most k registry-only items, never crashes | Plan 05 |
+| RANKER-125-08 | `selectWhyContent(jtbd_summary, teaching, investment_level)` -- pure helper implements D9 branching: investment_level < 0.4 returns teaching; investment_level >= 0.7 returns jtbd_summary; mid-band (0.4..0.7) returns teaching + " -- " + jtbd_summary (double-hyphen separator per the no-em-dash project rule + CONTEXT.md D9 spec) | Plan 05 |
+| RANKER-125-09 | `recordSelectorDecision({db, decision, command, framework, reason?, roomState, score_at_decision?})` writes memory_event with `event_type: 'f_selector_decision'` + writes typed DEFERRED/REJECTED edge via `navigation.writeEdge` (Plan 00 dependency); DEFERRED edge properties: `{reason, decision_id, expires_at}` (expires_at = now + 30 days default); REJECTED edge properties: `{reason, decision_id}`; both writes route through `navigation.cjs` chokepoint -- zero direct room-db access (grep verifiable) | Plan 06 |
+| RANKER-125-10 | `applyDecayWeight(base_score, command_id, roomState)` returns adjusted score using exponential decay formula `base_score * (1 - exp(-(N/5)))`; at invocation 0 since decision returns 0; at invocation 5 returns approximately 0.632 (within 0.05); at invocation 10 returns approximately 0.865; at invocation 15+ returns >= 0.95; pure function reading via `navigation.findRecentChanges`; `shouldExclude(command_id, roomState)` filter helper returns true when decay factor < EXCLUSION_THRESHOLD (0.1) | Plan 06 |
+| RANKER-125-11 | `recordSelectorMiss({db, top_k_offered, user_intent, roomState})` writes memory_event with `event_type: 'f_selector_miss'`; payload preserves `top_k_offered` array (full {command, score} pairs as offered) + verbatim `user_intent` + `investment_level_at_decision`; NO cascade edge written (miss is temporal-only per D8); ranker does NOT call /mos:do (consumer is responsible); `renderNoneFitAffordance()` returns the locked label string "None fit -- tell me what you need" per Open Question #8 lean. Canon Part 8 invariant: user_intent stays LOCAL; never crosses to Brain. | Plan 07 |
+| RANKER-125-12 | Documentation deliverables: `docs/F-SELECTOR-CONSUMER-GUIDE.md` (>= 80 lines; documents all 3 surfaces + wiring + canon invariants + D11 fallback); `.planning/WORKFLOW-LAYER-SPEC.md` Phase 125 section (10-15 lines); `docs/WORKFLOWS.md` Phase 125 entry; `tests/run-all-125.sh` aggregator script lists 8 plan-NN test files; `lib/memory/run-feynman-tests.cjs` TEST_FILES[] array registers all 8 Phase 125 test files | Plan 08 |
