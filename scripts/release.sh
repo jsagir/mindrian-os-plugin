@@ -44,10 +44,13 @@
 #   10. Update local marketplace cache.
 #   11. Post-release verification.
 #
-# TODO(plan-04): de-dup verify-release calls. Currently 2x (Step 2 + Step 6.5);
-# Plan-04 will wire `mindrian-os doctor --acceptance --pre-tag` (which also calls
-# verify-release) into Step 6.6 and `mindrian-os doctor --acceptance` (full) into
-# Step 9.6, taking the count to 3x. Accept the redundancy now; de-dup later.
+# TODO(future): de-dup verify-release calls. Plan-04 added Step 6.6 (which
+# calls doctor --acceptance --pre-tag, which internally re-runs verify-release)
+# and Step 9.6 (full doctor --acceptance, also re-runs verify-release). Combined
+# with Step 2 and Step 6.5 (both call verify-release directly), the count per
+# release is 4x. verify-release is idempotent + ~5s per run; accept the cost
+# for the safety net now. De-dup is a follow-up (e.g. skip Step 2 / Step 6.5
+# when Step 6.6 will also call it, by detecting --acceptance support).
 #
 # This script is the ONLY way to release. No manual pushes.
 
@@ -251,6 +254,27 @@ if echo "$REVAL" | grep -q "DO NOT RELEASE"; then
 fi
 echo -e "${GREEN}Post-bump verification passed${NC}"
 
+# --- Step 6.6: doctor --acceptance --pre-tag (HARD ABORT, no --allow) ---
+# Phase 123 Plan-04 (HARNESS-123-12): the pre-tag release gate as a command.
+# Runs the 5 points true BEFORE the tag + npm publish lands (install-state,
+# deployment-surfaces, version-of-record-repo, verify-release, doctor-all).
+# Any FAIL aborts the release BEFORE we tag or push. Rollback drops the bumps
+# we already made (plugin.json, package.json, CHANGELOG, marketplace.json) so
+# the working tree returns to the pre-Step-3 state. NO --allow override --
+# release infra is the one gate you cannot skip (CONTEXT D-16).
+echo ""
+echo "=== Step 6.6: doctor --acceptance --pre-tag ==="
+if ! node "$PLUGIN_DIR/scripts/doctor.cjs" --acceptance --pre-tag; then
+  echo -e "${RED}ABORT: doctor --acceptance --pre-tag failed -- release halted BEFORE tagging.${NC}"
+  echo "  Rolling back version bumps so the working tree returns to its pre-Step-3 state."
+  cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md || true
+  cd "$MARKETPLACE_DIR" && git checkout .claude-plugin/marketplace.json || true
+  echo "  See <recovery> R.1 in .planning/phases/123-install-lifecycle-harness/123-04-PLAN.md"
+  echo "  Investigate the failed sub-check before re-running release.sh."
+  exit 1
+fi
+echo -e "${GREEN}  --acceptance --pre-tag passed${NC}"
+
 # --- Step 7: Commit A (release commit) -- finalizes vN, NEVER git add -A ---
 # Commit A holds the version-of-record at vN. The vN git tag points HERE.
 # An install via `marketplace.json source.ref: vN` checks out THIS commit, so
@@ -419,6 +443,52 @@ echo ""
 echo "=== Step 9: Pushing plugin (main + tags) + marketplace ==="
 cd "$PLUGIN_DIR" && git push origin main --tags 2>&1
 cd "$MARKETPLACE_DIR" && git push origin master 2>&1
+
+# --- Step 9.6: doctor --acceptance (full, HARD ABORT, no --allow) ---
+# Phase 123 Plan-04 (HARNESS-123-12): the post-publish release gate as a command.
+# Runs the FULL 7-point checklist (the 5 pre-tag points PLUS
+# version-of-record-published + npx-roundtrip). If anything fails HERE, the
+# git tag is on origin, the npm publish has landed, and the marketplace
+# source.ref points at vN -- the published artifact is INCONSISTENT.
+#
+# WORST CASE: npm version slot for vN is burned. The recovery is
+# yank-+-cut-successor (NOT a retry of --acceptance against the broken
+# artifact). See <recovery> R.4 in 123-04-PLAN.md:
+#   - npm deprecate @mindrian_os/install@$NEW_VERSION "broken -- see vNEXT"
+#   - npm dist-tag rm @mindrian_os/install next
+#   - Fix the cause locally
+#   - bash scripts/release.sh --prerelease  (cuts vN+1 with the fix)
+#   - Notify Lawrence + any registered tester (REQUIRED, not optional).
+# Append the recovery path to ~/.mindrian/recovery-log.txt (R.7).
+#
+# Recovery quick-reference (cite when this aborts):
+#   R.1  Step 7 fail BEFORE publish: local-only reset, no notify
+#   R.2  Step 9.5 fail (publish errored): retry publish per Step 9.5 stanza
+#   R.3  Step 9 fail (push errored): retry push; investigate upstream
+#   R.4  Step 9.6 fail (this gate): YANK + cut successor + NOTIFY
+#   R.5  Operator notification template (Lawrence + testers/)
+#   R.6  Decision matrix (yank vs retry vs successor)
+#   R.7  Recovery log audit trail at ~/.mindrian/recovery-log.txt
+echo ""
+echo "=== Step 9.6: doctor --acceptance (full) ==="
+if ! node "$PLUGIN_DIR/scripts/doctor.cjs" --acceptance; then
+  echo -e "${RED}ABORT: doctor --acceptance (post-publish) failed.${NC}"
+  echo "  The release commit + tag + npm publish + push ALREADY LANDED, but the"
+  echo "  published artifact is INCONSISTENT. INVESTIGATE before any further releases."
+  echo ""
+  echo "  Recovery path: <recovery> R.4 (yank + cut successor):"
+  echo "    1. npm deprecate @mindrian_os/install@$NEW_VERSION \"broken -- see successor\""
+  echo "    2. npm dist-tag rm @mindrian_os/install next"
+  echo "    3. Fix the cause locally."
+  echo "    4. bash scripts/release.sh --prerelease   # cuts vN+1 with the fix"
+  echo "    5. NOTIFY Lawrence + any registered tester (REQUIRED -- subject:"
+  echo "       'MOS release v$NEW_VERSION ROLLED BACK -- do not install')."
+  echo "    6. Append to ~/.mindrian/recovery-log.txt:"
+  echo "       <ISO-timestamp> v$NEW_VERSION recovery-path=R.4 notes=<...>"
+  echo "  See .planning/phases/123-install-lifecycle-harness/123-04-PLAN.md <recovery>"
+  exit 1
+fi
+echo -e "${GREEN}  --acceptance (full) passed${NC}"
 
 # --- Step 10: Update local cache ---
 echo ""
