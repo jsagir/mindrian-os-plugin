@@ -212,7 +212,7 @@ fi
 
 # Phase 95.6 D-09: register the statusLine block FIRST -- before any cp/ln
 # loop -- so a failure in a later registration step can never again leave the
-# statusline unstamped (the Gary Laben 2026-05-08 + Jonathan "other machine"
+# statusline unstamped (the the Wave-2 tester 2026-05-08 + Jonathan "other machine"
 # symptom). This must run after the clone (so $INSTALL_DIR exists) and after
 # 95.6-04's Windows long-path preflight, but before Step 4.
 register_statusline
@@ -250,8 +250,8 @@ for skill_dir in "$INSTALL_DIR"/skills/*/; do
   # structurally incomplete. Skills are non-critical for first-load
   # (commands + agents are the load-bearing surface), so WARN and
   # continue rather than aborting under strict mode (the -e -u -o
-  # pipefail flags set at the top). This is the bug that broke Gary
-  # Laben's install 2026-05-08/09.
+  # pipefail flags set at the top). This is the bug that broke the Wave-2 tester
+  # the tester's install 2026-05-08/09.
   if [ ! -f "$skill_dir/SKILL.md" ]; then
     echo "    WARN: skipping skill $skill_name: no SKILL.md" >&2
     SKILL_SKIPPED=$((SKILL_SKIPPED + 1))

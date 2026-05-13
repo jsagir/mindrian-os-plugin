@@ -5,7 +5,7 @@
 # (register_statusline runs FIRST). RED until Plan 95.6-03 (skill-loop pre-filter)
 # AND 95.6-05 (register_statusline first) land.
 #
-# Reproduces Gary Laben's 2026-05-08/09 install failure: a skill directory with
+# Reproduces the Wave-2 tester's 2026-05-08/09 install failure: a skill directory with
 # no SKILL.md hits `set -euo pipefail` inside install.sh's skill-loop, the script
 # exits, and agents/hooks/settings.json/larry-extended/MINDRIAN_OS_ROOT/statusLine
 # never get registered. After the fix, install.sh must WARN, skip the broken skill,

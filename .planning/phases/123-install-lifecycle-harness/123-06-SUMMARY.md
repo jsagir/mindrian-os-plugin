@@ -36,7 +36,7 @@ created: 2026-05-13
 
 | Commit | Fix | Why it surfaced |
 |--------|-----|-----------------|
-| `208c294` | chore(testers): park Aniruddh row + auto-gen dashboard drift | `verify-release` Step 12 flagged 2 uncommitted tracked changes |
+| `208c294` | chore(testers): park the Wave-3 tester row + auto-gen dashboard drift | `verify-release` Step 12 flagged 2 uncommitted tracked changes |
 | `69a5240` | fix(123-02): install-state record `active_version` derives from resolver root, not plugin.json | Plan-06 pre-flight class-I gate caught the contradiction (`active_root` pointed at `.../mos/1.12.5.1`; `active_version` said `1.13.0-beta.12` from the dev workspace's plugin.json) |
 | `267d395` | fix(123-06): `verify-release` Step 12 doesn't die on a clean tracked tree | `git status --porcelain | grep -v "^??" | wc -l` exited non-zero on a clean tracked tree (only untracked files); `set -e` killed the script silently |
 | `b41f232` | fix(123-06): quote `argument-hint` in operator.md + doctor.md (YAML parse bug) | Latent in main for at least a session; only visible once Step 12's silent death was fixed |

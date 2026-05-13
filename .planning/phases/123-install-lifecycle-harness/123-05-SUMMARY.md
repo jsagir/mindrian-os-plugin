@@ -188,10 +188,10 @@ Plan-05 finishes the forward-facing surface inventory.
 |------|--------|
 | `tests/test-release-bump-algebra.cjs` | The `@mindrian_os/cli` reference at line 138-139 is a regression assertion -- it asserts the OLD name is GONE from `scripts/release.sh`. The assertion is correct as-is (Plan-01 added it). Leaving it sweeps the test's purpose. |
 | `CHANGELOG.md` | All 4 `@mindrian_os/cli` + `@mindrian/os` references are in dated historical entries describing what was. Historical record stays. |
-| `docs/autopsies/2026-05-09-gary-laben-install-failure.md` | Autopsy describing what happened on 2026-05-08. Historical -- describes past events. Leave as-is. |
+| `[private case archive]` | Autopsy describing what happened on 2026-05-08. Historical -- describes past events. Leave as-is. |
 | `docs/UI-UX-CONVERGENCE-2026-05-10/04-REVERSE-SALIENT-INSTALL.md` | "@mindrian/os was unpublished -> 404" -- describes past failure. Historical -- leave as-is. |
 | `docs/testers/outbox/2026-05-07-gary-laben-welcome.md` | Sent-email artifact; record of what was sent that day. Leave as-is. |
-| `docs/testers/gary-laben/FEEDBACK.md` | Historical feedback record from Gary. Leave as-is. |
+| `[private tester archive]` | Historical feedback record from the Wave-2 tester. Leave as-is. |
 | `lib/memory/run-feynman-tests.cjs` (release-beta-smoke comments) | Plan-04 comments documenting that the script was retired. Correct as-is. |
 | `tests/test-doctor-acceptance.cjs` (acc.6 + RELEASE_BETA_SMOKE) | Plan-04's test that asserts `scripts/release-beta-smoke.sh` is deleted. Correct as-is. |
 

@@ -53,3 +53,9 @@ mcp-server-brain/package-lock.json
 node_modules/
 .claude/worktrees/
 .superpowers/
+
+
+# Tester data and named autopsies (real names, real emails — never publish)
+docs/testers/
+docs/autopsies/*-laben-*.md
+docs/autopsies/*-mohan-*.md

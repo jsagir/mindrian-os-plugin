@@ -893,7 +893,7 @@ Plans:
 
 ### Phase 95.6: install-cache-windows-hardening-and-skill-loop-resilience (INSERTED)
 
-**Goal:** Harden the canonical Windows install path (git clone + bash install.sh) against the four failure modes that broke a real Wave-2 tester install on 2026-05-08/09 (Gary Laben, Surface Pro 7), and close the gap between "the install site advertises a path" and "the path actually works on a fresh Windows machine." Tier 1 (gates the NATO Defense College Rome 2026-06-01 deadline; ships as v1.13.0-beta.9): D-02 rename the 189-char phase-92 dir, D-03 install.sh skill-loop hardening + SKILL.md backfill, D-01 Windows long-path preflight + stale-clone cleanup, D-09 statusline registered first + /mos:doctor class H + install receipt + first-session auto-doctor, D-05a release.sh Step 9.5 npm publish gate. Tier 2 (defer to beta.10 if NATO pressure): D-05b/c/d marketplace npm source + bin/cli.js + SessionStart npm-reconcile hook, D-10 subagent capability parity, D-11 reserved-names gate + Deferred Tool Loading note, D-05e/f ZIP/URL + CI pre-bake docs. Tier 3 (defer freely): D-04 README Manual Recovery, D-06 BSL-1.1 source-available sweep, D-07 SEED-007 scanner pattern 3. Plus the case #4 install-failure autopsy.
+**Goal:** Harden the canonical Windows install path (git clone + bash install.sh) against the four failure modes that broke a real Wave-2 tester install on 2026-05-08/09 (the Wave-2 tester, Surface Pro 7), and close the gap between "the install site advertises a path" and "the path actually works on a fresh Windows machine." Tier 1 (gates the NATO Defense College Rome 2026-06-01 deadline; ships as v1.13.0-beta.9): D-02 rename the 189-char phase-92 dir, D-03 install.sh skill-loop hardening + SKILL.md backfill, D-01 Windows long-path preflight + stale-clone cleanup, D-09 statusline registered first + /mos:doctor class H + install receipt + first-session auto-doctor, D-05a release.sh Step 9.5 npm publish gate. Tier 2 (defer to beta.10 if NATO pressure): D-05b/c/d marketplace npm source + bin/cli.js + SessionStart npm-reconcile hook, D-10 subagent capability parity, D-11 reserved-names gate + Deferred Tool Loading note, D-05e/f ZIP/URL + CI pre-bake docs. Tier 3 (defer freely): D-04 README Manual Recovery, D-06 BSL-1.1 source-available sweep, D-07 SEED-007 scanner pattern 3. Plus the case #4 install-failure autopsy.
 **Requirements**: D-01, D-02, D-03, D-04, D-05a, D-05b, D-05c, D-05d, D-05e, D-05f, D-06, D-07, D-08, D-09, D-10, D-11
 **Depends on:** Phase 95.2 (install-cache-atomic-recovery-sessionstart-preflight)
 **Plans:** 10/10 plans complete
@@ -1295,6 +1295,16 @@ Plans:
 **Target band:** v1.13.0-final or v1.14.0 (decide in plan-phase based on whether the auto-section format is judged backwards-compatible with existing FEYNMAN.md consumers)
 **Canon parts:** Part 9 (Memory Locality -- the Larry-explains face), Part 5 (Evidence is graded by context -- "stale" surfaces as a context signal alongside the existing tier)
 **Plans:** TBD - run /gsd:discuss-phase 124 then /gsd:plan-phase 124
+
+### Phase 126: install-lifecycle-harness-gaps
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 125
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 126 to break down)
 
 ---
 

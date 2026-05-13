@@ -6,7 +6,7 @@
 //
 // Every skills/*/ directory MUST contain a SKILL.md, else install.sh's
 // skill-loop (pre-95.6-03) aborts under `set -euo pipefail`. (The bug that
-// broke Gary Laben's install 2026-05-08/09; see docs/testers/gary-laben/FEEDBACK.md.)
+// broke the Wave-2 tester's install 2026-05-08/09; see [private tester archive].)
 // The contract fix that makes install.sh tolerant of a missing SKILL.md is 95.6-03;
 // this test guards the *data* invariant so the warning never has to fire on a canonical install.
 

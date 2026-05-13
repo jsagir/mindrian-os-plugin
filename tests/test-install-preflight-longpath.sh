@@ -4,7 +4,7 @@
 # Owning plan: 95.6-04 (install.sh Windows long-path preflight + OS detection).
 # RED until Plan 95.6-04 (Windows long-path preflight + OS detection) lands.
 #
-# Reproduces Gary Laben's 2026-05-08 git-clone failure: on Windows + Git Bash,
+# Reproduces the Wave-2 tester's 2026-05-08 git-clone failure: on Windows + Git Bash,
 # `git clone` of a repo with a 189-char phase-dir leaf fails with a MAX_PATH
 # error unless `git config --global core.longpaths true` ran first. install.sh
 # must (a) detect Windows, (b) set core.longpaths before the clone, (c) surface
