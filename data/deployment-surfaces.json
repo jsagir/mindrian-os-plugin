@@ -17,12 +17,13 @@
     {
       "id": "settings-statusline-command",
       "path": "$HOME/.claude/settings.json",
+      "path_within_file": "statusLine.command",
       "owner": "session-start",
       "topology_scope": "all",
       "check_kind": "exact-value",
       "expected": "bash \"$HOME/.claude/statusline-mos\"",
       "reconcile": "on-version-change",
-      "remediation": "scripts/session-start Step B rewrites statusLine.command when it points at the legacy context-monitor wrapper; if a managed-settings layer overrides it, that is expected and the override wins."
+      "remediation": "scripts/session-start Step B rewrites statusLine.command when it points at the legacy context-monitor wrapper; if a managed-settings layer overrides it, that is expected and the override wins. Plan 123-03 schema extension: `path_within_file` (dot-path) tells the check_kind=='exact-value' reader to JSON-parse `path` and compare `path_within_file` against `expected` rather than substring-matching the whole file."
     },
     {
       "id": "mindrian-last-version",
