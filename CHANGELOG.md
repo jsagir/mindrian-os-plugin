@@ -2420,7 +2420,7 @@ Windows hotfix and Mac parity release. Ships Phase 85 (10 plans) addressing cros
 - **(WIN-FIX-F) run-hook.cmd exit code propagation (security-adjacent).** `hooks/run-hook.cmd` on Windows was swallowing bash exit codes because `%ERRORLEVEL%` inside an `if(...)` block is parse-time expanded, not runtime. PreToolUse write-scope-check returned 0 even when bash emitted exit 2, so the Phase 83 sealed-room write guard was silently inert on Windows for v1.10.7 and v1.10.8. **Security-adjacent: the sealed-room write guard was inert on Windows in v1.10.7 and v1.10.8. If you moved files into another room on Windows during that window, Larry's judgment was the only thing stopping it.** Fix uses `setlocal enabledelayedexpansion` with `!ERRORLEVEL!` captured into RC and `endlocal & exit /b %RC%` across all three bash invocation branches. Regression fixture at `tests/test-run-hook-cmd.cjs`.
 - **(WIN-FIX-B) `vunknown` banner on Windows.** `scripts/session-start` was reading plugin.json via `python3 -c "import json; json.load(...)"`. On Windows fresh installs, `python3` resolves to the Microsoft Store alias stub and silently exits non-zero, the `|| echo unknown` fallback fires, and users see `vunknown` in their banner instead of the real version. Now uses node via `lib/core/platform.cjs` `readPluginJsonVersion()`.
 - **(WIN-FIX-H) Cross-platform banner rendering and dispatch.** Introduced `lib/core/platform.cjs` centralizing OS detection, terminal code page handling, and hook script path resolution. Session-start banner now renders correctly on all platforms (UTF-8 box-drawing with ASCII fallback on non-UTF-8 terminals), statusline wrapper paths resolve through the helper, and python3 invocations have been audited across scripts/ with OS-aware gating.
-- **Mac `stat -c` portable fallback (LAWRENCE-001).** Confirmed that session-start, sentinel-health-check, on-task-complete, and post-compact use a `portable_stat_mtime` helper handling both GNU and BSD `stat`. Reported by Lawrence Aronhime (Johns Hopkins) via structured Mac environment audit on 2026-04-15.
+- **Mac `stat -c` portable fallback (LAWRENCE-001).** Confirmed that session-start, sentinel-health-check, on-task-complete, and post-compact use a `portable_stat_mtime` helper handling both GNU and BSD `stat`. Reported by Lawrence Aronhime via structured Mac environment audit on 2026-04-15.
 - **Lying header comment at `scripts/self-update` line 14** claimed the rewrite "abandons the atomic-swap-via-rename dance entirely" while line 325 still executed `mv`. Replaced with the truth: Windows uses `cp -a`, POSIX keeps `mv`, and the bootstrap handoff sidesteps the self-overwrite hazard.
 - **Regression fence:** new `tests/test-self-update-platform.cjs` covers the four scenarios from LASZLO-001 (win32 vs linux INSTALL_METHOD selection, `readPluginJsonVersion` helper without python3, `/tmp/` prefix resolution, and end-to-end bootstrap install in both branches) plus explicit J-1 ghost guards. Registered in `lib/memory/run-feynman-tests.cjs` (17/17 test files green).
 
@@ -2434,7 +2434,7 @@ Windows hotfix and Mac parity release. Ships Phase 85 (10 plans) addressing cros
 ### Credits
 
 - **László Személyi (Laszlo Szemelyi)**, Neumann Technology Platform, Hungary, for the detailed Windows self-update failure report including five screenshots of the `/mos:update` transcript (LASZLO-001, 2026-04-15). The "token-eating challenge" phrasing was the hook that surfaced the J family.
-- **Lawrence Aronhime**, Johns Hopkins, for the structured Mac environment audit covering nine sections from environment fingerprint to feature coverage analysis, including the Python ML dependency gap that drove the whitespace auto-install work (LAWRENCE-001, 2026-04-15).
+- **Lawrence Aronhime** for the structured Mac environment audit covering nine sections from environment fingerprint to feature coverage analysis, including the Python ML dependency gap that drove the whitespace auto-install work (LAWRENCE-001, 2026-04-15).
 
 ### Upgrade instructions
 
@@ -2525,7 +2525,7 @@ Upgrade path: standard two-command `/plugin marketplace update` followed by `cla
 
 ### Credit
 
-Bug reported by Lawrence Aronhime (lawrence@mindrian.ai, Prof., Johns Hopkins Carey Business School) on 2026-04-13 23:23. Lawrence has been running beta builds since v1.9.x and holds the lawrence@mindrian.ai admin Brain API key issued 2026-03-26. He built a same-night workaround on his own machine by injecting artifact data directly into `ROOM_DATA`, then filed the bug for the rest of the beta cohort. Eight releases shipped between his report and this fix. Thank you, Lawrence.
+Bug reported by Lawrence Aronhime (lawrence@mindrian.ai) on 2026-04-13 23:23. Lawrence has been running beta builds since v1.9.x and holds the lawrence@mindrian.ai admin Brain API key issued 2026-03-26. He built a same-night workaround on his own machine by injecting artifact data directly into `ROOM_DATA`, then filed the bug for the rest of the beta cohort. Eight releases shipped between his report and this fix. Thank you, Lawrence.
 
 ## [1.10.4] - 2026-04-14
 

@@ -41,7 +41,7 @@ After showing the banner, say nothing else. Let the art speak.
   **Your project becomes your co-founder.**
 
   Powered by PWS -- the practical innovation methodology developed
-  over 30+ years at Johns Hopkins University.
+  over 30+ years of teaching.
   Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
 
   [![Plugin Version](https://img.shields.io/badge/plugin-v1.10.10-blue)](https://github.com/jsagir/mindrian-os-plugin)
@@ -115,7 +115,7 @@ Type 1, 2, or 3 -- or just start talking (defaults to Mode 1).
   **Your project becomes your co-founder.**
 
   Powered by PWS -- the practical innovation methodology developed
-  over 30+ years at Johns Hopkins University.
+  over 30+ years of teaching.
   Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
 
   [![Plugin Version](https://img.shields.io/badge/plugin-v1.10.10-blue)](https://github.com/jsagir/mindrian-os-plugin)

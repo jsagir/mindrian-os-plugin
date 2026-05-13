@@ -139,7 +139,7 @@ If you want zero permission prompts during a session: `claude --dangerously-skip
 
 ## Why PWS, why Larry
 
-PWS (Problems Worth Solving) is the methodology Prof. Lawrence Aronhime has been refining at Johns Hopkins for three decades. It is not a checklist. It is a way of thinking about ventures as wicked problems that need to be reframed before they can be solved, and that demand a working memory because nobody can hold the whole thing in their head.
+PWS (Problems Worth Solving) is the methodology Prof. Lawrence Aronhime has been refining across three decades of teaching. It is not a checklist. It is a way of thinking about ventures as wicked problems that need to be reframed before they can be solved, and that demand a working memory because nobody can hold the whole thing in their head.
 
 Larry is the personality that delivers PWS in your terminal. The teaching is intrinsic; you do not have to know the framework names. Larry asks the question, suggests the move, and shows the chain. You decide.
 

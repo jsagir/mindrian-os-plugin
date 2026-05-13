@@ -138,7 +138,7 @@ Rotate colors: #a63d2f, #1e3a6e, #c4a43c, #2d6b4a
   <td width="16" style="background:#2d6b4a;height:3px;">&nbsp;</td>
 </tr></table>
 <p style="...font-size:11px;color:#a09a90;">Sender Name</p>
-<p style="...font-size:10px;color:#444;">MindrianOS -- PWS Methodology, Prof. Lawrence Aronhime, Johns Hopkins</p>
+<p style="...font-size:10px;color:#444;">MindrianOS -- PWS Methodology by Prof. Lawrence Aronhime</p>
 ```
 
 ## Rules

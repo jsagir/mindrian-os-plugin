@@ -276,4 +276,4 @@ A scientist who started with "I have a material" ended with 5 specific execution
 
 ---
 
-*MindrianOS v0.1.0 — Built on PWS methodology (30+ years, Johns Hopkins) and ICM architecture (Van Clief & McDermott, 2026).*
+*MindrianOS v0.1.0 — Built on PWS methodology (30+ years of teaching) and ICM architecture (Van Clief & McDermott, 2026).*
