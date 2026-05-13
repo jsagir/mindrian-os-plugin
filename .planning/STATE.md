@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 110-01-PLAN.md
-last_updated: "2026-05-13T06:47:13.304Z"
+stopped_at: Completed 110-02-PLAN.md
+last_updated: "2026-05-13T07:07:35.922Z"
 last_activity: 2026-05-13
 progress:
   total_phases: 55
   completed_phases: 31
   total_plans: 251
-  completed_plans: 230
+  completed_plans: 231
   percent: 93
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 110 — brain-context-packet-contract
+**Current focus:** Phase 123 — install-lifecycle-harness
 
 ## Current Position
 
-Phase: 110 (brain-context-packet-contract) — EXECUTING
+Phase: 123 (install-lifecycle-harness) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 3 of 6
+Plan: 2 of 7
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -277,6 +277,7 @@ Progress: [█████████░] 93%
 | Phase 109 P12 | 25 | 3 tasks | 7 files |
 | Phase 110 P00 | 7min | 2 tasks | 6 files |
 | Phase 110 P01 | 11min | 2 tasks | 4 files |
+| Phase 110 P02 | 14m 8s | 2 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -755,6 +756,7 @@ Progress: [█████████░] 93%
 - [Phase 110]: Wave 0 substrate: registered PACKET-110-01..09 in REQUIREMENTS.md; ROADMAP Phase 110 block left untouched (planner pre-populated 6-plan list + 12-job D-02 vocab + Requirements line via /gsd:plan-phase 110 on 2026-05-12)
 - [Phase 110]: RED-stub idiom adopted from tests/test-navigation-packet-part8-leak.cjs: process.exit(1) + 'MISSING - Wave N must implement ... (Plan 110-NN)' stderr line; tests/run-all-110.sh mirrors tests/run-all-122.sh structurally; 4 stubs registered in lib/memory/run-feynman-tests.cjs TEST_FILES[]
 - [Phase 110]: Plan 110-01: Brain Context Packet wire-format contract shipped. data/brain-packet-schema.json (draft 2020-12, 12 D-02 job $defs each with in+out shapes, additionalProperties:false everywhere - Canon Part 8 leak-prevention teeth at the wire). scripts/build-brain-packet-schema.cjs (mirrors Phase 122 generated-checked-with-tripwire; ajv@8.18.0 via Ajv2020 dialect class; transitive only - not in package.json). tests/test-brain-packet-schema-check.cjs filled (19 assertions across 6 tests via MINDRIAN_BRAIN_PACKET_SCHEMA env seam). 110 scoped runner now 1 of 4 PASSED (3 RED-by-design until 110-04 + 110-05).
+- [Phase 110]: Phase 110-02: buildBrainPacket gains origin+privacy_mode (D-08+D-09); EVENT_TYPES Set +3 brain_* strings (size 32->35); resolvePrivacyMode reuses .config.json (Canon Part 7 reuse); allow_excerpts caps down absent Part-3 APPROVE row
 
 ### Pending Todos
 
@@ -784,6 +786,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-13T06:47:13.286Z
-Stopped at: Completed 110-01-PLAN.md
+Last session: 2026-05-13T07:07:35.906Z
+Stopped at: Completed 110-02-PLAN.md
 Resume file: None
