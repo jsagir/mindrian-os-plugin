@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
-status: completed
-stopped_at: Completed 124-04-PLAN.md (3 tasks; Canon Part 9 invariant test filled + canon docs flipped to shipped for Phase 124; 4/4 Phase 124 suites green; phase-complete 10/10)
-last_updated: "2026-05-13T17:49:54.063Z"
+status: executing
+stopped_at: Completed 104.1-01-PLAN.md (build extension + verification scaffold); Plan 02 is deferred to a fresh session per WAVE_FILTER=0 orchestrator instruction
+last_updated: "2026-05-13T20:10:52.121Z"
 last_activity: 2026-05-13
 progress:
   total_phases: 58
   completed_phases: 35
-  total_plans: 265
-  completed_plans: 252
+  total_plans: 267
+  completed_plans: 253
   percent: 93
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 125 — f-selector-ranker
+**Current focus:** Phase 104.1 — per-command-teaching-content
 
 ## Current Position
 
-Phase: 125
+Phase: 104.1 (per-command-teaching-content) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: Not started
-Status: Ready to execute (Phase 124 fully complete in parallel; this counter reflects Phase 125's own plan progress only)
+Plan: 2 of 2
+Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
 
@@ -296,6 +296,7 @@ Progress: [█████████░] 93%
 | Phase 125 P03 | 8m 46s | 1 tasks | 7 files |
 | Phase 124 P02 | 16 | 3 tasks | 3 files |
 | Phase 124 P04 | 224 | 3 tasks | 4 files |
+| Phase 104.1 P01 | 14min | 5 tasks | 8 files |
 
 ### Roadmap Evolution
 
@@ -805,6 +806,9 @@ Progress: [█████████░] 93%
 - [Phase 125]: buildBrainPacket promoted to async to consume Plan 02's async chain-slice fetcher; 5 sibling test files updated via Rule 3 cascade (mechanical await migration; no behavior change). Pattern P-04 (Object.assign empty-object short-circuit for optional schema field absence) + P-05 (async-chokepoint cascade fix-up) documented.
 - [Phase 124]: Plan 124-02: timeline-runner.cjs ships the side-effect orchestrator. D-02 hard invariant (body byte-preserved across regeneration) asserted via SHA256 in Test 1; atomicity proven in Test 6 via monkey-patched renderer throw. EVENT_TYPES +2 (feynman_timeline_refreshed + _failed) mirrors Phase 110-02 brain_* idiom verbatim; current Set size 38 (coexists with concurrent Phase 125-01 framework_invoked +1).
 - [Phase 124]: Canon Part 9 invariant test references forbidden em-dash + en-dash code points via String.fromCharCode() so the test source stays greppably clean against the same regex it asserts on; fs-instrument allow-list extended post-call (not pre-call) with FEYNMAN.md + atomic-write tmp + paths-inside-room-dir patterns; adversarial seed uses INNOCUOUS memory_event payloads to structurally prove the renderer reads ONLY SQL (never the FEYNMAN.md body); canon version stays v1.4 (Phase 124 is a Part 9 implementation, not a new canon part).
+- [Phase 104.1]: Build-time derivation of jtbd_label + jtbd_summary from lib/hmi/jtbd-taxonomy.json via serves_jtbd[0] (Canon Part 7 reuse over build); per-command frontmatter never authors these fields
+- [Phase 104.1]: Add serves_jtbd to data/command-registry.json alongside teaching + jtbd_label + jtbd_summary; the derivation test asserts on c.serves_jtbd directly and Phase 125 Plan 05's read path consumes it
+- [Phase 104.1]: Build-script tripwire ships as WARNING in Plan 01 with TODO(104.1-Plan-02) marker; flips to ERROR after Plan 02 content sweep -- prevents breaking the build for every downstream phase
 
 ### Pending Todos
 
@@ -834,6 +838,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-13T17:43:56.190Z
-Stopped at: Completed 124-04-PLAN.md (3 tasks; Canon Part 9 invariant test filled + canon docs flipped to shipped for Phase 124; 4/4 Phase 124 suites green; phase-complete 10/10)
+Last session: 2026-05-13T20:10:52.109Z
+Stopped at: Completed 104.1-01-PLAN.md (build extension + verification scaffold); Plan 02 is deferred to a fresh session per WAVE_FILTER=0 orchestrator instruction
 Resume file: None
