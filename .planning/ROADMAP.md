@@ -1312,14 +1312,14 @@ Plans:
 **Depends on:** Phase 88 (memory triple: ROOM.md / MINTO.md / FEYNMAN.md), Phase 90 (BRAIN.md quadruple), Phase 109 (memory_event log + findRecentChanges + findStaleDecisions + navigation.cjs chokepoint)
 **Target band:** v1.13.0-final or v1.14.0 (decide in plan-phase based on whether the auto-section format is judged backwards-compatible with existing FEYNMAN.md consumers)
 **Canon parts:** Part 9 (Memory Locality -- the Larry-explains face), Part 5 (Evidence is graded by context -- "stale" surfaces as a context signal alongside the existing tier)
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans complete
 
 Plans:
 - [x] 124-00-PLAN.md - Wave 0 substrate (register TEMPORAL-124-01..10 in REQUIREMENTS.md + ROADMAP; 4 RED test stubs; tests/run-all-124.sh; Feynman-runner registration; lib/core/feynman/ROOM.md)
 - [x] 124-01-PLAN.md - Wave 1 renderer (lib/core/feynman/timeline-renderer.cjs pure function; D-05 template literal; D-06 thresholds; D-08 section scoping via navigation.cjs; firstCapturedLastTouchedBySection primitive; fill test-feynman-timeline-renderer.cjs + test-feynman-timeline-empty-state.cjs)
 - [x] 124-02-PLAN.md - Wave 1 runner (lib/core/feynman/timeline-runner.cjs refreshAll + refreshSection; sentinel-bounded merge; body byte-preserved; timeline_last_rendered watermark; EVENT_TYPES +2 in memory-events.cjs; fill test-feynman-timeline-runner.cjs)
 - [x] 124-03-PLAN.md - Wave 2 wiring (session-start cascade slot after cache-prune; commands/feynman-timeline-refresh.md per Phase 122 + Phase 104 frontmatter contract; scripts/feynman-timeline-refresh-command.cjs argv parser; data/command-registry.json regenerated; pre-commit hook passes)
-- [ ] 124-04-PLAN.md - Wave 3 Canon Part 9 invariant + docs (fill test-feynman-timeline-canon-part-9-invariant.cjs; docs/CANON-PHASE-MAP.md Part 9 row shipped for Phase 124; docs/MINDRIAN-CANON.md Part 9 implementing-phase cross-reference)
+- [x] 124-04-PLAN.md - Wave 3 Canon Part 9 invariant + docs (fill test-feynman-timeline-canon-part-9-invariant.cjs; docs/CANON-PHASE-MAP.md Part 9 row shipped for Phase 124; docs/MINDRIAN-CANON.md Part 9 implementing-phase cross-reference)
 
 ### Phase 125: F-Selector Ranker (DESIGN-LOCKED 2026-05-13 + adaptive-questioning lens pass 2)
 
