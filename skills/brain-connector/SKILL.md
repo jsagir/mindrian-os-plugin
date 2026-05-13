@@ -12,7 +12,10 @@ activation: "env:MINDRIAN_BRAIN_KEY"
 ## Detection
 
 Check Brain availability in order:
-1. `MINDRIAN_BRAIN_KEY` env var (CLI users)
+
+**Step 0 -- HTTP-path detection (Phase 123, the standard install).** Run `node $PLUGIN_ROOT/lib/core/resolve-brain-key.cjs` (or in JS: `require('./lib/core/resolve-brain-key.cjs').resolveBrainKey()`). If the resolver returns `available: true`, the Brain is active via the **HTTP path** -- call into `lib/core/brain-client.cjs`'s `query() / search() / schema() / ask()`, NOT an MCP tool. The HTTP path is the standard install path on Claude Code CLI; the MCP path (steps 1-3 below) is an alternative for operators who bundle `mcp-server-brain/` or point an external Neo4j MCP at the canonical `mindrian-brain` server name. The resolver also surfaces SEC-02 permission failures explicitly (`available: false, reason: 'permissions too open: ...'`) -- treat those as "not loaded, user action needed", not as silent unavailability.
+
+1. `MINDRIAN_BRAIN_KEY` env var (CLI users -- subsumed by step 0; kept for legacy detection)
 2. `mcp__mindrian-brain__brain_schema` tool (Desktop/Cowork MCP)
 3. `mcp__neo4j-brain__get_neo4j_schema` tool (legacy)
 
@@ -108,5 +111,8 @@ Always use `brain_ask` first -- natural language, auto-routes Pinecone/Neo4j, ha
 
 | Surface | Smart | Neo4j | Pinecone | Schema |
 |---------|-------|-------|----------|--------|
-| mindrian-brain | brain_ask | brain_query | brain_search | brain_schema |
-| neo4j-brain (legacy) | N/A | read_neo4j_cypher | search-records | get_neo4j_schema |
+| CLI (HTTP via brain-client.cjs) | `brain-client.ask()` | `brain-client.query()` | `brain-client.search()` | `brain-client.schema()` |
+| mindrian-brain (MCP) | brain_ask | brain_query | brain_search | brain_schema |
+| neo4j-brain (legacy MCP) | N/A | read_neo4j_cypher | search-records | get_neo4j_schema |
+
+The first row is the HTTP path (Phase 123 step 0). When `lib/core/resolve-brain-key.cjs` resolves a key, call directly into `lib/core/brain-client.cjs` -- no MCP server required. The bottom two rows are the MCP-path alternatives.

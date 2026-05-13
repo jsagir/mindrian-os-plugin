@@ -163,9 +163,13 @@ if [ -f ~/.mindrian.env ] && grep -q "MINDRIAN_BRAIN_KEY" ~/.mindrian.env; then
 else
   echo "MINDRIAN_BRAIN_KEY=<their-key>" >> ~/.mindrian.env
 fi
+# SEC-02 (Phase 123 Plan-07): lock down permissions on POSIX (no-op on Windows).
+# Without this, lib/core/resolve-brain-key.cjs refuses to load the key from a
+# group/world-readable file and session-start shows "Brain: NOT loaded".
+chmod 600 "$HOME/.mindrian.env" 2>/dev/null || true
 ```
 
-Tell the user: "Key saved to both your project `.env` and `~/.mindrian.env` (global backup). Brain will connect from any directory now."
+Tell the user: "Key saved to both your project `.env` and `~/.mindrian.env` (global backup, chmod 600). Brain will connect from any directory now."
 
 ### 4. Test Connection
 

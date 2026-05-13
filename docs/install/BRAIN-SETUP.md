@@ -7,6 +7,25 @@
 
 ---
 
+## Section 0 -- Authentication: Bearer-only (Phase 123 Plan-07)
+
+The Brain HTTP server (currently `https://mindrian-brain.onrender.com`, moving to `https://brain.mindrian.ai`) authenticates exclusively via `Authorization: Bearer <your-key>`. The `x-api-key` header is **NOT** supported -- a raw `x-api-key` request returns 401 whose body links to `https://mindrianos.vercel.app/brain-access` for help. The `MINDRIAN_BRAIN_URL` env var lets you override the base URL (for staging, self-hosted, or future migration). The plugin's `lib/core/brain-client.cjs` sends the Bearer header on every call; nothing else works.
+
+### Where the key is read from (Phase 123 Plan-07)
+
+`lib/core/resolve-brain-key.cjs` is the single source of truth. It looks in this order:
+
+1. `MINDRIAN_BRAIN_KEY` env var (explicit operator intent, highest priority)
+2. `~/.mindrian.env` containing `MINDRIAN_BRAIN_KEY=<key>` (global backup, persists across CWDs)
+3. `<cwd>/.env` containing `MINDRIAN_BRAIN_KEY=<key>` (project-local override)
+4. not-found
+
+On POSIX, both `.env`-style files MUST be `chmod 600`. The resolver refuses to load a key from a group/world-readable file -- SEC-02. `/mos:setup brain` chmods the file 0600 automatically; if you write the file by hand, `chmod 600 ~/.mindrian.env`.
+
+If no key is found, you get the no-key fallback: request one at `https://mindrianos.vercel.app/brain-access`. Once you have it, either export it inline (`export MINDRIAN_BRAIN_KEY=...`) or run `/mos:setup brain` to persist it to `~/.mindrian.env`.
+
+---
+
 ## Section 1 -- Why the canonical name matters
 
 Plugin commands resolve Brain MCP tool calls by frontmatter prefix. Every

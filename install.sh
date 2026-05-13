@@ -193,6 +193,13 @@ npm install --quiet --no-audit --no-fund 2>/dev/null
 # Tier 0 graceful: when the directory or package.json is absent (advanced
 # user removed it, or a stripped-down install) the hook silently skips
 # instead of erroring per Canon Decision 8.
+#
+# NOTE (Phase 123 Plan-07, SEC-02): install.sh does NOT write ~/.mindrian.env.
+# The Brain API key is written by /mos:setup brain (commands/setup.md), which
+# chmods it 0600 after the write. If a future install.sh code path ever writes
+# the file, it MUST add `chmod 600 "$HOME/.mindrian.env" 2>/dev/null || true`
+# immediately after the write -- otherwise lib/core/resolve-brain-key.cjs's
+# SEC-02 POSIX permission gate will refuse to load the key on POSIX systems.
 if [ -d "mcp-server-brain" ] && [ -f "mcp-server-brain/package.json" ]; then
   echo "  . Installing bundled mcp-server-brain dependencies (optional)..."
   if (cd mcp-server-brain && npm install --quiet --no-audit --no-fund 2>/dev/null); then
