@@ -80,6 +80,14 @@ function parseArgs(argv) {
     cascadeRooms: false, verifySurface: false, roomMd: false, uiCompliance: false,
     statuslineVisibility: false,
     installState: false,
+    // Phase 123 Plan-04 (HARNESS-123-11 + HARNESS-123-12): release-gate-as-a-
+    // command. --acceptance runs the 7-point checklist; --pre-tag filters to
+    // the 5 pre-tag-applicable points; --light-npx skips the mktemp HOME
+    // override sandbox in the npx-roundtrip point (operator opt-in for slow
+    // networks / hermetic CI). --acceptance has its OWN exit-code contract
+    // (0 = all points passed; 1 = any point failed) and is NOT a class flag,
+    // so the class-flag-always-exit-0 invariant does NOT apply.
+    acceptance: false, preTag: false, lightNpx: false,
     all: false, simulateWrite: null,
     scanCommandsDir: null, scanScriptsDir: null,
   };
@@ -93,6 +101,9 @@ function parseArgs(argv) {
     else if (arg === '--ui-compliance') flags.uiCompliance = true;
     else if (arg === '--statusline-visibility') flags.statuslineVisibility = true;
     else if (arg === '--install-state') flags.installState = true;
+    else if (arg === '--acceptance') flags.acceptance = true;
+    else if (arg === '--pre-tag') flags.preTag = true;
+    else if (arg === '--light-npx') flags.lightNpx = true;
     else if (arg === '--all') flags.all = true;
     else if (arg.startsWith('--simulate-write=')) flags.simulateWrite = arg.slice('--simulate-write='.length);
     else if (arg.startsWith('--scan-commands=')) flags.scanCommandsDir = arg.slice('--scan-commands='.length);
@@ -111,6 +122,9 @@ function parseArgs(argv) {
     flags.statuslineVisibility = true;
     flags.installState = true;
   }
+  // --pre-tag implies --acceptance (convenience; running --pre-tag standalone
+  // is meaningless).
+  if (flags.preTag) flags.acceptance = true;
   return flags;
 }
 
@@ -130,6 +144,20 @@ Class flags (combine freely; --all activates them all):
                            + class J (deployment-surface manifest reconciliation)
   --all                    activate all class flags
 
+Release-gate runner (Phase 123 Plan-04 -- separate from class flags):
+  --acceptance             run the 7-point release-gate checklist (install-state +
+                           deployment-surfaces + version-of-record-repo + verify-release +
+                           doctor-all + version-of-record-published + npx-roundtrip).
+                           Hard abort (exit non-zero) on any sub-check failure.
+                           NO --allow override -- release infra is the one gate you cannot skip.
+  --pre-tag                with --acceptance: filter to the 5 pre-tag-applicable points
+                           (skips version-of-record-published + npx-roundtrip which are
+                           false until AFTER the tag + npm publish). --pre-tag IMPLIES
+                           --acceptance. release.sh Step 6.6 runs this BEFORE git tag.
+  --light-npx              with --acceptance (full): skip the mktemp HOME-override sandbox
+                           in the npx-roundtrip point; resolve npx --no-install --help
+                           instead of doing a live install. Operator opt-in.
+
 Behavior flags:
   --fix                attempt auto-recovery for each class that supports it
                        (class H: re-stamps the canonical statusLine block when missing, idempotently)
@@ -141,8 +169,8 @@ Behavior flags:
   --help, -h           print this usage
 
 Exit codes:
-  0  healthy, no drift across activated classes
-  1  drift detected (read-only mode)
+  0  healthy, no drift across activated classes; --acceptance: all points passed
+  1  drift detected (read-only mode); --acceptance: any point failed (hard abort)
   2  drift detected and recovered (--fix mode)
   3  internal error
 `;
@@ -2070,6 +2098,278 @@ function performClassJFix(check, opts) {
   return recoveries;
 }
 
+// -- Acceptance: release-gate-as-a-command (Phase 123 Plan-04) -------
+//
+// `mindrian-os doctor --acceptance` runs a 7-point checklist that asserts the
+// release is consistent end-to-end. `--pre-tag` filters to the 5 points true
+// BEFORE the tag + npm publish lands. Both are HARD ABORTS -- no --allow
+// override (per CONTEXT D-16: release infra is the one gate you cannot skip).
+//
+// THIS BLOCK IS NOT A CLASS FLAG. It has its own exit-code contract:
+//   0 = all (filtered) points passed
+//   1 = any point failed
+// The class-flag-always-exit-0 graceful-degradation invariant does NOT apply.
+//
+// Canon Part 8 (LOCAL-only invariant): the npx-roundtrip + version-of-record-
+// published points are the ONE network touch in this phase. They run ONLY
+// during a release (when release.sh invokes --acceptance after the push).
+// --pre-tag has ZERO network -- it stays Part-8 clean for in-session use.
+//
+// Test-mode env hooks (honored only when DOCTOR_TEST_MODE=1):
+//   DOCTOR_TEST_STUB_POST_PUBLISH=1     post-publish points throw if invoked
+//                                       (asserts the --pre-tag filter works)
+//   DOCTOR_TEST_FAIL_POINT=<point_id>   synthesize a failure of the named point
+//   DOCTOR_VERIFY_RELEASE_PATH=<path>   override scripts/verify-release path
+
+function buildAcceptanceChecklist(ctx) {
+  const home = ctx.home;
+  const pluginRoot = ctx.pluginRoot;
+  const flagLightNpx = ctx.flagLightNpx;
+  const inTestMode = process.env.DOCTOR_TEST_MODE === '1';
+  return [
+    {
+      id: 'install-state',
+      label: 'install-state record present + snapshot matches a live spot-check',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'install-state') {
+          return { ok: false, finding: 'install-state synthesized failure (test mode)', detail: {} };
+        }
+        const c = checkInstallState({ home: home });
+        // status: 'healthy' | 'warn' | 'error'. We allow 'healthy' through; anything
+        // else fails the gate. (Findings drive the finding string for the operator.)
+        const ok = c.status === 'healthy';
+        let finding = null;
+        if (!ok) {
+          if (Array.isArray(c.findings) && c.findings.length) {
+            finding = c.findings[0].finding || c.findings[0].id || ('install-state status: ' + c.status);
+          } else {
+            finding = 'install-state status: ' + c.status;
+          }
+        }
+        return { ok: ok, finding: finding, detail: { status: c.status, findings: c.findings, topology: c.topology } };
+      },
+    },
+    {
+      id: 'deployment-surfaces',
+      label: 'every owned deployment surface reconciled',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'deployment-surfaces') {
+          return { ok: false, finding: 'deployment-surfaces synthesized failure (test mode)', detail: {} };
+        }
+        // Reuse install-state for the topology + active root/version handles.
+        const s = checkInstallState({ home: home });
+        const activeRoot = (s.record && s.record.active_root)
+          || (s.resolver && s.resolver.root)
+          || null;
+        const activeVersion = (s.record && s.record.active_version)
+          || (function () { try { return readInstalledPluginsVersion(home); } catch (_) { return null; } })();
+        const c = checkDeploymentSurfaces({
+          home: home,
+          topology: s.topology || 'not-found',
+          activeRoot: activeRoot,
+          activeVersion: activeVersion,
+        });
+        const ok = c.status === 'healthy' || c.status === 'skipped';
+        const failedSurfaces = Array.isArray(c.surfaces)
+          ? c.surfaces.filter(function (x) { return x.ok === false; })
+          : [];
+        const finding = ok ? null : (failedSurfaces.length + ' surface(s) drifted');
+        return { ok: ok, finding: finding, detail: { status: c.status, surfaces: c.surfaces } };
+      },
+    },
+    {
+      id: 'version-of-record-repo',
+      label: 'plugin.json / package.json / CHANGELOG top entry consistent (repo-file half of 5-way)',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'version-of-record-repo') {
+          return { ok: false, finding: 'version-of-record-repo synthesized failure (test mode)', detail: {} };
+        }
+        try {
+          const pjPath = path.join(pluginRoot, '.claude-plugin', 'plugin.json');
+          const pkPath = path.join(pluginRoot, 'package.json');
+          const chPath = path.join(pluginRoot, 'CHANGELOG.md');
+          const pj = JSON.parse(fs.readFileSync(pjPath, 'utf8'));
+          const pk = JSON.parse(fs.readFileSync(pkPath, 'utf8'));
+          const ch = fs.readFileSync(chPath, 'utf8');
+          const chMatch = ch.match(/^## \[([^\]]+)\]/m);
+          const chTop = chMatch ? chMatch[1] : null;
+          const pjVer = pj.version;
+          const pkVer = pk.version;
+          // Accept "Unreleased" CHANGELOG heading (work in progress); the
+          // sub-check passes if pj==pk AND CHANGELOG either matches OR is
+          // an [Unreleased] heading naming the same version in its body
+          // (the release.sh Step 6 finalizes [Unreleased] -> [vN] before
+          // Step 6.6 calls us, so by then chTop is the version).
+          const allMatch = pjVer === pkVer && (pjVer === chTop || chTop === 'Unreleased');
+          const finding = allMatch ? null : ('version mismatch: plugin.json=' + pjVer + ', package.json=' + pkVer + ', CHANGELOG top=' + chTop);
+          return { ok: !!allMatch, finding: finding, detail: { pluginJson: pjVer, packageJson: pkVer, changelogTop: chTop } };
+        } catch (e) {
+          return { ok: false, finding: 'version-of-record-repo read failed: ' + e.message, detail: {} };
+        }
+      },
+    },
+    {
+      id: 'verify-release',
+      label: 'scripts/verify-release passes',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'verify-release') {
+          return { ok: false, finding: 'verify-release synthesized failure (test mode)', detail: {} };
+        }
+        // Override path only honored in test mode (the test harness sets a logging shim).
+        const verifyPath = (inTestMode && process.env.DOCTOR_VERIFY_RELEASE_PATH)
+          ? process.env.DOCTOR_VERIFY_RELEASE_PATH
+          : path.join(pluginRoot, 'scripts', 'verify-release');
+        const cp = require('child_process');
+        const r = cp.spawnSync('bash', [verifyPath], { encoding: 'utf8', timeout: 60000 });
+        const ok = r.status === 0;
+        const finding = ok ? null : ('verify-release exited ' + r.status);
+        return { ok: ok, finding: finding, detail: { status: r.status, stdoutTail: (r.stdout || '').slice(-500), stderrTail: (r.stderr || '').slice(-500) } };
+      },
+    },
+    {
+      id: 'version-of-record-published',
+      label: 'git tag exists + marketplace source.ref pinned + npm view returns the version',
+      severity: 'blocker',
+      applies_to: ['full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_STUB_POST_PUBLISH === '1') {
+          throw new Error('post-publish stub invoked under --pre-tag -- bug in runner');
+        }
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'version-of-record-published') {
+          return { ok: false, finding: 'version-of-record-published synthesized failure (test mode)', detail: {} };
+        }
+        const cp = require('child_process');
+        try {
+          const pj = JSON.parse(fs.readFileSync(path.join(pluginRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
+          const ver = pj.version;
+          // (a) git tag exists, reachable from origin/main.
+          const t = cp.spawnSync('git', ['-C', pluginRoot, 'rev-parse', '--verify', 'refs/tags/v' + ver], { encoding: 'utf8' });
+          if (t.status !== 0) return { ok: false, finding: 'git tag v' + ver + ' not found', detail: { stderr: (t.stderr || '').slice(-200) } };
+          // (b) marketplace source.ref pinned to v<ver>.
+          const mpPath = path.join(home, 'mindrian-marketplace', '.claude-plugin', 'marketplace.json');
+          let mp;
+          try { mp = JSON.parse(fs.readFileSync(mpPath, 'utf8')); }
+          catch (e) { return { ok: false, finding: 'marketplace.json unreadable: ' + e.message, detail: { mpPath: mpPath } }; }
+          const ref = mp.plugins && mp.plugins[0] && mp.plugins[0].source && mp.plugins[0].source.ref;
+          if (ref !== 'v' + ver) return { ok: false, finding: 'marketplace source.ref is ' + ref + ', expected v' + ver, detail: { ref: ref, expected: 'v' + ver } };
+          // (c) npm view -- THIS IS THE ONE NETWORK CALL in this point.
+          const n = cp.spawnSync('npm', ['view', '@mindrian_os/install@' + ver, 'version'], { encoding: 'utf8', timeout: 30000 });
+          if (n.status !== 0) return { ok: false, finding: 'npm view failed: ' + (n.stderr || '').slice(-200), detail: { status: n.status } };
+          const npmVer = (n.stdout || '').trim();
+          const ok = npmVer === ver;
+          return { ok: ok, finding: ok ? null : ('npm view returned ' + npmVer + ', expected ' + ver), detail: { npmVer: npmVer, expectedVer: ver } };
+        } catch (e) {
+          return { ok: false, finding: 'version-of-record-published threw: ' + e.message, detail: {} };
+        }
+      },
+    },
+    {
+      id: 'npx-roundtrip',
+      label: 'npx @mindrian_os/install round-trip resolves cleanly',
+      severity: 'blocker',
+      applies_to: ['full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_STUB_POST_PUBLISH === '1') {
+          throw new Error('post-publish stub invoked under --pre-tag -- bug in runner');
+        }
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'npx-roundtrip') {
+          return { ok: false, finding: 'npx-roundtrip synthesized failure (test mode)', detail: {} };
+        }
+        const cp = require('child_process');
+        const pj = JSON.parse(fs.readFileSync(path.join(pluginRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
+        const ver = pj.version;
+        if (flagLightNpx) {
+          // Light path: resolve --help against the published package without
+          // doing a live install. Operator opt-in for slow networks / CI.
+          const r = cp.spawnSync('npx', ['--no-install', '@mindrian_os/install@' + ver, '--help'], { encoding: 'utf8', timeout: 30000 });
+          const ok = r.status === 0;
+          return { ok: ok, finding: ok ? null : ('npx --no-install --help failed (' + r.status + ')'), detail: { status: r.status, stderrTail: (r.stderr || '').slice(-200) } };
+        }
+        // Full path: mktemp HOME-override sandbox + live install. The sandbox
+        // is rm-rf'd in `finally` so the operator's live install is never
+        // touched. RESEARCH § override 9 (full mode).
+        const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-acceptance-'));
+        try {
+          const env = Object.assign({}, process.env, {
+            HOME: sandbox,
+            USERPROFILE: sandbox,
+            npm_config_cache: path.join(sandbox, '.npm'),
+          });
+          const r = cp.spawnSync('npx', ['@mindrian_os/install@' + ver, '--help'], { encoding: 'utf8', env: env, timeout: 90000 });
+          const ok = r.status === 0;
+          return { ok: ok, finding: ok ? null : ('npx round-trip failed (' + r.status + ')'), detail: { status: r.status, stderrTail: (r.stderr || '').slice(-300) } };
+        } finally {
+          try { fs.rmSync(sandbox, { recursive: true, force: true }); } catch (_) { /* best-effort */ }
+        }
+      },
+    },
+    {
+      id: 'doctor-all',
+      label: 'doctor --all exits 0',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'doctor-all') {
+          return { ok: false, finding: 'doctor-all synthesized failure (test mode)', detail: {} };
+        }
+        // Spawn ourselves with --all (NOT --acceptance, to avoid recursion).
+        // Scrub DOCTOR_TEST_FAIL_POINT so a top-level test fail-point env var
+        // doesn't propagate into our self-spawn and re-trigger the synthesis
+        // there (the synthesis above already covers this point).
+        const cp = require('child_process');
+        const childEnv = Object.assign({}, process.env, { DOCTOR_TEST_FAIL_POINT: '' });
+        const r = cp.spawnSync('node', [path.join(pluginRoot, 'scripts', 'doctor.cjs'), '--all', '--json'], { encoding: 'utf8', timeout: 60000, env: childEnv });
+        let j = null;
+        try {
+          if (r.stdout) {
+            const start = r.stdout.indexOf('{');
+            if (start !== -1) j = JSON.parse(r.stdout.slice(start));
+          }
+        } catch (_) { /* leave null */ }
+        const driftCount = j && j.summary && typeof j.summary.drift === 'number' ? j.summary.drift : 0;
+        const ok = r.status === 0 && driftCount === 0;
+        let finding = null;
+        if (r.status !== 0) finding = 'doctor --all exited ' + r.status;
+        else if (driftCount > 0) finding = 'doctor --all reports ' + driftCount + ' drift item(s)';
+        return { ok: ok, finding: finding, detail: { exit: r.status, summary: j && j.summary } };
+      },
+    },
+  ];
+}
+
+async function runAcceptance(opts) {
+  const home = opts.home;
+  const pluginRoot = opts.pluginRoot;
+  const flagPreTag = opts.flagPreTag;
+  const flagLightNpx = opts.flagLightNpx;
+  const checklist = buildAcceptanceChecklist({ home: home, pluginRoot: pluginRoot, flagLightNpx: flagLightNpx });
+  const mode = flagPreTag ? 'pre-tag' : 'full';
+  const filtered = checklist.filter(function (p) { return p.applies_to.indexOf(mode) !== -1; });
+  const results = [];
+  const failed = [];
+  for (const p of filtered) {
+    let r;
+    try { r = await p.run(); }
+    catch (e) { r = { ok: false, finding: 'point ' + p.id + ' threw: ' + e.message, detail: {} }; }
+    results.push({ id: p.id, label: p.label, ok: !!r.ok, finding: r.finding || null, detail: r.detail || null });
+    if (!r.ok) failed.push(p.id);
+  }
+  return {
+    mode: mode,
+    points: results,
+    failed_points: failed,
+    summary: { total: results.length, passed: results.length - failed.length, failed: failed.length },
+  };
+}
+
 // -- Renderers -------------------------------------------------------
 
 // Phase 95.1-04 retrofit: 4-zone Shape E (Action Report) per skills/ui-system/SKILL.md.
@@ -2252,6 +2552,43 @@ function computeSummary(report) {
 
 function main() {
   const flags = parseArgs(process.argv.slice(2));
+
+  // Phase 123 Plan-04: release-gate runner. --acceptance has its own exit-
+  // code contract (0 = all points passed; 1 = any point failed); HARD ABORT
+  // -- no --allow override (per CONTEXT D-16: release infra is the one gate
+  // you cannot skip). The class-flag-always-exit-0 invariant does NOT apply.
+  // Dispatched BEFORE the class-flag block so the existing per-class drift
+  // detectors do not run twice (the doctor-all sub-check spawns ourselves
+  // with --all for that, in a child process).
+  if (flags.acceptance) {
+    const home = process.env.HOME || process.env.USERPROFILE || HOME;
+    runAcceptance({
+      home: home,
+      pluginRoot: PLUGIN_ROOT,
+      flagPreTag: flags.preTag,
+      flagLightNpx: flags.lightNpx,
+    }).then(function (result) {
+      // Per-point status lines (human-readable).
+      for (const p of result.points) {
+        const tag = p.ok ? 'PASS' : 'FAIL';
+        const findingSuffix = p.finding ? '  -- ' + p.finding : '';
+        console.log(tag + '  ' + p.id + ': ' + p.label + findingSuffix);
+      }
+      console.log('');
+      const failSuffix = result.failed_points.length
+        ? '; failed: ' + result.failed_points.join(', ')
+        : '';
+      console.log('Acceptance ' + result.mode + ': ' + result.summary.passed + '/' + result.summary.total + ' points passed' + failSuffix + '.');
+      if (flags.json) console.log(JSON.stringify(result, null, 2));
+      process.exit(result.failed_points.length === 0 ? 0 : 1);
+    }).catch(function (e) {
+      console.error('acceptance runner threw: ' + (e && e.message));
+      if (flags.json) console.log(JSON.stringify({ mode: flags.preTag ? 'pre-tag' : 'full', error: e && e.message, points: [], failed_points: ['__runner__'], summary: { total: 0, passed: 0, failed: 1 } }, null, 2));
+      process.exit(1);
+    });
+    return;
+  }
+
 
   const installResult = checkInstallVersion();
   const cacheResult = checkMarketplaceCache();
