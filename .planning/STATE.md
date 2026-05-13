@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 123-04-PLAN.md (commits 584801b, c9bf670, c54c6af)
-last_updated: "2026-05-13T08:06:56.015Z"
+stopped_at: "Completed 110-04-PLAN.md (commits 3e41a36, 4453292, 37146f0) -- D-08 layer-2 pre-commit guard: check-sendpacket + schema-drift hook blocks + setup-hooks re-install + filled test stub"
+last_updated: "2026-05-13T08:18:38.269Z"
 last_activity: 2026-05-13
 progress:
   total_phases: 55
   completed_phases: 31
   total_plans: 251
-  completed_plans: 236
+  completed_plans: 237
   percent: 93
 ---
 
@@ -283,6 +283,7 @@ Progress: [█████████░] 93%
 | Phase 123 P03 | 17m | 2 tasks | 6 files |
 | Phase 110 P03 | 2313 | 2 tasks | 2 files |
 | Phase 123 P04 | 28m | 3 tasks | 4 files |
+| Phase 110 P04 | 6m 32s | 3 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -769,6 +770,8 @@ Progress: [█████████░] 93%
 - [Phase 123]: Plan 123-03: classes I + J named (NOT H + I per RESEARCH Pitfall 3 -- class H already shipped); ONE flag --install-state activates both; STRING equality for version-of-record (tolerates non-semver 1.12.5.1); class A --fix carve-out under --install-state; path_within_file schema extension closes the live-dev-box settings.json bug.
 - [Phase 110]: Phase 110-03 shipped: lib/core/brain-client.cjs::sendPacket (D-08 layer-3 origin allowlist + ajv in-validation reject-hard + tools/call name:brain_packet via existing callTool transport with degrade-soft on missing-tool / transport error / null + ajv out-validation reject-hard-degrade-soft + brain_packet_rejected / brain_response_rejected logs) + module-scope lazy Ajv2020 (draft 2020-12, strict:false, allErrors:true, per-job memoized) + _warnLegacyOnce + lib/core/navigation.cjs::logMemoryEvent re-export. ajv NOT in package.json. Schema-shape correction at execution time: pointer is #/$defs/<job>/<half>, not /properties/<half>.
 - [Phase 123]: Plan-04: doctor --acceptance is the release-gate-as-a-command. 7-point checklist (5 pre-tag) with HARD ABORT (exit 0/1) -- no --allow override. Wired into release.sh Step 6.6 (pre-tag) + Step 9.6 (full). release-beta-smoke.sh retired.
+- [Phase 110]: Plan 110-04: single mega-script subcommand dispatch (Canon Part 7 reuse) -- scripts/check-schema-aliases.cjs hosts three subcommands (default scan + --check-chokepoint + --check-sendpacket) sharing one installer + one env-seam contract
+- [Phase 110]: Plan 110-04: D-08 layer 2 is coarse lexical proximity (same-file sawBuild flag), not precise AST data-flow -- hook is the teeth for the casual-mistake channel, not the adversary channel; precise analysis explicitly out of scope
 
 ### Pending Todos
 
@@ -798,6 +801,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-13T08:06:55.999Z
-Stopped at: Completed 123-04-PLAN.md (commits 584801b, c9bf670, c54c6af)
+Last session: 2026-05-13T08:18:37.947Z
+Stopped at: Completed 110-04-PLAN.md (commits 3e41a36, 4453292, 37146f0) -- D-08 layer-2 pre-commit guard: check-sendpacket + schema-drift hook blocks + setup-hooks re-install + filled test stub
 Resume file: None
