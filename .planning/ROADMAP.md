@@ -1052,7 +1052,7 @@ Plans:
 
 **Canon parts:** Part 8 (Graph Boundary -- hardened from procedural to architectural), Part 9 (Memory Locality -- Brain reasons over packets, never raw memory).
 
-**Plans:** 5/6 plans executed
+**Plans:** 6/6 plans complete
 
 Plans:
 - [x] 110-00-PLAN.md - Wave 0 substrate (register PACKET-110-01..09 in REQUIREMENTS.md + ROADMAP; 4 RED test stubs; tests/run-all-110.sh; Feynman-runner registration; 12-job-vocabulary correction)
@@ -1060,7 +1060,7 @@ Plans:
 - [x] 110-02-PLAN.md - Wave 1 origin field + EVENT_TYPES extension + privacy-mode resolver (packet.cjs origin/privacy_mode + resolvePrivacyMode; memory-events.cjs +3; regression touches)
 - [x] 110-03-PLAN.md - Wave 2 sendPacket() validator middleware + response-degrade gate + dual-path warn (brain-client.cjs sendPacket; navigation.cjs logMemoryEvent re-export; reject-hard-degrade-soft)
 - [x] 110-04-PLAN.md - Wave 3 D-08 layer-2 + pre-commit hook wiring (check-schema-aliases.cjs --check-sendpacket; both hook blocks; setup-hooks re-run; fill test-brain-packet-precommit-hook.cjs)
-- [ ] 110-05-PLAN.md - Wave 3 the D-11 validation suite (fill test-brain-packet-validation-per-job.cjs + test-brain-packet-part8-invariant-per-job.cjs: 12-job in/out + privacy + dual-path + round-trip + adversarial Part-8 sweep)
+- [x] 110-05-PLAN.md - Wave 3 the D-11 validation suite (fill test-brain-packet-validation-per-job.cjs + test-brain-packet-part8-invariant-per-job.cjs: 12-job in/out + privacy + dual-path + round-trip + adversarial Part-8 sweep)
 
 **Authority**: `.planning/phases/110-brain-context-packet-contract/110-CONTEXT.md` (locked decisions D-00..D-11) + `.planning/phases/110-brain-context-packet-contract/110-RESEARCH.md` (implementation approach + validation architecture) + `.planning/phases/110-brain-context-packet-contract/110-VALIDATION.md` (per-task verification map).
 
