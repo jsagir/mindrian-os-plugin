@@ -104,6 +104,122 @@ if [ -f "$LAST_VERSION_FILE" ]; then
   LAST_VERSION=$(cat "$LAST_VERSION_FILE" 2>/dev/null || echo "")
 fi
 
+# --- BEGIN install-state record (Phase 123, single writer, EARLY -- before Step A/B) ---
+# Phase 123 Plan-02 (HARNESS-123-05). Canon Part 8: LOCAL only -- no fetch/http/
+# curl/brain.mindrian/tavily anywhere in this block. Per D-03 + RESEARCH Override
+# 4: the write happens BEFORE Step A's statusline migration (at ~L1078) so the
+# record is on disk before any downstream consumer reads it. The
+# `~/.mindrian-last-version` write folds into this same step so there is no
+# window where one is fresh and the other is stale (Pitfall 7 fix: the old
+# line-419 write only fired on cold start, leaving the file stale on every
+# session that had an active room).
+#
+# Field defaults at this offset:
+#   - statusline_renders_version defaults to "unknown" -- WRAPPER_DST is not set
+#     until Step A (~L1079), and doctor's class-I (Plan-03) computes it live
+#     from the deployed shim. An optional best-effort refresh after Step A may
+#     update just this one field; it NEVER gates this early write.
+#   - last_version_file_value captures the PREVIOUS ~/.mindrian-last-version
+#     value (read at $LAST_VERSION_FILE above, ~L101-104). The transition-banner
+#     block at ~L401-407 still has access to $LAST_VERSION via the shell
+#     variable -- read-before-write ordering is preserved.
+_INSTALL_STATE_DIR="$HOME/.mindrian"
+_INSTALL_STATE_JSON="$_INSTALL_STATE_DIR/install-state.json"
+mkdir -p "$_INSTALL_STATE_DIR" 2>/dev/null || true
+env \
+  PLUGIN_ROOT_FOR_RESOLVE="$PLUGIN_ROOT" \
+  PLUGIN_VERSION_FOR_RESOLVE="$PLUGIN_VERSION" \
+  INSTALL_STATE_JSON_PATH="$_INSTALL_STATE_JSON" \
+  LAST_VERSION_FILE_FOR_RESOLVE="$LAST_VERSION_FILE" \
+  node -e '
+    var fs = require("fs"); var os = require("os"); var path = require("path");
+    var home = os.homedir();
+    var r = { root: null, source: "not-found", topology: "not-found" };
+    try {
+      r = require(process.env.PLUGIN_ROOT_FOR_RESOLVE + "/lib/core/active-plugin-root.cjs").resolveActivePluginRoot();
+    } catch (_) { /* swallow */ }
+    var installedPluginsVersion = "unknown";
+    try {
+      var ip = JSON.parse(fs.readFileSync(path.join(home, ".claude/plugins/installed_plugins.json"), "utf8"));
+      var keys = Object.keys((ip && ip.plugins) || {});
+      for (var i = 0; i < keys.length; i++) {
+        var name = String(keys[i]).split("@")[0];
+        if (name !== "mos" && name !== "mindrian-os") continue;
+        var entry = ip.plugins[keys[i]];
+        if (Array.isArray(entry)) entry = entry[0];
+        if (entry && entry.version) { installedPluginsVersion = entry.version; break; }
+      }
+    } catch (_) { /* swallow */ }
+    var lastVersionFile = process.env.LAST_VERSION_FILE_FOR_RESOLVE || path.join(home, ".mindrian-last-version");
+    var lastVersionFileValue = null;
+    try { lastVersionFileValue = fs.readFileSync(lastVersionFile, "utf8").trim() || null; } catch (_) { /* absent ok */ }
+    var pathBinVersion = "unknown";
+    try {
+      var m = String(process.env.PATH || "").match(/[/\\\\](?:mos|mindrian-os)[/\\\\]([^/\\\\:]+)[/\\\\]bin(?::|;|$)/);
+      if (m) pathBinVersion = m[1];
+    } catch (_) { /* swallow */ }
+    var activeVersion = process.env.PLUGIN_VERSION_FOR_RESOLVE || installedPluginsVersion || "unknown";
+    // surfaces[] -- walk the static manifest, record observed/ok per surface.
+    var surfaces = [];
+    try {
+      var man = JSON.parse(fs.readFileSync(process.env.PLUGIN_ROOT_FOR_RESOLVE + "/data/deployment-surfaces.json", "utf8"));
+      var expand = function(p) {
+        return p.replace(/\$HOME/g, home)
+                .replace(/<active_root>/g, r.root || "")
+                .replace(/<dev_clone_root>/g, r.topology === "dev-clone" ? (r.root || "") : "");
+      };
+      for (var j = 0; j < (man.surfaces || []).length; j++) {
+        var s = man.surfaces[j];
+        if (s.topology_scope === "dev-clone" && r.topology !== "dev-clone") {
+          surfaces.push({ id: s.id, path: null, check_kind: s.check_kind, expected: s.expected, observed: "skipped-non-dev-clone", ok: null });
+          continue;
+        }
+        if (s.id === "install-state-record") {
+          // Self -- excluded from its own check (D-08).
+          surfaces.push({ id: s.id, path: expand(s.path), check_kind: s.check_kind, expected: s.expected, observed: "self-excluded", ok: null });
+          continue;
+        }
+        var fp = expand(s.path);
+        var observed = null, ok = null;
+        try {
+          if (s.check_kind === "marker") {
+            var content = fs.readFileSync(fp, "utf8");
+            observed = content.indexOf(s.expected) !== -1 ? s.expected : null;
+            ok = !!observed;
+          } else if (s.check_kind === "exact-value") {
+            var c = "";
+            try { c = fs.readFileSync(fp, "utf8"); } catch (_) { /* missing -> ok=false */ }
+            var exp = (s.expected === "<active_version>") ? activeVersion : String(s.expected).replace(/\$HOME/g, home);
+            observed = c.trim();
+            ok = c.indexOf(exp) !== -1;
+          } else {
+            // observed-only
+            observed = fs.existsSync(fp) ? "present" : "absent";
+            ok = null;
+          }
+        } catch (_) {
+          observed = "absent";
+          ok = (s.check_kind === "observed-only") ? null : false;
+        }
+        surfaces.push({ id: s.id, path: fp, check_kind: s.check_kind, expected: s.expected, observed: observed, ok: ok });
+      }
+    } catch (_) { /* manifest unreadable -- surfaces stays [] */ }
+    var rec = {
+      active_version: activeVersion,
+      active_root: r.root,
+      topology: r.topology,
+      resolved_at: new Date().toISOString(),
+      surfaces: surfaces,
+      installed_plugins_version: installedPluginsVersion,
+      statusline_renders_version: "unknown",
+      last_version_file_value: lastVersionFileValue,
+      path_bin_version: pathBinVersion
+    };
+    try { fs.writeFileSync(process.env.INSTALL_STATE_JSON_PATH, JSON.stringify(rec, null, 2) + "\n"); } catch (_) { /* swallow */ }
+    try { fs.writeFileSync(lastVersionFile, activeVersion + "\n"); } catch (_) { /* swallow */ }
+  ' 2>/dev/null || true
+# --- END install-state record ---
+
 # =============================================================================
 # STABLE PREFIX (identical across sessions -- enables prompt cache hits)
 # This section MUST NOT change between sessions. Any edits here bust the cache.
@@ -415,8 +531,11 @@ else
     # Plugin was updated
     :
   fi
-  # Update marker (D-02) -- write current version after banner fires
-  echo "$PLUGIN_VERSION" > "$LAST_VERSION_FILE" 2>/dev/null || true
+  # Phase 123 Plan-02 (HARNESS-123-05): the line-419 cold-start-only
+  # ~/.mindrian-last-version write was REMOVED. The single writer is now the
+  # EARLY install-state record block at ~L107-220 (right after LAST_VERSION_FILE
+  # is read), which rewrites ~/.mindrian-last-version unconditionally per D-03
+  # + RESEARCH Override 4. Pitfall 7 fix.
 
   # Check onboarding status (per ONBOARD-01)
   ONBOARD_STATUS=$("${SCRIPT_DIR}/check-onboard" 2>/dev/null || echo "CURRENT")
@@ -1130,6 +1249,27 @@ try {
 " "$WRAPPER_DST" "$CLAUDE_SETTINGS" 2>/dev/null || true
   fi
 fi
+
+# --- BEGIN install-state manifest reconcile (Phase 123, on-version-change) ---
+# Phase 123 Plan-02 (HARNESS-123-06). Canon Part 8: LOCAL only.
+# Walk data/deployment-surfaces.json for owned (owner=session-start) surfaces
+# whose reconcile == on-version-change. Step A above already re-stamps the
+# statusline-dispatch-shim surface unconditionally (cheap + idempotent); Step B
+# rewrites the settings-statusline-command surface. The ~/.mindrian-last-version
+# surface is rewritten in the EARLY install-state record block. The one
+# remaining manifest-driven action is the dev-clone-pre-commit-hook surface:
+# on a dev-clone topology + version change, idempotently install/update the
+# Phase 108 schema-alias drift-guard pre-commit hook via scripts/install-pre-
+# commit.sh. Skipped entirely on a non-dev-clone box.
+if [ "$PLUGIN_VERSION" != "$LAST_VERSION" ] || [ -z "$LAST_VERSION" ]; then
+  _MOS_TOPOLOGY=$(node -e 'try { var r = require(process.env.PLUGIN_ROOT_FOR_RESOLVE + "/lib/core/active-plugin-root.cjs").resolveActivePluginRoot(); process.stdout.write(r.topology || "not-found"); } catch (_) { process.stdout.write("not-found"); }' PLUGIN_ROOT_FOR_RESOLVE="$PLUGIN_ROOT" 2>/dev/null)
+  if [ "$_MOS_TOPOLOGY" = "dev-clone" ] && [ -x "$PLUGIN_ROOT/scripts/install-pre-commit.sh" ]; then
+    # Idempotent: scripts/install-pre-commit.sh checks for the marker before
+    # appending; a hook that already invokes check-schema-aliases.cjs is a no-op.
+    bash "$PLUGIN_ROOT/scripts/install-pre-commit.sh" >/dev/null 2>&1 || true
+  fi
+fi
+# --- END install-state manifest reconcile ---
 
 # ---------------------------------------------------------------------------
 # Phase 87-01a (SEC-04): ensure ROOM.md + MINTO.md pre-commit hook installed.

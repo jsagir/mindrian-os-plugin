@@ -241,10 +241,19 @@ try {
   assert.ok(beginIdx > 0, 'BEGIN install-state record marker must exist in session-start');
   assert.ok(endIdx > beginIdx, 'END install-state record marker must follow BEGIN');
   // Span the FIRST BEGIN through the LAST END so the optional post-Step-A
-  // refresh block is also covered if the executor added one.
+  // refresh block is also covered if the executor added one. Strip comment
+  // lines (leading whitespace + #) before scanning so the literal Canon Part 8
+  // prohibition narrative ("no fetch/http/curl/...") is not flagged as code.
   const lastEndIdx = text.lastIndexOf('END install-state record');
   const span = text.slice(beginIdx, lastEndIdx + 'END install-state record'.length);
-  const network = span.match(/fetch|http:\/\/|https:\/\/|\bcurl\b|brain\.mindrian|tavily/i);
+  const codeOnly = span
+    .split('\n')
+    .filter(line => !/^\s*#/.test(line))
+    .join('\n');
+  // Match actual call shapes, not narrative words:
+  //   fetch(...)  http://...  https://...  curl<space>...  brain.mindrian...
+  //   tavily<word-boundary>
+  const network = codeOnly.match(/\bfetch\s*\(|https?:\/\/|\bcurl\s+|brain\.mindrian|\btavily\b/i);
   assert.strictEqual(network, null,
     'Canon Part 8 breach: new install-state record block contains a network call: ' +
     (network && network[0]));
