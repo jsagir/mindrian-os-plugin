@@ -359,10 +359,11 @@ function main() {
     if (onDisk !== next) {
       errs.push('data/command-registry.json is STALE. Run: node scripts/build-command-registry.cjs');
     }
-    // Phase 104.1 Plan 01: teaching-presence tripwire ships as a WARNING
-    // during Plan 01 (no command has teaching yet -- Plan 02 fills content).
-    // Plan 02 flips this to an ERROR after the content sweep lands.
-    // TODO(104.1-Plan-02): flip warning to error after content sweep
+    // Phase 104.1 Plan 02: teaching-presence tripwire flipped from WARNING
+    // to ERROR after the content sweep landed. All 86 commands now carry a
+    // non-empty teaching field; any future drift (a command frontmatter
+    // losing teaching, or a new command shipped without teaching) fails the
+    // build at --check time, matching the Phase 122 stale-registry pattern.
     const missingTeaching = reg.commands
       .filter((c) => !c.teaching || c.teaching.length === 0)
       .map((c) => c.command);
@@ -370,13 +371,14 @@ function main() {
       const preview = missingTeaching.slice(0, 5).join(', ');
       const ellipsis = missingTeaching.length > 5 ? '...' : '';
       process.stderr.write(
-        '[build-command-registry] WARNING: ' +
+        '[build-command-registry] ERROR: ' +
           missingTeaching.length +
           ' commands missing teaching field: ' +
           preview +
           ellipsis +
           '\n'
       );
+      process.exit(1);
     }
     if (errs.length) {
       console.error(errs.join('\n'));

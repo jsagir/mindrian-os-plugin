@@ -13,7 +13,7 @@
       "serves_jtbd": [
         "plan-execution"
       ],
-      "teaching": null,
+      "teaching": "When you have analyses on the table but no clear next step, /mos:act picks the best-fit methodology for your current room state and runs it. Saves you from analysis paralysis.",
       "jtbd_label": "Plan Execution",
       "jtbd_summary": "Plan the next 90 days — milestones, owners, dates."
     },
@@ -28,7 +28,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When you need to inspect or rotate Brain API keys, /mos:admin opens the admin panel. Read-only by default; rotation is gated behind a confirm prompt.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -47,7 +47,7 @@
       "serves_jtbd": [
         "find-problem"
       ],
-      "teaching": null,
+      "teaching": "When you need to know which customer jobs matter most, /mos:analyze-needs scores them by importance versus satisfaction. Best after you have a customer segment defined.",
       "jtbd_label": "Find Problem",
       "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
@@ -64,7 +64,7 @@
       "serves_jtbd": [
         "find-bottleneck"
       ],
-      "teaching": null,
+      "teaching": "When you need to find where leverage lives in a complex system, /mos:analyze-systems decomposes it into layers and surfaces the leverage points. Best when symptoms keep recurring.",
       "jtbd_label": "Find Bottleneck",
       "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
     },
@@ -81,7 +81,7 @@
       "serves_jtbd": [
         "understand-market"
       ],
-      "teaching": null,
+      "teaching": "When you need to know if your technology is too early, too late, or right on time, /mos:analyze-timing places it on the S-Curve. Best before you commit to a launch window.",
       "jtbd_label": "Understand Market",
       "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
     },
@@ -98,7 +98,7 @@
         "understand-market",
         "explore"
       ],
-      "teaching": null,
+      "teaching": "In the moment a new artifact lands, /mos:auto-explore kicks off the same domain decomposition the PostToolUse hook would run. Use it on Desktop when the hook does not fire.",
       "jtbd_label": "Find Problem",
       "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
@@ -116,7 +116,7 @@
         "find-problem",
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When the framing feels stuck, /mos:beautiful-question reshapes the challenge as Why / What-if / How. The right question unlocks more progress than a better answer.",
       "jtbd_label": "Find Problem",
       "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
@@ -131,7 +131,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When a room section drifts from its BRAIN.md derivation, /mos:brain-derive rebuilds the per-section Brain context now. Run after large filings or before a decision gate.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -148,7 +148,7 @@
       "serves_jtbd": [
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When you have data but not yet wisdom, /mos:build-knowledge climbs Ackoff's DIKW pyramid across the room. Surfaces what you know, what you can decide, and what is still raw.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
@@ -166,7 +166,7 @@
         "decide-pursue",
         "prepare-pitch"
       ],
-      "teaching": null,
+      "teaching": "When you need to know if this venture is worth pursuing, /mos:build-thesis runs the Ten-Questions investment thesis gate. The output is a defensible go / no-go with reasons.",
       "jtbd_label": "Decide Pursue",
       "jtbd_summary": "Decide if a venture / opportunity / approach is worth pursuing."
     },
@@ -184,7 +184,7 @@
         "find-problem",
         "find-bottleneck"
       ],
-      "teaching": null,
+      "teaching": "When you suspect the visible problem is downstream of something else, /mos:causal traces causal edges in the room's graph. Surfaces the upstream causes worth fixing.",
       "jtbd_label": "Find Problem",
       "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
@@ -200,7 +200,7 @@
         "validate-idea",
         "surface-contradiction"
       ],
-      "teaching": null,
+      "teaching": "When an idea feels too clean, /mos:challenge-assumptions runs Devil's Advocate against the load-bearing claims. Catches the assumptions you stopped questioning.",
       "jtbd_label": "Validate Idea",
       "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
@@ -217,7 +217,7 @@
       "serves_jtbd": [
         "compare-options"
       ],
-      "teaching": null,
+      "teaching": "When you are weighing your approach against ventures that tried this before, /mos:compare-ventures lines them up on the dimensions that matter. Saves you from re-learning their lessons.",
       "jtbd_label": "Compare Options",
       "jtbd_summary": "Compare alternatives across criteria — choose between A/B/C."
     },
@@ -233,7 +233,7 @@
         "audit-room",
         "prepare-pitch"
       ],
-      "teaching": null,
+      "teaching": "When you need to see the whole room at a glance, /mos:dashboard opens the live or snapshot view in De Stijl layout. The fastest way to read room health before a meeting.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -253,7 +253,7 @@
         "audit-room",
         "compare-options"
       ],
-      "teaching": null,
+      "teaching": "When you need a calibrated grade on the room's quality, /mos:deep-grade scores it against 100+ real student projects. Best after at least three sections are populated.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -270,7 +270,7 @@
       "serves_jtbd": [
         "decide-pursue"
       ],
-      "teaching": null,
+      "teaching": "When you cannot tell if this is an Ill-Defined or Well-Defined Problem, /mos:diagnose classifies it against the PWS matrix. Knowing the problem type picks the right methodology.",
       "jtbd_label": "Decide Pursue",
       "jtbd_summary": "Decide if a venture / opportunity / approach is worth pursuing."
     },
@@ -287,7 +287,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When you need a quantitative read on the room, /mos:diagnostics runs the Wave-1 fingerprint: disruption, blindspot, novelty, surprise. Surfaces algorithmic signals humans miss.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -302,7 +302,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When something feels off with the install, /mos:doctor diagnoses install-cache drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -319,7 +319,7 @@
       "serves_jtbd": [
         "understand-market"
       ],
-      "teaching": null,
+      "teaching": "When you are wondering if the market has settled on a winning design, /mos:dominant-designs runs Utterback-Abernathy to spot it. Tells you whether to ride the wave or break it.",
       "jtbd_label": "Understand Market",
       "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
     },
@@ -334,7 +334,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When Larry made a recommendation and you want to know why, /mos:explain-decision shows the Navigation Engine trace for the last turn. Every recommendation has a graph path behind it.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -353,7 +353,7 @@
         "understand-market",
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When the problem could live in any of several domains, /mos:explore-domains maps the territory through IKA and Feynman decomposition. Surfaces where to look before you commit.",
       "jtbd_label": "Find Problem",
       "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
@@ -371,7 +371,7 @@
         "compare-options",
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When the path forward branches into multiple plausible futures, /mos:explore-futures synthesizes TTA, Scenario, and S-Curve views. Helps you choose without pretending you can predict.",
       "jtbd_label": "Compare Options",
       "jtbd_summary": "Compare alternatives across criteria — choose between A/B/C."
     },
@@ -389,7 +389,7 @@
         "understand-market",
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When today's trends could become tomorrow's problems, /mos:explore-trends pushes them to extremes to surface the second-order effects. The future shows up at the edges first.",
       "jtbd_label": "Understand Market",
       "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
     },
@@ -404,7 +404,7 @@
       "serves_jtbd": [
         "prepare-pitch"
       ],
-      "teaching": null,
+      "teaching": "When you need to share a Data Room view with someone outside the room, /mos:export packages it as a De Stijl HTML artifact. Investor-ready, no install required on their side.",
       "jtbd_label": "Prepare Pitch",
       "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
@@ -420,7 +420,7 @@
         "validate-idea",
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When a section's FEYNMAN.md timeline feels stale, /mos:feynman-timeline-refresh rebuilds the auto-section from the memory event log. Human-authored prose stays byte-preserved.",
       "jtbd_label": "Validate Idea",
       "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
@@ -435,7 +435,7 @@
       "serves_jtbd": [
         "file-meeting"
       ],
-      "teaching": null,
+      "teaching": "When a meeting just happened, /mos:file-meeting captures the transcript and routes the intelligence into the right room sections. Meetings are where institutional knowledge actually lives.",
       "jtbd_label": "File Meeting",
       "jtbd_summary": "Capture and route meeting intelligence into the room."
     },
@@ -452,7 +452,7 @@
       "serves_jtbd": [
         "connect-domains"
       ],
-      "teaching": null,
+      "teaching": "When the answer might live in another field, /mos:find-analogies runs SAPPhIRE and TRIZ against your problem to surface cross-domain matches. Most breakthroughs are borrowed structure.",
       "jtbd_label": "Connect Domains",
       "jtbd_summary": "Find cross-domain analogues — what does this look like in another field?"
     },
@@ -469,7 +469,7 @@
       "serves_jtbd": [
         "find-bottleneck"
       ],
-      "teaching": null,
+      "teaching": "When progress feels stuck and you cannot say where, /mos:find-bottlenecks runs Reverse Salient analysis to name the lagging component. Hughes 1983, but for your venture.",
       "jtbd_label": "Find Bottleneck",
       "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
     },
@@ -486,7 +486,7 @@
       "serves_jtbd": [
         "connect-domains"
       ],
-      "teaching": null,
+      "teaching": "When you suspect your work touches a pattern in another field, /mos:find-connections traces cross-domain links through the graph. Surfaces the connections you did not know to look for.",
       "jtbd_label": "Connect Domains",
       "jtbd_summary": "Find cross-domain analogues — what does this look like in another field?"
     },
@@ -502,7 +502,7 @@
         "prepare-pitch",
         "decide-pursue"
       ],
-      "teaching": null,
+      "teaching": "When you need to track grants and investors as a real pipeline, /mos:funding manages the lifecycle from spotted to applied to decided. Funding is a process, not a one-shot event.",
       "jtbd_label": "Prepare Pitch",
       "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
@@ -521,7 +521,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When you want a fast read on problem-discovery quality, /mos:grade scores the room on six components in under a minute. The lightweight cousin of /mos:deep-grade.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -537,7 +537,7 @@
         "audit-room",
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When you want to ask the knowledge graph a question without writing Cypher, /mos:graph translates plain English into the right traversal. Larry walks the edges so you do not have to.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -554,7 +554,7 @@
       "serves_jtbd": [
         "prepare-pitch"
       ],
-      "teaching": null,
+      "teaching": "When you have run several Six Hats sessions and need them consolidated, /mos:hat-briefing pulls the hat memory into one briefing. Best right before a stakeholder review.",
       "jtbd_label": "Prepare Pitch",
       "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
@@ -569,7 +569,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When a plugin upgrade leaves the room with structural drift, /mos:heal repairs the missing ROOM.md, broken backlinks, and stale section state. Use after every major version bump.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -584,7 +584,7 @@
       "serves_jtbd": [
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When you forget which /mos: command does what, /mos:help groups them by flow in tldr style. Start here when the surface feels overwhelming.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
@@ -599,7 +599,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When you need to know how well the UI is honoring the ruling system, /mos:hmi-status shows the latest compliance poll with operator-aware drift summaries. Read-only; fix via /mos:doctor.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -614,7 +614,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When you need to see or set the active job-to-be-done for this room, /mos:jtbd shows the per-room signal that tells Larry what kind of work you are doing right now.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -629,7 +629,7 @@
       "serves_jtbd": [
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When the team feels wrong-shaped for the stage, /mos:leadership diagnoses which leadership pattern you actually need. Different stages of a venture need different leadership shapes.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
@@ -647,7 +647,7 @@
         "prepare-pitch",
         "validate-idea"
       ],
-      "teaching": null,
+      "teaching": "When you need the whole business model on one page, /mos:lean-canvas fills the nine boxes from your room data. The fastest way to get a defensible canvas in front of someone.",
       "jtbd_label": "Prepare Pitch",
       "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
@@ -664,7 +664,7 @@
       "serves_jtbd": [
         "understand-market"
       ],
-      "teaching": null,
+      "teaching": "When you need to map the forces shaping a domain, /mos:macro-trends runs PEST across Political, Economic, Social, and Technological dimensions. The wide-angle lens before you zoom in.",
       "jtbd_label": "Understand Market",
       "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
     },
@@ -681,7 +681,7 @@
       "serves_jtbd": [
         "validate-idea"
       ],
-      "teaching": null,
+      "teaching": "When you cannot tell what you do not know, /mos:map-unknowns plots known, unknown, and unknowable in a Rumsfeld matrix. The unknowable column is usually where the risk lives.",
       "jtbd_label": "Validate Idea",
       "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
@@ -696,7 +696,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When you need to inspect what the room remembers, /mos:memory shows the three layers: within-session, across-session, and cross-room. Memory locality is a Canon Part 9 invariant.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -711,7 +711,7 @@
       "serves_jtbd": [
         "compare-options"
       ],
-      "teaching": null,
+      "teaching": "When you want to see or switch which model routes which kind of work, /mos:models opens the routing profile. Different tasks deserve different models.",
       "jtbd_label": "Compare Options",
       "jtbd_summary": "Compare alternatives across criteria — choose between A/B/C."
     },
@@ -728,7 +728,7 @@
       "serves_jtbd": [
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When a section needs Feynman-MINTO reasoning generated against its artifacts, /mos:mos-reason produces the pyramid: governing thought down to grounded support. Larry's structured thinking surface.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
@@ -745,7 +745,7 @@
       "serves_jtbd": [
         "understand-market"
       ],
-      "teaching": null,
+      "teaching": "When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test. Best before you commit real resources.",
       "jtbd_label": "Understand Market",
       "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
     },
@@ -760,7 +760,7 @@
       "serves_jtbd": [
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When you are starting a new venture, /mos:new-project creates the room scaffolding and registers it in the room registry. The first move of every Mindrian journey.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
@@ -775,7 +775,7 @@
       "serves_jtbd": [
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When you just installed MindrianOS, /mos:onboard walks you through the system and builds your first room. Designed so a stranger can self-activate without Larry holding their hand.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
@@ -790,7 +790,7 @@
       "serves_jtbd": [
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When you want to see or set how Larry should render right now, /mos:operator shows the conversation state machine: JUST_TALK, EXPLORE_CAPTURE, BUILD_ROOM, METHODOLOGY, or DECISION_GATE.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
@@ -805,7 +805,7 @@
       "serves_jtbd": [
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When you need to manage grants as a live pipeline rather than a list, /mos:opportunities surfaces the Opportunity Bank with HSI scores and decision states. Funding deserves the same rigor as product.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
@@ -820,7 +820,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When the room hierarchy has grown messy, /mos:organize navigates it with a graph-aware tree that respects sub-room boundaries. The structural overview, not the content view.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -837,7 +837,7 @@
       "serves_jtbd": [
         "prepare-pitch"
       ],
-      "teaching": null,
+      "teaching": "When you need fresh perspectives on the room, /mos:persona generates Six-Hats lenses from your room data. Each persona argues from a different stance; you decide what holds.",
       "jtbd_label": "Prepare Pitch",
       "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
@@ -852,7 +852,7 @@
       "serves_jtbd": [
         "plan-execution"
       ],
-      "teaching": null,
+      "teaching": "When you want several methodologies chained instead of run one-by-one, /mos:pipeline executes a multi-step pipeline with the room as the connecting tissue. Week 7 pattern.",
       "jtbd_label": "Plan Execution",
       "jtbd_summary": "Plan the next 90 days — milestones, owners, dates."
     },
@@ -867,7 +867,7 @@
       "serves_jtbd": [
         "prepare-pitch"
       ],
-      "teaching": null,
+      "teaching": "When you need to walk someone through the room visually, /mos:present generates the 6-view presentation and opens it. Dashboard, Wiki, Deck, Insights, Diagrams, Graph in one artifact.",
       "jtbd_label": "Prepare Pitch",
       "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
@@ -882,7 +882,7 @@
       "serves_jtbd": [
         "prepare-pitch"
       ],
-      "teaching": null,
+      "teaching": "When the Data Room is ready to share publicly, /mos:publish deploys the presentation to Vercel with a one-click link. From local artifact to shareable URL in one move.",
       "jtbd_label": "Prepare Pitch",
       "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
@@ -898,7 +898,7 @@
         "audit-room",
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When you need to ask the knowledge graph something specific, /mos:query translates natural language into the right traversal and returns the answer with its graph path.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -913,7 +913,7 @@
       "serves_jtbd": [
         "understand-market"
       ],
-      "teaching": null,
+      "teaching": "When new Claude capabilities ship that might change what MindrianOS can do, /mos:radar tracks them so you do not have to. Capability awareness as a habit, not a one-time scan.",
       "jtbd_label": "Understand Market",
       "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
     },
@@ -928,7 +928,7 @@
       "serves_jtbd": [
         "file-meeting"
       ],
-      "teaching": null,
+      "teaching": "When a meeting was filed earlier and the room has since grown, /mos:reanalyze re-runs the cascade pattern detection. New context can change what an old meeting meant.",
       "jtbd_label": "File Meeting",
       "jtbd_summary": "Capture and route meeting intelligence into the room."
     },
@@ -946,7 +946,7 @@
         "explore",
         "understand-market"
       ],
-      "teaching": null,
+      "teaching": "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
@@ -961,7 +961,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When you need to view or launch the active Data Room, /mos:room opens the room view with its current state. The default entry point for room navigation.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -976,7 +976,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When you have multiple venture rooms and need to switch, list, or archive them, /mos:rooms manages the registry. One person, many ventures.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -993,7 +993,7 @@
       "serves_jtbd": [
         "find-problem"
       ],
-      "teaching": null,
+      "teaching": "When the symptom keeps coming back, /mos:root-cause traces it via 5-Whys, Fishbone, and Fault Tree. Treats the cause, not the recurrence.",
       "jtbd_label": "Find Problem",
       "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
@@ -1011,7 +1011,7 @@
         "find-bottleneck",
         "connect-domains"
       ],
-      "teaching": null,
+      "teaching": "When you need to know who in the world is working on a reverse salient you found, /mos:rs-experts resolves the expert network via Brain Cypher MATCH. Routes you to the people who already know.",
       "jtbd_label": "Find Bottleneck",
       "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
     },
@@ -1028,7 +1028,7 @@
       "serves_jtbd": [
         "find-bottleneck"
       ],
-      "teaching": null,
+      "teaching": "When you have a question about a Reverse Salient discovery, /mos:rs-explain takes natural language in and returns a Larry-voiced explanation grounded in the graph. Bidirectional NL to graph and back.",
       "jtbd_label": "Find Bottleneck",
       "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
     },
@@ -1046,7 +1046,7 @@
         "find-bottleneck",
         "surface-contradiction"
       ],
-      "teaching": null,
+      "teaching": "When you need the full Reverse Salient pipeline run on a topic, /mos:rs-fetch executes the discovery end-to-end: corpus, math, cross-domain match, thesis. The complete sweep, not a sample.",
       "jtbd_label": "Find Bottleneck",
       "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
     },
@@ -1063,7 +1063,7 @@
       "serves_jtbd": [
         "find-bottleneck"
       ],
-      "teaching": null,
+      "teaching": "When you ran a Reverse Salient discovery earlier and want the thesis read back, /mos:rs-thesis surfaces the analytic conclusion in plain language. Best for revisiting old findings before a meeting.",
       "jtbd_label": "Find Bottleneck",
       "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
     },
@@ -1081,7 +1081,7 @@
         "compare-options",
         "plan-execution"
       ],
-      "teaching": null,
+      "teaching": "When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant. Forces you to plan for the world you do not expect.",
       "jtbd_label": "Compare Options",
       "jtbd_summary": "Compare alternatives across criteria — choose between A/B/C."
     },
@@ -1096,7 +1096,7 @@
       "serves_jtbd": [
         "plan-execution"
       ],
-      "teaching": null,
+      "teaching": "When you want Cowork to run something on a schedule against this room, /mos:scheduled-tasks defines the recurring job. Best for nightly grant sweeps or weekly meeting digests.",
       "jtbd_label": "Plan Execution",
       "jtbd_summary": "Plan the next 90 days — milestones, owners, dates."
     },
@@ -1114,7 +1114,7 @@
         "compare-options",
         "validate-idea"
       ],
-      "teaching": null,
+      "teaching": "When you are choosing between cross-domain innovation candidates, /mos:score-innovation runs HSI scoring to rank them by semantic surprise. The math reveals which idea is actually novel.",
       "jtbd_label": "Compare Options",
       "jtbd_summary": "Compare alternatives across criteria — choose between A/B/C."
     },
@@ -1130,7 +1130,7 @@
         "explore",
         "understand-market"
       ],
-      "teaching": null,
+      "teaching": "When you want background scans running across the room without driving them yourself, /mos:scout fires the sentinel checks. The proactive layer, not the reactive one.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
@@ -1145,7 +1145,7 @@
       "serves_jtbd": [
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When you want to wire optional integrations like Brain or Velma, /mos:setup walks you through configuration. MindrianOS works without them; they make it work harder.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
@@ -1161,7 +1161,7 @@
         "prepare-pitch",
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When you need a frozen Data Room artifact to share with someone outside the team, /mos:snapshot packages everything into a portable bundle. Read-only by design.",
       "jtbd_label": "Prepare Pitch",
       "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
@@ -1176,7 +1176,7 @@
       "serves_jtbd": [
         "file-meeting"
       ],
-      "teaching": null,
+      "teaching": "When you have a meeting filed and want to know who said what, /mos:speakers shows the participants with their roles, attendance, and contribution patterns. The people layer of meeting intelligence.",
       "jtbd_label": "File Meeting",
       "jtbd_summary": "Capture and route meeting intelligence into the room."
     },
@@ -1191,7 +1191,7 @@
       "serves_jtbd": [
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When you want the MindrianOS Mondrian banner, /mos:splash displays it. Mostly decorative; useful for screenshots and demo openings.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
@@ -1207,7 +1207,7 @@
         "audit-room",
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When you need a fast read on the room's current state, /mos:status shows the governing thought per section plus health glyphs. The 10-second status check.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -1226,7 +1226,7 @@
         "validate-idea",
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When an argument is muddled and you cannot say why, /mos:structure-argument restructures it with Minto pyramid, SCQA, and MECE. The right structure usually surfaces the missing premise.",
       "jtbd_label": "Validate Idea",
       "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
@@ -1242,7 +1242,7 @@
         "plan-execution",
         "explore"
       ],
-      "teaching": null,
+      "teaching": "When you finish a step and want Larry to recommend the next move, /mos:suggest-next reads the room graph and proposes 3-5 options with reasons. The Navigation Engine made visible.",
       "jtbd_label": "Plan Execution",
       "jtbd_summary": "Plan the next 90 days — milestones, owners, dates."
     },
@@ -1259,7 +1259,7 @@
       "serves_jtbd": [
         "find-bottleneck"
       ],
-      "teaching": null,
+      "teaching": "When the dynamics matter more than the parts, /mos:systems-thinking maps feedback loops, stocks, and flows. Surfaces where the leverage actually lives in the system.",
       "jtbd_label": "Find Bottleneck",
       "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
     },
@@ -1277,7 +1277,7 @@
         "explore",
         "compare-options"
       ],
-      "teaching": null,
+      "teaching": "When the team keeps wearing the same hat and missing perspectives, /mos:think-hats rotates them through de Bono's six. The discomfort is the point; that is where the new thought lives.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
@@ -1292,7 +1292,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": null,
+      "teaching": "When you suspect MindrianOS has a newer version waiting, /mos:update checks and installs via Claude Code's native plugin loader. Stale plugins quietly diverge from the docs.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -1309,7 +1309,7 @@
       "serves_jtbd": [
         "find-problem"
       ],
-      "teaching": null,
+      "teaching": "When you need to map what users actually want versus what they say they want, /mos:user-needs plots importance against satisfaction. The gap is where the opportunity lives.",
       "jtbd_label": "Find Problem",
       "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
@@ -1328,7 +1328,7 @@
       "serves_jtbd": [
         "validate-idea"
       ],
-      "teaching": null,
+      "teaching": "When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling.",
       "jtbd_label": "Validate Idea",
       "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
@@ -1346,7 +1346,7 @@
         "validate-idea",
         "prepare-pitch"
       ],
-      "teaching": null,
+      "teaching": "When you have a value proposition but no proof it holds, /mos:validate-proposition scores it against the three PWS VP gates with sequential math. A clean gate failure beats a vague pass.",
       "jtbd_label": "Validate Idea",
       "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
@@ -1361,7 +1361,7 @@
       "serves_jtbd": [
         "prepare-pitch"
       ],
-      "teaching": null,
+      "teaching": "When you want the Data Room available in Obsidian for offline reading, /mos:vault exports it as a nested vault with wikilinks intact. Graph view comes free.",
       "jtbd_label": "Prepare Pitch",
       "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
@@ -1377,7 +1377,7 @@
         "audit-room",
         "prepare-pitch"
       ],
-      "teaching": null,
+      "teaching": "When you want to see the room as diagrams in a browser, /mos:visualize opens the visual layer. Best when a stakeholder needs the picture, not the prose.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -1395,7 +1395,7 @@
         "connect-domains",
         "find-problem"
       ],
-      "teaching": null,
+      "teaching": "When you suspect a gap exists in the room's coverage of a domain, /mos:whitespace runs HSI scoring across the artifact corpus to find under-explored zones. Best after the room has 20+ entries.",
       "jtbd_label": "Connect Domains",
       "jtbd_summary": "Find cross-domain analogues — what does this look like in another field?"
     },
@@ -1411,7 +1411,7 @@
         "audit-room",
         "prepare-pitch"
       ],
-      "teaching": null,
+      "teaching": "When you want to read the Data Room as linked wiki pages, /mos:wiki opens the wiki view. Section by section, with cross-references rendered as hyperlinks.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     }
