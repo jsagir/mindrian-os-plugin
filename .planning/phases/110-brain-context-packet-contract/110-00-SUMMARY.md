@@ -173,7 +173,20 @@ All success criteria from `<success_criteria>` met.
 
 ## Deviations from Plan
 
-None - plan executed exactly as written.
+### Auto-fixed Issues
+
+**1. [Rule 1 - Bug] Requirements-status tool call corrected back to Pending**
+- **Found during:** State updates (post-task-2, before final commit)
+- **Issue:** The execute-plan workflow's `state_updates` step instructs `requirements mark-complete ${REQ_IDS}` for IDs declared in PLAN.md frontmatter. The Plan 110-00 frontmatter declares `requirements: [PACKET-110-01..09]` because the substrate plan REGISTERS those IDs. But mechanically marking them Complete is semantically wrong for a Wave-0 substrate plan -- the actual implementation work lands in Plans 110-01..05; Wave 0 only registers the IDs (Pending) and ships RED stubs. The Phase 109 substrate precedent (109-00-SUMMARY.md) handled the same case the same way -- NAV-109-01..09 stayed Pending after 109-00 even though they appeared in the plan's frontmatter.
+- **Fix:** After `requirements mark-complete` flipped both the bullet checkboxes (`- [ ]` -> `- [x]`) and the traceability status rows (`Pending` -> `Complete`), reverted both back to Pending with two sed passes against `.planning/REQUIREMENTS.md`: `s/^- \[x\] \*\*PACKET-110-/- [ ] **PACKET-110-/g` and `s/| PACKET-110-\([0-9]\+\) | Phase 110 | Complete |/| PACKET-110-\1 | Phase 110 | Pending |/g`. Working-tree diff against the committed REQUIREMENTS.md (post-revert) is empty -- the file matches what Task-1's commit `46e1742` already shipped.
+- **Files modified:** None at commit time (the revert produced an empty diff against the already-committed state).
+- **Verification:** `git diff --stat .planning/REQUIREMENTS.md` returns empty; `grep "| PACKET-110-" .planning/REQUIREMENTS.md` shows 9 `Pending` rows.
+- **Committed in:** N/A (the revert produced no net change; the Task-1 commit `46e1742` is the authoritative state).
+
+---
+
+**Total deviations:** 1 auto-fixed (Rule 1 -- corrected the semantic mismatch between the workflow's mechanical `mark-complete` step and the Wave-0-substrate convention that registered-but-not-implemented requirements stay Pending until the owning implementation plan lands).
+**Impact on plan:** Zero. The on-disk file ended up byte-identical to Task-1's committed state. Documented for future-reader clarity so the Wave-0-substrate-vs-implementation-plan distinction is preserved.
 
 The `verify` block in Task 1 includes a final pipe chain `awk '/Plans:$/,/110-05-PLAN/p' ... && exit 1 || exit 0` that exercises the "no em/en-dashes inside the new region" guard. Both regions (the new PACKET-110 section in REQUIREMENTS.md and the unchanged-on-disk Phase 110 block in ROADMAP.md) pass the sweep.
 
