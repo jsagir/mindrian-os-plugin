@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 110-00-PLAN.md
-last_updated: "2026-05-13T05:36:23.183Z"
+stopped_at: Completed 110-01-PLAN.md
+last_updated: "2026-05-13T06:47:13.304Z"
 last_activity: 2026-05-13
 progress:
-  total_phases: 54
+  total_phases: 55
   completed_phases: 31
-  total_plans: 248
-  completed_plans: 229
+  total_plans: 251
+  completed_plans: 230
   percent: 93
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 110 (brain-context-packet-contract) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -276,6 +276,7 @@ Progress: [█████████░] 93%
 | Phase 109 P11 | 18min | 2 tasks | 3 files |
 | Phase 109 P12 | 25 | 3 tasks | 7 files |
 | Phase 110 P00 | 7min | 2 tasks | 6 files |
+| Phase 110 P01 | 11min | 2 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -753,6 +754,7 @@ Progress: [█████████░] 93%
 - [Phase 109]: Phase 109 ledger reconciled (Plan 109-12): 4 missing SUMMARYs recreated (109-00/07/09 restored verbatim from 5426e97/65468bc/b3d8c01; 109-01 hand-written noting follow-up fix 7d87ed5); NAV-109-06/07/08 flipped to Complete; 15 Phase-109 test suites re-registered in the Feynman runner
 - [Phase 110]: Wave 0 substrate: registered PACKET-110-01..09 in REQUIREMENTS.md; ROADMAP Phase 110 block left untouched (planner pre-populated 6-plan list + 12-job D-02 vocab + Requirements line via /gsd:plan-phase 110 on 2026-05-12)
 - [Phase 110]: RED-stub idiom adopted from tests/test-navigation-packet-part8-leak.cjs: process.exit(1) + 'MISSING - Wave N must implement ... (Plan 110-NN)' stderr line; tests/run-all-110.sh mirrors tests/run-all-122.sh structurally; 4 stubs registered in lib/memory/run-feynman-tests.cjs TEST_FILES[]
+- [Phase 110]: Plan 110-01: Brain Context Packet wire-format contract shipped. data/brain-packet-schema.json (draft 2020-12, 12 D-02 job $defs each with in+out shapes, additionalProperties:false everywhere - Canon Part 8 leak-prevention teeth at the wire). scripts/build-brain-packet-schema.cjs (mirrors Phase 122 generated-checked-with-tripwire; ajv@8.18.0 via Ajv2020 dialect class; transitive only - not in package.json). tests/test-brain-packet-schema-check.cjs filled (19 assertions across 6 tests via MINDRIAN_BRAIN_PACKET_SCHEMA env seam). 110 scoped runner now 1 of 4 PASSED (3 RED-by-design until 110-04 + 110-05).
 
 ### Pending Todos
 
@@ -782,6 +784,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-13T05:36:15.780Z
-Stopped at: Completed 110-00-PLAN.md
+Last session: 2026-05-13T06:47:13.286Z
+Stopped at: Completed 110-01-PLAN.md
 Resume file: None
