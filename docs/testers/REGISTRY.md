@@ -2,7 +2,7 @@
 type: tester-registry
 status: canonical
 created: 2026-05-02
-updated: 2026-05-04
+updated: 2026-05-12
 source: ~/MindrianRooms/mindrian/mindrianOS/team-execution/2026-04-27-tester-cohort-justin-aryeh.md
 ---
 
@@ -20,6 +20,7 @@ source: ~/MindrianRooms/mindrian/mindrianOS/team-execution/2026-04-27-tester-coh
 | Adam Peters | [adam-peters/](./adam-peters/) | apeters912@gmail.com | Pre-Wave-1 (founding-adjacent) | (informal, ongoing) | free plan, non-expiring | n/a | "Banana ripener" -- coined the framing. Always on release BCC. v1.12.4 reply (2026-05-03) filed in folder. |
 | Shmuel Schuman | [shmuel-schuman/](./shmuel-schuman/) | Shmuelschuman@gmail.com | Wave 2 (2026-05-04) | Welcome email with both Paths A and B + install site link | 60-day issued 2026-05-04 | 2026-07-03 | Welcome draft filed via Gmail MCP (corrected after QP =c8 corruption in first attempt). |
 | Gary Laben | [gary-laben/](./gary-laben/) | garyslaben@gmail.com | Wave 2 (2026-05-07) | Welcome email + Windows-specific install reassurance (Claude Code refused install citing third-party plugin warning -- needs explicit "proceed anyway" + project-scoping note) | 60-day reissued 2026-05-09 (old revoked) | 2026-07-08 | Critical tester. Head of advisory board at Hopkins, intro via Lawrence. Hit the Claude Code install-warning friction surface on PowerShell + Claude application. Asked whether MindrianOS runs in every Claude project or only Mindrian-associated ones. |
+| Aniruddh Mohan | [aniruddh-mohan/](./aniruddh-mohan/) | aniruddh.mohan3@gmail.com | Wave 2 (2026-05-12) | Welcome email (reply on the "New Product Test" thread) + install-site link + version-pinned marketplace command | 90-day issued 2026-05-12 | 2026-08-10 | Intro via Adam Peters (himself a tester) -- Aniruddh ("Ani") is an energy/climate researcher, ex-Princeton post-doc; he and Adam collaborated on an energy startup. Greenlit by Jonathan on the "New Product Test" thread ("we would love to / sending instructions in a few"). NOT yet screened against the Phase 115 owned-emotion criteria -- screen on first substantive contact. |
 
 ## Pending invites
 
