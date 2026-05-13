@@ -9,7 +9,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "plan-execution"
+      ],
+      "teaching": null,
+      "jtbd_label": "Plan Execution",
+      "jtbd_summary": "Plan the next 90 days — milestones, owners, dates."
     },
     {
       "command": "/mos:admin",
@@ -18,7 +24,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "A (Mondrian Board)"
+      "body_shape": "A (Mondrian Board)",
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:analyze-needs",
@@ -31,7 +43,13 @@
         "a customer segment defined"
       ],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "find-problem"
+      ],
+      "teaching": null,
+      "jtbd_label": "Find Problem",
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
     {
       "command": "/mos:analyze-systems",
@@ -42,7 +60,13 @@
       "produces": "room/**/systems/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "find-bottleneck"
+      ],
+      "teaching": null,
+      "jtbd_label": "Find Bottleneck",
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
     },
     {
       "command": "/mos:analyze-timing",
@@ -53,7 +77,13 @@
       "produces": "room/**/timing/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "understand-market"
+      ],
+      "teaching": null,
+      "jtbd_label": "Understand Market",
+      "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
     },
     {
       "command": "/mos:auto-explore",
@@ -62,7 +92,15 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "find-problem",
+        "understand-market",
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Find Problem",
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
     {
       "command": "/mos:beautiful-question",
@@ -73,7 +111,14 @@
       "produces": "room/problem-definition/beautiful-question/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "find-problem",
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Find Problem",
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
     {
       "command": "/mos:brain-derive",
@@ -82,7 +127,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:build-knowledge",
@@ -93,7 +144,13 @@
       "produces": "room/**/knowledge/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
     {
       "command": "/mos:build-thesis",
@@ -104,7 +161,14 @@
       "produces": "room/**/thesis/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "decide-pursue",
+        "prepare-pitch"
+      ],
+      "teaching": null,
+      "jtbd_label": "Decide Pursue",
+      "jtbd_summary": "Decide if a venture / opportunity / approach is worth pursuing."
     },
     {
       "command": "/mos:causal",
@@ -115,7 +179,14 @@
       "produces": "room/**/causal/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "find-problem",
+        "find-bottleneck"
+      ],
+      "teaching": null,
+      "jtbd_label": "Find Problem",
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
     {
       "command": "/mos:challenge-assumptions",
@@ -124,7 +195,14 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "validate-idea",
+        "surface-contradiction"
+      ],
+      "teaching": null,
+      "jtbd_label": "Validate Idea",
+      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
     {
       "command": "/mos:compare-ventures",
@@ -135,7 +213,13 @@
       "produces": "room/competitive-analysis/comparison/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "compare-options"
+      ],
+      "teaching": null,
+      "jtbd_label": "Compare Options",
+      "jtbd_summary": "Compare alternatives across criteria — choose between A/B/C."
     },
     {
       "command": "/mos:dashboard",
@@ -144,7 +228,14 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "raw"
+      "body_shape": "raw",
+      "serves_jtbd": [
+        "audit-room",
+        "prepare-pitch"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:deep-grade",
@@ -157,7 +248,14 @@
         "3+ room sections populated"
       ],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "audit-room",
+        "compare-options"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:diagnose",
@@ -168,7 +266,13 @@
       "produces": "room/problem-definition/diagnosis/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "decide-pursue"
+      ],
+      "teaching": null,
+      "jtbd_label": "Decide Pursue",
+      "jtbd_summary": "Decide if a venture / opportunity / approach is worth pursuing."
     },
     {
       "command": "/mos:diagnostics",
@@ -179,7 +283,13 @@
       "produces": "room/**/diagnostics/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": "E"
+      "body_shape": "E",
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:doctor",
@@ -188,7 +298,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:dominant-designs",
@@ -199,7 +315,13 @@
       "produces": "room/**/dominant-designs/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "understand-market"
+      ],
+      "teaching": null,
+      "jtbd_label": "Understand Market",
+      "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
     },
     {
       "command": "/mos:explain-decision",
@@ -208,7 +330,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:explore-domains",
@@ -219,7 +347,15 @@
       "produces": "room/problem-definition/domain-decomposition/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "find-problem",
+        "understand-market",
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Find Problem",
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
     {
       "command": "/mos:explore-futures",
@@ -230,7 +366,14 @@
       "produces": "room/**/futures/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "compare-options",
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Compare Options",
+      "jtbd_summary": "Compare alternatives across criteria — choose between A/B/C."
     },
     {
       "command": "/mos:explore-trends",
@@ -241,7 +384,14 @@
       "produces": "room/**/trends/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "understand-market",
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Understand Market",
+      "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
     },
     {
       "command": "/mos:export",
@@ -250,7 +400,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "prepare-pitch"
+      ],
+      "teaching": null,
+      "jtbd_label": "Prepare Pitch",
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
     {
       "command": "/mos:feynman-timeline-refresh",
@@ -259,7 +415,14 @@
       "produces": "room/*/FEYNMAN.md",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "validate-idea",
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Validate Idea",
+      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
     {
       "command": "/mos:file-meeting",
@@ -268,7 +431,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "file-meeting"
+      ],
+      "teaching": null,
+      "jtbd_label": "File Meeting",
+      "jtbd_summary": "Capture and route meeting intelligence into the room."
     },
     {
       "command": "/mos:find-analogies",
@@ -279,7 +448,13 @@
       "produces": "room/**/analogies/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": "D (Comparison Matrix)"
+      "body_shape": "D (Comparison Matrix)",
+      "serves_jtbd": [
+        "connect-domains"
+      ],
+      "teaching": null,
+      "jtbd_label": "Connect Domains",
+      "jtbd_summary": "Find cross-domain analogues — what does this look like in another field?"
     },
     {
       "command": "/mos:find-bottlenecks",
@@ -290,7 +465,13 @@
       "produces": "room/**/reverse-salients/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "find-bottleneck"
+      ],
+      "teaching": null,
+      "jtbd_label": "Find Bottleneck",
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
     },
     {
       "command": "/mos:find-connections",
@@ -301,7 +482,13 @@
       "produces": "room/**/analogies/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "connect-domains"
+      ],
+      "teaching": null,
+      "jtbd_label": "Connect Domains",
+      "jtbd_summary": "Find cross-domain analogues — what does this look like in another field?"
     },
     {
       "command": "/mos:funding",
@@ -310,7 +497,14 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "B (Semantic Tree)"
+      "body_shape": "B (Semantic Tree)",
+      "serves_jtbd": [
+        "prepare-pitch",
+        "decide-pursue"
+      ],
+      "teaching": null,
+      "jtbd_label": "Prepare Pitch",
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
     {
       "command": "/mos:grade",
@@ -323,7 +517,13 @@
         "at least one room section populated"
       ],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:graph",
@@ -332,7 +532,14 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "C (Room Card)"
+      "body_shape": "C (Room Card)",
+      "serves_jtbd": [
+        "audit-room",
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:hat-briefing",
@@ -343,7 +550,13 @@
       "produces": "room/**/hat-briefing/*",
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "C (Dashboard Grid)"
+      "body_shape": "C (Dashboard Grid)",
+      "serves_jtbd": [
+        "prepare-pitch"
+      ],
+      "teaching": null,
+      "jtbd_label": "Prepare Pitch",
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
     {
       "command": "/mos:heal",
@@ -352,7 +565,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:help",
@@ -361,7 +580,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "B (Semantic Tree)"
+      "body_shape": "B (Semantic Tree)",
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
     {
       "command": "/mos:hmi-status",
@@ -370,7 +595,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:jtbd",
@@ -379,7 +610,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:leadership",
@@ -388,7 +625,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
     {
       "command": "/mos:lean-canvas",
@@ -399,7 +642,14 @@
       "produces": "room/business-model/lean-canvas/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "prepare-pitch",
+        "validate-idea"
+      ],
+      "teaching": null,
+      "jtbd_label": "Prepare Pitch",
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
     {
       "command": "/mos:macro-trends",
@@ -410,7 +660,13 @@
       "produces": "room/**/trends/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "understand-market"
+      ],
+      "teaching": null,
+      "jtbd_label": "Understand Market",
+      "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
     },
     {
       "command": "/mos:map-unknowns",
@@ -421,7 +677,13 @@
       "produces": "room/**/unknowns/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "validate-idea"
+      ],
+      "teaching": null,
+      "jtbd_label": "Validate Idea",
+      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
     {
       "command": "/mos:memory",
@@ -430,7 +692,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:models",
@@ -439,7 +707,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "C (Information Card)"
+      "body_shape": "C (Information Card)",
+      "serves_jtbd": [
+        "compare-options"
+      ],
+      "teaching": null,
+      "jtbd_label": "Compare Options",
+      "jtbd_summary": "Compare alternatives across criteria — choose between A/B/C."
     },
     {
       "command": "/mos:mos-reason",
@@ -450,7 +724,13 @@
       "produces": "room/**/reasoning/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
     {
       "command": "/mos:mullins",
@@ -461,7 +741,13 @@
       "produces": "room/**/mullins/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "understand-market"
+      ],
+      "teaching": null,
+      "jtbd_label": "Understand Market",
+      "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
     },
     {
       "command": "/mos:new-project",
@@ -470,7 +756,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
     {
       "command": "/mos:onboard",
@@ -479,7 +771,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "B (Semantic Tree)"
+      "body_shape": "B (Semantic Tree)",
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
     {
       "command": "/mos:operator",
@@ -488,7 +786,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
     {
       "command": "/mos:opportunities",
@@ -497,7 +801,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
     {
       "command": "/mos:organize",
@@ -506,7 +816,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "B (Semantic Tree)"
+      "body_shape": "B (Semantic Tree)",
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:persona",
@@ -517,7 +833,13 @@
       "produces": "room/team/ai-personas/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": "C (Room Card)"
+      "body_shape": "C (Room Card)",
+      "serves_jtbd": [
+        "prepare-pitch"
+      ],
+      "teaching": null,
+      "jtbd_label": "Prepare Pitch",
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
     {
       "command": "/mos:pipeline",
@@ -526,7 +848,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "plan-execution"
+      ],
+      "teaching": null,
+      "jtbd_label": "Plan Execution",
+      "jtbd_summary": "Plan the next 90 days — milestones, owners, dates."
     },
     {
       "command": "/mos:present",
@@ -535,7 +863,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "prepare-pitch"
+      ],
+      "teaching": null,
+      "jtbd_label": "Prepare Pitch",
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
     {
       "command": "/mos:publish",
@@ -544,7 +878,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "prepare-pitch"
+      ],
+      "teaching": null,
+      "jtbd_label": "Prepare Pitch",
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
     {
       "command": "/mos:query",
@@ -553,7 +893,14 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "audit-room",
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:radar",
@@ -562,7 +909,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "understand-market"
+      ],
+      "teaching": null,
+      "jtbd_label": "Understand Market",
+      "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
     },
     {
       "command": "/mos:reanalyze",
@@ -571,7 +924,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "file-meeting"
+      ],
+      "teaching": null,
+      "jtbd_label": "File Meeting",
+      "jtbd_summary": "Capture and route meeting intelligence into the room."
     },
     {
       "command": "/mos:research",
@@ -582,7 +941,14 @@
       "produces": "room/**/research/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "explore",
+        "understand-market"
+      ],
+      "teaching": null,
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
     {
       "command": "/mos:room",
@@ -591,7 +957,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:rooms",
@@ -600,7 +972,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "B (Semantic Tree)"
+      "body_shape": "B (Semantic Tree)",
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:root-cause",
@@ -611,7 +989,13 @@
       "produces": "room/**/root-cause/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "find-problem"
+      ],
+      "teaching": null,
+      "jtbd_label": "Find Problem",
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
     {
       "command": "/mos:rs-experts",
@@ -622,7 +1006,14 @@
       "produces": "room/**/rs-experts/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": "D (Comparison Matrix)"
+      "body_shape": "D (Comparison Matrix)",
+      "serves_jtbd": [
+        "find-bottleneck",
+        "connect-domains"
+      ],
+      "teaching": null,
+      "jtbd_label": "Find Bottleneck",
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
     },
     {
       "command": "/mos:rs-explain",
@@ -633,7 +1024,13 @@
       "produces": "room/**/rs-explain/*",
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "find-bottleneck"
+      ],
+      "teaching": null,
+      "jtbd_label": "Find Bottleneck",
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
     },
     {
       "command": "/mos:rs-fetch",
@@ -644,7 +1041,14 @@
       "produces": "room/**/rs-fetch/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "find-bottleneck",
+        "surface-contradiction"
+      ],
+      "teaching": null,
+      "jtbd_label": "Find Bottleneck",
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
     },
     {
       "command": "/mos:rs-thesis",
@@ -655,7 +1059,13 @@
       "produces": "room/**/rs-thesis/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "find-bottleneck"
+      ],
+      "teaching": null,
+      "jtbd_label": "Find Bottleneck",
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
     },
     {
       "command": "/mos:scenario-plan",
@@ -666,7 +1076,14 @@
       "produces": "room/**/scenarios/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "compare-options",
+        "plan-execution"
+      ],
+      "teaching": null,
+      "jtbd_label": "Compare Options",
+      "jtbd_summary": "Compare alternatives across criteria — choose between A/B/C."
     },
     {
       "command": "/mos:scheduled-tasks",
@@ -675,7 +1092,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "plan-execution"
+      ],
+      "teaching": null,
+      "jtbd_label": "Plan Execution",
+      "jtbd_summary": "Plan the next 90 days — milestones, owners, dates."
     },
     {
       "command": "/mos:score-innovation",
@@ -686,7 +1109,14 @@
       "produces": "room/opportunity-bank/hsi-scores/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "compare-options",
+        "validate-idea"
+      ],
+      "teaching": null,
+      "jtbd_label": "Compare Options",
+      "jtbd_summary": "Compare alternatives across criteria — choose between A/B/C."
     },
     {
       "command": "/mos:scout",
@@ -695,7 +1125,14 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "explore",
+        "understand-market"
+      ],
+      "teaching": null,
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
     {
       "command": "/mos:setup",
@@ -704,7 +1141,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
     {
       "command": "/mos:snapshot",
@@ -713,7 +1156,14 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "prepare-pitch",
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Prepare Pitch",
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
     {
       "command": "/mos:speakers",
@@ -722,7 +1172,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "C (Room Card)"
+      "body_shape": "C (Room Card)",
+      "serves_jtbd": [
+        "file-meeting"
+      ],
+      "teaching": null,
+      "jtbd_label": "File Meeting",
+      "jtbd_summary": "Capture and route meeting intelligence into the room."
     },
     {
       "command": "/mos:splash",
@@ -731,7 +1187,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "raw"
+      "body_shape": "raw",
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
     {
       "command": "/mos:status",
@@ -740,7 +1202,14 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)"
+      "body_shape": "E (Action Report)",
+      "serves_jtbd": [
+        "audit-room",
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:structure-argument",
@@ -752,7 +1221,14 @@
       "produces": "room/**/argument/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "validate-idea",
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Validate Idea",
+      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
     {
       "command": "/mos:suggest-next",
@@ -761,7 +1237,14 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "plan-execution",
+        "explore"
+      ],
+      "teaching": null,
+      "jtbd_label": "Plan Execution",
+      "jtbd_summary": "Plan the next 90 days — milestones, owners, dates."
     },
     {
       "command": "/mos:systems-thinking",
@@ -772,7 +1255,13 @@
       "produces": "room/**/systems/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "find-bottleneck"
+      ],
+      "teaching": null,
+      "jtbd_label": "Find Bottleneck",
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
     },
     {
       "command": "/mos:think-hats",
@@ -783,7 +1272,14 @@
       "produces": "room/**/six-hats/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "explore",
+        "compare-options"
+      ],
+      "teaching": null,
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
     {
       "command": "/mos:update",
@@ -792,7 +1288,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:user-needs",
@@ -803,7 +1305,13 @@
       "produces": "room/market-analysis/user-needs/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "find-problem"
+      ],
+      "teaching": null,
+      "jtbd_label": "Find Problem",
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
     {
       "command": "/mos:validate",
@@ -816,7 +1324,13 @@
         "a customer segment defined"
       ],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "validate-idea"
+      ],
+      "teaching": null,
+      "jtbd_label": "Validate Idea",
+      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
     {
       "command": "/mos:validate-proposition",
@@ -827,7 +1341,14 @@
       "produces": "room/business-model/value-proposition/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "validate-idea",
+        "prepare-pitch"
+      ],
+      "teaching": null,
+      "jtbd_label": "Validate Idea",
+      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
     {
       "command": "/mos:vault",
@@ -836,7 +1357,13 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null
+      "body_shape": null,
+      "serves_jtbd": [
+        "prepare-pitch"
+      ],
+      "teaching": null,
+      "jtbd_label": "Prepare Pitch",
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
     {
       "command": "/mos:visualize",
@@ -845,7 +1372,14 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "D (Document View)"
+      "body_shape": "D (Document View)",
+      "serves_jtbd": [
+        "audit-room",
+        "prepare-pitch"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:whitespace",
@@ -856,7 +1390,14 @@
       "produces": "room/opportunity-bank/whitespace/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": "varies"
+      "body_shape": "varies",
+      "serves_jtbd": [
+        "connect-domains",
+        "find-problem"
+      ],
+      "teaching": null,
+      "jtbd_label": "Connect Domains",
+      "jtbd_summary": "Find cross-domain analogues — what does this look like in another field?"
     },
     {
       "command": "/mos:wiki",
@@ -865,7 +1406,14 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "D (Document View)"
+      "body_shape": "D (Document View)",
+      "serves_jtbd": [
+        "audit-room",
+        "prepare-pitch"
+      ],
+      "teaching": null,
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     }
   ],
   "framework_index": {
