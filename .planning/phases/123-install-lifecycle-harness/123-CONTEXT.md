@@ -34,7 +34,7 @@ Plus an **absorbed sibling (Plan-7)** — a Brain-key resolver. A 2026-05-12 Win
 ### 1. Install-state record (`~/.mindrian/install-state.json`)
 
 - **D-01:** **Hard-consumer contract.** Every consumer (statusline, `~/.mindrian-last-version` reader, `bin/cli.js`, doctor) treats a missing record as a *known-bad, explicitly-surfaced* state — never a silent guess, never a crash. The surfaced message is actionable: "install-state not initialized — run `mindrian-os doctor --fix`". Consumers do NOT fall back to running the resolver themselves on a missing record (the resolver `active-plugin-root.cjs` is what `session-start` uses to *write* the record; consumers read the record).
-- **D-02:** **Carve-out for `doctor`.** `doctor` cannot hard-error on a missing record — diagnosing a broken install *is* its job. For `doctor`, "record absent" is a drift *finding* (in class H, see D-12) with a `--fix` that runs `session-start`'s record-write path.
+- **D-02:** **Carve-out for `doctor`.** `doctor` cannot hard-error on a missing record — diagnosing a broken install *is* its job. For `doctor`, "record absent" is a drift *finding* (in class I, see D-12) with a `--fix` that runs `session-start`'s record-write path.
 - **D-03:** **`session-start` writes the record in its earliest steps** — right after the workspace guard / resolver, before anything downstream (statusline render, `~/.mindrian-last-version` consumers) reads it. The `~/.mindrian-last-version` write folds into this same step so there is no window where one is fresh and the other is stale. **Single writer:** `scripts/session-start` owns the record AND `~/.mindrian-last-version`; no other SessionStart hook writes either (if any does today, consolidate into `session-start`).
 - **D-04:** **The record is a full snapshot.** Fields: `active_version`, `active_root`, `topology` (`marketplace-cache | dev-clone | legacy | not-found`), `resolved_at`, `surfaces[]` (`{ id, path, check_kind, expected, observed, ok }`), **plus** the version-of-record cross-check values seen at write time: `installed_plugins_version`, `statusline_renders_version`, `last_version_file_value`, `path_bin_version`.
 - **D-05:** **doctor reads the snapshot AND does one live spot-check** of `active_version` vs `installed_plugins.json`. If they diverge → report "record stale — re-run `session-start`" (NOT "install drift"). Cheap insurance against a mid-session `claude plugin update`.
@@ -50,9 +50,9 @@ Plus an **absorbed sibling (Plan-7)** — a Brain-key resolver. A 2026-05-12 Win
 ### 3. doctor drift classes + `--fix` scope
 
 - **D-11:** **Bug 7's fix lives in the existing legacy-clone check.** "No legacy clone dir on a marketplace-only box" is *expected*, not a finding. Topology is one of `{ marketplace-cache, dev-clone, legacy, not-found }` — each is a *valid* topology; only `not-found`, or a mismatch between the declared and the actual topology, is drift.
-- **D-12:** **Two new drift classes** (added to the existing A–G roster; `--all` activates them too):
-  - **Class H — install-state + topology + version-of-record consistency.** Checks: record present + internally consistent (snapshot matches a live spot-check, per D-05); topology classification (per D-11); the version-of-record equality across `installed_plugins.json` ↔ record `active_version` ↔ statusline-renders ↔ SessionStart-banner ↔ `~/.mindrian-last-version` ↔ plugin-bin `$PATH` entry.
-  - **Class I — deployment-surface manifest reconciliation.** Every owned surface in `data/deployment-surfaces.json` has its marker/value OK.
+- **D-12:** **Two new drift classes** (added to the existing A–H roster; `--all` activates them too):
+  - **Class I — install-state + topology + version-of-record consistency.** (NOT H — an existing class H is taken by `checkInstallIncomplete` at L1119-1296 of `scripts/doctor.cjs`.) Checks: record present + internally consistent (snapshot matches a live spot-check, per D-05); topology classification (per D-11); the version-of-record equality across `installed_plugins.json` ↔ record `active_version` ↔ statusline-renders ↔ SessionStart-banner ↔ `~/.mindrian-last-version` ↔ plugin-bin `$PATH` entry.
+  - **Class J — deployment-surface manifest reconciliation.** Every owned surface in `data/deployment-surfaces.json` has its marker/value OK.
   - Each class has a name, a check, a `--fix` (where applicable, per D-13), and a per-class test fixture.
 - **D-13:** **`--fix` recovers everything it safely can — including legacy-clone migration and `installed_plugins.json` repair — under hard preconditions:**
   - **`legacy` vs `dev-clone` must be distinguished; `dev-clone` is untouchable.** `legacy` = the obsolete `~/.claude/plugins/mindrian-os/` install-cache clone. `dev-clone` = a git clone with an `origin` remote pointing at GitHub (e.g. `~/MindrianOS-Plugin` itself). `--fix` NEVER migrates, removes, or rewrites a `dev-clone`. Migration applies to `legacy` only.
@@ -74,6 +74,8 @@ Plus an **absorbed sibling (Plan-7)** — a Brain-key resolver. A 2026-05-12 Win
 - **D-18:** **Pre-release bump algebra via the npm `semver` package** (added as a **`devDependency`** — `release.sh` is dev tooling, never shipped; it stays out of the `package.json` `files` allowlist so the published `@mindrian_os/install` tarball keeps zero runtime deps). `release.sh` checks `node_modules/semver` exists (or runs `npm install`) before using it. Semantics via `semver.inc()` from a node one-liner: `--prerelease` → `semver.inc(v, 'prerelease', 'beta')` (`1.13.0-beta.11` → `1.13.0-beta.12`); `patch`/`minor`/`major` → `semver.inc(v, 'patch'|'minor'|'major')` (finalizes: `1.13.0-beta.11` → `1.13.1` / `1.14.0` / `2.0.0`); a `--start-prerelease <core> <channel>` form opens a fresh series (`1.13.0` → `1.14.0-beta.1`). This replaces the `IFS='.' read -r MAJOR MINOR PATCH` on `scripts/release.sh:40` that mangles pre-release versions (`PATCH=0-beta`) and is why beta.10/11/12/13 were hand-rolled.
 - **D-19:** **One-commit next-bump.** The release commit finalizes `CHANGELOG [vN] - date`, the `vN` tag points at that commit, AND that commit already carries `plugin.json`/`package.json` == `vN+1` (next pre-release) + the CHANGELOG `[Unreleased] -- vN+1 (in progress)` heading reset. `plugin.json` is always "the next version to ship"; after `release.sh` runs, HEAD says `vN+1` and the registry has `vN` — they never match, so "repo says beta.11, registry already has beta.11" is structurally impossible.
   - **OPEN — researcher must resolve before the planner locks D-19:** the `vN` git tag will point at a commit whose `plugin.json` says `vN+1`, while `marketplace.json` `version` + `source.ref` say `vN`. Verify whether Claude Code's plugin loader reads the *installed* version from `plugin.json` (in which case installing `ref: vN` would self-report `vN+1` — a real problem — and the **two-commit form** is required: commit A finalizes+tags `vN` with `plugin.json == vN`, commit B bumps to `vN+1`, `main` HEAD on B) or from `marketplace.json` (one-commit form is fine). If `plugin.json`, the planner flips D-19 to the two-commit form.
+
+    **Resolved 2026-05-12 by 123-RESEARCH.md § finding 1 (verified against Claude Code's Version Management spec — plugin.json wins over marketplace entry). The TWO-COMMIT form is locked. Implementing requirement: HARNESS-123-02 (Plan 123-01).**
 - **D-20:** **Dirty-repo / ahead-of-origin guard.** Before pushing: snapshot `git log origin/main..HEAD --oneline`, print it. If the only commit ahead is the release commit `release.sh` just made → push. If `>1` → abort: "N unpushed commits that aren't this release; push/stash them or pass `--allow-ahead`." No author heuristics (a human and an agent on the same box share `git config user.*`). Block on dirty *tracked* files except the ones `release.sh` itself bumped (`plugin.json`, `package.json`, `CHANGELOG.md`, the marketplace's `marketplace.json`); untracked files are OK. This kills the Phase-109-docs-hitchhike (a Phase 109 docs commit rode into the beta.12 push).
 - **D-21:** **Fix Step 9.5's stale package name** — `scripts/release.sh` Step 9.5 still names `@mindrian_os/cli`; the package is `@mindrian_os/install` now. Update the publish, the dist-tag logic (`-beta./alpha./rc./next.` → `@next`; clean `X.Y.Z` → `@latest`), the `npm pack --dry-run` payload-allowlist gate, and the recovery instructions.
 
@@ -97,7 +99,7 @@ Surfaced by a 2026-05-12 Windows field report (7 items). Same disease shape as t
 
 - **D-24:** **Plan-1: `release.sh` pre-release support + dirty-repo guard + Step 9.5 rename + `semver` devDep** — FIRST, so `v1.13.0-beta.13` onward cuts via `release.sh`, not by hand. (Hard prerequisite for shipping anything — including the still-pending Phase 109 release commit, which is "the remaining step" per the Phase 109 ledger note in ROADMAP.md.)
 - **D-25:** **Plan-2: install-state record + `data/deployment-surfaces.json` manifest** — `session-start` writes the record early + reconciles owned surfaces on version change.
-- **D-26:** **Plan-3: doctor classes H + I + Bug-7 fix in the legacy-clone check + aggressive `--fix` with the D-13 guardrails + per-class test fixtures.**
+- **D-26:** **Plan-3: doctor classes I + J + Bug-7 fix in the legacy-clone check + aggressive `--fix` with the D-13 guardrails + per-class test fixtures.**
 - **D-27:** **Plan-4: `mindrian-os doctor --acceptance` (5-point, two sub-modes) + wire both into `release.sh` as hard gates.**
 - **D-28:** **Plan-5: cache pruning + the `@mindrian_os/cli` → `@mindrian_os/install` doc/test sweep.**
 - **D-37:** **Plan-7: Brain key resolution (absorbed)** — `lib/core/resolve-brain-key.cjs` + the 3 consumer rewirings + the WARN→status-line swap + the SEC-02 `chmod 600` + the auth/docstring doc fixes (D-31..D-35). **Sequencing:** depends on Plan-2 (both modify `scripts/session-start` — the planner may merge Plan-7's `session-start` edits into Plan-2's wave or sequence them after); lands **before** Plan-6 so `v1.13.0-beta.13` carries the Brain detection fix. Part-8: the resolver + the status line are purely LOCAL, zero network (it only *checks for* a key; the actual Brain call is `brain-client.cjs`'s job and unchanged).
@@ -105,14 +107,14 @@ Surfaced by a 2026-05-12 Windows field report (7 items). Same disease shape as t
 
 ### REQ-IDs
 
-- **D-30:** Requirements register as `HARNESS-123-01..NN` in `.planning/REQUIREMENTS.md` (assigned by the gsd-planner at `/gsd:plan-phase 123`; the ROADMAP Phase 123 entry's `Requirements:` line — currently "TBD" — is updated to match once the plans land). Expect roughly: 4 for Plan-1 (`release.sh` pre-release algebra / one-commit next-bump / dirty-repo guard / Step-9.5 rename), 2 for Plan-2 (install-state record / deployment-surface manifest), 3 for Plan-3 (class H / class I + Bug 7 / aggressive `--fix` + fixtures), 1 for Plan-4 (`--acceptance` + `release.sh` wiring), 2 for Plan-5 (cache prune / `@mindrian_os/cli` sweep), 2–3 for Plan-7 (`resolve-brain-key.cjs` / the 3 rewirings + WARN swap / SEC-02 `chmod 600` + doc fixes), 1 for Plan-6 (beta.13 cut + Windows `--acceptance` validation). Final count + mapping is the planner's call.
+- **D-30:** Requirements register as `HARNESS-123-01..NN` in `.planning/REQUIREMENTS.md` (assigned by the gsd-planner at `/gsd:plan-phase 123`; the ROADMAP Phase 123 entry's `Requirements:` line — currently "TBD" — is updated to match once the plans land). Expect roughly: 4 for Plan-1 (`release.sh` pre-release algebra / one-commit next-bump / dirty-repo guard / Step-9.5 rename), 2 for Plan-2 (install-state record / deployment-surface manifest), 3 for Plan-3 (class I / class J + Bug 7 / aggressive `--fix` + fixtures), 1 for Plan-4 (`--acceptance` + `release.sh` wiring), 2 for Plan-5 (cache prune / `@mindrian_os/cli` sweep), 2–3 for Plan-7 (`resolve-brain-key.cjs` / the 3 rewirings + WARN swap / SEC-02 `chmod 600` + doc fixes), 1 for Plan-6 (beta.13 cut + Windows `--acceptance` validation). Final count + mapping is the planner's call.
 
 ### Claude's Discretion
 
 - Exact field names in `data/deployment-surfaces.json` (cover the D-07 set).
 - `npx` round-trip mechanics inside `--acceptance` (D-14 suggests `mktemp -d`; planner/researcher may choose a cleaner sandbox).
 - Cache-pruning retention count N (D-22 suggests 2).
-- Whether class H and class I get their own CLI flags (mirroring `--cascade-rooms`, `--ui-compliance`, etc.) or share one — follow the existing `doctor.cjs` flag pattern.
+- Whether class I and class J get their own CLI flags (mirroring `--cascade-rooms`, `--ui-compliance`, etc.) or share one — follow the existing `doctor.cjs` flag pattern.
 - Internal structure of `--acceptance` (one big function vs a checklist runner) and exactly which of `scripts/verify-release` / `scripts/release-beta-smoke.sh` / `tests/test-release-npm-gate.sh` it wraps vs supersedes.
 
 </decisions>
@@ -153,7 +155,7 @@ Surfaced by a 2026-05-12 Windows field report (7 items). Same disease shape as t
 
 ### Code this phase modifies / extends
 - `scripts/release.sh` — 262 lines; line 40 `IFS='.' read -r MAJOR MINOR PATCH` is the bug; Step 9.5 names the stale `@mindrian_os/cli`.
-- `scripts/doctor.cjs` — 72651 bytes; drift classes A–G today, per-class `--fix`, flags `--fix`/`--json`/`--all`/`--cascade-rooms`/`--verify-surface`/`--room-md`/`--ui-compliance`/`--statusline-visibility`/`--simulate-write=`/`--scan-commands=`/`--scan-scripts=`. Add classes H + I + `--acceptance` (+ `--pre-tag`).
+- `scripts/doctor.cjs` — 72651 bytes; drift classes A–G today, per-class `--fix`, flags `--fix`/`--json`/`--all`/`--cascade-rooms`/`--verify-surface`/`--room-md`/`--ui-compliance`/`--statusline-visibility`/`--simulate-write=`/`--scan-commands=`/`--scan-scripts=`. Add classes I + J + `--acceptance` (+ `--pre-tag`).
 - `scripts/verify-release` (12832 bytes) — the broader pre-release verification `release.sh` already calls; `--acceptance` wraps it.
 - `scripts/release-beta-smoke.sh` (6300 bytes) — the beta smoke harness; reconcile with `--acceptance`.
 - `tests/test-release-npm-gate.sh`, `tests/manual/95.6-windows-cold-install-acceptance.md` — the npm-payload gate test + the Windows cold-install acceptance doc; sweep + reconcile.
@@ -165,7 +167,7 @@ Surfaced by a 2026-05-12 Windows field report (7 items). Same disease shape as t
 - `.planning/phases/95.1-mos-doctor-drift-detection-and-self-heal/95.1-CONTEXT.md` — the drift-class roster A–F; the `--fix` pattern; the UI-compliance discipline for `/mos:doctor` output.
 - `.planning/phases/95.2-install-cache-atomic-recovery-sessionstart-preflight/95.2-CONTEXT.md` + `95.2-DOGFOOD-VERIFICATION.md` — extending `doctor.cjs` without forking; SessionStart preflight reusing the Phase-106-05 hook template; Part-8 "purely LOCAL, zero network" discipline for install-state checks.
 - `.planning/phases/95.6-install-cache-windows-hardening-and-skill-loop-resilience/95.6-CONTEXT.md` + `95.6-FAMILY-AUDIT.md` + `95.6-PACKAGING-RESEARCH.md` — the Windows install failure family; the npm-installer overhaul; the reserved-marketplace-name compliance check (`release.sh` Step 5b).
-- `.planning/phases/106-statusline-visibility-context-window-broadcast/106-CONTEXT.md` — the statusline surface this phase's class H cross-checks against.
+- `.planning/phases/106-statusline-visibility-context-window-broadcast/106-CONTEXT.md` — the statusline surface this phase's class I cross-checks against.
 - `.planning/phases/122-workflow-layer/122-CONTEXT.md` — the `data/*-registry.json` generated-data-file pattern.
 
 ### Brain key resolution (Plan-7 — absorbed 2026-05-12; the field report)
@@ -184,7 +186,7 @@ Surfaced by a 2026-05-12 Windows field report (7 items). Same disease shape as t
 ### Reusable Assets
 - `lib/core/active-plugin-root.cjs` — THE resolver; the record is just "what the resolver returned, snapshotted." Don't add a second resolver.
 - `data/command-registry.json` + the `data/` dir convention (Phase 122) — `data/deployment-surfaces.json` follows the same pattern (a checked-in data file both `session-start` and `doctor` read).
-- The class-A `--fix` "backup-then-replace" pattern in `scripts/doctor.cjs` — the template for every `--fix` op in classes H/I (backup-before-mutate, never delete the active root).
+- The class-A `--fix` "backup-then-replace" pattern in `scripts/doctor.cjs` — the template for every `--fix` op in classes I/J (backup-before-mutate, never delete the active root).
 - `scripts/install-pre-commit.sh` (Phase 108) — the dev-clone pre-commit-hook install logic `session-start` already calls; the manifest's `dev-clone`-scoped pre-commit surface reuses it.
 - `scripts/verify-release` — `release.sh` already calls it; `--acceptance` wraps rather than replaces.
 - The Phase-106-05 SessionStart-hook template (`check-onboard-statusline.cjs` family) — the pattern the record-write step follows; but `scripts/session-start` (the shell script) is the *single writer* of the record + `~/.mindrian-last-version`, not the JS hooks.
@@ -197,7 +199,7 @@ Surfaced by a 2026-05-12 Windows field report (7 items). Same disease shape as t
 
 ### Integration Points
 - `scripts/session-start` early steps — record write + `~/.mindrian-last-version` write (single writer, before any reader) + manifest reconcile (on version change) + cache prune (on version change).
-- `scripts/doctor.cjs` — classes H + I + `--acceptance`/`--pre-tag` flags + the Bug-7 conditional in the legacy-clone check.
+- `scripts/doctor.cjs` — classes I + J + `--acceptance`/`--pre-tag` flags + the Bug-7 conditional in the legacy-clone check.
 - `scripts/release.sh` — `--prerelease`/`--start-prerelease`/`--allow-ahead` args; `semver` devDep; one-commit next-bump; dirty/ahead guard before push; `--acceptance --pre-tag` before tag, full `--acceptance` after push; Step 9.5 rename.
 - `bin/cli.js` — `mindrian-os doctor --acceptance` routing (already routes `doctor`; just passes the flag through).
 - `package.json` — add `semver` to `devDependencies`; do NOT add to the `files` allowlist.
