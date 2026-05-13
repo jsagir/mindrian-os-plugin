@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 124-01-PLAN.md (Wave 1 renderer + navigation primitive); 124-02 unblocked -- the runner can compose against the LIVE renderer now
-last_updated: "2026-05-13T17:05:39.117Z"
+stopped_at: Completed 125-02-PLAN.md (Wave 1 parallel)
+last_updated: "2026-05-13T17:08:15.422Z"
 last_activity: 2026-05-13
 progress:
   total_phases: 57
   completed_phases: 34
   total_plans: 265
-  completed_plans: 244
+  completed_plans: 247
   percent: 93
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 125 (f-selector-ranker) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 2 of 9
+Plan: 3 of 9
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -289,6 +289,9 @@ Progress: [█████████░] 93%
 | Phase 123 P07 | 1 hour | 4 tasks | 11 files |
 | Phase 124 P00 | 5min | 2 tasks | 8 files |
 | Phase 124 P01 | 11min | 3 tasks | 5 files |
+| Phase 125-f-selector-ranker P04 | 3min | 1 tasks | 3 files |
+| Phase 125 P01 | 3m 32s | 2 tasks | 3 files |
+| Phase 125 P02 | 3min | 1 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -792,6 +795,9 @@ Progress: [█████████░] 93%
 - [Phase 123]: Phase 123 Plan-07: single Brain-key resolver lib/core/resolve-brain-key.cjs (D-31 order env -> ~/.mindrian.env -> CWD .env -> not-found) consolidates three independent lookups (brain-client, session-start, brain-connector skill) -- SEC-02 POSIX 0o077 reject with explicit reason; session-start emits positive 3-case status line instead of MCP-centric WARN; FLAG-3 env-aware home default; D-36 MCP-vs-HTTP canonical-path stays deferred
 - [Phase 124]: 124-00 Wave 0 substrate shipped: 10 TEMPORAL-124-XX requirement IDs registered in REQUIREMENTS.md (Task 1, commit 5097366); 4 RED test stubs + tests/run-all-124.sh + lib/core/feynman/ROOM.md + Feynman runner registration (Task 2, commit a4a1f49); ROADMAP plan-list checkbox flipped to [x]; Wave 1 plans 124-01 + 124-02 unblocked (sequential)
 - [Phase 124]: Phase 124-01 (renderer): lib/core/feynman/timeline-renderer.cjs pure D-05 renderer (197 lines; reads ONLY via navigation.cjs; zero fs/fetch/http/Brain/LLM); firstCapturedLastTouchedBySection added as the 15th additive re-export on navigation.cjs (mirrors Phase 110-03 logMemoryEvent idiom); 2 of 4 RED stubs filled (renderer + empty-state); Phase 124 scoped runner now 2/4 green; runner + canon-invariant stay RED for Plans 124-02 + 124-04
+- [Phase 125-f-selector-ranker]: Plan 04: FrameworkChainHint added as OPTIONAL property on LocalGraphSummary (NOT in required[]); shared $def placed alphabetically (F < L); SHARED_DEFS allow-list in build-brain-packet-schema.cjs synced; 12-job D-02 closed-vocab UNTOUCHED
+- [Phase 125]: 125-01: Locked function signatures from CONTEXT.md (resolveActiveFrameworks, resolveHopDepth, computeInvestmentLevel) implemented as pure helpers in lib/core/navigation/projections.cjs; framework_invoked added to EVENT_TYPES Set (counter source for D3 continuous investment gradient)
+- [Phase 125]: Plan 125-02: LOCKED Cypher template embedded as frozen string constant; brain-client.sanitizeCypherInput reused (Canon Part 7); both Array and {records:[]} return shapes accepted; sha256(JSON.stringify(rows)) snapshot_id
 
 ### Pending Todos
 
@@ -821,6 +827,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-13T17:05:30.741Z
-Stopped at: Completed 124-01-PLAN.md (Wave 1 renderer + navigation primitive); 124-02 unblocked -- the runner can compose against the LIVE renderer now
+Last session: 2026-05-13T17:08:15.402Z
+Stopped at: Completed 125-02-PLAN.md (Wave 1 parallel)
 Resume file: None
