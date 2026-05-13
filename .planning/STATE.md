@@ -4,10 +4,10 @@ milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: verifying
 stopped_at: Phase 126 (install-lifecycle-harness-gaps) CONTEXT.md pass 1 -- D1-D4 captured; 7 plans + Step 0 + pre-mortem doc; expansion scope chosen over hotfix; ships beta.14 in ~1.5-2 weeks; Step 0 (tag-push v1.13.0-beta.13 + republish npm) unblocks testers Day 0
-last_updated: "2026-05-13T10:07:41.936Z"
+last_updated: "2026-05-13T10:25:36.810Z"
 last_activity: 2026-05-13
 progress:
-  total_phases: 56
+  total_phases: 57
   completed_phases: 34
   total_plans: 251
   completed_plans: 242
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 106
+Phase: 124
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
 Plan: Not started
@@ -306,6 +306,9 @@ Progress: [█████████░] 93%
 - Path D + revisions locked 2026-05-13 dev Claude session for v1.13.0 ship: "best-beta cadence until full v1.13.0 stable scope done, no premature stable cut." Each beta polished, not rushed. Canon Part 10 ratifies fully at v1.13.0 stable, not partially. Refined to Path E (see next entry) for Phase 125 vs Phase 126 ordering.
 - Path E reordering locked 2026-05-13: Phase 125 (F-Selector Ranker) ships AS beta.14 first; Phase 126 (install-lifecycle-harness-gaps) ships as beta.15. Reason: Step 0 of Phase 126 was checked 2026-05-13 and the missing v1.13.0-beta.13 git tag was already at origin (dogfood report's "tag not found" was a Windows marketplace-cache fetch artifact, not a real origin gap). Only remaining Step 0 action -- @mindrian_os/install@1.13.0-beta.13 npm publish -- becomes optional under Path E because Phase 125's release.sh Step 9.5 publishes beta.14 to npm naturally in ~1 week. Net effect: testers get "intelligent Brain-using" ranker payoff 1 week sooner; Phase 126's automated install-lifecycle prevention ships as beta.15 instead of beta.14. Trade-off: ~7-day window where a new install failure mode could surface before prevention work ships (mitigated by Phase 126 pre-mortem doc predicting likely failure modes). Updates: 125-CONTEXT.md frontmatter beta_target stays beta.14 (matches); 126-CONTEXT.md frontmatter beta_target flipped beta.14 -> beta.15 with rationale.
 - Phase 120 (breakthrough-scan-category-g, Hooked Fix 3, ~3 days) promoted 2026-05-13 in the Path D-revised timeline from beta.21 -> beta.19. Reason: Phase 120 is a discrete deliverable (~3 days, no dependency on 118/119); its natural trigger surface is Phase 117 (auto-explore), so it can ship right after 117 lands. Effect: all three Hooked Fixes (116=Fix 1 beta.17, 120=Fix 3 beta.19, 118=Fix 2 beta.20) land within 4 betas instead of stretched across 5. Variable-reward payoff to testers ~2 weeks sooner. Total weeks to v1.13.0 stable unchanged (~7-8 weeks). Bundling option flagged for /gsd:plan-phase 117: if Phase 120's reward content couples naturally with Phase 117's auto-explore trigger surface, ship them as one beta (beta.18 = 117 + 120) to save a cycle.
+- Phase 125 plan-phase --auto researcher run 2026-05-13 surfaced TWO BLOCKING gaps; orchestrator+user resolved both preserving design intent: (a) GAP-1: Phase 104 closed without `teaching` field; resolution = open Phase 104.1 (NEW phase) to ship the content layer NOW, before Phase 125 execute-phase. Phase 125 D9 + D11 stay intact; ship date slips ~3-4 days. (b) GAP-2: Phase 109 navigation.cjs chokepoint has no edge-write primitive (only logMemoryEvent + promoteNodeStatus); resolution = expand navigation.cjs with a 15th function `writeEdge({source_id, target_id, edge_type, properties})` as Plan 00 of Phase 125 (additive, precedent set by Phase 110-03 logMemoryEvent). Preserves D7's literal "typed cascade edge on command node" surface; sets pattern for Phase 116/117/118 future edge writes. Phase 125 plan map expands 8 -> 9 plans (new Plan 00 first). Updated 125-CONTEXT.md pass 3 amendments section captures both resolutions.
+- Phase 104.1 added (2026-05-13): Per-Command JTBD Content Layer -- ships `teaching` + `jtbd_label` + `jtbd_summary` fields to all 84 commands as a content-only follow-on to Phase 104. HARD GATE for Phase 125 execute-phase. ~3-4 days content authoring. Target band: v1.13.0-beta.14 (ahead of Phase 125 in same beta cut OR as content-only commit immediately before). ROADMAP entry added between Phase 104 and Phase 106. Run /gsd:discuss-phase 104.1 then /gsd:plan-phase 104.1 to break down (likely 2 plans).
+- Phase 125 ROADMAP entry added 2026-05-13: the f-selector-ranker phase had a CONTEXT.md scaffolded earlier today (11:44 AM) but its ROADMAP entry was missing (which caused the install-lifecycle-harness-gaps phase to grab number 125 in /gsd:add-phase, then get renumbered to 126 after collision was caught). ROADMAP entry now lists 8 plans (pre-pass-3 count; Plan 00 added pass 3 brings to 9; ROADMAP plans list reflects the original 8 since the new Plan 00 is the navigation.cjs extension which downstream agents will reflect when they regenerate plan lists).
 
 | Phase 71 P01 | 4min | 2 tasks | 3 files |
 | Phase 71 P02 | 3min | 2 tasks | 2 files |
