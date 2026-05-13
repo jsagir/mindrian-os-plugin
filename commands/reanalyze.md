@@ -4,6 +4,7 @@ description: Re-analyze filed meetings for new patterns
 body_shape: E (Action Report)
 body_shape_detail: Before/after delta showing new insights discovered
 serves_jtbd: ["file-meeting"]
+teaching: "When a meeting was filed earlier and the room has since grown, /mos:reanalyze re-runs the cascade pattern detection. New context can change what an old meeting meant."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash

@@ -4,6 +4,7 @@ description: Walk through MindrianOS and build your first room
 body_shape: B (Semantic Tree)
 body_shape_detail: Steps as conversational flow, context building as nested nodes
 serves_jtbd: ["explore"]
+teaching: "When you just installed MindrianOS, /mos:onboard walks you through the system and builds your first room. Designed so a stranger can self-activate without Larry holding their hand."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

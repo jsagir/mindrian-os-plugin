@@ -5,6 +5,7 @@ argument-hint: [overview|<section>]
 body_shape_overview: B (Semantic Tree)
 body_shape_section: C (Room Card)
 serves_jtbd: ["audit-room"]
+teaching: "When you need to view or launch the active Data Room, /mos:room opens the room view with its current state. The default entry point for room navigation."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

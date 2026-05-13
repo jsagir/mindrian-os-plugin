@@ -4,6 +4,7 @@ description: Discover and manage grants in the Opportunity Bank
 argument-hint: [list|add|scan]
 body_shape: E (Action Report)
 serves_jtbd: ["explore"]
+teaching: "When you need to manage grants as a live pipeline rather than a list, /mos:opportunities surfaces the Opportunity Bank with HSI scores and decision states. Funding deserves the same rigor as product."
 allowed-tools:
   - Read
   - Write

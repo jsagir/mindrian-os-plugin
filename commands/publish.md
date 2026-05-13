@@ -3,6 +3,7 @@ name: publish
 description: Publish the Data Room presentation to Vercel
 argument-hint: [--all|<view>]
 serves_jtbd: ["prepare-pitch"]
+teaching: "When the Data Room is ready to share publicly, /mos:publish deploys the presentation to Vercel with a one-click link. From local artifact to shareable URL in one move."
 disable-model-invocation: true
 allowed-tools:
   - Read

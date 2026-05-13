@@ -4,6 +4,7 @@ description: List, switch, or archive project rooms
 argument-hint: [list|switch|archive|park]
 body_shape: B (Semantic Tree)
 serves_jtbd: ["audit-room"]
+teaching: "When you have multiple venture rooms and need to switch, list, or archive them, /mos:rooms manages the registry. One person, many ventures."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read

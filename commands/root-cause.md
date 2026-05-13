@@ -2,6 +2,7 @@
 name: root-cause
 description: Trace root cause via 5-Whys, Fishbone, Fault Tree
 serves_jtbd: ["find-problem"]
+teaching: "When the symptom keeps coming back, /mos:root-cause traces it via 5-Whys, Fishbone, and Fault Tree. Treats the cause, not the recurrence."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Root Cause Analysis"]

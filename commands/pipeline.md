@@ -3,6 +3,7 @@ name: pipeline
 description: Chain a multi-step methodology pipeline
 argument-hint: '[pipeline-name] [--from-problem-type <x>] [--from-framework <x>]'
 serves_jtbd: ["plan-execution"]
+teaching: "When you want several methodologies chained instead of run one-by-one, /mos:pipeline executes a multi-step pipeline with the room as the connecting tissue. Week 7 pattern."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: meta
 frameworks: []

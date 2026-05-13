@@ -3,6 +3,7 @@ name: rs-fetch
 description: Run the full Reverse Salient discovery pipeline for a topic
 body_shape: E (Action Report)
 serves_jtbd: ["find-bottleneck", "surface-contradiction"]
+teaching: "When you need the full Reverse Salient pipeline run on a topic, /mos:rs-fetch executes the discovery end-to-end: corpus, math, cross-domain match, thesis. The complete sweep, not a sample."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Reverse Salient Analysis"]

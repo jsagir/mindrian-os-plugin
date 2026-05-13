@@ -3,6 +3,7 @@ name: new-project
 description: Start a new venture project and create its room
 argument-hint: [name]
 serves_jtbd: ["explore"]
+teaching: "When you are starting a new venture, /mos:new-project creates the room scaffolding and registers it in the room registry. The first move of every Mindrian journey."
 allowed-tools:
   - Read
   - Write

@@ -3,6 +3,7 @@ name: persona
 description: Generate Six-Hats lenses from room data
 body_shape: C (Room Card)
 serves_jtbd: ["prepare-pitch"]
+teaching: "When you need fresh perspectives on the room, /mos:persona generates Six-Hats lenses from your room data. Each persona argues from a different stance; you decide what holds."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Six Thinking Hats"]

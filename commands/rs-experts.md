@@ -3,6 +3,7 @@ name: rs-experts
 description: Resolve the expert network for a topic via Aura Cypher MATCH
 body_shape: D (Comparison Matrix)
 serves_jtbd: ["find-bottleneck", "connect-domains"]
+teaching: "When you need to know who in the world is working on a reverse salient you found, /mos:rs-experts resolves the expert network via Brain Cypher MATCH. Routes you to the people who already know."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Reverse Salient Analysis"]

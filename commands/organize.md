@@ -4,6 +4,7 @@ description: Navigate room hierarchy with graph-aware tree
 argument-hint: [tree|propose|compound]
 body_shape: B (Semantic Tree)
 serves_jtbd: ["audit-room"]
+teaching: "When the room hierarchy has grown messy, /mos:organize navigates it with a graph-aware tree that respects sub-room boundaries. The structural overview, not the content view."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read
