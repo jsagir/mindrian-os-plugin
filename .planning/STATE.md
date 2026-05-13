@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 125-02-PLAN.md (Wave 1 parallel)
-last_updated: "2026-05-13T17:09:42.744Z"
+stopped_at: Completed 125-03-PLAN.md (Wave 2 solo)
+last_updated: "2026-05-13T17:23:43.683Z"
 last_activity: 2026-05-13
 progress:
   total_phases: 57
   completed_phases: 34
   total_plans: 265
-  completed_plans: 248
+  completed_plans: 249
   percent: 93
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 125 (f-selector-ranker) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 3 of 9
+Plan: 4 of 9
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -293,6 +293,7 @@ Progress: [█████████░] 93%
 | Phase 125 P01 | 3m 32s | 2 tasks | 3 files |
 | Phase 125 P02 | 3min | 1 tasks | 2 files |
 | Phase 125-f-selector-ranker P00 | 22 min | 2 tasks | 3 files |
+| Phase 125 P03 | 8m 46s | 1 tasks | 7 files |
 
 ### Roadmap Evolution
 
@@ -799,6 +800,7 @@ Progress: [█████████░] 93%
 - [Phase 125-f-selector-ranker]: Plan 04: FrameworkChainHint added as OPTIONAL property on LocalGraphSummary (NOT in required[]); shared $def placed alphabetically (F < L); SHARED_DEFS allow-list in build-brain-packet-schema.cjs synced; 12-job D-02 closed-vocab UNTOUCHED
 - [Phase 125]: 125-01: Locked function signatures from CONTEXT.md (resolveActiveFrameworks, resolveHopDepth, computeInvestmentLevel) implemented as pure helpers in lib/core/navigation/projections.cjs; framework_invoked added to EVENT_TYPES Set (counter source for D3 continuous investment gradient)
 - [Phase 125]: Plan 125-02: LOCKED Cypher template embedded as frozen string constant; brain-client.sanitizeCypherInput reused (Canon Part 7); both Array and {records:[]} return shapes accepted; sha256(JSON.stringify(rows)) snapshot_id
+- [Phase 125]: buildBrainPacket promoted to async to consume Plan 02's async chain-slice fetcher; 5 sibling test files updated via Rule 3 cascade (mechanical await migration; no behavior change). Pattern P-04 (Object.assign empty-object short-circuit for optional schema field absence) + P-05 (async-chokepoint cascade fix-up) documented.
 
 ### Pending Todos
 
@@ -828,6 +830,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-13T17:08:15.402Z
-Stopped at: Completed 125-02-PLAN.md (Wave 1 parallel)
+Last session: 2026-05-13T17:23:43.665Z
+Stopped at: Completed 125-03-PLAN.md (Wave 2 solo)
 Resume file: None

@@ -542,7 +542,7 @@
 | RANKER-125-02 | Phase 125 | Complete |
 | RANKER-125-03 | Phase 125 | Complete |
 | RANKER-125-04 | Phase 125 | Complete |
-| RANKER-125-05 | Phase 125 | Pending |
+| RANKER-125-05 | Phase 125 | Complete |
 | RANKER-125-06 | Phase 125 | Complete |
 | RANKER-125-07 | Phase 125 | Pending |
 | RANKER-125-08 | Phase 125 | Pending |
