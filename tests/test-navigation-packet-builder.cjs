@@ -63,7 +63,8 @@ function test1_shape() {
   const { tmp, db } = makeRoom();
   try {
     const p = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
-    for (const k of ['packet_version', 'job', 'room_stage', 'active_context', 'local_graph_summary', 'constraints']) {
+    // Phase 110-02: origin + privacy_mode added to the top-level key set (D-08 + D-09).
+    for (const k of ['packet_version', 'job', 'room_stage', 'origin', 'privacy_mode', 'active_context', 'local_graph_summary', 'constraints']) {
       ok(k in p, 'top-level key present: ' + k);
     }
     for (const k of ['jtbd', 'operator', 'focus_node']) ok(k in p.active_context);
@@ -187,8 +188,76 @@ function test10_tokenBudget() {
   } finally { cleanup(tmp); }
 }
 
+// Phase 110-02 regression touches (PACKET-110-06 + PACKET-110-07):
+// Assert the new top-level fields land without disturbing the existing assertions above.
+// origin: 'navigation_api' is the D-08 layer-1 provenance stamp. privacy_mode is the
+// resolvePrivacyMode output -- default 'local_summary_only' when no roomDir / no per-call
+// override; per-call beats config beats default; 'allow_excerpts' caps down absent the
+// Part-3 APPROVE row. constraints.privacy stays as a separate human-readable note.
+
+function test11_originStamp() {
+  const { tmp, db } = makeRoom();
+  try {
+    const p = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    equal(p.origin, 'navigation_api', 'packet stamps origin: navigation_api (D-08 layer 1)');
+    db.close();
+  } finally { cleanup(tmp); }
+}
+
+function test12_privacyModeDefault() {
+  const { tmp, db } = makeRoom();
+  try {
+    const p = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
+    ok(['local_summary_only', 'allow_filenames', 'allow_excerpts'].includes(p.privacy_mode), 'packet carries a valid privacy_mode: ' + p.privacy_mode);
+    equal(p.privacy_mode, 'local_summary_only', 'default is local_summary_only when no roomDir / no per-call override');
+    // constraints.privacy stays as separate human-readable note (NOT replaced by privacy_mode):
+    equal(p.constraints.privacy, 'no_raw_artifact_text');
+    db.close();
+  } finally { cleanup(tmp); }
+}
+
+function test13_privacyModePerCallOverride() {
+  const { tmp, db } = makeRoom();
+  try {
+    const p = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test', privacyMode: 'allow_filenames' });
+    equal(p.privacy_mode, 'allow_filenames', 'per-call privacyMode beats default');
+    db.close();
+  } finally { cleanup(tmp); }
+}
+
+function test14_privacyModeConfigRead() {
+  const { tmp, db } = makeRoom();
+  const cfgDir = fs.mkdtempSync(path.join(os.tmpdir(), 'phase-110-02-cfg-'));
+  try {
+    fs.writeFileSync(path.join(cfgDir, '.config.json'), JSON.stringify({ preferences: { brain_privacy_mode: 'allow_filenames' } }));
+    const p = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test', roomDir: cfgDir });
+    equal(p.privacy_mode, 'allow_filenames', '.config.json preferences.brain_privacy_mode honored when no per-call override');
+    db.close();
+  } finally { cleanup(tmp); try { fs.rmSync(cfgDir, { recursive: true, force: true }); } catch (_) { /* ignore */ } }
+}
+
+function test15_privacyModeAllowExcerptsCapsDown() {
+  const { tmp, db } = makeRoom();
+  try {
+    // allow_excerpts requires a brain_excerpts APPROVE row in the room graph; no such row was seeded
+    // by makeRoom() -- the helper must cap down to local_summary_only (config caps, never raises).
+    const p = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test', privacyMode: 'allow_excerpts' });
+    equal(p.privacy_mode, 'local_summary_only', 'allow_excerpts caps down to local_summary_only absent brain_excerpts APPROVE row');
+    db.close();
+  } finally { cleanup(tmp); }
+}
+
+function test16_privacyModeUnrecognizedValue() {
+  const { tmp, db } = makeRoom();
+  try {
+    const p = navigation.buildBrainPacket(db, 'suggest_next_move', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test', privacyMode: 'garbage_mode' });
+    equal(p.privacy_mode, 'local_summary_only', 'unrecognized privacyMode falls back to default');
+    db.close();
+  } finally { cleanup(tmp); }
+}
+
 function run() {
-  const tests = [test1_shape, test2_packetVersion, test3_jobPassthrough, test4_roomStageDefault, test5_activeContextDefaults, test6_focusSummaryTruncation, test7_nearestClaimsTopK, test8_bankedOpportunitiesScalar, test9_constraintsLiteral, test10_tokenBudget];
+  const tests = [test1_shape, test2_packetVersion, test3_jobPassthrough, test4_roomStageDefault, test5_activeContextDefaults, test6_focusSummaryTruncation, test7_nearestClaimsTopK, test8_bankedOpportunitiesScalar, test9_constraintsLiteral, test10_tokenBudget, test11_originStamp, test12_privacyModeDefault, test13_privacyModePerCallOverride, test14_privacyModeConfigRead, test15_privacyModeAllowExcerptsCapsDown, test16_privacyModeUnrecognizedValue];
   let pass = 0; let fail = 0;
   for (const t of tests) {
     try { t(); pass++; process.stdout.write('PASS ' + t.name + '\n'); }
