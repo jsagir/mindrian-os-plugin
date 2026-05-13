@@ -331,6 +331,8 @@ Every node in `room.db` carries a `review_status` from a closed set: `proposed |
 
 Phase 109 (SQL Context-Memory Navigation Spine) is the implementing phase: `lib/core/navigation.cjs` ships the 13-function navigation chokepoint, `memory_event` becomes a first-class node type, and the instrumented acceptance test (`tests/test-navigation-acceptance.cjs`) asserts zero non-SQLite filesystem reads during the full navigation flow - proving by instrumentation, not by promise, that SQL is the local mind. Phase 108 ships the frozen schema/taxonomy contract this depends on. Phase 110 (Brain Context Packet Contract) hardens the typed-packet wire so Part 8's boundary is structurally enforced, not merely procedurally audited.
 
+Phase 124 (FEYNMAN.md Temporal Awareness) is the FIRST Larry-explains surface to land on top of the Part 9 substrate: it appends a sentinel-bounded `## Timeline (auto)` section to each `FEYNMAN.md`, regenerated from `memory_event` via `lib/core/navigation.cjs`, byte-preserving the human-authored body across regeneration. The renderer (`lib/core/feynman/timeline-renderer.cjs`) is a pure function reading only via the navigation chokepoint; the runner (`lib/core/feynman/timeline-runner.cjs`) is the atomic-write orchestrator. Per Canon Part 6 (Product-as-Venture) the canon names the phase that implements the canon.
+
 ---
 
 ## Appendix A - Relationship to MWP
