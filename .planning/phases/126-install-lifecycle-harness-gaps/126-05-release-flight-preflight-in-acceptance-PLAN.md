@@ -245,6 +245,9 @@ All 5 new entries support the test-mode injection (consistency with existing pat
           if (r.status !== 0) return { ok: false, finding: 'release.sh --dry-run exited ' + r.status, detail: { stderr: (r.stderr || '').slice(-200) } };
           const out = r.stdout || '';
           // Expected step names from scripts/release.sh --dry-run output (lines 184-215). All must be present.
+          // NOTE: This array is patched by Plan 04 (Phase 126 Wave 3) to add Step 5.5, Step 9.7, Step 9.8 and
+          // reorder Step 9.6 -> 9.8 for the rename. If you edit this list, make sure release.sh --dry-run output
+          // still matches in order. Wave 2 (this plan) ships the initial array; Wave 3 (Plan 04) patches it.
           const expectedSteps = ['Step 2', 'Step 3', 'Step 4', 'Step 5', 'Step 5b', 'Step 6', 'Step 6.5', 'Step 6.6', 'Step 7', 'Step 9.5', 'Step 9.6'];
           const missing = expectedSteps.filter(function (s) { return out.indexOf(s) === -1; });
           const ok = missing.length === 0;
@@ -379,5 +382,7 @@ After completion, create `.planning/phases/126-install-lifecycle-harness-gaps/12
 - The 5 hot-patches absorbed (one-line each describing the original cut-time finding + the check that now catches it)
 - The test-injection pattern reused (DOCTOR_TEST_FAIL_POINT)
 - The isolation guard (one failure does not cascade to others)
-- Reference forward to Plan 04 (release pipeline) which wires the full --acceptance (including these 5) into Step 9.6 post-publish gate
+- Reference forward to Plan 04 (release pipeline) which wires the full --acceptance (including these 5) into Step 9.6 post-publish gate; Plan 04 also patches Entry 4's `expectedSteps` array to absorb Step 5.5 / 9.7 / 9.8 (the release.sh rename + new steps land in Wave 3 on top of this fixture's Wave 2 scaffold)
 </output>
+</content>
+</invoke>
