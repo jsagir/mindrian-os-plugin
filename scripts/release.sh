@@ -34,6 +34,11 @@
 #   9.5. npm publish @mindrian_os/install at NEW_VERSION (BEFORE Commit B so the
 #        working tree still says vN). dist-tag: @next for -beta./alpha./rc./next.,
 #        @latest for clean X.Y.Z.
+#   9.6. Sync install minisite to NEW_VERSION (7-place lockstep). Bumps
+#        ~/mindrianos-install-site/lib/os.ts + app/page.tsx, commits, runs
+#        `vercel --prod --yes`. Override path via $MINDRIAN_INSTALL_SITE_DIR.
+#        Soft-skip if dir missing OR vercel CLI not in PATH; hard-abort on
+#        sed/grep/commit errors. See feedback_install_minisite_lockstep.md.
 #   7.5. Commit B (next-bump commit, plugin repo only): plugin.json/package.json
 #        -> next pre-release; CHANGELOG `[Unreleased]` heading reset. main HEAD
 #        ends on Commit B. NO tag on Commit B. Marketplace repo gets NO Commit B.
@@ -423,6 +428,92 @@ else
     echo "    Do NOT cut another plugin release until npm is in sync."
     exit 1
   fi
+fi
+
+# --- Step 9.6: Sync install minisite to NEW_VERSION (Hard 7-place lockstep) ---
+# Enforces the install-minisite half of the 7-place lockstep contract from
+# MEMORY.md feedback_install_minisite_lockstep.md (2026-05-14). The minisite
+# at https://mindrianos-install-site.vercel.app has two hardcoded version-string
+# locations that must reflect what is shipped on npm. Auto-bump + commit + deploy
+# happens HERE -- after npm publish (so we only sync to what is actually on
+# the registry) but BEFORE Commit B (so the chain stays atomic).
+#
+# Behavior:
+#   - $MINDRIAN_INSTALL_SITE_DIR override (default: $HOME/mindrianos-install-site)
+#   - If dir missing: soft warn, continue release (some maintainer boxes lack it)
+#   - sed/grep/commit failures: hard abort (the rule is non-negotiable for this box)
+#   - vercel CLI missing: soft warn + commit locally + tell user to deploy manually
+#   - DRY_RUN: log intent only, no edits
+echo ""
+echo "=== Step 9.6: Sync install minisite to v$NEW_VERSION (7-place lockstep) ==="
+
+MINISITE_DIR="${MINDRIAN_INSTALL_SITE_DIR:-$HOME/mindrianos-install-site}"
+
+if [ ! -d "$MINISITE_DIR" ]; then
+  echo -e "${YELLOW}  ! $MINISITE_DIR not present -- skipping minisite sync.${NC}"
+  echo "    Bump manually after this release: edit lib/os.ts + app/page.tsx,"
+  echo "    git commit, then 'vercel --prod --yes' from \$MINDRIAN_INSTALL_SITE_DIR."
+elif [ "$DRY_RUN" = "1" ]; then
+  echo "  [DRY RUN] would bump v$NEW_VERSION in:"
+  echo "    $MINISITE_DIR/lib/os.ts"
+  echo "    $MINISITE_DIR/app/page.tsx"
+  echo "  [DRY RUN] would run: git commit + vercel --prod --yes"
+else
+  ORIG_DIR="$PWD"
+  cd "$MINISITE_DIR"
+
+  # Bump lib/os.ts terminal-display message: "MindrianOS v<...> installed"
+  # Delimiter is @ (not |) so the ERE alternations inside (alpha|beta|rc|next) do
+  # not collide with sed's substitution delimiter.
+  sed -i -E "s@MindrianOS v[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc|next)\.[0-9]+)?@MindrianOS v$NEW_VERSION@g" lib/os.ts || {
+    echo -e "${RED}  x failed to bump lib/os.ts${NC}"
+    cd "$ORIG_DIR"
+    exit 1
+  }
+
+  # Bump app/page.tsx eyebrow: "v<...> · Install"
+  sed -i -E "s@v[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc|next)\.[0-9]+)? · Install@v$NEW_VERSION · Install@g" app/page.tsx || {
+    echo -e "${RED}  x failed to bump app/page.tsx${NC}"
+    cd "$ORIG_DIR"
+    exit 1
+  }
+
+  # Verify the bumps actually landed (sed-no-match is silent; grep catches it)
+  if ! grep -q "v$NEW_VERSION" lib/os.ts || ! grep -q "v$NEW_VERSION" app/page.tsx; then
+    echo -e "${RED}  x minisite version-string bump failed verification${NC}"
+    echo "    lib/os.ts and/or app/page.tsx do not contain v$NEW_VERSION after sed."
+    echo "    Inspect $MINISITE_DIR/lib/os.ts:149 and app/page.tsx:30 manually."
+    cd "$ORIG_DIR"
+    exit 1
+  fi
+
+  # Commit (--no-verify to match release.sh's plugin-repo style; no pre-commit hooks here anyway)
+  git add lib/os.ts app/page.tsx
+  if git diff --cached --quiet; then
+    echo "  -> minisite already at v$NEW_VERSION (no changes to commit)"
+  else
+    git commit --no-verify -m "chore: sync minisite version strings to v$NEW_VERSION" >/dev/null 2>&1 || {
+      echo -e "${RED}  x minisite commit failed${NC}"
+      cd "$ORIG_DIR"
+      exit 1
+    }
+    echo "  -> minisite committed locally: $(git log -1 --pretty=format:'%h %s')"
+  fi
+
+  # Deploy via Vercel CLI
+  if command -v vercel >/dev/null 2>&1; then
+    if vercel --prod --yes >/dev/null 2>&1; then
+      echo -e "${GREEN}  ✓ Minisite deployed: https://mindrianos-install-site.vercel.app/ now serves v$NEW_VERSION${NC}"
+    else
+      echo -e "${YELLOW}  ! vercel deploy failed -- minisite committed but NOT live.${NC}"
+      echo "    Recover: cd $MINISITE_DIR && vercel --prod --yes"
+    fi
+  else
+    echo -e "${YELLOW}  ! vercel CLI not in PATH -- minisite committed but NOT deployed.${NC}"
+    echo "    Recover: install vercel CLI, then 'cd $MINISITE_DIR && vercel --prod --yes'"
+  fi
+
+  cd "$ORIG_DIR"
 fi
 
 # --- Step 7.5: Commit B (next-bump commit) -- plugin.json/package.json -> next pre-release ---
