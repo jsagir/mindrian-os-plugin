@@ -4,12 +4,12 @@
 #   test-doctor-fix-renderer.cjs                  -> Plan 126-01 (--fix renderer contract test + fix)
 #   test-marketplace-cache-prerelease-pick.cjs    -> Plan 126-02 (semver prerelease ordering)
 #   test-doctor-acceptance-self-coverage.cjs      -> Plan 126-03 (acceptance-gate self-coverage)
+#   test-release-bump-tag-and-publish-gates.cjs   -> Plan 126-04 (tag-push + install-minisite HARD + npx-publish self-test)
 #   test-doctor-acceptance-preflight-checks.cjs   -> Plan 126-05 (5 release-flight preflight checks)
 #   test-cache-prune-extended.cjs                 -> Plan 126-06 (stale-backup prune window)
 #   test-install-state-migration.cjs              -> Plan 126-07 (v1->v2 migration)
 #
-# This file is the aggregator; sibling plan (126-04) appends its own CJS_SUITES
-# entry as it lands.
+# Plan 126-04 landed its CJS_SUITES entry in Wave 3.
 #
 # This runner MUST run to completion (no crash) even when any suite fails; it
 # prints a per-suite PASS/FAIL line and exits non-zero if any suite failed.
@@ -30,6 +30,7 @@ CJS_SUITES=(
   test-doctor-fix-renderer.cjs
   test-marketplace-cache-prerelease-pick.cjs
   test-doctor-acceptance-self-coverage.cjs
+  test-release-bump-tag-and-publish-gates.cjs
   test-doctor-acceptance-preflight-checks.cjs
   test-cache-prune-extended.cjs
   test-install-state-migration.cjs
