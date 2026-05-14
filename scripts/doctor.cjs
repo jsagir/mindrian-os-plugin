@@ -2448,7 +2448,18 @@ function buildAcceptanceChecklist(ctx) {
       id: 'verify-release-clean-tree',
       label: 'verify-release Step 12 reports clean git tree (tracked files only)',
       severity: 'blocker',
-      applies_to: ['pre-tag', 'full'],
+      // Phase 126 Plan 05 absorbed this check from the Phase 123 cut pre-flight.
+      // The 2026-05-14 beta.16 cut attempt surfaced that --pre-tag is the wrong
+      // mode: release.sh Step 6.6 runs --pre-tag AFTER Steps 3-6 intentionally
+      // bump package.json + plugin.json + CHANGELOG (3 expected tracked-file
+      // mods), and this strict clean-tree check trips on them. The check is a
+      // PRE-FLIGHT meant to run OUT-OF-BAND with release.sh (operator runs it
+      // manually before kicking off the cut, OR release.sh runs it BEFORE
+      // Step 3 -- which would be a release.sh refactor). For now: drop from
+      // 'pre-tag', keep in 'full' (post-tag, everything should be committed).
+      // Operators can still invoke doctor --acceptance manually pre-flight by
+      // running it without --pre-tag (which runs the 'full' suite).
+      applies_to: ['full'],
       run: async function () {
         if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'verify-release-clean-tree') {
           return { ok: false, finding: 'verify-release-clean-tree synthesized failure (test mode)', detail: {} };
