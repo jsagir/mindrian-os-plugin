@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # Phase 126 scoped runner -- run before each 126 task commit. Expect GREEN
 # once all plans land (each plan adds its own test suite here):
-#   test-doctor-fix-renderer.cjs               -> Plan 126-01 (--fix renderer contract test + fix)
-#   test-marketplace-cache-prerelease-pick.cjs -> Plan 126-02 (semver prerelease ordering)
-#   test-cache-prune-extended.cjs              -> Plan 126-06 (stale-backup prune window)
+#   test-doctor-fix-renderer.cjs                  -> Plan 126-01 (--fix renderer contract test + fix)
+#   test-marketplace-cache-prerelease-pick.cjs    -> Plan 126-02 (semver prerelease ordering)
+#   test-doctor-acceptance-self-coverage.cjs      -> Plan 126-03 (acceptance-gate self-coverage)
+#   test-cache-prune-extended.cjs                 -> Plan 126-06 (stale-backup prune window)
+#   test-install-state-migration.cjs              -> Plan 126-07 (v1->v2 migration)
 #
-# This file is the aggregator; sibling plans (126-03, 126-04,
-# 126-05, 126-07) each append their own CJS_SUITES entry as they land.
+# This file is the aggregator; sibling plans (126-04, 126-05) each append
+# their own CJS_SUITES entry as they land.
 #
 # This runner MUST run to completion (no crash) even when any suite fails; it
 # prints a per-suite PASS/FAIL line and exits non-zero if any suite failed.
@@ -26,6 +28,7 @@ SHELL_SUITES=(
 CJS_SUITES=(
   test-doctor-fix-renderer.cjs
   test-marketplace-cache-prerelease-pick.cjs
+  test-doctor-acceptance-self-coverage.cjs
   test-cache-prune-extended.cjs
   test-install-state-migration.cjs
 )
