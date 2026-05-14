@@ -546,10 +546,10 @@
 | RANKER-125-06 | Phase 125 | Complete |
 | RANKER-125-07 | Phase 125 | Complete |
 | RANKER-125-08 | Phase 125 | Complete |
-| RANKER-125-09 | Phase 125 | Pending |
-| RANKER-125-10 | Phase 125 | Pending |
-| RANKER-125-11 | Phase 125 | Pending |
-| RANKER-125-12 | Phase 125 | Pending |
+| RANKER-125-09 | Phase 125 | Complete |
+| RANKER-125-10 | Phase 125 | Complete |
+| RANKER-125-11 | Phase 125 | Complete |
+| RANKER-125-12 | Phase 125 | Complete |
 | TEMPORAL-124-01 | Phase 124 | Complete |
 | TEMPORAL-124-02 | Phase 124 | Complete |
 | TEMPORAL-124-03 | Phase 124 | Complete |
