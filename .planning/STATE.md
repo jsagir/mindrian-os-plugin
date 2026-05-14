@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
-status: verifying
-stopped_at: "Completed 125-08-PLAN.md (Phase 125 closure -- docs + aggregator + Feynman registration; phase ready for /gsd:verify-work 125 then gsd-tools phase complete 125; v1.13.0-beta.14 release next)"
-last_updated: "2026-05-14T07:38:49.532Z"
-last_activity: 2026-05-14
+status: executing
+stopped_at: Completed 126-06-cache-prune-extension-PLAN.md (Plan 06 of Phase 126; 7/7 stale-backup test scenarios GREEN; Phase 123 cache-prune 6/6 regression guard GREEN; siblings 126-01 + 126-02 in flight)
+last_updated: "2026-05-14T10:39:59.262Z"
+last_activity: 2026-05-14 -- Phase 126 execution started
 progress:
   total_phases: 58
   completed_phases: 37
-  total_plans: 267
-  completed_plans: 258
+  total_plans: 274
+  completed_plans: 259
   percent: 93
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 104.1 — per-command-teaching-content
+**Current focus:** Phase 126 — install-lifecycle-harness-gaps
 
 ## Current Position
 
-Phase: 126
+Phase: 126 (install-lifecycle-harness-gaps) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: Not started
-Status: Phase complete — ready for verification
+Plan: 1 of 7
+Status: Executing Phase 126
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
 
@@ -149,7 +149,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-14
+Last activity: 2026-05-14 -- Phase 126 execution started
 
 Progress: [█████████░] 93%
 
@@ -325,6 +325,7 @@ Progress: [█████████░] 93%
 | Phase 104.1 P01 | 14min | 5 tasks | 8 files |
 | Phase 104.1 P02 | 25min | 5 tasks | 89 files |
 | Phase 125-f-selector-ranker P05 | 18min | 1 tasks | 2 files |
+| Phase 126-install-lifecycle-harness-gaps P06 | 4 min | 2 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -843,6 +844,7 @@ Progress: [█████████░] 93%
 - [Phase 125-05]: rankForSelector ships with locked CONTEXT.md signature; D4 0.40/0.30/0.30 formula coded verbatim; investment_level=0 collapses to pure brain_confidence (no discontinuity); 29 tests GREEN
 - [Phase 125-05]: D9 ' -- ' separator (double-hyphen with spaces) per no-em-dash project rule; D6+D11 fail-closed for missing jtbd_summary OR teaching (effectively unreachable post-104.1)
 - [Phase 125-05]: opts._applyDecayWeight as Plan 06 IoC hook -- ranker callable without Plan 06; defensive try/catch + finite-number guard keeps ranker fail-soft; D10 source-grep assertions enforce Canon Part 8 + no-event-subscription invariants structurally
+- [Phase 126-install-lifecycle-harness-gaps]: Plan 06: MOS_CACHE_PRUNE_AGE_DAYS env-var contract (default 30 days; integer-only override; v2 may move to .mos/config.json) extends pruneMarketplaceCache with sibling stale-backup prune pass at ~/.claude/plugins/mindrian-os.stale-* -- closes the Phase 95.2 atomic-swap backup accumulation surface on long-running tester installs.
 
 ### Pending Todos
 
@@ -872,6 +874,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-14T10:27:00Z
-Stopped at: Completed 125-08-PLAN.md (Phase 125 closure -- docs + aggregator + Feynman registration; phase ready for /gsd:verify-work 125 then gsd-tools phase complete 125; v1.13.0-beta.14 release next)
+Last session: 2026-05-14T10:39:54.358Z
+Stopped at: Completed 126-06-cache-prune-extension-PLAN.md (Plan 06 of Phase 126; 7/7 stale-backup test scenarios GREEN; Phase 123 cache-prune 6/6 regression guard GREEN; siblings 126-01 + 126-02 in flight)
 Resume file: None
