@@ -28,6 +28,13 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+// Phase 126 Plan-02: semver package for numeric-aware prerelease ordering
+// in cmpVersion (line ~194). semver@^7.7.4 is already in package.json
+// devDependencies AND shipped in node_modules/ at plugin install time
+// (per `claude plugin install` + `npm install`). Canon Part 7 reuse:
+// scripts/release.sh already uses semver for pre-release algebra; this
+// extends the same dep to scripts/doctor.cjs. No new dep added.
+const semver = require('semver');
 
 // -- Paths -----------------------------------------------------------
 
@@ -199,7 +206,21 @@ function cmpVersion(a, b) {
   if (a.prerelease && !b.prerelease) return -1;
   if (!a.prerelease && b.prerelease) return 1;
   if (a.prerelease && b.prerelease) {
-    return a.prerelease.localeCompare(b.prerelease);
+    // Phase 126 Plan-02 FIX: numeric-aware prerelease ordering per
+    // npm-semver spec (section 11.4.4). The prior localeCompare branch
+    // sorted prereleases LEXICOGRAPHICALLY which makes "beta.10" < "beta.9"
+    // because ASCII '1' < '9'. That cost a Windows tester the wrong
+    // recovery target (beta.9 picked over beta.13) per the 2026-05-13
+    // dogfood session. semver.compare returns -1/0/1 with proper
+    // numeric-component-aware semantics: beta.9 < beta.10 < beta.13.
+    //
+    // Safety: cmpVersion is only invoked on parseVersion outputs (line
+    // ~181); the regex there gates both inputs to /^M.m.p(?:-PR)?$/ and
+    // the major/minor/patch early-returns above guarantee equal cores
+    // here. semver.compare validates internally and falls through to
+    // lexicographic only when its parser cannot resolve the prerelease
+    // -- which our parseVersion regex prevents from reaching this branch.
+    return semver.compare(a.raw, b.raw);
   }
   return 0;
 }
@@ -2414,14 +2435,38 @@ function renderHumanReport(report) {
   const bodyRows = [];
 
   // Class A -- install-cache (existing logic preserved, glyphs swapped to vocabulary).
-  if (report.install.status === 'ok' && report.cache.status === 'ok') {
+  //
+  // Phase 126 Plan-01 fix: when classARecovered is set (recovery succeeded),
+  // the renderer MUST emit BOTH `✓ recovered to <version>` AND `backup <path>`
+  // lines per the commands/doctor.md Step 3 contract -- INCLUDING the
+  // missing-install case (installResult.status === 'missing') where the
+  // pre-fix renderer fell into the `cannot read state` branch and never
+  // emitted the contract lines (2026-05-13 Windows dogfood finding 3a).
+  // Recovery-succeeded takes precedence over status-shape branching.
+  if (report.classARecovered) {
+    // Drift was detected (either status==='ok' + cmp<0 OR status==='missing'
+    // with available cache; see drift detection at line ~2634-2649) and was
+    // closed by performRecoveryAtomic. Use the drift-detected layout for
+    // continuity with the live-stale recovery case.
+    bodyRows.push(`  ${C.yellow}■${C.reset} install-cache              ${C.yellow}⚠${C.reset} drift detected`);
+    // Show the live -> recovered transition. For the missing-install case
+    // report.install.version is undefined; show `missing` instead so the
+    // line is still informative.
+    const liveLabel = report.install.version || (report.install.status === 'missing' ? 'missing' : 'unknown');
+    bodyRows.push(`     ${C.dim}live${C.reset}    ${C.yellow}${liveLabel}${C.reset} ${C.dim}→${C.reset} ${C.green}${report.cache.latest || report.classARecovered.recoveredVersion}${C.reset}`);
+    bodyRows.push(`     ${C.green}✓${C.reset} recovered to ${C.green}${report.classARecovered.recoveredVersion}${C.reset}`);
+    // Backup line: omit when backup is null (missing-install case -- nothing
+    // existed to rename; performRecoveryAtomic returned backup=null at
+    // line ~370 of this file). The contract example specifies the line is
+    // emitted WHEN a backup exists, not unconditionally.
+    if (report.classARecovered.backup) {
+      bodyRows.push(`     ${C.dim}backup ${report.classARecovered.backup}${C.reset}`);
+    }
+  } else if (report.install.status === 'ok' && report.cache.status === 'ok') {
     if (report.drift.detected) {
       bodyRows.push(`  ${C.yellow}■${C.reset} install-cache              ${C.yellow}⚠${C.reset} drift detected`);
       bodyRows.push(`     ${C.dim}live${C.reset}    ${C.yellow}${report.install.version}${C.reset} ${C.dim}→${C.reset} ${C.green}${report.cache.latest}${C.reset}`);
-      if (report.classARecovered) {
-        bodyRows.push(`     ${C.green}✓${C.reset} recovered to ${C.green}${report.classARecovered.recoveredVersion}${C.reset}`);
-        bodyRows.push(`     ${C.dim}backup ${report.classARecovered.backup}${C.reset}`);
-      } else if (report.fixRequested) {
+      if (report.fixRequested) {
         bodyRows.push(`     ${C.red}⚠${C.reset} recovery failed: ${report.recoveryError || 'unknown'}`);
       }
     } else {
@@ -2543,7 +2588,17 @@ function computeSummary(report) {
   let drift = 0;
   let warnings = 0;
   // Class A -- install-cache + drift signal.
-  if (report.install.status === 'ok' && report.cache.status === 'ok' && !report.drift.detected) {
+  //
+  // Phase 126 Plan-01 fix: after a successful classA recovery, the drift was
+  // RESOLVED -- the summary must NOT report `1 drift` while the header says
+  // `recovered` (Option A: decrement-after-recovery, minimum surface delta
+  // per Canon Part 7). 2026-05-13 Windows dogfood finding 3a flagged the
+  // `0 healthy / 1 drift / 0 warnings` line as semantically inconsistent
+  // with the recovered header. After recovery the install is on the cache's
+  // latest version; classify as healthy.
+  if (report.classARecovered) {
+    healthy += 1;
+  } else if (report.install.status === 'ok' && report.cache.status === 'ok' && !report.drift.detected) {
     healthy += 1;
   } else if (report.drift.detected) {
     drift += 1;
