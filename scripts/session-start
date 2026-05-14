@@ -104,6 +104,41 @@ if [ -f "$LAST_VERSION_FILE" ]; then
   LAST_VERSION=$(cat "$LAST_VERSION_FILE" 2>/dev/null || echo "")
 fi
 
+# --- BEGIN Phase 126 Plan 07 install-state migration (BEFORE Phase 123 writer) ---
+# Phase 126 Plan 07. The migration is ADDITIVE only (CONTEXT.md D3): v1 -> v2
+# adds schema_version + topology_class + last_acceptance_run +
+# renderer_contract_version while preserving v1 fields byte-identical.
+# Future-version (schema_version > 2) emits a stderr warn + defers to
+# `/mos:doctor --fix`; the file is NEVER downgraded silently.
+#
+# This block runs BEFORE the Phase 123 install-state record block below so
+# downstream readers see the v2 shape. Errors here NEVER crash session-start
+# (the script is a hook; soft-fail is the contract). Stderr passes through so
+# users see the future-version deferral message; stdout is suppressed so the
+# block does not pollute the additionalContext JSON.
+#
+# Canon Part 8: LOCAL only -- the module reads/writes $HOME/.mindrian/ ; the
+# node -e shim below makes ZERO network calls. Verified in the lib/core
+# /install-state.cjs source (see file header).
+if [ -f "$PLUGIN_ROOT/lib/core/install-state.cjs" ]; then
+  env \
+    INSTALL_STATE_MOD_PATH="$PLUGIN_ROOT/lib/core/install-state.cjs" \
+    node -e '
+      try {
+        var m = require(process.env.INSTALL_STATE_MOD_PATH);
+        var r = m.migrateIfNeeded({ home: process.env.HOME });
+        if (r && r.migrated) {
+          process.stderr.write("[session-start] install-state migrated v" + r.fromVersion + " -> v" + r.toVersion + "\n");
+        } else if (r && r.futureVersion) {
+          process.stderr.write("[session-start] install-state future-version detected (schema_version=" + r.currentVersion + "); deferring to /mos:doctor --fix\n");
+        }
+      } catch (e) {
+        process.stderr.write("[session-start] install-state migration error: " + (e && e.message) + " (continuing with existing path)\n");
+      }
+    ' >/dev/null || true
+fi
+# --- END Phase 126 Plan 07 install-state migration ---
+
 # --- BEGIN install-state record (Phase 123, single writer, EARLY -- before Step A/B) ---
 # Phase 123 Plan-02 (HARNESS-123-05). Canon Part 8: LOCAL only -- no fetch/http/
 # curl/brain.mindrian/tavily anywhere in this block. Per D-03 + RESEARCH Override
@@ -221,7 +256,49 @@ env \
       last_version_file_value: lastVersionFileValue,
       path_bin_version: pathBinVersion
     };
-    try { fs.writeFileSync(process.env.INSTALL_STATE_JSON_PATH, JSON.stringify(rec, null, 2) + "\n"); } catch (_) { /* swallow */ }
+    // Phase 126 Plan 07: preserve v2 schema fields across the Phase 123 record
+    // rewrite. CONTEXT.md D3 invariant: NEVER downgrade. If the existing file
+    // has schema_version > 2 (a future-version file from a newer beta the user
+    // previously installed then rolled back from), SKIP the write entirely so
+    // the file stays untouched until `/mos:doctor --fix` runs. Otherwise,
+    // additively merge schema_version + topology_class + last_acceptance_run
+    // + renderer_contract_version from the existing file onto the freshly-
+    // derived record. The Phase 126 migrator at the top of session-start
+    // populates these fields for v1 installs before this block runs; for
+    // already-v2 installs the merge is a no-op preservation.
+    var skipWrite = false;
+    var existing = null;
+    try {
+      if (fs.existsSync(process.env.INSTALL_STATE_JSON_PATH)) {
+        existing = JSON.parse(fs.readFileSync(process.env.INSTALL_STATE_JSON_PATH, "utf8"));
+      }
+    } catch (_) { /* corrupt -- treat as if absent */ }
+    if (existing && typeof existing.schema_version === "number" && existing.schema_version > 2) {
+      // Future-version: do NOT downgrade. Leave the file alone.
+      skipWrite = true;
+    } else {
+      // Merge v2 fields onto the new record. Defaults are applied when the
+      // existing file lacks a field (covers the edge case where the migrator
+      // did not run first -- e.g., a stale install where lib/core/install-
+      // state.cjs is missing on disk).
+      rec.schema_version = 2;
+      rec.topology_class = (existing && existing.topology_class) || (function (t) {
+        switch (t) {
+          case "marketplace-cache": return "healthy";
+          case "direct":            return "healthy";
+          case "dev-clone":         return "healthy";
+          case "not-found":         return "missing";
+          case "legacy":            return "drifted";
+          default:                  return "drifted";
+        }
+      })(r.topology);
+      rec.last_acceptance_run = (existing && Object.prototype.hasOwnProperty.call(existing, "last_acceptance_run"))
+        ? existing.last_acceptance_run : null;
+      rec.renderer_contract_version = (existing && existing.renderer_contract_version) || "unknown";
+    }
+    if (!skipWrite) {
+      try { fs.writeFileSync(process.env.INSTALL_STATE_JSON_PATH, JSON.stringify(rec, null, 2) + "\n"); } catch (_) { /* swallow */ }
+    }
     try { fs.writeFileSync(lastVersionFile, activeVersion + "\n"); } catch (_) { /* swallow */ }
   ' 2>/dev/null || true
 # --- END install-state record ---
