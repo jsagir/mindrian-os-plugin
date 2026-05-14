@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Phase 126 scoped runner -- run before each 126 task commit. Expect GREEN
 # once all plans land (each plan adds its own test suite here):
-#   test-cache-prune-extended.cjs          -> Plan 126-06 (stale-backup prune window)
+#   test-doctor-fix-renderer.cjs               -> Plan 126-01 (--fix renderer contract test + fix)
+#   test-marketplace-cache-prerelease-pick.cjs -> Plan 126-02 (semver prerelease ordering)
+#   test-cache-prune-extended.cjs              -> Plan 126-06 (stale-backup prune window)
 #
-# This file is the aggregator; sibling plans (126-01, 126-02, 126-03, 126-04,
+# This file is the aggregator; sibling plans (126-03, 126-04,
 # 126-05, 126-07) each append their own CJS_SUITES entry as they land.
 #
 # This runner MUST run to completion (no crash) even when any suite fails; it
@@ -22,6 +24,8 @@ START_TIME=$(date +%s)
 SHELL_SUITES=(
 )
 CJS_SUITES=(
+  test-doctor-fix-renderer.cjs
+  test-marketplace-cache-prerelease-pick.cjs
   test-cache-prune-extended.cjs
 )
 
