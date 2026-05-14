@@ -2380,6 +2380,214 @@ function buildAcceptanceChecklist(ctx) {
         return { ok: ok, finding: finding, detail: { exit: r.status, summary: j && j.summary } };
       },
     },
+    // -- Phase 126 Plan 05: 5 release-flight pre-flight hot-patches --
+    //
+    // Phase 123's release cut (v1.13.0-beta.13) surfaced 5 hot-patches during
+    // Plan-06 pre-flight. The operator applied them MANUALLY before tagging
+    // the release. That tribal knowledge is release risk; Plan 05 absorbs each
+    // hot-patch as a checklist entry so the gate enforces them automatically.
+    // All 5 are pre-tag-applicable (they verify pre-release state). Each
+    // honors the DOCTOR_TEST_FAIL_POINT injection (mirrors the established
+    // pattern from Phase 123). Canon Part 6 (dog-fooding): each manually-
+    // applied operator check is promoted to a structured gate.
+    {
+      id: 'session-start-active-version',
+      label: 'session-start derives active_version correctly from installed_plugins.json',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'session-start-active-version') {
+          return { ok: false, finding: 'session-start-active-version synthesized failure (test mode)', detail: {} };
+        }
+        try {
+          // Read installed_plugins.json + extract the mos@mindrian-marketplace
+          // active version. Mirror the same name/structure scan as session-start
+          // lines 178-186 (accept both "mos" and "mindrian-os" prefixes).
+          const ipPath = path.join(home, '.claude', 'plugins', 'installed_plugins.json');
+          if (!fs.existsSync(ipPath)) {
+            return { ok: false, finding: 'installed_plugins.json absent', detail: { ipPath: ipPath } };
+          }
+          const ip = JSON.parse(fs.readFileSync(ipPath, 'utf8'));
+          const plugins = (ip && ip.plugins) || {};
+          let recordedVersion = null;
+          for (const k of Object.keys(plugins)) {
+            const name = String(k).split('@')[0];
+            if (name !== 'mos' && name !== 'mindrian-os') continue;
+            let entry = plugins[k];
+            if (Array.isArray(entry)) entry = entry[0];
+            if (entry && entry.version) { recordedVersion = entry.version; break; }
+          }
+          if (!recordedVersion) {
+            return { ok: false, finding: 'no mos@mindrian-marketplace entry in installed_plugins.json', detail: {} };
+          }
+          // Resolve the active plugin root and compare its plugin.json version
+          // to the recorded installed_plugins.json version. session-start's
+          // line-202 derivation uses resolver-root-basename first, then this
+          // value -- a mismatch means the two derivation paths disagree.
+          const r = resolveActivePluginRoot({});
+          if (!r || !r.root) {
+            return { ok: false, finding: 'active plugin root unresolvable', detail: { source: r && r.source } };
+          }
+          const pjPath = path.join(r.root, '.claude-plugin', 'plugin.json');
+          if (!fs.existsSync(pjPath)) {
+            return { ok: false, finding: 'plugin.json missing in active root', detail: { pjPath: pjPath } };
+          }
+          const pj = JSON.parse(fs.readFileSync(pjPath, 'utf8'));
+          const ok = pj.version === recordedVersion;
+          return {
+            ok: ok,
+            finding: ok ? null : ('plugin.json says ' + pj.version + ' but installed_plugins.json says ' + recordedVersion),
+            detail: { pluginJson: pj.version, recordedVersion: recordedVersion, activeRoot: r.root, topology: r.topology },
+          };
+        } catch (e) {
+          return { ok: false, finding: 'session-start-active-version threw: ' + e.message, detail: {} };
+        }
+      },
+    },
+    {
+      id: 'verify-release-clean-tree',
+      label: 'verify-release Step 12 reports clean git tree (tracked files only)',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'verify-release-clean-tree') {
+          return { ok: false, finding: 'verify-release-clean-tree synthesized failure (test mode)', detail: {} };
+        }
+        const cp = require('child_process');
+        try {
+          // Mirror verify-release Step 12 line 296: --untracked-files=no so
+          // untracked files are allowed; tracked-dirty is the failure mode.
+          const r = cp.spawnSync('git', ['-C', pluginRoot, 'status', '--porcelain', '--untracked-files=no'], { encoding: 'utf8', timeout: 10000 });
+          if (r.status !== 0) {
+            return { ok: false, finding: 'git status failed (exit ' + r.status + ')', detail: { stderr: (r.stderr || '').slice(-200) } };
+          }
+          const dirty = (r.stdout || '').trim();
+          const ok = dirty === '';
+          const dirtyCount = dirty ? dirty.split('\n').length : 0;
+          return {
+            ok: ok,
+            finding: ok ? null : ('tracked-file drift: ' + dirtyCount + ' file(s)'),
+            detail: { dirtyCount: dirtyCount, dirtyTail: dirty.slice(0, 500) },
+          };
+        } catch (e) {
+          return { ok: false, finding: 'verify-release-clean-tree threw: ' + e.message, detail: {} };
+        }
+      },
+    },
+    {
+      id: 'frontmatter-yaml-validity',
+      label: 'commands/operator.md + commands/doctor.md frontmatter YAML parses cleanly',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'frontmatter-yaml-validity') {
+          return { ok: false, finding: 'frontmatter-yaml-validity synthesized failure (test mode)', detail: {} };
+        }
+        try {
+          const targets = [
+            path.join(pluginRoot, 'commands', 'operator.md'),
+            path.join(pluginRoot, 'commands', 'doctor.md'),
+          ];
+          const failures = [];
+          for (const t of targets) {
+            if (!fs.existsSync(t)) { failures.push(t + ' (absent)'); continue; }
+            const content = fs.readFileSync(t, 'utf8');
+            // Frontmatter pattern: file starts with `---\n` and the next `---\n`
+            // closes the block. We do not require a leading BOM.
+            const m = content.match(/^---\n([\s\S]*?)\n---\n/);
+            if (!m) { failures.push(t + ' (no YAML frontmatter)'); continue; }
+            const yaml = m[1];
+            const lines = yaml.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+              const ln = lines[i];
+              if (ln.trim() === '') continue;
+              if (ln.indexOf('\t') !== -1) { failures.push(t + ' line ' + (i + 1) + ' contains tab'); break; }
+              // Allowed shapes: `<key>: <value>`, ` <key>: <value>` (nested),
+              // `- <item>` (list item), `# comment`. Anything else is drift.
+              const isKeyValue = /^[A-Za-z_][A-Za-z0-9_-]*:/.test(ln);
+              const isIndented = ln.startsWith(' ');
+              const isListItem = ln.startsWith('-');
+              const isComment = ln.startsWith('#');
+              if (!isKeyValue && !isIndented && !isListItem && !isComment) {
+                failures.push(t + ' line ' + (i + 1) + ' not key:value');
+                break;
+              }
+            }
+          }
+          const ok = failures.length === 0;
+          return {
+            ok: ok,
+            finding: ok ? null : ('YAML drift: ' + failures.join('; ')),
+            detail: { failures: failures },
+          };
+        } catch (e) {
+          return { ok: false, finding: 'frontmatter-yaml-validity threw: ' + e.message, detail: {} };
+        }
+      },
+    },
+    {
+      id: 'release-dry-run-output',
+      label: 'release.sh --dry-run produces all expected step names',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'release-dry-run-output') {
+          return { ok: false, finding: 'release-dry-run-output synthesized failure (test mode)', detail: {} };
+        }
+        const cp = require('child_process');
+        try {
+          const r = cp.spawnSync('bash', [path.join(pluginRoot, 'scripts', 'release.sh'), '--dry-run'], { encoding: 'utf8', timeout: 30000 });
+          if (r.status !== 0) {
+            return { ok: false, finding: 'release.sh --dry-run exited ' + r.status, detail: { stderr: (r.stderr || '').slice(-200) } };
+          }
+          const out = r.stdout || '';
+          // NOTE: This array is patched by Plan 04 (Phase 126 Wave 3) to add
+          // Step 5.5, Step 9.7, Step 9.8 and reorder Step 9.6 -> 9.8 for the
+          // rename. If you edit this list, make sure release.sh --dry-run
+          // output still matches in order. Wave 2 (this plan) ships the
+          // initial array; Wave 3 (Plan 04) patches it.
+          const expectedSteps = ['Step 2', 'Step 3', 'Step 4', 'Step 5', 'Step 5b', 'Step 6', 'Step 6.5', 'Step 6.6', 'Step 7', 'Step 9.5', 'Step 9.6'];
+          const missing = expectedSteps.filter(function (s) { return out.indexOf(s) === -1; });
+          const ok = missing.length === 0;
+          return {
+            ok: ok,
+            finding: ok ? null : ('missing step names: ' + missing.join(', ')),
+            detail: { missing: missing, expectedCount: expectedSteps.length },
+          };
+        } catch (e) {
+          return { ok: false, finding: 'release-dry-run-output threw: ' + e.message, detail: {} };
+        }
+      },
+    },
+    {
+      id: 'working-tree-housekeeping',
+      label: 'no orphan .tmp/.bak/.swp files in tracked directories',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'working-tree-housekeeping') {
+          return { ok: false, finding: 'working-tree-housekeeping synthesized failure (test mode)', detail: {} };
+        }
+        const cp = require('child_process');
+        try {
+          const r = cp.spawnSync('git', ['-C', pluginRoot, 'ls-files'], { encoding: 'utf8', timeout: 10000 });
+          if (r.status !== 0) {
+            return { ok: false, finding: 'git ls-files failed (exit ' + r.status + ')', detail: { stderr: (r.stderr || '').slice(-200) } };
+          }
+          const tracked = (r.stdout || '').split('\n').filter(Boolean);
+          const orphans = tracked.filter(function (p) { return /\.(tmp|bak|swp|swo)$/.test(p); });
+          const ok = orphans.length === 0;
+          const orphanSample = orphans.slice(0, 5).join(', ') + (orphans.length > 5 ? ' (+' + (orphans.length - 5) + ' more)' : '');
+          return {
+            ok: ok,
+            finding: ok ? null : ('orphan tracked tmp/bak files: ' + orphanSample),
+            detail: { orphanCount: orphans.length, orphans: orphans.slice(0, 20) },
+          };
+        } catch (e) {
+          return { ok: false, finding: 'working-tree-housekeeping threw: ' + e.message, detail: {} };
+        }
+      },
+    },
   ];
 }
 
