@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 126-01-fix-renderer-contract-PLAN.md
-last_updated: "2026-05-14T10:41:43.090Z"
+stopped_at: Completed 126-02-marketplace-cache-prerelease-semver-PLAN.md (Wave 1 parallel; 5/5 fixture cases GREEN; semver-spec prerelease ordering closes 2026-05-13 Windows dogfood finding 3b)
+last_updated: "2026-05-14T10:43:48.134Z"
 last_activity: 2026-05-14
 progress:
   total_phases: 58
   completed_phases: 37
   total_plans: 274
-  completed_plans: 260
+  completed_plans: 261
   percent: 93
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 126 (install-lifecycle-harness-gaps) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -327,6 +327,7 @@ Progress: [█████████░] 93%
 | Phase 125-f-selector-ranker P05 | 18min | 1 tasks | 2 files |
 | Phase 126-install-lifecycle-harness-gaps P06 | 4 min | 2 tasks | 3 files |
 | Phase 126-install-lifecycle-harness-gaps P01 | 5min 34s | 2 tasks | 3 files |
+| Phase 126 P02 | 7 | 2 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -847,6 +848,8 @@ Progress: [█████████░] 93%
 - [Phase 125-05]: opts._applyDecayWeight as Plan 06 IoC hook -- ranker callable without Plan 06; defensive try/catch + finite-number guard keeps ranker fail-soft; D10 source-grep assertions enforce Canon Part 8 + no-event-subscription invariants structurally
 - [Phase 126-install-lifecycle-harness-gaps]: Plan 06: MOS_CACHE_PRUNE_AGE_DAYS env-var contract (default 30 days; integer-only override; v2 may move to .mos/config.json) extends pruneMarketplaceCache with sibling stale-backup prune pass at ~/.claude/plugins/mindrian-os.stale-* -- closes the Phase 95.2 atomic-swap backup accumulation surface on long-running tester installs.
 - [Phase 126-install-lifecycle-harness-gaps]: Plan 126-01 fix-renderer-contract: classARecovered hoisted as precedence branch in renderHumanReport so missing-install + recovery emits both contract lines per commands/doctor.md Step 3; computeSummary classifies recovered drift as healthy (Option A decrement-after-recovery, minimum surface delta per Canon Part 7); contract-as-source-of-truth fixture pattern established (test loads commands/doctor.md, regex-extracts the example block, asserts the live renderer against the extracted patterns). 7/7 sub-tests GREEN; zero regression in atomic-swap + class I/H/G doctor tests. Closes 2026-05-13 Windows dogfood finding 3a.
+- [Phase 126]: Reuse semver@^7.7.4 (existing devDep) in scripts/doctor.cjs cmpVersion via semver.compare; replace localeCompare prerelease branch. Canon Part 7 reuse, no new dep, no runtime promotion.
+- [Phase 126]: Plan 02: Option A (minimum-delta fix) chosen over Option B (full delegation); preserve cmpVersion signature, swap localeCompare for semver.compare only in the prerelease branch where major/minor/patch are guaranteed equal by early-returns.
 
 ### Pending Todos
 
@@ -876,6 +879,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-14T10:41:43.074Z
-Stopped at: Completed 126-01-fix-renderer-contract-PLAN.md
+Last session: 2026-05-14T10:43:48.115Z
+Stopped at: Completed 126-02-marketplace-cache-prerelease-semver-PLAN.md (Wave 1 parallel; 5/5 fixture cases GREEN; semver-spec prerelease ordering closes 2026-05-13 Windows dogfood finding 3b)
 Resume file: None
