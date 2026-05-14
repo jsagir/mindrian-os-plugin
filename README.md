@@ -5,8 +5,8 @@
 
   **The thinking partner for problems worth solving.**
 
-  Powered by PWS, the practical innovation methodology developed by
-  [Prof. Lawrence Aronhime](https://www.linkedin.com/in/lawrence-aronhime-8363894/) over 30+ years of teaching.
+  Powered by PWS, a well-tested, pedagogically-built innovation methodology by
+  [Prof. Lawrence Aronhime](https://www.linkedin.com/in/lawrence-aronhime-8363894/).
   Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
 
   [![Version](https://img.shields.io/badge/v1.13.0-The_Closed_Loop-blue)](CHANGELOG.md)
@@ -43,7 +43,7 @@ You install the plugin. You start talking. The rest takes care of itself.
 
 **Your decisions teach the system.** When the system surfaces something, you decide: APPROVE (it cascades), REJECT (and tell the system why), or DEFER. Your reason becomes part of the room's memory. The next scan is smarter.
 
-**The Brain is the methodology library.** The Brain is a remote graph of 30+ years of PWS classroom wisdom about which frameworks chain to which, when, and why. Connecting it makes Larry sharper. Not connecting it is fine; the system still teaches you. Either way, your venture data stays on your machine. The Brain only answers methodology questions, never sees your notes.
+**The Brain orchestrates the method.** The Brain orchestrates a pedagogically-built, well-tested curated method for innovation against your current context, surfacing connections, contradictions, and gaps no single mind can hold. Connecting it makes Larry sharper. Not connecting it is fine; the system still teaches you. Either way, your venture data stays on your machine. The Brain only answers methodology questions, never sees your notes.
 
 ---
 
@@ -77,7 +77,21 @@ In v1.13.0, the loop closes:
 - **Every conversation produces a real artifact.** A first session leaves you with a populated room, not an empty wizard.
 - **Your decisions are graph data.** The room learns from your approvals, your rejections, and the reasons you give.
 
-It is currently shipping as a release candidate (`v1.13.0-beta.12`). Final `v1.13.0` is imminent.
+It is currently shipping as a release candidate (`v1.13.0-beta.13`). Final `v1.13.0` is imminent.
+
+---
+
+## Why this gets better the longer you use it
+
+MindrianOS is a thinking tool that compounds. Most tools get messier the more you put in -- the search ranks worse, the folder gets bigger, the AI forgets what you told it last session. MindrianOS goes the other way.
+
+Here is the mechanism, in plain words: every conversation you have with Larry, every meeting you file, every decision you make and reason you give becomes part of your room. The room is searchable, structured, and remembered across sessions. Every NEW thing you add gets compared against everything already there.
+
+Day one, you have a folder.
+
+Day thirty, you have a folder that catches the contradiction between yesterday's strategy call and last week's customer interview, because nothing about either was forgotten. Larry brings back the assumption you made in week two when you are about to make a decision in week eight that depends on it. The room finds the connection between two meetings that happened a month apart that nobody remembers being related.
+
+The mechanism is not magic. It is just: nothing forgets, everything compares, and your own past work works for you. The longer you stay, the more the room knows, the more the room can show you what you cannot see on your own.
 
 ---
 
@@ -139,7 +153,7 @@ If you want zero permission prompts during a session: `claude --dangerously-skip
 
 ## Why PWS, why Larry
 
-PWS (Problems Worth Solving) is the methodology Prof. Lawrence Aronhime has been refining across three decades of teaching. It is not a checklist. It is a way of thinking about ventures as wicked problems that need to be reframed before they can be solved, and that demand a working memory because nobody can hold the whole thing in their head.
+PWS (Problems Worth Solving) is a well-tested, pedagogically-built innovation methodology by Prof. Lawrence Aronhime. It is not a checklist. It is a way of thinking about ventures as wicked problems that need to be reframed before they can be solved, and that demand a working memory because nobody can hold the whole thing in their head.
 
 Larry is the personality that delivers PWS in your terminal. The teaching is intrinsic; you do not have to know the framework names. Larry asks the question, suggests the move, and shows the chain. You decide.
 

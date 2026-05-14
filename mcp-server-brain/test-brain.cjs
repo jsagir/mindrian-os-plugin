@@ -116,7 +116,7 @@ async function runTests() {
     `got ${JSON.stringify(init.body.result && init.body.result.serverInfo)}`);
 
   // Test 5: POST /mcp with valid key + tools/list
-  console.log('\nTest 5: tools/list returns 5 tools');
+  console.log('\nTest 5: tools/list returns 6 tools');
   const toolsList = await request(
     { path: '/mcp', method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream', 'Authorization': 'Bearer test-key-123' } },
     {
@@ -130,8 +130,8 @@ async function runTests() {
   const tools = toolsList.body && toolsList.body.result && toolsList.body.result.tools;
   assert('has tools array', Array.isArray(tools), `got ${JSON.stringify(toolsList.body)}`);
   const toolNames = (tools || []).map(t => t.name).sort();
-  const expected = ['brain_query', 'brain_schema', 'brain_search', 'brain_stats', 'brain_write'];
-  assert('5 tools registered', toolNames.length === 5, `got ${toolNames.length}: ${toolNames.join(', ')}`);
+  const expected = ['brain_ask', 'brain_query', 'brain_schema', 'brain_search', 'brain_stats', 'brain_write'];
+  assert('6 tools registered', toolNames.length === 6, `got ${toolNames.length}: ${toolNames.join(', ')}`);
   assert('correct tool names', JSON.stringify(toolNames) === JSON.stringify(expected),
     `expected ${expected.join(', ')}, got ${toolNames.join(', ')}`);
 
