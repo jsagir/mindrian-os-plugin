@@ -1350,10 +1350,10 @@ Plans:
 **Requirements**: (none mapped at the requirement-ID layer; plans trace to CONTEXT.md Step 0 + Plans 01-07 + Doc deliverables + the 9-item Nyquist UAT acceptance criteria block)
 **Depends on:** Phase 125 (F-Selector Ranker, shipped v1.13.0-beta.14); Phase 123 (install-lifecycle-harness substrate, shipped v1.13.0-beta.13); Phase 95.2 (atomic-swap contract, shipped); Phase 95.1 (doctor command surface, shipped)
 **Dependents:** Phase 127 (Brain MCP stdio shim, scope-locked 2026-05-14) -- ships AS v1.13.1-beta.1 after v1.13.0 final; Phase 121.5 terminal-coherence capstone -- final v1.13.0 beta
-**Plans:** 1/7 plans executed
+**Plans:** 2/7 plans executed
 
 Plans:
-- [ ] 126-01-fix-renderer-contract-PLAN.md -- --fix renderer contract test + fix (wave 1)
+- [x] 126-01-fix-renderer-contract-PLAN.md -- --fix renderer contract test + fix (wave 1)
 - [ ] 126-02-marketplace-cache-prerelease-semver-PLAN.md -- marketplace-cache prerelease semver-pick fix using semver@^7.7.4 (wave 1)
 - [ ] 126-03-acceptance-gate-self-coverage-PLAN.md -- 5-fixture acceptance-gate self-coverage; wires last_acceptance_run write into install-state v2 (wave 2, depends on Plan 07)
 - [ ] 126-04-release-pipeline-hardening-PLAN.md -- release.sh Step 5.5 tag-push verify + HARD Step 9.6 install-minisite lockstep + Step 9.7 npx-publish self-test + --no-minisite opt-out + docs/install-cache-family-premortem.md (wave 3, depends on Plans 03 + 05)
