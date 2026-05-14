@@ -105,3 +105,38 @@ The Workflow Layer must be built on top of, and make the best of, every relevant
 - **UI Ruling System (`ui-system` skill, 4-zone anatomy)** — every workflow render is a `body_shape` (an F-selector list + an intelligence strip); no command invents its own format. The `command-registry` carries each command's `body_shape` so the orchestrator renders consistently.
 
 In one line: **beta.10 = the loop closes** — the navigation engine routes you, the operator state machine sets the mode, the SQL graph says where you are, the cleaned Brain says what's next, the registry says which command does it, Larry proposes it as an F-selector, you confirm, `/mos:act` runs it, the artifact files, the cascade fires, the next nudge surfaces. The Workflow Layer is the wiring that makes that one sentence true — which is exactly why it ships last and ships informed.
+
+## Phase 125 -- F-Selector Ranker (v1.13.0-beta.14)
+
+The F-selector ranker sits above the shipped Phase 122 resolver, Phase 122-03
+chain-recommender, Phase 110 packet, and Phase 104.1 JTBD + teaching content
+layer. Three surfaces:
+
+- `rankForSelector` -- pure sync ranker; D4 continuous-gradient scoring (zero
+  Brain calls; zero memory_event writes; idempotent).
+- `recordSelectorDecision` -- F.1 defer / F.2 reject as typed cascade edge
+  (DEFERRED / REJECTED) + memory_event, both written through the Phase 109
+  `navigation.cjs` chokepoint (Plan 00's `writeEdge` primitive + Phase 109's
+  `logMemoryEvent`).
+- `recordSelectorMiss` -- D8 none-fit ranker-miss capture (memory_event only;
+  no cascade edge; user_intent stays LOCAL per Canon Part 8).
+
+Projection layer: `lib/core/navigation/projections.cjs` exposes
+`resolveActiveFrameworks`, `resolveHopDepth`, `computeInvestmentLevel` -- the
+three signals D4's scoring formula consumes.
+
+Investment gradient: new users get smart ranking from invocation 0 (pure
+Brain-priors). Local signal grows linearly across 10 invocations to 1.0. The
+ranker reads roomState's invocation count and blends Brain confidence with
+local signals continuously; no discontinuity at the cold/warm boundary.
+
+D7 + D8 + D9 + D10 + D11 are the user-facing adaptive-questioning surfaces:
+rejection-as-typed-edge with exponential decay (N=5 invocations), free-text
+escape via `renderNoneFitAffordance` + `recordSelectorMiss`,
+investment-aware 'why' content density (teaching at low, terse at high,
+stitched at mid), callable/trigger split (Phase 125 owns the callable;
+Phase 117 owns the trigger policy), Phase 104.1 teaching field dependency
+(commands missing `teaching` or `jtbd_summary` are EXCLUDED).
+
+See: `docs/F-SELECTOR-CONSUMER-GUIDE.md` for the consumer wiring contract
+(Phase 116 + Phase 117 + /mos:suggest-next + /mos:act consumers).

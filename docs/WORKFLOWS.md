@@ -59,3 +59,70 @@ The Brain holds **methodology** (`Framework -[:FEEDS_INTO]-> Framework`, the cha
 - **Part 3 (The Tri-Context Decision Gate)** -- the resolver's `composeWorkflow` feeds the Decision Gate: a proposed workflow renders as an F-shape selector; `validateChainAutonomy` is the "human confirms" clause made literal.
 - **Part 4 (Every Choice Is Graph Data)** -- the command suggestion is a deterministic graph+registry lookup, not model recall; the proposal/acceptance/rejection becomes a `memory_event` row and a typed graph edge.
 - **Part 9 / Part 10 (Memory locality / Conversation as product)** -- the Workflow Layer is the "Brain reasons -> Larry proposes a workflow -> human confirms" exemplar; `docs/CANON-PHASE-MAP.md` records Phase 122 under Part 7, Part 8, and the v1.13.0 milestone table.
+
+---
+
+## 6. The F-Selector Ranker -- the next-move surface (Phase 125, v1.13.0-beta.14)
+
+> Phase 125 (F-Selector Ranker, the ranking + decision-capture layer above the Phase 122 workflow layer). The link in the closed loop that turns "the methodology suggests framework chain X" into "here are the top-3 next-move commands, ranked, with badges, with accept/defer/reject/none-fit affordances, with the decision captured as graph data." See also: `docs/F-SELECTOR-CONSUMER-GUIDE.md` (the consumer wiring contract), `.planning/phases/125-f-selector-ranker/125-CONTEXT.md` (the design lock), `data/brain-packet-schema.json` (the `framework_chain_hint` superset extension).
+
+### Phase 04 schema note -- `framework_chain_hint` (Plan 125-04)
+
+Plan 125-04 extends `data/brain-packet-schema.json` with an optional
+`framework_chain_hint` object under `local_graph_summary`. The shape:
+
+```json
+{
+  "local_graph_summary": {
+    "framework_chain_hint": {
+      "edges": [
+        { "from": "...", "to": "...", "confidence": 0.82,
+          "transform_description": "...", "hop_distance": 1 }
+      ],
+      "slice_scope": 1,
+      "slice_rationale": "well-defined state, strong governing_thought",
+      "brain_snapshot_id": "<sha>",
+      "fetched_at": "<ISO timestamp>"
+    }
+  }
+}
+```
+
+The field is OPTIONAL (superset, backwards-compatible). When absent, the
+ranker degrades gracefully to local-signal-only scoring (Tier-0 or
+brain-unreachable paths). When present, it carries the 1-3 hop FEEDS_INTO
+slice the ranker uses for the `brain_confidence` term of the D4 scoring
+formula. The ajv2020 validator (Phase 110's stack) accepts packets with and
+without the hint -- the existing Phase 110 packet tests continue to pass
+without regression.
+
+D-02 closed-vocab on 12 jobs is UNTOUCHED. `slice_scope` is a NUMBER (1, 2,
+or 3). LIMIT 50 is enforced on the Cypher result before it lands in the
+packet.
+
+### The three F-selector surfaces
+
+| Surface | What it does | Side effects |
+|---------|--------------|--------------|
+| `rankForSelector` | Pure sync ranker -- computes a top-K of next-move commands using continuous-gradient scoring (Brain priors at low investment + 3-signal formula at high investment). Reads packetOptional + roomState. | None (zero Brain calls; zero memory_event writes; idempotent). |
+| `recordSelectorDecision` | Writes user's F.1 defer / F.2 reject decision as memory_event + typed cascade edge (DEFERRED or REJECTED). Both writes route through the Phase 109 `navigation.cjs` chokepoint. | memory_event + cascade edge. |
+| `recordSelectorMiss` | Writes the "none fit" tuning signal as memory_event only (no cascade edge; D8 temporal-only). Consumer routes to `/mos:do` with the captured user_intent. | memory_event only. |
+
+The consumer wiring contract -- preconditions, pseudocode, Canon Part 8
+invariants, D11 fallback -- lives at `docs/F-SELECTOR-CONSUMER-GUIDE.md`.
+
+### Canon citations (Phase 125)
+
+- **Part 3 (Tri-Context Decision Gate)** -- the F-selector ranker is the
+  decision-gate substrate for Phase 88.2 F.1 / F.2 selectors.
+- **Part 4 (Every Choice Is Graph Data)** -- F.1 defer + F.2 reject become
+  typed cascade edges with `{reason, decision_id, expires_at}`; "why not is
+  more valuable than yes" made literal.
+- **Part 7 (Reuse Before Build)** -- ~95% reuse of Phase 109 navigation
+  chokepoint + Phase 110 packet + Phase 122 resolver + Phase 104.1 content;
+  the new pieces are the ranker, the decision writers, and these docs.
+- **Part 8 (Graph Boundary)** -- recordSelectorMiss writes user_intent
+  LOCALLY only; never enters Brain. Source-grep audits enforce zero
+  brain-client requires + zero memory_event side-channels.
+- **Part 9 (Memory Locality)** -- every selector decision flows through the
+  navigation chokepoint; SQL remembers, Larry proposes, the human confirms.
