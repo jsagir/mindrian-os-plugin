@@ -1350,7 +1350,7 @@ Plans:
 **Requirements**: (none mapped at the requirement-ID layer; plans trace to CONTEXT.md Step 0 + Plans 01-07 + Doc deliverables + the 9-item Nyquist UAT acceptance criteria block)
 **Depends on:** Phase 125 (F-Selector Ranker, shipped v1.13.0-beta.14); Phase 123 (install-lifecycle-harness substrate, shipped v1.13.0-beta.13); Phase 95.2 (atomic-swap contract, shipped); Phase 95.1 (doctor command surface, shipped)
 **Dependents:** Phase 127 (Brain MCP stdio shim, scope-locked 2026-05-14) -- ships AS v1.13.1-beta.1 after v1.13.0 final; Phase 121.5 terminal-coherence capstone -- final v1.13.0 beta
-**Plans:** 7/7 plans complete
+**Plans:** 8/7 plans complete
 
 Plans:
 - [x] 126-01-fix-renderer-contract-PLAN.md -- --fix renderer contract test + fix (wave 1)
