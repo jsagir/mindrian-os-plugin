@@ -27,6 +27,7 @@ CJS_SUITES=(
   test-doctor-fix-renderer.cjs
   test-marketplace-cache-prerelease-pick.cjs
   test-cache-prune-extended.cjs
+  test-install-state-migration.cjs
 )
 
 TOTAL=0
