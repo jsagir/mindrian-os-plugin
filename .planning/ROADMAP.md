@@ -1350,14 +1350,14 @@ Plans:
 **Requirements**: (none mapped at the requirement-ID layer; plans trace to CONTEXT.md Step 0 + Plans 01-07 + Doc deliverables + the 9-item Nyquist UAT acceptance criteria block)
 **Depends on:** Phase 125 (F-Selector Ranker, shipped v1.13.0-beta.14); Phase 123 (install-lifecycle-harness substrate, shipped v1.13.0-beta.13); Phase 95.2 (atomic-swap contract, shipped); Phase 95.1 (doctor command surface, shipped)
 **Dependents:** Phase 127 (Brain MCP stdio shim, scope-locked 2026-05-14) -- ships AS v1.13.1-beta.1 after v1.13.0 final; Phase 121.5 terminal-coherence capstone -- final v1.13.0 beta
-**Plans:** 5/7 plans executed
+**Plans:** 7/7 plans complete
 
 Plans:
 - [x] 126-01-fix-renderer-contract-PLAN.md -- --fix renderer contract test + fix (wave 1)
 - [x] 126-02-marketplace-cache-prerelease-semver-PLAN.md -- marketplace-cache prerelease semver-pick fix using semver@^7.7.4 (wave 1)
 - [x] 126-03-acceptance-gate-self-coverage-PLAN.md -- 5-fixture acceptance-gate self-coverage; wires last_acceptance_run write into install-state v2 (wave 2, depends on Plan 07)
 - [ ] 126-04-release-pipeline-hardening-PLAN.md -- release.sh Step 5.5 tag-push verify + HARD Step 9.6 install-minisite lockstep + Step 9.7 npx-publish self-test + --no-minisite opt-out + docs/install-cache-family-premortem.md (wave 3, depends on Plans 03 + 05)
-- [ ] 126-05-release-flight-preflight-in-acceptance-PLAN.md -- absorb 5 Phase 123 cut hot-patches as doctor --acceptance checklist entries (wave 2, depends on Plan 03)
+- [x] 126-05-release-flight-preflight-in-acceptance-PLAN.md -- absorb 5 Phase 123 cut hot-patches as doctor --acceptance checklist entries (wave 2, depends on Plan 03)
 - [x] 126-06-cache-prune-extension-PLAN.md -- stale-backup prune extension (30-day window via MOS_CACHE_PRUNE_AGE_DAYS) (wave 1)
 - [x] 126-07-install-state-schema-v2-migration-PLAN.md -- install-state.json schema v2 + additive migration + future-version detection (wave 2 head)
 - [x] 126-STEP-0-MANUAL-RECOVERY.md -- doc: reproducible manual recovery commands (tag verify + optional retroactive npm publish); v1.13.0-beta.13 git tag already verified at origin 2026-05-13

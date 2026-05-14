@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 126-03-acceptance-gate-self-coverage-PLAN.md (Wave 2 middle; 5-fixture aggregator + Task 2 wire-up + Step 6.6b inserted; 6/6 self-coverage GREEN + Plan 07 6/6 GREEN + Phase 123 5/6 GREEN with acc.5 pre-existing-fail preserved per deferred-items.md; doctor --acceptance now persists last_acceptance_run via lib/core/install-state.cjs v2; release.sh HARD ABORTs on self-coverage fail with identical rollback to Step 6.6; unblocks Plan 05 to add new --acceptance sub-checks that will be auto-exercised by Step 6.6b)
-last_updated: "2026-05-14T14:50:00.000Z"
+stopped_at: Completed 126-05-release-flight-preflight-in-acceptance-PLAN.md
+last_updated: "2026-05-14T15:35:54.593Z"
 last_activity: 2026-05-14
 progress:
   total_phases: 58
-  completed_phases: 37
+  completed_phases: 38
   total_plans: 274
-  completed_plans: 264
+  completed_plans: 265
   percent: 93
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 126 (install-lifecycle-harness-gaps) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -329,6 +329,7 @@ Progress: [█████████░] 93%
 | Phase 126-install-lifecycle-harness-gaps P01 | 5min 34s | 2 tasks | 3 files |
 | Phase 126 P02 | 7 | 2 tasks | 3 files |
 | Phase 126 P07 | 676 | 3 tasks | 6 files |
+| Phase 126-install-lifecycle-harness-gaps P05 | 1350 | 2 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -854,6 +855,9 @@ Progress: [█████████░] 93%
 - [Phase 126]: Plan 07: schema_version is integer (2), not semver string -- per CONTEXT.md D3 Open Question 5 settlement; simpler comparison for additive-only migrations
 - [Phase 126]: Plan 07: future-version (schema_version > 2) detected in TWO layers (migrator + Phase 123 writer skip) -- belt-and-suspenders; never downgrade silently is the D3 hard invariant
 - [Phase 126]: Plan 07: Phase 123 writer made schema-aware additively (NOT replaced) -- existing 9 D-04 keys remain byte-identical; the 4 v2 fields append; Phase 123 regression suite (test-install-state-record.cjs + class-I + class-J) stays 25/25 GREEN
+- [Phase 126-install-lifecycle-harness-gaps]: Plan 05: 5 hot-patches from Phase 123 cut absorbed as doctor --acceptance checklist entries (session-start-active-version + verify-release-clean-tree + frontmatter-yaml-validity + release-dry-run-output + working-tree-housekeeping); all pre-tag-applicable; DOCTOR_TEST_FAIL_POINT injection reused
+- [Phase 126-install-lifecycle-harness-gaps]: Plan 05: expectedSteps maintainer NOTE block in Entry 4 (release-dry-run-output) declares Plan 04 (Wave 3) as the patcher; Wave 2 ships the 11-step initial array, Wave 3 adds Step 5.5 / 9.7 / 9.8
+- [Phase 126-install-lifecycle-harness-gaps]: Plan 05 dog-fooding receipt: working-tree-housekeeping check caught 2 pre-existing orphan tracked .bak files on the maintainer box during its own ship cycle; removal logged as the plan's only deviation (Canon Part 6)
 
 ### Pending Todos
 
@@ -883,6 +887,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-14T14:28:57.581Z
-Stopped at: Completed 126-07-install-state-schema-v2-migration-PLAN.md (Wave 2 head; 6/6 fixture GREEN + Phase 123 regression 25/25 GREEN; v1->v2 migration with additive-only + atomic-write + future-version warn-and-defer; unblocks Plan 03 + Plan 05 to write to last_acceptance_run + Plan 01 to set renderer_contract_version)
+Last session: 2026-05-14T15:24:27.549Z
+Stopped at: Completed 126-05-release-flight-preflight-in-acceptance-PLAN.md
 Resume file: None
