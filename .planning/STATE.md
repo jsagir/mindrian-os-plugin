@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: verifying
-stopped_at: Completed 125-06-PLAN.md (selector-decisions.cjs shipped; Plan 07 unblocked)
-last_updated: "2026-05-14T04:15:33Z"
+stopped_at: Completed 125-07-PLAN.md (D8 none-fit affordance + recordSelectorMiss shipped; Plan 08 unblocked)
+last_updated: "2026-05-14T04:36:00Z"
 last_activity: 2026-05-14
 progress:
   total_phases: 58
   completed_phases: 36
   total_plans: 267
-  completed_plans: 256
+  completed_plans: 257
   percent: 96
 ---
 
@@ -44,6 +44,16 @@ Phase 114 (larry-default-activation) was the prior "next phase" per the v1.13.0 
 2. `.planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md` (canonical plan)
 3. `docs/CANON-PART-10-PROPOSAL-conversation-as-product.md` (constitutional thesis)
 4. `.planning/MILESTONES-NAMING.md` Arc 4 entry (renamed 2026-05-05)
+
+Phase 125-07 closure (2026-05-14):
+
+- 61c25d7 feat(125-07): add f_selector_miss to EVENT_TYPES Set
+- c73af06 test(125-07): add failing tests for recordSelectorMiss (RED)
+- 40aafda feat(125-07): implement recordSelectorMiss (GREEN)
+- cb41b75 test(125-07): add failing tests for renderNoneFitAffordance (RED)
+- f80c755 feat(125-07): implement renderNoneFitAffordance (GREEN)
+
+Phase 125-07 outcome: D8 none-fit affordance + ranker-miss capture shipped, closing Wave 3 of Phase 125. recordSelectorMiss({top_k_offered, user_intent, roomState}) -> {ok, miss_id} appended to lib/workflow/selector-decisions.cjs (+71 lines; 296 -> 368 total). Writes a single memory_event via navigation.logMemoryEvent(db, 'f_selector_miss', payload); NO cascade edge (D8 temporal-only invariant -- the absence of an edge is what makes recordSelectorMiss strictly weaker than Plan 06's recordSelectorDecision). Validation gate: invalid_db / invalid_top_k_offered / invalid_user_intent. Defense-in-depth sanitization: top_k_offered items filtered to exactly {command, score} keys before payload write, so callers passing full Plan 05 RankedItem objects do NOT leak teaching/jtbd_summary/why/source/framework/investment_level/jtbd_label into the memory_event. Canon Part 8 invariant documented in source AND verified by 30-line-window grep (zero brain/Brain refs in audited body). renderNoneFitAffordance() -> 'None fit -- tell me what you need' appended to lib/workflow/f-selector-ranker.cjs (+22 lines; 398 -> 420 total). Locked label per CONTEXT.md Open Question #8 lean; 33 chars (well under <= 80 single-line invariant); deterministic across calls; Larry-voice with user-input hint. EVENT_TYPES Set extended additively with f_selector_miss (size 39 -> 40); floor-not-exact-count Phase 109 invariant preserved. Test files: NEW lib/memory/selector-miss.test.cjs (290 lines; 10/10 GREEN; uses fs.mkdtempSync + openRoomDb fixture without FK seeding because Test 5 verifies NO edge writes; Test 6 is a source-grep audit that structurally enforces zero mos:do/spawn/exec/child_process tokens in the function body on every CI run); MODIFIED lib/memory/f-selector-ranker.test.cjs (+48 lines; 5 new D8 tests appended after Bonus C; 34/34 GREEN incl. 29 Plan-05 baseline preserved byte-identical). All five commits used `git commit --no-verify` per the wave-protocol invariant. Zero regression on Plans 00 (9/9), 01 (20/20), 05 (29/29 baseline preserved + 5 new = 34/34), 06 (17/17), Phase 109 memory-events (1/1), Phase 110 (4/4), Phase 104.1 (2/2). Phase 122 baseline unchanged (3 GREEN + 2 pre-existing RED-by-design suites verified via git stash; failures pre-date Plan 07 work and are unrelated to D8 capture or affordance). Plan 08 (Wave 4 docs + aggregator + Feynman runner registration) now unblocked -- can register lib/memory/selector-miss.test.cjs in tests/run-all-125.sh aggregator + reference recordSelectorMiss + renderNoneFitAffordance in WORKFLOW-LAYER-SPEC consumer guide + document the rankForSelector -> renderNoneFitAffordance -> recordSelectorMiss -> /mos:do flow for Phase 116 + 117 consumers.
 
 Phase 125-06 closure (2026-05-14):
 
