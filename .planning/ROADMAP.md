@@ -1331,7 +1331,7 @@ Plans:
 **Canon parts:** Part 3 (F-shape selector contract -- F.0 accept / F.1 defer / F.2 reject triad + none-fit affordance); Part 4 (every choice is graph data -- reject/defer emit typed cascade edges); Part 7 (Reuse over build -- ranker sits above shipped resolver, recommender, packet); Part 9 (SQL navigates via local graph + Brain packets as structured context surface; writes route through navigation.cjs chokepoint)
 **Brain impact:** READ-ONLY (1-3 hop FEEDS_INTO Cypher slice; no Brain writes)
 **Requirements:** RANKER-125-00, RANKER-125-01, RANKER-125-02, RANKER-125-03, RANKER-125-04, RANKER-125-05, RANKER-125-06, RANKER-125-07, RANKER-125-08, RANKER-125-09, RANKER-125-10, RANKER-125-11, RANKER-125-12
-**Plans:** 5/9 plans executed
+**Plans:** 6/9 plans executed
 
 Plans:
 - [x] 125-00-PLAN.md -- navigation.cjs writeEdge primitive (15th re-export; Pass 3 GAP-2 resolution; precedent: Phase 110-03 logMemoryEvent additive) [D7 extension] [wave 0]
@@ -1339,7 +1339,7 @@ Plans:
 - [x] 125-02-PLAN.md -- Brain Cypher slice query (parameterized 1-3 hop FEEDS_INTO, LIMIT 50, sanitized) via lib/brain/framework-chain-slice.cjs [D2 + Canon Part 8] [wave 1]
 - [x] 125-03-PLAN.md -- buildBrainPacket extension: framework_chain_hint in local_graph_summary (conditional on active set non-empty) [D4] [wave 2]
 - [x] 125-04-PLAN.md -- Schema superset + ajv validator integration (additionalProperties:false preserved; 12-job D-02 untouched) [D4 + schema invariant] [wave 1]
-- [ ] 125-05-PLAN.md -- f-selector-ranker.cjs: rankForSelector + selectWhyContent + render badges (D4 continuous-gradient scoring + D9 investment-aware why + D7 decay integration via opts injection) [D4, D6, D9, D10] [wave 3]
+- [x] 125-05-PLAN.md -- f-selector-ranker.cjs: rankForSelector + selectWhyContent + render badges (D4 continuous-gradient scoring + D9 investment-aware why + D7 decay integration via opts injection) [D4, D6, D9, D10] [wave 3]
 - [ ] 125-06-PLAN.md -- selector-decisions.cjs: recordSelectorDecision + applyDecayWeight + shouldExclude + f_selector_decision event_type (REJECTED/DEFERRED edge writes via Plan 00 writeEdge chokepoint) [D7] [wave 3]
 - [ ] 125-07-PLAN.md -- D8 none-fit: recordSelectorMiss + renderNoneFitAffordance + f_selector_miss event_type (memory_event-only; no edge; user_intent LOCAL-only per Canon Part 8) [D8] [wave 3]
 - [ ] 125-08-PLAN.md -- Documentation: F-SELECTOR-CONSUMER-GUIDE.md + WORKFLOW-LAYER-SPEC + docs/WORKFLOWS update + tests/run-all-125.sh aggregator + Feynman runner registration [D7-D11 + RANKER-125-12] [wave 4]

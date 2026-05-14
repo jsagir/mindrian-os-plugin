@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: verifying
-stopped_at: "Completed 104.1-02-PLAN.md (Phase 104.1 ready for /gsd:verify-work)"
-last_updated: "2026-05-13T21:15:39.820Z"
+stopped_at: Completed 125-05-PLAN.md (ranker shipped; Plans 06-08 unblocked)
+last_updated: "2026-05-14T04:08:24.292Z"
 last_activity: 2026-05-13
 progress:
   total_phases: 58
   completed_phases: 36
   total_plans: 267
-  completed_plans: 254
+  completed_plans: 255
   percent: 93
 ---
 
@@ -298,6 +298,7 @@ Progress: [█████████░] 93%
 | Phase 124 P04 | 224 | 3 tasks | 4 files |
 | Phase 104.1 P01 | 14min | 5 tasks | 8 files |
 | Phase 104.1 P02 | 25min | 5 tasks | 89 files |
+| Phase 125-f-selector-ranker P05 | 18min | 1 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -813,6 +814,9 @@ Progress: [█████████░] 93%
 - [Phase 104.1]: All 86 teaching strings approved verbatim; Task 3 promoted [pending]->[OK] with zero content edits
 - [Phase 104.1]: Sweep-edit script resolves slug via frontmatter name: field (not filename) to handle /mos:validate-proposition routing to value-proposition.md
 - [Phase 104.1]: Build-script --check tripwire flipped from WARNING to ERROR on missing teaching; future drift fails the build
+- [Phase 125-05]: rankForSelector ships with locked CONTEXT.md signature; D4 0.40/0.30/0.30 formula coded verbatim; investment_level=0 collapses to pure brain_confidence (no discontinuity); 29 tests GREEN
+- [Phase 125-05]: D9 ' -- ' separator (double-hyphen with spaces) per no-em-dash project rule; D6+D11 fail-closed for missing jtbd_summary OR teaching (effectively unreachable post-104.1)
+- [Phase 125-05]: opts._applyDecayWeight as Plan 06 IoC hook -- ranker callable without Plan 06; defensive try/catch + finite-number guard keeps ranker fail-soft; D10 source-grep assertions enforce Canon Part 8 + no-event-subscription invariants structurally
 
 ### Pending Todos
 
@@ -842,6 +846,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-13T20:55:22.404Z
-Stopped at: Completed 104.1-02-PLAN.md (Phase 104.1 ready for /gsd:verify-work)
+Last session: 2026-05-14T04:08:24.274Z
+Stopped at: Completed 125-05-PLAN.md (ranker shipped; Plans 06-08 unblocked)
 Resume file: None
