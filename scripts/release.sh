@@ -191,6 +191,9 @@ if [ "$DRY_RUN" = "1" ]; then
   echo "  Step 6    : CHANGELOG.md entry check + rename [Unreleased] -> [$NEW_VERSION] - \$(date +%F)"
   echo "  Step 6.5  : post-bump re-verify (scripts/verify-release)"
   echo "  Step 6.6  : run mindrian-os doctor --acceptance --pre-tag (HARD ABORT on failure)"
+  echo "  Step 6.6b : run tests/test-doctor-acceptance-self-coverage.cjs"
+  echo "              (5 scaffolded broken-state fixtures + live no-regression guard;"
+  echo "              HARD ABORT on fail, same rollback as Step 6.6; Phase 126 Plan 03)"
   echo "  Step 7    : commit A on plugin repo -- 'release: v$NEW_VERSION', tag v$NEW_VERSION"
   echo "              commit on marketplace repo -- 'release: sync to v$NEW_VERSION'"
   echo "  Step 9.5  : npm publish @mindrian_os/install@$NEW_VERSION --tag $NPM_TAG_PREVIEW"
@@ -356,6 +359,29 @@ if ! node "$PLUGIN_DIR/scripts/doctor.cjs" --acceptance --pre-tag; then
   exit 1
 fi
 echo -e "${GREEN}  --acceptance --pre-tag passed${NC}"
+
+# --- Step 6.6b: doctor acceptance-gate SELF-COVERAGE (Phase 126 Plan 03) ---
+# Runs scaffolded broken-state fixtures against doctor --acceptance to assert
+# the gate catches each known failure surface. Closes Canon Part 6 dog-fooding
+# gap surfaced by the 2026-05-13 Windows dogfood: the gate happily reported
+# all-pass against happy-path live state while the renderer was silently
+# broken. Five fixtures + a live-workspace no-regression guard (6 sub-tests
+# total). HARD ABORT on fail with identical rollback semantics to Step 6.6
+# (no --allow override; release infra is the one gate you cannot skip per
+# CONTEXT D-16).
+echo ""
+echo "=== Step 6.6b: doctor --acceptance self-coverage (scaffolded fixtures) ==="
+if ! node "$PLUGIN_DIR/tests/test-doctor-acceptance-self-coverage.cjs"; then
+  echo -e "${RED}ABORT: doctor --acceptance self-coverage failed -- release halted BEFORE tagging.${NC}"
+  echo "  The gate has a hole. A scaffolded broken state did NOT produce the expected"
+  echo "  failure breakdown. Inspect test output above; fix the gate (or the test) before"
+  echo "  re-running release.sh."
+  echo "  Rolling back version bumps so the working tree returns to its pre-Step-3 state."
+  cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md || true
+  cd "$MARKETPLACE_DIR" && git checkout .claude-plugin/marketplace.json || true
+  exit 1
+fi
+echo -e "${GREEN}  acceptance self-coverage passed${NC}"
 
 # --- Step 7: Commit A (release commit) -- finalizes vN, NEVER git add -A ---
 # Commit A holds the version-of-record at vN. The vN git tag points HERE.
