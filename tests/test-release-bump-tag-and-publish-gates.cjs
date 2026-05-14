@@ -299,18 +299,23 @@ run('Test 5 (MINISITE_DIR absent: dry-run emits `gh repo clone` recovery and NOT
       throw new Error('release.sh must emit `gh repo clone` or `git clone` recovery for MINISITE_DIR-absent path');
     }
 
-    // Negative: the MINISITE_DIR-absent path MUST NOT emit `git remote add origin`.
-    // The `git remote add origin` recovery is reserved for Test 6's path
-    // (directory exists but no origin remote). Verify by inspecting the
-    // surrounding context: the block guarded by `! -d "$MINISITE_DIR"` MUST NOT
-    // contain `git remote add origin`.
-    const absentBlockRe = /if \[ ! -d "\$MINISITE_DIR" \];?\s*then([\s\S]*?)(?:\nfi|\nelse|^else|^fi)/m;
+    // Negative: the MINISITE_DIR-absent path MUST NOT EMIT `git remote add
+    // origin` at runtime. The `git remote add origin` recovery is reserved for
+    // Test 6's path (directory exists but no origin remote). Verify by
+    // inspecting the runtime output (echo statements) of the absent-block
+    // -- comments may legitimately reference the OTHER path's recovery in
+    // explanatory prose, but the echo lines must not.
+    const absentBlockRe = /if \[ ! -d "\$MINISITE_DIR" \];?\s*then([\s\S]*?)(?:\n  fi|\nfi)/;
     const m = absentBlockRe.exec(src);
     if (!m) {
       throw new Error('could not locate the `! -d "$MINISITE_DIR"` block in release.sh -- Step 9.6 implementation may be missing');
     }
-    if (/git remote add origin/.test(m[1])) {
-      throw new Error('MINISITE_DIR-absent block MUST NOT contain `git remote add origin` recovery (WARN 2 invariant) -- found in block:\n' + m[1].slice(0, 600));
+    // Strip comment lines so we only inspect what release.sh actually emits at runtime.
+    const runtimeOnly = m[1].split('\n').filter(function (line) {
+      return !/^\s*#/.test(line);
+    }).join('\n');
+    if (/git remote add origin/.test(runtimeOnly)) {
+      throw new Error('MINISITE_DIR-absent runtime block MUST NOT emit `git remote add origin` recovery (WARN 2 invariant) -- found in runtime block:\n' + runtimeOnly.slice(0, 600));
     }
     // r.status is informational; --dry-run may exit 0 before triggering minisite checks.
     void r;
@@ -404,12 +409,13 @@ run('Test 10 (npx-publish self-test -- structural: Step 9.7 block exists)', func
 run('Test 11 (npx-publish self-test -- failure aborts release)', function () {
   const src = fs.readFileSync(RELEASE_SH, 'utf8');
   // The Step 9.7 block must call `exit 1` on the npx-fails branch.
-  // Look for the block then assert an exit on its failure path.
-  const m = /Step 9\.7[^\n]*\n([\s\S]*?)(?=^\s*#\s*---\s*Step|^# ---|\Z)/m.exec(src);
+  // Anchor on the `# --- Step 9.7:` block header (not just any "Step 9.7"
+  // mention -- the file header comment block also references Step 9.7).
+  const m = /# --- Step 9\.7[\s\S]*?(?=# --- Step|\Z)/.exec(src);
   if (!m) {
-    throw new Error('could not locate Step 9.7 block');
+    throw new Error('could not locate # --- Step 9.7 --- block');
   }
-  if (!/exit 1/.test(m[1])) {
+  if (!/exit 1/.test(m[0])) {
     throw new Error('Step 9.7 block must `exit 1` on npx failure (no soft-skip)');
   }
 });
@@ -418,13 +424,13 @@ run('Test 11 (npx-publish self-test -- failure aborts release)', function () {
 
 run('Test 12 (npx-publish self-test -- exit-0-no-scaffold is treated as failure)', function () {
   const src = fs.readFileSync(RELEASE_SH, 'utf8');
-  const m = /Step 9\.7[^\n]*\n([\s\S]*?)(?=^\s*#\s*---\s*Step|^# ---|\Z)/m.exec(src);
+  const m = /# --- Step 9\.7[\s\S]*?(?=# --- Step|\Z)/.exec(src);
   if (!m) {
-    throw new Error('could not locate Step 9.7 block');
+    throw new Error('could not locate # --- Step 9.7 --- block');
   }
   // The block must check the temp dir is non-empty after npx exits 0; if empty,
   // emit a scaffold-missing message and exit 1.
-  if (!/ls -A|empty|scaffold/i.test(m[1])) {
+  if (!/ls -A|empty|scaffold/i.test(m[0])) {
     throw new Error('Step 9.7 must detect exit-0-no-scaffold (check temp dir is non-empty)');
   }
 });

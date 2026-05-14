@@ -25,8 +25,13 @@
  *          assert no mos-acceptance-* dirs remain under os.tmpdir() after.
  *   acc.5  scripts/release.sh wires both gates in the right ordering. Read
  *          the file; find offsets of Step 6.5, Step 6.6, Step 7, Step 9,
- *          Step 9.5, Step 9.6; assert ordering AND that both literal
- *          invocations are present.
+ *          Step 9.5, Step 9.8; assert ordering AND that both literal
+ *          invocations are present. (Phase 126 Plan 04 renamed the post-publish
+ *          full --acceptance block from Step 9.6 -> Step 9.8 to make room for
+ *          the new Step 9.6 install-minisite HARD lockstep and Step 9.7
+ *          npx-publish self-test. The original Step 9.6 numbering collision
+ *          between the soft-skip minisite block and the doctor --acceptance
+ *          block is resolved by the rename.)
  *   acc.6  scripts/release-beta-smoke.sh is deleted.
  *
  * Hermetic envelope: per-test mkdtempSync HOME + USERPROFILE +
@@ -274,11 +279,15 @@ try {
   const off7  = findOffset('Step 7:');
   const off9  = findOffset('Step 9:');
   const off95 = findOffset('Step 9.5:');
-  const off96 = findOffset('Step 9.6:');
+  // Phase 126 Plan 04 renamed the post-publish full --acceptance block from
+  // Step 9.6 -> Step 9.8. The new Step 9.6 is the install-minisite HARD lockstep
+  // block; Step 9.7 is the npx-publish self-test. The doctor --acceptance
+  // ordering check tracks Step 9.8 (the renamed post-publish gate).
+  const off98 = findOffset('Step 9.8:');
   assert.ok(off66 > off65, 'Step 6.6 must appear after Step 6.5; got 6.5@' + off65 + ' / 6.6@' + off66);
   assert.ok(off66 < off7, 'Step 6.6 must appear before Step 7 (commit A + tag); got 6.6@' + off66 + ' / 7@' + off7);
-  assert.ok(off96 > off95, 'Step 9.6 must appear after Step 9.5 (npm publish); got 9.5@' + off95 + ' / 9.6@' + off96);
-  assert.ok(off96 > off9, 'Step 9.6 must appear after Step 9 (push); got 9@' + off9 + ' / 9.6@' + off96);
+  assert.ok(off98 > off95, 'Step 9.8 must appear after Step 9.5 (npm publish); got 9.5@' + off95 + ' / 9.8@' + off98);
+  assert.ok(off98 > off9, 'Step 9.8 must appear after Step 9 (push); got 9@' + off9 + ' / 9.8@' + off98);
   // The actual invocations.
   assert.ok(/doctor\.cjs.*--acceptance.*--pre-tag/.test(sh), 'release.sh invokes doctor --acceptance --pre-tag');
   // Full --acceptance (no --pre-tag) must also appear; the literal "doctor.cjs --acceptance"

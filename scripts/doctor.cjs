@@ -2541,12 +2541,14 @@ function buildAcceptanceChecklist(ctx) {
             return { ok: false, finding: 'release.sh --dry-run exited ' + r.status, detail: { stderr: (r.stderr || '').slice(-200) } };
           }
           const out = r.stdout || '';
-          // NOTE: This array is patched by Plan 04 (Phase 126 Wave 3) to add
-          // Step 5.5, Step 9.7, Step 9.8 and reorder Step 9.6 -> 9.8 for the
-          // rename. If you edit this list, make sure release.sh --dry-run
-          // output still matches in order. Wave 2 (this plan) ships the
-          // initial array; Wave 3 (Plan 04) patches it.
-          const expectedSteps = ['Step 2', 'Step 3', 'Step 4', 'Step 5', 'Step 5b', 'Step 6', 'Step 6.5', 'Step 6.6', 'Step 7', 'Step 9.5', 'Step 9.6'];
+          // NOTE: Plan 04 (Phase 126 Wave 3) patched this list to add Step 5.5
+          // / 9.7 / 9.8 and to reorder Step 9.6 -> 9.8 for the rename. The new
+          // Step 9.6 is the install-minisite HARD lockstep; Step 9.7 is the
+          // npx-publish self-test; Step 9.8 is the post-publish full
+          // --acceptance gate (was Step 9.6 in Wave 2's scaffold). If you edit
+          // this list, make sure release.sh --dry-run output still matches in
+          // order.
+          const expectedSteps = ['Step 2', 'Step 3', 'Step 4', 'Step 5', 'Step 5b', 'Step 5.5', 'Step 6', 'Step 6.5', 'Step 6.6', 'Step 7', 'Step 9.5', 'Step 9.6', 'Step 9.7', 'Step 9.8'];
           const missing = expectedSteps.filter(function (s) { return out.indexOf(s) === -1; });
           const ok = missing.length === 0;
           return {

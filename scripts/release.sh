@@ -34,11 +34,18 @@
 #   9.5. npm publish @mindrian_os/install at NEW_VERSION (BEFORE Commit B so the
 #        working tree still says vN). dist-tag: @next for -beta./alpha./rc./next.,
 #        @latest for clean X.Y.Z.
-#   9.6. Sync install minisite to NEW_VERSION (7-place lockstep). Bumps
-#        ~/mindrianos-install-site/lib/os.ts + app/page.tsx, commits, runs
-#        `vercel --prod --yes`. Override path via $MINDRIAN_INSTALL_SITE_DIR.
-#        Soft-skip if dir missing OR vercel CLI not in PATH; hard-abort on
-#        sed/grep/commit errors. See feedback_install_minisite_lockstep.md.
+#   9.6. Sync install minisite to NEW_VERSION (HARD 7-place lockstep, Phase 126
+#        Plan 04). Bumps ~/mindrianos-install-site/lib/os.ts + app/page.tsx via
+#        line-anchored content-based sed (NOT line numbers); grep-verify with
+#        rollback on mismatch; git commit; git push origin main (NOT vercel CLI;
+#        Vercel auto-deploys on push); curl live-poll $MINDRIAN_MINISITE_URL
+#        until NEW_VERSION appears in body OR timeout. HARD ABORT on:
+#        MINISITE_DIR-absent (recovery: `gh repo clone`/`git clone`),
+#        origin-missing (recovery: `git remote add origin`), sed/grep failure,
+#        push failure, live-poll timeout. --no-minisite opt-out (audit-logged).
+#        See feedback_install_minisite_lockstep.md.
+#   9.7. npx-publish self-test (Phase 126 Plan 04). Runs `npx --yes @mindrian_os/install@<version>`
+#        against a fresh temp dir; HARD ABORT if exit != 0 or temp dir is empty.
 #   7.5. Commit B (next-bump commit, plugin repo only): plugin.json/package.json
 #        -> next pre-release; CHANGELOG `[Unreleased]` heading reset. main HEAD
 #        ends on Commit B. NO tag on Commit B. Marketplace repo gets NO Commit B.
@@ -49,13 +56,15 @@
 #   10. Update local marketplace cache.
 #   11. Post-release verification.
 #
-# TODO(future): de-dup verify-release calls. Plan-04 added Step 6.6 (which
+# TODO(future): de-dup verify-release calls. Phase 123 Plan-04 added Step 6.6 (which
 # calls doctor --acceptance --pre-tag, which internally re-runs verify-release)
-# and Step 9.6 (full doctor --acceptance, also re-runs verify-release). Combined
-# with Step 2 and Step 6.5 (both call verify-release directly), the count per
-# release is 4x. verify-release is idempotent + ~5s per run; accept the cost
-# for the safety net now. De-dup is a follow-up (e.g. skip Step 2 / Step 6.5
-# when Step 6.6 will also call it, by detecting --acceptance support).
+# and Step 9.8 (full doctor --acceptance, also re-runs verify-release; renamed
+# from Step 9.6 by Phase 126 Plan 04 to make room for the new Step 9.6 minisite
+# HARD lockstep and Step 9.7 npx-publish self-test). Combined with Step 2 and
+# Step 6.5 (both call verify-release directly), the count per release is 4x.
+# verify-release is idempotent + ~5s per run; accept the cost for the safety
+# net now. De-dup is a follow-up (e.g. skip Step 2 / Step 6.5 when Step 6.6
+# will also call it, by detecting --acceptance support).
 #
 # This script is the ONLY way to release. No manual pushes.
 
@@ -74,7 +83,8 @@ BUMP_MODE=""
 ALLOW_AHEAD=0
 NO_NEXT_BUMP=0
 DRY_RUN=0
-USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--dry-run]"
+NO_MINISITE=0
+USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--no-minisite] [--dry-run]"
 
 for arg in "$@"; do
   case "$arg" in
@@ -85,6 +95,7 @@ for arg in "$@"; do
     patch|minor|major)   BUMP_MODE="$arg" ;;
     --allow-ahead)       ALLOW_AHEAD=1 ;;
     --no-next-bump)      NO_NEXT_BUMP=1 ;;
+    --no-minisite)       NO_MINISITE=1 ;;
     --dry-run)           DRY_RUN=1 ;;
     -h|--help)           echo "$USAGE_BLOCK"; exit 0 ;;
     *)
@@ -208,7 +219,14 @@ if [ "$DRY_RUN" = "1" ]; then
     echo "              ${YELLOW}NOTE: $CURRENT_AHEAD pre-existing commit(s) ahead of origin -- the guard will require --allow-ahead to push them with the release${NC}"
   fi
   echo "  Step 9    : git push origin main --tags (plugin); git push (marketplace)"
-  echo "  Step 9.6  : run full mindrian-os doctor --acceptance (HARD ABORT on failure;"
+  echo "  Step 5.5  : verify tag v$NEW_VERSION at origin (RELEASE_TAG_PUSH_RETRIES retries, SKIP_TAG_VERIFY=1 to bypass)"
+  echo "  Step 9.6  : sync install minisite to v$NEW_VERSION (HARD 7-place lockstep)"
+  echo "              MINISITE_DIR resolution -> sed lib/os.ts + app/page.tsx -> grep verify -> git push origin main -> live-poll"
+  if [ "$NO_MINISITE" = "1" ]; then
+    echo "              ${YELLOW}--no-minisite opt-out engaged (audit-logged; install-minisite NOT bumped)${NC}"
+  fi
+  echo "  Step 9.7  : npx-publish self-test -- npx @mindrian_os/install@$NEW_VERSION in a fresh temp dir"
+  echo "  Step 9.8  : run full mindrian-os doctor --acceptance (HARD ABORT on failure;"
   echo "              tag must be on origin, npm must answer for $NEW_VERSION, npx round-trip must work)"
   echo "  Step 10   : claude plugin marketplace update mindrian-marketplace"
   echo "  Step 11   : post-release verification (remote HEAD match, marketplace cache version)"
@@ -456,90 +474,187 @@ else
   fi
 fi
 
-# --- Step 9.6: Sync install minisite to NEW_VERSION (Hard 7-place lockstep) ---
-# Enforces the install-minisite half of the 7-place lockstep contract from
-# MEMORY.md feedback_install_minisite_lockstep.md (2026-05-14). The minisite
-# at https://mindrianos-install-site.vercel.app has two hardcoded version-string
-# locations that must reflect what is shipped on npm. Auto-bump + commit + deploy
-# happens HERE -- after npm publish (so we only sync to what is actually on
-# the registry) but BEFORE Commit B (so the chain stays atomic).
+# --- Step 9.6: Sync install minisite to NEW_VERSION (HARD 7-place lockstep) ---
+# Phase 126 Plan 04 (2026-05-14): promoted from Soft to HARD per
+# MEMORY.md feedback_install_minisite_lockstep.md. The minisite at
+# https://mindrianos-install-site.vercel.app has two hardcoded version-string
+# locations (lib/os.ts terminal display + app/page.tsx eyebrow) that MUST
+# reflect what is shipped on npm. Auto-bump + commit + git push origin main +
+# Vercel live-poll happens HERE -- after npm publish (so we only sync to what
+# is actually on the registry) but BEFORE Commit B (so the chain stays atomic).
 #
-# Behavior:
-#   - $MINDRIAN_INSTALL_SITE_DIR override (default: $HOME/mindrianos-install-site)
-#   - If dir missing: soft warn, continue release (some maintainer boxes lack it)
-#   - sed/grep/commit failures: hard abort (the rule is non-negotiable for this box)
-#   - vercel CLI missing: soft warn + commit locally + tell user to deploy manually
+# HARD semantics:
+#   - $MINDRIAN_INSTALL_SITE_DIR / $MINDRIAN_MINISITE_DIR override (default: $HOME/mindrianos-install-site)
+#   - If dir missing: HARD ABORT with `gh repo clone` / `git clone` recovery (NOT `git remote add origin`)
+#   - If origin remote missing: HARD ABORT with `git remote add origin <url>` recovery
+#   - sed/grep failures: snapshot-then-rollback via .bak files; HARD ABORT
+#   - git push origin main failure: HARD ABORT (Vercel auto-deploy depends on push)
+#   - Live-poll MINDRIAN_MINISITE_URL (default https://mindrianos-install-site.vercel.app/) until NEW_VERSION appears OR timeout
+#   - $MINDRIAN_MINISITE_POLL_TIMEOUT_S (default 180) + $MINDRIAN_MINISITE_POLL_INTERVAL_S (default 10)
+#   - --no-minisite flag: opt-out audit-logged to stderr (NOT a silent skip)
 #   - DRY_RUN: log intent only, no edits
 echo ""
-echo "=== Step 9.6: Sync install minisite to v$NEW_VERSION (7-place lockstep) ==="
+echo "=== Step 9.6: Sync install minisite to v$NEW_VERSION (HARD 7-place lockstep) ==="
 
-MINISITE_DIR="${MINDRIAN_INSTALL_SITE_DIR:-$HOME/mindrianos-install-site}"
-
-if [ ! -d "$MINISITE_DIR" ]; then
-  echo -e "${YELLOW}  ! $MINISITE_DIR not present -- skipping minisite sync.${NC}"
-  echo "    Bump manually after this release: edit lib/os.ts + app/page.tsx,"
-  echo "    git commit, then 'vercel --prod --yes' from \$MINDRIAN_INSTALL_SITE_DIR."
-elif [ "$DRY_RUN" = "1" ]; then
-  echo "  [DRY RUN] would bump v$NEW_VERSION in:"
-  echo "    $MINISITE_DIR/lib/os.ts"
-  echo "    $MINISITE_DIR/app/page.tsx"
-  echo "  [DRY RUN] would run: git commit + vercel --prod --yes"
+if [ "$NO_MINISITE" = "1" ]; then
+  echo -e "${YELLOW}  ! --no-minisite opt-out engaged at $(date -Iseconds 2>/dev/null || date -u +%FT%TZ); install-minisite NOT bumped.${NC}" >&2
+  echo "    Manual sync required after release. Audit logged."
 else
-  ORIG_DIR="$PWD"
-  cd "$MINISITE_DIR"
+  MINISITE_DIR="${MINDRIAN_INSTALL_SITE_DIR:-${MINDRIAN_MINISITE_DIR:-$HOME/mindrianos-install-site}}"
+  MINISITE_URL="${MINDRIAN_MINISITE_URL:-https://mindrianos-install-site.vercel.app/}"
+  MINISITE_POLL_TIMEOUT="${MINDRIAN_MINISITE_POLL_TIMEOUT_S:-180}"
+  MINISITE_POLL_INTERVAL="${MINDRIAN_MINISITE_POLL_INTERVAL_S:-10}"
 
-  # Bump lib/os.ts terminal-display message: "MindrianOS v<...> installed"
-  # Delimiter is @ (not |) so the ERE alternations inside (alpha|beta|rc|next) do
-  # not collide with sed's substitution delimiter.
-  sed -i -E "s@MindrianOS v[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc|next)\.[0-9]+)?@MindrianOS v$NEW_VERSION@g" lib/os.ts || {
-    echo -e "${RED}  x failed to bump lib/os.ts${NC}"
-    cd "$ORIG_DIR"
-    exit 1
-  }
-
-  # Bump app/page.tsx eyebrow: "v<...> · Install"
-  sed -i -E "s@v[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc|next)\.[0-9]+)? · Install@v$NEW_VERSION · Install@g" app/page.tsx || {
-    echo -e "${RED}  x failed to bump app/page.tsx${NC}"
-    cd "$ORIG_DIR"
-    exit 1
-  }
-
-  # Verify the bumps actually landed (sed-no-match is silent; grep catches it)
-  if ! grep -q "v$NEW_VERSION" lib/os.ts || ! grep -q "v$NEW_VERSION" app/page.tsx; then
-    echo -e "${RED}  x minisite version-string bump failed verification${NC}"
-    echo "    lib/os.ts and/or app/page.tsx do not contain v$NEW_VERSION after sed."
-    echo "    Inspect $MINISITE_DIR/lib/os.ts:149 and app/page.tsx:30 manually."
-    cd "$ORIG_DIR"
+  if [ ! -d "$MINISITE_DIR" ]; then
+    # MINISITE_DIR-absent path: directory does not exist at all. The recovery
+    # is to CLONE the repo, NOT to add a remote (no working tree yet). The
+    # `git remote add origin` recovery is reserved for the separate
+    # origin-missing path below (directory exists but lacks remote). These
+    # are two distinct failure modes with two distinct recoveries (Plan 04
+    # WARN 2 invariant; settled in plan-phase Open Question 7).
+    echo -e "${RED}  x MINISITE_DIR not present: $MINISITE_DIR${NC}"
+    echo "    Recovery options:"
+    echo "      A) Clone the minisite: gh repo clone mindrian-os/mindrianos-install-site $MINISITE_DIR"
+    echo "         (or: git clone <git-url> $MINISITE_DIR)"
+    echo "      B) Set MINDRIAN_MINISITE_DIR to your existing minisite checkout path and re-run."
+    echo "      C) If this release truly cannot bump the minisite, pass --no-minisite (audit-logged)."
     exit 1
   fi
 
-  # Commit (--no-verify to match release.sh's plugin-repo style; no pre-commit hooks here anyway)
-  git add lib/os.ts app/page.tsx
-  if git diff --cached --quiet; then
-    echo "  -> minisite already at v$NEW_VERSION (no changes to commit)"
+  if [ "$DRY_RUN" = "1" ]; then
+    echo "  [DRY RUN] would HARD-bump v$NEW_VERSION in:"
+    echo "    $MINISITE_DIR/lib/os.ts"
+    echo "    $MINISITE_DIR/app/page.tsx"
+    echo "  [DRY RUN] would git commit + git push origin main + live-poll $MINISITE_URL"
   else
-    git commit --no-verify -m "chore: sync minisite version strings to v$NEW_VERSION" >/dev/null 2>&1 || {
-      echo -e "${RED}  x minisite commit failed${NC}"
+    ORIG_DIR="$PWD"
+    cd "$MINISITE_DIR"
+
+    # Origin remote check (Open Question 7 settled: separate failure mode from
+    # MINISITE_DIR-absent). This is the ONLY path where `git remote add origin`
+    # is the correct recovery.
+    if ! git remote get-url origin >/dev/null 2>&1; then
+      echo -e "${RED}  x $MINISITE_DIR has no 'origin' remote configured.${NC}"
+      echo "    Recovery: cd $MINISITE_DIR && git remote add origin <git-url> && git push -u origin main"
+      echo "              (e.g., git remote add origin git@github.com:mindrian-os/mindrianos-install-site.git)"
+      echo "    Or pass --no-minisite for an emergency release (audit-logged)."
       cd "$ORIG_DIR"
       exit 1
-    }
-    echo "  -> minisite committed locally: $(git log -1 --pretty=format:'%h %s')"
-  fi
-
-  # Deploy via Vercel CLI
-  if command -v vercel >/dev/null 2>&1; then
-    if vercel --prod --yes >/dev/null 2>&1; then
-      echo -e "${GREEN}  ✓ Minisite deployed: https://mindrianos-install-site.vercel.app/ now serves v$NEW_VERSION${NC}"
-    else
-      echo -e "${YELLOW}  ! vercel deploy failed -- minisite committed but NOT live.${NC}"
-      echo "    Recover: cd $MINISITE_DIR && vercel --prod --yes"
     fi
-  else
-    echo -e "${YELLOW}  ! vercel CLI not in PATH -- minisite committed but NOT deployed.${NC}"
-    echo "    Recover: install vercel CLI, then 'cd $MINISITE_DIR && vercel --prod --yes'"
-  fi
 
-  cd "$ORIG_DIR"
+    # Snapshot pre-sed state for rollback on grep mismatch.
+    cp lib/os.ts lib/os.ts.bak
+    cp app/page.tsx app/page.tsx.bak
+
+    # Line-anchored CONTENT-based sed (Open Question 9 settled; the literal
+    # strings "MindrianOS v" and " · Install" are the anchors, NOT line numbers
+    # 149/30. A minisite refactor that moves the strings still matches; a
+    # refactor that REMOVES them fails the post-sed grep verify -- which is
+    # the correct failure mode).
+    sed -i -E "s@MindrianOS v[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc|next)\.[0-9]+)?@MindrianOS v$NEW_VERSION@g" lib/os.ts || {
+      echo -e "${RED}  x sed on lib/os.ts failed${NC}"
+      mv lib/os.ts.bak lib/os.ts; mv app/page.tsx.bak app/page.tsx
+      cd "$ORIG_DIR"; exit 1
+    }
+    sed -i -E "s@v[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc|next)\.[0-9]+)? · Install@v$NEW_VERSION · Install@g" app/page.tsx || {
+      echo -e "${RED}  x sed on app/page.tsx failed${NC}"
+      mv lib/os.ts.bak lib/os.ts; mv app/page.tsx.bak app/page.tsx
+      cd "$ORIG_DIR"; exit 1
+    }
+
+    # Grep verify: BOTH files must contain NEW_VERSION; if not, rollback.
+    if ! grep -q "v$NEW_VERSION" lib/os.ts || ! grep -q "v$NEW_VERSION" app/page.tsx; then
+      echo -e "${RED}  x minisite bump verification failed (v$NEW_VERSION not present after sed); rolling back.${NC}"
+      mv lib/os.ts.bak lib/os.ts; mv app/page.tsx.bak app/page.tsx
+      cd "$ORIG_DIR"; exit 1
+    fi
+    # Verify succeeded: drop the .bak snapshots.
+    rm -f lib/os.ts.bak app/page.tsx.bak
+
+    # Commit + push
+    git add lib/os.ts app/page.tsx
+    if git diff --cached --quiet; then
+      echo "  -> minisite already at v$NEW_VERSION (no changes; will still verify live-poll)"
+    else
+      git commit --no-verify -m "chore: sync minisite version strings to v$NEW_VERSION" >/dev/null 2>&1 || {
+        echo -e "${RED}  x minisite commit failed${NC}"
+        cd "$ORIG_DIR"; exit 1
+      }
+      echo "  -> minisite committed locally: $(git log -1 --pretty=format:'%h %s')"
+    fi
+    if ! git push origin main 2>&1; then
+      echo -e "${RED}  x minisite git push origin main failed${NC}"
+      echo "    The bump commit is LOCAL but not pushed. Recover manually:"
+      echo "      cd $MINISITE_DIR && git push origin main"
+      cd "$ORIG_DIR"; exit 1
+    fi
+    echo "  -> minisite pushed: Vercel auto-deploy triggered"
+
+    # Live-poll until NEW_VERSION appears in HTTP body OR timeout.
+    echo "  -> live-poll $MINISITE_URL for v$NEW_VERSION (timeout ${MINISITE_POLL_TIMEOUT}s, interval ${MINISITE_POLL_INTERVAL}s)"
+    POLL_START=$(date +%s)
+    POLL_OK=0
+    while true; do
+      NOW=$(date +%s)
+      ELAPSED=$((NOW - POLL_START))
+      if [ "$ELAPSED" -ge "$MINISITE_POLL_TIMEOUT" ]; then
+        echo -e "${RED}  x live-poll timed out after ${ELAPSED}s -- $MINISITE_URL does not reflect v$NEW_VERSION${NC}"
+        echo "    Investigate: curl -sS $MINISITE_URL | grep -F v$NEW_VERSION"
+        echo "    The push landed but Vercel may not have built yet."
+        echo "    Re-run with --no-minisite if urgent (audit-logged)."
+        cd "$ORIG_DIR"; exit 1
+      fi
+      BODY=$(curl -sS -m 5 "$MINISITE_URL" 2>/dev/null || true)
+      if echo "$BODY" | grep -qF "v$NEW_VERSION"; then
+        POLL_OK=1
+        break
+      fi
+      sleep "$MINISITE_POLL_INTERVAL"
+    done
+
+    if [ "$POLL_OK" = "1" ]; then
+      echo -e "${GREEN}  ✓ minisite live: $MINISITE_URL serves v$NEW_VERSION (live-poll passed in ${ELAPSED}s)${NC}"
+    fi
+
+    cd "$ORIG_DIR"
+  fi
+fi
+
+# --- Step 9.7: npx-publish self-test (Phase 126 Plan 04) ---
+# Verify npx @mindrian_os/install@<version> against a fresh temp dir produces
+# an exit-0 scaffold. Closes the 2026-05-13 dogfood gap "npx round-trip broken
+# (null)". The existing Step 9.8 (--acceptance full) covers this in passing,
+# but Plan 04 makes it an explicit gate so the failure mode surfaces here with
+# a clean stack trace rather than buried inside the --acceptance roster.
+echo ""
+echo "=== Step 9.7: npx-publish self-test ==="
+
+if [ "${MOS_TEST_DRY_RUN:-0}" = "1" ] || [ "$DRY_RUN" = "1" ]; then
+  echo "  [DRY RUN] would run: npx --yes @mindrian_os/install@$NEW_VERSION against a temp dir"
+else
+  NPX_TEST_DIR="$(mktemp -d -t mos-npx-selftest-XXXXXX)"
+  echo "  -> sandbox: $NPX_TEST_DIR"
+  ORIG_DIR_NPX="$PWD"
+  cd "$NPX_TEST_DIR"
+  if npx --yes "@mindrian_os/install@$NEW_VERSION" 2>&1 | tee /tmp/npx-selftest-out.log; then
+    # Check the temp dir is non-empty (scaffold marker check). If exit 0 but
+    # nothing landed, that's a silent failure -- treat as a hard abort.
+    if [ -z "$(ls -A "$NPX_TEST_DIR" 2>/dev/null)" ]; then
+      echo -e "${RED}  x npx exited 0 but produced no scaffold in $NPX_TEST_DIR${NC}"
+      echo "    The npx round-trip silently broke. Inspect /tmp/npx-selftest-out.log."
+      cd "$ORIG_DIR_NPX"; rm -rf "$NPX_TEST_DIR"
+      exit 1
+    fi
+    echo -e "${GREEN}  ✓ npx scaffold verified${NC}"
+  else
+    echo -e "${RED}  x npx @mindrian_os/install@$NEW_VERSION failed${NC}"
+    echo "    The published npm package is broken for new installs."
+    echo "    Recovery: <recovery> R.4 -- yank + cut successor. See Step 9.8 abort block below."
+    cd "$ORIG_DIR_NPX"; rm -rf "$NPX_TEST_DIR"
+    exit 1
+  fi
+  cd "$ORIG_DIR_NPX"
+  rm -rf "$NPX_TEST_DIR"
 fi
 
 # --- Step 7.5: Commit B (next-bump commit) -- plugin.json/package.json -> next pre-release ---
@@ -638,7 +753,46 @@ echo "=== Step 9: Pushing plugin (main + tags) + marketplace ==="
 cd "$PLUGIN_DIR" && git push origin main --tags 2>&1
 cd "$MARKETPLACE_DIR" && git push origin master 2>&1
 
-# --- Step 9.6: doctor --acceptance (full, HARD ABORT, no --allow) ---
+# --- Step 5.5 (tag-push verification): runs AFTER Step 9 push. ---
+# Named 5.5 per Phase 126 Plan 04 CONTEXT.md spec; symbolic, not positional.
+# Closes the 2026-05-13 dogfood asymmetry where the local tag was assumed to
+# be at origin but a Windows marketplace-cache local-fetch artifact made it
+# look missing. After Step 9's push, this gate verifies the tag round-trips
+# through origin's refs BEFORE proceeding. Retry policy: RELEASE_TAG_PUSH_RETRIES
+# attempts (default 3), RELEASE_TAG_PUSH_BACKOFF_S backoff (default 5s).
+# SKIP_TAG_VERIFY=1 bypass exists for emergency bypass (audit-logged; NOT recommended).
+echo ""
+echo "=== Step 5.5: Verify tag v$NEW_VERSION is at origin ==="
+
+if [ "${SKIP_TAG_VERIFY:-0}" = "1" ]; then
+  echo -e "${YELLOW}  ! SKIP_TAG_VERIFY=1 -- skipping tag-push verification (audit-logged)${NC}" >&2
+else
+  TAG_PUSH_RETRIES="${RELEASE_TAG_PUSH_RETRIES:-3}"
+  TAG_PUSH_BACKOFF_S="${RELEASE_TAG_PUSH_BACKOFF_S:-5}"
+  ATTEMPT=1
+  TAG_VERIFIED=0
+  cd "$PLUGIN_DIR"
+  while [ "$ATTEMPT" -le "$TAG_PUSH_RETRIES" ]; do
+    if git ls-remote --tags origin 2>/dev/null | grep -q "refs/tags/v$NEW_VERSION$"; then
+      TAG_VERIFIED=1
+      echo -e "${GREEN}  ✓ tag v$NEW_VERSION verified at origin (attempt $ATTEMPT/$TAG_PUSH_RETRIES)${NC}"
+      break
+    fi
+    if [ "$ATTEMPT" -lt "$TAG_PUSH_RETRIES" ]; then
+      echo "  ... tag not yet visible at origin; retry $((ATTEMPT+1))/$TAG_PUSH_RETRIES in ${TAG_PUSH_BACKOFF_S}s"
+      sleep "$TAG_PUSH_BACKOFF_S"
+    fi
+    ATTEMPT=$((ATTEMPT+1))
+  done
+  if [ "$TAG_VERIFIED" != "1" ]; then
+    echo -e "${RED}  x tag v$NEW_VERSION NOT visible at origin after $TAG_PUSH_RETRIES attempts${NC}"
+    echo "    Investigate: git ls-remote --tags origin | grep v$NEW_VERSION"
+    echo "    Recovery: git push origin v$NEW_VERSION (push the tag explicitly)"
+    exit 1
+  fi
+fi
+
+# --- Step 9.8: doctor --acceptance (full, HARD ABORT, no --allow) ---
 # Phase 123 Plan-04 (HARNESS-123-12): the post-publish release gate as a command.
 # Runs the FULL 7-point checklist (the 5 pre-tag points PLUS
 # version-of-record-published + npx-roundtrip). If anything fails HERE, the
@@ -659,12 +813,12 @@ cd "$MARKETPLACE_DIR" && git push origin master 2>&1
 #   R.1  Step 7 fail BEFORE publish: local-only reset, no notify
 #   R.2  Step 9.5 fail (publish errored): retry publish per Step 9.5 stanza
 #   R.3  Step 9 fail (push errored): retry push; investigate upstream
-#   R.4  Step 9.6 fail (this gate): YANK + cut successor + NOTIFY
+#   R.4  Step 9.8 fail (this gate): YANK + cut successor + NOTIFY
 #   R.5  Operator notification template (Lawrence + testers/)
 #   R.6  Decision matrix (yank vs retry vs successor)
 #   R.7  Recovery log audit trail at ~/.mindrian/recovery-log.txt
 echo ""
-echo "=== Step 9.6: doctor --acceptance (full) ==="
+echo "=== Step 9.8: doctor --acceptance (full) ==="
 if ! node "$PLUGIN_DIR/scripts/doctor.cjs" --acceptance; then
   echo -e "${RED}ABORT: doctor --acceptance (post-publish) failed.${NC}"
   echo "  The release commit + tag + npm publish + push ALREADY LANDED, but the"
