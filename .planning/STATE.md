@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: verifying
-stopped_at: Completed 125-07-PLAN.md (D8 none-fit affordance + recordSelectorMiss shipped; Plan 08 unblocked)
-last_updated: "2026-05-14T04:36:00Z"
+stopped_at: Completed 125-08-PLAN.md (Phase 125 closure -- docs + aggregator + Feynman registration; phase ready for /gsd:verify-work 125 then gsd-tools phase complete 125)
+last_updated: "2026-05-14T10:27:00Z"
 last_activity: 2026-05-14
 progress:
   total_phases: 58
   completed_phases: 36
   total_plans: 267
-  completed_plans: 257
-  percent: 96
+  completed_plans: 258
+  percent: 97
 ---
 
 # Project State
@@ -44,6 +44,14 @@ Phase 114 (larry-default-activation) was the prior "next phase" per the v1.13.0 
 2. `.planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md` (canonical plan)
 3. `docs/CANON-PART-10-PROPOSAL-conversation-as-product.md` (constitutional thesis)
 4. `.planning/MILESTONES-NAMING.md` Arc 4 entry (renamed 2026-05-05)
+
+Phase 125-08 closure (2026-05-14):
+
+- 4dff22c docs(125-08): add F-Selector Consumer Guide for Phase 116/117/suggest-next/act
+- 6462401 docs(125-08): add Phase 125 sections to WORKFLOW-LAYER-SPEC + WORKFLOWS
+- 97542e2 test(125-08): add run-all-125.sh aggregator + register 8 Phase 125 test files
+
+Phase 125-08 outcome: Phase 125 closure plan shipped 4 doc + infrastructure files closing Wave 4 of Phase 125. docs/F-SELECTOR-CONSUMER-GUIDE.md (NEW, 158 lines) documents the three callable surfaces (rankForSelector + recordSelectorDecision + recordSelectorMiss), three rendering helpers (renderInvestmentBadge + renderSliceBadge + renderNoneFitAffordance), and one filter helper (shouldExclude from Plan 06) for Phase 116/117/suggest-next/act consumers. Carries the wiring contract section (2 preconditions: packetOptional must be awaited; roomState.db must be populated for D7/D8 writers), typical wiring pseudocode (full F.0 accept / F.1 defer / F.2 reject / D8 none-fit flow), per-consumer responsibility table, Canon Part 8 invariants, D11 fallback. .planning/WORKFLOW-LAYER-SPEC.md +25 lines (Phase 125 section at EOF; investment-gradient + D7-D11 lock-letter references; cross-references docs/F-SELECTOR-CONSUMER-GUIDE.md). docs/WORKFLOWS.md +77 lines (section 6 with three F-selector surfaces table + Phase 04 framework_chain_hint schema note + Canon citations Part 3/4/7/8/9). tests/run-all-125.sh (NEW, 100 lines, executable; 8 CJS_SUITES entries; mirrors run-all-122.sh canonical shape; bash run-all-125.sh exits 0 with 8/8 GREEN in ~12s). lib/memory/run-feynman-tests.cjs +18 lines (Phase 125 block with 8 path.join entries registered between Phase 124 block and Phase 104.1 block; header comment maps each test to its plan + aggregator reference; existing Phase 122 + Phase 124 + Phase 104.1 entries preserved byte-identical). All three commits used `git commit --no-verify` per the wave-protocol invariant; Task 2 used `git update-index --add` for the gitignored .planning/WORKFLOW-LAYER-SPEC.md (standard tracked-but-gitignored pattern). Zero regression: Phase 110 (4/4 GREEN), Phase 104.1 (2/2 GREEN), Phase 122 (3/5 baseline unchanged -- 2 pre-existing RED-by-design suites predate Phase 125 work per the orchestrator <environment_note>). Phase 125 closure surface: 8 plans shipped (Plan 00 writeEdge primitive + Plan 01 projection helpers + Plan 02 Brain Cypher slice + Plan 03 packet builder ext + Plan 04 schema superset + Plan 05 ranker core + Plan 06 D7 decisions + decay + Plan 07 D8 none-fit + Plan 08 docs/aggregator/registration). Phase 125 ready for /gsd:verify-work 125 goal-backward verification, then gsd-tools phase complete 125. Next end-goal: cut v1.13.0-beta.14 via scripts/release.sh (orchestrator running with workflow._auto_chain_active=true but will MANUALLY break the chain after phase complete -- the user's stated end-goal is v1.13.0-beta.14, NOT auto-advance into Phase 106).
 
 Phase 125-07 closure (2026-05-14):
 
@@ -864,6 +872,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-14T04:08:24.274Z
-Stopped at: Completed 125-05-PLAN.md (ranker shipped; Plans 06-08 unblocked)
+Last session: 2026-05-14T10:27:00Z
+Stopped at: Completed 125-08-PLAN.md (Phase 125 closure -- docs + aggregator + Feynman registration; phase ready for /gsd:verify-work 125 then gsd-tools phase complete 125; v1.13.0-beta.14 release next)
 Resume file: None
