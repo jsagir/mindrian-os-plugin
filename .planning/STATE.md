@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: verifying
-stopped_at: Completed 125-05-PLAN.md (ranker shipped; Plans 06-08 unblocked)
-last_updated: "2026-05-14T04:08:24.292Z"
-last_activity: 2026-05-13
+stopped_at: Completed 125-06-PLAN.md (selector-decisions.cjs shipped; Plan 07 unblocked)
+last_updated: "2026-05-14T04:15:33Z"
+last_activity: 2026-05-14
 progress:
   total_phases: 58
   completed_phases: 36
   total_plans: 267
-  completed_plans: 255
-  percent: 93
+  completed_plans: 256
+  percent: 96
 ---
 
 # Project State
@@ -44,6 +44,14 @@ Phase 114 (larry-default-activation) was the prior "next phase" per the v1.13.0 
 2. `.planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md` (canonical plan)
 3. `docs/CANON-PART-10-PROPOSAL-conversation-as-product.md` (constitutional thesis)
 4. `.planning/MILESTONES-NAMING.md` Arc 4 entry (renamed 2026-05-05)
+
+Phase 125-06 closure (2026-05-14):
+
+- 6865cd2 feat(125-06): add f_selector_decision to EVENT_TYPES Set
+- b747c04 test(125-06): add failing test for selector-decisions.cjs (RED)
+- 61bbe2c feat(125-06): implement selector-decisions.cjs (GREEN)
+
+Phase 125-06 outcome: D7 typed graph signal for F-selector defer/reject shipped. lib/workflow/selector-decisions.cjs (296 lines) exports recordSelectorDecision + applyDecayWeight + shouldExclude + DECAY_WINDOW (5) + EXCLUSION_THRESHOLD (0.1) + DEFAULT_DEFER_EXPIRY_DAYS (30). recordSelectorDecision atomic dual-write via the navigation.cjs chokepoint: logMemoryEvent('f_selector_decision', payload) then writeEdge({DEFERRED|REJECTED, properties}). DEFERRED edges carry {reason, decision_id, expires_at=+30d}; REJECTED edges carry {reason, decision_id} (no expiry). applyDecayWeight implements the D7 exponential formula factor = 1 - exp(-(n/5)): n=0 -> 0; n=5 -> ~0.632; n=10 -> ~0.865; n=15 -> >=0.95. shouldExclude returns true when factor < 0.1 (G-09 filter for Plan 05 top-K). Module is dual-path: pure when roomState.invocationsSinceDecision[command] supplied (unit tests stay deterministic), db-backed via navigation.findRecentChanges when only roomState.db present (production counts framework_invoked events strictly newer than the most recent f_selector_decision). Test seam _test._invocationsSinceDecision + _defaultExpiresAt exposed under module.exports._test (mirrors projections.cjs Plan 01 + ranker.cjs Plan 05 idiom). EVENT_TYPES Set extended additively with f_selector_decision (size 38 -> 39); floor-not-exact-count Phase 109 invariant preserved (10/10 GREEN). Source-grep audit in lib/memory/selector-decisions.test.cjs Test 7 structurally enforces Canon Part 8 on every CI run: zero room-db / better-sqlite3 / sqlite3 / internal-submodule require. 17/17 GREEN (16 plan-required + 1 bonus db-backed regression). Zero regression on Plans 00 (9/9), 01 (20/20), 05 (29/29), Phase 109 memory-events (10/10), Phase 110 (4/4), Phase 122 (5/5), Phase 104.1 (2/2). Plan 07 (D8 none-fit + miss capture) now unblocked -- inherits the dual-write pattern, the test fixture pattern, the module structure, and the EVENT_TYPES additive idiom from Plan 06.
 
 Phase 106-04 closure (2026-05-03):
 
