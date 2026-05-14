@@ -2651,6 +2651,35 @@ function main() {
         ? '; failed: ' + result.failed_points.join(', ')
         : '';
       console.log('Acceptance ' + result.mode + ': ' + result.summary.passed + '/' + result.summary.total + ' points passed' + failSuffix + '.');
+      // Phase 126 Plan 03: persist last_acceptance_run into install-state v2
+      // (additive; best-effort). The write happens BEFORE the final exit so
+      // even on failed --acceptance the state captures the run. Failure to
+      // write (e.g., install-state.json absent OR migrator throws) emits a
+      // stderr note but does NOT crash --acceptance. Plan 07's v2 schema
+      // carries the `last_acceptance_run: { timestamp, passed, failed }`
+      // field; migrateIfNeeded promotes v1 -> v2 transparently if needed.
+      // Canon Part 8: LOCAL file I/O only ($HOME/.mindrian/). Zero network.
+      try {
+        const installStateMod = require(path.join(__dirname, '..', 'lib', 'core', 'install-state.cjs'));
+        // Migration is idempotent: v1 -> v2 additive; v2 no-op; future-version
+        // returns futureVersion:true without touching the file (Plan 07 D3).
+        installStateMod.migrateIfNeeded({ home: home });
+        const current = installStateMod.readInstallState({ home: home });
+        if (current) {
+          const updated = Object.assign({}, current, {
+            last_acceptance_run: {
+              timestamp: new Date().toISOString(),
+              passed: result.summary.passed,
+              failed: result.summary.failed,
+            },
+          });
+          installStateMod.writeInstallState({ home: home, state: updated });
+        }
+        // No-op when install-state.json is absent (readInstallState returns
+        // null) -- the record is session-start's responsibility to create.
+      } catch (err) {
+        process.stderr.write('[doctor --acceptance] failed to persist last_acceptance_run: ' + (err && err.message) + '\n');
+      }
       if (flags.json) console.log(JSON.stringify(result, null, 2));
       process.exit(result.failed_points.length === 0 ? 0 : 1);
     }).catch(function (e) {

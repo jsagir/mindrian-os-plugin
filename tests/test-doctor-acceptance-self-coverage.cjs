@@ -226,7 +226,14 @@ try {
     // Per checkInstallState findings[]: record-absent finding is "install-state record absent -- run session-start..."
     assert.ok(/absent|missing|not-found/i.test(entry.finding || ''),
       'expected absent/missing/not-found in finding; got: ' + entry.finding);
-    pass('Test 1 (Fixture a: install-dir-missing -> install-state.ok=false)');
+    // Plan 03 Task 2 best-effort contract: when install-state.json is ABSENT,
+    // --acceptance must NOT crash AND must NOT spontaneously create the file
+    // (creation is session-start's job per Plan 07). The runner exits 1
+    // because the install-state CHECKLIST POINT failed -- not because the
+    // last_acceptance_run write threw.
+    assert.strictEqual(fs.existsSync(path.join(home, '.mindrian', 'install-state.json')), false,
+      'install-state.json must remain absent (best-effort write is a no-op when readInstallState returns null)');
+    pass('Test 1 (Fixture a: install-dir-missing -> install-state.ok=false + no spurious record creation)');
   } finally {
     rmTmp(home);
   }
@@ -239,12 +246,11 @@ try {
 // promotes it to v2 -- the acceptance gate continues to see a healthy record.
 // Expected: install-state.ok=true; post-invocation schema_version === 2.
 //
-// We invoke migrateIfNeeded ourselves AFTER the doctor run so the assertion
-// is deterministic. The plan's intent is: "verify migration fired during the
-// acceptance run" -- which is the contract that Plan 07 ships via Task 2's
-// best-effort write path. If Task 2 hasn't landed yet, migrateIfNeeded fires
-// at the next session-start (Plan 07's session-start integration); the test
-// invokes the migrator explicitly to keep the assertion local + hermetic.
+// Per Plan 03 Task 2: the doctor --acceptance handler invokes migrateIfNeeded
+// BEFORE writing last_acceptance_run, so the migration fires EAGERLY during
+// the acceptance run itself. We re-read the file post-run and assert v2
+// fields landed; the re-issue of migrateIfNeeded afterward is a no-op
+// (currentVersion: 2). This is the correct interlock contract.
 try {
   const home = mktempHome('b');
   try {
@@ -255,22 +261,41 @@ try {
     // spot-check is consistent; this is the pre-migration state Lawrence's
     // beta.13 install would carry on upgrade.
     seedInstallStateV1(home, { active_root: cacheDir });
+    // Pre-condition: file is v1 (no schema_version sentinel).
+    const preRead = JSON.parse(fs.readFileSync(path.join(home, '.mindrian', 'install-state.json'), 'utf8'));
+    assert.strictEqual(typeof preRead.schema_version, 'undefined',
+      'pre-condition: v1 record must have NO schema_version; got: ' + preRead.schema_version);
     const result = runDoctorAcceptance(home);
     assert.ok(result.json, 'JSON parses; stdout=' + (result.stdout || '').slice(0, 500) + ' stderr=' + (result.stderr || '').slice(0, 500));
     const entry = findChecklistEntry(result, 'install-state');
     assert.ok(entry, 'install-state checklist entry not found');
     assert.strictEqual(entry.ok, true,
       'install-state.ok must be true on healthy v1 record (migration is transparent); got finding=' + entry.finding);
-    // Now run the migrator explicitly + assert v2 fields land.
+    // Plan 03 Task 2 interlock: re-read the file from disk. The doctor's
+    // --acceptance handler fired migrateIfNeeded EAGERLY (before writing
+    // last_acceptance_run), so the on-disk record is now v2 with all the
+    // additive fields landed.
     const installState = require(INSTALL_STATE_MOD);
-    const migResult = installState.migrateIfNeeded({ home });
-    assert.strictEqual(migResult.migrated, true, 'migrateIfNeeded must promote v1 -> v2; got: ' + JSON.stringify(migResult));
-    assert.strictEqual(migResult.fromVersion, 1, 'fromVersion must be 1');
-    assert.strictEqual(migResult.toVersion, 2, 'toVersion must be 2');
-    const reread = installState.readInstallState({ home });
-    assert.strictEqual(reread.schema_version, 2, 'post-migration schema_version must be 2; got: ' + reread.schema_version);
-    assert.ok(reread.topology_class, 'topology_class field must be present post-migration');
-    pass('Test 2 (Fixture b: v1 pre-migration -> install-state.ok=true + post-migrate v2 fields)');
+    const postRead = installState.readInstallState({ home });
+    assert.strictEqual(postRead.schema_version, 2,
+      'post-acceptance schema_version must be 2 (Task 2 eager migrateIfNeeded); got: ' + postRead.schema_version);
+    assert.ok(postRead.topology_class,
+      'topology_class additive field must be present post-migration');
+    assert.strictEqual(postRead.topology_class, 'healthy',
+      'topology_class must derive from topology=marketplace-cache -> healthy');
+    // v1 fields preserved byte-identical.
+    assert.strictEqual(postRead.active_version, '1.13.0-beta.13',
+      'v1 active_version must be preserved byte-identical post-migration');
+    assert.strictEqual(postRead.topology, 'marketplace-cache',
+      'v1 topology must be preserved byte-identical post-migration');
+    // last_acceptance_run was also written (Task 2 wire-up).
+    assert.ok(postRead.last_acceptance_run,
+      'last_acceptance_run must be written by Task 2 wire-up on top of the migrated v2 record');
+    // Calling migrateIfNeeded again is now a no-op (idempotent).
+    const migAgain = installState.migrateIfNeeded({ home });
+    assert.strictEqual(migAgain.migrated, false, 'second migrateIfNeeded must be a no-op');
+    assert.strictEqual(migAgain.currentVersion, 2, 'currentVersion must be 2 on the second call');
+    pass('Test 2 (Fixture b: v1 pre-migration -> Task 2 eager migrate + v2 fields land)');
   } finally {
     rmTmp(home);
   }
@@ -336,6 +361,10 @@ try {
 // failure of the install-state point. This proves the AGGREGATOR catches a
 // synthetic failure -- a cheap proxy for actual renderer-drift detection.
 // (Real renderer-drift detection lives in Plan 126-01.)
+//
+// Doubles as the Task 2 wire-up assertion: even when the gate fails, the
+// last_acceptance_run write to install-state v2 still fires (best-effort,
+// pre-exit). Confirms Plan 03 Task 2 + Plan 07 interlock.
 try {
   const home = mktempHome('d');
   try {
@@ -355,7 +384,26 @@ try {
     // And the overall run must exit non-zero (the gate aborts on any failure).
     assert.notStrictEqual(result.exitCode, 0,
       'doctor --acceptance must exit non-zero when a point fails; got exit=' + result.exitCode);
-    pass('Test 4 (Fixture d: renderer-drift SIMULATED via DOCTOR_TEST_FAIL_POINT)');
+    // Plan 03 Task 2: last_acceptance_run is written into install-state v2
+    // BEFORE exit, even when the gate fails. The write is best-effort
+    // (no-op when install-state.json is absent); here the file IS present
+    // (seedInstallStateV2 wrote it), so the write fires.
+    const installStateMod = require(INSTALL_STATE_MOD);
+    const reread = installStateMod.readInstallState({ home });
+    assert.ok(reread, 'install-state.json must remain present after --acceptance');
+    assert.ok(reread.last_acceptance_run,
+      'last_acceptance_run must be written by Task 2 wire-up; got: ' + JSON.stringify(reread.last_acceptance_run));
+    assert.strictEqual(typeof reread.last_acceptance_run.timestamp, 'string',
+      'last_acceptance_run.timestamp must be an ISO string');
+    assert.match(reread.last_acceptance_run.timestamp, /^\d{4}-\d{2}-\d{2}T/,
+      'last_acceptance_run.timestamp must match ISO 8601 prefix');
+    assert.strictEqual(typeof reread.last_acceptance_run.passed, 'number',
+      'last_acceptance_run.passed must be a number');
+    assert.strictEqual(typeof reread.last_acceptance_run.failed, 'number',
+      'last_acceptance_run.failed must be a number');
+    assert.ok(reread.last_acceptance_run.failed >= 1,
+      'last_acceptance_run.failed must be >= 1 (the synthesized install-state failure); got: ' + reread.last_acceptance_run.failed);
+    pass('Test 4 (Fixture d: renderer-drift SIMULATED + Task 2 last_acceptance_run write)');
   } finally {
     rmTmp(home);
   }
