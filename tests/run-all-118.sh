@@ -40,6 +40,9 @@ CJS_SUITES=(
   # Plan 118-05 (footer routing + operator helper)
   ../lib/conversation/operator.test.cjs
   ../lib/core/mva-option-router.test.cjs
+  # Plan 118-06 (rule-linter + Dror 2.0 harness)
+  ../lib/core/mva-rule-linter.test.cjs
+  ./test-mva-dror-harness.cjs
 )
 
 TOTAL=0
