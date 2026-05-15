@@ -1,0 +1,29 @@
+{
+  "_doc": "Phase 118 Plan 02 -- centralized Brain query templates for the 3 Brain agents. Per Canon Part 8: each template contains ONLY generic handles (framework names, problem-type enums, phase identifiers, stage labels). NEVER contains user-content placeholders, NEVER the user's raw sentence. The Brain receives no specifics about THIS user's venture; the queries are deliberately GENERIC and the intelligence comes from Brain returning patterns relevant to early-stage venture exploration. Each agent in lib/agents/mva/brain-*.cjs require()s this file and references its own key.",
+  "_canon": "Canon Part 8: LOCAL -> BRAIN: NO. This data file is the SOLE source of Brain query bodies for the 3 Brain MVA agents -- making the Part 8 invariant auditable in one place.",
+  "brain_similar_ventures": {
+    "tool": "brain_search",
+    "query": "ventures comparable to early-stage consumer SaaS",
+    "filters": {
+      "node_type": "Venture",
+      "stage_label_one_of": ["pre-seed", "seed", "series-a"]
+    },
+    "limit": 3
+  },
+  "brain_cross_domain": {
+    "tool": "brain_search",
+    "query": "cross-domain analogy frameworks",
+    "filters": {
+      "node_type": "Framework",
+      "cross_domain": true
+    },
+    "limit": 1
+  },
+  "brain_classic_traps": {
+    "tool": "brain_query",
+    "cypher": "MATCH (f:FailureMode)-[:OBSERVED_IN]->(v:Venture) WHERE v.stage IN $stages RETURN f.name AS name, f.signature AS signature LIMIT 1",
+    "params": {
+      "stages": ["pre-seed", "seed"]
+    }
+  }
+}
