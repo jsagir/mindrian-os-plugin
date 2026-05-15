@@ -1207,7 +1207,7 @@ Plans:
 
 **Canon parts:** Part 2 (Team Around Navigator — 6-agent parallel dispatch), Part 4 (Every Choice Is Graph Data — MVA findings cascade), Part 5 (Evidence Is Graded By Context — MVA outputs carry tier markers), Part 10 sub-claim 3 (room generates as receipt, not entry point). Beta target: **v1.13.0 final**.
 
-**Plans:** 5/7 plans executed
+**Plans:** 6/7 plans executed
 
 - [x] 118-00-PLAN.md -- UserPromptSubmit detection + classifier
 - [x] 118-01-PLAN.md -- Dispatch architecture (AsyncIterable + AgentResult contract)
