@@ -4,7 +4,7 @@ milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
 stopped_at: Completed 118-06-rule-linter-dror-harness PLAN; Phase 118 ALL PLANS DONE (7/7)
-last_updated: "2026-05-15T13:46:36.732Z"
+last_updated: "2026-05-15T13:59:49.656Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 58
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 118 (30-second-mva-reward-before-investment) — EXECUTING
+Phase: 119
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 7 of 7
+Plan: Not started
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
