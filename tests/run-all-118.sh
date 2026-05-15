@@ -33,6 +33,10 @@ CJS_SUITES=(
   ../lib/core/mva-progressive-renderer.test.cjs
   ../lib/core/mva-telemetry.test.cjs
   ../lib/core/mva-orchestrator.test.cjs
+  # Plan 118-04 (Feynman deck + Vercel deploy)
+  ../lib/core/resolve-vercel-key.test.cjs
+  ../lib/core/mva-vercel-deploy.test.cjs
+  ../lib/core/mva-deck-builder.test.cjs
 )
 
 TOTAL=0
