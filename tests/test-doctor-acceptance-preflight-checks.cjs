@@ -168,9 +168,16 @@ function entry(result, id) {
   return pts.find(function (x) { return x.id === id; });
 }
 
+// Note (2026-05-15, post-beta.16 hotfix 3fc008b): the `verify-release-clean-tree`
+// entry was moved from `applies_to: ['pre-tag', 'full']` to `['full']` because
+// release.sh Step 6.6 runs --pre-tag AFTER its own Steps 3-6 intentionally modify
+// 3 tracked files (package.json + plugin.json + CHANGELOG). The strict clean-tree
+// check tripped on those expected mods and aborted the cut. The check is now a
+// FULL-mode-only acceptance entry (operators can still invoke it pre-flight via
+// `doctor --acceptance` without --pre-tag). Tests that look for it under --pre-tag
+// have been removed; Tests 2, 6, 7 now reference the remaining 4 pre-tag entries.
 const NEW_ENTRY_IDS = [
   'session-start-active-version',
-  'verify-release-clean-tree',
   'frontmatter-yaml-validity',
   'release-dry-run-output',
   'working-tree-housekeeping',
@@ -201,26 +208,24 @@ try {
   }
 } catch (err) { failTest('Test 1 (session-start-active-version: real broken state)', err); }
 
-// -- Test 2 (verify-release-clean-tree: synthesized failure) --------
+// -- Test 2 (verify-release-clean-tree: synthesized failure) -- SKIPPED
 //
-// Use DOCTOR_TEST_FAIL_POINT to synthesize a verify-release-clean-tree
-// failure WITHOUT actually dirtying the dev workspace. The SAFE proxy
-// pattern from Phase 123 (tests/test-doctor-acceptance.cjs).
-try {
-  const home = mktempHome('2-inj');
-  try {
-    const result = runAcceptance(home, { DOCTOR_TEST_FAIL_POINT: 'verify-release-clean-tree' });
-    assert.ok(result.json, 'JSON parses');
-    const e = entry(result, 'verify-release-clean-tree');
-    assert.ok(e, 'verify-release-clean-tree entry not found');
-    assert.strictEqual(e.ok, false, 'verify-release-clean-tree.ok must be false under synthesized failure');
-    assert.match(e.finding || '', /synthesized failure \(test mode\)/i,
-      'expected synthesized-failure finding; got: ' + e.finding);
-    pass('Test 2 (verify-release-clean-tree: synthesized failure)');
-  } finally {
-    rmTmp(home);
-  }
-} catch (err) { failTest('Test 2 (verify-release-clean-tree: synthesized failure)', err); }
+// Orphaned by Phase 126 beta.16 hotfix commit 3fc008b (2026-05-14).
+// The `verify-release-clean-tree` check was moved from
+// `applies_to: ['pre-tag', 'full']` to `['full']` because release.sh
+// Step 6.6 invokes --pre-tag AFTER its own Steps 3-6 intentionally modify
+// 3 tracked files (package.json + plugin.json + CHANGELOG); the strict
+// clean-tree check tripped on those expected mods and aborted the cut.
+//
+// The check still exists in `full` mode (post-tag) and is exercised by
+// Phase 126 Plan 03's acceptance-gate self-coverage harness when full
+// is invoked. To restore equivalent --pre-tag-scope coverage of this
+// failure mode, a future plan would need to (a) move release.sh Step
+// 6.6 to BEFORE its Step 3 bumps, OR (b) add a new applies_to tier
+// (e.g., 'pre-flight') that's a strict subset of --pre-tag minus the
+// in-flight-incompatible checks. Captured as Phase 126.X / beta.17.1
+// follow-up in the install-cache family pre-mortem.
+console.log('SKIP: Test 2 (verify-release-clean-tree: synthesized failure) -- orphaned by Phase 126 beta.16 hotfix 3fc008b; check moved to applies_to:[\'full\'] only');
 
 // -- Test 3 (frontmatter-yaml-validity: synthesized failure) --------
 try {
@@ -288,7 +293,7 @@ try {
     assert.strictEqual(e.ok, true,
       id + '.ok must be true on dev workspace; got finding=' + e.finding + ' detail=' + JSON.stringify(e.detail || {}).slice(0, 300));
   }
-  pass('Test 6 (no regression: all 5 new checks pass on dev workspace)');
+  pass('Test 6 (no regression: all 4 new --pre-tag checks pass on dev workspace; verify-release-clean-tree skipped post-3fc008b)');
 } catch (err) { failTest('Test 6 (no regression: live workspace)', err); }
 
 // -- Test 7 (isolation: one failure does not cascade to others) -----
