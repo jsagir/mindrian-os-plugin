@@ -2,6 +2,8 @@
 name: mva-brief
 description: Run the 30-second MVA pipeline for the user's current venture sentence
 argument-hint: (no args -- reads pending state from UserPromptSubmit detection)
+serves_jtbd: ["explore"]
+teaching: "When you have just typed a venture sentence and want a brief in under a minute, /mos:mva-brief runs the 6-agent fan-out and deploys a shareable deck. The reward-before-investment surface of Phase 118."
 allowed-tools: Bash
 interactive_first_reward: instant_brief
 ---

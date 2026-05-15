@@ -2,6 +2,8 @@
 name: mva-option
 description: Route the user's 3-option footer selection after a 30-second MVA brief
 argument-hint: <1|2|3> [<sha8>]
+serves_jtbd: ["explore"]
+teaching: "When the 3-option footer shows after an MVA brief, /mos:mva-option routes your pick (refine / build a room / iterate) into the right next move. The hand-off after the first reward."
 allowed-tools: Bash
 interactive_first_reward: --none (scripting only)
 ---

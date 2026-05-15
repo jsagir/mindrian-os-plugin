@@ -750,6 +750,36 @@
       "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
     },
     {
+      "command": "/mos:mva-brief",
+      "kind": "utility",
+      "frameworks": [],
+      "produces": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": null,
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": "When you have just typed a venture sentence and want a brief in under a minute, /mos:mva-brief runs the 6-agent fan-out and deploys a shareable deck. The reward-before-investment surface of Phase 118.",
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+    },
+    {
+      "command": "/mos:mva-option",
+      "kind": "utility",
+      "frameworks": [],
+      "produces": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": null,
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": "When the 3-option footer shows after an MVA brief, /mos:mva-option routes your pick (refine / build a room / iterate) into the right next move. The hand-off after the first reward.",
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+    },
+    {
       "command": "/mos:new-project",
       "kind": "utility",
       "frameworks": [],

@@ -4,6 +4,8 @@ description: File a meeting transcript into the Data Room
 argument-hint: [--latest|--paste|<file>]
 serves_jtbd: ["file-meeting"]
 teaching: "When a meeting just happened, /mos:file-meeting captures the transcript and routes the intelligence into the right room sections. Meetings are where institutional knowledge actually lives."
+# Per docs/reward-before-investment-rule.md line 60-62: surface first-paragraph extraction preview before full transcript ask. Remediation tracked as follow-up phase.
+interactive_first_reward: paragraph_preview
 allowed-tools:
   - Read
   - Write

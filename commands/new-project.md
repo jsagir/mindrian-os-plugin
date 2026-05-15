@@ -4,6 +4,8 @@ description: Start a new venture project and create its room
 argument-hint: [name]
 serves_jtbd: ["explore"]
 teaching: "When you are starting a new venture, /mos:new-project creates the room scaffolding and registers it in the room registry. The first move of every Mindrian journey."
+# Per docs/reward-before-investment-rule.md line 56-58 remediation: first sentence -> Instant Brief pipeline (this phase's deliverable). Room creation is option 2 of the 3-option footer (Phase 119 wires fully in beta.18).
+interactive_first_reward: instant_brief
 allowed-tools:
   - Read
   - Write

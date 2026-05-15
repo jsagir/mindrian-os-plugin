@@ -5,6 +5,8 @@ body_shape: B (Semantic Tree)
 body_shape_detail: Steps as conversational flow, context building as nested nodes
 serves_jtbd: ["explore"]
 teaching: "When you just installed MindrianOS, /mos:onboard walks you through the system and builds your first room. Designed so a stranger can self-activate without Larry holding their hand."
+# Per docs/reward-before-investment-rule.md line 68-70: first screen is a question, not a tutorial. Remediation tracked as follow-up phase.
+interactive_first_reward: reframe_question
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read
