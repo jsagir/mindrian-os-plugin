@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 118-03-progressive-streaming-PLAN.md
-last_updated: "2026-05-15T12:46:08.570Z"
+stopped_at: Completed 118-02-six-agents-PLAN.md
+last_updated: "2026-05-15T12:47:10.516Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 58
@@ -869,6 +869,8 @@ Progress: [█████████░] 93%
 - [Phase 118-30-second-mva-reward-before-investment]: ALLOWED_FIELDS.mva_brief_rendered uses 'total_duration_ms' (NOT 'duration_ms') as the source-of-truth field name; Plan 118-06 Dror harness greps this constant; orchestrator emits matching field name
 - [Phase 118-30-second-mva-reward-before-investment]: state.json manifest atomically written (tmp+rename) at ~/.mindrian/mva/state.json after mva_brief_rendered; NOT written on Hebrew refusal short-circuit; Plan 118-05's resolveCurrentSha8() reads this file (CRITICAL-3 wire)
 - [Phase 118]: Plan 118-02: Centralized Brain query bodies in data/mva-agent-prompts.json -- Canon Part 8 audit surface is one JSON file, not N source files. Pattern applies to any future agent that queries Brain.
+- [Phase 118]: Plan 118-02: Six-hats agent is fully local and deterministic per sentence_sha256 -- ensures the 'one question you haven't asked yourself' surface always renders in the brief, even when Brain + Tavily + dashboard all fail. This is the unconditional 6th surface.
+- [Phase 118]: Plan 118-02: Dashboard agent routes through lib/core/navigation.cjs (Phase 109 D-06 chokepoint; Canon Part 9). Two new wrappers (detectActiveRoom + getRecentDecisionNeighborhood) added as additive re-exports following the logMemoryEvent / firstCapturedLastTouchedBySection / writeEdge precedent.
 
 ### Pending Todos
 
@@ -898,6 +900,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-15T12:44:36.463Z
-Stopped at: Completed 118-03-progressive-streaming-PLAN.md
+Last session: 2026-05-15T12:47:10.487Z
+Stopped at: Completed 118-02-six-agents-PLAN.md
 Resume file: None
