@@ -37,6 +37,9 @@ CJS_SUITES=(
   ../lib/core/resolve-vercel-key.test.cjs
   ../lib/core/mva-vercel-deploy.test.cjs
   ../lib/core/mva-deck-builder.test.cjs
+  # Plan 118-05 (footer routing + operator helper)
+  ../lib/conversation/operator.test.cjs
+  ../lib/core/mva-option-router.test.cjs
 )
 
 TOTAL=0
