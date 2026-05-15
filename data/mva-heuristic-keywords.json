@@ -1,0 +1,35 @@
+{
+  "_comment": "Phase 118-00 heuristic keyword bank for venture-sentence classification fallback when ANTHROPIC_API_KEY is absent. See data/mva-heuristic-keywords.README.md if added. Per LD1 (118-CONTEXT.md): Hebrew detection is single-character U+0590-U+05FF; English-only pipeline for v1.13.0.",
+  "schema_version": "1.0",
+  "venture_keywords": [
+    "have an idea for",
+    "thinking about building",
+    "thinking about a",
+    "considering launching",
+    "considering building",
+    "startup idea",
+    "app for",
+    "platform for",
+    "product for",
+    "service for",
+    "what if i built",
+    "i want to build",
+    "venture",
+    "i'm exploring",
+    "exploring an idea",
+    "working on an idea"
+  ],
+  "venture_negative_patterns": [
+    "^/mos:",
+    "^/gsd:",
+    "^git ",
+    "^npm ",
+    "fix the",
+    "debug this",
+    "the failing test",
+    "edit the",
+    "/clear",
+    "/compact"
+  ],
+  "language_pattern_hebrew": "[֐-׿]"
+}
