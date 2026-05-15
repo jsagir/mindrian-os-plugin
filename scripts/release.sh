@@ -212,7 +212,7 @@ if [ "$DRY_RUN" = "1" ]; then
   if [ "$NO_NEXT_BUMP" = "1" ]; then
     echo "  Step 7.5  : SKIPPED (--no-next-bump). main HEAD stays at $NEW_VERSION."
   else
-    echo "  Step 7.5  : commit B on plugin repo -- bump to $NEXT_VERSION, CHANGELOG [Unreleased] -- v$NEXT_VERSION"
+    echo "  Step 7.5  : commit B on plugin repo -- bump to $NEXT_VERSION, CHANGELOG [Unreleased] -- v$NEXT_VERSION; marketplace repo -- bump marketplace.json to $NEXT_VERSION (7-place lockstep; source.ref stays at v$NEW_VERSION)"
   fi
   echo "  Step 8    : dirty-repo / ahead-of-origin guard"
   echo "              current ahead-of-origin: $CURRENT_AHEAD commit(s); guard would allow up to $([ "$NO_NEXT_BUMP" = "1" ] && echo "1" || echo "2") release commit(s)"
@@ -639,41 +639,96 @@ else
   fi
 fi
 
-# --- Step 9.7: npx-publish self-test (Phase 126 Plan 04) ---
-# Verify npx @mindrian_os/install@<version> against a fresh temp dir produces
-# an exit-0 scaffold. Closes the 2026-05-13 dogfood gap "npx round-trip broken
-# (null)". The existing Step 9.8 (--acceptance full) covers this in passing,
-# but Plan 04 makes it an explicit gate so the failure mode surfaces here with
-# a clean stack trace rather than buried inside the --acceptance roster.
+# --- Step 9.7: npx-publish self-test (Phase 126 Plan 04 + Phase 126.1 hotfix) ---
+# Verify npx @mindrian_os/install@<version> against a sandboxed HOME-override
+# produces an exit-0 scaffold. Closes the 2026-05-13 dogfood gap "npx round-trip
+# broken (null)". The existing Step 9.8 (--acceptance full) covers this in
+# passing, but Plan 04 makes it an explicit gate so the failure mode surfaces
+# here with a clean stack trace rather than buried inside the --acceptance
+# roster.
+#
+# Phase 126.1 hotfix (2026-05-15): `@mindrian_os/install` installs into
+# ~/.claude/, NOT into cwd. The original Plan-04 implementation used `mktemp
+# -d` and checked the temp dir was non-empty -- but the install never landed
+# there, so the check spuriously failed during the beta.16 cut. Fix: HOME-
+# override sandbox at ~/.claude/_test-install-<sha8>/ (subpath under ~/.claude/
+# per the scope note; reuses the doctor.cjs:2336 sandbox pattern). Cleanup via
+# trap guarantees the operator's real ~/.claude/ is never touched. Option B
+# (extend ~/mindrianos-install-site/ npm-installer with a --target=<dir> flag)
+# is the cleaner long-term fix but out of scope for this hotfix (separate repo).
 echo ""
 echo "=== Step 9.7: npx-publish self-test ==="
 
 if [ "${MOS_TEST_DRY_RUN:-0}" = "1" ] || [ "$DRY_RUN" = "1" ]; then
-  echo "  [DRY RUN] would run: npx --yes @mindrian_os/install@$NEW_VERSION against a temp dir"
+  echo "  [DRY RUN] would run: npx --yes @mindrian_os/install@$NEW_VERSION against a HOME-override sandbox at ~/.claude/_test-install-<sha8>/"
 else
-  NPX_TEST_DIR="$(mktemp -d -t mos-npx-selftest-XXXXXX)"
+  # sha8 of NEW_VERSION + current epoch for uniqueness; falls back to a random
+  # tag if shasum is missing.
+  if command -v shasum >/dev/null 2>&1; then
+    NPX_TEST_TS="$(printf '%s' "$NEW_VERSION-$(date +%s)" | shasum -a 256 | cut -c1-8)"
+  elif command -v sha256sum >/dev/null 2>&1; then
+    NPX_TEST_TS="$(printf '%s' "$NEW_VERSION-$(date +%s)" | sha256sum | cut -c1-8)"
+  else
+    NPX_TEST_TS="$(date +%s | tail -c 9)"
+  fi
+  NPX_TEST_DIR="$HOME/.claude/_test-install-$NPX_TEST_TS"
+  NPX_SNAPSHOT="/tmp/npx-selftest-snapshot-$NPX_TEST_TS.txt"
   echo "  -> sandbox: $NPX_TEST_DIR"
   ORIG_DIR_NPX="$PWD"
-  cd "$NPX_TEST_DIR"
-  if npx --yes "@mindrian_os/install@$NEW_VERSION" 2>&1 | tee /tmp/npx-selftest-out.log; then
-    # Check the temp dir is non-empty (scaffold marker check). If exit 0 but
-    # nothing landed, that's a silent failure -- treat as a hard abort.
-    if [ -z "$(ls -A "$NPX_TEST_DIR" 2>/dev/null)" ]; then
-      echo -e "${RED}  x npx exited 0 but produced no scaffold in $NPX_TEST_DIR${NC}"
+
+  # Cleanup trap: fires on EXIT (normal + abort) to guarantee the operator's
+  # real ~/.claude/ is never left with sandbox subpath debris.
+  trap 'rm -rf "$NPX_TEST_DIR" 2>/dev/null; rm -f "$NPX_SNAPSHOT" 2>/dev/null' EXIT
+
+  # Pre-snapshot: capture the names of installed-plugins state + marketplace
+  # cache surfaces in the real ~/.claude/ for audit. The sandbox never touches
+  # these paths (HOME override redirects all install writes); the snapshot is
+  # belt-and-suspenders for debugging.
+  {
+    echo "# pre-npx ~/.claude/ install-surface snapshot at $(date -u +%FT%TZ)"
+    ls -la "$HOME/.claude/plugins/installed_plugins.json" 2>/dev/null || echo "(no installed_plugins.json)"
+    ls -la "$HOME/.claude/plugins/mindrian-marketplace/" 2>/dev/null | head -5 || echo "(no mindrian-marketplace dir)"
+  } > "$NPX_SNAPSHOT" 2>&1 || true
+
+  mkdir -p "$NPX_TEST_DIR"
+  # Run npx with HOME redirected to the sandbox subpath. The install resolves
+  # ~/.claude/ inside the sandbox, NOT the operator's real ~/.claude/.
+  # Mirrors the Phase 123 doctor.cjs npx-roundtrip sandbox pattern (line ~2336).
+  if env \
+       HOME="$NPX_TEST_DIR" \
+       USERPROFILE="$NPX_TEST_DIR" \
+       npm_config_cache="$NPX_TEST_DIR/.npm" \
+       npx --yes "@mindrian_os/install@$NEW_VERSION" 2>&1 | tee /tmp/npx-selftest-out.log; then
+    # Scaffold marker check: ~/.claude/ must exist inside the sandbox AND
+    # ~/.claude/plugins/installed_plugins.json must be a readable JSON file.
+    # If either is missing, the install never actually landed -- silent
+    # failure, HARD ABORT.
+    if [ ! -d "$NPX_TEST_DIR/.claude" ]; then
+      echo -e "${RED}  x npx exited 0 but produced no .claude/ scaffold under $NPX_TEST_DIR${NC}"
       echo "    The npx round-trip silently broke. Inspect /tmp/npx-selftest-out.log."
-      cd "$ORIG_DIR_NPX"; rm -rf "$NPX_TEST_DIR"
       exit 1
     fi
-    echo -e "${GREEN}  ✓ npx scaffold verified${NC}"
+    if [ ! -f "$NPX_TEST_DIR/.claude/plugins/installed_plugins.json" ]; then
+      echo -e "${RED}  x npx exited 0 but installed_plugins.json missing under $NPX_TEST_DIR/.claude/plugins/${NC}"
+      echo "    Scaffold is incomplete. Inspect /tmp/npx-selftest-out.log."
+      exit 1
+    fi
+    if ! node -e "JSON.parse(require('fs').readFileSync('$NPX_TEST_DIR/.claude/plugins/installed_plugins.json','utf8'))" >/dev/null 2>&1; then
+      echo -e "${RED}  x installed_plugins.json under $NPX_TEST_DIR is not valid JSON${NC}"
+      exit 1
+    fi
+    echo -e "${GREEN}  ✓ npx scaffold verified (HOME-override sandbox; .claude/plugins/installed_plugins.json present + parseable)${NC}"
   else
     echo -e "${RED}  x npx @mindrian_os/install@$NEW_VERSION failed${NC}"
     echo "    The published npm package is broken for new installs."
     echo "    Recovery: <recovery> R.4 -- yank + cut successor. See Step 9.8 abort block below."
-    cd "$ORIG_DIR_NPX"; rm -rf "$NPX_TEST_DIR"
     exit 1
   fi
-  cd "$ORIG_DIR_NPX"
+  # Explicit cleanup (the EXIT trap also handles this; belt-and-suspenders).
   rm -rf "$NPX_TEST_DIR"
+  rm -f "$NPX_SNAPSHOT"
+  trap - EXIT
+  cd "$ORIG_DIR_NPX"
 fi
 
 # --- Step 7.5: Commit B (next-bump commit) -- plugin.json/package.json -> next pre-release ---
@@ -718,6 +773,23 @@ pkg.version = '$NEXT_VERSION';
 fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
 "
 
+  # Phase 126.1 hotfix (2026-05-15): Commit B also advances marketplace.json to
+  # NEXT_VERSION (7-place lockstep per feedback_install_minisite_lockstep.md).
+  # The marketplace.json gets a version-only bump (NOT a source.ref bump --
+  # source.ref stays at v$NEW_VERSION, pinning the marketplace commit at Commit
+  # A's tree; only the version field advances so the cached marketplace surfaces
+  # the next-pre-release as in-progress).
+  cd "$MARKETPLACE_DIR"
+  node -e "
+const fs = require('fs');
+const m = JSON.parse(fs.readFileSync('.claude-plugin/marketplace.json', 'utf8'));
+m.plugins[0].version = '$NEXT_VERSION';
+// Deliberately leave m.plugins[0].source.ref alone -- it stays at v$NEW_VERSION
+// (Commit A's tag) so installs continue to resolve the released artifact.
+fs.writeFileSync('.claude-plugin/marketplace.json', JSON.stringify(m, null, 2) + '\n');
+"
+
+  cd "$PLUGIN_DIR"
   # Reset CHANGELOG: insert [Unreleased] -- vNEXT (in progress) above the finalized [NEW_VERSION] entry.
   TEMP=$(mktemp)
   echo "## [Unreleased] -- v$NEXT_VERSION (in progress)" > "$TEMP"
@@ -730,6 +802,11 @@ fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
 
   git add .claude-plugin/plugin.json package.json CHANGELOG.md
   git commit -m "chore: bump to v$NEXT_VERSION (next pre-release)" || echo "Nothing to commit in plugin (Commit B)"
+
+  # Parallel marketplace-repo commit for the 7-place lockstep bump.
+  cd "$MARKETPLACE_DIR"
+  git add .claude-plugin/marketplace.json
+  git commit -m "chore: bump marketplace.json to v$NEXT_VERSION (Commit B 7-place lockstep)" || echo "Nothing to commit in marketplace (Commit B)"
 fi
 
 # --- Step 8: Dirty-repo / ahead-of-origin guard (BEFORE the push) ---
