@@ -296,6 +296,15 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/mva-detect.cjs\"",
+            "timeout": 1500
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/brain-derivation-drain.cjs\"",
             "timeout": 2000
           }
