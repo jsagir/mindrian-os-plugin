@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 118-01-dispatch-architecture-PLAN.md
-last_updated: "2026-05-15T12:26:38.732Z"
-last_activity: 2026-05-15 -- Phase 118 execution started
+stopped_at: Completed 118-00-userprompt-detection-PLAN.md
+last_updated: "2026-05-15T12:28:56.150Z"
+last_activity: 2026-05-15
 progress:
   total_phases: 58
   completed_phases: 38
   total_plans: 281
-  completed_plans: 267
+  completed_plans: 268
   percent: 93
 ---
 
@@ -28,8 +28,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 118 (30-second-mva-reward-before-investment) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 1 of 7
-Status: Executing Phase 118
+Plan: 2 of 7
+Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
 
@@ -149,7 +149,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-15 -- Phase 118 execution started
+Last activity: 2026-05-15
 
 Progress: [█████████░] 93%
 
@@ -331,6 +331,7 @@ Progress: [█████████░] 93%
 | Phase 126 P07 | 676 | 3 tasks | 6 files |
 | Phase 126-install-lifecycle-harness-gaps P05 | 1350 | 2 tasks | 4 files |
 | Phase 118-30-second-mva-reward-before-investment P01 | 5min | 3 tasks | 8 files |
+| Phase 118-30-second-mva-reward-before-investment P00 | 50min | 2 tasks | 8 files |
 
 ### Roadmap Evolution
 
@@ -860,6 +861,8 @@ Progress: [█████████░] 93%
 - [Phase 126-install-lifecycle-harness-gaps]: Plan 05: expectedSteps maintainer NOTE block in Entry 4 (release-dry-run-output) declares Plan 04 (Wave 3) as the patcher; Wave 2 ships the 11-step initial array, Wave 3 adds Step 5.5 / 9.7 / 9.8
 - [Phase 126-install-lifecycle-harness-gaps]: Plan 05 dog-fooding receipt: working-tree-housekeeping check caught 2 pre-existing orphan tracked .bak files on the maintainer box during its own ship cycle; removal logged as the plan's only deviation (Canon Part 6)
 - [Phase 118-30-second-mva-reward-before-investment]: Plan 118-01 dispatcher: streaming-as-settled async generator with deferred-resolve ready promise; per-agent timeout = min(perAgentCap, remainingGlobal) per B2; all-fail returns N error results without throwing per B7; AgentContext carries sentence_sha256 ONLY (Canon Part 8)
+- [Phase 118-30-second-mva-reward-before-investment]: Sync hook + async enrichment split: classify() runs synchronously inside the 1500ms hook budget via heuristic+sha256 cache; classifyAsync() runs Haiku 4.5 enrichment in Plan 118-01 dispatcher worker (Node lacks sync HTTP)
+- [Phase 118-30-second-mva-reward-before-investment]: State-file-as-wire contract frozen: ~/.mindrian/mva/<session-id>.json with atomic tmp+rename writes; sha256(prompt) is largest disk-side string (no raw prompt egress per Canon Part 8); writePending initializes pipeline_status='pending' so Plan 118-01 dispatcher reads no ambiguous status gap
 
 ### Pending Todos
 
@@ -889,6 +892,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-15T12:26:38.715Z
-Stopped at: Completed 118-01-dispatch-architecture-PLAN.md
+Last session: 2026-05-15T12:28:56.134Z
+Stopped at: Completed 118-00-userprompt-detection-PLAN.md
 Resume file: None
