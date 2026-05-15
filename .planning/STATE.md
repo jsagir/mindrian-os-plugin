@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
-status: verifying
-stopped_at: Completed 126-05-release-flight-preflight-in-acceptance-PLAN.md
-last_updated: "2026-05-14T17:27:00.592Z"
-last_activity: 2026-05-14
+status: executing
+stopped_at: Completed 118-01-dispatch-architecture-PLAN.md
+last_updated: "2026-05-15T12:26:38.732Z"
+last_activity: 2026-05-15 -- Phase 118 execution started
 progress:
   total_phases: 58
   completed_phases: 38
-  total_plans: 274
-  completed_plans: 266
+  total_plans: 281
+  completed_plans: 267
   percent: 93
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 126 — install-lifecycle-harness-gaps
+**Current focus:** Phase 118 — 30-second-mva-reward-before-investment
 
 ## Current Position
 
-Phase: 126
+Phase: 118 (30-second-mva-reward-before-investment) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: Not started
-Status: Phase 126 7/7 plans complete; ready for /gsd:verify-work 126 + gsd-tools phase complete 126 + v1.13.0-beta.15 release cut
+Plan: 1 of 7
+Status: Executing Phase 118
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
 
@@ -149,7 +149,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-14
+Last activity: 2026-05-15 -- Phase 118 execution started
 
 Progress: [█████████░] 93%
 
@@ -330,6 +330,7 @@ Progress: [█████████░] 93%
 | Phase 126 P02 | 7 | 2 tasks | 3 files |
 | Phase 126 P07 | 676 | 3 tasks | 6 files |
 | Phase 126-install-lifecycle-harness-gaps P05 | 1350 | 2 tasks | 4 files |
+| Phase 118-30-second-mva-reward-before-investment P01 | 5min | 3 tasks | 8 files |
 
 ### Roadmap Evolution
 
@@ -858,6 +859,7 @@ Progress: [█████████░] 93%
 - [Phase 126-install-lifecycle-harness-gaps]: Plan 05: 5 hot-patches from Phase 123 cut absorbed as doctor --acceptance checklist entries (session-start-active-version + verify-release-clean-tree + frontmatter-yaml-validity + release-dry-run-output + working-tree-housekeeping); all pre-tag-applicable; DOCTOR_TEST_FAIL_POINT injection reused
 - [Phase 126-install-lifecycle-harness-gaps]: Plan 05: expectedSteps maintainer NOTE block in Entry 4 (release-dry-run-output) declares Plan 04 (Wave 3) as the patcher; Wave 2 ships the 11-step initial array, Wave 3 adds Step 5.5 / 9.7 / 9.8
 - [Phase 126-install-lifecycle-harness-gaps]: Plan 05 dog-fooding receipt: working-tree-housekeeping check caught 2 pre-existing orphan tracked .bak files on the maintainer box during its own ship cycle; removal logged as the plan's only deviation (Canon Part 6)
+- [Phase 118-30-second-mva-reward-before-investment]: Plan 118-01 dispatcher: streaming-as-settled async generator with deferred-resolve ready promise; per-agent timeout = min(perAgentCap, remainingGlobal) per B2; all-fail returns N error results without throwing per B7; AgentContext carries sentence_sha256 ONLY (Canon Part 8)
 
 ### Pending Todos
 
@@ -887,6 +889,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-14T15:24:27.549Z
-Stopped at: Completed 126-05-release-flight-preflight-in-acceptance-PLAN.md
+Last session: 2026-05-15T12:26:38.715Z
+Stopped at: Completed 118-01-dispatch-architecture-PLAN.md
 Resume file: None
