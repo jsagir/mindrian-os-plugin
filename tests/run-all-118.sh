@@ -27,6 +27,12 @@ CJS_SUITES=(
   ../lib/core/mva-agent-contract.test.cjs
   ../lib/core/mva-budget.test.cjs
   ../lib/core/mva-dispatcher.test.cjs
+  # Plan 118-02 (six MVA agents -- aggregate test runner for all 6)
+  ../lib/agents/mva/test-all-six-agents.cjs
+  # Plan 118-03 (progressive streaming + orchestrator + telemetry)
+  ../lib/core/mva-progressive-renderer.test.cjs
+  ../lib/core/mva-telemetry.test.cjs
+  ../lib/core/mva-orchestrator.test.cjs
 )
 
 TOTAL=0
