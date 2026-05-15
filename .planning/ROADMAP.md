@@ -1207,9 +1207,17 @@ Plans:
 
 **Canon parts:** Part 2 (Team Around Navigator — 6-agent parallel dispatch), Part 4 (Every Choice Is Graph Data — MVA findings cascade), Part 5 (Evidence Is Graded By Context — MVA outputs carry tier markers), Part 10 sub-claim 3 (room generates as receipt, not entry point). Beta target: **v1.13.0 final**.
 
-**Plans:** 4/7 plans executed
+**Plans:** 5/7 plans executed
 
-**Authority**: `.planning/phases/118-30-second-mva-reward-before-investment/118-CONTEXT.md` (stub). Source specs: `~/MindrianRooms/mindrian/mindrian-ecosystem/sub-rooms/website/mindrianos-conversion-fix/solution-design/the-30-second-mva.md` + `reward-before-investment-rule.md`.
+- [x] 118-00-PLAN.md -- UserPromptSubmit detection + classifier
+- [x] 118-01-PLAN.md -- Dispatch architecture (AsyncIterable + AgentResult contract)
+- [x] 118-02-PLAN.md -- Six MVA agents (3 Brain + Tavily + Six-Hats + Dashboard)
+- [x] 118-03-PLAN.md -- Progressive streaming + orchestrator + telemetry
+- [x] 118-04-PLAN.md -- Feynman deck + Vercel REST API direct deploy + side-file for option-2 (commits 97205606 + 592a36fa + f9d864cb + 138b2799 + a669a49d + cfd2e375)
+- [ ] 118-05-PLAN.md -- Footer routing (option 1/2/3) reads side-file + state.json
+- [ ] 118-06-PLAN.md -- Dror harness + linter + rule integration
+
+**Authority**: `.planning/phases/118-30-second-mva-reward-before-investment/118-CONTEXT.md`. Source specs: `~/MindrianRooms/mindrian/mindrian-ecosystem/sub-rooms/website/mindrianos-conversion-fix/solution-design/the-30-second-mva.md` + `reward-before-investment-rule.md`.
 
 
 ### Phase 119: Room-as-Receipt Invariant (REGISTERED 2026-05-05 — STUB)
