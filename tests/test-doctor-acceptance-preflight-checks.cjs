@@ -10,6 +10,14 @@
  * absorbs the 5 hot-patches as doctor --acceptance checklist entries so they
  * run automatically on every release.
  *
+ * Phase 126.1 hotfix (2026-05-15): added the `pre-flight` tier (strict subset
+ * of --pre-tag minus in-flight-incompatible checks). release.sh Step 2.5 calls
+ * --pre-flight BEFORE Step 3 mutates the tree, restoring the clean-tree gate
+ * that 3fc008b had to drop from --pre-tag because Step 6.6 runs --pre-tag
+ * AFTER Steps 3-6 intentionally bump plugin.json + package.json + CHANGELOG.
+ * Test 2 was previously SKIPPED; now restored via the new --pre-flight tier.
+ * Test 8 added to assert pre-flight tier filter behavior.
+ *
  * This test fixture proves: (a) the 5 new entries are present in the gate, (b)
  * each entry honors the existing DOCTOR_TEST_FAIL_POINT injection (the
  * established Phase 123 test-mode hook), (c) the live dev workspace continues
@@ -138,6 +146,59 @@ function runAcceptance(home, extraEnv) {
   return { exitCode: r.status, json: json, stdout: r.stdout, stderr: r.stderr };
 }
 
+// Invoke doctor --acceptance --pre-flight --json against the given home + env.
+// Phase 126.1 hotfix (2026-05-15): the pre-flight tier is the strict subset of
+// pre-tag MINUS in-flight-incompatible checks (today, only verify-release-clean-
+// tree); release.sh Step 2.5 calls --pre-flight BEFORE Step 3 mutates the tree.
+function runAcceptancePreFlight(home, extraEnv) {
+  const env = Object.assign({}, process.env, {
+    HOME: home,
+    USERPROFILE: home,
+    MINDRIAN_PLUGIN_HOME: path.join(home, '.claude', 'plugins'),
+    DOCTOR_TEST_MODE: '1',
+    DOCTOR_VERIFY_RELEASE_PATH: seedVerifyReleaseShim(home),
+  }, extraEnv || {});
+  if (!env.MINDRIAN_STATUSLINE_SURFACE) env.MINDRIAN_STATUSLINE_SURFACE = 'CLI';
+  delete env.CLAUDE_DESKTOP;
+  if (!extraEnv || extraEnv.MINDRIAN_OS_ROOT === undefined) delete env.MINDRIAN_OS_ROOT;
+  const args = [DOCTOR, '--acceptance', '--pre-flight', '--json'];
+  const r = spawnSync('node', args, { env: env, encoding: 'utf8', timeout: 90000 });
+  let json = null;
+  if (r.stdout) {
+    const start = r.stdout.indexOf('{');
+    if (start !== -1) {
+      try { json = JSON.parse(r.stdout.slice(start)); } catch (_) {
+        try { json = JSON.parse(r.stdout); } catch (__) { /* leave null */ }
+      }
+    }
+  }
+  return { exitCode: r.status, json: json, stdout: r.stdout, stderr: r.stderr };
+}
+
+// Invoke doctor --acceptance --pre-flight --json against the LIVE workspace
+// (no HOME override). Used by Test 8.
+function runAcceptancePreFlightLive(extraEnv) {
+  const shimDir = fs.mkdtempSync(path.join(os.tmpdir(), 'acceptance-preflight-live-pf-'));
+  const shimPath = seedVerifyReleaseShim(shimDir);
+  const env = Object.assign({}, process.env, {
+    DOCTOR_TEST_MODE: '1',
+    DOCTOR_VERIFY_RELEASE_PATH: shimPath,
+  }, extraEnv || {});
+  if (!env.MINDRIAN_STATUSLINE_SURFACE) env.MINDRIAN_STATUSLINE_SURFACE = 'CLI';
+  delete env.CLAUDE_DESKTOP;
+  const args = [DOCTOR, '--acceptance', '--pre-flight', '--json'];
+  const r = spawnSync('node', args, { env: env, encoding: 'utf8', timeout: 120000 });
+  let json = null;
+  if (r.stdout) {
+    const start = r.stdout.indexOf('{');
+    if (start !== -1) {
+      try { json = JSON.parse(r.stdout.slice(start)); } catch (_) { /* leave null */ }
+    }
+  }
+  rmTmp(shimDir);
+  return { exitCode: r.status, json: json, stdout: r.stdout, stderr: r.stderr };
+}
+
 // Invoke doctor --acceptance --pre-tag --json against the LIVE workspace (no
 // HOME override). Returns parsed JSON. Used by Tests 6 + 7.
 function runAcceptanceLive(extraEnv) {
@@ -208,24 +269,30 @@ try {
   }
 } catch (err) { failTest('Test 1 (session-start-active-version: real broken state)', err); }
 
-// -- Test 2 (verify-release-clean-tree: synthesized failure) -- SKIPPED
+// -- Test 2 (verify-release-clean-tree: synthesized failure under --pre-flight) -
 //
-// Orphaned by Phase 126 beta.16 hotfix commit 3fc008b (2026-05-14).
-// The `verify-release-clean-tree` check was moved from
-// `applies_to: ['pre-tag', 'full']` to `['full']` because release.sh
-// Step 6.6 invokes --pre-tag AFTER its own Steps 3-6 intentionally modify
-// 3 tracked files (package.json + plugin.json + CHANGELOG); the strict
-// clean-tree check tripped on those expected mods and aborted the cut.
-//
-// The check still exists in `full` mode (post-tag) and is exercised by
-// Phase 126 Plan 03's acceptance-gate self-coverage harness when full
-// is invoked. To restore equivalent --pre-tag-scope coverage of this
-// failure mode, a future plan would need to (a) move release.sh Step
-// 6.6 to BEFORE its Step 3 bumps, OR (b) add a new applies_to tier
-// (e.g., 'pre-flight') that's a strict subset of --pre-tag minus the
-// in-flight-incompatible checks. Captured as Phase 126.X / beta.17.1
-// follow-up in the install-cache family pre-mortem.
-console.log('SKIP: Test 2 (verify-release-clean-tree: synthesized failure) -- orphaned by Phase 126 beta.16 hotfix 3fc008b; check moved to applies_to:[\'full\'] only');
+// RESTORED by Phase 126.1 hotfix (2026-05-15). The Phase 126 beta.16 hotfix
+// 3fc008b moved verify-release-clean-tree out of --pre-tag (because release.sh
+// Step 6.6 runs --pre-tag AFTER Steps 3-6 intentionally bump 3 tracked files);
+// Phase 126.1 introduced the --pre-flight tier (strict subset of --pre-tag
+// minus in-flight-incompatible checks) and release.sh Step 2.5 calls it BEFORE
+// any mutation. The check now lives in applies_to: ['pre-flight', 'full'].
+// Test 2 exercises the synthesized failure path under --pre-flight mode.
+try {
+  const home = mktempHome('2-inj');
+  try {
+    const result = runAcceptancePreFlight(home, { DOCTOR_TEST_FAIL_POINT: 'verify-release-clean-tree' });
+    assert.ok(result.json, 'JSON parses; stdout=' + (result.stdout || '').slice(0, 400) + ' stderr=' + (result.stderr || '').slice(0, 400));
+    const e = entry(result, 'verify-release-clean-tree');
+    assert.ok(e, 'verify-release-clean-tree entry not found under --pre-flight; got points: ' + JSON.stringify((result.json.points || []).map(function (p) { return p.id; })));
+    assert.strictEqual(e.ok, false, 'verify-release-clean-tree.ok must be false under synthesized failure');
+    assert.match(e.finding || '', /synthesized failure \(test mode\)/i,
+      'expected synthesized-failure finding; got: ' + e.finding);
+    pass('Test 2 (verify-release-clean-tree: synthesized failure under --pre-flight)');
+  } finally {
+    rmTmp(home);
+  }
+} catch (err) { failTest('Test 2 (verify-release-clean-tree: synthesized failure under --pre-flight)', err); }
 
 // -- Test 3 (frontmatter-yaml-validity: synthesized failure) --------
 try {
@@ -340,6 +407,38 @@ try {
     'doctor --acceptance must exit non-zero when working-tree-housekeeping is synthesized to fail; got exit=' + result.exitCode);
   pass('Test 7 (isolation: working-tree-housekeeping fail does not cascade to siblings)');
 } catch (err) { failTest('Test 7 (isolation: one failure does not cascade)', err); }
+
+// -- Test 8 (--pre-flight tier filter sanity) -----------------------
+//
+// Phase 126.1 hotfix (2026-05-15). Run doctor with --acceptance --pre-flight
+// --json against the LIVE dev workspace and assert:
+//   1. result.json.mode === 'pre-flight'
+//   2. The points array contains verify-release-clean-tree (strict subset
+//      sibling of --pre-tag that includes this check).
+//   3. The points array does NOT contain any 'full'-only entry (the
+//      post-publish entries: version-of-record-published, npx-roundtrip).
+// This guards against the filter regressing or the new tier silently
+// pulling in checks it shouldn't.
+try {
+  const result = runAcceptancePreFlightLive();
+  assert.ok(result.json, 'JSON parses against live workspace under --pre-flight; stdout-tail=' + (result.stdout || '').slice(-400));
+  assert.strictEqual(result.json.mode, 'pre-flight',
+    'pre-flight mode must echo back as "pre-flight"; got: ' + result.json.mode);
+  // Must include verify-release-clean-tree.
+  const cleanTree = entry(result, 'verify-release-clean-tree');
+  assert.ok(cleanTree,
+    'verify-release-clean-tree entry must appear in --pre-flight mode; got points: ' + JSON.stringify((result.json.points || []).map(function (p) { return p.id; })));
+  // Must NOT include any 'full'-only entries. The two known full-only entries
+  // today are version-of-record-published + npx-roundtrip (both gated on the
+  // tag + npm publish having landed).
+  const fullOnlyIds = ['version-of-record-published', 'npx-roundtrip'];
+  for (const id of fullOnlyIds) {
+    const e = entry(result, id);
+    assert.ok(!e,
+      'pre-flight mode must NOT include the full-only entry "' + id + '"; filter regression suspected');
+  }
+  pass('Test 8 (--pre-flight tier filter sanity: mode echo + verify-release-clean-tree included + full-only entries excluded)');
+} catch (err) { failTest('Test 8 (--pre-flight tier filter sanity)', err); }
 
 // -- Summary --------------------------------------------------------
 console.log('');

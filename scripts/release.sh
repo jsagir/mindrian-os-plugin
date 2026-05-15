@@ -194,6 +194,7 @@ if [ "$DRY_RUN" = "1" ]; then
   echo "Planned release sequence for: $CURRENT -> $NEW_VERSION (mode: $BUMP_MODE)"
   echo ""
   echo "  Step 2    : run scripts/verify-release (read-only check; ALREADY PASSED in pre-flight)"
+  echo "  Step 2.5  : run mindrian-os doctor --acceptance --pre-flight (HARD ABORT; clean-tree gate before any mutation)"
   echo "  Step 3    : bump .claude-plugin/plugin.json + package.json -> $NEW_VERSION"
   echo "  Step 4    : bump ~/mindrian-marketplace/.claude-plugin/marketplace.json"
   echo "              version=$NEW_VERSION + source.ref=v$NEW_VERSION (TWO-COMMIT form; Phase 123 D-19)"
@@ -253,6 +254,24 @@ if ! bash "$PLUGIN_DIR/scripts/verify-release" 2>&1; then
   exit 1
 fi
 echo -e "${GREEN}All verification checks passed${NC}"
+
+# --- Step 2.5: doctor --acceptance --pre-flight (HARD ABORT) ---
+# Phase 126.1 hotfix (2026-05-15): the clean-tree check was moved out of
+# --pre-tag by 3fc008b because release.sh Step 6.6 calls --pre-tag AFTER
+# Steps 3-6 intentionally mutate plugin.json / package.json / CHANGELOG.
+# The clean-tree check still matters BEFORE the cut starts -- so we run
+# it here in a new --pre-flight tier (strict subset of --pre-tag minus
+# in-flight-incompatible checks). HARD ABORT, no rollback needed because
+# nothing has been mutated yet.
+echo ""
+echo "=== Step 2.5: doctor --acceptance --pre-flight ==="
+if ! node "$PLUGIN_DIR/scripts/doctor.cjs" --acceptance --pre-flight; then
+  echo -e "${RED}ABORT: doctor --acceptance --pre-flight failed -- release halted BEFORE any mutation.${NC}"
+  echo "  Working tree must be clean (tracked-only) before release.sh starts bumping."
+  echo "  Investigate: git status --porcelain --untracked-files=no"
+  exit 1
+fi
+echo -e "${GREEN}  --acceptance --pre-flight passed${NC}"
 
 # --- Step 3: Bump plugin.json AND package.json (5-way version consistency) ---
 cd "$PLUGIN_DIR"

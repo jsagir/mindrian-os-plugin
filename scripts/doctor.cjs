@@ -94,7 +94,16 @@ function parseArgs(argv) {
     // networks / hermetic CI). --acceptance has its OWN exit-code contract
     // (0 = all points passed; 1 = any point failed) and is NOT a class flag,
     // so the class-flag-always-exit-0 invariant does NOT apply.
-    acceptance: false, preTag: false, lightNpx: false,
+    //
+    // Phase 126.1 hotfix (2026-05-15): added `preFlight` tier. release.sh
+    // Step 6.6 calls --pre-tag AFTER Steps 3-6 intentionally bump
+    // plugin.json + package.json + CHANGELOG, so verify-release-clean-tree
+    // cannot live in 'pre-tag'. The new `pre-flight` tier is a strict
+    // subset of pre-tag MINUS in-flight-incompatible checks; release.sh
+    // Step 2.5 calls --pre-flight BEFORE Step 3 mutates anything, restoring
+    // the clean-tree gate. Mutually exclusive with --pre-tag; if both
+    // pass, --pre-tag wins.
+    acceptance: false, preTag: false, preFlight: false, lightNpx: false,
     all: false, simulateWrite: null,
     scanCommandsDir: null, scanScriptsDir: null,
   };
@@ -110,6 +119,7 @@ function parseArgs(argv) {
     else if (arg === '--install-state') flags.installState = true;
     else if (arg === '--acceptance') flags.acceptance = true;
     else if (arg === '--pre-tag') flags.preTag = true;
+    else if (arg === '--pre-flight') flags.preFlight = true;
     else if (arg === '--light-npx') flags.lightNpx = true;
     else if (arg === '--all') flags.all = true;
     else if (arg.startsWith('--simulate-write=')) flags.simulateWrite = arg.slice('--simulate-write='.length);
@@ -132,6 +142,11 @@ function parseArgs(argv) {
   // --pre-tag implies --acceptance (convenience; running --pre-tag standalone
   // is meaningless).
   if (flags.preTag) flags.acceptance = true;
+  // --pre-flight implies --acceptance for the same reason. If both --pre-tag
+  // and --pre-flight are passed, --pre-tag wins downstream (the mode resolver
+  // checks preTag first); --pre-flight is the strict-subset tier release.sh
+  // Step 2.5 uses BEFORE Step 3 mutates the tree.
+  if (flags.preFlight) flags.acceptance = true;
   return flags;
 }
 
@@ -161,6 +176,11 @@ Release-gate runner (Phase 123 Plan-04 -- separate from class flags):
                            (skips version-of-record-published + npx-roundtrip which are
                            false until AFTER the tag + npm publish). --pre-tag IMPLIES
                            --acceptance. release.sh Step 6.6 runs this BEFORE git tag.
+  --pre-flight             with --acceptance: filter to pre-flight-applicable points
+                           (strict subset of --pre-tag minus in-flight-incompatible
+                           checks like verify-release-clean-tree). Runs BEFORE release.sh
+                           mutates plugin.json / package.json / CHANGELOG. Mutually
+                           exclusive with --pre-tag; if both pass, --pre-tag wins.
   --light-npx              with --acceptance (full): skip the mktemp HOME-override sandbox
                            in the npx-roundtrip point; resolve npx --no-install --help
                            instead of doing a live install. Operator opt-in.
@@ -2459,7 +2479,12 @@ function buildAcceptanceChecklist(ctx) {
       // 'pre-tag', keep in 'full' (post-tag, everything should be committed).
       // Operators can still invoke doctor --acceptance manually pre-flight by
       // running it without --pre-tag (which runs the 'full' suite).
-      applies_to: ['full'],
+      //
+      // Phase 126.1 hotfix (2026-05-15): added 'pre-flight' tier. release.sh
+      // Step 2.5 calls --pre-flight BEFORE Step 3 mutates the tree, so this
+      // check runs on a clean working tree before the cut starts bumping.
+      // 'pre-tag' stays excluded because Step 6.6 still runs post-bump.
+      applies_to: ['pre-flight', 'full'],
       run: async function () {
         if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'verify-release-clean-tree') {
           return { ok: false, finding: 'verify-release-clean-tree synthesized failure (test mode)', detail: {} };
@@ -2558,8 +2583,9 @@ function buildAcceptanceChecklist(ctx) {
           // npx-publish self-test; Step 9.8 is the post-publish full
           // --acceptance gate (was Step 9.6 in Wave 2's scaffold). If you edit
           // this list, make sure release.sh --dry-run output still matches in
-          // order.
-          const expectedSteps = ['Step 2', 'Step 3', 'Step 4', 'Step 5', 'Step 5b', 'Step 5.5', 'Step 6', 'Step 6.5', 'Step 6.6', 'Step 7', 'Step 9.5', 'Step 9.6', 'Step 9.7', 'Step 9.8'];
+          // order. Phase 126.1 hotfix (2026-05-15) added Step 2.5 (the new
+          // --pre-flight clean-tree gate that runs BEFORE Step 3 mutates).
+          const expectedSteps = ['Step 2', 'Step 2.5', 'Step 3', 'Step 4', 'Step 5', 'Step 5b', 'Step 5.5', 'Step 6', 'Step 6.5', 'Step 6.6', 'Step 7', 'Step 9.5', 'Step 9.6', 'Step 9.7', 'Step 9.8'];
           const missing = expectedSteps.filter(function (s) { return out.indexOf(s) === -1; });
           const ok = missing.length === 0;
           return {
@@ -2608,9 +2634,13 @@ async function runAcceptance(opts) {
   const home = opts.home;
   const pluginRoot = opts.pluginRoot;
   const flagPreTag = opts.flagPreTag;
+  const flagPreFlight = opts.flagPreFlight;
   const flagLightNpx = opts.flagLightNpx;
   const checklist = buildAcceptanceChecklist({ home: home, pluginRoot: pluginRoot, flagLightNpx: flagLightNpx });
-  const mode = flagPreTag ? 'pre-tag' : 'full';
+  // Phase 126.1 hotfix (2026-05-15): tri-state mode. --pre-tag wins when both
+  // --pre-tag and --pre-flight are passed; --pre-flight is the strict-subset
+  // tier release.sh Step 2.5 uses BEFORE Step 3 mutates the tree.
+  const mode = flagPreTag ? 'pre-tag' : (flagPreFlight ? 'pre-flight' : 'full');
   const filtered = checklist.filter(function (p) { return p.applies_to.indexOf(mode) !== -1; });
   const results = [];
   const failed = [];
@@ -2859,6 +2889,7 @@ function main() {
       home: home,
       pluginRoot: PLUGIN_ROOT,
       flagPreTag: flags.preTag,
+      flagPreFlight: flags.preFlight,
       flagLightNpx: flags.lightNpx,
     }).then(function (result) {
       // Per-point status lines (human-readable).
@@ -2905,7 +2936,7 @@ function main() {
       process.exit(result.failed_points.length === 0 ? 0 : 1);
     }).catch(function (e) {
       console.error('acceptance runner threw: ' + (e && e.message));
-      if (flags.json) console.log(JSON.stringify({ mode: flags.preTag ? 'pre-tag' : 'full', error: e && e.message, points: [], failed_points: ['__runner__'], summary: { total: 0, passed: 0, failed: 1 } }, null, 2));
+      if (flags.json) console.log(JSON.stringify({ mode: flags.preTag ? 'pre-tag' : (flags.preFlight ? 'pre-flight' : 'full'), error: e && e.message, points: [], failed_points: ['__runner__'], summary: { total: 0, passed: 0, failed: 1 } }, null, 2));
       process.exit(1);
     });
     return;
