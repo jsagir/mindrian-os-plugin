@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 118-06-rule-linter-dror-harness PLAN; Phase 118 ALL PLANS DONE (7/7)
-last_updated: "2026-05-15T13:59:49.656Z"
+stopped_at: Completed quick task 260515-rd1 (126.1-hotfix-beta17, 3 fixes + Phase 122 invariant); ready for v1.13.0-beta.17 release cut
+last_updated: "2026-05-15T17:10:00.000Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 58
@@ -912,6 +912,7 @@ Progress: [█████████░] 93%
 | 260420-gg7 | Draft MINDRIAN-CANON.md product canon with 8 principles + cross-references | 2026-04-20 | b7d95bd | [260420-gg7-draft-mindrian-canon-md-product-canon-wi](./quick/260420-gg7-draft-mindrian-canon-md-product-canon-wi/) |
 | 260510-or6 | docs/UI-UX-CONVERGENCE-2026-05-10 bundle -- 11 files: diagnose, JTBD, systems analysis, two reverse salients, contradiction audit, 10-decision survey, tester-evidence design brief, Minto convergence + dev-phase instructions, live-Brain Mode-A re-run, activation-gap critical finding | 2026-05-10 | 9ab9a77 | [260510-or6-create-docs-ui-ux-convergence-2026-05-10](./quick/260510-or6-create-docs-ui-ux-convergence-2026-05-10/) |
 | 260511-wdm | Cut v1.13.0-beta.10 + rename npm package @mindrian/os -> @mindrian_os/cli (the @mindrian scope never existed; @mindrian_os org created 2026-05-11). plugin.json + package.json -> 1.13.0-beta.10; forward-looking refs swapped; CHANGELOG [1.13.0-beta.10] entry; tag v1.13.0-beta.10. Pushed to GitHub + marketplace. npm publish pending a working @mindrian_os-scoped bypass-2FA token. | 2026-05-11 | 103a8fb | [260511-wdm-beta10-pkg-rename](./quick/260511-wdm-beta10-pkg-rename/) |
+| 260515-rd1 | 126.1-hotfix-beta17: fix three release-pipeline bugs surfaced during beta.16 cut + Phase 122 invariant cleanup. Bug 1: new `pre-flight` tier in doctor.cjs applies_to + Step 2.5 in release.sh + Test 2 restored from SKIP to PASS. Bug 2: Commit B bumps marketplace.json (closes 7-place lockstep gap) + Tests H + I added. Bug 3: Step 9.7 npx self-test switched to HOME-override sandbox at `~/.claude/_test-install-<sha8>/` with snapshot + cleanup. Task 3: teaching: frontmatter on mva-brief.md + mva-option.md verified compliant (no refinement needed; Phase 122 build-command-registry gate now exit 0). Gates: 8/8 preflight tests + 9/9 bump-algebra tests + build-command-registry --check + release.sh --dry-run all GREEN. Test 7 maintainer-env legacy-clone drift = known, not regression. No version bump in this hotfix; v1.13.0-beta.17 cut runs `release.sh --prerelease` next. | 2026-05-15 | 185ae8c7 | [260515-rd1-126-1-hotfix-beta17-fix-three-release-pi](./quick/260515-rd1-126-1-hotfix-beta17-fix-three-release-pi/) |
 
 ## Session Continuity
 
