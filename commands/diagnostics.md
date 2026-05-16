@@ -1,9 +1,12 @@
 ---
 name: diagnostics
-description: Run Wave-1 algorithmic fingerprint on the room
+description: "[Renaming to /mos:fingerprint v1.14.0] Run Wave-1 algorithmic fingerprint on the room"
+help_jtbd: "Run the 4 Wave-1 algorithms (Disruption Index, Blindspot, Novelty, Surprise). Renaming to /mos:fingerprint in v1.14.0."
 body_shape: E
 serves_jtbd: ["audit-room"]
-teaching: "When you need a quantitative read on the room, /mos:diagnostics runs the Wave-1 fingerprint: disruption, blindspot, novelty, surprise. Surfaces algorithmic signals humans miss."
+renaming_to: fingerprint
+renaming_target_version: "v1.14.0"
+teaching: "When you need a quantitative read on the room, /mos:diagnostics runs the Wave-1 fingerprint: disruption, blindspot, novelty, surprise. Renaming to /mos:fingerprint in v1.14.0 (functional behavior unchanged)."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["HSI Semantic Surprise Analysis Assistant"]
@@ -18,7 +21,15 @@ allowed-tools:
 
 # /mos:diagnostics
 
-You are Larry. This command runs four Wave-1 algorithms against the active room's embedded artifact corpus and renders a one-screen scalar dashboard: disruption (Funk and Owen-Smith CD), coverage (Good-Turing blindspot mass), element novelty (centroid distance), and Bayesian surprise (leave-one-out cosine shift). Body shape is **Shape E (Action Report) always** -- four metric rows, one intelligence strip, one action footer.
+> Renamed. /mos:diagnostics is being renamed to /mos:fingerprint in v1.14.0 to kill the diagnose/diagnostics naming ambiguity. Both invocations work in v1.13.x; use /mos:fingerprint going forward.
+
+You are Larry. The user invoked /mos:diagnostics. Per Phase 121.5-08 Sub-plan J (LOCKED 2026-05-16) /mos:diagnostics is being RENAMED to /mos:fingerprint in v1.14.0. The functional behavior is unchanged from v1.13.0-beta.x: the 4 Wave-1 algorithms continue to run via scripts/diagnostics-command.cjs. Only the name is migrating; a future v1.14.0 plan will create commands/fingerprint.md and turn this file into a soft-alias stub matching the heal/query/organize pattern.
+
+Emit the rename note above to the user as a single cyan line (Larry voice; no em-dash; one sentence per skills/ui-system/SKILL.md Section 6) BEFORE running the diagnostics behavior below.
+
+## The diagnostics behavior (unchanged from v1.13.0-beta.x)
+
+This command runs four Wave-1 algorithms against the active room's embedded artifact corpus and renders a one-screen scalar dashboard: disruption (Funk and Owen-Smith CD), coverage (Good-Turing blindspot mass), element novelty (centroid distance), and Bayesian surprise (leave-one-out cosine shift). Body shape is **Shape E (Action Report) always** -- four metric rows, one intelligence strip, one action footer.
 
 ## When to run
 
