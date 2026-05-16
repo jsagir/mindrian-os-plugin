@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "phase": "121.5-07",
+  "canon_parts": ["Part 3", "Part 7", "Part 10"],
+  "decisions": ["D-06", "D-07"],
+  "_note": "Canonical groups for /mos:help. Modify in lockstep with commands/*.md frontmatter help_jtbd: fields. scripts/check-help-coverage.cjs is the CI tripwire that enforces every non-admin command appears here AND has a help_jtbd value. The Export/Publish/Hub trio (D-07) replaces the legacy 'Output + Export' group with destination-first mental model: I want my work to end up at X.",
+  "groups": [
+    {
+      "id": "getting-started",
+      "label": "Getting Started",
+      "glyph": "▶",
+      "commands": ["new-project", "onboard", "splash", "help", "rooms", "room"]
+    },
+    {
+      "id": "problem-discovery",
+      "label": "Problem Discovery",
+      "glyph": "?",
+      "commands": [
+        "beautiful-question",
+        "root-cause",
+        "user-needs",
+        "analyze-needs",
+        "map-unknowns",
+        "challenge-assumptions",
+        "jtbd"
+      ]
+    },
+    {
+      "id": "structured-thinking",
+      "label": "Structured Thinking",
+      "glyph": "□",
+      "commands": [
+        "structure-argument",
+        "lean-canvas",
+        "value-proposition",
+        "mullins",
+        "build-thesis",
+        "mva-brief",
+        "mva-option",
+        "mos-reason"
+      ]
+    },
+    {
+      "id": "perspectives",
+      "label": "Perspectives + Creativity",
+      "glyph": "◆",
+      "commands": [
+        "think-hats",
+        "hat-briefing",
+        "persona",
+        "scenario-plan",
+        "compare-ventures",
+        "leadership"
+      ]
+    },
+    {
+      "id": "intelligence-brain",
+      "label": "Intelligence + Brain",
+      "glyph": "⚡",
+      "commands": [
+        "brain-derive",
+        "find-analogies",
+        "find-bottlenecks",
+        "find-connections",
+        "rs-fetch",
+        "rs-thesis",
+        "rs-experts",
+        "rs-explain",
+        "diagnostics",
+        "score-innovation",
+        "whitespace",
+        "explore-domains",
+        "explore-trends",
+        "explore-futures",
+        "macro-trends",
+        "dominant-designs",
+        "models",
+        "systems-thinking",
+        "analyze-systems",
+        "analyze-timing",
+        "causal",
+        "auto-explore",
+        "memory"
+      ]
+    },
+    {
+      "id": "working",
+      "label": "Working",
+      "glyph": "▸",
+      "commands": [
+        "act",
+        "file-meeting",
+        "pipeline",
+        "research",
+        "validate",
+        "operator",
+        "feynman-timeline-refresh",
+        "graph",
+        "suggest-next",
+        "explain-decision",
+        "scout",
+        "speakers",
+        "opportunities",
+        "funding"
+      ]
+    },
+    {
+      "id": "reviewing",
+      "label": "Reviewing",
+      "glyph": "✓",
+      "commands": ["status", "diagnose", "radar", "grade", "deep-grade", "reanalyze"]
+    },
+    {
+      "id": "export",
+      "label": "Export",
+      "glyph": "↓",
+      "commands": ["export", "vault", "snapshot"]
+    },
+    {
+      "id": "publish",
+      "label": "Publish",
+      "glyph": "↗",
+      "commands": ["publish", "present"]
+    },
+    {
+      "id": "hub",
+      "label": "Hub",
+      "glyph": "⬡",
+      "commands": ["dashboard", "wiki", "scheduled-tasks", "visualize"]
+    },
+    {
+      "id": "infrastructure",
+      "label": "Infrastructure",
+      "glyph": "⚙",
+      "commands": ["setup", "update", "doctor", "build-knowledge"]
+    }
+  ],
+  "deprecated_aliases": {
+    "_note": "Per Phase 121.5-08 Sub-plan J. Old commands stay as soft-alias stubs but do NOT appear in /mos:help groups -- they redirect to the canonical command.",
+    "heal": "doctor --heal-room",
+    "query": "graph",
+    "organize": "rooms organize",
+    "hmi-status": "doctor --ui-compliance"
+  }
+}

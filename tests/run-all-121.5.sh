@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 # Phase 121.5 scoped runner -- run before each 121.5 task commit. Each plan
-# appends its own suites. As of Plan 121.5-07 the runner covers:
-#   ../lib/memory/palette-consistency.test.cjs    -> Plan 121.5-03 Task 1 (canonical palette.json)
-#   ../lib/memory/statusline-two-row.test.cjs     -> Plan 121.5-03 Task 2 (two-row renderer)
-#   ../lib/memory/terminal-capability.test.cjs    -> Plan 121.5-07 Task 1 (capability probe + help_jtbd sweep)
+# appends its own suites. Current coverage:
+#   ../lib/memory/sessionstart-coordinator.test.cjs  -> Plan 121.5-00 (SessionStart Coordinator; D-13..D-16)
+#   ../lib/memory/palette-consistency.test.cjs       -> Plan 121.5-03 Task 1 (canonical palette.json)
+#   ../lib/memory/statusline-two-row.test.cjs        -> Plan 121.5-03 Task 2 (two-row renderer)
+#   ../lib/memory/terminal-capability.test.cjs       -> Plan 121.5-07 Task 1 (capability probe + help_jtbd sweep)
+#   ../lib/memory/help-renderer.test.cjs             -> Plan 121.5-07 Task 2 (help-groups.json + renderer)
+#   ../lib/memory/help-coverage.test.cjs             -> Plan 121.5-07 Task 2 (check-help-coverage CI guard)
+#   test-help-renderer-bulletproof.cjs               -> Plan 121.5-07 Task 2 (3 torture tests)
 #
 # This runner MUST run to completion (no crash) even when any suite fails; it
 # prints a per-suite PASS/FAIL line and exits non-zero if any suite failed.
@@ -21,9 +25,13 @@ START_TIME=$(date +%s)
 SHELL_SUITES=(
 )
 CJS_SUITES=(
+  ../lib/memory/sessionstart-coordinator.test.cjs
   ../lib/memory/palette-consistency.test.cjs
   ../lib/memory/statusline-two-row.test.cjs
   ../lib/memory/terminal-capability.test.cjs
+  ../lib/memory/help-renderer.test.cjs
+  ../lib/memory/help-coverage.test.cjs
+  test-help-renderer-bulletproof.cjs
 )
 
 TOTAL=0
