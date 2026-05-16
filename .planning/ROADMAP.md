@@ -1238,19 +1238,23 @@ Plans:
 **Authority**: `.planning/phases/119-room-as-receipt-invariant/119-CONTEXT.md` (stub). Source: `~/MindrianRooms/mindrian/mindrianOS/problem-definition/2026-05-05-beautiful-question-first-turn.md` (synthesis source).
 
 
-### Phase 120: Breakthrough Scan / Category G (REGISTERED 2026-05-05 — STUB)
+### Phase 120: Breakthrough Scan / Category G (PLANS REGISTERED 2026-05-16)
 
-**Goal:** Session-start scanner reads existing room content, detects 4 breakthrough pattern types (convergence, contradiction-resolved, cross-domain analogy, reverse-salient closed), renders them in Larry-voice with positive-framing rules ("you cracked X" not "you missed X"), surfaces via F.4 Insight Extraction selector. Hooked Fix 3 from the dormant 2026-04-12 audit. The "highest-nutrition variable reward" type — the user's own breakthroughs surfaced back at them, making investment directly reload reward. Variable Reward axis target: 7/10 (post Phase 117) → 9/10 + Trigger Internal +3.
+**Goal:** Session-start scanner reads existing room content, detects 4 breakthrough pattern types (convergence, contradiction-resolved, cross-domain analogy, reverse-salient closed), renders them in Larry-voice with positive-framing rules (D-17 4-rule scaffold) via a NEW F.7 Breakthrough Surface selector with 5 verbs ([Explore deeper] / [Confirm] / [File as decision] / [Dismiss] / [Back]). Hooked Fix 3 from the dormant 2026-04-12 audit. The "highest-nutrition variable reward" type -- the user's own breakthroughs surfaced back at them, making investment directly reload reward. Variable Reward axis target: 7/10 (post Phase 117) -> 9/10 + Trigger Internal +3.
 
-**Requirements**: TBD (BREAKTHROUGH-120-01..NN — defined when CONTEXT.md is expanded; current stub captures scope + acceptance criteria + 4 detector types)
+**Requirements:** BREAKTHROUGH-120-01 (4 detectors), BREAKTHROUGH-120-02 (two-tier soft/hard firing), BREAKTHROUGH-120-03 (F.7 selector + 5 verbs), BREAKTHROUGH-120-04 (session-start scanner via chokepoint), BREAKTHROUGH-120-05 (4-rule voice scaffold + audit), BREAKTHROUGH-120-06 (4-tier ethics fence), BREAKTHROUGH-120-07 (D-19 per-detector dismissal-rate canary), BREAKTHROUGH-120-08 (D-13..D-15 resurfacing rules), BREAKTHROUGH-120-09 (5-component scoring formula + top-1 + "More breakthroughs (N)" affordance).
 
-**Depends on:** Phase 109 (SQL navigation spine — reads room.db + Memory Event Log) AND Phase 117 (auto-explore wires the math layer that feeds breakthrough patterns). HARD on both.
+**Depends on:** Phase 109 (SQL navigation spine -- reads room.db + Memory Event Log) AND Phase 117 (auto-explore wires the math layer that feeds breakthrough patterns) AND Phase 88.2 (F-shape selector primitive that F.7 extends) AND Phase 119 (session-start hook ordering -- Phase 120 fires THIRD after detectNoActiveRoom + detectFirstMaterial). HARD on all four.
 
-**Canon parts:** Part 2 Engine 1 (Act 1 intelligence — pattern detection over local graph), Part 10 sub-claim 5 (variable reward fires automatically). Beta target: **v1.13.0 final**.
+**Canon parts:** Part 2 Engine 1 (Act 1 intelligence -- pattern detection over local graph), Part 3 (F.7 selector is a tri-context Decision Gate primitive instance), Part 4 ("File as decision" makes breakthroughs first-class decisions), Part 5 (D-17 evidence requirement + D-18 confidence bands map to the four evidence tiers), Part 8 (D-20 Cypher-provable principle is structural enforcement), Part 9 (memory locality -- all reads + writes via navigation.cjs), Part 10 sub-claim 5 (variable reward fires automatically). Beta target: **v1.13.0 final**.
 
-**Plans:** TBD — phase is stubbed; four sub-plans anticipated (120-00 4-pattern detector implementation, 120-01 session-start scanner integration, 120-02 Larry-voice positive-framing rules, 120-03 F.4 Insight Extraction selector wiring).
+**Plans:** 4 plans (Wave 1 + Wave 2):
+- [ ] 120-00-PLAN.md -- 4 pattern detectors + Breakthrough graph schema + EVENT_TYPES (+6) + ALLOWED_EDGE_TYPES (+DERIVED_FROM) [requirements: BREAKTHROUGH-120-01, BREAKTHROUGH-120-02, BREAKTHROUGH-120-06; Wave 1]
+- [ ] 120-01-PLAN.md -- F.7 Breakthrough Surface selector + 5-verb dispatcher + 5-component scoring formula + "More breakthroughs (N)" affordance [requirements: BREAKTHROUGH-120-03, BREAKTHROUGH-120-09; Wave 1]
+- [ ] 120-02-PLAN.md -- session-start scanner + resurfacing rules (D-13..D-15) + D-19 canary + verb-dispatch consumer + D-20 end-to-end test [requirements: BREAKTHROUGH-120-04, BREAKTHROUGH-120-07, BREAKTHROUGH-120-08; Wave 2; depends on 120-00 + 120-01]
+- [ ] 120-03-PLAN.md -- D-17 4-rule voice scaffold + auditor + D-18 4-tier ethics fence + .rooms/breakthrough-review-queue.db + Larry skill update [requirements: BREAKTHROUGH-120-05, BREAKTHROUGH-120-06 (full enforcement); Wave 2; depends on 120-00 + 120-01 + 120-02]
 
-**Authority**: `.planning/phases/120-breakthrough-scan-category-g/120-CONTEXT.md` (stub). Source spec: `~/MindrianRooms/mindrian/mindrian-ecosystem/sub-rooms/website/mindrianos-conversion-fix/solution-design/breakthrough-scan-category-g.md`.
+**Authority**: `.planning/phases/120-breakthrough-scan-category-g/120-CONTEXT.md` (twenty decisions D-01..D-20 locked 2026-05-16 via /gsd:discuss-phase).
 
 
 ### Phase 121: Trajectory Telemetry (REGISTERED 2026-05-05 — STUB, INSTRUMENTATION-ONLY)
