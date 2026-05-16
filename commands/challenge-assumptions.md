@@ -1,7 +1,7 @@
 ---
 name: challenge-assumptions
 description: Stress-test assumptions with Devil's Advocate
-body_shape: F.1
+body_shape: "methodology"
 serves_jtbd: ["validate-idea", "surface-contradiction"]
 teaching: "When an idea feels too clean, /mos:challenge-assumptions runs Devil's Advocate against the load-bearing claims. Catches the assumptions you stopped questioning."
 allowed-tools:

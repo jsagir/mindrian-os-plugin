@@ -1370,6 +1370,55 @@ Plans:
 - [x] 126-07-install-state-schema-v2-migration-PLAN.md -- install-state.json schema v2 + additive migration + future-version detection (wave 2 head)
 - [x] 126-STEP-0-MANUAL-RECOVERY.md -- doc: reproducible manual recovery commands (tag verify + optional retroactive npm publish); v1.13.0-beta.13 git tag already verified at origin 2026-05-13
 
+### Phase 127: Brain MCP Local Stdio Shim + Auto-Migration (REGISTERED 2026-05-14; CONTEXT scoped + design-locked; FIRST v1.13.1 PHASE -- ARCHITECTURAL ANCHOR)
+
+**Goal:** Ship `bin/mindrian-brain-mcp-client.cjs` -- a local stdio MCP server bundled with the plugin -- and add it to the plugin's `.mcp.json` so every new install gets `mindrian-brain` auto-loaded with ZERO user wiring beyond providing `MINDRIAN_BRAIN_KEY` in env / `~/.mindrian.env`. The shim proxies tool calls to the cloud Brain (the methodology director) and consumes the new `DirectiveEnvelope` typed packet (default mode: GUIDED). Includes auto-migration that detects existing testers' user-scope HTTP-transport registrations and replaces them with the bundled stdio version on next plugin update. Closes 7 of 20 Brain-wiring failure-mode taxonomy rows. Architectural anchor of v1.13.1: every Part 10 phase after this point ASSUMES Brain works.
+
+**Requirements**: [BRAIN-MCP-127-01..NN -- defined in plan-phase]
+
+**Depends on:** Phase 110 (Brain Context Packet contract -- the typed-packet wire this shim's tool calls travel through, shipped); Phase 123 (install-lifecycle-harness -- the resolver chain + key resolver this shim consumes, shipped); Phase 126 (install-lifecycle-harness-gaps -- the parallel hotfix track for residual install + doctor gaps, shipped v1.13.0-beta.16); v1.13.0 FINAL closed (Phase 121.5 capstone shipped).
+
+**Dependents:** Phase 127.1 (Brain GraphRAG Collapse: Pinecone -> Neo4j HNSW -- server-side substrate swap that rides this beta cycle, beta.2); Phase 128 (substrate-contract-adr, beta.3); Phase 129 (spine-repair-memory-event, beta.3); every subsequent v1.13.1 phase that assumes Brain reachability.
+
+**Target band:** v1.13.1-beta.1 (the v1.13.1 milestone opener; ships AFTER v1.13.0 FINAL closes)
+
+**Canon parts:** Part 6 (dog-fooding mandate -- Brain wiring failures caught by real tester transcripts, not synthetic tests); Part 7 (reuse-before-build -- ~85% reuse of `lib/core/brain-client.cjs` HTTPS path; the new shim is a thin stdio wrapper around shipped HTTPS code); Part 8 (graph boundary -- the local shim does NOT change LOCAL-to-BRAIN; the shim still proxies via the typed-packet contract; user-data egress remains forbidden).
+
+**Brain impact:** NONE-NEW (the shim's tool surface is identical to what the remote MCP server already exposes; no new Brain reads, no new Brain writes)
+
+**Plans:** 0/N plans (ready for `/gsd:plan-phase 127`; waits for v1.13.0 FINAL to close per wave-plan contract)
+
+**Authority:** `.planning/phases/127-brain-mcp-local-stdio-shim/127-CONTEXT.md` (scoped 2026-05-14; design-locked) + `.planning/v1.13.1-EXECUTION-PLAN.md` "WAVE 2 (CRITICAL -- the Brain MCP architectural shift; architectural unlock)" block (wave-2 architectural anchor; ships v1.13.1-beta.1; deduplicated 2026-05-16 per ultrareview bug_001 + bug_019)
+
+### Phase 127.1: Brain GraphRAG Collapse: Pinecone -> Neo4j HNSW (server-side substrate swap) (INSERTED 2026-05-16)
+
+**Goal:** Collapse the dual-substrate Brain GraphRAG (Neo4j 21K nodes + Pinecone 1,427 embeddings) into Neo4j-only by migrating embeddings to a native Neo4j 5.11+ HNSW vector index. The audit at `.planning/research/navigation-engine-brain-interface.md` Section 3.2 confirmed Pattern B (graph-first-then-vector-rerank) and Pinecone is NOT load-bearing -- Pattern #8 fuzzy-match is the only Pinecone-dispatched query in the 14-pattern brain-query taxonomy. Removing Pinecone deletes a vestigial substrate, eliminates ~3 hrs/quarter onboarding overhead, removes one failure-mode row from the gsd-debugger taxonomy, and unifies the methodology graph under one substrate. Server-side only (the `mindrian-brain` Render service); zero client-side surface change -- testers continue calling `brain_search_semantic` and the 14 Cypher patterns by identical tool names.
+
+**The four-lock non-demotion protocol (all required, harness blocks cutover):**
+1. **Byte-identical embeddings.** Export all 1,427 float arrays from Pinecone with node IDs; load as vector property on the corresponding Neo4j nodes. Do NOT re-embed.
+2. **Same embedding model going forward.** Lock `multilingual-e5-large` (1024 dims) in mindrian-brain server config; any new node embedded with the same model.
+3. **Same similarity metric.** Explicit cosine on Neo4j vector index: `CREATE VECTOR INDEX ... OPTIONS { indexConfig: { 'vector.similarity_function': 'cosine' }}`. A silent default to Euclidean would re-rank everything.
+4. **Non-regression harness (BLOCKING SUB-TASK).** 20 representative fuzzy queries run pre-cutover against both engines. Top-5 overlap >= 80% required to flip. Below 80% -> tune HNSW params (`m`, `ef_construction`) before flipping.
+
+**Requirements**: [GRAPHRAG-COLLAPSE-127.1-01..NN -- defined in plan-phase]
+
+**Depends on:** Phase 127 brain-mcp-local-stdio-shim (rides the same v1.13.1 architectural-shift wave; the stdio shim is client-side and this phase is server-side -- orthogonal surfaces, same migration window). v1.13.0 FINAL closed.
+
+**Dependents:** v1.14.0 phases that assume the methodology graph is single-substrate (deferred lens-engine work P9/P10/P11/P13-remainder; GraphRAG retrieval phases; deferred Pinecone-Tier-0.5-offline candidates which are now obviated by Neo4j-only architecture).
+
+**Target band:** v1.13.1-beta.2 (rides immediately after Phase 127 = beta.1; before Phase 128 substrate-contract-adr = beta.3)
+
+**Canon parts:** Part 7 (reuse-before-build -- Neo4j 5.11+ already ships HNSW; building Pinecone wiring around it is the orphaned substrate this phase deletes); Part 8 (graph boundary -- the substrate swap is internal to the Brain side; LOCAL-to-BRAIN egress contract unchanged; no new user-content surface); Part 9 (memory locality + interpretation -- Brain reasons over structured packets; this phase changes the vector substrate Brain reasons OVER, not the contract Brain reasons UNDER).
+
+**Brain impact:** SERVER-SIDE SUBSTRATE SWAP (removes Pinecone client + API key from `mindrian-brain` Render env vars; adds Neo4j vector index + load script; tool surface `brain_search_semantic` + 14 Cypher patterns unchanged at API boundary)
+
+**Plans:** 0/N plans (run `/gsd:plan-phase 127.1` after Phase 127 plans; this phase waits for Phase 127 to land beta.1)
+
+**Authority:** `.planning/phases/127.1-brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap/127.1-CONTEXT.md` (scoped 2026-05-16 from this conversation) + `.planning/research/navigation-engine-brain-interface.md` Section 3.2 (Pattern B audit confirming Pinecone is not load-bearing) + `.planning/v1.13.1-EXECUTION-PLAN.md` "WAVE 2" block (wave-2 v1.13.1-beta.1 anchor; this rides at beta.2 between 127 and 128)
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 127.1 to break down -- waits for v1.13.0 FINAL + Phase 127 beta.1 ship)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
@@ -1389,4 +1438,3 @@ Plans:
 - Tie to a domain (e.g. feedback.mindrian.dev) or live under main marketing site?
 
 **Status:** Unscheduled — promote to a numbered phase when current tester onboarding stabilizes.
-

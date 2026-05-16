@@ -43,7 +43,7 @@
         "a customer segment defined"
       ],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "find-problem"
       ],
@@ -60,7 +60,7 @@
       "produces": "room/**/systems/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "find-bottleneck"
       ],
@@ -77,7 +77,7 @@
       "produces": "room/**/timing/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "understand-market"
       ],
@@ -92,7 +92,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "find-problem",
         "understand-market",
@@ -111,7 +111,7 @@
       "produces": "room/problem-definition/beautiful-question/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "find-problem",
         "explore"
@@ -127,7 +127,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "E",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -144,7 +144,7 @@
       "produces": "room/**/knowledge/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "explore"
       ],
@@ -161,7 +161,7 @@
       "produces": "room/**/thesis/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "decide-pursue",
         "prepare-pitch"
@@ -179,7 +179,7 @@
       "produces": "room/**/causal/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "find-problem",
         "find-bottleneck"
@@ -195,7 +195,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "validate-idea",
         "surface-contradiction"
@@ -213,7 +213,7 @@
       "produces": "room/competitive-analysis/comparison/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "compare-options"
       ],
@@ -228,7 +228,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "raw",
+      "body_shape": "E",
       "serves_jtbd": [
         "audit-room",
         "prepare-pitch"
@@ -248,7 +248,7 @@
         "3+ room sections populated"
       ],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "C",
       "serves_jtbd": [
         "audit-room",
         "compare-options"
@@ -266,7 +266,7 @@
       "produces": "room/problem-definition/diagnosis/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "A",
       "serves_jtbd": [
         "decide-pursue"
       ],
@@ -315,7 +315,7 @@
       "produces": "room/**/dominant-designs/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "understand-market"
       ],
@@ -330,7 +330,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "F.1",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -347,7 +347,7 @@
       "produces": "room/problem-definition/domain-decomposition/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "find-problem",
         "understand-market",
@@ -366,7 +366,7 @@
       "produces": "room/**/futures/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "compare-options",
         "explore"
@@ -384,7 +384,7 @@
       "produces": "room/**/trends/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "understand-market",
         "explore"
@@ -415,7 +415,7 @@
       "produces": "room/*/FEYNMAN.md",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "E",
       "serves_jtbd": [
         "validate-idea",
         "audit-room"
@@ -431,7 +431,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "E",
       "serves_jtbd": [
         "file-meeting"
       ],
@@ -465,7 +465,7 @@
       "produces": "room/**/reverse-salients/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "find-bottleneck"
       ],
@@ -482,7 +482,7 @@
       "produces": "room/**/analogies/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "connect-domains"
       ],
@@ -517,7 +517,7 @@
         "at least one room section populated"
       ],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "C",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -625,7 +625,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "explore"
       ],
@@ -642,7 +642,7 @@
       "produces": "room/business-model/lean-canvas/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "prepare-pitch",
         "validate-idea"
@@ -660,7 +660,7 @@
       "produces": "room/**/trends/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "understand-market"
       ],
@@ -677,7 +677,7 @@
       "produces": "room/**/unknowns/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "validate-idea"
       ],
@@ -724,7 +724,7 @@
       "produces": "room/**/reasoning/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "C",
       "serves_jtbd": [
         "explore"
       ],
@@ -741,7 +741,7 @@
       "produces": "room/**/mullins/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "understand-market"
       ],
@@ -756,7 +756,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "E",
       "serves_jtbd": [
         "explore"
       ],
@@ -771,7 +771,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "E",
       "serves_jtbd": [
         "explore"
       ],
@@ -786,7 +786,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "E",
       "serves_jtbd": [
         "explore"
       ],
@@ -878,7 +878,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "E",
       "serves_jtbd": [
         "plan-execution"
       ],
@@ -908,7 +908,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "E",
       "serves_jtbd": [
         "prepare-pitch"
       ],
@@ -923,7 +923,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "D",
       "serves_jtbd": [
         "audit-room",
         "explore"
@@ -939,7 +939,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "A",
       "serves_jtbd": [
         "understand-market"
       ],
@@ -971,7 +971,7 @@
       "produces": "room/**/research/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "C",
       "serves_jtbd": [
         "explore",
         "understand-market"
@@ -987,7 +987,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "C",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -1019,7 +1019,7 @@
       "produces": "room/**/root-cause/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "find-problem"
       ],
@@ -1106,7 +1106,7 @@
       "produces": "room/**/scenarios/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "compare-options",
         "plan-execution"
@@ -1139,7 +1139,7 @@
       "produces": "room/opportunity-bank/hsi-scores/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "compare-options",
         "validate-idea"
@@ -1171,7 +1171,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "E",
       "serves_jtbd": [
         "explore"
       ],
@@ -1186,7 +1186,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "E",
       "serves_jtbd": [
         "prepare-pitch",
         "audit-room"
@@ -1217,7 +1217,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "raw",
+      "body_shape": "E",
       "serves_jtbd": [
         "explore"
       ],
@@ -1251,7 +1251,7 @@
       "produces": "room/**/argument/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "validate-idea",
         "explore"
@@ -1267,7 +1267,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "B",
       "serves_jtbd": [
         "plan-execution",
         "explore"
@@ -1285,7 +1285,7 @@
       "produces": "room/**/systems/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "find-bottleneck"
       ],
@@ -1302,7 +1302,7 @@
       "produces": "room/**/six-hats/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "explore",
         "compare-options"
@@ -1318,7 +1318,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "E",
       "serves_jtbd": [
         "audit-room"
       ],
@@ -1335,7 +1335,7 @@
       "produces": "room/market-analysis/user-needs/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "find-problem"
       ],
@@ -1354,7 +1354,7 @@
         "a customer segment defined"
       ],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "C",
       "serves_jtbd": [
         "validate-idea"
       ],
@@ -1371,7 +1371,7 @@
       "produces": "room/business-model/value-proposition/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": null,
+      "body_shape": "methodology",
       "serves_jtbd": [
         "validate-idea",
         "prepare-pitch"
@@ -1387,7 +1387,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": null,
+      "body_shape": "E",
       "serves_jtbd": [
         "prepare-pitch"
       ],
@@ -1420,7 +1420,7 @@
       "produces": "room/opportunity-bank/whitespace/*",
       "inputs": [],
       "autonomous_safe": true,
-      "body_shape": "varies",
+      "body_shape": "methodology",
       "serves_jtbd": [
         "connect-domains",
         "find-problem"

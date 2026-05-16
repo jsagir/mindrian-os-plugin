@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed quick task 260515-rd1 (126.1-hotfix-beta17, 3 fixes + Phase 122 invariant); ready for v1.13.0-beta.17 release cut
-last_updated: "2026-05-15T17:10:00.000Z"
+stopped_at: Phase 121.5 context gathered (16 decisions captured; Sub-plans I + J absorbed)
+last_updated: "2026-05-16T04:31:48.837Z"
 last_activity: 2026-05-15
 progress:
-  total_phases: 58
+  total_phases: 60
   completed_phases: 39
   total_plans: 281
   completed_plans: 273
@@ -369,6 +369,8 @@ Progress: [█████████░] 93%
 - Phase 125 plan-phase --auto researcher run 2026-05-13 surfaced TWO BLOCKING gaps; orchestrator+user resolved both preserving design intent: (a) GAP-1: Phase 104 closed without `teaching` field; resolution = open Phase 104.1 (NEW phase) to ship the content layer NOW, before Phase 125 execute-phase. Phase 125 D9 + D11 stay intact; ship date slips ~3-4 days. (b) GAP-2: Phase 109 navigation.cjs chokepoint has no edge-write primitive (only logMemoryEvent + promoteNodeStatus); resolution = expand navigation.cjs with a 15th function `writeEdge({source_id, target_id, edge_type, properties})` as Plan 00 of Phase 125 (additive, precedent set by Phase 110-03 logMemoryEvent). Preserves D7's literal "typed cascade edge on command node" surface; sets pattern for Phase 116/117/118 future edge writes. Phase 125 plan map expands 8 -> 9 plans (new Plan 00 first). Updated 125-CONTEXT.md pass 3 amendments section captures both resolutions.
 - Phase 104.1 added (2026-05-13): Per-Command JTBD Content Layer -- ships `teaching` + `jtbd_label` + `jtbd_summary` fields to all 84 commands as a content-only follow-on to Phase 104. HARD GATE for Phase 125 execute-phase. ~3-4 days content authoring. Target band: v1.13.0-beta.14 (ahead of Phase 125 in same beta cut OR as content-only commit immediately before). ROADMAP entry added between Phase 104 and Phase 106. Run /gsd:discuss-phase 104.1 then /gsd:plan-phase 104.1 to break down (likely 2 plans).
 - Phase 125 ROADMAP entry added 2026-05-13: the f-selector-ranker phase had a CONTEXT.md scaffolded earlier today (11:44 AM) but its ROADMAP entry was missing (which caused the install-lifecycle-harness-gaps phase to grab number 125 in /gsd:add-phase, then get renumbered to 126 after collision was caught). ROADMAP entry now lists 8 plans (pre-pass-3 count; Plan 00 added pass 3 brings to 9; ROADMAP plans list reflects the original 8 since the new Plan 00 is the navigation.cjs extension which downstream agents will reflect when they regenerate plan lists).
+- Phase 127 ROADMAP entry added 2026-05-16: the brain-mcp-local-stdio-shim phase had a CONTEXT.md scaffolded 2026-05-14 (design-locked + scoped) but its ROADMAP section header was missing -- only referenced indirectly as a Phase 126 "dependent." The gsd-tools `phase insert` CLI verifies the target phase exists in ROADMAP.md, so insertion of Phase 127.1 was blocked until the section header landed. ROADMAP entry now lists the goal, dependencies, dependents, target band (v1.13.1-beta.1 -- the v1.13.1 architectural anchor per .planning/v1.13.1-EXECUTION-PLAN.md lines 267-273 + 284-291), canon parts (6/7/8), and authority pointer to the existing 127-CONTEXT.md. Plans list shows `0/N` -- waits for v1.13.0 FINAL to close before /gsd:plan-phase 127 runs.
+- Phase 127.1 inserted after Phase 127: brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap (URGENT, INSERTED 2026-05-16) -- Collapses the dual-substrate Brain GraphRAG (Neo4j 21K nodes + Pinecone 1,427 embeddings) into Neo4j-only by migrating the embeddings to native Neo4j 5.11+ HNSW vector index inside the `mindrian-brain` Render service. Motivated by the empirical audit (this room's session, 2026-05-16) confirming Pattern B (graph-first-then-vector-rerank) HIGH-CONFIDENCE 92%; Pinecone is NOT load-bearing (only Pattern #8 fuzzy-match dispatches there); 1,427 embeddings vs 21K Cypher nodes is the asymmetry tell. Server-side substrate swap only: client-side MCP tool surface (`brain_ask`, `brain_search_semantic`, 14 Cypher patterns) unchanged at API boundary; Wave-1 testers see zero MCP API change. Four-lock non-demotion protocol REQUIRED: (1) byte-identical embeddings exported from Pinecone, loaded onto Neo4j nodes as vector property -- do NOT re-embed; (2) embedding model locked to multilingual-e5-large (1024 dims) going forward in server config; (3) similarity metric locked to cosine via explicit `OPTIONS { indexConfig: { 'vector.similarity_function': 'cosine' }}` (Neo4j default Euclidean would silently re-rank); (4) BLOCKING non-regression harness -- 20 representative fuzzy queries run pre-cutover against both engines, top-5 overlap >= 80% required to flip, below 80% tune HNSW params (`m`, `ef_construction`) before flipping. Out of scope: rs-external Pinecone index (Phase 89 reverse-salient cross-domain mode, public OpenAlex/arXiv metadata -- separate infrastructure, stays for v1.13.1); Tier 0.5 offline bundled snapshot (deferred to v1.14.0 per project_brain_mcp_three_track_transition.md). Target band: v1.13.1-beta.2 (rides immediately after Phase 127 beta.1; before Phase 128 substrate-contract-adr beta.3). Canon parts: 7 (Reuse-Before-Build -- Neo4j 5.11+ already ships HNSW; Pinecone wiring is the orphaned substrate Part 7 calls out as technical debt), 8 (Graph Boundary -- substrate swap internal to Brain side; LOCAL-to-BRAIN egress contract unchanged), 9 (Memory Locality -- Brain reasons over typed packets; this phase changes what Brain reasons OVER, not the contract Brain reasons UNDER). Plans: 0/N (waits for v1.13.0 FINAL + Phase 127 beta.1 ship before /gsd:plan-phase 127.1 runs per execution-plan wave-dependency contract). Path 1 (separate phase, decimal insert) chosen over bundling into Phase 127 to keep orthogonal surfaces separate (Phase 127 = client-side stdio shim; Phase 127.1 = server-side substrate swap). See .planning/phases/127.1-brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap/127.1-CONTEXT.md.
 
 | Phase 71 P01 | 4min | 2 tasks | 3 files |
 | Phase 71 P02 | 3min | 2 tasks | 2 files |
@@ -916,6 +918,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-15T13:46:36.715Z
-Stopped at: Completed 118-06-rule-linter-dror-harness PLAN; Phase 118 ALL PLANS DONE (7/7)
-Resume file: None
+Last session: 2026-05-16T04:31:48.825Z
+Stopped at: Phase 121.5 context gathered (16 decisions captured; Sub-plans I + J absorbed)
+Resume file: .planning/phases/121.5-terminal-coherence-capstone/121.5-CONTEXT.md
