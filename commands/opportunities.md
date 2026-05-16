@@ -1,6 +1,7 @@
 ---
 name: opportunities
 description: Discover and manage grants in the Opportunity Bank
+help_jtbd: "Browse banked opportunities by HSI score."
 argument-hint: [list|add|scan]
 body_shape: E (Action Report)
 serves_jtbd: ["explore"]

@@ -1,6 +1,7 @@
 ---
 name: structure-argument
 description: Structure an argument with Minto + SCQA + MECE
+help_jtbd: "Build a Minto-Pyramid argument from your room's evidence."
 body_shape: "methodology"
 serves_jtbd: ["validate-idea", "explore"]
 teaching: "When an argument is muddled and you cannot say why, /mos:structure-argument restructures it with Minto pyramid, SCQA, and MECE. The right structure usually surfaces the missing premise."

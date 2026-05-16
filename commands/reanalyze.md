@@ -1,6 +1,7 @@
 ---
 name: reanalyze
 description: Re-analyze filed meetings for new patterns
+help_jtbd: "Re-run analysis on a single artifact or section."
 body_shape: E (Action Report)
 body_shape_detail: Before/after delta showing new insights discovered
 serves_jtbd: ["file-meeting"]

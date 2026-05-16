@@ -1,6 +1,7 @@
 ---
 name: visualize
 description: Open room diagrams in the browser
+help_jtbd: "Generate visualizations of your room's graph."
 argument-hint: [structure|graph|chart]
 body_shape: D (Document View)
 serves_jtbd: ["audit-room", "prepare-pitch"]

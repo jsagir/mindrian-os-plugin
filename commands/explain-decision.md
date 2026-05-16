@@ -1,5 +1,6 @@
 ---
 description: Show Navigation Engine decision trace for last turn
+help_jtbd: "See why Larry recommended what he recommended."
 body_shape: F.1
 argument-hint: "[--last N] [--session SESSIONID]"
 serves_jtbd: ["audit-room"]

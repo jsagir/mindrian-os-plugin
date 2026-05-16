@@ -1,6 +1,7 @@
 ---
 name: heal
 description: Heal a room's structural drift after plugin upgrade
+help_jtbd: "Repair drift in your room's structure (deprecated: use /mos:doctor --heal-room)."
 argument-hint: "[room-dir]"
 body_shape: E (Action Report)
 body_shape_detail: 10-step heal table mirrors recipe provenance section

@@ -1,6 +1,7 @@
 ---
 name: build-knowledge
 description: Climb Ackoff's DIKW pyramid across the room
+help_jtbd: "Turn your room into a knowledge graph you can query."
 body_shape: "methodology"
 serves_jtbd: ["explore"]
 teaching: "When you have data but not yet wisdom, /mos:build-knowledge climbs Ackoff's DIKW pyramid across the room. Surfaces what you know, what you can decide, and what is still raw."

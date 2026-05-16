@@ -1,6 +1,7 @@
 ---
 name: export
 description: Export a Data Room view to De Stijl HTML
+help_jtbd: "Ship investor-ready PDF or Obsidian vault of your room."
 argument-hint: [hub|thesis|summary|report]
 disable-model-invocation: true
 body_shape: E (Action Report)

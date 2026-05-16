@@ -1,6 +1,7 @@
 ---
 name: models
 description: View or switch model-routing profiles
+help_jtbd: "Browse and apply 25 methodology models."
 argument-hint: [list|set|show]
 body_shape: C (Information Card)
 serves_jtbd: ["compare-options"]

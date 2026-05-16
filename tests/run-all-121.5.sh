@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Phase 121.5 scoped runner -- run before each 121.5 task commit. Each plan
-# appends its own suites. As of Plan 121.5-03 the runner covers:
-#   ../lib/memory/palette-consistency.test.cjs   -> Task 1 (canonical palette.json + drift tripwire)
-#   ../lib/memory/statusline-two-row.test.cjs    -> Task 2 (two-row renderer + version-resolver + truncator)
+# appends its own suites. As of Plan 121.5-07 the runner covers:
+#   ../lib/memory/palette-consistency.test.cjs    -> Plan 121.5-03 Task 1 (canonical palette.json)
+#   ../lib/memory/statusline-two-row.test.cjs     -> Plan 121.5-03 Task 2 (two-row renderer)
+#   ../lib/memory/terminal-capability.test.cjs    -> Plan 121.5-07 Task 1 (capability probe + help_jtbd sweep)
 #
 # This runner MUST run to completion (no crash) even when any suite fails; it
 # prints a per-suite PASS/FAIL line and exits non-zero if any suite failed.
@@ -22,6 +23,7 @@ SHELL_SUITES=(
 CJS_SUITES=(
   ../lib/memory/palette-consistency.test.cjs
   ../lib/memory/statusline-two-row.test.cjs
+  ../lib/memory/terminal-capability.test.cjs
 )
 
 TOTAL=0

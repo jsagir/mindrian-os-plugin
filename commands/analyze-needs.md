@@ -1,6 +1,7 @@
 ---
 name: analyze-needs
 description: Score customer jobs with importance and satisfaction
+help_jtbd: "Surface user needs that change the problem statement."
 body_shape: "methodology"
 serves_jtbd: ["find-problem"]
 teaching: "When you need to know which customer jobs matter most, /mos:analyze-needs scores them by importance versus satisfaction. Best after you have a customer segment defined."

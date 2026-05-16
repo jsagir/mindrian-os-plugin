@@ -1,6 +1,7 @@
 ---
 name: diagnose
 description: Classify problem type against the PWS matrix
+help_jtbd: "See where your room is weakest and what to do next."
 body_shape: A
 serves_jtbd: ["decide-pursue"]
 teaching: "When you cannot tell if this is an Ill-Defined or Well-Defined Problem, /mos:diagnose classifies it against the PWS matrix. Knowing the problem type picks the right methodology."

@@ -1,6 +1,7 @@
 ---
 name: onboard
 description: Walk through MindrianOS and build your first room
+help_jtbd: "Walk through the first 15 minutes with Larry."
 body_shape: B (Semantic Tree)
 body_shape_detail: Steps as conversational flow, context building as nested nodes
 serves_jtbd: ["explore"]

@@ -1,6 +1,7 @@
 ---
 name: causal
 description: Trace causal edges in the room's graph
+help_jtbd: "Trace cause-and-effect chains across your room's claims."
 body_shape: "methodology"
 argument-hint: [extract|trace|predict]
 serves_jtbd: ["find-problem", "find-bottleneck"]

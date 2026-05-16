@@ -1,6 +1,7 @@
 ---
 name: hat-briefing
 description: Consolidate Six Hats briefings from hat memory
+help_jtbd: "Get a per-hat briefing from the AI team on your venture."
 body_shape: C (Dashboard Grid)
 body_shape_detail: 6-panel hat grid + synthesis strip
 serves_jtbd: ["prepare-pitch"]

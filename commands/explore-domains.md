@@ -1,6 +1,7 @@
 ---
 name: explore-domains
 description: Map domains through IKA + Feynman decomposition
+help_jtbd: "Get the 5-lens decomposition of your problem domain."
 body_shape: "methodology"
 serves_jtbd: ["find-problem", "understand-market", "explore"]
 teaching: "When the problem could live in any of several domains, /mos:explore-domains maps the territory through IKA and Feynman decomposition. Surfaces where to look before you commit."

@@ -1,6 +1,7 @@
 ---
 name: rooms
 description: List, switch, or archive project rooms
+help_jtbd: "List, switch, archive, or organize rooms in ~/MindrianRooms/."
 argument-hint: [list|switch|archive|park]
 body_shape: B (Semantic Tree)
 serves_jtbd: ["audit-room"]

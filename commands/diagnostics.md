@@ -1,6 +1,7 @@
 ---
 name: diagnostics
 description: Run Wave-1 algorithmic fingerprint on the room
+help_jtbd: "Run the 4 Wave-1 algorithms (Disruption Index, Blindspot, Novelty, Surprise)."
 body_shape: E
 serves_jtbd: ["audit-room"]
 teaching: "When you need a quantitative read on the room, /mos:diagnostics runs the Wave-1 fingerprint: disruption, blindspot, novelty, surprise. Surfaces algorithmic signals humans miss."

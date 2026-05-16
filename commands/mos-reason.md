@@ -2,6 +2,7 @@
 name: mos-reason
 command: mos:reason
 description: Generate Feynman-MINTO reasoning for a section
+help_jtbd: "Get Larry's reasoning trace on a specific question."
 body_shape: C
 usage: /mos:reason [--section <name>] [--regenerate-all]
 serves_jtbd: ["explore"]

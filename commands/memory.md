@@ -1,6 +1,7 @@
 ---
 name: memory
 description: Inspect and operate on the three memory layers (within-session, across-session, cross-room).
+help_jtbd: "Inspect what the Brain remembers about your sessions."
 argument-hint: "[query <jtbd> | cross-room | resume | park <jtbd> | complete <jtbd> | --opt-out]"
 body_shape: E (Action Report)
 body_shape_detail: 4-zone Shape E for default + park + complete + opt-out; Shape G (Comparison Matrix) for query when Phase 101 ships (Shape E fallback otherwise); Shape G Mode A or Shape E Mode B for cross-room depending on Brain availability; Shape F.6 (or F.1 fallback) for resume picker.

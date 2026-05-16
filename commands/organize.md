@@ -1,6 +1,7 @@
 ---
 name: organize
 description: Navigate room hierarchy with graph-aware tree
+help_jtbd: "Group rooms into portfolios (deprecated: use /mos:rooms organize)."
 argument-hint: [tree|propose|compound]
 body_shape: B (Semantic Tree)
 serves_jtbd: ["audit-room"]

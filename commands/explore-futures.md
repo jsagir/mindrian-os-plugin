@@ -1,6 +1,7 @@
 ---
 name: explore-futures
 description: Synthesize TTA + Scenario + S-Curve futures
+help_jtbd: "Branch into future scenarios from where you stand today."
 body_shape: "methodology"
 serves_jtbd: ["compare-options", "explore"]
 teaching: "When the path forward branches into multiple plausible futures, /mos:explore-futures synthesizes TTA, Scenario, and S-Curve views. Helps you choose without pretending you can predict."

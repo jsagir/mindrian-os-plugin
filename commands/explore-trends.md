@@ -1,6 +1,7 @@
 ---
 name: explore-trends
 description: Push trends to extremes to surface future problems
+help_jtbd: "Surface the macro trends your venture is riding."
 body_shape: "methodology"
 serves_jtbd: ["understand-market", "explore"]
 teaching: "When today's trends could become tomorrow's problems, /mos:explore-trends pushes them to extremes to surface the second-order effects. The future shows up at the edges first."

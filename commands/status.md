@@ -1,6 +1,7 @@
 ---
 name: status
 description: Show governing thought per section + health glyphs
+help_jtbd: "See your room's section-by-section status at a glance."
 argument-hint: "[section] [--stale-only]"
 body_shape: E (Action Report)
 serves_jtbd: ["audit-room", "explore"]

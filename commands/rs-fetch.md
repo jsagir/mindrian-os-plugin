@@ -1,6 +1,7 @@
 ---
 name: rs-fetch
 description: Run the full Reverse Salient discovery pipeline for a topic
+help_jtbd: "Fetch the latest reverse salient analysis for your room."
 body_shape: E (Action Report)
 serves_jtbd: ["find-bottleneck", "surface-contradiction"]
 teaching: "When you need the full Reverse Salient pipeline run on a topic, /mos:rs-fetch executes the discovery end-to-end: corpus, math, cross-domain match, thesis. The complete sweep, not a sample."

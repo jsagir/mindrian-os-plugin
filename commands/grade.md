@@ -1,6 +1,7 @@
 ---
 name: grade
 description: Grade problem-discovery quality (6 components)
+help_jtbd: "Get a fast grade on your room with feedback."
 body_shape: C
 serves_jtbd: ["audit-room"]
 teaching: "When you want a fast read on problem-discovery quality, /mos:grade scores the room on six components in under a minute. The lightweight cousin of /mos:deep-grade."

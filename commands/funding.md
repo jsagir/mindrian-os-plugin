@@ -1,6 +1,7 @@
 ---
 name: funding
 description: Track grant opportunities through their lifecycle
+help_jtbd: "See the grants and funding paths matching your room."
 argument-hint: [list|add|update]
 body_shape: B (Semantic Tree)
 serves_jtbd: ["prepare-pitch", "decide-pursue"]

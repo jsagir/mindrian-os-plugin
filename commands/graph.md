@@ -1,6 +1,7 @@
 ---
 name: graph
 description: Explore the knowledge graph by asking questions
+help_jtbd: "Ask your room a question; get the answer as graph paths."
 body_shape: C (Room Card)
 body_shape_detail: Query results as cards, graph stats as header
 serves_jtbd: ["audit-room", "explore"]

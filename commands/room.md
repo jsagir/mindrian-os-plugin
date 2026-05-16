@@ -1,6 +1,7 @@
 ---
 name: room
 description: View, launch, or navigate the Data Room
+help_jtbd: "Open your current room's view in this terminal."
 argument-hint: [overview|<section>]
 body_shape: C
 body_shape_overview: B (Semantic Tree)

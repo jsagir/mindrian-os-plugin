@@ -1,6 +1,7 @@
 ---
 name: mva-option
 description: Route the user's 3-option footer selection after a 30-second MVA brief
+help_jtbd: "Compose option packages for your MVA."
 body_shape: E
 argument-hint: <1|2|3> [<sha8>]
 serves_jtbd: ["explore"]

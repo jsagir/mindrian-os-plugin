@@ -1,6 +1,7 @@
 ---
 name: publish
 description: Publish the Data Room presentation to Vercel
+help_jtbd: "Publish your room to a live URL."
 body_shape: E
 argument-hint: [--all|<view>]
 serves_jtbd: ["prepare-pitch"]

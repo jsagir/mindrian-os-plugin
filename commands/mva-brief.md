@@ -1,6 +1,7 @@
 ---
 name: mva-brief
 description: Run the 30-second MVA pipeline for the user's current venture sentence
+help_jtbd: "Build a Minimum Viable Argument brief from your room."
 body_shape: E
 argument-hint: (no args -- reads pending state from UserPromptSubmit detection)
 serves_jtbd: ["explore"]

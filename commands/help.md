@@ -1,6 +1,7 @@
 ---
 name: help
 description: List commands grouped by flow (tldr-style)
+help_jtbd: "List commands grouped by flow, with one-line outcomes."
 argument-hint: [command-name]
 body_shape: B (Semantic Tree)
 body_shape_detail: -- (inline, no zones)

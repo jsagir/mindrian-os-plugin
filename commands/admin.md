@@ -1,6 +1,7 @@
 ---
 name: admin
 description: Manage Brain API keys from the admin panel
+help_jtbd: "Inspect plugin internals when you suspect something is off."
 argument-hint: [subcommand]
 body_shape: A (Mondrian Board)
 serves_jtbd: ["audit-room"]

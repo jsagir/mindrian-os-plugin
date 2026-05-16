@@ -1,6 +1,7 @@
 ---
 name: act
 description: Run Larry's best-pick methodology for your room state
+help_jtbd: "Run the next move Larry recommends, without typing the /mos: command yourself."
 argument-hint: '[--chain] [--swarm] [--dry-run]'
 body_shape: E (Action Report)
 serves_jtbd: ["plan-execution"]

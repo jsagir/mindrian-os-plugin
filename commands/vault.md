@@ -1,6 +1,7 @@
 ---
 name: vault
 description: Export the Data Room as an Obsidian vault
+help_jtbd: "Export your room as an Obsidian vault."
 argument-hint: '[<room-name>] [--path <dir>]'
 disable-model-invocation: true
 body_shape: E

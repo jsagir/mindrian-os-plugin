@@ -1,6 +1,7 @@
 ---
 name: pipeline
 description: Chain a multi-step methodology pipeline
+help_jtbd: "Chain methodologies stage-by-stage."
 body_shape: E
 argument-hint: '[pipeline-name] [--from-problem-type <x>] [--from-framework <x>]'
 serves_jtbd: ["plan-execution"]

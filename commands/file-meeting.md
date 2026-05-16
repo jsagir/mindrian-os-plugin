@@ -1,6 +1,7 @@
 ---
 name: file-meeting
 description: File a meeting transcript into the Data Room
+help_jtbd: "Turn a meeting recording into structured room intelligence."
 body_shape: E
 argument-hint: [--latest|--paste|<file>]
 serves_jtbd: ["file-meeting"]

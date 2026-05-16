@@ -1,6 +1,7 @@
 ---
 name: persona
 description: Generate Six-Hats lenses from room data
+help_jtbd: "Get a per-persona view of your venture (role-blend x journey-stage)."
 body_shape: C (Room Card)
 serves_jtbd: ["prepare-pitch"]
 teaching: "When you need fresh perspectives on the room, /mos:persona generates Six-Hats lenses from your room data. Each persona argues from a different stance; you decide what holds."

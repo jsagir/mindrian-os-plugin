@@ -1,6 +1,7 @@
 ---
 name: hmi-status
 description: Show the latest HMI compliance poll - operator-aware UI Ruling System drift summary, JTBD-priority-weighted violation list, read-only inspection (recovery via /mos:doctor --ui-compliance --fix)
+help_jtbd: "Audit UI Ruling System compliance (deprecated: use /mos:doctor --ui-compliance)."
 argument-hint: "[--json]"
 body_shape: E (Action Report)
 body_shape_detail: 4-zone Shape E rendering of the side-channel at <roomDir>/.mindrian/last-hmi-poll.json (status + counts + top-5 priorities + operator-shape mismatches); --json emits raw envelope; graceful Shape E when poll absent or tier 0

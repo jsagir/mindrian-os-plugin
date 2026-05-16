@@ -1,6 +1,7 @@
 ---
 name: whitespace
 description: Detect whitespace gaps in the room's coverage
+help_jtbd: "Map the whitespace zones in your domain."
 body_shape: "methodology"
 serves_jtbd: ["connect-domains", "find-problem"]
 teaching: "When you suspect a gap exists in the room's coverage of a domain, /mos:whitespace runs HSI scoring across the artifact corpus to find under-explored zones. Best after the room has 20+ entries."

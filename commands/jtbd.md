@@ -1,6 +1,7 @@
 ---
 name: jtbd
 description: Show, set, list, or inspect the active JTBD (job-to-be-done) -- the per-room signal that tells Larry what kind of work the navigator is doing right now
+help_jtbd: "Surface the job-to-be-done you are in right now."
 argument-hint: "[set <jtbd> | clear | list | history] [--json]"
 body_shape: E (Action Report)
 body_shape_detail: current state + last 5 history (default), 13 entries (list), full history (history), Shape F.1 picker (set with no arg), Shape E confirmation (clear, set <jtbd>)

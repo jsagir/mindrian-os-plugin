@@ -1,6 +1,7 @@
 ---
 name: setup
 description: Configure optional integrations (Brain, Velma)
+help_jtbd: "Add optional integrations: graph, Brain, MCP servers."
 body_shape: E
 argument-hint: [brain|velma|graph]
 serves_jtbd: ["explore"]

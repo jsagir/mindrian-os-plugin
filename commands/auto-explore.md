@@ -1,5 +1,6 @@
 ---
 description: "Manually trigger auto-explore on a specific file (Desktop fallback when PostToolUse hook does not fire per RESEARCH 4.8)"
+help_jtbd: "Let Larry decompose your domain before you even ask."
 body_shape: "methodology"
 argument-hint: "<file_path>"
 serves_jtbd: ["find-problem", "understand-market", "explore"]

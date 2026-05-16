@@ -1,6 +1,7 @@
 ---
 name: update
 description: Check for MindrianOS updates and install via Claude Code's native plugin loader
+help_jtbd: "Update the plugin to the latest version."
 body_shape: E
 argument-hint: [check|reapply|force]
 serves_jtbd: ["audit-room"]

@@ -1,6 +1,7 @@
 ---
 name: snapshot
 description: Package a Data Room snapshot for sharing
+help_jtbd: "Capture a snapshot of your room at this moment."
 body_shape: E
 argument-hint: '[<room-path>] [--open]'
 serves_jtbd: ["prepare-pitch", "audit-room"]

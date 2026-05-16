@@ -1,6 +1,7 @@
 ---
 name: scheduled-tasks
 description: Define Cowork scheduled tasks for the room
+help_jtbd: "View and manage scheduled background sweeps."
 body_shape: E (Action Report)
 serves_jtbd: ["plan-execution"]
 teaching: "When you want Cowork to run something on a schedule against this room, /mos:scheduled-tasks defines the recurring job. Best for nightly grant sweeps or weekly meeting digests."

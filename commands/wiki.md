@@ -1,6 +1,7 @@
 ---
 name: wiki
 description: Open the Data Room wiki of room sections
+help_jtbd: "Open your room as a localhost wiki, hyperlinks via graph."
 body_shape: D (Document View)
 serves_jtbd: ["audit-room", "prepare-pitch"]
 teaching: "When you want to read the Data Room as linked wiki pages, /mos:wiki opens the wiki view. Section by section, with cross-references rendered as hyperlinks."

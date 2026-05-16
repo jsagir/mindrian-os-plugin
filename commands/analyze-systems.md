@@ -1,6 +1,7 @@
 ---
 name: analyze-systems
 description: Decompose a system into layers and leverage points
+help_jtbd: "See how subsystems connect, where they break, where they leverage each other."
 body_shape: "methodology"
 serves_jtbd: ["find-bottleneck"]
 teaching: "When you need to find where leverage lives in a complex system, /mos:analyze-systems decomposes it into layers and surfaces the leverage points. Best when symptoms keep recurring."

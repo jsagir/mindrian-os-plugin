@@ -1,5 +1,6 @@
 ---
 description: Refresh FEYNMAN.md ## Timeline (auto) section for one or all room sections
+help_jtbd: "Refresh the human-readable Timeline section in FEYNMAN.md."
 body_shape: E
 argument-hint: "[--all | --section <slug>]"
 serves_jtbd: ["validate-idea", "audit-room"]

@@ -1,6 +1,7 @@
 ---
 name: new-project
 description: Start a new venture project and create its room
+help_jtbd: "Start a new room in ~/MindrianRooms/ from a conversation."
 body_shape: E
 argument-hint: [name]
 serves_jtbd: ["explore"]

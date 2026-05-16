@@ -1,6 +1,7 @@
 ---
 name: root-cause
 description: Trace root cause via 5-Whys, Fishbone, Fault Tree
+help_jtbd: "Trace the root cause of a symptom in your venture."
 body_shape: "methodology"
 serves_jtbd: ["find-problem"]
 teaching: "When the symptom keeps coming back, /mos:root-cause traces it via 5-Whys, Fishbone, and Fault Tree. Treats the cause, not the recurrence."

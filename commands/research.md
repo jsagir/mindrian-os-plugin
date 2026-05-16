@@ -1,6 +1,7 @@
 ---
 name: research
 description: Research the web and cross-reference with Brain
+help_jtbd: "Spawn a research sub-agent for a specific question."
 body_shape: C
 argument-hint: [topic]
 serves_jtbd: ["explore", "understand-market"]

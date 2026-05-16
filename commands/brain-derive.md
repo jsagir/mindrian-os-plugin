@@ -1,5 +1,6 @@
 ---
 description: Derive BRAIN.md for section(s) now
+help_jtbd: "Pull the Brain's framework recommendations for your current section."
 body_shape: E
 argument-hint: "[section] [--all] [--cross-room] [--dry-run]"
 serves_jtbd: ["audit-room"]
