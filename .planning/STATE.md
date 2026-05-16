@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 119-02-PLAN.md (room-skeleton-scaffold + thinness voice + auto-explore-fire wiring)
-last_updated: "2026-05-16T19:05:38.807Z"
-last_activity: 2026-05-16
+stopped_at: "Completed 121.5-04-PLAN.md (Sub-plan E: render-v2 disposition + Phase 102 closure)"
+last_updated: "2026-05-16T19:05:50.580Z"
+last_activity: 2026-05-15
 progress:
-  total_phases: 60
-  completed_phases: 39
-  total_plans: 294
-  completed_plans: 281
+  total_phases: 54
+  completed_phases: 22
+  total_plans: 134
+  completed_plans: 201
   percent: 93
 ---
 
@@ -347,10 +347,7 @@ Progress: [█████████░] 93%
 | Phase 118 P02 | 9min | 3 tasks | 12 files |
 | Phase 118 P05 | 7min | 3 tasks | 8 files |
 | Phase 118 P06 | 75min | 3 tasks | 17 files |
-| Phase 121.5-terminal-coherence-capstone P03 | 55min | 2 tasks | 15 files |
-| Phase 121.5 P00 | 50min | 3 tasks | 19 files |
-| Phase 121.5-terminal-coherence-capstone P07 | 00:22 | 2 tasks | 89 files |
-| Phase 119 P02 | 10 minutes | 3 tasks | 12 files |
+| Phase 121.5 P04 | 25min | 5 tasks | 7 files |
 
 ### Roadmap Evolution
 
@@ -892,14 +889,8 @@ Progress: [█████████░] 93%
 - [Phase 118]: Plan 118-02: Dashboard agent routes through lib/core/navigation.cjs (Phase 109 D-06 chokepoint; Canon Part 9). Two new wrappers (detectActiveRoom + getRecentDecisionNeighborhood) added as additive re-exports following the logMemoryEvent / firstCapturedLastTouchedBySection / writeEdge precedent.
 - [Phase 118]: Plan 118-05 closure: STUB_MESSAGE_119 hardcoded (frozen) per B6 OPTION A; resolveCurrentSha8 reads state.json with null on miss (CRITICAL-3 part 2 wire CLOSED); OPTION_BEHAVIOR maps to Canon Part 3 verbs 7/8/5; Phase 119 hook is one-line swap in OPTION_BEHAVIOR[2]
 - [Phase 118]: Plan 118-06: shipped reward-before-investment rule (docs/) + linter (lib/core/) + 4 frontmatter declarations + scripts/hooks/pre-commit guardian + Dror 2.0 harness reading LD1 LOCKED from 118-CONTEXT.md
-- [Phase 121.5-terminal-coherence-capstone]: D-01..D-04 statusline shape locked (JTBD-invariant single shape, two-row identity/situation split, current six segments); ODD 3 palette resolved as keep-muted/earthy; rebrand deferred to v1.14.0
-- [Phase 121.5]: Locked PRECEDENCE_LADDER as Object.freeze of 11 strings (D-13); coordinator isolator NEVER re-throws; memory_event payload carries error_class enum only (no stack) per Canon Part 8
-- [Phase 121.5]: Deviation from plan-strict SessionStart array length===1: actual length is 3 (workspace-guard Bash + coordinator + async npm reconcile). Load-bearing invariant 'single additionalContext composer' preserved + CI-checked by Test 14 structural assertion (zero references to 10 legacy injector scripts)
-- [Phase 121.5-terminal-coherence-capstone]: D-05 SHIPPED: terminal-capability.cjs probe (TTY + COLORTERM + TERM + CLAUDE_DESKTOP) as reusable substrate
-- [Phase 121.5-terminal-coherence-capstone]: D-06 SHIPPED: hybrid data source (help-groups.json + per-command help_jtbd: frontmatter)
-- [Phase 121.5-terminal-coherence-capstone]: D-07 SHIPPED: Export / Publish / Hub trio replaces legacy 'Output + Export' group
-- [Phase 121.5-terminal-coherence-capstone]: D-08 SHIPPED: check-help-coverage.cjs hard-fails CI on missing help_jtbd OR missing group entry
-- [Phase 119]: Plan 119-02 ships scaffoldRoomSkeleton + THINNESS_VOICE_LINE + auto-explore-fire wiring (Blocker 1+4 phantom-wiring closed)
+- [Phase 121.5]: render-v2 disposition locked: agent-surface-only by design for v1.13.0 final (Sub-plan E, 2026-05-16). SKILL.md remains the canonical prose contract; the v2 destructured render() is reserved for /mos:* command surfaces via selector-dispatcher. CI gate at lib/memory/render-v2-disposition.test.cjs + operator audit at scripts/disposition-render-v2.cjs enforce the verdict. Phase 102 release loop closed: 102-VERIFICATION.md shipped, 102-VALIDATION.md flipped to status: verified / nyquist_compliant: true.
+- [Phase 121.5]: Permanent Canon Part 7 linguistic discipline locked on render-v2's rankable input signal types: 'current' / 'as of' / 'today' framing only -- NEVER 'final' / 'complete' / 'closed set' framing. The 2026-05-16 dual-graph review noted render-v2's signal set is one of FOUR ultrareview-adjacent surfaces; future lens-aware variants (ASSOCIATION_LENS + TRANSITION_LENS lens classes from the dual-graph proposal) may add lens-derived signals additively. The discipline is enforced by the disposition test's forbidden-phrase scan on ROOM.md.
 
 ### Pending Todos
 
@@ -930,6 +921,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-16T19:05:31.244Z
-Stopped at: Completed 119-02-PLAN.md (room-skeleton-scaffold + thinness voice + auto-explore-fire wiring)
+Last session: 2026-05-16T19:05:31.855Z
+Stopped at: Completed 121.5-04-PLAN.md (Sub-plan E: render-v2 disposition + Phase 102 closure)
 Resume file: None
