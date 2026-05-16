@@ -1,11 +1,14 @@
 ---
 name: visualize
-description: Open room diagrams in the browser
-help_jtbd: "Generate visualizations of your room's graph."
-argument-hint: [structure|graph|chart]
+description: "[Deprecated] Open room diagrams in the browser (use /mos:dashboard --mermaid)"
+help_jtbd: "Generate visualizations of your room's graph (deprecated: use /mos:dashboard --mermaid)."
+argument-hint: "[structure|graph|chart]"
 body_shape: D (Document View)
 serves_jtbd: ["audit-room", "prepare-pitch"]
-teaching: "When you want to see the room as diagrams in a browser, /mos:visualize opens the visual layer. Best when a stakeholder needs the picture, not the prose."
+deprecated: true
+deprecated_redirect: "dashboard --mermaid"
+deprecated_removal: "v1.14.0"
+teaching: "Deprecated alias. Use /mos:dashboard --mermaid to open the De Stijl knowledge-graph viewer with Mermaid output; visualize folds into the dashboard surface. Scheduled removal: v1.14.0."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash
@@ -14,41 +17,32 @@ allowed-tools:
 
 # /mos:visualize
 
-Open rich visual diagrams in the browser. Falls back to Mermaid code blocks in text output.
+> Deprecated. /mos:visualize now redirects to /mos:dashboard --mermaid. Scheduled removal: v1.14.0. Use /mos:dashboard --mermaid going forward.
 
-## Sub-commands
+You are Larry. The user invoked /mos:visualize. Per D-09 + the Phase 121.5-08 planner decision (LOCKED 2026-05-16, Sub-plan J) /mos:visualize is a soft-alias stub for the v1.13.x window. The canonical surface is /mos:dashboard --mermaid.
 
-- `/mos:visualize room` -- Room structure flowchart (sections, stages, cross-references)
-- `/mos:visualize graph` -- Knowledge graph view (LazyGraph nodes and edges)
-- `/mos:visualize chain` -- Latest methodology chain flowchart
-- `/mos:visualize timeline` -- Meeting timeline (Gantt-style)
+## Steps
 
-## Usage
+1. Emit the deprecation note above as a single cyan line (Larry voice; no em-dash; one sentence per skills/ui-system/SKILL.md Section 6).
 
-Larry runs `scripts/render-viz <subcommand>` to generate and open the diagram.
-If browser is unavailable, outputs Mermaid code block that renders in GitHub/Obsidian.
+2. Invoke /mos:dashboard --mermaid with the user's original arguments. Run:
 
-## Examples
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/soft-alias-runner.cjs" --from visualize --to "dashboard --mermaid" --remaining-args $ARGUMENTS
+```
 
-User: "Show me the room structure as a diagram"
-Larry: Runs `/mos:visualize room` -- opens browser with interactive Mermaid flowchart
+The runner emits `{redirect, deprecation_note, args, ok}`. Use the redirect to confirm the target, then proceed with /mos:dashboard --mermaid behavior. The user sees ONE deprecation note + the dashboard render (browser open OR Mermaid code block fallback).
 
-User: "What does my knowledge graph look like?"
-Larry: Runs `/mos:visualize graph` -- opens browser with force-directed graph view
+3. Pass through dashboard's output verbatim. The dashboard already renders the room as Cytoscape; the --mermaid flag adds the Mermaid code-block fallback that /mos:visualize used to provide.
 
-User: "Show the methodology chain for problem-definition"
-Larry: Runs `/mos:visualize chain` -- opens flowchart of diagnose -> framework -> apply -> file -> cross-ref -> graph-update
+## Why this is a soft-alias
 
-## Output Formats
+Cluster 5 audit (2026-05-15) flagged that /mos:visualize and /mos:dashboard both rendered the room's graph. The dashboard already opens the Cytoscape viewer; visualize's Mermaid output is one render mode of the same underlying graph. Folding visualize into /mos:dashboard --mermaid collapses the surface area while preserving every render mode (room structure, knowledge graph, methodology chain, meeting timeline).
 
-| Surface | Output |
-|---------|--------|
-| CLI | Browser opens with De Stijl themed HTML + Mermaid syntax to stdout |
-| Desktop | Mermaid code block returned (copy-pasteable, renders in Obsidian/GitHub) |
-| Cowork | Mermaid code block in shared context (renders for all participants) |
+Per D-09 the old command stays as a soft-alias stub for v1.13.x; removal is scheduled v1.14.0. CHANGELOG announces the rename.
 
-## Related
+## Cross-references
 
-- `/mos:room` -- Room state and section listing
-- `/mos:query` -- LazyGraph Cypher queries
-- `scripts/serve-dashboard` -- Full D3.js interactive dashboard
+- `commands/dashboard.md` -- the canonical target with --mermaid as a render flag.
+- `scripts/soft-alias-runner.cjs` -- the shared runner.
+- Canon Part 7 (Reuse Before Build) -- consolidation rationale.

@@ -98,6 +98,25 @@ function parseArgs(argv) {
     // and an allowlist of doc-example version strings. Renamed from class H
     // in 121.5-05-PLAN.md (class H is install-incomplete; deviation Rule 3).
     staleFirstTouch: false,
+    // Phase 121.5-08 Sub-plan J (D-09 final clause): class L
+    // (deprecated-commands-you-still-use). Scans recent
+    // ~/.claude/projects/.../*.jsonl session transcripts (last 7 days)
+    // for /mos:<deprecated> patterns where the deprecated name maps to a
+    // canonical /mos:<new> per the v1.13.0-beta.16+ rename table:
+    //   heal       -> doctor --heal-room
+    //   query      -> graph
+    //   organize   -> rooms organize
+    //   hmi-status -> doctor --ui-compliance
+    //   visualize  -> dashboard --mermaid
+    //   diagnostics -> fingerprint
+    // MINDRIAN_DOCTOR_TRANSCRIPTS_DIR overrides the default scan dir for
+    // hermetic tests. Activated by --deprecated-usage AND --all.
+    // Pure LOCAL scan; zero network surface (Canon Part 8).
+    // Letter L chosen because A..K are already assigned (A install-cache,
+    // B+C cascade-rooms, D verify-surface, E room-md, F ui-compliance,
+    // G statusline-visibility, H install-incomplete, I install-state,
+    // J deployment-surfaces, K stale-first-touch-copy).
+    deprecatedUsage: false,
     // Phase 123 Plan-04 (HARNESS-123-11 + HARNESS-123-12): release-gate-as-a-
     // command. --acceptance runs the 7-point checklist; --pre-tag filters to
     // the 5 pre-tag-applicable points; --light-npx skips the mktemp HOME
@@ -129,6 +148,7 @@ function parseArgs(argv) {
     else if (arg === '--statusline-visibility') flags.statuslineVisibility = true;
     else if (arg === '--install-state') flags.installState = true;
     else if (arg === '--stale-first-touch') flags.staleFirstTouch = true;
+    else if (arg === '--deprecated-usage') flags.deprecatedUsage = true;
     else if (arg === '--acceptance') flags.acceptance = true;
     else if (arg === '--pre-tag') flags.preTag = true;
     else if (arg === '--pre-flight') flags.preFlight = true;
@@ -151,6 +171,7 @@ function parseArgs(argv) {
     flags.statuslineVisibility = true;
     flags.installState = true;
     flags.staleFirstTouch = true;
+    flags.deprecatedUsage = true;
   }
   // --pre-tag implies --acceptance (convenience; running --pre-tag standalone
   // is meaningless).
@@ -179,6 +200,10 @@ Class flags (combine freely; --all activates them all):
                            + class J (deployment-surface manifest reconciliation)
   --stale-first-touch      class K (stale-first-touch-copy: stale version literals + em-dash violations
                            in greeting surfaces declared by data/first-touch-surfaces.json; SEED-007 absorption)
+  --deprecated-usage       class L (deprecated commands you still use: scans last-7-days session
+                           transcripts at ~/.claude/projects/.../*.jsonl for /mos:<deprecated>
+                           patterns; surfaces a per-command "use /mos:<new> instead" hint.
+                           Phase 121.5-08 Sub-plan J. LOCAL-only, zero network.)
   --all                    activate all class flags
 
 Release-gate runner (Phase 123 Plan-04 -- separate from class flags):
@@ -2674,6 +2699,105 @@ async function runAcceptance(opts) {
   };
 }
 
+// -- Class L: deprecated-commands-you-still-use (Phase 121.5-08) -----
+//
+// D-09 final clause: doctor surfaces deprecated commands you used recently
+// (last 7 days) with the canonical replacement. Pure LOCAL scan; zero
+// network, zero Brain, zero telemetry egress (Canon Part 8 invariant).
+//
+// Scope: scans ~/.claude/projects/.../*.jsonl session transcripts for
+// substring occurrences of /mos:<deprecated>. The detector is intentionally
+// conservative: it does not parse transcripts, it scans for the literal
+// command-name token preceded by /mos: and followed by a word-boundary or
+// space. The output names the deprecated command + the replacement + the
+// raw match count. False positives (a transcript that NAMES /mos:heal as
+// example prose rather than invoking it) are acceptable -- the action
+// hint ("consider migrating") is informational, never a hard gate.
+//
+// Override knobs for hermetic tests:
+//   opts.transcriptsDir -- override the scan root (default ~/.claude/projects)
+//
+// Returns: {class:'L', status, action, deprecated_uses:[]}.
+// Status is 'OK' when zero deprecated uses found, 'DEPRECATED_USAGE'
+// otherwise. The full doctor exit code stays 0 under classFlagsActive
+// (per the graceful-degradation invariant -- L violations are a warning,
+// not a hard failure). --deprecated-usage standalone also exits 0; the
+// hint surfaces in --json or in the rendered class L row.
+
+const DEPRECATED_RENAMES = {
+  'heal':        'doctor --heal-room',
+  'query':       'graph',
+  'organize':    'rooms organize',
+  'hmi-status':  'doctor --ui-compliance',
+  'visualize':   'dashboard --mermaid',
+  'diagnostics': 'fingerprint',
+};
+
+function checkDeprecatedUsage(opts) {
+  opts = opts || {};
+  const transcriptsDir = opts.transcriptsDir || path.join(HOME, '.claude', 'projects');
+  const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+  const cutoff = Date.now() - sevenDaysMs;
+  const found = {};
+  // Cap the recursive walk at depth 6 and total files 5000 for safety on
+  // unusually deep transcript trees (defensive; Claude Code's standard
+  // layout is two levels deep -- project-hash/session-*.jsonl).
+  let scanned = 0;
+  const MAX_FILES = 5000;
+  const MAX_DEPTH = 6;
+  function walk(dir, depth) {
+    if (depth > MAX_DEPTH) return;
+    if (scanned >= MAX_FILES) return;
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
+    catch (_) { return; }
+    for (const e of entries) {
+      if (scanned >= MAX_FILES) return;
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        walk(full, depth + 1);
+        continue;
+      }
+      if (!e.isFile() || !/\.jsonl$/.test(e.name)) continue;
+      scanned++;
+      try {
+        const st = fs.statSync(full);
+        if (st.mtimeMs < cutoff) continue;
+        const text = fs.readFileSync(full, 'utf8');
+        for (const dep of Object.keys(DEPRECATED_RENAMES)) {
+          // Word-boundary on the right: /mos:<dep>(<space>|<newline>|<eof>|<non-word>).
+          const re = new RegExp('/mos:' + dep + '(?![A-Za-z0-9-])', 'g');
+          const matches = text.match(re);
+          if (matches) {
+            if (!found[dep]) found[dep] = 0;
+            found[dep] += matches.length;
+          }
+        }
+      } catch (_) { /* unreadable file -- ignore */ }
+    }
+  }
+  walk(transcriptsDir, 0);
+  const deprecated_uses = Object.keys(found).sort().map(function (cmd) {
+    return {
+      deprecated: '/mos:' + cmd,
+      replacement: '/mos:' + DEPRECATED_RENAMES[cmd],
+      recent_uses: found[cmd],
+    };
+  });
+  const status = deprecated_uses.length === 0 ? 'OK' : 'DEPRECATED_USAGE';
+  const action = deprecated_uses.length === 0
+    ? 'no deprecated commands used in the last 7 days'
+    : 'you used ' + deprecated_uses.length + ' deprecated command(s) recently; consider migrating to the canonical names listed';
+  return {
+    class: 'L',
+    status: status,
+    action: action,
+    deprecated_uses: deprecated_uses,
+    scanned_files: scanned,
+    transcripts_dir: transcriptsDir,
+  };
+}
+
 // -- Renderers -------------------------------------------------------
 
 // Phase 95.1-04 retrofit: 4-zone Shape E (Action Report) per skills/ui-system/SKILL.md.
@@ -2990,7 +3114,7 @@ function main() {
   // hard exits, and warnings from new checks return 0 unless --fix-failed.
   const classFlagsActive = flags.cascadeRooms || flags.verifySurface
     || flags.roomMd || flags.uiCompliance || flags.statuslineVisibility
-    || flags.installState || flags.staleFirstTouch;
+    || flags.installState || flags.staleFirstTouch || flags.deprecatedUsage;
 
   const report = {
     install: installResult,
@@ -3267,6 +3391,25 @@ function main() {
         status: 'error',
         detail: err.message,
         violations: [],
+      };
+    }
+  }
+
+  // Class L: deprecated commands you still use (Phase 121.5-08 Sub-plan J;
+  // D-09 final clause). Pure LOCAL scan of ~/.claude/projects/.../*.jsonl
+  // transcripts (last 7 days). Surfaces a per-command "use /mos:<new>" hint.
+  // Zero network, zero Brain, zero telemetry egress (Canon Part 8).
+  if (flags.deprecatedUsage) {
+    try {
+      report.checks['deprecated-usage'] = checkDeprecatedUsage({
+        transcriptsDir: process.env.MINDRIAN_DOCTOR_TRANSCRIPTS_DIR,
+      });
+    } catch (err) {
+      report.checks['deprecated-usage'] = {
+        class: 'L',
+        status: 'error',
+        action: 'class L scan threw: ' + err.message,
+        deprecated_uses: [],
       };
     }
   }

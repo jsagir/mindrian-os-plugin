@@ -1,7 +1,19 @@
 ## [Unreleased] -- v1.13.0-beta.18 (in progress)
 
 ### Added
-- 
+- **`/mos:mos` state-aware router (Phase 121.5-08 Sub-plan J; D-10 LOCKED).** Closes the plugin.json declaration gap flagged in Cluster 5 audit 2026-05-15 (the command was declared but the backing file was absent). The router picks the right next surface for the navigator: no room -> `/mos:onboard`; mostly-empty room -> `/mos:status` with a "suggest next move" hint; populated room -> `/mos:suggest-next`. Backed by `lib/core/state-aware-router.cjs` (pure function, hermetic unit tests in `lib/memory/state-aware-router.test.cjs`). Meets the navigator where they are -- one entrypoint that always does the right thing rather than forcing the user to pick the right `/mos:*` surface. (`commands/mos.md` [new], `lib/core/state-aware-router.cjs` [new], `lib/memory/state-aware-router.test.cjs` [new].)
+- **Soft-alias runner + 5 soft-alias stubs (Phase 121.5-08 Sub-plan J; D-09 LOCKED).** New helper `scripts/soft-alias-runner.cjs` (`softAliasRun` pure function + `emitForLLM` CLI form) returns a JSON envelope `{redirect, deprecation_note, args, ok}` so the LLM can print a single cyan deprecation line (Larry voice, no em-dash) and then transparently invoke the canonical command. Hermetic unit tests in `lib/memory/soft-alias.test.cjs` (45 PASS). (`scripts/soft-alias-runner.cjs` [new], `lib/memory/soft-alias.test.cjs` [new].)
+- **`/mos:doctor --deprecated-usage` (class L, NEW; Phase 121.5-08 Sub-plan J; D-09 final clause).** Scans recent (last-7-days) `~/.claude/projects/.../*.jsonl` session transcripts for `/mos:<deprecated>` patterns and surfaces a per-command "use `/mos:<new>` instead" hint. Pure LOCAL scan -- zero network, zero Brain, zero telemetry egress (Canon Part 8 preserved). Also activated by `--all`. Hermetic unit tests in `lib/memory/doctor-deprecation-surface.test.cjs`. `MINDRIAN_DOCTOR_TRANSCRIPTS_DIR` env-var override for hermetic tests. (`scripts/doctor.cjs`, `commands/doctor.md`, `lib/memory/doctor-deprecation-surface.test.cjs` [new].)
+- **F.1 Next Move selectors wired on `/mos:onboard` Step 6 + `/mos:diagnose` recommendation block (Phase 121.5-08 Sub-plan J; D-12 LOCKED).** Closes Canon Part 3 violations flagged in Cluster 5 audit 2026-05-15: the recommendation surfaces previously rendered as bare prose, bypassing the Decision Gate. Both surfaces now render the canonical 3-verb F.1 vocabulary (Run Methodology / Defer / Free-Text) via AskUserQuestion; the selected verb writes to STATE.md Decisions + creates a typed edge in the local graph. (`commands/onboard.md`, `commands/diagnose.md`.)
+
+### Changed
+- **5 commands deprecate to canonical surfaces (Phase 121.5-08 Sub-plan J; D-09 LOCKED).** All old commands remain functional for v1.13.x (soft-alias stubs with deprecation notes routed through `scripts/soft-alias-runner.cjs`); removal is scheduled v1.14.0. Zero tester breakage during v1.13.x:
+  - `/mos:heal` -> `/mos:doctor --heal-room` (folds into doctor's class E fix engine)
+  - `/mos:query` -> `/mos:graph "<question>"` (terminal natural-language Q&A collapses into the graph translator)
+  - `/mos:organize` -> `/mos:rooms organize <verb>` (portfolio grouping folds under the multi-room surface)
+  - `/mos:hmi-status` -> `/mos:doctor --ui-compliance --json` (D-11 LOCKED; standalone command goes away; functionality lives in doctor class F)
+  - `/mos:visualize` -> `/mos:dashboard --mermaid` (the dashboard already renders Cytoscape; the `--mermaid` flag covers the Mermaid code-block fallback that visualize used to provide)
+- **`/mos:diagnostics` is being renamed to `/mos:fingerprint` in v1.14.0 (no functional change).** The rename kills the diagnose/diagnostics naming ambiguity. Both invocations work in v1.13.x; use `/mos:fingerprint` going forward. (`commands/diagnostics.md` frontmatter `renaming_to: fingerprint`; body prepends a Renamed note before the unchanged 4-algorithm dispatcher.)
 
 ## [1.13.0-beta.17] - 2026-05-15
 

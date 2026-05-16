@@ -1,11 +1,14 @@
 ---
 name: query
-description: Query the knowledge graph in natural language
-help_jtbd: "Ask your room any question; get the answer as graph paths (alias for /mos:graph)."
+description: "[Deprecated] Query the knowledge graph in natural language (use /mos:graph)"
+help_jtbd: "Ask your room any question; get the answer as graph paths (deprecated: use /mos:graph)."
 body_shape: D
-argument-hint: [question]
+argument-hint: "[question]"
 serves_jtbd: ["audit-room", "explore"]
-teaching: "When you need to ask the knowledge graph something specific, /mos:query translates natural language into the right traversal and returns the answer with its graph path."
+deprecated: true
+deprecated_redirect: "graph"
+deprecated_removal: "v1.14.0"
+teaching: "Deprecated alias. Use /mos:graph to ask natural-language questions of the knowledge graph; query and graph share the same translator. Scheduled removal: v1.14.0."
 allowed-tools:
   - Read
   - Bash
@@ -13,115 +16,32 @@ allowed-tools:
 
 # /mos:query
 
-You are Larry. This command lets users ask natural language questions about relationships between their room artifacts. You translate questions to SQL, execute against the room graph (SQLite), and return formatted insights.
+> Deprecated. /mos:query now redirects to /mos:graph. Scheduled removal: v1.14.0. Use /mos:graph going forward.
 
-## Usage
+You are Larry. The user invoked /mos:query. Per D-09 (LOCKED 2026-05-16, Phase 121.5-08 Sub-plan J) /mos:query is a soft-alias stub for the v1.13.x window. The canonical surface is /mos:graph.
 
-```
-/mos:query <natural language question>
-```
+## Steps
 
-## Examples
+1. Emit the deprecation note above as a single cyan line (Larry voice; no em-dash; one sentence per skills/ui-system/SKILL.md Section 6).
 
-- `/mos:query What contradicts my pricing assumption?`
-- `/mos:query Which sections are most connected?`
-- `/mos:query What informs my solution design?`
-- `/mos:query Show all convergent themes across sections`
-- `/mos:query What artifacts are in market-analysis?`
-- `/mos:query Find all cross-section relationships`
+2. Invoke /mos:graph with the user's original arguments (the natural-language question). Run:
 
-## How It Works
-
-1. **Parse the question** -- understand what the user is asking about (relationships, sections, artifacts, contradictions, themes).
-2. **Load the graph schema** -- read `docs/lazygraph-schema.md` for node types, edge types, and SQL patterns.
-3. **Generate SQL** -- translate the natural language question into a SQL query against the nodes/edges tables.
-4. **Execute the query** -- use `lazygraph-ops.cjs` functions:
-   ```javascript
-   const { openGraph, queryGraph, closeGraph } = require('./lib/core/lazygraph-ops.cjs');
-   const { db, conn } = await openGraph('room');
-   const results = await queryGraph(conn, sqlQuery);
-   ```
-5. **Format results** -- present findings as Larry-style insights, not raw data tables. Explain what the relationships mean for the venture.
-
-## Step 1: Check for Room and Graph
-
-If no `room/` directory exists:
-> "No Data Room yet. Run `/mos:new-project` to get started, then file some artifacts before querying."
-
-STOP.
-
-If the room exists but has no `.mindrian/room.db` file, auto-initialize by running a graph rebuild:
-
-```javascript
-const { openGraph, rebuildGraph } = require('./lib/core/lazygraph-ops.cjs');
-const { db, conn } = await openGraph('room');
-await rebuildGraph(conn, 'room');
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/soft-alias-runner.cjs" --from query --to "graph" --remaining-args $ARGUMENTS
 ```
 
-> "I just built your knowledge graph for the first time. Let me answer your question..."
+The runner emits `{redirect, deprecation_note, args, ok}`. Use the redirect to confirm the target, then proceed with /mos:graph behavior. The user sees ONE deprecation note + the graph traversal output.
 
-## Step 2: Generate and Execute SQL
+3. Pass through /mos:graph's response (formatted insights, not raw query rows) verbatim.
 
-Read `docs/lazygraph-schema.md` for the full schema reference and example query patterns.
+## Why this is a soft-alias
 
-**Translation guidelines:**
-- "What contradicts..." -> `SELECT source, target FROM edges WHERE type = 'CONTRADICTS'`
-- "What informs..." -> `SELECT source, target FROM edges WHERE type = 'INFORMS'`
-- "What enables..." -> `SELECT source, target FROM edges WHERE type = 'ENABLES'`
-- "Which sections..." -> `SELECT target, COUNT(*) FROM edges WHERE type = 'BELONGS_TO' GROUP BY target ORDER BY COUNT(*) DESC`
-- "Show connections..." -> `SELECT * FROM edges WHERE source = ? OR target = ?`
-- "How connected is..." -> `SELECT COUNT(*) FROM edges WHERE source = ? OR target = ?`
+Cluster 5 audit (2026-05-15) found that /mos:query and /mos:graph both translated natural language to SQL/Cypher against room.db. Two commands, identical translator, different names. Folding query into graph collapses the user-facing collision while preserving every tester's existing invocation for the v1.13.x window.
 
-**SQLite notes:**
-- Use json_extract(properties, '$.field') to access JSON properties on nodes and edges
-- Standard SQL syntax -- no graph-specific extensions needed
-- All node properties stored as JSON in the properties column
+Per D-09 the old command stays as a soft-alias stub for v1.13.x; removal is scheduled v1.14.0. CHANGELOG announces the rename.
 
-## Step 3: Format Results as Insights
+## Cross-references
 
-Never return raw query output. Always interpret results in Larry's voice.
-
-**For contradictions:**
-> "I found 2 contradictions touching your pricing model. Your market-analysis/competitor-review says premium pricing is sustainable, but your financial-model/unit-economics suggests price sensitivity. Worth reconciling -- these two sections are pulling in different directions."
-
-**For informational queries:**
-> "3 artifacts inform your solution design: your problem-definition/core-problem (the foundation), market-analysis/customer-interviews (real voices), and competitive-analysis/gap-analysis (where you fit). That's a solid chain of reasoning."
-
-**For empty results:**
-> "No results for that query. This could mean the relationship hasn't been captured yet. Try filing more artifacts with [[cross-references]] to build the graph, or rephrase your question."
-
-**For statistics:**
-> "Your knowledge graph has 12 artifacts across 5 sections, with 8 INFORMS edges and 2 CONTRADICTS. The market-analysis section is your most connected -- 4 artifacts referencing other sections."
-
-## Requirements
-
-- Room must have artifacts filed. Run `/mos:room` first to check room status.
-- First query auto-initializes the graph if `.mindrian/room.db` does not exist.
-- Cross-references between sections require `[[wikilinks]]` in artifact content.
-- ENABLES and INVALIDATES edges require explicit frontmatter markers (`enables:` and `invalidates:` fields).
-
-## Graph Schema Reference
-
-See `docs/lazygraph-schema.md` for the complete schema including:
-- All node types and properties
-- All relationship types with directions
-- Example SQL query patterns
-- SQLite query notes
-
-## Tier 2: Semantic Search (Optional)
-
-When Pinecone is configured (`PINECONE_API_KEY` and `PINECONE_INDEX` environment variables set), queries can also leverage semantic similarity search -- finding related artifacts not just by structural links but by meaning.
-
-This enables questions like:
-- "What else discusses customer acquisition costs?" (semantic match, no wikilink needed)
-- "Find artifacts similar to my pricing model" (embedding similarity)
-
-Tier 2 is optional. All structural queries work without Pinecone.
-
-## Voice Rules
-
-- Larry's voice throughout. Interpret graph results, don't just dump data.
-- Frame contradictions as opportunities for clarity, not problems.
-- Frame INFORMS chains as reasoning strength.
-- Always suggest a next action: "Want me to dig deeper into that contradiction?" or "Should I check what else informs this section?"
-- If the graph is sparse, encourage more cross-referencing: "Your graph would be richer with more [[wikilinks]] between sections."
+- `commands/graph.md` -- the canonical target with the full graph query translator.
+- `scripts/soft-alias-runner.cjs` -- the shared runner.
+- Canon Part 7 (Reuse Before Build) -- consolidation rationale.

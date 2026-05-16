@@ -8,6 +8,9 @@
 #   ../lib/memory/help-renderer.test.cjs             -> Plan 121.5-07 Task 2 (help-groups.json + renderer)
 #   ../lib/memory/help-coverage.test.cjs             -> Plan 121.5-07 Task 2 (check-help-coverage CI guard)
 #   test-help-renderer-bulletproof.cjs               -> Plan 121.5-07 Task 2 (3 torture tests)
+#   ../lib/memory/soft-alias.test.cjs                -> Plan 121.5-08 Task 1 (soft-alias-runner + 5 stub bodies + /mos:mos + diagnostics rename)
+#   ../lib/memory/state-aware-router.test.cjs        -> Plan 121.5-08 Task 1 (state-aware-router pure function)
+#   ../lib/memory/doctor-deprecation-surface.test.cjs -> Plan 121.5-08 Task 2 (doctor class I --deprecated-usage + F.1 selector wiring)
 #
 # This runner MUST run to completion (no crash) even when any suite fails; it
 # prints a per-suite PASS/FAIL line and exits non-zero if any suite failed.
@@ -32,6 +35,9 @@ CJS_SUITES=(
   ../lib/memory/help-renderer.test.cjs
   ../lib/memory/help-coverage.test.cjs
   test-help-renderer-bulletproof.cjs
+  ../lib/memory/soft-alias.test.cjs
+  ../lib/memory/state-aware-router.test.cjs
+  ../lib/memory/doctor-deprecation-surface.test.cjs
 )
 
 TOTAL=0
