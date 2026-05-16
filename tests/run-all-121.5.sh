@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
-# Phase 121.5 scoped runner -- run before each 121.5 task commit. Expect
-# GREEN once all 121.5 plans land (each plan adds its own test suite here):
-#   first-touch-version.test.cjs    -> Plan 121.5-05 Task 1 (Sub-plan F: SEED-007 absorption)
-#   stale-copy-scanner.test.cjs     -> Plan 121.5-05 Task 2 (Sub-plan F: stale-copy class for /mos:doctor)
-#   body-shape-coverage.test.cjs    -> Plan 121.5-01 Task 2 (Sub-plan B: body_shape sweep + audit tripwire)
+# Phase 121.5 scoped runner -- run before each 121.5 task commit.
 #
-# Other 121.5 plans (00, 02-04, 06-08) register their suites here when they land.
+# CJS_SUITES entries are resolved relative to this directory (tests/); an entry
+# may be "../lib/..." to reach a suite that lives under lib/.
 #
-# This runner MUST run to completion (no crash) even when any suite fails;
-# it prints a per-suite PASS/FAIL line and exits non-zero if any suite
-# failed.
+# Suites land as each 121.5 plan completes (parallel Wave 1, then Wave 2 sweep):
+#   ../scripts/audit-body-shape-coverage.cjs           -> Plan 121.5-01 Task 2 (parallel; may not exist yet)
+#   ../lib/memory/sessionstart-coordinator.test.cjs    -> Phase 121.5-00 pattern (parallel; may not exist yet)
+#   ../lib/memory/skill-vs-code-drift.test.cjs         -> Plan 121.5-02 Task 2 (THIS PLAN)
 #
-# CJS_SUITES entries are resolved relative to this directory (tests/); an
-# entry may be "../lib/..." to reach a suite that lives under lib/.
+# Entries are added as plans land; missing files report MISSING (treated as
+# failure so the runner exits non-zero -- the missing file is the signal).
+# Plan 121.5-02 ships the skill-vs-code-drift entry.
 #
 # bash only. No emoji. No em-dashes.
 
@@ -24,9 +23,8 @@ START_TIME=$(date +%s)
 SHELL_SUITES=(
 )
 CJS_SUITES=(
-  ../lib/memory/first-touch-version.test.cjs
-  ../lib/memory/body-shape-coverage.test.cjs
-  ../lib/memory/stale-copy-scanner.test.cjs
+  # Plan 121.5-02 -- tests scripts/check-skill-vs-code-drift.cjs
+  "../lib/memory/skill-vs-code-drift.test.cjs"
 )
 
 TOTAL=0
@@ -82,7 +80,7 @@ echo "  Time:   ${ELAPSED}s"
 
 if [[ $FAILED -gt 0 ]]; then
   echo ""
-  echo "  Failed (see header for plan ownership):"
+  echo "  Failed:"
   for t in "${FAILED_TESTS[@]}"; do
     echo "    - $t"
   done
