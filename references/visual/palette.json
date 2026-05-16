@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "canon_parts": ["Part 3", "Part 7", "Part 10"],
+  "provenance": "Sourced verbatim from lib/core/visual-ops.cjs DS_HEX (the shipping source of truth as of Phase 121.5). ODD 3 resolution (2026-05-16): keep existing muted/earthy values; brighter classic-Mondrian rebrand deferred to v1.14.0 if it ever comes. See .planning/phases/121.5-terminal-coherence-capstone/121.5-CONTEXT.md item 7. Plan 121.5-03.",
+  "base": {
+    "mondrian_red":    "#A63D2F",
+    "mondrian_blue":   "#1E3A6E",
+    "mondrian_yellow": "#C8A43C",
+    "mondrian_black":  "#0D0D0D",
+    "mondrian_white":  "#F5F0E8",
+    "cream":           "#F5F0E8",
+    "gray_meta":       "#A09A90",
+    "amethyst":        "#6B4E8B",
+    "success_green":   "#2D6B4A"
+  },
+  "palette_a_discovery": {
+    "context_states": ["EXPLORE_CAPTURE", "JUST_TALK"],
+    "muted_red":   "#A63D2F",
+    "muted_green": "#2D6B4A",
+    "teal_accent": "#2A6B5E"
+  },
+  "palette_b_build": {
+    "context_states": ["METHODOLOGY", "DECISION_GATE", "BUILD_ROOM"],
+    "saturated_red":    "#A63D2F",
+    "saturated_blue":   "#1E3A6E",
+    "saturated_yellow": "#C8A43C"
+  },
+  "extended": {
+    "sienna":   "#B5602A",
+    "bg":       "#0D0D0D",
+    "surface":  "#1A1A1A",
+    "elevated": "#2A2A2A",
+    "gray":     "#5C5A56"
+  },
+  "ansi_5_color": {
+    "green":  "32",
+    "cyan":   "36",
+    "yellow": "33",
+    "red":    "31",
+    "gray":   "90"
+  },
+  "derived_files": [
+    {"path": "lib/core/visual-ops.cjs",                                    "via": "require + DS_HEX = palette.base + palette_a + palette_b + extended"},
+    {"path": "scripts/banner",                                             "via": "ANSI codes inline; hex documented in trailing comments + matched against palette.json"},
+    {"path": "templates/destijl-base.css",                                 "via": "CSS variables :root { --ds-red: ... } match palette.json values"},
+    {"path": "lib/render/JTBD-PALETTES.md",                                "via": "documentation cites palette.json hex values"}
+  ],
+  "deferred_consumers": [
+    {"path": "templates/shared.css",                              "reason": "Per-surface lighter/darker variants for dashboard styling (e.g. #2d2d2d surface elevation, #c95a4a lighter red). Distinct semantic palette intentionally diverges; consolidation deferred to a future plan that audits dashboard color tokens against palette.json + variant generation rules."},
+    {"path": "references/vault-kit/snippets/mindrian-destijl.css", "reason": "Vault-kit Obsidian snippet uses brighter classic-Mondrian variants (e.g. #c83d2f, #2b5ba5) for vault legibility in Obsidian's default dark theme. Distinct surface; covered when Obsidian-vault color audit lands."},
+    {"path": "templates/shared.css", "scope_note": "Captured as deferred so the audit trail records that shared.css palette divergence was SEEN by Phase 121.5-03, not silently passed."},
+    {"path": "lib/render/render-v2.cjs", "reason": "Future consumer once wired in Plan 121.5-05 (render-v2 disposition); not yet routing through palette.json."}
+  ]
+}

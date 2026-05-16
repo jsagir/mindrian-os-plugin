@@ -456,6 +456,14 @@ function getBridgeFile(roomDir) {
   return path.join(bridgeDir, hash + '.json');
 }
 
+// Phase 121.5-03: two-row renderer wiring. The pure-function renderer at
+// lib/statusline/two-row-renderer.cjs composes the locked D-02/D-03/D-04
+// shape from a state object; this script collects the state from local
+// sources (STATE.md, room/, ~/.mindrian/update-check.json, bridge files)
+// and delegates rendering to the renderer module.
+const twoRowRenderer = require('../lib/statusline/two-row-renderer.cjs');
+const versionResolver = require('../lib/statusline/version-resolver.cjs');
+
 let input = '';
 const timeout = setTimeout(() => process.exit(0), 3000);
 process.stdin.setEncoding('utf8');
@@ -485,12 +493,28 @@ process.stdin.on('end', () => {
       fs.renameSync(bridgeFile + '.tmp', bridgeFile);
     } catch (e) {}
 
-    // --- Context window bar ---
+    // --- Context window pct (Phase 121.5-03: raw scalar; renderer composes the bar) ---
+    // Pre-121.5-03 emitted a colored 10-char bar inline. Per D-03 the two-row
+    // renderer (lib/statusline/two-row-renderer.cjs renderBar) now owns the
+    // bar composition + the >=80% blink-red wrap. We hand it just the scaled
+    // percentage; the AUTO_COMPACT_BUFFER + remaining->used math is preserved
+    // byte-identical so existing bridge-file readers see the same scalar.
     const AUTO_COMPACT_BUFFER = 16.5;
-    let ctx = '';
+    // ctxPct = null when remaining is missing (e.g. fresh session before first
+    // API call). Two-row-renderer's renderBar suppresses the bar segment in
+    // that case (preserves Phase 106-02 Test 7 contract: no data = no bar).
+    let ctxPct = null;
     if (remaining != null) {
       const usableRemaining = Math.max(0, ((remaining - AUTO_COMPACT_BUFFER) / (100 - AUTO_COMPACT_BUFFER)) * 100);
-      const used = Math.max(0, Math.min(100, Math.round(100 - usableRemaining)));
+      ctxPct = Math.max(0, Math.min(100, Math.round(100 - usableRemaining)));
+    }
+    // LEGACY: pre-121.5-03 colored bar composition retained ONLY for the
+    // graceful-fallback path below (Tier 0 / no-room case). Once the two-row
+    // renderer is the sole path, this block is dead. For now, keep both
+    // representations available so the no-room fallback keeps the bar.
+    let ctx = '';
+    if (remaining != null) {
+      const used = ctxPct;
       const filled = Math.floor(used / 10);
       const bar = '\u2588'.repeat(filled) + '\u2591'.repeat(10 - filled);
 
@@ -514,6 +538,22 @@ process.stdin.on('end', () => {
 
     // --- Room context ---
     let roomInfo = '';
+    // Phase 121.5-03: Two-row state object passed to lib/statusline/
+    // two-row-renderer.cjs. Filled out as we collect state below; the
+    // final emission delegates to renderStatusline(state) when room is set.
+    const rowState = {
+      current_version: 'unknown',
+      brain_tier: 'LOCAL',
+      ctx_pct: ctxPct, // null when remaining missing -> renderer suppresses bar
+      update_available: false,
+      update_available_version: null,
+      room: '',
+      section: '',
+      jtbd: '',
+      stage: '',
+      governing_thought: '',
+      operator: '',
+    };
     // Resolve room path: try registry first, fall back to room/
     let roomDir = '';
     const registryPath = path.join(dir, '.rooms', 'registry.json');
@@ -563,6 +603,8 @@ process.stdin.on('end', () => {
     if (roomDir) {
       try {
         if (!roomName) roomName = path.basename(dir);
+        // Phase 121.5-03: stamp room name into the two-row state.
+        rowState.room = roomName;
 
         // Walk sections only to find the most recently modified one
         // (the current exploration focus). Everything else about
@@ -585,6 +627,14 @@ process.stdin.on('end', () => {
               }
             }
           } catch (e) {}
+        }
+        // Phase 121.5-03: stamp current section into the two-row state.
+        rowState.section = currentSection;
+        // And derive the stage label (D-04 stage segment uses the
+        // EXPLORATION_LABELS map -- existing convention preserved).
+        if (currentSection) {
+          const stageEntry = EXPLORATION_LABELS[currentSection];
+          rowState.stage = stageEntry ? stageEntry.label : currentSection.replace(/-/g, ' ').toUpperCase();
         }
 
         // Build room status parts (De Stijl visual identity)
@@ -622,6 +672,25 @@ process.stdin.on('end', () => {
         try {
           const mintoSeg = buildMintoSegment(roomDir);
           if (mintoSeg) parts.push(mintoSeg);
+          // Phase 121.5-03: also pull the raw governing thought into row state
+          // for the two-row renderer. We re-resolve via the same chain that
+          // buildMintoSegment uses; this is intentionally a fresh read (5s TTL
+          // cache already memoizes the disk hit) so we get the same value.
+          if (statuslineCache && folderMemory) {
+            const sectionPath = resolveActiveSectionPath(roomDir);
+            if (sectionPath) {
+              const cached = statuslineCache.getCached(roomDir, sectionPath);
+              const triple = (cached && cached.fresh && cached.value)
+                ? cached.value
+                : folderMemory.readTriple(sectionPath);
+              if (triple && triple.reasoning && triple.reasoning.exists &&
+                  !triple.reasoning.is_stale &&
+                  typeof triple.reasoning.governing_thought === 'string' &&
+                  triple.reasoning.governing_thought.length > 0) {
+                rowState.governing_thought = triple.reasoning.governing_thought;
+              }
+            }
+          }
         } catch (_e) { /* graceful fallback */ }
 
         // Phase 91-06 -- Larry dial segment (Investigate | Blend | Insight).
@@ -646,6 +715,8 @@ process.stdin.on('end', () => {
           const opState = operator.getCurrent(roomDir);
           if (opState && opState.current && opState.current !== 'JUST_TALK') {
             parts.push(`⚙️ ${visual.ANSI.dim}${opState.current}${visual.ANSI.reset}`);
+            // Phase 121.5-03: also stamp operator into the two-row state.
+            rowState.operator = opState.current;
           }
         } catch (_e) { /* graceful fallback - never blank statusline */ }
 
@@ -659,6 +730,8 @@ process.stdin.on('end', () => {
           const jtbdCurrent = jtbdState.getCurrent(roomDir);
           if (jtbdCurrent && jtbdCurrent.jtbd) {
             parts.push(`🎯 ${visual.ANSI.dim}${jtbdCurrent.jtbd}${visual.ANSI.reset}`);
+            // Phase 121.5-03: also stamp JTBD into the two-row state.
+            rowState.jtbd = jtbdCurrent.jtbd;
           }
         } catch (_e) { /* graceful fallback */ }
 
@@ -683,8 +756,11 @@ process.stdin.on('end', () => {
         const brainStatus = detectBrainStatus();
         if (brainStatus === 'connected') {
           parts.push(`\u{1F9EC} ${visual.ANSI.green}BRAIN${visual.ANSI.reset}`);
+          // Phase 121.5-03: stamp brain tier into two-row state.
+          rowState.brain_tier = 'BRAIN';
         } else if (brainStatus === 'disconnected') {
           parts.push(`\u{1F9EC} ${visual.ANSI.red}BRAIN${visual.ANSI.reset}`);
+          rowState.brain_tier = 'LOCAL';
         }
 
         roomInfo = parts.join(` ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} `);
@@ -698,15 +774,34 @@ process.stdin.on('end', () => {
       }
     }
 
-    // --- Output ---
-    // The update nudge is baked into the plugin version element now.
-    // No separate update-check read; no dependency on a bridge file
-    // that nothing writes.
-    if (roomInfo) {
-      process.stdout.write(`${roomInfo} ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} ${visual.ANSI.dim}${model}${visual.ANSI.reset}${ctx}`);
+    // --- Output (Phase 121.5-03: two-row D-02/D-03/D-04) ---
+    // The two-row renderer composes the locked statusline shape from the
+    // rowState we collected above. Version + update-glyph conditional come
+    // from lib/statusline/version-resolver.cjs (SEED-007 anchored).
+    //
+    // When no room is resolved (Tier 0 / cold start), emit only Row 1 with
+    // an empty Row 2 (room defaults to 'MindrianOS' in the renderer). This
+    // preserves the SEED-007 contract: the version-of-record is ALWAYS
+    // visible, even outside any room.
+    try {
+      const ver = versionResolver.resolveVersion();
+      rowState.current_version = ver.current_version;
+      rowState.update_available = ver.update_available;
+      rowState.update_available_version = ver.update_available_version;
+    } catch (_e) {
+      // Graceful: keep rowState.current_version='unknown' from initialization.
+    }
+
+    if (rowState.room || roomInfo) {
+      // Two-row emission. The renderer handles all width-progressive
+      // degradation + the blink-red at >=80% + the conditional update glyph.
+      process.stdout.write(twoRowRenderer.renderStatusline(rowState));
     } else {
-      const dirname = path.basename(dir);
-      process.stdout.write(`${visual.ANSI.dim}${model}${visual.ANSI.reset} ${visual.ANSI.muted}${visual.SYMBOLS.box.v}${visual.ANSI.reset} ${visual.ANSI.dim}${dirname}${visual.ANSI.reset}${ctx}`);
+      // No room AND no roomInfo. Still render Row 1 (version-of-record
+      // contract per SEED-007 + D-03). Row 2 will render with the default
+      // 'MindrianOS' room placeholder. This is intentionally minimal so the
+      // user outside any room still sees who/runway, just not where/what.
+      process.stdout.write(twoRowRenderer.renderRow1(rowState));
     }
   } catch (e) {
     // Silent fail

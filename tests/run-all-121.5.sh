@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
-# Phase 121.5 scoped runner -- run before each 121.5 task commit.
+# Phase 121.5 scoped runner -- run before each 121.5 task commit. Each plan
+# appends its own suites. As of Plan 121.5-03 the runner covers:
+#   ../lib/memory/palette-consistency.test.cjs   -> Task 1 (canonical palette.json + drift tripwire)
+#   ../lib/memory/statusline-two-row.test.cjs    -> Task 2 (two-row renderer + version-resolver + truncator)
+#
+# This runner MUST run to completion (no crash) even when any suite fails; it
+# prints a per-suite PASS/FAIL line and exits non-zero if any suite failed.
 #
 # CJS_SUITES entries are resolved relative to this directory (tests/); an entry
 # may be "../lib/..." to reach a suite that lives under lib/.
 #
-# Suites land as each 121.5 plan completes (parallel Wave 1, then Wave 2 sweep):
-#   ../scripts/audit-body-shape-coverage.cjs           -> Plan 121.5-01 Task 2 (parallel; may not exist yet)
-#   ../lib/memory/sessionstart-coordinator.test.cjs    -> Phase 121.5-00 pattern (parallel; may not exist yet)
-#   ../lib/memory/skill-vs-code-drift.test.cjs         -> Plan 121.5-02 Task 2 (THIS PLAN)
-#
-# Entries are added as plans land; missing files report MISSING (treated as
-# failure so the runner exits non-zero -- the missing file is the signal).
-# Plan 121.5-02 ships the skill-vs-code-drift entry.
-#
-# bash only. No emoji. No em-dashes.
+# Bash only. No emoji. No em-dashes.
 
 set -uo pipefail
 
@@ -23,8 +20,8 @@ START_TIME=$(date +%s)
 SHELL_SUITES=(
 )
 CJS_SUITES=(
-  # Plan 121.5-02 -- tests scripts/check-skill-vs-code-drift.cjs
-  "../lib/memory/skill-vs-code-drift.test.cjs"
+  ../lib/memory/palette-consistency.test.cjs
+  ../lib/memory/statusline-two-row.test.cjs
 )
 
 TOTAL=0
@@ -80,7 +77,7 @@ echo "  Time:   ${ELAPSED}s"
 
 if [[ $FAILED -gt 0 ]]; then
   echo ""
-  echo "  Failed:"
+  echo "  Failed (see header for plan ownership):"
   for t in "${FAILED_TESTS[@]}"; do
     echo "    - $t"
   done
