@@ -87,6 +87,17 @@ function parseArgs(argv) {
     cascadeRooms: false, verifySurface: false, roomMd: false, uiCompliance: false,
     statuslineVisibility: false,
     installState: false,
+    // Phase 121.5-05 Sub-plan F (SEED-007 absorption): class K (stale-first-
+    // touch-copy) checks every first-touch surface declared in
+    // data/first-touch-surfaces.json for two regression patterns:
+    //   (1) stale_version_hardcode -- a vX.Y.Z literal older than the running
+    //       plugin version (the SEED-007 trigger);
+    //   (2) em_dash_violation -- any U+2014 EM DASH in a surface flagged with
+    //       em_dash_check: true (the feedback_no_emdashes hard rule).
+    // Per data/first-touch-surfaces.json each surface declares both invariants
+    // and an allowlist of doc-example version strings. Renamed from class H
+    // in 121.5-05-PLAN.md (class H is install-incomplete; deviation Rule 3).
+    staleFirstTouch: false,
     // Phase 123 Plan-04 (HARNESS-123-11 + HARNESS-123-12): release-gate-as-a-
     // command. --acceptance runs the 7-point checklist; --pre-tag filters to
     // the 5 pre-tag-applicable points; --light-npx skips the mktemp HOME
@@ -117,6 +128,7 @@ function parseArgs(argv) {
     else if (arg === '--ui-compliance') flags.uiCompliance = true;
     else if (arg === '--statusline-visibility') flags.statuslineVisibility = true;
     else if (arg === '--install-state') flags.installState = true;
+    else if (arg === '--stale-first-touch') flags.staleFirstTouch = true;
     else if (arg === '--acceptance') flags.acceptance = true;
     else if (arg === '--pre-tag') flags.preTag = true;
     else if (arg === '--pre-flight') flags.preFlight = true;
@@ -138,6 +150,7 @@ function parseArgs(argv) {
     flags.uiCompliance = true;
     flags.statuslineVisibility = true;
     flags.installState = true;
+    flags.staleFirstTouch = true;
   }
   // --pre-tag implies --acceptance (convenience; running --pre-tag standalone
   // is meaningless).
@@ -164,6 +177,8 @@ Class flags (combine freely; --all activates them all):
                            + class H (install-incomplete: missing statusLine block and/or a halted .install-receipt.json)
   --install-state          class I (install-state + topology + 6-way version-of-record consistency)
                            + class J (deployment-surface manifest reconciliation)
+  --stale-first-touch      class K (stale-first-touch-copy: stale version literals + em-dash violations
+                           in greeting surfaces declared by data/first-touch-surfaces.json; SEED-007 absorption)
   --all                    activate all class flags
 
 Release-gate runner (Phase 123 Plan-04 -- separate from class flags):
@@ -2772,10 +2787,32 @@ function renderHumanReport(report) {
         bodyRows.push('     ' + C.dim + '-> /mos:doctor --statusline-visibility --fix re-stamps the statusLine block' + C.reset);
       }
     }
+    // Phase 121.5-05 Sub-plan F: render class K (stale-first-touch-copy)
+    // findings using the same Shape-E action-report idiom.
+    const sft = report.checks['stale-first-touch-copy'];
+    if (sft) {
+      let glyph;
+      let color;
+      if (sft.status === 'ok') { glyph = '✓'; color = C.green; }
+      else if (sft.status === 'warn') { glyph = '⚠'; color = C.yellow; }
+      else if (sft.status === 'error') { glyph = '⚠'; color = C.red; }
+      else { glyph = '⊘'; color = C.dim; } // skip
+      bodyRows.push('  ' + color + '■' + C.reset + ' class K stale-first-touch    ' + color + glyph + C.reset + ' ' + (sft.detail || sft.status));
+      if (Array.isArray(sft.violations) && sft.violations.length > 0) {
+        for (const v of sft.violations) {
+          if (v.kind === 'stale_version_hardcode') {
+            bodyRows.push('     ' + C.dim + '-> ' + v.surface + ' (' + v.file + '): stale version literal "' + v.found + '" (current ' + (v.current || sft.current_version) + ')' + C.reset);
+          } else if (v.kind === 'em_dash_violation') {
+            bodyRows.push('     ' + C.dim + '-> ' + v.surface + ' (' + v.file + '): em-dash (U+2014) in greeting surface' + C.reset);
+          }
+        }
+      }
+    }
     for (const [name, _check] of Object.entries(report.checks)) {
       if (name === 'install-cache') continue; // already handled above.
       if (name === 'statusline-visibility') continue; // rendered above.
       if (name === 'install-incomplete') continue; // rendered above.
+      if (name === 'stale-first-touch-copy') continue; // rendered above.
       // Future: render check.detail rows here using the same idiom.
     }
   }
@@ -2953,7 +2990,7 @@ function main() {
   // hard exits, and warnings from new checks return 0 unless --fix-failed.
   const classFlagsActive = flags.cascadeRooms || flags.verifySurface
     || flags.roomMd || flags.uiCompliance || flags.statuslineVisibility
-    || flags.installState;
+    || flags.installState || flags.staleFirstTouch;
 
   const report = {
     install: installResult,
@@ -3200,6 +3237,37 @@ function main() {
       if (report.drift && report.drift.reason === 'install-missing') {
         report.drift = { detected: false, reason: 'bug7-fix-marketplace-cache' };
       }
+    }
+  }
+
+  // Class K: stale-first-touch-copy (Phase 121.5-05 Sub-plan F; SEED-007
+  // absorption). Pure LOCAL scan -- zero network, zero Brain, zero telemetry
+  // egress (Canon Part 8). Renamed from class H in 121.5-05-PLAN.md because
+  // class H was already in use (install-incomplete); the behavior contract
+  // is preserved byte-identical, only the class letter changed.
+  if (flags.staleFirstTouch) {
+    try {
+      const { scanForStaleCopy } = require(path.join(__dirname, '..', 'lib', 'core', 'stale-copy-scanner.cjs'));
+      const result = scanForStaleCopy();
+      const status = result.valid ? 'ok' : 'warn';
+      const detail = result.valid
+        ? 'all first-touch surfaces stamp the running version + pass em-dash check'
+        : 'stale or em-dashed copy detected on ' + result.violations.length + ' surface(s)';
+      report.checks['stale-first-touch-copy'] = {
+        class: 'K',
+        status,
+        detail,
+        violations: result.violations,
+        scanned_count: result.scanned_count,
+        current_version: result.current_version,
+      };
+    } catch (err) {
+      report.checks['stale-first-touch-copy'] = {
+        class: 'K',
+        status: 'error',
+        detail: err.message,
+        violations: [],
+      };
     }
   }
 

@@ -26,6 +26,7 @@ SHELL_SUITES=(
 CJS_SUITES=(
   ../lib/memory/first-touch-version.test.cjs
   ../lib/memory/body-shape-coverage.test.cjs
+  ../lib/memory/stale-copy-scanner.test.cjs
 )
 
 TOTAL=0

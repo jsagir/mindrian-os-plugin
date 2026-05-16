@@ -1,7 +1,7 @@
 ---
 name: doctor
 description: Diagnose and optionally repair MindrianOS install — detects install-cache drift, .room-root sentinel gaps, active-room guard silence, surface-verification gaps, ROOM.md/MINTO.md drift, UI Ruling System compliance, and statusline visibility drift
-argument-hint: "[--fix] [--cascade-rooms] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--install-state] [--all] [--acceptance] [--pre-tag] [--light-npx] [--json]"
+argument-hint: "[--fix] [--cascade-rooms] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--install-state] [--stale-first-touch] [--all] [--acceptance] [--pre-tag] [--light-npx] [--json]"
 body_shape: E (Action Report)
 body_shape_detail: per-class status rows with [before → after] pattern, summary totals, F.1 Next Move selector when drift detected without --fix
 serves_jtbd: ["audit-room"]
@@ -42,6 +42,7 @@ Look at the user's invocation:
 - `/mos:doctor --room-md` → class E (ROOM.md/MINTO.md presence under .room-root subtrees)
 - `/mos:doctor --ui-compliance` → class F (UI Ruling System scan across commands/*.md and scripts/*.cjs)
 - `/mos:doctor --statusline-visibility` → class G — checks user-settings drift, plugin install integrity, and statusline-mos isolated execution
+- `/mos:doctor --stale-first-touch` → class K (Phase 121.5-05; SEED-007 absorption) — scans `data/first-touch-surfaces.json`-declared greeting surfaces (banner, splash, onboard, sessionstart, operator-update, larry-extended) for stale version literals (older than the running plugin) and U+2014 em-dash violations on surfaces flagged `em_dash_check: true`
 - `/mos:doctor --fix` → diagnostic + auto-recovery for any class that supports --fix (class A, B, E, G)
 - `/mos:doctor --json` → machine-readable output (for hooks / regression tests)
 

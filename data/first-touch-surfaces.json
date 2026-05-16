@@ -8,7 +8,8 @@
       "file": "scripts/banner",
       "kind": "shell_script",
       "version_stamp_required": true,
-      "allowed_hardcoded_versions": [],
+      "allowed_hardcoded_versions": ["1.4.0", "1.5.1"],
+      "allowlist_reason": "Usage example in header comment shows a version-transition (v1.4.0 -> v1.5.1) -- doc example, not greeting copy.",
       "em_dash_check": true
     },
     {
@@ -24,7 +25,8 @@
       "file": "commands/onboard.md",
       "kind": "command_md",
       "version_stamp_required": true,
-      "allowed_hardcoded_versions": [],
+      "allowed_hardcoded_versions": ["1.5.1"],
+      "allowlist_reason": "Parsing-logic doc example references the v1.5.1 CHANGELOG heading format -- doc example, not greeting copy.",
       "em_dash_check": true
     },
     {
