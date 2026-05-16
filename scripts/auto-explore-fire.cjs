@@ -233,6 +233,34 @@ async function main() {
       process.exit(0);
     }
 
+    // Phase 119-02 Task 3 (REVISION 2026-05-16): wire scaffoldRoomSkeleton into
+    // the auto-explore-fire success path so the placeholder room created by
+    // Plan 119-00's autoCreatePlaceholderRoom gets its STATE.md + MINTO.md +
+    // USER.md + 8 ICM section folders + 5 identity-directory ROOM.md files
+    // materialized BEFORE the auto-explore finding JSON is consumable. The
+    // wiring is reentrancy-guarded so a re-fire against an already-scaffolded
+    // room is a no-op.
+    //
+    // Canon Part 9: scaffold writes files only -- no graph writes from here;
+    // the room_auto_created memory_event fires from Plan 119-00 (the caller).
+    // Canon Part 10 sub-claim 3: rooms are receipts -- the receipt's substrate
+    // materializes the instant the auto-explore finding lands.
+    // Graceful-degradation: skeleton-scaffold failure logs to stderr but does
+    // NOT regress the auto-explore pipeline (Phase 117 `exit 0 always` invariant).
+    if (!fs.existsSync(path.join(roomDir, 'STATE.md'))) {
+      try {
+        const { scaffoldRoomSkeleton } = require('../lib/core/room-skeleton-scaffold.cjs');
+        scaffoldRoomSkeleton(roomDir, {
+          placeholder_slug: path.basename(roomDir),
+          source_material_id: material_id,
+          auto_explore_finding: finding,
+        });
+      } catch (scaffoldErr) {
+        process.stderr.write('[auto-explore-fire] room-skeleton-scaffold failed (non-fatal): ' +
+          String(scaffoldErr && scaffoldErr.message || scaffoldErr).slice(0, 120) + '\n');
+      }
+    }
+
     // Phase 117-05 telemetry: a finding emerged -- the natural trigger point
     // to surface the FourLenses (Brain) vs FiveLenses (Canon) drift signal
     // per Brain Section 8.6 + AUTOEXPLORE-117-18. Idempotent within session
