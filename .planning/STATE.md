@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed quick task 260515-rd1 (126.1-hotfix-beta17, 3 fixes + Phase 122 invariant); ready for v1.13.0-beta.17 release cut
-last_updated: "2026-05-15T17:10:00.000Z"
+stopped_at: Completed 121.5-03 (statusline two-row + canonical palette + statusline-mos wrapper migration) -- D-01..D-04 shipped, ODD 3 resolved
+last_updated: "2026-05-16T17:42:23.103Z"
 last_activity: 2026-05-15
 progress:
-  total_phases: 58
-  completed_phases: 39
-  total_plans: 281
-  completed_plans: 273
+  total_phases: 54
+  completed_phases: 22
+  total_plans: 144
+  completed_plans: 201
   percent: 93
 ---
 
@@ -347,6 +347,7 @@ Progress: [█████████░] 93%
 | Phase 118 P02 | 9min | 3 tasks | 12 files |
 | Phase 118 P05 | 7min | 3 tasks | 8 files |
 | Phase 118 P06 | 75min | 3 tasks | 17 files |
+| Phase 121.5-terminal-coherence-capstone P03 | 55min | 2 tasks | 15 files |
 
 ### Roadmap Evolution
 
@@ -886,6 +887,7 @@ Progress: [█████████░] 93%
 - [Phase 118]: Plan 118-02: Dashboard agent routes through lib/core/navigation.cjs (Phase 109 D-06 chokepoint; Canon Part 9). Two new wrappers (detectActiveRoom + getRecentDecisionNeighborhood) added as additive re-exports following the logMemoryEvent / firstCapturedLastTouchedBySection / writeEdge precedent.
 - [Phase 118]: Plan 118-05 closure: STUB_MESSAGE_119 hardcoded (frozen) per B6 OPTION A; resolveCurrentSha8 reads state.json with null on miss (CRITICAL-3 part 2 wire CLOSED); OPTION_BEHAVIOR maps to Canon Part 3 verbs 7/8/5; Phase 119 hook is one-line swap in OPTION_BEHAVIOR[2]
 - [Phase 118]: Plan 118-06: shipped reward-before-investment rule (docs/) + linter (lib/core/) + 4 frontmatter declarations + scripts/hooks/pre-commit guardian + Dror 2.0 harness reading LD1 LOCKED from 118-CONTEXT.md
+- [Phase 121.5-terminal-coherence-capstone]: D-01..D-04 statusline shape locked (JTBD-invariant single shape, two-row identity/situation split, current six segments); ODD 3 palette resolved as keep-muted/earthy; rebrand deferred to v1.14.0
 
 ### Pending Todos
 
@@ -916,6 +918,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-15T13:46:36.715Z
-Stopped at: Completed 118-06-rule-linter-dror-harness PLAN; Phase 118 ALL PLANS DONE (7/7)
+Last session: 2026-05-16T17:42:23.076Z
+Stopped at: Completed 121.5-03 (statusline two-row + canonical palette + statusline-mos wrapper migration) -- D-01..D-04 shipped, ODD 3 resolved
 Resume file: None
