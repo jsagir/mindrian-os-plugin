@@ -35,7 +35,9 @@ Every output has exactly 4 zones in fixed order. No reordering. No invention.
 
 **Density:** >30 lines: compact header, max 2 signals. <10 lines: no padding.
 
-## 2. Five Body Shapes
+## 2. Body Shapes
+
+> This section documents the current Shape F sub-shape catalog as shipped through Phase 88.2. Today's seven sub-shapes (F.0 through F.6) are the shipped vocabulary as of Phase 121.5; additive expansion is reserved for future lens-aware variants (e.g. v1.14.0 dual-graph work). Treat the catalog as the current canon, not a closed terminal set.
 
 ### Shape A: Mondrian Board
 **Used by:** `/mos:status`, `/mos:diagnose`, `/mos:radar`, `/mos:admin`
@@ -72,6 +74,28 @@ All five sub-shapes share a common envelope:
 - RECOMMENDED marker appears on at most one option, only when Brain confidence >= 0.7 (Phase 88.2 invariant). In Mode B (Local Only), no option is marked.
 
 The ten canonical verbs (from canon Part 3) are: Run Methodology / Reformulate / Spawn Sub-Agent / Navigate Graph / Devil's Advocate / Scenario Plan / Synthesize / Bank Opportunity / Defer / Free-Text. Each sub-shape below draws from this vocabulary.
+
+#### Shape F.0 - Mini Decision Gate
+
+Purpose: Tiny binary or trinary decision gate. Lighter than F.1 (which carries 3-5 options); F.0 is the minimum-viable gate when the navigator only needs a yes/no/defer call before the larger selector slate fires.
+
+When to use: A surface needs a confirmation BEFORE producing the larger F.1 selector. Most common: accept / reject / defer a recommendation before the full Next Move slate runs. Common pair: F.0 (accept this recommendation?) -> F.1 (now choose next move).
+
+Header format:
+```
+[filled-square] [CONTEXT] - MINI GATE             - decision gate
+[right-triangle-filled] {short binary or trinary question}
+```
+
+Options: EXACTLY 3 verbs as shipped (lib/hmi/shape-f0-renderer.cjs): Approve / Reject / Defer. No Free-Text slot in F.0 -- the Reject path captures the reason as a REJECTED_BECAUSE typed edge property (Canon Part 4: rejection is data), so the vocabulary stays closed without losing free-form intent. F.0 ALWAYS produces a typed edge; there is no silent dismiss path.
+
+Verb constraints: F.0 collapses to one of the 10 canonical verbs upon selection. Approve -> Run Methodology (or whatever the recommendation called for). Reject -> captured-reason edge (REJECTED_BECAUSE; eventType `selector_rejection_captured`). Defer -> Defer (queue for milestone audit).
+
+Keyboard: up-arrow / down-arrow (or J / K) to navigate, Enter to select, `?` to inspect, Esc to cancel. No RECOMMENDED marker is rendered in F.0 (the shape itself is the recommendation surface; marking one option would double-cue).
+
+State-update hook: append to STATE.md Decisions section with the chosen verb + a tiny one-line context snapshot (F.0 gates are lightweight; do NOT bloat Decisions with full context). A typed edge `(navigator) -[CHOSE_MINI {verb}]-> (recommendation-node)` lands in the local graph; Reject additionally writes REJECTED_BECAUSE with {reason, rejected_at, parent_decision_id}.
+
+Shipped in: Phase 88.2 (uiux-selector-block, Plan 88.2-05).
 
 #### Shape F.1 - Next Move
 
@@ -178,6 +202,34 @@ Keyboard: up-arrow / down-arrow (or J / K) to navigate, Enter to select, `?` to 
 
 State-update hook: append to STATE.md Decisions section naming the resolved branch and the resolution verb. A typed edge is added: (branch-root) -[RESOLVED {verb}]-> (target). Parked branches additionally create a milestone-audit TodoWrite row.
 
+#### Shape F.6 - Plan Review Round
+
+Purpose: Plan Mode wrap. When the navigator has been in a planning surface (e.g. after a methodology session that produced a plan), F.6 closes the round with an explicit Review verb selection BEFORE returning to Plan vs Build mode. F.6 is also the JTBD-aware variant of Shape F that the dispatcher routes to when a JTBD signal is set; the umbrella `F` branch in selector-dispatcher.cjs picks F.6 when jtbd is non-null and F.1 otherwise (lib/hmi/selector-dispatcher.cjs).
+
+When to use: End of a plan-producing methodology session, OR any Shape F surface where a non-null JTBD is in play and the renderer should produce a JTBD-aware Next Move slate. The navigator must explicitly review the plan (or defer review, or replan from scratch) before the system promotes the plan into the Decisions log.
+
+Header format:
+```
+[filled-square] [CONTEXT] - PLAN REVIEW           - decision gate
+[down-triangle] LOCAL   / BRAIN   / SIGNAL
+[right-triangle-filled] Review this plan:
+```
+
+Options: 3-5. Typical slate:
+  Approve plan
+  Revise plan
+  Replan from scratch
+  Defer review
+  Free-Text
+
+Verb constraints: Approve plan -> Synthesize (the plan becomes a confirmed artifact). Revise plan -> Reformulate (re-runs the planning verb with edits). Replan -> Reformulate from a fresh seed. Defer review -> Defer. Free-Text -> Free-Text. JTBD-aware variants source their verbs from `lib/hmi/jtbd-taxonomy.json` `next_move_verbs`; falls through to F.1 if the JTBD taxonomy entry is missing or the dispatcher receives a null JTBD.
+
+Keyboard: standard F-family keyboard (inherits from F.1 per Phase 101-01 D-01).
+
+State-update hook: on Approve, the plan is promoted from `review_status: proposed` to `review_status: confirmed` (Canon Part 9 truth-state machine). On Revise/Replan, the original plan stays `proposed` and a new revision edge is created. On Defer, a milestone-audit TodoWrite row queues the review. Plan-review variant additionally writes REVIEWED typed edges per question position with {round_id, position, latency_ms, was_decoy, response, confidence_self_report} (lib/hmi/shape-f6-plan-review-renderer.cjs).
+
+Shipped in: Phase 88.2 (uiux-selector-block, Plan 88.2-06 plan-review variant) + Phase 101-01 (JTBD-aware Next Move variant).
+
 ## 3. Symbol Vocabulary
 
 12 glyphs. One meaning each. No overloading.
@@ -201,6 +253,27 @@ State-update hook: append to STATE.md Decisions section naming the resolved bran
 
 Carve-out (2026-04-14, user directive): the Claude Code statusline rendered by `scripts/context-monitor` is **excepted** from this rule. The statusline is a passive signal surface rendered by the host terminal, not a MindrianOS command output body, and the user has authorized emoji use there specifically. Every other surface (slash-command output, artifact generation, MINTO.md files, CHANGELOG entries, reports, dashboard HTML bodies, PDF exports, printed logs) must continue to honor the no-emoji rule without exception. If you are reading this and about to add emoji to any surface other than `scripts/context-monitor`, stop.
 
+### ODD 4 resolution (2026-05-16): the 🎯 overload + the "JTBD" word collision
+
+Two known vocabulary collisions exist in v1.13.0 that we explicitly DOCUMENT rather than renumber or rename (the renumbering cost is too high for a closing milestone; see Phase 121.5 CONTEXT.md ODD 4). Both are RESOLVED BY POSITION-ANCHORED CONTEXT, mirroring the no-emoji + statusline carve-out pattern above:
+
+1. The 🎯 glyph means three things, each disambiguated by SURFACE:
+   - In the statusline Row 2 (`scripts/context-monitor`), 🎯 prefixes the active JTBD label -- meaning "what job are you in right now."
+   - In `/mos:jtbd` command output and JTBD broadcast banners, 🎯 prefixes a JTBD recommendation -- meaning "this is the job we're proposing."
+   - In `lib/core/visual-ops.cjs` EXPLORATION_LABELS, 🎯 is the stage emoji for `problem-definition` -- meaning "where the wicked navigator starts."
+
+   The three meanings never collide on the same surface at the same time. Reader disambiguation: where is the 🎯? (statusline row 2 / command output / EXPLORATION_LABELS render path).
+
+2. The word "JTBD" names two unrelated systems:
+   - Phase 37 nudge templates (`lib/hmi/build-jtbd-nudges` -- bash, prompt-engineering style).
+   - Phase 100 typed engine (`lib/hmi/jtbd-taxonomy.json` -- 13 JTBDs with cues / methodology hooks / next_move_verbs / completion patterns -- the AUTHORITATIVE system).
+
+   When SKILL.md, the canon, or any user-facing surface says "JTBD" without qualification, it means Phase 100 typed engine. The Phase 37 nudges are an internal prompt-engineering layer beneath the engine; user-facing surfaces never name them directly.
+
+This is the SAME shape of carve-out as the no-emoji rule + statusline exception. The pattern is: a global rule with a precisely-named exception, position-anchored. Future v1.14.0 may renumber the glyphs or rename "JTBD"; for v1.13.0 final we mark the seam, not move it.
+
+See `skills/ui-system/rules/glyph-disambiguation.md` for the full rule + the v1.14.0 cleanup proposal.
+
 ## 4. Color Contract
 
 5 ANSI colors with fixed meaning. Color is NEVER decoration.
@@ -214,6 +287,31 @@ Carve-out (2026-04-14, user directive): the Claude Code statusline rendered by `
 | Gray `\033[90m` | Meta info, timestamps, hints |
 
 Bold for emphasis. Default/white for content. Never combine colors on one token. Red = errors only (warnings = yellow).
+
+### Dual De Stijl palette (Phase 102 D-06b)
+
+The 5-color CLI contract above is the BASE palette. Phase 102 (context-aware rendering) added a SECOND palette tier: the Mondrian primaries palette, which kicks in for FULL-COLOR surfaces (HTML exports, wiki/dashboard, presentation decks, Cytoscape graphs) where the 5-ANSI CLI palette is the wrong semantic match.
+
+The dual-palette rule (Phase 102 D-06b) is: pick the palette by SURFACE, not by JTBD. The same JTBD can render red on CLI (semantic) and blue on HTML (Mondrian) and that is correct.
+
+Two palettes:
+
+- **CLI semantic palette** (THIS section's 5-color contract: red / yellow / cyan / green / gray). Used for every `/mos:*` terminal output. Color carries semantic meaning at the terminal (red = error, etc.). Applied as a single colored Zone 1 left-rail accent at the start of the header (`lib/render/render-v2.cjs` `JTBD_CLI_COLOR` map), TTY-gated via `process.stdout.isTTY` so non-TTY captures stay byte-clean.
+
+- **Mondrian HTML palette** (red / yellow / blue / black / white). Used by HTML-emitting downstream phases ONLY (Phase 19 wiki-dashboard, Phase 25 data-room-export-v2, Phase 30 presentation-generator). Visual identity discipline: rectilinear grids, primary blocks, large white space. Mondrian shapes vocabulary extends the 12-glyph CLI set with `circle (●)` on HTML surfaces only.
+
+Surface routing:
+
+| Surface | Palette | Why |
+|---------|---------|-----|
+| CLI / TUI | 5-color semantic | Color carries semantic meaning at the terminal |
+| HTML dashboard / wiki / presentation / Cytoscape | Mondrian primaries | Visual identity discipline; De Stijl rectilinear grid |
+
+Compact mode (>80% token budget) drops the Zone 1 left-rail accent. Semantic body colors stay.
+
+Source-of-truth definitions: `lib/render/JTBD-PALETTES.md` (the Phase 102 canonical mapping). See `skills/ui-system/rules/dual-palette.md` for the full rule, hex values, and per-JTBD mapping table.
+
+The CANONICAL De Stijl hex values used across `scripts/banner`, `lib/core/visual-ops.cjs` (`DS_HEX`), `templates/destijl-base.css`, `templates/shared.css`, and `references/vault-kit/snippets/mindrian-destijl.css` will consolidate to `references/visual/palette.json` per Sub-plan D of Phase 121.5. This SKILL.md surface treats `palette.json` as the canonical reference once it lands.
 
 ## 5. Session Start Contract
 
@@ -275,3 +373,13 @@ HELP:      1 line + 3 examples, grouped by flow
 WIDTH:     80 cols default, never expand
 NO EMOJI:  Ever.
 ```
+
+## 11. Cross-Reference to Canon
+
+This Ruling System implements two canon parts:
+
+- **Canon Part 3 (Tri-Context Decision Gate)** -- every Shape F surface IS the Part 3 Decision Gate at terminal scale. The 10 canonical verbs in Canon Part 3 are the vocabulary Shape F selectors draw from. The five-shape rule -- one selector family per decision moment, no command invents its own selector -- enforces Part 3 at the UI layer. See `docs/MINDRIAN-CANON.md` Part 3.
+
+- **Canon Part 10 (Conversation as Product)** -- this Ruling System enforces the property that "the terminal IS the product surface." Every glyph, every zone, every selector encodes "you are navigating a wicked problem with Larry." If the terminal is incoherent, Canon Part 10 isn't demonstrated. Phase 121.5 (terminal-coherence-capstone) is the consolidation pass that closed the gap between this ruling system and shipped code. See `docs/MINDRIAN-CANON.md` Part 10.
+
+Updates to this ruling system MUST update `docs/CANON-PHASE-MAP.md` in the same commit -- see Canon Part 6 (Product-as-Venture / dog-fooding mandate). The ruling system is dog-food: the product we ship for navigators is built using the product we ship for navigators.
