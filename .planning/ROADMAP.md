@@ -1275,7 +1275,7 @@ Plans:
 
 **Canon parts:** Part 3 (UI Ruling System enforcement pass), Part 4 (coordinator decisions + compliance signals mirror to telemetry; no side-channel printing), Part 7 (consolidation only — any NEW file must REPLACE/reconcile N existing things), Part 8 (coordinator telemetry is local-only, scalar/enum/hash payloads only), Part 10 (the terminal must coherently express "conversation as the product" — precondition for ratification). Beta target: **v1.13.0 final** (last phase before the FINAL RELEASE GATE).
 
-**Plans:** TBD — phase is stubbed; eight sub-plans anticipated (121.5-00 design-decision resolution + plan structure, 121.5-01 SessionStart Coordinator, 121.5-02 body_shape sweep + output style, 121.5-03 SKILL.md v2 reconciliation, 121.5-04 two-row statusline + palette.json + statusline-mos wiring, 121.5-05 render-v2 disposition + Phase 102 closure, 121.5-06 version-of-record + stale-copy scanner, 121.5-07 housekeeping + truth-telling, 121.5-08 coherence smoke test + final-gate-readiness sign-off). ~3-4 days.
+**Plans:** 1/1 plans complete
 
 **Reference doc (TREAT AS REFERENCE, NOT SPEC):** `.planning/phases/121.5-terminal-coherence-capstone/121.5-REFERENCE-destijl-guide-annotated.md` — an external "De Stijl Full UI/UX Implementation Guide" verified against Claude Code docs 2026-05-10. ~1/3 buildable (output-style `force-for-plugin`, two-row statusline, the semantic vocabulary), ~1/3 regression (env-var-room-state via UserPromptSubmit hooks — the bridge file already exists for exactly this reason; skill-frontmatter SessionStart hooks), ~1/3 fabricated (custom theme JSON files, `statusLine.refreshInterval`). The annotated copy carries the verdicts inline.
 

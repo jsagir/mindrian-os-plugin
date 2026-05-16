@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed quick task 260515-rd1 (126.1-hotfix-beta17, 3 fixes + Phase 122 invariant); ready for v1.13.0-beta.17 release cut
-last_updated: "2026-05-15T17:10:00.000Z"
+stopped_at: Completed 121.5-terminal-coherence-capstone-02-PLAN.md (parallel Wave 1)
+last_updated: "2026-05-16T16:50:58.985Z"
 last_activity: 2026-05-15
 progress:
-  total_phases: 58
-  completed_phases: 39
-  total_plans: 281
-  completed_plans: 273
+  total_phases: 54
+  completed_phases: 23
+  total_plans: 135
+  completed_plans: 201
   percent: 93
 ---
 
@@ -347,6 +347,7 @@ Progress: [█████████░] 93%
 | Phase 118 P02 | 9min | 3 tasks | 12 files |
 | Phase 118 P05 | 7min | 3 tasks | 8 files |
 | Phase 118 P06 | 75min | 3 tasks | 17 files |
+| Phase 121.5-terminal-coherence-capstone P02 | 8m | 2 tasks | 7 files |
 
 ### Roadmap Evolution
 
@@ -886,6 +887,9 @@ Progress: [█████████░] 93%
 - [Phase 118]: Plan 118-02: Dashboard agent routes through lib/core/navigation.cjs (Phase 109 D-06 chokepoint; Canon Part 9). Two new wrappers (detectActiveRoom + getRecentDecisionNeighborhood) added as additive re-exports following the logMemoryEvent / firstCapturedLastTouchedBySection / writeEdge precedent.
 - [Phase 118]: Plan 118-05 closure: STUB_MESSAGE_119 hardcoded (frozen) per B6 OPTION A; resolveCurrentSha8 reads state.json with null on miss (CRITICAL-3 part 2 wire CLOSED); OPTION_BEHAVIOR maps to Canon Part 3 verbs 7/8/5; Phase 119 hook is one-line swap in OPTION_BEHAVIOR[2]
 - [Phase 118]: Plan 118-06: shipped reward-before-investment rule (docs/) + linter (lib/core/) + 4 frontmatter declarations + scripts/hooks/pre-commit guardian + Dror 2.0 harness reading LD1 LOCKED from 118-CONTEXT.md
+- [Phase 121.5-terminal-coherence-capstone]: ODD 4 resolution path: documentation-as-explicit-exception (mirrors no-emoji + statusline carve-out). Renumbering glyphs + renaming JTBD deferred to v1.14.0 (Canon Part 7 invariant: 121.5 is consolidation not expansion).
+- [Phase 121.5-terminal-coherence-capstone]: Shape F catalog framed as CURRENT not CLOSED. Today's seven sub-shapes (F.0..F.6) documented as the current catalog shipped through Phase 88.2; additive expansion reserved for future lens-aware variants (v1.14.0 dual-graph work).
+- [Phase 121.5-terminal-coherence-capstone]: Asymmetric drift severity in check-skill-vs-code-drift.cjs: missing_in_skill (code has it, doc lacks) is FATAL; missing_in_code (doc leads code) is non-fatal. Reflects the doc-vs-code direction Plan 02 enforces.
 
 ### Pending Todos
 
@@ -916,6 +920,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-15T13:46:36.715Z
-Stopped at: Completed 118-06-rule-linter-dror-harness PLAN; Phase 118 ALL PLANS DONE (7/7)
+Last session: 2026-05-16T16:50:58.930Z
+Stopped at: Completed 121.5-terminal-coherence-capstone-02-PLAN.md (parallel Wave 1)
 Resume file: None
