@@ -319,15 +319,18 @@ Plans:
 - [x] 88-13-PLAN.md -- Feynman-MINTO Guardian boundary enforcement (session-start validate, on-stop verify, pre-commit extend)
 **Authority**: .planning/phases/88-feynman-minto-memory-layer/88-CONTEXT.md
 
-### Phase 88.7: power-demo-multipage-export (INSERTED)
+### Phase 88.7: power-demo-multipage-export (INSERTED, INCOMPLETE)
 
-**Goal:** [Urgent work - to be planned]
+**Goal:** Multipage export demo surface for power users. Originally inserted 2026-04-24 as urgent work; never broken down via /gsd:plan-phase.
 **Requirements**: TBD
 **Depends on:** Phase 88
-**Plans:** 1/1 plans complete
+**Status:** Deferred. Truth-told 2026-05-16 by Phase 121.5 Sub-plan G housekeeping pass.
+**Plans:** 0/1 plans complete (NOT 1/1 -- prior status was inaccurate)
+**Actually shipped:** `scripts/power-demo-prompt.md` (single prompt doc, untracked-but-present, 2026-04-24).
+**NOT shipped:** `commands/power-demo.md` does not exist; no `.planning/phases/88.7-*` directory exists; no SUMMARY.md; 5 sub-plans never authored.
 
 Plans:
-- [x] TBD (run /gsd:plan-phase 88.7 to break down) (completed 2026-04-24)
+- [ ] TBD (run /gsd:plan-phase 88.7 to break down, OR formally retire) -- deferred indefinitely; reconsider at v1.14.0 backlog grooming.
 
 ### Phase 88.6: Python Algorithm Wiring (v1.10.14)
 **Goal**: Close the orphan-value gap between the Python algorithm layer (15 verified scripts) and the user-facing product surface (/mos:* commands). Fix one silent production bug (discover-* pipelines silently return 0 zones when brain-baseline.json missing), expose four orphan Wave-1 algorithms (Funk and Owen-Smith Disruption Index, Good-Turing Blindspot Mass, Centroid-Distance Element Novelty, Leave-One-Out Bayesian Surprise) via new /mos:diagnostics command, wrap two-step external whitespace flow behind single command surface with rate-limit graceful degradation. Orchestration-only phase, zero new algorithms. Triggered by mid-milestone discovery during Rubos meeting (John Shorter, Ryan Lewis) where Ryan's technical questions prompted an audit that surfaced the orphan-value gap.
