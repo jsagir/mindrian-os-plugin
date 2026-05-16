@@ -9,7 +9,7 @@
       "id": "getting-started",
       "label": "Getting Started",
       "glyph": "▶",
-      "commands": ["new-project", "onboard", "splash", "help", "rooms", "room"]
+      "commands": ["new-project", "onboard", "splash", "help", "rooms", "room", "mos"]
     },
     {
       "id": "problem-discovery",
