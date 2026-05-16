@@ -226,9 +226,81 @@ function main() {
   }
 }
 
-try {
-  main();
-} catch (e) {
-  process.stderr.write('[operator-update] uncaught: ' + e.message + '\n');
-  silentSuccess();
+// ----- Phase 121.5-00 contributor surface -----
+// Split the SessionStart additionalContext composition into two contributors:
+//   - contributeOperator() -- priority 9 (ambient state). Mirrors the existing
+//                             SessionStart BUILD_ROOM resume nudge.
+//   - contributeJtbd()     -- priority 8 (ambient context). New affordance: surface
+//                             the current jtbd as a one-line ambient hint.
+// Both NEVER call process.exit/stdout/stderr; they return ContributorFragments.
+// The legacy main() above stays byte-identical for the non-SessionStart events
+// (Stop / PostToolUse / UserPromptSubmit) which the coordinator does not own.
+//
+// hooks/hooks.json still routes operator-update at Stop / PostToolUse / UserPromptSubmit;
+// only the SessionStart entry is removed (the coordinator owns that now).
+
+function contributeOperator() {
+  let fi;
+  try { fi = require('../lib/sessionstart/contributor-interface.cjs'); }
+  catch (_) { return { has_payload: false }; }
+  try {
+    const room = resolveActiveRoom();
+    if (!room) return fi.emptyFragment();
+    const state = getCurrent(room.abs_path);
+    if (!state || state.current !== 'BUILD_ROOM') return fi.emptyFragment();
+    if (!state.context || !state.context.active_section) return fi.emptyFragment();
+    const section = state.context.active_section;
+    const full =
+      'you were filing in ' + section
+      + '; resume? Type /mos:room ' + section
+      + ' to continue or /mos:operator reset to clear.';
+    const pointer = 'Resume: /mos:room ' + section + '.';
+    return fi.makeFragment({
+      id: 'operator',
+      priority: 9,
+      full_payload: full,
+      one_line_pointer: pointer,
+    });
+  } catch (_) {
+    return fi.emptyFragment();
+  }
+}
+
+function contributeJtbd() {
+  let fi;
+  try { fi = require('../lib/sessionstart/contributor-interface.cjs'); }
+  catch (_) { return { has_payload: false }; }
+  try {
+    const room = resolveActiveRoom();
+    if (!room) return fi.emptyFragment();
+    let jtbdState;
+    try { jtbdState = require('../lib/hmi/jtbd-state.cjs'); }
+    catch (_) { return fi.emptyFragment(); }
+    if (!jtbdState || typeof jtbdState.getCurrent !== 'function') return fi.emptyFragment();
+    let cur;
+    try { cur = jtbdState.getCurrent(room.abs_path); }
+    catch (_) { return fi.emptyFragment(); }
+    if (!cur || !cur.jtbd || cur.jtbd === 'explore' || cur.jtbd === '-') return fi.emptyFragment();
+    const full = 'Current JTBD: ' + cur.jtbd + '. Use /mos:jtbd to change or park.';
+    const pointer = 'JTBD: ' + cur.jtbd + '.';
+    return fi.makeFragment({
+      id: 'jtbd',
+      priority: 8,
+      full_payload: full,
+      one_line_pointer: pointer,
+    });
+  } catch (_) {
+    return fi.emptyFragment();
+  }
+}
+
+module.exports = { contributeOperator, contributeJtbd };
+
+if (require.main === module) {
+  try {
+    main();
+  } catch (e) {
+    process.stderr.write('[operator-update] uncaught: ' + e.message + '\n');
+    silentSuccess();
+  }
 }

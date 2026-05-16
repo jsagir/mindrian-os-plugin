@@ -266,8 +266,49 @@ function main() {
   return emitEmpty();
 }
 
-try {
-  main();
-} catch (_e) {
-  emitEmpty();
+// ----- Phase 121.5-00 contributor surface -----
+// Compose the auto-explore directive (Phase 117 surface) as a ContributorFragment
+// for the SessionStart Coordinator. The legacy main() above stays byte-identical
+// for backward compat (in case anything still invokes the bare hook); hooks.json
+// no longer routes here.
+
+function contribute() {
+  let fi;
+  try { fi = require('../lib/sessionstart/contributor-interface.cjs'); }
+  catch (_) { return { has_payload: false }; }
+  try {
+    let roomDir, roomSlug;
+    try {
+      roomDir = resolveRoomDir();
+      roomSlug = roomSlugFromDir(roomDir);
+    } catch (_) { return fi.emptyFragment(); }
+    try {
+      if (store && typeof store.sweepStaleInFlight === 'function') {
+        store.sweepStaleInFlight(roomSlug, { staleMs: 300000 });
+      }
+    } catch (_) { /* benign */ }
+    let directive = null;
+    try {
+      directive = tryDrain(roomDir, roomSlug);
+    } catch (_) { directive = null; }
+    if (!directive || typeof directive !== 'string' || directive.length === 0) {
+      return fi.emptyFragment();
+    }
+    const pointer = 'Auto-explore finding pending -- run /mos:auto-explore drain.';
+    return fi.makeFragment({
+      id: 'auto-explore',
+      priority: 5,
+      full_payload: directive,
+      one_line_pointer: pointer,
+    });
+  } catch (_) {
+    return fi.emptyFragment();
+  }
+}
+
+module.exports = { contribute };
+
+if (require.main === module) {
+  try { main(); }
+  catch (_e) { emitEmpty(); }
 }

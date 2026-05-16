@@ -174,40 +174,107 @@ function compose(workspaceDir) {
     + ' · context: ' + ctxStr + ']';
 }
 
+// ----- Phase 121.5-00 contributor surface -----
+// Two semantic contributors split out of the monolithic echo:
+//   - contributeMintoSegment() -- the MINTO-flavored ambient context line
+//                                 (priority 7 minto slot).
+//   - contribute()             -- the bottom-priority surface fallback echo
+//                                 (priority 11 statusline-fallback slot).
+//
+// Both share the same source data (operator + jtbd + ctx + version + slug).
+// The split lets the budget compressor degrade them independently.
+
+function contribute() {
+  let fi;
+  try { fi = require('../lib/sessionstart/contributor-interface.cjs'); }
+  catch (_) { return { has_payload: false }; }
+  try {
+    const surface = detectSurface();
+    if (surface === 'CLI') return fi.emptyFragment();
+    if (bannerSuppressing()) return fi.emptyFragment();
+    if (!shouldEchoBy30DayFlip()) return fi.emptyFragment();
+    const workspaceDir = process.cwd();
+    const echo = compose(workspaceDir);
+    const pointer = '[MindrianOS active]';
+    return fi.makeFragment({
+      id: 'statusline-fallback',
+      priority: 11,
+      full_payload: echo,
+      one_line_pointer: pointer,
+    });
+  } catch (_) {
+    return fi.emptyFragment();
+  }
+}
+
+function contributeMintoSegment() {
+  let fi;
+  try { fi = require('../lib/sessionstart/contributor-interface.cjs'); }
+  catch (_) { return { has_payload: false }; }
+  try {
+    const workspaceDir = process.cwd();
+    let jtbdStr = '-';
+    try {
+      const jtbdState = require(path.resolve(__dirname, '..', 'lib', 'hmi', 'jtbd-state.cjs'));
+      const j = jtbdState.getCurrent(workspaceDir);
+      if (j && j.jtbd) jtbdStr = j.jtbd;
+    } catch (_) { /* graceful */ }
+    if (!jtbdStr || jtbdStr === '-') return fi.emptyFragment();
+    // MINTO-flavored ambient line: situation -> question -> answer (compressed).
+    const slug = path.basename(workspaceDir) || 'room';
+    const fullPayload = 'Current focus: ' + jtbdStr + ' in ' + slug + '.';
+    const pointer = 'Focus: ' + jtbdStr + '.';
+    return fi.makeFragment({
+      id: 'minto',
+      priority: 7,
+      full_payload: fullPayload,
+      one_line_pointer: pointer,
+    });
+  } catch (_) {
+    return fi.emptyFragment();
+  }
+}
+
+module.exports = { contribute, contributeMintoSegment };
+
 // Read stdin -- Claude Code SessionStart envelope. We only need it for
 // workspace_dir; if stdin is empty/unparseable we fall back to cwd.
-let input = '';
-const inputTimeout = setTimeout(() => doneReadingStdin(), 500);
-process.stdin.setEncoding('utf8');
-process.stdin.on('data', (chunk) => { input += chunk; });
-process.stdin.on('end', () => doneReadingStdin());
-process.stdin.on('error', () => doneReadingStdin());
+// The legacy main path (stdin read + envelope emit) is preserved as the
+// require.main === module branch, but hooks.json no longer routes here.
+if (require.main === module) {
+  let input = '';
+  const inputTimeout = setTimeout(() => doneReadingStdin(), 500);
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', (chunk) => { input += chunk; });
+  process.stdin.on('end', () => doneReadingStdin());
+  process.stdin.on('error', () => doneReadingStdin());
 
-let doneCalled = false;
-function doneReadingStdin() {
-  if (doneCalled) return;
-  doneCalled = true;
-  clearTimeout(inputTimeout);
+  let doneCalled = false;
+  function doneReadingStdin() {
+    if (doneCalled) return;
+    doneCalled = true;
+    clearTimeout(inputTimeout);
 
-  let workspaceDir = process.cwd();
-  try {
-    const data = JSON.parse(input);
-    if (data && data.workspace && typeof data.workspace.current_dir === 'string') {
-      workspaceDir = data.workspace.current_dir;
-    }
-  } catch (_e) { /* default to cwd */ }
+    let workspaceDir = process.cwd();
+    try {
+      const data = JSON.parse(input);
+      if (data && data.workspace && typeof data.workspace.current_dir === 'string') {
+        workspaceDir = data.workspace.current_dir;
+      }
+    } catch (_e) { /* default to cwd */ }
 
-  const surface = detectSurface();
-  if (surface === 'CLI') return emitEmpty();
-  if (bannerSuppressing()) return emitEmpty();
-  if (!shouldEchoBy30DayFlip()) return emitEmpty();
+    const surface = detectSurface();
+    if (surface === 'CLI') return emitEmpty();
+    if (bannerSuppressing()) return emitEmpty();
+    if (!shouldEchoBy30DayFlip()) return emitEmpty();
 
-  const echo = compose(workspaceDir);
-  emitEnvelope({
-    continue: true,
-    hookSpecificOutput: {
-      hookEventName: 'SessionStart',
-      additionalContext: echo,
-    },
-  });
+    const echo = compose(workspaceDir);
+    emitEnvelope({
+      continue: true,
+      hookSpecificOutput: {
+        hookEventName: 'SessionStart',
+        additionalContext: echo,
+      },
+    });
+  }
 }

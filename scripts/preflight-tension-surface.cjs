@@ -311,8 +311,98 @@ function main() {
   }
 }
 
-try {
-  main();
-} catch (_e) {
-  emitEmpty();
+// ----- Phase 121.5-00 contributor surface -----
+// Compose the tension-hook signal as a ContributorFragment for the SessionStart
+// Coordinator. Mirrors main()'s decision logic but returns the structured
+// fragment instead of emitting an envelope. The legacy main() above stays
+// byte-identical -- hooks.json no longer routes here; the coordinator calls
+// contribute() directly.
+//
+// one_line_pointer is LOCKED per Plan 121.5-00 Task 2 action block:
+//   "1 unresolved tension pending -- ask Larry"
+
+function contribute() {
+  let fi;
+  try { fi = require('../lib/sessionstart/contributor-interface.cjs'); }
+  catch (_) { return { has_payload: false }; }
+  try {
+    let navigation, pendingStore;
+    try {
+      navigation = require('../lib/core/navigation.cjs');
+      pendingStore = require('../lib/memory/pending-tension-store.cjs');
+    } catch (_) {
+      return fi.emptyFragment();
+    }
+    const roomDir = resolveRoomDir();
+    const roomSlug = roomSlugFromDir(roomDir);
+    const dbPath = path.join(roomDir, '.mindrian', 'room.db');
+    if (!fs.existsSync(dbPath)) return fi.emptyFragment(); // Tier 0 silent
+
+    let DatabaseSync;
+    try { ({ DatabaseSync } = require('node:sqlite')); }
+    catch (_) { return fi.emptyFragment(); }
+
+    let db;
+    try { db = new DatabaseSync(dbPath); }
+    catch (_) { return fi.emptyFragment(); }
+
+    try {
+      pendingStore.evaluateAndDecay(roomSlug);
+      let candidates = [];
+      try {
+        candidates = navigation.findSurfaceableTensions(db, roomSlug, {
+          roomSlug,
+          limit: 1,
+          includeConvergence: true,
+        });
+      } catch (_) { candidates = []; }
+      if (!Array.isArray(candidates) || candidates.length === 0) {
+        return fi.emptyFragment();
+      }
+      const top = candidates[0];
+      try {
+        pendingStore.appendTension(roomSlug, {
+          tension_id: top.tension_id,
+          type: top.tension_type,
+          source_edge_ids: [String(top.edge_id)],
+          source_node_ids: [top.source_node_id, top.target_node_id],
+          created_at: Date.now(),
+          state: 'queued',
+          surfacing_count: 0,
+          last_surfaced_at: null,
+          last_response: null,
+          context_signature: {
+            source_section: top.source_section || '',
+            target_section: top.target_section || '',
+            tension_kind_label: top.tension_type,
+          },
+        });
+      } catch (_) { /* continue defensively */ }
+
+      const fullPayload = composeLarryVoiceDirective({
+        tension_id: top.tension_id,
+        source_section: top.source_section,
+        target_section: top.target_section,
+        source_node_id: top.source_node_id,
+        target_node_id: top.target_node_id,
+      });
+      return fi.makeFragment({
+        id: 'tension-hook',
+        priority: 3,
+        full_payload: fullPayload,
+        one_line_pointer: '1 unresolved tension pending -- ask Larry',
+      });
+    } finally {
+      try { db.close(); } catch (_) { /* graceful */ }
+    }
+  } catch (_) {
+    return fi.emptyFragment();
+  }
+}
+
+module.exports = { contribute };
+
+if (require.main === module) {
+  try { main(); }
+  catch (_e) { emitEmpty(); }
 }

@@ -113,4 +113,69 @@ function main() {
   });
 }
 
-main();
+// ----- Phase 121.5-00 contributor surface -----
+// Composes the install-drift signal as a ContributorFragment for the
+// SessionStart Coordinator. The legacy main() above is preserved BYTE-IDENTICAL
+// (so any code still invoking this script as a bare hook keeps working) but
+// hooks.json no longer points at it -- the coordinator calls contribute() instead.
+
+function contribute() {
+  try {
+    const fi = require('../lib/sessionstart/contributor-interface.cjs');
+    const report = runDoctor();
+    if (!report) return fi.emptyFragment();
+
+    // Roll the release-drift signal in here (Plan 121.5-00 Task 2: preflight-release-drift
+    // is removed from hooks.json; its computation FOLDS into install-drift).
+    let releaseDriftLine = null;
+    try {
+      const driftMod = require('./preflight-release-drift.cjs');
+      if (driftMod && typeof driftMod.contributeReleaseDrift === 'function') {
+        const sub = driftMod.contributeReleaseDrift();
+        if (sub && typeof sub.message === 'string' && sub.message.length > 0) {
+          releaseDriftLine = sub.message;
+        }
+      }
+    } catch (_) { /* sub-finding optional */ }
+
+    const drift = report.drift || {};
+    if (!drift.detected && !releaseDriftLine) return fi.emptyFragment();
+
+    const formatter = loadFormatter();
+    let warning = '';
+    if (drift.detected && formatter) {
+      const pluginHome = process.env.MINDRIAN_PLUGIN_HOME
+        || path.join(os.homedir(), '.claude/plugins');
+      warning = formatter.formatPreflightWarning(report, {
+        color: false, // Coordinator emits plain text into additionalContext.
+        pluginHome,
+      }) || '';
+    }
+    const pieces = [];
+    if (warning) pieces.push(warning.replace(/\n+$/, ''));
+    if (releaseDriftLine) pieces.push(releaseDriftLine);
+    const fullPayload = pieces.join('\n');
+    if (!fullPayload) return fi.emptyFragment();
+
+    const what = (report.install && report.install.status === 'missing') ? 'missing' : 'drifted';
+    const pointer = 'MindrianOS install ' + what + ' -- run /mos:doctor --fix.';
+    return fi.makeFragment({
+      id: 'install-drift',
+      priority: 1,
+      full_payload: fullPayload,
+      one_line_pointer: pointer,
+    });
+  } catch (_) {
+    // Any failure -> empty fragment. The isolator never has anything to log.
+    try {
+      const fi = require('../lib/sessionstart/contributor-interface.cjs');
+      return fi.emptyFragment();
+    } catch (_) {
+      return { has_payload: false };
+    }
+  }
+}
+
+module.exports = { contribute };
+
+if (require.main === module) main();

@@ -136,7 +136,63 @@ function getCurrentRoomSlug() {
   } catch (_) { return null; }
 }
 
-module.exports = { emitNudge: emitNudge };
+// ----- Phase 121.5-00 contributor surface -----
+// Composes the memory-resume signal as a ContributorFragment for the SessionStart
+// Coordinator. The legacy emitNudge() above writes raw stdout chrome (the
+// "▶ /mos:memory resume" CTA lines); contribute() returns the same essential text
+// shape inside an additionalContext fragment, with no decorative bullets.
+
+function contribute() {
+  let fi;
+  try { fi = require('../lib/sessionstart/contributor-interface.cjs'); }
+  catch (_) { return { has_payload: false }; }
+  try {
+    let acrossSession;
+    try { acrossSession = require('../lib/hmi/across-session-memory.cjs'); }
+    catch (_) { return fi.emptyFragment(); }
+    if (typeof acrossSession.isGlobalOptOut === 'function' && acrossSession.isGlobalOptOut()) {
+      return fi.emptyFragment();
+    }
+    backfillFromWithinSession(acrossSession);
+    if (typeof acrossSession.listInFlight !== 'function') return fi.emptyFragment();
+    const candidates = acrossSession.listInFlight(7) || [];
+    if (candidates.length === 0) return fi.emptyFragment();
+    const currentRoom = getCurrentRoomSlug();
+    const cross = candidates.filter((c) => c && c.room && c.room !== currentRoom);
+    if (cross.length === 0) return fi.emptyFragment();
+    const top = cross[0];
+    const lastSeenMs = Date.parse(top.last_seen);
+    if (!Number.isFinite(lastSeenMs)) return fi.emptyFragment();
+    const ageMs = Date.now() - lastSeenMs;
+    const ONE_DAY = 24 * 60 * 60 * 1000;
+    const ageDays = Math.floor(ageMs / ONE_DAY);
+
+    let body;
+    if (ageMs < ONE_DAY) {
+      body = 'Last move: ' + top.jtbd + ' in ' + top.room + ' (yesterday). Run /mos:memory resume.';
+    } else if (ageDays <= 3) {
+      const dayWord = ageDays === 1 ? 'day' : 'days';
+      body = 'Open job: ' + top.jtbd + ' in ' + top.room
+        + ', last touched ' + ageDays + ' ' + dayWord + ' ago. Run /mos:memory resume.';
+    } else if (ageDays <= 7) {
+      body = 'Stale job: ' + top.jtbd + ' in ' + top.room + ' (' + ageDays
+        + ' days). Park or resume? Run /mos:memory resume OR /mos:memory park ' + top.jtbd + '.';
+    } else {
+      return fi.emptyFragment(); // > 7 days silent (D-11).
+    }
+    const pointer = 'Resume note: ' + body.slice(0, 60).replace(/\s+$/, '');
+    return fi.makeFragment({
+      id: 'memory-resume',
+      priority: 4,
+      full_payload: body,
+      one_line_pointer: pointer,
+    });
+  } catch (_) {
+    return fi.emptyFragment();
+  }
+}
+
+module.exports = { emitNudge: emitNudge, contribute };
 
 // CLI entry.
 if (require.main === module) {

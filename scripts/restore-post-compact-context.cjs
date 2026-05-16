@@ -259,6 +259,51 @@ if (require.main === module) {
   main();
 }
 
+// ----- Phase 121.5-00 contributor surface -----
+// Compose the post-compact re-injection as a ContributorFragment for the
+// SessionStart Coordinator. Side-effect order matches the legacy main():
+// forensicRename happens BEFORE composing the fragment so a subsequent retry
+// cannot re-inject the same context.
+
+function contribute() {
+  let fi;
+  try { fi = require('../lib/sessionstart/contributor-interface.cjs'); }
+  catch (_) { return { has_payload: false }; }
+  try {
+    let sc;
+    try { sc = readSideChannel(); } catch (_) { return fi.emptyFragment(); }
+    if (!sc || !sc.path) return fi.emptyFragment();
+    let activeRoom;
+    try { activeRoom = getActiveRoom(); } catch (_) { return fi.emptyFragment(); }
+    if (!activeRoom) return fi.emptyFragment();
+    try {
+      if (!validateRoomMatch(sc, activeRoom)) {
+        try { forensicRename(sc.path, 'stale'); } catch (_) {}
+        return fi.emptyFragment();
+      }
+    } catch (_) { return fi.emptyFragment(); }
+    if (!isFreshComparedToRegistry(sc.mtimeMs, activeRoom)) {
+      try { fs.unlinkSync(sc.path); } catch (_) {}
+      return fi.emptyFragment();
+    }
+    let block = null;
+    try { block = buildTripleContextBlock(activeRoom.path); } catch (_) { block = null; }
+    try { forensicRename(sc.path, 'consumed'); } catch (_) {}
+    if (!block || typeof block !== 'string' || block.length === 0) {
+      return fi.emptyFragment();
+    }
+    const pointer = 'Post-compact context restored -- prior room state available.';
+    return fi.makeFragment({
+      id: 'post-compact',
+      priority: 10,
+      full_payload: block,
+      one_line_pointer: pointer,
+    });
+  } catch (_) {
+    return fi.emptyFragment();
+  }
+}
+
 module.exports = {
   ENVELOPE_ALLOWED,
   emitEnvelope,
@@ -271,4 +316,5 @@ module.exports = {
   forensicRename,
   buildTripleContextBlock,
   main,
+  contribute,
 };

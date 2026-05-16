@@ -124,26 +124,107 @@ function gateText(ver) {
   ].join('\n');
 }
 
-let input = '';
-const inputTimeout = setTimeout(() => done(), 500);
-process.stdin.setEncoding('utf8');
-process.stdin.on('data', (c) => { input += c; });
-process.stdin.on('end', () => done());
-process.stdin.on('error', () => done());
+// ----- Phase 121.5-00 contributor surface -----
+// Split the legacy gate into two contributors:
+//   - contributeSealed()     -- priority 2 (blocking guardrail). Fires only when
+//                               a sealed-room sentinel is detected (a sealed room
+//                               opts out of all hooks; the guardrail tells the user
+//                               and Larry that this room is sealed so no automation
+//                               should run).
+//   - contributeOnboarding() -- priority 6 (novelty). The legacy first-session +
+//                               version-bump gate text -- only fires when shouldFire().
+//
+// Both are no-throw; both return emptyFragment() when the trigger is absent.
 
-function done() {
-  clearTimeout(inputTimeout);
-  if (!shouldFire()) return emitEmpty();
-  const ver = readPluginVersion();
-  let additionalContext = gateText(ver);
-  // Phase 95.6 D-09: append the /mos:doctor self-check line (best-effort).
-  const doctorLine = runDoctorSelfCheck();
-  if (doctorLine) additionalContext = additionalContext + '\n\n' + doctorLine;
-  emitEnvelope({
-    continue: true,
-    hookSpecificOutput: {
-      hookEventName: 'SessionStart',
-      additionalContext: additionalContext,
-    },
-  });
+function detectSealedRoom() {
+  try {
+    const home = process.env.MINDRIAN_ROOMS_HOME || path.join(os.homedir(), 'MindrianRooms');
+    const regPath = path.join(home, '.rooms', 'registry.json');
+    if (!fs.existsSync(regPath)) return null;
+    let reg;
+    try { reg = JSON.parse(fs.readFileSync(regPath, 'utf8')); }
+    catch (_) { return null; }
+    if (!reg || !reg.active_room || !Array.isArray(reg.rooms)) return null;
+    const room = reg.rooms.find((r) => r && r.slug === reg.active_room);
+    if (!room) return null;
+    if (room.sealed === true) return room;
+    return null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function contributeSealed() {
+  let fi;
+  try { fi = require('../lib/sessionstart/contributor-interface.cjs'); }
+  catch (_) { return { has_payload: false }; }
+  try {
+    const sealed = detectSealedRoom();
+    if (!sealed) return fi.emptyFragment();
+    const slug = sealed.slug || 'unknown';
+    const full = 'Room is sealed: ' + slug
+      + '. All automation (hooks, derivations, MVA, brain) is disabled for this room.'
+      + ' To resume normal operation, unseal via /mos:room ' + slug + ' --unseal.';
+    const pointer = 'Room sealed: ' + slug + ' -- /mos:room unseal to resume.';
+    return fi.makeFragment({
+      id: 'sealed-room',
+      priority: 2,
+      full_payload: full,
+      one_line_pointer: pointer,
+    });
+  } catch (_) {
+    return fi.emptyFragment();
+  }
+}
+
+function contributeOnboarding() {
+  let fi;
+  try { fi = require('../lib/sessionstart/contributor-interface.cjs'); }
+  catch (_) { return { has_payload: false }; }
+  try {
+    if (!shouldFire()) return fi.emptyFragment();
+    const ver = readPluginVersion();
+    let full = gateText(ver);
+    const doctorLine = runDoctorSelfCheck();
+    if (doctorLine) full = full + '\n\n' + doctorLine;
+    const pointer = 'First-session check pending -- /mos:doctor --statusline-visibility to record.';
+    return fi.makeFragment({
+      id: 'onboarding',
+      priority: 6,
+      full_payload: full,
+      one_line_pointer: pointer,
+    });
+  } catch (_) {
+    return fi.emptyFragment();
+  }
+}
+
+module.exports = { contributeSealed, contributeOnboarding };
+
+// Legacy bare-hook path -- preserved for backward compat, but hooks.json no longer
+// routes here; the coordinator calls contributeSealed/contributeOnboarding instead.
+if (require.main === module) {
+  let input = '';
+  const inputTimeout = setTimeout(() => done(), 500);
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', (c) => { input += c; });
+  process.stdin.on('end', () => done());
+  process.stdin.on('error', () => done());
+
+  function done() {
+    clearTimeout(inputTimeout);
+    if (!shouldFire()) return emitEmpty();
+    const ver = readPluginVersion();
+    let additionalContext = gateText(ver);
+    // Phase 95.6 D-09: append the /mos:doctor self-check line (best-effort).
+    const doctorLine = runDoctorSelfCheck();
+    if (doctorLine) additionalContext = additionalContext + '\n\n' + doctorLine;
+    emitEnvelope({
+      continue: true,
+      hookSpecificOutput: {
+        hookEventName: 'SessionStart',
+        additionalContext: additionalContext,
+      },
+    });
+  }
 }

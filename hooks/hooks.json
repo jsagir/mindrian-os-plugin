@@ -18,98 +18,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/operator-update.cjs\"",
-            "timeout": 3000
-          }
-        ]
-      },
-      {
-        "matcher": "startup|clear|compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/memory-resume-nudge.cjs\"",
-            "timeout": 3000
-          }
-        ]
-      },
-      {
-        "matcher": "startup|clear|compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/migrate-stale-user-settings.cjs\" --auto --quiet",
-            "timeout": 2000
-          }
-        ]
-      },
-      {
-        "matcher": "startup|clear|compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/statusline-fallback-echo.cjs\"",
-            "timeout": 2000
-          }
-        ]
-      },
-      {
-        "matcher": "startup|clear|compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-onboard-statusline.cjs\"",
-            "timeout": 2000
-          }
-        ]
-      },
-      {
-        "matcher": "startup|clear|compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/preflight-tension-surface.cjs\"",
-            "timeout": 3000
-          }
-        ]
-      },
-      {
-        "matcher": "startup|clear|compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/preflight-doctor.cjs\"",
-            "timeout": 2000
-          }
-        ]
-      },
-      {
-        "matcher": "startup|clear|compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/preflight-release-drift.cjs\"",
-            "timeout": 2000
-          }
-        ]
-      },
-      {
-        "matcher": "startup|clear|compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/preflight-auto-explore.cjs\"",
-            "timeout": 3000
-          }
-        ]
-      },
-      {
-        "matcher": "startup|clear|compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/restore-post-compact-context.cjs\"",
-            "timeout": 3000
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-coordinator.cjs\"",
+            "timeout": 10000,
+            "async": false,
+            "statusMessage": "Loading room context..."
           }
         ]
       },

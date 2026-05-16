@@ -118,23 +118,24 @@ function additionalContextNote(_) {
   ].join('');
 }
 
-function main() {
+function computeWarning() {
   // Resolve repo path from script location: scripts/ lives at $REPO_ROOT/scripts/.
   const repoPath = path.resolve(__dirname, '..');
   // Verify origin/main ref exists (fresh clones may not have fetched).
   const originRef = git(['rev-parse', '--verify', '--quiet', 'origin/main']);
-  if (!originRef) return emitEmpty(); // silent: no cached origin/main to compare against.
+  if (!originRef) return null;
   const ahead = aheadCount();
-  if (ahead === 0) return emitEmpty(); // silent: local main is in sync with origin.
+  if (ahead === 0) return null;
   const releases = findUnpushedReleases(repoPath);
   const localVer = readPluginVersion(repoPath, null);
   const originVer = readPluginVersion(repoPath, 'origin/main');
-  // Warn only when there's a real release-drift signal:
-  //   - any release commit unpushed, OR
-  //   - plugin.json version differs (release commit might be a non-standard pattern).
   const versionDrift = localVer && originVer && localVer !== originVer;
-  if (releases.length === 0 && !versionDrift) return emitEmpty(); // commits ahead but none look like releases.
-  const warning = buildWarning({ ahead, releases, localVer, originVer });
+  if (releases.length === 0 && !versionDrift) return null;
+  return buildWarning({ ahead, releases, localVer, originVer });
+}
+
+function main() {
+  const warning = computeWarning();
   if (!warning) return emitEmpty();
   emitEnvelope({
     continue: true,
@@ -146,4 +147,22 @@ function main() {
   });
 }
 
-main();
+// ----- Phase 121.5-00 contributor surface -----
+// Plan 121.5-00 Task 2: this script is REMOVED from hooks.json entirely.
+// Its computation FOLDS into preflight-doctor.cjs's contribute() (install-drift).
+// We expose contributeReleaseDrift() returning a small {message} object that
+// preflight-doctor concatenates into its full_payload.
+
+function contributeReleaseDrift() {
+  try {
+    const warning = computeWarning();
+    if (!warning) return { message: '' };
+    return { message: warning };
+  } catch (_) {
+    return { message: '' };
+  }
+}
+
+module.exports = { contributeReleaseDrift };
+
+if (require.main === module) main();
