@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 121.5-03 (statusline two-row + canonical palette + statusline-mos wrapper migration) -- D-01..D-04 shipped, ODD 3 resolved
-last_updated: "2026-05-16T17:42:23.103Z"
+stopped_at: Completed 121.5-00-PLAN.md (SessionStart Coordinator -- D-13 precedence + D-14 budget + D-15 compression + D-16 isolation; 15/15 GREEN)
+last_updated: "2026-05-16T18:43:57.110Z"
 last_activity: 2026-05-15
 progress:
-  total_phases: 54
-  completed_phases: 22
-  total_plans: 144
-  completed_plans: 201
+  total_phases: 60
+  completed_phases: 39
+  total_plans: 294
+  completed_plans: 279
   percent: 93
 ---
 
@@ -348,6 +348,7 @@ Progress: [█████████░] 93%
 | Phase 118 P05 | 7min | 3 tasks | 8 files |
 | Phase 118 P06 | 75min | 3 tasks | 17 files |
 | Phase 121.5-terminal-coherence-capstone P03 | 55min | 2 tasks | 15 files |
+| Phase 121.5 P00 | 50min | 3 tasks | 19 files |
 
 ### Roadmap Evolution
 
@@ -890,6 +891,8 @@ Progress: [█████████░] 93%
 - [Phase 118]: Plan 118-05 closure: STUB_MESSAGE_119 hardcoded (frozen) per B6 OPTION A; resolveCurrentSha8 reads state.json with null on miss (CRITICAL-3 part 2 wire CLOSED); OPTION_BEHAVIOR maps to Canon Part 3 verbs 7/8/5; Phase 119 hook is one-line swap in OPTION_BEHAVIOR[2]
 - [Phase 118]: Plan 118-06: shipped reward-before-investment rule (docs/) + linter (lib/core/) + 4 frontmatter declarations + scripts/hooks/pre-commit guardian + Dror 2.0 harness reading LD1 LOCKED from 118-CONTEXT.md
 - [Phase 121.5-terminal-coherence-capstone]: D-01..D-04 statusline shape locked (JTBD-invariant single shape, two-row identity/situation split, current six segments); ODD 3 palette resolved as keep-muted/earthy; rebrand deferred to v1.14.0
+- [Phase 121.5]: Locked PRECEDENCE_LADDER as Object.freeze of 11 strings (D-13); coordinator isolator NEVER re-throws; memory_event payload carries error_class enum only (no stack) per Canon Part 8
+- [Phase 121.5]: Deviation from plan-strict SessionStart array length===1: actual length is 3 (workspace-guard Bash + coordinator + async npm reconcile). Load-bearing invariant 'single additionalContext composer' preserved + CI-checked by Test 14 structural assertion (zero references to 10 legacy injector scripts)
 
 ### Pending Todos
 
@@ -920,6 +923,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-16T17:42:23.076Z
-Stopped at: Completed 121.5-03 (statusline two-row + canonical palette + statusline-mos wrapper migration) -- D-01..D-04 shipped, ODD 3 resolved
+Last session: 2026-05-16T18:43:48.574Z
+Stopped at: Completed 121.5-00-PLAN.md (SessionStart Coordinator -- D-13 precedence + D-14 budget + D-15 compression + D-16 isolation; 15/15 GREEN)
 Resume file: None
