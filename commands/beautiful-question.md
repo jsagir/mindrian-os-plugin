@@ -1,6 +1,7 @@
 ---
 name: beautiful-question
 description: Reframe a challenge as Why / What-if / How
+body_shape: "methodology"
 serves_jtbd: ["find-problem", "explore"]
 teaching: "When the framing feels stuck, /mos:beautiful-question reshapes the challenge as Why / What-if / How. The right question unlocks more progress than a better answer."
 # --- Phase 122 workflow-layer frontmatter ---

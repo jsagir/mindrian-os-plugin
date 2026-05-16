@@ -1,5 +1,6 @@
 ---
 description: Refresh FEYNMAN.md ## Timeline (auto) section for one or all room sections
+body_shape: E
 argument-hint: "[--all | --section <slug>]"
 serves_jtbd: ["validate-idea", "audit-room"]
 teaching: "When a section's FEYNMAN.md timeline feels stale, /mos:feynman-timeline-refresh rebuilds the auto-section from the memory event log. Human-authored prose stays byte-preserved."

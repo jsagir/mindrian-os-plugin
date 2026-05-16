@@ -1,6 +1,7 @@
 ---
 name: score-innovation
 description: Score cross-domain innovation via HSI
+body_shape: "methodology"
 serves_jtbd: ["compare-options", "validate-idea"]
 teaching: "When you are choosing between cross-domain innovation candidates, /mos:score-innovation runs HSI scoring to rank them by semantic surprise. The math reveals which idea is actually novel."
 # --- Phase 122 workflow-layer frontmatter ---

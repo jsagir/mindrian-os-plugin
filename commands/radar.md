@@ -1,6 +1,7 @@
 ---
 name: radar
 description: Track Claude capabilities that may help MindrianOS
+body_shape: A
 serves_jtbd: ["understand-market"]
 teaching: "When new Claude capabilities ship that might change what MindrianOS can do, /mos:radar tracks them so you do not have to. Capability awareness as a habit, not a one-time scan."
 allowed-tools:

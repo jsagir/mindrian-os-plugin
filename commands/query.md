@@ -1,6 +1,7 @@
 ---
 name: query
 description: Query the knowledge graph in natural language
+body_shape: D
 argument-hint: [question]
 serves_jtbd: ["audit-room", "explore"]
 teaching: "When you need to ask the knowledge graph something specific, /mos:query translates natural language into the right traversal and returns the answer with its graph path."

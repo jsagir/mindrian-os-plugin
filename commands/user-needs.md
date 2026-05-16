@@ -1,6 +1,7 @@
 ---
 name: user-needs
 description: Map user needs with importance vs satisfaction
+body_shape: "methodology"
 serves_jtbd: ["find-problem"]
 teaching: "When you need to map what users actually want versus what they say they want, /mos:user-needs plots importance against satisfaction. The gap is where the opportunity lives."
 # --- Phase 122 workflow-layer frontmatter ---

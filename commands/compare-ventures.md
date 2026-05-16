@@ -1,6 +1,7 @@
 ---
 name: compare-ventures
 description: Compare against ventures that tried this before
+body_shape: "methodology"
 serves_jtbd: ["compare-options"]
 teaching: "When you are weighing your approach against ventures that tried this before, /mos:compare-ventures lines them up on the dimensions that matter. Saves you from re-learning their lessons."
 # --- Phase 122 workflow-layer frontmatter ---

@@ -1,5 +1,6 @@
 ---
 description: Derive BRAIN.md for section(s) now
+body_shape: E
 argument-hint: "[section] [--all] [--cross-room] [--dry-run]"
 serves_jtbd: ["audit-room"]
 teaching: "When a room section drifts from its BRAIN.md derivation, /mos:brain-derive rebuilds the per-section Brain context now. Run after large filings or before a decision gate."

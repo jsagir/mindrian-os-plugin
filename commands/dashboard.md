@@ -1,7 +1,7 @@
 ---
 name: dashboard
 description: Open the Data Room dashboard (live or snapshot)
-body_shape: raw
+body_shape: E
 serves_jtbd: ["audit-room", "prepare-pitch"]
 teaching: "When you need to see the whole room at a glance, /mos:dashboard opens the live or snapshot view in De Stijl layout. The fastest way to read room health before a meeting."
 ui_reference: skills/ui-system/SKILL.md

@@ -1,6 +1,7 @@
 ---
 name: deep-grade
 description: Grade a venture against 100+ calibrated projects
+body_shape: C
 serves_jtbd: ["audit-room", "compare-options"]
 teaching: "When you need a calibrated grade on the room's quality, /mos:deep-grade scores it against 100+ real student projects. Best after at least three sections are populated."
 # --- Phase 122 workflow-layer frontmatter ---

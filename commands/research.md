@@ -1,6 +1,7 @@
 ---
 name: research
 description: Research the web and cross-reference with Brain
+body_shape: C
 argument-hint: [topic]
 serves_jtbd: ["explore", "understand-market"]
 teaching: "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework."

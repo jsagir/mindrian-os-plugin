@@ -1,6 +1,7 @@
 ---
 name: update
 description: Check for MindrianOS updates and install via Claude Code's native plugin loader
+body_shape: E
 argument-hint: [check|reapply|force]
 serves_jtbd: ["audit-room"]
 teaching: "When you suspect MindrianOS has a newer version waiting, /mos:update checks and installs via Claude Code's native plugin loader. Stale plugins quietly diverge from the docs."

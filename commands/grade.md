@@ -1,6 +1,7 @@
 ---
 name: grade
 description: Grade problem-discovery quality (6 components)
+body_shape: C
 serves_jtbd: ["audit-room"]
 teaching: "When you want a fast read on problem-discovery quality, /mos:grade scores the room on six components in under a minute. The lightweight cousin of /mos:deep-grade."
 # Per docs/reward-before-investment-rule.md line 64-66: show anonymized calibration distribution before requiring content. Remediation tracked as follow-up phase.

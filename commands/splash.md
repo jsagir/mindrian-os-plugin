@@ -1,7 +1,7 @@
 ---
 name: splash
 description: Display the MindrianOS Mondrian banner
-body_shape: raw
+body_shape: E
 serves_jtbd: ["explore"]
 teaching: "When you want the MindrianOS Mondrian banner, /mos:splash displays it. Mostly decorative; useful for screenshots and demo openings."
 allowed-tools:

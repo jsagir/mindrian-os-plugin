@@ -1,6 +1,7 @@
 ---
 name: file-meeting
 description: File a meeting transcript into the Data Room
+body_shape: E
 argument-hint: [--latest|--paste|<file>]
 serves_jtbd: ["file-meeting"]
 teaching: "When a meeting just happened, /mos:file-meeting captures the transcript and routes the intelligence into the right room sections. Meetings are where institutional knowledge actually lives."
