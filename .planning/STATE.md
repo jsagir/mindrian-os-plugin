@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: "Completed 121.5-04-PLAN.md (Sub-plan E: render-v2 disposition + Phase 102 closure)"
-last_updated: "2026-05-16T19:05:50.580Z"
-last_activity: 2026-05-15
+stopped_at: Completed 119-00-PLAN.md (parallel executor)
+last_updated: "2026-05-16T19:19:40.261Z"
+last_activity: 2026-05-16
 progress:
-  total_phases: 54
-  completed_phases: 22
-  total_plans: 134
-  completed_plans: 201
+  total_phases: 60
+  completed_phases: 39
+  total_plans: 294
+  completed_plans: 284
   percent: 93
 ---
 
@@ -348,6 +348,7 @@ Progress: [█████████░] 93%
 | Phase 118 P05 | 7min | 3 tasks | 8 files |
 | Phase 118 P06 | 75min | 3 tasks | 17 files |
 | Phase 121.5 P04 | 25min | 5 tasks | 7 files |
+| Phase 119-room-as-receipt-invariant P00 | 21min | 3 tasks | 12 files |
 
 ### Roadmap Evolution
 
@@ -891,6 +892,9 @@ Progress: [█████████░] 93%
 - [Phase 118]: Plan 118-06: shipped reward-before-investment rule (docs/) + linter (lib/core/) + 4 frontmatter declarations + scripts/hooks/pre-commit guardian + Dror 2.0 harness reading LD1 LOCKED from 118-CONTEXT.md
 - [Phase 121.5]: render-v2 disposition locked: agent-surface-only by design for v1.13.0 final (Sub-plan E, 2026-05-16). SKILL.md remains the canonical prose contract; the v2 destructured render() is reserved for /mos:* command surfaces via selector-dispatcher. CI gate at lib/memory/render-v2-disposition.test.cjs + operator audit at scripts/disposition-render-v2.cjs enforce the verdict. Phase 102 release loop closed: 102-VERIFICATION.md shipped, 102-VALIDATION.md flipped to status: verified / nyquist_compliant: true.
 - [Phase 121.5]: Permanent Canon Part 7 linguistic discipline locked on render-v2's rankable input signal types: 'current' / 'as of' / 'today' framing only -- NEVER 'final' / 'complete' / 'closed set' framing. The 2026-05-16 dual-graph review noted render-v2's signal set is one of FOUR ultrareview-adjacent surfaces; future lens-aware variants (ASSOCIATION_LENS + TRANSITION_LENS lens classes from the dual-graph proposal) may add lens-derived signals additively. The discipline is enforced by the disposition test's forbidden-phrase scan on ROOM.md.
+- [Phase 119-room-as-receipt-invariant]: Phase 119-00: sibling-hook integration uses direct synchronous function call (CONTEXT.md D-01 option b) to close race window with detached auto-explore-fire spawn
+- [Phase 119-room-as-receipt-invariant]: Phase 119-00: Canon Part 8 alternative signal contract -- venture-shape classification happens UPSTREAM at f_selector_decision write-time via mva-classifier; nudge module reads only scalar boolean properties.venture_classified (user_text never flows through event log)
+- [Phase 119-room-as-receipt-invariant]: Phase 119-00: sibling hook ordering corrected to fire BEFORE detectFirstMaterial (Rule 3 fix) because Phase 117 Tier 0 suppression is exactly the first-ever-upload case Phase 119 handles
 
 ### Pending Todos
 
@@ -921,6 +925,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-16T19:05:31.855Z
-Stopped at: Completed 121.5-04-PLAN.md (Sub-plan E: render-v2 disposition + Phase 102 closure)
+Last session: 2026-05-16T19:19:30.175Z
+Stopped at: Completed 119-00-PLAN.md (parallel executor)
 Resume file: None
