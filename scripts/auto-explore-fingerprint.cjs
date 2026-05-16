@@ -160,7 +160,10 @@ function main() {
   if (!filePath) return emitEmpty();
   if (!fs.existsSync(filePath)) return emitEmpty();
 
-  const roomDir = detectRoomSection(filePath);
+  // Phase 119-00 (D-01 sibling hook): roomDir is reassigned by the auto-create
+  // branch below when the no-active-room invariant holds.
+  // Changed from const -> let so the reassignment is valid.
+  let roomDir = detectRoomSection(filePath);
   if (!roomDir) return emitEmpty();
 
   let mtimeMs;
@@ -171,8 +174,60 @@ function main() {
   }
 
   const relativeFilePath = path.relative(roomDir, filePath);
-  const roomSlug = roomSlugFromDir(roomDir);
-  const dbPath = path.join(roomDir, '.mindrian', 'room.db');
+  // Phase 119-00 (D-01 sibling hook): roomDir + roomSlug + dbPath are reassigned
+  // by the auto-create branch below when the no-active-room invariant holds.
+  // Changed from const -> let so the reassignment is valid.
+  let roomSlug = roomSlugFromDir(roomDir);
+  let dbPath = path.join(roomDir, '.mindrian', 'room.db');
+
+  // Phase 119-00 sibling hook (CONTEXT.md D-01 + D-04): if no active room AND the current
+  // roomDir has no room.db (Tier 0 / first-ever upload case), auto-create a placeholder
+  // room synchronously BEFORE the detection check, so the Phase 117 detector runs against
+  // a real placeholder room with a properly-migrated room.db. The fire child then writes
+  // into the freshly-created room.db. Never blocks the tool call -- any failure mode
+  // (read-only $ROOMS_HOME, registry create failed, etc.) degrades to the original
+  // roomDir and the rest of the Phase 117 path proceeds byte-identically.
+  //
+  // ORDERING NOTE: this hook fires BEFORE the detectFirstMaterial call. The original plan
+  // placed the hook AFTER the is_first_material check, but the Phase 117 detector returns
+  // Tier 0 (suppression) when artifactCount < 0 (no room.db). The Tier 0 case is exactly
+  // the first-ever-upload scenario Phase 119 is designed to handle. Inserting after the
+  // suppression means the hook is unreachable in the canonical first-touch flow. This
+  // ordering correction is a Rule 3 blocker fix; documented in Plan 119-00 SUMMARY.
+  //
+  // Canon Part 9 invariant: writes route through navigation.cjs::logMemoryEvent (the
+  // room_auto_created event lands inside autoCreatePlaceholderRoom, not here).
+  // Canon Part 8 invariant: no Brain call; the helper is pure-local (registry.json read).
+  const ROOMS_HOME = process.env.MINDRIAN_ROOMS_HOME ||
+    path.join(process.env.HOME || require('node:os').homedir(), 'MindrianRooms');
+  try {
+    if (agent.detectNoActiveRoom(ROOMS_HOME) && !fs.existsSync(dbPath)) {
+      const autoCreate = require('../lib/core/room-auto-create.cjs');
+      // Pre-compute the material_id so we can pass it through to the auto-create
+      // payload AND to the post-create detection call. Mirrors the Phase 117 idiom.
+      const preMaterialId = store.computeMaterialId(roomDir, relativeFilePath, mtimeMs);
+      const result = autoCreate.autoCreatePlaceholderRoom(ROOMS_HOME, {
+        source_material_id: preMaterialId,
+        source_relative_path: relativeFilePath,
+        source_mtime_ms: mtimeMs,
+        tier: 1,
+      });
+      if (result && result.ok) {
+        // Reassign roomDir + roomSlug + dbPath so the detection + rate-limit + daily-cap +
+        // spawn paths operate against the freshly-created placeholder room. The auto-explore-fire
+        // spawn at the bottom of this function then writes auto-explore-<material_id>.json
+        // into the placeholder's .mindrian/ dir.
+        roomDir = result.room_dir;
+        roomSlug = roomSlugFromDir(roomDir);
+        dbPath = path.join(roomDir, '.mindrian', 'room.db');
+      }
+      // result.ok === false -> degrade gracefully: continue with original roomDir.
+      // The downstream detection will return Tier 0 and emitEmpty() per Phase 117.
+    }
+  } catch (_e) {
+    // Phase 119-00 invariant: NEVER block. Any uncaught error in the auto-create path
+    // is absorbed; the original Phase 117 detector flow proceeds.
+  }
 
   // Tier 0: room.db missing -> suppress (LOCAL-only routing per Brain Section 8.7).
   const artifactCount = fs.existsSync(dbPath) ? getArtifactCount(dbPath) : -1;
