@@ -1,6 +1,8 @@
 ---
 name: diagnose
 description: Classify problem type against the PWS matrix
+help_jtbd: "See where your room is weakest and what to do next."
+body_shape: A
 serves_jtbd: ["decide-pursue"]
 teaching: "When you cannot tell if this is an Ill-Defined or Well-Defined Problem, /mos:diagnose classifies it against the PWS matrix. Knowing the problem type picks the right methodology."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -56,4 +58,22 @@ Move faster than other commands. The user came here because they are stuck on WH
 ## When Complete
 
 Create the artifact using the template from the reference file.
-Offer to route them directly: "Want me to start /mos:[top recommendation] right now?"
+
+## Recommendation (Shape F.1 Next Move per Canon Part 3)
+
+Render the recommendation as a Shape F.1 selector per `skills/ui-system/SKILL.md` Section 2. Do NOT render the recommendation as bare prose -- the F.1 selector IS the Canon Part 3 Decision Gate. Rendering recommendations as prose is the canon violation Cluster 5 audit (2026-05-15) flagged.
+
+```
+[diagnose] -- NEXT MOVE
+LOCAL / BRAIN / SIGNAL
+
+Choose next move:
+
+  1. Run Methodology  -- the specific methodology for the weakest section
+  2. Defer            -- queue for milestone audit
+  3. Free-Text        -- tell Larry what you want
+```
+
+Use AskUserQuestion to surface the selector. The selected verb writes to STATE.md Decisions section AND creates a typed edge in the local graph: `(navigator) -[CHOSE {verb, reason}]-> (current-artifact)`. The 3-verb F.1 vocabulary (Run Methodology / Defer / Free-Text) is the canonical minimum per Canon Part 3; when Brain is reachable and confidence >= 0.7 the "Run Methodology" option may be marked RECOMMENDED (Phase 88.2 invariant).
+
+Phase 121.5-08 Sub-plan J D-12 LOCKED: the recommendation surface on /mos:diagnose MUST render an F.1 selector, not bare prose. Closes the Canon Part 3 violation from the Cluster 5 audit.

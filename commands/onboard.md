@@ -1,6 +1,7 @@
 ---
 name: onboard
 description: Walk through MindrianOS and build your first room
+help_jtbd: "Walk through the first 15 minutes with Larry."
 body_shape: B (Semantic Tree)
 body_shape_detail: Steps as conversational flow, context building as nested nodes
 serves_jtbd: ["explore"]
@@ -66,6 +67,8 @@ If this command was triggered manually (not from session-start), show the banner
 ```bash
 bash "${CLAUDE_PLUGIN_ROOT}/scripts/banner"
 ```
+
+The banner output now leads with the explicit version stamp `MindrianOS v<version>` (Phase 121.5-05 Sub-plan F / SEED-007 absorption). If you echo a welcome line in the conversation prose, prefix it with the version stamp returned by `node ${CLAUDE_PLUGIN_ROOT}/lib/core/first-touch-version-stamper.cjs onboard` (long form: `Welcome to MindrianOS v<version>. Let me show you around.`). The user must be able to answer "what version am I running?" by reading the terminal -- no command-line introspection required.
 
 Then proceed to Step 1.
 
@@ -342,16 +345,26 @@ After listing, offer:
 
 If the user came from `/mos:onboard whats-new`: offer the full walkthrough or drop to prompt, then STOP.
 
-## Step 6: Wrap + Suggested First Action
+## Step 6: Wrap + Suggested First Action (Shape F.1 Next Move per Canon Part 3)
 
-Based on everything gathered across Steps 1-5, suggest a specific first action:
+Based on everything gathered across Steps 1-5, surface the recommendation as a Shape F.1 Next Move selector per `skills/ui-system/SKILL.md` Section 2. Do NOT render the recommendation as bare prose -- the F.1 selector IS the Canon Part 3 Decision Gate. Rendering recommendations as prose is the canon violation Cluster 5 audit (2026-05-15) flagged.
 
-> That is the foundation. Based on what you need, the best starting point is [specific natural language action]. Want to launch that now?
+Render the recommendation as an F.1 selector:
 
-Present three options:
-1. Start the suggested action (describe it in natural language)
-2. Show the full command reference (`/mos:help`)
-3. Drop to the prompt -- just start talking
+```
+[CONTEXT] -- onboard -- NEXT MOVE
+LOCAL / BRAIN / SIGNAL
+
+Choose next move:
+
+  1. Run Methodology  -- the specific recommendation (e.g. /mos:beautiful-question)
+  2. Defer            -- look around first; come back when ready
+  3. Free-Text        -- tell Larry what you want
+```
+
+Use AskUserQuestion to surface the selector. The selected verb writes to STATE.md Decisions section AND creates a typed edge in the local graph: `(navigator) -[CHOSE {verb, reason}]-> (current-artifact)`. The 3-verb F.1 vocabulary (Run Methodology / Defer / Free-Text) is the canonical minimum per Canon Part 3; if Brain is reachable and confidence >= 0.7 a "Run Methodology" option may be marked RECOMMENDED (Phase 88.2 invariant).
+
+Phase 121.5-08 Sub-plan J D-12 LOCKED: the recommendation surface on /mos:onboard Step 6 MUST render an F.1 selector, not bare prose. Closes the Canon Part 3 violation from the Cluster 5 audit.
 
 Only in this final step, show a compact command reference card:
 
