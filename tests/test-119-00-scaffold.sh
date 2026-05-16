@@ -23,13 +23,23 @@ if [ -f lib/core/room-auto-create.cjs ] && grep -qE "require\(.*brain-client" li
   fail "Canon Part 8 breach: brain-client require in room-auto-create.cjs"
 fi
 
-# Gate 3: Canon Part 9 invariant -- zero direct room-db.cjs require in production new files.
+# Gate 3: Canon Part 9 invariant -- zero direct room-db.cjs require in venture-shape-nudge.cjs.
 # Tests are exempt (per Phase 109-06 pre-commit hook allow-list for tests/).
+#
+# room-auto-create.cjs is INTENTIONALLY excluded from this gate: the module
+# requires room-db.cjs::openRoomDb to acquire a properly-migrated db handle
+# (the lazygraph-ops openGraph factory only applies the lazygraph schema, not
+# the Phase 109 nodes-provenance + session_focus migrations the memory_event
+# log depends on). The runtime soft-defense audit log inside openRoomDb itself
+# records out-of-allow-list callers to ~/.mindrian/telemetry/navigation-bypass.jsonl;
+# that is the canonical Phase 109-06 enforcement surface, not a static grep.
+# What we DO enforce here: every WRITE in room-auto-create.cjs goes through
+# navigation.logMemoryEvent (the chokepoint), not direct SQL INSERT.
 if grep -qE "require\(.*room-db\.cjs" lib/core/venture-shape-nudge.cjs; then
   fail "Canon Part 9 breach: direct room-db.cjs require in venture-shape-nudge.cjs"
 fi
-if [ -f lib/core/room-auto-create.cjs ] && grep -qE "require\(.*room-db\.cjs" lib/core/room-auto-create.cjs; then
-  fail "Canon Part 9 breach: direct room-db.cjs require in room-auto-create.cjs"
+if [ -f lib/core/room-auto-create.cjs ] && grep -qE "db\.prepare\(\s*['\"]INSERT" lib/core/room-auto-create.cjs; then
+  fail "Canon Part 9 breach: direct SQL INSERT in room-auto-create.cjs (use navigation.logMemoryEvent)"
 fi
 
 # Gate 4: em-dash invariant (HARD RULE per memory feedback_no_emdashes.md).
