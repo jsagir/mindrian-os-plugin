@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: "Completed 121.5-07-PLAN.md (bulletproof /mos:help renderer)"
-last_updated: "2026-05-16T18:46:19.020Z"
-last_activity: 2026-05-15
+stopped_at: Completed 119-02-PLAN.md (room-skeleton-scaffold + thinness voice + auto-explore-fire wiring)
+last_updated: "2026-05-16T19:05:38.807Z"
+last_activity: 2026-05-16
 progress:
   total_phases: 60
   completed_phases: 39
   total_plans: 294
-  completed_plans: 280
+  completed_plans: 281
   percent: 93
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 118 — 30-second-mva-reward-before-investment
+**Current focus:** Phase 119 — room-as-receipt-invariant
 
 ## Current Position
 
-Phase: 119
+Phase: 119 (room-as-receipt-invariant) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: Not started
+Plan: 2 of 3
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -160,7 +160,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-15
+Last activity: 2026-05-16
 
 Progress: [█████████░] 93%
 
@@ -350,6 +350,7 @@ Progress: [█████████░] 93%
 | Phase 121.5-terminal-coherence-capstone P03 | 55min | 2 tasks | 15 files |
 | Phase 121.5 P00 | 50min | 3 tasks | 19 files |
 | Phase 121.5-terminal-coherence-capstone P07 | 00:22 | 2 tasks | 89 files |
+| Phase 119 P02 | 10 minutes | 3 tasks | 12 files |
 
 ### Roadmap Evolution
 
@@ -898,6 +899,7 @@ Progress: [█████████░] 93%
 - [Phase 121.5-terminal-coherence-capstone]: D-06 SHIPPED: hybrid data source (help-groups.json + per-command help_jtbd: frontmatter)
 - [Phase 121.5-terminal-coherence-capstone]: D-07 SHIPPED: Export / Publish / Hub trio replaces legacy 'Output + Export' group
 - [Phase 121.5-terminal-coherence-capstone]: D-08 SHIPPED: check-help-coverage.cjs hard-fails CI on missing help_jtbd OR missing group entry
+- [Phase 119]: Plan 119-02 ships scaffoldRoomSkeleton + THINNESS_VOICE_LINE + auto-explore-fire wiring (Blocker 1+4 phantom-wiring closed)
 
 ### Pending Todos
 
@@ -928,6 +930,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-16T18:46:08.811Z
-Stopped at: Completed 121.5-07-PLAN.md (bulletproof /mos:help renderer)
+Last session: 2026-05-16T19:05:31.244Z
+Stopped at: Completed 119-02-PLAN.md (room-skeleton-scaffold + thinness voice + auto-explore-fire wiring)
 Resume file: None
