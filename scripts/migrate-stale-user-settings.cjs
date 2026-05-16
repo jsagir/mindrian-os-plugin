@@ -77,7 +77,12 @@ const STALE_PATH_REGEX = /plugins[\/\\]cache[\/\\][^\/\\]+[\/\\]mos[\/\\]\d+\.\d
 // legacy bare path uses ${CLAUDE_PLUGIN_ROOT}/scripts/context-monitor or an
 // absolute /scripts/context-monitor path. The user-curated case would be a
 // non-MOS command, which the BARE_PATH_REGEX intentionally does NOT match.
-const BARE_PATH_REGEX = /(?:CLAUDE_PLUGIN_ROOT|plugins[\/\\]cache[\/\\][^\/\\]+[\/\\]mos[\/\\][^\/\\]+)[\/\\]?scripts[\/\\]context-monitor(?!.*statusline-mos)/;
+//
+// The lead-in alternation accepts either:
+//   - CLAUDE_PLUGIN_ROOT followed by an optional `}` (handles `${VAR}` form)
+//   - plugins/cache/<marketplace>/mos/<version>/ (the unpinned legacy form)
+// followed by an optional separator + `scripts/context-monitor`.
+const BARE_PATH_REGEX = /(?:CLAUDE_PLUGIN_ROOT\}?|plugins[\/\\]cache[\/\\][^\/\\]+[\/\\]mos[\/\\][^\/\\]+)[\/\\]?scripts[\/\\]context-monitor(?!.*statusline-mos)/;
 
 const PLUGIN_OWNS_KEYS = ['statusLine', 'hooks'];
 
