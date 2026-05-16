@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: verifying
-stopped_at: Completed 119-01-PLAN.md (Wave 2; 48/48 tests GREEN; Phase 118 16/16 zero regression)
-last_updated: "2026-05-16T19:51:42.962Z"
+stopped_at: Phase 120 context gathered
+last_updated: "2026-05-16T20:21:33.194Z"
 last_activity: 2026-05-16
 progress:
   total_phases: 60
@@ -929,6 +929,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-16T19:42:08.470Z
-Stopped at: Completed 119-01-PLAN.md (Wave 2; 48/48 tests GREEN; Phase 118 16/16 zero regression)
-Resume file: None
+Last session: 2026-05-16T20:21:33.182Z
+Stopped at: Phase 120 context gathered
+Resume file: .planning/phases/120-breakthrough-scan-category-g/120-CONTEXT.md
