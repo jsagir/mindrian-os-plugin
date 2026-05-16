@@ -53,6 +53,16 @@ else
   VER_TRANSITION=""
 fi
 
+# Phase 121.5-05 Sub-plan F (SEED-007 absorption): stamp the explicit
+# "MindrianOS v<version>" string at the top of the banner. The block-letter
+# Mondrian art communicates identity visually; the version-of-record line
+# answers the parseable question "what version am I running?" so the user can
+# read it without typing `claude plugin list`.
+# Routed through lib/core/first-touch-version-stamper.cjs so the stamp text is
+# canonical across all six first-touch surfaces (Canon Part 7 reuse).
+FT_STAMP=$(node -e "try{var s=require('${PLUGIN_ROOT}/lib/core/first-touch-version-stamper.cjs');process.stdout.write(s.stampVersion('banner','${VERSION}'))}catch(e){process.stdout.write('MindrianOS v'+'${VERSION}')}" 2>/dev/null || echo "MindrianOS v${VERSION}")
+printf '\n  %s\n' "${FT_STAMP}"
+
 # ============================================================================
 # ASCII fallback banner (plan 85-06 / WIN-FIX-H-03)
 # Rendered when platform.cjs reports supportsUtf8=false or code page is not

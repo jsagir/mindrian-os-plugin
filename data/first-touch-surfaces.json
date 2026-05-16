@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "canon_parts": ["Part 6", "Part 7", "Part 10"],
+  "purpose": "Canonical declaration of first-touch surfaces. Each surface MUST stamp the running plugin version. The stale-copy scanner reads this file to know what to scan and how.",
+  "surfaces": [
+    {
+      "id": "banner",
+      "file": "scripts/banner",
+      "kind": "shell_script",
+      "version_stamp_required": true,
+      "allowed_hardcoded_versions": [],
+      "em_dash_check": true
+    },
+    {
+      "id": "splash",
+      "file": "commands/splash.md",
+      "kind": "command_md",
+      "version_stamp_required": true,
+      "allowed_hardcoded_versions": [],
+      "em_dash_check": true
+    },
+    {
+      "id": "onboard",
+      "file": "commands/onboard.md",
+      "kind": "command_md",
+      "version_stamp_required": true,
+      "allowed_hardcoded_versions": [],
+      "em_dash_check": true
+    },
+    {
+      "id": "sessionstart",
+      "file": "scripts/sessionstart-coordinator.cjs",
+      "kind": "cjs",
+      "version_stamp_required": false,
+      "rationale": "Coordinator emits the consolidated envelope; individual contributors (e.g. install-drift) carry version. Aggregate stamping would be redundant.",
+      "allowed_hardcoded_versions": [],
+      "em_dash_check": true
+    },
+    {
+      "id": "operator-update",
+      "file": "scripts/operator-update.cjs",
+      "kind": "cjs",
+      "version_stamp_required": false,
+      "rationale": "Operator state pulses; version is anchored in the Row 1 statusline (Phase 121.5-03 D-03). Stamping here would echo.",
+      "allowed_hardcoded_versions": [],
+      "em_dash_check": true
+    },
+    {
+      "id": "larry-extended",
+      "file": "agents/larry-extended.md",
+      "kind": "agent_md",
+      "version_stamp_required": false,
+      "rationale": "Persona file -- the version is contextual via the statusline + banner, not the persona prose itself.",
+      "allowed_hardcoded_versions": [],
+      "em_dash_check": true
+    }
+  ]
+}

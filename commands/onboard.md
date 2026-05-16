@@ -67,6 +67,8 @@ If this command was triggered manually (not from session-start), show the banner
 bash "${CLAUDE_PLUGIN_ROOT}/scripts/banner"
 ```
 
+The banner output now leads with the explicit version stamp `MindrianOS v<version>` (Phase 121.5-05 Sub-plan F / SEED-007 absorption). If you echo a welcome line in the conversation prose, prefix it with the version stamp returned by `node ${CLAUDE_PLUGIN_ROOT}/lib/core/first-touch-version-stamper.cjs onboard` (long form: `Welcome to MindrianOS v<version>. Let me show you around.`). The user must be able to answer "what version am I running?" by reading the terminal -- no command-line introspection required.
+
 Then proceed to Step 1.
 
 ## Step 1: The Three Ways to Work
