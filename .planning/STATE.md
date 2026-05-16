@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 121.5-terminal-coherence-capstone/121.5-01-PLAN.md (parallel Wave 1)
-last_updated: "2026-05-16T16:56:36.153Z"
+stopped_at: "Completed 121.5-05-PLAN.md (Sub-plan F: SEED-007 absorption)"
+last_updated: "2026-05-16T17:45:18.129Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 60
   completed_phases: 39
   total_plans: 291
-  completed_plans: 274
+  completed_plans: 275
   percent: 93
 ---
 
@@ -892,6 +892,7 @@ Progress: [█████████░] 93%
 - [Phase 121.5-terminal-coherence-capstone]: VALID_SHAPES Set in scripts/audit-body-shape-coverage.cjs is the canonical locked vocabulary; adding a shape requires canon amendment + same-commit VALID_SHAPES update
 - [Phase 121.5-terminal-coherence-capstone]: output-styles/destijl.md ships both force-for-plugin: true AND keep-coding-instructions: true per 121.5-CONTEXT 'Explicitly ADOPTED' section
 - [Phase 121.5-terminal-coherence-capstone]: normalizeShape strips trailing parentheticals so 'B (Semantic Tree)' validates without rewriting the exemplars byte-for-byte
+- [Phase 121.5]: Phase 121.5-05 (Sub-plan F SEED-007 absorption): scripts/banner stamps MindrianOS v<version> as line 1; lib/core/first-touch-version-stamper.cjs is the canonical stamper; lib/core/stale-copy-scanner.cjs + scripts/doctor.cjs class K detect stale version literals + em-dash violations on every CI run. Class H -> K renamed due to existing class H (install-incomplete) -- behavior contract preserved byte-identical.
 
 ### Pending Todos
 
@@ -922,6 +923,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-16T16:56:36.130Z
-Stopped at: Completed 121.5-terminal-coherence-capstone/121.5-01-PLAN.md (parallel Wave 1)
+Last session: 2026-05-16T17:45:18.096Z
+Stopped at: Completed 121.5-05-PLAN.md (Sub-plan F: SEED-007 absorption)
 Resume file: None
