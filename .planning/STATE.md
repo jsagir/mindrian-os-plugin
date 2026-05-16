@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Phase 121.5 context gathered (16 decisions captured; Sub-plans I + J absorbed)
-last_updated: "2026-05-16T04:31:48.837Z"
+stopped_at: "Phase 119 context gathered (6 decisions D-01..D-06 locked via /gsd:discuss-phase)"
+last_updated: "2026-05-16T16:55:12.786Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 60
   completed_phases: 39
-  total_plans: 281
+  total_plans: 291
   completed_plans: 273
   percent: 93
 ---
@@ -918,6 +918,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-16T04:31:48.825Z
-Stopped at: Phase 121.5 context gathered (16 decisions captured; Sub-plans I + J absorbed)
-Resume file: .planning/phases/121.5-terminal-coherence-capstone/121.5-CONTEXT.md
+Last session: 2026-05-16T16:55:12.769Z
+Stopped at: Phase 119 context gathered (6 decisions D-01..D-06 locked via /gsd:discuss-phase)
+Resume file: .planning/phases/119-room-as-receipt-invariant/119-CONTEXT.md
