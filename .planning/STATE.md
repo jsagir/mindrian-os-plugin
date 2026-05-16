@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
-status: executing
-stopped_at: Completed 119-00-PLAN.md (parallel executor)
-last_updated: "2026-05-16T19:19:40.261Z"
+status: verifying
+stopped_at: Completed 119-01-PLAN.md (Wave 2; 48/48 tests GREEN; Phase 118 16/16 zero regression)
+last_updated: "2026-05-16T19:42:19.845Z"
 last_activity: 2026-05-16
 progress:
   total_phases: 60
-  completed_phases: 39
+  completed_phases: 41
   total_plans: 294
-  completed_plans: 284
+  completed_plans: 286
   percent: 93
 ---
 
@@ -28,8 +28,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 119 (room-as-receipt-invariant) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 2 of 3
-Status: Ready to execute
+Plan: 3 of 3
+Status: Phase complete — ready for verification
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
 
@@ -349,6 +349,8 @@ Progress: [█████████░] 93%
 | Phase 118 P06 | 75min | 3 tasks | 17 files |
 | Phase 121.5 P04 | 25min | 5 tasks | 7 files |
 | Phase 119-room-as-receipt-invariant P00 | 21min | 3 tasks | 12 files |
+| Phase 121.5 P09 | 15min | 3 tasks | 5 files |
+| Phase 119 P01 | 13min | 4 tasks | 12 files |
 
 ### Roadmap Evolution
 
@@ -895,6 +897,8 @@ Progress: [█████████░] 93%
 - [Phase 119-room-as-receipt-invariant]: Phase 119-00: sibling-hook integration uses direct synchronous function call (CONTEXT.md D-01 option b) to close race window with detached auto-explore-fire spawn
 - [Phase 119-room-as-receipt-invariant]: Phase 119-00: Canon Part 8 alternative signal contract -- venture-shape classification happens UPSTREAM at f_selector_decision write-time via mva-classifier; nudge module reads only scalar boolean properties.venture_classified (user_text never flows through event log)
 - [Phase 119-room-as-receipt-invariant]: Phase 119-00: sibling hook ordering corrected to fire BEFORE detectFirstMaterial (Rule 3 fix) because Phase 117 Tier 0 suppression is exactly the first-ever-upload case Phase 119 handles
+- [Phase 121.5]: Phase 121.5 closed via coherence smoke capstone (Plan 121.5-09). All 13 acceptance criteria PASS; 16 D-XX decisions SHIPPED; 5 ODDs resolved. 121.5-VERIFICATION.md is the Canon Part 10 ratification precondition citation for the v1.13.0 FINAL RELEASE GATE.
+- [Phase 119]: Plan 119-01 (Wave 2) closure: F.1 retroactive-naming selector w/ 4 LOCKED verbatim labels per D-06 (name this room: <LLM-suggested> / type your own name / keep as untitled / discard room); LOCAL Haiku 4.5 name-suggester w/ FALLBACK='untitled' graceful degradation; 4-class name validator (collision/fs-unsafe/reserved-prefix/empty) + Windows-reserved defense-in-depth; transactionally-safe discard cascade w/ rooms-meta.db partial-failure recovery; directive-file/INSTRUCTION-FOR-LARRY full-duplex handoff (precedent: auto-explore-drain.cjs) honoring D-03 retroactive at execution time; phase-119-01-naming-selector-hook landed in mva-orchestrator AFTER mva_brief_rendered emit + BEFORE CRITICAL-3 state.json write w/ try/catch (Phase 119 NEVER regresses Phase 118 -- proven 16/16 GREEN). 48/48 tests across 5 test files.
 
 ### Pending Todos
 
@@ -925,6 +929,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-16T19:19:30.175Z
-Stopped at: Completed 119-00-PLAN.md (parallel executor)
+Last session: 2026-05-16T19:42:08.470Z
+Stopped at: Completed 119-01-PLAN.md (Wave 2; 48/48 tests GREEN; Phase 118 16/16 zero regression)
 Resume file: None
