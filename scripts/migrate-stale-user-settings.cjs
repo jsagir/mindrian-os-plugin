@@ -65,7 +65,20 @@ const QUIET = argv.includes('--quiet');
 // - Contains "plugins/cache/.../mos/<version>/" (version-pinned, indicates
 //   self-update wrote it -- not user-curated)
 // - Or absolute path containing /mindrian-os/ or /mos/ + /scripts/
-const STALE_PATH_REGEX = /plugins[\/\\]cache[\/\\][^\/\\]+[\/\\]mos[\/\\]\d+\.\d+\.\d+[\/\\]/;
+const STALE_PATH_REGEX = /plugins[\/\\]cache[\/\\][^\/\\]+[\/\\]mos[\/\\]\d+\.\d+\.\d+/;
+
+// Phase 121.5-03: bare-path detection. settings.json statusLine.command that
+// ends in scripts/context-monitor (any prefix) is the LEGACY plugin-cache
+// path -- it strands the user on a stale install when the marketplace cache
+// rotates. The canonical replacement is scripts/statusline-mos (the Phase 83
+// version-resolving wrapper).
+//
+// Distinguish this from the "user pinned their own command" case: the
+// legacy bare path uses ${CLAUDE_PLUGIN_ROOT}/scripts/context-monitor or an
+// absolute /scripts/context-monitor path. The user-curated case would be a
+// non-MOS command, which the BARE_PATH_REGEX intentionally does NOT match.
+const BARE_PATH_REGEX = /(?:CLAUDE_PLUGIN_ROOT|plugins[\/\\]cache[\/\\][^\/\\]+[\/\\]mos[\/\\][^\/\\]+)[\/\\]?scripts[\/\\]context-monitor(?!.*statusline-mos)/;
+
 const PLUGIN_OWNS_KEYS = ['statusLine', 'hooks'];
 
 // ----- envelope schema allowlist (Phase 95 BASH-95-01; mirrored from operator-update.cjs) -----
@@ -115,6 +128,19 @@ function isStale(value) {
   return false;
 }
 
+// Phase 121.5-03: bare-path drift detection. Returns true when value (or any
+// nested value) points at scripts/context-monitor without going through the
+// scripts/statusline-mos wrapper. The wrapper is what version-resolves the
+// active install; bare paths strand users on the install captured at config
+// time.
+function isBareContextMonitor(value) {
+  if (typeof value === 'string') return BARE_PATH_REGEX.test(value);
+  if (value && typeof value === 'object') {
+    return Object.values(value).some(isBareContextMonitor);
+  }
+  return false;
+}
+
 function findStaleEntries(settings) {
   const findings = [];
   if (!settings || typeof settings !== 'object') return findings;
@@ -126,9 +152,22 @@ function findStaleEntries(settings) {
         key: key,
         value: value,
         action: PLUGIN_OWNS_KEYS.includes(key) ? 'remove' : 'flag',
+        kind: 'stale_version_pinned_path',
         reason: PLUGIN_OWNS_KEYS.includes(key)
           ? `Plugin's own settings.json provides ${key} via \${CLAUDE_PLUGIN_ROOT}; user-level override is stale auto-written path. Removing user-level entry restores plugin-level config.`
           : `Stale MOS-related path detected; not auto-removing because key "${key}" is not plugin-owned.`,
+      });
+    } else if (isBareContextMonitor(value)) {
+      // Phase 121.5-03: bare scripts/context-monitor path. NOT removed (the
+      // user-level entry serves a purpose); flagged for migration toward
+      // scripts/statusline-mos so plugin updates do not strand the user on
+      // a stale path.
+      findings.push({
+        key: key,
+        value: value,
+        action: 'migrate_to_statusline_mos',
+        kind: 'bare_context_monitor_path',
+        reason: `User settings ${key} points at scripts/context-monitor (the bare path). The canonical entry is scripts/statusline-mos (the Phase 83 version-resolving wrapper); the wrapper resolves the active install so plugin updates do not strand the user on a stale path. Migration replaces the bare path with the wrapper path.`,
       });
     }
   }
@@ -145,6 +184,20 @@ function applyMigration(settings, findings) {
     if (f.action === 'remove') {
       delete settings[f.key];
       console.log(`  Removed: ${f.key}`);
+    } else if (f.action === 'migrate_to_statusline_mos') {
+      // Phase 121.5-03: rewrite the offending command string to point at
+      // scripts/statusline-mos. We preserve the surrounding structure of the
+      // entry (type, etc) and substitute just the script path.
+      const entry = settings[f.key];
+      if (entry && typeof entry === 'object' && typeof entry.command === 'string') {
+        entry.command = entry.command.replace(
+          /([\\\/]scripts[\\\/])context-monitor\b/,
+          '$1statusline-mos'
+        );
+        console.log(`  Migrated to statusline-mos: ${f.key}.command`);
+      } else {
+        console.log(`  Flagged (manual review, unexpected shape): ${f.key}`);
+      }
     } else {
       console.log(`  Flagged (manual review): ${f.key}`);
     }

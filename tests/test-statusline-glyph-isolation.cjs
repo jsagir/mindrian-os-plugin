@@ -24,6 +24,18 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
+// Phase 121.5-03 carve-out extension: the two-row renderer module owns the
+// glyph composition that context-monitor used to inline. Per Canon Part 7
+// consolidation, the renderer is the same SURFACE (the Claude Code
+// statusline) -- now a testable pure function. The wrapper bash script
+// scripts/statusline-mos also surfaces the JTBD glyph (🎯) as the focus
+// prefix when active session focus is set, so it joins the allowlist.
+const ALLOWED_FILES = new Set([
+  path.join(REPO_ROOT, 'scripts', 'context-monitor'),
+  path.join(REPO_ROOT, 'lib', 'statusline', 'two-row-renderer.cjs'),
+  path.join(REPO_ROOT, 'scripts', 'statusline-mos'),
+]);
+// Back-compat alias: sanity-check loop below still expects ALLOWED_FILE.
 const ALLOWED_FILE = path.join(REPO_ROOT, 'scripts', 'context-monitor');
 
 // Glyphs governed by the carve-out. Adding any of these to a non-carve-out
@@ -70,6 +82,11 @@ function shouldSkipFile(p) {
   if (base.endsWith('.html')) return true;       // dashboards are documentation surfaces
   if (base.endsWith('.lock') || base === 'package-lock.json') return true;
   if (base.startsWith('.deprecated-')) return true;
+  // Phase 121.5-03: skip test files even when they live under lib/ -- they
+  // are test fixtures, not production source code. Existing test files
+  // under lib/memory/*.test.cjs that document the glyph shape do not trip
+  // the fence.
+  if (base.endsWith('.test.cjs') || base.endsWith('.test.js')) return true;
   return false;
 }
 
@@ -96,8 +113,12 @@ function walk(dir, files) {
 
 const violations = [];
 const allFiles = walk(REPO_ROOT);
+// Pre-resolve the allowed-files set once (path.resolve is idempotent on
+// already-absolute paths but cheaper to do up front).
+const resolvedAllowed = new Set();
+for (const a of ALLOWED_FILES) resolvedAllowed.add(path.resolve(a));
 for (const f of allFiles) {
-  if (path.resolve(f) === path.resolve(ALLOWED_FILE)) continue;
+  if (resolvedAllowed.has(path.resolve(f))) continue;
   let content;
   try {
     content = fs.readFileSync(f, 'utf8');
@@ -119,22 +140,39 @@ if (violations.length > 0) {
   console.error('');
   console.error('The three exclusive D-02 glyphs (📊 🎯 ⚙️) are governed by');
   console.error('skills/ui-system/SKILL.md:202 carve-out and may appear ONLY');
-  console.error('in scripts/context-monitor. Move the glyph or extend the');
-  console.error('carve-out (with explicit Canon amendment).');
+  console.error('in the carve-out allowlist (scripts/context-monitor +');
+  console.error('lib/statusline/two-row-renderer.cjs + scripts/statusline-mos');
+  console.error('per Phase 121.5-03 Canon Part 7 consolidation). Move the');
+  console.error('glyph or extend the carve-out (with explicit Canon amendment).');
   process.exit(1);
 }
 
-// Sanity: scripts/context-monitor MUST contain each glyph at least once. If a
+// Sanity: the two-row renderer (Phase 121.5-03) MUST contain each EXCLUSIVE
+// glyph at least once -- it is the surface that actually emits them. If a
 // future refactor accidentally drops one of the D-02 glyphs the fence catches
 // it here -- the file would still pass the violation scan above (you removed
 // the glyph entirely), but the broadcast contract would be silently broken.
-const monitor = fs.readFileSync(ALLOWED_FILE, 'utf8');
-for (const g of GLYPHS) {
+// The ⚠ glyph stays inside renderBar (compaction-imminent text); the 📊 stays
+// in the bar prefix; the 🎯 stays via the room/situation row vocabulary; the
+// ⚙️ is the operator marker (carried in scripts/context-monitor, not the
+// renderer module -- the renderer takes the operator string and emits it
+// without prefix).
+const RENDERER_PATH = path.join(REPO_ROOT, 'lib', 'statusline', 'two-row-renderer.cjs');
+const renderer = fs.readFileSync(RENDERER_PATH, 'utf8');
+for (const g of ['📊', '🎯', '⚙️', '⚠']) {
   assert.ok(
-    monitor.includes(g),
-    'scripts/context-monitor missing required D-02 glyph: ' + g
+    renderer.includes(g),
+    'lib/statusline/two-row-renderer.cjs missing required D-02 glyph: ' + g
   );
 }
+// scripts/context-monitor still emits ⚙️ inline (legacy operator broadcast
+// path retained for backward-compat -- it appears in roomInfo via parts.push).
+// Verify it is still present so the legacy broadcast contract holds.
+const monitor = fs.readFileSync(ALLOWED_FILE, 'utf8');
+assert.ok(
+  monitor.includes('⚙️'),
+  'scripts/context-monitor missing required operator glyph ⚙️'
+);
 
 // Sanity: at least the canonical CODE-bearing production directories were
 // walked. Catches accidental SKIP_DIRS over-broadening. We only check dirs
@@ -155,5 +193,5 @@ for (const d of expectedCodeDirs) {
   }
 }
 
-console.log('PASS: glyph isolation fence (4 glyphs, 1 allowed file, ' + allFiles.length + ' files scanned)');
+console.log('PASS: glyph isolation fence (4 glyphs, ' + ALLOWED_FILES.size + ' allowed files, ' + allFiles.length + ' files scanned)');
 process.exit(0);
