@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: "Phase 119 context gathered (6 decisions D-01..D-06 locked via /gsd:discuss-phase)"
-last_updated: "2026-05-16T16:55:12.786Z"
+stopped_at: Completed 121.5-terminal-coherence-capstone/121.5-01-PLAN.md (parallel Wave 1)
+last_updated: "2026-05-16T16:56:36.153Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 60
   completed_phases: 39
   total_plans: 291
-  completed_plans: 273
+  completed_plans: 274
   percent: 93
 ---
 
@@ -347,6 +347,7 @@ Progress: [█████████░] 93%
 | Phase 118 P02 | 9min | 3 tasks | 12 files |
 | Phase 118 P05 | 7min | 3 tasks | 8 files |
 | Phase 118 P06 | 75min | 3 tasks | 17 files |
+| Phase 121.5-terminal-coherence-capstone P01 | ~30 min | 2 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -888,6 +889,9 @@ Progress: [█████████░] 93%
 - [Phase 118]: Plan 118-02: Dashboard agent routes through lib/core/navigation.cjs (Phase 109 D-06 chokepoint; Canon Part 9). Two new wrappers (detectActiveRoom + getRecentDecisionNeighborhood) added as additive re-exports following the logMemoryEvent / firstCapturedLastTouchedBySection / writeEdge precedent.
 - [Phase 118]: Plan 118-05 closure: STUB_MESSAGE_119 hardcoded (frozen) per B6 OPTION A; resolveCurrentSha8 reads state.json with null on miss (CRITICAL-3 part 2 wire CLOSED); OPTION_BEHAVIOR maps to Canon Part 3 verbs 7/8/5; Phase 119 hook is one-line swap in OPTION_BEHAVIOR[2]
 - [Phase 118]: Plan 118-06: shipped reward-before-investment rule (docs/) + linter (lib/core/) + 4 frontmatter declarations + scripts/hooks/pre-commit guardian + Dror 2.0 harness reading LD1 LOCKED from 118-CONTEXT.md
+- [Phase 121.5-terminal-coherence-capstone]: VALID_SHAPES Set in scripts/audit-body-shape-coverage.cjs is the canonical locked vocabulary; adding a shape requires canon amendment + same-commit VALID_SHAPES update
+- [Phase 121.5-terminal-coherence-capstone]: output-styles/destijl.md ships both force-for-plugin: true AND keep-coding-instructions: true per 121.5-CONTEXT 'Explicitly ADOPTED' section
+- [Phase 121.5-terminal-coherence-capstone]: normalizeShape strips trailing parentheticals so 'B (Semantic Tree)' validates without rewriting the exemplars byte-for-byte
 
 ### Pending Todos
 
@@ -918,6 +922,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-16T16:55:12.769Z
-Stopped at: Phase 119 context gathered (6 decisions D-01..D-06 locked via /gsd:discuss-phase)
-Resume file: .planning/phases/119-room-as-receipt-invariant/119-CONTEXT.md
+Last session: 2026-05-16T16:56:36.130Z
+Stopped at: Completed 121.5-terminal-coherence-capstone/121.5-01-PLAN.md (parallel Wave 1)
+Resume file: None
