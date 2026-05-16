@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 121.5-00-PLAN.md (SessionStart Coordinator -- D-13 precedence + D-14 budget + D-15 compression + D-16 isolation; 15/15 GREEN)
-last_updated: "2026-05-16T18:43:57.110Z"
+stopped_at: "Completed 121.5-07-PLAN.md (bulletproof /mos:help renderer)"
+last_updated: "2026-05-16T18:46:19.020Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 60
   completed_phases: 39
   total_plans: 294
-  completed_plans: 279
+  completed_plans: 280
   percent: 93
 ---
 
@@ -349,6 +349,7 @@ Progress: [█████████░] 93%
 | Phase 118 P06 | 75min | 3 tasks | 17 files |
 | Phase 121.5-terminal-coherence-capstone P03 | 55min | 2 tasks | 15 files |
 | Phase 121.5 P00 | 50min | 3 tasks | 19 files |
+| Phase 121.5-terminal-coherence-capstone P07 | 00:22 | 2 tasks | 89 files |
 
 ### Roadmap Evolution
 
@@ -893,6 +894,10 @@ Progress: [█████████░] 93%
 - [Phase 121.5-terminal-coherence-capstone]: D-01..D-04 statusline shape locked (JTBD-invariant single shape, two-row identity/situation split, current six segments); ODD 3 palette resolved as keep-muted/earthy; rebrand deferred to v1.14.0
 - [Phase 121.5]: Locked PRECEDENCE_LADDER as Object.freeze of 11 strings (D-13); coordinator isolator NEVER re-throws; memory_event payload carries error_class enum only (no stack) per Canon Part 8
 - [Phase 121.5]: Deviation from plan-strict SessionStart array length===1: actual length is 3 (workspace-guard Bash + coordinator + async npm reconcile). Load-bearing invariant 'single additionalContext composer' preserved + CI-checked by Test 14 structural assertion (zero references to 10 legacy injector scripts)
+- [Phase 121.5-terminal-coherence-capstone]: D-05 SHIPPED: terminal-capability.cjs probe (TTY + COLORTERM + TERM + CLAUDE_DESKTOP) as reusable substrate
+- [Phase 121.5-terminal-coherence-capstone]: D-06 SHIPPED: hybrid data source (help-groups.json + per-command help_jtbd: frontmatter)
+- [Phase 121.5-terminal-coherence-capstone]: D-07 SHIPPED: Export / Publish / Hub trio replaces legacy 'Output + Export' group
+- [Phase 121.5-terminal-coherence-capstone]: D-08 SHIPPED: check-help-coverage.cjs hard-fails CI on missing help_jtbd OR missing group entry
 
 ### Pending Todos
 
@@ -923,6 +928,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-16T18:43:48.574Z
-Stopped at: Completed 121.5-00-PLAN.md (SessionStart Coordinator -- D-13 precedence + D-14 budget + D-15 compression + D-16 isolation; 15/15 GREEN)
+Last session: 2026-05-16T18:46:08.811Z
+Stopped at: Completed 121.5-07-PLAN.md (bulletproof /mos:help renderer)
 Resume file: None
