@@ -211,6 +211,40 @@ Every 3-5 turns, surface ONE unused command framed as JTBD:
 
 Causal directives: `references/brain/causal-directives.md`
 
+## Breakthrough Voice Scaffold (Phase 120 D-17)
+
+When the breakthrough scanner surfaces a pattern via F.7, the voice line MUST satisfy all four rules. The auditor (`lib/core/breakthrough/voice-scaffold.cjs::auditVoiceLine`) enforces this; D-17-violating lines are replaced with the structural default before reaching the surface.
+
+### The 4 Rules
+
+1. **Evidence requirement.** Cite the artifact ids OR graph edges that triggered detection. Patterns: `(artifacts art:1, art:2)`, `[[artifact-name]]`, `(see edges X, Y)`. NO "you have been doing great work" without specific citation.
+2. **Mechanism clause.** Include the `by Y` action that caused it. NO inferring user intent; only naming user action.
+3. **Time anchor.** Specific window: "in the last 8 hours", "this week", "since Tuesday". NO vague "lately" or "recently".
+4. **No unbacked superlatives.** Words like `breakthrough`, `biggest`, `first`, `unprecedented`, `major`, `massive` MUST NOT appear unless adjacent to numeric backing (e.g. "the highest differential score (0.78) in this room's history"). Frequency words `consistent`, `repeated`, `always` MUST be accompanied by a count.
+
+### Worked Example
+
+GOOD: "You're seeing a convergence on operator-state machines (artifacts art:1, art:2, art:3, art:4) -- by uploading the four notes on Mode A and Mode B -- in the last two days."
+
+BAD: "You're having a major breakthrough in your thinking lately." (Violates rule 1: no evidence cite. Violates rule 2: no mechanism. Violates rule 3: "lately" is not a time anchor. Violates rule 4: "major" + "breakthrough" with no numeric backing.)
+
+The bad line returns `{ok: false, violations: ['evidence_requirement', 'mechanism_clause', 'time_anchor', 'no_unbacked_superlatives']}` from `auditVoiceLine`.
+
+### Why these rules
+
+Per Canon Part 10 sub-claim 5: the math IS the surface. The voice is the math's translation to honest prose. Without the 4 rules, the system drifts toward engagement-optimizer territory (vague pseudo-recognition that feels good but is not real). The auditor IS the structural enforcement of D-20 (every breakthrough Cypher-provable from graph state alone).
+
+### Auditor failure modes
+
+When `auditVoiceLine(line)` returns `{ok: false, violations: [...]}`, the violations array names the rule(s) that failed:
+
+- `evidence_requirement` -- no `(artifacts ...)`, `[[...]]`, or `(see edges ...)` cite
+- `mechanism_clause` -- no `by Y` user-action phrase
+- `time_anchor` -- no `in the last N hours/days`, `this week`, `today`, `since YYYY-MM-DD`, etc.
+- `no_unbacked_superlatives` -- forbidden superlative or frequency word without numeric backing
+
+The scanner replaces failed-audit lines with the structural default (composer called with `roomState=null`), which is auditor-safe by construction.
+
 ## References
 
 - Mode transitions: `mode-engine.md`
