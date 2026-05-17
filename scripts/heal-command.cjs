@@ -818,6 +818,81 @@ function step10InvariantScan(ctx) {
   };
 }
 
+// ---------- Room validation ----------
+
+/**
+ * assertIsRoom(dir) -> { ok: bool, reason: string }
+ *
+ * A directory is a legitimate room when it carries at least one of:
+ *   .room-root   (sentinel written by /mos:new-project and sentinel-health-check)
+ *   STATE.md     (root room state file, written on first heal or new-project)
+ *   ROOM.md      (ICM Layer 0 identity file, present in every room)
+ *
+ * Absence of all three is a strong signal the directory was never set up as a
+ * room. Requiring all three would be too strict -- brand-new rooms may only
+ * have .room-root before their first heal.
+ */
+function assertIsRoom(dir) {
+  const sentinels = ['.room-root', 'STATE.md', 'ROOM.md'];
+  for (const s of sentinels) {
+    if (fs.existsSync(path.join(dir, s))) {
+      return { ok: true, reason: 'found sentinel: ' + s };
+    }
+  }
+  return {
+    ok: false,
+    reason:
+      'directory does not appear to be a room -- none of ' +
+      sentinels.join(', ') + ' found in: ' + dir,
+  };
+}
+
+/**
+ * isContainerDir(dir) -> { container: bool, childRooms: string[] }
+ *
+ * A directory is a sub-rooms CONTAINER (not a room itself) when 2 or more of
+ * its direct child directories each carry a .room-root sentinel. This is the
+ * exact pattern of a sub-rooms/ folder: each sub-room has .room-root, but
+ * the container itself is just a grouping directory.
+ *
+ * Threshold is 2 (not 1) so that a room that happens to have one sub-room
+ * inside it is not misidentified as a container.
+ */
+function isContainerDir(dir) {
+  const childRooms = [];
+  try {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      if (entry.name.startsWith('.')) continue;
+      const sentinel = path.join(dir, entry.name, '.room-root');
+      if (fs.existsSync(sentinel)) {
+        childRooms.push(entry.name);
+      }
+    }
+  } catch (_e) { /* best effort */ }
+  return { container: childRooms.length >= 2, childRooms };
+}
+
+/** Build a structured error envelope (mirrors the room-not-found pattern). */
+function buildErrorEnvelope(resolved, errorStatus, reason) {
+  return {
+    schema_version: SCHEMA_VERSION,
+    started_at: nowIso(),
+    ended_at: nowIso(),
+    room_dir: resolved,
+    backup_dir: '.heal-backup/' + utcStamp(),
+    steps: STEP_NAMES.map(function (name) {
+      return {
+        step: name,
+        status: errorStatus,
+        duration_ms: 0,
+        details: { reason: reason },
+      };
+    }),
+    summary: { ok_count: 0, skipped_count: 0, blocked_count: 0, error_count: 10, exit_code: 2 },
+  };
+}
+
 // ---------- Orchestrator ----------
 
 /**
@@ -829,6 +904,7 @@ function step10InvariantScan(ctx) {
  * @param {Array<number>} [opts.skipSteps] - 1-indexed step numbers to skip
  * @param {string}  [opts.section]  - restrict step 7 to one section
  * @param {boolean} [opts.silent]   - suppress console output
+ * @param {boolean} [opts.skipRoomCheck] - bypass room validation (internal use only)
  * @returns {Promise<object>} heal-log envelope
  */
 async function runHeal(roomDir, opts) {
@@ -837,27 +913,44 @@ async function runHeal(roomDir, opts) {
   const skipSteps = Array.isArray(opts.skipSteps) ? opts.skipSteps : [];
   const section = opts.section || null;
   const silent = !!opts.silent;
+  const skipRoomCheck = !!opts.skipRoomCheck;
 
   const resolved = path.resolve(roomDir);
   if (!fs.existsSync(resolved)) {
     // Build a minimal envelope reporting the room-not-found error.
-    const ts = utcStamp();
-    return {
-      schema_version: SCHEMA_VERSION,
-      started_at: nowIso(),
-      ended_at: nowIso(),
-      room_dir: resolved,
-      backup_dir: '.heal-backup/' + ts,
-      steps: STEP_NAMES.map(function (name) {
-        return {
-          step: name,
-          status: 'error_room_not_found',
-          duration_ms: 0,
-          details: { reason: 'room_dir does not exist: ' + resolved },
-        };
-      }),
-      summary: { ok_count: 0, skipped_count: 0, blocked_count: 0, error_count: 10, exit_code: 2 },
-    };
+    return buildErrorEnvelope(
+      resolved,
+      'error_room_not_found',
+      'room_dir does not exist: ' + resolved
+    );
+  }
+
+  // Guard: detect sub-rooms container before the room-sentinel check so the
+  // error message names the specific child rooms that gave it away.
+  if (!skipRoomCheck) {
+    const containerCheck = isContainerDir(resolved);
+    if (containerCheck.container) {
+      const msg =
+        '[heal] Refusing to heal: "' + resolved + '" looks like a sub-rooms ' +
+        'CONTAINER, not a room. It contains ' + containerCheck.childRooms.length +
+        ' child directories that each carry a .room-root sentinel (' +
+        containerCheck.childRooms.slice(0, 5).join(', ') +
+        (containerCheck.childRooms.length > 5 ? ', ...' : '') +
+        '). Pass the parent room directory explicitly, e.g.:\n' +
+        '  node scripts/heal-command.cjs ' + path.dirname(resolved);
+      if (!silent) process.stderr.write(msg + '\n');
+      return buildErrorEnvelope(resolved, 'error_container_dir', msg);
+    }
+
+    const roomCheck = assertIsRoom(resolved);
+    if (!roomCheck.ok) {
+      const msg =
+        '[heal] Refusing to heal: "' + resolved + '" does not appear to be a ' +
+        'room (' + roomCheck.reason + '). ' +
+        'Pass the room directory explicitly or run /mos:new-project to create one.';
+      if (!silent) process.stderr.write(msg + '\n');
+      return buildErrorEnvelope(resolved, 'error_not_a_room', msg);
+    }
   }
 
   const ts = utcStamp();
@@ -1004,8 +1097,72 @@ function parseCliArgs(argv) {
       out.roomDir = a;
     }
   }
-  if (!out.roomDir) out.roomDir = process.cwd();
+  if (!out.roomDir) {
+    // Prefer the registry's active room over the raw shell CWD. The CWD is
+    // unreliable: any prior `cd` in the same session (e.g. sentineling
+    // sub-rooms) leaves the shell pointing at a non-room directory, and heal
+    // would silently scaffold spurious sections there.
+    //
+    // Resolution order:
+    //   1. Explicit positional arg (already handled above).
+    //   2. room-registry get-active (trusts the user's registered active room).
+    //   3. CWD fallback (kept for bare-install / no-registry scenarios, but
+    //      runHeal's room validation guard will catch misfires here).
+    const registryActiveRoom = resolveActiveRoomFromRegistry();
+    out.roomDir = registryActiveRoom || process.cwd();
+  }
   return out;
+}
+
+/**
+ * resolveActiveRoomFromRegistry() -> string|null
+ *
+ * Queries `scripts/room-registry get-active` synchronously. Returns the
+ * absolute path of the active room, or null if the registry is unavailable,
+ * the active room is unset, or the resolved path does not exist on disk.
+ *
+ * Intentionally swallows all errors -- this is a best-effort enhancement, not
+ * a hard dependency. If the registry is absent or broken, we fall back to CWD
+ * and let the room validation guard in runHeal() catch any misfire.
+ */
+function resolveActiveRoomFromRegistry() {
+  try {
+    const registryScript = path.join(REPO_ROOT, 'scripts', 'room-registry');
+    if (!fs.existsSync(registryScript)) return null;
+
+    const result = spawnSync('bash', [registryScript, 'get-active'], {
+      encoding: 'utf8',
+      timeout: 3000,
+    });
+    if (result.status !== 0) return null;
+
+    const activeName = (result.stdout || '').trim();
+    if (!activeName) return null;
+
+    // The registry stores room names, not paths. Fetch the path via `read`.
+    const readResult = spawnSync('bash', [registryScript, 'read', activeName], {
+      encoding: 'utf8',
+      timeout: 3000,
+    });
+    if (readResult.status !== 0) return null;
+
+    let roomData;
+    try { roomData = JSON.parse(readResult.stdout || '{}'); } catch (_e) { return null; }
+
+    const roomPath = roomData.path || '';
+    if (!roomPath) return null;
+
+    // The path field may be relative (to ROOMS_HOME) or absolute.
+    const roomsHome = process.env.MINDRIAN_ROOMS_HOME ||
+      path.join(require('os').homedir(), 'MindrianRooms');
+    const resolved = path.isAbsolute(roomPath)
+      ? roomPath
+      : path.join(roomsHome, roomPath);
+
+    return fs.existsSync(resolved) ? resolved : null;
+  } catch (_e) {
+    return null;
+  }
 }
 
 function printUsage() {
@@ -1015,7 +1172,12 @@ function printUsage() {
     '/mos:heal -- 10-step room wiring heal orchestrator.\n' +
     'Wraps the recipe at ~/MindrianRooms/mindrianOS/methodology/\n' +
     '2026-04-29-v1-11-0-room-wiring-heal-process.md.\n\n' +
-    'When room-dir is omitted, heals current working directory.\n'
+    'When room-dir is omitted, resolution order is:\n' +
+    '  1. room-registry get-active (preferred -- immune to shell CWD drift)\n' +
+    '  2. Current working directory (fallback; validated as a real room)\n\n' +
+    'heal refuses to operate on directories that are not rooms:\n' +
+    '  - No .room-root, STATE.md, or ROOM.md found  -> error_not_a_room\n' +
+    '  - 2+ child dirs each have .room-root         -> error_container_dir\n'
   );
 }
 
@@ -1052,6 +1214,9 @@ if (require.main === module) {
 
 module.exports = {
   runHeal,
+  assertIsRoom,
+  isContainerDir,
+  resolveActiveRoomFromRegistry,
   STEP_NAMES,
   CANONICAL_SECTIONS,
   SCHEMA_VERSION,
