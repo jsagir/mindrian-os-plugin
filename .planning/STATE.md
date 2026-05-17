@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 120-00 plan (Phase 120 Plan 1 of 4)
-last_updated: "2026-05-17T06:38:00.145Z"
-last_activity: 2026-05-17 -- Phase 120 execution started
+stopped_at: "Completed 120-01-PLAN.md (Task 3 resumption: scoring.cjs + 21 tests + scaffold harness + Feynman runner)"
+last_updated: "2026-05-17T07:47:51.429Z"
+last_activity: 2026-05-17
 progress:
   total_phases: 60
   completed_phases: 41
   total_plans: 298
-  completed_plans: 287
+  completed_plans: 288
   percent: 93
 ---
 
@@ -28,8 +28,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 120 (breakthrough-scan-category-g) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 1 of 4
-Status: Executing Phase 120
+Plan: 2 of 4
+Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
 
@@ -160,7 +160,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-17 -- Completed quick task 260517-dcw: dogfood-bridge (PostToolUse hook -> queue -> SessionStart drain -> memory_event + ## Live (auto) sentinel deriver into ~/MindrianRooms/mindrian/)
+Last activity: 2026-05-17
 
 Progress: [█████████░] 93%
 
@@ -352,6 +352,7 @@ Progress: [█████████░] 93%
 | Phase 121.5 P09 | 15min | 3 tasks | 5 files |
 | Phase 119 P01 | 13min | 4 tasks | 12 files |
 | Phase 120 P00 | 156 | 3 tasks | 8 files |
+| Phase 120 P01 | 3h 30m | 3 tasks | 5 files |
 
 ### Roadmap Evolution
 
@@ -934,6 +935,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-17T06:37:59.963Z
-Stopped at: Completed 120-00 plan (Phase 120 Plan 1 of 4)
+Last session: 2026-05-17T07:47:51.407Z
+Stopped at: Completed 120-01-PLAN.md (Task 3 resumption: scoring.cjs + 21 tests + scaffold harness + Feynman runner)
 Resume file: None
