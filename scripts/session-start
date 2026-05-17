@@ -1612,6 +1612,22 @@ fi
 unset _BRAIN_KEY_JSON _BRAIN_AVAILABLE _BRAIN_REASON
 # --- END Brain status ---
 
+# ---------------------------------------------------------------------------
+# 260517-dcw dogfood-bridge drain (Canon Part 6 Product-as-Venture)
+# ---------------------------------------------------------------------------
+# Drain ~/.mindrian/dogfood-queue.jsonl into ~/MindrianRooms/mindrian/room.db
+# via the Phase 109 navigation chokepoint, then regenerate STATE.md ## Live (auto).
+# Soft-fail on every step -- session-start MUST NEVER crash. Per Canon Part 8 the
+# entire pipeline is LOCAL-only (no network surface anywhere in the two scripts).
+# The MINDRIAN_DOGFOOD_DRAIN_SKIP=1 env var bypasses for CI / preflight test fixtures.
+# Output redirected to /dev/null so the drain never pollutes the additionalContext
+# JSON envelope below.
+if [ -z "${MINDRIAN_DOGFOOD_DRAIN_SKIP:-}" ] && [ -f "$PLUGIN_ROOT/scripts/dogfood-emit.cjs" ]; then
+  node "$PLUGIN_ROOT/scripts/dogfood-emit.cjs" >/dev/null 2>&1 || true
+  node "$PLUGIN_ROOT/scripts/dogfood-derive.cjs" >/dev/null 2>&1 || true
+fi
+# --- end 260517-dcw dogfood-bridge drain ---
+
 # Output context injection as JSON
 # Cursor hooks expect additional_context
 # Claude Code hooks expect hookSpecificOutput.additionalContext

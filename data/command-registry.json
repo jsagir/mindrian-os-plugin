@@ -287,7 +287,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": "When you need a quantitative read on the room, /mos:diagnostics runs the Wave-1 fingerprint: disruption, blindspot, novelty, surprise. Surfaces algorithmic signals humans miss.",
+      "teaching": "When you need a quantitative read on the room, /mos:diagnostics runs the Wave-1 fingerprint: disruption, blindspot, novelty, surprise. Renaming to /mos:fingerprint in v1.14.0 (functional behavior unchanged).",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -303,6 +303,21 @@
         "audit-room"
       ],
       "teaching": "When something feels off with the install, /mos:doctor diagnoses install-cache drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix.",
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+    },
+    {
+      "command": "/mos:dogfood-flush",
+      "kind": "utility",
+      "frameworks": [],
+      "produces": "~/MindrianRooms/mindrian/STATE.md",
+      "inputs": [],
+      "autonomous_safe": true,
+      "body_shape": "E",
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": "When you want the plugin's own venture room to reflect your latest edits immediately, /mos:dogfood-flush drains the PostToolUse queue and regenerates the Live (auto) section in STATE.md. The automatic SessionStart drain handles the steady-state case.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -569,7 +584,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": "When a plugin upgrade leaves the room with structural drift, /mos:heal repairs the missing ROOM.md, broken backlinks, and stale section state. Use after every major version bump.",
+      "teaching": "Deprecated alias. Use /mos:doctor --heal-room to repair structural drift; the canonical heal logic lives in doctor class E. Scheduled removal: v1.14.0.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -599,7 +614,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": "When you need to know how well the UI is honoring the ruling system, /mos:hmi-status shows the latest compliance poll with operator-aware drift summaries. Read-only; fix via /mos:doctor.",
+      "teaching": "Deprecated alias. Use /mos:doctor --ui-compliance --json to audit UI Ruling System compliance; the standalone hmi-status command folds into doctor class F. Scheduled removal: v1.14.0.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -733,6 +748,21 @@
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
     {
+      "command": "/mos:mos",
+      "kind": "utility",
+      "frameworks": [],
+      "produces": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "E",
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": "When you do not know which /mos:* surface to invoke, /mos:mos picks the right one. No room: onboard. Mostly empty room: status with a next-move hint. Populated room: suggest-next.",
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+    },
+    {
       "command": "/mos:mullins",
       "kind": "methodology",
       "frameworks": [
@@ -850,7 +880,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": "When the room hierarchy has grown messy, /mos:organize navigates it with a graph-aware tree that respects sub-room boundaries. The structural overview, not the content view.",
+      "teaching": "Deprecated alias. Use /mos:rooms organize to manage the room portfolio hierarchy; organize is folded into the multi-room surface. Scheduled removal: v1.14.0.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -928,7 +958,7 @@
         "audit-room",
         "explore"
       ],
-      "teaching": "When you need to ask the knowledge graph something specific, /mos:query translates natural language into the right traversal and returns the answer with its graph path.",
+      "teaching": "Deprecated alias. Use /mos:graph to ask natural-language questions of the knowledge graph; query and graph share the same translator. Scheduled removal: v1.14.0.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
@@ -1407,7 +1437,7 @@
         "audit-room",
         "prepare-pitch"
       ],
-      "teaching": "When you want to see the room as diagrams in a browser, /mos:visualize opens the visual layer. Best when a stakeholder needs the picture, not the prose.",
+      "teaching": "Deprecated alias. Use /mos:dashboard --mermaid to open the De Stijl knowledge-graph viewer with Mermaid output; visualize folds into the dashboard surface. Scheduled removal: v1.14.0.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
     },
