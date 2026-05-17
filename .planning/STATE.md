@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
-status: verifying
-stopped_at: Phase 120 context gathered
-last_updated: "2026-05-16T20:21:33.194Z"
-last_activity: 2026-05-16
+status: executing
+stopped_at: Completed 120-00 plan (Phase 120 Plan 1 of 4)
+last_updated: "2026-05-17T06:38:00.145Z"
+last_activity: 2026-05-17 -- Phase 120 execution started
 progress:
   total_phases: 60
   completed_phases: 41
-  total_plans: 294
-  completed_plans: 286
+  total_plans: 298
+  completed_plans: 287
   percent: 93
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 119 — room-as-receipt-invariant
+**Current focus:** Phase 120 — breakthrough-scan-category-g
 
 ## Current Position
 
-Phase: 120
+Phase: 120 (breakthrough-scan-category-g) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: Not started
-Status: Phase complete — ready for verification
+Plan: 1 of 4
+Status: Executing Phase 120
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
 
@@ -160,7 +160,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-16
+Last activity: 2026-05-17 -- Phase 120 execution started
 
 Progress: [█████████░] 93%
 
@@ -351,6 +351,7 @@ Progress: [█████████░] 93%
 | Phase 119-room-as-receipt-invariant P00 | 21min | 3 tasks | 12 files |
 | Phase 121.5 P09 | 15min | 3 tasks | 5 files |
 | Phase 119 P01 | 13min | 4 tasks | 12 files |
+| Phase 120 P00 | 156 | 3 tasks | 8 files |
 
 ### Roadmap Evolution
 
@@ -899,6 +900,9 @@ Progress: [█████████░] 93%
 - [Phase 119-room-as-receipt-invariant]: Phase 119-00: sibling hook ordering corrected to fire BEFORE detectFirstMaterial (Rule 3 fix) because Phase 117 Tier 0 suppression is exactly the first-ever-upload case Phase 119 handles
 - [Phase 121.5]: Phase 121.5 closed via coherence smoke capstone (Plan 121.5-09). All 13 acceptance criteria PASS; 16 D-XX decisions SHIPPED; 5 ODDs resolved. 121.5-VERIFICATION.md is the Canon Part 10 ratification precondition citation for the v1.13.0 FINAL RELEASE GATE.
 - [Phase 119]: Plan 119-01 (Wave 2) closure: F.1 retroactive-naming selector w/ 4 LOCKED verbatim labels per D-06 (name this room: <LLM-suggested> / type your own name / keep as untitled / discard room); LOCAL Haiku 4.5 name-suggester w/ FALLBACK='untitled' graceful degradation; 4-class name validator (collision/fs-unsafe/reserved-prefix/empty) + Windows-reserved defense-in-depth; transactionally-safe discard cascade w/ rooms-meta.db partial-failure recovery; directive-file/INSTRUCTION-FOR-LARRY full-duplex handoff (precedent: auto-explore-drain.cjs) honoring D-03 retroactive at execution time; phase-119-01-naming-selector-hook landed in mva-orchestrator AFTER mva_brief_rendered emit + BEFORE CRITICAL-3 state.json write w/ try/catch (Phase 119 NEVER regresses Phase 118 -- proven 16/16 GREEN). 48/48 tests across 5 test files.
+- [Phase 120]: contradiction_resolved detector uses confidence-only tier rule (not N>=3 floor) since pair detection is inherently 2-artifact
+- [Phase 120]: writeBreakthrough uses BEGIN/COMMIT/ROLLBACK explicitly (node:sqlite has no db.transaction(fn)) per Phase 119-01 + Phase 109 migration precedent
+- [Phase 120]: D-20 Cypher-provable invariant enforced structurally by validateProvenance + SQLite atomic transaction, not procedurally audited
 
 ### Pending Todos
 
@@ -929,6 +933,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-16T20:21:33.182Z
-Stopped at: Phase 120 context gathered
-Resume file: .planning/phases/120-breakthrough-scan-category-g/120-CONTEXT.md
+Last session: 2026-05-17T06:37:59.963Z
+Stopped at: Completed 120-00 plan (Phase 120 Plan 1 of 4)
+Resume file: None
