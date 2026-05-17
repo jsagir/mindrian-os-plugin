@@ -36,6 +36,18 @@
             "statusMessage": "Reconciling dependencies..."
           }
         ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-pending-breakthrough.cjs\"",
+            "timeout": 2000,
+            "async": false,
+            "statusMessage": "Scanning for breakthroughs..."
+          }
+        ]
       }
     ],
     "PreCompact": [
