@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: "Completed 120-01-PLAN.md (Task 3 resumption: scoring.cjs + 21 tests + scaffold harness + Feynman runner)"
-last_updated: "2026-05-17T07:47:51.429Z"
+stopped_at: "Completed 120-02-PLAN.md (scanner + hook + D-20 e2e; 53/53 tests; next: 120-03)"
+last_updated: "2026-05-17T12:25:59.783Z"
 last_activity: 2026-05-17
 progress:
   total_phases: 60
   completed_phases: 41
   total_plans: 298
-  completed_plans: 288
+  completed_plans: 289
   percent: 93
 ---
 
@@ -353,6 +353,7 @@ Progress: [█████████░] 93%
 | Phase 119 P01 | 13min | 4 tasks | 12 files |
 | Phase 120 P00 | 156 | 3 tasks | 8 files |
 | Phase 120 P01 | 3h 30m | 3 tasks | 5 files |
+| Phase 120 P02 | 45min | 3 tasks | 10 files |
 
 ### Roadmap Evolution
 
@@ -904,6 +905,8 @@ Progress: [█████████░] 93%
 - [Phase 120]: contradiction_resolved detector uses confidence-only tier rule (not N>=3 floor) since pair detection is inherently 2-artifact
 - [Phase 120]: writeBreakthrough uses BEGIN/COMMIT/ROLLBACK explicitly (node:sqlite has no db.transaction(fn)) per Phase 119-01 + Phase 109 migration precedent
 - [Phase 120]: D-20 Cypher-provable invariant enforced structurally by validateProvenance + SQLite atomic transaction, not procedurally audited
+- [Phase 120]: Plan 120-02: D-20 LOAD-BEARING SQL invariant proven end-to-end -- every breakthrough_surfaced memory_event pairs with >= 1 DERIVED_FROM edge to an Artifact. Third structural enforcement point (surfaceBreakthrough SQL count check) added; refusal emits breakthrough_surface_blocked telemetry.
+- [Phase 120]: Plan 120-02: Session-start hook ordering invariant honored -- Phase 119 (detectNoActiveRoom) -> Phase 117 (detectFirstMaterial) -> Phase 120 (scanForBreakthroughs); check-pending-breakthrough.cjs registered as the 4th SessionStart entry in hooks/hooks.json.
 
 ### Pending Todos
 
@@ -935,6 +938,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-17T07:47:51.407Z
-Stopped at: Completed 120-01-PLAN.md (Task 3 resumption: scoring.cjs + 21 tests + scaffold harness + Feynman runner)
+Last session: 2026-05-17T12:25:49.364Z
+Stopped at: Completed 120-02-PLAN.md (scanner + hook + D-20 e2e; 53/53 tests; next: 120-03)
 Resume file: None

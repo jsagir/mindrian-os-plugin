@@ -1248,10 +1248,10 @@ Plans:
 
 **Canon parts:** Part 2 Engine 1 (Act 1 intelligence -- pattern detection over local graph), Part 3 (F.7 selector is a tri-context Decision Gate primitive instance), Part 4 ("File as decision" makes breakthroughs first-class decisions), Part 5 (D-17 evidence requirement + D-18 confidence bands map to the four evidence tiers), Part 8 (D-20 Cypher-provable principle is structural enforcement), Part 9 (memory locality -- all reads + writes via navigation.cjs), Part 10 sub-claim 5 (variable reward fires automatically). Beta target: **v1.13.0 final**.
 
-**Plans:** 2/4 plans executed
+**Plans:** 3/4 plans executed
 - [x] 120-00-PLAN.md -- 4 pattern detectors + Breakthrough graph schema + EVENT_TYPES (+6) + ALLOWED_EDGE_TYPES (+DERIVED_FROM) [requirements: BREAKTHROUGH-120-01, BREAKTHROUGH-120-02, BREAKTHROUGH-120-06; Wave 1]
 - [x] 120-01-PLAN.md -- F.7 Breakthrough Surface selector + 5-verb dispatcher + 5-component scoring formula + "More breakthroughs (N)" affordance [requirements: BREAKTHROUGH-120-03, BREAKTHROUGH-120-09; Wave 1]
-- [ ] 120-02-PLAN.md -- session-start scanner + resurfacing rules (D-13..D-15) + D-19 canary + verb-dispatch consumer + D-20 end-to-end test [requirements: BREAKTHROUGH-120-04, BREAKTHROUGH-120-07, BREAKTHROUGH-120-08; Wave 2; depends on 120-00 + 120-01]
+- [x] 120-02-PLAN.md -- session-start scanner + resurfacing rules (D-13..D-15) + D-19 canary + verb-dispatch consumer + D-20 end-to-end test [requirements: BREAKTHROUGH-120-04, BREAKTHROUGH-120-07, BREAKTHROUGH-120-08; Wave 2; depends on 120-00 + 120-01]
 - [ ] 120-03-PLAN.md -- D-17 4-rule voice scaffold + auditor + D-18 4-tier ethics fence + .rooms/breakthrough-review-queue.db + Larry skill update [requirements: BREAKTHROUGH-120-05, BREAKTHROUGH-120-06 (full enforcement); Wave 2; depends on 120-00 + 120-01 + 120-02]
 
 **Authority**: `.planning/phases/120-breakthrough-scan-category-g/120-CONTEXT.md` (twenty decisions D-01..D-20 locked 2026-05-16 via /gsd:discuss-phase).
