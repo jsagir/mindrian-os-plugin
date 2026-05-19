@@ -14,6 +14,7 @@ START_TIME=$(date +%s)
 SHELL_SUITES=(
   test-121-00-scaffold.sh
   test-121-01-scaffold.sh
+  test-121-02-scaffold.sh
   test-121-03-scaffold.sh
 )
 CJS_SUITES=(
@@ -21,6 +22,10 @@ CJS_SUITES=(
   ../lib/core/telemetry/validator.test.cjs
   ../lib/core/telemetry/writer.test.cjs
   ../scripts/migrate-telemetry-v1.test.cjs
+  test-121-02-selector-pick-capture.cjs
+  test-121-02-tension-engagement-capture.cjs
+  test-121-02-auto-explore-capture.cjs
+  test-121-02-breakthrough-dismissed-capture.cjs
   test-121-03-empathy-observation.cjs
   test-121-03-room-receipt-emit.cjs
   test-121-03-command-invocation-hook.cjs
