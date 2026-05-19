@@ -1267,7 +1267,7 @@ Plans:
 
 **Canon parts:** Part 8 (Graph Boundary — telemetry is LOCAL-ONLY by constitutional requirement; no payload may include Brain query content, room artifact content, or user-specific bytes). Beta target: scaffolding in **beta.1 / beta.1.5**, capture from **beta.2**, runs through **final**.
 
-**Plans:** 1/5 plans executed
+**Plans:** 2/5 plans executed
 
 **Authority**: `.planning/phases/121-trajectory-telemetry/121-CONTEXT.md` (stub). Related seed: `.planning/seeds/SEED-002-agent-lightning-lab-loop.md`. Future consumption pattern: arXiv 2508.03680 (agent-lightning paper).
 

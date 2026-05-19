@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: "Completed 121-00-PLAN.md (Foundation): writer.cjs chokepoint + validator.cjs (7 forbidden-pattern detectors) + schema.cjs (15 EVENT_TYPES) + 19/19 tests + 8/8 scaffold gates green; ready for /gsd:execute-phase 121 to advance to plan 121-01"
-last_updated: "2026-05-19T08:37:42.383Z"
+stopped_at: Completed 121-01-PLAN.md
+last_updated: "2026-05-19T08:55:53.162Z"
 last_activity: 2026-05-19
 progress:
   total_phases: 60
   completed_phases: 42
   total_plans: 303
-  completed_plans: 291
+  completed_plans: 292
   percent: 93
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 121 (trajectory-telemetry) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -356,6 +356,7 @@ Progress: [█████████░] 93%
 | Phase 120 P02 | 45min | 3 tasks | 10 files |
 | Phase 120-breakthrough-scan-category-g P03 | 43min | 3 tasks | 15 files |
 | Phase 121 P00 | 12min | 3 tasks | 9 files |
+| Phase 121-trajectory-telemetry P01 | 11min | 3 tasks | 7 files |
 
 ### Roadmap Evolution
 
@@ -912,6 +913,9 @@ Progress: [█████████░] 93%
 - [Phase 120-breakthrough-scan-category-g]: Plan 120-03: D-17 4-rule voice scaffold + auditor (composer + auditor aligned by construction); D-18 4-tier ethics fence (HARD_FLOOR/BELOW_FLOOR/SOFT_BAND/HARD_CEILING; thresholds 0.50/0.35/0.50/0.35 verbatim); SOFT_BAND review queue at .rooms/breakthrough-review-queue.db (Phase 119-01 sibling pattern); scanner partition + voice audit gate (4th structural enforcement of D-20); F.7 renderer additive voice_line slot; Larry skill documents the 4 rules. node:sqlite (not better-sqlite3) per codebase convention. 176/176 Phase 120 tests pass; 9/9 scaffold gates pass.
 - [Phase 121]: D-01 honored: ONE writer chokepoint (lib/core/telemetry/writer.cjs) consolidates 4 piecemeal writers into single emit() entry; D-10 SCHEMA_VERSION = 1 literal Number; D-11 emit-time validator IS the Canon Part 8 constitutional gate (7 forbidden-pattern detectors); concatenated-token Brain URL detector preserves zero-network grep gate over the module source
 - [Phase 121]: ALLOWED_FIELDS for the 6 mva.* event types mirror lib/core/mva-telemetry.cjs byte-identically so future v1.14.0 shim cut-over is a no-op; the 9 net-new event types (D-04..D-09) only allow scalar fields (hashes, enums, counts, scores); no field on any event intentionally carries free-text
+- [Phase 121-trajectory-telemetry]: D-02 atomic cutover: migration + shim + consumer repoint shipped in ONE plan to avoid half-migrated state
+- [Phase 121-trajectory-telemetry]: Dual-write shim pattern (writer.emit + legacy mva.jsonl append) preserves Phase 118 byte-functional compatibility; deprecates in v1.14.0
+- [Phase 121-trajectory-telemetry]: Source-name-prefixed sha256 fingerprint pattern: per-source idempotence unit avoids collision when two sources share timestamp prefix
 
 ### Pending Todos
 
@@ -943,6 +947,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-19T08:37:42.344Z
-Stopped at: Completed 121-00-PLAN.md (Foundation): writer.cjs chokepoint + validator.cjs (7 forbidden-pattern detectors) + schema.cjs (15 EVENT_TYPES) + 19/19 tests + 8/8 scaffold gates green; ready for /gsd:execute-phase 121 to advance to plan 121-01
+Last session: 2026-05-19T08:55:53.142Z
+Stopped at: Completed 121-01-PLAN.md
 Resume file: None
