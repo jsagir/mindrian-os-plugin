@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
-status: verifying
-stopped_at: Completed 121-04-PLAN.md -- Phase 121 closed; SEED-002 activation unblocked
-last_updated: "2026-05-19T09:47:08.246Z"
+status: executing
+stopped_at: Completed 127-00-PLAN.md -- foundation stdio shim + DirectiveEnvelope + .mcp.json wired; 24/24 tests pass
+last_updated: "2026-05-19T18:38:36.059Z"
 last_activity: 2026-05-19
 progress:
   total_phases: 60
   completed_phases: 43
-  total_plans: 303
-  completed_plans: 295
+  total_plans: 307
+  completed_plans: 296
   percent: 93
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 121 — trajectory-telemetry
+**Current focus:** Phase 127 — brain-mcp-local-stdio-shim
 
 ## Current Position
 
-Phase: 121.5
+Phase: 127 (brain-mcp-local-stdio-shim) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: Not started
-Status: Phase complete — ready for verification
+Plan: 2 of 4
+Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
 
@@ -360,6 +360,7 @@ Progress: [█████████░] 93%
 | Phase 121-trajectory-telemetry P03 | 24min | 4 tasks | 12 files |
 | Phase 121-trajectory-telemetry P02 | 17min | 4 tasks | 11 files |
 | Phase 121 P04 | 18min | 4 tasks | 5 files |
+| Phase 127 P00 | 10 | 3 tasks | 6 files |
 
 ### Roadmap Evolution
 
@@ -922,6 +923,9 @@ Progress: [█████████░] 93%
 - [Phase 121-trajectory-telemetry]: D-09 broad-sweep wired via type-discriminator drowning protection (100 cmd_inv + 10 selector_pick fixture proves filter isolation); Phase 119 receipt-write surface located at lib/core/room-auto-create.cjs::autoCreatePlaceholderRoom
 - [Phase 121-trajectory-telemetry]: Plan 121-02: 4 high-signal capture points (D-04..D-07) wired to writer.cjs chokepoint; non-blocking try/catch on every emit; structural exclusion of system-driven transitions (decay/throttle/skip/free-text) by code-graph placement, not inline guards
 - [Phase 121]: Plan 121-04: docs/TELEMETRY-SCHEMA.md frozen v1 spec + Canon Part 8 adversarial audit (17 files) + D-12 silent-obs invariant + meta-scaffold; 12/12 TELEMETRY-121 requirements closed
+- [Phase 127]: DEFAULT_MODE locked to GUIDED in lib/core/directive-envelope.cjs per feedback_larry_pedagogical_guided_first.md HARD RULE
+- [Phase 127]: Canon Part 8 delegation property structurally enforced via active-code grep in lib/core/mindrian-brain-shim.test.cjs (Test 7); shim contains zero fetch/http./brain.mindrian/onrender tokens in active code
+- [Phase 127]: .mcp.json BOTH entries (mindrian-os + mindrian-brain) use ${CLAUDE_PLUGIN_ROOT}/bin/... pattern per Anthropic plugin-dev SKILL.md + Tavily A127.1 consistency
 
 ### Pending Todos
 
@@ -953,6 +957,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-19T09:34:47.181Z
-Stopped at: Completed 121-04-PLAN.md -- Phase 121 closed; SEED-002 activation unblocked
+Last session: 2026-05-19T18:38:24.520Z
+Stopped at: Completed 127-00-PLAN.md -- foundation stdio shim + DirectiveEnvelope + .mcp.json wired; 24/24 tests pass
 Resume file: None
