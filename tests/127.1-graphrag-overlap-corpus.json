@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "phase": "127.1",
+  "purpose": "20 representative fuzzy-match queries gating the Pinecone -> Neo4j HNSW cutover (Lock 4)",
+  "source": "Hand-built from references/brain/query-patterns.md Pattern #8 examples + the 14-Cypher-pattern catalogue plus 5 cross-domain analogy probes; no tester PII per Canon Part 8.",
+  "embedding_model_baseline": "multilingual-e5-large",
+  "embedding_dims_baseline": 1024,
+  "similarity_metric_baseline": "cosine",
+  "queries": [
+    {
+      "id": "Q01",
+      "text": "frameworks for navigating wicked problems",
+      "category": "fuzzy-framework-lookup"
+    },
+    {
+      "id": "Q02",
+      "text": "tools that help with stakeholder analysis",
+      "category": "fuzzy-framework-lookup"
+    },
+    {
+      "id": "Q03",
+      "text": "how to validate market assumptions cheaply",
+      "category": "fuzzy-methodology-lookup"
+    },
+    {
+      "id": "Q04",
+      "text": "ways to find an underserved customer job",
+      "category": "fuzzy-methodology-lookup"
+    },
+    {
+      "id": "Q05",
+      "text": "techniques for surfacing hidden contradictions in a venture",
+      "category": "cross-domain-analogy"
+    },
+    {
+      "id": "Q06",
+      "text": "innovation lessons from biology to software",
+      "category": "cross-domain-analogy"
+    },
+    {
+      "id": "Q07",
+      "text": "how should an investor read a thesis with thin evidence",
+      "category": "persona-aware"
+    },
+    {
+      "id": "Q08",
+      "text": "what does a first-time founder usually miss in problem definition",
+      "category": "persona-aware"
+    },
+    {
+      "id": "Q09",
+      "text": "frameworks that chain from SWOT into something more rigorous",
+      "category": "framework-chaining"
+    },
+    {
+      "id": "Q10",
+      "text": "what comes after Beautiful Question in a discovery sequence",
+      "category": "framework-chaining"
+    },
+    {
+      "id": "Q11",
+      "text": "tools for de-risking translational research timelines",
+      "category": "domain-translational"
+    },
+    {
+      "id": "Q12",
+      "text": "how to score the innovation gap of an unmet need",
+      "category": "scoring-and-ranking"
+    },
+    {
+      "id": "Q13",
+      "text": "what does Hughes mean by reverse salient in an expanding system",
+      "category": "concept-lookup"
+    },
+    {
+      "id": "Q14",
+      "text": "how do you tell whether a problem is wicked or merely complex",
+      "category": "concept-lookup"
+    },
+    {
+      "id": "Q15",
+      "text": "approaches for compressing time between insight and validated decision",
+      "category": "core-jtbd"
+    },
+    {
+      "id": "Q16",
+      "text": "what should the team around the founder argue about first",
+      "category": "team-composition"
+    },
+    {
+      "id": "Q17",
+      "text": "where do six hat sessions go wrong in early discovery",
+      "category": "team-composition"
+    },
+    {
+      "id": "Q18",
+      "text": "how to surface evidence tier when claims feel intuitive",
+      "category": "evidence-grading"
+    },
+    {
+      "id": "Q19",
+      "text": "tools that turn a pile of meeting notes into a problem map",
+      "category": "meeting-intelligence"
+    },
+    {
+      "id": "Q20",
+      "text": "frameworks that explicitly handle the regression of a well-defined problem back to ill-defined",
+      "category": "bidirectional-stage"
+    }
+  ]
+}
