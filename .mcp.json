@@ -2,7 +2,12 @@
   "mcpServers": {
     "mindrian-os": {
       "command": "node",
-      "args": ["bin/mindrian-mcp-server.cjs"],
+      "args": ["${CLAUDE_PLUGIN_ROOT}/bin/mindrian-mcp-server.cjs"],
+      "alwaysLoad": true
+    },
+    "mindrian-brain": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/bin/mindrian-brain-mcp-client.cjs"],
       "alwaysLoad": true
     }
   }
