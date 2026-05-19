@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: "Phase 121 planned (5 plans, checker PASSED with 4 warnings); REQUIREMENTS.md patch pending; ready for /gsd:execute-phase 121"
-last_updated: "2026-05-19T08:04:42.340Z"
-last_activity: 2026-05-17
+stopped_at: "Completed 121-00-PLAN.md (Foundation): writer.cjs chokepoint + validator.cjs (7 forbidden-pattern detectors) + schema.cjs (15 EVENT_TYPES) + 19/19 tests + 8/8 scaffold gates green; ready for /gsd:execute-phase 121 to advance to plan 121-01"
+last_updated: "2026-05-19T08:37:42.383Z"
+last_activity: 2026-05-19
 progress:
   total_phases: 60
   completed_phases: 42
   total_plans: 303
-  completed_plans: 290
+  completed_plans: 291
   percent: 93
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 120 — breakthrough-scan-category-g
+**Current focus:** Phase 121 — trajectory-telemetry
 
 ## Current Position
 
-Phase: 121
+Phase: 121 (trajectory-telemetry) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: Not started
+Plan: 2 of 5
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -160,7 +160,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-17
+Last activity: 2026-05-19
 
 Progress: [█████████░] 93%
 
@@ -355,6 +355,7 @@ Progress: [█████████░] 93%
 | Phase 120 P01 | 3h 30m | 3 tasks | 5 files |
 | Phase 120 P02 | 45min | 3 tasks | 10 files |
 | Phase 120-breakthrough-scan-category-g P03 | 43min | 3 tasks | 15 files |
+| Phase 121 P00 | 12min | 3 tasks | 9 files |
 
 ### Roadmap Evolution
 
@@ -909,6 +910,8 @@ Progress: [█████████░] 93%
 - [Phase 120]: Plan 120-02: D-20 LOAD-BEARING SQL invariant proven end-to-end -- every breakthrough_surfaced memory_event pairs with >= 1 DERIVED_FROM edge to an Artifact. Third structural enforcement point (surfaceBreakthrough SQL count check) added; refusal emits breakthrough_surface_blocked telemetry.
 - [Phase 120]: Plan 120-02: Session-start hook ordering invariant honored -- Phase 119 (detectNoActiveRoom) -> Phase 117 (detectFirstMaterial) -> Phase 120 (scanForBreakthroughs); check-pending-breakthrough.cjs registered as the 4th SessionStart entry in hooks/hooks.json.
 - [Phase 120-breakthrough-scan-category-g]: Plan 120-03: D-17 4-rule voice scaffold + auditor (composer + auditor aligned by construction); D-18 4-tier ethics fence (HARD_FLOOR/BELOW_FLOOR/SOFT_BAND/HARD_CEILING; thresholds 0.50/0.35/0.50/0.35 verbatim); SOFT_BAND review queue at .rooms/breakthrough-review-queue.db (Phase 119-01 sibling pattern); scanner partition + voice audit gate (4th structural enforcement of D-20); F.7 renderer additive voice_line slot; Larry skill documents the 4 rules. node:sqlite (not better-sqlite3) per codebase convention. 176/176 Phase 120 tests pass; 9/9 scaffold gates pass.
+- [Phase 121]: D-01 honored: ONE writer chokepoint (lib/core/telemetry/writer.cjs) consolidates 4 piecemeal writers into single emit() entry; D-10 SCHEMA_VERSION = 1 literal Number; D-11 emit-time validator IS the Canon Part 8 constitutional gate (7 forbidden-pattern detectors); concatenated-token Brain URL detector preserves zero-network grep gate over the module source
+- [Phase 121]: ALLOWED_FIELDS for the 6 mva.* event types mirror lib/core/mva-telemetry.cjs byte-identically so future v1.14.0 shim cut-over is a no-op; the 9 net-new event types (D-04..D-09) only allow scalar fields (hashes, enums, counts, scores); no field on any event intentionally carries free-text
 
 ### Pending Todos
 
@@ -940,6 +943,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-19T08:04:42.322Z
-Stopped at: Phase 121 planned (5 plans, checker PASSED with 4 warnings); REQUIREMENTS.md patch pending; ready for /gsd:execute-phase 121
-Resume file: .planning/phases/121-trajectory-telemetry/121-00-PLAN.md
+Last session: 2026-05-19T08:37:42.344Z
+Stopped at: Completed 121-00-PLAN.md (Foundation): writer.cjs chokepoint + validator.cjs (7 forbidden-pattern detectors) + schema.cjs (15 EVENT_TYPES) + 19/19 tests + 8/8 scaffold gates green; ready for /gsd:execute-phase 121 to advance to plan 121-01
+Resume file: None

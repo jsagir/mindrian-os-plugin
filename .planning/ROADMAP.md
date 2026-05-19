@@ -1267,7 +1267,7 @@ Plans:
 
 **Canon parts:** Part 8 (Graph Boundary — telemetry is LOCAL-ONLY by constitutional requirement; no payload may include Brain query content, room artifact content, or user-specific bytes). Beta target: scaffolding in **beta.1 / beta.1.5**, capture from **beta.2**, runs through **final**.
 
-**Plans:** TBD — phase is stubbed; six sub-plans anticipated (121-00 schema definition + writer module, 121-01 PostToolUse hook for `/mos:*`, 121-02 empathy-audit harness hook, 121-03 Phase 116 tension-engagement capture, 121-04 Phase 117 auto-explore acceptance capture, 121-05 documentation + Part 8 compliance audit). ~12 hours total (~1.5 days, slightly over the 1-day estimate).
+**Plans:** 1/5 plans executed
 
 **Authority**: `.planning/phases/121-trajectory-telemetry/121-CONTEXT.md` (stub). Related seed: `.planning/seeds/SEED-002-agent-lightning-lab-loop.md`. Future consumption pattern: arXiv 2508.03680 (agent-lightning paper).
 
