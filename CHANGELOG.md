@@ -1,3 +1,8 @@
+## [Unreleased] -- v1.13.0-beta.20 (in progress)
+
+### Added
+- (next-pre-release Commit B placeholder; Phase 127 Brain MCP Local Stdio Shim work ships here per `.planning/v1.13.1-EXECUTION-PLAN.md` AMENDMENT 2026-05-19)
+
 ## [1.13.0-beta.19] - 2026-05-19
 
 ### Promoted (2026-05-19 -- v1.13.0 milestone redefinition)
