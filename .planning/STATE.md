@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 127-00-PLAN.md -- foundation stdio shim + DirectiveEnvelope + .mcp.json wired; 24/24 tests pass
-last_updated: "2026-05-19T18:38:36.059Z"
+stopped_at: Completed 127-01-PLAN.md
+last_updated: "2026-05-19T18:54:05.114Z"
 last_activity: 2026-05-19
 progress:
   total_phases: 60
   completed_phases: 43
   total_plans: 307
-  completed_plans: 296
+  completed_plans: 297
   percent: 93
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 127 (brain-mcp-local-stdio-shim) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -361,6 +361,7 @@ Progress: [█████████░] 93%
 | Phase 121-trajectory-telemetry P02 | 17min | 4 tasks | 11 files |
 | Phase 121 P04 | 18min | 4 tasks | 5 files |
 | Phase 127 P00 | 10 | 3 tasks | 6 files |
+| Phase 127 P01 | 7min | 3 tasks | 9 files |
 
 ### Roadmap Evolution
 
@@ -926,6 +927,9 @@ Progress: [█████████░] 93%
 - [Phase 127]: DEFAULT_MODE locked to GUIDED in lib/core/directive-envelope.cjs per feedback_larry_pedagogical_guided_first.md HARD RULE
 - [Phase 127]: Canon Part 8 delegation property structurally enforced via active-code grep in lib/core/mindrian-brain-shim.test.cjs (Test 7); shim contains zero fetch/http./brain.mindrian/onrender tokens in active code
 - [Phase 127]: .mcp.json BOTH entries (mindrian-os + mindrian-brain) use ${CLAUDE_PLUGIN_ROOT}/bin/... pattern per Anthropic plugin-dev SKILL.md + Tavily A127.1 consistency
+- [Phase 127]: [Phase 127-01]: SG-1 HARD INVARIANT enforced structurally (grep on scripts/migrate-brain-mcp-from-http-to-stdio.cjs + lib/core/migration-snapshot.cjs returns zero .claude.json refs) + behaviorally (T5-bash byte-equality acceptance gate sha256s ~/.claude.json before+after executePlan(remove) end-to-end)
+- [Phase 127]: [Phase 127-01]: SG-4 raw-identifier scrub fires BEFORE the write to migrations.jsonl via _scanForRawIdentifiers; rejects Bearer/UUID/long-alphanumeric (>=24 chars), whitelists exact-length sha256 (16 or 64 hex chars)
+- [Phase 127]: [Phase 127-01]: Two-key conflict (Wave-1 tester case) returns action=refuse with one-line stderr warning + exit 0; the script never picks a winner -- user reconciles via the explicit CLI command instruction
 
 ### Pending Todos
 
@@ -957,6 +961,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-19T18:38:24.520Z
-Stopped at: Completed 127-00-PLAN.md -- foundation stdio shim + DirectiveEnvelope + .mcp.json wired; 24/24 tests pass
+Last session: 2026-05-19T18:53:54.595Z
+Stopped at: Completed 127-01-PLAN.md
 Resume file: None

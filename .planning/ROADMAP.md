@@ -1393,7 +1393,7 @@ Plans:
 
 **Brain impact:** NONE-NEW (the shim's tool surface is identical to what the remote MCP server already exposes; no new Brain reads, no new Brain writes)
 
-**Plans:** 1/4 plans executed
+**Plans:** 2/4 plans executed
 - [ ] **Plan 127-00 (Wave 1)** -- stdio shim + DirectiveEnvelope + .mcp.json (covers BRAIN-MCP-127-01, 02, 03)
 - [ ] **Plan 127-01 (Wave 2)** -- auto-migration + 4 safety guards SG-1..SG-4 (covers BRAIN-MCP-127-04, 05, 06, 07)
 - [ ] **Plan 127-02 (Wave 3, parallel)** -- Doctor Class M Brain smoke + Tier-0 chokepoint (covers BRAIN-MCP-127-08, 09)
