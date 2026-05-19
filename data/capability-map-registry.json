@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "last_verified": "2026-05-19",
+  "capabilities": [
+    {
+      "id": "row-1-directive-envelope",
+      "brain_tool": "brain_ask",
+      "wire_packet": "DirectiveEnvelope",
+      "default_mode": "GUIDED",
+      "status": "shipped",
+      "shipped_in_version": "1.13.0-beta.20",
+      "shipped_in_phase": 127,
+      "implementing_files": [
+        "lib/core/directive-envelope.cjs",
+        "bin/mindrian-brain-mcp-client.cjs"
+      ],
+      "spec_doc": "docs/CAPABILITY-MAP.md#DirectiveEnvelope",
+      "ecosystem_analogue": "MCP elicitation (conceptually adjacent but inverted: elicitation is server-asks-user; DirectiveEnvelope is server-tells-client-how-to-render)",
+      "proprietary": true,
+      "notes": "Default mode GUIDED per feedback_larry_pedagogical_guided_first.md. AUTONOMOUS allowed only on explicit user invitation OR non-judgment prep work (per Canon Part 1 wicked-navigator framing: Larry is the pedagogical guide, never the answer machine)."
+    }
+  ]
+}

@@ -28,14 +28,14 @@ Failure modes this rule kills:
 
 | # | Brain capability | Wire (Phase 110 packet shape) | Plugin consumer surfaces | Default mode | Status | Last verified |
 |---|---|---|---|---|---|---|
-| 1 | `brain_ask` | `DirectiveEnvelope` (NEW -- see §DirectiveEnvelope below) | `/mos:act`, `/mos:think-hats`, `/mos:pipeline`, Larry's mid-conversation routing | GUIDED | proposed (Phase 127) | 2026-05-14 |
+| 1 | `brain_ask` | `DirectiveEnvelope` (see §DirectiveEnvelope below) | `/mos:act`, `/mos:think-hats`, `/mos:pipeline`, Larry's mid-conversation routing | GUIDED | shipped (v1.13.0-beta.20, Phase 127) | 2026-05-19 |
 | 2 | `brain_query` | `CypherResultPacket` | `/mos:graph`, `/mos:rs-explain`, brain-query agent, /mos:scout | n/a (raw) | shipped (Phase 110) | 2026-05-14 |
-| 3 | `brain_schema` | `SchemaPacket` | doctor Class K (Phase 127), `/mos:setup brain` verify step | n/a | shipped (Phase 110) | 2026-05-14 |
+| 3 | `brain_schema` | `SchemaPacket` | doctor Class M (Phase 127), `/mos:setup brain` verify step | n/a | shipped (Phase 110) | 2026-05-19 |
 | 4 | `brain_search` | `RankedHitsPacket` | `/mos:find-analogies`, `/mos:find-connections`, Phase 117 auto-explore | n/a | shipped (Phase 110) | 2026-05-14 |
-| 5 | `brain_stats` | `StatsPacket` | `/mos:admin usage`, doctor Class K (admin tier) | n/a | shipped (Phase 110) | 2026-05-14 |
+| 5 | `brain_stats` | `StatsPacket` | `/mos:admin usage`, doctor Class M (admin tier) | n/a | shipped (Phase 110) | 2026-05-19 |
 | 6 | `brain_write` | `WriteOpPacket` | `/mos:admin brain-write` only (admin-gated) | n/a (admin) | shipped (Phase 110) | 2026-05-14 |
 
-## DirectiveEnvelope (NEW typed packet, Phase 127 consumer)
+## DirectiveEnvelope (typed packet, shipped v1.13.0-beta.20, Phase 127 implementing phase)
 
 The Brain's `brain_ask` returns a directive envelope, not a free-form text answer. The envelope carries the **mode of delivery** AND the **content for that mode**, so Claude/Larry can execute appropriately.
 
@@ -122,7 +122,7 @@ Every PR that touches Brain or plugin must:
 1. **Brain repo PRs:** cite which capability map row (or proposed capability) the PR serves. PRs that don't cite a row require explicit "internal-admin-only" tag.
 2. **Plugin repo PRs:** cite which capability map row the PR consumes (or which proposed capability it depends on -- in which case the PR is gated on the Brain row landing).
 3. **Schema changes:** require updating the Phase 110 typed-packet contract AND this map in the same PR.
-4. **Verification:** the `Last verified` date in this map gets refreshed on each release-gate Brain end-to-end smoke test (doctor Class K).
+4. **Verification:** the `Last verified` date in this map gets refreshed on each release-gate Brain end-to-end smoke test (doctor Class M, renamed from "Class K" during Phase 127 because Class K was already taken by `--stale-first-touch` at the time of CONTEXT scoping; the smoke test runs the 5-layer probe documented in `.planning/phases/127-brain-mcp-local-stdio-shim/127-02-PLAN.md`).
 
 ## Cross-references
 
