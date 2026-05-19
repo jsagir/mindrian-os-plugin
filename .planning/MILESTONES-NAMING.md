@@ -90,11 +90,13 @@ Banana-ripener names (reject these):
 
 ---
 
-### Arc 4 — The Closed Loop (v1.13.0)  [RENAMED 2026-05-05]
+### Arc 4 — The Closed Loop + Brain Goes Native (v1.13.0)  [RENAMED 2026-05-05, EXPANDED 2026-05-19]
 
-**Thesis:** "Turn MindrianOS from the back half of a hook into a closed habit loop. First-15-minute imprint. Larry leads. SQL graph remembers. Brain reasons as a constant. Conversation IS the front door. Commands are internals."
+**Thesis:** "Turn MindrianOS from the back half of a hook into a closed habit loop. First-15-minute imprint. Larry leads. SQL graph remembers. Brain reasons as a constant. Conversation IS the front door. Commands are internals. [EXPANDED 2026-05-19] Brain feels native -- no `claude mcp add` ceremony, no manual MCP wiring, no Pinecone tax. The plugin and Brain present as one system."
 
-**Phases:** 88.2 (UIUX selector block FINISH), 89-07 (ReverseSalientAgent FINISH), 114 (Larry-Default Activation), 115 (Owned Emotion + Dual-Path First Touch), 116 (Unresolved Tension Hook), 117 (Auto-Explore-Domains on First Material), 118 (30-Second MVA + Reward-Before-Investment), 119 (Room-as-Receipt invariant), 120 (Breakthrough Scan / Category G), 121 (Trajectory Telemetry)
+**Phases:** 88.2 (UIUX selector block FINISH), 89-07 (ReverseSalientAgent FINISH), 114 (Larry-Default Activation), 115 (Owned Emotion + Dual-Path First Touch), 116 (Unresolved Tension Hook), 117 (Auto-Explore-Domains on First Material), 118 (30-Second MVA + Reward-Before-Investment), 119 (Room-as-Receipt invariant), 120 (Breakthrough Scan / Category G), 121 (Trajectory Telemetry), **127 (Brain MCP Local Stdio Shim + Auto-Migration) [PROMOTED 2026-05-19 from v1.13.1]**, **127.1 (Brain GraphRAG Collapse Pinecone -> Neo4j HNSW) [PROMOTED 2026-05-19 from v1.13.1]**
+
+**2026-05-19 expansion:** Phase 127 + Phase 127.1 PROMOTED from v1.13.1 back into v1.13.0. The architectural anchor + server-side substrate collapse now ride the same milestone window as the Hooked Model fixes. Trade-off: ~2-week ship-date slip, but ONE adoption cycle for "Brain feels native end-to-end" instead of two. v1.13.1 loses its anchor and gets renamed to "spine repair + lens engine + research workflow" (phases 128/129/130/131 remain).
 
 **Why the rename (was: "Every Hirer"):** A 4-hour 2026-05-05 deep-dive session combining /mos:think-hats and /mos:beautiful-question recovered a dormant 2026-04-12 Hooked Model audit (27/70 score, "back half of a hook" diagnosis) and synthesized a sharper thesis than the original Every Hirer framing. The new framing absorbs Every Hirer's spirit (per-hirer rendering, JTBD-aware surface) into a deeper structural claim: the product surface should be CONVERSATION FIRST, with rooms emerging as receipts and commands as internals. The Hooked Model math (Trigger near-zero, Loop Closure 3/10 -- the load-bearing gap) is the calibration. The previous Arc 4 phases (100, 101, 102, 103, 105, 106) are absorbed/deferred per the v1.13.0 reconciliation table.
 
@@ -106,11 +108,13 @@ Banana-ripener names (reject these):
 - Rooms generate as side effects; "create a project" is no longer an explicit step
 - Hooked audit re-score target: 27/70 -> 58/70
 
-**Beta progression:**
+**Beta progression (UPDATED 2026-05-19):**
 - v1.13.0-beta.1 SHIPPED 2026-05-05 (Phase 108 + 109 substrate, plugin commit afcea5f, marketplace a37b073)
-- v1.13.0-beta.2 "Larry leads" -- Phases 88.2 finish, 89-07 finish, 114, 115, SEED-003 A1+A4
-- v1.13.0-beta.3 "Loop closes + reward fires" -- **Phase 110** (PROMOTED FROM v1.14.0 per Path C 2026-05-05), Phases 116, 117, SEED-003 A3
-- v1.13.0 final "Full closed loop" -- Phases 118, 119, 120, SEED-003 A2
+- v1.13.0-beta.2..beta.17 SHIPPED 2026-05-06..2026-05-16 (running progression -- 88.2 / 89-07 / 110 / 114 / 115 / 116 / 117 / 121.5 / 122 / 123 / 125 / 126 / 126.1 / 118 / 121.5-08 / 124)
+- v1.13.0-beta.18 IN PROGRESS 2026-05-17..2026-05-19 -- bundle of Phases 120 (Breakthrough Scan Category G) + 121 (Trajectory Telemetry) + 121.5 re-verify fix + promotion bookkeeping for 127/127.1
+- v1.13.0-beta.19 NEXT (2026-05-19+) -- Phase 127 Brain MCP Local Stdio Shim [PROMOTED FROM v1.13.1-beta.1]
+- v1.13.0-beta.20 AFTER -- Phase 127.1 Brain GraphRAG Collapse Pinecone -> Neo4j HNSW [PROMOTED FROM v1.13.1-beta.2]
+- v1.13.0 FINAL "Closed Loop + Brain Native" -- ships after both 127 + 127.1 land + non-regression harness validates (>= 80% top-5 overlap)
 
 **beta.1.5 housekeeping interlude (Path C 2026-05-05):**
 - AUDIT + RETIRE Phase 111 (Cascade Decomposition; superseded by Phase 87+90+109)
@@ -121,7 +125,7 @@ Banana-ripener names (reject these):
 
 **External checkpoint:** Empathy audit per beta -- 3 fresh testers per intermediate beta, 5 for final (Dror 2.0 protocol). Hooked re-score gates: >= 38 (beta.2), >= 50 (beta.3), >= 55 (final).
 
-**Ships:** Target ~17-24 days from beta.1 ship. v1.13.0 final estimate 2026-05-22.
+**Ships:** ORIGINAL target was 2026-05-22 (~17-24 days from beta.1). REVISED 2026-05-19: ~2-week extension for the Phase 127 + 127.1 promotion. Revised v1.13.0 final estimate: 2026-06-05 (gates the NATO Defense College Rome June 2026 embed; remains inside the hard deadline).
 
 **Canonical roadmap:** `.planning/milestones/v1.13.0-CLOSED-LOOP-ROADMAP.md`
 

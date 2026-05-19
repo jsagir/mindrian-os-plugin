@@ -4,11 +4,13 @@ slug: brain-mcp-local-stdio-shim
 status: scoped + design-locked (ready for /gsd:plan-phase 127)
 priority: P0 -- closes the largest cluster of Brain wiring failures (7 of 20 taxonomy rows) and unblocks zero-config Brain reachability for every new install
 created: 2026-05-14
-updated: 2026-05-14
-milestone: v1.13.1
-beta_target: 1.13.1-beta.1
-milestone_predecessor: v1.13.0 (closes after Phase 126 beta.14 stabilizes -- this phase rides on top, not within)
-version_decision: 2026-05-14 -- Jonathan promoted Phase 127 from v1.13.0-beta.14 to v1.13.1. Rationale: the architectural shift is too big for a beta within the closing milestone; it gets its own point release with its own beta cycle. v1.13.0 closes with Phase 126 hotfixes only.
+updated: 2026-05-19 (promoted back into v1.13.0 -- see version_decision)
+milestone: v1.13.0
+beta_target: 1.13.0-beta.19
+milestone_predecessor: v1.13.0-beta.18 (the bundle of Phases 118 + 119 + 120 + 121 + 121.5 fix) -- this phase rides immediately after
+version_decision: |
+  - 2026-05-14: Jonathan promoted Phase 127 from v1.13.0-beta.14 to v1.13.1. Rationale at the time: the architectural shift was too big for a beta within the closing milestone.
+  - 2026-05-19 (REVERSED): Jonathan promoted Phase 127 + Phase 127.1 BACK into v1.13.0. Rationale: v1.13.0 redefined from "The Closed Loop" (Hooked Fixes + Canon Part 10) to "The Closed Loop + Brain Goes Native". The bigger release narrative is worth the ~2-week ship-date slip; v1.13.0 becomes the version where MindrianOS auth ceremony disappears and Brain feels native. v1.13.1 milestone keeps Phases 128/129/130/131 but loses its architectural anchor; v1.13.1 is now "spine repair + lens engine + research workflow" not "Brain native".
 canon_parts:
   - Part 6 (dog-fooding mandate -- the Brain wiring failures were caught by real tester transcripts, not synthetic tests; the plugin's own install path must honor its canon)
   - Part 7 (reuse-before-build -- ~85% reuse of lib/core/brain-client.cjs HTTPS path; the new shim is a thin stdio wrapper around the existing HTTPS code)
