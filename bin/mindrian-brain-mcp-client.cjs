@@ -30,6 +30,7 @@ const { z } = require('zod');
 
 const brainClient = require('../lib/core/brain-client.cjs');
 const { wrapDirective } = require('../lib/core/directive-envelope.cjs');
+const { tier0Response: chokepointTier0 } = require('../lib/core/tier0-messaging.cjs');
 
 const pluginRoot = path.resolve(__dirname, '..');
 const pluginMeta = require('../.claude-plugin/plugin.json');
@@ -39,14 +40,13 @@ const version = pluginMeta.version;
 // the 5 tools that surface raw Brain payloads (query/schema/search/stats/write).
 // brain_ask wraps Tier-0 differently (in a DirectiveEnvelope) so Larry's
 // surface reads a uniform shape regardless of tier.
+//
+// Phase 127-02 BRAIN-MCP-127-09 refactor: this is now a one-line passthrough
+// to the single chokepoint at lib/core/tier0-messaging.cjs. The local symbol
+// is preserved so existing tests + tool closures keep their reference.
+// Delegation property: zero duplicate sentinel-shape definition lives here.
 function tier0Response(commandContext) {
-  return {
-    status: 'DIRECTOR_NOT_AVAILABLE',
-    reason: 'MINDRIAN_BRAIN_KEY not set',
-    command_context: commandContext,
-    upgrade_hint: 'Request a Brain key at https://mindrianos.vercel.app/brain-access',
-    fallback_advice: 'Larry can still talk with you and reflect on your room context. Methodology orchestration requires Brain.',
-  };
+  return chokepointTier0(commandContext);
 }
 
 function asContent(obj) {
