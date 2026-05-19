@@ -81,11 +81,16 @@ function runHookWithEnv(envOverrides, homeDir) {
     // Re-require so the writer picks up the new HOME for its internal
     // homeDir() call (writer reads env at emit-time, but we force a fresh
     // module each time for paranoia + symmetry with other 121-03 tests).
+    //
+    // NOTE: tests call processInvocation() (the non-exiting variant), not
+    // main() -- main() always terminates the runtime via process.exit(0)
+    // because the CLI path is a PostToolUse hook that must never propagate
+    // errors back to the Claude Code runtime.
     const hook = freshRequireHook();
-    hook.main();
+    hook.processInvocation();
   } catch (_e) {
-    // The hook is best-effort by contract (process.exit(0) on any internal
-    // error). If we land here it's a test-harness bug; surface it.
+    // The hook is best-effort by contract (processInvocation swallows all
+    // internal errors). If we land here it's a test-harness bug; surface it.
     throw _e;
   } finally {
     for (const k of allKeys) {
