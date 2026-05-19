@@ -623,3 +623,25 @@
 | TELEMETRY-121-11 | `docs/TELEMETRY-SCHEMA.md` (364 LOC, 13 sections) frozen v1 spec for SEED-002 onboarding (references arXiv 2508.03680); Canon Part 8 adversarial compliance audit at `tests/test-121-04-canon-part-8-audit.sh` (7 gates across 17 telemetry-touching files; zero LOCAL->BRAIN egress in production source) | Plan 121-04 |
 | TELEMETRY-121-12 | Silent observability invariant at `tests/test-121-04-silent-observability.sh` (4 gates); zero user-facing surface references telemetry corpus across `commands/` + `lib/hmi/` + `skills/`; no `/mos:status` row, no dashboard widget, no SessionStart banner, no skill prose | Plan 121-04 |
 
+## Brain MCP Local Stdio Shim + Auto-Migration (BRAIN-MCP-127)
+
+**Defined:** 2026-05-19
+**Phase:** 127
+**Milestone:** v1.13.0 "The Closed Loop + Brain Goes Native"
+**Beta target:** v1.13.0-beta.20
+**Canon parts:** 6 (dog-fooding), 7 (reuse-before-build, ~85%), 8 (graph boundary -- delegation property)
+**Core Value:** collapses 5-step manual Brain wiring ceremony to 2 steps (install plugin + drop key); closes 7 of 20 Brain-wiring failure-mode taxonomy rows; the architectural anchor of v1.13.0's "Brain Goes Native" reframing.
+
+| ID | Description | Plan |
+|----|-------------|------|
+| BRAIN-MCP-127-01 | `bin/mindrian-brain-mcp-client.cjs` stdio shim (~150-220 LOC); thin wrapper over `lib/core/brain-client.cjs`; registers 6 tools (brain_ask, brain_query, brain_schema, brain_search, brain_stats, brain_write); delegation property verified by grep | Plan 127-00 |
+| BRAIN-MCP-127-02 | Plugin `.mcp.json` registers `mindrian-brain` using `${CLAUDE_PLUGIN_ROOT}/bin/...` per Anthropic plugin-dev SKILL.md + Tavily A127.1; `mindrian-os` entry updated to same pattern for consistency | Plan 127-00 |
+| BRAIN-MCP-127-03 | `lib/core/directive-envelope.cjs` ships `wrapDirective(response, signals)` + `selectMode(signals)` + `DEFAULT_MODE === "GUIDED"`; 6 mode-selection signal cases (explicit_user_invitation / cold_start_never_autonomous / mature_room_commit_gate / non_judgment_prep_work / explicit_execute_command / default_guided_pedagogical_canon) | Plan 127-00 |
+| BRAIN-MCP-127-04 | `scripts/migrate-brain-mcp-from-http-to-stdio.cjs` auto-migration script; `--dry-run` flag = SG-3; `--help` flag; idempotent across re-runs; handles clean / legacy-same-key / legacy-different-key / already-migrated states | Plan 127-01 |
+| BRAIN-MCP-127-05 | SG-1 HARD INVARIANT: migration script structurally cannot mutate `~/.claude.json` (zero references to that path in source); all scope-user mutations route through `claude mcp <add|remove> --scope user` CLI; byte-equality acceptance test (sha256 before/after) | Plan 127-01 |
+| BRAIN-MCP-127-06 | SG-2 pre-migration snapshot at `~/.mindrian/pre-migration-snapshots/<ISO>.json` with mode 0o600 on POSIX; written BEFORE any state-changing CLI call; isoTimestamp colon-replaced for Windows filesystem safety | Plan 127-01 |
+| BRAIN-MCP-127-07 | SG-4 idempotency log at `~/.mindrian/migrations.jsonl` with source-name-prefixed sha256 fingerprint (16 hex chars; matches `brain-client.cjs::_hashKey` pattern); raw-identifier scanner rejects Bearer + UUID + long base64/hex patterns; re-run is deterministic no-op | Plan 127-01 |
+| BRAIN-MCP-127-08 | Doctor Class M (renamed from CONTEXT "Class K" -- K is taken) end-to-end Brain smoke at `lib/core/doctor/class-m-brain-smoke.cjs`; 5-layer probe (plugin_root, key_resolver, https_schema, stdio_handshake, e2e_brain_schema); fail-fast cascade; `--brain-smoke` flag in `scripts/doctor.cjs`; detects 12 Phase 126 taxonomy failure modes (#1, #2, #3, #4, #5, #8, #9, #13, #14, #15, #19, #21); `fixBrainSmoke` is no-op (diagnostic-only) | Plan 127-02 |
+| BRAIN-MCP-127-09 | Tier-0 graceful messaging chokepoint at `lib/core/tier0-messaging.cjs` (<=110 LOC); exports `DIRECTOR_NOT_AVAILABLE` constant + `tier0Response(commandContext)` + `isAvailable()` + `larryTier0Hint()`; shim's local `tier0Response` refactored to one-line passthrough (delegation; plan 127-00 shim tests still PASS) | Plan 127-02 |
+| BRAIN-MCP-127-10 | `docs/CAPABILITY-MAP.md` row #1 flipped to "shipped (v1.13.0-beta.20)" + `data/capability-map-registry.json` (new machine-readable mirror) + 4-fixture acceptance harness (CONTEXT gates 1-5) + Canon Part 8 adversarial audit harness (delegation-property structural proof; 6 sources, 4 forbidden patterns) + no-em-dashes HARD RULE harness across all 21+ Phase 127 files + `docs/install/BRAIN-SETUP.md` rewritten for one-step onboarding | Plan 127-03 |
+

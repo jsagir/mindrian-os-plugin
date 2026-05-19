@@ -1381,11 +1381,11 @@ Plans:
 
 **Goal:** Ship `bin/mindrian-brain-mcp-client.cjs` -- a local stdio MCP server bundled with the plugin -- and add it to the plugin's `.mcp.json` so every new install gets `mindrian-brain` auto-loaded with ZERO user wiring beyond providing `MINDRIAN_BRAIN_KEY` in env / `~/.mindrian.env`. The shim proxies tool calls to the cloud Brain (the methodology director) and consumes the new `DirectiveEnvelope` typed packet (default mode: GUIDED). Includes auto-migration that detects existing testers' user-scope HTTP-transport registrations and replaces them with the bundled stdio version on next plugin update. Closes 7 of 20 Brain-wiring failure-mode taxonomy rows. Architectural anchor of v1.13.1: every Part 10 phase after this point ASSUMES Brain works.
 
-**Requirements**: [BRAIN-MCP-127-01..NN -- defined in plan-phase]
+**Requirements**: BRAIN-MCP-127-01 (stdio shim 6-tool wrapper), 127-02 (.mcp.json ${CLAUDE_PLUGIN_ROOT} pattern), 127-03 (DirectiveEnvelope GUIDED-default 6-signal selector), 127-04 (auto-migration script + --dry-run SG-3), 127-05 (SG-1 HARD INVARIANT no ~/.claude.json writes), 127-06 (SG-2 pre-migration snapshot 0o600), 127-07 (SG-4 sha256 idempotency log), 127-08 (Doctor Class M 5-layer Brain smoke), 127-09 (Tier-0 messaging chokepoint), 127-10 (acceptance harness + Part 8 adversarial audit + capability map + BRAIN-SETUP rewrite). See `.planning/REQUIREMENTS.md` "Brain MCP Local Stdio Shim + Auto-Migration (BRAIN-MCP-127)" section for full descriptions.
 
-**Depends on:** Phase 110 (Brain Context Packet contract -- the typed-packet wire this shim's tool calls travel through, shipped); Phase 123 (install-lifecycle-harness -- the resolver chain + key resolver this shim consumes, shipped); Phase 126 (install-lifecycle-harness-gaps -- the parallel hotfix track for residual install + doctor gaps, shipped v1.13.0-beta.16); v1.13.0 FINAL closed (Phase 121.5 capstone shipped).
+**Depends on:** Phase 110 (Brain Context Packet contract -- the typed-packet wire this shim's tool calls travel through, shipped); Phase 123 (install-lifecycle-harness -- the resolver chain + key resolver this shim consumes, shipped); Phase 126 (install-lifecycle-harness-gaps -- the parallel hotfix track for residual install + doctor gaps, shipped v1.13.0-beta.16); v1.13.0-beta.19 bundle shipped (118+119+120+121+121.5-fix + promotion bookkeeping).
 
-**Dependents:** Phase 127.1 (Brain GraphRAG Collapse: Pinecone -> Neo4j HNSW -- server-side substrate swap that rides this beta cycle, beta.2); Phase 128 (substrate-contract-adr, beta.3); Phase 129 (spine-repair-memory-event, beta.3); every subsequent v1.13.1 phase that assumes Brain reachability.
+**Dependents:** Phase 127.1 (Brain GraphRAG Collapse: Pinecone -> Neo4j HNSW -- server-side substrate swap riding immediately after this beta cut, v1.13.0-beta.21); Phase 128 (substrate-contract-adr -- now v1.13.1-beta.1); Phase 129 (spine-repair-memory-event -- now v1.13.1-beta.1); every subsequent v1.13.1 phase that assumes Brain reachability.
 
 **Target band:** v1.13.0-beta.20 (PROMOTED 2026-05-19; v1.13.0 redefined from "The Closed Loop" to "The Closed Loop + Brain Goes Native"; ships immediately after v1.13.0-beta.19 bundle of phases 118+119+120+121+121.5-fix + promotion bookkeeping)
 
@@ -1393,7 +1393,13 @@ Plans:
 
 **Brain impact:** NONE-NEW (the shim's tool surface is identical to what the remote MCP server already exposes; no new Brain reads, no new Brain writes)
 
-**Plans:** 0/N plans (ready for `/gsd:plan-phase 127`; v1.13.0-beta.18 bundle ships first; this phase opens beta.19)
+**Plans:** 4/4 plans created 2026-05-19 (Tavily-validated, planner Canon-invariant audit passed):
+- [ ] **Plan 127-00 (Wave 1)** -- stdio shim + DirectiveEnvelope + .mcp.json (covers BRAIN-MCP-127-01, 02, 03)
+- [ ] **Plan 127-01 (Wave 2)** -- auto-migration + 4 safety guards SG-1..SG-4 (covers BRAIN-MCP-127-04, 05, 06, 07)
+- [ ] **Plan 127-02 (Wave 3, parallel)** -- Doctor Class M Brain smoke + Tier-0 chokepoint (covers BRAIN-MCP-127-08, 09)
+- [ ] **Plan 127-03 (Wave 3, parallel)** -- acceptance harness + Canon Part 8 adversarial audit + capability map + BRAIN-SETUP rewrite (covers BRAIN-MCP-127-10)
+
+Notable rename: CONTEXT "Class K" -> "Class M" because K is taken by `--stale-first-touch`.
 
 **Authority:** `.planning/phases/127-brain-mcp-local-stdio-shim/127-CONTEXT.md` (scoped 2026-05-14; design-locked) + `.planning/v1.13.1-EXECUTION-PLAN.md` "WAVE 2 (CRITICAL -- the Brain MCP architectural shift; architectural unlock)" block (wave-2 architectural anchor; ships v1.13.1-beta.1; deduplicated 2026-05-16 per ultrareview bug_001 + bug_019)
 
