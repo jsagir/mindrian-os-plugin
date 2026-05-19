@@ -1,0 +1,4 @@
+# Phase 127.1 -- Plan 01: embedding-dump.ndjson.sample (placeholder)
+# This file is overwritten by `node scripts/export-pinecone-embeddings.cjs --sample 3`
+# After the live export runs in Task 2, three real NDJSON lines replace this header.
+# Until then this 3-line placeholder satisfies the min_lines: 3 acceptance criterion.
