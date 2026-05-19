@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 120-breakthrough-scan-category-g-03-PLAN.md
-last_updated: "2026-05-17T12:59:58.811Z"
+stopped_at: Phase 121 context refreshed (12 decisions captured)
+last_updated: "2026-05-19T06:06:42.690Z"
 last_activity: 2026-05-17
 progress:
   total_phases: 60
@@ -940,6 +940,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-17T12:50:56.060Z
-Stopped at: Completed 120-breakthrough-scan-category-g-03-PLAN.md
-Resume file: None
+Last session: 2026-05-19T06:06:42.632Z
+Stopped at: Phase 121 context refreshed (12 decisions captured)
+Resume file: .planning/phases/121-trajectory-telemetry/121-CONTEXT.md
