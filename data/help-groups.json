@@ -132,7 +132,7 @@
       "id": "infrastructure",
       "label": "Infrastructure",
       "glyph": "⚙",
-      "commands": ["setup", "update", "doctor", "build-knowledge"]
+      "commands": ["setup", "update", "doctor", "build-knowledge", "dogfood-flush"]
     }
   ],
   "deprecated_aliases": {
