@@ -16,6 +16,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+export REPO_ROOT  # so bash -c subshells see it
 cd "$REPO_ROOT"
 
 PASS=0
@@ -69,13 +70,23 @@ run "T3-class-flag-invariant-exit-0" '
   test "$EC" -eq 0
 '
 
-# T4: Tier-0 path (no key) -- L1 ok, L2 fail, L3-L5 skipped
+# T4: Tier-0 path (L1 OK via MINDRIAN_OS_ROOT, L2 FAIL because no key,
+# L3-L5 cascade to skipped). MINDRIAN_OS_ROOT is the resolver's first
+# precedence (env var) so L1 finds the plugin root cleanly even under
+# hermetic HOME without a real install.
 run "T4-tier-0-no-key-cascade" '
   TMPDIR=$(mktemp -d -t 127-02-T4-XXXXXX)
-  HOME="$TMPDIR" env -u MINDRIAN_BRAIN_KEY node scripts/doctor.cjs --brain-smoke --json > "$TMPDIR/out.json" 2>/dev/null
+  HOME="$TMPDIR" \
+    MINDRIAN_OS_ROOT="$REPO_ROOT" \
+    env -u MINDRIAN_BRAIN_KEY node scripts/doctor.cjs --brain-smoke --json > "$TMPDIR/out.json" 2>/dev/null
   node -e "
     const j = JSON.parse(require(\"fs\").readFileSync(\"$TMPDIR/out.json\", \"utf8\"));
-    if (j.layers[1].ok !== false) { console.error(\"L2 ok should be false\"); process.exit(21); }
+    if (j.layers[0].ok !== true) { console.error(\"L1 should be true (via MINDRIAN_OS_ROOT); got: \" + j.layers[0].reason); process.exit(20); }
+    if (j.layers[1].ok !== false) { console.error(\"L2 ok should be false (no key)\"); process.exit(21); }
+    if (j.layers[2].ok !== false || j.layers[2].reason !== \"skipped-prior-layer-failed\") {
+      console.error(\"L3 should be skipped; got ok=\" + j.layers[2].ok + \", reason=\" + j.layers[2].reason);
+      process.exit(22);
+    }
     if (j.layers[3].ok !== false || j.layers[3].reason !== \"skipped-prior-layer-failed\") {
       console.error(\"L4 should be skipped; got ok=\" + j.layers[3].ok + \", reason=\" + j.layers[3].reason);
       process.exit(23);

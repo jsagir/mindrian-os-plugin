@@ -1,8 +1,8 @@
 ---
 name: doctor
-description: Diagnose and optionally repair MindrianOS install — detects install-cache drift, .room-root sentinel gaps, active-room guard silence, surface-verification gaps, ROOM.md/MINTO.md drift, UI Ruling System compliance, and statusline visibility drift
+description: Diagnose and optionally repair MindrianOS install — detects install-cache drift, .room-root sentinel gaps, active-room guard silence, surface-verification gaps, ROOM.md/MINTO.md drift, UI Ruling System compliance, statusline visibility drift, and Brain end-to-end smoke
 help_jtbd: "Diagnose and optionally repair an off-feeling install."
-argument-hint: "[--fix] [--cascade-rooms] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--install-state] [--stale-first-touch] [--deprecated-usage] [--all] [--acceptance] [--pre-tag] [--light-npx] [--json]"
+argument-hint: "[--fix] [--cascade-rooms] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--all] [--acceptance] [--pre-tag] [--light-npx] [--json]"
 body_shape: E (Action Report)
 body_shape_detail: per-class status rows with [before → after] pattern, summary totals, F.1 Next Move selector when drift detected without --fix
 serves_jtbd: ["audit-room"]
@@ -45,6 +45,7 @@ Look at the user's invocation:
 - `/mos:doctor --statusline-visibility` → class G — checks user-settings drift, plugin install integrity, and statusline-mos isolated execution
 - `/mos:doctor --stale-first-touch` → class K (Phase 121.5-05; SEED-007 absorption) — scans `data/first-touch-surfaces.json`-declared greeting surfaces (banner, splash, onboard, sessionstart, operator-update, larry-extended) for stale version literals (older than the running plugin) and U+2014 em-dash violations on surfaces flagged `em_dash_check: true`
 - `/mos:doctor --deprecated-usage` → class L (Phase 121.5-08 Sub-plan J) — scans last-7-days `~/.claude/projects/.../*.jsonl` session transcripts for `/mos:<deprecated>` patterns (heal/query/organize/hmi-status/visualize/diagnostics) and surfaces a per-command "use `/mos:<new>` instead" hint. Pure LOCAL scan; zero network, zero Brain. Also activated by `--all`.
+- `/mos:doctor --brain-smoke` → class M (Phase 127-02 BRAIN-MCP-127-08): 5-layer Brain end-to-end probe (plugin root resolver, key resolver, HTTPS schema, MCP stdio handshake, e2e brain_schema via the bundled shim). Diagnostic-only; reports the exact failing layer with fail-fast cascade. Detects 12 Phase 126 failure-mode rows in one composable test (the doctor's single Brain smoke).
 - `/mos:doctor --fix` → diagnostic + auto-recovery for any class that supports --fix (class A, B, E, G)
 - `/mos:doctor --json` → machine-readable output (for hooks / regression tests)
 

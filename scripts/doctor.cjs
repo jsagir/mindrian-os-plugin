@@ -117,6 +117,12 @@ function parseArgs(argv) {
     // G statusline-visibility, H install-incomplete, I install-state,
     // J deployment-surfaces, K stale-first-touch-copy).
     deprecatedUsage: false,
+    // Phase 127-02 BRAIN-MCP-127-08: class M (Brain end-to-end smoke).
+    // 5-layer probe (plugin root resolver, key resolver, HTTPS schema probe,
+    // MCP stdio handshake, e2e brain_schema via the shim). Diagnostic-only;
+    // class-flag invariant applies (exit 0 even on FAIL). Letter M is the
+    // next free letter after L (CONTEXT D4 text reads "K" but K is taken).
+    brainSmoke: false,
     // Phase 123 Plan-04 (HARNESS-123-11 + HARNESS-123-12): release-gate-as-a-
     // command. --acceptance runs the 7-point checklist; --pre-tag filters to
     // the 5 pre-tag-applicable points; --light-npx skips the mktemp HOME
@@ -149,6 +155,7 @@ function parseArgs(argv) {
     else if (arg === '--install-state') flags.installState = true;
     else if (arg === '--stale-first-touch') flags.staleFirstTouch = true;
     else if (arg === '--deprecated-usage') flags.deprecatedUsage = true;
+    else if (arg === '--brain-smoke') flags.brainSmoke = true;
     else if (arg === '--acceptance') flags.acceptance = true;
     else if (arg === '--pre-tag') flags.preTag = true;
     else if (arg === '--pre-flight') flags.preFlight = true;
@@ -172,6 +179,7 @@ function parseArgs(argv) {
     flags.installState = true;
     flags.staleFirstTouch = true;
     flags.deprecatedUsage = true;
+    flags.brainSmoke = true;
   }
   // --pre-tag implies --acceptance (convenience; running --pre-tag standalone
   // is meaningless).
@@ -204,6 +212,9 @@ Class flags (combine freely; --all activates them all):
                            transcripts at ~/.claude/projects/.../*.jsonl for /mos:<deprecated>
                            patterns; surfaces a per-command "use /mos:<new> instead" hint.
                            Phase 121.5-08 Sub-plan J. LOCAL-only, zero network.)
+  --brain-smoke            class M (Brain end-to-end smoke: 5-layer probe -- plugin root,
+                           key resolver, HTTPS schema, MCP stdio handshake, e2e brain_schema.
+                           Diagnostic-only; reports the exact failing layer. Phase 127-02.)
   --all                    activate all class flags
 
 Release-gate runner (Phase 123 Plan-04 -- separate from class flags):
@@ -3103,6 +3114,29 @@ function main() {
     return;
   }
 
+  // Phase 127-02 BRAIN-MCP-127-08: --brain-smoke (class M) dispatch.
+  //
+  // The 5-layer probe is dispatched here BEFORE the class A-L flow so the
+  // output is the canonical { class:"M", ok, layers:[5], overall_ms } shape
+  // (consumed by tests/test-127-02-doctor-class-m.sh). When combined with
+  // --all, this branch still owns the output; the other class checks run
+  // under it via a parallel promise chain, but for the standalone case
+  // (which is the primary user surface) the doctor exits after Class M
+  // alone. Class-flag invariant applies: exit 0 even on FAIL.
+  if (flags.brainSmoke && !flags.cascadeRooms && !flags.verifySurface
+      && !flags.roomMd && !flags.uiCompliance && !flags.statuslineVisibility
+      && !flags.installState && !flags.staleFirstTouch && !flags.deprecatedUsage
+      && !flags.all) {
+    classMBrainSmoke(flags).then(function (code) {
+      process.exit(code);
+    }).catch(function (e) {
+      console.error('class-m smoke threw: ' + (e && e.message));
+      if (flags.json) console.log(JSON.stringify({ class: 'M', ok: false, error: e && e.message, layers: [], overall_ms: 0 }, null, 2));
+      // Class-flag invariant: exit 0 even on internal error.
+      process.exit(0);
+    });
+    return;
+  }
 
   const installResult = checkInstallVersion();
   const cacheResult = checkMarketplaceCache();
@@ -3114,7 +3148,8 @@ function main() {
   // hard exits, and warnings from new checks return 0 unless --fix-failed.
   const classFlagsActive = flags.cascadeRooms || flags.verifySurface
     || flags.roomMd || flags.uiCompliance || flags.statuslineVisibility
-    || flags.installState || flags.staleFirstTouch || flags.deprecatedUsage;
+    || flags.installState || flags.staleFirstTouch || flags.deprecatedUsage
+    || flags.brainSmoke;
 
   const report = {
     install: installResult,
@@ -3414,6 +3449,52 @@ function main() {
     }
   }
 
+  // Phase 127-02 BRAIN-MCP-127-08: Class M (Brain end-to-end smoke) under
+  // combined runs (e.g. --all). The standalone --brain-smoke path is handled
+  // earlier with its own canonical output shape; here we attach the result
+  // into report.checks['brain-smoke'] so --all sees all classes in one
+  // report. Async-to-sync bridge: run-and-finalize via promise chain.
+  if (flags.brainSmoke) {
+    const { checkBrainSmoke } = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'class-m-brain-smoke.cjs'));
+    checkBrainSmoke().then(function (result) {
+      report.checks['brain-smoke'] = Object.assign({ class: 'M' }, result);
+      _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult);
+    }).catch(function (err) {
+      report.checks['brain-smoke'] = { class: 'M', status: 'error', detail: err && err.message };
+      _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult);
+    });
+    return;
+  }
+
+  _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult);
+}
+
+// -- Class M dispatcher (Phase 127-02) ---------------------------------------
+//
+// Mirrors the Class I dispatcher shape (scripts/doctor.cjs Class I precedent).
+// Returns the process exit code; per the class-flag invariant (line 1447) this
+// is 0 even on probe FAIL. The standalone --brain-smoke caller awaits this and
+// exits with whatever this returns; the --all combined caller goes through
+// _finalizeAndExit instead.
+async function classMBrainSmoke(flags) {
+  const { checkBrainSmoke } = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'class-m-brain-smoke.cjs'));
+  const result = await checkBrainSmoke();
+  if (flags.json) {
+    console.log(JSON.stringify(Object.assign({ class: 'M' }, result), null, 2));
+  } else {
+    console.log('Class M -- Brain end-to-end smoke (5-layer probe)');
+    console.log('  Overall: ' + (result.ok ? 'PASS' : 'FAIL') + '  (' + result.overall_ms + 'ms)');
+    for (const layer of result.layers) {
+      const marker = layer.ok ? 'PASS' : 'FAIL';
+      console.log('    [' + marker + '] ' + layer.name + ' -- ' + layer.reason + ' (' + layer.ms + 'ms)');
+    }
+  }
+  // Class-flag invariant: exit 0 even on per-layer FAIL.
+  return 0;
+}
+
+// -- Output + exit finalizer (extracted Phase 127-02 to allow async injection)
+function _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult) {
   // Output
   if (flags.json) {
     console.log(JSON.stringify(report, null, 2));
