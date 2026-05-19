@@ -1,0 +1,3 @@
+{
+  "_comment": "Test fixture: clean install state -- no legacy mindrian-brain user-scope entry. The harness's mockClaude returns null for this fixture so planMigration takes the no_legacy_entry_present branch. Test data only; no real keys."
+}

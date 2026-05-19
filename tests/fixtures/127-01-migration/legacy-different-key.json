@@ -1,0 +1,11 @@
+{
+  "_comment": "Test fixture: the documented Wave-1 two-key case (legacy Bearer differs from current ~/.mindrian.env). The expected planMigration outcome is action=refuse with a one-line warning. Test data only; no real keys.",
+  "entry": {
+    "name": "mindrian-brain",
+    "scope": "user",
+    "type": "http",
+    "url": "https://example.invalid/mcp",
+    "headers": { "Authorization": "Bearer testfixturekey0001" }
+  },
+  "current_key": "testfixturekey0002"
+}

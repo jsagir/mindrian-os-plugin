@@ -1,0 +1,12 @@
+{
+  "_comment": "Test fixture: idempotency case. The harness seeds the migration log with the fingerprint of this entry, so the second planMigration call must return action=already_migrated. Test data only; no real keys.",
+  "entry": {
+    "name": "mindrian-brain",
+    "scope": "user",
+    "type": "http",
+    "url": "https://example.invalid/mcp",
+    "headers": { "Authorization": "Bearer testfixturekey0001" }
+  },
+  "current_key": "testfixturekey0001",
+  "prior_migration": true
+}

@@ -1,0 +1,11 @@
+{
+  "_comment": "Test fixture: legacy user-scope mindrian-brain entry with Bearer matching the current ~/.mindrian.env key. The expected planMigration outcome is action=remove. Test data only; no real keys.",
+  "entry": {
+    "name": "mindrian-brain",
+    "scope": "user",
+    "type": "http",
+    "url": "https://example.invalid/mcp",
+    "headers": { "Authorization": "Bearer testfixturekey0001" }
+  },
+  "current_key": "testfixturekey0001"
+}
