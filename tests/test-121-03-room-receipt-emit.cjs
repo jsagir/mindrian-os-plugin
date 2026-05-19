@@ -138,7 +138,10 @@ function freshRequireHelper() {
   try {
     const autoCreatePath = path.join(REPO, 'lib/core/room-auto-create.cjs');
     const src = fs.readFileSync(autoCreatePath, 'utf8');
-    assert.ok(/require\(['"]\.\/room-receipt-emit['"]\)/.test(src), 't3: room-auto-create.cjs requires room-receipt-emit module');
+    // Node.js does not auto-resolve .cjs extension via require -- the wire-in MUST use
+    // the explicit .cjs suffix. Mirrors the Plan 121-01 mva-telemetry shim convention
+    // (which the Plan 121-01 scaffold accepted either form for the same reason).
+    assert.ok(/require\(['"]\.\/room-receipt-emit(\.cjs)?['"]\)/.test(src), 't3: room-auto-create.cjs requires room-receipt-emit module');
     assert.ok(/emitReceiptWritten/.test(src), 't3: room-auto-create.cjs invokes emitReceiptWritten');
     assert.ok(/Phase 121-03 D-09/.test(src), 't3: room-auto-create.cjs carries Phase 121-03 D-09 comment marker');
     recordPass('t3: Phase 119 receipt-write surface wired (room-auto-create.cjs)');
