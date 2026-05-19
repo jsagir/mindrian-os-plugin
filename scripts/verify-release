@@ -162,23 +162,28 @@ else
 fi
 
 # Help command has ANSI color definitions
-if grep -q '\\033\[38;2;166;61;47m' "$PLUGIN_ROOT/commands/help.md" 2>/dev/null; then
-  pass "/mos:help has De Stijl ANSI color codes (red, blue, yellow, green, amethyst, teal)"
+# Note (2026-05-19): Phase 121.5-07 ("bulletproof ASCII /mos:help renderer") moved
+# the De Stijl ANSI palette from commands/help.md to scripts/help-renderer.cjs --
+# the markdown command file now delegates rendering to the renderer module. This
+# check follows the move.
+HELP_RENDERER="$PLUGIN_ROOT/scripts/help-renderer.cjs"
+if [ -f "$HELP_RENDERER" ] && grep -q '38;2;166;61;47' "$HELP_RENDERER" 2>/dev/null; then
+  pass "/mos:help has De Stijl ANSI color codes (red, blue, yellow, green, amethyst, teal) -- in scripts/help-renderer.cjs"
 else
-  fail "/mos:help missing ANSI color code definitions"
+  fail "/mos:help renderer missing ANSI color code definitions (looked in scripts/help-renderer.cjs)"
 fi
 
 # Help has all 6 color blocks defined
 HELP_COLORS=0
 for hex in "166;61;47" "30;58;110" "107;78;139" "200;164;60" "45;107;74" "42;107;94"; do
-  if grep -q "$hex" "$PLUGIN_ROOT/commands/help.md" 2>/dev/null; then
+  if grep -q "$hex" "$HELP_RENDERER" 2>/dev/null; then
     HELP_COLORS=$((HELP_COLORS + 1))
   fi
 done
 if [ "$HELP_COLORS" -eq 6 ]; then
-  pass "/mos:help defines all 6 De Stijl color categories"
+  pass "/mos:help defines all 6 De Stijl color categories (in scripts/help-renderer.cjs)"
 else
-  fail "/mos:help only has $HELP_COLORS/6 color definitions"
+  fail "/mos:help only has $HELP_COLORS/6 color definitions (looked in scripts/help-renderer.cjs)"
 fi
 
 # visual-ops.cjs exists (dependency for status line)
