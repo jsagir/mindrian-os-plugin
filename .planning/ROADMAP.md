@@ -1425,14 +1425,14 @@ Notable rename: CONTEXT "Class K" -> "Class M" because K is taken by `--stale-fi
 
 **Brain impact:** SERVER-SIDE SUBSTRATE SWAP (removes Pinecone client + API key from `mindrian-brain` Render env vars; adds Neo4j vector index + load script; tool surface `brain_search_semantic` + 14 Cypher patterns unchanged at API boundary)
 
-**Plans:** 1/5 plans executed
+**Plans:** 2/5 plans executed
 
 **Authority:** `.planning/phases/127.1-brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap/127.1-CONTEXT.md` (scoped 2026-05-16 from this conversation) + `.planning/research/navigation-engine-brain-interface.md` Section 3.2 (Pattern B audit confirming Pinecone is not load-bearing) + `.planning/v1.13.1-EXECUTION-PLAN.md` "WAVE 2" block (wave-2 v1.13.1-beta.1 anchor; this rides at beta.2 between 127 and 128)
 
 Plans:
 - [x] 127.1-00-PLAN.md (Wave 0) -- Scaffold 4 Validation Architecture surfaces: 3 harness .test.cjs files + 20-query corpus JSON + run-all-127.sh aggregator extension + Feynman runner registration (covers 127.1-01..05)
 - [ ] 127.1-01-PLAN.md (Wave 1, parallel) -- Pinecone export script + 1,427-vector byte-identical NDJSON dump + SHA256 manifest fixture; Surface 1 GREEN; mcp-server-brain/CLAUDE.md operator note (covers 127.1-06..08)
-- [ ] 127.1-02-PLAN.md (Wave 1, parallel) -- Neo4j vector-index DDL (mindrian_methodology_vec, dim=1024, cosine) + loader script + brain-vector-search.cjs server-side library + Surface 2 GREEN + round-trip integrity verification (covers 127.1-09..12)
+- [x] 127.1-02-PLAN.md (Wave 1, parallel) -- Neo4j vector-index DDL (mindrian_methodology_vec, dim=1024, cosine) + loader script + brain-vector-search.cjs server-side library + Surface 2 GREEN + round-trip integrity verification (covers 127.1-09..12)
 - [ ] 127.1-03-PLAN.md (Wave 2, CUTOVER, has checkpoint) -- Surface 3 BLOCKING harness GREEN (top-5 overlap >= 0.80) gates the server-side router flip from Pinecone to Neo4j HNSW; USE_NEO4J_VECTOR feature flag; shadow-mode divergence log; Pinecone fallback retained for one beta cycle per RESEARCH X2 (covers 127.1-13..17)
 - [ ] 127.1-04-PLAN.md (Wave 3, CLEANUP, has checkpoint) -- Divergence-log review + Pinecone vector-storage removal + Render env-var cleanup + server-facing doc strip + 7 gsd-debugger failure modes closed (covers 127.1-18..22)
 
