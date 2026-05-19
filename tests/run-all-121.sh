@@ -16,6 +16,9 @@ SHELL_SUITES=(
   test-121-01-scaffold.sh
   test-121-02-scaffold.sh
   test-121-03-scaffold.sh
+  test-121-04-scaffold.sh
+  test-121-04-canon-part-8-audit.sh
+  test-121-04-silent-observability.sh
 )
 CJS_SUITES=(
   ../lib/core/telemetry/schema.test.cjs
