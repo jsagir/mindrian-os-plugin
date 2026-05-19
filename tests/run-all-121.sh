@@ -13,11 +13,13 @@ START_TIME=$(date +%s)
 
 SHELL_SUITES=(
   test-121-00-scaffold.sh
+  test-121-01-scaffold.sh
 )
 CJS_SUITES=(
   ../lib/core/telemetry/schema.test.cjs
   ../lib/core/telemetry/validator.test.cjs
   ../lib/core/telemetry/writer.test.cjs
+  ../scripts/migrate-telemetry-v1.test.cjs
 )
 
 TOTAL=0

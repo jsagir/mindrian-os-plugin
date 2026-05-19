@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Phase 121-01: repointed from per-event JSONL files to unified events-YYYY-WNN.jsonl stream.
 /*
  * Copyright (c) 2026 Mindrian. BSL 1.1.
  *
@@ -16,8 +17,18 @@
  *
  * Pure CJS; node built-ins only; zero new dependencies.
  *
- * Per Canon Part 8: input is LOCAL JSONL (~/.mindrian/telemetry/v1.13/*.jsonl);
- * output is LOCAL markdown (docs/empathy-audit/); zero network surface.
+ * Per Canon Part 8: input is LOCAL JSONL (the unified events-YYYY-WNN.jsonl
+ * stream produced by lib/core/telemetry/writer.cjs); output is LOCAL
+ * markdown (docs/empathy-audit/); zero network surface.
+ *
+ * Phase 121-01 read-path repoint: previously read every *.jsonl under the
+ * telemetry/v1.13/ directory and filtered by an event_type field (the
+ * legacy schema). After Plan 121-01 the unified stream is the single
+ * source-of-truth; this harness now globs events-YYYY-WNN.jsonl
+ * (regex-anchored filename match) and filters by the canonical 'event'
+ * field. Legacy mva.jsonl is retained as a parallel dual-write surface
+ * during the migration window but is NOT read here -- the unified stream
+ * is authoritative.
  */
 'use strict';
 
@@ -29,11 +40,20 @@ const TELEMETRY_DIR = process.env.MINDRIAN_TELEMETRY_OVERRIDE
   ? String(process.env.MINDRIAN_TELEMETRY_OVERRIDE)
   : path.join(os.homedir(), '.mindrian', 'telemetry', 'v1.13');
 const OUTPUT_PATH = path.join(__dirname, '..', 'docs', 'empathy-audit', 'auto-explore-117-rescore.md');
+// Phase 121-01: relevant events list expanded to cover both the legacy
+// auto_explore_* event_type taxonomy (where present in older shards) AND
+// the unified Phase 121 event types that Plan 121-02/121-03 will feed.
 const RELEVANT_EVENTS = new Set([
+  // Legacy auto-explore taxonomy (matched against event_type OR event):
   'auto_explore_fired',
   'auto_explore_finding_surfaced',
   'auto_explore_user_response',
   'auto_explore_skipped',
+  // Phase 121 unified event names (matched against event):
+  'auto_explore_decision',
+  'selector_pick',
+  'mva_option_selected',
+  'breakthrough_dismissed',
 ]);
 
 function parseArgs() {
@@ -45,11 +65,17 @@ function parseArgs() {
   return out;
 }
 
-function readJsonlEvents() {
+// Phase 121-01: glob events-YYYY-WNN.jsonl filenames specifically. The
+// regex anchors the match so unrelated *.jsonl shards (legacy
+// per-event-type files like mva.jsonl, selector.jsonl) do not bleed in;
+// the unified stream is the sole input.
+function readUnifiedStreamEvents() {
   if (!fs.existsSync(TELEMETRY_DIR)) return [];
   let files;
   try {
-    files = fs.readdirSync(TELEMETRY_DIR).filter(function(n) { return n.endsWith('.jsonl'); });
+    files = fs.readdirSync(TELEMETRY_DIR).filter(function(n) {
+      return /^events-\d{4}-W\d{2}\.jsonl$/.test(n);
+    });
   } catch (_e) {
     return [];
   }
@@ -62,13 +88,22 @@ function readJsonlEvents() {
       for (const line of lines) {
         try {
           const evt = JSON.parse(line);
-          if (RELEVANT_EVENTS.has(evt.event_type)) events.push(evt);
+          // Honor both the legacy event_type field and the unified event field.
+          const tag = evt.event || evt.event_type;
+          if (tag && RELEVANT_EVENTS.has(tag)) {
+            if (!evt.event_type) evt.event_type = tag; // back-compat for downstream consumers below
+            events.push(evt);
+          }
         } catch (_e) { /* skip corrupt */ }
       }
     } catch (_e) { /* skip unreadable */ }
   }
   return events;
 }
+
+// Backwards-compatible alias for any external invocation that may reach
+// in via require(). Internal callers below use readUnifiedStreamEvents.
+function readJsonlEvents() { return readUnifiedStreamEvents(); }
 
 function computeVariableReward(events) {
   const fired = events.filter(function(e) { return e.event_type === 'auto_explore_fired'; }).length;
@@ -172,7 +207,7 @@ function renderReport(metrics, since) {
 
 function main() {
   const args = parseArgs();
-  const events = readJsonlEvents();
+  const events = readUnifiedStreamEvents();
   const metrics = computeVariableReward(events);
   const report = renderReport(metrics, args.since);
   try {
