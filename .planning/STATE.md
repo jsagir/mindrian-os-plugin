@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 127-02-PLAN.md (Class M Brain smoke + Tier-0 chokepoint)
-last_updated: "2026-05-19T20:27:27.387Z"
-last_activity: 2026-05-19 -- Phase 127.1 execution started
+stopped_at: Completed 127.1-00-PLAN.md (Wave 0 harness scaffold)
+last_updated: "2026-05-19T20:40:47.441Z"
+last_activity: 2026-05-19
 progress:
   total_phases: 60
   completed_phases: 44
   total_plans: 312
-  completed_plans: 299
+  completed_plans: 300
   percent: 93
 ---
 
@@ -28,8 +28,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 127.1 (brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 1 of 5
-Status: Executing Phase 127.1
+Plan: 2 of 5
+Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
 
@@ -160,7 +160,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-19 -- Phase 127.1 execution started
+Last activity: 2026-05-19
 
 Progress: [█████████░] 93%
 
@@ -363,6 +363,7 @@ Progress: [█████████░] 93%
 | Phase 127 P00 | 10 | 3 tasks | 6 files |
 | Phase 127 P01 | 7min | 3 tasks | 9 files |
 | Phase 127 P02 | 17min | 3 tasks | 8 files |
+| Phase 127.1 P00 | 6min | 2 tasks | 6 files |
 
 ### Roadmap Evolution
 
@@ -934,6 +935,8 @@ Progress: [█████████░] 93%
 - [Phase 127]: [Phase 127-02]: Class M (not K -- K is taken by --stale-first-touch); 5-layer fail-fast cascade detects 12 Phase 126 failure modes in one composable test; CAPABILITY-MAP.md K-to-M doc patch lands in 127-03
 - [Phase 127]: [Phase 127-02]: Tier-0 messaging chokepoint at lib/core/tier0-messaging.cjs (109 LOC); shim's tier0Response is now a one-line passthrough; plan 127-00 shim tests (6/6) PASS verbatim after refactor (non-breaking)
 - [Phase 127]: [Phase 127-02]: Doctor async-class precedent via _finalizeAndExit refactor: classes A-L stay synchronous; Class M's async I/O attaches into report.checks['brain-smoke'] and re-enters the canonical output+exit finalizer; future async classes follow this pattern
+- [Phase 127.1]: Wave 0 NYQUIST scaffold: 4 Validation Architecture surfaces have grep-able harness contracts on disk RED-by-design before any migration code lands; Surface 3 hardcodes the 0.80 top-5 overlap BLOCKING cutover gate
+- [Phase 127.1]: Fixture-mode-by-default + per-suite consumer-plan attribution: each RED message names the exact plan (127.1-01, -02, -03) producing its fixture, structurally preventing silent-green tests-reference-nonexistent-fixture failure
 
 ### Pending Todos
 
@@ -965,6 +968,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-19T19:19:17.690Z
-Stopped at: Completed 127-02-PLAN.md (Class M Brain smoke + Tier-0 chokepoint)
+Last session: 2026-05-19T20:40:47.407Z
+Stopped at: Completed 127.1-00-PLAN.md (Wave 0 harness scaffold)
 Resume file: None
