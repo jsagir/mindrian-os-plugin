@@ -6,8 +6,8 @@ priority: P0 -- closes the largest cluster of Brain wiring failures (7 of 20 tax
 created: 2026-05-14
 updated: 2026-05-19 (promoted back into v1.13.0 -- see version_decision)
 milestone: v1.13.0
-beta_target: 1.13.0-beta.19
-milestone_predecessor: v1.13.0-beta.18 (the bundle of Phases 118 + 119 + 120 + 121 + 121.5 fix) -- this phase rides immediately after
+beta_target: 1.13.0-beta.20
+milestone_predecessor: v1.13.0-beta.19 (the bundle of Phases 118 + 119 + 120 + 121 + 121.5 fix + promotion bookkeeping; release.sh resolved "beta.18 placeholder" to beta.19 via Commit B state) -- this phase rides immediately after
 version_decision: |
   - 2026-05-14: Jonathan promoted Phase 127 from v1.13.0-beta.14 to v1.13.1. Rationale at the time: the architectural shift was too big for a beta within the closing milestone.
   - 2026-05-19 (REVERSED): Jonathan promoted Phase 127 + Phase 127.1 BACK into v1.13.0. Rationale: v1.13.0 redefined from "The Closed Loop" (Hooked Fixes + Canon Part 10) to "The Closed Loop + Brain Goes Native". The bigger release narrative is worth the ~2-week ship-date slip; v1.13.0 becomes the version where MindrianOS auth ceremony disappears and Brain feels native. v1.13.1 milestone keeps Phases 128/129/130/131 but loses its architectural anchor; v1.13.1 is now "spine repair + lens engine + research workflow" not "Brain native".
@@ -125,13 +125,25 @@ This makes the shim auto-loaded by Claude Code on every session for every surfac
 
 For existing testers (Lawrence, Gary, and anyone who followed the corrected `claude mcp add` path), their user-scope Claude Code registry contains an HTTP-transport `mindrian-brain` entry pointing at the Render URL with a Bearer header. After beta.14 ships, two `mindrian-brain` servers would exist: the legacy user-scope HTTP one, and the new plugin-bundled stdio one. Claude Code's MCP resolver behavior with duplicate names is unpredictable.
 
-Migration script: `scripts/migrate-brain-mcp-from-http-to-stdio.cjs`. Runs as part of session-start hook (or sessionstart-npm-reconcile cascade) on beta.14 first-launch. Logic:
+Migration script: `scripts/migrate-brain-mcp-from-http-to-stdio.cjs`. Runs as part of session-start hook (or sessionstart-npm-reconcile cascade) on beta.20 first-launch. Logic:
 
 1. Run `claude mcp get mindrian-brain` (or read the user-scope MCP registry directly if Claude Code exposes a file path).
 2. If a user-scope HTTP-transport entry exists AND its URL is the canonical Render endpoint AND the API key matches `MINDRIAN_BRAIN_KEY`: remove it via `claude mcp remove mindrian-brain --scope user`.
 3. Plugin-bundled stdio entry then resolves cleanly on next tool call.
 4. Log the migration to `~/.mindrian/migrations.jsonl` so a re-run is a no-op.
 5. If the user-scope entry has a DIFFERENT key from `~/.mindrian.env` (Lawrence's case has two keys -- 4131ed5b and 107a31b4), DO NOT auto-migrate; surface a one-line warning telling the user to rotate keys.
+
+### Deliverable 3 SAFETY GUARDS (added 2026-05-19 from Tavily research validation A127.3)
+
+Anthropic GitHub Issue #15797 (Nov 2025) documents a near-miss where an agent attempted to overwrite `~/.claude.json`, which would have lost 919 bytes of critical state (auth tokens, usage history, project settings). Auto-migration is the **highest-risk single surface in Phase 127** because there is no documented precedent for plugin-driven mutation of user-scope MCP entries. Four mandatory safety guards:
+
+**SG-1 (HARD INVARIANT):** the migration script MUST NEVER write to `~/.claude.json` directly, under any code path. All scope-user mutations route through the supported `claude mcp <add|remove> --scope user` CLI command. Acceptance gate #3 must include a byte-equality check that `~/.claude.json` is unchanged outside the targeted `mcpServers.mindrian-brain` entry (sha256 diff scoped to that JSON path).
+
+**SG-2 (pre-migration snapshot):** before any `claude mcp remove --scope user mindrian-brain` call, snapshot the entire user-scope `mcpServers.mindrian-brain` entry to `~/.mindrian/pre-migration-snapshots/<ISO-timestamp>.json` for manual restore. Snapshot is content-only, no PII beyond what the user-scope MCP entry already contains.
+
+**SG-3 (dry-run mode):** `scripts/migrate-brain-mcp-from-http-to-stdio.cjs --dry-run` prints what WOULD be removed without making any state changes. Used during synthetic-install acceptance tests AND as a Tier-1-tester safety net before any live migration.
+
+**SG-4 (idempotency log):** the `~/.mindrian/migrations.jsonl` append entry MUST include source-name-prefixed sha256 fingerprint of the removed entry's `command + args + env` (NOT the full bytes -- just the fingerprint) so a re-run of the migration script becomes a deterministic no-op. Acceptance gate: run migration twice in a row, second run logs `already_migrated` and exits 0 without invoking the CLI.
 
 ### Deliverable 4: Doctor Class K (Brain end-to-end smoke)
 

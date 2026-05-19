@@ -111,9 +111,9 @@ Banana-ripener names (reject these):
 **Beta progression (UPDATED 2026-05-19):**
 - v1.13.0-beta.1 SHIPPED 2026-05-05 (Phase 108 + 109 substrate, plugin commit afcea5f, marketplace a37b073)
 - v1.13.0-beta.2..beta.17 SHIPPED 2026-05-06..2026-05-16 (running progression -- 88.2 / 89-07 / 110 / 114 / 115 / 116 / 117 / 121.5 / 122 / 123 / 125 / 126 / 126.1 / 118 / 121.5-08 / 124)
-- v1.13.0-beta.18 IN PROGRESS 2026-05-17..2026-05-19 -- bundle of Phases 120 (Breakthrough Scan Category G) + 121 (Trajectory Telemetry) + 121.5 re-verify fix + promotion bookkeeping for 127/127.1
-- v1.13.0-beta.19 NEXT (2026-05-19+) -- Phase 127 Brain MCP Local Stdio Shim [PROMOTED FROM v1.13.1-beta.1]
-- v1.13.0-beta.20 AFTER -- Phase 127.1 Brain GraphRAG Collapse Pinecone -> Neo4j HNSW [PROMOTED FROM v1.13.1-beta.2]
+- v1.13.0-beta.19 CUTTING 2026-05-19 -- bundle of Phases 120 (Breakthrough Scan Category G) + 121 (Trajectory Telemetry) + 121.5 re-verify fix + promotion bookkeeping for 127/127.1 (release.sh resolved the "beta.18" placeholder via Commit B state)
+- v1.13.0-beta.20 NEXT -- Phase 127 Brain MCP Local Stdio Shim [PROMOTED FROM v1.13.1-beta.1; ~3-5 days; CONTEXT.md design-locked + Tavily-validated 2026-05-19]
+- v1.13.0-beta.21 AFTER -- Phase 127.1 Brain GraphRAG Collapse Pinecone -> Neo4j HNSW [PROMOTED FROM v1.13.1-beta.2; ~3-5 days; 20-query non-regression harness >= 80% top-5 overlap gates cutover]
 - v1.13.0 FINAL "Closed Loop + Brain Native" -- ships after both 127 + 127.1 land + non-regression harness validates (>= 80% top-5 overlap)
 
 **beta.1.5 housekeeping interlude (Path C 2026-05-05):**
