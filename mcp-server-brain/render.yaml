@@ -18,6 +18,14 @@ services:
         sync: false
       - key: PINECONE_INDEX
         value: pws-brain
+      # Phase 127.1 Plan 03: server-side query-embedding (e5-large hosted
+      # inference). Pinecone embedded query text via integrated inference;
+      # Neo4j has none, so the rewired brain_search path embeds query text
+      # itself via lib/query-embedder.cjs. Both are operator-provisioned.
+      - key: EMBEDDING_API_URL
+        sync: false
+      - key: EMBEDDING_API_KEY
+        sync: false
       - key: BRAIN_API_KEYS
         sync: false
       - key: SUPABASE_URL
