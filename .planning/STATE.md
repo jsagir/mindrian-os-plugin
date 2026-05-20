@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 128.1-01-PLAN.md
-last_updated: "2026-05-20T13:25:42.714Z"
+stopped_at: Completed 128.1-03a-PLAN.md
+last_updated: "2026-05-20T14:50:34.806Z"
 last_activity: 2026-05-20
 progress:
   total_phases: 66
   completed_phases: 44
   total_plans: 319
-  completed_plans: 303
+  completed_plans: 305
   percent: 93
 ---
 
@@ -28,27 +28,27 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 128.1 (session-isolation-session-scoped-active-room-binding) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 2 of 6
+Plan: 4 of 6
 Status: Ready to execute
 
-**Plan 127.1-05 checkpoint-paused position (2026-05-20):**
+**Plan 127.1-05 COMPLETE (2026-05-20):**
 
-Plan 127.1-05 (Brain-query moat guard) is SOAK-INDEPENDENT (depends_on: [], wave 1).
-Tasks 1 and 2 are shipped and committed atomically; Task 3 is a blocking
-checkpoint:human-verify awaiting operator action on the Neo4j Aura console.
+Plan 127.1-05 (Brain-query moat guard) is DONE. It was SOAK-INDEPENDENT
+(depends_on: [], wave 1) and shipped standalone in v1.13.0-beta.21.
 
 - Task 1 (D-MOAT-1, brain_query admin gate) -- DONE, commit 0d1416a6
 - Task 2 (D-MOAT-2, Cypher execution safeguards) -- DONE, commit dd0d3ef7
-- Task 3 (D-MOAT-4 then D-MOAT-3, Aura-tier check + scoped neo4j_reader
-  credential) -- BLOCKED on operator. Needs: (1) the confirmed Aura tier of
-  5b8df33f.databases.neo4j.io read from https://console.neo4j.io/, (2) a
-  neo4j_reader credential created (Fork A scoped role on Professional+, Fork B
-  built-in reader role on Aura Free), (3) the resume signal with tier + fork +
-  username + password (+ denied property names for Fork A).
+- Task 3 (D-MOAT-4 then D-MOAT-3) -- RESOLVED. D-MOAT-4: the Aura tier of
+  5b8df33f.databases.neo4j.io was confirmed as Aura Free. D-MOAT-3 (scoped
+  neo4j_reader credential): NOT achievable on Aura Free -- Free has no RBAC
+  (no custom roles, no additional users, no property-level DENY) -- so it is
+  DEFERRED, pending the Brain's Neo4j on Aura Professional OR a
+  parameterized-query surface as a future phase. No NEO4J_READER_* env vars
+  were added (no credential exists to point them at).
 
-No SUMMARY.md yet (plan incomplete). No server.cjs / brain-ask.cjs touched.
-Resume by spawning a continuation executor for 127.1-05 Task 3 once the
-operator replies with the resume signal and types "approved".
+SUMMARY at 127.1-05-SUMMARY.md. No server.cjs / brain-ask.cjs touched.
+CLAUDE.md carries the "Brain-query moat guard" section. 127.1-05-PLAN.md is
+flipped to [x] in ROADMAP.md.
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
 
@@ -388,6 +388,8 @@ Progress: [█████████░] 93%
 | Phase 127.1 P02 | 22min | 2 tasks | 6 files |
 | Phase 127.1 P03 | 5min | 2 tasks | 7 files |
 | Phase 128.1 P01 | 18min | 3 tasks | 6 files |
+| Phase 128.1 P02 | 14min | 2 tasks | 3 files |
+| Phase 128.1 P03a | 18min | 3 tasks | 6 files |
 
 ### Roadmap Evolution
 
@@ -972,6 +974,9 @@ Progress: [█████████░] 93%
 - [Phase 127.1]: brain_search MCP schema restored to a query string (text-in API boundary); the e5-large embedding step is internal via lib/query-embedder.cjs
 - [Phase 128.1]: 128.1-01: caller inventory verified -- the 7 active_room readers are Bucket NONE (non-existent key, never the racing reg.active string); Plan 03 scope split into 03a (6-file re-key+writers) and 03b (21-file readers)
 - [Phase 128.1]: 128.1-01: Wave-0 RED scaffolds shipped (session-binding.test.cjs + test-session-isolation-race.cjs) + hermetic v2 fixture; VALIDATION.md verified, wave_0_complete true
+- [Phase 128.1]: session-binding.cjs ships the one canonical D-05 resolver + pure v2->v3 migration + mkdirSync directory-lockfile + per-session-side-file tripwire; the keystone module Plans 03a/03b repoint onto
+- [Phase 128.1]: the tripwire expected-binding record lives in a per-session side file (~/.mindrian/session-binding/<sha16>.json) not an in-sessions-entry field -- hooks are separate processes so in-memory state does not survive a PreToolUse->PostToolUse boundary
+- [Phase 128.1]: Plan 03a re-keyed resolve-room + room-registry onto the session-scoped binding; every active-field writer is now lockfile-guarded; context-monitor routed through the one canonical session-id resolver (D-05); Desktop/Cowork proven no-change by automated check
 
 ### Pending Todos
 
@@ -1003,6 +1008,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-20T13:25:34.500Z
-Stopped at: Completed 128.1-01-PLAN.md
+Last session: 2026-05-20T14:50:28.068Z
+Stopped at: Completed 128.1-03a-PLAN.md
 Resume file: None

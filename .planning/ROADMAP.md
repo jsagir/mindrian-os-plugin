@@ -1435,6 +1435,7 @@ Plans:
 - [x] 127.1-02-PLAN.md (Wave 1, parallel) -- Neo4j vector-index DDL (mindrian_methodology_vec, dim=1024, cosine) + loader script + brain-vector-search.cjs server-side library + Surface 2 GREEN + round-trip integrity verification (covers 127.1-09..12)
 - [x] 127.1-03-PLAN.md (Wave 2, CUTOVER, has checkpoint) -- Surface 3 BLOCKING harness GREEN (top-5 overlap >= 0.80) gates the server-side router flip from Pinecone to Neo4j HNSW; USE_NEO4J_VECTOR feature flag; shadow-mode divergence log; Pinecone fallback retained for one beta cycle per RESEARCH X2 (covers 127.1-13..17)
 - [ ] 127.1-04-PLAN.md (Wave 3, CLEANUP, has checkpoint) -- Divergence-log review + Pinecone vector-storage removal + Render env-var cleanup + server-facing doc strip + 7 gsd-debugger failure modes closed (covers 127.1-18..22)
+- [x] 127.1-05-PLAN.md (Wave 1, SOAK-INDEPENDENT, scope addition 2026-05-20) -- Brain-query moat guard: D-MOAT-1 brain_query admin gate + D-MOAT-2 Cypher execution safeguards (EXPLAIN estimated-row reject / row cap / byte cap / read timeout), both SHIPPED v1.13.0-beta.21; D-MOAT-4 Aura tier confirmed (Aura Free); D-MOAT-3 scoped neo4j_reader credential DEFERRED (Aura Free has no RBAC -- needs Aura Professional or a parameterized-query surface) (covers GRAPHRAG-COLLAPSE-127.1-23..27)
 
 ---
 
@@ -1465,12 +1466,12 @@ Plans:
 **Goal:** Make concurrent Claude sessions on different rooms stop colliding on the room registry's single global `active` field. Re-key the active-room binding to be session-scoped (keyed by Claude Code session id inside the same `registry.json`, `version` 2 -> 3, legacy `active` retained as a mirror), reconcile the 3 session-id mechanisms into one canonical resolver, repoint both caller classes, guard registry mutation with a lockfile, migrate legacy installs with zero breakage, and ship a warn-once non-blocking tripwire (F.0 acknowledge gate) when a session detects its binding changed underneath it.
 **Requirements**: SESSION-ISO-128.1-01 through SESSION-ISO-128.1-11
 **Depends on:** Phase 128
-**Plans:** 1/6 plans executed
+**Plans:** 3/6 plans executed
 
 Plans:
 - [x] 128.1-01-PLAN.md -- Wave 1: caller-inventory grep sweep + RED test scaffolds + VALIDATION.md verify (SESSION-ISO-128.1-05, 11)
-- [ ] 128.1-02-PLAN.md -- Wave 2: session-binding.cjs canonical resolver + v2->v3 migration + mkdirSync lockfile + tripwire detection (SESSION-ISO-128.1-01, 02, 03, 06, 07)
-- [ ] 128.1-03a-PLAN.md -- Wave 3: re-key resolve-room + room-registry + CJS active writers + context-monitor canonical resolver + Desktop/Cowork check (SESSION-ISO-128.1-04, 06, 09)
+- [x] 128.1-02-PLAN.md -- Wave 2: session-binding.cjs canonical resolver + v2->v3 migration + mkdirSync lockfile + tripwire detection (SESSION-ISO-128.1-01, 02, 03, 06, 07)
+- [x] 128.1-03a-PLAN.md -- Wave 3: re-key resolve-room + room-registry + CJS active writers + context-monitor canonical resolver + Desktop/Cowork check (SESSION-ISO-128.1-04, 06, 09)
 - [ ] 128.1-03b-PLAN.md -- Wave 4: repoint every Class B reader through session-binding.resolveActiveRoom (SESSION-ISO-128.1-05)
 - [ ] 128.1-05-PLAN.md -- Wave 4: tripwire F.0 warn-once surface + session_binding_drift event + concurrent-race regression test (SESSION-ISO-128.1-08, 11)
 - [ ] 128.1-06-PLAN.md -- Wave 5: Canon Part 1 amendment (v1.5) + aggregator + Feynman-runner registration + REQUIREMENTS.md back-registration (SESSION-ISO-128.1-10)
