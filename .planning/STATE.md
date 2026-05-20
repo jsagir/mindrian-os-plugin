@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
-status: executing
-stopped_at: "Paused at 127.1-05-PLAN.md Task 3 checkpoint:human-verify (Aura-tier confirmation + scoped neo4j_reader credential)"
-last_updated: "2026-05-20T10:24:22.654Z"
-last_activity: "2026-05-20 -- Phase 127.1 Plan 05 Tasks 1+2 shipped (D-MOAT-1 admin gate + D-MOAT-2 safeguards); paused at Task 3 checkpoint"
+status: paused
+stopped_at: Phase 128.1 context gathered
+last_updated: "2026-05-20T11:12:06.963Z"
+last_activity: 2026-05-20 -- Phase 127.1 execution started
 progress:
-  total_phases: 60
+  total_phases: 66
   completed_phases: 44
   total_plans: 313
-  completed_plans: 303
+  completed_plans: 302
   percent: 93
 ---
 
@@ -1000,6 +1000,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-20T09:09:48.289Z
-Stopped at: Completed 127.1-03-PLAN.md
-Resume file: None
+Last session: 2026-05-20T11:12:06.922Z
+Stopped at: Phase 128.1 context gathered
+Resume file: .planning/phases/128.1-session-isolation-session-scoped-active-room-binding/128.1-CONTEXT.md
