@@ -969,6 +969,7 @@ Progress: [█████████░] 93%
 - [Phase 127.1]: 127.1-02: a 1-of-12,401 NDJSON record carried a -0/+0 negative-zero byte variance vs live Pinecone (127.1-01 export defect); repaired the single Neo4j node from the authoritative Pinecone vector rather than accept the drift
 - [Phase 127.1]: Server-side query-embedder uses strategy A (hosted multilingual-e5-large HTTPS endpoint via Node 18 global fetch); zero new runtime dependency, transport swappable for a future ONNX-local path B
 - [Phase 127.1]: brain_search MCP schema restored to a query string (text-in API boundary); the e5-large embedding step is internal via lib/query-embedder.cjs
+- [Phase 128.1]: pulled to branch `phase-128.1` on 2026-05-20 (navigator decision) so v1.13.0 finalizes clean. 128.1 is a v1.13.1 phase; it had been partially executed on `main` during the v1.13.0 endgame. 3 of 6 plans closed (01, 02, 03a) + 03b WIP, all preserved on the branch (tip 407c060f); none on `main`. Backup tag `pre-128.1-surgery-backup` also at 407c060f. Resume 128.1 from branch `phase-128.1` for v1.13.1.
 
 ### Pending Todos
 

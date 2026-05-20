@@ -1463,13 +1463,21 @@ Plans:
 
 ### Phase 128.1: Session isolation -- session-scoped active-room binding (INSERTED)
 
-**Goal:** [Urgent work - to be planned]
-**Requirements**: TBD
-**Depends on:** Phase 128
-**Plans:** 0 plans
+**Goal:** Make concurrent Claude sessions on different rooms stop colliding on the room registry's single global `active` field. Re-key the active-room binding to be session-scoped (keyed by Claude Code session id inside the same `registry.json`, `version` 2 -> 3, legacy `active` retained as a mirror), reconcile the 3 session-id mechanisms into one canonical resolver, repoint both caller classes, guard registry mutation with a lockfile, migrate legacy installs with zero breakage, and ship a warn-once non-blocking tripwire (F.0 acknowledge gate) when a session detects its binding changed underneath it.
 
-Plans:
-- [ ] TBD (run /gsd:plan-phase 128.1 to break down)
+**Requirements**: SESSION-ISO-128.1-01 through SESSION-ISO-128.1-11
+
+**Depends on:** Phase 128
+
+**Milestone:** v1.13.1. Phase 128.1 is a v1.13.1 phase. It was partially executed on `main` during the v1.13.0 endgame, then PULLED to branch `phase-128.1` on 2026-05-20 (navigator decision) so v1.13.0 finalizes clean. None of the 128.1 work is on `main`. Resume 128.1 from branch `phase-128.1` for v1.13.1.
+
+**Plans:** 3 of 6 closed + 1 WIP -- all parked on branch `phase-128.1` (tip 407c060f), none on `main`:
+- [x] 128.1-01-PLAN.md -- Wave 1: caller-inventory grep sweep + RED test scaffolds + VALIDATION.md verify (SESSION-ISO-128.1-05, 11) [on branch phase-128.1]
+- [x] 128.1-02-PLAN.md -- Wave 2: session-binding.cjs canonical resolver + v2->v3 migration + mkdirSync lockfile + tripwire detection (SESSION-ISO-128.1-01, 02, 03, 06, 07) [on branch phase-128.1]
+- [x] 128.1-03a-PLAN.md -- Wave 3: re-key resolve-room + room-registry + CJS active writers + context-monitor canonical resolver + Desktop/Cowork check (SESSION-ISO-128.1-04, 06, 09) [on branch phase-128.1]
+- [ ] 128.1-03b-PLAN.md -- Wave 4: repoint every Class B reader through session-binding.resolveActiveRoom (SESSION-ISO-128.1-05) -- WIP: lib/ readers done (8d23afcd), scripts/ readers committed but unclosed (407c060f), no SUMMARY yet
+- [ ] 128.1-05-PLAN.md -- Wave 4: tripwire F.0 warn-once surface + session_binding_drift event + concurrent-race regression test (SESSION-ISO-128.1-08, 11)
+- [ ] 128.1-06-PLAN.md -- Wave 5: Canon Part 1 amendment (v1.5) + aggregator + Feynman-runner registration + REQUIREMENTS.md back-registration (SESSION-ISO-128.1-10)
 
 ### Phase 129: Spine Repair — Route 6 Silent Spine Scripts Through navigation.cjs (v1.13.1 — SCOPED 2026-05-16)
 
