@@ -334,7 +334,21 @@ function buildMintoSegment(roomDir) {
 
 /**
  * Phase 91-06 -- resolve the active session id for the dial trace read.
- * Resolution chain (first match wins):
+ *
+ * Phase 128.1 (D-05, one canonical resolver): this routes through the single
+ * canonical session-id resolver in lib/core/session-binding.cjs rather than
+ * carrying its own parallel chain. session-binding.resolveSessionId already
+ * covers CLAUDE_SESSION_ID + session_id + the persisted cold-start id and never
+ * returns null; the dial does not need the current-session.json / mtime
+ * fallbacks on the primary path.
+ *
+ * The legacy chain below is kept ONLY as the in-function catch-fallback so a
+ * missing/broken session-binding module never crashes the statusline (the file
+ * comment promises "never throws"). It is no longer a primary resolver, so
+ * D-05's "one canonical resolver" holds: the canonical resolver is primary; the
+ * legacy chain survives strictly as a defensive degradation path.
+ *
+ * Legacy fallback chain (first match wins):
  *   1. process.env.CLAUDE_SESSION_ID
  *   2. roomDir/.mindrian/current-session.json {"session_id": "..."}
  *   3. most-recent .mindrian/decision-traces/*.json by mtime
@@ -346,6 +360,14 @@ function buildMintoSegment(roomDir) {
  * @returns {string|null} session id or null
  */
 function resolveSessionIdForDial(roomDir) {
+  // Phase 128.1 D-05: the canonical resolver is the primary path.
+  try {
+    const sessionBinding = require('../lib/core/session-binding.cjs');
+    const canonical = sessionBinding.resolveSessionId();
+    if (typeof canonical === 'string' && canonical.length > 0) return canonical;
+  } catch (_e) {
+    // session-binding unavailable -- fall through to the legacy defensive chain.
+  }
   try {
     const env = process.env.CLAUDE_SESSION_ID;
     if (typeof env === 'string' && env.length > 0) return env;
