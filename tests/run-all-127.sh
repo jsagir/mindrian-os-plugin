@@ -19,6 +19,7 @@
 # Phase 127.1 family (server-side substrate swap; Pinecone -> Neo4j HNSW):
 #   127.1-embedding-integrity.test.cjs   -> Plan 127.1-01 produces embedding-manifest.fixture.json
 #   127.1-index-config.test.cjs          -> Plan 127.1-02 produces index-config.fixture.json
+#   127.1-query-embedder.test.cjs        -> Plan 127.1-03 produces mcp-server-brain/lib/query-embedder.cjs (server-side e5-large query embedding; hermetic, mocked transport)
 #   127.1-graphrag-overlap.test.cjs      -> Plan 127.1-03 produces overlap-baseline + overlap-neo4j fixtures (BLOCKING cutover gate)
 #
 # This runner MUST run to completion (no crash) even when any suite fails; it
@@ -57,6 +58,7 @@ CJS_SUITES=(
   ../lib/core/tier0-messaging.test.cjs
   127.1-embedding-integrity.test.cjs
   127.1-index-config.test.cjs
+  127.1-query-embedder.test.cjs
   127.1-graphrag-overlap.test.cjs
 )
 
