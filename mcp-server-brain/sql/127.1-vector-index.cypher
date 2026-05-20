@@ -6,6 +6,14 @@
 // neo4j-driver session.run path. Maintainers do not have to grep through
 // .cjs to find the DDL; the .cypher file IS the contract.
 //
+// This is a NEW 1024-dim index. The Brain Neo4j ALREADY carries 7 pre-existing
+// 384-dim HNSW indexes (concept / creativework / entity / framework / person /
+// product / Chunk-vector) on 6,007 entity nodes. Phase 127.1 does NOT touch
+// that 384-dim layer. The mindrian_methodology_vec index and the
+// MethodologyChunk node label are a separate, additive node family per G-1:
+// the migration lands ALONGSIDE the existing graph and mutates nothing
+// pre-existing. (Re-scope-corrective 2026-05-20; see DI-127.1-02.)
+//
 // Locked by the CONTEXT.md four-lock protocol:
 //   Lock 1 (byte-identical embeddings):   preserved by the loader's SHA256
 //                                          round-trip check between the
@@ -34,9 +42,10 @@
 //
 // Index parameters (per RESEARCH A127.1.4):
 //   - HNSW Lucene-backed (Neo4j 5.11+ native vector index)
-//   - Defaults m=16, ef_construction=100 are sufficient for a 1,427-vector
+//   - Defaults m=16, ef_construction=100 are sufficient for the 12,401-vector
 //     corpus per the SIGMOD 2026 HNSW merger study and dbi-services pgvector
-//     tuning report; pre-tuning is unnecessary at this scale.
+//     tuning report; pre-tuning is unnecessary at this scale (and the same
+//     m=16 / ef_construction=100 the live 384-dim layer already runs at).
 //   - quantization.enabled defaults to true (memory-efficient; Neo4j
 //     Cypher Manual 2026 recommends as default).
 //

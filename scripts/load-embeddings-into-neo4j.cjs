@@ -12,6 +12,30 @@
 // SHOW INDEXES snapshot to tests/fixtures/127.1/index-config.fixture.json so
 // Surface 2 harness goes GREEN.
 //
+// Re-scope-corrective (2026-05-20): this loader was originally written under
+// the stale 1,427-vector / vector-empty-Neo4j premise. DI-127.1-02 proved the
+// live Brain Neo4j ALREADY carries a native 384-dim vector layer (6,007 nodes,
+// 7 HNSW indexes). Plan 127.1-01 then shipped the real corpus: a 12,401-record
+// NDJSON dump across 6 namespaces. This loader is corrected to that contract.
+//
+// SCOPE BOUNDARY (G-1 additive / G-3 reserve the routing node family):
+//   This loader touches ONLY the MethodologyChunk node family (referenced
+//   everywhere below via the NODE_LABEL constant) and the
+//   mindrian_methodology_vec index. It never reads, writes, scans, or indexes
+//   the reserved command-routing node family or its routing edges (the
+//   downstream command-routing stream owns that label and its edge types).
+//   It never touches the 7 pre-existing 384-dim HNSW indexes or any node
+//   label they index (per DI-127.1-02). Every node-scanning query in this
+//   loader is label-scoped via the NODE_LABEL constant -- it never issues a
+//   bare graph-wide node scan. The migration is additive: a NEW index + a
+//   NEW node family land alongside the existing graph; nothing pre-existing
+//   is mutated.
+//
+// G-1 reversibility: the --rollback flag is the explicit reversibility
+//   affordance. It drops ONLY the mindrian_methodology_vec index and detaches
+//   ONLY the MethodologyChunk node family. That scoped detach targets exactly
+//   the migrated node family -- it is NOT a full-graph reload.
+//
 // Locked by the CONTEXT.md four-lock protocol (matches Plan 127.1-01
 // constants byte-for-byte; the SHA256 protocol is identical so the
 // pinecone_sha256 column from the export equals the neo4j_sha256 column
@@ -29,6 +53,7 @@
 //   node scripts/load-embeddings-into-neo4j.cjs --dry-run        # connect + count + DDL preview
 //   node scripts/load-embeddings-into-neo4j.cjs --ddl-only       # run the DDL, skip the load
 //   node scripts/load-embeddings-into-neo4j.cjs --verify-only    # run round-trip SHA256 verification only
+//   node scripts/load-embeddings-into-neo4j.cjs --rollback       # G-1 reversibility: drop the index + detach :MethodologyChunk only
 
 'use strict';
 
@@ -63,7 +88,7 @@ const SIMILARITY_METRIC = 'cosine';                          // Lock 3
 const INDEX_NAME = 'mindrian_methodology_vec';
 const NODE_LABEL = 'MethodologyChunk';
 const EMBEDDING_PROPERTY = 'embedding';
-const EXPECTED_VECTOR_COUNT = 1427;
+const EXPECTED_VECTOR_COUNT = 12401;
 const MIN_NEO4J_VERSION_MAJOR = 5;
 const MIN_NEO4J_VERSION_MINOR = 13;
 const BATCH_SIZE = 100;
@@ -87,6 +112,7 @@ function parseArgs(argv) {
     dryRun: false,
     ddlOnly: false,
     verifyOnly: false,
+    rollback: false,
   };
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
@@ -96,6 +122,7 @@ function parseArgs(argv) {
     else if (a === '--dry-run') { args.dryRun = true; }
     else if (a === '--ddl-only') { args.ddlOnly = true; }
     else if (a === '--verify-only') { args.verifyOnly = true; }
+    else if (a === '--rollback') { args.rollback = true; }
     else if (a === '--help' || a === '-h') { printHelp(); process.exit(0); }
     else if (a.startsWith('--')) {
       process.stderr.write('unknown flag: ' + a + '\n');
@@ -118,7 +145,9 @@ function printHelp() {
     '  --emit-index-config <path> Where to write the SHOW INDEXES snapshot (default: tests/fixtures/127.1/index-config.fixture.json)',
     '  --dry-run                  Connect + count + show DDL; do not write',
     '  --ddl-only                 Run the DDL, skip the load',
-    '  --verify-only              Round-trip SHA256 verification only',
+    '  --verify-only              Round-trip SHA256 verification only (idempotency proof: safe no-op re-run)',
+    '  --rollback                 G-1 reversibility: drop ONLY mindrian_methodology_vec',
+    '                             + detach ONLY :MethodologyChunk nodes (scoped, not a full reload)',
     '',
     'Env vars: NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD must be set.',
     ''
@@ -392,6 +421,34 @@ async function captureIndexConfig(session, fixturePath) {
 }
 
 // ----------------------------------------------------------------------------
+// G-1 reversibility -- scoped rollback of the migrated node family ONLY
+// ----------------------------------------------------------------------------
+//
+// This is the ONE place in the loader where a scoped detach is permitted. It
+// is label-scoped via the NODE_LABEL constant -- it targets exactly the node
+// family this loader created and nothing else. It is NOT a full-graph reload:
+// the 384-dim layer, the reserved routing node family, and every other node
+// label are untouched. The --rollback flag is the explicit G-1 reversibility
+// affordance the command-routing stream's additive-and-reversible guarantee
+// requires.
+
+async function rollbackMigration(session) {
+  // Drop ONLY the 1024-dim index this loader created. The 7 pre-existing
+  // 384-dim indexes are never named here, so they cannot be dropped.
+  await session.run('DROP INDEX ' + INDEX_NAME + ' IF EXISTS');
+  process.stdout.write('Dropped index ' + INDEX_NAME + ' (if it existed)\n');
+
+  // Detach ONLY the migrated node family. Label-scoped via NODE_LABEL: a bare
+  // graph-wide node scan is never used. This removes the migrated nodes and
+  // only those.
+  const result = await session.run('MATCH (n:' + NODE_LABEL + ') DETACH DELETE n RETURN count(n) AS c');
+  const c = result.records[0].get('c');
+  const removed = typeof c === 'object' && c.toNumber ? c.toNumber() : Number(c);
+  process.stdout.write('Detached ' + removed + ' :' + NODE_LABEL + ' node(s)\n');
+  return removed;
+}
+
+// ----------------------------------------------------------------------------
 // Main
 // ----------------------------------------------------------------------------
 
@@ -426,6 +483,16 @@ async function main() {
   try {
     const version = await detectVersion(session);
     process.stdout.write('Neo4j version detected: ' + version + '\n');
+
+    // G-1 reversibility path: scoped rollback of the migrated family only.
+    if (args.rollback) {
+      const removed = await rollbackMigration(session);
+      process.stdout.write(
+        'OK 127.1-load rollback index=' + INDEX_NAME + ' dropped ' +
+          NODE_LABEL + '_detached=' + removed + '\n'
+      );
+      return;
+    }
 
     if (!args.verifyOnly) {
       const stmtCount = await runDDL(session);
