@@ -4,11 +4,12 @@
 // Phase 127.1 -- Surface 1 harness: byte-identical embedding integrity.
 //
 // Contract (per .planning/phases/127.1-.../127.1-VALIDATION.md Surface 1):
-//   For each of the 1,427 methodology embeddings, the SHA256 of the float
-//   vector stored in Pinecone (pre-cutover) MUST equal the SHA256 of the
-//   float vector stored on the corresponding Neo4j MethodologyChunk node
-//   (post-cutover). Any drift means re-embedding crept in and must be
-//   isolated before the cutover.
+//   For each of the 12,401 methodology embeddings (re-scoped 2026-05-20 from
+//   the stale 1,427 premise; see deferred-items.md DI-127.1-01 + DI-127.1-02),
+//   the SHA256 of the float vector stored in Pinecone (pre-cutover) MUST equal
+//   the SHA256 of the float vector stored on the corresponding Neo4j
+//   MethodologyChunk node (post-cutover). Any drift means re-embedding crept
+//   in and must be isolated before the cutover.
 //
 // This file is the WAVE 0 NYQUIST scaffold: the harness lands BEFORE the
 // substrate that produces the fixture. It is RED-by-design until Plan
@@ -38,7 +39,7 @@ const FIXTURE_PATH = path.join(
 );
 
 const FIXTURE_MODE = process.env.MINDRIAN_127_1_FIXTURE_MODE === '1';
-const EXPECTED_VECTOR_COUNT = 1427;
+const EXPECTED_VECTOR_COUNT = 12401;
 const EXPECTED_DIMS = 1024;
 const EXPECTED_METRIC = 'cosine';
 const SHA256_HEX_LEN = 64;
@@ -75,7 +76,7 @@ test('127.1 Surface 1 -- manifest schema is v1', () => {
   assert.equal(manifest.schema_version, 1, 'schema_version must be 1');
 });
 
-test('127.1 Surface 1 -- vector_count is exactly 1427', () => {
+test('127.1 Surface 1 -- vector_count is exactly 12401', () => {
   assert.equal(
     manifest.vector_count,
     EXPECTED_VECTOR_COUNT,
@@ -99,7 +100,7 @@ test('127.1 Surface 1 -- similarity_metric is cosine', () => {
   );
 });
 
-test('127.1 Surface 1 -- checksums is an array of length 1427', () => {
+test('127.1 Surface 1 -- checksums is an array of length 12401', () => {
   assert.ok(Array.isArray(manifest.checksums), 'checksums must be an array');
   assert.equal(
     manifest.checksums.length,
@@ -139,7 +140,7 @@ test('127.1 Surface 1 -- every checksum entry has valid shape', () => {
   );
 });
 
-test('127.1 Surface 1 -- pinecone and neo4j SHA256 are byte-identical (1427 vectors verified)', () => {
+test('127.1 Surface 1 -- pinecone and neo4j SHA256 are byte-identical (12401 vectors verified)', () => {
   const drift = [];
   for (const entry of manifest.checksums) {
     if (entry.pinecone_sha256 !== entry.neo4j_sha256) {
@@ -157,6 +158,6 @@ test('127.1 Surface 1 -- pinecone and neo4j SHA256 are byte-identical (1427 vect
 // Process-level success line so downstream automation can grep for it.
 process.on('exit', (code) => {
   if (code === 0) {
-    process.stdout.write('OK 127.1-embedding-integrity 1427 vectors verified\n');
+    process.stdout.write('OK 127.1-embedding-integrity 12401 vectors verified\n');
   }
 });

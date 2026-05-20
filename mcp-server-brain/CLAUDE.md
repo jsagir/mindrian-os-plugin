@@ -28,9 +28,11 @@ magnitude.
 | `brain_schema` | `lib/neo4j-tools.cjs` | Neo4j node/relationship taxonomy |
 | `brain_query` | `lib/neo4j-tools.cjs` | Read-only Cypher against the teaching graph |
 | `brain_write` | `lib/neo4j-tools.cjs` | Plan-gated write (Canon Part 8 scoped) |
-| `brain_search` | `lib/pinecone-tools.cjs` | Pinecone semantic search over methodology embeddings |
+| `brain_search` | `lib/pinecone-tools.cjs` | Pinecone semantic search (12,401 vectors, 6 namespaces) -- retiring to Neo4j HNSW in Phase 127.1 |
 | `brain_stats` | `lib/pinecone-tools.cjs` | Index statistics |
 | `brain_ask` | `lib/brain-ask.cjs` | Natural-language methodology Q&A wrapper |
+
+Phase 127.1 migrates the 12,401-vector Pinecone corpus to a new 1024-dim Neo4j HNSW index; the pre-existing 384-dim Neo4j entity-embedding layer is a separate orthogonal layer that Phase 127.1 does not touch.
 
 Six is well under the deferred-loading inflection point, so the current
 surface is fine to declare at startup. But the rule below applies as the
