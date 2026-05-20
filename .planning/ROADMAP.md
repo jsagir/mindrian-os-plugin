@@ -1438,6 +1438,112 @@ Plans:
 
 ---
 
+## v1.13.1 phases (registered as directories + scoped in v1.13.1-EXECUTION-PLAN.md; synced into ROADMAP.md 2026-05-20)
+
+> These five phases were scoped as phase directories with CONTEXT.md files on 2026-05-16 / 2026-05-17 (the "Synthesis-Plan Absorption" + the 2026-05-17 dogfooding-curation session) but were never written into ROADMAP.md as headings. The canonical sequence and wave assignment live in `.planning/v1.13.1-EXECUTION-PLAN.md`. This block syncs ROADMAP.md to disk so the phase sequence is navigable from one file.
+
+### Phase 128: Substrate Contract ADR + CI Guards (v1.13.1 — SCOPED 2026-05-16)
+
+**Goal:** Codify the four-substrate split (Local SQLite via navigation.cjs / Aura Neo4j / Brain MCP / Pinecone) as a binding architectural decision record at `docs/architecture/SUBSTRATE-CONTRACT.md`, and ship CI guards (`scripts/check-substrate.cjs`) that enforce the contract structurally. After this phase, any new code that bypasses navigation.cjs to read/write room.db fails pre-commit.
+
+**Depends on:** Phase 109 sql-context-memory-navigation-spine (shipped — the navigation.cjs chokepoint this ADR codifies); Phase 110 brain-context-packet-contract (shipped — the Brain wire contract this ADR references).
+
+**Dependents:** Phase 129 spine-repair-memory-event; Phase 130 lens-engine-skeleton; Phase 131 research-as-graph-aware-workflow-step; every future phase touching room.db.
+
+**Target band:** v1.13.1-beta.3 — Wave 4 Stream E (parallel). Estimated ~2 days.
+
+**Canon parts:** Part 6 (dog-fooding — the plugin honors its own substrate contract via CI guards); Part 8 (graph boundary — the ADR codifies LOCAL/BRAIN/AURA/PINECONE separation); Part 9 (memory locality — navigation.cjs as the single chokepoint for room.db).
+
+**Brain impact:** NONE (LOCAL-only ADR + CI guards).
+
+**Status:** Scoped — ready for `/gsd:discuss-phase 128`.
+
+**Authority:** `.planning/phases/128-substrate-contract-adr/128-CONTEXT.md` (scoped 2026-05-16) + `.planning/v1.13.1-EXECUTION-PLAN.md` "Synthesis-Plan Absorption (2026-05-16)" section.
+
+### Phase 128.1: Session isolation -- session-scoped active-room binding (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 128
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 128.1 to break down)
+
+### Phase 129: Spine Repair — Route 6 Silent Spine Scripts Through navigation.cjs (v1.13.1 — SCOPED 2026-05-16)
+
+**Goal:** Refactor the 6 spine scripts that currently bypass `lib/core/navigation.cjs` to read via the chokepoint and emit `memory_event` on every state transition. After this phase, the proactive loop has a real backward arc — every action via `/mos:act`, `/mos:suggest-next`, `/mos:operator`, `/mos:jtbd`, `/mos:memory` is journaled to the canonical event log and visible to the next `/mos:status` / `/mos:suggest-next` invocation. Adds `FOLLOWS_FROM` as the 8th cascade edge type.
+
+**Depends on:** Phase 109 sql-context-memory-navigation-spine (shipped — the chokepoint these scripts route through); Phase 122 workflow-layer (shipped beta.11 — command-resolver + chain-recommender that act/suggest-next consume).
+
+**Dependents:** Phase 116 unresolved-tension-hook; Phase 117 auto-explore-domains; Phase 121 trajectory-telemetry; Phase 130 lens-engine-skeleton; Phase 131 research-as-graph-aware-workflow-step.
+
+**Target band:** v1.13.1-beta.3 — Wave 4 Stream F (parallel). Estimated ~3-4 days.
+
+**Canon parts:** Part 3 (Tri-Context Decision Gate — every gate transition becomes a memory_event); Part 4 (every choice is graph data — the spine's transitions ARE choices); Part 9 (memory locality — the spine reads + writes via navigation.cjs).
+
+**Brain impact:** NONE (LOCAL-only spine refactor).
+
+**Status:** Scoped — ready for `/gsd:discuss-phase 129`.
+
+**Authority:** `.planning/phases/129-spine-repair-memory-event/129-CONTEXT.md` (scoped 2026-05-16) + `.planning/v1.13.1-EXECUTION-PLAN.md` "Synthesis-Plan Absorption (2026-05-16)" section.
+
+### Phase 130: Lens-Engine Skeleton + Cognitive-Family Migration (v1.13.1 — SCOPED 2026-05-16)
+
+**Goal:** Ship `lib/core/lens-engine.cjs` — the single architectural substrate that absorbs the duplicate lens-rotation logic scattered across 18+ commands. The engine ships in v1.13.1 with one populated lens family (cognitive); the other four families (domain / source / framework / trend) get registry slots and stay empty until their v1.14.0 migrations. The cognitive-family migration moves `think-hats / persona / hat-briefing / challenge-assumptions` from filesystem-mediated state to room.db typed nodes via `navigation.cjs`.
+
+**Depends on:** Phase 109 sql-context-memory-navigation-spine (shipped); Phase 128 substrate-contract-adr (the contract this engine honors); Phase 129 spine-repair-memory-event (memory_event emission patterns the engine adopts); Phase 88.2 uiux-selector-block (shipped — the F-shape selector substrate).
+
+**Dependents:** Phase 131 research-as-graph-aware-workflow-step; v1.14.0 framework-lens, trend-lens, source-lens fan-out, and domain-lens migrations.
+
+**Target band:** v1.13.1-beta.5b — Wave 6.5 (pre-capstone). Estimated ~4-5 days.
+
+**Canon parts:** Part 2 (Engine 2 BONO Orchestration — the lens-engine IS the substrate Part 2 calls for); Part 3 (every lens rotation surfaces findings via F-shape selector); Part 4 (typed cascade edges on accept; REJECTED_BECAUSE on reject); Part 9 (mandatory memory_event emission per rotation).
+
+**Brain impact:** NONE (the engine writes LOCAL-only; Brain calls within rotations go through the Phase 110 packet contract).
+
+**Status:** Scoped — ready for `/gsd:discuss-phase 130`.
+
+**Authority:** `.planning/phases/130-lens-engine-skeleton/130-CONTEXT.md` (scoped 2026-05-16) + `.planning/v1.13.1-EXECUTION-PLAN.md` "Synthesis-Plan Absorption (2026-05-16)" section.
+
+### Phase 131: Research as Graph-Aware Workflow Step (Source-Lens Pilot) (v1.13.1 — SCOPED 2026-05-16)
+
+**Goal:** Transform `/mos:research` from a standalone topic-string-to-prose command into the canonical workflow step other methodologies can dispatch. After this phase: research invocation extracts context from the room (via navigation.cjs), understands WHY it was called, surfaces findings with computed candidate target sections (F.1 selector per Part 3), and wires accepted findings as typed `EvidenceClaim` nodes with cascade edges (INFORMS / CONTRADICTS / SUPERSEDES / REJECTED_BECAUSE). This is the source-lens family's pilot — the other 13 research surfaces follow in v1.14.0 with this pilot as the template.
+
+**Depends on:** Phase 109 sql-context-memory-navigation-spine (shipped); Phase 110 brain-context-packet-contract (shipped); Phase 127 brain-mcp-local-stdio-shim; Phase 128 substrate-contract-adr; Phase 129 spine-repair-memory-event; Phase 130 lens-engine-skeleton.
+
+**Dependents:** v1.14.0 source-lens fan-out (13 remaining research surfaces); v1.14.0 P9 framework-lens migration (same lens-engine + cascade-edge pattern proven here).
+
+**Target band:** v1.13.1-beta.5c — Wave 6.7 (between Phase 130 and Phase 121.5 capstone). Estimated ~5-7 days.
+
+**Canon parts:** Part 2 Engine 1 (research becomes a graph-aware Act 1 surface); Part 3 (F.1 filing selector for every finding); Part 4 (typed EvidenceClaim nodes + cascade edges); Part 5 (findings carry evidence_tier; thresholds shift by stage); Part 8 (pre-egress audit on every external fetch; provenance preserved); Part 9 (all reads + writes through navigation.cjs; mandatory memory_event).
+
+**Brain impact:** NONE-NEW (uses existing brain_ask via the Phase 110 packet; no new Brain endpoints).
+
+**Status:** Scoped — ready for `/gsd:discuss-phase 131`.
+
+**Authority:** `.planning/phases/131-research-as-graph-aware-workflow/131-CONTEXT.md` (scoped 2026-05-16) + `.planning/v1.13.1-EXECUTION-PLAN.md` "Synthesis-Plan Absorption (2026-05-16)" section.
+
+### Phase 132: Dual-Graph Correlation + Hypergraph Teaching-Graph Reformat (v1.13.1 — SCOPED 2026-05-17)
+
+**Goal:** Close the teaching-graph half of v1.13.1's "Coherent Brain-Wired Product" claim (Phases 128/129/131 close the LOCAL navigation-spine half). Ships: (1) a correlation contract — stable `correlation_id` on every Brain teaching-graph node, navigation.cjs writes referencing correlation_id; (2) a hypergraph reformat — 4-5 reified event-node types capturing n-ary relationships on Neo4j's binary-edge substrate; (3) dual-graph CI gates validating that local memory_event correlation_ids resolve to canonical Brain nodes; (4) content cleanup finishing the wire-it work from the 2026-05-17 dogfooding session.
+
+**Depends on:** Phase 127 brain-mcp-local-stdio-shim; Phase 128 substrate-contract-adr; Phase 129 spine-repair-memory-event; Phase 131 research-as-graph-aware-workflow-step.
+
+**Dependents:** Phase 121.5 terminal-coherence-capstone (truth-telling pillar); v1.14.0 P9 framework-lens migration; v1.14.0 P13 source-lens fan-out remainder.
+
+**Target band:** v1.13.1-beta.6 — Wave 7 (between Phase 131 and Phase 121.5). Estimated ~7-10 days.
+
+**Canon parts:** Part 4 (makes graph data correlatable across the LOCAL/TEACHING split); Part 8 (correlation contract is enum projection only; no user content leaks to Brain); Part 9 (local memory_event aggregates resolve to canonical teaching-graph correlation_ids); Part 10 (Larry's chain-recommender output coherence depends on this phase landing).
+
+**Brain impact:** HIGH (this IS the Brain teaching-graph reformat phase — correlation_id rollout across all teaching-graph nodes; hypergraph event-node reification; cross-label dedup).
+
+**Status:** Scoped — ready for `/gsd:discuss-phase 132`.
+
+**Authority:** `.planning/phases/132-dual-graph-correlation-hypergraph-reformat/132-CONTEXT.md` (scoped 2026-05-17 from the dogfooding-curation session) + `~/MindrianRooms/mindrian/mindrianOS/methodology/2026-05-17-brain-curation-audit.md`.
+
+---
+
 ## Backlog (parking lot — unscheduled, not phase-bound)
 
 ### Testers Feedback Hub (Canny-style) — REGISTERED 2026-05-06

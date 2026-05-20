@@ -70,3 +70,127 @@ depends on the corpus size).
 
 **Owner:** Jonathan (canon custodian).
 
+### RESOLUTION (2026-05-20) -- Option A selected
+
+**Decision:** Option A. The corpus is the full live `core` namespace. The
+foundational invariant moves from `EXPECTED_VECTOR_COUNT = 1427` to
+`EXPECTED_VECTOR_COUNT = 8543`. "Byte-identical" Lock 1 now applies over the
+actual live `core` corpus, not the historical methodology-only subset.
+
+**Decided by:** Jonathan (canon custodian), via the /gsd:progress Decision Gate
+(Canon Part 3, tri-context).
+
+**Required edits before Plan 127.1-01 can re-run GREEN:**
+
+1. `tests/127.1-embedding-integrity.test.cjs` -- `EXPECTED_VECTOR_COUNT`
+   1427 -> 8543; the `manifest.vector_count === 1427` assertion -> 8543.
+2. `127.1-CONTEXT.md` -- the EXPECTED_VECTOR_COUNT invariant + the matching
+   acceptance criterion restated to 8543 in namespace `core`.
+3. Plans `127.1-01` / `127.1-03` / `127.1-04` -- every `must_haves` / `truths`
+   line that names "1,427" re-stated to "8,543". The export script, the Neo4j
+   loader, and the 0.80 top-5 overlap cutover gate all run against the
+   8,543-record `core` corpus.
+4. Locks 1 (byte-identical, no re-embedding) and 2 (e5-large, 1024 dim,
+   namespace `core`) are UNCHANGED -- both hold over the larger corpus.
+
+**Follow-up (NOT blocking 127.1 -- Option A, not D, was chosen):**
+`docs/MINDRIAN-CANON.md` Part 7 and `.claude/includes/moat.md` still read
+"1,427 embeddings". Option A resets the count without re-canonizing; the
+canon doc line is now stale and should be corrected as a separate doc task
+(the Part 6 dog-fooding mandate would otherwise flag it as a CONTRADICTS edge).
+
+**Status:** RESOLVED. Plan 127.1-01 is unblocked once the open plans
+(01, 03, 04) and CONTEXT.md are re-planned against 8,543.
+
+---
+
+## DI-127.1-02 (2026-05-20) -- Neo4j already has a native HNSW vector substrate; phase premise invalid
+
+**Discovered during:** /gsd:plan-phase 127.1 re-plan. Jonathan asked for a
+live Neo4j schema read (`my-neo4j` MCP) to ground the canon in real numbers
+before re-planning. The read invalidated the phase premise itself.
+
+**Empirical state of the live Brain Neo4j graph (2026-05-20):**
+
+| Metric | Canon / Plan claim | Live Neo4j reality |
+|--------|--------------------|--------------------|
+| Total nodes | "21K+" | **15,298** |
+| Total relationships | "65K+" | **19,713** |
+| Vector substrate | "migrate Pinecone embeddings into a NEW Neo4j HNSW index" | **7 native HNSW vector indexes already exist and are populated** |
+| Embedded nodes | n/a | **6,007** nodes carry an `embedding` property |
+| Embedding dims | "1024 (multilingual-e5-large)" -- Lock 2 | **384**, uniform across all 6,007 |
+| HNSW params | D-01 open question (default m=16 / ef=100?) | already m=16, ef_construction=100, COSINE, quantization on |
+
+**7 live vector indexes:** concept_embeddings, creativework_embeddings,
+entity_embeddings, framework_embeddings, person_embeddings, product_embeddings,
+`vector` (Chunk). All 384-dim COSINE HNSW (indexProvider vector-3.0; Chunk on
+vector-2.0).
+
+**Why this invalidates Phase 127.1 as planned:**
+
+1. The phase premise -- "collapse the dual substrate by migrating Pinecone
+   embeddings into a NEW Neo4j HNSW index" -- is false. Neo4j is not
+   vector-empty. The native HNSW substrate already exists and is populated.
+2. Lock 1 ("byte-identical, no re-embedding") is IMPOSSIBLE. Pinecone vectors
+   are 1024-dim (e5-large). Neo4j vector indexes are defined at 384-dim. A
+   1024-dim float array cannot be loaded byte-identically into a 384-dim
+   index. The two are different embedding spaces from different models.
+3. Lock 2 ("multilingual-e5-large, 1024 dims") is false against the live
+   graph. The Neo4j embeddings are 384-dim -- 384 rules out e5-large;
+   consistent with all-MiniLM-L6-v2 or e5-small. Model not labeled in-graph.
+4. DI-127.1-01's "1,427 vs 8,543" count question is moot for the Neo4j side --
+   the Neo4j vector corpus is 6,007 nodes, neither figure. (8,543 is the live
+   Pinecone `core` count; the two stores are independent.)
+
+**Instance identity -- RESOLVED (2026-05-20):** confirmed by owner attestation
+(Jonathan, canon custodian + infra owner, stated the config-file MCP creds are
+the production creds) plus corroborating evidence: (a) the `my-neo4j` graph is
+the unmistakable Brain teaching graph (methodology labels + 7 vector indexes);
+(b) the `pinecone` MCP independently reached `pws-brain` -- the exact index the
+`mindrian-brain` render.yaml names via `PINECONE_INDEX=pws-brain` -- and
+returned 12,401 vectors / 1024-dim / e5-large / cosine, matching DI-127.1-01.
+The config-file creds reach the same production substrates the Render service
+uses. Render's MCP structurally cannot expose the `sync:false` secret
+`NEO4J_URI` for an automated string-match; owner attestation is the Canon
+Part 9 confirmation path ("the human confirms truth"). The canon number
+correction is UNBLOCKED.
+
+**Canon surfaces carrying stale numbers (correct ONLY after instance identity
+is confirmed -- editing canon off a non-production graph is itself drift):**
+- `docs/MINDRIAN-CANON.md` Part 2 Engine 1 -- "Pinecone 1,427 embeddings",
+  "1,427 methodology nodes"
+- `.claude/includes/moat.md` -- "21K+ nodes, 65K+ relationships",
+  "1,427 embeddings"
+- `CLAUDE.md` -- "Neo4j 21K nodes + Pinecone 1.4K embeddings",
+  "21K+ nodes / 65K+ relationships", "Pinecone | 1,427 embeddings"
+
+**Status:** BLOCKING. Phase 127.1 cannot be re-planned around the existing
+plan contract -- the contract describes a migration that has no valid target.
+The phase needs re-scoping with the navigator before plan-phase can proceed.
+`/gsd:plan-phase 127.1` halted at the planner-spawn gate on 2026-05-20.
+
+**Owner:** Jonathan (canon custodian + navigator).
+
+
+---
+
+## DI-127.1-03 (2026-05-20) -- ROADMAP.md prose carries the stale "1,427 vectors" figure
+
+**Discovered during:** Plan 127.1-02 corrective re-execution (state-update step).
+
+`.planning/ROADMAP.md` (Phase 127.1 section, requirement list) still reads
+`127.1-10 (1,427 vectors loaded round-trip verified)`. The re-scope corrected
+the count to 12,401 everywhere in code; the ROADMAP prose was not swept.
+`.planning/` is gitignored, and ROADMAP.md is outside Plan 127.1-02's
+`files_modified` scope, so it was not edited in this plan. This is a cosmetic
+doc-staleness item; the code substrate is correct (12,401 loaded, verified).
+
+Also: `.planning/REQUIREMENTS.md` carries no `GRAPHRAG-COLLAPSE-127.1-*`
+checkbox entries -- the requirement IDs live only in ROADMAP.md prose, so
+`gsd-tools requirements mark-complete` had nothing to check off.
+
+**Fix (not blocking 127.1):** sweep the ROADMAP.md Phase 127.1 requirement
+list 1,427 -> 12,401, and optionally add the GRAPHRAG-COLLAPSE-127.1 IDs as
+proper REQUIREMENTS.md checkboxes so completion is trackable.
+
+**Status:** Open, cosmetic. Owner: Jonathan (canon custodian).
