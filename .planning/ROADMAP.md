@@ -1465,10 +1465,10 @@ Plans:
 **Goal:** Make concurrent Claude sessions on different rooms stop colliding on the room registry's single global `active` field. Re-key the active-room binding to be session-scoped (keyed by Claude Code session id inside the same `registry.json`, `version` 2 -> 3, legacy `active` retained as a mirror), reconcile the 3 session-id mechanisms into one canonical resolver, repoint both caller classes, guard registry mutation with a lockfile, migrate legacy installs with zero breakage, and ship a warn-once non-blocking tripwire (F.0 acknowledge gate) when a session detects its binding changed underneath it.
 **Requirements**: SESSION-ISO-128.1-01 through SESSION-ISO-128.1-11
 **Depends on:** Phase 128
-**Plans:** 6 plans
+**Plans:** 1/6 plans executed
 
 Plans:
-- [ ] 128.1-01-PLAN.md -- Wave 1: caller-inventory grep sweep + RED test scaffolds + VALIDATION.md verify (SESSION-ISO-128.1-05, 11)
+- [x] 128.1-01-PLAN.md -- Wave 1: caller-inventory grep sweep + RED test scaffolds + VALIDATION.md verify (SESSION-ISO-128.1-05, 11)
 - [ ] 128.1-02-PLAN.md -- Wave 2: session-binding.cjs canonical resolver + v2->v3 migration + mkdirSync lockfile + tripwire detection (SESSION-ISO-128.1-01, 02, 03, 06, 07)
 - [ ] 128.1-03a-PLAN.md -- Wave 3: re-key resolve-room + room-registry + CJS active writers + context-monitor canonical resolver + Desktop/Cowork check (SESSION-ISO-128.1-04, 06, 09)
 - [ ] 128.1-03b-PLAN.md -- Wave 4: repoint every Class B reader through session-binding.resolveActiveRoom (SESSION-ISO-128.1-05)

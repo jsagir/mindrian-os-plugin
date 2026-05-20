@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
-status: paused
-stopped_at: Phase 128.1 context gathered
-last_updated: "2026-05-20T11:12:06.963Z"
-last_activity: 2026-05-20 -- Phase 127.1 execution started
+status: executing
+stopped_at: Completed 128.1-01-PLAN.md
+last_updated: "2026-05-20T13:25:42.714Z"
+last_activity: 2026-05-20
 progress:
   total_phases: 66
   completed_phases: 44
-  total_plans: 313
-  completed_plans: 302
+  total_plans: 319
+  completed_plans: 303
   percent: 93
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 127.1 — brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap
+**Current focus:** Phase 128.1 — session-isolation-session-scoped-active-room-binding
 
 ## Current Position
 
-Phase: 127.1 (brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap) — EXECUTING
+Phase: 128.1 (session-isolation-session-scoped-active-room-binding) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 127.1-05 of phase 127.1 (wave 1, single-plan wave) -- PAUSED AT CHECKPOINT
-Status: Executing Phase 127.1 -- Plan 127.1-05 paused at Task 3 checkpoint:human-verify
+Plan: 2 of 6
+Status: Ready to execute
 
 **Plan 127.1-05 checkpoint-paused position (2026-05-20):**
 
@@ -179,7 +179,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-20 -- Phase 127.1 execution started
+Last activity: 2026-05-20
 
 Progress: [█████████░] 93%
 
@@ -387,6 +387,7 @@ Progress: [█████████░] 93%
 | Phase 127.1 P01 | 18min | 2 tasks | 4 files |
 | Phase 127.1 P02 | 22min | 2 tasks | 6 files |
 | Phase 127.1 P03 | 5min | 2 tasks | 7 files |
+| Phase 128.1 P01 | 18min | 3 tasks | 6 files |
 
 ### Roadmap Evolution
 
@@ -969,6 +970,8 @@ Progress: [█████████░] 93%
 - [Phase 127.1]: 127.1-02: a 1-of-12,401 NDJSON record carried a -0/+0 negative-zero byte variance vs live Pinecone (127.1-01 export defect); repaired the single Neo4j node from the authoritative Pinecone vector rather than accept the drift
 - [Phase 127.1]: Server-side query-embedder uses strategy A (hosted multilingual-e5-large HTTPS endpoint via Node 18 global fetch); zero new runtime dependency, transport swappable for a future ONNX-local path B
 - [Phase 127.1]: brain_search MCP schema restored to a query string (text-in API boundary); the e5-large embedding step is internal via lib/query-embedder.cjs
+- [Phase 128.1]: 128.1-01: caller inventory verified -- the 7 active_room readers are Bucket NONE (non-existent key, never the racing reg.active string); Plan 03 scope split into 03a (6-file re-key+writers) and 03b (21-file readers)
+- [Phase 128.1]: 128.1-01: Wave-0 RED scaffolds shipped (session-binding.test.cjs + test-session-isolation-race.cjs) + hermetic v2 fixture; VALIDATION.md verified, wave_0_complete true
 
 ### Pending Todos
 
@@ -1000,6 +1003,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-20T11:12:06.922Z
-Stopped at: Phase 128.1 context gathered
-Resume file: .planning/phases/128.1-session-isolation-session-scoped-active-room-binding/128.1-CONTEXT.md
+Last session: 2026-05-20T13:25:34.500Z
+Stopped at: Completed 128.1-01-PLAN.md
+Resume file: None
