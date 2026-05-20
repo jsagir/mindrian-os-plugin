@@ -37,7 +37,7 @@ Three layers, each algorithmic:
   WHITESPACE MAP      Code-driven. /mos:whitespace wraps Python scripts that compute whitespace zones using sentence-transformers + LSA against the room's artifact corpus. Every whitespace node is a candidate Opportunity Bank ADD, HSI-scored for filing priority.
 
   REVERSE SALIENT +   Code-driven. Python scripts compute reverse salients (Hughes 1983 framework)
-  CROSS-DOMAIN MATCH  against Pinecone embeddings (1,427 methodology nodes in Brain's semantic index). Cross-domain analogies surface where embedding similarity crosses threshold but source domains differ. Every match is a candidate Opportunity Bank ADD with HSI score. Command-level wrappers: /mos:find-bottlenecks, /mos:find-connections, /mos:find-analogies, /mos:score-innovation.
+  CROSS-DOMAIN MATCH  against Pinecone embeddings (12,401 methodology nodes in Brain's semantic index). Cross-domain analogies surface where embedding similarity crosses threshold but source domains differ. Every match is a candidate Opportunity Bank ADD with HSI score. Command-level wrappers: /mos:find-bottlenecks, /mos:find-connections, /mos:find-analogies, /mos:score-innovation.
 
 Output: enriched domain tree where every node carries its internal decomposition AND its Act 1 intelligence payload (whitespace + reverse salients + cross-domain analogies, all HSI-scored). Engine 2 (BONO Orchestration) reads this payload to shape the team and its beautiful questions.
 
@@ -45,7 +45,7 @@ Act 1 runs per session. Results cache to STATE.md with source-hash invalidation.
 
 Code references:
 - `scripts/hsi-*` (Python, sentence-transformers + LSA)
-- Pinecone 1,427 embeddings (Brain semantic search infrastructure)
+- Pinecone 12,401 embeddings (Brain semantic search infrastructure)
 - Existing /mos: commands: /mos:whitespace, /mos:find-bottlenecks, /mos:find-connections, /mos:find-analogies, /mos:score-innovation
 - Phase 89 (reverse-salient-engine) formalizes the reverse-salient algorithm as a standalone engine consumed by Engine 1
 
@@ -391,9 +391,11 @@ This canon was forged in conversation between Jonathan Sagir (founder) and Claud
 
 10. **User correction 9: "Larry with or without Brain is the pedagogical guide."** Larry's pedagogy is intrinsic, not dependent on Brain availability. Teaching persists in Local Only mode.
 
-11. **User correction 10: "Engine 1 is Act 1, code-driven via embeddings + HSI."** Engine 1 is not just 5-lens decomposition. It is the full Act 1 intelligence surface: decomposition + whitespace map + reverse salient + cross-domain match, all algorithmic, all feeding Opportunity Bank ADDs with HSI scores. Powered by existing Python scripts (sentence-transformers + LSA) and Pinecone embeddings (1,427 methodology nodes). Phase 89 formalizes the reverse-salient algorithm.
+11. **User correction 10: "Engine 1 is Act 1, code-driven via embeddings + HSI."** Engine 1 is not just 5-lens decomposition. It is the full Act 1 intelligence surface: decomposition + whitespace map + reverse salient + cross-domain match, all algorithmic, all feeding Opportunity Bank ADDs with HSI scores. Powered by existing Python scripts (sentence-transformers + LSA) and Pinecone embeddings (12,401 methodology nodes). Phase 89 formalizes the reverse-salient algorithm.
 
 12. **Codex external research input - Part 9 proposed (Phase 108) and ratified (Phase 109).** External research input from Codex (via Jonathan Sagir, 2026-05-03 sessions) framed `room.db` as Mindrian's "local mind" - the navigator's working memory made queryable as graph paths, never as folder scans. Phase 108 ships the schema reconciliation contract (RECONCILIATION.md, PROVENANCE.md, TRUTH-STATES.md, aliases.yml, PART-9-PROPOSAL.md, scripts/check-schema-aliases.cjs); Phase 109 ships the SQL navigation spine (lib/core/navigation.cjs single chokepoint with 13 functions; first-class memory_event nodes; instrumented acceptance test asserting zero non-SQLite reads during the navigation flow); Phase 109 release commit ratifies Part 9 by merging the proposal text into this canon. Brain wire schema enforcement (Phase 110) hardens Part 8 from procedural audit to structural prevention. The trio (108 + 109 + 110) is the Part 9 implementing cluster.
+
+13. **Corpus figures corrected (2026-05-20).** A live read of the production Brain substrates -- Neo4j via the `my-neo4j` MCP, Pinecone via the `pinecone` MCP -- corrected stale counts carried since the canon's v1.0 draft. Neo4j: 15,298 nodes / 19,713 relationships (was "21K / 65K"). Pinecone `pws-brain`: 12,401 vectors at 1024-dim multilingual-e5-large (was "1,427"). Triggered during the Phase 127.1 re-scope; evidence in the Phase 127.1 deferred-items log (DI-127.1-01 + DI-127.1-02). Factual correction only -- no change to canon doctrine; version stays 1.4.
 
 Conversation transcript reference: session 2026-04-20, branch `ui/destijl-rebuild`. First canon draft shipped at commit 528abdd; cross-references at b7d95bd; amendment at this commit. Part 9 (Memory Locality and Interpretation) ratified at the Phase 109 release gate (2026-05-12).
 

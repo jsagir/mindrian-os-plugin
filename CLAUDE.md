@@ -44,7 +44,7 @@ Optional: connect Neo4j Aura (free) for deeper intelligence. Optional: connect B
 | Layer | What | Where | Who Owns It |
 |-------|------|-------|-------------|
 | **Plugin** | Skills, commands, agents, hooks, pipelines | This repo (marketplace) | Open |
-| **Brain** | Neo4j 21K nodes + Pinecone 1.4K embeddings + teaching intelligence | brain.mindrian.ai (remote MCP) | Jonathan — SECRET IP |
+| **Brain** | Neo4j 15,298 nodes + Pinecone 12,401 embeddings + teaching intelligence | brain.mindrian.ai (remote MCP) | Jonathan — SECRET IP |
 | **Room** | Users workspace, entries, sub-rooms, LazyGraph, exports | Users local folder + their Aura | User owns their work |
 
 ---
@@ -77,7 +77,7 @@ Features that only work on one surface are incomplete. Design for all three.
 
 ### What CANNOT be copied — Larrys Brain:
 
-**1. The Teaching Graph (Neo4j — 21K+ nodes, 65K+ relationships)**
+**1. The Teaching Graph (Neo4j — 15,298 nodes, 19,713 relationships)**
 Not a catalog. A MAP of how frameworks CONNECT, CHAIN, and APPLY.
 - Framework-to-framework chaining rules
 - Framework-to-problem-type mappings
@@ -98,7 +98,7 @@ Tuned from 30+ years of real classroom teaching:
 - Context-aware variations by audience and content type
 
 **4. The Curriculum Graph**
-59 books + 59 tools + 1,427 embeddings. Not a list — a semantic web.
+59 books + 59 tools + 12,401 embeddings. Not a list — a semantic web.
 
 **5. Cross-User Intelligence (Future)**
 Anonymized patterns from all users improve the Brain for everyone.
@@ -379,7 +379,7 @@ See also: docs/ENV-TUNING.md for environment variable optimization.
 
 **MindrianOS Plugin**
 
-A commercial Claude Code + Cowork plugin that delivers Mindrian's PWS (Personal Wisdom System) methodology as installable skills, commands, agents, and hooks. Users install with one command and immediately get Larry (the AI teaching personality) plus a structured Data Room that passively captures insights and proactively surfaces gaps, contradictions, and convergence signals. The plugin leverages Claude's native capabilities while optionally connecting to the Brain (Neo4j knowledge graph with 21K+ nodes of teaching intelligence) for enriched guidance.
+A commercial Claude Code + Cowork plugin that delivers Mindrian's PWS (Personal Wisdom System) methodology as installable skills, commands, agents, and hooks. Users install with one command and immediately get Larry (the AI teaching personality) plus a structured Data Room that passively captures insights and proactively surfaces gaps, contradictions, and convergence signals. The plugin leverages Claude's native capabilities while optionally connecting to the Brain (Neo4j knowledge graph with 15,298 nodes of teaching intelligence) for enriched guidance.
 
 **Core Value:** Users can run the full PWS methodology — 25 specialized methodology bots, structured pipelines, and an intelligent Data Room — inside Claude Code with zero infrastructure, where Larry guides them through venture innovation using the same teaching intelligence that powers the classroom experience.
 
@@ -387,7 +387,7 @@ A commercial Claude Code + Cowork plugin that delivers Mindrian's PWS (Personal 
 
 - **Plugin format**: Must conform to Claude Code plugin structure (commands/, skills/, agents/, hooks/, .mcp.json, settings.json, plugin.json)
 - **No server infrastructure**: Plugin runs entirely in Claude's environment — no backend services except optional Brain MCP
-- **Brain IP protection**: The 21K-node teaching graph, grading intelligence, and mode engine calibration are proprietary — never distributed, only served via MCP
+- **Brain IP protection**: The 15,298-node teaching graph, grading intelligence, and mode engine calibration are proprietary — never distributed, only served via MCP
 - **Neo4j Aura Free limits**: LazyGraph must work within 50K node limit
 - **Three surfaces**: All features must work across CLI, Desktop, and Cowork without surface-specific code
 - **Existing assets**: Must port from V2/OS, not rebuild from scratch — 25 prompts, Larry personality, mode engine already exist
@@ -403,8 +403,8 @@ A commercial Claude Code + Cowork plugin that delivers Mindrian's PWS (Personal 
 | Markdown + YAML frontmatter | Skills, agents, commands, pipelines, references | Shipped, stable |
 | JSON | plugin.json, hooks.json, .mcp.json, settings.json, STATE.md frontmatter | Shipped, stable |
 | Bash scripts (20 in scripts/) | Room analysis, state computation, meeting intelligence, PDF, transcription | Shipped, stable |
-| Neo4j Aura + Brain MCP | 21K-node graph at brain.mindrian.ai (remote MCP, Streamable HTTP) | Deployed |
-| Pinecone | 1,427 embeddings for Brain semantic search | Deployed |
+| Neo4j Aura + Brain MCP | 15,298-node graph at brain.mindrian.ai (remote MCP, Streamable HTTP) | Deployed |
+| Pinecone | 12,401 embeddings for Brain semantic search | Deployed |
 | Cytoscape.js (via CDN in dashboard HTML) | De Stijl knowledge graph visualization | Shipped v1.0 |
 | Velma API | Meeting transcription at 3c/hour | Integrated v2.0 |
 | sentence-transformers + LSA (Python) | HSI computation scripts | Shipped v2.0 |
