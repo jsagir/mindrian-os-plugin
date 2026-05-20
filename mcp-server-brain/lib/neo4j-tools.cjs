@@ -24,7 +24,7 @@ function getDriver() {
  */
 function registerNeo4jTools(server, options = {}) {
   const { plan } = options;
-  // 1. brain_schema — returns labels, relationship types, property keys
+  // 1. brain_schema -- returns labels, relationship types, property keys
   server.tool(
     'brain_schema',
     'Get the Brain knowledge graph schema (node labels, relationship types, property keys)',
@@ -51,15 +51,21 @@ function registerNeo4jTools(server, options = {}) {
     }
   );
 
-  // 2. brain_query — read-only Cypher
+  // 2. brain_query -- read-only Cypher (admin-gated, D-MOAT-1 Plan 127.1-05)
   server.tool(
     'brain_query',
-    'Run a read-only Cypher query on the Brain knowledge graph',
+    'Run a read-only Cypher query on the Brain knowledge graph (admin key required)',
     {
       cypher: z.string().describe('Read-only Cypher query'),
       params: z.record(z.any()).optional().describe('Query parameters'),
     },
     async ({ cypher, params }) => {
+      if (plan !== 'admin') {
+        return {
+          content: [{ type: 'text', text: 'Raw Cypher query access requires admin key. Use brain_search or brain_ask for methodology lookups. Contact Jonathan for elevated access.' }],
+          isError: true,
+        };
+      }
       const session = getDriver().session({ defaultAccessMode: neo4j.session.READ });
       try {
         const result = await session.run(cypher, params || {});
@@ -73,7 +79,7 @@ function registerNeo4jTools(server, options = {}) {
     }
   );
 
-  // 3. brain_write — write Cypher
+  // 3. brain_write -- write Cypher
   server.tool(
     'brain_write',
     'Write data to the Brain knowledge graph (creates/updates nodes and relationships)',

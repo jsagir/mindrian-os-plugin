@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 127.1-03-PLAN.md
+stopped_at: "Paused at 127.1-04-PLAN.md Task 1 -- blocking checkpoint:human-verify (post-cutover soak review + embedding decision A/B/C); awaiting operator resume signal"
 last_updated: "2026-05-20T09:09:55.742Z"
 last_activity: 2026-05-20
 progress:
@@ -29,7 +29,7 @@ Phase: 127.1 (brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
 Plan: 4 of 5
-Status: Ready to execute
+Status: PAUSED at checkpoint -- 127.1-04-PLAN.md Task 1 is a blocking `checkpoint:human-verify` (post-cutover soak review of the live Neo4j HNSW brain_search path + embedding decision A/B/C). 127.1-04 is `autonomous: false` and its FIRST task is the checkpoint, so the executor reached the gate without committing any code. Tasks 2 (Pinecone vector-storage retirement) + 3 (server-facing doc strip) are NOT yet run -- they are gated on the operator stating the embedding decision and confirming a clean >= 7-day soak. The soak reviews 127.1-03's v1.13.0-beta.21 code, which has not yet been deployed to Render or soaked. Resume signal required: "approved with embedding decision A" | "B" | "C" | "rollback -- soak shows regressions" | "defer one more beta cycle (later v1.13.0 beta -- NOT v1.13.1)". MILESTONE INVARIANT: 127.1-04 ships at v1.13.0-beta.22 inside the v1.13.0 milestone; the v1.13.0 FINAL gate is HELD until it lands; no outcome slips this plan to v1.13.1.
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
 
