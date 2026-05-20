@@ -32,4 +32,15 @@ services:
         value: https://ulmymxxmvsehjiyymqoi.supabase.co
       - key: SUPABASE_SERVICE_KEY
         sync: false
+      # Phase 127.1 Plan 05 (D-MOAT-2): brain_query / brain_schema execution
+      # safeguards, ported from the official Neo4j mcp-neo4j-cypher recipe.
+      # Bounds exfiltration on any read the brain_query admin gate still permits.
+      - key: BRAIN_CYPHER_MAX_ROWS
+        value: "1000"
+      - key: BRAIN_CYPHER_MAX_ESTIMATED_ROWS
+        value: "5000"
+      - key: BRAIN_CYPHER_MAX_BYTES
+        value: "524288"
+      - key: BRAIN_CYPHER_TIMEOUT_MS
+        value: "5000"
     autoDeploy: true
