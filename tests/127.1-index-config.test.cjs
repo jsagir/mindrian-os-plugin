@@ -103,8 +103,14 @@ test('127.1 Surface 2 -- dim=1024', () => {
 
 test('127.1 Surface 2 -- similarity_function=cosine', () => {
   const row = fixture.rows.find((r) => r && r.name === LOCKED_INDEX_NAME);
+  // Live Neo4j (5.27-aura) reports the similarity function uppercased
+  // ('COSINE') even when the DDL passes it lowercased ('cosine'). Lock 3 is
+  // about the metric being cosine, not its string case; compare
+  // case-insensitively so the harness passes against the live SHOW VECTOR
+  // INDEXES capture.
+  const actual = String(row.indexConfig['vector.similarity_function']).toLowerCase();
   assert.equal(
-    row.indexConfig['vector.similarity_function'],
+    actual,
     EXPECTED_METRIC,
     'vector.similarity_function must be cosine (Lock 3 -- defensive even though Neo4j 5.13+ defaults to cosine)'
   );

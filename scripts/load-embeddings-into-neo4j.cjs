@@ -383,17 +383,23 @@ async function roundTripVerify(session, manifestPath) {
 // ----------------------------------------------------------------------------
 
 async function captureIndexConfig(session, fixturePath) {
+  // Neo4j 5.27-aura's `SHOW INDEXES` does not expose an `indexConfig` YIELD
+  // column directly; the config nests inside `options.indexConfig`. Use
+  // `SHOW VECTOR INDEXES` and read the nested object so the loader works
+  // against the live Aura instance regardless of how the SHOW projection
+  // surfaces the config.
   const result = await session.run(
-    'SHOW INDEXES YIELD name, state, type, entityType, labelsOrTypes, properties, indexConfig ' +
+    'SHOW VECTOR INDEXES YIELD name, state, type, entityType, labelsOrTypes, properties, options ' +
       'WHERE name = $name ' +
-      'RETURN name, state, type, entityType, labelsOrTypes, properties, indexConfig',
+      'RETURN name, state, type, entityType, labelsOrTypes, properties, options',
     { name: INDEX_NAME }
   );
   if (result.records.length === 0) {
-    throw new Error('error -- SHOW INDEXES returned no row for ' + INDEX_NAME + ' after load');
+    throw new Error('error -- SHOW VECTOR INDEXES returned no row for ' + INDEX_NAME + ' after load');
   }
   const rec = result.records[0];
-  const indexConfig = rec.get('indexConfig');
+  const options = rec.get('options') || {};
+  const indexConfig = options.indexConfig || {};
   // neo4j-driver returns indexConfig as a plain object on modern drivers; copy keys.
   const indexConfigPlain = {};
   for (const k of Object.keys(indexConfig || {})) {

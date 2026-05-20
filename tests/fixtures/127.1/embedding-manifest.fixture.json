@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "produced_by": "scripts/export-pinecone-embeddings.cjs",
-  "produced_at": "2026-05-20T08:37:34.794Z",
+  "produced_at": "2026-05-20T08:55:43.038Z",
   "embedding_model": "multilingual-e5-large",
   "embedding_dims": 1024,
   "similarity_metric": "cosine",
@@ -62020,5 +62020,6 @@
       "pinecone_sha256": "00ec49c44f0372adfc987bf45977da99a75a7b188858d8b6c9bf58e7b517da70",
       "neo4j_sha256": "00ec49c44f0372adfc987bf45977da99a75a7b188858d8b6c9bf58e7b517da70"
     }
-  ]
+  ],
+  "neo4j_round_trip_completed_at": "2026-05-20T08:55:43.038Z"
 }

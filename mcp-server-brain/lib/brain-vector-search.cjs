@@ -7,6 +7,14 @@
 // Plan 127.1-03 (the cutover) will wire into mcp-server-brain/server.cjs to
 // replace lib/pinecone-tools.cjs's brain_search call path.
 //
+// This library queries the NEW 1024-dim `mindrian_methodology_vec` index
+// ONLY. It never queries the 7 pre-existing 384-dim entity-embedding indexes
+// (concept / creativework / entity / framework / person / product / Chunk-
+// vector) and never touches the reserved command-routing node family. The
+// query is scoped by the index name passed to db.index.vector.queryNodes(),
+// so it can only return hits from the migrated MethodologyChunk node family.
+// (Re-scope-corrective 2026-05-20; see DI-127.1-02.)
+//
 // The response shape mirrors mcp-server-brain/lib/pinecone-tools.cjs's
 // searchRecords return shape ({score, id, text, metadata}) so the cutover
 // is a mechanical call-site swap; downstream consumers (brain-ask routing
@@ -233,8 +241,9 @@ async function searchSemantic({ embedding, topK, namespace, session } = {}) {
 function registerVectorSearchTool(server) {
   server.tool(
     'brain_search',
-    'Semantic search across Brain knowledge (1427 PWS methodology vectors). ' +
-      'Backed by Neo4j HNSW (Phase 127.1 cutover). Namespaces: core (default). ' +
+    'Semantic search across Brain knowledge (12,401 PWS methodology vectors across 6 namespaces). ' +
+      'Backed by Neo4j HNSW (Phase 127.1 cutover). ' +
+      'Namespaces: core, materials, reference, tools, graphrag, books (omit for all). ' +
       'Returns top-K hits ranked by cosine similarity.',
     {
       query_vector: z.array(z.number()).length(EMBEDDING_DIMS).describe('Pre-computed 1024-dim multilingual-e5-large embedding'),
