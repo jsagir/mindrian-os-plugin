@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: "The Closed Loop"
 status: executing
-stopped_at: Completed 127.1-02-PLAN.md (Wave 1 parallel, Neo4j substrate code complete + Surface 2 GREEN)
-last_updated: "2026-05-19T20:54:14.336Z"
-last_activity: 2026-05-19
+stopped_at: Completed 127.1-01-PLAN.md
+last_updated: "2026-05-20T08:41:02.929Z"
+last_activity: 2026-05-20
 progress:
   total_phases: 60
   completed_phases: 44
   total_plans: 312
-  completed_plans: 301
+  completed_plans: 302
   percent: 93
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 127.1 (brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 3 of 5
+Plan: 2 of 5
 Status: Ready to execute
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
@@ -160,7 +160,7 @@ Awaiting user action (Gate 5):
 - 5a: git push origin main --tags
 - 5b: cd ~/mindrian-marketplace && pin marketplace.json source.ref to v1.10.14 + commit + push master
 
-Last activity: 2026-05-19
+Last activity: 2026-05-20
 
 Progress: [█████████░] 93%
 
@@ -365,6 +365,7 @@ Progress: [█████████░] 93%
 | Phase 127 P02 | 17min | 3 tasks | 8 files |
 | Phase 127.1 P00 | 6min | 2 tasks | 6 files |
 | Phase 127.1 P02 | 12min | 2 tasks | 4 files |
+| Phase 127.1 P01 | 18min | 2 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -939,6 +940,8 @@ Progress: [█████████░] 93%
 - [Phase 127.1]: Wave 0 NYQUIST scaffold: 4 Validation Architecture surfaces have grep-able harness contracts on disk RED-by-design before any migration code lands; Surface 3 hardcodes the 0.80 top-5 overlap BLOCKING cutover gate
 - [Phase 127.1]: Fixture-mode-by-default + per-suite consumer-plan attribution: each RED message names the exact plan (127.1-01, -02, -03) producing its fixture, structurally preventing silent-green tests-reference-nonexistent-fixture failure
 - [Phase 127.1]: Plan 127.1-02 Neo4j HNSW substrate ships: DDL (mcp-server-brain/sql/127.1-vector-index.cypher) + idempotent loader (scripts/load-embeddings-into-neo4j.cjs, 496 lines) + brain-vector-search.cjs server-side library (271 lines) with SEARCH-vs-queryNodes branching per A127.1.1; Surface 2 harness GREEN against synthetic-pre-live-load index-config fixture (captureIndexConfig overwrites on operator's first live load)
+- [Phase 127.1]: 127.1-01: Pinecone exporter re-pointed to 6-namespace 12,401-vector export; manifest fixture flips Surface 1 GREEN
+- [Phase 127.1]: 127.1-01: sourced live PINECONE_API_KEY from the configured pinecone MCP block rather than declaring an auth gate; reverted sample fixture to avoid a Canon Part 8 user-content leak
 
 ### Pending Todos
 
@@ -970,6 +973,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-19T20:54:14.319Z
-Stopped at: Completed 127.1-02-PLAN.md (Wave 1 parallel, Neo4j substrate code complete + Surface 2 GREEN)
+Last session: 2026-05-20T08:40:57.428Z
+Stopped at: Completed 127.1-01-PLAN.md
 Resume file: None
