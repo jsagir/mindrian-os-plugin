@@ -1,97 +1,94 @@
 <div align="center">
-  <img src="https://mindrianos-jsagirs-projects.vercel.app/logo_dark.svg" alt="MindrianOS" width="160" />
+  <img src="https://mindrianos-jsagirs-projects.vercel.app/logo_dark.svg" alt="MindrianOS" width="200" />
 
   # MindrianOS
 
-  **The thinking partner for problems worth solving.**
+  **When you are walking through a problem worth solving and you cannot yet name what is missing, MindrianOS is the thinking partner that walks beside you.**
 
-  Powered by PWS, a well-tested, pedagogically-built innovation methodology by
-  [Prof. Lawrence Aronhime](https://www.linkedin.com/in/lawrence-aronhime-8363894/).
-  Built by [Jonathan Sagir](https://www.linkedin.com/in/jonathansagir/).
+  Powered by PWS (Problems Worth Solving), an innovation methodology built and tested through 20 years of teaching by Prof. Lawrence Aronhime.
+  Engineered by Jonathan Sagir.
 
-  [![Version](https://img.shields.io/badge/v1.13.0-The_Closed_Loop-blue)](CHANGELOG.md)
-  [![License](https://img.shields.io/badge/license-BSL_1.1-orange)](LICENSE)
-  [![Works on](https://img.shields.io/badge/works_on-CLI_+_Desktop_+_Cowork-brightgreen)](#three-surfaces)
+  [![Version](https://img.shields.io/badge/v1.13.0-The_Closed_Loop-1E3A6E)](CHANGELOG.md)
+  [![License](https://img.shields.io/badge/license-BSL_1.1-C8A43C)](LICENSE)
+  [![Works on](https://img.shields.io/badge/CLI_+_Desktop_+_Cowork-2D6B4A)](#three-surfaces)
 
-  [Website](https://mindrianos-jsagirs-projects.vercel.app) |
-  [Marketplace](https://github.com/jsagir/mindrian-marketplace) |
+  [Website](https://mindrianos-jsagirs-projects.vercel.app) ·
+  [Marketplace](https://github.com/jsagir/mindrian-marketplace) ·
   [Brain Access](https://mindrianos-jsagirs-projects.vercel.app/brain-access)
-
 </div>
 
 ---
 
-## The job
+## The answer first
 
-You are working on something that matters. A venture. A research direction. A grant. A pivot. The problem you are trying to solve is real, but it is undefined, and you keep getting lost in it. You take notes, but the notes pile up. You have meetings, but you forget what was said two weeks ago. You make decisions, but you cannot remember why.
+> When you talk to Larry about what you are working on, MindrianOS turns the conversation into a structured room, remembers your decisions across sessions, and surfaces the contradictions you would otherwise miss.
 
-The hard part is not writing things down. The hard part is seeing what you cannot see: the contradiction between yesterday's strategy and today's market signal, the assumption that quietly went stale, the connection between two meetings that nobody noticed.
-
-MindrianOS is built for that. It is the thinking partner that walks beside you while you walk through the wicked problem.
+You do not learn a tool. You talk. The room takes shape underneath the conversation. Whatever you said yesterday is still working for you today.
 
 ---
 
-## How it works
+## How it works (in three pieces)
 
-You install the plugin. You start talking. The rest takes care of itself.
+### Larry is the thinking partner
 
-**Larry is the thinking partner.** Larry is the AI personality you talk to. Larry asks questions, suggests the right methodology for where you are, and quietly files what you say.
+Larry is the AI you talk to. Larry asks the questions that reframe the problem before you try to solve it, suggests the method that fits where you are, and files what you say into your room without making you stop to organize. You do not have to know the framework names. You describe what you are doing. Larry routes you.
 
-**The Data Room is your venture made legible.** Every conversation, every meeting, every decision lands in a folder structure organized by venture stage: the problem, the market, the solution, the team, the money, the IP, the meetings, the opportunities. You can open it in your file manager. You own it.
+### The Data Room is your venture made legible
 
-**The intelligence layer surfaces what you cannot see.** Every time you add something to the room, the system scans the rest and tells you what just changed. What contradicts what. What connects to what. What is now missing. What you stopped checking weeks ago.
+Every conversation, every meeting, every decision lands in a folder structure organized by venture stage: the problem, the market, the solution, the team, the money, the IP, the meetings, the opportunities. You open it in your file manager. You back it up like any other folder. You own it.
 
-**Your decisions teach the system.** When the system surfaces something, you decide: APPROVE (it cascades), REJECT (and tell the system why), or DEFER. Your reason becomes part of the room's memory. The next scan is smarter.
+### The room surfaces what you cannot see
 
-**The Brain orchestrates the method.** The Brain orchestrates a pedagogically-built, well-tested curated method for innovation against your current context, surfacing connections, contradictions, and gaps no single mind can hold. Connecting it makes Larry sharper. Not connecting it is fine; the system still teaches you. Either way, your venture data stays on your machine. The Brain only answers methodology questions, never sees your notes.
+Every time you add something new, the system compares it against everything already there. Larry tells you what just changed. What contradicts what. What connects to what. What is now missing. What you stopped checking weeks ago.
+
+You decide: APPROVE, REJECT (with a reason), or DEFER. The reason becomes part of the room. The next scan is smarter.
 
 ---
 
-## What you actually do in a session
+## What v1.13.0 changed (The Closed Loop)
 
-You talk. You type a few commands when you know the shortcut. You let Larry teach you the methodology when you do not.
+Before this release, MindrianOS could file your work and surface intelligence, but the loop did not always close. You would say something, the system would react, and nothing carried forward. v1.13.0 closes the loop:
+
+- **Larry leads turn one.** The first thing you see is a conversation, not a command menu.
+- **Your first sentence becomes a room.** Type a venture sentence, get a 30-second brief and a populated room before you have to commit anything else.
+- **Tensions persist across sessions.** Larry remembers what was unresolved and brings it back when relevant.
+- **Every conversation produces an artifact.** A first session leaves you with a real room, not an empty wizard.
+- **Decisions teach the system.** Your approvals, your rejections, your reasons become part of the room's working memory.
+
+Currently shipping as `v1.13.0-beta.19`. Final `v1.13.0` is imminent.
+
+---
+
+## What you do in a session
+
+Talk. Type a command when you know the shortcut. Let Larry teach you when you do not.
 
 ```bash
 /mos:new-project          # tell Larry what you are exploring
 /mos:beautiful-question   # reframe the problem before solving it
 /mos:analyze-needs        # who has this problem, how badly, what they have tried
 /mos:lean-canvas          # one-page business model
-/mos:file-meeting         # paste a transcript, Larry files it and surfaces what changed
+/mos:file-meeting         # paste a transcript, Larry files it
 /mos:opportunities        # what grants match this room right now
 /mos:query "what is the weakest assumption in my financial model?"
-/mos:grade                # honest assessment, calibrated against real ventures
+/mos:grade                # honest assessment against real ventures
 ```
 
-You do not have to memorize these. Just describe what you are trying to do; Larry routes you.
+You do not have to memorize these. Describe what you are trying to do. Larry routes you.
 
 ---
 
-## What v1.13.0 changed
+## Why the room compounds
 
-This release is called **The Closed Loop**. Before this version, MindrianOS could file your work and surface intelligence, but the loop did not always close: you would say something, the system would react, and then nothing would carry forward to the next session.
+Most tools get messier the more you put in. Search ranks worse. Folders bloat. The AI forgets what you told it last session. MindrianOS goes the other way.
 
-In v1.13.0, the loop closes:
-- **Larry leads turn one.** The first thing you see is a conversation, not a command menu.
-- **The first file you write triggers a background scan.** You will see findings on your next turn: whitespace, contradictions, cross-domain analogies you could borrow from.
-- **Contradictions persist across sessions.** Larry remembers what was unresolved and brings it back when relevant.
-- **Every conversation produces a real artifact.** A first session leaves you with a populated room, not an empty wizard.
-- **Your decisions are graph data.** The room learns from your approvals, your rejections, and the reasons you give.
-
-It is currently shipping as a release candidate (`v1.13.0-beta.13`). Final `v1.13.0` is imminent.
-
----
-
-## Why this gets better the longer you use it
-
-MindrianOS is a thinking tool that compounds. Most tools get messier the more you put in -- the search ranks worse, the folder gets bigger, the AI forgets what you told it last session. MindrianOS goes the other way.
-
-Here is the mechanism, in plain words: every conversation you have with Larry, every meeting you file, every decision you make and reason you give becomes part of your room. The room is searchable, structured, and remembered across sessions. Every NEW thing you add gets compared against everything already there.
+The mechanism is plain. Everything you say to Larry, every meeting you file, every decision you make and reason you give becomes part of your room. The room is searchable, structured, and remembered. Every NEW entry compares against everything already there.
 
 Day one, you have a folder.
 
 Day thirty, you have a folder that catches the contradiction between yesterday's strategy call and last week's customer interview, because nothing about either was forgotten. Larry brings back the assumption you made in week two when you are about to make a decision in week eight that depends on it. The room finds the connection between two meetings that happened a month apart that nobody remembers being related.
 
-The mechanism is not magic. It is just: nothing forgets, everything compares, and your own past work works for you. The longer you stay, the more the room knows, the more the room can show you what you cannot see on your own.
+Nothing forgets. Everything compares. Your own past work works for you.
 
 ---
 
@@ -125,37 +122,35 @@ mindrian-os update           # marketplace + plugin update
 mindrian-os doctor --all     # diagnose drift, suggest fixes
 ```
 
-### A note on install prompts
-
-Claude Code asks you to approve each shell command during install. 10+ prompts is normal. Pick "always allow" the first time you see one you are happy approving; the rest will not re-prompt.
+A note on install prompts: Claude Code asks you to approve each shell command. 10+ prompts is normal. Pick "always allow" the first time you see one you are happy with; the rest will not re-prompt.
 
 ---
 
 ## Three surfaces
 
-MindrianOS works wherever Claude works. One plugin, three places.
+MindrianOS works wherever Claude works.
 
 | Surface | What it gives you |
 |---------|-------------------|
 | **Claude Code CLI** | Full power. Hooks fire, scripts run, the room is on disk, Larry teaches with visible structure. |
-| **Claude Desktop** | Same Larry, conversational. The Data Room shows up as inline MCP Apps (dashboard, wiki, knowledge graph). |
+| **Claude Desktop** | Same Larry, conversational. The Data Room shows up as inline panels (dashboard, wiki, knowledge graph). |
 | **Cowork** | Same plugin, shared room. Daily briefings, persistent perspectives, multi-user. |
 
 ---
 
 ## The privacy line
 
-MindrianOS reads your workspace and writes only to your rooms (default: `~/MindrianRooms/`) and to session state (`./.mindrian/`). It does not write to the Brain server. Brain queries carry methodology questions only, never your notes, never your decisions, never your meetings.
+MindrianOS reads your workspace and writes only to your rooms (default: `~/MindrianRooms/`) and to session state (`./.mindrian/`). It does not push anything to the Brain. Brain queries carry methodology questions only, never your notes, never your decisions, never your meetings.
 
-If you want zero permission prompts during a session: `claude --dangerously-skip-permissions`. The read/write surface is bounded to your workspace and your rooms, so this is a reasonable choice for a methodology workflow. If you would rather be granular, paste the matcher set from [`docs/settings-template.json`](docs/settings-template.json) into `~/.claude/settings.json`.
+For zero permission prompts during a session: `claude --dangerously-skip-permissions`. The read/write surface is bounded to your workspace and your rooms. For granular control, copy the matcher set from [`docs/settings-template.json`](docs/settings-template.json) into `~/.claude/settings.json`.
 
 ---
 
 ## Why PWS, why Larry
 
-PWS (Problems Worth Solving) is a well-tested, pedagogically-built innovation methodology by Prof. Lawrence Aronhime. It is not a checklist. It is a way of thinking about ventures as wicked problems that need to be reframed before they can be solved, and that demand a working memory because nobody can hold the whole thing in their head.
+PWS (Problems Worth Solving) is not a checklist. It is a way of thinking about ventures as wicked problems that need to be reframed before they can be solved, and that demand a working memory because nobody can hold the whole thing in their head.
 
-Larry is the personality that delivers PWS in your terminal. The teaching is intrinsic; you do not have to know the framework names. Larry asks the question, suggests the move, and shows the chain. You decide.
+Larry is the personality that delivers PWS in your terminal. The teaching is intrinsic. You do not have to know the framework names. Larry asks the question, suggests the move, shows the chain. You decide.
 
 ---
 

@@ -440,7 +440,7 @@ function test_11_doctor_error_graceful() {
 function test_12_canon_part_8_source_audit() {
   const src = fs.readFileSync(POLL_MODULE, 'utf8');
   const forbidden = [
-    'brain.mindrian.ai', 'brainQuery', 'pinecone', 'embedQuery',
+    'mindrian-brain.onrender.com', 'brainQuery', 'pinecone', 'embedQuery',
     'brain-client.cjs', 'brain-mcp',
   ];
   for (const tok of forbidden) {

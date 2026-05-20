@@ -474,7 +474,7 @@ const CANONICAL_OPERATORS = [
       { token: 'fetch(',                allowedInComment: false },
       { token: 'XMLHttpRequest',        allowedInComment: false },
       { token: 'mcp-server-brain',      allowedInComment: true  },
-      { token: 'brain.mindrian.ai',     allowedInComment: true  },
+      { token: 'mindrian-brain.onrender.com',     allowedInComment: true  },
       // Forbid tokens that imply user-content egress.
       { token: 'JSON.stringify(provenance)', allowedInComment: false },
     ];

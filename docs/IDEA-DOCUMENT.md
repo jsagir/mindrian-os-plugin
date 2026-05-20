@@ -75,7 +75,7 @@ Optional, /usr/bin/bash. 50K nodes. Grows lazily as user works.
 Entry filed -> node created. Concept mentioned -> linked. Pattern detected -> edges.
 Projects isolated by project_id. Cross-project bridging explicit only.
 
-## 7. The Brain (Moat -- brain.mindrian.ai)
+## 7. The Brain (Moat -- mindrian-brain.onrender.com)
 
 Neo4j Aura Agent deployed as MCP server. 5 layers:
 1. Framework Graph (21K nodes, 65K rels, chaining rules, TRANSFORMS_OUTPUT_TO)

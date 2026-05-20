@@ -261,7 +261,7 @@ Wire as `<span class="gloss" data-term="hsi">HSI</span>` with definitions in `as
   "element novelty": "Per-artifact distance from the room centroid. Low = everything looks similar.",
   "FeynMinto": "Memory compression: Minto Pyramid Principle + Feynman simplification. Source: Phase 88-07 triple-context formatter.",
   "LazyGraph": "Local SQLite graph that caches only what a session touches. Never queries Brain for user data.",
-  "Brain": "Remote Neo4j methodology graph at brain.mindrian.ai. Stateless. Never holds user data.",
+  "Brain": "Remote Neo4j methodology graph at mindrian-brain.onrender.com. Stateless. Never holds user data.",
 
   "hookSpecificOutput": "Required envelope for hook script JSON output in Claude Code 2.x. Replaces top-level systemMessage / additionalContext fields that were rejected by the schema's additionalProperties:false. Source: docs.anthropic.com/en/docs/claude-code/hooks. Wired in plugin via scripts/check-hook-schema-compatibility.cjs",
   "gitCommitSha": "Per-plugin commit identifier tracked in ~/.claude/plugins/installed_plugins.json. Used by SHA-aware update detection to spot in-version hotfixes (cases where v<X> tag was force-moved).",

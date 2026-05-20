@@ -2,7 +2,7 @@
 
 > Audience: anyone editing the Brain MCP server (`server.cjs` +
 > `lib/neo4j-tools.cjs` + `lib/pinecone-tools.cjs` + `lib/brain-ask.cjs`).
-> Deployment: brain.mindrian.ai (remote, Streamable HTTP, API-key gated).
+> Deployment: mindrian-brain.onrender.com (remote, Streamable HTTP, API-key gated).
 
 This directory is the remote Brain MCP server. It is NOT shipped to users; it
 is served. Canon Part 8 governs it absolutely: the Brain holds generic

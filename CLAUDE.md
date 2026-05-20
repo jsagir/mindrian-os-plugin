@@ -44,7 +44,7 @@ Optional: connect Neo4j Aura (free) for deeper intelligence. Optional: connect B
 | Layer | What | Where | Who Owns It |
 |-------|------|-------|-------------|
 | **Plugin** | Skills, commands, agents, hooks, pipelines | This repo (marketplace) | Open |
-| **Brain** | Neo4j 15,298 nodes + Pinecone 12,401 embeddings + teaching intelligence | brain.mindrian.ai (remote MCP) | Jonathan — SECRET IP |
+| **Brain** | Neo4j 15,298 nodes + Pinecone 12,401 embeddings + teaching intelligence | mindrian-brain.onrender.com (remote MCP) | Jonathan — SECRET IP |
 | **Room** | Users workspace, entries, sub-rooms, LazyGraph, exports | Users local folder + their Aura | User owns their work |
 
 ---
@@ -403,7 +403,7 @@ A commercial Claude Code + Cowork plugin that delivers Mindrian's PWS (Personal 
 | Markdown + YAML frontmatter | Skills, agents, commands, pipelines, references | Shipped, stable |
 | JSON | plugin.json, hooks.json, .mcp.json, settings.json, STATE.md frontmatter | Shipped, stable |
 | Bash scripts (20 in scripts/) | Room analysis, state computation, meeting intelligence, PDF, transcription | Shipped, stable |
-| Neo4j Aura + Brain MCP | 15,298-node graph at brain.mindrian.ai (remote MCP, Streamable HTTP) | Deployed |
+| Neo4j Aura + Brain MCP | 15,298-node graph at mindrian-brain.onrender.com (remote MCP, Streamable HTTP) | Deployed |
 | Pinecone | 12,401 embeddings for Brain semantic search | Deployed |
 | Cytoscape.js (via CDN in dashboard HTML) | De Stijl knowledge graph visualization | Shipped v1.0 |
 | Velma API | Meeting transcription at 3c/hour | Integrated v2.0 |
@@ -518,7 +518,7 @@ A commercial Claude Code + Cowork plugin that delivers Mindrian's PWS (Personal 
 |-------------------|--------------------------|
 | 20 Bash scripts in `scripts/` | `lib/core/*.cjs` wraps script invocations via `child_process.execSync`. Bash scripts remain authoritative. Core library is the Node.js API surface over them. |
 | `hooks/hooks.json` + hook scripts | `session-start` hook gains opportunity scan: calls `node bin/mindrian-tools.cjs opportunity-scan`. New hook for persona refresh on room changes. |
-| Brain MCP (brain.mindrian.ai) | MindrianOS MCP server is SEPARATE. Both listed in user's `claude_desktop_config.json`. Claude orchestrates between them. They share no code. |
+| Brain MCP (mindrian-brain.onrender.com) | MindrianOS MCP server is SEPARATE. Both listed in user's `claude_desktop_config.json`. Claude orchestrates between them. They share no code. |
 | Plugin commands (commands/*.md) | Commands invoke `mindrian-tools.cjs` subcommands. Same core functions. Commands are the plugin-layer entry; tools.cjs is the execution layer. |
 | De Stijl dashboard | Dashboard reads `room/` filesystem. MCP tools write to same filesystem. Dashboard auto-refreshes. No direct integration needed. |
 | `room/` folder structure | Opportunity Bank = `room/opportunity-bank/`. Funding Room = `room/funding/`. AI Personas = `room/team/ai-personas/`. Same ICM pattern, new sections. |

@@ -58,7 +58,7 @@ Returns `null` (skip surfacing) when no active focus exists. Never throws.
 
 ### Step 3: gatherBrainContext()
 
-Reads the per-folder BRAIN.md quadruple via `lib/core/folder-memory.cjs` `readQuadruple(sectionPath)`. This is LOCAL-only per Canon Part 8. The agent NEVER queries `brain.mindrian.ai` at runtime; the BRAIN.md payload was pre-derived by an earlier `/mos:brain-derive` pass (Phase 90).
+Reads the per-folder BRAIN.md quadruple via `lib/core/folder-memory.cjs` `readQuadruple(sectionPath)`. This is LOCAL-only per Canon Part 8. The agent NEVER queries `mindrian-brain.onrender.com` at runtime; the BRAIN.md payload was pre-derived by an earlier `/mos:brain-derive` pass (Phase 90).
 
 Returns three graceful-degradation shapes:
 
