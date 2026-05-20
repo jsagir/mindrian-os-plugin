@@ -17,6 +17,14 @@
 #
 # First positional argument (before subcommand) can be a directory to override
 # ROOMS_HOME for that invocation. Defaults to $MINDRIAN_ROOMS_HOME or ~/MindrianRooms.
+#
+# Phase 128.1 (session-scoped active-room binding): the create / set-active /
+# archive subcommands are session-scoped writes. Each writes the racing global
+# fields (active / last_active) AND a session-keyed sessions[sessionId] entry,
+# under an os.mkdir directory lock on registry.json.lock so two concurrent
+# sessions never clobber each other's binding (D-02/D-03/D-06).
+#   Session id: $CLAUDE_SESSION_ID, then $session_id, then a sess-<ts> fallback.
+#   A leading `--session <id>` arg overrides it (used by hermetic test fixtures).
 
 set -euo pipefail
 
@@ -31,8 +39,31 @@ if [ $# -ge 1 ] && [ -d "$1" ]; then
   shift
 fi
 
+# Phase 128.1: optional `--session <id>` override (test fixtures set it).
+SESSION_ID_OVERRIDE=""
+if [ $# -ge 2 ] && [ "$1" = "--session" ]; then
+  SESSION_ID_OVERRIDE="$2"
+  shift 2
+fi
+
 REGISTRY_DIR="${ROOMS_HOME}/.rooms"
 REGISTRY_FILE="${REGISTRY_DIR}/registry.json"
+
+# Phase 128.1: resolve the canonical session id. Mirrors scripts/pre-compact /
+# scripts/on-stop -- CLAUDE_SESSION_ID, then the lowercase statusline env, then
+# a sess-<timestamp> cold-start fallback. The --session override wins. Never
+# empty so every session-scoped write keys into a stable sessions[] slot.
+ROOM_REGISTRY_SESSION_ID="$SESSION_ID_OVERRIDE"
+if [ -z "$ROOM_REGISTRY_SESSION_ID" ]; then
+  ROOM_REGISTRY_SESSION_ID="${CLAUDE_SESSION_ID:-}"
+fi
+if [ -z "$ROOM_REGISTRY_SESSION_ID" ]; then
+  ROOM_REGISTRY_SESSION_ID="${session_id:-}"
+fi
+if [ -z "$ROOM_REGISTRY_SESSION_ID" ]; then
+  ROOM_REGISTRY_SESSION_ID="sess-$(date +%s)"
+fi
+export ROOM_REGISTRY_SESSION_ID
 
 SUBCMD="${1:-}"
 shift 2>/dev/null || true
@@ -59,33 +90,95 @@ case "$SUBCMD" in
     fi
     ensure_registry
     python3 -c "
-import json, os, datetime
+import json, os, datetime, time
+
 reg_file = '$REGISTRY_FILE'
-with open(reg_file) as f:
-    reg = json.load(f)
-# Park currently active room
-old_active = reg.get('active', '')
-if old_active and old_active in reg.get('rooms', {}):
-    reg['rooms'][old_active]['status'] = 'parked'
-now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
-reg['rooms']['$NAME'] = {
-    'path': '$RPATH',
-    'created': now,
-    'last_opened': now,
-    'status': 'active',
-    'venture_name': '''$VNAME''',
-    'venture_stage': '''$VSTAGE''',
-    'git_enabled': 'false',
-    'git_remote': '',
-    'auto_push': 'off',
-    'vercel_url': ''
-}
-reg['active'] = '$NAME'
-tmp = reg_file + '.tmp'
-with open(tmp, 'w') as f:
-    json.dump(reg, f, indent=2)
-os.rename(tmp, reg_file)
-print(json.dumps(reg['rooms']['$NAME'], indent=2))
+session_id = os.environ.get('ROOM_REGISTRY_SESSION_ID', '')
+lock_dir = reg_file + '.lock'
+LOCK_TTL = 2.0
+RETRY_BUDGET = 0.2
+
+
+def acquire_lock():
+    started = time.time()
+    while time.time() - started < RETRY_BUDGET:
+        try:
+            os.mkdir(lock_dir)
+            return True
+        except FileExistsError:
+            try:
+                if time.time() - os.path.getmtime(lock_dir) > LOCK_TTL:
+                    try:
+                        os.rmdir(lock_dir)
+                    except OSError:
+                        pass
+                    continue
+            except OSError:
+                pass
+            time.sleep(0.005)
+        except OSError:
+            return False
+    return False
+
+
+def release_lock(held):
+    if held:
+        try:
+            os.rmdir(lock_dir)
+        except OSError:
+            pass
+
+
+def migrate_v3(reg):
+    # Additive v2 -> v3 migration (Phase 128.1): adds sessions + last_active;
+    # keeps the legacy active string as a mirror (D-04).
+    if not isinstance(reg.get('version'), int) or reg.get('version') < 3:
+        reg['sessions'] = reg.get('sessions') or {}
+        reg['last_active'] = reg.get('last_active') or reg.get('active') or ''
+        reg['version'] = 3
+    return reg
+
+
+held = acquire_lock()
+try:
+    with open(reg_file) as f:
+        reg = json.load(f)
+    reg = migrate_v3(reg)
+    reg['sessions'] = reg.get('sessions') or {}
+    # Park currently active room
+    old_active = reg.get('active', '')
+    if old_active and old_active in reg.get('rooms', {}):
+        reg['rooms'][old_active]['status'] = 'parked'
+    now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
+    reg['rooms']['$NAME'] = {
+        'path': '$RPATH',
+        'created': now,
+        'last_opened': now,
+        'status': 'active',
+        'venture_name': '''$VNAME''',
+        'venture_stage': '''$VSTAGE''',
+        'git_enabled': 'false',
+        'git_remote': '',
+        'auto_push': 'off',
+        'vercel_url': ''
+    }
+    # Session-scoped write: bind THIS session to the new room, plus the
+    # last_active + active legacy mirrors (D-02 / D-04).
+    if session_id:
+        reg['sessions'][session_id] = {
+            'room': '$NAME',
+            'bound_at': now,
+            'last_seen_at': now,
+        }
+    reg['last_active'] = '$NAME'
+    reg['active'] = '$NAME'
+    tmp = reg_file + '.tmp.' + str(os.getpid())
+    with open(tmp, 'w') as f:
+        json.dump(reg, f, indent=2)
+    os.rename(tmp, reg_file)
+    print(json.dumps(reg['rooms']['$NAME'], indent=2))
+finally:
+    release_lock(held)
 "
     # Create the room directory under ROOMS_HOME
     mkdir -p "${ROOMS_HOME}/${RPATH}"
@@ -193,26 +286,88 @@ print(json.dumps(reg['rooms']['$NAME'], indent=2))
       exit 1
     fi
     python3 -c "
-import json, os, sys, datetime
+import json, os, sys, datetime, time
+
 reg_file = '$REGISTRY_FILE'
-with open(reg_file) as f:
-    reg = json.load(f)
-if '$NAME' not in reg.get('rooms', {}):
-    print('[MindrianOS] Room not found: $NAME', file=sys.stderr); print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
-    sys.exit(1)
-# Park currently active room
-old_active = reg.get('active', '')
-if old_active and old_active in reg.get('rooms', {}) and old_active != '$NAME':
-    reg['rooms'][old_active]['status'] = 'parked'
-now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
-reg['rooms']['$NAME']['status'] = 'active'
-reg['rooms']['$NAME']['last_opened'] = now
-reg['active'] = '$NAME'
-tmp = reg_file + '.tmp'
-with open(tmp, 'w') as f:
-    json.dump(reg, f, indent=2)
-os.rename(tmp, reg_file)
-print('$NAME')
+session_id = os.environ.get('ROOM_REGISTRY_SESSION_ID', '')
+lock_dir = reg_file + '.lock'
+LOCK_TTL = 2.0
+RETRY_BUDGET = 0.2
+
+
+def acquire_lock():
+    started = time.time()
+    while time.time() - started < RETRY_BUDGET:
+        try:
+            os.mkdir(lock_dir)
+            return True
+        except FileExistsError:
+            try:
+                if time.time() - os.path.getmtime(lock_dir) > LOCK_TTL:
+                    try:
+                        os.rmdir(lock_dir)
+                    except OSError:
+                        pass
+                    continue
+            except OSError:
+                pass
+            time.sleep(0.005)
+        except OSError:
+            return False
+    return False
+
+
+def release_lock(held):
+    if held:
+        try:
+            os.rmdir(lock_dir)
+        except OSError:
+            pass
+
+
+def migrate_v3(reg):
+    if not isinstance(reg.get('version'), int) or reg.get('version') < 3:
+        reg['sessions'] = reg.get('sessions') or {}
+        reg['last_active'] = reg.get('last_active') or reg.get('active') or ''
+        reg['version'] = 3
+    return reg
+
+
+held = acquire_lock()
+try:
+    with open(reg_file) as f:
+        reg = json.load(f)
+    if '$NAME' not in reg.get('rooms', {}):
+        print('[MindrianOS] Room not found: $NAME', file=sys.stderr)
+        print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
+        release_lock(held)
+        sys.exit(1)
+    reg = migrate_v3(reg)
+    reg['sessions'] = reg.get('sessions') or {}
+    # Park currently active room
+    old_active = reg.get('active', '')
+    if old_active and old_active in reg.get('rooms', {}) and old_active != '$NAME':
+        reg['rooms'][old_active]['status'] = 'parked'
+    now = datetime.datetime.now(datetime.UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
+    reg['rooms']['$NAME']['status'] = 'active'
+    reg['rooms']['$NAME']['last_opened'] = now
+    # Session-scoped write (D-02): bind THIS session to the room, plus the
+    # last_active + active legacy mirrors (D-04, never removed).
+    if session_id:
+        reg['sessions'][session_id] = {
+            'room': '$NAME',
+            'bound_at': now,
+            'last_seen_at': now,
+        }
+    reg['last_active'] = '$NAME'
+    reg['active'] = '$NAME'
+    tmp = reg_file + '.tmp.' + str(os.getpid())
+    with open(tmp, 'w') as f:
+        json.dump(reg, f, indent=2)
+    os.rename(tmp, reg_file)
+    print('$NAME')
+finally:
+    release_lock(held)
 "
     ;;
 
@@ -231,21 +386,82 @@ print('$NAME')
       exit 1
     fi
     python3 -c "
-import json, os, sys
+import json, os, sys, time
+
 reg_file = '$REGISTRY_FILE'
-with open(reg_file) as f:
-    reg = json.load(f)
-if '$NAME' not in reg.get('rooms', {}):
-    print('[MindrianOS] Room not found: $NAME', file=sys.stderr); print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
-    sys.exit(1)
-reg['rooms']['$NAME']['status'] = 'archived'
-if reg.get('active') == '$NAME':
-    reg['active'] = ''
-tmp = reg_file + '.tmp'
-with open(tmp, 'w') as f:
-    json.dump(reg, f, indent=2)
-os.rename(tmp, reg_file)
-print('archived')
+lock_dir = reg_file + '.lock'
+LOCK_TTL = 2.0
+RETRY_BUDGET = 0.2
+
+
+def acquire_lock():
+    started = time.time()
+    while time.time() - started < RETRY_BUDGET:
+        try:
+            os.mkdir(lock_dir)
+            return True
+        except FileExistsError:
+            try:
+                if time.time() - os.path.getmtime(lock_dir) > LOCK_TTL:
+                    try:
+                        os.rmdir(lock_dir)
+                    except OSError:
+                        pass
+                    continue
+            except OSError:
+                pass
+            time.sleep(0.005)
+        except OSError:
+            return False
+    return False
+
+
+def release_lock(held):
+    if held:
+        try:
+            os.rmdir(lock_dir)
+        except OSError:
+            pass
+
+
+def migrate_v3(reg):
+    if not isinstance(reg.get('version'), int) or reg.get('version') < 3:
+        reg['sessions'] = reg.get('sessions') or {}
+        reg['last_active'] = reg.get('last_active') or reg.get('active') or ''
+        reg['version'] = 3
+    return reg
+
+
+held = acquire_lock()
+try:
+    with open(reg_file) as f:
+        reg = json.load(f)
+    if '$NAME' not in reg.get('rooms', {}):
+        print('[MindrianOS] Room not found: $NAME', file=sys.stderr)
+        print('  Fix: Run /mos:rooms to see available rooms', file=sys.stderr)
+        release_lock(held)
+        sys.exit(1)
+    reg = migrate_v3(reg)
+    reg['rooms']['$NAME']['status'] = 'archived'
+    if reg.get('active') == '$NAME':
+        reg['active'] = ''
+    if reg.get('last_active') == '$NAME':
+        reg['last_active'] = ''
+    # Session-scoped cleanup (D-02): clear every sessions[*] entry still bound
+    # to the archived room so no session is left pointing at an archived room.
+    sessions = reg.get('sessions') or {}
+    for sid in list(sessions.keys()):
+        entry = sessions.get(sid) or {}
+        if entry.get('room') == '$NAME':
+            del sessions[sid]
+    reg['sessions'] = sessions
+    tmp = reg_file + '.tmp.' + str(os.getpid())
+    with open(tmp, 'w') as f:
+        json.dump(reg, f, indent=2)
+    os.rename(tmp, reg_file)
+    print('archived')
+finally:
+    release_lock(held)
 "
     # Fire-and-forget graph sync (D-16: never blocks)
     node "${SCRIPT_DIR}/sync-rooms-graph" "$ROOMS_HOME" >/dev/null 2>&1 &

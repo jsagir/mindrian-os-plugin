@@ -3,7 +3,9 @@
 # Returns the absolute path of the active room on stdout.
 #
 # Resolution order (4 strategies):
-#   0.  Central registry: $ROOMS_HOME/.rooms/registry.json -> active room path
+#   0.  Central registry: $ROOMS_HOME/.rooms/registry.json -> session-scoped
+#       active room path (Phase 128.1 re-key: sessions[sessionId].room with
+#       last_active/active fallback; lazy-migrates registry v2 -> v3)
 #   0b. Directory scan: $ROOMS_HOME/<basename of WORK_DIR> exists
 #   1.  Workspace registry: $WORK_DIR/.rooms/registry.json (backward compat)
 #   2.  Legacy fallback: room/ or rooms/ directory (deprecation warning)
@@ -15,8 +17,14 @@
 #
 # Environment:
 #   MINDRIAN_ROOMS_HOME -- override ~/MindrianRooms as central rooms location
+#   CLAUDE_SESSION_ID / session_id -- the Claude Code session id. Strategy 0
+#     keys the active-room binding by this id so two concurrent sessions on two
+#     rooms do not collide on a single global field (Phase 128.1, D-02/D-03).
 #
-# Performance: must complete in under 200ms (single python3 call where possible)
+# Performance: must complete in under 200ms (single python3 call where possible).
+#   The Phase 128.1 session-scoped lookup is one extra dict access; the v2 -> v3
+#   migration write happens at most ONCE per machine (after version flips to 3
+#   it is a no-op).
 
 set -euo pipefail
 
@@ -33,23 +41,145 @@ done
 WORK_DIR="${WORK_DIR:-$PWD}"
 ROOMS_HOME="${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}"
 
-# --- Strategy 0: Central registry ---
+# --- Strategy 0: Central registry (Phase 128.1 session-scoped re-key) ---
+# Resolves the active room keyed by the Claude Code session id rather than a
+# single global `active` string, so two concurrent sessions never collide
+# (D-02/D-03). The bash script cannot `require` lib/core/session-binding.cjs
+# cleanly, so it re-implements the same resolution algorithm in python3:
+#   1. resolve the session id ($CLAUDE_SESSION_ID, $session_id, sess-<ts>).
+#   2. lazy-migrate registry v2 -> v3 under an os.mkdir directory lock.
+#   3. resolve sessions[sessionId].room; else last_active; else active.
+#   4. on first resolution for this session, write its sessions entry.
 CENTRAL_REGISTRY="${ROOMS_HOME}/.rooms/registry.json"
 if [ -f "$CENTRAL_REGISTRY" ]; then
-  ROOM_PATH=$(python3 -c "
-import json, sys, os
+  # Resolve the session id (mirrors scripts/pre-compact / scripts/on-stop:
+  # CLAUDE_SESSION_ID first, then the lowercase statusline env, then a
+  # sess-<timestamp> cold-start fallback). Never empty.
+  RR_SESSION_ID="${CLAUDE_SESSION_ID:-}"
+  if [ -z "$RR_SESSION_ID" ]; then
+    RR_SESSION_ID="${session_id:-}"
+  fi
+  if [ -z "$RR_SESSION_ID" ]; then
+    RR_SESSION_ID="sess-$(date +%s)"
+  fi
+
+  ROOM_PATH=$(RR_SESSION_ID="$RR_SESSION_ID" python3 -c "
+import json, sys, os, time
+
+reg_file = '$CENTRAL_REGISTRY'
+rooms_home = '$ROOMS_HOME'
+session_id = os.environ.get('RR_SESSION_ID', '')
+lock_dir = reg_file + '.lock'
+LOCK_TTL = 2.0          # stale-lock break threshold (seconds)
+RETRY_BUDGET = 0.2      # total lock-acquire retry budget (seconds)
+
+
+def acquire_lock():
+    # os.mkdir is atomic on POSIX AND Windows Git-Bash; a successful mkdir IS
+    # the lock, an existing dir is the contended signal. Mirrors the
+    # session-binding.cjs Pattern 2 directory-lock. Returns True if held.
+    started = time.time()
+    while time.time() - started < RETRY_BUDGET:
+        try:
+            os.mkdir(lock_dir)
+            return True
+        except FileExistsError:
+            try:
+                age = time.time() - os.path.getmtime(lock_dir)
+                if age > LOCK_TTL:
+                    try:
+                        os.rmdir(lock_dir)
+                    except OSError:
+                        pass
+                    continue
+            except OSError:
+                pass
+            time.sleep(0.005)
+        except OSError:
+            # A non-contention error -- run unguarded rather than hard-fail.
+            return False
+    return False
+
+
+def release_lock(held):
+    if held:
+        try:
+            os.rmdir(lock_dir)
+        except OSError:
+            pass
+
+
+def atomic_write(obj):
+    tmp = reg_file + '.tmp.' + str(os.getpid())
+    with open(tmp, 'w') as f:
+        json.dump(obj, f, indent=2)
+    os.rename(tmp, reg_file)
+
+
 try:
-    with open('$CENTRAL_REGISTRY') as f:
+    with open(reg_file) as f:
         reg = json.load(f)
-    active = reg.get('active', '')
-    if not active or active not in reg.get('rooms', {}):
-        sys.exit(1)
-    rel_path = reg['rooms'][active]['path']
-    abs_path = os.path.normpath(os.path.join('$ROOMS_HOME', rel_path))
-    if os.path.isdir(abs_path):
-        print(abs_path)
+
+    # Step 2: lazy v2 -> v3 migration under the lock (double-checked).
+    # Additive only -- adds sessions={} + last_active; never touches rooms;
+    # keeps the legacy active string as a mirror (D-04).
+    if not isinstance(reg.get('version'), int) or reg.get('version') < 3:
+        held = acquire_lock()
+        try:
+            with open(reg_file) as f:
+                fresh = json.load(f)
+            if not isinstance(fresh.get('version'), int) or fresh.get('version') < 3:
+                fresh['sessions'] = fresh.get('sessions') or {}
+                fresh['last_active'] = fresh.get('last_active') or fresh.get('active') or ''
+                fresh['version'] = 3
+                atomic_write(fresh)
+                reg = fresh
+            else:
+                reg = fresh
+        finally:
+            release_lock(held)
+
+    sessions = reg.get('sessions') or {}
+    rooms = reg.get('rooms') or {}
+
+    # Step 3: resolve the room. Session-scoped binding first; then last_active,
+    # then the legacy active mirror.
+    bound = (sessions.get(session_id) or {}).get('room')
+    if bound and bound in rooms:
+        active = bound
     else:
+        active = reg.get('last_active') or reg.get('active') or ''
+
+    if not active or active not in rooms:
         sys.exit(1)
+
+    rel_path = rooms[active]['path']
+    abs_path = os.path.normpath(os.path.join(rooms_home, rel_path))
+    if not os.path.isdir(abs_path):
+        sys.exit(1)
+
+    # Step 4: on first resolution for this session, persist its sessions entry
+    # so the binding is stable across this session's later hook invocations.
+    if session_id and session_id not in sessions:
+        held = acquire_lock()
+        try:
+            with open(reg_file) as f:
+                fresh = json.load(f)
+            fresh['sessions'] = fresh.get('sessions') or {}
+            if session_id not in fresh['sessions']:
+                now = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+                fresh['sessions'][session_id] = {
+                    'room': active,
+                    'bound_at': now,
+                    'last_seen_at': now,
+                }
+                atomic_write(fresh)
+        finally:
+            release_lock(held)
+
+    print(abs_path)
+except SystemExit:
+    raise
 except Exception:
     sys.exit(1)
 " 2>/dev/null) || ROOM_PATH=""
