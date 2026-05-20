@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "root": "~/MindrianRooms",
+  "active": "room-a",
+  "rooms": {
+    "room-a": { "path": "room-a", "venture_name": "Room A" },
+    "room-b": { "path": "room-b", "venture_name": "Room B" }
+  }
+}
