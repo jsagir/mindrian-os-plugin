@@ -1435,6 +1435,7 @@ Plans:
 - [x] 127.1-02-PLAN.md (Wave 1, parallel) -- Neo4j vector-index DDL (mindrian_methodology_vec, dim=1024, cosine) + loader script + brain-vector-search.cjs server-side library + Surface 2 GREEN + round-trip integrity verification (covers 127.1-09..12)
 - [x] 127.1-03-PLAN.md (Wave 2, CUTOVER, has checkpoint) -- Surface 3 BLOCKING harness GREEN (top-5 overlap >= 0.80) gates the server-side router flip from Pinecone to Neo4j HNSW; USE_NEO4J_VECTOR feature flag; shadow-mode divergence log; Pinecone fallback retained for one beta cycle per RESEARCH X2 (covers 127.1-13..17)
 - [ ] 127.1-04-PLAN.md (Wave 3, CLEANUP, has checkpoint) -- Divergence-log review + Pinecone vector-storage removal + Render env-var cleanup + server-facing doc strip + 7 gsd-debugger failure modes closed (covers 127.1-18..22)
+- [x] 127.1-05-PLAN.md (Wave 1, SOAK-INDEPENDENT, scope addition 2026-05-20) -- Brain-query moat guard: D-MOAT-1 brain_query admin gate + D-MOAT-2 Cypher execution safeguards (EXPLAIN estimated-row reject / row cap / byte cap / read timeout), both SHIPPED v1.13.0-beta.21; D-MOAT-4 Aura tier confirmed (Aura Free); D-MOAT-3 scoped neo4j_reader credential DEFERRED (Aura Free has no RBAC -- needs Aura Professional or a parameterized-query surface) (covers GRAPHRAG-COLLAPSE-127.1-23..27)
 
 ---
 

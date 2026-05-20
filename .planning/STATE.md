@@ -28,27 +28,27 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 Phase: 127.1 (brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
 Next phase: `/gsd:execute-phase 122 --auto` -- 5 plans (122-01..05), 5 linear waves, no human checkpoints; `/clear` first (fresh context). Then the maintainer email follow-up (90-day @mindrian_os Brain key + add to testers + styled welcome mail w/ version-aware install link -- needs the maintainer to provide the key + identify the email sender). Then `gsd-tools phase complete 95.6`'s roadmap-order successors (104, 110, 114, 115, 118, 119, 120, 121, 121.5).
-Plan: 127.1-05 of phase 127.1 (wave 1, single-plan wave) -- PAUSED AT CHECKPOINT
-Status: Executing Phase 127.1 -- Plan 127.1-05 paused at Task 3 checkpoint:human-verify
+Plan: 127.1-05 of phase 127.1 -- COMPLETE (Brain-query moat guard closed 2026-05-20)
+Status: Phase 127.1 -- Plan 127.1-05 complete; Plan 127.1-04 parked on a ~7-day soak
 
-**Plan 127.1-05 checkpoint-paused position (2026-05-20):**
+**Plan 127.1-05 COMPLETE (2026-05-20):**
 
-Plan 127.1-05 (Brain-query moat guard) is SOAK-INDEPENDENT (depends_on: [], wave 1).
-Tasks 1 and 2 are shipped and committed atomically; Task 3 is a blocking
-checkpoint:human-verify awaiting operator action on the Neo4j Aura console.
+Plan 127.1-05 (Brain-query moat guard) is DONE. It was SOAK-INDEPENDENT
+(depends_on: [], wave 1) and shipped standalone in v1.13.0-beta.21.
 
 - Task 1 (D-MOAT-1, brain_query admin gate) -- DONE, commit 0d1416a6
 - Task 2 (D-MOAT-2, Cypher execution safeguards) -- DONE, commit dd0d3ef7
-- Task 3 (D-MOAT-4 then D-MOAT-3, Aura-tier check + scoped neo4j_reader
-  credential) -- BLOCKED on operator. Needs: (1) the confirmed Aura tier of
-  5b8df33f.databases.neo4j.io read from https://console.neo4j.io/, (2) a
-  neo4j_reader credential created (Fork A scoped role on Professional+, Fork B
-  built-in reader role on Aura Free), (3) the resume signal with tier + fork +
-  username + password (+ denied property names for Fork A).
+- Task 3 (D-MOAT-4 then D-MOAT-3) -- RESOLVED. D-MOAT-4: the Aura tier of
+  5b8df33f.databases.neo4j.io was confirmed as Aura Free. D-MOAT-3 (scoped
+  neo4j_reader credential): NOT achievable on Aura Free -- Free has no RBAC
+  (no custom roles, no additional users, no property-level DENY) -- so it is
+  DEFERRED, pending the Brain's Neo4j on Aura Professional OR a
+  parameterized-query surface as a future phase. No NEO4J_READER_* env vars
+  were added (no credential exists to point them at).
 
-No SUMMARY.md yet (plan incomplete). No server.cjs / brain-ask.cjs touched.
-Resume by spawning a continuation executor for 127.1-05 Task 3 once the
-operator replies with the resume signal and types "approved".
+SUMMARY at 127.1-05-SUMMARY.md. No server.cjs / brain-ask.cjs touched.
+CLAUDE.md carries the "Brain-query moat guard" section. 127.1-05-PLAN.md is
+flipped to [x] in ROADMAP.md.
 Hard deadline: 2026-06-01 (NATO Defense College Rome embeds MindrianOS in June innovation classes)
 Soft deadline: -- (the 2026-05-11 commitment was met: beta.9 shipped to GitHub + marketplace)
 
