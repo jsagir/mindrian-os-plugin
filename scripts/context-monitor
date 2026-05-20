@@ -576,18 +576,23 @@ process.stdin.on('end', () => {
       governing_thought: '',
       operator: '',
     };
-    // Resolve room path: try registry first, fall back to room/
+    // Resolve room path: session-scoped binding first, fall back to room/.
+    // Phase 128.1-03b (D-03): the prior inline `reg.active` read was a Bucket B
+    // reader of the racing global string. It now routes through
+    // session-binding.resolveActiveRoom so concurrent sessions resolve their
+    // own room. The resolver does the session-keyed lookup plus the
+    // last_active/active fallback internally and never throws; the `tripwire`
+    // signal is destructured but not acted on here (Plan 05 owns the surface).
     let roomDir = '';
     const registryPath = path.join(dir, '.rooms', 'registry.json');
-    if (fs.existsSync(registryPath)) {
-      try {
-        const reg = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
-        if (reg.active && reg.rooms[reg.active]) {
-          const resolved = path.resolve(dir, reg.rooms[reg.active].path);
-          if (fs.existsSync(resolved)) roomDir = resolved;
-        }
-      } catch (e) {}
-    }
+    try {
+      const sessionBinding = require('../lib/core/session-binding.cjs');
+      const sid = sessionBinding.resolveSessionId();
+      const resolvedRoom = sessionBinding.resolveActiveRoom(sid);
+      if (resolvedRoom && resolvedRoom.path && fs.existsSync(resolvedRoom.path)) {
+        roomDir = resolvedRoom.path;
+      }
+    } catch (e) {}
     if (!roomDir) {
       const legacy = path.join(dir, 'room');
       if (fs.existsSync(legacy)) roomDir = legacy;
@@ -611,13 +616,23 @@ process.stdin.on('end', () => {
     }
 
     // Fallback chain when STATE.md current_room absent (Tier 0):
-    //   1. Registry rooms[active].name (legacy display name)
+    //   1. Session-scoped active room slug / its registry display name
     //   2. Workspace dir basename
+    // Phase 128.1-03b (D-03): the prior inline `reg.active` read was a Bucket B
+    // reader of the racing global string. It now routes through
+    // session-binding.resolveActiveRoom; the resolved slug is the canonical
+    // session-scoped room. The legacy display name from rooms[slug].name is
+    // still preferred when present.
     if (!roomName && fs.existsSync(registryPath)) {
       try {
-        const reg = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
-        if (reg.active && reg.rooms[reg.active]) {
-          roomName = reg.rooms[reg.active].name || reg.active;
+        const sessionBinding = require('../lib/core/session-binding.cjs');
+        const sid = sessionBinding.resolveSessionId();
+        const resolvedRoom = sessionBinding.resolveActiveRoom(sid);
+        const activeSlug = resolvedRoom && resolvedRoom.room;
+        if (activeSlug) {
+          const reg = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+          const meta = reg && reg.rooms && reg.rooms[activeSlug];
+          roomName = (meta && meta.name) || activeSlug;
         }
       } catch (e) {}
     }

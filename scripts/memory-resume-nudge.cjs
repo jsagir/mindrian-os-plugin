@@ -27,6 +27,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
+// Phase 128.1-03b: the canonical session-scoped active-room resolver.
+// getCurrentRoomSlug's inline `reg.active` read was a Bucket B-reader of the
+// racing global string; it now routes through resolveActiveRoom (D-03).
+const sessionBinding = require('../lib/core/session-binding.cjs');
 
 function emitNudge() {
   try {
@@ -122,17 +126,18 @@ function backfillFromWithinSession(acrossSession) {
   } catch (_) { /* graceful */ }
 }
 
+// Phase 128.1-03b (D-03): the prior inline `reg.active` read was a Bucket B
+// reader of the racing global string. resolveActiveRoom does the session-keyed
+// lookup plus the last_active/active fallback internally so concurrent
+// sessions resolve their own room. The `active_room` key (a non-existent
+// registry key per the 128.1-01 CALLER-INVENTORY "active_room shape note") is
+// dropped: it always returned null and is not the racing field. The `tripwire`
+// signal is destructured but not acted on here -- Plan 05 owns it.
 function getCurrentRoomSlug() {
   try {
-    const home = process.env.MINDRIAN_ROOMS_HOME || path.join(os.homedir(), 'MindrianRooms');
-    const regPath = path.join(home, '.rooms', 'registry.json');
-    if (!fs.existsSync(regPath)) return null;
-    const reg = JSON.parse(fs.readFileSync(regPath, 'utf8'));
-    if (!reg) return null;
-    // Two conventions: across-session uses `active`, jtbd-update uses `active_room`.
-    if (typeof reg.active === 'string' && reg.active) return reg.active;
-    if (typeof reg.active_room === 'string' && reg.active_room) return reg.active_room;
-    return null;
+    const sid = sessionBinding.resolveSessionId();
+    const { room /* path, tripwire */ } = sessionBinding.resolveActiveRoom(sid);
+    return (typeof room === 'string' && room.length > 0) ? room : null;
   } catch (_) { return null; }
 }
 

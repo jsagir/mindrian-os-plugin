@@ -30,6 +30,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const crypto = require('node:crypto');
+// Phase 128.1-03b: the canonical session-scoped active-room resolver.
+// activeRoomFromRegistry's `reg.active` read was a Bucket B-reader of the
+// racing global string; it now routes through resolveActiveRoom (D-03).
+const sessionBinding = require('../lib/core/session-binding.cjs');
 
 const BUDGET_MS = 200;
 const STOP_WORDS = new Set([
@@ -78,11 +82,23 @@ function readRegistry(root) {
   }
 }
 
-function activeRoomFromRegistry(reg) {
-  if (reg && typeof reg.active === 'string' && reg.active.length > 0) {
-    return reg.active;
+// Phase 128.1-03b (D-03): the prior inline `reg.active` read was a Bucket B
+// reader of the racing global string. The active room is now resolved through
+// session-binding.resolveActiveRoom so this UserPromptSubmit hook sees its
+// OWN session's room, not whichever concurrent session wrote `active` last.
+// resolveActiveRoom does the session-keyed lookup plus the last_active/active
+// fallback internally. The `reg` argument is retained for signature stability
+// (callers still pass the registry object for registeredRoomNames); it no
+// longer drives the racing-field resolution. The `tripwire` signal is
+// destructured but not acted on here -- Plan 05 owns the tripwire surface.
+function activeRoomFromRegistry(reg) {  // eslint-disable-line no-unused-vars
+  try {
+    const sid = sessionBinding.resolveSessionId();
+    const { room /* path, tripwire */ } = sessionBinding.resolveActiveRoom(sid);
+    return (typeof room === 'string' && room.length > 0) ? room : null;
+  } catch (_) {
+    return null;
   }
-  return null;
 }
 
 function registeredRoomNames(reg) {

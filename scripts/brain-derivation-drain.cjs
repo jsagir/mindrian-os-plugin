@@ -50,6 +50,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const { spawn } = require('node:child_process');
+// Phase 128.1-03b: the canonical session-scoped active-room resolver.
+// resolveActiveRoomDir's inline `reg.active` read was a Bucket B-reader of the
+// racing global string; it now routes through resolveActiveRoom (D-03).
+const sessionBinding = require('../lib/core/session-binding.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const PARENT_BUDGET_MS = 100;
@@ -68,20 +72,27 @@ function resolveMindrianRoomsRoot() {
   return null;
 }
 
+// Phase 128.1-03b (D-03): the prior inline `reg.active` read was a Bucket B
+// reader of the racing global string. resolveActiveRoom does the session-keyed
+// lookup plus the last_active/active fallback internally so concurrent
+// sessions resolve their own room. The `tripwire` signal is destructured but
+// not acted on here -- Plan 05 owns the tripwire surface.
 function resolveActiveRoomDir() {
-  const root = resolveMindrianRoomsRoot();
-  if (!root) return null;
-  let reg;
   try {
-    const regPath = path.join(root, '.rooms', 'registry.json');
-    reg = JSON.parse(fs.readFileSync(regPath, 'utf8'));
-  } catch (_) {
-    return null;
-  }
-  if (reg && typeof reg.active === 'string' && reg.active.length > 0) {
-    const cand = path.join(root, reg.active);
-    if (fs.existsSync(cand)) return cand;
-  }
+    const sid = sessionBinding.resolveSessionId();
+    const { room, path: roomPath /* tripwire */ } =
+      sessionBinding.resolveActiveRoom(sid);
+    if (roomPath && fs.existsSync(roomPath)) return roomPath;
+    // Fallback: derive from the slug under the rooms root (resolver path empty
+    // when the room is registered without an explicit path entry).
+    if (typeof room === 'string' && room.length > 0) {
+      const root = resolveMindrianRoomsRoot();
+      if (root) {
+        const cand = path.join(root, room);
+        if (fs.existsSync(cand)) return cand;
+      }
+    }
+  } catch (_) { /* graceful */ }
   return null;
 }
 

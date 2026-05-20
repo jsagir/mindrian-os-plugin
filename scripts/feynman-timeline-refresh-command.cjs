@@ -36,6 +36,11 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+// Phase 128.1-03b: the canonical session-scoped active-room resolver. The
+// local resolveActiveRoom() below read the racing global `reg.active` string
+// directly -- a Bucket B-reader. It now routes through
+// sessionBinding.resolveActiveRoom (D-03).
+const sessionBinding = require('../lib/core/session-binding.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const runner = require(path.join(REPO_ROOT, 'lib', 'core', 'feynman', 'timeline-runner.cjs'));
@@ -74,29 +79,33 @@ function safeIsDir(p)  { try { return fs.statSync(p).isDirectory(); } catch (_) 
 /**
  * resolveActiveRoom(rootsOverride) -> roomPath | null
  *
- * Reads ~/MindrianRooms/.rooms/registry.json (or override) and returns the
- * active room dir. Returns null if no registry, no active slug, or the path
- * does not resolve to an actual directory. Mirrors the resolver used by
- * scripts/brain-derive-command.cjs.
+ * Returns the session-scoped active room dir, or null if no room resolves or
+ * the resolved path is not a directory.
+ *
+ * Phase 128.1-03b (D-03): this previously read the racing global `reg.active`
+ * string directly. It now routes through session-binding.resolveActiveRoom so
+ * concurrent sessions resolve their own room. The resolver does the
+ * session-keyed lookup plus the last_active/active fallback internally. The
+ * `tripwire` signal is destructured but not acted on here -- Plan 05 owns it.
  */
 function resolveActiveRoom(rootsOverride) {
   const roomsRoot = rootsOverride
     || process.env.MINDRIAN_ROOMS_ROOT
     || process.env.MINDRIAN_ROOMS_HOME
     || path.join(os.homedir(), 'MindrianRooms');
-  const registryPath = path.join(roomsRoot, '.rooms', 'registry.json');
-  if (!safeIsFile(registryPath)) return null;
-  let reg;
-  try { reg = JSON.parse(fs.readFileSync(registryPath, 'utf8')); } catch (_) { return null; }
-  if (!reg || typeof reg !== 'object') return null;
-  const activeSlug = reg.active;
-  if (!activeSlug || typeof activeSlug !== 'string') return null;
-  const entry = reg.rooms && reg.rooms[activeSlug];
-  if (!entry || typeof entry !== 'object') return null;
-  const relPath = entry.path || activeSlug;
-  const absPath = path.resolve(roomsRoot, relPath);
-  if (!safeIsDir(absPath)) return null;
-  return absPath;
+  try {
+    const sid = sessionBinding.resolveSessionId();
+    const { room, path: roomPath /* tripwire */ } =
+      sessionBinding.resolveActiveRoom(sid);
+    if (roomPath && safeIsDir(roomPath)) return roomPath;
+    // Fallback: derive from the slug under the rooms root (resolver path empty
+    // when the room is registered without an explicit path entry).
+    if (typeof room === 'string' && room.length > 0) {
+      const absPath = path.resolve(roomsRoot, room);
+      if (safeIsDir(absPath)) return absPath;
+    }
+  } catch (_) { /* graceful */ }
+  return null;
 }
 
 /**

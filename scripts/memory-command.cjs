@@ -56,6 +56,10 @@ const PLUGIN_ROOT = path.resolve(__dirname, '..');
 // Phase 103 Wave 1 (data layer) modules.
 const acrossSession = require('../lib/hmi/across-session-memory.cjs');
 const crossRoom     = require('../lib/hmi/cross-room-memory.cjs');
+// Phase 128.1-03b: the canonical session-scoped active-room resolver. The
+// getActiveRoom() inline `reg.active` read was a Bucket B-reader of the racing
+// global string; it now routes through resolveActiveRoom (D-03).
+const sessionBinding = require('../lib/core/session-binding.cjs');
 
 // ----------------------------------------------------------------------
 // 12-glyph vocabulary (skills/ui-system/SKILL.md section 3).
@@ -105,15 +109,22 @@ function readRegistry() {
   }
 }
 
-// Resolve the active-room slug from the registry. Both schemas are accepted:
-//   { active_room: 'slug', rooms: [{slug, abs_path}, ...] }   (Phase 100 / jtbd-command shape)
-//   { active: 'slug', rooms: { slug: { path }, ... } }        (Phase 90 / cross-room shape)
+// Resolve the active-room slug for THIS session.
+// Phase 128.1-03b (D-03): the racing global `active` string is no longer read
+// inline. resolveActiveRoom does the session-keyed lookup plus the
+// last_active/active fallback internally so concurrent sessions resolve their
+// own room. The `active_room` key (a non-existent registry key per the
+// 128.1-01 CALLER-INVENTORY "active_room shape note") is dropped: it always
+// returned null and is not the racing field.
 function getActiveRoom() {
-  const reg = readRegistry();
-  if (!reg) return null;
-  if (typeof reg.active === 'string')      return reg.active;
-  if (typeof reg.active_room === 'string') return reg.active_room;
-  return null;
+  try {
+    const sid = sessionBinding.resolveSessionId();
+    const { room /* path, tripwire -- Plan 05 owns tripwire */ } =
+      sessionBinding.resolveActiveRoom(sid);
+    return (typeof room === 'string' && room.length > 0) ? room : null;
+  } catch (_) {
+    return null;
+  }
 }
 
 function getActiveRoomDir(slug) {

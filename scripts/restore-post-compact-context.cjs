@@ -21,6 +21,10 @@
 const path = require('node:path');
 const fs = require('node:fs');
 const os = require('node:os');
+// Phase 128.1-03b: the canonical session-scoped active-room resolver.
+// getActiveRoom's Strategy 1 inline `reg.active` read was a Bucket B-reader of
+// the racing global string; it now routes through resolveActiveRoom (D-03).
+const sessionBinding = require('../lib/core/session-binding.cjs');
 
 const ENVELOPE_ALLOWED = new Set([
   'decision', 'reason', 'continue', 'stopReason',
@@ -100,21 +104,30 @@ function parseStamp(content) {
 //   (c) STATE.md slug + cwd-relative resolution can mis-target if user's
 //       cwd happens to contain a STATE.md unrelated to the active room.
 function getActiveRoom(workDir) {
-  // Strategy 1: canonical registry read.
+  // Strategy 1: session-scoped active-room binding.
+  // Phase 128.1-03b (D-03): the prior inline `reg.active` read was a Bucket B
+  // reader of the racing global string. resolveActiveRoom does the
+  // session-keyed lookup plus the last_active/active fallback internally so
+  // concurrent sessions resolve their own room. last_opened is not part of the
+  // resolver contract, so it is read from the registry entry for the resolved
+  // slug (D-04b belt-and-suspenders cross-check is preserved). The `tripwire`
+  // signal is destructured but not acted on here -- Plan 05 owns it.
   try {
-    const registryPath = path.join(os.homedir(), 'MindrianRooms', '.rooms', 'registry.json');
-    const reg = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
-    if (reg && reg.active && reg.rooms && reg.rooms[reg.active]) {
-      const entry = reg.rooms[reg.active];
-      let roomPath = entry.path;
-      if (!path.isAbsolute(roomPath)) {
-        const root = (reg.root || '~/MindrianRooms').replace(/^~/, os.homedir());
-        roomPath = path.resolve(root, roomPath);
-      }
+    const sid = sessionBinding.resolveSessionId();
+    const { room: activeSlug, path: roomPath /* tripwire */ } =
+      sessionBinding.resolveActiveRoom(sid);
+    if (activeSlug && roomPath) {
+      let lastOpened = null;
+      try {
+        const registryPath = path.join(os.homedir(), 'MindrianRooms', '.rooms', 'registry.json');
+        const reg = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+        const entry = reg && reg.rooms && reg.rooms[activeSlug];
+        if (entry && entry.last_opened) lastOpened = entry.last_opened;
+      } catch (_) { /* last_opened unavailable -> D-04b becomes a no-op */ }
       return {
-        slug: reg.active,
+        slug: activeSlug,
         path: roomPath,
-        last_opened: entry.last_opened || null,
+        last_opened: lastOpened,
       };
     }
   } catch (_) {}

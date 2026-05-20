@@ -33,6 +33,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
+// Phase 128.1-03b: the canonical session-scoped active-room resolver.
+// readActiveRoomDir's inline `reg.active` read was a Bucket B-reader of the
+// racing global string; it now routes through resolveActiveRoom (D-03).
+const sessionBinding = require('../lib/core/session-binding.cjs');
 
 // ---------------------------------------------------------------------------
 // Canonical SessionStart envelope emission. The hook NEVER blocks; on any
@@ -67,17 +71,21 @@ function resolveRoomsHome() {
   return null;
 }
 
+// Phase 128.1-03b (D-03): the prior inline `reg.active` read was a Bucket B
+// reader of the racing global string. resolveActiveRoom does the session-keyed
+// lookup plus the last_active/active fallback internally so two concurrent
+// SessionStart hooks resolve their own room. The `tripwire` signal is
+// destructured but not acted on here -- Plan 05 owns the tripwire surface.
 function readActiveRoomDir(roomsHome) {
-  if (!roomsHome) return null;
-  // Try .rooms/registry.json first (the canonical Phase 83 active-room source).
+  // Session-scoped binding first.
   try {
-    const regPath = path.join(roomsHome, '.rooms', 'registry.json');
-    if (fs.existsSync(regPath)) {
-      const reg = JSON.parse(fs.readFileSync(regPath, 'utf8'));
-      if (reg && typeof reg.active === 'string' && reg.active.length > 0) {
-        const dir = path.join(roomsHome, reg.active);
-        if (fs.existsSync(dir)) return dir;
-      }
+    const sid = sessionBinding.resolveSessionId();
+    const { room, path: roomPath /* tripwire */ } =
+      sessionBinding.resolveActiveRoom(sid);
+    if (roomPath && fs.existsSync(roomPath)) return roomPath;
+    if (typeof room === 'string' && room.length > 0 && roomsHome) {
+      const dir = path.join(roomsHome, room);
+      if (fs.existsSync(dir)) return dir;
     }
   } catch (_e) { /* fall through */ }
   // Fallback: env override allows tests to point at a specific room dir.

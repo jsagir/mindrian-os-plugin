@@ -20,6 +20,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
+// Phase 128.1-03b: the canonical session-scoped active-room resolver.
+// readActiveRoom's inline `parsed.active` read was a Bucket B-reader of the
+// racing global string; it now routes through resolveActiveRoom (D-03).
+const sessionBinding = require('../lib/core/session-binding.cjs');
 
 // ---------------------------------------------------------------------------
 // Helpers (inline per plan 83-06 task 2; may be factored to lib/core in 83-07).
@@ -59,15 +63,17 @@ function resolveMindrianRoomsRoot() {
   return null;
 }
 
-function readActiveRoom(root) {
+// Phase 128.1-03b (D-03): the prior inline `parsed.active` read was a Bucket B
+// reader of the racing global string. resolveActiveRoom does the session-keyed
+// lookup plus the last_active/active fallback internally so this PreToolUse
+// hook resolves its OWN session's room. The `root` argument is retained for
+// signature stability; the resolver reads the canonical registry itself. The
+// `tripwire` signal is destructured but not acted on here -- Plan 05 owns it.
+function readActiveRoom(root) {  // eslint-disable-line no-unused-vars
   try {
-    const regPath = path.join(root, '.rooms', 'registry.json');
-    const raw = fs.readFileSync(regPath, 'utf8');
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed.active === 'string' && parsed.active.length > 0) {
-      return parsed.active;
-    }
-    return null;
+    const sid = sessionBinding.resolveSessionId();
+    const { room /* path, tripwire */ } = sessionBinding.resolveActiveRoom(sid);
+    return (typeof room === 'string' && room.length > 0) ? room : null;
   } catch (_) {
     return null;
   }

@@ -67,6 +67,11 @@ const path = require('node:path');
 
 const brainClient = require('../lib/core/brain-client.cjs');
 const brainDerivation = require('../lib/core/brain-derivation.cjs');
+// Phase 128.1-03b: the canonical session-scoped active-room resolver. The
+// local resolveActiveRoom() below re-implemented resolve-room Strategy 0 by
+// reading `reg.active` directly -- a Bucket B-reader of the racing global
+// string. It now routes through sessionBinding.resolveActiveRoom (D-03).
+const sessionBinding = require('../lib/core/session-binding.cjs');
 
 // ---------- Frozen constants ----------
 
@@ -132,35 +137,55 @@ function parseArgv(argv) {
 /**
  * resolveActiveRoom(rootsOverride) -> roomPath | null
  *
- * Reads ~/MindrianRooms/.rooms/registry.json (or the override) to find
- * the active room. Returns null if no registry exists, no active room
- * is declared, or the declared path is not a directory.
+ * Resolves the session-scoped active room dir. Returns null if no room
+ * resolves or the resolved path is not a directory.
  *
- * Mirrors scripts/resolve-room bash logic (central registry strategy 0)
- * in pure node.
+ * Phase 128.1-03b (D-03): this previously re-implemented resolve-room
+ * Strategy 0 by reading the racing global `reg.active` string directly. It
+ * now routes through session-binding.resolveActiveRoom so concurrent sessions
+ * resolve their own room. The resolver does the session-keyed lookup plus the
+ * last_active/active fallback internally. The `tripwire` signal is
+ * destructured but not acted on here -- Plan 05 owns the tripwire surface.
+ *
+ * The hermetic-test override is either an explicit `rootsOverride` argument
+ * OR the `MINDRIAN_ROOMS_ROOT` env (a fixture-only env -- production resolves
+ * against `MINDRIAN_ROOMS_HOME`). When a hermetic override is in effect the
+ * fixture registry under it is read and fed to the canonical resolver via its
+ * in-memory `opts.reg` path (no disk IO, no migration write-back -- the
+ * documented session-binding unit-test path). Production callers pass no
+ * override and resolve against the on-disk canonical registry.
  */
 function resolveActiveRoom(rootsOverride) {
-  const roomsRoot = rootsOverride
-    || process.env.MINDRIAN_ROOMS_ROOT
+  const hermeticOverride = rootsOverride || process.env.MINDRIAN_ROOMS_ROOT || null;
+  const roomsRoot = hermeticOverride
     || process.env.MINDRIAN_ROOMS_HOME
     || path.join(os.homedir(), 'MindrianRooms');
-  const registryPath = path.join(roomsRoot, '.rooms', 'registry.json');
-  if (!safeIsFile(registryPath)) return null;
-  let reg;
   try {
-    reg = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
-  } catch (_e) {
-    return null;
-  }
-  if (!reg || typeof reg !== 'object') return null;
-  const activeSlug = reg.active;
-  if (!activeSlug || typeof activeSlug !== 'string') return null;
-  const entry = reg.rooms && reg.rooms[activeSlug];
-  if (!entry || typeof entry !== 'object') return null;
-  const relPath = entry.path || activeSlug;
-  const absPath = path.resolve(roomsRoot, relPath);
-  if (!safeIsDir(absPath)) return null;
-  return absPath;
+    const sid = sessionBinding.resolveSessionId();
+    let resolved;
+    if (hermeticOverride) {
+      // Hermetic-test path: feed the fixture registry to the resolver in-memory.
+      let fixtureReg = null;
+      try {
+        fixtureReg = JSON.parse(
+          fs.readFileSync(path.join(roomsRoot, '.rooms', 'registry.json'), 'utf8'));
+      } catch (_e) { fixtureReg = null; }
+      if (!fixtureReg) return null;
+      resolved = sessionBinding.resolveActiveRoom(sid, { reg: fixtureReg });
+    } else {
+      resolved = sessionBinding.resolveActiveRoom(sid);
+    }
+    const room = resolved && resolved.room;
+    const roomPath = resolved && resolved.path;
+    if (roomPath && safeIsDir(roomPath)) return roomPath;
+    // Fallback: derive from the slug under the rooms root (resolver path empty
+    // when the room is registered without an explicit path entry).
+    if (typeof room === 'string' && room.length > 0) {
+      const absPath = path.resolve(roomsRoot, room);
+      if (safeIsDir(absPath)) return absPath;
+    }
+  } catch (_e) { /* graceful */ }
+  return null;
 }
 
 const os = require('node:os');

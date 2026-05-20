@@ -38,6 +38,10 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+// Phase 128.1-03b: the canonical session-scoped active-room resolver.
+// resolveActiveRoomDir's inline `parsed.active` read was a Bucket B-reader of
+// the racing global string; it now routes through resolveActiveRoom (D-03).
+const sessionBinding = require('../lib/core/session-binding.cjs');
 
 const ROOM_DB_MODULE = path.join(__dirname, '..', 'lib', 'core', 'room-db.cjs');
 
@@ -57,22 +61,28 @@ function resolveRoomsRoot() {
   return '';
 }
 
+// Phase 128.1-03b (D-03): the prior inline `parsed.active` read was a Bucket B
+// reader of the racing global string. resolveActiveRoom does the session-keyed
+// lookup plus the last_active/active fallback internally so concurrent
+// sessions resolve their own room. The `tripwire` signal is destructured but
+// not acted on here -- Plan 05 owns the tripwire surface.
 function resolveActiveRoomDir() {
-  const root = resolveRoomsRoot();
-  if (!root) return '';
-  const registry = path.join(root, '.rooms', 'registry.json');
-  if (!fs.existsSync(registry)) return '';
   try {
-    const raw = fs.readFileSync(registry, 'utf8');
-    const parsed = JSON.parse(raw);
-    const active = (parsed && typeof parsed.active === 'string') ? parsed.active.trim() : '';
-    if (!active) return '';
-    const dir = path.join(root, active);
-    if (!fs.existsSync(dir)) return '';
-    return dir;
-  } catch (_) {
-    return '';
-  }
+    const sid = sessionBinding.resolveSessionId();
+    const { room, path: roomPath /* tripwire */ } =
+      sessionBinding.resolveActiveRoom(sid);
+    if (roomPath && fs.existsSync(roomPath)) return roomPath;
+    // Fallback: derive from the slug under the rooms root (resolver path empty
+    // when the room is registered without an explicit path entry).
+    if (typeof room === 'string' && room.trim().length > 0) {
+      const root = resolveRoomsRoot();
+      if (root) {
+        const dir = path.join(root, room.trim());
+        if (fs.existsSync(dir)) return dir;
+      }
+    }
+  } catch (_) { /* graceful */ }
+  return '';
 }
 
 // Effective room dir: if an explicit argv path is provided AND exists, honor

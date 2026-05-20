@@ -24,6 +24,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
+// Phase 128.1-03b: the canonical session-scoped active-room resolver.
+// readActiveSlug's inline `reg.active` read was a Bucket B-reader of the
+// racing global string; it now routes through resolveActiveRoom (D-03).
+const sessionBinding = require('../lib/core/session-binding.cjs');
 
 function resolveRoomsHome() {
   if (process.env.MINDRIAN_ROOMS_HOME && fs.existsSync(process.env.MINDRIAN_ROOMS_HOME)) {
@@ -34,10 +38,17 @@ function resolveRoomsHome() {
   return null;
 }
 
-function readActiveSlug(roomsHome) {
+// Phase 128.1-03b (D-03): the prior inline `reg.active` read was a Bucket B
+// reader of the racing global string. resolveActiveRoom does the session-keyed
+// lookup plus the last_active/active fallback internally so concurrent
+// sessions resolve their own room. The `roomsHome` argument is retained for
+// signature stability; the resolver reads the canonical registry itself. The
+// `tripwire` signal is destructured but not acted on here -- Plan 05 owns it.
+function readActiveSlug(roomsHome) {  // eslint-disable-line no-unused-vars
   try {
-    const reg = JSON.parse(fs.readFileSync(path.join(roomsHome, '.rooms', 'registry.json'), 'utf8'));
-    return (reg && typeof reg.active === 'string' && reg.active.length > 0) ? reg.active : null;
+    const sid = sessionBinding.resolveSessionId();
+    const { room /* path, tripwire */ } = sessionBinding.resolveActiveRoom(sid);
+    return (typeof room === 'string' && room.length > 0) ? room : null;
   } catch (_e) { return null; }
 }
 
