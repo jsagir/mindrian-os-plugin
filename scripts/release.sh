@@ -206,13 +206,15 @@ if [ "$DRY_RUN" = "1" ]; then
   echo "  Step 6.6b : run tests/test-doctor-acceptance-self-coverage.cjs"
   echo "              (5 scaffolded broken-state fixtures + live no-regression guard;"
   echo "              HARD ABORT on fail, same rollback as Step 6.6; Phase 126 Plan 03)"
+  echo "  Step 6.7  : vendor production node_modules (npm ci --omit=dev + integrity"
+  echo "              gate + git add -f) into Commit A; MOS_SKIP_VENDOR=1 to skip"
   echo "  Step 7    : commit A on plugin repo -- 'release: v$NEW_VERSION', tag v$NEW_VERSION"
   echo "              commit on marketplace repo -- 'release: sync to v$NEW_VERSION'"
   echo "  Step 9.5  : npm publish @mindrian_os/install@$NEW_VERSION --tag $NPM_TAG_PREVIEW"
   if [ "$NO_NEXT_BUMP" = "1" ]; then
     echo "  Step 7.5  : SKIPPED (--no-next-bump). main HEAD stays at $NEW_VERSION."
   else
-    echo "  Step 7.5  : commit B on plugin repo -- bump to $NEXT_VERSION, CHANGELOG [Unreleased] -- v$NEXT_VERSION; marketplace repo -- bump marketplace.json to $NEXT_VERSION (7-place lockstep; source.ref stays at v$NEW_VERSION)"
+    echo "  Step 7.5  : commit B on plugin repo -- bump to $NEXT_VERSION, CHANGELOG [Unreleased] -- v$NEXT_VERSION, un-track node_modules (main HEAD stays clean); marketplace repo -- bump marketplace.json to $NEXT_VERSION (7-place lockstep; source.ref stays at v$NEW_VERSION)"
   fi
   echo "  Step 8    : dirty-repo / ahead-of-origin guard"
   echo "              current ahead-of-origin: $CURRENT_AHEAD commit(s); guard would allow up to $([ "$NO_NEXT_BUMP" = "1" ] && echo "1" || echo "2") release commit(s)"
@@ -420,11 +422,74 @@ if ! node "$PLUGIN_DIR/tests/test-doctor-acceptance-self-coverage.cjs"; then
 fi
 echo -e "${GREEN}  acceptance self-coverage passed${NC}"
 
+# --- Step 6.7: Vendor production node_modules into the release artifact ---
+# Debug session mcp-servers-cache-missing-node-modules (escalated mandate
+# 2026-05-21). The marketplace install delivers ONLY git-tracked files at the
+# tagged ref. If node_modules is absent the bundled MCP servers (mindrian-brain
+# + mindrian-os) crash at load with MODULE_NOT_FOUND until the SessionStart
+# reconcile hook repairs the cache on a later session. Vendoring the production
+# node_modules makes the Brain shim's dependencies present the instant the cache
+# lands -- no runtime install, no network, no race, all three platforms true by
+# construction (every production dependency is pure JS -- audited 2026-05-21:
+# zero .node addons, zero binding.gyp, zero prebuilds, zero lifecycle scripts).
+#
+# RELEASE-TIME VENDORING (Option V2): node_modules is force-added into Commit A
+# (the tagged release commit) ONLY. Commit B (Step 7.5) removes it again, so
+# `main` HEAD is never permanently burdened with the 32M tree -- only the tagged
+# release commits carry it, and git deduplicates identical blobs across tags.
+#
+# LOCKSTEP SURFACE: the vendored tree is built fresh via `npm ci --omit=dev`
+# from package-lock.json, so it can NEVER drift from the lock. This is an
+# additional release lockstep surface -- see .claude/includes/release-process.md.
+echo ""
+echo "=== Step 6.7: Vendor production node_modules (release-time, Commit A only) ==="
+cd "$PLUGIN_DIR"
+if [ "${MOS_SKIP_VENDOR:-0}" = "1" ]; then
+  echo -e "${YELLOW}  ! MOS_SKIP_VENDOR=1 -- node_modules NOT vendored. The release will rely on${NC}"
+  echo -e "${YELLOW}    the runtime self-heal alone. Only use this for a non-MCP doc-only release.${NC}"
+else
+  # package.json + package-lock.json must be in sync for `npm ci` to run.
+  if ! npm ci --omit=dev --no-audit --no-fund --silent; then
+    echo -e "${RED}  x npm ci --omit=dev failed. package-lock.json is likely out of sync${NC}"
+    echo "    with package.json. Run 'npm install' to resync the lock, commit it,"
+    echo "    then re-run release.sh. The vendored tree must build from the lock."
+    cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md || true
+    cd "$MARKETPLACE_DIR" && git checkout .claude-plugin/marketplace.json || true
+    exit 1
+  fi
+  # Integrity gate: the production tree must have the MCP-critical deps and
+  # report no missing/invalid packages.
+  if ! npm ls --omit=dev --depth=0 >/dev/null 2>&1; then
+    echo -e "${RED}  x npm ls --omit=dev reports missing/invalid packages after npm ci.${NC}"
+    echo "    Refusing to vendor an incomplete tree."
+    cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md || true
+    cd "$MARKETPLACE_DIR" && git checkout .claude-plugin/marketplace.json || true
+    exit 1
+  fi
+  for CRIT in "@modelcontextprotocol/sdk" "zod"; do
+    if [ ! -d "$PLUGIN_DIR/node_modules/$CRIT" ]; then
+      echo -e "${RED}  x MCP-critical dependency missing from vendored tree: $CRIT${NC}"
+      cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md || true
+      cd "$MARKETPLACE_DIR" && git checkout .claude-plugin/marketplace.json || true
+      exit 1
+    fi
+  done
+  VENDOR_PKGS=$(find "$PLUGIN_DIR/node_modules" -mindepth 1 -maxdepth 2 -name package.json 2>/dev/null | wc -l)
+  VENDOR_SIZE=$(du -sh "$PLUGIN_DIR/node_modules" 2>/dev/null | cut -f1)
+  echo -e "${GREEN}  Vendored production node_modules: $VENDOR_PKGS packages, $VENDOR_SIZE${NC}"
+  # Force-add: node_modules is in .gitignore (it must NOT live on main HEAD).
+  # `git add -f` overrides the ignore for Commit A; Commit B removes it again.
+  git add -f node_modules
+  echo "  node_modules force-staged for Commit A (gitignored on main; tag-only)"
+fi
+
 # --- Step 7: Commit A (release commit) -- finalizes vN, NEVER git add -A ---
 # Commit A holds the version-of-record at vN. The vN git tag points HERE.
 # An install via `marketplace.json source.ref: vN` checks out THIS commit, so
-# Claude Code reads plugin.json.version == vN and self-reports vN. The next-bump
-# (Commit B) follows Step 9.5 below.
+# Claude Code reads plugin.json.version == vN and self-reports vN. Commit A also
+# carries the vendored production node_modules (Step 6.7) so the bundled MCP
+# servers have their dependencies present the instant the install cache lands.
+# The next-bump (Commit B, Step 7.5) removes node_modules so main HEAD is clean.
 echo ""
 echo "=== Step 7: Commit A (release commit) -- plugin + marketplace ==="
 cd "$PLUGIN_DIR"
@@ -459,6 +524,15 @@ echo "  version: $NEW_VERSION  ->  dist-tag: @$NPM_TAG"
 # tests/, or scripts/release.sh. Surface the dry-run contents for the release
 # operator to review before the live publish. 95.6-10 re-runs this as a BLOCKING
 # checkpoint before the first live npm publish.
+#
+# node_modules guard (debug session mcp-servers-cache-missing-node-modules):
+# Step 6.7 vendors node_modules into the working tree for the git-distributed
+# marketplace artifact. The npm tarball is a SEPARATE distribution channel --
+# `npm install @mindrian_os/install` resolves deps from the registry, so the
+# vendored 32M node_modules must NEVER ship inside the npm tarball. The
+# package.json "files" allowlist already excludes it (node_modules is not
+# listed); this gate asserts that explicitly so a future allowlist edit cannot
+# silently bloat the published package.
 echo "  --- npm pack --dry-run payload review (allowlist must be the only contents) ---"
 PACK_OUT="$(npm pack --dry-run 2>&1 || true)"
 echo "$PACK_OUT"
@@ -469,7 +543,15 @@ if echo "$PACK_OUT" | grep -Eq '\.planning/|^npm notice .*docs/|mcp-server-brain
   echo "    Fix the package.json \"files\" allowlist before re-running. Do NOT publish."
   exit 1
 fi
-echo "  payload review OK -- only allowlisted paths present"
+if echo "$PACK_OUT" | grep -Eq 'node_modules/'; then
+  echo ""
+  echo -e "${RED}  x npm pack payload includes node_modules/.${NC}"
+  echo "    The vendored node_modules belongs ONLY in the git-distributed marketplace"
+  echo "    artifact, never in the npm tarball (npm resolves deps from the registry)."
+  echo "    Ensure package.json \"files\" does NOT list node_modules. Do NOT publish."
+  exit 1
+fi
+echo "  payload review OK -- only allowlisted paths present (no node_modules leak)"
 
 if [ "${MOS_TEST_DRY_RUN:-0}" = "1" ]; then
   echo "  [DRY RUN] would run: npm publish --tag $NPM_TAG"
@@ -799,6 +881,18 @@ fs.writeFileSync('.claude-plugin/marketplace.json', JSON.stringify(m, null, 2) +
   echo "" >> "$TEMP"
   cat CHANGELOG.md >> "$TEMP"
   mv "$TEMP" CHANGELOG.md
+
+  # Un-vendor: remove node_modules from the index so Commit B (which becomes
+  # main HEAD) does NOT carry the vendored tree. Step 6.7 force-added it for
+  # Commit A only; the vN tag keeps it, main HEAD does not. `git rm -r --cached`
+  # un-tracks it without deleting the working-tree files (the local install
+  # stays usable). If node_modules was never vendored (MOS_SKIP_VENDOR) this is
+  # a harmless no-op.
+  cd "$PLUGIN_DIR"
+  if git ls-files --error-unmatch node_modules >/dev/null 2>&1; then
+    git rm -r --cached --quiet node_modules
+    echo "  node_modules un-tracked for Commit B (main HEAD stays clean; vN tag keeps it)"
+  fi
 
   git add .claude-plugin/plugin.json package.json CHANGELOG.md
   git commit -m "chore: bump to v$NEXT_VERSION (next pre-release)" || echo "Nothing to commit in plugin (Commit B)"

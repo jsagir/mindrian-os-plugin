@@ -351,6 +351,25 @@ else
 fi
 
 # ============================================================
+# PACKAGE-LOCK SYNC (vendored-node_modules lockstep)
+# ============================================================
+# Debug session mcp-servers-cache-missing-node-modules: release.sh Step 6.7
+# vendors production node_modules built via `npm ci --omit=dev`, which REQUIRES
+# package-lock.json to be in sync with package.json. A stale lock means the
+# release aborts at Step 6.7 -- catch it here, earlier, with a clear message.
+echo ""
+echo -e "${BOLD}Package-lock sync (vendored-deps lockstep)${NC}"
+if [ -f "$PLUGIN_ROOT/package-lock.json" ]; then
+  if ( cd "$PLUGIN_ROOT" && npm ci --dry-run --omit=dev --no-audit --no-fund >/dev/null 2>&1 ); then
+    pass "package-lock.json is in sync with package.json (npm ci can run)"
+  else
+    fail "package-lock.json is OUT OF SYNC with package.json -- run 'npm install' to resync the lock, commit it (the vendored node_modules tree is built from this lock and must never drift from it)"
+  fi
+else
+  fail "package-lock.json MISSING -- required for the vendored-node_modules release lockstep"
+fi
+
+# ============================================================
 # SUMMARY
 # ============================================================
 echo ""
