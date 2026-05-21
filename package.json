@@ -35,10 +35,8 @@
     "flexsearch": "^0.7.43",
     "gray-matter": "^4.0.3",
     "markdown-it": "^14.1.0",
+    "semver": "^7.7.4",
     "zod": "^3.25.76"
-  },
-  "devDependencies": {
-    "semver": "^7.7.4"
   },
   "engines": {
     "node": ">=22.5.0"
