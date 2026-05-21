@@ -6,6 +6,18 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-npm-reconcile.cjs\"",
+            "timeout": 120000,
+            "async": false,
+            "statusMessage": "Reconciling dependencies..."
+          }
+        ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" session-start",
             "timeout": 10000,
             "async": false,
@@ -22,18 +34,6 @@
             "timeout": 10000,
             "async": false,
             "statusMessage": "Loading room context..."
-          }
-        ]
-      },
-      {
-        "matcher": "startup|clear|compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-npm-reconcile.cjs\"",
-            "timeout": 60000,
-            "async": true,
-            "statusMessage": "Reconciling dependencies..."
           }
         ]
       },

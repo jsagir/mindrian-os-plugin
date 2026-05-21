@@ -36,8 +36,23 @@
 
 const path = require('path');
 const fs = require('fs');
-const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js');
-const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
+
+// -- Dependency self-heal (Option D, debug session
+// mcp-servers-cache-missing-node-modules). `claude plugin update` can land a
+// fresh plugin cache with NO node_modules; on the first post-update session
+// this MCP server may spawn before the SessionStart reconcile hook finishes its
+// npm install. mcp-dep-heal.cjs + npm-install-lock.cjs are pure node-built-in
+// modules (safe to require with node_modules absent). ensureDepsPresent runs a
+// guarded one-shot `npm install` if node_modules is missing/incomplete BEFORE
+// any npm-dependency require below (the SDK direct requires AND the transitive
+// requires inside the lib/mcp/* modules). requireWithHeal is the per-require
+// backstop, including the lazy express / streamableHttp requires in main().
+const { ensureDepsPresent, requireWithHeal } = require('../lib/core/mcp-dep-heal.cjs');
+const healLog = (msg) => { try { process.stderr.write(msg + '\n'); } catch (e) { /* swallow */ } };
+ensureDepsPresent({ log: healLog });
+
+const { McpServer } = requireWithHeal('@modelcontextprotocol/sdk/server/mcp.js', { log: healLog });
+const { StdioServerTransport } = requireWithHeal('@modelcontextprotocol/sdk/server/stdio.js', { log: healLog });
 const { detectSurface } = require('../lib/mcp/surface-detect.cjs');
 const { registerCapabilities } = require('../lib/mcp/capability-registry.cjs');
 const { computeCatchUp, registerShutdownHandler } = require('../lib/mcp/session-catchup.cjs');
@@ -80,7 +95,7 @@ registerRouterTools(server, roomDir, pluginRoot, larryContext);
 //                   claims and route filing through Phase 109 navigation.cjs
 // Both wrap pure lib/core entries; safe for Desktop/Cowork stdio transport.
 // -----------------------------------------------------------------------------
-const { z } = require('zod');
+const { z } = requireWithHeal('zod', { log: healLog });
 const dualPathDetector = require('../lib/core/dual-path-detector.cjs');
 const shallowDocParser = require('../lib/core/shallow-doc-parser.cjs');
 

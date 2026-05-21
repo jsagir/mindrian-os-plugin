@@ -1,3 +1,15 @@
+## [1.13.0-beta.23] - 2026-05-21
+
+### Fixed
+- **MCP servers crash with `MODULE_NOT_FOUND` on the first session after a plugin update.** `claude plugin update` lands a fresh plugin cache directory with no `node_modules` (neither the marketplace git-clone nor the npm tarball ship dependencies). A SessionStart reconcile hook is meant to `npm install` into the cache, but it ran as an *async* hook -- so Claude Code spawned the two bundled MCP servers (`mindrian-brain` + `mindrian-os`, both `alwaysLoad`) before the install finished. On that first post-update session both servers crashed at module load (`Cannot find module '@modelcontextprotocol/sdk/server/mcp.js'`), the Brain was unreachable, and `/reload-plugins` reported a load error. The box self-healed on the *next* session, which masked the bug. Root cause: a startup-order race (debug session `mcp-servers-cache-missing-node-modules`).
+
+### Changed
+- **Hybrid self-heal for the plugin cache (Option D).** Three coordinated changes close the race from both ends:
+  1. The `sessionstart-npm-reconcile.cjs` hook is now `async: false` and ordered FIRST in the `SessionStart` chain, so the dependency install completes before Claude Code reads `.mcp.json` and spawns the MCP servers. Healthy sessions stay near-zero cost (a few `stat()` calls); only the first post-update session pays the ~3s install.
+  2. Both MCP entry points (`bin/mindrian-brain-mcp-client.cjs`, `bin/mindrian-mcp-server.cjs`) now self-heal: a `MODULE_NOT_FOUND` on the SDK / `zod` requires triggers a one-shot synchronous `npm install` in the plugin cache root, then re-requires. Each server is self-sufficient regardless of hook-vs-MCP startup ordering.
+  3. A new lockfile guard (`lib/core/npm-install-lock.cjs`) ensures that when both servers spawn together, exactly one runs `npm install` while the other blocks and waits for it -- two concurrent installs can never corrupt `node_modules`. The reconcile hook routes its install through the same guarded path.
+- New module: `lib/core/mcp-dep-heal.cjs` (`ensureDepsPresent` + `requireWithHeal`). Zero network surface -- pure node built-ins plus a single guarded `npm install` child process (Canon Part 8). Mirrors the existing reconcile-hook detection logic rather than inventing a new mechanism (Canon Part 7).
+
 ## [1.13.0-beta.22] - 2026-05-21
 
 ### Documentation

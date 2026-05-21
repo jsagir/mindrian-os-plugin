@@ -61,12 +61,30 @@ try {
     }
   }
   if (needInstall) {
-    const { spawnSync } = require('node:child_process');
-    spawnSync('npm', ['install', '--no-audit', '--no-fund', '--silent'], {
-      cwd: PLUGIN_ROOT,
-      timeout: 60000,
-      stdio: 'ignore',
-    });
+    // Route the install through the shared guarded path so this hook and the
+    // MCP self-heal (lib/core/mcp-dep-heal.cjs, debug session
+    // mcp-servers-cache-missing-node-modules) never run two concurrent
+    // `npm install` invocations against the same node_modules. The lock-loser
+    // waits for the winner instead of corrupting the directory.
+    //
+    // mcp-dep-heal.cjs + npm-install-lock.cjs are pure node-built-in modules,
+    // so requiring them is safe even with node_modules absent. If the require
+    // somehow fails (truncated cache), fall back to a direct guarded-best-effort
+    // install -- the uncaughtException handler still guarantees {continue:true}.
+    let healed = false;
+    try {
+      const { runGuardedInstall } = require('../lib/core/mcp-dep-heal.cjs');
+      runGuardedInstall(PLUGIN_ROOT);
+      healed = true;
+    } catch (_) { /* fall through to direct install */ }
+    if (!healed) {
+      const { spawnSync } = require('node:child_process');
+      spawnSync('npm', ['install', '--no-audit', '--no-fund', '--silent'], {
+        cwd: PLUGIN_ROOT,
+        timeout: 120000,
+        stdio: 'ignore',
+      });
+    }
   }
 } catch (e) { /* swallow -- defensive: never block the hook chain */ }
 
