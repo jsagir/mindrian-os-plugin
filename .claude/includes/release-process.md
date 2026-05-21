@@ -30,6 +30,20 @@ If any of these drift, users get silent version mismatches. The diagnostic Lawre
 
 **Run `scripts/release.sh <version>` (when it exists) to enforce all five gates. Never bump versions by hand.**
 
+## Vendored node_modules Rule (release-time lockstep surface)
+
+The plugin ships its production `node_modules` with the released marketplace artifact so the bundled MCP servers (`mindrian-brain` + `mindrian-os`) have their dependencies present the instant the install cache lands -- no runtime `npm install`, no network, no startup race (debug session `mcp-servers-cache-missing-node-modules`). The marketplace install delivers only git-tracked files at the tagged ref, so the vendored tree must be git-tracked at the tagged release commit.
+
+This is a **release-time** lockstep surface, not a `main` surface:
+
+- `scripts/release.sh` Step 6.7 builds the tree fresh via `npm ci --omit=dev` (so it can NEVER drift from `package-lock.json`), runs an integrity gate (`npm ls --omit=dev` + MCP-critical-dep presence check), and `git add -f node_modules` into **Commit A** (the tagged release commit).
+- Step 7.5 (Commit B, which becomes `main` HEAD) runs `git rm -r --cached node_modules`, so `main` HEAD never carries the vendored tree. Only the tagged release commits do; git deduplicates identical blobs across tags.
+- The `npm pack` payload gate (Step 9.5) rejects `node_modules/` from the published npm tarball -- the npm channel resolves deps from the registry; only the git-distributed marketplace artifact carries the vendored tree.
+
+**Prerequisite:** `package-lock.json` must be in sync with `package.json` (`npm ci` refuses a stale lock). `scripts/verify-release` checks this. If it fails, run `npm install` to resync the lock and commit it.
+
+**Vendoring is only cross-platform-safe because every production dependency is pure JavaScript** (no native/compiled binaries). Re-audit when adding a dependency: a package with a `.node` addon, a `binding.gyp`, prebuilt platform binaries, or an install lifecycle script would make a single vendored tree platform-specific. If a native dep is ever added, this rule must change (per-platform trees, or drop vendoring for runtime install).
+
 ## Marketplace Source Must Be Pinned
 
 The marketplace `source` URL **must include a `ref` field** pointing at a git tag:
