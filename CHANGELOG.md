@@ -1,3 +1,11 @@
+## [1.13.0-beta.22] - 2026-05-21
+
+### Documentation
+- **Brain-query moat guard recorded (Phase 127.1 Plan 05).** The moat-guard code shipped inside the v1.13.0-beta.21 tag but beta.21's changelog never recorded it. Backfilled here: on the `mcp-server-brain` Brain server, `brain_query` is now gated to the `admin` plan (D-MOAT-1), and four Cypher execution safeguards ported from the official Neo4j `mcp-neo4j-cypher` recipe bound every read the gate permits (EXPLAIN estimated-row reject, row cap, byte cap, read timeout; D-MOAT-2). The Brain's Neo4j was confirmed on the Aura Free tier (D-MOAT-4); a scoped `neo4j_reader` credential (D-MOAT-3) is deferred because Aura Free has no role-based access control. `mcp-server-brain/CLAUDE.md` carries the full "Brain-query moat guard" section. This is a Brain-server change, not shipped-plugin code; no plugin behavior changes in this beta.
+
+### Internal
+- **Phase 128.1 (session isolation) parked on branch `phase-128.1`.** Phase 128.1 is a v1.13.1 milestone phase. It was pulled off the v1.13.0 release line so the line stays clean; `main` carries zero 128.1 code. 128.1 is complete on its branch (6 of 6 plans) and ships in the v1.13.1-beta.3 band with phases 128 and 129.
+
 ## [1.13.0-beta.21] - 2026-05-20
 
 ### Added
