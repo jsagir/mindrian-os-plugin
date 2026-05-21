@@ -78,12 +78,32 @@ try {
       healed = true;
     } catch (_) { /* fall through to direct install */ }
     if (!healed) {
+      // Fallback path: the shared guarded module could not be required (a
+      // truncated cache). Run the install directly -- but STILL portable.
+      // npm-cli-resolve.cjs is a pure node-built-in module (safe to require
+      // with node_modules absent); it resolves npm to its absolute npm-cli.js
+      // off process.execPath so this works on Windows (no `.cmd` dependency)
+      // and Mac (no PATH dependency for GUI-launched Claude Code), not just
+      // Linux. If even that require fails, the last-ditch bare spawn runs --
+      // the uncaughtException handler still guarantees {continue:true}.
       const { spawnSync } = require('node:child_process');
-      spawnSync('npm', ['install', '--no-audit', '--no-fund', '--silent'], {
-        cwd: PLUGIN_ROOT,
-        timeout: 120000,
-        stdio: 'ignore',
-      });
+      try {
+        const { resolveNpmCli, buildInstallArgs } = require('../lib/core/npm-cli-resolve.cjs');
+        const npm = resolveNpmCli();
+        spawnSync(npm.command, buildInstallArgs(npm), {
+          cwd: PLUGIN_ROOT,
+          timeout: 120000,
+          stdio: 'ignore',
+          shell: npm.shell,
+        });
+      } catch (_) {
+        spawnSync('npm', ['install', '--no-audit', '--no-fund', '--silent'], {
+          cwd: PLUGIN_ROOT,
+          timeout: 120000,
+          stdio: 'ignore',
+          shell: process.platform === 'win32',
+        });
+      }
     }
   }
 } catch (e) { /* swallow -- defensive: never block the hook chain */ }
