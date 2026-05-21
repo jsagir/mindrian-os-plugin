@@ -13,6 +13,9 @@
 - New modules: `lib/core/mcp-dep-heal.cjs` (`ensureDepsPresent` + `requireWithHeal`) and `lib/core/npm-cli-resolve.cjs` (portable npm resolution). Zero network surface -- pure node built-ins plus a single guarded `npm install` child process (Canon Part 8). Mirrors the existing reconcile-hook detection logic rather than inventing a new mechanism (Canon Part 7).
 - `package-lock.json` resynced with `package.json` (it was 13 betas stale; `npm ci` could not run against it). No runtime dependency versions changed -- a metadata-only catch-up.
 
+### Fixed (dependency hygiene, surfaced by the vendoring audit)
+- **`/mos:doctor` would crash with `Cannot find module 'semver'` on a production-only install.** `scripts/doctor.cjs` -- a user-facing runtime script invoked by `/mos:doctor` -- requires `semver` for version-ordering (`semver.compare`), but `semver` was declared as a `devDependency`. A full audit of every `require()` of a declared dependency across all shipped code paths confirmed `semver` was the only misclassification. Moved to `dependencies` so it is present on every install (and in the vendored tree). `devDependencies` is now empty.
+
 ## [1.13.0-beta.22] - 2026-05-21
 
 ### Documentation

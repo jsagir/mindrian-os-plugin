@@ -29,11 +29,13 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 // Phase 126 Plan-02: semver package for numeric-aware prerelease ordering
-// in cmpVersion (line ~194). semver@^7.7.4 is already in package.json
-// devDependencies AND shipped in node_modules/ at plugin install time
-// (per `claude plugin install` + `npm install`). Canon Part 7 reuse:
-// scripts/release.sh already uses semver for pre-release algebra; this
-// extends the same dep to scripts/doctor.cjs. No new dep added.
+// in cmpVersion (line ~194). semver@^7.7.4 is a PRODUCTION dependency in
+// package.json (it was a devDependency until the debug session
+// mcp-servers-cache-missing-node-modules audit found that classification
+// was wrong -- doctor.cjs is a user-facing runtime script, so semver must
+// be present on every install, including the vendored production tree).
+// Canon Part 7 reuse: scripts/release.sh also uses semver for pre-release
+// algebra; this is the same dep reused for scripts/doctor.cjs.
 const semver = require('semver');
 
 // -- Paths -----------------------------------------------------------

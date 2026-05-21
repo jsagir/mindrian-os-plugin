@@ -109,7 +109,7 @@ done
 # --- Step 0.5: semver preflight ---
 if [ ! -d "$PLUGIN_DIR/node_modules/semver" ]; then
   echo -e "${RED}node_modules/semver missing -- run 'npm install' first.${NC}"
-  echo "  release.sh needs the semver devDep for pre-release bump algebra."
+  echo "  release.sh needs the semver package for pre-release bump algebra."
   echo "  (Do NOT run 'npm install' from inside this script -- the operator must do it.)"
   exit 1
 fi
