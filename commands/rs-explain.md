@@ -15,8 +15,8 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash
   - Read
-  - mcp__mindrian-brain__brain_query
-  - mcp__mindrian-brain__read_neo4j_cypher
+  - mcp__mindrian-brain__brain_ask
+  - mcp__mindrian-brain__brain_search
 ---
 
 # /mos:rs-explain

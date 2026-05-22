@@ -7,10 +7,9 @@ isolation: worktree
 allowed-tools:
   - mcp__tavily-mcp__tavily-search
   - mcp__tavily-mcp__tavily-extract
+  - mcp__mindrian-brain__brain_ask
   - mcp__mindrian-brain__brain_search
   - mcp__pinecone-brain__search-records
-  - mcp__mindrian-brain__brain_query
-  - mcp__neo4j-brain__read_neo4j_cypher
   - Read
   - Write
 ---

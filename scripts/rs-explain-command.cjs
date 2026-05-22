@@ -131,11 +131,49 @@ async function executeBundle(bundle, opts) {
   }
 
   // Execute Brain query (methodology graph) ONLY when present + non-tier0 + reachable.
-  if (!tier0 && bundle && bundle.brain_query && bundle.brain_query.cypher && brainClient && typeof brainClient.isAvailable === 'function' && brainClient.isAvailable()) {
+  // BUG 2 fix: use brain.ask(nl_question) instead of brain.query(raw_cypher).
+  // brain_ask is ungated (valid for all API keys); brain_query was admin-gated.
+  // Canon Part 8: the NL question is synthesized from enum scalars only
+  // (intent_id + target_framework / source_id); never from user content.
+  if (!tier0 && bundle && bundle.brain_query && bundle.brain_query.intent_id && brainClient && typeof brainClient.isAvailable === 'function' && brainClient.isAvailable()) {
     try {
-      const result = await brainClient.query(bundle.brain_query.cypher, bundle.brain_query.params || {});
-      if (result && Array.isArray(result.records)) {
-        for (let i = 0; i < result.records.length; i += 1) out.rows.push(result.records[i]);
+      if (typeof brainClient.ask !== 'function') {
+        out._brain_degraded = 'brain_ask_unavailable';
+      } else {
+        // Synthesize a generic NL question from the intent + its enum scalar.
+        // Only two intents have brain_template entries: feeds_into_query and
+        // methodology_chain. Both carry generic framework-handle params.
+        const intentId = bundle.brain_query.intent_id;
+        const params = bundle.brain_query.params || {};
+        let nlQuestion = null;
+        if (intentId === 'feeds_into_query' && params.target_framework) {
+          // Generic: asks for the FEEDS_INTO chain from a framework enum handle.
+          nlQuestion = 'what frameworks chain from ' + params.target_framework + ' via FEEDS_INTO?';
+        } else if (intentId === 'methodology_chain' && params.source_id) {
+          nlQuestion = 'what methodology chain follows ' + params.source_id + '?';
+        }
+        if (nlQuestion) {
+          const askResult = await brainClient.ask(nlQuestion);
+          // Translate brain_ask response into the rows shape the explainer expects.
+          // next_gate.options[].framework -> each becomes a {name} row.
+          if (askResult && askResult.next_gate && Array.isArray(askResult.next_gate.options)) {
+            for (const opt of askResult.next_gate.options) {
+              if (opt && typeof opt.framework === 'string' && opt.framework.length > 0) {
+                out.rows.push({ name: opt.framework, id: opt.framework.toLowerCase().replace(/\s+/g, '_') });
+              }
+            }
+          }
+          // Also include the anchor framework from directive.
+          if (askResult && askResult.directive && askResult.directive.guided && askResult.directive.guided.framework) {
+            const anchor = askResult.directive.guided.framework;
+            if (!out.rows.some(function (r) { return r.name === anchor; })) {
+              out.rows.unshift({ name: anchor, id: anchor.toLowerCase().replace(/\s+/g, '_') });
+            }
+          }
+        } else {
+          // Intent has no applicable brain_ask translation (e.g., no scalar) -- degrade cleanly.
+          out._brain_degraded = 'intent_no_nl_translation';
+        }
       }
     } catch (err) {
       if (err && /unreachable|connect|ECONNREFUSED/i.test(err.message || '')) {

@@ -15,7 +15,9 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash
   - Read
-  - mcp__mindrian-brain__read_neo4j_cypher
+  # mcp__mindrian-brain__read_neo4j_cypher intentionally removed (BUG 2 fix):
+  # RSDiscovery is USER DATA (Canon Part 8 -- LOCAL -> BRAIN: NO). The remote
+  # Brain must never be called from this command. Always uses Tier 0 SQLite.
 ---
 
 # /mos:rs-thesis

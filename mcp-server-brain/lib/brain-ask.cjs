@@ -27,6 +27,188 @@ const { z } = require('zod');
  * The caller never needs to write Cypher or know which backend is active.
  */
 
+// ============================================================================
+// Curated-op surface (BUG 2 fix -- D-MOAT-3 landing).
+// ============================================================================
+//
+// `brain_ask` gains an optional `op` MODE. When set, the caller picks one of a
+// closed set of named operations; the server resolves the op to a FROZEN
+// server-side Cypher string and runs it READ-only, bounded by the D-MOAT-2
+// caps. No new MCP tool is registered (the startup tool count stays at 6) and
+// the tool stays ungated -- any valid key may call it (only brain_query /
+// brain_write are admin-gated).
+//
+// Canon Part 8: every op returns only generic teaching methodology (framework
+// names, descriptions, categories, typed edges, problem-type enums). Every
+// input is a generic handle (framework name, closed enum, integer). NO caller
+// Cypher is ever accepted -- the `MATCH (n) RETURN n` graph-copy attack stays
+// blocked. The relationship type in `framework_edges` and the variable-length
+// bound in `framework_chain_slice` are NEVER interpolated from caller input:
+// each is a closed enum / a server-clamped integer that SELECTS one of a fixed
+// set of pre-frozen Cypher strings. All other params are `$`-bound.
+//
+// FROZEN Cypher strings -- verbatim from .planning/brain-curated-ops-contract.md.
+// Do not edit these without amending the contract.
+
+// op 1 -- list_frameworks. Params: { limit? }. `limit` is `$`-bound.
+const CURATED_LIST_FRAMEWORKS = `MATCH (f:Framework) WHERE f.name IS NOT NULL
+RETURN f.name AS name,
+       coalesce(f.description,'') AS description,
+       coalesce(f.category,'') AS category
+ORDER BY f.name LIMIT $limit`;
+
+// op 2 -- framework_edges. The `edge_type` param is a CLOSED ENUM that selects
+// one of these two frozen strings. The relationship type is never interpolated.
+const CURATED_FRAMEWORK_EDGES = {
+  FEEDS_INTO: `MATCH (a:Framework)-[r:FEEDS_INTO]->(b:Framework)
+RETURN a.name AS from, b.name AS to,
+       coalesce(r.confidence,0.0) AS confidence,
+       coalesce(r.transform_description,'') AS transform
+LIMIT $limit`,
+  ADDRESSES_PROBLEM_TYPE: `MATCH (f:Framework)-[:ADDRESSES_PROBLEM_TYPE]->(pt:ProblemType)
+RETURN f.name AS framework, pt.name AS problem_type
+LIMIT $limit`,
+};
+
+// op 3 -- framework_chain_slice. A variable-length relationship bound cannot be
+// a bound param, so the server picks one of these three frozen variants by the
+// server-CLAMPED integer max_hops (1..3). `seeds` IS `$`-bound.
+const CURATED_FRAMEWORK_CHAIN_SLICE = {
+  1: `MATCH path = (f:Framework)-[:FEEDS_INTO*1..1]->(g:Framework)
+WHERE f.name IN $seeds
+RETURN f.name AS from, g.name AS to, length(path) AS hop_distance
+LIMIT $limit`,
+  2: `MATCH path = (f:Framework)-[:FEEDS_INTO*1..2]->(g:Framework)
+WHERE f.name IN $seeds
+RETURN f.name AS from, g.name AS to, length(path) AS hop_distance
+LIMIT $limit`,
+  3: `MATCH path = (f:Framework)-[:FEEDS_INTO*1..3]->(g:Framework)
+WHERE f.name IN $seeds
+RETURN f.name AS from, g.name AS to, length(path) AS hop_distance
+LIMIT $limit`,
+};
+
+// The closed op-name enum -- shared by the Zod schema and the resolver.
+const CURATED_OP_NAMES = ['list_frameworks', 'framework_edges', 'framework_chain_slice'];
+
+// D-MOAT-2 caps. Mirrors mcp-server-brain/lib/neo4j-tools.cjs CYPHER_LIMITS.
+// neo4j-tools.cjs does not export its bounded-read helper, so the timeout +
+// row cap + byte cap are replicated here inline (per the contract). Same env
+// vars, same defaults, so the curated-op path is bounded identically.
+const CURATED_CYPHER_LIMITS = {
+  maxRows: Number(process.env.BRAIN_CYPHER_MAX_ROWS) || 1000,
+  maxBytes: Number(process.env.BRAIN_CYPHER_MAX_BYTES) || 524288,
+  timeoutMs: Number(process.env.BRAIN_CYPHER_TIMEOUT_MS) || 5000,
+};
+
+/**
+ * Resolve a curated op + its caller params to a FROZEN Cypher string and a
+ * `$`-bound parameter map. No caller string ever reaches the Cypher text.
+ *
+ * @param {string} op      one of CURATED_OP_NAMES
+ * @param {object} params  caller params (passthrough object, validated here)
+ * @returns {{ cypher: string, params: object }}
+ * @throws {Error} on an unknown op or an invalid param value
+ */
+function resolveCuratedOp(op, params) {
+  const p = (params && typeof params === 'object') ? params : {};
+  // `limit` is server-clamped to [1, maxRows]; default maxRows.
+  const rawLimit = Number(p.limit);
+  const limit = Number.isFinite(rawLimit) && rawLimit > 0
+    ? Math.min(Math.floor(rawLimit), CURATED_CYPHER_LIMITS.maxRows)
+    : CURATED_CYPHER_LIMITS.maxRows;
+
+  if (op === 'list_frameworks') {
+    return {
+      cypher: CURATED_LIST_FRAMEWORKS,
+      params: { limit: neo4j.int(limit) },
+    };
+  }
+
+  if (op === 'framework_edges') {
+    const edgeType = String(p.edge_type || '');
+    const cypher = CURATED_FRAMEWORK_EDGES[edgeType];
+    if (!cypher) {
+      throw new Error(
+        'framework_edges: edge_type must be one of '
+        + Object.keys(CURATED_FRAMEWORK_EDGES).join(' | '));
+    }
+    return { cypher: cypher, params: { limit: neo4j.int(limit) } };
+  }
+
+  if (op === 'framework_chain_slice') {
+    const seeds = Array.isArray(p.seeds)
+      ? p.seeds.filter(s => typeof s === 'string' && s.length > 0).map(String)
+      : [];
+    if (seeds.length === 0) {
+      throw new Error('framework_chain_slice: seeds must be a non-empty string array');
+    }
+    // Server clamps max_hops to [1,3]; the clamped int (never caller text)
+    // selects one of three frozen Cypher variants.
+    const rawHops = Number(p.max_hops);
+    const hops = Number.isFinite(rawHops)
+      ? Math.max(1, Math.min(3, Math.floor(rawHops)))
+      : 2;
+    return {
+      cypher: CURATED_FRAMEWORK_CHAIN_SLICE[hops],
+      params: { seeds: seeds, limit: neo4j.int(limit) },
+    };
+  }
+
+  throw new Error('unknown curated op "' + String(op) + '"');
+}
+
+/**
+ * Run a curated op READ-only on a Neo4j session, bounded by the D-MOAT-2 caps
+ * (read timeout + row cap + byte cap). Returns the curated-op payload shape.
+ *
+ * On any graph failure (driver error, timeout, oversized payload) returns the
+ * degraded sentinel { op, source:'neo4j_curated', count:0, rows:[], degraded:true }
+ * so the caller never crashes -- Tier 0 graceful degradation.
+ *
+ * @param {object} driver  Neo4j driver
+ * @param {string} op      one of CURATED_OP_NAMES
+ * @param {object} params  caller params
+ * @returns {Promise<object>} the curated-op payload
+ */
+async function runCuratedOp(driver, op, params) {
+  let resolved;
+  try {
+    resolved = resolveCuratedOp(op, params);
+  } catch (err) {
+    // A bad op / bad param value is a degraded result, not a thrown error --
+    // the caller treats it the same as a graph failure (Tier 0 graceful).
+    return { op: op, source: 'neo4j_curated', count: 0, rows: [], degraded: true };
+  }
+
+  const session = driver.session({ defaultAccessMode: neo4j.session.READ });
+  try {
+    // D-MOAT-2 read timeout: per-query transaction-config { timeout }.
+    const result = await session.run(
+      resolved.cypher,
+      resolved.params,
+      { timeout: CURATED_CYPHER_LIMITS.timeoutMs }
+    );
+    // D-MOAT-2 row cap: truncate before mapping.
+    let records = result.records;
+    if (records.length > CURATED_CYPHER_LIMITS.maxRows) {
+      records = records.slice(0, CURATED_CYPHER_LIMITS.maxRows);
+    }
+    const rows = records.map(r => r.toObject());
+    // D-MOAT-2 byte cap: an oversized payload degrades rather than returns.
+    const probe = JSON.stringify(rows);
+    if (probe.length > CURATED_CYPHER_LIMITS.maxBytes) {
+      return { op: op, source: 'neo4j_curated', count: 0, rows: [], degraded: true };
+    }
+    return { op: op, source: 'neo4j_curated', count: rows.length, rows: rows };
+  } catch (err) {
+    // Graph unreachable / query error -- degrade gracefully.
+    return { op: op, source: 'neo4j_curated', count: 0, rows: [], degraded: true };
+  } finally {
+    await session.close();
+  }
+}
+
 // Cypher patterns for common natural language intents
 const CYPHER_PATTERNS = {
   framework: {
@@ -306,12 +488,45 @@ function registerBrainAsk(server) {
 
   server.tool(
     'brain_ask',
-    'Ask the Brain anything in natural language. Returns a DirectiveEnvelope payload (populated directive + next_gate + mode_signals) synthesized from the teaching graph, plus supporting search results. Searches 23K methodology nodes and 12K semantic embeddings; automatically handles Pinecone semantic search with Neo4j Cypher fallback. Use this instead of brain_query or brain_search - it handles routing internally.',
+    'Ask the Brain anything in natural language. Returns a DirectiveEnvelope payload (populated directive + next_gate + mode_signals) synthesized from the teaching graph, plus supporting search results. Searches 23K methodology nodes and 12K semantic embeddings; automatically handles Pinecone semantic search with Neo4j Cypher fallback. Use this instead of brain_query or brain_search - it handles routing internally. Also supports an optional curated-op MODE: pass `op` with one of "list_frameworks" (the framework catalogue: name + description + category), "framework_edges" (typed framework edges -- params.edge_type is "FEEDS_INTO" or "ADDRESSES_PROBLEM_TYPE"), or "framework_chain_slice" (FEEDS_INTO chains from params.seeds, params.max_hops 1-3); the curated path runs frozen parameterized Cypher (no caller Cypher) and returns { op, source, count, rows }.',
     {
-      question: z.string().describe('Natural language question about PWS methodology, frameworks, connections, grading, or any teaching content'),
+      question: z.string().optional().describe('Natural language question about PWS methodology, frameworks, connections, grading, or any teaching content'),
       topK: z.number().optional().describe('Number of results (default 5)'),
+      op: z.enum(['list_frameworks', 'framework_edges', 'framework_chain_slice']).optional()
+        .describe('Curated-op mode. When set, runs a frozen parameterized Cypher op instead of the natural-language directive path.'),
+      params: z.object({}).passthrough().optional()
+        .describe('Curated-op params (generic handles only): { limit? } for list_frameworks; { edge_type, limit? } for framework_edges; { seeds, max_hops?, limit? } for framework_chain_slice.'),
     },
-    async ({ question, topK }) => {
+    async ({ question, topK, op, params }) => {
+      // --- Curated-op MODE: when `op` is set, run the frozen Cypher and
+      //     return the curated-op payload. The natural-language directive
+      //     path below is NOT touched (op absent => behaves exactly as before).
+      if (op) {
+        const result = await runCuratedOp(getNeo4j(), op, params || {});
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(result, null, 2),
+          }],
+        };
+      }
+
+      // Natural-language path requires `question`. With the curated-op MODE
+      // added, `question` is schema-optional, so guard it here -- a call with
+      // neither `op` nor `question` gets a clear error instead of a crash.
+      if (typeof question !== 'string' || !question.trim()) {
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              error: 'brain_ask requires either a `question` (natural-language mode) or an `op` (curated-op mode)',
+              ops: ['list_frameworks', 'framework_edges', 'framework_chain_slice'],
+            }, null, 2),
+          }],
+          isError: true,
+        };
+      }
+
       const limit = topK || 5;
       const keyword = extractKeyword(question);
       let source = 'unknown';
@@ -439,4 +654,13 @@ module.exports = {
   buildDirectiveFromGraph,
   deriveModeSignals,
   extractKeyword,
+  // Exported for unit testing the curated-op surface (BUG 2 fix). The frozen
+  // Cypher maps are exported read-only so a test can assert no caller string
+  // ever reaches the query text.
+  resolveCuratedOp,
+  runCuratedOp,
+  CURATED_OP_NAMES,
+  CURATED_LIST_FRAMEWORKS,
+  CURATED_FRAMEWORK_EDGES,
+  CURATED_FRAMEWORK_CHAIN_SLICE,
 };

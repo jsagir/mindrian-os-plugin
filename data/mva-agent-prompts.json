@@ -20,6 +20,8 @@
     "limit": 1
   },
   "brain_classic_traps": {
+    "_disabled": true,
+    "_reason": "BUG 2 fix 2026-05-22: FailureMode and Venture nodes have ZERO instances in the live Brain graph. Calling the admin-gated brain_query for a guaranteed-empty result is wasteful and blocks non-admin users. The agent (lib/agents/mva/brain-classic-traps.cjs) now returns {status:'empty'} immediately without contacting Brain. Re-enable when: (1) FailureMode + Venture nodes are seeded into the Brain, AND (2) a curated op 'classic_traps' is added to brain_ask. At that point replace the agent body with brain.askOp('classic_traps', { stages: [...] }) -- never restore the raw brain_query call.",
     "tool": "brain_query",
     "cypher": "MATCH (f:FailureMode)-[:OBSERVED_IN]->(v:Venture) WHERE v.stage IN $stages RETURN f.name AS name, f.signature AS signature LIMIT 1",
     "params": {

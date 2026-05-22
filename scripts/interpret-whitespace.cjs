@@ -417,42 +417,75 @@ Output ONLY the 3-part hypothesis. No preamble.`;
 }
 
 // ---------------------------------------------------------------------------
-// Brain queries (READ-ONLY per D-12)
+// Brain queries (READ-ONLY per D-12) -- now via curated askOp surface
 // ---------------------------------------------------------------------------
 
 /**
- * Fetch ADDRESSES_PROBLEM_TYPE edges from Brain.
+ * Fetch ADDRESSES_PROBLEM_TYPE edges from Brain via askOp.
+ *
+ * Replaces the former raw brain.query() Cypher call with the curated
+ * brain.askOp('framework_edges', { edge_type:'ADDRESSES_PROBLEM_TYPE' })
+ * surface. Row shape: { framework, problem_type }.
+ *
+ * NOTE: the curated op does NOT expose an `effectiveness` field for
+ * ADDRESSES_PROBLEM_TYPE edges (the server returns only framework +
+ * problem_type). Downstream consumers in buildProblemTypeMap() and
+ * classifyZone() use effectiveness for confidence gating. When the field
+ * is absent we default it to 1.0 (treat every Brain-returned mapping as
+ * above-threshold). This is flagged for the integrator: if effectiveness
+ * scoring needs to be reintroduced a new curated op field is required.
+ *
  * @returns {Promise<Array|null>}
  */
 async function fetchProblemTypeEdges() {
   const brain = getBrain();
+  if (!brain.askOp) return null; // askOp not yet available -- degrade gracefully
   try {
-    const result = await brain.query(
-      'MATCH (f:Framework)-[a:ADDRESSES_PROBLEM_TYPE]->(pt:ProblemType) ' +
-      'RETURN f.name AS framework, pt.name AS problem_type, a.effectiveness AS effectiveness'
-    );
-    if (result && Array.isArray(result.records)) return result.records;
-    if (Array.isArray(result)) return result;
-    return null;
+    const result = await brain.askOp('framework_edges', { edge_type: 'ADDRESSES_PROBLEM_TYPE' });
+    if (!result || result.degraded) return null;
+    const rows = Array.isArray(result.rows) ? result.rows : [];
+    // Inject synthetic effectiveness=1.0 since the curated op omits it.
+    // This keeps buildProblemTypeMap() compatible without a schema change.
+    return rows.map(function (r) {
+      return { framework: r.framework, problem_type: r.problem_type, effectiveness: 1.0 };
+    });
   } catch (e) {
     return null;
   }
 }
 
 /**
- * Fetch FEEDS_INTO edges from Brain.
+ * Fetch FEEDS_INTO edges from Brain via askOp.
+ *
+ * Replaces the former raw brain.query() Cypher call with the curated
+ * brain.askOp('framework_edges', { edge_type:'FEEDS_INTO' }) surface.
+ * Row shape: { from, to, confidence, transform }.
+ *
+ * The old query returned f1.name AS source / f2.name AS target; the
+ * curated op returns `from` / `to`. The adapter below maps them to the
+ * { source, target, confidence, transform } shape that buildFeedsIntoMap()
+ * expects. confidence and transform are preserved when present.
+ *
  * @returns {Promise<Array|null>}
  */
 async function fetchFeedsIntoEdges() {
   const brain = getBrain();
+  if (!brain.askOp) return null; // askOp not yet available -- degrade gracefully
   try {
-    const result = await brain.query(
-      'MATCH (f1:Framework)-[r:FEEDS_INTO]->(f2:Framework) ' +
-      'RETURN f1.name AS source, f2.name AS target, r.confidence AS confidence, r.transform_description AS transform'
-    );
-    if (result && Array.isArray(result.records)) return result.records;
-    if (Array.isArray(result)) return result;
-    return null;
+    const result = await brain.askOp('framework_edges', { edge_type: 'FEEDS_INTO' });
+    if (!result || result.degraded) return null;
+    const rows = Array.isArray(result.rows) ? result.rows : [];
+    // Adapt curated op row shape { from, to, confidence, transform }
+    // to the legacy { source, target, confidence, transform } shape that
+    // buildFeedsIntoMap() consumes.
+    return rows.map(function (r) {
+      return {
+        source: r.from,
+        target: r.to,
+        confidence: typeof r.confidence === 'number' ? r.confidence : 0,
+        transform: r.transform || '',
+      };
+    });
   } catch (e) {
     return null;
   }

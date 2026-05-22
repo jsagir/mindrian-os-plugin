@@ -6,11 +6,13 @@
 
 Agents and skills read this file on demand. To execute a pattern:
 1. Find the named pattern below
-2. Replace `$parameters` with specific values from current context
-3. Call `mcp__neo4j-brain__read_neo4j_cypher` with the adapted Cypher
-4. For `brain_search_semantic`, call `mcp__pinecone-brain__search-records` instead
+2. For patterns that use `brain_ask`: call `mcp__mindrian-brain__brain_ask` with the
+   natural-language question template shown. Read `next_gate.options[].framework` for the
+   ranked chain and `directive.guided.framework` for the matched anchor. No Cypher needed.
+3. For `brain_search_semantic`, call `mcp__mindrian-brain__brain_search`
+   (or `mcp__pinecone-brain__search-records` as fallback).
 
-Never run Cypher without a LIMIT clause. Never expose raw results to users -- synthesize into insights.
+Never expose raw results to users -- synthesize into insights.
 
 ---
 
@@ -18,21 +20,31 @@ Never run Cypher without a LIMIT clause. Never expose raw results to users -- sy
 
 **Purpose:** Given current frameworks + problem type, recommend next framework.
 
-```cypher
-MATCH (current:Framework)-[r:FEEDS_INTO|TRANSFORMS_OUTPUT_TO]->(next:Framework)
-WHERE current.name IN $current_frameworks
-AND NOT next.name IN $current_frameworks
-OPTIONAL MATCH (next)-[:ADDRESSES_PROBLEM_TYPE]->(pt:ProblemType {name: $problem_type})
-RETURN next.name AS framework,
-       type(r) AS relation,
-       r.confidence AS confidence,
-       r.transform_description AS transform,
-       pt IS NOT NULL AS matches_problem_type
-ORDER BY r.confidence DESC, matches_problem_type DESC
-LIMIT 5
+**Tool:** `mcp__mindrian-brain__brain_ask` (ungated -- works for all valid API keys)
+
+**Question template:**
+
+```
+recommend a framework for a {problem_type} venture that has already applied {current_frameworks}
 ```
 
-**Output:** List of recommended next frameworks with confidence scores and problem-type alignment.
+Example:
+```
+recommend a framework for a wicked problem venture that has already applied
+"Beautiful Question Framework, Domain Selection"
+```
+
+**How to read the response:**
+- `next_gate.options[].framework` -- ranked list of recommended next frameworks
+- `next_gate.options[].confidence` -- confidence score per framework (0..1)
+- `next_gate.options[].verb` -- canonical Canon Part 3 verb associated with this option
+- `directive.guided.framework` -- the matched anchor framework Brain selected
+
+**Graceful degradation:** if `brain_ask` is unavailable, use the local routing table at
+`references/methodology/problem-types.md` -- match the problem type cell, exclude already-applied
+frameworks, prioritize the one targeting the emptiest room section.
+
+**Output:** Ranked next frameworks with confidence scores and problem-type alignment.
 
 ---
 

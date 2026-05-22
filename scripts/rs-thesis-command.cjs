@@ -5,10 +5,23 @@
  * Copyright (c) 2026 Mindrian. BSL 1.1.
  * Phase 89.5 Plan 05 -- /mos:rs-thesis CLI wrapper.
  *
- * Tier-aware thesis lookup by discovery_id. Tier 1 path runs an Aura
- * Cypher MATCH on (rs:RSDiscovery {id: $discovery_id}) via the existing
- * brain-client.cjs Aura session chokepoint. Tier 0 path falls back to
- * SQLite SELECT against room.db via lazygraph-ops.cjs queryGraph.
+ * BUG 2 FIX (routing, 2026-05-22): the former Tier 1 path called
+ * brainClient.query(cypher) with a MATCH on RSDiscovery nodes. brain-client
+ * routes to the REMOTE Brain (mindrian-brain.onrender.com) when
+ * MINDRIAN_BRAIN_KEY is set. RSDiscovery IS USER DATA -- sending it to the
+ * remote Brain is a Canon Part 8 breach (LOCAL -> BRAIN: NO).
+ *
+ * Fix: the Tier 1 path (remote Brain) is REMOVED. This command now ALWAYS
+ * uses the Tier 0 SQLite path (local room.db). The --tier flag still works
+ * but only tier0 is honoured; a forced --tier tier1 argument is silently
+ * treated as tier0 with a note in the output.
+ *
+ * NOTE: a clean local transport for a user-owned Aura instance does not yet
+ * exist in the plugin. When it does, the Tier 1 path can be re-added against
+ * a LOCAL-ONLY Aura session (not brain-client.cjs which is the remote Brain).
+ *
+ * Tier-aware thesis lookup by discovery_id.
+ * Tier 0 path: SQLite SELECT against room.db via lazygraph-ops.cjs queryGraph.
  *
  * Usage:
  *   node scripts/rs-thesis-command.cjs <discovery_id>
@@ -20,20 +33,21 @@
  *   1  invocation error (missing id, no thesis found, ExternalEgressViolation)
  *   2  prerequisite missing
  *
- * Canon Part 8: discovery_id is parameterized in BOTH backends. NO string
- * concatenation. Audited via auditQueryString BEFORE binding. Brain query
- * is NOT issued; this is a LOCAL-only lookup.
+ * Canon Part 8: discovery_id is parameterized. NO string concatenation.
+ * Audited via auditQueryString BEFORE binding. Remote Brain is NEVER called;
+ * RSDiscovery is LOCAL user data.
  */
 
 const path = require('path');
 
 let lazygraphOps = null;
-let brainClient = null;
+// NOTE: brainClient is intentionally NOT loaded here. rs-thesis must never
+// call the remote Brain (Canon Part 8 -- RSDiscovery is USER DATA). The
+// Tier 1 path via brainClient has been removed; see comment at top of file.
 let egressPrompts = null;
 
 function _lazyLoad() {
   if (!lazygraphOps) lazygraphOps = require(path.join(__dirname, '..', 'lib', 'core', 'lazygraph-ops.cjs'));
-  if (!brainClient) brainClient = require(path.join(__dirname, '..', 'lib', 'core', 'brain-client.cjs'));
   if (!egressPrompts) egressPrompts = require(path.join(__dirname, '..', 'lib', 'core', 'rs-egress-prompts.cjs'));
 }
 
@@ -91,17 +105,15 @@ function renderTranscript(thesis, meta, tier, fallbackReason) {
   process.stdout.write('  -> Synthesize               /mos:reflect\n\n');
 }
 
-function detectTier(opts) {
-  if (opts && (opts.tier === 'tier0' || opts.tier === 'tier1')) return opts.tier;
-  if (opts && opts.driver && typeof opts.driver.session === 'function') return 'tier1';
-  if (opts && typeof opts.aura_url === 'string' && opts.aura_url.length > 0) return 'tier1';
-  if (typeof process.env.NEO4J_URI === 'string' && process.env.NEO4J_URI.length > 0) return 'tier1';
-  if (brainClient && typeof brainClient.isAvailable === 'function' && brainClient.isAvailable()) return 'tier1';
+// detectTier: always returns 'tier0'. The remote Brain (brain-client.cjs)
+// must NEVER be called by this command because RSDiscovery is LOCAL user data
+// (Canon Part 8). When a local-only Aura transport is available in a future
+// phase, this can be extended to route to it -- but NEVER to the remote Brain.
+function detectTier(_opts) {
   return 'tier0';
 }
 
 async function readThesisTier0(discoveryId, roomDir) {
-  const dbPath = path.join(roomDir, '.mindrian', 'room.db');
   const { conn, db } = await lazygraphOps.openGraph(roomDir);
   try {
     const sql = 'SELECT id, thesis, rs_type, breakthrough_score, room_slug, created_at FROM rs_discoveries WHERE id = ? LIMIT 1';
@@ -120,28 +132,11 @@ async function readThesisTier0(discoveryId, roomDir) {
     };
   } finally {
     if (typeof lazygraphOps.closeGraph === 'function') await lazygraphOps.closeGraph(db);
-    void dbPath; // referenced for future symbolic helpers
   }
 }
 
-async function readThesisTier1(discoveryId) {
-  const cypher = 'MATCH (rs:RSDiscovery {id: $discovery_id}) RETURN rs.thesis AS thesis, rs.id AS id, rs.rs_type AS rs_type, rs.breakthrough_score AS breakthrough_score, rs.room_slug AS room_slug, rs.created_at AS created_at LIMIT 1';
-  // Bind via brainClient.query (existing chokepoint). The Aura local instance
-  // exposes the same MCP-style query shape that brainClient already wraps.
-  const result = await brainClient.query(cypher, { discovery_id: discoveryId });
-  if (!result || !Array.isArray(result.records) || result.records.length === 0) return null;
-  const r = result.records[0];
-  return {
-    thesis: r.thesis || null,
-    meta: {
-      id: r.id,
-      rs_type: r.rs_type,
-      breakthrough_score: r.breakthrough_score,
-      room_slug: r.room_slug,
-      created_at: r.created_at,
-    },
-  };
-}
+// readThesisTier1 is intentionally removed. RSDiscovery contains user data
+// and must NEVER be sent to the remote Brain. See header comment.
 
 async function main() {
   const args = parseArgs(process.argv);
@@ -154,7 +149,7 @@ async function main() {
   try {
     _lazyLoad();
   } catch (err) {
-    printError('Library module load failed', err && err.message ? err.message : String(err), 'verify lib/core/lazygraph-ops.cjs and lib/core/brain-client.cjs exist');
+    printError('Library module load failed', err && err.message ? err.message : String(err), 'verify lib/core/lazygraph-ops.cjs and lib/core/rs-egress-prompts.cjs exist');
     process.exit(2);
   }
 
@@ -174,27 +169,13 @@ async function main() {
     room_dir: process.env.MINDRIAN_ROOM || process.cwd(),
   };
 
-  const tier = detectTier(opts);
+  // detectTier always returns 'tier0' -- remote Brain is never used for
+  // RSDiscovery (Canon Part 8). See detectTier() above for full rationale.
+  const actualTier = detectTier(opts);
   let result = null;
-  let actualTier = tier;
-  let fallbackReason = null;
+  const fallbackReason = null;
 
-  if (tier === 'tier1') {
-    try {
-      result = await readThesisTier1(args.discoveryId);
-    } catch (err) {
-      if (err && (err.name === 'AuraUnreachableError' || /unreachable|connect|ECONNREFUSED/i.test(err.message || ''))) {
-        // Tier 1 -> Tier 0 fallback per 89.3 graceful pattern
-        actualTier = 'tier0';
-        fallbackReason = 'aura_unreachable';
-        result = await readThesisTier0(args.discoveryId, opts.room_dir);
-      } else {
-        throw err;
-      }
-    }
-  } else {
-    result = await readThesisTier0(args.discoveryId, opts.room_dir);
-  }
+  result = await readThesisTier0(args.discoveryId, opts.room_dir);
 
   if (!result) {
     printError('Discovery not found', 'no row matched discovery_id ' + args.discoveryId + ' in either backend', '/mos:rs-fetch <topic>');

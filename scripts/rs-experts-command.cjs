@@ -5,10 +5,23 @@
  * Copyright (c) 2026 Mindrian. BSL 1.1.
  * Phase 89.5 Plan 05 -- /mos:rs-experts CLI wrapper.
  *
- * Resolves the expert network for a topic via parameterized Aura Cypher
- * MATCH on AUTHORED_BY + AFFILIATED_WITH edges. Tier 0 (Aura unreachable)
- * surfaces a graceful guidance message pointing the user to /mos:rs-fetch
- * to populate the local mirror first.
+ * BUG 2 FIX (routing, 2026-05-22): the former Tier 1 path called
+ * brainClient.query(cypher) which routes to the REMOTE Brain
+ * (mindrian-brain.onrender.com) when MINDRIAN_BRAIN_KEY is set.
+ * Author/Paper/Institution nodes do NOT exist in the remote Brain --
+ * they live in the user's LOCAL Aura mirror (populated via /mos:rs-fetch).
+ * Routing to the remote Brain would always return empty results AND
+ * potentially expose topic strings (user-chosen search strings) to the
+ * remote server, which is a Canon Part 8 concern.
+ *
+ * Fix: the remote-Brain Tier 1 path is removed. This command now relies
+ * on the Tier 0 graceful-degradation path exclusively. A future phase
+ * that ships a LOCAL Aura transport (not brain-client.cjs) can restore
+ * an Aura-specific query path.
+ *
+ * Resolves the expert network for a topic via graceful Tier 0 guidance.
+ * Tier 0 surfaces a message pointing the user to /mos:rs-fetch to
+ * populate the local mirror first.
  *
  * Usage:
  *   node scripts/rs-experts-command.cjs "<topic>"
@@ -20,19 +33,20 @@
  *   1  invocation error (missing topic, ExternalEgressViolation)
  *   2  prerequisite missing
  *
- * Canon Part 8: topic is parameterized as $topic (NO concatenation).
- * Audited via auditQueryString BEFORE binding. The Aura is a LOCAL Brain
- * mirror per Canon Part 8; this command does NOT query the remote Brain
- * methodology graph.
+ * Canon Part 8: topic is parameterized (NO concatenation). Audited via
+ * auditQueryString BEFORE use. Remote Brain is never called from this
+ * command -- Author/Paper/Institution nodes are LOCAL only.
  */
 
 const path = require('path');
 
-let brainClient = null;
+// NOTE: brainClient is intentionally NOT loaded here. rs-experts must never
+// call the remote Brain -- Author/Paper/Institution nodes are LOCAL only
+// (populated via /mos:rs-fetch into the user's Aura mirror). The former
+// Tier 1 path via brainClient has been removed; see comment at top of file.
 let egressPrompts = null;
 
 function _lazyLoad() {
-  if (!brainClient) brainClient = require(path.join(__dirname, '..', 'lib', 'core', 'brain-client.cjs'));
   if (!egressPrompts) egressPrompts = require(path.join(__dirname, '..', 'lib', 'core', 'rs-egress-prompts.cjs'));
 }
 
@@ -108,11 +122,11 @@ async function main() {
   try {
     _lazyLoad();
   } catch (err) {
-    printError('Library module load failed', err && err.message ? err.message : String(err), 'verify lib/core/brain-client.cjs and lib/core/rs-egress-prompts.cjs exist');
+    printError('Library module load failed', err && err.message ? err.message : String(err), 'verify lib/core/rs-egress-prompts.cjs exists');
     process.exit(2);
   }
 
-  // Canon Part 8 input audit on the bound parameter BEFORE Cypher binding.
+  // Canon Part 8 input audit on the bound parameter BEFORE any use.
   try {
     egressPrompts.auditQueryString(args.topic, 'rs-experts-command-input');
   } catch (err) {
@@ -123,62 +137,22 @@ async function main() {
     throw err;
   }
 
-  // Tier 0 graceful: Aura unreachable -> guidance message.
-  if (typeof brainClient.isAvailable !== 'function' || !brainClient.isAvailable()) {
-    if (args.json) {
-      process.stdout.write(JSON.stringify({ tier: 'tier0', authors: [], degraded_note: 'aura_unreachable' }, null, 2) + '\n');
-      process.exit(0);
-    }
-    printError(
-      'Aura not connected',
-      'brainClient.isAvailable() returned false; expert network requires Aura',
-      '/mos:rs-fetch ' + JSON.stringify(args.topic) + ' first to populate the local SQLite mirror, then retry'
-    );
-    process.exit(0); // Tier 0 fallback is graceful, not an error
-  }
-
-  // Tier 1 path: parameterized Cypher MATCH on AUTHORED_BY + AFFILIATED_WITH.
-  const cypher =
-    'MATCH (a:Author)-[:AUTHORED_BY]->(p:Paper) ' +
-    'WHERE p.topic = $topic ' +
-    'OPTIONAL MATCH (a)-[:AFFILIATED_WITH]->(i:Institution) ' +
-    'WITH a, collect(DISTINCT i.name) AS institutions, count(p) AS paper_count ' +
-    'RETURN a.name AS name, institutions, paper_count ' +
-    'ORDER BY paper_count DESC LIMIT $limit';
-
-  let result;
-  try {
-    result = await brainClient.query(cypher, { topic: args.topic, limit: args.limit });
-  } catch (err) {
-    if (err && (err.name === 'AuraUnreachableError' || /unreachable|connect|ECONNREFUSED/i.test(err.message || ''))) {
-      if (args.json) {
-        process.stdout.write(JSON.stringify({ tier: 'tier0', authors: [], degraded_note: 'aura_unreachable_at_query' }, null, 2) + '\n');
-        process.exit(0);
-      }
-      printError('Aura unreachable mid-query', 'Aura session dropped during MATCH', '/mos:rs-fetch ' + JSON.stringify(args.topic) + ' first');
-      process.exit(0);
-    }
-    throw err;
-  }
-
-  const records = (result && Array.isArray(result.records)) ? result.records : [];
-  const authors = records.map(function (r, i) {
-    const total = records.length;
-    return {
-      name: r.name,
-      institutions: Array.isArray(r.institutions) ? r.institutions : [],
-      paper_count: r.paper_count,
-      score: total === 0 ? 0 : (1 - (i / total)),
-    };
-  });
-
+  // Tier 0: the remote Brain (brain-client.cjs) is never used here. Author/
+  // Paper/Institution nodes live in the user's LOCAL Aura mirror, populated
+  // by /mos:rs-fetch. No separate local-Aura transport exists yet, so we
+  // surface the guidance message directing the user to /mos:rs-fetch.
+  // When a local-only Aura transport ships, the Tier 1 path can be added
+  // against that transport (NOT brain-client.cjs).
   if (args.json) {
-    process.stdout.write(JSON.stringify({ tier: 'tier1', topic: args.topic, authors: authors }, null, 2) + '\n');
+    process.stdout.write(JSON.stringify({ tier: 'tier0', authors: [], degraded_note: 'local_aura_transport_not_yet_available' }, null, 2) + '\n');
     process.exit(0);
   }
-
-  renderTranscript(args.topic, authors);
-  process.exit(0);
+  printError(
+    'Aura not connected',
+    'rs-experts requires a local Aura mirror; remote Brain is not used for Author/Paper data',
+    '/mos:rs-fetch ' + JSON.stringify(args.topic) + ' first to populate the local SQLite mirror, then retry'
+  );
+  process.exit(0); // Tier 0 fallback is graceful, not an error
 }
 
 if (require.main === module) {

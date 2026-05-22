@@ -92,53 +92,48 @@ async function main() {
     process.exit(0);
   }
 
-  // Query Brain for Framework nodes with descriptions
-  console.log('Brain: Fetching framework descriptions from Neo4j...');
+  // Query Brain for Framework nodes via the curated askOp surface.
+  // Uses brain.askOp('list_frameworks', {}) -- the ungated D-MOAT-1-safe
+  // curated op. No raw Cypher. Row shape: { name, description, category }.
+  console.log('Brain: Fetching framework descriptions via askOp(list_frameworks)...');
 
-  const cypher = `
-    MATCH (f:Framework)
-    WHERE f.description IS NOT NULL AND f.description <> ''
-    RETURN f.name AS name, f.description AS description, f.category AS category
-    ORDER BY f.name
-    LIMIT 1000
-  `;
-
-  let result;
+  let opResult;
   try {
-    result = await brain.query(cypher);
+    opResult = await brain.askOp('list_frameworks', {});
   } catch (err) {
-    console.error('Brain: Query failed:', err.message);
+    console.error('Brain: askOp failed:', err.message);
     writeEmptyResult(outputPath, 'query-failed');
     process.exit(0);
   }
 
-  if (!result) {
-    console.log('Brain: Query returned null (Brain may be unreachable). Writing empty baseline.');
+  if (!opResult) {
+    console.log('Brain: askOp returned null (Brain may be unreachable). Writing empty baseline.');
     writeEmptyResult(outputPath, 'query-returned-null');
     process.exit(0);
   }
 
-  // Parse records from Brain response
-  const frameworks = [];
-
-  if (result.error) {
-    console.error(`Brain: Error response: ${result.error} - ${result.message || ''}`);
-    writeEmptyResult(outputPath, 'brain-error');
+  // Curated op returns { op, source, count, rows, degraded? }.
+  // On graph failure the server returns degraded:true + rows:[].
+  if (opResult.degraded) {
+    console.log('Brain: askOp returned degraded envelope. Writing empty baseline.');
+    writeEmptyResult(outputPath, 'brain-degraded');
     process.exit(0);
   }
 
-  // Brain query returns records as array of objects or arrays
-  const records = result.records || result || [];
+  // Parse records from the curated op rows array.
+  // Row shape: { name, description, category } (all strings; description/category
+  // may be empty strings when the node lacks those fields -- that is acceptable;
+  // the old filter required a non-empty description, preserve that behaviour).
+  const frameworks = [];
+  const rows = Array.isArray(opResult.rows) ? opResult.rows : [];
 
-  if (Array.isArray(records)) {
-    for (const rec of records) {
-      const name = rec.name || rec[0] || '';
-      const description = rec.description || rec[1] || '';
-      const category = rec.category || rec[2] || '';
+  for (const rec of rows) {
+    const name = rec.name || '';
+    const description = rec.description || '';
+    const category = rec.category || '';
 
-      if (name && description) {
-        frameworks.push({ name, description, category });
-      }
+    if (name && description) {
+      frameworks.push({ name, description, category });
     }
   }
 

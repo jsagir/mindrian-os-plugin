@@ -18,8 +18,7 @@ allowed-tools:
   - Write
   - Glob
   - Bash
-  - mcp__mindrian-brain__brain_query
-  - mcp__mindrian-brain__read_neo4j_cypher
+  - mcp__mindrian-brain__brain_ask
   - mcp__mindrian-brain__brain_search
 ---
 
@@ -90,13 +89,14 @@ If no MINTO.md exists, note that qualitative context is unavailable. Proceed wit
 
 ### Try Brain First
 
-If Brain MCP is available, query for framework recommendation:
+If Brain MCP is available, ask for framework recommendations using natural language:
 
-1. Read `references/brain/query-patterns.md` for `brain_framework_chain` pattern
-2. Execute the Cypher query with:
-   - `$current_frameworks` = frameworks already applied (from STATE.md)
-   - `$problem_type` = current problem type classification
-3. Brain returns ranked frameworks with confidence scores and problem-type alignment
+1. Call `mcp__mindrian-brain__brain_ask` with a question such as:
+   - "recommend a framework for a [problem-type] venture that has already applied [current frameworks]"
+   - "what frameworks chain from [seed framework] for a [problem-type] problem?"
+2. Read `next_gate.options[].framework` from the response for the ranked chain.
+   `directive.guided.framework` carries the matched anchor framework.
+3. Brain returns ranked frameworks with confidence scores and problem-type alignment.
 
 ### Local Fallback
 

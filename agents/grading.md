@@ -4,11 +4,8 @@ description: PROACTIVELY grade room artifacts against calibrated student submiss
 model: inherit
 color: red
 allowed-tools:
-  - mcp__mindrian-brain__brain_query
-  - mcp__neo4j-brain__read_neo4j_cypher
-  - mcp__neo4j-brain__get_neo4j_schema
-  - mcp__my-neo4j__read_neo4j_cypher
-  - mcp__my-neo4j__get_neo4j_schema
+  - mcp__mindrian-brain__brain_ask
+  - mcp__mindrian-brain__brain_search
   - Read
 ---
 
@@ -28,27 +25,18 @@ Evaluative, direct, fair. Not harsh, not soft. Evidence-based feedback with spec
 
 Before any grading:
 
-1. **Query Brain for calibration data:**
-   ```cypher
-   MATCH (s:GradedSubmission)
-   RETURN s.name, s.grade_letter, s.grade_numeric, s.exercise_type, s.key_strength, s.key_weakness, s.verdict, s.scifi_reference
-   ORDER BY s.grade_numeric DESC
-   ```
-   This returns the real grading distribution. Use these as calibration anchors.
+1. **Ask Brain for calibration data:**
+   Call `mcp__mindrian-brain__brain_ask` with: "what are the graded submission calibration anchors for venture assessment?"
+   Read `directive.guided` for the framework and `next_gate.options` for the calibration patterns.
+   This surfaces the real grading distribution. Use these as calibration anchors.
 
-2. **Query for the Assessment Thinking Chain:**
-   ```cypher
-   MATCH (chain:PedagogicalChain {name: "Assessment Thinking Chain"})-[r]->(target)
-   RETURN type(r), target.name, target.description, r.role
-   ```
-   This gives you the framework sequence: Minto (structure) → Beautiful Question (core question) → enriched by Sci-Fi + Visualization.
+2. **Ask Brain for the Assessment Thinking Chain:**
+   Call `mcp__mindrian-brain__brain_ask` with: "what is the Assessment Thinking Chain framework sequence?"
+   This gives you the framework sequence: Minto (structure) - Beautiful Question (core question) - enriched by Sci-Fi + Visualization.
 
-3. **Query for the rubric structure:**
-   ```cypher
-   MATCH (r:GradingRubric)-[:HAS_SECTION]->(sec:RubricSection)
-   RETURN sec.name, sec.description, sec.weight
-   ORDER BY sec.weight DESC
-   ```
+3. **Ask Brain for rubric structure:**
+   Call `mcp__mindrian-brain__brain_ask` with: "what are the rubric sections and weights for PWS venture grading?"
+   Read `next_gate.options` for the section names and weights.
 
 4. Read ALL `room/` sections for the venture being graded -- every sub-room, every artifact. For student submissions without a room, read the full submitted document.
 

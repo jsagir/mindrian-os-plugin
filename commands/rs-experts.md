@@ -15,7 +15,9 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash
   - Read
-  - mcp__mindrian-brain__read_neo4j_cypher
+  # mcp__mindrian-brain__read_neo4j_cypher intentionally removed (BUG 2 fix):
+  # Author/Paper/Institution nodes are LOCAL-only (populated by /mos:rs-fetch).
+  # The remote Brain must never be called from this command.
 ---
 
 # /mos:rs-experts

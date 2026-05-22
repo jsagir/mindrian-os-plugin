@@ -245,6 +245,8 @@ function loadModuleFresh() {
   }
 
   // ----- Test 4: Mode A (Brain reachable) — brain_pattern_hints present -----
+  // BUG 2 fix update: the implementation now calls client.search() (ungated
+  // brain_search) instead of client.query(). Stub updated accordingly.
   {
     const tmp = freshTmpRoot();
     process.env.MINDRIAN_ROOMS_HOME = tmp;
@@ -253,10 +255,11 @@ function loadModuleFresh() {
     let brainCalls = 0;
     const stub = {
       isAvailable: () => true,
-      query: async function (payload) {
+      search: async function (_queryText, _opts) {
         brainCalls++;
-        return { patterns: [{ precedes: 'find-bottleneck', confidence: 0.62 },
-                            { follows: 'validate-idea', confidence: 0.71 }] };
+        // Return semantic matches shape; tryBrainHints maps these to patterns.
+        return { matches: [{ title: 'prepare-pitch pattern', score: 0.82 },
+                           { title: 'validate-idea pattern', score: 0.71 }] };
       },
     };
     if (typeof m.__setBrainClient === 'function') m.__setBrainClient(stub);
@@ -269,6 +272,7 @@ function loadModuleFresh() {
   }
 
   // ----- Test 5: Mode A read-only failure mid-render — degrades to Mode B -----
+  // BUG 2 fix update: stub uses search() instead of query().
   {
     const tmp = freshTmpRoot();
     process.env.MINDRIAN_ROOMS_HOME = tmp;
@@ -276,7 +280,7 @@ function loadModuleFresh() {
     const m = loadModuleFresh();
     const stub = {
       isAvailable: () => true,
-      query: async function () { throw new Error('brain read-only failure'); },
+      search: async function () { throw new Error('brain read-only failure'); },
     };
     if (typeof m.__setBrainClient === 'function') m.__setBrainClient(stub);
     let threw = false;

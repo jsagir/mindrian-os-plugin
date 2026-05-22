@@ -156,6 +156,56 @@ continues to use the existing `NEO4J_USER` credential. Re-pointing the served
 read path onto a scoped reader credential is a `server.cjs` concern that Plan
 127.1-05 deliberately did not touch (soak-independence from Plan 127.1-04).
 
+### D-MOAT-3 (curated-op surface) -- the second option, now SHIPPED
+
+D-MOAT-3's deferral note named two ways forward. The first (Aura Professional
+RBAC) is still deferred. The SECOND -- "a curated / parameterized-query surface
+shipped as a future phase, so the served read path never accepts arbitrary
+caller Cypher in the first place" -- is now LANDED as the curated-op surface in
+`lib/brain-ask.cjs` (BUG 2 fix).
+
+The curated-op surface is an optional `op` MODE of the existing `brain_ask`
+tool. It is NOT a new MCP tool: the startup tool count stays at **6**. When a
+caller sets `op`, the server resolves it to one of a closed set of FROZEN
+server-side Cypher strings and runs it READ-only, bounded by the D-MOAT-2 caps.
+When `op` is absent, `brain_ask` behaves exactly as before (the
+natural-language directive path is untouched).
+
+| Op | Params | Returns rows shaped |
+|----|--------|---------------------|
+| `list_frameworks` | `{ limit? }` | `{ name, description, category }` |
+| `framework_edges` | `{ edge_type, limit? }` | `{ from, to, confidence, transform }` (FEEDS_INTO) or `{ framework, problem_type }` (ADDRESSES_PROBLEM_TYPE) |
+| `framework_chain_slice` | `{ seeds, max_hops?, limit? }` | `{ from, to, hop_distance }` |
+
+Why this is moat-safe (Canon Part 8):
+
+- **No caller Cypher.** The caller never supplies a query string. Each op maps
+  to a frozen Cypher constant. The `edge_type` param is a closed enum that
+  SELECTS one of two frozen strings; `max_hops` is server-clamped to `[1,3]`
+  and the clamped integer SELECTS one of three frozen variants (a
+  variable-length bound cannot be a `$`-bound param). The relationship type and
+  the hop bound are never interpolated from caller input. Every other param
+  (`limit`, `seeds`) is `$`-bound. The `MATCH (n) RETURN n` graph-copy attack
+  stays blocked.
+- **Ungated by design.** The curated-op surface is reachable by any valid API
+  key -- it is a mode of `brain_ask`, which is ungated. Only `brain_query` and
+  `brain_write` are admin-gated (D-MOAT-1); that gate is untouched.
+- **D-MOAT-2 bounded.** The curated read applies the same row cap, byte cap,
+  and read timeout as `brain_query` (`BRAIN_CYPHER_MAX_ROWS` /
+  `BRAIN_CYPHER_MAX_BYTES` / `BRAIN_CYPHER_TIMEOUT_MS`). `list_frameworks`
+  bulk-enumerates the framework catalogue (names + descriptions + categories),
+  so the D-MOAT-2 row cap is the relevant ceiling on that op. Catalogue
+  enumeration is the "anyone can copy" tier per `.claude/includes/moat.md`; the
+  connection graph, grading calibration, and mode calibration -- the actual
+  moat -- are NOT bulk-exposed by any op.
+- **Graceful degradation.** A graph failure, a timeout, an oversized payload,
+  or a bad param returns `{ op, source:'neo4j_curated', count:0, rows:[],
+  degraded:true }` rather than throwing.
+
+`neo4j-tools.cjs` does not export its `runBoundedRead` helper, so the curated
+path replicates the timeout + row cap + byte cap inline in `brain-ask.cjs`,
+reading the same `BRAIN_CYPHER_*` env vars with the same defaults.
+
 ### Cross-references
 
 - `.planning/phases/127.1-brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap/127.1-05-PLAN.md` -- the plan
