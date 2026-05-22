@@ -1,4 +1,4 @@
-## [1.13.0-beta.23] - 2026-05-21
+## [1.13.0-beta.24] - 2026-05-22
 
 ### Fixed
 - **Brain unreachable on the first session after a plugin update -- now fixed on all three platforms.** `claude plugin update` lands a fresh plugin cache directory with no `node_modules`. Both bundled MCP servers (`mindrian-brain` + `mindrian-os`, both `alwaysLoad`) then crashed at module load (`Cannot find module '@modelcontextprotocol/sdk/server/mcp.js'`), the Brain was unreachable, and `/reload-plugins` reported a load error. On Windows the gap was *permanent* -- the repair never ran (see the portable self-heal note below). Root cause: a startup-order race plus a cross-platform defect in the repair (debug session `mcp-servers-cache-missing-node-modules`). The fix below makes Brain connectivity true by construction on Windows, Mac, and Linux.
