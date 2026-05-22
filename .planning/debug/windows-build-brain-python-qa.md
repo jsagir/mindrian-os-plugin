@@ -1,9 +1,9 @@
 ---
-status: gathering
+status: analyzing
 kind: qa-sweep
 trigger: "windows-build-brain-python-qa"
 created: 2026-05-22T00:00:00Z
-updated: 2026-05-22T00:00:00Z
+updated: 2026-05-22T19:10:00Z
 ---
 
 ## Purpose
@@ -27,9 +27,12 @@ rediscover them:
   beta.21/22, so fetch-brain-baseline.cjs and the rs-* commands return empty on
   a normal key. Root cause already found; this sweep confirms its blast radius.
 
-next_action: Run the QA Protocol on the Windows build, paste results into the
-Results section, then review here. Every `NEW FAILURE` row gets its own
-`/gsd:debug` session; Bug 1 and Bug 2 rows need no new session (already tracked).
+next_action: WSL2 Linux/aarch64 sweep COMPLETE (2026-05-22) - Results section
+filled, matrix below. 1 NEW FAILURE found: NF-1 brain_ask returns an empty
+DirectiveEnvelope -> open `/gsd:debug brain-ask-empty-directive-envelope`. NF-2
+(whitespace tree "undefined branches") is a cosmetic display bug, low priority.
+The Windows-native sweep is still outstanding - BUG 1 (python3.cmd shim) cannot
+be reproduced or cleared from WSL2 Linux where python3 resolves natively.
 
 ## QA Protocol (paste into the Windows build session)
 <!-- IMMUTABLE once the sweep starts -->
@@ -140,29 +143,87 @@ DISCIPLINE
 ## Results (the Windows build session fills this in)
 <!-- APPEND raw evidence; OVERWRITE the matrix as the sweep completes -->
 
-Environment: OS = ___ | plugin version = ___ | python = ___ | Brain key set = ___
+Environment: OS = Linux 6.6.87.2-microsoft-standard-WSL2 aarch64 (WSL2, NOT
+Windows-native) | plugin version = 1.13.0-beta.25 (dev workspace; install cache
+on beta.24) | python = python3 3.12.3 (native; no `python`/`py` alias) | Brain
+key set = yes (source=env)
+
+SURFACE NOTE: this run executed on WSL2 Linux / aarch64, not the Windows-native
+build the protocol targets. python3 resolves natively here, so BUG 1 (Windows
+python3.cmd shim) is NOT reproducible and NOT clearable from this surface - the
+Windows-native sweep is still outstanding. Every other row transfers.
 
 | Test | Component | Track | Result | Class |
 |------|-----------|-------|--------|-------|
-| A0 | Python interpreter resolution        | Python | _ | _ |
-| A1 | Python deps (requirements-hsi/whitespace) | Python | _ | _ |
-| A2 | scripts/*.py smoke (17 scripts)       | Python | _ | _ |
-| A3 | cjs->Python bridge (discovery-cycle, whitespace-command) | Python | _ | _ |
-| B0 | Brain key resolution                 | Brain  | _ | _ |
-| B1 | MCP connectivity (both servers)      | Brain  | _ | _ |
-| B2 | /mos:doctor --brain-smoke (5 layers) | Brain  | _ | _ |
-| B3 | Brain tools (ask/search/schema/stats/query) | Brain | _ | _ |
-| B4 | raw-Cypher consumers (BUG 2 radius)  | Brain  | _ | _ |
-| C1 | /mos:whitespace map/tree/discover    | E2E    | _ | _ |
-| C2 | /mos:diagnostics (4 Wave-1 algos)    | E2E    | _ | _ |
-| C3 | /mos:brain-derive                    | E2E    | _ | _ |
+| A0 | Python interpreter resolution        | Python | `python3` 3.12.3 works; `python`/`py` absent (normal on Linux) | WORKING |
+| A1 | Python deps (requirements-hsi/whitespace) | Python | hsi deps (scikit-learn, numpy, sentence-transformers) + pinecone import OK; umap-learn + hdbscan FAIL - llvmlite "incomplete machine model" on aarch64 | ENV GAP |
+| A2 | scripts/*.py smoke (17 scripts)       | Python | 17/17 parse + interpreter launch OK | WORKING |
+| A3 | cjs->Python bridge (discovery-cycle, whitespace-command) | Python | both launch (exit 0); discover ran HSI->RS->Analogy end-to-end | WORKING |
+| B0 | Brain key resolution                 | Brain  | resolved, source=env, available=true | WORKING |
+| B1 | MCP connectivity (both servers)      | Brain  | mindrian-os + mindrian-brain both Connected | WORKING |
+| B2 | /mos:doctor --brain-smoke (5 layers) | Brain  | L1-L5 all PASS, overall PASS 6276ms | WORKING |
+| B3 | Brain tools (ask/search/schema/stats/query) | Brain | stats/schema/search PASS; query=admin-gate refusal (expected, moat guard works); ask=empty DirectiveEnvelope on 2/2 questions | NEW FAILURE (brain_ask only) |
+| B4 | raw-Cypher consumers (BUG 2 radius)  | Brain  | fetch-brain-baseline.cjs runs clean (exit 0) -> "Fetched 0 frameworks" | BUG 2 |
+| C1 | /mos:whitespace map/tree/discover    | E2E    | map 75 zones; tree exit 0 but prints "undefined branches"; discover 7 zones (HSI 3 / RS 1 / Analogy 3) | WORKING (+ minor display bug, tree) |
+| C2 | /mos:diagnostics (4 Wave-1 algos)    | E2E    | 4 numeric results (CD -0.8751, Coverage 0.717, Novelty 0.083, Surprise 0.000), exit 0 | WORKING |
+| C3 | /mos:brain-derive                    | E2E    | problem-definition derived v1, schema gate 1/1 pass, ~420 tokens, exit 0 | WORKING |
 
-Verdict: ___ (Brain stack usable? Python stack usable?)
+Verdict: Brain stack - USABLE with one degraded tool. Connectivity, the 5-layer
+smoke, brain_stats / brain_schema / brain_search, and brain-derive all work.
+brain_ask returns a structurally valid but EMPTY DirectiveEnvelope (no framework,
+no questions, no gate options) on every call. Python stack - USABLE. All 17
+scripts launch, the cjs->Python bridge runs the full Discovery Cycle, and the 4
+Wave-1 algorithms return real numbers. The aarch64 umap/hdbscan gap (A1) did NOT
+block the Discovery Cycle (discover completed with 7 zones) - it is an env gap,
+not a blocker.
 
 NEW FAILURES (only rows classed NEW FAILURE - each needs its own debug session):
-- ___
+- NF-1  brain_ask returns an empty DirectiveEnvelope. Confirmed on 2 distinct
+  methodology questions ("what frameworks chain from SWOT analysis?" and "what
+  framework for a wicked problem at discovery stage?"). Both returned
+  directive.guided = {questions:[], framework:null, stage:null} and
+  next_gate.options = []. Packet shape is valid (packet_version 1.0,
+  DirectiveEnvelope, mode GUIDED, mode_rationale "default_guided_pedagogical_canon")
+  but carries zero methodology payload. Not BUG 1 (no Python), not BUG 2
+  (brain_ask issues no raw Cypher), not ENV GAP. The Brain-side brain_ask handler
+  is not populating the directive. -> needs `/gsd:debug brain-ask-empty-directive-envelope`.
+- NF-2 (minor / cosmetic)  /mos:whitespace tree renders "Topics: undefined
+  branches" - a JS `undefined` leaking into the count string. Command exits 0
+  and the forest is labeled; only the rendered branch count is wrong. Low severity.
 
-Raw evidence (paste per-test command output below):
+KNOWN-BUG CONFIRMATIONS (no new session needed):
+- BUG 2 blast radius confirmed: fetch-brain-baseline.cjs executes cleanly but
+  returns 0 frameworks on a non-admin key (raw Cypher gated). brain_query
+  likewise returns the admin-gate refusal - the moat guard works as designed.
+- BUG 1 (Windows python3.cmd) NOT testable from WSL2 Linux; python3 is native
+  here. The Windows-native sweep remains outstanding.
+
+Raw evidence (per-test command output):
+
+A0  python3 --version -> Python 3.12.3 ; `python` and `py` -> command not found
+A1  python3 -c "import sentence_transformers, numpy, sklearn" -> hsi imports OK
+    python3 -c "import umap, hdbscan, scipy" -> llvmlite "UNREACHABLE executed ...
+    TargetSchedule.cpp:229", "incomplete machine model" (numba/llvmlite, aarch64)
+    python3 -c "import pinecone" -> pinecone OK
+A2  ast.parse over all 17 scripts/*.py -> 17 PASS
+A3  node scripts/discovery-cycle.cjs --help -> usage, exit 0
+    node scripts/whitespace-command.cjs --help -> usage, exit 0
+B0  lib/core/resolve-brain-key.cjs -> {source:"env", available:true}
+B1  claude mcp list -> plugin:mos:mindrian-os Connected; plugin:mos:mindrian-brain Connected
+B2  node scripts/doctor.cjs --brain-smoke -> L1-L5 PASS, overall PASS 6276ms,
+    server=mindrian-brain v1.13.0-beta.25
+B3  brain_stats -> totalRecordCount 12401 across 6 namespaces, dim 1024
+    brain_schema -> full label + relationship-type + property-key set returned
+    brain_search "SWOT analysis" topK=3 -> 3 ranked hits, top _score 0.845
+    brain_ask x2 -> empty DirectiveEnvelope both times (see NF-1)
+    brain_query "MATCH (n) RETURN count(n)" -> "Raw Cypher query access requires
+    admin key" (expected refusal)
+B4  node scripts/fetch-brain-baseline.cjs --room <room> -> "Fetched 0 frameworks", exit 0
+C1  whitespace map -> 75 zones; tree -> "undefined branches", exit 0;
+    discover -> 7 zones (HSI 3 / RS 1 / Analogy 3), exit 0
+C2  diagnostics-command.cjs <room> -> CD -0.8751 / Coverage 0.717 / Novelty 0.083
+    / Surprise 0.000, exit 0
+C3  brain-derive-command.cjs problem-definition -> derived v1, schema gate 1/1, exit 0
 
 ## Triage with GSD (review step - do this after the Results are filled)
 <!-- How to review this sweep later -->

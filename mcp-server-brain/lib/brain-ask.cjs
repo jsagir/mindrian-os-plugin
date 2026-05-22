@@ -5,13 +5,24 @@ const { Pinecone } = require('@pinecone-database/pinecone');
 const { z } = require('zod');
 
 /**
- * brain_ask — The smart Brain tool.
+ * brain_ask - The smart Brain tool.
  *
- * Accepts NATURAL LANGUAGE. Returns structured results.
+ * Accepts NATURAL LANGUAGE. Returns a typed DirectiveEnvelope payload.
  * Handles Pinecone vs Neo4j routing internally:
  *   1. Try Pinecone semantic search
- *   2. If quota exhausted (429/RESOURCE_EXHAUSTED) → fall back to Neo4j Cypher
- *   3. If both fail → return helpful error
+ *   2. If quota exhausted (429/RESOURCE_EXHAUSTED) -> fall back to Neo4j Cypher
+ *   3. If both fail -> return helpful error
+ *
+ * Phase 127 contract (docs/CAPABILITY-MAP.md DirectiveEnvelope section):
+ * brain_ask is the methodology-reasoning surface, not a raw search wrapper. It
+ * MUST return a payload carrying a populated `directive` (framework + reframing
+ * questions + stage), `next_gate` (F-shape + options), and `mode_signals`, so
+ * the plugin's directive-envelope wrapper (lib/core/directive-envelope.cjs) can
+ * pass it through instead of falling through to an empty GUIDED scaffold.
+ *
+ * Canon Part 8: the question string carries only generic methodology language;
+ * the graph holds only generic teaching methodology. No user data enters or
+ * leaves on this path.
  *
  * The caller never needs to write Cypher or know which backend is active.
  */
@@ -96,6 +107,137 @@ function selectPattern(question) {
   return CYPHER_PATTERNS.general;
 }
 
+/**
+ * Derive mode-selection signals from the question text alone.
+ *
+ * Canon Part 8: the question carries only generic methodology language, so
+ * these signals are derived purely from generic phrasing - never from user
+ * artifacts. selectMode in lib/core/directive-envelope.cjs consumes these;
+ * the canonical default remains GUIDED (feedback_larry_pedagogical_guided_first).
+ *
+ * @param {string} question
+ * @returns {object} mode_signals
+ */
+function deriveModeSignals(question) {
+  const q = (question || '').toLowerCase();
+  return {
+    user_said_just_tell_me: /just tell me|bottom line|skip the question/.test(q),
+    user_said_bottom_line: /bottom line/.test(q),
+    user_explicitly_said_run: /^\s*(run|execute|apply)\b/.test(q),
+    is_prep_work: /\b(prep|prepare|set ?up|scaffold)\b/.test(q),
+    requires_judgment: true,
+  };
+}
+
+/**
+ * Build the typed `directive` + `next_gate` for a methodology question.
+ *
+ * The directive is synthesized from the teaching graph:
+ *   - framework: the best-matching Framework node for the question keyword.
+ *   - questions: reframing questions derived from the framework's outbound
+ *     FEEDS_INTO / chaining edges (each chain target becomes a "consider X"
+ *     reframing prompt) plus the framework's own beautiful-question seed.
+ *   - stage: the framework's phase/stage hint when the graph carries one.
+ *   - next_gate.options: the chained frameworks as F.1 Next Move verbs.
+ *
+ * Returns null when the graph yields no framework match (caller then leaves
+ * the directive unset and the wrapper produces its empty GUIDED scaffold -
+ * the honest "nothing to teach here" signal).
+ *
+ * Cypher uses bound parameters ($keyword / $frameworkName / $limit), the
+ * idiomatic neo4j-driver pattern - no string interpolation into the query.
+ *
+ * @param {object} session  open Neo4j READ session
+ * @param {string} keyword
+ * @param {number} limit
+ * @returns {Promise<{directive: object, next_gate: object}|null>}
+ */
+async function buildDirectiveFromGraph(session, keyword, limit) {
+  // 1. Best-matching Framework for this question.
+  const fwCypher = `MATCH (f:Framework)
+WHERE toLower(f.name) CONTAINS toLower($keyword)
+   OR toLower(coalesce(f.description, '')) CONTAINS toLower($keyword)
+RETURN f.name AS name,
+       coalesce(f.description, '') AS description,
+       coalesce(f.phase, f.stage, '') AS stage,
+       coalesce(f.beautiful_question, '') AS beautiful_question
+ORDER BY
+  CASE WHEN toLower(f.name) CONTAINS toLower($keyword) THEN 0 ELSE 1 END,
+  size(f.name)
+LIMIT 1`;
+  const fwResult = await session.run(fwCypher, { keyword: String(keyword) });
+  if (fwResult.records.length === 0) return null;
+
+  const fw = fwResult.records[0].toObject();
+  const frameworkName = fw.name;
+
+  // 2. Chained frameworks (outbound chaining edges) - these become both the
+  //    reframing questions and the next_gate options. neo4j-driver requires
+  //    an integer for a parameterized LIMIT, so wrap with neo4j.int().
+  const chainLimit = Math.max(1, Math.min(Number(limit) || 5, 5));
+  const chainCypher = `MATCH (a:Framework)-[r]->(b:Framework)
+WHERE a.name = $frameworkName
+  AND type(r) IN ['FEEDS_INTO','CHAINS_TO','CO_OCCURS','PRECEDES','NEXT']
+RETURN b.name AS to,
+       type(r) AS rel,
+       coalesce(r.confidence, 0.0) AS confidence,
+       coalesce(r.transform_description, '') AS transform
+ORDER BY r.confidence DESC
+LIMIT $limit`;
+  const chainResult = await session.run(chainCypher, {
+    frameworkName: String(frameworkName),
+    limit: neo4j.int(chainLimit),
+  });
+  const chains = chainResult.records.map(r => r.toObject());
+
+  // 3. Build reframing questions.
+  const questions = [];
+  if (fw.beautiful_question) {
+    questions.push({
+      ask: fw.beautiful_question,
+      why: 'Beautiful question seeded by ' + frameworkName + ' (Berger 2014 framing).',
+    });
+  }
+  for (const c of chains) {
+    questions.push({
+      ask: 'Would chaining into ' + c.to + ' sharpen this analysis?',
+      why: c.transform
+        ? c.transform
+        : (frameworkName + ' ' + c.rel + ' ' + c.to
+           + ' (confidence ' + Number(c.confidence).toFixed(2) + ').'),
+      options: ['yes, chain into ' + c.to, 'no, stay on ' + frameworkName],
+    });
+  }
+  // Always give Larry at least one reframing prompt so the directive is never
+  // structurally empty when a framework matched.
+  if (questions.length === 0) {
+    questions.push({
+      ask: 'What decision does applying ' + frameworkName + ' need to inform?',
+      why: 'Anchors the methodology to a concrete navigator decision before running it.',
+    });
+  }
+
+  const directive = {
+    guided: {
+      questions: questions,
+      framework: frameworkName,
+      stage: fw.stage || null,
+    },
+  };
+
+  const next_gate = {
+    sub_shape: 'F.1',
+    options: chains.map(c => ({
+      verb: 'Run Methodology',
+      label: 'Chain into ' + c.to,
+      framework: c.to,
+      confidence: Number(c.confidence) || null,
+    })),
+  };
+
+  return { directive: directive, next_gate: next_gate };
+}
+
 function registerBrainAsk(server) {
   let neo4jDriver = null;
   let pineconeClient = null;
@@ -119,7 +261,7 @@ function registerBrainAsk(server) {
 
   server.tool(
     'brain_ask',
-    'Ask the Brain anything in natural language. Searches 23K methodology nodes and 12K semantic embeddings. Automatically handles Pinecone semantic search with Neo4j Cypher fallback. Use this instead of brain_query or brain_search — it handles routing internally.',
+    'Ask the Brain anything in natural language. Returns a DirectiveEnvelope payload (populated directive + next_gate + mode_signals) synthesized from the teaching graph, plus supporting search results. Searches 23K methodology nodes and 12K semantic embeddings; automatically handles Pinecone semantic search with Neo4j Cypher fallback. Use this instead of brain_query or brain_search - it handles routing internally.',
     {
       question: z.string().describe('Natural language question about PWS methodology, frameworks, connections, grading, or any teaching content'),
       topK: z.number().optional().describe('Number of results (default 5)'),
@@ -149,24 +291,23 @@ function registerBrainAsk(server) {
         }
       } catch (err) {
         const msg = (err.message || '').toLowerCase();
-        // Pinecone quota exhausted or other error — fall through to Neo4j
+        // Pinecone quota exhausted or other error - fall through to Neo4j
         if (msg.includes('resource_exhausted') || msg.includes('429') || msg.includes('quota')) {
           source = 'pinecone_quota_exhausted';
         }
-        // Any other Pinecone error — also fall through
+        // Any other Pinecone error - also fall through
       }
 
       // --- Step 2: If Pinecone failed, use Neo4j Cypher ---
       if (!results || results.length === 0) {
         try {
           const pattern = selectPattern(question);
-          const cypher = pattern.cypher
-            .replace(/\$keyword/g, `'${keyword.replace(/'/g, "\\'")}'`)
-            .replace(/\$limit/g, String(limit));
-
           const session = getNeo4j().session({ defaultAccessMode: neo4j.session.READ });
           try {
-            const result = await session.run(cypher);
+            const result = await session.run(pattern.cypher, {
+              keyword: String(keyword),
+              limit: neo4j.int(limit),
+            });
             const records = result.records.map(r => r.toObject());
             if (records.length > 0) {
               source = source === 'pinecone_quota_exhausted'
@@ -187,7 +328,7 @@ function registerBrainAsk(server) {
                   error: 'Both Pinecone and Neo4j unavailable',
                   pinecone: source === 'pinecone_quota_exhausted' ? 'Monthly embedding quota exhausted' : 'Connection error',
                   neo4j: 'Query error: ' + (err.message || 'unknown'),
-                  suggestion: 'Brain is temporarily unavailable. MindrianOS works fully without it — all 46 commands, Data Room, graph, personas. Try again later or wait for Pinecone billing cycle reset.',
+                  suggestion: 'Brain is temporarily unavailable. MindrianOS works fully without it - all 46 commands, Data Room, graph, personas. Try again later or wait for Pinecone billing cycle reset.',
                 }, null, 2),
               }],
               isError: true,
@@ -196,24 +337,61 @@ function registerBrainAsk(server) {
         }
       }
 
-      // --- Step 3: Return results ---
+      // --- Step 3: Synthesize the DirectiveEnvelope directive from the graph ---
+      // This is the methodology-reasoning payload the plugin's
+      // directive-envelope wrapper passes through. Built independently of the
+      // search backend above: even when Pinecone served the search hits, the
+      // directive is derived from the Neo4j teaching graph (framework chaining
+      // rules). A graph failure here degrades gracefully - the directive is
+      // simply omitted and the wrapper produces its empty GUIDED scaffold.
+      let directiveBlock = null;
+      try {
+        const dirSession = getNeo4j().session({ defaultAccessMode: neo4j.session.READ });
+        try {
+          directiveBlock = await buildDirectiveFromGraph(dirSession, keyword, limit);
+        } finally {
+          await dirSession.close();
+        }
+      } catch (err) {
+        // Graph unreachable for directive synthesis - degrade gracefully.
+        directiveBlock = null;
+      }
+
+      // --- Step 4: Return DirectiveEnvelope payload ---
+      // Carries `directive` + `next_gate` + `mode_signals` for the plugin's
+      // wrapper (lib/core/directive-envelope.cjs buildDirective pass-through),
+      // plus the legacy `results` array for backward-compatible callers.
+      const payload = {
+        question,
+        keyword,
+        source,
+        count: results ? results.length : 0,
+        results: results || [],
+        mode_signals: deriveModeSignals(question),
+        ...(source.includes('fallback') ? {
+          note: 'Pinecone embedding quota exhausted for this billing cycle. Results are from Neo4j Cypher queries (keyword-based, not semantic). Semantic search will resume when the quota resets.',
+        } : {}),
+      };
+
+      if (directiveBlock) {
+        payload.directive = directiveBlock.directive;
+        payload.next_gate = directiveBlock.next_gate;
+      }
+
       return {
         content: [{
           type: 'text',
-          text: JSON.stringify({
-            question,
-            keyword,
-            source,
-            count: results ? results.length : 0,
-            results: results || [],
-            ...(source.includes('fallback') ? {
-              note: 'Pinecone embedding quota exhausted for this billing cycle. Results are from Neo4j Cypher queries (keyword-based, not semantic). Semantic search will resume when the quota resets.',
-            } : {}),
-          }, null, 2),
+          text: JSON.stringify(payload, null, 2),
         }],
       };
     }
   );
 }
 
-module.exports = { registerBrainAsk };
+module.exports = {
+  registerBrainAsk,
+  // Exported for unit testing the directive-synthesis contract.
+  buildDirectiveFromGraph,
+  deriveModeSignals,
+  extractKeyword,
+};
