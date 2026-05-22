@@ -196,9 +196,21 @@ All three fixes are pure lockfile-logic and `package.json`-read correctness. The
 
 ---
 
-## Still Open
+## Windows Confirmation (closed 2026-05-22)
 
-The cross-platform self-heal spawn path (the portable `npm-cli-resolve.cjs` resolver that runs `node <absolute npm-cli.js> install` to sidestep PATH and the `.cmd` extension on Windows) is awaiting confirmation on a real Windows machine via `claude mcp list`. That confirmation point is pre-existing -- it was established when the Option D fix (f6cafe74) shipped. The three correctness fixes in commit a9ca105b do not touch the spawn path. The Windows checkpoint applies to the unchanged portable resolver, not to anything in this fix.
+When the three correctness fixes shipped, the cross-platform self-heal spawn path (the portable `npm-cli-resolve.cjs` resolver that runs `node <absolute npm-cli.js> install` to sidestep PATH and the `.cmd` extension on Windows) was still awaiting confirmation on a real Windows machine. That confirmation is now complete.
+
+On 2026-05-22 a real Windows box running the v1.13.0-beta.24 marketplace-cache install passed all five confirmation checks:
+
+- `claude plugin list` shows `mos` at `1.13.0-beta.24`.
+- `claude mcp list` shows both `mindrian-brain` and `mindrian-os` connected. The original "Failed to connect" symptom is gone.
+- The marketplace cache ships `node_modules` with `@modelcontextprotocol/sdk` present. The vendored tree landed with the install; no runtime install was needed.
+- `/mos:doctor --brain-smoke` reports all five layers green: plugin-root resolver, brain-key resolver (the key resolved cleanly, so there is no auth dependency on a manual install), HTTPS schema probe, MCP stdio handshake, and end-to-end `brain_schema`. Overall `ok=true`.
+- The plugin loads with zero load errors.
+
+Nothing on this thread remains open. The fix is verified directly on Linux and directly on Windows.
+
+Two unrelated items surfaced during the Windows run, neither part of this fix: a stale legacy mirror at `~/.claude/plugins/mindrian-os/` (cosmetic, cleared with `/mos:doctor --fix`), and a statusline-visibility failure in doctor class G (a separate subsystem).
 
 ---
 

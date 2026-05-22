@@ -11,7 +11,7 @@ updated: 2026-05-22T00:00:00Z
 hypothesis: RESOLVED. The three residual bugs from the remote code review (bug_004 non-atomic lock, bug_001 false-stale reclaim, bug_011 narrow probe) are fixed cleanly and minimally. The primary fix (vendored deps + portable self-heal) shipped earlier; this continuation closed the final correctness work in the backstop machinery.
 test: Implemented all three fixes, added two new unit suites, re-ran six affected regression suites. All 63 tests green.
 expecting: (met) All three bugs fixed without over-engineering; concurrent-install corruption and false-stale reclaim impossible; the probe covers the full production dep set; every test green.
-next_action: NONE. Work committed, debug file resolved + archived. Release NOT cut (honored). The earlier "AWAITING human confirmation on a real Windows box" note covers the cross-platform self-heal; the three correctness fixes here are Linux-verifiable lockfile/probe logic and are fully verified.
+next_action: NONE. Work committed, debug file resolved + archived. Shipped in v1.13.0-beta.24 (cut 2026-05-22). The "AWAITING human confirmation on a real Windows box" note is now CLOSED: confirmed on a real Windows box 2026-05-22 (see the final Evidence entry) - both MCP servers connect, the vendored MCP SDK ships in the cache, and /mos:doctor --brain-smoke is 5/5 green end-to-end. Nothing on this thread remains open.
 
 ## Symptoms
 <!-- Written during gathering, then IMMUTABLE -->
@@ -331,6 +331,42 @@ started: Immediately after `claude plugin update mos@mindrian-marketplace` upgra
     the prior Windows checkpoint covers only the cross-platform self-heal
     spawn path, which is unchanged here.
 
+- timestamp: 2026-05-22T18:00:00Z
+  checked: WINDOWS CONFIRMATION - real Windows box, v1.13.0-beta.24 marketplace-cache install
+  found: |
+    The "Windows correct by construction" claim is now CONFIRMED on a real
+    Windows machine running the v1.13.0-beta.24 marketplace install. All five
+    confirmation checks passed.
+    CHECK 1 VERSION: claude plugin list shows mos at 1.13.0-beta.24.
+    CHECK 2 MCP CONNECTIVITY: claude mcp list - both mindrian-brain and
+    mindrian-os connected. The exact reported symptom ("Failed to connect") is
+    gone.
+    CHECK 3 CACHE DEPS: the beta.24 marketplace cache ships node_modules with
+    @modelcontextprotocol/sdk present - the vendored tree landed with the
+    install, no runtime npm install needed.
+    CHECK 4 BRAIN E2E: /mos:doctor --brain-smoke all 5 layers green -
+    L1 plugin-root-resolver (marketplace-cache topology), L2 brain-key-resolver
+    (key resolved, source=mindrian-env-file - no auth issue, no false-fail),
+    L3 HTTPS schema probe (non-null payload), L4 MCP stdio handshake
+    (server=mindrian-brain v1.13.0-beta.24), L5 e2e brain_schema (payload
+    returned); overall ok=true. The Brain is reachable, authenticated, and
+    returning real data on Windows.
+    CHECK 5 NO LOAD ERRORS: mos shows enabled, both MCP servers connected,
+    doctor.cjs + --brain-smoke executed from the beta.24 code with zero load
+    error.
+    TWO NON-BLOCKING ITEMS surfaced, neither part of this thread:
+    (1) legacy-mirror drift - ~/.claude/plugins/mindrian-os/ stale at beta.9;
+    the session, MCP servers, and Brain all run from the beta.24 marketplace
+    cache, so this is cosmetic - clear with /mos:doctor --fix.
+    (2) statusline-visibility - doctor class G reports statusline-mos exit
+    null; a separate subsystem, unrelated to the Brain/cache fix.
+  implication: WINDOWS CHECKPOINT CLOSED. The last open line on this session -
+    "AWAITING human confirmation on a real Windows box" - is satisfied. The
+    beta.24 fix (vendored node_modules + cross-platform portable self-heal)
+    holds on Windows: the MCP SDK ships inside the cache, both MCP servers
+    connect, and the Brain answers end-to-end. The fix is verified directly on
+    Linux AND directly on Windows - no remaining "by construction" gap.
+
 ## Resolution
 <!-- OVERWRITE as understanding evolves -->
 
@@ -429,8 +465,22 @@ sessionstart-coordinator 15/15, tier0-messaging 8/8. TOTAL 63/63, zero
 failures. These three are pure lockfile-logic + package.json-read correctness
 fixes with no platform-specific surface, so they are fully verified here; the
 Windows checkpoint covers only the unchanged cross-platform self-heal spawn
-path. CHANGELOG v1.13.0-beta.23 entry extended with a "lockfile + probe
-correctness" Fixed sub-section. Release NOT cut (honored).
+path. CHANGELOG entry extended with a "lockfile + probe correctness" Fixed
+sub-section.
+
+SHIPPED: cut as v1.13.0-beta.24 on 2026-05-22 (release.sh always increments,
+so the hand-bumped beta.23 became beta.24 at cut time). npm
+@mindrian_os/install@1.13.0-beta.24 published; marketplace source.ref pinned
+to v1.13.0-beta.24; install minisite synced.
+
+WINDOWS - CONFIRMED DIRECTLY (2026-05-22): the "by construction" Windows claim
+is now verified on a real Windows box running the beta.24 marketplace-cache
+install. claude mcp list - both MCP servers connected; the vendored
+node_modules (with @modelcontextprotocol/sdk) shipped inside the cache;
+/mos:doctor --brain-smoke 5/5 layers green (L1 plugin-root, L2 key resolved,
+L3 HTTPS probe, L4 MCP stdio handshake server=mindrian-brain v1.13.0-beta.24,
+L5 e2e brain_schema), overall ok=true. The Windows checkpoint is CLOSED - the
+fix is verified directly on Linux AND Windows.
 
 files_changed:
   - lib/core/npm-cli-resolve.cjs (NEW - portable npm CLI resolution off process.execPath)
