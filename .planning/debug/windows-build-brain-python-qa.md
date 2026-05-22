@@ -178,7 +178,9 @@ block the Discovery Cycle (discover completed with 7 zones) - it is an env gap,
 not a blocker.
 
 NEW FAILURES (only rows classed NEW FAILURE - each needs its own debug session):
-- NF-1  brain_ask returns an empty DirectiveEnvelope. Confirmed on 2 distinct
+- NF-1  [RESOLVED 2026-05-22 -- fixes c40afc71 + 4a7cbfbe, verified live on the
+  production Brain; see .planning/debug/resolved/brain-ask-empty-envelope.md]
+  brain_ask returned an empty DirectiveEnvelope. Confirmed on 2 distinct
   methodology questions ("what frameworks chain from SWOT analysis?" and "what
   framework for a wicked problem at discovery stage?"). Both returned
   directive.guided = {questions:[], framework:null, stage:null} and

@@ -274,3 +274,25 @@ wrapper regression `directive-envelope.test.cjs` 9/9 green.
 records regardless of the query proves the directive-BUILDING shape but proves
 nothing about RETRIEVAL. Graph-retrieval code needs at least one test against the
 real graph (or a fixture seeded from it). Filed against this RCA.
+
+## Final verification -- 2026-05-22 19:57Z: RESOLVED, confirmed live
+
+Second fix 4a7cbfbe; Render deploy dep-d88b7qcm0tmc73901d00 live 19:52:58Z.
+Post-deploy live smoke test of the brain_ask MCP tool against the production
+Brain (mindrian-brain.onrender.com):
+- "What frameworks chain from Six Thinking Hats?" -> populated DirectiveEnvelope:
+  framework "Six Thinking Hats", 5 reframing questions (each with a graph-sourced
+  rationale), 5 next_gate F.1 options with confidence scores (0.9 / 0.85).
+- "What framework ... wicked problem at discovery stage?" -> token-fallback path
+  matched "Wicked Problem Detection Framework", 4 chained next_gate options.
+The empty-envelope defect is closed. brain_ask is the methodology-reasoning
+surface again.
+
+Deploy note (knowledge-base): the FIRST post-deploy smoke test at 19:54:15Z hit a
+~30-second 502 window (19:54:15-19:54:44Z). The app logs show NO crash and NO
+restart -- only the clean "Brain MCP server listening on port 10000" startup
+line. The 502s were the single-instance Render service settling its deploy swap;
+/health was 200 again by 19:57Z and both brain_ask smoke tests then succeeded.
+Lesson: on a 1-instance Render web service, do not smoke-test within ~90s of the
+deploy going "live" -- a transient 502 window during the instance swap is
+expected and is not a crash.
