@@ -561,6 +561,17 @@ Use these entry points:
 Do not make direct repo edits outside a GSD workflow unless the user explicitly asks to bypass it.
 <!-- GSD:workflow-end -->
 
+## QA and RCA Reporting
+
+When QA-ing a new feature or investigating a defect, write findings to the MindrianOS RCA standard. Do not improvise a bug report.
+
+- **The standard:** `docs/RCA-TEMPLATE.md` is a machine-readable incident spec. It IS the GSD debug-session format plus four agent-input sections (Scope and Impact, Required Code Changes, Tests, Non-Code Follow-ups) and a JSON variant. Read it before writing any root-cause report.
+- **Where reports go:** file every report at `.planning/debug/<slug>.md` so `/gsd:debug <slug>` can resume it. `.planning/` is gitignored, so commit RCA files with `git add -f` (the established pattern).
+- **Single bug vs feature sweep:** one defect uses `kind: rca`. A multi-component QA pass over a new feature uses `kind: qa-sweep` with a component health matrix. Reference sweep: `.planning/debug/windows-build-brain-python-qa.md`.
+- **Classify, never just report:** every finding is WORKING, a known tracked bug (cross-reference its existing debug session), ENV GAP, or NEW FAILURE. Only a NEW FAILURE warrants a fresh `/gsd:debug` session.
+- **Clear the MindrianOS gates before calling a fix done** (RCA template Section 5): Canon Part 8 Brain-boundary, Tri-Polar three-surface (CLI / Desktop / Cowork), cross-platform, release lockstep, no em-dashes, reuse-before-build.
+- **On resolve:** move the file to `.planning/debug/resolved/` and add a summary block to `.planning/debug/knowledge-base.md` so `gsd-debugger` surfaces it as a known-pattern hypothesis next time.
+
 <!-- GSD:profile-start -->
 ## Developer Profile
 
