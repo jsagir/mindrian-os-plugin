@@ -129,55 +129,100 @@ function deriveModeSignals(question) {
   };
 }
 
+// Generic question-phrasing words stripped before the token-fallback graph
+// match. All generic English / methodology phrasing - never user content
+// (Canon Part 8). Kept module-scope so it is built once.
+const DIRECTIVE_STOPWORDS = new Set([
+  'what', 'which', 'how', 'why', 'who', 'where', 'when', 'does', 'do', 'the',
+  'for', 'from', 'with', 'that', 'this', 'should', 'would', 'could', 'use',
+  'using', 'about', 'into', 'and', 'analysis', 'evaluate',
+  'framework', 'frameworks', 'methodology', 'tool', 'tools', 'approach',
+  'technique', 'techniques', 'chain', 'chains', 'chaining',
+  // Imperative query-phrasing verbs - excluded so a short verb like "tell"
+  // cannot substring-match an unrelated framework (e.g. "tell" in
+  // "in[tell]igence"); the token match below is CONTAINS, not word-boundary.
+  'tell', 'show', 'give', 'list', 'find', 'explain', 'describe',
+  'suggest', 'recommend', 'best', 'help',
+]);
+
 /**
  * Build the typed `directive` + `next_gate` for a methodology question.
  *
- * The directive is synthesized from the teaching graph:
- *   - framework: the best-matching Framework node for the question keyword.
- *   - questions: reframing questions derived from the framework's outbound
- *     FEEDS_INTO / chaining edges (each chain target becomes a "consider X"
- *     reframing prompt) plus the framework's own beautiful-question seed.
- *   - stage: the framework's phase/stage hint when the graph carries one.
- *   - next_gate.options: the chained frameworks as F.1 Next Move verbs.
+ * Retrieval is two-pass against the LIVE teaching graph:
+ *   1. Named-entity pass - find the methodology node whose own name appears
+ *      verbatim as a substring of the question (inverse CONTAINS). Reliable
+ *      because a navigator naming a methodology writes its name verbatim.
+ *      Matches :Framework / :Technique / :Method / :Tool / :InnovationTool /
+ *      :ValidationTool - the salient methodology noun is not always a
+ *      :Framework node (e.g. "SWOT Analysis" is a :Technique).
+ *   2. Token-fallback pass - when no name appears verbatim, match :Framework
+ *      names against the question's generic content tokens, ranked by hits.
  *
- * Returns null when the graph yields no framework match (caller then leaves
- * the directive unset and the wrapper produces its empty GUIDED scaffold -
- * the honest "nothing to teach here" signal).
+ * The chain (directive.guided.questions + next_gate.options) is the anchor's
+ * outbound FEEDS_INTO edges - the real framework-chaining edge in the graph
+ * (176 of them; CO_OCCURS / CHAINS_TO / PRECEDES / NEXT do not exist between
+ * frameworks, so matching them returned nothing - the pre-fix defect).
  *
- * Cypher uses bound parameters ($keyword / $frameworkName / $limit), the
- * idiomatic neo4j-driver pattern - no string interpolation into the query.
+ * Returns null only when BOTH passes find nothing - the honest
+ * "nothing to teach here" signal; the wrapper then renders an empty scaffold.
+ *
+ * Cypher uses bound parameters only ($q / $tokens / $frameworkName / $limit) -
+ * no string interpolation into the query.
  *
  * @param {object} session  open Neo4j READ session
- * @param {string} keyword
+ * @param {string} question full natural-language question
  * @param {number} limit
  * @returns {Promise<{directive: object, next_gate: object}|null>}
  */
-async function buildDirectiveFromGraph(session, keyword, limit) {
-  // 1. Best-matching Framework for this question.
-  const fwCypher = `MATCH (f:Framework)
-WHERE toLower(f.name) CONTAINS toLower($keyword)
-   OR toLower(coalesce(f.description, '')) CONTAINS toLower($keyword)
+async function buildDirectiveFromGraph(session, question, limit) {
+  const q = String(question || '').toLowerCase();
+
+  // 1. Named-entity pass - a methodology node whose name is IN the question.
+  const namedCypher = `MATCH (f)
+WHERE (f:Framework OR f:Technique OR f:Method OR f:Tool
+       OR f:InnovationTool OR f:ValidationTool)
+  AND f.name IS NOT NULL AND size(f.name) >= 4
+  AND $q CONTAINS toLower(f.name)
 RETURN f.name AS name,
        coalesce(f.description, '') AS description,
        coalesce(f.phase, f.stage, '') AS stage,
        coalesce(f.beautiful_question, '') AS beautiful_question
-ORDER BY
-  CASE WHEN toLower(f.name) CONTAINS toLower($keyword) THEN 0 ELSE 1 END,
-  size(f.name)
+ORDER BY CASE WHEN 'Framework' IN labels(f) THEN 0 ELSE 1 END,
+         size(f.name) DESC
 LIMIT 1`;
-  const fwResult = await session.run(fwCypher, { keyword: String(keyword) });
+  let fwResult = await session.run(namedCypher, { q: q });
+
+  // 2. Token-fallback pass - rank :Framework names by content-token hits.
+  if (fwResult.records.length === 0) {
+    const tokens = Array.from(new Set(
+      q.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/)
+        .filter(t => t.length >= 4 && !DIRECTIVE_STOPWORDS.has(t))
+    ));
+    if (tokens.length === 0) return null;
+    const tokenCypher = `MATCH (f:Framework)
+WHERE f.name IS NOT NULL
+  AND any(t IN $tokens WHERE toLower(f.name) CONTAINS t)
+WITH f, size([t IN $tokens WHERE toLower(f.name) CONTAINS t]) AS hits
+RETURN f.name AS name,
+       coalesce(f.description, '') AS description,
+       coalesce(f.phase, f.stage, '') AS stage,
+       coalesce(f.beautiful_question, '') AS beautiful_question
+ORDER BY hits DESC, size(f.name)
+LIMIT 1`;
+    fwResult = await session.run(tokenCypher, { tokens: tokens });
+  }
+
   if (fwResult.records.length === 0) return null;
 
   const fw = fwResult.records[0].toObject();
   const frameworkName = fw.name;
 
-  // 2. Chained frameworks (outbound chaining edges) - these become both the
-  //    reframing questions and the next_gate options. neo4j-driver requires
-  //    an integer for a parameterized LIMIT, so wrap with neo4j.int().
+  // 3. Chained methodologies - the anchor's outbound FEEDS_INTO edges. The
+  //    anchor is matched by name (not label) so a :Technique anchor still
+  //    chains. neo4j-driver requires an integer LIMIT, so wrap neo4j.int().
   const chainLimit = Math.max(1, Math.min(Number(limit) || 5, 5));
-  const chainCypher = `MATCH (a:Framework)-[r]->(b:Framework)
-WHERE a.name = $frameworkName
-  AND type(r) IN ['FEEDS_INTO','CHAINS_TO','CO_OCCURS','PRECEDES','NEXT']
+  const chainCypher = `MATCH (a)-[r:FEEDS_INTO]->(b)
+WHERE a.name = $frameworkName AND b.name IS NOT NULL
 RETURN b.name AS to,
        type(r) AS rel,
        coalesce(r.confidence, 0.0) AS confidence,
@@ -190,7 +235,7 @@ LIMIT $limit`;
   });
   const chains = chainResult.records.map(r => r.toObject());
 
-  // 3. Build reframing questions.
+  // 4. Build reframing questions.
   const questions = [];
   if (fw.beautiful_question) {
     questions.push({
@@ -348,7 +393,7 @@ function registerBrainAsk(server) {
       try {
         const dirSession = getNeo4j().session({ defaultAccessMode: neo4j.session.READ });
         try {
-          directiveBlock = await buildDirectiveFromGraph(dirSession, keyword, limit);
+          directiveBlock = await buildDirectiveFromGraph(dirSession, question, limit);
         } finally {
           await dirSession.close();
         }

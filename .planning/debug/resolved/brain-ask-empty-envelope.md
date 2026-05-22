@@ -232,3 +232,45 @@ one idiomatic improvement was applied before close.
   omitted -> wrapper's honest empty scaffold), READ-only sessions, sessions
   closed in `finally`, backward-compatible payload (legacy `results` retained),
   and the GUIDED-default preservation in `deriveModeSignals`.
+
+## Addendum -- 2026-05-22: first fix was incomplete (live-graph QA)
+
+The first fix (commit c40afc71) was deployed live (Render dep-d88863647okc7398ofm0,
+status live 16:24:28Z) but `brain_ask` STILL returned an empty envelope. A live
+post-deploy smoke test plus direct Neo4j forensics (via the `my-neo4j` MCP and a
+throwaway `buildDirectiveFromGraph` probe against the production graph) found the
+fix never retrieved an anchor node. Two retrieval defects, both invisible to the
+mock-session unit tests:
+
+- **Keyword defect.** `extractKeyword("What frameworks chain from SWOT analysis?")`
+  returns `"frameworks chain from"` -- it strips the leading question word then
+  takes the first three words, dropping the salient noun (SWOT) entirely.
+  `buildDirectiveFromGraph` then ran `WHERE toLower(f.name) CONTAINS $keyword` on
+  that whole 3-word phrase. No framework name contains the phrase
+  "frameworks chain from" -> 0 rows -> `return null` -> empty envelope, every call.
+- **Label defect.** The retrieval matched `:Framework` only. "SWOT Analysis" is a
+  `:Technique` node (confirmed: 167 `:Framework` nodes, SWOT is not one). Even with
+  a correct keyword the match would miss it. Separately, the chain query required
+  `type(r) IN ['FEEDS_INTO','CHAINS_TO','CO_OCCURS','PRECEDES','NEXT']`; only
+  `FEEDS_INTO` exists between frameworks (176 edges) -- `CO_OCCURS` between
+  frameworks is 0, the other three are not in the schema.
+
+The mock unit tests passed because the mock session returned a framework record
+regardless of the query -- the mock hid both defects.
+
+**Second fix:** `buildDirectiveFromGraph` rewritten to take the full question and
+retrieve in two passes -- (1) named-entity: a node whose own name appears verbatim
+in the question, matched across `:Framework|:Technique|:Method|:Tool|:InnovationTool|:ValidationTool`,
+preferring `:Framework` then longest name; (2) token fallback: `:Framework` names
+ranked by generic content-token hits, with imperative query verbs stopworded so a
+short token cannot substring-match an unrelated framework. Chain query delabeled
+(match the anchor by name, `FEEDS_INTO` only). Verified against the LIVE graph:
+"Six Thinking Hats" -> 5 chains; "wicked problem at discovery stage" -> 4 chains
+via fallback; "SWOT analysis" -> names the framework honestly with 0 chains (SWOT
+is a genuine dead-end node, 0 out-edges); off-topic question -> null. Client
+wrapper regression `directive-envelope.test.cjs` 9/9 green.
+
+**Lesson (for knowledge-base):** a mock-session unit test that returns canned
+records regardless of the query proves the directive-BUILDING shape but proves
+nothing about RETRIEVAL. Graph-retrieval code needs at least one test against the
+real graph (or a fixture seeded from it). Filed against this RCA.
