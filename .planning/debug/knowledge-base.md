@@ -12,7 +12,7 @@ Resolved debug sessions. Used by `gsd-debugger` to surface known-pattern hypothe
 - **Files changed:** scripts/heal-command.cjs, tests/test-heal-command-room-validation.cjs
 ---
 
-## mcp-servers-cache-missing-node-modules — MCP servers crash MODULE_NOT_FOUND on the first session after a plugin update
+## mcp-servers-cache-missing-node-modules - MCP servers crash MODULE_NOT_FOUND on the first session after a plugin update
 - **Date:** 2026-05-22
 - **Error patterns:** MODULE_NOT_FOUND, Cannot find module, @modelcontextprotocol/sdk, node_modules, plugin cache, claude plugin update, MCP servers, Failed to connect, brain unreachable, startup-order race, npm install, lockfile, TOCTOU, stale threshold, dependency probe, vendored deps
 - **Root cause:** `claude plugin update` lands a fresh plugin cache with no node_modules (neither marketplace git-clone nor npm tarball ship dependencies). A reconcile hook installs them, but it ran ASYNC so Claude Code spawned the alwaysLoad MCP servers before the ~3s npm install finished -- both servers crashed at module load. The repair mechanism also had a cross-platform defect (bare spawnSync('npm') is dead on Windows where npm is npm.cmd, fragile on Mac under GUI-launch PATH gaps). A later code review of the self-heal backstop found three more correctness bugs: bug_004 non-atomic lock creation (openSync('wx') + separate writeSync left a zero-byte window a peer misread as corrupt and unlinked the live lock); bug_001 stale threshold (90s) shorter than the 120s install timeout with an OR-gated reclaim check (false-stale reclaim of a healthy long install); bug_011 dependency probe limited to sdk+zod (a partially-populated node_modules passed the probe, no heal ran, a deeper require crashed).
