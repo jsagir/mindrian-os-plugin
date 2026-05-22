@@ -171,6 +171,21 @@ function resolveCuratedOp(op, params) {
  * @param {object} params  caller params
  * @returns {Promise<object>} the curated-op payload
  */
+/**
+ * Convert neo4j Integer values in a flat curated-op row to plain JS numbers.
+ * length(path) / count() return neo4j Integers; r.toObject() leaves them as
+ * { low, high } objects that serialize wrong over JSON. Curated-op rows are
+ * flat, so a shallow pass is sufficient.
+ */
+function plainifyRow(row) {
+  const out = {};
+  for (const k of Object.keys(row)) {
+    const v = row[k];
+    out[k] = neo4j.isInt(v) ? v.toNumber() : v;
+  }
+  return out;
+}
+
 async function runCuratedOp(driver, op, params) {
   let resolved;
   try {
@@ -194,7 +209,7 @@ async function runCuratedOp(driver, op, params) {
     if (records.length > CURATED_CYPHER_LIMITS.maxRows) {
       records = records.slice(0, CURATED_CYPHER_LIMITS.maxRows);
     }
-    const rows = records.map(r => r.toObject());
+    const rows = records.map(r => plainifyRow(r.toObject()));
     // D-MOAT-2 byte cap: an oversized payload degrades rather than returns.
     const probe = JSON.stringify(rows);
     if (probe.length > CURATED_CYPHER_LIMITS.maxBytes) {
