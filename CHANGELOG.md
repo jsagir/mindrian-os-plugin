@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.13.0-beta.27 (in progress)
+## [1.13.0-beta.28] - 2026-05-23
 
 ### Fixed (post-ship QA-sweep closeout, Phase 127.2 Plan 02)
 - **`scripts/doctor.cjs` `acceptance.version-of-record-published` now resolves the version-of-record from the LAST SHIPPED tag, not `plugin.json` (Finding B -- `.planning/debug/resolved/v1.13.0-beta.26-post-ship-qa-sweep.md`).** The gate previously read `plugin.json` and expected a matching git tag + marketplace `source.ref` + `npm view` for THAT version. But Commit B of the two-commit release form bumps `plugin.json` to the NEXT pre-release placeholder (e.g. `beta.27` while `main` HEAD is at the Commit B placeholder, even though the last shipped tag is `v1.13.0-beta.26`). The fix swaps the resolver to `git describe --tags --abbrev=0 --match='v*'` with a `plugin.json` fallback for fresh-repo edge cases. All three downstream assertions (tag exists, marketplace pinned, npm view matches) now key off the shipped tag. Same fix is mirrored into `acceptance.npx-roundtrip` at its `pluginVersion` derivation site for consistency.
