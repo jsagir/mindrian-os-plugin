@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.13.0-beta.25 (in progress)
+## [1.13.0-beta.26] - 2026-05-23
 
 ### Fixed (Brain edge cleanups, Phase 127.2 Plan 00)
 - **`BRAIN_MAX_TOPK` cap on Pinecone forwards (D-09 -- `.planning/debug/resolved/brain-topk-uncapped-advisory.md`).** The Brain MCP server (`mcp-server-brain/lib/brain-ask.cjs` line 545 + `mcp-server-brain/lib/pinecone-tools.cjs` line 42) forwarded caller-supplied `topK` directly to Pinecone with no Brain-side cap. The moat against runaway result sets was INHERITED from Pinecone's server-side cap, not OWNED by the Brain. A new `BRAIN_MAX_TOPK` env var (default 100) is now applied via `Math.min(topK, BRAIN_MAX_TOPK)` at both forward sites. Naming matches the existing `BRAIN_CYPHER_MAX_ROWS` family from Phase 127.1 Plan 05's D-MOAT-2 work. Server-side change deploys to `mindrian-brain.onrender.com` on next Render auto-deploy from `origin/main`. Surfaced by the Windows beta-tester deep audit (2026-05-23, NF-2026-05-23-01b).
