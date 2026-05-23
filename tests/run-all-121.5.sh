@@ -12,6 +12,7 @@
 #   ../lib/memory/state-aware-router.test.cjs        -> Plan 121.5-08 Task 1 (state-aware-router pure function)
 #   ../lib/memory/doctor-deprecation-surface.test.cjs -> Plan 121.5-08 Task 2 (doctor class I --deprecated-usage + F.1 selector wiring)
 #   test-coherence-smoke.cjs                         -> Plan 121.5-09 Task 1 (coherence smoke harness; Sub-plan H acceptance)
+#   ../lib/memory/selector-alias-map.test.cjs        -> Plan 121.5-10 Task 1 (Sub-plan K alias_map + dispatcher overlay)
 #
 # This runner MUST run to completion (no crash) even when any suite fails; it
 # prints a per-suite PASS/FAIL line and exits non-zero if any suite failed.
@@ -40,6 +41,7 @@ CJS_SUITES=(
   ../lib/memory/state-aware-router.test.cjs
   ../lib/memory/doctor-deprecation-surface.test.cjs
   test-coherence-smoke.cjs
+  ../lib/memory/selector-alias-map.test.cjs
 )
 
 TOTAL=0
