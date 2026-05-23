@@ -29,3 +29,30 @@ Resolved debug sessions. Used by `gsd-debugger` to surface known-pattern hypothe
 - **Files changed:** lib/core/npm-cli-resolve.cjs, lib/core/npm-cli-resolve.test.cjs, lib/core/npm-install-lock.cjs, lib/core/npm-install-lock.test.cjs, lib/core/mcp-dep-heal.cjs, lib/core/mcp-dep-heal.test.cjs, scripts/sessionstart-npm-reconcile.cjs, scripts/release.sh, scripts/verify-release, scripts/doctor.cjs, package.json, package-lock.json, CHANGELOG.md, .claude/includes/release-process.md, hooks/hooks.json, bin/mindrian-brain-mcp-client.cjs, bin/mindrian-mcp-server.cjs
 ---
 
+
+## brain-ask-contract-mismatch-rename - false-positive flagged from stale install cache
+- **Date:** 2026-05-23
+- **Error patterns:** brain_ask, tool description, DirectiveEnvelope, contract mismatch, install cache stale, source-of-truth, audit anti-pattern, Phase 127.2, false positive
+- **Root cause:** Windows beta-tester (2026-05-23) flagged the `brain_ask` tool description as misleading -- it reads "ask anything in natural language" but actually returns a DirectiveEnvelope routing payload. Re-read of `origin/main` HEAD (v1.13.0-beta.25) at resolution showed the description was ALREADY rewritten at line 506 of `mcp-server-brain/lib/brain-ask.cjs` to name "Returns a DirectiveEnvelope payload (populated directive + next_gate + mode_signals)" verbatim. The auditor's source read landed in a pre-fix install cache (plugin v1.13.0-beta.24 or earlier) that pre-dated the description rewrite landing on main.
+- **Fix:** No code change. The fix already exists on origin/main. Closure is the meta-finding that fed `stale-install-cache-audit-anti-pattern` -> Phase 127.2 D-10 (Source-of-Truth Preamble in docs/RCA-TEMPLATE.md).
+- **Files changed:** none (already-fixed-in-source); resolution doc at `.planning/debug/resolved/brain-ask-contract-mismatch-rename.md`.
+- **Pattern lesson:** When an audit flags a CODE claim, re-verify against `origin/main` HEAD before treating the claim as a real finding. Install caches lag the deployed-wire / source-of-truth by an unbounded amount once a fix chain lands after the marketplace cut.
+---
+
+## brain-topk-uncapped-advisory - Brain forwards caller topK to Pinecone with no Brain-side cap
+- **Date:** 2026-05-23
+- **Error patterns:** brain_ask, brain_search, topK, Pinecone forward, uncapped, BRAIN_MAX_TOPK, Math.min, D-MOAT-2, moat inheritance, result-set cap, Phase 127.2
+- **Root cause:** `mcp-server-brain/lib/brain-ask.cjs:545` and `mcp-server-brain/lib/pinecone-tools.cjs:42` forwarded caller-supplied `topK` directly to Pinecone with no Brain-side guard. Pinecone enforces its own server-side cap, so the moat against runaway result sets was INHERITED, not OWNED. D-MOAT-2 (timeout + row cap + byte cap) was enforced on the Neo4j curated-op path / brain_query / brain_schema, but the Pinecone path was uncapped at the Brain layer. Windows beta-tester deep audit (2026-05-23) confirmed by running `brain_ask({topK: 999999})` and observing no Brain-side truncation.
+- **Fix:** Added `BRAIN_MAX_TOPK` env var with default cap = 100. `const MAX_TOPK = parseInt(process.env.BRAIN_MAX_TOPK || '100', 10); const limit = Math.min(topK || 5, MAX_TOPK);` in both brain-ask.cjs (around line 545) and pinecone-tools.cjs (around line 42). Naming matches the existing BRAIN_CYPHER_MAX_ROWS family from D-MOAT-2. Server-side change deploys to mindrian-brain.onrender.com on next Render auto-deploy from origin/main.
+- **Files changed:** mcp-server-brain/lib/brain-ask.cjs, mcp-server-brain/lib/pinecone-tools.cjs, .planning/debug/resolved/brain-topk-uncapped-advisory.md
+- **Pattern lesson:** The Brain must OWN its moats, not INHERIT them from upstream services. Upstream caps can change without notice. Every Brain query surface that forwards a caller-controllable limit needs a `BRAIN_MAX_*` env var guard at the forward site.
+---
+
+## stale-install-cache-audit-anti-pattern - audits reading source from stale install cache produce false-positive findings
+- **Date:** 2026-05-23
+- **Error patterns:** install cache, ~/.claude/plugins/mindrian-os, stale source, deployed wire, source-of-truth mismatch, false positive, NF-2026-05-23-01, RCA-TEMPLATE, Source-of-Truth Preamble, Windows beta-tester, audit harness, Phase 127.2
+- **Root cause:** QA audits that read source code from the marketplace install cache (`~/.claude/plugins/mindrian-os/`) instead of the live deployed surface produce false-positive findings when the install cache is older than the fix that closed the gap. The 2026-05-23 deep-audit pass surfaced TWO false positives (NF-2026-05-23-01 and the curated-op-surface-missing claim) because the auditor's source read landed in a pre-fix install cache (plugin beta.24) while their wire probe hit the post-fix deployed Brain server (beta.25). Both invalidated findings traced to the same install-cache-vs-deployed-server delta. Pattern WILL recur every time a fix chain lands after a marketplace cache is cut.
+- **Fix:** Process fix, not code fix. Shipped `## 2.5. Source-of-Truth Preamble (MANDATORY)` section in `docs/RCA-TEMPLATE.md` requiring every QA / audit prompt to declare (a) which source-of-truth its CODE claims read against, (b) which source-of-truth its WIRE claims probe against, (c) the date of audit, (d) re-verification rule against origin/main HEAD before filing. Added checklist row `- [ ] Source-of-Truth Preamble filled before any finding filed`. The Preamble does not prevent the delta from existing -- it makes the delta VISIBLE so reconciliation happens BEFORE findings are filed.
+- **Files changed:** docs/RCA-TEMPLATE.md, .planning/debug/resolved/stale-install-cache-audit-anti-pattern.md
+- **Pattern lesson:** Every QA audit must declare its source-of-truth before its findings can be trusted. Install cache and deployed wire diverge by an unbounded amount after a marketplace cut. The Preamble is the meta-fix; the underlying delta is structural and cannot be eliminated without forcing every tester to pin source reads to origin/main HEAD (which is unrealistic on Windows tester boxes).
+---

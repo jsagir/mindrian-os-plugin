@@ -542,7 +542,14 @@ function registerBrainAsk(server) {
         };
       }
 
-      const limit = topK || 5;
+      // BRAIN_MAX_TOPK cap (Phase 127.2 D-09): Brain owns its result-set moat
+      // instead of inheriting it from Pinecone's server-side cap. Default 100;
+      // caller-supplied topK is silently truncated via Math.min. Matches the
+      // BRAIN_CYPHER_MAX_ROWS naming convention from D-MOAT-2. Sourced from
+      // .planning/debug/resolved/brain-topk-uncapped-advisory.md (Windows
+      // beta-tester 2026-05-23 deep audit, NF-2026-05-23-01b).
+      const MAX_TOPK = parseInt(process.env.BRAIN_MAX_TOPK || '100', 10);
+      const limit = Math.min(topK || 5, MAX_TOPK);
       const keyword = extractKeyword(question);
       let source = 'unknown';
       let results = null;

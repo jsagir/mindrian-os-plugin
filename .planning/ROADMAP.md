@@ -1403,6 +1403,16 @@ Notable rename: CONTEXT "Class K" -> "Class M" because K is taken by `--stale-fi
 
 **Authority:** `.planning/phases/127-brain-mcp-local-stdio-shim/127-CONTEXT.md` (scoped 2026-05-14; design-locked) + `.planning/v1.13.1-EXECUTION-PLAN.md` "WAVE 2 (CRITICAL -- the Brain MCP architectural shift; architectural unlock)" block (wave-2 architectural anchor; ships v1.13.1-beta.1; deduplicated 2026-05-16 per ultrareview bug_001 + bug_019)
 
+### Phase 127.2: Brain warmup ping -- hide MCP cold-start latency inside Larry's first-question render window (sibling to Phase 127 stdio shim, v1.13.1-beta.2 own gate) (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 127
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 127.2 to break down)
+
 ### Phase 127.1: Brain GraphRAG Collapse: Pinecone -> Neo4j HNSW (server-side substrate swap) (PROMOTED 2026-05-19 from v1.13.1-beta.2 INTO v1.13.0-beta.21)
 
 **Goal:** Collapse the dual-substrate Brain GraphRAG (Neo4j 21K nodes + Pinecone 1,427 embeddings) into Neo4j-only by migrating embeddings to a native Neo4j 5.11+ HNSW vector index. The audit at `.planning/research/navigation-engine-brain-interface.md` Section 3.2 confirmed Pattern B (graph-first-then-vector-rerank) and Pinecone is NOT load-bearing -- Pattern #8 fuzzy-match is the only Pinecone-dispatched query in the 14-pattern brain-query taxonomy. Removing Pinecone deletes a vestigial substrate, eliminates ~3 hrs/quarter onboarding overhead, removes one failure-mode row from the gsd-debugger taxonomy, and unifies the methodology graph under one substrate. Server-side only (the `mindrian-brain` Render service); zero client-side surface change -- testers continue calling `brain_search_semantic` and the 14 Cypher patterns by identical tool names.

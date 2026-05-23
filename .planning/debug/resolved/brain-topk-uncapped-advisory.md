@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "brain-topk-uncapped-advisory"
 issue_id: ""
@@ -8,8 +8,26 @@ surfaces: [cli, desktop, cowork]
 brain_mode: full-loop
 canon_parts: [8]
 created: 2026-05-23T04:35:00Z
-updated: 2026-05-23T04:35:00Z
+updated: 2026-05-23T19:00:00Z
+resolved: 2026-05-23
+resolved_by: phase-127.2 Plan 127.2-00 (Brain Edge Bundle)
+resolved_disposition: fixed
 ---
+
+## Resolution (2026-05-23)
+
+Shipped `BRAIN_MAX_TOPK` env var with default cap = 100, wired into both Pinecone forward sites:
+
+1. `mcp-server-brain/lib/brain-ask.cjs` around line 545: `const MAX_TOPK = parseInt(process.env.BRAIN_MAX_TOPK || '100', 10); const limit = Math.min(topK || 5, MAX_TOPK);`
+2. `mcp-server-brain/lib/pinecone-tools.cjs` around line 42: identical guard pattern, `safeTopK = Math.min(topK || 5, MAX_TOPK)` forwarded to the `searchRecords` call.
+
+The Brain now OWNS its result-set moat instead of inheriting it from Pinecone's server-side cap. If Pinecone ever raises or removes its cap, the Brain layer still bounds the response. Naming convention matches the existing `BRAIN_CYPHER_MAX_ROWS` / `BRAIN_CYPHER_MAX_BYTES` / `BRAIN_CYPHER_TIMEOUT_MS` family from Phase 127.1 Plan 05's D-MOAT-2 work.
+
+**Deployment note:** these are server-side edits in the `mcp-server-brain/` codebase, which deploys separately to mindrian-brain.onrender.com (Render auto-deploys from `origin/main`). The plugin tag (v1.13.0-beta.26) carries the edits in tree; the production Brain server picks them up on Render's next auto-deploy.
+
+Cross-references:
+- Phase 127.2 CONTEXT: `.planning/phases/127.2-brain-warmup-ping-hide-mcp-cold-start-latency-inside-larry-s/127.2-CONTEXT.md` D-09
+- Sibling D-MOAT-2 (the naming precedent): `mcp-server-brain/CLAUDE.md` "Brain-query moat guard"
 
 ## Current Focus
 

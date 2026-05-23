@@ -38,8 +38,12 @@ function registerPineconeTools(server) {
         const index = namespace
           ? getClient().index(indexName).namespace(namespace)
           : getClient().index(indexName).namespace('core');
+        // BRAIN_MAX_TOPK cap (Phase 127.2 D-09): mirror of the brain-ask.cjs
+        // guard; both Pinecone forward sites must own the moat consistently.
+        const MAX_TOPK = parseInt(process.env.BRAIN_MAX_TOPK || '100', 10);
+        const safeTopK = Math.min(topK || 5, MAX_TOPK);
         const searchParams = {
-          query: { topK: topK || 5, inputs: { text: query } },
+          query: { topK: safeTopK, inputs: { text: query } },
         };
         if (filter) {
           searchParams.query.filter = filter;

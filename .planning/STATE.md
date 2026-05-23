@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.13.0
-milestone_name: "The Closed Loop"
-status: paused
+milestone_name: The Closed Loop
+status: completed
 stopped_at: Phase 128.1 context gathered
-last_updated: "2026-05-20T11:12:06.963Z"
+last_updated: "2026-05-23T04:51:31.733Z"
 last_activity: 2026-05-20 -- Phase 127.1 execution started
 progress:
-  total_phases: 66
-  completed_phases: 44
-  total_plans: 313
-  completed_plans: 302
-  percent: 93
+  total_phases: 67
+  completed_phases: 45
+  total_plans: 319
+  completed_plans: 309
+  percent: 67
 ---
 
 # Project State
@@ -460,6 +460,8 @@ Progress: [█████████░] 93%
 | Phase 88-feynman-minto-memory-layer P11 | 15m | 1 tasks | 3 files |
 | Phase 88 P13 | 45min | 1 tasks | 13 files |
 | Phase 88 P12 | 25min | 2 tasks | 4 files |
+
+- Phase 127.2 inserted after Phase 127: Brain warmup ping -- hide MCP cold-start latency inside Larry's first-question render window (sibling to Phase 127 stdio shim, v1.13.1-beta.2 own gate) (URGENT)
 
 ### Decisions
 

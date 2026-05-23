@@ -1,5 +1,5 @@
 ---
-status: gathering
+status: resolved
 kind: rca
 trigger: "brain-ask-contract-mismatch-rename"
 issue_id: ""
@@ -8,8 +8,25 @@ surfaces: [cli, desktop, cowork]
 brain_mode: full-loop
 canon_parts: [3, 8, 10]
 created: 2026-05-23T04:21:06Z
-updated: 2026-05-23T04:21:06Z
+updated: 2026-05-23T19:00:00Z
+resolved: 2026-05-23
+resolved_by: phase-127.2 Plan 127.2-00 (Brain Edge Bundle)
+resolved_disposition: false-positive
 ---
+
+## Resolution (2026-05-23)
+
+**False positive caught by the very anti-pattern this RCA's sibling (`stale-install-cache-audit-anti-pattern`) closes.**
+
+Re-read of `mcp-server-brain/lib/brain-ask.cjs` line 506 on `origin/main` HEAD (v1.13.0-beta.25) at resolution time shows the description string ALREADY names the DirectiveEnvelope return contract verbatim: `'Ask the Brain anything in natural language. Returns a DirectiveEnvelope payload (populated directive + next_gate + mode_signals)...'`. The Windows beta-tester (2026-05-23) flagged the mismatch by reading from a stale install cache (plugin v1.13.0-beta.24 or earlier) that pre-dated the description rewrite landing on `main`.
+
+This is the deployed-wire-vs-stale-source pattern that motivated Phase 127.2 D-10 (Source-of-Truth Preamble in `docs/RCA-TEMPLATE.md`). Going forward, every audit prompt that surfaces a code-content claim MUST declare which source-of-truth the claim reads against AND re-verify the claim against `origin/main` HEAD before filing.
+
+**No code change shipped for this RCA.** The fix already exists. The closure IS the meta-finding that fed D-10.
+
+Cross-references:
+- Phase 127.2 CONTEXT: `.planning/phases/127.2-brain-warmup-ping-hide-mcp-cold-start-latency-inside-larry-s/127.2-CONTEXT.md` D-08
+- Sibling RCA: `.planning/debug/resolved/stale-install-cache-audit-anti-pattern.md`
 
 ## Current Focus
 

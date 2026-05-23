@@ -42,6 +42,30 @@ Live examples in this repo to read as reference:
 
 ---
 
+## 2.5. Source-of-Truth Preamble (MANDATORY)
+
+Every QA / audit prompt and every RCA filing MUST state explicitly which source-of-truth its claims read against. Without this preamble, audits can land on stale install caches while their wire probes hit the deployed server -- producing false-positive findings that waste investigation cycles and erode the audit's signal-to-noise ratio.
+
+Add this block at the top of every audit prompt, and copy the resolved values into the RCA's `Meta` section:
+
+```markdown
+## Source-of-Truth Preamble
+
+- **CODE claims read against:** <one of: `origin/main` HEAD @ <sha>, install cache `~/.claude/plugins/mindrian-os/` @ <plugin-version>, branch `<name>` @ <sha>, specific tag `<vX.Y.Z>`>
+- **WIRE claims probe against:** <one of: deployed Brain server `mindrian-brain.onrender.com` @ <date>, local stdio shim `bin/mindrian-brain-mcp-client.cjs` @ <plugin-version>, mock server `<path>`>
+- **Date of audit:** <YYYY-MM-DD>
+- **Re-verification rule:** any source-code claim filed below MUST be re-verified against `origin/main` HEAD before it lands as a finding; otherwise the finding is provisional and tagged `needs-source-reverify`.
+```
+
+**Why this exists (the 2026-05-23 false-positive pattern):** the Windows beta-tester deep audit on 2026-05-23 filed two findings (NF-2026-05-23-01 + the curated-op-surface-missing claim) that died on reconciliation because the auditor's source read landed in a pre-fix install cache (beta.24) while their wire probe hit the post-fix deployed server (beta.25). Both invalid claims traced to the same delta. The pattern WILL recur every time a fix chain lands after a marketplace cache is cut. The Preamble does not prevent the delta -- it makes the delta visible so the reconciliation happens BEFORE findings are filed.
+
+This rule applies to: every `kind: rca` filing, every `kind: qa-sweep` filing, every `/gsd:debug` session opened from a Windows / beta / Wave-N tester audit, every `/gsd:audit-fix` invocation, and every external audit prompt template shared with testers.
+
+Checklist row (add to your existing audit checklist):
+- [ ] Source-of-Truth Preamble filled before any finding filed
+
+---
+
 ## 3. The Markdown template (copy-paste)
 
 ```markdown

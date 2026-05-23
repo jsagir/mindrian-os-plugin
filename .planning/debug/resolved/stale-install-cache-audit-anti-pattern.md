@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "stale-install-cache-audit-anti-pattern"
 issue_id: ""
@@ -8,8 +8,31 @@ surfaces: [cli, desktop, cowork]
 brain_mode: full-loop
 canon_parts: [6, 7]
 created: 2026-05-23T04:35:00Z
-updated: 2026-05-23T04:35:00Z
+updated: 2026-05-23T19:00:00Z
+resolved: 2026-05-23
+resolved_by: phase-127.2 Plan 127.2-00 (Brain Edge Bundle)
+resolved_disposition: process-fix
 ---
+
+## Resolution (2026-05-23)
+
+Shipped the **Source-of-Truth Preamble** as a new mandatory section (`## 2.5. Source-of-Truth Preamble (MANDATORY)`) in `docs/RCA-TEMPLATE.md`. Every QA / audit prompt and every RCA filing now MUST declare:
+
+- which source-of-truth its CODE claims read against (origin/main HEAD @ sha, install cache @ plugin-version, branch @ sha, tag);
+- which source-of-truth its WIRE claims probe against (deployed Brain server @ date, local stdio shim @ plugin-version, mock server);
+- date of audit;
+- re-verification rule: every source-code claim MUST be re-verified against `origin/main` HEAD before it is filed as a finding.
+
+A new audit-checklist row was added: `- [ ] Source-of-Truth Preamble filled before any finding filed`.
+
+The 2026-05-23 deep audit's two invalidated findings (NF-2026-05-23-01 + the curated-op-surface-missing claim) AND its sibling finding (`brain-ask-contract-mismatch-rename`) all traced to the same install-cache-vs-deployed-server delta. The Preamble does not prevent the delta from existing -- it makes the delta VISIBLE so the reconciliation happens BEFORE findings are filed, not after they waste investigation cycles.
+
+**Validation:** this RCA's two siblings landed at resolution at the SAME TIME as this fix. Both were false-positive (`brain-ask-contract-mismatch-rename`) or real-but-discovered-via-the-anti-pattern (`brain-topk-uncapped-advisory`). The Preamble is the meta-fix that prevents the entire class.
+
+Cross-references:
+- Phase 127.2 CONTEXT: `.planning/phases/127.2-brain-warmup-ping-hide-mcp-cold-start-latency-inside-larry-s/127.2-CONTEXT.md` D-10
+- Template: `docs/RCA-TEMPLATE.md` section 2.5
+- Sibling false-positive: `.planning/debug/resolved/brain-ask-contract-mismatch-rename.md`
 
 ## Current Focus
 

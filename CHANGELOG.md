@@ -1,7 +1,18 @@
 ## [Unreleased] -- v1.13.0-beta.25 (in progress)
 
-### Added
-- 
+### Fixed (Brain edge cleanups, Phase 127.2 Plan 00)
+- **`BRAIN_MAX_TOPK` cap on Pinecone forwards (D-09 -- `.planning/debug/resolved/brain-topk-uncapped-advisory.md`).** The Brain MCP server (`mcp-server-brain/lib/brain-ask.cjs` line 545 + `mcp-server-brain/lib/pinecone-tools.cjs` line 42) forwarded caller-supplied `topK` directly to Pinecone with no Brain-side cap. The moat against runaway result sets was INHERITED from Pinecone's server-side cap, not OWNED by the Brain. A new `BRAIN_MAX_TOPK` env var (default 100) is now applied via `Math.min(topK, BRAIN_MAX_TOPK)` at both forward sites. Naming matches the existing `BRAIN_CYPHER_MAX_ROWS` family from Phase 127.1 Plan 05's D-MOAT-2 work. Server-side change deploys to `mindrian-brain.onrender.com` on next Render auto-deploy from `origin/main`. Surfaced by the Windows beta-tester deep audit (2026-05-23, NF-2026-05-23-01b).
+
+### Documentation (Phase 127.2 Plan 00)
+- **Source-of-Truth Preamble shipped in `docs/RCA-TEMPLATE.md` (D-10 -- `.planning/debug/resolved/stale-install-cache-audit-anti-pattern.md`).** Every QA / audit prompt and every RCA filing now MUST declare which source-of-truth its CODE claims read against (origin/main HEAD, install cache, branch, tag), which source-of-truth its WIRE claims probe against (deployed Brain server, local stdio shim, mock), the date of audit, and a re-verification rule against `origin/main` HEAD before findings are filed. The 2026-05-23 deep audit surfaced TWO false-positive findings (NF-2026-05-23-01 + the curated-op-surface-missing claim) plus one sibling (`brain-ask-contract-mismatch-rename`) that all traced to the same install-cache-vs-deployed-server delta. The Preamble does not prevent the delta -- it makes the delta VISIBLE so reconciliation happens BEFORE findings are filed. Added checklist row: `- [ ] Source-of-Truth Preamble filled before any finding filed`.
+
+### Resolved (no code change required)
+- **`brain-ask-contract-mismatch-rename` disposition: false-positive (D-08).** The Windows beta-tester flagged `brain_ask`'s tool description as misleading (reads "ask anything in natural language" but actually returns a DirectiveEnvelope routing payload). Re-read of `origin/main` HEAD at resolution showed the description was ALREADY rewritten to name "Returns a DirectiveEnvelope payload (populated directive + next_gate + mode_signals)" verbatim. The auditor read from a stale install cache (plugin v1.13.0-beta.24 or earlier) that pre-dated the description rewrite. No code change shipped. Resolution doc: `.planning/debug/resolved/brain-ask-contract-mismatch-rename.md`. This is the meta-finding that motivated D-10's Source-of-Truth Preamble.
+
+### Internal
+- **Phase 127.2 scaffolded (CONTEXT + Plan 00 + Plan 01 stubs).** New phase `127.2-brain-warmup-ping-hide-mcp-cold-start-latency-inside-larry-s/` registered in ROADMAP (INSERTED + URGENT marker). Plan 127.2-00 (Brain Edge Bundle: D-08 + D-09 + D-10 + 3 debug-doc closeouts) ships in this beta. Plan 127.2-01 (the warmup-ping itself: `brain_ask("warmup")` fired non-blocking inside Larry's first-question render window to hide MCP cold-start latency) stays BLOCKED on two cross-phase coordination items: Q-02 (Phase 114 render-complete callback) and Q-03 (Brain server-side "warmup" sentinel short-circuit). Plan 127.2-01 rides a later beta once blockers close.
+- **3 debug docs moved to `.planning/debug/resolved/`** with `resolved_by: phase-127.2` frontmatter + Resolution sections + `.planning/debug/knowledge-base.md` summary entries (so `gsd-debugger` surfaces them as known-pattern hypotheses in future investigations).
+- **New test:** `tests/test-127.2-00-brain-edge-bundle.sh` verifies all three landed (D-08 description, D-09 cap at both forward sites, D-10 Preamble + checklist row, debug-doc moves, knowledge-base entries, Canon Part 8 forbidden-substring scan on D-09 added code). 16/16 pass.
 
 ## [1.13.0-beta.24] - 2026-05-22
 
