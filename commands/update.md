@@ -139,10 +139,42 @@ If the migrator finds and removes stale entries, surface that to the user:
 If no findings, mention it briefly:
 > "User settings clean -- no stale paths."
 
-### Step 7: Verify and instruct restart
+### Step 7: Atomically activate the new bytes (Phase 127.2 Plan 04 Instance #7)
+
+Claude Code's native `plugin update` lands the new version in the cache
+(`~/.claude/plugins/cache/mindrian-marketplace/mos/<NEW_VERSION>/`) but does
+NOT atomically swap the live install at `~/.claude/plugins/mindrian-os/`.
+Without this step every Brain MCP probe + statusline render + hook output
+continues to serve the OLD version. The user thinks they are on beta.N+1
+while every Brain interaction silently reads beta.N -- the "silent
+activation gap" surfaced on the 2026-05-23 dogfood box.
+
+Run the post-update activator to swap atomically:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.cjs" --fix --post-update
+```
+
+Stream the output to the user. It prints a Shape E action report showing
+the old -> new transition + the backup path of the stale bytes. After
+success it writes a touch-file at `~/.mindrian/post-update-restart-pending`
+that the next SessionStart's preflight hook reads to verify activation
+reached the wire (the L4 MCP server's version matches package.json
+version-of-record). On version-mismatch the preflight hook refuses Larry
+load with a red banner pointing at `/mos:doctor --fix`.
+
+If the activator reports `swapped: false` and `already on latest`: no
+action needed. The cache and live install were already in sync (rare but
+possible if a previous /mos:update sequence completed cleanly).
+
+If it reports `ok: false`: surface the error to the user. They can manually
+run `/mos:doctor --fix` to re-attempt; if that also fails, file an RCA at
+`.planning/debug/post-update-activation-failure-<date>.md`.
+
+### Step 8: Verify and instruct restart
 
 If all steps succeeded:
-> "Done. v{latest} installed via Claude Code's plugin loader -- registry, cache, and `enabledPlugins` are all in sync. User settings checked for stale paths. Restart Claude Code (close and reopen the terminal, or kill and re-run `claude`) to pick it up. After restart, run `/mos:help` to confirm commands are reachable, and look for the Mindrian statusline at the bottom of the terminal."
+> "Done. v{latest} installed via Claude Code's plugin loader and atomically swapped into the live install path. Registry, cache, and `enabledPlugins` are all in sync. User settings checked for stale paths. Restart Claude Code (close and reopen the terminal, or kill and re-run `claude`) so MCP servers reconnect against the new bytes. After restart, run `/mos:help` to confirm commands are reachable and look for the Mindrian statusline at the bottom of the terminal."
 
 ## Force Mode
 

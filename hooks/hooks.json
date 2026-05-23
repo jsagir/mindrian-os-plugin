@@ -18,6 +18,18 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-post-update-preflight.cjs\"",
+            "timeout": 12000,
+            "async": false,
+            "statusMessage": "Verifying post-update activation..."
+          }
+        ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" session-start",
             "timeout": 10000,
             "async": false,

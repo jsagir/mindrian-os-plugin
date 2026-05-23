@@ -59,8 +59,15 @@ case "$SUBCMD" in
     fi
     ensure_registry
     python3 -c "
-import json, os, datetime
-reg_file = '$REGISTRY_FILE'
+import json, os, sys, datetime
+# Phase 127.2 Plan 04 Instance #4: normalize Git Bash POSIX paths (/c/Users/...)
+# to native Windows form (C:\\Users\\...) so Python open() resolves them on
+# Windows. No-op on Linux/macOS or when the path is already native.
+def normwin(p):
+    if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
+        return p[1].upper() + ':' + p[2:].replace('/', os.sep)
+    return p
+reg_file = normwin('$REGISTRY_FILE')
 with open(reg_file) as f:
     reg = json.load(f)
 # Park currently active room
@@ -109,8 +116,13 @@ print(json.dumps(reg['rooms']['$NAME'], indent=2))
       echo "{}" ; exit 1
     fi
     python3 -c "
-import json, sys
-with open('$REGISTRY_FILE') as f:
+import json, os, sys
+# Phase 127.2 Plan 04 Instance #4: see scripts/room-registry create stanza.
+def normwin(p):
+    if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
+        return p[1].upper() + ':' + p[2:].replace('/', os.sep)
+    return p
+with open(normwin('$REGISTRY_FILE')) as f:
     reg = json.load(f)
 room = reg.get('rooms', {}).get('$NAME')
 if room:
@@ -126,8 +138,13 @@ else:
       echo "[]" ; exit 0
     fi
     python3 -c "
-import json
-with open('$REGISTRY_FILE') as f:
+import json, os, sys
+# Phase 127.2 Plan 04 Instance #4: see scripts/room-registry create stanza.
+def normwin(p):
+    if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
+        return p[1].upper() + ':' + p[2:].replace('/', os.sep)
+    return p
+with open(normwin('$REGISTRY_FILE')) as f:
     reg = json.load(f)
 result = []
 for name, room in reg.get('rooms', {}).items():
@@ -163,7 +180,12 @@ print(json.dumps(result, indent=2))
     fi
     python3 -c "
 import json, os, sys
-reg_file = '$REGISTRY_FILE'
+# Phase 127.2 Plan 04 Instance #4: see scripts/room-registry create stanza.
+def normwin(p):
+    if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
+        return p[1].upper() + ':' + p[2:].replace('/', os.sep)
+    return p
+reg_file = normwin('$REGISTRY_FILE')
 with open(reg_file) as f:
     reg = json.load(f)
 if '$NAME' not in reg.get('rooms', {}):
@@ -194,7 +216,12 @@ print(json.dumps(reg['rooms']['$NAME'], indent=2))
     fi
     python3 -c "
 import json, os, sys, datetime
-reg_file = '$REGISTRY_FILE'
+# Phase 127.2 Plan 04 Instance #4: see scripts/room-registry create stanza.
+def normwin(p):
+    if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
+        return p[1].upper() + ':' + p[2:].replace('/', os.sep)
+    return p
+reg_file = normwin('$REGISTRY_FILE')
 with open(reg_file) as f:
     reg = json.load(f)
 if '$NAME' not in reg.get('rooms', {}):
@@ -232,7 +259,12 @@ print('$NAME')
     fi
     python3 -c "
 import json, os, sys
-reg_file = '$REGISTRY_FILE'
+# Phase 127.2 Plan 04 Instance #4: see scripts/room-registry create stanza.
+def normwin(p):
+    if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
+        return p[1].upper() + ':' + p[2:].replace('/', os.sep)
+    return p
+reg_file = normwin('$REGISTRY_FILE')
 with open(reg_file) as f:
     reg = json.load(f)
 if '$NAME' not in reg.get('rooms', {}):
@@ -257,8 +289,13 @@ print('archived')
       echo ""; exit 0
     fi
     python3 -c "
-import json
-with open('$REGISTRY_FILE') as f:
+import json, os, sys
+# Phase 127.2 Plan 04 Instance #4: see scripts/room-registry create stanza.
+def normwin(p):
+    if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
+        return p[1].upper() + ':' + p[2:].replace('/', os.sep)
+    return p
+with open(normwin('$REGISTRY_FILE')) as f:
     reg = json.load(f)
 print(reg.get('active', ''))
 "
@@ -284,7 +321,12 @@ print(reg.get('active', ''))
     fi
     python3 -c "
 import json, os, sys
-reg_file = '$REGISTRY_FILE'
+# Phase 127.2 Plan 04 Instance #4: see scripts/room-registry create stanza.
+def normwin(p):
+    if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
+        return p[1].upper() + ':' + p[2:].replace('/', os.sep)
+    return p
+reg_file = normwin('$REGISTRY_FILE')
 with open(reg_file) as f:
     reg = json.load(f)
 if '$NAME' not in reg.get('rooms', {}):

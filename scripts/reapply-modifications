@@ -16,9 +16,21 @@ if [[ ! -f "$META_FILE" ]]; then
 fi
 
 # Read backup metadata
-BACKUP_DATE=$(python3 -c "import json; print(json.load(open('$META_FILE'))['backup_date'])")
-PLUGIN_VERSION=$(python3 -c "import json; print(json.load(open('$META_FILE'))['plugin_version'])")
-FILE_COUNT=$(python3 -c "import json; print(len(json.load(open('$META_FILE'))['modified_files']))")
+# Phase 127.2 Plan 04 Instance #4 sibling sweep: bash $META_FILE on Git Bash
+# carries POSIX form (/c/Users/.../mindrian-patches/backup-meta.json) which
+# Python open() rejects on Windows. Inline normwin() shim collapses it back
+# to native C:\... only when sys.platform == 'win32'; no-op elsewhere.
+NORMWIN_SHIM="import os, sys
+def normwin(p):
+    if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
+        return p[1].upper() + ':' + p[2:].replace('/', os.sep)
+    return p"
+BACKUP_DATE=$(python3 -c "$NORMWIN_SHIM
+import json; print(json.load(open(normwin('$META_FILE')))['backup_date'])")
+PLUGIN_VERSION=$(python3 -c "$NORMWIN_SHIM
+import json; print(json.load(open(normwin('$META_FILE')))['plugin_version'])")
+FILE_COUNT=$(python3 -c "$NORMWIN_SHIM
+import json; print(len(json.load(open(normwin('$META_FILE')))['modified_files']))")
 
 echo "PATCHES_AVAILABLE"
 echo "Backup from v${PLUGIN_VERSION} (${BACKUP_DATE})"
@@ -26,7 +38,8 @@ echo "${FILE_COUNT} modified files:"
 echo ""
 
 # List each file with its backup path
-python3 -c "import json; [print(f) for f in json.load(open('$META_FILE'))['modified_files']]" | while read -r file_path; do
+python3 -c "$NORMWIN_SHIM
+import json; [print(f) for f in json.load(open(normwin('$META_FILE')))['modified_files']]" | while read -r file_path; do
   echo "  - ${file_path}"
   echo "    Backed up to: mindrian-patches/${file_path}"
 done

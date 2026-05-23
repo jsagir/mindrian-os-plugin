@@ -150,6 +150,15 @@ function parseArgs(argv) {
     // class A-M drift detection, not for environment readiness probes.
     // Closes the Windows tester 2026-05-23 silent-failure class.
     checkRsEngine: false,
+    // Phase 127.2 Plan 04 Instance #7: --post-update routes through
+    // scripts/post-update-activation.cjs (atomic-swap delegate to the
+    // existing --fix pipeline + touch-file write so the next session's
+    // sessionstart-post-update-preflight.cjs verifies activation reached
+    // the wire). ADD-ONLY -- not a class flag; has its OWN dispatch +
+    // exit-code contract (0 = activated or already on latest; 1 = swap
+    // attempted and failed). Composes with --fix when called as
+    // `doctor --fix --post-update` from /mos:update Step 7.
+    postUpdate: false,
     all: false, simulateWrite: null,
     scanCommandsDir: null, scanScriptsDir: null,
   };
@@ -171,6 +180,7 @@ function parseArgs(argv) {
     else if (arg === '--pre-flight') flags.preFlight = true;
     else if (arg === '--light-npx') flags.lightNpx = true;
     else if (arg === '--check-rs-engine') flags.checkRsEngine = true;
+    else if (arg === '--post-update') flags.postUpdate = true;
     else if (arg === '--all') flags.all = true;
     else if (arg.startsWith('--simulate-write=')) flags.simulateWrite = arg.slice('--simulate-write='.length);
     else if (arg.startsWith('--scan-commands=')) flags.scanCommandsDir = arg.slice('--scan-commands='.length);
@@ -256,6 +266,12 @@ Environment readiness probes (Phase 127.2 Plan 03 -- separate from class flags):
                            Closes the Windows tester 2026-05-23 silent-failure class.
                            Exit 0 = deps present; exit 1 = deps missing (own contract,
                            NOT the class-flag-always-exit-0 invariant).
+  --post-update            (Phase 127.2 Plan 04 Instance #7) atomically activate
+                           freshly-landed cache-staging bytes via scripts/post-update-
+                           activation.cjs (delegates to --fix pipeline + writes the
+                           ~/.mindrian/post-update-restart-pending touch-file). Wired
+                           into /mos:update Step 7 + composable as --fix --post-update.
+                           Exit 0 = activated or already on latest; exit 1 = swap failed.
 
 Behavior flags:
   --fix                attempt auto-recovery for each class that supports it
@@ -2734,6 +2750,88 @@ function buildAcceptanceChecklist(ctx) {
         }
       },
     },
+    {
+      // Phase 127.2 Plan 04 Instance #7 -- Class N acceptance point:
+      // "activation reached the wire."
+      //
+      // Asserts that the live MCP server's version matches the
+      // package.json version-of-record. Catches the silent-activation gap
+      // where /mos:update lands bytes in cache + the active install is not
+      // swapped, so the user thinks they are on beta.N+1 while every Brain
+      // probe quietly hits beta.N. Before Class N, this defect could ship
+      // a beta where the published bytes never activate on testers'
+      // machines -- breaking the entire dog-fooding feedback loop because
+      // tester "I tested beta.N" reports were filed against the previous
+      // beta.
+      //
+      // applies_to: ['full'] only. The wire probe requires a live MCP
+      // server reachable + the published version on npm/marketplace; this
+      // is FALSE before tag + publish, so the pre-tag and pre-flight modes
+      // skip this point. Step 9.8 of release.sh runs the full --acceptance
+      // gate AFTER publish, which is where this point gates.
+      id: 'activation-reached-the-wire',
+      label: 'L4 MCP server version matches package.json version-of-record',
+      severity: 'blocker',
+      applies_to: ['full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'activation-reached-the-wire') {
+          return { ok: false, finding: 'activation-reached-the-wire synthesized failure (test mode)', detail: {} };
+        }
+        // Defensive: opt-out for hermetic CI / offline mode. release.sh
+        // Step 9.8 runs against a live network; CI smoke tests can set
+        // DOCTOR_SKIP_ACTIVATION_GATE=1 to mark this point ok-as-skipped.
+        if (process.env.DOCTOR_SKIP_ACTIVATION_GATE === '1') {
+          return { ok: true, finding: null, detail: { skipped: true, reason: 'DOCTOR_SKIP_ACTIVATION_GATE=1' } };
+        }
+        const cp = require('child_process');
+        try {
+          // 1. Read version-of-record (package.json) from pluginRoot.
+          const pkPath = path.join(pluginRoot, 'package.json');
+          if (!fs.existsSync(pkPath)) {
+            return { ok: false, finding: 'package.json not found at ' + pkPath, detail: {} };
+          }
+          const recordVersion = JSON.parse(fs.readFileSync(pkPath, 'utf8')).version;
+          if (!recordVersion) {
+            return { ok: false, finding: 'package.json contains no version field', detail: {} };
+          }
+          // 2. Spawn doctor --brain-smoke --json against ourselves to probe
+          //    the live MCP server. Reuses the Phase 127-02 Class M smoke
+          //    test (5-layer probe at lib/core/doctor/class-m-brain-smoke.cjs).
+          const doctorPath = path.join(__dirname, 'doctor.cjs');
+          const r = cp.spawnSync('node', [doctorPath, '--brain-smoke', '--json'], {
+            encoding: 'utf8', timeout: 30000,
+          });
+          if (!r || typeof r.stdout !== 'string') {
+            return { ok: false, finding: 'brain-smoke spawn produced no stdout', detail: { stderr: (r && r.stderr || '').slice(-200) } };
+          }
+          let payload = null;
+          try { payload = JSON.parse(r.stdout); }
+          catch (_) { return { ok: false, finding: 'brain-smoke stdout not parseable as JSON', detail: { stdoutTail: r.stdout.slice(-200) } }; }
+          if (!payload || !Array.isArray(payload.layers)) {
+            return { ok: false, finding: 'brain-smoke payload missing layers array', detail: { payloadKeys: payload ? Object.keys(payload) : [] } };
+          }
+          const L4 = payload.layers.find(function (l) { return l && (l.id === 'mcp_stdio_handshake' || l.name === 'L4 MCP stdio handshake'); });
+          if (!L4) {
+            return { ok: false, finding: 'L4 mcp_stdio_handshake layer absent', detail: { layerIds: payload.layers.map(function (l) { return l && l.id; }) } };
+          }
+          if (!L4.ok) {
+            return { ok: false, finding: 'L4 mcp_stdio_handshake did not succeed: ' + (L4.reason || 'unknown'), detail: { L4: L4 } };
+          }
+          // 3. Parse server=mindrian-brain vX.Y.Z[-PR] from L4 reason.
+          const match = String(L4.reason || '').match(/server=mindrian-brain v(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)/);
+          if (!match) {
+            return { ok: false, finding: 'L4 reason missing server-version pattern: ' + L4.reason, detail: { L4: L4 } };
+          }
+          const wireVersion = match[1];
+          // 4. Compare. Match = pass, drift = activation-gap.
+          const ok = wireVersion === recordVersion;
+          const finding = ok ? null : ('activation gap detected: live install serves v' + wireVersion + ' but version-of-record is v' + recordVersion);
+          return { ok: ok, finding: finding, detail: { wireVersion: wireVersion, recordVersion: recordVersion } };
+        } catch (e) {
+          return { ok: false, finding: 'activation-reached-the-wire threw: ' + e.message, detail: {} };
+        }
+      },
+    },
   ];
 }
 
@@ -3198,6 +3296,50 @@ function main() {
       }
       process.exit(1);
     });
+    return;
+  }
+
+  // Phase 127.2 Plan 04 Instance #7: --post-update dispatch.
+  //
+  // Delegates to scripts/post-update-activation.cjs which (a) detects the
+  // freshly-landed cache-staging dir, (b) atomically swaps via the existing
+  // --fix pipeline (Phase 95.2; three autopsies of hardening), (c) writes
+  // the ~/.mindrian/post-update-restart-pending touch-file so the next
+  // session's sessionstart-post-update-preflight.cjs can verify activation
+  // reached the wire (Class N acceptance, see buildAcceptanceChecklist).
+  //
+  // SCOPE GUARD: ADD-ONLY -- does not touch any existing acceptance point,
+  // UI-compliance check, or session-start hook. Composable with --fix: when
+  // both flags pass we spawn post-update-activation.cjs which itself spawns
+  // doctor.cjs --fix --json (the existing chain) so the atomic-swap logic
+  // is exercised through ONE canonical code path. Closes Canon Part 7
+  // (reuse before build) on the activation-reached-the-wire surface.
+  if (flags.postUpdate) {
+    try {
+      const activator = require(path.join(__dirname, 'post-update-activation.cjs'));
+      activator.activatePostUpdate({}).then(function (result) {
+        if (flags.json) {
+          process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+        } else {
+          process.stdout.write(activator.renderActionReport(result));
+        }
+        process.exit(result.ok ? 0 : 1);
+      }).catch(function (e) {
+        if (flags.json) {
+          console.log(JSON.stringify({ ok: false, error: (e && e.message) || 'unknown' }, null, 2));
+        } else {
+          console.error('post-update activation threw: ' + (e && e.message));
+        }
+        process.exit(1);
+      });
+    } catch (e) {
+      if (flags.json) {
+        console.log(JSON.stringify({ ok: false, error: 'failed to load post-update-activation: ' + (e && e.message) }, null, 2));
+      } else {
+        console.error('failed to load post-update-activation: ' + (e && e.message));
+      }
+      process.exit(1);
+    }
     return;
   }
 
