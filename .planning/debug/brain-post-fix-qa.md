@@ -3,7 +3,7 @@ status: resolved
 kind: qa-sweep
 trigger: "brain-post-fix-qa"
 created: 2026-05-23T04:21:06Z
-updated: 2026-05-23T04:21:06Z
+updated: 2026-05-23T04:35:00Z
 ---
 
 ## Purpose
@@ -105,10 +105,78 @@ The Windows reading "brain_stats: 12,401 records across 6 namespaces" is the Pin
   G3 Integer->number coercion            PASS (hop_distance typeof number, value 1)
 ```
 
+## Second Windows pass (deep audit, 2026-05-23 ~04:30Z)
+<!-- APPEND - a second beta-tester ran a 14-gate matrix and surfaced three additional claims; classified below -->
+
+A second Windows beta-tester ran a deeper 14-gate matrix against the live production Brain (`mindrian-brain.onrender.com`) from a fresh install of the marketplace cache (plugin v1.13.0-beta.24 at `~/.claude/plugins/mindrian-os/`). The full report is in chat transcript 2026-05-23. Three new technical findings were raised. Verified against the deployed source (`origin/main` HEAD `0280d8fb`) and classified.
+
+### Three findings, classified
+
+**1. NF-2026-05-23-01 (brain_ask Neo4j fallback bypasses parameter-binding moat) - INVALID for the deployed surface.**
+
+The reporter quoted a string-interpolation pattern at `mcp-server-brain/lib/brain-ask.cjs:164-172`:
+
+```js
+const cypher = pattern.cypher
+  .replace(/\$keyword/g, `'${keyword.replace(/'/g, "\\'")}'`)
+  .replace(/\$limit/g, String(limit));
+```
+
+That exact code does NOT exist in the deployed server. It was removed by commit `4a7cbfbe` ("brain_ask directive retrieval -- match live graph, not mocks") in the c40afc71..d957a515 fix chain. The CURRENT brain-ask.cjs at line 582 uses proper Neo4j-driver parameter binding:
+
+```js
+const result = await session.run(pattern.cypher, {
+  keyword: String(keyword),
+  limit: neo4j.int(limit),
+});
+```
+
+The pre-fix string-interpolation code is preserved in stale install caches:
+- `~/.claude/plugins/mindrian-os.legacy-2026-05-13.bak/mcp-server-brain/lib/brain-ask.cjs:164`
+- `~/.claude/plugins/mindrian-os.backup-pre-beta.14-*/mcp-server-brain/lib/brain-ask.cjs:164`
+
+The reporter's MCP probe hit the deployed (post-fix) server, but their source-read landed in a pre-fix cache. The moat is intact on the deployed surface.
+
+**2. NF-2026-05-23-01b (topK uncapped at Brain layer) - VALID, low severity advisory.**
+
+Confirmed at `mcp-server-brain/lib/brain-ask.cjs:545` (`const limit = topK || 5`) and `mcp-server-brain/lib/pinecone-tools.cjs:42` (`topK: topK || 5, inputs: { text: query }`). Brain forwards caller `topK` directly to Pinecone with no Brain-side cap. Pinecone enforces its own server-side cap, so the moat is INHERITED, not Brain-owned. If Pinecone ever raises or removes that cap, Brain has no fallback.
+
+Filed as a separate low-severity RCA: `.planning/debug/brain-topk-uncapped-advisory.md` (`/gsd:debug brain-topk-uncapped-advisory`).
+
+**3. Curated-op surface "not on live MCP" (O-track SKIPs) - INVALID.**
+
+The reporter claimed the `op` parameter does not exist on the live brain_ask tool, marking O1-O3 + M1 as unrunnable SKIPs. The Zod schema in the deployed source explicitly registers it:
+
+```js
+// mcp-server-brain/lib/brain-ask.cjs:508-512
+question: z.string().optional().describe(...),
+topK: z.number().optional().describe(...),
+op: z.enum(['list_frameworks', 'framework_edges', 'framework_chain_slice']).optional()
+  .describe(...),
+params: z.object({}).passthrough().optional()
+  .describe(...),
+```
+
+The handler dispatches on `op` at line 537. The Linux-side `_qa-chain-probe.cjs` from the 2026-05-22 pass successfully ran `askOp("framework_chain_slice", { seeds: ["Six Thinking Hats"], max_hops: 2 })` and got 41 rows back (G2 + G3 PASS, evidence above). The curated-op surface IS live. The reporter's MCP client either cached an old tool schema or checked a stale source.
+
+### Meta-finding (the actually-interesting one)
+
+The pattern across both invalid findings is the same: source-of-truth mismatch between the **deployed wire** (live Render auto-deploy from origin/main HEAD) and the **local source** the auditor reads (marketplace cache at the version they installed, plus older stale caches). The fix chain landed AFTER the install cache was cut; the auditor's wire probes saw post-fix behavior, but their code reads saw pre-fix code. Two technical claims hinged on that gap.
+
+This is itself a debugging anti-pattern worth naming so the next QA harness does not re-litigate the same ground. Filed as a separate process RCA: `.planning/debug/stale-install-cache-audit-anti-pattern.md` (`/gsd:debug stale-install-cache-audit-anti-pattern`).
+
+### Verdict (updated)
+
+- brain_ask chain (NF-1 closure): **CLOSED**. Both Windows passes (2026-05-23 plumbing + 2026-05-23 deep audit) confirm populated DirectiveEnvelopes on the natural-language path. The curated-op surface IS live and bound by D-MOAT-2 caps (timeout + row cap + byte cap).
+- Part 8 boundary: **INTACT**. The deep audit's 12-payload review confirms zero LOCAL bytes.
+- Recommendation: **ship as-is**. The one valid technical finding (topK uncapped) is advisory and tracked. The two invalid findings are stale-cache artifacts.
+
 ## Triage with GSD (review step)
 
 1. Chain is closed. `status: resolved` set on this file.
-2. Finding 1 (new RCA): `/gsd:debug brain-ask-contract-mismatch-rename` to schedule the description rewrite.
-3. Finding 2 (pre-existing RCA): `/gsd:debug brain-schema-entropy-and-cooccurs-bloat` for the remediation roadmap; not on the v1.13.0 critical path.
-4. NF-1 (brain_ask empty envelope, sibling sweep .planning/debug/windows-build-brain-python-qa.md) is already RESOLVED and lives at `.planning/debug/resolved/brain-ask-empty-envelope.md`. Knowledge-base.md carries the summary block.
-5. When Finding 1 ships in v1.13.0-beta.26+, move `brain-ask-contract-mismatch-rename.md` to `.planning/debug/resolved/` and append the knowledge-base block.
+2. Finding 1 from first pass (brain_ask description contract): `/gsd:debug brain-ask-contract-mismatch-rename` - new RCA filed, ships in v1.13.0-beta.26+.
+3. Finding 2 from first pass (schema sprawl): `/gsd:debug brain-schema-entropy-and-cooccurs-bloat` - pre-existing RCA, remediation roadmap, not on the v1.13.0 critical path.
+4. Finding from second pass (topK uncapped): `/gsd:debug brain-topk-uncapped-advisory` - new low-severity RCA filed, fix scoped to ~5 lines across two files.
+5. Meta-finding from second pass (stale-cache audit anti-pattern): `/gsd:debug stale-install-cache-audit-anti-pattern` - new process RCA filed; the next QA harness gets a source-of-truth preamble before any source-read claim is accepted.
+6. NF-1 (brain_ask empty envelope, sibling sweep .planning/debug/windows-build-brain-python-qa.md) is already RESOLVED and lives at `.planning/debug/resolved/brain-ask-empty-envelope.md`. Knowledge-base.md carries the summary block.
+7. When Finding 1 or the topK advisory ship in a release, move the corresponding `.planning/debug/<slug>.md` to `.planning/debug/resolved/` and append the knowledge-base block.
