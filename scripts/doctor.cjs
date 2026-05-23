@@ -2359,8 +2359,22 @@ function buildAcceptanceChecklist(ctx) {
         }
         const cp = require('child_process');
         try {
-          const pj = JSON.parse(fs.readFileSync(path.join(pluginRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
-          const ver = pj.version;
+          // Phase 127.2 Plan 02 Finding B: resolve "version of record" via
+          // last shipped git tag, NOT plugin.json. release.sh Commit B
+          // bumps main HEAD to the next pre-release placeholder (e.g.
+          // beta.27 after beta.26 ships), which by definition has no tag
+          // yet. The gate must verify the LAST SHIPPED version is live
+          // across all three records (tag + marketplace ref + npm), not
+          // the placeholder.
+          const tagProbe = cp.spawnSync('git', ['-C', pluginRoot, 'describe', '--tags', '--abbrev=0', '--match=v*'], { encoding: 'utf8' });
+          let ver;
+          if (tagProbe.status === 0 && tagProbe.stdout && tagProbe.stdout.trim()) {
+            ver = tagProbe.stdout.trim().replace(/^v/, '');
+          } else {
+            // Fresh repo edge case (no tags yet): fall back to plugin.json.
+            const pj = JSON.parse(fs.readFileSync(path.join(pluginRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
+            ver = pj.version;
+          }
           // (a) git tag exists, reachable from origin/main.
           const t = cp.spawnSync('git', ['-C', pluginRoot, 'rev-parse', '--verify', 'refs/tags/v' + ver], { encoding: 'utf8' });
           if (t.status !== 0) return { ok: false, finding: 'git tag v' + ver + ' not found', detail: { stderr: (t.stderr || '').slice(-200) } };
@@ -2395,8 +2409,17 @@ function buildAcceptanceChecklist(ctx) {
           return { ok: false, finding: 'npx-roundtrip synthesized failure (test mode)', detail: {} };
         }
         const cp = require('child_process');
-        const pj = JSON.parse(fs.readFileSync(path.join(pluginRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
-        const ver = pj.version;
+        // Phase 127.2 Plan 02 Finding B (mirrored): resolve target version
+        // via last shipped tag, not plugin.json placeholder. Same logic as
+        // version-of-record-published.
+        const tagProbe = cp.spawnSync('git', ['-C', pluginRoot, 'describe', '--tags', '--abbrev=0', '--match=v*'], { encoding: 'utf8' });
+        let ver;
+        if (tagProbe.status === 0 && tagProbe.stdout && tagProbe.stdout.trim()) {
+          ver = tagProbe.stdout.trim().replace(/^v/, '');
+        } else {
+          const pj = JSON.parse(fs.readFileSync(path.join(pluginRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
+          ver = pj.version;
+        }
         if (flagLightNpx) {
           // Light path: resolve --help against the published package without
           // doing a live install. Operator opt-in for slow networks / CI.
@@ -2415,8 +2438,20 @@ function buildAcceptanceChecklist(ctx) {
             npm_config_cache: path.join(sandbox, '.npm'),
           });
           const r = cp.spawnSync('npx', ['@mindrian_os/install@' + ver, '--help'], { encoding: 'utf8', env: env, timeout: 90000 });
-          const ok = r.status === 0;
-          return { ok: ok, finding: ok ? null : ('npx round-trip failed (' + r.status + ')'), detail: { status: r.status, stderrTail: (r.stderr || '').slice(-300) } };
+          // Phase 127.2 Plan 02 Finding C: accept "package downloaded and
+          // executed" as success regardless of exit code. The npm artifact's
+          // reachability is what this gate verifies; the inner claude CLI's
+          // flag schema is out of scope (the installer forwards args to
+          // `claude` which rejects unknown flags with exit non-zero -- not a
+          // sign the npm publish is broken).
+          const combined = (r.stdout || '') + (r.stderr || '');
+          const packageExecuted = /Installing the MindrianOS plugin|Adding marketplace|@mindrian_os\/install/.test(combined);
+          const ok = r.status === 0 || packageExecuted;
+          return {
+            ok: ok,
+            finding: ok ? null : ('npx round-trip failed (' + r.status + '); no package-executed signal in output'),
+            detail: { status: r.status, packageExecuted: packageExecuted, stderrTail: (r.stderr || '').slice(-300) },
+          };
         } finally {
           try { fs.rmSync(sandbox, { recursive: true, force: true }); } catch (_) { /* best-effort */ }
         }

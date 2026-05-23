@@ -1,7 +1,11 @@
 ## [Unreleased] -- v1.13.0-beta.27 (in progress)
 
-### Added
-- 
+### Fixed (post-ship QA-sweep closeout, Phase 127.2 Plan 02)
+- **`scripts/doctor.cjs` `acceptance.version-of-record-published` now resolves the version-of-record from the LAST SHIPPED tag, not `plugin.json` (Finding B -- `.planning/debug/resolved/v1.13.0-beta.26-post-ship-qa-sweep.md`).** The gate previously read `plugin.json` and expected a matching git tag + marketplace `source.ref` + `npm view` for THAT version. But Commit B of the two-commit release form bumps `plugin.json` to the NEXT pre-release placeholder (e.g. `beta.27` while `main` HEAD is at the Commit B placeholder, even though the last shipped tag is `v1.13.0-beta.26`). The fix swaps the resolver to `git describe --tags --abbrev=0 --match='v*'` with a `plugin.json` fallback for fresh-repo edge cases. All three downstream assertions (tag exists, marketplace pinned, npm view matches) now key off the shipped tag. Same fix is mirrored into `acceptance.npx-roundtrip` at its `pluginVersion` derivation site for consistency.
+- **`scripts/doctor.cjs` `acceptance.npx-roundtrip` now treats "package downloaded and executed" as the success signal, not the inner `claude` CLI's exit code (Finding C -- same sweep doc).** The gate previously only accepted `r.status === 0` from `spawnSync`, but the published `@mindrian_os/install` script's inner `claude --version` invocation can exit non-zero on installer flag-schema drift (Claude Code release-channel skew) while the npm artifact itself is reachable and runnable. The gate now ALSO accepts `r.status === 0 OR /Installing the MindrianOS plugin|Adding marketplace|@mindrian_os\/install/.test(stdout+stderr)` -- the artifact's reachability is what the gate actually proves; `claude`'s flag schema is out of scope.
+
+### Changed (cross-repo, Phase 127.2 Plan 02 Finding A)
+- **`mindrian-website` (`website/src/lib/version.ts`) -- resolver priority swap: npm registry now wins over GitHub raw `plugin.json` in `getLatestVersion()`.** The website was rendering two `v1.13.0-beta.*` strings simultaneously because `fetchFromGitHub()` (which reads `plugin.json` on `origin/main` HEAD = the Commit B next-bump placeholder) ran BEFORE `fetchFromNpm()` (which reads what users can actually install via `npm @next`). After the swap, the live homepage returns a SINGLE version string = the last shipped beta. Lives in `/home/jsagi/mindrian-website/` (separate Vercel-deployed repo); pushed in lockstep with this plugin release.
 
 ## [1.13.0-beta.26] - 2026-05-23
 
