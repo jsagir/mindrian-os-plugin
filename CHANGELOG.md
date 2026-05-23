@@ -1,3 +1,8 @@
+## [Unreleased] -- v1.13.0-beta.29 (in progress)
+
+### Added
+- 
+
 ## [1.13.0-beta.28] - 2026-05-23
 
 ### Fixed (post-ship QA-sweep closeout, Phase 127.2 Plan 02)
