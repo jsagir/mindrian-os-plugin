@@ -389,5 +389,14 @@
       "persona_affinity": [],
       "completion_pattern": null
     }
-  ]
+  ],
+  "alias_map": {
+    "verb_aliases": {
+      "Resolve": "Run Methodology",
+      "Explore": "Run Methodology",
+      "Later": "Defer",
+      "Skip": "Free-Text"
+    },
+    "provenance": "Phase 121.5-10 Sub-plan K (audit Section 5.3 verb-label alias decision; LOCKED decision 1). Aliases render to the user; canonical verbs persist to graph edges via navigation.cjs."
+  }
 }
