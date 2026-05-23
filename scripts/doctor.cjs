@@ -142,6 +142,14 @@ function parseArgs(argv) {
     // the clean-tree gate. Mutually exclusive with --pre-tag; if both
     // pass, --pre-tag wins.
     acceptance: false, preTag: false, preFlight: false, lightNpx: false,
+    // Phase 127.2-03 Task 2 (Finding F1 + F7): --check-rs-engine pre-flights
+    // Python deps reachable from scripts/rs-engine.py (Engine 1 Act 1 surface
+    // for /mos:find-bottlenecks et al.). ADD-ONLY -- not a class flag; has
+    // its OWN dispatch + exit-code contract (0 = deps present; 1 = deps
+    // missing with actionable fix line). NOT in --all because --all is for
+    // class A-M drift detection, not for environment readiness probes.
+    // Closes the Windows tester 2026-05-23 silent-failure class.
+    checkRsEngine: false,
     all: false, simulateWrite: null,
     scanCommandsDir: null, scanScriptsDir: null,
   };
@@ -162,6 +170,7 @@ function parseArgs(argv) {
     else if (arg === '--pre-tag') flags.preTag = true;
     else if (arg === '--pre-flight') flags.preFlight = true;
     else if (arg === '--light-npx') flags.lightNpx = true;
+    else if (arg === '--check-rs-engine') flags.checkRsEngine = true;
     else if (arg === '--all') flags.all = true;
     else if (arg.startsWith('--simulate-write=')) flags.simulateWrite = arg.slice('--simulate-write='.length);
     else if (arg.startsWith('--scan-commands=')) flags.scanCommandsDir = arg.slice('--scan-commands='.length);
@@ -237,6 +246,16 @@ Release-gate runner (Phase 123 Plan-04 -- separate from class flags):
   --light-npx              with --acceptance (full): skip the mktemp HOME-override sandbox
                            in the npx-roundtrip point; resolve npx --no-install --help
                            instead of doing a live install. Operator opt-in.
+
+Environment readiness probes (Phase 127.2 Plan 03 -- separate from class flags):
+  --check-rs-engine        pre-flight Python deps reachable from scripts/rs-engine.py
+                           (the Engine 1 Act 1 surface for /mos:find-bottlenecks et al.).
+                           Probes top-level imports against the runtime's python (python3
+                           preferred, python fallback). On missing deps emits an actionable
+                           fix line: "Run: pip install -r requirements-hsi.txt --user".
+                           Closes the Windows tester 2026-05-23 silent-failure class.
+                           Exit 0 = deps present; exit 1 = deps missing (own contract,
+                           NOT the class-flag-always-exit-0 invariant).
 
 Behavior flags:
   --fix                attempt auto-recovery for each class that supports it
@@ -3151,6 +3170,37 @@ function main() {
     return;
   }
 
+  // Phase 127.2-03 Task 2 (Findings F1 + F7): --check-rs-engine pre-flight.
+  //
+  // Probes top-level Python imports reachable from scripts/rs-engine.py
+  // (the Engine 1 Act 1 surface for /mos:find-bottlenecks, /mos:whitespace,
+  // /mos:find-connections, /mos:find-analogies, /mos:score-innovation). The
+  // Windows tester 2026-05-23 silent-failure root cause is `requests` (a
+  // transitive dep via lib/core/rs_corpus.py) missing from the runtime
+  // python. This dispatch lands BEFORE the class A-M flow so the gate is
+  // standalone -- it has its own exit-code contract (0 = ready, 1 = missing
+  // deps), distinct from the class-flag-always-exit-0 invariant.
+  //
+  // SCOPE GUARD (CONTEXT): ADD-ONLY -- this dispatcher does NOT touch any
+  // existing acceptance point, UI-compliance check, statusline check, or
+  // session-start logic. It is a sibling of --brain-smoke (class M) in
+  // shape but not in classification (not a class flag).
+  if (flags.checkRsEngine) {
+    runCheckRsEngine(flags).then(function (code) {
+      process.exit(code);
+    }).catch(function (e) {
+      // Defensive: any uncaught error inside the probe surfaces as exit 1
+      // with a hint so /mos:doctor's other gates are never crashed by a
+      // broken probe implementation.
+      console.error('check-rs-engine probe threw: ' + (e && e.message));
+      if (flags.json) {
+        console.log(JSON.stringify({ ok: false, error: (e && e.message) || 'unknown', fix: 'Run: pip install -r requirements-hsi.txt --user (use python -m pip if pip is not in PATH)' }, null, 2));
+      }
+      process.exit(1);
+    });
+    return;
+  }
+
   // Phase 127-02 BRAIN-MCP-127-08: --brain-smoke (class M) dispatch.
   //
   // The 5-layer probe is dispatched here BEFORE the class A-L flow so the
@@ -3504,6 +3554,122 @@ function main() {
   }
 
   _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult);
+}
+
+// -- --check-rs-engine probe (Phase 127.2 Plan 03, Findings F1 + F7) ---------
+//
+// Pre-flights Python deps reachable from scripts/rs-engine.py for the Engine 1
+// Act 1 surface. Probes:
+//   - `requests`  (transitive via lib/core/rs_corpus.py; the Windows 2026-05-23
+//                  silent-failure root cause)
+//   - `numpy`     (direct top-level import in rs-engine.py + rs_math)
+// Plus best-effort umbrella probe of `sentence_transformers` + `sklearn`
+// (declared in requirements-hsi.txt; used by sibling Engine 1 surfaces).
+//
+// Python resolution: `python3` preferred (POSIX convention + Aryeh's tester
+// machine has both py3.13 + py3.14 reachable via `python3`); falls back to
+// `python` (Windows / older installs). Honors MINDRIAN_PYTHON env override
+// for tester / CI use, matching lib/agents/reverse-salient-agent.cjs:181.
+//
+// JSON exit (always emits on --json): { ok, ready, missing, python, fix }.
+// Human exit: actionable fix line on FAIL; concise OK line on PASS.
+async function runCheckRsEngine(flags) {
+  const cp = require('node:child_process');
+  // Critical deps (rs-engine.py path -- failure here = /mos:find-bottlenecks down).
+  const critical = ['requests', 'numpy'];
+  // Umbrella deps (broader Engine 1 Act 1 surface; missing -> warn but not fail).
+  const umbrella = ['sentence_transformers', 'sklearn'];
+  const all = critical.concat(umbrella);
+  const fix = 'Run: pip install -r requirements-hsi.txt --user (use python -m pip if pip is not in PATH)';
+
+  // Resolve python interpreter: MINDRIAN_PYTHON > python3 > python.
+  // Each candidate gets a probe; first one that responds wins.
+  function probePythonAvailable(bin) {
+    try {
+      const r = cp.spawnSync(bin, ['-c', 'import sys; print(sys.version)'], {
+        encoding: 'utf8',
+        timeout: 5000,
+      });
+      return r && r.status === 0;
+    } catch (_e) {
+      return false;
+    }
+  }
+  let python = process.env.MINDRIAN_PYTHON || null;
+  if (!python || !probePythonAvailable(python)) {
+    if (probePythonAvailable('python3')) python = 'python3';
+    else if (probePythonAvailable('python')) python = 'python';
+    else python = null;
+  }
+
+  if (!python) {
+    const payload = {
+      ok: false,
+      ready: false,
+      missing: all.slice(),
+      python: null,
+      fix: 'Python 3 is not on PATH. Install Python 3.10+ then: ' + fix,
+    };
+    if (flags.json) {
+      console.log(JSON.stringify(payload, null, 2));
+    } else {
+      console.log('Engine 1 Act 1 (/mos:find-bottlenecks et al.) cannot start: Python is not on PATH.');
+      console.log(payload.fix);
+    }
+    return 1;
+  }
+
+  // Per-dep probe via `python -c "import <name>"`. Each probe is timeout-fenced
+  // so a hung interpreter cannot stall /mos:doctor. Status code 0 = present.
+  function probeImport(dep) {
+    try {
+      const r = cp.spawnSync(python, ['-c', 'import ' + dep], {
+        encoding: 'utf8',
+        timeout: 10000,
+      });
+      const ok = r && r.status === 0;
+      // Capture stderr tail on failure for diagnostic surface (mirror F2 pattern).
+      const stderrTail = (!ok && r && r.stderr) ? String(r.stderr).slice(-200) : '';
+      return { dep: dep, ok: ok, stderrTail: stderrTail };
+    } catch (e) {
+      return { dep: dep, ok: false, stderrTail: String((e && e.message) || '').slice(-200) };
+    }
+  }
+
+  const results = all.map(probeImport);
+  const missingCritical = results.filter(function (r) {
+    return critical.indexOf(r.dep) !== -1 && !r.ok;
+  }).map(function (r) { return r.dep; });
+  const missingUmbrella = results.filter(function (r) {
+    return umbrella.indexOf(r.dep) !== -1 && !r.ok;
+  }).map(function (r) { return r.dep; });
+  const ok = missingCritical.length === 0;
+
+  if (flags.json) {
+    const payload = {
+      ok: ok,
+      ready: ok,
+      python: python,
+      probes: results.map(function (r) { return { dep: r.dep, ok: r.ok }; }),
+      missing: missingCritical.concat(missingUmbrella),
+      missing_critical: missingCritical,
+      missing_umbrella: missingUmbrella,
+      fix: ok ? null : fix,
+    };
+    console.log(JSON.stringify(payload, null, 2));
+  } else {
+    if (ok) {
+      console.log('Engine 1 Act 1 ready -- Python (' + python + ') has all critical deps: ' + critical.join(', ') + '.');
+      if (missingUmbrella.length > 0) {
+        console.log('Note: umbrella deps missing (' + missingUmbrella.join(', ') + '); affects sibling Engine 1 surfaces. ' + fix);
+      }
+    } else {
+      console.log('Engine 1 Act 1 (/mos:find-bottlenecks et al.) needs Python deps. Missing: ' + missingCritical.join(', ') + '.');
+      console.log(fix);
+    }
+  }
+
+  return ok ? 0 : 1;
 }
 
 // -- Class M dispatcher (Phase 127-02) ---------------------------------------

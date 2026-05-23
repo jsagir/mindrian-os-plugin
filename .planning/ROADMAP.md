@@ -1561,6 +1561,16 @@ Plans:
 
 **Authority:** `.planning/phases/132-dual-graph-correlation-hypergraph-reformat/132-CONTEXT.md` (scoped 2026-05-17 from the dogfooding-curation session) + `~/MindrianRooms/mindrian/mindrianOS/methodology/2026-05-17-brain-curation-audit.md`.
 
+### Phase 134: CJS port of Python analyzers via xenova-transformers (eliminate Windows install-fragility class) [v1.14.0]
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 133
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 134 to break down)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)

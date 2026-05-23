@@ -37,6 +37,15 @@ Procedure (CLI / Desktop / Cowork):
    - On DEFER: DEFERRED memory_event records the deferral for Phase 116 unresolved-tension-hook consumption.
 4. If the agent returns `{ ok: false }` OR finds nothing OR is suppressed (tier 0 / JUST_TALK), fall back to the standard Setup + Session Flow below.
 
+### Empty-result UX (Phase 127.2 Plan 03 -- Finding F7)
+
+When the agent returns no findings, you MUST distinguish two cases for the user, because "no findings" reads as "your work is clean" -- the worst possible signal if the analyzer crashed:
+
+- **Analyzer ran successfully and found nothing.** Surface: "No reverse-salient findings were returned -- the analyzer ran across your room and could not identify a lagging component above the threshold. This is plausible if the room is small (less than 5 substantive artifacts) or if the system is genuinely balanced; continue with the Session Flow below to do the framework manually if you want a second pass."
+- **Analyzer could not start (rs-engine failed -- look for `result.detail.diagnostic` in the agent payload, OR `ok: false, reason: rs_engine_invocation_failed`).** Surface: "No reverse-salient findings were returned. If you expected results, the analyzer may not have started -- run `/mos:doctor --check-rs-engine` to verify your Engine 1 Act 1 environment is healthy. Common cause: missing Python deps (`pip install -r requirements-hsi.txt --user`)."
+
+The disambiguation is critical because the agent layer historically swallowed the actionable error message (Windows tester 2026-05-23 silent-failure class). Always surface the `--check-rs-engine` hint on the analyzer-failure path.
+
 Anti-pattern reminder (per docs/AGENTIC-SURFACING-PATTERN.md):
 - Never print findings to console; the F.0 dispatcher IS the surfacing surface.
 - Never query the Brain directly; the agent reads pre-derived BRAIN.md via folder-memory.readQuadruple (LOCAL only, Canon Part 8).

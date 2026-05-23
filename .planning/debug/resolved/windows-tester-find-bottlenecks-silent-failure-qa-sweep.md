@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: qa-sweep
 trigger: "windows-tester-find-bottlenecks-silent-failure-qa-sweep"
 issue_id: ""
@@ -8,7 +8,10 @@ surfaces: [cli, desktop, cowork]
 brain_mode: full-loop
 canon_parts: [6, 7, 8, 9, 10]
 created: 2026-05-23T17:30:00Z
-updated: 2026-05-23T17:30:00Z
+updated: 2026-05-23T20:00:00Z
+resolved: 2026-05-23
+resolved_by: phase-127.2 Plan 127.2-03 (hotfix; F1+F2+F7 shipped)
+resolved_disposition: 3-of-4-fixed-in-code; F3 narrative drift deferred to next docs reconciliation; F6 architectural port scaffolded as Phase 130 stub
 ---
 
 ## Source-of-Truth Preamble
@@ -128,3 +131,35 @@ Bonus value: this transcript is the cleanest external evidence we have for the P
 3. Decide whether to scaffold a v1.14.0 Phase TBD for the CJS architectural port (F6).
 4. Decide F3 disposition before next CHANGELOG entry that references Phase 127.1 (avoid further drift).
 5. On close: move file to `.planning/debug/resolved/` + knowledge-base entry per the new discipline.
+
+## Resolution
+
+Closed 2026-05-23 by Phase 127.2 Plan 03 (the FIRST hotfix shaped from an external tester's transcript -- Aryeh's Windows machine, 2026-05-23 -- per Canon Part 6 dog-fooding mandate). All three HIGH-severity findings shipped as v1.13.0-beta.30.
+
+**Hotfix landed (3 of 4 code findings, 1 architectural deferred):**
+
+- **F1 -- /mos:doctor --check-rs-engine pre-flight (FIXED).** `scripts/doctor.cjs` gains a `--check-rs-engine` flag handler (ADD-ONLY; no refactor of existing acceptance points or class-flag dispatchers). Probes critical Python deps reachable from `scripts/rs-engine.py` -- `requests` (transitive via `lib/core/rs_corpus.py`, the actual silent-failure root cause) + `numpy` -- plus umbrella deps from `requirements-hsi.txt` (`sentence_transformers`, `sklearn`). Resolves python interpreter via `MINDRIAN_PYTHON` env override > `python3` > `python` fallback. On missing critical deps: exit 1 + actionable fix line (`Run: pip install -r requirements-hsi.txt --user (use python -m pip if pip is not in PATH)`). JSON variant: `{ ok, ready, python, probes[], missing, missing_critical, missing_umbrella, fix }`. Defensive: any uncaught probe error surfaces as exit 1 with the fix line -- the probe NEVER crashes `/mos:doctor`'s other gates.
+- **F2 -- agent forwards stderr to result.detail.diagnostic (FIXED).** `lib/agents/reverse-salient-agent.cjs` `runRsEngine()` catch block now captures `e.stderr` from the failed child python process, takes the LAST 200 chars (preserving the actionable fix line + exception name at the tail), and embeds it in `result.detail.diagnostic`. Backward compatible: when stderr is empty, `detail` stays a plain string (the existing `e.message` slice); when stderr is present, `detail` upgrades to `{ message, diagnostic }`. The existing `ok`/`reason` fields are untouched, so legacy callers don't break.
+- **F7 -- /mos:find-bottlenecks empty-result UX (FIXED).** `commands/find-bottlenecks.md` gains an "Empty-result UX" sub-section that disambiguates two cases: (a) analyzer ran with no findings -> calm "framework manually" copy; (b) analyzer could not start (detected via `result.detail.diagnostic` OR `reason: rs_engine_invocation_failed`) -> "run `/mos:doctor --check-rs-engine` to verify your Engine 1 Act 1 environment is healthy" with the pip-install one-liner inline.
+
+**Smoke test green:** `tests/test-127.2-03-rs-engine-silent-failure-fixes.sh` 7/7 PASS on origin/main. Tests cover F1 flag-handler presence, F1 fix-line embedded, F2 diagnostic-field reference + stderr-capture pattern, F7 disambiguation copy presence, functional probe (`--check-rs-engine --json` returns valid JSON with `ok:true` on the dev machine where all deps are present), and `--help` documentation. Run: `bash tests/test-127.2-03-rs-engine-silent-failure-fixes.sh`.
+
+**Deferred (intentional):**
+
+- **F3 (Phase 127.1 narrative drift -- Pinecone vs Neo4j HNSW substrate claim).** Disposition: defer to next docs reconciliation cycle. The CHANGELOG / Canon-Phase-Map drift is real but is not the blocking failure for the Windows tester. Closing it requires either finishing Plan 127.1-04 (the actual Pinecone retirement) or amending Canon Appendix D entry 13 to explicitly state "BOTH substrates active during transition." Decision parked for Jonathan to pick the disposition before the next CHANGELOG entry that references Phase 127.1.
+- **F6 (Python-on-user-machines install-fragility class -- CJS port of all Python analyzers).** Disposition: scaffolded as **Phase 130 CJS port architectural-stub** in this same plan execution (CONTEXT.md ONLY; no PLAN.md). Milestone: v1.14.0. Design vision captured: replace `scripts/rs-engine.py` + `lib/core/rs_*.py` + `scripts/hsi-*.py` with CJS equivalents using `@xenova/transformers` (ONNX `Xenova/multilingual-e5-large` in-process); eliminates Python from user-machine surface entirely. Estimate ~3 weeks.
+- **F4 (meta-finding: tester-session AI proposed a Canon Part 8 breach -- Pinecone server-side inference on user artifact bodies).** Disposition: DOCUMENTED only; no code change required (user caught the proposal mid-conversation; nothing shipped). The conversation itself is evidence that the Part 8 boundary holds under adversarial pressure.
+- **F5 (RS-2 thesis confirmation -- one-person QA is the lagging subsystem).** Disposition: CONFIRMED; the dog-fooding loop closing this RCA in the same week the transcript landed is the empirical evidence.
+
+**Files changed in Plan 127.2-03:**
+- `lib/agents/reverse-salient-agent.cjs` (F2 -- stderr forwarding)
+- `scripts/doctor.cjs` (F1 -- --check-rs-engine flag + runCheckRsEngine probe + --help text)
+- `commands/find-bottlenecks.md` (F7 -- empty-result UX disambiguation)
+- `tests/test-127.2-03-rs-engine-silent-failure-fixes.sh` (smoke test)
+- `.planning/phases/130-.../130-CONTEXT.md` (F6 -- scaffold stub for v1.14.0)
+- `CHANGELOG.md` (Unreleased -> v1.13.0-beta.30 entry)
+- This file moved to `.planning/debug/resolved/`.
+
+**Plan reference:** `.planning/phases/127.2-brain-warmup-ping-hide-mcp-cold-start-latency-inside-larry-s/127.2-03-PLAN.md`
+**SUMMARY:** `.planning/phases/127.2-brain-warmup-ping-hide-mcp-cold-start-latency-inside-larry-s/127.2-03-SUMMARY.md`
+**Ship vehicle:** v1.13.0-beta.30 (next prerelease after the current Commit B placeholder at beta.29).
