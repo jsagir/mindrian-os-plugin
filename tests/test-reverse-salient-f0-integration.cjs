@@ -196,9 +196,15 @@ test('F.0: tier>=1, non-JUST_TALK -> dispatcher receives F.0 contract with perso
   assert.equal(dispatcherCalls.length, 1);
   assert.equal(dispatcherCalls[0].requestedShape, 'F.0');
   assert.equal(dispatcherCalls[0].payload.parent_decision_id, 'rs-finding:' + finding.id);
+  // Phase 121.5-10 Sub-plan K (audit Section 5.3): header is the locked
+  // [BRAIN] chip; persona suffix moves into the body slot beneath the chip.
+  assert.equal(
+    dispatcherCalls[0].payload.header, '[■ BRAIN]',
+    'header must be the locked [BRAIN] chip; got: ' + dispatcherCalls[0].payload.header
+  );
   assert.ok(
-    dispatcherCalls[0].payload.header.indexOf('shipping risk') !== -1,
-    'header must contain founder persona suffix; got: ' + dispatcherCalls[0].payload.header
+    dispatcherCalls[0].payload.body.indexOf('shipping risk') !== -1,
+    'body must contain founder persona suffix; got: ' + dispatcherCalls[0].payload.body
   );
   assert.ok(
     dispatcherCalls[0].payload.body.indexOf(finding.body_text) !== -1,
@@ -256,11 +262,14 @@ test('F.0: Persona founder role_blend -> shipping risk in F.0 header', () => {
     operator: null,
     roleBlend: { founder: 0.7 },
   });
-  assert.ok(dispatcherCalls[0].payload.header.indexOf('shipping risk') !== -1);
+  // Phase 121.5-10 Sub-plan K: header is locked [BRAIN] chip; persona
+  // suffix moved to body slot per audit Section 5.3.
+  assert.equal(dispatcherCalls[0].payload.header, '[■ BRAIN]');
+  assert.ok(dispatcherCalls[0].payload.body.indexOf('shipping risk') !== -1);
   clearCache();
 });
 
-test('F.0: Persona researcher role_blend -> evidence gap in F.0 header', () => {
+test('F.0: Persona researcher role_blend -> evidence gap in F.0 body (Sub-plan K)', () => {
   const dispatcherCalls = [];
   const dispatcher = {
     pickShape: (a) => {
@@ -276,11 +285,13 @@ test('F.0: Persona researcher role_blend -> evidence gap in F.0 header', () => {
     operator: null,
     roleBlend: { researcher: 0.6, investor: 0.4 },
   });
-  assert.ok(dispatcherCalls[0].payload.header.indexOf('evidence gap') !== -1);
+  // Phase 121.5-10 Sub-plan K: persona suffix moved from header to body.
+  assert.equal(dispatcherCalls[0].payload.header, '[■ BRAIN]');
+  assert.ok(dispatcherCalls[0].payload.body.indexOf('evidence gap') !== -1);
   clearCache();
 });
 
-test('F.0: Persona cold-start (null role_blend) -> lagging component in F.0 header', () => {
+test('F.0: Persona cold-start (null role_blend) -> lagging component in F.0 body (Sub-plan K)', () => {
   const dispatcherCalls = [];
   const dispatcher = {
     pickShape: (a) => {
@@ -296,9 +307,11 @@ test('F.0: Persona cold-start (null role_blend) -> lagging component in F.0 head
     operator: null,
     roleBlend: null,
   });
+  // Phase 121.5-10 Sub-plan K: persona suffix moved from header to body.
+  assert.equal(dispatcherCalls[0].payload.header, '[■ BRAIN]');
   assert.ok(
-    dispatcherCalls[0].payload.header.indexOf('lagging component') !== -1,
-    'cold-start header must contain default suffix; got: ' + dispatcherCalls[0].payload.header
+    dispatcherCalls[0].payload.body.indexOf('lagging component') !== -1,
+    'cold-start body must contain default suffix; got: ' + dispatcherCalls[0].payload.body
   );
   clearCache();
 });

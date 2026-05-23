@@ -43,6 +43,16 @@ const path = require('node:path');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const recommender = require(path.join(REPO_ROOT, 'lib', 'brain', 'chain-recommender.cjs'));
 const resolver = require(path.join(REPO_ROOT, 'lib', 'workflow', 'command-resolver.cjs'));
+// Phase 121.5-10 Sub-plan K (audit Section 5.3 highest-leverage promotion):
+// promote /mos:suggest-next from NONE to F.1 via rankForSelector + pickShape.
+// The locked Brain-suggestion content template (chip + question line + two-
+// line dense option rows + stat-strip footer) renders into stdout via the
+// dispatcher; the underlying recommender/resolver workflow is preserved
+// (Larry NEVER names a /mos: from memory; every command came from
+// composeWorkflow / the generated registry).
+const ranker = require(path.join(REPO_ROOT, 'lib', 'workflow', 'f-selector-ranker.cjs'));
+const dispatcher = require(path.join(REPO_ROOT, 'lib', 'hmi', 'selector-dispatcher.cjs'));
+const jtbdTaxonomy = require(path.join(REPO_ROOT, 'lib', 'hmi', 'jtbd-taxonomy.json'));
 
 // ---------- argv parsing (process.argv switch, mindrian-tools style) ----------
 
@@ -136,14 +146,68 @@ function renderSequence(workflow) {
 }
 
 function actionFooter(workflow) {
-  // Zone 4: 2-3 grounded /mos: commands. Pull the first runnable command
-  // from the workflow as the primary; always offer /mos:status as a fallback.
+  // Zone 4 fallback (only used when ranker returns zero items -- Tier 0 / no
+  // packet / empty registry). Renders 2-3 grounded /mos: commands. Pull the
+  // first runnable command from the workflow as the primary; always offer
+  // /mos:status as a fallback. Live F.1 path uses the locked Brain-suggestion
+  // template instead (Phase 121.5-10 Sub-plan K).
   const first = workflow.find(function (s) { return s && typeof s.command === 'string' && s.command.length > 0; });
   const lines = ['', '---'];
   if (first) lines.push('> ' + first.command + '  -- start the chain here');
   lines.push('> /mos:pipeline --from-problem-type <x>  -- run a Brain-derived chain end to end');
   lines.push('> /mos:status  -- see the room state this was computed from');
   return lines.join('\n') + '\n';
+}
+
+// Phase 121.5-10 Sub-plan K (audit Section 5.3): render the locked Brain-
+// suggestion content template via pickShape({ requestedShape: 'F.1',
+// payload: { brain_suggestion_variant: true, ... }}). Returns the composed
+// rendered string (header + body + footer + AskUserQuestion trailer) ready
+// for stdout. Falls back to null when the ranker returns zero items so the
+// caller can route to the Tier-0 framework-only path.
+function renderBrainSuggestionF1(items, roomState) {
+  if (!Array.isArray(items) || items.length === 0) return null;
+  const optionRows = items.map(function (it, i) {
+    const conf = (typeof it.score === 'number') ? it.score : 0;
+    const glyph = (conf >= 0.7) ? '▶' : '▷';
+    const category = (typeof it.category === 'string') ? it.category : '';
+    const rel = (typeof it.graph_relationship === 'string') ? it.graph_relationship : '';
+    const sep = (category.length > 0 && rel.length > 0) ? ' · ' : '';
+    return {
+      glyph: glyph,
+      number: i + 1,
+      verb: it.command,
+      confPct: Math.round(conf * 100),
+      meta: category + sep + rel,
+    };
+  });
+  // Determine top-K of N for the footer stat strip. We do not have the
+  // pre-clamp total here (rankForSelector clamps internally), so we use
+  // items.length as both top-K and N -- the more accurate "N" would be the
+  // full registry size pre-clamp; left as a v2 refinement.
+  const k = items.length;
+  const aliasMap = (jtbdTaxonomy && jtbdTaxonomy.alias_map && jtbdTaxonomy.alias_map.verb_aliases)
+    ? jtbdTaxonomy.alias_map.verb_aliases : {};
+  const topScore = (typeof items[0].score === 'number') ? items[0].score : 0;
+  const result = dispatcher.pickShape({
+    requestedShape: 'F.1',
+    payload: {
+      brain_suggestion_variant: true,
+      header: '[■ BRAIN]',
+      questionLine: 'Choose next move:',
+      verbs: items.map(function (it) { return it.command; }),
+      alias_map: aliasMap,
+      recommendedVerb: (topScore >= 0.7) ? items[0].command : null,
+      optionRows: optionRows,
+      footer: '▶ Brain · top-' + k + ' of ' + k + ' ranked · cyan = informing',
+    },
+  });
+  if (!result || result.shape === 'error' || !result.rendered) return null;
+  const zones = result.rendered.zones || {};
+  const header = (typeof zones.header === 'string') ? zones.header : '';
+  const body = (typeof zones.body === 'string') ? zones.body : '';
+  const footer = (typeof zones.footer === 'string') ? zones.footer : '';
+  return header + '\n\n' + body + '\n\n' + footer + '\n';
 }
 
 // ---------- main ----------
@@ -173,6 +237,31 @@ function main(argv) {
 
   const hasKnownType = Boolean(args.problemType || args.fromFramework || roomState.problemType || roomState.activeJtbd);
 
+  // Phase 121.5-10 Sub-plan K (audit Section 5.3): try the locked Brain-
+  // suggestion F.1 surface first via rankForSelector + pickShape. The
+  // ranker returns scored items[] with category + graph_relationship for
+  // the meta row; pickShape applies the locked template overlay (chip +
+  // question line + two-line dense rows + stat-strip footer). If the
+  // ranker returns zero items (Tier 0 / no registry content), fall back
+  // to the legacy Shape B + actionFooter render so this command stays
+  // useful even in degraded environments.
+  const rankerRoomState = {};
+  if (roomState.problemType) rankerRoomState.problemType = roomState.problemType;
+  if (roomState.activeJtbd) rankerRoomState.activeJtbd = roomState.activeJtbd;
+  let rankedItems = [];
+  try {
+    rankedItems = ranker.rankForSelector({
+      jtbd: roomState.activeJtbd || null,
+      problemType: roomState.problemType || null,
+      roomState: rankerRoomState,
+      packetOptional: null,
+      k: 3,
+    });
+  } catch (_e) {
+    rankedItems = [];
+  }
+  const brainRender = renderBrainSuggestionF1(rankedItems, roomState);
+
   const out = [];
   out.push(buildHeader(roomDir, roomState));
   out.push('');
@@ -194,7 +283,12 @@ function main(argv) {
     out.push('Run manually (no /mos: for these yet): ' + manual.map(function (s) { return s.framework; }).join(', '));
   }
   process.stdout.write(out.join('\n') + '\n');
-  process.stdout.write(actionFooter(workflow));
+  if (brainRender !== null) {
+    process.stdout.write('\n');
+    process.stdout.write(brainRender);
+  } else {
+    process.stdout.write(actionFooter(workflow));
+  }
   process.exit(0);
 }
 
@@ -214,5 +308,8 @@ module.exports = {
   resolveRoomDir: resolveRoomDir,
   readRoomState: readRoomState,
   renderSequence: renderSequence,
+  // Phase 121.5-10 Sub-plan K: locked Brain-suggestion F.1 renderer exported
+  // for direct testing (lib/memory/brain-suggestion-template.test.cjs).
+  renderBrainSuggestionF1: renderBrainSuggestionF1,
   main: main,
 };

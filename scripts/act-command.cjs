@@ -45,6 +45,12 @@ const path = require('node:path');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const recommender = require(path.join(REPO_ROOT, 'lib', 'brain', 'chain-recommender.cjs'));
 const resolver = require(path.join(REPO_ROOT, 'lib', 'workflow', 'command-resolver.cjs'));
+// Phase 121.5-10 Sub-plan K (audit Section 5.3 second-highest leverage):
+// promote /mos:act --chain [GATE] from BESPOKE bracket text to F.0 Mini
+// Decision Gate via pickShape. The locked [■ BRAIN] chip lands on the
+// gate header; the F.0 closed vocabulary (Approve / Reject / Defer)
+// replaces the bespoke [continue] / [stop] brackets.
+const dispatcher = require(path.join(REPO_ROOT, 'lib', 'hmi', 'selector-dispatcher.cjs'));
 
 // ---------- argv parsing ----------
 
@@ -153,15 +159,44 @@ function renderChainReport(seedLabel, frameworkChain, workflow, autonomyReport, 
     const fw = plan.stopAt.framework || '(unknown)';
     const cmd = (typeof plan.stopAt.command === 'string' && plan.stopAt.command.length > 0)
       ? plan.stopAt.command : 'run ' + fw + ' manually';
-    out.push('[GATE] Chain reached step ' + plan.stopAt.step + ': ' + cmd + ' for ' + fw + '.');
-    if (plan.stopReason === 'no /mos: command') {
-      out.push('       There is no /mos: for ' + fw + ' -- this one is manual; the chain cannot run it for you.');
+    // Phase 121.5-10 Sub-plan K (audit Section 5.3): replace bespoke
+    // [continue] / [stop] bracket text with F.0 Mini Decision Gate via
+    // pickShape. F.0 closed vocab (Approve = continue, Reject = stop with
+    // REJECTED_BECAUSE edge, Defer = milestone-audit + halt chain) maps the
+    // bespoke buttons onto the canon contract without losing the user's
+    // existing two-button mental model. The [■ BRAIN] chip lands on the
+    // gate header per the locked template (Section 5.2).
+    const gateHeader = '[■ BRAIN] [GATE] Chain step ' + plan.stopAt.step + ': ' + cmd + ' for ' + fw;
+    const gateBody = (plan.stopReason === 'no /mos: command')
+      ? 'There is no /mos: for ' + fw + ' -- this one is manual; the chain cannot run it for you.'
+      : 'This step is not autonomous_safe -- it needs your eyes.';
+    let f0Rendered = null;
+    try {
+      const f0Result = dispatcher.pickShape({
+        requestedShape: 'F.0',
+        payload: {
+          header: gateHeader,
+          body: gateBody,
+          parent_decision_id: 'act-chain:step-' + String(plan.stopAt.step),
+        },
+      });
+      if (f0Result && f0Result.shape === 'F.0' && f0Result.rendered) {
+        const zones = f0Result.rendered.zones || {};
+        f0Rendered = (typeof zones.header === 'string' ? zones.header : '') + '\n' +
+          (typeof zones.body === 'string' ? zones.body : '') + '\n' +
+          (typeof zones.footer === 'string' ? zones.footer : '');
+      }
+    } catch (_e) { f0Rendered = null; }
+    if (f0Rendered !== null) {
+      out.push(f0Rendered);
     } else {
-      out.push('       This step is not autonomous_safe -- it needs your eyes.');
+      // Graceful fallback: degraded environments without the F.0 renderer
+      // still receive a recognizable gate (locked chip + reason prose). The
+      // CI tripwire allowlists the F.0 pickShape call above; this fallback
+      // is reachable only when the dispatcher is missing.
+      out.push('[■ BRAIN] [GATE] Chain reached step ' + plan.stopAt.step + ': ' + cmd + ' for ' + fw + '.');
+      out.push('       ' + gateBody);
     }
-    out.push('');
-    out.push('  [continue]  run ' + (typeof plan.stopAt.command === 'string' && plan.stopAt.command.length > 0 ? plan.stopAt.command : fw) + ' yourself, then resume the chain');
-    out.push('  [stop]      halt the chain here; what ran above is filed');
     out.push('');
     out.push('---');
     if (typeof plan.stopAt.command === 'string' && plan.stopAt.command.length > 0) out.push('> ' + plan.stopAt.command + '  -- the step that needs you');

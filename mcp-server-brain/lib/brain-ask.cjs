@@ -24,6 +24,16 @@ const { z } = require('zod');
  * the graph holds only generic teaching methodology. No user data enters or
  * leaves on this path.
  *
+ * Phase 121.5-10 Sub-plan K cross-reference (docstring-only; zero behavior
+ * change): the plugin-side renderer for Brain-suggested next moves uses the
+ * locked content template chip `[■ BRAIN]` per the Phase 121.5 selector
+ * coverage audit Section 5. brain_ask returns the DirectiveEnvelope payload
+ * carrying the next_gate verbs + F-shape; the plugin dispatcher
+ * (lib/hmi/selector-dispatcher.cjs applyBrainSuggestionVariant) overlays the
+ * chip + question line + two-line dense rows + stat-strip footer onto the
+ * rendered surface. This server has no opinion on the rendering; it only
+ * produces the DirectiveEnvelope payload the plugin renders.
+ *
  * The caller never needs to write Cypher or know which backend is active.
  */
 

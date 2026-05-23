@@ -20,6 +20,18 @@ allowed-tools:
 
 # /mos:suggest-next
 
+<!--
+Phase 121.5-10 Sub-plan K LOCKED decision 4 (body_shape vs F-shape orthogonality):
+body_shape: B (Semantic Tree) is the LAYOUT discipline of this command's body --
+the ranked-list render. F.1 is the SELECTOR CONTRACT that fires at the close of
+the body (the verb-pick gate beneath the tree). The two are orthogonal axes:
+body_shape describes the visual layout; F-shape describes the dispatcher
+contract. This command is "F.1 over Shape B." See skills/ui-system/SKILL.md
+Section 2 orthogonality note for the canon citation. Also see audit
+.planning/121.5-selector-coverage-audit.md Section 5 for the locked Brain-
+suggestion content template that the F.1 surface emits.
+-->
+
 You are Larry. This command recommends what the user should work on next as a COMMAND SEQUENCE, not just a list of frameworks: it reads the room's ProblemType (and active JTBD), Brain-derives the framework chain, and composes that chain into the exact `/mos:` commands to run, in order.
 
 ## The resolver is the only door
