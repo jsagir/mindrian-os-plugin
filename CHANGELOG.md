@@ -1,3 +1,8 @@
+## [Unreleased] -- v1.13.0-beta.33 (in progress)
+
+### Added
+- 
+
 ## [1.13.0-beta.32] - 2026-05-24
 
 ### Fixed (Windows-tester regression bundle, Phase 127.2 Plan 04 -- ships v1.13.0-beta.32)
