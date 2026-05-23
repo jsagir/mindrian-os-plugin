@@ -2,15 +2,15 @@
 
 Apply this patch to `.planning/ROADMAP.md` at lines 1278-1282 (the Plans / Authority block for Phase 121.5).
 
-**Current state (2026-05-23):** 10 of 11 plans SHIPPED + verified (Plans 121.5-00 through 121.5-09; VERIFICATION.md sealed `complete / 10/10` on 2026-05-16, reopened to `status: amended` on 2026-05-23). 1 plan PENDING execution (Plan 121.5-10 Sub-plan K Brain-suggestion content template lock + audit Bundle A; added 2026-05-23 from `.planning/121.5-selector-coverage-audit.md`).
+**Current state (2026-05-23):** ALL 11 plans SHIPPED + verified. Plans 121.5-00 through 121.5-09 originally sealed `complete / 10/10` on 2026-05-16. Plan 121.5-10 (Sub-plan K Brain-suggestion content template lock + audit Bundle A) absorbed 2026-05-23 from `.planning/121.5-selector-coverage-audit.md` and SHIPPED same day (final HEAD `0fbb202d`, 7 commits, 14/14 GREEN). VERIFICATION.md RE-SEALED `complete / 11/11` 2026-05-23.
 
-The 16 D-XX decisions from 2026-05-16 are LOCKED + SHIPPED; the original 5 ODDs from 2026-05-16 are RESOLVED. 5 additional Bundle A decisions (D-Bundle-A-01..D-Bundle-A-05) were LOCKED 2026-05-23 alongside Sub-plan K.
+The 16 D-XX decisions from 2026-05-16 are LOCKED + SHIPPED; the original 5 ODDs from 2026-05-16 are RESOLVED. 5 additional Bundle A decisions (D-Bundle-A-01..D-Bundle-A-05) LOCKED + SHIPPED 2026-05-23 alongside Sub-plan K.
 
-Re-seal target post-Plan-10 execution: `complete / 11/11`, `completed:` bumped to Plan-10 close date, coherence smoke re-run against post-Plan-10 substrate state and confirmed GREEN.
+`bash tests/run-all-121.5.sh` at re-seal -> `Total: 14 / Passed: 14 / Failed: 0`.
 
 ## Replace the existing "**Plans:**" paragraph (line 1278) with:
 
-**Plans:** 11/11 plans planned (10/11 SHIPPED + 1 PENDING execution -- Sub-plan K Plan 121.5-10 added 2026-05-23). ~3-4 days for original 10 plans (closed 2026-05-16) + ~2-2.5 days for Sub-plan K Bundle A addition.
+**Plans:** 11/11 plans complete (RE-SEALED 2026-05-23). ~3-4 days for original 10 plans (closed 2026-05-16) + ~2.5 days for Sub-plan K Bundle A addition (closed 2026-05-23, ~2 hours actual execution).
 
 Plans:
 - [x] 121.5-00-PLAN.md -- Sub-plan A SessionStart Coordinator: precedence ladder + 2000-char budget + iterative compression + failed-contributor isolation (D-13..D-16) (wave 2) -- SHIPPED 2026-05-16
@@ -22,8 +22,8 @@ Plans:
 - [x] 121.5-06-PLAN.md -- Sub-plan G truth-telling + housekeeping: delete 40-hook-expansion, fix Phase 88.7 ROADMAP, harden active-phase resolver (wave 1) -- SHIPPED 2026-05-16
 - [x] 121.5-07-PLAN.md -- Sub-plan I Bulletproof ASCII /mos:help: terminal-capability.cjs probe + 11 groups (incl. new Export/Publish/Hub trio) + help_jtbd: sweep + 3 torture tests (D-05..D-08) (wave 2) -- SHIPPED 2026-05-16
 - [x] 121.5-08-PLAN.md -- Sub-plan J Naming-drift sweep + lifecycle cleanup: 5 soft-alias stubs + /mos:mos state-aware router + F.1 selectors on onboard/diagnose + /mos:doctor class I (D-09..D-12) (wave 3) -- SHIPPED 2026-05-16
-- [ ] 121.5-10-PLAN.md -- Sub-plan K Brain-suggestion content template lock + selector audit Bundle A: [■ BRAIN] chip + score-right two-line rows + stat-strip footer locked across 5 consumers (/mos:suggest-next, /mos:act --chain, tension-hook-agent, auto-explore-agent, reverse-salient-agent) + CI tripwire + docs publication. Source: .planning/121.5-selector-coverage-audit.md Section 5. (wave 3) -- PENDING execution 2026-05-23
-- [x] 121.5-09-PLAN.md -- Sub-plan H coherence smoke test + 121.5-VERIFICATION.md (the precondition citation for Canon Part 10 ratification at v1.13.0 FINAL RELEASE GATE) (wave 4) -- SHIPPED 2026-05-16; SCHEDULED RE-RUN after Plan 10 lands per re-seal flow
+- [x] 121.5-10-PLAN.md -- Sub-plan K Brain-suggestion content template lock + selector audit Bundle A: [■ BRAIN] chip + score-right two-line rows + stat-strip footer locked across 5 consumers (/mos:suggest-next NONE->F.1, /mos:act --chain BESPOKE->F.0, tension-hook-agent, auto-explore-agent, reverse-salient-agent) + CI tripwire (tests/test-no-bespoke-brain-prompts.sh) + F-SELECTOR-CONSUMER-GUIDE.md Section 4 published. Source: .planning/121.5-selector-coverage-audit.md Section 5. (wave 3) -- SHIPPED 2026-05-23, final HEAD 0fbb202d
+- [x] 121.5-09-PLAN.md -- Sub-plan H coherence smoke test + 121.5-VERIFICATION.md (the precondition citation for Canon Part 10 ratification at v1.13.0 FINAL RELEASE GATE) (wave 4) -- SHIPPED 2026-05-16 + RE-RAN 2026-05-23 (14/14 GREEN, was 11/11 originally; +3 new suites from Plan 10)
 
 **Requirements:** COHERENCE-121.5-A-01..04 (Sub-plan A); COHERENCE-121.5-B-01..03 (B); COHERENCE-121.5-C-01..04 (C); COHERENCE-121.5-D-01..05 (D); COHERENCE-121.5-E-01..02 (E); COHERENCE-121.5-F-01..03 (F); COHERENCE-121.5-G-01..03 (G); COHERENCE-121.5-I-01..04 (I, NEW Sub-plan); COHERENCE-121.5-J-01..04 (J, NEW Sub-plan); COHERENCE-121.5-H-01..03 (H).
 
