@@ -14,6 +14,7 @@
 #   test-coherence-smoke.cjs                         -> Plan 121.5-09 Task 1 (coherence smoke harness; Sub-plan H acceptance)
 #   ../lib/memory/selector-alias-map.test.cjs        -> Plan 121.5-10 Task 1 (Sub-plan K alias_map + dispatcher overlay)
 #   ../lib/memory/brain-suggestion-template.test.cjs -> Plan 121.5-10 Task 2 (Sub-plan K 5-consumer template adoption)
+#   test-no-bespoke-brain-prompts.sh                 -> Plan 121.5-10 Task 3 (Sub-plan K CI tripwire enforces the lock)
 #
 # This runner MUST run to completion (no crash) even when any suite fails; it
 # prints a per-suite PASS/FAIL line and exits non-zero if any suite failed.
@@ -29,6 +30,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 START_TIME=$(date +%s)
 
 SHELL_SUITES=(
+  test-no-bespoke-brain-prompts.sh
 )
 CJS_SUITES=(
   ../lib/memory/sessionstart-coordinator.test.cjs

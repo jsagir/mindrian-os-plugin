@@ -39,6 +39,8 @@ Every output has exactly 4 zones in fixed order. No reordering. No invention.
 
 > This section documents the current Shape F sub-shape catalog as shipped through Phase 88.2. Today's seven sub-shapes (F.0 through F.6) are the shipped vocabulary as of Phase 121.5; additive expansion is reserved for future lens-aware variants (e.g. v1.14.0 dual-graph work). Treat the catalog as the current canon, not a closed terminal set.
 
+> **Orthogonality note (Plan 121.5-10 LOCKED decision 4):** `body_shape:` frontmatter and Shape F sub-shape are ORTHOGONAL axes. `body_shape` describes the LAYOUT discipline of the command body (Shape A Mondrian Board, Shape B Semantic Tree, Shape C Room Card, Shape D Document View, Shape E Action Report). Shape F.x describes the SELECTOR CONTRACT that fires at the close of the body to capture the navigator's next-move decision. A command can carry `body_shape: B` (Semantic Tree layout) AND surface an F.1 selector at its close; these are not competing values -- they describe different surfaces of the same render. Example: `/mos:suggest-next` carries `body_shape: B` (renders the ranked list as a tree) plus an F.1 selector (the verb-pick gate beneath the tree). The `/mos:hmi-status` doctor check enforces body_shape coverage; the F-selector ranker enforces F-shape contracts. The two are not double-counted.
+
 ### Shape A: Mondrian Board
 **Used by:** `/mos:status`, `/mos:diagnose`, `/mos:radar`, `/mos:admin`
 Progress bars per section. 10-char: `filled` fill, `dot` empty. Section names left-aligned padded. Entry count + MINTO health (`checkmark`/`dot`/`--`). Summary line at bottom.
@@ -117,6 +119,18 @@ Verb constraints: Any of the ten canonical verbs is permitted. Typical slate = R
 Keyboard: up-arrow / down-arrow (or J / K) to navigate, Enter to select, `?` to inspect, Esc to cancel.
 
 State-update hook: append to STATE.md Decisions section with timestamp + chosen verb + context snapshot. A typed edge is added to the local graph: (navigator) -[CHOSE {verb}]-> (current-artifact).
+
+##### Brain-suggestion variant (Plan 121.5-10 LOCKED)
+
+When the F.1 selector consumes Brain-ranked next moves (the 5 surfaces: `/mos:suggest-next`, `/mos:act --chain` pre-gate, the Phase 116 tension-hook-agent, the Phase 117 auto-explore-agent, and the Phase 89-07 reverse-salient-agent), the renderer applies a LOCKED visual variant per the Phase 121.5 selector audit Section 5.2. The lock is non-negotiable; any future Brain-suggestion consumer MUST follow this shape (the `tests/test-no-bespoke-brain-prompts.sh` CI tripwire enforces it).
+
+- **Header chip:** `[■ BRAIN]` (literal -- 9 chars including brackets). Distinct from `[GATE]` / `[CONTEXT]` / `[NEXT MOVE]` chips by the leading filled-square glyph.
+- **Question line:** `Choose next move:` (default; per-surface variants land here per Section 5.3 adoption diffs -- tension surfaces use `Resolve pending tension:`; BQ surfaces use the verbatim Brain BQ name; reverse-salient surfaces carry the persona suffix in the body slot rather than question line because F.0 has no question slot).
+- **Option rows:** TWO lines per row. Row 1 = `<glyph> <N>. <Run Verb>` left-padded + `<conf>%` right-aligned to the 80-col boundary. Row 2 = 5-space indent, `<framework category> · <graph relationship>`. Glyphs: `▶` (right-triangle-filled) for >= 0.7 confidence top pick; `▷` (right-triangle-empty) for sub-0.7 alternatives. The one-glyph hierarchy replaces the verbose `(RECOMMENDED)` tag without consuming horizontal space.
+- **Footer:** Stat-strip line `▶ Brain · top-<K> of <N> ranked · <color> = informing`. Three signals in one line: provenance, scale, and color-legend reminding the navigator that the cyan rail means Brain is informing, not commanding.
+- **Zone 1 left-rail color:** `cyan` default. Yellow-on-cascade for CONTRADICTS edges is DEFERRED to v1.13.2 hotfix per LOCKED decision 3 (audit Section 7 Open Question 3).
+- **Verb-label aliases:** registered aliases ALLOWED per LOCKED decision 1 (audit Section 7 Open Question 1). The dispatcher carries `alias_map` (loaded from `lib/hmi/jtbd-taxonomy.json` `alias_map.verb_aliases`); aliases render to the user; canonical verbs persist to graph edges via `navigation.cjs`. Default 4 aliases: Resolve / Explore -> Run Methodology; Later -> Defer; Skip -> Free-Text.
+- **Full template + slot-value table + anti-patterns rejected:** `docs/F-SELECTOR-CONSUMER-GUIDE.md` Section 4 (NEW; published as part of Plan 121.5-10).
 
 #### Shape F.2 - Path Control
 

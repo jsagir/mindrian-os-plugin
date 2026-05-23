@@ -1,5 +1,22 @@
 ## [Unreleased]
 
+### Added (Phase 121.5 Sub-plan K -- Plan 121.5-10)
+- **Locked Brain-suggestion content template across all 5 consumers.** `/mos:suggest-next`, `/mos:act --chain`, the Phase 116 tension-hook-agent, the Phase 117 auto-explore-agent, and the Phase 89-07 reverse-salient-agent all render the same shape now: canonical `[■ BRAIN]` chip + verb-first question line + two-line dense option rows (glyph + verb + right-aligned confidence percent on top, framework category + graph relationship below) + stat-strip footer. The lock collapses 5 divergent renderings into ONE so the navigator's eye learns "Brain is speaking" in one session. Source: `.planning/121.5-selector-coverage-audit.md` Section 5.
+- **Promoted `/mos:suggest-next` from NONE (silent dispatch / plain-text list) to F.1** via `rankForSelector` + `pickShape` per audit Section 6 item 2. THE single highest-leverage promotion per the audit Executive Summary: every conversational "what next?" Larry reflex inherits the locked surface.
+- **Promoted `/mos:act --chain` `[GATE]` rendering from BESPOKE bracket text (`[continue]` / `[stop]`) to F.0 Mini Decision Gate** via `pickShape({ requestedShape: 'F.0' })` per audit Section 6 item 3. The closed F.0 vocabulary (Approve / Reject / Defer) replaces the bespoke two-button mental model without losing intent (Reject captures REJECTED_BECAUSE; Defer queues a milestone audit).
+- **Selector verb-label aliases (LOCKED decision 1).** Dispatcher carries `alias_map` (Resolve / Explore -> Run Methodology; Later -> Defer; Skip -> Free-Text) loaded once at module init from `lib/hmi/jtbd-taxonomy.json` `alias_map.verb_aliases`. Aliases render to the user; canonical verbs persist to graph edges via `navigation.cjs`. The render-vs-persist split honors both pedagogy (contextual aliases) and graph consistency (one stable vocabulary) without forcing one.
+- **CI tripwire `tests/test-no-bespoke-brain-prompts.sh`** enforces the lock (audit Section 6 item 6). Scans the 5 named Brain-suggestion consumer files plus any new source file that imports `chain-recommender.cjs` or `f-selector-ranker.cjs`; flags bracket-text option lists (`[continue]`/`[stop]`), verbose `(RECOMMENDED)` tags, and "Pick one to ..." selector-prompt prose. Wired into `tests/run-all-121.5.sh` SHELL_SUITES.
+- **`docs/F-SELECTOR-CONSUMER-GUIDE.md` Section 4 (NEW)** publishes the locked template (slot-value table + visual mockup + anti-patterns rejected + implementation wiring example) per audit Section 6 item 7. Makes the lock discoverable to future consumers before they invent a new pattern.
+- **`skills/ui-system/SKILL.md` Section 2** adds the Shape F.1 Brain-suggestion variant subsection (citing the locked chip + glyphs + footer + alias_map) AND a body_shape vs F-shape orthogonality note per LOCKED decision 4 (`body_shape:` is layout discipline; F-shape is the selector contract; they are orthogonal axes, not competing values).
+- **`lib/workflow/f-selector-ranker.cjs` MAX_K = 3 constant + clamp** per audit Section 5.2.3 anti-pattern ("More than 3 option rows pushes the AskUserQuestion auto-injected rows off-screen"). Caller asking k=20 silently receives k=3. New optional `category` + `graph_relationship` fields on returned items[] feed the locked template's two-line meta row.
+- **New tests:** `lib/memory/selector-alias-map.test.cjs` (24 assertions, alias_map round-trip + render-vs-persist invariant) + `lib/memory/brain-suggestion-template.test.cjs` (22 assertions, 5-consumer chip + footer isomorphism).
+
+### Deferred to v1.13.2 (LOCKED decision 3)
+- **CONTRADICTS-driven color flip (cyan -> yellow)** for Brain-suggestion selectors when any candidate carries a CONTRADICTS edge against an existing assumption. Yellow-on-cascade requires the consumer to walk the cascade graph BEFORE rendering (a SQL call on the rank path); we shipped cyan default in v1.13.0 to avoid that latency and queued the yellow-on-cascade signal as a v1.13.2 hotfix if testers report missed warnings. Ship simple, observe, then layer in if the data says it matters.
+
+### Deferred to v1.14.0 (LOCKED decision 5)
+- **F.1 close-out adoption on the 71 N/A methodology commands** (think-hats, structure-argument, grade, deep-grade, validate, etc.). Out of scope for Phase 121.5; the Phase 88.2 design legitimately delegates the methodology close to Larry's conversational follow-up. Phase 121.5 + 1 backlog. Scope discipline.
+
 ## [1.13.0-beta.30] - 2026-05-23
 
 ### Fixed (Engine 1 Act 1 silent-failure class, Phase 127.2 Plan 03 -- FIRST hotfix from external tester evidence)
