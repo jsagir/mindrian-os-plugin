@@ -37,6 +37,20 @@ REGISTRY_FILE="${REGISTRY_DIR}/registry.json"
 SUBCMD="${1:-}"
 shift 2>/dev/null || true
 
+# Phase 127.3 Plan 04: auto-trigger retro-bootstrap on first post-127.3
+# invocation. The first time ANY room-registry subcommand runs after this
+# version ships, walk the registry and seed missing USER.md / STATE.md /
+# ROOM.md / .mindrian/ items on every existing room. Subsequent invocations
+# short-circuit via the sentinel file. Does NOT run when the user is
+# explicitly invoking `bootstrap-missing` (would be a tautological
+# self-invocation); also skipped if the registry is absent (nothing to
+# retro-seed yet). Failure does not block the requested subcommand --
+# wrapped in `|| true` so Larry-never-blocks discipline is preserved.
+_BOOTSTRAP_SENTINEL="${ROOMS_HOME}/.rooms/.bootstrap-127.3-done"
+if [ "${SUBCMD}" != "bootstrap-missing" ] && [ -f "${ROOMS_HOME}/.rooms/registry.json" ] && [ ! -f "${_BOOTSTRAP_SENTINEL}" ]; then
+  ( "$0" bootstrap-missing >/dev/null 2>&1 ) || true
+fi
+
 ensure_registry() {
   mkdir -p "$ROOMS_HOME"
   mkdir -p "$REGISTRY_DIR"
@@ -410,10 +424,101 @@ print(json.dumps(reg['rooms']['$NAME'], indent=2))
 "
     ;;
 
+  bootstrap-missing)
+    # Phase 127.3 Plan 04 Task 2: retro-seed the 4 bootstrap items
+    # (USER.md / STATE.md / ROOM.md / .mindrian/) on EVERY existing room in
+    # `~/MindrianRooms/.rooms/registry.json` that lacks them. Closes the
+    # iteration-1 plan-check B-02 silent-no-op gap: without this, Plan 05's
+    # first-touch JTBD nudge fires only on rooms created AFTER Plan 04 lands,
+    # silently skipping every pre-existing room (Jonathan's MindrianRooms
+    # canonical rooms, every tester's room, every CI fixture). Auto-triggered
+    # once on first post-127.3 invocation by the sentinel guard at top-of-file.
+    ensure_registry
+    SENTINEL="${ROOMS_HOME}/.rooms/.bootstrap-127.3-done"
+    if [ -f "${SENTINEL}" ]; then
+      echo "[MindrianOS] bootstrap-missing already ran (sentinel: ${SENTINEL}); skipping."
+      exit 0
+    fi
+    # Walk the registry tolerating both Object and Array `rooms` shape
+    # (mirrors Plan 00's chokepoint dual-shape pattern). Emit `slug<TAB>abs_path`
+    # per room. abs_path resolution precedence:
+    #   1. entry.abs_path if set (absolute);
+    #   2. ROOMS_HOME / entry.path if entry.path is set (root-relative or absolute);
+    #   3. ROOMS_HOME / slug as fallback.
+    # Skip rooms with sealed === true OR status in {sealed, archived}.
+    # On registry parse error / unexpected shape, emit zero lines and exit 0
+    # (graceful degradation; sentinel still gets touched below so we don't
+    # retry forever on a broken registry).
+    ROOM_LINES=$(ROOMS_HOME="${ROOMS_HOME}" python3 - <<'PY_EOF'
+import json, os, sys
+home = os.environ.get('ROOMS_HOME', '')
+reg_path = os.path.join(home, '.rooms', 'registry.json')
+try:
+    with open(reg_path) as f:
+        reg = json.load(f)
+except Exception:
+    sys.exit(0)
+if not isinstance(reg, dict):
+    sys.exit(0)
+rooms = reg.get('rooms')
+entries = []
+if isinstance(rooms, dict):
+    for slug, entry in rooms.items():
+        entries.append((slug, entry if isinstance(entry, dict) else {}))
+elif isinstance(rooms, list):
+    for entry in rooms:
+        if not isinstance(entry, dict):
+            continue
+        slug = entry.get('slug') or entry.get('name')
+        if slug:
+            entries.append((slug, entry))
+for slug, entry in entries:
+    if entry.get('sealed') is True:
+        continue
+    status = entry.get('status')
+    if status in ('sealed', 'archived'):
+        continue
+    abs_path = entry.get('abs_path')
+    if not abs_path:
+        p = entry.get('path')
+        if p and os.path.isabs(p):
+            abs_path = p
+        elif p:
+            abs_path = os.path.join(home, p)
+        else:
+            abs_path = os.path.join(home, slug)
+    print(f"{slug}\t{abs_path}")
+PY_EOF
+)
+    # Iterate each emitted line and seed missing bootstrap items via the
+    # shared helper from Task 1. Per-room idempotency: each seed inside
+    # _seed_room_bootstrap is guarded by `if [ ! -f ]`, so already-seeded
+    # rooms are left byte-identical.
+    SEEDED=0
+    SKIPPED=0
+    while IFS=$'\t' read -r SLUG ABS_PATH; do
+      [ -z "${SLUG:-}" ] && continue
+      if [ ! -d "${ABS_PATH}" ]; then
+        SKIPPED=$((SKIPPED + 1))
+        continue
+      fi
+      ROOMDIR="${ABS_PATH}"
+      NAME="${SLUG}"
+      VNAME="${SLUG}"
+      VSTAGE="foundation"
+      _seed_room_bootstrap
+      SEEDED=$((SEEDED + 1))
+    done <<< "${ROOM_LINES}"
+    # Touch sentinel on completion (even if zero rooms seeded -- prevents
+    # retry loops on a broken or empty registry).
+    touch "${SENTINEL}"
+    echo "[MindrianOS] bootstrap-missing complete; seeded=${SEEDED} skipped=${SKIPPED}; sentinel: ${SENTINEL}"
+    ;;
+
   *)
     echo "[MindrianOS] Unknown room-registry command: '${SUBCMD}'" >&2
     echo "  Why: '${SUBCMD}' is not a valid subcommand" >&2
-    echo "  Fix: Valid commands are: create, read, list, update, set-active, archive, get-active, git-config" >&2
+    echo "  Fix: Valid commands are: create, read, list, update, set-active, archive, get-active, git-config, bootstrap-missing" >&2
     exit 1
     ;;
 esac

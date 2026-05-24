@@ -126,17 +126,21 @@ function parseArgs(argv) {
 
 // -- Active-room resolution -----------------------------------------
 
+// Phase 127.3 Plan 03 Task 4: canonical-single-source for active-room
+// resolution. Before this refactor, this function carried its own legacy-only
+// registry walk that silently rejected the CURRENT registry shape (Object
+// rooms). Same bug family as the JTBD-update silent-failure RCA, applied to
+// /mos:operator. Pre-flight 121.5 scope-guard verified clear: the 121.5 guard
+// names commands/operator.md (the markdown UI surface), NOT
+// scripts/operator-command.cjs (the implementation). Distinct files; zero
+// parallel-session collision in the last 2 weeks of git log. Reroutes to
+// lib/core/resolve-active-room.cjs (Plan 00 chokepoint). The chokepoint
+// returns { slug, abs_path } -- both field names match the 18 downstream
+// call-sites (room.slug + room.abs_path). Canon Part 7 single-resolver.
+const { resolveActiveRoom: _chokepointResolveActiveRoom } = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'resolve-active-room.cjs'));
+
 function resolveActiveRoom() {
-  const home = process.env.MINDRIAN_ROOMS_HOME || path.join(os.homedir(), 'MindrianRooms');
-  const regPath = path.join(home, '.rooms', 'registry.json');
-  if (!fs.existsSync(regPath)) return null;
-  let reg;
-  try { reg = JSON.parse(fs.readFileSync(regPath, 'utf8')); } catch (_e) { return null; }
-  if (!reg.active_room || !Array.isArray(reg.rooms)) return null;
-  const room = reg.rooms.find((r) => r.slug === reg.active_room);
-  if (!room || !room.abs_path) return null;
-  if (!fs.existsSync(room.abs_path)) return null;
-  return room;
+  return _chokepointResolveActiveRoom();
 }
 
 // -- Time helper -----------------------------------------------------
