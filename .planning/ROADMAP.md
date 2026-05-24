@@ -1377,6 +1377,31 @@ Plans:
 - [x] 126-07-install-state-schema-v2-migration-PLAN.md -- install-state.json schema v2 + additive migration + future-version detection (wave 2 head)
 - [x] 126-STEP-0-MANUAL-RECOVERY.md -- doc: reproducible manual recovery commands (tag verify + optional retroactive npm publish); v1.13.0-beta.13 git tag already verified at origin 2026-05-13
 
+### Phase 126.1: Windows Installer PATH Check (spawn shell:true hotfix) (INSERTED 2026-05-24, residual case #7 in the install-cache family; sibling to Phase 127.3 -- both ride v1.13.0-beta.33)
+
+**Goal:** Patch the one-line bug in `bin/cli.js:82` that makes `npx @mindrian_os/install` falsely report "Claude Code is not installed" on native Windows PowerShell + cmd.exe even when `claude` IS installed and works in the same shell. Root cause: `child_process.spawnSync('claude', ['--version'], { stdio: 'ignore' })` without `{ shell: true }` does NOT consult Windows's `PATHEXT` env var, so Node fails to find `claude.cmd` (the npm-installed Windows shim) while the shell DOES find it -- two interpretations of the same PATH disagreeing. PRIMARY: add `shell: true` to the spawn call (one option flag, zero new deps; the npm `which` package and platform-branching alternatives were considered and rejected on parsimony grounds per CONTEXT.md D-01). SECONDARY: add `tests/test-require-claude-cli.cjs` that asserts the call site passes `shell: true` (mock + real-spawn assertions on a known-good binary) -- structural prevention so a future refactor that removes the flag fails CI before shipping. TERTIARY (best-effort): add `windows-latest` matrix entry to `.github/workflows/ci.yml`; defers to Phase 126.2 if it surfaces unrelated test failures (per CONTEXT.md D-02). TERTIARY+ (soft): update `~/mindrianos-install-site/` Windows section to set accurate expectations as a one-line minisite update during the beta.33 release ceremony.
+
+**Requirements**: (none mapped at the requirement-ID layer; plans trace to CONTEXT.md acceptance criteria 1-5 + the 4-fix scope + the 4 non-code follow-ups in the RCA)
+
+**Depends on:** Phase 123 install-lifecycle-harness (shipped v1.13.0-beta.13 -- introduced the `requireClaudeCli()` function this hotfix patches); Phase 126 install-lifecycle-harness-gaps (shipped v1.13.0-beta.15 -- closed 4 other Windows dogfood findings but did NOT touch the PATH check; this is the residual)
+
+**Dependents:** Future Windows tester onboarding (every tester on native PowerShell hits this gate today); install minisite Windows track (deferred Fix 3+; sets accurate expectations on the page until CI runner lands)
+
+**Target band:** v1.13.0-beta.33 -- ships alongside Phase 127.3 (jtbd-auto-anchor-fix) per Jonathan's 2026-05-24 "needs to ship next beta with memory fix" decision. Two independent P0 hotfixes ride the same beta cut because (a) both are silent-failure regressions affecting real testers in different surfaces (memory layer vs install path) and (b) they touch disjoint files (`scripts/jtbd-update.cjs` vs `bin/cli.js`) with zero merge risk. The 7-place release lockstep (CHANGELOG, plugin.json, root package.json, packages/npm-installer/package.json, git tag, marketplace.json source.ref, install minisite version strings per `feedback_install_minisite_lockstep.md`) runs once for the combined cut.
+
+**Canon parts:** Part 6 (dog-fooding mandate -- a Wave-2 Windows tester surfaced this 2026-05-17 and re-pinged 2026-05-24 before discovery; CI has no Windows runner so it slipped past Phase 123 + 126 ship gates; the install path IS part of the venture surface); Part 7 (reuse-before-build -- fix is one option flag on an existing `spawnSync` call; zero new abstractions; zero new dependencies).
+
+**Brain impact:** NONE (zero Brain reads, zero Brain writes; `bin/cli.js` is LOCAL-only per Canon Part 8).
+
+**Status:** Scoped -- ready for `/gsd:plan-phase 126.1` to expand the skeleton in `126.1-CONTEXT.md` into per-sub-plan PLAN files. Expected ~3 plan files (126.1-01 bin/cli.js shell:true patch, 126.1-02 test coverage + grep-sweep of other spawn call sites, 126.1-03 windows-latest CI matrix best-effort).
+
+**Plans:** 0/3 executed (skeleton only)
+- [ ] **Plan 126.1-01 (Wave 0)** -- One-line patch to `bin/cli.js:82` adding `{ shell: true }` to the spawnSync call; reproduction commands + before/after smoke test on Linux runner
+- [ ] **Plan 126.1-02 (Wave 1, parallel to 03)** -- NEW `tests/test-require-claude-cli.cjs` with mock + real-spawn assertions; `git grep` audit of every other `spawnSync`/`spawn`/`exec*` call site for the same bug class (file any new finding under Phase 126.2)
+- [ ] **Plan 126.1-03 (Wave 1, parallel to 02, BEST-EFFORT)** -- Add `windows-latest` matrix entry to `.github/workflows/ci.yml`; defers to Phase 126.2 if it surfaces unrelated Windows-CI test failures; also update `docs/install-cache-family-premortem.md` with case #7 row + "cross-platform PATH resolution disagreement between shell and Node" pattern entry
+
+**Authority:** `.planning/phases/126.1-windows-installer-path-check/126.1-CONTEXT.md` (scoped 2026-05-24) + `.planning/debug/windows-installer-spawn-shell-false.md` (RCA, source of truth for fix content + reproduction protocol) + `docs/testers/outbox/2026-05-24-rea-native-windows-fix.md` (Wave-2 tester archive: screenshot transcription + email drafts v1-v4 + calendar holds; gitignored).
+
 ### Phase 127: Brain MCP Local Stdio Shim + Auto-Migration (PROMOTED 2026-05-19 from v1.13.1-beta.1 INTO v1.13.0-beta.20 -- ARCHITECTURAL ANCHOR)
 
 **Goal:** Ship `bin/mindrian-brain-mcp-client.cjs` -- a local stdio MCP server bundled with the plugin -- and add it to the plugin's `.mcp.json` so every new install gets `mindrian-brain` auto-loaded with ZERO user wiring beyond providing `MINDRIAN_BRAIN_KEY` in env / `~/.mindrian.env`. The shim proxies tool calls to the cloud Brain (the methodology director) and consumes the new `DirectiveEnvelope` typed packet (default mode: GUIDED). Includes auto-migration that detects existing testers' user-scope HTTP-transport registrations and replaces them with the bundled stdio version on next plugin update. Closes 7 of 20 Brain-wiring failure-mode taxonomy rows. Architectural anchor of v1.13.1: every Part 10 phase after this point ASSUMES Brain works.
@@ -1412,6 +1437,35 @@ Notable rename: CONTEXT "Class K" -> "Class M" because K is taken by `--stale-fi
 
 Plans:
 - [ ] TBD (run /gsd-plan-phase 127.2 to break down)
+
+### Phase 127.3: JTBD Auto-Anchor Silent-Failure Fix (registry-shape contract drift + chokepoint extraction + room bootstrap + first-touch nudge) (INSERTED 2026-05-24, hotfix sibling to Phase 127.2)
+
+**Goal:** Land a three-defect fix for the JTBD memory pipeline that has been silently dead in every plugin release since v1.11.x (commit fcbbcf9a, 2026-04-26). PRIMARY: patch `scripts/jtbd-update.cjs:65-79` `resolveActiveRoom()` to tolerate both registry shapes (legacy `active_room` + Array `rooms` AND current `active` + Object `rooms`). SECONDARY: extract `lib/core/resolve-active-room.cjs` as the Canon-Part-7 shared chokepoint that three sibling scripts (jtbd-update, intent-classifier, across-session-memory) consolidate against -- sets up Phase 129 to absorb the other 6 spine scripts onto the same helper. TERTIARY: bootstrap fix in `scripts/room-registry create` to seed USER.md / STATE.md / ROOM.md / `.mindrian/` directory (without seeding state files -- absent-file is correctly handled and writing empties would mask legitimate first-write events). TERTIARY+: first-touch JTBD nudge for empty-state rooms < 7 days old, closing the resumption-only gap in memory-resume-nudge.cjs.
+
+**Requirements**: JTBD-AUTO-ANCHOR-127.3-01 (chokepoint extraction `lib/core/resolve-active-room.cjs`), -02 (jtbd-update.cjs refactor), -03 (intent-classifier.cjs reroute through chokepoint), -04 (sibling-sweep tripwire + any sibling patches found), -05 (room-registry create bootstrap fix: USER.md / STATE.md / ROOM.md / `.mindrian/`), -06 (first-touch JTBD nudge), -07 (empirical reproduction test suite per RCA), -08 (RCA closeout to `.planning/debug/resolved/` + knowledge-base entry + CHANGELOG bullets).
+
+**Depends on:** Phase 109 sql-context-memory-navigation-spine (shipped -- the chokepoint pattern this fix's helper extracts toward); Phase 100 jtbd-inference-engine (shipped -- the classifier this unblocks; classifier itself is correct, just never gets called because resolveActiveRoom() returns null).
+
+**Dependents:** Phase 116 unresolved-tension-hook (consumer of in_flight JTBD evidence); Phase 118 30-second-mva (reads JTBD context for MVA framing); Phase 129 spine-repair-memory-event (canonical home for the chokepoint helper -- 129 absorbs the OTHER 6 spine scripts onto the SAME `lib/core/resolve-active-room.cjs` helper after this lands).
+
+**Target band:** v1.13.0-beta.33 (the in-progress beta with no other plans committed; CHANGELOG `## [Unreleased]` header is empty). Hotfix sibling to Phase 127.2 cluster in the v1.13.0 endgame. Per `.planning/v1.13.1-EXECUTION-PLAN.md` Wave 4 Stream F, Phase 129 spine-repair is the canonical long-term venue -- but 129 ships v1.13.1-beta.3 (weeks out) and this bug has been silent for 7 months. 127.3 lands the load-bearing slice + the shared helper NOW; Phase 129 absorbs the remaining 6 spine scripts onto the helper later. NO conflict with EXECUTION-PLAN -- this hotfix lands the infrastructure Phase 129 reuses.
+
+**Canon parts:** Part 4 (every choice is graph data -- JTBD transitions ARE choices the broken pipeline has been silently discarding); Part 7 (reuse-before-build -- the bug IS a Canon Part 7 violation; three sibling scripts each implement their own registry-resolution); Part 9 (memory locality and interpretation -- JTBD evidence is load-bearing local memory; jtbd-update.cjs IS a navigation-spine script that bypasses navigation.cjs).
+
+**Brain impact:** NONE (LOCAL-only fix; zero Brain calls added; the JTBD pipeline is pure LOCAL per Canon Part 8).
+
+**Status:** Scoped -- ready for `/gsd:plan-phase 127.3` to expand the skeleton in `127.3-PLAN.md` into per-sub-plan PLAN files following the 127.2-04-PLAN.md pattern.
+
+**Plans:** 4/8 plans executed
+- [ ] **Plan 127.3-00 (Wave 0)** -- Extract `lib/core/resolve-active-room.cjs` chokepoint + unit tests against both registry shapes
+- [ ] **Plan 127.3-01 (Wave 1)** -- Refactor jtbd-update.cjs to use the chokepoint; reroute intent-classifier.cjs through canonical-single-source
+- [ ] **Plan 127.3-02 (Wave 1, parallel)** -- Sibling sweep + `tests/test-no-broken-registry-resolution.sh` CI tripwire
+- [ ] **Plan 127.3-03 (Wave 1, parallel)** -- Room bootstrap fix in `scripts/room-registry create` (seed USER.md / STATE.md / ROOM.md / `.mindrian/`)
+- [ ] **Plan 127.3-04 (Wave 2)** -- First-touch JTBD nudge for empty-state rooms < 7 days
+- [ ] **Plan 127.3-05 (Wave 2, parallel)** -- Verification test suite per RCA's 6-step reproduction protocol + `tests/run-all-127.3.sh` aggregator
+- [ ] **Plan 127.3-06 (Wave 3)** -- RCA closeout (move to `.planning/debug/resolved/`); knowledge-base.md entry; CHANGELOG; optional `scripts/doctor.cjs --check-jtbd` probe (defers to Phase 129 if scope pressure)
+
+**Authority:** `.planning/phases/127.3-jtbd-auto-anchor-fix/127.3-CONTEXT.md` (scoped 2026-05-24) + `.planning/debug/jtbd-auto-anchor-silent-failure/jtbd-auto-anchor-silent-failure.md` (RCA, the source of truth for fix content) + `.planning/v1.13.1-EXECUTION-PLAN.md` (hotfix slot reasoning: Wave 2/3 v1.13.0 endgame).
 
 ### Phase 127.1: Brain GraphRAG Collapse: Pinecone -> Neo4j HNSW (server-side substrate swap) (PROMOTED 2026-05-19 from v1.13.1-beta.2 INTO v1.13.0-beta.21)
 

@@ -4,14 +4,14 @@ milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
 stopped_at: Phase 128.1 context gathered
-last_updated: "2026-05-23T04:51:31.733Z"
+last_updated: "2026-05-24T19:26:16.258Z"
 last_activity: 2026-05-20 -- Phase 127.1 execution started
 progress:
-  total_phases: 67
+  total_phases: 70
   completed_phases: 45
-  total_plans: 319
-  completed_plans: 309
-  percent: 67
+  total_plans: 335
+  completed_plans: 317
+  percent: 64
 ---
 
 # Project State
@@ -181,7 +181,7 @@ Awaiting user action (Gate 5):
 
 Last activity: 2026-05-20 -- Phase 127.1 execution started
 
-Progress: [█████████░] 93%
+Progress: [██████████] 95%
 
 ## Performance Metrics
 
@@ -387,6 +387,7 @@ Progress: [█████████░] 93%
 | Phase 127.1 P01 | 18min | 2 tasks | 4 files |
 | Phase 127.1 P02 | 22min | 2 tasks | 6 files |
 | Phase 127.1 P03 | 5min | 2 tasks | 7 files |
+| Phase 127.3 P04 | 20m | 2 tasks | 1 files |
 
 ### Roadmap Evolution
 
@@ -972,6 +973,9 @@ Progress: [█████████░] 93%
 - [Phase 127.1]: Server-side query-embedder uses strategy A (hosted multilingual-e5-large HTTPS endpoint via Node 18 global fetch); zero new runtime dependency, transport swappable for a future ONNX-local path B
 - [Phase 127.1]: brain_search MCP schema restored to a query string (text-in API boundary); the e5-large embedding step is internal via lib/query-embedder.cjs
 - [Phase 128.1]: pulled to branch `phase-128.1` on 2026-05-20 (navigator decision) so v1.13.0 finalizes clean. 128.1 is a v1.13.1 phase; it had been partially executed on `main` during the v1.13.0 endgame. 3 of 6 plans closed (01, 02, 03a) + 03b WIP, all preserved on the branch (tip 407c060f); none on `main`. Backup tag `pre-128.1-surgery-backup` also at 407c060f. Resume 128.1 from branch `phase-128.1` for v1.13.1.
+- [Phase ?]: 127.3-04: Shared _seed_room_bootstrap helper powers both create AND bootstrap-missing (Canon Part 7 reuse at bash layer)
+- [Phase ?]: 127.3-04: Auto-trigger via sentinel-guard fallback (no version-bump hook exists outside Phase 121.5 scope-guard surface)
+- [Phase ?]: 127.3-04: D-02 hard invariant honored (NO seeding of state files inside .mindrian/; grep returns 0)
 
 ### Pending Todos
 
@@ -1003,6 +1007,6 @@ Progress: [█████████░] 93%
 
 ## Session Continuity
 
-Last session: 2026-05-20T11:12:06.922Z
+Last session: 2026-05-24T19:26:05.848Z
 Stopped at: Phase 128.1 context gathered
-Resume file: .planning/phases/128.1-session-isolation-session-scoped-active-room-binding/128.1-CONTEXT.md
+Resume file: None
