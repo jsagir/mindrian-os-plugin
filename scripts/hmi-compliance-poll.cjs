@@ -58,18 +58,21 @@ const OPERATOR_EXPECTED_SHAPES = Object.freeze({
 
 // ----- helpers -----
 
+// Phase 127.3 Plan 03 Task 2: canonical-single-source for active-room resolution.
+// Before this refactor, this function carried its own legacy-only registry walk
+// that silently rejected the CURRENT registry shape (Object rooms). The bug
+// was identical to the JTBD-update silent-failure RCA
+// (jtbd-auto-anchor-silent-failure.md). Reroutes to
+// lib/core/resolve-active-room.cjs (Plan 00 chokepoint). The chokepoint
+// returns the same `{ slug, abs_path }` shape this function did, so the 5
+// downstream `room.abs_path` call-sites (lines 258, 263, 268, 291, 319)
+// continue to work byte-identically. The chokepoint also internally filters
+// sealed + archived rooms, so the local sealed-room check is subsumed.
+// Null-on-miss semantics preserved. Canon Part 7 single-resolver.
+const { resolveActiveRoom: _chokepointResolveActiveRoom } = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'resolve-active-room.cjs'));
+
 function resolveActiveRoom() {
-  const home = process.env.MINDRIAN_ROOMS_HOME || path.join(os.homedir(), 'MindrianRooms');
-  const regPath = path.join(home, '.rooms', 'registry.json');
-  if (!fs.existsSync(regPath)) return null;
-  let reg;
-  try { reg = JSON.parse(fs.readFileSync(regPath, 'utf8')); } catch (_) { return null; }
-  if (!reg || !reg.active_room || !Array.isArray(reg.rooms)) return null;
-  const room = reg.rooms.find(function (r) { return r && r.slug === reg.active_room; });
-  if (!room || !room.abs_path) return null;
-  if (!fs.existsSync(room.abs_path)) return null;
-  if (room.sealed === true) return null;
-  return { slug: room.slug, abs_path: room.abs_path };
+  return _chokepointResolveActiveRoom();
 }
 
 function expectedShapeFamily(operator) {
