@@ -147,6 +147,38 @@ function contribute() {
   try { fi = require('../lib/sessionstart/contributor-interface.cjs'); }
   catch (_) { return { has_payload: false }; }
   try {
+    // Phase 127.3 Plan 05: first-touch JTBD nudge for fresh rooms.
+    // Fires when active room exists AND jtbd-state.json absent AND room age < 7 days
+    // (per CONTEXT.md D-03). Gated on age to avoid pestering users who intentionally
+    // left a room blank. Plan 04 retro-bootstrap guarantees ROOM.md exists on every
+    // registered room by the time this branch reads it; the fs.existsSync(roomMdPath)
+    // check below is the defensive-degradation gate (falls through to resumption
+    // logic if ROOM.md is somehow still absent -- never crashes). Priority 3 wins
+    // over memory-resume's priority 4 when both are eligible (single-nudge-per-
+    // session discipline enforced by the early return).
+    try {
+      const { resolveActiveRoom } = require('../lib/core/resolve-active-room.cjs');
+      const active = resolveActiveRoom();
+      if (active && active.abs_path) {
+        const jtbdStatePath = path.join(active.abs_path, '.mindrian', 'jtbd-state.json');
+        const roomMdPath = path.join(active.abs_path, 'ROOM.md');
+        if (!fs.existsSync(jtbdStatePath) && fs.existsSync(roomMdPath)) {
+          let ageMs = Infinity;
+          try { ageMs = Date.now() - fs.statSync(roomMdPath).mtimeMs; } catch (_) {}
+          const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+          if (ageMs < SEVEN_DAYS) {
+            const body = 'What are you trying to do here? Use /mos:jtbd set <id> or describe it -- I will detect.';
+            return fi.makeFragment({
+              id: 'first-touch-jtbd',
+              priority: 3,
+              full_payload: body,
+              one_line_pointer: 'First-touch: declare your JTBD',
+            });
+          }
+        }
+      }
+    } catch (_) { /* fall through to existing resumption logic */ }
+
     let acrossSession;
     try { acrossSession = require('../lib/hmi/across-session-memory.cjs'); }
     catch (_) { return fi.emptyFragment(); }
