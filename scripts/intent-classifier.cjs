@@ -128,6 +128,20 @@ function registeredRoomNames(reg) {
 const strictModeMod = require(
   path.join(__dirname, '..', 'lib', 'core', 'room-classifier-strict-mode.cjs')
 );
+
+// Phase 127.3 Plan 02: canonical-single-source for active-room resolution.
+// resolveActiveRoomDir() (defined ~line 680) is now a thin wrapper that
+// delegates to lib/core/resolve-active-room.cjs (the Phase 127.3 Plan 00
+// chokepoint). The wrapper bridges the env-var name MINDRIAN_ROOMS_ROOT
+// (this script's Phase 91 nav convention) to MINDRIAN_ROOMS_HOME (the
+// chokepoint's convention) so existing call sites + test fixtures that
+// set MINDRIAN_ROOMS_ROOT continue to work without modification. Local
+// helpers activeRoomFromRegistry + registeredRoomNames + readRegistry +
+// resolveRoomsRootForNav are PRESERVED because they are consumed
+// elsewhere in this script for scope-matching at multiple call sites.
+const { resolveActiveRoomDir: _chokepointResolveActiveRoomDir } = require(
+  path.join(__dirname, '..', 'lib', 'core', 'resolve-active-room.cjs')
+);
 const detectStrictMode = strictModeMod.detectStrictMode;
 const STRICT_MODE_ROUTING_SOURCE = strictModeMod.STRICT_MODE_ROUTING_SOURCE;
 
@@ -678,31 +692,18 @@ function resolveRoomsRootForNav() {
 }
 
 function resolveActiveRoomDir() {
-  const root = resolveRoomsRootForNav();
-  if (!root) return null;
-  const reg = readRegistry(root);
-  if (!reg) return null;
-  const active = activeRoomFromRegistry(reg);
-  if (!active) return null;
-  // Registry entries may carry a "path" field (relative or absolute).
-  // Default: <root>/<active-name>.
-  let candidate = path.join(root, active);
-  try {
-    if (reg.rooms && typeof reg.rooms === 'object' && reg.rooms[active]) {
-      const meta = reg.rooms[active];
-      if (meta && typeof meta.path === 'string' && meta.path.length > 0) {
-        candidate = path.isAbsolute(meta.path)
-          ? meta.path
-          : path.join(root, meta.path);
-      }
-    }
-  } catch (_) { /* fall back to default */ }
-  try {
-    if (fs.existsSync(candidate) && fs.statSync(candidate).isDirectory()) {
-      return candidate;
-    }
-  } catch (_) {}
-  return null;
+  // Phase 127.3 Plan 02: delegate to the canonical chokepoint
+  // (lib/core/resolve-active-room.cjs). The chokepoint reads
+  // MINDRIAN_ROOMS_HOME; this script's pre-127.3 convention was
+  // MINDRIAN_ROOMS_ROOT. Bridge the env-var name BEFORE delegating so
+  // existing fixtures + production callers that set ROOT (Phase 91 nav
+  // convention) keep working. Guard with the "only if HOME not already
+  // set" check so callers that set BOTH (with potentially different
+  // values) preserve their explicit HOME choice.
+  if (process.env.MINDRIAN_ROOMS_ROOT && !process.env.MINDRIAN_ROOMS_HOME) {
+    process.env.MINDRIAN_ROOMS_HOME = process.env.MINDRIAN_ROOMS_ROOT;
+  }
+  return _chokepointResolveActiveRoomDir();
 }
 
 function resolveSessionId(roomDir) {
