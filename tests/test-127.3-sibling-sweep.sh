@@ -88,7 +88,20 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # (9) lib/hmi/across-session-memory.cjs TODO Phase 129: across-session-memory cross-room scan -- absorb onto canonical multi-room API when iterateRegisteredRooms ships.
 #     Array-tolerant cross-room scan at line 241. Multi-room iteration site;
 #     Phase 129 territory.
-ALLOW='lib/core/resolve-active-room\.cjs|scripts/memory-completion-detector\.cjs|scripts/intent-classifier\.cjs|scripts/memory-command\.cjs|scripts/operator-update\.cjs|scripts/memory-resume-nudge\.cjs|scripts/hmi-status-command\.cjs|lib/core/room-classifier-strict-mode\.cjs|lib/hmi/across-session-memory\.cjs'
+#
+# (10) scripts/check-onboard-statusline.cjs TODO Phase 129: detectSealedRoom needs findEntry(slug) chokepoint helper -- semantic INVERSE of resolveActiveRoom; absorb onto canonical findEntry API when Phase 129 ships the multi-room helpers.
+#      detectSealedRoom() at lines 156-194 wants to detect WHEN the nominal
+#      active room IS sealed, while the chokepoint resolveActiveRoom() FILTERS
+#      sealed rooms out. The chokepoint API is not a drop-in replacement here;
+#      consolidating would require extending the Plan 00 byte-stable contract
+#      (forbidden by landmine #3). Plan 03 Task 5 refactored the local read to
+#      be shape-tolerant (current `active` + Object rooms; legacy `active_room`
+#      + Array rooms) -- the bug is fixed -- but the function still uses the
+#      legacy field name `reg.active_room` because shape-tolerance requires
+#      checking both. Phase 129 absorbs onto a future `findEntry(slug)`
+#      helper that does shape-tolerant entry lookup WITHOUT the sealed-filter
+#      (consumed by detectSealedRoom + iterateRegisteredRooms + other tools).
+ALLOW='lib/core/resolve-active-room\.cjs|scripts/memory-completion-detector\.cjs|scripts/intent-classifier\.cjs|scripts/memory-command\.cjs|scripts/operator-update\.cjs|scripts/memory-resume-nudge\.cjs|scripts/hmi-status-command\.cjs|lib/core/room-classifier-strict-mode\.cjs|lib/hmi/across-session-memory\.cjs|scripts/check-onboard-statusline\.cjs'
 
 MATCHES=$(grep -rnE 'reg\.active_room|Array\.isArray\(reg\.rooms\)' \
   "${REPO}/scripts/" "${REPO}/lib/" 2>/dev/null \

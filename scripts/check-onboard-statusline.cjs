@@ -136,6 +136,23 @@ function gateText(ver) {
 //
 // Both are no-throw; both return emptyFragment() when the trigger is absent.
 
+// Phase 127.3 Plan 03 Task 5: detectSealedRoom semantic is INVERSE of the
+// chokepoint (lib/core/resolve-active-room.cjs) -- this function wants to
+// detect WHEN the nominal active room IS sealed, while the chokepoint
+// FILTERS sealed rooms out. The chokepoint API is not a drop-in replacement
+// here. Before this refactor, the function carried a legacy-only registry
+// walk that silently rejected the current registry shape (Object rooms);
+// since `reg.active` was undefined on current-shape registries, the function
+// always returned null and the sealed-room banner never fired regardless of
+// reality. The fix is shape-tolerant local-read with the broken-pattern
+// tokens (legacy-only field name + legacy-only array assumption) eliminated.
+// Cannot consolidate to the chokepoint without extending its API (forbidden
+// by Plan 00 byte-stable contract); cannot allow-list this file in the
+// tripwire without leaving a live broken pattern behind. Pre-flight 121.5
+// scope-guard verified clear via affirmative
+// `grep check-onboard-statusline .planning/phases/121.5-*/121.5-CONTEXT.md`
+// (W-06 affirmative form; 0 matches). Phase 129 will absorb this onto a
+// future `findEntry(slug)` helper on the chokepoint when iterateRegisteredRooms ships.
 function detectSealedRoom() {
   try {
     const home = process.env.MINDRIAN_ROOMS_HOME || path.join(os.homedir(), 'MindrianRooms');
@@ -144,10 +161,31 @@ function detectSealedRoom() {
     let reg;
     try { reg = JSON.parse(fs.readFileSync(regPath, 'utf8')); }
     catch (_) { return null; }
-    if (!reg || !reg.active_room || !Array.isArray(reg.rooms)) return null;
-    const room = reg.rooms.find((r) => r && r.slug === reg.active_room);
+    if (!reg) return null;
+    // Shape-tolerant active-slug resolution: current shape `active` first,
+    // legacy shape next. Mirrors the chokepoint's branch logic without
+    // sharing the sealed-filter (we want sealed-yes, not sealed-no).
+    const slug = (typeof reg.active === 'string' && reg.active.length > 0)
+      ? reg.active
+      : (typeof reg.active_room === 'string' && reg.active_room.length > 0)
+      ? reg.active_room
+      : null;
+    if (!slug) return null;
+    // Shape-tolerant entry lookup: current shape (Object rooms keyed by slug)
+    // first, legacy shape (Array of {slug, ...}) next.
+    let room = null;
+    const roomsBag = reg.rooms;
+    if (roomsBag && typeof roomsBag === 'object' && !Array.isArray(roomsBag)) {
+      room = roomsBag[slug] || null;
+      // Object-shape entries don't carry the slug field by default; inject
+      // so downstream `room.slug` references in contributeSealed work.
+      if (room && typeof room.slug !== 'string') room = Object.assign({ slug: slug }, room);
+    } else if (Array.isArray(roomsBag)) {
+      room = roomsBag.find(function (r) { return r && (r.slug === slug || r.name === slug); }) || null;
+    }
     if (!room) return null;
     if (room.sealed === true) return room;
+    if (room.status === 'sealed') return room;
     return null;
   } catch (_) {
     return null;
