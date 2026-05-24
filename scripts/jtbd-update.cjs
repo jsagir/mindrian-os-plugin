@@ -186,29 +186,19 @@ function main() {
   try {
     const acrossSession = require(path.join(PLUGIN_ROOT, 'lib', 'hmi', 'across-session-memory.cjs'));
     if (typeof acrossSession.isGlobalOptOut === 'function' && !acrossSession.isGlobalOptOut()) {
-      // Resolve roomSlug from roomDir via registry walk. Mirrors
-      // resolveActiveRoom's registry layout (active_room + abs_path) but
-      // also tolerates the across-session-memory `path` convention.
+      // Resolve roomSlug via the Plan 00 chokepoint (Phase 127.3 Plan 01
+      // Task 2). Before this refactor, an independent inline registry walk
+      // tolerated the legacy Array rooms shape but missed the current Object
+      // shape's slug derivation -- it fell back to path.basename(roomDir),
+      // which works for default-layout rooms but loses the canonical
+      // registered slug for nested or relocated rooms. The chokepoint returns
+      // the canonical slug. path.basename(roomDir) remains the defensive
+      // fallback for null-resolver / catch branches (promoteIfEligible needs
+      // SOME slug, even if not the canonical registered one).
       let roomSlug = null;
       try {
-        const home = process.env.MINDRIAN_ROOMS_HOME || path.join(os.homedir(), 'MindrianRooms');
-        const regPath = path.join(home, '.rooms', 'registry.json');
-        if (fs.existsSync(regPath)) {
-          const reg = JSON.parse(fs.readFileSync(regPath, 'utf8'));
-          const rooms = (reg && Array.isArray(reg.rooms)) ? reg.rooms : [];
-          const target = path.resolve(roomDir);
-          const entry = rooms.find(function (x) {
-            if (!x) return false;
-            const candidate = (typeof x.abs_path === 'string' && x.abs_path) ||
-                              (typeof x.path === 'string' && x.path) || null;
-            if (!candidate) return false;
-            const rd = path.isAbsolute(candidate) ? candidate : path.join(home, candidate);
-            try { return path.resolve(rd) === target; } catch (_e) { return false; }
-          });
-          roomSlug = entry && entry.slug ? entry.slug : path.basename(roomDir);
-        } else {
-          roomSlug = path.basename(roomDir);
-        }
+        const resolved = resolveActiveRoom();
+        roomSlug = (resolved && resolved.slug) ? resolved.slug : path.basename(roomDir);
       } catch (_e) { roomSlug = path.basename(roomDir); }
 
       // Build within-session snapshot for the promotion gate. The gate
