@@ -45,6 +45,65 @@ ensure_registry() {
   fi
 }
 
+# Phase 127.3 Plan 04: shared room-bootstrap helper used by BOTH the `create`
+# stanza and the `bootstrap-missing` retro-pass. Reads ROOMDIR / NAME / VNAME /
+# VSTAGE from caller scope. Closes the intent_persona = all-null + JTBD-state-
+# never-created symptoms by giving every reader the files it expects.
+#
+# D-02 hard invariant (from 127.3-CONTEXT.md): this helper seeds ONLY four
+# items -- USER.md, STATE.md, ROOM.md, and the .mindrian/ directory. It MUST
+# NOT seed any state file inside .mindrian/. Absent-file is correctly handled
+# by every reader; writing an empty state file would mask the legitimate
+# first-write event in audit logs. Also: do NOT create ~/MindrianRooms/.memory/
+# here -- that is per-USER (not per-room) and lib/hmi/across-session-memory.cjs
+# ensureDir handles it lazily on first promote.
+_seed_room_bootstrap() {
+  mkdir -p "${ROOMDIR}/.mindrian"
+
+  if [ ! -f "${ROOMDIR}/STATE.md" ]; then
+    cat > "${ROOMDIR}/STATE.md" <<'STATE_EOF'
+---
+gsd_state_version: 1.0
+status: active
+---
+
+# State
+
+## Decisions
+
+(none yet)
+STATE_EOF
+  fi
+
+  if [ ! -f "${ROOMDIR}/USER.md" ]; then
+    cat > "${ROOMDIR}/USER.md" <<'USER_EOF'
+---
+canonical_role: null
+journey_stage: null
+---
+
+# User Profile
+
+Run /mos:profile-user to populate.
+USER_EOF
+  fi
+
+  if [ ! -f "${ROOMDIR}/ROOM.md" ]; then
+    cat > "${ROOMDIR}/ROOM.md" <<ROOM_EOF
+---
+room_id: ${NAME}
+venture_name: ${VNAME}
+venture_stage: ${VSTAGE}
+created: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+---
+
+# ${VNAME}
+
+Stage: ${VSTAGE}
+ROOM_EOF
+  fi
+}
+
 case "$SUBCMD" in
   create)
     NAME="${1:-}"
@@ -96,6 +155,13 @@ print(json.dumps(reg['rooms']['$NAME'], indent=2))
 "
     # Create the room directory under ROOMS_HOME
     mkdir -p "${ROOMS_HOME}/${RPATH}"
+    # Phase 127.3 Plan 04: seed downstream-pipeline files on room creation
+    # (USER.md + STATE.md + ROOM.md + .mindrian/) via the shared helper.
+    # Closes the intent_persona=all-null + JTBD-state-never-created symptoms.
+    # Idempotent via `if [ ! -f ]` guards inside the helper -- re-running
+    # `create` on an existing room preserves user-edited content.
+    ROOMDIR="${ROOMS_HOME}/${RPATH}"
+    _seed_room_bootstrap
     # Fire-and-forget graph sync (D-16: never blocks)
     node "${SCRIPT_DIR}/sync-rooms-graph" "$ROOMS_HOME" >/dev/null 2>&1 &
     node "${SCRIPT_DIR}/sync-rooms-brain" "$ROOMS_HOME" >/dev/null 2>&1 &
