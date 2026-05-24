@@ -32,6 +32,19 @@ const PLUGIN_ROOT = path.resolve(__dirname, '..');
 const CONFIDENCE_DELTA_THRESHOLD = 0.15;
 const DEBUG = process.env.MINDRIAN_DEBUG === '1';
 
+// Phase 127.3 Plan 01: route registry resolution through the single chokepoint
+// (lib/core/resolve-active-room.cjs). Before this refactor, this file carried
+// TWO independent registry walks (the top-level resolveActiveRoom() and the
+// Phase 103-05 across-session promotion block); both read against an obsolete
+// registry shape (legacy active-slug field + Array rooms; actual writes the
+// current active-slug field + Object rooms), so the function returned null on
+// every call and the JTBD memory layer was silently dead since v1.11.x. The
+// chokepoint supersedes both walks with one source of truth -- Canon Part 7
+// reuse-before-build. Graceful-degradation envelope is preserved: chokepoint
+// returns null on miss (NEVER throws), so the existing debugLog short-circuit
+// at line 132 keeps working byte-identical.
+const { resolveActiveRoom, resolveActiveRoomDir } = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'resolve-active-room.cjs'));
+
 // Lazy module load -- Tier 0 graceful skip if any dep missing.
 let classifyFn = null, jtbdState = null, stateMdParser = null, operatorMod = null;
 
@@ -61,22 +74,7 @@ function debugLog(roomDir, msg) {
   } catch (_e) { /* best-effort */ }
 }
 
-// Resolve active room. Order: CLAUDE_ACTIVE_ROOM (test) -> registry.
-function resolveActiveRoom() {
-  const envRoom = process.env.CLAUDE_ACTIVE_ROOM;
-  if (envRoom && typeof envRoom === 'string' && envRoom.length > 0) {
-    return fs.existsSync(envRoom) ? envRoom : null;
-  }
-  const home = process.env.MINDRIAN_ROOMS_HOME || path.join(os.homedir(), 'MindrianRooms');
-  const regPath = path.join(home, '.rooms', 'registry.json');
-  if (!fs.existsSync(regPath)) return null;
-  let reg;
-  try { reg = JSON.parse(fs.readFileSync(regPath, 'utf8')); } catch (_e) { return null; }
-  if (!reg || !reg.active_room || !Array.isArray(reg.rooms)) return null;
-  const room = reg.rooms.find(function (r) { return r && r.slug === reg.active_room; });
-  if (!room || !room.abs_path || !fs.existsSync(room.abs_path) || room.sealed) return null;
-  return room.abs_path;
-}
+// Resolve active room: see chokepoint import near top of file (Phase 127.3 Plan 01).
 
 // Read msg from env (test fixtures) or stdin JSON envelope (BASH-95-01).
 function readEnvelopeField(envVar, fields) {
@@ -128,7 +126,7 @@ function main() {
   const event = process.argv[2];
   if (event !== 'userprompt' && event !== 'stop') return;
 
-  const roomDir = resolveActiveRoom();
+  const roomDir = resolveActiveRoomDir();
   if (!roomDir) { debugLog(null, 'no active room; exit'); return; }
 
   let userMessage = '';
