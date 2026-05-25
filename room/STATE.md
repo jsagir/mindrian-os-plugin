@@ -1,5 +1,5 @@
 ---
-computed: 2026-05-24T20:08:49Z
+computed: 2026-05-25T06:43:36Z
 venture_stage: Pre-Opportunity
 total_entries: 5
 ---
@@ -22,8 +22,8 @@ Section Completeness
 ## Sections
 | Section | Entries | Progress | Status | Last Updated |
 |---------|---------|----------|--------|-------------|
-| decisions | 4 | ████████░░ 80% | Well-developed | 2026-04-30 |
-| product-evolution | 1 | ██░░░░░░░░ 20% | Active | 2026-04-30 |
+| decisions | 4 | ████████░░ 80% | Well-developed | 2026-05-24 |
+| product-evolution | 1 | ██░░░░░░░░ 20% | Active | 2026-05-24 |
 
 ## Gaps
 No gaps detected -- all sections have entries.
