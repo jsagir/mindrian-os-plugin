@@ -2,7 +2,7 @@
 status: resolved
 resolved: 2026-05-24
 resolved_by: phase-127.3
-resolution_summary: "Chokepoint extraction (lib/core/resolve-active-room.cjs) + jtbd-update.cjs refactor + intent-classifier reroute + sibling-sweep tripwire + room-registry create bootstrap + retro-bootstrap + first-touch nudge. Ships v1.13.0-beta.33."
+resolution_summary: "Chokepoint extraction (lib/core/resolve-active-room.cjs) + jtbd-update.cjs refactor + intent-classifier reroute + sibling-sweep tripwire + room-registry create bootstrap + retro-bootstrap + first-touch nudge. Ships v1.13.0-beta.34."
 trigger: "Multi-hour Larry session in fresh room mof-procurement-workshop produced 24+ artifacts but JTBD memory layer empty for entire session; /mos:memory shows in_flight=0, parked=0, completed=0; jtbd-state.json never created; ~/MindrianRooms/.memory/ never bootstrapped"
 created: 2026-05-24T00:00:00Z
 updated: 2026-05-24T00:00:00Z
@@ -302,7 +302,7 @@ Pair this with a /mos:user-md-init command that re-runs the user profile intervi
 
 ## Resolution
 
-Closed by Phase 127.3 (`.planning/phases/127.3-jtbd-auto-anchor-fix/`) across 7 plans landing in v1.13.0-beta.33. The PRIMARY silent-failure root cause (`scripts/jtbd-update.cjs::resolveActiveRoom` reading against an obsolete registry shape since 2026-04-26 / commit fcbbcf9a) is sealed by extracting a single chokepoint helper at `lib/core/resolve-active-room.cjs` (Canon Part 7) and rerouting every sibling site through it; the SECONDARY fresh-room bootstrap gap is sealed by `scripts/room-registry create` now seeding USER.md / STATE.md / ROOM.md / .mindrian/ idempotently AND a new `bootstrap-missing` subcommand retro-seeding every pre-existing room on first post-127.3 invocation; the TERTIARY first-touch UX gap is sealed by a priority-3 nudge inside `scripts/memory-resume-nudge.cjs::contribute()` gated on ROOM.md mtime < 7 days; an empirical reproduction test, a sibling-sweep tripwire, and a chokepoint unit-test together aggregate under `bash tests/run-all-127.3.sh` and serve as the behavioral + structural + regression gate for every future release.
+Closed by Phase 127.3 (`.planning/phases/127.3-jtbd-auto-anchor-fix/`) across 7 plans landing in v1.13.0-beta.34. The PRIMARY silent-failure root cause (`scripts/jtbd-update.cjs::resolveActiveRoom` reading against an obsolete registry shape since 2026-04-26 / commit fcbbcf9a) is sealed by extracting a single chokepoint helper at `lib/core/resolve-active-room.cjs` (Canon Part 7) and rerouting every sibling site through it; the SECONDARY fresh-room bootstrap gap is sealed by `scripts/room-registry create` now seeding USER.md / STATE.md / ROOM.md / .mindrian/ idempotently AND a new `bootstrap-missing` subcommand retro-seeding every pre-existing room on first post-127.3 invocation; the TERTIARY first-touch UX gap is sealed by a priority-3 nudge inside `scripts/memory-resume-nudge.cjs::contribute()` gated on ROOM.md mtime < 7 days; an empirical reproduction test, a sibling-sweep tripwire, and a chokepoint unit-test together aggregate under `bash tests/run-all-127.3.sh` and serve as the behavioral + structural + regression gate for every future release.
 
 Plan-by-plan deliverables (each with its own SUMMARY at `.planning/phases/127.3-jtbd-auto-anchor-fix/127.3-NN-SUMMARY.md`):
 
@@ -316,4 +316,4 @@ Plan-by-plan deliverables (each with its own SUMMARY at `.planning/phases/127.3-
 
 The chokepoint helper `lib/core/resolve-active-room.cjs` is the load-bearing Canon Part 7 extraction. Phase 129 (spine-repair-memory-event, v1.13.1-beta.3) absorbs the remaining 6 spine scripts (`mos-status`, `suggest-next`, `act`, `pipeline`, `operator`, `memory`) plus the deferred `memory-completion-detector.cjs` multi-room iteration site onto the same chokepoint, so 127.3 lands the infrastructure 129 reuses without double-work.
 
-Pattern indexed at `.planning/debug/knowledge-base.md` as `jtbd-auto-anchor-silent-failure` so `gsd-debugger` surfaces "registry-shape contract drift between sibling scripts produces silent-dead pipelines" as a known-pattern hypothesis for the next investigator. User-readable summary in CHANGELOG.md under `## [Unreleased] -- v1.13.0-beta.33` with canonical W-04 heading schema (`### Fixed (JTBD auto-anchor silent-failure bundle, Phase 127.3 -- ships v1.13.0-beta.33)`).
+Pattern indexed at `.planning/debug/knowledge-base.md` as `jtbd-auto-anchor-silent-failure` so `gsd-debugger` surfaces "registry-shape contract drift between sibling scripts produces silent-dead pipelines" as a known-pattern hypothesis for the next investigator. User-readable summary in CHANGELOG.md under `## [Unreleased] -- v1.13.0-beta.34` with canonical W-04 heading schema (`### Fixed (JTBD auto-anchor silent-failure bundle, Phase 127.3 -- ships v1.13.0-beta.34)`).
