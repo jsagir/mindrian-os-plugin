@@ -223,8 +223,10 @@ if [ "$DRY_RUN" = "1" ]; then
   fi
   echo "  Step 9    : git push origin main --tags (plugin); git push (marketplace)"
   echo "  Step 5.5  : verify tag v$NEW_VERSION at origin (RELEASE_TAG_PUSH_RETRIES retries, SKIP_TAG_VERIFY=1 to bypass)"
-  echo "  Step 9.6  : sync install minisite to v$NEW_VERSION (HARD 7-place lockstep)"
-  echo "              MINISITE_DIR resolution -> sed lib/os.ts + app/page.tsx -> grep verify -> git push origin main -> live-poll"
+  echo "  Step 9.6a : sync install minisite to v$NEW_VERSION (HARD lockstep, vercel-CLI deploy)"
+  echo "              MINISITE_DIR resolution -> sed lib/os.ts + app/page.tsx -> grep verify -> vercel --prod --yes -> live-poll"
+  echo "  Step 9.6b : sync Mindrian website FALLBACK_VERSION to v$NEW_VERSION (HARD lockstep, git-push deploy, dual-surface 2026-05-25)"
+  echo "              WEBSITE_DIR resolution -> sed src/lib/version.ts -> grep verify -> git push origin main -> live-poll mindrianos-jsagirs-projects.vercel.app"
   if [ "$NO_MINISITE" = "1" ]; then
     echo "              ${YELLOW}--no-minisite opt-out engaged (audit-logged; install-minisite NOT bumped)${NC}"
   fi
@@ -575,7 +577,7 @@ else
   fi
 fi
 
-# --- Step 9.6: Sync install minisite to NEW_VERSION (HARD 7-place lockstep) ---
+# --- Step 9.6a: Sync install minisite to NEW_VERSION (HARD lockstep, vercel-CLI deploy) ---
 # Phase 126 Plan 04 (2026-05-14): promoted from Soft to HARD per
 # MEMORY.md feedback_install_minisite_lockstep.md. The minisite at
 # https://mindrianos-install-site.vercel.app has two hardcoded version-string
@@ -595,7 +597,7 @@ fi
 #   - --no-minisite flag: opt-out audit-logged to stderr (NOT a silent skip)
 #   - DRY_RUN: log intent only, no edits
 echo ""
-echo "=== Step 9.6: Sync install minisite to v$NEW_VERSION (HARD 7-place lockstep) ==="
+echo "=== Step 9.6a: Sync install minisite to v$NEW_VERSION (HARD lockstep, vercel-CLI deploy) ==="
 
 if [ "$NO_MINISITE" = "1" ]; then
   echo -e "${YELLOW}  ! --no-minisite opt-out engaged at $(date -Iseconds 2>/dev/null || date -u +%FT%TZ); install-minisite NOT bumped.${NC}" >&2
@@ -631,13 +633,15 @@ else
     ORIG_DIR="$PWD"
     cd "$MINISITE_DIR"
 
-    # Origin remote check (Open Question 7 settled: separate failure mode from
-    # MINISITE_DIR-absent). This is the ONLY path where `git remote add origin`
-    # is the correct recovery.
-    if ! git remote get-url origin >/dev/null 2>&1; then
-      echo -e "${RED}  x $MINISITE_DIR has no 'origin' remote configured.${NC}"
-      echo "    Recovery: cd $MINISITE_DIR && git remote add origin <git-url> && git push -u origin main"
-      echo "              (e.g., git remote add origin git@github.com:mindrian-os/mindrianos-install-site.git)"
+    # Vercel CLI presence check. The install-site INTENTIONALLY has no origin
+    # remote -- per memory feedback_install_minisite_lockstep (2026-05-14):
+    # "NO git remote on this repo -- deploy is CLI-driven". Switching from
+    # `git push origin main` to `vercel --prod --yes` (2026-05-25 refactor)
+    # ended the chronic origin-remote-missing release-blocker for this
+    # surface. The git commit still lands locally for audit/history.
+    if ! command -v vercel >/dev/null 2>&1; then
+      echo -e "${RED}  x vercel CLI not in PATH (required for install-site deploy).${NC}"
+      echo "    Recovery: npm install -g vercel; OR add the vercel binary to PATH"
       echo "    Or pass --no-minisite for an emergency release (audit-logged)."
       cd "$ORIG_DIR"
       exit 1
@@ -683,13 +687,13 @@ else
       }
       echo "  -> minisite committed locally: $(git log -1 --pretty=format:'%h %s')"
     fi
-    if ! git push origin main 2>&1; then
-      echo -e "${RED}  x minisite git push origin main failed${NC}"
-      echo "    The bump commit is LOCAL but not pushed. Recover manually:"
-      echo "      cd $MINISITE_DIR && git push origin main"
+    if ! vercel --prod --yes 2>&1 | tail -5; then
+      echo -e "${RED}  x minisite \`vercel --prod --yes\` failed${NC}"
+      echo "    The bump commit is LOCAL. Recover manually:"
+      echo "      cd $MINISITE_DIR && vercel --prod --yes"
       cd "$ORIG_DIR"; exit 1
     fi
-    echo "  -> minisite pushed: Vercel auto-deploy triggered"
+    echo "  -> minisite deployed via vercel CLI (no git push -- intentionally no remote)"
 
     # Live-poll until NEW_VERSION appears in HTTP body OR timeout.
     echo "  -> live-poll $MINISITE_URL for v$NEW_VERSION (timeout ${MINISITE_POLL_TIMEOUT}s, interval ${MINISITE_POLL_INTERVAL}s)"
@@ -715,6 +719,165 @@ else
 
     if [ "$POLL_OK" = "1" ]; then
       echo -e "${GREEN}  ✓ minisite live: $MINISITE_URL serves v$NEW_VERSION (live-poll passed in ${ELAPSED}s)${NC}"
+    fi
+
+    cd "$ORIG_DIR"
+  fi
+fi
+
+# --- Step 9.6b: Sync Mindrian website FALLBACK_VERSION to NEW_VERSION ---
+# Refactor 2026-05-25: dual-surface lockstep. The Mindrian website at
+# https://mindrianos-jsagirs-projects.vercel.app (Vercel project name
+# "mindrianos" under team "jsagirs-projects") is a SEPARATE Vercel
+# project from the install-site -- different repo, different deploy
+# mechanism. Per user directive ("add to this step the always-update
+# of [the repo at] https://mindrianos-jsagirs-projects.vercel.app/ --
+# this is the mindrian website"), Step 9.6 now bumps BOTH surfaces.
+#
+# Website design (verified against /home/jsagi/mindrian-website/website/
+# src/lib/version.ts on 2026-05-25): four-tier version resolver --
+# (1) NEXT_PUBLIC_MINDRIAN_VERSION env var, (2) npm @mindrian_os/install
+# @next dist-tag (the SHIPPED truth), (3) GitHub raw plugin.json (dev
+# truth), (4) FALLBACK_VERSION constant in src/lib/version.ts (offline
+# fallback). The npm resolver auto-picks-up the just-published version
+# within 1 hour via Next.js ISR cache. The FALLBACK_VERSION constant
+# is the only thing release.sh needs to bump -- so the offline build
+# (and the brief window before ISR revalidates) shows the right value.
+#
+# Unlike the install-site, the website HAS an origin remote and IS
+# deployed via Vercel's GitHub integration (push -> auto-deploy). So
+# the deploy mechanism here is `git push origin main`, NOT `vercel
+# --prod --yes`. Two surfaces, two correct mechanisms.
+#
+# HARD semantics:
+#   - $MINDRIAN_WEBSITE_DIR override (default: $HOME/mindrian-website/website)
+#   - If dir missing: HARD ABORT with `gh repo clone` recovery
+#   - If origin remote missing: HARD ABORT with `git remote add origin` recovery
+#   - sed failure: snapshot-then-rollback via .bak files; HARD ABORT
+#   - git push failure: HARD ABORT
+#   - Live-poll MINDRIAN_WEBSITE_URL (default https://mindrianos-jsagirs-projects.vercel.app/)
+#   - $MINDRIAN_WEBSITE_POLL_TIMEOUT_S (default 240, longer than install-site
+#     since Next.js builds take longer than the install-site's static build)
+#   - $MINDRIAN_WEBSITE_POLL_INTERVAL_S (default 15)
+#   - --no-minisite flag ALSO skips this surface (audit-logged)
+#   - DRY_RUN: log intent only, no edits
+echo ""
+echo "=== Step 9.6b: Sync Mindrian website FALLBACK_VERSION to v$NEW_VERSION (dual-surface HARD lockstep) ==="
+
+if [ "$NO_MINISITE" = "1" ]; then
+  echo -e "${YELLOW}  ! --no-minisite opt-out engaged; Mindrian website FALLBACK_VERSION NOT bumped.${NC}" >&2
+  echo "    Manual sync required after release. Audit logged."
+  echo "    Note: the website's npm @next resolver will still auto-pick-up v$NEW_VERSION within 1 hour via ISR."
+else
+  WEBSITE_DIR="${MINDRIAN_WEBSITE_DIR:-$HOME/mindrian-website/website}"
+  WEBSITE_URL="${MINDRIAN_WEBSITE_URL:-https://mindrianos-jsagirs-projects.vercel.app/}"
+  WEBSITE_POLL_TIMEOUT="${MINDRIAN_WEBSITE_POLL_TIMEOUT_S:-240}"
+  WEBSITE_POLL_INTERVAL="${MINDRIAN_WEBSITE_POLL_INTERVAL_S:-15}"
+
+  if [ ! -d "$WEBSITE_DIR" ]; then
+    echo -e "${RED}  x WEBSITE_DIR not present: $WEBSITE_DIR${NC}"
+    echo "    Recovery options:"
+    echo "      A) Clone the website: gh repo clone jsagir/mindrian-website \$(dirname $WEBSITE_DIR)"
+    echo "         (or: git clone https://github.com/jsagir/mindrian-website.git \$(dirname $WEBSITE_DIR))"
+    echo "      B) Set MINDRIAN_WEBSITE_DIR to your existing website Next.js root and re-run."
+    echo "      C) If this release truly cannot bump the website, pass --no-minisite (audit-logged)."
+    exit 1
+  fi
+
+  if [ ! -f "$WEBSITE_DIR/src/lib/version.ts" ]; then
+    echo -e "${RED}  x WEBSITE_DIR does not contain src/lib/version.ts (the FALLBACK_VERSION host).${NC}"
+    echo "    Expected: $WEBSITE_DIR/src/lib/version.ts"
+    echo "    The website may have been refactored. Investigate before re-running."
+    echo "    Or pass --no-minisite for an emergency release (audit-logged)."
+    exit 1
+  fi
+
+  if [ "$DRY_RUN" = "1" ]; then
+    echo "  [DRY RUN] would HARD-bump FALLBACK_VERSION to \"v$NEW_VERSION\" in:"
+    echo "    $WEBSITE_DIR/src/lib/version.ts"
+    echo "  [DRY RUN] would git commit + git push origin main + live-poll $WEBSITE_URL"
+  else
+    ORIG_DIR="$PWD"
+    cd "$WEBSITE_DIR"
+
+    if ! git remote get-url origin >/dev/null 2>&1; then
+      echo -e "${RED}  x $WEBSITE_DIR has no 'origin' remote configured.${NC}"
+      echo "    Recovery: cd $WEBSITE_DIR && git remote add origin https://github.com/jsagir/mindrian-website.git && git push -u origin main"
+      echo "    Or pass --no-minisite for an emergency release (audit-logged)."
+      cd "$ORIG_DIR"
+      exit 1
+    fi
+
+    # Snapshot pre-sed state for rollback on grep mismatch.
+    cp src/lib/version.ts src/lib/version.ts.bak
+
+    # Line-anchored CONTENT-based sed targeting the FALLBACK_VERSION constant.
+    # Pattern: `export const FALLBACK_VERSION = "v<semver>";`
+    # The constant is documented as offline-fallback-only -- the npm resolver
+    # is the primary source -- but the offline build and brief windows before
+    # ISR revalidates still surface this value to visitors.
+    sed -i -E "s@export const FALLBACK_VERSION = \"v[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc|next)\.[0-9]+)?\";@export const FALLBACK_VERSION = \"v$NEW_VERSION\";@g" src/lib/version.ts || {
+      echo -e "${RED}  x sed on src/lib/version.ts failed${NC}"
+      mv src/lib/version.ts.bak src/lib/version.ts
+      cd "$ORIG_DIR"; exit 1
+    }
+
+    # Grep verify: the new FALLBACK_VERSION must be present.
+    if ! grep -qE "^export const FALLBACK_VERSION = \"v$NEW_VERSION\";" src/lib/version.ts; then
+      echo -e "${RED}  x website FALLBACK_VERSION bump verification failed (v$NEW_VERSION not present after sed); rolling back.${NC}"
+      mv src/lib/version.ts.bak src/lib/version.ts
+      cd "$ORIG_DIR"; exit 1
+    fi
+    rm -f src/lib/version.ts.bak
+
+    # Commit + push (Vercel auto-deploys on push via GitHub integration).
+    git add src/lib/version.ts
+    if git diff --cached --quiet; then
+      echo "  -> website FALLBACK_VERSION already at v$NEW_VERSION (no changes; will still verify live-poll)"
+    else
+      git commit --no-verify -m "chore: sync website FALLBACK_VERSION to v$NEW_VERSION" >/dev/null 2>&1 || {
+        echo -e "${RED}  x website commit failed${NC}"
+        cd "$ORIG_DIR"; exit 1
+      }
+      echo "  -> website committed locally: $(git log -1 --pretty=format:'%h %s')"
+    fi
+    if ! git push origin main 2>&1; then
+      echo -e "${RED}  x website git push origin main failed${NC}"
+      echo "    The bump commit is LOCAL but not pushed. Recover manually:"
+      echo "      cd $WEBSITE_DIR && git push origin main"
+      cd "$ORIG_DIR"; exit 1
+    fi
+    echo "  -> website pushed: Vercel auto-deploy triggered (build time ~2-4 min)"
+
+    # Live-poll until NEW_VERSION appears in HTTP body OR timeout. The
+    # website's npm @next resolver returns v$NEW_VERSION as the live version
+    # (FALLBACK is only the offline-build value), so the poll passes as soon
+    # as Vercel finishes the build AND the npm registry has propagated the
+    # new dist-tag (usually instant since Step 9.5 already published).
+    echo "  -> live-poll $WEBSITE_URL for v$NEW_VERSION (timeout ${WEBSITE_POLL_TIMEOUT}s, interval ${WEBSITE_POLL_INTERVAL}s)"
+    POLL_START=$(date +%s)
+    POLL_OK=0
+    while true; do
+      NOW=$(date +%s)
+      ELAPSED=$((NOW - POLL_START))
+      if [ "$ELAPSED" -ge "$WEBSITE_POLL_TIMEOUT" ]; then
+        echo -e "${YELLOW}  ! website live-poll timed out after ${ELAPSED}s -- $WEBSITE_URL does not yet reflect v$NEW_VERSION${NC}"
+        echo "    The push landed; Vercel build may still be in progress. Investigate:"
+        echo "      curl -sS $WEBSITE_URL | grep -F v$NEW_VERSION"
+        echo "    The website's npm @next resolver also picks up v$NEW_VERSION via ISR within 1 hour."
+        echo "    NOT marked as a hard fail (the FALLBACK is offline-only; resolver path is primary)."
+        break
+      fi
+      BODY=$(curl -sS -m 5 "$WEBSITE_URL" 2>/dev/null || true)
+      if echo "$BODY" | grep -qF "v$NEW_VERSION"; then
+        POLL_OK=1
+        break
+      fi
+      sleep "$WEBSITE_POLL_INTERVAL"
+    done
+
+    if [ "$POLL_OK" = "1" ]; then
+      echo -e "${GREEN}  ✓ website live: $WEBSITE_URL serves v$NEW_VERSION (live-poll passed in ${ELAPSED}s)${NC}"
     fi
 
     cd "$ORIG_DIR"
