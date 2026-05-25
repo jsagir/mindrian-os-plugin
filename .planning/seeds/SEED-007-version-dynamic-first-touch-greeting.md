@@ -1,16 +1,21 @@
 ---
 id: SEED-007
-status: dormant
+status: superseded
 planted: 2026-05-07
 planted_during: v1.13.0-beta.8 (active milestone -- "The Closed Loop")
+superseded_by: Phase 121.5 Sub-plan F (Terminal Coherence Capstone) -- ROADMAP.md line 1289 explicitly states "Related seed: SEED-007-version-dynamic-first-touch-greeting.md (absorbed as sub-plan F)". The 2026-05-10 95.6 D-07 scope-update also absorbed the BSL-1.1 and em-dash scanner work into `scripts/check-first-touch-drift.cjs` (shipped). Pattern 2 (stale-version-literal) rollout across all 5 first-touch copy surfaces remains the Phase 121.5 Sub-plan F responsibility.
 trigger_when: |
-  Surface during /gsd:plan-phase when Phase 115 (owned-emotion-dual-path-first-touch)
-  is the target phase. Also surface at the v1.13.0 release-gate audit (after Phase 119
-  room-as-receipt-invariant ships) before the milestone is archived.
-scope: Medium
+  RESOLVED -- do NOT re-surface unless Phase 121.5 Sub-plan F is dropped from the capstone scope. If 121.5 Sub-plan F ships, this seed is closed. If 121.5 drops Sub-plan F, re-status to `dormant` and re-bind to Phase 115.1.
+scope: medium
+bundle: first-touch-coherence
 canon_parts: [Part 6, Part 10]
-binds_to_phase: 115
-binds_to_milestone: v1.13.0
+implementing_phase: 121.5 (Sub-plan F)
+related_phases: [115, 121.5]
+related_seeds: []
+companion_artifacts:
+  - scripts/check-first-touch-drift.cjs (95.6 D-07 partial implementation)
+  - tests/test-first-touch-drift-scanner.cjs
+  - .planning/phases/121.5-terminal-coherence-capstone/121.5-CONTEXT.md (Sub-plan F is the absorbing surface)
 ---
 
 # SEED-007: Version-dynamic stamp on every first-touch greeting

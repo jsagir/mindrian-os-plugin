@@ -2,9 +2,13 @@
 id: SEED-001
 status: dormant
 planted: 2026-05-03
-planted_during: v1.11.0 — Phase 106 (statusline-visibility-context-window-broadcast)
+planted_during: v1.11.0 -- Phase 106 (statusline-visibility-context-window-broadcast)
 trigger_when: room-proactive expands (next milestone touching the room-proactive skill, multi-room registry, or local-graph layer)
 scope: medium
+bundle: nested-room-correctness
+related_phases: [112]
+related_seeds: [SEED-004]
+companion_artifacts: []
 ---
 
 # SEED-001: MindrianOS proactively suggests opening sub-rooms and nested rooms based on context, with mandatory wikilink + local SQLite graph wiring on creation

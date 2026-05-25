@@ -5,12 +5,27 @@ planted: 2026-05-10
 planted_during: v1.13.0 -- quick task 260510-or6 (docs/UI-UX-CONVERGENCE-2026-05-10 bundle) + Phase 117 (auto-explore-domains-on-first-material)
 trigger_when: v1.13.0 "The Closed Loop" FINAL RELEASE GATE audit; OR any phase touching Phase 91 (navigation-engine), the UserPromptSubmit/SessionStart navigation hooks, Phase 109 (sql-context-memory-navigation-spine), Phase 95 (bash-hook-envelope-and-cascade-side-channel), Phase 117 (auto-explore-domains), or BRAIN.md derivation; OR /gsd:new-milestone when the theme is "navigation", "proactive intelligence", "closing the loop", "trigger design", or "memory"
 scope: large
-related_phases: [91, 95, 109, 117, 94 (94-03 acceptance criteria), 121.5, 90 (BRAIN.md derivation), 88.1-03 (room-proactive surfacing)]
-canon_parts: [Part 2 Engine 1, Part 4, Part 9 (proposed), Part 10 (proposed)]
+bundle: intelligence-layer-activation
+canon_parts: [Part 2 Engine 1, Part 4, Part 9, Part 10]
+related_phases: [88.1, 90, 91, 94, 95, 95.5, 109, 117, 121.5, 129]
+related_seeds: [SEED-013, SEED-016]
+ecc_cross_learning: |
+  AgentShield v1.4.0 (sister project of ECC, planted SEED-016 2026-05-24)
+  ships "continuous scanning with config drift detection (--watch mode)" --
+  a runtime daemon that re-runs the audit periodically and surfaces drift.
+  This is the same shape this seed needs for the LOCAL intelligence layer:
+  a watch-mode that re-runs cross-relationship scan + cascade-pipeline
+  delivery check + BRAIN.md staleness check + memory-layer auto-drain
+  PERIODICALLY (not just on manual /mos:doctor), and surfaces drift to
+  Larry as a Decision Gate. The "compute-and-store mode, not
+  compute-store-and-act mode" gap closes if a watch daemon ACTS on drift
+  instead of just storing it. When this seed promotes, the --watch pattern
+  should be a first-class implementation primitive, not an afterthought.
 companion_artifacts:
   - docs/UI-UX-CONVERGENCE-2026-05-10/09-CRITICAL-FINDING-ACTIVATION-GAP.md  (the full finding + Brain consultation + usage analytics + tester/opportunity counterfactual)
   - docs/UI-UX-CONVERGENCE-2026-05-10/08-CONVERGENCE-MINTO-AND-DEV-PHASE-INSTRUCTIONS.md  (the dev-phase sequencing this seed gates)
   - docs/UI-UX-CONVERGENCE-2026-05-10/00b-BRAIN-MODE-A-FRAMEWORK-CHAIN.md  (the live-Brain edge paths that prove the argument)
+needs_author_touch: partially-shipped -- Phase 117 auto-explore SHIPPED v1.13.0-beta.8; Phase 95.5 post-compact consumer remains planned; Phase 91.6 navigation-engine-graph-wiring (proposed as cheap fix) was never scaffolded; Phase 129 spine-repair-memory-event picks up the spine routing for v1.13.1. This seed should arguably re-status to `dormant+partial` after v1.13.0 final ships; flag for next curation pass to confirm whether residual scope is consolidated under Phase 129 or stays seed-bound.
 ---
 
 # SEED-008: The MindrianOS intelligence layer (local graph + artifact-filing cascade + memory layers + Brain) runs in compute-and-store mode, not compute-store-and-act mode -- close the loop before v1.13.0 ships as "The Closed Loop"

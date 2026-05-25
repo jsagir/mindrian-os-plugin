@@ -24,9 +24,20 @@ phase_number_correction: |
   Inference, 125 = Selector JTBD-aware are claimed). Phase 104 finishing
   is FUSED into v1.14.0 as foundational completion (104-00 Wave 0 is the
   first plan to land in v1.14.0-beta.1).
-scope: Medium-Large
+scope: large
+bundle: visible-room-wiki
 estimated_effort: ~8 working days at Phase 82 cadence
-canon_parts: [Part 1 (Wicked Navigator), Part 3 (Tri-Context Decision Gate), Part 6 (Dog-Fooding Mandate)]
+canon_parts: [Part 1, Part 3, Part 6]
+related_phases: [110, 114]
+related_seeds: [SEED-015]
+ecc_cross_learning: |
+  SEED-015 (selective install profile system, planted 2026-05-24 from ECC v1.9.0
+  learning) ENABLES this seed's clean shipping path. The wiki surface ships as
+  `--with wiki` opt-in rather than forced-on-every-install. Non-wiki users
+  don't pay the surface cost; wiki users opt in explicitly. Materially lowers
+  the "feature buffet" critique Aryeh raised in his 2026-05-20 session. The
+  wiki sprint should NOT ship until selective install lands OR until the
+  wiki is feature-gated some other way.
 dependents:
   - Phase 117 (Auto-Explore-Domains on First Material) -- v1.13.0-beta.3 ships first; its findings surface in The Visible Room wiki when v1.14.0 lands
   - Phase 118 (30-Second MVA + Reward-Before-Investment) -- v1.13.0 final ships first; the MVA-generated room IS the artifact the wiki renders

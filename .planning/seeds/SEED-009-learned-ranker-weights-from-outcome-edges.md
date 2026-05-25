@@ -12,12 +12,14 @@ trigger_when: |
   Surface during /gsd:new-milestone v1.14.0 scoping OR when /gsd:plan-phase is
   invoked against any v1.14.0 phase that proposes to consume F-selector ranker
   outputs.
-scope: Medium-Large
+scope: large
+bundle: learning-loops
 canon_parts: [Part 4, Part 7, Part 8, Part 9]
-binds_to_phase: 125 (F-Selector Ranker, shipped v1.13.0-beta.14; this seed proposes the feedback-loop extension that was deliberately omitted from the original phase)
-binds_to_milestone: v1.14.0 (NOT v1.13.1 -- this is the DEFER half of the 2026-05-16 dual-graph review verdict)
-related_seeds: []
-related_phases: [125 F-Selector Ranker (shipped), 127 brain-mcp-local-stdio-shim (v1.13.1-beta.1), 129 spine-repair-memory-event (v1.13.1-beta.3; ships FOLLOWS_FROM cascade type as 2026-05-16 verdict additive primitive)]
+target_milestone: v1.14.0
+implementing_phase: TBD (v1.14.0 -- proposes ranker-weight-updater.cjs extension to shipped Phase 125)
+related_phases: [125, 127, 129]
+related_seeds: [SEED-002]
+companion_artifacts: []
 authority:
   - .planning/research/2026-05-16-dual-graph-architectural-proposal.md
   - .planning/research/2026-05-16-dual-graph-review-A-canon-compliance.md

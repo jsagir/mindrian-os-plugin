@@ -13,7 +13,15 @@ trigger_when: |
   - A user reports false-positive "blocked write" against a nested-path room
   - Phase 95.1 mos:doctor drift detection gets a follow-up phase
   - Multi-room ergonomics work begins for v1.14.0+ (NOW SCHEDULED)
-scope: Small
+scope: small
+bundle: nested-room-correctness
+canon_parts: [Part 1, Part 6]
+related_phases: []
+related_seeds: [SEED-001, SEED-005]
+companion_artifacts:
+  - scripts/write-scope-check.cjs
+  - hooks/run-hook.cmd
+  - scripts/83-scope-injection.test.cjs
 ---
 
 # SEED-004: write-scope-check nested-room false-positive bug
