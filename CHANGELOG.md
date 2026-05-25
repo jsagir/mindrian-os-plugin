@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.13.0-beta.34 (in progress)
+## [1.13.0-beta.34] - 2026-05-25
 
 ### Fixed (JTBD auto-anchor silent-failure bundle, Phase 127.3 -- ships v1.13.0-beta.34)
 - **PRIMARY: JTBD memory layer was silently dead in every release since v1.11.x (commit fcbbcf9a, 2026-04-26).** `scripts/jtbd-update.cjs::resolveActiveRoom()` at lines 65-79 read against an obsolete registry shape (expected `reg.active_room` + Array `reg.rooms`; actual `reg.active` + Object `reg.rooms` since at least Phase 100). Both checks failed on every call, the function returned null, `main()` short-circuited at line 132, the classifier never ran, `.mindrian/jtbd-state.json` never got written, and `/mos:memory` reported `in_flight: 0 / parked: 0 / completed: 0` for ~7 months. Refactored both broken registry walks in `scripts/jtbd-update.cjs` (lines 65-79 top-level resolver + lines 196-214 Phase 103-05 promote block) to import + call the new `lib/core/resolve-active-room.cjs` chokepoint. `/mos:memory` now populates with real `in_flight` entries on the 3rd same-cue turn instead of reporting `0/0/0` forever. Full RCA: `.planning/debug/resolved/jtbd-auto-anchor-silent-failure.md`.
