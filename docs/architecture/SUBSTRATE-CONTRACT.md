@@ -95,6 +95,10 @@ The closed chokepoint surface is exactly these export keys from
 - `getCurrentOperator`
 - `confirmNode`
 - `resolveByUser`
+- `writeHatState`
+- `readHatState`
+- `readAllHatStates`
+- `writeLensFinding`
 
 The originally documented "closed 13" was the Phase 109 surface (Focus, Neighborhood,
 the insight queries, `findRecentChanges`, `findRelevantOpportunities`,
@@ -144,6 +148,28 @@ line here is itself a contract violation.
   `lib/core/navigation/` without adding any substrate bypass. The human-attribution
   guard lives in `promoteNodeStatus` (the `AGENT_IDENTITIES` REJECT on confirm /
   validate of truth-claim node types) per the Canon Part 9 v1.5 audit-node carve-out.
+
+- **Phase 130-01 (2026-05-31).** Added four exports re-exported from
+  `lib/core/navigation/lens-nodes.cjs`: `writeHatState`, `readHatState`,
+  `readAllHatStates`, and `writeLensFinding`. **Consumer:** the Plan 02
+  `lib/core/lens-engine.cjs` (onAccept writes a `lens_finding` node via
+  `writeLensFinding` then an `INFORMS` edge FROM it; onReject a `REJECTED_BECAUSE`
+  edge) and the Plan 03 `lib/core/hat-persistence.cjs` rewrite (the 6 filesystem
+  `.mindrian/hats/{color}/STATE.md` writes RETIRE to typed `HatState` nodes in
+  `room.db`). Unlike the Phase 129-01 spine helpers, each lens-node writer takes a
+  caller-owned `db` handle (obtained via `lib/core/room-db.cjs` `openRoomDb`)
+  EXACTLY like `writeEdge` -- the module NEVER requires `node:sqlite` and NEVER
+  opens `room.db` itself, so it carries zero direct `room.db` open and stays inside
+  the `lib/core/navigation/` allow-list with zero substrate bypass (a source-grep
+  test in `tests/test-130-lens-substrate.cjs` enforces the no-direct-sqlite
+  invariant). `writeHatState` UPSERTs a node `id 'hatstate:'+color`, type
+  `HatState`, `created_by='system'`, `review_status='confirmed'`; this is
+  canon-legal WITHOUT a human `byUser` because a `HatState` node is a
+  system-bookkeeping node per the Canon Part 9 v1.5 audit-node carve-out (it is NOT
+  in the truth-claim set `{claim, CausalClaim, assumption, decision, opportunity}`).
+  `writeLensFinding` UPSERTs a node type `lens_finding` `review_status='proposed'`
+  `created_by='system'` -- a proposed surface awaiting the Decision Gate, never
+  auto-confirmed.
 
 ## Reuse-vs-build decision (Canon Part 7)
 
