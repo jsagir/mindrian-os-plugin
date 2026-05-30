@@ -1523,8 +1523,8 @@ Plans:
 
 **Status:** Planned -- 3 plans in 3 waves (planned 2026-05-30); ready for `/gsd:execute-phase 128`.
 
-**Plans:** 3 plans
-- [ ] 128-01-PLAN.md -- Substrate Contract ADR + reuse-vs-build decision + M11 export allow-list pin (Wave 1)
+**Plans:** 1/3 plans executed
+- [x] 128-01-PLAN.md -- Substrate Contract ADR + reuse-vs-build decision + M11 export allow-list pin (Wave 1)
 - [ ] 128-02-PLAN.md -- check-substrate.cjs guard (strict superset of --check-chokepoint) + 5-case test suite (Wave 2)
 - [ ] 128-03-PLAN.md -- pre-commit hook wiring + installer template + baseline violation report (Wave 3)
 

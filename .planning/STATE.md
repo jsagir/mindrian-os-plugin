@@ -4,14 +4,14 @@ milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
 stopped_at: Phase 128.1 context gathered
-last_updated: "2026-05-24T19:26:16.258Z"
+last_updated: "2026-05-30T19:41:26.946Z"
 last_activity: 2026-05-20 -- Phase 127.1 execution started
 progress:
   total_phases: 70
-  completed_phases: 45
-  total_plans: 335
-  completed_plans: 317
-  percent: 64
+  completed_phases: 46
+  total_plans: 338
+  completed_plans: 322
+  percent: 66
 ---
 
 # Project State
@@ -976,6 +976,8 @@ Progress: [██████████] 95%
 - [Phase ?]: 127.3-04: Shared _seed_room_bootstrap helper powers both create AND bootstrap-missing (Canon Part 7 reuse at bash layer)
 - [Phase ?]: 127.3-04: Auto-trigger via sentinel-guard fallback (no version-bump hook exists outside Phase 121.5 scope-guard surface)
 - [Phase ?]: 127.3-04: D-02 hard invariant honored (NO seeding of state files inside .mindrian/; grep returns 0)
+- [Phase 128]: ADR -- check-substrate.cjs SUPERSEDES --check-chokepoint as a strict superset (alias kept until a later phase retires it; Plan 03 swaps the live hook). M11 navigation.cjs allow-list pinned to the 20 current export keys verbatim, with an amendment rule for future additions.
+- [Phase 128]: ADR -- H5 brain-packet-schema.json unbounded summary/explanation strings named as a backlogged latent Part 8 leak; live brain-derivation.cjs path confirmed clean (hashes + frozen enums + clamped floats only).
 
 ### Pending Todos
 
@@ -1007,6 +1009,6 @@ Progress: [██████████] 95%
 
 ## Session Continuity
 
-Last session: 2026-05-24T19:26:05.848Z
+Last session: 2026-05-30T19:41:20.689Z
 Stopped at: Phase 128.1 context gathered
 Resume file: None

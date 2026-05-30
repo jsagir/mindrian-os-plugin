@@ -106,6 +106,15 @@ None - no external service configuration required. This plan authored documentat
 - Plan 03 (hook wiring) is unblocked: the retirement plan specifies the live pre-commit hook swap from `--check-chokepoint` to `check-substrate.cjs --diff`.
 - The H5 leak and the ~15 known `openGraph` violations are named, not silently dropped; Plan 03's baseline report and Phase 129+ own them.
 
+## Self-Check: PASSED
+
+- FOUND: docs/architecture/ROOM.md
+- FOUND: docs/architecture/SUBSTRATE-CONTRACT.md
+- FOUND: .planning/phases/128-substrate-contract-adr/128-01-SUMMARY.md
+- FOUND commit: d8620099 (Task 1)
+- FOUND commit: 036413df (Task 2)
+- FOUND commit: 1a95bd2d (SUMMARY)
+
 ---
 *Phase: 128-substrate-contract-adr*
 *Completed: 2026-05-30*
