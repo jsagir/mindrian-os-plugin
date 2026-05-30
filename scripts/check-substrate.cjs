@@ -1,0 +1,337 @@
+#!/usr/bin/env node
+'use strict';
+
+/*
+ * Phase 128-02 Task 2 - scripts/check-substrate.cjs
+ *
+ * The CI guard that structurally enforces the Substrate Contract ADR
+ * (docs/architecture/SUBSTRATE-CONTRACT.md, Plan 01). It is a STRICT SUPERSET
+ * of scripts/check-schema-aliases.cjs --check-chokepoint per the ADR's
+ * reuse-vs-build decision (Canon Part 7): it catches every require-pattern the
+ * old guard caught PLUS the openGraph openers PLUS raw INSERT/UPDATE/DELETE on
+ * nodes/edges/memory_event PLUS direct sqlite require PLUS Cypher user-content
+ * interpolation (M4).
+ *
+ * Mandates enforced (from the ADR):
+ *   M2 - read room.db only via lib/core/navigation.cjs (no raw fs read of room.db).
+ *   M3 - no require('node:sqlite') / require('better-sqlite3') outside the chokepoint.
+ *   M4 - no Cypher MATCH with user-content variable interpolation.
+ *   plus: no raw INSERT/UPDATE/DELETE on nodes|edges|memory_event (un-provenanced
+ *         write class, including the lazygraph-ops INSERT INTO nodes shape).
+ *   plus: no openGraph(...) call outside the allow-list (the #1 production bypass).
+ *   plus: the carried-forward --check-chokepoint require() bans (strict superset).
+ *
+ * CLI modes:
+ *   default / --baseline : full-repo scan (lib/ + scripts/), print violations
+ *                          grouped by rule, exit 0 (INFORMATIONAL; Plan 03 owns
+ *                          blocking-on-net-new).
+ *   --diff               : scan only staged files, exit 1 on any violation (the
+ *                          pre-commit mode Plan 03 wires).
+ *   --check-chokepoint   : alias that runs the superset scan in --diff mode (so
+ *                          external callers of the retired subcommand keep working).
+ *
+ * Programmatic API (pure, no process.exit):
+ *   scanFiles(files, readContent) -> Array<{file, line, rule, match}>
+ *   scanStaged()                  -> Array<{file, line, rule, match}> (honors seams)
+ *
+ * Canon Part 6 (dog-fooding: the plugin's own CI guard enforces its contract).
+ * Canon Part 7 (reuse: supersedes --check-chokepoint, reuses its scan idiom).
+ * Canon Part 8 (LOCAL-only: ZERO network, ZERO Brain calls; node: builtins + git only).
+ * Canon Part 9 (navigation.cjs is the only door; every bypass is a violation).
+ *
+ * Performance: zero new npm deps. node:fs + node:path + node:child_process
+ * spawnSync (git only). No fetch, no http, no Brain.
+ */
+
+const fs = require('fs');
+const path = require('path');
+const { spawnSync } = require('child_process');
+
+const REPO_ROOT = path.resolve(__dirname, '..');
+
+// ---------------------------------------------------------------------------
+// Allow-list. Reused from scripts/check-schema-aliases.cjs ALLOWED_DIRECT_IMPORT
+// as the base, extended per the ADR's M11 allow-list section. These paths are
+// exempt from the room.db-access bans: the chokepoint itself, its submodules,
+// the substrate self-files, tests/fixtures, and the migration scripts.
+//
+// NOTE on lazygraph-ops.cjs: it IS the bare-schema writer. The guard exempts its
+// OWN body (its internal INSERTs are a known baseline violation Plan 03
+// enumerates, NOT new-code to block). The guard flags CALLERS that openGraph or
+// require it from a non-allowlisted path.
+// ---------------------------------------------------------------------------
+const ALLOWED_DIRECT_IMPORT = [
+  /^lib\/core\/navigation\.cjs$/,
+  /^lib\/core\/navigation\//,
+  /^lib\/core\/room-db\.cjs$/,
+  /^lib\/core\/lazygraph-ops\.cjs$/,
+  /^lib\/core\/memory-ops\.cjs$/,
+  /^lib\/core\/opportunity-ops\.cjs$/,
+  /^tests\//,
+  /^tests\/fixtures\//,
+  /^scripts\/migrate-/,
+  /^scripts\/migrations\//,
+  // v1.14.0 backward-compat grandfather (carried from check-schema-aliases.cjs):
+  /^lib\/hmi\/across-session-memory\.cjs$/,
+  /^lib\/core\/brain-derivation\.cjs$/,
+  /^scripts\/compute-state$/,
+  // Phase 108 substrate self-reference (migration scripts directory):
+  /^lib\/core\/migrations\//,
+];
+
+function isAllowedPath(p) {
+  const normalized = String(p).replace(/\\/g, '/');
+  return ALLOWED_DIRECT_IMPORT.some((rx) => rx.test(normalized));
+}
+
+// ---------------------------------------------------------------------------
+// Carried-forward require() bans from check-schema-aliases.cjs BANNED_PATTERNS
+// (the strict-superset guarantee: every pattern the old --check-chokepoint
+// caught is still caught here, under rule "chokepoint-require").
+// ---------------------------------------------------------------------------
+const BANNED_REQUIRE_PATTERNS = [
+  /require\(['"]\.\.?\/[^'"]*?(room-db|lazygraph-ops|memory-ops)\.cjs['"]\)/,
+  /require\(['"]lib\/core\/(room-db|lazygraph-ops|memory-ops)\.cjs['"]\)/,
+];
+
+// ---------------------------------------------------------------------------
+// New M1-M4 + bypass rules. Each rule is { rule, test(line) -> match|null }.
+// Pure per-line matchers so the scan is hermetic and order-stable.
+// ---------------------------------------------------------------------------
+
+// M3: direct sqlite driver require.
+const RE_SQLITE_REQUIRE = /require\(\s*['"](?:node:sqlite|better-sqlite3)['"]\s*\)/;
+
+// M2: raw fs read of a room.db path (readFile / readFileSync / createReadStream).
+const RE_FS_ROOMDB = /\b(?:readFileSync|readFile|createReadStream)\s*\([^)]*room\.db/i;
+
+// Un-provenanced write class: raw INSERT/UPDATE/DELETE against nodes|edges|memory_event.
+// Matches "INSERT INTO nodes", "UPDATE edges", "DELETE FROM memory_event", etc.
+const RE_RAW_WRITE = /\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM)\s+(nodes|edges|memory_event)\b/i;
+
+// The #1 bypass: a call to openGraph (the lazygraph-ops opener).
+const RE_OPENGRAPH = /\bopenGraph\s*\(/;
+
+// M4: Cypher MATCH with user-content interpolation. Two breach shapes:
+//   (a) template-literal interpolation: a MATCH and a ${...} on the same line.
+//   (b) string concatenation into a MATCH clause: 'MATCH ...' + var.
+// Parameterized Cypher ($param + params object) does NOT match either shape.
+const RE_CYPHER_INTERP_TEMPLATE = /MATCH\b[^`]*\$\{[^}]+\}/i;
+const RE_CYPHER_INTERP_CONCAT = /['"`][^'"`]*\bMATCH\b[^'"`]*['"`]\s*\+|MATCH\b[^`]*['"]\s*\+\s*[A-Za-z_]/i;
+
+// Comment-stripper: ignore lines that are pure // comments so a documentation
+// line mentioning "INSERT INTO nodes" in a banned context is not a false flag.
+// We only strip a leading-whitespace // comment; inline code with a trailing
+// comment is still scanned (the code part is the risk).
+function isPureLineComment(line) {
+  return /^\s*\/\//.test(line) || /^\s*\*/.test(line);
+}
+
+function scanLine(line) {
+  if (isPureLineComment(line)) return [];
+  const hits = [];
+
+  // Carried-forward require bans (chokepoint superset).
+  for (const rx of BANNED_REQUIRE_PATTERNS) {
+    const m = line.match(rx);
+    if (m) hits.push({ rule: 'chokepoint-require', match: m[0] });
+  }
+
+  let m;
+  m = line.match(RE_SQLITE_REQUIRE);
+  if (m) hits.push({ rule: 'm3-direct-sqlite-require', match: m[0] });
+
+  m = line.match(RE_FS_ROOMDB);
+  if (m) hits.push({ rule: 'm2-raw-room-db-read', match: m[0].trim() });
+
+  m = line.match(RE_RAW_WRITE);
+  if (m) hits.push({ rule: 'raw-graph-write', match: m[0].trim() });
+
+  m = line.match(RE_OPENGRAPH);
+  if (m) hits.push({ rule: 'opengraph-bypass', match: m[0] });
+
+  m = line.match(RE_CYPHER_INTERP_TEMPLATE);
+  if (m) {
+    hits.push({ rule: 'm4-cypher-interpolation', match: m[0].trim().slice(0, 120) });
+  } else {
+    m = line.match(RE_CYPHER_INTERP_CONCAT);
+    if (m) hits.push({ rule: 'm4-cypher-interpolation', match: m[0].trim().slice(0, 120) });
+  }
+
+  return hits;
+}
+
+// ---------------------------------------------------------------------------
+// Pure programmatic scan API.
+//   scanFiles(files, readContent) -> Array<{file, line, rule, match}>
+//   files       : array of repo-relative paths
+//   readContent : (relPath) -> string (the file body), or '' if unreadable
+// Allow-listed paths are skipped entirely. Non-source extensions are skipped.
+// ---------------------------------------------------------------------------
+function scanFiles(files, readContent) {
+  const violations = [];
+  for (const filePath of files) {
+    if (!/\.(cjs|js|mjs)$/.test(filePath)) continue;
+    if (isAllowedPath(filePath)) continue;
+    const content = readContent(filePath);
+    if (!content) continue;
+    const lines = content.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const hits = scanLine(lines[i]);
+      for (const h of hits) {
+        violations.push({ file: filePath, line: i + 1, rule: h.rule, match: h.match });
+      }
+    }
+  }
+  return violations;
+}
+
+// ---------------------------------------------------------------------------
+// Staged-file seam helpers (reused idiom from check-schema-aliases.cjs so the
+// Task-1 tests drive the guard hermetically).
+// ---------------------------------------------------------------------------
+function getStagedFiles() {
+  const env = process.env.MINDRIAN_HOOK_STAGED_FILES;
+  if (typeof env === 'string') {
+    return env.split('\n').map((s) => s.trim()).filter(Boolean);
+  }
+  try {
+    const r = spawnSync('git', ['diff', '--cached', '--name-only', '--diff-filter=ACM'], {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+    });
+    if (r.status !== 0) return [];
+    return (r.stdout || '').split('\n').map((s) => s.trim()).filter(Boolean);
+  } catch (_) {
+    return [];
+  }
+}
+
+function readStagedContent(filePath) {
+  const contentDir = process.env.MINDRIAN_HOOK_STAGED_CONTENT_DIR;
+  const candidates = [];
+  if (contentDir) candidates.push(path.join(contentDir, filePath));
+  candidates.push(path.join(REPO_ROOT, filePath));
+  for (const c of candidates) {
+    try {
+      if (fs.existsSync(c)) return fs.readFileSync(c, 'utf8');
+    } catch (_) { /* fall through */ }
+  }
+  try {
+    const r = spawnSync('git', ['show', ':' + filePath], { cwd: REPO_ROOT, encoding: 'utf8' });
+    if (r.status === 0) return r.stdout || '';
+  } catch (_) { /* ignore */ }
+  return '';
+}
+
+// scanStaged: the API the Task-1 tests call. Honors the staged-file + content
+// seams; pure (returns the violation array, never exits).
+function scanStaged() {
+  return scanFiles(getStagedFiles(), readStagedContent);
+}
+
+// ---------------------------------------------------------------------------
+// Full-repo walker (for --baseline). LOCAL-only: reads source files from disk,
+// never room.db, never network.
+// ---------------------------------------------------------------------------
+function walkSourceFiles(dirAbs, relPrefix, out) {
+  let entries;
+  try {
+    entries = fs.readdirSync(dirAbs, { withFileTypes: true });
+  } catch (_) {
+    return;
+  }
+  for (const e of entries) {
+    if (e.name === 'node_modules' || e.name === '.git') continue;
+    const childAbs = path.join(dirAbs, e.name);
+    const childRel = relPrefix ? relPrefix + '/' + e.name : e.name;
+    if (e.isDirectory()) {
+      walkSourceFiles(childAbs, childRel, out);
+    } else if (/\.(cjs|js|mjs)$/.test(e.name)) {
+      out.push(childRel);
+    }
+  }
+}
+
+function scanRepo() {
+  const files = [];
+  walkSourceFiles(path.join(REPO_ROOT, 'lib'), 'lib', files);
+  walkSourceFiles(path.join(REPO_ROOT, 'scripts'), 'scripts', files);
+  const readFromDisk = (rel) => {
+    try {
+      return fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+    } catch (_) {
+      return '';
+    }
+  };
+  return scanFiles(files, readFromDisk);
+}
+
+// ---------------------------------------------------------------------------
+// Output helpers.
+// ---------------------------------------------------------------------------
+function groupByRule(violations) {
+  const groups = {};
+  for (const v of violations) {
+    (groups[v.rule] = groups[v.rule] || []).push(v);
+  }
+  return groups;
+}
+
+function printGrouped(violations, stream) {
+  const groups = groupByRule(violations);
+  const ruleNames = Object.keys(groups).sort();
+  for (const rule of ruleNames) {
+    stream.write('[' + rule + '] ' + groups[rule].length + ' violation(s):\n');
+    for (const v of groups[rule]) {
+      stream.write('  ' + v.file + ':' + v.line + ': ' + v.match + '\n');
+    }
+    stream.write('\n');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// CLI entry point.
+// ---------------------------------------------------------------------------
+function runBaseline() {
+  const violations = scanRepo();
+  process.stdout.write('[check-substrate] --baseline: full-repo scan (INFORMATIONAL, non-blocking)\n');
+  process.stdout.write('Found ' + violations.length + ' violation(s) across lib/ + scripts/.\n\n');
+  printGrouped(violations, process.stdout);
+  process.stdout.write('Plan 03 wires --diff into the pre-commit hook and decides blocking-on-net-new.\n');
+  process.exit(0);
+}
+
+function runDiff() {
+  const violations = scanStaged();
+  if (violations.length === 0) {
+    process.exit(0);
+  }
+  process.stderr.write('[check-substrate] FAIL (--diff): staged changes bypass the navigation.cjs chokepoint:\n');
+  printGrouped(violations, process.stderr);
+  process.stderr.write('Route the access through lib/core/navigation.cjs, or add the path to ALLOWED_DIRECT_IMPORT in scripts/check-substrate.cjs.\n');
+  process.exit(1);
+}
+
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  if (args.includes('--diff')) {
+    runDiff();
+  } else if (args.includes('--check-chokepoint')) {
+    // Superset alias: run the full scan in --diff (blocking) mode so external
+    // callers of the retired subcommand keep working per the ADR retirement plan.
+    runDiff();
+  } else {
+    // default / --baseline
+    runBaseline();
+  }
+}
+
+module.exports = {
+  scanFiles,
+  scanStaged,
+  scanRepo,
+  isAllowedPath,
+  ALLOWED_DIRECT_IMPORT,
+  BANNED_REQUIRE_PATTERNS,
+};
