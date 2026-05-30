@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
-stopped_at: Completed 129-01-PLAN.md (Wave 1 spine substrate: 5 net-new event types + FOLLOWS_FROM 8th cascade edge + 60s logEvent dedup + spine-events.cjs roomDir helpers + getCurrentJTBD/getCurrentOperator)
-last_updated: "2026-05-30T20:30:00.000Z"
-last_activity: 2026-05-30 -- Phase 129 Plan 01 executed (spine memory-event substrate; 15/15 GREEN; Phase 109 acceptance still 1/1; substrate guard clean)
+stopped_at: Completed 129-02-PLAN.md (Wave 2 read surfaces: /mos:status + /mos:memory emit spine_read; /mos:suggest-next emits suggestion_surfaced; all 3 routed through navigation.cjs, substrate guard clean)
+last_updated: "2026-05-30T21:00:00.000Z"
+last_activity: 2026-05-30 -- Phase 129 Plan 02 executed (read-surface spine event emission; 7/7 GREEN; 129-01 substrate still 15/15; substrate guard clean; zero direct room.db access)
 progress:
   total_phases: 70
   completed_phases: 47
   total_plans: 339
-  completed_plans: 325
+  completed_plans: 326
   percent: 66
 ---
 
@@ -24,6 +24,14 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 **Current focus:** Phase 127.1 — brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap
 
 ## Current Position
+
+**Phase 129-02 closure (2026-05-30):**
+
+- dc280f30 test(129-02): add failing read-surface event emission suite (7 tests)
+- c23300c6 feat(129-02): emit spine_read from /mos:status and /mos:memory
+- 286b53a4 feat(129-02): emit suggestion_surfaced from /mos:suggest-next
+
+Phase 129-02 outcome: Wave 2 read surfaces wired onto the Plan 01 helpers. /mos:status emits exactly one spine_read (surface=status) per render carrying section + a JTBD + operator snapshot (via navigation.getCurrentJTBD/getCurrentOperator), deduped on a no-op repeat by the Plan 01 60s TTL. /mos:memory emits spine_read (surface=memory, layer=<subcommand>) after each rendered subcommand EXCEPT --opt-out (which short-circuits before the switch; emitting there would contradict the user opting out of memory). /mos:suggest-next emits suggestion_surfaced whose properties.commands is an array of { command, score } sourced from the SAME ranked items[] the F.1 renderer reads (numeric .score, never fabricated; falls back to the resolver-composed workflow commands at score 0 when the ranker is empty) with properties.top_score = the max score. All 3 scripts reach room.db ONLY through navigation.cjs (logSpineRead / logSuggestionSurfaced, roomDir-only never a db handle); the live substrate guard scanFiles returns [] for all three and both feat commits passed the live pre-commit hook (no --no-verify). Emission is best-effort everywhere: it runs AFTER stdout, wrapped in try/catch, degrading to a no-op on a navigation load failure or absent room.db (the render still prints) -- mitigating threat T-129-02-03. Zero new dependencies; no em-dashes. 7/7 GREEN; 129-01 substrate still 15/15 (zero regression). SUMMARY at .planning/phases/129-spine-repair-memory-event/129-02-SUMMARY.md; 129-02 flipped to [x] in ROADMAP.md. Wave 2 continues with 129-03 (jtbd + operator transitions) and 129-04 (act + pipeline workflow_stage) reusing the identical post-side-effect, navigation-routed, best-effort pattern.
 
 **Phase 129-01 closure (2026-05-30):**
 
