@@ -1575,6 +1575,33 @@ Plans:
 
 **Authority:** `.planning/phases/129-spine-repair-memory-event/129-CONTEXT.md` (scoped 2026-05-16) + `.planning/v1.13.1-EXECUTION-PLAN.md` "Synthesis-Plan Absorption (2026-05-16)" section.
 
+### Phase 129.5: Truth-Machine Activation — Wire the Human-Confirms-Truth Lever (v1.13.1 — SCOPED 2026-05-30)
+
+**Goal:** Make Canon Part 9's constitutional link real in running code. A human APPROVE at a Decision Gate promotes a `proposed` truth-claim node to `confirmed` via a single `confirmNode` chokepoint calling `promoteNodeStatus` with USER.md navigator attribution; no agent (Larry, Brain, hooks, sub-agents) can write a `confirmed` truth-claim node. After this phase, `confirmedFacts` returns real human-confirmed memory in a live room, and every promotion emits a `memory_event`.
+
+**Depends on:** Phase 109 sql-context-memory-navigation-spine (shipped — `promoteNodeStatus` + `transitions.cjs` live here); Phase 128 substrate-contract-adr (shipped — the provenance floor + live net-new-aware guard); Phase 129 spine-repair-memory-event (shipped — the `memory_event` spine the promotion event rides on).
+
+**Dependents:** Phase 130 lens-engine-skeleton (accept-on-lens-rotation should promote via `confirmNode`, not just emit); Phase 116 unresolved-tension-hook; any future Decision Gate surface (125 ranker accept).
+
+**Target band:** v1.13.1-beta.4 — Wave 4.5 Stream F+ (after 129, parallel to 130). Estimated ~2-3 days.
+
+**Canon parts:** Part 3 (Tri-Context Decision Gate — APPROVE is the promotion trigger); Part 4 (a confirmation is a typed status transition + memory_event); Part 9 (memory locality — "the human confirms truth", the ONLY path to trusted memory; amended v1.5 with the audit-node carve-out).
+
+**Brain impact:** NONE (LOCAL-only truth-state promotion).
+
+**Locked decisions (D-01/D-02/D-03):** single `confirmNode(db, id, byUser)` chokepoint owns APPROVE->promote; `byUser` = USER.md navigator identity (rejects larry/brain/system/assistant); Canon Part 9 carve-out exempts memory_event/audit/system-bookkeeping nodes from the human-confirm rule. Locked via AskUserQuestion 2026-05-30; not reopened by the --auto chain.
+
+**Status:** Planned — ready for `/gsd:execute-phase 129.5`.
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 129.5-01-PLAN.md — Wave 1: Canon Part 9 audit-node carve-out (D-03) amendment + CANON-PHASE-MAP row + focus.cjs:63 justification
+- [ ] 129.5-02-PLAN.md — Wave 1: confirmNode chokepoint (D-01) + human-attribution guard (D-02) + resolveByUser USER.md identity + navigation.cjs re-export + SUBSTRATE-CONTRACT M11 amendment
+- [ ] 129.5-03-PLAN.md — Wave 2: Decision Gate APPROVE path wiring (selector dispatcher -> confirmNode) + confirmedFacts contract + instrumented acceptance test + aggregator + Feynman registration
+
+**Authority:** `.planning/phases/129.5-truth-machine-activation/129.5-CONTEXT.md` (scoped 2026-05-30, 3 LOCKED decisions) + 2026-05-30 memory-system dog-food review finding C1.
+
 ### Phase 130: Lens-Engine Skeleton + Cognitive-Family Migration (v1.13.1 — SCOPED 2026-05-16)
 
 **Goal:** Ship `lib/core/lens-engine.cjs` — the single architectural substrate that absorbs the duplicate lens-rotation logic scattered across 18+ commands. The engine ships in v1.13.1 with one populated lens family (cognitive); the other four families (domain / source / framework / trend) get registry slots and stay empty until their v1.14.0 migrations. The cognitive-family migration moves `think-hats / persona / hat-briefing / challenge-assumptions` from filesystem-mediated state to room.db typed nodes via `navigation.cjs`.
