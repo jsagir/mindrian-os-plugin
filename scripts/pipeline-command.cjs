@@ -43,6 +43,20 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const recommender = require(path.join(REPO_ROOT, 'lib', 'brain', 'chain-recommender.cjs'));
 const resolver = require(path.join(REPO_ROOT, 'lib', 'workflow', 'command-resolver.cjs'));
 
+// Phase 129-04: navigation.cjs is the ONLY door to room.db for this script (it
+// is NOT substrate-guard allow-listed). Lazy-required with a graceful try/catch
+// so a navigation load failure degrades the workflow_stage emission to a no-op
+// and never affects the rendered /mos:pipeline run order.
+let _navigation = null; // null=untried, false=absent, object=loaded
+function tryLoadNavigation() {
+  if (_navigation !== null) return _navigation;
+  try {
+    const mod = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
+    _navigation = (mod && typeof mod.logWorkflowStage === 'function') ? mod : false;
+  } catch (_) { _navigation = false; }
+  return _navigation;
+}
+
 // ---------- argv parsing ----------
 
 function parseArgs(argv) {
@@ -119,6 +133,64 @@ function renderRunPlan(seedLabel, frameworkChain, workflow) {
   return out.join('\n') + '\n';
 }
 
+// ---------- workflow_stage emission (Phase 129-04) ----------
+
+/**
+ * emitWorkflowStages(roomDir, workflow)
+ *
+ * Journals one workflow_stage (surface='pipeline', phase='entered') and one
+ * (phase='completed') per resolved stage that has a /mos: command. A
+ * command-less stage (the "run it manually; continuing" skip path) is skipped
+ * from emission (it never ran), but never throws. completed FOLLOWS_FROM its own
+ * entered; each stage's entered FOLLOWS_FROM the prior stage's completed -- the
+ * cross-stage chain that demonstrates "one memory_event clearly follows another
+ * in the proactive loop" (129-CONTEXT). Stage names come from the resolver
+ * (never fabricated). Best-effort: routes through navigation.logWorkflowStage
+ * (roomDir-only, never a db handle), wrapped in try/catch, never load-bearing
+ * for the printed run order. NO em-dashes.
+ */
+function emitWorkflowStages(roomDir, workflow) {
+  try {
+    const nav = tryLoadNavigation();
+    if (!nav) return { ok: false, reason: 'no_room_db' };
+    let dir = roomDir;
+    if (!dir && typeof nav.detectActiveRoom === 'function') {
+      const active = nav.detectActiveRoom();
+      if (active && typeof active.roomDir === 'string') dir = active.roomDir;
+    }
+    if (!dir || typeof dir !== 'string') return { ok: false, reason: 'no_room_db' };
+    if (!Array.isArray(workflow)) return { ok: false, reason: 'no_workflow' };
+
+    let priorCompletedId = null; // stage N+1 entered FOLLOWS_FROM this.
+
+    function emitOne(phase, step, follows) {
+      const fw = typeof step.framework === 'string' ? step.framework : null;
+      const payload = {
+        surface: 'pipeline',
+        phase,
+        stage: typeof step.command === 'string' && step.command.length > 0
+          ? step.command : (fw || 'manual'),
+        stage_step: step.step,
+        framework: fw,
+      };
+      if (typeof follows === 'string' && follows.length > 0) payload.follows_from = follows;
+      const r = nav.logWorkflowStage(dir, payload);
+      return (r && typeof r.eventId === 'string') ? r.eventId : null;
+    }
+
+    for (const step of workflow) {
+      // A command-less stage never runs (manual), so it emits nothing.
+      if (!step || typeof step.command !== 'string' || step.command.length === 0) continue;
+      const enteredId = emitOne('entered', step, priorCompletedId);
+      const completedId = emitOne('completed', step, enteredId || priorCompletedId);
+      priorCompletedId = completedId || enteredId || priorCompletedId;
+    }
+    return { ok: true };
+  } catch (_e) {
+    return { ok: false, reason: 'no_room_db' };
+  }
+}
+
 function usage() {
   return [
     '-- MindrianOS -- pipeline --',
@@ -169,6 +241,12 @@ function main(argv) {
   const frameworkChain = recommender.recommendFrameworkChain(opts);
   const workflow = resolver.composeWorkflow(frameworkChain);
   process.stdout.write(renderRunPlan(seedLabel, frameworkChain, workflow));
+
+  // Phase 129-04: journal each pipeline stage AFTER stdout so the run order is
+  // never delayed. Best-effort; never load-bearing for the printed output.
+  try { emitWorkflowStages(roomDir, workflow); }
+  catch (_e) { /* telemetry is best-effort; never crash /mos:pipeline */ }
+
   process.exit(0);
 }
 
@@ -188,5 +266,6 @@ module.exports = {
   resolveRoomDir: resolveRoomDir,
   readProblemType: readProblemType,
   renderRunPlan: renderRunPlan,
+  emitWorkflowStages: emitWorkflowStages,
   main: main,
 };
