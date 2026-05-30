@@ -1569,7 +1569,7 @@ Plans:
 Plans:
 - [x] 129-01-PLAN.md -- Wave 1: shared substrate (5 net-new spine event types + FOLLOWS_FROM 8th cascade edge + 60s idempotency + spine-events.cjs roomDir helpers + getCurrentJTBD/getCurrentOperator) -- DONE 2026-05-30 (67250de1 RED, bce99900 Task 1, e5b83304 Task 2; 15/15 GREEN; 109 acceptance still 1/1)
 - [x] 129-02-PLAN.md -- Wave 2: read surfaces (mos-status + memory-command emit spine_read; suggest-next emits suggestion_surfaced) -- DONE 2026-05-30 (dc280f30 RED, c23300c6 Task 1, 286b53a4 Task 2; 7/7 GREEN; 129-01 substrate still 15/15; substrate guard clean)
-- [ ] 129-03-PLAN.md -- Wave 2: state transitions (jtbd + operator emit transitions; retire the operator.cjs node:sqlite bypass through navigation.cjs)
+- [x] 129-03-PLAN.md -- Wave 2: state transitions (jtbd + operator emit transitions; retire the operator.cjs node:sqlite bypass through navigation.cjs) -- DONE 2026-05-30 (e2e5b90c RED, 4f7eb97b Task 1, a6ca075a Task 2; 13/13 GREEN; operator-state 12/12 + 129-01 substrate 15/15; substrate guard clean; operator.cjs baselined-violation closed)
 - [ ] 129-04-PLAN.md -- Wave 2: workflow execution (act + pipeline emit workflow_stage with FOLLOWS_FROM chaining)
 - [ ] 129-05-PLAN.md -- Wave 3: instrumented proactive-loop acceptance test + aggregator + Feynman registration + zero-regression gate
 
