@@ -10,7 +10,11 @@
 #   test-130-lens-engine.cjs    -> 130-02 (rotate() engine + 5-family registry +
 #                                  serial/parallel/single modes + the 3 pure
 #                                  synthesizers + the 5 lens memory_event types)
-#   (Plans 03 / 04 register their suites here in later plans.)
+#   test-130-cognitive-migration.cjs -> 130-03 (hat-persistence room.db rewrite +
+#                                  one-shot backfill + the 4 thin lens-engine
+#                                  command clients + persona-ops loop delegation +
+#                                  tension-map dedup)
+#   (Plan 04 registers its suite here in a later plan.)
 #
 # CJS_SUITES entries resolve relative to this directory (tests/). Run per suite
 # with node. bash only. No emoji. No em-dashes.
@@ -25,6 +29,7 @@ SHELL_SUITES=(
 CJS_SUITES=(
   test-130-lens-substrate.cjs
   test-130-lens-engine.cjs
+  test-130-cognitive-migration.cjs
 )
 
 TOTAL=0
