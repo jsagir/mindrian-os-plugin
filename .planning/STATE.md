@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
-stopped_at: Completed 129.5-03-PLAN.md (Wave 2: Decision Gate APPROVE path wiring -- selector dispatcher accept branch -> navigation.confirmNode with USER.md byUser + getConfirmedFacts contract widening + instrumented acceptance test + run-all-129.5 aggregator + Feynman registration). TDD RED then GREEN, 12/12 truth-machine; PHASE 129.5 COMPLETE (3/3 plans). Live pre-commit hook + substrate guard passed (no --no-verify).
-last_updated: "2026-05-31T00:00:00.000Z"
-last_activity: 2026-05-31 -- Phase 129.5 Plan 03 executed; PHASE 129.5 (Truth-Machine Activation) COMPLETE 3/3
+stopped_at: Phase 128.1 context gathered
+last_updated: "2026-05-30T22:01:22.934Z"
+last_activity: 2026-05-20 -- Phase 127.1 execution started
 progress:
   total_phases: 71
-  completed_phases: 50
-  total_plans: 346
+  completed_phases: 49
+  total_plans: 350
   completed_plans: 333
   percent: 69
 ---
@@ -24,6 +24,15 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 **Current focus:** Phase 127.1 — brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap
 
 ## Current Position
+
+**Phase 130-01 closure (2026-05-31) -- Wave 1 of Phase 130 (Lens-Engine Skeleton) -- the shared substrate:**
+
+- 3976140c test(130-01): add RED lens substrate suite (INFORMS/REJECTED_BECAUSE + lens-nodes chokepoint)
+- 4c8f4a91 feat(130-01): add INFORMS + REJECTED_BECAUSE to ALLOWED_EDGE_TYPES (close H2)
+- 1b07ae65 feat(130-01): lens-nodes.cjs node-write chokepoint + navigation re-exports + M11 amendment
+- 1de18e10 test(130-01): wire run-all-130.sh aggregator + zero-regression gate
+
+Phase 130-01 outcome: the engine (Plan 02) and the hat-persistence rewrite (Plan 03) now have a canon-legal door for every edge + node write they need. Two net-new cascade edge types landed on the closed allowlist: INFORMS (the lens-engine onAccept edge -- a lens finding INFORMS a target node) and REJECTED_BECAUSE (the onReject rejection-as-data edge per Canon Part 4, carrying an enum-only reason scalar per Part 8). This closes review finding H2: INFORMS had been NAMED in the shipped-vocabulary comment since Phase 129-01 but was never actually a member of ALLOWED_EDGE_TYPES, so writeEdge would have rejected the very edge the engine needs to write. ASSOCIATION_LENS / TRANSITION_LENS stay OUT of the Set per the 2026-05-16 dual-graph verdict. The new lib/core/navigation/lens-nodes.cjs is the typed HatState + lens_finding node-write chokepoint: writeHatState(db,color,state) / readHatState(db,color) / readAllHatStates(db) / writeLensFinding(db,params). Each writer takes a CALLER-OWNED db handle (obtained via openRoomDb) EXACTLY like edges.cjs writeEdge -- the module NEVER requires node:sqlite and NEVER opens room.db itself (a source-grep test enforces this), so it carries zero direct room.db open and stays inside the lib/core/navigation/ allow-list with zero substrate bypass. This is the deliberate contrast with the roomDir-taking sibling spine-events.cjs: the db-handle signature lets Plan 02's onAccept batch a lens_finding node write AND its INFORMS edge on one open/close. writeHatState UPSERTs id 'hatstate:'+color, type 'HatState', created_by='system' review_status='confirmed' -- canon-legal WITHOUT a human byUser per the Canon Part 9 v1.5 audit-node carve-out (a HatState node is system-bookkeeping, NOT in the truth-claim set {claim,CausalClaim,assumption,decision,opportunity}); cited in-source. It validates color against the closed 6-color set (white/red/black/yellow/green/blue), returning invalid_hat_color otherwise. readHatState / readAllHatStates return the hat-persistence.cjs default shape (current_focus 'General analysis', last_analysis 'never', empty arrays, session_count 0) for unwritten colors; readAllHatStates always returns all 6 keys. writeLensFinding UPSERTs type 'lens_finding' review_status='proposed' created_by='system' (a proposed surface awaiting the Decision Gate, never auto-confirmed) -- it is the node the engine onAccept INFORMS edge points FROM. The INSERT shape mirrors ingestion.cjs verbatim (full provenance columns). navigation.cjs re-exports the 4 writers with a per-export justification block; SUBSTRATE-CONTRACT M11 allow-list gains the 4 export keys plus a Phase 130-01 amendment paragraph naming the source module, the 4 exports, the consumers (Plan 02 lens-engine.cjs; Plan 03 hat-persistence.cjs rewrite), and the caller-owned-db-handle / zero-bypass invariant. TDD: the RED suite failed (lens-nodes.cjs absent + edge types not yet in the Set), GREEN reached in two feat commits, 10/10 behavior tests pass. tests/run-all-130.sh mirrors run-all-129.sh, registers test-130-lens-substrate.cjs (Plans 02/03/04 append later). Zero regression: Phase 129 spine substrate + Phase 109 navigation acceptance both still pass after the additive edges.cjs + navigation.cjs changes. Zero deviations -- plan executed exactly as written. Zero em-dashes across all touched files; every commit passed the live substrate guard with NO --no-verify. SUMMARY at .planning/phases/130-lens-engine-skeleton/130-01-SUMMARY.md; 130-01 flipped to [x] in ROADMAP.md. Wave 2 (130-02: lens-engine.cjs rotate() + 5-family registry + 3 synthesizers + 5 lens memory_event types) is next.
 
 **Phase 129.5-03 closure (2026-05-31) -- Wave 2 of Phase 129.5 (Truth-Machine Activation) -- PHASE 129.5 COMPLETE:**
 

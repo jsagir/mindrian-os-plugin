@@ -1621,7 +1621,7 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 130-01-PLAN.md - Shared substrate: INFORMS + REJECTED_BECAUSE edge types (closes H2) + lens-nodes.cjs HatState/lens-finding node chokepoint via navigation.cjs
+- [x] 130-01-PLAN.md - Shared substrate: INFORMS + REJECTED_BECAUSE edge types (closes H2) + lens-nodes.cjs HatState/lens-finding node chokepoint via navigation.cjs
 - [ ] 130-02-PLAN.md - lens-engine.cjs rotate() + 5-family registry + serial/parallel/single modes + 3 synthesizers (tension-map/comparison-matrix/convergence-map) + 5 lens memory_event types
 - [ ] 130-03-PLAN.md - Cognitive-family migration: hat-persistence room.db rewrite + one-shot backfill + 4 thin command clients + tension-map dedup
 - [ ] 130-04-PLAN.md - 8 E2E tests (6 cognitive serial/parallel/single/consume + 2 engine-contract: rejection-as-data + persona-aware framing) + Feynman registration
