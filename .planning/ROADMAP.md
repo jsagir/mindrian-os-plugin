@@ -1562,7 +1562,16 @@ Plans:
 
 **Brain impact:** NONE (LOCAL-only spine refactor).
 
-**Status:** Scoped — ready for `/gsd:discuss-phase 129`.
+**Status:** Planned -- 5 plans across 3 waves (planned 2026-05-30).
+
+**Plans:** 5 plans
+
+Plans:
+- [ ] 129-01-PLAN.md -- Wave 1: shared substrate (5 net-new spine event types + FOLLOWS_FROM 8th cascade edge + OPERATOR_TRANSITION edge + 60s idempotency + spine-events.cjs roomDir helpers + getCurrentJTBD/getCurrentOperator)
+- [ ] 129-02-PLAN.md -- Wave 2: read surfaces (mos-status + memory-command emit spine_read; suggest-next emits suggestion_surfaced)
+- [ ] 129-03-PLAN.md -- Wave 2: state transitions (jtbd + operator emit transitions; retire the operator.cjs node:sqlite bypass through navigation.cjs)
+- [ ] 129-04-PLAN.md -- Wave 2: workflow execution (act + pipeline emit workflow_stage with FOLLOWS_FROM chaining)
+- [ ] 129-05-PLAN.md -- Wave 3: instrumented proactive-loop acceptance test + aggregator + Feynman registration + zero-regression gate
 
 **Authority:** `.planning/phases/129-spine-repair-memory-event/129-CONTEXT.md` (scoped 2026-05-16) + `.planning/v1.13.1-EXECUTION-PLAN.md` "Synthesis-Plan Absorption (2026-05-16)" section.
 
