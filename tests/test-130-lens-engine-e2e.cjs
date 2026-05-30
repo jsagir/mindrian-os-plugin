@@ -460,6 +460,106 @@ test('E2E 6: migrateHatsToRoomDb is idempotent (second run no-ops, one HatState 
   }
 });
 
+// ---------------------------------------------------------------------------
+// E2E 7 (engine-contract): rejection-as-data per Canon Part 4. A rotation drives
+// a finding through the onReject path with an enum reason scalar; the edges table
+// carries exactly one REJECTED_BECAUSE edge FROM the lens_finding node (TO the
+// assumption FK anchor) carrying the enum reason in properties; a
+// lens_finding_rejected memory_event was emitted; and NO INFORMS edge was written
+// for the rejected finding (rejection is strictly the reject path).
+// ---------------------------------------------------------------------------
+test('E2E 7: onReject writes exactly one REJECTED_BECAUSE edge + a rejected event + NO INFORMS (Canon Part 4)', async () => {
+  const { tmp, roomDir } = setupRoom();
+  const db = openRoomDb(roomDir);
+  try {
+    const REJECT_REASON = 'evidence-too-thin';
+    const result = await rotateInstrumented(roomDir, db, {
+      lensType: 'cognitive',
+      lensSet: ['black-hat'],
+      input: { roomDir, topic: 'rejection path', db, sessionId: 'reject-1' },
+      perLensFn: makePerLensFn(null),
+      synthesize: 'tension-map',
+      surfaceSelector: 'F.1',
+      rotationMode: 'single',
+      // rejectAll routes every finding through the reject path ONLY (no accept).
+      rejectAll: true,
+      onReject: function (_lens, _raw) {
+        return { reject: true, target_id: REJECT_TARGET, reason: REJECT_REASON };
+      },
+      // An onAccept is provided too, to PROVE rejectAll suppresses it (no INFORMS).
+      onAccept: function (_lens, _raw) {
+        return { target_id: INFORMS_TARGET, reason: 'should-not-fire' };
+      },
+    });
+    ok(result && result.ok === true, 'reject rotate ok');
+    equal(result.findingIds.length, 1, 'one finding drove the reject path');
+    const findingId = result.findingIds[0];
+
+    // Exactly one REJECTED_BECAUSE edge FROM the lens_finding node, carrying the
+    // enum reason scalar in properties.
+    const rejectEdges = db.prepare(
+      "SELECT source, target, properties FROM edges WHERE type = 'REJECTED_BECAUSE' AND source = ?"
+    ).all(findingId);
+    equal(rejectEdges.length, 1, 'exactly one REJECTED_BECAUSE edge from the lens_finding node (got ' + rejectEdges.length + ')');
+    equal(rejectEdges[0].target, REJECT_TARGET, 'the REJECTED_BECAUSE edge points to the assumption anchor');
+    const props = JSON.parse(rejectEdges[0].properties);
+    equal(props.reason, REJECT_REASON, 'the enum reason scalar landed in edge properties (got ' + props.reason + ')');
+
+    // NO INFORMS edge for the rejected finding (rejection is strictly reject path).
+    const informsEdges = db.prepare(
+      "SELECT COUNT(*) AS c FROM edges WHERE type = 'INFORMS' AND source = ?"
+    ).get(findingId);
+    equal(informsEdges.c, 0, 'no INFORMS edge was written for the rejected finding (got ' + informsEdges.c + ')');
+
+    // A lens_finding_rejected memory_event was emitted.
+    const events = memoryEvents.findRecentChanges(db, 0, { limit: 200 });
+    const rejected = events.filter((e) => e.eventType === 'lens_finding_rejected');
+    equal(rejected.length, 1, 'exactly one lens_finding_rejected memory_event (got ' + rejected.length + ')');
+    equal(rejected[0].properties.reason, REJECT_REASON, 'the rejected event carries the enum reason');
+  } finally {
+    try { closeRoomDb(db); } catch (_) { /* ignore */ }
+    cleanup(tmp);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// E2E 8 (engine-contract): persona-aware framing consumes Phase 115 role_blend.
+// With the USER.md role_blend fixture from setupRoom, a rotation is run and the
+// perLensFn ctx is asserted to have received the role_blend tuple (the engine
+// read USER.md once and passed role_blend into every ctx), proving the framing
+// hook consumes Phase 115. The rotation still drives room.db only through
+// navigation (the instrumented gate, with USER.md the single allow-listed read).
+// ---------------------------------------------------------------------------
+test('E2E 8: persona-aware framing consumes the USER.md role_blend (Phase 115)', async () => {
+  const { tmp, roomDir } = setupRoom();
+  const db = openRoomDb(roomDir);
+  try {
+    const captured = [];
+    const result = await rotateInstrumented(roomDir, db, {
+      lensType: 'cognitive',
+      lensSet: 'six-hats',
+      input: { roomDir, topic: 'framing', db, sessionId: 'framing-1' },
+      perLensFn: makePerLensFn(captured),
+      synthesize: makeCapturingSynthesize({}),
+      surfaceSelector: 'F.1',
+      rotationMode: 'serial',
+    });
+    ok(result && result.ok === true, 'framing rotate ok');
+    ok(captured.length === 6, 'perLensFn fired for all 6 lenses (got ' + captured.length + ')');
+
+    // Every ctx carried the role_blend tuple read from USER.md (Phase 115).
+    for (const c of captured) {
+      ok(c.ctx && c.ctx.role_blend && typeof c.ctx.role_blend === 'object',
+        'each perLensFn ctx received a role_blend tuple (lens ' + c.lens + ')');
+      equal(c.ctx.role_blend.founder, ROLE_BLEND_FOUNDER, 'role_blend.founder consumed from USER.md');
+      equal(c.ctx.role_blend.researcher, ROLE_BLEND_RESEARCHER, 'role_blend.researcher consumed from USER.md');
+    }
+  } finally {
+    try { closeRoomDb(db); } catch (_) { /* ignore */ }
+    cleanup(tmp);
+  }
+});
+
 function run() {
   (async () => {
     let pass = 0;
