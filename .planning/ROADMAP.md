@@ -1591,14 +1591,14 @@ Plans:
 
 **Locked decisions (D-01/D-02/D-03):** single `confirmNode(db, id, byUser)` chokepoint owns APPROVE->promote; `byUser` = USER.md navigator identity (rejects larry/brain/system/assistant); Canon Part 9 carve-out exempts memory_event/audit/system-bookkeeping nodes from the human-confirm rule. Locked via AskUserQuestion 2026-05-30; not reopened by the --auto chain.
 
-**Status:** Executing — Wave 1 Plan 01 + Plan 02 shipped 2026-05-31 (Canon v1.5 carve-out; confirmNode chokepoint + human-attribution guard + resolveByUser live; promoteNodeStatus now has exactly one production caller). 2/3 plans complete.
+**Status:** COMPLETE — 3/3 plans shipped 2026-05-31. Canon v1.5 carve-out (Plan 01); confirmNode chokepoint + human-attribution guard + resolveByUser (Plan 02); Decision Gate APPROVE path wired into confirmNode + getConfirmedFacts contract + instrumented acceptance test (Plan 03). The human-confirms-truth lever is live end-to-end: a human APPROVE at a gate is the ONLY path to a confirmed truth-claim node, confirmedFacts returns real human-confirmed memory, an agent-initiated confirm is rejected, and every promotion emits a memory_event.
 
 **Plans:** 3 plans
 
 Plans:
 - [x] 129.5-01-PLAN.md — Wave 1: Canon Part 9 audit-node carve-out (D-03) amendment + CANON-PHASE-MAP row + focus.cjs:63 justification (shipped 2026-05-31; canon v1.4 -> v1.5)
 - [x] 129.5-02-PLAN.md — Wave 1: confirmNode chokepoint (D-01) + human-attribution guard (D-02) + resolveByUser USER.md identity + navigation.cjs re-export + SUBSTRATE-CONTRACT M11 amendment (shipped 2026-05-31; 19/19 TDD green; AGENT_IDENTITIES REJECT on confirm/validate of truth-claim nodes; promoteNodeStatus now has exactly one production caller)
-- [ ] 129.5-03-PLAN.md — Wave 2: Decision Gate APPROVE path wiring (selector dispatcher -> confirmNode) + confirmedFacts contract + instrumented acceptance test + aggregator + Feynman registration
+- [x] 129.5-03-PLAN.md — Wave 2: Decision Gate APPROVE path wiring (selector dispatcher accept branch -> navigation.confirmNode with USER.md byUser) + getConfirmedFacts contract widening (IN ('confirmed','validated') over the truth-claim type set; getRiskyAssumptions narrowed to needs_evidence-only, disjointness preserved) + instrumented acceptance test (4 load-bearing assertions) + run-all-129.5 aggregator + Feynman registration (shipped 2026-05-31; 12/12 TDD green; zero raw SQL in selector-decisions.cjs; zero 109/129 regression). **PHASE 129.5 COMPLETE.**
 
 **Authority:** `.planning/phases/129.5-truth-machine-activation/129.5-CONTEXT.md` (scoped 2026-05-30, 3 LOCKED decisions) + 2026-05-30 memory-system dog-food review finding C1.
 

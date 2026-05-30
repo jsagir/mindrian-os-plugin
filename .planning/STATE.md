@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
-stopped_at: Completed 129.5-02-PLAN.md (Wave 1: confirmNode(db,id,byUser,reason?) chokepoint D-01 + human-attribution guard D-02 + resolveByUser USER.md identity + navigation.cjs re-export + SUBSTRATE-CONTRACT M11 amendment). TDD RED then GREEN, 19/19; promoteNodeStatus REJECTS larry/brain/system/assistant on confirm/validate of truth-claim nodes (case-insensitive, before any mutation) and now has exactly one production caller (confirm-node.cjs, source-grep enforced). Live pre-commit hook + substrate guard passed (no --no-verify). 2/3 plans of Phase 129.5.
+stopped_at: Completed 129.5-03-PLAN.md (Wave 2: Decision Gate APPROVE path wiring -- selector dispatcher accept branch -> navigation.confirmNode with USER.md byUser + getConfirmedFacts contract widening + instrumented acceptance test + run-all-129.5 aggregator + Feynman registration). TDD RED then GREEN, 12/12 truth-machine; PHASE 129.5 COMPLETE (3/3 plans). Live pre-commit hook + substrate guard passed (no --no-verify).
 last_updated: "2026-05-31T00:00:00.000Z"
-last_activity: 2026-05-31 -- Phase 129.5 Plan 02 executed (confirmNode chokepoint + human-attribution guard + resolveByUser USER.md identity resolver + navigation.cjs re-export + SUBSTRATE-CONTRACT M11 amendment; TDD RED+GREEN 19/19; 2 atomic commits, live pre-commit hook + substrate guard passed)
+last_activity: 2026-05-31 -- Phase 129.5 Plan 03 executed; PHASE 129.5 (Truth-Machine Activation) COMPLETE 3/3
 progress:
-  total_phases: 70
-  completed_phases: 48
-  total_plans: 339
-  completed_plans: 329
-  percent: 67
+  total_phases: 71
+  completed_phases: 50
+  total_plans: 346
+  completed_plans: 333
+  percent: 69
 ---
 
 # Project State
@@ -24,6 +24,14 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 **Current focus:** Phase 127.1 — brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap
 
 ## Current Position
+
+**Phase 129.5-03 closure (2026-05-31) -- Wave 2 of Phase 129.5 (Truth-Machine Activation) -- PHASE 129.5 COMPLETE:**
+
+- 88c1602d test(129.5-03): add failing truth-machine acceptance + accept-branch suite (RED)
+- 9293b272 feat(129.5-03): wire Decision Gate APPROVE into confirmNode + widen confirmedFacts (GREEN)
+- 298f61b0 chore(129.5-03): add run-all-129.5 aggregator + register both 129.5 suites in Feynman runner
+
+Phase 129.5-03 outcome: the constitutional link closed. The dead lever is wired into the live Decision Gate APPROVE path. recordSelectorDecision (lib/workflow/selector-decisions.cjs) gains an accept/approve branch: it reads db from roomState.db, requires a non-empty nodeId, resolves byUser (verbatim when supplied so a hostile-caller path exercises the AGENT_IDENTITIES guard end-to-end, else navigation.resolveByUser(roomState.roomDir) from USER.md), and calls navigation.confirmNode(db, nodeId, byUser, reason). It returns {ok:true, decision_id} (the status_promoted eventId) on success and surfaces agent_attribution_forbidden / unknown_node / invalid_transition / state_mismatch verbatim on failure. ZERO raw SQL, ZERO direct promoteNodeStatus: the branch touches room.db only through the navigation chokepoint (selector-decisions.cjs is NOT substrate-allow-listed, so this is the only canon-legal path); the defer/reject branches are byte-unchanged. getConfirmedFacts (lib/core/navigation/room-home.cjs) widened from the 109 validated-only contract to type IN {claim,CausalClaim,assumption,decision,opportunity} AND review_status IN ('confirmed','validated') so a freshly human-confirmed decision/claim/opportunity surfaces; getRiskyAssumptions narrowed to assumption + needs_evidence only, preserving the disjointness invariant by review_status partition (a confirmed assumption cleared human review so it belongs in confirmedFacts; the risky set is the needs_evidence assumptions; the two state sets do not overlap). 109 validated back-compat preserved. tests/test-129.5-truth-machine.cjs is the instrumented acceptance test (4 load-bearing assertions: a USER.md-attributed APPROVE promotes proposed->confirmed AND confirmedFacts returns it; an agent-attributed confirm via confirmNode(db,id,'system') is REJECTED with agent_attribution_forbidden and the node stays proposed AND is absent from confirmedFacts; a status_promoted memory_event is emitted on promotion with the human byUser in confirmed_by + target_node_id==nodeId; the focus_changed audit node written by setFocus with created_by=system review_status=confirmed is exempt -- setFocus succeeds and the audit node never appears in confirmedFacts) plus 11 unit cases; it mirrors the Phase 109/129 fs-instrument idiom with USER.md as the single allow-listed non-room.db read. tests/fixtures/phase-129.5/sample-room/seed.sql is a 4-node room (room + section + proposed decision + proposed claim). tests/run-all-129.5.sh is the phase aggregator (2/2: confirm-node Plan 02 + truth-machine Plan 03). lib/memory/run-feynman-tests.cjs registers both 129.5 suites additively. One deviation (Rule 1, test-fixture only): the defer/reject regression case lacked the cmd/framework edge-write anchor nodes (edges FK to nodes), so the defer call returned edge_write_failed; fixed by seeding the anchor nodes in the test, matching the existing selector-decisions.test.cjs seedAnchorNode pattern -- zero production-code deviation, the defer/reject branches are byte-unchanged (selector-decisions.test.cjs 17/17). Verification: truth-machine 12/12; confirm-node 19/19; run-all-129.5 2/2; navigation-acceptance 1/1 (zero 109 regression); run-all-129 green (zero 129 regression); room-home regression 8/8 (disjointness + Phase 90 fence held under the widened contract); substrate guard --diff clean on the staged selector-decisions.cjs change; live pre-commit hook passed on every commit (no --no-verify). Zero em-dashes across all files this plan created/modified. Out-of-scope: lib/memory/run-feynman-tests.cjs carries 2 pre-existing em-dashes in Phase 121.5/127 comment blocks I did not touch (not fixed per scope boundary; my 129.5 block has zero). SUMMARY at .planning/phases/129.5-truth-machine-activation/129.5-03-SUMMARY.md; 129.5-03 flipped to [x] in ROADMAP.md. PHASE 129.5 (Truth-Machine Activation) is COMPLETE, 3/3 plans shipped: a human APPROVE at a gate is now the ONLY path to a confirmed truth-claim node, confirmedFacts returns real human-confirmed memory, an agent-initiated confirm is rejected, and every promotion emits a memory_event. The truth machine stops being a design and becomes a running system.
 
 **Phase 129.5-02 closure (2026-05-31) -- Wave 1 of Phase 129.5 (Truth-Machine Activation):**
 
