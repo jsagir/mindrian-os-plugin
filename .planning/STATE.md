@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
-stopped_at: Completed 129-03-PLAN.md (Wave 2 state transitions: /mos:jtbd emits jtbd_transitioned set/clear/override; /mos:operator emits operator_transitioned exactly once; the operator.cjs node:sqlite OPERATOR_TRANSITION bypass is retired through navigation.cjs, substrate guard clean)
-last_updated: "2026-05-30T21:45:00.000Z"
-last_activity: 2026-05-30 -- Phase 129 Plan 03 executed (state-transition spine event emission + operator.cjs bypass retirement; 13/13 GREEN; operator-state 12/12 + 129-01 substrate 15/15; substrate guard clean; baselined operator.cjs violation closed)
+stopped_at: Completed 129-04-PLAN.md (Wave 2 workflow execution: /mos:act --chain emits workflow_stage entered+completed with framework+autonomy; /mos:pipeline emits workflow_stage entered/completed per stage; FOLLOWS_FROM chains consecutive spine events; both scripts route through navigation.logWorkflowStage with zero direct room.db access, substrate guard clean)
+last_updated: "2026-05-30T22:10:00.000Z"
+last_activity: 2026-05-30 -- Phase 129 Plan 04 executed (act + pipeline workflow_stage emission + FOLLOWS_FROM chaining; 10/10 GREEN; 129-01 substrate still 15/15; substrate guard clean; zero direct room.db access)
 progress:
   total_phases: 70
   completed_phases: 47
@@ -24,6 +24,14 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 **Current focus:** Phase 127.1 — brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap
 
 ## Current Position
+
+**Phase 129-04 closure (2026-05-30):**
+
+- e18bf137 test(129-04): add failing workflow_stage event emission suite (10 tests)
+- b3360d35 feat(129-04): emit workflow_stage from /mos:act on dispatch + completion
+- 5957e634 feat(129-04): emit workflow_stage per stage from /mos:pipeline with FOLLOWS_FROM chaining
+
+Phase 129-04 outcome: the 2 WORKFLOW-EXECUTION spine scripts now journal every act dispatch + completion and every pipeline stage to the canonical event log, closing the backward arc for the two execution surfaces. /mos:act --chain emits a workflow_stage (surface=act, phase=entered) carrying the dispatched methodology (stage) + framework + per-step autonomy enum (autonomous_safe | gated) at dispatch, and a workflow_stage (phase=completed) on return for every greenlit step; the completed event FOLLOWS_FROM its matching entered, and each subsequent entered FOLLOWS_FROM the prior completed. When the chain stops at a non-autonomous_safe gate, the greenlit prefix still fires entered+completed and the gated stop step fires phase=entered ONLY (no completed -- the absence of the completed event IS the stop). /mos:pipeline emits a workflow_stage (surface=pipeline) entered + completed per resolved stage that has a /mos: command; stage N+1's entered FOLLOWS_FROM stage N's completed and each completed FOLLOWS_FROM its own entered, so a 3-stage workflow lands 5 FOLLOWS_FROM edges (3 within-stage + 2 cross-stage) -- the "one memory_event clearly follows another in the proactive loop" demonstration from 129-CONTEXT. A command-less (manual) pipeline stage is skipped from emission and never throws. Both scripts reach room.db ONLY through navigation.logWorkflowStage (roomDir-only, never a db handle): the live substrate guard scanFiles returns [] for both and a grep proves zero direct room.db / node:sqlite / openRoomDb access (the only "room.db" string is a comment stating navigation is the only door). Emission is best-effort: lazy-require navigation.cjs with a graceful try/catch, runs AFTER stdout, wrapped in try/catch, degrading to a no-op on a navigation load failure or absent room.db (the gate render / run order still prints) -- mitigating threat T-129-04-03. The emission seam is an exported emitWorkflowStages helper on each script (callable from main() after stdout and from the test against synthetic multi-stage workflows) because the live recommender resolves single-stage chains in a fresh room without Brain; the seam keeps cross-stage FOLLOWS_FROM chaining under deterministic test control. Zero new dependencies; no em-dashes. 10/10 GREEN; 129-01 substrate still 15/15 (zero regression). SUMMARY at .planning/phases/129-spine-repair-memory-event/129-04-SUMMARY.md; 129-04 flipped to [x] in ROADMAP.md. All 6 spine scripts now journal their surface through navigation.cjs; the backward arc is closed for every spine surface. Wave 3 (129-05: instrumented proactive-loop acceptance test + aggregator + Feynman registration + zero-regression gate) is next.
 
 **Phase 129-03 closure (2026-05-30):**
 
