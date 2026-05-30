@@ -1616,7 +1616,15 @@ Plans:
 
 **Brain impact:** NONE (the engine writes LOCAL-only; Brain calls within rotations go through the Phase 110 packet contract).
 
-**Status:** Scoped — ready for `/gsd:discuss-phase 130`.
+**Status:** Planned — 4 plans, 4 waves (sequential). Ready for `/gsd:execute-phase 130`.
+
+**Plans:** 4 plans
+
+Plans:
+- [ ] 130-01-PLAN.md - Shared substrate: INFORMS + REJECTED_BECAUSE edge types (closes H2) + lens-nodes.cjs HatState/lens-finding node chokepoint via navigation.cjs
+- [ ] 130-02-PLAN.md - lens-engine.cjs rotate() + 5-family registry + serial/parallel/single modes + 3 synthesizers (tension-map/comparison-matrix/convergence-map) + 5 lens memory_event types
+- [ ] 130-03-PLAN.md - Cognitive-family migration: hat-persistence room.db rewrite + one-shot backfill + 4 thin command clients + tension-map dedup
+- [ ] 130-04-PLAN.md - 8 E2E tests (6 cognitive serial/parallel/single/consume + 2 engine-contract: rejection-as-data + persona-aware framing) + Feynman registration
 
 **Authority:** `.planning/phases/130-lens-engine-skeleton/130-CONTEXT.md` (scoped 2026-05-16) + `.planning/v1.13.1-EXECUTION-PLAN.md` "Synthesis-Plan Absorption (2026-05-16)" section.
 
