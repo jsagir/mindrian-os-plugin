@@ -4,13 +4,13 @@ milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
 stopped_at: Phase 128.1 context gathered
-last_updated: "2026-05-31T01:12:00.000Z"
-last_activity: 2026-05-31 -- Phase 130-02 (lens-engine + synthesizers) executed
+last_updated: "2026-05-31T02:00:00.000Z"
+last_activity: 2026-05-31 -- Phase 130-03 (cognitive-family migration) executed
 progress:
   total_phases: 71
   completed_phases: 49
   total_plans: 350
-  completed_plans: 334
+  completed_plans: 335
   percent: 69
 ---
 
@@ -24,6 +24,16 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 **Current focus:** Phase 127.1 — brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap
 
 ## Current Position
+
+**Phase 130-03 closure (2026-05-31) -- Wave 3 of Phase 130 (Lens-Engine Skeleton) -- cognitive-family migration onto the engine + room.db:**
+
+- 0dfd0cc2 feat(130-03): rewrite hat-persistence to room.db HatState + one-shot backfill
+- 1e651f82 feat(130-03): 4 cognitive commands become thin lens-engine clients + delegate persona-ops loop + dedup tension-map
+- 9d277e16 test(130-03): register cognitive-migration suite in run-all-130.sh + zero-regression gate
+
+Phase 130-03 outcome: the cognitive lens family now runs entirely on the engine + room.db, paying down the baselined Canon Part 9 filesystem-state violation. lib/core/hat-persistence.cjs RETIRES its 6 .mindrian/hats/{color}/STATE.md filesystem reads/writes onto typed HatState nodes through navigation.cjs (grep proves zero fs.writeFileSync against a STATE.md path), while PRESERVING the 7 export signatures (HAT_COLORS, HAT_LABELS, loadHatState, saveHatState, logSession, loadAllHatStates, getRecentLogs) so persona-ops.cjs and the hat-briefing Step 1 node -e block keep working. The module is NOT allow-listed, so it never requires room-db.cjs or node:sqlite; it requires navigation.cjs and routes every room.db touch through 3 new roomDir-taking wrappers added to the allow-listed lib/core/navigation/lens-nodes.cjs (writeHatStateByRoomDir / readHatStateByRoomDir / readAllHatStatesByRoomDir), which open/close room.db internally exactly like spine-events.cjs and are re-exported through navigation.cjs. The session-log daily markdown stays as a read-only archive (getRecentLogs reads it; logSession still appends) per the 130-CONTEXT pre-resolved decision that only STATE.md becomes a node this phase. scripts/migrate-hats-to-roomdb.cjs (allow-listed migrate- prefix) is a one-shot idempotent backfill: it scans existing STATE.md files, parses each via the legacy parseHatState shape, writes each to a HatState node via navigation.writeHatStateByRoomDir, and stamps a state_alias_migration memory_event sentinel (tag hats_to_roomdb) so a second run is a no-op; the legacy markdown is LEFT IN PLACE as a read-only archive. The 4 cognitive-family commands became thin lens-engine clients with their Phase 122 workflow-layer frontmatter preserved: think-hats (lens_set six-hats / rotation_mode serial / synthesizer tension-map), persona (six-hats / parallel / persistence memory_event), hat-briefing (a READER, rotation_mode consume over the prior lens memory_event tail + HatState nodes), challenge-assumptions (['black-hat'] / single / tension-map). persona-ops.cjs analyzeAllPerspectives RETIRES its manual HAT_COLORS for-loop and delegates to lens-engine.rotate (serial, cognitive six-hats); it is now async, and the 2 callers (bin/mindrian-tools.cjs persona analyze, lib/mcp/tool-router.cjs room_content analyze) were updated to await it. The buildPersonaContent inline disagreement prose (the tension-map duplicate) collapses into the ONE synthesizeTensionMap (lib/core/synthesizers/tension-map.cjs); a repo grep confirms no second tension-computation block remains. The live substrate guard scanFiles returns zero violations for the rewritten hat-persistence.cjs + persona-ops.cjs; zero regression across the prior 130 suites + navigation acceptance + the persona-variant suites; run-all-130.sh 3/3 green (19-test cognitive-migration suite added). Zero deviations; zero em-dashes; every commit passed the live substrate guard with NO --no-verify. SUMMARY at .planning/phases/130-lens-engine-skeleton/130-03-SUMMARY.md; 130-03 flipped to [x] in ROADMAP.md. Wave 4 (130-04: 8 E2E tests + Feynman registration) is next.
+
+---
 
 **Phase 130-02 closure (2026-05-31) -- Wave 2 of Phase 130 (Lens-Engine Skeleton) -- the rotate() engine + 3 synthesizers + 5 lens event types:**
 
