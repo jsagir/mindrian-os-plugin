@@ -80,6 +80,11 @@ function test3_followsFromAllowed() {
   ok(edges.ALLOWED_EDGE_TYPES.has('FOLLOWS_FROM'), 'FOLLOWS_FROM must be allowed');
   const { tmp, db } = makeRoom();
   try {
+    // Seed the two referenced nodes (edges carry FK constraints to nodes(id)).
+    const nowMs = Date.now();
+    const ins = db.prepare("INSERT OR IGNORE INTO nodes (id, type, properties, source_path, created_by, confidence, review_status, created_at, last_seen_at) VALUES (?, 'memory_event', '{}', 'fixture', 'system', NULL, 'confirmed', ?, ?)");
+    ins.run('memory_event:a', nowMs, nowMs);
+    ins.run('memory_event:b', nowMs, nowMs);
     const r = edges.writeEdge(db, {
       source_id: 'memory_event:a', target_id: 'memory_event:b',
       edge_type: 'FOLLOWS_FROM', properties: { surface: 'status' },
