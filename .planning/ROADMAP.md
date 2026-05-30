@@ -1521,12 +1521,12 @@ Plans:
 
 **Brain impact:** NONE (LOCAL-only ADR + CI guards).
 
-**Status:** In progress -- 2/3 plans executed (Wave 1 + Wave 2 shipped 2026-05-30); Wave 3 (128-03) remaining.
+**Status:** COMPLETE -- 3/3 plans executed (Wave 1 + Wave 2 + Wave 3 shipped 2026-05-30). The guard is wired into the live pre-commit hook + the installer; CONTEXT finding H1 closed (navigation.cjs is now the structurally-enforced only door -- net-new bypass hard-rejected at commit time). The 195 pre-existing violations are ledgered as known debt owned by Phases 129/129.5/130/v1.14.0.
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans executed
 - [x] 128-01-PLAN.md -- Substrate Contract ADR + reuse-vs-build decision + M11 export allow-list pin (Wave 1)
 - [x] 128-02-PLAN.md -- check-substrate.cjs guard (strict superset of --check-chokepoint) + 5-case test suite (Wave 2) [commits 65f60569 RED, a6baa645 GREEN]
-- [ ] 128-03-PLAN.md -- pre-commit hook wiring + installer template + baseline violation report (Wave 3)
+- [x] 128-03-PLAN.md -- pre-commit hook wiring + installer template + baseline violation report (Wave 3) [commits 1aba10d0 wire, 1f44b42d baseline]
 
 **Authority:** `.planning/phases/128-substrate-contract-adr/128-CONTEXT.md` (scoped 2026-05-16) + `.planning/v1.13.1-EXECUTION-PLAN.md` "Synthesis-Plan Absorption (2026-05-16)" section.
 
