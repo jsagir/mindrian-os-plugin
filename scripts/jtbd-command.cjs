@@ -61,6 +61,34 @@ function loadStateModule() {
   return jtbdState;
 }
 
+// Phase 129-03: lazy navigation.cjs loader (mirrors loadStateModule's lazy
+// pattern). The /mos:jtbd script is NOT in the substrate-guard allow-list, so it
+// reaches room.db ONLY through navigation.logJtbdTransition (roomDir-taking
+// helper from Plan 129-01). Wrapped in try/catch so a missing/broken navigation
+// module never blocks the cache write or the user render -- emission is
+// best-effort telemetry, never load-bearing.
+let navigationMod = null;
+function loadNavigation() {
+  if (navigationMod) return navigationMod;
+  navigationMod = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'navigation.cjs'));
+  return navigationMod;
+}
+
+// Emit a jtbd_transitioned memory_event via navigation.cjs. Best-effort: any
+// failure (no navigation module, no room.db, write error) is swallowed so the
+// command path never breaks. Emission fires AFTER the cache write + re-read
+// confirmation, BEFORE the final stdout render, so a later /mos:status sees it.
+function emitJtbdTransition(roomDir, payload) {
+  try {
+    const nav = loadNavigation();
+    if (nav && typeof nav.logJtbdTransition === 'function') {
+      nav.logJtbdTransition(roomDir, payload);
+    }
+  } catch (_e) {
+    // best-effort telemetry; never blocks the cache write or the render.
+  }
+}
+
 let taxonomyCache = null;
 function loadTaxonomy() {
   if (taxonomyCache) return taxonomyCache;
@@ -601,6 +629,14 @@ function main() {
       process.exit(1);
     }
     const newState = mod.getCurrent(room.abs_path);
+    // Phase 129-03: clear is a confirmed transition (mod.clear did not throw).
+    // Emit jtbd_transitioned kind='clear', to=null, from=<prior jtbd or null>.
+    emitJtbdTransition(room.abs_path, {
+      kind: 'clear',
+      from: state && state.jtbd ? state.jtbd : null,
+      to: null,
+      trigger: 'manual_clear',
+    });
     if (flags.json) {
       process.stdout.write(JSON.stringify({
         subcommand: 'clear', room: room.slug,
@@ -715,6 +751,22 @@ function main() {
       }
       process.exit(1);
     }
+
+    // Phase 129-03: confirmed set transition (newState.jtbd === arg). Emit
+    // jtbd_transitioned. kind='override' when the PRIOR state carried an active
+    // (non-expired) manual sticky window, else kind='set'. The jtbd-state.json
+    // cache already updated above (mod.setCurrent); this event log becomes the
+    // authoritative record while the cache stays as the fast-read fallback.
+    const priorOverrideActive = !!(mod._internal
+      && typeof mod._internal.manualOverrideActive === 'function'
+      && mod._internal.manualOverrideActive(state));
+    emitJtbdTransition(room.abs_path, {
+      kind: priorOverrideActive ? 'override' : 'set',
+      from: state && state.jtbd ? state.jtbd : null,
+      to: newState.jtbd,
+      confidence: newState.confidence,
+      trigger: 'manual_set',
+    });
 
     if (flags.json) {
       process.stdout.write(JSON.stringify({

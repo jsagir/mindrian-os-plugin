@@ -122,7 +122,8 @@ function test_jtbd_set_emits_event_and_updates_cache(room) {
   // Cache still updates (unchanged behavior).
   ok(fs.existsSync(jtbdStatePath(room)), 'jtbd-state.json cache must be written');
   const cache = JSON.parse(fs.readFileSync(jtbdStatePath(room), 'utf8'));
-  equal(cache.jtbd, 'explore', 'cache jtbd must equal the set value');
+  // jtbd-state.json nests the live value under `current`.
+  equal(cache.current && cache.current.jtbd, 'explore', 'cache jtbd must equal the set value');
   // Exactly ONE jtbd_transitioned event with kind=set, to=explore.
   const events = readEvents(room, 'jtbd_transitioned');
   equal(events.length, 1, 'exactly one jtbd_transitioned event after set');
