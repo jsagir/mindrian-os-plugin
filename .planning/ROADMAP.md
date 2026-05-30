@@ -1521,11 +1521,11 @@ Plans:
 
 **Brain impact:** NONE (LOCAL-only ADR + CI guards).
 
-**Status:** Planned -- 3 plans in 3 waves (planned 2026-05-30); ready for `/gsd:execute-phase 128`.
+**Status:** In progress -- 2/3 plans executed (Wave 1 + Wave 2 shipped 2026-05-30); Wave 3 (128-03) remaining.
 
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 - [x] 128-01-PLAN.md -- Substrate Contract ADR + reuse-vs-build decision + M11 export allow-list pin (Wave 1)
-- [ ] 128-02-PLAN.md -- check-substrate.cjs guard (strict superset of --check-chokepoint) + 5-case test suite (Wave 2)
+- [x] 128-02-PLAN.md -- check-substrate.cjs guard (strict superset of --check-chokepoint) + 5-case test suite (Wave 2) [commits 65f60569 RED, a6baa645 GREEN]
 - [ ] 128-03-PLAN.md -- pre-commit hook wiring + installer template + baseline violation report (Wave 3)
 
 **Authority:** `.planning/phases/128-substrate-contract-adr/128-CONTEXT.md` (scoped 2026-05-16) + `.planning/v1.13.1-EXECUTION-PLAN.md` "Synthesis-Plan Absorption (2026-05-16)" section.

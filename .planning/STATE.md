@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
-stopped_at: Phase 128.1 context gathered
+stopped_at: Completed 128-02-PLAN.md (check-substrate.cjs guard + 5-case suite, Wave 2)
 last_updated: "2026-05-30T19:41:26.946Z"
-last_activity: 2026-05-20 -- Phase 127.1 execution started
+last_activity: 2026-05-30 -- Phase 128 Plan 02 executed (substrate-contract CI guard)
 progress:
   total_phases: 70
   completed_phases: 46
   total_plans: 338
-  completed_plans: 322
+  completed_plans: 323
   percent: 66
 ---
 
