@@ -338,7 +338,9 @@ async function main() {
         }
         case 'analyze': {
           const artifactPath = argv[3] || null;
-          const result = personaOps.analyzeAllPerspectives(roomDir, artifactPath);
+          // Phase 130-03: analyzeAllPerspectives now delegates to the lens-engine
+          // rotation loop and is async; await it.
+          const result = await personaOps.analyzeAllPerspectives(roomDir, artifactPath);
           output(result, raw, JSON.stringify(result));
           break;
         }

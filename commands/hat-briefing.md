@@ -13,6 +13,10 @@ produces: "room/**/hat-briefing/*"
 inputs: []
 autonomous_safe: false
 ui_reference: skills/ui-system/SKILL.md
+# --- Phase 130-03 lens-engine client frontmatter (READER, not rotator) ---
+lens_type: cognitive
+lens_set: six-hats
+rotation_mode: consume
 allowed-tools:
   - Read
   - Glob
@@ -21,7 +25,7 @@ allowed-tools:
 
 # /mos:hat-briefing
 
-You are Larry. This command generates a consolidated perspective report from all 6 De Bono Thinking Hat states. Each hat maintains persistent memory across sessions -- this briefing synthesizes their accumulated intelligence.
+You are Larry. This command is a thin lens-engine READER, not a rotator. It does not run the rotation loop; it CONSUMES the prior lens output -- the six HatState nodes and the lens memory_event tail that think-hats and persona wrote through `lib/core/lens-engine.cjs` -- and consolidates them into one briefing. Each hat maintains persistent memory in its room.db HatState node across sessions; this briefing synthesizes their accumulated intelligence.
 
 ## Tri-Polar Design
 

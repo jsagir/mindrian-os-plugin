@@ -11,6 +11,12 @@ frameworks: ["Six Thinking Hats"]
 produces: "room/team/ai-personas/*"
 inputs: []
 autonomous_safe: true
+# --- Phase 130-03 lens-engine client frontmatter ---
+lens_type: cognitive
+lens_set: six-hats
+rotation_mode: parallel
+synthesizer: tension-map
+persistence: memory_event
 allowed-tools:
   - Read
   - Write
@@ -21,6 +27,8 @@ allowed-tools:
 # Persona -- AI Perspective Lenses
 
 Generate persistent De Bono Six Thinking Hat perspective lenses from your room data.
+
+This command is a thin lens-engine client. The `--parallel` analyze path rotates the six-hats lens set in `parallel` rotation mode through `lib/core/lens-engine.cjs` (all six hats speak simultaneously, so later hats are not biased by earlier ones), persists each finding as a `memory_event` per Canon Part 9, and builds the tension map via `lib/core/synthesizers/tension-map.cjs`. The engine owns the rotation loop, the synthesizer dispatch, and the memory_event emission.
 
 ## Important Distinction
 
@@ -126,7 +134,7 @@ Unlike `analyze` (which runs hats sequentially in a single context), `--parallel
    - Parse key insights from each hat's analysis
    - Each agent's output follows the Single Hat format from `agents/persona-analyst.md`
 
-5. **Build the Tension Map** -- after all 6 return, Larry synthesizes:
+5. **Build the Tension Map** -- after all 6 return, the lens-engine's `tension-map` synthesizer (`lib/core/synthesizers/tension-map.cjs`) pairs the opposing-stance findings; Larry narrates its output:
    - **Disagreements:** where hats reach opposite conclusions (e.g., Yellow sees opportunity where Black sees fatal risk)
    - **Convergences:** where 2+ hats independently reach the same conclusion (stronger signal than sequential analysis)
    - **Unresolved tensions:** questions no hat fully addresses
