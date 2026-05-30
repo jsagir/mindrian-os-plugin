@@ -20,7 +20,9 @@
  *
  * Canon Part 8: zero Brain queries. Reads/writes only:
  *   <roomDir>/.mindrian/conversation-operator.json
- *   <roomDir>/.room-graph/room.db (via lib/conversation/operator.cjs)
+ *   <roomDir>/.mindrian/room.db (via lib/conversation/operator.cjs, which routes
+ *     the operator_transitioned event + OPERATOR_TRANSITION edge through the
+ *     navigation.cjs chokepoint as of Phase 129-03)
  *
  * Frame budget: < 50ms wall-clock per invocation. hooks.json timeout 3000ms
  * gives orders-of-magnitude safety margin.

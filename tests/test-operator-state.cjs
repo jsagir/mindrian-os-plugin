@@ -75,15 +75,15 @@ function copyDir(src, dst) {
   }
 }
 
-function setupGraph(roomDir) {
-  const { DatabaseSync } = require('node:sqlite');
-  fs.mkdirSync(path.join(roomDir, '.room-graph'), { recursive: true });
-  const db = new DatabaseSync(path.join(roomDir, '.room-graph', 'room.db'));
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS nodes (id TEXT PRIMARY KEY, type TEXT NOT NULL);
-    CREATE TABLE IF NOT EXISTS edges (source TEXT NOT NULL, target TEXT NOT NULL, type TEXT NOT NULL, properties TEXT DEFAULT '{}', PRIMARY KEY (source, target, type));
-  `);
-  db.close();
+// Phase 129-03: the OPERATOR_TRANSITION edge now writes through navigation.cjs
+// into the CANONICAL .mindrian/room.db (not the retired .room-graph/room.db
+// bypass target). Seed the canonical room.db via the openRoomDb chokepoint so
+// the Phase-109 provenance schema is present for the edge FK.
+function setupCanonicalGraph(roomDir) {
+  const { openRoomDb, closeRoomDb } = require(path.join(REPO, 'lib', 'core', 'room-db.cjs'));
+  fs.mkdirSync(path.join(roomDir, '.mindrian'), { recursive: true });
+  const db = openRoomDb(roomDir);
+  closeRoomDb(db);
 }
 
 function freshRequireOperator() {
@@ -446,32 +446,40 @@ function freshRequireOperator() {
 // Scenario 12: Graph edge written when graph exists
 // ------------------------------------------------------------------
 (function s12() {
-  const label = '12: OPERATOR_TRANSITION edge written when graph exists';
+  // Phase 129-03: the bypass is retired. The edge now writes through
+  // navigation.cjs into .mindrian/room.db with operator-namespaced node ids
+  // and ENUM-ONLY properties (Canon Part 8). The old .room-graph target +
+  // freeform timestamp/methodology props are GONE.
+  const label = '12: OPERATOR_TRANSITION edge written via chokepoint (.mindrian/room.db)';
   const tmp = makeTmpRoom('graph');
   try {
     copyDir(path.join(FIXTURES, 'seed-room-resume'), tmp);
-    setupGraph(tmp);
+    setupCanonicalGraph(tmp);
     const op = freshRequireOperator();
 
     // Transition BUILD_ROOM -> METHODOLOGY
     const r = op.transition(tmp, 'METHODOLOGY', 'mos_command', { methodology_in_flight: 'mos:test' });
     assert.equal(r.success, true, 'transition must succeed');
 
-    // Inspect the DB
-    const { DatabaseSync } = require('node:sqlite');
-    const db = new DatabaseSync(path.join(tmp, '.room-graph', 'room.db'));
+    // Inspect the canonical room.db via the openRoomDb chokepoint.
+    const { openRoomDb, closeRoomDb } = require(path.join(REPO, 'lib', 'core', 'room-db.cjs'));
+    const db = openRoomDb(tmp);
     try {
-      const countRow = db.prepare(`SELECT COUNT(*) AS n FROM edges WHERE type='OPERATOR_TRANSITION'`).get();
+      const countRow = db.prepare("SELECT COUNT(*) AS n FROM edges WHERE type='OPERATOR_TRANSITION'").get();
       assert.equal(Number(countRow.n), 1, 'exactly 1 OPERATOR_TRANSITION edge expected, got ' + countRow.n);
-      const edgeRow = db.prepare(`SELECT source, target, properties FROM edges WHERE type='OPERATOR_TRANSITION' LIMIT 1`).get();
-      assert.equal(edgeRow.source, 'BUILD_ROOM', 'edge source must be BUILD_ROOM');
-      assert.equal(edgeRow.target, 'METHODOLOGY', 'edge target must be METHODOLOGY');
+      const edgeRow = db.prepare("SELECT source, target, properties FROM edges WHERE type='OPERATOR_TRANSITION' LIMIT 1").get();
+      assert.equal(edgeRow.source, 'operator:BUILD_ROOM', 'edge source must be operator:BUILD_ROOM');
+      assert.equal(edgeRow.target, 'operator:METHODOLOGY', 'edge target must be operator:METHODOLOGY');
       const props = JSON.parse(edgeRow.properties);
-      assert.equal(typeof props.trigger, 'string', 'properties.trigger must be a string');
-      assert.equal(typeof props.timestamp, 'string', 'properties.timestamp must be a string');
-      assert.equal(props.methodology, 'mos:test', 'properties.methodology must reflect contextDelta');
+      assert.equal(props.trigger, 'mos_command', 'properties.trigger must reflect the transition trigger');
+      // Canon Part 8: enum-only props -- no freeform timestamp / methodology fields.
+      assert.equal(props.timestamp, undefined, 'no freeform timestamp on the chokepoint edge');
+      assert.equal(props.methodology, undefined, 'no freeform methodology on the chokepoint edge');
+      // The operator_transitioned memory_event also lands via the same call.
+      const evRow = db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE type='memory_event' AND json_extract(properties,'$.event_type')='operator_transitioned'").get();
+      assert.equal(Number(evRow.n), 1, 'exactly 1 operator_transitioned memory_event expected, got ' + evRow.n);
     } finally {
-      try { db.close(); } catch (_) { /* best-effort */ }
+      closeRoomDb(db);
     }
     ok(label);
   } catch (e) {
