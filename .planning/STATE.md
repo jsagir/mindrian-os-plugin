@@ -4,13 +4,13 @@ milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
 stopped_at: Phase 128.1 context gathered
-last_updated: "2026-05-31T02:00:00.000Z"
-last_activity: 2026-05-31 -- Phase 130-03 (cognitive-family migration) executed
+last_updated: "2026-05-31T03:30:00.000Z"
+last_activity: 2026-05-31 -- Phase 130-04 (8 E2E tests) executed; PHASE 130 COMPLETE; v1.13.1 memory cluster closed
 progress:
   total_phases: 71
-  completed_phases: 49
+  completed_phases: 50
   total_plans: 350
-  completed_plans: 335
+  completed_plans: 336
   percent: 69
 ---
 
@@ -24,6 +24,14 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 **Current focus:** Phase 127.1 — brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap
 
 ## Current Position
+
+**Phase 130-04 closure (2026-05-31) -- Wave 4 (final) of Phase 130 (Lens-Engine Skeleton) -- the 8 E2E tests; PHASE 130 COMPLETE:**
+
+- 26445bd5 test(130-04): seed fixture + 6 cognitive-family E2E tests
+- 576340d1 test(130-04): add the 2 engine-contract E2E tests
+- 6d076e8c test(130-04): register E2E suite in aggregator + Feynman runner
+
+Phase 130-04 outcome: the Phase 130 release gate is GREEN. Shipped tests/test-130-lens-engine-e2e.cjs -- 8 instrumented E2E tests mirroring the 129/129.5 fs-instrument zero-leak idiom (direct-CJS node:assert/strict, setupRoom/cleanup/run, the proxy installed BEFORE each rotate flow and uninstalled AFTER, the leaked non-SQLite reads filtered to EXCLUDE the single allow-listed USER.md asserted empty). The 6 cognitive-family tests drive lib/core/lens-engine.cjs rotate() through navigation.cjs: (1) think-hats serial produces exactly 6 lens_finding nodes + a tension-map synthesis + exactly one lens_synthesis_completed memory_event (and synthesize receives the TYPED lens_finding-prefixed node objects, not raw arrays); (2) persona parallel runs all 6 lenses via Promise.all and writes HatState nodes that round-trip via navigation.readAllHatStatesByRoomDir; (3) challenge-assumptions single runs exactly one lens with exactly one lens_finding_written event; (4) hat-briefing consume reads the prior lens memory_event tail (findRecentChanges) + HatState nodes (readAllHatStatesByRoomDir) WITHOUT rotating, writing zero new lens_finding nodes (asserted before==after) under its own zero-leak gate; (5) saveHatState then loadHatState round-trips structured state via room.db with NO legacy .mindrian/hats/black/STATE.md written (the filesystem retirement) and a single hatstate:black HatState node landing in room.db; (6) migrateHatsToRoomDb run twice leaves exactly one HatState node per color (the state_alias_migration sentinel makes the second run skipped:true) with the legacy markdown left in place. The 2 engine-contract tests: (7) rejection-as-data per Canon Part 4 -- a single-mode rotation with rejectAll:true drives the finding through onReject with an enum reason scalar; the edges table carries EXACTLY ONE REJECTED_BECAUSE edge FROM the lens_finding node TO the assumption FK anchor carrying the enum reason in properties, a lens_finding_rejected memory_event was emitted carrying that reason, and ZERO INFORMS edges were written for the rejected finding (rejectAll suppressed the provided onAccept, proving rejection is strictly the reject path); (8) persona-aware framing -- a serial rotation with the USER.md role_blend fixture (founder 0.6 / researcher 0.4) is asserted to have passed the role_blend tuple into every one of the 6 perLensFn ctx objects (captured via a spy), proving the framing hook consumes Phase 115, while the instrumented gate confirms USER.md is the single allow-listed non-SQLite read. The seed fixture tests/fixtures/phase-130/sample-room/seed.sql mirrors the phase-129 trimmed seed (room + 2 sections + 2 artifacts + 1 decision) PLUS the FK anchor nodes the INFORMS (decision:ship-mcp-first) + REJECTED_BECAUSE (assumption:market-ready) edges reference, so the edge-write assertions do not fail on the FOREIGN KEY to nodes(id) with PRAGMA foreign_keys ON (the recurring 129 incident, pre-empted by construction). A prewarm() pass runs one throwaway rotate before the instrumented assertions so the selector-renderer + user-md-ops lazy require chain is cached and never trips the proxy. tests/run-all-130.sh registers the E2E suite (4/4 GREEN); lib/memory/run-feynman-tests.cjs carries an additive Phase 130 block registering all 4 Phase 130 suites in CI with every prior block (including 129 + 129.5) byte-unchanged. Zero regression across the full cluster: run-all-130 4/4, run-all-129 5/5, run-all-129.5 2/2, test-navigation-acceptance (Phase 109) 1/1. One deviation (Rule scope-boundary, NOT a fix): two pre-existing em-dashes in lib/memory/run-feynman-tests.cjs Phase 103/105 comment lines (1128/1134) are OUT OF SCOPE and ledgered at .planning/phases/130-lens-engine-skeleton/deferred-items.md (DI-130-04-01); the additive Phase 130 block + all plan files carry zero em-dashes. Every commit passed the live substrate guard with NO --no-verify; no m4-cypher rewording was needed (the tests carry no Cypher-keyword-adjacent-placeholder pattern). SUMMARY at .planning/phases/130-lens-engine-skeleton/130-04-SUMMARY.md; 130-04 flipped to [x] and Phase 130 marked COMPLETE in ROADMAP.md. Phase 130 (Lens-Engine Skeleton + Cognitive-Family Migration) is COMPLETE; the v1.13.1 memory cluster (109/128/129/129.5/130) is closed. Phase 131 (research-as-graph-aware-workflow-step, the source-lens pilot) is next.
 
 **Phase 130-03 closure (2026-05-31) -- Wave 3 of Phase 130 (Lens-Engine Skeleton) -- cognitive-family migration onto the engine + room.db:**
 
