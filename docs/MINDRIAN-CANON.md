@@ -1,7 +1,7 @@
 # Mindrian Canon
 
-Version: 1.4
-Date: 2026-04-20
+Version: 1.5
+Date: 2026-05-31
 Status: Active
 Author: Jonathan Sagir with Claude-as-Larry
 
@@ -314,16 +314,26 @@ The wicked navigator's working memory has structure: where memory lives, who is 
 
 4. **Larry may propose and explain, but not silently confirm.** Larry surfaces Brain's advice, walks the user through SQL's neighborhood findings, and explains every recommendation as a graph path ("this contradicts assumption X which depends on evidence Y from meeting Z"). Larry can propose new claims, assumptions, decisions, and edges - but every proposal lands in SQL as `review_status: proposed`, never `confirmed`.
 
-5. **The human confirms truth.** Promotion from `proposed` to `confirmed` requires a human decision - APPROVE, REJECT (with reason captured), or DEFER (per Part 3 Decision Gate). Rejection reasons become graph data (per Part 4). Confirmation is the only path to trusted memory. This is not a feature; it is the constitutional source of legitimacy in the system.
+5. **The human confirms truth.** Promotion of a TRUTH-CLAIM node from `proposed` to `confirmed` requires a human decision - APPROVE, REJECT (with reason captured), or DEFER (per Part 3 Decision Gate). Rejection reasons become graph data (per Part 4). Confirmation is the only path to trusted memory. This is not a feature; it is the constitutional source of legitimacy in the system. The audit-node carve-out subsection below governs system-bookkeeping nodes (memory_event / audit / focus), which are exempt from this rule.
 
 ### Truth states (canonical)
 
 Every node in `room.db` carries a `review_status` from a closed set: `proposed | confirmed | rejected | stale | superseded | needs_evidence | validated | invalidated`. Brain may *propose* a status; only user confirmation or system rules can *promote* a status. Status transitions are events in the memory log, never silent overwrites.
 
+### Audit-node carve-out (truth-claim nodes vs system-bookkeeping nodes)
+
+The human-confirm rule (role 5) applies to TRUTH-CLAIM nodes, not to every node in `room.db`. The two sets are distinct:
+
+- **Truth-claim nodes** are the set {claim, CausalClaim, assumption, decision, opportunity} - the nodes that assert something about the venture's world. They are the nodes the navigator's legitimacy rests on. Promotion of a TRUTH-CLAIM node from proposed to confirmed (or to validated) REQUIRES a human `byUser` per role 5. No agent may shortcut a truth-claim into `confirmed`.
+
+- **System-bookkeeping nodes** are memory_event (every `event_type`), audit, focus, and other internal navigation nodes. They record what the system DID, not what is TRUE about the venture. They MAY carry `created_by=system` and are EXEMPT from the human-confirm rule. A system-bookkeeping node carrying `review_status=confirmed` is an internal write-completed marker, not a claim of human-attributed truth.
+
+The exact rule: **Only truth-claim nodes require a human `byUser` to reach `confirmed`; system-bookkeeping nodes are confirmed by the system rule that wrote them.** The carve-out is scoped to the closed system-bookkeeping set (memory_event / audit / focus); a too-broad reading that exempted a truth-claim type would breach role 5. This carve-out is what makes the system's own audit trail (for example `lib/core/navigation/focus.cjs` writing a `focus_changed` memory_event with `created_by=system review_status=confirmed`) canon-legal rather than a constitutional violation: an audit node is not a truth claim, so it never needed a human to be legitimate.
+
 ### What this means architecturally
 
 - SQL is the local mind. Brain is the external cortex. Larry is the navigator. The human is the judge.
-- No agent (Brain, Larry, sub-agents, hooks) may write a `confirmed`-status node directly. Every confirmed node has a human attribution in its provenance.
+- No agent (Brain, Larry, sub-agents, hooks) may write a `confirmed`-status TRUTH-CLAIM node directly; every confirmed truth-claim node has a human attribution in its provenance. System-bookkeeping nodes (memory_event / audit / focus) are exempt per the audit-node carve-out.
 - Brain calls are typed packets, not free-form prompts. The wire schema makes Part 8 leakage structurally hard, not just procedurally audited.
 - The folder structure (Part 1, ICM Layer 0) gives meaning. The graph (Part 4) gives navigability. Part 9 is what binds them: the substrate that lets the navigator move through the wicked problem without losing track of what is known versus what is proposed.
 
@@ -397,6 +407,8 @@ This canon was forged in conversation between Jonathan Sagir (founder) and Claud
 
 13. **Corpus figures corrected (2026-05-20).** A live read of the production Brain substrates -- Neo4j via the `my-neo4j` MCP, Pinecone via the `pinecone` MCP -- corrected stale counts carried since the canon's v1.0 draft. Neo4j: 15,298 nodes / 19,713 relationships (was "21K / 65K"). Pinecone `pws-brain`: 12,401 vectors at 1024-dim multilingual-e5-large (was "1,427"). Triggered during the Phase 127.1 re-scope; evidence in the Phase 127.1 deferred-items log (DI-127.1-01 + DI-127.1-02). Factual correction only -- no change to canon doctrine; version stays 1.4.
 
+14. **Audit-node carve-out added (Phase 129.5, 2026-05-31).** Phase 129.5 (Truth-Machine Activation) amended Part 9 with the audit-node carve-out so the human-confirms-truth lever (role 5) could be wired without mislabeling the system's own audit trail as a constitutional violation. `lib/core/navigation/focus.cjs` writes a `focus_changed` memory_event with `created_by=system review_status=confirmed`; before the carve-out this read as an agent writing a confirmed node directly. The carve-out scopes role 5 to truth-claim nodes {claim, CausalClaim, assumption, decision, opportunity} and exempts system-bookkeeping nodes {memory_event, audit, focus}, so audit trails stay legitimate and are never permanently un-promotable. The carve-out was a LOCKED human decision (D-03) made via AskUserQuestion on 2026-05-30; this is the canon-amendment-on-itself mechanism (Part 6 dog-fooding) applied once more. Canon version bumped to 1.5.
+
 Conversation transcript reference: session 2026-04-20, branch `ui/destijl-rebuild`. First canon draft shipped at commit 528abdd; cross-references at b7d95bd; amendment at this commit. Part 9 (Memory Locality and Interpretation) ratified at the Phase 109 release gate (2026-05-12).
 
 ---
@@ -451,4 +463,4 @@ The navigator always decides.
 
 ---
 
-_Mindrian Canon v1.4 - MindrianOS Plugin_
+_Mindrian Canon v1.5 - MindrianOS Plugin_
