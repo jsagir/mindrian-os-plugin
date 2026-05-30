@@ -54,6 +54,75 @@ const ranker = require(path.join(REPO_ROOT, 'lib', 'workflow', 'f-selector-ranke
 const dispatcher = require(path.join(REPO_ROOT, 'lib', 'hmi', 'selector-dispatcher.cjs'));
 const jtbdTaxonomy = require(path.join(REPO_ROOT, 'lib', 'hmi', 'jtbd-taxonomy.json'));
 
+// Phase 129-02: navigation.cjs is the ONLY door to room.db for this script (it
+// is NOT substrate-guard allow-listed). Lazy-required with a graceful try/catch
+// so a navigation load failure degrades the suggestion_surfaced emission to a
+// no-op and never affects the rendered /mos:suggest-next output.
+let _navigation = null; // null=untried, false=absent, object=loaded
+function tryLoadNavigation() {
+  if (_navigation !== null) return _navigation;
+  try {
+    const mod = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
+    _navigation = (mod && typeof mod.logSuggestionSurfaced === 'function') ? mod : false;
+  } catch (_) { _navigation = false; }
+  return _navigation;
+}
+
+// Build the { command, score } array that the suggestion_surfaced event carries.
+// Sourced from the SAME ranked items[] the F.1 renderer reads (numeric .score),
+// never fabricated. Falls back to the resolver-composed workflow commands (with
+// a 0 score) when the ranker returns nothing, so the event still reflects the
+// printed command sequence. Per the Part 8 boundary the payload is command
+// names + numeric scores only -- never user content.
+function buildSuggestionCommands(rankedItems, workflow) {
+  const out = [];
+  if (Array.isArray(rankedItems) && rankedItems.length > 0) {
+    for (const it of rankedItems) {
+      if (it && typeof it.command === 'string' && it.command.length > 0) {
+        out.push({ command: it.command, score: (typeof it.score === 'number') ? it.score : 0 });
+      }
+    }
+    if (out.length > 0) return out;
+  }
+  if (Array.isArray(workflow)) {
+    for (const s of workflow) {
+      if (s && typeof s.command === 'string' && s.command.length > 0) {
+        out.push({ command: s.command, score: 0 });
+      }
+    }
+  }
+  return out;
+}
+
+// Emit a suggestion_surfaced memory_event with the surfaced commands + their
+// confidence scores. Best-effort telemetry: routes through
+// navigation.logSuggestionSurfaced (roomDir-only, never a db handle), wrapped in
+// try/catch, never load-bearing for the render.
+function emitSuggestionSurfaced(roomDir, commands, problemType) {
+  try {
+    const nav = tryLoadNavigation();
+    if (!nav) return { ok: false, reason: 'no_room_db' };
+    let dir = roomDir;
+    if (!dir && typeof nav.detectActiveRoom === 'function') {
+      const active = nav.detectActiveRoom();
+      if (active && typeof active.roomDir === 'string') dir = active.roomDir;
+    }
+    if (!dir || typeof dir !== 'string') return { ok: false, reason: 'no_room_db' };
+    const cmds = Array.isArray(commands) ? commands : [];
+    const topScore = cmds.reduce(function (m, c) {
+      return (typeof c.score === 'number' && c.score > m) ? c.score : m;
+    }, 0);
+    return nav.logSuggestionSurfaced(dir, {
+      surface: 'suggest-next',
+      commands: cmds,
+      problem_type: (typeof problemType === 'string' && problemType.length > 0) ? problemType : null,
+      top_score: topScore,
+    });
+  } catch (_e) {
+    return { ok: false, reason: 'no_room_db' };
+  }
+}
+
 // ---------- argv parsing (process.argv switch, mindrian-tools style) ----------
 
 function parseArgs(argv) {
@@ -289,6 +358,16 @@ function main(argv) {
   } else {
     process.stdout.write(actionFooter(workflow));
   }
+
+  // Phase 129-02: emit suggestion_surfaced AFTER stdout so the user-visible
+  // suggestion is never delayed. The commands carry the SAME numeric .score the
+  // F.1 renderer read (rankedItems), falling back to the resolver-composed
+  // workflow commands when the ranker is empty. Best-effort; never load-bearing.
+  try {
+    const commands = buildSuggestionCommands(rankedItems, workflow);
+    emitSuggestionSurfaced(roomDir, commands, roomState.problemType || null);
+  } catch (_e) { /* telemetry is best-effort; never crash /mos:suggest-next */ }
+
   process.exit(0);
 }
 
@@ -311,5 +390,8 @@ module.exports = {
   // Phase 121.5-10 Sub-plan K: locked Brain-suggestion F.1 renderer exported
   // for direct testing (lib/memory/brain-suggestion-template.test.cjs).
   renderBrainSuggestionF1: renderBrainSuggestionF1,
+  // Phase 129-02: suggestion_surfaced emission helpers, exported for tests.
+  buildSuggestionCommands: buildSuggestionCommands,
+  emitSuggestionSurfaced: emitSuggestionSurfaced,
   main: main,
 };
