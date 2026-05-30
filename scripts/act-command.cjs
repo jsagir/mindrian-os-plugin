@@ -52,6 +52,20 @@ const resolver = require(path.join(REPO_ROOT, 'lib', 'workflow', 'command-resolv
 // replaces the bespoke [continue] / [stop] brackets.
 const dispatcher = require(path.join(REPO_ROOT, 'lib', 'hmi', 'selector-dispatcher.cjs'));
 
+// Phase 129-04: navigation.cjs is the ONLY door to room.db for this script (it
+// is NOT substrate-guard allow-listed). Lazy-required with a graceful try/catch
+// so a navigation load failure degrades the workflow_stage emission to a no-op
+// and never affects the rendered /mos:act --chain gate output.
+let _navigation = null; // null=untried, false=absent, object=loaded
+function tryLoadNavigation() {
+  if (_navigation !== null) return _navigation;
+  try {
+    const mod = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
+    _navigation = (mod && typeof mod.logWorkflowStage === 'function') ? mod : false;
+  } catch (_) { _navigation = false; }
+  return _navigation;
+}
+
 // ---------- argv parsing ----------
 
 function parseArgs(argv) {
@@ -211,6 +225,75 @@ function renderChainReport(seedLabel, frameworkChain, workflow, autonomyReport, 
   return out.join('\n') + '\n';
 }
 
+// ---------- workflow_stage emission (Phase 129-04) ----------
+
+/**
+ * emitWorkflowStages(roomDir, workflow, plan, autonomyReport)
+ *
+ * Journals one workflow_stage (surface='act', phase='entered') on dispatch and
+ * one (phase='completed') on return for every greenlit step in the plan, then a
+ * single phase='entered' for the gated stop step (the "needs you here" gate)
+ * with NO matching completed -- the stop is reflected by the absence of the
+ * completed event. The entered event carries framework (the dispatched
+ * methodology) + autonomy (the per-step autonomy enum from validateChainAutonomy)
+ * scalars. completed FOLLOWS_FROM its own entered; each subsequent entered
+ * FOLLOWS_FROM the prior completed (or prior entered for the gated step) so the
+ * chain links temporally per Canon Part 4. Best-effort: routes through
+ * navigation.logWorkflowStage (roomDir-only, never a db handle), wrapped in
+ * try/catch, never load-bearing for the gate render. NO em-dashes.
+ */
+function emitWorkflowStages(roomDir, workflow, plan, autonomyReport) {
+  try {
+    const nav = tryLoadNavigation();
+    if (!nav) return { ok: false, reason: 'no_room_db' };
+    let dir = roomDir;
+    if (!dir && typeof nav.detectActiveRoom === 'function') {
+      const active = nav.detectActiveRoom();
+      if (active && typeof active.roomDir === 'string') dir = active.roomDir;
+    }
+    if (!dir || typeof dir !== 'string') return { ok: false, reason: 'no_room_db' };
+
+    const runnable = (autonomyReport && autonomyReport.runnable === true);
+    const greenlit = (plan && Array.isArray(plan.wouldRun)) ? plan.wouldRun : [];
+    const greenlitSteps = new Set(greenlit.map((w) => w.step));
+    let priorEventId = null; // the spine event the NEXT entered FOLLOWS_FROM.
+
+    function emitOne(phase, step, frameworkName, follows) {
+      const payload = {
+        surface: 'act',
+        phase,
+        stage: typeof step.command === 'string' && step.command.length > 0
+          ? step.command : (frameworkName || 'manual'),
+        stage_step: step.step,
+        framework: frameworkName || null,
+      };
+      if (phase === 'entered') payload.autonomy = runnable ? 'autonomous_safe' : 'gated';
+      if (typeof follows === 'string' && follows.length > 0) payload.follows_from = follows;
+      const r = nav.logWorkflowStage(dir, payload);
+      return (r && typeof r.eventId === 'string') ? r.eventId : null;
+    }
+
+    // Greenlit steps: entered + completed, threaded.
+    for (const step of workflow) {
+      if (!greenlitSteps.has(step.step)) continue;
+      const fw = typeof step.framework === 'string' ? step.framework : null;
+      const enteredId = emitOne('entered', step, fw, priorEventId);
+      const completedId = emitOne('completed', step, fw, enteredId || priorEventId);
+      priorEventId = completedId || enteredId || priorEventId;
+    }
+
+    // Gated stop step: entered only (NO completed). The stop is the gate.
+    if (plan && plan.stopAt && typeof plan.stopAt.step === 'number') {
+      const stop = plan.stopAt;
+      const fw = typeof stop.framework === 'string' ? stop.framework : null;
+      emitOne('entered', stop, fw, priorEventId);
+    }
+    return { ok: true };
+  } catch (_e) {
+    return { ok: false, reason: 'no_room_db' };
+  }
+}
+
 function notChainNote() {
   return [
     '-- MindrianOS -- act --',
@@ -256,6 +339,12 @@ function main(argv) {
   const autonomyReport = resolver.validateChainAutonomy(workflow);
   const plan = planChainRun(workflow, autonomyReport);
   process.stdout.write(renderChainReport(seedLabel, frameworkChain, workflow, autonomyReport, plan));
+
+  // Phase 129-04: journal the dispatch AFTER stdout so the gate render is never
+  // delayed. Best-effort; never load-bearing for the user-visible output.
+  try { emitWorkflowStages(roomDir, workflow, plan, autonomyReport); }
+  catch (_e) { /* telemetry is best-effort; never crash /mos:act --chain */ }
+
   process.exit(0);
 }
 
@@ -276,5 +365,6 @@ module.exports = {
   readProblemType: readProblemType,
   planChainRun: planChainRun,
   renderChainReport: renderChainReport,
+  emitWorkflowStages: emitWorkflowStages,
   main: main,
 };
