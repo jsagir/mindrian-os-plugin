@@ -93,6 +93,8 @@ The closed chokepoint surface is exactly these export keys from
 - `logSuggestionSurfaced`
 - `getCurrentJTBD`
 - `getCurrentOperator`
+- `confirmNode`
+- `resolveByUser`
 
 The originally documented "closed 13" was the Phase 109 surface (Focus, Neighborhood,
 the insight queries, `findRecentChanges`, `findRelevantOpportunities`,
@@ -124,6 +126,24 @@ line here is itself a contract violation.
   with the `jtbd-state.json` / `conversation-operator.json` cache file as fallback.
   `spine-events.cjs` is a thin re-export of internal navigation helpers, so consumers
   never reach into `lib/core/navigation/` directly.
+
+- **Phase 129.5-02 (2026-05-31).** Added two exports re-exported from
+  `lib/core/navigation/confirm-node.cjs`: `confirmNode` and `resolveByUser`.
+  **Consumer:** the Plan 03 Decision Gate APPROVE path (the selector dispatcher),
+  plus future gates (Phase 130 lens-engine accept, Phase 116 tension resolution).
+  `confirmNode(db, id, byUser, reason?)` is the single chokepoint for the
+  `proposed -> confirmed` promotion: it resolves the node's current `review_status`
+  and delegates to `promoteNodeStatus`. After this plan, `promoteNodeStatus` is no
+  longer called directly by any production code outside `confirm-node.cjs` (a
+  source-grep test in `tests/test-129.5-confirm-node.cjs` enforces this).
+  `resolveByUser(roomDir)` reads the active room's `USER.md` navigator identity and
+  maps it to a non-agent `byUser`, defaulting to `navigator` and never returning an
+  agent identity (`larry` / `brain` / `system` / `assistant`). `confirm-node.cjs`
+  writes NO Cypher and NO raw INSERT / UPDATE / DELETE on `nodes` / `edges`: it
+  delegates ALL writes to `promoteNodeStatus`, so it is allow-listed under
+  `lib/core/navigation/` without adding any substrate bypass. The human-attribution
+  guard lives in `promoteNodeStatus` (the `AGENT_IDENTITIES` REJECT on confirm /
+  validate of truth-claim node types) per the Canon Part 9 v1.5 audit-node carve-out.
 
 ## Reuse-vs-build decision (Canon Part 7)
 

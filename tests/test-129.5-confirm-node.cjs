@@ -69,8 +69,11 @@ function confirmedByOf(db, id) {
   return row ? row.confirmed_by : null;
 }
 
-// Count status_promoted memory_event rows whose payload created_by matches.
-function promotedEventCreatedBy(db, targetNodeId) {
+// Collect the confirmed_by attribution carried in the status_promoted memory_event
+// payload(s) for a target node. The audit row's created_by COLUMN is constrained
+// to {user, larry, import, brain, system}, so the LITERAL human identity rides in
+// the unconstrained payload confirmed_by field.
+function promotedEventConfirmedBy(db, targetNodeId) {
   const rows = db.prepare(
     "SELECT properties FROM nodes WHERE type = 'memory_event'"
   ).all();
@@ -79,7 +82,7 @@ function promotedEventCreatedBy(db, targetNodeId) {
     let p;
     try { p = JSON.parse(r.properties); } catch (_) { continue; }
     if (p && p.event_type === 'status_promoted' && p.target_node_id === targetNodeId) {
-      hits.push(p.created_by);
+      hits.push(p.confirmed_by);
     }
   }
   return hits;
@@ -179,8 +182,8 @@ test('a human byUser promotes proposed->confirmed; confirmed_by + status_promote
   equal(res.ok, true, 'human confirm succeeds');
   equal(reviewStatusOf(db, 'claim:h1'), 'confirmed', 'review_status confirmed');
   equal(confirmedByOf(db, 'claim:h1'), 'jonathan', 'confirmed_by is the human');
-  const evt = promotedEventCreatedBy(db, 'claim:h1');
-  ok(evt.indexOf('jonathan') >= 0, 'status_promoted event created_by == human');
+  const evt = promotedEventConfirmedBy(db, 'claim:h1');
+  ok(evt.indexOf('jonathan') >= 0, 'status_promoted event payload confirmed_by == human');
 });
 
 // ===========================================================================
