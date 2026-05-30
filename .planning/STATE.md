@@ -4,13 +4,13 @@ milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
 stopped_at: Phase 128.1 context gathered
-last_updated: "2026-05-30T22:01:22.934Z"
-last_activity: 2026-05-20 -- Phase 127.1 execution started
+last_updated: "2026-05-31T01:12:00.000Z"
+last_activity: 2026-05-31 -- Phase 130-02 (lens-engine + synthesizers) executed
 progress:
   total_phases: 71
   completed_phases: 49
   total_plans: 350
-  completed_plans: 333
+  completed_plans: 334
   percent: 69
 ---
 
@@ -24,6 +24,15 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 **Current focus:** Phase 127.1 — brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap
 
 ## Current Position
+
+**Phase 130-02 closure (2026-05-31) -- Wave 2 of Phase 130 (Lens-Engine Skeleton) -- the rotate() engine + 3 synthesizers + 5 lens event types:**
+
+- da8e5d54 test(130-02): add failing lens-engine + synthesizers + lens event-types suite (RED)
+- ce9819b7 feat(130-02): add 5 lens memory_event types + the 3 pure synthesizers
+- 99b7e1ac feat(130-02): build lens-engine.cjs -- rotate() + 5-family registry + serial/parallel/single modes
+- ce627990 test(130-02): register engine suite in run-all-130.sh + substrate-clean + zero-regression gate
+
+Phase 130-02 outcome: shipped lib/core/lens-engine.cjs -- the single architectural rotate() for-loop that absorbs the lens-rotation logic duplicated at persona-ops.cjs:514, the hat-persistence rotation, and find-analogies Step 4. rotate({lensType, lensSet, input, perLensFn, synthesize, surfaceSelector, persistence, onAccept, onReject, rotationMode}) runs serial (sequential await) / parallel (Promise.all) / single (one named lens) modes over a named set ('six-hats' -> 6 hat colors) or a dynamic array (['black-hat']). It emits the mandatory Canon Part 9 memory_events: lens_rotation_started at start, lens_finding_written per lens, lens_synthesis_completed at end; onAccept emits lens_finding_accepted, onReject emits lens_finding_rejected. onAccept routes to navigation.writeEdge edge_type INFORMS (the lens finding INFORMS a target node); onReject routes to navigation.writeEdge REJECTED_BECAUSE with a single enum reason scalar (rejection-as-data per Canon Part 4). When persistence is 'memory_event+cascade-edge' and the accept decision sets promote:true, a human-attributed promotion routes through navigation.confirmNode with resolveByUser(roomDir) (non-agent byUser per Canon Part 9 v1.5). synthesize receives the TYPED finding-node objects (the written lens_finding node IDs + parsed properties), NOT the raw perLensFn arrays (the 130-CONTEXT pre-resolved decision that forces graph-native composition); a caller may pass a named strategy or a pure function. The persona-aware framing hook reads role_blend via user-md-ops.readUserMd once per rotate and passes it into every perLensFn ctx (consumes Phase 115). The F-shape surfaceSelector dispatches via lib/hmi/selector-dispatcher.cjs dispatchShapeFSubShape (Phase 88.2). LENS_REGISTRY has 5 family slots: cognitive populated (client_count 4, lens_sets ['six-hats','black-hat'], all 3 synthesizers); domain/source/framework/trend each reserved client_count 0 reserved_for 'v1.14.0'. ROTATION_MODES is frozen serial/parallel/single -- the source-family weighted-by-context 4th mode is a documented Phase 131 TODO, NOT a member. Also shipped the 3 synthesizers as PURE functions over typed lens-finding node objects (zero db/fs/sqlite, defensive on empty): tension-map.cjs::synthesizeTensionMap collapses the 4 duplicated tension-map implementations into ONE (pairs opposing-stance lenses on the same topic); comparison-matrix.cjs::synthesizeComparisonMatrix generates the Body Shape D table (rows=lenses, columns=dimensions); convergence-map.cjs::synthesizeConvergenceMap clusters themes spanning 3+ lenses (Canon decision 9). Added the 5 net-new lens memory_event types to EVENT_TYPES as an additive block mirroring Phase 129-01; the test asserts a delta of exactly 5, never an absolute size. CRITICAL substrate invariant: the engine reaches room.db ONLY through navigation.cjs (writeLensFinding / writeEdge / logMemoryEvent / confirmNode / resolveByUser) with a CALLER-OWNED db handle via input.db -- zero direct room-db/lazygraph-ops/node:sqlite require, so scripts/check-substrate.cjs scanFiles returns clean on the engine + 3 synthesizers even though they are NOT allow-listed. TDD: RED suite failed (engine + synthesizers absent, 5 event types not in the Set), GREEN reached in two feat commits, 18/18 behavior tests pass. Zero regression: 130-01 substrate suite, 129 spine substrate, and 109 navigation acceptance all still pass; run-all-130.sh 2/2 green. Zero deviations -- plan executed exactly as written. Zero em-dashes across all touched files; every commit passed the live substrate guard with NO --no-verify. SUMMARY at .planning/phases/130-lens-engine-skeleton/130-02-SUMMARY.md; 130-02 flipped to [x] in ROADMAP.md. Wave 3 (130-03: cognitive-family migration -- hat-persistence room.db rewrite + one-shot backfill + 4 thin command clients + tension-map dedup) is next.
 
 **Phase 130-01 closure (2026-05-31) -- Wave 1 of Phase 130 (Lens-Engine Skeleton) -- the shared substrate:**
 
