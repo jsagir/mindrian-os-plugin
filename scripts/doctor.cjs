@@ -3356,13 +3356,24 @@ function main() {
       && !flags.roomMd && !flags.uiCompliance && !flags.statuslineVisibility
       && !flags.installState && !flags.staleFirstTouch && !flags.deprecatedUsage
       && !flags.all) {
+    // Debug session doctor-brain-smoke-win-crash (2026-05-30): a synchronous
+    // process.exit() here tore down a still-open libuv handle (the undici
+    // keep-alive TLS socket left un-released by the L3 schema probe on a
+    // 401/403 key-rejected path) MID-CLOSE, which asserts on Windows in
+    // src/win/async.c (UV_HANDLE_CLOSING) and surfaces to the Claude Code Bash
+    // wrapper as "Exit code 127". Setting process.exitCode and returning lets
+    // the event loop drain every outstanding handle the OS-safe way, then the
+    // process exits naturally with the requested code. This covers ALL handle
+    // variants (socket, timer, child) and is correct on Windows/macOS/Linux.
+    // The class-flag invariant (exit 0 even on per-layer FAIL) is preserved:
+    // classMBrainSmoke() returns 0, asserted by tests/test-127-02-doctor-class-m.sh T3.
     classMBrainSmoke(flags).then(function (code) {
-      process.exit(code);
+      process.exitCode = code;
     }).catch(function (e) {
       console.error('class-m smoke threw: ' + (e && e.message));
       if (flags.json) console.log(JSON.stringify({ class: 'M', ok: false, error: e && e.message, layers: [], overall_ms: 0 }, null, 2));
       // Class-flag invariant: exit 0 even on internal error.
-      process.exit(0);
+      process.exitCode = 0;
     });
     return;
   }
