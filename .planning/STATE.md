@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
-stopped_at: Completed 128-03-PLAN.md (pre-commit hook wiring + installer + SUBSTRATE-BASELINE.md, Wave 3) -- Phase 128 COMPLETE
-last_updated: "2026-05-30T19:53:00.000Z"
-last_activity: 2026-05-30 -- Phase 128 Plan 03 executed (substrate guard wired into live hook + installer; H1 closed; 195-violation baseline ledgered)
+stopped_at: Completed 129-01-PLAN.md (Wave 1 spine substrate: 5 net-new event types + FOLLOWS_FROM 8th cascade edge + 60s logEvent dedup + spine-events.cjs roomDir helpers + getCurrentJTBD/getCurrentOperator)
+last_updated: "2026-05-30T20:30:00.000Z"
+last_activity: 2026-05-30 -- Phase 129 Plan 01 executed (spine memory-event substrate; 15/15 GREEN; Phase 109 acceptance still 1/1; substrate guard clean)
 progress:
   total_phases: 70
   completed_phases: 47
-  total_plans: 338
-  completed_plans: 324
+  total_plans: 339
+  completed_plans: 325
   percent: 66
 ---
 
@@ -24,6 +24,14 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 **Current focus:** Phase 127.1 — brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap
 
 ## Current Position
+
+**Phase 129-01 closure (2026-05-30):**
+
+- 67250de1 test(129-01): add RED-first spine substrate behavior suite (15 tests)
+- bce99900 feat(129-01): add 5 spine event types + FOLLOWS_FROM edge + 60s logEvent dedup
+- e5b83304 feat(129-01): ship spine-events.cjs helper API + navigation.cjs re-exports
+
+Phase 129-01 outcome: the Wave-1 shared substrate every later 129 plan depends on. EVENT_TYPES gains EXACTLY 5 net-new spine types (spine_read / jtbd_transitioned / operator_transitioned / workflow_stage / suggestion_surfaced) honoring the v1.13.1 risk-3 event-cap-5 lock; the delta-of-5 is asserted by named membership, not a brittle absolute size. status_rendered+memory_inspected consolidate into spine_read (payload.surface enum), set/override/clear into jtbd_transitioned (payload.kind enum), act+pipeline into workflow_stage (payload.surface + payload.phase enums). FOLLOWS_FROM is the 8th canonical cascade edge (enum-only properties per Canon Part 8); the lens-class taxonomy ASSOCIATION_LENS/TRANSITION_LENS stays rejected. logEvent gains a 60s-TTL idempotency layer keyed on a caller-supplied payload.dedupe_key with a clock seam (opts.now) for deterministic tests; absent the key, dedup is OFF so every pre-129 caller stays byte-unchanged. NEW lib/core/navigation/spine-events.cjs ships 5 roomDir-taking log* helpers (logSpineRead/logJtbdTransition/logOperatorTransition/logWorkflowStage/logSuggestionSurfaced) that open/close room.db internally (callers pass roomDir, never a db handle), mirror dashboard-helpers.cjs, return {ok:false,reason:'no_room_db'} when absent, derive a deterministic dedupe_key per helper, and optionally emit a FOLLOWS_FROM edge when payload.follows_from is set (additive, tolerant of writeEdge failure). getCurrentJTBD/getCurrentOperator are event-log-authoritative (most-recent jtbd_transitioned/operator_transitioned) with the jtbd-state.json / conversation-operator.json cache file as fallback (source: 'event_log' | 'cache_fallback'); the cache file is NOT deprecated this phase. navigation.cjs re-exports all 7 helpers; docs/architecture/SUBSTRATE-CONTRACT.md carries the 7 M11 allow-list lines + a Phase 129-01 amendment line per the M11 rule. spine-events.cjs passes the live substrate guard (allow-listed under lib/core/navigation/); both feat commits passed the live pre-commit hook (no --no-verify). 15/15 GREEN; Phase 109 acceptance still 1/1 (zero regression). Zero new dependencies (node built-ins only). Wave 2 (129-02/03/04) can now refactor the 6 spine scripts to route every room.db touch through these helpers. SUMMARY at .planning/phases/129-spine-repair-memory-event/129-01-SUMMARY.md; 129-01 flipped to [x] in ROADMAP.md.
 
 Phase: 127.1 (brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
