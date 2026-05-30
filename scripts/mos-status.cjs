@@ -66,6 +66,7 @@ const ROW_THOUGHT_BUDGET = 80;
 
 let statuslineCache = null;
 let folderMemory = null;
+let navigation = null;
 try {
   statuslineCache = require(path.join(__dirname, '..', 'lib', 'core',
     'statusline-cache.cjs'));
@@ -74,6 +75,14 @@ try {
   folderMemory = require(path.join(__dirname, '..', 'lib', 'core',
     'folder-memory.cjs'));
 } catch (_e) { /* graceful fallback; readTriple becomes the noop path */ }
+// Phase 129-02: navigation.cjs is the ONLY door to room.db for this script (it
+// is NOT substrate-guard allow-listed). Same lazy-require + graceful try/catch
+// idiom as statuslineCache + folderMemory: a navigation load failure degrades
+// the spine_read emission to a no-op, never crashing the render.
+try {
+  navigation = require(path.join(__dirname, '..', 'lib', 'core',
+    'navigation.cjs'));
+} catch (_e) { /* graceful fallback; emitSpineRead becomes a no-op */ }
 
 // ---------- Argument parsing ----------
 
@@ -522,6 +531,49 @@ function renderStatus(opts) {
   return pieces.join('\n');
 }
 
+// ---------- Spine emission (Phase 129-02) ----------
+
+/**
+ * emitSpineRead(roomDir, payload)
+ *
+ * Best-effort telemetry: journal that /mos:status rendered, via the Plan 01
+ * navigation.logSpineRead helper. The payload carries only LOCAL scalars
+ * (surface enum + section + a JTBD + operator snapshot) per Canon Part 8 -- no
+ * MINTO body, no artifact text. Routes ALL room.db access through navigation.cjs
+ * (this script is NOT substrate-guard allow-listed). Wrapped in try/catch so a
+ * failure never affects the already-written render. Returns the helper result
+ * (or a no_room_db-shaped object on any failure) for in-process tests.
+ */
+function emitSpineRead(roomDir, payload) {
+  if (!navigation || typeof navigation.logSpineRead !== 'function') {
+    return { ok: false, reason: 'no_room_db' };
+  }
+  if (!roomDir || typeof roomDir !== 'string') {
+    return { ok: false, reason: 'no_room_db' };
+  }
+  try {
+    const p = (payload && typeof payload === 'object') ? payload : {};
+    let jtbd = null;
+    let operator = null;
+    try {
+      const j = navigation.getCurrentJTBD(roomDir);
+      if (j && typeof j.jtbd === 'string') jtbd = j.jtbd;
+    } catch (_e) { /* snapshot is best-effort */ }
+    try {
+      const o = navigation.getCurrentOperator(roomDir);
+      if (o && typeof o.current === 'string') operator = o.current;
+    } catch (_e) { /* snapshot is best-effort */ }
+    return navigation.logSpineRead(roomDir, {
+      surface: 'status',
+      section: typeof p.section === 'string' ? p.section : 'all',
+      jtbd: jtbd,
+      operator: operator,
+    });
+  } catch (_e) {
+    return { ok: false, reason: 'no_room_db' };
+  }
+}
+
 // ---------- Entry point ----------
 
 function main() {
@@ -533,6 +585,18 @@ function main() {
       section: args.section,
     });
     process.stdout.write(out + '\n');
+    // Phase 129-02: emit spine_read AFTER stdout so the user-visible frame is
+    // never delayed by the journal write. Best-effort; never load-bearing.
+    try {
+      let roomDir = resolveRoomRoot(process.cwd());
+      if (!roomDir && navigation && typeof navigation.detectActiveRoom === 'function') {
+        const active = navigation.detectActiveRoom();
+        if (active && typeof active.roomDir === 'string') roomDir = active.roomDir;
+      }
+      if (roomDir) {
+        emitSpineRead(roomDir, { section: args.section || 'all' });
+      }
+    } catch (_e) { /* telemetry is best-effort; never crash /mos:status */ }
     process.exit(0);
   } catch (e) {
     // Last-resort graceful fallback. Never crash /mos:status.
@@ -552,4 +616,7 @@ module.exports = {
   formatRow: formatRow,
   formatSummary: formatSummary,
   truncateThought: truncateThought,
+  // Phase 129-02: spine_read emission via navigation.logSpineRead (exported for
+  // in-process tests; the live path calls it at the end of main() post-stdout).
+  emitSpineRead: emitSpineRead,
 };

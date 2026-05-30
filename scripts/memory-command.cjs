@@ -57,6 +57,37 @@ const PLUGIN_ROOT = path.resolve(__dirname, '..');
 const acrossSession = require('../lib/hmi/across-session-memory.cjs');
 const crossRoom     = require('../lib/hmi/cross-room-memory.cjs');
 
+// Phase 129-02: navigation.cjs is the ONLY door to room.db for this script (it
+// is NOT substrate-guard allow-listed). Lazy-required with a graceful try/catch
+// so a navigation load failure degrades the spine_read emission to a no-op and
+// never affects the rendered /mos:memory output.
+let _navigation = null; // null=untried, false=absent, object=loaded
+function tryLoadNavigation() {
+  if (_navigation !== null) return _navigation;
+  try {
+    const mod = require('../lib/core/navigation.cjs');
+    _navigation = (mod && typeof mod.logSpineRead === 'function') ? mod : false;
+  } catch (_) { _navigation = false; }
+  return _navigation;
+}
+
+// Emit a spine_read memory_event (surface=memory, layer=<subcommand>) for the
+// rendered /mos:memory surface. Best-effort telemetry: routes through
+// navigation.logSpineRead (roomDir-only, never a db handle), wrapped in
+// try/catch, never load-bearing for the render. Per Canon Part 8 the payload
+// carries only scalars (surface enum + layer enum) -- no artifact bodies.
+function emitMemorySpineRead(roomSlug, layer) {
+  try {
+    const nav = tryLoadNavigation();
+    if (!nav) return { ok: false, reason: 'no_room_db' };
+    const dir = roomSlug ? getActiveRoomDir(roomSlug) : null;
+    if (!dir || typeof dir !== 'string') return { ok: false, reason: 'no_room_db' };
+    return nav.logSpineRead(dir, { surface: 'memory', layer: layer });
+  } catch (_e) {
+    return { ok: false, reason: 'no_room_db' };
+  }
+}
+
 // ----------------------------------------------------------------------
 // 12-glyph vocabulary (skills/ui-system/SKILL.md section 3).
 // One meaning each. No overloading.
@@ -623,6 +654,12 @@ async function dispatch(args, env) {
       out = renderOverview(room);
   }
   process.stdout.write(out + '\n');
+  // Phase 129-02: emit spine_read AFTER stdout so the user-visible frame is
+  // never delayed. Layer names the inspected subcommand. The --opt-out path
+  // short-circuited above and intentionally never reaches here (emitting on
+  // opt-out would contradict the user opting out of memory).
+  const layer = (sub === undefined) ? 'overview' : sub;
+  emitMemorySpineRead(room, layer);
 }
 
 module.exports = {
