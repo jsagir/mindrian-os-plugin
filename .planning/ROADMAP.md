@@ -1562,7 +1562,7 @@ Plans:
 
 **Brain impact:** NONE (LOCAL-only spine refactor).
 
-**Status:** Planned -- 5 plans across 3 waves (planned 2026-05-30).
+**Status:** COMPLETE -- 5/5 plans executed across 3 waves (shipped 2026-05-30..2026-05-31). All 6 spine scripts journal their surface through navigation.cjs (Waves 1+2); the Wave 3 instrumented proactive-loop acceptance test proves the backward arc is closed and leak-free (zero non-SQLite reads outside the two cache files, exact event count + dedupe, FOLLOWS_FROM linkage, next render reads the just-emitted events). Phase 109 acceptance still 1/1 (zero regression on the owned surface).
 
 **Plans:** 5 plans
 
@@ -1571,7 +1571,7 @@ Plans:
 - [x] 129-02-PLAN.md -- Wave 2: read surfaces (mos-status + memory-command emit spine_read; suggest-next emits suggestion_surfaced) -- DONE 2026-05-30 (dc280f30 RED, c23300c6 Task 1, 286b53a4 Task 2; 7/7 GREEN; 129-01 substrate still 15/15; substrate guard clean)
 - [x] 129-03-PLAN.md -- Wave 2: state transitions (jtbd + operator emit transitions; retire the operator.cjs node:sqlite bypass through navigation.cjs) -- DONE 2026-05-30 (e2e5b90c RED, 4f7eb97b Task 1, a6ca075a Task 2; 13/13 GREEN; operator-state 12/12 + 129-01 substrate 15/15; substrate guard clean; operator.cjs baselined-violation closed)
 - [x] 129-04-PLAN.md -- Wave 2: workflow execution (act + pipeline emit workflow_stage with FOLLOWS_FROM chaining) -- DONE 2026-05-30 (e18bf137 RED, b3360d35 Task 1 act, 5957e634 Task 2 pipeline; 10/10 GREEN; 129-01 substrate still 15/15; substrate guard clean; zero direct room.db access)
-- [ ] 129-05-PLAN.md -- Wave 3: instrumented proactive-loop acceptance test + aggregator + Feynman registration + zero-regression gate
+- [x] 129-05-PLAN.md -- Wave 3: instrumented proactive-loop acceptance test + aggregator + Feynman registration + zero-regression gate -- DONE 2026-05-31 (10ca89fc acceptance test + seed, 6b516bca aggregator + Feynman registration, 480e27e8 deferred-items; run-all-129.sh 5/5 GREEN; 109 acceptance still 1/1; pre-existing Phase 122 e2e failure logged DI-129-05-01)
 
 **Authority:** `.planning/phases/129-spine-repair-memory-event/129-CONTEXT.md` (scoped 2026-05-16) + `.planning/v1.13.1-EXECUTION-PLAN.md` "Synthesis-Plan Absorption (2026-05-16)" section.
 

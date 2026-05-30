@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
-stopped_at: Completed 129-04-PLAN.md (Wave 2 workflow execution: /mos:act --chain emits workflow_stage entered+completed with framework+autonomy; /mos:pipeline emits workflow_stage entered/completed per stage; FOLLOWS_FROM chains consecutive spine events; both scripts route through navigation.logWorkflowStage with zero direct room.db access, substrate guard clean)
-last_updated: "2026-05-30T22:10:00.000Z"
-last_activity: 2026-05-30 -- Phase 129 Plan 04 executed (act + pipeline workflow_stage emission + FOLLOWS_FROM chaining; 10/10 GREEN; 129-01 substrate still 15/15; substrate guard clean; zero direct room.db access)
+stopped_at: Completed 129-05-PLAN.md (Wave 3 release gate: instrumented proactive-loop acceptance test asserting zero non-SQLite reads outside the two cache files + exact 4-event-per-pass count with the repeated status deduped + FOLLOWS_FROM linkage + the next render reads the just-emitted events; run-all-129.sh aggregator 5/5 GREEN; Phase 129 registration block in the Feynman runner; 109 acceptance still 1/1). PHASE 129 COMPLETE.
+last_updated: "2026-05-31T00:00:00.000Z"
+last_activity: 2026-05-31 -- Phase 129 Plan 05 executed and PHASE 129 COMPLETE (instrumented acceptance test + aggregator + Feynman registration + zero-regression gate; run-all-129.sh 5/5 GREEN; 109 acceptance still 1/1; pre-existing Phase 122 e2e failure logged DI-129-05-01 and deferred)
 progress:
   total_phases: 70
-  completed_phases: 47
+  completed_phases: 48
   total_plans: 339
-  completed_plans: 327
-  percent: 66
+  completed_plans: 328
+  percent: 67
 ---
 
 # Project State
@@ -24,6 +24,14 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 **Current focus:** Phase 127.1 — brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap
 
 ## Current Position
+
+**Phase 129-05 closure (2026-05-31) -- PHASE 129 COMPLETE:**
+
+- 10ca89fc test(129-05): instrumented proactive-loop acceptance test + phase-129 fixture seed
+- 6b516bca test(129-05): phase-129 aggregator + Feynman-runner registration of all 5 suites
+- 480e27e8 docs(129-05): log pre-existing Phase 122 e2e failure as deferred item DI-129-05-01
+
+Phase 129-05 outcome: the load-bearing instrumented acceptance test (the phase release gate) closes Phase 129. tests/test-129-spine-acceptance.cjs mirrors the Phase 109 tests/test-navigation-acceptance.cjs pattern exactly (node:assert/strict, direct-CJS, zero new npm deps, setupRoom / cleanup / run, fs-instrument zero-reads gate) and drives the FULL proactive loop ONLY through the lib/core/navigation.cjs chokepoint: status (logSpineRead) -> suggest-next (logSuggestionSurfaced) -> act entered + completed (logWorkflowStage, the completed carrying follows_from) -> next status (logSpineRead, same derived dedupe_key). The three LOAD-BEARING assertions all pass: (a) fsInstrument.calls() filtered to EXCLUDE the two allow-listed cache filenames (jtbd-state.json, conversation-operator.json) is empty -- zero non-SQLite filesystem reads outside the cache files during the loop; (b) findRecentChanges returns EXACTLY 4 memory_event rows for one loop pass (1 spine_read + 1 suggestion_surfaced + 2 workflow_stage entered/completed) because the repeated status spine_read carries an unchanged dedupe_key and dedupes inside the 60s TTL (asserted numerically + via the deduped marker on the pass-2 result -- 0 new rows on repeat); (c) the next status render (findRecentChanges) reads the just-emitted events by id, plus getCurrentJTBD/getCurrentOperator resolve via the allow-listed cache fallback (no jtbd/operator transition events this loop) -- the backward arc is closed. A FOLLOWS_FROM edge is asserted to link the act completed event to the act entered event (source=completed eventId, target=entered eventId). The phase-129 fixture seed (tests/fixtures/phase-129/sample-room/seed.sql) is trimmed from the phase-109 500-node seed to the minimum the loop touches (room + 2 sections + 2 artifacts + 1 decision); the two cache files are written by setupRoom pre-proxy with the exact shapes the readers expect. tests/run-all-129.sh (mirrors run-all-128.sh) runs all 5 phase-129 suites GREEN (5/5, ~18s) and is executable; lib/memory/run-feynman-tests.cjs carries an additive Phase 129 registration block registering all 5 suites in CI, every existing entry byte-unchanged. Zero regression on the surface Phase 129 owns: tests/test-navigation-acceptance.cjs (Phase 109) still exits 0. Zero new dependencies (node built-ins + bash only); no em-dashes. One out-of-scope discovery -- the Phase 122 workflow-layer e2e test (lib/memory/workflow-layer-e2e.test.cjs) fails on a Canon Part 8 proximity-scan over lib/workflow/selector-decisions.cjs; PROVEN pre-existing (still fails on clean main HEAD with all 129 changes stashed; both implicated files last touched by Phase 125-07 + Phase 122-05; Phase 129 touched neither) -- logged to .planning/phases/129-spine-repair-memory-event/deferred-items.md (DI-129-05-01) and deferred to a dedicated /gsd:debug session per the SCOPE BOUNDARY rule, not fixed here. SUMMARY at .planning/phases/129-spine-repair-memory-event/129-05-SUMMARY.md; 129-05 flipped to [x] and Phase 129 marked COMPLETE in ROADMAP.md. PHASE 129 (spine-repair-memory-event) is COMPLETE: all 6 spine scripts journal their surface through navigation.cjs and the instrumented acceptance test proves the proactive loop's backward arc is closed and leak-free.
 
 **Phase 129-04 closure (2026-05-30):**
 
