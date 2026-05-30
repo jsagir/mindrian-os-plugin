@@ -7,7 +7,10 @@
 #   test-130-lens-substrate.cjs -> 130-01 (INFORMS + REJECTED_BECAUSE edge enum
 #                                  + lens-nodes.cjs HatState / lens_finding node
 #                                  chokepoint + navigation.cjs re-exports)
-#   (Plans 02 / 03 / 04 register their suites here in later plans.)
+#   test-130-lens-engine.cjs    -> 130-02 (rotate() engine + 5-family registry +
+#                                  serial/parallel/single modes + the 3 pure
+#                                  synthesizers + the 5 lens memory_event types)
+#   (Plans 03 / 04 register their suites here in later plans.)
 #
 # CJS_SUITES entries resolve relative to this directory (tests/). Run per suite
 # with node. bash only. No emoji. No em-dashes.
@@ -21,6 +24,7 @@ SHELL_SUITES=(
 )
 CJS_SUITES=(
   test-130-lens-substrate.cjs
+  test-130-lens-engine.cjs
 )
 
 TOTAL=0
