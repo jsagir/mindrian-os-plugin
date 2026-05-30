@@ -369,10 +369,25 @@ function test_acceptBranch_invalidNodeId() {
 // UNIT: defer + reject branches are byte-unchanged (regression)
 // ===========================================================================
 
+function seedAnchorNode(db, id, type) {
+  // The defer/reject branches write a typed edge cmd:<command> -> framework:<fw>;
+  // edges FK to nodes(id), so both anchors must exist before the edge write.
+  const nowMs = Date.now();
+  db.prepare(
+    "INSERT OR IGNORE INTO nodes (id, type, properties, source_path, created_by, confidence, review_status, created_at, last_seen_at) "
+    + "VALUES (?, ?, '{}', 'fixture', 'system', NULL, 'confirmed', ?, ?)"
+  ).run(id, type, nowMs, nowMs);
+}
+
 function test_deferRejectBranches_unchanged() {
   const { tmp, roomDir } = setupRoom();
   const db = openRoomDb(roomDir);
   try {
+    // Seed the cmd + framework anchor nodes the defer/reject edge writes require.
+    seedAnchorNode(db, 'cmd:mos:explore-domains', 'command');
+    seedAnchorNode(db, 'framework:SWOT', 'framework');
+    seedAnchorNode(db, 'cmd:mos:challenge-assumptions', 'command');
+    seedAnchorNode(db, 'framework:Porter', 'framework');
     const deferRes = selectorDecisions.recordSelectorDecision({
       decision: 'defer',
       command: 'mos:explore-domains',
