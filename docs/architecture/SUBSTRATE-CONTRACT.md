@@ -86,6 +86,13 @@ The closed chokepoint surface is exactly these export keys from
 - `writeEdge`
 - `detectActiveRoom`
 - `getRecentDecisionNeighborhood`
+- `logSpineRead`
+- `logJtbdTransition`
+- `logOperatorTransition`
+- `logWorkflowStage`
+- `logSuggestionSurfaced`
+- `getCurrentJTBD`
+- `getCurrentOperator`
 
 The originally documented "closed 13" was the Phase 109 surface (Focus, Neighborhood,
 the insight queries, `findRecentChanges`, `findRelevantOpportunities`,
@@ -100,6 +107,23 @@ an internal helper so consumers never reach into `lib/core/navigation/` directly
 in this ADR naming the export, the phase, and the consumer. The list above is the
 closed surface until amended. Adding an export to `navigation.cjs` without an amendment
 line here is itself a contract violation.
+
+### Amendments
+
+- **Phase 129-01 (2026-05-30).** Added seven spine-helper exports re-exported from
+  `lib/core/navigation/spine-events.cjs`: `logSpineRead`, `logJtbdTransition`,
+  `logOperatorTransition`, `logWorkflowStage`, `logSuggestionSurfaced`,
+  `getCurrentJTBD`, `getCurrentOperator`. **Consumer:** the 6 spine scripts
+  (`mos-status`, `suggest-next-command`, `act-command` / `pipeline-command`,
+  `jtbd-command`, `operator-command`, `memory-command`), which are NOT in the
+  `check-substrate.cjs` allow-list and so must reach `room.db` ONLY through this
+  chokepoint. Each `log*` helper takes a `roomDir` (never a db handle), opens
+  `room.db` internally via `lib/core/room-db.cjs` (legal -- `lib/core/navigation/`
+  is allow-listed), writes a `memory_event` via the internal `logEvent` helper, and
+  closes the handle. `getCurrentJTBD` / `getCurrentOperator` are event-log-authoritative
+  with the `jtbd-state.json` / `conversation-operator.json` cache file as fallback.
+  `spine-events.cjs` is a thin re-export of internal navigation helpers, so consumers
+  never reach into `lib/core/navigation/` directly.
 
 ## Reuse-vs-build decision (Canon Part 7)
 
