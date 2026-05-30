@@ -61,6 +61,11 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 // require it from a non-allowlisted path.
 // ---------------------------------------------------------------------------
 const ALLOWED_DIRECT_IMPORT = [
+  // The guards themselves carry the ban patterns as regex/string literals; they
+  // must exempt their own source or they trap their own maintenance (Phase 128
+  // dog-food finding 2026-05-30).
+  /^scripts\/check-substrate\.cjs$/,
+  /^scripts\/check-schema-aliases\.cjs$/,
   /^lib\/core\/navigation\.cjs$/,
   /^lib\/core\/navigation\//,
   /^lib\/core\/room-db\.cjs$/,
@@ -225,9 +230,72 @@ function readStagedContent(filePath) {
 }
 
 // scanStaged: the API the Task-1 tests call. Honors the staged-file + content
-// seams; pure (returns the violation array, never exits).
+// seams; pure (returns the violation array, never exits). Whole-file scan.
 function scanStaged() {
   return scanFiles(getStagedFiles(), readStagedContent);
+}
+
+// ---------------------------------------------------------------------------
+// Net-new-aware staged scan (Phase 128 dog-food fix 2026-05-30).
+//
+// runDiff must flag ONLY violations on lines the staged diff ADDS, never
+// pre-existing lines in a touched file. This is the "net-new after baseline"
+// contract the plan intended: editing a file that already carries baselined
+// debt (the 195 in SUBSTRATE-BASELINE.md) is fine; introducing a NEW bypass
+// line is blocked. Whole-file scanStaged remains for the tests + the API.
+//
+// Honors the MINDRIAN_HOOK_STAGED_DIFF seam for hermetic tests; else runs git.
+// ---------------------------------------------------------------------------
+function getStagedDiff() {
+  const env = process.env.MINDRIAN_HOOK_STAGED_DIFF;
+  if (typeof env === 'string') return env;
+  try {
+    const r = spawnSync('git', ['diff', '--cached', '--unified=0', '--diff-filter=ACM'], {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+    });
+    if (r.status !== 0) return '';
+    return r.stdout || '';
+  } catch (_) {
+    return '';
+  }
+}
+
+function scanStagedDiff() {
+  const diff = getStagedDiff();
+  if (!diff) return [];
+  const violations = [];
+  let curFile = null;
+  let skipFile = true;
+  let newLineNo = 0;
+  for (const raw of diff.split('\n')) {
+    if (raw.startsWith('+++ ')) {
+      const m = raw.match(/^\+\+\+ b\/(.+)$/);
+      curFile = m ? m[1] : null;
+      skipFile = !curFile || !/\.(cjs|js|mjs)$/.test(curFile) || isAllowedPath(curFile);
+      continue;
+    }
+    if (raw.startsWith('@@')) {
+      // @@ -a[,b] +c[,d] @@  -> next added line is new-file line c
+      const m = raw.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
+      newLineNo = m ? parseInt(m[1], 10) : 0;
+      continue;
+    }
+    if (skipFile || !curFile) continue;
+    if (raw.startsWith('+')) {
+      const hits = scanLine(raw.slice(1));
+      for (const h of hits) {
+        violations.push({ file: curFile, line: newLineNo, rule: h.rule, match: h.match });
+      }
+      newLineNo++;
+    } else if (raw.startsWith('-')) {
+      // removed line: does not advance the new-file line counter
+    } else {
+      // context line (rare under --unified=0): advances the new-file counter
+      newLineNo++;
+    }
+  }
+  return violations;
 }
 
 // ---------------------------------------------------------------------------
@@ -303,11 +371,14 @@ function runBaseline() {
 }
 
 function runDiff() {
-  const violations = scanStaged();
+  // Net-new-aware: only flags violations on lines the staged diff ADDS, so a
+  // commit that touches a file carrying baselined debt is not blocked unless it
+  // introduces a NEW bypass (Phase 128 dog-food fix 2026-05-30).
+  const violations = scanStagedDiff();
   if (violations.length === 0) {
     process.exit(0);
   }
-  process.stderr.write('[check-substrate] FAIL (--diff): staged changes bypass the navigation.cjs chokepoint:\n');
+  process.stderr.write('[check-substrate] FAIL (--diff): staged changes ADD a navigation.cjs chokepoint bypass:\n');
   printGrouped(violations, process.stderr);
   process.stderr.write('Route the access through lib/core/navigation.cjs, or add the path to ALLOWED_DIRECT_IMPORT in scripts/check-substrate.cjs.\n');
   process.exit(1);
@@ -330,6 +401,7 @@ if (require.main === module) {
 module.exports = {
   scanFiles,
   scanStaged,
+  scanStagedDiff,
   scanRepo,
   isAllowedPath,
   ALLOWED_DIRECT_IMPORT,

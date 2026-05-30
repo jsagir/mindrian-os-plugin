@@ -112,4 +112,43 @@ Gary opened a fresh Claude Code session on Windows (PowerShell, `C:\WINDOWS\syst
 - Still pending from 2026-05-09: Phase 115 Dror-2.0 owned-emotion screening before counting Gary as a validation subject (the JHU material qualifies him on stakes; the affect signal still needs a read).
 - Still pending from 2026-05-09: synchronous 20-min `/mos:onboard` call if he is open (Gary ran the script himself this morning, which partially closes this -- but a live screen-share for the Vercel-publish setup would be high-leverage given that is what he is asking for next).
 
+---
+
+## 2026-05-30 -- Brain smoke FAIL at L3 + key-store anomaly + Windows libuv crash
+
+**Channel:** Email to jsagir@gmail.com. Gary ran `/mos:doctor --brain-smoke` on beta.34 / Windows.
+
+**Signal (verbatim subject "Brain endpoint down / key check"):**
+
+> running the MindrianOS brain smoke test and hitting a wall at L3 (HTTPS schema probe). Key resolves fine locally (L2 passes), but the Brain endpoint comes back null. Either the server is down or my key got rotated. Confirm: (1) Is the Brain API up? (2) Is my key still valid? Running 1.13.0-beta.34 on Windows.
+
+His Class M probe: L1 PASS (plugin-root resolved, marketplace-cache), L2 PASS (key resolved from env), **L3 FAIL** (HTTPS schema probe returned null -- "Brain unreachable or 401", 728ms), L4/L5 skipped. Process then crashed: `Exit code 127` + `Assertion failed: !(handle->flags & UV_HANDLE_CLOSING), file src\win\async.c, line 76`.
+
+**Investigation (live, 2026-05-30):**
+
+1. **Brain server is UP.** `brain_stats` via MCP returned 12,401 records. A known-good key against `POST https://mindrian-brain.onrender.com/mcp` (identical initialize handshake to the client) returned **HTTP 200**. Server is not down. Answer to Gary Q1: YES, up.
+2. **Gary's "active replacement" key is dead-on-arrival.** The key we marked ACTIVE on 2026-05-09 (UUID redacted; in gitignored outbox) returns **HTTP 403** at the edge and shows **0 requests / never used** in Supabase, despite `is_active=true`. It never worked. The old 2026-05-07 key (UUID redacted) is correctly REVOKED and also 403s.
+3. **Key-store ambiguity.** Supabase `usage --email garyslaben@gmail.com` shows THREE rows: (a) name `-`, active, **20 requests, last used 2026-05-29 15:07**; (b) revoked 2026-05-07 key, 0 req; (c) 2026-05-09 replacement, active, 0 req, never used. So an UNNAMED active key (a) has carried Gary's 20 real requests through yesterday, while the key we tracked as his replacement (c) is the dead 403 one. Our tracking and the live store diverged.
+4. **403-despite-active anomaly.** Key (c) is `is_active=true` in Supabase yet rejected 403 at the Brain edge. Root cause not yet confirmed (candidate: row written to a different Brain/Supabase instance during the 2026-05-09 issuance, or an edge key-cache that never picked it up). Worth a separate dig, not Gary's blocker.
+5. **Fix verified before promising.** Minted a fresh 60-day key (UUID redacted; saved to gitignored delivery note), curl-tested against the live edge: **HTTP 200**. The create-to-edge path is healthy, so a fresh key is the clean unblock.
+
+**Two distinct bugs, separated:**
+
+- **BUG A (Gary's blocker -- key, not server):** Gary is on a key that 403s. Likely his env holds key (c) (0 requests is consistent with "Brain never actually worked for him; LOCAL-only masked it since 2026-05-14"). Fix: deliver the fresh verified key, have him `SetEnvironmentVariable` it, revoke the stale rows. His L3 goes green.
+- **BUG B (separate, Windows-only):** `/mos:doctor --brain-smoke` crashes the Node process on Windows with a libuv `UV_HANDLE_CLOSING` assertion (`src\win\async.c:76`) + exit 127 AFTER printing the L3/L4/L5 FAIL lines. A FAILED L3 should degrade gracefully, not assert-crash the event loop. Likely an un-awaited fetch/timer handle or `AbortSignal.timeout` left open when the probe returns null. Candidate `/gsd:debug` session. Does not block Gary once his key is fixed, but makes the failure look scarier than it is.
+
+**Action taken (2026-05-30):**
+
+- Confirmed Brain UP + create path healthy (200 on a fresh key).
+- Minted fresh 60-day free key for Gary (expires 2026-07-29). UUID held in gitignored delivery note, NOT committed.
+- This log entry filed.
+
+**Open follow-ups:**
+
+- DELIVER the fresh key to Gary with Windows `[Environment]::SetEnvironmentVariable("MINDRIAN_BRAIN_KEY", "...", "User")` + "open a fresh terminal so the env var loads" + "re-run `/mos:doctor --brain-smoke`, L3 should go green." Answer his two questions: Brain is up; your tracked key was a dead row, here is a fresh verified one.
+- REVOKE the stale rows once Gary confirms the switch (hold the name `-` 20-request key until he is on the new one).
+- FILE BUG B as a `/gsd:debug` session: doctor.cjs --brain-smoke libuv UV_HANDLE_CLOSING assertion on Windows when L3 returns null.
+- DIG into the 403-despite-active anomaly (key c): which Brain/Supabase instance did the 2026-05-09 create land on, why the edge never honored it.
+- Reconcile docs/testers tracking with the live Supabase store (registry said one ACTIVE key; store has two active + the dead one).
+
 

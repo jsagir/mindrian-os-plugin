@@ -223,6 +223,50 @@ test('Bonus B superset: require of lazygraph-ops from non-allowlisted path flagg
 });
 
 // ---------------------------------------------------------------------------
+// Net-new regression cases (Phase 128 dog-food fix 2026-05-30): runDiff via
+// scanStagedDiff must flag ONLY lines the staged diff ADDS, never pre-existing
+// lines in a touched file. Drives the MINDRIAN_HOOK_STAGED_DIFF seam.
+// ---------------------------------------------------------------------------
+function runDiffCase(diff) {
+  const prev = process.env.MINDRIAN_HOOK_STAGED_DIFF;
+  try {
+    process.env.MINDRIAN_HOOK_STAGED_DIFF = diff;
+    return guard.scanStagedDiff();
+  } finally {
+    if (prev === undefined) delete process.env.MINDRIAN_HOOK_STAGED_DIFF;
+    else process.env.MINDRIAN_HOOK_STAGED_DIFF = prev;
+  }
+}
+
+test('Net-new C: an unrelated edit to a file with a pre-existing bypass is NOT flagged', () => {
+  const diff = [
+    'diff --git a/lib/feature/touches-violating.cjs b/lib/feature/touches-violating.cjs',
+    '--- a/lib/feature/touches-violating.cjs',
+    '+++ b/lib/feature/touches-violating.cjs',
+    '@@ -10,1 +10,1 @@',
+    '-  const x = 1;',
+    '+  const x = 2;',
+    '',
+  ].join('\n');
+  const viols = runDiffCase(diff);
+  ok(viols.length === 0, 'unrelated edit must add zero net-new violations, got ' + JSON.stringify(viols));
+});
+
+test('Net-new D: a diff that ADDS an openGraph bypass IS flagged at the added line', () => {
+  const diff = [
+    'diff --git a/lib/feature/adds-bypass.cjs b/lib/feature/adds-bypass.cjs',
+    '--- a/lib/feature/adds-bypass.cjs',
+    '+++ b/lib/feature/adds-bypass.cjs',
+    '@@ -5,0 +6,1 @@',
+    '+  const db = openGraph(roomPath);',
+    '',
+  ].join('\n');
+  const viols = runDiffCase(diff);
+  ok(viols.some((v) => v.rule === 'opengraph-bypass' && v.line === 6),
+    'a net-new openGraph bypass must be flagged at the added line, got ' + JSON.stringify(viols));
+});
+
+// ---------------------------------------------------------------------------
 // Summary + exit code (exit 0 only when all 5 cases + 2 bonus assertions pass).
 // ---------------------------------------------------------------------------
 process.stdout.write('\n');
