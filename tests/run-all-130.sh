@@ -14,7 +14,12 @@
 #                                  one-shot backfill + the 4 thin lens-engine
 #                                  command clients + persona-ops loop delegation +
 #                                  tension-map dedup)
-#   (Plan 04 registers its suite here in a later plan.)
+#   test-130-lens-engine-e2e.cjs -> 130-04 (the phase release gate: 8 instrumented
+#                                  E2E tests -- 6 cognitive-family serial/parallel/
+#                                  single/consume + round-trip + backfill, and 2
+#                                  engine-contract rejection-as-data + persona-aware
+#                                  framing, all through navigation.cjs with the
+#                                  fs-instrument zero-leak gate)
 #
 # CJS_SUITES entries resolve relative to this directory (tests/). Run per suite
 # with node. bash only. No emoji. No em-dashes.
@@ -30,6 +35,7 @@ CJS_SUITES=(
   test-130-lens-substrate.cjs
   test-130-lens-engine.cjs
   test-130-cognitive-migration.cjs
+  test-130-lens-engine-e2e.cjs
 )
 
 TOTAL=0
