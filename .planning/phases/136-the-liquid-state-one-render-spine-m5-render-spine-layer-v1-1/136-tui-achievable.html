@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mindrian - Most Achievable TUI (zellij workspace + headless core)</title>
+<style>
+  :root{
+    --red:#A63D2F; --blue:#1E3A6E; --yellow:#C8A43C; --green:#2D6B4A;
+    --amethyst:#6B4E8B; --cream:#F5F0E8; --black:#0D0D0D; --gray:#A09A90; --sienna:#B5602A;
+    --bg:#0D0D0D; --surface:#161514; --line:#2C2A27;
+    --t-fg:#E8E2D6; --t-dim:#7A756C;
+    --t-red:#C9604F; --t-blue:#6E8AC6; --t-yellow:#D8B24A; --t-green:#5BBF8A; --t-amethyst:#9A7BBE; --t-sienna:#CE7A45;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--cream);color:var(--black);font-family:"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1240px;margin:0 auto;padding:18px 18px 90px}
+
+  .mast{display:flex;align-items:stretch;border:5px solid var(--black);margin-bottom:12px}
+  .mast .name{padding:11px 17px;font-weight:800;font-size:23px;letter-spacing:-.5px}
+  .mast .name .os{color:var(--red)}
+  .mast .b{width:42px;border-left:5px solid var(--black)}
+  .bl{background:var(--blue)}.by{background:var(--yellow)}.br{background:var(--red)}
+  .mast .thesis{flex:1;border-left:5px solid var(--black);padding:8px 15px;font-size:12.5px;color:#33312d;display:flex;align-items:center}
+  .mast .thesis b{color:var(--black)}
+
+  .reality{border:3px solid var(--black);background:#fff;margin:0 0 16px;display:flex}
+  .reality .col{flex:1;padding:9px 14px;font-size:12.5px}
+  .reality .col+.col{border-left:3px solid var(--black)}
+  .reality .yes{background:#eef3ee}.reality .no{background:#f5ecea}
+  .reality h4{margin:0 0 5px;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+  .reality .yes h4{color:var(--green)}.reality .no h4{color:var(--red)}
+  .reality ul{margin:0;padding-left:16px;color:#33312d}.reality li{margin:2px 0}
+
+  .hint{font-size:12px;color:#4a4843;margin:0 0 10px;font-weight:600}
+  .hint .k{font-family:var(--mono);font-weight:800;background:var(--black);color:var(--cream);padding:1px 6px;border-radius:4px;font-size:11px}
+
+  /* zellij workspace */
+  .ws{position:relative;background:var(--bg);border:1px solid #000;border-radius:8px;overflow:hidden}
+  .ztab{background:#1d1b19;display:flex;align-items:center;gap:0;font-family:var(--mono);font-size:11.5px;border-bottom:1px solid #000}
+  .ztab .z{background:var(--sienna);color:#100b08;font-weight:800;padding:6px 10px}
+  .ztab .tab{padding:6px 13px;color:#8a857c;border-right:1px solid #000}
+  .ztab .tab.on{color:var(--t-fg);background:#2a2723;font-weight:700}
+  .ztab .right{margin-left:auto;color:#6a655d;padding:6px 12px}
+  .ztab .ok{color:var(--t-green)}
+
+  .tiled{display:grid;grid-template-columns:1.15fr 1.35fr;min-height:380px}
+  .pane{border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0}
+  .pane:last-child{border-right:0}
+  .ph{padding:5px 11px;font-family:var(--mono);font-size:10px;letter-spacing:.6px;text-transform:uppercase;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:7px}
+  .ph .tag{font-weight:800}
+  .ph.host{background:#15110f;color:#9a8f84}.ph.host .tag{color:var(--t-sienna)}
+  .ph.ours{background:#101512;color:#8aa597}.ph.ours .tag{color:var(--t-green)}
+  .ph .owner{margin-left:auto;font-size:9px;color:#5a564f}
+  .pbody{flex:1;overflow:auto;font-family:var(--mono);font-size:12.2px;line-height:1.5;padding:10px 12px;color:var(--t-fg)}
+
+  /* claude code pane (conversation) */
+  .cc .msg{margin-bottom:9px}
+  .cc .who{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:1px}
+  .who.lr{color:var(--t-amethyst)}.who.you{color:var(--t-green)}.who.sys{color:var(--t-yellow)}
+  .cc .txt{color:#cfc8ba;white-space:pre-wrap}
+  .cc .input{margin-top:6px;color:var(--t-dim)}.cc .input b{color:var(--t-green)}
+
+  /* mos tui pane: tree | detail */
+  .tui{display:grid;grid-template-columns:1fr 1fr;height:100%}
+  .tui .sub{padding:9px 10px;font-family:var(--mono);font-size:12px;line-height:1.55;overflow:auto}
+  .tui .tree{border-right:1px solid var(--line)}
+  .row{white-space:pre;padding:0 5px;border-radius:3px;cursor:pointer}
+  .row.sel{background:#2f2a22;outline:1px solid var(--t-yellow)}
+  .gl{display:inline-block;width:1.4em}
+  .cnt{color:#6a655d}.empty{color:#5a564f}.tension{color:var(--t-yellow)}
+  .seprow{color:#5a564f;font-size:9.5px;letter-spacing:1px;text-transform:uppercase;padding:8px 5px 2px}
+  .dh{color:var(--t-blue);font-weight:700;margin-bottom:5px}.db{color:#cfc8ba;white-space:pre-wrap}
+
+  /* floating decision gate */
+  .float{position:absolute;top:64px;right:30px;width:360px;background:#141210;border:2px solid var(--t-sienna);border-radius:7px;box-shadow:0 10px 30px #000a;font-family:var(--mono)}
+  .float .fh{background:var(--t-sienna);color:#120c08;font-weight:800;font-size:11px;padding:5px 11px;display:flex;align-items:center}
+  .float .fh .x{margin-left:auto;opacity:.8}
+  .float .fb{padding:10px 12px;font-size:12px;color:var(--t-fg)}
+  .gtitle{color:var(--t-amethyst);font-weight:800;font-size:11.5px}
+  .gq{color:#cfc8ba;margin:3px 0 8px;font-size:12px;line-height:1.45}
+  .opt{display:flex;gap:8px;padding:4px 6px;border-radius:3px;cursor:pointer}
+  .opt.sel{background:#2f2a22}
+  .cb{color:var(--t-green);font-weight:800}.opt .v{font-weight:700;color:#e6e0d5}
+  .freebox{margin-top:7px;border:1px solid var(--line);border-radius:4px;padding:6px 8px;background:#0d0b0a}
+  .freebox.sel{outline:1px solid var(--t-amethyst)}
+  .freebox .lab{color:var(--t-amethyst);font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+  .freebox input{width:100%;background:transparent;border:0;color:var(--t-fg);font-family:var(--mono);font-size:11.5px;margin-top:2px;outline:none}
+  .prev{margin-top:8px;border-top:1px dashed #3a3733;padding-top:7px}
+  .prev .l{color:#6a655d;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px}
+  .prev .e{color:var(--t-green);font-size:11px;white-space:pre-wrap}.prev .none{color:#5a564f;font-size:11px}
+  .ghints{margin-top:8px;color:#6a655d;font-size:9.5px;line-height:1.6}.ghints b{color:#b8b2a7}
+  .native{margin-top:7px;color:var(--t-sienna);font-size:9.5px;border-top:1px dotted #3a3733;padding-top:6px}
+
+  /* zellij status bar */
+  .zbar{background:#0a0908;border-top:1px solid #000;display:flex;align-items:center;gap:9px;padding:6px 12px;font-family:var(--mono);font-size:11px;color:#8a857c}
+  .zbar .mode{color:#120c08;background:var(--t-green);font-weight:800;padding:1px 7px;border-radius:2px}
+  .zbar .k{color:#cfc8ba;font-weight:700}.zbar .sep{color:#3a3733}.zbar .right{margin-left:auto;color:#6a655d}
+
+  /* architecture strip */
+  .arch{border:3px solid var(--black);background:#0d0d0d;border-radius:0;margin:16px 0 0;padding:14px 16px;font-family:var(--mono);font-size:12px;color:var(--t-fg);overflow:auto}
+  .arch pre{margin:0;white-space:pre;line-height:1.5}
+  .arch .core{color:var(--t-green);font-weight:700}.arch .db{color:var(--t-yellow)}.arch .cli{color:var(--t-sienna)}.arch .cl{color:var(--t-blue)}.arch .mut{color:#6a655d}
+
+  footer{border-top:6px solid var(--black);margin-top:18px;padding-top:14px;font-size:13px;color:#33312d}
+  footer h3{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin:0 0 9px}
+  .pill{display:inline-block;background:var(--black);color:var(--cream);font-size:11px;font-weight:800;padding:3px 9px;margin:2px 5px 2px 0}
+  .pill.no{background:#f5ecea;color:var(--red);border:2px solid var(--red)}
+  .leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;margin-top:8px}
+  .sw{display:inline-block;width:10px;height:10px;border:2px solid var(--black);vertical-align:-1px;margin-right:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="mast">
+    <div class="name">MINDRIAN<span class="os">OS</span></div>
+    <div class="b bl"></div><div class="b by"></div><div class="b br"></div>
+    <div class="thesis"><span><b>Most achievable, honestly rendered.</b> Claude Code (host, we do NOT render it) beside our <span style="font-family:var(--mono)">mos tui</span> navigator, composed by a <b>zellij layout</b>, gate as a <b>floating pane</b> - all thin clients of one headless core (navigation.cjs + room.db).</span></div>
+  </div>
+
+  <div class="reality">
+    <div class="col yes"><h4>&#10003; achievable today</h4><ul>
+      <li>separate ink TUI in a zellij/tmux pane, alongside Claude Code</li>
+      <li>floating gate pane (zellij Alt+f) OR native AskUserQuestion (&le;4 opts)</li>
+      <li>headless core: navigation.cjs + room.db (WAL), thin clients over SSE</li>
+      <li>web twin + inline 4-zone fallback, same core</li>
+    </ul></div>
+    <div class="col no"><h4>&#10007; not possible / rejected</h4><ul>
+      <li>one Claude-Code-native surface with docked panes (CC owns its screen)</li>
+      <li>a plugin drawing persistent UI inside the conversation</li>
+      <li>building our own agentic TUI (rebuilds the harness; moat is the graph)</li>
+    </ul></div>
+  </div>
+
+  <p class="hint">The floating gate is live: click it, then <span class="k">&uarr;&darr;</span> move, <span class="k">Space</span> toggle, <span class="k">Tab</span> free-text, <span class="k">Enter</span> confirm (posts back into the Claude Code pane). Click a tree node to inspect it.</p>
+
+  <!-- zellij workspace -->
+  <div class="ws">
+    <div class="ztab">
+      <span class="z">zellij</span>
+      <span class="tab on">mindrian</span>
+      <span class="tab">scratch</span>
+      <span class="right">MINDRIAN v1.14.0 <span class="sep">|</span> mindrianOS <span class="sep">|</span> Brain: <span class="ok">connected</span> <span class="sep">|</span> room.db <span class="ok">synced</span></span>
+    </div>
+
+    <div class="tiled">
+      <!-- Claude Code (host) -->
+      <div class="pane cc">
+        <div class="ph host"><span class="tag">claude code</span> conversation <span class="owner">host agent - not rendered by us</span></div>
+        <div class="pbody" id="ccBody"></div>
+      </div>
+      <!-- mos tui (ours) -->
+      <div class="pane">
+        <div class="ph ours"><span class="tag">mos tui</span> navigator (ink) <span class="owner">ours - reads core via SSE</span></div>
+        <div class="tui">
+          <div class="sub tree" id="treeBody"></div>
+          <div class="sub" id="detailBody"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- floating decision gate -->
+    <div class="float" id="gatePane" tabindex="0">
+      <div class="fh"><span>&#9670; DECISION GATE &middot; floating pane</span><span class="x">Esc</span></div>
+      <div class="fb">
+        <div class="gtitle">&#9632; BRAIN &middot; Next Move</div>
+        <div class="gq">The tester findings contradict your problem framing. What next?</div>
+        <div id="optList"></div>
+        <div class="freebox" id="freebox"><div class="lab">f &middot; free text (your direction)</div><input id="gfree" placeholder="something nobody proposed..." autocomplete="off"></div>
+        <div class="prev"><div class="l">would write to room.db</div><div id="edgeOut" class="none">nothing selected yet</div></div>
+        <div class="ghints"><b>&uarr;&darr;</b> move <b>Space</b> toggle <b>Tab</b> free-text <b>Enter</b> confirm <b>Esc</b> close</div>
+        <div class="native">&ge;5 options or persistent = this floating pane &middot; &le;4 options = native AskUserQuestion in the CC pane</div>
+      </div>
+    </div>
+
+    <div class="zbar">
+      <span class="mode">LOCKED</span>
+      <span><span class="k">Alt f</span> float</span><span class="sep">|</span>
+      <span><span class="k">Alt h/l</span> pane</span><span class="sep">|</span>
+      <span><span class="k">Ctrl t</span> tab</span><span class="sep">|</span>
+      <span id="gatecount"><span class="k">gate</span> 0 selected</span>
+      <span class="right">mindrian.kdl layout &middot; tmux fallback available</span>
+    </div>
+  </div>
+
+  <!-- architecture: headless core + thin clients -->
+  <div class="arch">
+<pre>            <span class="cli">Claude Code</span>  writes via PostToolUse hook
+                 │
+                 ▼
+   ┌────────── <span class="core">navigation.cjs  (headless core, single writer)</span> ──────────┐
+   │              <span class="db">room.db  (SQLite WAL)</span>  +  thin read API (SSE / socket)     │
+   └───────┬──────────────────┬───────────────────────┬───────────────┘
+       reads│ SSE         reads│ SSE               reads│ SSE
+           ▼                  ▼                        ▼
+     <span class="cl">mos tui (ink)</span>        <span class="cl">web twin (browser)</span>        <span class="cl">inline 4-zone</span>
+     keyboard navigator    live wiki / dashboard      zero-process fallback
+<span class="mut">     every surface renders the same brain - never a second brain (M5 + Canon Part 10)</span></pre>
+  </div>
+
+  <footer>
+    <h3>The achievable stack (validated)</h3>
+    <div>
+      <span class="pill">zellij mindrian.kdl layout (tmux fallback)</span>
+      <span class="pill">ink navigator (no-JSX to stay buildless)</span>
+      <span class="pill">headless core: navigation.cjs + room.db WAL</span>
+      <span class="pill">thin clients over SSE (TUI / web / inline)</span>
+      <span class="pill">gate: floating pane OR native AskUserQuestion &le;4</span>
+      <span class="pill">busy_timeout + single-writer + short reads</span>
+      <span class="pill">lazygit discipline: always-visible, single focus, compact</span>
+      <span class="pill">semantic color, glyph-backed, contrast-checked</span>
+    </div>
+    <div style="margin-top:8px">
+      <span class="pill no">&#10007; one CC-native docked surface</span>
+      <span class="pill no">&#10007; standalone agent TUI (own the chat)</span>
+    </div>
+    <div class="leg">
+      <span><b>color = meaning:</b></span>
+      <span><span class="sw" style="background:var(--green)"></span>core / focus / affirmative</span>
+      <span><span class="sw" style="background:var(--sienna)"></span>host CLI / floating</span>
+      <span><span class="sw" style="background:var(--amethyst)"></span>Larry / decision</span>
+      <span><span class="sw" style="background:var(--blue)"></span>thin client / command</span>
+      <span><span class="sw" style="background:var(--yellow)"></span>warning / tension</span>
+    </div>
+    <p style="margin-top:12px;color:var(--blue);font-weight:800">Next: fold the headless-core + zellij-layout refinements into 136-SPEC, then /gsd:plan-phase 136.</p>
+  </footer>
+
+</div>
+
+<script>
+/* ---- conversation (Claude Code pane) ---- */
+var conv = [
+  {who:'you',txt:'Tester findings say multi-user + onboarding are the blockers, not a navigator. Does 136 still earn its slot?'},
+  {who:'larry',txt:'Fair. 136 is architecture-led - but the render spine is the floor multi-user UI sits on too. There is a live tension in gtm right now.'},
+  {who:'sys',txt:'▶ decision gate opened as a floating pane (Alt f). pick any, or type your own.'}
+];
+function renderConv(){var b=document.getElementById('ccBody');b.innerHTML=conv.map(function(m){
+  return '<div class="msg"><div class="who '+(m.who==='larry'?'lr':m.who==='you'?'you':'sys')+'">'+(m.who==='larry'?'larry':m.who==='you'?'lawrence':'system')+'</div><div class="txt">'+m.txt+'</div></div>';
+}).join('')+'<div class="input"><b>&gt;</b> _</div>';b.scrollTop=b.scrollHeight;}
+
+/* ---- tree (mos tui) ---- */
+var tree=[
+  {id:'pe',g:'▼',d:0,label:'product-evolution',cnt:'(12)'},
+  {id:'m5',g:'•',d:1,label:'M5-liquid-state',content:'thesis: solid ICM tree (footing)\n+ liquid LazyGraph (overlay).\nrender is never the moat.'},
+  {id:'p136',g:'•',d:1,label:'phase-136',content:'the render spine.\nshape x delivery flags.\nthin clients of one core.'},
+  {id:'pd',g:'▶',d:0,label:'problem-definition',cnt:'(4)'},
+  {id:'gtm',g:'▶',d:0,label:'gtm',cnt:'(3)',tension:true,content:'deal-blockers = multi-user +\nonboarding, NOT a navigator.\nCONTRADICTS problem-definition.'},
+  {id:'ma',g:'▶',d:0,label:'market-analysis',cnt:'(1)'},
+  {id:'bm',g:'○',d:0,label:'business-model',cnt:'(0)',empty:true}
+];
+var sel='m5';
+function renderTree(){
+  var b=document.getElementById('treeBody');b.innerHTML='';
+  tree.forEach(function(n){
+    var row=document.createElement('div');row.className='row'+(n.id===sel?' sel':'');
+    var pad='';for(var i=0;i<n.d;i++)pad+='  ';
+    var lab=n.tension?'tension':(n.empty?'empty':'');
+    row.innerHTML=pad+'<span class="gl '+(n.tension?'tension':'')+'">'+n.g+'</span><span class="'+lab+'">'+n.label+'</span>'+(n.cnt?' <span class="cnt '+(n.empty?'empty':'')+'">'+n.cnt+'</span>':'')+(n.tension?' <span class="tension">⚠</span>':'');
+    row.onclick=function(){sel=n.id;renderTree();renderDetail();};
+    b.appendChild(row);
+  });
+  var sp=document.createElement('div');sp.className='seprow';sp.textContent='other rooms';b.appendChild(sp);
+  ['◇ NDC Lectures','◇ MOF Workshop','◇ IRIS 2026'].forEach(function(t){var r=document.createElement('div');r.className='row';r.innerHTML='<span class="gl">'+t.charAt(0)+'</span><span>'+t.slice(2)+'</span>';b.appendChild(r);});
+}
+function renderDetail(){var n=tree.find(function(x){return x.id===sel;})||{};document.getElementById('detailBody').innerHTML='<div class="dh"># '+(n.label||'')+'</div><div class="db">'+(n.content||(n.cnt?'section '+n.cnt+'\npress → to expand':''))+'</div>';}
+
+/* ---- floating gate ---- */
+var opts=[{v:"Devil's Advocate",on:false},{v:'Reformulate',on:false},{v:'Navigate Graph',on:false},{v:'Bank Opportunity',on:false},{v:'Defer',on:false}];
+var gidx=0,gfree='';
+function renderGate(){
+  document.getElementById('optList').innerHTML=opts.map(function(o,i){
+    return '<div class="opt'+(gidx===i?' sel':'')+'" data-i="'+i+'"><span class="cb">'+(o.on?'☑':'☐')+'</span><span class="v">'+o.v+'</span></div>';
+  }).join('');
+  document.getElementById('freebox').classList.toggle('sel',gidx===opts.length);
+  var picked=opts.filter(function(o){return o.on;});var edges=picked.map(function(o){return '→ DECISION '+o.v.toLowerCase().replace(/[^a-z]+/g,'_');});
+  if(gfree.trim())edges.push('→ FREE_TEXT "'+gfree.trim()+'"');
+  var out=document.getElementById('edgeOut');
+  if(edges.length){out.className='e';out.textContent=edges.join('\n');}else{out.className='none';out.textContent='nothing selected yet';}
+  var n=picked.length+(gfree.trim()?1:0);
+  document.getElementById('gatecount').innerHTML='<span class="k">gate</span> '+n+' selected';
+  [].slice.call(document.querySelectorAll('#optList .opt')).forEach(function(el){el.onclick=function(){var i=+el.getAttribute('data-i');gidx=i;opts[i].on=!opts[i].on;renderGate();document.getElementById('gatePane').focus();};});
+}
+function confirmGate(){
+  var picked=opts.filter(function(o){return o.on;});var ft=gfree.trim();var n=picked.length+(ft?1:0);if(!n)return;
+  var lines=picked.map(function(o){return o.v;});if(ft)lines.push('"'+ft+'"');
+  conv.push({who:'sys',txt:'✓ '+n+' decision'+(n>1?'s':'')+' written to room.db via the core: '+lines.join(' · ')});
+  conv.push({who:'larry',txt:'Recorded. The tree already reflects it - the web twin updated too. Same core, three surfaces.'});
+  opts.forEach(function(o){o.on=false;});gfree='';document.getElementById('gfree').value='';renderConv();renderGate();
+}
+document.getElementById('gatePane').addEventListener('keydown',function(e){
+  if(e.target.id==='gfree'){if(e.key==='Enter'){confirmGate();e.preventDefault();}return;}
+  var max=opts.length;
+  if(e.key==='ArrowUp'){gidx=(gidx-1+(max+1))%(max+1);renderGate();e.preventDefault();}
+  else if(e.key==='ArrowDown'){gidx=(gidx+1)%(max+1);renderGate();e.preventDefault();}
+  else if(e.key===' '){if(gidx<max){opts[gidx].on=!opts[gidx].on;renderGate();}e.preventDefault();}
+  else if(e.key==='Tab'){gidx=max;renderGate();document.getElementById('gfree').focus();e.preventDefault();}
+  else if(e.key==='Enter'){confirmGate();e.preventDefault();}
+});
+document.getElementById('gfree').addEventListener('input',function(){gfree=this.value;renderGate();});
+document.getElementById('gfree').addEventListener('keydown',function(e){if(e.key==='Enter'){confirmGate();e.preventDefault();}});
+
+renderConv();renderTree();renderDetail();renderGate();
+</script>
+</body>
+</html>
