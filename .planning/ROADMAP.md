@@ -1736,10 +1736,17 @@ Plans:
 
 **Scope note:** milestone-scale. Will likely decompose into a cluster (136 anchor + sub-phases: render-engine core / token contract / CLI navigator / surface twins) during plan-phase.
 
-**Plans:** 0 plans
+**Plans:** 8 plans in 6 waves
 
 Plans:
-- [ ] TBD (run /gsd:spec-phase 136 -> /gsd:discuss-phase 136 -> /gsd:plan-phase 136 to break down)
+- [ ] 136-01-PLAN.md (Wave 0) - test harness + seeded 4+-level fixture + ink-absent guard + confirm BUD callable + release.sh native-addon assertion
+- [ ] 136-02-PLAN.md (Wave 1) - headless core: read-only room.db handle + thin SSE read-API on the existing express server
+- [ ] 136-03-PLAN.md (Wave 1) - token core: palette.json semantic pairs + 4 TUI glyphs + SKILL.md ruling extension + check-tokens.cjs linter
+- [ ] 136-04-PLAN.md (Wave 2) - one engine + seamless default: render-v2 shape x delivery + 7 commands to flag-aliases + LazyGraph slot + dual render
+- [ ] 136-05-PLAN.md (Wave 3) - opt-in mos tui ink app (checkpoint: ink install) + fractal nav (zoom/bud/cross-wall)
+- [ ] 136-06-PLAN.md (Wave 3) - the gate as write node: DECISION/FREE_TEXT edges + multi-select + free-text widget
+- [ ] 136-07-PLAN.md (Wave 4) - detect-and-adapt launcher: host probe + graph workspace + tmux focus hooks
+- [ ] 136-08-PLAN.md (Wave 5) - canon/gates capstone: Part 8/9 boundary + cross-platform + full suite green + M5 SEED -> ADR
 
 ---
 
