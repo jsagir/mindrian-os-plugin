@@ -1,176 +1,166 @@
 # Phase 136: The Liquid State - One Render Spine (M5 render-spine layer) - Specification
 
 **Created:** 2026-05-31
-**Revised:** 2026-05-31 (Round 3 - render model flipped to a real arrow-key `mos tui` binary; see Interview Log)
-**Ambiguity score:** 0.21 (gate: <= 0.20; just over - residual is deferred how-decisions, see Ambiguity Report)
+**Revised:** 2026-05-31 (Round 4 - SEAMLESS-FIRST consolidation: render model re-centered on inline + web as the universal default; mos tui demoted to opt-in; headless-core/thin-client sync; tmux-scripted adapt-launcher; cross-platform contract. See Interview Log.)
+**Ambiguity score:** 0.16 (gate: <= 0.20)
 **Requirements:** 12 locked
 **Milestone:** v1.14.0 (ANCHOR)
 **Authority:** `~/MindrianRooms/mindrianOS/product-evolution/architectural-mandates/M5-liquid-state-fractal-sos.md` (SEED, promoted to ADR by this phase)
-**Canon parts:** 7 (consolidation), 8 (graph boundary), 9 (memory locality), 10 (render is the surface)
+**Canon parts:** 3 (decision gate), 4 (every choice is graph data), 7 (consolidation/reuse), 8 (graph boundary), 9 (memory locality), 10 (conversation/render is the surface)
+**Reference design:** `https://mindrian-tui-achievable.vercel.app` (the validated, buildable mockup)
 
 ## Goal
 
-The 7 divergent HTML commands (dashboard / wiki / present / publish / export / visualize / snapshot) collapse into ONE render engine where `shape` and `delivery` are flags; that engine drives a real full-screen, arrow-key-navigable `mos tui` binary (the lazygit-style CLI navigator: fractal ICM tree + view pane + LazyGraph suggestion slot, keyboard-driven, live-subscribed to room.db), Larry's in-conversation 4-zone render (for conversational turns), and a live-SSE web twin - all reading room.db only through `lib/core/navigation.cjs` and all obeying a single De Stijl token source.
+Build M5's render-spine layer as ONE render engine (shape x delivery flags) feeding many thin-client surfaces over a single headless core. The SEAMLESS DEFAULT - working identically on Windows / Mac / Linux with zero setup - is (a) inline in-conversation rendering + the native AskUserQuestion gate, and (b) a one-command live web twin. The full-screen arrow-key `mos tui` is an OPT-IN power surface, hosted by a detect-and-adapt launcher (tmux scripted on Mac/Linux; WezTerm/mprocs on Windows) and generated from the room graph. The 7 legacy HTML commands collapse into the one engine; one De Stijl token core governs all surfaces. Render is never the moat - the truth layer (room.db graph) is.
 
 ## Background
 
-Today the room has 7 separate HTML/visualization commands that each invent their own rendering. `/mos:visualize` is already deprecated into `/mos:dashboard --mermaid`, so the collapse has begun but is not systematized. `lib/render/render-v2.cjs` + `render.cjs` exist (JTBD-aware context-render from Phase 102); `references/visual/palette.json` is the Phase 121.5 token seed; `skills/ui-system/SKILL.md` defines the 4-zone anatomy + 12-glyph vocabulary. The web dashboard already runs on `express` + `chokidar` (file-watch) with SSE live-reload. There is NO full-screen TUI library in the dependency tree (no ink/blessed/terminal-kit). The truth layer this renders (room.db graph + resolver + `offer_next_step` + `memory_event` stream) shipped in Phase 135 / 109. What does NOT exist: a single render engine with shape/delivery flags, a token contract every renderer obeys, an arrow-key full-screen navigator, or a CLI surface that live-subscribes to room.db.
+The room has 7 separate HTML/visualization commands, each inventing its own rendering (`/mos:visualize` is already a flag-alias of `/mos:dashboard --mermaid`). `lib/render/render-v2.cjs` is the JTBD-aware inline renderer (Phase 102); `references/visual/palette.json` is the Phase 121.5 token seed; `skills/ui-system/SKILL.md` is the ruling (4-zone, 12-glyph, 5-color, scoped to command output). The web dashboard already runs on vendored `express` + `chokidar` + SSE. `room.db` is opened via **`node:sqlite` (`DatabaseSync`)** - Node's built-in SQLite, confirmed: no native binding, no `.node`/`binding.gyp` in the tree, vendored deps all pure-JS. The truth layer (room.db + resolver + offer_next_step + memory_event stream) shipped in Phase 135/109; `navigation.cjs` is the Part 9 chokepoint/single writer.
 
-**Render-model decision (Round 3):** the navigator is a genuine full-screen TUI process (`mos tui`), launched in a terminal ALONGSIDE Claude Code - the same coexistence model lazygit uses. It is NOT rendered inside the Claude Code conversation pane (a conversation cannot capture raw arrow-key events). Larry's in-conversation responses still render the 4-zone text output for conversational turns; the rich keyboard-navigable experience lives in `mos tui`.
+What does NOT exist: a single render engine with shape/delivery flags; a thin SSE read API on the core; an opt-in `mos tui`; the detect-and-adapt launcher; a single CI-enforced token core; the 4 new TUI glyphs. The Round-1..3 framing (mos tui as the PRIMARY CLI navigator, reading SQLite directly) is SUPERSEDED here by seamless-first + headless-core (see Interview Log Rounds 4).
 
 ## Requirements
 
-1. **One render engine + flag dispatch**: A single engine renders any `shape` for any `delivery`, replacing 7 bespoke command implementations.
-   - Current: 7 commands each implement their own HTML/render logic; no shared engine
-   - Target: one engine module accepts `{shape: deck|mermaid|wiki|grid|dashboard|snapshot, delivery: tui|web|file|inline}` and produces the corresponding output; all rendering routes through it
-   - Acceptance: a test invokes the engine for each (shape x delivery) combination used by the 7 legacy commands and gets non-empty correct output; grep proves no legacy command file contains its own render/HTML body
+1. **One render engine + flag dispatch**: A single engine renders any `shape` for any `delivery`; the 7 HTML commands become thin flag-aliases.
+   - Current: 7 commands each implement their own render; visualize already aliased
+   - Target: one engine accepts `{shape: deck|mermaid|wiki|grid|dashboard|snapshot, delivery: inline|web|tui|file}`; `/mos:dashboard` == `render --shape dashboard --deliver web` (+ a one-line "powered by the render spine" note); no legacy command keeps its own render body
+   - Acceptance: a test drives every (shape x delivery) the 7 commands needed; grep proves no legacy command file contains a render/HTML body
 
-2. **Seven commands retired to flag-aliases**: Each legacy command becomes a thin alias on the engine, still working, with a one-line provenance note.
-   - Current: dashboard/wiki/present/publish/export/snapshot are full commands; visualize already deprecated
-   - Target: each of the 7 command files becomes a thin wrapper that calls the engine with fixed flags and emits a one-line "powered by the render spine" note; no user-facing breakage
-   - Acceptance: running each of the 7 commands produces the same class of artifact as before AND the command body is reduced to an engine call + alias note (line-count + grep); `/mos:dashboard` equals `render --shape dashboard --deliver web`
+2. **Seamless default = inline + web twin (universal, zero setup)**: The default experience needs no install, no multiplexer, no separate process, and works identically on Windows/Mac/Linux.
+   - Current: render-v2 exists for inline; express/SSE exists for web
+   - Target: `delivery: inline` renders the 4-zone navigator-as-text in Larry's responses with the gate via native AskUserQuestion; `delivery: web` is a one-command live twin (browser). Neither requires anything beyond Claude Code + Node + a browser
+   - Acceptance: on a clean install with no tmux/zellij/ink present, both inline rendering and the web twin work end-to-end; a test asserts the inline path spawns zero processes and the web path reuses the existing express server
 
-3. **`mos tui` arrow-key full-screen navigator (the primary CLI navigator)**: A real keyboard-driven full-screen terminal app, launched alongside Claude Code.
-   - Current: no full-screen TUI exists; no TUI library installed; prior phases were "zero TUI dependency"
-   - Target: `mos tui` opens a full-screen app where ARROW KEYS navigate the fractal ICM tree (up/down moves the highlight, right/Enter expands a node, left collapses), TAB cycles panes (tree / view / suggestion slot), and a shape hotkey switches views (deck/mermaid/wiki/grid); it runs as its own process in a terminal, not inside the Claude Code conversation pane
-   - Acceptance: launching `mos tui` against a seeded room renders the tree; simulated arrow-down moves the selection to the next node; right-arrow expands; the selected node's content shows in the view pane; the process owns the terminal in raw mode and restores it cleanly on quit (q / Ctrl-C)
+3. **Headless core + thin clients (single source, single writer)**: All surfaces read one core; none touches room.db directly.
+   - Current: navigation.cjs is the chokepoint; web server reads room state ad hoc
+   - Target: `navigation.cjs` is the sole writer and exposes a thin local read API (SSE over the existing express server); inline, web, and `mos tui` all consume that API - no client opens room.db directly. The core owns the `node:sqlite` handle (WAL, busy_timeout=5000, synchronous=NORMAL, single-writer, short reads)
+   - Acceptance: grep proves zero `node:sqlite`/`DatabaseSync` opens outside `navigation.cjs` + the core; a test drives inline + web + a simulated tui client off the SSE API and asserts identical state (no divergence); concurrency test passes with no lock error
 
-4. **Live event subscription (true, not turn-based)**: The TUI and web twin subscribe to room.db events and update live; they never rebuild on a timer.
-   - Current: only the web server tails events; no CLI live surface
-   - Target: `mos tui` (a persistent process) and the web twin both subscribe to `memory_event` via chokidar and re-render the affected region on change, never on a timer (M5 hard rule 3); a headless `mos watch` event-feed mode is available for users who want the stream without the full TUI
-   - Acceptance: with `mos tui` open, filing an artifact in a concurrent Claude Code session causes the tree/strip to update within the watch interval with no manual refresh; a test asserts the update is event-driven (fires on change) not interval-driven (no setInterval poll of room.db)
+4. **`mos tui` - opt-in arrow-key navigator (ink, buildless, lazy deps)**: The full-screen terminal navigator, demoted from default to opt-in.
+   - Current: no TUI; no TUI lib installed; prior phases "zero TUI dependency"
+   - Target: an ink-based (`React.createElement`, NO JSX, no build step) full-screen app: arrow-key fractal tree (up/down move, right/Enter expand, left collapse), Tab cycles panes, shape hotkey switches views; it is a thin client of the SSE core; its deps are lazy/opt-in so the seamless base ships lean; the ink dep tree must pass the vendoring re-audit (pure-JS/WASM only - yoga must be WASM, no native addon)
+   - Acceptance: `mos tui` against a seeded room renders + arrow-navigates + restores the terminal cleanly on quit; a test confirms the seamless default works with ink ABSENT; the vendoring audit confirms zero native addons in the ink tree
 
-5. **Larry's in-conversation render survives (conversational turns)**: The engine still renders 4-zone text output inside the Claude Code conversation.
-   - Current: render-v2.cjs produces JTBD-aware in-conversation output
-   - Target: `delivery: inline` renders the 4-zone navigator-as-text for Larry's conversational responses (header / body / intelligence strip / action footer); this is the surface that works with zero processes, the fallback when `mos tui` is not running
-   - Acceptance: a conversational turn renders the 4-zone block via the engine with no process spawned; the inline render and the `mos tui` render read the same room.db state via navigation.cjs (no divergence)
+5. **Detect-and-adapt launcher (graph-generated workspace)**: The opt-in workspace is generated from the room graph and hosted by whatever is present.
+   - Current: no launcher; user would hand-arrange panes
+   - Target: a `mos` launcher where `navigation.cjs` reads the room graph and emits the workspace (session=room, window=section, pane=surface: Claude Code + mos tui + web). Host precedence: WezTerm if running, zellij if installed, else **tmux (scripted, `$TMUX`-aware to add windows not rival sessions)**; on native Windows route to WezTerm/mprocs; web-twin as the no-multiplexer fallback. tmux hooks (window/pane focus) emit `focus_changed` memory_events (navigation = journaled graph data)
+   - Acceptance: the launcher composes the workspace with zero user config on a machine with tmux; on a machine without it, it routes to the next available host or the web twin; a tmux window-switch writes a `focus_changed` event (verified in the event log)
 
-6. **LazyGraph overlay (never reorders the ICM)**: The suggestion slot overlays the stable tree; intent gates, temporal ranks.
-   - Current: no suggestion slot wired to a navigator tree
-   - Target: in both `mos tui` and inline, the suggestion slot surfaces LazyGraph signals that OVERLAY (highlight in place / whisper an edge) and NEVER reorder the ICM tree (M5 hard rule 1); it speaks only when something recently changed (temporal) that serves the active JTBD/operator (intent); human intent is sovereign, agent-proposed intent never overrides
-   - Acceptance: a test injecting a LazyGraph suggestion asserts tree node order is byte-identical before/after (overlay only); a test asserts the slot is silent when no memory_event changed since last render AND when the change does not serve the active JTBD
+6. **The gate is the write node (arrow-toggle multi-select + always-present open text)**: The decision gate is where browsing becomes a typed graph mutation.
+   - Current: AskUserQuestion supports multiSelect + Other; no richer persistent gate; Canon Part 3 frames "select one -> one edge"
+   - Target: arrow-navigate + Space-toggle multi-select + Tab to the always-present free-text (Part 3 invariant) + Enter to commit the SET. Native AskUserQuestion (<=4 options) is the seamless inline gate; a richer widget (>4 / persistent) lives in `mos tui` (surfaced via split + zoom) and the web twin. Each toggled option commits its OWN typed `DECISION` edge (carrying tri-context LOCAL+BRAIN+SIGNAL, Part 4); free-text commits a `FREE_TEXT` edge Larry routes; a live "would write to room.db" preview updates as you toggle; confirm fans a memory_event to every surface
+   - Acceptance: a test toggles two options + free-text and asserts THREE writes (2 DECISION + 1 FREE_TEXT edges) through navigation.cjs; the preview reflects pending edges before confirm; a rejection-with-reason captures the reason; confirming updates inline + web + tui via one memory_event
 
-7. **Single De Stijl token + component source (token core)**: One token graph every renderer obeys, extended from palette.json, enforced by a linter.
-   - Current: design values scattered (palette.json seed + DS_HEX in visual-ops + destijl CSS + shared CSS); no enforced single source
-   - Target: a surface-agnostic token source (color + type + spacing + glyph + component specs) extends `references/visual/palette.json`; the TUI, web twin, and inline render all pull from it; a CI linter rejects any renderer hardcoding a color/glyph/token outside the source
-   - Acceptance: the linter fails on a planted hardcoded hex/glyph in a render file and passes on the engine; all three surfaces render a given shape using only token-source values (no inline literals, verified by grep)
+7. **Single De Stijl token core (contrast-checked, semantic, glyph-backed, CI-enforced)**: One token source every renderer obeys.
+   - Current: design values scattered; palette.json is a seed; glyph vocab scoped to command output
+   - Target: extend `palette.json` into a surface-agnostic token graph of **semantic color PAIRS** (each meaning bound to a hue + its terminal-legible variant, contrast-checked to WCAG 3:1 UI / 4.5:1 text); **color is always glyph-backed** (never color alone); add the 4 TUI glyphs (`◇` cross-room, `○` empty, `☑`/`☐` multi-select) to the vocabulary; extend `ui-system/SKILL.md` to cover the TUI surface (or document it as a named exception like the statusline); a CI linter rejects any renderer hardcoding a value outside the token core
+   - Acceptance: the linter fails on a planted hardcoded hex/glyph and passes on the engine; all three surfaces render a shape using only token-core values (grep); a contrast check passes on the semantic pairs
 
-8. **Dual render (graph + language)**: Graph-native truths render as BOTH a graph view and a natural-language line.
-   - Current: views are either graph or prose, not paired
-   - Target: for a graph-native relation, the engine emits both the graph representation (see it) and a natural-language sentence (understand it) in the same render
-   - Acceptance: rendering a seeded CONTRADICTS edge produces both a visible edge in the graph view AND a sentence naming the relation in the same output
+8. **Fractal navigation (depth + zoom/re-root + bud + cross-wall edges)**: The navigator is self-similar at every scale (M5).
+   - Current: tree expand/collapse only
+   - Target: arbitrary-depth recursion; ZOOM re-roots at any node as a complete ICM (persisted as a `focus_changed` memory_event, reuse Phase 129.5 focus pattern; cross-surface); BUD promotes a section to its own room via the SEED-001 atomic sub-room contract (the navigator surfaces it, does not reimplement it); cross-wall edges surface in the graph view / suggestion slot, never by reordering the tree (M5 hard rule 1)
+   - Acceptance: a 4+-level room renders fully; zoom re-roots with a breadcrumb + writes a focus event; bud yields a registered sub-room (SEED-001); a cross-section edge shows in the graph/slot with tree order byte-identical
 
-9. **Desktop/Cowork degrade-only**: No new Desktop/Cowork rendering; the engine degrades to the AskUserQuestion baseline.
-   - Current: Desktop/Cowork use the AskUserQuestion selector baseline (Phase 88.2)
-   - Target: on Desktop/Cowork the engine degrades to the existing AskUserQuestion baseline with no new surface built; `mos tui` is a CLI-only surface; no crash, no missing-feature error
-   - Acceptance: invoking the engine under a simulated Desktop/Cowork surface flag returns the AskUserQuestion baseline path and never attempts a TUI/web render (verified by test)
+9. **LazyGraph overlay (intent filters, temporal ranks, never reorders)**: The suggestion slot overlays the stable tree.
+   - Current: no suggestion slot wired to the navigator
+   - Target: the slot surfaces LazyGraph signals that highlight in place + whisper a reason; intent gates WHICH recent events are eligible, temporal ranks within (M5 "intent gates, temporal ranks"); silent unless something relevant to the active JTBD changed; human intent sovereign, agent intent never overrides
+   - Acceptance: injecting a suggestion leaves tree node order byte-identical; the slot is silent when nothing relevant changed
 
-10. **Canon Part 8 + Part 9 clean, concurrency-safe**: Zero user bytes to Brain; all room.db access via the chokepoint; the TUI reads concurrently with a live Claude Code session without corruption.
-    - Current: navigation.cjs is the Part 9 chokepoint; brain-boundary-scan exists; SQLite concurrency not yet exercised by a long-lived reader
-    - Target: every render path (TUI, web, inline) reads room.db ONLY through `lib/core/navigation.cjs`; no render path sends user content to the Brain; the `mos tui` long-lived reader and a concurrent Claude Code writer do not corrupt or deadlock room.db (read path is concurrency-safe, e.g. WAL/read-only handle via the chokepoint)
-    - Acceptance: `brain-boundary-scan` passes on all new files; grep/instrumented test asserts zero direct `node:sqlite`/room-db opener requires in the engine/TUI/web paths; a concurrency test runs `mos tui` reads against simultaneous navigation.cjs writes with no corruption/lock error
+10. **Dual render (graph + language)**: Graph-native truths render as BOTH a graph view and a natural-language line.
+    - Current: views are graph OR prose, not paired
+    - Target: a graph-native relation emits both the graph representation and a sentence naming it in the same render
+    - Acceptance: a seeded CONTRADICTS edge produces a visible edge AND a sentence in one render
 
-11. **Decision-gate selector: arrow-key, multi-select, free-text escape**: The selector the navigator presents supports keyboard navigation, selecting MORE THAN ONE option, and an open-text escape for a direction nobody proposed.
-    - Current: AskUserQuestion supports single-select + multiSelect + an "Other" free-text on the inline/Desktop surface, but no arrow-key multi-select widget exists in a CLI full-screen surface; Canon Part 3 frames the gate as "selects one -> one typed edge"
-    - Target: in `mos tui` (and mirrored on the inline surface), the F-shape selector supports ARROW keys to move the highlight, SPACE to toggle a checkbox (multi-select: more than one option selectable at once), ENTER to confirm the selection set, and an always-present free-text field (the canonical verb #10) where the user types a direction COMPLETELY DIFFERENT from every proposed option; Larry interprets and routes the free-text
-    - Acceptance: a test toggles two options via space then Enter and asserts BOTH are returned; a test enters free-text and asserts it returns as a Free-Text verb (routed by Larry), not coerced onto a proposed option; EACH confirmed option writes its OWN typed decision edge (Canon Part 4), and the free-text writes a Free-Text edge carrying the user's string; a rejection-with-reason still captures the reason
+11. **Cross-platform contract**: The default is universal; the opt-in host is platform-routed.
+    - Current: plugin already ships cross-platform under the pure-JS vendoring rule; Windows testers in the loop; prior Windows path fixes (beta.32/36)
+    - Target: inline + web work identically on Windows/Mac/Linux (core portable - `node:sqlite` confirmed, pure-JS vendored tree, no native addon); the opt-in host is routed (tmux on Mac/Linux, WezTerm/mprocs on native Windows, web fallback); pin a Node 22+ floor (for `node:sqlite`/`DatabaseSync`); `mos tui` honors Windows path discipline (`path.join`, normwin pattern)
+    - Acceptance: inline + web pass on all three platforms (or the platform-matrixed CI proxy); the launcher routes correctly per platform; a grep confirms no native addon entered the vendored tree
 
-12. **Fractal navigation: every node is a complete ICM (depth, zoom/re-root, bud, cross-wall liquid)**: The navigator treats the room as self-similar at every scale (M5's fractal system-of-systems), not a fixed-depth tree.
-    - Current: the navigator renders a tree with expand/collapse only; "fractal" is named but no self-similarity / zoom / budding capability is specified; each directory already carries its own ROOM.md / STATE.md / MINTO.md identity (Canon decision 15) but the renderer does not treat a node AS a room; cross-section edges have no inline home
-    - Target: (a) DEPTH - the tree recurses to ARBITRARY depth (room -> section -> sub-section -> ... -> MD), not a fixed 4 levels; (b) ZOOM / RE-ROOT - stepping into a node re-roots the navigator at that node so it renders as a complete ICM at its own scale (same shape, smaller frame) with a breadcrumb back out; (c) BUD - a navigator action promotes a section into its own room (Lawrence's memo: promotion, not split), reusing the atomic sub-room wiring contract (SEED-001) via navigation.cjs, surfaced as "open/bud as room"; (d) CROSS-WALL LIQUID - cross-cutting edges between distant nodes (which a hierarchy structurally forbids inline) surface in the suggestion slot and in the graph shape, NEVER by reordering the tree
-    - Acceptance: a seeded room nested 4+ levels renders fully; a zoom action re-roots at a sub-section showing only its subtree with a breadcrumb path; a bud action on a section yields a registered sub-room (atomic wiring per SEED-001) the navigator can then open as a root; a cross-section edge (a `gtm` node -> a `problem-definition` node) appears in the graph shape / slot while the tree node order stays byte-identical
+12. **Canon Part 8 + Part 9 clean**: Zero user bytes to Brain; the core is the only door.
+    - Current: navigation.cjs is the chokepoint; brain-boundary-scan exists
+    - Target: every surface reaches room.db ONLY through `navigation.cjs`; no render/SSE path sends user content to the Brain; the core owning the single SQLite handle removes client-side concurrency entirely
+    - Acceptance: `brain-boundary-scan` passes on all new files; grep confirms zero direct sqlite opens outside the core
 
 ## Boundaries
 
 **In scope:**
-- One render engine with `shape` x `delivery` flag dispatch
-- Retiring all 7 HTML commands to thin flag-aliases on the engine
-- `mos tui` full-screen arrow-key navigator (the primary CLI navigator, a separate process)
-- Larry's in-conversation 4-zone inline render (the zero-process fallback that always works)
-- Live event subscription (chokidar) for the TUI + web twin; headless `mos watch` feed mode
-- Web live-wiki twin via the existing express/chokidar/SSE plumbing
-- LazyGraph overlay suggestion slot (overlay-only, intent-gated, temporal-ranked)
-- Decision-gate selector: arrow-key navigation + space-to-toggle multi-select (>1 option) + always-present free-text escape, in `mos tui` and inline; each pick writes its own edge
-- Fractal navigation: arbitrary-depth recursion + zoom/re-root (render any node as a complete ICM) + bud-a-section-to-room (reusing the SEED-001 sub-room contract) + cross-wall edge surfacing (tree never reorders)
-- Single De Stijl token + component source + CI linter (the token core)
-- Dual render (graph + language) for graph-native truths
-- One new TUI-library dependency (ink or blessed - chosen at discuss-phase), justified by the arrow-key requirement
+- One render engine (shape x delivery flags); 7 HTML commands -> flag-aliases
+- Seamless default: inline (4-zone + native AskUserQuestion) + one-command web twin
+- Headless core: navigation.cjs single writer + node:sqlite WAL + thin SSE read API; all surfaces are thin clients
+- Opt-in `mos tui` (ink, no-JSX, lazy deps) + the detect-and-adapt launcher (tmux scripted / WezTerm / mprocs / web), graph-generated, `$TMUX`-aware
+- The gate as write node: arrow-toggle multi-select + always-present open-text; native (<=4) inline, richer in tui+web; each pick a typed edge; live preview
+- Single De Stijl token core (semantic contrast-checked pairs, glyph-backed, +4 glyphs, ruling extended, CI linter)
+- Fractal navigation (depth + zoom/re-root + bud via SEED-001 + cross-wall edges)
+- LazyGraph overlay; dual render; cross-platform contract; Part 8/9 clean
 - Promotion of M5 from SEED to ADR
 
 **Out of scope:**
-- New Desktop/Cowork rendering beyond the AskUserQuestion baseline - degrade-only this phase
-- Rendering the full navigator INSIDE the Claude Code conversation pane - impossible (a conversation cannot capture raw keystrokes); the inline surface stays the 4-zone text block, the arrow-key experience lives in the separate `mos tui` process
-- Multi-user / team collaboration + Brain-API-key onboarding - the actual GTM deal-blockers; separate work (recorded as a sequencing risk)
-- Resolving M5's three "how" knobs (wikilink authorship; intent filter-vs-re-rank; sidebar highlight in-place-vs-slot) - deferred to discuss-phase
-- Changes to the truth layer (room.db schema, resolver, offer_next_step) - shipped in Phase 135/109, consumed read-only here
+- A single Claude-Code-native docked surface - impossible (CC owns its screen); the default is inline + web, the opt-in is a sibling process
+- Building a standalone agentic TUI that owns the conversation (OpenCode/Crush model) - rebuilds the harness; the moat is the graph (Canon Part 7)
+- New Desktop/Cowork rendering beyond the AskUserQuestion baseline - degrade-only; `mos tui` is CLI-only
+- Multi-user/team collaboration + Brain-API-key onboarding - the GTM deal-blockers; separate work (sequencing risk recorded)
+- Truth-layer changes (room.db schema, resolver) - shipped Phase 135/109, consumed read-only
 
 ## Constraints
 
-- `mos tui` runs as its own process in a terminal (the lazygit coexistence model), launched alongside Claude Code - NOT inside the conversation pane. It owns the terminal in raw mode and must restore it cleanly on exit.
-- A new TUI-library dependency is required (ink or blessed) - the FIRST justified break of the "zero TUI dependency" precedent, warranted only by the arrow-key requirement (Canon Part 7: name why reuse is insufficient - no existing dep can capture raw keystrokes / drive a full-screen cursor).
-- Concurrency: `mos tui` is a long-lived room.db reader that may run while a Claude Code session writes; the read path must be concurrency-safe through navigation.cjs (no corruption, no deadlock).
-- Reuse before build (Canon Part 7): extend `render-v2.cjs` + `references/visual/palette.json` + the existing express/chokidar server; do NOT introduce a new HTTP server or a new token system.
-- All room.db access via `lib/core/navigation.cjs` only (Canon Part 9 chokepoint).
-- No user content to the Brain (Canon Part 8); `brain-boundary-scan` is a release gate.
-- Output obeys the 12-glyph vocabulary + 4-zone anatomy (`skills/ui-system/SKILL.md`); no em-dashes in any output.
-- Milestone-scale: expected to decompose into a cluster (136 anchor + sub-phases: engine core / token core / `mos tui` / surface twins) at plan-phase.
+- **Seamless is the hard requirement**: the default path must require zero install / zero multiplexer / zero config and run identically cross-platform. Any friction (ink deps, tmux, layout setup) is quarantined to the opt-in path.
+- **Headless-core single-writer**: navigation.cjs is the only writer and the only room.db door; clients consume the SSE read API. node:sqlite WAL + busy_timeout=5000 + synchronous=NORMAL + short reads.
+- **Vendoring stays pure-JS** (release.sh Step 6.7): ink/react are pure-JS; yoga must be WASM; no native addon may enter the single cross-platform tree. ink deps are lazy/opt-in to keep the seamless base lean.
+- **No build step** (CLAUDE.md): ink via `React.createElement`, not JSX.
+- **Reuse before build** (Part 7): extend render-v2 + palette.json + the express server + navigation.cjs + the SEED-001 sub-room contract; do NOT add a new HTTP server, token system, or reimplement bud.
+- **Canon**: Part 8 (no user bytes to Brain; brain-boundary-scan gate), Part 9 (navigation.cjs chokepoint), 12-glyph + 4-zone ruling extended to the TUI surface; no em-dashes anywhere.
+- **Milestone-scale**: decomposes into a cluster (engine core / headless SSE API / token core / inline+web seamless default / opt-in mos tui + launcher) at plan-phase.
 
 ## Acceptance Criteria
 
-- [ ] One engine renders all (shape x delivery) combinations the 7 legacy commands needed; no legacy command retains its own render body
-- [ ] All 7 commands work as thin flag-aliases with a provenance note; `/mos:dashboard` == `render --shape dashboard --deliver web`
-- [ ] `mos tui` opens a full-screen app; arrow keys move/expand/collapse the ICM tree; TAB cycles panes; a shape hotkey switches views; terminal restored cleanly on quit
-- [ ] Fractal: a 4+-level nested room renders fully; zoom re-roots at a sub-section (with breadcrumb); bud promotes a section to a registered sub-room (SEED-001 atomic wiring); a cross-section edge shows in the graph/slot with tree order byte-identical
-- [ ] `mos tui` + web twin update live on room.db change (event-driven, no timer poll); headless `mos watch` feed mode works
-- [ ] Inline 4-zone render works with ZERO processes and reads the same state as `mos tui` (no divergence)
-- [ ] LazyGraph suggestion slot overlays only (tree order byte-identical) and is silent when nothing relevant to the active JTBD changed
-- [ ] Selector supports arrow-key navigation, space-to-toggle multi-select (>1 option), and a free-text escape; each selected option writes its own edge; free-text routes as the Free-Text verb
-- [ ] CI linter fails on a hardcoded color/glyph outside the token source and passes on the engine
-- [ ] A graph-native relation renders as BOTH a graph view and a natural-language sentence
-- [ ] Engine degrades to the AskUserQuestion baseline under Desktop/Cowork without attempting TUI/web render
-- [ ] `brain-boundary-scan` passes; zero direct sqlite/room-db requires in engine/TUI/web paths; concurrency test passes (TUI reads + concurrent writes, no corruption)
-- [ ] M5 promoted from SEED to ADR
+- [ ] One engine renders all (shape x delivery); 7 commands are flag-aliases; no legacy render bodies remain
+- [ ] Seamless default works on a clean install with NO tmux/zellij/ink present (inline + web); inline spawns zero processes
+- [ ] Headless core: zero direct sqlite opens outside navigation.cjs+core; inline/web/tui read identical state via SSE; concurrency clean
+- [ ] `mos tui` (ink, no-JSX) arrow-navigates + restores terminal; seamless default works with ink absent; vendoring audit finds zero native addons
+- [ ] Launcher composes the workspace from the graph with zero config (tmux present); routes to WezTerm/mprocs/web otherwise; tmux focus -> memory_event
+- [ ] Gate: arrow + Space multi-select + open-text; native (<=4) inline / richer in tui+web; each pick its own typed edge; free-text -> FREE_TEXT edge; live preview; confirm fans a memory_event to all surfaces
+- [ ] CI linter fails on a hardcoded color/glyph; semantic pairs pass contrast (3:1/4.5:1); the 4 TUI glyphs are in the vocabulary; ruling covers the TUI surface
+- [ ] Fractal: 4+ levels render; zoom re-roots (+focus event); bud -> SEED-001 sub-room; cross-wall edge shows with tree order unchanged
+- [ ] LazyGraph overlays only (tree order byte-identical), silent when irrelevant; dual render emits graph + sentence
+- [ ] Cross-platform: inline + web pass on Windows/Mac/Linux; node:sqlite + pure-JS tree confirmed; launcher platform-routes; Node 22+ floor pinned
+- [ ] `brain-boundary-scan` passes; M5 promoted SEED -> ADR
 
 ## Ambiguity Report
 
-| Dimension          | Score | Min  | Status | Notes                                                                 |
-|--------------------|-------|------|--------|-----------------------------------------------------------------------|
-| Goal Clarity       | 0.83  | 0.75 | ✓      | Render model now decided (arrow-key `mos tui` binary); surfaces clear  |
-| Boundary Clarity   | 0.80  | 0.70 | ✓      | TUI in-scope; conversation-pane render explicitly out; degrade-only    |
-| Constraint Clarity | 0.72  | 0.65 | ✓      | TUI-lib CHOICE + concurrency MODEL are deferred how-decisions          |
-| Acceptance Criteria| 0.78  | 0.70 | ✓      | Arrow-key + concurrency acceptance added                               |
-| **Ambiguity**      | 0.21  | <=0.20| ⚠     | Just over gate - reopening a locked decision honestly cost clarity     |
+| Dimension          | Score | Min  | Status | Notes                                                                   |
+|--------------------|-------|------|--------|-------------------------------------------------------------------------|
+| Goal Clarity       | 0.88  | 0.75 | ✓      | Seamless-first resolves the render-model question definitively          |
+| Boundary Clarity   | 0.85  | 0.70 | ✓      | default vs opt-in split is sharp; CC-native-surface + standalone out     |
+| Constraint Clarity | 0.80  | 0.65 | ✓      | headless-core + vendoring + cross-platform contracts explicit           |
+| Acceptance Criteria| 0.82  | 0.70 | ✓      | per-surface + cross-platform + write-path acceptance                    |
+| **Ambiguity**      | 0.16  | <=0.20| ✓     | Gate passed - cleaner than Round 3 (the flip removed the central fork)  |
 
-Status: ✓ = met minimum, ⚠ = below minimum / over gate (planner treats residual as assumption to resolve in discuss-phase)
+Status: ✓ = met minimum.
 
-**Why 0.21 not 0.19:** the Round-3 flip to an arrow-key binary re-decided the render model (clarity up on Goal/Boundary) but introduced two genuine new unknowns - WHICH TUI library, and the concurrent-room.db-access model - that are how-decisions, the proper territory of discuss-phase. The "what" (a full-screen arrow-key navigator that coexists like lazygit) is clear; the residual sits in Constraint and is named below.
+## Open items (deferred to plan-phase, do not block this spec)
 
-## Open items (deferred to discuss-phase, do not block this spec)
-
-- TUI library choice: ink (React-based, JSX components) vs blessed/neo-blessed (widget-based) vs a thin raw-ANSI layer. Trade-offs: dependency weight, vendoring (must be pure-JS for cross-platform per the release vendoring rule), maintenance.
-- Concurrency model: how `mos tui` (long-lived reader) and a live Claude Code session (writer) share room.db safely (WAL mode, read-only handle, snapshot-per-render) - all via navigation.cjs.
-- How `mos tui` and the inline conversation stay in sync (does selecting in the TUI inform Larry's next turn? one-way or two-way?).
-- Canon Part 3 additive extension: a multi-select gate writes one edge PER selected option (today's canon reads "selects one -> one edge"). Confirm the additive canon note at discuss-phase (current-vs-final discipline) so the gate semantics stay canon-legal.
-- Fractal scope: does BUD (filesystem + graph sub-room creation) execute in this phase, or is the navigator render-only "open as room" with the actual bud delegated to the existing SEED-001 sub-room contract? And does ZOOM persist as navigation state (a `focus` memory_event) or stay view-local? Confirm at discuss-phase.
-- M5 knobs: wikilink authorship (founder-only vs Larry-proposes-approves); intent FILTERS vs RE-RANKS the stream; sidebar highlight in-place vs separate slot.
+- Exact thin SSE read-API shape (endpoints, event payloads - enum/handle only per Part 8).
+- ink vendoring re-audit OUTCOME (confirm yoga WASM / no native addon) + lazy-load mechanism for the opt-in deps.
+- Launcher detect logic specifics ($TMUX/WezTerm/zellij/mprocs probe order + the graph -> layout generator).
+- M5 knobs that are pure-how: breadcrumb style, tmux hook set, WAL checkpoint cadence.
 
 ## Interview Log
 
-| Round | Perspective     | Question summary                                  | Decision locked                                                                 |
-|-------|-----------------|---------------------------------------------------|---------------------------------------------------------------------------------|
-| 1     | Researcher      | What IS the "CLI persistent navigator"?           | (initial) in-conversation per-turn render - SUPERSEDED by Round 3               |
-| 1     | Researcher      | Phase 136 scope vs cluster?                       | All of M5 render spine, one phase (decomposes into a cluster at plan-phase)      |
-| 1     | Researcher      | Sequencing given GTM signal?                      | Anchor v1.14.0 now (architecture-led; GTM risk recorded)                        |
-| 2     | Boundary Keeper | Fate of the 7 HTML commands?                      | Retire to thin flag-aliases on the one engine                                   |
-| 2     | Boundary Keeper | Desktop/Cowork in 136 - new work or degrade?      | Degrade-only; no new Desktop/Cowork rendering                                   |
-| 2     | Failure Analyst | Event model on a turn-based surface?              | (per the then-baseline) per-surface split - REVISED by Round 3                  |
-| 3     | Navigator-need  | Do you want true arrow-key navigation?            | YES - flip render model to a real `mos tui` full-screen arrow-key binary        |
-| 3     | Failure Analyst | Can a full-screen TUI coexist with the CC host?   | RESOLVED: yes, as a separate process in its own terminal (the lazygit model)    |
-| 3     | Navigator-need  | Selector richness - single pick or more?          | Multi-select (arrow + space-toggle) + always-present free-text escape; each pick its own edge (Part 3 additive extension) |
-| 3     | Boundary Keeper | Is M5's fractal nature actually captured?         | No - "fractal" was decorative. Added Req 12: arbitrary depth + zoom/re-root (node-as-ICM) + bud-to-room (SEED-001) + cross-wall liquid edges (tree never reorders) |
+| Round | Perspective     | Decision locked                                                                                     |
+|-------|-----------------|-----------------------------------------------------------------------------------------------------|
+| 1     | Researcher      | scope = all of M5 render spine; anchor v1.14.0 now (architecture-led; GTM risk recorded)            |
+| 2     | Boundary Keeper | 7 commands -> flag-aliases; Desktop/Cowork degrade-only                                              |
+| 3     | Navigator-need  | arrow-key navigator wanted; coexists as a separate process (lazygit model); multi-select + free-text |
+| 3.5   | Boundary Keeper | fractal nav is real (Req 8): depth + zoom/re-root + bud + cross-wall edges                           |
+| 4     | Product (you)   | SEAMLESS is the hard requirement -> inline + web are the universal default; mos tui demoted to opt-in |
+| 4     | Field research  | headless-core + thin-clients (Tavily: open-design/OpenDev/OpenCode) supersedes direct-SQLite-read    |
+| 4     | Field research  | host = tmux (scripted) default; detect-and-adapt (WezTerm/mprocs on Windows); NOT zellij-as-default  |
+| 4     | Cohesion        | tmux = a projection of the room graph (session=room/window=section/pane=surface); hooks -> events    |
+| 4     | Feasibility     | cross-platform confirmed: node:sqlite (no native binding) + pure-JS tree; tmux Unix-only -> routed   |
+| 4     | Canon           | gate is the write node (Part 3/4/9); token core = contrast-checked semantic pairs, glyph-backed      |
 
 ---
 
 *Phase: 136-the-liquid-state-one-render-spine-m5-render-spine-layer-v1-1*
-*Spec created: 2026-05-31 (revised same day, Round 3 render-model flip)*
-*Next step: /gsd:discuss-phase 136 - implementation decisions (TUI library, concurrency model, sync model, fractal bud/zoom scope, and the 3 M5 knobs)*
+*Spec created: 2026-05-31 (Round 4 seamless-first consolidation, same day)*
+*Next step: /gsd:plan-phase 136 - the spec now matches the validated design (reference: mindrian-tui-achievable.vercel.app)*
