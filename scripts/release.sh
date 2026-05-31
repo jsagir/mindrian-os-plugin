@@ -936,14 +936,37 @@ else
   } > "$NPX_SNAPSHOT" 2>&1 || true
 
   mkdir -p "$NPX_TEST_DIR"
+
+  # Registry-propagation wait (2026-05-31 flake fix): Step 9.5 publishes the
+  # tarball, but the npm registry CDN can lag a few seconds before `npx` can
+  # resolve the new version on a fresh metadata fetch. Running npx too soon
+  # resolved a stale/partial state and surfaced as a spurious self-test abort
+  # (`mindrian-os: not found`) on the v1.13.0-beta.36 cut. Poll `npm view
+  # <pkg>@<version> version` until the new version is resolvable before the
+  # self-test runs. Bounded; on timeout we proceed (the test still gates).
+  NPX_PROP_RETRIES="${NPX_PROP_RETRIES:-12}"
+  NPX_PROP_BACKOFF_S="${NPX_PROP_BACKOFF_S:-5}"
+  PROP_ATTEMPT=0
+  while [ "$PROP_ATTEMPT" -lt "$NPX_PROP_RETRIES" ]; do
+    PROP_SEEN="$(npm view "@mindrian_os/install@$NEW_VERSION" version 2>/dev/null | tr -d '[:space:]')"
+    if [ "$PROP_SEEN" = "$NEW_VERSION" ]; then
+      echo "  -> registry propagated @mindrian_os/install@$NEW_VERSION (attempt $((PROP_ATTEMPT+1)))"
+      break
+    fi
+    PROP_ATTEMPT=$((PROP_ATTEMPT+1))
+    echo "  ... waiting for npm registry to propagate @$NEW_VERSION; retry $PROP_ATTEMPT/$NPX_PROP_RETRIES in ${NPX_PROP_BACKOFF_S}s"
+    sleep "$NPX_PROP_BACKOFF_S"
+  done
+
   # Run npx with HOME redirected to the sandbox subpath. The install resolves
   # ~/.claude/ inside the sandbox, NOT the operator's real ~/.claude/.
   # Mirrors the Phase 123 doctor.cjs npx-roundtrip sandbox pattern (line ~2336).
+  # `--prefer-online` forces fresh metadata so a cached stale 404 is not reused.
   if env \
        HOME="$NPX_TEST_DIR" \
        USERPROFILE="$NPX_TEST_DIR" \
        npm_config_cache="$NPX_TEST_DIR/.npm" \
-       npx --yes "@mindrian_os/install@$NEW_VERSION" 2>&1 | tee /tmp/npx-selftest-out.log; then
+       npx --yes --prefer-online "@mindrian_os/install@$NEW_VERSION" 2>&1 | tee /tmp/npx-selftest-out.log; then
     # Scaffold marker check: ~/.claude/ must exist inside the sandbox AND
     # ~/.claude/plugins/installed_plugins.json must be a readable JSON file.
     # If either is missing, the install never actually landed -- silent
