@@ -121,8 +121,20 @@ const RE_OPENGRAPH = /\bopenGraph\s*\(/;
 //   (a) template-literal interpolation: a MATCH and a ${...} on the same line.
 //   (b) string concatenation into a MATCH clause: 'MATCH ...' + var.
 // Parameterized Cypher ($param + params object) does NOT match either shape.
-const RE_CYPHER_INTERP_TEMPLATE = /MATCH\b[^`]*\$\{[^}]+\}/i;
-const RE_CYPHER_INTERP_CONCAT = /['"`][^'"`]*\bMATCH\b[^'"`]*['"`]\s*\+|MATCH\b[^`]*['"]\s*\+\s*[A-Za-z_]/i;
+//
+// Precision (Phase 128 dog-food fix 2026-05-31): the rule is CYPHER-specific,
+// not a bare "match"+"${...}" co-occurrence. Both regexes require uppercase
+// MATCH (Cypher keyword convention) immediately followed by a Cypher node
+// pattern -- an optional `var =` binding then a `(`. This eliminates the
+// false-positives on plain prose / version strings (e.g. `match: got ${x}`,
+// `Match ? null : (...)`) that have no Cypher `(` node pattern, while still
+// catching real Cypher interpolation like `MATCH (a) WHERE a.n = "${userBody}"`.
+const RE_CYPHER_NODE = '\\bMATCH\\s+(?:[A-Za-z_]\\w*\\s*=\\s*)?\\(';
+const RE_CYPHER_INTERP_TEMPLATE = new RegExp(RE_CYPHER_NODE + '[^`]*\\$\\{[^}]+\\}');
+const RE_CYPHER_INTERP_CONCAT = new RegExp(
+  "['\"`][^'\"`]*" + RE_CYPHER_NODE + "[^'\"`]*['\"`]\\s*\\+" +
+  '|' + RE_CYPHER_NODE + "[^`]*['\"]\\s*\\+\\s*[A-Za-z_]"
+);
 
 // Comment-stripper: ignore lines that are pure // comments so a documentation
 // line mentioning "INSERT INTO nodes" in a banned context is not a false flag.

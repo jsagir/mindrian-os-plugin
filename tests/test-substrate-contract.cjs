@@ -184,6 +184,29 @@ test('Case 5 known-good: parameterized Cypher produces zero violations', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Case 5b (m4 precision, Phase 128 dog-food fix 2026-05-31): plain prose /
+// version strings that contain the substring "match"/"Match" plus a ${...}
+// but NO Cypher node pattern must NOT be flagged. These were the recurring
+// false-positives that blocked legit commits and forced executors to reword.
+// ---------------------------------------------------------------------------
+test('Case 5b m4 precision: non-Cypher "match"+${...} strings are NOT flagged', () => {
+  const body = [
+    "'use strict';",
+    'function report(after, latest) {',
+    '  const a = `match: install version is ${after.version} expected ${latest}`;',
+    "  const b = Match ? null : ('version mismatch: plugin=' + pjVer);",
+    '  return [a, b];',
+    '}',
+    'module.exports = { report };',
+    '',
+  ].join('\n');
+  const file = 'lib/feature/version-strings.cjs';
+  const viols = violationsFor(runCase({ [file]: body }), file);
+  equal(viols.filter((v) => v.rule === 'm4-cypher-interpolation').length, 0,
+    'non-Cypher match+interpolation prose must report zero m4 violations, got ' + JSON.stringify(viols));
+});
+
+// ---------------------------------------------------------------------------
 // Bonus superset assertion A: a raw `INSERT INTO nodes (id, type, properties)`
 // outside navigation.cjs -> violation (catches the lazygraph-ops bypass class).
 // ---------------------------------------------------------------------------
