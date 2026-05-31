@@ -1,10 +1,11 @@
 ---
 phase: 136
 slug: the-liquid-state-one-render-spine-m5-render-spine-layer-v1-1
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-31
+reviewed_at: 2026-05-31
 surface_kind: terminal+inline+web
 reference_design: https://mindrian-tui-achievable.vercel.app
 canon_parts: ["Part 3", "Part 4", "Part 7", "Part 9", "Part 10"]
@@ -161,7 +162,7 @@ The token core is a surface-agnostic graph of semantic color PAIRS: each meaning
 Accent reserved for: the exact elements named in the "Reserved for" column above. NEVER "all interactive elements". NEVER combine two semantic colors on one token (SKILL.md Section 4 hard rule). Color is decoration-free: every colored token also carries its backing glyph or its zone position.
 
 Caveats recorded (not blocking):
-- `meta/hint #7A756C` is 4.25 vs bg (clears the 4.5 text bar only narrowly and is 3.98 vs the `#161514` surface). It is declared a UI/meta token at the 3:1 bar for NON-ESSENTIAL text (counts, hints, timestamps). Do NOT use it for any essential content. The contrast linter (Req 7) must assert 3:1 for this pair and 4.5:1 for the seven text pairs above.
+- `meta/hint #7A756C` is 4.25 vs bg (clears the 4.5 text bar only narrowly and is 3.98 vs the `#161514` surface). It is declared a UI/meta token at the 3:1 bar for NON-ESSENTIAL text (counts, hints, timestamps). Do NOT use it for any essential content. RESOLVED (UI-checker FLAG, 2026-05-31): because 3.98 vs `#161514` falls below even the 3:1 UI bar, meta/hint is RESTRICTED to the `#0D0D0D` base background ONLY - it must NOT render on any elevation surface (`#161514` selected-row base, gate widget body, pane body). The contrast linter (Req 7) must assert 3:1 for this pair measured against EVERY background it can land on (which, by this restriction, is only `#0D0D0D`) and 4.5:1 for the seven text pairs above; a meta/hint token placed on `#161514` is a linter failure.
 - The web twin uses the SAME variants (the mockup CSS `--t-*` vars equal these hexes), so the contrast check is one check for both dark surfaces.
 
 ### Destructive / second semantic color
