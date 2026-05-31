@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mindrian - Holistic TUI (conversation + navigator + gate, one surface)</title>
+<style>
+  :root{
+    /* canonical De Stijl token core (references/visual/palette.json) */
+    --red:#A63D2F; --blue:#1E3A6E; --yellow:#C8A43C; --green:#2D6B4A;
+    --amethyst:#6B4E8B; --cream:#F5F0E8; --black:#0D0D0D; --gray:#A09A90;
+    /* terminal-legible variants, all rooted in the tokens above */
+    --bg:#0D0D0D; --surface:#161514; --elev:#211F1D; --line:#2C2A27;
+    --t-fg:#E8E2D6; --t-dim:#7A756C;
+    --t-red:#C9604F; --t-blue:#6E8AC6; --t-yellow:#D8B24A; --t-green:#5BBF8A; --t-amethyst:#9A7BBE;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--cream);color:var(--black);font-family:"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:18px 18px 90px}
+
+  /* compact De Stijl masthead */
+  .mast{display:flex;align-items:stretch;border:5px solid var(--black);margin-bottom:14px}
+  .mast .name{padding:12px 18px;font-weight:800;font-size:24px;letter-spacing:-.5px}
+  .mast .name .os{color:var(--red)}
+  .mast .b{width:46px;border-left:5px solid var(--black)}
+  .mast .bl{background:var(--blue)}.mast .by{background:var(--yellow)}.mast .br{background:var(--red)}
+  .mast .thesis{flex:1;border-left:5px solid var(--black);padding:9px 16px;font-size:12.5px;color:#33312d;display:flex;align-items:center}
+  .mast .thesis b{color:var(--black)}
+
+  .hint{font-size:12.5px;color:#4a4843;margin:0 0 12px;font-weight:600}
+  .hint .k{font-family:var(--mono);font-weight:800;background:var(--black);color:var(--cream);padding:1px 7px;border-radius:4px;font-size:11px}
+
+  /* terminal frame */
+  .term{background:var(--bg);border:1px solid #000;border-radius:8px;overflow:hidden;box-shadow:0 3px 0 #00000022}
+  .tbar{background:#242120;display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #000}
+  .tbar .dot{width:11px;height:11px;border-radius:50%}.tbar .r{background:#C9604F}.tbar .y{background:#D8B24A}.tbar .g{background:#5BBF8A}
+  .tbar .crumb{margin-left:8px;color:#cfc8ba;font-size:11.5px;font-family:var(--mono)}
+  .tbar .crumb .sep{color:#6a655d;margin:0 5px}
+  .tbar .right{margin-left:auto;color:#6a655d;font-size:11px;font-family:var(--mono)}
+
+  .cols{display:grid;grid-template-columns:1.25fr 1fr 1.2fr;min-height:430px}
+  .pane{border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0}
+  .pane:last-child{border-right:0}
+  .pane.focus{box-shadow:inset 0 0 0 2px var(--t-yellow)}
+  .ph{padding:6px 11px;font-family:var(--mono);font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:#8a857c;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:7px;background:#141210}
+  .ph .fdot{width:7px;height:7px;border-radius:50%;background:#3a3733}
+  .pane.focus .ph .fdot{background:var(--t-yellow)}
+  .pbody{flex:1;overflow:auto;font-family:var(--mono);font-size:12.4px;line-height:1.55}
+
+  /* conversation */
+  .conv .pbody{padding:11px 12px;color:var(--t-fg)}
+  .msg{margin-bottom:11px}
+  .msg .who{font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+  .who.lr{color:var(--t-amethyst)} .who.you{color:var(--t-green)} .who.sys{color:var(--t-yellow)}
+  .msg .txt{color:#d6d0c5;white-space:pre-wrap}
+  .msg.sys .txt{color:var(--t-yellow)}
+  .conv .inputline{border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:8px 11px;font-family:var(--mono)}
+  .conv .inputline .p{color:var(--t-green);font-weight:800}
+  .conv input{flex:1;background:#000;border:1px solid var(--line);color:var(--t-fg);font-family:var(--mono);font-size:12.2px;padding:5px 9px;border-radius:4px}
+  .conv input:focus{outline:2px solid var(--t-green)}
+
+  /* navigator tree */
+  .nav .pbody{padding:9px 6px}
+  .row{white-space:pre;padding:1px 7px;border-radius:3px;cursor:pointer}
+  .row.sel{background:#2f2a22;outline:1px solid var(--t-yellow)}
+  .row .gl{display:inline-block;width:1.5em}
+  .cnt{color:#6a655d;font-size:11px}
+  .empty{color:#5a564f}
+  .sep{color:#5a564f;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:9px 9px 3px}
+  .tension{color:var(--t-yellow)}
+
+  /* gate / detail */
+  .gate .pbody{padding:12px 13px;color:var(--t-fg)}
+  .gtitle{color:var(--t-amethyst);font-weight:800;font-size:12.5px;margin-bottom:3px}
+  .gctx{color:#6a655d;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:9px}
+  .gq{color:#d6d0c5;font-size:12.6px;margin-bottom:10px;line-height:1.5}
+  .opt{display:flex;gap:9px;align-items:flex-start;padding:6px 8px;border-radius:3px;cursor:pointer}
+  .opt.sel{background:#2f2a22}
+  .cb{color:var(--t-green);font-weight:800}
+  .opt .v{font-weight:700;color:#e6e0d5}.opt .why{color:#8a857c;font-size:11px}
+  .freebox{margin-top:9px;border:1px solid var(--line);background:#141210;border-radius:4px;padding:7px 9px}
+  .freebox .lab{color:var(--t-amethyst);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .freebox input{width:100%;background:transparent;border:0;color:var(--t-fg);font-family:var(--mono);font-size:12px;margin-top:4px}
+  .freebox input:focus{outline:none}
+  .freebox.sel{outline:1px solid var(--t-amethyst)}
+  .preview{margin-top:11px;border-top:1px dashed #3a3733;padding-top:9px}
+  .preview .ph2{color:#6a655d;font-size:10px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+  .preview .edge{color:var(--t-green);font-size:11.5px;white-space:pre-wrap}
+  .preview .none{color:#5a564f;font-size:11.5px}
+  .preview .cap{color:#6a655d;font-size:10.5px;margin-top:5px;font-style:italic}
+  .ghints{margin-top:11px;color:#6a655d;font-size:10.5px;line-height:1.7}
+  .ghints b{color:#b8b2a7}
+  .detail .dh{color:var(--t-blue);font-weight:700;margin-bottom:6px}
+  .detail .db{color:#cfc8ba;white-space:pre-wrap}
+  .detail .meta{color:#6a655d;font-size:11px;margin-top:9px}
+
+  /* status bar */
+  .status{display:flex;align-items:center;gap:10px;background:#0a0908;border-top:1px solid #000;padding:7px 12px;font-family:var(--mono);font-size:11px;color:#8a857c}
+  .status .gatecount{color:var(--t-amethyst);font-weight:800}
+  .status .k{color:#cfc8ba;font-weight:700}
+  .status .sep{color:#3a3733}
+  .status .right{margin-left:auto;color:#6a655d}
+  .status .ok{color:var(--t-green)}
+
+  footer{border-top:6px solid var(--black);margin-top:22px;padding-top:16px;font-size:13px;color:#33312d}
+  footer h3{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin:0 0 10px}
+  .pill{display:inline-block;background:var(--black);color:var(--cream);font-size:11px;font-weight:800;padding:3px 9px;margin:2px 5px 2px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="mast">
+    <div class="name">MINDRIAN<span class="os">OS</span></div>
+    <div class="b bl"></div><div class="b by"></div><div class="b br"></div>
+    <div class="thesis"><span><b>One surface.</b> Conversation open (left), room open (middle), decisions resolved (right) - all on one room.db. Larry talks, the tree shows where you are, the gate captures what you choose, and every choice writes an edge AND posts back into the chat.</span></div>
+  </div>
+
+  <p class="hint">Live. Click a pane (or press <span class="k">Tab</span> to cycle focus). In the navigator: <span class="k">&uarr;&darr;</span> move, <span class="k">&rarr;</span> expand, <span class="k">&larr;</span> collapse, <span class="k">z</span> zoom-in, <span class="k">g</span> raise the decision gate. In the gate: <span class="k">&uarr;&darr;</span> move, <span class="k">Space</span> toggle, <span class="k">Tab</span> free-text, <span class="k">Enter</span> confirm.</p>
+
+  <div class="term">
+    <div class="tbar">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="crumb" id="crumb"></span>
+      <span class="right">mos tui &middot; docked alongside the conversation</span>
+    </div>
+
+    <div class="cols">
+      <!-- conversation -->
+      <div class="pane conv" id="paneConv" tabindex="0" data-pane="conv">
+        <div class="ph"><span class="fdot"></span> conversation &mdash; Larry</div>
+        <div class="pbody" id="convBody"></div>
+        <div class="inputline"><span class="p">&gt;</span><input id="convInput" placeholder="talk to Larry..." autocomplete="off"></div>
+      </div>
+
+      <!-- navigator -->
+      <div class="pane nav" id="paneNav" tabindex="0" data-pane="nav">
+        <div class="ph"><span class="fdot"></span> navigator &mdash; <span id="navRoom">mindrianOS</span></div>
+        <div class="pbody" id="treeBody"></div>
+      </div>
+
+      <!-- gate / detail -->
+      <div class="pane gate" id="paneGate" tabindex="0" data-pane="gate">
+        <div class="ph"><span class="fdot"></span> <span id="gatePh">detail</span></div>
+        <div class="pbody" id="gateBody"></div>
+      </div>
+    </div>
+
+    <div class="status" id="statusBar"></div>
+  </div>
+
+  <footer>
+    <h3>What this unifies</h3>
+    <p>The Phase 136 render spine (M5) and "conversation as product" (Canon Part 10), fused into one terminal - then enriched with the best of the reference mockup, on the correct De Stijl token core.</p>
+    <div style="margin-top:8px">
+      <span class="pill">conversation + navigator + gate, one surface</span>
+      <span class="pill">arrow-key fractal tree</span>
+      <span class="pill">z = zoom / re-root (node as ICM)</span>
+      <span class="pill">&#9670; cross-room jump (bud destination)</span>
+      <span class="pill">multi-select gate + free-text escape</span>
+      <span class="pill">live "would write to room.db" preview</span>
+      <span class="pill">persistent keybar + selection count</span>
+      <span class="pill">confirm posts back into the conversation</span>
+      <span class="pill">per-node counts &middot; &#9675; empty</span>
+      <span class="pill">De Stijl token core (CI-enforced)</span>
+    </div>
+    <p style="margin-top:12px;color:var(--blue);font-weight:800">Next: fold these into 136-SPEC, then /gsd:plan-phase 136.</p>
+  </footer>
+
+</div>
+
+<script>
+/* ============ state ============ */
+var rooms = {
+  mindrianOS: { stage:'v1.14.0 dev', tree: {id:'root',label:'mindrianOS',type:'room',expanded:true,children:[
+    {id:'pe',label:'product-evolution',type:'sec',count:12,expanded:true,children:[
+      {id:'m5',label:'M5-liquid-state',type:'art',content:'thesis: solid ICM tree (footing)\n+ liquid LazyGraph (overlay).\nrender is never the moat.'},
+      {id:'am',label:'architectural-mandates',type:'sec',count:5,expanded:false,children:[
+        {id:'m1',label:'M1-substrate-contract',type:'art',content:'navigation.cjs is the only\ndoor to room.db.'}
+      ]},
+      {id:'p136',label:'phase-136',type:'art',content:'the render spine.\nshape x delivery flags.\nmos tui + web twin + inline.'}
+    ]},
+    {id:'pd',label:'problem-definition',type:'sec',count:4,expanded:false,children:[
+      {id:'uf',label:'user-feedback',type:'art',content:'"testers buy outcomes,\n not a navigator"'}
+    ]},
+    {id:'gtm',label:'gtm',type:'sec',count:3,tension:true,expanded:false,children:[
+      {id:'ct',label:'cross-tester-findings',type:'art',tension:true,content:'deal-blockers = multi-user +\nonboarding, NOT a navigator.\nCONTRADICTS problem-definition.'}
+    ]},
+    {id:'ma',label:'market-analysis',type:'sec',count:1,expanded:false,children:[{id:'mx',label:'tam-note',type:'art',content:'thin. needs evidence.'}]},
+    {id:'bm',label:'business-model',type:'sec',count:0,expanded:false,children:[]},
+    {id:'tm',label:'team',type:'sec',count:0,expanded:false,children:[]}
+  ]}},
+  'NDC Lectures':{stage:'Pre-Opportunity',tree:{id:'root',label:'ndc-lectures-june-2026',type:'room',expanded:true,children:[
+    {id:'ml',label:'Morning Lecture',type:'sec',count:3,expanded:true,children:[
+      {id:'sa',label:'Slide Architecture',type:'art',content:'17 slides. PWS -> OODA ->\nCynefin -> Now/New/Next.'},
+      {id:'ax',label:'Ackoff Exercise',type:'art',content:'push down the DIKW pyramid.\nhas confidence outrun evidence?'}
+    ]},
+    {id:'aw',label:'Afternoon Workshop',type:'sec',count:3,expanded:false,children:[{id:'tw',label:'team-walkthrough',type:'art',content:'live OODA demo on one team\'s work.'}]}
+  ]}},
+  'MOF Workshop':{stage:'Design',tree:{id:'root',label:'mof-procurement-workshop',type:'room',expanded:true,children:[
+    {id:'t1',label:'Team 1 - רכש כשותף',type:'sec',count:2,expanded:false,children:[{id:'t1a',label:'pws-feynman',type:'art',content:'הבקשה הלא בשלה +\nמלכודת שומר הסף'}]},
+    {id:'t4',label:'Team 4 - SME access',type:'sec',count:3,expanded:false,children:[{id:'t4a',label:'pws-feynman',type:'art',content:'חומת ערבות ההשתתפות.\nשב"ס = proof of concept.'}]}
+  ]}}
+};
+var otherRooms = ['NDC Lectures','MOF Workshop','IRIS 2026','align-ecosystem'];
+
+var S = { focus:'nav', roomName:'mindrianOS', rootId:'root', selId:'pe', crumb:['mindrianOS'],
+  gate:null /* or {ctx,q,opts,free,idx} */, conv:[] };
+
+/* ============ helpers ============ */
+function curTree(){ return rooms[S.roomName].tree; }
+function find(n,id){ if(n.id===id)return n; if(n.children)for(var i=0;i<n.children.length;i++){var r=find(n.children[i],id);if(r)return r;} return null; }
+function parentOf(n,id,par){ if(n.id===id)return par; if(n.children)for(var i=0;i<n.children.length;i++){var r=parentOf(n.children[i],id,n);if(r)return r;} return null; }
+function glyph(n){ if(n.type==='room')return '■'; if(n.type==='sec'){ if(!n.children||!n.children.length)return '○'; return n.expanded?'▼':'▶'; } return '•'; }
+function flatten(n,depth,out){ out.push({n:n,depth:depth}); if(n.expanded&&n.children) n.children.forEach(function(c){flatten(c,depth+1,out);}); return out; }
+function visible(){ var root=find(curTree(),S.rootId)||curTree(); return flatten(root,0,[]); }
+
+/* ============ render ============ */
+function setFocus(p){ S.focus=p; ['conv','nav','gate'].forEach(function(x){ document.getElementById('pane'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('focus',x===p); }); renderStatus(); }
+function renderCrumb(){
+  var c=document.getElementById('crumb'); c.innerHTML='';
+  c.innerHTML = S.crumb.map(function(x,i){ return (i?'<span class="sep">/</span>':'')+'<span>'+x+'</span>'; }).join('');
+}
+function renderConv(){
+  var b=document.getElementById('convBody'); b.innerHTML='';
+  S.conv.forEach(function(m){
+    var d=document.createElement('div'); d.className='msg'+(m.who==='sys'?' sys':'');
+    d.innerHTML='<div class="who '+(m.who==='larry'?'lr':m.who==='you'?'you':'sys')+'">'+(m.who==='larry'?'larry':m.who==='you'?'lawrence':'system')+'</div><div class="txt">'+m.txt+'</div>';
+    b.appendChild(d);
+  });
+  b.scrollTop=b.scrollHeight;
+}
+function renderTree(){
+  document.getElementById('navRoom').textContent=S.roomName;
+  var b=document.getElementById('treeBody'); b.innerHTML='';
+  visible().forEach(function(f){
+    var n=f.n, row=document.createElement('div'); row.className='row'+(n.id===S.selId?' sel':'');
+    var pad=''; for(var i=0;i<f.depth;i++) pad+='  ';
+    var gl=glyph(n), cls = n.tension?'tension':(n.type==='art'?'':(n.type==='room'?'':''));
+    var labelCls = n.tension?'tension':(n.type==='sec'&&(!n.children||!n.children.length)?'empty':'');
+    var cnt = (n.type==='sec') ? ' <span class="cnt '+((!n.children||!n.children.length)?'empty':'')+'">('+(n.count||0)+')</span>' : '';
+    row.innerHTML = pad+'<span class="gl '+cls+'">'+gl+'</span><span class="'+labelCls+'">'+n.label+'</span>'+cnt+(n.tension?' <span class="tension">⚠</span>':'');
+    row.onclick=function(){ S.selId=n.id; if(S.gate==null) showDetail(); renderTree(); setFocus('nav'); };
+    b.appendChild(row);
+  });
+  // Other Rooms group
+  var sep=document.createElement('div'); sep.className='sep'; sep.textContent='Other rooms'; b.appendChild(sep);
+  otherRooms.forEach(function(rn){
+    var row=document.createElement('div'); row.className='row';
+    row.innerHTML='<span class="gl">◇</span><span class="'+(rooms[rn]?'':'empty')+'">'+rn+'</span>';
+    row.onclick=function(){ if(rooms[rn]) jumpRoom(rn); };
+    if(!rooms[rn]) row.style.opacity=.5;
+    b.appendChild(row);
+  });
+}
+function showDetail(){
+  document.getElementById('gatePh').textContent='detail';
+  var n=find(curTree(),S.selId)||find(curTree(),'root');
+  var g=document.getElementById('gateBody');
+  g.className='pbody';
+  g.innerHTML='<div class="detail"><div class="dh"># '+(n?n.label:'')+'</div><div class="db">'+(n&&n.content?n.content:(n&&n.type==='sec'?'section &middot; '+(n.count||0)+' artifacts\npress → to expand, z to zoom in':'room root'))+'</div>'+
+    (n&&n.tension?'<div class="meta">⚠ LazyGraph: CONTRADICTS [[problem-definition]] - overlay only, tree order unchanged</div>':'<div class="meta">press g to raise the decision gate</div>')+'</div>';
+}
+function renderGate(){
+  document.getElementById('gatePh').textContent='decision gate';
+  var G=S.gate, body=document.getElementById('gateBody'); body.className='pbody';
+  var opts = G.opts.map(function(o,i){
+    return '<div class="opt'+(G.idx===i?' sel':'')+'" data-i="'+i+'"><span class="cb">'+(o.on?'☑':'☐')+'</span><span><span class="v">'+o.v+'</span> <span class="why">'+o.why+'</span></span></div>';
+  }).join('');
+  var freeSel = (G.idx===G.opts.length);
+  var picked = G.opts.filter(function(o){return o.on;});
+  var edges = picked.map(function(o){return '→ DECISION  '+o.v.toLowerCase().replace(/[^a-z0-9]+/g,'_');});
+  if(G.free.trim()) edges.push('→ FREE_TEXT  "'+G.free.trim()+'"');
+  body.innerHTML =
+    '<div class="gtitle">■ BRAIN &middot; Next Move</div>'+
+    '<div class="gctx">'+G.ctx+'</div>'+
+    '<div class="gq">'+G.q+'</div>'+
+    opts+
+    '<div class="freebox'+(freeSel?' sel':'')+'"><div class="lab">f &middot; free text (your direction)</div>'+
+      '<input id="gfree" placeholder="type something nobody proposed..." value="'+G.free.replace(/"/g,'&quot;')+'" autocomplete="off"></div>'+
+    '<div class="preview"><div class="ph2">would write to room.db</div>'+
+      (edges.length? edges.map(function(e){return '<div class="edge">'+e+'</div>';}).join('') : '<div class="none">nothing selected yet</div>')+
+      '<div class="cap">each selection becomes a typed edge in the room graph (Canon Part 4)</div></div>'+
+    '<div class="ghints"><b>&uarr;&darr;</b> move &nbsp; <b>Space</b> toggle &nbsp; <b>Tab</b> free-text &nbsp; <b>Enter</b> confirm &nbsp; <b>Esc</b> dismiss</div>';
+  // wire option clicks + free input
+  [].slice.call(body.querySelectorAll('.opt')).forEach(function(el){
+    el.onclick=function(){ var i=+el.getAttribute('data-i'); G.idx=i; G.opts[i].on=!G.opts[i].on; renderGate(); renderStatus(); setFocus('gate'); };
+  });
+  var gf=document.getElementById('gfree');
+  if(gf){ gf.oninput=function(){ G.free=gf.value; }; gf.onkeydown=function(e){ if(e.key==='Enter'){ confirmGate(); } e.stopPropagation(); }; if(freeSel){ gf.focus(); } }
+  renderStatus();
+}
+function renderStatus(){
+  var s=document.getElementById('statusBar'); var st=rooms[S.roomName].stage;
+  var left;
+  if(S.gate){ var n=S.gate.opts.filter(function(o){return o.on;}).length + (S.gate.free.trim()?1:0);
+    left='<span class="gatecount">■ GATE: '+n+' selected</span> <span class="sep">|</span> <span class="k">Enter</span> confirm <span class="sep">|</span> <span class="k">Space</span> toggle <span class="sep">|</span> <span class="k">Tab</span> free-text <span class="sep">|</span> <span class="k">Esc</span> dismiss';
+  } else if(S.focus==='nav'){
+    left='<span class="k">↑↓</span> move <span class="sep">|</span> <span class="k">→</span> expand <span class="sep">|</span> <span class="k">←</span> collapse <span class="sep">|</span> <span class="k">z</span> zoom <span class="sep">|</span> <span class="k">g</span> gate';
+  } else if(S.focus==='conv'){
+    left='<span class="k">type</span> to talk to Larry <span class="sep">|</span> <span class="k">Tab</span> next pane';
+  } else { left='<span class="k">g</span> raise gate <span class="sep">|</span> <span class="k">Tab</span> next pane'; }
+  s.innerHTML = left + '<span class="right">MINDRIAN v1.14.0 <span class="sep">|</span> '+S.roomName+' <span class="sep">|</span> '+st+' <span class="sep">|</span> Brain: <span class="ok">connected</span> <span class="sep">|</span> room.db: <span class="ok">synced</span> <span class="sep">|</span> 35 rooms</span>';
+}
+function renderAll(){ renderCrumb(); renderConv(); renderTree(); if(S.gate) renderGate(); else showDetail(); renderStatus(); }
+
+/* ============ actions ============ */
+function moveSel(d){ var f=visible(); var i=f.findIndex(function(x){return x.n.id===S.selId;}); i=Math.max(0,Math.min(f.length-1,i+d)); S.selId=f[i].n.id; showDetail(); renderTree(); }
+function expand(){ var n=find(curTree(),S.selId); if(n&&n.children&&n.children.length){ if(!n.expanded)n.expanded=true; else S.selId=n.children[0].id; showDetail(); renderTree(); } }
+function collapse(){ var n=find(curTree(),S.selId); if(n&&n.children&&n.children.length&&n.expanded){ n.expanded=false; } else { var p=parentOf(curTree(),S.selId,null); if(p) S.selId=p.id; } showDetail(); renderTree(); }
+function zoomIn(){ var n=find(curTree(),S.selId); if(n&&n.type==='sec'){ S.rootId=n.id; n.expanded=true; S.crumb=[S.roomName, n.label]; renderAll(); } }
+function zoomOut(){ if(S.crumb.length>1){ S.rootId='root'; S.crumb=[S.roomName]; renderAll(); } }
+function jumpRoom(rn){ S.roomName=rn; S.rootId='root'; var t=rooms[rn].tree; S.selId=(t.children[0]||t).id; S.crumb=[rn]; S.gate=null; setFocus('nav'); renderAll(); }
+function raiseGate(){
+  S.gate = { ctx:'gtm &middot; cross-tester-findings', q:'The tester findings contradict your problem framing. What next?',
+    idx:0, free:'',
+    opts:[
+      {v:"Devil's Advocate",why:'red-team "buy outcomes not a UI"',on:false},
+      {v:'Reformulate',why:'re-express the problem first',on:false},
+      {v:'Navigate Graph',why:'walk the CONTRADICTS edge',on:false},
+      {v:'Bank Opportunity',why:'add to the Opportunity Bank',on:false},
+      {v:'Defer',why:'queue to milestone audit',on:false}
+    ]};
+  setFocus('gate'); renderGate();
+  pushConv('sys','▶ decision gate raised in the right pane - pick any that fit, or type your own.');
+}
+function confirmGate(){
+  var G=S.gate; if(!G) return;
+  var picked=G.opts.filter(function(o){return o.on;});
+  var ft=G.free.trim();
+  if(!picked.length && !ft){ return; }
+  var n=picked.length+(ft?1:0);
+  var lines=picked.map(function(o){return o.v;}); if(ft) lines.push('free-text: "'+ft+'"');
+  S.gate=null;
+  pushConv('sys','✓ '+n+' decision'+(n>1?'s':'')+' written to room.db as typed edges: '+lines.join(' · '));
+  pushConv('larry','Got it. '+(picked[0]?picked[0].v+' it is':'Following your direction')+'. I will line up the next move and the room already reflects this - check the tree.');
+  setFocus('conv'); showDetail(); renderTree(); renderStatus();
+}
+function pushConv(who,txt){ S.conv.push({who:who,txt:txt}); renderConv(); }
+
+/* ============ keyboard ============ */
+document.addEventListener('keydown',function(e){
+  var inText = e.target.tagName==='INPUT';
+  if(S.gate){
+    if(e.target.id==='gfree'){ if(e.key==='Escape'){ S.gate=null; setFocus('nav'); showDetail(); renderTree(); e.preventDefault(); } return; }
+    var G=S.gate, max=G.opts.length;
+    if(e.key==='ArrowUp'){ G.idx=(G.idx-1+(max+1))%(max+1); renderGate(); e.preventDefault(); }
+    else if(e.key==='ArrowDown'){ G.idx=(G.idx+1)%(max+1); renderGate(); e.preventDefault(); }
+    else if(e.key===' '){ if(G.idx<max){ G.opts[G.idx].on=!G.opts[G.idx].on; renderGate(); } e.preventDefault(); }
+    else if(e.key==='Tab'){ G.idx=max; renderGate(); e.preventDefault(); }
+    else if(e.key==='Enter'){ confirmGate(); e.preventDefault(); }
+    else if(e.key==='Escape'){ S.gate=null; setFocus('nav'); showDetail(); renderTree(); e.preventDefault(); }
+    return;
+  }
+  if(e.key==='Tab' && !inText){ var order=['conv','nav','gate']; setFocus(order[(order.indexOf(S.focus)+1)%3]); e.preventDefault(); return; }
+  if(inText) return;
+  if(S.focus==='nav'){
+    if(e.key==='ArrowUp'){ moveSel(-1); e.preventDefault(); }
+    else if(e.key==='ArrowDown'){ moveSel(1); e.preventDefault(); }
+    else if(e.key==='ArrowRight'){ expand(); e.preventDefault(); }
+    else if(e.key==='ArrowLeft'){ collapse(); e.preventDefault(); }
+    else if(e.key==='z'){ zoomIn(); e.preventDefault(); }
+    else if(e.key==='Z'||e.key==='Backspace'){ zoomOut(); e.preventDefault(); }
+    else if(e.key==='g'){ raiseGate(); e.preventDefault(); }
+  } else if(S.focus==='gate' && e.key==='g'){ raiseGate(); e.preventDefault(); }
+});
+['Conv','Nav','Gate'].forEach(function(P){ document.getElementById('pane'+P).addEventListener('mousedown',function(){ setFocus(P.toLowerCase()); }); });
+document.getElementById('convInput').addEventListener('keydown',function(e){
+  e.stopPropagation();
+  if(e.key==='Enter'){ var v=this.value.trim(); if(!v)return; this.value=''; pushConv('you',v);
+    setTimeout(function(){ pushConv('larry','Heard. That touches [[gtm]] - and there is a live tension there. Press g in the navigator and I will frame the next move as a gate.'); },120);
+  }
+});
+
+/* ============ seed ============ */
+S.conv = [
+  {who:'you',txt:'The tester findings say multi-user and onboarding are the blockers, not a navigator. Does Phase 136 still earn its slot?'},
+  {who:'larry',txt:'Fair challenge. 136 is architecture-led, not demand-led - and I logged that risk. But the render spine is the floor the multi-user UI would sit on too. So it is not either/or; it is sequencing.'},
+  {who:'larry',txt:'There is a live contradiction sitting in gtm right now. Want to act on it? Press g and I will turn it into a decision gate you can multi-select - or type your own direction.'}
+];
+setFocus('nav'); renderAll();
+</script>
+</body>
+</html>
