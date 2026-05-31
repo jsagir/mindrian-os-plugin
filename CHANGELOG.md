@@ -1,3 +1,13 @@
+## [Unreleased]
+
+### Added (Phase 135 -- the offer loop's resolver: Larry offers one calibrated next move, or stays silent)
+- **`resolveOfferNextStep` is now live -- the navigation engine offers exactly one next-move command at the right moment instead of always returning null.** Fills the Plan 91-04 stub with an abstention-gated resolver in the new `lib/core/navigation-engine-offer.cjs`. The offer renders through the shipped F.1 AskUserQuestion selector (one keypress, Free-Text escape), and each pick records a typed decision edge via `recordSelectorDecision` (Canon Part 4). Local-only and synchronous (no Brain call on the hot path); zero TUI, zero third-party dependency; works identically on CLI / Desktop / Cowork.
+- **The resolver is SQL-local, Brain-aware, MD-aware, and wikilink-aware.** Reads room.db only via the `navigation.cjs` chokepoint (Canon Part 9), consuming the local graph neighborhood + `memory_event` tail for relevance; consumes the MINTO governing thought + FEYNMAN temporal section + active JTBD (Canon Part 4); the offer reason cites the target section as a `[[wikilink]]`, and an accepted offer that files an artifact injects wikilinks idempotently (Phase 76 engine). Mode A enriches via the typed Brain packet (enum/handle only), Mode B degrades to local heuristics, tier_0 falls to the minimal verb set -- no crash across all three. Canon Part 8 boundary verified clean.
+- **Abstention is the load-bearing wall: operator-state x confidence-margin x rejection-backoff.** Silent in JUST_TALK; offers at decision moments; backs off a rejected offer (the reject writes the `memory_event` that suppresses it next turn). A wrong offer trains the user to ignore offers, so the resolver stays quiet unless it is confident -- protecting the credibility of the variable reward.
+
+### Context wiring (the dark-loop fix)
+- **The `decide()` context now carries the resolver's full input set** (operator, sectionPath, problemType, active JTBD, and a room.db-backed roomState) so production offers carry a real `[[section]]` reason instead of `[[undefined]]`. An end-to-end wiring test seeds a real temp room.db on a DECISION_GATE turn and asserts a non-null grounded offer, with a JUST_TALK null negative control -- the guard that catches the green-in-test / dark-in-production class.
+
 ## [1.13.0-beta.37] - 2026-05-31
 
 ### Added (room-wiring -- the single "wire all rooms" command)
