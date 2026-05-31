@@ -996,6 +996,24 @@ function runNavigationEngine(roomDir, sessionId) {
   // Returns Promise<{decision, elapsed_ms} | null>. Never throws.
   return new Promise(function (resolve) {
     const startedAt = Date.now();
+    // Phase 135-01: caller-owned room.db handle + its closer, declared at the
+    // function scope so the outer catch can close the handle if anything throws
+    // synchronously after the handle is opened (no leak on the error path).
+    let roomDb = null;
+    let navigationMod = null;
+    function closeRoomDbHandle() {
+      // Close the caller-owned room.db handle through the chokepoint. Tolerant of
+      // a null handle. Called in the promise finally AND the outer catch so a
+      // decide() fault or a synchronous throw never leaks the handle (Pitfall 5).
+      if (roomDb && navigationMod && typeof navigationMod.closeRoomDbForCaller === 'function') {
+        try {
+          navigationMod.closeRoomDbForCaller(roomDb);
+        } catch (_e) {
+          /* tolerant: already closed */
+        }
+        roomDb = null;
+      }
+    }
     try {
       // Test-only fast paths.
       if (navTestThrowing()) {
@@ -1093,11 +1111,86 @@ function runNavigationEngine(roomDir, sessionId) {
         brainAvailable = false;
       }
 
+      // Phase 135-01: wire the COMPLETE resolver production input set into the
+      // engine context. Before this, context carried only
+      // { quadruple, brainAvailable, userPersona, intentSignal } and the offer
+      // resolver (Phase 135-02) ran against an empty roomState -- the grounded
+      // reason collapsed to [[undefined]] and the offer loop was dark in
+      // production while in-memory unit tests passed. Every new read uses the
+      // SAME lazy-require + try/catch + safe-default pattern as the
+      // brainClient.isAvailable() read above, so a missing module or an absent
+      // room.db degrades gracefully and never crashes the hot path. The path
+      // stays SYNCHRONOUS and LOCAL-only (A3 LOCKED): no await is introduced,
+      // getCurrentJTBD / openRoomDbForCaller are all sync chokepoint reads.
+
+      // operator: drives the JUST_TALK silence rule (Phase 135 SC6). Default to
+      // the operator.cjs cold-start string 'JUST_TALK' on any fault.
+      let operatorState = 'JUST_TALK';
+      try {
+        const operatorMod = require(
+          path.join(__dirname, '..', 'lib', 'conversation', 'operator.cjs')
+        );
+        if (operatorMod && typeof operatorMod.getCurrent === 'function') {
+          const cur = operatorMod.getCurrent(roomDir);
+          if (cur && typeof cur.current === 'string') {
+            operatorState = cur.current;
+          }
+        }
+      } catch (_e) {
+        operatorState = 'JUST_TALK';
+      }
+
+      // jtbd: the active-JTBD intent leg (Phase 135 SC4). navigation.getCurrentJTBD
+      // is roomDir-taking and opens room.db internally through the chokepoint
+      // (sync, A3-compatible). Take .jtbd when .ok !== false, else null.
+      let jtbd = null;
+      try {
+        navigationMod = require(
+          path.join(__dirname, '..', 'lib', 'core', 'navigation.cjs')
+        );
+        if (navigationMod && typeof navigationMod.getCurrentJTBD === 'function') {
+          const j = navigationMod.getCurrentJTBD(roomDir);
+          if (j && j.ok !== false && typeof j.jtbd === 'string') {
+            jtbd = j.jtbd;
+          }
+        }
+      } catch (_e) {
+        jtbd = null;
+      }
+
+      // roomState.db: a LIVE room.db handle opened via the allow-listed navigation
+      // chokepoint (NOT a direct room-db.cjs require -- the substrate guard fails
+      // that for scripts/intent-classifier.cjs). Guarded by fs.existsSync inside
+      // openRoomDbForCaller; returns null when room.db is absent (Tier 0), in
+      // which case the resolver and shouldExclude treat a null db as empty-state
+      // and abstain gracefully. The handle MUST be CLOSED in a finally after
+      // decide() settles (below) so a thrown decide() never leaks it (Pitfall 5).
+      // roomDb + navigationMod are declared at the function scope above.
+      if (navigationMod && typeof navigationMod.openRoomDbForCaller === 'function') {
+        try {
+          roomDb = navigationMod.openRoomDbForCaller(roomDir);
+        } catch (_e) {
+          roomDb = null;
+        }
+      }
+
       const context = {
         quadruple: quadruple,
         brainAvailable: brainAvailable,
         userPersona: userPersona,
         intentSignal: null,
+        // Phase 135-01 resolver production inputs:
+        operator: operatorState,
+        sectionPath: sectionPath, // scope + the [[wikilink]] target the grounded reason needs
+        problemType: userPersona && userPersona.problem_type, // rankForSelector input (null when unknown)
+        jtbd: jtbd,
+        roomState: {
+          db: roomDb,
+          roomDir: roomDir,
+          // invocationsSinceDecision: optional fast-path counter populated by the
+          // closer in Phase 135-03; read by shouldExclude. Left undefined for v1
+          // so shouldExclude falls back to the memory_event tail via roomState.db.
+        },
       };
 
       callDecideWithTimeout(navEngine.decide, turn, context, NAV_HARD_TIMEOUT_MS)
@@ -1133,8 +1226,10 @@ function runNavigationEngine(roomDir, sessionId) {
           const elapsedMs = Date.now() - startedAt;
           resolve({ decision: decision, elapsed_ms: elapsedMs });
         })
-        .catch(function () { resolve(null); });
+        .catch(function () { resolve(null); })
+        .then(closeRoomDbHandle, closeRoomDbHandle); // finally: close the handle on resolve OR reject (no leak)
     } catch (_e) {
+      closeRoomDbHandle(); // no leak if a synchronous throw occurred after the handle opened
       resolve(null);
     }
   });
