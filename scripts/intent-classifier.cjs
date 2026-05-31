@@ -1318,6 +1318,11 @@ try {
         // Lazy-require so missing module degrades gracefully (the
         // engine + routing block still emits with no Offer line).
         let offerLine = null;
+        // Phase 135-03: the F.1 Next-Move closer payload (built when an offer
+        // survives grounding). Persisted to the trace so /mos:explain-decision and
+        // the consumer surface render the locked F.1 selector with the Free-Text
+        // escape. Null when no offer renders.
+        let f1Payload = null;
         try {
           const presenter = require(
             path.join(__dirname, '..', 'lib', 'core', 'offer-presenter.cjs')
@@ -1378,6 +1383,53 @@ try {
                 reason: typeof offer.reason === 'string' ? offer.reason : null,
               });
             } catch (_) { /* fire-and-forget */ }
+
+            // Phase 135-03: the reliable F.1 Next-Move closer.
+            //
+            // The offer survived grounding + suppression + cap (offerLine is
+            // non-empty). Fire the F.1 Next-Move selector for it via the SHIPPED
+            // selector-dispatcher pickShape({requestedShape:'F.1'}) (the
+            // cross-surface AskUserQuestion primitive) so
+            // the offer becomes a CHOICE with the Free-Text escape (the 10th
+            // canonical verb) -- never a bespoke prompt string (the
+            // test-no-bespoke-brain-prompts.sh tripwire). The rendered F.1 surface
+            // is persisted to the decision trace so the consumer surface (Larry on
+            // CLI / Desktop / Cowork) renders the locked selector identically (SC8;
+            // no surface-specific branch).
+            //
+            // The pick lands on the NEXT turn (this hook emits additionalContext;
+            // it does not block on a user answer). When the user picks, the same
+            // closer.closeOffer routes it: accept/defer/reject -> a typed decision
+            // edge via recordSelectorDecision; Free-Text -> a miss memory_event via
+            // recordSelectorMiss (user_intent stays LOCAL per Part 8). When an
+            // accepted offer files an artifact, the closer injects the wikilink
+            // footer idempotently via the Phase 76 injector
+            // wikilink-builder.injectFiledToFooter (dedupes via content.includes;
+            // SC5 -- the decision edge carries the [[wikilink]] reason as
+            // provenance). A reject
+            // writes the f_selector_decision row the resolver's shouldExclude reads
+            // next turn -- the SC6 backoff loop closes through this pair (the
+            // offer-closer.test.cjs backoff-persistence case proves it). The closer
+            // NEVER opens room.db itself (substrate guard): the consumer populates
+            // roomState.db via the navigation chokepoint when recording the pick.
+            //
+            // Lazy-require + try/catch: a missing closer module degrades gracefully
+            // -- the offerLine alone still emits (no crash, no surface branch).
+            try {
+              const closer = require(
+                path.join(__dirname, '..', 'lib', 'workflow', 'offer-closer.cjs')
+              );
+              const offerForF1 = (out.decision && out.decision.offer_next_step) || {};
+              const decisionTrace = (out.decision && out.decision.decision_trace) || null;
+              const rendered = closer.renderF1(offerForF1, {
+                roomDir: roomDir,
+                operator: operatorState,
+                decisionTrace: decisionTrace,
+              });
+              if (rendered && rendered.payload) {
+                f1Payload = rendered.payload;
+              }
+            } catch (_) { /* closer is best-effort; offerLine still emits */ }
           }
         } catch (_e) {
           offerLine = null;
@@ -1406,6 +1458,13 @@ try {
         // the decision trace for /mos:explain-decision (Plan 91-05).
         if (typeof offerLine === 'string' && offerLine.length > 0) {
           traceEntry.offer_rendered = offerLine;
+        }
+        // Phase 135-03: persist the F.1 closer payload (verbs ending with the
+        // Free-Text escape + the Mode A recommendedVerb marker) so the consumer
+        // surface renders the locked selector and the pick on the next turn routes
+        // back through closer.closeOffer.
+        if (f1Payload && Array.isArray(f1Payload.verbs) && f1Payload.verbs.length > 0) {
+          traceEntry.f1_closer_payload = f1Payload;
         }
         persistDecisionTrace(roomDir, sessionId, traceEntry);
         // Emit additionalContext block.
