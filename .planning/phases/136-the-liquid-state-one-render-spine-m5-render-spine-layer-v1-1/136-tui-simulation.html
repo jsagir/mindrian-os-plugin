@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 136 - mos tui: arrow-key navigator (interactive simulation)</title>
+<style>
+  :root{
+    --red:#A63D2F; --blue:#1E3A6E; --yellow:#C8A43C; --black:#0D0D0D;
+    --cream:#F5F0E8; --amethyst:#6B4E8B; --green:#2D6B4A; --sienna:#B5602A; --gray:#A09A90;
+    --bg:#0D0D0D; --surface:#161514;
+    --t-fg:#E8E2D6; --t-dim:#6E6A62;
+    --t-green:#5BBF8A; --t-cyan:#5AB7C4; --t-yellow:#D8B24A; --t-red:#CD6353; --t-gray:#8A857C; --t-amethyst:#9A7BBE;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--cream);color:var(--black);font-family:"Helvetica Neue",Arial,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px 130px}
+
+  header.mast{border-bottom:8px solid var(--black);margin-bottom:28px}
+  .grid{display:grid;grid-template-columns:2.2fr 1fr 1fr;grid-template-rows:84px 30px;gap:7px;background:var(--black);padding:7px;border:7px solid var(--black)}
+  .grid>div{background:var(--cream)}
+  .b-red{background:var(--red)!important}.b-blue{background:var(--blue)!important}.b-yellow{background:var(--yellow)!important}.b-black{background:var(--black)!important}
+  .title{grid-row:1 / span 2;display:flex;align-items:center;padding:0 22px}
+  .title h1{font-size:40px;letter-spacing:-1px;margin:0;font-weight:800}
+  .title h1 .os{color:var(--red)}
+  .sub{padding:18px 26px 24px}
+  .sub .kicker{font-weight:800;text-transform:uppercase;letter-spacing:2px;font-size:12px;color:var(--blue)}
+  .sub h2{margin:4px 0 6px;font-size:21px}
+  .sub p{margin:0;max-width:780px;color:#2a2925}
+  .meta{font-size:12px;color:var(--gray);margin-top:9px;font-weight:600}
+
+  .tryme{border:3px solid var(--black);background:var(--yellow);padding:12px 16px;margin:0 0 26px;font-weight:700;font-size:14px;display:flex;gap:12px;align-items:center}
+  .tryme .kbd{font-family:var(--mono);font-weight:800;background:var(--black);color:var(--cream);padding:2px 8px;border-radius:4px;font-size:12px}
+
+  .legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:13px 16px;border:3px solid var(--black);background:#fff;margin:0 0 26px;font-size:12.5px}
+  .legend .glyph{font-family:var(--mono)}
+  .sw{display:inline-block;width:11px;height:11px;border:2px solid var(--black);vertical-align:-1px;margin-right:5px}
+
+  .scene{border:3px solid var(--black);background:#fff;margin:0 0 24px;transition:box-shadow .2s}
+  .scene.active{box-shadow:10px 10px 0 var(--yellow)}
+  .scene .head{display:flex;align-items:stretch;border-bottom:3px solid var(--black)}
+  .scene .num{background:var(--black);color:var(--cream);font-weight:800;font-size:22px;min-width:62px;display:flex;align-items:center;justify-content:center}
+  .scene.s-red .num{background:var(--red)}.scene.s-blue .num{background:var(--blue)}.scene.s-yellow .num{background:var(--yellow);color:#000}
+  .scene.s-green .num{background:var(--green)}.scene.s-amethyst .num{background:var(--amethyst)}.scene.s-sienna .num{background:var(--sienna)}
+  .scene .htxt{padding:11px 16px}.scene .htxt .t{font-weight:800;font-size:17px}.scene .htxt .d{font-size:13.5px;color:#3a3833}
+  .scene .body{padding:16px}
+  .narr{font-size:14px;color:#2a2925;margin:0 0 13px}
+  .narr .tag{display:inline-block;background:var(--black);color:var(--cream);font-size:10.5px;font-weight:800;letter-spacing:1px;padding:2px 7px;text-transform:uppercase;margin-right:8px;vertical-align:1px}
+  .live{display:inline-block;background:var(--green);color:#fff;font-size:10px;font-weight:800;letter-spacing:.5px;padding:2px 8px;border-radius:3px;margin-left:6px}
+  .note{font-size:12.5px;color:#55524c;border-left:4px solid var(--blue);padding:4px 0 4px 11px;margin:12px 0 0}
+  .note.warn{border-left-color:var(--sienna)}.note.good{border-left-color:var(--green)}
+
+  /* terminal */
+  .term{background:var(--bg);border:1px solid #000;border-radius:7px;overflow:hidden;margin:0}
+  .term.focusable{outline:3px solid transparent;transition:outline .15s}
+  .term.focusable:focus{outline:3px solid var(--yellow)}
+  .term + .term{margin-top:13px}
+  .tbar{background:#221f1d;display:flex;align-items:center;gap:8px;padding:7px 11px;border-bottom:1px solid #000}
+  .tbar .dot{width:11px;height:11px;border-radius:50%}.tbar .r{background:#CD6353}.tbar .y{background:#D8B24A}.tbar .g{background:#5BBF8A}
+  .tbar .ttl{color:#9c968c;font-size:11.5px;font-family:var(--mono);margin-left:7px}
+  .tbar .hint{margin-left:auto;color:#6f6a61;font-size:11px;font-family:var(--mono)}
+  pre.scr{margin:0;padding:14px 15px;color:var(--t-fg);font-size:12.6px;line-height:1.5;font-family:var(--mono);white-space:pre;overflow-x:auto}
+  .g{color:var(--t-green)}.c{color:var(--t-cyan)}.y{color:var(--t-yellow)}.r{color:var(--t-red)}.m{color:var(--t-gray)}.am{color:var(--t-amethyst)}.fg{color:var(--t-fg)}.b{font-weight:700}
+  .box{color:#4a4742}.larry{color:#cfc8ba}
+
+  /* interactive tui */
+  .tui{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  .tui .pane{padding:12px 14px;font-family:var(--mono);font-size:12.6px;line-height:1.6;min-height:230px}
+  .tui .tree{border-right:1px solid #000}
+  .tui .row{white-space:pre;cursor:pointer;border-radius:3px;padding:0 4px}
+  .tui .row.sel{background:#2f2a22;outline:1px solid var(--t-yellow)}
+  .tui .row .gl{display:inline-block;width:1.4em}
+  .tui .view .vh{color:var(--t-cyan);font-weight:700;margin-bottom:6px}
+  .tui .view .vbody{color:#cfc8ba;white-space:pre-wrap}
+  .tui .slot{grid-column:1 / span 2;border-top:1px solid #000;padding:9px 14px;font-family:var(--mono);font-size:12.2px;color:var(--t-yellow);min-height:42px}
+  .tui .slot.quiet{color:var(--t-gray)}
+  .keybar{background:#1d1b19;border-top:1px solid #000;padding:6px 12px;font-family:var(--mono);font-size:11.5px;color:#8a857c}
+  .keybar b{color:var(--t-fg)}
+
+  /* gate */
+  .gate{font-family:var(--mono)}
+  .gate .sh{background:var(--amethyst);color:#fff;font-weight:800;font-size:12px;padding:7px 12px;letter-spacing:.4px}
+  .gate .opt{display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #2a2723;color:var(--t-fg);cursor:pointer}
+  .gate .opt.sel{background:#2f2a22}
+  .gate .cb{color:var(--t-green);font-weight:800;width:1.4em;display:inline-block}
+  .gate .opt .v{font-weight:700}.gate .opt .why{color:#8f8a80;font-size:11.5px}
+  .gate .opt .pct{margin-left:auto;color:var(--t-green);font-weight:800;font-size:11.5px}
+  .gate .ftrow{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px dashed #45413b;background:#141210}
+  .gate .ftrow .lab{color:var(--t-amethyst);font-weight:700;font-size:11.5px}
+  .gate input.ft{flex:1;background:#000;border:1px solid #45413b;color:var(--t-fg);font-family:var(--mono);font-size:12px;padding:5px 8px;border-radius:4px}
+  .gate input.ft:focus{outline:2px solid var(--t-amethyst)}
+  .gate .confirm{padding:9px 12px;border-top:1px solid #2a2723;color:#8a857c;font-size:11.5px}
+  .edges{background:#0b0f0b;border-top:1px solid #2a2723;padding:9px 12px;font-family:var(--mono);font-size:11.6px;color:var(--t-green);white-space:pre-wrap;min-height:20px}
+
+  /* mini browser */
+  .browser{background:#fff;border:1px solid #000;border-radius:7px;overflow:hidden;margin-top:13px}
+  .bbar{background:#e7e1d6;display:flex;align-items:center;gap:8px;padding:7px 11px;border-bottom:1px solid #000}
+  .bbar .dot{width:11px;height:11px;border-radius:50%}
+  .url{flex:1;background:#fff;border:1px solid #000;border-radius:4px;font-size:11px;padding:2px 9px;font-family:var(--mono);color:#3a3833}
+  .blive{font-size:10px;font-weight:800;color:#fff;background:var(--green);padding:2px 7px;border-radius:3px}
+  .bgrid{display:grid;grid-template-columns:1.3fr 1fr 1fr;grid-auto-rows:46px;gap:6px;background:#000;padding:6px}
+  .bgrid>div{background:#fff;font-size:11px;font-weight:700;padding:7px;color:#222}
+  .bgrid .lab{font-size:9px;color:#888;font-weight:800;text-transform:uppercase}
+
+  .ctl{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:30;background:var(--black);color:var(--cream);display:flex;align-items:center;gap:4px;padding:7px;border:3px solid var(--black);box-shadow:6px 6px 0 var(--red)}
+  .ctl button{font-family:inherit;font-weight:800;font-size:13px;border:0;cursor:pointer;padding:8px 13px;background:var(--cream);color:var(--black)}
+  .ctl button.play{background:var(--yellow)}.ctl button:hover{background:#fff}
+  .ctl .count{font-size:12px;font-weight:700;padding:0 10px;min-width:78px;text-align:center}
+  footer{border-top:8px solid var(--black);margin-top:30px;padding-top:18px;font-size:13px;color:#3a3833}
+  .pill{display:inline-block;background:var(--black);color:var(--cream);font-size:11px;font-weight:800;padding:3px 9px;margin:2px 5px 2px 0}
+  h3.section{font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--blue);border-bottom:3px solid var(--black);padding-bottom:5px;margin:34px 0 16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="mast">
+    <div class="grid">
+      <div class="title"><h1>MINDRIAN<span class="os">OS</span></h1></div>
+      <div class="b-blue"></div><div class="b-yellow"></div><div class="b-red"></div><div class="b-black"></div>
+    </div>
+    <div class="sub">
+      <div class="kicker">Phase 136 &middot; v1.14.0 anchor &middot; interactive simulation (Round 3)</div>
+      <h2>mos tui: the arrow-key navigator, for real</h2>
+      <p>The render model is now a genuine full-screen <span style="font-family:var(--mono)">mos tui</span> binary - a separate, lazygit-style process you run in a terminal. Two panels below are <b>actually keyboard-driven</b>: click them and use your arrow keys. One engine, many shapes; the truth layer is the moat, the render never is.</p>
+      <div class="meta">Tracks 136-SPEC.md (revised, ambiguity 0.21) &middot; mos tui coexists with Claude Code like lazygit &middot; selector: arrow + space multi-select + free-text escape</div>
+    </div>
+  </header>
+
+  <div class="tryme">
+    <span>&#9654; These two panels are live.</span>
+    <span>Click a panel, then press <span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> to move, <span class="kbd">&rarr;</span> expand, <span class="kbd">&larr;</span> collapse, <span class="kbd">Space</span> to multi-select.</span>
+  </div>
+
+  <div class="legend">
+    <span><b>Glyph key:</b></span>
+    <span class="glyph"><b>&#9632;</b> room</span><span class="glyph"><b>&#9660;</b> open</span><span class="glyph"><b>&#9655;</b> collapsed</span>
+    <span class="glyph"><b>&#8226;</b> artifact</span><span class="glyph"><b>&#9889;</b> LazyGraph</span><span class="glyph"><b>&#9888;</b> tension</span><span class="glyph"><b>[x]</b> selected</span>
+    <span><b>Color:</b></span>
+    <span><span class="sw" style="background:var(--green)"></span>focus</span><span><span class="sw" style="background:var(--blue)"></span>command</span>
+    <span><span class="sw" style="background:var(--yellow)"></span>warning</span><span><span class="sw" style="background:var(--red)"></span>critical</span><span><span class="sw" style="background:var(--gray)"></span>meta</span>
+  </div>
+
+  <!-- SCENE 1: launch -->
+  <section class="scene s-black" id="s1">
+    <div class="head"><div class="num">1</div><div class="htxt">
+      <div class="t">You launch it - <span style="font-family:var(--mono)">mos tui</span> opens in its own terminal</div>
+      <div class="d">It coexists with Claude Code exactly like lazygit: a separate full-screen process, not rendered inside the chat. Larry keeps talking in the other pane.</div>
+    </div></div>
+    <div class="body">
+      <p class="narr"><span class="tag">setup</span>In one terminal you are talking to Larry. In a second terminal you run <span style="font-family:var(--mono)">mos tui</span>. It seizes the screen, paints the room, and live-subscribes to room.db - so anything Larry files shows up here instantly.</p>
+      <div class="term">
+        <div class="tbar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl">terminal 2 &mdash; mos tui</span></div>
+<pre class="scr"><span class="g">you &gt;</span> <span class="c">mos tui</span>
+<span class="m">opening full-screen navigator &middot; subscribing to room.db &hellip;</span>
+<span class="g">&#9679;</span> live &middot; press <span class="fg">?</span> for keys &middot; <span class="fg">q</span> to quit
+<span class="m"># lazygit-style: this is a real TUI process, its own window.</span>
+<span class="m"># Claude Code conversation runs independently in terminal 1.</span></pre>
+      </div>
+      <p class="note">This resolves the load-bearing question from the spec: a full-screen TUI cannot live inside the conversation pane (a chat cannot capture raw keystrokes), so it runs beside it - the same model every terminal power tool uses.</p>
+    </div>
+  </section>
+
+  <!-- SCENE 2: INTERACTIVE navigator -->
+  <section class="scene s-green" id="s2">
+    <div class="head"><div class="num">2</div><div class="htxt">
+      <div class="t">Arrow-key navigation <span class="live">&#9679; INTERACTIVE</span></div>
+      <div class="d">Click the panel, then arrow through the fractal ICM tree. The view pane follows your selection. The LazyGraph overlays without ever reordering the tree.</div>
+    </div></div>
+    <div class="body">
+      <p class="narr"><span class="tag">try it</span>Move the highlight with <b>&uarr;&darr;</b>. Press <b>&rarr;</b> (or Enter) to expand a section, <b>&larr;</b> to collapse. Watch the view pane on the right update, and the suggestion slot light up when you land on a node with a live tension.</p>
+      <div class="term focusable" id="tuiPane" tabindex="0">
+        <div class="tbar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl">mos tui &mdash; mindrianOS</span><span class="hint">raw mode &middot; &uarr;&darr;&larr;&rarr;</span></div>
+        <div class="tui">
+          <div class="pane tree" id="treePane"></div>
+          <div class="pane view" id="viewPane"></div>
+          <div class="slot" id="slotPane"></div>
+        </div>
+        <div class="keybar"><b>&uarr;&darr;</b> move &nbsp; <b>&rarr;</b> expand &nbsp; <b>&larr;</b> collapse &nbsp; <b>Enter</b> open &nbsp; <b>Tab</b> pane &nbsp; <b>q</b> quit</div>
+      </div>
+      <p class="note good">Overlay law (M5 hard rule 1): expanding and collapsing changes what you SEE, but the LazyGraph never reorders your map - it only highlights in place and whispers into the slot. Solid tree = footing; liquid graph = the overlay.</p>
+    </div>
+  </section>
+
+  <!-- SCENE 3: INTERACTIVE gate -->
+  <section class="scene s-amethyst" id="s3">
+    <div class="head"><div class="num">3</div><div class="htxt">
+      <div class="t">The Decision Gate - multi-select + free-text <span class="live">&#9679; INTERACTIVE</span></div>
+      <div class="d">Arrow to an option, Space to toggle it (pick more than one), or type something completely different in the free-text field. Every pick becomes its own typed edge.</div>
+    </div></div>
+    <div class="body">
+      <p class="narr"><span class="tag">try it</span>Click the gate. <b>&uarr;&darr;</b> moves, <b>Space</b> toggles a checkbox - select two or three at once. Or click the free-text field and tell Larry a direction nobody proposed. Hit <b>Enter</b> to see the edges that would be written.</p>
+      <div class="term focusable" id="gatePane" tabindex="0">
+        <div class="tbar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl">mos tui &mdash; decision gate</span><span class="hint">Space toggles &middot; Enter confirms</span></div>
+        <div class="gate">
+          <div class="sh">&#9632; BRAIN &middot; Next Move - the gtm tension contradicts your problem framing</div>
+          <div id="optList"></div>
+          <div class="ftrow">
+            <span class="lab">f &middot; free-text:</span>
+            <input class="ft" id="ftInput" placeholder="say something completely different than what was proposed..." autocomplete="off">
+          </div>
+          <div class="confirm">selected become typed edges (Canon Part 4) &middot; free-text routes as the Free-Text verb &middot; press <b>Enter</b> to confirm</div>
+          <div class="edges" id="edgeOut">no selection yet</div>
+        </div>
+      </div>
+      <p class="note">This is the additive Part 3 extension: the canon today says "pick one -> one edge." Multi-select writes one edge PER pick, and the free-text writes a Free-Text edge carrying your words - so the gate captures "all of these" and "actually, none of these, here is what I mean" without losing either to scrollback.</p>
+    </div>
+  </section>
+
+  <!-- SCENE 4: shapes -->
+  <section class="scene s-blue" id="s4">
+    <div class="head"><div class="num">4</div><div class="htxt">
+      <div class="t">One engine, many shapes - a hotkey reshapes the view</div>
+      <div class="d">Inside mos tui, a shape hotkey swaps the right pane between wiki / grid / deck / mermaid. Same data, same engine, same tokens.</div>
+    </div></div>
+    <div class="body">
+      <p class="narr"><span class="tag">in tui</span>Press the shape hotkey and the view pane becomes a Mondrian grid of the whole room. Shape and delivery are flags on one engine, not seven separate commands.</p>
+      <div class="term">
+        <div class="tbar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl">mos tui &mdash; shape: grid</span></div>
+<pre class="scr"><span class="box">┌─</span> <span class="b fg">mindrianOS</span> &middot; grid <span class="m">(g=grid w=wiki d=deck m=mermaid)</span> <span class="box">──┐</span>
+<span class="box">│</span> <span class="g">▓ problem-def</span>   <span class="y">▓ gtm &#9888;</span>      <span class="m">░ market</span>          <span class="box">│</span>
+<span class="box">│</span> <span class="g">4 &middot; MINTO ok</span>    <span class="y">3 &middot; tension</span>    <span class="m">1 &middot; thin</span>          <span class="box">│</span>
+<span class="box">│</span> <span class="c">▓ product-evo</span>   <span class="m">░ business</span>     <span class="m">░ team</span>            <span class="box">│</span>
+<span class="box">│</span> <span class="c">9 &middot; MINTO ok</span>    <span class="m">0 &middot; empty</span>     <span class="m">2</span>                <span class="box">│</span>
+<span class="box">└──────────────────────────────────────────────────────────┘</span></pre>
+      </div>
+      <p class="note">Same token core the legend uses - red/blue/yellow/green mean the same thing on every shape and every surface, because there is exactly one source.</p>
+    </div>
+  </section>
+
+  <!-- SCENE 5: aliases + web twin -->
+  <section class="scene s-yellow" id="s5">
+    <div class="head"><div class="num">5</div><div class="htxt">
+      <div class="t">The 7 commands are flag-aliases - and the web twin is live</div>
+      <div class="d">Back in the Claude Code conversation, the old commands still work; they just announce what they really are now and open the live web twin.</div>
+    </div></div>
+    <div class="body">
+      <div class="term">
+        <div class="tbar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl">terminal 1 &mdash; claude code</span></div>
+<pre class="scr"><span class="g">you &gt;</span> <span class="c">/mos:dashboard</span>
+<span class="m"># alias &rarr; render --shape dashboard --deliver web</span>
+<span class="g">&#10003;</span> powered by the render spine &middot; one engine, seven shapes
+<span class="c">&#9654;</span> live twin: <span class="c">http://localhost:3131</span>  <span class="g">&#9679; SSE subscribed</span></pre>
+      </div>
+      <div class="browser">
+        <div class="bbar"><span class="dot" style="background:#CD6353;width:11px;height:11px;border-radius:50%"></span><span class="dot" style="background:#D8B24A;width:11px;height:11px;border-radius:50%"></span><span class="dot" style="background:#5BBF8A;width:11px;height:11px;border-radius:50%"></span>
+          <span class="url">localhost:3131 &middot; mindrianOS</span><span class="blive">&#9679; LIVE</span></div>
+        <div class="bgrid">
+          <div><span class="lab">problem-def</span>buy outcomes</div>
+          <div style="border-bottom:5px solid var(--yellow)"><span class="lab">gtm &#9888;</span>tension</div>
+          <div><span class="lab">market</span>thin</div>
+          <div style="grid-column:1 / span 2;background:var(--blue);color:#fff"><span class="lab" style="color:#cdd6ea">product-evolution</span>M5 render spine</div>
+          <div style="background:var(--red);color:#fff"><span class="lab" style="color:#f0cfc9">live edge</span>CONTRADICTS</div>
+        </div>
+      </div>
+      <p class="note good">Three surfaces - mos tui, web twin, and Larry's inline render - all read the same room.db through one chokepoint. Every surface renders the same brain; never a second brain.</p>
+    </div>
+  </section>
+
+  <!-- SCENE 6: token core -->
+  <section class="scene s-sienna" id="s6">
+    <div class="head"><div class="num">6</div><div class="htxt">
+      <div class="t">The token core holds the line - one source, enforced</div>
+      <div class="d">A CI linter rejects any renderer (TUI, web, or inline) that hardcodes a value outside the single token source.</div>
+    </div></div>
+    <div class="body">
+      <div class="term">
+        <div class="tbar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl">pre-commit &mdash; check-tokens</span></div>
+<pre class="scr"><span class="g">you &gt;</span> <span class="c">git commit -m "tweak tui highlight color"</span>
+<span class="r">&#9888; BLOCK</span> lib/render/tui/tree.cjs:88
+   hardcoded "#c83d2f" is not in the token core
+   <span class="c">&rarr; use token: ds.red  (references/visual/palette.json)</span>
+<span class="r">commit rejected</span> &middot; one renderer bypassed the single source
+<span class="g">&#10003;</span> fixed &rarr; every shape, every surface, one palette</pre>
+      </div>
+      <p class="note good">7 commands collapsing into 1 engine is what makes a single enforceable token source possible. Strictness is the proof the seven had to become one.</p>
+    </div>
+  </section>
+
+  <!-- SCENE 7: degrade -->
+  <section class="scene s-black" id="s7">
+    <div class="head"><div class="num">7</div><div class="htxt">
+      <div class="t">Desktop / Cowork - same brain, degraded gracefully</div>
+      <div class="d">No terminal, no mos tui on these surfaces. The engine degrades to the AskUserQuestion baseline - which still does multi-select + free-text natively.</div>
+    </div></div>
+    <div class="body">
+      <div class="term">
+        <div class="tbar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="ttl">claude desktop &mdash; mindrianOS</span></div>
+<pre class="scr"><span class="larry">Larry: That tester call contradicts your problem framing.</span>
+<span class="larry">Pick any that fit, or tell me something else:</span>
+
+<span class="am">&#9632;</span> <span class="b fg">Next Move</span>  <span class="m">(multi-select)</span>
+  <span class="g">[x]</span> Devil's Advocate on "buy outcomes not a UI"
+  <span class="g">[x]</span> Reformulate the problem
+  <span class="fg">[ ]</span> Defer to milestone audit
+  <span class="am">[+]</span> something else&hellip; (free text)
+
+<span class="m">(AskUserQuestion baseline - same verbs, same edges,</span>
+<span class="m"> no tui/web on this surface by design)</span></pre>
+      </div>
+      <p class="note">Degrade-only was a deliberate spec boundary: Desktop/Cowork get the guaranteed baseline, not new rendering. The multi-select + free-text behavior is native to the selector primitive, so it survives even where the full TUI cannot.</p>
+    </div>
+  </section>
+
+  <h3 class="section">What this simulation proves about the revised spec</h3>
+  <footer>
+    <p><b>The thesis, made tangible and now navigable:</b> the ICM tree is the solid you stand on (arrow through it, it never reorders); the LazyGraph overlays new ways to think (it only speaks when something relevant changed); the gate captures one-or-many picks plus your own words; and render is never the moat - the truth layer is. mos tui, web twin, and the inline render are three windows onto one room.db.</p>
+    <p style="margin-top:10px"><b>Locked in 136-SPEC.md (Round 3) and shown here:</b></p>
+    <div>
+      <span class="pill">mos tui arrow-key navigator (separate process)</span>
+      <span class="pill">multi-select gate (space to toggle)</span>
+      <span class="pill">free-text escape -> Free-Text verb</span>
+      <span class="pill">each pick its own edge (Part 3 additive)</span>
+      <span class="pill">live room.db subscription</span>
+      <span class="pill">7 commands -> flag-aliases</span>
+      <span class="pill">one token core, CI-enforced</span>
+      <span class="pill">inline render = zero-process fallback</span>
+      <span class="pill">Desktop/Cowork degrade-only</span>
+    </div>
+    <p style="margin-top:14px"><b>Deferred to discuss-phase (the residual 0.21 ambiguity):</b> which TUI library (ink vs blessed) &middot; the concurrent-room.db-access model &middot; how mos tui and the conversation stay in sync &middot; the 3 M5 knobs (wikilink authorship, intent filter-vs-re-rank, sidebar highlight in-place-vs-slot). <b>Honest risk recorded:</b> testers pull for multi-user + onboarding, not a navigator - this phase is architecture-led.</p>
+    <p style="margin-top:14px;color:var(--blue);font-weight:800">Next step: /gsd:discuss-phase 136</p>
+  </footer>
+
+</div>
+
+<div class="ctl">
+  <button onclick="step(-1)">&#9664; Prev</button>
+  <button class="play" id="playbtn" onclick="toggle()">&#9654; Play</button>
+  <button onclick="step(1)">Next &#9654;</button>
+  <span class="count" id="count">scene 1 / 7</span>
+</div>
+
+<script>
+/* ---------- stepper ---------- */
+var scenes=[].slice.call(document.querySelectorAll('.scene')), si=0, timer=null;
+function show(n){si=(n+scenes.length)%scenes.length;scenes.forEach(function(s,k){s.classList.toggle('active',k===si);});
+  document.getElementById('count').textContent='scene '+(si+1)+' / '+scenes.length;scenes[si].scrollIntoView({behavior:'smooth',block:'center'});}
+function step(d){stop();show(si+d);}
+function toggle(){timer?stop():play();}
+function play(){document.getElementById('playbtn').innerHTML='&#10073;&#10073; Pause';show(si);timer=setInterval(function(){if(si>=scenes.length-1){stop();return;}show(si+1);},4600);}
+function stop(){clearInterval(timer);timer=null;document.getElementById('playbtn').innerHTML='&#9654; Play';}
+show(0);
+
+/* ---------- interactive tree (mos tui) ---------- */
+var tree={id:'room',label:'mindrianOS',type:'room',expanded:true,children:[
+  {id:'pd',label:'problem-definition',type:'sec',expanded:true,children:[
+    {id:'uf',label:'user-feedback',type:'art',content:'governing thought:\n"testers buy outcomes,\n not a navigator"\nevidence: Operational'},
+    {id:'mf',label:'market-fit-moments',type:'art',content:'2-of-2 testers stated\nvalue in their own words\nBEFORE the capability.'}
+  ]},
+  {id:'pe',label:'product-evolution',type:'sec',expanded:false,children:[
+    {id:'m5',label:'M5-liquid-state',type:'art',content:'thesis: solid ICM tree\n(footing) + liquid\nLazyGraph (overlay).\nrender is never the moat.'},
+    {id:'am',label:'architectural-mandates',type:'sec',expanded:false,children:[
+      {id:'m1',label:'M1-substrate-contract',type:'art',content:'four substrates,\nnever cross streams.\nnavigation.cjs is the\nonly door.'}
+    ]}
+  ]},
+  {id:'gtm',label:'gtm',type:'sec',expanded:false,tension:true,children:[
+    {id:'ct',label:'cross-tester-findings',type:'art',tension:true,content:'deal-blockers = multi-user\n+ onboarding, NOT a\nnavigator. CONTRADICTS\nproblem-definition.'}
+  ]},
+  {id:'ma',label:'market-analysis',type:'sec',expanded:false,children:[]}
+]};
+var selId='room';
+function glyph(n){if(n.type==='room')return '■';if(n.type==='sec')return n.children&&n.children.length?(n.expanded?'▼':'▷'):'▷';return '•';}
+function flatten(n,depth,out){out.push({n:n,depth:depth});if(n.expanded&&n.children){n.children.forEach(function(c){flatten(c,depth+1,out);});}return out;}
+function find(n,id){if(n.id===id)return n;if(n.children)for(var i=0;i<n.children.length;i++){var r=find(n.children[i],id);if(r)return r;}return null;}
+function parentOf(n,id,par){if(n.id===id)return par;if(n.children)for(var i=0;i<n.children.length;i++){var r=parentOf(n.children[i],id,n);if(r)return r;}return null;}
+function renderTui(){
+  var flat=flatten(tree,0,[]);
+  var tp=document.getElementById('treePane');tp.innerHTML='';
+  flat.forEach(function(f){
+    var row=document.createElement('div');row.className='row'+(f.n.id===selId?' sel':'');
+    var pad='';for(var i=0;i<f.depth;i++)pad+='  ';
+    var cls=f.n.tension?'y':(f.n.type==='art'?'m':(f.n.type==='room'?'g':'c'));
+    row.innerHTML=pad+'<span class="gl '+cls+'">'+glyph(f.n)+'</span><span class="'+(f.n.tension?'y':'fg')+'">'+f.n.label+'</span>'+(f.n.tension?' <span class="y">⚠</span>':'');
+    row.onclick=function(){selId=f.n.id;renderTui();document.getElementById('tuiPane').focus();};
+    tp.appendChild(row);
+  });
+  var sel=find(tree,selId);
+  document.getElementById('viewPane').innerHTML='<div class="vh"># '+sel.label+'</div><div class="vbody">'+(sel.content||(sel.type==='sec'?'section &middot; '+((sel.children||[]).length)+' children\npress → to expand':'room root'))+'</div>';
+  var slot=document.getElementById('slotPane');
+  if(sel.tension||(sel.id==='gtm')){slot.className='slot';slot.innerHTML='⚡ LazyGraph: this CONTRADICTS [[problem-definition]] "buy outcomes not a UI" — overlay only, tree order unchanged';}
+  else{slot.className='slot quiet';slot.innerHTML='intelligence: quiet — nothing relevant changed since last move';}
+}
+function moveSel(d){var flat=flatten(tree,0,[]);var idx=flat.findIndex(function(f){return f.n.id===selId;});idx=Math.max(0,Math.min(flat.length-1,idx+d));selId=flat[idx].n.id;renderTui();}
+function expand(){var n=find(tree,selId);if(n.children&&n.children.length){if(!n.expanded){n.expanded=true;}else{selId=n.children[0].id;}renderTui();}}
+function collapse(){var n=find(tree,selId);if(n.children&&n.children.length&&n.expanded){n.expanded=false;}else{var p=parentOf(tree,selId,null);if(p){selId=p.id;}}renderTui();}
+document.getElementById('tuiPane').addEventListener('keydown',function(e){
+  var k=e.key;
+  if(k==='ArrowUp'){moveSel(-1);e.preventDefault();}
+  else if(k==='ArrowDown'){moveSel(1);e.preventDefault();}
+  else if(k==='ArrowRight'||k==='Enter'){expand();e.preventDefault();}
+  else if(k==='ArrowLeft'){collapse();e.preventDefault();}
+});
+renderTui();
+
+/* ---------- interactive gate (multi-select + free-text) ---------- */
+var opts=[
+  {v:"Devil's Advocate",why:'red-team "buy outcomes not a UI"',pct:'0.82',on:false},
+  {v:'Reformulate',why:'re-express the problem before committing',pct:'',on:false},
+  {v:'Navigate Graph',why:'walk the CONTRADICTS edge everywhere it touches',pct:'',on:false},
+  {v:'Defer',why:'queue to the milestone audit; the gate remembers',pct:'',on:false}
+];
+var gidx=0;
+function renderGate(){
+  var ol=document.getElementById('optList');ol.innerHTML='';
+  opts.forEach(function(o,i){
+    var d=document.createElement('div');d.className='opt'+(i===gidx?' sel':'');
+    d.innerHTML='<span class="cb">'+(o.on?'[x]':'[ ]')+'</span><span><span class="v">'+o.v+'</span> <span class="why">'+o.why+'</span></span>'+(o.pct?'<span class="pct">'+o.pct+'</span>':'');
+    d.onclick=function(){gidx=i;o.on=!o.on;renderGate();document.getElementById('gatePane').focus();};
+    ol.appendChild(d);
+  });
+}
+function confirmGate(){
+  var picked=opts.filter(function(o){return o.on;});
+  var ft=document.getElementById('ftInput').value.trim();
+  var out=document.getElementById('edgeOut');
+  if(!picked.length&&!ft){out.textContent='no selection yet';return;}
+  var lines=[];
+  picked.forEach(function(o){lines.push('✓ edge written: DECISION — '+o.v.toLowerCase().replace(/[^a-z]+/g,'_'));});
+  if(ft){lines.push('✓ edge written: FREE_TEXT — "'+ft+'" (Larry will route this)');}
+  out.textContent=lines.join('\n');
+}
+document.getElementById('gatePane').addEventListener('keydown',function(e){
+  if(e.target.id==='ftInput'){if(e.key==='Enter'){confirmGate();}return;}
+  var k=e.key;
+  if(k==='ArrowUp'){gidx=(gidx-1+opts.length)%opts.length;renderGate();e.preventDefault();}
+  else if(k==='ArrowDown'){gidx=(gidx+1)%opts.length;renderGate();e.preventDefault();}
+  else if(k===' '){opts[gidx].on=!opts[gidx].on;renderGate();e.preventDefault();}
+  else if(k==='Enter'){confirmGate();e.preventDefault();}
+});
+document.getElementById('ftInput').addEventListener('keydown',function(e){if(e.key==='Enter'){confirmGate();e.preventDefault();}});
+renderGate();
+</script>
+</body>
+</html>
