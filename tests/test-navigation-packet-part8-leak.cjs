@@ -35,6 +35,28 @@ function makeRoom() {
 
 function cleanup(tmp) { try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (_) { /* ignore */ } }
 
+// H5 fixture: a room whose prose-bearing fields (focus summary, claim summaries) carry a
+// distinctive token (SECRETPROSE123). Includes a CONTRADICTS pair so contradictions populate,
+// and a brain_excerpts APPROVE row so allow_excerpts can resolve up for the opt-in assertion.
+function makeProseRoom() {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'phase-109-packet-h5-'));
+  fs.mkdirSync(path.join(tmp, '.mindrian'), { recursive: true });
+  const db = openRoomDb(tmp);
+  const nowMs = Date.now();
+  const insN = db.prepare("INSERT OR IGNORE INTO nodes (id, type, properties, source_path, created_by, confidence, review_status, created_at, last_seen_at, source_section) VALUES (?, ?, ?, ?, 'user', ?, ?, ?, ?, ?)");
+  insN.run('room:test', 'room', '{}', 'fixture', 1.0, 'confirmed', nowMs, nowMs, null);
+  // Focus claim with the distinctive prose token in its summary.
+  insN.run('claim:p1', 'claim', JSON.stringify({ summary: 'SECRETPROSE123 the core thesis is unproven' }), 'fixture/p1.md', 0.7, 'confirmed', nowMs, nowMs, 'design');
+  insN.run('claim:p2', 'claim', JSON.stringify({ summary: 'SECRETPROSE123 contradicts the thesis directly' }), 'fixture/p2.md', 0.6, 'confirmed', nowMs, nowMs, 'design');
+  insN.run('assumption:p3', 'assumption', JSON.stringify({ claim: 'SECRETPROSE123 a risky assumption' }), 'fixture/p3.md', 0.5, 'proposed', nowMs, nowMs, 'design');
+  // brain_excerpts APPROVE row so allow_excerpts resolves up (Part-3 Decision Gate).
+  insN.run('decision:excerpt-approval', 'decision', JSON.stringify({ summary: 'brain_excerpts approved' }), 'fixture/approve.md', 0.9, 'confirmed', nowMs, nowMs, 'design');
+  const insE = db.prepare("INSERT OR IGNORE INTO edges (source, target, type, properties) VALUES (?, ?, ?, '{}')");
+  insE.run('claim:p1', 'claim:p2', 'CONTRADICTS');
+  insE.run('claim:p1', 'assumption:p3', 'ASSUMES');
+  return { tmp, db };
+}
+
 function defaultMocks() { return { jtbd: { getCurrent: () => ({ current: null }) }, operator: { getCurrent: () => ({ current: null }) } }; }
 
 // Phase 125-03: buildBrainPacket is now async; run() awaits it.
@@ -94,7 +116,43 @@ async function run() {
     }
 
     db.close();
-    process.stdout.write('test-navigation-packet-part8-leak: PASS (8 tripwires)\n');
+
+    // -----------------------------------------------------------------------
+    // Tripwire 9 (review finding H5): the value-space leak. Under the DEFAULT
+    // local_summary_only mode a node's prose summary/explanation crosses to the
+    // Brain as a sha256 HASH, never as raw prose. Seed a distinctive prose token
+    // (SECRETPROSE123) into the summary/claim/explanation fields and prove it
+    // appears NOWHERE in the serialized packet, and that the focus summary is a
+    // sha256 hash. Then prove the SAME token IS present (as an excerpt) under the
+    // explicit allow_excerpts opt-in.
+    // -----------------------------------------------------------------------
+    const { tmp: tmp2, db: db2 } = makeProseRoom();
+    try {
+      // (a) default mode -> the prose token must NOT leak.
+      const def = await navigation.buildBrainPacket(db2, 'detect_contradiction', 'claim:p1', { _mocks: defaultMocks(), roomId: 'test' });
+      const defSerialized = JSON.stringify(def);
+      ok(!/SECRETPROSE123/.test(defSerialized), 'tripwire 9: SECRETPROSE123 appears NOWHERE under default local_summary_only mode');
+      ok(/^sha256:[0-9a-f]{64}$/.test(def.active_context.focus_node.summary), 'tripwire 9: default-mode focus summary is a sha256 hash (got ' + def.active_context.focus_node.summary + ')');
+      // Every nearest_claims summary and every explanation must also be a hash (or empty sentinel hash).
+      for (const c of def.local_graph_summary.nearest_claims) {
+        ok(/^sha256:[0-9a-f]{64}$/.test(c.summary), 'tripwire 9: nearest_claim summary is a hash under default mode (got ' + c.summary + ')');
+      }
+      for (const co of def.local_graph_summary.contradictions) {
+        if (co.explanation !== null) {
+          ok(/^sha256:[0-9a-f]{64}$/.test(co.explanation), 'tripwire 9: contradiction explanation is a hash under default mode (got ' + co.explanation + ')');
+        }
+      }
+
+      // (b) allow_excerpts (requires a brain_excerpts APPROVE row, seeded by makeProseRoom)
+      // -> the prose excerpt IS present.
+      const exc = await navigation.buildBrainPacket(db2, 'detect_contradiction', 'claim:p1', { _mocks: defaultMocks(), roomId: 'test', privacyMode: 'allow_excerpts' });
+      ok(exc.privacy_mode === 'allow_excerpts', 'tripwire 9: allow_excerpts resolves up given the brain_excerpts APPROVE row');
+      const excSerialized = JSON.stringify(exc);
+      ok(/SECRETPROSE123/.test(excSerialized), 'tripwire 9: SECRETPROSE123 IS present as an excerpt under explicit allow_excerpts opt-in');
+      db2.close();
+    } finally { cleanup(tmp2); }
+
+    process.stdout.write('test-navigation-packet-part8-leak: PASS (9 tripwires)\n');
     process.exit(0);
   } catch (err) {
     process.stderr.write('test-navigation-packet-part8-leak: FAIL: ' + err.message + '\n' + err.stack + '\n');

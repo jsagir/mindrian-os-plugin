@@ -121,14 +121,37 @@ async function test5_activeContextDefaults() {
 }
 
 async function test6_focusSummaryTruncation() {
+  // H5 fix: under the DEFAULT local_summary_only mode the focus summary is a sha256 HASH of
+  // the prose, never the prose itself. The long 'A'.repeat(200) prose must NOT appear; the
+  // value must be a 'sha256:'-prefixed 71-char hash and stay within the 120 cap. Under the
+  // explicit allow_excerpts opt-in, the truncated excerpt (<=120, ending '...') is restored.
   const { tmp, db } = makeRoom();
   try {
     const p = await navigation.buildBrainPacket(db, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test' });
     const s = p.active_context.focus_node.summary;
     ok(s.length <= 120, 'summary <= 120 chars (got ' + s.length + ')');
-    if (s.length === 120) ok(s.endsWith('...'), 'truncated summary ends with ...');
+    // Default mode: hash, NOT prose.
+    ok(/^sha256:[0-9a-f]{64}$/.test(s), 'default-mode summary is a sha256 hash (got ' + s + ')');
+    ok(!/A{10}/.test(s), 'default-mode summary carries no raw prose');
     db.close();
   } finally { cleanup(tmp); }
+
+  // allow_excerpts: requires a brain_excerpts APPROVE row. Seed one so the mode resolves
+  // up to allow_excerpts, then assert the excerpt (truncated prose) is restored.
+  const { tmp: tmp2, db: db2 } = makeRoom();
+  try {
+    const nowMs = Date.now();
+    db2.prepare(
+      "INSERT OR IGNORE INTO nodes (id, type, properties, source_path, created_by, confidence, review_status, created_at, last_seen_at, source_section) VALUES (?, 'decision', ?, 'fixture', 'user', 0.9, 'confirmed', ?, ?, 'design')"
+    ).run('decision:excerpt-approval', JSON.stringify({ summary: 'brain_excerpts approved' }), nowMs, nowMs);
+    const p2 = await navigation.buildBrainPacket(db2, 'job', 'decision:focus', { _mocks: defaultMocks(), roomId: 'test', privacyMode: 'allow_excerpts' });
+    equal(p2.privacy_mode, 'allow_excerpts', 'allow_excerpts resolves up given the brain_excerpts APPROVE row');
+    const s2 = p2.active_context.focus_node.summary;
+    ok(s2.length <= 120, 'excerpt summary <= 120 chars (got ' + s2.length + ')');
+    ok(/^A+\.\.\.$/.test(s2), 'allow_excerpts restores the truncated prose excerpt (got ' + s2.slice(0, 20) + '...)');
+    ok(s2.endsWith('...'), 'truncated excerpt ends with ...');
+    db2.close();
+  } finally { cleanup(tmp2); }
 }
 
 async function test7_nearestClaimsTopK() {
