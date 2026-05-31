@@ -1,4 +1,4 @@
-## [Unreleased]
+## [1.13.0-beta.37] - 2026-05-31
 
 ### Added (room-wiring -- the single "wire all rooms" command)
 - **`scripts/heal-command.cjs --recursive` heals every registered room in one pass.** Reads `~/MindrianRooms/.rooms/registry.json` (honoring `MINDRIAN_ROOMS_HOME`), skips archived/sealed rooms, runs the full heal per room. Idempotent and per-room-failure-tolerant -- the sweep never aborts on one bad room. This is the command to run after any version that touches the room.db substrate.
