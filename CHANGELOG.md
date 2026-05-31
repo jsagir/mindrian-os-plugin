@@ -1,4 +1,4 @@
-## [Unreleased]
+## [1.13.0-beta.38] - 2026-05-31
 
 ### Added (Phase 135 -- the offer loop's resolver: Larry offers one calibrated next move, or stays silent)
 - **`resolveOfferNextStep` is now live -- the navigation engine offers exactly one next-move command at the right moment instead of always returning null.** Fills the Plan 91-04 stub with an abstention-gated resolver in the new `lib/core/navigation-engine-offer.cjs`. The offer renders through the shipped F.1 AskUserQuestion selector (one keypress, Free-Text escape), and each pick records a typed decision edge via `recordSelectorDecision` (Canon Part 4). Local-only and synchronous (no Brain call on the hot path); zero TUI, zero third-party dependency; works identically on CLI / Desktop / Cowork.
