@@ -43,6 +43,7 @@ Bug B (the trigger) + the loose threads surfaced during the cluster:
 | D | release.sh Step 9.7 npx self-test flake (ran before npm propagated -> spurious `mindrian-os: not found` abort during the beta.36 cut). Added propagation-wait poll + `--prefer-online` | `e448492c` | DONE |
 | B | npm `@latest` was stale at beta.12 (direct npm installers got months-old). Moved `@latest` -> beta.36 | (npm dist-tag) | DONE; `{latest: beta.36, next: beta.36}` |
 | C | Gary's "403-despite-active" Brain key. ROOT CAUSE: brain-admin.cjs writes keys to a Supabase `brain_api_keys` table; the Brain edge (onrender) validates against its own store, so a key can be is_active in Supabase yet 403 at the edge (store separation / stale propagation, likely from the 2026-05-09 issuance). PREVENTION (adopted): verify every freshly-issued key with a live 200 probe before delivery -- done for the replacement key f5279e85. | (process change) | INVESTIGATED + DOCUMENTED; remote-edge code fix out of scope here |
+| **F** | **H5 -- Brain Context Packet value-space leak (Canon Part 8).** `privacy_mode` was stamped on the packet but never applied: `summary`/`explanation` carried raw prose under EVERY mode incl. the default. Fixed design-respecting via a `projectText(text, privacyMode)` chokepoint -- sha256 hash under `local_summary_only`/`allow_filenames`, excerpt only under the explicit `allow_excerpts` opt-in; schema `summary`/`explanation` bounded `maxLength:120`. SECRETPROSE123 tripwire proves the token appears NOWHERE under default mode; 8 packet suites + drift guard green. | `bd18c05e` | **DONE -- 7 of 7** |
 
 ## 3. The release
 
@@ -56,12 +57,9 @@ Bug B (the trigger) + the loose threads surfaced during the cluster:
 
 ## 4. What remains (tracked, NOT done -- pick up deliberately)
 
-- **F / H5 -- Brain-packet value-space (Part 8).** `data/brain-packet-schema.json` leaves `summary`/`explanation`
-  as unbounded strings; `packet.cjs shortText()` can return prose. NOT a mechanical hash-it fix: the packet has a
-  deliberate privacy-mode design (`local_summary_only` default / `allow_filenames` / `allow_excerpts`), so whether
-  prose may ever cross is a DESIGN decision. DORMANT (zero live `sendPacket` consumers), so latent-only today.
-  Needs a dedicated session reasoning about the privacy-mode contract + the ~7 packet tests. Tracked in
-  `.planning/phases/_backlog/memory-review-residuals-h5-m7.md`.
+> NOTE: F (H5) was CLOSED later this session -- see the section-2 table row F (`bd18c05e`). The fix sweep is 7 of 7.
+> Only M7 + the catalogued debt below remain.
+
 - **M7 -- file-vs-graph reconciliation surface.** No doctor class proves STATE/MINTO/BRAIN agree with room.db.
   Best done AFTER 119 (room.db population). Same backlog file.
 - **The 195 baselined substrate bypasses.** Catalogued in SUBSTRATE-BASELINE.md with per-phase ownership
