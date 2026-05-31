@@ -1674,6 +1674,34 @@ Plans:
 Plans:
 - [ ] TBD (run /gsd-plan-phase 134 to break down)
 
+### Phase 135: Offer Resolver and Reliable Next-Move Closer (v1.13.0 — lead of the Felt-Moat Engine arc)
+
+**Goal:** Complete the navigation engine's offer-presentation layer so Larry fires exactly ONE calibrated next-move offer through the already-shipped F.1 selector at the right moment, and stays silent otherwise. Fills the `resolveOfferNextStep` stub (Plan 91-04's deferred scope, which today ships `null`) with an abstention-gated resolver that is SQL-local aware, Brain-aware, wikilink-aware, and MD-aware. The trunk of the offer loop: renders through the native AskUserQuestion primitive (zero TUI, zero third-party OSS dependency).
+
+**Success criteria (goal-backward):**
+1. `resolveOfferNextStep` returns one offer `{command, framework, jtbd, confidence, reason, scope}` or `null` — no longer always `null`.
+2. SQL-local aware: reads `room.db` EXCLUSIVELY via `lib/core/navigation.cjs` (Canon Part 9 chokepoint); zero non-SQLite folder scans; consumes local graph neighborhood + `memory_event` tail for relevance/confidence.
+3. Brain-aware: Mode A enriches via `buildBrainPacket` typed packet (Canon Part 8 — enum/handle/phase identifiers only, zero user content); Mode B degrades to local heuristics (no RECOMMENDED marker); tier_0 falls to the hardcoded minimal verb set. No crash across all three.
+4. MD-aware: reads the memory quadruple (ROOM.md / STATE.md / REASONING.md / BRAIN.md) + FEYNMAN.md temporal + MINTO.md governing thought via the navigation read contract; intent leg (USER.md role_blend, active JTBD, operator) from turn context.
+5. Wikilink-aware: offer reason cites artifacts/sections as `[[wikilinks]]` (reuse Phase 76 engine); decision edge carries wikilink provenance; an accepted offer that files an artifact injects wikilinks idempotently.
+6. Abstention gate: operator-state x confidence-margin x rejection-backoff. `null` in JUST_TALK; offers at decision moments; backs off a rejected offer for N turns (remembered via `memory_event` / FEYNMAN).
+7. Reliable closer: when the resolver returns an offer, the F.1 Next-Move selector fires via AskUserQuestion (Phase 88.2) with a Free-Text escape; the pick records a typed decision edge via `recordSelectorDecision` (Canon Part 4); max 1 offer/turn (already enforced).
+8. Cross-surface: renders through AskUserQuestion on CLI / Desktop / Cowork; zero TUI dependency.
+9. Canon Part 8 clean: no user bytes reach the Brain; `brain-boundary-scan` passes.
+
+**Canon parts:** Part 2 (navigation), Part 3 (tri-context Decision Gate, Shape F.1), Part 4 (every choice is graph data), Part 8 (graph boundary), Part 9 (memory locality).
+
+**Depends on (hard, all shipped):** Phase 91 navigation-engine; Phase 88.2 uiux-selector-block (F.1 selector); Phase 109 sql-context-memory-navigation-spine; Phase 110 brain-context-packet-contract; Phase 90 brain-derivation-layer (BRAIN.md quadruple). **Soft (sequence behind if available):** Phase 129 spine-repair-memory-event (freshness eventing); Phase 127/127.1 (Brain-native transport, for Mode A).
+
+**Reuse (Part 7):** extends `lib/core/navigation-engine.cjs::resolveOfferNextStep`; reuses `rankForSelector` + `recordSelectorDecision` (125), AskUserQuestion (88.2), `navigation.cjs` chokepoint (109), `buildBrainPacket` (110), `readQuadruple` (90), the wikilink injector (76), the operator state machine. NET-NEW: abstention triple, resolver body, reliable-closer wiring.
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 135-01-PLAN.md -- Wave 0 test scaffolds (resolver/closer/fs-leak suites + run-all-135) + operator-state call-site wiring into the engine context (SC6 prerequisite)
+- [ ] 135-02-PLAN.md -- Resolver body + abstention triple (operator x margin x backoff, MARGIN_THRESHOLD=0.15 / N=5) filling the resolveOfferNextStep stub; local-only sync, wikilink-grounded reason (SC1/SC2/SC3/SC5/SC6/SC9)
+- [ ] 135-03-PLAN.md -- Reliable F.1 closer wiring (pickShape + Free-Text escape -> recordSelectorDecision/Miss) + idempotent wikilink-on-accept + Feynman registration + Part 8 brain-boundary gate (SC5/SC7/SC8/SC9)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
