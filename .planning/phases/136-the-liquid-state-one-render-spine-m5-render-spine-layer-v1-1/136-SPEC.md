@@ -3,7 +3,7 @@
 **Created:** 2026-05-31
 **Revised:** 2026-05-31 (Round 3 - render model flipped to a real arrow-key `mos tui` binary; see Interview Log)
 **Ambiguity score:** 0.21 (gate: <= 0.20; just over - residual is deferred how-decisions, see Ambiguity Report)
-**Requirements:** 11 locked
+**Requirements:** 12 locked
 **Milestone:** v1.14.0 (ANCHOR)
 **Authority:** `~/MindrianRooms/mindrianOS/product-evolution/architectural-mandates/M5-liquid-state-fractal-sos.md` (SEED, promoted to ADR by this phase)
 **Canon parts:** 7 (consolidation), 8 (graph boundary), 9 (memory locality), 10 (render is the surface)
@@ -75,6 +75,11 @@ Today the room has 7 separate HTML/visualization commands that each invent their
     - Target: in `mos tui` (and mirrored on the inline surface), the F-shape selector supports ARROW keys to move the highlight, SPACE to toggle a checkbox (multi-select: more than one option selectable at once), ENTER to confirm the selection set, and an always-present free-text field (the canonical verb #10) where the user types a direction COMPLETELY DIFFERENT from every proposed option; Larry interprets and routes the free-text
     - Acceptance: a test toggles two options via space then Enter and asserts BOTH are returned; a test enters free-text and asserts it returns as a Free-Text verb (routed by Larry), not coerced onto a proposed option; EACH confirmed option writes its OWN typed decision edge (Canon Part 4), and the free-text writes a Free-Text edge carrying the user's string; a rejection-with-reason still captures the reason
 
+12. **Fractal navigation: every node is a complete ICM (depth, zoom/re-root, bud, cross-wall liquid)**: The navigator treats the room as self-similar at every scale (M5's fractal system-of-systems), not a fixed-depth tree.
+    - Current: the navigator renders a tree with expand/collapse only; "fractal" is named but no self-similarity / zoom / budding capability is specified; each directory already carries its own ROOM.md / STATE.md / MINTO.md identity (Canon decision 15) but the renderer does not treat a node AS a room; cross-section edges have no inline home
+    - Target: (a) DEPTH - the tree recurses to ARBITRARY depth (room -> section -> sub-section -> ... -> MD), not a fixed 4 levels; (b) ZOOM / RE-ROOT - stepping into a node re-roots the navigator at that node so it renders as a complete ICM at its own scale (same shape, smaller frame) with a breadcrumb back out; (c) BUD - a navigator action promotes a section into its own room (Lawrence's memo: promotion, not split), reusing the atomic sub-room wiring contract (SEED-001) via navigation.cjs, surfaced as "open/bud as room"; (d) CROSS-WALL LIQUID - cross-cutting edges between distant nodes (which a hierarchy structurally forbids inline) surface in the suggestion slot and in the graph shape, NEVER by reordering the tree
+    - Acceptance: a seeded room nested 4+ levels renders fully; a zoom action re-roots at a sub-section showing only its subtree with a breadcrumb path; a bud action on a section yields a registered sub-room (atomic wiring per SEED-001) the navigator can then open as a root; a cross-section edge (a `gtm` node -> a `problem-definition` node) appears in the graph shape / slot while the tree node order stays byte-identical
+
 ## Boundaries
 
 **In scope:**
@@ -86,6 +91,7 @@ Today the room has 7 separate HTML/visualization commands that each invent their
 - Web live-wiki twin via the existing express/chokidar/SSE plumbing
 - LazyGraph overlay suggestion slot (overlay-only, intent-gated, temporal-ranked)
 - Decision-gate selector: arrow-key navigation + space-to-toggle multi-select (>1 option) + always-present free-text escape, in `mos tui` and inline; each pick writes its own edge
+- Fractal navigation: arbitrary-depth recursion + zoom/re-root (render any node as a complete ICM) + bud-a-section-to-room (reusing the SEED-001 sub-room contract) + cross-wall edge surfacing (tree never reorders)
 - Single De Stijl token + component source + CI linter (the token core)
 - Dual render (graph + language) for graph-native truths
 - One new TUI-library dependency (ink or blessed - chosen at discuss-phase), justified by the arrow-key requirement
@@ -114,6 +120,7 @@ Today the room has 7 separate HTML/visualization commands that each invent their
 - [ ] One engine renders all (shape x delivery) combinations the 7 legacy commands needed; no legacy command retains its own render body
 - [ ] All 7 commands work as thin flag-aliases with a provenance note; `/mos:dashboard` == `render --shape dashboard --deliver web`
 - [ ] `mos tui` opens a full-screen app; arrow keys move/expand/collapse the ICM tree; TAB cycles panes; a shape hotkey switches views; terminal restored cleanly on quit
+- [ ] Fractal: a 4+-level nested room renders fully; zoom re-roots at a sub-section (with breadcrumb); bud promotes a section to a registered sub-room (SEED-001 atomic wiring); a cross-section edge shows in the graph/slot with tree order byte-identical
 - [ ] `mos tui` + web twin update live on room.db change (event-driven, no timer poll); headless `mos watch` feed mode works
 - [ ] Inline 4-zone render works with ZERO processes and reads the same state as `mos tui` (no divergence)
 - [ ] LazyGraph suggestion slot overlays only (tree order byte-identical) and is silent when nothing relevant to the active JTBD changed
@@ -144,6 +151,7 @@ Status: ✓ = met minimum, ⚠ = below minimum / over gate (planner treats resid
 - Concurrency model: how `mos tui` (long-lived reader) and a live Claude Code session (writer) share room.db safely (WAL mode, read-only handle, snapshot-per-render) - all via navigation.cjs.
 - How `mos tui` and the inline conversation stay in sync (does selecting in the TUI inform Larry's next turn? one-way or two-way?).
 - Canon Part 3 additive extension: a multi-select gate writes one edge PER selected option (today's canon reads "selects one -> one edge"). Confirm the additive canon note at discuss-phase (current-vs-final discipline) so the gate semantics stay canon-legal.
+- Fractal scope: does BUD (filesystem + graph sub-room creation) execute in this phase, or is the navigator render-only "open as room" with the actual bud delegated to the existing SEED-001 sub-room contract? And does ZOOM persist as navigation state (a `focus` memory_event) or stay view-local? Confirm at discuss-phase.
 - M5 knobs: wikilink authorship (founder-only vs Larry-proposes-approves); intent FILTERS vs RE-RANKS the stream; sidebar highlight in-place vs separate slot.
 
 ## Interview Log
@@ -159,9 +167,10 @@ Status: ✓ = met minimum, ⚠ = below minimum / over gate (planner treats resid
 | 3     | Navigator-need  | Do you want true arrow-key navigation?            | YES - flip render model to a real `mos tui` full-screen arrow-key binary        |
 | 3     | Failure Analyst | Can a full-screen TUI coexist with the CC host?   | RESOLVED: yes, as a separate process in its own terminal (the lazygit model)    |
 | 3     | Navigator-need  | Selector richness - single pick or more?          | Multi-select (arrow + space-toggle) + always-present free-text escape; each pick its own edge (Part 3 additive extension) |
+| 3     | Boundary Keeper | Is M5's fractal nature actually captured?         | No - "fractal" was decorative. Added Req 12: arbitrary depth + zoom/re-root (node-as-ICM) + bud-to-room (SEED-001) + cross-wall liquid edges (tree never reorders) |
 
 ---
 
 *Phase: 136-the-liquid-state-one-render-spine-m5-render-spine-layer-v1-1*
 *Spec created: 2026-05-31 (revised same day, Round 3 render-model flip)*
-*Next step: /gsd:discuss-phase 136 - implementation decisions (TUI library, concurrency model, sync model, and the 3 M5 knobs)*
+*Next step: /gsd:discuss-phase 136 - implementation decisions (TUI library, concurrency model, sync model, fractal bud/zoom scope, and the 3 M5 knobs)*

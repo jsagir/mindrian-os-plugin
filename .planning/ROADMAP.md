@@ -1710,7 +1710,7 @@ Plans:
 
 **Success criteria (goal-backward):**
 1. ONE render engine exists; `shape` (deck/mermaid/wiki/grid/dashboard/snapshot) and `delivery` (cli/web/file) are flags, not 7 separate commands. The 7 legacy HTML commands route through it or are retired.
-2. CLI persistent-navigator TUI renders the fractal ICM tree (room -> section -> sub-section -> MD) as a stable sidebar; the LazyGraph surfaces in a suggestion slot that OVERLAYS and never reorders the tree (M5 hard rule 1).
+2. CLI persistent-navigator TUI renders the fractal ICM tree (room -> section -> sub-section -> MD) as a stable sidebar; the LazyGraph surfaces in a suggestion slot that OVERLAYS and never reorders the tree (M5 hard rule 1). FRACTAL (Req 12): arbitrary depth; ZOOM re-roots the navigator at any node as a complete ICM at its own scale; BUD promotes a section into its own room (SEED-001 sub-room contract); cross-wall edges surface in the graph/slot, never by reordering the tree.
 3. The render subscribes to `room.db` `memory_event` stream and updates on event, not on a timer (M5 hard rule 3); reads exclusively via `lib/core/navigation.cjs` (Canon Part 9 chokepoint).
 4. Intent gates, temporal ranks (M5 hard rule 2): the suggestion slot speaks only when something recently changed (temporal) that serves the active JTBD/operator (intent); human-declared intent is sovereign, agent-proposed intent is advisory and never overrides.
 5. ONE De Stijl token + component source (the design contract) extends Phase 121.5 `palette.json` into a surface-agnostic token graph every renderer obeys; a CI linter enforces the glyph/palette/token vocabulary (no renderer invents its own values).
