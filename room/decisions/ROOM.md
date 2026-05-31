@@ -20,6 +20,7 @@ not overwrite an existing file unless --force is passed.)
 ### Artifacts in this section
 - [[decision-cowork-round-locking|Decision -- Cowork Round-Locking Semantics]]
 - [[decision-decoy-ethics|Decision -- Decoy Calibration Ethics]]
+- [[decision-offer-loop-standalone-arc|Decision - pull the offer loop and room budding into a standalone arc]]
 - [[decision-phase-95-sequencing|Decision -- Phase 95 Sequencing]]
 
 ### Cross-section mentions (inbound)

@@ -18,7 +18,9 @@ not overwrite an existing file unless --force is passed.)
 - (none)
 
 ### Artifacts in this section
-- No artifacts yet in this section.
+- [[felt-moat-engine-vision|The Felt-Moat Engine (product vision)]]
+- [[gtm-hooked-retention|GTM - Retention as the wedge, the Hooked loop mapped]]
+- [[strategy-moat-thesis|Strategy - The moat is the graph, and investment is the moat]]
 
 ### Cross-section mentions (inbound)
 - (none -- inbound scan is Phase 90 scope)
