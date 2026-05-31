@@ -1,3 +1,12 @@
+## [Unreleased]
+
+### Added (room-wiring -- the single "wire all rooms" command)
+- **`scripts/heal-command.cjs --recursive` heals every registered room in one pass.** Reads `~/MindrianRooms/.rooms/registry.json` (honoring `MINDRIAN_ROOMS_HOME`), skips archived/sealed rooms, runs the full heal per room. Idempotent and per-room-failure-tolerant -- the sweep never aborts on one bad room. This is the command to run after any version that touches the room.db substrate.
+- **Heal now runs the Phase 130 hats->room.db migration as step 11.** Every heal invokes `migrate-hats-to-roomdb.cjs` after the lazygraph rebuild creates `room.db` (step 4), so heal becomes the single per-room wiring command -- the migration is no longer an orphaned script a human must know to run. Idempotent via its sentinel `memory_event` (re-runs skip).
+
+### Changed
+- `--skip-step` cap raised from 10 to 11 to cover the new hats-migration step.
+
 ## [1.13.0-beta.36] - 2026-05-31
 
 ### Fixed (Windows tester crash -- reported by Gary Laben on beta.34)

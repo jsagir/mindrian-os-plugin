@@ -71,10 +71,12 @@ const STEP_NAMES = [
   'step_08_queue_check',
   'step_09_root_state',
   'step_10_invariant_scan',
+  'step_11_hats_migration',
 ];
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const SCRIPT_MIGRATE = path.join(REPO_ROOT, 'scripts', 'migrate-lazygraph.cjs');
+const SCRIPT_HATS = path.join(REPO_ROOT, 'scripts', 'migrate-hats-to-roomdb.cjs');
 const SCRIPT_SECTION_STATE = path.join(REPO_ROOT, 'scripts', 'vault-section-state-generator.cjs');
 const SCRIPT_SECTION_MINTO = path.join(REPO_ROOT, 'scripts', 'vault-section-minto-generator.cjs');
 const SCRIPT_COMPUTE_STATE = path.join(REPO_ROOT, 'scripts', 'compute-state');
@@ -818,6 +820,58 @@ function step10InvariantScan(ctx) {
   };
 }
 
+/**
+ * Step 11: Run pending room.db migrations (Phase 130 hats -> room.db).
+ *   - Wraps scripts/migrate-hats-to-roomdb.cjs (idempotent: writes a sentinel
+ *     memory_event and skips on re-run, so safe to run every heal).
+ *   - Runs AFTER step04 (lazygraph rebuild) so room.db is guaranteed to exist;
+ *     the migration refuses with reason "no_room_db" otherwise.
+ *   - This is what makes `doctor --heal-room` the single per-room "wire it"
+ *     command -- no more orphaned migration scripts a human must know to run.
+ */
+function step11HatsMigration(ctx) {
+  const start = nowMs();
+  if (ctx.dryRun) {
+    return {
+      status: 'skipped',
+      duration_ms: nowMs() - start,
+      details: { reason: 'dry-run', would_invoke: 'migrate-hats-to-roomdb.cjs' },
+    };
+  }
+
+  const result = spawnSync(
+    process.execPath,
+    [SCRIPT_HATS, ctx.roomDir],
+    { encoding: 'utf8', timeout: 120000 }
+  );
+
+  if (result.error) {
+    return {
+      status: 'error_spawn',
+      duration_ms: nowMs() - start,
+      details: { reason: String(result.error.message || result.error) },
+    };
+  }
+
+  // The migration prints a JSON envelope: { ok, migrated, skipped, reason }.
+  let parsed = null;
+  try { parsed = JSON.parse(result.stdout || '{}'); } catch (_e) { parsed = null; }
+
+  // Idempotent skip (already migrated) is a success, not a failure.
+  const ok = parsed && (parsed.ok === true || parsed.skipped === true);
+  return {
+    status: ok ? 'ok' : 'error_migration',
+    duration_ms: nowMs() - start,
+    details: {
+      exit_code: result.status,
+      migrated: parsed && Array.isArray(parsed.migrated) ? parsed.migrated.length : 0,
+      skipped: !!(parsed && parsed.skipped),
+      reason: parsed && parsed.reason ? parsed.reason : null,
+      stderr_tail: tailLines(result.stderr, 3),
+    },
+  };
+}
+
 // ---------- Room validation ----------
 
 /**
@@ -983,6 +1037,7 @@ async function runHeal(roomDir, opts) {
     step08QueueCheck,
     step09RootState,
     step10InvariantScan,
+    step11HatsMigration,
   ];
 
   for (let i = 0; i < stepFns.length; i++) {
@@ -1076,6 +1131,7 @@ function parseCliArgs(argv) {
     dryRun: false,
     skipSteps: [],
     section: null,
+    recursive: false,
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -1083,10 +1139,12 @@ function parseCliArgs(argv) {
       out.dryRun = true;
     } else if (a === '--skip-step') {
       const n = parseInt(argv[i + 1], 10);
-      if (!Number.isNaN(n) && n >= 1 && n <= 10) {
+      if (!Number.isNaN(n) && n >= 1 && n <= 11) {
         out.skipSteps.push(n);
         i++;
       }
+    } else if (a === '--recursive') {
+      out.recursive = true;
     } else if (a === '--section') {
       out.section = argv[i + 1] || null;
       i++;
@@ -1168,7 +1226,8 @@ function resolveActiveRoomFromRegistry() {
 function printUsage() {
   process.stdout.write(
     'Usage: node scripts/heal-command.cjs [room-dir] [--dry-run]\n' +
-    '       [--skip-step <N>] [--section <name>]\n\n' +
+    '       [--skip-step <N>] [--section <name>] [--recursive]\n\n' +
+    '  --recursive   heal EVERY registered room (the "wire all rooms" sweep)\n' +
     '/mos:heal -- 10-step room wiring heal orchestrator.\n' +
     'Wraps the recipe at ~/MindrianRooms/mindrianOS/methodology/\n' +
     '2026-04-29-v1-11-0-room-wiring-heal-process.md.\n\n' +
@@ -1181,8 +1240,81 @@ function printUsage() {
   );
 }
 
+// Read ~/MindrianRooms/.rooms/registry.json (honoring MINDRIAN_ROOMS_HOME) and
+// return an array of { name, path } for every registered room with a resolvable
+// path. Returns [] when no registry exists. The single "wire all rooms" source
+// of truth -- same registry doctor.cjs class B/C reads.
+function readRegistryRooms() {
+  const home = process.env.MINDRIAN_ROOMS_HOME ||
+    path.join(require('os').homedir(), 'MindrianRooms');
+  const registryPath = path.join(home, '.rooms', 'registry.json');
+  if (!fs.existsSync(registryPath)) return [];
+  let reg;
+  try { reg = JSON.parse(fs.readFileSync(registryPath, 'utf8')); } catch (_e) { return []; }
+  const rooms = (reg.registry && reg.registry.rooms) || reg.rooms || {};
+  const out = [];
+  for (const name of Object.keys(rooms)) {
+    const entry = rooms[name] || {};
+    // Skip archived/sealed rooms -- they are intentionally out of the active set.
+    if (entry.status === 'archived' || entry.sealed === true) continue;
+    const p = entry.path || '';
+    if (!p) continue;
+    const resolved = path.isAbsolute(p) ? p : path.join(home, p);
+    if (fs.existsSync(resolved)) out.push({ name: name, path: resolved });
+  }
+  return out;
+}
+
+// Recursive sweep: heal every registered room. This is the single
+// "wire all rooms" command -- each room runs the full 11-step heal
+// (room.db creation at step 4, then the hats->room.db migration at step 11),
+// idempotent, so re-running is safe. Per-room failures never abort the sweep.
+async function runHealRecursive(opts) {
+  const rooms = readRegistryRooms();
+  if (rooms.length === 0) {
+    console.log('[heal --recursive] no registry at ~/MindrianRooms/.rooms/registry.json -- nothing to sweep.');
+    return 0;
+  }
+  console.log('[heal --recursive] sweeping ' + rooms.length + ' registered room(s)' +
+    (opts.dryRun ? ' (dry-run)' : '') + '...\n');
+  let okRooms = 0, errRooms = 0;
+  for (const room of rooms) {
+    let env;
+    try {
+      env = await runHeal(room.path, {
+        dryRun: opts.dryRun,
+        skipSteps: opts.skipSteps,
+        section: opts.section,
+        silent: true,
+      });
+    } catch (e) {
+      errRooms++;
+      console.log('  error  ' + room.name + ' -- ' + String(e && e.message || e));
+      continue;
+    }
+    const s = env.summary || {};
+    const bad = (s.error_count || 0) > 0;
+    if (bad) errRooms++; else okRooms++;
+    console.log(
+      '  ' + (bad ? 'warn ' : 'ok   ') + ' ' + room.name +
+      ' (ok=' + (s.ok_count || 0) + ' err=' + (s.error_count || 0) +
+      ' skip=' + (s.skipped_count || 0) + ')'
+    );
+  }
+  console.log('\n[heal --recursive] done: ' + okRooms + ' healed, ' + errRooms + ' with errors.');
+  // Exit 0 as long as the sweep ran; per-room errors are reported, not fatal.
+  return 0;
+}
+
 async function main() {
   const opts = parseCliArgs(process.argv.slice(2));
+
+  // --recursive: sweep every registered room (the "wire all rooms" command).
+  if (opts.recursive) {
+    const code = await runHealRecursive(opts);
+    process.exit(code);
+  }
+
   const env = await runHeal(opts.roomDir, {
     dryRun: opts.dryRun,
     skipSteps: opts.skipSteps,
