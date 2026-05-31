@@ -1702,6 +1702,43 @@ Plans:
 - [ ] 135-02-PLAN.md -- Resolver body + abstention triple (operator x margin x backoff, MARGIN_THRESHOLD=0.15 / N=5) filling the resolveOfferNextStep stub; local-only sync, wikilink-grounded reason (SC1/SC2/SC3/SC5/SC6/SC9)
 - [ ] 135-03-PLAN.md -- Reliable F.1 closer wiring (pickShape + Free-Text escape -> recordSelectorDecision/Miss) + idempotent wikilink-on-accept + Feynman registration + Part 8 brain-boundary gate (SC5/SC7/SC8/SC9)
 
+### Phase 136: The Liquid State - One Render Spine (M5 render-spine layer) [v1.14.0 ANCHOR]
+
+**Goal:** Build M5's render-spine layer - ONE event-subscribing render engine where shape and delivery are flags, not commands. Collapse the 7 divergent HTML commands (dashboard / wiki / present / publish / export / visualize / snapshot) into that single engine, then build the CLI persistent-navigator TUI (sidebar fractal ICM tree + swappable views [deck / mermaid / wiki / grid] + LazyGraph suggestion slot) that subscribes to room.db events and never rebuilds on a timer. Web = live-wiki twin; Desktop/Cowork = AskUserQuestion baseline. Write the single De Stijl token + component source (the design contract / token core the 2026-05-10 UI/UX convergence session named as the "rendering reverse salient: the token core does not exist"). The truth layer (room.db graph + resolver + offer_next_step + event stream, Phase 135) is the already-shipped foundation this renders - render is never the moat; the truth layer is.
+
+**Authority:** `~/MindrianRooms/mindrianOS/product-evolution/architectural-mandates/M5-liquid-state-fractal-sos.md` (the product-theory spine, captured 2026-05-31 from a 20+ turn design conversation; status SEED, to be promoted to ADR by this phase). This phase IS the render-spine sibling M5 names as the un-written "TUI enhancement-layer map (CLI render)." Sibling thread already shipped: the Offer-Resolver / truth layer (Phase 135).
+
+**Success criteria (goal-backward):**
+1. ONE render engine exists; `shape` (deck/mermaid/wiki/grid/dashboard/snapshot) and `delivery` (cli/web/file) are flags, not 7 separate commands. The 7 legacy HTML commands route through it or are retired.
+2. CLI persistent-navigator TUI renders the fractal ICM tree (room -> section -> sub-section -> MD) as a stable sidebar; the LazyGraph surfaces in a suggestion slot that OVERLAYS and never reorders the tree (M5 hard rule 1).
+3. The render subscribes to `room.db` `memory_event` stream and updates on event, not on a timer (M5 hard rule 3); reads exclusively via `lib/core/navigation.cjs` (Canon Part 9 chokepoint).
+4. Intent gates, temporal ranks (M5 hard rule 2): the suggestion slot speaks only when something recently changed (temporal) that serves the active JTBD/operator (intent); human-declared intent is sovereign, agent-proposed intent is advisory and never overrides.
+5. ONE De Stijl token + component source (the design contract) extends Phase 121.5 `palette.json` into a surface-agnostic token graph every renderer obeys; a CI linter enforces the glyph/palette/token vocabulary (no renderer invents its own values).
+6. Dual render: the engine emits BOTH graph (see the relation) and natural language (understand it) for graph-native truths.
+7. Cross-surface law (M5 three-layer turn-one rule): CLI = persistent navigator; web = live-wiki twin; Desktop/Cowork = AskUserQuestion baseline. Every surface renders the same brain, never a second brain (M5 hard rule 5).
+8. Canon Part 8 clean: no user bytes reach the Brain; `brain-boundary-scan` passes.
+
+**Canon parts:** Part 7 (consolidation - 7 commands become 1 render spine + 1 token source), Part 8 (graph boundary), Part 9 (memory locality - navigation.cjs chokepoint), Part 10 (render is the surface).
+
+**Depends on (hard, shipped):** Phase 135 (offer resolver / truth layer), Phase 109 (sql-context-memory-navigation-spine), Phase 130 (lens-engine), Phase 121.5 (UI Ruling System + `palette.json` token seed). **Soft (sequence behind if available):** Phase 131 (research-as-workflow-step), Phase 132 (dual-graph correlation).
+
+**Reuse (Part 7):** extend Phase 121.5 `palette.json` into the token core (do not invent a new token system); reuse the `navigation.cjs` chokepoint, the existing `dashboard/` `wiki/` `present/` HTML templates as the seed views the engine consolidates, and the De Stijl design system. NET-NEW: the render-engine flag dispatch, the CLI persistent-navigator TUI process, the event-subscribe loop, the token-graph contract + CI linter.
+
+**Open questions (resolve in SPEC, from M5):**
+- Can a persistent full-screen TUI process even coexist with the Claude Code CLI host? This is the render-model constraint (file 04 of the 2026-04-30 TUI research bundle) that pushed every prior phase to "zero TUI dependency." If it cannot, "CLI = persistent navigator" may mean a separately-launched `mos tui` binary alongside Claude Code, not an in-conversation surface. LOAD-BEARING for scope.
+- Wikilink authorship: founder-only (authentic, slower) vs Larry-proposes-founder-approves (HITL gate, same as the resolver thread).
+- Does intent FILTER the temporal stream or RE-RANK the whole graph as the primary axis?
+- Sidebar "next" highlight in-place (keeps it a map you roam) vs a separate slot (risks rebuilding the linear march).
+
+**GTM sequencing risk (recorded, not resolved):** the 2026-05-28 cross-tester GTM findings name the deal-blockers as multi-user/team collaboration + Brain-API-key onboarding, NOT a navigator. No current tester is pulling for this surface - Phase 136 is architecture-led, not demand-led. Decide at plan-phase whether it anchors v1.14.0 or sequences behind the multi-user + onboarding work the pipeline deals are stuck on.
+
+**Scope note:** milestone-scale. Will likely decompose into a cluster (136 anchor + sub-phases: render-engine core / token contract / CLI navigator / surface twins) during plan-phase.
+
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:spec-phase 136 -> /gsd:discuss-phase 136 -> /gsd:plan-phase 136 to break down)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
