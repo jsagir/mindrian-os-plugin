@@ -3415,8 +3415,20 @@ function main() {
   } else if (installResult.status === 'missing'
              && cacheResult.status === 'ok'
              && cacheResult.versions
-             && cacheResult.versions.length > 0) {
+             && cacheResult.versions.length > 0
+             && resolveActivePluginRoot().topology !== 'marketplace-cache') {
     // Phase 95.2 D-05: missing install with available cache is a recoverable drift case.
+    // Topology guard (debug session doctor-class-a-drift-topology-blind-false-positive,
+    // 2026-05-31): installResult is computed against the hardcoded legacy INSTALL_DIR
+    // (line 55, ~/.claude/plugins/mindrian-os). Under marketplace-cache topology that
+    // legacy dir is CORRECTLY absent -- Claude Code loads the plugin from the cache
+    // path recorded in installed_plugins.json -- so a missing legacy dir is the healthy
+    // state, not drift. resolveActivePluginRoot() only returns a marketplace-cache root
+    // when that root passed isPluginDir() (a valid .claude-plugin/plugin.json), so the
+    // marketplace-cache topology already implies a healthy resolved active root. This
+    // guard makes class A agree with the topology-aware class I gate (--install-state)
+    // while preserving the legacy-topology recovery path: a genuinely-missing legacy
+    // active root (topology !== marketplace-cache) still reports install-missing drift.
     report.drift = { detected: true, reason: 'install-missing' };
   }
 
@@ -3434,7 +3446,15 @@ function main() {
   // and the dirty/unpushed refuse checks per D-13). Without this carve-out
   // class A would migrate the legacy dir AHEAD of class I, defeating the
   // dirty-legacy refuse contract.
-  if (flags.fix && report.drift.detected && !flags.installState) {
+  if (flags.fix && report.drift.detected && !flags.installState
+      && resolveActivePluginRoot().topology !== 'marketplace-cache') {
+    // Defense-in-depth (debug session doctor-class-a-drift-topology-blind-false-positive,
+    // 2026-05-31): with the Change-1 topology guard above, drift.detected is already
+    // false for the healthy marketplace-cache case so this gate is not reached for it.
+    // This redundant topology check ensures a future regression in the drift branch
+    // cannot re-enable performRecoveryAtomic recreating the legacy ~/.claude/plugins/
+    // mindrian-os dir under marketplace-cache topology (which class I would then flag
+    // as a migration candidate -- the two subsystems must never contradict).
     const result = performRecoveryAtomic(installResult.version, cacheResult.latest);
     if (result.status === 'ok') {
       report.classARecovered = result;

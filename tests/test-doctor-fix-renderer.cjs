@@ -151,7 +151,17 @@ function runDoctor(home, extraArgs) {
   });
   // Force CLI surface so non-TTY child spawn does not fall back to DESKTOP.
   if (!env.MINDRIAN_STATUSLINE_SURFACE) env.MINDRIAN_STATUSLINE_SURFACE = 'CLI';
-  delete env.MINDRIAN_OS_ROOT;
+  // Debug session doctor-class-a-drift-topology-blind-false-positive (2026-05-31):
+  // class A drift + the --fix recovery gate are now topology-guarded -- they fire
+  // ONLY when resolveActivePluginRoot().topology !== 'marketplace-cache'. This
+  // renderer-contract suite exercises the LEGACY-dir recovery path (--fix recreating
+  // ~/.claude/plugins/mindrian-os from the cache). Pin MINDRIAN_OS_ROOT at the legacy
+  // path so the resolver classifies a non-marketplace-cache (dev-clone) topology --
+  // the class where legacy recovery legitimately stays active -- instead of seeing the
+  // scratch cache-only tree as marketplace-cache (which would correctly suppress the
+  // legacy recreation under the fix). The renderer contract is unchanged; only the
+  // topology context that triggers it is pinned, keeping the test hermetic.
+  env.MINDRIAN_OS_ROOT = path.join(home, '.claude', 'plugins', 'mindrian-os');
   delete env.CLAUDE_DESKTOP;
   const args = [DOCTOR].concat(extraArgs || []);
   const r = spawnSync('node', args, { env, encoding: 'utf8', timeout: 30000 });

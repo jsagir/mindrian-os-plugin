@@ -83,7 +83,22 @@ function makeScratchPluginHome(scratch, opts) {
 }
 
 function runDoctor(scratch, args, extraEnv) {
-  const env = Object.assign({}, process.env, { MINDRIAN_PLUGIN_HOME: scratch }, extraEnv || {});
+  // Debug session doctor-class-a-drift-topology-blind-false-positive (2026-05-31):
+  // class A drift + the --fix recovery gate are now topology-guarded -- they fire
+  // only when resolveActivePluginRoot().topology !== 'marketplace-cache'. These
+  // scenarios model the LEGACY-clone recovery semantics (a <scratch>/mindrian-os dir
+  // being repaired from the cache). resolveActivePluginRoot() reads os.homedir(), not
+  // MINDRIAN_PLUGIN_HOME, so on a marketplace-cache dogfood box it would otherwise see
+  // the real machine topology and the guard would suppress the recovery under test.
+  // Pinning MINDRIAN_OS_ROOT at the scratch legacy path classifies the topology as a
+  // non-marketplace-cache (dev-clone) topology, which is the exact class where the
+  // legacy recovery path must remain active. This makes the test hermetic against the
+  // host machine topology without weakening the scenario.
+  const legacyRoot = require('path').join(scratch, 'mindrian-os');
+  const env = Object.assign({}, process.env, {
+    MINDRIAN_PLUGIN_HOME: scratch,
+    MINDRIAN_OS_ROOT: legacyRoot,
+  }, extraEnv || {});
   assert.equal(typeof env.MINDRIAN_PLUGIN_HOME, 'string',
     'Test must set MINDRIAN_PLUGIN_HOME to scratch dir to avoid touching real ~/.claude/plugins');
   const res = spawnSync('node', [DOCTOR].concat(args), { encoding: 'utf8', timeout: 10000, env });
