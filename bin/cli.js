@@ -49,8 +49,28 @@ const { resolveActivePluginRoot } = require('../lib/core/active-plugin-root.cjs'
 const MARKETPLACE = 'jsagir/mindrian-marketplace';
 const PLUGIN_SPEC = 'mos@mindrian-marketplace';
 
+// On Windows, npm-global CLIs are installed as `.cmd` shims (e.g. `claude.cmd`),
+// not bare executables. Node's spawnSync does NOT consult PATHEXT, so spawning
+// 'claude' directly fails with ENOENT even when `claude --version` works in the
+// user's interactive shell. Routing through the shell (cmd.exe) on win32 lets
+// PATHEXT resolve the `.cmd` shim. POSIX is unaffected -- shell stays false there.
+//
+// IMPORTANT: shell is scoped to `claude` spawns ONLY (via runClaude below), NOT
+// applied to the generic run() helper. run() is also called as
+// run(process.execPath, ...) in the doctor subcommand, and on Windows
+// process.execPath is `C:\Program Files\nodejs\node.exe` (contains a space).
+// With shell:true Node passes the command unquoted to cmd.exe, which would parse
+// `C:\Program` as the command and break. node/git resolve fine WITHOUT shell.
+const isWindows = process.platform === 'win32';
+
 function run(cmd, args, opts) {
   return spawnSync(cmd, args, { stdio: 'inherit', ...opts });
+}
+
+// Spawn the `claude` CLI, shelling out on Windows so the `claude.cmd` shim
+// resolves via PATHEXT. All `claude` invocations MUST go through this wrapper.
+function runClaude(args, opts) {
+  return run('claude', args, { shell: isWindows, ...opts });
 }
 
 function ok(result) {
@@ -79,7 +99,7 @@ function printUsage() {
 }
 
 function requireClaudeCli() {
-  const check = spawnSync('claude', ['--version'], { stdio: 'ignore' });
+  const check = spawnSync('claude', ['--version'], { stdio: 'ignore', shell: isWindows });
   if (ok(check)) return true;
   console.error('Claude Code is not installed (no `claude` command on your PATH).');
   console.error('Install it first:');
@@ -127,9 +147,9 @@ switch (sub) {
     // Marketplace install: use Claude Code's own update path.
     if (!requireClaudeCli()) process.exit(1);
     console.log('Refreshing the marketplace catalog...');
-    run('claude', ['plugin', 'marketplace', 'update']);
+    runClaude(['plugin', 'marketplace', 'update']);
     console.log('Updating the MindrianOS plugin...');
-    const r = run('claude', ['plugin', 'update', PLUGIN_SPEC]);
+    const r = runClaude(['plugin', 'update', PLUGIN_SPEC]);
     if (!ok(r)) {
       console.error('');
       console.error('`claude plugin update ' + PLUGIN_SPEC + '` did not complete.');
@@ -155,19 +175,19 @@ switch (sub) {
     // we resolve the current ref. Both are best-effort -- "already added" /
     // "already up to date" exit non-zero on some Claude Code versions; fine.
     console.log('Adding the Mindrian marketplace...');
-    run('claude', ['plugin', 'marketplace', 'add', MARKETPLACE]);
+    runClaude(['plugin', 'marketplace', 'add', MARKETPLACE]);
     console.log('Refreshing the marketplace catalog...');
-    run('claude', ['plugin', 'marketplace', 'update']);
+    runClaude(['plugin', 'marketplace', 'update']);
 
     // Install. On an already-installed plugin Claude Code reports "already
     // installed" and still exits 0 -- the update step below then moves it
     // forward to the current ref (unless the caller pinned a version).
     console.log('Installing the MindrianOS plugin...');
-    const inst = run('claude', ['plugin', 'install', PLUGIN_SPEC, ...passthrough]);
+    const inst = runClaude(['plugin', 'install', PLUGIN_SPEC, ...passthrough]);
     let updated = false;
     if (!pinned) {
       console.log('Bringing the plugin to the current build...');
-      const upd = run('claude', ['plugin', 'update', PLUGIN_SPEC]);
+      const upd = runClaude(['plugin', 'update', PLUGIN_SPEC]);
       updated = ok(upd);
     }
 
