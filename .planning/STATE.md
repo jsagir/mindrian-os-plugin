@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
-stopped_at: Phase 136 context gathered
-last_updated: "2026-05-31T17:26:33.544Z"
+stopped_at: v1.14.0 chain fully planned + verified (130.5/130.7/131/132/134/136)
+last_updated: "2026-06-01T06:40:25.834Z"
 last_activity: 2026-05-20 -- Phase 127.1 execution started
 progress:
-  total_phases: 73
+  total_phases: 75
   completed_phases: 51
-  total_plans: 353
+  total_plans: 387
   completed_plans: 339
-  percent: 70
+  percent: 68
 ---
 
 # Project State
@@ -1109,6 +1109,6 @@ Progress: [██████████] 95%
 
 ## Session Continuity
 
-Last session: 2026-05-31T17:26:33.406Z
-Stopped at: Phase 136 context gathered
-Resume file: .planning/phases/136-the-liquid-state-one-render-spine-m5-render-spine-layer-v1-1/136-CONTEXT.md
+Last session: 2026-06-01T06:40:25.767Z
+Stopped at: v1.14.0 chain fully planned + verified (130.5/130.7/131/132/134/136)
+Resume file: .planning/phases/130.5-shared-corpus-cache-cjs-fetcher-substrate/130.5-01-PLAN.md
