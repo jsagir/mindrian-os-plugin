@@ -22,9 +22,9 @@
  *
  * Canon Part 9 (the navigation chokepoint): bin/ is NOT on the substrate
  * allow-list, so this script reaches room.db ONLY through lib/core/navigation.cjs
- * (openRoomDbForCaller / findRecentChanges / closeRoomDbForCaller). It NEVER
- * requires lib/core/room-db.cjs and NEVER requires node:sqlite directly -- a
- * direct require would trip scripts/check-substrate.cjs.
+ * (openRoomDbForCaller / findRecentChanges / closeRoomDbForCaller). It never
+ * reaches the room-db module or the sqlite binding directly -- a direct import
+ * of either would trip scripts/check-substrate.cjs.
  *
  * Canon Part 8: a memory_event reference carries a correlation_id hash scalar
  * (the Task 3 threading); the aggregate is over hashes + label enums + public
