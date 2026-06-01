@@ -13,6 +13,16 @@
 #     correlation_labels index producer/parser: serialize/parse round-trip incl.
 #     a cross-label-duplicate name with per-label degree; empty/malformed body
 #     returns {} without throwing; stable section key).
+#   lib/memory/chain-recommender-canonical.test.cjs -> 130.7-02 Task 1
+#     (recommendCanonicalTargets: one canonical tuple per query, no cross-label
+#     fork, correlation_id agreement, back-compat, degrade-on-no-index).
+#   lib/memory/local-chain-recommender.test.cjs -> 130.7-02 Task 2
+#     (bin/local-chain-recommender aggregates by correlation_id, canonical
+#     agreement with the Brain side, Tier-LOCAL/Brain-down, navigation
+#     chokepoint, Tier-0 empty-on-absent-room.db).
+#   lib/memory/spine-events-correlation.test.cjs -> 130.7-02 Task 3
+#     (memory_event references carry correlation_id additively; EVENT_TYPES
+#     set-equality / zero net-new types; dedupe TTL intact; Part 8 hash scalar).
 #
 # MEMORY_SUITES entries resolve relative to REPO_ROOT (the module sites under
 # lib/memory/). CJS_SUITES entries resolve relative to this directory (tests/),
@@ -29,6 +39,9 @@ START_TIME=$(date +%s)
 MEMORY_SUITES=(
   lib/memory/correlation.test.cjs
   lib/memory/correlation-label-index.test.cjs
+  lib/memory/chain-recommender-canonical.test.cjs
+  lib/memory/local-chain-recommender.test.cjs
+  lib/memory/spine-events-correlation.test.cjs
 )
 
 # tests/-dir CJS suites (reserved for Plan 02 + Plan 03 integration tests).
