@@ -94,6 +94,21 @@ const { ExternalEgressViolation } = require('../lib/core/rs-egress-violations.cj
 const domainAnalyzer = require('../lib/core/rs-domain-analyzer.cjs');
 const queryMatrix = require('../lib/core/rs-query-matrix.cjs');
 const fetcherAcademic = require('../lib/core/rs-fetcher-academic.cjs');
+
+// Phase 130.5 Plan 03 -- shared corpus substrate. The academic corpus fetch is
+// repointed off the private fetcherAcademic.fetchAcademic path onto the unified
+// fetchCorpus (lib/core/research-corpus.cjs) wrapped by the shared on-disk cache
+// (lib/core/research-cache.cjs). This closes the duplicate-fetcher /
+// duplicate-API-quota drift the 2026-05-15 audit flagged: a paper fetched by
+// /mos:research is reused, not re-fetched. Both modules are added to the `m`
+// indirection object below so the test suite can inject deterministic stubs
+// without monkey-patching require's cache. Canon Part 8 is preserved: fetchCorpus
+// runs its own pre-egress audit per query, the engine's auditQueryObject(opts)
+// input audit stays first, and there is still ZERO direct fetch( in this file
+// (the network lives inside fetchCorpus / rs-fetcher-academic). Brain is still
+// reached ONLY via chain-feeder.lookupUpstream -- this module adds no Brain path.
+const { fetchCorpus } = require('../lib/core/research-corpus.cjs');
+const researchCache = require('../lib/core/research-cache.cjs');
 const fetcherPatents = require('../lib/core/rs-fetcher-patents.cjs');
 const fetcherIndustry = require('../lib/core/rs-fetcher-industry.cjs');
 const fetcherExperts = require('../lib/core/rs-fetcher-experts.cjs');
@@ -165,6 +180,96 @@ function flattenQueryMatrix(matrix) {
     }
   }
   return out;
+}
+
+// ---------- fetchAcademicViaCorpus (Phase 130.5-03 migration) ----------
+//
+// The behavior-preserving replacement for the old
+// m.fetcherAcademic.fetchAcademic(flat_queries, ...) call site. For each query:
+//   1. Cache lookup via m.researchCache.getCached(roomDir, 'openalex', query).
+//      On a hit, reuse the cached results (no external fetch).
+//   2. On a miss, await m.fetchCorpus({ source: 'openalex', query, limit }) then
+//      m.researchCache.putCached(roomDir, 'openalex', query, results).
+// The per-query result arrays are concatenated and deduped with the SAME academic
+// dedupe (m.fetcherAcademic._test.dedupe) the old path used, so the resulting
+// papers[] is byte-identical in shape and order. The envelope is the same
+// { tier, source, results, papers, telemetry } shape aggregateDocuments and
+// fetcherExperts.mapExperts already consume (papers === results; telemetry is a
+// per-query {source, status, cache} trace).
+//
+// 'openalex' is the default academic source (the old fetchAcademic ran openalex
+// first and first-seen won on dedupe, so openalex is the byte-identity anchor).
+//
+// roomDir-less callers: if roomDir is not a non-empty string, the cache wrap
+// degrades to a direct fetchCorpus call (no getCached / no putCached, no throw)
+// so behavior is unchanged for cache-less call paths.
+//
+// Canon Part 8: fetchCorpus runs auditQueryString(query, 'research-corpus')
+// internally before any dispatch, so a forbidden query throws
+// ExternalEgressViolation pre-egress with ZERO network call -- the engine's
+// gate-level auditQueryObject already rejected adversarial opts before this
+// helper runs (defense-in-depth). There is NO direct fetch( here.
+
+async function fetchAcademicViaCorpus(m, flatQueries, roomDir, opts) {
+  const queries = Array.isArray(flatQueries) ? flatQueries : [];
+  const limit = (opts && typeof opts.limit === 'number') ? opts.limit : undefined;
+  const cacheOk = typeof roomDir === 'string' && roomDir.length > 0;
+
+  const collected = [];
+  const telemetry = [];
+
+  for (let i = 0; i < queries.length; i += 1) {
+    const query = queries[i];
+    if (typeof query !== 'string' || query.length === 0) continue;
+
+    let results = null;
+    let cacheState = 'bypass';
+
+    if (cacheOk) {
+      // Cache lookup. getCached returns null on miss / corrupt / past-TTL.
+      const cached = m.researchCache.getCached(roomDir, 'openalex', query);
+      if (Array.isArray(cached)) {
+        results = cached;
+        cacheState = 'hit';
+      }
+    }
+
+    if (results === null) {
+      // Miss (or cache-less path) -> fetch through the unified substrate.
+      const fetchArgs = { source: 'openalex', query: query };
+      if (typeof limit === 'number') fetchArgs.limit = limit;
+      const fetched = await m.fetchCorpus(fetchArgs);
+      results = Array.isArray(fetched) ? fetched : [];
+      cacheState = cacheOk ? 'miss' : 'bypass';
+      if (cacheOk) {
+        // Persist for the next (source, query) repeat. putCached writes
+        // atomically and never throws on a normal write.
+        m.researchCache.putCached(roomDir, 'openalex', query, results);
+      }
+    }
+
+    for (let j = 0; j < results.length; j += 1) {
+      collected.push(results[j]);
+    }
+    telemetry.push({ source: 'openalex', status: 'ok', cache: cacheState });
+  }
+
+  // Dedupe with the SAME academic dedupe the old path used so papers[] keys +
+  // ordering are byte-identical (first-seen wins). Fall back to identity if the
+  // test surface is unavailable on a stubbed fetcherAcademic.
+  const dedupe = (m.fetcherAcademic && m.fetcherAcademic._test
+    && typeof m.fetcherAcademic._test.dedupe === 'function')
+    ? m.fetcherAcademic._test.dedupe
+    : function (arr) { return Array.isArray(arr) ? arr.slice() : []; };
+  const papers = dedupe(collected);
+
+  return {
+    tier: 'paid',
+    source: 'openalex',
+    results: papers.slice(),
+    papers: papers,
+    telemetry: telemetry,
+  };
 }
 
 function aggregateDocuments(fetched_results) {
@@ -267,6 +372,9 @@ async function runDiscovery(topic, opts) {
     domainAnalyzer: domainAnalyzer,
     queryMatrix: queryMatrix,
     fetcherAcademic: fetcherAcademic,
+    // Phase 130.5-03 shared corpus substrate (mockable like every other dep).
+    fetchCorpus: fetchCorpus,
+    researchCache: researchCache,
     fetcherPatents: fetcherPatents,
     fetcherIndustry: fetcherIndustry,
     fetcherExperts: fetcherExperts,
@@ -322,7 +430,20 @@ async function runDiscovery(topic, opts) {
 
   const flat_queries = flattenQueryMatrix(query_matrix);
 
-  const academic = await m.fetcherAcademic.fetchAcademic(flat_queries, opts.fetcherOpts || {});
+  // Phase 130.5-03: the academic corpus fetch now flows through the unified
+  // fetchCorpus + the shared research-cache (fetchAcademicViaCorpus), NOT the
+  // private m.fetcherAcademic.fetchAcademic path. Behavior-preserving: the
+  // returned academic envelope carries papers[] in the same shape + order the
+  // old path produced, so aggregateDocuments + fetcherExperts.mapExperts + every
+  // downstream phase is byte-unchanged. A repeat (source, query) is served from
+  // cache (duplicate-quota drift closed). roomDir-less callers degrade to a
+  // direct fetchCorpus (no cache) so cache-less behavior is unchanged.
+  const academic = await fetchAcademicViaCorpus(
+    m,
+    flat_queries,
+    opts.room_dir,
+    opts.fetcherOpts || {}
+  );
   const patents = await m.fetcherPatents.fetchPatents(flat_queries, opts.fetcherOpts || {});
   const industry = await m.fetcherIndustry.fetchIndustry(flat_queries, opts.fetcherOpts || {});
 
@@ -572,6 +693,7 @@ module.exports = {
     detectTier: detectTier,
     applyTestMocks: applyTestMocks,
     flattenQueryMatrix: flattenQueryMatrix,
+    fetchAcademicViaCorpus: fetchAcademicViaCorpus,
     aggregateDocuments: aggregateDocuments,
     pickQueryConcept: pickQueryConcept,
     pickDocConcept: pickDocConcept,
