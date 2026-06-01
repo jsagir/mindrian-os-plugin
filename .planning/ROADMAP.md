@@ -1654,12 +1654,12 @@ Plans:
 **Target band:** v1.13.1 - lands BEFORE Phase 131. Estimated ~2-3 days.
 **Canon parts:** Part 4; Part 8 (enum projection only; brain-boundary-scan); Part 9; Part 10.
 **Brain impact:** MEDIUM (correlation_id backfill + chain-recommender return-shape; the heavy reformat is Phase 132).
-**Status:** Planned - 3 plans, 3 waves. Ready for `/gsd:execute-phase 130.7`.
-**Plans:** 2/3 plans executed
+**Status:** COMPLETE - 3 plans, 3 waves (closed 2026-06-01).
+**Plans:** 3/3 plans executed
 Plans:
 - [x] 130.7-01-PLAN.md - correlation.cjs embedding-independent hashing chokepoint + one-time idempotent Cypher backfill + key-invariant asserting test (wave 1)
 - [x] 130.7-02-PLAN.md - chain-recommender one-canonical-target-per-query (no fork) + bin/local-chain-recommender.cjs aggregate-by-correlation_id + navigation memory_event references carry correlation_id (wave 2)
-- [ ] 130.7-03-PLAN.md - 4-metric fail-closed dual-graph CI gate + the three /mos:brain-derive curation surfaces + Part 8 phase-wide boundary sweep (wave 3)
+- [x] 130.7-03-PLAN.md - report-only/baseline dual-graph CI gate (fail-on-regression, fail-closed-on-inconclusive) + the three /mos:brain-derive curation surfaces + Part 8 phase-wide boundary sweep (wave 3)
 **Authority:** `.planning/phases/130.7-correlation-id-contract-dual-graph-ci-gates/130.7-CONTEXT.md` + `.planning/phases/132-dual-graph-correlation-hypergraph-reformat/132-REVIEW-4.8.md`.
 
 ### Phase 131: Research as Graph-Aware Workflow Step (Source-Lens Pilot) (v1.13.1 — SCOPED 2026-05-16; RE-BASELINED 2026-06-01)
