@@ -1723,13 +1723,19 @@ Plans:
 
 > **Re-baselined 2026-06-01** (see 134-CONTEXT.md "Re-baseline corrections"): the package is `@huggingface/transformers` (Transformers.js v3+), NOT `@xenova/transformers` (deprecated; Tavily-validated). REUSES Phase 130.5's shared CJS fetcher (deletes rs_corpus.py, does not re-port). Owns the CJS HSI that Phase 131 deferred. Re-vectorization de-risked by Phase 130.7's embedding-independent correlation_id.
 
-**Goal:** Replace `scripts/rs-engine.py` + `lib/core/rs_*.py` + `scripts/hsi-*.py` with in-process CJS via `@huggingface/transformers` (ONNX `Xenova/multilingual-e5-large`), removing Python from the user-machine surface entirely. (Scaffold; formalize in plan-phase.)
-**Requirements**: TBD (sketch in 134-CONTEXT.md)
-**Depends on:** Phase 130.5 shared-corpus-cache (reuses its fetcher); Phase 110 brain-context-packet-contract (wire schema). (Corrected from the stale "Phase 133" placeholder, which does not exist.)
-**Plans:** 0 plans
+**Goal:** Replace `scripts/rs-engine.py` + `lib/core/rs_*.py` + `scripts/hsi-*.py` with in-process CJS via `@huggingface/transformers` (ONNX `Xenova/multilingual-e5-large`, 1024-dim), removing Python from the user-machine surface entirely. Eliminates the install-fragility class that broke the Windows tester (the `ModuleNotFoundError: requests` RCA).
+**Requirements**: CJS-134-VENDOR, CJS-134-SVD, CJS-134-BYTECOMPAT, CJS-134-MODELUX, CJS-134-MATH, CJS-134-EMBED, CJS-134-ENGINE, CJS-134-REUSE-130.5, CJS-134-DELETE-CORPUS, CJS-134-HSI, CJS-134-HSI-PARITY, CJS-134-MIGRATE, CJS-134-ENVFLAG, CJS-134-WINREPLAY, CJS-134-RETIRE-PREFLIGHT (see 134-SOURCE-AUDIT.md)
+**Depends on:** Phase 130.5 shared-corpus-cache (reuses its fetcher; deletes rs_corpus.py); Phase 110 brain-context-packet-contract (wire schema).
+**Status:** Planned — 6 plans across 4 waves (planned 2026-06-01). Wave 0 de-risks (vendoring audit + checkpoint, SVD spike, byte-compat spike, model-UX spike). Milestone v1.14.0-beta.1 (both-paths env-flag).
+**Plans:** 6 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 134 to break down)
+- [ ] 134-01-PLAN.md — Wave 0: vendoring re-audit + blocking-human checkpoint before committing @huggingface/transformers; SVD-port spike (pick one, correctness bar); byte-compat spike (drift disposition); model-download UX spike; env-flag lock -> 134-SPIKE.md (wave 0)
+- [ ] 134-02-PLAN.md — rs-math.cjs: pure-JS cosine + classify_direction + the TF-IDF/truncated-SVD LSA port (Wave-0 strategy), parity-tested vs rs_math.py (wave 1)
+- [ ] 134-03-PLAN.md — rs-embed.cjs: in-process e5-large feature-extraction embedder (1024-dim) replacing Pinecone server-side + local MiniLM; first-run download UX (wave 1)
+- [ ] 134-04-PLAN.md — rs-engine.cjs 3-mode orchestrator + rs-rooms/rs-cache/rs-hybrid.cjs; DELETE rs_corpus.py + REUSE 130.5 fetchCorpus; byte-preserved finding output (wave 2)
+- [ ] 134-05-PLAN.md — hsi-compute.cjs + hsi-whitespace.cjs (the 131-deferred CJS HSI) + the HSI PARITY GATE (CJS == Python ranked findings on a fixture) (wave 2)
+- [ ] 134-06-PLAN.md — cutover: rewire reverse-salient-agent/rs-differential-scorer/discovery-cycle/auto-explore-fire/commands in-process behind MINDRIAN_RS_ENGINE; retire --check-rs-engine; Windows-tester-replay acceptance (wave 3)
 
 ### Phase 135: Offer Resolver and Reliable Next-Move Closer (v1.13.0 — lead of the Felt-Moat Engine arc)
 
