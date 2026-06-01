@@ -4,14 +4,14 @@ milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
 stopped_at: Completed 130.5-03-PLAN.md (rs-discovery-engine migrated onto fetchCorpus + shared research-cache; byte-identical + cache-hit + Canon Part 8 regression 3/3 green; existing 9-scenario suite 9/9; run-all-130.5.sh green; Feynman runner registers 130.5 additively; substrate guard clean on every commit). Phase 130.5 COMPLETE (3/3 plans).
-last_updated: "2026-06-01T07:51:43.440Z"
+last_updated: "2026-06-01T21:31:21.268Z"
 last_activity: 2026-05-20 -- Phase 127.1 execution started
 progress:
   total_phases: 75
-  completed_phases: 52
+  completed_phases: 53
   total_plans: 387
-  completed_plans: 343
-  percent: 69
+  completed_plans: 346
+  percent: 71
 ---
 
 # Project State
@@ -1095,6 +1095,10 @@ Progress: [█████████░] 89%
 - [Phase ?]: 127.3-04: D-02 hard invariant honored (NO seeding of state files inside .mindrian/; grep returns 0)
 - [Phase 128]: ADR -- check-substrate.cjs SUPERSEDES --check-chokepoint as a strict superset (alias kept until a later phase retires it; Plan 03 swaps the live hook). M11 navigation.cjs allow-list pinned to the 20 current export keys verbatim, with an amendment rule for future additions.
 - [Phase 128]: ADR -- H5 brain-packet-schema.json unbounded summary/explanation strings named as a backlogged latent Part 8 leak; live brain-derivation.cjs path confirmed clean (hashes + frozen enums + clamped floats only).
+- [Phase ?]: Phase 131-01: EvidenceClaim is a truth-claim node (proposed, never auto-confirmed); human APPROVE promotes it per Canon Part 9 role 5
+- [Phase ?]: Phase 131-01: CONTRADICTS + SUPERSEDES added ADDITIVELY to ALLOWED_EDGE_TYPES (8 -> 10), extending the shipped 130-01 INFORMS/REJECTED_BECAUSE vocabulary; never invented per-phase
+- [Phase ?]: Phase 131-01: getResearchPreflight batches all 8 Stage-1 inputs into ONE navigation.cjs round-trip; read-only over room.db + USER.md; prior_research is a placeholder the Plan 03 driver fills (no corpus call here)
+- [Phase ?]: Phase 131-01: ZERO new deps + ZERO live Brain writes; both new submodules take a caller-owned db handle (no node:sqlite require) and pass the substrate guard
 
 ### Pending Todos
 
@@ -1126,6 +1130,6 @@ Progress: [█████████░] 89%
 
 ## Session Continuity
 
-Last session: 2026-06-01T07:51:30.791Z
+Last session: 2026-06-01T21:30:52.648Z
 Stopped at: Completed 130.5-03-PLAN.md (rs-discovery-engine migrated onto fetchCorpus + shared research-cache; byte-identical + cache-hit + Canon Part 8 regression 3/3 green; existing 9-scenario suite 9/9; run-all-130.5.sh green; Feynman runner registers 130.5 additively; substrate guard clean on every commit). Phase 130.5 COMPLETE (3/3 plans).
 Resume file: None

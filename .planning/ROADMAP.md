@@ -1681,7 +1681,7 @@ Plans:
 **Status:** Planned -- 6 plans across 5 waves (planned 2026-06-01).
 
 **Plans:**
-- [ ] 131-01-PLAN.md -- substrate: EvidenceClaim writer (locked 136 schema) + CONTRADICTS/SUPERSEDES edges + 3 research events + getResearchPreflight + aggregator (wave 1)
+- [x] 131-01-PLAN.md -- substrate: EvidenceClaim writer (locked 136 schema) + CONTRADICTS/SUPERSEDES edges + 3 research events + getResearchPreflight + aggregator (wave 1)
 - [ ] 131-02-PLAN.md -- research-context-extractor: Stage 1+2+3 pre-flight + Body Shape A summary + weighted lens set (wave 2)
 - [ ] 131-03-PLAN.md -- source-lens-driver: Stage 4 over the 130.5 shared corpus, zero Python, dedup + tier/relevance rank; activates the lens-engine source family (wave 2)
 - [ ] 131-04-PLAN.md -- findings-wirer + F.1 filing selector: cascade edges on correlation_ids, gate-as-write-node forward contract for 136 (wave 3)
