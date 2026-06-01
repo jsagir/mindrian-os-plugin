@@ -1,0 +1,68 @@
+{
+  "_comment": "Phase 130.5 Plan 03 fixture corpus. A deterministic, frozen set of normalized papers per academic query that a stub fetchCorpus returns, so the migration regression in tests/test-130.5-corpus-migration.cjs is reproducible with ZERO network. fetched_at is a FIXED stamp (not new Date()) so the byte-identical compare between the old-path and migrated-path bundles is stable. The papers shape mirrors the rs-fetcher-academic normalized contract { id, title, abstract, authors[], institution, doi, source, fetched_at } that aggregateDocuments + fetcherExperts.mapExperts consume.",
+  "fixed_fetched_at": "2026-06-01T00:00:00.000Z",
+  "topic": "quantum brain imaging",
+  "query_matrix": {
+    "a_intersect_b": ["quantum AND imaging"],
+    "a_leads_to_b": ["quantum -> imaging"],
+    "b_leads_to_a": ["imaging -> quantum"],
+    "adjacent": ["NV-center"]
+  },
+  "corpus_by_query": {
+    "quantum AND imaging": [
+      {
+        "id": "oa:fixture-1",
+        "title": "NV-center diamond magnetometry for neural imaging",
+        "abstract": "Superconducting qubit sensing applied to functional brain imaging.",
+        "authors": [{ "name": "Dr. A", "orcid": "0000-0001", "institution": "MIT" }],
+        "institution": "MIT",
+        "doi": "10.1000/fixture.1",
+        "source": "openalex",
+        "fetched_at": "2026-06-01T00:00:00.000Z"
+      }
+    ],
+    "quantum -> imaging": [
+      {
+        "id": "oa:fixture-2",
+        "title": "Diamond quantum sensors in tomography",
+        "abstract": "A pathway from quantum sensing to medical tomography.",
+        "authors": [{ "name": "Dr. B", "orcid": "0000-0002", "institution": "Stanford" }],
+        "institution": "Stanford",
+        "doi": "10.1000/fixture.2",
+        "source": "openalex",
+        "fetched_at": "2026-06-01T00:00:00.000Z"
+      }
+    ],
+    "imaging -> quantum": [
+      {
+        "id": "oa:fixture-1",
+        "title": "NV-center diamond magnetometry for neural imaging",
+        "abstract": "Superconducting qubit sensing applied to functional brain imaging.",
+        "authors": [{ "name": "Dr. A", "orcid": "0000-0001", "institution": "MIT" }],
+        "institution": "MIT",
+        "doi": "10.1000/fixture.1",
+        "source": "openalex",
+        "fetched_at": "2026-06-01T00:00:00.000Z"
+      }
+    ],
+    "NV-center": [
+      {
+        "id": "oa:fixture-3",
+        "title": "Survey of NV-center fabrication",
+        "abstract": "Fabrication methods for nitrogen-vacancy center sensors.",
+        "authors": [{ "name": "Dr. C", "orcid": "0000-0003", "institution": "ETH" }],
+        "institution": "ETH",
+        "doi": "10.1000/fixture.3",
+        "source": "openalex",
+        "fetched_at": "2026-06-01T00:00:00.000Z"
+      }
+    ]
+  },
+  "forbidden_query_matrix": {
+    "_comment": "Assertion C: a planted forbidden query (Canon Part 8 pattern 1: a dollar-amount with a magnitude suffix) must reject pre-egress with ExternalEgressViolation and ZERO fetchCorpus calls.",
+    "a_intersect_b": ["our quantum imaging runway is $5.2M next year"],
+    "a_leads_to_b": [],
+    "b_leads_to_a": [],
+    "adjacent": []
+  }
+}
