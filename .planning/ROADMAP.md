@@ -1628,11 +1628,37 @@ Plans:
 
 **Authority:** `.planning/phases/130-lens-engine-skeleton/130-CONTEXT.md` (scoped 2026-05-16) + `.planning/v1.13.1-EXECUTION-PLAN.md` "Synthesis-Plan Absorption (2026-05-16)" section.
 
-### Phase 131: Research as Graph-Aware Workflow Step (Source-Lens Pilot) (v1.13.1 — SCOPED 2026-05-16)
+### Phase 130.5: Shared Corpus-Cache + CJS Fetcher Substrate (v1.13.1 - NEW 2026-06-01, from the 131/132 re-baseline)
+
+**Goal:** Build ONE CJS-native external-corpus module (`lib/core/research-corpus.cjs` + `research-cache.cjs`) - the shared fetcher + cache over OpenAlex / arXiv / PubMed / Tavily that every research surface uses. Native `fetch`, zero Python, zero new deps. Closes the duplicate-fetcher / duplicate-API-quota drift the 2026-05-15 audit flagged, and is the substrate Phase 131 CONSUMES and Phase 134 REUSES (so the fetcher is built once, not three times).
+
+**Depends on:** Phase 109 (shipped); Phase 110 (shipped).
+**Dependents:** Phase 131 (Stage-4 fetcher + cache); Phase 134 (reuses; deletes rs_corpus.py); rs-discovery-engine (migrates onto it).
+**Target band:** v1.13.1 - lands BEFORE Phase 131. Estimated ~2-3 days.
+**Canon parts:** Part 7 (one corpus module, not three); Part 8 (shared pre-egress audit hook); Part 9.
+**Brain impact:** NONE (LOCAL fetch + cache; Brain only via the Phase 110 packet for semantic dedup).
+**Status:** Scoped - ready for `/gsd:discuss-phase 130.5`.
+**Authority:** `.planning/phases/130.5-shared-corpus-cache-cjs-fetcher-substrate/130.5-CONTEXT.md` + `.planning/phases/131-research-as-graph-aware-workflow/131-REVIEW-4.8.md`.
+
+### Phase 130.7: Correlation-ID Contract + Dual-Graph CI Gates (v1.13.1 - NEW 2026-06-01, the "132A" split, pulled early)
+
+**Goal:** Ship the small, load-bearing dual-graph primitive the rest of the v1.14.0 render-spine chain stands on: a stable `correlation_id` on every teaching-graph node (name-based hash, embedding-INDEPENDENT), `chain-recommender.cjs` returning one canonical `{correlation_id, canonical_name, primary_label}` per query (no fork), navigation.cjs memory_event references carrying correlation_id, and the 4-metric dual-graph CI health gate + the three `/mos:brain-derive` curation surfaces. Extracted from the old Phase 132 (sub-plans 132-01 + 132-05) and pulled BEFORE Phase 131 so 131's cascade edges land on canonical targets, not cross-label duplicates.
+
+**Depends on:** Phase 122 (shipped); Phase 127 (shipped); Phase 128; Phase 129.
+**Dependents:** Phase 131 (canonical-target cascade edges); Phase 132 (the reformat writes against this contract); Phase 136 (the LazyGraph slot consumes "one canonical target, no fork").
+**Target band:** v1.13.1 - lands BEFORE Phase 131. Estimated ~2-3 days.
+**Canon parts:** Part 4; Part 8 (enum projection only; brain-boundary-scan); Part 9; Part 10.
+**Brain impact:** MEDIUM (correlation_id backfill + chain-recommender return-shape; the heavy reformat is Phase 132).
+**Status:** Scoped - ready for `/gsd:discuss-phase 130.7`.
+**Authority:** `.planning/phases/130.7-correlation-id-contract-dual-graph-ci-gates/130.7-CONTEXT.md` + `.planning/phases/132-dual-graph-correlation-hypergraph-reformat/132-REVIEW-4.8.md`.
+
+### Phase 131: Research as Graph-Aware Workflow Step (Source-Lens Pilot) (v1.13.1 — SCOPED 2026-05-16; RE-BASELINED 2026-06-01)
+
+> **Re-baselined 2026-06-01** (see 131-REVIEW-4.8.md): now depends on Phase 130.5 (shared corpus-cache, no fetcher of its own) + Phase 130.7 (canonical correlation_ids land first); ships ZERO Python (HSI-scoring of findings deferred to the v1.14.0 fan-out behind Phase 134's CJS HSI); EvidenceClaim + cascade-edge + F.1-selector contracts LOCKED for Phase 136.
 
 **Goal:** Transform `/mos:research` from a standalone topic-string-to-prose command into the canonical workflow step other methodologies can dispatch. After this phase: research invocation extracts context from the room (via navigation.cjs), understands WHY it was called, surfaces findings with computed candidate target sections (F.1 selector per Part 3), and wires accepted findings as typed `EvidenceClaim` nodes with cascade edges (INFORMS / CONTRADICTS / SUPERSEDES / REJECTED_BECAUSE). This is the source-lens family's pilot — the other 13 research surfaces follow in v1.14.0 with this pilot as the template.
 
-**Depends on:** Phase 109 sql-context-memory-navigation-spine (shipped); Phase 110 brain-context-packet-contract (shipped); Phase 127 brain-mcp-local-stdio-shim; Phase 128 substrate-contract-adr; Phase 129 spine-repair-memory-event; Phase 130 lens-engine-skeleton.
+**Depends on:** Phase 109 sql-context-memory-navigation-spine (shipped); Phase 110 brain-context-packet-contract (shipped); Phase 127 brain-mcp-local-stdio-shim; Phase 128 substrate-contract-adr; Phase 129 spine-repair-memory-event; Phase 130 lens-engine-skeleton; **Phase 130.5 shared-corpus-cache (NEW); Phase 130.7 correlation-id-contract (NEW - lands first)**.
 
 **Dependents:** v1.14.0 source-lens fan-out (13 remaining research surfaces); v1.14.0 P9 framework-lens migration (same lens-engine + cascade-edge pattern proven here).
 
@@ -1646,11 +1672,13 @@ Plans:
 
 **Authority:** `.planning/phases/131-research-as-graph-aware-workflow/131-CONTEXT.md` (scoped 2026-05-16) + `.planning/v1.13.1-EXECUTION-PLAN.md` "Synthesis-Plan Absorption (2026-05-16)" section.
 
-### Phase 132: Dual-Graph Correlation + Hypergraph Teaching-Graph Reformat (v1.13.1 — SCOPED 2026-05-17)
+### Phase 132: Hypergraph Teaching-Graph Reformat + Cross-Label Dedup + Content Cleanup (v1.13.1 — SCOPED 2026-05-17; SPLIT 2026-06-01)
 
-**Goal:** Close the teaching-graph half of v1.13.1's "Coherent Brain-Wired Product" claim (Phases 128/129/131 close the LOCAL navigation-spine half). Ships: (1) a correlation contract — stable `correlation_id` on every Brain teaching-graph node, navigation.cjs writes referencing correlation_id; (2) a hypergraph reformat — 4-5 reified event-node types capturing n-ary relationships on Neo4j's binary-edge substrate; (3) dual-graph CI gates validating that local memory_event correlation_ids resolve to canonical Brain nodes; (4) content cleanup finishing the wire-it work from the 2026-05-17 dogfooding session.
+> **Split 2026-06-01** (see 132-REVIEW-4.8.md): the correlation_id contract + dual-graph CI gates (the load-bearing primitive) were EXTRACTED to Phase 130.7 and pulled BEFORE Phase 131. This phase is now the heavy reformat only - it writes AGAINST the 130.7 contract and the 130.7 CI gates measure it. De-risks the whole v1.14.0 chain.
 
-**Depends on:** Phase 127 brain-mcp-local-stdio-shim; Phase 128 substrate-contract-adr; Phase 129 spine-repair-memory-event; Phase 131 research-as-graph-aware-workflow-step.
+**Goal:** Finish the teaching-graph REFORMAT half of v1.13.1's "Coherent Brain-Wired Product" claim. Ships: (1) a hypergraph reformat - 4-5 reified event-node types (Authorship/Illustration/Contradiction/Motivation/Evolution) capturing n-ary relationships on Neo4j's binary-edge substrate; (2) cross-label dedup - collapse the ~50 same-name-different-label groups into one canonical correlation_id per cluster with facets; (3) content cleanup - the ~278-node wire-it work from the 2026-05-17 dogfooding session + Ackoff-class fragmentation + pseudonymize the 6 internal-team `:Person` nodes (Brain MCP now ships to testers tier). correlation_id is embedding-independent, so this is safe under any Phase 134 / 127.1 substrate swap.
+
+**Depends on:** Phase 127 brain-mcp-local-stdio-shim; Phase 128 substrate-contract-adr; Phase 129 spine-repair-memory-event; **Phase 130.7 correlation-id-contract (NEW - the contract this reformat writes against)**; Phase 131 research-as-graph-aware-workflow-step.
 
 **Dependents:** Phase 121.5 terminal-coherence-capstone (truth-telling pillar); v1.14.0 P9 framework-lens migration; v1.14.0 P13 source-lens fan-out remainder.
 
@@ -1664,11 +1692,13 @@ Plans:
 
 **Authority:** `.planning/phases/132-dual-graph-correlation-hypergraph-reformat/132-CONTEXT.md` (scoped 2026-05-17 from the dogfooding-curation session) + `~/MindrianRooms/mindrian/mindrianOS/methodology/2026-05-17-brain-curation-audit.md`.
 
-### Phase 134: CJS port of Python analyzers via xenova-transformers (eliminate Windows install-fragility class) [v1.14.0]
+### Phase 134: CJS port of Python analyzers via transformers.js (eliminate Windows install-fragility class) [v1.14.0]
 
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 133
+> **Re-baselined 2026-06-01** (see 134-CONTEXT.md "Re-baseline corrections"): the package is `@huggingface/transformers` (Transformers.js v3+), NOT `@xenova/transformers` (deprecated; Tavily-validated). REUSES Phase 130.5's shared CJS fetcher (deletes rs_corpus.py, does not re-port). Owns the CJS HSI that Phase 131 deferred. Re-vectorization de-risked by Phase 130.7's embedding-independent correlation_id.
+
+**Goal:** Replace `scripts/rs-engine.py` + `lib/core/rs_*.py` + `scripts/hsi-*.py` with in-process CJS via `@huggingface/transformers` (ONNX `Xenova/multilingual-e5-large`), removing Python from the user-machine surface entirely. (Scaffold; formalize in plan-phase.)
+**Requirements**: TBD (sketch in 134-CONTEXT.md)
+**Depends on:** Phase 130.5 shared-corpus-cache (reuses its fetcher); Phase 110 brain-context-packet-contract (wire schema). (Corrected from the stale "Phase 133" placeholder, which does not exist.)
 **Plans:** 0 plans
 
 Plans:

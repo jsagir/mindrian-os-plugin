@@ -12,7 +12,7 @@ created_by: phase-127.2 Plan 03 (Task 6 -- F6 architectural scaffolding)
 provenance:
   - .planning/debug/resolved/windows-tester-find-bottlenecks-silent-failure-qa-sweep.md
   - .planning/phases/127.2-brain-warmup-ping-hide-mcp-cold-start-latency-inside-larry-s/127.2-03-PLAN.md
-title: CJS port of Python analyzers via @xenova/transformers (eliminate Windows install-fragility class)
+title: CJS port of Python analyzers via @huggingface/transformers (eliminate Windows install-fragility class)
 note_on_phase_number: |
   Plan 127.2-03 originally scoped this as "Phase 130." Slot 130 was already
   taken by `130-lens-engine-skeleton`; SDK assigned 134 as the next free
@@ -25,6 +25,13 @@ note_on_phase_number: |
 
 **Scaffold only.** No PLAN.md. No code work in v1.13.0. This CONTEXT.md captures the design vision so the v1.14.0 planning cycle has a starting point that is not lost in a debug doc.
 
+## Re-baseline corrections (2026-06-01, from the 131/132 4.7-to-4.8 review)
+
+- **Package name corrected (Tavily-validated):** the library is `@huggingface/transformers` (Transformers.js v3+, official Hugging Face npm org), NOT `@xenova/transformers` (v1/v2, now effectively deprecated). Source: https://huggingface.co/blog/transformersjs-v3 ; deprecation thread https://github.com/huggingface/transformers.js/issues/1484 . Node CJS + ESM supported (no-build CJS rule holds); ONNX runtime is a ~200MB optional dep; model weights download on first use (~10-15s cold start); there is now a `ModelRegistry` API to pre-check download size / cache status / progress (directly answers Open Question 1). The `Xenova/multilingual-e5-large` MODEL id stays as-is (the HF model namespace is unchanged; only the PACKAGE was renamed).
+- **Reuse the Phase 130.5 fetcher, do NOT re-port it.** The OpenAlex/arXiv corpus fetcher is built once in Phase 130.5 (`lib/core/research-corpus.cjs` + `research-cache.cjs`, native `fetch`, Python-free). Phase 134 DELETES `lib/core/rs_corpus.py` and REUSES that module; 134's only net-new is the in-process embedding/HSI layer.
+- **134 owns the CJS HSI that Phase 131 deferred.** 131 (v1.13.1) ships before 134 (v1.14.0) and therefore ships with NO Python HSI; finding-level HSI-scoring waits for this phase's `@huggingface/transformers` CJS HSI. The v1.14.0 source-lens fan-out then turns it on.
+- **Open Question 2 (re-vectorize Pinecone?) is de-risked by Phase 130.7.** `correlation_id` is name-based (hash of canonical_name + primary_label), so it is embedding-INDEPENDENT: a 134 embedding swap or a 127.1 Pinecone -> Neo4j HNSW move does NOT invalidate the dual-graph correlation. Re-vectorization (if embeddings drift) remains scoped under the parked Phase 127.1 disposition, not a 134 blocker.
+
 ## Provenance
 
 This phase is the architectural answer to F6 from `.planning/debug/resolved/windows-tester-find-bottlenecks-silent-failure-qa-sweep.md` (Windows tester 2026-05-23 silent-failure RCA). The HOTFIX path (F1 + F2 + F7) shipped as v1.13.0-beta.30 via Plan 127.2-03; this phase is the STRUCTURAL path that eliminates the entire install-fragility class.
@@ -33,13 +40,13 @@ The dog-fooding loop: Aryeh's Windows machine (2026-05-23) hit `ModuleNotFoundEr
 
 ## Objective
 
-Replace `scripts/rs-engine.py` + `lib/core/rs_*.py` + `scripts/hsi-*.py` with CJS equivalents using `@xenova/transformers` (ONNX `Xenova/multilingual-e5-large` model) in-process. Eliminate Python from the user-machine surface entirely. Maintain byte-compatibility with the Pinecone 1024-dim index (current substrate; see Canon Phase Map Part 2 Engine 1).
+Replace `scripts/rs-engine.py` + `lib/core/rs_*.py` + `scripts/hsi-*.py` with CJS equivalents using `@huggingface/transformers` (ONNX `Xenova/multilingual-e5-large` model) in-process. Eliminate Python from the user-machine surface entirely. Maintain byte-compatibility with the Pinecone 1024-dim index (current substrate; see Canon Phase Map Part 2 Engine 1).
 
 ## Why This Matters (Canon mapping)
 
 - **Canon Part 6 (Product-as-Venture / dog-fooding):** the v1.13.0 hotfix surfaces install-fragility honestly; v1.14.0 removes the fragility. The same room (the plugin's own .planning/) tracks both the symptom and the structural fix.
 - **Canon Part 7 (Reuse Before Build):** net-zero on capability count (same 5 commands: `/mos:find-bottlenecks`, `/mos:whitespace`, `/mos:find-connections`, `/mos:find-analogies`, `/mos:score-innovation`). Net-MINUS on dependency surface (Python + 4 pip packages removed; ONNX runtime + 1 npm package added).
-- **Canon Part 8 (Graph Boundary):** unchanged. `@xenova/transformers` runs LOCALLY in-process; the Brain wire schema (Phase 110) is the only boundary that interacts with the embedding layer, and that contract is upheld regardless of which substrate produces the embeddings.
+- **Canon Part 8 (Graph Boundary):** unchanged. `@huggingface/transformers` runs LOCALLY in-process; the Brain wire schema (Phase 110) is the only boundary that interacts with the embedding layer, and that contract is upheld regardless of which substrate produces the embeddings.
 
 ## Design Vision
 
@@ -49,16 +56,16 @@ Replace `scripts/rs-engine.py` + `lib/core/rs_*.py` + `scripts/hsi-*.py` with CJ
 |------------------|---------------------|
 | `scripts/rs-engine.py` (Python CLI; spawned via child_process) | `lib/core/rs-engine.cjs` (in-process Node module; called directly) |
 | `lib/core/rs_math.py` (cosine sim, LSA approximation) | `lib/core/rs-math.cjs` (pure JS math; can target stdlib + small math helpers) |
-| `lib/core/rs_corpus.py` (uses `requests` for OpenAlex / arXiv; the silent-failure root cause) | `lib/core/rs-corpus.cjs` (uses native Node 18+ `fetch`; zero new deps) |
+| `lib/core/rs_corpus.py` (uses `requests` for OpenAlex / arXiv; the silent-failure root cause) | DELETE -- REUSE Phase 130.5 `lib/core/research-corpus.cjs` + `research-cache.cjs` (the shared CJS fetcher; native `fetch`; zero new deps). Do NOT re-port (revised 2026-06-01: 130.5 builds it once, 131 + 134 + rs-discovery-engine all consume it). |
 | `lib/core/rs_rooms.py`, `rs_cache.py`, `rs_hybrid.py` | CJS equivalents |
 | `scripts/hsi-*.py` (sentence-transformers + LSA HSI computation) | `lib/core/hsi-*.cjs` (Xenova multilingual-e5-large in ONNX runtime; in-process) |
-| `requirements-hsi.txt` (4 pip packages) | `package.json` adds `@xenova/transformers` (~1 npm dep + bundled ONNX runtime) |
+| `requirements-hsi.txt` (4 pip packages) | `package.json` adds `@huggingface/transformers` (~1 npm dep + bundled ONNX runtime) |
 
 ### Stack additions
 
 | Library | Purpose | Why recommended |
 |---------|---------|-----------------|
-| `@xenova/transformers` | ONNX runtime for `Xenova/multilingual-e5-large` (the SAME model as the current Pinecone index dim=1024) in-process Node | Battle-tested, MIT, widely-adopted. Bundles WASM ONNX runtime. No native binaries (Canon Part 7 vendoring rule preserved). |
+| `@huggingface/transformers` | ONNX runtime for `Xenova/multilingual-e5-large` (the SAME model as the current Pinecone index dim=1024) in-process Node | Battle-tested, MIT, widely-adopted. Bundles WASM ONNX runtime. No native binaries (Canon Part 7 vendoring rule preserved). |
 
 ### Math layer port
 
@@ -69,7 +76,7 @@ Replace `scripts/rs-engine.py` + `lib/core/rs_*.py` + `scripts/hsi-*.py` with CJ
 
 ## Open Questions (for v1.14.0 planning cycle)
 
-1. **ONNX runtime size on user machines.** `@xenova/transformers` ships a WASM ONNX runtime; first-use downloads model weights (~600MB for multilingual-e5-large) into the user's cache. UX: how do we communicate this on first run? Bundle pre-quantized weights with the plugin? Lazy-download with progress UI?
+1. **ONNX runtime size on user machines.** `@huggingface/transformers` ships a WASM ONNX runtime; first-use downloads model weights (~600MB for multilingual-e5-large) into the user's cache. UX: how do we communicate this on first run? Bundle pre-quantized weights with the plugin? Lazy-download with progress UI?
 2. **Multilingual-e5-large weight verification.** The Xenova distribution is a re-host of the Microsoft model; we need to verify embedding output is byte-identical (or close enough that cosine similarity preserves) to the current Pinecone-indexed vectors. If not byte-identical, do we re-vectorize the entire `pws-brain` index (12,401 vectors at $0.10/M tokens) or accept the small drift?
 3. **Math-layer port plan.** Pure-JS LSA via SVD is the only non-trivial port. Options: (a) hand-roll truncated SVD (~200 lines); (b) use `numeric.js` (5+ years stale; risky); (c) call out to an in-process WASM math library; (d) approximate via random projection + power iteration. Pick before plan-phase.
 4. **HSI compute on user machines.** Current `scripts/hsi-*.py` runs on-room-write. CJS port runs in-process during the same Node lifecycle. Performance budget: must complete within the existing hook timeout (~30s for cold model load + warm computation). Validate on Aryeh's Windows machine class before promoting.
