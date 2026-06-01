@@ -1637,12 +1637,12 @@ Plans:
 **Target band:** v1.13.1 - lands BEFORE Phase 131. Estimated ~2-3 days.
 **Canon parts:** Part 7 (one corpus module, not three); Part 8 (shared pre-egress audit hook); Part 9.
 **Brain impact:** NONE (LOCAL fetch + cache; Brain only via the Phase 110 packet for semantic dedup).
-**Status:** Planned - 3 plans, 2 waves. Ready for `/gsd:execute-phase 130.5`.
+**Status:** COMPLETE - 3/3 plans shipped (2 waves). Substrate guard clean on every commit; no --no-verify.
 **Plans:** 3 plans
 Plans:
 - [x] 130.5-01-PLAN.md - research-corpus.cjs unified fetchCorpus + 5-source adapters + disabled Sci-Bot + Part 8 fail-closed audit (wave 1)
 - [x] 130.5-02-PLAN.md - research-cache.cjs shared TTL + source-keyed atomic on-disk cache (wave 1)
-- [ ] 130.5-03-PLAN.md - rs-discovery-engine migration onto fetchCorpus + cache, byte-identical fixture regression + aggregator (wave 2)
+- [x] 130.5-03-PLAN.md - rs-discovery-engine migrated onto fetchCorpus + cache; byte-identical fixture regression + cache-hit-on-repeat + Canon Part 8 preserved; run-all-130.5.sh aggregator + Feynman registration (wave 2)
 **Authority:** `.planning/phases/130.5-shared-corpus-cache-cjs-fetcher-substrate/130.5-CONTEXT.md` + `.planning/phases/131-research-as-graph-aware-workflow/131-REVIEW-4.8.md`.
 
 ### Phase 130.7: Correlation-ID Contract + Dual-Graph CI Gates (v1.13.1 - NEW 2026-06-01, the "132A" split, pulled early)

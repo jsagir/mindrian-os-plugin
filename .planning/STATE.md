@@ -1109,6 +1109,6 @@ Progress: [██████████] 95%
 
 ## Session Continuity
 
-Last session: 2026-06-01T07:15:00.000Z
-Stopped at: Completed 130.5-02-PLAN.md (research-cache.cjs shared TTL + source-keyed atomic cache, 5/5 green, substrate guard clean)
-Resume file: .planning/phases/130.5-shared-corpus-cache-cjs-fetcher-substrate/130.5-03-PLAN.md
+Last session: 2026-06-01T07:30:27.000Z
+Stopped at: Completed 130.5-03-PLAN.md (rs-discovery-engine migrated onto fetchCorpus + shared research-cache; byte-identical + cache-hit + Canon Part 8 regression 3/3 green; existing 9-scenario suite 9/9; run-all-130.5.sh green; Feynman runner registers 130.5 additively; substrate guard clean on every commit). Phase 130.5 COMPLETE (3/3 plans).
+Resume file: None
