@@ -1,0 +1,7 @@
+Sample,Label,Reasoning
+"{""user_first_turn"": ""SUMMARY: Seasoned operator, 12 years in logistics. EXPERIENCE: VP Ops at FreightCo 2018-2024, led 40-person team. EDUCATION: MBA, Technion. SKILLS: supply chain, P&L, vendor management.""}",upload,"Structured CV paste, additive features score high"
+"{""user_first_turn"": ""Memo: We are raising a 2M seed to build an AI copilot for municipal procurement officers. Problem, solution, traction, ask below.""}",upload,"Pitch memo paste with document structure"
+"{""user_first_turn"": ""Honestly I'm stuck on whether to pivot the whole thing or keep pushing.""}",type,"Conversational stuck-decision answer in own voice"
+"{""user_first_turn"": ""I don't even know if this is worth my time anymore.""}",type,"Emotional first-person stuck answer, not a document"
+"{""user_first_turn"": ""procurement. SMEs. access. tenders.""}",ambiguous,"Fragment, neither clearly a doc nor a stuck-decision answer"
+"{""user_first_turn"": ""Reut Vilek - Product. timeline: Q1 onboarding, Q2 GA. see attached.""}",ambiguous,"Doc-like fragment but too thin to score as a full upload"

@@ -1,0 +1,7 @@
+Sample,Label,Reasoning
+"{""problem_statement"": ""Something feels off about how we onboard new users but I can't name what.""}",UDP,"No boundary yet, the problem is undefined"
+"{""problem_statement"": ""We need procurement to be accessible to small suppliers, but 'accessible' isn't defined and nobody agrees what success looks like.""}",IDP,"Named but contested, ill-defined with competing framings"
+"{""problem_statement"": ""Reduce SME tender drop-off from 80 percent to 40 percent within 12 months by waiving the bid guarantee.""}",WDP,"Bounded, measurable target with a clear lever"
+"{""problem_statement"": ""Our churn is rising and we want it to stop.""}",UDP,"A symptom with no defined boundary or cause"
+"{""problem_statement"": ""Cancellation policy confuses customers, but is it the wording, the placement, or the 7-day window?""}",IDP,"Problem named, root cause still contested"
+"{""problem_statement"": ""Cut invoice-approval time from 45 days to 10 days by assigning a single owner per milestone.""}",WDP,"Bounded, measurable, with an explicit mechanism"

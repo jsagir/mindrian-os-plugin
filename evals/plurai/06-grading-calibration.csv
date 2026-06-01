@@ -1,0 +1,6 @@
+Sample,Label,Reasoning
+"{""reference_answer"": ""B+ : problem well-defined, evidence thin"", ""agent_response"": ""B+ : strong problem framing, weak evidence base""}",correct,"Same grade and same rationale axis"
+"{""reference_answer"": ""C : solution-first, no validated problem"", ""agent_response"": ""A- : promising solution with clear roadmap""}",incorrect,"Missed the vision-to-execution gap, graded the solution not the problem"
+"{""reference_answer"": ""A- : evidenced problem, explicit JTBD"", ""agent_response"": ""B+ : good problem, JTBD left implicit""}",partially_correct,"Close grade, undercounted the JTBD clarity"
+"{""reference_answer"": ""B : assumptions untested near a commit decision"", ""agent_response"": ""B : key assumptions flagged as unvalidated""}",correct,"Same grade, same evidence-tier reasoning"
+"{""reference_answer"": ""D : wicked problem treated as well-defined"", ""agent_response"": ""B : solid linear plan""}",incorrect,"Missed the wickedness, rewarded false certainty"

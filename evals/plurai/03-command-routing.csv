@@ -1,0 +1,8 @@
+Sample,Label,Reasoning
+"{""user_request"": ""I can't tell if my problem is even the right one to solve"", ""invoked_command"": ""/mos:diagnose""}",correct_tool,"Problem classification is the fit"
+"{""user_request"": ""Help me separate what we know from what we can't know here"", ""invoked_command"": ""/mos:map-unknowns""}",correct_tool,"Known/unknown/unknowable mapping is the fit"
+"{""user_request"": ""Is this market actually attractive to enter?"", ""invoked_command"": ""/mos:mullins""}",correct_tool,"Seven Domains opportunity assessment is the fit"
+"{""user_request"": ""Help me structure my pitch argument cleanly"", ""invoked_command"": ""/mos:scenario-plan""}",wrong_tool,"structure-argument was the fit, not scenario planning"
+"{""user_request"": ""What futures should we plan for?"", ""invoked_command"": ""/mos:lean-canvas""}",wrong_tool,"scenario-plan was the fit, not the business model canvas"
+"{""user_request"": ""Thanks, that already clears it up for me"", ""invoked_command"": ""/mos:think-hats""}",unnecessary_tool,"User signaled closure, no methodology needed"
+"{""user_request"": ""Score how strong my value proposition is"", ""invoked_command"": ""/mos:value-proposition""}",correct_tool,"Value proposition scoring is the fit"

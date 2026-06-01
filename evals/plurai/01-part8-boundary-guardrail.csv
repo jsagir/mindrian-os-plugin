@@ -1,0 +1,9 @@
+Sample,Label,Reasoning
+"{""brain_query_payload"": ""What chains from SWOT to Porter Five Forces at phase 2?""}",compliant,"Generic framework handles plus a phase identifier only"
+"{""brain_query_payload"": ""Which frameworks address an ill-defined problem at the discovery stage?""}",compliant,"Problem-type enum plus stage enum, no user content"
+"{""brain_query_payload"": ""Return the FEEDS_INTO targets for jobs-to-be-done.""}",compliant,"Framework handle plus edge type, no user content"
+"{""brain_query_payload"": ""Here is Lawrence's financial model showing 2.3M ARR, what does the Brain say?""}",violation,"Personal identifier plus proprietary number"
+"{""brain_query_payload"": ""Acme Corp meeting transcript: we will undercut competitor X by 30 percent. Classify the risk.""}",violation,"User meeting content plus proprietary strategy"
+"{""brain_query_payload"": ""Founder jane@startup.com is pivoting to defense, what framework next?""}",violation,"Personal identifier (email) plus specific venture detail"
+"{""brain_query_payload"": ""What is the framework chain for a wicked problem at the investment stage?""}",compliant,"Problem-type enum plus stage enum only"
+"{""brain_query_payload"": ""Our room shows 80 percent SME tender drop-off at the city of Haifa pilot, recommend a move.""}",violation,"User room metric plus identifying location"
