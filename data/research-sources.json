@@ -1,0 +1,51 @@
+{
+  "generated_note": "Phase 130.5 Plan 01 Task 1 -- single source-of-truth for the research-corpus source enum + per-source gating. Consumed by lib/core/research-corpus.cjs. Default-eligible sources (the four shipped-on) are openalex/arxiv/pubmed/tavily; brain-cypher is enabled but availability-gated; sci-bot ships enabled:false behind three opt-in gates per the 130.5 CONTEXT decision (Sci-Hub provenance + legal-review required). No em-dashes anywhere in this file (hyphens only).",
+  "schema_version": "1.0",
+  "default_sources": ["openalex", "arxiv", "pubmed", "tavily"],
+  "sources": [
+    {
+      "id": "openalex",
+      "enabled": true,
+      "kind": "academic",
+      "gates": [],
+      "note": "No API key. OpenAlex polite pool via OPENALEX_EMAIL. Delegated to lib/core/rs-fetcher-academic.cjs fetchOpenAlex."
+    },
+    {
+      "id": "arxiv",
+      "enabled": true,
+      "kind": "academic",
+      "gates": [],
+      "note": "No API key. Atom XML. Delegated to lib/core/rs-fetcher-academic.cjs fetchArxiv."
+    },
+    {
+      "id": "pubmed",
+      "enabled": true,
+      "kind": "academic",
+      "gates": [],
+      "note": "No API key. eutils JSON. Delegated to lib/core/rs-fetcher-academic.cjs fetchPubMed."
+    },
+    {
+      "id": "tavily",
+      "enabled": true,
+      "kind": "web",
+      "gates": ["env:TAVILY_API_KEY"],
+      "note": "Gated only by the existing TAVILY_API_KEY env var, not opt-in. Snippet-only web results. Missing key degrades to an empty envelope (no throw)."
+    },
+    {
+      "id": "brain-cypher",
+      "enabled": true,
+      "kind": "graph",
+      "gates": ["brain:isAvailable"],
+      "note": "Generic framework/topic handles ONLY, bound via brain-client.sanitizeCypherInput. NEVER user content (Canon Part 8). Honors the Phase 110 packet contract: handles + enums only. Unavailable Brain degrades to an empty envelope (no throw)."
+    },
+    {
+      "id": "sci-bot",
+      "enabled": false,
+      "kind": "web",
+      "gates": ["opt_in:user", "token:user_supplied", "legal_review:signed_off"],
+      "endpoint": "https://sci-bot.ru",
+      "tier_on_enable": "practitioner",
+      "provenance_note": "Sci-Bot (https://sci-bot.ru) is an AI research assistant POWERED BY Sci-Hub (Alexandra Elbakyan). Sci-Hub bypasses paywalls and is legally contested in many jurisdictions. The plugin is a commercial product shipping to academic testers (pre-publication-priority + grant personas, Canon Part 8 protections). Routing research through a Sci-Hub-powered service MUST clear separate legal review before it can be enabled by default. No documented public API exists: it is a login + token + queue web UI (alpha). An adapter would need a user-supplied credential/token and must respect the queue + token budget. NO headless browser. When ever enabled, Sci-Bot output is a Practitioner/None-tier lead that MUST be re-grounded against an Academic-tier primary source (Canon Part 5) before it can inform a confirmed claim."
+    }
+  ]
+}
