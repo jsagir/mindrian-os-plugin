@@ -1834,3 +1834,12 @@ Plans:
 - Tie to a domain (e.g. feedback.mindrian.dev) or live under main marketing site?
 
 **Status:** Unscheduled — promote to a numbered phase when current tester onboarding stabilizes.
+
+### v1.14.0 scoped-backlog phases — REGISTERED 2026-06-01
+
+Two phases scoped + parked to v1.14.0 (NOT in the frozen v1.13.1 chain). CONTEXT files on disk; promote via `/gsd:discuss-phase` / `/gsd:plan-phase` after v1.13.1 ships.
+
+- **Phase 137 — Brain<->MindrianOS sync + compatibility harness.** Operationalizes the 130.7 dual-graph contract into a standing PR compat gate + weekly read-only sync drift report (GitHub Actions). `.planning/phases/137-*/137-CONTEXT.md`. (committed c15a7c86)
+- **Phase 138 — Capability radar absorption + routing.** Turns `/mos:radar` from a reader into a router: a living capability ledger (Claude Code 2.1.148-159 findings), retrofit backlog (Opus 4.8 model floor, `CLAUDE_CODE_SESSION_ID` Brain scoping, SessionStart session-title, reloadSkills, defaultEnabled, disallowed-tools), and a `radar_findings:` forward-awareness contract so future phases incorporate findings before they are planned. Supersedes the dormant SEED-003. **Sequence FIRST in v1.14.0** (before consumer phases 133/134/135/136). Folds Bucket-C items here because Phase 121.5 already shipped. `.planning/phases/138-*/138-CONTEXT.md`.
+
+**Status:** Scoped-backlog — both build after v1.13.1 ships.
