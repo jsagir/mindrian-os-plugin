@@ -293,7 +293,14 @@ function test7_sourceHygiene() {
   ok(fs.existsSync(EXTRACTOR_PATH), 'research-context-extractor.cjs must exist');
   const src = fs.readFileSync(EXTRACTOR_PATH, 'utf8');
   ok(!src.includes(EMDASH), 'extractor source must contain zero em-dashes');
-  const code = src.split('\n').filter((l) => !/^\s*\/\//.test(l)).join('\n');
+  // Strip BOTH block comments (/* ... */) and line comments (// ...) so the scan
+  // tests executable surface, not prose mentions of the forbidden tokens in the
+  // module header (which legitimately documents what this module does NOT do).
+  const code = src
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .split('\n')
+    .filter((l) => !/^\s*\/\//.test(l))
+    .join('\n');
   ok(!/child_process|spawnSync|spawn\(|\.py\b/.test(code),
     'extractor must carry zero child_process / Python surface (read-only; fetch is Plan 03)');
   ok(!/require\(['"](?:node:sqlite|better-sqlite3)['"]\)/.test(code),
