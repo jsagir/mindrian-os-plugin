@@ -25,7 +25,12 @@ Note: Brain is NOT configured in the plugin's `.mcp.json` (that file is for the 
 | Book | 59 | title, author, isbn | Analyzed source books |
 | Tool | 59 | name, description, pws_mapping | Innovation tools with PWS mappings |
 | Course | varies | name, code, semester | Curriculum courses |
-| Example | 100+ | project_name, grade, grade_numeric, rubric_scores, feedback_patterns, percentile | Graded student work |
+| Example | 80+ | project_name, grade, grade_numeric, rubric_scores, feedback_patterns, percentile, example_type | Graded student work AND worked examples attached to frameworks/methods |
+| Method | 94 | name, description | Alternative methods a framework offers (e.g. Three Approaches -> Brute Force / Targeted / Eureka) |
+| Stage | 74 | name, order, consciousness_level | Ordered stages within a framework (e.g. Wallas creativity stages) |
+| Insight | 13 | name, description | Teaching insights a framework/method reveals |
+| Question | 8 | name, question_type | Beautiful-question / diagnostic prompts attached to a level or framework |
+| PyramidLevel | 5 | name, level_order | Ackoff DIKW levels (Data/Information/Knowledge/Understanding/Wisdom) |
 
 ## Relationships
 
@@ -39,6 +44,11 @@ Note: Brain is NOT configured in the plugin's `.mcp.json` (that file is for the 
 | PREREQUISITE | Framework -> Framework | strength | What must come first |
 | APPLIED_IN | Framework -> Example | section, quality_score | Real usage with grades |
 | REFERENCES | Book -> Framework | chapter, relevance | Source material links |
+| HAS_EXAMPLE | Framework/Method -> Example | example_type | Worked examples attached directly to a framework or method (OODA, Usher, Ackoff, Wallas, the Three Approaches). Larry reaches for this to illustrate a concept on demand. |
+| HAS_METHOD | Framework -> Method | -- | A framework offers these alternative methods (Three Approaches -> Brute Force / Targeted Development / Eureka; Ackoff -> Camera Test). Use to surface method choices within a framework. |
+| REVEALS | Framework/Method -> Insight | -- | The teaching insight a framework or method exposes. Use when Larry explains *why* a framework matters, not just how. |
+| CONTRASTS_WITH | Framework -> Theory/Framework | -- | A rejected or rival theory (Usher -> Transcendentalist / Mechanistic). Use to teach by contrast. |
+| DIRECTS | PyramidLevel -> PyramidLevel | -- | Downward direction in the Ackoff pyramid (Wisdom directs what Data to collect). Use to teach top-down DIKW reasoning. |
 
 ## Grading Calibration Data
 

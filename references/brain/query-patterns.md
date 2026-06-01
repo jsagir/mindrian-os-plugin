@@ -70,6 +70,38 @@ LIMIT 20
 
 ---
 
+## 2b. brain_framework_teach
+
+**Purpose:** Pull the teaching payload attached directly to a framework or method -- worked
+examples, alternative methods, the insight it reveals, and any rival it contrasts with. This is
+what Larry reaches for when a user asks "show me an example", "what are my options inside this
+framework", or "why does this matter". Uses the edge types introduced 2026-06: `HAS_EXAMPLE`,
+`HAS_METHOD`, `REVEALS`, `CONTRASTS_WITH`.
+
+```cypher
+MATCH (f:Framework {name: $framework})
+OPTIONAL MATCH (f)-[:HAS_EXAMPLE]->(ex:Example)
+OPTIONAL MATCH (f)-[:HAS_METHOD]->(m:Method)
+OPTIONAL MATCH (m)-[:HAS_EXAMPLE]->(mex:Example)
+OPTIONAL MATCH (f)-[:REVEALS]->(ins:Insight)
+OPTIONAL MATCH (f)-[:CONTRASTS_WITH]->(rival)
+RETURN f.name AS framework,
+       collect(DISTINCT ex.project_name) AS framework_examples,
+       collect(DISTINCT {method: m.name, example: mex.project_name}) AS methods,
+       collect(DISTINCT ins.description) AS insights,
+       collect(DISTINCT rival.name) AS contrasts_with
+```
+
+**Usage notes:** Invoke when teaching a single framework in depth rather than chaining between
+frameworks. `HAS_EXAMPLE` resolves examples bound straight to the framework (OODA, Usher, Ackoff,
+Wallas) and to each method via the second hop. `REVEALS` powers the "why it matters" beat;
+`CONTRASTS_WITH` powers teaching-by-contrast (e.g. Usher vs Transcendentalist / Mechanistic).
+For Ackoff DIKW top-down reasoning, traverse `(:PyramidLevel)-[:DIRECTS]->(:PyramidLevel)`.
+Combine with pattern 1 (brain_framework_chain) for what-comes-next, and pattern 2
+(brain_grade_calibrate) for graded calibration data.
+
+---
+
 ## 3. brain_find_patterns
 
 **Purpose:** Find similar ventures via Tool/Framework co-occurrence patterns.

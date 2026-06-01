@@ -1,3 +1,13 @@
+## [1.13.0-beta.40] - 2026-06-01
+
+### Added (Brain schema awareness -- four new teaching edge types wired into Larry's reference layer)
+- **Larry now knows about, and actively traverses, four relationship types added to the Brain teaching graph during the 2026-06 curriculum work: `HAS_EXAMPLE`, `HAS_METHOD`, `CONTRASTS_WITH`, `DIRECTS`.** Verified live against the production Neo4j (`my-neo4j` MCP) before wiring: `HAS_EXAMPLE` 28, `HAS_METHOD` 4, `CONTRASTS_WITH` 2, `DIRECTS` 1, `REVEALS` 44 -- every count matches what was created, no drift.
+- **`references/brain/schema.md`** Node Types table now documents the labels that existed in the schema but were previously zero-instance and are now populated: `Method` (94), `Stage` (74), `Insight` (13), `Question` (8), `PyramidLevel` (5), plus the new `example_type` property on `Example`. Relationships table gains the four new edges with From->To, properties, and a "why it matters" note that tells Larry when to reach for each.
+- **`references/brain/query-patterns.md`** gains pattern `2b. brain_framework_teach` -- the invocation surface. Pulls worked examples (`HAS_EXAMPLE`), alternative methods (`HAS_METHOD`), the revealed insight (`REVEALS`), and rival theories (`CONTRASTS_WITH`) attached directly to a framework, so "show me an example / what are my options / why does this matter" resolve from the graph. Documents the Ackoff `(:PyramidLevel)-[:DIRECTS]->(:PyramidLevel)` top-down DIKW traversal.
+
+### Canon
+- Canon Part 8 clean by construction: schema/query-pattern reference docs carry only generic framework handles and edge-type names; zero user data, zero LOCAL->BRAIN egress.
+
 ## [1.13.0-beta.39] - 2026-05-31
 
 ### Fixed (topology-blind SessionStart banner -- debug session doctor-class-a-drift-topology-blind-false-positive, 2026-05-31)
