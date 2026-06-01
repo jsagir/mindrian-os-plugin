@@ -99,6 +99,8 @@ The closed chokepoint surface is exactly these export keys from
 - `readHatState`
 - `readAllHatStates`
 - `writeLensFinding`
+- `writeEvidenceClaim`
+- `getResearchPreflight`
 
 The originally documented "closed 13" was the Phase 109 surface (Focus, Neighborhood,
 the insight queries, `findRecentChanges`, `findRelevantOpportunities`,
@@ -170,6 +172,38 @@ line here is itself a contract violation.
   `writeLensFinding` UPSERTs a node type `lens_finding` `review_status='proposed'`
   `created_by='system'` -- a proposed surface awaiting the Decision Gate, never
   auto-confirmed.
+
+- **Phase 131-01 (2026-06-01).** Added two exports re-exported from two new
+  allow-listed navigation submodules: `writeEvidenceClaim` (from
+  `lib/core/navigation/evidence-claim.cjs`) and `getResearchPreflight` (from
+  `lib/core/navigation/research-preflight.cjs`). **Consumers:** the Plan 03
+  source-lens driver, the Plan 04 wirer + F.1 selector, and the Plan 05 command
+  orchestration. These are the source-lens research pipeline's two forward-contract
+  surfaces, LOCKED for Phase 136 consumption without a migration. `writeEvidenceClaim`
+  is the Stage 7 ACCEPT-path node writer: it UPSERTs a node type `EvidenceClaim`,
+  `created_by='system'`, `review_status='proposed'`, with the LOCKED Phase 136
+  provenance schema `{ source, url, retrieved_at, evidence_tier }` plus `topic` +
+  `summary`. Unlike the Phase 130-01 `HatState` node, an `EvidenceClaim` IS a
+  truth-claim node (it asserts something about the venture's world), so it is NOT
+  carved out by the Part 9 v1.5 audit-node carve-out: it lands `proposed` and is
+  NEVER auto-confirmed; only a human APPROVE (routed through `confirmNode` by the
+  Plan 04 wirer) promotes it to `confirmed` (Canon Part 9 role 5). `evidence_tier`
+  validates against the closed Canon Part 5 set `{Academic, Operational,
+  Practitioner, None}`. `getResearchPreflight(db, opts)` is the batched Stage-1
+  read that collapses the 8 pre-flight inputs (active_workflow, active_jtbd,
+  operator, current_section, recent_changes, evidence_gaps, prior_research,
+  role_blend) into ONE navigation.cjs round-trip; it is READ-ONLY over `room.db` +
+  `USER.md` (it does NOT call the corpus -- `prior_research` is a documented
+  placeholder the driver fills via the Phase 130.5 cache + Pinecone dedup at Stage
+  4). Both modules take a caller-owned `db` handle (and `getResearchPreflight` also
+  a `roomDir` for the roomDir-keyed reads); NEITHER requires `node:sqlite` and
+  NEITHER opens `room.db` itself, so both carry zero direct `room.db` open and stay
+  inside the `lib/core/navigation/` allow-list with zero substrate bypass (a
+  source-grep test in `tests/test-131-substrate.cjs` enforces the no-direct-sqlite
+  invariant). The CONTRADICTS / SUPERSEDES cascade edges these surfaces feed are
+  added additively to `ALLOWED_EDGE_TYPES` (extending the shipped 130-01 INFORMS /
+  REJECTED_BECAUSE vocabulary); cascade-edge targets are canonical `correlation_ids`
+  (Phase 130.7), not raw names, so edges do not fork across cross-label duplicates.
 
 ## Reuse-vs-build decision (Canon Part 7)
 
