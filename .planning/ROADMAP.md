@@ -1708,6 +1708,15 @@ Plans:
 
 **Status:** Scoped — ready for `/gsd:discuss-phase 132`.
 
+**Plans:** 5 plans (132-01 substrate shipped; 132-02..05 planned), wave-ordered 1 -> 5.
+
+Plans:
+- [ ] 132-01-PLAN.md - curation-batch runner + frozen 5-event-type hypergraph schema substrate (Wave 1)
+- [ ] 132-02-PLAN.md - hypergraph reify: 5 reified event-node types, >=20 instances each, additive (Wave 2)
+- [ ] 132-03-PLAN.md - cross-label dedup: ~50 groups collapse to one canonical + facets; 22 REVIEW_REQUIRED anchored-or-archived (Wave 3)
+- [ ] 132-04-PLAN.md - content wire-it: ~278-node backlog (A/C/D/E/F/G) + shattered-author consolidation (Wave 4)
+- [ ] 132-05-PLAN.md - pseudonymize 6 internal :Person nodes + 130.7 CI health gate as the phase release gate (Wave 5)
+
 **Authority:** `.planning/phases/132-dual-graph-correlation-hypergraph-reformat/132-CONTEXT.md` (scoped 2026-05-17 from the dogfooding-curation session) + `~/MindrianRooms/mindrian/mindrianOS/methodology/2026-05-17-brain-curation-audit.md`.
 
 ### Phase 134: CJS port of Python analyzers via transformers.js (eliminate Windows install-fragility class) [v1.14.0]
