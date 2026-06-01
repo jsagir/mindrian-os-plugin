@@ -23,6 +23,15 @@
 #   lib/memory/spine-events-correlation.test.cjs -> 130.7-02 Task 3
 #     (memory_event references carry correlation_id additively; EVENT_TYPES
 #     set-equality / zero net-new types; dedupe TTL intact; Part 8 hash scalar).
+#   lib/memory/dual-graph-health.test.cjs       -> 130.7-03 Task 1 + Task 3
+#     (the report-only/baseline fail-closed CI gate: records a baseline, fails on
+#     regression not pre-existing debt, fails-closed on inconclusive, M3 recommender
+#     no-fork, post-132 flip stubbed; PLUS the Part 8 phase-wide forbidden-pattern
+#     boundary sweep over all 8 130.7 code paths).
+#   lib/memory/brain-derive-curation.test.cjs   -> 130.7-03 Task 2
+#     (the three /mos:brain-derive curation surfaces: --review-anchors / --orphan-census
+#     / --cross-label-dups; standalone argv + 3 output shapes + brain-offline degrade
+#     + Part 8 read-only methodology-only).
 #
 # MEMORY_SUITES entries resolve relative to REPO_ROOT (the module sites under
 # lib/memory/). CJS_SUITES entries resolve relative to this directory (tests/),
@@ -42,6 +51,8 @@ MEMORY_SUITES=(
   lib/memory/chain-recommender-canonical.test.cjs
   lib/memory/local-chain-recommender.test.cjs
   lib/memory/spine-events-correlation.test.cjs
+  lib/memory/dual-graph-health.test.cjs
+  lib/memory/brain-derive-curation.test.cjs
 )
 
 # tests/-dir CJS suites (reserved for Plan 02 + Plan 03 integration tests).
