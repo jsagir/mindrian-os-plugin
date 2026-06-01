@@ -1641,7 +1641,7 @@ Plans:
 **Plans:** 3 plans
 Plans:
 - [x] 130.5-01-PLAN.md - research-corpus.cjs unified fetchCorpus + 5-source adapters + disabled Sci-Bot + Part 8 fail-closed audit (wave 1)
-- [ ] 130.5-02-PLAN.md - research-cache.cjs shared TTL + source-keyed atomic on-disk cache (wave 1)
+- [x] 130.5-02-PLAN.md - research-cache.cjs shared TTL + source-keyed atomic on-disk cache (wave 1)
 - [ ] 130.5-03-PLAN.md - rs-discovery-engine migration onto fetchCorpus + cache, byte-identical fixture regression + aggregator (wave 2)
 **Authority:** `.planning/phases/130.5-shared-corpus-cache-cjs-fetcher-substrate/130.5-CONTEXT.md` + `.planning/phases/131-research-as-graph-aware-workflow/131-REVIEW-4.8.md`.
 
