@@ -1678,7 +1678,15 @@ Plans:
 
 **Brain impact:** NONE-NEW (uses existing brain_ask via the Phase 110 packet; no new Brain endpoints).
 
-**Status:** Scoped — ready for `/gsd:discuss-phase 131`.
+**Status:** Planned -- 6 plans across 5 waves (planned 2026-06-01).
+
+**Plans:**
+- [ ] 131-01-PLAN.md -- substrate: EvidenceClaim writer (locked 136 schema) + CONTRADICTS/SUPERSEDES edges + 3 research events + getResearchPreflight + aggregator (wave 1)
+- [ ] 131-02-PLAN.md -- research-context-extractor: Stage 1+2+3 pre-flight + Body Shape A summary + weighted lens set (wave 2)
+- [ ] 131-03-PLAN.md -- source-lens-driver: Stage 4 over the 130.5 shared corpus, zero Python, dedup + tier/relevance rank; activates the lens-engine source family (wave 2)
+- [ ] 131-04-PLAN.md -- findings-wirer + F.1 filing selector: cascade edges on correlation_ids, gate-as-write-node forward contract for 136 (wave 3)
+- [ ] 131-05-PLAN.md -- commands/research.md 7-stage rewrite (both invocation modes) + check-research-isomorphism.cjs CI guard (wave 4)
+- [ ] 131-06-PLAN.md -- 5 E2E tests (the release gate) + Feynman registration + docs/RESEARCH-AS-WORKFLOW-STEP.md (wave 5)
 
 **Authority:** `.planning/phases/131-research-as-graph-aware-workflow/131-CONTEXT.md` (scoped 2026-05-16) + `.planning/v1.13.1-EXECUTION-PLAN.md` "Synthesis-Plan Absorption (2026-05-16)" section.
 
