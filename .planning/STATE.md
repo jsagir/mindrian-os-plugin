@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
-stopped_at: v1.14.0 chain fully planned + verified (130.5/130.7/131/132/134/136)
-last_updated: "2026-06-01T06:40:25.834Z"
+stopped_at: Completed 130.5-03-PLAN.md (rs-discovery-engine migrated onto fetchCorpus + shared research-cache; byte-identical + cache-hit + Canon Part 8 regression 3/3 green; existing 9-scenario suite 9/9; run-all-130.5.sh green; Feynman runner registers 130.5 additively; substrate guard clean on every commit). Phase 130.5 COMPLETE (3/3 plans).
+last_updated: "2026-06-01T07:51:43.440Z"
 last_activity: 2026-05-20 -- Phase 127.1 execution started
 progress:
   total_phases: 75
-  completed_phases: 51
+  completed_phases: 52
   total_plans: 387
-  completed_plans: 340
-  percent: 68
+  completed_plans: 343
+  percent: 69
 ---
 
 # Project State
@@ -122,6 +122,9 @@ Phase 129-02 outcome: Wave 2 read surfaces wired onto the Plan 01 helpers. /mos:
 - e5b83304 feat(129-01): ship spine-events.cjs helper API + navigation.cjs re-exports
 
 Phase 129-01 outcome: the Wave-1 shared substrate every later 129 plan depends on. EVENT_TYPES gains EXACTLY 5 net-new spine types (spine_read / jtbd_transitioned / operator_transitioned / workflow_stage / suggestion_surfaced) honoring the v1.13.1 risk-3 event-cap-5 lock; the delta-of-5 is asserted by named membership, not a brittle absolute size. status_rendered+memory_inspected consolidate into spine_read (payload.surface enum), set/override/clear into jtbd_transitioned (payload.kind enum), act+pipeline into workflow_stage (payload.surface + payload.phase enums). FOLLOWS_FROM is the 8th canonical cascade edge (enum-only properties per Canon Part 8); the lens-class taxonomy ASSOCIATION_LENS/TRANSITION_LENS stays rejected. logEvent gains a 60s-TTL idempotency layer keyed on a caller-supplied payload.dedupe_key with a clock seam (opts.now) for deterministic tests; absent the key, dedup is OFF so every pre-129 caller stays byte-unchanged. NEW lib/core/navigation/spine-events.cjs ships 5 roomDir-taking log* helpers (logSpineRead/logJtbdTransition/logOperatorTransition/logWorkflowStage/logSuggestionSurfaced) that open/close room.db internally (callers pass roomDir, never a db handle), mirror dashboard-helpers.cjs, return {ok:false,reason:'no_room_db'} when absent, derive a deterministic dedupe_key per helper, and optionally emit a FOLLOWS_FROM edge when payload.follows_from is set (additive, tolerant of writeEdge failure). getCurrentJTBD/getCurrentOperator are event-log-authoritative (most-recent jtbd_transitioned/operator_transitioned) with the jtbd-state.json / conversation-operator.json cache file as fallback (source: 'event_log' | 'cache_fallback'); the cache file is NOT deprecated this phase. navigation.cjs re-exports all 7 helpers; docs/architecture/SUBSTRATE-CONTRACT.md carries the 7 M11 allow-list lines + a Phase 129-01 amendment line per the M11 rule. spine-events.cjs passes the live substrate guard (allow-listed under lib/core/navigation/); both feat commits passed the live pre-commit hook (no --no-verify). 15/15 GREEN; Phase 109 acceptance still 1/1 (zero regression). Zero new dependencies (node built-ins only). Wave 2 (129-02/03/04) can now refactor the 6 spine scripts to route every room.db touch through these helpers. SUMMARY at .planning/phases/129-spine-repair-memory-event/129-01-SUMMARY.md; 129-01 flipped to [x] in ROADMAP.md.
+
+Phase: 130.7 (correlation-id-contract-dual-graph-ci-gates) — EXECUTING
+Plan 130.7-01 COMPLETE (2026-06-01): correlation_id hashing chokepoint (lib/core/correlation.cjs, name-based + embedding-INDEPENDENT, 'c1:'+sha256(trim(name)+NUL+trim(label))) + dry-run-only Brain backfill (scripts/backfill-correlation-id.cjs; --execute gated to the orchestrator, ZERO live writes here) + LOCAL correlation_labels index (lib/core/correlation-label-index.cjs; name -> [{primary_label, edge_degree}]) for Plan 02's no-fork pick + phase aggregator tests/run-all-130.7.sh + additive Feynman registration. Dry-run Cypher captured to .planning/phases/130.7-.../130.7-01-BACKFILL-DRYRUN.cypher (git add -f). 12/12 + 11/11 tests GREEN; zero new deps; substrate guard + brain-boundary-scan passed on every commit. Commits 2555f38d (GREEN T1), 6ac8bb54 (T2), bb08a014 (T3) + 6420a297 (prior RED). Next: Plan 130.7-02 (consumers) then 130.7-03 (CI gates).
 
 Phase: 127.1 (brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap) — EXECUTING
 Milestone: v1.13.0 The Closed Loop. v1.13.0-beta.9 SHIPPED to GitHub + marketplace 2026-05-11 (tag v1.13.0-beta.9 -> 9ed8280; ~/mindrian-marketplace mos 1.13.0-beta.9 / ref v1.13.0-beta.9). v1.13.0-beta.10 IN PROGRESS on `main` (npm package renamed @mindrian/os -> @mindrian_os/cli; package.json + plugin.json bumped to 1.13.0-beta.10; CHANGELOG `## [Unreleased] -- v1.13.0-beta.10 (in progress)`; headline content = Phase 122). NO v1.13.0-beta.10 tag, NOT on marketplace -- it ships when Phase 122 lands. Install paths LIVE: `claude plugin install/update mos@mindrian-marketplace --version 1.13.0-beta.9` + direct install.sh from the tag + the install page `https://mindrianos-install-site.vercel.app` (deployed; @mindrian_os/cli baked in but the npx block stays gated until the publish lands). NOT yet: `npx @mindrian_os/cli@next` (needs the npm publish -- token-blocked).
@@ -279,7 +282,7 @@ Awaiting user action (Gate 5):
 
 Last activity: 2026-05-20 -- Phase 127.1 execution started
 
-Progress: [██████████] 95%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
@@ -486,6 +489,7 @@ Progress: [██████████] 95%
 | Phase 127.1 P02 | 22min | 2 tasks | 6 files |
 | Phase 127.1 P03 | 5min | 2 tasks | 7 files |
 | Phase 127.3 P04 | 20m | 2 tasks | 1 files |
+| Phase 130.7 P01 | 10 | 3 tasks | 8 files |
 
 ### Roadmap Evolution
 
@@ -1109,6 +1113,6 @@ Progress: [██████████] 95%
 
 ## Session Continuity
 
-Last session: 2026-06-01T07:30:27.000Z
+Last session: 2026-06-01T07:51:30.791Z
 Stopped at: Completed 130.5-03-PLAN.md (rs-discovery-engine migrated onto fetchCorpus + shared research-cache; byte-identical + cache-hit + Canon Part 8 regression 3/3 green; existing 9-scenario suite 9/9; run-all-130.5.sh green; Feynman runner registers 130.5 additively; substrate guard clean on every commit). Phase 130.5 COMPLETE (3/3 plans).
 Resume file: None
