@@ -1655,10 +1655,10 @@ Plans:
 **Canon parts:** Part 4; Part 8 (enum projection only; brain-boundary-scan); Part 9; Part 10.
 **Brain impact:** MEDIUM (correlation_id backfill + chain-recommender return-shape; the heavy reformat is Phase 132).
 **Status:** Planned - 3 plans, 3 waves. Ready for `/gsd:execute-phase 130.7`.
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 Plans:
 - [x] 130.7-01-PLAN.md - correlation.cjs embedding-independent hashing chokepoint + one-time idempotent Cypher backfill + key-invariant asserting test (wave 1)
-- [ ] 130.7-02-PLAN.md - chain-recommender one-canonical-target-per-query (no fork) + bin/local-chain-recommender.cjs aggregate-by-correlation_id + navigation memory_event references carry correlation_id (wave 2)
+- [x] 130.7-02-PLAN.md - chain-recommender one-canonical-target-per-query (no fork) + bin/local-chain-recommender.cjs aggregate-by-correlation_id + navigation memory_event references carry correlation_id (wave 2)
 - [ ] 130.7-03-PLAN.md - 4-metric fail-closed dual-graph CI gate + the three /mos:brain-derive curation surfaces + Part 8 phase-wide boundary sweep (wave 3)
 **Authority:** `.planning/phases/130.7-correlation-id-contract-dual-graph-ci-gates/130.7-CONTEXT.md` + `.planning/phases/132-dual-graph-correlation-hypergraph-reformat/132-REVIEW-4.8.md`.
 
