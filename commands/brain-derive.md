@@ -2,7 +2,7 @@
 description: Derive BRAIN.md for section(s) now
 help_jtbd: "Pull the Brain's framework recommendations for your current section."
 body_shape: E
-argument-hint: "[section] [--all] [--cross-room] [--dry-run]"
+argument-hint: "[section] [--all] [--cross-room] [--dry-run] [--review-anchors] [--orphan-census] [--cross-label-dups]"
 serves_jtbd: ["audit-room"]
 teaching: "When a room section drifts from its BRAIN.md derivation, /mos:brain-derive rebuilds the per-section Brain context now. Run after large filings or before a decision gate."
 disable-model-invocation: false
@@ -20,6 +20,16 @@ Force-refresh BRAIN.md per section via the Brain derivation pipeline. This is th
 - `/mos:brain-derive <section> --cross-room` -- add structural cross-room contradiction scan for that one section
 - `/mos:brain-derive --all --cross-room` -- most expensive; cross-room scan on every section
 - Append `--dry-run` to any mode above to preview targets + cost without firing any Brain calls or writing BRAIN.md
+
+## Curation surfaces (Phase 130.7-03)
+
+Three standalone reporting modes that pair with the dual-graph health gate so curation debt becomes visible within days, not months. Each runs a read-only methodology-node aggregate (the 2026-05-17 brain-curation audit queries) and prints a digest. They are REPORTING surfaces that feed Phase 132 dedup -- they never themselves dedup or fail a build, and they are mutually exclusive with each other and with the derive path (each is standalone, like `--all`).
+
+- `/mos:brain-derive --review-anchors` -- the REVIEW_REQUIRED queue digest (audit Q1): the count of frameworks stuck in curation review plus a sample list.
+- `/mos:brain-derive --orphan-census` -- the all-label orphan census (audit section 7): a per-label table of zero-edge node counts plus the total orphan mass.
+- `/mos:brain-derive --cross-label-dups` -- same-name-different-label collisions (audit section 13): groups of one canonical name carrying more than one distinct primary label, each listing its variant labels (keyed by correlation_id collisions across primary_label, feeding the Phase 132 dedup pass).
+
+When the Brain is offline, each curation mode degrades to a single-line "Brain offline" message and exits 0 (soft-fail), exactly like the derive path.
 
 ## Output
 

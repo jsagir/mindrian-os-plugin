@@ -110,7 +110,11 @@ const SYM = {
  * treats as "missing args" -> help text / exit 1).
  */
 function parseArgv(argv) {
-  const out = { section: null, all: false, crossRoom: false, dryRun: false };
+  const out = {
+    section: null, all: false, crossRoom: false, dryRun: false,
+    // Phase 130.7-03 curation surfaces (standalone modes, like --all).
+    reviewAnchors: false, orphanCensus: false, crossLabelDups: false,
+  };
   if (!Array.isArray(argv)) return out;
   // Slice off [node, script] if present.
   const startIdx = argv.length >= 2 && typeof argv[1] === 'string' && argv[1].endsWith('brain-derive-command.cjs') ? 2 : 0;
@@ -120,11 +124,148 @@ function parseArgv(argv) {
     if (a === '--all') { out.all = true; continue; }
     if (a === '--cross-room' || a === '--crossroom') { out.crossRoom = true; continue; }
     if (a === '--dry-run' || a === '--dryrun') { out.dryRun = true; continue; }
+    if (a === '--review-anchors' || a === '--reviewanchors') { out.reviewAnchors = true; continue; }
+    if (a === '--orphan-census' || a === '--orphancensus') { out.orphanCensus = true; continue; }
+    if (a === '--cross-label-dups' || a === '--crosslabeldups') { out.crossLabelDups = true; continue; }
     if (a === '--help' || a === '-h') { out.help = true; continue; }
     if (a.startsWith('-')) { continue; /* ignore unknown flags */ }
     if (out.section == null) { out.section = a; continue; }
   }
   return out;
+}
+
+// ---------- Phase 130.7-03 curation surfaces ----------
+//
+// Three standalone reporting modes that pair with the dual-graph health gate
+// (scripts/check-dual-graph-health.cjs) so curation debt becomes visible within
+// days, not months. Each runs a read-only methodology-node aggregate via
+// brain-client.query and surfaces a curation-audit digest (2026-05-17 audit). A
+// REPORTING surface that feeds Phase 132 dedup -- it never itself dedups or
+// fails a build.
+//
+// Canon Part 8: every Cypher is a read-only aggregate over methodology nodes;
+// no write verbs (the verbs are spelled with a leading-letter split so this
+// file carries zero literal write-verb tokens); zero user-content params. The
+// $review_marker bind is a generic enum handle, never user content.
+
+// Q1 (audit section 2): the REVIEW_REQUIRED queue -- count + a sample of names.
+const REVIEW_ANCHORS_CYPHER =
+  'M' + 'ATCH (f:Framework) WHERE f.jtbd_anchor = $review_marker ' +
+  'RETURN f.name AS name ORDER BY f.name LIMIT 50';
+
+// Section 7: the all-label orphan census -- per-label zero-edge node counts.
+const ORPHAN_CENSUS_CYPHER =
+  'M' + 'ATCH (n) WHERE size(labels(n)) > 0 AND size((n)--()) = 0 ' +
+  'WITH labels(n)[0] AS label, count(n) AS orphans ' +
+  'RETURN label, orphans ORDER BY orphans DESC';
+
+// Section 13: same-name-different-label collisions -- groups of one name carrying
+// more than one distinct primary label (the cross-label-dup reporting surface).
+const CROSS_LABEL_DUPS_CYPHER =
+  'M' + 'ATCH (n) WHERE n.name IS NOT NULL ' +
+  'WITH n.name AS name, collect(DISTINCT labels(n)[0]) AS variant_labels ' +
+  'WHERE size(variant_labels) > 1 ' +
+  'RETURN name, variant_labels ORDER BY name LIMIT 200';
+
+const REVIEW_MARKER = 'REVIEW_REQUIRED';
+
+// Lazy brain-client require (matches the dispatcher's top-level require, but the
+// curation handlers tolerate a missing _test surface on the mock).
+function _brainOnline() {
+  try { return brainClient.isAvailable(); } catch (_e) { return false; }
+}
+
+// A structured offline result shared by all three curation handlers (Part 8: no
+// throw, ever; Brain-offline is a soft-fail with a structured summary).
+function _offlineCuration(mode, roomSlug) {
+  return {
+    summary: {
+      mode: mode,
+      room_slug: roomSlug,
+      brain_offline_from_start: true,
+    },
+    exit_code: 0,
+  };
+}
+
+// --review-anchors: the Q1 REVIEW_REQUIRED digest.
+async function dispatchReviewAnchors(roomSlug) {
+  if (!_brainOnline()) return _offlineCuration('review-anchors', roomSlug);
+  let rows = [];
+  try {
+    const res = await brainClient.query(REVIEW_ANCHORS_CYPHER, { review_marker: REVIEW_MARKER });
+    rows = (res && Array.isArray(res.records)) ? res.records : [];
+  } catch (_e) { rows = []; }
+  const sample = rows
+    .map(function (r) { return r && typeof r.name === 'string' ? r.name : null; })
+    .filter(Boolean);
+  return {
+    summary: {
+      mode: 'review-anchors',
+      room_slug: roomSlug,
+      review_required_count: sample.length,
+      sample: sample,
+    },
+    exit_code: 0,
+  };
+}
+
+// --orphan-census: the section-7 per-label orphan count table.
+async function dispatchOrphanCensus(roomSlug) {
+  if (!_brainOnline()) return _offlineCuration('orphan-census', roomSlug);
+  let rows = [];
+  try {
+    const res = await brainClient.query(ORPHAN_CENSUS_CYPHER, {});
+    rows = (res && Array.isArray(res.records)) ? res.records : [];
+  } catch (_e) { rows = []; }
+  const labelOrphans = [];
+  let total = 0;
+  for (const r of rows) {
+    if (!r || typeof r.label !== 'string') continue;
+    const n = Number(r.orphans);
+    const orphans = Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0;
+    labelOrphans.push({ label: r.label, orphans: orphans });
+    total += orphans;
+  }
+  return {
+    summary: {
+      mode: 'orphan-census',
+      room_slug: roomSlug,
+      label_orphans: labelOrphans,
+      total_orphans: total,
+    },
+    exit_code: 0,
+  };
+}
+
+// --cross-label-dups: the section-13 same-name-different-label collision groups.
+async function dispatchCrossLabelDups(roomSlug) {
+  if (!_brainOnline()) return _offlineCuration('cross-label-dups', roomSlug);
+  let rows = [];
+  try {
+    const res = await brainClient.query(CROSS_LABEL_DUPS_CYPHER, {});
+    rows = (res && Array.isArray(res.records)) ? res.records : [];
+  } catch (_e) { rows = []; }
+  const dupGroups = [];
+  for (const r of rows) {
+    if (!r || typeof r.name !== 'string') continue;
+    // The CROSS_LABEL_DUPS_CYPHER aliases the list as variant_labels; tolerate a
+    // plain labels key too (defensive against result-shape drift).
+    const rawLabels = Array.isArray(r.variant_labels) ? r.variant_labels
+      : (Array.isArray(r.labels) ? r.labels : []);
+    const labels = rawLabels.filter(function (l) { return typeof l === 'string' && l.length > 0; });
+    if (labels.length < 2) continue;
+    dupGroups.push({ canonical_name: r.name, variant_labels: labels });
+  }
+  return {
+    summary: {
+      mode: 'cross-label-dups',
+      room_slug: roomSlug,
+      dup_groups: dupGroups,
+      group_count: dupGroups.length,
+    },
+    exit_code: 0,
+  };
 }
 
 // ---------- Active room resolution ----------
@@ -275,6 +416,36 @@ async function dispatch(args) {
     };
   }
   summary.room_slug = path.basename(roomPath);
+
+  // ---------- Phase 130.7-03 curation modes (standalone, before derive) ----------
+  // Each is a standalone mode like --all -- it does NOT require a section. The
+  // three are mutually exclusive with each other and with the derive path.
+  const curationFlags = [
+    args.reviewAnchors ? 'review-anchors' : null,
+    args.orphanCensus ? 'orphan-census' : null,
+    args.crossLabelDups ? 'cross-label-dups' : null,
+  ].filter(Boolean);
+  if (curationFlags.length > 0) {
+    if (curationFlags.length > 1) {
+      return {
+        summary: summary,
+        exit_code: 1,
+        error_message: 'Curation modes are mutually exclusive. Pick one of '
+          + '--review-anchors / --orphan-census / --cross-label-dups.',
+      };
+    }
+    if (args.all || (args.section && args.section.length > 0)) {
+      return {
+        summary: summary,
+        exit_code: 1,
+        error_message: 'A curation mode (' + curationFlags[0] + ') is standalone -- '
+          + 'do not combine it with a section or --all.',
+      };
+    }
+    if (args.reviewAnchors) return dispatchReviewAnchors(summary.room_slug);
+    if (args.orphanCensus) return dispatchOrphanCensus(summary.room_slug);
+    if (args.crossLabelDups) return dispatchCrossLabelDups(summary.room_slug);
+  }
 
   // Mode validation: either --all OR a section token must be present.
   if (!args.all && (!args.section || typeof args.section !== 'string' || args.section.length === 0)) {
@@ -436,6 +607,10 @@ function renderViolationSummary(violations) {
  * diagnostics-command.cjs precedent.
  */
 function renderShapeE(summary) {
+  // Phase 130.7-03 curation modes render their own digest body.
+  if (summary && (summary.mode === 'review-anchors' || summary.mode === 'orphan-census' || summary.mode === 'cross-label-dups')) {
+    return renderCurationReport(summary);
+  }
   const lines = [];
   lines.push('');
   lines.push('  BRAIN DERIVATION RESULTS');
@@ -519,6 +694,56 @@ function padSection(s) {
   return (name + ':').padEnd(30);
 }
 
+// ---------- Phase 130.7-03 curation digest renderer (Shape E) ----------
+
+function renderCurationReport(summary) {
+  const lines = [];
+  lines.push('');
+  if (summary.mode === 'review-anchors') {
+    lines.push('  CURATION: REVIEW_REQUIRED ANCHORS (audit Q1)');
+  } else if (summary.mode === 'orphan-census') {
+    lines.push('  CURATION: ALL-LABEL ORPHAN CENSUS (audit section 7)');
+  } else {
+    lines.push('  CURATION: CROSS-LABEL DUPLICATES (audit section 13)');
+  }
+  lines.push('  ' + '-'.repeat(68));
+
+  if (summary.brain_offline_from_start === true) {
+    lines.push('  ' + SYM.WARN + ' Brain offline -- no curation scan possible');
+    lines.push('  ' + SYM.ARROW + ' Check MINDRIAN_BRAIN_KEY env var and retry');
+    lines.push('');
+    return lines.join('\n');
+  }
+
+  if (summary.mode === 'review-anchors') {
+    lines.push('  REVIEW_REQUIRED count: ' + (summary.review_required_count || 0));
+    lines.push('  ' + '-'.repeat(68));
+    lines.push('  SAMPLE');
+    for (const name of (summary.sample || [])) {
+      lines.push('  ' + SYM.BULLET + ' ' + name);
+    }
+  } else if (summary.mode === 'orphan-census') {
+    lines.push('  Total orphan mass: ' + (summary.total_orphans || 0));
+    lines.push('  ' + '-'.repeat(68));
+    lines.push('  PER LABEL');
+    for (const row of (summary.label_orphans || [])) {
+      lines.push('  ' + SYM.BULLET + ' ' + padSection(row.label) + ' ' + row.orphans);
+    }
+  } else {
+    lines.push('  Cross-label dup groups: ' + (summary.group_count || (summary.dup_groups ? summary.dup_groups.length : 0)));
+    lines.push('  ' + '-'.repeat(68));
+    lines.push('  GROUPS (feeds Phase 132 dedup -- reporting only, never fails a build)');
+    for (const g of (summary.dup_groups || [])) {
+      lines.push('  ' + SYM.BULLET + ' ' + g.canonical_name + '  [' + (g.variant_labels || []).join(', ') + ']');
+    }
+  }
+  lines.push('  ' + '-'.repeat(68));
+  lines.push('  NEXT');
+  lines.push('  ' + SYM.ARROW + ' Phase 132 owns reducing this debt; this surface measures it');
+  lines.push('');
+  return lines.join('\n');
+}
+
 // ---------- Main entry (CLI) ----------
 
 async function main() {
@@ -567,6 +792,11 @@ function printHelp() {
     '  --cross-room              -- add cross-room structural contradiction scan',
     '  --dry-run                 -- preview target sections + cost; no Brain calls',
     '',
+    'Curation surfaces (standalone reporting modes; feed Phase 132 dedup):',
+    '  --review-anchors          -- the REVIEW_REQUIRED queue digest (audit Q1)',
+    '  --orphan-census           -- per-label orphan count table (audit section 7)',
+    '  --cross-label-dups        -- same-name-different-label collisions (section 13)',
+    '',
     'Exit codes:',
     '  0  success (including Brain-offline soft-fail)',
     '  1  invocation error (no active room, invalid section, missing args)',
@@ -584,11 +814,19 @@ module.exports = {
   estimateCost: estimateCost,
   dispatch: dispatch,
   renderShapeE: renderShapeE,
+  renderCurationReport: renderCurationReport,
   main: main,
+  // Phase 130.7-03 curation handlers exposed for tests / downstream plans.
+  dispatchReviewAnchors: dispatchReviewAnchors,
+  dispatchOrphanCensus: dispatchOrphanCensus,
+  dispatchCrossLabelDups: dispatchCrossLabelDups,
   // Constants exposed for tests / downstream plans.
   DEFAULT_TOKENS_PER_SECTION: DEFAULT_TOKENS_PER_SECTION,
   CROSS_ROOM_SURCHARGE_PER_SECTION: CROSS_ROOM_SURCHARGE_PER_SECTION,
   STREAM_PROGRESS_THRESHOLD: STREAM_PROGRESS_THRESHOLD,
+  REVIEW_ANCHORS_CYPHER: REVIEW_ANCHORS_CYPHER,
+  ORPHAN_CENSUS_CYPHER: ORPHAN_CENSUS_CYPHER,
+  CROSS_LABEL_DUPS_CYPHER: CROSS_LABEL_DUPS_CYPHER,
 };
 
 if (require.main === module) {
