@@ -1708,14 +1708,14 @@ Plans:
 
 **Status:** Scoped — ready for `/gsd:discuss-phase 132`.
 
-**Plans:** 5 plans (132-01 substrate + 132-03 dedup/held-rename machinery shipped; 132-02/04/05 planned), wave-ordered 1 -> 5.
+**Plans:** 3/5 plans executed
 
 Plans:
 - [x] 132-01-PLAN.md - curation-batch runner + frozen 5-event-type hypergraph schema substrate (Wave 1) [SHIPPED 2026-06-02: lib/brain/curation-batch.cjs (makeBatch chokepoint -- created_by stamping + rollback pairing required + write-time 130.7-contract guard + scanBatchForUserContent Part 8 scan) + lib/brain/hypergraph-event-schema.cjs (frozen 5 event types + additive buildReifyCypher + EVENT_INSTANCE_MIN=20); 6/6 + 5/5 fixture tests; run-all-132.sh 2/2; ZERO live Brain writes; ZERO new deps; zero regression on 130/130.7/131/nav; commits 43b06b4c, 8a6b31d5, ff79b111]
 - [ ] 132-02-PLAN.md - hypergraph reify: 5 reified event-node types, >=20 instances each, additive (Wave 2)
 - [x] 132-03-PLAN.md - cross-label dedup-collapse + held-name-rename machinery (Wave 3) [SHIPPED 2026-06-02, RE-BASELINED: the as-written ~50-group / 22-REVIEW_REQUIRED targets are STALE (live graph already clean off the Phase 131 close-out packet -- 721 backfilled cids, 0 collisions); the REAL live worklist is 1 dedup pair (6831/22816 'The Other Way Round'|Technique) + 14 held name>80 nodes (10 :Method + 4 :Framework). Built GENERIC machinery: scripts/curation-132-03-dedup-held-rename.cjs -- pickCanonical (most-edged + 130.7 LABEL_PRIORITY tiebreak), buildDedupCollapsePass (keeper correlation_id via computeCorrelationId no-re-hash + migrate-incoming-edges + :Archived/REPLACED_BY reversible-delete + snapshotRequired=true with documented SNAPSHOT_PRECONDITION), buildHeldRenamePass (recompute cid + 3-property curated-v1 backfill + clear held marker, fully created_by-reversible). Both route through the 132-01 makeBatch runner. 13/13 fixture tests; run-all-132 3/3; ZERO live Brain writes; ZERO new deps; zero regression on 130/130.7/131/nav; live --execute is orchestrator-run snapshot-first. commits 50abe4d9, 0225062f, c9de6391]
 - [ ] 132-04-PLAN.md - content wire-it: ~278-node backlog (A/C/D/E/F/G) + shattered-author consolidation (Wave 4)
-- [ ] 132-05-PLAN.md - pseudonymize 6 internal :Person nodes + 130.7 CI health gate as the phase release gate (Wave 5)
+- [x] 132-05-PLAN.md - pseudonymize 6 internal :Person nodes + 130.7 CI health gate as the phase release gate (Wave 5)
 
 **Authority:** `.planning/phases/132-dual-graph-correlation-hypergraph-reformat/132-CONTEXT.md` (scoped 2026-05-17 from the dogfooding-curation session) + `~/MindrianRooms/mindrian/mindrianOS/methodology/2026-05-17-brain-curation-audit.md`.
 

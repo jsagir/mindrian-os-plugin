@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
-stopped_at: Completed 132-03-PLAN.md -- Phase 132 dedup-collapse + held-name-rename MACHINERY (RE-BASELINED). scripts/curation-132-03-dedup-held-rename.cjs builds the GENERIC passes the orchestrator runs later snapshot-first against the TINY live worklist (1 dedup pair 6831/22816 'The Other Way Round'|Technique + 14 held name>80 nodes: 10 :Method + 4 :Framework). The as-written ~50-group/22-REVIEW_REQUIRED targets are STALE (live graph already clean off the Phase 131 close-out packet: 721 backfilled cids, 0 collisions) -- re-baseline per the prompt scope override. pickCanonical (most-edged + 130.7 LABEL_PRIORITY tiebreak, reused not re-derived); buildDedupCollapsePass (keeper correlation_id via computeCorrelationId no-re-hash -> anchor 4210289a0ca1596b + migrate-incoming-edges + :Archived/REPLACED_BY archive reversible-delete NO DETACH DELETE per Part 7 + snapshotRequired=true with documented SNAPSHOT_PRECONDITION: a node-merge re-points loser edges so created_by rollback cannot reconstruct the pre-merge edge set, orchestrator MUST snapshot before --execute); buildHeldRenamePass (assign canonical name -> recompute correlation_id -> 3-property curated-v1 backfill -> clear held marker, fully created_by-reversible no snapshot). Both route through the 132-01 makeBatch runner (created_by stamping + assertRollbackPath + scanBatchForUserContent + inherited write-time 130.7 guard on --execute). --dry-run default creds-free; --execute/--rollback orchestrator-run snapshot-first and refuse from this script (machinery only). 13/13 fixture tests; run-all-132 3/3; additive run-all-132 + Feynman registration. ZERO live Brain writes (no curation-batch.jsonl audit file); ZERO new deps. Zero regression: run-all-130 4/4, run-all-130.7 7/7, run-all-131 0-fail, test-navigation-acceptance 1/1. Phase 132 now 2/5 plans (132-01 + 132-03 shipped).
-last_updated: "2026-06-02T10:30:00.000Z"
-last_activity: "2026-06-02 -- Completed 132-03-PLAN.md (RE-BASELINED dedup-collapse + held-name-rename machinery): pickCanonical + buildDedupCollapsePass (:Archived/REPLACED_BY reversible-delete + snapshot precondition) + buildHeldRenamePass (3-property curated-v1 backfill); both via the 132-01 makeBatch runner; fixtures only, ZERO live Brain writes, ZERO new deps; run-all-132 3/3"
+stopped_at: "Completed 132-05-PLAN.md (RE-BASELINED to the release gate: verify-phase-132.cjs invokes the 130.7 dual-graph health gate report-only + brain-boundary-scan over the phase batch builders; pseudonymize 6 internal :Person nodes ships as a dry-run-default reversible builder with the live write DEFERRED to v1.14.0 in deferred-items.md DI-132-05-01). ZERO live Brain writes; zero new deps. run-all-132 4/4; zero regression on 130/130.7/nav. Phase 132 now 3/5 plans shipped (132-01 + 132-03 + 132-05)."
+last_updated: "2026-06-02T10:52:06.987Z"
+last_activity: "2026-06-02 -- Completed quick task 260602-0pb: Windows installer shell fix (bin/cli.js)"
 progress:
   total_phases: 75
   completed_phases: 54
   total_plans: 387
   completed_plans: 354
-  percent: 91
+  percent: 72
 ---
 
 # Project State
@@ -558,6 +558,7 @@ Progress: [█████████░] 91%
 | Phase 127.1 P03 | 5min | 2 tasks | 7 files |
 | Phase 127.3 P04 | 20m | 2 tasks | 1 files |
 | Phase 130.7 P01 | 10 | 3 tasks | 8 files |
+| Phase 132 P05 | 12m | 2 tasks | 6 files |
 
 ### Roadmap Evolution
 
@@ -1159,6 +1160,7 @@ Progress: [█████████░] 91%
 - [Phase ?]: Phase 131-03: source-lens driver CONSUMES the 130.5 corpus EXCLUSIVELY (fetchCorpus cache-first via research-cache); NO fetcher, NO second cache, NO second pre-egress audit (the Part 8 audit is the shared hook inside fetchCorpus)
 - [Phase ?]: Phase 131-03: findings ranked by source-keyed evidence-tier (Part 5) then CJS-native token-overlap relevance; commit stage drops None-tier; top-5 cap. HSI-scoring DEFERRED to v1.14.0 behind Phase 134 CJS HSI; 131 ships zero Python
 - [Phase ?]: Phase 131-03: ZERO new deps + ZERO live Brain writes; T-131-03-SC did NOT fire (no [ASSUMED]/[SUS] package in 130.5, no install required); room.db only via lens-engine -> navigation.cjs
+- [Phase ?]: Phase 132-05: shipped the release gate (invoke 130.7 health gate + brain-boundary-scan); DEFERRED live pseudonymize of 6 internal :Person nodes to v1.14.0; ZERO live Brain writes
 
 ### Pending Todos
 
@@ -1191,6 +1193,6 @@ Progress: [█████████░] 91%
 
 ## Session Continuity
 
-Last session: 2026-06-01T21:30:52.648Z
-Stopped at: Completed 130.5-03-PLAN.md (rs-discovery-engine migrated onto fetchCorpus + shared research-cache; byte-identical + cache-hit + Canon Part 8 regression 3/3 green; existing 9-scenario suite 9/9; run-all-130.5.sh green; Feynman runner registers 130.5 additively; substrate guard clean on every commit). Phase 130.5 COMPLETE (3/3 plans).
+Last session: 2026-06-02T10:52:06.944Z
+Stopped at: Completed 132-05-PLAN.md (RE-BASELINED to the release gate: verify-phase-132.cjs invokes the 130.7 dual-graph health gate report-only + brain-boundary-scan over the phase batch builders; pseudonymize 6 internal :Person nodes ships as a dry-run-default reversible builder with the live write DEFERRED to v1.14.0 in deferred-items.md DI-132-05-01). ZERO live Brain writes; zero new deps. run-all-132 4/4; zero regression on 130/130.7/nav. Phase 132 now 3/5 plans shipped (132-01 + 132-03 + 132-05).
 Resume file: None
