@@ -1,15 +1,31 @@
 {
   "version": 1,
   "phase": "121.5-07",
-  "canon_parts": ["Part 3", "Part 7", "Part 10"],
-  "decisions": ["D-06", "D-07"],
-  "_note": "Canonical groups for /mos:help. Modify in lockstep with commands/*.md frontmatter help_jtbd: fields. scripts/check-help-coverage.cjs is the CI tripwire that enforces every non-admin command appears here AND has a help_jtbd value. The Export/Publish/Hub trio (D-07) replaces the legacy 'Output + Export' group with destination-first mental model: I want my work to end up at X.",
+  "canon_parts": [
+    "Part 3",
+    "Part 7",
+    "Part 10"
+  ],
+  "decisions": [
+    "D-06",
+    "D-07"
+  ],
+  "_note": "All user-facing commands appear in /mos:help (selector menu). EXCLUDED: visibility:admin commands (admin, dogfood-flush) and the deprecated_aliases (soft redirects). Each group carries lane: start|methodology|explore|view for the Level-1 selector; the renderer text view (--list) walks all groups.",
   "groups": [
     {
       "id": "getting-started",
       "label": "Getting Started",
       "glyph": "▶",
-      "commands": ["new-project", "onboard", "splash", "help", "rooms", "room", "mos"]
+      "commands": [
+        "new-project",
+        "onboard",
+        "splash",
+        "help",
+        "rooms",
+        "room",
+        "mos"
+      ],
+      "lane": "start"
     },
     {
       "id": "problem-discovery",
@@ -23,7 +39,8 @@
         "map-unknowns",
         "challenge-assumptions",
         "jtbd"
-      ]
+      ],
+      "lane": "methodology"
     },
     {
       "id": "structured-thinking",
@@ -38,7 +55,8 @@
         "mva-brief",
         "mva-option",
         "mos-reason"
-      ]
+      ],
+      "lane": "methodology"
     },
     {
       "id": "perspectives",
@@ -51,7 +69,8 @@
         "scenario-plan",
         "compare-ventures",
         "leadership"
-      ]
+      ],
+      "lane": "methodology"
     },
     {
       "id": "intelligence-brain",
@@ -81,7 +100,8 @@
         "causal",
         "auto-explore",
         "memory"
-      ]
+      ],
+      "lane": "explore"
     },
     {
       "id": "working",
@@ -102,37 +122,67 @@
         "speakers",
         "opportunities",
         "funding"
-      ]
+      ],
+      "lane": "explore"
     },
     {
       "id": "reviewing",
       "label": "Reviewing",
       "glyph": "✓",
-      "commands": ["status", "diagnose", "radar", "grade", "deep-grade", "reanalyze"]
+      "commands": [
+        "status",
+        "diagnose",
+        "radar",
+        "grade",
+        "deep-grade",
+        "reanalyze"
+      ],
+      "lane": "view"
     },
     {
       "id": "export",
       "label": "Export",
       "glyph": "↓",
-      "commands": ["export", "vault", "snapshot"]
+      "commands": [
+        "export",
+        "vault",
+        "snapshot"
+      ],
+      "lane": "view"
     },
     {
       "id": "publish",
       "label": "Publish",
       "glyph": "↗",
-      "commands": ["publish", "present"]
+      "commands": [
+        "publish",
+        "present"
+      ],
+      "lane": "view"
     },
     {
       "id": "hub",
       "label": "Hub",
       "glyph": "⬡",
-      "commands": ["dashboard", "wiki", "scheduled-tasks", "visualize"]
+      "commands": [
+        "dashboard",
+        "wiki",
+        "scheduled-tasks",
+        "visualize"
+      ],
+      "lane": "view"
     },
     {
       "id": "infrastructure",
       "label": "Infrastructure",
       "glyph": "⚙",
-      "commands": ["setup", "update", "doctor", "build-knowledge", "dogfood-flush"]
+      "commands": [
+        "setup",
+        "update",
+        "doctor",
+        "build-knowledge"
+      ],
+      "lane": "view"
     }
   ],
   "deprecated_aliases": {
@@ -141,5 +191,11 @@
     "query": "graph",
     "organize": "rooms organize",
     "hmi-status": "doctor --ui-compliance"
+  },
+  "_lanes": {
+    "start": "Start + navigate",
+    "methodology": "Run a methodology",
+    "explore": "Explore + intelligence",
+    "view": "View + manage"
   }
 }

@@ -1,4 +1,5 @@
 ---
+visibility: admin
 description: Drain the dog-food queue into the mindrian room and regenerate ## Live (auto)
 help_jtbd: "Manually flush captured plugin edits into the mindrian dataroom."
 body_shape: E

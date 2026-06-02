@@ -595,11 +595,11 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "B (Semantic Tree)",
+      "body_shape": "F (Selector Block)",
       "serves_jtbd": [
         "explore"
       ],
-      "teaching": "When you forget which /mos: command does what, /mos:help groups them by flow in tldr style. Start here when the surface feels overwhelming.",
+      "teaching": "When the surface feels overwhelming, /mos:help is a selector menu: pick a lane, then a command, and it runs. Add --list for the full text view.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },

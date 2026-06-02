@@ -1,36 +1,45 @@
 ---
 name: help
-description: List commands grouped by flow (tldr-style)
-help_jtbd: "List commands grouped by flow, with one-line outcomes."
-argument-hint: [command-name]
-body_shape: B (Semantic Tree)
-body_shape_detail: -- (inline, no zones)
+description: Selector-menu help -- pick a lane, pick a command, run it (text view with --list)
+help_jtbd: "Pick a lane, pick a command, run it -- the command menu as a selector."
+argument-hint: [command-name | --list]
+body_shape: F (Selector Block)
+body_shape_detail: F.1 Next Move (drill-down via AskUserQuestion)
 serves_jtbd: ["explore"]
-teaching: "When you forget which /mos: command does what, /mos:help groups them by flow in tldr style. Start here when the surface feels overwhelming."
+teaching: "When the surface feels overwhelming, /mos:help is a selector menu: pick a lane, then a command, and it runs. Add --list for the full text view."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read
   - Glob
   - Bash
+  - AskUserQuestion
+  - Skill
 ---
 
 # /mos:help
 
-You are Larry. List commands grouped by job category, with one-line outcome descriptions ("what's in it for me").
+You are Larry. `/mos:help` is a SELECTOR MENU (a Shape F drill-down, the canon's AskUserQuestion primitive), NOT a flat printed list. The navigator picks a lane, then a group/command, and it RUNS. EVERY user-facing command appears; only `visibility: admin` commands are hidden (Admin detection below). `--list` prints the full text view instead.
 
-## How to render the default `/mos:help`
+## Default `/mos:help` -- the drill-down selector (TUI)
 
-Invoke `scripts/help-renderer.cjs` and emit its output verbatim. The script handles all terminal-capability dispatch (truecolor / 256color / ASCII) via `lib/core/terminal-capability.cjs`. The 4-zone format is preserved by the renderer's design (body_shape: B Semantic Tree).
+Source the lanes, groups, and commands from `data/help-groups.json` (each group carries `lane:` of start | methodology | explore | view; `_lanes` labels them). Join each command with its `commands/<name>.md` `help_jtbd:` for the one-line outcome. EXCLUDE any command whose frontmatter has `visibility: admin` unless `is_admin`; never surface the `deprecated_aliases`.
 
-Specifically:
+Render with the AskUserQuestion primitive, drilling down. Each AskUserQuestion shows at most 4 options; when a level has more than 4 entries, show 3 + a 4th "More ->" option that re-asks with the remainder, and always offer "Back".
+
+1. **Level 1 -- lane.** One AskUserQuestion, the 4 lanes from `_lanes` (Start + navigate / Run a methodology / Explore + intelligence / View + manage). Each option's `description` lists 4-6 representative `/mos:` commands; `preview` is a compact De Stijl tree (glyph + `/mos:cmd` + JTBD).
+2. **Level 2 -- group** (only if the lane has more than one group). AskUserQuestion of that lane's groups (by `label`), each described by its command count + a few names. A single-group lane skips to Level 3.
+3. **Level 3 -- command.** AskUserQuestion of the group's commands (paginate by 4 with "More ->"; include "Back"). Option label = `/mos:<command>`; description = its `help_jtbd:`; preview = a 3-line card.
+4. **Run.** On a `/mos:<command>` selection, RUN it via the Skill tool (`mos:<command>`). If it needs an active room and none is set, say so and offer `/mos:rooms` or `/mos:new-project`. "Back" re-asks the prior level; "More ->" continues pagination.
+
+## Text view + non-interactive fallback (`/mos:help --list` / `--all`, Desktop, piped)
+
+When the navigator runs `/mos:help --list` or `--all`, or AskUserQuestion is unavailable (piped / non-TTY / Desktop), emit the renderer's text view verbatim instead of the selector:
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/scripts/help-renderer.cjs"
 ```
 
-If `CLAUDE_PLUGIN_ROOT` is not set, fall back to the repo-relative path: `node ./scripts/help-renderer.cjs`.
-
-DO NOT compose the help text inline. DO NOT hardcode color escapes in the LLM response. The renderer is the single source of truth (per Phase 121.5-07 D-05 / D-06 LOCKED).
+Fall back to `node ./scripts/help-renderer.cjs` if `CLAUDE_PLUGIN_ROOT` is unset. The renderer walks every group (all non-admin commands) and is the single source of truth for the TEXT view. DO NOT hand-compose the text view; DO NOT hardcode color escapes.
 
 ## How the renderer composes output
 
@@ -92,9 +101,9 @@ Set an internal flag `is_admin` to true if ANY of these is met:
 
 The renderer reads visibility from each command's frontmatter; admin-gated commands are excluded by default and surface only when `is_admin` is true.
 
-## `--all` flag
+## `--all` / `--list` flag
 
-If the user included `--all`, render the same output as the default (the renderer already includes all groups including Infrastructure; there is no truncation in the canonical layout).
+`--all` and `--list` both render the TEXT view (the renderer's full walk of every non-admin group), NOT the selector -- see "Text view + non-interactive fallback" above. There is no truncation; every non-admin command appears.
 
 ## Troubleshooting
 
