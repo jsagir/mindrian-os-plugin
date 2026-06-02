@@ -1,17 +1,21 @@
 ---
 name: research
-description: Research the web and cross-reference with Brain
-help_jtbd: "Spawn a research sub-agent for a specific question."
+description: Research the web and wire findings as typed graph evidence
+help_jtbd: "Run context-aware research that files findings as typed EvidenceClaim graph nodes."
 body_shape: C
 argument-hint: [topic]
 serves_jtbd: ["explore", "understand-market"]
-teaching: "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework."
+teaching: "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework. Now it also extracts your room context first, surfaces each finding with a candidate filing location, and wires accepted findings as typed graph data other commands can consume."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Hypothesis-Driven Problem Solving"]
 produces: "room/**/research/*"
 inputs: []
 autonomous_safe: true
+# --- Phase 131 source-lens pilot frontmatter ---
+# A calling methodology declares requires_evidence: to auto-dispatch /mos:research
+# (the inbound called-by handle). See "Invocation modes" below.
+emits_evidence_claims: true
 allowed-tools:
   - Read
   - Bash
@@ -22,178 +26,243 @@ allowed-tools:
 
 # /mos:research [topic]
 
-You are Larry. This command provides external research by delegating to the Research Agent, which searches the web and cross-references findings with Brain's knowledge graph (when available).
+You are Larry. This command is the canonical research workflow step. It is a THIN
+orchestrator: the pipeline logic belongs to four shipped modules (Phase 131 Plans
+02-04), and this command invokes them in a fixed 7-stage sequence. It adds NO new
+core logic and NO fetcher of its own. The fetch + the Canon Part 8 pre-egress
+audit live INSIDE the Phase 130.5 shared corpus, reached through the driver.
 
-## Web research tier-awareness (Phase 94 Plan 05)
+`/mos:research` extracts context from the room (via `navigation.cjs`), understands
+WHY it was called, surfaces findings with computed candidate target sections (an
+F.1 selector per Canon Part 3), and WIRES accepted findings as typed `EvidenceClaim`
+nodes with `INFORMS / CONTRADICTS / SUPERSEDES / REJECTED_BECAUSE` cascade edges.
 
-The research pipeline has a paid -> native -> cache fallback chain so /mos:research produces grounded results regardless of which web-research MCPs are configured. Tier transitions are logged to the Section-8 decision-trace (`intent_persona.web_research_tier`) per Canon Part 4.
+## The pipeline modules (what this command invokes)
 
-- **Tier 1 PAID** (when configured): Tavily / Firecrawl / Exa via paid MCPs. Richest results; lowest hallucination risk. Requires `TAVILY_API_KEY` (or peer paid keys).
-- **Tier 0 NATIVE** (always available): Anthropic-native `WebSearch` + `WebFetch` tools. Free; produces real URLs; zero burned credits. Used as the universal fallback when Tier 1 is unconfigured or down.
-- **Tier -1 CACHE**: most-recent `fetched_results.json` under `<room>/.mindrian/` when both Tier 1 and Tier 0 are unavailable (offline). Returns whatever the last successful fetch saved.
+All four are invoked via `node ${CLAUDE_PLUGIN_ROOT}/...` (the established
+command-invokes-cjs idiom). Every room.db read and write routes through
+`lib/core/navigation.cjs` inside these modules; this command never touches room.db
+directly and never sends LOCAL data to the Brain (Canon Part 8 + Part 9).
 
-When Brain is unreachable, the research still runs; only the Brain cross-reference layer is skipped. /mos:research never silently no-ops because of unconfigured MCPs.
+| Stage(s) | Module | Entry point |
+|----------|--------|-------------|
+| 1+2+3 PRE-FLIGHT + PLAN | `lib/core/research-context-extractor.cjs` | `extractContext({ roomDir, sessionId, topic, db })` |
+| 4 EXECUTION | `lib/lens-engine/source-lens-driver.cjs` | `runSourceLens({ roomDir, topic, lensSet, preflight, stage, db, sessionId })` |
+| 6 F.1 FILING SELECTOR | `lib/core/research-filing-selector.cjs` | `buildFilingSelector(finding, candidateSections, opts)` |
+| 7 WIRING | `lib/core/findings-wirer.cjs` | `wireAccept / wireReject / wireDefer (db, {...})` |
 
-## Broad Parallel Mode (`/mos:research --broad`)
+The 8-stage spec from 131-CONTEXT collapses to 7 here per the 4.8 re-baseline:
+Stage 1 is ONE batched pre-flight read, and Stages 2+3 (context summary + lens-set
+computation) merge into a single reasoning pass inside `extractContext`.
 
-Dispatches 3 research agents simultaneously -- academic, market, and competitor -- for comprehensive parallel intelligence gathering on a single topic.
+## Invocation modes (the load-bearing pilot capability)
 
-Unlike standard research (single agent, sequential queries), `--broad` runs 3 specialized research angles in parallel, then synthesizes findings with cross-angle triangulation.
+`/mos:research` supports BOTH invocation modes:
 
-### Flow
+- **Called BY another methodology** (the inbound called-by handle). A calling
+  command (for example `/mos:build-thesis` declaring `requires_evidence:`)
+  dispatches `/mos:research` when room evidence is thin. On this path, after
+  wiring, `/mos:research` RETURNS the accepted `EvidenceClaim` node IDs so the
+  caller resumes with exactly the evidence it needed. It returns ONLY node-id
+  handles, never finding prose (Canon Part 8: the prose lives on the LOCAL node).
+- **Called STANDALONE** (a user runs `/mos:research <topic>` directly). On this
+  path, after wiring, `/mos:research` surfaces an F.1 next-move selector naming the
+  methodologies that can now consume the freshly-wired claims (for example "now
+  /mos:build-thesis can consume these claims").
 
-1. **Capture research topic** -- same as standard mode (argument or conversational)
+**Auto-dispatch rule (open-decision 1, RESOLVED per 4.8):** a calling methodology
+NEVER auto-fires material research. When evidence is below its declared threshold,
+it ASKS via the F.1 selector with a pre-computed confident recommendation
+("evidence is thin here -- run /mos:research?"). This honors the GUIDED-default
+Brain rule (Canon Part 9 role 5): Larry proposes, the human decides.
 
-2. **Resolve model per agent** using `lib/core/model-profiles.cjs`:
-   ```
-   const { resolveModel } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs');
-   const model = resolveModel('research', roomPath);
-   ```
+## Stage 1+2+3 -- PRE-FLIGHT + PLAN (research-context-extractor)
 
-3. **Dispatch 3 research agents in parallel** using the Agent tool with `run_in_background: true`:
+This is the explicit moment research becomes context-aware rather than blind.
 
-   Each agent follows `agents/research.md` but with a specialized research angle:
-
-   **Agent 1: Academic Research**
-   - Search queries focused on: academic papers, peer-reviewed studies, university research, published frameworks
-   - Tavily search with `search_depth: "advanced"` and academic domain filters
-   - Brain cross-reference: `brain_search_semantic` for framework connections to academic findings
-   - Output: scholarly evidence, theoretical grounding, methodology validation
-
-   **Agent 2: Market Research**
-   - Search queries focused on: market size, growth rates, industry reports, funding rounds, market trends
-   - Tavily search targeting: market research firms, industry publications, financial databases
-   - Brain cross-reference: venture-stage-appropriate market intelligence
-   - Output: market data, sizing, trends, TAM/SAM/SOM indicators
-
-   **Agent 3: Competitor Research**
-   - Search queries focused on: direct competitors, alternative solutions, market positioning, feature comparison
-   - Tavily search targeting: product pages, comparison sites, Crunchbase, news coverage
-   - Brain cross-reference: competitive analysis frameworks from the Teaching Graph
-   - Output: competitor landscape, positioning gaps, differentiation opportunities
-
-   ```
-   [RESEARCH --broad] Dispatching 3 research agents
-
-     Agent 1: Academic    -- scholarly evidence & frameworks     [running]
-     Agent 2: Market      -- sizing, trends & growth data       [running]
-     Agent 3: Competitor  -- landscape, gaps & positioning      [running]
-
-     Topic: {research topic}
-     Model: {resolved model}
-     Waiting for all agents...
-   ```
-
-4. **Collect and synthesize** -- after all 3 agents return:
-
-   a. Parse each agent's research brief (numbered findings, sources, Brain connections)
-   b. **Cross-angle triangulation:**
-      - Do academic findings support or contradict market data?
-      - Do competitor approaches align with academic best practices?
-      - Are there market opportunities that competitors have missed AND academia validates?
-   c. Highlight convergences (3-source validated claims) and contradictions (conflicting signals)
-
-5. **Trigger HSI recomputation** if findings surface cross-section connections:
-   ```bash
-   "${CLAUDE_PLUGIN_ROOT}/scripts/compute-hsi.py" room
-   ```
-
-6. **Present the broad research brief:**
-
-   ```
-   [RESEARCH --broad] Complete -- 3 research angles synthesized
-
-   ## Broad Research Brief: {topic}
-
-   ### Academic Findings
-   1. {finding with source URL and retrieval date}
-   2. {finding}
-   3. {finding}
-   Brain connections: {related frameworks/concepts}
-
-   ### Market Intelligence
-   1. {finding with source URL and retrieval date}
-   2. {finding}
-   3. {finding}
-   Brain connections: {related market patterns}
-
-   ### Competitive Landscape
-   1. {finding with source URL and retrieval date}
-   2. {finding}
-   3. {finding}
-   Brain connections: {related competitive frameworks}
-
-   ---
-
-   ### Cross-Angle Triangulation
-
-   **Validated (3-source):**
-   - {claim supported by academic + market + competitor data}
-
-   **Contradictions:**
-   - Academic says X, but market data shows Y
-
-   **Opportunities (gap found):**
-   - {market opportunity that competitors missed and academia supports}
-
-   ### Venture Relevance
-   {How these findings connect to the user's specific venture}
-   ```
-
-7. **User confirms before filing** -- present the brief first. Suggest filing to the most relevant room section (usually `room/market-analysis/` or `room/competitive-analysis/`). Filing includes full provenance metadata from all 3 agents.
-
-## Flow
-
-### 1. Capture Research Topic
-
-The user provides a research topic or question, either:
-- As an argument: `/mos:research market size for edtech in Southeast Asia`
-- In conversation: "Can you research the competitive landscape for my venture?"
-
-If no topic is provided, ask: "What do you want me to research? Give me a specific question or topic related to your venture."
-
-### 2. Model Resolution
-
-Before dispatching the Research Agent, resolve its model:
+Resolve the room dir + session id, then invoke the extractor:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs" resolve <roomDir> research
+node -e '
+  const ex = require("${CLAUDE_PLUGIN_ROOT}/lib/core/research-context-extractor.cjs");
+  const { openRoomDb, closeRoomDb } = require("${CLAUDE_PLUGIN_ROOT}/lib/core/room-db.cjs");
+  const roomDir = process.env.MOS_ROOM_DIR;
+  const db = openRoomDb(roomDir);
+  const out = ex.extractContext({ roomDir, sessionId: process.env.MOS_SESSION_ID, topic: process.env.MOS_TOPIC, db });
+  closeRoomDb(db);
+  process.stdout.write(JSON.stringify(out));
+'
 ```
 
-- If result is `skip`, tell the user: "Research agent is not available at the current venture stage. Use `/mos:models override research sonnet` to force." Then STOP.
-- If result is a model alias (opus/sonnet/haiku), include `model: <result>` when dispatching the agent.
-- If result is `inherit`, do not specify a model (use session default).
+`extractContext` returns `{ ok, context_summary, lens_set, preflight }`:
 
-### 3. Spawn the Research Agent
+- **context_summary** -- a Body Shape A (one conversational paragraph), Larry-voiced
+  context summary framed in the dominant persona role (Canon Part 2a). SURFACE this
+  to the user before fetching. Example: "Speaking to your investor lens, you are in
+  the build-thesis workflow, your JTBD is thesis-build, the section in focus is
+  financial-model. You have 3 evidence gaps tagged needs_evidence here, so I will
+  research <topic> against THIS context."
+- **lens_set** -- the ordered, weighted `[{ lens, weight }]` source-lens set,
+  COMPUTED from the room context (section gap / JTBD / persona role_blend), never
+  hardcoded. The driver consumes this verbatim. Surface the lens names so the user
+  sees which sources will be queried.
 
-Delegate the research to the Research Agent by reading and following `agents/research.md`.
+If no topic was provided, ask first: "What do you want me to research? Give me a
+specific question or topic related to your venture." Then proceed.
 
-The Research Agent will:
-- Read room state for venture context
-- Search via `mcp__tavily-mcp__tavily-search` with focused queries
-- Extract full content from promising results via `mcp__tavily-mcp__tavily-extract`
-- Cross-reference with Brain via `brain_search_semantic` to connect findings to framework intelligence
-- Synthesize into a research brief with numbered findings, source URLs, Brain connections, and venture relevance
+## Stage 4 -- EXECUTION (source-lens-driver)
 
-### 4. Larry Reviews and Presents
+Pass the computed `lens_set` + the pre-flight + the pipeline stage flag to the
+driver:
 
-When the Research Agent returns its brief, Larry:
-- **Contextualizes** -- helps the user understand what the findings mean for their specific venture
-- **Connects to methodology** -- suggests which framework or command could use this research as input
-- **Highlights surprises** -- calls out findings that challenge or strengthen the current thesis
-- **Notes gaps** -- if the research raises new questions, name them
+```bash
+node -e '
+  const drv = require("${CLAUDE_PLUGIN_ROOT}/lib/lens-engine/source-lens-driver.cjs");
+  const { openRoomDb, closeRoomDb } = require("${CLAUDE_PLUGIN_ROOT}/lib/core/room-db.cjs");
+  const roomDir = process.env.MOS_ROOM_DIR;
+  const db = openRoomDb(roomDir);
+  const lensSet = JSON.parse(process.env.MOS_LENS_SET);
+  const preflight = JSON.parse(process.env.MOS_PREFLIGHT || "null");
+  drv.runSourceLens({ roomDir, topic: process.env.MOS_TOPIC, lensSet, preflight, stage: process.env.MOS_STAGE || "explore", db, sessionId: process.env.MOS_SESSION_ID })
+    .then((out) => { closeRoomDb(db); process.stdout.write(JSON.stringify(out)); });
+'
+```
 
-### 5. User Confirms Before Filing
+The driver fetches EXCLUSIVELY through the Phase 130.5 shared corpus + cache (it
+adds no fetcher, no second cache, no second pre-egress audit -- the Canon Part 8
+pre-egress audit is the shared hook inside `fetchCorpus`, inherited on every fetch),
+dedups against prior research, ranks by evidence-tier (Canon Part 5) + relevance,
+applies the stage threshold (a `commit` stage drops None-tier findings), and returns
+`{ ok, findings, lens_set }` with up to the top 5 findings. There is NO Python in
+this path -- ranking is CJS-native tier + token-overlap relevance.
 
-**CRITICAL:** The Research Agent does NOT file to the room automatically. Present the brief to the user first.
+## Stage 5 -- PRESENTATION
 
-Ask: "Want me to file this research to your Data Room? I'd put it in [suggested room section]."
+Render the top-5 findings. For each finding, show:
 
-Only file after explicit user confirmation. Filing includes full provenance metadata (source URLs, retrieval dates, relevance ratings, Brain connections, search queries used).
+- Title + a 1-line summary
+- Source + URL + `retrieved_at` timestamp + `evidence_tier`
+- The pre-mapped candidate room location(s) with a % match score against each
+  section's existing claim graph
+- Persona-aware framing per the role_blend (Canon Part 2a)
+
+Never dump raw search results. Every finding connects to the venture context the
+summary named.
+
+## Stage 6 -- F.1 FILING SELECTOR (research-filing-selector)
+
+Per finding, build the F.1 filing gate (Canon Part 3) by routing through the
+selector:
+
+```bash
+node -e '
+  const sel = require("${CLAUDE_PLUGIN_ROOT}/lib/core/research-filing-selector.cjs");
+  const finding = JSON.parse(process.env.MOS_FINDING);
+  const candidateSections = JSON.parse(process.env.MOS_CANDIDATES);
+  const out = sel.buildFilingSelector(finding, candidateSections, { mode: process.env.MOS_MODE || "A" });
+  process.stdout.write(JSON.stringify(out));
+'
+```
+
+`buildFilingSelector` mirrors `lib/hmi/selector-dispatcher.cjs` (it is NOT a bespoke
+selector), so Phase 136's richer multi-select widget is a strict superset. It
+returns `{ envelope, options }` with the five closed-vocabulary filing verbs:
+
+- File to `<primary section>` (recommended in Mode A when the primary clears the
+  0.7 confidence gate -- a pre-filled confident recommendation, still human-gated
+  per Canon Part 9 role 5)
+- File to `<secondary section>`
+- Split: file primary + reference secondary
+- Defer to milestone audit
+- Reject (capture reason -> REJECTED_BECAUSE edge per Canon Part 4)
+
+Empty candidate sections degrade to a Defer/Reject-only selector. Present the
+envelope; collect the user's decision.
+
+## Stage 7 -- WIRING (findings-wirer)
+
+Route the user's decision to the wirer (one of three paths). Each takes a
+caller-owned db handle:
+
+- **ACCEPT** -> `wireAccept(db, { finding, decision, roomDir, sessionId, topic })`.
+  Writes an `EvidenceClaim` node (review_status `proposed` per Canon Part 9 -- a
+  truth-claim node, never auto-confirmed) + an `INFORMS` edge to the resolved target
+  (+ `CONTRADICTS` when the finding kills an existing claim, + `SUPERSEDES` when it
+  is a better evidence tier, + a Split reference INFORMS to a secondary target) +
+  a `research_filed` memory_event carrying URL / retrieved_at / evidence_tier
+  provenance. Returns the new EvidenceClaim node id.
+- **REJECT** -> `wireReject(db, { finding, reason, decision, roomDir, sessionId })`.
+  Files the rejected finding as a proposed EvidenceClaim (the rejection-source node)
+  + EXACTLY ONE `REJECTED_BECAUSE` edge carrying the captured reason scalar +
+  url / retrieved_at provenance + a `research_rejected` memory_event. Rejection IS
+  data (Canon Part 4): the "why not" node teaches the next dedup.
+- **DEFER** -> `wireDefer(db, { finding, roomDir, sessionId })`. Emits a
+  `research_deferred` memory_event queued to milestone audit; writes no edge.
+
+Edge targets are scoped in the wirer: a LOCAL target resolves to the LOCAL room.db
+node id (`section:` + section convention); a TEACHING-GRAPH target resolves to the
+canonical 130.7 correlation_id via the consumer-side resolver, so a cascade edge
+does not fork across cross-label duplicates.
+
+## Stage 7 (post-filing) -- chain back or next-move
+
+After wiring all accepted findings:
+
+- **Called BY a methodology:** RETURN the accepted `EvidenceClaim` node IDs (the
+  handles only) so the caller resumes with the evidence it needed.
+- **STANDALONE:** surface the F.1 next-move selector naming the methodologies that
+  can now consume the wired claims.
+
+## `--broad` (a 3-lens preset of THIS pipeline)
+
+`/mos:research --broad` runs the FULL Stage 1-7 pipeline above, with one change:
+the computed `lens_set` from Stage 3 is OVERRIDDEN by a fixed 3-lens preset --
+`scholarly`, `industry`, `patent`, all at equal weight 1.0:
+
+```bash
+# --broad: override the extractor's computed lens_set with the 3-lens preset,
+# then flow through the SAME driver / selector / wirer modules.
+MOS_LENS_SET='[{"lens":"scholarly","weight":1.0},{"lens":"industry","weight":1.0},{"lens":"patent","weight":1.0}]'
+```
+
+`--broad` is NOT a separate legacy code path and is NOT deleted (Canon Part 7: do
+not delete user-facing capability). It is a documented `lens_set` preset that flows
+through the same extractor / driver / selector / wirer modules as the default mode.
+The only difference is the fixed lens_set; presentation, the F.1 gate, and wiring
+are identical. Use `--broad` for comprehensive parallel-angle intelligence (the
+academic + market + patent triple) on a single topic.
+
+## Tri-Polar surfaces (CLI / Desktop / Cowork)
+
+- **CLI:** full power. The `node ${CLAUDE_PLUGIN_ROOT}/...` invocations run the four
+  modules directly; the F.1 gate renders via the dispatcher; wiring writes to the
+  local room.db via `navigation.cjs`.
+- **Desktop / Cowork (MCP):** `/mos:research` routes through the `intelligence`
+  tool in `lib/mcp/tool-router.cjs` (the `research` command). The same four pipeline
+  modules are the execution layer behind that tool. Larry narrates the same 7-stage
+  flow conversationally; the F.1 gate renders via AskUserQuestion; wiring lands in
+  the shared `00_Context/` room state.
+
+## Brain boundary (Canon Part 8 + Part 9)
+
+ZERO LOCAL data ever reaches the Brain. The only Brain touch is the read-only
+`brain` lens (a generic methodology query inside the shared 130.5 corpus, generic
+framework handles only, via the Phase 110 packet path). All graph writes are LOCAL
+room.db via `navigation.cjs`. No Python script is called anywhere in this command.
+
+## Web research tier-awareness (inherited)
+
+The fetch path inside the 130.5 corpus has a paid -> native -> cache fallback chain,
+so /mos:research produces grounded results regardless of which web-research MCPs are
+configured. When Brain is unreachable, the research still runs; only the `brain`
+lens degrades to empty. /mos:research never silently no-ops because of unconfigured
+MCPs.
 
 ## Voice
 
 Larry frames the research in venture context:
-> "Here's what I found -- and more importantly, here's what it means for what you're building..."
+> "Here's what I found -- and more importantly, here's what it means for what you're
+> building, and where it should live in your room..."
 
-Never dump raw search results. Every finding connects to the venture.
+Every finding connects to the venture and lands as typed graph data the rest of the
+room can navigate.

@@ -1006,7 +1006,7 @@
         "explore",
         "understand-market"
       ],
-      "teaching": "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework.",
+      "teaching": "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework. Now it also extracts your room context first, surfaces each finding with a candidate filing location, and wires accepted findings as typed graph data other commands can consume.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job — general thinking, talking, ranging."
     },
