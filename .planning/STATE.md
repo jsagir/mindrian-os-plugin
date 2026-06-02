@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
-stopped_at: Completed 131-02-PLAN.md (research-context-extractor.cjs -- Stage 1+2+3 in one pass: one batched getResearchPreflight read + Body Shape A Larry-voiced summary + context-derived weighted lens set; computeLensSet proven not-hardcoded by inequality; cold-room scholarly Tier-0 default never throws; pure-over-navigation, zero Brain writes, zero corpus fetch, zero new deps; 7/7 GREEN; run-all-131 2 passed/4 skipped; zero regression 130/130.7/navigation; substrate guard + brain-boundary-scan clean on every commit). Phase 131 now 2/6 plans shipped; 131-03 (source-lens-driver) next.
-last_updated: "2026-06-02T04:06:21.139Z"
-last_activity: "2026-06-02 -- Completed quick task 260602-0pb: Windows installer shell fix (bin/cli.js)"
+stopped_at: Completed 131-03-PLAN.md (source-lens-driver -- Stage 3-4 rotation over the 130.5 shared corpus; activates the lens-engine source family slot client_count 1 + the weighted-by-context rotation mode; fetches EXCLUSIVELY via fetchCorpus cache-first; dedup against prior_research + tier/relevance rank + top-5 cap; zero Python, zero new deps, zero live Brain writes, T-131-03-SC did not fire; 12/12 green; run-all-131 3 passed/3 skipped; zero regression on 130/130.7/navigation; substrate guard clean on every commit). Phase 131 now 3/6 plans shipped.
+last_updated: "2026-06-02T04:30:00.000Z"
+last_activity: "2026-06-02 -- Completed 131-03-PLAN.md: Stage 3-4 source-lens driver (consume 130.5, zero Python, dedup + tier/relevance rank)"
 progress:
   total_phases: 75
   completed_phases: 53
   total_plans: 387
-  completed_plans: 347
+  completed_plans: 349
   percent: 71
 ---
 
@@ -24,6 +24,13 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 **Current focus:** Phase 127.1 — brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap
 
 ## Current Position
+
+**Phase 131-03 closure (2026-06-02) -- Wave 2 of Phase 131 (Research as Graph-Aware Workflow Step) -- the Stage 3-4 source-lens driver:**
+
+- 0b4db02f test(131-03): activate lens-engine source family + weighted-by-context mode (RED suite, 12 assertions, 7 RED)
+- 9162aba6 feat(131-03): source-lens-driver -- Stage 3-4 rotation over the 130.5 corpus; 12/12 GREEN
+
+Phase 131-03 outcome: shipped lib/lens-engine/source-lens-driver.cjs -- the execution heart of /mos:research. It ACTIVATES the SHIPPED Phase 130 lens-engine source family slot (LENS_REGISTRY.source client_count 0 -> 1, the single pilot; domain/framework/trend stay reserved -- no over-activation) and the weighted-by-context rotation mode (ROTATION_MODES 3 -> 4; ordered-serial by the supplied weight, reusing the serial dispatch internally), plus a source-comparison NAMED_SYNTHESIZERS member (mirrors comparison-matrix.cjs, Canon Part 7). runSourceLens({roomDir, topic, lensSet, preflight, stage, db, sessionId, _fetchCorpus}) CONSUMES the Plan-02 ordered [{lens, weight}] list verbatim (weighting OWNED by Plan 02; the driver orders its rotation by the supplied descending weight and drops no weight), maps each lens to its 130.5 source (scholarly->openalex, industry->tavily, patent->pubmed, brain->brain-cypher, competitive-intelligence->tavily, grants->tavily), and fetches EXCLUSIVELY through the Phase 130.5 shared corpus + cache (research-corpus.fetchCorpus cache-first via research-cache.getCached/putCached) -- it adds NO fetcher, NO second cache, NO second pre-egress audit (the Canon Part 8 audit is the shared hook INSIDE fetchCorpus, inherited on every fetch). It dedups the aggregated findings against preflight.prior_research (url / DOI) plus a within-run url dedup, ranks by evidence-tier (Canon Part 5: source-keyed Academic>Operational>Practitioner>None) then a CJS-native token-overlap relevance % against the section claim graph (evidence_gaps + current_section -- NOT embedding, NOT HSI, NOT Python), applies the stage threshold (commit stage drops None-tier), and returns the top-5 findings each carrying the LOCKED Phase 136 provenance { source, url, retrieved_at, evidence_tier, relevance } + summary + title. A per-source fetch failure degrades that lens to empty and never aborts the rotation (Canon DoS mitigation). room.db is reached ONLY through lens-engine.rotate() -> navigation.cjs (zero node:sqlite require; caller-owned db handle forwarded). TDD: RED suite (12 assertions: 4 Task-1 registry/mode, 5 Task-2 driver behavior with a child_process spawn spy + a _fetchCorpus stub seam, 2 Task-3 asserting-grep directive guards zero-Python + consume-130.5, 1 em-dash hygiene) -- 5/12 passed at RED (the Task-1 lens-engine assertions, once the amendment landed) and 7/12 RED (driver + grep, driver absent); GREEN reached 12/12 in one feat commit. Two auto-fixes: (Rule 3) the post-131 contract evolution broke two pre-131 baseline tests in test-130-lens-engine.cjs (T2.8 asserted all 4 non-cognitive families reserved; T2.9 asserted exactly 3 rotation modes) -- surgically evolved both to the post-131 reality (source activated; weighted mode landed) while keeping domain/framework/trend reserved and serial/parallel/single intact; (Rule 1) the plan's coarse zero-Python verification grep false-positived on the /* */ header prose, rephrased to "external-process invocations / interpreter subprocess / Python script / HSI script" so the coarse grep returns 0 (the asserting T3.1 test, which strips block comments, independently proves zero functional surface). HARD GATES: ZERO live Brain writes (the brain lens is a read-only methodology query inside the SHIPPED 130.5 fetchCorpus, generic handles only, Phase 110 packet path); ZERO new deps (no package.json/lock change; only existing local modules + native node: built-ins); T-131-03-SC did NOT fire (no [ASSUMED]/[SUS] package in 130.5, no install required, the blocking-human checkpoint was never reached); navigation.cjs is the only door. Verification: test-131-source-lens-driver 12/12; run-all-131.sh 3 passed / 0 failed / 3 skipped (Plan 04/05 suites skip-with-note); zero regression -- run-all-130 4/4, run-all-130.7 7/7, test-navigation-acceptance 1/1; substrate guard --baseline clean on the driver; em-dash scan zero; zero-Python coarse grep 0; every commit passed the live substrate guard + brain-boundary-scan with NO --no-verify. SUMMARY at .planning/phases/131-research-as-graph-aware-workflow/131-03-SUMMARY.md; 131-03 flipped to [x] in ROADMAP.md (Phase 131 now 3/6 plans shipped). Wave 2 of Phase 131 continues with 131-04 (findings-wirer + F.1 selector: consumes the ranked findings, writes EvidenceClaim nodes + INFORMS/CONTRADICTS/SUPERSEDES/REJECTED_BECAUSE cascade edges).
 
 **Phase 131-02 closure (2026-06-01) -- Wave 2 of Phase 131 (Research as Graph-Aware Workflow Step) -- the Stage 1+2+3 context extractor:**
 
@@ -1106,6 +1113,11 @@ Progress: [█████████░] 90%
 - [Phase ?]: Phase 131-01: CONTRADICTS + SUPERSEDES added ADDITIVELY to ALLOWED_EDGE_TYPES (8 -> 10), extending the shipped 130-01 INFORMS/REJECTED_BECAUSE vocabulary; never invented per-phase
 - [Phase ?]: Phase 131-01: getResearchPreflight batches all 8 Stage-1 inputs into ONE navigation.cjs round-trip; read-only over room.db + USER.md; prior_research is a placeholder the Plan 03 driver fills (no corpus call here)
 - [Phase ?]: Phase 131-01: ZERO new deps + ZERO live Brain writes; both new submodules take a caller-owned db handle (no node:sqlite require) and pass the substrate guard
+- [Phase ?]: Phase 131-03: lens-engine source family ACTIVATED as a single pilot (LENS_REGISTRY.source client_count 0 -> 1); domain/framework/trend stay reserved (no over-activation, v1.14.0 fans them out)
+- [Phase ?]: Phase 131-03: weighted-by-context rotation mode landed (ROTATION_MODES 3 -> 4); REUSES the serial dispatch -- the driver supplies the lens-name array ALREADY ordered by the Plan-02 descending weight, so ordered-serial IS weighted (weighting OWNED by Plan 02, never recomputed)
+- [Phase ?]: Phase 131-03: source-lens driver CONSUMES the 130.5 corpus EXCLUSIVELY (fetchCorpus cache-first via research-cache); NO fetcher, NO second cache, NO second pre-egress audit (the Part 8 audit is the shared hook inside fetchCorpus)
+- [Phase ?]: Phase 131-03: findings ranked by source-keyed evidence-tier (Part 5) then CJS-native token-overlap relevance; commit stage drops None-tier; top-5 cap. HSI-scoring DEFERRED to v1.14.0 behind Phase 134 CJS HSI; 131 ships zero Python
+- [Phase ?]: Phase 131-03: ZERO new deps + ZERO live Brain writes; T-131-03-SC did NOT fire (no [ASSUMED]/[SUS] package in 130.5, no install required); room.db only via lens-engine -> navigation.cjs
 
 ### Pending Todos
 
