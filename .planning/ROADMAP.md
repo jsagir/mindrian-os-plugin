@@ -1711,7 +1711,7 @@ Plans:
 **Plans:** 5 plans (132-01 substrate shipped; 132-02..05 planned), wave-ordered 1 -> 5.
 
 Plans:
-- [ ] 132-01-PLAN.md - curation-batch runner + frozen 5-event-type hypergraph schema substrate (Wave 1)
+- [x] 132-01-PLAN.md - curation-batch runner + frozen 5-event-type hypergraph schema substrate (Wave 1) [SHIPPED 2026-06-02: lib/brain/curation-batch.cjs (makeBatch chokepoint -- created_by stamping + rollback pairing required + write-time 130.7-contract guard + scanBatchForUserContent Part 8 scan) + lib/brain/hypergraph-event-schema.cjs (frozen 5 event types + additive buildReifyCypher + EVENT_INSTANCE_MIN=20); 6/6 + 5/5 fixture tests; run-all-132.sh 2/2; ZERO live Brain writes; ZERO new deps; zero regression on 130/130.7/131/nav; commits 43b06b4c, 8a6b31d5, ff79b111]
 - [ ] 132-02-PLAN.md - hypergraph reify: 5 reified event-node types, >=20 instances each, additive (Wave 2)
 - [ ] 132-03-PLAN.md - cross-label dedup: ~50 groups collapse to one canonical + facets; 22 REVIEW_REQUIRED anchored-or-archived (Wave 3)
 - [ ] 132-04-PLAN.md - content wire-it: ~278-node backlog (A/C/D/E/F/G) + shattered-author consolidation (Wave 4)
