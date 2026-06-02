@@ -2455,16 +2455,15 @@ function buildAcceptanceChecklist(ctx) {
           const pj = JSON.parse(fs.readFileSync(path.join(pluginRoot, '.claude-plugin', 'plugin.json'), 'utf8'));
           ver = pj.version;
         }
-        if (flagLightNpx) {
-          // Light path: resolve --help against the published package without
-          // doing a live install. Operator opt-in for slow networks / CI.
-          const r = cp.spawnSync('npx', ['--no-install', '@mindrian_os/cli@' + ver, '--help'], { encoding: 'utf8', timeout: 30000 });
-          const ok = r.status === 0;
-          return { ok: ok, finding: ok ? null : ('npx --no-install --help failed (' + r.status + ')'), detail: { status: r.status, stderrTail: (r.stderr || '').slice(-200) } };
-        }
-        // Full path: mktemp HOME-override sandbox + live install. The sandbox
-        // is rm-rf'd in `finally` so the operator's live install is never
-        // touched. RESEARCH § override 9 (full mode).
+        // RCA fix (release-step-9.7-npx-self-test-false-alarm, recommendation A,
+        // 2026-06-02): assert the published package INSTALLS + its bin is present
+        // and parseable, NOT the PATH-sensitive npx-by-name runtime exit. The
+        // launcher shells out to claude/git absent in the bare sandbox, and npm
+        // 10.9.7 npx-by-name does not reliably link the package bin -- so a
+        // perfectly healthy publish exits non-zero for an environment reason
+        // (the false alarm that blocked every cut since beta.37). `npm install`
+        // is the path that actually works; bin presence + `node --check` + the
+        // .bin symlink is the true publishable+installable signal.
         const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-acceptance-'));
         try {
           const env = Object.assign({}, process.env, {
@@ -2472,20 +2471,28 @@ function buildAcceptanceChecklist(ctx) {
             USERPROFILE: sandbox,
             npm_config_cache: path.join(sandbox, '.npm'),
           });
-          const r = cp.spawnSync('npx', ['@mindrian_os/cli@' + ver, '--help'], { encoding: 'utf8', env: env, timeout: 90000 });
-          // Phase 127.2 Plan 02 Finding C: accept "package downloaded and
-          // executed" as success regardless of exit code. The npm artifact's
-          // reachability is what this gate verifies; the inner claude CLI's
-          // flag schema is out of scope (the installer forwards args to
-          // `claude` which rejects unknown flags with exit non-zero -- not a
-          // sign the npm publish is broken).
-          const combined = (r.stdout || '') + (r.stderr || '');
-          const packageExecuted = /Installing the MindrianOS plugin|Adding marketplace|@mindrian_os\/install/.test(combined);
-          const ok = r.status === 0 || packageExecuted;
+          if (flagLightNpx) {
+            // Light path: metadata-only -- assert the published bin is declared. No install.
+            const v = cp.spawnSync('npm', ['view', '@mindrian_os/cli@' + ver, 'bin.mindrian-os'], { encoding: 'utf8', env: env, timeout: 30000 });
+            const declared = (v.stdout || '').trim();
+            const ok = v.status === 0 && declared.length > 0;
+            return { ok: ok, finding: ok ? null : ('npm view bin.mindrian-os empty/failed (' + v.status + ')'), detail: { declared: declared, status: v.status } };
+          }
+          cp.spawnSync('npm', ['init', '-y'], { cwd: sandbox, env: env, encoding: 'utf8', timeout: 30000 });
+          const inst = cp.spawnSync('npm', ['install', '--prefer-online', '@mindrian_os/cli@' + ver], { cwd: sandbox, env: env, encoding: 'utf8', timeout: 120000 });
+          if (inst.status !== 0) {
+            return { ok: false, finding: ('npm install @mindrian_os/cli@' + ver + ' failed (' + inst.status + ')'), detail: { status: inst.status, stderrTail: (inst.stderr || '').slice(-300) } };
+          }
+          const binFile = path.join(sandbox, 'node_modules', '@mindrian_os', 'cli', 'bin', 'cli.js');
+          const binLink = path.join(sandbox, 'node_modules', '.bin', 'mindrian-os');
+          const present = fs.existsSync(binFile);
+          const parses = present && cp.spawnSync(process.execPath, ['--check', binFile], { encoding: 'utf8' }).status === 0;
+          const linked = fs.existsSync(binLink);
+          const ok = present && parses && linked;
           return {
             ok: ok,
-            finding: ok ? null : ('npx round-trip failed (' + r.status + '); no package-executed signal in output'),
-            detail: { status: r.status, packageExecuted: packageExecuted, stderrTail: (r.stderr || '').slice(-300) },
+            finding: ok ? null : ('published package install verification failed (present=' + present + ' parses=' + parses + ' linked=' + linked + ')'),
+            detail: { present: present, parses: parses, linked: linked },
           };
         } finally {
           try { fs.rmSync(sandbox, { recursive: true, force: true }); } catch (_) { /* best-effort */ }

@@ -1,7 +1,7 @@
 ---
 kind: rca
 slug: release-step-9.7-npx-self-test-false-alarm
-status: open
+status: resolved
 severity: high
 surface: release-pipeline
 filed: 2026-05-31
@@ -73,3 +73,14 @@ not mistake the false alarm for a real `R.4 yank` situation.
 This is separate from the ancient-stash corruption that briefly put merge markers
 into release.sh on 2026-05-31 (that was restored from HEAD). The 9.7 gate is a
 genuine over-strict-gate defect and should be hardened before the next cut.
+
+## RESOLVED 2026-06-02 (recommendation A)
+Both the release.sh Step 9.7 self-test AND the doctor.cjs `npx-roundtrip` acceptance
+check now verify the published package via `npm install @mindrian_os/cli@<version>`
+into a sandbox + assert bin/cli.js PRESENT + `node --check` PARSES + the
+`.bin/mindrian-os` symlink exists. They no longer assert the PATH-sensitive
+npx-by-name launcher runtime. Verified: the new logic PASSES against the
+already-published (healthy) 1.13.0-beta.43. Package was also renamed
+@mindrian_os/install -> @mindrian_os/cli (npx-safe; the unscoped `install`
+collided with coreutils) and slimmed to the installer essentials. Contract
+codified in docs/RELEASE-CEREMONY-RULING-SYSTEM.md (RULE 3).

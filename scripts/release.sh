@@ -958,40 +958,42 @@ else
     sleep "$NPX_PROP_BACKOFF_S"
   done
 
-  # Run npx with HOME redirected to the sandbox subpath. The install resolves
-  # ~/.claude/ inside the sandbox, NOT the operator's real ~/.claude/.
-  # Mirrors the Phase 123 doctor.cjs npx-roundtrip sandbox pattern (line ~2336).
-  # `--prefer-online` forces fresh metadata so a cached stale 404 is not reused.
-  if env \
-       HOME="$NPX_TEST_DIR" \
-       USERPROFILE="$NPX_TEST_DIR" \
-       npm_config_cache="$NPX_TEST_DIR/.npm" \
-       npx --yes --prefer-online "@mindrian_os/cli@$NEW_VERSION" 2>&1 | tee /tmp/npx-selftest-out.log; then
-    # Scaffold marker check: ~/.claude/ must exist inside the sandbox AND
-    # ~/.claude/plugins/installed_plugins.json must be a readable JSON file.
-    # If either is missing, the install never actually landed -- silent
-    # failure, HARD ABORT.
-    if [ ! -d "$NPX_TEST_DIR/.claude" ]; then
-      echo -e "${RED}  x npx exited 0 but produced no .claude/ scaffold under $NPX_TEST_DIR${NC}"
-      echo "    The npx round-trip silently broke. Inspect /tmp/npx-selftest-out.log."
-      exit 1
-    fi
-    if [ ! -f "$NPX_TEST_DIR/.claude/plugins/installed_plugins.json" ]; then
-      echo -e "${RED}  x npx exited 0 but installed_plugins.json missing under $NPX_TEST_DIR/.claude/plugins/${NC}"
-      echo "    Scaffold is incomplete. Inspect /tmp/npx-selftest-out.log."
-      exit 1
-    fi
-    if ! node -e "JSON.parse(require('fs').readFileSync('$NPX_TEST_DIR/.claude/plugins/installed_plugins.json','utf8'))" >/dev/null 2>&1; then
-      echo -e "${RED}  x installed_plugins.json under $NPX_TEST_DIR is not valid JSON${NC}"
-      exit 1
-    fi
-    echo -e "${GREEN}  ✓ npx scaffold verified (HOME-override sandbox; .claude/plugins/installed_plugins.json present + parseable)${NC}"
-  else
-    echo -e "${RED}  x npx @mindrian_os/cli@$NEW_VERSION failed${NC}"
-    echo "    The published npm package is broken for new installs."
+  # RCA fix (release-step-9.7-npx-self-test-false-alarm, recommendation A, 2026-06-02):
+  # Do NOT assert cli.js's PATH-sensitive npx-by-name RUNTIME exit. The launcher
+  # shells out to commands (claude/git) absent in the bare npx sandbox, and npm
+  # 10.9.7's npx-by-name does not reliably link the package bin onto PATH, so a
+  # perfectly HEALTHY published package exits non-zero for an ENVIRONMENT reason.
+  # That false alarm aborted every cut since beta.37 (the package installs + runs
+  # fine via `npm install`, `npm install -g`, the marketplace, and a local-tarball
+  # npx -- only `npx <pkg>@<version>` by-name is flaky on this npm). Assert instead
+  # the TRUE publishable+installable signal: `npm install @pkg@version` resolves,
+  # the bin file is present, it PARSES (`node --check`), and the bin gets linked.
+  # That is exactly the path that actually works, with no launcher-runtime / npx
+  # PATH dependency.
+  NPX_PROJ="$NPX_TEST_DIR/proj"
+  mkdir -p "$NPX_PROJ"
+  ( cd "$NPX_PROJ" \
+      && env HOME="$NPX_TEST_DIR" npm_config_cache="$NPX_TEST_DIR/.npm" npm init -y >/dev/null 2>&1 \
+      && env HOME="$NPX_TEST_DIR" npm_config_cache="$NPX_TEST_DIR/.npm" npm install --prefer-online "@mindrian_os/cli@$NEW_VERSION" >/tmp/npx-selftest-out.log 2>&1 )
+  NPM_INSTALL_RC=$?
+  PKG_BIN="$NPX_PROJ/node_modules/@mindrian_os/cli/bin/cli.js"
+  BIN_LINK="$NPX_PROJ/node_modules/.bin/mindrian-os"
+  if [ "$NPM_INSTALL_RC" -ne 0 ]; then
+    echo -e "${RED}  x npm install @mindrian_os/cli@$NEW_VERSION failed (rc=$NPM_INSTALL_RC)${NC}"
+    echo "    The published npm package is broken for new installs. Inspect /tmp/npx-selftest-out.log."
     echo "    Recovery: <recovery> R.4 -- yank + cut successor. See Step 9.8 abort block below."
     exit 1
   fi
+  if [ ! -f "$PKG_BIN" ]; then
+    echo -e "${RED}  x published package missing bin/cli.js at $PKG_BIN${NC}"; exit 1
+  fi
+  if ! node --check "$PKG_BIN" >/dev/null 2>&1; then
+    echo -e "${RED}  x published bin/cli.js does not parse (node --check failed)${NC}"; exit 1
+  fi
+  if [ ! -L "$BIN_LINK" ] && [ ! -f "$BIN_LINK" ]; then
+    echo -e "${RED}  x bin 'mindrian-os' not linked under node_modules/.bin after install${NC}"; exit 1
+  fi
+  echo -e "${GREEN}  ✓ published package installs (npm install) + bin present + parses (node --check) + linked -- RCA-A PATH-independent signal${NC}"
   # Explicit cleanup (the EXIT trap also handles this; belt-and-suspenders).
   rm -rf "$NPX_TEST_DIR"
   rm -f "$NPX_SNAPSHOT"
