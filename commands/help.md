@@ -41,6 +41,8 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/help-renderer.cjs"
 
 Fall back to `node ./scripts/help-renderer.cjs` if `CLAUDE_PLUGIN_ROOT` is unset. The renderer walks every group (all non-admin commands) and is the single source of truth for the TEXT view. DO NOT hand-compose the text view; DO NOT hardcode color escapes.
 
+The text view is a De Stijl CARD layout: four color-coded lanes (start / methodology / explore / view), each command a 2-line Mondrian-block card with its `help_jtbd:` one-liner. Truecolor terminals get the DS palette; piped / ASCII terminals get the same card layout with zero ANSI.
+
 ## How the renderer composes output
 
 - `data/help-groups.json` declares the 11 canonical groups (10 user-facing + Infrastructure) and which commands belong to each (D-07 LOCKED: Export / Publish / Hub trio replaces legacy "Output + Export").
