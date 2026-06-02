@@ -2695,7 +2695,15 @@ function buildAcceptanceChecklist(ctx) {
         }
         const cp = require('child_process');
         try {
-          const r = cp.spawnSync('bash', [path.join(pluginRoot, 'scripts', 'release.sh'), '--dry-run'], { encoding: 'utf8', timeout: 30000 });
+          // Pass an explicit bump mode ('patch') so this self-test is robust to
+          // the CURRENT version state. A bare '--dry-run' defaults to --prerelease
+          // only when the current version carries a '-beta.N' suffix; during a
+          // --finalize run this self-test executes AFTER Step 3 has bumped the
+          // version to a clean X.Y.Z, where release.sh correctly requires an
+          // explicit mode and a bare dry-run exits 1 (the finalize-path self-test
+          // bug, fixed 2026-06-02). 'patch' is valid on both clean and suffixed
+          // versions and emits the same mode-independent step names this check asserts.
+          const r = cp.spawnSync('bash', [path.join(pluginRoot, 'scripts', 'release.sh'), 'patch', '--dry-run'], { encoding: 'utf8', timeout: 30000 });
           if (r.status !== 0) {
             return { ok: false, finding: 'release.sh --dry-run exited ' + r.status, detail: { stderr: (r.stderr || '').slice(-200) } };
           }
