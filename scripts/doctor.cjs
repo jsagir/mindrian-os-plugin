@@ -337,6 +337,25 @@ function cmpVersion(a, b) {
 
 function checkInstallVersion() {
   if (!fs.existsSync(INSTALL_DIR)) {
+    // Topology-aware (Bug 7 follow-up, 2026-06-02): under marketplace-cache
+    // topology Claude Code loads the plugin from the cache version dir, and the
+    // legacy ~/.claude/plugins/mindrian-os/ dir is CORRECTLY absent. Read the
+    // ACTIVE root's plugin.json so class A reports the real installed version
+    // instead of a false "install dir does not exist" warning. The beta.39
+    // class-A fix made the install-missing DRIFT branch topology-aware; this
+    // makes the cannot-read-state branch (the warning surfaced on /mos:doctor
+    // --fix + the post-update activator) match, so a healthy marketplace-cache
+    // install reports healthy. RCA: doctor-class-a-cannot-read-state-topology-blind.
+    try {
+      const active = resolveActivePluginRoot();
+      if (active && active.topology === 'marketplace-cache' && active.root) {
+        const activePluginJson = path.join(active.root, '.claude-plugin', 'plugin.json');
+        if (fs.existsSync(activePluginJson)) {
+          const json = JSON.parse(fs.readFileSync(activePluginJson, 'utf8'));
+          return { status: 'ok', version: json.version, parsed: parseVersion(json.version), topology: 'marketplace-cache', activeRoot: active.root };
+        }
+      }
+    } catch (_) { /* fall through to the legacy-dir-missing report below */ }
     return { status: 'missing', detail: `install dir does not exist: ${INSTALL_DIR}` };
   }
   if (!fs.existsSync(INSTALL_PLUGIN_JSON)) {

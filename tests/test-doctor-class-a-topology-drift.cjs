@@ -199,6 +199,40 @@ try {
   pass('Test a.3 (cross-gate consistency: --json and --install-state agree)');
 } catch (err) { failTest('Test a.3 (cross-gate consistency: --json and --install-state agree)', err); }
 
+// -- a.4: marketplace-cache + absent legacy -> install-cache reports HEALTHY (not a
+//         "cannot read state" warning) AND the post-update activator succeeds.
+//         Regression for the 2026-06-02 follow-up: checkInstallVersion() returned
+//         status:'missing' (no version) under marketplace-cache, surfacing a false
+//         "cannot read state" warning on /mos:doctor --fix and an "activation failed:
+//         doctor exit 0" from scripts/post-update-activation.cjs (which reads the
+//         doctor install report). The topology-aware checkInstallVersion fixes both.
+try {
+  const home = makeTmpHome('a4');
+  const V = '1.13.0-beta.40';
+  const mcDir = makeMarketplaceCache(home, V);
+  makeInstalledPluginsJson(home, V, mcDir);
+  const env = Object.assign({}, process.env, {
+    HOME: home, USERPROFILE: home,
+    MINDRIAN_PLUGIN_HOME: path.join(home, '.claude', 'plugins'),
+    MINDRIAN_STATUSLINE_SURFACE: 'CLI',
+  });
+  delete env.MINDRIAN_OS_ROOT;
+  delete env.CLAUDE_DESKTOP;
+  // (1) human-readable doctor: install-cache must be healthy at V, no "cannot read state".
+  const d = spawnSync('node', [DOCTOR], { env, encoding: 'utf8', timeout: 30000 });
+  const dOut = ((d.stdout || '') + (d.stderr || '')).replace(/\x1b\[[0-9;]*m/g, '');
+  assert.ok(/install-cache\s+.*healthy/.test(dOut), 'install-cache reports healthy under marketplace-cache; got: ' + dOut.slice(0, 220));
+  assert.ok(dOut.indexOf(V) !== -1, 'install-cache healthy line carries the active version ' + V);
+  assert.ok(!/cannot read state/.test(dOut), 'no false "cannot read state" warning; got: ' + dOut.slice(0, 220));
+  // (2) post-update activator: must succeed (already-on-latest), not "activation failed".
+  const a = spawnSync('node', [DOCTOR, '--fix', '--post-update'], { env, encoding: 'utf8', timeout: 30000 });
+  const aOut = ((a.stdout || '') + (a.stderr || '')).replace(/\x1b\[[0-9;]*m/g, '');
+  assert.strictEqual(a.status, 0, 'post-update activator exits 0; got ' + a.status + ' :: ' + aOut.slice(0, 200));
+  assert.ok(!/activation failed/.test(aOut), 'activator must not report "activation failed"; got: ' + aOut.slice(0, 200));
+  rmTmp(home);
+  pass('Test a.4 (marketplace-cache -> install-cache healthy + activator succeeds)');
+} catch (err) { failTest('Test a.4 (marketplace-cache -> install-cache healthy + activator succeeds)', err); }
+
 if (failed > 0) {
   console.log('\n' + failed + ' test(s) FAILED (' + passed + ' passed)');
   process.exit(1);
