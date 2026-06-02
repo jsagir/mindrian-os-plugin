@@ -32,6 +32,7 @@ SHELL_SUITES=(
 CJS_SUITES=(
   lib/memory/curation-batch.test.cjs
   lib/memory/hypergraph-event-schema.test.cjs
+  lib/memory/curation-132-03-dedup-held-rename.test.cjs
 )
 
 TOTAL=0
