@@ -44,6 +44,8 @@ A release is a release only when ALL are in sync (enforced by `release.sh`, neve
 5. `~/mindrian-marketplace/.claude-plugin/marketplace.json` version + `source.ref == v<version>`.
 Plus the dual-website / install-minisite lockstep (Step 9.6a minisite, 9.6b mindrian-website) and the npm publish of `@mindrian_os/cli`. The minisite/website carry the npx COMMAND string (`npx @mindrian_os/cli`) -- update it on rename, not just the version.
 
+**5a -- the catalog advertises the RELEASED stable, never the dev next-bump (load-bearing).** The marketplace `marketplace.json.version` is what `claude plugin install` LABELS users with NOW. It MUST equal the released `NEW_VERSION` with `source.ref == vNEW_VERSION`. Commit B's next-bump advances ONLY the plugin repo's `plugin.json` + `package.json` (the next dev cycle) -- it MUST NOT touch `marketplace.json`. A catalog that advances to the dev next-bump pushes users onto a pre-release they never opted into (2026-06-02: a tester installed `1.13.1-beta.1` minutes after the `1.13.0` finalize because the old Commit B bumped the catalog version; RCA `marketplace-catalog-advertises-dev-next-bump`). Invariant to assert post-cut: `marketplace.json.version === source.ref without the leading 'v'`.
+
 ## RULE 6 -- Beta-first for release infrastructure
 
 - Any change to release.sh, doctor.cjs acceptance gates, session-start guards, hooks, or migration scripts ships as `X.Y.Z-beta.N` FIRST and is promoted to final only after the npx-install self-test passes and (ideally) one external smoke. Bugs in release infra are the hardest to recover from -- a broken gate blocks shipping its own fix.

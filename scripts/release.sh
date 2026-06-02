@@ -214,7 +214,7 @@ if [ "$DRY_RUN" = "1" ]; then
   if [ "$NO_NEXT_BUMP" = "1" ]; then
     echo "  Step 7.5  : SKIPPED (--no-next-bump). main HEAD stays at $NEW_VERSION."
   else
-    echo "  Step 7.5  : commit B on plugin repo -- bump to $NEXT_VERSION, CHANGELOG [Unreleased] -- v$NEXT_VERSION, un-track node_modules (main HEAD stays clean); marketplace repo -- bump marketplace.json to $NEXT_VERSION (7-place lockstep; source.ref stays at v$NEW_VERSION)"
+    echo "  Step 7.5  : commit B on plugin repo -- bump to $NEXT_VERSION, CHANGELOG [Unreleased] -- v$NEXT_VERSION, un-track node_modules (main HEAD stays clean); marketplace repo -- NO version bump (catalog stays at v$NEW_VERSION so installs advertise the released stable; source.ref already v$NEW_VERSION)"
   fi
   echo "  Step 8    : dirty-repo / ahead-of-origin guard"
   echo "              current ahead-of-origin: $CURRENT_AHEAD commit(s); guard would allow up to $([ "$NO_NEXT_BUMP" = "1" ] && echo "1" || echo "2") release commit(s)"
@@ -1043,21 +1043,17 @@ pkg.version = '$NEXT_VERSION';
 fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
 "
 
-  # Phase 126.1 hotfix (2026-05-15): Commit B also advances marketplace.json to
-  # NEXT_VERSION (7-place lockstep per feedback_install_minisite_lockstep.md).
-  # The marketplace.json gets a version-only bump (NOT a source.ref bump --
-  # source.ref stays at v$NEW_VERSION, pinning the marketplace commit at Commit
-  # A's tree; only the version field advances so the cached marketplace surfaces
-  # the next-pre-release as in-progress).
-  cd "$MARKETPLACE_DIR"
-  node -e "
-const fs = require('fs');
-const m = JSON.parse(fs.readFileSync('.claude-plugin/marketplace.json', 'utf8'));
-m.plugins[0].version = '$NEXT_VERSION';
-// Deliberately leave m.plugins[0].source.ref alone -- it stays at v$NEW_VERSION
-// (Commit A's tag) so installs continue to resolve the released artifact.
-fs.writeFileSync('.claude-plugin/marketplace.json', JSON.stringify(m, null, 2) + '\n');
-"
+  # FIX 2026-06-02 (RULE 5 -- the catalog advertises the RELEASED stable, never the
+  # dev next-bump): Commit B does NOT touch marketplace.json. The earlier Phase
+  # 126.1 "7-place lockstep" advanced m.plugins[0].version to NEXT_VERSION, which
+  # made `claude plugin install` LABEL users with the next-bump pre-release -- e.g.
+  # a tester installed 1.13.1-beta.1 minutes after the 1.13.0 finalize, even though
+  # source.ref=v1.13.0 cloned the stable code (RCA: marketplace-catalog-advertises-
+  # dev-next-bump). The marketplace CATALOG is what users install NOW, so its
+  # version MUST stay at NEW_VERSION (set in Step 4 / committed by Commit A) with
+  # source.ref=vNEW_VERSION. Only the PLUGIN repo's plugin.json / package.json
+  # advance to NEXT_VERSION (the next dev cycle). marketplace.json is intentionally
+  # left untouched here -- the Commit B marketplace commit below is now a no-op.
 
   cd "$PLUGIN_DIR"
   # Reset CHANGELOG: insert [Unreleased] -- vNEXT (in progress) above the finalized [NEW_VERSION] entry.
@@ -1085,10 +1081,14 @@ fs.writeFileSync('.claude-plugin/marketplace.json', JSON.stringify(m, null, 2) +
   git add .claude-plugin/plugin.json package.json CHANGELOG.md
   git commit -m "chore: bump to v$NEXT_VERSION (next pre-release)" || echo "Nothing to commit in plugin (Commit B)"
 
-  # Parallel marketplace-repo commit for the 7-place lockstep bump.
+  # Marketplace repo gets NO Commit B version bump (see the RULE 5 fix above):
+  # marketplace.json stays at NEW_VERSION (committed by Commit A), so the catalog
+  # advertises the released stable. This add/commit is a deliberate graceful no-op
+  # (nothing staged) kept only so a future change here fails loudly rather than
+  # silently skipping the marketplace.
   cd "$MARKETPLACE_DIR"
   git add .claude-plugin/marketplace.json
-  git commit -m "chore: bump marketplace.json to v$NEXT_VERSION (Commit B 7-place lockstep)" || echo "Nothing to commit in marketplace (Commit B)"
+  git commit -m "chore: marketplace Commit B no-op (catalog stays at v$NEW_VERSION)" || echo "Nothing to commit in marketplace (Commit B) -- expected; catalog stays at v$NEW_VERSION"
 fi
 
 # --- Step 8: Dirty-repo / ahead-of-origin guard (BEFORE the push) ---

@@ -1,5 +1,11 @@
 ## [Unreleased] -- v1.13.1-beta.1 (in progress)
 
+### Fixed (release: marketplace catalog advertised the dev next-bump)
+- **Users installing right after a finalize got the dev pre-release, not the stable.** `release.sh` Commit B (Step 7.5) advanced the marketplace catalog `marketplace.json.version` to the dev next-bump, so `claude plugin install mos@mindrian-marketplace` labeled users `1.13.1-beta.1` minutes after the `1.13.0` finalize (even though `source.ref=v1.13.0` cloned the stable code). Reported live by a tester. Fix: Commit B no longer touches `marketplace.json` -- the catalog stays at the released `NEW_VERSION` with `source.ref=vNEW_VERSION`; only the plugin repo's `plugin.json`/`package.json` advance to the next dev version. Immediate catalog correction (1.13.1-beta.1 -> 1.13.0) pushed + verified (fresh install lands 1.13.0). RULE 5a added to the ceremony ruling system; RCA `marketplace-catalog-advertises-dev-next-bump`.
+
+### Fixed (doctor: topology-blind install-health on marketplace-cache)
+- **`/mos:doctor --fix` no longer cries "cannot read state" and the post-update activator no longer false-fails on a healthy marketplace-cache install.** `checkInstallVersion()` returned `missing` when the legacy `~/.claude/plugins/mindrian-os/` dir was absent (correctly absent under marketplace-cache topology). Now topology-aware: reads the active cache root's plugin.json and reports healthy. One fix clears both the doctor warning and the activator's "activation failed: doctor exit 0". Regression test a.4; RCA `doctor-class-a-cannot-read-state-topology-blind`.
+
 ### Added
 - 
 
