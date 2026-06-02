@@ -1,0 +1,26 @@
+{
+  "snapshot_taken": "2026-06-02",
+  "purpose": "Reversibility net for the Phase 132 tiny live cleanup (dedup 6831/22816 + held-14 disposition). Restores any mutated node. Created_by tag on every write: phase-132-curation-batch-1.",
+  "dedup_pair": {
+    "keep": {"id": 6831, "labels": ["Technique"], "name": "The Other Way Round", "description": "Invert the problem", "former_label": "InventivePrinciple", "correlation_id": "4210289a0ca1596b", "correlation_scope": "curated-v1", "number": 13, "pipeline_run_id": "normalize-20260511T182355Z"},
+    "delete_after_merge": {"id": 22816, "labels": ["Technique"], "name": "The Other Way Round", "former_label": "TRIZPrinciple", "application": "Instead of aligning chips to light, make light self-align to chips", "correlation_id": "4210289a0ca1596b", "correlation_scope": "curated-v1", "number": 13, "pipeline_run_id": "normalize-20260511T182355Z"},
+    "merge_action": "SET 6831.application = 22816.application (6831 lacks it); SET 6831.absorbed_node_former_label='TRIZPrinciple'; then DELETE 22816. Reverse: re-create 22816 with the props above; REMOVE 6831.application, 6831.absorbed_node_former_label."
+  },
+  "held_14": [
+    {"id": 9655, "labels": ["Concept","Method"], "primary_label": "Method", "entity_id": "Scenario Planning", "status": "held-name-not-canonical"},
+    {"id": 9271, "labels": ["Concept","Method"], "primary_label": "Method", "entity_id": "Lateral Thinking", "status": "held-name-not-canonical"},
+    {"id": 9502, "labels": ["Organization","Method"], "primary_label": "Method", "entity_id": "Scenario Analysis Framework", "status": "held-name-not-canonical"},
+    {"id": 9622, "labels": ["Method"], "primary_label": "Method", "entity_id": "Semantic Decomposition", "status": "held-name-not-canonical"},
+    {"id": 9528, "labels": ["Method"], "primary_label": "Method", "entity_id": "Research", "status": "held-name-not-canonical"},
+    {"id": 9491, "labels": ["Method"], "primary_label": "Method", "entity_id": "Innovation Process", "status": "held-name-not-canonical"},
+    {"id": 9551, "labels": ["Method"], "primary_label": "Method", "entity_id": "Graph-Based Logic Visualization", "status": "held-name-not-canonical"},
+    {"id": 9625, "labels": ["Method"], "primary_label": "Method", "entity_id": "Sequential Innovation Discovery", "status": "held-name-not-canonical"},
+    {"id": 9529, "labels": ["Method"], "primary_label": "Method", "entity_id": "Validation", "status": "held-name-not-canonical"},
+    {"id": 9586, "labels": ["Method"], "primary_label": "Method", "entity_id": "CIAs approach", "status": "held-name-not-canonical"},
+    {"id": 7841, "labels": ["Framework"], "primary_label": "Framework", "canonical_name": "Cynefin-Informed Sequential Innovation Discovery with Beautiful Question Pedagogy", "node_id_prop": "cynefin-innovation-framework", "status": "held-name-not-canonical", "note": "already a canonical framework name, 81 chars (just over the 80 quarantine threshold)"},
+    {"id": 10102, "labels": ["Framework"], "primary_label": "Framework", "name": "Building an 'opposite plan' or 'anti-plan' to challenge current plan assumptions.", "jtbd_anchor": "detect_contradiction", "status": "held-name-not-canonical", "note": "descriptive; needs a canonical name"},
+    {"id": 10455, "labels": ["Framework"], "primary_label": "Framework", "name": "Problem exploration framework (Problem/Opportunity, Larger System, Goal, Map Hierarchy)", "jtbd_anchor": "select_methodology", "status": "held-name-not-canonical"},
+    {"id": 10468, "labels": ["Framework"], "primary_label": "Framework", "name": "Problem-solving framework (What problem/opportunity, What about the larger system, What's your goal)", "jtbd_anchor": "select_methodology", "status": "held-name-not-canonical"}
+  ],
+  "rollback_held": "For any held node mutated: restore original name (above for Frameworks; for GraphRAG Methods the original name == the description paragraph still in the node's description property), REMOVE correlation_id/correlation_scope/correlation_backfilled_at, SET correlation_status='held-name-not-canonical', and REMOVE :Archived + the REPLACED_BY edge if archived. All Phase-132 writes carry created_by='phase-132-curation-batch-1'."
+}

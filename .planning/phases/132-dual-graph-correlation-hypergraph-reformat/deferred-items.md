@@ -17,3 +17,12 @@
 
 - **Context:** under the re-baseline, 132-02 (live hypergraph event-node reify) and 132-04 (live content wire-it) were NOT executed as live writes. 132-01 shipped the frozen 5-event-type schema + the additive `buildReifyCypher` Cypher builder; the live reify + wire-it runs are deferred to the v1.14.0 bulk pass (bundled with DI-132-05-01).
 - **Release-gate impact:** `scripts/verify-phase-132.cjs` scans whatever phase-132 batch BUILDERS are present on disk (currently 132-03 + 132-05) and skips absent modules gracefully -- so the boundary scan never silent-passes on the HEALTH gate, and a future 132-02/132-04 builder is picked up automatically when it lands.
+
+## DI-132-LIVE-01: held-14 disposition (deliberate curation pass)
+The Phase 132 tiny live cleanup completed the dedup (6831/22816) on 2026-06-02. The 14 held-node
+disposition was DEFERRED: the live collision check (132-LIVE-CLEANUP-RESULT.md) proved it is a mix of
+7 archive-as-duplicate + 7 rename with per-node judgment (2 collision targets are themselves :Person
+noise; 2 held nodes are generic noise). The held nodes are SAFE as-is (quarantined, excluded from the
+correlation contract, non-breaking). Full collision table + recommended disposition in
+132-LIVE-CLEANUP-RESULT.md. Reversible via 132-LIVE-CLEANUP-SNAPSHOT.json + created_by selector. Do as
+a deliberate pass (human eye on the 4 REVIEW rows) -- NOT blocking v1.13.1.
