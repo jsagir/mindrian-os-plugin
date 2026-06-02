@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.13.1-beta.1 (in progress)
+## [1.13.1-beta.2] - 2026-06-02
 
 ### Fixed (release: marketplace catalog advertised the dev next-bump)
 - **Users installing right after a finalize got the dev pre-release, not the stable.** `release.sh` Commit B (Step 7.5) advanced the marketplace catalog `marketplace.json.version` to the dev next-bump, so `claude plugin install mos@mindrian-marketplace` labeled users `1.13.1-beta.1` minutes after the `1.13.0` finalize (even though `source.ref=v1.13.0` cloned the stable code). Reported live by a tester. Fix: Commit B no longer touches `marketplace.json` -- the catalog stays at the released `NEW_VERSION` with `source.ref=vNEW_VERSION`; only the plugin repo's `plugin.json`/`package.json` advance to the next dev version. Immediate catalog correction (1.13.1-beta.1 -> 1.13.0) pushed + verified (fresh install lands 1.13.0). RULE 5a added to the ceremony ruling system; RCA `marketplace-catalog-advertises-dev-next-bump`.
