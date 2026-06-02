@@ -1,4 +1,4 @@
-## [Unreleased]
+## [1.13.0-beta.44] - 2026-06-02
 
 ### Fixed (release ceremony -- npx self-test false alarm, RULE 3)
 - **The release npx-publish self-test no longer aborts healthy releases.** Both `scripts/release.sh` Step 9.7 and the `doctor.cjs` `npx-roundtrip` acceptance check now verify the published package via `npm install @mindrian_os/cli@<version>` + assert `bin/cli.js` present, `node --check` parseable, and the `.bin/mindrian-os` symlink linked -- the true installability signal. They previously asserted `npx @pkg@version`'s launcher RUNTIME exit, which false-failed because (a) the installer shells to `claude`/`git` absent in the bare npx sandbox and (b) npm 10.9.7 npx-by-name does not reliably link the bin. This false alarm (RCA `release-step-9.7-npx-self-test-false-alarm`, open since beta.37) aborted every prerelease post-publish, forcing manual completion. Resolved per the RCA's recommendation A.
