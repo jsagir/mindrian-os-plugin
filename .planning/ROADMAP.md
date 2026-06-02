@@ -1678,14 +1678,14 @@ Plans:
 
 **Brain impact:** NONE-NEW (uses existing brain_ask via the Phase 110 packet; no new Brain endpoints).
 
-**Status:** In progress -- 4/6 plans shipped (131-01 substrate + 131-02 context-extractor, 2026-06-01; 131-03 source-lens-driver + 131-04 findings-wirer + F.1 selector, 2026-06-02); 131-05..06 remain.
+**Status:** In progress -- 5/6 plans shipped (131-01 substrate + 131-02 context-extractor, 2026-06-01; 131-03 source-lens-driver + 131-04 findings-wirer + F.1 selector + 131-05 commands/research.md 7-stage rewrite + check-research-isomorphism CI guard, 2026-06-02); 131-06 (5 E2E + docs) remains.
 
 **Plans:**
 - [x] 131-01-PLAN.md -- substrate: EvidenceClaim writer (locked 136 schema) + CONTRADICTS/SUPERSEDES edges + 3 research events + getResearchPreflight + aggregator (wave 1)
 - [x] 131-02-PLAN.md -- research-context-extractor: Stage 1+2+3 pre-flight + Body Shape A summary + weighted lens set (wave 2)
 - [x] 131-03-PLAN.md -- source-lens-driver: Stage 4 over the 130.5 shared corpus, zero Python, dedup + tier/relevance rank; activates the lens-engine source family (wave 2)
 - [x] 131-04-PLAN.md -- findings-wirer + F.1 filing selector: cascade edges (local-node-id for local targets, correlation_id for teaching-graph), gate-as-write-node forward contract for 136 (wave 3)
-- [ ] 131-05-PLAN.md -- commands/research.md 7-stage rewrite (both invocation modes) + check-research-isomorphism.cjs CI guard (wave 4)
+- [x] 131-05-PLAN.md -- commands/research.md 7-stage rewrite (both invocation modes) + check-research-isomorphism.cjs CI guard (wave 4)
 - [ ] 131-06-PLAN.md -- 5 E2E tests (the release gate) + Feynman registration + docs/RESEARCH-AS-WORKFLOW-STEP.md (wave 5)
 
 **Authority:** `.planning/phases/131-research-as-graph-aware-workflow/131-CONTEXT.md` (scoped 2026-05-16) + `.planning/v1.13.1-EXECUTION-PLAN.md` "Synthesis-Plan Absorption (2026-05-16)" section.
