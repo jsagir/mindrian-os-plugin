@@ -1,4 +1,4 @@
-## [Unreleased]
+## [1.13.0-beta.42] - 2026-06-02
 
 This final rolls up the entire 1.13.0 beta train (beta.38 through beta.41, including the Windows installer fix below) plus the v1.13.1-planned dual-graph / research-workflow chain (Phases 130.5, 130.7, 131, 132).
 
