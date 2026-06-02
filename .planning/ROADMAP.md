@@ -1662,7 +1662,7 @@ Plans:
 - [x] 130.7-03-PLAN.md - report-only/baseline dual-graph CI gate (fail-on-regression, fail-closed-on-inconclusive) + the three /mos:brain-derive curation surfaces + Part 8 phase-wide boundary sweep (wave 3)
 **Authority:** `.planning/phases/130.7-correlation-id-contract-dual-graph-ci-gates/130.7-CONTEXT.md` + `.planning/phases/132-dual-graph-correlation-hypergraph-reformat/132-REVIEW-4.8.md`.
 
-### Phase 131: Research as Graph-Aware Workflow Step (Source-Lens Pilot) (v1.13.1 — SCOPED 2026-05-16; RE-BASELINED 2026-06-01)
+### Phase 131: Research as Graph-Aware Workflow Step (Source-Lens Pilot) (v1.13.1 — COMPLETE 2026-06-02)
 
 > **Re-baselined 2026-06-01** (see 131-REVIEW-4.8.md): now depends on Phase 130.5 (shared corpus-cache, no fetcher of its own) + Phase 130.7 (canonical correlation_ids land first); ships ZERO Python (HSI-scoring of findings deferred to the v1.14.0 fan-out behind Phase 134's CJS HSI); EvidenceClaim + cascade-edge + F.1-selector contracts LOCKED for Phase 136.
 
@@ -1678,7 +1678,7 @@ Plans:
 
 **Brain impact:** NONE-NEW (uses existing brain_ask via the Phase 110 packet; no new Brain endpoints).
 
-**Status:** In progress -- 5/6 plans shipped (131-01 substrate + 131-02 context-extractor, 2026-06-01; 131-03 source-lens-driver + 131-04 findings-wirer + F.1 selector + 131-05 commands/research.md 7-stage rewrite + check-research-isomorphism CI guard, 2026-06-02); 131-06 (5 E2E + docs) remains.
+**Status:** COMPLETE -- 6/6 plans shipped (131-01 substrate + 131-02 context-extractor, 2026-06-01; 131-03 source-lens-driver + 131-04 findings-wirer + F.1 selector + 131-05 commands/research.md 7-stage rewrite + check-research-isomorphism CI guard + 131-06 5 E2E release gate + Feynman registration + RESEARCH-AS-WORKFLOW-STEP.md fan-out template, 2026-06-02). Phase release gate GREEN: run-all-131.sh 6/6; zero regression on 130/130.7/navigation; ZERO live Brain writes; ZERO new deps; substrate guard + brain-boundary-scan + isomorphism guard all pass.
 
 **Plans:**
 - [x] 131-01-PLAN.md -- substrate: EvidenceClaim writer (locked 136 schema) + CONTRADICTS/SUPERSEDES edges + 3 research events + getResearchPreflight + aggregator (wave 1)
@@ -1686,7 +1686,7 @@ Plans:
 - [x] 131-03-PLAN.md -- source-lens-driver: Stage 4 over the 130.5 shared corpus, zero Python, dedup + tier/relevance rank; activates the lens-engine source family (wave 2)
 - [x] 131-04-PLAN.md -- findings-wirer + F.1 filing selector: cascade edges (local-node-id for local targets, correlation_id for teaching-graph), gate-as-write-node forward contract for 136 (wave 3)
 - [x] 131-05-PLAN.md -- commands/research.md 7-stage rewrite (both invocation modes) + check-research-isomorphism.cjs CI guard (wave 4)
-- [ ] 131-06-PLAN.md -- 5 E2E tests (the release gate) + Feynman registration + docs/RESEARCH-AS-WORKFLOW-STEP.md (wave 5)
+- [x] 131-06-PLAN.md -- 5 E2E tests (the release gate) + Feynman registration + docs/RESEARCH-AS-WORKFLOW-STEP.md (wave 5)
 
 **Authority:** `.planning/phases/131-research-as-graph-aware-workflow/131-CONTEXT.md` (scoped 2026-05-16) + `.planning/v1.13.1-EXECUTION-PLAN.md` "Synthesis-Plan Absorption (2026-05-16)" section.
 
