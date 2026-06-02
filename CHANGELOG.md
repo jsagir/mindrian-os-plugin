@@ -1,3 +1,22 @@
+## [Unreleased]
+
+This final rolls up the entire 1.13.0 beta train (beta.38 through beta.41, including the Windows installer fix below) plus the v1.13.1-planned dual-graph / research-workflow chain (Phases 130.5, 130.7, 131, 132).
+
+### Added (Phase 130.5 -- shared corpus-cache + CJS fetcher substrate)
+- **One CJS-native external-corpus module that every research surface uses.** `lib/core/research-corpus.cjs` exposes `fetchCorpus({source, query, limit})` over OpenAlex / arXiv / PubMed / Tavily (native `fetch`, zero new deps, zero Python) behind one interface, with a shared fail-closed Canon Part 8 pre-egress audit that rejects any query string carrying user-content patterns. `lib/core/research-cache.cjs` is the shared TTL + source-keyed on-disk cache so a paper fetched by `/mos:research` is never re-fetched by `rs-discovery-engine`. `rs-discovery-engine` migrated onto the shared module (byte-identical fixture results), closing the duplicate-fetcher / duplicate-quota drift. Sci-Bot registered as an opt-in `enabled:false` source (legal-review gated).
+
+### Added (Phase 130.7 -- correlation-id contract + dual-graph CI gates)
+- **A stable, embedding-independent `correlation_id` on every teaching-graph node.** Locked contract of record: `sha256(utf8(name + '|' + primary_label)).hex().slice(0,16)` (raw inputs, no trim/case-fold) - byte-identical to the live Brain backfill (721 nodes). `lib/core/correlation.cjs` is the single hashing chokepoint reused by the Brain backfill, the chain-recommender, and the local recommender. `lib/brain/chain-recommender.cjs` returns one canonical `{correlation_id, canonical_name, primary_label}` tuple per query (no cross-label fork); `navigation.cjs` memory_event references carry correlation_id (additive, zero new EVENT_TYPES); `bin/local-chain-recommender.cjs` walks aggregates by correlation_id. Ships the 4-metric dual-graph CI health gate (report-only/baseline mode) + three `/mos:brain-derive` curation surfaces (`--review-anchors`, `--orphan-census`, `--cross-label-dups`).
+
+### Added (Phase 131 -- research as a graph-aware workflow step, source-lens pilot)
+- **`/mos:research` rewritten from a prose-and-agent command into a 7-stage canonical workflow step.** Batched pre-flight (`navigation.getResearchPreflight`) -> Larry-voiced context summary -> weighted source-lens set -> corpus fetch via the 130.5 shared module -> F.1 filing selector (mirrors `selector-dispatcher.cjs`) -> findings wired as typed `EvidenceClaim` nodes with cascade edges (INFORMS / CONTRADICTS / SUPERSEDES / REJECTED_BECAUSE) landing on canonical correlation_ids. Rejection captures reason as graph data (Canon Part 4). 5 instrumented E2E tests drive the full pipeline through `navigation.cjs` with a zero-leak gate; `docs/RESEARCH-AS-WORKFLOW-STEP.md` makes this the template for the v1.14.0 source-lens fan-out.
+
+### Added (Phase 132 -- dual-graph correlation hypergraph reformat, machinery + tiny live cleanup)
+- **The teaching-graph curation machinery + the re-baselined live cleanup.** `lib/brain/curation-batch.cjs` is the reusable curation-batch runner (created_by provenance stamping, rollback-by-created_by, a write-time guard that refuses to write unless the 130.7 correlation contract is present in the live graph, gated `--execute`). Ships the frozen 5-event-type hypergraph schema, the dedup-collapse + held-name-rename machinery, and the Phase 132 release gate (invokes the 130.7 health check + brain-boundary-scan). Live cleanup executed the re-baselined worklist: collapsed the one real dedup pair (`The Other Way Round` Technique), snapshot-protected and reversible. The bulk hypergraph reify, the ~278-node wire-it, the internal-name pseudonymize, and the 14 held-node disposition are deferred to v1.14.0 (tracked deferred items; the held nodes remain safely quarantined).
+
+### Changed
+- Larry's chain-recommender now returns one canonical target per query across the LOCAL room.db navigation layer and the remote Brain teaching graph - the dual-graph coherence the v1.13.0 "Closed Loop" milestone was building toward.
+
 ## [1.13.0-beta.41] - 2026-06-02
 
 ### Fixed (Windows installer false-negative -- POSIX-shell assumption; debug session windows-posix-shell-assumption-installer-statusline, 2026-06-01)
