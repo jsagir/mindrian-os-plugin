@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
-stopped_at: Completed 130.5-03-PLAN.md (rs-discovery-engine migrated onto fetchCorpus + shared research-cache; byte-identical + cache-hit + Canon Part 8 regression 3/3 green; existing 9-scenario suite 9/9; run-all-130.5.sh green; Feynman runner registers 130.5 additively; substrate guard clean on every commit). Phase 130.5 COMPLETE (3/3 plans).
-last_updated: "2026-06-01T21:31:21.268Z"
-last_activity: 2026-05-20 -- Phase 127.1 execution started
+stopped_at: Completed 131-02-PLAN.md (research-context-extractor.cjs -- Stage 1+2+3 in one pass: one batched getResearchPreflight read + Body Shape A Larry-voiced summary + context-derived weighted lens set; computeLensSet proven not-hardcoded by inequality; cold-room scholarly Tier-0 default never throws; pure-over-navigation, zero Brain writes, zero corpus fetch, zero new deps; 7/7 GREEN; run-all-131 2 passed/4 skipped; zero regression 130/130.7/navigation; substrate guard + brain-boundary-scan clean on every commit). Phase 131 now 2/6 plans shipped; 131-03 (source-lens-driver) next.
+last_updated: "2026-06-02T04:06:21.139Z"
+last_activity: "2026-06-02 -- Completed quick task 260602-0pb: Windows installer shell fix (bin/cli.js)"
 progress:
   total_phases: 75
   completed_phases: 53
   total_plans: 387
-  completed_plans: 346
+  completed_plans: 347
   percent: 71
 ---
 
@@ -24,6 +24,13 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 **Current focus:** Phase 127.1 — brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap
 
 ## Current Position
+
+**Phase 131-02 closure (2026-06-01) -- Wave 2 of Phase 131 (Research as Graph-Aware Workflow Step) -- the Stage 1+2+3 context extractor:**
+
+- f306a840 test(131-02): RED suite for the Stage 1+2+3 context extractor (7 assertions, 0/7 RED)
+- 473365e5 feat(131-02): research-context-extractor (Stage 1+2+3 in one pass); 7/7 GREEN
+
+Phase 131-02 outcome: shipped lib/core/research-context-extractor.cjs -- the Stage 1+2+3 pre-flight + plan extractor, the explicit moment research becomes context-aware rather than blind. extractContext({roomDir, sessionId, topic, db}) calls the Plan-01 batched navigation.getResearchPreflight EXACTLY ONCE (spy-counted; the 4.8 re-baseline collapses Stage 1's 8 reads into one round-trip and Stages 2+3 into one reasoning pass), then in that single pass renders a Body Shape A (one conversational paragraph; NOT Shape E, per 131-CONTEXT open-decision 3) Larry-voiced context_summary framed in the dominant persona role (Canon Part 2a) naming the active workflow + JTBD + current section + evidence-gap count (Canon Part 5), and computes the weighted source-lens set via the exported pure helper computeLensSet(preflight). computeLensSet is CONTEXT-DERIVED, not hardcoded (proven by INEQUALITY: a financial-model + thesis-build + investor preflight and a cold preflight yield two different ordered [{lens, weight}] lists via notDeepEqual): the 131-CONTEXT Stage 3 rules fire over an ordered Map accumulator -- financial-model gap -> scholarly(1.0)/industry(0.8)/patent(0.6); thesis-build JTBD -> brain(0.7); investor role weight -> competitive-intelligence(0.7); researcher role weight -> scholarly +0.2 bump; founder.grant role weight -> grants(0.8); a cold room (no rule fires) or a null preflight degrades to the Tier-0 floor [{lens:'scholarly', weight:1.0}] and never throws (T-131-02-02 DoS-resilience). The module is pure-over-navigation: it requires navigation.cjs ONLY for room.db access, forwards a CALLER-OWNED db handle verbatim to getResearchPreflight, carries zero direct node:sqlite/room-db.cjs require (substrate guard CLEAN on it, not allow-listed), makes ZERO Brain calls, ZERO corpus fetches (Plan 03 owns the fetch + the inherited 130.5 pre-egress audit), and ZERO external-process/Python surface (the summary is LOCAL-only per Canon Part 8). The driver (Plan 03) consumes lens_set to order the 130.5 corpus fetch by priority; the command (Plan 05) surfaces context_summary before fetching. TDD: RED suite (7 assertions: one-batched-read spy, Body Shape A summary scalars, computed-not-hardcoded inequality, founder.grant->grants, cold-room scholarly default + graceful no-throw, real-room integration over the genuine navigation chokepoint, source hygiene) failed 0/7 (extractor absent), GREEN reached in one feat commit 7/7. One deviation (Rule 1, test-logic + header-prose): the source-hygiene scan stripped only // line-comments so the literal forbidden token in the /* */ module-header prose documenting what the module does NOT do tripped the regex despite zero executable surface; fixed by (a) extending the test to strip /* */ block comments before scanning and (b) rephrasing the header to "external-process invocations" so the plan's own coarse verification grep returns 0 cleanly. Both fixes landed in the GREEN commit; zero production-logic deviation. Verification: test-131-context-extractor 7/7; run-all-131.sh 2 passed / 0 failed / 4 skipped (Plan 03/04/05/06 suites skip-with-note); zero regression -- run-all-130 4/4, run-all-130.7 7/7, test-navigation-acceptance 1/1; substrate guard --baseline clean on the new module; em-dash scan zero; zero-Python grep 0; zero new deps; every commit passed the live substrate guard + brain-boundary-scan with NO --no-verify. SUMMARY at .planning/phases/131-research-as-graph-aware-workflow/131-02-SUMMARY.md; 131-02 flipped to [x] in ROADMAP.md (Phase 131 now 2/6 plans shipped). Wave 2 continues with 131-03 (source-lens-driver: Stage 4 over the 130.5 shared corpus, zero Python, dedup + tier/relevance rank; activates the lens-engine source family).
 
 **Phase 130-04 closure (2026-05-31) -- Wave 4 (final) of Phase 130 (Lens-Engine Skeleton) -- the 8 E2E tests; PHASE 130 COMPLETE:**
 
@@ -295,7 +302,7 @@ Awaiting user action (Gate 5):
 
 Last activity: 2026-06-02 -- Completed quick task 260602-0pb: Windows installer shell fix (bin/cli.js)
 
-Progress: [█████████░] 89%
+Progress: [█████████░] 90%
 
 ## Performance Metrics
 
