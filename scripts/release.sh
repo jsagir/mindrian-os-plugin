@@ -31,7 +31,7 @@
 #      tag points at Commit A so `marketplace.json source.ref: vN` resolves to a
 #      tree whose plugin.json self-reports vN (TWO-COMMIT form, per Phase 123 D-19
 #      research finding 1: Claude Code reads plugin.json version FIRST).
-#   9.5. npm publish @mindrian_os/install at NEW_VERSION (BEFORE Commit B so the
+#   9.5. npm publish @mindrian_os/cli at NEW_VERSION (BEFORE Commit B so the
 #        working tree still says vN). dist-tag: @next for -beta./alpha./rc./next.,
 #        @latest for clean X.Y.Z.
 #   9.6. Sync install minisite to NEW_VERSION (HARD 7-place lockstep, Phase 126
@@ -44,7 +44,7 @@
 #        origin-missing (recovery: `git remote add origin`), sed/grep failure,
 #        push failure, live-poll timeout. --no-minisite opt-out (audit-logged).
 #        See feedback_install_minisite_lockstep.md.
-#   9.7. npx-publish self-test (Phase 126 Plan 04). Runs `npx --yes @mindrian_os/install@<version>`
+#   9.7. npx-publish self-test (Phase 126 Plan 04). Runs `npx --yes @mindrian_os/cli@<version>`
 #        against a fresh temp dir; HARD ABORT if exit != 0 or temp dir is empty.
 #   7.5. Commit B (next-bump commit, plugin repo only): plugin.json/package.json
 #        -> next pre-release; CHANGELOG `[Unreleased]` heading reset. main HEAD
@@ -210,7 +210,7 @@ if [ "$DRY_RUN" = "1" ]; then
   echo "              gate + git add -f) into Commit A; MOS_SKIP_VENDOR=1 to skip"
   echo "  Step 7    : commit A on plugin repo -- 'release: v$NEW_VERSION', tag v$NEW_VERSION"
   echo "              commit on marketplace repo -- 'release: sync to v$NEW_VERSION'"
-  echo "  Step 9.5  : npm publish @mindrian_os/install@$NEW_VERSION --tag $NPM_TAG_PREVIEW"
+  echo "  Step 9.5  : npm publish @mindrian_os/cli@$NEW_VERSION --tag $NPM_TAG_PREVIEW"
   if [ "$NO_NEXT_BUMP" = "1" ]; then
     echo "  Step 7.5  : SKIPPED (--no-next-bump). main HEAD stays at $NEW_VERSION."
   else
@@ -230,7 +230,7 @@ if [ "$DRY_RUN" = "1" ]; then
   if [ "$NO_MINISITE" = "1" ]; then
     echo "              ${YELLOW}--no-minisite opt-out engaged (audit-logged; install-minisite NOT bumped)${NC}"
   fi
-  echo "  Step 9.7  : npx-publish self-test -- npx @mindrian_os/install@$NEW_VERSION in a fresh temp dir"
+  echo "  Step 9.7  : npx-publish self-test -- npx @mindrian_os/cli@$NEW_VERSION in a fresh temp dir"
   echo "  Step 9.8  : run full mindrian-os doctor --acceptance (HARD ABORT on failure;"
   echo "              tag must be on origin, npm must answer for $NEW_VERSION, npx round-trip must work)"
   echo "  Step 10   : claude plugin marketplace update mindrian-marketplace"
@@ -503,9 +503,9 @@ cd "$MARKETPLACE_DIR"
 git add .claude-plugin/marketplace.json
 git commit -m "release: sync to v$NEW_VERSION" || echo "Nothing to commit in marketplace"
 
-# --- Step 9.5: Publish @mindrian_os/install at NEW_VERSION (BEFORE Commit B) ---
+# --- Step 9.5: Publish @mindrian_os/cli at NEW_VERSION (BEFORE Commit B) ---
 # Memory canon feedback_release_lockstep_npm: every plugin release publishes
-# @mindrian_os/install to npm. -beta./alpha./rc./next. suffixes -> @next dist-tag;
+# @mindrian_os/cli to npm. -beta./alpha./rc./next. suffixes -> @next dist-tag;
 # clean X.Y.Z -> @latest. If publish fails, HALT -- never ship unpublished.
 # MOS_TEST_DRY_RUN=1 exercises the gate without touching the live registry.
 #
@@ -513,7 +513,7 @@ git commit -m "release: sync to v$NEW_VERSION" || echo "Nothing to commit in mar
 # tree's package.json says NEW_VERSION (vN). If we published from Commit B's
 # tree, npm would receive NEXT_VERSION (vN+1) -- wrong.
 echo ""
-echo "=== Step 9.5: npm publish (@mindrian_os/install) ==="
+echo "=== Step 9.5: npm publish (@mindrian_os/cli) ==="
 cd "$PLUGIN_DIR"
 NPM_TAG="latest"
 case "$NEW_VERSION" in
@@ -530,7 +530,7 @@ echo "  version: $NEW_VERSION  ->  dist-tag: @$NPM_TAG"
 # node_modules guard (debug session mcp-servers-cache-missing-node-modules):
 # Step 6.7 vendors node_modules into the working tree for the git-distributed
 # marketplace artifact. The npm tarball is a SEPARATE distribution channel --
-# `npm install @mindrian_os/install` resolves deps from the registry, so the
+# `npm install @mindrian_os/cli` resolves deps from the registry, so the
 # vendored 32M node_modules must NEVER ship inside the npm tarball. The
 # package.json "files" allowlist already excludes it (node_modules is not
 # listed); this gate asserts that explicitly so a future allowlist edit cannot
@@ -559,17 +559,17 @@ if [ "${MOS_TEST_DRY_RUN:-0}" = "1" ]; then
   echo "  [DRY RUN] would run: npm publish --tag $NPM_TAG"
 else
   if npm publish --tag "$NPM_TAG"; then
-    echo -e "${GREEN}  Published @mindrian_os/install@$NEW_VERSION to npm (@$NPM_TAG)${NC}"
+    echo -e "${GREEN}  Published @mindrian_os/cli@$NEW_VERSION to npm (@$NPM_TAG)${NC}"
   else
     echo ""
-    echo -e "${RED}  x npm publish failed for @mindrian_os/install@$NEW_VERSION.${NC}"
+    echo -e "${RED}  x npm publish failed for @mindrian_os/cli@$NEW_VERSION.${NC}"
     echo "    Commit A has already been made and tagged v$NEW_VERSION (not yet pushed),"
     echo "    so the lockstep contract is now BROKEN until you recover. To recover:"
     echo "      1. Fix the npm issue (auth: 'npm whoami'; scope: ensure"
-    echo "         package.json name is '@mindrian_os/install' and you have publish"
+    echo "         package.json name is '@mindrian_os/cli' and you have publish"
     echo "         rights on the @mindrian_os org)."
     echo "      2. Re-run JUST the publish: npm publish --tag $NPM_TAG"
-    echo "      3. Verify: npm view @mindrian_os/install@$NPM_TAG version"
+    echo "      3. Verify: npm view @mindrian_os/cli@$NPM_TAG version"
     echo "      4. Then resume by running Commit B + push manually, OR reset"
     echo "         (git reset --hard HEAD^ + git tag -d v$NEW_VERSION) and re-run release.sh."
     echo "    Do NOT cut another plugin release until npm is in sync."
@@ -736,7 +736,7 @@ fi
 #
 # Website design (verified against /home/jsagi/mindrian-website/website/
 # src/lib/version.ts on 2026-05-25): four-tier version resolver --
-# (1) NEXT_PUBLIC_MINDRIAN_VERSION env var, (2) npm @mindrian_os/install
+# (1) NEXT_PUBLIC_MINDRIAN_VERSION env var, (2) npm @mindrian_os/cli
 # @next dist-tag (the SHIPPED truth), (3) GitHub raw plugin.json (dev
 # truth), (4) FALLBACK_VERSION constant in src/lib/version.ts (offline
 # fallback). The npm resolver auto-picks-up the just-published version
@@ -885,14 +885,14 @@ else
 fi
 
 # --- Step 9.7: npx-publish self-test (Phase 126 Plan 04 + Phase 126.1 hotfix) ---
-# Verify npx @mindrian_os/install@<version> against a sandboxed HOME-override
+# Verify npx @mindrian_os/cli@<version> against a sandboxed HOME-override
 # produces an exit-0 scaffold. Closes the 2026-05-13 dogfood gap "npx round-trip
 # broken (null)". The existing Step 9.8 (--acceptance full) covers this in
 # passing, but Plan 04 makes it an explicit gate so the failure mode surfaces
 # here with a clean stack trace rather than buried inside the --acceptance
 # roster.
 #
-# Phase 126.1 hotfix (2026-05-15): `@mindrian_os/install` installs into
+# Phase 126.1 hotfix (2026-05-15): `@mindrian_os/cli` installs into
 # ~/.claude/, NOT into cwd. The original Plan-04 implementation used `mktemp
 # -d` and checked the temp dir was non-empty -- but the install never landed
 # there, so the check spuriously failed during the beta.16 cut. Fix: HOME-
@@ -905,7 +905,7 @@ echo ""
 echo "=== Step 9.7: npx-publish self-test ==="
 
 if [ "${MOS_TEST_DRY_RUN:-0}" = "1" ] || [ "$DRY_RUN" = "1" ]; then
-  echo "  [DRY RUN] would run: npx --yes @mindrian_os/install@$NEW_VERSION against a HOME-override sandbox at ~/.claude/_test-install-<sha8>/"
+  echo "  [DRY RUN] would run: npx --yes @mindrian_os/cli@$NEW_VERSION against a HOME-override sandbox at ~/.claude/_test-install-<sha8>/"
 else
   # sha8 of NEW_VERSION + current epoch for uniqueness; falls back to a random
   # tag if shasum is missing.
@@ -948,9 +948,9 @@ else
   NPX_PROP_BACKOFF_S="${NPX_PROP_BACKOFF_S:-5}"
   PROP_ATTEMPT=0
   while [ "$PROP_ATTEMPT" -lt "$NPX_PROP_RETRIES" ]; do
-    PROP_SEEN="$(npm view "@mindrian_os/install@$NEW_VERSION" version 2>/dev/null | tr -d '[:space:]')"
+    PROP_SEEN="$(npm view "@mindrian_os/cli@$NEW_VERSION" version 2>/dev/null | tr -d '[:space:]')"
     if [ "$PROP_SEEN" = "$NEW_VERSION" ]; then
-      echo "  -> registry propagated @mindrian_os/install@$NEW_VERSION (attempt $((PROP_ATTEMPT+1)))"
+      echo "  -> registry propagated @mindrian_os/cli@$NEW_VERSION (attempt $((PROP_ATTEMPT+1)))"
       break
     fi
     PROP_ATTEMPT=$((PROP_ATTEMPT+1))
@@ -966,7 +966,7 @@ else
        HOME="$NPX_TEST_DIR" \
        USERPROFILE="$NPX_TEST_DIR" \
        npm_config_cache="$NPX_TEST_DIR/.npm" \
-       npx --yes --prefer-online "@mindrian_os/install@$NEW_VERSION" 2>&1 | tee /tmp/npx-selftest-out.log; then
+       npx --yes --prefer-online "@mindrian_os/cli@$NEW_VERSION" 2>&1 | tee /tmp/npx-selftest-out.log; then
     # Scaffold marker check: ~/.claude/ must exist inside the sandbox AND
     # ~/.claude/plugins/installed_plugins.json must be a readable JSON file.
     # If either is missing, the install never actually landed -- silent
@@ -987,7 +987,7 @@ else
     fi
     echo -e "${GREEN}  ✓ npx scaffold verified (HOME-override sandbox; .claude/plugins/installed_plugins.json present + parseable)${NC}"
   else
-    echo -e "${RED}  x npx @mindrian_os/install@$NEW_VERSION failed${NC}"
+    echo -e "${RED}  x npx @mindrian_os/cli@$NEW_VERSION failed${NC}"
     echo "    The published npm package is broken for new installs."
     echo "    Recovery: <recovery> R.4 -- yank + cut successor. See Step 9.8 abort block below."
     exit 1
@@ -1178,8 +1178,8 @@ fi
 # WORST CASE: npm version slot for vN is burned. The recovery is
 # yank-+-cut-successor (NOT a retry of --acceptance against the broken
 # artifact). See <recovery> R.4 in 123-04-PLAN.md:
-#   - npm deprecate @mindrian_os/install@$NEW_VERSION "broken -- see vNEXT"
-#   - npm dist-tag rm @mindrian_os/install next
+#   - npm deprecate @mindrian_os/cli@$NEW_VERSION "broken -- see vNEXT"
+#   - npm dist-tag rm @mindrian_os/cli next
 #   - Fix the cause locally
 #   - bash scripts/release.sh --prerelease  (cuts vN+1 with the fix)
 #   - Notify Lawrence + any registered tester (REQUIRED, not optional).
@@ -1201,8 +1201,8 @@ if ! node "$PLUGIN_DIR/scripts/doctor.cjs" --acceptance; then
   echo "  published artifact is INCONSISTENT. INVESTIGATE before any further releases."
   echo ""
   echo "  Recovery path: <recovery> R.4 (yank + cut successor):"
-  echo "    1. npm deprecate @mindrian_os/install@$NEW_VERSION \"broken -- see successor\""
-  echo "    2. npm dist-tag rm @mindrian_os/install next"
+  echo "    1. npm deprecate @mindrian_os/cli@$NEW_VERSION \"broken -- see successor\""
+  echo "    2. npm dist-tag rm @mindrian_os/cli next"
   echo "    3. Fix the cause locally."
   echo "    4. bash scripts/release.sh --prerelease   # cuts vN+1 with the fix"
   echo "    5. NOTIFY Lawrence + any registered tester (REQUIRED -- subject:"

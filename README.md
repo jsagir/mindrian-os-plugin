@@ -97,7 +97,7 @@ Nothing forgets. Everything compares. Your own past work works for you.
 ### npm (one line, recommended)
 
 ```bash
-npx @mindrian_os/install
+npx @mindrian_os/cli
 ```
 
 ### Plugin marketplace

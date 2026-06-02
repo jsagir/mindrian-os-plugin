@@ -2421,7 +2421,7 @@ function buildAcceptanceChecklist(ctx) {
           const ref = mp.plugins && mp.plugins[0] && mp.plugins[0].source && mp.plugins[0].source.ref;
           if (ref !== 'v' + ver) return { ok: false, finding: 'marketplace source.ref is ' + ref + ', expected v' + ver, detail: { ref: ref, expected: 'v' + ver } };
           // (c) npm view -- THIS IS THE ONE NETWORK CALL in this point.
-          const n = cp.spawnSync('npm', ['view', '@mindrian_os/install@' + ver, 'version'], { encoding: 'utf8', timeout: 30000 });
+          const n = cp.spawnSync('npm', ['view', '@mindrian_os/cli@' + ver, 'version'], { encoding: 'utf8', timeout: 30000 });
           if (n.status !== 0) return { ok: false, finding: 'npm view failed: ' + (n.stderr || '').slice(-200), detail: { status: n.status } };
           const npmVer = (n.stdout || '').trim();
           const ok = npmVer === ver;
@@ -2433,7 +2433,7 @@ function buildAcceptanceChecklist(ctx) {
     },
     {
       id: 'npx-roundtrip',
-      label: 'npx @mindrian_os/install round-trip resolves cleanly',
+      label: 'npx @mindrian_os/cli round-trip resolves cleanly',
       severity: 'blocker',
       applies_to: ['full'],
       run: async function () {
@@ -2458,7 +2458,7 @@ function buildAcceptanceChecklist(ctx) {
         if (flagLightNpx) {
           // Light path: resolve --help against the published package without
           // doing a live install. Operator opt-in for slow networks / CI.
-          const r = cp.spawnSync('npx', ['--no-install', '@mindrian_os/install@' + ver, '--help'], { encoding: 'utf8', timeout: 30000 });
+          const r = cp.spawnSync('npx', ['--no-install', '@mindrian_os/cli@' + ver, '--help'], { encoding: 'utf8', timeout: 30000 });
           const ok = r.status === 0;
           return { ok: ok, finding: ok ? null : ('npx --no-install --help failed (' + r.status + ')'), detail: { status: r.status, stderrTail: (r.stderr || '').slice(-200) } };
         }
@@ -2472,7 +2472,7 @@ function buildAcceptanceChecklist(ctx) {
             USERPROFILE: sandbox,
             npm_config_cache: path.join(sandbox, '.npm'),
           });
-          const r = cp.spawnSync('npx', ['@mindrian_os/install@' + ver, '--help'], { encoding: 'utf8', env: env, timeout: 90000 });
+          const r = cp.spawnSync('npx', ['@mindrian_os/cli@' + ver, '--help'], { encoding: 'utf8', env: env, timeout: 90000 });
           // Phase 127.2 Plan 02 Finding C: accept "package downloaded and
           // executed" as success regardless of exit code. The npm artifact's
           // reachability is what this gate verifies; the inner claude CLI's

@@ -1,5 +1,5 @@
 {
-  "name": "@mindrian_os/install",
+  "name": "@mindrian_os/cli",
   "version": "1.13.0-beta.42",
   "description": "Install MindrianOS into Claude Code with one command -- `npx @mindrian_os/install`. Ships the MindrianOS plugin (Larry + PWS methodology + Data Room) plus a setup/diagnostics CLI (install/doctor/update).",
   "scripts": {
@@ -9,19 +9,11 @@
   },
   "bin": {
     "mindrian-os": "bin/cli.js",
-    "install": "bin/cli.js"
+    "cli": "bin/cli.js"
   },
   "files": [
-    "bin/",
-    "lib/",
-    "pipelines/",
-    "references/",
-    "skills/",
-    "commands/",
-    "agents/",
-    "hooks/",
-    ".claude-plugin/",
-    ".mcp.json",
+    "bin/cli.js",
+    "lib/core/active-plugin-root.cjs",
     "README.md",
     "LICENSE",
     "CHANGELOG.md"

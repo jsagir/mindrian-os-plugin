@@ -3,11 +3,11 @@
 /*
  * MindrianOS installer + diagnostics CLI.
  *
- * npm package:        @mindrian_os/install   ->   `npx @mindrian_os/install` installs MindrianOS
+ * npm package:        @mindrian_os/cli   ->   `npx @mindrian_os/cli` installs MindrianOS
  * installed command:  mindrian-os <install|doctor|update> [args]   (no subcommand = install)
  *
  * The package name is the verb: running it with no subcommand (or with only
- * flags, e.g. `npx @mindrian_os/install --version 1.13.0-beta.9`) does the
+ * flags, e.g. `npx @mindrian_os/cli --version 1.13.0-beta.9`) does the
  * install. `doctor` and `update` are still explicit subcommands.
  *
  *   install   Install (or bring current) MindrianOS by driving Claude Code's
@@ -105,11 +105,11 @@ function requireClaudeCli() {
   console.error('Install it first:');
   console.error('  npm install -g @anthropic-ai/claude-code');
   console.error('Then re-run:');
-  console.error('  npx @mindrian_os/install');
+  console.error('  npx @mindrian_os/cli');
   return false;
 }
 
-// No subcommand, or flags only (e.g. `npx @mindrian_os/install --version 1.13.0-beta.9`),
+// No subcommand, or flags only (e.g. `npx @mindrian_os/cli --version 1.13.0-beta.9`),
 // means "install" -- the package name is the verb. Pass any leading flags through.
 let sub = process.argv[2];
 let argOffset = 3;
@@ -125,7 +125,7 @@ switch (sub) {
       console.error('MindrianOS does not appear to be installed (could not find scripts/doctor.cjs).');
       console.error('Looked under: ' + path.join(os.homedir(), '.claude', 'plugins') + (process.env.MINDRIAN_OS_ROOT ? ' and $MINDRIAN_OS_ROOT' : ''));
       console.error('Install it first:');
-      console.error('  npx @mindrian_os/install');
+      console.error('  npx @mindrian_os/cli');
       process.exit(1);
     }
     const r = run(process.execPath, [path.join(root, 'scripts', 'doctor.cjs'), ...process.argv.slice(argOffset)]);

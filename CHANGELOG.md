@@ -1,3 +1,11 @@
+## [Unreleased]
+
+### Fixed (npx install UX -- proper npm package)
+- **`npx @mindrian_os/install` was broken; the npm package is renamed to `@mindrian_os/cli` and slimmed.** Root cause: the unscoped package-name segment `install` collides with the coreutils `/usr/bin/install` command, so `npx @mindrian_os/install` ran the system `install` (or failed `mindrian-os: not found`) instead of the installer. The package itself always worked via `npm install` + marketplace; only the `npx`-by-name path was broken (caught by the release Step 9.7 self-test on the 1.13.0 finalize). Fix: rename to `@mindrian_os/cli` (npx-safe; `cli` is not a system command), bin map `{mindrian-os, cli}` so `npx @mindrian_os/cli` resolves cleanly, and slim the published `files` from the entire 8.5MB plugin to the installer essentials (`bin/cli.js` + `lib/core/active-plugin-root.cjs`, ~164KB) since the CLI drives `claude plugin install` and never needs the plugin payload (that ships via the marketplace git artifact). README + install-minisite + release.sh + doctor.cjs npx self-tests all repointed to `@mindrian_os/cli`. The broken `@mindrian_os/install` beta.41/beta.42 are deprecated.
+
+### Fixed (release tooling)
+- **Pre-tag `release-dry-run-output` self-test is mode-explicit.** It ran `release.sh --dry-run` with no mode; during `--finalize` (after the version is bumped to a clean X.Y.Z) a bare dry-run exits 1, aborting the finalize. Now passes `patch` (valid on clean + suffixed versions).
+
 ## [1.13.0-beta.42] - 2026-06-02
 
 This final rolls up the entire 1.13.0 beta train (beta.38 through beta.41, including the Windows installer fix below) plus the v1.13.1-planned dual-graph / research-workflow chain (Phases 130.5, 130.7, 131, 132).
