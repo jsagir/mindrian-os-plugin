@@ -203,6 +203,9 @@ if [ "$DRY_RUN" = "1" ]; then
   echo "  Step 6    : CHANGELOG.md entry check + rename [Unreleased] -> [$NEW_VERSION] - \$(date +%F)"
   echo "  Step 6.5  : post-bump re-verify (scripts/verify-release)"
   echo "  Step 6.6  : run mindrian-os doctor --acceptance --pre-tag (HARD ABORT on failure)"
+  echo "  Step 6.6a : verify data/doctor-modules.json -- every runner exists +"
+  echo "              introduced_version is valid semver + <= $NEW_VERSION (HARD ABORT,"
+  echo "              same rollback as Step 6.6; Phase 139 Plan 04)"
   echo "  Step 6.6b : run tests/test-doctor-acceptance-self-coverage.cjs"
   echo "              (5 scaffolded broken-state fixtures + live no-regression guard;"
   echo "              HARD ABORT on fail, same rollback as Step 6.6; Phase 126 Plan 03)"
@@ -400,6 +403,76 @@ if ! node "$PLUGIN_DIR/scripts/doctor.cjs" --acceptance --pre-tag; then
   exit 1
 fi
 echo -e "${GREEN}  --acceptance --pre-tag passed${NC}"
+
+# --- Step 6.6a: module-registration verification (Phase 139 Plan 04, S4) ---
+# The accumulative-engine (Phase 139) registers health/migration modules in
+# data/doctor-modules.json. A shipped module whose runner file is absent, or
+# whose introduced_version is invalid semver or claims a FUTURE version, would
+# ship a broken engine (threat T-139-13 + T-139-14). Verify EVERY registered
+# module before the tag lands: (1) the runner file exists on disk, (2)
+# introduced_version is valid semver, (3) introduced_version <= NEW_VERSION (a
+# module cannot claim to be introduced in a version that ships later than the
+# one being cut). HARD ABORT with the SAME rollback semantics as Step 6.6 --
+# release infra is the one gate you cannot skip (CONTEXT D-16).
+echo ""
+echo "=== Step 6.6a: module-registration verification (doctor-modules.json) ==="
+if ! node -e '
+  const fs = require("fs");
+  const path = require("path");
+  const PLUGIN_DIR = process.argv[1];
+  const NEW_VERSION = process.argv[2];
+  const semver = require(PLUGIN_DIR + "/node_modules/semver");
+  if (!semver.valid(NEW_VERSION)) {
+    console.error("  FAIL: NEW_VERSION is not valid semver: " + NEW_VERSION);
+    process.exit(1);
+  }
+  const regPath = path.join(PLUGIN_DIR, "data", "doctor-modules.json");
+  let reg;
+  try {
+    reg = JSON.parse(fs.readFileSync(regPath, "utf8"));
+  } catch (e) {
+    console.error("  FAIL: cannot read/parse data/doctor-modules.json: " + e.message);
+    process.exit(1);
+  }
+  const modules = Array.isArray(reg.modules) ? reg.modules : [];
+  let bad = 0;
+  for (const m of modules) {
+    const id = m && m.id ? m.id : "(no id)";
+    if (!m || !m.runner) {
+      console.error("  FAIL [" + id + "]: missing runner field");
+      bad++;
+      continue;
+    }
+    const runnerAbs = path.join(PLUGIN_DIR, m.runner);
+    if (!fs.existsSync(runnerAbs)) {
+      console.error("  FAIL [" + id + "]: runner file does not exist: " + m.runner);
+      bad++;
+    }
+    if (!m.introduced_version || !semver.valid(m.introduced_version)) {
+      console.error("  FAIL [" + id + "]: introduced_version is not valid semver: " + m.introduced_version);
+      bad++;
+      continue;
+    }
+    if (semver.gt(m.introduced_version, NEW_VERSION)) {
+      console.error("  FAIL [" + id + "]: introduced_version " + m.introduced_version + " > NEW_VERSION " + NEW_VERSION + " (module cannot be introduced in a future version)");
+      bad++;
+    }
+  }
+  if (bad > 0) {
+    console.error("  " + bad + " module-registration violation(s) found.");
+    process.exit(1);
+  }
+  console.log("  " + modules.length + " module(s) verified: runner exists + introduced_version <= " + NEW_VERSION);
+' "$PLUGIN_DIR" "$NEW_VERSION"; then
+  echo -e "${RED}ABORT: module-registration verification failed -- release halted BEFORE tagging.${NC}"
+  echo "  A registered doctor module has a missing runner, invalid introduced_version,"
+  echo "  or an introduced_version in the future. Fix data/doctor-modules.json before re-running."
+  echo "  Rolling back version bumps so the working tree returns to its pre-Step-3 state."
+  cd "$PLUGIN_DIR" && git checkout .claude-plugin/plugin.json package.json CHANGELOG.md || true
+  cd "$MARKETPLACE_DIR" && git checkout .claude-plugin/marketplace.json || true
+  exit 1
+fi
+echo -e "${GREEN}  module-registration verification passed${NC}"
 
 # --- Step 6.6b: doctor acceptance-gate SELF-COVERAGE (Phase 126 Plan 03) ---
 # Runs scaffolded broken-state fixtures against doctor --acceptance to assert

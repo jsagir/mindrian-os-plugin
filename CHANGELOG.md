@@ -1,4 +1,23 @@
-## [Unreleased] -- v1.13.1-beta.3 (in progress)
+## [1.13.1-beta.4] - 2026-06-04
+
+Phase 139 doctor hotfix: stop doctor from scaffolding room artifacts in the wrong directory, and convert its frozen Phase-95 check roster into a version-accumulative engine skeleton. Proven end-to-end by shipping Umbilical Cord as the first registered module. Ships as a beta first per release-process.md (release infrastructure always betas before promotion).
+
+### Fixed (S1 -- doctor WHERE fix + OBS-2 closure)
+- **Doctor no longer mis-scaffolds room artifacts in non-room directories.** Doctor used to guess its target by walking up from `process.cwd()`; run from `~/dev/<repo>` or `~/decks` it found no room and either no-oped or spuriously flagged, and a residual write-ordering gap (OBS-2) let `.mindrian/` + `heal-log.json` land in a rejected target before the guards fired. Fix: one single resolver `lib/core/resolve-umbilical-target.cjs` (precedence `.umbilical` cord -> `.room-root` sentinel -> registry.active) now backs doctor's only cwd-derived target and SKIPS when it resolves to null, and the heal zero-write floor from a non-room cwd is locked by regression test (zero room-artifact writes from a non-room dir). The codebase has been bitten twice by N-independent target guessers; this resolver is one module from day one and all doctor target-resolution routes through it.
+
+### Added (S2 -- accumulative engine skeleton)
+- **Doctor's frozen Phase-95 class roster becomes a forward-healing engine.** A hand-maintained module registry (`data/doctor-modules.json`), doctor's OWN never-regressing applied-through watermark (`~/.mindrian/doctor-applied.json`), and a semver selector (`runAccumulativeEngine` in `scripts/doctor.cjs`) that runs each registered module whose `introduced_version` falls in the `(applied_through, running]` window, idempotently. From this release forward every new Mindrian version can register its own health/migration module and any user on any prior version is healed forward when they run doctor. Doctor keeps its own watermark and never depends on `~/.mindrian-last-version` (session-start overwrites that early). Generalizes the proven `install-state.cjs::migrateIfNeeded` + `deployment-surfaces.json` patterns (Canon Part 7 reuse-before-build); re-running is a no-op.
+
+### Added (S3 -- Umbilical Cord as module #1)
+- **A `.umbilical` marker in a non-room project projects exactly one `AFFILIATED_WITH` edge into the corresponding room.db.** Cords are authoritative at the registry layer and projected into each room.db as LOCAL edges (Canon Part 8: no raw cross-room edges, zero Brain egress). The first registered accumulative-engine module (`lib/core/doctor/umbilical-module.cjs`) reads the marker, projects the edge via the reused `edges.cjs::writeEdge` chokepoint (idempotent UPSERT), and integrity-checks cord-marker bidirectionality (orphan / removed-marker / unprojected). `--fix` SUGGESTS orphan cords for human confirmation but never auto-creates one; edge properties are enum-only (`relation`, `born`) and freeform `note:` text never reaches the edge.
+
+### Added (S4 -- release wiring + module-registration gate)
+- **`release.sh` Step 6.6a verifies the module registry before the tag lands.** For every entry in `data/doctor-modules.json` it asserts the runner file exists, `introduced_version` is valid semver, and `introduced_version <= NEW_VERSION` (a module cannot claim to be introduced in a future version); HARD ABORT with the same rollback semantics as the surrounding Step 6.6 acceptance gate. The umbilical module's `introduced_version` is reconciled to `1.13.1-beta.4` (the exact version this hotfix ships), so the selector's window math ties the module to the version that introduced it. `tests/test-139-acceptance.cjs` runs the whole S1-S4 chain green in one shot as the phase release gate.
+
+### Changed
+- **`ALLOWED_EDGE_TYPES` gains `AFFILIATED_WITH`** (additive; the floor test asserts all prior members are preserved and the set stays frozen).
+
+## [Unreleased] -- v1.13.1-beta.5 (in progress)
 
 ### Added
 - 
