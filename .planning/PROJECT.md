@@ -53,7 +53,8 @@ Intelligence-layer activation (SEED-008, three sub-loops):
 - 100% local for Option A; Part-8 constitutional brake applies only to sub-loop 2 (Brain/web).
 - Latency: per-turn assembly must stay under the 1200ms NAV timeout (graph-ranking first; FTS5 only if it underperforms).
 - Known carve-out: capability-dial policy stays CLI-honored this milestone; Desktop/Cowork `buildContext` dual-path wiring deferred (scope locked as Option A as-is).
-- State note: v1.13.0 "The Closed Loop" never formally closed via `/gsd:complete-milestone`; v1.13.1 proceeds on top. Phase numbering continues.
+- Version (FOLD-IN decision, 2026-06-04): "Larry Reaches" is the CLOSING ARC of v1.13.1, NOT a new version. v1.13.1 already shipped phases 127-139 across beta.2..beta.5 (Brain-native shim, spine repair, lens engine, research-as-graph workflow, umbilical doctor). Phases 140-146 continue the SAME beta train. Next cut: `v1.13.1-beta.6`, then beta.7+ as phases land. v1.13.2 stays unclaimed; v1.14.0 stays reserved for "The Visible Room". Governing contract: `.planning/v1.13.1-EXECUTION-PLAN.md` (amended to add 140-146).
+- State note: v1.13.0 "The Closed Loop + Brain Goes Native" shipped (tagged 2026-06-02) but was never formally closed via `/gsd:complete-milestone`; v1.13.1 proceeds on top. Phase numbering continues from 139. Residual phases 128-131 + umbilical 132-139 are DONE; 140-146 are the remaining arc (STATE total_phases tracks these 7 remaining).
 - The 64-Brain-calls-ever telemetry (SEED-008) is the KPI for whether activation landed.
 
 ## Platform Vision: v2.0 Mindrian Platform -- SQLite + MCP Server (aspirational, partially shipped)

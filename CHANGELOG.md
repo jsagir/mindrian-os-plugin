@@ -22,11 +22,6 @@ Phase 139 doctor hotfix: stop doctor from scaffolding room artifacts in the wron
 ### Changed
 - **`ALLOWED_EDGE_TYPES` gains `AFFILIATED_WITH`** (additive; the floor test asserts all prior members are preserved and the set stays frozen).
 
-## [Unreleased] -- v1.13.1-beta.5 (in progress)
-
-### Added
-- 
-
 ## [1.13.1-beta.2] - 2026-06-02
 
 ### Fixed (release: marketplace catalog advertised the dev next-bump)
