@@ -1,0 +1,7 @@
+{
+  "$schema_note": "Hand-maintained module registry for the doctor accumulative engine. NOT generated. New organ module = ONE entry here, no engine code change (mirrors data/deployment-surfaces.json's 'new surface = one entry' discipline). The selector in scripts/doctor.cjs (runAccumulativeEngine) walks this array and runs every module whose introduced_version is in the (applied_through, running] window: a module is gated by introduced_version <= running so an install is NEVER faulted for an organ it predates, and a future-version module (introduced_version > running) is DEFERRED (never run) until the user is on that version. Re-running is a no-op (idempotent) because the persisted watermark at ~/.mindrian/doctor-applied.json never regresses. Per-entry contract: { id (stable kebab-case identifier), introduced_version (semver string -- the plugin version that shipped this organ; prerelease labels like 1.13.1-beta.4 compare correctly), fix_supported (boolean -- whether the runner offers a --fix remediation, else check-only), runner (a lib/core/doctor/<id>.cjs-style relative path resolved against the plugin root at run time; its module exports a check(opts) and optionally a fix(opts) entry), description (one line) }. SEEDED EMPTY: Plan 03 registers module #1 (umbilical). Do NOT invent organ modules here beyond umbilical -- the 15 remaining SCOUT-2 organs backfill in v1.13.1+ (out_of_scope LOCKED decision).",
+  "schema_version": 1,
+  "phase": "139-doctor-accumulative-engine-skeleton-and-context-fix",
+  "canon_parts": [6, 7, 8],
+  "modules": []
+}
