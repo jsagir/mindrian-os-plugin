@@ -1882,7 +1882,10 @@ Plans:
   3. A reverse-salient / HSI scan reports zero `.heal-backup/` duplicates -- backup dirs no longer pollute the result set
   4. After a session running a dozen `/mos:*` commands, the query-efficiency telemetry hook shows non-zero captured events (the 57x-claim gate has real data)
   5. The deadline monitor reports the phase deadlines in `.planning/STATE.md`, not just `funding/` + `opportunity-bank/` (a near deadline shows as DUE, not CLEAR)
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 140-01-PLAN.md -- HARD-02: shared NOT-NULL-safe node insert helper (4 sites) + both-schema safety + unmask scout swallow (D-02/D-02a/D-03)
+- [ ] 140-02-PLAN.md -- HARD-01 arithmetic guard in sentinel-health-check + HARD-03 .heal-backup excluded from both SKIP_DIRS sets (D-04)
+- [ ] 140-03-PLAN.md -- HARD-04 relax telemetry gate to all turns + 57x reconciliation (D-01/D-01a) + HARD-05 deadline monitor reads .planning/STATE.md
 
 ### Phase 141: Local Retrieval Spine + Capability Dial
 **Goal**: The per-turn loop stops forwarding `userText:null` -- `getRoomContext()` fuses local room memory into a query-time seed, the "When to Reach" capability dial ships tracked, and the line-53 crash is gone. This is the spine of Option A: maximally rich, entirely local, zero Part-8 cost.
