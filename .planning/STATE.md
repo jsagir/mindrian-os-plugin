@@ -2,15 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: Larry Reaches
-status: planning
-last_updated: "2026-06-04T18:00:00.000Z"
-last_activity: 2026-06-04
+status: completed
+stopped_at: Phase 140 context gathered
+last_updated: "2026-06-04T19:35:41.690Z"
+last_activity: 2026-06-04 -- LARRYREACH milestone roadmapped (7 phases 140-146, 32 requirements mapped)
 progress:
-  total_phases: 7
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 24
+  completed_phases: 11
+  total_plans: 85
+  completed_plans: 61
+  percent: 46
 ---
 
 # Project State
@@ -32,6 +33,7 @@ Last activity: 2026-06-04 -- LARRYREACH milestone roadmapped (7 phases 140-146, 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
 The v1.13.1 "Larry Reaches" loop-fires milestone is roadmapped: 7 phases (140-146), 32 LARRYREACH requirements, 100% coverage, no orphans. Numbering continues from the prior v1.13.1 memory/research cluster (highest pre-existing phase 139). Dependency spine: Phase 140 (sentinel hardening, HARD prereq) -> Phase 141 (RETR fusion + capability dial + BUG-01, the spine) -> Phase 142 (local intelligence wiring) -> Phase 143 (insight sensors) -> Phase 144 (legacy->engine flip) -> Phase 145 (scheduled sensors, gated on 140) -> Phase 146 (loop-fires acceptance gate, the milestone gate blocker). Phase map:
+
 - Phase 140: HARD-01..05 (sentinel + instrumentation hardening)
 - Phase 141: RETR-01..04 + LARRY-01/02 + BUG-01 (getRoomContext fusion + dial + line-53)
 - Phase 142: CASC-01/02 + NAV-02/03/04 (cascade surfacing + BRAIN.md derivation + queue drain + post-compact + Phase 109 navigate)
@@ -39,6 +41,7 @@ The v1.13.1 "Larry Reaches" loop-fires milestone is roadmapped: 7 phases (140-14
 - Phase 144: NAV-01 (the routing_source legacy->engine flip)
 - Phase 145: SCHED-01/02 (scheduled sensor activation)
 - Phase 146: ACPT-01..05 (loop-fires dogfood acceptance gate)
+
 See .planning/ROADMAP.md "Milestone: v1.13.1 'Larry Reaches' (LARRYREACH)" section. Next: `/gsd:plan-phase 140`.
 
 ### Prior: Phase 132-01 closure (2026-06-02) -- Wave 1 substrate
@@ -1206,6 +1209,6 @@ Progress: [█████████░] 91%
 
 ## Session Continuity
 
-Last session: 2026-06-04T09:01:14.465Z
-Stopped at: Completed 132-05-PLAN.md (RE-BASELINED to the release gate: verify-phase-132.cjs invokes the 130.7 dual-graph health gate report-only + brain-boundary-scan over the phase batch builders; pseudonymize 6 internal :Person nodes ships as a dry-run-default reversible builder with the live write DEFERRED to v1.14.0 in deferred-items.md DI-132-05-01). ZERO live Brain writes; zero new deps. run-all-132 4/4; zero regression on 130/130.7/nav. Phase 132 now 3/5 plans shipped (132-01 + 132-03 + 132-05).
-Resume file: None
+Last session: 2026-06-04T19:35:41.612Z
+Stopped at: Phase 140 context gathered
+Resume file: .planning/phases/140-sentinel-and-instrumentation-hardening/140-CONTEXT.md
