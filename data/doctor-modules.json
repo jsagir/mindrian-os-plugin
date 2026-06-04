@@ -3,5 +3,13 @@
   "schema_version": 1,
   "phase": "139-doctor-accumulative-engine-skeleton-and-context-fix",
   "canon_parts": [6, 7, 8],
-  "modules": []
+  "modules": [
+    {
+      "id": "umbilical",
+      "introduced_version": "1.13.1-beta.4",
+      "fix_supported": true,
+      "runner": "lib/core/doctor/umbilical-module.cjs",
+      "description": "Project .umbilical cords into room.db as AFFILIATED_WITH edges; integrity-check cord<->marker bidirectionality (orphan / removed-marker / unprojected). --fix SUGGESTS orphan cords, never auto-creates."
+    }
+  ]
 }
