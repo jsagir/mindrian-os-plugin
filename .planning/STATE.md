@@ -4,14 +4,14 @@ milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
 stopped_at: "Completed 132-05-PLAN.md (RE-BASELINED to the release gate: verify-phase-132.cjs invokes the 130.7 dual-graph health gate report-only + brain-boundary-scan over the phase batch builders; pseudonymize 6 internal :Person nodes ships as a dry-run-default reversible builder with the live write DEFERRED to v1.14.0 in deferred-items.md DI-132-05-01). ZERO live Brain writes; zero new deps. run-all-132 4/4; zero regression on 130/130.7/nav. Phase 132 now 3/5 plans shipped (132-01 + 132-03 + 132-05)."
-last_updated: "2026-06-02T10:52:06.987Z"
+last_updated: "2026-06-04T08:11:30.397Z"
 last_activity: "2026-06-02 -- Completed quick task 260602-dsc: /mos:help text view becomes the De Stijl card layout"
 progress:
-  total_phases: 75
+  total_phases: 76
   completed_phases: 54
-  total_plans: 387
-  completed_plans: 354
-  percent: 72
+  total_plans: 391
+  completed_plans: 355
+  percent: 71
 ---
 
 # Project State
@@ -559,6 +559,7 @@ Progress: [█████████░] 91%
 | Phase 127.3 P04 | 20m | 2 tasks | 1 files |
 | Phase 130.7 P01 | 10 | 3 tasks | 8 files |
 | Phase 132 P05 | 12m | 2 tasks | 6 files |
+| Phase 139 P01 | 25m | 2 tasks | 5 files |
 
 ### Roadmap Evolution
 
@@ -1161,6 +1162,7 @@ Progress: [█████████░] 91%
 - [Phase ?]: Phase 131-03: findings ranked by source-keyed evidence-tier (Part 5) then CJS-native token-overlap relevance; commit stage drops None-tier; top-5 cap. HSI-scoring DEFERRED to v1.14.0 behind Phase 134 CJS HSI; 131 ships zero Python
 - [Phase ?]: Phase 131-03: ZERO new deps + ZERO live Brain writes; T-131-03-SC did NOT fire (no [ASSUMED]/[SUS] package in 130.5, no install required); room.db only via lens-engine -> navigation.cjs
 - [Phase ?]: Phase 132-05: shipped the release gate (invoke 130.7 health gate + brain-boundary-scan); DEFERRED live pseudonymize of 6 internal :Person nodes to v1.14.0; ZERO live Brain writes
+- [Phase ?]: Phase 139-01: lib/core/resolve-umbilical-target.cjs is the SINGLE doctor cwd-target resolver (cord -> sentinel -> registry.active); doctor SKIPS on null rather than scaffolding into a non-room cwd; heal OBS-2 zero-write floor locked by regression test.
 
 ### Pending Todos
 
@@ -1195,6 +1197,6 @@ Progress: [█████████░] 91%
 
 ## Session Continuity
 
-Last session: 2026-06-02T10:52:06.944Z
+Last session: 2026-06-04T08:11:11.606Z
 Stopped at: Completed 132-05-PLAN.md (RE-BASELINED to the release gate: verify-phase-132.cjs invokes the 130.7 dual-graph health gate report-only + brain-boundary-scan over the phase batch builders; pseudonymize 6 internal :Person nodes ships as a dry-run-default reversible builder with the live write DEFERRED to v1.14.0 in deferred-items.md DI-132-05-01). ZERO live Brain writes; zero new deps. run-all-132 4/4; zero regression on 130/130.7/nav. Phase 132 now 3/5 plans shipped (132-01 + 132-03 + 132-05).
 Resume file: None
