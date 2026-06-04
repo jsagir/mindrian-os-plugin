@@ -644,6 +644,38 @@
 | BRAIN-MCP-127-08 | Doctor Class M (renamed from CONTEXT "Class K" -- K is taken) end-to-end Brain smoke at `lib/core/doctor/class-m-brain-smoke.cjs`; 5-layer probe (plugin_root, key_resolver, https_schema, stdio_handshake, e2e_brain_schema); fail-fast cascade; `--brain-smoke` flag in `scripts/doctor.cjs`; detects 12 Phase 126 taxonomy failure modes (#1, #2, #3, #4, #5, #8, #9, #13, #14, #15, #19, #21); `fixBrainSmoke` is no-op (diagnostic-only) | Plan 127-02 |
 | BRAIN-MCP-127-09 | Tier-0 graceful messaging chokepoint at `lib/core/tier0-messaging.cjs` (<=110 LOC); exports `DIRECTOR_NOT_AVAILABLE` constant + `tier0Response(commandContext)` + `isAvailable()` + `larryTier0Hint()`; shim's local `tier0Response` refactored to one-line passthrough (delegation; plan 127-00 shim tests still PASS) | Plan 127-02 |
 | BRAIN-MCP-127-10 | `docs/CAPABILITY-MAP.md` row #1 flipped to "shipped (v1.13.0-beta.20)" + `data/capability-map-registry.json` (new machine-readable mirror) + 4-fixture acceptance harness (CONTEXT gates 1-5) + Canon Part 8 adversarial audit harness (delegation-property structural proof; 6 sources, 4 forbidden patterns) + no-em-dashes HARD RULE harness across all 21+ Phase 127 files + `docs/install/BRAIN-SETUP.md` rewritten for one-step onboarding | Plan 127-03 |
+| HARD-01 | Phase 140 | Pending |
+| HARD-02 | Phase 140 | Pending |
+| HARD-03 | Phase 140 | Pending |
+| HARD-04 | Phase 140 | Pending |
+| HARD-05 | Phase 140 | Pending |
+| RETR-01 | Phase 141 | Pending |
+| RETR-02 | Phase 141 | Pending |
+| RETR-03 | Phase 141 | Pending |
+| RETR-04 | Phase 141 | Pending |
+| LARRY-01 | Phase 141 | Pending |
+| LARRY-02 | Phase 141 | Pending |
+| BUG-01 | Phase 141 | Pending |
+| CASC-01 | Phase 142 | Pending |
+| CASC-02 | Phase 142 | Pending |
+| NAV-02 | Phase 142 | Pending |
+| NAV-03 | Phase 142 | Pending |
+| NAV-04 | Phase 142 | Pending |
+| SENS-01 | Phase 143 | Pending |
+| SENS-02 | Phase 143 | Pending |
+| SENS-03 | Phase 143 | Pending |
+| SENS-04 | Phase 143 | Pending |
+| SENS-05 | Phase 143 | Pending |
+| SENS-06 | Phase 143 | Pending |
+| SENS-07 | Phase 143 | Pending |
+| NAV-01 | Phase 144 | Pending |
+| SCHED-01 | Phase 145 | Pending |
+| SCHED-02 | Phase 145 | Pending |
+| ACPT-01 | Phase 146 | Pending |
+| ACPT-02 | Phase 146 | Pending |
+| ACPT-03 | Phase 146 | Pending |
+| ACPT-04 | Phase 146 | Pending |
+| ACPT-05 | Phase 146 | Pending |
 
 
 ## v1.13.1 "Larry Reaches" -- Close the Local Loop + Intelligence-Layer Activation (LARRYREACH)

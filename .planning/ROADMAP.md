@@ -1843,6 +1843,173 @@ Plans:
 
 ---
 
+## Milestone: v1.13.1 "Larry Reaches" -- Close the Local Loop + Intelligence-Layer Activation (LARRYREACH)
+
+> ROADMAPPED 2026-06-04. Origin: Decision Gate Option A (temporal-graph + smart-context-assembly fan-out, 8 agents / 7 MECE slices, `~/MindrianRooms/mindrianOS/product-evolution/v1.13.0-memory-system-review/DESIGN-BRIEF-temporal-graph-context-assembly.md`) folded with the full SEED-008 intelligence-layer-activation bundle (`.planning/seeds/SEED-008-*.md`).
+
+**Goal:** Close the per-turn retrieval loop so Larry's evidence-reach is real -- "do you remember X" actually retrieves X-relevant nodes -- and activate the intelligence layer that today runs in compute-and-store mode (every turn emits `routing_source: legacy` / `tier_mode: tier_0`). Ship the "When to Reach" capability-dial policy out of working-tree limbo into a tracked, version-bumped release. The gate blocker (SEED-008): the loop must FIRE, not merely exist -- if the 5-criterion dogfood acceptance does not pass, the milestone is renamed.
+
+**Numbering note:** These are NEW LARRYREACH phases. The highest pre-existing phase is 139 (umbilical-engine, in the prior v1.13.1 chain), so LARRYREACH starts at Phase 140. Phases 130-139 belong to the earlier v1.13.1 memory/research cluster and are NOT re-derived here.
+
+**Granularity:** fine (config.json). Coverage: 32/32 LARRYREACH requirements mapped, no orphans, no duplicates.
+
+**Dependency spine (the hard ordering):**
+- Phase 140 (HARD-01..05 sentinel hardening) is a HARD PREREQUISITE for Phase 145 (SCHED-01/02) -- never auto-fire a buggy scout on a schedule.
+- Phase 141 (RETR fusion + capability dial + BUG-01) is the retrieval spine; the dial commits in the SAME phase/PR as the RETR work per Option A, and the line-53 fix is a tag-along.
+- Phase 144 (NAV-01 legacy->engine flip) depends on Phase 142 (NAV-02 BRAIN.md derivation raising tier_mode + CASC-02 Phase 109 spine navigating) and on Phase 143 (the trigger-map sensors decide() reads).
+- Phase 146 (ACPT-01..05) is the loop-fires acceptance gate; it depends on every feature phase and is the milestone gate blocker.
+
+### Phases
+
+- [ ] **Phase 140: Sentinel & Instrumentation Hardening** - Fix the 5 scout-surfaced bugs so a scheduled scout never broadcasts noise (HARD prerequisite for scheduled sensors)
+- [ ] **Phase 141: Local Retrieval Spine + Capability Dial** - `getRoomContext()` 3-leg local fusion seeds the per-turn loop; commit + version-bump the "When to Reach" dial; fix the line-53 ReferenceError
+- [ ] **Phase 142: Local Intelligence Wiring (compute-store-and-ACT)** - Cascade findings surface mid-session; BRAIN.md derives so tier_mode rises; queue auto-drains; post-compact re-injection consumes; Phase 109 spine navigates
+- [ ] **Phase 143: Insight Sensors (the 7-row trigger map)** - Event-driven sensors auto-fire the right reach on the right signal, hat-scoped and Part-8-constrained on the Brain/web path
+- [ ] **Phase 144: Navigation Engine legacy->engine Flip** - `decide()` reads {local graph + BRAIN.md + trigger map} instead of file-presence; `routing_source: engine` appears in a trace
+- [ ] **Phase 145: Scheduled Sensor Activation** - The scout suite + whitespace/reverse-salient/opportunity/competitor sensors fire on a cadence (gated on Phase 140 hardening)
+- [ ] **Phase 146: Loop-Fires Acceptance Gate** - The scripted dogfood session in the mindrianOS room shows all 5 acceptance criteria; the milestone gate clears
+
+### Phase Details
+
+### Phase 140: Sentinel & Instrumentation Hardening
+**Goal**: A scheduled scout can fire without broadcasting noise -- the 5 bugs the 2026-05-10 scout run surfaced in the sentinel + instrumentation layer are fixed before any auto-fire is wired.
+**Depends on**: Nothing (first LARRYREACH phase; HARD prerequisite for Phase 145)
+**Requirements**: HARD-01, HARD-02, HARD-03, HARD-04, HARD-05
+**Canon parts**: Part 4 (HSI edges become graph data once they reach room.db), Part 8 (HSI-to-graph + telemetry stay LOCAL; zero Brain egress)
+**Success Criteria** (what must be TRUE):
+  1. `sentinel-health-check` runs to completion without the line-132 arithmetic syntax error
+  2. Running HSI lands its edges in room.db (no `NOT NULL constraint failed: nodes.source_path`); the graph holds HSI signal after a scout
+  3. A reverse-salient / HSI scan reports zero `.heal-backup/` duplicates -- backup dirs no longer pollute the result set
+  4. After a session running a dozen `/mos:*` commands, the query-efficiency telemetry hook shows non-zero captured events (the 57x-claim gate has real data)
+  5. The deadline monitor reports the phase deadlines in `.planning/STATE.md`, not just `funding/` + `opportunity-bank/` (a near deadline shows as DUE, not CLEAR)
+**Plans**: TBD
+
+### Phase 141: Local Retrieval Spine + Capability Dial
+**Goal**: The per-turn loop stops forwarding `userText:null` -- `getRoomContext()` fuses local room memory into a query-time seed, the "When to Reach" capability dial ships tracked, and the line-53 crash is gone. This is the spine of Option A: maximally rich, entirely local, zero Part-8 cost.
+**Depends on**: Nothing structural (parallel-safe with Phase 140)
+**Requirements**: RETR-01, RETR-02, RETR-03, RETR-04, LARRY-01, LARRY-02, BUG-01
+**Canon parts**: Part 9 (SQL is the local mind -- fusion reads room.db via the navigation chokepoint), Part 8 (raw prose stays local; explicitly NOT the packet.cjs projectText/hashText egress path), Part 3 (the dial governs reach at the Decision Gate), Part 2 (the team's reach affordances honor the dial)
+**Success Criteria** (what must be TRUE):
+  1. `getRoomContext()` returns a fused context from all three legs (home-view RAW summaries + windowed session-history fragments + getNeighborhood graph-ranking), seeded by the last ~2 turns
+  2. A "do you remember X" turn retrieves X-relevant nodes -- the per-turn loop carries a real seed, not `userText:null`
+  3. The fusion path imports nothing from `packet.cjs` (no projectText/hashText) -- a code scan confirms raw prose never touches the egress path
+  4. Per-turn assembly completes under the 1200ms NAV timeout on a populated room.db (benchmarked; graph-ranking-first)
+  5. The "When to Reach -- The Capability Dial" SKILL.md section is committed to HEAD with `canon_parts` frontmatter + a CHANGELOG entry, and the version is bumped with the dial as a release-noted change; the line-53 `build-graph-from-sqlite.cjs` ReferenceError no longer crashes (a graph is emitted)
+**Plans**: TBD
+
+### Phase 142: Local Intelligence Wiring (compute-store-and-ACT)
+**Goal**: The local intelligence systems stop computing-and-storing and start computing-store-and-ACTING -- filing surfaces findings mid-session, BRAIN.md derivation lifts the room out of `tier_0`, the derivation queue drains, memory survives an auto-compact boundary, and the Phase 109 spine actually navigates the graph for routing. The cheapest, highest-leverage sub-loop; touches zero Brain code.
+**Depends on**: Phase 141 (the retrieval seed the spine navigates against)
+**Requirements**: CASC-01, CASC-02, NAV-02, NAV-03, NAV-04
+**Canon parts**: Part 9 (the Phase 109 spine NAVIGATES, not merely stores -- SQL is the local mind), Part 4 (cascade findings are graph edges surfaced to Larry), Part 2 (BRAIN.md derivation enriches the team), Part 8 (BRAIN.md derivation preserves the LOCAL-to-BRAIN boundary -- generic handles only)
+**Success Criteria** (what must be TRUE):
+  1. Filing an artifact surfaces the cross-relationship cascade findings to Larry mid-session (the room-proactive skill reads the envelope where the bash hook writes it)
+  2. The Phase 109 navigation spine reads the local graph to route a decision -- routing reflects graph neighborhood, not just stored edges
+  3. BRAIN.md derives for a room's sections so `tier_mode` rises above `tier_0` for those sections
+  4. The brain-derivation queue auto-drains -- enqueued entries are processed within a session, not left sitting for days
+  5. After an auto-compact boundary, the post-compact re-injection consumer restores memory context -- the session does not degrade across the compact
+**Plans**: TBD
+
+### Phase 143: Insight Sensors (the 7-row trigger map)
+**Goal**: The "insight sensors" the Brain's own beautiful-question node asked for fire automatically -- the right reach on the right conversational/state signal, hat-scoped per Canon Part 2, with the Brain/web path constrained to generic handles only. Heuristic sensors first (the cheap v1), feeding the navigation engine.
+**Depends on**: Phase 142 (BRAIN.md derivation + cascade plumbing the sensors consume); Phase 141 (the local seed)
+**Requirements**: SENS-01, SENS-02, SENS-03, SENS-04, SENS-05, SENS-06, SENS-07
+**Canon parts**: Part 2 (team affordances + web hat-scoping: White=data/arxiv, Green=patents, Black=failure-cases), Part 2 Engine 1 (explore-domains / whitespace / reverse-salient as Act-1 reaches), Part 3 (sensors surface options at the Decision Gate), Part 4 (sensor-driven findings become graph edges), Part 8 (SENS-01/03/04 carry only generic handles to Brain/web -- never user content)
+**Success Criteria** (what must be TRUE):
+  1. First material in a session auto-fires `/mos:explore-domains` + `/mos:whitespace` + `brain_framework_chain($problem_type)` (generic handle only) -- the room is non-empty by turn 2
+  2. A "the bottleneck is..." / lagging-component turn auto-fires `/mos:find-bottlenecks` / the reverse-salient engine
+  3. A methodology-decision point auto-fires `brain_framework_chain` (CHAINS_TO next framework); an external-fact reference auto-fires WebSearch, hat-scoped per Canon Part 2
+  4. A JTBD set/change re-weights the selector menus + Brain queries via `ADDRESSES_PROBLEM_TYPE`; filing an artifact triggers the cross-relationship cascade scan as a sensor
+  5. A gate/milestone approach auto-fires the breakthrough scan (Category G) + investor-objection surface; a Brain/web scan of the sensor code confirms zero user-content egress
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 144: Navigation Engine legacy->engine Flip
+**Goal**: The single change that flips `routing_source: legacy -> engine`: the shipped Phase 91 navigation engine `decide()` reads `{local graph + BRAIN.md + trigger map}` instead of file-presence. The unifier wires the heuristic sensors and the derived tier into the engine's decision.
+**Depends on**: Phase 142 (NAV-02 BRAIN.md derivation raising tier_mode + CASC-02 Phase 109 spine navigating), Phase 143 (the trigger map the engine reads)
+**Requirements**: NAV-01
+**Canon parts**: Part 3 (Option generation tier-awareness -- Mode A/B/Tier 0 routing), Part 2 (the engine selects the team's next verbs), Part 9 (the engine navigates SQL, not folders), Part 8 (Brain reach from the engine carries generic handles only)
+**Success Criteria** (what must be TRUE):
+  1. `decide()` reads the local graph + BRAIN.md + the trigger map -- a code path exists from each input into the decision
+  2. A turn that should trigger a Brain call produces `routing_source: engine` (not `legacy`) in the decision trace when Brain is reachable
+  3. The engine emits at least one `routing_source: engine` trace per session in a populated room -- the legacy-on-every-turn behavior is gone
+**Plans**: TBD
+
+### Phase 145: Scheduled Sensor Activation
+**Goal**: The scout suite and its sub-sensors move off the manual `/mos:scout` trigger onto a cadence (session-start-throttled or cron), now that the sentinel layer is hardened and safe to auto-fire.
+**Depends on**: Phase 140 (HARD-01..05 -- the scout is safe to auto-fire only after the 5 bugs are fixed), Phase 143 (the sensors that compose the suite)
+**Requirements**: SCHED-01, SCHED-02
+**Canon parts**: Part 2 Engine 1 (whitespace + reverse-salient + opportunity scan as scheduled Act-1 reaches), Part 8 (competitor watch is hat-scoped web SIGNAL; HSI-recompute stays LOCAL; zero Brain egress), Part 4 (scheduled findings become graph data)
+**Success Criteria** (what must be TRUE):
+  1. The scout suite (snapshot + health-check + deadline-monitor + competitor-watch + HSI-recompute + opportunity-scan) fires on a cadence without manual invocation
+  2. The whitespace recompute, reverse-salient detection, opportunity-bank scan, and competitor watch each fire on the scheduled cadence
+  3. A scheduled run produces signal without errors -- the Phase 140 hardening holds under auto-fire (no health-check crash, no NULL source_path, no backup pollution)
+**Plans**: TBD
+
+### Phase 146: Loop-Fires Acceptance Gate
+**Goal**: Prove the loop FIRES, not merely exists. A scripted dogfood session in the mindrianOS room demonstrates all 5 SEED-008 gate-blocker criteria. If this gate does not pass, the milestone is renamed -- it does not ship as "Larry Reaches".
+**Depends on**: Phase 141, Phase 142, Phase 143, Phase 144, Phase 145 (every feature phase)
+**Requirements**: ACPT-01, ACPT-02, ACPT-03, ACPT-04, ACPT-05
+**Canon parts**: Part 6 (dog-fooding mandate -- the proof runs in the mindrianOS room), Part 3 (the trace is the Decision Gate output), Part 2 (web hat-scoping in the external-fact criterion), Part 8 (the WebSearch + Brain reaches in the dogfood carry no user content), Part 9 (tier_mode rise proves SQL+Brain navigation), Part 10 (conversation-as-product ratifies at this gate)
+**Success Criteria** (what must be TRUE):
+  1. The dogfood session produces `routing_source: engine` (not `legacy`) in a decision trace (ACPT-01)
+  2. A turn referencing external facts triggers WebSearch, hat-scoped per Canon Part 2 (ACPT-02)
+  3. First material in the session triggers `/mos:explore-domains` -> the room is non-empty (domain tree + whitespace map + candidate Opportunity Bank entries) by turn 2 (ACPT-03)
+  4. Filing an artifact surfaces the cross-relationship cascade findings to Larry mid-session (ACPT-04)
+  5. BRAIN.md derives for the room's sections -> `tier_mode` rises above `tier_0` (ACPT-05)
+**Plans**: TBD
+
+### LARRYREACH Progress Table
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 140. Sentinel & Instrumentation Hardening | 0/0 | Not started | - |
+| 141. Local Retrieval Spine + Capability Dial | 0/0 | Not started | - |
+| 142. Local Intelligence Wiring | 0/0 | Not started | - |
+| 143. Insight Sensors | 0/0 | Not started | - |
+| 144. Navigation Engine legacy->engine Flip | 0/0 | Not started | - |
+| 145. Scheduled Sensor Activation | 0/0 | Not started | - |
+| 146. Loop-Fires Acceptance Gate | 0/0 | Not started | - |
+
+### LARRYREACH Coverage Map (32/32 requirements, no orphans, no duplicates)
+
+| Requirement | Phase |
+|-------------|-------|
+| HARD-01 | Phase 140 |
+| HARD-02 | Phase 140 |
+| HARD-03 | Phase 140 |
+| HARD-04 | Phase 140 |
+| HARD-05 | Phase 140 |
+| RETR-01 | Phase 141 |
+| RETR-02 | Phase 141 |
+| RETR-03 | Phase 141 |
+| RETR-04 | Phase 141 |
+| LARRY-01 | Phase 141 |
+| LARRY-02 | Phase 141 |
+| BUG-01 | Phase 141 |
+| CASC-01 | Phase 142 |
+| CASC-02 | Phase 142 |
+| NAV-02 | Phase 142 |
+| NAV-03 | Phase 142 |
+| NAV-04 | Phase 142 |
+| SENS-01 | Phase 143 |
+| SENS-02 | Phase 143 |
+| SENS-03 | Phase 143 |
+| SENS-04 | Phase 143 |
+| SENS-05 | Phase 143 |
+| SENS-06 | Phase 143 |
+| SENS-07 | Phase 143 |
+| NAV-01 | Phase 144 |
+| SCHED-01 | Phase 145 |
+| SCHED-02 | Phase 145 |
+| ACPT-01 | Phase 146 |
+| ACPT-02 | Phase 146 |
+| ACPT-03 | Phase 146 |
+| ACPT-04 | Phase 146 |
+| ACPT-05 | Phase 146 |
+
+---
+
 ## Backlog (parking lot — unscheduled, not phase-bound)
 
 ### Testers Feedback Hub (Canny-style) — REGISTERED 2026-05-06

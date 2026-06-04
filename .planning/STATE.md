@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: Larry Reaches
 status: planning
-last_updated: "2026-06-04T17:32:20.871Z"
+last_updated: "2026-06-04T18:00:00.000Z"
 last_activity: 2026-06-04
 progress:
-  total_phases: 0
+  total_phases: 7
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -24,10 +24,22 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-06-04 — Milestone v1.13.1 started
+Phase: Not started (LARRYREACH roadmap drafted -- Phases 140-146)
+Plan: --
+Status: Roadmap complete; awaiting `/gsd:plan-phase 140`
+Last activity: 2026-06-04 -- LARRYREACH milestone roadmapped (7 phases 140-146, 32 requirements mapped)
+
+### LARRYREACH milestone roadmap (2026-06-04)
+
+The v1.13.1 "Larry Reaches" loop-fires milestone is roadmapped: 7 phases (140-146), 32 LARRYREACH requirements, 100% coverage, no orphans. Numbering continues from the prior v1.13.1 memory/research cluster (highest pre-existing phase 139). Dependency spine: Phase 140 (sentinel hardening, HARD prereq) -> Phase 141 (RETR fusion + capability dial + BUG-01, the spine) -> Phase 142 (local intelligence wiring) -> Phase 143 (insight sensors) -> Phase 144 (legacy->engine flip) -> Phase 145 (scheduled sensors, gated on 140) -> Phase 146 (loop-fires acceptance gate, the milestone gate blocker). Phase map:
+- Phase 140: HARD-01..05 (sentinel + instrumentation hardening)
+- Phase 141: RETR-01..04 + LARRY-01/02 + BUG-01 (getRoomContext fusion + dial + line-53)
+- Phase 142: CASC-01/02 + NAV-02/03/04 (cascade surfacing + BRAIN.md derivation + queue drain + post-compact + Phase 109 navigate)
+- Phase 143: SENS-01..07 (the 7-row trigger map)
+- Phase 144: NAV-01 (the routing_source legacy->engine flip)
+- Phase 145: SCHED-01/02 (scheduled sensor activation)
+- Phase 146: ACPT-01..05 (loop-fires dogfood acceptance gate)
+See .planning/ROADMAP.md "Milestone: v1.13.1 'Larry Reaches' (LARRYREACH)" section. Next: `/gsd:plan-phase 140`.
 
 ### Prior: Phase 132-01 closure (2026-06-02) -- Wave 1 substrate
 
