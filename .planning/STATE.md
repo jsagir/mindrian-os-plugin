@@ -4,13 +4,13 @@ milestone: v1.13.0
 milestone_name: The Closed Loop
 status: completed
 stopped_at: "Completed 132-05-PLAN.md (RE-BASELINED to the release gate: verify-phase-132.cjs invokes the 130.7 dual-graph health gate report-only + brain-boundary-scan over the phase batch builders; pseudonymize 6 internal :Person nodes ships as a dry-run-default reversible builder with the live write DEFERRED to v1.14.0 in deferred-items.md DI-132-05-01). ZERO live Brain writes; zero new deps. run-all-132 4/4; zero regression on 130/130.7/nav. Phase 132 now 3/5 plans shipped (132-01 + 132-03 + 132-05)."
-last_updated: "2026-06-04T08:11:30.397Z"
+last_updated: "2026-06-04T09:01:14.505Z"
 last_activity: "2026-06-02 -- Completed quick task 260602-dsc: /mos:help text view becomes the De Stijl card layout"
 progress:
   total_phases: 76
   completed_phases: 54
   total_plans: 391
-  completed_plans: 355
+  completed_plans: 357
   percent: 71
 ---
 
@@ -1163,6 +1163,7 @@ Progress: [█████████░] 91%
 - [Phase ?]: Phase 131-03: ZERO new deps + ZERO live Brain writes; T-131-03-SC did NOT fire (no [ASSUMED]/[SUS] package in 130.5, no install required); room.db only via lens-engine -> navigation.cjs
 - [Phase ?]: Phase 132-05: shipped the release gate (invoke 130.7 health gate + brain-boundary-scan); DEFERRED live pseudonymize of 6 internal :Person nodes to v1.14.0; ZERO live Brain writes
 - [Phase ?]: Phase 139-01: lib/core/resolve-umbilical-target.cjs is the SINGLE doctor cwd-target resolver (cord -> sentinel -> registry.active); doctor SKIPS on null rather than scaffolding into a non-room cwd; heal OBS-2 zero-write floor locked by regression test.
+- [Phase ?]: Phase 139-03: AFFILIATED_WITH added ADDITIVELY to ALLOWED_EDGE_TYPES (floor test preserves all 10 prior members + frozen Set). Umbilical cords are authoritative at the REGISTRY layer and PROJECTED into each target room.db as LOCAL AFFILIATED_WITH edges via the UNFORKED edges.cjs::writeEdge UPSERT (idempotent -- re-run yields the same single edge); the doctor module opens room.db only through the allow-listed spine-events::openRoomDbForCaller chokepoint. ENUM-only edge props (relation, born); the marker note: stays LOCAL and NEVER lands on the edge. --fix SUGGESTS orphan cords for human confirmation but NEVER auto-creates a marker/cord. Canon Part 8 proven by the audit test (no cross-room edge -- sibling rooms get zero; zero Brain egress). Registered as accumulative-engine module #1 (introduced_version 1.13.1-beta.4; the Plan-02 selector correctly DEFERS it at running beta.3, proving the skeleton end-to-end with zero engine-code changes). FK-target endpoint nodes ensured with created_by='system' per the Part 9 audit-node carve-out (navigation handles, not truth-claims).
 
 ### Pending Todos
 
@@ -1197,6 +1198,6 @@ Progress: [█████████░] 91%
 
 ## Session Continuity
 
-Last session: 2026-06-04T08:11:11.606Z
+Last session: 2026-06-04T09:01:14.465Z
 Stopped at: Completed 132-05-PLAN.md (RE-BASELINED to the release gate: verify-phase-132.cjs invokes the 130.7 dual-graph health gate report-only + brain-boundary-scan over the phase batch builders; pseudonymize 6 internal :Person nodes ships as a dry-run-default reversible builder with the live write DEFERRED to v1.14.0 in deferred-items.md DI-132-05-01). ZERO live Brain writes; zero new deps. run-all-132 4/4; zero regression on 130/130.7/nav. Phase 132 now 3/5 plans shipped (132-01 + 132-03 + 132-05).
 Resume file: None

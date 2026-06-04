@@ -1833,12 +1833,12 @@ Plans:
 
 **Reuse (Part 7):** generalize `install-state.cjs::migrateIfNeeded` (semver dispatch + future-version-DEFER + additive idempotency) into the selector; mirror `data/deployment-surfaces.json` for `data/doctor-modules.json`; extend `lib/core/migration-snapshot.cjs` for the watermark ledger; one-line additive add of AFFILIATED_WITH to the existing `ALLOWED_EDGE_TYPES` Set; mirror `resolve-active-room.cjs` for the new resolver. NET-NEW: `lib/core/resolve-umbilical-target.cjs`, `data/doctor-modules.json`, `lib/core/doctor/umbilical-module.cjs`, the selector loop, the watermark helpers.
 
-**Plans:** 1/4 plans executed
+**Plans:** 3/4 plans executed
 
 Plans:
 - [x] 139-01-PLAN.md (Wave 1) — S1 WHERE fix: single resolver `resolve-umbilical-target.cjs` + route doctor cwd probe + close OBS-2 (zero room-artifact writes from non-room cwd)
-- [ ] 139-02-PLAN.md (Wave 2) — S2 engine skeleton: `data/doctor-modules.json` registry + `~/.mindrian/doctor-applied.json` watermark + semver selector (idempotent, future-version-DEFER)
-- [ ] 139-03-PLAN.md (Wave 3) — S3 Umbilical module #1: AFFILIATED_WITH additive + marker read + edge projection into room.db + integrity check + register in registry
+- [x] 139-02-PLAN.md (Wave 2) — S2 engine skeleton: `data/doctor-modules.json` registry + `~/.mindrian/doctor-applied.json` watermark + semver selector (idempotent, future-version-DEFER)
+- [x] 139-03-PLAN.md (Wave 3) — S3 Umbilical module #1: AFFILIATED_WITH additive + marker read + edge projection into room.db + integrity check + register in registry
 - [ ] 139-04-PLAN.md (Wave 4) — S4 release wiring: 1.13.1-beta.4 bump + release.sh Step 6.6 module verification + doctor --acceptance + phase acceptance test (checkpoint: cut release)
 
 ---
