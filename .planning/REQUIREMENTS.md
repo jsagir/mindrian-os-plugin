@@ -645,3 +645,88 @@
 | BRAIN-MCP-127-09 | Tier-0 graceful messaging chokepoint at `lib/core/tier0-messaging.cjs` (<=110 LOC); exports `DIRECTOR_NOT_AVAILABLE` constant + `tier0Response(commandContext)` + `isAvailable()` + `larryTier0Hint()`; shim's local `tier0Response` refactored to one-line passthrough (delegation; plan 127-00 shim tests still PASS) | Plan 127-02 |
 | BRAIN-MCP-127-10 | `docs/CAPABILITY-MAP.md` row #1 flipped to "shipped (v1.13.0-beta.20)" + `data/capability-map-registry.json` (new machine-readable mirror) + 4-fixture acceptance harness (CONTEXT gates 1-5) + Canon Part 8 adversarial audit harness (delegation-property structural proof; 6 sources, 4 forbidden patterns) + no-em-dashes HARD RULE harness across all 21+ Phase 127 files + `docs/install/BRAIN-SETUP.md` rewritten for one-step onboarding | Plan 127-03 |
 
+
+## v1.13.1 "Larry Reaches" -- Close the Local Loop + Intelligence-Layer Activation (LARRYREACH)
+
+**Defined:** 2026-06-04
+**Milestone:** v1.13.1 "Larry Reaches"
+**Origin:** Decision Gate Option A (temporal-graph + smart-context-assembly fan-out, 8 agents / 7 MECE slices) folded with full SEED-008 intelligence-layer-activation bundle.
+**Canon parts:** 2 (team affordances + web hat-scoping), 2a (journey stage), 3 (Decision Gate), 4 (graph data), 8 (graph boundary, sub-loop 2), 9 (SQL is the local mind), 10 (conversation as product).
+**Core Value:** the per-turn loop FIRES -- Larry's evidence-reach actually retrieves, the intelligence layer acts instead of merely storing, and the capability-dial policy ships tracked instead of dangling.
+
+### Local loop (Option A core -- 100% local, zero Part-8 exposure)
+
+| ID | Description | Plan |
+|----|-------------|------|
+| RETR-01 | `getRoomContext()` fuses three legs over room.db: home-view RAW summaries (Leg A) + windowed session-history fragments (Leg B) + getNeighborhood graph-ranking (Leg C), seeded by the last ~2 turns | TBD |
+| RETR-02 | `getRoomContext()` is wired as the retrieval seed so the per-turn loop stops forwarding `userText:null` | TBD |
+| RETR-03 | Raw prose stays local: `getRoomContext()` does NOT import or reuse the `packet.cjs` projectText/hashText egress path | TBD |
+| RETR-04 | Per-turn assembly stays under the 1200ms NAV timeout (graph-ranking-first; FTS5 only if it underperforms, benchmarked on a populated room.db) | TBD |
+
+### Capability dial (ship the dangling Larry edit)
+
+| ID | Description | Plan |
+|----|-------------|------|
+| LARRY-01 | "When to Reach -- The Capability Dial" SKILL.md section committed to HEAD with `canon_parts` frontmatter + CHANGELOG entry | TBD |
+| LARRY-02 | Version bumped (beta.5 -> next) with the capability dial as a tracked, release-noted change | TBD |
+
+### Navigation engine wiring (sub-loop 3 -- the legacy->engine flip)
+
+| ID | Description | Plan |
+|----|-------------|------|
+| NAV-01 | navigation-engine `decide()` reads {local graph + BRAIN.md + trigger map} instead of file-presence; `routing_source: engine` appears in >=1 trace per session when Brain reachable | TBD |
+| NAV-02 | BRAIN.md derivation wired so `tier_mode` rises above `tier_0` for a room's sections | TBD |
+| NAV-03 | brain-derivation queue auto-drains (entries do not sit for days) | TBD |
+| NAV-04 | post-compact re-injection consumer wired so memory does not degrade across an auto-compact boundary | TBD |
+
+### Cascade surfacing (sub-loop 1 -- compute-store-and-ACT)
+
+| ID | Description | Plan |
+|----|-------------|------|
+| CASC-01 | cascade-surfacing plumbing fixed (room-proactive reads the envelope where the bash hook writes it); filing an artifact surfaces cross-relationship findings to Larry mid-session | TBD |
+| CASC-02 | Phase 109 navigation spine NAVIGATES the local graph for routing, not merely stores it | TBD |
+
+### Insight sensors (sub-loop 2 -- the 7-row trigger map; Part-8-constrained)
+
+| ID | Description | Plan |
+|----|-------------|------|
+| SENS-01 | first-material sensor auto-fires `/mos:explore-domains` + `/mos:whitespace` + `brain_framework_chain($problem_type)` | TBD |
+| SENS-02 | lagging-component sensor auto-fires `/mos:find-bottlenecks` / reverse-salient engine | TBD |
+| SENS-03 | methodology-decision sensor auto-fires `brain_framework_chain` (CHAINS_TO next framework) | TBD |
+| SENS-04 | external-fact sensor auto-fires WebSearch, hat-scoped per Canon Part 2 (White=data/arxiv, Green=patents, Black=failure-cases) | TBD |
+| SENS-05 | JTBD-set sensor re-weights selector menus + Brain queries via ADDRESSES_PROBLEM_TYPE | TBD |
+| SENS-06 | artifact-filed sensor triggers the cross-relationship cascade scan surface (realizes CASC-01 as a sensor) | TBD |
+| SENS-07 | gate-approach sensor auto-fires breakthrough scan (Category G) + investor-objection surface | TBD |
+
+### Scheduled sensors (cadence-fired)
+
+| ID | Description | Plan |
+|----|-------------|------|
+| SCHED-01 | scout suite (snapshot + health + deadline + competitor + HSI-recompute + opportunity-scan) runs on a cadence (session-start-throttled or cron) | TBD |
+| SCHED-02 | whitespace recompute + reverse-salient detection + opportunity-bank scan + competitor watch each fire on the scheduled cadence | TBD |
+
+### Sentinel hardening (HARD prerequisite for SCHED -- never auto-fire a buggy scout)
+
+| ID | Description | Plan |
+|----|-------------|------|
+| HARD-01 | fix `sentinel-health-check` line 132 arithmetic syntax error | TBD |
+| HARD-02 | fix `hsi-to-graph.cjs` NOT NULL constraint failed: nodes.source_path (HSI edges never reach room.db) | TBD |
+| HARD-03 | exclude `.heal-backup/` from the HSI / reverse-salient scanner (backup-dir pollution) | TBD |
+| HARD-04 | query-efficiency telemetry hook (Phase 88.1-16) captures events instead of logging 0 | TBD |
+| HARD-05 | deadline monitor scope includes `.planning/STATE.md` phase deadlines, not just funding/ + opportunity-bank/ | TBD |
+
+### Tag-along bug fix
+
+| ID | Description | Plan |
+|----|-------------|------|
+| BUG-01 | fix `scripts/build-graph-from-sqlite.cjs:53` ReferenceError (`lazygraphPath` undefined; line 50 defines roomDbPath) -- swallowed by outer try, silently emits no graph | TBD |
+
+### Acceptance contract (gate blockers -- "the loop must FIRE, not merely exist")
+
+| ID | Description | Plan |
+|----|-------------|------|
+| ACPT-01 | scripted dogfood session in mindrianOS room produces `routing_source: engine` (not `legacy`) in a decision trace | TBD |
+| ACPT-02 | a turn referencing external facts triggers WebSearch (hat-scoped) | TBD |
+| ACPT-03 | first material in a session triggers `/mos:explore-domains` -> room non-empty (domain tree + whitespace + candidate bank) by turn 2 | TBD |
+| ACPT-04 | filing an artifact surfaces the cross-relationship cascade findings to Larry mid-session | TBD |
+| ACPT-05 | BRAIN.md derives for the room's sections -> `tier_mode` rises above `tier_0` | TBD |

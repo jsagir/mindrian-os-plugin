@@ -27,7 +27,36 @@ v1.0 through v1.9.0 = 52 commands, 8 agents, 49 MCP tools. 6-view Data Room Pres
 - v1.8.8 Brain Graph Optimization (2026-04-07) -- causal discovery, lazy graph bridge, fragmentation cleanup, teaching wiring, dummy-proof install
 - v1.9.0 Model Data Room (2026-04-08) -- Google Drive integration, 168-artifact model room, HSI self-analysis, Investment Thesis, knowledge graph (179 nodes/383 edges)
 
-## Current Milestone: v2.0 Mindrian Platform -- SQLite + MCP Server
+## Current Milestone: v1.13.1 "Larry Reaches" (the loop, fired)
+
+**Goal:** Close the per-turn retrieval loop so Larry's evidence-reach is real -- "do you remember X" actually retrieves X-relevant nodes -- and activate the intelligence layer that today runs in compute-and-store mode (every turn emits `routing_source: legacy` / `tier_mode: tier_0`). Ship the "When to Reach" capability-dial policy out of working-tree limbo into a tracked, version-bumped release.
+
+**Origin:** Decision Gate Option A from the temporal-graph + smart-context-assembly fan-out (8 agents, 7 MECE slices, filed at `~/MindrianRooms/mindrianOS/product-evolution/v1.13.0-memory-system-review/`), folded together with the full SEED-008 intelligence-layer-activation bundle.
+
+**Target features:**
+
+Local loop (Option A core, zero Part-8 exposure):
+- `getRoomContext()` local in-process fusion: home-view RAW summaries + session-history fragments (windowed) + graph-ranking (getNeighborhood), seeded by the last ~2 turns; wired as the retrieval seed so the per-turn loop stops forwarding `userText:null`. Raw prose stays local -- explicitly NOT the `packet.cjs` projectText/hashText egress path.
+- Commit + version-bump the "When to Reach -- The Capability Dial" SKILL.md policy (currently a dangling uncommitted working-tree edit) with CHANGELOG entry and `canon_parts` frontmatter.
+- Tag-along: fix the `build-graph-from-sqlite.cjs:53` ReferenceError one-liner.
+
+Intelligence-layer activation (SEED-008, three sub-loops):
+- Sub-loop 1 (local): fix cascade-surfacing plumbing (Phase 95 envelope) so filing an artifact surfaces findings mid-session; wire BRAIN.md derivation so `tier_mode` rises above `tier_0`; auto-drain the brain-derivation queue; land Phase 109 navigation spine so the graph is NAVIGATED not just stored; wire the post-compact re-injection consumer.
+- Sub-loop 2 (Brain/web, Part-8-constrained): heuristic insight sensors -- first-material, lagging-component, methodology-decision, external-fact, JTBD-set, artifact-filed, gate-approach (the 7-row trigger map).
+- Sub-loop 3 (unifier): wire the shipped Phase 91 navigation engine `decide()` to read {local graph + BRAIN.md + trigger map} instead of file-presence -- the single change that flips `routing_source: legacy -> engine`.
+- Scheduled sensors: scout suite (snapshot + health + deadline + competitor + HSI + opportunity) on a cadence.
+- Sentinel hardening: fix the 5 scout-surfaced bugs BEFORE auto-firing scout (health-check arithmetic, hsi-to-graph NULL source_path, .heal-backup pollution, efficiency-telemetry 0-events, deadline-monitor STATE.md scope).
+
+**Acceptance contract (gate blocker, from SEED-008):** a scripted dogfood session in the mindrianOS room must show all 5: (1) `routing_source: engine` in a trace; (2) external-fact turn triggers WebSearch; (3) first material -> explore-domains -> non-empty room by turn 2; (4) filing surfaces cascade findings mid-session; (5) BRAIN.md derives -> tier_mode rises above tier_0.
+
+**Key context:**
+- 100% local for Option A; Part-8 constitutional brake applies only to sub-loop 2 (Brain/web).
+- Latency: per-turn assembly must stay under the 1200ms NAV timeout (graph-ranking first; FTS5 only if it underperforms).
+- Known carve-out: capability-dial policy stays CLI-honored this milestone; Desktop/Cowork `buildContext` dual-path wiring deferred (scope locked as Option A as-is).
+- State note: v1.13.0 "The Closed Loop" never formally closed via `/gsd:complete-milestone`; v1.13.1 proceeds on top. Phase numbering continues.
+- The 64-Brain-calls-ever telemetry (SEED-008) is the KPI for whether activation landed.
+
+## Platform Vision: v2.0 Mindrian Platform -- SQLite + MCP Server (aspirational, partially shipped)
 
 **Goal:** Replace the dead KuzuDB with SQLite (graph + memory system), then ship MindrianOS intelligence as a 23-tool MCP server with interactive UI (MCP Apps) that any LLM host can use.
 

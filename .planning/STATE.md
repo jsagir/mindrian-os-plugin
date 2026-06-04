@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.13.0
-milestone_name: The Closed Loop
-status: completed
-stopped_at: "Completed 132-05-PLAN.md (RE-BASELINED to the release gate: verify-phase-132.cjs invokes the 130.7 dual-graph health gate report-only + brain-boundary-scan over the phase batch builders; pseudonymize 6 internal :Person nodes ships as a dry-run-default reversible builder with the live write DEFERRED to v1.14.0 in deferred-items.md DI-132-05-01). ZERO live Brain writes; zero new deps. run-all-132 4/4; zero regression on 130/130.7/nav. Phase 132 now 3/5 plans shipped (132-01 + 132-03 + 132-05)."
-last_updated: "2026-06-04T09:01:14.505Z"
-last_activity: "2026-06-02 -- Completed quick task 260602-dsc: /mos:help text view becomes the De Stijl card layout"
+milestone: v1.13.1
+milestone_name: Larry Reaches
+status: planning
+last_updated: "2026-06-04T17:32:20.871Z"
+last_activity: 2026-06-04
 progress:
-  total_phases: 76
-  completed_phases: 54
-  total_plans: 391
-  completed_plans: 357
-  percent: 71
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -25,13 +24,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-**Phase 132-03 closure (2026-06-02) -- RE-BASELINED dedup-collapse + held-name-rename MACHINERY. The as-written 132-03 ~50-group/22-REVIEW_REQUIRED targets are STALE (the live teaching graph is already clean off the Phase 131 close-out packet: 721 backfilled correlation_ids, 0 collisions); the REAL live worklist is 1 dedup pair (node ids 6831 + 22816, 'The Other Way Round'|Technique) + 14 held name>80 nodes (10 :Method + 4 :Framework). Built the GENERIC passes the orchestrator runs later snapshot-first; MACHINERY tested on FIXTURES only; ZERO live Brain writes; ZERO new deps.**
-
-- 50abe4d9 test(132-03): RED -- dedup-collapse + held-rename machinery fixtures
-- 0225062f feat(132-03): dedup-collapse + held-rename machinery (re-baselined, fixtures only)
-- c9de6391 test(132-03): register dedup/held-rename suite in run-all-132 + Feynman (additive)
-
-scripts/curation-132-03-dedup-held-rename.cjs exports pickCanonical (most-edged keeper; primary-label tiebreak reusing the LOCKED 130.7 LABEL_PRIORITY), buildDedupCollapsePass (keeper correlation_id via computeCorrelationId -- NO re-hash, anchor resolves 4210289a0ca1596b byte-identical to the locked contract + migrate-incoming-edges additive MERGE + archive each loser via :Archived + REPLACED_BY -> keeper correlation_id, NEVER DETACH DELETE per Canon Part 7 + audit Section 9; the batch flags snapshotRequired=true with a documented SNAPSHOT_PRECONDITION because a node-merge re-points the loser incoming edges and created_by rollback cannot reconstruct the pre-merge edge set, so the orchestrator MUST snapshot before --execute), and buildHeldRenamePass (assign canonical name -> recompute correlation_id -> 3-property curated-v1 backfill correlation_id+correlation_scope+correlation_backfilled_at -> clear correlation_status held marker; fully created_by-reversible, no snapshot). Both passes route every write through makeBatch (the 132-01 runner) so they inherit created_by stamping + assertRollbackPath + scanBatchForUserContent (Part 8) + the write-time 130.7-contract guard on --execute. --dry-run is the default (creds-free, ZERO writes); --execute/--rollback are orchestrator-run snapshot-first and refuse to run from this script (machinery only; --execute also refuses while any live held node has a null canonical_name). 13/13 fixture assertions GREEN; run-all-132.sh 3/3; the run-all-132 + Feynman runner diffs are additive-only. ZERO live Brain writes (no ~/.mindrian/curation-batch.jsonl). ZERO new deps (package.json untouched; reuses makeBatch + computeCorrelationId + LABEL_PRIORITY + Node built-ins). Zero regression: run-all-130 4/4, run-all-130.7 7/7, run-all-131 0-fail, test-navigation-acceptance 1/1. ONE deviation: Rule 4 scope re-baseline, pre-authorized by the prompt RE_BASELINE_SCOPE_OVERRIDE (not an executor architectural choice). Live execution of the tiny worklist is orchestrator-run, snapshot-first. SUMMARY at .planning/phases/132-dual-graph-correlation-hypergraph-reformat/132-03-SUMMARY.md; 132-03 flipped to [x] in ROADMAP.md (Phase 132 now 2/5 plans shipped: 132-01 + 132-03; 132-02 reify + 132-04 wire-it + 132-05 pseudonymize/CI-gate remain).
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-06-04 — Milestone v1.13.1 started
 
 ### Prior: Phase 132-01 closure (2026-06-02) -- Wave 1 substrate
 
