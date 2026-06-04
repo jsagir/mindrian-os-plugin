@@ -1815,6 +1815,32 @@ Plans:
 - [ ] 136-07-PLAN.md (Wave 4) - detect-and-adapt launcher: host probe + graph workspace + tmux focus hooks
 - [ ] 136-08-PLAN.md (Wave 5) - canon/gates capstone: Part 8/9 boundary + cross-platform + full suite green + M5 SEED -> ADR
 
+### Phase 139: Doctor — Accumulative Engine Skeleton + Context Fix (hotfix) (INSERTED 2026-06-04, same-day P0)
+
+**Goal:** Stop `/mos:doctor` from scaffolding room artifacts in the wrong directory, and convert its frozen Phase-95 check roster into a version-accumulative engine SKELETON — so every new Mindrian version can register its own health/migration module and any user on any prior version is healed forward, idempotently, any time they run doctor. Prove the pattern end-to-end by shipping Umbilical Cord as the first registered module, which doubles as the map that fixes doctor's broken context model. The 2026-04-13 drift-discipline incident applied to doctor itself.
+
+**Priority:** P0 — doctor mis-scaffolds room artifacts in NON-room dirs (cwd-misfire, exposed by the 2026-06-04 home-dir reorg) AND is blind to every organ added since Phase 95.
+
+**Requirements:** [S1, S2, S3, S4]
+
+**Canon parts:** Part 8 (graph boundary — cords + health checks are LOCAL only; no raw cross-room edges; zero Brain egress), Part 7 (reuse before build — generalize the shipped `install-state.cjs::migrateIfNeeded` semver dispatch + `data/deployment-surfaces.json` manifest patterns), Part 6 (dog-fooding drift discipline — the plugin self-heals forward across versions the same way it sells), Part 4 (every choice is graph data — the cord projects as an AFFILIATED_WITH edge).
+
+**Depends on (hard, shipped):** Phase 95.1 (doctor classes A-M baseline), Phase 95.2 (on-version-change branch + preflight-doctor), Phase 108/109 (navigation/edges.cjs writeEdge + ALLOWED_EDGE_TYPES + room.db), Phase 123 (`install-state.cjs::migrateIfNeeded` + `deployment-surfaces.json` manifest + `release.sh` Step 6.6 acceptance gate), `resolve-active-room.cjs` (single-resolver precedent).
+
+**Version:** ships 1.13.1-beta.4 (NOT 1.13.0.1 — a hotfix cannot carry a lower semver than the current 1.13.1-beta.3; release.sh --prerelease advances beta.3 -> beta.4; release infra ships as a beta first).
+
+**Scope (IN):** S1 WHERE fix (single resolver + close OBS-2), S2 accumulative engine skeleton (registry + watermark + selector), S3 Umbilical as module #1 (minimal: marker read + edge projection + integrity), S4 release wiring. **Scope (OUT):** the 15 remaining SCOUT-2 organ modules (backfill v1.13.1+), bidirectional ROOM.md cords section + global umbilical.json view, `/mos:umbilical` command + retroactive orphan sweep.
+
+**Reuse (Part 7):** generalize `install-state.cjs::migrateIfNeeded` (semver dispatch + future-version-DEFER + additive idempotency) into the selector; mirror `data/deployment-surfaces.json` for `data/doctor-modules.json`; extend `lib/core/migration-snapshot.cjs` for the watermark ledger; one-line additive add of AFFILIATED_WITH to the existing `ALLOWED_EDGE_TYPES` Set; mirror `resolve-active-room.cjs` for the new resolver. NET-NEW: `lib/core/resolve-umbilical-target.cjs`, `data/doctor-modules.json`, `lib/core/doctor/umbilical-module.cjs`, the selector loop, the watermark helpers.
+
+**Plans:** 4 plans in 4 waves
+
+Plans:
+- [ ] 139-01-PLAN.md (Wave 1) — S1 WHERE fix: single resolver `resolve-umbilical-target.cjs` + route doctor cwd probe + close OBS-2 (zero room-artifact writes from non-room cwd)
+- [ ] 139-02-PLAN.md (Wave 2) — S2 engine skeleton: `data/doctor-modules.json` registry + `~/.mindrian/doctor-applied.json` watermark + semver selector (idempotent, future-version-DEFER)
+- [ ] 139-03-PLAN.md (Wave 3) — S3 Umbilical module #1: AFFILIATED_WITH additive + marker read + edge projection into room.db + integrity check + register in registry
+- [ ] 139-04-PLAN.md (Wave 4) — S4 release wiring: 1.13.1-beta.4 bump + release.sh Step 6.6 module verification + doctor --acceptance + phase acceptance test (checkpoint: cut release)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
