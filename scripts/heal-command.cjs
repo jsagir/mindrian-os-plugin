@@ -979,6 +979,16 @@ async function runHeal(roomDir, opts) {
     );
   }
 
+  // OBS-2 WRITE-ORDERING INVARIANT (Phase 139 Plan-01 S1):
+  // This guard block runs BEFORE any step executes and BEFORE any .mindrian/
+  // mkdir or heal-log.json / .heal-backup/ write. On a rejected target it
+  // `return buildErrorEnvelope(...)` -- which only constructs an in-memory
+  // object, it writes ZERO bytes to disk. The step loop (step01Backup creates
+  // .heal-backup/, the closing block creates .mindrian/heal-log.json) is
+  // reachable ONLY past this point. Running heal from a non-room cwd
+  // (~/dev/<repo>) therefore makes ZERO room-artifact writes to that target.
+  // tests/test-heal-obs2-regression.cjs asserts this floor.
+  //
   // Guard: detect sub-rooms container before the room-sentinel check so the
   // error message names the specific child rooms that gave it away.
   if (!skipRoomCheck) {

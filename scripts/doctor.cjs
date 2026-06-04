@@ -57,6 +57,13 @@ const INSTALL_DIR = path.join(PLUGIN_HOME, 'mindrian-os');
 // Class I + class J + the aggressive --fix all resolve via this -- NEVER via
 // the hardcoded INSTALL_DIR constant above.
 const { resolveActivePluginRoot } = require(path.join(__dirname, '..', 'lib', 'core', 'active-plugin-root.cjs'));
+// Phase 139 Plan-01 (S1 WHERE fix): the SINGLE umbilical/room target resolver.
+// doctor's only cwd-derived target (checkCascadeRoomsActive) routes through
+// this -- never a bare process.cwd() probe. Precedence: .umbilical cord ->
+// .room-root sentinel -> registry.active. Returns null when the cwd is not a
+// room, so doctor SKIPS rather than scaffolding into a plain code repo (the
+// 2026-06-04 home-dir reorg incident). See lib/core/resolve-umbilical-target.cjs.
+const { resolveUmbilicalTarget } = require(path.join(__dirname, '..', 'lib', 'core', 'resolve-umbilical-target.cjs'));
 // Phase 123 Plan-03: the plugin root for class-J --fix and for spawning
 // session-start. resolveActivePluginRoot's `root` is the ACTIVE install path
 // (which may be a marketplace-cache version dir); the plugin SOURCE root --
@@ -679,16 +686,34 @@ function checkCascadeRoomsActive(simulateWritePath) {
   const roomsHome = reg.roomsHome;
   const rooms = (reg.registry && reg.registry.rooms) || {};
   const activeName = (reg.registry && reg.registry.active) || null;
-  // Decide which path to inspect for the "current write" room. If
-  // --simulate-write was passed, use it; otherwise use the doctor's cwd.
-  // findRoomRoot expects a FILE path, not a directory -- append a dummy
-  // basename so dirname returns the intended directory.
-  const probePath = simulateWritePath
-    ? path.join(simulateWritePath, '__doctor_probe__')
-    : path.join(process.cwd(), '__doctor_probe__');
+  // Decide which path to inspect for the "current write" room.
+  //   --simulate-write branch (UNCHANGED -- tests rely on it): walk up from
+  //   the simulated path for a .room-root sentinel. findRoomRoot expects a
+  //   FILE path, so append a dummy basename.
+  //   cwd branch (Phase 139 Plan-01 S1 WHERE fix): route through the SINGLE
+  //   umbilical/room target resolver instead of a bare process.cwd() probe.
+  //   If the resolver returns null (cwd is not a room: no cord, no sentinel,
+  //   no registry.active), SKIP -- doctor must NOT walk up from a raw cwd and
+  //   must NOT scaffold into a plain code repo (the cwd-misfire root cause).
   let writeRoomDir = null;
-  try { writeRoomDir = findRoomRoot(probePath); }
-  catch (err) { return { status: 'error', detail: err.message, activeRoom: activeName, writeRoom: null }; }
+  if (simulateWritePath) {
+    const probePath = path.join(simulateWritePath, '__doctor_probe__');
+    try { writeRoomDir = findRoomRoot(probePath); }
+    catch (err) { return { status: 'error', detail: err.message, activeRoom: activeName, writeRoom: null }; }
+  } else {
+    let resolved = null;
+    try { resolved = resolveUmbilicalTarget(); }
+    catch (err) { return { status: 'error', detail: err.message, activeRoom: activeName, writeRoom: null }; }
+    if (!resolved) {
+      return {
+        status: 'skip',
+        detail: 'no umbilical/sentinel/registry target from cwd',
+        activeRoom: activeName,
+        writeRoom: null,
+      };
+    }
+    writeRoomDir = resolved.abs_path;
+  }
   if (!writeRoomDir) {
     // No room sentinel found above the probe path -- write is outside any
     // Data Room, so the active-room guard does not apply.
