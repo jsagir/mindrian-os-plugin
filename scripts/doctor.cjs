@@ -64,6 +64,18 @@ const { resolveActivePluginRoot } = require(path.join(__dirname, '..', 'lib', 'c
 // room, so doctor SKIPS rather than scaffolding into a plain code repo (the
 // 2026-06-04 home-dir reorg incident). See lib/core/resolve-umbilical-target.cjs.
 const { resolveUmbilicalTarget } = require(path.join(__dirname, '..', 'lib', 'core', 'resolve-umbilical-target.cjs'));
+// Phase 139 Plan-02 (S2 accumulative-engine skeleton): the version-dispatch
+// substrate. The hand-maintained module registry (data/doctor-modules.json,
+// mirrors data/deployment-surfaces.json's "new entry = no code change" pattern)
+// + doctor's OWN persisted applied-through watermark (readDoctorApplied /
+// writeDoctorApplied at ~/.mindrian/doctor-applied.json -- NOT the session-start-
+// overwritten ~/.mindrian-last-version, per the watermark_not_lastversion LOCKED
+// decision). The selector (runAccumulativeEngine) generalizes the proven
+// lib/core/install-state.cjs::migrateIfNeeded semver-dispatch + future-version-
+// DEFER + additive-idempotency shape: it runs every module whose
+// introduced_version is in (applied_through, running], idempotently.
+const DOCTOR_MODULES_PATH = path.join(__dirname, '..', 'data', 'doctor-modules.json');
+const { readDoctorApplied, writeDoctorApplied } = require(path.join(__dirname, '..', 'lib', 'core', 'migration-snapshot.cjs'));
 // Phase 123 Plan-03: the plugin root for class-J --fix and for spawning
 // session-start. resolveActivePluginRoot's `root` is the ACTIVE install path
 // (which may be a marketplace-cache version dir); the plugin SOURCE root --
@@ -188,6 +200,7 @@ function parseArgs(argv) {
     else if (arg === '--light-npx') flags.lightNpx = true;
     else if (arg === '--check-rs-engine') flags.checkRsEngine = true;
     else if (arg === '--post-update') flags.postUpdate = true;
+    else if (arg === '--dry-run') flags.dryRun = true;
     else if (arg === '--all') flags.all = true;
     else if (arg.startsWith('--simulate-write=')) flags.simulateWrite = arg.slice('--simulate-write='.length);
     else if (arg.startsWith('--scan-commands=')) flags.scanCommandsDir = arg.slice('--scan-commands='.length);
@@ -3256,6 +3269,188 @@ function computeSummary(report) {
   return { healthy, drift, warnings };
 }
 
+// -- Accumulative engine (Phase 139-02, S2) --------------------------
+//
+// The version-dispatch substrate that converts doctor's frozen Phase-95 class
+// roster into a forward-healing engine. Generalizes the proven
+// lib/core/install-state.cjs::migrateIfNeeded shape: iterate the hand-maintained
+// module registry (data/doctor-modules.json), run every module whose
+// introduced_version is in the (applied_through, running] window, DEFER any
+// future-version module (introduced > running), and never re-run an
+// already-applied one (the persisted watermark at ~/.mindrian/doctor-applied.json
+// never regresses -> re-running is a no-op).
+//
+// In THIS plan the registry is seeded EMPTY of organ modules, so the loop runs
+// zero modules -- but the window math + runner-dispatch wiring is complete, so
+// Plan 03 only adds a registry entry + a runner file, no engine code.
+//
+// Canon Part 8: LOCAL file reads only. Zero network surface; runs no Brain query.
+
+// Normalize a version string for semver comparison. Prefer semver.valid (which
+// PRESERVES prerelease labels so 1.13.1-beta.4 vs 1.13.1-beta.3 compare
+// correctly) and fall back to semver.coerce only for sloppy input that is not
+// already valid semver. Returns null when neither resolves.
+function _normalizeVersion(v) {
+  if (typeof v !== 'string' || !v) return null;
+  const valid = semver.valid(v);
+  if (valid) return valid;
+  const coerced = semver.coerce(v);
+  return coerced ? coerced.version : null;
+}
+
+/**
+ * Run the accumulative-engine selector.
+ *
+ * @param {object} [flags] CLI flags (fix, dryRun, json) OR a test opts seam
+ *        ({ home, running, registry, dryRun }). The test seam keys take
+ *        precedence so the test never depends on the live empty registry.
+ * @returns {{
+ *   status: 'ok'|'skip',
+ *   detail?: string,
+ *   running: string|null,
+ *   applied_through: string|null,
+ *   selected: Array<{id, introduced_version}>,
+ *   deferred: Array<{id, introduced_version}>,
+ *   findings: Array<object>,
+ *   advanced: boolean
+ * }}
+ */
+function runAccumulativeEngine(flags) {
+  const opts = flags || {};
+  const home = opts.home || process.env.HOME || process.env.USERPROFILE || HOME;
+  const dryRun = !!opts.dryRun;
+  const wantFix = !!opts.fix;
+
+  // 1. Resolve the RUNNING version of record. Test seam: opts.running wins.
+  //    Otherwise read the active plugin.json via checkInstallVersion().
+  let runningRaw = (typeof opts.running !== 'undefined') ? opts.running : null;
+  if (runningRaw === null && typeof opts.running === 'undefined') {
+    try {
+      const iv = checkInstallVersion();
+      runningRaw = iv && iv.version ? iv.version : null;
+    } catch (_) {
+      runningRaw = null;
+    }
+  }
+  const running = _normalizeVersion(runningRaw);
+  if (!running) {
+    return {
+      status: 'skip',
+      detail: 'running version unresolved',
+      running: null,
+      applied_through: null,
+      selected: [],
+      deferred: [],
+      findings: [],
+      advanced: false,
+    };
+  }
+
+  // 2. Read the registry (soft-fail to { modules: [] } on parse error).
+  //    Test seam: opts.registry wins.
+  let registry;
+  if (opts.registry && typeof opts.registry === 'object') {
+    registry = opts.registry;
+  } else {
+    try {
+      registry = JSON.parse(fs.readFileSync(DOCTOR_MODULES_PATH, 'utf8'));
+    } catch (_) {
+      registry = { modules: [] };
+    }
+  }
+  const modules = Array.isArray(registry.modules) ? registry.modules : [];
+
+  // 3. Read the watermark. null applied_through means "first run; window is
+  //    (null, running] = everything <= running".
+  const wm = readDoctorApplied(home);
+  const appliedThrough = wm.applied_through; // semver string | null
+
+  // 4. SELECT modules where introduced_version is in (applied_through, running].
+  //    Lower bound EXCLUSIVE (already-applied), upper bound INCLUSIVE (current).
+  //    A future-version module (introduced > running) is DEFERRED, never run --
+  //    the future-version-DEFER shape from install-state.migrateIfNeeded.
+  const lower = appliedThrough || '0.0.0';
+  const selected = [];
+  const deferred = [];
+  for (const mod of modules) {
+    if (!mod || typeof mod.id !== 'string') continue;
+    const introduced = _normalizeVersion(mod.introduced_version);
+    if (!introduced) {
+      // Malformed introduced_version -> skip (cannot place in the window).
+      continue;
+    }
+    const aboveLower = semver.gt(introduced, _normalizeVersion(lower) || '0.0.0');
+    const atOrBelowRunning = semver.lte(introduced, running);
+    if (!atOrBelowRunning) {
+      deferred.push(mod);
+      continue;
+    }
+    if (aboveLower) {
+      selected.push(mod);
+    }
+    // introduced <= applied_through -> already applied -> skip silently.
+  }
+
+  // 5. Run each selected module's runner, wrapped in try/catch so one bad
+  //    module cannot crash doctor (soft-fail -> error finding, loop continues).
+  //    --fix runs the module fixer; read-only runs the checker only.
+  const findings = [];
+  const ranModuleIds = [];
+  let anyHardError = false;
+  for (const mod of selected) {
+    try {
+      // Resolve the runner. Test seam: an in-test runner is attached as
+      // mod._check / mod._fix. Otherwise require the runner file relative to
+      // the plugin root and invoke its exported check(opts)/fix(opts) entry.
+      let entryResult;
+      if (wantFix && typeof mod._fix === 'function') {
+        entryResult = mod._fix({ home, running, dryRun });
+      } else if (typeof mod._check === 'function') {
+        entryResult = mod._check({ home, running, dryRun });
+      } else if (mod.runner) {
+        const runnerPath = path.isAbsolute(mod.runner)
+          ? mod.runner
+          : path.join(PLUGIN_ROOT, mod.runner);
+        const runnerMod = require(runnerPath);
+        const entry = (wantFix && typeof runnerMod.fix === 'function')
+          ? runnerMod.fix
+          : runnerMod.check;
+        if (typeof entry !== 'function') {
+          throw new Error('runner ' + mod.runner + ' exposes no ' + (wantFix ? 'fix/check' : 'check') + ' function');
+        }
+        entryResult = entry({ home, running, dryRun, fix: wantFix });
+      } else {
+        throw new Error('module ' + mod.id + ' has no runner');
+      }
+      findings.push(Object.assign({ id: mod.id, status: 'ok' }, entryResult && typeof entryResult === 'object' ? entryResult : {}));
+      ranModuleIds.push(mod.id);
+    } catch (err) {
+      anyHardError = true;
+      findings.push({ id: mod.id, status: 'error', detail: (err && err.message) || 'runner threw' });
+    }
+  }
+
+  // 6. Idempotency: advance the watermark to running ONLY on a non-dry-run with
+  //    no hard runner error. Re-running with the watermark already at running
+  //    selects ZERO modules (window (running, running] is empty) -> no-op.
+  //    An EMPTY window (zero selected) on a clean run still advances so the
+  //    ledger records the heal-through point.
+  let advanced = false;
+  if (!dryRun && !anyHardError) {
+    advanced = writeDoctorApplied(home, { appliedThrough: running, ranModuleIds });
+  }
+
+  return {
+    status: 'ok',
+    running,
+    applied_through: appliedThrough,
+    selected: selected.map((m) => ({ id: m.id, introduced_version: m.introduced_version })),
+    deferred: deferred.map((m) => ({ id: m.id, introduced_version: m.introduced_version })),
+    findings,
+    advanced: !!advanced,
+  };
+}
+
 // -- Main ------------------------------------------------------------
 
 function main() {
@@ -3773,6 +3968,23 @@ function main() {
   // earlier with its own canonical output shape; here we attach the result
   // into report.checks['brain-smoke'] so --all sees all classes in one
   // report. Async-to-sync bridge: run-and-finalize via promise chain.
+  // Phase 139 Plan-02 (S2): the accumulative-engine selector. It is the ENGINE,
+  // not a class -- so it is NOT gated behind a class A-M flag. It runs under
+  // --all (every doctor sweep heals the install forward) and standalone (a bare
+  // `doctor` run). With the registry seeded EMPTY of organ modules it selects
+  // zero modules and stays a no-op; the wiring is what Plan 03 builds on.
+  // Soft-fail: a throw here records an error finding but never crashes doctor.
+  if (flags.all || flags.fix || !classFlagsActive) {
+    try {
+      report.checks['accumulative-engine'] = runAccumulativeEngine({
+        fix: flags.fix,
+        dryRun: flags.dryRun,
+      });
+    } catch (err) {
+      report.checks['accumulative-engine'] = { status: 'error', detail: (err && err.message) || 'engine threw', selected: [], deferred: [], findings: [], advanced: false };
+    }
+  }
+
   if (flags.brainSmoke) {
     const { checkBrainSmoke } = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'class-m-brain-smoke.cjs'));
     checkBrainSmoke().then(function (result) {
@@ -3959,4 +4171,14 @@ function _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installR
   process.exit(0);
 }
 
-main();
+// Phase 139 Plan-02: export the accumulative-engine selector for hermetic unit
+// testing (tests/test-doctor-module-selector.cjs requires this module and calls
+// runAccumulativeEngine with an injected registry + watermark HOME). Guard the
+// CLI entry so `require('doctor.cjs')` does NOT run main(); the script still
+// runs main() when invoked directly or spawned as a subprocess (the standard
+// `node scripts/doctor.cjs ...` usage, where require.main === module).
+module.exports = { runAccumulativeEngine };
+
+if (require.main === module) {
+  main();
+}
