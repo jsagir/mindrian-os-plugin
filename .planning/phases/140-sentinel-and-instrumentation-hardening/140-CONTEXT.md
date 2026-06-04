@@ -63,7 +63,7 @@ Make the scout suite safe to auto-fire on a cadence by fixing the 5 scout-surfac
 ### Reusable Assets
 - `lib/core/lazygraph-ops.cjs` node-insert paths (:357-362, :729, :911) + `scripts/hsi-to-graph.cjs` (:68-70, :116-117): consolidate into ONE NOT-NULL-safe insert helper (D-02).
 - `lib/core/room-db.cjs::openRoomDb`: the single composition point; candidate route for migrate-then-write (D-02a).
-- `tests/query-efficiency-telemetry.test.cjs`: existing test to EXTEND for the HARD-04 regression (do not create a parallel one -- Canon Part 7 reuse).
+- `lib/memory/query-efficiency-telemetry.test.cjs`: existing test to EXTEND for the HARD-04 regression (do not create a parallel one -- Canon Part 7 reuse).
 - `scripts/compute-hsi.py:100` + `scripts/rs-engine.py:119`: the two `SKIP_DIRS` sets to amend (D-04).
 
 ### Established Patterns
