@@ -1,3 +1,8 @@
+## [Unreleased] -- v1.13.1-beta.5 (in progress)
+
+### Added
+- 
+
 ## [1.13.1-beta.4] - 2026-06-04
 
 Phase 139 doctor hotfix: stop doctor from scaffolding room artifacts in the wrong directory, and convert its frozen Phase-95 check roster into a version-accumulative engine skeleton. Proven end-to-end by shipping Umbilical Cord as the first registered module. Ships as a beta first per release-process.md (release infrastructure always betas before promotion).
