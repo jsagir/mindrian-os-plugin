@@ -4,13 +4,13 @@ milestone: v1.13.1
 milestone_name: Larry Reaches
 status: completed
 stopped_at: Phase 141 planned (6 plans, 3 waves, checker PASSED)
-last_updated: "2026-06-05T08:30:00.000Z"
-last_activity: "2026-06-05 -- 141-02 executed (Capability Dial + LARRY-04 Hierarchical Navigator committed to HEAD FIRST per D-06; canon_parts frontmatter + 5 reach ids + 3 posture ids; beta.7 in-repo lockstep; 3 drift/committed tests GREEN; SUMMARY at 141-02-SUMMARY.md)"
+last_updated: "2026-06-05T08:04:33.820Z"
+last_activity: 2026-06-05 -- 141-03 executed (getRoomContext 3-leg local fusion + chokepoint re-export; RETR-04 ~0.8ms, no FTS5; SUMMARY at 141-03-SUMMARY.md)
 progress:
   total_phases: 24
   completed_phases: 12
   total_plans: 95
-  completed_plans: 68
+  completed_plans: 69
   percent: 50
 ---
 
@@ -25,10 +25,12 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 141-local-retrieval-spine-and-capability-dial (IN PROGRESS -- 2/6 plans; capability dial committed)
-Plan: 141-02 complete (D-06 dial commit + beta.7 lockstep); next 141-03+ implement the retrieval spine (room-context.cjs fusion, intent-classifier userText seam, build-graph line-53 fix, fileEvidenceWithReadback wrapper) against the remaining RED suites
-Status: Phase 141 plan 02 COMPLETE. The previously uncommitted working-tree Capability Dial edit was committed to HEAD FIRST (06a944b8) per the D-06 hard ordering, ADDITIVELY: canon_parts: [Part 2, Part 3, Part 8, Part 9] frontmatter (LARRY-01), 5 machine-readable reach ids context_block/contradiction/cross_room/brain_consult/deep_research (LARRY-03), the LARRY-04 Hierarchical Navigator section led by the Usher division with 3 posture ids push_forward/hold/pull_back + Reach rule 7 arbitration (D-11/12/13), Aronhime quoted verbatim. DRSCH preserved as committed doctrine only (5th reach row + Reach rule 6 untouched, D-01). Version bumped to 1.13.1-beta.7 in CHANGELOG + plugin.json + package.json in lockstep (5b475ccc); no git tag, no marketplace push (human-gated). 3 tests GREEN: test-reach-ids-drift.cjs, test-posture-ids-drift.cjs, test-capability-dial-committed.cjs. Two Rule-1 test fixes applied (reach-id regex now matches contradiction; posture test heading-anchored + end-bounded) -- see 141-02-SUMMARY.md Deviations. Sequential main-tree execution.
-Last activity: 2026-06-05 -- 141-02 executed (Capability Dial + LARRY-04 doctrine committed FIRST; beta.7 lockstep; SUMMARY at 141-02-SUMMARY.md)
+Phase: 141-local-retrieval-spine-and-capability-dial (IN PROGRESS -- 3/6 plans; capability dial committed + retrieval spine fusion landed)
+Plan: 141-03 complete (getRoomContext 3-leg fusion + navigation.cjs chokepoint re-export); next 141-04+ wire the per-turn seed (intent-classifier userText seam RETR-02), the build-graph line-53 fix (BUG-01), and the fileEvidenceWithReadback wrapper (FILEVAL-02) against the remaining RED suites
+Status: Phase 141 plan 03 COMPLETE. Built lib/core/navigation/room-context.cjs -- getRoomContext(db, roomId, opts) fusing Leg A getRoomHomeView (raw prose) + Leg B windowed getSessionHistory (last 6 fragments, 400-char cap) + Leg C getNeighborhood, seeded from the last ~2 fragment section_context (section node id, with a bound-param lexical fallback). Returns {summary, recentMessages, relevantNodes, _meta}; defensive structured return on partial-leg failure. RETR-03 hard invariant met: zero packet.cjs require, zero projectText/hashText/sha256 (raw safeShape prose path reused). Caller-owned db handle (never node:sqlite, never opens room.db). navigation.cjs additively re-exports getRoomContext + getSessionHistory (D-04a) via the Part 9 chokepoint idiom. RETR-04 benchmark on the populated fixture: ~0.7-1.0ms, ~1200x under the 1200ms NAV budget -- assumption A2 settled, NO speculative FTS5 (D-04b resolved negative). 3 tests GREEN: test-get-room-context.cjs, test-room-context-part8-invariant.cjs, test-room-context-latency.cjs. One Rule-3 fix (scrubbed literal projection tokens from header comment so the indexOf invariant sweep passes) -- see 141-03-SUMMARY.md Deviations. Sequential main-tree execution. Commit e3f6437d.
+
+Prior: Phase 141 plan 02 COMPLETE. The previously uncommitted working-tree Capability Dial edit was committed to HEAD FIRST (06a944b8) per the D-06 hard ordering, ADDITIVELY: canon_parts: [Part 2, Part 3, Part 8, Part 9] frontmatter (LARRY-01), 5 machine-readable reach ids context_block/contradiction/cross_room/brain_consult/deep_research (LARRY-03), the LARRY-04 Hierarchical Navigator section led by the Usher division with 3 posture ids push_forward/hold/pull_back + Reach rule 7 arbitration (D-11/12/13), Aronhime quoted verbatim. DRSCH preserved as committed doctrine only (5th reach row + Reach rule 6 untouched, D-01). Version bumped to 1.13.1-beta.7 in CHANGELOG + plugin.json + package.json in lockstep (5b475ccc); no git tag, no marketplace push (human-gated). 3 tests GREEN: test-reach-ids-drift.cjs, test-posture-ids-drift.cjs, test-capability-dial-committed.cjs. Two Rule-1 test fixes applied (reach-id regex now matches contradiction; posture test heading-anchored + end-bounded) -- see 141-02-SUMMARY.md Deviations. Sequential main-tree execution.
+Last activity: 2026-06-05 -- 141-03 executed (getRoomContext 3-leg local fusion + chokepoint re-export; RETR-04 ~0.8ms, no FTS5; SUMMARY at 141-03-SUMMARY.md)
 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
@@ -361,7 +363,7 @@ Awaiting user action (Gate 5):
 
 Last activity: 2026-06-02 -- Completed quick task 260602-dsc: /mos:help text view becomes the De Stijl card layout
 
-Progress: [███████░░░] 71%
+Progress: [███████░░░] 72%
 
 ## Performance Metrics
 
