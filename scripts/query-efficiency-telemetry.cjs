@@ -281,9 +281,17 @@ function main() {
   const tool = extractToolName(payload);
   if (!tool || !/^(Read|Grep|Glob)$/.test(tool)) return exitSilent();
 
-  // /mos:* context gate. No /mos: context -> not an efficiency-claim query.
+  // /mos:* context detection. HARD-04 / D-01 (Phase 140-03): the gate is
+  // RELAXED to measure ALL turns. We still extract the /mos: command handle
+  // when present (so the aggregator can filter the published-claim population
+  // to /mos: turns -- see scout-telemetry-aggregator.cjs --mos-only), but a
+  // turn with NO /mos: context is no longer dropped: command is left null and
+  // the line is still written. This closes the "logs 0 events" bug (nothing
+  // in the repo sets the /mos: signal the old gate required).
+  //
+  // Canon Part 8 invariant preserved: we add NO new field and carry no user
+  // strings; command is a generic /mos: handle or null, never user content.
   const command = extractSlashCommand(payload);
-  if (!command) return exitSilent();
 
   // Resolve room. No room -> naive-estimate baseline undefined -> exit.
   const roomRoot = resolveRoomRoot();
@@ -317,7 +325,11 @@ function main() {
   const event = {
     event: 'query.served',
     ts: new Date().toISOString(),
-    command: command,
+    // command is the /mos: handle when present, else '' for an all-turns
+    // (no-/mos:-context) turn. We use '' rather than null so the 8-field
+    // validateEventShape contract still holds (it rejects null fields) while
+    // keeping the field scalar + present (Canon Part 8 -- no new field).
+    command: command || '',
     tool: tool,
     tokens_used: tokensUsed,
     tokens_naive_estimate: tokensNaive,
@@ -335,7 +347,9 @@ function main() {
   const cls = estimator.classifyRatio(ratio);
   if (cls === 'warn') {
     const pretty = event.ratio.toFixed(2);
-    const msg = 'query efficiency: ratio ' + pretty + 'x for ' + command +
+    // For an all-turns turn (no /mos: context) the label is the tool name.
+    const label = command || tool;
+    const msg = 'query efficiency: ratio ' + pretty + 'x for ' + label +
       ' (below ' + estimator.BELOW_THRESHOLD_RATIO + 'x threshold)';
     emitEnvelope(msg);
     process.exit(0);
