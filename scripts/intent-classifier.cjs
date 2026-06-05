@@ -1243,7 +1243,42 @@ function runNavigationEngine(roomDir, sessionId) {
             sectionPath: sectionPath,
             sessionId: sessionId,
           };
-          return callDecideWithTimeout(navEngine.decide, turn, context, NAV_HARD_TIMEOUT_MS);
+          // CASC-02 (Phase 142): compute the navigated neighborhood through the
+          // navigation.cjs chokepoint on the CALLER-OWNED roomDb handle (Canon Part 9)
+          // and thread it onto context.roomContext for decide(). The SAME conversation
+          // seed feeds getRoomContext as seedFragments (one seed, both consumers); the
+          // sectionPath rides as sectionContext so getRoomContext's Leg C focus-node
+          // resolver reaches the section neighborhood. The await stays INSIDE this
+          // single deriveConversationSeed().then() chain, so it is bounded by the same
+          // NAV_HARD_TIMEOUT_MS race envelope -- no second timeout, no added await
+          // outside the race (T-142-03: getRoomContext benchmarked ~1ms, ~1200x under
+          // the 1200ms NAV budget). On any fault or absent room.db, context.roomContext
+          // degrades to null and decide() proceeds exactly as before (graceful, no
+          // throw, no leak -- the caller-owned handle is still closed once in finally).
+          // D-03a fence: the neighborhood rides context ONLY (the LOCAL routing lane);
+          // it is NEVER added to the turn object or any path reaching buildBrainPacket.
+          function attachRoomContextAndDecide(roomContext) {
+            context.roomContext = roomContext || null;
+            return callDecideWithTimeout(navEngine.decide, turn, context, NAV_HARD_TIMEOUT_MS);
+          }
+          if (
+            roomDb &&
+            navigationMod &&
+            typeof navigationMod.getRoomContext === 'function'
+          ) {
+            const roomId = path.basename(roomDir || '.') || 'room';
+            const seedFragments = (typeof conversationSeed === 'string' && conversationSeed.length > 0)
+              ? [{ role: 'user', content: conversationSeed, sectionContext: sectionPath || null }]
+              : (sectionPath ? [{ role: 'user', content: '', sectionContext: sectionPath }] : []);
+            return Promise.resolve()
+              .then(function () {
+                return navigationMod.getRoomContext(roomDb, roomId, { seedFragments: seedFragments });
+              })
+              .then(attachRoomContextAndDecide, function () {
+                return attachRoomContextAndDecide(null); // fault -> null, proceed as before
+              });
+          }
+          return attachRoomContextAndDecide(null);
         })
         .then(function (decision) {
           if (decision === null || decision === undefined) {
