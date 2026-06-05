@@ -657,7 +657,7 @@
 | LARRY-02 | Phase 141 | Complete |
 | LARRY-03 | Phase 141 | Complete |
 | LARRY-04 | Phase 141 (doctrine); 143/144 (code) | Complete |
-| BUG-01 | Phase 141 | Pending |
+| BUG-01 | Phase 141 | Complete |
 | DRSCH-01 | Phase 141 | Complete |
 | DRSCH-02 | Phase 141 | Complete |
 | DRSCH-03 | Phase 141 | Complete |
@@ -793,7 +793,7 @@
 
 | ID | Description | Plan |
 |----|-------------|------|
-| BUG-01 | fix `scripts/build-graph-from-sqlite.cjs:53` ReferenceError (`lazygraphPath` undefined; line 50 defines roomDbPath) -- swallowed by outer try, silently emits no graph | TBD |
+| BUG-01 | fix `scripts/build-graph-from-sqlite.cjs:53` ReferenceError (`lazygraphPath` undefined; line 50 defines roomDbPath) -- swallowed by outer try, silently emits no graph | 141-05 |
 
 ### Acceptance contract (gate blockers -- "the loop must FIRE, not merely exist")
 
