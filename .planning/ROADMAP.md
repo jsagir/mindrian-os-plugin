@@ -1906,7 +1906,7 @@ Plans:
 - [x] 141-03-PLAN.md -- getRoomContext 3-leg fusion (RETR-01/03/04) + navigation.cjs re-exports + 1200ms benchmark
 - [x] 141-04-PLAN.md -- FILEVAL-02 read-back wrapper over shipped writeEvidenceClaim + artifact_path additive field (fixture-first)
 - [x] 141-05-PLAN.md -- BUG-01 one-token lazygraphPath -> roomDbPath fix + no-room-db exit-0 regression
-- [ ] 141-06-PLAN.md -- RETR-02 hot-path seed flip (un-null userText to the LOCAL lane only; D-03a Part-8 fence)
+- [x] 141-06-PLAN.md -- RETR-02 hot-path seed flip (un-null userText to the LOCAL lane only; D-03a Part-8 fence)
 
 ### Phase 142: Local Intelligence Wiring (compute-store-and-ACT)
 **Goal**: The local intelligence systems stop computing-and-storing and start computing-store-and-ACTING -- filing surfaces findings mid-session, BRAIN.md derivation lifts the room out of `tier_0`, the derivation queue drains, memory survives an auto-compact boundary, and the Phase 109 spine actually navigates the graph for routing. The cheapest, highest-leverage sub-loop; touches zero Brain code.

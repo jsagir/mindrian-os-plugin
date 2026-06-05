@@ -650,7 +650,7 @@
 | HARD-04 | Phase 140 | Complete |
 | HARD-05 | Phase 140 | Complete |
 | RETR-01 | Phase 141 | Complete |
-| RETR-02 | Phase 141 | Pending |
+| RETR-02 | Phase 141 | Complete |
 | RETR-03 | Phase 141 | Complete |
 | RETR-04 | Phase 141 | Complete |
 | LARRY-01 | Phase 141 | Complete |
