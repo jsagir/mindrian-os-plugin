@@ -20,6 +20,8 @@ Phase 141 delivers four coherent things, in one PR train:
 
 **The deep-research reach (DRSCH) ships as DOCTRINE ONLY this phase** - the dial text is committed and tracked, exactly like the other four reaches stay prompt-layer. No executable deep-research plumbing in 141 (see Deferred).
 
+5. **Larry as Hierarchical Navigator (LARRY-04, doctrine)** - a NET-NEW prompt-layer Larry-skill section that grounds BOTH dials (Ask-Tell pedagogy + Capability reach) in the ICM-hierarchical position (subsystem/level + journey-stage, Part 2a) + the FULL graph-SQL state `getRoomContext()` surfaces, mapping them to a pedagogical posture + offered move. Doctrine only in 141; the executable enforcement rides Phase 143 (SENS) + 144 (NAV).
+
 New capabilities (the dial-TUI selector, insight sensors, the navigation-engine flip, DRSCH execution) belong to Phases 142-146 and are out of scope here.
 
 </domain>
@@ -55,6 +57,19 @@ New capabilities (the dial-TUI selector, insight sensors, the navigation-engine 
 
 ### Execution ordering (D-06)
 - **D-06:** **Commit the dial FIRST**, as execution step 1, before any branch/stash/worktree operation. The `SKILL.md` edit is currently ` M` (uncommitted, in no commit per `git log -S`); a stash or checkout would lose it. This is a hard ordering constraint on the executor, not a suggestion.
+
+### Larry as Hierarchical Navigator + dial governance (D-11, D-12, D-13)
+> LARRY-04 doctrine. Net-new prompt-layer Larry-skill section. Doctrine in 141; executable enforcement rides 143 (SENS) + 144 (NAV).
+
+- **D-11 (read depth = FULL graph state):** The Hierarchical Navigator doctrine has Larry read, every beat: ICM-hierarchical position (which near-decomposable subsystem/level) + journey-stage (Part 2a) + the FULL graph-SQL state `getRoomContext()` surfaces (confirmed vs proposed, contradictions, evidence tiers per Part 5, thin spots, convergence). It maps that to a pedagogical POSTURE + an offered MOVE (one of the 10 Decision-Gate verbs / framework / reach + how). Push forward on accumulating confirmed evidence + a well-defined subsystem ready to climb a level or advance a stage; pull back on unresolved contradictions, None-tier evidence near a commit, or circular/stuck/regression signals (Decision 14 bidirectional; Appendix E trigger 4).
+- **D-12 (3 stable posture ids + drift test):** The doctrine encodes exactly 3 stable machine-readable posture ids `{push_forward, hold, pull_back}` + a drift test asserting exactly 3 (mirrors LARRY-03's exactly-5-reaches), so the Phase 143 SENS sensors + Phase 144 NAV engine key off them. Near-zero-cost prep, same pattern as the reach ids.
+- **D-13 (DIAL ARBITRATION - one helm, the user; the dials are instruments, not captains):** The two dials must NOT become "two captains, one ship" - two controllers both emitting steering commands, which produces conflict and oscillation. Resolution: **neither dial is a captain. The USER is the captain and holds the only helm** (Part 1: the navigator decides; Part 2: the team proposes, never impersonates; Part 9 role 5: the human confirms). The ship metaphor maps onto canon: user = captain-navigator who steers; Larry's two dials = a SINGLE navigation instrument that plots routes but never touches the wheel.
+  - **Internal arbitration = reach precedes push (NOT one dial ruling the other).** The Capability dial evaluates first (does the turn need a reach?); the reach RESULT sets the posture (push_forward/hold/pull_back, D-12); the Ask-Tell dial sets intensity WITHIN that posture. This collapses two readings into ONE coherent instrument reading - it is arbitration, not domination. There is no "winner dial."
+  - **The reading is advisory; the captain steers.** The single reading surfaces to the user at the Decision Gate (Part 3). No dial steers; no bot steers; the helm is the user's alone.
+  - Reach pending/failed -> `hold` -> "let me search" (honesty floor, Reach rule 3). Contradiction -> `pull_back` -> Decision Gate, never a verdict. Confirmed evidence -> `push_forward`. No reach (JUST_TALK) -> the instrument is quiet, conversation runs free.
+  - **The captain overrides the instrument:** an explicit "just tell me / bottom line" delivers immediately, honestly flagged (grounded vs unverified). The instrument advises Larry's DEFAULTS, never the captain's command.
+  - Surfaces in the dial as a new **Reach rule 7 (arbitration/precedence)** with the "two-captains" anti-pattern named explicitly.
+  - **PENDING GROUNDING:** the precise arbitration model is to be validated against real prior art (mixed-initiative interaction, supervisory/hierarchical control, behavior/command arbitration, dual-process + metacognitive control in tutoring systems) via a framework-led, plan-gated deep-research pass (dogfooding DRSCH-04) BEFORE the doctrine text is finalized. Until then D-13 is the working model, not the locked text.
 
 ### ICM memory-graph coherence - Part 9 dual layer (D-08, D-09, D-10)
 > The ICM system is dual: "Files preserve meaning. SQL remembers and navigates." A filing must land coherently across BOTH the graph (room.db) and the nested MD layer, never one side only (the dual-source-of-truth the canon forbids). These decisions make 141's coupling to the ICM memory-graph + nested fractal filing explicit.

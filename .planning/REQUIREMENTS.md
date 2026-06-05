@@ -656,6 +656,7 @@
 | LARRY-01 | Phase 141 | Pending |
 | LARRY-02 | Phase 141 | Pending |
 | LARRY-03 | Phase 141 | Pending |
+| LARRY-04 | Phase 141 (doctrine); 143/144 (code) | Pending |
 | BUG-01 | Phase 141 | Pending |
 | DRSCH-01 | Phase 141 | Pending |
 | DRSCH-02 | Phase 141 | Pending |
@@ -724,6 +725,7 @@
 | LARRY-01 | "When to Reach -- The Capability Dial" SKILL.md section committed to HEAD with `canon_parts` frontmatter + CHANGELOG entry | TBD |
 | LARRY-02 | Version bumped (beta.5 -> next) with the capability dial as a tracked, release-noted change | TBD |
 | LARRY-03 | The committed dial encodes 5 STABLE machine-readable reach ids (context_block, contradiction, cross_room, brain_consult, deep_research) so the downstream Phase-143 label composer + orchestrator key off them; a drift test asserts the reach bank covers exactly the 5 canonical reaches. Near-zero-cost prep for the dial-TUI (DIALTUI). | TBD |
+| LARRY-04 | **Larry as Hierarchical Navigator (doctrine, added 2026-06-05).** A new prompt-layer Larry-skill section grounds BOTH existing dials (Ask-Tell = how hard to push pedagogy; Capability = what to reach for) in the ICM-hierarchical position (which near-decomposable subsystem/level + journey-stage per Part 2a) AND the FULL graph-SQL state (confirmed vs proposed, contradictions, evidence tiers per Part 5, thin spots, convergence) that `getRoomContext()` surfaces. The doctrine is one mapping: (where the navigator is in the hierarchy + what the graph knows) -> a pedagogical POSTURE {push_forward, hold, pull_back} + the offered MOVE (which of the 10 Decision-Gate verbs / framework / reach + how). Push forward on accumulating confirmed evidence + well-defined subsystem ready to climb a level/stage; pull back on unresolved contradictions, None-tier evidence near a commit, or circular/stuck/regression signals (Decision 14 bidirectional; Appendix E trigger 4). Encodes 3 STABLE machine-readable posture ids {push_forward, hold, pull_back} + a drift test asserting exactly 3 (mirrors LARRY-03) so the Phase 143 SENS sensors + Phase 144 NAV engine key off them. This makes the Architecture Theorem ("Larry IS the hierarchical search navigator") operational. DOCTRINE lands in Phase 141 (prompt-layer, committed with the dial); the EXECUTABLE enforcement (sensors that read ICM+graph and the nav engine that emits the posture) rides Phase 143 (SENS) + Phase 144 (NAV). | TBD |
 
 ### Framework-led deep research (added 2026-06-05 -- the fifth capability-dial reach)
 
