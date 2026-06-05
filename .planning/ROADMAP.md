@@ -1917,8 +1917,9 @@ Plans:
 
 ### Phase 143: Insight Sensors (the 7-row trigger map)
 **Goal**: The "insight sensors" the Brain's own beautiful-question node asked for fire automatically -- the right reach on the right conversational/state signal, hat-scoped per Canon Part 2, with the Brain/web path constrained to generic handles only. Heuristic sensors first (the cheap v1), feeding the navigation engine.
-**Depends on**: Phase 142 (BRAIN.md derivation + cascade plumbing the sensors consume); Phase 141 (the local seed)
-**Requirements**: SENS-01, SENS-02, SENS-03, SENS-04, SENS-05, SENS-06, SENS-07
+**Depends on**: Phase 142 (BRAIN.md derivation + cascade plumbing the sensors consume); Phase 141 (the local seed + the committed 5-reach dial doctrine with stable reach ids per LARRY-03)
+**Requirements**: SENS-01, SENS-02, SENS-03, SENS-04, SENS-05, SENS-06, SENS-07, DIALTUI-01, DIALTUI-02, DIALTUI-03, DIALTUI-04, DIALTUI-05, DIALTUI-06, DIALTUI-07, DIALTUI-08, DIALTUI-09, DIALTUI-10, DIALTUI-11
+**Note (2026-06-05)**: the DIAL-TUI SELECTOR (DIALTUI-01..11) is built here per the placement Decision Gate (hybrid: 141 ships doctrine, 143 renders it). 143 is the only UI-hint phase and the one that decides WHEN to surface a reach, so the selector belongs here. Hard constraint: NOT a scrollable widget -- render AS Shape F.1 Brain-variant; the "dial" is the confidence column + filled/empty-triangle hierarchy. This phase REQUIRES a UI-SPEC (run gsd-ui-phase -- DIALTUI-11). Design brief: ~/MindrianRooms/mindrianOS/product-evolution/v1.13.0-memory-system-review/DIAL-TUI-DESIGN-BRIEF.md.
 **Canon parts**: Part 2 (team affordances + web hat-scoping: White=data/arxiv, Green=patents, Black=failure-cases), Part 2 Engine 1 (explore-domains / whitespace / reverse-salient as Act-1 reaches), Part 3 (sensors surface options at the Decision Gate), Part 4 (sensor-driven findings become graph edges), Part 8 (SENS-01/03/04 carry only generic handles to Brain/web -- never user content)
 **Success Criteria** (what must be TRUE):
   1. First material in a session auto-fires `/mos:explore-domains` + `/mos:whitespace` + `brain_framework_chain($problem_type)` (generic handle only) -- the room is non-empty by turn 2
