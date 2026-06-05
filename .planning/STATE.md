@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: Larry Reaches
-status: completed
+status: executing
 stopped_at: Phase 141 executed - 6/6 plans, run-all-141 9/9 green, loop closed, dial committed (beta.7)
-last_updated: "2026-06-05T08:19:25.391Z"
-last_activity: 2026-06-05 -- 141-03 executed (getRoomContext 3-leg local fusion + chokepoint re-export; RETR-04 ~0.8ms, no FTS5; SUMMARY at 141-03-SUMMARY.md)
+last_updated: "2026-06-05T15:10:23.136Z"
+last_activity: 2026-06-05
 progress:
-  total_phases: 24
-  completed_phases: 13
-  total_plans: 95
-  completed_plans: 71
-  percent: 54
+  total_phases: 79
+  completed_phases: 56
+  total_plans: 405
+  completed_plans: 368
+  percent: 71
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 127.1 — brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap
+**Current focus:** Phase 142 — local-intelligence-wiring-compute-store-and-act
 
 ## Current Position
 
-Phase: 141-local-retrieval-spine-and-capability-dial (IN PROGRESS -- 3/6 plans; capability dial committed + retrieval spine fusion landed)
-Plan: 141-03 complete (getRoomContext 3-leg fusion + navigation.cjs chokepoint re-export); next 141-04+ wire the per-turn seed (intent-classifier userText seam RETR-02), the build-graph line-53 fix (BUG-01), and the fileEvidenceWithReadback wrapper (FILEVAL-02) against the remaining RED suites
-Status: Phase 141 plan 03 COMPLETE. Built lib/core/navigation/room-context.cjs -- getRoomContext(db, roomId, opts) fusing Leg A getRoomHomeView (raw prose) + Leg B windowed getSessionHistory (last 6 fragments, 400-char cap) + Leg C getNeighborhood, seeded from the last ~2 fragment section_context (section node id, with a bound-param lexical fallback). Returns {summary, recentMessages, relevantNodes, _meta}; defensive structured return on partial-leg failure. RETR-03 hard invariant met: zero packet.cjs require, zero projectText/hashText/sha256 (raw safeShape prose path reused). Caller-owned db handle (never node:sqlite, never opens room.db). navigation.cjs additively re-exports getRoomContext + getSessionHistory (D-04a) via the Part 9 chokepoint idiom. RETR-04 benchmark on the populated fixture: ~0.7-1.0ms, ~1200x under the 1200ms NAV budget -- assumption A2 settled, NO speculative FTS5 (D-04b resolved negative). 3 tests GREEN: test-get-room-context.cjs, test-room-context-part8-invariant.cjs, test-room-context-latency.cjs. One Rule-3 fix (scrubbed literal projection tokens from header comment so the indexOf invariant sweep passes) -- see 141-03-SUMMARY.md Deviations. Sequential main-tree execution. Commit e3f6437d.
+Phase: 142 (local-intelligence-wiring-compute-store-and-act) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
 
 Prior: Phase 141 plan 02 COMPLETE. The previously uncommitted working-tree Capability Dial edit was committed to HEAD FIRST (06a944b8) per the D-06 hard ordering, ADDITIVELY: canon_parts: [Part 2, Part 3, Part 8, Part 9] frontmatter (LARRY-01), 5 machine-readable reach ids context_block/contradiction/cross_room/brain_consult/deep_research (LARRY-03), the LARRY-04 Hierarchical Navigator section led by the Usher division with 3 posture ids push_forward/hold/pull_back + Reach rule 7 arbitration (D-11/12/13), Aronhime quoted verbatim. DRSCH preserved as committed doctrine only (5th reach row + Reach rule 6 untouched, D-01). Version bumped to 1.13.1-beta.7 in CHANGELOG + plugin.json + package.json in lockstep (5b475ccc); no git tag, no marketplace push (human-gated). 3 tests GREEN: test-reach-ids-drift.cjs, test-posture-ids-drift.cjs, test-capability-dial-committed.cjs. Two Rule-1 test fixes applied (reach-id regex now matches contradiction; posture test heading-anchored + end-bounded) -- see 141-02-SUMMARY.md Deviations. Sequential main-tree execution.
-Last activity: 2026-06-05 -- 141-03 executed (getRoomContext 3-leg local fusion + chokepoint re-export; RETR-04 ~0.8ms, no FTS5; SUMMARY at 141-03-SUMMARY.md)
+Last activity: 2026-06-05
 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
@@ -363,7 +363,7 @@ Awaiting user action (Gate 5):
 
 Last activity: 2026-06-02 -- Completed quick task 260602-dsc: /mos:help text view becomes the De Stijl card layout
 
-Progress: [███████░░░] 72%
+Progress: [█████████░] 91%
 
 ## Performance Metrics
 
@@ -574,6 +574,7 @@ Progress: [███████░░░] 72%
 | Phase 132 P05 | 12m | 2 tasks | 6 files |
 | Phase 139 P01 | 25m | 2 tasks | 5 files |
 | Phase 140 P01 | 4min | 3 tasks | 5 files |
+| Phase 142 P01 | 14m | 2 tasks | 9 files |
 
 ### Roadmap Evolution
 
@@ -1178,6 +1179,8 @@ Progress: [███████░░░] 72%
 - [Phase ?]: Phase 132-05: shipped the release gate (invoke 130.7 health gate + brain-boundary-scan); DEFERRED live pseudonymize of 6 internal :Person nodes to v1.14.0; ZERO live Brain writes
 - [Phase ?]: Phase 139-01: lib/core/resolve-umbilical-target.cjs is the SINGLE doctor cwd-target resolver (cord -> sentinel -> registry.active); doctor SKIPS on null rather than scaffolding into a non-room cwd; heal OBS-2 zero-write floor locked by regression test.
 - [Phase ?]: Phase 139-03: AFFILIATED_WITH added ADDITIVELY to ALLOWED_EDGE_TYPES (floor test preserves all 10 prior members + frozen Set). Umbilical cords are authoritative at the REGISTRY layer and PROJECTED into each target room.db as LOCAL AFFILIATED_WITH edges via the UNFORKED edges.cjs::writeEdge UPSERT (idempotent -- re-run yields the same single edge); the doctor module opens room.db only through the allow-listed spine-events::openRoomDbForCaller chokepoint. ENUM-only edge props (relation, born); the marker note: stays LOCAL and NEVER lands on the edge. --fix SUGGESTS orphan cords for human confirmation but NEVER auto-creates a marker/cord. Canon Part 8 proven by the audit test (no cross-room edge -- sibling rooms get zero; zero Brain egress). Registered as accumulative-engine module #1 (introduced_version 1.13.1-beta.4; the Plan-02 selector correctly DEFERS it at running beta.3, proving the skeleton end-to-end with zero engine-code changes). FK-target endpoint nodes ensured with created_by='system' per the Part 9 audit-node carve-out (navigation handles, not truth-claims).
+- [Phase ?]: 142-01: 7 RED loop-fires suites encode the VERIFY-AND-CLOSE split; Wave-2 wiring gaps are the only RED
+- [Phase ?]: 142-01: CASC-02 suite enforces the Phase-144 fence (routing_source stays legacy)
 
 ### Pending Todos
 
@@ -1212,6 +1215,6 @@ Progress: [███████░░░] 72%
 
 ## Session Continuity
 
-Last session: 2026-06-05T08:19:25.350Z
+Last session: 2026-06-05T15:10:00.770Z
 Stopped at: Phase 141 executed - 6/6 plans, run-all-141 9/9 green, loop closed, dial committed (beta.7)
-Resume file: .planning/phases/141-local-retrieval-spine-and-capability-dial/141-06-SUMMARY.md
+Resume file: None
