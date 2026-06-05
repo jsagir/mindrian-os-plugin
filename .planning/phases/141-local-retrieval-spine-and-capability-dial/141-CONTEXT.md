@@ -68,8 +68,13 @@ New capabilities (the dial-TUI selector, insight sensors, the navigation-engine 
   - **The reading is advisory; the captain steers.** The single reading surfaces to the user at the Decision Gate (Part 3). No dial steers; no bot steers; the helm is the user's alone.
   - Reach pending/failed -> `hold` -> "let me search" (honesty floor, Reach rule 3). Contradiction -> `pull_back` -> Decision Gate, never a verdict. Confirmed evidence -> `push_forward`. No reach (JUST_TALK) -> the instrument is quiet, conversation runs free.
   - **The captain overrides the instrument:** an explicit "just tell me / bottom line" delivers immediately, honestly flagged (grounded vs unverified). The instrument advises Larry's DEFAULTS, never the captain's command.
-  - Surfaces in the dial as a new **Reach rule 7 (arbitration/precedence)** with the "two-captains" anti-pattern named explicitly.
-  - **PENDING GROUNDING:** the precise arbitration model is to be validated against real prior art (mixed-initiative interaction, supervisory/hierarchical control, behavior/command arbitration, dual-process + metacognitive control in tutoring systems) via a framework-led, plan-gated deep-research pass (dogfooding DRSCH-04) BEFORE the doctrine text is finalized. Until then D-13 is the working model, not the locked text.
+  - Surfaces in the dial as a new **Reach rule 7 (arbitration/precedence)** with the anti-pattern named explicitly (see grounding below).
+  - **GROUNDED (deep-research pass complete, 2026-06-05; full study at `~/MindrianRooms/mindrianOS/product-evolution/v1.13.0-memory-system-review/CONTEXT-MANAGEMENT-FRONTIER-online.md`):** the working model is confirmed by the frontier and sharpened:
+    - **The dials are NOT two controllers - they are two dimensions of ONE decision cycle (CoALA, arXiv 2309.02427).** One decision procedure loops: PLANNING (propose -> evaluate -> select among an action space, using memory) then EXECUTION (run the selected action). The Capability dial = internal action-selection (which retrieval/reach to run in planning); the Ask-Tell dial = the external grounding action (the response, in execution). "Reach precedes push" IS the CoALA cycle (internal retrieval precedes external grounding). This is the precise dissolution of "two captains": there is only one decision procedure, never two.
+    - **Helm model is named: HIC + AITL** (Red Hat human-AI loop taxonomy). The user is Human-in-Command (sole authority); Larry is AI-in-the-loop assistance. The Decision Gate is the authority-transfer protocol (Burstein and McDermott 1996, central authority manager).
+    - **Reach trigger = expected value over inaction** (Horvitz mixed-initiative, CHI 1999): a reach fires only when its expected value to the navigator beats staying quiet. Sharpens Reach rule 1 (GUIDED).
+    - **The anti-pattern has a literature name: Reasoning-Action Disconnect** (action contradicts the reasoning that preceded it) - cite it alongside "two captains, one ship". Mitigation = structural control of the reasoning-to-action seam = reach-precedes-push + honesty floor.
+    - **Transparency is mandatory** to avoid mode-confusion / automation-surprise (Sarter and Woods; Parasuraman/Sheridan/Wickens): never change posture or filing silently; the decision_trace + Reading-the-Room trace + "let me search" are the documented countermeasure.
 
 ### ICM memory-graph coherence - Part 9 dual layer (D-08, D-09, D-10)
 > The ICM system is dual: "Files preserve meaning. SQL remembers and navigates." A filing must land coherently across BOTH the graph (room.db) and the nested MD layer, never one side only (the dual-source-of-truth the canon forbids). These decisions make 141's coupling to the ICM memory-graph + nested fractal filing explicit.
@@ -110,6 +115,12 @@ New capabilities (the dial-TUI selector, insight sensors, the navigation-engine 
 - `.planning/phases/124-feynman-temporal-awareness/124-CONTEXT.md` + `lib/core/feynman/timeline-renderer.cjs` - the render-FROM-graph sentinel-bounded pattern the deferred MD projection (143) reuses.
 - `.planning/phases/109-sql-context-memory-navigation-spine/109-CONTEXT.md` + `tests/test-navigation-acceptance.cjs` - the zero-non-SQLite-read invariant getRoomContext must honor (D-08).
 - `.planning/REQUIREMENTS.md` line ~826 + MEMDIAL-01..03 block - the "both sides of Part 9" obligation mapped to Phase 143.
+
+### Context-management frontier (LARRY-04 / D-13 grounding)
+- `~/MindrianRooms/mindrianOS/product-evolution/v1.13.0-memory-system-review/CONTEXT-MANAGEMENT-FRONTIER-online.md` - the online study mapping the frontier onto our build; the keystone that dissolves two-captains. READ before finalizing the LARRY-04 doctrine text.
+- CoALA (Cognitive Architectures for Language Agents, arXiv 2309.02427) - the decision-cycle model the dial doctrine adopts.
+- Horvitz, Mixed-Initiative UIs (CHI 1999); Red Hat HITL/HOTL/AITL/HIC taxonomy; Sarter and Woods automation-surprise; MindStudio Reasoning-Action Disconnect - the control + failure-mode grounding.
+- Zep/Graphiti (arXiv 2501.13956) - the SOTA bi-temporal graph memory our room.db maps onto (external validation + the SLICE-D bi-temporal-edges pointer).
 
 ### Reuse precedents (Part 7)
 - `skills/larry-personality/SKILL.md` (lines ~31-60) - the uncommitted Capability Dial section (LARRY-01 input).
