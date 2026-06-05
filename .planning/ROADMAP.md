@@ -1885,7 +1885,7 @@ Plans:
 **Plans**: 3 plans
 - [x] 140-01-PLAN.md -- HARD-02: shared NOT-NULL-safe node insert helper (4 sites) + both-schema safety + unmask scout swallow (D-02/D-02a/D-03)
 - [x] 140-02-PLAN.md -- HARD-01 arithmetic guard in sentinel-health-check + HARD-03 .heal-backup excluded from both SKIP_DIRS sets (D-04)
-- [ ] 140-03-PLAN.md -- HARD-04 relax telemetry gate to all turns + 57x reconciliation (D-01/D-01a) + HARD-05 deadline monitor reads .planning/STATE.md
+- [x] 140-03-PLAN.md -- HARD-04 relax telemetry gate to all turns + 57x reconciliation (D-01/D-01a) + HARD-05 deadline monitor reads .planning/STATE.md
 
 ### Phase 141: Local Retrieval Spine + Capability Dial
 **Goal**: The per-turn loop stops forwarding `userText:null` -- `getRoomContext()` fuses local room memory into a query-time seed, the "When to Reach" capability dial ships tracked, and the line-53 crash is gone. This is the spine of Option A: maximally rich, entirely local, zero Part-8 cost.
@@ -1966,7 +1966,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 140. Sentinel & Instrumentation Hardening | 2/4 | In Progress|  |
+| 140. Sentinel & Instrumentation Hardening | 3/4 | In Progress|  |
 | 141. Local Retrieval Spine + Capability Dial | 0/0 | Not started | - |
 | 142. Local Intelligence Wiring | 0/0 | Not started | - |
 | 143. Insight Sensors | 0/0 | Not started | - |

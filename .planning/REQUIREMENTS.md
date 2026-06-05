@@ -647,8 +647,8 @@
 | HARD-01 | Phase 140 | Complete |
 | HARD-02 | Phase 140 | Complete |
 | HARD-03 | Phase 140 | Complete |
-| HARD-04 | Phase 140 | Pending |
-| HARD-05 | Phase 140 | Pending |
+| HARD-04 | Phase 140 | Complete |
+| HARD-05 | Phase 140 | Complete |
 | RETR-01 | Phase 141 | Pending |
 | RETR-02 | Phase 141 | Pending |
 | RETR-03 | Phase 141 | Pending |
