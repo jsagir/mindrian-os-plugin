@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: Larry Reaches
-status: completed
-stopped_at: Phase 140 context gathered
-last_updated: "2026-06-04T19:35:41.690Z"
-last_activity: 2026-06-04 -- LARRYREACH milestone roadmapped (7 phases 140-146, 32 requirements mapped)
+status: in-progress
+stopped_at: Completed 140-01-PLAN.md
+last_updated: "2026-06-05T03:58:10Z"
+last_activity: 2026-06-05 -- 140-01 executed (HARD-02 closed: shared NOT-NULL-safe node-insert helper + scout unmask)
 progress:
   total_phases: 24
   completed_phases: 11
-  total_plans: 85
-  completed_plans: 61
-  percent: 46
+  total_plans: 89
+  completed_plans: 62
+  percent: 70
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: Not started (LARRYREACH roadmap drafted -- Phases 140-146)
-Plan: --
-Status: Roadmap complete; awaiting `/gsd:plan-phase 140`
-Last activity: 2026-06-04 -- LARRYREACH milestone roadmapped (7 phases 140-146, 32 requirements mapped)
+Phase: 140-sentinel-and-instrumentation-hardening (In Progress -- 1/4 plans complete)
+Plan: 140-01 complete; next 140-02
+Status: 140-01 executed (HARD-02 closed). Sequential main-tree execution.
+Last activity: 2026-06-05 -- 140-01 executed (shared NOT-NULL-safe node-insert helper, 4 sites routed, scout HSI-to-graph unmask)
 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
@@ -361,7 +361,7 @@ Awaiting user action (Gate 5):
 
 Last activity: 2026-06-02 -- Completed quick task 260602-dsc: /mos:help text view becomes the De Stijl card layout
 
-Progress: [█████████░] 91%
+Progress: [███████░░░] 70%
 
 ## Performance Metrics
 
@@ -571,6 +571,7 @@ Progress: [█████████░] 91%
 | Phase 130.7 P01 | 10 | 3 tasks | 8 files |
 | Phase 132 P05 | 12m | 2 tasks | 6 files |
 | Phase 139 P01 | 25m | 2 tasks | 5 files |
+| Phase 140 P01 | 4min | 3 tasks | 5 files |
 
 ### Roadmap Evolution
 

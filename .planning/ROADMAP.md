@@ -1883,7 +1883,7 @@ Plans:
   4. After a session running a dozen `/mos:*` commands, the query-efficiency telemetry hook shows non-zero captured events (the 57x-claim gate has real data)
   5. The deadline monitor reports the phase deadlines in `.planning/STATE.md`, not just `funding/` + `opportunity-bank/` (a near deadline shows as DUE, not CLEAR)
 **Plans**: 3 plans
-- [ ] 140-01-PLAN.md -- HARD-02: shared NOT-NULL-safe node insert helper (4 sites) + both-schema safety + unmask scout swallow (D-02/D-02a/D-03)
+- [x] 140-01-PLAN.md -- HARD-02: shared NOT-NULL-safe node insert helper (4 sites) + both-schema safety + unmask scout swallow (D-02/D-02a/D-03)
 - [ ] 140-02-PLAN.md -- HARD-01 arithmetic guard in sentinel-health-check + HARD-03 .heal-backup excluded from both SKIP_DIRS sets (D-04)
 - [ ] 140-03-PLAN.md -- HARD-04 relax telemetry gate to all turns + 57x reconciliation (D-01/D-01a) + HARD-05 deadline monitor reads .planning/STATE.md
 
@@ -1966,7 +1966,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 140. Sentinel & Instrumentation Hardening | 0/0 | Not started | - |
+| 140. Sentinel & Instrumentation Hardening | 1/4 | In Progress|  |
 | 141. Local Retrieval Spine + Capability Dial | 0/0 | Not started | - |
 | 142. Local Intelligence Wiring | 0/0 | Not started | - |
 | 143. Insight Sensors | 0/0 | Not started | - |
