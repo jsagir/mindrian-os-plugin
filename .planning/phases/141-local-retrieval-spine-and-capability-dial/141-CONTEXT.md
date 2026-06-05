@@ -13,6 +13,13 @@ canon_parts: [Part 2, Part 3, Part 8, Part 9]
 
 Per the founding JTBD paper (Sagir, March 2026, `docs/research/LIVE_DATA_ROOM_JTBD_PAPER.md`): the core job of MindrianOS is to "**reduce the time between insight and validated decision** across every dimension of the venture simultaneously" - the #1 underserved outcome (Opportunity Score 18). The founding vision promised a LOOP: insight enters -> surfaced against the venture graph (the Risk Sentinel "surface what's about to break") -> validated decision -> decision becomes graph data -> next surfacing is smarter ("becomes more valuable over time"). Until now the room CAPTURED but the loop never FIRED per turn: no `getRoomContext` (Larry could not walk the graph mid-conversation), `userText:null` (the per-turn loop stayed open, insight never seeded retrieval), ungrounded dials (Larry reacted to chat instead of navigating the nested Simon system), decisions not typed edges (no flywheel). Phase 141 + LARRY-04 CLOSE that founding loop: getRoomContext = walk the graph per turn; RETR-02 = insight seeds retrieval; the Hierarchical Navigator + graph-grounded dials = Larry as the hierarchical search navigator; FILEVAL = decision becomes graph data. This phase is where the Live Data Room becomes live. Treat the requirements as the core job, not features.
 
+**Prof. Aronhime's design language (the evolution March -> now, authoritative).** Lawrence's own explanation site (scraped to `~/MindrianRooms/mindrianOS/product-evolution/v1.13.0-memory-system-review/ARONHIME-EVOLUTION-EXPLANATION-scraped.md`) states this session's derived doctrine verbatim. The LARRY-04 / dial doctrine text SHOULD quote him:
+- **"The insight belongs to you; the reach belongs to the tool."** = D-13 dial governance (user is captain; the Capability dial is the reach). Usher steps 1-2 (perceive + set the stage) are the tool's; steps 3-4 (insight + validation) stay the human's.
+- **"Improving information retrieval produced four times more accuracy improvement than improving the reasoning model... reach matters more than raw intelligence."** = the justification for `getRoomContext` and the "Larry Reaches" milestone. Retrieval is the 4x lever. This phase builds the lever.
+- **"Knowing when to stay quiet... a wrong suggestion is worse than no suggestion... restraint is the product working correctly."** = the `hold` posture (D-12) + honesty floor + expected-value-over-inaction.
+- **The temporal search gradient** (Aronhime's original contribution: UDP->IDP->WDP as a directional gradient with matched toolsets) = LARRY-04's push_forward/pull_back across stages. The **bidirectional Ackoff DIKW descent** ("has your confidence earned its evidence?") = the pull_back diagnostic.
+- **"One move, grounded in what your workspace actually contains"** = the Decision Gate offered MOVE + one-reach-per-beat. We are implementing Lawrence's stated design, not inventing doctrine.
+
 ## Phase Boundary
 
 Phase 141 delivers four coherent things, in one PR train:
@@ -125,6 +132,7 @@ New capabilities (the dial-TUI selector, insight sensors, the navigation-engine 
 - CoALA (Cognitive Architectures for Language Agents, arXiv 2309.02427) - the decision-cycle model the dial doctrine adopts.
 - Horvitz, Mixed-Initiative UIs (CHI 1999); Red Hat HITL/HOTL/AITL/HIC taxonomy; Sarter and Woods automation-surprise; MindStudio Reasoning-Action Disconnect - the control + failure-mode grounding.
 - Zep/Graphiti (arXiv 2501.13956) - the SOTA bi-temporal graph memory our room.db maps onto (external validation + the SLICE-D bi-temporal-edges pointer).
+- `~/MindrianRooms/mindrianOS/product-evolution/v1.13.0-memory-system-review/ARONHIME-EVOLUTION-EXPLANATION-scraped.md` - Prof. Aronhime's authoritative product articulation (scraped from mindrian-explanation.vercel.app). The LARRY-04 / dial doctrine text MUST align with and quote his language ("the insight belongs to you; the reach belongs to the tool"; "reach matters more than raw intelligence"; "restraint is the product working correctly"; the temporal search gradient; bidirectional Ackoff descent). The evolution from the March-2026 JTBD paper to now.
 
 ### Reuse precedents (Part 7)
 - `skills/larry-personality/SKILL.md` (lines ~31-60) - the uncommitted Capability Dial section (LARRY-01 input).
