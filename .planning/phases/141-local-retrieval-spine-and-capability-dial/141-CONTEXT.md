@@ -9,6 +9,10 @@ canon_parts: [Part 2, Part 3, Part 8, Part 9]
 **Milestone:** v1.13.1 "Larry Reaches" (beta.7) - Decision Gate Option A
 
 <domain>
+## Founding-intent anchor (why this phase is the core job, not a feature)
+
+Per the founding JTBD paper (Sagir, March 2026, `docs/research/LIVE_DATA_ROOM_JTBD_PAPER.md`): the core job of MindrianOS is to "**reduce the time between insight and validated decision** across every dimension of the venture simultaneously" - the #1 underserved outcome (Opportunity Score 18). The founding vision promised a LOOP: insight enters -> surfaced against the venture graph (the Risk Sentinel "surface what's about to break") -> validated decision -> decision becomes graph data -> next surfacing is smarter ("becomes more valuable over time"). Until now the room CAPTURED but the loop never FIRED per turn: no `getRoomContext` (Larry could not walk the graph mid-conversation), `userText:null` (the per-turn loop stayed open, insight never seeded retrieval), ungrounded dials (Larry reacted to chat instead of navigating the nested Simon system), decisions not typed edges (no flywheel). Phase 141 + LARRY-04 CLOSE that founding loop: getRoomContext = walk the graph per turn; RETR-02 = insight seeds retrieval; the Hierarchical Navigator + graph-grounded dials = Larry as the hierarchical search navigator; FILEVAL = decision becomes graph data. This phase is where the Live Data Room becomes live. Treat the requirements as the core job, not features.
+
 ## Phase Boundary
 
 Phase 141 delivers four coherent things, in one PR train:
