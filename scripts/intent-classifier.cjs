@@ -992,6 +992,47 @@ function callDecideWithTimeout(decideFn, turn, ctx, hardTimeoutMs) {
   });
 }
 
+// RETR-02 / D-03 (Phase 141): derive a LOCAL conversation seed from the last
+// ~2 conversation turns so retrieval seeds from what the navigator just said,
+// not venture-state only. This closes the conversation-to-retrieval loop now
+// that getRoomContext (Plan 03) exists to consume the seed.
+//
+// HARD FENCE (D-03a, Canon Part 8): the seed is LOCAL-only. It rides the turn
+// object into the Navigation Engine (the local seed lane) and feeds getRoomContext
+// downstream. It is NEVER added to any payload that reaches buildBrainPacket or
+// the brain client -- the Brain keeps receiving generic handles only.
+//
+// Latency (T-141-12): windowed to the last SEED_TURN_COUNT fragments of the most
+// recent session, each char-capped, so an unbounded fragment dump cannot blow the
+// 1200ms NAV budget. getSessionHistory reads the caller-owned handle through the
+// navigation chokepoint (sync-backed sqlite under a resolved Promise); on any
+// fault the seed degrades to an empty string and the loop runs as before.
+const SEED_TURN_COUNT = 2;
+const SEED_CHAR_CAP = 400;
+
+function deriveConversationSeed(navMod, db) {
+  // Returns Promise<string>. Never rejects -- a fault yields '' (empty seed).
+  if (!navMod || !db || typeof navMod.getSessionHistory !== 'function') {
+    return Promise.resolve('');
+  }
+  return Promise.resolve()
+    .then(function () { return navMod.getSessionHistory(db, 1); })
+    .then(function (sessions) {
+      if (!Array.isArray(sessions) || sessions.length === 0) return '';
+      const frags = Array.isArray(sessions[0].fragments) ? sessions[0].fragments : [];
+      const recent = frags.slice(-SEED_TURN_COUNT);
+      const seed = recent
+        .map(function (f) {
+          const c = f && typeof f.content === 'string' ? f.content : '';
+          return c.length > SEED_CHAR_CAP ? c.slice(0, SEED_CHAR_CAP) : c;
+        })
+        .filter(function (c) { return c.length > 0; })
+        .join('\n');
+      return seed;
+    })
+    .catch(function () { return ''; });
+}
+
 function runNavigationEngine(roomDir, sessionId) {
   // Returns Promise<{decision, elapsed_ms} | null>. Never throws.
   return new Promise(function (resolve) {
@@ -1077,11 +1118,10 @@ function runNavigationEngine(roomDir, sessionId) {
         };
       }
 
-      const turn = {
-        userText: null, // hot path does not forward prompt content
-        sectionPath: sectionPath,
-        sessionId: sessionId,
-      };
+      // RETR-02 / D-03 (Phase 141): the per-turn turn object is now built AFTER
+      // roomDb opens (below) so it can carry a real conversation seed derived from
+      // the last ~2 turns -- it no longer hard-codes a null seed. See the
+      // deriveConversationSeed + turn assembly just before callDecideWithTimeout.
 
       // Phase 91-07 Wave 3 upgrade: real brain-client.isAvailable()
       // scalar lookup. Per Canon Part 8 Section 9.3, isAvailable() is
@@ -1193,7 +1233,18 @@ function runNavigationEngine(roomDir, sessionId) {
         },
       };
 
-      callDecideWithTimeout(navEngine.decide, turn, context, NAV_HARD_TIMEOUT_MS)
+      // RETR-02 / D-03a: build the turn with a real conversation seed (last ~2
+      // turns) on the LOCAL lane only, then race decide() inside the existing
+      // 1200ms envelope. deriveConversationSeed never rejects (faults -> '').
+      deriveConversationSeed(navigationMod, roomDb)
+        .then(function (conversationSeed) {
+          const turn = {
+            userText: conversationSeed, // LOCAL seed lane only (D-03a fence): never threads toward the Brain packet
+            sectionPath: sectionPath,
+            sessionId: sessionId,
+          };
+          return callDecideWithTimeout(navEngine.decide, turn, context, NAV_HARD_TIMEOUT_MS);
+        })
         .then(function (decision) {
           if (decision === null || decision === undefined) {
             return resolve(null);
