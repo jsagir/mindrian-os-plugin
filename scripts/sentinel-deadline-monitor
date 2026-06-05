@@ -120,6 +120,50 @@ if [ -d "$ROOM_DIR/opportunity-bank" ]; then
   done
 fi
 
+# ── Scan .planning/STATE.md for phase deadlines (HARD-05, Phase 140-03) ──
+# Phase deadlines live in the plugin-dev .planning/STATE.md (Canon Part 6
+# Product-as-Venture), NOT in a user room's STATE.md (Pitfall 5: two different
+# STATE.md files). Resolve from $PLANNING_STATE_FILE when set (test seam), else
+# from the repo root relative to this script (scripts/.. = repo root). The
+# field is the prose line `Hard deadline: <date> (context)` (and a sibling
+# `Soft deadline:` line that may carry the `--` placeholder).
+SCRIPT_DIR_DM="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PLANNING_STATE="${PLANNING_STATE_FILE:-$SCRIPT_DIR_DM/../.planning/STATE.md}"
+
+if [ -f "$PLANNING_STATE" ]; then
+  # Reuse the script's extraction idiom adapted to the prose form: grep the
+  # line, strip the label, strip the trailing parenthetical context, trim.
+  for label in "Hard deadline" "Soft deadline"; do
+    raw=$(grep -m1 "^${label}:" "$PLANNING_STATE" 2>/dev/null \
+      | sed "s/^${label}:[[:space:]]*//" \
+      | sed 's/[[:space:]]*(.*$//' \
+      | tr -d '"' | xargs || true)
+    # Skip empty and the `--` placeholder (V5 input validation; not fatal).
+    [ -z "$raw" ] && continue
+    [ "$raw" = "--" ] && continue
+
+    phase_epoch=$(portable_date_to_epoch "$raw")
+    # Reuse the epoch==0 skip guard for malformed/placeholder dates.
+    if [ "$phase_epoch" -eq 0 ]; then
+      continue
+    fi
+
+    days_until=$(( (phase_epoch - TODAY_EPOCH) / 86400 ))
+    name="${label}"
+
+    if [ "$days_until" -lt 0 ]; then
+      overdue_count=$((overdue_count + 1))
+      alerts+=("OVERDUE|phase|${name}|${raw}|${days_until}|phase-deadline")
+    elif [ "$days_until" -le "$ALERT_DAYS" ]; then
+      urgent_count=$((urgent_count + 1))
+      alerts+=("URGENT|phase|${name}|${raw}|${days_until}|phase-deadline")
+    elif [ "$days_until" -le $((ALERT_DAYS * 2)) ]; then
+      upcoming_count=$((upcoming_count + 1))
+      alerts+=("UPCOMING|phase|${name}|${raw}|${days_until}|phase-deadline")
+    fi
+  done
+fi
+
 # ── Generate report ──
 total_alerts=$((urgent_count + overdue_count + upcoming_count))
 
