@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: Larry Reaches
-status: in-progress
-stopped_at: Completed 140-01-PLAN.md
-last_updated: "2026-06-05T03:58:10Z"
-last_activity: 2026-06-05 -- 140-01 executed (HARD-02 closed: shared NOT-NULL-safe node-insert helper + scout unmask)
+status: 140-02 executed (HARD-01 + HARD-03 closed). Sequential main-tree execution.
+stopped_at: Completed 140-02-PLAN.md
+last_updated: "2026-06-05T04:20:00Z"
+last_activity: 2026-06-05 -- 140-02 executed (HARD-01 sentinel-health-check arithmetic-safe captures + HARD-03 .heal-backup excluded from both SKIP_DIRS sets)
 progress:
   total_phases: 24
   completed_phases: 11
   total_plans: 89
-  completed_plans: 62
-  percent: 70
+  completed_plans: 64
+  percent: 46
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 140-sentinel-and-instrumentation-hardening (In Progress -- 1/4 plans complete)
-Plan: 140-01 complete; next 140-02
-Status: 140-01 executed (HARD-02 closed). Sequential main-tree execution.
-Last activity: 2026-06-05 -- 140-01 executed (shared NOT-NULL-safe node-insert helper, 4 sites routed, scout HSI-to-graph unmask)
+Phase: 140-sentinel-and-instrumentation-hardening (In Progress -- 2/4 plans complete)
+Plan: 140-02 complete; next 140-03
+Status: 140-02 executed (HARD-01 + HARD-03 closed). Sequential main-tree execution.
+Last activity: 2026-06-05 -- 140-02 executed (sentinel-health-check arithmetic-safe captures + .heal-backup in both SKIP_DIRS sets)
 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
