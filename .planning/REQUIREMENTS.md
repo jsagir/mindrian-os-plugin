@@ -663,10 +663,10 @@
 | DRSCH-03 | Phase 141 | Complete |
 | DRSCH-04 | Phase 141 | Complete |
 | FILEVAL-02 | Phase 141 | Complete |
-| CASC-01 | Phase 142 | Pending |
+| CASC-01 | Phase 142 | Complete |
 | CASC-02 | Phase 142 | Complete |
 | NAV-02 | Phase 142 | Pending |
-| NAV-03 | Phase 142 | Pending |
+| NAV-03 | Phase 142 | Complete |
 | NAV-04 | Phase 142 | Pending |
 | FILEVAL-03 | Phase 142 | Pending |
 | SENS-01 | Phase 143 | Pending |

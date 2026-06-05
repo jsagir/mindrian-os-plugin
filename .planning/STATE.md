@@ -4,13 +4,13 @@ milestone: v1.13.1
 milestone_name: Larry Reaches
 status: executing
 stopped_at: Completed 142-02-PLAN.md (CASC-02 -- spine navigates; test-spine-navigates-decide + test-decide-part8-invariant GREEN; Phase-144 fence held)
-last_updated: "2026-06-05T15:32:33.898Z"
+last_updated: "2026-06-05T15:57:51.807Z"
 last_activity: 2026-06-05
 progress:
   total_phases: 79
   completed_phases: 56
   total_plans: 405
-  completed_plans: 369
+  completed_plans: 370
   percent: 71
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 142 (local-intelligence-wiring-compute-store-and-act) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 
 Prior: Phase 141 plan 02 COMPLETE. The previously uncommitted working-tree Capability Dial edit was committed to HEAD FIRST (06a944b8) per the D-06 hard ordering, ADDITIVELY: canon_parts: [Part 2, Part 3, Part 8, Part 9] frontmatter (LARRY-01), 5 machine-readable reach ids context_block/contradiction/cross_room/brain_consult/deep_research (LARRY-03), the LARRY-04 Hierarchical Navigator section led by the Usher division with 3 posture ids push_forward/hold/pull_back + Reach rule 7 arbitration (D-11/12/13), Aronhime quoted verbatim. DRSCH preserved as committed doctrine only (5th reach row + Reach rule 6 untouched, D-01). Version bumped to 1.13.1-beta.7 in CHANGELOG + plugin.json + package.json in lockstep (5b475ccc); no git tag, no marketplace push (human-gated). 3 tests GREEN: test-reach-ids-drift.cjs, test-posture-ids-drift.cjs, test-capability-dial-committed.cjs. Two Rule-1 test fixes applied (reach-id regex now matches contradiction; posture test heading-anchored + end-bounded) -- see 141-02-SUMMARY.md Deviations. Sequential main-tree execution.
@@ -576,6 +576,7 @@ Progress: [█████████░] 91%
 | Phase 140 P01 | 4min | 3 tasks | 5 files |
 | Phase 142 P01 | 14m | 2 tasks | 9 files |
 | Phase 142 P02 | 18m | 2 tasks | 4 files |
+| Phase 142 P03 | ~22 minutes | 2 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -1183,6 +1184,7 @@ Progress: [█████████░] 91%
 - [Phase ?]: 142-01: 7 RED loop-fires suites encode the VERIFY-AND-CLOSE split; Wave-2 wiring gaps are the only RED
 - [Phase ?]: 142-01: CASC-02 suite enforces the Phase-144 fence (routing_source stays legacy)
 - [Phase ?]: 142-02: CASC-02 -- the Phase 109 spine NAVIGATES. decide() reflects the getNeighborhood-ranked neighborhood via context.roomContext through the navigation.cjs chokepoint; routing_source stays legacy (Phase-144 fence); neighborhood projection scalars/slugs/scores only (Part 8).
+- [Phase ?]: 142-03: CASC-01 + NAV-03 LOCKED by loop-fires acceptance tests proving each loop fires end-to-end against shipped code; zero re-implementation. Both RED suites were test-premise-wrong (CASC-01 cold-post-write dedup; NAV-03 invented drainWithinSession) and fixed in the tests, not the shipped writer/renderer/drain.
 
 ### Pending Todos
 
@@ -1217,6 +1219,6 @@ Progress: [█████████░] 91%
 
 ## Session Continuity
 
-Last session: 2026-06-05T15:32:33.841Z
+Last session: 2026-06-05T15:57:39.830Z
 Stopped at: Completed 142-02-PLAN.md (CASC-02 -- spine navigates; test-spine-navigates-decide + test-decide-part8-invariant GREEN; Phase-144 fence held)
 Resume file: None

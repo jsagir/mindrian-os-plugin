@@ -1935,7 +1935,7 @@ Plans:
 **Plans**: 4 plans
 - [x] 142-01-PLAN.md -- Wave 0 test scaffold: run-all-142.sh aggregator + 7 RED loop-fires suites (one per requirement + Part-8 gate) + room-142 fixture (Nyquist floor)
 - [x] 142-02-PLAN.md -- CASC-02 (the one BUILD): wire getRoomContext neighborhood into decide() via the navigation.cjs chokepoint on the caller-owned handle; routing_source UNCHANGED (Phase 144 fence)
-- [ ] 142-03-PLAN.md -- CASC-01 + NAV-03 VERIFY: loop-fires acceptance tests lock the shipped Phase 95 cascade side-channel surfacing + the UserPromptSubmit drain auto-fire (no re-implementation)
+- [x] 142-03-PLAN.md -- CASC-01 + NAV-03 VERIFY: loop-fires acceptance tests lock the shipped Phase 95 cascade side-channel surfacing + the UserPromptSubmit drain auto-fire (no re-implementation)
 - [ ] 142-04-PLAN.md -- NAV-02 verify (BRAIN.md present -> tier_mode rises above tier_0) + NAV-04 close-by-reference (Phase 95.5 passed) + FILEVAL-03 honesty-rule verify (filing-did-not-land surfaced)
 
 ### Phase 143: Insight Sensors (the 7-row trigger map)
@@ -1994,7 +1994,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 140. Sentinel & Instrumentation Hardening | 4/4 | Complete | v1.13.1-beta.6 |
 | 141. Local Retrieval Spine + Capability Dial | 4/6 | In Progress|  |
-| 142. Local Intelligence Wiring | 2/4 | In Progress|  |
+| 142. Local Intelligence Wiring | 3/4 | In Progress|  |
 | 143. Insight Sensors | 0/0 | Not started | - |
 | 144. Navigation Engine legacy->engine Flip | 0/0 | Not started | - |
 | 145. Scheduled Sensor Activation | 0/0 | Not started | - |
