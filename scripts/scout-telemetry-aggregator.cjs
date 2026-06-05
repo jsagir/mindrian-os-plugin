@@ -18,6 +18,16 @@
  *   node scripts/scout-telemetry-aggregator.cjs --days=30   # last 30 days
  *   node scripts/scout-telemetry-aggregator.cjs --all       # no window filter
  *   node scripts/scout-telemetry-aggregator.cjs --json      # machine-readable
+ *   node scripts/scout-telemetry-aggregator.cjs --mos-only  # /mos: turns only
+ *
+ * D-01a (Phase 140-03): HARD-04 relaxed the telemetry gate to measure ALL
+ * turns (not only /mos: command turns). That changes the DENOMINATOR the
+ * published "up to 57x" efficiency claim was measured against (the claim was
+ * /mos:-command-specific). --mos-only restricts the median/top-5/threshold
+ * population to records whose command field starts with '/mos:', so the
+ * published number stays measurable on its original population. The default
+ * (no flag) reports the new all-turns denominator. Both views coexist; the
+ * relaxed gate does not silently redefine the published number.
  *
  * Exit codes:
  *   0 -- rendered summary (even if no events; prints "no events in window")
@@ -51,16 +61,35 @@ const BELOW_EFFICIENCY_THRESHOLD_X = 10; // classifyRatio threshold.
 // ---------- Argv parsing ----------
 
 function parseArgv(argv) {
-  const out = { days: DEFAULT_WINDOW_DAYS, all: false, json: false };
+  const out = { days: DEFAULT_WINDOW_DAYS, all: false, json: false, mosOnly: false };
   for (const a of argv) {
     if (a === '--all') { out.all = true; continue; }
     if (a === '--json') { out.json = true; continue; }
+    if (a === '--mos-only') { out.mosOnly = true; continue; }
     if (a.indexOf('--days=') === 0) {
       const n = parseInt(a.slice('--days='.length), 10);
       if (Number.isFinite(n) && n > 0) out.days = n;
       continue;
     }
     if (a === '--days') continue; // silently ignore bare --days
+  }
+  return out;
+}
+
+/**
+ * D-01a command-population filter. When mosOnly is true, keep only records
+ * whose command field starts with '/mos:' -- the population the published
+ * "up to 57x" claim was defined against. The HARD-04 relaxation writes ''
+ * (or null) command for non-/mos: turns, so those are excluded here. When
+ * mosOnly is false, pass everything through (the relaxed all-turns
+ * denominator). This is the only place the two populations diverge.
+ */
+function filterCommandPopulation(events, mosOnly) {
+  if (!mosOnly) return events.slice();
+  const out = [];
+  for (const e of events) {
+    const cmd = e && typeof e.command === 'string' ? e.command : '';
+    if (cmd.indexOf('/mos:') === 0) out.push(e);
   }
   return out;
 }
@@ -133,8 +162,13 @@ function renderHuman(agg, opts) {
     ? 'all-time'
     : 'last ' + opts.days + ' day' + (opts.days === 1 ? '' : 's');
 
+  const populationLabel = opts.mosOnly
+    ? '/mos: turns only'
+    : 'all turns';
+
   const lines = [];
-  lines.push('query efficiency telemetry summary (' + windowLabel + ')');
+  lines.push('query efficiency telemetry summary (' + windowLabel +
+    ', ' + populationLabel + ')');
 
   if (agg.count === 0) {
     lines.push('  events: 0');
@@ -184,6 +218,7 @@ function renderJson(agg, opts) {
   return JSON.stringify({
     window_days: opts.all ? null : opts.days,
     all_time: !!opts.all,
+    population: opts.mosOnly ? 'mos-only' : 'all-turns',
     release_gate_threshold_x: RELEASE_GATE_THRESHOLD_X,
     below_efficiency_threshold_x: BELOW_EFFICIENCY_THRESHOLD_X,
     count: agg.count,
@@ -201,7 +236,10 @@ function main() {
 
   const filePath = telemetryPath();
   const events = readEvents(filePath);
-  const filtered = filterWindow(events, opts.days, opts.all);
+  const windowed = filterWindow(events, opts.days, opts.all);
+  // D-01a: restrict to the /mos: population when --mos-only is set so the
+  // published "up to 57x" claim stays measured on its original denominator.
+  const filtered = filterCommandPopulation(windowed, opts.mosOnly);
 
   let estimator;
   try {
