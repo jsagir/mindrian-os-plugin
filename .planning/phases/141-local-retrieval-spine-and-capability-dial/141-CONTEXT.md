@@ -15,7 +15,7 @@ Phase 141 delivers four coherent things, in one PR train:
 
 1. **`getRoomContext()`** - the local, in-process, three-leg fusion (Leg A `getRoomHomeView` RAW summaries + Leg B windowed `getSessionHistory` fragments + Leg C `getNeighborhood` graph-ranking), seeded by the last ~2 conversation turns. 100% local, zero Brain egress (Canon Part 8).
 2. **The capability dial committed** - lift the "When to Reach -- The Capability Dial" `SKILL.md` section out of working-tree limbo into HEAD with `canon_parts` frontmatter, CHANGELOG entry, version bump, AND 5 stable machine-readable reach ids + a drift test (LARRY-03).
-3. **The FILEVAL evidence-filing substrate** - a typed-evidence-node + provenance + read-back-validation helper, built test-first against a fixture (FILEVAL-02), ready for later producers to plug into.
+3. **The FILEVAL evidence-filing substrate** - a typed-evidence-node + provenance + read-back-validation helper, built test-first against a fixture (FILEVAL-02), ready for later producers to plug into. Graph-first (room.db is source of truth); the evidence-node schema reserves a provenance field for the deferred MD/fractal-artifact projection (D-09, D-10). Includes the **nested fractal artifact CONTRACT** (Decision 16 path shape + Decision 15 ROOM.md identity) that DRSCH conclusions will use, even though the producer defers.
 4. **BUG-01** - the one-token line-53 `lazygraphPath -> roomDbPath` fix in `build-graph-from-sqlite.cjs` + a regression test.
 
 **The deep-research reach (DRSCH) ships as DOCTRINE ONLY this phase** - the dial text is committed and tracked, exactly like the other four reaches stay prompt-layer. No executable deep-research plumbing in 141 (see Deferred).
@@ -56,6 +56,13 @@ New capabilities (the dial-TUI selector, insight sensors, the navigation-engine 
 ### Execution ordering (D-06)
 - **D-06:** **Commit the dial FIRST**, as execution step 1, before any branch/stash/worktree operation. The `SKILL.md` edit is currently ` M` (uncommitted, in no commit per `git log -S`); a stash or checkout would lose it. This is a hard ordering constraint on the executor, not a suggestion.
 
+### ICM memory-graph coherence - Part 9 dual layer (D-08, D-09, D-10)
+> The ICM system is dual: "Files preserve meaning. SQL remembers and navigates." A filing must land coherently across BOTH the graph (room.db) and the nested MD layer, never one side only (the dual-source-of-truth the canon forbids). These decisions make 141's coupling to the ICM memory-graph + nested fractal filing explicit.
+
+- **D-08 (read side - already aligned):** `getRoomContext()` is **graph-native**. It reads `room.db` through the navigation.cjs Part 9 chokepoint and does NOT scan the nested fractal MD tree. This REINFORCES Part 9 (SQL navigates, not folder scans) and honors the Phase 109 zero-non-SQLite-read invariant. 141 also creates **no new room directories**, so it carries no new `ROOM.md`-per-folder obligation (Decision 15); the new code lives in `lib/`, not the room tree.
+- **D-09 (write side - graph-first, MD deferred):** The FILEVAL helper writes **graph-first**: a typed evidence node + provenance + read-back assertion to `room.db` IS the source of truth. The human-readable **memory-MD projection** (rendered FROM the graph via the Phase 124 sentinel-bounded auto-section pattern, byte-preserving any human body) stays in **MEMDIAL / Phase 143** (REQUIREMENTS.md line 826 "both sides of Part 9" is mapped there). HARD CONSTRAINT: 141's evidence-node schema **must not preclude** that projection - design the node shape so 143's renderer can project it without a migration.
+- **D-10 (nested fractal artifact contract - defined in 141, producer deferred):** 141 **defines the contract** (not the producer) for how DRSCH research conclusions become nested fractal artifacts per Decision 16: path template `<section>/<research-topic-slug>/<research-topic-slug>.md` + per-artifact `ROOM.md` identity (Decision 15). The 141 evidence-node schema (D-09) **carries a provenance field for this artifact path** so the graph node and the future MD artifact stay coherent (graph node <-> fractal artifact bidirectional linkage). The actual artifact WRITING rides with DRSCH execution (deferred, D-01); 141 ships only the locked contract + the schema field that reserves it. This is what makes the eventual filing land coherently on both ICM sides.
+
 ### Claude's Discretion (planner decides)
 - Window size N for Leg B and topK/maxDepth for Leg C (research suggests last 1 session + ~6 fragments, topK 10-20, maxDepth 2; tune via the RETR-04 benchmark).
 - Whether `getRoomContext()` logs a `context_assembled` memory_event (and whether that needs an additive EVENT_TYPES bump). If logged, treat as a Part 9 audit-node carve-out (`created_by=system review_status=confirmed`).
@@ -81,6 +88,13 @@ New capabilities (the dial-TUI selector, insight sensors, the navigation-engine 
 ### Canon (the dial's constitutional basis)
 - `docs/MINDRIAN-CANON.md` - Part 2 (Team affordances + EXTERNAL WEB hat-scoping), Part 3 (Tri-Context Decision Gate), Part 8 (Graph Boundary - the local-only floor), Part 9 (Memory Locality - SQL is the local mind).
 - `docs/CANON-PHASE-MAP.md` - Part 9 + Part 10 rows; the phase-to-canon contract.
+
+### ICM memory-graph + nested fractal filing (Part 9 dual layer - D-08/09/10)
+- `.claude/includes/decisions.md` (Decision 15 ROOM.md-per-folder; Decision 16 nested fractal filing `section/artifact/artifact.md`) - the dual-layer filing contract the FILEVAL helper must honor.
+- `docs/MINDRIAN-CANON.md` Part 9 - "Files preserve meaning / SQL remembers and navigates"; the five-role separation; truth-states + audit-node carve-out.
+- `.planning/phases/124-feynman-temporal-awareness/124-CONTEXT.md` + `lib/core/feynman/timeline-renderer.cjs` - the render-FROM-graph sentinel-bounded pattern the deferred MD projection (143) reuses.
+- `.planning/phases/109-sql-context-memory-navigation-spine/109-CONTEXT.md` + `tests/test-navigation-acceptance.cjs` - the zero-non-SQLite-read invariant getRoomContext must honor (D-08).
+- `.planning/REQUIREMENTS.md` line ~826 + MEMDIAL-01..03 block - the "both sides of Part 9" obligation mapped to Phase 143.
 
 ### Reuse precedents (Part 7)
 - `skills/larry-personality/SKILL.md` (lines ~31-60) - the uncommitted Capability Dial section (LARRY-01 input).
@@ -128,10 +142,10 @@ New capabilities (the dial-TUI selector, insight sensors, the navigation-engine 
 <deferred>
 ## Deferred Ideas
 
-- **DRSCH executable plumbing** - the framework-led plan builder, the Decision-Gate plan presentation, hat-scoped web fetch (reusing /mos:research + the deep-research skill + Phase 131 research-as-graph-aware-workflow), and filing real fetched conclusions. Later phase. 141 ships only the doctrine + the (fixture-tested) filing substrate.
+- **DRSCH executable plumbing** - the framework-led plan builder, the Decision-Gate plan presentation, hat-scoped web fetch (reusing /mos:research + the deep-research skill + Phase 131 research-as-graph-aware-workflow), and filing real fetched conclusions. Later phase. 141 ships only the doctrine + the (fixture-tested) filing substrate. The PRODUCER that writes real research conclusions as nested fractal artifacts (Decision 16) rides here; 141 defines the contract it fills (D-10).
+- **MEMDIAL MD projection (the MD side of Part 9)** - rendering filed evidence + dial/reach activity FROM the graph into a human-readable, sentinel-bounded memory-MD section (Phase 124 pattern, byte-preserving the human body). Phase 143 (MEMDIAL-01..03). 141 builds the graph side only and reserves the schema field for it (D-09).
 - **Desktop/Cowork dual-path fix** - making `buildContext` (chat-context-builder.cjs / tool-router.cjs / serve-dashboard-live) route through navigation.cjs so the dial policy is cross-surface. The policy stays CLI-honored for v1.13.1.
 - **A code dispatcher** that reads the dial trigger column and auto-fires a reach. The dial stays prompt-layer doctrine.
-- **MEMDIAL memory-MD projection** - rendering dial/reach activity FROM the graph into a FEYNMAN-style sentinel-bounded memory section. Phase 143 (MEMDIAL-01..03).
 - **Local semantic/vector leg** - Pinecone is remote + Part-8-fenced; forbidden locally. Leg C is graph-ranking, not embeddings.
 - **Bi-temporal edges Stage-2 PK-change migration** (SLICE-D) - separate edges-history concern.
 
