@@ -80,3 +80,10 @@ None - plan executed exactly as written. The seam was un-nulled by relocating th
 ## Known Stubs
 
 None. The seed is wired to live data (recent session fragments through the chokepoint); it is not a hardcoded placeholder. On a cold-start room with no fragments the seed is an empty string by design, which is the same behavior the loop had before this plan (the engine reads `typeof t.userText === 'string' ? t.userText : ''`).
+
+## Self-Check: PASSED
+
+- `.planning/phases/141-local-retrieval-spine-and-capability-dial/141-06-SUMMARY.md` -> FOUND
+- Task commit `b5c59adc` (feat) -> FOUND in git log
+- Docs commit `09b2314a` (docs) -> FOUND in git log
+- `bash tests/run-all-141.sh` -> 9/9 PASSED
