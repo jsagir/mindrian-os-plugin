@@ -43,14 +43,21 @@ const dialSection = dialStart === -1
   ? ''
   : src.slice(dialStart, navStart === -1 ? src.length : navStart);
 
-// Extract backtick code-span snake_case identifiers from the dial section only.
+// Extract backtick code-span identifiers from the dial section only. Most reach
+// ids are snake_case (context_block, cross_room, brain_consult, deep_research),
+// but `contradiction` is a single lowercase word with no underscore. Match both
+// shapes (mirrors the posture-id test), then keep a token only if it is in the
+// canonical family OR is a snake_case drift candidate. A plain prose word in a
+// backtick span (e.g. a command) without an underscore that is NOT canonical is
+// ignored so it cannot self-invalidate the count.
 const found = new Set();
-const codeSpanRx = /`([a-z][a-z0-9]*(?:_[a-z0-9]+)+)`/g;
+const codeSpanRx = /`([a-z][a-z0-9_]*)`/g;
 let m;
 while ((m = codeSpanRx.exec(dialSection)) !== null) {
-  // Only collect ids that are in the canonical family OR look like a reach id
-  // candidate (any snake_case token inside the dial section is a drift candidate).
-  found.add(m[1]);
+  const tok = m[1];
+  if (CANONICAL_REACH_IDS.indexOf(tok) !== -1 || tok.indexOf('_') !== -1) {
+    found.add(tok);
+  }
 }
 
 const foundSorted = Array.from(found).sort();

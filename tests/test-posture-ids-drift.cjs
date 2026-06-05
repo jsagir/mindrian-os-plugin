@@ -41,12 +41,25 @@ function gitShowHead(relPath) {
 
 const src = gitShowHead('skills/larry-personality/SKILL.md');
 
-const navStart = src.indexOf('Hierarchical Navigator');
+// Anchor on the SECTION HEADING (a "## " line that names the Hierarchical
+// Navigator), not the first bare phrase occurrence -- the phrase also appears as
+// a legitimate cross-reference earlier (Reach rule 7), and anchoring on that
+// would slice the wrong region.
+const navHeadingMatch = src.match(/^##[^\n]*Hierarchical Navigator[^\n]*$/m);
+const navStart = navHeadingMatch ? navHeadingMatch.index : -1;
 assert.ok(
   navStart !== -1,
-  'LARRY-04: committed SKILL.md must contain a "Hierarchical Navigator" section (RED until it lands)'
+  'LARRY-04: committed SKILL.md must contain a "## ... Hierarchical Navigator" section heading (RED until it lands)'
 );
-const navSection = src.slice(navStart);
+// Bound the section to its heading through the next "## " top-level heading,
+// mirroring the reach-id test's dial-to-nav slice. Without the end bound,
+// backtick snake_case tokens from later sections (e.g. the Breakthrough Voice
+// Scaffold auditor failure-mode ids) would pollute the posture-id set.
+const afterHeading = src.indexOf('\n## ', navStart + 2);
+const navSection = src.slice(
+  navStart,
+  afterHeading === -1 ? src.length : afterHeading
+);
 
 for (const q of QUOTES) {
   assert.ok(
