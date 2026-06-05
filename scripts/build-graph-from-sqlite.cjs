@@ -50,7 +50,7 @@ function getColor(section) {
   const roomDbPath = path.join(path.resolve(roomDir), '.mindrian', 'room.db');
 
   // Graceful degradation: no room.db means no graph data
-  if (!fs.existsSync(lazygraphPath)) {
+  if (!fs.existsSync(roomDbPath)) {
     process.exit(0);
   }
 
