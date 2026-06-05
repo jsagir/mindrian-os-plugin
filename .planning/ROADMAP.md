@@ -1861,7 +1861,7 @@ Plans:
 
 ### Phases
 
-- [ ] **Phase 140: Sentinel & Instrumentation Hardening** - Fix the 5 scout-surfaced bugs so a scheduled scout never broadcasts noise (HARD prerequisite for scheduled sensors)
+- [x] **Phase 140: Sentinel & Instrumentation Hardening** - Fix the 5 scout-surfaced bugs so a scheduled scout never broadcasts noise (HARD prerequisite for scheduled sensors) [COMPLETE -- v1.13.1-beta.6, HARD-01..05 closed]
 - [ ] **Phase 141: Local Retrieval Spine + Capability Dial** - `getRoomContext()` 3-leg local fusion seeds the per-turn loop; commit + version-bump the "When to Reach" dial; fix the line-53 ReferenceError
 - [ ] **Phase 142: Local Intelligence Wiring (compute-store-and-ACT)** - Cascade findings surface mid-session; BRAIN.md derives so tier_mode rises; queue auto-drains; post-compact re-injection consumes; Phase 109 spine navigates
 - [ ] **Phase 143: Insight Sensors (the 7-row trigger map)** - Event-driven sensors auto-fire the right reach on the right signal, hat-scoped and Part-8-constrained on the Brain/web path
@@ -1882,10 +1882,11 @@ Plans:
   3. A reverse-salient / HSI scan reports zero `.heal-backup/` duplicates -- backup dirs no longer pollute the result set
   4. After a session running a dozen `/mos:*` commands, the query-efficiency telemetry hook shows non-zero captured events (the 57x-claim gate has real data)
   5. The deadline monitor reports the phase deadlines in `.planning/STATE.md`, not just `funding/` + `opportunity-bank/` (a near deadline shows as DUE, not CLEAR)
-**Plans**: 3 plans
+**Plans**: 4 plans
 - [x] 140-01-PLAN.md -- HARD-02: shared NOT-NULL-safe node insert helper (4 sites) + both-schema safety + unmask scout swallow (D-02/D-02a/D-03)
 - [x] 140-02-PLAN.md -- HARD-01 arithmetic guard in sentinel-health-check + HARD-03 .heal-backup excluded from both SKIP_DIRS sets (D-04)
 - [x] 140-03-PLAN.md -- HARD-04 relax telemetry gate to all turns + 57x reconciliation (D-01/D-01a) + HARD-05 deadline monitor reads .planning/STATE.md
+- [x] 140-04-PLAN.md -- cut v1.13.1-beta.6 (local): CHANGELOG HARD-01..05 entry + plugin.json/package.json bump + commit ca5c580e + tag v1.13.1-beta.6 (external push/marketplace/npm human-gated)
 
 ### Phase 141: Local Retrieval Spine + Capability Dial
 **Goal**: The per-turn loop stops forwarding `userText:null` -- `getRoomContext()` fuses local room memory into a query-time seed, the "When to Reach" capability dial ships tracked, and the line-53 crash is gone. This is the spine of Option A: maximally rich, entirely local, zero Part-8 cost.
@@ -1966,7 +1967,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 140. Sentinel & Instrumentation Hardening | 3/4 | In Progress|  |
+| 140. Sentinel & Instrumentation Hardening | 4/4 | Complete | v1.13.1-beta.6 |
 | 141. Local Retrieval Spine + Capability Dial | 0/0 | Not started | - |
 | 142. Local Intelligence Wiring | 0/0 | Not started | - |
 | 143. Insight Sensors | 0/0 | Not started | - |

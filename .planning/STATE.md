@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: Larry Reaches
-status: 140-02 executed (HARD-01 + HARD-03 closed). Sequential main-tree execution.
-stopped_at: Phase 140 context gathered
-last_updated: "2026-06-05T04:18:05.947Z"
-last_activity: 2026-06-05 -- 140-02 executed (sentinel-health-check arithmetic-safe captures + .heal-backup in both SKIP_DIRS sets)
+status: Phase 140 COMPLETE (4/4 plans; HARD-01..05 closed). v1.13.1-beta.6 cut locally (commit ca5c580e + tag v1.13.1-beta.6). External push/marketplace/npm human-gated. Sequential main-tree execution.
+stopped_at: 140-04 complete -- v1.13.1-beta.6 local release cut
+last_updated: "2026-06-05T07:30:00.000Z"
+last_activity: 2026-06-05 -- 140-04 executed (CHANGELOG beta.6 entry + plugin.json/package.json bump + commit ca5c580e + tag v1.13.1-beta.6; external publish deferred to operator)
 progress:
   total_phases: 24
-  completed_phases: 11
+  completed_phases: 12
   total_plans: 89
-  completed_plans: 64
-  percent: 46
+  completed_plans: 66
+  percent: 47
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 140-sentinel-and-instrumentation-hardening (In Progress -- 2/4 plans complete)
-Plan: 140-02 complete; next 140-03
-Status: 140-02 executed (HARD-01 + HARD-03 closed). Sequential main-tree execution.
-Last activity: 2026-06-05 -- 140-02 executed (sentinel-health-check arithmetic-safe captures + .heal-backup in both SKIP_DIRS sets)
+Phase: 140-sentinel-and-instrumentation-hardening (COMPLETE -- 4/4 plans; HARD-01..05 closed)
+Plan: 140-04 complete; next phase 141 (Local Retrieval Spine + Capability Dial)
+Status: Phase 140 COMPLETE. v1.13.1-beta.6 cut locally (commit ca5c580e + tag v1.13.1-beta.6). External push + marketplace source.ref pin + npm publish are HUMAN-GATED -- operator must run them to publish. Sequential main-tree execution.
+Last activity: 2026-06-05 -- 140-04 executed (CHANGELOG beta.6 entry summarizing HARD-01..05 + D-03 + D-01a + 57x release-gate note; plugin.json/package.json bumped to 1.13.1-beta.6; release commit ca5c580e + annotated tag v1.13.1-beta.6)
 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
