@@ -116,7 +116,7 @@ except Exception as _rs_cache_import_err:  # pragma: no cover -- defensive
 
 DEFAULT_EMBEDDING_MODEL = "multilingual-e5-large"
 SKIP_FILES = {"STATE.md", "ROOM.md", "MINTO.md"}
-SKIP_DIRS = {".lazygraph", ".git", ".mindrian", "node_modules", ".obsidian"}
+SKIP_DIRS = {".lazygraph", ".git", ".mindrian", "node_modules", ".obsidian", ".heal-backup"}
 CACHE_FILENAME = ".rs-engine-cache.json"
 RESULTS_FILENAME = ".rs-engine-results.json"
 DEFAULT_TOPK = 100

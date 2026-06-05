@@ -97,7 +97,7 @@ _FEATURE_PATTERNS = [
 
 # Skip files/dirs
 SKIP_FILES = {"STATE.md", "ROOM.md", "MINTO.md"}
-SKIP_DIRS = {".lazygraph", ".git", "node_modules", ".hsi-cache.json"}
+SKIP_DIRS = {".lazygraph", ".git", "node_modules", ".hsi-cache.json", ".heal-backup"}
 
 
 def parse_frontmatter(content):
