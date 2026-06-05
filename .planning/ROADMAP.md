@@ -1891,8 +1891,9 @@ Plans:
 ### Phase 141: Local Retrieval Spine + Capability Dial
 **Goal**: The per-turn loop stops forwarding `userText:null` -- `getRoomContext()` fuses local room memory into a query-time seed, the "When to Reach" capability dial ships tracked, and the line-53 crash is gone. This is the spine of Option A: maximally rich, entirely local, zero Part-8 cost.
 **Depends on**: Nothing structural (parallel-safe with Phase 140)
-**Requirements**: RETR-01, RETR-02, RETR-03, RETR-04, LARRY-01, LARRY-02, BUG-01
-**Canon parts**: Part 9 (SQL is the local mind -- fusion reads room.db via the navigation chokepoint), Part 8 (raw prose stays local; explicitly NOT the packet.cjs projectText/hashText egress path), Part 3 (the dial governs reach at the Decision Gate), Part 2 (the team's reach affordances honor the dial)
+**Requirements**: RETR-01, RETR-02, RETR-03, RETR-04, LARRY-01, LARRY-02, BUG-01, DRSCH-01, DRSCH-02, DRSCH-03, DRSCH-04
+**Canon parts**: Part 9 (SQL is the local mind -- fusion reads room.db via the navigation chokepoint), Part 8 (raw prose stays local; explicitly NOT the packet.cjs projectText/hashText egress path; deep-research queries carry generic handles only), Part 3 (the dial governs reach at the Decision Gate; deep research is plan-gated), Part 2 (the team's reach affordances honor the dial; deep research is hat-scoped EXTERNAL WEB), Part 4 (research results file as typed graph evidence), Part 7 (deep research REUSES /mos:research + deep-research skill + Phase 131)
+**Note (2026-06-05)**: DRSCH-01..04 (framework-led deep research -- the fifth capability-dial reach) folded into this phase. The reach is already drafted in the working-tree SKILL.md dial; Phase 141 commits + GSD-researches the plan-builder mechanism (local+remote brain build a framework-shaped, hat-scoped, plan-gated research plan).
 **Success Criteria** (what must be TRUE):
   1. `getRoomContext()` returns a fused context from all three legs (home-view RAW summaries + windowed session-history fragments + getNeighborhood graph-ranking), seeded by the last ~2 turns
   2. A "do you remember X" turn retrieves X-relevant nodes -- the per-turn loop carries a real seed, not `userText:null`

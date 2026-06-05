@@ -702,6 +702,15 @@
 | LARRY-01 | "When to Reach -- The Capability Dial" SKILL.md section committed to HEAD with `canon_parts` frontmatter + CHANGELOG entry | TBD |
 | LARRY-02 | Version bumped (beta.5 -> next) with the capability dial as a tracked, release-noted change | TBD |
 
+### Framework-led deep research (added 2026-06-05 -- the fifth capability-dial reach)
+
+| ID | Description | Plan |
+|----|-------------|------|
+| DRSCH-01 | The capability dial gains a fifth reach: when an external-fact need surfaces (state-of-the-art, competitor, market, "what is known about X"), a load-bearing claim near a commit lacks evidence, or the navigator asks to research a topic, Larry reaches for a FRAMEWORK-LED deep research plan -- never a bare web search | TBD |
+| DRSCH-02 | The research plan is SHAPED by a thinking framework: Six Hats splits the topic into hat-scoped angles (White=data, Green=innovation, Black=failure modes, Yellow=success), Reverse Salients name the lagging component to drill; framework fit comes from the methodology chain | TBD |
+| DRSCH-03 | The plan is built by jointly consulting the LOCAL brain (room graph: what is already known + the gap) AND the REMOTE brain (teaching graph: which framework chains and research angles to pursue) -- generic handles only on the remote side (Part 8) | TBD |
+| DRSCH-04 | Plan-gated execution: Larry presents the plan as a Decision Gate (navigator approves framework + angles BEFORE any fetch), then executes hat-scoped web fetch per Canon Part 2 EXTERNAL WEB, REUSING /mos:research + the deep-research skill + Phase 131 research-as-graph-aware-workflow (Part 7, no rebuild); results file as typed graph evidence (Part 4) with provenance | TBD |
+
 ### Navigation engine wiring (sub-loop 3 -- the legacy->engine flip)
 
 | ID | Description | Plan |
