@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: Larry Reaches
-status: in_progress
-stopped_at: Phase 141 Plan 01 complete (Wave-0 Nyquist scaffold: 9 RED suites + fixture + runner)
-last_updated: "2026-06-05T07:46:16.935Z"
-last_activity: 2026-06-05 -- 141-01 executed (Phase 141 Wave-0 test scaffold: tests/run-all-141.sh + tests/fixtures/room-141-fixture.cjs + 9 RED CJS suites, all failing RED as designed; SKILL.md working-tree edit preserved untouched)
+status: completed
+stopped_at: Phase 141 planned (6 plans, 3 waves, checker PASSED)
+last_updated: "2026-06-05T08:30:00.000Z"
+last_activity: "2026-06-05 -- 141-02 executed (Capability Dial + LARRY-04 Hierarchical Navigator committed to HEAD FIRST per D-06; canon_parts frontmatter + 5 reach ids + 3 posture ids; beta.7 in-repo lockstep; 3 drift/committed tests GREEN; SUMMARY at 141-02-SUMMARY.md)"
 progress:
   total_phases: 24
   completed_phases: 12
   total_plans: 95
-  completed_plans: 66
+  completed_plans: 68
   percent: 50
 ---
 
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 141-local-retrieval-spine-and-capability-dial (IN PROGRESS -- 1/6 plans; Wave 0 scaffold landed)
-Plan: 141-01 complete (Wave-0 Nyquist scaffold); next 141-02+ implement the spine + dial against these suites
-Status: Phase 141 Wave 0 COMPLETE. The scoped runner + populated fixture room.db builder + 9 RED CJS suites are committed (3241bb35, 4d256ade, d9027ace), all failing RED as designed (0/9 green). Implementation plans (Waves 1-2) turn them green: room-context.cjs fusion, intent-classifier userText seam, build-graph line-53 fix, capability-dial doctrine commit + beta.7 lockstep, fileEvidenceWithReadback wrapper. The uncommitted working-tree edit in skills/larry-personality/SKILL.md is PRESERVED untouched (worktrees disabled this phase to protect it). Sequential main-tree execution.
-Last activity: 2026-06-05 -- 141-01 executed (Phase 141 Wave-0 test scaffold: tests/run-all-141.sh + tests/fixtures/room-141-fixture.cjs + 9 RED CJS suites; SUMMARY at 141-01-SUMMARY.md)
+Phase: 141-local-retrieval-spine-and-capability-dial (IN PROGRESS -- 2/6 plans; capability dial committed)
+Plan: 141-02 complete (D-06 dial commit + beta.7 lockstep); next 141-03+ implement the retrieval spine (room-context.cjs fusion, intent-classifier userText seam, build-graph line-53 fix, fileEvidenceWithReadback wrapper) against the remaining RED suites
+Status: Phase 141 plan 02 COMPLETE. The previously uncommitted working-tree Capability Dial edit was committed to HEAD FIRST (06a944b8) per the D-06 hard ordering, ADDITIVELY: canon_parts: [Part 2, Part 3, Part 8, Part 9] frontmatter (LARRY-01), 5 machine-readable reach ids context_block/contradiction/cross_room/brain_consult/deep_research (LARRY-03), the LARRY-04 Hierarchical Navigator section led by the Usher division with 3 posture ids push_forward/hold/pull_back + Reach rule 7 arbitration (D-11/12/13), Aronhime quoted verbatim. DRSCH preserved as committed doctrine only (5th reach row + Reach rule 6 untouched, D-01). Version bumped to 1.13.1-beta.7 in CHANGELOG + plugin.json + package.json in lockstep (5b475ccc); no git tag, no marketplace push (human-gated). 3 tests GREEN: test-reach-ids-drift.cjs, test-posture-ids-drift.cjs, test-capability-dial-committed.cjs. Two Rule-1 test fixes applied (reach-id regex now matches contradiction; posture test heading-anchored + end-bounded) -- see 141-02-SUMMARY.md Deviations. Sequential main-tree execution.
+Last activity: 2026-06-05 -- 141-02 executed (Capability Dial + LARRY-04 doctrine committed FIRST; beta.7 lockstep; SUMMARY at 141-02-SUMMARY.md)
 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
@@ -361,7 +361,7 @@ Awaiting user action (Gate 5):
 
 Last activity: 2026-06-02 -- Completed quick task 260602-dsc: /mos:help text view becomes the De Stijl card layout
 
-Progress: [███████░░░] 69%
+Progress: [███████░░░] 71%
 
 ## Performance Metrics
 

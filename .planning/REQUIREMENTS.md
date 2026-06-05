@@ -653,15 +653,15 @@
 | RETR-02 | Phase 141 | Pending |
 | RETR-03 | Phase 141 | Pending |
 | RETR-04 | Phase 141 | Pending |
-| LARRY-01 | Phase 141 | Pending |
-| LARRY-02 | Phase 141 | Pending |
-| LARRY-03 | Phase 141 | Pending |
-| LARRY-04 | Phase 141 (doctrine); 143/144 (code) | Pending |
+| LARRY-01 | Phase 141 | Complete |
+| LARRY-02 | Phase 141 | Complete |
+| LARRY-03 | Phase 141 | Complete |
+| LARRY-04 | Phase 141 (doctrine); 143/144 (code) | Complete |
 | BUG-01 | Phase 141 | Pending |
-| DRSCH-01 | Phase 141 | Pending |
-| DRSCH-02 | Phase 141 | Pending |
-| DRSCH-03 | Phase 141 | Pending |
-| DRSCH-04 | Phase 141 | Pending |
+| DRSCH-01 | Phase 141 | Complete |
+| DRSCH-02 | Phase 141 | Complete |
+| DRSCH-03 | Phase 141 | Complete |
+| DRSCH-04 | Phase 141 | Complete |
 | FILEVAL-02 | Phase 141 | Pending |
 | CASC-01 | Phase 142 | Pending |
 | CASC-02 | Phase 142 | Pending |
