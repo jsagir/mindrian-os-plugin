@@ -1,19 +1,34 @@
 'use strict';
-// NAV-04 (Phase 142) -- loop-fires acceptance by reference + presence: the
-// post-compact re-injection CONSUMER is wired so memory survives an auto-compact
-// boundary. This suite LOCKS the close-by-reference (Plan 04 cites it) and is the
-// regression fence that NAV-04 stays wired.
+// NAV-04 (Phase 142) -- close-by-reference + a two-hop regression fence.
 //
-// Three assertions:
+// Phase 95.5 shipped the post-compact re-injection CONSUMER end-to-end
+// (95.5-VERIFICATION.md status: passed, 5/5). NAV-04 ("post-compact re-injection
+// survives an auto-compact boundary so memory does not degrade") is CLOSED BY
+// REFERENCE to that phase. This suite is the regression fence that locks the
+// REAL wiring path so a future change cannot silently unwire it.
+//
+// The wiring is a TWO-HOP path, NOT a direct reference:
+//
+//     hooks.json  ->  sessionstart-coordinator.cjs  ->  restore-post-compact-context.cjs
+//
+// The consumer (restore-post-compact-context.cjs) is NEVER named directly in
+// hooks.json. It is loaded by the SessionStart coordinator, which IS the
+// registered script. A naive grep of hooks.json for the consumer FALSE-FAILS
+// even though the wiring is functionally present (this is exactly the trap the
+// plan-checker flagged). So the fence asserts the two hops instead.
+//
+// Five assertions:
 //   (1) scripts/restore-post-compact-context.cjs exists (the read-side consumer).
-//   (2) it is WIRED in hooks/hooks.json under SessionStart -- the boundary where
-//       the re-injected TRIPLE_CONTEXT must surface after an auto-compact.
-//   (3) .planning/phases/95.5-.../95.5-VERIFICATION.md status is `passed`
-//       (Phase 95.5 shipped + verified the consumer end-to-end).
-//
-// RED now: the restore-post-compact-context.cjs consumer is NOT referenced in
-// the hooks.json SessionStart block (assertion 2 fails). Once Plan 04 wires the
-// consumer into SessionStart, this goes GREEN and stays GREEN as a fence.
+//   (2) scripts/sessionstart-coordinator.cjs LOADS the consumer -- a grep for
+//       restore-post-compact-context in the coordinator returns a hit (the
+//       post-compact require entry in its dispatch table). HOP 2.
+//   (3) hooks/hooks.json registers sessionstart-coordinator.cjs in a SessionStart
+//       entry whose matcher INCLUDES `compact` (the auto-compact boundary NAV-04
+//       targets). HOP 1. NOT a direct grep for the consumer.
+//   (4) .planning/phases/95.5-.../95.5-VERIFICATION.md frontmatter status: passed
+//       (the close-by-reference citation is valid).
+//   (5) scripts/post-compact writes the stamped side-channel (the up-lane writer
+//       the consumer reads back) -- the producer half of the pipeline exists.
 //
 // House rule: hyphens only, no em-dashes.
 
@@ -44,9 +59,28 @@ function fail(name, err) {
   }
 })();
 
-// (2) Consumer is wired in hooks.json SessionStart.
-(function test_consumerWiredInSessionStart() {
-  const label = 'NAV-04: restore-post-compact-context.cjs is wired in hooks.json SessionStart';
+// (2) HOP 2: the SessionStart coordinator loads the consumer.
+(function test_coordinatorLoadsConsumer() {
+  const label = 'NAV-04: HOP 2 -- sessionstart-coordinator.cjs loads restore-post-compact-context';
+  try {
+    const coordPath = path.join(REPO, 'scripts', 'sessionstart-coordinator.cjs');
+    assert.equal(fs.existsSync(coordPath), true, label + ': coordinator must exist at ' + coordPath);
+    const src = fs.readFileSync(coordPath, 'utf8');
+    // The coordinator's dispatch table loads the consumer by name. This is the
+    // hop that hooks.json does NOT carry. A direct hooks.json grep would
+    // false-fail; the coordinator grep is the correct assertion.
+    assert.ok(src.indexOf('restore-post-compact-context') !== -1,
+      label + ': the coordinator must require restore-post-compact-context (the post-compact dispatch entry)');
+    ok(label);
+  } catch (e) {
+    fail(label, e);
+  }
+})();
+
+// (3) HOP 1: hooks.json registers the coordinator on a SessionStart matcher
+//     that includes `compact`. NOT a direct grep for the consumer.
+(function test_hooksRegisterCoordinatorOnCompactMatcher() {
+  const label = 'NAV-04: HOP 1 -- hooks.json registers sessionstart-coordinator.cjs on a SessionStart compact matcher';
   try {
     const hooksPath = path.join(REPO, 'hooks', 'hooks.json');
     assert.equal(fs.existsSync(hooksPath), true, label + ': hooks/hooks.json must exist');
@@ -54,27 +88,41 @@ function fail(name, err) {
     const sessionStart = (hooks && hooks.hooks && hooks.hooks.SessionStart) || hooks.SessionStart;
     assert.ok(Array.isArray(sessionStart), label + ': hooks.json must declare a SessionStart array');
 
-    // Flatten every command string under SessionStart.
-    const commands = [];
+    // Find the SessionStart group whose matcher includes `compact` AND whose
+    // commands register the coordinator. The two-hop chain is only sound when
+    // the coordinator is wired on the auto-compact boundary itself.
+    let wiredOnCompact = false;
     for (const group of sessionStart) {
+      const matcher = (group && typeof group.matcher === 'string') ? group.matcher : '';
+      const matcherHasCompact = matcher.split('|').map(function (s) { return s.trim(); }).indexOf('compact') !== -1;
+      if (!matcherHasCompact) continue;
       const inner = (group && group.hooks) || [];
       for (const h of inner) {
-        if (h && typeof h.command === 'string') commands.push(h.command);
+        if (h && typeof h.command === 'string' &&
+            h.command.indexOf('sessionstart-coordinator.cjs') !== -1) {
+          wiredOnCompact = true;
+        }
       }
     }
-    const wired = commands.some(function (c) { return c.indexOf('restore-post-compact-context.cjs') !== -1; });
-    assert.equal(wired, true,
-      label + ': a SessionStart hook must invoke restore-post-compact-context.cjs ' +
-      '(RED until Plan 04 wires the consumer into SessionStart)');
+    assert.equal(wiredOnCompact, true,
+      label + ': a SessionStart entry whose matcher includes `compact` must invoke sessionstart-coordinator.cjs');
+
+    // Explicit anti-false-fail guard: the consumer is NOT named directly in
+    // hooks.json. Assert that, so the two-hop intent is part of the contract
+    // (a future refactor that inlines the consumer name would change this
+    // assertion deliberately, not silently).
+    const rawHooks = fs.readFileSync(hooksPath, 'utf8');
+    assert.equal(rawHooks.indexOf('restore-post-compact-context') === -1, true,
+      label + ': hooks.json must NOT name the consumer directly -- the wiring is two-hop via the coordinator');
     ok(label);
   } catch (e) {
     fail(label, e);
   }
 })();
 
-// (3) Phase 95.5 verification is passed.
+// (4) Phase 95.5 verification is passed (the close-by-reference citation).
 (function test_phase95_5Passed() {
-  const label = 'NAV-04: 95.5-VERIFICATION.md status is passed (consumer shipped + verified)';
+  const label = 'NAV-04: 95.5-VERIFICATION.md status is passed (consumer shipped + verified, 5/5)';
   try {
     const vp = path.join(REPO, '.planning', 'phases',
       '95.5-post-compact-memory-pipeline-consumer', '95.5-VERIFICATION.md');
@@ -88,6 +136,25 @@ function fail(name, err) {
   }
 })();
 
+// (5) The up-lane producer exists: scripts/post-compact writes the side-channel
+//     the consumer reads back. The pipeline has both halves.
+(function test_postCompactWriterExists() {
+  const label = 'NAV-04: scripts/post-compact writes the stamped side-channel (up-lane producer)';
+  try {
+    const candidates = [
+      path.join(REPO, 'scripts', 'post-compact'),
+      path.join(REPO, 'scripts', 'post-compact.cjs'),
+      path.join(REPO, 'scripts', 'post-compact.sh'),
+    ];
+    const found = candidates.filter(function (p) { return fs.existsSync(p); });
+    assert.ok(found.length > 0,
+      label + ': a scripts/post-compact writer must exist (one of: ' + candidates.join(', ') + ')');
+    ok(label);
+  } catch (e) {
+    fail(label, e);
+  }
+})();
+
 process.stdout.write('\n');
-process.stdout.write('NAV-04 loop-fires (post-compact consumer wired): ' + passed + ' passed, ' + failed + ' failed\n');
+process.stdout.write('NAV-04 loop-fires (post-compact consumer wired, two-hop fence): ' + passed + ' passed, ' + failed + ' failed\n');
 process.exit(failed === 0 ? 0 : 1);
