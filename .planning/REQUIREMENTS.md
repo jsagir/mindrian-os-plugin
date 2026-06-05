@@ -711,7 +711,15 @@
 | DRSCH-03 | The plan is built by jointly consulting the LOCAL brain (room graph: what is already known + the gap) AND the REMOTE brain (teaching graph: which framework chains and research angles to pursue) -- generic handles only on the remote side (Part 8) | TBD |
 | DRSCH-04 | Plan-gated execution: Larry presents the plan as a Decision Gate (navigator approves framework + angles BEFORE any fetch), then executes hat-scoped web fetch per Canon Part 2 EXTERNAL WEB, REUSING /mos:research + the deep-research skill + Phase 131 research-as-graph-aware-workflow (Part 7, no rebuild); results file as typed graph evidence (Part 4) with provenance | TBD |
 
-### Navigation engine wiring (sub-loop 3 -- the legacy->engine flip)
+### Local-graph filing validation (added 2026-06-05 -- close the write side of the loop)
+
+| ID | Description | Plan |
+|----|-------------|------|
+| FILEVAL-01 | Every Decision-Gate (Shape F) selection writes a typed edge/node to the LOCAL room.db (Part 4 "every choice is graph data", Part 9 "SQL remembers") at the moment of selection -- not just to an MD file | TBD |
+| FILEVAL-02 | Deep-research fetched conclusions (DRSCH) file to the local graph as typed evidence nodes with provenance, not only as prose artifacts | TBD |
+| FILEVAL-03 | After any decision or research fetch, Larry VALIDATES the write landed in room.db (read-back assertion) and REMINDS the navigator what was filed -- no assumed filing, no fake recall (honesty rule). A filing that did not land is surfaced, not swallowed | TBD |
+
+
 
 | ID | Description | Plan |
 |----|-------------|------|
