@@ -662,7 +662,7 @@
 | DRSCH-02 | Phase 141 | Complete |
 | DRSCH-03 | Phase 141 | Complete |
 | DRSCH-04 | Phase 141 | Complete |
-| FILEVAL-02 | Phase 141 | Pending |
+| FILEVAL-02 | Phase 141 | Complete |
 | CASC-01 | Phase 142 | Pending |
 | CASC-02 | Phase 142 | Pending |
 | NAV-02 | Phase 142 | Pending |
@@ -741,7 +741,7 @@
 | ID | Description | Plan |
 |----|-------------|------|
 | FILEVAL-01 | Every Decision-Gate (Shape F) selection writes a typed edge/node to the LOCAL room.db (Part 4 "every choice is graph data", Part 9 "SQL remembers") at the moment of selection -- not just to an MD file | TBD |
-| FILEVAL-02 | Deep-research fetched conclusions (DRSCH) file to the local graph as typed evidence nodes with provenance, not only as prose artifacts | TBD |
+| FILEVAL-02 | Deep-research fetched conclusions (DRSCH) file to the local graph as typed evidence nodes with provenance, not only as prose artifacts | Plan 141-04 (lib/core/navigation/file-evidence-readback.cjs::fileEvidenceWithReadback) |
 | FILEVAL-03 | After any decision or research fetch, Larry VALIDATES the write landed in room.db (read-back assertion) and REMINDS the navigator what was filed -- no assumed filing, no fake recall (honesty rule). A filing that did not land is surfaced, not swallowed | TBD |
 
 
