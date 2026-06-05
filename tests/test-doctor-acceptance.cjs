@@ -14,9 +14,12 @@
  *          are NOT invoked. Verified by DOCTOR_TEST_STUB_POST_PUBLISH=1: if
  *          --pre-tag erroneously invokes a post-publish point, the stub
  *          throws and the run fails.
- *   acc.2  --acceptance calls scripts/verify-release exactly once. Use
- *          DOCTOR_VERIFY_RELEASE_PATH=<shim> to redirect; the shim appends
- *          to a counter file. Assert counter == 1.
+ *   acc.2  verify-release is a PRE-tag-only check (RCA 260605-h3p tier-move).
+ *          Under --pre-tag the shim is spawned exactly once; under the FULL
+ *          post-publish set verify-release is filtered out of points[] and the
+ *          shim is never spawned (counter stays empty). Use
+ *          DOCTOR_VERIFY_RELEASE_PATH=<shim> to redirect; the shim appends to a
+ *          counter file.
  *   acc.3  A sub-check failure propagates as a non-zero exit. Use
  *          DOCTOR_TEST_FAIL_POINT=doctor-all to synthesize a failure of the
  *          named point. Assert exit != 0; assert failed_points names it.
@@ -193,26 +196,69 @@ try {
   pass('Test acc.1 (--pre-tag filters to 5 pre-tag-applicable points)');
 } catch (err) { failTest('Test acc.1 (--pre-tag filters to 5 pre-tag-applicable points)', err); }
 
-// -- acc.2: --acceptance calls scripts/verify-release exactly once --------
+// -- acc.2: verify-release is invoked ONCE under --pre-tag, ZERO times in -
+// --        the post-publish FULL set (RCA 260605-h3p tier-move) ----------
+//
+// scripts/verify-release is a STRICT plugin==marketplace gate. It belongs to
+// the PRE-tag tier ONLY. In the post-publish FULL set the working tree is
+// dev-ahead (release.sh Step 7.5 / Commit B bumps to beta.N+1 while the
+// marketplace stays at the published beta.N), so the strict equality cannot
+// hold and would false-fail Step 9.8. The verify-release MODULE is therefore
+// applies_to: ['pre-tag'] only; the post-publish version state is owned by
+// the version-of-record-published module instead. This test pins BOTH halves:
+//   (a) under --pre-tag the shim is spawned exactly once;
+//   (b) under the FULL set verify-release is absent from points[] AND the shim
+//       is never spawned (counter stays empty).
 try {
-  const home = makeTmpHome('a2');
-  const mcDir = makeMarketplaceCache(home, '1.13.0-beta.12');
-  makeInstalledPluginsJson(home, '1.13.0-beta.12', mcDir);
-  makeInstallStateRecord(home, { active_root: mcDir });
-  fs.writeFileSync(path.join(home, '.mindrian-last-version'), '1.13.0-beta.12\n');
-  const { shimPath, counterPath } = makeVerifyReleaseShim(home);
-  // Run --pre-tag so we don't try to do a real npm view / npx round-trip
-  // (the verify-release sub-check IS in --pre-tag's set).
-  runDoctorAcceptance(home, ['--pre-tag'], {
-    DOCTOR_VERIFY_RELEASE_PATH: shimPath,
+  // -- (a) --pre-tag: verify-release runs exactly once -------------------
+  const homePre = makeTmpHome('a2-pre');
+  const mcDirPre = makeMarketplaceCache(homePre, '1.13.0-beta.12');
+  makeInstalledPluginsJson(homePre, '1.13.0-beta.12', mcDirPre);
+  makeInstallStateRecord(homePre, { active_root: mcDirPre });
+  fs.writeFileSync(path.join(homePre, '.mindrian-last-version'), '1.13.0-beta.12\n');
+  const pre = makeVerifyReleaseShim(homePre);
+  const { json: preJson } = runDoctorAcceptance(homePre, ['--pre-tag'], {
+    DOCTOR_VERIFY_RELEASE_PATH: pre.shimPath,
   });
   // Read counter -- expect exactly one '1' line.
-  const counterContents = fs.existsSync(counterPath) ? fs.readFileSync(counterPath, 'utf8') : '';
-  const lines = counterContents.split('\n').filter(function (l) { return l.trim() === '1'; });
-  assert.strictEqual(lines.length, 1, 'verify-release shim called exactly once; got ' + lines.length + ' calls');
-  rmTmp(home);
-  pass('Test acc.2 (--acceptance calls verify-release exactly once)');
-} catch (err) { failTest('Test acc.2 (--acceptance calls verify-release exactly once)', err); }
+  const preCounter = fs.existsSync(pre.counterPath) ? fs.readFileSync(pre.counterPath, 'utf8') : '';
+  const preCalls = preCounter.split('\n').filter(function (l) { return l.trim() === '1'; });
+  assert.strictEqual(preCalls.length, 1, '--pre-tag: verify-release shim called exactly once; got ' + preCalls.length + ' calls');
+  const preIds = (preJson && Array.isArray(preJson.points)) ? preJson.points.map(function (p) { return p.id; }) : [];
+  assert.notStrictEqual(preIds.indexOf('verify-release'), -1, '--pre-tag: verify-release must be present in points[]; got ' + JSON.stringify(preIds));
+  rmTmp(homePre);
+
+  // -- (b) FULL set: verify-release is filtered out + never spawned ------
+  // The sandbox HOME has no ~/mindrian-marketplace, so version-of-record-
+  // published returns early (marketplace.json unreadable) BEFORE any npm
+  // view -- the full run stays hermetic with zero network. We assert on the
+  // points[] roster + the shim counter, not on exit code (the post-publish
+  // points legitimately fail in the bare sandbox; that is not what acc.2
+  // tests). npx-roundtrip is short-circuited via DOCTOR_TEST_FAIL_POINT so
+  // the run never shells out to npm/npx.
+  const homeFull = makeTmpHome('a2-full');
+  const mcDirFull = makeMarketplaceCache(homeFull, '1.13.0-beta.12');
+  makeInstalledPluginsJson(homeFull, '1.13.0-beta.12', mcDirFull);
+  makeInstallStateRecord(homeFull, { active_root: mcDirFull });
+  fs.writeFileSync(path.join(homeFull, '.mindrian-last-version'), '1.13.0-beta.12\n');
+  const full = makeVerifyReleaseShim(homeFull);
+  const { json: fullJson } = runDoctorAcceptance(homeFull, [], {
+    DOCTOR_VERIFY_RELEASE_PATH: full.shimPath,
+    DOCTOR_TEST_FAIL_POINT: 'npx-roundtrip',
+  });
+  assert.ok(fullJson && Array.isArray(fullJson.points), 'FULL: JSON points[] parses');
+  const fullIds = fullJson.points.map(function (p) { return p.id; });
+  assert.strictEqual(fullIds.indexOf('verify-release'), -1, 'FULL: verify-release must be FILTERED OUT of the post-publish set; got ' + JSON.stringify(fullIds));
+  // version-of-record-published owns the post-publish version state and IS in full.
+  assert.notStrictEqual(fullIds.indexOf('version-of-record-published'), -1, 'FULL: version-of-record-published must be present (it owns post-publish version state); got ' + JSON.stringify(fullIds));
+  // The shim must NOT have been spawned at all under the full set.
+  const fullCounter = fs.existsSync(full.counterPath) ? fs.readFileSync(full.counterPath, 'utf8') : '';
+  const fullCalls = fullCounter.split('\n').filter(function (l) { return l.trim() === '1'; });
+  assert.strictEqual(fullCalls.length, 0, 'FULL: verify-release shim must NOT be spawned (zero calls); got ' + fullCalls.length);
+  rmTmp(homeFull);
+
+  pass('Test acc.2 (verify-release: once under --pre-tag, zero in the post-publish full set)');
+} catch (err) { failTest('Test acc.2 (verify-release: once under --pre-tag, zero in the post-publish full set)', err); }
 
 // -- acc.3: Sub-check failure propagates to non-zero exit -----------------
 try {

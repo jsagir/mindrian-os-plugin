@@ -2421,7 +2421,21 @@ function buildAcceptanceChecklist(ctx) {
       id: 'verify-release',
       label: 'scripts/verify-release passes',
       severity: 'blocker',
-      applies_to: ['pre-tag', 'full'],
+      // PRE-TAG ONLY. Excluded from 'full' (post-publish) on purpose:
+      // release.sh Step 7.5 (Commit B) bumps the working tree to the next dev
+      // pre-release (beta.N+1) while the marketplace correctly stays at the
+      // published beta.N. scripts/verify-release Check 3 is a STRICT
+      // plugin==marketplace equality, so under 'full' it would compare
+      // beta.N+1 vs beta.N and false-fail (the Step 9.8 false abort, RCA
+      // 260605-h3p). Post-publish version state is OWNED by the
+      // 'version-of-record-published' module below (tag + marketplace
+      // source.ref + npm view, keyed off the LAST SHIPPED tag, not the dev
+      // placeholder). scripts/verify-release stays the strict PRE-tag gate
+      // (release.sh Step 2 standalone + the --pre-tag acceptance tier).
+      // Precedent: the 'verify-release-clean-tree' sibling was tier-moved
+      // from ['pre-tag','full'] to ['full'] for the mirror-image reason
+      // (see tests/test-doctor-acceptance-preflight-checks.cjs:233).
+      applies_to: ['pre-tag'],
       run: async function () {
         if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'verify-release') {
           return { ok: false, finding: 'verify-release synthesized failure (test mode)', detail: {} };
