@@ -53,17 +53,22 @@ function fail(name, err) {
   if (err) process.stdout.write('    ' + (err.message || String(err)) + '\n');
 }
 
-(function test_spineNavigates() {
+async function test_spineNavigates() {
   const label = 'CASC-02: decide() reflects the navigated neighborhood (getRoomContext leg)';
   const db = buildFixtureDb();
   try {
     // Build the navigated neighborhood via the Phase 141 chokepoint (caller owns
     // the db handle). getRoomContext fuses home-view RAW + windowed session
-    // history + getNeighborhood graph-ranking.
+    // history + getNeighborhood graph-ranking. getRoomContext is ASYNC (Leg B
+    // windows the stored session history via an awaited getSessionHistory), so the
+    // caller awaits the RESOLVED fusion object before threading it onto context --
+    // exactly the Task-1 contract in runNavigationEngine (the getRoomContext await
+    // lives inside the deriveConversationSeed().then() race envelope). decide() is
+    // synchronous and consumes the resolved object, never a bare Promise.
     assert.equal(typeof navigation.getRoomContext, 'function',
       label + ': navigation.getRoomContext must be exported (Phase 141 chokepoint)');
 
-    const roomContext = navigation.getRoomContext(db, 'room:fixture-room', {
+    const roomContext = await navigation.getRoomContext(db, 'room:fixture-room', {
       focusNodeId: 'section:market-analysis',
       section: 'market-analysis',
     });
@@ -109,8 +114,13 @@ function fail(name, err) {
   } finally {
     db.close();
   }
-})();
+}
 
-process.stdout.write('\n');
-process.stdout.write('CASC-02 loop-fires (spine navigates): ' + passed + ' passed, ' + failed + ' failed\n');
-process.exit(failed === 0 ? 0 : 1);
+test_spineNavigates().then(function () {
+  process.stdout.write('\n');
+  process.stdout.write('CASC-02 loop-fires (spine navigates): ' + passed + ' passed, ' + failed + ' failed\n');
+  process.exit(failed === 0 ? 0 : 1);
+}).catch(function (e) {
+  process.stdout.write('\nUNCAUGHT: ' + (e && e.message ? e.message : String(e)) + '\n');
+  process.exit(1);
+});
