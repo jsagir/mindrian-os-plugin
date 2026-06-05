@@ -1900,7 +1900,13 @@ Plans:
   3. The fusion path imports nothing from `packet.cjs` (no projectText/hashText) -- a code scan confirms raw prose never touches the egress path
   4. Per-turn assembly completes under the 1200ms NAV timeout on a populated room.db (benchmarked; graph-ranking-first)
   5. The "When to Reach -- The Capability Dial" SKILL.md section is committed to HEAD with `canon_parts` frontmatter + a CHANGELOG entry, and the version is bumped with the dial as a release-noted change; the line-53 `build-graph-from-sqlite.cjs` ReferenceError no longer crashes (a graph is emitted)
-**Plans**: TBD
+**Plans**: 6 plans
+- [ ] 141-01-PLAN.md -- Wave 0 test scaffold: run-all-141.sh runner + fixture room.db + all 9 CJS suites (Nyquist floor)
+- [ ] 141-02-PLAN.md -- commit the dial FIRST (D-06): SKILL.md canon_parts + 5 reach ids + LARRY-04 Navigator (3 posture ids + Reach rule 7) + DRSCH doctrine + beta.7 bump
+- [ ] 141-03-PLAN.md -- getRoomContext 3-leg fusion (RETR-01/03/04) + navigation.cjs re-exports + 1200ms benchmark
+- [ ] 141-04-PLAN.md -- FILEVAL-02 read-back wrapper over shipped writeEvidenceClaim + artifact_path additive field (fixture-first)
+- [ ] 141-05-PLAN.md -- BUG-01 one-token lazygraphPath -> roomDbPath fix + no-room-db exit-0 regression
+- [ ] 141-06-PLAN.md -- RETR-02 hot-path seed flip (un-null userText to the LOCAL lane only; D-03a Part-8 fence)
 
 ### Phase 142: Local Intelligence Wiring (compute-store-and-ACT)
 **Goal**: The local intelligence systems stop computing-and-storing and start computing-store-and-ACTING -- filing surfaces findings mid-session, BRAIN.md derivation lifts the room out of `tier_0`, the derivation queue drains, memory survives an auto-compact boundary, and the Phase 109 spine actually navigates the graph for routing. The cheapest, highest-leverage sub-loop; touches zero Brain code.
@@ -1970,7 +1976,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 140. Sentinel & Instrumentation Hardening | 4/4 | Complete | v1.13.1-beta.6 |
-| 141. Local Retrieval Spine + Capability Dial | 0/0 | Not started | - |
+| 141. Local Retrieval Spine + Capability Dial | 0/6 | Planned | - |
 | 142. Local Intelligence Wiring | 0/0 | Not started | - |
 | 143. Insight Sensors | 0/0 | Not started | - |
 | 144. Navigation Engine legacy->engine Flip | 0/0 | Not started | - |
