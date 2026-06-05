@@ -77,13 +77,29 @@ previous_stage=$(extract_metric "$PREVIOUS" "venture_stage:")
 current_entry_lines=$(grep -E '^\|.*\|.*[0-9]+.*\|' "$CURRENT" 2>/dev/null | wc -l | tr -d ' ')
 previous_entry_lines=$(grep -E '^\|.*\|.*[0-9]+.*\|' "$PREVIOUS" 2>/dev/null | wc -l | tr -d ' ')
 
+# Sanitize a numeric capture to a single-line non-negative integer.
+# grep -c prints "0" AND exits 1 on zero matches, so a "|| echo 0" form would
+# append a SECOND line ("0\n0") and break the $(( )) deltas under set -euo
+# pipefail. Coerce every numeric capture here: strip non-digits, take the first
+# line, default empty to 0. Always exits cleanly so set -e never aborts.
+sanitize_int() {
+  local raw="${1:-}"
+  local n
+  n=$(printf '%s' "$raw" | head -1 | tr -dc '0-9')
+  printf '%s' "${n:-0}"
+}
+
 # Count total entries (sum numbers from entry count patterns)
-current_total=$(grep -oE '[0-9]+ entries' "$CURRENT" 2>/dev/null | grep -oE '[0-9]+' | paste -sd+ | bc 2>/dev/null || echo "0")
-previous_total=$(grep -oE '[0-9]+ entries' "$PREVIOUS" 2>/dev/null | grep -oE '[0-9]+' | paste -sd+ | bc 2>/dev/null || echo "0")
+current_total_raw=$(grep -oE '[0-9]+ entries' "$CURRENT" 2>/dev/null | grep -oE '[0-9]+' | paste -sd+ | bc 2>/dev/null; true)
+previous_total_raw=$(grep -oE '[0-9]+ entries' "$PREVIOUS" 2>/dev/null | grep -oE '[0-9]+' | paste -sd+ | bc 2>/dev/null; true)
+current_total=$(sanitize_int "$current_total_raw")
+previous_total=$(sanitize_int "$previous_total_raw")
 
 # Count edges/relationships mentioned
-current_edges=$(grep -ciE 'INFORMS|CONTRADICTS|CONVERGES|ENABLES|INVALIDATES' "$CURRENT" 2>/dev/null || echo "0")
-previous_edges=$(grep -ciE 'INFORMS|CONTRADICTS|CONVERGES|ENABLES|INVALIDATES' "$PREVIOUS" 2>/dev/null || echo "0")
+current_edges_raw=$(grep -ciE 'INFORMS|CONTRADICTS|CONVERGES|ENABLES|INVALIDATES' "$CURRENT" 2>/dev/null; true)
+previous_edges_raw=$(grep -ciE 'INFORMS|CONTRADICTS|CONVERGES|ENABLES|INVALIDATES' "$PREVIOUS" 2>/dev/null; true)
+current_edges=$(sanitize_int "$current_edges_raw")
+previous_edges=$(sanitize_int "$previous_edges_raw")
 
 # ── Build drift report ──
 REPORT_FILE="$INTEL_DIR/health-${TODAY}.md"
