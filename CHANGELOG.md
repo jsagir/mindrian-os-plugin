@@ -1,3 +1,16 @@
+## [Unreleased]
+
+First PUBLISHED release of the v1.13.1 "Larry Reaches" work -- consolidates the unreleased beta.5 through beta.7 entries below into one shipped beta (beta.4 was the last version users could install).
+
+### Added
+- Local retrieval spine: getRoomContext() fuses room-home summary + windowed session fragments + graph-ranked neighborhood, seeded by the last ~2 turns; re-exported via the navigation chokepoint; per-turn assembly benchmarked ~1ms against the 1200ms budget. Closes the conversation-to-retrieval loop -- the per-turn hot path no longer forwards userText:null, and the seed stays on the LOCAL lane (Canon Part 8).
+- Capability dial committed to HEAD + the LARRY-04 Hierarchical Navigator doctrine: 5 stable reach ids + 3 stable posture ids (push_forward, hold, pull_back), grounded in the Usher division (the tool reaches; the navigator decides). Framework-led deep research ships as committed doctrine only.
+- FILEVAL read-back filing: typed research/decision evidence files to the local graph and is read-back-validated -- a filing that did not land is surfaced, not swallowed.
+- Sentinel and scout hardening (Phase 140).
+
+### Fixed
+- BUG-01: build-graph-from-sqlite line-53 ReferenceError (lazygraphPath -> roomDbPath); the graph export no longer crashes.
+
 ## [1.13.1-beta.7] - 2026-06-05
 
 Phase 141 "Larry Reaches" execution step 1: commit the Capability Dial doctrine and the LARRY-04 Hierarchical Navigator to HEAD. This lifts the previously uncommitted dial out of working-tree limbo (D-06 hard ordering) and lays the prompt-layer contract -- 5 reach ids + 3 posture ids -- that Phase 143 keys off. The deep-research reach ships as committed doctrine only (DRSCH-01..04 satisfied at the doctrine level; no executable plumbing). Later Phase 141 plans (getRoomContext, FILEVAL, BUG-01) append to this same entry. Ships as a beta first per release-process.md.
