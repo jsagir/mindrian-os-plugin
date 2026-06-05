@@ -66,3 +66,7 @@ docs/lawrence-briefing.pdf
 docs/tyler-case-study-for-lawrence.pdf
 docs/user-research/
 references/user-research/
+
+# Phase 141 benchmark scratch artifacts (generated, not source)
+tests/fixtures/*-bench.db
+tests/fixtures/room-context-bench.db
