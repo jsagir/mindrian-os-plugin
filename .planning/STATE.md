@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: Larry Reaches
-status: completed
-stopped_at: Phase 141 planned (6 plans, 3 waves, checker PASSED)
-last_updated: "2026-06-05T07:36:21.564Z"
-last_activity: 2026-06-05 -- 140-04 executed (CHANGELOG beta.6 entry summarizing HARD-01..05 + D-03 + D-01a + 57x release-gate note; plugin.json/package.json bumped to 1.13.1-beta.6; release commit ca5c580e + annotated tag v1.13.1-beta.6)
+status: in_progress
+stopped_at: Phase 141 Plan 01 complete (Wave-0 Nyquist scaffold: 9 RED suites + fixture + runner)
+last_updated: "2026-06-05T07:46:16.935Z"
+last_activity: 2026-06-05 -- 141-01 executed (Phase 141 Wave-0 test scaffold: tests/run-all-141.sh + tests/fixtures/room-141-fixture.cjs + 9 RED CJS suites, all failing RED as designed; SKILL.md working-tree edit preserved untouched)
 progress:
   total_phases: 24
   completed_phases: 12
   total_plans: 95
-  completed_plans: 65
+  completed_plans: 66
   percent: 50
 ---
 
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 140-sentinel-and-instrumentation-hardening (COMPLETE -- 4/4 plans; HARD-01..05 closed)
-Plan: 140-04 complete; next phase 141 (Local Retrieval Spine + Capability Dial)
-Status: Phase 140 COMPLETE. v1.13.1-beta.6 cut locally (commit ca5c580e + tag v1.13.1-beta.6). External push + marketplace source.ref pin + npm publish are HUMAN-GATED -- operator must run them to publish. Sequential main-tree execution.
-Last activity: 2026-06-05 -- 140-04 executed (CHANGELOG beta.6 entry summarizing HARD-01..05 + D-03 + D-01a + 57x release-gate note; plugin.json/package.json bumped to 1.13.1-beta.6; release commit ca5c580e + annotated tag v1.13.1-beta.6)
+Phase: 141-local-retrieval-spine-and-capability-dial (IN PROGRESS -- 1/6 plans; Wave 0 scaffold landed)
+Plan: 141-01 complete (Wave-0 Nyquist scaffold); next 141-02+ implement the spine + dial against these suites
+Status: Phase 141 Wave 0 COMPLETE. The scoped runner + populated fixture room.db builder + 9 RED CJS suites are committed (3241bb35, 4d256ade, d9027ace), all failing RED as designed (0/9 green). Implementation plans (Waves 1-2) turn them green: room-context.cjs fusion, intent-classifier userText seam, build-graph line-53 fix, capability-dial doctrine commit + beta.7 lockstep, fileEvidenceWithReadback wrapper. The uncommitted working-tree edit in skills/larry-personality/SKILL.md is PRESERVED untouched (worktrees disabled this phase to protect it). Sequential main-tree execution.
+Last activity: 2026-06-05 -- 141-01 executed (Phase 141 Wave-0 test scaffold: tests/run-all-141.sh + tests/fixtures/room-141-fixture.cjs + 9 RED CJS suites; SUMMARY at 141-01-SUMMARY.md)
 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
@@ -361,7 +361,7 @@ Awaiting user action (Gate 5):
 
 Last activity: 2026-06-02 -- Completed quick task 260602-dsc: /mos:help text view becomes the De Stijl card layout
 
-Progress: [███████░░░] 72%
+Progress: [███████░░░] 69%
 
 ## Performance Metrics
 
@@ -1210,6 +1210,6 @@ Progress: [███████░░░] 72%
 
 ## Session Continuity
 
-Last session: 2026-06-05T07:36:21.519Z
+Last session: 2026-06-05T07:46:16.896Z
 Stopped at: Phase 141 planned (6 plans, 3 waves, checker PASSED)
-Resume file: .planning/phases/141-local-retrieval-spine-and-capability-dial/141-01-PLAN.md
+Resume file: None
