@@ -61,7 +61,7 @@ Built for people who have never opened a terminal. Full walkthrough at [the inst
 ### npm (one line, recommended)
 
 ```bash
-npx @mindrian_os/cli
+npx @mindrian_os/install
 ```
 
 ### Plugin marketplace
