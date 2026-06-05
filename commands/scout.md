@@ -161,7 +161,12 @@ python3 "${PLUGIN_ROOT}/scripts/compute-hsi.py" "$ROOM_DIR" --output "$ROOM_DIR/
 python3 "${PLUGIN_ROOT}/scripts/detect-reverse-salients.py" "$ROOM_DIR"
 
 # Step 3: Write HSI edges to room graph (if available)
-node "${PLUGIN_ROOT}/scripts/hsi-to-graph.cjs" "$ROOM_DIR" 2>/dev/null || true
+# D-03: do NOT swallow the HSI-to-graph stderr/exit. A silent scout is how
+# HARD-02 hid for weeks. stderr surfaces; a non-zero exit prints a visible
+# degraded-step advisory but stays non-fatal to the overall scout run.
+if ! node "${PLUGIN_ROOT}/scripts/hsi-to-graph.cjs" "$ROOM_DIR"; then
+  echo "ADVISORY: HSI-to-graph step failed (room graph not updated this run); scout continues in degraded mode" >&2
+fi
 ```
 
 Report:
