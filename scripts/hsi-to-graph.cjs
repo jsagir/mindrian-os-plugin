@@ -16,6 +16,7 @@
 const fs = require('fs');
 const path = require('path');
 const { openGraph, closeGraph } = require('../lib/core/lazygraph-ops.cjs');
+const { insertNode } = require('../lib/core/node-insert.cjs');
 
 async function main() {
   const roomDir = process.argv[2];
@@ -65,10 +66,6 @@ async function main() {
       'INSERT INTO edges (source, target, type, properties) VALUES (?, ?, ?, ?) ON CONFLICT(source, target, type) DO UPDATE SET properties = excluded.properties'
     );
 
-    const upsertNode = conn.prepare(
-      'INSERT INTO nodes (id, type, properties) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET properties = excluded.properties'
-    );
-
     const findArtifact = conn.prepare(
       "SELECT id FROM nodes WHERE id = ? AND type = 'Artifact'"
     );
@@ -113,8 +110,11 @@ async function main() {
       // Ensure Section nodes exist (upsert)
       const srcLabel = srcSection.replace(/-/g, ' ').toUpperCase();
       const tgtLabel = tgtSection.replace(/-/g, ' ').toUpperCase();
-      upsertNode.run(srcSection, 'Section', JSON.stringify({ name: srcSection, label: srcLabel }));
-      upsertNode.run(tgtSection, 'Section', JSON.stringify({ name: tgtSection, label: tgtLabel }));
+      // HARD-02: route through the shared NOT-NULL-safe helper so the Section
+      // upsert supplies the Phase-109 provenance columns on a migrated room.db
+      // (and stays a bare 3-col insert on an un-migrated db). D-02 + D-02a.
+      insertNode(conn, srcSection, 'Section', JSON.stringify({ name: srcSection, label: srcLabel }));
+      insertNode(conn, tgtSection, 'Section', JSON.stringify({ name: tgtSection, label: tgtLabel }));
 
       const edgeProps = JSON.stringify({
         differential_score: rs.differential_score || 0,
