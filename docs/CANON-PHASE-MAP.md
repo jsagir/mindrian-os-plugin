@@ -122,7 +122,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 | shipped | Plan 88.1-16 query efficiency telemetry is Part 8-compliant (LOCAL JSONL at ~/.mindrian/telemetry/query-efficiency.jsonl; scalar counts + LOCAL slug only; zero network surface in hook or aggregator) | Phase 88.1 uiux-polish (Plan 16); v1.10.15 |
 | shipped | Plan 88.1-08 async auto-commit is Part 8-compliant (isolated data-room-autocommit branch; NEVER git push; plumbing via tmp GIT_INDEX_FILE never moves HEAD) | Phase 88.1 uiux-polish (Plan 08); v1.10.15 |
 | shipped | Brain derivation layer preserving boundary | Phase 90 brain-derivation-layer (v1.10.18) -- 5 independent Canon Part 8 tripwires: schema leak heuristic scan (Plan 90-00) + deriveSection single-chokepoint buildBrainQueryContext (Plan 90-01) + registry brain-md-invariants body-text scan at guardian checkpoints (Plan 90-05) + cross-room aggregator sanitizeDetailScalar + JSON.stringify output audit (Plan 90-06) + cross-scenario BRAIN.md sweep across 14 graceful-degradation fixtures (Plan 90-08). Zero user-content egress; every Brain query carries only generic framework handles + phase identifiers + sha256 hashes + enum scalars. |
-| pending | check-brain-boundary.cjs PR gate | Not yet scaffolded. Stub proposed. |
+| shipped | check-brain-boundary.cjs PR gate | Phase 117-04 SEED-003 A3 sanitizer (v1.13.0-beta.8) -- PostToolUse hook on `mcp__brain_*` calls applies PII-pattern redaction before egress; closes the gate this row previously marked "not yet scaffolded" (reconciled 2026-06-05) |
 | shipped | Phase 95.2 SessionStart preflight is purely LOCAL (zero network surface; preflight-doctor.cjs spawns local doctor.cjs --json subprocess only; no fetch/http/curl; no Brain MCP calls) | Phase 95.2 install-cache-atomic-recovery-sessionstart-preflight (v1.13.0-beta.6); verified by `grep -E "fetch\|http\|curl\|brain.mindrian\|tavily" scripts/preflight-doctor.cjs` returning 0 |
 | shipped | Phase 122 workflow-layer registry is plugin-local, validated against Brain framework names at build time via a read-only query (`MATCH (f:Framework) WHERE (f)-[:FEEDS_INTO]-() RETURN f.name`), never written back; `lib/workflow/command-resolver.cjs` makes zero Brain calls; the recommender's Cypher binds only `$seed` (a generic framework handle, sanitized) -- never a command string, never user content; `build-command-registry.cjs` has no write-Cypher; the dead "Brain has Command nodes" prose deleted from `skills/brain-connector/SKILL.md` and `references/brain/command-triggers-schema.md` (latent Part 8 breach in prose removed -- the live Brain has no `Command` label) | Phase 122 workflow-layer (v1.13.0-beta.11); verified by `grep -rE "Brain has Command\|:Command" skills/ agents/ references/` returning 0 + the `lib/memory/workflow-layer-e2e.test.cjs` grep sweep |
 
@@ -132,27 +132,39 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 |----------|-------------------|-----------|
 | shipped  | Phase 108 graph-memory-schema-reconciliation (proposal + frozen taxonomy) | .planning/phases/108-graph-memory-schema-reconciliation/PART-9-PROPOSAL.md |
 | shipped  | Phase 109 sql-context-memory-navigation-spine (implementation + canon ratification at release gate) | .planning/phases/109-sql-context-memory-navigation-spine/109-CONTEXT.md |
-| planned  | Phase 110 brain-context-packet-contract (Brain wire enforcement makes Part 9 structurally hard, not just procedurally audited) | .planning/phases/110-brain-context-packet-contract/110-CONTEXT.md (stub) |
+| shipped  | Phase 110 brain-context-packet-contract (Brain wire enforcement makes Part 9 structurally hard, not just procedurally audited) | Shipped in parallel with Phase 123, rode along in v1.13.0-beta.13 (reconciled 2026-06-05; the file's own version-history row for beta.13 already recorded this -- the Part 9 row was stale) |
 | shipped  | Phase 124 feynman-temporal-awareness (the Larry-explains face of memory_event surfaced as the FEYNMAN.md `## Timeline (auto)` sentinel-bounded section; renderer reads ONLY via navigation.cjs (D-03); runner writes ONLY inside the sentinels with the human body byte-preserved (D-02 hard invariant); hybrid hook trigger -- session-start cascade + /mos:feynman-timeline-refresh manual command (D-04 + D-12)) | .planning/phases/124-feynman-temporal-awareness/124-CONTEXT.md |
 | shipped  | Phase 129.5 truth-machine-activation (the human-confirms-truth lever wired: confirmNode chokepoint promotes proposed truth-claim nodes to confirmed with USER.md byUser attribution; agent-attributed confirm REJECTED; audit nodes carved out per the Part 9 amendment) | .planning/phases/129.5-truth-machine-activation/129.5-CONTEXT.md |
 
 Phase 108 shipped the proposal cross-reference document and the schema reconciliation deliverables that made the Part 9 contract testable. Phase 109 ratified Part 9 at its release gate by merging the proposal text from `.planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md` into `docs/MINDRIAN-CANON.md` as a new Part 9. Phase 110 hardens the Brain wire schema so Part 8 enforcement (LOCAL to BRAIN: NO) is structurally enforced, not just procedurally audited. The trio (108 + 109 + 110) constitutes the Part 9 implementing cluster. Phase 124 (FEYNMAN.md Temporal Awareness) is the FIRST consumer of the Part 9 surface to land on the v1.13.0-beta.x train as a user-facing artifact: it makes `memory_event` human-readable at the FEYNMAN.md surface per section, with byte-preserved human authorship across regeneration; per Canon Part 6 (Product-as-Venture) the canon names the phase that implements the canon.
 
-### Part 10 (proposed) - Conversation as Product
+### Part 10 (CODE SHIPPED, NOT YET RATIFIED) - Conversation as Product
+
+> Reconciliation note (2026-06-05): every implementing phase below SHIPPED in
+> the v1.13.0 milestone, yet Part 10 is still NOT in docs/MINDRIAN-CANON.md and
+> the ratification gate (Hooked re-score >= 55 AND empathy audit 4/5 testers
+> report "thinking partner") was NEVER run. The code landed; the constitution
+> was never amended. Status below reflects code reality; "ratified: NO" is the
+> open obligation. See .planning/debug/planned-vs-executed-drift-audit-260605.md.
 
 | Status   | Phase / Component | Reference |
 |----------|-------------------|-----------|
-| proposed | docs/CANON-PART-10-PROPOSAL-conversation-as-product.md | Constitutional thesis: "Larry IS the product. Conversation IS the surface. Rooms are receipts. Commands are internals." Five sub-claims. Synthesized 2026-05-05. Ratifies at v1.13.0 final release gate (parallel to Part 9 at Phase 109 release gate), gated on Hooked re-score >= 55 AND empathy audit confirming 4/5 testers report "thinking partner" experience. |
-| planned  | Phase 114 larry-default-activation (sub-claim 1: Larry IS the product) | .planning/phases/114-larry-default-activation/CONTEXT.md (stub) |
-| planned  | Phase 115 owned-emotion-dual-path-first-touch (sub-claim 2: Conversation IS the surface) | .planning/phases/115-owned-emotion-dual-path-first-touch/CONTEXT.md (stub) |
-| planned  | Phase 116 unresolved-tension-hook (sub-claim 3: persistent conversation across sessions) | .planning/phases/116-unresolved-tension-hook/CONTEXT.md (stub) |
-| planned  | Phase 117 auto-explore-domains-on-first-material (sub-claim 5: triple-filter math automatic) | .planning/phases/117-auto-explore-domains-on-first-material/CONTEXT.md (stub) |
-| planned  | Phase 118 30-second-mva-reward-before-investment (sub-claim 3: room generates as receipt) | .planning/phases/118-30-second-mva-reward-before-investment/CONTEXT.md (stub) |
-| planned  | Phase 119 room-as-receipt-invariant (sub-claim 3: formal invariant) | .planning/phases/119-room-as-receipt-invariant/CONTEXT.md (stub) |
-| planned  | Phase 120 breakthrough-scan-category-g (sub-claim 5: variable reward) | .planning/phases/120-breakthrough-scan-category-g/CONTEXT.md (stub) |
-| planned  | Phase 100 jtbd-inference-engine -- DEFERRED to v1.14.0 (sub-claim 4: commands as internals) | .planning/phases/100-jtbd-inference-engine/ |
+| code shipped, NOT ratified | docs/CANON-PART-10-PROPOSAL-conversation-as-product.md | Constitutional thesis: "Larry IS the product. Conversation IS the surface. Rooms are receipts. Commands are internals." Five sub-claims. Synthesized 2026-05-05. RATIFICATION GATE NOT RUN: v1.13.0 finalized 2026-06-02 without the empathy audit or Hooked re-score; Part 10 absent from the canon body. OPEN. |
+| shipped | Phase 114 larry-default-activation (sub-claim 1: Larry IS the product) | Shipped v1.13.0-beta.2; 114-VERIFICATION passed |
+| shipped | Phase 115 owned-emotion-dual-path-first-touch (sub-claim 2: Conversation IS the surface) | Shipped v1.13.0-beta.3; dual-path-detector.cjs + shallow-doc-parser.cjs + MCP detect_dual_path/extract_shallow; 115-VERIFICATION passed |
+| shipped | Phase 116 unresolved-tension-hook (sub-claim 3: persistent conversation across sessions) | Shipped v1.13.0-beta.5; lib/agents/tension-hook-agent.cjs; sub-claim 3 PASS |
+| shipped | Phase 117 auto-explore-domains-on-first-material (sub-claim 5: triple-filter math automatic) | Shipped v1.13.0-beta.8; scripts/auto-explore-fingerprint.cjs; 117-VERIFICATION |
+| shipped (2 human_needed open) | Phase 118 30-second-mva-reward-before-investment (sub-claim 3: room generates as receipt) | Shipped v1.13.0; 8/8 automated PASS, but live Vercel deploy + live 60s Brain path verified MOCKED ONLY |
+| shipped (degraded) | Phase 119 room-as-receipt-invariant (sub-claim 3: formal invariant) | Shipped; 7/7 PASS, but the D-02 receipt nudge CANNOT FIRE -- depends on Phase 115 venture-classification signal deferred to v1.14.0; degrades to skip_reason |
+| shipped | Phase 120 breakthrough-scan-category-g (sub-claim 5: variable reward) | Shipped 2026-05-17; F.7 selector + 4 detectors; 9/9 must-haves |
+| partial (engine shipped, command-hiding deferred) | Phase 100 jtbd-inference-engine (sub-claim 4: commands as internals) | JTBD taxonomy + state + serves_jtbd declarations SHIPPED (100-VERIFICATION passed 2026-05-01, swept across 80+ commands). Full command-HIDING deferred to v1.14.0 -- the map's prior "DEFERRED to v1.14.0" label understated the shipped engine. |
 
-Phases 114-120 implement Part 10 across the v1.13.0 milestone. Phase 100 (JTBD Inference Engine, deferred to v1.14.0) implements sub-claim 4 (commands fully internal). Until v1.14.0, commands stay user-facing as a fallback while Larry routes via heuristic.
+Phases 114-120 implement Part 10 across the v1.13.0 milestone and ALL SHIPPED.
+Phase 100's JTBD engine shipped; only full command-hiding (sub-claim 4 in full)
+is deferred to v1.14.0, so commands stay user-facing as a fallback while Larry
+routes via heuristic. The remaining Part 10 obligation is NOT code -- it is
+RATIFICATION: amend MINDRIAN-CANON.md with Part 10 and run the empathy + Hooked
+gate, or formally de-scope the gate.
 
 ### v1.13.0 "The Closed Loop" milestone phases (multi-part canon mapping)
 
@@ -171,6 +183,53 @@ Phases 114-120 implement Part 10 across the v1.13.0 milestone. Phase 100 (JTBD I
 | planned  | Phase 121 trajectory-telemetry | Part 8 | beta.1.5 -> final | .planning/phases/121-trajectory-telemetry/121-CONTEXT.md (stub); feeds SEED-002 |
 | planned  | Phase 121.5 terminal-coherence-capstone -- LAST PHASE before FINAL RELEASE GATE | Part 3, Part 4, Part 7, Part 8, Part 10 | final | .planning/phases/121.5-terminal-coherence-capstone/121.5-CONTEXT.md (stub, scaffolded 2026-05-10). Consolidates every UI/UX surface shipped across v1.13.0 into one coherent Claude Code terminal experience: SessionStart Coordinator, body_shape sweep + output-styles/destijl.md (force-for-plugin), SKILL.md v2 reconciliation, two-row statusline + canonical palette.json, render-v2 disposition + Phase 102 closure, version-of-record first-touch (SEED-007 absorbed), housekeeping/truth-telling, coherence smoke test. NO new surface -- Part 7 consolidation only. Precondition for Part 10 ratification at the gate. Reference: 121.5-REFERENCE-destijl-guide-annotated.md (external De Stijl guide, verified vs CC docs, ~1/3 buildable). |
 | shipped  | Phase 122 workflow-layer -- the registry+resolver capstone | Part 3, Part 4, Part 7, Part 8 | beta.11 | The capstone: the framework-to-command registry + resolver link that makes "Larry leads -> the right command" a CI-enforced guarantee. `data/command-registry.json` (generated from `commands/*.md` frontmatter), `scripts/build-command-registry.cjs` (generator + `--check` tripwire, pre-commit + Feynman runner), `lib/workflow/command-resolver.cjs` (the only door), `lib/brain/chain-recommender.cjs` (FEEDS_INTO traversal -- framework names + enums only), `docs/COMMAND-FRONTMATTER.md` + `docs/WORKFLOWS.md`. Spec: .planning/WORKFLOW-LAYER-SPEC.md. |
+
+### v1.13.1 "Larry Reaches" + reconciliation addendum (added 2026-06-05)
+
+This map historically stopped at Phase 129.5. The phases below SHIPPED but were
+never mapped, plus the honest never-built and doctrine-only items. Added during
+the 2026-06-05 planned-vs-executed drift audit
+(.planning/debug/planned-vs-executed-drift-audit-260605.md).
+
+| Status | Phase / Component | Canon Parts | Reference |
+|--------|-------------------|-------------|-----------|
+| shipped | Phase 125 f-selector-ranker | Part 3 | powers the 121.5 selector lock |
+| shipped | Phase 130 lens-engine-skeleton | Part 2 Engine 1 | v1.13.0-beta.30 |
+| shipped | Phase 130.5 shared-corpus-cache + CJS fetcher | Part 7, Part 8 | v1.13.0-beta.42; lib/core/research-corpus.cjs + research-cache.cjs |
+| shipped | Phase 130.7 correlation-id-contract + dual-graph CI gates | Part 8, Part 9 | v1.13.0-beta.42; lib/core/correlation.cjs |
+| shipped | Phase 131 research-as-graph-aware-workflow | Part 3, Part 4 | v1.13.0-beta.42; docs/RESEARCH-AS-WORKFLOW-STEP.md |
+| shipped (machinery only) | Phase 132 dual-graph-correlation-hypergraph-reformat | Part 8, Part 9 | v1.13.0-beta.42; LIVE writes (bulk reify, 278-node wire, 6-node pseudonymize) DEFERRED to v1.14.0 -- see Part 8 LIVE exposure below |
+| shipped | Phase 135 offer-resolver | Part 3 | v1.13.0-beta.38; resolveOfferNextStep |
+| shipped (1 of 16 organs) | Phase 139 doctor-accumulative-engine | Part 6, Part 7 | v1.13.1-beta.4; only the umbilical module registered; 15 organs deferred |
+| shipped | Phase 140 sentinel-and-instrumentation-hardening | Part 8 | v1.13.1-beta.6 (HARD-01..05) |
+| shipped (DOCTRINE ONLY for the engine) | Phase 141 local-retrieval-spine + capability-dial | Part 2, Part 3, Part 8, Part 9 | v1.13.1-beta.7/.8. getRoomContext() (lib/core/navigation/room-context.cjs) + 5 reach-ids + 3 posture-ids + FILEVAL are REAL and drift-tested. BUT the sensors that FIRE a reach and the navigation engine that flips routing_source legacy->engine DO NOT EXIST -- they were deferred to Phase 143 (sensors) and Phase 144 (nav engine), and NEITHER PHASE DIRECTORY EXISTS. The dial is prose pointing at phases nobody created. Do not demo the dial as live. |
+| NOT built (CONTEXT-only stub) | Phase 133 conversational-brain-invocation | Part 9 | deferred-to-v1.14.0 |
+| NOT built (scaffold, mislabeled) | Phase 134 cjs-port-of-python-analyzers (xenova) | Part 7 | 24 .py files remain + still called; @huggingface/transformers never added; Windows ModuleNotFoundError class still open |
+| NOT built (draft SPEC) | Phase 136 liquid-state render-spine | Part 3 | v1.13.0 anchor; no code in lib/ |
+| NOT built (scoped-backlog) | Phase 137 brain-mindrianos-sync-compat | Part 8 | v1.14.0 |
+| NOT built (scoped-backlog) | Phase 138 capability-radar-absorption | Part 2 | v1.14.0 |
+| plans ready, EXECUTABLE (not yet executed) | Phase 142 local-intelligence-wiring-compute-store-and-act | Part 9 | gsd-plan-checker verdict PASS (2026-06-05): 4 plans, executable AS WRITTEN. Depends ONLY on Phase 141 (shipped); 143/144/145/146 are DOWNSTREAM of 142, not prerequisites. The one genuine build is CASC-02 (wire getRoomContext into decide() through the navigation.cjs chokepoint; routing_source stays legacy per the Phase-144 fence). Corrects this audit's initial inverted-dependency error. |
+
+**Phase-number collision (Part 6 fragility).** The canon (Part 6 + this map's
+Forward-compatibility rule) hard-codes "Phase 92 = drift-detection-engine," but
+the on-disk directory `92-trust-layer-refactor` is a different, skipped
+placeholder. The drift-detection-engine that would automate THIS audit was never
+built. Keying canon obligations on a non-unique phase NUMBER is structurally
+fragile; future obligations should key on phase SLUG.
+
+**Part 8 LIVE exposure (open).** Phase 132 deferred the live pseudonymization of
+6 internal-team `:Person` nodes; real names persist in the production shared
+Brain graph right now. `curation-132-05-pseudonymize.cjs --execute` refuses with
+"DEFERRED to v1.14.0." This is the ONE genuinely-open live Part 8 item.
+
+**H5 (Brain packet value-space) -- RESOLVED-IN-CODE, not open.** This audit
+initially flagged H5 as a live exposure; that was wrong. The value-space fix
+shipped: schema caps summary/explanation at maxLength:120, packet.cjs::projectText
+hashes to sha256 by default (prose only under the explicit allow_excerpts Part-3
+opt-in), and tests/test-navigation-packet-part8-leak.cjs (9 adversarial tripwires,
+registered in run-all-110.sh) plus the check-sendpacket pre-commit guard prevent
+regression before any consumer lands. The stale `_backlog` memo was reconciled
+2026-06-05. See .planning/debug/planned-vs-executed-drift-audit-260605.md.
 
 ### Appendix A - Relationship to MWP
 
@@ -222,6 +281,7 @@ Phases 114-120 implement Part 10 across the v1.13.0 milestone. Phase 100 (JTBD I
 | v1.4 (kept)   | 09ee5a4  | 2026-05-13 | Phase 123 (v1.13.0-beta.13) install-lifecycle-harness shipped -- Part 6 row added (dog-fooding the install lifecycle: one record + one manifest + one command + one release script; the harness self-tested on its own maintainer box during its own release cut) + Part 7 row added (~90% reuse of shipped code; 7 net-new files). Phase 110 (Brain Context Packet Contract) also shipped in parallel during the Phase-123 execution waves; rides along in beta.13. No canon text change; map row updates only. |
 | v1.4 (kept)   | TBD      | 2026-05-13 | Phase 124 (feynman-temporal-awareness) shipped -- Canon Part 9 row added: the Larry-explains face of memory_event surfaced as the FEYNMAN.md `## Timeline (auto)` sentinel-bounded section; pure renderer (lib/core/feynman/timeline-renderer.cjs) reads ONLY via navigation.cjs (D-03); runner (lib/core/feynman/timeline-runner.cjs) writes ONLY inside the sentinels with the human body byte-preserved (D-02 hard invariant); hybrid hook trigger -- session-start cascade + /mos:feynman-timeline-refresh manual command (D-04 + D-12); EVENT_TYPES additive +2 (feynman_timeline_refreshed / _failed; size grows 35 -> 37). Adversarial Canon Part 9 invariant test (tests/test-feynman-timeline-canon-part-9-invariant.cjs, 5 assertions) mirrors the Phase 90 5-tripwire forbidden-substring sweep + the Phase 110-05 adversarial seed pattern + the Phase 109-10 fs-instrument allow-list. bash tests/run-all-124.sh 4/4 green. No canon text change; map row + paragraph update only. |
 | v1.5          | TBD      | 2026-05-31 | Part 9 audit-node carve-out (D-03) -- truth-claim nodes {claim/CausalClaim/assumption/decision/opportunity} require human byUser to reach confirmed; memory_event / audit / focus system-bookkeeping nodes exempt. Phase 129.5 truth-machine-activation wires the lever (confirmNode chokepoint + USER.md attribution guard). CANON-PHASE-MAP Part 9 row flipped to shipped for Phase 129.5. Appendix D entry 14 records the carve-out; focus.cjs:63 created_by=system audit node is now canon-legal. |
+| v1.5 (kept)   | TBD      | 2026-06-05 | Planned-vs-executed drift reconciliation (map rows only; no canon text change). Flipped 3 false rows to shipped: check-brain-boundary.cjs (Phase 117-04), Phase 110 (beta.13), and the entire Part 10 block (Phases 114-120 + 100). Marked Part 10 "CODE SHIPPED, NOT YET RATIFIED" (empathy + Hooked gate never run; Part 10 absent from MINDRIAN-CANON.md). Added the v1.13.1 "Larry Reaches" + reconciliation addendum: ~11 previously-unmapped shipped phases (125/130/130.5/130.7/131/132/135/139/140/141), the DOCTRINE-ONLY capability dial (141; sensors=143 + nav-engine=144 do not exist), the never-built list (133/134/136/137/138/142), the Phase-92 number collision, and the open Part 8 LIVE exposure (132 :Person pseudonymize + H5). Source: .planning/debug/planned-vs-executed-drift-audit-260605.md. |
 
 ---
 

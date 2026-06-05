@@ -1,8 +1,21 @@
-# Roadmap: The Closed Loop v1.13.0
+# Roadmap: Larry Reaches v1.13.1
 
-## Active Milestone: v1.13.0 "The Closed Loop" (renamed Arc 4 -- was "Every Hirer")
+## Active Milestone: v1.13.1 "Larry Reaches" (Phases 140-146)
 
-**Status:** v1.13.0-beta.1 SHIPPED 2026-05-05 (plugin commit afcea5f, marketplace a37b073). Phase 108 + Phase 109 substrate landed. beta.2 next.
+**Status:** v1.13.1-beta.9 (dev HEAD 2026-06-05). Milestone ~54% (13/24 phases, per STATE.md). Capability dial + getRoomContext retrieval spine landed as DOCTRINE/SPINE (beta.7/.8); the reach SENSORS (Phase 143) and navigation engine (Phase 144) are NOT YET BUILT -- those phase dirs do not exist. Acceptance-gate phase (146) unstarted. NOT promotable to stable yet. Full milestone mapping is at the "LARRYREACH" section further down this file.
+
+> Header re-pointed 2026-06-05 during the planned-vs-executed drift audit. The
+> v1.13.0 "The Closed Loop" detail BELOW this block is retained as shipped
+> history (v1.13.0 finalized STABLE 2026-06-02). NOTE: v1.13.0 was never given a
+> formal milestone close-out (no v1.13.0-MILESTONE-AUDIT.md; empty stable
+> CHANGELOG body), so doctor hotfixes that belong to it ride v1.13.1 betas.
+> Source: .planning/debug/planned-vs-executed-drift-audit-260605.md.
+
+---
+
+## Shipped history: v1.13.0 "The Closed Loop" (renamed Arc 4 -- was "Every Hirer")
+
+**Status:** v1.13.0 SHIPPED STABLE 2026-06-02. Code for Part 10 (Phases 114-120) all landed; Part 10 RATIFICATION (empathy + Hooked gate) was never run and remains the open obligation. beta.1 shipped 2026-05-05 (plugin commit afcea5f, marketplace a37b073).
 
 **Thesis:** Turn MindrianOS from "the back half of a hook" into a closed habit loop with first-15-minute imprint. Larry leads. SQL graph remembers. Brain reasons as a constant. Conversation IS the front door. Commands are internals.
 
