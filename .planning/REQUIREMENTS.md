@@ -664,7 +664,7 @@
 | DRSCH-04 | Phase 141 | Complete |
 | FILEVAL-02 | Phase 141 | Complete |
 | CASC-01 | Phase 142 | Pending |
-| CASC-02 | Phase 142 | Pending |
+| CASC-02 | Phase 142 | Complete |
 | NAV-02 | Phase 142 | Pending |
 | NAV-03 | Phase 142 | Pending |
 | NAV-04 | Phase 142 | Pending |
