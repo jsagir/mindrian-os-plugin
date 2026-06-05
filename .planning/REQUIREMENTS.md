@@ -655,12 +655,19 @@
 | RETR-04 | Phase 141 | Pending |
 | LARRY-01 | Phase 141 | Pending |
 | LARRY-02 | Phase 141 | Pending |
+| LARRY-03 | Phase 141 | Pending |
 | BUG-01 | Phase 141 | Pending |
+| DRSCH-01 | Phase 141 | Pending |
+| DRSCH-02 | Phase 141 | Pending |
+| DRSCH-03 | Phase 141 | Pending |
+| DRSCH-04 | Phase 141 | Pending |
+| FILEVAL-02 | Phase 141 | Pending |
 | CASC-01 | Phase 142 | Pending |
 | CASC-02 | Phase 142 | Pending |
 | NAV-02 | Phase 142 | Pending |
 | NAV-03 | Phase 142 | Pending |
 | NAV-04 | Phase 142 | Pending |
+| FILEVAL-03 | Phase 142 | Pending |
 | SENS-01 | Phase 143 | Pending |
 | SENS-02 | Phase 143 | Pending |
 | SENS-03 | Phase 143 | Pending |
@@ -668,6 +675,21 @@
 | SENS-05 | Phase 143 | Pending |
 | SENS-06 | Phase 143 | Pending |
 | SENS-07 | Phase 143 | Pending |
+| DIALTUI-01 | Phase 143 | Pending |
+| DIALTUI-02 | Phase 143 | Pending |
+| DIALTUI-03 | Phase 143 | Pending |
+| DIALTUI-04 | Phase 143 | Pending |
+| DIALTUI-05 | Phase 143 | Pending |
+| DIALTUI-06 | Phase 143 | Pending |
+| DIALTUI-07 | Phase 143 | Pending |
+| DIALTUI-08 | Phase 143 | Pending |
+| DIALTUI-09 | Phase 143 | Pending |
+| DIALTUI-10 | Phase 143 | Pending |
+| DIALTUI-11 | Phase 143 | Pending |
+| FILEVAL-01 | Phase 143 | Pending |
+| MEMDIAL-01 | Phase 143 | Pending |
+| MEMDIAL-02 | Phase 143 | Pending |
+| MEMDIAL-03 | Phase 143 | Pending |
 | NAV-01 | Phase 144 | Pending |
 | SCHED-01 | Phase 145 | Pending |
 | SCHED-02 | Phase 145 | Pending |
@@ -798,3 +820,13 @@ Placement decision (LOCKED): the dial-TUI selector is built under Phase 143 (Ins
 | DIALTUI-09 | closeReach() unified transaction with four outcomes (resting-detent commit; rotated/pivot commit; defer/reject via existing path; free-text/none-fit via recordSelectorMiss), all routed exclusively through navigation.cjs. Never open room.db directly. | TBD (Phase 143) |
 | DIALTUI-10 | Tri-polar mapping: the orchestrator returns a surface-agnostic structured reach-list (no ANSI in the core). CLI = statusline gauge + F.1 chooser + resting-detent sync. Desktop = Larry voices reaches conversationally, % column degrades to markdown (requires a Desktop render proof before ship). Cowork = SELECTED_REACH edge is shared truth, selectors fire per actor_id with divergence handling. Completion is gated on all three surfaces having a mapping. | TBD (Phase 143) |
 | DIALTUI-11 | Run gsd-ui-phase and produce a UI-SPEC for the dial-TUI selector under Phase 143 (which carries the UI hint), NOT Phase 141. Include the Mode B / Tier 0 zero-marker appearance explicitly so the offline/cold-room dial reads as intentional, not broken. | TBD (Phase 143) |
+
+## Dial memory layer -- graph relationship + MD acknowledgment (added 2026-06-05; FEYNMAN/MINTO hunch)
+
+The dial is not just a render: its activity must persist on BOTH sides of Canon Part 9 -- a typed relationship layer in the local graph (SQL remembers and navigates) AND an acknowledgment in a human-readable memory MD (files preserve meaning). The MD section is RENDERED FROM the graph, reusing the Phase 124 FEYNMAN.md sentinel-bounded auto-section pattern (Part 7). This makes FILEVAL visible: a reader sees in the memory file exactly what is filed in the graph.
+
+| ID | Description | Plan |
+|----|-------------|------|
+| MEMDIAL-01 | The dial activity persists as a typed GRAPH RELATIONSHIP LAYER in room.db: the 5 reach ids, SELECTED_REACH and PIVOTED edges (DIALTUI-06/08), and DRSCH research-conclusion evidence edges (DRSCH/FILEVAL-02) -- all queryable via navigation.cjs, never a flat log | TBD (Phase 143) |
+| MEMDIAL-02 | A human-readable memory MD (FEYNMAN.md and/or MINTO.md, or a dedicated dial memory file -- exact choice resolved in the dial-TUI UI-SPEC) gains a sentinel-bounded auto-section acknowledging the dial-relevant pieces: available reaches, last selected, current recommended, recent research conclusions. REUSE the Phase 124 timeline-renderer pattern (pure renderer reads ONLY via navigation.cjs; human-authored body byte-preserved across regeneration) | TBD (Phase 143) |
+| MEMDIAL-03 | The MD section is rendered FROM the graph -- the graph is the source of truth, the MD is the legible projection. No hand-authored dial state in the MD; regeneration is idempotent. Closes the FILEVAL loop visibly: what the navigator reads in the memory file is exactly what the graph holds | TBD (Phase 143) |

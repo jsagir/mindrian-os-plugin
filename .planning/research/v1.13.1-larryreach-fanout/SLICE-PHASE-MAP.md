@@ -49,3 +49,19 @@ When you run `/gsd:plan-phase N`, read the rows for phase N below and load the l
 ## TRIZ / Part-8 reminder (applies to phases 142, 143, 144, 145, 146)
 
 The umbilical contradiction (Brain richness vs user-data locality) resolves by SEPARATION (space/time/condition) -- see `SYNTHESIS-APPENDIX` TRIZ section. Local thinking stays local; the Brain receives only hashed/enum projections (generic framework handles, phase ids, problem types), never user content. Any Brain/web sensor carries generic handles only. Canon Part 8 is the floor.
+
+## Addendum (2026-06-05) -- dial-TUI + deep-research + dial memory layer
+
+New research produced after the original temporal-graph fan-out. All artifacts live in the room at `~/MindrianRooms/mindrianOS/product-evolution/v1.13.0-memory-system-review/`. The MASTER CONTEXT INDEX there (`LARRY-REACHES-CONTEXT-INDEX.md`) links everything -- read it first.
+
+### Phase 141 additions
+- DRSCH-01..04 (framework-led deep research, the 5th dial reach). PRIMARY research: `DEEP-RESEARCH-PARADIGM-online.md` (online Tavily study: plan-and-execute + framework-shaped Brain planner + hat-scoped searchers). NOTE: `141-RESEARCH.md` PREDATES DRSCH -- at plan time, fold the online study in so DRSCH is GSD-researched.
+- LARRY-03 (stable machine-readable reach ids) -- near-zero prep for the dial-TUI.
+
+### Phase 143 additions
+- DIALTUI-01..11 (the dial-TUI selector). PRIMARY: `DIAL-TUI-DESIGN-BRIEF.md` + `raw-slices-dial-tui/SLICE-TUI/RANK/LABEL/PIVOT/IMPACT.md`. Hard constraint: render AS Shape F.1 Brain-variant, dial = confidence column, no scrollable widget. REQUIRES a UI-SPEC (run gsd-ui-phase, DIALTUI-11).
+- MEMDIAL-01..03 (dial memory layer: graph relationship + FEYNMAN/MINTO-style MD acknowledgment, reusing Phase 124 renderer pattern).
+- FILEVAL-01 (F-decision selection writes+validates a typed edge).
+
+### Cross-cutting
+- FILEVAL-01..03 (validate decisions + research file to the local graph; no assumed filing). FILEVAL-02 -> 141, FILEVAL-03 -> 142, FILEVAL-01 -> 143.
