@@ -670,12 +670,12 @@
 | NAV-04 | Phase 142 | Complete |
 | FILEVAL-03 | Phase 142 | Complete |
 | SENS-01 | Phase 143 | Complete |
-| SENS-02 | Phase 143 | Pending |
-| SENS-03 | Phase 143 | Pending |
+| SENS-02 | Phase 143 | Complete |
+| SENS-03 | Phase 143 | Complete |
 | SENS-04 | Phase 143 | Pending |
 | SENS-05 | Phase 143 | Pending |
 | SENS-06 | Phase 143 | Complete |
-| SENS-07 | Phase 143 | Pending |
+| SENS-07 | Phase 143 | Complete |
 | DIALTUI-01 | Phase 143.1 | Pending |
 | DIALTUI-02 | Phase 143.1 | Pending |
 | DIALTUI-03 | Phase 143.1 | Pending |
