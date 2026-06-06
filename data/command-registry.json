@@ -615,7 +615,7 @@
       "serves_jtbd": [
         "explore"
       ],
-      "teaching": "When the surface feels overwhelming, /mos:help is a selector menu: pick a lane, then a command, and it runs. Add --list for the full text view.",
+      "teaching": "When the surface feels overwhelming, /mos:help is a selector: the 4 lanes are question-tabs, each lane's commands are the options, and the one you pick runs. Add --list for the full text view.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },

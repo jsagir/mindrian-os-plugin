@@ -1,12 +1,12 @@
 ---
 name: help
-description: Selector-menu help -- pick a lane, pick a command, run it (text view with --list)
-help_jtbd: "Pick a lane, pick a command, run it -- the command menu as a selector."
+description: Selector-menu help -- 4 lanes as question-tabs, commands as options, run it (text view with --list)
+help_jtbd: "Tab across the 4 lanes, arrow to a command, run it -- the command menu as a selector."
 argument-hint: [command-name | --list]
 body_shape: F (Selector Block)
-body_shape_detail: F.1 Next Move (drill-down via AskUserQuestion)
+body_shape_detail: F.1 Next Move (two-axis lanes-as-tabs via one AskUserQuestion call)
 serves_jtbd: ["explore"]
-teaching: "When the surface feels overwhelming, /mos:help is a selector menu: pick a lane, then a command, and it runs. Add --list for the full text view."
+teaching: "When the surface feels overwhelming, /mos:help is a selector: the 4 lanes are question-tabs, each lane's commands are the options, and the one you pick runs. Add --list for the full text view."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Read
@@ -18,18 +18,24 @@ allowed-tools:
 
 # /mos:help
 
-You are Larry. `/mos:help` is a SELECTOR MENU (a Shape F drill-down, the canon's AskUserQuestion primitive), NOT a flat printed list. The navigator picks a lane, then a group/command, and it RUNS. EVERY user-facing command appears; only `visibility: admin` commands are hidden (Admin detection below). `--list` prints the full text view instead.
+You are Larry. `/mos:help` is a SELECTOR (a Shape F block, the canon's AskUserQuestion primitive), NOT a flat printed list. The navigator switches lanes and arrows to a command, and it RUNS. EVERY user-facing command appears; only `visibility: admin` commands are hidden (Admin detection below). `--list` prints the full text view instead.
 
-## Default `/mos:help` -- the drill-down selector (TUI)
+## Default `/mos:help` -- the two-axis lanes-as-tabs selector (TUI)
 
 Source the lanes, groups, and commands from `data/help-groups.json` (each group carries `lane:` of start | methodology | explore | view; `_lanes` labels them). Join each command with its `commands/<name>.md` `help_jtbd:` for the one-line outcome. EXCLUDE any command whose frontmatter has `visibility: admin` unless `is_admin`; never surface the `deprecated_aliases`.
 
-Render with the AskUserQuestion primitive, drilling down. Each AskUserQuestion shows at most 4 options; when a level has more than 4 entries, show 3 + a 4th "More ->" option that re-asks with the remainder, and always offer "Back".
+Render with ONE AskUserQuestion call carrying up to 4 questions -- one question per lane. This is the TWO-AXIS model:
 
-1. **Level 1 -- lane.** One AskUserQuestion, the 4 lanes from `_lanes` (Start + navigate / Run a methodology / Explore + intelligence / View + manage). Each option's `description` lists 4-6 representative `/mos:` commands; `preview` is a compact De Stijl tree (glyph + `/mos:cmd` + JTBD).
-2. **Level 2 -- group** (only if the lane has more than one group). AskUserQuestion of that lane's groups (by `label`), each described by its command count + a few names. A single-group lane skips to Level 3.
-3. **Level 3 -- command.** AskUserQuestion of the group's commands (paginate by 4 with "More ->"; include "Back"). Option label = `/mos:<command>`; description = its `help_jtbd:`; preview = a 3-line card.
-4. **Run.** On a `/mos:<command>` selection, RUN it via the Skill tool (`mos:<command>`). If it needs an active room and none is set, say so and offer `/mos:rooms` or `/mos:new-project`. "Back" re-asks the prior level; "More ->" continues pagination.
+- **The LANE axis (the tabs).** The 4 lanes (`start` / `methodology` / `explore` / `view`, labelled from `_lanes`: Start + navigate / Run a methodology / Explore + intelligence / View + manage) become the AskUserQuestion question-tabs. The host lets the navigator switch lanes -- the host owns whether that is Left/Right or Tab; do NOT claim a specific key. Each question's `header` is the short lane key (Start / Methodology / Explore / View) and its `question` is the lane label.
+- **The COMMAND axis (the options).** Each lane-question's `options` are that lane's commands (the union of every group in that lane, in declaration order). Per option: `label` = `/mos:<command>`; `description` = that command's `help_jtbd:`. The navigator arrows Up/Down through the lane's commands and Enter selects.
+
+Build all 4 questions in the SAME AskUserQuestion call so the lanes render as parallel tabs, not a sequential drill-down.
+
+**Pagination (the 4-option cap).** AskUserQuestion shows at most 4 options per question. When a lane has more than 4 commands, show the first 3 commands + a 4th `More ->` option. Selecting `More ->` re-asks THAT lane (a fresh AskUserQuestion question for the lane) with the remaining commands, again 3 + `More ->` until exhausted. Every paginated re-ask also offers `Back` (return to the prior page of that lane). The `methodology`, `explore`, and `view` lanes each carry more than 4 commands, so each paginates; `start` fits in one page.
+
+**Run.** On a `/mos:<command>` selection, RUN it via the Skill tool (`mos:<command>`). If the command needs an active room and none is set, say so and offer `/mos:rooms` or `/mos:new-project`. `More ->` continues that lane's pagination; `Back` returns to the prior page.
+
+**Honesty about the host keymap.** This instruction structures the two axes -- lanes as question-tabs, commands as options -- but the plugin does NOT control the host's keybindings. Never name a specific tab-switch key to the navigator; the host owns whether lane-switching is a horizontal-arrow gesture or a tab gesture, and the host owns Up/Down + Enter for moving and selecting within a tab. Describe the AXES (switch lanes / arrow through commands), never the keystrokes. No bespoke scrollable widget, no custom keymap, no raw-mode TUI -- the AskUserQuestion primitive only (Canon Part 3 Shape F; SEED-020).
 
 ## Text view + non-interactive fallback (`/mos:help --list` / `--all`, Desktop, piped)
 

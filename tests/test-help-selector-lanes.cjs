@@ -7,9 +7,12 @@
  * Quick task 260602-rgx -- regression test that locks the /mos:help selector-menu
  * lane contract.
  *
- * /mos:help is a Shape F drill-down selector (commands/help.md) over
- * data/help-groups.json. Each group carries a lane: of start|methodology|explore|view
- * for the Level-1 selector. The menu shows ALL non-admin commands; only
+ * /mos:help is a Shape F two-axis lanes-as-tabs selector (commands/help.md) over
+ * data/help-groups.json -- the 4 lanes (start|methodology|explore|view) render as
+ * parallel AskUserQuestion question-tabs (the LANE axis) and each lane's commands
+ * are that question's options (the COMMAND axis). SEED-020: this is the first
+ * user-facing application of Shape F as the universal Mindrian UI. The menu shows
+ * ALL non-admin commands; only
  * visibility: admin commands (admin, dogfood-flush) and the deprecated_aliases (soft
  * redirects) are hidden. That feature shipped as ad-hoc edits with no regression test.
  *
@@ -42,6 +45,7 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const GROUPS_PATH = path.join(REPO_ROOT, 'data', 'help-groups.json');
 const COMMANDS_DIR = path.join(REPO_ROOT, 'commands');
 const RENDERER = path.join(REPO_ROOT, 'scripts', 'help-renderer.cjs');
+const HELP_MD = path.join(REPO_ROOT, 'commands', 'help.md');
 
 const LANE_ENUM = new Set(['start', 'methodology', 'explore', 'view']);
 
@@ -176,6 +180,41 @@ try {
   assert.strictEqual(leaked.length, 0, 'renderer must not print any visibility:admin /mos:<cmd> line; leaked: ' + JSON.stringify(leaked));
   pass('Assertion 4 (help-renderer.cjs text view exits 0 and prints every non-admin command)');
 } catch (err) { failTest('Assertion 4 (help-renderer.cjs text view exits 0 and prints every non-admin command)', err); }
+
+// -- Assertion 5: commands/help.md default render is the TWO-AXIS lanes-as-tabs
+// selector, NOT the old sequential lane->group->command drill-down. SEED-020 is
+// the first user-facing application of Shape F as the universal Mindrian UI; this
+// assertion locks the new contract so a future edit cannot silently regress it
+// back to the sequential drill-down.
+try {
+  const md = fs.readFileSync(HELP_MD, 'utf8');
+
+  // The new contract: one AskUserQuestion call, 4 lanes as question-tabs, the
+  // two named axes, More->/Back pagination, run via the Skill tool, and an
+  // explicit honesty clause about NOT claiming host keybindings.
+  assert.ok(/two-axis/i.test(md), 'help.md names the two-axis model');
+  assert.ok(/ONE AskUserQuestion call/i.test(md), 'help.md renders ONE AskUserQuestion call with up to 4 questions (the 4 lanes as tabs)');
+  assert.ok(/LANE axis/i.test(md) && /COMMAND axis/i.test(md), 'help.md names both the LANE axis (tabs) and the COMMAND axis (options)');
+  assert.ok(/More ->/.test(md), 'help.md keeps the 3 + "More ->" pagination for lanes over 4 commands');
+  assert.ok(/\bBack\b/.test(md), 'help.md keeps a "Back" affordance in pagination');
+  assert.ok(/Skill tool/i.test(md), 'help.md runs the selected command via the Skill tool');
+
+  // Honest about the host keymap: must NOT instruct the navigator to press a
+  // specific tab-switch key (the plugin cannot control the host keymap).
+  assert.ok(/does NOT control the host's keybindings|do not control the host keymap/i.test(md),
+    'help.md is explicit that the plugin does not control the host keymap');
+  assert.ok(!/press Tab|press Left\/Right|press the Tab key/i.test(md),
+    'help.md must NOT claim a specific tab-switch keybinding the plugin cannot control');
+
+  // The OLD sequential drill-down vocabulary must be gone (no "Level 1 -- lane"
+  // then "Level 2 -- group" then "Level 3 -- command" staircase).
+  assert.ok(!/Level 1 -- lane/i.test(md), 'help.md no longer uses the sequential "Level 1 -- lane" drill-down framing');
+  assert.ok(!/Level 3 -- command/i.test(md), 'help.md no longer uses the sequential "Level 3 -- command" drill-down framing');
+
+  // The text fallback must STILL delegate to the renderer verbatim (unchanged).
+  assert.ok(/scripts\/help-renderer\.cjs/.test(md), 'help.md text fallback still delegates to scripts/help-renderer.cjs');
+  pass('Assertion 5 (help.md default render is the two-axis lanes-as-tabs selector; text fallback unchanged)');
+} catch (err) { failTest('Assertion 5 (help.md two-axis lanes-as-tabs contract)', err); }
 
 if (failed > 0) {
   console.log('\n' + failed + ' assertion block(s) FAILED (' + passed + ' passed)');
