@@ -128,6 +128,13 @@ function commandsForLane(groups, lane) {
   return out;
 }
 
+// Collect the groups for a lane (in declaration order), each with its label,
+// glyph, and command list. The card view prints a group sub-header per group so
+// the full group taxonomy (all 11 group labels) stays visible inside its lane.
+function groupsForLane(groups, lane) {
+  return groups.groups.filter((g) => g.lane === lane);
+}
+
 /**
  * Render the De Stijl card view.
  *
@@ -174,12 +181,19 @@ function renderHelpCards(groups, useColor) {
     );
     out.push('');
 
-    // One 2-line card per command.
-    for (const cmd of cmds) {
-      out.push('    ' + laneColor + BLOCK + R + ' ' + laneColor + B + '/mos:' + cmd + R);
-      const j = jtbdFor(cmd);
-      if (j) out.push('    ' + laneColor + BLOCK + R + ' ' + col('cream') + j + R);
-      out.push('');
+    // Walk the lane's groups in declaration order. Each group prints a sub-header
+    // (its glyph + label) so the full 11-group taxonomy stays visible, then a
+    // 2-line card per command.
+    for (const g of groupsForLane(groups, lane)) {
+      out.push(
+        '    ' + col('muted') + B + (g.glyph || '·') + ' ' + g.label + R
+      );
+      for (const cmd of g.commands) {
+        out.push('    ' + laneColor + BLOCK + R + ' ' + laneColor + B + '/mos:' + cmd + R);
+        const j = jtbdFor(cmd);
+        if (j) out.push('    ' + laneColor + BLOCK + R + ' ' + col('cream') + j + R);
+        out.push('');
+      }
     }
   }
 

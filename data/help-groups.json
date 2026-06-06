@@ -115,6 +115,7 @@
         "validate",
         "operator",
         "feynman-timeline-refresh",
+        "dial-memory-refresh",
         "graph",
         "suggest-next",
         "explain-decision",
