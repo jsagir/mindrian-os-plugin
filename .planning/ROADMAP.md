@@ -1878,7 +1878,7 @@ Plans:
 - [ ] **Phase 141: Local Retrieval Spine + Capability Dial** - `getRoomContext()` 3-leg local fusion seeds the per-turn loop; commit + version-bump the "When to Reach" dial; fix the line-53 ReferenceError
 - [x] **Phase 142: Local Intelligence Wiring (compute-store-and-ACT)** - Cascade findings surface mid-session; BRAIN.md derives so tier_mode rises; queue auto-drains; post-compact re-injection consumes; Phase 109 spine navigates
 - [x] **Phase 143: Insight Sensors (the 7-row trigger map)** - Event-driven sensors (SENS-01..07) auto-fire the right reach on the right signal, hat-scoped and Part-8-constrained on the Brain/web path [SPLIT 2026-06-06: dial-TUI moved to 143.1] (completed 2026-06-06)
-- [ ] **Phase 143.1: Dial-TUI Capability Selector (INSERTED)** - The render surface (DIALTUI-01..11 + MEMDIAL-01..03 + FILEVAL-01) that shows ranked reaches as Shape F.1 with a confidence-column dial, captures pivot/sync edges; UI-SPEC approved (CLI-first)
+- [x] **Phase 143.1: Dial-TUI Capability Selector (INSERTED)** - The render surface (DIALTUI-01..11 + MEMDIAL-01..03 + FILEVAL-01) that shows ranked reaches as Shape F.1 with a confidence-column dial, captures pivot/sync edges; UI-SPEC approved (CLI-first) (completed 2026-06-06)
 - [ ] **Phase 144: Navigation Engine legacy->engine Flip** - `decide()` reads {local graph + BRAIN.md + trigger map} instead of file-presence; `routing_source: engine` appears in a trace
 - [ ] **Phase 145: Scheduled Sensor Activation** - The scout suite + whitespace/reverse-salient/opportunity/competitor sensors fire on a cadence (gated on Phase 140 hardening)
 - [ ] **Phase 146: Loop-Fires Acceptance Gate** - The scripted dogfood session in the mindrianOS room shows all 5 acceptance criteria; the milestone gate clears
@@ -1977,7 +1977,7 @@ Plans:
 - [x] 143.1-03-PLAN.md -- DIALTUI-06/07/08/09 + FILEVAL-01: PIVOTED + SELECTED_REACH edges + f_selector_pivot/sync events + closeReach() 4-outcome transaction (navigation.cjs-only)
 - [x] 143.1-04-PLAN.md -- DIALTUI-03/10: Shape F.1 Brain-variant CLI presenter + confidence-column dial + all 5 render states + tri-polar surface-agnostic core
 - [x] 143.1-05-PLAN.md -- MEMDIAL-01/02/03: dial memory renderer on the Phase 124 pattern + relationship-layer queryability + FILEVAL-01 edge-write lock
-- [ ] 143.1-06-PLAN.md -- DIALTUI-11 complete-by-reference + run-all-1431.sh aggregator + end-to-end state-matrix gate (two-K / 0.70 floor / Part-8 seam / write-locality)
+- [x] 143.1-06-PLAN.md -- DIALTUI-11 complete-by-reference + run-all-1431.sh aggregator + end-to-end state-matrix gate (two-K / 0.70 floor / Part-8 seam / write-locality)
 **UI hint**: yes (UI-SPEC approved -- 143.1-UI-SPEC.md)
 
 ### Phase 144: Navigation Engine legacy->engine Flip

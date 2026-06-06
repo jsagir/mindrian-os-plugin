@@ -686,7 +686,7 @@
 | DIALTUI-08 | Phase 143.1 | Complete |
 | DIALTUI-09 | Phase 143.1 | Complete |
 | DIALTUI-10 | Phase 143.1 | Complete |
-| DIALTUI-11 | Phase 143.1 | Pending |
+| DIALTUI-11 | Phase 143.1 | Complete |
 | FILEVAL-01 | Phase 143.1 | Complete |
 | MEMDIAL-01 | Phase 143.1 | Complete |
 | MEMDIAL-02 | Phase 143.1 | Complete |
