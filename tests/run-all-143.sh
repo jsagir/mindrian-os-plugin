@@ -11,7 +11,10 @@
 #   test-sens01-first-material-fires.cjs  -> SENS-01 (first-material -> context_block + brain_framework_chain companion; Part-8 no-leak)
 #   test-sens06-artifact-filed-fires.cjs  -> SENS-06 (artifact-filed -> contradiction/cross_room over the shipped CASC-01 side-channel)
 #   test-sensors-routing-fence.cjs        -> Phase 144 fence (no routing_source='engine'; no decide() rewrite in lib/core/sensors/)
-#   test-sensors-part8-sweep.cjs          -> Part 8 5-tripwire (no packet/brain-client require, no projection token, no sha256/createHash)
+#   test-sensors-part8-sweep.cjs          -> Part 8 5-tripwire (no packet/brain-client require, no projection token, no hashing call site)
+#   test-sens02-lagging-component-fires.cjs -> SENS-02 (lagging-component -> context_block dispatching the shipped Phase 89 rs-engine/find-bottlenecks)
+#   test-sens03-methodology-decision-fires.cjs -> SENS-03 (methodology-decision -> brain_consult + brain_framework_chain CHAINS_TO, generic handles only)
+#   test-sens07-gate-approach-fires.cjs   -> SENS-07 (gate-approach -> the shipped Phase 120 breakthrough scan + agents/investor objection surface)
 #
 # Plans 02 and 03 APPEND their detector suites (SENS-02/03/04/05/07) to
 # CJS_SUITES below; the two module-level gates already span every new file under
@@ -38,6 +41,10 @@ CJS_SUITES=(
   test-sens06-artifact-filed-fires.cjs
   test-sensors-routing-fence.cjs
   test-sensors-part8-sweep.cjs
+  # Plan 02 (wave 2) detector suites -- SENS-02 / SENS-03 / SENS-07:
+  test-sens02-lagging-component-fires.cjs
+  test-sens03-methodology-decision-fires.cjs
+  test-sens07-gate-approach-fires.cjs
 )
 
 TOTAL=0
