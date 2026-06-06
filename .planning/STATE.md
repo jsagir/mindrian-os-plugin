@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: Larry Reaches
-status: executing
+status: completed
 stopped_at: Completed 142-02-PLAN.md (CASC-02 -- spine navigates; test-spine-navigates-decide + test-decide-part8-invariant GREEN; Phase-144 fence held)
-last_updated: "2026-06-05T15:57:51.807Z"
-last_activity: 2026-06-05
+last_updated: "2026-06-06T10:01:47.099Z"
+last_activity: 2026-06-06
 progress:
-  total_phases: 79
-  completed_phases: 56
+  total_phases: 81
+  completed_phases: 57
   total_plans: 405
-  completed_plans: 370
-  percent: 71
+  completed_plans: 371
+  percent: 70
 ---
 
 # Project State
@@ -656,6 +656,7 @@ Progress: [█████████░] 91%
 | Phase 88 P12 | 25min | 2 tasks | 4 files |
 
 - Phase 127.2 inserted after Phase 127: Brain warmup ping -- hide MCP cold-start latency inside Larry's first-question render window (sibling to Phase 127 stdio shim, v1.13.1-beta.2 own gate) (URGENT)
+- Phase 143.1 inserted after Phase 143: Dial-TUI Capability Selector split out of Phase 143 (sensors vs render surface); UI-SPEC approved CLI-first (URGENT)
 
 ### Decisions
 

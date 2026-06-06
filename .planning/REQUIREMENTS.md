@@ -676,21 +676,21 @@
 | SENS-05 | Phase 143 | Pending |
 | SENS-06 | Phase 143 | Pending |
 | SENS-07 | Phase 143 | Pending |
-| DIALTUI-01 | Phase 143 | Pending |
-| DIALTUI-02 | Phase 143 | Pending |
-| DIALTUI-03 | Phase 143 | Pending |
-| DIALTUI-04 | Phase 143 | Pending |
-| DIALTUI-05 | Phase 143 | Pending |
-| DIALTUI-06 | Phase 143 | Pending |
-| DIALTUI-07 | Phase 143 | Pending |
-| DIALTUI-08 | Phase 143 | Pending |
-| DIALTUI-09 | Phase 143 | Pending |
-| DIALTUI-10 | Phase 143 | Pending |
-| DIALTUI-11 | Phase 143 | Pending |
-| FILEVAL-01 | Phase 143 | Pending |
-| MEMDIAL-01 | Phase 143 | Pending |
-| MEMDIAL-02 | Phase 143 | Pending |
-| MEMDIAL-03 | Phase 143 | Pending |
+| DIALTUI-01 | Phase 143.1 | Pending |
+| DIALTUI-02 | Phase 143.1 | Pending |
+| DIALTUI-03 | Phase 143.1 | Pending |
+| DIALTUI-04 | Phase 143.1 | Pending |
+| DIALTUI-05 | Phase 143.1 | Pending |
+| DIALTUI-06 | Phase 143.1 | Pending |
+| DIALTUI-07 | Phase 143.1 | Pending |
+| DIALTUI-08 | Phase 143.1 | Pending |
+| DIALTUI-09 | Phase 143.1 | Pending |
+| DIALTUI-10 | Phase 143.1 | Pending |
+| DIALTUI-11 | Phase 143.1 | Pending |
+| FILEVAL-01 | Phase 143.1 | Pending |
+| MEMDIAL-01 | Phase 143.1 | Pending |
+| MEMDIAL-02 | Phase 143.1 | Pending |
+| MEMDIAL-03 | Phase 143.1 | Pending |
 | NAV-01 | Phase 144 | Pending |
 | SCHED-01 | Phase 145 | Pending |
 | SCHED-02 | Phase 145 | Pending |
@@ -811,17 +811,17 @@ Placement decision (LOCKED): the dial-TUI selector is built under Phase 143 (Ins
 
 | ID | Description | Plan |
 |----|-------------|------|
-| DIALTUI-01 | Dial-reach orchestrator: compose f-selector-ranker.rankForSelector (with a NEW dedicated DIAL_REACH_K=5 cap, leaving MAX_K=3 untouched for the AskUserQuestion block), resolveTierMode, and the offer-resolver margin math into a structured list of 5 ordered reaches. Pure, sync, LOCAL-only (zero live Brain calls at render time). Returns per-reach {score, source, brain_component, local_component, recommended:bool} provenance. | TBD (Phase 143) |
-| DIALTUI-02 | Per-reach Recommended marker via the FROZEN gate reused verbatim: mark reach #1 IFF mode_a AND score>=0.7; mark reach #2 ALSO only when score>=0.7 AND (reach1-reach2)<MARGIN_THRESHOLD(0.15). Zero markers in Mode B / Tier 0. Never lower 0.7; never render literal '(Recommended)' text - use the filled/empty triangle glyph swap. | TBD (Phase 143) |
-| DIALTUI-03 | Render the interactive chooser AS Shape F.1 with the LOCKED Brain-suggestion variant (reuse applyBrainSuggestionVariant + composeBrainOptionRows + appendAskUserQuestionTrailer). Hard 3 options; surface 'top-3 of N' in the footer stat-strip; route overflow to the host free-text row. The 'dial' is the right-aligned confidence column, not a scrollbar. No bespoke widget. | TBD (Phase 143) |
-| DIALTUI-04 | Feynman-JTBD label composer (lib/hmi/dial-label-composer.cjs) modeled on rs-query-to-text.cjs: frozen WHAT-THEY-GET template per reach + runtime {topic} slot filled from navigation.getActiveFocus/getNeighborhood, FNV-1a deterministic pick, dual-egress Part-8 audit on the Brain/deep-research labels only. Graceful degradation ladder covering partial-slot cases down to the generic JTBD one_line. Hook into shape-f1-renderer to swap mechanism-verb rows for labels while persisting the canonical verb to the graph edge. | TBD (Phase 143) |
-| DIALTUI-05 | Label-bank drift test: assert the template bank contains zero em-dashes, zero banned mechanism nouns ('Context Block','contradiction surface','cross-room','Brain consult','deep research plan'), and covers exactly the 5 canonical reach ids. Also fix the 7 existing em-dashes in jtbd-taxonomy.json (lines 71,197,227,285,346,379,387). | TBD (Phase 143) |
-| DIALTUI-06 | PIVOT as first-class decision: add 'PIVOTED' to ALLOWED_EDGE_TYPES (additive idiom) + f_selector_pivot event type. On a commit OFF the recommended reach, emit a PIVOTED edge FROM chosen TO declined-recommended with ENUM-only properties {declined_recommended:'cmd:...', margin, decision_id}. Feed an investment_level-scaled pivot-penalty into the ranker so one early pivot does not permanently bury a reach. | TBD (Phase 143) |
-| DIALTUI-07 | Intent-sync via resting-detent: committing the recommended detent without rotating IS the 'in sync' signal; record a positive f_selector_sync_confirmed event. Reserve an explicit 'are you in sync?' prompt ONLY for the DECISION_GATE operator; everywhere else keep the shipped abstention triple so the dial stays silent when Larry is not confident. | TBD (Phase 143) |
-| DIALTUI-08 | Close the Canon Part 3 Layer-3 gap: every committed reach writes a 'SELECTED_REACH' typed edge (add to ALLOWED_EDGE_TYPES) FROM active focus TO cmd:<command>, properties {jtbd, framework, recommended, decision_id}, PLUS a STATE.md Decisions row or TodoWrite next-action (reuse the wikilink injector). Keep SELECTED_REACH bookkeeping distinct from any truth-claim promotion (which still routes through confirmNode with a human byUser). | TBD (Phase 143) |
-| DIALTUI-09 | closeReach() unified transaction with four outcomes (resting-detent commit; rotated/pivot commit; defer/reject via existing path; free-text/none-fit via recordSelectorMiss), all routed exclusively through navigation.cjs. Never open room.db directly. | TBD (Phase 143) |
-| DIALTUI-10 | Tri-polar mapping: the orchestrator returns a surface-agnostic structured reach-list (no ANSI in the core). CLI = statusline gauge + F.1 chooser + resting-detent sync. Desktop = Larry voices reaches conversationally, % column degrades to markdown (requires a Desktop render proof before ship). Cowork = SELECTED_REACH edge is shared truth, selectors fire per actor_id with divergence handling. Completion is gated on all three surfaces having a mapping. | TBD (Phase 143) |
-| DIALTUI-11 | Run gsd-ui-phase and produce a UI-SPEC for the dial-TUI selector under Phase 143 (which carries the UI hint), NOT Phase 141. Include the Mode B / Tier 0 zero-marker appearance explicitly so the offline/cold-room dial reads as intentional, not broken. | TBD (Phase 143) |
+| DIALTUI-01 | Dial-reach orchestrator: compose f-selector-ranker.rankForSelector (with a NEW dedicated DIAL_REACH_K=5 cap, leaving MAX_K=3 untouched for the AskUserQuestion block), resolveTierMode, and the offer-resolver margin math into a structured list of 5 ordered reaches. Pure, sync, LOCAL-only (zero live Brain calls at render time). Returns per-reach {score, source, brain_component, local_component, recommended:bool} provenance. | TBD (Phase 143.1) |
+| DIALTUI-02 | Per-reach Recommended marker via the FROZEN gate reused verbatim: mark reach #1 IFF mode_a AND score>=0.7; mark reach #2 ALSO only when score>=0.7 AND (reach1-reach2)<MARGIN_THRESHOLD(0.15). Zero markers in Mode B / Tier 0. Never lower 0.7; never render literal '(Recommended)' text - use the filled/empty triangle glyph swap. | TBD (Phase 143.1) |
+| DIALTUI-03 | Render the interactive chooser AS Shape F.1 with the LOCKED Brain-suggestion variant (reuse applyBrainSuggestionVariant + composeBrainOptionRows + appendAskUserQuestionTrailer). Hard 3 options; surface 'top-3 of N' in the footer stat-strip; route overflow to the host free-text row. The 'dial' is the right-aligned confidence column, not a scrollbar. No bespoke widget. | TBD (Phase 143.1) |
+| DIALTUI-04 | Feynman-JTBD label composer (lib/hmi/dial-label-composer.cjs) modeled on rs-query-to-text.cjs: frozen WHAT-THEY-GET template per reach + runtime {topic} slot filled from navigation.getActiveFocus/getNeighborhood, FNV-1a deterministic pick, dual-egress Part-8 audit on the Brain/deep-research labels only. Graceful degradation ladder covering partial-slot cases down to the generic JTBD one_line. Hook into shape-f1-renderer to swap mechanism-verb rows for labels while persisting the canonical verb to the graph edge. | TBD (Phase 143.1) |
+| DIALTUI-05 | Label-bank drift test: assert the template bank contains zero em-dashes, zero banned mechanism nouns ('Context Block','contradiction surface','cross-room','Brain consult','deep research plan'), and covers exactly the 5 canonical reach ids. Also fix the 7 existing em-dashes in jtbd-taxonomy.json (lines 71,197,227,285,346,379,387). | TBD (Phase 143.1) |
+| DIALTUI-06 | PIVOT as first-class decision: add 'PIVOTED' to ALLOWED_EDGE_TYPES (additive idiom) + f_selector_pivot event type. On a commit OFF the recommended reach, emit a PIVOTED edge FROM chosen TO declined-recommended with ENUM-only properties {declined_recommended:'cmd:...', margin, decision_id}. Feed an investment_level-scaled pivot-penalty into the ranker so one early pivot does not permanently bury a reach. | TBD (Phase 143.1) |
+| DIALTUI-07 | Intent-sync via resting-detent: committing the recommended detent without rotating IS the 'in sync' signal; record a positive f_selector_sync_confirmed event. Reserve an explicit 'are you in sync?' prompt ONLY for the DECISION_GATE operator; everywhere else keep the shipped abstention triple so the dial stays silent when Larry is not confident. | TBD (Phase 143.1) |
+| DIALTUI-08 | Close the Canon Part 3 Layer-3 gap: every committed reach writes a 'SELECTED_REACH' typed edge (add to ALLOWED_EDGE_TYPES) FROM active focus TO cmd:<command>, properties {jtbd, framework, recommended, decision_id}, PLUS a STATE.md Decisions row or TodoWrite next-action (reuse the wikilink injector). Keep SELECTED_REACH bookkeeping distinct from any truth-claim promotion (which still routes through confirmNode with a human byUser). | TBD (Phase 143.1) |
+| DIALTUI-09 | closeReach() unified transaction with four outcomes (resting-detent commit; rotated/pivot commit; defer/reject via existing path; free-text/none-fit via recordSelectorMiss), all routed exclusively through navigation.cjs. Never open room.db directly. | TBD (Phase 143.1) |
+| DIALTUI-10 | Tri-polar mapping: the orchestrator returns a surface-agnostic structured reach-list (no ANSI in the core). CLI = statusline gauge + F.1 chooser + resting-detent sync. Desktop = Larry voices reaches conversationally, % column degrades to markdown (requires a Desktop render proof before ship). Cowork = SELECTED_REACH edge is shared truth, selectors fire per actor_id with divergence handling. Completion is gated on all three surfaces having a mapping. | TBD (Phase 143.1) |
+| DIALTUI-11 | Run gsd-ui-phase and produce a UI-SPEC for the dial-TUI selector under Phase 143 (which carries the UI hint), NOT Phase 141. Include the Mode B / Tier 0 zero-marker appearance explicitly so the offline/cold-room dial reads as intentional, not broken. | TBD (Phase 143.1) |
 
 ## Dial memory layer -- graph relationship + MD acknowledgment (added 2026-06-05; FEYNMAN/MINTO hunch)
 
@@ -829,6 +829,6 @@ The dial is not just a render: its activity must persist on BOTH sides of Canon 
 
 | ID | Description | Plan |
 |----|-------------|------|
-| MEMDIAL-01 | The dial activity persists as a typed GRAPH RELATIONSHIP LAYER in room.db: the 5 reach ids, SELECTED_REACH and PIVOTED edges (DIALTUI-06/08), and DRSCH research-conclusion evidence edges (DRSCH/FILEVAL-02) -- all queryable via navigation.cjs, never a flat log | TBD (Phase 143) |
-| MEMDIAL-02 | A human-readable memory MD (FEYNMAN.md and/or MINTO.md, or a dedicated dial memory file -- exact choice resolved in the dial-TUI UI-SPEC) gains a sentinel-bounded auto-section acknowledging the dial-relevant pieces: available reaches, last selected, current recommended, recent research conclusions. REUSE the Phase 124 timeline-renderer pattern (pure renderer reads ONLY via navigation.cjs; human-authored body byte-preserved across regeneration) | TBD (Phase 143) |
-| MEMDIAL-03 | The MD section is rendered FROM the graph -- the graph is the source of truth, the MD is the legible projection. No hand-authored dial state in the MD; regeneration is idempotent. Closes the FILEVAL loop visibly: what the navigator reads in the memory file is exactly what the graph holds | TBD (Phase 143) |
+| MEMDIAL-01 | The dial activity persists as a typed GRAPH RELATIONSHIP LAYER in room.db: the 5 reach ids, SELECTED_REACH and PIVOTED edges (DIALTUI-06/08), and DRSCH research-conclusion evidence edges (DRSCH/FILEVAL-02) -- all queryable via navigation.cjs, never a flat log | TBD (Phase 143.1) |
+| MEMDIAL-02 | A human-readable memory MD (FEYNMAN.md and/or MINTO.md, or a dedicated dial memory file -- exact choice resolved in the dial-TUI UI-SPEC) gains a sentinel-bounded auto-section acknowledging the dial-relevant pieces: available reaches, last selected, current recommended, recent research conclusions. REUSE the Phase 124 timeline-renderer pattern (pure renderer reads ONLY via navigation.cjs; human-authored body byte-preserved across regeneration) | TBD (Phase 143.1) |
+| MEMDIAL-03 | The MD section is rendered FROM the graph -- the graph is the source of truth, the MD is the legible projection. No hand-authored dial state in the MD; regeneration is idempotent. Closes the FILEVAL loop visibly: what the navigator reads in the memory file is exactly what the graph holds | TBD (Phase 143.1) |
