@@ -68,7 +68,7 @@
     },
     {
       "id": "understand-market",
-      "one_line": "Understand the market for this idea — size, structure, dynamics.",
+      "one_line": "Understand the market for this idea - size, structure, dynamics.",
       "cues": [
         "market size",
         "TAM SAM SOM",
@@ -194,7 +194,7 @@
     },
     {
       "id": "compare-options",
-      "one_line": "Compare alternatives across criteria — choose between A/B/C.",
+      "one_line": "Compare alternatives across criteria - choose between A/B/C.",
       "cues": [
         "compare",
         "A vs B",
@@ -224,7 +224,7 @@
     },
     {
       "id": "connect-domains",
-      "one_line": "Find cross-domain analogues — what does this look like in another field?",
+      "one_line": "Find cross-domain analogues - what does this look like in another field?",
       "cues": [
         "analogous",
         "similar to",
@@ -282,7 +282,7 @@
     },
     {
       "id": "plan-execution",
-      "one_line": "Plan the next 90 days — milestones, owners, dates.",
+      "one_line": "Plan the next 90 days - milestones, owners, dates.",
       "cues": [
         "plan",
         "next 90 days",
@@ -343,7 +343,7 @@
     },
     {
       "id": "audit-room",
-      "one_line": "Audit Data Room health — gaps, drift, evidence tier, decision quality.",
+      "one_line": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
       "cues": [
         "is the room healthy",
         "audit",
@@ -376,7 +376,7 @@
     },
     {
       "id": "explore",
-      "one_line": "No specific job — general thinking, talking, ranging.",
+      "one_line": "No specific job - general thinking, talking, ranging.",
       "cues": [],
       "methodology_hooks": [],
       "next_move_verbs": [
@@ -384,7 +384,7 @@
         "Run Methodology",
         "Defer"
       ],
-      "completion_shape": "none — explore is the steady state until a job crystallizes",
+      "completion_shape": "none - explore is the steady state until a job crystallizes",
       "operator_affinity": ["JUST_TALK", "EXPLORE_CAPTURE"],
       "persona_affinity": [],
       "completion_pattern": null
