@@ -665,10 +665,10 @@
 | FILEVAL-02 | Phase 141 | Complete |
 | CASC-01 | Phase 142 | Complete |
 | CASC-02 | Phase 142 | Complete |
-| NAV-02 | Phase 142 | Pending |
+| NAV-02 | Phase 142 | Complete |
 | NAV-03 | Phase 142 | Complete |
-| NAV-04 | Phase 142 | Pending |
-| FILEVAL-03 | Phase 142 | Pending |
+| NAV-04 | Phase 142 | Complete |
+| FILEVAL-03 | Phase 142 | Complete |
 | SENS-01 | Phase 143 | Pending |
 | SENS-02 | Phase 143 | Pending |
 | SENS-03 | Phase 143 | Pending |
@@ -742,16 +742,16 @@
 |----|-------------|------|
 | FILEVAL-01 | Every Decision-Gate (Shape F) selection writes a typed edge/node to the LOCAL room.db (Part 4 "every choice is graph data", Part 9 "SQL remembers") at the moment of selection -- not just to an MD file | TBD |
 | FILEVAL-02 | Deep-research fetched conclusions (DRSCH) file to the local graph as typed evidence nodes with provenance, not only as prose artifacts | Plan 141-04 (lib/core/navigation/file-evidence-readback.cjs::fileEvidenceWithReadback) |
-| FILEVAL-03 | After any decision or research fetch, Larry VALIDATES the write landed in room.db (read-back assertion) and REMINDS the navigator what was filed -- no assumed filing, no fake recall (honesty rule). A filing that did not land is surfaced, not swallowed | TBD |
+| FILEVAL-03 | After any decision or research fetch, Larry VALIDATES the write landed in room.db (read-back assertion) and REMINDS the navigator what was filed -- no assumed filing, no fake recall (honesty rule). A filing that did not land is surfaced, not swallowed | 142-04 |
 
 
 
 | ID | Description | Plan |
 |----|-------------|------|
 | NAV-01 | navigation-engine `decide()` reads {local graph + BRAIN.md + trigger map} instead of file-presence; `routing_source: engine` appears in >=1 trace per session when Brain reachable | TBD |
-| NAV-02 | BRAIN.md derivation wired so `tier_mode` rises above `tier_0` for a room's sections | TBD |
+| NAV-02 | BRAIN.md derivation wired so `tier_mode` rises above `tier_0` for a room's sections | 142-04 |
 | NAV-03 | brain-derivation queue auto-drains (entries do not sit for days) | TBD |
-| NAV-04 | post-compact re-injection consumer wired so memory does not degrade across an auto-compact boundary | TBD |
+| NAV-04 | post-compact re-injection consumer wired so memory does not degrade across an auto-compact boundary | 142-04 |
 
 ### Cascade surfacing (sub-loop 1 -- compute-store-and-ACT)
 

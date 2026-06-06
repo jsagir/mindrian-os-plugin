@@ -1876,7 +1876,7 @@ Plans:
 
 - [x] **Phase 140: Sentinel & Instrumentation Hardening** - Fix the 5 scout-surfaced bugs so a scheduled scout never broadcasts noise (HARD prerequisite for scheduled sensors) [COMPLETE -- v1.13.1-beta.6, HARD-01..05 closed]
 - [ ] **Phase 141: Local Retrieval Spine + Capability Dial** - `getRoomContext()` 3-leg local fusion seeds the per-turn loop; commit + version-bump the "When to Reach" dial; fix the line-53 ReferenceError
-- [ ] **Phase 142: Local Intelligence Wiring (compute-store-and-ACT)** - Cascade findings surface mid-session; BRAIN.md derives so tier_mode rises; queue auto-drains; post-compact re-injection consumes; Phase 109 spine navigates
+- [x] **Phase 142: Local Intelligence Wiring (compute-store-and-ACT)** - Cascade findings surface mid-session; BRAIN.md derives so tier_mode rises; queue auto-drains; post-compact re-injection consumes; Phase 109 spine navigates
 - [ ] **Phase 143: Insight Sensors (the 7-row trigger map)** - Event-driven sensors auto-fire the right reach on the right signal, hat-scoped and Part-8-constrained on the Brain/web path
 - [ ] **Phase 144: Navigation Engine legacy->engine Flip** - `decide()` reads {local graph + BRAIN.md + trigger map} instead of file-presence; `routing_source: engine` appears in a trace
 - [ ] **Phase 145: Scheduled Sensor Activation** - The scout suite + whitespace/reverse-salient/opportunity/competitor sensors fire on a cadence (gated on Phase 140 hardening)
@@ -1936,7 +1936,7 @@ Plans:
 - [x] 142-01-PLAN.md -- Wave 0 test scaffold: run-all-142.sh aggregator + 7 RED loop-fires suites (one per requirement + Part-8 gate) + room-142 fixture (Nyquist floor)
 - [x] 142-02-PLAN.md -- CASC-02 (the one BUILD): wire getRoomContext neighborhood into decide() via the navigation.cjs chokepoint on the caller-owned handle; routing_source UNCHANGED (Phase 144 fence)
 - [x] 142-03-PLAN.md -- CASC-01 + NAV-03 VERIFY: loop-fires acceptance tests lock the shipped Phase 95 cascade side-channel surfacing + the UserPromptSubmit drain auto-fire (no re-implementation)
-- [ ] 142-04-PLAN.md -- NAV-02 verify (BRAIN.md present -> tier_mode rises above tier_0) + NAV-04 close-by-reference (Phase 95.5 passed) + FILEVAL-03 honesty-rule verify (filing-did-not-land surfaced)
+- [x] 142-04-PLAN.md -- NAV-02 verify (BRAIN.md present -> tier_mode rises above tier_0) + NAV-04 close-by-reference (Phase 95.5 passed) + FILEVAL-03 honesty-rule verify (filing-did-not-land surfaced)
 
 ### Phase 143: Insight Sensors (the 7-row trigger map)
 **Goal**: The "insight sensors" the Brain's own beautiful-question node asked for fire automatically -- the right reach on the right conversational/state signal, hat-scoped per Canon Part 2, with the Brain/web path constrained to generic handles only. Heuristic sensors first (the cheap v1), feeding the navigation engine.
