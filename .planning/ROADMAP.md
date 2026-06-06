@@ -1975,7 +1975,7 @@ Plans:
 - [x] 143.1-01-PLAN.md -- DIALTUI-01/02: dial-reach orchestrator + DIAL_REACH_K=5 + the frozen 0.70 Recommended gate (the surface-agnostic ReachList core)
 - [x] 143.1-02-PLAN.md -- DIALTUI-04/05: Feynman-JTBD label composer + Part-8 {framework} egress seam + label-bank drift test + 7 jtbd-taxonomy.json em-dash fixes
 - [x] 143.1-03-PLAN.md -- DIALTUI-06/07/08/09 + FILEVAL-01: PIVOTED + SELECTED_REACH edges + f_selector_pivot/sync events + closeReach() 4-outcome transaction (navigation.cjs-only)
-- [ ] 143.1-04-PLAN.md -- DIALTUI-03/10: Shape F.1 Brain-variant CLI presenter + confidence-column dial + all 5 render states + tri-polar surface-agnostic core
+- [x] 143.1-04-PLAN.md -- DIALTUI-03/10: Shape F.1 Brain-variant CLI presenter + confidence-column dial + all 5 render states + tri-polar surface-agnostic core
 - [ ] 143.1-05-PLAN.md -- MEMDIAL-01/02/03: dial memory renderer on the Phase 124 pattern + relationship-layer queryability + FILEVAL-01 edge-write lock
 - [ ] 143.1-06-PLAN.md -- DIALTUI-11 complete-by-reference + run-all-1431.sh aggregator + end-to-end state-matrix gate (two-K / 0.70 floor / Part-8 seam / write-locality)
 **UI hint**: yes (UI-SPEC approved -- 143.1-UI-SPEC.md)

@@ -678,14 +678,14 @@
 | SENS-07 | Phase 143 | Complete |
 | DIALTUI-01 | Phase 143.1 | Pending |
 | DIALTUI-02 | Phase 143.1 | Pending |
-| DIALTUI-03 | Phase 143.1 | Pending |
+| DIALTUI-03 | Phase 143.1 | Complete |
 | DIALTUI-04 | Phase 143.1 | Complete |
 | DIALTUI-05 | Phase 143.1 | Complete |
 | DIALTUI-06 | Phase 143.1 | Complete |
 | DIALTUI-07 | Phase 143.1 | Complete |
 | DIALTUI-08 | Phase 143.1 | Complete |
 | DIALTUI-09 | Phase 143.1 | Complete |
-| DIALTUI-10 | Phase 143.1 | Pending |
+| DIALTUI-10 | Phase 143.1 | Complete |
 | DIALTUI-11 | Phase 143.1 | Pending |
 | FILEVAL-01 | Phase 143.1 | Complete |
 | MEMDIAL-01 | Phase 143.1 | Pending |
