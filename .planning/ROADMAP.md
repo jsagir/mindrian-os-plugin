@@ -1875,7 +1875,7 @@ Plans:
 ### Phases
 
 - [x] **Phase 140: Sentinel & Instrumentation Hardening** - Fix the 5 scout-surfaced bugs so a scheduled scout never broadcasts noise (HARD prerequisite for scheduled sensors) [COMPLETE -- v1.13.1-beta.6, HARD-01..05 closed]
-- [ ] **Phase 141: Local Retrieval Spine + Capability Dial** - `getRoomContext()` 3-leg local fusion seeds the per-turn loop; commit + version-bump the "When to Reach" dial; fix the line-53 ReferenceError
+- [x] **Phase 141: Local Retrieval Spine + Capability Dial** - `getRoomContext()` 3-leg local fusion seeds the per-turn loop; commit + version-bump the "When to Reach" dial; fix the line-53 ReferenceError
 - [x] **Phase 142: Local Intelligence Wiring (compute-store-and-ACT)** - Cascade findings surface mid-session; BRAIN.md derives so tier_mode rises; queue auto-drains; post-compact re-injection consumes; Phase 109 spine navigates
 - [x] **Phase 143: Insight Sensors (the 7-row trigger map)** - Event-driven sensors (SENS-01..07) auto-fire the right reach on the right signal, hat-scoped and Part-8-constrained on the Brain/web path [SPLIT 2026-06-06: dial-TUI moved to 143.1] (completed 2026-06-06)
 - [x] **Phase 143.1: Dial-TUI Capability Selector (INSERTED)** - The render surface (DIALTUI-01..11 + MEMDIAL-01..03 + FILEVAL-01) that shows ranked reaches as Shape F.1 with a confidence-column dial, captures pivot/sync edges; UI-SPEC approved (CLI-first) (completed 2026-06-06)

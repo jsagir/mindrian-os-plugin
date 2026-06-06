@@ -676,8 +676,8 @@
 | SENS-05 | Phase 143 | Complete |
 | SENS-06 | Phase 143 | Complete |
 | SENS-07 | Phase 143 | Complete |
-| DIALTUI-01 | Phase 143.1 | Pending |
-| DIALTUI-02 | Phase 143.1 | Pending |
+| DIALTUI-01 | Phase 143.1 | Complete |
+| DIALTUI-02 | Phase 143.1 | Complete |
 | DIALTUI-03 | Phase 143.1 | Complete |
 | DIALTUI-04 | Phase 143.1 | Complete |
 | DIALTUI-05 | Phase 143.1 | Complete |
