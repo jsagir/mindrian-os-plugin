@@ -4,13 +4,13 @@ milestone: v1.13.1
 milestone_name: Larry Reaches
 status: executing
 stopped_at: Completed 142-02-PLAN.md (CASC-02 -- spine navigates; test-spine-navigates-decide + test-decide-part8-invariant GREEN; Phase-144 fence held)
-last_updated: "2026-06-06T13:35:26.221Z"
+last_updated: "2026-06-06T17:44:29.941Z"
 last_activity: 2026-06-06
 progress:
   total_phases: 81
   completed_phases: 58
   total_plans: 414
-  completed_plans: 375
+  completed_plans: 376
   percent: 72
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 143.1 (dial-tui-capability-selector) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 
 Phase 142-04 outcome (2026-06-06): VERIFY-AND-CLOSE for NAV-02 + NAV-04 + FILEVAL-03 -- three loop-fires suites turned GREEN against shipped code, with only the one thin wire each test proved a gap for. NAV-02: added ensureSectionDerived(roomPath, section, opts) to lib/core/brain-derivation.cjs (commit ed440faf) as the auto-fire the consumption side was missing -- idempotent short-circuit on a fresh brain-authored BRAIN.md, live-Brain delegation to the shipped deriveSection, and a LOCAL no-Brain-query path that composes a minimal schema-valid fresh BRAIN.md from the local triple through the EXISTING Part-8 chokepoint buildBrainQueryContext (hash + enum + slug only; brain_query_count:0 proves zero queries fired); test-brain-md-tier-rise.cjs (NOT modified) now proves tier_0 with BRAIN.md absent rises above tier_0 once the section BRAIN.md is written, observed in decision_trace.brain_md_tier_mode; buildBrainQueryContext remains the SOLE Brain-context builder (no new query surface). NAV-04: rewrote test-post-compact-nav04-closure.cjs (commit 925ef7f4) to the plan-checker TWO-HOP contract -- a naive direct hooks.json grep for restore-post-compact-context.cjs FALSE-FAILS because the consumer is loaded by the coordinator, never named in hooks.json; the fence now asserts HOP 1 (hooks.json registers sessionstart-coordinator.cjs on a SessionStart entry whose matcher includes compact) + HOP 2 (sessionstart-coordinator.cjs loads restore-post-compact-context) + an explicit anti-false-fail guard that the consumer is NOT named directly in hooks.json + the up-lane producer scripts/post-compact + the 95.5-VERIFICATION.md status: passed close-by-reference; NO production change. FILEVAL-03: thin-wired the already-computed `landed` round-trip values into the ok:true return of fileEvidenceWithReadback as result.readback (LOCAL recall, Part 8) + added surfaceFileEvidenceResult(result) (honesty signal for ok:false; human-readable recall for ok:true), re-exported through navigation.cjs (commit 3be2640b); rewrote test-fileval-readback-surface.cjs to prove BOTH halves -- HONESTY (filing_did_not_land returned + surfaced) AND the plan-checker REMIND positive path (ok:true carries non-empty, human-readable round-trip readback fields). FILEVAL-02 contract stays GREEN (readback is purely additive). Verification: 3 target suites 3/3 + 5/5 + 4/4; run-all-142.sh 7/7 (run twice); zero regression on navigation-acceptance / decoy-tier / room-home / fileval-02; em-dash scan clean across all touched files; every commit through the live pre-commit hook with no --no-verify. One out-of-scope discovery logged (DI-142-01 in deferred-items.md): test-derivation-drain-fires.cjs (NAV-03, plan 142-03) is cold-start flaky -- fails on first invocation after an idle gap, passes on re-run; confirmed DECOUPLED from 142-04 (no import linkage; ensureSectionDerived touches neither the queue nor MINDRIAN_BRAIN_KEY); left to the 142-03 owner. SUMMARY at .planning/phases/142-local-intelligence-wiring-compute-store-and-act/142-04-SUMMARY.md; 142-04 + the Phase 142 top-level row flipped to [x] in ROADMAP.md. PHASE 142 (Local Intelligence Wiring) is COMPLETE, 4/4 plans shipped.
@@ -582,6 +582,7 @@ Progress: [█████████░] 91%
 | Phase 143 P01 | 25m | 3 tasks | 8 files |
 | Phase 143 P02 | 5m | 3 tasks | 8 files |
 | Phase 143 P03 | 6 | 2 tasks | 7 files |
+| Phase 143.1 P02 | 12min | 3 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -1195,6 +1196,8 @@ Progress: [█████████░] 91%
 - [Phase 143]: SENS-02 surfaces find-bottlenecks/reverse-salient at reach_id context_block (LOCAL artifact-corpus analysis, not Brain/web)
 - [Phase 143]: SENS-03 brain_framework_chain companion carries only framework-name handles + problem_type enum (Canon Part 8 seam)
 - [Phase 143]: SENS-07 fires on commit-near stages from tuple.stage OR LOCAL ctx.venture_stage; dispatches shipped Phase 120 breakthrough scan + agents/investor
+- [Phase ?]: 143.1-02: dial-label-composer swaps mechanism-verb rows for WHAT-THEY-GET labels at render time; canonical_verb persists to the graph edge (DIALTUI-04)
+- [Phase ?]: 143.1-02: Part-8 egress audit scoped to brain_consult + deep_research {framework} slot ONLY; default-deny degrades to the generic JTBD line, never egresses raw user content
 
 ### Pending Todos
 
@@ -1229,6 +1232,6 @@ Progress: [█████████░] 91%
 
 ## Session Continuity
 
-Last session: 2026-06-06T12:43:07.864Z
+Last session: 2026-06-06T17:44:23.158Z
 Stopped at: Completed 142-02-PLAN.md (CASC-02 -- spine navigates; test-spine-navigates-decide + test-decide-part8-invariant GREEN; Phase-144 fence held)
 Resume file: None

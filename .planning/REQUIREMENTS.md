@@ -679,8 +679,8 @@
 | DIALTUI-01 | Phase 143.1 | Pending |
 | DIALTUI-02 | Phase 143.1 | Pending |
 | DIALTUI-03 | Phase 143.1 | Pending |
-| DIALTUI-04 | Phase 143.1 | Pending |
-| DIALTUI-05 | Phase 143.1 | Pending |
+| DIALTUI-04 | Phase 143.1 | Complete |
+| DIALTUI-05 | Phase 143.1 | Complete |
 | DIALTUI-06 | Phase 143.1 | Pending |
 | DIALTUI-07 | Phase 143.1 | Pending |
 | DIALTUI-08 | Phase 143.1 | Pending |

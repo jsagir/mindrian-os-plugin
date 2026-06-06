@@ -1973,7 +1973,7 @@ Plans:
   5. The orchestrator returns a surface-agnostic reach-list (no ANSI in the core); CLI master template ships; Desktop + Cowork mappings recorded (Desktop render proof DEFERRED per resolved OQ1; Cowork = per-actor label + shared edge per resolved OQ2); the dial memory layer (MEMDIAL-01..03) records the dial relationship + a Feynman/MINTO-style acknowledgment; FILEVAL-01 validates the selection writes a typed edge (DIALTUI-10, MEMDIAL-01..03, FILEVAL-01)
 **Plans**: 6 plans
 - [x] 143.1-01-PLAN.md -- DIALTUI-01/02: dial-reach orchestrator + DIAL_REACH_K=5 + the frozen 0.70 Recommended gate (the surface-agnostic ReachList core)
-- [ ] 143.1-02-PLAN.md -- DIALTUI-04/05: Feynman-JTBD label composer + Part-8 {framework} egress seam + label-bank drift test + 7 jtbd-taxonomy.json em-dash fixes
+- [x] 143.1-02-PLAN.md -- DIALTUI-04/05: Feynman-JTBD label composer + Part-8 {framework} egress seam + label-bank drift test + 7 jtbd-taxonomy.json em-dash fixes
 - [ ] 143.1-03-PLAN.md -- DIALTUI-06/07/08/09 + FILEVAL-01: PIVOTED + SELECTED_REACH edges + f_selector_pivot/sync events + closeReach() 4-outcome transaction (navigation.cjs-only)
 - [ ] 143.1-04-PLAN.md -- DIALTUI-03/10: Shape F.1 Brain-variant CLI presenter + confidence-column dial + all 5 render states + tri-polar surface-agnostic core
 - [ ] 143.1-05-PLAN.md -- MEMDIAL-01/02/03: dial memory renderer on the Phase 124 pattern + relationship-layer queryability + FILEVAL-01 edge-write lock
