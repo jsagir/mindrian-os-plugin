@@ -688,9 +688,9 @@
 | DIALTUI-10 | Phase 143.1 | Complete |
 | DIALTUI-11 | Phase 143.1 | Pending |
 | FILEVAL-01 | Phase 143.1 | Complete |
-| MEMDIAL-01 | Phase 143.1 | Pending |
-| MEMDIAL-02 | Phase 143.1 | Pending |
-| MEMDIAL-03 | Phase 143.1 | Pending |
+| MEMDIAL-01 | Phase 143.1 | Complete |
+| MEMDIAL-02 | Phase 143.1 | Complete |
+| MEMDIAL-03 | Phase 143.1 | Complete |
 | NAV-01 | Phase 144 | Pending |
 | SCHED-01 | Phase 145 | Pending |
 | SCHED-02 | Phase 145 | Pending |
