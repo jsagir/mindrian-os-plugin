@@ -1,23 +1,20 @@
 'use strict';
-// FILEVAL-03 (Phase 142) -- loop-fires acceptance: the file-evidence read-back
-// HONESTY SIGNAL is SURFACED to Larry, not swallowed.
+// FILEVAL-03 (Phase 142) -- loop-fires acceptance over the SHIPPED read-back
+// wrapper (navigation.fileEvidenceWithReadback). FILEVAL-03 has TWO obligations:
 //
-// FILEVAL-02 shipped the read-back wrapper (navigation.fileEvidenceWithReadback):
-//   - a write that landed returns { ok:true, node_id } with the readback fields,
-//   - a write that did NOT land returns { ok:false, reason:'filing_did_not_land' }.
-// FILEVAL-03 is the SURFACING layer Plan 04 wires: Larry must render the honesty
-// signal at the conversation surface (an ok:false filing is shown, never
-// swallowed). This suite is that contract.
+//   HONESTY half: a filing that did NOT land is SURFACED as a structured
+//     { ok:false, reason:'filing_did_not_land' } -- never swallowed, never a
+//     silent fake-recall. The surfacing layer (surfaceFileEvidenceResult) turns
+//     that into a Larry-facing payload that SHOWS the failure.
 //
-// Assertions:
-//   (a) landed write -> { ok:true } with the readback fields (GREEN floor).
-//   (b) a write that did not land -> { ok:false, reason:'filing_did_not_land' }
-//       (the honesty signal -- driven via a db proxy whose post-commit read-back
-//       row disappears, so the wrapper's read-back catches the mismatch).
-//   (c) navigation.surfaceFileEvidenceResult(result) exists and renders the
-//       ok:false honesty signal into a Larry-facing surfacing payload.
-//       RED until Plan 04 wires the surfacing entry point.
+//   REMIND half (the plan-checker positive-path revision): a filing that DID
+//     land returns ok:true AND carries non-empty, HUMAN-READABLE round-trip
+//     readback fields -- the recall the navigator would be shown ("here is what
+//     just landed"). The shipped success return discarded the validated
+//     round-trip values; this asserts they are now surfaceable, not
+//     computed-then-discarded.
 //
+// FILEVAL-02 shipped the wrapper; FILEVAL-03 proves both halves are surfaceable.
 // Uses the caller-owned room-142 fixture db (never a real room.db).
 // House rule: hyphens only, no em-dashes.
 
@@ -81,17 +78,50 @@ function makeDisappearingReadbackDb(realDb) {
   };
 }
 
+// A human-readable field is a non-empty string that is not a bare opaque id /
+// hash / json blob -- it carries words a navigator can read back.
+function isHumanReadable(v) {
+  if (typeof v !== 'string') return false;
+  if (v.length === 0) return false;
+  // reject a value that is ONLY a sha / hex / id token with no spaces or letters-as-words
+  return /[a-zA-Z]/.test(v);
+}
+
 async function main() {
   assert.equal(typeof navigation.fileEvidenceWithReadback, 'function',
     'FILEVAL-03: navigation.fileEvidenceWithReadback must be exported');
 
-  // (a) Landed write -> ok:true with the readback fields.
-  const label1 = 'FILEVAL-03: a landed write returns ok:true with readback fields';
+  // (a) REMIND half: a landed write returns ok:true WITH non-empty,
+  //     human-readable round-trip readback fields (the recall surfaced to the
+  //     navigator). This is the plan-checker positive-path assertion.
+  const label1 = 'FILEVAL-03 REMIND: a landed write returns ok:true with non-empty human-readable readback fields';
   const db = buildFixtureDb();
   try {
     const res = await navigation.fileEvidenceWithReadback(db, PARAMS);
     assert.ok(res && res.ok === true, label1 + ': landed write must be ok:true; got ' + JSON.stringify(res));
     assert.ok(typeof res.node_id === 'string' && res.node_id.length > 0, label1 + ': returns a node_id');
+
+    // The REMIND proof: the readback object exists and carries the round-trip
+    // values, not just structurally present but human-readable.
+    assert.ok(res.readback && typeof res.readback === 'object',
+      label1 + ': ok:true must carry a readback object (the recall), not discard it; got ' + JSON.stringify(res));
+    const rb = res.readback;
+    // The locked provenance fields round-tripped and are human-readable.
+    assert.ok(isHumanReadable(rb.source) && rb.source === PARAMS.source,
+      label1 + ': readback.source must round-trip the human-readable source; got ' + JSON.stringify(rb.source));
+    assert.ok(isHumanReadable(rb.evidence_tier) && rb.evidence_tier === PARAMS.evidence_tier,
+      label1 + ': readback.evidence_tier must round-trip; got ' + JSON.stringify(rb.evidence_tier));
+    // The human-facing finding body (topic / summary) round-tripped.
+    assert.ok(isHumanReadable(rb.topic) && rb.topic === PARAMS.topic,
+      label1 + ': readback.topic must round-trip the human-readable topic; got ' + JSON.stringify(rb.topic));
+    assert.ok(isHumanReadable(rb.summary) && rb.summary === PARAMS.summary,
+      label1 + ': readback.summary must round-trip the human-readable summary; got ' + JSON.stringify(rb.summary));
+    // artifact_path (D-10) round-tripped.
+    assert.equal(rb.artifact_path, PARAMS.artifact_path,
+      label1 + ': readback.artifact_path must round-trip; got ' + JSON.stringify(rb.artifact_path));
+    // review_status is the proposed truth-state (Part 9 role 5).
+    assert.equal(rb.review_status, 'proposed',
+      label1 + ': readback.review_status must surface the proposed truth-state; got ' + JSON.stringify(rb.review_status));
     ok(label1);
   } catch (e) {
     fail(label1, e);
@@ -99,13 +129,16 @@ async function main() {
     db.close();
   }
 
-  // (b) A write that did NOT land surfaces filing_did_not_land.
-  const label2 = 'FILEVAL-03: a write that did not land returns ok:false reason filing_did_not_land';
+  // (b) HONESTY half: a write that did NOT land surfaces filing_did_not_land as
+  //     a RETURNED structured value (surfaceable, never swallowed to null).
+  const label2 = 'FILEVAL-03 HONESTY: a write that did not land returns ok:false reason filing_did_not_land';
   const db2 = buildFixtureDb();
   try {
     const proxy = makeDisappearingReadbackDb(db2);
     const res = await navigation.fileEvidenceWithReadback(proxy, PARAMS);
-    assert.ok(res && res.ok === false, label2 + ': a non-landing write must be ok:false; got ' + JSON.stringify(res));
+    assert.ok(res && typeof res === 'object',
+      label2 + ': the failure must be a RETURNED structured result, never null / swallowed; got ' + JSON.stringify(res));
+    assert.ok(res.ok === false, label2 + ': a non-landing write must be ok:false; got ' + JSON.stringify(res));
     assert.equal(res.reason, 'filing_did_not_land',
       label2 + ': the honesty signal must be the explicit filing_did_not_land reason; got ' + JSON.stringify(res));
     ok(label2);
@@ -115,27 +148,49 @@ async function main() {
     db2.close();
   }
 
-  // (c) The SURFACING entry point renders the honesty signal for Larry. RED until
-  //     Plan 04 wires navigation.surfaceFileEvidenceResult.
-  const label3 = 'FILEVAL-03: surfaceFileEvidenceResult renders the ok:false honesty signal';
+  // (c) HONESTY surfacing: surfaceFileEvidenceResult renders the ok:false honesty
+  //     signal into a Larry-facing payload (shown, never swallowed).
+  const label3 = 'FILEVAL-03 SURFACE: surfaceFileEvidenceResult renders the ok:false honesty signal for Larry';
   try {
     assert.equal(typeof navigation.surfaceFileEvidenceResult, 'function',
-      label3 + ': navigation.surfaceFileEvidenceResult must be exported ' +
-      '(RED until Plan 04 wires the surfacing layer so Larry shows the honesty signal)');
+      label3 + ': navigation.surfaceFileEvidenceResult must be exported');
     const surfaced = navigation.surfaceFileEvidenceResult({ ok: false, reason: 'filing_did_not_land', node_id: 'x' });
     assert.ok(surfaced && typeof surfaced === 'object',
       label3 + ': surfacing must return a Larry-facing payload object');
     assert.equal(surfaced.surfaced, true,
       label3 + ': an ok:false filing must be SURFACED (never swallowed)');
-    assert.ok(typeof surfaced.message === 'string' && surfaced.message.length > 0,
-      label3 + ': the surfacing payload must carry a human-facing message');
+    assert.ok(isHumanReadable(surfaced.message),
+      label3 + ': the surfacing payload must carry a human-readable message');
     ok(label3);
   } catch (e) {
     fail(label3, e);
   }
 
+  // (d) REMIND surfacing: surfaceFileEvidenceResult turns a landed ok:true result
+  //     (with readback) into a human-readable recall message for the navigator.
+  const label4 = 'FILEVAL-03 SURFACE: surfaceFileEvidenceResult renders the ok:true landed-filing recall';
+  const db3 = buildFixtureDb();
+  try {
+    const res = await navigation.fileEvidenceWithReadback(db3, PARAMS);
+    assert.ok(res && res.ok === true, label4 + ': precondition -- landed write is ok:true');
+    const surfaced = navigation.surfaceFileEvidenceResult(res);
+    assert.equal(surfaced.surfaced, true, label4 + ': a landed filing must be SURFACED as recall');
+    assert.equal(surfaced.ok, true, label4 + ': the recall surfacing carries ok:true');
+    assert.ok(isHumanReadable(surfaced.message),
+      label4 + ': the recall payload must carry a human-readable message');
+    // The message actually mentions what was filed (the round-trip recall), not
+    // a generic stub.
+    assert.ok(surfaced.message.indexOf(PARAMS.topic) !== -1 || surfaced.message.indexOf(PARAMS.source) !== -1,
+      label4 + ': the recall message must reference the round-trip readback (topic or source); got ' + JSON.stringify(surfaced.message));
+    ok(label4);
+  } catch (e) {
+    fail(label4, e);
+  } finally {
+    db3.close();
+  }
+
   process.stdout.write('\n');
-  process.stdout.write('FILEVAL-03 loop-fires (read-back honesty surfaced): ' + passed + ' passed, ' + failed + ' failed\n');
+  process.stdout.write('FILEVAL-03 loop-fires (read-back honesty + remind surfaced): ' + passed + ' passed, ' + failed + ' failed\n');
   process.exit(failed === 0 ? 0 : 1);
 }
 
