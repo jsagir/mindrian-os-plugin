@@ -15,6 +15,8 @@
 #   test-sens02-lagging-component-fires.cjs -> SENS-02 (lagging-component -> context_block dispatching the shipped Phase 89 rs-engine/find-bottlenecks)
 #   test-sens03-methodology-decision-fires.cjs -> SENS-03 (methodology-decision -> brain_consult + brain_framework_chain CHAINS_TO, generic handles only)
 #   test-sens07-gate-approach-fires.cjs   -> SENS-07 (gate-approach -> the shipped Phase 120 breakthrough scan + agents/investor objection surface)
+#   test-sens04-external-fact-fires.cjs   -> SENS-04 (external-fact -> hat-scoped WebSearch via hat-scoping-table; MCP-stack-ask Decision Gate, no silent WebSearch; Part-8 public SIGNAL only)
+#   test-sens05-jtbd-reweight-fires.cjs   -> SENS-05 (JTBD set/changed -> selector-menu serves_jtbd + ADDRESSES_PROBLEM_TYPE Brain-query re-weight over the shipped Phase 104 jtbd-state)
 #
 # Plans 02 and 03 APPEND their detector suites (SENS-02/03/04/05/07) to
 # CJS_SUITES below; the two module-level gates already span every new file under
@@ -45,6 +47,9 @@ CJS_SUITES=(
   test-sens02-lagging-component-fires.cjs
   test-sens03-methodology-decision-fires.cjs
   test-sens07-gate-approach-fires.cjs
+  # Plan 03 (wave 3) detector suites -- SENS-04 / SENS-05 (the final two rows):
+  test-sens04-external-fact-fires.cjs
+  test-sens05-jtbd-reweight-fires.cjs
 )
 
 TOTAL=0
