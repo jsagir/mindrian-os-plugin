@@ -1429,6 +1429,52 @@ env PLUGIN_ROOT_FOR_FEYNMAN="$PLUGIN_ROOT" ACTIVE_ROOM_FOR_FEYNMAN="${ROOM_DIR:-
 ' 2>/dev/null || true
 # --- END feynman timeline refresh ---
 
+# --- BEGIN dial memory refresh (Phase 143.1-05, best-effort) ---
+# Phase 143.1-05 (MEMDIAL-02 runner half). Canon Part 8: LOCAL only -- the
+# dial-memory-runner is a THIN SHIM over the Phase 124 timeline-runner and reads
+# ONLY room.db via lib/core/navigation.cjs (D-03). Refreshes every section's
+# `## Dial Memory (auto)` block FROM the graph (SELECTED_REACH / PIVOTED / DRSCH
+# relationship layer), the human-authored body byte-preserved (D-02). Fired on the
+# SAME hybrid trigger as the Phase 124 timeline (session-start cascade + the
+# /mos:dial-memory-refresh manual command). Best-effort: a failure (`|| true`)
+# never blocks session startup. The slot is a no-op when no active room resolves.
+env PLUGIN_ROOT_FOR_DIAL="$PLUGIN_ROOT" ACTIVE_ROOM_FOR_DIAL="${ROOM_DIR:-}" node -e '
+  try {
+    var fs = require("node:fs");
+    var path = require("node:path");
+    var os = require("node:os");
+    var roomDir = process.env.ACTIVE_ROOM_FOR_DIAL || "";
+    if (!roomDir) {
+      var roomsRoot = process.env.MINDRIAN_ROOMS_ROOT
+        || process.env.MINDRIAN_ROOMS_HOME
+        || path.join(os.homedir(), "MindrianRooms");
+      var regPath = path.join(roomsRoot, ".rooms", "registry.json");
+      if (!fs.existsSync(regPath)) process.exit(0);
+      var reg = JSON.parse(fs.readFileSync(regPath, "utf8"));
+      if (!reg || !reg.active || !reg.rooms || !reg.rooms[reg.active]) process.exit(0);
+      roomDir = path.resolve(roomsRoot, reg.rooms[reg.active].path || reg.active);
+    }
+    if (!fs.existsSync(roomDir)) process.exit(0);
+    var db = null;
+    try {
+      var dbPath = path.join(roomDir, ".mindrian", "room.db");
+      if (fs.existsSync(dbPath)) {
+        var sqlite = require("node:sqlite");
+        db = new sqlite.DatabaseSync(dbPath);
+      }
+    } catch (_) { db = null; }
+    var runner = require(process.env.PLUGIN_ROOT_FOR_DIAL + "/lib/core/feynman/dial-memory-runner.cjs");
+    var result = runner.refreshAll(roomDir, { db: db });
+    if (db) { try { db.close(); } catch (_) {} }
+    if (result && result.refreshed && result.refreshed.length > 0) {
+      process.stderr.write("dial-memory-refresh: " + result.refreshed.length + " section(s) refreshed\n");
+    }
+  } catch (e) {
+    process.stderr.write("dial-memory-refresh failed: " + (e && e.message) + "\n");
+  }
+' 2>/dev/null || true
+# --- END dial memory refresh ---
+
 # ---------------------------------------------------------------------------
 # Phase 87-01a (SEC-04): ensure ROOM.md + MINTO.md pre-commit hook installed.
 # Self-healing: re-installs if missing or drifted. Worktree-aware via

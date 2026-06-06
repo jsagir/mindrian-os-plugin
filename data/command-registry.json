@@ -15,7 +15,7 @@
       ],
       "teaching": "When you have analyses on the table but no clear next step, /mos:act picks the best-fit methodology for your current room state and runs it. Saves you from analysis paralysis.",
       "jtbd_label": "Plan Execution",
-      "jtbd_summary": "Plan the next 90 days — milestones, owners, dates."
+      "jtbd_summary": "Plan the next 90 days - milestones, owners, dates."
     },
     {
       "command": "/mos:admin",
@@ -30,7 +30,7 @@
       ],
       "teaching": "When you need to inspect or rotate Brain API keys, /mos:admin opens the admin panel. Read-only by default; rotation is gated behind a confirm prompt.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:analyze-needs",
@@ -83,7 +83,7 @@
       ],
       "teaching": "When you need to know if your technology is too early, too late, or right on time, /mos:analyze-timing places it on the S-Curve. Best before you commit to a launch window.",
       "jtbd_label": "Understand Market",
-      "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
     },
     {
       "command": "/mos:auto-explore",
@@ -133,7 +133,7 @@
       ],
       "teaching": "When a room section drifts from its BRAIN.md derivation, /mos:brain-derive rebuilds the per-section Brain context now. Run after large filings or before a decision gate.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:build-knowledge",
@@ -150,7 +150,7 @@
       ],
       "teaching": "When you have data but not yet wisdom, /mos:build-knowledge climbs Ackoff's DIKW pyramid across the room. Surfaces what you know, what you can decide, and what is still raw.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:build-thesis",
@@ -219,7 +219,7 @@
       ],
       "teaching": "When you are weighing your approach against ventures that tried this before, /mos:compare-ventures lines them up on the dimensions that matter. Saves you from re-learning their lessons.",
       "jtbd_label": "Compare Options",
-      "jtbd_summary": "Compare alternatives across criteria — choose between A/B/C."
+      "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C."
     },
     {
       "command": "/mos:dashboard",
@@ -235,7 +235,7 @@
       ],
       "teaching": "When you need to see the whole room at a glance, /mos:dashboard opens the live or snapshot view in De Stijl layout. The fastest way to read room health before a meeting.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:deep-grade",
@@ -255,7 +255,7 @@
       ],
       "teaching": "When you need a calibrated grade on the room's quality, /mos:deep-grade scores it against 100+ real student projects. Best after at least three sections are populated.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:diagnose",
@@ -289,7 +289,23 @@
       ],
       "teaching": "When you need a quantitative read on the room, /mos:diagnostics runs the Wave-1 fingerprint: disruption, blindspot, novelty, surprise. Renaming to /mos:fingerprint in v1.14.0 (functional behavior unchanged).",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+    },
+    {
+      "command": "/mos:dial-memory-refresh",
+      "kind": "utility",
+      "frameworks": [],
+      "produces": "room/*/FEYNMAN.md",
+      "inputs": [],
+      "autonomous_safe": true,
+      "body_shape": "E",
+      "serves_jtbd": [
+        "validate-idea",
+        "audit-room"
+      ],
+      "teaching": "When a section's Dial Memory feels stale, /mos:dial-memory-refresh rebuilds the auto-section from the SELECTED_REACH / PIVOTED / DRSCH relationship layer. Human-authored prose stays byte-preserved.",
+      "jtbd_label": "Validate Idea",
+      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
     {
       "command": "/mos:doctor",
@@ -304,7 +320,7 @@
       ],
       "teaching": "When something feels off with the install, /mos:doctor diagnoses install-cache drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:dogfood-flush",
@@ -319,7 +335,7 @@
       ],
       "teaching": "When you want the plugin's own venture room to reflect your latest edits immediately, /mos:dogfood-flush drains the PostToolUse queue and regenerates the Live (auto) section in STATE.md. The automatic SessionStart drain handles the steady-state case.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:dominant-designs",
@@ -336,7 +352,7 @@
       ],
       "teaching": "When you are wondering if the market has settled on a winning design, /mos:dominant-designs runs Utterback-Abernathy to spot it. Tells you whether to ride the wave or break it.",
       "jtbd_label": "Understand Market",
-      "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
     },
     {
       "command": "/mos:explain-decision",
@@ -351,7 +367,7 @@
       ],
       "teaching": "When Larry made a recommendation and you want to know why, /mos:explain-decision shows the Navigation Engine trace for the last turn. Every recommendation has a graph path behind it.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:explore-domains",
@@ -388,7 +404,7 @@
       ],
       "teaching": "When the path forward branches into multiple plausible futures, /mos:explore-futures synthesizes TTA, Scenario, and S-Curve views. Helps you choose without pretending you can predict.",
       "jtbd_label": "Compare Options",
-      "jtbd_summary": "Compare alternatives across criteria — choose between A/B/C."
+      "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C."
     },
     {
       "command": "/mos:explore-trends",
@@ -406,7 +422,7 @@
       ],
       "teaching": "When today's trends could become tomorrow's problems, /mos:explore-trends pushes them to extremes to surface the second-order effects. The future shows up at the edges first.",
       "jtbd_label": "Understand Market",
-      "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
     },
     {
       "command": "/mos:export",
@@ -469,7 +485,7 @@
       ],
       "teaching": "When the answer might live in another field, /mos:find-analogies runs SAPPhIRE and TRIZ against your problem to surface cross-domain matches. Most breakthroughs are borrowed structure.",
       "jtbd_label": "Connect Domains",
-      "jtbd_summary": "Find cross-domain analogues — what does this look like in another field?"
+      "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?"
     },
     {
       "command": "/mos:find-bottlenecks",
@@ -503,7 +519,7 @@
       ],
       "teaching": "When you suspect your work touches a pattern in another field, /mos:find-connections traces cross-domain links through the graph. Surfaces the connections you did not know to look for.",
       "jtbd_label": "Connect Domains",
-      "jtbd_summary": "Find cross-domain analogues — what does this look like in another field?"
+      "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?"
     },
     {
       "command": "/mos:funding",
@@ -538,7 +554,7 @@
       ],
       "teaching": "When you want a fast read on problem-discovery quality, /mos:grade scores the room on six components in under a minute. The lightweight cousin of /mos:deep-grade.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:graph",
@@ -554,7 +570,7 @@
       ],
       "teaching": "When you want to ask the knowledge graph a question without writing Cypher, /mos:graph translates plain English into the right traversal. Larry walks the edges so you do not have to.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:hat-briefing",
@@ -586,7 +602,7 @@
       ],
       "teaching": "Deprecated alias. Use /mos:doctor --heal-room to repair structural drift; the canonical heal logic lives in doctor class E. Scheduled removal: v1.14.0.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:help",
@@ -601,7 +617,7 @@
       ],
       "teaching": "When the surface feels overwhelming, /mos:help is a selector menu: pick a lane, then a command, and it runs. Add --list for the full text view.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:hmi-status",
@@ -616,7 +632,7 @@
       ],
       "teaching": "Deprecated alias. Use /mos:doctor --ui-compliance --json to audit UI Ruling System compliance; the standalone hmi-status command folds into doctor class F. Scheduled removal: v1.14.0.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:jtbd",
@@ -631,7 +647,7 @@
       ],
       "teaching": "When you need to see or set the active job-to-be-done for this room, /mos:jtbd shows the per-room signal that tells Larry what kind of work you are doing right now.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:leadership",
@@ -646,7 +662,7 @@
       ],
       "teaching": "When the team feels wrong-shaped for the stage, /mos:leadership diagnoses which leadership pattern you actually need. Different stages of a venture need different leadership shapes.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:lean-canvas",
@@ -681,7 +697,7 @@
       ],
       "teaching": "When you need to map the forces shaping a domain, /mos:macro-trends runs PEST across Political, Economic, Social, and Technological dimensions. The wide-angle lens before you zoom in.",
       "jtbd_label": "Understand Market",
-      "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
     },
     {
       "command": "/mos:map-unknowns",
@@ -713,7 +729,7 @@
       ],
       "teaching": "When you need to inspect what the room remembers, /mos:memory shows the three layers: within-session, across-session, and cross-room. Memory locality is a Canon Part 9 invariant.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:models",
@@ -728,7 +744,7 @@
       ],
       "teaching": "When you want to see or switch which model routes which kind of work, /mos:models opens the routing profile. Different tasks deserve different models.",
       "jtbd_label": "Compare Options",
-      "jtbd_summary": "Compare alternatives across criteria — choose between A/B/C."
+      "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C."
     },
     {
       "command": "/mos:mos-reason",
@@ -745,7 +761,7 @@
       ],
       "teaching": "When a section needs Feynman-MINTO reasoning generated against its artifacts, /mos:mos-reason produces the pyramid: governing thought down to grounded support. Larry's structured thinking surface.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:mos",
@@ -760,7 +776,7 @@
       ],
       "teaching": "When you do not know which /mos:* surface to invoke, /mos:mos picks the right one. No room: onboard. Mostly empty room: status with a next-move hint. Populated room: suggest-next.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:mullins",
@@ -777,7 +793,7 @@
       ],
       "teaching": "When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test. Best before you commit real resources.",
       "jtbd_label": "Understand Market",
-      "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
     },
     {
       "command": "/mos:mva-brief",
@@ -792,7 +808,7 @@
       ],
       "teaching": "When you have just typed a venture sentence and want a brief in under a minute, /mos:mva-brief runs the 6-agent fan-out and deploys a shareable deck. The reward-before-investment surface of Phase 118.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:mva-option",
@@ -807,7 +823,7 @@
       ],
       "teaching": "When the 3-option footer shows after an MVA brief, /mos:mva-option routes your pick (refine / build a room / iterate) into the right next move. The hand-off after the first reward.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:new-project",
@@ -822,7 +838,7 @@
       ],
       "teaching": "When you are starting a new venture, /mos:new-project creates the room scaffolding and registers it in the room registry. The first move of every Mindrian journey.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:onboard",
@@ -837,7 +853,7 @@
       ],
       "teaching": "When you just installed MindrianOS, /mos:onboard walks you through the system and builds your first room. Designed so a stranger can self-activate without Larry holding their hand.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:operator",
@@ -852,7 +868,7 @@
       ],
       "teaching": "When you want to see or set how Larry should render right now, /mos:operator shows the conversation state machine: JUST_TALK, EXPLORE_CAPTURE, BUILD_ROOM, METHODOLOGY, or DECISION_GATE.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:opportunities",
@@ -867,7 +883,7 @@
       ],
       "teaching": "When you need to manage grants as a live pipeline rather than a list, /mos:opportunities surfaces the Opportunity Bank with HSI scores and decision states. Funding deserves the same rigor as product.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:organize",
@@ -882,7 +898,7 @@
       ],
       "teaching": "Deprecated alias. Use /mos:rooms organize to manage the room portfolio hierarchy; organize is folded into the multi-room surface. Scheduled removal: v1.14.0.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:persona",
@@ -914,7 +930,7 @@
       ],
       "teaching": "When you want several methodologies chained instead of run one-by-one, /mos:pipeline executes a multi-step pipeline with the room as the connecting tissue. Week 7 pattern.",
       "jtbd_label": "Plan Execution",
-      "jtbd_summary": "Plan the next 90 days — milestones, owners, dates."
+      "jtbd_summary": "Plan the next 90 days - milestones, owners, dates."
     },
     {
       "command": "/mos:present",
@@ -960,7 +976,7 @@
       ],
       "teaching": "Deprecated alias. Use /mos:graph to ask natural-language questions of the knowledge graph; query and graph share the same translator. Scheduled removal: v1.14.0.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:radar",
@@ -975,7 +991,7 @@
       ],
       "teaching": "When new Claude capabilities ship that might change what MindrianOS can do, /mos:radar tracks them so you do not have to. Capability awareness as a habit, not a one-time scan.",
       "jtbd_label": "Understand Market",
-      "jtbd_summary": "Understand the market for this idea — size, structure, dynamics."
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
     },
     {
       "command": "/mos:reanalyze",
@@ -1008,7 +1024,7 @@
       ],
       "teaching": "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework. Now it also extracts your room context first, surfaces each finding with a candidate filing location, and wires accepted findings as typed graph data other commands can consume.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:room",
@@ -1023,7 +1039,7 @@
       ],
       "teaching": "When you need to view or launch the active Data Room, /mos:room opens the room view with its current state. The default entry point for room navigation.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:rooms",
@@ -1038,7 +1054,7 @@
       ],
       "teaching": "When you have multiple venture rooms and need to switch, list, or archive them, /mos:rooms manages the registry. One person, many ventures.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:root-cause",
@@ -1143,7 +1159,7 @@
       ],
       "teaching": "When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant. Forces you to plan for the world you do not expect.",
       "jtbd_label": "Compare Options",
-      "jtbd_summary": "Compare alternatives across criteria — choose between A/B/C."
+      "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C."
     },
     {
       "command": "/mos:scheduled-tasks",
@@ -1158,7 +1174,7 @@
       ],
       "teaching": "When you want Cowork to run something on a schedule against this room, /mos:scheduled-tasks defines the recurring job. Best for nightly grant sweeps or weekly meeting digests.",
       "jtbd_label": "Plan Execution",
-      "jtbd_summary": "Plan the next 90 days — milestones, owners, dates."
+      "jtbd_summary": "Plan the next 90 days - milestones, owners, dates."
     },
     {
       "command": "/mos:score-innovation",
@@ -1176,7 +1192,7 @@
       ],
       "teaching": "When you are choosing between cross-domain innovation candidates, /mos:score-innovation runs HSI scoring to rank them by semantic surprise. The math reveals which idea is actually novel.",
       "jtbd_label": "Compare Options",
-      "jtbd_summary": "Compare alternatives across criteria — choose between A/B/C."
+      "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C."
     },
     {
       "command": "/mos:scout",
@@ -1192,7 +1208,7 @@
       ],
       "teaching": "When you want background scans running across the room without driving them yourself, /mos:scout fires the sentinel checks. The proactive layer, not the reactive one.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:setup",
@@ -1207,7 +1223,7 @@
       ],
       "teaching": "When you want to wire optional integrations like Brain or Velma, /mos:setup walks you through configuration. MindrianOS works without them; they make it work harder.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:snapshot",
@@ -1253,7 +1269,7 @@
       ],
       "teaching": "When you want the MindrianOS Mondrian banner, /mos:splash displays it. Mostly decorative; useful for screenshots and demo openings.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:status",
@@ -1269,7 +1285,7 @@
       ],
       "teaching": "When you need a fast read on the room's current state, /mos:status shows the governing thought per section plus health glyphs. The 10-second status check.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:structure-argument",
@@ -1304,7 +1320,7 @@
       ],
       "teaching": "When you finish a step and want Larry to recommend the next move, /mos:suggest-next reads the room graph and proposes 3-5 options with reasons. The Navigation Engine made visible.",
       "jtbd_label": "Plan Execution",
-      "jtbd_summary": "Plan the next 90 days — milestones, owners, dates."
+      "jtbd_summary": "Plan the next 90 days - milestones, owners, dates."
     },
     {
       "command": "/mos:systems-thinking",
@@ -1339,7 +1355,7 @@
       ],
       "teaching": "When the team keeps wearing the same hat and missing perspectives, /mos:think-hats rotates them through de Bono's six. The discomfort is the point; that is where the new thought lives.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job — general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
       "command": "/mos:update",
@@ -1354,7 +1370,7 @@
       ],
       "teaching": "When you suspect MindrianOS has a newer version waiting, /mos:update checks and installs via Claude Code's native plugin loader. Stale plugins quietly diverge from the docs.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:user-needs",
@@ -1439,7 +1455,7 @@
       ],
       "teaching": "Deprecated alias. Use /mos:dashboard --mermaid to open the De Stijl knowledge-graph viewer with Mermaid output; visualize folds into the dashboard surface. Scheduled removal: v1.14.0.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:whitespace",
@@ -1457,7 +1473,7 @@
       ],
       "teaching": "When you suspect a gap exists in the room's coverage of a domain, /mos:whitespace runs HSI scoring across the artifact corpus to find under-explored zones. Best after the room has 20+ entries.",
       "jtbd_label": "Connect Domains",
-      "jtbd_summary": "Find cross-domain analogues — what does this look like in another field?"
+      "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?"
     },
     {
       "command": "/mos:wiki",
@@ -1473,7 +1489,7 @@
       ],
       "teaching": "When you want to read the Data Room as linked wiki pages, /mos:wiki opens the wiki view. Section by section, with cross-references rendered as hyperlinks.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health — gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     }
   ],
   "framework_index": {
