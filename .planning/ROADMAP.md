@@ -1953,7 +1953,7 @@ Plans:
   5. A gate/milestone approach auto-fires the breakthrough scan (Category G) + investor-objection surface; a Brain/web scan of the sensor code confirms zero user-content egress
 **Plans**: 3 plans
 Plans:
-- [ ] 143-01-PLAN.md -- Sensor module spine + reach/posture id banks + SENS-01 (first-material, verify Phase 117 + brain_framework_chain companion) + SENS-06 (artifact-filed, verify CASC-01); Phase-144 routing fence + Part-8 sweep gates + run-all-143.sh aggregator
+- [x] 143-01-PLAN.md -- Sensor module spine + reach/posture id banks + SENS-01 (first-material, verify Phase 117 + brain_framework_chain companion) + SENS-06 (artifact-filed, verify CASC-01); Phase-144 routing fence + Part-8 sweep gates + run-all-143.sh aggregator
 - [ ] 143-02-PLAN.md -- SENS-02 (lagging-component -> rs-engine) + SENS-03 (methodology-decision -> brain_framework_chain) + SENS-07 (gate-approach -> breakthrough scan + investor-objection)
 - [ ] 143-03-PLAN.md -- SENS-04 (external-fact -> hat-scoped WebSearch + MCP-stack-ask gate) + SENS-05 (JTBD set/changed -> selector + Brain-query re-weight)
 **UI hint**: no (moved to Phase 143.1)
@@ -2016,7 +2016,7 @@ Plans:
 | 140. Sentinel & Instrumentation Hardening | 4/4 | Complete | v1.13.1-beta.6 |
 | 141. Local Retrieval Spine + Capability Dial | 4/6 | In Progress|  |
 | 142. Local Intelligence Wiring | 3/4 | In Progress|  |
-| 143. Insight Sensors | 0/0 | Not started | - |
+| 143. Insight Sensors | 1/3 | In Progress|  |
 | 144. Navigation Engine legacy->engine Flip | 0/0 | Not started | - |
 | 145. Scheduled Sensor Activation | 0/0 | Not started | - |
 | 146. Loop-Fires Acceptance Gate | 0/0 | Not started | - |
