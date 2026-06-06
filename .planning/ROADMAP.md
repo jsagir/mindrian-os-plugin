@@ -1877,7 +1877,7 @@ Plans:
 - [x] **Phase 140: Sentinel & Instrumentation Hardening** - Fix the 5 scout-surfaced bugs so a scheduled scout never broadcasts noise (HARD prerequisite for scheduled sensors) [COMPLETE -- v1.13.1-beta.6, HARD-01..05 closed]
 - [ ] **Phase 141: Local Retrieval Spine + Capability Dial** - `getRoomContext()` 3-leg local fusion seeds the per-turn loop; commit + version-bump the "When to Reach" dial; fix the line-53 ReferenceError
 - [x] **Phase 142: Local Intelligence Wiring (compute-store-and-ACT)** - Cascade findings surface mid-session; BRAIN.md derives so tier_mode rises; queue auto-drains; post-compact re-injection consumes; Phase 109 spine navigates
-- [ ] **Phase 143: Insight Sensors (the 7-row trigger map)** - Event-driven sensors (SENS-01..07) auto-fire the right reach on the right signal, hat-scoped and Part-8-constrained on the Brain/web path [SPLIT 2026-06-06: dial-TUI moved to 143.1]
+- [x] **Phase 143: Insight Sensors (the 7-row trigger map)** - Event-driven sensors (SENS-01..07) auto-fire the right reach on the right signal, hat-scoped and Part-8-constrained on the Brain/web path [SPLIT 2026-06-06: dial-TUI moved to 143.1] (completed 2026-06-06)
 - [ ] **Phase 143.1: Dial-TUI Capability Selector (INSERTED)** - The render surface (DIALTUI-01..11 + MEMDIAL-01..03 + FILEVAL-01) that shows ranked reaches as Shape F.1 with a confidence-column dial, captures pivot/sync edges; UI-SPEC approved (CLI-first)
 - [ ] **Phase 144: Navigation Engine legacy->engine Flip** - `decide()` reads {local graph + BRAIN.md + trigger map} instead of file-presence; `routing_source: engine` appears in a trace
 - [ ] **Phase 145: Scheduled Sensor Activation** - The scout suite + whitespace/reverse-salient/opportunity/competitor sensors fire on a cadence (gated on Phase 140 hardening)
@@ -1955,7 +1955,7 @@ Plans:
 Plans:
 - [x] 143-01-PLAN.md -- Sensor module spine + reach/posture id banks + SENS-01 (first-material, verify Phase 117 + brain_framework_chain companion) + SENS-06 (artifact-filed, verify CASC-01); Phase-144 routing fence + Part-8 sweep gates + run-all-143.sh aggregator
 - [x] 143-02-PLAN.md -- SENS-02 (lagging-component -> rs-engine) + SENS-03 (methodology-decision -> brain_framework_chain) + SENS-07 (gate-approach -> breakthrough scan + investor-objection)
-- [ ] 143-03-PLAN.md -- SENS-04 (external-fact -> hat-scoped WebSearch + MCP-stack-ask gate) + SENS-05 (JTBD set/changed -> selector + Brain-query re-weight)
+- [x] 143-03-PLAN.md -- SENS-04 (external-fact -> hat-scoped WebSearch + MCP-stack-ask gate) + SENS-05 (JTBD set/changed -> selector + Brain-query re-weight)
 **UI hint**: no (moved to Phase 143.1)
 
 ### Phase 143.1: Dial-TUI Capability Selector (INSERTED)
@@ -2016,7 +2016,7 @@ Plans:
 | 140. Sentinel & Instrumentation Hardening | 4/4 | Complete | v1.13.1-beta.6 |
 | 141. Local Retrieval Spine + Capability Dial | 4/6 | In Progress|  |
 | 142. Local Intelligence Wiring | 3/4 | In Progress|  |
-| 143. Insight Sensors | 2/3 | In Progress|  |
+| 143. Insight Sensors | 3/3 | Complete   | 2026-06-06 |
 | 144. Navigation Engine legacy->engine Flip | 0/0 | Not started | - |
 | 145. Scheduled Sensor Activation | 0/0 | Not started | - |
 | 146. Loop-Fires Acceptance Gate | 0/0 | Not started | - |

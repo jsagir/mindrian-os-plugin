@@ -672,8 +672,8 @@
 | SENS-01 | Phase 143 | Complete |
 | SENS-02 | Phase 143 | Complete |
 | SENS-03 | Phase 143 | Complete |
-| SENS-04 | Phase 143 | Pending |
-| SENS-05 | Phase 143 | Pending |
+| SENS-04 | Phase 143 | Complete |
+| SENS-05 | Phase 143 | Complete |
 | SENS-06 | Phase 143 | Complete |
 | SENS-07 | Phase 143 | Complete |
 | DIALTUI-01 | Phase 143.1 | Pending |
