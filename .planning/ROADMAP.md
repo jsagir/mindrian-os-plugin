@@ -1879,7 +1879,7 @@ Plans:
 - [x] **Phase 142: Local Intelligence Wiring (compute-store-and-ACT)** - Cascade findings surface mid-session; BRAIN.md derives so tier_mode rises; queue auto-drains; post-compact re-injection consumes; Phase 109 spine navigates
 - [x] **Phase 143: Insight Sensors (the 7-row trigger map)** - Event-driven sensors (SENS-01..07) auto-fire the right reach on the right signal, hat-scoped and Part-8-constrained on the Brain/web path [SPLIT 2026-06-06: dial-TUI moved to 143.1] (completed 2026-06-06)
 - [x] **Phase 143.1: Dial-TUI Capability Selector (INSERTED)** - The render surface (DIALTUI-01..11 + MEMDIAL-01..03 + FILEVAL-01) that shows ranked reaches as Shape F.1 with a confidence-column dial, captures pivot/sync edges; UI-SPEC approved (CLI-first) (completed 2026-06-06)
-- [ ] **Phase 144: Navigation Engine legacy->engine Flip** - `decide()` reads {local graph + BRAIN.md + trigger map} instead of file-presence; `routing_source: engine` appears in a trace
+- [ ] **Phase 144: Navigation Engine legacy->engine Flip** (3 plans, 2 waves) - `decide()` reads {local graph + BRAIN.md + trigger map} instead of file-presence; `routing_source: engine` appears in a trace
 - [ ] **Phase 145: Scheduled Sensor Activation** - The scout suite + whitespace/reverse-salient/opportunity/competitor sensors fire on a cadence (gated on Phase 140 hardening)
 - [ ] **Phase 146: Loop-Fires Acceptance Gate** - The scripted dogfood session in the mindrianOS room shows all 5 acceptance criteria; the milestone gate clears
 
@@ -1989,7 +1989,10 @@ Plans:
   1. `decide()` reads the local graph + BRAIN.md + the trigger map -- a code path exists from each input into the decision
   2. A turn that should trigger a Brain call produces `routing_source: engine` (not `legacy`) in the decision trace when Brain is reachable
   3. The engine emits at least one `routing_source: engine` trace per session in a populated room -- the legacy-on-every-turn behavior is gone
-**Plans**: TBD
+**Plans**: 3 plans (3 plans, 2 waves)
+- [ ] 144-01-PLAN.md -- the ONE genuine BUILD: wire dispatchSensors into decide(); resolveFireSkill 4-arg sensor branch + reachIdToSkillFamily (5 reach_ids -> canonical verbs so the router flips); documented multi-sensor precedence; Zep-shaped LOCAL trace.context_assembly + temporal scalars + latency telemetry; line-537 fence comment flipped (router READ-ONLY; sensor files untouched)
+- [ ] 144-02-PLAN.md -- the fixture REPAIR: fix makeRoomsFixture registry.json to the {slug, abs_path} object shape so resolve-active-room.cjs resolves it -> Tests 16/17 GREEN through the existing router with zero sensor code; + a cold-room honest-negative assertion
+- [ ] 144-03-PLAN.md -- the acceptance HARNESS (Wave 2): tests/run-all-144.sh mirroring run-all-143.sh -- populated-room engine positive via a REAL fired sensor + cold-room legacy negative + reruns of test-sensors-routing-fence + test-decide-part8-invariant + skill-activation-router Tests 1-18; structured so Phase 146 ACPT-01 composes it
 
 ### Phase 145: Scheduled Sensor Activation
 **Goal**: The scout suite and its sub-sensors move off the manual `/mos:scout` trigger onto a cadence (session-start-throttled or cron), now that the sentinel layer is hardened and safe to auto-fire.
