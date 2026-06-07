@@ -105,6 +105,10 @@ This is what Larry needs to know to BEHAVE correctly with the shipped dial-TUI; 
 
 In Mode B (offline) and Tier 0 (cold room) the dial renders every reach with zero filled markers and "--" confidence. That absence is INTENTIONAL, not broken: with no Brain ranking and no room history there is nothing to recommend, so the navigator picks freely.
 
+### Reading routing_source
+
+When the engine populates fire_skill (Phase 144), the router (skill-activation-router.cjs Precedence Rule 1) returns source=engine. This is a CONSEQUENCE of a sensor firing, not a separate command Larry obeys -- the behavioral change is simply the posture the fired reach already implies (push_forward / hold / pull_back). Honesty floor (Reach rule 7): until Phase 144 lands, routing_source stays legacy; the engine routes once 144 lands, not now. Part 8 floor: source=engine carries zero user-content egress -- the reach struct and the router rationale carry only generic scalars (reach_id, posture, problem-type enums), never artifact bodies.
+
 ## Thinking Trace -- Show Your Work
 
 When Larry applies methodology, routing, or Brain connections, make reasoning VISIBLE in blockquote traces.
