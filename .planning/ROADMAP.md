@@ -2264,7 +2264,7 @@ Plans:
 **Plans**: 3 plans (3 waves)
 
 - [x] 145-01-PLAN.md -- SCHED-01/02: scout-cadence-runner.cjs composes all 6 scout sub-sensors + the SCHED-02 four (whitespace/reverse-salient/opportunity-bank/competitor) behind a last-run throttle + scout-cadence-guard.cjs Phase-140 safe-auto-fire invariant checks (HARD-01/02/03) [DONE 2026-06-07; commits 170c2431 guard + f0991905 runner; PART8_CLEAN + RUNNER_OK; throttle + HARD-01/02/03 + sklearn-absent paths all verified]
-- [ ] 145-02-PLAN.md -- SCHED-01/02: Tri-Polar cadence wiring -- session-start-throttled slot (CLI default), cron-optional path (scout.md), Cowork scout-sentinel repointed at the runner (scheduled-tasks.md)
+- [x] 145-02-PLAN.md -- SCHED-01/02: Tri-Polar cadence wiring -- session-start-throttled slot (CLI default; SCOUT_CADENCE_SKIP opt-out, background + soft-fail, no --force), cron-optional path with exact crontab line (scout.md DEFERRED -> LIVE), Cowork scout-sentinel repointed at the runner --force (scheduled-tasks.md Task 6 + SCHED-02 four named + safeAutoFireCheck surface) [DONE 2026-06-08; commits 2c30241a session-start + 34dbf613 docs; SLOT_OK + DOCS_OK; SKIP/no-op/fire branches proven; zero em-dashes; Part 8 zero-egress inherited]
 - [ ] 145-03-PLAN.md -- SCHED-01/02: tests/run-all-145.sh + 2 CJS suites proving cadence-fires (no manual /mos:scout) + Phase-140-hardening-holds + Part-8 zero-egress + Part-4 findings-become-graph-data
 
 ### Phase 146: Loop-Fires Acceptance Gate
@@ -2292,7 +2292,7 @@ Plans:
 | 142. Local Intelligence Wiring | 3/4 | In Progress|  |
 | 143. Insight Sensors | 3/3 | Complete   | 2026-06-06 |
 | 144. Navigation Engine legacy->engine Flip | 3/3 | Complete   | 2026-06-07 |
-| 145. Scheduled Sensor Activation | 1/3 | Executing | - |
+| 145. Scheduled Sensor Activation | 2/3 | Executing | - |
 | 146. Loop-Fires Acceptance Gate | 0/0 | Not started | - |
 
 ### LARRYREACH Coverage Map (32/32 requirements, no orphans, no duplicates)
