@@ -21,6 +21,19 @@ allowed-tools:
   - mcp__mindrian-brain__read_neo4j_cypher
   - mcp__mindrian-brain__brain_search
   - mcp__tavily__tavily-search
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-01]
+  reach_id: context_block
+  sub_mode: cross-domain-analogy
+  framework: "Four Lenses of Innovation"   # MUST match the existing frameworks: value
+  posture: hold
+  hierarchy_rank: 1
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # /mos:find-analogies

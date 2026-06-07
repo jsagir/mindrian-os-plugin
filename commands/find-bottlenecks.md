@@ -16,6 +16,19 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-02]
+  reach_id: context_block
+  sub_mode: reverse-salient
+  framework: "Reverse Salient Analysis"   # MUST match the existing frameworks: value
+  posture: pull_back
+  hierarchy_rank: 2
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
+  surface: F.0
 ---
 
 # /mos:find-bottlenecks

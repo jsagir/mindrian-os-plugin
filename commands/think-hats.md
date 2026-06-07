@@ -21,6 +21,19 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-05]
+  reach_id: brain_consult
+  sub_mode: six-hats
+  framework: "Six Thinking Hats"   # MUST match the existing frameworks: value
+  posture: hold
+  hierarchy_rank: 4
+  filing: memory_event_only        # OPEN-3: six-hats SURFACES perspectives, no EvidenceClaim
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # /mos:think-hats

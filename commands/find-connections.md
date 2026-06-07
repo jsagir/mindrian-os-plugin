@@ -15,6 +15,19 @@ allowed-tools:
   - Read
   - mcp__mindrian-brain__brain_query
   - mcp__mindrian-brain__read_neo4j_cypher
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-01]
+  reach_id: brain_consult
+  sub_mode: cross-domain-connect
+  framework: "Usher's Model of Cumulative Synthesis"   # MUST match the existing frameworks: value
+  posture: hold
+  hierarchy_rank: 1
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # /mos:find-connections

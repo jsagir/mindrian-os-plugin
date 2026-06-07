@@ -22,6 +22,19 @@ allowed-tools:
   - Agent
   - WebSearch
   - WebFetch
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-04]
+  reach_id: deep_research
+  sub_mode: hat-scoped-research
+  framework: "Hypothesis-Driven Problem Solving"   # MUST match the existing frameworks: value
+  posture: hold
+  hierarchy_rank: 6
+  filing: fileEvidenceWithReadback
+  plan_gated: true                 # the sanctioned deep_research exception
+  web_scope: green
+  surface: F.1
 ---
 
 # /mos:research [topic]
