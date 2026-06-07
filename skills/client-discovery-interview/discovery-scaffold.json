@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "generated_from": "Client Discovery Interview six movements (Phase 143.4, skills/client-discovery-interview)",
+  "sections": [
+    {
+      "id": "brand-soul",
+      "domain": "brand",
+      "title": "Brand soul",
+      "prompt": "Capture the brand's big why, the founding heart, and what it stands against. Pin a primary and secondary archetype from the twelve, describe the voice in three do's, and record the never-says and never-does list that keeps the voice honest.",
+      "required": true
+    },
+    {
+      "id": "product-essence",
+      "domain": "product",
+      "title": "Product essence",
+      "prompt": "State what the product is in one sentence and name the single core job it must do well enough to sell on its own. Record the business case (who pays and what has to stay true for them to keep paying) and the hard constraints (budget, timeline, stack, legal, brand rules) that cannot move.",
+      "required": true
+    },
+    {
+      "id": "personas",
+      "domain": "users",
+      "title": "Personas and JTBD",
+      "prompt": "For each distinct persona, build a card from context first then the job: the functional, emotional, and social job they hire the product to do, the alternative they fire and the last straw that makes them switch, and the trigger event that sends them looking in the first place.",
+      "required": true
+    },
+    {
+      "id": "positioning",
+      "domain": "market",
+      "title": "Positioning and whitespace",
+      "prompt": "Name the sea of sameness where the whole category looks and sounds alike (that sameness is the opening), and the one true sentence about this offering that no competitor can honestly say.",
+      "required": false
+    },
+    {
+      "id": "habit-loop",
+      "domain": "product",
+      "title": "Habit loop",
+      "prompt": "Design the returning loop, not the pages: the Trigger (external prompt plus the internal emotion it attaches to), the Action (the simplest valuable behavior, checked against Fogg B=MAP), the Variable reward (tribe, hunt, or self, and how it is varied), and the Investment that loads the next trigger. Close with the Facilitator ethics check: the loop must improve the user's life and the maker would use it themselves.",
+      "required": false
+    }
+  ]
+}
