@@ -13,6 +13,18 @@ allowed-tools:
   - Glob
   - Agent
   - WebSearch
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-04, SENS-06]
+  reach_id: context_block
+  sub_mode: opportunities
+  framework: null
+  posture: push_forward
+  hierarchy_rank: 13
+  filing: none
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:opportunities -- Grant Discovery + Opportunity Management

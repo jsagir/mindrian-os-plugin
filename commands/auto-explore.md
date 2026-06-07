@@ -8,6 +8,18 @@ teaching: "In the moment a new artifact lands, /mos:auto-explore kicks off the s
 allowed-tools:
   - "Bash"
   - "Read"
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-01]
+  reach_id: context_block
+  sub_mode: auto-explore
+  framework: "Domain Selection"
+  posture: push_forward
+  hierarchy_rank: 17
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:auto-explore -- Manual auto-explore (Desktop fallback)

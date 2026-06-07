@@ -8,6 +8,18 @@ serves_jtbd: ["explore"]
 teaching: "When you have just typed a venture sentence and want a brief in under a minute, /mos:mva-brief runs the 6-agent fan-out and deploys a shareable deck. The reward-before-investment surface of Phase 118."
 allowed-tools: Bash
 interactive_first_reward: instant_brief
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-01]
+  reach_id: deep_research
+  sub_mode: mva-brief
+  framework: null
+  posture: push_forward
+  hierarchy_rank: 10
+  filing: none
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:mva-brief

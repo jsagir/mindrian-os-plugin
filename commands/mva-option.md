@@ -8,6 +8,18 @@ serves_jtbd: ["explore"]
 teaching: "When the 3-option footer shows after an MVA brief, /mos:mva-option routes your pick (refine / build a room / iterate) into the right next move. The hand-off after the first reward."
 allowed-tools: Bash
 interactive_first_reward: --none (scripting only)
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-05]
+  reach_id: context_block
+  sub_mode: mva-option
+  framework: null
+  posture: push_forward
+  hierarchy_rank: 11
+  filing: none
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:mva-option <N> [<sha8>]

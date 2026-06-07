@@ -16,6 +16,18 @@ allowed-tools:
   - Write
   - Bash
   - Agent
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-06, SENS-07]
+  reach_id: brain_consult
+  sub_mode: deep-grade-compass
+  framework: "PWS Triple Validation Compass"
+  posture: hold
+  hierarchy_rank: 8
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:deep-grade

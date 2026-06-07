@@ -16,6 +16,18 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-07, SENS-06]
+  reach_id: context_block
+  sub_mode: thesis-build
+  framework: "PWS Value Proposition"
+  posture: hold
+  hierarchy_rank: 9
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:build-thesis
