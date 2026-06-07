@@ -1972,7 +1972,7 @@ Plans:
 **Open items (resolve in planning)**: OPEN-1 dispatch-handle->exact-framework-name map + drift test; OPEN-2 the tier predicate + non-double-fire with 144; OPEN-3 filing path per family; OPEN-4 rs-agent [BRAIN] header vs local reach; OPEN-5 coexistence with room-proactive. (See ROUTING-TABLE-intelligence-orchestrator.md.)
 **Plans**: 4 plans, 4 waves
 Plans:
-- [ ] 143.3-01-PLAN.md -- CONN-01 (connector: schema doc) + CONN-02 (generator with nested-map parser + connector-registry.json) + OPEN-1 dispatch-framework map + drift test [wave 1]
+- [x] 143.3-01-PLAN.md -- CONN-01 (connector: schema doc) + CONN-02 (generator with nested-map parser + connector-registry.json) + OPEN-1 dispatch-framework map + drift test [wave 1] (2026-06-07: 3 tasks, 7 files; --check + drift + frozen-bank tests green; registry at 0 connectors pre-retrofit)
 - [ ] 143.3-02-PLAN.md -- CONN-04 (retrofit the 7 algorithmic-cohort commands) + CONN-03 (the four --check validations + pre-commit tripwire + WARN nudge); registry regenerated + populated [wave 2]
 - [ ] 143.3-03-PLAN.md -- ORCH-01..04 the intelligence-orchestrator SKILL.md (registry-reading dispatcher + 5-step loop + filing + tier gate + OPEN-4/OPEN-5 resolutions) [wave 3]
 - [ ] 143.3-04-PLAN.md -- verification: run-all-1433.sh composing connector-registry --check + dispatch-map drift + tripwire + Part-8 boundary scan + orchestrator doctrine-presence + carried reach-drift/posture-drift fences [wave 4]
