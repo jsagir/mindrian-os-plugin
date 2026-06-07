@@ -1,0 +1,144 @@
+{
+  "summary": "Audit whether Larry prompt surfaces instruct him to PROACTIVELY PUSH the Engine-1 algorithmic reaches (reverse-salient, HSI, find-analogies/connections, whitespace), Brain consult, the Six-Hats/BONO Engine-2 perspectives, and hat-scoped full deep-research - and WHAT TRIGGERS each push. Complements the TUI-operation audit.",
+  "agentCount": 5,
+  "logs": [],
+  "result": {
+    "recon": {
+      "verdict": "partial",
+      "headline": "Larry's prompt grounds the 5-reach dial + 3 postures and points at the 7 Phase-143 sensors, but the proactive PUSH side is uneven: Brain-consult and contradiction PUSH well; reverse-salient PUSHes weakly; HSI/whitespace, BONO/team-perspective, and hat-scoped deep-research are named-or-absent with NO proactive surface line. Add 6 push-lines that map onto the existing 5 reach-ids + 7 sensors without minting a 6th reach.",
+      "push_doctrine_to_add": [
+        {
+          "family": "Brain Consult (find-connections / think-hats / research / hat-briefing)",
+          "trigger": "Local room lacks a relevant artifact, OR a framework/methodology-next-move is named, OR shallow web is inconclusive, OR the team is missing a perspective. Sensor: SENS-03 (methodology-decision-point -> brain_framework_chain via CHAINS_TO). Reach-id: brain_consult.",
+          "push_line_to_add": "PROACTIVE Brain push (extends Capability Dial row 4, brain_consult): when SENS-03 fires (a framework is named OR a methodology step needs its next move) AND the local graph has no governing answer, Larry does NOT wait to be asked -- he surfaces ONE line: 'Larry's Brain has a framework chain that addresses this -- [framework] -> [next]. Pull it in?' Then renders via the **Brain says** trace and ends at a Decision Gate (Run Methodology / Reformulate / Free-Text). This is a PUSH only on the *offer*; the navigator still rules (GUIDED default).",
+          "surface": "skills/larry-personality/SKILL.md -- annotate the brain_consult Capability Dial row (line 41) + add a one-line PROACTIVE note under Reach rule 1; pws-methodology/SKILL.md already routes the command via command-resolver (do not duplicate command names).",
+          "caveats": "Part 8 floor is non-negotiable: SENS-03 carries ONLY generic handles ($problem_type enum, framework names, phase ids) -- never artifact bodies/numbers/names. One-reach-per-beat: brain_consult cannot stack with a context_block pull in the same beat. The push is the OFFER, not the fetch -- Brain query fires only after the gate, and if Brain is unreachable Larry omits the Brain line and answers from local references."
+        },
+        {
+          "family": "Reverse Salient (find-bottlenecks / rs-fetch)",
+          "trigger": "Progress feels stuck, OR the user states a lagging-component shape ('the bottleneck is...', 'we keep stalling on X'), OR a section fill-level lags its siblings. Sensor: SENS-02 (lagging-component -> find-bottlenecks / rs-engine). Reach-id: composes under brain_consult/context_block as a LOCAL graph read (no new reach-id).",
+          "push_line_to_add": "PROACTIVE reverse-salient push: when SENS-02 detects the lagging-component conversation shape OR the room scan shows one section lagging, Larry surfaces ONE line BEFORE being asked: 'The reverse-salient engine sees a lagging component: [section/component]. That is where your understanding lags your ambition (Hughes 1983). Investigate it?' Maps to posture `pull_back` (Hierarchical Navigator) -- it routes to the Decision Gate, never a verdict. Add a Provoked-table row: | Lagging-component pattern stated OR one section lags siblings | `/mos:find-bottlenecks` |",
+          "surface": "skills/larry-personality/SKILL.md -- add the Provoked-mode row near line 245 (currently only 'Bottlenecks (REVERSE_SALIENT) -> Specific methodology', which is too vague to fire); name the trigger shape explicitly so it is a PUSH, not a passive catalog entry.",
+          "caveats": "autonomous_safe=true (find-bottlenecks frontmatter) so the LOCAL rs engine may run without a Brain/web egress -- no Part 8 exposure on the internal mode. One-reach-per-beat: do not also pull a context_block in the same beat. The Intelligence Hierarchy already ranks Bottlenecks #2 (after Tensions) -- the push must respect that ordering so it does not jump a live contradiction."
+        },
+        {
+          "family": "HSI Innovation Scoring + Whitespace (score-innovation / whitespace)",
+          "trigger": "Room has 20+ artifacts AND a whitespace zone scores semantic-surprise >= 0.7, OR the user is comparing cross-domain candidates. Sensor: SENS-06 (artifact-filed -> cascade scan recomputes whitespace) is the natural fire point. Reach-id: composes under context_block (LOCAL graph read) -- NOT a new reach-id.",
+          "push_line_to_add": "PROACTIVE HSI/whitespace push (the currently-ABSENT family): add to the Provoked table | Room has 20+ artifacts, whitespace not yet mapped | `/mos:whitespace` | and | Cross-domain candidates being compared | `/mos:score-innovation` |. Add Reach-rule note 7e: whitespace is a SPECIFIC case of HSI scoring -- same trigger (20+ artifacts) and machinery (sentence-transformers + LSA), framed distinctly: HSI = 'what novel pattern hides in what we HAVE'; whitespace = 'what should the room be thinking about that it ISN'T'. Larry surfaces: 'HSI scoring shows the novel space -- [Zone ID] looks promising. Dig deeper?'",
+          "surface": "skills/larry-personality/SKILL.md -- Provoked table (~line 252, after 'Empty intelligence -> /mos:scout') + a 7e note after the Reach rules; the Intelligence Hierarchy already lists 'HSI Surprises' (line 264) but whitespace is never named, so name it there too.",
+          "caveats": "Part 8: whitespace/HSI run on the LOCAL artifact corpus via Python scripts -- LOCAL stays LOCAL, no egress. Teaching gate: whitespace is 'Best after 20+ entries' (whitespace.md frontmatter) -- do NOT push it on a thin room (would fire a silent-zero). One-reach-per-beat: pick whitespace OR score-innovation, not both, per turn. SENS-06 ties to the already-gated Phase 142/95 cascade -- reuse it, do not re-implement the recompute."
+        },
+        {
+          "family": "Cross-Domain Connection (find-analogies + find-connections)",
+          "trigger": "User states 'the answer might live in another field', OR multiple domains are in play, OR a Cross-Domain Match HSI score crosses threshold with differing source domains, OR a tension has no in-domain resolution. Sensor: rides SENS-01 (first-material -> explore-domains companion) and the SENS-06 cascade. Reach-id: composes under brain_consult (find-connections requires Brain MCP) / context_block (find-analogies LOCAL abstraction).",
+          "push_line_to_add": "PROACTIVE cross-domain push: when a tension has no in-domain resolution OR two domains are both live, Larry surfaces ONE line: 'Cross-domain pattern between [Domain A] and [Domain B] -- most breakthroughs are borrowed structure. Run analogy discovery?' The Provoked table ALREADY routes 'Tensions (CONTRADICTS) -> /mos:find-analogies' (line 244) -- extend it with a second trigger row: | Two+ domains live OR domain-specific dead end | `/mos:find-connections` (Brain) or `/mos:find-analogies` (local) |. pws-methodology DbA section (line 27) already lists the detection signals -- wire those signals to the PUSH, not just to passive availability.",
+          "surface": "skills/larry-personality/SKILL.md Provoked table (line 244 extension) + pws-methodology/SKILL.md DbA section (line 27, turn its 4 detection signals into a proactive surface line).",
+          "caveats": "Part 8: find-connections queries the Brain -- carry ONLY generic framework handles (Usher's Model of Cumulative Synthesis, problem-type enums), never user artifacts; find-analogies --external (Tavily/patents) is public SIGNAL (SIGNAL->LOCAL yes, SIGNAL->Brain no) and must honor the MCP-stack-ask rule (surface 'Tavily/Exa?' gate, no silent web). One-reach-per-beat: the Brain variant and the local variant are ONE offer, not two reaches."
+        },
+        {
+          "family": "Six Hats / Persona / BONO Engine-2 Team Perspective (think-hats / persona / hat-briefing)",
+          "trigger": "Team stuck in one perspective (CONTRADICTS edges in recent decisions), OR a circular/stuck pattern stated, OR a decision point reached (venture_stage advances or new JTBD set), OR None-tier evidence near commit, OR jargon-density spike. Sensors: SENS-05 (JTBD set/changed -> re-weight) + SENS-07 (gate/milestone approach). Reach-id: composes under brain_consult (BONO hat-sequence-by-problem-type is generic methodology) -- NOT a new reach-id; 'team_perspective' is a render label, not a 6th reach.",
+          "push_line_to_add": "PROACTIVE BONO push (the currently-ABSENT family): add a Provoked-table row | Team stuck in one perspective (CONTRADICTS edges, circular pattern, decision point, jargon spike) | `/mos:think-hats` (serial) or `/mos:persona --parallel` | AND wire the 5 Appendix-E handoff triggers as named surface lines: risk-surface->Black ('The Investor's Black Hat sees [risk] -- rotate through all six?'), evidence-thin->White, plan-without-owner->Blue, navigator-stuck->Red, jargon-spike->Green. Each is surfaced as the canon's single Decision-Gate line: '[Incoming member] is ready. Accept, reshape, or stay where we are?' Per Canon Part 2 Engine 2 + Appendix E.",
+          "surface": "skills/larry-personality/SKILL.md Provoked table + Intelligence Hierarchy (add 'Team-perspective gap' as a surfaced signal); pws-methodology/SKILL.md -- add a 'BONO Team Perspective' section carrying the 5 handoff triggers (this is the natural home; the resolver already owns the command names).",
+          "caveats": "Part 8: BONO hat-sequence selection is generic methodology (UDP/IDP/WDP x Simple/Complex/Wicked -> hat pattern) -- carry only problem-type + complexity enums to Brain, never the user's contradiction text. One-reach-per-beat: the handoff is ONE offer (one hat), not a six-hat stack in a single beat -- the navigator decides each handoff at its own gate (Appendix E: 'The navigator always decides'). The persona-analyst agent is reactive-only today (agents/persona-analyst.md lines 20-31) -- the PUSH lives in Larry's doctrine, NOT in the agent. Hat-scoping is load-bearing for the deep-research family below (White/Green/Black afford different web scopes)."
+        },
+        {
+          "family": "Hat-Scoped Deep Research (research; White=arxiv, Green=patents+arxiv+deep-research, Black=failure-cases)",
+          "trigger": "STRICTEST GATE -- fires on ANY of: (a) cheap layer thin (local graph empty + Brain methodology + shallow web all inconclusive; the escalation ladder local->Brain->shallow-web->DEEP is exhausted); (b) load-bearing claim with Practitioner/None evidence_tier AND venture_stage in {Well-Defined Problem, Ready to Build} (Part 5 bar rises near commit); (c) the active BONO hat affords it (White/Green/Black). Sensor: SENS-04 (external-fact reference, hat-scoped). Reach-id: deep_research (the ONE plan-gated reach).",
+          "push_line_to_add": "EXPLICIT detection rule (the family is named-but-has-no-trigger today): add under the deep_research Capability Dial row a '### Deep Research Escalation Explicit Triggers' subsection with the three fire conditions (a/b/c) verbatim, then the surface language: 'This needs a deep research pass -- I'll scope it to [hat-specific sources] and plan the angles before any fetch fires. Ready?' followed by the PLAN as a Decision Gate (F.1/F.2): 'White Hat searches [arxiv/Tavily data], Green Hat [patents+deep-research], Black Hat [failure-cases]. Approve the angles?' ONLY on APPROVE does /mos:research fire (reuse, do not rebuild). Note: 'Plan-gating is non-negotiable (Canon Part 3 + Reach rule 6). Never fetch before the navigator approves framework + angles.'",
+          "surface": "skills/larry-personality/SKILL.md -- new subsection immediately after the deep_research row (line 42) / Reach rule 6 (line 61, which states plan-gating but gives no IF-condition to DETECT when it should fire). This is the gap: the TRIGGER-MAP Section 3a has the 3 conditions but the personality prompt has no detector.",
+          "caveats": "deep_research is the SANCTIONED EXCEPTION to one-reach-per-beat (Reach rule 6) -- building the plan legitimately consults framework + local brain + remote brain together, because a good plan needs all three. But it is GATED: present the plan, get APPROVE, THEN fetch. Part 8 floor: web + Brain queries carry only generic handles + public topic terms; raw artifacts/numbers/names never egress; SENS-04 web is public SIGNAL (SIGNAL->LOCAL yes, ->Brain no). MCP-stack-ask rule: surface a 'Tavily/Firecrawl/Exa?' gate, no silent WebSearch. Never let a relevance-thin topic trigger a full sweep -- this is the strictest gate on the trigger map."
+        }
+      ],
+      "relation_to_capability_dial": "CRITICAL composition constraint: the drift test freezes the reach-id set at EXACTLY five (context_block, contradiction, cross_room, brain_consult, deep_research) -- Phase 143's sensor-types.cjs REACH_IDS bank is also frozen at 5, POSTURE_IDS at 3. So the new push-doctrine must NOT mint a sixth reach-id. It composes by mapping each push-family onto an EXISTING reach-id + an EXISTING Phase-143 sensor: (1) Brain-consult push = brain_consult reach + SENS-03; (2) reverse-salient push = context_block/brain_consult reach + SENS-02; (3) HSI/whitespace push = context_block reach + SENS-06 recompute; (4) cross-domain push = brain_consult (find-connections) / context_block (find-analogies) + SENS-01/SENS-06; (5) BONO/team-perspective push = brain_consult reach (hat-sequence is generic methodology) + SENS-05/SENS-07 -- 'team_perspective' stays a RENDER LABEL on the dial-TUI, never a reach-id; (6) hat-scoped deep-research push = deep_research reach + SENS-04. The two dials stay orthogonal per Reach rule 7 (reach-precedes-push; CoALA: Capability dial = internal action-selection, Ask-Tell dial = external grounding intensity). Each push-line is the OFFER (the surface), the sensor is the WHEN (the fire), the reach-id is the WHAT (the action), and the posture (push_forward/hold/pull_back) is set by the reach RESULT. The 7 sensors are the executable detectors that the personality doctrine currently only NAMES (SKILL.md line 95: 'prompt-layer doctrine only in v1.13.1; sensors ride Phase 143') -- so the push-doctrine is the prompt-side contract that Phase 143's SENS-01..07 fire against. Net: zero contradiction with the 5-reach freeze, zero duplication of the 7 sensors -- the push-lines are the missing SURFACE half (the proactive offer) sitting on top of the already-defined reach + sensor halves. The Provoked-mode Intelligence Hierarchy (Tensions > Bottlenecks > HSI Surprises > Convergences > Blind Spots) is the precedence arbiter when two push-triggers fire in the same beat (one-reach-per-beat enforcement).",
+      "risks": [
+        "Reach-id inflation: if a future editor reads 'team_perspective' or 'whitespace' as a 6th/7th reach-id, the drift test (asserts EXACTLY 5) breaks AND Phase 143 sensor-types.cjs REACH_IDS bank diverges. Mitigation: every push-line must state explicitly that it composes under an existing reach-id and is a render label, not a reach-id.",
+        "Push-vs-pull conflation: the doctrine is GUIDED-default (reach surfaces evidence, never decides). A too-aggressive push-line could read as Larry deciding. Every push must end at a Decision Gate, never a verdict -- the surface is the OFFER, not the action.",
+        "One-reach-per-beat erosion: six new proactive triggers raise the odds Larry stacks reaches in one beat (e.g. whitespace + bottlenecks + BONO at once). The Intelligence Hierarchy must arbitrate; deep_research stays the ONLY sanctioned multi-reach exception (Reach rule 6).",
+        "Part 8 leak surface widens: SENS-03 (Brain), SENS-04 (web), find-connections (Brain) are the egress-touching paths. A push-line that surfaces user-contradiction text or artifact numbers in the Brain/web query is a canonical breach. The Phase 90 5-tripwire grep sweep must gate the sensor module; push-lines must say 'generic handles only'.",
+        "Thin-room false fires: whitespace/HSI pushed before 20+ artifacts fires a silent-zero (the exact Phase 88.6 production bug). The push-line must carry the 'Best after 20+ entries' gate or it degrades trust.",
+        "Doctrine-vs-code drift: SKILL.md line 95 says the dial is prompt-layer-only until Phase 143/144. Phase 143 dirs now EXIST and SENS-01/06 shipped, but 144 (the routing_source legacy->engine flip) is fenced-off and NAV dir is unbuilt. If push-lines imply the sensors auto-fire live before Phase 144 lands, Larry will demo a dial that does not route. Push-lines must stay OFFER-level (Larry surfaces) not ROUTING-level (engine flips).",
+        "MCP-stack-ask violation: SENS-04 deep-research and find-analogies --external must surface a 'Tavily/Firecrawl/Exa?' Decision Gate, not silently call WebSearch (HARD RULE in memory). A push-line that says 'I'll research this' without the stack gate breaches it."
+      ]
+    },
+    "triggers": {
+      "reach_family_triggers": [
+        {
+          "family": "Brain Consult",
+          "commands": [
+            "find-connections",
+            "think-hats",
+            "hat-briefing",
+            "research"
+          ],
+          "canonical_trigger": "When the local room lacks relevant artifacts, shallow web search is inconclusive, or the team is missing perspectives — Surface: 'Larry's Brain has a framework that addresses this. Accept to invoke?'",
+          "canon_basis": "Canon Part 2 (Team Around Navigator) — Brain QUERY affordance. Appendix E (Beautiful Questions). Part 3 (Tri-Context Decision Gate) — Mode A confidence >= 0.7 option generation gate. TRIGGER-MAP Section 2 'Across all stages' + Section 3 (Event-driven sensors: External-fact reference, Contradiction stated).",
+          "plan_gated": false
+        },
+        {
+          "family": "Reverse Salient (find-bottlenecks / rs-fetch)",
+          "commands": [
+            "find-bottlenecks"
+          ],
+          "canonical_trigger": "When progress feels stuck / 'lagging component' pattern stated / a section fill level lags behind others — Surface: 'The reverse-salient engine found a blocker: [component]. Investigate?'",
+          "canon_basis": "Canon Part 2 Engine 1 Act 1 (Reverse Salient + Cross-Domain Match). TRIGGER-MAP Section 3 ('Lagging component pattern'). Commands/find-bottlenecks.md teaching: 'When progress feels stuck and you cannot say where'. Hughes 1983 reverse salients.",
+          "plan_gated": false
+        },
+        {
+          "family": "HSI Innovation Scoring (score-innovation / whitespace)",
+          "commands": [
+            "score-innovation",
+            "whitespace"
+          ],
+          "canonical_trigger": "When user is comparing cross-domain candidates OR a whitespace zone is empty / when room has 20+ entries — Surface: 'HSI scoring shows where the novel space is. [Zone ID] looks promising. Dig deeper?'",
+          "canon_basis": "Canon Part 2 Engine 1 Act 1 (Whitespace Map, HSI Semantic Surprise). TRIGGER-MAP Section 2 (Pre-Opportunity: '/mos:whitespace' + '/mos:score-innovation') + Section 3 (Artifact filed -> whitespace recompute).",
+          "plan_gated": false
+        },
+        {
+          "family": "Cross-Domain Connection (find-analogies + find-connections)",
+          "commands": [
+            "find-analogies",
+            "find-connections"
+          ],
+          "canonical_trigger": "When user states 'answer might live in another field' OR multiple domains are in play OR Cross-Domain Match HSI score is high — Surface: 'Cross-domain pattern detected between [Domain A] and [Domain B]. Run analogy discovery?'",
+          "canon_basis": "Canon Part 2 Engine 1 Act 1 (Cross-Domain Match via Pinecone 12,401 embeddings). TRIGGER-MAP Section 2 (Pre-Opportunity: '/mos:find-analogies' + '/mos:find-connections'). Commands/find-analogies.md: 'Most breakthroughs are borrowed structure'. Commands/find-connections.md (Usher's Model of Cumulative Synthesis).",
+          "plan_gated": false
+        },
+        {
+          "family": "Six Hats / Persona / BONO Engine-2 Team Perspective",
+          "commands": [
+            "think-hats",
+            "persona",
+            "hat-briefing"
+          ],
+          "canonical_trigger": "When team is stuck in one perspective OR a contradiction surfaces OR decision point reached — Surface: 'The [Hat Color] perspective finds [tension]. Rotate through all six?'",
+          "canon_basis": "Canon Part 2 Engine 2 (BONO Orchestration — hat sequence per problem type). Appendix E (Beautiful questions per SME archetype; Handoff triggers — Yellow->Black, Any->White, Green->Blue, Current->Red, Any->Green for jargon). TRIGGER-MAP Section 2 'Across all stages' (BONO team perspective). Commands/think-hats.md teaching: 'When the team keeps wearing the same hat'. Commands/persona.md: 'Get a per-persona view (role-blend x journey-stage)'.",
+          "plan_gated": false
+        },
+        {
+          "family": "Hat-Scoped Deep Research (White=arxiv, Green=patents+arxiv+deep-research, Black=failure-cases)",
+          "commands": [
+            "research"
+          ],
+          "canonical_trigger": "STRICTEST GATE (load-bearing claim + low evidence + near commit stage) OR (cheap layer thin: local graph empty + shallow web inconclusive) OR (hat affordance includes it: White=data/arxiv, Green=patents+deep-research, Black=failure-cases) — Surface: 'This needs a deep research pass via [Tool]. Authorize?'",
+          "canon_basis": "Canon Part 5 (Evidence Is Graded By Context — bar rises near commit). TRIGGER-MAP Section 3a (Deep-research escalation sensor — strictest gate) + Section 2 (Ready to Build stage with commit decision). Commands/research.md (Phase 131 source-lens pilot; emits_evidence_claims). Canon Part 2 (Tool Access: White/Green/Black hat-scoped external web access). The ESCALATION LADDER: local graph -> Brain methodology -> shallow web -> DEEP RESEARCH.",
+          "plan_gated": true
+        }
+      ],
+      "evidence": [
+        "/home/jsagi/dev/MindrianOS-Plugin/docs/MINDRIAN-CANON.md — Part 2 (Team Around Navigator, Engine 1 Act 1, Engine 2 BONO, Team Affordances), Part 3 (Tri-Context Decision Gate, Mode A/B/Tier 0), Part 5 (Evidence Tiers), Appendix E (Beautiful Questions, Team Composition Rules R1-R6, Handoff Triggers)",
+        "/home/jsagi/dev/MindrianOS-Plugin/docs/UI-UX-CONVERGENCE-2026-05-10/00c-TRIGGER-MAP.md — Section 1 (signal taxonomy), Section 2 (by-stage trigger routing), Section 3 (event-driven sensors), Section 3a (deep-research escalation gate with three fire conditions a/b/c), Section 8 (closed-loop cycle), Section 9 (v1.13.0 scope)",
+        "/home/jsagi/dev/MindrianOS-Plugin/commands/find-bottlenecks.md — frontmatter (kind=methodology, frameworks=[Reverse Salient Analysis], autonomous_safe=true)",
+        "/home/jsagi/dev/MindrianOS-Plugin/commands/find-connections.md — frontmatter (kind=methodology, frameworks=[Usher's Model of Cumulative Synthesis], requires Brain MCP)",
+        "/home/jsagi/dev/MindrianOS-Plugin/commands/find-analogies.md — frontmatter (kind=methodology, frameworks=[Four Lenses of Innovation], body_shape=D Comparison Matrix)",
+        "/home/jsagi/dev/MindrianOS-Plugin/commands/score-innovation.md — frontmatter (kind=methodology, frameworks=[HSI Semantic Surprise Analysis Assistant], serves_jtbd=[compare-options, validate-idea])",
+        "/home/jsagi/dev/MindrianOS-Plugin/commands/whitespace.md — frontmatter (kind=methodology, frameworks=[HSI Semantic Surprise Analysis Assistant], teaching='Best after 20+ entries')",
+        "/home/jsagi/dev/MindrianOS-Plugin/commands/think-hats.md — frontmatter (kind=methodology, frameworks=[Six Thinking Hats], lens_type=cognitive, rotation_mode=serial, synthesizer=tension-map)",
+        "/home/jsagi/dev/MindrianOS-Plugin/commands/persona.md — frontmatter (kind=methodology, frameworks=[Six Thinking Hats], lens_type=cognitive, rotation_mode=parallel, persistence=memory_event, teaching='role-blend x journey-stage')",
+        "/home/jsagi/dev/MindrianOS-Plugin/commands/hat-briefing.md — frontmatter (kind=methodology, frameworks=[Six Thinking Hats], lens_type=cognitive, rotation_mode=consume, body_shape=C Dashboard Grid)",
+        "/home/jsagi/dev/MindrianOS-Plugin/commands/research.md — frontmatter (kind=methodology, frameworks=[Hypothesis-Driven Problem Solving], emits_evidence_claims=true, Phase 131 source-lens pilot with 7-stage pipeline)"
+      ]
+    },
+    "families_audited": 3
+  }
+}

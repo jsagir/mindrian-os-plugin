@@ -692,6 +692,30 @@
 | MEMDIAL-02 | Phase 143.1 | Complete |
 | MEMDIAL-03 | Phase 143.1 | Complete |
 | NAV-01 | Phase 144 | Pending |
+| OPS-01 | Phase 143.2 | Pending |
+| OPS-02 | Phase 143.2 | Pending |
+| OPS-03 | Phase 143.2 | Pending |
+| OPS-04 | Phase 143.2 | Pending |
+| OPS-05 | Phase 143.2 | Pending |
+| PUSH-01 | Phase 143.2 | Pending |
+| PUSH-02 | Phase 143.2 | Pending |
+| PUSH-03 | Phase 143.2 | Pending |
+| PUSH-04 | Phase 143.2 | Pending |
+| PUSH-05 | Phase 143.2 | Pending |
+| PUSH-06 | Phase 143.2 | Pending |
+| CONV-01 | Phase 143.2 | Pending |
+| CONV-02 | Phase 143.2 | Pending |
+| MULL-01 | Phase 143.2 | Pending |
+| MULL-02 | Phase 143.2 | Pending |
+| WFL-01 | Phase 143.2 | Pending |
+| CONN-01 | Phase 143.3 | Pending |
+| CONN-02 | Phase 143.3 | Pending |
+| CONN-03 | Phase 143.3 | Pending |
+| CONN-04 | Phase 143.3 | Pending |
+| ORCH-01 | Phase 143.3 | Pending |
+| ORCH-02 | Phase 143.3 | Pending |
+| ORCH-03 | Phase 143.3 | Pending |
+| ORCH-04 | Phase 143.3 | Pending |
 | SCHED-01 | Phase 145 | Pending |
 | SCHED-02 | Phase 145 | Pending |
 | ACPT-01 | Phase 146 | Pending |
@@ -749,6 +773,30 @@
 | ID | Description | Plan |
 |----|-------------|------|
 | NAV-01 | navigation-engine `decide()` reads {local graph + BRAIN.md + trigger map} instead of file-presence; `routing_source: engine` appears in >=1 trace per session when Brain reachable | TBD |
+| OPS-01 | larry-personality SKILL.md: flip the stale comes-later language (line ~95 + ~46) to now-shipped (sensors=Phase 143, dial-TUI=Phase 143.1, engine flip=Phase 144 executing) | 143.2 |
+| OPS-02 | larry-personality SKILL.md: add a compact Operating-the-Dial block (resting-detent=sync/SELECTED_REACH, rotate=pivot/PIVOTED, defer-reject, free-text=miss; all 4 route via navigation.cjs; Feynman-JTBD labels, canonical verb persists to the edge) | 143.2 |
+| OPS-03 | larry-personality SKILL.md: add a Reading-routing_source note (engine source is a CONSEQUENCE of a sensor firing via router Rule 1, not a separate command; Part 8 zero egress) | 143.2 |
+| OPS-04 | ui-system SKILL.md: add Shape F.7 dial-TUI (5 render states, confidence-column dial, frozen 0.70/0.15 as dial-only variant, two-K DIAL_REACH_K=5/MAX_K=3, 5 reach-ids as F.7 specialization, SELECTED_REACH/PIVOTED, SEED-020) + fix the F.0-F.6 count off-by-one | 143.2 |
+| OPS-05 | agents/larry-extended.md: flip stale future-framing on shipped 109/115 + add an Operating-the-machinery pointer + delete the stale line-30 greeting (keep initialPrompt/persona_variants/dual-path frozen); conversation-mode SKILL.md: add a Conversational-Reaches note (reaches+sensors operate no-room via Shape F.1, Tier-0 degradation) | 143.2 |
+| PUSH-01 | larry-personality: proactive Brain-consult push on SENS-03 (framework named OR methodology next-move needed AND no local governing answer) -> one-line Brain-chain offer -> Decision Gate; brain_consult reach; Part 8 generic handles; offer not fetch | 143.2 |
+| PUSH-02 | larry-personality: proactive reverse-salient push on SENS-02 (lagging-component shape OR section lags siblings) -> Hughes-1983 offer, posture pull_back -> Decision Gate; add an explicit Provoked-table row (the vague Bottlenecks row cannot fire) | 143.2 |
+| PUSH-03 | larry-personality: proactive HSI/whitespace push (currently ABSENT) on 20+ artifacts + whitespace surprise>=0.7 (SENS-06) -> Provoked rows + Reach-rule 7e distinguishing HSI vs whitespace; HARD 20+-entries gate (thin-room silent-zero); LOCAL no egress | 143.2 |
+| PUSH-04 | larry-personality + pws-methodology: proactive cross-domain push (tension with no in-domain resolution OR two+ domains live; SENS-01/06) -> find-connections(Brain)/find-analogies(local) offer; extend Provoked table; wire DbA detection signals; Part 8 + MCP-stack-ask | 143.2 |
+| PUSH-05 | larry-personality + pws-methodology: proactive BONO/Six-Hats push (currently ABSENT) on team-stuck-in-one-perspective (SENS-05/07) -> Provoked row + the 5 Appendix-E handoff triggers as surface lines; team_perspective is a render label not a reach-id; push lives in doctrine not the reactive persona agent | 143.2 |
+| PUSH-06 | larry-personality: hat-scoped deep-research explicit triggers (named-but-no-trigger today) -> add the 3 fire conditions (cheap-layer-thin / load-bearing-claim-low-evidence-near-commit / hat-affords) + the hat-scoped plan-as-Decision-Gate (White=arxiv, Green=patents+deep-research, Black=failure); plan-gated, the sanctioned one-reach-per-beat exception; Part 8 + MCP-stack-ask | 143.2 |
+| CONV-01 | conversation-mode becomes the explicit lane-picker traffic cop: surface the no-room lane decision (just-chat / brainstorm / build-a-room) as a Shape F selector that picks the lane, instead of an implicit classifier | 143.2 |
+| CONV-02 | the 3 conversation lanes map to Ackoff DIKW position (chat=Data/Information, brainstorm=Knowledge, build=Wisdom/Understanding = the up-down ascent; the down-up descent = a built artifact returns to validate its assumptions/data). Brain-chained: Ackoff Pyramid FEEDS_INTO Systems Thinking + MAP THE HIERARCHY (generic handles only) | 143.2 |
+| MULL-01 | mullins-scaffold gains Brain-driven cross-framework folders: beyond the 7 Mullins domains, the Brain adds folders from complementary frameworks it chains to (Value Proposition, Disruptive Innovation, Systems Thinking via FEEDS_INTO) -- generic framework handles only, Part 8 clean; the scaffold.json gains the additive folder set | 143.2 |
+| MULL-02 | Ackoff up-down/down-up structures the mullins-scaffold: the ascent fills the domains toward Validation-at-center (wisdom); the descent is Validation decomposing back to re-test each domain data/assumptions. Brain-chained to Systems Thinking + MAP THE HIERARCHY | 143.2 |
+| WFL-01 | the operate+push doctrine references /mos: commands through the Phase-122 resolver, never by hardcoded literal: every push-line anchors on its EXACT frontmatter framework name + JTBD outcome (slug parenthetical only); one governing resolver clause above the Provoked table + mirror above the deep_research dial row (commandsForFramework(<framework>) returns the slug at surface-time; degrade to run-manually; never name from memory); deep_research line 42 rewritten to name Hypothesis-Driven Problem Solving; Plan-04 verification re-pointed from command-literal anchors to framework-name anchors + a resolvability assertion (commandsForFramework(<each of 6 push frameworks>) non-empty, fails loudly on name drift) | 143.2 |
+| CONN-01 | the connector: frontmatter schema (connects_to_spine, sensor_triggers, reach_id [frozen 5], sub_mode [render label], framework [exact name = resolver key], posture [frozen 3], hierarchy_rank, filing, plan_gated, web_scope, surface); additive, absent fields degrade | 143.3 |
+| CONN-02 | the generator scripts/build-connector-registry.cjs (mirror build-command-registry.cjs) + the generated data/connector-registry.json walking all skill/command connector frontmatter | 143.3 |
+| CONN-03 | the CI tripwire (--check, pre-commit + run-all): every reach_id in the frozen 5; every framework resolves via commandsForFramework() (WFL-01 name-drift guard); postures in the frozen 3; no (sensor,reach,sub_mode) collision; WARN on a new methodology command without a connector block | 143.3 |
+| CONN-04 | retrofit the algorithmic cohort: the 6 PUSH families + RS/HSI/whitespace/analogies/connections/hats/research declare connector frontmatter; the rest retrofit incrementally as touched | 143.3 |
+| ORCH-01 | skills/intelligence-orchestrator/SKILL.md - the generic reach dispatcher that READS data/connector-registry.json (never a hardcoded table) and routes; the FIRST CONSUMER of the dispatchSensors spine | 143.3 |
+| ORCH-02 | the 5-step core loop: read spine (LIVE, tier-gated) -> map sub-mode via registry -> gate to ONE (Intelligence Hierarchy; deep_research the sanctioned exception) -> offer as a Shape-F Decision Gate (never auto-fire) -> on APPROVE resolve via commandsForFramework(<exact framework>) + fire | 143.3 |
+| ORCH-03 | filing via fileEvidenceWithReadback (fallback wireAccept) + surfaceFileEvidenceResult (FILEVAL honesty remind) + memory_event + cascade edge (Part 4/Part 9) | 143.3 |
+| ORCH-04 | the live-call tier gate (mode_a/mode_b live, tier_0 degrade to doctrine-sim) + coexistence with Phase 144 (engine-side consumer) and room-proactive (cascade findings); one-reach-per-beat across surfaces arbitrated by the hierarchy | 143.3 |
 | NAV-02 | BRAIN.md derivation wired so `tier_mode` rises above `tier_0` for a room's sections | 142-04 |
 | NAV-03 | brain-derivation queue auto-drains (entries do not sit for days) | TBD |
 | NAV-04 | post-compact re-injection consumer wired so memory does not degrade across an auto-compact boundary | 142-04 |
