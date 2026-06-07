@@ -246,13 +246,36 @@ After all tasks complete, present a unified summary using the E body shape:
 
 **Cowork:** Reports in `.intelligence/` are visible to all team members via `00_Context/`. Competitor watch findings can be discussed collaboratively.
 
-## Cron Integration (DEFERRED)
+## Scheduled Cadence (LIVE)
 
-When CronCreate tool becomes available, sentinel tasks can be scheduled:
-- `sentinel-snapshot` + `sentinel-health-check`: Weekly (Sunday midnight)
-- `sentinel-deadline-monitor`: Daily (6 AM)
-- Competitor watch: Weekly (Monday morning)
-- HSI recomputation: Weekly (after health check)
+The scout suite fires on a cadence across all three Tri-Polar surfaces via the single composer `scripts/scout-cadence-runner.cjs` (Phase 145). The runner composes all six scout sub-sensors PLUS the four SCHED-02 sensors (whitespace recompute, reverse-salient, opportunity-bank scan, competitor watch) behind the Phase-140 safe-auto-fire guard. It is Canon Part 8 zero-egress: no Brain query, no web fetch; competitor watch is emitted as a public-SIGNAL query plan for the surface layer, never fetched inside the runner.
 
-Until then, `/mos:scout` is the manual trigger for all sentinel intelligence. Remind users to run it weekly:
-> "I'd suggest running /mos:scout every Monday. Think of it as your weekly venture check-up."
+`/mos:scout` remains the manual, on-demand trigger. The cadence below runs the same composition automatically.
+
+### 1. CLI default: session-start-throttle
+
+The `scripts/session-start` hook fires `scripts/scout-cadence-runner.cjs` in the background on every CLI session, self-throttled to at most once per interval (default 24h) by the runner's Plan-01 guard. No manual `/mos:scout` is needed. The slot is best-effort and soft-fails so it never blocks startup; most sessions are a sub-millisecond throttle short-circuit.
+
+Opt out (emergency disable) with the environment variable:
+```bash
+export SCOUT_CADENCE_SKIP=1
+```
+
+This is the canonical zero-infrastructure default: session start IS the trigger.
+
+### 2. CLI power-user option: cron
+
+Power users who want a fixed wall-clock schedule (independent of when they open a session) can call the runner from cron. The runner is cron-callable as a non-interactive command. Use `--force` because cron owns the cadence, so it bypasses the per-session throttle:
+
+```cron
+# Every Monday at 06:00, run the full scout cadence on a room.
+0 6 * * 1 node /path/to/mindrian-os/scripts/scout-cadence-runner.cjs /path/to/room --force >> /tmp/scout-cadence.log 2>&1
+```
+
+`--force` is safe here because the cron interval IS the throttle. Do not combine cron with a short session-start interval that double-fires; pick cron OR the session-start default, not both at high frequency.
+
+### 3. Cowork: scout-sentinel scheduled task
+
+On Cowork, the `scout-sentinel` scheduled task points at the same runner so the identical composition fires under Cowork's scheduler. See `commands/scheduled-tasks.md` Task 6 (Scout Sentinel). The Cowork scheduler owns the cadence, so that task also uses `--force`.
+
+All three surfaces converge on one composer and one safe-auto-fire guard, so the cadence behaves identically wherever it fires.

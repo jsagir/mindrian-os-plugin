@@ -218,38 +218,36 @@ Frontmatter includes: type, date, topics_scanned, items_found, generated timesta
 
 **Schedule:** Weekly (recommended: Sunday midnight)
 **Trigger:** `scout-sentinel`
-**Requirements:** SCHED-06
+**Requirements:** SCHED-06, SCHED-01
 
 ### What It Does
 
-Runs the full `/mos:scout` sentinel suite:
+Runs the full scout cadence via the single Phase-145 composer. One runner composes all six scout sub-sensors PLUS the four SCHED-02 sensors behind the Phase-140 safe-auto-fire guard:
 1. State snapshot
-2. Health check (compare STATE.md vs last snapshot)
+2. Health check (compare STATE.md vs last snapshot; exit captured for the HARD-01 invariant)
 3. Deadline monitor (funding/ and opportunity-bank/ deadlines)
-4. Competitor watch (if competitors tracked)
-5. HSI recomputation (if dependencies available)
+4. Whitespace recompute (SCHED-02)
+5. Reverse-salient (SCHED-02)
+6. Opportunity-bank scan (SCHED-02)
+7. Competitor watch (SCHED-02; emitted as a public-SIGNAL query plan, never fetched inside the runner)
+8. HSI recomputation (if dependencies available)
 
 ### Execution
 
-This task invokes the scout command directly:
+This task invokes the single cadence runner. The Cowork scheduler owns the cadence, so `--force` bypasses the per-session throttle (the scheduler interval IS the throttle):
 
 ```bash
 PLUGIN_ROOT="$(dirname "$(readlink -f "$0")")/.."
-bash "${PLUGIN_ROOT}/scripts/sentinel-snapshot" "$ROOM_DIR"
-bash "${PLUGIN_ROOT}/scripts/sentinel-health-check" "$ROOM_DIR"
-bash "${PLUGIN_ROOT}/scripts/sentinel-deadline-monitor" "$ROOM_DIR"
+node "${PLUGIN_ROOT}/scripts/scout-cadence-runner.cjs" "$ROOM_DIR" --force
 ```
 
-For HSI recomputation (if scikit-learn is available):
-```bash
-python3 "${PLUGIN_ROOT}/scripts/compute-hsi.py" "$ROOM_DIR"
-python3 "${PLUGIN_ROOT}/scripts/detect-reverse-salients.py" "$ROOM_DIR"
-node "${PLUGIN_ROOT}/scripts/hsi-to-graph.cjs" "$ROOM_DIR"
-```
+The runner composes the Phase-140-hardened sentinel scripts, the HSI / whitespace / reverse-salient Python pipeline, the opportunity-bank ops, and the competitor query plan -- all behind the Phase-140 safe-auto-fire guard. It is Canon Part 8 zero-egress (inherited from Plan 01): no Brain query, no web fetch. See `commands/scout.md` (Scheduled Cadence) for the full Tri-Polar cadence model.
 
 ### Output
 
-Multiple outputs:
+A single structured summary plus the composed sensor outputs:
+- The runner's structured summary (fired/throttled, per-step results, findings-to-graph, the competitor public-SIGNAL query plan)
+- The `safeAutoFireCheck` violations surface (HARD-01 health exit / HARD-02 NULL source_path / HARD-03 backup pollution), surfaced prominently but non-fatally
 - `room/.snapshots/STATE-YYYY-MM-DD.md`
 - `room/.intelligence/health-YYYY-MM-DD.md` (if drift detected)
 - HSI results updated in `room/.hsi-results.json`
