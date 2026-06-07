@@ -104,3 +104,90 @@ Concretely, the orchestrator must never pass user content across these boundarie
 
 These are not user-content channels. The orchestrator routes generic handles, never user content,
 never turn text. Any ambiguity on this boundary defaults to NOT crossing it.
+
+## The 5-step core loop (ORCH-02)
+
+The orchestrator runs one loop per beat. The five steps name the exact shipped functions; there is
+no fenced implementation here -- this is directive doctrine, not code.
+
+### STEP 1 -- Read the spine LIVE (tier-gated)
+
+Call `dispatchSensors(turn, tuple, ctx)` (`lib/core/insight-sensors.cjs`). It returns an
+`Array<{ reach_id, posture, dispatch, companions, signal, evidence }>`, one entry per fired sensor.
+The call is pure, synchronous, and LOCAL; it soft-fails per-sensor (a throwing sensor counts as
+"did not fire") and it NEVER mutates `routing_source` and NEVER calls `decide()` (the Phase 144
+fence).
+
+GATE: the live `dispatchSensors` result is authoritative ONLY when `brain_md_tier_mode` is `mode_a`
+or `mode_b`. At `tier_0` (a cold room) the orchestrator degrades to the doctrine-sim floor -- Larry's
+Provoked-table doctrine -- so the skill is safe before Phase 144 lands. This is the ORCH-04 tier
+predicate; see the Tier gate section below.
+
+### STEP 2 -- Map each fired reach to its EXACT framework (WFL-01)
+
+For each fired reach, take its `dispatch` handle (and/or the `sub_mode` from the matched connector)
+and translate it to the EXACT framework name through `data/dispatch-framework-map.json`. The raw
+sensor handle `mos:research` MUST translate to `Hypothesis-Driven Problem Solving` -- never pass the
+slug `mos:research` through to the resolver. This is the WFL-01 guard: the dispatch map is the only
+sanctioned slug-to-name translation, drift-tested against `data/framework-names.json` so a smuggled
+slug or a fake framework fails CI. The `sub_mode` is a render label, never a reach_id; the framework
+name is what the resolver keys on.
+
+### STEP 3 -- Gate to ONE (one-reach-per-beat)
+
+When more than one reach fired, rank them by the Intelligence Hierarchy:
+
+Tensions > Bottlenecks > HSI Surprises > Convergences > Blind Spots
+
+then break ties by evidence strength (from each reach's `evidence` scalars and the connector's
+`hierarchy_rank`). Exactly ONE reach surfaces per beat. `deep_research` is the SANCTIONED exception:
+it MAY chain a multi-angle plan via `composeWorkflow` (plan_gated), so a deep-research escalation can
+fan out across hats even though every other reach is one-per-beat.
+
+### STEP 4 -- Offer, never fire
+
+Surface the chosen reach as the connector's `decision_surface` (a Shape-F sub-shape, e.g. F.0 or F.1)
+Decision Gate (Canon Part 3). NEVER auto-fire. The orchestrator offers, never fires. Render the gate
+using the room-proactive APPROVE / REJECT / DEFER Decision-Capture flow: APPROVE accepts the reach,
+REJECT captures the reason (rejection is data, Part 4), DEFER parks it. Generic handles only to the
+Brain (Part 8); web is hat-scoped via `hatScopeFor` (Part 2; Red hat = no web). For PUSH-02 the
+reach is rendered through `reverse-salient-agent.surfaceFinding` (the F.0 render).
+
+### STEP 5 -- On APPROVE, resolve and fire
+
+On APPROVE, resolve the REAL command via `commandsForFramework("<exact framework name>")`
+(`lib/workflow/command-resolver.cjs`) -- the WFL-01 resolver door, the ONLY door. Never hardcode the
+`/mos:` slug; never name a command from memory. The framework name passed in is the one the dispatch
+map produced in STEP 2. If the resolver returns an empty list, DEGRADE: tell the navigator to "run
+<framework> manually" rather than inventing a command. Then fire the resolved command.
+
+This is the resolver discipline copied from brain-connector: the command for a framework is whatever
+`commandsForFramework(<framework>)` returns, or "run <framework> manually" when it returns nothing.
+Larry never names a `/mos:` from memory.
+
+## Filing (ORCH-03)
+
+After the fired command produces its result, file it via the connector's `filing` field:
+
+- `fileEvidenceWithReadback` -- for evidence-producing families (reverse-salient, hsi, whitespace,
+  cross-domain-connect, cross-domain-analogy, hat-scoped-research). Call
+  `fileEvidenceWithReadback(db, params)` (`lib/core/navigation/file-evidence-readback.cjs`). On a
+  readback error, FALL BACK to `wireAccept(db, params)` (`lib/core/findings-wirer.cjs`) per LOCKED
+  decision 2.
+- `memory_event_only` -- for surface-only families (six-hats, which surfaces perspectives and produces
+  no EvidenceClaim). Write a `memory_event`, no EvidenceClaim.
+
+Then ALWAYS call `surfaceFileEvidenceResult(result)` to remind the navigator exactly what landed --
+the FILEVAL honesty rule (report the real readback outcome, never claim a filing that did not happen).
+
+Every decision -- APPROVE, REJECT, or DEFER -- becomes a `memory_event` plus a typed cascade edge in
+the LOCAL graph (Canon Part 4 / Part 9). The cascade edge feeds the next cross-relationship scan, so
+the loop gets smarter with every decision.
+
+### Part 9 truth-state rule
+
+A filed `EvidenceClaim` lands with `review_status: proposed`, never `confirmed`. Only a human
+Decision Gate promotes a truth-claim node from proposed to confirmed (Canon Part 9, role 5). The
+orchestrator may PROPOSE; it may never silently confirm. The `memory_event` and cascade-edge writes
+are system-bookkeeping nodes (exempt per the Part 9 audit-node carve-out); the EvidenceClaim is a
+truth-claim node and stays `proposed` until a human confirms it.
