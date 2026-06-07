@@ -55,7 +55,7 @@ The v1.13.1 "Larry Reaches" loop-fires milestone: 12 phases in the 140-146 band 
 - Phase 143.3 (INSERTED): CONN-01..04 + ORCH-01..04 (connector spine + intelligence orchestrator)
 - Phase 143.4 (INSERTED 2026-06-07): DISC-01..10 (/mos:discover client+product+JTBD onboarding; declares a connector to ride the 143.3 spine; depends 143.3)
 - Phase 144: NAV-01 (the routing_source legacy->engine flip)
-- Phase 144.1 (INSERTED 2026-06-07): RETRO-01..06 (connector retrofit sweep, Tiers B/C/D; depends 143.3 + 144; blocks 146)
+- Phase 144.1 (INSERTED 2026-06-07): RETRO-01..07 (connector retrofit sweep, Tiers B/C/D + RETRO-07 agents-into-spine + exhaustive 91-cmd/12-skill/9-agent coverage gate per navigator directive; generator walks agents/; depends 143.3 + 144; blocks 146)
 - Phase 145: SCHED-01/02 (scheduled sensor activation)
 - Phase 146: ACPT-01..05 (FULLY-WIRED loop-fires dogfood acceptance gate; depends 143.3 + 144 + 144.1)
 
