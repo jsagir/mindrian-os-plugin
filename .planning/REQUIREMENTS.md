@@ -698,17 +698,17 @@
 | OPS-03 | Phase 143.2 | Complete |
 | OPS-04 | Phase 143.2 | Complete |
 | OPS-05 | Phase 143.2 | Complete |
-| PUSH-01 | Phase 143.2 | Pending |
-| PUSH-02 | Phase 143.2 | Pending |
-| PUSH-03 | Phase 143.2 | Pending |
-| PUSH-04 | Phase 143.2 | Pending |
-| PUSH-05 | Phase 143.2 | Pending |
-| PUSH-06 | Phase 143.2 | Pending |
+| PUSH-01 | Phase 143.2 | Complete |
+| PUSH-02 | Phase 143.2 | Complete |
+| PUSH-03 | Phase 143.2 | Complete |
+| PUSH-04 | Phase 143.2 | Complete |
+| PUSH-05 | Phase 143.2 | Complete |
+| PUSH-06 | Phase 143.2 | Complete |
 | CONV-01 | Phase 143.2 | Complete |
 | CONV-02 | Phase 143.2 | Complete |
-| MULL-01 | Phase 143.2 | Pending |
-| MULL-02 | Phase 143.2 | Pending |
-| WFL-01 | Phase 143.2 | Pending |
+| MULL-01 | Phase 143.2 | Complete |
+| MULL-02 | Phase 143.2 | Complete |
+| WFL-01 | Phase 143.2 | Complete |
 | CONN-01 | Phase 143.3 | Complete (143.3-01) |
 | CONN-02 | Phase 143.3 | Complete (143.3-01) |
 | CONN-03 | Phase 143.3 | Complete (143.3-02) |
