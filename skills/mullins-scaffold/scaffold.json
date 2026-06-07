@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "generated_from": "Mullins Seven Domains of Attractive Opportunities (Phase 84-04, v1.10.8)",
   "sections": [
     {
@@ -142,5 +142,82 @@
       "prompt": "Which upstream, downstream, and lateral relationships in the value chain unlock this venture?",
       "required": false
     }
-  ]
+  ],
+  "brain_folders": [
+    {
+      "id": "value-proposition",
+      "framework": "Value Proposition",
+      "domain": "value-proposition",
+      "title": "Value Proposition",
+      "prompt": "What precise value does the offering deliver to the beachhead segment, and how is it worth paying for?",
+      "feeds_into_source": "Mullins Seven Domains",
+      "offered": true
+    },
+    {
+      "id": "disruptive-innovation",
+      "framework": "Disruptive Innovation",
+      "domain": "disruption-posture",
+      "title": "Disruptive vs Sustaining Posture",
+      "prompt": "Is this venture sustaining an incumbent trajectory or disrupting from a new-market or low-end foothold?",
+      "feeds_into_source": "Mullins Seven Domains",
+      "offered": true
+    },
+    {
+      "id": "systems-thinking",
+      "framework": "Systems Thinking",
+      "domain": "systems-map",
+      "title": "Systems Map",
+      "prompt": "Which feedback loops, stocks, and leverage points govern this venture as a nested system?",
+      "feeds_into_source": "Mullins Seven Domains",
+      "offered": true
+    }
+  ],
+  "ackoff_traversal": {
+    "validation_center": "Validation",
+    "brain_chain": ["Systems Thinking", "MAP THE HIERARCHY"],
+    "ascent": [
+      {
+        "level": "Data",
+        "label": "Domain data gathered",
+        "movement": "Fill each Mullins domain folder with raw facts, figures, and observations toward Validation-at-center"
+      },
+      {
+        "level": "Information",
+        "label": "Domains structured",
+        "movement": "Relate the domain data into patterns and answered prompts, climbing toward Validation"
+      },
+      {
+        "level": "Knowledge",
+        "label": "Cross-domain connections earned",
+        "movement": "Connect the structured domains into a coherent opportunity read, earning evidence up the levels toward Validation"
+      },
+      {
+        "level": "Wisdom",
+        "label": "Validation at center",
+        "movement": "Resolve the connected domains into a validated go decision at the Validation center -- the ascent confirms confidence is backed"
+      }
+    ],
+    "descent": [
+      {
+        "level": "Wisdom",
+        "label": "Validation decomposes",
+        "movement": "Begin the New Business Road Test loop: Validation decomposes back to interrogate the validated read"
+      },
+      {
+        "level": "Knowledge",
+        "label": "Re-test connections",
+        "movement": "Re-test each cross-domain connection against fresh evidence, pulling back to expose weak couplings"
+      },
+      {
+        "level": "Information",
+        "label": "Re-test structure",
+        "movement": "Re-test the structured domains, surfacing assumptions that no longer hold"
+      },
+      {
+        "level": "Data",
+        "label": "Re-test domain data",
+        "movement": "Decompose down to re-test each domain's underlying data and assumptions -- the descent re-tests what the ascent earned"
+      }
+    ]
+  }
 }

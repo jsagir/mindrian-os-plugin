@@ -52,6 +52,45 @@ JSON; this index describes the shape, not the contents.
 - A team-readiness check is needed (mission, aspirations, propensity for risk,
   critical success factors).
 
+## Brain-driven cross-framework folders (additive)
+
+Beyond the seven fixed Mullins domains, the scaffold proposes a small set of
+complementary folders drawn from the frameworks Mullins FEEDS_INTO. These live in
+`scaffold.json` under `brain_folders[]` and today number three: Value Proposition
+(the precise value the offering delivers to the beachhead segment), Disruptive vs
+Sustaining Posture (whether the venture sustains an incumbent trajectory or
+disrupts from a new-market or low-end foothold), and Systems Map (the feedback
+loops, stocks, and leverage points that govern the venture as a nested system).
+Each folder carries its source framework name, a domain label, an opening prompt,
+the literal `feeds_into_source` origin "Mullins Seven Domains", and `offered: true`.
+
+These folders are OFFERED at a Decision Gate, never auto-imposed. The navigator
+approves which frameworks' folders to add (per Canon Part 3, GUIDED default); the
+`offered: true` flag tells consumers to route the proposal through that gate rather
+than materializing the folder silently. The Brain supplies only the framework names
+and domain labels for the proposal -- generic methodology handles, never user
+artifacts, meetings, decisions, or content (Canon Part 8). The Part-8-clean query
+that asks the Brain for these neighbors carries only the framework handle "Mullins
+Seven Domains" plus a problem-type enum; see `buildBrainFolderQuery` in
+`lib/core/mullins-scaffold.cjs`.
+
+## Ackoff bidirectional traversal
+
+The scaffold also renders the Ackoff DIKW traversal that structures how the seven
+domains fill and validate. It lives in `scaffold.json` under `ackoff_traversal`,
+with `ascent[]`, `descent[]`, a `brain_chain` (Systems Thinking, MAP THE HIERARCHY),
+and a `validation_center` ("Validation"). The ASCENT fills the domains toward
+Validation-at-center: Data in the domain folders rises through Information and
+Knowledge to Wisdom (a validated decision) at the center. The DESCENT is the New
+Business Road Test validation loop: Validation decomposes back down to re-test each
+domain's connections, structure, and underlying data and assumptions.
+
+This is additive doctrine, not a new one. The ascent/descent labels reuse the
+"bidirectional Ackoff ascent" already carried in `skills/larry-personality`: the
+ascent earns evidence up the levels (push_forward when Validation holds), and the
+descent re-tests assumptions (pull_back when a gap surfaces). The traversal here
+does not contradict that doctrine -- it renders it as scaffold structure.
+
 ## Relationship to other scaffolds
 
 This is one of several room scaffolds; it is the market-attractiveness lens,
