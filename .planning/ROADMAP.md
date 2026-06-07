@@ -2044,7 +2044,7 @@ Plans:
   - [x] 144.1-01-PLAN.md (wave 1, RETRO-01/05) - Tier B COMMAND connectors (10) + deep-grade Write gap + challenge-assumptions Red Teaming + jtbd kind
   - [x] 144.1-02-PLAN.md (wave 1, RETRO-02/05) - Tier C batch-A connectors (14) + leadership frontmatter + value-proposition drift + structure-argument primary key
   - [x] 144.1-03-PLAN.md (wave 1, RETRO-02) - Tier C batch-B connectors (14; explore-*/scout/operator/funding/reanalyze + rest)
-  - [ ] 144.1-04-PLAN.md (wave 1, RETRO-07a) - generator agents/-walk amendment (build-connector-registry.cjs) + walk test
+  - [x] 144.1-04-PLAN.md (wave 1, RETRO-07a) - generator agents/-walk amendment (build-connector-registry.cjs) + walk test
   - [ ] 144.1-05-PLAN.md (wave 2, RETRO-07b) - agent connectors (7 spine-eligible); framework-runner + larry-extended allow-listed
   - [ ] 144.1-06-PLAN.md (wave 2, RETRO-03) - Tier D hook sensor-firing wiring (not already fixed in 144) + firing test
   - [ ] 144.1-07-PLAN.md (wave 2, RETRO-04) - registry-driven filing sweep (fileEvidenceWithReadback routing, no bare Write)
