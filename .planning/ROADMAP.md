@@ -22,6 +22,7 @@
 **Hooked Model audit:** baseline 27/70 (2026-04-12), target 58/70 by v1.13.0 final. Per-axis movement projection in canonical roadmap.
 
 **Beta progression:**
+
 - v1.13.0-beta.1 SHIPPED -- Substrate (Phase 108 + 109)
 - v1.13.0-beta.2 -- "Larry leads" (Phase 88.2 finish + 89-07 finish + 114 + 115 + SEED-003 A1+A4)
 - v1.13.0-beta.3 -- "Loop closes + reward fires" (Phase 116 + 117 + SEED-003 A3)
@@ -34,6 +35,7 @@
 **Provenance:** Synthesized 2026-05-05 in 4-hour deep-dive session combining /mos:think-hats + /mos:beautiful-question + recovery of 2026-04-12 dormant Hooked Model 4-fix audit + capabilities radar pass on Claude Code 2.1.x adoption + foundation audit of phases 88-109. The "Every Hirer" thesis was deemed still command-centric; "The Closed Loop" reframes around conversation-first golden path.
 
 **Phase 114 (larry-default-activation) -- 3 plans planned:**
+
 - [x] 114-00-PLAN.md -- Skill activation policy (subagent skill preload + agent frontmatter + settings.json cleanup + paths scoping + SessionStart JTBD refactor) [requirements: AC-114-01, AC-114-02]
 - [x] 114-01-PLAN.md -- .mcp.json alwaysLoad on mindrian-os local server (SEED-003 A1) [requirements: AC-114-03]
 - [x] 114-02-PLAN.md -- Wave 0 verification + Phase 91 non-regression + v1.13.0-beta.2 release plumbing [requirements: AC-114-04]
@@ -127,10 +129,12 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
 ## Phase Details
 
 ### Phase 76: Wikilink Engine + Branded Footers
+
 **Goal**: Any room's markdown files can be transformed with cross-linked wikilinks and branded footers via standalone Node.js CJS scripts
 **Depends on**: Nothing (first phase -- scripts operate on any room folder)
 **Requirements**: WIKI-01, WIKI-02, WIKI-03, WIKI-04, WIKI-05, WIKI-06, WIKI-07, BRAND-01, BRAND-02, BRAND-03, BRAND-04, ARCH-01, ARCH-04, ARCH-05, ARCH-06, RULES-03, RULES-04, RULES-05, RULES-07, RULES-09
 **Success Criteria** (what must be TRUE):
+
   1. Running the wikilink injector on a room with team profiles converts first-occurrence team member names into [[team/member-name/PROFILE.md|Name]] links across all content files, skipping YAML frontmatter and self-references
   2. Filed-to stub files gain wikilinks to both the target artifact and the source meeting, and meeting summaries gain a "Filed Artifacts" index linking to all filed content
   3. STATE.md and ROOM.md section references become navigable [[section/ROOM.md|name]] wikilinks, and sub-room ROOM.md files gain parent + sibling navigation links
@@ -138,17 +142,21 @@ v1.9.1: VPS scoring. v1.9.2: 13 wiring fixes + intelligence cascade wired end-to
   5. Both the wikilink injector and footer injector are idempotent -- running twice produces identical output with no duplicate links or footers
   6. Artifact note titles are exported as claim sentences (ARCH-01), frontmatter includes vault-aware properties: related, parent-moc, sources, status (ARCH-04)
   7. Two link types enforced: serendipity links inline (xref, cross-domain) vs structural links in frontmatter/footer (hierarchy) (ARCH-05), with quality filter -- every link explainable in one sentence (ARCH-06)
+
 **Plans**: 3 plans
 Plans:
+
 - [ ] 76-01-PLAN.md -- Shared room scanner + wikilink injection engine (WIKI-01 to WIKI-07, ARCH-05, ARCH-06)
 - [ ] 76-02-PLAN.md -- Frontmatter schema enrichment + branded footer injector (BRAND-01 to BRAND-04, RULES-09, ARCH-04)
 - [ ] 76-03-PLAN.md -- Content reformatter: callouts, claim titles, nested folders, terminal cleanup (ARCH-01, RULES-03 to RULES-05, RULES-07)
 
 ### Phase 77: Obsidian Kit + Welcome Doc
+
 **Goal**: A complete .obsidian/ configuration preset and a generated Welcome landing page make any room instantly usable in Obsidian with De Stijl branding
 **Depends on**: Phase 76 (wikilinks must exist for the Welcome doc to link to them, and CSS must style wikilink-rich content)
 **Requirements**: KIT-01, KIT-02, KIT-03, KIT-04, KIT-05, WELCOME-01, WELCOME-02, WELCOME-03, WELCOME-04, ARCH-02, ARCH-03, ARCH-07, SECTION-01, SECTION-02, SECTION-03, SECTION-04, SECTION-05, SECTION-06, SECTION-07, RULES-01, RULES-02, RULES-06, RULES-08, RULES-10
 **Success Criteria** (what must be TRUE):
+
   1. Opening a vault folder in Obsidian shows De Stijl dark theme with Mondrian color-bar headers, gold wikilinks, colored sidebar, Mondrian hr dividers, and styled tables
   2. Obsidian's graph view renders with section-colored nodes (problem=red, business=blue, financial=gold, competitive=cyan, solution=green, team=purple, meetings=gray), hidden orphans, arrows, and tuned force layout
   3. A "Welcome to MindrianOS.md" file serves as the Home Note (tier-0 MOC) linking to section MOCs (tier-1), which link to permanent notes (tier-2) -- following 3-tier hierarchy (ARCH-07)
@@ -156,56 +164,70 @@ Plans:
   5. The Welcome doc adapts to room contents -- sections without relevant data are omitted, and Obsidian callouts provide rich formatting
   6. Every section folder has the trifecta: ROOM.md (identity) + STATE.md (status with artifact count, completeness, gap status, wikilinks to artifacts) + MINTO.md (Minto/MECE reasoning over section artifacts with wikilinks to sources and cross-refs)
   7. Section STATE.md and MINTO.md generated recursively through all nested sub-rooms. MINTO.md skipped for empty sections (nothing to reason over). STATE.md generated even for empty sections (showing gap status)
+
 **Plans**: 4 plans
 **UI hint**: yes
 Plans:
+
 - [ ] 77-01-PLAN.md -- Static Obsidian kit: De Stijl CSS, graph.json, appearance.json, note templates (KIT-01..05, RULES-08)
 - [ ] 77-02-PLAN.md -- Welcome doc generator (WELCOME-01..04, ARCH-03, ARCH-07)
 - [ ] 77-03-PLAN.md -- Per-section STATE.md + MINTO.md generators, recursive (SECTION-01..07, ARCH-02)
 - [ ] 77-04-PLAN.md -- VAULT-RULES.md design system doc generator (RULES-01, RULES-02, RULES-06, RULES-10)
 
 ### Phase 78: /mos:vault Command + /mos:room linkify
+
 **Goal**: Users can export any room as an Obsidian vault with one command, or retroactively inject wikilinks into an existing room in-place
 **Depends on**: Phase 77 (vault export orchestrates wikilinks + footers + kit + welcome doc -- all must exist)
 **Requirements**: VAULT-01, VAULT-02, VAULT-03, VAULT-04, VAULT-05, VAULT-06, WIKI-08
 **Success Criteria** (what must be TRUE):
+
   1. User runs `/mos:vault` and gets a complete Obsidian-ready folder with all wikilinks injected, branded footers applied, .obsidian/ config dropped, and Welcome doc generated
   2. Vault export resolves symlinked sub-rooms into real folder copies (no broken links in Obsidian), skips binary caches (.lazygraph, .context, .mindrian, node_modules, .git), and includes Snapshot view folder
   3. User can specify a target path (`/mos:vault --path ~/Downloads`) or accept sensible default, and can export any room (active, named, or path)
   4. User runs `/mos:room linkify` to retroactively inject wikilinks and footers into the active room in-place (modifying files directly, not exporting)
+
 **Plans**: 2 plans
 Plans:
+
 - [ ] 78-01-PLAN.md -- vault-export-orchestrator.cjs master pipeline (VAULT-01..06)
 - [ ] 78-02-PLAN.md -- /mos:vault + /mos:room linkify slash commands and CLI routing (WIKI-08)
 
 ### Phase 79: Native Filing Wikilinks
+
 **Goal**: New artifacts created through existing filing pathways arrive pre-linked with wikilinks, eliminating the need for retroactive injection
 **Depends on**: Phase 76 (wikilink engine functions must exist to be called from filing code)
 **Requirements**: NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04
 **Success Criteria** (what must be TRUE):
+
   1. When a meeting is filed via file-meeting, newly created artifacts (summaries, filed-to stubs, action items) contain wikilinks to team members and section references
   2. Room-passive filing skill adds wikilinks when filing new entries to any room section
   3. Cross-reference generation includes wikilinks to source and target files, and team profile creation includes a wikilinked contribution table
+
 **Plans**: TBD
 
 ### Phase 80: Vault Import -- Obsidian to Data Room
+
 **Goal**: Any Obsidian vault or folder of Markdown files can be converted into a fully-structured MindrianOS Data Room with one command, immediately usable with all /mos: commands
 **Depends on**: Phase 78 (uses the same wikilink engine, footer injector, and room structure generators in reverse)
 **Requirements**: IMPORT-01, IMPORT-02, IMPORT-03, IMPORT-04, IMPORT-05, IMPORT-06, IMPORT-07, IMPORT-08, IMPORT-09, IMPORT-10, IMPORT-11, IMPORT-12
 **Success Criteria** (what must be TRUE):
+
   1. User runs `/mos:vault import --path ~/my-vault` and gets a complete Data Room with classified artifacts in the correct sections, ROOM.md at every level, STATE.md + MINTO.md per section
   2. Content classifier correctly routes notes to room sections based on content analysis (problem keywords -> problem-definition, financial data -> financial-model, etc.) with confidence scores
   3. Person names detected and team/ profiles auto-generated with wikilinked contribution tables. Meeting notes detected by date/attendee patterns and filed to meetings/
   4. Classification report generated showing where each note landed, confidence, and unclassified notes in inbox/ for manual routing
   5. After import, `/mos:status`, `/mos:grade`, `/mos:diagnose` and all other commands work immediately on the imported room
   6. Works on any folder of .md files -- Obsidian-specific features (wikilinks, frontmatter, .obsidian/) are bonuses, not requirements
+
 **Plans**: TBD
 
 ### Phase 81: Feynman-MINTO Hybrid (REVISION 2)
+
 **Goal**: Every MINTO.md is born compressed via Feynman reasoning. /mos:reason is a slash command orchestrator: Claude (the host session) reads the prompt, runs Feynman stages 1/2/4/5 natively in its own context, and hands structured narrative JSON to a deterministic CJS helper that merges narrative with structural parts and writes the final MINTO.md. Zero external API calls, zero ANTHROPIC_API_KEY, zero per-run cost budget - the cost is whatever the user's existing Claude session already costs. Tier-0 fallback (pre-81 deterministic MINTO + AAAK footer) activates only when the generator is invoked from a bare shell or cron with no Claude in the loop. Ships as v1.10.2 (semver deviation from user directive, documented in CHANGELOG).
 **Depends on**: Phase 80 (vault-section-minto-generator.cjs is the generator being split into plan and write subcommands) + committed AAAK library at lib/memory/aaak-compress.cjs (tier-0 fallback primitive, 21/21 tests green, not modified)
 **Requirements**: FEYNMINTO-01, FEYNMINTO-02, FEYNMINTO-03, FEYNMINTO-04, FEYNMINTO-07, FEYNMINTO-08, FEYNMINTO-09, FEYNMINTO-10 (FEYNMINTO-05 and FEYNMINTO-06 retired, no meter)
 **Success Criteria** (what must be TRUE):
+
   1. /mos:reason produces MINTO files under 1500 tokens when narrative JSON is provided (FEYNMINTO-01)
   2. Structural parts of MINTO (frontmatter, MECE tree, cross-refs, sources, navigation) remain deterministic and free, produced by the --plan and --write subcommands of vault-section-minto-generator.cjs with zero external calls (FEYNMINTO-02)
   3. commands/mos-reason.md is a slash command orchestrator that tells Claude to run Feynman stages 1/2/4/5 in-session and produce narrative JSON conforming to the R-3 schema (FEYNMINTO-03)
@@ -216,14 +238,17 @@ Plans:
   8. Slash command orchestrator works natively on CLI, Desktop, and Cowork because all three run slash commands in the same Claude session model; no llm-call.cjs, no API key, no surface-specific code (FEYNMINTO-10)
   9. Pre-81 deterministic MINTO generator code path is preserved byte-equivalent as tier-0 fallback, validated by a frozen expected-tier0-baseline.md snapshot regression test
   10. CHANGELOG [1.10.2] entry documents: why v1.10.1 was skipped, slash-command-as-orchestrator architecture, why there is no API key or cost budget (Claude IS the LLM), migration path, the semver deviation, and a forward pointer to v3.0 MCP Sampling for headless tool invocations
+
 **Plans**: 4 plans expected (81-01 foundation with plan/write subcommands + prompts + schema, 81-02 slash command orchestrator + fixture narratives, 81-03 generator rewrite + tier-0 fallback, 81-04 migration + release)
 **Authority**: .planning/phases/81-feynman-minto-hybrid/81-CONTEXT.md (REVISION 2 at top supersedes Revision 1; Revision 1 preserved in _superseded/ subfolder for historical trace of the architectural mistake that was caught 2026-04-14)
 
 ### Phase 82: Wiki Artifact Injection Fix (Lawrence bug)
+
 **Goal**: Fix the long-standing bug in scripts/generate-presentation.cjs where collectSections never populated an artifacts array, leaving the wiki template (templates/presentation/wiki.html) with empty article panes when users clicked any section in the sidebar. Populate sec.artifacts with {filename, title, content, excerpt, date} per file. Add per-artifact 20 KB cap and per-room 2 MB cap so single-file HTML wiki exports never bloat past the 5 MB break point. Upgrade sec.summary to read MINTO.md governing_thought frontmatter when a per-section MINTO is present, leveraging v1.10.2 Feynman-MINTO infrastructure for free. Preserve graceful fallback for pre-81 rooms that have not been regenerated to Feynman-MINTO format. Reported by Lawrence Aronhime on 2026-04-13 23:23 after he workarounded on his own machine; bug had been sitting since v1.9.6 across 8 subsequent releases.
 **Depends on**: Nothing structural. Touches scripts/generate-presentation.cjs only. Optional leverage of per-section MINTO.md files produced by v1.10.2 Phase 81 Feynman-MINTO Hybrid.
 **Requirements**: WIKI-FIX-01, WIKI-FIX-02, WIKI-FIX-03, WIKI-FIX-04, WIKI-FIX-05, WIKI-FIX-06, WIKI-FIX-07
 **Success Criteria** (what must be TRUE):
+
   1. collectSections in scripts/generate-presentation.cjs populates sec.artifacts as an array of {filename, title, content, excerpt, date} objects matching the wiki.html template contract verified at lines 236-355 of templates/presentation/wiki.html (WIKI-FIX-01)
   2. Per-artifact size cap of 20 KB enforced; over-cap artifacts get truncated content with an explicit truncation banner appended to the content string (WIKI-FIX-02)
   3. Per-room total injected markdown cap of 2 MB enforced; over-cap rooms get a generator warning logged to stderr and an in-wiki banner rendered at the top of the sidebar so users know some artifacts were truncated for file size (WIKI-FIX-03)
@@ -231,14 +256,17 @@ Plans:
   5. New helper collectSectionMinto reads sectionDir MINTO.md frontmatter governing_thought field and uses it as the section summary when present; falls back to current title-extraction summary when MINTO.md is absent (WIKI-FIX-05)
   6. Backwards compatibility preserved for pre-81 rooms that have not been regenerated to Feynman-MINTO format; the existing dashboard generator path that calls collectMinto at the room level is not modified or broken (WIKI-FIX-06)
   7. Test fixtures asserting the populated artifacts shape, the cap behavior, the SYSTEM_FILES exclusion, the summary upgrade with MINTO present, and the summary fallback with MINTO absent. Tests run via existing test runner pattern. CHANGELOG [1.10.5] entry credits Lawrence Aronhime by name with the 2026-04-13 23:23 report timestamp and notes the v1.10.2 Feynman-MINTO leverage (WIKI-FIX-07)
+
 **Plans**: 5 plans expected (82-01 wire artifacts + per-artifact cap + SKIP_FILES alignment, 82-02 per-room cap + warning + in-wiki banner, 82-03 collectSectionMinto helper + summary upgrade, 82-04 fixture-based tests, 82-05 CHANGELOG + version bump + 5-gate release)
 **Authority**: .planning/research/wiki-artifact-injection-bloat-analysis.md (798 lines, full template contract verification, real fixture size measurements, bloat budget math, MINTO-as-primary hunch tested and partially falsified, 3-tier loading model deferred, naive-with-caps recommended, CHANGELOG draft included). Authored 2026-04-14 in response to the Lawrence bug report.
 
 ### Phase 83: Cross-Session Scope Injection + Wrapper Fix
+
 **Goal**: Stop Claude from leaking content across rooms in cross-session memory. Inject an ACTIVE ROOM CONTEXT block into the session-start prompt so Claude knows which room is scoped and refuses to draft artifacts about other rooms without explicit user acknowledgment. Surface every room with a GUARDRAIL.md as a sealed-room with its hard rules quoted in the system prompt. Bundle the parked statusline wrapper fix so settings.json statusLine no longer hardcodes a stale legacy plugin path. Triggered by a witnessed failure on 2026-04-14 where Claude pulled content from a sealed rashut-hadshanut-ai room into an align-x-milken scoped session, drafted a Hebrew warm-intro line for an Israel Innovation Authority meeting that belonged to the sealed room, and only got caught when Jonathan looked at the statusline and noticed the room mismatch. Research at .planning/research/cross-session-memory-and-room-intent.md identified four critical findings: (1) MindrianOS has no real cross-session memory today (Phase 78 SQLite memory layer is on disk but unwired), (2) the active room is a global mutable singleton across all concurrent terminals, (3) the system prompt has no scope clause so Claude has nothing to collide with topic recognition, (4) GUARDRAIL.md is unenforced documentation with zero codebase references. Ships as v1.10.7 (Tier 1 read-time scope injection only; real persistent memory deferred to v1.10.8 smart-notebook with memory promoted to load-bearing).
 **Depends on**: Nothing structural. Touches scripts/session-start, scripts/statusline-mos (new), settings.json template if any. The smart-notebook v1.10.8 milestone now has a load-bearing memory dependency that flows from this phase but does not block it.
 **Requirements**: SCOPE-INJ-01, SCOPE-INJ-02, SCOPE-INJ-03, SCOPE-INJ-04, SCOPE-INJ-05, SCOPE-INJ-06, SCOPE-INJ-07
 **Success Criteria** (what must be TRUE):
+
   1. scripts/session-start injects an ACTIVE ROOM CONTEXT block into the conversation context that names the active room from .rooms/registry.json, the active room path, and the section focus from the statusline tracking (SCOPE-INJ-01)
   2. session-start walks ~/MindrianRooms/ for any subdirectory containing a GUARDRAIL.md and surfaces them as sealed rooms in the system prompt with the first 3 lines of GUARDRAIL.md quoted as hard rules. Sealed rooms include rooms NOT registered in .rooms/registry.json (the rashut-hadshanut-ai pattern) (SCOPE-INJ-02)
   3. The injected context block contains an explicit Cross-Room Policy clause instructing Claude to acknowledge mismatch, ask before switching rooms, and refuse to draft artifacts that belong to a different room without explicit user confirmation (SCOPE-INJ-03)
@@ -246,14 +274,17 @@ Plans:
   5. session-start auto-configure block at lines 446-468 is patched to install scripts/statusline-mos to ~/.claude/statusline-mos and write the wrapper path into settings.json statusLine instead of the hardcoded $PLUGIN_ROOT/scripts/context-monitor path. Self-healing for both new and legacy-install users on every session start (SCOPE-INJ-05)
   6. Backwards compatibility: existing rooms with no GUARDRAIL.md are untouched. Existing settings.json statusLine paths that already point at a wrapper or correct cache path are not clobbered. Sessions that cannot resolve an active room (no .rooms/registry.json or empty active field) skip the scope injection block entirely with no error (SCOPE-INJ-06)
   7. Tests assert: scope injection block present in session-start output for a fixture room, sealed room detection finds GUARDRAIL.md rooms outside the registry, wrapper resolves to the highest semver cache version, settings.json migration is idempotent. CHANGELOG [1.10.7] entry credits Jonathan for the witnessed failure on 2026-04-14 and notes the connection to v1.10.8 smart-notebook memory promotion (SCOPE-INJ-07)
+
 **Plans**: 5 plans expected (83-01 scripts/statusline-mos shipped as plugin file + session-start auto-configure patched to install + write wrapper path, 83-02 active room scope injection block in session-start with cross-room policy clause, 83-03 sealed room walker that scans ~/MindrianRooms/ for GUARDRAIL.md and quotes hard rules, 83-04 fixture-based tests + idempotency tests + backwards-compat tests, 83-05 CHANGELOG + version bump + 5-gate release with smart-notebook v1.10.8 milestone marker shifted in PROJECT.md/TODO.md/ROADMAP.md)
 **Authority**: .planning/research/cross-session-memory-and-room-intent.md (606 lines, all 10 sections populated, four critical findings documented, four-tier fix model proposed, Path A recommended). Authored 2026-04-14 in response to the witnessed cross-session leak.
 
 ### Phase 85: Windows Hotfix v1.10.9 -- Cross-Platform Parity
+
 **Goal**: Restore full v1.10.8 Phase 84 feature parity on Windows and bring all cross-platform-sensitive UI/context-invocation paths under an explicit OS-dispatch rule. Triggered by Windows QA on 2026-04-15 in the mindrianos-venture room where 5 of 24 scenarios failed from three root causes: (E-P0) better-sqlite3 has no compiled bindings on win32 arm64 killing the entire Phase 84 SQLite layer, (F-P0 security-adjacent) hooks/run-hook.cmd swallowed bash exit codes so PreToolUse write-scope-check was silently inert leaving the sealed-room guard inactive on Windows, (G-P2) vault-export-orchestrator excludes .mindrian/ from rsync so room transplants arrive with empty memory directories. Folded in during scoping: (B-P1) session-start reads plugin.json via python3 which is a Microsoft Store alias stub on Windows producing the "vunknown" banner, (H-P1) generalized rule that every script invoking python3 or any OS-sensitive binary must route through a platform-dispatch helper. Migration from better-sqlite3 to node:sqlite builtin (Node >=22.5.0) eliminates the Windows native-binding failure class permanently; the Node version floor is a documented BREAKING change justified by v1.10.8 being days old and node:sqlite being stable since exactly 22.5.0.
 **Depends on**: Nothing structural. Touches hooks/run-hook.cmd, lib/core/*.cjs SQLite wrappers, scripts/session-start, scripts/vault-export-orchestrator.cjs, lib/core/platform.cjs (new). F already landed on main (working tree) prior to phase creation -- 85-04 verifies the diff and adds regression fixture.
 **Requirements**: WIN-FIX-E-01, WIN-FIX-E-02, WIN-FIX-E-03, WIN-FIX-E-04, WIN-FIX-E-05, WIN-FIX-F-01, WIN-FIX-F-02, WIN-FIX-F-03, WIN-FIX-G-01, WIN-FIX-G-02, WIN-FIX-B-01, WIN-FIX-B-02, WIN-FIX-H-01, WIN-FIX-H-02, WIN-FIX-H-03, WIN-FIX-R-01 through R-06
 **Success Criteria** (what must be TRUE):
+
   1. Fresh `claude plugin install mos@mindrian-marketplace` on Windows Node 22.5+ produces a working install: banner shows correct version, first session-start creates .mindrian/room.db, first PostToolUse after a Write produces a voice_log row on session stop
   2. Cross-room Write attempt on Windows is BLOCKED by write-scope-check with exit code 2 and an explicit block message, verified by fixture test
   3. All 13 feynman test files green after node:sqlite migration, zero SKIP additions
@@ -261,16 +292,19 @@ Plans:
   5. Room exported with --mode=transplant arrives at destination with populated .mindrian/room.db preserved
   6. Five-gate release ships (CHANGELOG, plugin.json, package.json, git tag, marketplace.json ref pin) with Node 22.5.0 upgrade warning in release notes
   7. No regressions on Linux or macOS; existing Ubuntu test suite passes unchanged
+
 **Plans**: 7 plans expected (85-01 platform.cjs helper + python3-to-node migration, 85-02 node:sqlite migration across 12 call sites, 85-03 dependency removal + engine bump + full feynman test run, 85-04 run-hook.cmd regression fixture, 85-05 vault export dual-mode + docs, 85-06 session-start banner cross-platform rendering, 85-07 5-gate release)
 **Authority**: .planning/phases/85-windows-hotfix-v1.10.9/85-CONTEXT.md (Windows QA report from 2026-04-15 mindrianos-venture room session with 24-scenario breakdown, root cause analysis, and risk register)
 
 **Late-scope note (2026-04-15)**: Plan 85-10 added late-scope 2026-04-15: MOSDeckEngine skill drop-in from user-scope to plugin-scope (shipping invariant), Mac stat -c portable fallback in 4 scripts (LAWRENCE-001), whitespace pipeline Python ML dep auto-install via shared scripts/lib/ensure_ml_deps.py bootstrap helper. Does not modify prior plan scope.
 
 ### Phase 87: Security Hardening + Cascade Refactor + Localhost Dashboard (v1.10.11)
+
 **Goal**: Three converging workstreams into one milestone: (A) Security -- fix confirmed Cypher injection + API key permissions + HSI timeout + write-lock atomic. (B) Architecture -- cascade deduplication, async MCP I/O, input validation, transaction safety, Brain session caching, LRU eviction. (C) Product -- localhost live dashboard at :3131 with SQLite graph + wikilink navigation + SSE live-reload + BYO API chat panel (57x token cost reduction via targeted graph queries). Driven by external code review validation on 2026-04-16 (1 confirmed P0, 8 confirmed P1s, 3 false positives debunked) plus the UI/UX pathways architecture from solution-design/ui-ux-pathways/.
 **Depends on**: v1.10.10 shipped, Node 22.5+ floor, room.db populated, templates/ with De Stijl CSS, lib/core/platform.cjs
 **Requirements**: SEC-01 through SEC-04, CASCADE-01 through CASCADE-06, DASH-01 through DASH-06
 **Success Criteria**:
+
   1. Zero Cypher interpolation in brain-client.cjs
   2. /mos:dashboard live opens browser within 2 seconds showing typed edges from room.db
   3. Filing artifact in terminal updates browser within 1 second via SSE
@@ -279,9 +313,11 @@ Plans:
   6. Feynman tests green throughout (22+ test files expected)
   7. ROOM.md + MINTO.md invariant enforced on every folder
   8. 5-gate release: CHANGELOG, plugin.json 1.10.11, package.json 1.10.11, tag v1.10.11, marketplace pin
+
 **Plans**: 13 plans across 6 waves (milestone split: Stream A v1.10.11 + Stream B v1.10.12)
 
 Plans:
+
 - [x] 87-00-PLAN.md -- Cascade e2e integration test fixture (wave 0, gates 87-03; CASCADE-01, CASCADE-02)
 - [x] 87-01-PLAN.md -- Cypher sanitization + API key permissions + HSI timeout (wave 1, Stream A; SEC-01, SEC-02, SEC-03)
 - [x] 87-01a-PLAN.md -- ROOM.md + MINTO.md git pre-commit hook installer (wave 1, Stream A; SEC-04)
@@ -295,13 +331,16 @@ Plans:
 - [x] 87-07-PLAN.md -- Brain session cache (5-min TTL) + LRU eviction (cap 100) (wave 3, Stream B; CASCADE-06)
 - [x] 87-09-PLAN.md -- BYO API chat panel with Bearer token auth (folds 87-09a plumbing + 87-09b stakeholders verification) (wave 4, Stream B; DASH-04)
 - [x] 87-10-v2-PLAN.md -- v1.10.12 release gate (wave 5, Stream B; 5-gate release)
+
 **Authority**: .planning/phases/87-security-hardening-cascade-refactor/87-CONTEXT.md
 
 ### Phase 88: Per-Folder Memory Triple Wiring
+
 **Goal**: Wire the per-folder memory triple (ROOM.md + STATE.md + Feynman-MINTO.md) through the session lifecycle so it functions as true cross-session memory. STATE.md is already wired on-stop. ROOM.md is partially wired (created, not re-compiled as references change). Feynman-MINTO is unwired (zero skills read it, no hook regenerates it). This phase closes both gaps via five wires + unified read contract + invariants + guardian.
 **Depends on**: Phase 87 v1.10.11 (security + 87-01a pre-commit hook + 87-02 atomic write-lock), Phase 81 (Feynman-MINTO file type), Phase 84 (room.db), CLAUDE.md decision #15 (ROOM.md per folder)
 **Requirements**: Five wires (post-write freshness, on-stop snapshot, session-start TRIPLE_CONTEXT injection, pre/post-compact resilience, decision_log persistence) + `lib/core/folder-memory.cjs` read contract + `lib/core/feynman-minto-invariants.cjs` + `scripts/feynman-minto-guardian.cjs`
 **Success Criteria** (what must be TRUE):
+
   1. Feynman-MINTO.md files auto-regenerate within 30s of room section artifact writes
   2. ROOM.md references auto-recompile within 200ms of artifact writes, machine-managed region delimited, manual content preserved
   3. STATE.md on-stop contract unchanged and green
@@ -312,8 +351,10 @@ Plans:
   8. Cross-session acceptance test passes (file weak-TAM artifact + defer in Session A; open Session B; Larry references prior flag)
   9. Feynman tests stay green (17/17 at phase start, 38/38 at 88-05 ship point) throughout
   10. 5-gate release: CHANGELOG 1.10.13, plugin.json 1.10.13, package.json 1.10.13, git tag v1.10.13, marketplace pin
+
 **Plans**: 16 plans across 6 waves
 Plans:
+
 - [x] 88-00-B-PLAN.md -- Feynman-MINTO Invariants Module (existence, schema, freshness, coherence, atomicity categories; critical/error/warning/info severity)
 - [x] 88-00-PLAN.md -- Feynman-MINTO frontmatter schema extension (last_generated_at, last_artifact_write_seen_at, reasoning_health_score, flagged_weaknesses, decision_log)
 - [x] 88-01-PLAN.md -- `lib/core/folder-memory.cjs` read contract (readTriple returns unified ROOM + STATE + reasoning signal)
@@ -330,6 +371,7 @@ Plans:
 - [x] 88-11-PLAN.md -- APPROVE/REJECT/DEFER cascade dual-write to graph + decision_log
 - [x] 88-12-PLAN.md -- v1.10.13 5-gate release
 - [x] 88-13-PLAN.md -- Feynman-MINTO Guardian boundary enforcement (session-start validate, on-stop verify, pre-commit extend)
+
 **Authority**: .planning/phases/88-feynman-minto-memory-layer/88-CONTEXT.md
 
 ### Phase 88.7: power-demo-multipage-export (INSERTED, INCOMPLETE)
@@ -343,13 +385,16 @@ Plans:
 **NOT shipped:** `commands/power-demo.md` does not exist; no `.planning/phases/88.7-*` directory exists; no SUMMARY.md; 5 sub-plans never authored.
 
 Plans:
+
 - [ ] TBD (run /gsd:plan-phase 88.7 to break down, OR formally retire) -- deferred indefinitely; reconsider at v1.14.0 backlog grooming.
 
 ### Phase 88.6: Python Algorithm Wiring (v1.10.14)
+
 **Goal**: Close the orphan-value gap between the Python algorithm layer (15 verified scripts) and the user-facing product surface (/mos:* commands). Fix one silent production bug (discover-* pipelines silently return 0 zones when brain-baseline.json missing), expose four orphan Wave-1 algorithms (Funk and Owen-Smith Disruption Index, Good-Turing Blindspot Mass, Centroid-Distance Element Novelty, Leave-One-Out Bayesian Surprise) via new /mos:diagnostics command, wrap two-step external whitespace flow behind single command surface with rate-limit graceful degradation. Orchestration-only phase, zero new algorithms. Triggered by mid-milestone discovery during Rubos meeting (John Shorter, Ryan Lewis) where Ryan's technical questions prompted an audit that surfaced the orphan-value gap.
 **Depends on**: Phase 88 v1.10.13 (shipped), Node 22.5+, existing Python scripts (scripts/compute-*.py, scripts/discover-*.py, scripts/fetch-brain-baseline.cjs, scripts/query-semantic-scholar.cjs, scripts/compute-external-whitespace.py)
 **Requirements**: WIRING-88.6-01-baseline-auto-fire, WIRING-88.6-01-graceful-offline, WIRING-88.6-02-diagnostics-surface, WIRING-88.6-02-wave1-algorithms-exposed, WIRING-88.6-02-interpretation-strings, WIRING-88.6-03-external-orchestration, WIRING-88.6-03-rate-limit-graceful, WIRING-88.6-04-release-gate
 **Success Criteria** (what must be TRUE):
+
   1. Running /mos:whitespace map, /mos:whitespace discover, /mos:whitespace external, or node scripts/discovery-cycle.cjs on a room without .mindrian/brain-baseline.json auto-fetches the baseline OR prints explicit 'baseline unavailable, Brain offline' message -- never silent zero
   2. /mos:diagnostics runs all four Wave-1 scripts and renders a 4-row Shape E (Action Report) output with interpretation strings per metric; discoverable via /mos:help
   3. /mos:whitespace external orchestrates Semantic Scholar query then compute-external-whitespace as a single command; reports 'N of M queries rate-limited' when partial; fails explicitly with 'Semantic Scholar unavailable' only when entire corpus unreachable
@@ -357,19 +402,24 @@ Plans:
   5. Canon Part 8 (Graph Boundary) honored: no user-specific strings egress to Brain in any of the three pipelines; external papers are SIGNAL (public data), flow LOCAL only
   6. Empirical smoke test on ~/MindrianRooms/mindrianOS/: 4 Wave-1 metrics render with plausible values matching CONTEXT.md baseline (CD ~= -0.71, coverage ~= 0.667, novelty mean ~= 0.08)
   7. 5-gate release: CHANGELOG 1.10.14, plugin.json 1.10.14, package.json 1.10.14, git tag v1.10.14, marketplace pin (Gates 1-3 autonomous; Gates 4-5 user-action checkpoint per v1.10.13 protocol)
+
 **Plans**: 4 plans across 3 waves
 Plans:
+
 - [x] 88.6-01-baseline-auto-fire-PLAN.md -- Shared scripts/ensure-brain-baseline.cjs helper + wire into discovery-cycle.cjs and whitespace-command.cjs (Wave 1)
 - [~] 88.6-02-diagnostics-command-PLAN.md -- /mos:diagnostics command + scripts/diagnostics-command.cjs dispatcher + /mos:help listing update (Wave 1). **Partial**: dispatcher shipped (commit c2e02ca, 345 lines). SUMMARY backfilled 2026-04-23 with 3 Known Gaps to resolve in 88.6-04: commands/diagnostics.md untracked, commands/help.md not updated, human-verify checkpoint unrecorded.
 - [x] 88.6-03-external-whitespace-orchestration-PLAN.md -- query-semantic-scholar.cjs per-query telemetry (Task 0, commit b297acf) + rate-limit-aware cmdExternal (Task 1, commit 674a3ce) + whitespace.md external subcommand doc (Task 2, commit 3d550ad). Wave 2, depended on 88.6-01. Live smoke-tested: Semantic Scholar 429 captured and surfaced end-to-end via status:'rate_limited' telemetry. Feynman suite 46/46 passing.
 - [x] 88.6-04-release-gates-PLAN.md -- CHANGELOG/plugin.json/package.json v1.10.14 bump (surgical Edit, preserve 10 deps) + CANON-PHASE-MAP update + Workspace Guard + 5-gate release checkpoint (Wave 3, depends on 88.6-01, 88.6-02, 88.6-03) + MUST resolve the 3 Known Gaps from 88.6-02 before CHANGELOG can claim /mos:diagnostics as a user-facing command
+
 **Authority**: .planning/phases/88.6-python-algorithm-wiring/CONTEXT.md (filed 2026-04-23, empirical evidence from 2026-04-23 smoke test on ~/MindrianRooms/mindrianOS/)
 
 ### Phase 88.1: UI/UX Polish + MINTO Surface Plumbing
+
 **Goal**: Close the gap between MindrianOS shipped surface (71 commands, 9 skills, 8 agents, 10+ hooks) and the Claude Code 2.1.x polish bar for a moat-depth plugin. Four workstreams: MINTO surface plumbing wired to Phase 88 governing_thought, description-driven UX sweep, hook output primitive retrofit, README as 7th surface. Boring hygiene that raises the trust floor before Phase 88.2 adds interactive Selector Block primitives on top.
 **Depends on**: Phase 88 v1.10.13 (triple wired, governing_thought stable across sessions)
 **Requirements**: Workstream A (statusline MINTO segment, /mos:status MINTO summaries, SessionStart MINTO banner) + Workstream B (71 command description hygiene sweep, README permissions block, agent PROACTIVELY audit) + Workstream C (systemMessage retrofit on 9 hooks, schema validation hook, async artifact auto-commit hook) + Workstream D (README 3-paragraph user-expectation setter)
 **Success Criteria** (what must be TRUE):
+
   1. Statusline reads active section governing_thought via folder-memory.cjs within 300ms render budget
   2. /mos:status replaces raw artifact counts with 1-line governing_thought per filled section
   3. SessionStart banner shows top-3 most-recently-modified sections' governing_thoughts
@@ -379,21 +429,26 @@ Plans:
   7. Feynman tests stay green (currently 28/28 at v1.10.12 HEAD)
   8. MWP moat deepened (every plan connects to a moat layer)
   9. 5-gate release: CHANGELOG 1.10.14, plugin.json 1.10.14, package.json 1.10.14, git tag v1.10.14, marketplace pin
+
 **Plans**: 10 plans across 4 waves (not yet filed)
 **Authority**: .planning/phases/88.1-uiux-polish/88.1-CONTEXT.md
 
 ### Phase 89: Reverse-Salient Engine
+
 **Goal**: Formalize Hughes 1983 reverse-salient detection as a standalone engine that identifies the lagging component in an expanding venture. Computes per-section embedding-distance lag signals and attack vectors. Optional consumer of Phase 88 reasoning_health_score. Ships independently of Phase 88/90/91; not blocking other phases.
 **Depends on**: Existing Python HSI pipeline (sentence-transformers + LSA), existing Pinecone 1,427 methodology embeddings; no hard blockers
 **Requirements**: Reverse-salient algorithm extraction, per-section lag computation, attack-vector generation, CLI integration (/mos:find-bottlenecks wraps engine), Brain signal consumption path
 **Success Criteria** (what must be TRUE):
+
   1. Reverse-salient algorithm computes lag signal per room section deterministically
   2. /mos:find-bottlenecks surfaces top-N lagging components with attack vectors
   3. Graceful degradation when embeddings absent (tier-0 fallback to structural signal)
   4. Feynman tests stay green throughout
   5. Optional integration path with Phase 88 reasoning_health_score exercised in fixture
+
 **Plans**: 7 plans on disk (89-01 through 89-07), 6 SUMMARYs shipped (89-01, 89-02, 89-03, 89-04, 89-05, 89-06)
 Plans:
+
 - [x] 89-01-PLAN.md -- rs-engine Mode A internal single-room (shipped 2026-04-23; 89-01-SUMMARY.md)
 - [x] 89-02-PLAN.md -- rs_corpus external fetcher + Mode B dispatch (shipped 2026-04-23; 89-02-SUMMARY.md)
 - [x] 89-03-PLAN.md -- rs_cache Pinecone warm/cold/bypass (shipped 2026-04-24; 89-03-SUMMARY.md)
@@ -401,12 +456,15 @@ Plans:
 - [x] 89-05-PLAN.md -- Mode C hybrid room x external unified matrix (shipped 2026-04-24; 89-05-SUMMARY.md)
 - [x] 89-06-PLAN.md -- Obsidian bridge artifact writer (shipped 2026-04-23; 89-06-SUMMARY.md)
 - [ ] 89-07-PLAN.md -- (remaining: ReverseSalientAgent + release wiring)
+
 **Authority**: .planning/phases/89-reverse-salient-engine/89-CONTEXT.md (plus ALGORITHM-SOURCE.md, PLAN-CHECK.md, PLAN.md, RESEARCH.md)
 
 ### Phase 89.1a: Brain Methodology Substrate Loader
+
 **Goal**: Build the Brain-to-Local methodology substrate pipeline that is the prerequisite to the v1.11.0 reverse-salient rewiring. Pull the 1,427 canonical methodology embeddings from the Brain Pinecone index into a local substrate cache, via a generic-handle query builder that enforces Canon Part 8 on every outbound query (no user data ever reaches Brain). Local cache persists with TTL and atomic write-then-rename to .mindrian/brain-substrate-cache.json. Adversarial fixture tests inherit the Phase 90 5-tripwire pattern.
 **Depends on**: Phase 90 Brain Derivation Layer (Canon Part 8 5-tripwire pattern shipped in v1.10.18), existing brain-client.cjs chokepoint, existing Pinecone methodology index (pws-brain namespaces), Phase 89 v1.10.16 primitives (rs_math.py Kwan LSA + rs_cache.py Pinecone e5-large — keep, do not replace)
 **Requirements**:
+
 - `lib/core/rs-brain-substrate.cjs` that pulls 1,427 Brain methodology embeddings via generic-handle queries and hydrates a local substrate usable by the RS algorithm
 - Generic-handle query builder (single chokepoint) enforcing Canon Part 8 allow-list on every outbound Brain query (framework IDs, phase IDs, problem types, enum scalars only — NEVER artifact bodies, venture names, meeting content, proprietary numbers)
 - Local substrate cache at `.mindrian/brain-substrate-cache.json` with TTL-driven invalidation and atomic persistence (write-to-tmp then rename)
@@ -417,7 +475,9 @@ Plans:
 - BSL 1.1 header on all new source (CJS + tests)
 - Zero em-dashes (hyphens only)
 - `canon_parts:` frontmatter declaring Part 7 (Reuse Before Build — extends Phase 90 tripwire pattern, reuses brain-client.cjs) and Part 8 (Graph Boundary — the core invariant this phase defends)
+
 **Success Criteria** (what must be TRUE):
+
   1. `lib/core/rs-brain-substrate.cjs` exports `loadSubstrate({forceRefresh})` returning the 1,427-embedding methodology substrate from cache or fresh Brain pull
   2. Every outbound Brain query passes through the single generic-handle query builder chokepoint; no other code path may call brain-client directly for methodology embeddings
   3. Adversarial fixture suite (≥6 scenarios covering leaked artifact bytes, leaked venture names, leaked meeting transcript fragments, leaked proprietary numbers, malformed payload injection, oversized payload) all FAIL the query before bytes leave the process
@@ -425,18 +485,23 @@ Plans:
   5. Graceful degradation verified: Brain offline → fresh cache returns substrate, stale cache returns with warning, no cache returns tier-0 empty substrate without crash
   6. Feynman test suite stays green + new `lib/memory/test-rs-brain-substrate.cjs` registers with `lib/memory/run-feynman-tests.cjs`
   7. NO release gate — bundled into v1.11.0 final ship at Phase 91.x per milestone §7 (no mid-milestone releases per user Intent 3)
+
 **Plans**: 4 plans across 3 waves (filed 2026-04-24)
 Plans:
+
 - [x] 89.1a-01-PLAN.md -- Substrate loader core + generic-handle query builder chokepoint + preSendAudit tripwire (Wave 1; SC-01, SC-02, SC-05)
 - [x] 89.1a-02-PLAN.md -- Local cache + atomic persistence + drop-in invariants validator (Wave 2; SC-04, SC-05)
 - [x] 89.1a-03-PLAN.md -- 14-scenario adversarial fixture suite + A1/A2 cross-scenario sweeps + Feynman registration (Wave 3; SC-03, SC-05, SC-06)
 - [x] 89.1a-04-PLAN.md -- Phase gate transcript + live Brain smoke test + human-verify phase close (Wave 3; SC-07)
+
 **Authority**: .planning/milestones/v1.11.0-KICKOFF.md §5 (Engine Architecture), §4 (Architecture - Canon Part 8 Compliant), §8 (Canon Compliance Plan), §9 (Implementation Guidance); .planning/milestones/v1.12.0-LIVE-VALIDATION-2026-04-24.md §4 (bidirectional NL-graph architecture context)
 
 ### Phase 89.1: Domain Analysis + Query Generation Matrix
+
 **Goal**: Add Domain Analysis as the missing FIRST step of the reverse-salient framework (closing the user Intent 1 gap from v1.11.0 kickoff). Ship `lib/core/rs-domain-analyzer.cjs` running Sequential-Thinking-style decomposition (concepts + terminology + methods + breakthroughs) per topic, and `lib/core/rs-query-matrix.cjs` generating the 15-query x 4-category matrix (A intersect B, A leads to B, B leads to A, adjacent) that drives downstream external research fetching in 89.2. Consume the Brain methodology substrate shipped by Phase 89.1a. RESOLVE the deferred brain-client search response shape mismatch (filed at .planning/phases/89.1a-brain-methodology-substrate-loader/deferred-items.md item 1) so loadSubstrate Mode A3 actually returns embedding-bearing methodology vectors under live Brain. File the ONE legitimate Brain-write of v1.11.0: USES_TECHNIQUE edge from rss-phase-1 to tech-domain-analysis (methodology canon evolution, NOT user data).
 **Depends on**: Phase 89.1a (Brain Methodology Substrate Loader -- shipped 2026-04-24); existing brain-client.cjs; existing rs-brain-substrate.cjs + rs-brain-substrate-prompts.cjs; /mos:admin admin path for the canon Brain-write
 **Requirements**:
+
 - `lib/core/rs-domain-analyzer.cjs` -- per-topic domain analysis producing structured output {primary_domain, concepts[], terminology[], methods[], breakthroughs[], boundary_flag, adjacent_domains[]}; uses Sequential Thinking style decomposition; consumes Brain methodology substrate for canonical concept seeding
 - `lib/core/rs-query-matrix.cjs` -- generates 60 queries (15 per category x 4 categories: A intersect B, A leads to B, B leads to A, adjacent) from a Domain Analysis output; query strings are external-fetcher ready (no semantic noise, single-concept anchors)
 - Resolve brain-client shape mismatch: implement chosen remediation (shape adapter inside pullFromBrain OR new searchWithVectors method per deferred-items.md options 1/2). Either path must preserve Canon Part 8 chokepoint + allow-list + preSendAudit
@@ -446,7 +511,9 @@ Plans:
 - Three-surface compatibility (CLI + Desktop MCP + Cowork)
 - Zero new runtime dependencies; CJS only; BSL 1.1 header on all new source; zero em-dashes
 - `canon_parts:` frontmatter declaring Part 7 (Reuse: extends 89.1a + brain-client without forking) and Part 8 (the Brain-write is methodology canon evolution, NOT user data; chokepoint preserved)
+
 **Success Criteria** (what must be TRUE):
+
   1. `rs-domain-analyzer.cjs` exports `analyzeDomain(topic, opts)` returning the structured 7-field output
   2. `rs-query-matrix.cjs` exports `generateQueryMatrix(domain_analysis, opts)` returning 60 queries (15 per category x 4 categories)
   3. brain-client shape mismatch resolved: `loadSubstrate({forceRefresh: true})` returns Mode A3 with `embedding_count > 0` against live Brain (replaces Mode B3 fallback observed in 89.1a smoke)
@@ -454,19 +521,24 @@ Plans:
   5. Domain analyzer + query matrix outputs pass FORBIDDEN_PATTERNS scan (no user content reachable to downstream fetchers)
   6. Feynman test suite stays green + new test files registered (test-rs-domain-analyzer.cjs + test-rs-query-matrix.cjs minimum)
   7. NO release gate -- bundled into v1.11.0 final ship at Phase 91.x per milestone §7
+
 **Plans**: 5 plans across 3 waves (filed 2026-04-25)
 Plans:
+
 - [x] 89.1-01-PLAN.md -- brain-client shape adapter inside pullFromBrain (Option 1 locked) + validator Check E embedding-or-score relaxation + adversarial shape suite (Wave 1; SC-03)
 - [x] 89.1-02-PLAN.md -- rs-domain-analyzer.cjs deterministic 7-field decomposition + Canon Part 8 output audit + 11-scenario fixture suite (Wave 2; SC-01, partial SC-05)
 - [x] 89.1-03-PLAN.md -- rs-query-matrix.cjs 60-query 4-category fixed-order template + Canon Part 8 per-query audit + 11-scenario fixture suite (Wave 2; SC-02, partial SC-05)
 - [x] 89.1-04-PLAN.md -- USES_TECHNIQUE Brain-write canonization via /mos:admin brain-write + admin-brain-write.cjs one-shot wrapper + canon-write evidence doc (Wave 3; SC-04)
 - [x] 89.1-05-PLAN.md -- Phase Gate transcript + Feynman registration (baseline 63 -> 65) + live A3 re-verification + canon edge live read (Wave 3; SC-06, SC-07)
+
 **Authority**: .planning/milestones/v1.11.0-KICKOFF.md §5 (Phase 1 Topic + Domain Analysis), §3 (Audit findings -- "Domain analysis prerequisite half-canonized"), §8 (Canon Canonization ONE Brain Write); .planning/phases/89.1a-brain-methodology-substrate-loader/deferred-items.md (brain-client shape mismatch to resolve); .planning/phases/89.1a-brain-methodology-substrate-loader/89.1a-LIVE-BRAIN-SMOKE.md (live Brain evidence + observed-vs-expected diff)
 
 ### Phase 89.2: External Research Fetching (EXPANDED) + Preprocessing + Scoring + Thesis + Experts
+
 **Goal**: Ship Phase 1.5 + Phase 2 + Phase 3 + Phase 4 of the canonical Reverse Salient framework (per kickoff §5 engine architecture). Consume the 60-query matrix produced by Phase 89.1's `rs-query-matrix.cjs::generateQueryMatrix` and run it through 4 new external fetchers (academic / patents / industry / experts), 1 preprocessor, 1 differential scorer, 1 innovation classifier, 1 breakthrough scorer, and 1 thesis generator. Every fetcher introduces a NEW external-egress surface and MUST inherit Canon Part 8's 5-tripwire pattern (chokepoint + ExternalEgressViolation + auditQuery + drop-in validator + ≥4 adversarial fixtures per source) so leaked user content cannot reach public APIs. Per-source rate-limit graceful degradation per Phase 88.6-03 pattern. Bundled into v1.11.0 final ship at Phase 91.x.
 **Depends on**: Phase 89.1a (Brain methodology substrate loader -- shipped 2026-04-25); Phase 89.1 (domain analyzer + 60-query matrix + ExternalEgressViolation pattern -- shipped 2026-04-26); existing v1.10.16 primitives `lib/core/rs_corpus.py` + `rs_cache.py` + `rs_math.py` (extend, do not fork per Canon Part 7)
 **Requirements**:
+
 - `lib/core/rs-fetcher-academic.cjs` -- extend v1.10.16 OpenAlex+arXiv baseline; ADD Scopus + PubMed + IEEE + Nature/Science via native `fetch`; consume queries from rs-query-matrix output; per-source rate-limit + graceful degradation
 - `lib/core/rs-fetcher-patents.cjs` -- NEW: Google Patents + USPTO via native `fetch`; same per-source budget + telemetry pattern
 - `lib/core/rs-fetcher-industry.cjs` -- NEW: Crunchbase + corporate R&D + startup trackers via Tavily-orchestrated calls (Tavily MCP already in stack); fall back to graceful degradation if Tavily unavailable
@@ -486,7 +558,9 @@ Plans:
 - `canon_parts: [part-7, part-8]` + `bundled_release: true` frontmatter on every plan
 - TDD discipline: every plan ships RED -> GREEN atomic commits; test files under `lib/memory/`; register every new test in `lib/memory/run-feynman-tests.cjs` (current Feynman baseline 65 after 89.1)
 - Phase Gate transcript at end of phase mirroring 89.1-PHASE-GATE.md format (G1-G9 + N E asserts where N = fetcher count)
+
 **Success Criteria** (what must be TRUE):
+
   1. `rs-fetcher-academic.cjs` exports `fetchAcademic(queries, opts)`; under live conditions returns deduped paper objects from at least OpenAlex + arXiv with telemetry persisted; Scopus / PubMed / IEEE / Nature degrade gracefully if API key absent
   2. `rs-fetcher-patents.cjs` exports `fetchPatents(queries, opts)`; returns Google Patents + USPTO results or graceful empty with telemetry note
   3. `rs-fetcher-industry.cjs` exports `fetchIndustry(queries, opts)`; uses Tavily orchestration; degrades to empty if Tavily unavailable
@@ -500,8 +574,10 @@ Plans:
   11. Per-source rate-limit graceful degradation verified (mock 429 response + verify telemetry capture + verify graceful empty result)
   12. Feynman test suite stays green + new test files registered (8 new test files minimum: one per new module + one per fetcher integration smoke); baseline 65 -> 73+
   13. NO release gate -- bundled into v1.11.0 final ship at Phase 91.x per milestone §7
+
 **Plans**: 8 plans across 4 waves
 Plans:
+
 - [x] 89.2-01-egress-primitives-PLAN.md -- shared ExternalEgressViolation + FORBIDDEN_PATTERNS re-export + per-source telemetry primitive (Wave 1; SC-10, SC-11)
 - [x] 89.2-02-fetcher-academic-PLAN.md -- 6-source academic fetcher (OpenAlex+arXiv+Scopus+PubMed+IEEE+Nature) + chokepoint + drop-in validator + 12+6 fixture suite (Wave 2; SC-01, SC-10, SC-11)
 - [x] 89.2-03-fetcher-patents-PLAN.md -- Google Patents + USPTO fetcher + chokepoint + drop-in validator + 11+6 fixture suite (Wave 2; SC-02, SC-10, SC-11)
@@ -510,12 +586,15 @@ Plans:
 - [x] 89.2-06-preprocessor-and-differential-scorer-PLAN.md -- rs-pinecone-bridge + rs-preprocessor (Phase 2 deterministic 5-field) + rs-differential-scorer (Phase 3 dual-floor 0.3/0.2/0.2) + strict 1024-dim cosine via existing rs_cache.py + 24 fixture scenarios (Wave 3; SC-05, SC-06)
 - [x] 89.2-07-classifier-breakthrough-thesis-PLAN.md -- innovation classifier (3 enum) + breakthrough scorer (5-dimension 0-10) + thesis generator (template fill) + 27 fixture scenarios (Wave 3; SC-07, SC-08, SC-09)
 - [x] 89.2-08-feynman-registration-and-phase-gate-PLAN.md -- Feynman registration sweep (66 -> 76) + Phase Gate transcript (9G + 5E asserts) + VERIFICATION.md (13 SCs) (Wave 4; SC-12, SC-13)
+
 **Authority**: .planning/milestones/v1.11.0-RESUME-89.2.md (cross-session handoff doc); .planning/milestones/v1.11.0-KICKOFF.md §5 (Phase 1.5 + Phase 2 + Phase 3 + Phase 4 of canonical framework), §6 (chain mechanism downstream context), §7 (bundled milestone), §8 (Canon Part 8 + Part 7), §9 (implementation guidance + graceful degradation), §15 (open questions for planner to resolve); .planning/phases/89.1a-brain-methodology-substrate-loader/ (substrate loader contract); .planning/phases/89.1-domain-analysis-and-query-matrix/ (60-query matrix + ExternalEgressViolation pattern + Phase Gate template)
 
 ### Phase 89.3: 5-branch Mind Map + Full Neo4j Schema Deployment
+
 **Goal**: Ship the Output Layer of the canonical Reverse Salient framework per kickoff §5. Take the classified + scored + thesis-bearing pairs produced by 89.2 (Phase 1.5 + 2 + 3 + 4 modules) and persist them into the user's graph store (Aura when connected, SQLite room.db when not -- Tier 0 / Tier 1 graceful degradation per Canon Decision 6) plus surface a 5-branch Cytoscape mind map for navigation. Resolve fetched authors against the user's Aura via Cypher MATCH so expert networks are queryable. Enhance the existing v1.10.16 bridge-writer with thesis + breakthrough score so existing artifact pipelines pick up the new richness. Bundled into v1.11.0 final ship at Phase 91.x.
 **Depends on**: Phase 89.2 (all 8 modules shipped 2026-04-26 -- output of classifier + scorer + thesis is the input to this phase); existing lib/core/lazygraph-ops.cjs (SQLite room.db + Aura dual-backend graph ops -- EXTEND EDGE_TYPES, do not fork per Canon Part 7); existing scripts/rs-engine.py / lib/core/bridge-writer.cjs (v1.10.16 baselines to enhance with breakthrough metadata)
 **Requirements**:
+
 - `lib/core/rs-neo4j-writer.cjs` -- Aura Cypher writer for full RS schema: nodes RSDiscovery + ReverseSalient + Innovation + Paper + Author + Institution; edges DISCOVERED + DERIVED_FROM + ENABLES + AUTHORED_BY + AFFILIATED_WITH; idempotent MERGE pattern; per-write rollback Cypher captured
 - `lib/core/rs-sqlite-mirror.cjs` -- Tier 0 fallback when Aura unavailable; mirrors RS schema in room.db; same MERGE-equivalent semantics; INSERT OR REPLACE pattern
 - `lib/core/rs-mind-map.cjs` -- 5-branch Cytoscape.js generator: Direct Intersections / Structural Transfer / Semantic Implementation / Discovered RS / Innovation Ecosystem; reads from Aura OR room.db; emits HTML+JSON for /mos:dashboard rendering
@@ -528,7 +607,9 @@ Plans:
 - Zero new runtime dependencies (Cytoscape via existing CDN dashboard pattern; Aura via existing lazygraph-ops); CJS only for new JS; BSL 1.1 header on all new source; zero em-dashes
 - `canon_parts: [part-7, part-8]` + `bundled_release: true` frontmatter on every plan
 - TDD discipline: every plan ships RED -> GREEN atomic commits; test files under lib/memory/; register every new test in lib/memory/run-feynman-tests.cjs (current Feynman baseline 77 post-89.2 -> ~82+ post-89.3)
+
 **Success Criteria** (what must be TRUE):
+
   1. `rs-neo4j-writer.cjs` exports `writeDiscovery(scored_classified_pair, opts)` -- idempotent MERGE pattern; rollback Cypher captured
   2. `rs-sqlite-mirror.cjs` exports same `writeDiscovery` API surface against room.db; Tier 0 fallback proven
   3. `rs-mind-map.cjs` exports `renderMindMap(query_filter, opts)` -- 5-branch Cytoscape JSON; HTML wrapper for browser
@@ -538,18 +619,23 @@ Plans:
   7. lazygraph-ops.cjs EDGE_TYPES extended without forking; Canon Part 7 verified
   8. Feynman test suite stays green + new tests registered (baseline 77 -> 82+)
   9. NO release gate -- bundled into v1.11.0 final ship at Phase 91.x per milestone §7
+
 **Plans**: 5 plans
+
 - [x] 89.3-01-rs-neo4j-writer-PLAN.md -- Aura Cypher writer for canonical RS schema (RSDiscovery / ReverseSalient / Innovation / Paper / Author / Institution + 5 edges); idempotent MERGE + rollback Cypher capture; extends lazygraph-ops EDGE_TYPES in place (Canon Part 7); auditQueryObject defense-in-depth pre-write (Canon Part 8)
 - [x] 89.3-02-rs-sqlite-mirror-PLAN.md -- Tier 0 SQLite writer with same writeDiscovery API surface as 89.3-01; INSERT OR REPLACE for idempotency; deterministic ids (sha256 of stable identity); rollback SQL capture; reuses lazygraph.openGraph
 - [x] 89.3-03-rs-mind-map-PLAN.md -- 5-branch Cytoscape generator (Direct Intersections / Structural Transfer / Semantic Implementation / Discovered RS / Innovation Ecosystem); Tier 0/1 read paths; HTML wrapper using existing dashboard cytoscape@3.33.1 CDN (zero new deps)
 - [x] 89.3-04-rs-expert-mapper-PLAN.md -- Cypher MATCH+MERGE resolver for 89.2-05 mapExperts output; Tier 1 full resolution; Tier 0 graceful degradation with friendly note (resolution_quality flag); 2-seam Canon Part 8 audit (pre-Cypher + pre-return)
 - [x] 89.3-05-bridge-writer-and-phase-gate-PLAN.md -- bridge-writer enhancement (thesis + breakthrough_score frontmatter; backward-compat regression test) + Feynman registration sweep (5 new tests; baseline 77 -> 82) + Phase Gate transcript (9 G + 5 E asserts) + VERIFICATION.md (9 SCs)
+
 **Authority**: .planning/milestones/v1.11.0-KICKOFF.md §5 (Output Layer module enumeration: rs-neo4j-writer + rs-sqlite-mirror + rs-mind-map + rs-expert-mapper); §9 (graceful degradation Tier 0 / Tier 1); .planning/phases/89.2-external-research-fetching/89.2-VERIFICATION.md (predecessor delivers the input pairs this phase persists)
 
 ### Phase 89.4: Chain Wiring (Upstream + Downstream)
+
 **Goal**: Implement Chain Mechanism per kickoff §6 (USER's LOAD-BEARING INTENT 7). The RS Discovery Engine must be CHAIN-AWARE: it reads upstream framework outputs (systems-thinking / hsi_semantic_surprise_analysis / Cynefin) before running and emits downstream chain metadata (which canonical Part 3 verb the user can invoke next + which downstream framework FEEDS_INTO accepts the output + which skill gets spawned based on RS type + breakthrough score). Ships rs-chain-feeder.cjs that codifies engine choreography across the broader MindrianOS engine ecosystem (HSI Semantic Surprise / Navigation Engine 91 / future Scenario / Opportunity / Team-Assembly engines) by consulting Brain's FEEDS_INTO topology at each step. Enforces Canon Part 3 10-verb closed vocabulary on every recommended next-step action. Bundled into v1.11.0 final ship at Phase 91.x.
 **Depends on**: Phase 89.2 (Phase 4 thesis output; chain emission), Phase 89.3 (Output Layer; chain metadata is persisted to graph alongside discovery); existing skills/bono-innovation + commands/think-hats.md (Engine 2 BONO Orchestration produces inputs to chain wiring); existing brain-client.cjs (queries Brain FEEDS_INTO topology); .planning/research/navigation-engine-brain-interface.md (frozen v1 contract from Phase 90 -- 89.4 chain emission must conform)
 **Requirements**:
+
 - `lib/core/rs-chain-feeder.cjs` -- engine-choreography codification module; reads Brain FEEDS_INTO topology via brain-client.queryTopology (or equivalent); recommends next legitimate engine hop based on RS type + breakthrough score + active context
 - Upstream awareness: rs-discovery-engine consults `rs-chain-feeder.lookupUpstream(problem_type, stage)` BEFORE running; if upstream framework (systems-thinking / hsi_semantic_surprise_analysis / Cynefin) has fresh output -> consume it as pre-filter; if not fresh AND required -> pause + suggest user run upstream first via Canon Part 3 "Run Methodology" verb
 - Downstream emission: every ReverseSalient output carries chain metadata block: `{recommended_verb (Canon Part 3 10-verb vocabulary), feeds_into (PWS VP / JTBD / Causal Loop / Navigation Engine), spawn_skill (per §6.4 rule table)}`
@@ -561,7 +647,9 @@ Plans:
 - Zero new runtime dependencies; CJS only; BSL 1.1; zero em-dashes
 - `canon_parts: [part-3, part-7, part-8]` + `bundled_release: true` frontmatter on every plan (Part 3 newly load-bearing here)
 - TDD: RED -> GREEN; Feynman baseline ~82 (post-89.3) -> ~85+ post-89.4
+
 **Success Criteria** (what must be TRUE):
+
   1. `rs-chain-feeder.cjs` exports `lookupUpstream(problem_type, stage)` -- returns required upstream frameworks with freshness check
   2. `rs-chain-feeder.cjs` exports `emitChainMetadata(rs_type, breakthrough_score, active_context)` -- returns canonical verb + feeds_into + spawn_skill block
   3. `rs-chain-feeder.cjs` exports `validateVerb(verb_string)` -- throws on unknown verb (Canon Part 3 closed vocabulary)
@@ -570,13 +658,16 @@ Plans:
   6. Canon Part 8 audit: chain metadata never carries user content (auditQueryObject scan before any persistence)
   7. Feynman test suite stays green + new tests registered (~82 -> ~85+)
   8. NO release gate -- bundled into v1.11.0 final ship at Phase 91.x per milestone §7
+
 **Plans**: 3-4 plans (to be filed by /gsd:plan-phase 89.4)
 **Authority**: .planning/milestones/v1.11.0-KICKOFF.md §6 (Chain Mechanism Requirement -- USER LOAD-BEARING INTENT 7); §6.1 (Upstream Chain Awareness); §6.2 (Downstream Chain Emission); §6.3 (Context-Aware Engine Orchestration); §6.4 (Skill Spawning rule table); .planning/research/navigation-engine-brain-interface.md (frozen v1 contract from Phase 90 -- chain emission conforms to this); docs/MINDRIAN-CANON.md Part 3 (10-verb closed vocabulary)
 
 ### Phase 89.5: Engine Top-Level Orchestrator + Bidirectional NL-Graph Surface
+
 **Goal**: The capstone of the Reverse Salient framework per kickoff §5 + §7. Ship `scripts/rs-discovery-engine.cjs` -- the top-level orchestrator that chains every RS phase end-to-end (Domain Analysis 89.1 -> Query Matrix 89.1 -> Fetchers 89.2 -> Preprocessor 89.2 -> Differential Scorer 89.2 -> Classifier 89.2 -> Breakthrough Scorer 89.2 -> Thesis Generator 89.2 -> Output Layer 89.3 -> Chain Feeder 89.4). Add the Bidirectional NL-Graph Surface: (a) Text->Query (NL -> Cypher/SQL -> 3-graph triangulation across room.db + LazyGraph Aura + Brain methodology with Canon Part 8 chokepoint preserving NEVER-user-data-to-Brain invariant), (b) Query->Text (raw graph results -> Larry-voiced NL explanation with pedagogical framing + venture context + cross-ref enrichment). Together this closes the bidirectional loop: user types question -> system queries graph -> raw results -> system explains in plain language. Raw data becomes insight. Ships user-facing CLI commands (/mos:rs-fetch, /mos:rs-thesis, /mos:rs-experts, /mos:rs-explain) that wrap the orchestrator. Bundled into v1.11.0 final ship at Phase 91.x.
 **Depends on**: Phase 89.1 + 89.1a + 89.2 + 89.3 + 89.4 (orchestrator chains all of them); existing brain-client.cjs (Brain methodology queries via existing chokepoint); existing lazygraph-ops.cjs (room.db + Aura dual-backend); .planning/research/navigation-engine-brain-interface.md (frozen v1 contract from Phase 90)
 **Requirements**:
+
 - `scripts/rs-discovery-engine.cjs` -- top-level orchestrator; takes a topic + opts; chains all RS phases sequentially (or async-parallel where dependencies permit); emits final RSDiscovery output bundle with chain metadata (from 89.4) and persisted graph nodes (from 89.3); end-to-end smoke test under live conditions
 - `lib/core/rs-commercial-assessor.cjs` (deferred from kickoff §5 Phase 4 to here per RESUME §What 89.2 Must Ship Deferred Items) -- market size + value prop + partnership targets; deterministic from breakthrough scorer + chain feeder outputs; NO runtime LLM
 - Bidirectional NL-Graph Surface (a) Text->Query: `lib/core/rs-nl-to-query.cjs` -- NL -> Cypher/SQL translator; 3-graph triangulation (room.db local SQL + LazyGraph Aura local Cypher + Brain methodology read-only); Canon Part 8 chokepoint: ALL three graph queries pass through audit (Brain queries strip to allow-list scalars; room.db + Aura queries audit user-content patterns before execution to catch SQL/Cypher injection AND data exfiltration attempts)
@@ -588,7 +679,9 @@ Plans:
 - Zero new runtime dependencies; CJS only; BSL 1.1; zero em-dashes
 - `canon_parts: [part-3, part-7, part-8]` + `bundled_release: true` frontmatter on every plan
 - TDD: RED -> GREEN; Feynman baseline ~85 (post-89.4) -> ~90+ post-89.5
+
 **Success Criteria** (what must be TRUE):
+
   1. `scripts/rs-discovery-engine.cjs` exports `runDiscovery(topic, opts)` -- end-to-end pipeline; returns full RSDiscovery bundle
   2. `rs-commercial-assessor.cjs` exports `assess(rs_discovery, opts)` -- deterministic market + value-prop + partnership output
   3. `rs-nl-to-query.cjs` exports `translate(nl_query, opts)` -- returns {cypher, sql, brain_query} triangulated query bundle; Canon Part 8 audit on all 3 surfaces
@@ -598,18 +691,23 @@ Plans:
   7. Canon Part 8 verified: Brain query audit on every Brain call from NL-to-Query; user content never crosses outbound boundary
   8. Feynman test suite stays green + new tests registered (~85 -> ~90+)
   9. NO release gate -- bundled into v1.11.0 final ship at Phase 91.x per milestone §7
+
 **Plans**: 5 plans across 3 waves
+
   - [x] 89.5-01-PLAN.md -- rs-commercial-assessor.cjs (deterministic 3-field commercial layer; deferred from kickoff §5 Phase 4)
   - [x] 89.5-02-PLAN.md -- rs-nl-to-query.cjs (Bidirectional NL-Graph Text->Query; HARDEST Canon Part 8 surface in v1.11.0; >=6 adversarial fixtures)
   - [x] 89.5-03-PLAN.md -- rs-query-to-text.cjs (Bidirectional NL-Graph Query->Text; Larry-voiced explanation with frozen voice templates)
   - [x] 89.5-04-PLAN.md -- scripts/rs-discovery-engine.cjs (top-level orchestrator chaining all 89.1-89.5 modules; Tier 0/Mode B graceful)
   - [x] 89.5-05-PLAN.md -- 4 CLI commands (/mos:rs-fetch, /mos:rs-thesis, /mos:rs-experts, /mos:rs-explain) + Feynman registration (baseline 85 -> 90) + Phase Gate (9G + 5E asserts; CONDITIONAL PASS) + VERIFICATION (9/9 SCs passed)
+
 **Authority**: .planning/milestones/v1.11.0-KICKOFF.md §5 (Engine Architecture top-level orchestrator); §7 (89.5 4-5 plans bundled with Bidirectional NL-Graph Surface load-bearing description); .planning/milestones/v1.12.0-LIVE-VALIDATION-2026-04-24.md §4 (bidirectional NL-graph context forward reference); .planning/research/navigation-engine-brain-interface.md (frozen v1 contract for Brain query shape consumption)
 
 ### Phase 89.6: v1.11.0-beta.1 Release Gate (RS Framework Beta)
+
 **Goal**: Ship the complete v1.11.0 RS framework (89.1a + 89.1 + 89.2 + 89.3 + 89.4 + 89.5) as v1.11.0-beta.1 to opt-in testers. The RS framework is functionally complete after 89.5; this phase wraps it for tester consumption WITHOUT promoting to the stable channel. Per release-process.md beta-gating mandate, new product surface always ships as beta first; tester sign-off promotes to stable in Phase 91.5. Stable users (currently v1.10.19) NOT auto-updated -- they must explicitly opt in via `claude plugin update mos@mindrian-marketplace --version 1.11.0-beta.1`. the Wave-1 testers are the named first testers; their feedback shapes any patches before Phase 91 ships beta.2.
 **Depends on**: Phase 89.5 (RS framework code-complete with 9/9 SCs verified; Phase Gate CONDITIONAL PASS); existing scripts/release.sh (or equivalent release tooling); existing marketplace.json
 **Requirements**:
+
 - 5-gate beta release with explicit -beta.1 suffix:
   1. CHANGELOG.md entry under `## [1.11.0-beta.1] - YYYY-MM-DD` documenting the RS framework feature set (89.1a substrate + 89.1 domain analysis + 89.2 fetchers/preprocessor/scoring/thesis + 89.3 Aura schema + 89.4 chain wiring + 89.5 NL-graph)
   2. plugin.json `"version": "1.11.0-beta.1"`
@@ -621,7 +719,9 @@ Plans:
 - Stable channel preserved: any user NOT explicitly opting in stays on v1.10.19. Marketplace source.ref points at v1.11.0-beta.1 BUT the marketplace UI MUST show beta versions as opt-in only (per Claude Code marketplace beta-gating semantics)
 - Three-surface compatibility (CLI + Desktop MCP + Cowork) -- the 4 new CLI commands MUST work uniformly
 - `canon_parts: [part-7, part-8]` + `bundled_release: false` (this IS the release; not bundled)
+
 **Success Criteria** (what must be TRUE):
+
   1. CHANGELOG.md has `## [1.11.0-beta.1] - YYYY-MM-DD` entry with RS framework summary
   2. plugin.json + package.json both at exactly `1.11.0-beta.1`
   3. Git tag `v1.11.0-beta.1` exists and points at the release commit
@@ -629,14 +729,17 @@ Plans:
   5. Pre-release smoke test passes: fresh install via opt-in command resolves to v1.11.0-beta.1; /mos:rs-fetch runs end-to-end; Phase Gate transcript renders
   6. Stable users on v1.10.19 confirmed NOT auto-updated (auto-update channel test)
   7. TESTER-NOTES.md filed with opt-in command + feature summary + known limitations
+
 **Plans**: 1 plan (release-gate-PLAN.md)
 **Authority**: .planning/milestones/v1.11.0-KICKOFF.md §7 (bundled milestone); .claude/includes/release-process.md (5-gate release + beta-gating mandate); user release strategy filed 2026-04-27 in conversation transcript (after 89.5 -> beta.1; after 91 -> beta.2; after tester sign-off -> stable v1.11.0)
 
 ### Phase 90: Brain Derivation Layer
+
 **Goal**: Let the Brain excavate the per-folder memory triple (Phase 88) and produce a persistent authored layer on top. Each section carries an optional BRAIN.md with Brain-authored pattern matches, cross-domain analogies, wicked indicators, unfilled opportunity matches, framework chain predictions, and cross-room contradiction flags. Derivation is persistent (git-trackable), versioned (governing_thought_hash invalidation), staleness-aware, offline-tolerant, query-optimized. Triple becomes quadruple. Moat becomes visible.
 **Depends on**: Phase 88 (triple foundation), existing brain-connector skill (ambient enrichment to be extended not replaced), existing brain-client.cjs
 **Requirements**: BRAIN.md schema with governing_thought_hash invalidation, derivation pipeline, `folder-memory.cjs` readQuadruple extension, /mos:brain-derive command, graceful offline degradation, room-scope respect (never cross GUARDRAIL.md boundaries)
 **Success Criteria** (what must be TRUE):
+
   1. BRAIN.md per section is optional; absence is valid when Brain offline or irrelevant
   2. governing_thought_hash invalidates derivations automatically when MINTO changes
   3. Graceful degradation: Brain unavailable does not block session or crash system
@@ -644,14 +747,17 @@ Plans:
   5. `folder-memory.cjs readQuadruple()` extends readTriple() additively; consumers can migrate incrementally
   6. Feynman tests stay green + new brain-derivation tests
   7. 5-gate release: CHANGELOG 1.10.15, plugin.json 1.10.15, package.json 1.10.15, git tag v1.10.15, marketplace pin
+
 **Plans**: 10 plans across 5 waves (not yet filed)
 **Authority**: .planning/phases/90-brain-derivation-layer/90-CONTEXT.md
 
 ### Phase 91: Navigation Engine
+
 **Goal**: Ship the L5 Decision layer that picks which skill, command, or framework fires based on triangulated signals across ICM + SQL + Feynman-MINTO + BRAIN + live intent/persona. Today skill activation is primitive (file-state and env only). The engine makes activation context-aware, brain-aware, and reasoning-aware. Visible dial position, persistent Larry persona, and skill discoverability emerge as properties of correct engine selection rather than separate features. This is where the product thesis "speed up the eureka moment" becomes operational.
 **Depends on**: Phase 88 (triple foundation + invariants), Phase 90 (Brain-authored layer), existing UserPromptSubmit hook, existing USER.md persona detection
 **Requirements**: Five-signal triangulation function, decision_trace emitter, persona durability via USER.md (Explicit/Implicit schema aligned to Brain), /mos:explain-decision command, visible dial surface, problem-type-aware routing, framework chain composition feed
 **Success Criteria** (what must be TRUE):
+
   1. Engine reads via folder-memory.cjs readQuadruple (never parses files directly)
   2. Every engine decision includes a trace of which signals contributed
   3. Engine respects active room scope (never fires skills from other rooms)
@@ -661,8 +767,10 @@ Plans:
   7. /mos:explain-decision surfaces trace for any prior turn
   8. All prior phases' tests stay green
   9. 5-gate release: CHANGELOG 1.11.0, plugin.json 1.11.0, package.json 1.11.0, git tag v1.11.0, marketplace pin (MINOR version bump opens v1.11.x milestone line)
+
 **Plans**: 11 plans across 5 waves
 Plans:
+
 - [x] 91-00-navigation-engine-core-PLAN.md -- lib/core/navigation-engine.cjs L5 Decision core with decide() + structured 5-signal triangulation + Section 4 staleness multipliers + Section 5 tier modes + Section 6 RECOMMENDED gate + Section 8 8-field trace contract (NAV-CORE-01..05)
 - [x] 91-01-user-md-persona-durability-PLAN.md -- lib/core/user-md-ops.cjs + persona-taxonomy.cjs promoting persona to first-class USER.md artifact; Larry 3-persona -> Brain 2-persona translation; atomic write + update threshold (NAV-PERSONA-01..04)
 - [x] 91-02-userpromptsubmit-integration-PLAN.md -- scripts/intent-classifier.cjs calls engine per turn with 1200ms hard timeout; decision_trace persistence to .mindrian/decision-traces/<session>.json with 50-entry rotation (NAV-INTEGRATION-01..03)
@@ -674,12 +782,15 @@ Plans:
 - [x] 91-08-framework-chain-composition-PLAN.md -- lib/core/framework-chain-composer.cjs FEEDS_INTO chain proposal from BRAIN.md framework_chain_predictions; user override recorded as graph data (NAV-CHAIN-01..04)
 - [x] 91-09-nav-invariants-validator-PLAN.md -- lib/memory/validators/navigation-invariants.cjs drop-in registry validator; 5 invariants (trace completeness, RECOMMENDED mode gate, weight clamp, malformed trace, unknown verb); scope=room (NAV-INVARIANTS-01..03)
 - [ ] 91-10-v1.11.0-beta.2-release-gate-PLAN.md -- 5-gate beta release (CHANGELOG entry with -beta.2 suffix + plugin.json 1.11.0-beta.2 + package.json 1.11.0-beta.2 + git tag v1.11.0-beta.2 + marketplace ref pin to v1.11.0-beta.2); per beta-gating mandate stable users on v1.10.19 NOT auto-updated; testers opt-in via `--version 1.11.0-beta.2`; promotion to stable v1.11.0 happens in Phase 91.5 after tester sign-off (NAV-RELEASE-01, NAV-RELEASE-GATES-01)
+
 **Authority**: .planning/phases/91-navigation-engine/91-CONTEXT.md
 
 ### Phase 91.5: v1.11.0 Stable Promotion
+
 **Goal**: After Phase 91 ships v1.11.0-beta.2 AND testers (the Wave-1 testers + wider opt-in pool) confirm zero regressions through a 3-5 day soak period, promote v1.11.0-beta.2 to stable v1.11.0. Tiny phase but real -- it requires its own commit + tag + marketplace re-pin so the auto-update channel users get the stable release, and so users currently on `--version 1.11.0-beta.2` continue to work without changes (no breaking diff between beta.2 and stable; only the suffix is removed). Per release-process.md "Pre-release versions for beta testing" + "How Users Actually Receive Updates", this is the canonical promote-to-stable workflow.
 **Depends on**: Phase 91 (v1.11.0-beta.2 shipped at Plan 91-10); tester sign-off (3-5 day soak documented in TESTER-NOTES); zero regressions reported by testers
 **Requirements**:
+
 - Pre-promotion check: read tester feedback channel (Slack / Discord / GitHub issues channel per TESTER-NOTES); document any issues raised + resolutions in PROMOTE-NOTES.md
 - 5-gate stable release with NO beta suffix:
   1. CHANGELOG.md entry under `## [1.11.0] - YYYY-MM-DD` consolidating beta.1 + beta.2 entries; note "Promoted from v1.11.0-beta.2 after tester sign-off (3-5 day soak; zero regressions)"
@@ -690,7 +801,9 @@ Plans:
 - Verify NO breaking diff between beta.2 and stable: code at v1.11.0 stable should be byte-identical to v1.11.0-beta.2 except for the version-suffix changes in CHANGELOG/plugin.json/package.json
 - Auto-update channel test: users on stable channel should now see v1.11.0 available; users on `--version 1.11.0-beta.2` should continue working (the marketplace shouldn't disrupt explicit version pins)
 - `canon_parts: [part-7]` (reuse-only; no new code) + `bundled_release: false` (this IS the stable release)
+
 **Success Criteria** (what must be TRUE):
+
   1. CHANGELOG.md has `## [1.11.0] - YYYY-MM-DD` consolidating both betas
   2. plugin.json + package.json at exactly `1.11.0` (no suffix)
   3. Git tag `v1.11.0` exists at the promotion commit
@@ -698,6 +811,7 @@ Plans:
   5. PROMOTE-NOTES.md documents tester feedback resolution + soak duration
   6. Auto-update channel users confirmed receiving v1.11.0 (smoke test on a fresh install)
   7. Existing beta.2 testers confirmed unaffected (their `--version 1.11.0-beta.2` pin still resolves)
+
 **Plans**: 1 plan (stable-promotion-PLAN.md)
 **Authority**: .claude/includes/release-process.md (5-gate release + beta promotion section); user release strategy filed 2026-04-27 (after 91 -> beta.2; after tester sign-off -> stable v1.11.0); .planning/release/v1.11.0-beta.1-TESTER-NOTES.md (Phase 89.6 deliverable; informs feedback channel for this promotion)
 
@@ -710,10 +824,12 @@ Source: `.planning/research/ui-ux-pathways/` (migrated 2026-04-18) + 2026-04-19 
 ```
 L1 Identity  : ROOM.md per folder (ICM Layer 0)
 L2 Memory    : Per-folder quadruple + room.db SQL edges
+
                 - ROOM.md       (identity + compiled references)
                 - STATE.md      (quantitative state)
                 - Feynman-MINTO (compressed logical flow, <1500 tokens/section)
                 - BRAIN.md      (Brain-authored derivation layer on top)
+
 L3 Navigation: SQL edges + Feynman-MINTO + BRAIN patterns = pathfinding substrate
 L4 Assets    : wiki, dashboard, deck, exports (rendered views of L3)
 L5 Decision  : Navigation Engine reads L3 to pick skill/command/framework
@@ -813,6 +929,7 @@ Phases execute in numeric order: 76 -> 77 -> 78 -> 79 -> 80
 **Plans:** 10/11 plans complete
 
 Plans:
+
 - [ ] TBD (run /gsd:plan-phase 92 to break down)
 
 ### Phase 93: v1.11.1 Hotfix: Install Cache Drift Recovery + Brain Telemetry Visibility
@@ -823,6 +940,7 @@ Plans:
 **Plans:** 1/1 plans complete
 
 Plans:
+
 - [x] TBD (run /gsd:plan-phase 93 to break down) (completed 2026-05-01)
 
 ### Phase 94: v1.11.2 Tester-Driven Fixer (QA-Rescoped 2026-04-28T19:50Z)
@@ -830,6 +948,7 @@ Plans:
 **Goal:** Ship v1.11.2 as a true hotfix release addressing 4 P0 ship-blockers caught by the automated QA harness running against shipped v1.11.0, plus Lawrence's loudest UX bugs, plus 3 P1 quick wins. Source-of-truth bug list at `~/mos-qa-quantum-v1.11.0/V1.11.2-HOTFIX-HANDOFF.md` (625 lines, 29 KB). Original 13-plan scope archived at `.archive-pre-qa-rescope/`.
 
 **Requirements**:
+
 - 10 plans (1 SHIPPED, 6 P0, 3 P1, 1 release gate)
 - 4 P0 ship-blockers: rs-fetch thesis-merge handoff bug; Brain MCP-server name resolution; bundled mcp-server-brain missing deps; MCP-stack WebSearch fallback chain
 - 1 P0 Lawrence UX: room classifier strict-mode (statusline already shipped via 94-01)
@@ -842,11 +961,13 @@ Plans:
 **Depends on:** Phase 91 (Navigation Engine shipped); Phase 89.5 (rs-discovery-engine producer-side); Phase 89.2 (4 fetcher modules); existing brain-client.cjs chokepoint; existing 5-gate release pipeline; QA handoff brief.
 
 **Source signals:**
+
 - QA handoff brief 2026-04-28T19:35Z (~/mos-qa-quantum-v1.11.0/V1.11.2-HOTFIX-HANDOFF.md) -- FIX-1, FIX-2, FIX-3, FIX-4, FIX-5, FIX-7, FIX-8 (also FIX-9, 10, 11 deferred to v1.11.3)
 - Lawrence Aronhime live test transcript 2026-04-28 -- statusline (94-01 DONE), classifier (94-06 pending)
 - Jonathan install-cache drift incident -- routed to v1.11.3 /mos:doctor scope (extended from prior phase work)
 
 **Plans (target, 10 total):**
+
 - [x] 94-01-statusline-active-room-fix (P0 Lawrence UX) -- SHIPPED on main: commits 567fea8 RED, 93f1cfa GREEN, 906fb18 wire, 18e1751 async parity
 - [x] 94-02-rs-fetch-thesis-merge-fix (P0 ship-blocker, was FIX-1)
 - [x] 94-03-brain-mcp-server-resolution (P0 ship-blocker, was FIX-2)
@@ -870,6 +991,7 @@ Plans:
 **Plans:** 1/1 plans complete
 
 Plans:
+
 - [x] 94.1-01 mos-heal-command (commits 9585db4 RED, 3934198 GREEN orchestrator, c2d2c97 slash command, d22dc6a install doc, SUMMARY)
 
 **Outcome:** /mos:heal ships as v1.11.1 GA closing artifact. 10-step orchestrator wraps 4 shipped scripts (migrate-lazygraph, vault-section-state-generator, vault-section-minto-generator, compute-state) per Canon Part 7 reuse-before-build. heal-log.json envelope captures cascade as graph data per Canon Part 4. LOCAL-only operation per Canon Part 8 (brain-derivation-queue read-only; drain deferred to v1.12). 6/6 fixture tests green; Feynman runner advanced 106 -> 107. Three v1.12 candidates filed in deferred-items.md with explicit re-trigger conditions (BUG-1 FEYNMINTO budget; BUG-2 brain-queue drain; BUG-5 auto-section-scaffold).
@@ -883,12 +1005,14 @@ Plans:
 **Depends on:** Phase 94 (v1.11.2 release - shipped 2026-04-29; Phase 95 is the FIRST work after v1.11.2 lands per decision-phase-95-sequencing.md).
 
 **Source signals:**
+
 - Original symptom: `PostToolUse:Write hook error - Hook JSON output validation failed - (root): Invalid input` reported 2026-04-29.
 - Investigation: `.planning/debug/post-write-hook-envelope-invalid-input.md`.
 - v1.11.2 patched the two `.cjs` PostToolUse hooks (Phase 94). The bash hook + cascade side-channel were intentionally deferred to keep that release tight.
 - 95-RESEARCH.md Section 4 audit pre-found 6 additional schema-violating bash hooks beyond `post-write`.
 
 **Plans (target, 5 total):**
+
 - [x] 95-01-bash-hook-envelope-audit-report (audit; produces 95-01-AUDIT.md)
 - [x] 95-02-post-write-side-channel-writer (post-write fix + atomic side-channel writer)
 - [x] 95-03-room-proactive-skill-cascade-restoration (SKILL.md contract update; cool-UI cascade render)
@@ -896,6 +1020,7 @@ Plans:
 - [x] 95-05-regression-test-extension-and-release-gate (full suite + 5-gate release v1.12.0)
 
 **Acceptance criteria** (from 95-CONTEXT.md):
+
 - A1: Bash post-write emits schema-valid envelope.
 - A2: `<roomDir>/.mindrian/last-cascade.json` written atomically on every cascade.
 - A3: SKILL.md reads side-channel; mid-session intelligence injection observable.
@@ -906,7 +1031,6 @@ Plans:
 
 **Outcome:** Phase 95 ships as v1.12.0 (2026-04-29). 7 bash hooks envelope-clean against Claude Code 2.x schema. `<roomDir>/.mindrian/last-cascade.json` and `<roomDir>/.mindrian/last-post-compact.md` side-channel files installed (LOCAL only per Canon Part 8). `room-proactive` skill restored to functional state for the first time since Phase 88.1-03 shipped (Plan 95-03). Three regression tests fence the bash hook envelope shapes + side-channel atomic write + SKILL.md contract (27/27 envelope scenarios GREEN: 16 + 5 + 6). Cursor-branch divergence intentionally preserved per `.planning/phases/95-bash-hook-envelope-and-cascade-side-channel/95-01-AUDIT.md`. PostCompact context-preservation half-wired (writer landed; consumer queued for Phase 95.5/96 per release-process.md transparency).
 
-
 ### Phase 95.6: install-cache-windows-hardening-and-skill-loop-resilience (INSERTED)
 
 **Goal:** Harden the canonical Windows install path (git clone + bash install.sh) against the four failure modes that broke a real Wave-2 tester install on 2026-05-08/09 (the Wave-2 tester, Surface Pro 7), and close the gap between "the install site advertises a path" and "the path actually works on a fresh Windows machine." Tier 1 (gates the NATO Defense College Rome 2026-06-01 deadline; ships as v1.13.0-beta.9): D-02 rename the 189-char phase-92 dir, D-03 install.sh skill-loop hardening + SKILL.md backfill, D-01 Windows long-path preflight + stale-clone cleanup, D-09 statusline registered first + /mos:doctor class H + install receipt + first-session auto-doctor, D-05a release.sh Step 9.5 npm publish gate. Tier 2 (defer to beta.10 if NATO pressure): D-05b/c/d marketplace npm source + bin/cli.js + SessionStart npm-reconcile hook, D-10 subagent capability parity, D-11 reserved-names gate + Deferred Tool Loading note, D-05e/f ZIP/URL + CI pre-bake docs. Tier 3 (defer freely): D-04 README Manual Recovery, D-06 BSL-1.1 source-available sweep, D-07 SEED-007 scanner pattern 3. Plus the case #4 install-failure autopsy.
@@ -915,6 +1039,7 @@ Plans:
 **Plans:** 10/10 plans complete
 
 Plans:
+
 - [x] 95.6-01-PLAN.md -- D-02: rename .planning/phases/92-... (189-char leaf) to 92-trust-layer-refactor/ [Tier 1, Wave 1]
 - [x] 95.6-02-PLAN.md -- Wave 0: create the 7 missing test files + backfill skills/mullins-scaffold/SKILL.md + the Windows cold-install manual gate + wire tests/run-all.sh [Tier 1, Wave 0]
 - [x] 95.6-03-PLAN.md -- D-03: install.sh skill-loop pre-filter + WARN-and-continue + README permission-prompt note [Tier 1, Wave 1]
@@ -934,6 +1059,7 @@ Plans:
 **Plans:** 3/3 plans complete
 
 Plans:
+
 - [x] 95.2-00-PLAN.md -- Atomic-swap performRecovery + missing-state class-A eligibility + MINDRIAN_PLUGIN_HOME env override + tests/test-doctor-atomic-swap.cjs (Wave 0; parallel with 95.2-01)
 - [x] 95.2-01-PLAN.md -- SessionStart preflight via scripts/preflight-doctor.cjs (8th hooks.json entry) + scripts/doctor-preflight-format.cjs helper + 2 new test files (Wave 0; parallel with 95.2-00)
 - [ ] 95.2-02-PLAN.md -- Autopsy 2026-05-06 + dogfood self-test + 5-gate v1.13.0-beta.6 release (Gate 5 marketplace ref-pin DEFERRED) + canon-phase-map update (Wave 1; depends on 95.2-00 + 95.2-01)
@@ -946,6 +1072,7 @@ Plans:
 **Plans:** 9/9 plans complete
 
 Plans:
+
 - [x] 95.1-00-PLAN.md — Add DOCTOR-95.1-01..08 requirements to REQUIREMENTS.md (Wave 0 foundation)
 - [x] 95.1-01-PLAN.md — Seed test/fixtures/cascade-surface-e2e/ sibling fixture (Wave 0 fixture)
 - [x] 95.1-02-PLAN.md — Write 7 RED test skeletons + register in run-feynman-tests.cjs (Wave 0 tests)
@@ -955,7 +1082,6 @@ Plans:
 - [x] 95.1-06-PLAN.md — Implement class F UI compliance detector (Wave 1 — runs AFTER renderer retrofit)
 - [x] 95.1-07-PLAN.md — Dogfood room cleanup + .room-root + generator run (atomic) + class D stub upgrade to live runner (Wave 2 integration)
 - [ ] 95.1-08-PLAN.md — v1.12.1-beta.1 release: CHANGELOG + plugin.json + package.json + git tag + Anthropic upstream bug report draft (Wave 2 release)
-
 
 ### Phase 104: Per-Command JTBD Declarations
 
@@ -968,6 +1094,7 @@ Plans:
 **Plans:** 4/4 plans complete
 
 Plans:
+
 - [x] 104-00-PLAN.md - Add JTBDCONS-104-01..05 requirements + Wave-0 test stubs (Wave 0 foundation)
 - [x] 104-01-PLAN.md - Sweep edit: add `serves_jtbd:` to all 84 commands per the verbatim mapping table (Wave 1)
 - [x] 104-02-PLAN.md - Verification harness: every-command-declares + every-JTBD-has-1-command tests (Wave 2 - depends on 104-01)
@@ -990,6 +1117,7 @@ Plans:
 **Plans:** 2/2 plans complete
 
 Plans:
+
 - [x] TBD (run /gsd:plan-phase 104.1 to break down) (completed 2026-05-13)
 
 ### Phase 106: Statusline Visibility + Context-Window Broadcast
@@ -1005,13 +1133,13 @@ Plans:
 **Plans:** 6/6 plans complete — Phase 106 SHIPPED as v1.12.5 (2026-05-03)
 
 Plans:
+
 - [x] 106-00-PLAN.md — Wave 0 scaffold (REQ IDs + test stubs + fixture directories + ROADMAP plans list)
 - [x] 106-01-PLAN.md — D-01 self-healing settings via SessionStart hook (productionize migrate-stale-user-settings.cjs)
 - [x] 106-02-PLAN.md — D-02 context-monitor token-budget + operator + JTBD broadcast glyphs
 - [x] 106-03-PLAN.md — D-03 doctor.cjs class G invisibility detection + one-time banner + --fix dispatch
 - [x] 106-04-PLAN.md — D-04 fallback echo + D-06 surface-detect helper (CLI / Desktop / Cowork heuristics)
 - [x] 106-05-PLAN.md — D-05 tester onboarding gate + v1.12.5 release gate (CHANGELOG + plugin.json + package.json + git tag + marketplace ref) ✓ SHIPPED
-
 
 ### Phases 108–113: Graph Memory Cluster — Cross-Cutting Note
 
@@ -1043,7 +1171,6 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 
 **Authority**: `.planning/phases/108-graph-memory-schema-reconciliation/108-CONTEXT.md`. Research provenance: `.planning/research/2026-05-03-codex-graph-memory-proposal.md` and `.planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md`.
 
-
 ### Phase 109: SQL Context-Memory Navigation Spine (REGISTERED 2026-05-03 — LOAD-BEARING)
 
 **Goal:** Make `room.db` the primary local context, memory, and insight navigation engine for Larry. Ship eight navigation-behavior deliverables: focus node model (every session has one current focus), typed neighborhood retrieval (ranked nodes by edge type + depth + recency + confidence + section relevance), memory event log (events not just latest state), six insight query primitives (`find_contradictions`, `find_unsupported_claims`, `find_blocking_assumptions`, `find_stale_decisions`, `find_open_questions`, `find_recent_changes`), navigation API (`lib/core/navigation.cjs` — single chokepoint; pre-commit hook fails any direct `room.db` access elsewhere), Brain Packet Builder (`buildBrainPacket(job, focusNodeId)` — schema lives in Phase 110), Brain Result Ingestion (Brain writes always land as `review_status: proposed`), Room Home Driver (replaces ad-hoc folder scans). **Acceptance test:** given a focus node, Mindrian retrieves+ranks+explains+packets WITHOUT scanning the whole Room (instrumented: zero file reads beyond SQLite WAL during the flow). **Canon Part 9 ratified at this release gate** (merged from `.planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md` into `docs/MINDRIAN-CANON.md`).
@@ -1057,6 +1184,7 @@ The cluster's governing constraint (Codex 2026-05-03): **"Mindrian should remain
 **Plans:** 13/13 plans complete
 
 Plans:
+
 - [x] 109-00-PLAN.md -- Wave 0 substrate: 9 NAV-109 requirement IDs + 16 test stubs + fs-instrument helper + 500-node fixture
 - [x] 109-01-PLAN.md -- nodes-provenance migration (closed-5 created_by + closed-8 review_status + 9 provenance columns); follow-up fix 7d87ed5 (the phase-109-migration-view-drop-collision bug: the table rebuild now drops+recreates every dependent view/trigger via the canonical SQLite 12-step recipe; debug archive 2601229)
 - [x] 109-02-PLAN.md -- session_focus migration + focus.cjs (getActiveFocus / setFocus; auto-focus cascade) [NAV-109-01]
@@ -1075,7 +1203,6 @@ Plans:
 
 **Authority**: `.planning/phases/109-sql-context-memory-navigation-spine/109-CONTEXT.md`. The phase guardrail (Codex via Jonathan, 2026-05-03): "Do not let Phase 109 become 'more SQL tables.' It must define navigation behavior."
 
-
 ### Phase 110: Brain Context Packet Contract (REGISTERED 2026-05-03; CONTEXT + RESEARCH done 2026-05-12; PLANNED 2026-05-12)
 
 **Goal:** Turn Canon Part 8 from "we audit for leaks" into "the wire format makes leaks structurally harder." Ship a typed JSON Schema for Brain Context Packets, per-job allowed input/output shapes for the closed-vocabulary Brain jobs (`select_methodology`, `suggest_next_move`, `detect_contradiction`, `summarize_neighborhood`, `classify_room_budding`, `rank_assumptions`, `generate_feynman_explanation`, `strengthen_minto`, `prepare_investor_brief`, `opportunity_react`, `opportunity_reflect`, `opportunity_rank`), privacy modes with explicit user opt-in, schema validator middleware in `lib/core/brain-client.cjs` (invalid packets refuse to send, invalid responses refuse to ingest), test suite proving Canon Part 8 invariants hold for every shipped job type, dual-path rollout (legacy free-form + typed packet) deprecating to typed-only.
@@ -1089,6 +1216,7 @@ Plans:
 **Plans:** 6/6 plans complete
 
 Plans:
+
 - [x] 110-00-PLAN.md - Wave 0 substrate (register PACKET-110-01..09 in REQUIREMENTS.md + ROADMAP; 4 RED test stubs; tests/run-all-110.sh; Feynman-runner registration; 12-job-vocabulary correction)
 - [x] 110-01-PLAN.md - Wave 1 schema artifact + generator + --check tripwire (data/brain-packet-schema.json + scripts/build-brain-packet-schema.cjs; data/ROOM.md row; fill test-brain-packet-schema-check.cjs)
 - [x] 110-02-PLAN.md - Wave 1 origin field + EVENT_TYPES extension + privacy-mode resolver (packet.cjs origin/privacy_mode + resolvePrivacyMode; memory-events.cjs +3; regression touches)
@@ -1097,7 +1225,6 @@ Plans:
 - [x] 110-05-PLAN.md - Wave 3 the D-11 validation suite (fill test-brain-packet-validation-per-job.cjs + test-brain-packet-part8-invariant-per-job.cjs: 12-job in/out + privacy + dual-path + round-trip + adversarial Part-8 sweep)
 
 **Authority**: `.planning/phases/110-brain-context-packet-contract/110-CONTEXT.md` (locked decisions D-00..D-11) + `.planning/phases/110-brain-context-packet-contract/110-RESEARCH.md` (implementation approach + validation architecture) + `.planning/phases/110-brain-context-packet-contract/110-VALIDATION.md` (per-task verification map).
-
 
 ### Phase 112: GraphRAG-Informed Room Retrieval + Room Budding (REGISTERED 2026-05-03 — STUB)
 
@@ -1115,7 +1242,6 @@ Plans:
 
 **Authority**: `.planning/phases/112-graphrag-retrieval-room-budding/112-CONTEXT.md` (stub). Note: Phase 111 is taken (`cascade-decomposition`) — that is why this phase is 112, not 111.
 
-
 ### Phase 113: WASM Everywhere Spike (REGISTERED 2026-05-03 — STRATEGIC SPIKE, DEFERRED)
 
 **Goal:** Strategic spike, NOT a feature phase. graphrag-rs proved the full GraphRAG pipeline runs 100% in the browser (sql.js + WebLLM + ONNX-WASM + IndexedDB). This spike asks: can MindrianOS do the same, and if yes, does it REPLACE the hosted v3.0 "Everywhere" thesis (Arc 6 per `MILESTONES-NAMING.md`), COEXIST with it as a privacy-first variant, or get REJECTED on quality/scale limits? Spike output: working browser demo (single-user, single-room, no server) + decision memo at `docs/strategy/2027-v3-wasm-vs-hosted-decision.md`. If REPLACE or COEXIST, `MILESTONES-NAMING.md` Arc 6 thesis gets rewritten in the same release.
@@ -1130,7 +1256,6 @@ Plans:
 
 **Authority**: `.planning/phases/113-wasm-everywhere-spike/113-CONTEXT.md` (stub). The thesis question this spike answers: *"Does Mindrian's intelligence survive without infrastructure?"*
 
-
 ### Phase 95.5: Post-Compact Memory Pipeline -- Consumer Wiring (REGISTERED 2026-05-06 -- READY FOR DISCUSSION)
 
 **Goal**: Close the half-wired post-compact memory pipeline. Phase 95-04 ships the WRITE side: scripts/post-compact saves the full restored TRIPLE_CONTEXT (per-section memory triple: Feynman + MINTO + Brain) to `<roomDir>/.mindrian/last-post-compact.md` as a side-channel file because Claude Code 2.x PostCompact schema does NOT accept hookSpecificOutput. Phase 95.5 ships the READ side: a session-start consumer that reads the side-channel file and re-injects the TRIPLE_CONTEXT block into the next session as additionalContext, so memory survives auto-compact boundaries inside a single session (not just across full session restarts). Also updates the now-stale `lib/memory/post-compact-reinjection.test.cjs` (7/9 failing today) to assert the new contract: side-channel file presence + content + freshness, not the deprecated stdout TRIPLE_CONTEXT shape.
@@ -1142,6 +1267,7 @@ Plans:
 **Canon parts**: Part 9 (Memory Locality and Interpretation -- the entire pipeline keeps user content LOCAL throughout; no Brain egress at any point) + Part 7 (Reuse Before Build -- session-start consumer extends existing scripts/session-start hook, does not fork)
 
 **Plans**: 6 plans (planned 2026-05-06 via /gsd:plan-phase 95.5)
+
 - [ ] 95.5-00-PLAN.md -- Wave 0 scaffold: 9 RED test stubs (D-05 contract) + consumer stub at scripts/restore-post-compact-context.cjs + tests/test-95.5-00-scaffold.sh + Feynman runner registration confirmation
 - [ ] 95.5-01-PLAN.md -- Back-port scripts/post-compact write side: D-04 YAML frontmatter stamp (source_room_path + source_room_slug + written_at + schema_version: 1) at lines 58-72; atomic mktemp + mv -f preserved
 - [ ] 95.5-02-PLAN.md -- Build consumer scripts/restore-post-compact-context.cjs: 8 helper functions + main, mirrors preflight-doctor.cjs template, implements D-01..D-04 + D-04b + D-07
@@ -1150,6 +1276,7 @@ Plans:
 - [ ] 95.5-05-PLAN.md -- Release plumbing: 5-gate version sync (CHANGELOG + plugin.json + package.json + LOCAL git tag v1.13.0-beta.7); marketplace ref-pin DEFERRED per 95.2 precedent
 
 **Success Criteria** (what must be TRUE):
+
 1. After auto-compact in a session with an active room: the next user turn renders with TRIPLE_CONTEXT visible in Claude's working context (verifiable by asserting Larry references section-specific MINTO content the user filed pre-compact)
 2. session-start consumer reads `<roomDir>/.mindrian/last-post-compact.md` if present + fresh (< 10 min old, mirroring post-compact's pre-compact-state.json staleness contract)
 3. Stale or absent side-channel file -> session-start falls back to its existing live readTriple walk (no regression)
@@ -1158,7 +1285,6 @@ Plans:
 6. Phase 91 Feynman runner: zero NEW failures referencing post-compact / reinjection / triple-context
 
 **Authority**: `.planning/phases/95.5-post-compact-memory-pipeline-consumer/95.5-CONTEXT.md` (TBD via /gsd:discuss-phase 95.5). Source spec: scripts/post-compact comment block lines 23-37 ("CONSUMER ... NOT YET WIRED in Phase 95 - deferred to Phase 95.5 or 96"); memory project_post_compact_memory_pipeline.md.
-
 
 ### Phase 116: Unresolved Tension Hook (PLANNED 2026-05-06 -- READY FOR EXECUTION)
 
@@ -1171,6 +1297,7 @@ Plans:
 **Canon parts**: Part 4 (Every Choice Is Graph Data), Part 8 (Graph Boundary), Part 10 sub-claim 3 (persistent conversation). Beta target: **v1.13.0-beta.5** (between in-flight beta.4 (89-07) and pending beta.6 (Phase 95.2 hotfix)).
 
 **Plans**: 5 plans
+
 - [x] 116-00-PLAN.md -- EVENT_TYPES extension (Set 21 -> 26) + 5 Wave-0 RED test stubs + scaffold harness + cypher patch + offline snapshot (9 deliverables; mirrors 89-07-00)
 - [ ] 116-01-PLAN.md -- Detection substrate: lib/memory/pending-tension-store.cjs (10 exports) + lib/core/navigation/insights.cjs findSurfaceableTensions + scripts/preflight-tension-surface.cjs SessionStart hook entry #7
 - [ ] 116-02-PLAN.md -- F.1 surface: lib/agents/tension-hook-agent.cjs (4 exports incl. surfaceFinding + handleUserResponse + buildResolvedViaEdge) + RESOLVES_VIA cascade edge
@@ -1178,6 +1305,7 @@ Plans:
 - [ ] 116-04-PLAN.md -- Telemetry + release: 5 emit helpers (emitDetected/Surfaced/Resolved/Decayed/Skipped) + Canon Part 8 substring audit + AGENTIC-SURFACING-PATTERN.md update + R1 byte-equal regression assertion + 5-gate v1.13.0-beta.5 release plumbing
 
 **Success Criteria**:
+
 1. File a contradiction across two artifacts; navigation `findContradictions` returns it.
 2. Close session, reopen; tension surfaces in Larry's voice via F.1.
 3. User selects "resolve" / "later" / "skip" via F.1 -- all three paths emit correct memory_event + JSONL state transition.
@@ -1189,12 +1317,12 @@ Plans:
 
 **Authority**: `.planning/phases/116-unresolved-tension-hook/116-CONTEXT.md` (D-01..D-10 locked 2026-05-06 via /gsd:discuss-phase). Source spec: `~/MindrianRooms/mindrian/mindrian-ecosystem/sub-rooms/website/mindrianos-conversion-fix/solution-design/unresolved-tension-hook-spec.md`.
 
-
 ### Phase 117: Auto-Explore-Domains on First Material (SHIPPED v1.13.0-beta.8 2026-05-07)
 
 **Goal:** When material lands in the room (CV uploaded, transcript filed, conversation paragraph typed), auto-invoke `/mos:explore-domains` as a background job, trigger HSI scoring + reverse salient + cross-domain match in parallel, and surface findings as a single Decision Gate option ("I scanned your CV; here's what I found. Want to explore?") via the F.1 Next Move selector. The user never has to remember to invoke the math layer. Implements Canon Part 10 sub-claim 5 (triple-filter math runs automatically). SEED-003 A3 `updatedToolOutput` sanitizer pairs here for Part 8 hardening.
 
 **Requirements**: AUTOEXPLORE-117-01 through AUTOEXPLORE-117-18 (18 IDs):
+
 - AUTOEXPLORE-117-01..12 from RESEARCH Section 5 Validation Architecture (PostToolUse fingerprint, JSONL ledger, detached fire, atomic write, drain UserPromptSubmit, F.1 surface, sanitizer hook, telemetry events, rate-limit, Canon Part 8 audit, REQ-117-12 rescore, hybrid-mode degradation)
 - AUTOEXPLORE-117-13..18 from RESEARCH Section 8 Brain Substrate enrichment (canonical chain order, cross-domain formula, HSIAnalysis schema, BQ-anchored Larry voice, LOCAL-only routing, brain-canon-drift event)
 
@@ -1203,6 +1331,7 @@ Plans:
 **Canon parts:** Part 2 Engine 1 (Act 1 intelligence surface -- auto-fires the triple filter), Part 3 (Tri-Context Decision Gate -- F.1 surface), Part 4 (Every Choice Is Graph Data -- INFORMS cascade on EXPLORE), Part 6 (Product-as-Venture -- dog-fooded on plugin room), Part 8 (Graph Boundary -- 6th tripwire via SEED-003 A3), Part 10 sub-claim 5 (triple-filter math runs automatically). Beta target: **v1.13.0-beta.8** standalone (Phase 95.5 took beta.7 first; Phase 117 promotes to beta.8 per plan contingency).
 
 **Plans:** 6 plans (SHIPPED v1.13.0-beta.8 2026-05-07):
+
 - [x] 117-00-PLAN.md -- Wave 0 substrate (EVENT_TYPES + 11 test stubs + scaffold + cypher + snapshot)
 - [x] 117-01-PLAN.md -- Detection substrate (explored-materials-store + fingerprint hook + agent skeleton)
 - [x] 117-02-PLAN.md -- Triple-filter composition (canonical chain order + cross-domain formula + auto-fire detached child)
@@ -1211,7 +1340,6 @@ Plans:
 - [x] 117-05-PLAN.md -- Telemetry + brain-canon drift + v1.13.0-beta.8 release plumbing
 
 **Authority**: `.planning/phases/117-auto-explore-domains-on-first-material/117-CONTEXT.md`. Source spec: `docs/CANON-PART-10-PROPOSAL-conversation-as-product.md` (sub-claim 5).
-
 
 ### Phase 118: 30-Second MVA + Reward-Before-Investment Rule (REGISTERED 2026-05-05 — STUB)
 
@@ -1235,7 +1363,6 @@ Plans:
 
 **Authority**: `.planning/phases/118-30-second-mva-reward-before-investment/118-CONTEXT.md`. Source specs: `~/MindrianRooms/mindrian/mindrian-ecosystem/sub-rooms/website/mindrianos-conversion-fix/solution-design/the-30-second-mva.md` + `reward-before-investment-rule.md`.
 
-
 ### Phase 119: Room-as-Receipt Invariant (REGISTERED 2026-05-05 — STUB)
 
 **Goal:** Auto-`/mos:new-project` wrapper — when a first conversation or material upload happens with no active room, the room scaffold generates as a side effect of analysis. The user never explicitly creates a room. Architecture remains visible and useful; framing flips from "create a room first" to "receive a room as the receipt of conversation." Implements Canon Part 10 sub-claim 3 (rooms are receipts, not entry points).
@@ -1250,7 +1377,6 @@ Plans:
 
 **Authority**: `.planning/phases/119-room-as-receipt-invariant/119-CONTEXT.md` (stub). Source: `~/MindrianRooms/mindrian/mindrianOS/problem-definition/2026-05-05-beautiful-question-first-turn.md` (synthesis source).
 
-
 ### Phase 120: Breakthrough Scan / Category G (PLANS REGISTERED 2026-05-16)
 
 **Goal:** Session-start scanner reads existing room content, detects 4 breakthrough pattern types (convergence, contradiction-resolved, cross-domain analogy, reverse-salient closed), renders them in Larry-voice with positive-framing rules (D-17 4-rule scaffold) via a NEW F.7 Breakthrough Surface selector with 5 verbs ([Explore deeper] / [Confirm] / [File as decision] / [Dismiss] / [Back]). Hooked Fix 3 from the dormant 2026-04-12 audit. The "highest-nutrition variable reward" type -- the user's own breakthroughs surfaced back at them, making investment directly reload reward. Variable Reward axis target: 7/10 (post Phase 117) -> 9/10 + Trigger Internal +3.
@@ -1262,13 +1388,13 @@ Plans:
 **Canon parts:** Part 2 Engine 1 (Act 1 intelligence -- pattern detection over local graph), Part 3 (F.7 selector is a tri-context Decision Gate primitive instance), Part 4 ("File as decision" makes breakthroughs first-class decisions), Part 5 (D-17 evidence requirement + D-18 confidence bands map to the four evidence tiers), Part 8 (D-20 Cypher-provable principle is structural enforcement), Part 9 (memory locality -- all reads + writes via navigation.cjs), Part 10 sub-claim 5 (variable reward fires automatically). Beta target: **v1.13.0 final**.
 
 **Plans:** 4/4 plans complete
+
 - [x] 120-00-PLAN.md -- 4 pattern detectors + Breakthrough graph schema + EVENT_TYPES (+6) + ALLOWED_EDGE_TYPES (+DERIVED_FROM) [requirements: BREAKTHROUGH-120-01, BREAKTHROUGH-120-02, BREAKTHROUGH-120-06; Wave 1]
 - [x] 120-01-PLAN.md -- F.7 Breakthrough Surface selector + 5-verb dispatcher + 5-component scoring formula + "More breakthroughs (N)" affordance [requirements: BREAKTHROUGH-120-03, BREAKTHROUGH-120-09; Wave 1]
 - [x] 120-02-PLAN.md -- session-start scanner + resurfacing rules (D-13..D-15) + D-19 canary + verb-dispatch consumer + D-20 end-to-end test [requirements: BREAKTHROUGH-120-04, BREAKTHROUGH-120-07, BREAKTHROUGH-120-08; Wave 2; depends on 120-00 + 120-01]
 - [x] 120-03-PLAN.md -- D-17 4-rule voice scaffold + auditor + D-18 4-tier ethics fence + .rooms/breakthrough-review-queue.db + Larry skill update [requirements: BREAKTHROUGH-120-05, BREAKTHROUGH-120-06 (full enforcement); Wave 2; depends on 120-00 + 120-01 + 120-02]
 
 **Authority**: `.planning/phases/120-breakthrough-scan-category-g/120-CONTEXT.md` (twenty decisions D-01..D-20 locked 2026-05-16 via /gsd:discuss-phase).
-
 
 ### Phase 121: Trajectory Telemetry (REGISTERED 2026-05-05 — STUB, INSTRUMENTATION-ONLY)
 
@@ -1283,7 +1409,6 @@ Plans:
 **Plans:** 5/5 plans complete
 
 **Authority**: `.planning/phases/121-trajectory-telemetry/121-CONTEXT.md` (stub). Related seed: `.planning/seeds/SEED-002-agent-lightning-lab-loop.md`. Future consumption pattern: arXiv 2508.03680 (agent-lightning paper).
-
 
 ### Phase 121.5: Terminal Coherence Capstone (INSERTED — REGISTERED 2026-05-10, STUB, LAST PHASE BEFORE v1.13.0 FINAL RELEASE GATE)
 
@@ -1301,7 +1426,6 @@ Plans:
 
 **Authority**: `.planning/phases/121.5-terminal-coherence-capstone/121.5-CONTEXT.md` (stub, scaffolded 2026-05-10). Related seed: `.planning/seeds/SEED-007-version-dynamic-first-touch-greeting.md` (absorbed as sub-plan F). Audit provenance: three UI/UX audits + the parallel-research SessionStart-flood note, all 2026-05-10.
 
-
 ### Phase 122: Workflow Layer -- framework <-> command registry + reliable invocation (v1.13.0 beta.10 CAPSTONE, REGISTERED 2026-05-11)
 
 **Goal:** Larry can read the Brain's methodology chains (`Framework -[:FEEDS_INTO]-> Framework`) but cannot reliably turn "the methodology suggests framework X" into "run `/mos:x`" -- the framework<->command mapping is not 1:1, some frameworks have no command, some commands run no single framework, and today Larry names commands from memory (and sometimes names one that doesn't exist, e.g. `/mos:jtbd` -- the real command is `/mos:analyze-needs`). Fix: the truth lives in ONE place (each command file's own `frameworks:` frontmatter), `data/command-registry.json` is generated from it + CI-checked (stale-registry OR unresolvable-framework fails the build), `lib/workflow/command-resolver.cjs` is the SOLE path from framework to command (Larry never emits a `/mos:` he didn't get back from the resolver -- kills the hallucinated-command failure mode), and the navigation engine (engine v1 `UserPromptSubmit` hook) gains a workflow-suggestion step (detect methodology intent -> `recommendFrameworkChain` via Brain `FEEDS_INTO` traversal -> `composeWorkflow` via the resolver -> surface the command sequence as `offer_next_step`). Degrade-don't-fabricate: framework with no command -> "run it manually"; no Brain -> registry still gives framework<->command; no registry -> framework-only advice. The Brain stays methodology-pure -- commands never enter it (Canon Part 8). 5 build sub-phases: (1) frontmatter contract + retrofit (the algorithmic command cohort -- HSI / whitespace / explore-domains / research+think-hats / rs-pipeline / find-* / diagnostics / scoring / systems / argument-structure -- retrofitted FIRST); (2) registry + generator + CI tripwire (mirror the Brain Phase-6 CI-01 pattern); (3) resolver + chain recommender; (4) wire `/mos:suggest-next` + `/mos:pipeline` + `/mos:act` + the `pws-methodology` / `brain-connector` skills + the navigation hook; (5) skill cleanup + `docs/COMMAND-FRONTMATTER.md` + `docs/WORKFLOWS.md` + end-to-end. The "what it leverages" section of the spec is a HARD requirement: build it knowing what all of v1.13.0 delivers (navigation engine, larry-default-activation, operator state machine, SQL graph + memory triple, persona, cascade hooks) so it makes maximal use of each.
@@ -1311,6 +1435,7 @@ Plans:
 **Plans:** 5/5 plans complete
 
 Plans:
+
 - [x] 122-01-PLAN.md -- Frontmatter contract + retrofit (algorithmic cohort first) + docs/COMMAND-FRONTMATTER.md + Wave-0 test scaffold (wave 1)
 - [x] 122-02-PLAN.md -- Registry generator (scripts/build-command-registry.cjs) + data/command-registry.json + data/framework-names.json + the --check pre-commit drift tripwire (wave 2)
 - [x] 122-03-PLAN.md -- lib/workflow/command-resolver.cjs (the only door) + lib/brain/chain-recommender.cjs (FEEDS_INTO traversal, reuse framework-chain-composer) (wave 3)
@@ -1325,6 +1450,7 @@ Plans:
 **Plans:** 7/7 plans complete
 
 Plans:
+
 - [x] 123-01-PLAN.md -- scripts/release.sh overhaul: semver devDep + --prerelease/--finalize/--start-prerelease bump algebra + two-commit form + dirty-repo guard + Step 9.5 @mindrian_os/install rename (wave 1)
 - [x] 123-02-PLAN.md -- install-state record (~/.mindrian/install-state.json, single writer in session-start) + data/deployment-surfaces.json manifest + lib/core/active-plugin-root.cjs topology extension (wave 2)
 - [x] 123-03-PLAN.md -- doctor classes I + J + --install-state flag + aggressive --fix (legacy migration, installed_plugins.json repair) + Bug 7 fix + INSTALL_DIR repoint + per-class test fixtures (wave 3)
@@ -1343,6 +1469,7 @@ Plans:
 **Plans:** 5/5 plans complete
 
 Plans:
+
 - [x] 124-00-PLAN.md - Wave 0 substrate (register TEMPORAL-124-01..10 in REQUIREMENTS.md + ROADMAP; 4 RED test stubs; tests/run-all-124.sh; Feynman-runner registration; lib/core/feynman/ROOM.md)
 - [x] 124-01-PLAN.md - Wave 1 renderer (lib/core/feynman/timeline-renderer.cjs pure function; D-05 template literal; D-06 thresholds; D-08 section scoping via navigation.cjs; firstCapturedLastTouchedBySection primitive; fill test-feynman-timeline-renderer.cjs + test-feynman-timeline-empty-state.cjs)
 - [x] 124-02-PLAN.md - Wave 1 runner (lib/core/feynman/timeline-runner.cjs refreshAll + refreshSection; sentinel-bounded merge; body byte-preserved; timeline_last_rendered watermark; EVENT_TYPES +2 in memory-events.cjs; fill test-feynman-timeline-runner.cjs)
@@ -1362,6 +1489,7 @@ Plans:
 **Plans:** 9/9 plans complete
 
 Plans:
+
 - [x] 125-00-PLAN.md -- navigation.cjs writeEdge primitive (15th re-export; Pass 3 GAP-2 resolution; precedent: Phase 110-03 logMemoryEvent additive) [D7 extension] [wave 0]
 - [x] 125-01-PLAN.md -- navigation.resolveActiveFrameworks + resolveHopDepth + computeInvestmentLevel projection helpers + framework_invoked EVENT_TYPES extension [D1, D2, D3] [wave 1]
 - [x] 125-02-PLAN.md -- Brain Cypher slice query (parameterized 1-3 hop FEEDS_INTO, LIMIT 50, sanitized) via lib/brain/framework-chain-slice.cjs [D2 + Canon Part 8] [wave 1]
@@ -1381,6 +1509,7 @@ Plans:
 **Plans:** 8/7 plans complete
 
 Plans:
+
 - [x] 126-01-fix-renderer-contract-PLAN.md -- --fix renderer contract test + fix (wave 1)
 - [x] 126-02-marketplace-cache-prerelease-semver-PLAN.md -- marketplace-cache prerelease semver-pick fix using semver@^7.7.4 (wave 1)
 - [x] 126-03-acceptance-gate-self-coverage-PLAN.md -- 5-fixture acceptance-gate self-coverage; wires last_acceptance_run write into install-state v2 (wave 2, depends on Plan 07)
@@ -1409,6 +1538,7 @@ Plans:
 **Status:** Scoped -- ready for `/gsd:plan-phase 126.1` to expand the skeleton in `126.1-CONTEXT.md` into per-sub-plan PLAN files. Expected ~3 plan files (126.1-01 bin/cli.js shell:true patch, 126.1-02 test coverage + grep-sweep of other spawn call sites, 126.1-03 windows-latest CI matrix best-effort).
 
 **Plans:** 0/3 executed (skeleton only)
+
 - [ ] **Plan 126.1-01 (Wave 0)** -- One-line patch to `bin/cli.js:82` adding `{ shell: true }` to the spawnSync call; reproduction commands + before/after smoke test on Linux runner
 - [ ] **Plan 126.1-02 (Wave 1, parallel to 03)** -- NEW `tests/test-require-claude-cli.cjs` with mock + real-spawn assertions; `git grep` audit of every other `spawnSync`/`spawn`/`exec*` call site for the same bug class (file any new finding under Phase 126.2)
 - [ ] **Plan 126.1-03 (Wave 1, parallel to 02, BEST-EFFORT)** -- Add `windows-latest` matrix entry to `.github/workflows/ci.yml`; defers to Phase 126.2 if it surfaces unrelated Windows-CI test failures; also update `docs/install-cache-family-premortem.md` with case #7 row + "cross-platform PATH resolution disagreement between shell and Node" pattern entry
@@ -1432,6 +1562,7 @@ Plans:
 **Brain impact:** NONE-NEW (the shim's tool surface is identical to what the remote MCP server already exposes; no new Brain reads, no new Brain writes)
 
 **Plans:** 3/4 plans executed
+
 - [ ] **Plan 127-00 (Wave 1)** -- stdio shim + DirectiveEnvelope + .mcp.json (covers BRAIN-MCP-127-01, 02, 03)
 - [ ] **Plan 127-01 (Wave 2)** -- auto-migration + 4 safety guards SG-1..SG-4 (covers BRAIN-MCP-127-04, 05, 06, 07)
 - [ ] **Plan 127-02 (Wave 3, parallel)** -- Doctor Class M Brain smoke + Tier-0 chokepoint (covers BRAIN-MCP-127-08, 09)
@@ -1449,6 +1580,7 @@ Notable rename: CONTEXT "Class K" -> "Class M" because K is taken by `--stale-fi
 **Plans:** 0 plans
 
 Plans:
+
 - [ ] TBD (run /gsd-plan-phase 127.2 to break down)
 
 ### Phase 127.3: JTBD Auto-Anchor Silent-Failure Fix (registry-shape contract drift + chokepoint extraction + room bootstrap + first-touch nudge) (INSERTED 2026-05-24, hotfix sibling to Phase 127.2)
@@ -1470,6 +1602,7 @@ Plans:
 **Status:** Scoped -- ready for `/gsd:plan-phase 127.3` to expand the skeleton in `127.3-PLAN.md` into per-sub-plan PLAN files following the 127.2-04-PLAN.md pattern.
 
 **Plans:** 4/8 plans executed
+
 - [ ] **Plan 127.3-00 (Wave 0)** -- Extract `lib/core/resolve-active-room.cjs` chokepoint + unit tests against both registry shapes
 - [ ] **Plan 127.3-01 (Wave 1)** -- Refactor jtbd-update.cjs to use the chokepoint; reroute intent-classifier.cjs through canonical-single-source
 - [ ] **Plan 127.3-02 (Wave 1, parallel)** -- Sibling sweep + `tests/test-no-broken-registry-resolution.sh` CI tripwire
@@ -1485,6 +1618,7 @@ Plans:
 **Goal:** Collapse the dual-substrate Brain GraphRAG (Neo4j 21K nodes + Pinecone 1,427 embeddings) into Neo4j-only by migrating embeddings to a native Neo4j 5.11+ HNSW vector index. The audit at `.planning/research/navigation-engine-brain-interface.md` Section 3.2 confirmed Pattern B (graph-first-then-vector-rerank) and Pinecone is NOT load-bearing -- Pattern #8 fuzzy-match is the only Pinecone-dispatched query in the 14-pattern brain-query taxonomy. Removing Pinecone deletes a vestigial substrate, eliminates ~3 hrs/quarter onboarding overhead, removes one failure-mode row from the gsd-debugger taxonomy, and unifies the methodology graph under one substrate. Server-side only (the `mindrian-brain` Render service); zero client-side surface change -- testers continue calling `brain_search_semantic` and the 14 Cypher patterns by identical tool names.
 
 **The four-lock non-demotion protocol (all required, harness blocks cutover):**
+
 1. **Byte-identical embeddings.** Export all 1,427 float arrays from Pinecone with node IDs; load as vector property on the corresponding Neo4j nodes. Do NOT re-embed.
 2. **Same embedding model going forward.** Lock `multilingual-e5-large` (1024 dims) in mindrian-brain server config; any new node embedded with the same model.
 3. **Same similarity metric.** Explicit cosine on Neo4j vector index: `CREATE VECTOR INDEX ... OPTIONS { indexConfig: { 'vector.similarity_function': 'cosine' }}`. A silent default to Euclidean would re-rank everything.
@@ -1507,6 +1641,7 @@ Plans:
 **Authority:** `.planning/phases/127.1-brain-graphrag-collapse-pinecone-neo4j-hnsw-server-side-substrate-swap/127.1-CONTEXT.md` (scoped 2026-05-16 from this conversation) + `.planning/research/navigation-engine-brain-interface.md` Section 3.2 (Pattern B audit confirming Pinecone is not load-bearing) + `.planning/v1.13.1-EXECUTION-PLAN.md` "WAVE 2" block (wave-2 v1.13.1-beta.1 anchor; this rides at beta.2 between 127 and 128)
 
 Plans:
+
 - [x] 127.1-00-PLAN.md (Wave 0) -- Scaffold 4 Validation Architecture surfaces: 3 harness .test.cjs files + 20-query corpus JSON + run-all-127.sh aggregator extension + Feynman runner registration (covers 127.1-01..05)
 - [x] 127.1-01-PLAN.md (Wave 1, parallel) -- Pinecone export script + 1,427-vector byte-identical NDJSON dump + SHA256 manifest fixture; Surface 1 GREEN; mcp-server-brain/CLAUDE.md operator note (covers 127.1-06..08)
 - [x] 127.1-02-PLAN.md (Wave 1, parallel) -- Neo4j vector-index DDL (mindrian_methodology_vec, dim=1024, cosine) + loader script + brain-vector-search.cjs server-side library + Surface 2 GREEN + round-trip integrity verification (covers 127.1-09..12)
@@ -1537,6 +1672,7 @@ Plans:
 **Status:** COMPLETE -- 3/3 plans executed (Wave 1 + Wave 2 + Wave 3 shipped 2026-05-30). The guard is wired into the live pre-commit hook + the installer; CONTEXT finding H1 closed (navigation.cjs is now the structurally-enforced only door -- net-new bypass hard-rejected at commit time). The 195 pre-existing violations are ledgered as known debt owned by Phases 129/129.5/130/v1.14.0.
 
 **Plans:** 3/3 plans executed
+
 - [x] 128-01-PLAN.md -- Substrate Contract ADR + reuse-vs-build decision + M11 export allow-list pin (Wave 1)
 - [x] 128-02-PLAN.md -- check-substrate.cjs guard (strict superset of --check-chokepoint) + 5-case test suite (Wave 2) [commits 65f60569 RED, a6baa645 GREEN]
 - [x] 128-03-PLAN.md -- pre-commit hook wiring + installer template + baseline violation report (Wave 3) [commits 1aba10d0 wire, 1f44b42d baseline]
@@ -1554,6 +1690,7 @@ Plans:
 **Milestone:** v1.13.1. Phase 128.1 is a v1.13.1 phase. It was partially executed on `main` during the v1.13.0 endgame, then PULLED to branch `phase-128.1` on 2026-05-20 (navigator decision) so v1.13.0 finalizes clean. None of the 128.1 work is on `main`. Resume 128.1 from branch `phase-128.1` for v1.13.1.
 
 **Plans:** 3 of 6 closed + 1 WIP -- all parked on branch `phase-128.1` (tip 407c060f), none on `main`:
+
 - [x] 128.1-01-PLAN.md -- Wave 1: caller-inventory grep sweep + RED test scaffolds + VALIDATION.md verify (SESSION-ISO-128.1-05, 11) [on branch phase-128.1]
 - [x] 128.1-02-PLAN.md -- Wave 2: session-binding.cjs canonical resolver + v2->v3 migration + mkdirSync lockfile + tripwire detection (SESSION-ISO-128.1-01, 02, 03, 06, 07) [on branch phase-128.1]
 - [x] 128.1-03a-PLAN.md -- Wave 3: re-key resolve-room + room-registry + CJS active writers + context-monitor canonical resolver + Desktop/Cowork check (SESSION-ISO-128.1-04, 06, 09) [on branch phase-128.1]
@@ -1580,6 +1717,7 @@ Plans:
 **Plans:** 5 plans
 
 Plans:
+
 - [x] 129-01-PLAN.md -- Wave 1: shared substrate (5 net-new spine event types + FOLLOWS_FROM 8th cascade edge + 60s idempotency + spine-events.cjs roomDir helpers + getCurrentJTBD/getCurrentOperator) -- DONE 2026-05-30 (67250de1 RED, bce99900 Task 1, e5b83304 Task 2; 15/15 GREEN; 109 acceptance still 1/1)
 - [x] 129-02-PLAN.md -- Wave 2: read surfaces (mos-status + memory-command emit spine_read; suggest-next emits suggestion_surfaced) -- DONE 2026-05-30 (dc280f30 RED, c23300c6 Task 1, 286b53a4 Task 2; 7/7 GREEN; 129-01 substrate still 15/15; substrate guard clean)
 - [x] 129-03-PLAN.md -- Wave 2: state transitions (jtbd + operator emit transitions; retire the operator.cjs node:sqlite bypass through navigation.cjs) -- DONE 2026-05-30 (e2e5b90c RED, 4f7eb97b Task 1, a6ca075a Task 2; 13/13 GREEN; operator-state 12/12 + 129-01 substrate 15/15; substrate guard clean; operator.cjs baselined-violation closed)
@@ -1609,6 +1747,7 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
+
 - [x] 129.5-01-PLAN.md — Wave 1: Canon Part 9 audit-node carve-out (D-03) amendment + CANON-PHASE-MAP row + focus.cjs:63 justification (shipped 2026-05-31; canon v1.4 -> v1.5)
 - [x] 129.5-02-PLAN.md — Wave 1: confirmNode chokepoint (D-01) + human-attribution guard (D-02) + resolveByUser USER.md identity + navigation.cjs re-export + SUBSTRATE-CONTRACT M11 amendment (shipped 2026-05-31; 19/19 TDD green; AGENT_IDENTITIES REJECT on confirm/validate of truth-claim nodes; promoteNodeStatus now has exactly one production caller)
 - [x] 129.5-03-PLAN.md — Wave 2: Decision Gate APPROVE path wiring (selector dispatcher accept branch -> navigation.confirmNode with USER.md byUser) + getConfirmedFacts contract widening (IN ('confirmed','validated') over the truth-claim type set; getRiskyAssumptions narrowed to needs_evidence-only, disjointness preserved) + instrumented acceptance test (4 load-bearing assertions) + run-all-129.5 aggregator + Feynman registration (shipped 2026-05-31; 12/12 TDD green; zero raw SQL in selector-decisions.cjs; zero 109/129 regression). **PHASE 129.5 COMPLETE.**
@@ -1634,6 +1773,7 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
+
 - [x] 130-01-PLAN.md - Shared substrate: INFORMS + REJECTED_BECAUSE edge types (closes H2) + lens-nodes.cjs HatState/lens-finding node chokepoint via navigation.cjs
 - [x] 130-02-PLAN.md - lens-engine.cjs rotate() + 5-family registry + serial/parallel/single modes + 3 synthesizers (tension-map/comparison-matrix/convergence-map) + 5 lens memory_event types
 - [x] 130-03-PLAN.md - Cognitive-family migration: hat-persistence room.db rewrite + one-shot backfill + 4 thin command clients + tension-map dedup
@@ -1653,9 +1793,11 @@ Plans:
 **Status:** COMPLETE - 3/3 plans shipped (2 waves). Substrate guard clean on every commit; no --no-verify.
 **Plans:** 3 plans
 Plans:
+
 - [x] 130.5-01-PLAN.md - research-corpus.cjs unified fetchCorpus + 5-source adapters + disabled Sci-Bot + Part 8 fail-closed audit (wave 1)
 - [x] 130.5-02-PLAN.md - research-cache.cjs shared TTL + source-keyed atomic on-disk cache (wave 1)
 - [x] 130.5-03-PLAN.md - rs-discovery-engine migrated onto fetchCorpus + cache; byte-identical fixture regression + cache-hit-on-repeat + Canon Part 8 preserved; run-all-130.5.sh aggregator + Feynman registration (wave 2)
+
 **Authority:** `.planning/phases/130.5-shared-corpus-cache-cjs-fetcher-substrate/130.5-CONTEXT.md` + `.planning/phases/131-research-as-graph-aware-workflow/131-REVIEW-4.8.md`.
 
 ### Phase 130.7: Correlation-ID Contract + Dual-Graph CI Gates (v1.13.1 - NEW 2026-06-01, the "132A" split, pulled early)
@@ -1670,9 +1812,11 @@ Plans:
 **Status:** COMPLETE - 3 plans, 3 waves (closed 2026-06-01).
 **Plans:** 3/3 plans executed
 Plans:
+
 - [x] 130.7-01-PLAN.md - correlation.cjs embedding-independent hashing chokepoint + one-time idempotent Cypher backfill + key-invariant asserting test (wave 1)
 - [x] 130.7-02-PLAN.md - chain-recommender one-canonical-target-per-query (no fork) + bin/local-chain-recommender.cjs aggregate-by-correlation_id + navigation memory_event references carry correlation_id (wave 2)
 - [x] 130.7-03-PLAN.md - report-only/baseline dual-graph CI gate (fail-on-regression, fail-closed-on-inconclusive) + the three /mos:brain-derive curation surfaces + Part 8 phase-wide boundary sweep (wave 3)
+
 **Authority:** `.planning/phases/130.7-correlation-id-contract-dual-graph-ci-gates/130.7-CONTEXT.md` + `.planning/phases/132-dual-graph-correlation-hypergraph-reformat/132-REVIEW-4.8.md`.
 
 ### Phase 131: Research as Graph-Aware Workflow Step (Source-Lens Pilot) (v1.13.1 — COMPLETE 2026-06-02)
@@ -1694,6 +1838,7 @@ Plans:
 **Status:** COMPLETE -- 6/6 plans shipped (131-01 substrate + 131-02 context-extractor, 2026-06-01; 131-03 source-lens-driver + 131-04 findings-wirer + F.1 selector + 131-05 commands/research.md 7-stage rewrite + check-research-isomorphism CI guard + 131-06 5 E2E release gate + Feynman registration + RESEARCH-AS-WORKFLOW-STEP.md fan-out template, 2026-06-02). Phase release gate GREEN: run-all-131.sh 6/6; zero regression on 130/130.7/navigation; ZERO live Brain writes; ZERO new deps; substrate guard + brain-boundary-scan + isomorphism guard all pass.
 
 **Plans:**
+
 - [x] 131-01-PLAN.md -- substrate: EvidenceClaim writer (locked 136 schema) + CONTRADICTS/SUPERSEDES edges + 3 research events + getResearchPreflight + aggregator (wave 1)
 - [x] 131-02-PLAN.md -- research-context-extractor: Stage 1+2+3 pre-flight + Body Shape A summary + weighted lens set (wave 2)
 - [x] 131-03-PLAN.md -- source-lens-driver: Stage 4 over the 130.5 shared corpus, zero Python, dedup + tier/relevance rank; activates the lens-engine source family (wave 2)
@@ -1724,6 +1869,7 @@ Plans:
 **Plans:** 3/5 plans executed
 
 Plans:
+
 - [x] 132-01-PLAN.md - curation-batch runner + frozen 5-event-type hypergraph schema substrate (Wave 1) [SHIPPED 2026-06-02: lib/brain/curation-batch.cjs (makeBatch chokepoint -- created_by stamping + rollback pairing required + write-time 130.7-contract guard + scanBatchForUserContent Part 8 scan) + lib/brain/hypergraph-event-schema.cjs (frozen 5 event types + additive buildReifyCypher + EVENT_INSTANCE_MIN=20); 6/6 + 5/5 fixture tests; run-all-132.sh 2/2; ZERO live Brain writes; ZERO new deps; zero regression on 130/130.7/131/nav; commits 43b06b4c, 8a6b31d5, ff79b111]
 - [ ] 132-02-PLAN.md - hypergraph reify: 5 reified event-node types, >=20 instances each, additive (Wave 2)
 - [x] 132-03-PLAN.md - cross-label dedup-collapse + held-name-rename machinery (Wave 3) [SHIPPED 2026-06-02, RE-BASELINED: the as-written ~50-group / 22-REVIEW_REQUIRED targets are STALE (live graph already clean off the Phase 131 close-out packet -- 721 backfilled cids, 0 collisions); the REAL live worklist is 1 dedup pair (6831/22816 'The Other Way Round'|Technique) + 14 held name>80 nodes (10 :Method + 4 :Framework). Built GENERIC machinery: scripts/curation-132-03-dedup-held-rename.cjs -- pickCanonical (most-edged + 130.7 LABEL_PRIORITY tiebreak), buildDedupCollapsePass (keeper correlation_id via computeCorrelationId no-re-hash + migrate-incoming-edges + :Archived/REPLACED_BY reversible-delete + snapshotRequired=true with documented SNAPSHOT_PRECONDITION), buildHeldRenamePass (recompute cid + 3-property curated-v1 backfill + clear held marker, fully created_by-reversible). Both route through the 132-01 makeBatch runner. 13/13 fixture tests; run-all-132 3/3; ZERO live Brain writes; ZERO new deps; zero regression on 130/130.7/131/nav; live --execute is orchestrator-run snapshot-first. commits 50abe4d9, 0225062f, c9de6391]
@@ -1744,6 +1890,7 @@ Plans:
 **Plans:** 9 plans
 
 Plans:
+
 - [ ] 134-01-PLAN.md — Wave 0: vendoring re-audit + blocking-human checkpoint before committing @huggingface/transformers (+ any whitespace-math helper); SVD-port spike; UMAP/KDE/HDBSCAN whitespace-math spike; 768/1024 model-unify spike; byte-compat + model-UX spikes; commit golden parity fixtures; env-flag lock -> 134-SPIKE.md (wave 0)
 - [ ] 134-02-PLAN.md — rs-math.cjs: pure-JS cosine + classify_direction + the TF-IDF/truncated-SVD LSA + an EXPORTED power-iteration eigen primitive (reused by HSI spectral-gap + whitespace PCA); parity vs committed rs_math.py fixtures (wave 1)
 - [ ] 134-03-PLAN.md — rs-embed.cjs: the SINGLE in-process e5-large embedder (1024-dim) replacing ALL Python embedding paths (rs Pinecone + rs MiniLM + Family-B BAAI + brain-baseline) per the model-unify disposition; first-run download UX + warm-up off the auto-fire hot path (wave 1)
@@ -1759,6 +1906,7 @@ Plans:
 **Goal:** Complete the navigation engine's offer-presentation layer so Larry fires exactly ONE calibrated next-move offer through the already-shipped F.1 selector at the right moment, and stays silent otherwise. Fills the `resolveOfferNextStep` stub (Plan 91-04's deferred scope, which today ships `null`) with an abstention-gated resolver that is SQL-local aware, Brain-aware, wikilink-aware, and MD-aware. The trunk of the offer loop: renders through the native AskUserQuestion primitive (zero TUI, zero third-party OSS dependency).
 
 **Success criteria (goal-backward):**
+
 1. `resolveOfferNextStep` returns one offer `{command, framework, jtbd, confidence, reason, scope}` or `null` — no longer always `null`.
 2. SQL-local aware: reads `room.db` EXCLUSIVELY via `lib/core/navigation.cjs` (Canon Part 9 chokepoint); zero non-SQLite folder scans; consumes local graph neighborhood + `memory_event` tail for relevance/confidence.
 3. Brain-aware: Mode A enriches via `buildBrainPacket` typed packet (Canon Part 8 — enum/handle/phase identifiers only, zero user content); Mode B degrades to local heuristics (no RECOMMENDED marker); tier_0 falls to the hardcoded minimal verb set. No crash across all three.
@@ -1778,6 +1926,7 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
+
 - [ ] 135-01-PLAN.md -- Wave 0 test scaffolds (resolver/closer/fs-leak suites + run-all-135) + operator-state call-site wiring into the engine context (SC6 prerequisite)
 - [ ] 135-02-PLAN.md -- Resolver body + abstention triple (operator x margin x backoff, MARGIN_THRESHOLD=0.15 / N=5) filling the resolveOfferNextStep stub; local-only sync, wikilink-grounded reason (SC1/SC2/SC3/SC5/SC6/SC9)
 - [ ] 135-03-PLAN.md -- Reliable F.1 closer wiring (pickShape + Free-Text escape -> recordSelectorDecision/Miss) + idempotent wikilink-on-accept + Feynman registration + Part 8 brain-boundary gate (SC5/SC7/SC8/SC9)
@@ -1791,6 +1940,7 @@ Plans:
 **Authority:** `~/MindrianRooms/mindrianOS/product-evolution/architectural-mandates/M5-liquid-state-fractal-sos.md` (the product-theory spine, captured 2026-05-31 from a 20+ turn design conversation; status SEED, to be promoted to ADR by this phase). This phase IS the render-spine sibling M5 names as the un-written "TUI enhancement-layer map (CLI render)." Sibling thread already shipped: the Offer-Resolver / truth layer (Phase 135).
 
 **Success criteria (goal-backward):**
+
 1. ONE render engine exists; `shape` (deck/mermaid/wiki/grid/dashboard/snapshot) and `delivery` (cli/web/file) are flags, not 7 separate commands. The 7 legacy HTML commands route through it or are retired.
 2. CLI persistent-navigator TUI renders the fractal ICM tree (room -> section -> sub-section -> MD) as a stable sidebar; the LazyGraph surfaces in a suggestion slot that OVERLAYS and never reorders the tree (M5 hard rule 1). FRACTAL (Req 12): arbitrary depth; ZOOM re-roots the navigator at any node as a complete ICM at its own scale; BUD promotes a section into its own room (SEED-001 sub-room contract); cross-wall edges surface in the graph/slot, never by reordering the tree.
 3. The render subscribes to `room.db` `memory_event` stream and updates on event, not on a timer (M5 hard rule 3); reads exclusively via `lib/core/navigation.cjs` (Canon Part 9 chokepoint).
@@ -1807,6 +1957,7 @@ Plans:
 **Reuse (Part 7):** extend Phase 121.5 `palette.json` into the token core (do not invent a new token system); reuse the `navigation.cjs` chokepoint, the existing `dashboard/` `wiki/` `present/` HTML templates as the seed views the engine consolidates, and the De Stijl design system. NET-NEW: the render-engine flag dispatch, the CLI persistent-navigator TUI process, the event-subscribe loop, the token-graph contract + CI linter.
 
 **Open questions (resolve in SPEC, from M5):**
+
 - RESOLVED (Round 3, see 136-SPEC): the navigator is a real `mos tui` full-screen ARROW-KEY binary that coexists with Claude Code as a SEPARATE process in its own terminal (the lazygit model), NOT rendered inside the conversation pane. First justified break of the prior "zero TUI dependency" precedent (needs a TUI lib: ink/blessed). Selector gains multi-select (space-toggle) + always-present free-text escape; each pick is its own edge (Part 3 additive extension). New residual how-questions deferred to discuss-phase: which TUI lib, and the concurrent-room.db-access model.
 - Wikilink authorship: founder-only (authentic, slower) vs Larry-proposes-founder-approves (HITL gate, same as the resolver thread).
 - Does intent FILTER the temporal stream or RE-RANK the whole graph as the primary axis?
@@ -1819,6 +1970,7 @@ Plans:
 **Plans:** 8 plans in 6 waves
 
 Plans:
+
 - [ ] 136-01-PLAN.md (Wave 0) - test harness + seeded 4+-level fixture + ink-absent guard + confirm BUD callable + release.sh native-addon assertion
 - [ ] 136-02-PLAN.md (Wave 1) - headless core: read-only room.db handle + thin SSE read-API on the existing express server
 - [ ] 136-03-PLAN.md (Wave 1) - token core: palette.json semantic pairs + 4 TUI glyphs + SKILL.md ruling extension + check-tokens.cjs linter
@@ -1849,6 +2001,7 @@ Plans:
 **Plans:** 3/4 plans executed
 
 Plans:
+
 - [x] 139-01-PLAN.md (Wave 1) — S1 WHERE fix: single resolver `resolve-umbilical-target.cjs` + route doctor cwd probe + close OBS-2 (zero room-artifact writes from non-room cwd)
 - [x] 139-02-PLAN.md (Wave 2) — S2 engine skeleton: `data/doctor-modules.json` registry + `~/.mindrian/doctor-applied.json` watermark + semver selector (idempotent, future-version-DEFER)
 - [x] 139-03-PLAN.md (Wave 3) — S3 Umbilical module #1: AFFILIATED_WITH additive + marker read + edge projection into room.db + integrity check + register in registry
@@ -1867,6 +2020,7 @@ Plans:
 **Granularity:** fine (config.json). Coverage: 32/32 LARRYREACH requirements mapped, no orphans, no duplicates.
 
 **Dependency spine (the hard ordering):**
+
 - Phase 140 (HARD-01..05 sentinel hardening) is a HARD PREREQUISITE for Phase 145 (SCHED-01/02) -- never auto-fire a buggy scout on a schedule.
 - Phase 141 (RETR fusion + capability dial + BUG-01) is the retrieval spine; the dial commits in the SAME phase/PR as the RETR work per Option A, and the line-53 fix is a tag-along.
 - Phase 144 (NAV-01 legacy->engine flip) depends on Phase 142 (NAV-02 BRAIN.md derivation raising tier_mode + CASC-02 Phase 109 spine navigating) and on Phase 143 (the trigger-map sensors decide() reads).
@@ -1890,35 +2044,43 @@ Plans:
 ### Phase Details
 
 ### Phase 140: Sentinel & Instrumentation Hardening
+
 **Goal**: A scheduled scout can fire without broadcasting noise -- the 5 bugs the 2026-05-10 scout run surfaced in the sentinel + instrumentation layer are fixed before any auto-fire is wired.
 **Depends on**: Nothing (first LARRYREACH phase; HARD prerequisite for Phase 145)
 **Requirements**: HARD-01, HARD-02, HARD-03, HARD-04, HARD-05
 **Canon parts**: Part 4 (HSI edges become graph data once they reach room.db), Part 8 (HSI-to-graph + telemetry stay LOCAL; zero Brain egress)
 **Success Criteria** (what must be TRUE):
+
   1. `sentinel-health-check` runs to completion without the line-132 arithmetic syntax error
   2. Running HSI lands its edges in room.db (no `NOT NULL constraint failed: nodes.source_path`); the graph holds HSI signal after a scout
   3. A reverse-salient / HSI scan reports zero `.heal-backup/` duplicates -- backup dirs no longer pollute the result set
   4. After a session running a dozen `/mos:*` commands, the query-efficiency telemetry hook shows non-zero captured events (the 57x-claim gate has real data)
   5. The deadline monitor reports the phase deadlines in `.planning/STATE.md`, not just `funding/` + `opportunity-bank/` (a near deadline shows as DUE, not CLEAR)
+
 **Plans**: 4 plans
+
 - [x] 140-01-PLAN.md -- HARD-02: shared NOT-NULL-safe node insert helper (4 sites) + both-schema safety + unmask scout swallow (D-02/D-02a/D-03)
 - [x] 140-02-PLAN.md -- HARD-01 arithmetic guard in sentinel-health-check + HARD-03 .heal-backup excluded from both SKIP_DIRS sets (D-04)
 - [x] 140-03-PLAN.md -- HARD-04 relax telemetry gate to all turns + 57x reconciliation (D-01/D-01a) + HARD-05 deadline monitor reads .planning/STATE.md
 - [x] 140-04-PLAN.md -- cut v1.13.1-beta.6 (local): CHANGELOG HARD-01..05 entry + plugin.json/package.json bump + commit ca5c580e + tag v1.13.1-beta.6 (external push/marketplace/npm human-gated)
 
 ### Phase 141: Local Retrieval Spine + Capability Dial
+
 **Goal**: The per-turn loop stops forwarding `userText:null` -- `getRoomContext()` fuses local room memory into a query-time seed, the "When to Reach" capability dial ships tracked, and the line-53 crash is gone. This is the spine of Option A: maximally rich, entirely local, zero Part-8 cost.
 **Depends on**: Nothing structural (parallel-safe with Phase 140)
 **Requirements**: RETR-01, RETR-02, RETR-03, RETR-04, LARRY-01, LARRY-02, LARRY-03, BUG-01, DRSCH-01, DRSCH-02, DRSCH-03, DRSCH-04
 **Canon parts**: Part 9 (SQL is the local mind -- fusion reads room.db via the navigation chokepoint), Part 8 (raw prose stays local; explicitly NOT the packet.cjs projectText/hashText egress path; deep-research queries carry generic handles only), Part 3 (the dial governs reach at the Decision Gate; deep research is plan-gated), Part 2 (the team's reach affordances honor the dial; deep research is hat-scoped EXTERNAL WEB), Part 4 (research results file as typed graph evidence), Part 7 (deep research REUSES /mos:research + deep-research skill + Phase 131)
 **Note (2026-06-05)**: DRSCH-01..04 (framework-led deep research -- the fifth capability-dial reach) folded into this phase. The reach is already drafted in the working-tree SKILL.md dial; Phase 141 commits + GSD-researches the plan-builder mechanism (local+remote brain build a framework-shaped, hat-scoped, plan-gated research plan).
 **Success Criteria** (what must be TRUE):
+
   1. `getRoomContext()` returns a fused context from all three legs (home-view RAW summaries + windowed session-history fragments + getNeighborhood graph-ranking), seeded by the last ~2 turns
   2. A "do you remember X" turn retrieves X-relevant nodes -- the per-turn loop carries a real seed, not `userText:null`
   3. The fusion path imports nothing from `packet.cjs` (no projectText/hashText) -- a code scan confirms raw prose never touches the egress path
   4. Per-turn assembly completes under the 1200ms NAV timeout on a populated room.db (benchmarked; graph-ranking-first)
   5. The "When to Reach -- The Capability Dial" SKILL.md section is committed to HEAD with `canon_parts` frontmatter + a CHANGELOG entry, and the version is bumped with the dial as a release-noted change; the line-53 `build-graph-from-sqlite.cjs` ReferenceError no longer crashes (a graph is emitted)
+
 **Plans**: 6 plans
+
 - [x] 141-01-PLAN.md -- Wave 0 test scaffold: run-all-141.sh runner + fixture room.db + all 9 CJS suites (Nyquist floor)
 - [x] 141-02-PLAN.md -- commit the dial FIRST (D-06): SKILL.md canon_parts + 5 reach ids + LARRY-04 Navigator (3 posture ids + Reach rule 7) + DRSCH doctrine + beta.7 bump
 - [x] 141-03-PLAN.md -- getRoomContext 3-leg fusion (RETR-01/03/04) + navigation.cjs re-exports + 1200ms benchmark
@@ -1927,39 +2089,48 @@ Plans:
 - [x] 141-06-PLAN.md -- RETR-02 hot-path seed flip (un-null userText to the LOCAL lane only; D-03a Part-8 fence)
 
 ### Phase 142: Local Intelligence Wiring (compute-store-and-ACT)
+
 **Goal**: The local intelligence systems stop computing-and-storing and start computing-store-and-ACTING -- filing surfaces findings mid-session, BRAIN.md derivation lifts the room out of `tier_0`, the derivation queue drains, memory survives an auto-compact boundary, and the Phase 109 spine actually navigates the graph for routing. The cheapest, highest-leverage sub-loop; touches zero Brain code.
 **Depends on**: Phase 141 (the retrieval seed the spine navigates against)
 **Requirements**: CASC-01, CASC-02, NAV-02, NAV-03, NAV-04
 **Canon parts**: Part 9 (the Phase 109 spine NAVIGATES, not merely stores -- SQL is the local mind), Part 4 (cascade findings are graph edges surfaced to Larry), Part 2 (BRAIN.md derivation enriches the team), Part 8 (BRAIN.md derivation preserves the LOCAL-to-BRAIN boundary -- generic handles only)
 **Success Criteria** (what must be TRUE):
+
   1. Filing an artifact surfaces the cross-relationship cascade findings to Larry mid-session (the room-proactive skill reads the envelope where the bash hook writes it)
   2. The Phase 109 navigation spine reads the local graph to route a decision -- routing reflects graph neighborhood, not just stored edges
   3. BRAIN.md derives for a room's sections so `tier_mode` rises above `tier_0` for those sections
   4. The brain-derivation queue auto-drains -- enqueued entries are processed within a session, not left sitting for days
   5. After an auto-compact boundary, the post-compact re-injection consumer restores memory context -- the session does not degrade across the compact
+
 **Plans**: 4 plans
+
 - [x] 142-01-PLAN.md -- Wave 0 test scaffold: run-all-142.sh aggregator + 7 RED loop-fires suites (one per requirement + Part-8 gate) + room-142 fixture (Nyquist floor)
 - [x] 142-02-PLAN.md -- CASC-02 (the one BUILD): wire getRoomContext neighborhood into decide() via the navigation.cjs chokepoint on the caller-owned handle; routing_source UNCHANGED (Phase 144 fence)
 - [x] 142-03-PLAN.md -- CASC-01 + NAV-03 VERIFY: loop-fires acceptance tests lock the shipped Phase 95 cascade side-channel surfacing + the UserPromptSubmit drain auto-fire (no re-implementation)
 - [x] 142-04-PLAN.md -- NAV-02 verify (BRAIN.md present -> tier_mode rises above tier_0) + NAV-04 close-by-reference (Phase 95.5 passed) + FILEVAL-03 honesty-rule verify (filing-did-not-land surfaced)
 
 ### Phase 143: Insight Sensors (the 7-row trigger map)
+
 **Goal**: The "insight sensors" the Brain's own beautiful-question node asked for fire automatically -- the right reach on the right conversational/state signal, hat-scoped per Canon Part 2, with the Brain/web path constrained to generic handles only. Heuristic sensors first (the cheap v1), feeding the navigation engine.
 **Depends on**: Phase 142 (BRAIN.md derivation + cascade plumbing the sensors consume); Phase 141 (the local seed + the committed 5-reach dial doctrine with stable reach ids per LARRY-03)
 **Requirements**: SENS-01, SENS-02, SENS-03, SENS-04, SENS-05, SENS-06, SENS-07
 **Note (2026-06-06 -- SPLIT)**: this phase was split via Decision Gate. The DIAL-TUI SELECTOR (DIALTUI-01..11) + the dial memory layer (MEMDIAL-01..03) + FILEVAL-01 moved OUT to the inserted Phase 143.1 (Dial-TUI Capability Selector), which carries the UI-hint + the approved UI-SPEC. Phase 143 is now the SENS-01..07 detection logic ONLY -- the event-driven sensors that decide WHEN to reach. The dial-TUI (143.1) is the render surface that CONSUMES what these sensors surface. Split rationale: the sensors are net-new detection behavior; the dial-TUI is ~90% reuse of the Shape F.1 renderer + ranker -- separable blast radii. The sensors feed Phase 144's navigation-engine flip; the dial-TUI renders the ranked reaches.
 **Canon parts**: Part 2 (team affordances + web hat-scoping: White=data/arxiv, Green=patents, Black=failure-cases), Part 2 Engine 1 (explore-domains / whitespace / reverse-salient as Act-1 reaches), Part 3 (sensors surface options at the Decision Gate), Part 4 (sensor-driven findings become graph edges), Part 8 (SENS-01/03/04 carry only generic handles to Brain/web -- never user content)
 **Success Criteria** (what must be TRUE):
+
   1. First material in a session auto-fires `/mos:explore-domains` + `/mos:whitespace` + `brain_framework_chain($problem_type)` (generic handle only) -- the room is non-empty by turn 2
   2. A "the bottleneck is..." / lagging-component turn auto-fires `/mos:find-bottlenecks` / the reverse-salient engine
   3. A methodology-decision point auto-fires `brain_framework_chain` (CHAINS_TO next framework); an external-fact reference auto-fires WebSearch, hat-scoped per Canon Part 2
   4. A JTBD set/change re-weights the selector menus + Brain queries via `ADDRESSES_PROBLEM_TYPE`; filing an artifact triggers the cross-relationship cascade scan as a sensor
   5. A gate/milestone approach auto-fires the breakthrough scan (Category G) + investor-objection surface; a Brain/web scan of the sensor code confirms zero user-content egress
+
 **Plans**: 3 plans
 Plans:
+
 - [x] 143-01-PLAN.md -- Sensor module spine + reach/posture id banks + SENS-01 (first-material, verify Phase 117 + brain_framework_chain companion) + SENS-06 (artifact-filed, verify CASC-01); Phase-144 routing fence + Part-8 sweep gates + run-all-143.sh aggregator
 - [x] 143-02-PLAN.md -- SENS-02 (lagging-component -> rs-engine) + SENS-03 (methodology-decision -> brain_framework_chain) + SENS-07 (gate-approach -> breakthrough scan + investor-objection)
 - [x] 143-03-PLAN.md -- SENS-04 (external-fact -> hat-scoped WebSearch + MCP-stack-ask gate) + SENS-05 (JTBD set/changed -> selector + Brain-query re-weight)
+
 **UI hint**: no (moved to Phase 143.1)
 
 ### Phase 143.3: Connector Spine And Intelligence Orchestrator (INSERTED)
@@ -1973,10 +2144,12 @@ Plans:
 **Open items (resolve in planning)**: OPEN-1 dispatch-handle->exact-framework-name map + drift test; OPEN-2 the tier predicate + non-double-fire with 144; OPEN-3 filing path per family; OPEN-4 rs-agent [BRAIN] header vs local reach; OPEN-5 coexistence with room-proactive. (See ROUTING-TABLE-intelligence-orchestrator.md.)
 **Plans**: 4 plans, 4 waves
 Plans:
+
 - [x] 143.3-01-PLAN.md -- CONN-01 (connector: schema doc) + CONN-02 (generator with nested-map parser + connector-registry.json) + OPEN-1 dispatch-framework map + drift test [wave 1] (2026-06-07: 3 tasks, 7 files; --check + drift + frozen-bank tests green; registry at 0 connectors pre-retrofit)
 - [x] 143.3-02-PLAN.md -- CONN-04 (retrofit the 7 algorithmic-cohort commands) + CONN-03 (the four --check validations + pre-commit tripwire + WARN nudge); registry regenerated + populated [wave 2] (2026-06-07: 3 tasks, 11 files; registry 0->7 connectors + 5-key sensor_index; --check four validations + WARN nudge live; both pre-commit copies wired; test-connector-tripwire.cjs PASS; em-dash scan 0; zero new deps)
 - [x] 143.3-03-PLAN.md -- ORCH-01..04 the intelligence-orchestrator SKILL.md (registry-reading dispatcher + 5-step loop + filing + tier gate + OPEN-4/OPEN-5 resolutions) [wave 3] (2026-06-07: 3 tasks, 1 file; skills/intelligence-orchestrator/SKILL.md 253 lines -- first consumer of the dispatchSensors spine + first reader of connector-registry.json; reads sensor_index not a hardcoded table; 5-step loop names dispatchSensors/dispatch-framework-map/Intelligence Hierarchy/Decision Gate/commandsForFramework; filing fileEvidenceWithReadback+wireAccept+surfaceFileEvidenceResult; OPEN-4 [BRAIN]=render choice + OPEN-5 last-cascade.json folded into one ranking pool; connector --check exit 0; em-dash 0)
 - [x] 143.3-04-PLAN.md -- verification: run-all-1433.sh composing connector-registry --check + dispatch-map drift + tripwire + Part-8 boundary scan + orchestrator doctrine-presence + carried reach-drift/posture-drift fences [wave 4] (2026-06-07: 3 tasks, 3 files; tests/test-connector-part8-boundary.cjs 4/4 threat paths + tests/test-orchestrator-doctrine-presence.cjs ORCH-01..04 + frozen-bank/no-6th-reach fence + tests/run-all-1433.sh 9/9 green exit 0; standalone Part-8 grep sweep per LOW-3; em-dash 0; zero new deps)
+
 **UI hint**: the orchestrator surfaces via the existing Shape-F selector (143.1 dial-TUI / SEED-020); documents no new UI
 
 ### Phase 143.4: Discover Command - Client + Product + JTBD Onboarding (INSERTED)
@@ -1988,9 +2161,11 @@ Plans:
 **Locked decisions (2026-06-07)**: (1) own phase 143.4, not folded into 143.3; (2) orchestration, not a new atom; (3) no 6th reach / no new selector; (4) output is a scaffolded room + brief + personas + plain-language message; (5) Part 8 hard - zero client-content egress; (6) DISC-10 Feynman bridge hands the brief to website/deck messaging + seeds FEYNMAN.md.
 **Open items (resolve in planning)**: OPEN-1 reach_id + posture enum mapping vs the frozen banks; OPEN-2 wrap-vs-supersede new-project/onboard; OPEN-3 mullins-scaffold vs discovery section set; OPEN-4 persona / JTBD-card artifact shape; OPEN-5 which Feynman surface is canonical + deck-on-request.
 **Plans:** 3 plans in 2 waves
+
 - [ ] 143.4-01-PLAN.md - the /mos:discover Larry-led six-movement flow + both connector blocks (discovery + plain-language-bridge) + registry regen (DISC-01/02/03/05/07/08/10)
 - [ ] 143.4-02-PLAN.md - the discovery-scaffold.json section set + the Discovery Brief template (DISC-04/07/10 artifact halves)
 - [ ] 143.4-03-PLAN.md - the Part-8 boundary test + acceptance fixture + phase runner (DISC-06/09)
+
 **UI hint**: renders through the existing Shape F.1 dial-TUI (143.1 / SEED-020); no new UI
 
 ### Phase 143.2: Larry Operates And Pushes (Prompt Reconciliation) (INSERTED)
@@ -2002,17 +2177,21 @@ Plans:
 **Scope addition (2026-06-07, Brain-consulted)**: conversation-mode becomes the explicit lane-picker traffic cop (CONV-01) mapped to Ackoff DIKW bidirectional (CONV-02); mullins-scaffold gains Brain-driven cross-framework folders (MULL-01) + the Ackoff up-down/down-up traversal (MULL-02). Brain confirmed Ackoff Pyramid FEEDS_INTO Systems Thinking + MAP THE HIERARCHY (the bidirectional fits) + surfaced Mullins' framework neighbors (Value Proposition, Disruptive Innovation, Systems Thinking). NOTE: MULL-01/02 touch the scaffold SKILL (scaffold.json + Brain-folder logic) -- a small build, so the phase is no longer pure doctrine. See 143.2-CONTEXT-ADDENDUM-conv-mull-ackoff.md.
 **Canon parts**: Part 2 (Engine 1 algorithmic + Engine 2 BONO + Appendix E handoff triggers), Part 3 (every push ends at a Decision Gate / Shape F), Part 8 (SENS-03/04 + find-connections carry generic handles only), Part 9 (dial outcomes route through navigation.cjs), Part 10 (conversation as product -- Larry IS the surface)
 **Success Criteria** (what must be TRUE):
+
   1. OPERATE: the stale "comes later" language is flipped to now-shipped; a compact Operating-the-Dial block + a Reading-routing_source note are present in larry-personality SKILL.md (OPS-01/02/03)
   2. PUSH: all 6 reach-families carry a proactive push-line with a NAMED trigger (Brain/SENS-03, reverse-salient/SENS-02, HSI-whitespace/SENS-06, find-analogies/SENS-01-06, BONO-hats/SENS-05-07, hat-scoped deep-research/SENS-04) -- each ending at a Decision Gate, never a verdict (PUSH-01..06)
   3. COMPOSITION HELD: zero new reach-ids (the 5-reach drift test stays green), no new sensor; team_perspective/whitespace are render labels; the Part-8 sweeps + routing fence stay green; the frozen frontmatter (initialPrompt, persona_variants, dual-path) is byte-unchanged; zero em-dashes
   4. ui-system Shape F.7 (dial-TUI) is documented + the F.0-F.6 count off-by-one fixed (OPS-04); larry-extended pointer + stale-greeting delete (OPS-05)
+
 **Plans**: 6 plans (4 waves)
+
 - [ ] 143.2-01-PLAN.md -- OPS-01/02/03: the MUST-before-144 core in larry-personality (flip comes-later -> now-shipped, the Operating-the-Dial block, the Reading-routing_source note) [wave 1]
 - [ ] 143.2-02-PLAN.md -- PUSH-01..06: the 6 proactive push-lines (each composing under an existing reach-id + sensor, each ending at a Decision Gate) in larry-personality + the DbA surface line + BONO Team Perspective section in pws-methodology [wave 2]
 - [ ] 143.2-03-PLAN.md -- OPS-04/05: ui-system Shape F.7 + F-count fix; larry-extended pointer + stale-greeting delete (frozen frontmatter preserved); conversation-mode Conversational-Reaches note [wave 1]
 - [ ] 143.2-05-PLAN.md -- CONV-01/02: conversation-mode becomes the explicit Shape F.1 lane-picker (a Decision Gate, not a silent classifier) mapped to Ackoff DIKW bidirectional (chat=Data/Information, brainstorm=Knowledge, build=Wisdom + the build->validate descent), reusing the larry-personality Ackoff doctrine; build-crossing offers the Brain chain (Ackoff FEEDS_INTO Systems Thinking + MAP THE HIERARCHY, generic handles only). Doctrine edit [wave 2, after 03 which co-owns conversation-mode]
 - [ ] 143.2-06-PLAN.md -- MULL-01/02 (a small build): mullins-scaffold gains Brain-driven cross-framework folders (Value Proposition, Disruptive Innovation, Systems Thinking via FEEDS_INTO, OFFERED at a Decision Gate, generic handles only) + the Ackoff up-down/down-up traversal (ascent fills toward Validation-at-center; descent re-tests each domain's data) in scaffold.json; the loader gains listBrainFolders + getAckoffTraversal + the Part-8-clean buildBrainFolderQuery (enum-allow-list guard) + a fixture test; the 7-domain core + 5 shipped exports byte-unchanged (Part 7) [wave 1]
 - [ ] 143.2-04-PLAN.md -- verification: the doctrine-presence gate (15 requirements present incl. CONV + MULL) + the MULL Part-8 Brain-folder-query boundary grep + run-all-1432.sh composing the reach-drift / posture-drift / routing-fence / part8-sweep fences + the mullins-scaffold fixture test [wave 3]
+
 **UI hint**: no (doctrine/prompt reconciliation; documents the F.7 render but builds no UI)
 
 ### Phase 143.1: Dial-TUI Capability Selector (INSERTED)
@@ -2023,56 +2202,70 @@ Plans:
 **Design contract**: 143.1-UI-SPEC.md (approved CLI scope 2026-06-06). Hard constraints: NOT a scrollable widget -- render AS Shape F.1 Brain-variant; the "dial" is the right-aligned confidence column + filled/empty-triangle glyph hierarchy; MAX_K=3 (chooser) vs DIAL_REACH_K=5 (preview) -- rank 5, preview 5, choose 3; never lower the 0.7 Recommended floor; never render literal "(Recommended)". Resolved OQs: CLI-first (Desktop render proof DEFERRED as a tracked follow-up, V8 not a 143.1 blocker); Cowork = per-actor {topic} label, shared SELECTED_REACH edge. Design brief: ~/MindrianRooms/mindrianOS/product-evolution/v1.13.0-memory-system-review/DIAL-TUI-DESIGN-BRIEF.md.
 **Canon parts**: Part 3 (the dial renders the Decision Gate as Shape F.1; the navigator commits/pivots/defers), Part 4 (PIVOTED + SELECTED_REACH typed edges -- "why not" becomes graph data), Part 7 (~90% reuse of shape-f1-renderer + f-selector-ranker + nav-dial), Part 8 (the Brain/deep-research label {framework} slot passes the egress audit seam -- generic handles only), Part 9 (every write routes through navigation.cjs; SELECTED_REACH is system bookkeeping, truth-claim promotion stays distinct via confirmNode)
 **Success Criteria** (what must be TRUE):
+
   1. The dial-reach orchestrator returns a structured list of 5 ranked reaches (DIAL_REACH_K=5) with per-reach {score, source, brain_component, local_component, recommended} provenance, while the AskUserQuestion chooser stays clamped at MAX_K=3 (DIALTUI-01/03)
   2. Reach #1 is marked Recommended (filled triangle) IFF mode_a AND score>=0.7; reach #2 also only on a near-tie (score>=0.7 AND margin<0.15); a Mode B / Tier 0 cold room renders 5 reaches with ZERO markers and READS AS INTENTIONAL, not broken (DIALTUI-02/11)
   3. The mechanism-verb rows are swapped at render time for Feynman WHAT-THEY-GET labels (5 frozen template families + {topic} slot from navigation.getActiveFocus); the canonical verb still persists to the graph edge; the label bank contains zero em-dashes and zero banned mechanism nouns (DIALTUI-04/05)
   4. closeReach() handles all four outcomes (resting-detent sync, rotate-to-pivot emitting a PIVOTED edge, defer/reject, free-text miss) routed exclusively through navigation.cjs; a committed reach writes a SELECTED_REACH edge + a STATE.md/TodoWrite next-action (DIALTUI-06/07/08/09)
   5. The orchestrator returns a surface-agnostic reach-list (no ANSI in the core); CLI master template ships; Desktop + Cowork mappings recorded (Desktop render proof DEFERRED per resolved OQ1; Cowork = per-actor label + shared edge per resolved OQ2); the dial memory layer (MEMDIAL-01..03) records the dial relationship + a Feynman/MINTO-style acknowledgment; FILEVAL-01 validates the selection writes a typed edge (DIALTUI-10, MEMDIAL-01..03, FILEVAL-01)
+
 **Plans**: 6 plans
+
 - [x] 143.1-01-PLAN.md -- DIALTUI-01/02: dial-reach orchestrator + DIAL_REACH_K=5 + the frozen 0.70 Recommended gate (the surface-agnostic ReachList core)
 - [x] 143.1-02-PLAN.md -- DIALTUI-04/05: Feynman-JTBD label composer + Part-8 {framework} egress seam + label-bank drift test + 7 jtbd-taxonomy.json em-dash fixes
 - [x] 143.1-03-PLAN.md -- DIALTUI-06/07/08/09 + FILEVAL-01: PIVOTED + SELECTED_REACH edges + f_selector_pivot/sync events + closeReach() 4-outcome transaction (navigation.cjs-only)
 - [x] 143.1-04-PLAN.md -- DIALTUI-03/10: Shape F.1 Brain-variant CLI presenter + confidence-column dial + all 5 render states + tri-polar surface-agnostic core
 - [x] 143.1-05-PLAN.md -- MEMDIAL-01/02/03: dial memory renderer on the Phase 124 pattern + relationship-layer queryability + FILEVAL-01 edge-write lock
 - [x] 143.1-06-PLAN.md -- DIALTUI-11 complete-by-reference + run-all-1431.sh aggregator + end-to-end state-matrix gate (two-K / 0.70 floor / Part-8 seam / write-locality)
+
 **UI hint**: yes (UI-SPEC approved -- 143.1-UI-SPEC.md)
 
 ### Phase 144: Navigation Engine legacy->engine Flip
+
 **Goal**: The single change that flips `routing_source: legacy -> engine`: the shipped Phase 91 navigation engine `decide()` reads `{local graph + BRAIN.md + trigger map}` instead of file-presence. The unifier wires the heuristic sensors and the derived tier into the engine's decision.
 **Depends on**: Phase 142 (NAV-02 BRAIN.md derivation raising tier_mode + CASC-02 Phase 109 spine navigating), Phase 143 (the trigger map the engine reads), Phase 143.2 (Larry's prompt MUST operate the surfaced reaches + know routing_source: engine BEFORE the engine flips -- otherwise the engine fires reaches into a prompt that calls them hypothetical)
 **Requirements**: NAV-01
 **Canon parts**: Part 3 (Option generation tier-awareness -- Mode A/B/Tier 0 routing), Part 2 (the engine selects the team's next verbs), Part 9 (the engine navigates SQL, not folders), Part 8 (Brain reach from the engine carries generic handles only)
 **Success Criteria** (what must be TRUE):
+
   1. `decide()` reads the local graph + BRAIN.md + the trigger map -- a code path exists from each input into the decision
   2. A turn that should trigger a Brain call produces `routing_source: engine` (not `legacy`) in the decision trace when Brain is reachable
   3. The engine emits at least one `routing_source: engine` trace per session in a populated room -- the legacy-on-every-turn behavior is gone
+
 **Plans**: 3 plans (3 plans, 2 waves)
-- [ ] 144-01-PLAN.md -- the ONE genuine BUILD: wire dispatchSensors into decide(); resolveFireSkill 4-arg sensor branch + reachIdToSkillFamily (5 reach_ids -> canonical verbs so the router flips); documented multi-sensor precedence; Zep-shaped LOCAL trace.context_assembly + temporal scalars + latency telemetry; line-537 fence comment flipped (router READ-ONLY; sensor files untouched)
+
+- [x] 144-01-PLAN.md -- the ONE genuine BUILD: wire dispatchSensors into decide(); resolveFireSkill 4-arg sensor branch + reachIdToSkillFamily (5 reach_ids -> canonical verbs so the router flips); documented multi-sensor precedence; Zep-shaped LOCAL trace.context_assembly + temporal scalars + latency telemetry; line-537 fence comment flipped (router READ-ONLY; sensor files untouched)
 - [ ] 144-02-PLAN.md -- the fixture REPAIR: fix makeRoomsFixture registry.json to the {slug, abs_path} object shape so resolve-active-room.cjs resolves it -> Tests 16/17 GREEN through the existing router with zero sensor code; + a cold-room honest-negative assertion
 - [ ] 144-03-PLAN.md -- the acceptance HARNESS (Wave 2): tests/run-all-144.sh mirroring run-all-143.sh -- populated-room engine positive via a REAL fired sensor + cold-room legacy negative + reruns of test-sensors-routing-fence + test-decide-part8-invariant + skill-activation-router Tests 1-18; structured so Phase 146 ACPT-01 composes it
 
 ### Phase 145: Scheduled Sensor Activation
+
 **Goal**: The scout suite and its sub-sensors move off the manual `/mos:scout` trigger onto a cadence (session-start-throttled or cron), now that the sentinel layer is hardened and safe to auto-fire.
 **Depends on**: Phase 140 (HARD-01..05 -- the scout is safe to auto-fire only after the 5 bugs are fixed), Phase 143 (the sensors that compose the suite)
 **Requirements**: SCHED-01, SCHED-02
 **Canon parts**: Part 2 Engine 1 (whitespace + reverse-salient + opportunity scan as scheduled Act-1 reaches), Part 8 (competitor watch is hat-scoped web SIGNAL; HSI-recompute stays LOCAL; zero Brain egress), Part 4 (scheduled findings become graph data)
 **Success Criteria** (what must be TRUE):
+
   1. The scout suite (snapshot + health-check + deadline-monitor + competitor-watch + HSI-recompute + opportunity-scan) fires on a cadence without manual invocation
   2. The whitespace recompute, reverse-salient detection, opportunity-bank scan, and competitor watch each fire on the scheduled cadence
   3. A scheduled run produces signal without errors -- the Phase 140 hardening holds under auto-fire (no health-check crash, no NULL source_path, no backup pollution)
+
 **Plans**: TBD
 
 ### Phase 146: Loop-Fires Acceptance Gate
+
 **Goal**: Prove the loop FIRES, not merely exists. A scripted dogfood session in the mindrianOS room demonstrates all 5 SEED-008 gate-blocker criteria. If this gate does not pass, the milestone is renamed -- it does not ship as "Larry Reaches".
 **Depends on**: Phase 141, Phase 142, Phase 143, Phase 144, Phase 145 (every feature phase)
 **Requirements**: ACPT-01, ACPT-02, ACPT-03, ACPT-04, ACPT-05
 **Canon parts**: Part 6 (dog-fooding mandate -- the proof runs in the mindrianOS room), Part 3 (the trace is the Decision Gate output), Part 2 (web hat-scoping in the external-fact criterion), Part 8 (the WebSearch + Brain reaches in the dogfood carry no user content), Part 9 (tier_mode rise proves SQL+Brain navigation), Part 10 (conversation-as-product ratifies at this gate)
 **Success Criteria** (what must be TRUE):
+
   1. The dogfood session produces `routing_source: engine` (not `legacy`) in a decision trace (ACPT-01)
   2. A turn referencing external facts triggers WebSearch, hat-scoped per Canon Part 2 (ACPT-02)
   3. First material in the session triggers `/mos:explore-domains` -> the room is non-empty (domain tree + whitespace map + candidate Opportunity Bank entries) by turn 2 (ACPT-03)
   4. Filing an artifact surfaces the cross-relationship cascade findings to Larry mid-session (ACPT-04)
   5. BRAIN.md derives for the room's sections -> `tier_mode` rises above `tier_0` (ACPT-05)
+
 **Plans**: TBD
 
 ### LARRYREACH Progress Table
@@ -2083,7 +2276,7 @@ Plans:
 | 141. Local Retrieval Spine + Capability Dial | 4/6 | In Progress|  |
 | 142. Local Intelligence Wiring | 3/4 | In Progress|  |
 | 143. Insight Sensors | 3/3 | Complete   | 2026-06-06 |
-| 144. Navigation Engine legacy->engine Flip | 0/0 | Not started | - |
+| 144. Navigation Engine legacy->engine Flip | 1/3 | In Progress|  |
 | 145. Scheduled Sensor Activation | 0/0 | Not started | - |
 | 146. Loop-Fires Acceptance Gate | 0/0 | Not started | - |
 
@@ -2137,6 +2330,7 @@ Plans:
 **Reference:** https://timeosai.canny.io/
 
 **Open questions:**
+
 - Self-host (Canny is paid) or use Canny directly?
 - Public, or auth-gated to invited testers only?
 - Sync with `docs/testers/<name>/` directories or replace them?

@@ -229,6 +229,7 @@
 - [x] **UISEL-88.2-07**: `lib/hmi/shape-f0-renderer.cjs` exists. Implements Shape F.0 (Mini Decision Gate) per CONTEXT.md amendment 2026-04-29. EXACTLY 3 options: Approve / Reject (with reason capture) / Defer. NO Free-Text slot (the reason field on Reject IS the free-text path). Single-line ASCII border (visual sub-decision cue, distinct from F.1-F.5 double-line parent shapes). Reject-with-reason path produces a `REJECTED_BECAUSE` typed edge via Phase 109 `lib/core/navigation.cjs` memory_event API with property schema `{ reason: string, rejected_at: ISO timestamp, parent_decision_id: string, actor_id?: string, confidence_self_report?: number 1-5 }` per RESEARCH.md DISCRETION-AMEND-03. Persona-AGNOSTIC visually (D-AMEND-04). Composable inside F.4 + cascade flows + session-start banner consolidation.
 - [x] **UISEL-88.2-08**: `lib/hmi/shape-f6-plan-review-renderer.cjs` (NOTE: collision-safe path -- NOT `shape-f6-renderer.cjs` which is Phase 101-01 JTBD-aware Next Move) + `lib/hmi/decoy-tier.cjs` + round-state graph node. Implements Shape F.6 (Plan Review Round) per CONTEXT.md amendment 2026-04-29. 15-30 questions per round (default 20), 4:1 real:decoy ratio, calibration decoys NOT disclosed during round, debrief Shape A action report at round end. Each response writes one `REVIEWED` typed edge with properties `{round_id, position, latency_ms, was_decoy, response, confidence_self_report}`. decoy-tier.cjs API: `selectDecoys({ artifactPath, roundSize, realCount, profile, roleBlend, brainAvailable, tierOverride })` returning `{ decoys, tier, tier_reason, distribution_seed }` per RESEARCH.md DISCRETION-AMEND-02. Tier 0 algorithmic (5 perturbation axes: wrong_owner, wrong_dependency, wrong_metric, wrong_scope, wrong_invariant), Tier 1 Brain-driven, Tier 2 persona-aware (rounds_total >= 100 + topic_coverage backstop). Comprehension profile at `<roomDir>/.mindrian/comprehension-profile-<sha256(user_id):16>.json`.
 - [x] **UISEL-88.2-09**: `lib/hmi/selector-telemetry.cjs` DUAL-SURFACE extension. Primary surface unchanged: LOCAL JSONL append at `~/.mindrian/telemetry/selector-events.jsonl` per existing pattern. Mirror surface ADDED: `recordSelectorMirror(roomDir, eventType, payload)` invokes `lib/core/navigation.cjs` chokepoint to write a `memory_event` row in room.db with `event_type` matching one of 4 new EVENT_TYPES strings (`selector_presentation`, `selector_response`, `selector_rejection_captured`, `f6_round_completed`). Resilience: if Phase 109 spine unavailable, JSONL still emits. BOTH surfaces are LOCAL per Canon Part 8 (zero LOCAL->BRAIN egress).
+
 ## Per-Command JTBD Declarations (JTBDCONS-104)
 
 - [x] **JTBDCONS-104-01**: Every file in `commands/*.md` (currently 84 files per `ls commands/*.md | wc -l`) declares a `serves_jtbd:` field in YAML frontmatter. Value MUST be a JSON-style array of one or more JTBD ids drawn from `lib/hmi/jtbd-taxonomy.json` `entries[i].id` (13 canonical ids: decide-pursue, find-problem, understand-market, find-bottleneck, prepare-pitch, validate-idea, compare-options, connect-domains, surface-contradiction, plan-execution, file-meeting, audit-room, explore). Sweep is mechanical via the verbatim mapping table embedded in Plan 104-01. The 3 commands that already declare (commands/jtbd.md, commands/memory.md, commands/hmi-status.md per Phase 100-04 / 103-03 / 105-02 shipped work) MUST be left BYTE-IDENTICAL by Plan 104-01 (re-declaration is a no-op). Plan 104-01 owns the sweep mechanics. NO new commands ship; NO selector-dispatcher changes.
@@ -691,7 +692,7 @@
 | MEMDIAL-01 | Phase 143.1 | Complete |
 | MEMDIAL-02 | Phase 143.1 | Complete |
 | MEMDIAL-03 | Phase 143.1 | Complete |
-| NAV-01 | Phase 144 | Pending |
+| NAV-01 | Phase 144 | Complete |
 | OPS-01 | Phase 143.2 | Pending |
 | OPS-02 | Phase 143.2 | Pending |
 | OPS-03 | Phase 143.2 | Pending |
@@ -723,7 +724,6 @@
 | ACPT-03 | Phase 146 | Pending |
 | ACPT-04 | Phase 146 | Pending |
 | ACPT-05 | Phase 146 | Pending |
-
 
 ## v1.13.1 "Larry Reaches" -- Close the Local Loop + Intelligence-Layer Activation (LARRYREACH)
 
@@ -767,8 +767,6 @@
 | FILEVAL-01 | Every Decision-Gate (Shape F) selection writes a typed edge/node to the LOCAL room.db (Part 4 "every choice is graph data", Part 9 "SQL remembers") at the moment of selection -- not just to an MD file | TBD |
 | FILEVAL-02 | Deep-research fetched conclusions (DRSCH) file to the local graph as typed evidence nodes with provenance, not only as prose artifacts | Plan 141-04 (lib/core/navigation/file-evidence-readback.cjs::fileEvidenceWithReadback) |
 | FILEVAL-03 | After any decision or research fetch, Larry VALIDATES the write landed in room.db (read-back assertion) and REMINDS the navigator what was filed -- no assumed filing, no fake recall (honesty rule). A filing that did not land is surfaced, not swallowed | 142-04 |
-
-
 
 | ID | Description | Plan |
 |----|-------------|------|
