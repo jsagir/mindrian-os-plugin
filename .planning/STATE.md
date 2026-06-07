@@ -4,14 +4,14 @@ milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: verifying
 stopped_at: Completed 144-02-PLAN.md (fixture repair; Tests 16/17 GREEN + Test 18 cold-room honest-negative; 18/18)
-last_updated: "2026-06-07T18:38:00.000Z"
-last_activity: 2026-06-07 -- Phase 143.4-02 executed (discovery section set + Discovery Brief template)
+last_updated: "2026-06-07T18:46:08.196Z"
+last_activity: 2026-06-07 -- Phase 144 execution started
 progress:
   total_phases: 83
-  completed_phases: 57
+  completed_phases: 58
   total_plans: 436
-  completed_plans: 387
-  percent: 69
+  completed_plans: 388
+  percent: 70
 ---
 
 # Project State
@@ -617,6 +617,7 @@ Progress: [█████████░] 92%
 | Phase 143.2 P02 | 22min | 3 tasks | 2 files |
 | Phase 143.2 P05 | 10min | 1 tasks | 1 files |
 | Phase 143.4 P01 | 23min | 3 tasks | 6 files |
+| Phase 143.4 P143.4-03 | 10min | 2 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -1248,6 +1249,8 @@ Progress: [█████████░] 92%
 - [Phase 143.2-03]: conversation-mode notes reaches+sensors operate in no-room sessions via Shape F.1 Tier-0; scratchpad preserved; no 6th reach-id minted (WFL-01)
 - [Phase 143.2-05]: conversation-mode is now the EXPLICIT Shape F.1 lane-picker (CONV-01, SEED-020) -- the no-room lane (just-chat/brainstorm/build) is a Decision Gate, not a silent persona classifier; persona detection runs WITHIN the chosen lane. The 3 lanes map to Ackoff DIKW bidirectional (CONV-02): chat=Data/Information, brainstorm=Knowledge, build=Wisdom (the ascent) + the build->validate descent (the honesty loop), reusing the larry-personality push_forward/pull_back posture additively. The build crossing OFFERS the Brain chain (Ackoff FEEDS_INTO Systems Thinking + MAP THE HIERARCHY) at a Decision Gate, generic framework handles only (Part 8), never auto-routed. Plan-03 Conversational Reaches note + scratchpad-ops.cjs block preserved; zero em-dashes (commit 0372aabb)
 - [Phase ?]: 143.4-01: /mos:discover declares EXACTLY ONE connector (sub_mode client-product-discovery, reach brain_consult, posture push_forward, web_scope null); DISC-10 dispatches via commandsForFramework(The Pyramid Principle)+MOSDeckEngine, not a second connector (FIX 1). jtbd.md gained the JTBD framework (FIX 3); design-source skill ported into the repo (FIX 2).
+- [Phase ?]: 143.4-03: CHECK A asserts EXACTLY ONE /mos:discover connector + ZERO plain-language-bridge (FIX 1); DISC-10 dispatch proven by resolver-resolvability of The Pyramid Principle, not a second connector
+- [Phase ?]: 143.4-03: web_scope verified strictly null (assert.strictEqual) so any drift to a string value fails the negative path
 
 ### Pending Todos
 
@@ -1283,6 +1286,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-07T18:28:04.316Z
+Last session: 2026-06-07T18:44:45.867Z
 Stopped at: Completed 144-02-PLAN.md (fixture repair; Tests 16/17 GREEN + Test 18 cold-room honest-negative; 18/18)
 Resume file: None
