@@ -2049,7 +2049,7 @@ Plans:
   - [x] 144.1-06-PLAN.md (wave 2, RETRO-03) - Tier D hook sensor-firing wiring (8 hooks fire SENS-01/03/04/05/06 through navigation.cjs::logSpineRead; jtbd-update -> sensor-jtbd-reweight; fire-sensor-event.cjs shim; firing test 4/4; registry untouched)
   - [x] 144.1-07-PLAN.md (wave 2, RETRO-04) - registry-driven filing sweep (tests/test-connector-filing-sweep.cjs; 36/36 fileEvidenceWithReadback connectors route through the readback chokepoint; zero bare Write; zero remediation needed; sweep exits 0)
   - [x] 144.1-08-PLAN.md (wave 3, RETRO-06/07c) - registry complete + --check green + exhaustive 114-surface coverage count gate (live=114, wired=53, allowlisted=61; wired XOR allowlisted) + out-of-spine allow-list (61 surfaces) + run-all-1441.sh (13/13); DI-144.1-A fixed (Part-8 CHECK 2 exempts framework null)
-- [ ] **Phase 145: Scheduled Sensor Activation** - The scout suite + whitespace/reverse-salient/opportunity/competitor sensors fire on a cadence (gated on Phase 140 hardening)
+- [x] **Phase 145: Scheduled Sensor Activation** - The scout suite + whitespace/reverse-salient/opportunity/competitor sensors fire on a cadence (gated on Phase 140 hardening) (completed 2026-06-08)
 - [ ] **Phase 146: FULLY-WIRED Acceptance Gate** - Not a 5-criteria smoke. The scripted `doctor --acceptance` dogfood session proves the spine fires END-TO-END across the FULL connector surface (143.3 Tier A + 144 criticals + 144.1 Tiers B/C/D all landed; registry complete, `--check` green). turn-1 -> sensor fires -> reach (1 of the frozen 5) -> posture -> Shape-F gate -> `explain-decision` shows `routing_source: engine` + fired reach_id + posture. The deliverable is a fully loaded, fully wired MindrianOS. (146-role matrix lives in the audit research)
 
 ### Phase Details
@@ -2265,7 +2265,7 @@ Plans:
 
 - [x] 145-01-PLAN.md -- SCHED-01/02: scout-cadence-runner.cjs composes all 6 scout sub-sensors + the SCHED-02 four (whitespace/reverse-salient/opportunity-bank/competitor) behind a last-run throttle + scout-cadence-guard.cjs Phase-140 safe-auto-fire invariant checks (HARD-01/02/03) [DONE 2026-06-07; commits 170c2431 guard + f0991905 runner; PART8_CLEAN + RUNNER_OK; throttle + HARD-01/02/03 + sklearn-absent paths all verified]
 - [x] 145-02-PLAN.md -- SCHED-01/02: Tri-Polar cadence wiring -- session-start-throttled slot (CLI default; SCOUT_CADENCE_SKIP opt-out, background + soft-fail, no --force), cron-optional path with exact crontab line (scout.md DEFERRED -> LIVE), Cowork scout-sentinel repointed at the runner --force (scheduled-tasks.md Task 6 + SCHED-02 four named + safeAutoFireCheck surface) [DONE 2026-06-08; commits 2c30241a session-start + 34dbf613 docs; SLOT_OK + DOCS_OK; SKIP/no-op/fire branches proven; zero em-dashes; Part 8 zero-egress inherited]
-- [ ] 145-03-PLAN.md -- SCHED-01/02: tests/run-all-145.sh + 2 CJS suites proving cadence-fires (no manual /mos:scout) + Phase-140-hardening-holds + Part-8 zero-egress + Part-4 findings-become-graph-data
+- [x] 145-03-PLAN.md -- SCHED-01/02: tests/run-all-145.sh + 2 CJS suites proving cadence-fires (no manual /mos:scout) + Phase-140-hardening-holds + Part-8 zero-egress + Part-4 findings-become-graph-data
 
 ### Phase 146: Loop-Fires Acceptance Gate
 
@@ -2292,7 +2292,7 @@ Plans:
 | 142. Local Intelligence Wiring | 3/4 | In Progress|  |
 | 143. Insight Sensors | 3/3 | Complete   | 2026-06-06 |
 | 144. Navigation Engine legacy->engine Flip | 3/3 | Complete   | 2026-06-07 |
-| 145. Scheduled Sensor Activation | 2/3 | Executing | - |
+| 145. Scheduled Sensor Activation | 3/3 | Complete   | 2026-06-08 |
 | 146. Loop-Fires Acceptance Gate | 0/0 | Not started | - |
 
 ### LARRYREACH Coverage Map (32/32 requirements, no orphans, no duplicates)

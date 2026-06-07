@@ -717,8 +717,8 @@
 | ORCH-02 | Phase 143.3 | Complete (143.3-03) |
 | ORCH-03 | Phase 143.3 | Complete (143.3-03) |
 | ORCH-04 | Phase 143.3 | Complete (143.3-03) |
-| SCHED-01 | Phase 145 | Pending |
-| SCHED-02 | Phase 145 | Pending |
+| SCHED-01 | Phase 145 | Complete |
+| SCHED-02 | Phase 145 | Complete |
 | ACPT-01 | Phase 146 | Pending |
 | ACPT-02 | Phase 146 | Pending |
 | ACPT-03 | Phase 146 | Pending |

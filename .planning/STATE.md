@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: completed
-stopped_at: Completed 145-02-PLAN.md (SCHED-01/02 Tri-Polar cadence wiring -- session-start-throttled slot + cron-optional path + Cowork scout-sentinel repointed at the runner). Phase 145 now 2/3 plans.
-last_updated: "2026-06-08T00:00:00.000Z"
-last_activity: 2026-06-08 -- Phase 145 Plan 02 (SCHED-01/02 Tri-Polar cadence wiring) complete; scout-cadence-runner wired onto session-start (throttled/soft-fail/SCOUT_CADENCE_SKIP), cron documented, Cowork scout-sentinel repointed --force
+stopped_at: Completed 145-03-PLAN.md (SCHED-01/02 verification suite -- tests/run-all-145.sh + test-scout-cadence-fires.cjs + test-scout-cadence-part8-hardening.cjs; bash tests/run-all-145.sh exits 0, 2/2 suites green; SC1 cadence-fires + SC2 throttle + SC3 Phase-140 HARD-01/02/03 adversarial + Part-8 zero-egress + Part-4 findings-to-graph all proven). Phase 145 CLOSED (3/3 plans).
+last_updated: "2026-06-08T00:22:00.000Z"
+last_activity: 2026-06-08 -- Phase 145 Plan 03 (SCHED-01/02 verification suite) complete; run-all-145.sh + 2 CJS acceptance suites green; Phase 145 CLOSED 3/3
 progress:
   total_phases: 83
   completed_phases: 59
-  total_plans: 436
-  completed_plans: 393
-  percent: 70
+  total_plans: 439
+  completed_plans: 391
+  percent: 71
 ---
 
 # Project State
@@ -21,13 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 144.1 CLOSED (8/8 plans) — next: Phase 146 FULLY-WIRED acceptance gate (depends 143.3 + 144 + 144.1)
+**Current focus:** Phase 145 CLOSED (3/3 plans) — next: Phase 146 FULLY-WIRED acceptance gate (depends 143.3 + 144 + 144.1 + 145)
 
 ## Current Position
 
-Phase: 145 (scheduled-sensor-activation) — EXECUTING (2/3 plans)
-Plan: 2 of 3 — DONE
-Status: Phase 145 Plan 02 (SCHED-01/02 Tri-Polar cadence wiring) complete. The Plan-01 scout-cadence-runner is now wired onto all three surfaces. (1) scripts/session-start: a sentinel-bounded best-effort slot (after the Phase-143.1 dial-memory slot) fires the runner in the BACKGROUND with ROOM_DIR, no --force (session-start owns the THROTTLED default; the runner's Plan-01 guard self-throttles to at-most-once-per-interval), soft-fails with || true + /dev/null so it NEVER blocks startup, no-ops when no room resolves, and is gated behind SCOUT_CADENCE_SKIP=1 (mirroring BRAIN_STALENESS_SKIP). (2) commands/scout.md: the "Cron Integration (DEFERRED)" section is replaced with "Scheduled Cadence (LIVE)" documenting session-start-throttle default + an exact cron crontab line (--force, cron owns the cadence) + a Cowork cross-reference; names the Phase-140 safe-auto-fire guard + Part 8 zero-egress; /mos:scout stays the manual trigger. (3) commands/scheduled-tasks.md Task 6 "Scout Sentinel": Execution repointed at `node scout-cadence-runner.cjs "$ROOM_DIR" --force` (Cowork scheduler owns the cadence), the SCHED-02 four named (whitespace/reverse-salient/opportunity-bank/competitor), Output names the safeAutoFireCheck violations surface, Requirements gains SCHED-01. All Task 1 + Task 2 acceptance criteria pass (SLOT_OK + bash -n clean; SKIP/no-op/fire branches proven; DOCS_OK + DEFERRED header gone; Phase-140 guard named both; cron line present; --force in Cowork; zero em-dashes across all three edited files; Part 8 zero-egress inherited from the runner). Canon Part 7 reuse (no new sensor, no new runner -- wires three existing surfaces; the session-start slot reuses the proven 124/143.1 soft-fail template). Commits 2c30241a (session-start) + 34dbf613 (docs). Next: Phase 145 Plan 03 (tests/run-all-145.sh + 2 CJS suites proving cadence-fires / Phase-140-hardening-holds / Part-8 zero-egress / Part-4 findings-become-graph-data).
+Phase: 145 (scheduled-sensor-activation) — COMPLETE (3/3 plans)
+Plan: 3 of 3 — DONE
+Status: Phase 145 CLOSED (3/3 plans). Plan 03 (SCHED-01/02 verification suite) complete: tests/run-all-145.sh (clones run-all-144.sh structure exactly; header names per-suite plan ownership + the 3 Success Criteria) + tests/test-scout-cadence-fires.cjs (SC1 a fresh fixture room fires the full scout suite + the SCHED-02 four in one fired run with no --force and no /mos:scout; throttle blocks the immediate re-run with zero sensors then fires again after backdating the LOCAL last-run timestamp past the interval; no-room path exits 0 fired:false) + tests/test-scout-cadence-part8-hardening.cjs (HARD-01 the runner CAPTURES the health-check exit and routes it into safeAutoFireCheck -- asserted as capture-not-swallow, not exit==0, because health-check returns non-zero on a sparse fixture; HARD-02 + HARD-03 proven by ADVERSARIAL fixtures -- a synthesized NULL-source_path node via node:sqlite and a synthesized .heal-backup/ path are each FLAGGED, plus the clean-room negative; Part-8 comments-filtered forbidden-substring sweep over both Plan-01 scripts finds zero fetch/http(s)/tavily/brain_query/mcp__brain + competitor-watch is a public-signal query plan not a fetch; Part-4 findings_to_graph populated on a fired run). bash tests/run-all-145.sh exits 0 (2/2 suites green); RUN_ALL_145_GREEN + FIRES_OK; aggregator exits non-zero on any suite failure (exit discipline mirrors run-all-144.sh, verified); zero em-dashes across all three created files. Canon Part 7 reuse: NO production code -- the units under test (scout-cadence-runner + scout-cadence-guard) shipped GREEN in Plan 01, so both commits are test(...) (no separate feat GREEN commit; documented under TDD Gate Compliance in the SUMMARY). Commits f49ffdec (cadence-fires) + cce03fcc (hardening + aggregator). run-all-145.sh is composable into the Phase 146 loop-fires gate. Requirements SCHED-01 + SCHED-02 marked complete.
+
+Phase 145 Plan 02 (SCHED-01/02 Tri-Polar cadence wiring) outcome: the Plan-01 scout-cadence-runner is wired onto all three surfaces. (1) scripts/session-start: a sentinel-bounded best-effort slot (after the Phase-143.1 dial-memory slot) fires the runner in the BACKGROUND with ROOM_DIR, no --force (session-start owns the THROTTLED default; the runner's Plan-01 guard self-throttles to at-most-once-per-interval), soft-fails with || true + /dev/null so it NEVER blocks startup, no-ops when no room resolves, and is gated behind SCOUT_CADENCE_SKIP=1 (mirroring BRAIN_STALENESS_SKIP). (2) commands/scout.md: the "Cron Integration (DEFERRED)" section is replaced with "Scheduled Cadence (LIVE)" documenting session-start-throttle default + an exact cron crontab line (--force, cron owns the cadence) + a Cowork cross-reference; names the Phase-140 safe-auto-fire guard + Part 8 zero-egress; /mos:scout stays the manual trigger. (3) commands/scheduled-tasks.md Task 6 "Scout Sentinel": Execution repointed at `node scout-cadence-runner.cjs "$ROOM_DIR" --force` (Cowork scheduler owns the cadence), the SCHED-02 four named (whitespace/reverse-salient/opportunity-bank/competitor), Output names the safeAutoFireCheck violations surface, Requirements gains SCHED-01. All Task 1 + Task 2 acceptance criteria pass (SLOT_OK + bash -n clean; SKIP/no-op/fire branches proven; DOCS_OK + DEFERRED header gone; Phase-140 guard named both; cron line present; --force in Cowork; zero em-dashes across all three edited files; Part 8 zero-egress inherited from the runner). Canon Part 7 reuse (no new sensor, no new runner -- wires three existing surfaces; the session-start slot reuses the proven 124/143.1 soft-fail template). Commits 2c30241a (session-start) + 34dbf613 (docs). Next: Phase 145 Plan 03 (tests/run-all-145.sh + 2 CJS suites proving cadence-fires / Phase-140-hardening-holds / Part-8 zero-egress / Part-4 findings-become-graph-data).
 
 Phase 144.1 outcome (2026-06-07): Phase 144.1 CLOSED. Plan 08 (RETRO-06/07c) complete: the connector registry is fully populated and --check green at 53 connectors (46 commands + 7 agents); the exhaustive-coverage count gate proves every one of the 114 live surfaces is classified exactly once (53 wired + 61 explicitly out-of-spine, wired XOR allowlisted); run-all-1441.sh is 13/13 green; DI-144.1-A fixed.
 
@@ -639,6 +641,7 @@ Progress: [█████████░] 92%
 | Phase 144.1 P144.1-04 | 12 min | 2 tasks | 2 files |
 | Phase 144.1 P144.1-07 | 14 min | 2 tasks | 1 file |
 | Phase 144.1 P144.1-08 | 18 min | 3 tasks | 4 files |
+| Phase 145 P03 | 12min | 2 tasks | 3 files |
 
 ### Roadmap Evolution
 
@@ -1276,6 +1279,7 @@ Progress: [█████████░] 92%
 - [Phase 144.1]: exhaustive-coverage gate derives the live surface count from disk (fs.readdirSync), never a hardcoded 114; a surface is wired XOR allow-listed, never both; the gate fails on a silently-unclassified OR a double-classified surface (53 wired + 61 allowlisted = 114 live)
 - [Phase 144.1]: framework null is the legal WFL-01 no-framework config, not smuggled user content; Part-8 CHECK 2 exempts it while still requiring a non-null framework to be a generic name in framework-names.json (DI-144.1-A resolved)
 - [Phase 144.1]: Tier A surfaces whose connectors are owned by Phase 143.3/144 (rs-*, causal, persona, hat-briefing, diagnostics, file-meeting, brain-derive, diagnose, suggest-next, act) are allow-listed with an ownership reason so 144.1 counts them classified without claiming them
+- [Phase ?]: Phase 145 verification suite (run-all-145.sh + 2 CJS suites) proves SCHED-01/02 cadence-fires + throttle + Phase-140 HARD-01/02/03 (adversarial fixtures) + Part-8 zero-egress + Part-4 findings-to-graph. HARD-01 asserted as capture-not-swallow; HARD-02/03 by synthesized regression. Phase 145 COMPLETE 3/3.
 
 ### Pending Todos
 
@@ -1311,6 +1315,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-07T21:10:00Z
+Last session: 2026-06-07T21:23:49.058Z
 Stopped at: Completed 144.1-08-PLAN.md (RETRO-06/07c; registry complete + --check green at 53 connectors + exhaustive 114-surface coverage gate (53 wired + 61 allowlisted, wired XOR allowlisted) + run-all-1441.sh 13/13 + DI-144.1-A fixed). Phase 144.1 CLOSED (8/8 plans).
 Resume file: None
