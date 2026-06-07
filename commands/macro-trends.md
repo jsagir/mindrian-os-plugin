@@ -16,6 +16,18 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: context_block
+  sub_mode: macro-pest
+  framework: "PEST Analysis"
+  posture: hold
+  hierarchy_rank: 39
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:macro-trends

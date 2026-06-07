@@ -397,6 +397,51 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:lean-canvas",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "lean-canvas",
+      "framework": "Lean Canvas",
+      "posture": "hold",
+      "hierarchy_rank": 41,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "/mos:macro-trends",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "macro-pest",
+      "framework": "PEST Analysis",
+      "posture": "hold",
+      "hierarchy_rank": 39,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "/mos:map-unknowns",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "unknowns-matrix",
+      "framework": "Knowns and Unknowns Matrix Framework",
+      "posture": "hold",
+      "hierarchy_rank": 40,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
       "surface": "/mos:mos-reason",
       "source": "command",
       "connects_to_spine": true,
@@ -554,6 +599,40 @@
       "decision_surface": "F.1"
     },
     {
+      "surface": "/mos:root-cause",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "root-cause-5why",
+      "framework": "Root Cause Analysis",
+      "posture": "hold",
+      "hierarchy_rank": 42,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.2"
+    },
+    {
+      "surface": "/mos:scenario-plan",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "scenario-plan",
+      "framework": "Scenario Planning",
+      "posture": "hold",
+      "hierarchy_rank": 45,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.2"
+    },
+    {
       "surface": "/mos:score-innovation",
       "source": "command",
       "connects_to_spine": true,
@@ -606,6 +685,23 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:systems-thinking",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "systems-thinking-loop",
+      "framework": "Systems Thinking",
+      "posture": "hold",
+      "hierarchy_rank": 44,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.2"
+    },
+    {
       "surface": "/mos:think-hats",
       "source": "command",
       "connects_to_spine": true,
@@ -621,6 +717,23 @@
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": "F.1"
+    },
+    {
+      "surface": "/mos:user-needs",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "user-needs-jtbd",
+      "framework": "Jobs to Be Done (JTBD)",
+      "posture": "hold",
+      "hierarchy_rank": 43,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.2"
     },
     {
       "surface": "/mos:validate",
@@ -701,8 +814,12 @@
       "/mos:new-project",
       "/mos:opportunities",
       "/mos:reanalyze",
+      "/mos:root-cause",
+      "/mos:scenario-plan",
       "/mos:score-innovation",
       "/mos:structure-argument",
+      "/mos:systems-thinking",
+      "/mos:user-needs",
       "/mos:validate",
       "/mos:value-proposition",
       "/mos:whitespace"
@@ -745,10 +862,12 @@
       "/mos:analyze-needs",
       "/mos:discover",
       "/mos:jtbd",
+      "/mos:user-needs",
       "/mos:validate"
     ],
     "Systems Thinking": [
-      "/mos:analyze-systems"
+      "/mos:analyze-systems",
+      "/mos:systems-thinking"
     ],
     "S-Curve Analysis": [
       "/mos:analyze-timing",
@@ -784,7 +903,8 @@
       "/mos:dominant-designs"
     ],
     "Scenario Planning": [
-      "/mos:explore-futures"
+      "/mos:explore-futures",
+      "/mos:scenario-plan"
     ],
     "Four Lenses of Innovation": [
       "/mos:find-analogies"
@@ -795,6 +915,15 @@
     "Adaptive Leadership": [
       "/mos:leadership"
     ],
+    "Lean Canvas": [
+      "/mos:lean-canvas"
+    ],
+    "PEST Analysis": [
+      "/mos:macro-trends"
+    ],
+    "Knowns and Unknowns Matrix Framework": [
+      "/mos:map-unknowns"
+    ],
     "The Pyramid Principle": [
       "/mos:mos-reason",
       "/mos:structure-argument"
@@ -804,6 +933,9 @@
     ],
     "Hypothesis-Driven Problem Solving": [
       "/mos:research"
+    ],
+    "Root Cause Analysis": [
+      "/mos:root-cause"
     ],
     "HSI Semantic Surprise Analysis Assistant": [
       "/mos:score-innovation",

@@ -16,6 +16,18 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: context_block
+  sub_mode: unknowns-matrix
+  framework: "Knowns and Unknowns Matrix Framework"
+  posture: hold
+  hierarchy_rank: 40
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:map-unknowns

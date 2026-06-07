@@ -16,6 +16,19 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-06]
+  reach_id: context_block
+  sub_mode: systems-thinking-loop
+  framework: "Systems Thinking"
+  posture: hold
+  hierarchy_rank: 44
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
+  surface: F.2
 ---
 
 # /mos:systems-thinking

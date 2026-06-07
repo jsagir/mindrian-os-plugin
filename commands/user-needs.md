@@ -16,6 +16,19 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-06]
+  reach_id: context_block
+  sub_mode: user-needs-jtbd
+  framework: "Jobs to Be Done (JTBD)"
+  posture: hold
+  hierarchy_rank: 43
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
+  surface: F.2
 ---
 
 # /mos:user-needs
