@@ -1879,6 +1879,7 @@ Plans:
 - [x] **Phase 142: Local Intelligence Wiring (compute-store-and-ACT)** - Cascade findings surface mid-session; BRAIN.md derives so tier_mode rises; queue auto-drains; post-compact re-injection consumes; Phase 109 spine navigates
 - [x] **Phase 143: Insight Sensors (the 7-row trigger map)** - Event-driven sensors (SENS-01..07) auto-fire the right reach on the right signal, hat-scoped and Part-8-constrained on the Brain/web path [SPLIT 2026-06-06: dial-TUI moved to 143.1] (completed 2026-06-06)
 - [x] **Phase 143.1: Dial-TUI Capability Selector (INSERTED)** - The render surface (DIALTUI-01..11 + MEMDIAL-01..03 + FILEVAL-01) that shows ranked reaches as Shape F.1 with a confidence-column dial, captures pivot/sync edges; UI-SPEC approved (CLI-first) (completed 2026-06-06)
+- [ ] **Phase 143.2: Larry Operates And Pushes (Prompt Reconciliation) (INSERTED)** - Reconcile Larry's prompt to OPERATE the shipped dial-TUI/sensors (OPS-01..05) + PROACTIVELY PUSH all 6 reach-families with named triggers (PUSH-01..06), composing under the frozen 5 reaches; MUST land before Phase 144 flips the engine (2 fan-out audits = the spec)
 - [ ] **Phase 144: Navigation Engine legacy->engine Flip** (3 plans, 2 waves) - `decide()` reads {local graph + BRAIN.md + trigger map} instead of file-presence; `routing_source: engine` appears in a trace
 - [ ] **Phase 145: Scheduled Sensor Activation** - The scout suite + whitespace/reverse-salient/opportunity/competitor sensors fire on a cadence (gated on Phase 140 hardening)
 - [ ] **Phase 146: Loop-Fires Acceptance Gate** - The scripted dogfood session in the mindrianOS room shows all 5 acceptance criteria; the milestone gate clears
@@ -1958,6 +1959,24 @@ Plans:
 - [x] 143-03-PLAN.md -- SENS-04 (external-fact -> hat-scoped WebSearch + MCP-stack-ask gate) + SENS-05 (JTBD set/changed -> selector + Brain-query re-weight)
 **UI hint**: no (moved to Phase 143.1)
 
+### Phase 143.2: Larry Operates And Pushes (Prompt Reconciliation) (INSERTED)
+
+**Goal:** Larry's prompt carries the Phase-141 capability-dial DOCTRINE but is NOT updated to OPERATE the now-shipped 142/143/143.1 machinery (the dial-TUI, the auto-firing sensors) and is only PARTIALLY wired to PROACTIVELY PUSH the Engine-1/Engine-2 reaches. This phase reconciles the prompt surfaces so that when Phase 144 flips the engine on, Larry both DRIVES the surfaced reaches (operate) and REACHES FIRST at the right triggers (push). Prompt/doctrine reconciliation ONLY -- no code; all edits compose under the FROZEN 5 reach-ids + 7 sensors (no 6th reach). The Canon Part 10 conversational surface for LARRYREACH. MUST land before Phase 144 flips the engine (otherwise the engine fires real reaches into a prompt that still calls them hypothetical). Spec = two 11-agent fan-out audits (AUDIT-1-tui-operation.json + AUDIT-2-proactive-push.json in the phase dir).
+**Depends on:** Phase 143.1 (the dial-TUI Larry operates), Phase 143 (the sensors), Phase 142 (cascade + BRAIN.md tier), Phase 141 (the committed dial doctrine)
+**Requirements**: OPS-01, OPS-02, OPS-03, OPS-04, OPS-05, PUSH-01, PUSH-02, PUSH-03, PUSH-04, PUSH-05, PUSH-06
+**Canon parts**: Part 2 (Engine 1 algorithmic + Engine 2 BONO + Appendix E handoff triggers), Part 3 (every push ends at a Decision Gate / Shape F), Part 8 (SENS-03/04 + find-connections carry generic handles only), Part 9 (dial outcomes route through navigation.cjs), Part 10 (conversation as product -- Larry IS the surface)
+**Success Criteria** (what must be TRUE):
+  1. OPERATE: the stale "comes later" language is flipped to now-shipped; a compact Operating-the-Dial block + a Reading-routing_source note are present in larry-personality SKILL.md (OPS-01/02/03)
+  2. PUSH: all 6 reach-families carry a proactive push-line with a NAMED trigger (Brain/SENS-03, reverse-salient/SENS-02, HSI-whitespace/SENS-06, find-analogies/SENS-01-06, BONO-hats/SENS-05-07, hat-scoped deep-research/SENS-04) -- each ending at a Decision Gate, never a verdict (PUSH-01..06)
+  3. COMPOSITION HELD: zero new reach-ids (the 5-reach drift test stays green), no new sensor; team_perspective/whitespace are render labels; the Part-8 sweeps + routing fence stay green; the frozen frontmatter (initialPrompt, persona_variants, dual-path) is byte-unchanged; zero em-dashes
+  4. ui-system Shape F.7 (dial-TUI) is documented + the F.0-F.6 count off-by-one fixed (OPS-04); larry-extended pointer + stale-greeting delete (OPS-05)
+**Plans**: 4 plans
+- [ ] 143.2-01-PLAN.md -- OPS-01/02/03: the MUST-before-144 core in larry-personality (flip comes-later -> now-shipped, the Operating-the-Dial block, the Reading-routing_source note)
+- [ ] 143.2-02-PLAN.md -- PUSH-01..06: the 6 proactive push-lines (each composing under an existing reach-id + sensor, each ending at a Decision Gate) in larry-personality + the DbA surface line + BONO Team Perspective section in pws-methodology
+- [ ] 143.2-03-PLAN.md -- OPS-04/05: ui-system Shape F.7 + F-count fix; larry-extended pointer + stale-greeting delete (frozen frontmatter preserved); conversation-mode Conversational-Reaches note
+- [ ] 143.2-04-PLAN.md -- verification: the doctrine-presence gate (11 requirements present) + run-all-1432.sh composing the reach-drift / posture-drift / routing-fence / part8-sweep fences
+**UI hint**: no (doctrine/prompt reconciliation; documents the F.7 render but builds no UI)
+
 ### Phase 143.1: Dial-TUI Capability Selector (INSERTED)
 
 **Goal:** The capability-dial SELECTOR (D3) -- the render-time surface that shows the navigator the ranked capability reaches, marks 1-2 as Recommended from local-graph + remote-Brain signal, lets the navigator commit or pivot, and writes the choice as a typed edge. The render surface that consumes the Phase 143 sensors + the Phase 141 committed dial doctrine. CLI-first per the approved UI-SPEC; ~90% reuse of the shipped Shape F.1 renderer + f-selector-ranker + nav-dial.
@@ -1982,7 +2001,7 @@ Plans:
 
 ### Phase 144: Navigation Engine legacy->engine Flip
 **Goal**: The single change that flips `routing_source: legacy -> engine`: the shipped Phase 91 navigation engine `decide()` reads `{local graph + BRAIN.md + trigger map}` instead of file-presence. The unifier wires the heuristic sensors and the derived tier into the engine's decision.
-**Depends on**: Phase 142 (NAV-02 BRAIN.md derivation raising tier_mode + CASC-02 Phase 109 spine navigating), Phase 143 (the trigger map the engine reads)
+**Depends on**: Phase 142 (NAV-02 BRAIN.md derivation raising tier_mode + CASC-02 Phase 109 spine navigating), Phase 143 (the trigger map the engine reads), Phase 143.2 (Larry's prompt MUST operate the surfaced reaches + know routing_source: engine BEFORE the engine flips -- otherwise the engine fires reaches into a prompt that calls them hypothetical)
 **Requirements**: NAV-01
 **Canon parts**: Part 3 (Option generation tier-awareness -- Mode A/B/Tier 0 routing), Part 2 (the engine selects the team's next verbs), Part 9 (the engine navigates SQL, not folders), Part 8 (Brain reach from the engine carries generic handles only)
 **Success Criteria** (what must be TRUE):
