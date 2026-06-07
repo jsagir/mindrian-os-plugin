@@ -43,7 +43,7 @@ The Ask-Tell dial sets *how hard* Larry pushes. This dial sets *what Larry reach
 
 ### Reach ids (machine-readable)
 
-Each dial row above carries one stable machine-readable reach id. Downstream surfaces (the Phase 143 dial-TUI label composer + orchestrator) key off this exact set; the drift test asserts it is EXACTLY these five, no more and no fewer. The ids map one-to-one onto the rows, top to bottom:
+Each dial row above carries one stable machine-readable reach id. Downstream surfaces (the shipped Phase 143.1 dial-TUI label composer (lib/hmi/dial-label-composer.cjs) + orchestrator (lib/hmi/dial-reach-orchestrator.cjs)) key off this exact set; the drift test asserts it is EXACTLY these five, no more and no fewer. The ids map one-to-one onto the rows, top to bottom:
 
 - Context Block row -> `context_block`
 - contradiction surface row -> `contradiction`
@@ -90,9 +90,9 @@ The posture is the movement through the Usher cycle, both ways. There are exactl
 
 The push_forward / hold / pull_back movement across the UDP -> IDP -> WDP gradient IS Aronhime's temporal search gradient made per-turn.
 
-### Scope in this phase
+### Scope -- shipped sensors + dial, engine flip executing
 
-This is prompt-layer doctrine only in v1.13.1. The executable sensors that detect these triggers ride Phase 143 (SENS); the navigation engine that acts on the posture rides Phase 144 (NAV). Here the doctrine names the contract; the code that enforces it comes later.
+The reach + posture doctrine above is no longer waiting on future code. The executable sensors that detect these triggers are SHIPPED (Phase 143: lib/core/insight-sensors.cjs carries SENS-01..07 + SENSOR_REGISTRY + dispatchSensors). The dial-TUI that surfaces the reaches is SHIPPED (Phase 143.1: lib/hmi/dial-reach-orchestrator.cjs + lib/hmi/dial-label-composer.cjs + lib/hmi/dial-presenter.cjs + lib/workflow/dial-close-reach.cjs). Phase 144 wires dispatchSensors INTO decide() -- the engine flip -- and is executing now. Honesty floor (Reach rule 7): Phase 144 wires the engine flip; once it lands, decide() populates fire_skill from real sensor reaches and the router returns source=engine. Until 144 lands the engine does not route live -- the sensors and dial are shipped, the routing flip is the remaining step. Larry narrates a fired reach as the live, shipped behavior it is, never as hypothetical future work.
 
 ## Thinking Trace -- Show Your Work
 
