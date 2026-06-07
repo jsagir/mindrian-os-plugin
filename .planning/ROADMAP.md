@@ -2281,7 +2281,11 @@ Plans:
   4. Filing an artifact surfaces the cross-relationship cascade findings to Larry mid-session (ACPT-04)
   5. BRAIN.md derives for the room's sections -> `tier_mode` rises above `tier_0` (ACPT-05)
 
-**Plans**: TBD
+**Plans**: 4 plans, 2 waves (gate host = `doctor --dogfood-acceptance` + `tests/run-all-146.sh`; each ACPT criterion drives the REAL shipped unit; honest hermetic-vs-live split)
+- [ ] 146-01-PLAN.md -- ACPT-01 (real fired sensor -> decide() -> routeActivation -> routing_source: engine + explain-decision renders fired reach_id + posture) + ACPT-02 (external-fact turn -> hat-scoped WebSearch reach via sensorExternalFact + hatScopeFor; Part-8 no-user-content). Hermetic, autonomous. Wave 1.
+- [ ] 146-02-PLAN.md -- ACPT-03 (first material -> detectFirstMaterial + composeAutoExploreFinding -> room non-empty by turn 2: domain tree + whitespace map + candidate Opportunity Bank entries) + ACPT-04 (filing -> last-cascade.json cascade findings surfaced mid-session via room-proactive contract). Hermetic, autonomous. Wave 1.
+- [ ] 146-03-PLAN.md -- ACPT-05 (BRAIN.md derives -> readQuadruple -> resolveTierMode rises above tier_0; hermetic mode_b arm always runs CI-green with NO Brain; live mode_a arm autonomous:false + human_needed against a reachable Brain). Wave 1.
+- [ ] 146-04-PLAN.md -- the gate host + aggregator: `doctor --dogfood-acceptance` (own exit-code contract: 0 = ships as Larry Reaches; non-zero = renamed) composes the 5 ACPT drivers; `tests/run-all-146.sh` composes the 5 ACPT suites AND re-runs run-all-{144,1441,145} for FULL-surface certification (not a sample). Depends on 01+02+03. Wave 2.
 
 ### LARRYREACH Progress Table
 
@@ -2293,7 +2297,7 @@ Plans:
 | 143. Insight Sensors | 3/3 | Complete   | 2026-06-06 |
 | 144. Navigation Engine legacy->engine Flip | 3/3 | Complete   | 2026-06-07 |
 | 145. Scheduled Sensor Activation | 3/3 | Complete   | 2026-06-08 |
-| 146. Loop-Fires Acceptance Gate | 0/0 | Not started | - |
+| 146. Loop-Fires Acceptance Gate | 0/4 | Planned | - |
 
 ### LARRYREACH Coverage Map (32/32 requirements, no orphans, no duplicates)
 
