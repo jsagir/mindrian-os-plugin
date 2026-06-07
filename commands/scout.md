@@ -15,6 +15,18 @@ allowed-tools:
   - mcp__tavily__tavily-search
   - mcp__mindrian-brain__brain_query
   - mcp__mindrian-brain__read_neo4j_cypher
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-04, SENS-07]
+  reach_id: context_block
+  sub_mode: scout
+  framework: null
+  posture: hold
+  hierarchy_rank: 35
+  filing: none
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:scout

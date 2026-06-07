@@ -228,6 +228,55 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:explore-domains",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-01"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "domain-select",
+      "framework": "Domain Selection",
+      "posture": "hold",
+      "hierarchy_rank": 34,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "/mos:explore-futures",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "futures-scenario",
+      "framework": "Scenario Planning",
+      "posture": "hold",
+      "hierarchy_rank": 33,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "/mos:explore-trends",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-04"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "trends-scurve",
+      "framework": "S-Curve Analysis",
+      "posture": "push_forward",
+      "hierarchy_rank": 32,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
       "surface": "/mos:find-analogies",
       "source": "command",
       "connects_to_spine": true,
@@ -277,6 +326,23 @@
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": "F.1"
+    },
+    {
+      "surface": "/mos:funding",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-07"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "funding",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 37,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
     },
     {
       "surface": "/mos:grade",
@@ -419,6 +485,23 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:operator",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-05"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "operator",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 36,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
       "surface": "/mos:opportunities",
       "source": "command",
       "connects_to_spine": true,
@@ -431,6 +514,23 @@
       "framework": null,
       "posture": "push_forward",
       "hierarchy_rank": 13,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "/mos:reanalyze",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "contradiction",
+      "sub_mode": "reanalyze",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 38,
       "filing": "none",
       "plan_gated": false,
       "web_scope": null,
@@ -469,6 +569,24 @@
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": "F.1"
+    },
+    {
+      "surface": "/mos:scout",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-04",
+        "SENS-07"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "scout",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 35,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
     },
     {
       "surface": "/mos:structure-argument",
@@ -564,6 +682,7 @@
       "/mos:jtbd",
       "/mos:leadership",
       "/mos:mva-option",
+      "/mos:operator",
       "/mos:think-hats"
     ],
     "SENS-06": [
@@ -581,6 +700,7 @@
       "/mos:mullins",
       "/mos:new-project",
       "/mos:opportunities",
+      "/mos:reanalyze",
       "/mos:score-innovation",
       "/mos:structure-argument",
       "/mos:validate",
@@ -590,6 +710,7 @@
     "SENS-01": [
       "/mos:auto-explore",
       "/mos:discover",
+      "/mos:explore-domains",
       "/mos:find-analogies",
       "/mos:find-connections",
       "/mos:mva-brief",
@@ -598,8 +719,10 @@
     "SENS-07": [
       "/mos:build-thesis",
       "/mos:deep-grade",
+      "/mos:funding",
       "/mos:grade",
       "/mos:mullins",
+      "/mos:scout",
       "/mos:value-proposition"
     ],
     "SENS-03": [
@@ -611,8 +734,10 @@
       "/mos:find-bottlenecks"
     ],
     "SENS-04": [
+      "/mos:explore-trends",
       "/mos:opportunities",
-      "/mos:research"
+      "/mos:research",
+      "/mos:scout"
     ]
   },
   "framework_index": {
@@ -626,10 +751,12 @@
       "/mos:analyze-systems"
     ],
     "S-Curve Analysis": [
-      "/mos:analyze-timing"
+      "/mos:analyze-timing",
+      "/mos:explore-trends"
     ],
     "Domain Selection": [
-      "/mos:auto-explore"
+      "/mos:auto-explore",
+      "/mos:explore-domains"
     ],
     "Beautiful Question Framework": [
       "/mos:beautiful-question"
@@ -655,6 +782,9 @@
     ],
     "Dominant Design": [
       "/mos:dominant-designs"
+    ],
+    "Scenario Planning": [
+      "/mos:explore-futures"
     ],
     "Four Lenses of Innovation": [
       "/mos:find-analogies"

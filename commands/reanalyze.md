@@ -10,6 +10,18 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash
   - Read
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-06]
+  reach_id: contradiction
+  sub_mode: reanalyze
+  framework: null
+  posture: hold
+  hierarchy_rank: 38
+  filing: none
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:reanalyze

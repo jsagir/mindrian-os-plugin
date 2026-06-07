@@ -11,6 +11,18 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-07]
+  reach_id: context_block
+  sub_mode: funding
+  framework: null
+  posture: hold
+  hierarchy_rank: 37
+  filing: none
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:funding
