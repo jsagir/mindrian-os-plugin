@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: completed
-stopped_at: Completed 144.1-06-PLAN.md (RETRO-03; 8 Tier D sensor-firing hooks wired through navigation chokepoint; jtbd-update -> sensor-jtbd-reweight; firing test 4/4)
-last_updated: "2026-06-07T20:30:00.000Z"
-last_activity: 2026-06-07 -- Phase 144.1 Plan 06 (Tier D sensor-firing hooks) complete
+stopped_at: Completed 144.1-07-PLAN.md (RETRO-04; registry-driven filing sweep -- 36/36 fileEvidenceWithReadback connectors route through the readback chokepoint, zero bare Write, zero remediation needed)
+last_updated: "2026-06-07T20:44:00.000Z"
+last_activity: 2026-06-07 -- Phase 144.1 Plan 07 (filing sweep, RETRO-04) complete
 progress:
   total_phases: 83
   completed_phases: 58
@@ -26,8 +26,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 144.1 (connector-retrofit-sweep) — EXECUTING
-Plan: 7 of 8
-Status: Plan 06 complete — 8 Tier D sensor-firing hooks (audit items 61-68 incl. the post-write-inheriting 64/65) now fire their SENS-01/03/04/05/06 sensors through the navigation.cjs chokepoint as LOCAL spine_read memory_events; jtbd-update routes to sensor-jtbd-reweight (SENS-05); firing test 4/4; registry UNTOUCHED (hooks are .cjs/bash, not .md surfaces)
+Plan: 8 of 8
+Status: Plan 07 complete — registry-driven filing sweep proves all 36 fileEvidenceWithReadback connectors route filing through the readback chokepoint (cascade + memory_event fire); zero bare Write; zero remediation needed; sweep exits 0. Remaining: Plan 08 (RETRO-06/07c registry-complete + --check green + 114-surface coverage gate + run-all-1441.sh)
+
+Phase 144.1-07 outcome (2026-06-07): RETRO-04 -- the filing sweep. tests/test-connector-filing-sweep.cjs (NEW; ~230 lines; single atomic commit 079f27bd). Builds the connector registry IN-MEMORY via buildRegistry() (no dependency on the Plan-08 on-disk regen ordering), enumerates every connector where filing === 'fileEvidenceWithReadback' (36 of 53; registry-driven, auto-covers future connectors), resolves each surface to its owning file (command -> commands/<base>.md, agent -> agents/<base>.md, skill -> skills/<base>/SKILL.md), and asserts each routes filing through the readback path (references fileEvidenceWithReadback OR wireAccept OR delegates to intelligence-orchestrator filing) AND does no bare Write to a room/** path outside that idiom (precise heuristic: a Write tool reference within 240 chars of a room/ path with no readback/wireAccept/orchestrator mention in the window -- the repudiation threat T-144.1-19). RESULT: 36/36 PASS, 0 FAIL; all 36 reference fileEvidenceWithReadback directly. Task 2 (remediation) flagged ZERO surfaces (the deep-grade Write gap was already closed in Plan 01 Task 1), so no edits were made -- a valid passing outcome per the Task 2 acceptance criteria; files_modified carries only the new test. Cascade + memory_event proven transitively: routing through fileEvidenceWithReadback wires the INFORMS cascade edge inside its one BEGIN/COMMIT/ROLLBACK txn and emits artifact_filed via the orchestrator filing path (ORCH-03), so proving chokepoint-routing IS proving cascade + memory_event for that surface (T-144.1-19/T-144.1-20 mitigated). Pure: no Brain, no network, no sqlite (T-144.1-21 accept; LOCAL reads only). Self-negation confirmed: the bare-Write heuristic flags "Write ... room/" outside the idiom and ignores a Write described as going through fileEvidenceWithReadback. Verification: node tests/test-connector-filing-sweep.cjs exit 0 (36 passed, 0 failed); grep -c em-dash on the test = 0; SUMMARY em-dash = 0. Commit through the live pre-commit hooks with no --no-verify. SUMMARY at .planning/phases/144.1-connector-retrofit-sweep/144.1-07-SUMMARY.md. Phase 144.1 now 7/8 plans done; remaining Plan 08 (RETRO-06/07c registry-complete + --check green + exhaustive 114-surface coverage count gate + run-all-1441.sh).
 
 Phase 144.1-06 outcome (2026-06-07): RETRO-03 -- the Tier D sensor-firing hooks NOT already fixed in Phase 144. Closes the FIRING side of the spine (a connector declares sensor_triggers; a sensor only matters if a hook FIRES it). Two atomic commits. (Task 1, c633079f) the post-write-inheriting hooks + the bash-side chokepoint shim: scripts/fire-sensor-event.cjs (NEW; LOCAL-only; requires lib/core/navigation.cjs + calls logSpineRead; carries generic handles + sha256 of the relative path; never spawns, never requires a brain-client). on-file-changed (item 65) fires SENS-06/cross-relationship-scan/push_forward via the shim BEFORE delegating to post-write (inherits the post-write file-evidence-readback + artifact_filed cascade). on-agent-complete (item 64) fires SENS-06 per cascaded file + SENS-04 for research-agent output via the shim. (Task 2, 46f6156b) the remaining 5 Tier D .cjs hooks fire inline via navigation.cjs::logSpineRead: auto-explore-drain (item 61, SENS-01/auto-explore-domains/push_forward on finding surface), jtbd-update (item 63, requires+invokes sensor-jtbd-reweight.cjs -> fires the SENS-05 reweight reach on JTBD transition; grep confirmed reweight was NOT wired before this plan), memory-completion-detector (item 66, SENS-06/jtbd-inference/pull_back on completion match), mva-detect (item 67, SENS-05/mva-brief/push_forward on venture-positive classify -- sentence sha256 + source enum only, raw prompt never leaves memory), brain-derivation-drain (item 68, SENS-03/brain-derivation/hold per dispatched section -- section handle only, the Brain touch stays in the detached --single child). tests/test-connector-tier-d-hooks.cjs (NEW; 4-check source-presence assertion: chokepoint wiring + reweight link + no-ad-hoc-spawn-for-fire + Part-8 no-Brain-egress; exits 0). PLAN-NARROWING (recorded per Task 1 action): already-fixed-in-144 and UNTOUCHED = auto-explore-fingerprint (59), post-write (60), check-pending-breakthrough (62), the jtbd-update ENGINE REPOINT; genuinely-remaining and wired here = 61/63(reweight routing)/64/65/66/67/68. DECISION: firing primitive = navigation.cjs::logSpineRead (the generic chokepoint memory_event already exported), NOT a new EVENT_TYPE (logEvent rejects unknown types; spine_read is reused per Canon Part 7). NO 6th reach / no new sensor minted; registry NOT regenerated (the generator walks .md only; hooks carry no connector: block). Canon Part 8: every fire carries only generic handles + LOCAL scalars; zero Brain egress (T-144.1-16). No bare Write bypassing cascade (T-144.1-17). No ad-hoc detached spawn for the fire (T-144.1-18). Verification: node tests/test-connector-tier-d-hooks.cjs 4/4 exit 0; each remaining Tier D hook requires navigation.cjs; jtbd-update references sensor-jtbd-reweight; node --check on all 6 .cjs + bash -n on both bash hooks PASS; zero regression (test-jtbd-hook-integration 9/9, test-memory-hook-integration 10/10, test-derivation-drain-fires 3/3, test-hook-envelope-shape 16/16); zero em-dashes across all edited files + SUMMARY + test. Every commit through the live pre-commit hooks with no --no-verify. SUMMARY at .planning/phases/144.1-connector-retrofit-sweep/144.1-06-SUMMARY.md. Phase 144.1 now 6/8 plans done; remaining Plans 07-08 (filing sweep, RETRO-07 coverage gate + run-all-1441.sh).
 
@@ -631,6 +633,7 @@ Progress: [█████████░] 92%
 | Phase 144.1 P01 | 328s | 2 tasks | 12 files |
 | Phase 144.1 P144.1-03 | 4 min | 2 tasks | 15 files |
 | Phase 144.1 P144.1-04 | 12 min | 2 tasks | 2 files |
+| Phase 144.1 P144.1-07 | 14 min | 2 tasks | 1 file |
 
 ### Roadmap Evolution
 
@@ -1300,6 +1303,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-07T20:08:21Z
-Stopped at: Completed 144.1-04-PLAN.md (generator walks agents/*.md, RETRO-07a; registry stays 46, walk test 3/3)
+Last session: 2026-06-07T20:44:00Z
+Stopped at: Completed 144.1-07-PLAN.md (filing sweep, RETRO-04; 36/36 fileEvidenceWithReadback connectors route through the readback chokepoint, zero bare Write, zero remediation)
 Resume file: None
