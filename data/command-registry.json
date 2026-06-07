@@ -637,7 +637,9 @@
     {
       "command": "/mos:jtbd",
       "kind": "utility",
-      "frameworks": [],
+      "frameworks": [
+        "Jobs to Be Done (JTBD)"
+      ],
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
@@ -1495,6 +1497,7 @@
   "framework_index": {
     "Jobs to Be Done (JTBD)": [
       "/mos:analyze-needs",
+      "/mos:jtbd",
       "/mos:user-needs",
       "/mos:validate"
     ],

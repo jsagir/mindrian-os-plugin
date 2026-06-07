@@ -6,6 +6,7 @@ argument-hint: "[set <jtbd> | clear | list | history] [--json]"
 body_shape: E (Action Report)
 body_shape_detail: current state + last 5 history (default), 13 entries (list), full history (history), Shape F.1 picker (set with no arg), Shape E confirmation (clear, set <jtbd>)
 serves_jtbd: ["audit-room"]
+frameworks: ["Jobs to Be Done (JTBD)"]
 teaching: "When you need to see or set the active job-to-be-done for this room, /mos:jtbd shows the per-room signal that tells Larry what kind of work you are doing right now."
 locks_operator: null
 min_tier: 0
