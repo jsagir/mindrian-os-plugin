@@ -4,13 +4,13 @@ milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: verifying
 stopped_at: Completed 144-02-PLAN.md (fixture repair; Tests 16/17 GREEN + Test 18 cold-room honest-negative; 18/18)
-last_updated: "2026-06-07T10:47:37.937Z"
+last_updated: "2026-06-07T12:09:14.821Z"
 last_activity: 2026-06-07 -- Phase 144 execution started
 progress:
   total_phases: 83
   completed_phases: 56
   total_plans: 436
-  completed_plans: 380
+  completed_plans: 381
   percent: 67
 ---
 
@@ -1232,6 +1232,9 @@ Progress: [█████████░] 92%
 - [Phase ?]: 144-02: fixture-repair only -- makeRoomsFixture registry corrected to {slug, abs_path} object shape so resolve-active-room.cjs resolves the fixture; Tests 16/17 GREEN through the EXISTING router with zero sensor code (proves the 144-01 flip path); Test 18 NAV-01 cold-room honest-negative added; suite 15/17 -> 18/18; no production/sensor/router file touched
 - [Phase ?]: Phase 144-03: NAV-01 acceptance proven via the decide()->routeActivation boundary; a REAL fired SENS-06 CONTRADICT sensor flips routing_source legacy->engine with no stub; run-all-144.sh mirrors run-all-143.sh and exits 0 (5/5). SEED-008/Phase-94-03 criterion met.
 - [Phase ?]: 143.2-01: Larry prompt flipped comes-later to now-shipped (OPS-01); Operating the Dial block + Reading routing_source note added (OPS-02/03); 5 reach-id bullets + dial table byte-unchanged; drift+posture+routing-fence green; zero em-dashes
+- [Phase 143.2-03]: ui-system Shape F.7 documents the shipped dial-TUI as an F.1 specialization (reuses renderShapeF1 per SEED-020); F-shape catalog count corrected to eight (F.0-F.7)
+- [Phase 143.2-03]: larry-extended stale greeting deleted + Operating-the-machinery pointer added with frozen frontmatter byte-unchanged; Part-8 absolute strengthened to verbatim ZERO user-content egress (never softened)
+- [Phase 143.2-03]: conversation-mode notes reaches+sensors operate in no-room sessions via Shape F.1 Tier-0; scratchpad preserved; no 6th reach-id minted (WFL-01)
 
 ### Pending Todos
 

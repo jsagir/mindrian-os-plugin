@@ -696,8 +696,8 @@
 | OPS-01 | Phase 143.2 | Complete |
 | OPS-02 | Phase 143.2 | Complete |
 | OPS-03 | Phase 143.2 | Complete |
-| OPS-04 | Phase 143.2 | Pending |
-| OPS-05 | Phase 143.2 | Pending |
+| OPS-04 | Phase 143.2 | Complete |
+| OPS-05 | Phase 143.2 | Complete |
 | PUSH-01 | Phase 143.2 | Pending |
 | PUSH-02 | Phase 143.2 | Pending |
 | PUSH-03 | Phase 143.2 | Pending |
