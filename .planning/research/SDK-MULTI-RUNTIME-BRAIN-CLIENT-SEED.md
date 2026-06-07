@@ -5,6 +5,8 @@ seeded: 2026-06-07
 status: SEED (not yet a milestone; promote via /gsd-new-milestone or /gsd-explore)
 source: navigator directive 2026-06-07 ("seed this; investigate multi-coding-agent use, not only Claude Code; learn from GSD") + a parallel-session architectural analysis + an Explore investigation of GSD multi-runtime + the plugin coupling map
 canon_parts: [Part 1, Part 7, Part 8, Part 9]
+references:
+  - https://gsd-build-get-shit-done.mintlify.app/introduction (GSD official docs - multi-runtime model + distribution; doc index https://mintlify.com/gsd-build/get-shit-done/llms.txt)
 ---
 
 # Seed: The MindrianOS SDK (multi-runtime + Brain-as-client)
@@ -48,6 +50,19 @@ GSD's multi-runtime is 4 load-bearing choices. MindrianOS should copy the PATTER
 4. **One shared executable core.** `gsd-tools.cjs` (`#!/usr/bin/env node`) is a single CJS entrypoint callable via `node gsd-tools.cjs <cmd>` from ANY runtime. -> MindrianOS ALREADY has this: `bin/mindrian-tools.cjs` (CLI) + `bin/mindrian-mcp-server.cjs` (MCP) over the same `lib/core/*.cjs`.
 
 **The GSD lesson in one line:** reusable pure-CJS core + runtime-specific orchestration layer. The fork point for a new coding agent is HOW it invokes the core's entrypoints, never the core itself.
+
+### Referenced research: the GSD docs (https://gsd-build-get-shit-done.mintlify.app/introduction)
+
+The official GSD docs are the canonical reference for the "one methodology, many coding agents" model. Captured 2026-06-07; doc index at `https://mintlify.com/gsd-build/get-shit-done/llms.txt`.
+
+- **Design philosophy (verbatim):** "The complexity is in the system, not in your workflow." GSD frames itself as structured context engineering against "context rot" / vibecoding. Self-description: "a light-weight and powerful meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode, Gemini CLI, and Codex" - i.e. a single core with runtime adapters, not per-runtime forks.
+- **5-layer architecture:** (1) Context Engineering (`.planning/` files), (2) Multi-Agent Orchestration (research/plan/execute/verify agents), (3) Wave Execution (dependency-graph parallelism), (4) Atomic Git Commits (per-task), (5) Fresh Context per Task ("Each execution plan gets 200k tokens purely for implementation. Zero accumulated garbage, no quality degradation."). MindrianOS already mirrors layers 1-4 via GSD-in-this-repo; the SDK adds the runtime-portability of layer-0.
+- **Multi-runtime support (the proof point):** Claude Code / OpenCode / Gemini CLI / Codex, with a UNIFIED command interface that varies only in env-specific syntax: Claude Code `/gsd:command`, OpenCode `/gsd-command`, Codex `$gsd-command`. This is the call-time tool-name shim pattern, documented as a product feature.
+- **Distribution model:** npm-based CLI installer - `npx get-shit-done-cc@latest` - choose runtime(s) (single or all) + scope (global/local); semver via the npm registry. This is the template for MindrianOS's standalone-package publish lever.
+- **THE DIFFERENTIATOR (what GSD does NOT have):** the docs contain NO public SDK/API, NO plugin system, NO extensibility hooks, NO remote service - GSD is entirely CLI-commands + local markdown + local CJS core. It has nothing to meter because it has no remote IP. **MindrianOS's SDK goes one step beyond GSD precisely here: the key-gated Brain CLIENT + remote Brain SERVICE is the metered API layer GSD has no analog for.** So: copy GSD's multi-runtime PACKAGING + adapter pattern wholesale; then add the thing GSD lacks - the Brain-as-first-class-client API tier (which is the monetization seam and the moat).
+- **Automation-first:** GSD documents `--dangerously-skip-permissions` for unattended runs ("GSD is designed for automation") - relevant when MindrianOS surfaces are driven headlessly by non-Claude agents.
+
+**Net for the seed:** GSD validates the architecture (single CJS core + markdown orchestration + per-runtime syntax shim + npm-installer distribution across 4+ agents). MindrianOS should adopt that pattern verbatim for the LOCAL core, and then differentiate with the API tier GSD intentionally has no need for.
 
 ## MindrianOS coupling map (what blocks multi-runtime today)
 
