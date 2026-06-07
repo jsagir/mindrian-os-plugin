@@ -308,6 +308,23 @@
       "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
     {
+      "command": "/mos:discover",
+      "kind": "methodology",
+      "frameworks": [
+        "Jobs to Be Done (JTBD)"
+      ],
+      "produces": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "B (Semantic Tree)",
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": "When you have a client or a product and need to understand it before you design or build, /mos:discover runs a guided one-question-at-a-time conversation across six movements and lands a Discovery Brief plus a scaffolded Data Room. It does not design the site; it makes every later decision strategic instead of arbitrary.",
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+    },
+    {
       "command": "/mos:doctor",
       "kind": "utility",
       "frameworks": [],
@@ -1497,6 +1514,7 @@
   "framework_index": {
     "Jobs to Be Done (JTBD)": [
       "/mos:analyze-needs",
+      "/mos:discover",
       "/mos:jtbd",
       "/mos:user-needs",
       "/mos:validate"
