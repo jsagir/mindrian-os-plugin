@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
-status: executing
+status: verifying
 stopped_at: Completed 144-02-PLAN.md (fixture repair; Tests 16/17 GREEN + Test 18 cold-room honest-negative; 18/18)
-last_updated: "2026-06-07T09:21:01.662Z"
+last_updated: "2026-06-07T09:44:06.950Z"
 last_activity: 2026-06-07 -- Phase 144 execution started
 progress:
   total_phases: 83
-  completed_phases: 55
+  completed_phases: 56
   total_plans: 436
-  completed_plans: 378
-  percent: 66
+  completed_plans: 379
+  percent: 67
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 144 (navigation-engine-legacy-engine-flip) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 
 Phase 143.3-04 outcome (2026-06-07): VERIFICATION-AND-CLOSE -- shipped tests/run-all-1433.sh, the single PASS/FAIL gate proving the connector spine + the intelligence orchestrator are correct and that Canon Part 8 holds across the new spine (Part 6 dog-fooding). Three atomic commits. (Task 1, 949cd5fa) tests/test-connector-part8-boundary.cjs -- the Canon Part 8 boundary scan asserting the FOUR CONTEXT threat paths are closed (HIGH on breach): CHECK 1 generator brain-client require is local to refreshNames() only (parsed positionally; top-level header carries zero brain-client requires); CHECK 2 registry + dispatch map carry only schema fields + framework/web_scope enums (allowlist read from the EXPLICIT framework_names + curated_extras keys, NOT Object.values().flat(); no free-text body field; no slug value); CHECK 3 orchestrator doctrine forbids turn text / artifact bodies to commandsForFramework + Brain; CHECK 4 web is hat-scoped via hatScopeFor (Red hat = no web). 4/4 passed. (Task 2, e7705afd) tests/test-orchestrator-doctrine-presence.cjs -- the ORCH-01..04 presence gate (the 143.2 doctrine-presence idiom): ORCH-01 registry-is-the-table + sensor_index; ORCH-02 the 5-step loop (dispatchSensors / dispatch-framework map / WFL-01 / the Intelligence Hierarchy Tensions>Bottlenecks>HSI>Convergences>Blind Spots / never-fire Decision Gate / commandsForFramework); ORCH-03 filing (fileEvidenceWithReadback + wireAccept fallback + surfaceFileEvidenceResult + memory_event + cascade edge); ORCH-04 tier predicate (tier_0/mode_a/mode_b) + Phase 144 coexistence (engine-side vs prompt-side, one-reach-per-beat) + room-proactive coexistence; plus the canonical fence (frozen 5 reaches + frozen 3 postures as code-span tokens + no-6th-reach rule + zero em-dashes in the skill). 8/8 passed. One Rule-1 fix folded in: the test's own em-dash hygiene assertion uses String.fromCharCode(0x2014) so the test file itself carries zero literal em-dashes (the AC mandates grep -c returns 0). (Task 3, 161b8082) tests/run-all-1433.sh (chmod +x) mirrors run-all-122.sh / run-all-143.sh: composes (a) the CI tripwire node scripts/build-connector-registry.cjs --check; (b) the five CJS suites (connector-registry, dispatch-framework-map-drift, connector-tripwire, connector-part8-boundary, orchestrator-doctrine-presence); (c) the CARRIED reach-drift / posture-drift hard fences (confirmed exact filenames in tests/ before composing -- not invented); (d) a STANDALONE Part-8 grep sweep over the new artifacts (per PATTERNS.md LOW-3: run-all-143.sh has no single Part-8 grep line to mirror, it delegates to test-sensors-part8-sweep.cjs). 9/9 constituents green, exits 0 on a clean tree, exits 1 if any fails. Verification: bash tests/run-all-1433.sh -> 9/9 PASSED exit 0 (the 34-command WARN nudge from --check is the documented opt-in retrofit policy, not a failure); all Task 1/2/3 ACs pass; em-dash scan 0 across all three new files; zero new deps. Every commit through the live pre-commit hooks with no --no-verify. The two pre-existing strays (skills/pws-methodology/SKILL.md modified, docs/COMPONENT-INVENTORY.md untracked) and the parallel-session untracked .planning/ files left untouched throughout. SUMMARY at .planning/phases/143.3-connector-spine-and-intelligence-orchestrator/143.3-04-SUMMARY.md. PHASE 143.3 (Connector Spine + Intelligence Orchestrator) is COMPLETE, 4/4 plans shipped; the top-level phase box is closed in ROADMAP.md.
 
@@ -604,6 +604,7 @@ Progress: [█████████░] 92%
 | Phase 143.1 P06 | 22min | 3 tasks | 3 files |
 | Phase 144 P144-01 | 18min | 2 tasks | 1 files |
 | Phase 144 P144-02 | 9min | 2 tasks | 1 files |
+| Phase 144 P144-03 | 11min | 2 tasks | 2 files |
 
 ### Roadmap Evolution
 
@@ -1228,6 +1229,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 144-01: reachIdToSkillFamily returns CANONICAL VERBS (not family slugs) so the router validateVerb===true flips routing_source legacy->engine
 - [Phase ?]: 144-01: sensor precedence = wicked(>=8) > top reach by REACH_IDS order (ANY tier) > mode_a BRAIN verb > weightApplied>=0.9 fallback
 - [Phase ?]: 144-02: fixture-repair only -- makeRoomsFixture registry corrected to {slug, abs_path} object shape so resolve-active-room.cjs resolves the fixture; Tests 16/17 GREEN through the EXISTING router with zero sensor code (proves the 144-01 flip path); Test 18 NAV-01 cold-room honest-negative added; suite 15/17 -> 18/18; no production/sensor/router file touched
+- [Phase ?]: Phase 144-03: NAV-01 acceptance proven via the decide()->routeActivation boundary; a REAL fired SENS-06 CONTRADICT sensor flips routing_source legacy->engine with no stub; run-all-144.sh mirrors run-all-143.sh and exits 0 (5/5). SEED-008/Phase-94-03 criterion met.
 
 ### Pending Todos
 
@@ -1263,6 +1265,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-07T09:21:01.631Z
+Last session: 2026-06-07T09:43:21.359Z
 Stopped at: Completed 144-02-PLAN.md (fixture repair; Tests 16/17 GREEN + Test 18 cold-room honest-negative; 18/18)
 Resume file: None
