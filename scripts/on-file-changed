@@ -47,6 +47,22 @@ case "$FILE_PATH" in
   */.*) exit 0 ;; # silent: skipped hidden
 esac
 
-# Delegate to post-write for the full cascade
-# post-write handles: classify, graph index, HSI compute, presentation regen
+# Phase 144.1-06 RETRO-03 (audit item 65): fire SENS-06 through the navigation
+# chokepoint and emit a memory_event the engine can observe BEFORE delegating to
+# post-write. on-file-changed "inherits the post-write fix": the cascade below
+# routes through file-evidence-readback inside post-write (cross-relationship-scan
+# + artifact_filed), and this fire is the sensor-side firing the engine reads.
+# The reach is context_block / SENS-06 / cross-relationship-scan / push_forward.
+# LOCAL only (Canon Part 8): the fire carries a sha256 of the relative file path
+# plus generic handles, never the file body. Backgrounded + soft-fail so the hook
+# return is never serialized on the chokepoint write; never blocks the cascade.
+REL_FILE_PATH="${FILE_PATH#${ACTIVE_ROOM}/}"
+( node "${SCRIPT_DIR}/fire-sensor-event.cjs" "$ACTIVE_ROOM" \
+    "context_block" "SENS-06" "cross-relationship-scan" "push_forward" \
+    "$REL_FILE_PATH" >/dev/null 2>&1 || true ) &
+
+# Delegate to post-write for the full cascade. post-write routes the cascade
+# through file-evidence-readback (fileEvidenceWithReadback) and emits the
+# artifact_filed memory_event -- the post-write fix on-file-changed inherits.
+# post-write also handles: classify, graph index, HSI compute, presentation regen.
 exec bash "${SCRIPT_DIR}/post-write" "$FILE_PATH"

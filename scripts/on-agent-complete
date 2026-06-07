@@ -101,6 +101,29 @@ for file_path in "${modified_files[@]}"; do
   # single JSON object. Rule 3 (Blocking) fix discovered in Plan 95-04
   # Task 2 GREEN test run.
   bash "${SCRIPT_DIR}/post-write" "$file_path" >/dev/null 2>&1 &
+
+  # Phase 144.1-06 RETRO-03 (audit item 64): fire SENS-06 through the navigation
+  # chokepoint per cascaded file and emit a memory_event the engine can observe.
+  # on-agent-complete inherits the post-write fix: the post-write call above
+  # routes the cascade through file-evidence-readback (fileEvidenceWithReadback)
+  # and emits artifact_filed; this fire is the sensor-side the engine reads.
+  # The reach is context_block / SENS-06 / cross-relationship-scan / push_forward.
+  # When the cascaded artifact is research-agent output (a deep_research/ or
+  # research/ path), ALSO fire SENS-04 (the external-fact reach). LOCAL only
+  # (Canon Part 8): the fire carries a sha256 of the relative file path plus
+  # generic handles, never the file body. Backgrounded + soft-fail.
+  rel_file_path="${file_path#${ROOM_DIR}/}"
+  ( node "${SCRIPT_DIR}/fire-sensor-event.cjs" "$ROOM_DIR" \
+      "context_block" "SENS-06" "cross-relationship-scan" "push_forward" \
+      "$rel_file_path" >/dev/null 2>&1 || true ) &
+  case "$rel_file_path" in
+    */research/*|*/deep-research/*|*deep_research*)
+      ( node "${SCRIPT_DIR}/fire-sensor-event.cjs" "$ROOM_DIR" \
+          "deep_research" "SENS-04" "research-agent-finding" "push_forward" \
+          "$rel_file_path" >/dev/null 2>&1 || true ) &
+      ;;
+  esac
+
   cascade_count=$((cascade_count + 1))
 done
 
