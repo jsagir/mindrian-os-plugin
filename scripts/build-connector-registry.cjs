@@ -47,6 +47,25 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
+
+// CONN-03 frozen banks. REACH_IDS (the 5) + POSTURE_IDS (the 3) are required
+// from the SINGLE frozen source so the connector validations can NEVER drift
+// from the dial doctrine (lib/core/sensors/sensor-types.cjs). The --check
+// tripwire validates every connector's reach_id / posture against these banks.
+// This require is sync, zero-I/O, and makes ZERO Brain/network calls (Part 8).
+const { REACH_IDS, POSTURE_IDS } = require(
+  path.join(REPO_ROOT, 'lib', 'core', 'sensors', 'sensor-types.cjs')
+);
+
+// CONN-03 WFL-01 resolver-resolution guard. commandsForFramework() is the only
+// door from a framework name to a /mos: command (Phase 122). The --check
+// tripwire asserts every connector framework RESOLVES through it (length > 0),
+// catching a fake/typo framework that the build-time allowlist has() could
+// miss. The resolver reads only data/command-registry.json; it makes ZERO Brain
+// calls (command-resolver.cjs header, Part 8).
+const { commandsForFramework } = require(
+  path.join(REPO_ROOT, 'lib', 'workflow', 'command-resolver.cjs')
+);
 const COMMANDS_DIR = path.join(REPO_ROOT, 'commands');
 const SKILLS_DIR = path.join(REPO_ROOT, 'skills');
 const DATA_DIR = path.join(REPO_ROOT, 'data');
@@ -360,6 +379,120 @@ function serializeRegistry(reg) {
 }
 
 // ---------------------------------------------------------------------------
+// validateConnectors(reg) -- the four CONN-03 validations. Returns an array of
+// error strings (empty = clean). Pure: reads only the built registry + the two
+// frozen banks + the resolver (zero Brain, zero network). Exported so
+// tests/test-connector-tripwire.cjs can exercise each bad case directly without
+// spawning a subprocess.
+//
+// The four validations (mirroring the missingTeaching error in
+// build-command-registry.cjs lines 367-382):
+//   (1) every reach_id is one of the frozen 5 (REACH_IDS)
+//   (2) every framework resolves via commandsForFramework() (WFL-01) -- checked
+//       for connectors that declare a filing or a decision surface (the ones
+//       that actually fire a command on APPROVE)
+//   (3) every posture is one of the frozen 3 (POSTURE_IDS)
+//   (4) no duplicate (sensor, reach, sub_mode) tuple collision
+// ---------------------------------------------------------------------------
+function validateConnectors(reg) {
+  const errs = [];
+  const connectors = Array.isArray(reg && reg.connectors) ? reg.connectors : [];
+  const seenTuples = new Set();
+
+  for (const c of connectors) {
+    const surface = (c && c.surface) || (c && c.command) || '<unknown>';
+
+    // (1) frozen-5 reach.
+    if (REACH_IDS.indexOf(c && c.reach_id) === -1) {
+      errs.push(
+        'connector ' + surface + ' reach_id ' + (c && c.reach_id) +
+          ' not in frozen 5'
+      );
+    }
+
+    // (3) frozen-3 posture.
+    if (POSTURE_IDS.indexOf(c && c.posture) === -1) {
+      errs.push(
+        'connector ' + surface + ' posture ' + (c && c.posture) +
+          ' not in frozen 3'
+      );
+    }
+
+    // (2) WFL-01 resolver-resolution: a connector that declares a filing or a
+    // decision surface fires a command on APPROVE, so its framework MUST
+    // resolve through commandsForFramework().
+    const firesCommand =
+      (typeof c.filing === 'string' && c.filing && c.filing !== 'none') ||
+      (typeof c.decision_surface === 'string' && c.decision_surface);
+    if (firesCommand) {
+      const resolved = commandsForFramework(c && c.framework);
+      if (!Array.isArray(resolved) || resolved.length === 0) {
+        errs.push(
+          'connector ' + surface + ' framework ' +
+            JSON.stringify(c && c.framework) +
+            ' does not resolve via commandsForFramework (WFL-01)'
+        );
+      }
+    }
+
+    // (4) no duplicate (sensor, reach, sub_mode) tuple. score-innovation and
+    // whitespace share SENS-06 + context_block but differ in sub_mode (hsi vs
+    // whitespace) -- a legal distinct tuple. A genuine collision (same sensor +
+    // reach + sub_mode on two surfaces) fails.
+    const sensors = Array.isArray(c && c.sensor_triggers) ? c.sensor_triggers : [];
+    const reach = c && c.reach_id;
+    const subMode = c && c.sub_mode;
+    for (const sid of sensors) {
+      const tuple = sid + '|' + reach + '|' + subMode;
+      if (seenTuples.has(tuple)) {
+        errs.push(
+          'duplicate connector tuple (sensor,reach,sub_mode): ' + tuple +
+            ' (surface ' + surface + ')'
+        );
+      } else {
+        seenTuples.add(tuple);
+      }
+    }
+  }
+
+  return errs;
+}
+
+// ---------------------------------------------------------------------------
+// methodologyCommandsMissingConnector() -- the WARN nudge source. A command
+// whose frontmatter carries a `frameworks:` block (the methodology heuristic,
+// mirroring build-command-registry.cjs's kind/frameworks signal) but NO
+// `connector:` block has not opted into the spine. This is a STDERR WARNING
+// (opt-in nudge), NEVER a hard fail -- mirroring the missingServesJtbd WARNING
+// at build-command-registry.cjs lines 406-417.
+// ---------------------------------------------------------------------------
+function methodologyCommandsMissingConnector() {
+  const out = [];
+  let cmdFiles = [];
+  try {
+    cmdFiles = fs.readdirSync(COMMANDS_DIR).filter((f) => f.endsWith('.md')).sort();
+  } catch (_e) {
+    cmdFiles = [];
+  }
+  for (const f of cmdFiles) {
+    let fm;
+    try {
+      fm = parseConnectorFrontmatter(fs.readFileSync(path.join(COMMANDS_DIR, f), 'utf8'));
+    } catch (_e) {
+      continue;
+    }
+    const hasFrameworks =
+      Array.isArray(fm.frameworks) && fm.frameworks.length > 0;
+    const hasConnector =
+      fm.connector && typeof fm.connector === 'object' && !Array.isArray(fm.connector);
+    if (hasFrameworks && !hasConnector) {
+      out.push('/mos:' + f.replace(/\.md$/, ''));
+    }
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------
 // --refresh-names: read-only brain.query for the FEEDS_INTO-linked name
 // slice -> rewrite data/framework-names.json. BUILD-TIME ONLY. The ONLY code
 // path in this file that touches the Brain, and it is read-only. brain-client
@@ -451,11 +584,35 @@ function main() {
     if (onDisk !== next) {
       errs.push('data/connector-registry.json is STALE. Run: node scripts/build-connector-registry.cjs');
     }
+
+    // The four CONN-03 connector validations (frozen-5 reach, frozen-3 posture,
+    // WFL-01 resolver-resolution framework, no (sensor,reach,sub_mode) tuple
+    // collision). Any failure is a hard exit 1.
+    for (const e of validateConnectors(reg)) errs.push(e);
+
     if (errs.length) {
       console.error(errs.join('\n'));
       console.error('Recovery: fix the connector frontmatter (or run --refresh-names), then regenerate: node scripts/build-connector-registry.cjs');
       process.exit(1);
     }
+
+    // The WARN nudge (stderr, NOT exit 1): a methodology command (frameworks:
+    // block) that has not opted into the spine (no connector: block). Opt-in,
+    // never a hard block. Mirrors missingServesJtbd in build-command-registry.
+    const missingConnector = methodologyCommandsMissingConnector();
+    if (missingConnector.length > 0) {
+      const preview = missingConnector.slice(0, 5).join(', ');
+      const ellipsis = missingConnector.length > 5 ? '...' : '';
+      process.stderr.write(
+        '[build-connector-registry] WARNING: ' +
+          missingConnector.length +
+          ' methodology command(s) ship a frameworks: block but no connector: block (opt-in nudge): ' +
+          preview +
+          ellipsis +
+          '\n'
+      );
+    }
+
     console.log('connector-registry: OK');
     return;
   }
@@ -474,5 +631,11 @@ function main() {
 if (require.main === module) {
   main();
 } else {
-  module.exports = { parseConnectorFrontmatter, buildRegistry, serializeRegistry };
+  module.exports = {
+    parseConnectorFrontmatter,
+    buildRegistry,
+    serializeRegistry,
+    validateConnectors,
+    methodologyCommandsMissingConnector,
+  };
 }
