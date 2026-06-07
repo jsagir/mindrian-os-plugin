@@ -2185,7 +2185,7 @@ Plans:
 
 **Plans**: 6 plans (4 waves)
 
-- [ ] 143.2-01-PLAN.md -- OPS-01/02/03: the MUST-before-144 core in larry-personality (flip comes-later -> now-shipped, the Operating-the-Dial block, the Reading-routing_source note) [wave 1]
+- [x] 143.2-01-PLAN.md -- OPS-01/02/03: the MUST-before-144 core in larry-personality (flip comes-later -> now-shipped, the Operating-the-Dial block, the Reading-routing_source note) [wave 1]
 - [ ] 143.2-02-PLAN.md -- PUSH-01..06: the 6 proactive push-lines (each composing under an existing reach-id + sensor, each ending at a Decision Gate) in larry-personality + the DbA surface line + BONO Team Perspective section in pws-methodology [wave 2]
 - [ ] 143.2-03-PLAN.md -- OPS-04/05: ui-system Shape F.7 + F-count fix; larry-extended pointer + stale-greeting delete (frozen frontmatter preserved); conversation-mode Conversational-Reaches note [wave 1]
 - [ ] 143.2-05-PLAN.md -- CONV-01/02: conversation-mode becomes the explicit Shape F.1 lane-picker (a Decision Gate, not a silent classifier) mapped to Ackoff DIKW bidirectional (chat=Data/Information, brainstorm=Knowledge, build=Wisdom + the build->validate descent), reusing the larry-personality Ackoff doctrine; build-crossing offers the Brain chain (Ackoff FEEDS_INTO Systems Thinking + MAP THE HIERARCHY, generic handles only). Doctrine edit [wave 2, after 03 which co-owns conversation-mode]

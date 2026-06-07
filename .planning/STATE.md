@@ -4,13 +4,13 @@ milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: verifying
 stopped_at: Completed 144-02-PLAN.md (fixture repair; Tests 16/17 GREEN + Test 18 cold-room honest-negative; 18/18)
-last_updated: "2026-06-07T09:44:06.950Z"
+last_updated: "2026-06-07T10:47:37.937Z"
 last_activity: 2026-06-07 -- Phase 144 execution started
 progress:
   total_phases: 83
   completed_phases: 56
   total_plans: 436
-  completed_plans: 379
+  completed_plans: 380
   percent: 67
 ---
 
@@ -605,6 +605,7 @@ Progress: [█████████░] 92%
 | Phase 144 P144-01 | 18min | 2 tasks | 1 files |
 | Phase 144 P144-02 | 9min | 2 tasks | 1 files |
 | Phase 144 P144-03 | 11min | 2 tasks | 2 files |
+| Phase 143.2 P01 | 18min | 3 tasks | 1 files |
 
 ### Roadmap Evolution
 
@@ -1230,6 +1231,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 144-01: sensor precedence = wicked(>=8) > top reach by REACH_IDS order (ANY tier) > mode_a BRAIN verb > weightApplied>=0.9 fallback
 - [Phase ?]: 144-02: fixture-repair only -- makeRoomsFixture registry corrected to {slug, abs_path} object shape so resolve-active-room.cjs resolves the fixture; Tests 16/17 GREEN through the EXISTING router with zero sensor code (proves the 144-01 flip path); Test 18 NAV-01 cold-room honest-negative added; suite 15/17 -> 18/18; no production/sensor/router file touched
 - [Phase ?]: Phase 144-03: NAV-01 acceptance proven via the decide()->routeActivation boundary; a REAL fired SENS-06 CONTRADICT sensor flips routing_source legacy->engine with no stub; run-all-144.sh mirrors run-all-143.sh and exits 0 (5/5). SEED-008/Phase-94-03 criterion met.
+- [Phase ?]: 143.2-01: Larry prompt flipped comes-later to now-shipped (OPS-01); Operating the Dial block + Reading routing_source note added (OPS-02/03); 5 reach-id bullets + dial table byte-unchanged; drift+posture+routing-fence green; zero em-dashes
 
 ### Pending Todos
 
@@ -1265,6 +1267,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-07T09:43:21.359Z
+Last session: 2026-06-07T10:47:20.951Z
 Stopped at: Completed 144-02-PLAN.md (fixture repair; Tests 16/17 GREEN + Test 18 cold-room honest-negative; 18/18)
 Resume file: None

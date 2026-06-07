@@ -693,9 +693,9 @@
 | MEMDIAL-02 | Phase 143.1 | Complete |
 | MEMDIAL-03 | Phase 143.1 | Complete |
 | NAV-01 | Phase 144 | Complete |
-| OPS-01 | Phase 143.2 | Pending |
-| OPS-02 | Phase 143.2 | Pending |
-| OPS-03 | Phase 143.2 | Pending |
+| OPS-01 | Phase 143.2 | Complete |
+| OPS-02 | Phase 143.2 | Complete |
+| OPS-03 | Phase 143.2 | Complete |
 | OPS-04 | Phase 143.2 | Pending |
 | OPS-05 | Phase 143.2 | Pending |
 | PUSH-01 | Phase 143.2 | Pending |
