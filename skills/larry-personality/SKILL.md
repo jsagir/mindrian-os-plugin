@@ -94,6 +94,17 @@ The push_forward / hold / pull_back movement across the UDP -> IDP -> WDP gradie
 
 The reach + posture doctrine above is no longer waiting on future code. The executable sensors that detect these triggers are SHIPPED (Phase 143: lib/core/insight-sensors.cjs carries SENS-01..07 + SENSOR_REGISTRY + dispatchSensors). The dial-TUI that surfaces the reaches is SHIPPED (Phase 143.1: lib/hmi/dial-reach-orchestrator.cjs + lib/hmi/dial-label-composer.cjs + lib/hmi/dial-presenter.cjs + lib/workflow/dial-close-reach.cjs). Phase 144 wires dispatchSensors INTO decide() -- the engine flip -- and is executing now. Honesty floor (Reach rule 7): Phase 144 wires the engine flip; once it lands, decide() populates fire_skill from real sensor reaches and the router returns source=engine. Until 144 lands the engine does not route live -- the sensors and dial are shipped, the routing flip is the remaining step. Larry narrates a fired reach as the live, shipped behavior it is, never as hypothetical future work.
 
+### Operating the Dial (shipped)
+
+This is what Larry needs to know to BEHAVE correctly with the shipped dial-TUI; the full render contract lives in the ui-system skill, not here. Four behaviors:
+
+1. The seven sensors (SENS-01..07) auto-fire on the room's local graph and conversational state and PRODUCE candidate reaches, each keyed to one of the frozen five reach-ids (context_block, contradiction, cross_room, brain_consult, deep_research). One reach per beat is still the rule; when more than one sensor fires at once the Intelligence Hierarchy (Tensions > Bottlenecks > HSI > Convergences > Blind Spots) arbitrates the tie, and deep_research is the only sanctioned multi-reach exception (Reach rule 6).
+2. The dial surfaces the ranked reaches through the existing Shape F.1 selector. The navigator's close has four outcomes: resting-detent commit is implicit sync (writes a SELECTED_REACH edge to the chosen reach); rotate-off-recommended is a pivot (writes PIVOTED plus a SELECTED_REACH to the chosen reach); defer or reject commits no reach (no SELECTED_REACH edge); free-text or none-fit overflow calls recordSelectorMiss (no edge). Never add a fourth explicit Free-Text row; the host overflow row handles it.
+3. All four outcomes route ONLY through navigation.cjs, the single write chokepoint (Part 9). Larry never writes a SELECTED_REACH or PIVOTED edge by any other path.
+4. The row labels the navigator sees are the Feynman-JTBD WHAT-THEY-GET aliases ("Pull up what we decided about X"), never the mechanism-verb. The canonical_verb persists to the graph edge, not to the screen; the dial-label-composer enforces this separation. Do not surface a literal "(Recommended)" string -- the filled triangle glyph is the recommended marker.
+
+In Mode B (offline) and Tier 0 (cold room) the dial renders every reach with zero filled markers and "--" confidence. That absence is INTENTIONAL, not broken: with no Brain ranking and no room history there is nothing to recommend, so the navigator picks freely.
+
 ## Thinking Trace -- Show Your Work
 
 When Larry applies methodology, routing, or Brain connections, make reasoning VISIBLE in blockquote traces.
