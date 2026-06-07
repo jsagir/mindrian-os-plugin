@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: executing
-stopped_at: Completed 143.3-04-PLAN.md (tests/run-all-1433.sh verification aggregator -- composes connector --check + dispatch-map drift + tripwire + Part-8 boundary scan + ORCH-01..04 doctrine-presence gate + carried reach/posture drift fences; 9/9 green exit 0; PHASE 143.3 COMPLETE)
-last_updated: "2026-06-07T08:00:00.000Z"
-last_activity: 2026-06-07 -- Phase 143.3 Plan 04 COMPLETE (phase closed, 4/4 plans)
+stopped_at: Completed 143.3-02-PLAN.md (CONN-04 cohort retrofit + CONN-03 four --check validations + pre-commit tripwire; registry 0->7; --check + tripwire test GREEN)
+last_updated: "2026-06-07T08:08:19.540Z"
+last_activity: 2026-06-07 -- Phase 144 execution started
 progress:
-  total_phases: 85
+  total_phases: 83
   completed_phases: 55
   total_plans: 433
-  completed_plans: 375
-  percent: 65
+  completed_plans: 376
+  percent: 66
 ---
 
 # Project State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 143.3 COMPLETE (4/4) — next: Phase 143.4 (discover command), plan in a new session
+**Current focus:** Phase 144 — navigation-engine-legacy-engine-flip
 
 ## Current Position
 
-Phase: 143.3 (connector-spine-and-intelligence-orchestrator) — COMPLETE (4/4 plans)
-Plan: 4 of 4 (DONE)
-Status: Phase 143.3 COMPLETE. Next phase: 143.4 (discover command), which DEPENDS ON the now-shipped 143.3 connector contract -- a new session runs /gsd:plan-phase 143.4.
+Phase: 144 (navigation-engine-legacy-engine-flip) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 144
 
 Phase 143.3-04 outcome (2026-06-07): VERIFICATION-AND-CLOSE -- shipped tests/run-all-1433.sh, the single PASS/FAIL gate proving the connector spine + the intelligence orchestrator are correct and that Canon Part 8 holds across the new spine (Part 6 dog-fooding). Three atomic commits. (Task 1, 949cd5fa) tests/test-connector-part8-boundary.cjs -- the Canon Part 8 boundary scan asserting the FOUR CONTEXT threat paths are closed (HIGH on breach): CHECK 1 generator brain-client require is local to refreshNames() only (parsed positionally; top-level header carries zero brain-client requires); CHECK 2 registry + dispatch map carry only schema fields + framework/web_scope enums (allowlist read from the EXPLICIT framework_names + curated_extras keys, NOT Object.values().flat(); no free-text body field; no slug value); CHECK 3 orchestrator doctrine forbids turn text / artifact bodies to commandsForFramework + Brain; CHECK 4 web is hat-scoped via hatScopeFor (Red hat = no web). 4/4 passed. (Task 2, e7705afd) tests/test-orchestrator-doctrine-presence.cjs -- the ORCH-01..04 presence gate (the 143.2 doctrine-presence idiom): ORCH-01 registry-is-the-table + sensor_index; ORCH-02 the 5-step loop (dispatchSensors / dispatch-framework map / WFL-01 / the Intelligence Hierarchy Tensions>Bottlenecks>HSI>Convergences>Blind Spots / never-fire Decision Gate / commandsForFramework); ORCH-03 filing (fileEvidenceWithReadback + wireAccept fallback + surfaceFileEvidenceResult + memory_event + cascade edge); ORCH-04 tier predicate (tier_0/mode_a/mode_b) + Phase 144 coexistence (engine-side vs prompt-side, one-reach-per-beat) + room-proactive coexistence; plus the canonical fence (frozen 5 reaches + frozen 3 postures as code-span tokens + no-6th-reach rule + zero em-dashes in the skill). 8/8 passed. One Rule-1 fix folded in: the test's own em-dash hygiene assertion uses String.fromCharCode(0x2014) so the test file itself carries zero literal em-dashes (the AC mandates grep -c returns 0). (Task 3, 161b8082) tests/run-all-1433.sh (chmod +x) mirrors run-all-122.sh / run-all-143.sh: composes (a) the CI tripwire node scripts/build-connector-registry.cjs --check; (b) the five CJS suites (connector-registry, dispatch-framework-map-drift, connector-tripwire, connector-part8-boundary, orchestrator-doctrine-presence); (c) the CARRIED reach-drift / posture-drift hard fences (confirmed exact filenames in tests/ before composing -- not invented); (d) a STANDALONE Part-8 grep sweep over the new artifacts (per PATTERNS.md LOW-3: run-all-143.sh has no single Part-8 grep line to mirror, it delegates to test-sensors-part8-sweep.cjs). 9/9 constituents green, exits 0 on a clean tree, exits 1 if any fails. Verification: bash tests/run-all-1433.sh -> 9/9 PASSED exit 0 (the 34-command WARN nudge from --check is the documented opt-in retrofit policy, not a failure); all Task 1/2/3 ACs pass; em-dash scan 0 across all three new files; zero new deps. Every commit through the live pre-commit hooks with no --no-verify. The two pre-existing strays (skills/pws-methodology/SKILL.md modified, docs/COMPONENT-INVENTORY.md untracked) and the parallel-session untracked .planning/ files left untouched throughout. SUMMARY at .planning/phases/143.3-connector-spine-and-intelligence-orchestrator/143.3-04-SUMMARY.md. PHASE 143.3 (Connector Spine + Intelligence Orchestrator) is COMPLETE, 4/4 plans shipped; the top-level phase box is closed in ROADMAP.md.
 
@@ -40,7 +40,7 @@ Phase 143.3-01 outcome (2026-06-07): shipped the Connector Contract FOUNDATION -
 Phase 142-04 outcome (2026-06-06): VERIFY-AND-CLOSE for NAV-02 + NAV-04 + FILEVAL-03 -- three loop-fires suites turned GREEN against shipped code, with only the one thin wire each test proved a gap for. NAV-02: added ensureSectionDerived(roomPath, section, opts) to lib/core/brain-derivation.cjs (commit ed440faf) as the auto-fire the consumption side was missing -- idempotent short-circuit on a fresh brain-authored BRAIN.md, live-Brain delegation to the shipped deriveSection, and a LOCAL no-Brain-query path that composes a minimal schema-valid fresh BRAIN.md from the local triple through the EXISTING Part-8 chokepoint buildBrainQueryContext (hash + enum + slug only; brain_query_count:0 proves zero queries fired); test-brain-md-tier-rise.cjs (NOT modified) now proves tier_0 with BRAIN.md absent rises above tier_0 once the section BRAIN.md is written, observed in decision_trace.brain_md_tier_mode; buildBrainQueryContext remains the SOLE Brain-context builder (no new query surface). NAV-04: rewrote test-post-compact-nav04-closure.cjs (commit 925ef7f4) to the plan-checker TWO-HOP contract -- a naive direct hooks.json grep for restore-post-compact-context.cjs FALSE-FAILS because the consumer is loaded by the coordinator, never named in hooks.json; the fence now asserts HOP 1 (hooks.json registers sessionstart-coordinator.cjs on a SessionStart entry whose matcher includes compact) + HOP 2 (sessionstart-coordinator.cjs loads restore-post-compact-context) + an explicit anti-false-fail guard that the consumer is NOT named directly in hooks.json + the up-lane producer scripts/post-compact + the 95.5-VERIFICATION.md status: passed close-by-reference; NO production change. FILEVAL-03: thin-wired the already-computed `landed` round-trip values into the ok:true return of fileEvidenceWithReadback as result.readback (LOCAL recall, Part 8) + added surfaceFileEvidenceResult(result) (honesty signal for ok:false; human-readable recall for ok:true), re-exported through navigation.cjs (commit 3be2640b); rewrote test-fileval-readback-surface.cjs to prove BOTH halves -- HONESTY (filing_did_not_land returned + surfaced) AND the plan-checker REMIND positive path (ok:true carries non-empty, human-readable round-trip readback fields). FILEVAL-02 contract stays GREEN (readback is purely additive). Verification: 3 target suites 3/3 + 5/5 + 4/4; run-all-142.sh 7/7 (run twice); zero regression on navigation-acceptance / decoy-tier / room-home / fileval-02; em-dash scan clean across all touched files; every commit through the live pre-commit hook with no --no-verify. One out-of-scope discovery logged (DI-142-01 in deferred-items.md): test-derivation-drain-fires.cjs (NAV-03, plan 142-03) is cold-start flaky -- fails on first invocation after an idle gap, passes on re-run; confirmed DECOUPLED from 142-04 (no import linkage; ensureSectionDerived touches neither the queue nor MINDRIAN_BRAIN_KEY); left to the 142-03 owner. SUMMARY at .planning/phases/142-local-intelligence-wiring-compute-store-and-act/142-04-SUMMARY.md; 142-04 + the Phase 142 top-level row flipped to [x] in ROADMAP.md. PHASE 142 (Local Intelligence Wiring) is COMPLETE, 4/4 plans shipped.
 
 Prior: Phase 141 plan 02 COMPLETE. The previously uncommitted working-tree Capability Dial edit was committed to HEAD FIRST (06a944b8) per the D-06 hard ordering, ADDITIVELY: canon_parts: [Part 2, Part 3, Part 8, Part 9] frontmatter (LARRY-01), 5 machine-readable reach ids context_block/contradiction/cross_room/brain_consult/deep_research (LARRY-03), the LARRY-04 Hierarchical Navigator section led by the Usher division with 3 posture ids push_forward/hold/pull_back + Reach rule 7 arbitration (D-11/12/13), Aronhime quoted verbatim. DRSCH preserved as committed doctrine only (5th reach row + Reach rule 6 untouched, D-01). Version bumped to 1.13.1-beta.7 in CHANGELOG + plugin.json + package.json in lockstep (5b475ccc); no git tag, no marketplace push (human-gated). 3 tests GREEN: test-reach-ids-drift.cjs, test-posture-ids-drift.cjs, test-capability-dial-committed.cjs. Two Rule-1 test fixes applied (reach-id regex now matches contradiction; posture test heading-anchored + end-bounded) -- see 141-02-SUMMARY.md Deviations. Sequential main-tree execution.
-Last activity: 2026-06-07 -- Phase 143.3 Plan 03 COMPLETE
+Last activity: 2026-06-07 -- Phase 144 execution started
 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
