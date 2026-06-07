@@ -2292,12 +2292,19 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 140. Sentinel & Instrumentation Hardening | 4/4 | Complete | v1.13.1-beta.6 |
-| 141. Local Retrieval Spine + Capability Dial | 4/6 | In Progress|  |
-| 142. Local Intelligence Wiring | 3/4 | In Progress|  |
+| 141. Local Retrieval Spine + Capability Dial | 6/6 | Complete   | 2026-06-08 (VERIFICATION passed; table reconciled) |
+| 142. Local Intelligence Wiring | 4/4 | Complete   | 2026-06-08 (VERIFICATION passed; table reconciled) |
 | 143. Insight Sensors | 3/3 | Complete   | 2026-06-06 |
+| 143.1 Dial-TUI Capability Selector | 6/6 | Complete   | 2026-06-06 |
+| 143.2 Larry Operates And Pushes | 6/6 | Complete   | 2026-06-08 |
+| 143.3 Connector Spine + Intelligence Orchestrator | 4/4 | Complete   | 2026-06-07 |
+| 143.4 Discover Command (Client+Product+JTBD) | 3/3 | Complete   | 2026-06-07 |
 | 144. Navigation Engine legacy->engine Flip | 3/3 | Complete   | 2026-06-07 |
+| 144.1 Connector Retrofit Sweep (incl agents) | 8/8 | Complete   | 2026-06-08 |
 | 145. Scheduled Sensor Activation | 3/3 | Complete   | 2026-06-08 |
-| 146. Loop-Fires Acceptance Gate | 4/4 | Complete   | 2026-06-07 |
+| 146. Loop-Fires Acceptance Gate | 4/4 | Complete (GATE GREEN) | 2026-06-08 |
+
+**MILESTONE STATUS (2026-06-08):** all 12 phases (7 base + 5 inserted) Complete; the Phase-146 loop-fires acceptance gate is GREEN (`tests/run-all-146.sh` exit 0, `doctor --dogfood-acceptance` 5/5, full-surface 114-connector certification via run-all-1441). The milestone ships as "Larry Reaches".
 
 ### LARRYREACH Coverage Map (32/32 requirements, no orphans, no duplicates)
 
