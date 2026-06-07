@@ -83,6 +83,20 @@ node ${CLAUDE_PLUGIN_ROOT}/scripts/explain-decision-command.cjs $ARGUMENTS
 | --- | --- |
 | 0 | Always (advisory paths included). The command is a read-only audit surface and never errors. |
 
+## Loop-fires assertion surface (Phase 146)
+
+`/mos:explain-decision` is the loop-fires assertion surface: the per-turn trace
+it renders carries the `routing_source` (legacy vs engine), the fired `reach_id`,
+and the posture -- the exact signals that prove the loop FIRED on a turn.
+
+The Phase 146 loop-fires gate (the milestone gate that certifies the loop fires
+across the full connector surface) is hosted at `doctor --dogfood-acceptance`
+(the 5 ACPT dogfood drivers with their own exit-code contract) and at
+`tests/run-all-146.sh` (the 5 ACPT drivers plus the re-run of
+run-all-144/1441/145 for full-surface certification). Exit 0 there means the
+milestone ships as "Larry Reaches". This command does not host the gate; it is
+the read-only audit surface for inspecting an individual fired turn.
+
 ## Cross-surface adaptation
 
 - **CLI:** full power. Shape of output is plain text suitable for terminal rendering.

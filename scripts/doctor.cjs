@@ -178,6 +178,20 @@ function parseArgs(argv) {
     // attempted and failed). Composes with --fix when called as
     // `doctor --fix --post-update` from /mos:update Step 7.
     postUpdate: false,
+    // Phase 146 Plan 04 (ACPT-01..05): --dogfood-acceptance is the LOOP-FIRES
+    // gate -- the Phase 146 milestone gate. It runs the 5 ACPT dogfood drivers
+    // (tests/test-acpt-0{1,2,3,4,5}-*.cjs) as child processes and aggregates
+    // their exit codes. It has its OWN exit-code contract (0 = every ACPT
+    // hermetic leg passed; non-zero = a leg failed), separate from the existing
+    // release --acceptance, and mirroring how --acceptance is "NOT a class flag"
+    // with its own contract -- the class-flag-always-exit-0 invariant does NOT
+    // apply. Per the ROADMAP Phase 146 mandate: exit 0 = the milestone ships as
+    // "Larry Reaches"; non-zero = the milestone is renamed. The ACPT-05 driver's
+    // LIVE mode_a arm self-skips when Brain is unreachable (Plan 03), so the gate
+    // passes on the hermetic legs WITHOUT a reachable Brain -- the gate must NOT
+    // require Brain (Canon Part 8: --dogfood-acceptance adds zero network surface
+    // in doctor itself; the spawned drivers are LOCAL/hermetic).
+    dogfoodAcceptance: false,
     all: false, simulateWrite: null,
     scanCommandsDir: null, scanScriptsDir: null,
   };
@@ -200,6 +214,7 @@ function parseArgs(argv) {
     else if (arg === '--light-npx') flags.lightNpx = true;
     else if (arg === '--check-rs-engine') flags.checkRsEngine = true;
     else if (arg === '--post-update') flags.postUpdate = true;
+    else if (arg === '--dogfood-acceptance') flags.dogfoodAcceptance = true;
     else if (arg === '--dry-run') flags.dryRun = true;
     else if (arg === '--all') flags.all = true;
     else if (arg.startsWith('--simulate-write=')) flags.simulateWrite = arg.slice('--simulate-write='.length);
@@ -292,6 +307,24 @@ Environment readiness probes (Phase 127.2 Plan 03 -- separate from class flags):
                            ~/.mindrian/post-update-restart-pending touch-file). Wired
                            into /mos:update Step 7 + composable as --fix --post-update.
                            Exit 0 = activated or already on latest; exit 1 = swap failed.
+
+Loop-fires gate (Phase 146 -- the milestone gate; separate from class flags):
+  --dogfood-acceptance     run the 5 ACPT dogfood drivers (engine-fires,
+                           websearch-hat-scoped, first-material-explore,
+                           filing-cascade-surfaces, brain-derive-tier-rise) as
+                           child processes and aggregate their exit codes. This is
+                           the Phase 146 loop-fires gate: it certifies the loop
+                           FIRES across the dogfood criteria. It has its OWN
+                           exit-code contract (0 = all 5 ACPT hermetic legs
+                           passed; non-zero = a leg failed) and is NOT a class
+                           flag -- the class-flag-always-exit-0 invariant does NOT
+                           apply. Per the ROADMAP Phase 146 mandate: exit 0 = the
+                           milestone ships as "Larry Reaches"; non-zero = the
+                           milestone is renamed. The ACPT-05 LIVE mode_a arm
+                           self-skips when Brain is unreachable, so the gate is
+                           green on the hermetic legs WITHOUT a reachable Brain --
+                           the gate never requires Brain/web/Vercel. Composes with
+                           tests/run-all-146.sh (the full-surface aggregator).
 
 Behavior flags:
   --fix                attempt auto-recovery for each class that supports it
@@ -2950,6 +2983,87 @@ async function runAcceptance(opts) {
   };
 }
 
+// -- Loop-fires gate: --dogfood-acceptance (Phase 146 Plan 04) -------
+//
+// The Phase 146 milestone gate. Composes the 5 ACPT dogfood drivers (Plans
+// 01-03) by spawning each as a child `node <driver>` process and aggregating
+// their exit codes. Modeled on runAcceptance (the checklist-point shape +
+// the spawnSync child-process model from the verify-release point), but with
+// its OWN exit-code contract: 0 = every ACPT hermetic leg passed; non-zero =
+// a leg failed. NOT a class flag -- the class-flag-always-exit-0 invariant
+// does NOT apply (per the ROADMAP mandate: exit 0 = milestone ships as "Larry
+// Reaches", non-zero = the milestone is renamed).
+//
+// Canon Part 8: --dogfood-acceptance adds ZERO network surface in doctor
+// itself -- it only spawns LOCAL node drivers. The ACPT-05 driver's LIVE
+// mode_a arm self-skips when Brain is unreachable (Plan 03), so the gate is
+// green on the hermetic legs WITHOUT a reachable Brain. The gate requires the
+// hermetic mode_b arm, NEVER the live mode_a arm (T-146-14): a down Brain can
+// never make the gate fake mode_a.
+//
+// Each ACPT point: { id, label, run: () -> { ok, finding, detail } } where run
+// spawns `node <driver>` via child_process.spawnSync with a 120000ms timeout
+// and ok = (status === 0).
+
+const ACPT_DRIVERS = [
+  { id: 'ACPT-01', file: 'test-acpt-01-engine-fires.cjs',           label: 'navigation engine fires (routing_source legacy->engine on a real fired sensor)' },
+  { id: 'ACPT-02', file: 'test-acpt-02-websearch-hat-scoped.cjs',   label: 'WebSearch is hat-scoped (the external-tool affordance respects the hat boundary)' },
+  { id: 'ACPT-03', file: 'test-acpt-03-first-material-explore.cjs', label: 'first material auto-explores (room non-empty by turn 2)' },
+  { id: 'ACPT-04', file: 'test-acpt-04-filing-cascade-surfaces.cjs', label: 'filing surfaces a cross-relationship cascade mid-session' },
+  { id: 'ACPT-05', file: 'test-acpt-05-brain-derive-tier-rise.cjs', label: 'BRAIN.md derive raises tier_mode above tier_0 (hermetic; live mode_a self-skips)' },
+];
+
+async function runDogfoodAcceptance(opts) {
+  opts = opts || {};
+  const pluginRoot = opts.pluginRoot || PLUGIN_ROOT;
+  const cp = require('child_process');
+  const testsDir = path.join(pluginRoot, 'tests');
+
+  const points = ACPT_DRIVERS.map(function (d) {
+    return {
+      id: d.id,
+      label: d.label,
+      run: function () {
+        const driverPath = path.join(testsDir, d.file);
+        if (!fs.existsSync(driverPath)) {
+          return { ok: false, finding: 'driver missing: ' + d.file, detail: { file: d.file } };
+        }
+        const r = cp.spawnSync('node', [driverPath], { encoding: 'utf8', timeout: 120000 });
+        const ok = r.status === 0;
+        const finding = ok ? null : ('driver ' + d.file + ' exited ' + r.status + (r.signal ? ' (signal ' + r.signal + ')' : ''));
+        return {
+          ok: ok,
+          finding: finding,
+          detail: {
+            file: d.file,
+            status: r.status,
+            signal: r.signal || null,
+            stdoutTail: (r.stdout || '').slice(-500),
+            stderrTail: (r.stderr || '').slice(-500),
+          },
+        };
+      },
+    };
+  });
+
+  const results = [];
+  const failed = [];
+  for (const p of points) {
+    let r;
+    try { r = p.run(); }
+    catch (e) { r = { ok: false, finding: 'point ' + p.id + ' threw: ' + e.message, detail: {} }; }
+    results.push({ id: p.id, label: p.label, ok: !!r.ok, finding: r.finding || null, detail: r.detail || null });
+    if (!r.ok) failed.push(p.id);
+  }
+
+  return {
+    gate: 'dogfood-acceptance',
+    points: results,
+    failed_points: failed,
+    summary: { total: results.length, passed: results.length - failed.length, failed: failed.length },
+  };
+}
+
 // -- Class L: deprecated-commands-you-still-use (Phase 121.5-08) -----
 //
 // D-09 final clause: doctor surfaces deprecated commands you used recently
@@ -3531,6 +3645,41 @@ function main() {
     }).catch(function (e) {
       console.error('acceptance runner threw: ' + (e && e.message));
       if (flags.json) console.log(JSON.stringify({ mode: flags.preTag ? 'pre-tag' : (flags.preFlight ? 'pre-flight' : 'full'), error: e && e.message, points: [], failed_points: ['__runner__'], summary: { total: 0, passed: 0, failed: 1 } }, null, 2));
+      process.exit(1);
+    });
+    return;
+  }
+
+  // Phase 146 Plan 04: --dogfood-acceptance loop-fires gate. Has its OWN
+  // exit-code contract (0 = all 5 ACPT hermetic legs passed; non-zero = a leg
+  // failed) -- per the ROADMAP Phase 146 mandate, exit 0 = the milestone ships
+  // as "Larry Reaches", non-zero = the milestone is renamed. NOT a class flag;
+  // the class-flag-always-exit-0 invariant does NOT apply. Dispatched BEFORE the
+  // class-flag block so the own-contract exit code wins. Canon Part 8: spawns
+  // LOCAL ACPT drivers only; zero network surface in doctor itself; the gate
+  // never requires a reachable Brain (ACPT-05 live mode_a self-skips).
+  if (flags.dogfoodAcceptance) {
+    runDogfoodAcceptance({ pluginRoot: PLUGIN_ROOT }).then(function (result) {
+      for (const p of result.points) {
+        const tag = p.ok ? 'PASS' : 'FAIL';
+        const findingSuffix = p.finding ? '  -- ' + p.finding : '';
+        console.log(tag + '  ' + p.id + ': ' + p.label + findingSuffix);
+      }
+      console.log('');
+      const failSuffix = result.failed_points.length
+        ? '; failed: ' + result.failed_points.join(', ')
+        : '';
+      console.log('Dogfood acceptance (loop-fires gate): ' + result.summary.passed + '/' + result.summary.total + ' ACPT points passed' + failSuffix + '.');
+      if (result.failed_points.length === 0) {
+        console.log('Exit 0: the milestone ships as "Larry Reaches".');
+      } else {
+        console.log('Non-zero: the milestone is renamed (a loop-fires leg failed).');
+      }
+      if (flags.json) console.log(JSON.stringify(result, null, 2));
+      process.exit(result.summary.failed > 0 ? 1 : 0);
+    }).catch(function (e) {
+      console.error('dogfood-acceptance gate threw: ' + (e && e.message));
+      if (flags.json) console.log(JSON.stringify({ gate: 'dogfood-acceptance', error: e && e.message, points: [], failed_points: ['__runner__'], summary: { total: 0, passed: 0, failed: 1 } }, null, 2));
       process.exit(1);
     });
     return;
