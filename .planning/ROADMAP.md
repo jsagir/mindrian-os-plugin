@@ -2040,7 +2040,8 @@ Plans:
 - [ ] **Phase 144.1: Connector Retrofit Sweep - Tiers B/C/D (INSERTED)** - Land the remaining 51 connectors (audit items 18-68) so EVERY spine-eligible command/agent/hook declares `connector:` and `connector-registry.json` is fully populated; route all filing through fileEvidenceWithReadback; cleanups (leadership frontmatter, value-proposition name/file drift, deep-grade Write gap, structure-argument/challenge-assumptions framework keys). DEPENDS ON 143.3 + 144; BLOCKS 146. (144.1-CONTEXT.md ready; research = LARRYREACH-CONNECTOR-AUDIT.md)
 
   **Plans:** 8 plans in 3 waves (planned 2026-06-07; all 7 RETRO requirements covered)
-  - [ ] 144.1-01-PLAN.md (wave 1, RETRO-01/05) - Tier B COMMAND connectors (10) + deep-grade Write gap + challenge-assumptions Red Teaming + jtbd kind
+
+  - [x] 144.1-01-PLAN.md (wave 1, RETRO-01/05) - Tier B COMMAND connectors (10) + deep-grade Write gap + challenge-assumptions Red Teaming + jtbd kind
   - [ ] 144.1-02-PLAN.md (wave 1, RETRO-02/05) - Tier C batch-A connectors (14) + leadership frontmatter + value-proposition drift + structure-argument primary key
   - [ ] 144.1-03-PLAN.md (wave 1, RETRO-02) - Tier C batch-B connectors (14; explore-*/scout/operator/funding/reanalyze + rest)
   - [ ] 144.1-04-PLAN.md (wave 1, RETRO-07a) - generator agents/-walk amendment (build-connector-registry.cjs) + walk test

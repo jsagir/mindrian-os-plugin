@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
-status: verifying
+status: completed
 stopped_at: Completed 144-02-PLAN.md (fixture repair; Tests 16/17 GREEN + Test 18 cold-room honest-negative; 18/18)
-last_updated: "2026-06-07T18:46:08.196Z"
+last_updated: "2026-06-07T19:38:01.141Z"
 last_activity: 2026-06-07 -- Phase 144 execution started
 progress:
   total_phases: 83
@@ -21,13 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 144 — navigation-engine-legacy-engine-flip
+**Current focus:** Phase 144.1 — connector-retrofit-sweep
 
 ## Current Position
 
-Phase: 144 (navigation-engine-legacy-engine-flip) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Phase: 144.1 (connector-retrofit-sweep) — EXECUTING
+Plan: 1 of 8
+Status: Plan 01 complete — wave 1 Tier B command connectors landed
+
+Phase 144.1-01 outcome (2026-06-07): RETRO-01 + RETRO-05 (wave 1) -- the 10 Tier B PUSH-family command connector blocks + the three RETRO-05 prereqs. Two atomic commits. (Task 1, 7d171084) RETRO-05 prereqs: challenge-assumptions gains a Phase-122 methodology block (kind: methodology + frameworks: ["Red Teaming"] + produces: room/**/challenge/*) so commandsForFramework("Red Teaming") resolves to ["/mos:challenge-assumptions"] (was [] -- the WFL-01 precondition for its connector); deep-grade closes the Write-tool gap in allowed-tools (matches the grade.md sibling idiom, no bare wildcard); jtbd gains kind: methodology (frameworks untouched). (Task 2, cbe13063) RETRO-01: one delimited "# --- Phase 144.1 connector frontmatter ---" block on each of deep-grade (brain_consult/SENS-06,07/PWS Triple Validation Compass/hold/fileEvidenceWithReadback/deep-grade-compass), build-thesis (context_block/SENS-07,06/PWS Value Proposition/hold/fileEvidence/thesis-build), mva-brief (deep_research/SENS-01/null/push_forward/none/mva-brief), mva-option (context_block/SENS-05/null/push_forward/none/mva-option), challenge-assumptions (contradiction/SENS-06/Red Teaming/pull_back/fileEvidence/red-team), opportunities (context_block/SENS-04,06/null/push_forward/none/opportunities), grade (brain_consult/SENS-06,07/PWS Triple Validation Compass/hold/fileEvidence/grade-compass), analyze-needs (context_block/SENS-05,06/Jobs to Be Done (JTBD)/push_forward/fileEvidence/needs-jtbd), jtbd (context_block/SENS-05/Jobs to Be Done (JTBD)/hold/memory_event_only/jtbd-infer), auto-explore (context_block/SENS-01/Domain Selection/push_forward/fileEvidence/auto-explore). hierarchy_rank 8..17 continuing past Tier A; plan_gated false + web_scope null on all; no surface on any command. Each tuple (sensor,reach,sub_mode) unique vs the 8 existing + each other. Null-framework connectors (mva-brief, mva-option, opportunities declare no frameworks: block) use filing: none + no surface to pass the shipped WFL-01 --check (the audit memory_event/fileEvidence intent recorded as a noted deviation; the surfaces still emit memory_event via their existing code paths). DEVIATION (Rule 3): regenerated BOTH data/command-registry.json (92 commands) AND data/connector-registry.json (18 connectors) in THIS plan -- the shipped pre-commit hook runs both --check guards when commands/*.md is staged, so deferring to Plan 08 would block the commit. Verification: node scripts/build-connector-registry.cjs --check exit 0; node scripts/build-command-registry.cjs --check exit 0; each command has exactly one connects_to_spine: true; all reach_ids in frozen 5 + postures in frozen 3; zero em-dashes across all 13 touched files. Every commit through the live pre-commit hooks with no --no-verify. SUMMARY at .planning/phases/144.1-connector-retrofit-sweep/144.1-01-SUMMARY.md. Phase 144.1 now 1/8 plans done; remaining Plans 02-08 (Tier B agents, Tier C, Tier D hooks, generator agents-walk, RETRO-07 coverage gate, regen + final --check).
 
 Phase 143.4-02 outcome (2026-06-07): the discovery section set + the Discovery Brief template shipped (DISC-04/07/10 artifact halves; wave-1, disjoint from Plan 01). Two atomic commits. (Task 1, 89d6df7f) skills/client-discovery-interview/discovery-scaffold.json -- a version-1 {version, generated_from, sections:[{id,domain,title,prompt,required}]} mirroring the shipped mullins-scaffold.json reader shape so the room-scaffold backend writes one ROOM.md per section unchanged (OPEN-3 resolved as recommendation (b): a discovery-specific section set, not the 8 venture due-diligence sections). Exactly five sections: brand-soul / product-essence / personas (required true) + positioning / habit-loop (required false), each prompt drawn from the matching SKILL.md movement (brand soul archetype+voice+never-says; product essence one-core-job+business-case+constraints; personas functional/emotional/social job + fires + trigger; positioning sea-of-sameness + the one true sentence; habit-loop Trigger/Action B=MAP/Variable reward/Investment + Facilitator ethics). Every prompt generic methodology guidance, zero client content (Canon Part 8). (Task 2, 6cf16eec) templates/discovery/discovery-brief-template.md -- the eight-H2 brief skeleton (Brand soul / Product essence / Personas and JTBD / Positioning / Habit loop / Plain-language message / Design implications / Open questions and assumptions) with the source/date artifact frontmatter from new-project.md Step 6. DISC-07: the four Hooked stages + the Facilitator ethics check inlined (no dependency on a separate hooked-model skill dir). DISC-10: the "explain it to a smart twelve-year-old" one-liner slot + the value-prop ladder, noting the deck is produced on request only via MOSDeckEngine through the resolver door (template builds no deck). Part 5 + Part 9: the Open questions section instructs every guess to be recorded as an assumption with review_status: proposed, never hardening into a fact. Verification: node parse of the scaffold (version===1, generated_from string, sections.length===5, exact five ids, all five keys per section) PASS; node substring gate over the brief (all eight H2 + Trigger/Investment/Facilitator/twelve-year-old/proposed) PASS; grep '^## ' confirms the eight H2 in authored order; em-dash sweep 0 across both files. Both commits through the live pre-commit hooks with no --no-verify. SUMMARY at .planning/phases/143.4-discover-command-client-product-jtbd-onboarding/143.4-02-SUMMARY.md. Phase 143.4 now 2/3 plans done; remaining Plan 03 (the Part-8 boundary test + acceptance fixture + phase runner, DISC-06/09).
 
@@ -618,6 +620,7 @@ Progress: [█████████░] 92%
 | Phase 143.2 P05 | 10min | 1 tasks | 1 files |
 | Phase 143.4 P01 | 23min | 3 tasks | 6 files |
 | Phase 143.4 P143.4-03 | 10min | 2 tasks | 3 files |
+| Phase 144.1 P01 | 328s | 2 tasks | 12 files |
 
 ### Roadmap Evolution
 
@@ -1286,6 +1289,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-07T18:44:45.867Z
+Last session: 2026-06-07T19:33:11.773Z
 Stopped at: Completed 144-02-PLAN.md (fixture repair; Tests 16/17 GREEN + Test 18 cold-room honest-negative; 18/18)
 Resume file: None
