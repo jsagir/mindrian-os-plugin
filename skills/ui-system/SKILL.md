@@ -37,7 +37,7 @@ Every output has exactly 4 zones in fixed order. No reordering. No invention.
 
 ## 2. Body Shapes
 
-> This section documents the current Shape F sub-shape catalog as shipped through Phase 88.2. Today's seven sub-shapes (F.0 through F.6) are the shipped vocabulary as of Phase 121.5; additive expansion is reserved for future lens-aware variants (e.g. v1.14.0 dual-graph work). Treat the catalog as the current canon, not a closed terminal set.
+> This section documents the current Shape F sub-shape catalog as shipped through Phase 88.2, Phase 121.5, and Phase 143.1. Today's eight sub-shapes (F.0 through F.7) are the shipped vocabulary: F.0-F.6 landed through Phase 121.5, and F.7 (the dial-TUI capability selector) shipped in Phase 143.1 as the additive variant the prior note reserved for. Treat the catalog as the current canon, not a closed terminal set.
 
 > **Orthogonality note (Plan 121.5-10 LOCKED decision 4):** `body_shape:` frontmatter and Shape F sub-shape are ORTHOGONAL axes. `body_shape` describes the LAYOUT discipline of the command body (Shape A Mondrian Board, Shape B Semantic Tree, Shape C Room Card, Shape D Document View, Shape E Action Report). Shape F.x describes the SELECTOR CONTRACT that fires at the close of the body to capture the navigator's next-move decision. A command can carry `body_shape: B` (Semantic Tree layout) AND surface an F.1 selector at its close; these are not competing values -- they describe different surfaces of the same render. Example: `/mos:suggest-next` carries `body_shape: B` (renders the ranked list as a tree) plus an F.1 selector (the verb-pick gate beneath the tree). The `/mos:hmi-status` doctor check enforces body_shape coverage; the F-selector ranker enforces F-shape contracts. The two are not double-counted.
 
@@ -65,9 +65,9 @@ Action + source at top. Changes: section + `[before -> after]` + description. Ne
 
 ### Shape F: Selector Block (AskUserQuestion family)
 
-Shape F is the interactive selector family. It is the ruling-system implementation of the tri-context Decision Gate (see `docs/MINDRIAN-CANON.md` Part 3). Every command with a genuine fork renders its choice through one of five F sub-shapes. No command invents a bespoke selector.
+Shape F is the interactive selector family. It is the ruling-system implementation of the tri-context Decision Gate (see `docs/MINDRIAN-CANON.md` Part 3). Every command with a genuine fork renders its choice through one of eight (F.0-F.7) F sub-shapes. No command invents a bespoke selector.
 
-All five sub-shapes share a common envelope:
+All F sub-shapes share a common envelope:
 - Header = Zone 1 header + decision-gate marker (`filled-square`).
 - Three-context strip below header: LOCAL / BRAIN / SIGNAL (`down-triangle` per context).
 - Prompt line (`right-triangle-filled`) asks the actual question.
@@ -244,6 +244,49 @@ State-update hook: on Approve, the plan is promoted from `review_status: propose
 
 Shipped in: Phase 88.2 (uiux-selector-block, Plan 88.2-06 plan-review variant) + Phase 101-01 (JTBD-aware Next Move variant).
 
+#### Shape F.7 - Dial-TUI Capability Selector (Phase 143.1)
+
+Purpose: Surface the navigator's ranked capability reaches as a single confidence-column dial. F.7 is a SPECIALIZATION of F.1 (Next Move), not a new selector primitive: it reuses `renderShapeF1` / `shape-f1-renderer.cjs` and adds a right-aligned confidence column plus the filled/empty triangle marker hierarchy. The dial answers one question -- "what is the best next reach right now, and how sure are we?" -- by letting the navigator scan the right column top-to-bottom. Per SEED-020 there is NO bespoke widget; the dial is the AskUserQuestion card-selector with a confidence column.
+
+When to use: When the orchestrator has computed ranked reaches for the current focus (the 5 reach-ids below) and the navigator is at a decision moment where a capability reach is the right next move. F.7 is the surface for the Phase 143.1 dial; the engine that auto-populates it routes once Phase 144 lands (the dial-TUI shipped in 143.1; the engine flip is Phase 144).
+
+Header format:
+```
+[filled-square] [CONTEXT] - REACH                 - decision gate
+[down-triangle] LOCAL   / BRAIN   / SIGNAL
+[right-triangle-filled] Choose next reach:
+```
+
+Options: the 5 frozen reach-ids, surfaced as WHAT-THEY-GET Feynman labels (the canonical verb persists to the graph edge, not the screen). These reach-ids are an F.7 specialization, NOT a replacement for the 10 canonical verbs -- each reach maps onto an existing canonical verb when it commits:
+- `context_block` -- "Pull up what we decided about {topic}." (problem-space reflection)
+- `contradiction` -- "Show where {topic_a} and {topic_b} pull against each other." (assumption stress-test)
+- `cross_room` -- "Bring in what {room_name} already worked out about {topic}." (cross-context synthesis)
+- `brain_consult` -- "Suggest the next move for {framework_or_situation}." (methodology guidance; Part 8: generic framework handle only)
+- `deep_research` -- "Go find out what the world knows about {topic}, framed through {framework}." (external research; Part 8: generic framework handle only)
+
+Free-Text is NOT a 4th explicit row -- the host-injected "Type something" / "Chat about this" rows handle overflow (the chooser stays MAX_K=3 even though the orchestrator previews DIAL_REACH_K=5; the two-K separation is locked: DIAL_REACH_K=5 preview, MAX_K=3 chooser).
+
+Render states: five states ship (`lib/hmi/dial-presenter.cjs`):
+- S1 (Mode A clear leader): 1 filled triangle on reach #1; rows 2-3 get the empty triangle; footer stat-strip.
+- S2 (Mode A near-tie): 2 filled triangles on reach #1 + #2 when the margin < 0.15; row 3 gets the empty triangle.
+- S3 (Mode B, Local Only): all rows get the empty triangle; framing "No recommendation - offline. You pick."; honest low percentages.
+- S4 (Tier 0 cold-room): all rows get the empty triangle; framing "New room - nothing to rank yet. Start anywhere."; confidence column renders "--".
+- S5 (partial-slot degradation): markers per gate; an unresolvable {topic} slot drops to the generic JTBD one-line label; marker logic unchanged.
+
+Confidence column: right-aligned monospace NN% (or "--" in Tier 0). Scanning the right column top-to-bottom IS reading the dial. The filled triangle prefix = RECOMMENDED, the empty triangle = standard. In Mode B / Tier 0 ALL rows get the empty triangle (zero filled markers), and this absence is INTENTIONAL, not broken.
+
+Verb constraints: the frozen 0.70/0.15 recommended gate is a DIAL-ONLY variant and does NOT lower the F.0-F.6 0.7 gate. reach #1 is recommended when tier_mode == mode_a AND score >= 0.70; reach #2 is recommended when tier_mode == mode_a AND score >= 0.70 AND (reach#1.score - reach#2.score) < 0.15; all others false. In Mode B / Tier 0 recommended is always false.
+
+Keyboard: standard F-family keyboard (inherits from F.1): up-arrow / down-arrow (or J / K) to navigate, Enter to select, `?` to inspect, Esc to cancel.
+
+State-update hook: closeReach() runs a 4-outcome transaction routed ONLY through `navigation.cjs`:
+- Resting-detent commit (implicit sync): navigator commits without rotating -> writeEdge SELECTED_REACH from the active focus to `cmd:<command>` with props {jtbd, framework, recommended, decision_id} + logMemoryEvent `f_selector_sync_confirmed` (the resting detent IS the in-sync signal, DIALTUI-07).
+- Rotate-to-pivot commit (explicit disagreement): navigator commits OFF the recommended reach -> writeEdge PIVOTED from chosen to declined-recommended with ENUM-only props {declined_recommended, margin, decision_id} + logMemoryEvent `f_selector_pivot` + investment-scaled pivot_penalty decay into the ranker, AND writeEdge SELECTED_REACH to the chosen (not-recommended) reach.
+- Defer / Reject: delegates to selector-decisions.recordSelectorDecision (DEFERRED +30d or REJECTED cascade edge). NO SELECTED_REACH, NO next-action.
+- Free-Text / none-fit overflow: delegates to selector-decisions.recordSelectorMiss({top_k_offered, user_intent}). NO cascade edge, NO SELECTED_REACH.
+
+Shipped in: Phase 143.1 (dial-TUI capability selector). The dial-TUI shipped in 143.1; the engine flip that auto-fires the dial is Phase 144. SEED-020: no bespoke widget -- F.7 reuses `renderShapeF1` / `shape-f1-renderer.cjs`. (The CANON-PHASE-MAP Part 3 / Part 10 row that records the engine flip flips in Phase 144's commit, not here.)
+
 ## 3. Symbol Vocabulary
 
 12 glyphs. One meaning each. No overloading.
@@ -378,7 +421,7 @@ Routing priority: Broken MINTO + many entries -> "needs reasoning" (`/mos:struct
 
 ```
 ZONES:     Header | Body | Signals | Footer
-SHAPES:    A=Board  B=Tree  C=Card  D=Doc  E=Report
+SHAPES:    A=Board  B=Tree  C=Card  D=Doc  E=Report  F=Selector(F.0-F.7)
 GLYPHS:    filled down-tri right-tri-f right-tri-e branch last-branch check dot warn lightning empty-sq arrow
 COLORS:    Green=success  Cyan=commands  Yellow=warn  Red=error  Gray=meta
 GREETING:  Cold | Warm | Warm+Signals (max 2)
