@@ -2235,7 +2235,7 @@ Plans:
 **Plans**: 3 plans (3 plans, 2 waves)
 
 - [x] 144-01-PLAN.md -- the ONE genuine BUILD: wire dispatchSensors into decide(); resolveFireSkill 4-arg sensor branch + reachIdToSkillFamily (5 reach_ids -> canonical verbs so the router flips); documented multi-sensor precedence; Zep-shaped LOCAL trace.context_assembly + temporal scalars + latency telemetry; line-537 fence comment flipped (router READ-ONLY; sensor files untouched)
-- [ ] 144-02-PLAN.md -- the fixture REPAIR: fix makeRoomsFixture registry.json to the {slug, abs_path} object shape so resolve-active-room.cjs resolves it -> Tests 16/17 GREEN through the existing router with zero sensor code; + a cold-room honest-negative assertion
+- [x] 144-02-PLAN.md -- the fixture REPAIR: fix makeRoomsFixture registry.json to the {slug, abs_path} object shape so resolve-active-room.cjs resolves it -> Tests 16/17 GREEN through the existing router with zero sensor code; + a cold-room honest-negative assertion
 - [ ] 144-03-PLAN.md -- the acceptance HARNESS (Wave 2): tests/run-all-144.sh mirroring run-all-143.sh -- populated-room engine positive via a REAL fired sensor + cold-room legacy negative + reruns of test-sensors-routing-fence + test-decide-part8-invariant + skill-activation-router Tests 1-18; structured so Phase 146 ACPT-01 composes it
 
 ### Phase 145: Scheduled Sensor Activation
@@ -2276,7 +2276,7 @@ Plans:
 | 141. Local Retrieval Spine + Capability Dial | 4/6 | In Progress|  |
 | 142. Local Intelligence Wiring | 3/4 | In Progress|  |
 | 143. Insight Sensors | 3/3 | Complete   | 2026-06-06 |
-| 144. Navigation Engine legacy->engine Flip | 1/3 | In Progress|  |
+| 144. Navigation Engine legacy->engine Flip | 2/3 | In Progress|  |
 | 145. Scheduled Sensor Activation | 0/0 | Not started | - |
 | 146. Loop-Fires Acceptance Gate | 0/0 | Not started | - |
 
