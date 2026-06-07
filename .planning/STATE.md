@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: verifying
-stopped_at: Completed 143.2-04-PLAN.md (doctrine-presence gate + run-all-1432.sh phase runner + WFL-01 resolvability; 7/7 green; Phase 143.2 COMPLETE, box closed)
-last_updated: "2026-06-07T17:05:00.000Z"
-last_activity: 2026-06-07 -- Phase 143.2 Plan 04 (verification) shipped; Phase 143.2 (Larry Operates And Pushes) COMPLETE, all 6 plans done, top-level box closed
+stopped_at: Completed 144-02-PLAN.md (fixture repair; Tests 16/17 GREEN + Test 18 cold-room honest-negative; 18/18)
+last_updated: "2026-06-07T18:29:00.441Z"
+last_activity: 2026-06-07 -- Phase 144 execution started
 progress:
   total_phases: 83
-  completed_phases: 56
+  completed_phases: 57
   total_plans: 436
-  completed_plans: 383
-  percent: 68
+  completed_plans: 386
+  percent: 69
 ---
 
 # Project State
@@ -614,6 +614,7 @@ Progress: [█████████░] 92%
 | Phase 143.2 P01 | 18min | 3 tasks | 1 files |
 | Phase 143.2 P02 | 22min | 3 tasks | 2 files |
 | Phase 143.2 P05 | 10min | 1 tasks | 1 files |
+| Phase 143.4 P01 | 23min | 3 tasks | 6 files |
 
 ### Roadmap Evolution
 
@@ -1244,6 +1245,7 @@ Progress: [█████████░] 92%
 - [Phase 143.2-03]: larry-extended stale greeting deleted + Operating-the-machinery pointer added with frozen frontmatter byte-unchanged; Part-8 absolute strengthened to verbatim ZERO user-content egress (never softened)
 - [Phase 143.2-03]: conversation-mode notes reaches+sensors operate in no-room sessions via Shape F.1 Tier-0; scratchpad preserved; no 6th reach-id minted (WFL-01)
 - [Phase 143.2-05]: conversation-mode is now the EXPLICIT Shape F.1 lane-picker (CONV-01, SEED-020) -- the no-room lane (just-chat/brainstorm/build) is a Decision Gate, not a silent persona classifier; persona detection runs WITHIN the chosen lane. The 3 lanes map to Ackoff DIKW bidirectional (CONV-02): chat=Data/Information, brainstorm=Knowledge, build=Wisdom (the ascent) + the build->validate descent (the honesty loop), reusing the larry-personality push_forward/pull_back posture additively. The build crossing OFFERS the Brain chain (Ackoff FEEDS_INTO Systems Thinking + MAP THE HIERARCHY) at a Decision Gate, generic framework handles only (Part 8), never auto-routed. Plan-03 Conversational Reaches note + scratchpad-ops.cjs block preserved; zero em-dashes (commit 0372aabb)
+- [Phase ?]: 143.4-01: /mos:discover declares EXACTLY ONE connector (sub_mode client-product-discovery, reach brain_consult, posture push_forward, web_scope null); DISC-10 dispatches via commandsForFramework(The Pyramid Principle)+MOSDeckEngine, not a second connector (FIX 1). jtbd.md gained the JTBD framework (FIX 3); design-source skill ported into the repo (FIX 2).
 
 ### Pending Todos
 
@@ -1279,6 +1281,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-07T10:47:20.951Z
+Last session: 2026-06-07T18:28:04.316Z
 Stopped at: Completed 144-02-PLAN.md (fixture repair; Tests 16/17 GREEN + Test 18 cold-room honest-negative; 18/18)
 Resume file: None
