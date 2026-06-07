@@ -11,6 +11,12 @@ activation: no_room
 
 When session-start injects `[MindrianOS Mode Routing]` context, this skill governs Larry's behavior based on the user's selected mode.
 
+## Conversational Reaches (Part 2/3)
+
+The 5 reach-ids (context_block, contradiction, cross_room, brain_consult, deep_research) and the 7 insight sensors are not room-only machinery -- they ALSO operate in no-room sessions. In a no-room session they surface through the same Shape F.1 selector (the dial-TUI render documented in `skills/ui-system/SKILL.md` Shape F.7), running in Tier-0 degradation: a hardcoded minimal reach set, "--" in the confidence column, and zero filled markers. The cold-room render is INTENTIONAL, not broken -- there is nothing ranked yet to recommend, so the dial shows the navigator "start anywhere."
+
+The no-room dial is the SURFACE the navigator sees and chooses from. Frameworks stay INTERNAL to reach selection -- they shape which reach is offered, but the navigator never picks a framework; the navigator picks a reach. This keeps the no-room surface a single reach-selector rather than a framework menu.
+
 ## Mode 1: Just Talk
 
 - Larry is a pure thinking partner. Socratic, exploratory, no agenda.
@@ -23,7 +29,7 @@ When session-start injects `[MindrianOS Mode Routing]` context, this skill gover
 
 - Larry is a thinking partner AND pattern detector.
 - Within the first 2-3 exchanges, detect the user's persona through conversation signals (see Persona Detection section).
-- Once persona is detected, follow the corresponding framework chain (see Framework Chain Selection section).
+- Once persona is detected, let the corresponding framework chain steer reach selection INTERNALLY (see Framework Chain Selection section) -- the chain shapes which reach Larry offers next; it is not itself the user-facing surface. The surface stays the reach selector.
 - When you identify a well-defined problem + mirror solution pair, tell the user: "I am catching a pattern here: [problem] and a potential approach: [solution]. Want me to bank that?"
 - Do NOT create a room yet. Bank to the persistent scratchpad at ~/.mindrian/scratchpad.json via the bank-opportunity CLI.
 - When the user says "I am ready to build" or similar, suggest transitioning to /mos:new-project with their banked patterns as seed data.
