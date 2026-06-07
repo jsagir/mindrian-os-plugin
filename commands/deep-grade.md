@@ -13,6 +13,7 @@ inputs: ["3+ room sections populated"]
 autonomous_safe: true
 allowed-tools:
   - Read
+  - Write
   - Bash
   - Agent
 ---

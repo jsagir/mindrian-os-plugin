@@ -190,11 +190,13 @@
     },
     {
       "command": "/mos:challenge-assumptions",
-      "kind": "utility",
-      "frameworks": [],
-      "produces": null,
+      "kind": "methodology",
+      "frameworks": [
+        "Red Teaming"
+      ],
+      "produces": "room/**/challenge/*",
       "inputs": [],
-      "autonomous_safe": false,
+      "autonomous_safe": true,
       "body_shape": "methodology",
       "serves_jtbd": [
         "validate-idea",
@@ -653,7 +655,7 @@
     },
     {
       "command": "/mos:jtbd",
-      "kind": "utility",
+      "kind": "methodology",
       "frameworks": [
         "Jobs to Be Done (JTBD)"
       ],
@@ -1540,6 +1542,9 @@
     "Root Cause Analysis": [
       "/mos:causal",
       "/mos:root-cause"
+    ],
+    "Red Teaming": [
+      "/mos:challenge-assumptions"
     ],
     "PWS Triple Validation Compass": [
       "/mos:compare-ventures",

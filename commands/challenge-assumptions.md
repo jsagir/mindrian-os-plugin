@@ -5,6 +5,12 @@ help_jtbd: "Stress-test the assumptions your room is built on."
 body_shape: "methodology"
 serves_jtbd: ["validate-idea", "surface-contradiction"]
 teaching: "When an idea feels too clean, /mos:challenge-assumptions runs Devil's Advocate against the load-bearing claims. Catches the assumptions you stopped questioning."
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Red Teaming"]
+produces: "room/**/challenge/*"
+inputs: []
+autonomous_safe: true
 # --- Phase 130-03 lens-engine client frontmatter ---
 lens_type: cognitive
 lens_set: ['black-hat']
