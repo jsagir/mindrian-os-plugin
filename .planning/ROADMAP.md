@@ -1987,7 +1987,10 @@ Plans:
 **Canon parts**: Part 2 + 2a (team / JTBD / persona + hero's-arc onboarding), Part 3 (one-question-at-a-time via Shape F.1), Part 4 (brief / personas / decisions become typed edges), Part 6 (output is a room, not a doc), Part 7 (orchestration over existing atoms + Feynman reuse), Part 8 (discovery content LOCAL; web_scope none), Part 9 (seeds FEYNMAN.md), Part 10 (conversation as the surface)
 **Locked decisions (2026-06-07)**: (1) own phase 143.4, not folded into 143.3; (2) orchestration, not a new atom; (3) no 6th reach / no new selector; (4) output is a scaffolded room + brief + personas + plain-language message; (5) Part 8 hard - zero client-content egress; (6) DISC-10 Feynman bridge hands the brief to website/deck messaging + seeds FEYNMAN.md.
 **Open items (resolve in planning)**: OPEN-1 reach_id + posture enum mapping vs the frozen banks; OPEN-2 wrap-vs-supersede new-project/onboard; OPEN-3 mullins-scaffold vs discovery section set; OPEN-4 persona / JTBD-card artifact shape; OPEN-5 which Feynman surface is canonical + deck-on-request.
-**Plans**: TBD (a NEW session runs /gsd:plan-phase 143.4, AFTER 143.3 lands)
+**Plans:** 3 plans in 2 waves
+- [ ] 143.4-01-PLAN.md - the /mos:discover Larry-led six-movement flow + both connector blocks (discovery + plain-language-bridge) + registry regen (DISC-01/02/03/05/07/08/10)
+- [ ] 143.4-02-PLAN.md - the discovery-scaffold.json section set + the Discovery Brief template (DISC-04/07/10 artifact halves)
+- [ ] 143.4-03-PLAN.md - the Part-8 boundary test + acceptance fixture + phase runner (DISC-06/09)
 **UI hint**: renders through the existing Shape F.1 dial-TUI (143.1 / SEED-020); no new UI
 
 ### Phase 143.2: Larry Operates And Pushes (Prompt Reconciliation) (INSERTED)
