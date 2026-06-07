@@ -710,12 +710,12 @@
 | WFL-01 | Phase 143.2 | Pending |
 | CONN-01 | Phase 143.3 | Complete (143.3-01) |
 | CONN-02 | Phase 143.3 | Complete (143.3-01) |
-| CONN-03 | Phase 143.3 | Pending |
-| CONN-04 | Phase 143.3 | Pending |
-| ORCH-01 | Phase 143.3 | Pending |
-| ORCH-02 | Phase 143.3 | Pending |
-| ORCH-03 | Phase 143.3 | Pending |
-| ORCH-04 | Phase 143.3 | Pending |
+| CONN-03 | Phase 143.3 | Complete (143.3-02) |
+| CONN-04 | Phase 143.3 | Complete (143.3-02) |
+| ORCH-01 | Phase 143.3 | Complete (143.3-03) |
+| ORCH-02 | Phase 143.3 | Complete (143.3-03) |
+| ORCH-03 | Phase 143.3 | Complete (143.3-03) |
+| ORCH-04 | Phase 143.3 | Complete (143.3-03) |
 | SCHED-01 | Phase 145 | Pending |
 | SCHED-02 | Phase 145 | Pending |
 | ACPT-01 | Phase 146 | Pending |
