@@ -191,3 +191,63 @@ Decision Gate promotes a truth-claim node from proposed to confirmed (Canon Part
 orchestrator may PROPOSE; it may never silently confirm. The `memory_event` and cascade-edge writes
 are system-bookkeeping nodes (exempt per the Part 9 audit-node carve-out); the EvidenceClaim is a
 truth-claim node and stays `proposed` until a human confirms it.
+
+## Tier gate + coexistence (ORCH-04)
+
+### The tier predicate (OPEN-2, LOCKED decision 1)
+
+The live `dispatchSensors` call is authoritative ONLY at `tier_mode` `mode_a` or `mode_b`. At
+`tier_0` (a cold room, empty STATE.md, first-session start) the orchestrator degrades to the
+doctrine-sim floor (Larry's Provoked-table doctrine) rather than trusting an under-informed live
+read. This keeps the skill safe before Phase 144 lands. The gate is the same `brain_md_tier_mode`
+predicate the rest of the option-generation surface uses (Mode A / Mode B / Tier 0).
+
+### Coexistence with Phase 144 (engine-side vs prompt-side)
+
+Phase 144 is the ENGINE-side consumer of the same spine: it wires `getRoomContext` into `decide()`
+through the navigation chokepoint. This skill is the PROMPT-side consumer of the same spine. The two
+COEXIST without double-firing because BOTH honor one-reach-per-beat arbitrated by the Intelligence
+Hierarchy: a single reach surfaces per beat regardless of which consumer surfaced it. The
+prompt-side orchestrator never calls `decide()` and never flips `routing_source` (the Phase 144
+fence); the engine-side consumer owns that. They read the same sensors; the hierarchy is the shared
+arbiter that prevents a 144 engine reach and a 143.3 prompt reach from both firing in one beat.
+
+### Coexistence with room-proactive (OPEN-5)
+
+`room-proactive` surfaces CASCADE findings (the Part-4 edges that filing produces); this orchestrator
+surfaces SENSOR reaches (Engine 1 / Engine 2). Both want the Decision Gate. The Intelligence
+Hierarchy ranks BOTH on the SAME scale: a room-proactive CONTRADICTS finding is a Tension (rank 1)
+and outranks a bottleneck reach (rank 2). One-reach-per-beat holds across BOTH skills, not just
+within this one.
+
+RESOLUTION (the chosen arbitration): the orchestrator READS `room-proactive`'s
+`<roomDir>/.mindrian/last-cascade.json` -- the same LOCAL side-channel file room-proactive itself
+reads -- and folds its `newFindings` into the same hierarchy ranking, so one-reach-per-beat holds
+across both surfaces from a single ranked pool. This read is LOCAL only (Canon Part 8): it is the
+identical side-channel file, never the Brain and never any network surface. If the file is absent or
+fails to parse, the orchestrator soft-fails and ranks only the sensor reaches.
+
+### OPEN-4 -- the rs-agent [BRAIN] header vs the local context_block reach
+
+`reverse-salient-agent.surfaceFinding` renders a `[BRAIN]` chip header, but PUSH-02's reach_id is
+`context_block` (a LOCAL reach). These do NOT conflict. The `[BRAIN]` chip is a RENDER CHOICE only:
+the underlying read is `folder-memory.readQuadruple`, which is LOCAL only per Canon Part 8 (verified
+at `reverse-salient-agent.cjs` -- the BRAIN.md quadruple read is local folder-memory, not a Brain
+call). The header is a visual label on a LOCAL-only read; it does NOT imply a Brain call and does NOT
+contradict the `context_block` LOCAL reach. So the Part-8 check passes: the [BRAIN] header is a
+render choice, the read is LOCAL only.
+
+## Tri-Polar surfaces
+
+This skill is conversational doctrine (markdown), so it works across all three surfaces with no new
+UI and no surface-specific code:
+
+- CLI: the sensor hook fires the spine; the orchestrator surfaces the chosen reach through the
+  existing Shape-F selector (the 143.1 dial-TUI). Full power -- hooks, scripts, file I/O.
+- Desktop: Larry surfaces the same reach conversationally, as a natural Decision-Gate offer in the
+  flow of the conversation. Personality-driven, no command typing required.
+- Cowork: the same SELECTED_REACH gate renders, with a per-actor `{topic}` label so each collaborator
+  sees the offer in their shared-room context. Shared state, multi-user.
+
+The selected reach and the Decision Gate are the surface-agnostic core (mirroring the 143.1
+surface-agnostic selector). No new UI is introduced on any surface.
