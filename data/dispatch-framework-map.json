@@ -1,0 +1,17 @@
+{
+  "_note": "OPEN-1 WFL-01 translation layer: each raw sensor dispatch handle / sub_mode maps to its EXACT framework name (data/framework-names.json), never a slug. The intelligence-orchestrator translates the sensor dispatch field through this map BEFORE calling commandsForFramework(). Drift-tested against data/framework-names.json (tests/test-dispatch-framework-map-drift.cjs) so a smuggled slug or a fake framework fails CI.",
+  "mos:research": "Hypothesis-Driven Problem Solving",
+  "mos:research (hat-scoped WebSearch)": "Hypothesis-Driven Problem Solving",
+  "find-bottlenecks": "Reverse Salient Analysis",
+  "reverse-salient": "Reverse Salient Analysis",
+  "find-connections": "Usher's Model of Cumulative Synthesis",
+  "cross-domain-connect": "Usher's Model of Cumulative Synthesis",
+  "find-analogies": "Four Lenses of Innovation",
+  "cross-domain-analogy": "Four Lenses of Innovation",
+  "hsi": "HSI Semantic Surprise Analysis Assistant",
+  "whitespace": "HSI Semantic Surprise Analysis Assistant",
+  "score-innovation": "HSI Semantic Surprise Analysis Assistant",
+  "think-hats": "Six Thinking Hats",
+  "six-hats": "Six Thinking Hats",
+  "team_perspective": "Six Thinking Hats"
+}
