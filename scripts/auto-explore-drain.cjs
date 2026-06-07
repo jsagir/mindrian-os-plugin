@@ -215,6 +215,27 @@ function main() {
     });
   } catch (_e) { /* never throw */ }
 
+  // Phase 144.1-06 RETRO-03 (audit item 61): fire SENS-01 (deep_research /
+  // auto-explore-domains / push_forward) through the navigation chokepoint so
+  // the engine can observe the drain surfacing a finding -- not just the
+  // 117-05 telemetry mirror. LOCAL only (Canon Part 8): the fire carries the
+  // reach/sensor/dispatch/posture handles + the finding's file_path_sha256
+  // scalar, never the finding body. Routes through navigation.cjs::logSpineRead;
+  // never an ad-hoc detached spawn. Best-effort: never throws.
+  try {
+    const navigation = require('../lib/core/navigation.cjs');
+    if (navigation && typeof navigation.logSpineRead === 'function') {
+      navigation.logSpineRead(roomDir, {
+        surface: 'deep_research',
+        sensor: 'SENS-01',
+        dispatch: 'auto-explore-domains',
+        posture: 'push_forward',
+        file_path_sha256: String(top.file_path_sha256 || ''),
+        source: 'auto-explore-drain',
+      });
+    }
+  } catch (_e) { /* never throw */ }
+
   // Mark surfaced=true in ledger so next turn does not re-emit.
   try {
     store.appendMaterial(roomSlug, {

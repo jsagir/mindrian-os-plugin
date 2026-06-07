@@ -176,6 +176,29 @@ async function runDrain(roomDir, opts) {
       } catch (_e) {
         // Soft-fail: spawn failure is advisory.
       }
+
+      // Phase 144.1-06 RETRO-03 (audit item 68): fire SENS-03 (brain_consult /
+      // brain-derivation / hold) through the navigation chokepoint so the engine
+      // can observe that a brain-derivation was dispatched for this section --
+      // memory_event_only. LOCAL only (Canon Part 8): the fire records THAT a
+      // derivation fired, carrying only the section-name handle + reach handles;
+      // it never carries the BRAIN.md body or any user content, and the Brain
+      // call itself happens in the detached --single child via the existing
+      // boundary-audited deriveSection path, not here. Routes through
+      // navigation.cjs::logSpineRead; best-effort, never throws, never blocks.
+      try {
+        const navigation = require('../lib/core/navigation.cjs');
+        if (navigation && typeof navigation.logSpineRead === 'function') {
+          navigation.logSpineRead(roomDir, {
+            surface: 'brain_consult',
+            sensor: 'SENS-03',
+            dispatch: 'brain-derivation',
+            posture: 'hold',
+            section: String(item.section || ''),
+            source: 'brain-derivation-drain',
+          });
+        }
+      } catch (_e) { /* never throw -- fire is advisory */ }
     }
   }
 }

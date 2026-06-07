@@ -124,6 +124,29 @@ function detectAndFire(roomDir, roomSlug) {
     //   - graph-edge intent line for Canon Part 4 (drained later)
     const acrossSession = require('../lib/hmi/across-session-memory.cjs');
     acrossSession.completeJtbd(roomSlug, cur.jtbd, matched, cascade.file_path || '');
+
+    // Phase 144.1-06 RETRO-03 (audit item 66): fire SENS-06 (context_block /
+    // jtbd-inference / pull_back) through the navigation chokepoint so the engine
+    // can observe the completion -- memory_event_only (no auto-advance). LOCAL
+    // only (Canon Part 8): the fire carries the reach handles + the JTBD slug
+    // enum + the matched-signal label, never the cascade body or file content.
+    // (cascade.file_path is NOT forwarded -- only the match-signal kind.)
+    // Routes through navigation.cjs::logSpineRead; never a detached spawn.
+    try {
+      const navigation = require('../lib/core/navigation.cjs');
+      if (navigation && typeof navigation.logSpineRead === 'function') {
+        const matchKind = String(matched).split(':')[0];
+        navigation.logSpineRead(roomDir, {
+          surface: 'context_block',
+          sensor: 'SENS-06',
+          dispatch: 'jtbd-inference',
+          posture: 'pull_back',
+          jtbd: typeof cur.jtbd === 'string' ? cur.jtbd : null,
+          match_kind: matchKind,
+          source: 'memory-completion-detector',
+        });
+      }
+    } catch (_e) { /* never throw -- fire is advisory */ }
   } catch (err) {
     // Final defensive net. NEVER throw upward.
     try { process.stderr.write('[memory-completion-detector] error: ' +

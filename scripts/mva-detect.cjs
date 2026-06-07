@@ -69,6 +69,24 @@ process.on('uncaughtException', () => {
   try { emitEmpty(); } catch (_e) { process.exit(0); }
 });
 
+// ---------- Active room resolution (LOCAL; mirrors brain-derivation-drain) ----------
+
+function resolveActiveRoomDir() {
+  try {
+    const root = (process.env.MINDRIAN_ROOMS_HOME && fs.existsSync(process.env.MINDRIAN_ROOMS_HOME))
+      ? process.env.MINDRIAN_ROOMS_HOME
+      : path.join(process.env.HOME || os.homedir(), 'MindrianRooms');
+    const regPath = path.join(root, '.rooms', 'registry.json');
+    if (!fs.existsSync(regPath)) return null;
+    const reg = JSON.parse(fs.readFileSync(regPath, 'utf8'));
+    if (reg && typeof reg.active === 'string' && reg.active.length > 0) {
+      const cand = path.join(root, reg.active);
+      if (fs.existsSync(cand)) return cand;
+    }
+  } catch (_e) { /* graceful */ }
+  return null;
+}
+
 // ---------- Telemetry ----------
 
 function _appendTelemetry(event) {
@@ -149,6 +167,31 @@ function main() {
         classifier_confidence: classification.confidence || null,
         locale: 'en',
       });
+
+      // Phase 144.1-06 RETRO-03 (audit item 67): fire SENS-05 (context_block /
+      // mva-brief / push_forward) through the navigation chokepoint so the engine
+      // can observe a venture-positive MVA trigger -- memory_event_only. LOCAL
+      // only (Canon Part 8): the fire carries the reach handles + the sentence
+      // sha256 scalar + the classifier source enum, never the raw prompt (which
+      // lives ONLY in the in-memory `prompt` variable, never on disk). Routes
+      // through navigation.cjs::logSpineRead; best-effort, never throws.
+      try {
+        const roomDir = resolveActiveRoomDir();
+        if (roomDir) {
+          const navigation = require('../lib/core/navigation.cjs');
+          if (navigation && typeof navigation.logSpineRead === 'function') {
+            navigation.logSpineRead(roomDir, {
+              surface: 'context_block',
+              sensor: 'SENS-05',
+              dispatch: 'mva-brief',
+              posture: 'push_forward',
+              sentence_sha256: sentSha,
+              classifier_source: String(classification.source || 'unknown'),
+              source: 'mva-detect',
+            });
+          }
+        }
+      } catch (_e) { /* never throw -- fire is advisory */ }
     } else if (classification.reason === 'hebrew_unsupported_v1.13.0') {
       mvaState.writePending({
         sentence_sha256: sentSha,

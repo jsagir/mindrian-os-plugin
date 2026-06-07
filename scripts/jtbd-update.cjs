@@ -180,6 +180,36 @@ function main() {
     manual: false,
   });
 
+  // === Phase 144.1-06 RETRO-03 (audit item 63): route to sensor-jtbd-reweight ===
+  // The JTBD just set/changed; fire SENS-05 (jtbd-reweight) through the
+  // navigation chokepoint so the f-selector-ranker + Brain-query weighting can
+  // re-weight on the new slug. sensorJtbdReweight reads the slug + the prior
+  // transition (LOCAL only -- never the evidence text) and returns a candidate
+  // reach; we surface it as a chokepoint-routed spine_read memory_event carrying
+  // ONLY the reach handles + the JTBD/problem-type enums (Canon Part 8). Wrapped
+  // so a failure NEVER throws upward -- the Phase 100 Stop hook stays reliable.
+  try {
+    const { sensorJtbdReweight } = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'sensors', 'sensor-jtbd-reweight.cjs'));
+    const reach = sensorJtbdReweight(null, {}, { roomDir: roomDir });
+    if (reach) {
+      const navigation = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'navigation.cjs'));
+      if (navigation && typeof navigation.logSpineRead === 'function') {
+        const ev = (reach.evidence && typeof reach.evidence === 'object') ? reach.evidence : {};
+        navigation.logSpineRead(roomDir, {
+          surface: reach.reach_id || 'context_block',
+          sensor: 'SENS-05',
+          dispatch: reach.dispatch || 'jtbd-reweight',
+          posture: reach.posture || 'hold',
+          jtbd: typeof ev.jtbd === 'string' ? ev.jtbd : null,
+          prior_jtbd: typeof ev.prior_jtbd === 'string' ? ev.prior_jtbd : null,
+          problem_type: typeof ev.problem_type === 'string' ? ev.problem_type : null,
+          source: 'jtbd-update',
+        });
+      }
+    }
+  } catch (_e) { /* never throw -- reweight fire is advisory */ }
+  // === End Phase 144.1-06 additive ===
+
   // === Phase 103-05 additive: across-session promotion ===
   // Wrapped in try/catch so a failure in this block NEVER throws upward.
   // Phase 100 Stop hook behavior remains byte-identical above.
