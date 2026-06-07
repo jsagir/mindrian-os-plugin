@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: completed
-stopped_at: Completed 144.1-07-PLAN.md (RETRO-04; registry-driven filing sweep -- 36/36 fileEvidenceWithReadback connectors route through the readback chokepoint, zero bare Write, zero remediation needed)
-last_updated: "2026-06-07T20:44:00.000Z"
-last_activity: 2026-06-07 -- Phase 144.1 Plan 07 (filing sweep, RETRO-04) complete
+stopped_at: Completed 144.1-08-PLAN.md (RETRO-06/07c; registry complete + --check green at 53 connectors + exhaustive 114-surface coverage gate proves wired XOR allowlisted (53 wired + 61 allowlisted) + run-all-1441.sh 13/13 + DI-144.1-A fixed). Phase 144.1 CLOSED (8/8 plans).
+last_updated: "2026-06-07T21:10:00.000Z"
+last_activity: 2026-06-07 -- Phase 144.1 Plan 08 (registry-complete + exhaustive coverage gate, RETRO-06/07c) complete; Phase 144.1 CLOSED
 progress:
   total_phases: 83
-  completed_phases: 58
+  completed_phases: 59
   total_plans: 436
-  completed_plans: 390
+  completed_plans: 391
   percent: 70
 ---
 
@@ -21,13 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 144.1 — connector-retrofit-sweep
+**Current focus:** Phase 144.1 CLOSED (8/8 plans) — next: Phase 146 FULLY-WIRED acceptance gate (depends 143.3 + 144 + 144.1)
 
 ## Current Position
 
-Phase: 144.1 (connector-retrofit-sweep) — EXECUTING
-Plan: 8 of 8
-Status: Plan 07 complete — registry-driven filing sweep proves all 36 fileEvidenceWithReadback connectors route filing through the readback chokepoint (cascade + memory_event fire); zero bare Write; zero remediation needed; sweep exits 0. Remaining: Plan 08 (RETRO-06/07c registry-complete + --check green + 114-surface coverage gate + run-all-1441.sh)
+Phase: 144.1 (connector-retrofit-sweep) — COMPLETE (8/8 plans)
+Plan: 8 of 8 — DONE
+Status: Phase 144.1 CLOSED. Plan 08 (RETRO-06/07c) complete: the connector registry is fully populated and --check green at 53 connectors (46 commands + 7 agents); the exhaustive-coverage count gate proves every one of the 114 live surfaces is classified exactly once (53 wired + 61 explicitly out-of-spine, wired XOR allowlisted); run-all-1441.sh is 13/13 green; DI-144.1-A fixed. The baton is ready for Phase 146 (FULLY-WIRED acceptance gate; depends 143.3 + 144 + 144.1).
+
+Phase 144.1-08 outcome (2026-06-07): RETRO-06 + RETRO-07c -- the capstone. Three atomic commits. (DI fix, c210ac21) tests/test-connector-part8-boundary.cjs CHECK 2 now exempts framework === null (the legal WFL-01 no-framework config: /mos:funding + agent:brain-query + agent:investor + agent:opportunity-scanner); a non-null framework must still be a generic name in framework-names.json; test exits 0 over the full 53-connector registry (4/4 threat paths). DI-144.1-A marked RESOLVED. (Task 2, bc389e40) data/connector-out-of-spine-allowlist.json: 61 keys = the exact set-difference live \ wired, each with a one-line reason in three categories -- genuine out-of-spine per audit Section 4 (routing mos/pipeline; read-only status/graph/memory/speakers/room/explain-decision/feynman-timeline-refresh/dashboard/wiki; output present/publish/export/snapshot/vault/splash/MOSDeckEngine; system models/setup/doctor/onboard/rooms/update/admin/help/radar/dogfood-flush/scheduled-tasks; HOW-layer skills brain-connector/context-engine/room-passive/room-proactive/ui-system/pws-methodology/conversation-mode/mva-pipeline/mullins-scaffold/client-discovery-interview/intelligence-orchestrator/larry-personality; deprecated organize/heal/query/visualize/hmi-status), wired-in-another-phase (rs-fetch/rs-experts/rs-explain/rs-thesis/causal/persona/hat-briefing/diagnostics owned by 143.3; file-meeting/brain-derive/diagnose/suggest-next/act owned by 144), and the 2 out-of-spine agents (framework-runner/larry-extended). tests/test-connector-exhaustive-coverage.cjs (RETRO-07c): derives the live surface set via fs.readdirSync (never hardcodes 114), asserts zero silently-unclassified + zero double-classified (wired XOR allowlisted) + every allow-list key is a live surface with a non-empty reason + the 2 out-of-spine agents present + the count identity wired + allowlisted === live. RESULT: live=114, wired=53, allowlisted=61, 53+61=114, 6/6 checks pass. (Task 3, 8575a54c) tests/run-all-1441.sh mirroring run-all-1433.sh: the --check tripwire (direct invocation) + 11 CJS suites (4 new 144.1 agents-walk/tier-d-hooks/filing-sweep/exhaustive-coverage + 7 carried 143.3 connector/drift/part8/orchestrator) + a standalone Part-8 grep sweep over the populated registry + allow-list. RESULT: 13/13 green, exits 0. Task 1 (RETRO-06): the registry regen is byte-stable (the population landed in plans 01-07; --check was already green), so no source connector needed fixing; the registry carries source: command + source: agent (no skill opted in -- all 13 skills are HOW-layer substrate, correctly out-of-spine). No 6th reach / no 4th posture / no tuple collision minted. Zero em-dashes across all touched files. Every commit through the live pre-commit hooks with no --no-verify. SUMMARY at .planning/phases/144.1-connector-retrofit-sweep/144.1-08-SUMMARY.md.
 
 Phase 144.1-07 outcome (2026-06-07): RETRO-04 -- the filing sweep. tests/test-connector-filing-sweep.cjs (NEW; ~230 lines; single atomic commit 079f27bd). Builds the connector registry IN-MEMORY via buildRegistry() (no dependency on the Plan-08 on-disk regen ordering), enumerates every connector where filing === 'fileEvidenceWithReadback' (36 of 53; registry-driven, auto-covers future connectors), resolves each surface to its owning file (command -> commands/<base>.md, agent -> agents/<base>.md, skill -> skills/<base>/SKILL.md), and asserts each routes filing through the readback path (references fileEvidenceWithReadback OR wireAccept OR delegates to intelligence-orchestrator filing) AND does no bare Write to a room/** path outside that idiom (precise heuristic: a Write tool reference within 240 chars of a room/ path with no readback/wireAccept/orchestrator mention in the window -- the repudiation threat T-144.1-19). RESULT: 36/36 PASS, 0 FAIL; all 36 reference fileEvidenceWithReadback directly. Task 2 (remediation) flagged ZERO surfaces (the deep-grade Write gap was already closed in Plan 01 Task 1), so no edits were made -- a valid passing outcome per the Task 2 acceptance criteria; files_modified carries only the new test. Cascade + memory_event proven transitively: routing through fileEvidenceWithReadback wires the INFORMS cascade edge inside its one BEGIN/COMMIT/ROLLBACK txn and emits artifact_filed via the orchestrator filing path (ORCH-03), so proving chokepoint-routing IS proving cascade + memory_event for that surface (T-144.1-19/T-144.1-20 mitigated). Pure: no Brain, no network, no sqlite (T-144.1-21 accept; LOCAL reads only). Self-negation confirmed: the bare-Write heuristic flags "Write ... room/" outside the idiom and ignores a Write described as going through fileEvidenceWithReadback. Verification: node tests/test-connector-filing-sweep.cjs exit 0 (36 passed, 0 failed); grep -c em-dash on the test = 0; SUMMARY em-dash = 0. Commit through the live pre-commit hooks with no --no-verify. SUMMARY at .planning/phases/144.1-connector-retrofit-sweep/144.1-07-SUMMARY.md. Phase 144.1 now 7/8 plans done; remaining Plan 08 (RETRO-06/07c registry-complete + --check green + exhaustive 114-surface coverage count gate + run-all-1441.sh).
 
@@ -634,6 +636,7 @@ Progress: [█████████░] 92%
 | Phase 144.1 P144.1-03 | 4 min | 2 tasks | 15 files |
 | Phase 144.1 P144.1-04 | 12 min | 2 tasks | 2 files |
 | Phase 144.1 P144.1-07 | 14 min | 2 tasks | 1 file |
+| Phase 144.1 P144.1-08 | 18 min | 3 tasks | 4 files |
 
 ### Roadmap Evolution
 
@@ -1268,6 +1271,9 @@ Progress: [█████████░] 92%
 - [Phase ?]: 143.4-03: CHECK A asserts EXACTLY ONE /mos:discover connector + ZERO plain-language-bridge (FIX 1); DISC-10 dispatch proven by resolver-resolvability of The Pyramid Principle, not a second connector
 - [Phase ?]: 143.4-03: web_scope verified strictly null (assert.strictEqual) so any drift to a string value fails the negative path
 - [Phase 144.1]: Tier C batch-B: 14 command connectors wired; null-framework rows use filing none + no surface so WFL-01 stays clean; multi-surface frameworks keep distinct sub_mode tuples
+- [Phase 144.1]: exhaustive-coverage gate derives the live surface count from disk (fs.readdirSync), never a hardcoded 114; a surface is wired XOR allow-listed, never both; the gate fails on a silently-unclassified OR a double-classified surface (53 wired + 61 allowlisted = 114 live)
+- [Phase 144.1]: framework null is the legal WFL-01 no-framework config, not smuggled user content; Part-8 CHECK 2 exempts it while still requiring a non-null framework to be a generic name in framework-names.json (DI-144.1-A resolved)
+- [Phase 144.1]: Tier A surfaces whose connectors are owned by Phase 143.3/144 (rs-*, causal, persona, hat-briefing, diagnostics, file-meeting, brain-derive, diagnose, suggest-next, act) are allow-listed with an ownership reason so 144.1 counts them classified without claiming them
 
 ### Pending Todos
 
@@ -1303,6 +1309,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-07T20:44:00Z
-Stopped at: Completed 144.1-07-PLAN.md (filing sweep, RETRO-04; 36/36 fileEvidenceWithReadback connectors route through the readback chokepoint, zero bare Write, zero remediation)
+Last session: 2026-06-07T21:10:00Z
+Stopped at: Completed 144.1-08-PLAN.md (RETRO-06/07c; registry complete + --check green at 53 connectors + exhaustive 114-surface coverage gate (53 wired + 61 allowlisted, wired XOR allowlisted) + run-all-1441.sh 13/13 + DI-144.1-A fixed). Phase 144.1 CLOSED (8/8 plans).
 Resume file: None

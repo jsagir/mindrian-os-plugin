@@ -6,6 +6,16 @@ current task's changes).
 
 ## DI-144.1-A: test-connector-part8-boundary CHECK 2 fails on /mos:funding framework=null
 
+- **RESOLVED (Plan 144.1-08, commit c210ac21):** CHECK 2 now exempts
+  `framework === null` from the generic-name allowlist assertion. null is the
+  legal WFL-01 no-framework config (a connector that fires no command on APPROVE),
+  not smuggled user content; a non-null framework must still be a generic name in
+  framework-names.json. test-connector-part8-boundary.cjs now exits 0 over the full
+  53-connector registry (4/4 threat paths). See 144.1-08-SUMMARY.md.
+
+---
+### Original entry (now resolved)
+
 - **Found during:** Plan 144.1-04 (agents-walk) verification run.
 - **Discovered by:** `node tests/test-connector-part8-boundary.cjs` -> CHECK 2 FAIL.
 - **Symptom:** CHECK 2 ("registry generic-handles-only") asserts every connector
