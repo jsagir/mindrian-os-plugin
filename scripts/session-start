@@ -1475,6 +1475,25 @@ env PLUGIN_ROOT_FOR_DIAL="$PLUGIN_ROOT" ACTIVE_ROOM_FOR_DIAL="${ROOM_DIR:-}" nod
 ' 2>/dev/null || true
 # --- END dial memory refresh ---
 
+# --- BEGIN Phase 145 scout cadence (best-effort, self-throttled) ---
+# Phase 145-02 (SCHED-01 CLI default). Canon Part 8: LOCAL only -- the
+# scout-cadence-runner is zero-egress (Plan 01 T-145-01/02): it makes NO Brain
+# query and NO web fetch; HSI / whitespace / reverse-salient / opportunity scans
+# are all LOCAL compute, and competitor-watch is emitted as a public-SIGNAL query
+# plan for the surface layer, never fetched here. Soft-fail contract: a failure in
+# the scout cadence NEVER blocks or aborts session startup (`|| true`, stderr+stdout
+# to /dev/null, no-op when no room resolves). The throttle lives INSIDE the runner's
+# Plan-01 guard (last-run timestamp keyed by room-path hash), so the cadence is
+# at-most-once-per-interval (default 24h): most sessions are a sub-millisecond
+# throttle short-circuit and add no foreground work to startup. We deliberately do
+# NOT pass --force here -- session-start owns the throttled DEFAULT path; cron owns
+# the --force path (see commands/scout.md). Emergency disable: SCOUT_CADENCE_SKIP=1
+# skips the slot entirely, mirroring the BRAIN_STALENESS_SKIP convention.
+if [ "${SCOUT_CADENCE_SKIP:-}" != "1" ] && [ -n "${ROOM_DIR:-}" ] && [ -d "${ROOM_DIR}" ]; then
+  ( node "${PLUGIN_ROOT}/scripts/scout-cadence-runner.cjs" "${ROOM_DIR}" >/dev/null 2>&1 || true ) &
+fi
+# --- END Phase 145 scout cadence ---
+
 # ---------------------------------------------------------------------------
 # Phase 87-01a (SEC-04): ensure ROOM.md + MINTO.md pre-commit hook installed.
 # Self-healing: re-installs if missing or drifted. Worktree-aware via
