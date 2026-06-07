@@ -4,13 +4,13 @@ milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: completed
 stopped_at: Completed 144.1-08-PLAN.md (RETRO-06/07c; registry complete + --check green at 53 connectors + exhaustive 114-surface coverage gate proves wired XOR allowlisted (53 wired + 61 allowlisted) + run-all-1441.sh 13/13 + DI-144.1-A fixed). Phase 144.1 CLOSED (8/8 plans).
-last_updated: "2026-06-07T21:10:00.000Z"
-last_activity: 2026-06-07 -- Phase 144.1 Plan 08 (registry-complete + exhaustive coverage gate, RETRO-06/07c) complete; Phase 144.1 CLOSED
+last_updated: "2026-06-07T21:02:00.000Z"
+last_activity: 2026-06-07 -- Phase 145 Plan 01 (SCHED-01/02 scout-cadence-runner.cjs + scout-cadence-guard.cjs) complete; cadence composer + throttle + Phase-140 safe-auto-fire guard shipped
 progress:
   total_phases: 83
   completed_phases: 59
   total_plans: 436
-  completed_plans: 391
+  completed_plans: 392
   percent: 70
 ---
 
@@ -25,9 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 144.1 (connector-retrofit-sweep) — COMPLETE (8/8 plans)
-Plan: 8 of 8 — DONE
-Status: Phase 144.1 CLOSED. Plan 08 (RETRO-06/07c) complete: the connector registry is fully populated and --check green at 53 connectors (46 commands + 7 agents); the exhaustive-coverage count gate proves every one of the 114 live surfaces is classified exactly once (53 wired + 61 explicitly out-of-spine, wired XOR allowlisted); run-all-1441.sh is 13/13 green; DI-144.1-A fixed. The baton is ready for Phase 146 (FULLY-WIRED acceptance gate; depends 143.3 + 144 + 144.1).
+Phase: 145 (scheduled-sensor-activation) — EXECUTING (1/3 plans)
+Plan: 1 of 3 — DONE
+Status: Phase 145 Plan 01 (SCHED-01/02 cadence runner + safe-auto-fire guard) complete. scripts/scout-cadence-guard.cjs (LOCAL last-run throttle keyed by sha256(roomPath)[0:12] + Phase-140 safeAutoFireCheck encoding HARD-01 health-exit / HARD-02 NULL source_path / HARD-03 .heal-backup pollution) + scripts/scout-cadence-runner.cjs (composes the 6 scout sub-sensors + the SCHED-02 four behind the throttle in canonical scout.md order; captures the health-check exit non-swallowed per D-03; competitor-watch emitted as a public-SIGNAL query plan, the runner itself zero-egress; sklearn-absent path skips the Python steps and the suite still completes). All Task 1 + Task 2 acceptance criteria pass (throttle fresh/throttled/elapsed; HARD-01/02/03 surfaced; PART8_CLEAN + RUNNER_OK; zero em-dashes; sklearn-absent suite completes). Canon Part 7 reuse (no new sensor) + Part 8 zero-egress on the scheduled path. Commits 170c2431 (guard) + f0991905 (runner). Next: Phase 145 Plan 02 (Tri-Polar cadence wiring: session-start-throttled slot + cron-optional + Cowork repoint).
+
+Phase 144.1 outcome (2026-06-07): Phase 144.1 CLOSED. Plan 08 (RETRO-06/07c) complete: the connector registry is fully populated and --check green at 53 connectors (46 commands + 7 agents); the exhaustive-coverage count gate proves every one of the 114 live surfaces is classified exactly once (53 wired + 61 explicitly out-of-spine, wired XOR allowlisted); run-all-1441.sh is 13/13 green; DI-144.1-A fixed.
 
 Phase 144.1-08 outcome (2026-06-07): RETRO-06 + RETRO-07c -- the capstone. Three atomic commits. (DI fix, c210ac21) tests/test-connector-part8-boundary.cjs CHECK 2 now exempts framework === null (the legal WFL-01 no-framework config: /mos:funding + agent:brain-query + agent:investor + agent:opportunity-scanner); a non-null framework must still be a generic name in framework-names.json; test exits 0 over the full 53-connector registry (4/4 threat paths). DI-144.1-A marked RESOLVED. (Task 2, bc389e40) data/connector-out-of-spine-allowlist.json: 61 keys = the exact set-difference live \ wired, each with a one-line reason in three categories -- genuine out-of-spine per audit Section 4 (routing mos/pipeline; read-only status/graph/memory/speakers/room/explain-decision/feynman-timeline-refresh/dashboard/wiki; output present/publish/export/snapshot/vault/splash/MOSDeckEngine; system models/setup/doctor/onboard/rooms/update/admin/help/radar/dogfood-flush/scheduled-tasks; HOW-layer skills brain-connector/context-engine/room-passive/room-proactive/ui-system/pws-methodology/conversation-mode/mva-pipeline/mullins-scaffold/client-discovery-interview/intelligence-orchestrator/larry-personality; deprecated organize/heal/query/visualize/hmi-status), wired-in-another-phase (rs-fetch/rs-experts/rs-explain/rs-thesis/causal/persona/hat-briefing/diagnostics owned by 143.3; file-meeting/brain-derive/diagnose/suggest-next/act owned by 144), and the 2 out-of-spine agents (framework-runner/larry-extended). tests/test-connector-exhaustive-coverage.cjs (RETRO-07c): derives the live surface set via fs.readdirSync (never hardcodes 114), asserts zero silently-unclassified + zero double-classified (wired XOR allowlisted) + every allow-list key is a live surface with a non-empty reason + the 2 out-of-spine agents present + the count identity wired + allowlisted === live. RESULT: live=114, wired=53, allowlisted=61, 53+61=114, 6/6 checks pass. (Task 3, 8575a54c) tests/run-all-1441.sh mirroring run-all-1433.sh: the --check tripwire (direct invocation) + 11 CJS suites (4 new 144.1 agents-walk/tier-d-hooks/filing-sweep/exhaustive-coverage + 7 carried 143.3 connector/drift/part8/orchestrator) + a standalone Part-8 grep sweep over the populated registry + allow-list. RESULT: 13/13 green, exits 0. Task 1 (RETRO-06): the registry regen is byte-stable (the population landed in plans 01-07; --check was already green), so no source connector needed fixing; the registry carries source: command + source: agent (no skill opted in -- all 13 skills are HOW-layer substrate, correctly out-of-spine). No 6th reach / no 4th posture / no tuple collision minted. Zero em-dashes across all touched files. Every commit through the live pre-commit hooks with no --no-verify. SUMMARY at .planning/phases/144.1-connector-retrofit-sweep/144.1-08-SUMMARY.md.
 
