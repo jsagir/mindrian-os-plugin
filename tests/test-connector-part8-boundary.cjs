@@ -150,10 +150,22 @@ function fail(name, err) {
       }
 
       // (b) framework is a GENERIC name present in the allowlist (never a slug,
-      //     never user content).
-      assert.ok(allowedFrameworks.has(c.framework),
-        label + ': connector ' + surfaceId + ' framework "' + c.framework +
-          '" is not a generic name in framework-names.json (slug or smuggled content?)');
+      //     never user content). EXEMPTION: framework === null is the legal
+      //     WFL-01 no-framework config -- a connector that fires no command on
+      //     APPROVE (filing: none, no decision surface) carries framework: null
+      //     and the validateConnectors WFL-01 guard already exempts it (it never
+      //     calls commandsForFramework on a non-firing connector). A null
+      //     framework is the ABSENCE of a framework handle, not a smuggled body;
+      //     it cannot carry user content. Only a NON-NULL framework must be a
+      //     generic name in the allowlist. (DI-144.1-A: this exemption lets the
+      //     legitimately-null connectors -- /mos:funding, agent:brain-query,
+      //     agent:investor, agent:opportunity-scanner -- pass while still failing
+      //     a non-null framework that is a slug or smuggled string.)
+      if (c.framework !== null) {
+        assert.ok(allowedFrameworks.has(c.framework),
+          label + ': connector ' + surfaceId + ' framework "' + c.framework +
+            '" is not a generic name in framework-names.json (slug or smuggled content?)');
+      }
 
       // (c) web_scope is null or a frozen hat enum.
       assert.ok(FROZEN_WEB_SCOPES.has(c.web_scope),
