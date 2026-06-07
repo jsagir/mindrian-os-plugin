@@ -704,8 +704,8 @@
 | PUSH-04 | Phase 143.2 | Pending |
 | PUSH-05 | Phase 143.2 | Pending |
 | PUSH-06 | Phase 143.2 | Pending |
-| CONV-01 | Phase 143.2 | Pending |
-| CONV-02 | Phase 143.2 | Pending |
+| CONV-01 | Phase 143.2 | Complete |
+| CONV-02 | Phase 143.2 | Complete |
 | MULL-01 | Phase 143.2 | Pending |
 | MULL-02 | Phase 143.2 | Pending |
 | WFL-01 | Phase 143.2 | Pending |

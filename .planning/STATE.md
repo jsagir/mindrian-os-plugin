@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: verifying
-stopped_at: Completed 144-02-PLAN.md (fixture repair; Tests 16/17 GREEN + Test 18 cold-room honest-negative; 18/18)
+stopped_at: Completed 143.2-05-PLAN.md (CONV-01/02 conversation-mode Shape F.1 lane-picker + Ackoff DIKW; all ACs PASS; zero em-dashes)
 last_updated: "2026-06-07T16:20:00.000Z"
-last_activity: 2026-06-07 -- Phase 143.2 Plan 02 (PUSH-01..06 + WFL-01) shipped; Phase 144 execution in progress
+last_activity: 2026-06-07 -- Phase 143.2 Plan 05 (CONV-01/02 conversation-mode lane-picker + Ackoff DIKW) shipped; remaining open plan 04 (verification)
 progress:
   total_phases: 83
   completed_phases: 56
   total_plans: 436
-  completed_plans: 381
+  completed_plans: 382
   percent: 67
 ---
 
@@ -611,6 +611,7 @@ Progress: [█████████░] 92%
 | Phase 144 P144-03 | 11min | 2 tasks | 2 files |
 | Phase 143.2 P01 | 18min | 3 tasks | 1 files |
 | Phase 143.2 P02 | 22min | 3 tasks | 2 files |
+| Phase 143.2 P05 | 10min | 1 tasks | 1 files |
 
 ### Roadmap Evolution
 
@@ -1240,6 +1241,7 @@ Progress: [█████████░] 92%
 - [Phase 143.2-03]: ui-system Shape F.7 documents the shipped dial-TUI as an F.1 specialization (reuses renderShapeF1 per SEED-020); F-shape catalog count corrected to eight (F.0-F.7)
 - [Phase 143.2-03]: larry-extended stale greeting deleted + Operating-the-machinery pointer added with frozen frontmatter byte-unchanged; Part-8 absolute strengthened to verbatim ZERO user-content egress (never softened)
 - [Phase 143.2-03]: conversation-mode notes reaches+sensors operate in no-room sessions via Shape F.1 Tier-0; scratchpad preserved; no 6th reach-id minted (WFL-01)
+- [Phase 143.2-05]: conversation-mode is now the EXPLICIT Shape F.1 lane-picker (CONV-01, SEED-020) -- the no-room lane (just-chat/brainstorm/build) is a Decision Gate, not a silent persona classifier; persona detection runs WITHIN the chosen lane. The 3 lanes map to Ackoff DIKW bidirectional (CONV-02): chat=Data/Information, brainstorm=Knowledge, build=Wisdom (the ascent) + the build->validate descent (the honesty loop), reusing the larry-personality push_forward/pull_back posture additively. The build crossing OFFERS the Brain chain (Ackoff FEEDS_INTO Systems Thinking + MAP THE HIERARCHY) at a Decision Gate, generic framework handles only (Part 8), never auto-routed. Plan-03 Conversational Reaches note + scratchpad-ops.cjs block preserved; zero em-dashes (commit 0372aabb)
 
 ### Pending Todos
 
