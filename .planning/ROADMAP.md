@@ -1969,7 +1969,12 @@ Plans:
 **Canon parts**: Part 2 (Engine 1/2 reaches), Part 3 (every reach -> Decision Gate / Shape F), Part 4 (reaches file typed edges), Part 7 (the orchestrator is mostly WIRING of shipped surfaces; the generator mirrors build-command-registry.cjs), Part 8 (generic handles only; hat-scoped web), Part 9 (filing routes through navigation.cjs)
 **Locked decisions (2026-06-07)**: (1) live dispatchSensors gated behind tier_mode, degrade to doctrine-sim at tier_0; (2) fileEvidenceWithReadback (FILEVAL honesty path, first consumer) with wireAccept fallback; (3) new skill, not folded into room-proactive; (4) the connector contract IS a generated registry, the orchestrator reads it.
 **Open items (resolve in planning)**: OPEN-1 dispatch-handle->exact-framework-name map + drift test; OPEN-2 the tier predicate + non-double-fire with 144; OPEN-3 filing path per family; OPEN-4 rs-agent [BRAIN] header vs local reach; OPEN-5 coexistence with room-proactive. (See ROUTING-TABLE-intelligence-orchestrator.md.)
-**Plans**: TBD (a NEW session runs /gsd:plan-phase 143.3)
+**Plans**: 4 plans, 4 waves
+Plans:
+- [ ] 143.3-01-PLAN.md -- CONN-01 (connector: schema doc) + CONN-02 (generator with nested-map parser + connector-registry.json) + OPEN-1 dispatch-framework map + drift test [wave 1]
+- [ ] 143.3-02-PLAN.md -- CONN-04 (retrofit the 7 algorithmic-cohort commands) + CONN-03 (the four --check validations + pre-commit tripwire + WARN nudge); registry regenerated + populated [wave 2]
+- [ ] 143.3-03-PLAN.md -- ORCH-01..04 the intelligence-orchestrator SKILL.md (registry-reading dispatcher + 5-step loop + filing + tier gate + OPEN-4/OPEN-5 resolutions) [wave 3]
+- [ ] 143.3-04-PLAN.md -- verification: run-all-1433.sh composing connector-registry --check + dispatch-map drift + tripwire + Part-8 boundary scan + orchestrator doctrine-presence + carried reach-drift/posture-drift fences [wave 4]
 **UI hint**: the orchestrator surfaces via the existing Shape-F selector (143.1 dial-TUI / SEED-020); documents no new UI
 
 ### Phase 143.2: Larry Operates And Pushes (Prompt Reconciliation) (INSERTED)
