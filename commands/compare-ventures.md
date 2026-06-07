@@ -16,6 +16,18 @@ allowed-tools:
   - mcp__mindrian-brain__brain_query
   - mcp__mindrian-brain__read_neo4j_cypher
   - mcp__mindrian-brain__brain_search
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-03]
+  reach_id: brain_consult
+  sub_mode: venture-compare
+  framework: "PWS Triple Validation Compass"
+  posture: hold
+  hierarchy_rank: 19
+  filing: memory_event_only
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:compare-ventures

@@ -13,6 +13,20 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 144.1 connector frontmatter ---
+# new-project declares no frameworks: block; the connector carries framework: null
+# and filing: none with NO surface so the WFL-01 firesCommand gate does not fire.
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-01, SENS-06]
+  reach_id: context_block
+  sub_mode: new-project
+  framework: null
+  posture: push_forward
+  hierarchy_rank: 23
+  filing: none
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:new-project

@@ -22,6 +22,18 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-06, SENS-07]
+  reach_id: context_block
+  sub_mode: value-prop
+  framework: "PWS Value Proposition"
+  posture: hold
+  hierarchy_rank: 26
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:validate-proposition

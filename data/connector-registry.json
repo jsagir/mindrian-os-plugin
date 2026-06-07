@@ -21,6 +21,40 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:analyze-systems",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "systems-analysis",
+      "framework": "Systems Thinking",
+      "posture": "push_forward",
+      "hierarchy_rank": 18,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "/mos:analyze-timing",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "timing-scurve",
+      "framework": "S-Curve Analysis",
+      "posture": "push_forward",
+      "hierarchy_rank": 27,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
       "surface": "/mos:auto-explore",
       "source": "command",
       "connects_to_spine": true,
@@ -32,6 +66,40 @@
       "framework": "Domain Selection",
       "posture": "push_forward",
       "hierarchy_rank": 17,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "/mos:beautiful-question",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "beautiful-question",
+      "framework": "Beautiful Question Framework",
+      "posture": "push_forward",
+      "hierarchy_rank": 30,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "/mos:build-knowledge",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "ackoff-pyramid",
+      "framework": "Ackoff Pyramid",
+      "posture": "push_forward",
+      "hierarchy_rank": 29,
       "filing": "fileEvidenceWithReadback",
       "plan_gated": false,
       "web_scope": null,
@@ -73,6 +141,23 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:compare-ventures",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-03"
+      ],
+      "reach_id": "brain_consult",
+      "sub_mode": "venture-compare",
+      "framework": "PWS Triple Validation Compass",
+      "posture": "hold",
+      "hierarchy_rank": 19,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
       "surface": "/mos:deep-grade",
       "source": "command",
       "connects_to_spine": true,
@@ -86,6 +171,23 @@
       "posture": "hold",
       "hierarchy_rank": 8,
       "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "/mos:dial-memory-refresh",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-02"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "dial-refresh",
+      "framework": "Reverse Salient Analysis",
+      "posture": "hold",
+      "hierarchy_rank": 22,
+      "filing": "memory_event_only",
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": null
@@ -107,6 +209,23 @@
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": "F.1"
+    },
+    {
+      "surface": "/mos:dominant-designs",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "dominant-design",
+      "framework": "Dominant Design",
+      "posture": "push_forward",
+      "hierarchy_rank": 28,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
     },
     {
       "surface": "/mos:find-analogies",
@@ -195,6 +314,59 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:leadership",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-05"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "adaptive-leadership",
+      "framework": "Adaptive Leadership",
+      "posture": "hold",
+      "hierarchy_rank": 20,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "/mos:mos-reason",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "minto-reason",
+      "framework": "The Pyramid Principle",
+      "posture": "push_forward",
+      "hierarchy_rank": 21,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "/mos:mullins",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-03",
+        "SENS-06",
+        "SENS-07"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "mullins-seven",
+      "framework": "Mullins Model",
+      "posture": "hold",
+      "hierarchy_rank": 24,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.2"
+    },
+    {
       "surface": "/mos:mva-brief",
       "source": "command",
       "connects_to_spine": true,
@@ -223,6 +395,24 @@
       "framework": null,
       "posture": "push_forward",
       "hierarchy_rank": 11,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "/mos:new-project",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-01",
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "new-project",
+      "framework": null,
+      "posture": "push_forward",
+      "hierarchy_rank": 23,
       "filing": "none",
       "plan_gated": false,
       "web_scope": null,
@@ -281,6 +471,23 @@
       "decision_surface": "F.1"
     },
     {
+      "surface": "/mos:structure-argument",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "pyramid-argument",
+      "framework": "The Pyramid Principle",
+      "posture": "hold",
+      "hierarchy_rank": 31,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
       "surface": "/mos:think-hats",
       "source": "command",
       "connects_to_spine": true,
@@ -296,6 +503,41 @@
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": "F.1"
+    },
+    {
+      "surface": "/mos:validate",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "validate-jtbd",
+      "framework": "Jobs to Be Done (JTBD)",
+      "posture": "hold",
+      "hierarchy_rank": 25,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.2"
+    },
+    {
+      "surface": "/mos:value-proposition",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06",
+        "SENS-07"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "value-prop",
+      "framework": "PWS Value Proposition",
+      "posture": "hold",
+      "hierarchy_rank": 26,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
     },
     {
       "surface": "/mos:whitespace",
@@ -320,17 +562,29 @@
       "/mos:analyze-needs",
       "/mos:discover",
       "/mos:jtbd",
+      "/mos:leadership",
       "/mos:mva-option",
       "/mos:think-hats"
     ],
     "SENS-06": [
       "/mos:analyze-needs",
+      "/mos:analyze-systems",
+      "/mos:analyze-timing",
+      "/mos:beautiful-question",
+      "/mos:build-knowledge",
       "/mos:build-thesis",
       "/mos:challenge-assumptions",
       "/mos:deep-grade",
+      "/mos:dominant-designs",
       "/mos:grade",
+      "/mos:mos-reason",
+      "/mos:mullins",
+      "/mos:new-project",
       "/mos:opportunities",
       "/mos:score-innovation",
+      "/mos:structure-argument",
+      "/mos:validate",
+      "/mos:value-proposition",
       "/mos:whitespace"
     ],
     "SENS-01": [
@@ -338,14 +592,22 @@
       "/mos:discover",
       "/mos:find-analogies",
       "/mos:find-connections",
-      "/mos:mva-brief"
+      "/mos:mva-brief",
+      "/mos:new-project"
     ],
     "SENS-07": [
       "/mos:build-thesis",
       "/mos:deep-grade",
-      "/mos:grade"
+      "/mos:grade",
+      "/mos:mullins",
+      "/mos:value-proposition"
+    ],
+    "SENS-03": [
+      "/mos:compare-ventures",
+      "/mos:mullins"
     ],
     "SENS-02": [
+      "/mos:dial-memory-refresh",
       "/mos:find-bottlenecks"
     ],
     "SENS-04": [
@@ -357,29 +619,58 @@
     "Jobs to Be Done (JTBD)": [
       "/mos:analyze-needs",
       "/mos:discover",
-      "/mos:jtbd"
+      "/mos:jtbd",
+      "/mos:validate"
+    ],
+    "Systems Thinking": [
+      "/mos:analyze-systems"
+    ],
+    "S-Curve Analysis": [
+      "/mos:analyze-timing"
     ],
     "Domain Selection": [
       "/mos:auto-explore"
     ],
+    "Beautiful Question Framework": [
+      "/mos:beautiful-question"
+    ],
+    "Ackoff Pyramid": [
+      "/mos:build-knowledge"
+    ],
     "PWS Value Proposition": [
-      "/mos:build-thesis"
+      "/mos:build-thesis",
+      "/mos:value-proposition"
     ],
     "Red Teaming": [
       "/mos:challenge-assumptions"
     ],
     "PWS Triple Validation Compass": [
+      "/mos:compare-ventures",
       "/mos:deep-grade",
       "/mos:grade"
+    ],
+    "Reverse Salient Analysis": [
+      "/mos:dial-memory-refresh",
+      "/mos:find-bottlenecks"
+    ],
+    "Dominant Design": [
+      "/mos:dominant-designs"
     ],
     "Four Lenses of Innovation": [
       "/mos:find-analogies"
     ],
-    "Reverse Salient Analysis": [
-      "/mos:find-bottlenecks"
-    ],
     "Usher's Model of Cumulative Synthesis": [
       "/mos:find-connections"
+    ],
+    "Adaptive Leadership": [
+      "/mos:leadership"
+    ],
+    "The Pyramid Principle": [
+      "/mos:mos-reason",
+      "/mos:structure-argument"
+    ],
+    "Mullins Model": [
+      "/mos:mullins"
     ],
     "Hypothesis-Driven Problem Solving": [
       "/mos:research"

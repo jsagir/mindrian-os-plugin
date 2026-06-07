@@ -20,6 +20,18 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-06]
+  reach_id: context_block
+  sub_mode: pyramid-argument
+  framework: "The Pyramid Principle"
+  posture: hold
+  hierarchy_rank: 31
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:structure-argument

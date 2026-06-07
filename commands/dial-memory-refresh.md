@@ -12,6 +12,18 @@ frameworks: []
 produces: "room/*/FEYNMAN.md"
 inputs: []
 autonomous_safe: true
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-02]
+  reach_id: context_block
+  sub_mode: dial-refresh
+  framework: "Reverse Salient Analysis"
+  posture: hold
+  hierarchy_rank: 22
+  filing: memory_event_only
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:dial-memory-refresh

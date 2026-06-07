@@ -18,6 +18,18 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-06]
+  reach_id: context_block
+  sub_mode: minto-reason
+  framework: "The Pyramid Principle"
+  posture: push_forward
+  hierarchy_rank: 21
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:reason -- Feynman-MINTO Orchestrator (Phase 81 Revision 2)

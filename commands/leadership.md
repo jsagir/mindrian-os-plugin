@@ -16,6 +16,18 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-05]
+  reach_id: context_block
+  sub_mode: adaptive-leadership
+  framework: "Adaptive Leadership"
+  posture: hold
+  hierarchy_rank: 20
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:leadership

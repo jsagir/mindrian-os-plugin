@@ -16,6 +16,18 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-06]
+  reach_id: context_block
+  sub_mode: timing-scurve
+  framework: "S-Curve Analysis"
+  posture: push_forward
+  hierarchy_rank: 27
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
 ---
 
 # /mos:analyze-timing
