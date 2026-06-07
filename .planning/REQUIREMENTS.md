@@ -721,8 +721,8 @@
 | SCHED-02 | Phase 145 | Complete |
 | ACPT-01 | Phase 146 | Complete (146-01) |
 | ACPT-02 | Phase 146 | Complete (146-01) |
-| ACPT-03 | Phase 146 | Pending |
-| ACPT-04 | Phase 146 | Pending |
+| ACPT-03 | Phase 146 | Complete |
+| ACPT-04 | Phase 146 | Complete |
 | ACPT-05 | Phase 146 | Pending |
 
 ## v1.13.1 "Larry Reaches" -- Close the Local Loop + Intelligence-Layer Activation (LARRYREACH)
@@ -847,8 +847,8 @@
 |----|-------------|------|
 | ACPT-01 | scripted dogfood session in mindrianOS room produces `routing_source: engine` (not `legacy`) in a decision trace | 146-01 |
 | ACPT-02 | a turn referencing external facts triggers WebSearch (hat-scoped) | 146-01 |
-| ACPT-03 | first material in a session triggers `/mos:explore-domains` -> room non-empty (domain tree + whitespace + candidate bank) by turn 2 | TBD |
-| ACPT-04 | filing an artifact surfaces the cross-relationship cascade findings to Larry mid-session | TBD |
+| ACPT-03 | first material in a session triggers `/mos:explore-domains` -> room non-empty (domain tree + whitespace + candidate bank) by turn 2 | Done (146-02; test-acpt-03-first-material-explore.cjs 6/6) |
+| ACPT-04 | filing an artifact surfaces the cross-relationship cascade findings to Larry mid-session | Done (146-02; test-acpt-04-filing-cascade-surfaces.cjs 5/5) |
 | ACPT-05 | BRAIN.md derives for the room's sections -> `tier_mode` rises above `tier_0` | TBD |
 
 ## Dial-TUI selector (added 2026-06-05 -- built under Phase 143; doctrine ships in 141)
