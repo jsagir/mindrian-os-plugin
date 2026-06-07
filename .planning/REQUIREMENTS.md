@@ -719,8 +719,8 @@
 | ORCH-04 | Phase 143.3 | Complete (143.3-03) |
 | SCHED-01 | Phase 145 | Complete |
 | SCHED-02 | Phase 145 | Complete |
-| ACPT-01 | Phase 146 | Pending |
-| ACPT-02 | Phase 146 | Pending |
+| ACPT-01 | Phase 146 | Complete (146-01) |
+| ACPT-02 | Phase 146 | Complete (146-01) |
 | ACPT-03 | Phase 146 | Pending |
 | ACPT-04 | Phase 146 | Pending |
 | ACPT-05 | Phase 146 | Pending |
@@ -845,8 +845,8 @@
 
 | ID | Description | Plan |
 |----|-------------|------|
-| ACPT-01 | scripted dogfood session in mindrianOS room produces `routing_source: engine` (not `legacy`) in a decision trace | TBD |
-| ACPT-02 | a turn referencing external facts triggers WebSearch (hat-scoped) | TBD |
+| ACPT-01 | scripted dogfood session in mindrianOS room produces `routing_source: engine` (not `legacy`) in a decision trace | 146-01 |
+| ACPT-02 | a turn referencing external facts triggers WebSearch (hat-scoped) | 146-01 |
 | ACPT-03 | first material in a session triggers `/mos:explore-domains` -> room non-empty (domain tree + whitespace + candidate bank) by turn 2 | TBD |
 | ACPT-04 | filing an artifact surfaces the cross-relationship cascade findings to Larry mid-session | TBD |
 | ACPT-05 | BRAIN.md derives for the room's sections -> `tier_mode` rises above `tier_0` | TBD |
