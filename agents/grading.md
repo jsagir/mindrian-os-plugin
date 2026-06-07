@@ -7,6 +7,19 @@ allowed-tools:
   - mcp__mindrian-brain__brain_ask
   - mcp__mindrian-brain__brain_search
   - Read
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-07]
+  reach_id: brain_consult
+  sub_mode: grading-agent
+  framework: "PWS Triple Validation Compass"
+  posture: hold
+  hierarchy_rank: 46
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
+  surface: F.0
 ---
 
 <!-- Phase 95.6 D-10: Brain access declared explicitly via allowed-tools (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__my-neo4j__*); no implicit MCP inheritance. -->

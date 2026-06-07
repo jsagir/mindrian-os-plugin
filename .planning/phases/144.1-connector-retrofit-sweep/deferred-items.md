@@ -29,3 +29,14 @@ current task's changes).
   legitimate shape -- the validateConnectors WFL-01 guard already exempts a
   connector that does not fire a command). Decide in the command-connector plan,
   not here.
+- **Update (Plan 144.1-05):** Plan 05 added 3 MORE legitimately-null-framework
+  connectors -- `agent:brain-query`, `agent:investor`, `agent:opportunity-scanner`
+  (all `framework: null` + `filing: none` + no surface, the only WFL-01-legal
+  null-framework shape, per the plan's explicit instruction and the CONNECTOR-CONTRACT
+  additive-degrade rule). These share the SAME CHECK 2 gap as `/mos:funding`: the
+  test asserts every connector framework is in the allowlist and does NOT exempt
+  `null`. The SHIPPED generator `--check` (the canonical gate per the plan fences)
+  is GREEN at 53 connectors; only this one test assertion does not tolerate a null
+  framework. The fix is still test-side (exempt `framework: null` from CHECK 2's
+  allowlist assertion) and remains out of scope for the agent-frontmatter plan.
+  CHECK 1 (brain-client locality), CHECK 3, and CHECK 4 all PASS.

@@ -786,6 +786,127 @@
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": "F.1"
+    },
+    {
+      "surface": "agent:brain-query",
+      "source": "agent",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-03"
+      ],
+      "reach_id": "brain_consult",
+      "sub_mode": "brain-query",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 51,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "agent:grading",
+      "source": "agent",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-07"
+      ],
+      "reach_id": "brain_consult",
+      "sub_mode": "grading-agent",
+      "framework": "PWS Triple Validation Compass",
+      "posture": "hold",
+      "hierarchy_rank": 46,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.0"
+    },
+    {
+      "surface": "agent:investor",
+      "source": "agent",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-07"
+      ],
+      "reach_id": "contradiction",
+      "sub_mode": "investor-agent",
+      "framework": null,
+      "posture": "pull_back",
+      "hierarchy_rank": 47,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "agent:opportunity-scanner",
+      "source": "agent",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-04",
+        "SENS-06"
+      ],
+      "reach_id": "deep_research",
+      "sub_mode": "opportunity-scan",
+      "framework": null,
+      "posture": "push_forward",
+      "hierarchy_rank": 48,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "agent:persona-analyst",
+      "source": "agent",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "persona-hats",
+      "framework": "Six Thinking Hats",
+      "posture": "hold",
+      "hierarchy_rank": 50,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
+      "surface": "agent:research",
+      "source": "agent",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-04",
+        "SENS-06"
+      ],
+      "reach_id": "deep_research",
+      "sub_mode": "research-agent",
+      "framework": "Hypothesis-Driven Problem Solving",
+      "posture": "push_forward",
+      "hierarchy_rank": 49,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": true,
+      "web_scope": "green",
+      "decision_surface": "F.1"
+    },
+    {
+      "surface": "agent:reverse-salient-agent",
+      "source": "agent",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-02"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "rs-agent-finding",
+      "framework": "Reverse Salient Analysis",
+      "posture": "pull_back",
+      "hierarchy_rank": 52,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.0"
     }
   ],
   "sensor_index": {
@@ -822,7 +943,10 @@
       "/mos:user-needs",
       "/mos:validate",
       "/mos:value-proposition",
-      "/mos:whitespace"
+      "/mos:whitespace",
+      "agent:opportunity-scanner",
+      "agent:persona-analyst",
+      "agent:research"
     ],
     "SENS-01": [
       "/mos:auto-explore",
@@ -840,21 +964,27 @@
       "/mos:grade",
       "/mos:mullins",
       "/mos:scout",
-      "/mos:value-proposition"
+      "/mos:value-proposition",
+      "agent:grading",
+      "agent:investor"
     ],
     "SENS-03": [
       "/mos:compare-ventures",
-      "/mos:mullins"
+      "/mos:mullins",
+      "agent:brain-query"
     ],
     "SENS-02": [
       "/mos:dial-memory-refresh",
-      "/mos:find-bottlenecks"
+      "/mos:find-bottlenecks",
+      "agent:reverse-salient-agent"
     ],
     "SENS-04": [
       "/mos:explore-trends",
       "/mos:opportunities",
       "/mos:research",
-      "/mos:scout"
+      "/mos:scout",
+      "agent:opportunity-scanner",
+      "agent:research"
     ]
   },
   "framework_index": {
@@ -893,11 +1023,13 @@
     "PWS Triple Validation Compass": [
       "/mos:compare-ventures",
       "/mos:deep-grade",
-      "/mos:grade"
+      "/mos:grade",
+      "agent:grading"
     ],
     "Reverse Salient Analysis": [
       "/mos:dial-memory-refresh",
-      "/mos:find-bottlenecks"
+      "/mos:find-bottlenecks",
+      "agent:reverse-salient-agent"
     ],
     "Dominant Design": [
       "/mos:dominant-designs"
@@ -932,7 +1064,8 @@
       "/mos:mullins"
     ],
     "Hypothesis-Driven Problem Solving": [
-      "/mos:research"
+      "/mos:research",
+      "agent:research"
     ],
     "Root Cause Analysis": [
       "/mos:root-cause"
@@ -942,7 +1075,8 @@
       "/mos:whitespace"
     ],
     "Six Thinking Hats": [
-      "/mos:think-hats"
+      "/mos:think-hats",
+      "agent:persona-analyst"
     ]
   }
 }

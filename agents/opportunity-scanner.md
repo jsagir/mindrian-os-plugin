@@ -12,6 +12,18 @@ allowed-tools:
   - WebSearch
   - mcp__tavily-mcp__tavily-search
   - mcp__tavily-mcp__tavily-extract
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-04, SENS-06]
+  reach_id: deep_research
+  sub_mode: opportunity-scan
+  framework: null
+  posture: push_forward
+  hierarchy_rank: 48
+  filing: none
+  plan_gated: false
+  web_scope: null
 ---
 
 <!-- Phase 95.6 D-10: external-signal access (WebSearch + mcp__tavily-mcp__*) declared explicitly via allowed-tools; no Brain access needed (grant discovery is a public-signal scan, not a methodology lookup); no implicit MCP inheritance. -->

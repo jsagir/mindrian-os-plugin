@@ -12,6 +12,19 @@ allowed-tools:
   - mcp__pinecone-brain__search-records
   - Read
   - Write
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-04, SENS-06]
+  reach_id: deep_research
+  sub_mode: research-agent
+  framework: "Hypothesis-Driven Problem Solving"
+  posture: push_forward
+  hierarchy_rank: 49
+  filing: fileEvidenceWithReadback
+  plan_gated: true
+  web_scope: green
+  surface: F.1
 ---
 
 <!-- Phase 95.6 D-10: Brain + Tavily access declared explicitly via allowed-tools (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__pinecone-brain__* / mcp__tavily-mcp__*); no implicit MCP inheritance. -->

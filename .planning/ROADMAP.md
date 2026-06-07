@@ -2045,7 +2045,7 @@ Plans:
   - [x] 144.1-02-PLAN.md (wave 1, RETRO-02/05) - Tier C batch-A connectors (14) + leadership frontmatter + value-proposition drift + structure-argument primary key
   - [x] 144.1-03-PLAN.md (wave 1, RETRO-02) - Tier C batch-B connectors (14; explore-*/scout/operator/funding/reanalyze + rest)
   - [x] 144.1-04-PLAN.md (wave 1, RETRO-07a) - generator agents/-walk amendment (build-connector-registry.cjs) + walk test
-  - [ ] 144.1-05-PLAN.md (wave 2, RETRO-07b) - agent connectors (7 spine-eligible); framework-runner + larry-extended allow-listed
+  - [x] 144.1-05-PLAN.md (wave 2, RETRO-07b) - agent connectors (7 spine-eligible: grading/investor/opportunity-scanner/research/persona-analyst/brain-query/reverse-salient-agent); registry 46 -> 53; framework-runner + larry-extended allow-listed
   - [ ] 144.1-06-PLAN.md (wave 2, RETRO-03) - Tier D hook sensor-firing wiring (not already fixed in 144) + firing test
   - [ ] 144.1-07-PLAN.md (wave 2, RETRO-04) - registry-driven filing sweep (fileEvidenceWithReadback routing, no bare Write)
   - [ ] 144.1-08-PLAN.md (wave 3, RETRO-06/07c) - registry complete + --check green + exhaustive 114-surface coverage count gate + out-of-spine allow-list + run-all-1441.sh

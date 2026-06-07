@@ -8,6 +8,18 @@ allowed-tools:
   - mcp__mindrian-brain__brain_search
   - mcp__pinecone-brain__search-records
   - Read
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-03]
+  reach_id: brain_consult
+  sub_mode: brain-query
+  framework: null
+  posture: hold
+  hierarchy_rank: 51
+  filing: none
+  plan_gated: false
+  web_scope: null
 ---
 
 <!-- Phase 95.6 D-10: Brain access declared explicitly via allowed-tools (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__pinecone-brain__*); no implicit MCP inheritance. -->

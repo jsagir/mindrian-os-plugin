@@ -7,6 +7,18 @@ allowed-tools:
   - Read
   - Write
   - Glob
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-06]
+  reach_id: context_block
+  sub_mode: persona-hats
+  framework: "Six Thinking Hats"
+  posture: hold
+  hierarchy_rank: 50
+  filing: memory_event_only
+  plan_gated: false
+  web_scope: null
 ---
 
 <!-- Phase 95.6 D-10: NO Brain or methodology-skill access needed -- this agent synthesizes De Bono hat perspectives from the room's locally-generated persona files (read via Read/Glob), never from the Brain teaching graph; no implicit MCP inheritance. -->

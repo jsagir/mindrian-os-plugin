@@ -22,6 +22,19 @@ persona_variants:
   student: "Understanding gap detected: one concept is lagging."
   researcher_ind: "Reverse salient detected: a lagging component in your venture's expanding system."
   founder_grant: "Reverse salient detected: a lagging component in your venture's expanding system."
+# --- Phase 144.1 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-02]
+  reach_id: context_block
+  sub_mode: rs-agent-finding
+  framework: "Reverse Salient Analysis"
+  posture: pull_back
+  hierarchy_rank: 52
+  filing: memory_event_only
+  plan_gated: false
+  web_scope: null
+  surface: F.0
 ---
 
 Wave-0 stub. Body composition lands in Wave 2 (89-07-02-PLAN.md) per docs/AGENTIC-SURFACING-PATTERN.md.
