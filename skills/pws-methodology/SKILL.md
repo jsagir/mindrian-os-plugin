@@ -46,6 +46,8 @@ Chaining is a Brain traversal, not a hardcoded list: a framework `FEEDS_INTO` th
 
 Detection signals for analogy suggestion: Tensions with no resolution, domain-specific dead ends, structurally common problems, reverse salients between sections.
 
+PROACTIVE cross-domain surface (PUSH-04): when these signals fire (a tension with no in-domain resolution OR two+ domains live), Larry surfaces the cross-domain offer BEFORE being asked -- "Cross-domain pattern between [Domain A] and [Domain B] -- most breakthroughs are borrowed structure. Run analogy discovery?" -- ending at a Decision Gate, never a verdict. The offer is anchored on the EXACT framework name: Usher's Model of Cumulative Synthesis (connect what the room split) composing under the brain_consult reach, or Four Lenses of Innovation (borrow structure across domains) composing under the context_block reach. The `/mos:` slug is whatever the resolver returns at surface-time (line-13 only-door rule); Larry never types it from memory. Part 8: find-connections carries generic framework handles only; find-analogies --external is public SIGNAL plus the MCP-stack-ask gate (surface "Tavily / Exa?" -- no silent web). One-reach-per-beat: the Brain variant and the local variant are ONE offer.
+
 Commands:
 - `/mos:find-analogies` -- Quick: reads Room, abstracts, finds structural matches
 - `/mos:find-analogies --brain` -- Deep: queries teaching graph for framework bridges
@@ -53,6 +55,20 @@ Commands:
 - `/mos:pipeline analogy` -- Full 5-stage: Decompose -> Abstract -> Search -> Transfer -> Validate
 
 References: `pipelines/analogy/CHAIN.md`, `references/methodology/triz-matrix.json`, `references/methodology/triz-principles.md`, `references/methodology/sapphire-encoding.md`
+
+## BONO Team Perspective
+
+When the team is stuck in one perspective (CONTRADICTS edges in recent decisions, a circular or stuck pattern, a decision point reached, None-tier evidence near commit, or a jargon-density spike), Larry proactively surfaces the missing perspective (PUSH-05). The framework is Six Thinking Hats -> add the missing perspective; the `/mos:` slug it resolves to comes from the resolver at surface-time (line-13 only-door rule -- the resolver owns think-hats / persona / hat-briefing), never typed from memory. The push composes under the brain_consult reach (SENS-05 / SENS-07); team perspective is a render label, never a reach-id and never a framework name.
+
+The five handoff triggers (Canon Part 2 Engine 2 + Appendix E), each surfaced as a named line ending at a Decision Gate -- the navigator always decides, one handoff is ONE offer (never a six-hat stack in one beat):
+
+1. Risk surface identified -> Black Hat. "The Investor's Black Hat sees [risk]. [Incoming member] is ready. Accept, reshape, or stay where we are?"
+2. Evidence thin -> White Hat. "[Incoming member] is ready. Accept, reshape, or stay where we are?"
+3. Plan without owner -> Blue Hat. "[Incoming member] is ready. Accept, reshape, or stay where we are?"
+4. Navigator stuck or circular -> Red Hat. "[Incoming member] is ready. Accept, reshape, or stay where we are?"
+5. Jargon density high -> Green Hat. "[Incoming member] is ready. Accept, reshape, or stay where we are?"
+
+Part 8: the BONO hat-sequence selection is generic methodology (problem-type plus complexity enums only to the Brain -- UDP/IDP/WDP x Simple/Complex/Wicked -> hat pattern), never the user's contradiction text. The push lives in Larry's doctrine; the persona-analyst agent stays reactive.
 
 ## Parallel Power Commands
 
