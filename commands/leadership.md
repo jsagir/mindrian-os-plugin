@@ -5,6 +5,12 @@ help_jtbd: "Apply adaptive leadership (Heifetz) to your venture stage."
 body_shape: "methodology"
 serves_jtbd: ["explore"]
 teaching: "When the team feels wrong-shaped for the stage, /mos:leadership diagnoses which leadership pattern you actually need. Different stages of a venture need different leadership shapes."
+# --- Phase 122 workflow-layer frontmatter ---
+kind: methodology
+frameworks: ["Adaptive Leadership"]
+produces: "room/team-execution/leadership/*"
+inputs: []
+autonomous_safe: true
 allowed-tools:
   - Read
   - Write

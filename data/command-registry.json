@@ -672,11 +672,13 @@
     },
     {
       "command": "/mos:leadership",
-      "kind": "utility",
-      "frameworks": [],
-      "produces": null,
+      "kind": "methodology",
+      "frameworks": [
+        "Adaptive Leadership"
+      ],
+      "produces": "room/team-execution/leadership/*",
       "inputs": [],
-      "autonomous_safe": false,
+      "autonomous_safe": true,
       "body_shape": "methodology",
       "serves_jtbd": [
         "explore"
@@ -1586,6 +1588,9 @@
       "/mos:hat-briefing",
       "/mos:persona",
       "/mos:think-hats"
+    ],
+    "Adaptive Leadership": [
+      "/mos:leadership"
     ],
     "Lean Canvas": [
       "/mos:lean-canvas"

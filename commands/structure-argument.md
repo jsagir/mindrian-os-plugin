@@ -7,6 +7,10 @@ serves_jtbd: ["validate-idea", "explore"]
 teaching: "When an argument is muddled and you cannot say why, /mos:structure-argument restructures it with Minto pyramid, SCQA, and MECE. The right structure usually surfaces the missing premise."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
+# PRIMARY FRAMEWORK KEY (RETRO-05, audit item 56): this command declares two frameworks
+# (dual-framework). The resolver still resolves BOTH; the connector below keys its single
+# framework: field to the PRIMARY, "The Pyramid Principle". The frameworks: list is left
+# intact on purpose.
 frameworks: ["The Pyramid Principle", "MECE (Mutually Exclusive, Collectively Exhaustive)"]
 produces: "room/**/argument/*"
 inputs: []

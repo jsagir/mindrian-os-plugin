@@ -1,4 +1,10 @@
 ---
+# NAME/FILE RELATIONSHIP (RETRO-05, audit item 39): this file is value-proposition.md
+# but its resolver key is name: validate-proposition. This is INTENTIONAL and recorded,
+# not silent drift. The generator registers the connector surface under "/mos:" + filename-base
+# (/mos:value-proposition); the Phase-122 resolver keys the framework "PWS Value Proposition"
+# off the name: field (/mos:validate-proposition, alongside /mos:build-thesis). Renaming the
+# file would break the generator surface id and any caller; both ids are kept consistent.
 name: validate-proposition
 description: Score your value proposition against 3 VP gates
 help_jtbd: "Compose the value proposition canvas for your room."
