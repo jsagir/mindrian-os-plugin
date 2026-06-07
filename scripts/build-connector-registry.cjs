@@ -68,6 +68,7 @@ const { commandsForFramework } = require(
 );
 const COMMANDS_DIR = path.join(REPO_ROOT, 'commands');
 const SKILLS_DIR = path.join(REPO_ROOT, 'skills');
+const AGENTS_DIR = path.join(REPO_ROOT, 'agents');
 const DATA_DIR = path.join(REPO_ROOT, 'data');
 const REGISTRY_PATH = path.join(DATA_DIR, 'connector-registry.json');
 const FW_NAMES_PATH = path.join(DATA_DIR, 'framework-names.json');
@@ -240,9 +241,14 @@ function loadCuratedExtras() {
 }
 
 // ---------------------------------------------------------------------------
-// Source-file discovery: walk BOTH commands/*.md AND skills/*/SKILL.md,
-// deterministically sorted, so the registry is byte-stable across machines.
-// Returns [{ surface, file }] where `surface` is the registry id.
+// Source-file discovery: walk commands/*.md AND skills/*/SKILL.md AND
+// agents/*.md, deterministically sorted (commands, then skills, then agents),
+// so the registry is byte-stable across machines. Returns [{ kind, file, base }]
+// where the kind drives the surface id in buildRegistry(). The agents leg
+// byte-mirrors the commands leg (the same readdirSync + .md filter + sort +
+// try/catch-yields-[] when the dir is absent); an agent .md is parsed by the
+// SAME parseConnectorFrontmatter and obeys the SAME one-connector-per-file
+// contract, exactly like a command.
 // ---------------------------------------------------------------------------
 function listSourceFiles() {
   const out = [];
@@ -272,6 +278,16 @@ function listSourceFiles() {
     if (fs.existsSync(skillFile)) {
       out.push({ kind: 'skill', file: skillFile, base: d });
     }
+  }
+
+  let agentFiles = [];
+  try {
+    agentFiles = fs.readdirSync(AGENTS_DIR).filter((f) => f.endsWith('.md')).sort();
+  } catch (_e) {
+    agentFiles = [];
+  }
+  for (const f of agentFiles) {
+    out.push({ kind: 'agent', file: path.join(AGENTS_DIR, f), base: f.replace(/\.md$/, '') });
   }
 
   return out;
@@ -305,8 +321,16 @@ function buildRegistry() {
     // Filter: only surfaces that opt in are wired. Absent/false = legacy.
     if (conn.connects_to_spine !== true) continue;
 
+    // Three-way surface-id branch: command -> "/mos:" + base, skill -> "skill:"
+    // + base, agent -> "agent:" + base. The agent prefix mirrors the command and
+    // skill prefixes; an agent that declares a connect-to-spine connector: block
+    // joins the registry the same way a command does.
     const surfaceName =
-      src.kind === 'command' ? '/mos:' + src.base : 'skill:' + src.base;
+      src.kind === 'command'
+        ? '/mos:' + src.base
+        : src.kind === 'skill'
+          ? 'skill:' + src.base
+          : 'agent:' + src.base;
 
     const sensorTriggers = Array.isArray(conn.sensor_triggers)
       ? conn.sensor_triggers.slice()
