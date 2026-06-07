@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: completed
-stopped_at: Completed 144.1-02-PLAN.md (Tier C batch-A connectors 14 + RETRO-05 cleanups; connector-registry 18 -> 32; --check exit 0)
-last_updated: "2026-06-07T22:45:00.000Z"
-last_activity: 2026-06-07 -- Phase 144.1 plan 02 complete
+stopped_at: Completed 144-02-PLAN.md (fixture repair; Tests 16/17 GREEN + Test 18 cold-room honest-negative; 18/18)
+last_updated: "2026-06-07T20:03:23.964Z"
+last_activity: 2026-06-07 -- Phase 144 execution started
 progress:
   total_phases: 83
   completed_phases: 58
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 144.1 (connector-retrofit-sweep) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Status: Plan 02 complete — wave 1 Tier C batch-A command connectors landed (connector-registry at 32)
 
 Phase 144.1-02 outcome (2026-06-07): RETRO-02 + RETRO-05 (wave 1) -- the 14 Tier C batch-A methodology/state command connector blocks (audit Section 3 items 31-43 + 56) + the three RETRO-05 prereqs that gate them. Two atomic commits. (Task 1, 68ac21a2) RETRO-05: leadership.md gains the missing Phase-122 methodology block (kind: methodology + frameworks: ["Adaptive Leadership"] + produces: room/team-execution/leadership/* + inputs: [] + autonomous_safe: true) so commandsForFramework("Adaptive Leadership") resolves to ["/mos:leadership"] (was [] -- the WFL-01 precondition for its connector); value-proposition.md records the intentional name/file relationship (file value-proposition.md, name: validate-proposition) as a frontmatter comment (file NOT renamed -- would break the generator surface id + resolver key); structure-argument.md keeps the dual frameworks: ["The Pyramid Principle", "MECE (...)"] list intact and records that the connector keys its single framework: to the primary "The Pyramid Principle" (audit item 56). (Task 2, 2a534556) RETRO-02: one delimited "# --- Phase 144.1 connector frontmatter ---" block on each of analyze-systems (context_block/SENS-06/Systems Thinking/push_forward/fileEvidenceWithReadback/systems-analysis/18), compare-ventures (brain_consult/SENS-03/PWS Triple Validation Compass/hold/memory_event_only/venture-compare/19), leadership (context_block/SENS-05/Adaptive Leadership/hold/fileEvidence/adaptive-leadership/20), mos-reason (context_block/SENS-06/The Pyramid Principle/push_forward/fileEvidence/minto-reason/21), dial-memory-refresh (context_block/SENS-02/Reverse Salient Analysis/hold/memory_event_only/dial-refresh/22), new-project (context_block/SENS-01,06/null/push_forward/none/new-project/23), mullins (context_block/SENS-03,06,07/Mullins Model/hold/fileEvidence/mullins-seven/24/F.2), validate (context_block/SENS-06/Jobs to Be Done (JTBD)/hold/fileEvidence/validate-jtbd/25/F.2), value-proposition (context_block/SENS-06,07/PWS Value Proposition/hold/fileEvidence/value-prop/26), analyze-timing (context_block/SENS-06/S-Curve Analysis/push_forward/fileEvidence/timing-scurve/27), dominant-designs (context_block/SENS-06/Dominant Design/push_forward/fileEvidence/dominant-design/28), build-knowledge (context_block/SENS-06/Ackoff Pyramid/push_forward/fileEvidence/ackoff-pyramid/29), beautiful-question (context_block/SENS-06/Beautiful Question Framework/push_forward/fileEvidence/beautiful-question/30), structure-argument (context_block/SENS-06/The Pyramid Principle/hold/fileEvidence/pyramid-argument/31). hierarchy_rank 18..31 distinct (audit-item order) continuing past Plan 01's 8..17; plan_gated false + web_scope null on all; surface F.2 on mullins + validate only. Each tuple (sensor,reach,sub_mode) unique vs the 18 existing + each other (validateConnectors CLEAN). new-project declares no frameworks: block -> framework null + filing none + no surface so WFL-01 does not fire. dial-memory-refresh connector framework Reverse Salient Analysis (audit item 35) resolves even though its own frameworks: is [] -- the shipped --check requires resolution, not own-list match. DEVIATION (Rule 3, same as Plan 01): regenerated BOTH data/command-registry.json (Adaptive Leadership -> /mos:leadership) AND data/connector-registry.json (18 -> 32 connectors) in THIS plan -- the shipped pre-commit hook runs both --check guards when commands/*.md is staged. Task 1 cleanups were found already staged from an interrupted prior session; verified line-by-line vs the plan ACs and committed unchanged. Verification: node scripts/build-connector-registry.cjs --check exit 0 (32 connectors); node scripts/build-command-registry.cjs --check exit 0; each command exactly one connects_to_spine: true; all reach_ids frozen 5 + postures frozen 3; WFL-01 resolves for every firing connector; zero em-dashes across all 17 touched files. Every commit through the live pre-commit hooks with no --no-verify. SUMMARY at .planning/phases/144.1-connector-retrofit-sweep/144.1-02-SUMMARY.md. Phase 144.1 now 2/8 plans done; remaining Plans 03-08 (Tier C batch-B, generator agents-walk, agent connectors, Tier D hooks, filing sweep, RETRO-07 coverage gate).
@@ -623,6 +623,7 @@ Progress: [█████████░] 92%
 | Phase 143.4 P01 | 23min | 3 tasks | 6 files |
 | Phase 143.4 P143.4-03 | 10min | 2 tasks | 3 files |
 | Phase 144.1 P01 | 328s | 2 tasks | 12 files |
+| Phase 144.1 P144.1-03 | 4 min | 2 tasks | 15 files |
 
 ### Roadmap Evolution
 
@@ -1256,6 +1257,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 143.4-01: /mos:discover declares EXACTLY ONE connector (sub_mode client-product-discovery, reach brain_consult, posture push_forward, web_scope null); DISC-10 dispatches via commandsForFramework(The Pyramid Principle)+MOSDeckEngine, not a second connector (FIX 1). jtbd.md gained the JTBD framework (FIX 3); design-source skill ported into the repo (FIX 2).
 - [Phase ?]: 143.4-03: CHECK A asserts EXACTLY ONE /mos:discover connector + ZERO plain-language-bridge (FIX 1); DISC-10 dispatch proven by resolver-resolvability of The Pyramid Principle, not a second connector
 - [Phase ?]: 143.4-03: web_scope verified strictly null (assert.strictEqual) so any drift to a string value fails the negative path
+- [Phase 144.1]: Tier C batch-B: 14 command connectors wired; null-framework rows use filing none + no surface so WFL-01 stays clean; multi-surface frameworks keep distinct sub_mode tuples
 
 ### Pending Todos
 
@@ -1291,6 +1293,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-07T19:33:11.773Z
+Last session: 2026-06-07T20:02:58.835Z
 Stopped at: Completed 144-02-PLAN.md (fixture repair; Tests 16/17 GREEN + Test 18 cold-room honest-negative; 18/18)
 Resume file: None
