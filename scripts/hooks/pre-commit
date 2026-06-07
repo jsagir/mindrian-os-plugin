@@ -147,6 +147,25 @@ if git diff --cached --name-only | grep -qE '^(commands/.*\.md|data/command-regi
 fi
 
 # ---------------------------------------------------------------------------
+# Phase 143.3-02 guardian: connector-registry drift + four CONN-03 validations.
+#
+# When any commands/*.md, skills/*/SKILL.md, data/connector-registry.json, or
+# data/framework-names.json is staged, regenerate the connector registry in
+# memory and reject the commit if the on-disk registry is stale OR any of the
+# four CONN-03 validations fail (reach_id not in frozen 5, posture not in frozen
+# 3, framework unresolvable via commandsForFramework, or a duplicate
+# (sensor,reach,sub_mode) tuple). Generated, never hand-written; drift
+# impossible to commit. Canon Part 8: the check never touches the Brain.
+# Recovery on drift: node scripts/build-connector-registry.cjs
+# (the guard runs:  node scripts/build-connector-registry.cjs --check )
+# ---------------------------------------------------------------------------
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.md|data/connector-registry\.json|data/framework-names\.json)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-connector-registry.cjs" ]; then
+    node "$REPO_ROOT/scripts/build-connector-registry.cjs" --check || { echo "connector-registry drift -- run: node scripts/build-connector-registry.cjs" >&2; exit 2; }
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 # Phase 110 guardian: brain-packet-schema drift / malformed-schema tripwire.
 #
 # When data/brain-packet-schema.json or scripts/build-brain-packet-schema.cjs
