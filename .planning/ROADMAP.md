@@ -2384,7 +2384,7 @@ Plans:
 
 **Goal**: Every GSD planning artifact (SPEC / CONTEXT / RESEARCH / VALIDATION / PLAN / VERIFICATION) becomes a first-class typed node in the LOCAL graph (room.db) via `lib/core/navigation.cjs`, so it is navigable (`/mos:graph`), reachable from the Decision Gate, and part of the local mind (Canon Part 9). Today these are flat markdown in `.planning/`, OUTSIDE room.db. "Queryable by the remote Brain" means the Part 9 TYPED-PACKET contract ONLY (generic handles: phase id, requirement ids, test names, framework names) - never the artifact prose. Canon Part 8 absolute: LOCAL -> BRAIN NO for raw content; the local graph holds the full node, the Brain sees a sanitized packet.
 **Depends on**: Phase 109 (navigation.cjs chokepoint), Phase 110 (Brain typed-packet contract), Phase 117-04 (check-brain-boundary scan)
-**Requirements**: GAM-01, GAM-02, GAM-03, GAM-04, GAM-05
+**Requirements**: GAM-01, GAM-02, GAM-03, GAM-04, GAM-05, GAM-06, GAM-07 (SPEC added GAM-06 per-requirement nodes + GAM-07 typed lineage edges via the granularity/edge decisions)
 **Canon parts**: Part 6 (dog-fooding - the plugin's own planning becomes graph-navigable), Part 8 (the boundary - zero raw egress), Part 9 (memory locality - SQL is the local mind, Brain reasons over typed packets)
 **Success Criteria** (what must be TRUE):
 
