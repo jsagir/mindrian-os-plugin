@@ -1,7 +1,20 @@
 ## [Unreleased] -- v1.13.1-beta.9 (in progress)
 
+The LARRYREACH connector-spine milestone closes: the Phase-143 sensor spine went from zero consumers to fully wired across all 114 surfaces, the navigation engine flips routing_source legacy->engine on a fired reach, and the loop-fires acceptance gate is GREEN.
+
 ### Added
-- 
+- Connector Spine + Intelligence Orchestrator (Phase 143.3): the self-extending connector contract -- a `connector:` frontmatter schema (docs/CONNECTOR-CONTRACT.md), a generated `data/connector-registry.json` + generator (scripts/build-connector-registry.cjs) + a `--check` CI tripwire, and `skills/intelligence-orchestrator/SKILL.md`, the first consumer of dispatchSensors that reads the registry (never a hardcoded table). Any skill/command/agent joins the wiring by declaring its connector. Generalizes Phase 122 from the command edge to the whole reach spine.
+- /mos:discover (Phase 143.4): a Larry-led six-movement client + product + JTBD discovery command -- the first product command authored to ride the connector spine -- producing a Discovery Brief + scaffolded room and bridging to plain-language messaging via MOSDeckEngine. Ports the client-discovery-interview skill into the repo.
+- Larry operates + pushes (Phase 143.2): larry-personality gains the Operating-the-Dial + Reading-routing_source doctrine, six proactive PUSH push-lines (each under an existing reach + sensor, each ending at a Decision Gate), conversation-mode as the Shape F.1 lane-picker mapped to Ackoff DIKW, mullins-scaffold Brain-driven cross-framework folders + Ackoff traversal, and ui-system Shape F.7.
+- Scheduled Sensor Activation (Phase 145): the scout suite + whitespace/reverse-salient/opportunity/competitor sensors fire on a session-start-throttled cadence (cron + Cowork scheduled-tasks paths), gated behind the Phase-140 safe-auto-fire guard. Zero Brain egress.
+- Connector retrofit sweep (Phase 144.1): the generator now walks agents/ as well as commands/ + skills/; all spine-eligible commands, skills, and the 9 agents declare connectors; an exhaustive 114-surface coverage gate proves every surface is wired-or-explicitly-allow-listed (53 wired + 61 allow-listed, zero unclassified).
+- Loop-fires acceptance gate (Phase 146): `doctor --dogfood-acceptance` + `tests/run-all-146.sh` prove the wired loop FIRES end-to-end (ACPT-01..05) across the full connector surface, not a sample. Exit 0 means the milestone ships as "Larry Reaches".
+
+### Changed
+- Navigation engine (Phase 144, NAV-01): decide() (lib/core/navigation-engine.cjs) consumes the dispatchSensors spine; a fired reach flips routing_source from legacy to engine. The prompt-side orchestrator (143.3) and the engine-side decide() (144) coexist one-reach-per-beat.
+
+### Fixed
+- commands/jtbd.md now declares its `frameworks:` so it resolves via the command resolver; RETRO-05 connector prereqs (leadership frontmatter, value-proposition drift, structure-argument + challenge-assumptions framework keys, deep-grade Write gap).
 
 ## [1.13.1-beta.8] - 2026-06-05
 
