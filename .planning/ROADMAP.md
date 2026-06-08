@@ -2394,7 +2394,14 @@ Plans:
   4. Brain-queryability is via the typed-packet contract ONLY; `check-brain-boundary` passes; an adversarial test asserts zero artifact prose reaches any Brain packet (GAM-04)
   5. Existing `.planning/` artifacts are backfilled into the graph on first run; idempotent regeneration proven (GAM-05)
 
-**Status**: Registered 2026-06-08. SPEC next (gsd-spec-phase). Build before Phase 148 execution.
+**Plans:** 3 plans / 3 waves (gsd-plan-phase 2026-06-08)
+
+Plans:
+- [ ] 149-01-PLAN.md (wave 1) -- planning_artifact + requirement node-write submodule (lib/core/navigation/planning-artifacts.cjs) + lineage-edge writer reusing FEEDS_INTO/VALIDATES/INFORMS + navigation.cjs re-export + run-all-149.sh [GAM-01, GAM-03, GAM-04]
+- [ ] 149-02-PLAN.md (wave 2) -- the reconcile spine (lib/core/planning/reconcile-runner.cjs): idempotent backfill = sync, requirement parse, lineage, navigability, rides the session-start cascade (D-01/D-02, tri-polar) [GAM-02, GAM-05, GAM-07]
+- [ ] 149-03-PLAN.md (wave 3) -- PostToolUse hook (CLI immediacy on top of the reconcile, D-01) + typed-packet Brain projection + adversarial zero-prose-egress test [GAM-04, GAM-06]
+
+**Status**: PLANNED (gsd-plan-phase, 2026-06-08). 3 plans / 3 waves. Build before Phase 148 execution.
 
 ---
 
