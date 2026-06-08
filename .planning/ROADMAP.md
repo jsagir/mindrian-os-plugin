@@ -2367,7 +2367,16 @@ The LARRYREACH milestone (140-146) made the dial FIRE. But the tester onboarding
   6. JTBD-ranked via `f-selector-ranker.cjs`; MAX_K=3 chooser cap + frozen 0.70/0.15 recommend gate + no-bespoke-widget (SEED-020) all preserved unchanged (IRW-07)
   7. Brain review uses a typed methodology packet only; brain-boundary scan finds zero user-content egress; all writes local through navigation.cjs (IRW-08)
 
-**Status**: SPEC in progress (gsd-spec-phase, 2026-06-08). The critical next step out of the keyboard-TUI research arc.
+**Plans**: 5 plans in 3 waves (gsd-plan-phase, 2026-06-08)
+
+Plans:
+- [ ] 148-01-PLAN.md (wave 1) -- D-09 constitutional lockstep: mint `hats` as the 6th machine reach_id (DIAL_REACH_K 5->6), repoint think-hats connector, rewrite every drift fence 5->6, amend both SKILL fences [IRW-02]
+- [ ] 148-02-PLAN.md (wave 1) -- Canon amendment: MINDRIAN-CANON.md + CANON-PHASE-MAP.md record the 5->6 reach-count change (Part 6 dog-fooding) [IRW-02]
+- [ ] 148-03-PLAN.md (wave 2) -- reach-component-map.json + dispatcher archetype routing (IRW-04); File + Brain review standing options outside the MAX_K=3 cap, Free-Text last (IRW-03); run-all-148.sh aggregator [IRW-03, IRW-04, IRW-07]
+- [ ] 148-04-PLAN.md (wave 2) -- real invocation: closeReach resolves framework->command and fires the real engine + edge + artifact (IRW-06); engine reaches rankable (IRW-01); frozen-contracts audit (IRW-07) [IRW-01, IRW-06, IRW-07]
+- [ ] 148-05-PLAN.md (wave 3) -- unify offer-resolver + suggest-next onto one pickShape host (IRW-05); cold-room "what can I help you with" lead (D-07/08); typed Brain-review packet zero-egress (IRW-08); per-room Hats persona cache (D-06) [IRW-02, IRW-05, IRW-08]
+
+**Status**: PLANNED (gsd-plan-phase, 2026-06-08). 5 plans / 3 waves. The critical next step out of the keyboard-TUI research arc.
 
 ---
 
