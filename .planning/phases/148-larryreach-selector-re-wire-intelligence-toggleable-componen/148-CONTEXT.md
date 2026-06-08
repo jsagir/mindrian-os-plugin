@@ -56,6 +56,16 @@ Downstream agents MUST read `148-SPEC.md` before planning or implementing. Requi
 - **D-07:** At cold-room / no-signal (tier_0, session start, empty room), the selector **leads with "what can I help you with"**. Once there is JTBD signal, the six intelligence reaches lead instead.
 - **D-08:** Matching = the navigator **types intent**, and Larry matches relevant /mos: commands via the **command-resolver (Phase 122) + JTBD ranking**, presented as reaches with their components. Reuses the resolver; keeps 148 inside scope. (The full grouped help-page redesign is Phase 152.)
 
+### Reach model (A1 resolution - load-bearing, navigator decision 2026-06-08)
+- **D-09:** Hats becomes a REAL 6th **machine** reach_id, NOT a render-label sub_mode (resolves the researcher's open-question A1). This is a **constitutional amendment**. The lockstep surfaces that MUST move together (or the build breaks the frozen-5-reach drift suite):
+  1. `sensor-types.REACH_IDS` - add the 6th reach_id.
+  2. Both SKILL files carrying the "NO 6th reach_id" verbatim fence - amend the fence to 6.
+  3. The connector `--check` tripwire - expect 6.
+  4. The 4 drift tests that assert exactly 5 - rewrite to expect 6.
+  5. `DIAL_REACH_K` 5 -> 6.
+  6. A Canon amendment (`docs/MINDRIAN-CANON.md` + `docs/CANON-PHASE-MAP.md`) recording the reach-count change with `canon_parts`, per the dog-fooding mandate (Part 6).
+- The 5 intelligence engines ride as the engine reach set; Hats is the 6th machine reach. `MAX_K=3` chooser cap and the frozen 0.70/0.15 gate stay UNCHANGED. The planner must treat the lockstep + drift-test rewrite + Canon amendment as in-scope tasks for Phase 148.
+
 ### Claude's Discretion
 - Cold-room tier_0 base set keeps the canon fallback (Run Methodology / Reformulate / Free-Text) beneath the "what can I help you with" lead, plus the standing trio.
 - The standing trio (File these findings + Brain review + Free-Text-last) renders at every selector render regardless of mode/tier.
