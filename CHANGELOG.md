@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.13.1-beta.9 (in progress)
+## [1.13.1-beta.10] - 2026-06-08
 
 The LARRYREACH connector-spine milestone closes: the Phase-143 sensor spine went from zero consumers to fully wired across all 114 surfaces, the navigation engine flips routing_source legacy->engine on a fired reach, and the loop-fires acceptance gate is GREEN.
 
