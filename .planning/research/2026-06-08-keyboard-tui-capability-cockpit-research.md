@@ -322,6 +322,24 @@ Anchors proving it's real: `/mos:act` already `body_shape: E`+`serves_jtbd:[plan
 
 ---
 
+### 12b. Per-command INTAKE layer (navigator note 2026-06-08) - the gap below the archetype
+
+The 7-archetype mapping (12) is COARSE: it says "deck creator = A7 generate-artifact," but it does NOT specify the **intake** - the contextual questions a command asks before it runs. Navigator flagged this directly: generative commands need their own per-command intake interaction.
+
+**Examples (generative / A6-A7 commands):**
+- `feynman-engine` / `MOSDeckEngine` / `/mos:present`: ask **what the deck is about**, **who it is for** (audience), and the **visual options**: add SVGs? CSS? animation? PDF download? a **visual Feynman representation per slide**?
+- `/mos:dashboard` / `/mos:export`: ask format, theme (dark De Stijl vs light PWS), which views.
+
+**Why it matters:** the archetype gives a command its *component shape*; the intake gives it its *questions*. A deck command that fires with no intake produces a generic deck; one that asks topic/audience/visual-toggles produces the right deck. This is the difference between a component and a cockpit at the per-command level.
+
+**Design shape:** each generative command declares an `intake:` spec in frontmatter - an ordered set of AskUserQuestion prompts (topic = Text; audience = Select/Text; visual options = multiSelect of {SVG, CSS, animation, PDF, visual-Feynman-per-slide}). The renderer runs the intake before invoking the command. Reuses the same AskUserQuestion primitive + the component archetypes; the intake is just a typed, per-command question sequence. Visual-option toggles map to the multiSelect archetype; topic/audience map to Text/Select.
+
+**Where it lives:** **Phase 152** (per-command visual rollout), as the layer ON TOP of the `interaction_archetype` field - an `intake_spec` per generative command. NOT Phase 148 (the selector) and NOT Phase 149 (the graph bridge). Captured here so the Phase 152 spec includes intake design, not just archetype tagging.
+
+**Status:** open design item for Phase 152. The archetype mapping (12) answers "what component"; the intake layer answers "what does it ask first."
+
+---
+
 ## 13. Hebrew / RTL architecture (fan-out agent + Tavily bidi, 2026-06-08)
 
 **Current state = no RTL + one anti-feature.** `lib/core/mva-progressive-renderer.cjs` / `mva-deck-builder.cjs` hardcode a refusal: *"MindrianOS does not yet support Hebrew in v1.13.0."* Every other surface is silently LTR-only: `render-v2.cjs` pads by `.length` (bidi-blind); all HTML templates are `lang="en"` with no `dir`. (Live proof of need: `~/MindrianRooms/mindrianOS/meetings/2026-06-08-tester-onboarding-session/recap-install-guide-he.html` - a Hebrew install recap already shipping.)
