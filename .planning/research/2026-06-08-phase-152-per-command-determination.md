@@ -121,5 +121,46 @@ NOT in `data/connector-registry.json` (cannot be routed by the Phase 148 selecto
 
 ---
 
+## 7. The standing rigor contract (navigator note 2026-06-08) - NEW commands/agents/frameworks must clear the same bar
+
+This sweep CANNOT be a one-time audit. The moment someone adds a command, agent, or framework without the rigor, the surface decays back to a flat, drifting, intake-less list. So Phase 152 must ship the rigor as an **enforced gate**, not a doc. Navigator directive: "any new agent / command / framework must be addressed with the same rigor."
+
+### The contract (every NEW surface must satisfy ALL of these to ship)
+1. **Declared `interaction_archetype: A1..A7`** - no surface ships archetype-less; the renderer must be able to pick the component.
+2. **An `intake_spec`** if the surface asks the user anything (or an explicit `intake: none`). Generative surfaces must carry the full intake (topic/audience/views/theme/visual-toggles); method-setup surfaces must flag their one load-bearing question.
+3. **A framework that RESOLVES** - the declared `framework:` must map to a real Brain framework node (no DRIFT), OR be explicitly `framework: null` (infra/workflow), OR `framework: <name>` with a recorded waiver. A declared framework that does not resolve to a Brain node is a build failure.
+4. **Connector wiring** - the surface is in `data/connector-registry.json` (spine-routable), OR explicitly excluded with a reason. No silent "exists but unreachable."
+
+### The enforcement (reuse the shipped registry-gate pattern - Part 7)
+Extend the existing `--check` tripwires (Phase 122 `build-command-registry.cjs --check`, Phase 143.3 `build-connector-registry.cjs --check`) into ONE "surface rigor" gate, wired pre-commit + CI + the Feynman runner, that FAILS the build when a new command/agent/framework is missing any of the four. Add a **drift check**: assert every declared `framework:` resolves against the Brain `framework_index` (generic handles only, Part 8) - this is what would have caught build-thesis / find-analogies / whitespace / score-innovation / diagnostics BEFORE they shipped. Agents are covered by the Phase 144.1 connector sweep's `agents/`-walk; frameworks by the drift check.
+
+### The Canon binding (so it is law, not preference)
+This is a **standing contract**, not a phase-local rule. It extends Part 6 (dog-fooding: the plugin's own surfaces honor its own rigor) and Part 7 (reuse compounds the moat; un-rigorous surface area dilutes it). Phase 152 must add a Canon note + a CANON-PHASE-MAP row: "No command/agent/framework ships without a declared archetype, an intake_spec (or intake:none), a resolving framework (or null), and connector wiring (or a recorded exclusion). Enforced by the surface-rigor `--check`." Future phases that add surfaces declare these in frontmatter at authoring time - the gate makes drift structurally impossible, the same way the Phase 122 registry made framework-to-command drift impossible.
+
+### Chainability (workflow quality) - the 5th rigor dimension (navigator note 2026-06-08)
+Some surfaces are not standalone moves - they have **workflow quality**: they chain. The rigor must record this or the A3 compose-a-chain archetype has nothing to compose. Three layers already exist and must be unified under the contract:
+- **A3 meta-runners** (`act --chain`, `pipeline`, `suggest-next`) COMPOSE chains via `chain-recommender.recommendFrameworkChain` (the Brain FEEDS_INTO traversal) + `command-resolver.composeWorkflow`. Their intake IS the chain (ordered-checkbox / per-stage continue-skip-stop checkpoint).
+- **Methodology commands** carry **FEEDS_INTO** relationships in the Brain graph (e.g. SWOT FEEDS_INTO Porter; root-cause FEEDS_INTO find-bottlenecks; explore-domains FEEDS_INTO whitespace). These are the "and then" edges the selector should surface after a command completes.
+- **Static named chains** live at `pipelines/<name>/CHAIN.md` (discovery, thesis).
+
+**The 5th required field:** every methodology surface declares its **chain affinity** - `feeds_into: [<framework/command>]` and/or `feeds_from: [...]` (or resolves it from the Brain FEEDS_INTO graph at registry-build time, the way Phase 122 already resolves framework->command). The surface-rigor `--check` asserts that a declared `feeds_into` target RESOLVES to a real command/framework (a dangling chain target is a build failure), exactly like the framework-drift check. This makes "run this, then that" a first-class, verified property - so the ordered-checkbox compose step (research Section 9/10) and `act --chain` have a trustworthy graph to walk, and a new command that should chain cannot ship as an orphan.
+
+This also reconciles with Phase 148: the compose-a-chain reach and the offer-resolver's "next move" both read the SAME FEEDS_INTO graph; Phase 152 ensures every command is a declared node in it.
+
+### The canonical multi-perspective workflow (Hats / domains exemplar - navigator note 2026-06-08)
+The richest "workflow quality" surface is the multi-perspective methodology (think-hats, persona, and kin). The navigator named its full shape, and it IS a fan-out workflow (the same shape as this research's own 8-agent sweep), grounded in Canon Part 2 (the team around the navigator):
+
+1. **Domain assignment.** Every hat gets a domain. Canon Part 2: Hat = de Bono stance, Name = domain, Surname = sub-domain, from Engine 1 decomposition (the 5-lens domain tree). So the team is `{hat x domain}` per member - exactly "every hat is a domain."
+2. **Per-perspective deep research (FAN OUT, external + internal).** Each hat/domain runs deep research FROM ITS PERSPECTIVE, in parallel, across BOTH substrates: **internal / in-room** (the local graph, prior artifacts, the room's evidence via navigation.cjs) AND **external / online** (hat-scoped web per Canon Part 2: White=Tavily+arxiv, Green=patents+arxiv, Black=failure-cases, Yellow=success-cases, Red=intuition-only). This is the parallel fan-out, one agent per perspective, each blind to the others.
+3. **Discussion between findings.** The per-perspective findings are put in DEBATE - the team argues, contradicts, evidences (Canon Part 2: serial handoffs per the BONO sequence, or parallel then cross-examined). This is the cross-finding stage a flat command never does - it is where contradictions surface.
+4. **Synthesis.** The Blue Hat collapses the debate to insight (Canon Part 2 output flow -> tension-map synthesizer -> the next Decision Gate's tri-context panels). Approved findings file as typed edges (Part 4); the synthesis is the deliverable.
+
+**Where it lands:** this is the **heavy A3/A6 chained workflow** that the PERSPECTIVES family should run when the navigator goes deep (not the quick single-pass). It is the concrete realization of the chain-affinity dimension above (domain-assign FEEDS_INTO research FEEDS_INTO discussion FEEDS_INTO synthesis), AND it is the **research-grounded-personas heavy track** flagged for Phase 154 (cache personas per room, model-profile cost control) - NOT bolted onto the room-grounded `persona` command, which is constitutionally research-free. Phase 152 declares the perspectives commands' archetype + chain-affinity + a "deep" intake branch; Phase 154 builds the actual fan-out orchestration. The pattern is reusable beyond hats - any multi-lens command (scenario-plan across axes, compare-ventures across cohorts, whitespace across domains) can run the same domain -> fan-out-research(internal+external) -> discuss -> synthesize chain.
+
+### Phase 152 acceptance addition
+Phase 152's acceptance criteria must include: a NEW fixture command/agent/framework that is missing each required field (archetype, intake_spec-or-none, resolving-framework-or-null, connector-wiring, chain-affinity-or-standalone) FAILS the surface-rigor `--check` (one negative test per field), and a compliant fixture PASSES. A fixture with a dangling `feeds_into` target FAILS the chain-resolution check. This proves the rigor is enforced, not just documented.
+
+---
+
 ## 6. Sources
 Per-command frontmatter (`commands/*.md`), `data/connector-registry.json`, `data/help-groups.json`, live `mcp__plugin_mos_mindrian-brain__brain_search` (Part 8 generic handles only), and the keyboard-TUI research doc Sections 12 + 12b (the archetype + intake vocabulary). 8-agent fan-out, 2026-06-08; ~1.4M subagent tokens.
