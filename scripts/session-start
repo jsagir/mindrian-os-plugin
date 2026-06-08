@@ -1475,6 +1475,71 @@ env PLUGIN_ROOT_FOR_DIAL="$PLUGIN_ROOT" ACTIVE_ROOM_FOR_DIAL="${ROOM_DIR:-}" nod
 ' 2>/dev/null || true
 # --- END dial memory refresh ---
 
+# --- BEGIN gsd planning-artifact reconcile (Phase 149, best-effort) ---
+# Phase 149-02 (GAM-02 / GAM-05 / GAM-07). Canon Part 8: LOCAL only -- the
+# reconcile-runner reads room DATA ONLY via lib/core/navigation.cjs (the Phase 109
+# chokepoint) and writes planning_artifact + requirement nodes + FEEDS_INTO /
+# INFORMS / VALIDATES lineage edges; the .planning markdown is the source-of-meaning
+# read, never egressed. Idempotent: backfill on first run, diff-and-upsert on every
+# session-start (D-01 universal safety net + D-02 session-start IS the reconcile
+# trigger). Tri-polar: Desktop / Cowork land here since they have no PostToolUse
+# hook. Best-effort: a failure (`|| true`) never blocks session startup. Mirrors the
+# Phase 124 timeline-refresh + Phase 143.1 dial-memory slots verbatim. The slot is a
+# no-op when no active room resolves. The plugin dog-foods its own .planning by
+# pointing opts.planningDir at PLUGIN_ROOT/.planning when the active room is the
+# mindrianOS plugin room (same registry resolver, no new resolver added).
+env PLUGIN_ROOT_FOR_GSD="$PLUGIN_ROOT" ACTIVE_ROOM_FOR_GSD="${ROOM_DIR:-}" node -e '
+  try {
+    var fs = require("node:fs");
+    var path = require("node:path");
+    var os = require("node:os");
+    // Resolve active room: prefer the surrounding shell ROOM_DIR; otherwise fall
+    // back to the registry resolver (mirror of the Phase 124 timeline slot).
+    var roomDir = process.env.ACTIVE_ROOM_FOR_GSD || "";
+    if (!roomDir) {
+      var roomsRoot = process.env.MINDRIAN_ROOMS_ROOT
+        || process.env.MINDRIAN_ROOMS_HOME
+        || path.join(os.homedir(), "MindrianRooms");
+      var regPath = path.join(roomsRoot, ".rooms", "registry.json");
+      if (!fs.existsSync(regPath)) process.exit(0);
+      var reg = JSON.parse(fs.readFileSync(regPath, "utf8"));
+      if (!reg || !reg.active || !reg.rooms || !reg.rooms[reg.active]) process.exit(0);
+      roomDir = path.resolve(roomsRoot, reg.rooms[reg.active].path || reg.active);
+    }
+    if (!fs.existsSync(roomDir)) process.exit(0);
+    // Try to open room.db so the reconcile can upsert nodes + edges.
+    var db = null;
+    try {
+      var dbPath = path.join(roomDir, ".mindrian", "room.db");
+      if (fs.existsSync(dbPath)) {
+        var sqlite = require("node:sqlite");
+        db = new sqlite.DatabaseSync(dbPath);
+      }
+    } catch (_) { db = null; }
+    if (!db) process.exit(0);
+    var pluginRoot = process.env.PLUGIN_ROOT_FOR_GSD || "";
+    var runner = require(pluginRoot + "/lib/core/planning/reconcile-runner.cjs");
+    // Dog-food: when the active room IS the plugin workspace, reconcile the
+    // plugins OWN .planning tree (it lives at PLUGIN_ROOT/.planning, not
+    // ROOM_DIR/.planning). Detect by comparing resolved paths.
+    var reconcileOpts = { db: db };
+    try {
+      if (pluginRoot && path.resolve(roomDir) === path.resolve(pluginRoot)) {
+        reconcileOpts.planningDir = path.join(pluginRoot, ".planning");
+      }
+    } catch (_) {}
+    var result = runner.reconcilePlanningArtifacts(roomDir, reconcileOpts);
+    try { db.close(); } catch (_) {}
+    if (result && result.upserted > 0) {
+      process.stderr.write("gsd-planning-reconcile: " + result.upserted + " artifact node(s) upserted, "
+        + result.requirement_nodes + " requirement node(s), " + result.edges + " lineage edge(s)\n");
+    }
+  } catch (e) {
+    process.stderr.write("gsd-planning-reconcile failed: " + (e && e.message) + "\n");
+  }
+' 2>/dev/null || true
+# --- END gsd planning-artifact reconcile ---
+
 # --- BEGIN Phase 145 scout cadence (best-effort, self-throttled) ---
 # Phase 145-02 (SCHED-01 CLI default). Canon Part 8: LOCAL only -- the
 # scout-cadence-runner is zero-egress (Plan 01 T-145-01/02): it makes NO Brain
