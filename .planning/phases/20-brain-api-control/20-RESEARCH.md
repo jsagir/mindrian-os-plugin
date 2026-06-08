@@ -480,7 +480,7 @@ CREATE TABLE IF NOT EXISTS brain_api_keys (
 INSERT INTO brain_api_keys (api_key, email, name, plan, is_active, expires_at)
 VALUES (
   '4131ed5b-6001-483e-bb2c-2c4d7a3c8e05',
-  'lawrence@mindrian.ai',   -- confirm actual email
+  'lawrence@mindrian-os.com',   -- confirm actual email
   'Lawrence Aronhime',
   'admin',
   true,
@@ -556,9 +556,9 @@ $$;
 ## Open Questions
 
 1. **Lawrence's actual email address**
-   - What we know: Key `4131ed5b-6001-483e-bb2c-2c4d7a3c8e05` is seeded in BRAIN_API_KEYS. The docs reference `support@mindrian.ai` for contact.
+   - What we know: Key `4131ed5b-6001-483e-bb2c-2c4d7a3c8e05` is seeded in BRAIN_API_KEYS. The docs reference `support@mindrian-os.com` for contact.
    - What's unclear: The exact email to put in the `email` column for Lawrence's row.
-   - Recommendation: Use `lawrence@mindrian.ai` as placeholder; Jonathan knows the correct value and should verify before running the seed INSERT.
+   - Recommendation: Use `lawrence@mindrian-os.com` as placeholder; Jonathan knows the correct value and should verify before running the seed INSERT.
 
 2. **Email service for BRAIN-05: Supabase Webhook vs Edge Function**
    - What we know: D-09 says "Supabase Edge Function or simple webhook." Both are viable.

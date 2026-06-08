@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://mindrian.ai/schemas/brain-packet/1.0",
+  "$id": "https://mindrian-os.com/schemas/brain-packet/1.0",
   "title": "Mindrian Brain Context Packet (v1.0)",
   "description": "The hand-maintained wire-format contract between lib/core/navigation.cjs::buildBrainPacket and the Brain MCP. One $def per shipped Brain job (D-02 closed vocabulary, 12 jobs) carrying an in shape and an out shape, plus shared $defs (PrivacyMode, Origin, FocusNode, ActiveContext, BankedOpportunities, Constraints, LocalGraphSummary, BrainResponse, the 4 projection $defs that match the safe-projection mappers in lib/core/navigation/packet.cjs). additionalProperties: false on every object node is the Canon Part 8 leak-prevention teeth -- a packet that carries an extra transcript or body field is refused at the wire, not stripped-and-sent. The summary/explanation string fields carry maxLength: 120 (the value-space cap, review finding H5): under the default local_summary_only mode lib/core/navigation/packet.cjs::projectText emits a sha256 hash (71 chars) rather than prose, and even an allow_excerpts excerpt is truncated to <=120, so an unbounded raw-prose value can never validate at the wire. Validate with: node scripts/build-brain-packet-schema.cjs --check",
   "$defs": {

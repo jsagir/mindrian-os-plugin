@@ -684,7 +684,7 @@ the user re-runs the generator.
 ### Credit
 Lawrence Aronhime (Prof., Johns Hopkins Carey Business School, PWS methodology author)
 reported this bug on 2026-04-13 23:23 with a complete root-cause analysis and a working
-workaround. He is MindrianOS's oldest admin Brain API key holder (`lawrence@mindrian.ai`,
+workaround. He is MindrianOS's oldest admin Brain API key holder (`lawrence@mindrian-os.com`,
 2026-03-26) and has been running beta builds since v1.9.x. Thanks Lawrence.
 ```
 

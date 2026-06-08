@@ -50,7 +50,7 @@ The cloud Brain is NOT subset-mirrored locally. There is no bundled snapshot. Th
 | **LOCAL (no key)** | Claude + Larry's voice + room context (Phase 109 spine). A thinking partner that walks beside the user without methodology orchestration. | nothing |
 | **CONNECTED (key in `~/.mindrian.env`)** | All of LOCAL plus the curated method directing every move. Brain returns DirectiveEnvelope; Larry/Claude executes per mode. | `MINDRIAN_BRAIN_KEY` |
 
-There is no Tier 0.5 with bundled methodology data. Without Brain access, methodology orchestration commands return a structured "DIRECTOR_NOT_AVAILABLE" message, Larry surfaces a one-line upgrade hint per the canon: *"this command needs Brain access -- request a key at https://mindrianos.vercel.app/brain-access"*.
+There is no Tier 0.5 with bundled methodology data. Without Brain access, methodology orchestration commands return a structured "DIRECTOR_NOT_AVAILABLE" message, Larry surfaces a one-line upgrade hint per the canon: *"this command needs Brain access -- request a key at https://mindrian-os.com/brain-access"*.
 
 ### Library decisions (locked, not open)
 
@@ -67,7 +67,7 @@ For every Brain MCP tool call (`mcp__mindrian-brain__brain_ask` etc.) the shim r
   status: "DIRECTOR_NOT_AVAILABLE",
   reason: "MINDRIAN_BRAIN_KEY not set",
   command_context: "<command name that called brain_ask>",
-  upgrade_hint: "Request a Brain key at https://mindrianos.vercel.app/brain-access",
+  upgrade_hint: "Request a Brain key at https://mindrian-os.com/brain-access",
   fallback_advice: "Larry can still talk with you and reflect on your room context. Methodology orchestration requires Brain."
 }
 ```

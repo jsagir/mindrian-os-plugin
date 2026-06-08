@@ -13,7 +13,7 @@ requires:
   - phase: 109
     provides: "lib/core/navigation/packet.cjs buildBrainPacket - the live packet shape the schema's $defs mirror; the safe-projection mappers (safeNodeProjection / safeContradictionProjection / safeUnsupportedProjection / safeRecentChangeProjection / surface_banked_opportunities / hsiBand) that the 4 ClaimProjection/ContradictionProjection/UnsupportedProjection/RecentChangeProjection $defs match field-for-field"
 provides:
-  - "data/brain-packet-schema.json - draft 2020-12 JSON Schema, $id https://mindrian.ai/schemas/brain-packet/1.0, 12 D-02 job $defs each with in+out shapes, 12 shared $defs (PrivacyMode + Origin enums, FocusNode, ActiveContext, BankedOpportunities, Constraints, 4 safe-projection $defs, LocalGraphSummary, BrainResponse), additionalProperties:false on every object node"
+  - "data/brain-packet-schema.json - draft 2020-12 JSON Schema, $id https://mindrian-os.com/schemas/brain-packet/1.0, 12 D-02 job $defs each with in+out shapes, 12 shared $defs (PrivacyMode + Origin enums, FocusNode, ActiveContext, BankedOpportunities, Constraints, 4 safe-projection $defs, LocalGraphSummary, BrainResponse), additionalProperties:false on every object node"
   - "scripts/build-brain-packet-schema.cjs - validator + --check tripwire (mirrors scripts/build-command-registry.cjs); ajv@8.18.0 strict-compile via the Ajv2020 dialect class (still transitive - no new dep); 12-job coverage check; closed-vocabulary check; recursive additionalProperties:false sweep; MINDRIAN_BRAIN_PACKET_SCHEMA env seam"
   - "tests/test-brain-packet-schema-check.cjs - real child_process suite (168 lines, 19 assertions across 6 tests) replacing the Plan 110-00 RED stub"
   - "data/ROOM.md - new row for brain-packet-schema.json + cross-ref to scripts/build-brain-packet-schema.cjs + canon parts updated to 7, 8, 9"
@@ -67,7 +67,7 @@ completed: 2026-05-13
 ### Task 1 - Schema + script + ROOM.md row (commit `972c000`)
 
 - **`data/brain-packet-schema.json`** (526 lines) - draft 2020-12 JSON Schema:
-  - Root: `$schema` https://json-schema.org/draft/2020-12/schema; `$id` https://mindrian.ai/schemas/brain-packet/1.0; `title`; `description`; `$defs`
+  - Root: `$schema` https://json-schema.org/draft/2020-12/schema; `$id` https://mindrian-os.com/schemas/brain-packet/1.0; `title`; `description`; `$defs`
   - 12 shared `$defs`: `PrivacyMode` (3-value enum), `Origin` (2-value enum), `FocusNode`, `ActiveContext`, `BankedOpportunities`, `Constraints`, `ClaimProjection`, `ContradictionProjection`, `UnsupportedProjection`, `RecentChangeProjection`, `LocalGraphSummary`, `BrainResponse`
   - 12 per-job `$defs` (D-02 closed vocabulary exact): `select_methodology`, `suggest_next_move`, `detect_contradiction`, `summarize_neighborhood`, `classify_room_budding`, `rank_assumptions`, `generate_feynman_explanation`, `strengthen_minto`, `prepare_investor_brief`, `opportunity_react`, `opportunity_reflect`, `opportunity_rank` - each `{ in: {...}, out: { $ref: '#/$defs/BrainResponse' } }`
   - `additionalProperties: false` on every object node: every shared object `$def`, every job `in` and every nested object inside it (the leak-prevention teeth)

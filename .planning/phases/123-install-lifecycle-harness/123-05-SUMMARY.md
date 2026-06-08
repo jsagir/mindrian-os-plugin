@@ -34,7 +34,7 @@ key_files:
     - "docs/install/PACKAGING-PATHS.md (2 occurrences of @mindrian_os/cli -> @mindrian_os/install)"
     - "tests/manual/95.6-windows-cold-install-acceptance.md (top-of-doc acceptance callout + 2 @mindrian_os/cli -> @mindrian_os/install)"
     - "docs/INSTALL-LIFECYCLE-HARNESS.md (supersession note + 5 line edits preserving past-vs-present meaning)"
-    - "commands/setup.md (line 145 + line 209: mindrianos-jsagirs-projects.vercel.app/brain-access -> mindrianos.vercel.app/brain-access)"
+    - "commands/setup.md (line 145 + line 209: mindrianos-jsagirs-projects.vercel.app/brain-access -> mindrian-os.com/brain-access)"
 decisions:
   - "Plan-05 ships cache-prune AND finishes the package-name + URL doc sweep -- one commit per task, atomic verification."
   - "cache-prune.cjs exposes 4 names from module.exports (pruneMarketplaceCache + readActiveVersion + listCacheVersions + sortByMtimeDesc) -- the 3 internal helpers are exposed for testability + future reuse (per CONTEXT D-22 'expose internal helpers')."
@@ -179,7 +179,7 @@ Plan-05 finishes the forward-facing surface inventory.
 | `docs/install/PACKAGING-PATHS.md` | 2 (line 6, line 20) | The "paths 1 + 3 + 4 work today; path 2 unblocks once `@mindrian_os/install` is published" status line + the path-2 marketplace-npm-source row. |
 | `tests/manual/95.6-windows-cold-install-acceptance.md` | 2 (line 61, line 94) | Step-8 acceptance check + capture-artifact list. PLUS a new top-of-doc callout: "Acceptance gate (Phase 123): run `mindrian-os doctor --acceptance` on the Windows box and paste the output. The acceptance checklist supersedes most of the manual steps below." Per RESEARCH Pattern 4. |
 | `docs/INSTALL-LIFECYCLE-HARNESS.md` | 2 forward-facing refs + 3 historical-context refs | The original spec doc. Forward-facing `@mindrian_os/cli` swept (line 91 `npx @mindrian_os/install`). Historical refs reframed in past tense to preserve meaning ("Fix Step 9.5: it used to name `@mindrian_os/cli`; the package is `@mindrian_os/install` now"). Top-of-doc supersession note added: the planning artifacts at `.planning/phases/123-install-lifecycle-harness/` supersede this doc where they differ; release-beta-smoke.sh is retired and replaced by `mindrian-os doctor --acceptance --pre-tag` + `mindrian-os doctor --acceptance`. |
-| `commands/setup.md` | 0 `@mindrian_os/cli` refs; 2 URL refs swept | Line 145 + line 209: `mindrianos-jsagirs-projects.vercel.app/brain-access` (a Vercel preview URL that never went public) → `mindrianos.vercel.app/brain-access`. Per CONTEXT D-35 + RESEARCH Finding 10. The `chmod 600 ~/.mindrian.env` edit (D-34) is Plan-7's job, not this plan. |
+| `commands/setup.md` | 0 `@mindrian_os/cli` refs; 2 URL refs swept | Line 145 + line 209: `mindrianos-jsagirs-projects.vercel.app/brain-access` (a Vercel preview URL that never went public) → `mindrian-os.com/brain-access`. Per CONTEXT D-35 + RESEARCH Finding 10. The `chmod 600 ~/.mindrian.env` edit (D-34) is Plan-7's job, not this plan. |
 | `tests/test-release-npm-gate.sh` | 0 (Plan-01 already swept) | Confirmed clean -- grep returns nothing. |
 
 **Files deliberately left unchanged (audit trail):**
@@ -200,7 +200,7 @@ Plan-05 finishes the forward-facing surface inventory.
 | Check | Result |
 |-------|--------|
 | `grep -rln "@mindrian_os/cli" docs/install/ commands/ tests/test-*.sh scripts/release.sh` | (no match) -- forward-facing surfaces clean |
-| `grep -q "mindrianos.vercel.app/brain-access" commands/setup.md` | TRUE (new URL present) |
+| `grep -q "mindrian-os.com/brain-access" commands/setup.md` | TRUE (new URL present) |
 | `grep -q "mindrianos-jsagirs-projects.vercel.app" commands/setup.md` | FALSE (old URL gone) |
 | `grep -q "mindrian-os doctor --acceptance" tests/manual/95.6-windows-cold-install-acceptance.md` | TRUE (new callout present) |
 | `grep -q "mindrian-os doctor --acceptance --pre-tag" docs/INSTALL-LIFECYCLE-HARNESS.md` | TRUE (supersession note present) |
@@ -346,7 +346,7 @@ grep -rln "@mindrian_os/cli" docs/install/ commands/ tests/test-*.sh scripts/rel
 # -> exit 1 (no match)
 
 # (6) setup.md URL fix
-grep -q "mindrianos.vercel.app/brain-access" commands/setup.md           # -> TRUE
+grep -q "mindrian-os.com/brain-access" commands/setup.md           # -> TRUE
 grep -q "mindrianos-jsagirs-projects.vercel.app" commands/setup.md       # -> FALSE
 
 # (7) doctor.cjs TODO marker gone

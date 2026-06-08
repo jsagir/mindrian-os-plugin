@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS brain_access_requests (
 INSERT INTO brain_api_keys (api_key, email, name, plan, is_active, expires_at)
 VALUES (
   '4131ed5b-6001-483e-bb2c-2c4d7a3c8e05',
-  'lawrence@mindrian.ai',
+  'lawrence@mindrian-os.com',
   'Lawrence Aronhime',
   'admin',
   true,

@@ -4,9 +4,9 @@
   "version": "1.13.1-beta.11",
   "author": {
     "name": "Jonathan Sagir",
-    "url": "https://mindrian.ai"
+    "url": "https://mindrian-os.com"
   },
-  "homepage": "https://mindrian.ai",
+  "homepage": "https://mindrian-os.com",
   "repository": "https://github.com/jsagir/mindrian-os-plugin",
   "license": "BSL-1.1",
   "keywords": [

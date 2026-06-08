@@ -60,7 +60,7 @@ BOTTOM OF PAGE
 ```
 
 **Specs:**
-- Logo: MindrianOS SVG or PNG, top-left, always present, links to https://mindrian.ai
+- Logo: MindrianOS SVG or PNG, top-left, always present, links to https://mindrian-os.com
 - Room name: Read from `room/STATE.md` frontmatter `room_name` field
 - Venture stage: Read from `room/STATE.md` frontmatter `venture_stage` field. Render as uppercase monospace badge.
 - Accent bar: 5 adjacent color blocks, no gaps: #CC0000, #0066CC, #C8A43C, #2D6B4A, #B5602A

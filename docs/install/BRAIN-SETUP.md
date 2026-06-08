@@ -13,7 +13,7 @@ MindrianOS connects to a remote Brain (a Neo4j + Pinecone methodology graph) for
 
 That's it. Two steps total: install plugin, drop key.
 
-Don't have a key? Request one at https://mindrianos.vercel.app/brain-access. Without a key, every Brain command returns a structured "Brain unavailable" response (DIRECTOR_NOT_AVAILABLE) and Larry surfaces a one-line upgrade hint. The plugin remains fully functional at Tier-0.
+Don't have a key? Request one at https://mindrian-os.com/brain-access. Without a key, every Brain command returns a structured "Brain unavailable" response (DIRECTOR_NOT_AVAILABLE) and Larry surfaces a one-line upgrade hint. The plugin remains fully functional at Tier-0.
 
 ## What changed in v1.13.0-beta.20
 
@@ -60,7 +60,7 @@ Without a key, every Brain command returns a Tier-0 sentinel:
   "status": "DIRECTOR_NOT_AVAILABLE",
   "reason": "MINDRIAN_BRAIN_KEY not set",
   "command_context": "<command name>",
-  "upgrade_hint": "Request a Brain key at https://mindrianos.vercel.app/brain-access",
+  "upgrade_hint": "Request a Brain key at https://mindrian-os.com/brain-access",
   "fallback_advice": "Larry can still talk with you and reflect on your room context. Methodology orchestration requires Brain."
 }
 ```

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://mindrian.ai/schemas/import-manifest-1.0.json",
+  "$id": "https://mindrian-os.com/schemas/import-manifest-1.0.json",
   "title": "MindrianOS Import Manifest",
   "description": "Shape contract for MANIFEST.json written by the Phase 80 vault import pipeline. Used by lib/import/manifest.cjs for runtime assertions.",
   "type": "object",

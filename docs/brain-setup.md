@@ -45,7 +45,7 @@ This works on both **Claude Desktop** and **Cowork**.
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| "401 Invalid Brain API key" | Wrong or missing API key | Check your key with Jonathan (support@mindrian.ai) |
+| "401 Invalid Brain API key" | Wrong or missing API key | Check your key with Jonathan (support@mindrian-os.com) |
 | First request takes 30-60s | Render free tier cold start | Retry — subsequent requests are fast |
 | "ECONNREFUSED" | Server redeploying | Wait 1 minute, then retry |
 | Tools don't appear | Config not loaded | Restart Claude Desktop after editing config |

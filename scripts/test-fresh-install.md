@@ -8,7 +8,7 @@ Run before each release that changes the install flow.
 - A clean Mac or Windows machine (or VM/container with no prior Node.js or Claude Code)
 - An active Claude Pro or Max subscription
 - Internet connection
-- The install guide page open in a browser: https://mindrian.ai/docs/install
+- The install guide page open in a browser: https://mindrian-os.com/docs/install
 
 ---
 

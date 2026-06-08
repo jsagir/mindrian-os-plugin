@@ -444,7 +444,7 @@ function signatureFooter(model) {
 <footer class="signature-footer">
   <div class="signature-footer-left">
     ${logoSvg(24)}
-    <span class="signature-footer-brand">Built with <a href="https://mindrian.ai" target="_blank" rel="noopener">MindrianOS</a></span>
+    <span class="signature-footer-brand">Built with <a href="https://mindrian-os.com" target="_blank" rel="noopener">MindrianOS</a></span>
   </div>
   <span class="signature-footer-meta">${escapeHtml(dateStr)} | ${summary}</span>
 </footer>`;

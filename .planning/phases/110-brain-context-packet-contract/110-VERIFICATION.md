@@ -53,7 +53,7 @@ human_verification:
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| data/brain-packet-schema.json | Draft 2020-12 JSON Schema, 12 D-02 job $defs (in+out), additionalProperties:false everywhere, $id https://mindrian.ai/schemas/brain-packet/1.0 | VERIFIED | 526 lines. All 12 jobs confirmed. ajv2020 strict-compile passes. |
+| data/brain-packet-schema.json | Draft 2020-12 JSON Schema, 12 D-02 job $defs (in+out), additionalProperties:false everywhere, $id https://mindrian-os.com/schemas/brain-packet/1.0 | VERIFIED | 526 lines. All 12 jobs confirmed. ajv2020 strict-compile passes. |
 | scripts/build-brain-packet-schema.cjs | --check tripwire with 4 failure modes + recovery line; MINDRIAN_BRAIN_PACKET_SCHEMA env seam | VERIFIED | 216 lines, mode 0755. exits 0 on shipped schema. test suite covers 5 failure cases. |
 | lib/core/navigation/packet.cjs | buildBrainPacket emits origin + privacy_mode; resolvePrivacyMode, readRoomConfigPrivacyMode, roomHasExcerptApproval, PRIVACY_MODES exported | VERIFIED | grep confirms all 4 exports. test-navigation-packet-builder 16/16. |
 | lib/core/navigation/memory-events.cjs | EVENT_TYPES extended by 3 brain_* strings; size 35 | VERIFIED | node -e: all 3 strings present, size=35. |

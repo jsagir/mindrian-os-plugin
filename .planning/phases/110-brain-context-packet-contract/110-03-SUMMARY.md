@@ -375,7 +375,7 @@ The `__transport` field is the documented test seam for 110-05's per-job round-t
 **2. [Rule 3 - ajv@8 deep-pointer quirk] Wrapper schemas carry inlined `$defs` to work around an ajv@8 limitation**
 
 - **Found during:** Task 2 (`_validatorFor` compile)
-- **Issue:** ajv@8.18.0 cannot resolve a deep JSON pointer (`#/$defs/<job>/<half>`) into a schema that was indexed only by its absolute HTTPS `$id`. Tested experimentally before writing the code: `ajv.getSchema('https://mindrian.ai/schemas/brain-packet/1.0#/$defs/select_methodology/in')` returns `undefined`; `ajv.compile({$ref: ...})` throws "can't resolve reference".
+- **Issue:** ajv@8.18.0 cannot resolve a deep JSON pointer (`#/$defs/<job>/<half>`) into a schema that was indexed only by its absolute HTTPS `$id`. Tested experimentally before writing the code: `ajv.getSchema('https://mindrian-os.com/schemas/brain-packet/1.0#/$defs/select_methodology/in')` returns `undefined`; `ajv.compile({$ref: ...})` throws "can't resolve reference".
 - **Fix:** Each call to `_validatorFor(job, half)` compiles a tiny wrapper:
   ```javascript
   {

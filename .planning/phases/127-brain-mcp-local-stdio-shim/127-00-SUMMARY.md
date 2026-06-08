@@ -125,7 +125,7 @@ Each task was committed as a TDD RED -> GREEN pair:
 **2. [Rule 2 - Critical Functionality] Test 7 token set aligned with orchestrator success criterion**
 
 - **Found during:** Task 2 GREEN verification (initial run flagged `https?://` matches in the Tier-0 sentinel's `upgrade_hint` URL)
-- **Issue:** The plan's `<action>` block mandates the Tier-0 sentinel embed `https://mindrianos.vercel.app/brain-access` verbatim as `upgrade_hint`. The plan's `<behavior>` Test 7 narrative bans `https?://` matches. These specifications contradict each other: the test's wider token set flags the action spec's required URL. The orchestrator's load-bearing success criterion was narrower: `grep -rE "fetch\\(|http\\.|brain\\.mindrian|onrender"` (no `https?://`). The Canon Part 8 intent is to catch Brain-network egress in the shim, not user-facing upgrade URLs.
+- **Issue:** The plan's `<action>` block mandates the Tier-0 sentinel embed `https://mindrian-os.com/brain-access` verbatim as `upgrade_hint`. The plan's `<behavior>` Test 7 narrative bans `https?://` matches. These specifications contradict each other: the test's wider token set flags the action spec's required URL. The orchestrator's load-bearing success criterion was narrower: `grep -rE "fetch\\(|http\\.|brain\\.mindrian|onrender"` (no `https?://`). The Canon Part 8 intent is to catch Brain-network egress in the shim, not user-facing upgrade URLs.
 - **Fix:** Test 7 enforces the orchestrator's narrower load-bearing token set: `fetch(`, `http.`, `brain.mindrian`, `onrender`. The upgrade-hint URL is allowed because it's a documentation string, not a network call. The shim has zero direct `fetch()`, zero `http.` module references, zero Brain endpoint domain strings, and every Brain payload flows through `lib/core/brain-client.cjs`.
 - **Files modified:** `lib/core/mindrian-brain-shim.test.cjs`
 - **Verification:** Test 7 passes; live grep `grep -E "fetch\(|http\.|brain\.mindrian|onrender" bin/mindrian-brain-mcp-client.cjs` returns 0.
@@ -152,7 +152,7 @@ None. The shim is a complete transport surface for the 6 Brain tools. The 5 raw-
 
 ## Issues Encountered
 
-- **Plan self-contradiction on Test 7 token set:** the plan's `<action>` block mandates the Tier-0 sentinel embed `https://mindrianos.vercel.app/brain-access` while the plan's `<behavior>` Test 7 narrative bans `https?://`. Resolved per the orchestrator's load-bearing success criterion (narrower token set focused on Brain-network egress). Documented as Rule 2 deviation #2 above.
+- **Plan self-contradiction on Test 7 token set:** the plan's `<action>` block mandates the Tier-0 sentinel embed `https://mindrian-os.com/brain-access` while the plan's `<behavior>` Test 7 narrative bans `https?://`. Resolved per the orchestrator's load-bearing success criterion (narrower token set focused on Brain-network egress). Documented as Rule 2 deviation #2 above.
 - **Multi-line server.tool formatting:** the canonical zero-config shim style puts each `server.tool(` on its own line followed by `'tool_name'` on the next line. The single-line regex in Test 2's narrative didn't span newlines. Resolved with per-name regex re-scan using `\s*` between `(` and the name. Documented as Rule 2 deviation #1 above.
 - **Doc-header `sendPacket()` parens:** the original doc header named the function with parens, triggering the orchestrator's raw grep. Rewrote to describe the contract without naming the function. Documented as Rule 1 deviation #3 above.
 

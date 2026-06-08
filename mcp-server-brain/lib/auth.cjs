@@ -16,7 +16,7 @@
  *   - Plan info attached to request
  */
 
-const UPGRADE_URL = 'https://mindrianos.vercel.app/brain-access';
+const UPGRADE_URL = 'https://mindrian-os.com/brain-access';
 
 const keyCache = new Map();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes for stable keys

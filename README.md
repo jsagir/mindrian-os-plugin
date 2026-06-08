@@ -1,11 +1,11 @@
 <div align="center">
-  <img src="https://mindrianos-jsagirs-projects.vercel.app/logo_dark.svg" alt="MindrianOS" width="200" />
+  <img src="https://mindrian-os.com/logo_dark.svg" alt="MindrianOS" width="200" />
 
   # MindrianOS
 
-  **A thinking partner that sits above your AI.**
+  **Talk to Larry. The room writes itself.**
 
-  When you are working a problem worth solving and cannot yet name what is missing, MindrianOS sequences the right method at the right moment, pushes back when your reasoning has gaps, and remembers every decision across sessions.
+  A thinking partner that sits above your AI. You talk through a problem worth solving. Larry finds the real problem before you solve the wrong one, brings the right method at the moment you need it, pushes back when your confidence outruns your evidence, and turns the conversation into a structured room that remembers every decision and catches what you missed.
 
   Powered by PWS (Problems Worth Solving), an innovation methodology built and tested through 20 years of teaching by Prof. Lawrence Aronhime.
   Engineered by Jonathan Sagir.
@@ -14,18 +14,18 @@
   [![License](https://img.shields.io/badge/license-BSL_1.1-C8A43C)](LICENSE)
   [![Works on](https://img.shields.io/badge/CLI_+_Desktop_+_Cowork-2D6B4A)](#three-surfaces)
 
-  [Website](https://mindrianos-jsagirs-projects.vercel.app) &middot;
+  [Website](https://mindrian-os.com) &middot;
   [Marketplace](https://github.com/jsagir/mindrian-marketplace) &middot;
-  [Brain Access](https://mindrianos-jsagirs-projects.vercel.app/brain-access)
+  [Brain Access](https://mindrian-os.com/brain-access)
 </div>
 
 ---
 
 ## The answer first
 
-> A structured method layer that sits above the model. You talk to Larry about what you are working on. MindrianOS turns the conversation into a structured room, sequences the right framework for where you are, pushes back when your confidence outruns your evidence, and remembers every decision so nothing you learned is lost.
+> You do not operate MindrianOS. You talk to Larry. Larry is the thinking partner; the room is the receipt. Every conversation reframes the problem before you solve it, sequences the right framework for where you are, pushes back when your confidence outruns your evidence, and leaves behind a structured room that remembers every decision so nothing you learned is lost.
 
-You do not learn a tool. You talk. The room takes shape underneath the conversation. Whatever you said yesterday is still working for you today.
+You never learn a tool. You talk. The room takes shape underneath the conversation. Commands exist, but they are internals, and Larry routes you to them when they help. Whatever you said yesterday is still working for you today.
 
 ---
 
@@ -40,13 +40,13 @@ You do not learn a tool. You talk. The room takes shape underneath the conversat
 
 ## How it works (three pieces)
 
-### Larry is the thinking partner
+### Larry is the product
 
-Larry is the AI you talk to. Larry asks the questions that reframe the problem before you try to solve it, suggests the method that fits where you are, and files what you say into your room without making you stop to organize. You do not have to know the framework names. You describe what you are doing. Larry routes you.
+Larry is the AI you talk to, and the conversation is the whole surface. Larry asks the questions that reframe the problem before you try to solve it, brings the method that fits where you are, and files what you say into your room without making you stop to organize. You do not have to know any framework names. You describe what you are doing. Larry routes you. There is nothing else to learn.
 
-### The Data Room is your venture made legible
+### The room is the receipt
 
-Every conversation, every meeting, every decision lands in a folder structure organized by venture stage: the problem, the market, the solution, the team, the money, the IP, the meetings, the opportunities. You open it in your file manager. You back it up like any other folder. You own it.
+You talk; the room writes itself. Every conversation, every meeting, every decision lands in a folder structure organized by venture stage: the problem, the market, the solution, the team, the money, the IP, the meetings, the opportunities. You open it in your file manager. You back it up like any other folder. You own it. You never filed a thing.
 
 ### The room surfaces what you cannot see
 
@@ -56,7 +56,7 @@ Every time you add something new, the system compares it against everything alre
 
 ## Install
 
-Built for people who have never opened a terminal. Full walkthrough at [the install guide](https://mindrianos-jsagirs-projects.vercel.app/docs/install).
+Built for people who have never opened a terminal. Full walkthrough at [the install guide](https://mindrian-os.com/docs/install).
 
 ### npm (one line, recommended)
 
@@ -92,7 +92,9 @@ A note on install prompts: Claude Code asks you to approve each shell command. 1
 
 ## What you do in a session
 
-Talk. Type a command when you know the shortcut. Let Larry teach you when you do not.
+Talk. That is the whole interface. You describe what you are trying to do, and Larry routes you.
+
+The commands below are internals. You never have to memorize them or type them. Larry reaches for them on your behalf. They are here for the times you already know the shortcut and want it.
 
 ```bash
 /mos:new-project          # tell Larry what you are exploring
@@ -101,11 +103,11 @@ Talk. Type a command when you know the shortcut. Let Larry teach you when you do
 /mos:lean-canvas          # one-page business model
 /mos:file-meeting         # paste a transcript, Larry files it
 /mos:opportunities        # what grants match this room right now
-/mos:query "what is the weakest assumption in my financial model?"
+/mos:graph "what is the weakest assumption in my financial model?"
 /mos:grade                # honest assessment against real ventures
 ```
 
-You do not have to memorize these. Describe what you are trying to do. Larry routes you.
+If you do not know which one to run, that is the normal case. Just talk.
 
 ---
 
@@ -113,7 +115,7 @@ You do not have to memorize these. Describe what you are trying to do. Larry rou
 
 Most tools get messier the more you put in. Search ranks worse. Folders bloat. The AI forgets what you told it last session. MindrianOS goes the other way.
 
-Everything you say to Larry, every meeting you file, every decision you make and reason you give becomes part of your room. The room is searchable, structured, and remembered, and every new entry compares against everything already there.
+Think of Larry as a thinking partner who also keeps the minutes, and reads them back to you when this week contradicts last week. Everything you say, every meeting you file, every decision you make and reason you give becomes part of your room. The room is searchable, structured, and remembered, and every new entry compares against everything already there.
 
 Day one, you have a folder. Day thirty, you have a folder that catches the contradiction between yesterday's strategy call and last week's customer interview, brings back the assumption you made in week two when you are about to make a decision in week eight that depends on it, and finds the connection between two meetings a month apart that nobody remembers being related.
 
@@ -123,7 +125,7 @@ Nothing forgets. Everything compares. Your own past work works for you.
 
 ## Three surfaces
 
-MindrianOS works wherever Claude works.
+MindrianOS works wherever Claude works. Same Larry, same room, every surface.
 
 | Surface | What it gives you |
 |---------|-------------------|
@@ -135,11 +137,11 @@ MindrianOS works wherever Claude works.
 
 ## The Brain (optional)
 
-The Brain is a shared teaching graph that connects your findings across projects. It holds two stores: one for connections, one for meanings. Connecting it makes Larry sharper. Not connecting it is fine; the system still teaches you.
+The Brain is a shared teaching graph that connects your findings across projects. It holds two stores: one for connections, one for meanings. Connecting it makes Larry sharper. Not connecting it is fine; the pedagogy is intrinsic to Larry, so the system still teaches you.
 
 The Brain never sees your room. Brain queries carry methodology questions only, never your notes, never your decisions, never your meetings.
 
-Request access: [mindrianos-jsagirs-projects.vercel.app/brain-access](https://mindrianos-jsagirs-projects.vercel.app/brain-access)
+Request access: [mindrian-os.com/brain-access](https://mindrian-os.com/brain-access)
 
 ---
 
@@ -161,16 +163,16 @@ For zero permission prompts during a session: `claude --dangerously-skip-permiss
 
 PWS (Problems Worth Solving) is not a checklist. It is a way of thinking about ventures as wicked problems that need to be reframed before they can be solved, and that demand a working memory because nobody can hold the whole thing in their head.
 
-Larry is the personality that delivers PWS in your terminal. The teaching is intrinsic. You do not have to know the framework names. Larry asks the question, suggests the move, shows the chain. You decide.
+Larry is the personality that delivers PWS in your terminal, and the teaching is intrinsic. You do not have to know the framework names. Larry asks the question, suggests the move, shows the chain. You decide.
 
 ---
 
 ## Links
 
-- **Website**: [mindrianos-jsagirs-projects.vercel.app](https://mindrianos-jsagirs-projects.vercel.app)
+- **Website**: [mindrian-os.com](https://mindrian-os.com)
 - **Marketplace**: [github.com/jsagir/mindrian-marketplace](https://github.com/jsagir/mindrian-marketplace)
 - **Changelog**: [CHANGELOG.md](CHANGELOG.md)
-- **Brain Access**: [Request API Key](https://mindrianos-jsagirs-projects.vercel.app/brain-access)
+- **Brain Access**: [Request API Key](https://mindrian-os.com/brain-access)
 - **PWS, Prof. Lawrence Aronhime**: [LinkedIn](https://www.linkedin.com/in/lawrence-aronhime-8363894/)
 - **Jonathan Sagir**: [LinkedIn](https://www.linkedin.com/in/jonathansagir/)
 

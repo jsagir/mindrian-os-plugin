@@ -35,7 +35,7 @@ PHASE_127_SOURCES=(
 
 # Forbidden patterns. Note: https?:// is NOT in this list because
 # tier0-messaging.cjs legitimately contains the user-visible upgrade-hint URL
-# https://mindrianos.vercel.app/brain-access (a help string, never fetched).
+# https://mindrian-os.com/brain-access (a help string, never fetched).
 FORBIDDEN_PATTERNS=(
   'fetch\('
   'http\.'

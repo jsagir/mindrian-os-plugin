@@ -2321,7 +2321,7 @@ ${sectionsHtml}
       </a>
     </div>
     <p>Powered by PWS Methodology (Prof. Lawrence Aronhime, Johns Hopkins)</p>
-    <p><a href="https://mindrianos-jsagirs-projects.vercel.app/">mindrianos.vercel.app</a></p>
+    <p><a href="https://mindrianos-jsagirs-projects.vercel.app/">mindrian-os.com</a></p>
   </div>
   <div class="footer-mondrian"><span></span><span></span><span></span><span></span></div>
 </footer>

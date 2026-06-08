@@ -97,7 +97,7 @@ Annotated. `install.sh` does NOT write `~/.mindrian.env` today (the key is a pri
 
 ### `docs/install/BRAIN-SETUP.md` + `.env.brain.template` (D-35)
 
-`docs/install/BRAIN-SETUP.md` gains a new "Section 0 -- Authentication: Bearer-only (Phase 123 Plan-07)" stating explicitly that the Brain HTTP server (`https://mindrian-brain.onrender.com`, moving to `https://brain.mindrian.ai`) authenticates via `Authorization: Bearer <your-key>` only -- `x-api-key` returns 401 with a body that links to `https://mindrianos.vercel.app/brain-access` for help. The `MINDRIAN_BRAIN_URL` env var override is documented. A "Where the key is read from" subsection documents the D-31 resolver order and the SEC-02 chmod 600 requirement.
+`docs/install/BRAIN-SETUP.md` gains a new "Section 0 -- Authentication: Bearer-only (Phase 123 Plan-07)" stating explicitly that the Brain HTTP server (`https://mindrian-brain.onrender.com`, moving to `https://brain.mindrian.ai`) authenticates via `Authorization: Bearer <your-key>` only -- `x-api-key` returns 401 with a body that links to `https://mindrian-os.com/brain-access` for help. The `MINDRIAN_BRAIN_URL` env var override is documented. A "Where the key is read from" subsection documents the D-31 resolver order and the SEC-02 chmod 600 requirement.
 
 `.env.brain.template` gets a Bearer-only HTTP-path header block stating that only `MINDRIAN_BRAIN_KEY` is needed for the standard CLI install; the Supabase / Neo4j / Pinecone variables are MCP-path only. Body untouched -- the wholesale rewrite is D-36 (out of scope).
 

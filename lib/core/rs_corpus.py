@@ -33,7 +33,7 @@ Dedup:
   - DOI if present, else normalized lowercase title.
 
 Env vars:
-  - OPENALEX_EMAIL: polite pool contact. Defaults to noreply@mindrian.ai.
+  - OPENALEX_EMAIL: polite pool contact. Defaults to noreply@mindrian-os.com.
   - TAVILY_API_KEY: gates Tier 3 (fallback). Missing = graceful empty list.
 
 Three-surface usage:
@@ -66,7 +66,7 @@ except ImportError:
     raise
 
 
-OPENALEX_EMAIL = os.environ.get("OPENALEX_EMAIL", "noreply@mindrian.ai")
+OPENALEX_EMAIL = os.environ.get("OPENALEX_EMAIL", "noreply@mindrian-os.com")
 USER_AGENT = f"MindrianOS-RS-Engine/1.9.8.1 (mailto:{OPENALEX_EMAIL})"
 
 # Network budgets kept generous; callers set target_n.
