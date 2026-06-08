@@ -2345,6 +2345,32 @@ Plans:
 
 ---
 
+## Milestone: v1.14.0 "Larry Thinks" -- Intelligence on the Selector (CRITICAL)
+
+The LARRYREACH milestone (140-146) made the dial FIRE. But the tester onboarding session (2026-06-08, Lawrence) proved the dial fires with PLUMBING behind it (context_block, contradiction, cross_room, brain_consult, deep_research), not the PWS intelligence engines. Larry reached reverse-salient / whitespace / analogies / HATS only when the navigator typed the magic words; the selector never offered them. This milestone closes that gap: the selector finally INVOKES intelligence. Full grounding: `.planning/research/2026-06-08-keyboard-tui-capability-cockpit-research.md` (sections 1, 10, 14, 15).
+
+### Phase 148: LarryReach Selector Re-wire (Intelligence + Toggleable Components)
+
+> CRITICAL NEXT STEP out of the keyboard-TUI research arc.
+
+**Goal**: Every reach in the LarryReach selector AND the suggest/next-move surface gets two things: real content (the PWS intelligence engines where applicable) and its OWN toggleable component matched to what it does, not a flat uniform list where only intelligence rows are special. The five intelligence engines (reverse-salient, whitespace, find-analogies, find-connections, dominant-designs) join the ranked reach set; Hats becomes the 6th ranked reach (DIAL_REACH_K 5->6, research personas cached per room); File these findings and Brain review are always-open standing options outside the MAX_K=3 cap (Brain does the outside/methodology review per Canon Part 9); Free-Text stays always-last. Selecting a reach routes through command-resolver to the REAL command and executes. JTBD-ranked via the existing ranker, mirroring GSD `/gsd:progress` Routes A-F. Path B (in-conversation, AskUserQuestion) only; the Path A keyboard cockpit, De Stijl color-blocks, Hebrew/RTL, and the ~80-command rollout are later phases.
+**Depends on**: Phase 141 (dial doctrine + reach-ids + posture), Phase 143.1 (dial-TUI F.7 selector core, SHIPPED), Phase 143.3 (connector spine + intelligence-orchestrator), Phase 135 (offer-resolver), Phase 122 (command-resolver), Phase 125 (f-selector-ranker)
+**Requirements**: IRW-01, IRW-02, IRW-03, IRW-04, IRW-05, IRW-06, IRW-07, IRW-08
+**Canon parts**: Part 2 (the reaches arm the navigator's team), Part 3 (Decision Gate / Shape F selector), Part 4 (every reach files a typed edge), Part 7 (reuse: repoint shipped reaches, do not rebuild), Part 8 (zero Brain egress, local command invocation), Part 9 (Brain as external cortex / writes through navigation.cjs), Part 10 (conversation as product: the selector is where Larry's intelligence becomes reachable)
+**Success Criteria** (what must be TRUE):
+
+  1. The ranked reach set spans the existing LarryReach reaches AND the five intelligence engines AND Hats as the 6th ranked reach; DIAL_REACH_K==6 (IRW-01, IRW-02)
+  2. File these findings and Brain review render as always-open standing options OUTSIDE the MAX_K=3 cap at every selector render; Free-Text always last (IRW-03)
+  3. Each reach/suggestion across the WHOLE selector + suggest surface renders with its mapped toggleable component (Select / multi-select / ordered checkbox / group / confirm / raw), not a flat list, and not only the intelligence rows (IRW-04)
+  4. The F.1 Next Move + offer-resolver + suggest-next surfaces are unified onto the one component-routed reach host (IRW-05)
+  5. Selecting an intelligence reach routes through `command-resolver.cjs` to the REAL command (e.g. reverse-salient -> find-bottlenecks/rs-fetch), the command executes (not stubbed), a SELECTED_REACH typed edge is written via navigation.cjs, and the engine artifact lands (IRW-06)
+  6. JTBD-ranked via `f-selector-ranker.cjs`; MAX_K=3 chooser cap + frozen 0.70/0.15 recommend gate + no-bespoke-widget (SEED-020) all preserved unchanged (IRW-07)
+  7. Brain review uses a typed methodology packet only; brain-boundary scan finds zero user-content egress; all writes local through navigation.cjs (IRW-08)
+
+**Status**: SPEC in progress (gsd-spec-phase, 2026-06-08). The critical next step out of the keyboard-TUI research arc.
+
+---
+
 ## Backlog (parking lot — unscheduled, not phase-bound)
 
 ### Testers Feedback Hub (Canny-style) — REGISTERED 2026-05-06
