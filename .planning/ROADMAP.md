@@ -2282,6 +2282,7 @@ Plans:
   5. BRAIN.md derives for the room's sections -> `tier_mode` rises above `tier_0` (ACPT-05)
 
 **Plans**: 4 plans, 2 waves (gate host = `doctor --dogfood-acceptance` + `tests/run-all-146.sh`; each ACPT criterion drives the REAL shipped unit; honest hermetic-vs-live split)
+
 - [x] 146-01-PLAN.md -- ACPT-01 (real fired sensor -> decide() -> routeActivation -> routing_source: engine + explain-decision renders fired reach_id + posture) + ACPT-02 (external-fact turn -> hat-scoped WebSearch reach via sensorExternalFact + hatScopeFor; Part-8 no-user-content). Hermetic, autonomous. Wave 1. (COMPLETED 2026-06-08: test-acpt-01-engine-fires.cjs 5/5 + test-acpt-02-websearch-hat-scoped.cjs 7/7 + dogfood/fixtures/synthetic-room.cjs; both exit 0; REAL units driven, no stubs; zero em-dashes)
 - [x] 146-02-PLAN.md -- ACPT-03 (first material -> detectFirstMaterial + composeAutoExploreFinding -> room non-empty by turn 2: domain tree + whitespace map + candidate Opportunity Bank entries) + ACPT-04 (filing -> last-cascade.json cascade findings surfaced mid-session via room-proactive contract). Hermetic, autonomous. Wave 1. (COMPLETED 2026-06-08: test-acpt-03-first-material-explore.cjs 6/6 + test-acpt-04-filing-cascade-surfaces.cjs 5/5; both exit 0; REAL units driven -- detectFirstMaterial/composeAutoExploreFinding/auto-explore-fire.cjs/surfaceFinding + last-cascade.json/room-proactive surfacing rule -- no stubs; ACPT-03 Test C/C2 split because the REAL pipelines clobber seeds, so the orchestrator path is exit-0 + terminal-ledger and the REAL surfaceFinding writer lands the artifact; zero em-dashes)
 - [x] 146-03-PLAN.md -- ACPT-05 (BRAIN.md derives -> readQuadruple -> resolveTierMode rises above tier_0; hermetic arm always runs CI-green with NO Brain; live mode_a arm autonomous:false + human_needed against a reachable Brain). Wave 1. (COMPLETED 2026-06-08: test-acpt-05-brain-derive-tier-rise.cjs 6/6 hermetic + 1 honest skip; exit 0; REAL ensureSectionDerived/deriveSection/readQuadruple/resolveTierMode driven, no stubs; the REAL LOCAL no-Brain derivation rises to mode_a + an offline-exempt artifact rises to mode_b, both ABOVE tier_0 with NO Brain reachable; honest negative -- unavailable/parse_failed stays tier_0; HONEST tier-semantics deviation -- the shipped resolveTierMode returns mode_a for a fresh local derivation read with brainAvailable:true and reserves mode_b for the stale_reason:brain_offline artifact, so the suite proves BOTH rises rather than the plan-prose mode_b for the fresh arm; live mode_a Brain arm shipped + gated + skips honestly, recorded human_needed; zero em-dashes; commit 70e05db9)
@@ -2370,6 +2371,7 @@ The LARRYREACH milestone (140-146) made the dial FIRE. But the tester onboarding
 **Plans**: 5 plans in 3 waves (gsd-plan-phase, 2026-06-08)
 
 Plans:
+
 - [ ] 148-01-PLAN.md (wave 1) -- D-09 constitutional lockstep: mint `hats` as the 6th machine reach_id (DIAL_REACH_K 5->6), repoint think-hats connector, rewrite every drift fence 5->6, amend both SKILL fences [IRW-02]
 - [ ] 148-02-PLAN.md (wave 1) -- Canon amendment: MINDRIAN-CANON.md + CANON-PHASE-MAP.md record the 5->6 reach-count change (Part 6 dog-fooding) [IRW-02]
 - [ ] 148-03-PLAN.md (wave 2) -- reach-component-map.json + dispatcher archetype routing (IRW-04); File + Brain review standing options outside the MAX_K=3 cap, Free-Text last (IRW-03); run-all-148.sh aggregator [IRW-03, IRW-04, IRW-07]
@@ -2394,12 +2396,13 @@ Plans:
   4. Brain-queryability is via the typed-packet contract ONLY; `check-brain-boundary` passes; an adversarial test asserts zero artifact prose reaches any Brain packet (GAM-04)
   5. Existing `.planning/` artifacts are backfilled into the graph on first run; idempotent regeneration proven (GAM-05)
 
-**Plans:** 3 plans / 3 waves (gsd-plan-phase 2026-06-08)
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] 149-01-PLAN.md (wave 1) -- planning_artifact + requirement node-write submodule (lib/core/navigation/planning-artifacts.cjs) + lineage-edge writer reusing FEEDS_INTO/VALIDATES/INFORMS + navigation.cjs re-export + run-all-149.sh [GAM-01, GAM-03, GAM-04]
-- [ ] 149-02-PLAN.md (wave 2) -- the reconcile spine (lib/core/planning/reconcile-runner.cjs): idempotent backfill = sync, requirement parse, lineage, navigability, rides the session-start cascade (D-01/D-02, tri-polar) [GAM-02, GAM-05, GAM-07]
-- [ ] 149-03-PLAN.md (wave 3) -- PostToolUse hook (CLI immediacy on top of the reconcile, D-01) + typed-packet Brain projection + adversarial zero-prose-egress test [GAM-04, GAM-06]
+
+- [x] 149-01-PLAN.md (wave 1) -- planning_artifact + requirement node-write submodule (lib/core/navigation/planning-artifacts.cjs) + lineage-edge writer reusing FEEDS_INTO/VALIDATES/INFORMS + navigation.cjs re-export + run-all-149.sh [GAM-01, GAM-03, GAM-04]
+- [x] 149-02-PLAN.md (wave 2) -- the reconcile spine (lib/core/planning/reconcile-runner.cjs): idempotent backfill = sync, requirement parse, lineage, navigability, rides the session-start cascade (D-01/D-02, tri-polar) [GAM-02, GAM-05, GAM-07]
+- [x] 149-03-PLAN.md (wave 3) -- PostToolUse hook (CLI immediacy on top of the reconcile, D-01) + typed-packet Brain projection + adversarial zero-prose-egress test [GAM-04, GAM-06]
 
 **Status**: PLANNED (gsd-plan-phase, 2026-06-08). 3 plans / 3 waves. Build before Phase 148 execution.
 
