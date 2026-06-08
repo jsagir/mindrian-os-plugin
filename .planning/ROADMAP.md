@@ -2382,6 +2382,18 @@ Plans:
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
 
+### GSD Planning Artifacts as Local-Graph Members (Brain-queryable via typed packets) — REGISTERED 2026-06-08
+
+**Goal:** Every GSD planning artifact (SPEC.md, CONTEXT.md, RESEARCH.md, VALIDATION.md, PLAN.md, VERIFICATION.md) becomes a first-class typed node in the LOCAL graph (room.db) via `lib/core/navigation.cjs`, so it is navigable (`/mos:graph`), reachable from the Decision Gate, and part of the local mind (Canon Part 9: "Files preserve meaning. SQL remembers and navigates."). Today these are flat markdown in `.planning/`, OUTSIDE room.db.
+
+**Brain-queryable boundary (constitutional):** "queryable by the remote Brain" means via the Part 9 TYPED-PACKET contract ONLY - generic handles (phase id, requirement ids, test names, framework names), never the artifact prose. Canon Part 8 is absolute: `LOCAL -> BRAIN: NO` for raw content. The local graph holds the full node; the Brain sees a sanitized packet. The `check-brain-boundary` scan gates the packet path.
+
+**Why now:** Navigator note 2026-06-08 during Phase 148 plan-phase - VALIDATION.md (and all planning artifacts) "must be a member of the local graph and queryable by the remote one." Surfaces the GSD `.planning` <-> room.db bridge gap. Reuses navigation.cjs (Phase 109 chokepoint) + the typed-packet contract (Phase 110); a new node type (e.g. `planning_artifact`) + a writer hook on GSD doc creation.
+
+**Scope note:** touches EVERY artifact type and the GSD doc-write lifecycle - its own phase, NOT folded into 148 (the selector re-wire). Canon parts: Part 8, Part 9, Part 6 (dog-fooding - the plugin's own planning becomes graph-navigable). Slug: `gsd-artifacts-as-local-graph-members`.
+
+**Status:** Registered backlog - promote to a numbered phase on navigator decision.
+
 ### Testers Feedback Hub (Canny-style) — REGISTERED 2026-05-06
 
 **Goal:** Build a public testers feedback / changelog / voting hub for MindrianOS, modeled exactly on https://timeosai.canny.io/. Use to (a) ship update posts the testers can read + comment on, (b) collect feature requests with upvotes, (c) surface a public roadmap with status tracking (Under Review / Planned / In Progress / Complete).
