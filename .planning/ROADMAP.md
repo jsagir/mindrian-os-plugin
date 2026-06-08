@@ -2376,7 +2376,25 @@ Plans:
 - [ ] 148-04-PLAN.md (wave 2) -- real invocation: closeReach resolves framework->command and fires the real engine + edge + artifact (IRW-06); engine reaches rankable (IRW-01); frozen-contracts audit (IRW-07) [IRW-01, IRW-06, IRW-07]
 - [ ] 148-05-PLAN.md (wave 3) -- unify offer-resolver + suggest-next onto one pickShape host (IRW-05); cold-room "what can I help you with" lead (D-07/08); typed Brain-review packet zero-egress (IRW-08); per-room Hats persona cache (D-06) [IRW-02, IRW-05, IRW-08]
 
-**Status**: PLANNED (gsd-plan-phase, 2026-06-08). 5 plans / 3 waves. The critical next step out of the keyboard-TUI research arc.
+**Status**: PLANNED (gsd-plan-phase, 2026-06-08). 5 plans / 3 waves. Parked at navigator request to build Phase 149 (the graph-member bridge) first, so 148's own execution artifacts land in the graph.
+
+### Phase 149: GSD Planning Artifacts as Local-Graph Members (Brain-queryable via typed packets)
+
+> Promoted from backlog 2026-06-08 at navigator request. Build BEFORE executing Phase 148.
+
+**Goal**: Every GSD planning artifact (SPEC / CONTEXT / RESEARCH / VALIDATION / PLAN / VERIFICATION) becomes a first-class typed node in the LOCAL graph (room.db) via `lib/core/navigation.cjs`, so it is navigable (`/mos:graph`), reachable from the Decision Gate, and part of the local mind (Canon Part 9). Today these are flat markdown in `.planning/`, OUTSIDE room.db. "Queryable by the remote Brain" means the Part 9 TYPED-PACKET contract ONLY (generic handles: phase id, requirement ids, test names, framework names) - never the artifact prose. Canon Part 8 absolute: LOCAL -> BRAIN NO for raw content; the local graph holds the full node, the Brain sees a sanitized packet.
+**Depends on**: Phase 109 (navigation.cjs chokepoint), Phase 110 (Brain typed-packet contract), Phase 117-04 (check-brain-boundary scan)
+**Requirements**: GAM-01, GAM-02, GAM-03, GAM-04, GAM-05
+**Canon parts**: Part 6 (dog-fooding - the plugin's own planning becomes graph-navigable), Part 8 (the boundary - zero raw egress), Part 9 (memory locality - SQL is the local mind, Brain reasons over typed packets)
+**Success Criteria** (what must be TRUE):
+
+  1. Each GSD planning artifact type is registered as a typed node in room.db via `navigation.cjs` (no direct room.db opens) (GAM-01)
+  2. A writer hook fires on GSD doc creation/update to upsert the artifact node idempotently (re-run does not duplicate) (GAM-02)
+  3. The artifact nodes are navigable via `/mos:graph` and reachable from the Decision Gate / suggest surface (GAM-03)
+  4. Brain-queryability is via the typed-packet contract ONLY; `check-brain-boundary` passes; an adversarial test asserts zero artifact prose reaches any Brain packet (GAM-04)
+  5. Existing `.planning/` artifacts are backfilled into the graph on first run; idempotent regeneration proven (GAM-05)
+
+**Status**: Registered 2026-06-08. SPEC next (gsd-spec-phase). Build before Phase 148 execution.
 
 ---
 
@@ -2392,7 +2410,7 @@ Plans:
 
 **Scope note:** touches EVERY artifact type and the GSD doc-write lifecycle - its own phase, NOT folded into 148 (the selector re-wire). Canon parts: Part 8, Part 9, Part 6 (dog-fooding - the plugin's own planning becomes graph-navigable). Slug: `gsd-artifacts-as-local-graph-members`.
 
-**Status:** Registered backlog - promote to a numbered phase on navigator decision.
+**Status:** PROMOTED to Phase 149 (2026-06-08) - see the v1.14.0 milestone above.
 
 ### Testers Feedback Hub (Canny-style) — REGISTERED 2026-05-06
 
