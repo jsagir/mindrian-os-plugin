@@ -48,7 +48,7 @@ const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 
-// CONN-03 frozen banks. REACH_IDS (the 5) + POSTURE_IDS (the 3) are required
+// CONN-03 frozen banks. REACH_IDS (the 6, Phase 148 D-09) + POSTURE_IDS (the 3) are required
 // from the SINGLE frozen source so the connector validations can NEVER drift
 // from the dial doctrine (lib/core/sensors/sensor-types.cjs). The --check
 // tripwire validates every connector's reach_id / posture against these banks.
@@ -411,7 +411,7 @@ function serializeRegistry(reg) {
 //
 // The four validations (mirroring the missingTeaching error in
 // build-command-registry.cjs lines 367-382):
-//   (1) every reach_id is one of the frozen 5 (REACH_IDS)
+//   (1) every reach_id is one of the frozen 6 (REACH_IDS)
 //   (2) every framework resolves via commandsForFramework() (WFL-01) -- checked
 //       for connectors that declare a filing or a decision surface (the ones
 //       that actually fire a command on APPROVE)
@@ -426,11 +426,11 @@ function validateConnectors(reg) {
   for (const c of connectors) {
     const surface = (c && c.surface) || (c && c.command) || '<unknown>';
 
-    // (1) frozen-5 reach.
+    // (1) frozen-6 reach.
     if (REACH_IDS.indexOf(c && c.reach_id) === -1) {
       errs.push(
         'connector ' + surface + ' reach_id ' + (c && c.reach_id) +
-          ' not in frozen 5'
+          ' not in frozen 6'
       );
     }
 

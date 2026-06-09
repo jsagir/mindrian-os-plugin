@@ -25,7 +25,7 @@ allowed-tools:
 connector:
   connects_to_spine: true
   sensor_triggers: [SENS-05]
-  reach_id: brain_consult
+  reach_id: hats
   sub_mode: six-hats
   framework: "Six Thinking Hats"   # MUST match the existing frameworks: value
   posture: hold
