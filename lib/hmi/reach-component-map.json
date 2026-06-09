@@ -1,0 +1,46 @@
+{
+  "_doc": {
+    "purpose": "Phase 148-03 (IRW-04, D-03): the reach_id/sub_mode -> archetype component map. Registry-is-the-table: the dispatcher (lib/hmi/selector-dispatcher.cjs) reads this data file via resolveArchetype() and NEVER a hardcoded switch, mirroring the connector-registry / dispatch-framework-map pattern. A new reach joins by adding a row here, never by editing dispatcher code.",
+    "archetype_vocabulary": [
+      "select",
+      "multiSelect",
+      "ordered",
+      "group",
+      "confirm",
+      "auto",
+      "text"
+    ],
+    "vocabulary_meaning": {
+      "select": "the default Shape F.1 single-pick path",
+      "multiSelect": "AskUserQuestion multiSelect:true (batch several engines, D-01)",
+      "ordered": "an ordering follow-up prompt for compose-a-chain (D-02; NOT a live ordered widget -- the TTY wall forbids it, Phase 154)",
+      "group": "grouped multi-select lanes",
+      "confirm": "a confirm follow-up gate before running (D-06 hats, plan-gated deep_research)",
+      "auto": "no pick -- the host runs it automatically (D-04 Brain review)",
+      "text": "free-text capture"
+    },
+    "dispatch_rule": "Every archetype resolves through the dispatcher (SEED-020). No bespoke AskUserQuestion construction outside lib/hmi/selector-dispatcher.cjs.",
+    "default_on_miss": "select"
+  },
+  "reaches": {
+    "context_block": { "archetype": "select" },
+    "contradiction": { "archetype": "select" },
+    "cross_room": { "archetype": "select" },
+    "brain_consult": { "archetype": "select" },
+    "deep_research": { "archetype": "confirm" },
+    "hats": { "archetype": "confirm" }
+  },
+  "sub_modes": {
+    "reverse-salient": { "archetype": "multiSelect" },
+    "whitespace": { "archetype": "multiSelect" },
+    "cross-domain-analogy": { "archetype": "multiSelect" },
+    "cross-domain-connect": { "archetype": "multiSelect" },
+    "dominant-design": { "archetype": "multiSelect" },
+    "six-hats": { "archetype": "confirm" }
+  },
+  "standing_options": {
+    "_compose": { "archetype": "ordered" },
+    "_file": { "archetype": "multiSelect" },
+    "_brain_review": { "archetype": "auto" }
+  }
+}
