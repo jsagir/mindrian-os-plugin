@@ -4,13 +4,13 @@ milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: executing
 stopped_at: Phase 149 context gathered
-last_updated: "2026-06-09T01:22:01.322Z"
-last_activity: 2026-06-09 -- Phase 148 Plan 03 complete (reach-component-map + standing trio)
+last_updated: "2026-06-09T02:00:00.000Z"
+last_activity: 2026-06-09 -- Phase 148 Plan 04 complete (real engine invocation on commit; IRW-01/06/07)
 progress:
   total_phases: 85
   completed_phases: 61
   total_plans: 451
-  completed_plans: 401
+  completed_plans: 402
   percent: 72
 ---
 
@@ -26,8 +26,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 148 (larryreach-selector-re-wire-intelligence-toggleable-componen) — EXECUTING
-Plan: 3 of 5 (148-01, 148-02, 148-03 complete; 148-04, 148-05 pending)
+Plan: 4 of 5 (148-01, 148-02, 148-03, 148-04 complete; 148-05 pending)
 Status: Executing Phase 148
+
+Phase 148 Plan 04 (real engine invocation on commit) complete. closeReach sync/pivot now resolves reach.framework through the ONLY door (command-resolver.commandsForFramework), FIRES the real /mos: engine command via an injected fireCommand seam, and lands the engine artifact via fileEvidenceWithReadback (fallback wireAccept on readback error) -- closing the IRW-06 "plumbing behind the menu" gap. Empty resolution DEGRADES to a run-<framework>-manually instruction (never fabricates a slug). SELECTED_REACH stays system bookkeeping (Part 9 carve-out); the filed EvidenceClaim lands review_status proposed, no confirmNode promotion; miss/defer-reject paths byte-unchanged; no backfill of historical plumbing-label edges (A4, harmless historical bookkeeping). Net-new tests: test-148-engine-reaches.cjs (IRW-01, the 5 engine frameworks resolve + are rankable), test-148-real-invocation.cjs (IRW-06, select reverse-salient fires the real command + edge + artifact), test-148-frozen-contracts.cjs (IRW-07, MAX_K=3 + 0.70/0.15 unchanged, DIAL_REACH_K=6 the only moved constant, AskUserQuestion construction marker only in selector-dispatcher.cjs). Part 8 zero Brain egress preserved (local resolve + local file). Commits fc9b7bf4 (resolve+fire impl + IRW-06 test), 4142ab94 (IRW-01 test), 4b8823ed (IRW-07 test). bash tests/run-all-148.sh: 16/18 pass -- the 2 fails are 148-05's not-yet-created IRW-05/IRW-08 suites (FAIL-missing by design); all 3 of this plan's suites flipped to PASS, all 8 carried drift fences + connector --check + Part-8 sweep green; test-dial-close-reach.cjs 9/9 regression green. Requirements IRW-01 + IRW-06 + IRW-07 complete. Next: Phase 148 Plan 05 (unify offer-resolver + suggest-next onto pickShape; cold-room lead; typed Brain-review zero-egress; Hats persona cache; IRW-05/IRW-08).
 
 (Prior) Phase 148 Plan 03 (reach-component-map + toggleable component routing + standing trio) complete. The one genuine net-new artifact of Phase 148 (lib/hmi/reach-component-map.json) shipped + per-option archetype routing wired across the selector surface (IRW-03, IRW-04). reach-component-map.json keys reach_id/sub_mode/standing-option -> archetype (registry-is-the-table, default select on miss): engine sub_modes (reverse-salient/whitespace/cross-domain-analogy/cross-domain-connect/dominant-design) -> multiSelect (D-01); _file -> multiSelect (D-05); _brain_review -> auto (D-04); _compose -> ordered (D-02); hats/six-hats/deep_research -> confirm (D-06); base frozen reaches -> select. selector-dispatcher.resolveArchetype() reads the map (flattened across 3 namespaces) + applyArchetypeRouting folds the AskUserQuestion-mode hints onto the rendered F.* contract via pickShape({payload.reachKey}) -- the SEED-020 single construction site (no bespoke widget anywhere else). shape-f1-renderer.normalizeVerbs gained a standingOptions slot: File + Brain review append OUTSIDE the MAX_K=3 cap, before the always-last Free-Text, never ranker candidates, presence independent of reachScores/mode/tier (the IRW-03 bug fixed -- brain_consult could previously rank out). 5 distinct archetypes emit (>= 3 required). tests/test-148-component-map.cjs (IRW-04) + tests/test-148-standing-options.cjs (IRW-03) green; tests/run-all-148.sh (clones run-all-1433.sh) parses + runs to completion -- connector --check + IRW-01..08 suites (plan-04/05 FAIL-missing by design) + carried drift fences expecting 6 (posture 3) + Part-8 grep sweep. One in-scope deviation (Rule 1): vocabulary_meaning restructured object->array so the Part-8 free-text-body sweep does not false-positive on the text archetype enum. Commits 147a2ee6 (map+dispatcher), ec0633c0 (standing trio), 71059012 (tests+aggregator). All selector-dispatcher + F.1 consumer tests + the frozen-6 drift suite still green. Requirements IRW-03 + IRW-04 complete. Next: Phase 148 Plan 04 (real invocation: closeReach fires the engine; IRW-01/06/07).
 
@@ -1331,6 +1333,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-09T01:30:00.000Z
-Stopped at: Completed 148-03-PLAN.md (reach-component-map + standing trio); 148-04, 148-05 pending
-Resume file: .planning/phases/148-larryreach-selector-re-wire-intelligence-toggleable-componen/148-04-PLAN.md
+Last session: 2026-06-09T02:00:00.000Z
+Stopped at: Completed 148-04-PLAN.md (real engine invocation on commit; IRW-01/06/07); 148-05 pending
+Resume file: .planning/phases/148-larryreach-selector-re-wire-intelligence-toggleable-componen/148-05-PLAN.md
