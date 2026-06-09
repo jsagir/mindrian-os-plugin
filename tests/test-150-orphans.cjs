@@ -119,6 +119,30 @@ check('(b) resolveActiveFrameworks surfaces a projected brainAnchor at the weigh
   assert.equal(hit.weight, 0.5, 'the brainAnchor framework must carry weight 0.5 (the MEMORY signal)');
 });
 
+check('(b) deriveBrainAnchors PRODUCER feeds resolveActiveFrameworks from the BRAIN cortex node (orphan closed)', () => {
+  assert.ok(projectionsMod && typeof projectionsMod.deriveBrainAnchors === 'function', 'deriveBrainAnchors producer required');
+
+  // A getRoomContext legD cortexNodes slice carrying a BRAIN-derivation node with
+  // generic framework-name handles (Part 8: names only, no prose).
+  const cortexNodes = [
+    { id: 'memory_artifact:market-analysis:BRAIN', type: 'memory_artifact', properties: { kind: 'BRAIN', section: 'market-analysis', anchors: ['SWOT', 'Porter Five Forces'] } },
+    { id: 'memory_artifact:market-analysis:STATE', type: 'memory_artifact', properties: { kind: 'STATE', section: 'market-analysis' } },
+  ];
+  const brainAnchors = projectionsMod.deriveBrainAnchors(cortexNodes);
+  assert.ok(Array.isArray(brainAnchors) && brainAnchors.length === 2, 'deriveBrainAnchors must return the BRAIN node anchor handles');
+  assert.ok(brainAnchors.indexOf('SWOT') !== -1, 'SWOT anchor must be produced');
+
+  // End-to-end: the produced anchors flow into the weight-0.5 brain_md signal.
+  const roomState = { brainAnchors: brainAnchors };
+  const out = projectionsMod.resolveActiveFrameworks(roomState);
+  const hit = out.find((f) => f && f.name === 'SWOT');
+  assert.ok(hit && hit.source === 'brain_md' && hit.weight === 0.5, 'the produced anchor must reach the weight-0.5 brain_md signal');
+
+  // Empty / malformed input -> [] (graceful).
+  assert.deepEqual(projectionsMod.deriveBrainAnchors(null), [], 'null input -> []');
+  assert.deepEqual(projectionsMod.deriveBrainAnchors([]), [], 'empty input -> []');
+});
+
 // ========================================================================
 // Arm (c): SECTION_WEIGHTS gone from both engine files
 // ========================================================================
