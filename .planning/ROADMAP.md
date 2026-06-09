@@ -2460,6 +2460,48 @@ Plans:
 
 ---
 
+## v1.15.0 "The Cockpit" milestone -- the UX/dial train (REGISTERED 2026-06-09)
+
+Promoted from research `.planning/research/2026-06-08-keyboard-tui-capability-cockpit-research.md` Section 15 (navigator-ratified 2026-06-09: "build all the way to 154"). Engine-first ordering per the research + GSD's lesson (64k stars, zero custom TUI -- the widget is the skin, not the moat). HARD constraints carried into every phase below: the TTY wall (the keyboard cockpit is Path A standalone-binary ONLY; in-conversation stays AskUserQuestion -- confirmed by Claude Code issue #9881 OPEN/Critical, 2026-06-09 Tavily re-verify); zero Brain egress (Canon Part 8, all writes local via navigation.cjs); frozen contracts (MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 gate, Free-Text-last, the 12-glyph/5-color UI Ruling System + the 3 De Stijl palette carve-outs); no bespoke widgets (SEED-020, every selector resolves from the F-family via the dispatcher).
+
+### Phase 151 -- Room-structure TUI "The Map"
+
+**Slug**: room-structure-tui-the-map
+**Goal**: A navigable room-structure view -- left section tree (slug + governing thought + health glyph), right section detail (confirmed facts / risky assumptions / evidence-by-tier / contradictions / open questions), third graph neighborhood. Reads EXCLUSIVELY through lib/core/navigation.cjs (Canon Part 9 chokepoint). Printed-first (Path B, in-conversation) so it ships inside Larry's turn; the cursor position IS the persisted focus anchor (a view over the focus chokepoint, not a new store). Every look ends in a Decision Gate (Next Move, Free-Text last). Keyboard cockpit version deferred to Phase 154.
+**Depends on**: Phase 109 (navigation chokepoint), Phase 124 (pure-renderer-reads-only-via-navigation pattern), Phase 141 (getRoomContext + seedNodeId for cursor auto-position), Phase 150 (the cortex it renders), /mos:status + /mos:room + /mos:graph (the ~90% repoint per Part 7).
+**Canon parts**: Part 9 (reads only via navigation.cjs), Part 3 (every view ends in a Decision Gate), Part 4 (Enter writes focus_changed; Space adds to a Next Move chain = typed edge), Part 7 (repoint status/room/graph, net-new = only the panel-composition view layer), Part 8 (zero Brain egress), Part 10 (conversation as product).
+**Success Criteria**: (1) tree + detail + neighborhood render from room.db via navigation.cjs only; (2) cursor = persisted focus anchor (writes focus_changed); (3) De Stijl color-state map (RED selected/needs-attention, YELLOW recommended, BLUE deep/running, WHITE available, BLACK frame) realized per the SKILL.md carve-out; (4) every view bottoms out in the Next Move selector; (5) zero new SQL / node types / Brain egress.
+**Status**: PLANNED (research complete; spec next).
+
+### Phase 152 -- /mos:help + per-command visual rollout
+
+**Slug**: help-and-per-command-visual
+**Goal**: Re-cast /mos:help as a Group Multi-Select (lanes = groups, color-as-lane + glyph-as-group, recommended-per-lane only at Brain conf >=0.70 in Mode A). Roll an `interaction_archetype: A1..A7` field across the ~92 /mos: commands resolved via a new lib/hmi/archetype-map.json through the dispatcher (no bespoke widgets), plus a per-command `intake_spec` (the questions a generative/method-setup command asks BEFORE it runs -- the deck/Feynman point generalized). Fix the ~6 framework-name drifts the Phase-152 sweep found (build-thesis, find-analogies, whitespace, score-innovation, diagnostics, explore-trends) since the selector + connector registry key off `framework`.
+**Depends on**: Phase 144.1 (connector retrofit -- spine-wiring is the prerequisite for archetype-from-connector.surface), Phase 148 (the selector), Phase 121.5 (body_shape sweep pattern), Phase 122 (registry + --check tripwire pattern).
+**Canon parts**: Part 3 (Shape F archetypes), Part 7 (declare-resolve-default-enforce rollout reuses 121.5/122), Part 8 (zero egress), Part 10.
+**Success Criteria**: (1) help is a group multi-select off help-groups.json; (2) interaction_archetype declared per command + resolved via archetype-map.json + dispatcher; (3) intake_spec on the generative + method-setup commands with exactly one load-bearing "do-not-fire-without-it" question each; (4) the ~6 framework-name drifts fixed; (5) a --check tripwire fails the build on archetype/body_shape conflict.
+**Status**: PLANNED (research complete -- see 2026-06-08-phase-152-per-command-determination.md, 8-agent sweep).
+
+### Phase 153 -- Hebrew / RTL bundle
+
+**Slug**: hebrew-rtl-bundle
+**Goal**: A new lib/render/bidi.cjs (displayWidth grapheme/EAW-aware, isolate via LRI/RTI/FSI...PDI, hasRTL/detectDir, padDisplay) replacing every .length in column math; a --lang he / MINDRIAN_LANG + per-room lang: front-matter directionContext; HTML surfaces get dir="auto" + CSS logical properties; retire the HEBREW_REFUSAL anti-feature in the MVA renderers. CLI/TUI stays LTR-structural with RTL content isolated (terminals do not run the Unicode Bidi Algorithm -- never attempt visual RTL); HTML/decks get real RTL. Color is semantic, never remapped (a mirrored Mondrian is still a Mondrian; a recolored one is off-brand).
+**Depends on**: Phase 151 + 152 (the surfaces it makes bilingual), the MVA renderers (where the refusal lives).
+**Canon parts**: Part 3 (gate surfaces stay correct under RTL), Part 7 (one bidi.cjs serves all surfaces), Part 8, Part 10.
+**Success Criteria**: (1) bidi.cjs ships with display-width + isolate + detect + pad; (2) HEBREW_REFUSAL retired; (3) CLI isolates RTL runs + pads by display width (never .length); (4) HTML dir=auto + logical properties; (5) color contract unchanged across languages.
+**Status**: PLANNED (research complete -- keyboard-tui research Section 13).
+
+### Phase 154 -- Path A keyboard cockpit (the standalone binary)
+
+**Slug**: path-a-keyboard-cockpit
+**Goal**: THE literal keyboard cockpit the navigator asked for -- a standalone command launched in the user's OWN terminal (e.g. `mos dial` / `mindrian next`) where it owns a true TTY: arrows/jk to move, Space to check (block), left/right to toggle depth/scope, Ask-Tell posture as a top slider, De Stijl color-blocks via Ink backgroundColor, compose-a-chain that writes typed edges to room.db via navigation.cjs for the agent to pick up next turn. Built on Ink (the exact stack Claude Code uses) + @clack/prompts (groupMultiselect + confirm + selectKey + spinner) + inquirer-ordered-checkbox (the order-preserving chain-compose -- do NOT hand-roll it). Sequenced LAST: it is the experiential skin on top of the engine, not the moat (GSD proves the widget is not the moat at 64k stars).
+**Depends on**: Phase 151 (The Map view it renders), Phase 152 (the archetypes it realizes as real widgets), Phase 153 (bilingual), Phase 150 (the cortex), navigation.cjs (the only write path).
+**Canon parts**: Part 3 (the cockpit IS the Decision Gate made physical), Part 4 (every pick = typed edge via navigation.cjs), Part 7 (wrap existing libs, do not hand-roll the checkbox/ordering engine), Part 8 (zero Brain egress; the binary reads/writes room.db only), Part 9 (writes through navigation.cjs), Part 10.
+**Success Criteria**: (1) standalone binary runs in a real terminal with full keyboard nav (arrows/space/left-right/tab); (2) composes an ordered chain via inquirer-ordered-checkbox and writes typed edges via navigation.cjs; (3) De Stijl color-block skin realizes the Section-10 color-state map; (4) the agent picks up the composed chain next turn; (5) zero Brain egress; frozen contracts honored.
+**Status**: PLANNED (research complete; the milestone capstone).
+
+---
+
 ## Backlog (parking lot — unscheduled, not phase-bound)
 
 ### GSD Planning Artifacts as Local-Graph Members (Brain-queryable via typed packets) — REGISTERED 2026-06-08
