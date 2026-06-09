@@ -85,17 +85,24 @@ function applySchema(db) {
 
 // ---------- Fixture room tree ----------
 //
-// Three section folders, each carrying a different mix of the six memory MD
-// kinds:
+// The room root plus three section folders, each carrying a different mix of the
+// six memory MD kinds:
+//   <root>/              STATE.md (the canonical top-level ICM Layer 0 state file)
 //   problem-definition/  ROOM.md + STATE.md + MINTO.md (governing thought) + USER.md (role_blend + journey_stage)
 //   market-analysis/     MINTO.md (governing thought + decision_log) + BRAIN.md (derivation)
 //   solution-design/     FEYNMAN.md + ROOM.md
 //
-// Total memory MD files: 9. classifyMemoryFile must map each to its kind; any
-// other file (notes.md, an artifact folder file) must classify to null and NOT
-// produce a node.
+// Total memory MD files: 9 (1 at the room root + 8 across the three section
+// folders). classifyMemoryFile must map each to its kind; any other file
+// (notes.md, an artifact folder file) must classify to null and NOT produce a
+// node.
 function buildFixture() {
   const roomDir = fs.mkdtempSync(path.join(os.tmpdir(), 'phase-150-reconcile-'));
+
+  // Room-root canonical state file (top-level ICM Layer 0 directory). Lives at
+  // the room root, not inside a section folder -- discoverMemoryFiles must scan
+  // the root as well as the section subfolders to find it.
+  fs.writeFileSync(path.join(roomDir, 'STATE.md'), '---\nstatus: active\n---\n\n## Room State\n\nTop-level state.\n', 'utf8');
 
   const pd = path.join(roomDir, 'problem-definition');
   fs.mkdirSync(pd, { recursive: true });
