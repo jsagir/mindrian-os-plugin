@@ -83,8 +83,9 @@ BUMP_MODE=""
 ALLOW_AHEAD=0
 NO_NEXT_BUMP=0
 DRY_RUN=0
-NO_MINISITE=0
-USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--no-minisite] [--dry-run]"
+NO_MINISITE=1   # install-minisite RETIRED 2026-06-09 (navigator: official site is mindrian-os.com only); off by default, --minisite re-enables
+NO_WEBSITE=0    # official Mindrian website (mindrian-os.com) stays ON by default; --no-website opts out
+USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--dry-run]"
 
 for arg in "$@"; do
   case "$arg" in
@@ -96,6 +97,8 @@ for arg in "$@"; do
     --allow-ahead)       ALLOW_AHEAD=1 ;;
     --no-next-bump)      NO_NEXT_BUMP=1 ;;
     --no-minisite)       NO_MINISITE=1 ;;
+    --minisite)          NO_MINISITE=0 ;;
+    --no-website)        NO_WEBSITE=1 ;;
     --dry-run)           DRY_RUN=1 ;;
     -h|--help)           echo "$USAGE_BLOCK"; exit 0 ;;
     *)
@@ -226,12 +229,14 @@ if [ "$DRY_RUN" = "1" ]; then
   fi
   echo "  Step 9    : git push origin main --tags (plugin); git push (marketplace)"
   echo "  Step 5.5  : verify tag v$NEW_VERSION at origin (RELEASE_TAG_PUSH_RETRIES retries, SKIP_TAG_VERIFY=1 to bypass)"
-  echo "  Step 9.6a : sync install minisite to v$NEW_VERSION (HARD lockstep, vercel-CLI deploy)"
-  echo "              MINISITE_DIR resolution -> sed lib/os.ts + app/page.tsx -> grep verify -> vercel --prod --yes -> live-poll"
-  echo "  Step 9.6b : sync Mindrian website FALLBACK_VERSION to v$NEW_VERSION (HARD lockstep, git-push deploy, dual-surface 2026-05-25)"
-  echo "              WEBSITE_DIR resolution -> sed src/lib/version.ts -> grep verify -> git push origin main -> live-poll mindrianos-jsagirs-projects.vercel.app"
-  if [ "$NO_MINISITE" = "1" ]; then
-    echo "              ${YELLOW}--no-minisite opt-out engaged (audit-logged; install-minisite NOT bumped)${NC}"
+  echo "  Step 9.6a : install minisite RETIRED 2026-06-09 (off by default; --minisite re-enables)"
+  if [ "$NO_MINISITE" != "1" ]; then
+    echo "              ${YELLOW}--minisite engaged: would sync install minisite to v$NEW_VERSION (vercel-CLI deploy)${NC}"
+  fi
+  echo "  Step 9.6b : sync official Mindrian website (mindrian-os.com) FALLBACK_VERSION to v$NEW_VERSION (HARD lockstep, git-push deploy)"
+  echo "              WEBSITE_DIR resolution -> sed src/lib/version.ts -> grep verify -> git push origin main -> live-poll mindrian-os.com"
+  if [ "$NO_WEBSITE" = "1" ]; then
+    echo "              ${YELLOW}--no-website opt-out engaged (audit-logged; mindrian-os.com NOT bumped)${NC}"
   fi
   echo "  Step 9.7  : npx-publish self-test -- npx @mindrian_os/cli@$NEW_VERSION in a fresh temp dir"
   echo "  Step 9.8  : run full mindrian-os doctor --acceptance (HARD ABORT on failure;"
@@ -828,7 +833,7 @@ fi
 #   - If origin remote missing: HARD ABORT with `git remote add origin` recovery
 #   - sed failure: snapshot-then-rollback via .bak files; HARD ABORT
 #   - git push failure: HARD ABORT
-#   - Live-poll MINDRIAN_WEBSITE_URL (default https://mindrianos-jsagirs-projects.vercel.app/)
+#   - Live-poll MINDRIAN_WEBSITE_URL (default https://mindrian-os.com/)
 #   - $MINDRIAN_WEBSITE_POLL_TIMEOUT_S (default 240, longer than install-site
 #     since Next.js builds take longer than the install-site's static build)
 #   - $MINDRIAN_WEBSITE_POLL_INTERVAL_S (default 15)
@@ -837,13 +842,13 @@ fi
 echo ""
 echo "=== Step 9.6b: Sync Mindrian website FALLBACK_VERSION to v$NEW_VERSION (dual-surface HARD lockstep) ==="
 
-if [ "$NO_MINISITE" = "1" ]; then
-  echo -e "${YELLOW}  ! --no-minisite opt-out engaged; Mindrian website FALLBACK_VERSION NOT bumped.${NC}" >&2
+if [ "$NO_WEBSITE" = "1" ]; then
+  echo -e "${YELLOW}  ! --no-website opt-out engaged; Mindrian website FALLBACK_VERSION NOT bumped.${NC}" >&2
   echo "    Manual sync required after release. Audit logged."
   echo "    Note: the website's npm @next resolver will still auto-pick-up v$NEW_VERSION within 1 hour via ISR."
 else
   WEBSITE_DIR="${MINDRIAN_WEBSITE_DIR:-$HOME/mindrian-website/website}"
-  WEBSITE_URL="${MINDRIAN_WEBSITE_URL:-https://mindrianos-jsagirs-projects.vercel.app/}"
+  WEBSITE_URL="${MINDRIAN_WEBSITE_URL:-https://mindrian-os.com/}"
   WEBSITE_POLL_TIMEOUT="${MINDRIAN_WEBSITE_POLL_TIMEOUT_S:-240}"
   WEBSITE_POLL_INTERVAL="${MINDRIAN_WEBSITE_POLL_INTERVAL_S:-15}"
 
