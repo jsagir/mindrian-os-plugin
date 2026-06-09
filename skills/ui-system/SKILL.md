@@ -248,7 +248,7 @@ Shipped in: Phase 88.2 (uiux-selector-block, Plan 88.2-06 plan-review variant) +
 
 Purpose: Surface the navigator's ranked capability reaches as a single confidence-column dial. F.7 is a SPECIALIZATION of F.1 (Next Move), not a new selector primitive: it reuses `renderShapeF1` / `shape-f1-renderer.cjs` and adds a right-aligned confidence column plus the filled/empty triangle marker hierarchy. The dial answers one question -- "what is the best next reach right now, and how sure are we?" -- by letting the navigator scan the right column top-to-bottom. Per SEED-020 there is NO bespoke widget; the dial is the AskUserQuestion card-selector with a confidence column.
 
-When to use: When the orchestrator has computed ranked reaches for the current focus (the 5 reach-ids below) and the navigator is at a decision moment where a capability reach is the right next move. F.7 is the surface for the Phase 143.1 dial; the engine that auto-populates it routes once Phase 144 lands (the dial-TUI shipped in 143.1; the engine flip is Phase 144).
+When to use: When the orchestrator has computed ranked reaches for the current focus (the 6 reach-ids below; Phase 148 D-09 raised 5 -> 6 with the hats reach) and the navigator is at a decision moment where a capability reach is the right next move. F.7 is the surface for the Phase 143.1 dial; the engine that auto-populates it routes once Phase 144 lands (the dial-TUI shipped in 143.1; the engine flip is Phase 144).
 
 Header format:
 ```
@@ -257,12 +257,13 @@ Header format:
 [right-triangle-filled] Choose next reach:
 ```
 
-Options: the 5 frozen reach-ids, surfaced as WHAT-THEY-GET Feynman labels (the canonical verb persists to the graph edge, not the screen). These reach-ids are an F.7 specialization, NOT a replacement for the 10 canonical verbs -- each reach maps onto an existing canonical verb when it commits:
+Options: the 6 frozen reach-ids, surfaced as WHAT-THEY-GET Feynman labels (the canonical verb persists to the graph edge, not the screen). These reach-ids are an F.7 specialization, NOT a replacement for the 10 canonical verbs -- each reach maps onto an existing canonical verb when it commits:
 - `context_block` -- "Pull up what we decided about {topic}." (problem-space reflection)
 - `contradiction` -- "Show where {topic_a} and {topic_b} pull against each other." (assumption stress-test)
 - `cross_room` -- "Bring in what {room_name} already worked out about {topic}." (cross-context synthesis)
 - `brain_consult` -- "Suggest the next move for {framework_or_situation}." (methodology guidance; Part 8: generic framework handle only)
 - `deep_research` -- "Go find out what the world knows about {topic}, framed through {framework}." (external research; Part 8: generic framework handle only)
+- `hats` -- "Spin up a research-personas hats pass on {topic}." (confirm-gated research-personas hat-spin; the 6th machine reach, Phase 148 D-09; render-only, no framework egress)
 
 Free-Text is NOT a 4th explicit row -- the host-injected "Type something" / "Chat about this" rows handle overflow (the chooser stays MAX_K=3 even though the orchestrator previews DIAL_REACH_K=6; the two-K separation is locked: DIAL_REACH_K=6 preview, MAX_K=3 chooser -- Phase 148 D-09 raised the preview 5 -> 6 when 'hats' became the 6th machine reach).
 

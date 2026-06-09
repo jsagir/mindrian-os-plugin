@@ -48,7 +48,7 @@ F.0 Action Report (Canon Part 3 UI Ruling System; same shape as `/mos:feynman-ti
 
 The Dial Memory section is rendered FROM the graph (MEMDIAL-03; the graph is the source of truth) and carries all four components on every refresh:
 
-1. Available reaches -- the 5 canonical reach ids (the Phase 141 doctrine).
+1. Available reaches -- the 6 canonical reach ids (the Phase 141 doctrine; Phase 148 D-09 raised 5 -> 6 with the hats reach).
 2. Last selected -- the most-recent `SELECTED_REACH` edge.
 3. Current recommended -- the frozen 0.70-gate result.
 4. Recent research conclusions -- surfaced from the `DRSCH` research-conclusion evidence edges; a clean placeholder when none exist.

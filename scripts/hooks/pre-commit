@@ -152,7 +152,7 @@ fi
 # When any commands/*.md, skills/*/SKILL.md, data/connector-registry.json, or
 # data/framework-names.json is staged, regenerate the connector registry in
 # memory and reject the commit if the on-disk registry is stale OR any of the
-# four CONN-03 validations fail (reach_id not in frozen 5, posture not in frozen
+# four CONN-03 validations fail (reach_id not in frozen 6, posture not in frozen
 # 3, framework unresolvable via commandsForFramework, or a duplicate
 # (sensor,reach,sub_mode) tuple). Generated, never hand-written; drift
 # impossible to commit. Canon Part 8: the check never touches the Brain.
