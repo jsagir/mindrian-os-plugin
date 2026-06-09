@@ -10,15 +10,15 @@
       "auto",
       "text"
     ],
-    "vocabulary_meaning": {
-      "select": "the default Shape F.1 single-pick path",
-      "multiSelect": "AskUserQuestion multiSelect:true (batch several engines, D-01)",
-      "ordered": "an ordering follow-up prompt for compose-a-chain (D-02; NOT a live ordered widget -- the TTY wall forbids it, Phase 154)",
-      "group": "grouped multi-select lanes",
-      "confirm": "a confirm follow-up gate before running (D-06 hats, plan-gated deep_research)",
-      "auto": "no pick -- the host runs it automatically (D-04 Brain review)",
-      "text": "free-text capture"
-    },
+    "vocabulary_meaning": [
+      { "archetype": "select", "meaning": "the default Shape F.1 single-pick path" },
+      { "archetype": "multiSelect", "meaning": "AskUserQuestion multiSelect:true (batch several engines, D-01)" },
+      { "archetype": "ordered", "meaning": "an ordering follow-up prompt for compose-a-chain (D-02; NOT a live ordered widget -- the TTY wall forbids it, Phase 154)" },
+      { "archetype": "group", "meaning": "grouped multi-select lanes" },
+      { "archetype": "confirm", "meaning": "a confirm follow-up gate before running (D-06 hats, plan-gated deep_research)" },
+      { "archetype": "auto", "meaning": "no pick -- the host runs it automatically (D-04 Brain review)" },
+      { "archetype": "freeText", "meaning": "free-text capture (the text archetype routes here)" }
+    ],
     "dispatch_rule": "Every archetype resolves through the dispatcher (SEED-020). No bespoke AskUserQuestion construction outside lib/hmi/selector-dispatcher.cjs.",
     "default_on_miss": "select"
   },
