@@ -1010,6 +1010,37 @@ function callDecideWithTimeout(decideFn, turn, ctx, hardTimeoutMs) {
 const SEED_TURN_COUNT = 2;
 const SEED_CHAR_CAP = 400;
 
+// Phase 150-04 (MEM-07 link L3): derive lowFillSections from a getRoomContext
+// result's RAW-LOCAL cortexNodes (legD, Plan Task 2). A section is "low-fill"
+// when it has a STATE memory_artifact node but NO governing_thought node STATES
+// it (the MINTO governing-thought is unfilled). Returns an array of LOCAL section
+// slugs -- never artifact bytes, never prose (D-03a LOCAL-lane fence; Part 8).
+// Reuses the SAME getRoomContext result the caller already computed -- no second
+// room.db read. Defensive: returns [] on any malformed/absent input; never throws.
+function deriveLowFillSections(roomContext) {
+  if (!roomContext || typeof roomContext !== 'object') return [];
+  const nodes = Array.isArray(roomContext.cortexNodes) ? roomContext.cortexNodes : [];
+  if (nodes.length === 0) return [];
+  const stateSections = new Set();
+  const governedSections = new Set();
+  for (const n of nodes) {
+    if (!n || typeof n !== 'object') continue;
+    const props = (n.properties && typeof n.properties === 'object') ? n.properties : {};
+    const section = typeof props.section === 'string' ? props.section : (typeof n.sourceSection === 'string' ? n.sourceSection : '');
+    if (!section) continue;
+    if (n.type === 'memory_artifact' && props.kind === 'STATE') {
+      stateSections.add(section);
+    } else if (n.type === 'governing_thought') {
+      governedSections.add(section);
+    }
+  }
+  const out = [];
+  for (const s of stateSections) {
+    if (!governedSections.has(s)) out.push(s);
+  }
+  return out;
+}
+
 function deriveConversationSeed(navMod, db) {
   // Returns Promise<string>. Never rejects -- a fault yields '' (empty seed).
   if (!navMod || !db || typeof navMod.getSessionHistory !== 'function') {
@@ -1224,6 +1255,21 @@ function runNavigationEngine(roomDir, sessionId) {
         sectionPath: sectionPath, // scope + the [[wikilink]] target the grounded reason needs
         problemType: userPersona && userPersona.problem_type, // rankForSelector input (null when unknown)
         jtbd: jtbd,
+        // Phase 150-04 (MEM-07 link L3): thread the STARVED decide() sensor inputs
+        // that decide() already READS (navigation-engine.cjs sensorTuple.stage :618,
+        // sensorCtx.roomDir :621, sensorCtx.lowFillSections :622) but the producer
+        // never SET -- so sensor-lagging-component + sensor-gate-approach abstained.
+        //   stage           -- the venture_stage from the USER projection (the same
+        //                      value already on userPersona.venture_stage); decide()
+        //                      copies it onto sensorTuple.stage so gate-approach fires.
+        //   roomDir         -- LOCAL room dir for sensorCtx.roomDir.
+        //   lowFillSections -- set just-in-time from the cortex projection inside
+        //                      attachRoomContextAndDecide (reuses the SAME
+        //                      getRoomContext result; no second room.db read).
+        // D-03a LOCAL-lane fence: these ride context ONLY (the routing lane); they
+        // are NEVER added to the turn object or any path reaching buildBrainPacket.
+        stage: userPersona && userPersona.venture_stage ? userPersona.venture_stage : undefined,
+        roomDir: roomDir,
         roomState: {
           db: roomDb,
           roomDir: roomDir,
@@ -1259,6 +1305,13 @@ function runNavigationEngine(roomDir, sessionId) {
           // it is NEVER added to the turn object or any path reaching buildBrainPacket.
           function attachRoomContextAndDecide(roomContext) {
             context.roomContext = roomContext || null;
+            // Phase 150-04 (MEM-07 link L3): derive lowFillSections from the SAME
+            // getRoomContext cortex projection (no second room.db read). The
+            // low-fill sections are the room sections whose cortex projection is
+            // thin: a memory_artifact STATE node exists for the section but no
+            // governing_thought node STATES it (an unfilled MINTO). LOCAL section
+            // slugs only -- never artifact bytes (D-03a LOCAL-lane fence).
+            context.lowFillSections = deriveLowFillSections(context.roomContext);
             return callDecideWithTimeout(navEngine.decide, turn, context, NAV_HARD_TIMEOUT_MS);
           }
           if (
