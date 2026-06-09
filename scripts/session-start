@@ -1540,6 +1540,72 @@ env PLUGIN_ROOT_FOR_GSD="$PLUGIN_ROOT" ACTIVE_ROOM_FOR_GSD="${ROOM_DIR:-}" node 
 ' 2>/dev/null || true
 # --- END gsd planning-artifact reconcile ---
 
+# --- BEGIN memory-cortex reconcile (Phase 150, best-effort) ---
+# Phase 150-03 (MEM-01). Canon Part 8: LOCAL only -- the reconcile-memory-runner
+# reads room DATA ONLY via lib/core/navigation.cjs (the Phase 109 chokepoint) and
+# writes memory_artifact nodes + governing_thought / navigator_persona / decision
+# projections + STATES / DESCRIBES / INFORMS cortex edges; the per-folder memory
+# markdown is the source-of-meaning read, never egressed. Idempotent: backfill on
+# first run, diff-and-upsert on every session-start (D-01 universal safety net +
+# D-02 session-start IS the reconcile trigger). Tri-polar: Desktop / Cowork land
+# here since they have no PostToolUse hook. Best-effort: a failure (`|| true`)
+# never blocks session startup. Mirrors the Phase 149 planning-artifact reconcile
+# slot verbatim. The slot is a no-op when no active room resolves. The plugin
+# dog-foods its own per-folder memory files by pointing opts.sectionRoot at
+# PLUGIN_ROOT when the active room is the mindrianOS plugin room (same registry
+# resolver, no new resolver added).
+env PLUGIN_ROOT_FOR_MEM="$PLUGIN_ROOT" ACTIVE_ROOM_FOR_MEM="${ROOM_DIR:-}" node -e '
+  try {
+    var fs = require("node:fs");
+    var path = require("node:path");
+    var os = require("node:os");
+    // Resolve active room: prefer the surrounding shell ROOM_DIR; otherwise fall
+    // back to the registry resolver (mirror of the Phase 149 reconcile slot).
+    var roomDir = process.env.ACTIVE_ROOM_FOR_MEM || "";
+    if (!roomDir) {
+      var roomsRoot = process.env.MINDRIAN_ROOMS_ROOT
+        || process.env.MINDRIAN_ROOMS_HOME
+        || path.join(os.homedir(), "MindrianRooms");
+      var regPath = path.join(roomsRoot, ".rooms", "registry.json");
+      if (!fs.existsSync(regPath)) process.exit(0);
+      var reg = JSON.parse(fs.readFileSync(regPath, "utf8"));
+      if (!reg || !reg.active || !reg.rooms || !reg.rooms[reg.active]) process.exit(0);
+      roomDir = path.resolve(roomsRoot, reg.rooms[reg.active].path || reg.active);
+    }
+    if (!fs.existsSync(roomDir)) process.exit(0);
+    // Try to open room.db so the reconcile can upsert nodes + edges.
+    var db = null;
+    try {
+      var dbPath = path.join(roomDir, ".mindrian", "room.db");
+      if (fs.existsSync(dbPath)) {
+        var sqlite = require("node:sqlite");
+        db = new sqlite.DatabaseSync(dbPath);
+      }
+    } catch (_) { db = null; }
+    if (!db) process.exit(0);
+    var pluginRoot = process.env.PLUGIN_ROOT_FOR_MEM || "";
+    var runner = require(pluginRoot + "/lib/core/memory/reconcile-memory-runner.cjs");
+    // Dog-food: when the active room IS the plugin workspace, reconcile the
+    // plugins OWN per-folder memory files (PLUGIN_ROOT as the section root, not
+    // ROOM_DIR). Detect by comparing resolved paths.
+    var reconcileOpts = { db: db };
+    try {
+      if (pluginRoot && path.resolve(roomDir) === path.resolve(pluginRoot)) {
+        reconcileOpts.sectionRoot = pluginRoot;
+      }
+    } catch (_) {}
+    var result = runner.reconcileMemoryArtifacts(roomDir, reconcileOpts);
+    try { db.close(); } catch (_) {}
+    if (result && result.upserted > 0) {
+      process.stderr.write("memory-cortex-reconcile: " + result.upserted + " memory node(s) upserted, "
+        + result.decision_nodes + " decision node(s), " + result.edges + " cortex edge(s)\n");
+    }
+  } catch (e) {
+    process.stderr.write("memory-cortex-reconcile failed: " + (e && e.message) + "\n");
+  }
+' 2>/dev/null || true
+# --- END memory-cortex reconcile ---
+
 # --- BEGIN Phase 145 scout cadence (best-effort, self-throttled) ---
 # Phase 145-02 (SCHED-01 CLI default). Canon Part 8: LOCAL only -- the
 # scout-cadence-runner is zero-egress (Plan 01 T-145-01/02): it makes NO Brain
