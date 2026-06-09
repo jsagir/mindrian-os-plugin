@@ -77,6 +77,7 @@ The canonical sites (mindrian-explanation.vercel.app, mindrian-getting-started.v
 - **D-08 The 148/150 render unlock (load-bearing -- understanding pass 2026-06-09).** `decide()` fires live on every prompt, but `buildReachList` -> `dial-presenter` have ZERO production callers: the engine decides the one next move and the navigator NEVER SEES it. 150 + 148 must together wire `buildReachList` -> `dial-presenter` into the live response surface so the grounded next-move is actually PRESENTED. 148 built the UI machinery; 150 grounds it AND surfaces it. This is claim C2's unlock.
 - **D-09 The claim harness is the acceptance gate.** Phase 150 ships against a `tests/claim-harness/` (7 falsifiable claim drivers C1..C7 over a real fixture room.db, no mocked Brain) that asserts each public site claim FUNCTIONS. Ship RED; each `claim-cN` turns GREEN as the bridge delivers. The semantic-quality claims (C2 "is it good", C4 "relevance") are carved out to the Part-10 human empathy gate, not faked.
 - **D-10 The vision frame (navigator).** 150 + 148 are the one phase-pair that unlocks Mindrian by proving it in its own structure (Part 6): ICM = structure (the graph the cortex joins), PWS = structured thinking (the reaches), Mondrian = creativity within constraints (the frozen rails + the moving-M splash -- breakthrough comes from the constraint), a liquid ever-changing structure organized through the one navigation chokepoint, thinking big and small at once (the ONE next move grounded in the WHOLE room).
+- **D-11 Scope = TIGHT, companions named (navigator, 2026-06-09, after the 5-agent loop-closure revisit).** 150 closes the LOCAL memory loop (cortex as graph members + the 4 orphans + FEYNMAN read-back + the decision-node EXTEND debt + the render unlock with 148) and is the FIRST remote sendPacket consumer. It does NOT swallow the adjacent open loops; those are named companion phases (see below). Keep the phase shippable and honest.
 
 ## The mechanism (mostly REPOINT -- Canon Part 7)
 
@@ -112,6 +113,19 @@ Then the consumption side (the "perfectly utilized" half):
 - Re-deriving BRAIN.md (Phase 90 owns derivation; this phase PROJECTS the existing BRAIN.md, it does not change how it is computed).
 - Any raw-content egress to the Brain. Remote = generic handles only, no exceptions (Part 8).
 - The 133-136 consumer phases (unrelated).
+
+### Companion phases (OUT of 150, named honestly per the loop-closure revisit -- see 150-LOOP-MAP.md)
+
+150 closes the LOCAL loop; these adjacent open loops are NOT in 150 and each needs its own phase:
+- **Phase 132 live Brain writes** (bulk hypergraph reify + the 6 `:Person` pseudonymize that `curation-132-05-pseudonymize.cjs` refuses) -- the ONE open LIVE Part 8 exposure. 150 TOLERATES held/un-reified Brain nodes; it does not fix them.
+- **Part 10 ratification** -- the empathy / Hooked gate ("4/5 testers report 'thinking partner'"). 150's claim harness carves the semantic claims (C2 "is it good", C4 "relevance") out to this human gate.
+- **Phase 115 dual-path classifier emission** -- the `venture_classified:true` emission that the DEGRADED Phase 119 room-as-receipt nudge waits on. Not in 150.
+- **The rest of the 108 truth-claim writers** -- 150 ships the `decision` node projector (the headline EXTEND debt); `claim` / `evidence` / `opportunity`(casing) / ongoing-`assumption` projectors remain a 108-completion phase.
+- **Phases 112 (GraphRAG retrieval + Room Budding) / 113 (WASM spike) / 144.1 (connector-retrofit sweep)** -- retrieval depth + the 114-surface spine sweep; 150 rides the spine with ONE connector, it does not complete the sweep.
+
+### Record corrections surfaced by the revisit (not 150 work, but fix the map)
+- **Phase 95.5 (Post-Compact Memory Pipeline)** is CLOSED (shipped v1.13.0-beta.7, VERIFICATION 5/5). The auto-memory note `project_post_compact_memory_pipeline.md` is STALE.
+- **Phase 142 (compute-store-and-act)** is EXECUTED (VERIFICATION 6/6). The CANON-PHASE-MAP "plans ready, not yet executed" row is STALE. 150 ENRICHES the live getRoomContext->decide() wire (CASC-02); it does not land it.
 
 ## Acceptance criteria (draft -- refine at /gsd:plan-phase 150)
 
