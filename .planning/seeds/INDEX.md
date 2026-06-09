@@ -298,6 +298,7 @@ _End of SEEDs INDEX. Source-of-truth for individual SEED reasoning lives in each
 | SEED-018 rs-engine-corpus-quality | rs-engine-corpus-quality | medium | dormant | Degenerate rs-engine output on hybrid multi-user topic (tester-facing bug) |
 | SEED-019 part8-boundary-as-runtime-slm-guardrail | part8-runtime-enforcement | medium | dormant | Runtime SLM classifier on the Brain egress chokepoint |
 | SEED-020 regulation-layer-larry-as-connector | regulation-layer | large | dormant | Cost/freshness/metacognition regulators surfaced through Larry (Feyminto voice) |
+| SEED-021 f7-max-keyboard-dial-atomic-render-coupling | selector-ui | medium | active (navigator-decided 2026-06-09) | Atomic text/card render coupling (Phase 144 gate) + F.7-max: De Stijl previews, multiSelect modifier checkboxes, confidence bars, tier-0 honest cold card |
 
 ### Housekeeping (re-status now, zero cost)
 
