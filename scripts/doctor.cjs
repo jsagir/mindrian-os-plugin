@@ -192,6 +192,17 @@ function parseArgs(argv) {
     // require Brain (Canon Part 8: --dogfood-acceptance adds zero network surface
     // in doctor itself; the spawned drivers are LOCAL/hermetic).
     dogfoodAcceptance: false,
+    // Phase 150-08 (MEM-09 / D-09): --claims is the CLAIM HARNESS gate -- the
+    // public-site-claim acceptance gate. It shells tests/claim-harness/run-all-
+    // claims.sh (the C1..C7 falsifiable drivers + the gates) and returns its OWN
+    // self-contained exit code (0 = every claim is true by instrumentation;
+    // non-zero = a claim failed), a SIBLING of --acceptance, NOT folded into the
+    // class roster (the class-flag-always-exit-0 invariant does NOT apply). Canon
+    // Part 8: the harness is LOCAL/hermetic; the Brain LIVE arms self-skip via
+    // class-m-brain-smoke, so the gate is CI-green without a reachable Brain. The
+    // DOCTOR_CLAIM_FAIL_POINT env hook (mirroring DOCTOR_TEST_FAIL_POINT) makes
+    // the gate's own failure path testable.
+    claims: false,
     all: false, simulateWrite: null,
     scanCommandsDir: null, scanScriptsDir: null,
   };
@@ -215,6 +226,7 @@ function parseArgs(argv) {
     else if (arg === '--check-rs-engine') flags.checkRsEngine = true;
     else if (arg === '--post-update') flags.postUpdate = true;
     else if (arg === '--dogfood-acceptance') flags.dogfoodAcceptance = true;
+    else if (arg === '--claims') flags.claims = true;
     else if (arg === '--dry-run') flags.dryRun = true;
     else if (arg === '--all') flags.all = true;
     else if (arg.startsWith('--simulate-write=')) flags.simulateWrite = arg.slice('--simulate-write='.length);
@@ -325,6 +337,21 @@ Loop-fires gate (Phase 146 -- the milestone gate; separate from class flags):
                            green on the hermetic legs WITHOUT a reachable Brain --
                            the gate never requires Brain/web/Vercel. Composes with
                            tests/run-all-146.sh (the full-surface aggregator).
+
+Claim harness gate (Phase 150 -- the public-site-claim gate; separate from class flags):
+  --claims                 run the claim harness (tests/claim-harness/run-all-
+                           claims.sh): the C1..C7 falsifiable public-site-claim
+                           drivers + the gates. A SIBLING of --acceptance: it has
+                           its OWN exit-code contract (0 = every claim is true by
+                           instrumentation; non-zero = a claim failed) and is NOT a
+                           class flag -- the class-flag-always-exit-0 invariant does
+                           NOT apply. Canon Part 8: the harness is LOCAL/hermetic;
+                           the Brain LIVE arms self-skip via class-m-brain-smoke, so
+                           the gate is green WITHOUT a reachable Brain. The semantic
+                           claims (C2-good, C4-relevance) are carved to the Part-10
+                           human empathy gate, never machine-faked. The
+                           DOCTOR_CLAIM_FAIL_POINT env hook synthesizes a failure of
+                           the gate for its own self-test.
 
 Behavior flags:
   --fix                attempt auto-recovery for each class that supports it
@@ -3064,6 +3091,68 @@ async function runDogfoodAcceptance(opts) {
   };
 }
 
+// -- Phase 150-08 (MEM-09 / D-09): the claim harness gate (doctor --claims) -----
+//
+// A SIBLING of runAcceptance: it shells tests/claim-harness/run-all-claims.sh
+// (the C1..C7 falsifiable public-site-claim drivers + the gates) and returns its
+// OWN self-contained exit code, NOT folded into the class roster. Canon Part 8:
+// the harness is LOCAL/hermetic; the Brain LIVE arms self-skip via
+// class-m-brain-smoke, so the gate is CI-green without a reachable Brain.
+//
+// Self-test hook (mirrors DOCTOR_TEST_FAIL_POINT): when DOCTOR_CLAIM_FAIL_POINT
+// is set (any non-empty value) AND the in-test mode is active, the gate
+// synthesizes a failure of the harness so its own failure path is testable
+// WITHOUT corrupting the real harness. The accepted token is 'run-all-claims'
+// (the single point this gate owns); any other non-empty value also trips, so a
+// test can simply set DOCTOR_CLAIM_FAIL_POINT=run-all-claims.
+function runClaims(opts) {
+  opts = opts || {};
+  const pluginRoot = opts.pluginRoot || PLUGIN_ROOT;
+  const cp = require('child_process');
+  const harness = path.join(pluginRoot, 'tests', 'claim-harness', 'run-all-claims.sh');
+
+  // DOCTOR_CLAIM_FAIL_POINT self-test (mirrors the DOCTOR_TEST_FAIL_POINT
+  // precedent at runAcceptance). inTestMode mirrors the acceptance self-test
+  // gate: it is on when the env var is set (the test owns the process).
+  const failPoint = process.env.DOCTOR_CLAIM_FAIL_POINT;
+  if (typeof failPoint === 'string' && failPoint.length > 0) {
+    return {
+      gate: 'claims',
+      ok: false,
+      synthesized: true,
+      fail_point: failPoint,
+      status: null,
+      finding: 'DOCTOR_CLAIM_FAIL_POINT synthesized a failure of the claim harness (' + failPoint + ')',
+      summary: { total: 1, passed: 0, failed: 1 },
+    };
+  }
+
+  if (!fs.existsSync(harness)) {
+    return {
+      gate: 'claims',
+      ok: false,
+      synthesized: false,
+      status: null,
+      finding: 'claim harness missing: tests/claim-harness/run-all-claims.sh',
+      summary: { total: 1, passed: 0, failed: 1 },
+    };
+  }
+
+  const r = cp.spawnSync('bash', [harness], { encoding: 'utf8', timeout: 300000 });
+  const ok = r.status === 0;
+  return {
+    gate: 'claims',
+    ok: ok,
+    synthesized: false,
+    status: r.status,
+    signal: r.signal || null,
+    finding: ok ? null : ('claim harness exited ' + r.status + (r.signal ? ' (signal ' + r.signal + ')' : '')),
+    stdoutTail: (r.stdout || '').slice(-800),
+    stderrTail: (r.stderr || '').slice(-400),
+    summary: { total: 1, passed: ok ? 1 : 0, failed: ok ? 0 : 1 },
+  };
+}
+
 // -- Class L: deprecated-commands-you-still-use (Phase 121.5-08) -----
 //
 // D-09 final clause: doctor surfaces deprecated commands you used recently
@@ -3658,6 +3747,27 @@ function main() {
   // class-flag block so the own-contract exit code wins. Canon Part 8: spawns
   // LOCAL ACPT drivers only; zero network surface in doctor itself; the gate
   // never requires a reachable Brain (ACPT-05 live mode_a self-skips).
+  // Phase 150-08 (MEM-09 / D-09): --claims is the CLAIM HARNESS gate, a SIBLING
+  // of --acceptance with its OWN exit-code contract (0 = every public-site claim
+  // is true by instrumentation; non-zero = a claim failed). Dispatched BEFORE the
+  // class-flag block so the own-contract exit code wins; NOT a class flag, so the
+  // class-flag-always-exit-0 invariant does NOT apply. Canon Part 8: the harness
+  // is LOCAL/hermetic; the Brain LIVE arms self-skip via class-m-brain-smoke, so
+  // the gate never requires a reachable Brain. The DOCTOR_CLAIM_FAIL_POINT env
+  // hook synthesizes the failure path for the gate's own self-test.
+  if (flags.claims) {
+    const result = runClaims({ pluginRoot: PLUGIN_ROOT });
+    if (result.ok) {
+      console.log('PASS  claims: the claim harness is green (every public-site claim is true by instrumentation).');
+    } else {
+      console.log('FAIL  claims: ' + (result.finding || 'the claim harness failed') + '.');
+      if (result.stdoutTail) console.log(result.stdoutTail);
+    }
+    if (flags.json) console.log(JSON.stringify(result, null, 2));
+    process.exit(result.ok ? 0 : 1);
+    return;
+  }
+
   if (flags.dogfoodAcceptance) {
     runDogfoodAcceptance({ pluginRoot: PLUGIN_ROOT }).then(function (result) {
       for (const p of result.points) {
