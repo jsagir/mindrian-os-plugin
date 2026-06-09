@@ -2350,6 +2350,27 @@ Plans:
 
 The LARRYREACH milestone (140-146) made the dial FIRE. But the tester onboarding session (2026-06-08, Lawrence) proved the dial fires with PLUMBING behind it (context_block, contradiction, cross_room, brain_consult, deep_research), not the PWS intelligence engines. Larry reached reverse-salient / whitespace / analogies / HATS only when the navigator typed the magic words; the selector never offered them. This milestone closes that gap: the selector finally INVOKES intelligence. Full grounding: `.planning/research/2026-06-08-keyboard-tui-capability-cockpit-research.md` (sections 1, 10, 14, 15).
 
+### Phase 138: Capability Radar Absorption + Routing
+
+> Promoted from scoped-backlog to a numbered v1.14.0 phase 2026-06-09 at navigator request. Sequenced FIRST in v1.14.0 per its CONTEXT frontmatter (the radar-router + ledger must exist BEFORE any consumer phase 133/134/135/136 is planned, so no consumer goes out "planned-blind"). Built after 148/149 shipped; planned now.
+
+**Goal**: Turn `/mos:radar` from a READER into a ROUTER. Capability findings (today dying in the dormant one-shot SEED-003 backlog) get ABSORBED (retrofit the behind-us items the platform now does better) and WEAPONIZED (force every future unshipped phase to consider the relevant findings before it is planned), with the whole mechanism living in one place (the ledger in 138-CONTEXT) so it cannot rot. This is the 2026-04-13 drift discipline applied to platform-capability adoption. Mostly REPOINT, not net-new: the Phase 122 router substrate (`data/command-registry.json` + `lib/workflow/command-resolver.cjs` + `lib/brain/chain-recommender.cjs`) is reused; the net-new surface is the ledger + the `radar_findings:` frontmatter contract + the drift check.
+**Depends on**: Phase 122 workflow-layer (router substrate), Phase 109 sql-context-memory-navigation-spine (CLAUDE_CODE_SESSION_ID consumer), SEED-003 (the dormant backlog this supersedes; A2/A4/A5 carry forward), references/capability-radar/changelog-cache.md (ledger source)
+**Requirements**: RAD-01, RAD-02, RAD-03, RAD-04, RAD-05, RAD-06, RAD-07, RAD-08
+**Canon parts**: Part 6 (dog-fooding -- absorb platform capabilities on a schedule, the drift discipline we sell), Part 7 (reuse -- repoint the Phase 122 resolver, supersede SEED-003 rather than add a parallel dispatcher), Part 8 (graph boundary -- session-id Brain scoping is read-only, zero user-content egress), Part 2 Engine 2 (Opus 4.8 dynamic workflows as the BONO parallel-team substrate)
+**Success Criteria** (what must be TRUE):
+
+  1. The capability ledger in 138-CONTEXT is the single source of truth and `/mos:radar --fetch` appends new findings TO the ledger (not just the cache) (RAD-01)
+  2. At `/gsd:plan-phase N`, the radar-router reads the ledger Bucket-F forward-map and surfaces the findings tagged for phase N (or its slug-keywords) before planning proceeds, reusing the Phase 122 resolver path (RAD-02)
+  3. A `radar_findings:` CONTEXT frontmatter contract (mirroring `canon_parts:`) exists, and a lightweight drift check flags a phase that touches a forward-mapped surface without the relevant `radar_findings:` row (RAD-03)
+  4. Bucket R retrofits land: `CLAUDE_CODE_SESSION_ID` read-only Brain scoping, A2 hooks-as-MCP-callers collapse (Phase 89.5 fixtures green), per-category usage cost in telemetry, Opus 4.8 model-floor note, `.zip` beta channel doc (RAD-04)
+  5. Bucket C lands: SessionStart session-title reflects the active room; `reloadSkills` / `/reload-skills` hot-swaps surfaced skills; at least one optional skill cluster ships `defaultEnabled: false`; `disallowed-tools` per-skill scoping wired (RAD-05)
+  6. The A4 adopt-vs-supersede decision is recorded (adopt Opus 4.8 dynamic workflows and mark SEED-003 A4 superseded, OR a justified keep); no hand-rolled fork-subagent harness ships if superseded (RAD-06)
+  7. SEED-003 status flipped to `superseded-by: Phase 138` and forward-points to the ledger (RAD-07)
+  8. Part 8 boundary holds: session-id scoping is read-only enumeration; the brain-boundary scan passes; zero user-content egress on any new path (RAD-08)
+
+**Status**: PENDING -- CONTEXT.md complete with LOCKED decisions (AskUserQuestion 2026-06-01); promoted to numbered phase 2026-06-09; `/gsd:plan-phase 138` in progress.
+
 ### Phase 148: LarryReach Selector Re-wire (Intelligence + Toggleable Components)
 
 > CRITICAL NEXT STEP out of the keyboard-TUI research arc.
@@ -2444,6 +2465,6 @@ Plans:
 Two phases scoped + parked to v1.14.0 (NOT in the frozen v1.13.1 chain). CONTEXT files on disk; promote via `/gsd:discuss-phase` / `/gsd:plan-phase` after v1.13.1 ships.
 
 - **Phase 137 — Brain<->MindrianOS sync + compatibility harness.** Operationalizes the 130.7 dual-graph contract into a standing PR compat gate + weekly read-only sync drift report (GitHub Actions). `.planning/phases/137-*/137-CONTEXT.md`. (committed c15a7c86)
-- **Phase 138 — Capability radar absorption + routing.** Turns `/mos:radar` from a reader into a router: a living capability ledger (Claude Code 2.1.148-159 findings), retrofit backlog (Opus 4.8 model floor, `CLAUDE_CODE_SESSION_ID` Brain scoping, SessionStart session-title, reloadSkills, defaultEnabled, disallowed-tools), and a `radar_findings:` forward-awareness contract so future phases incorporate findings before they are planned. Supersedes the dormant SEED-003. **Sequence FIRST in v1.14.0** (before consumer phases 133/134/135/136). Folds Bucket-C items here because Phase 121.5 already shipped. `.planning/phases/138-*/138-CONTEXT.md`.
+- **Phase 138 — Capability radar absorption + routing.** PROMOTED 2026-06-09 to a numbered v1.14.0 phase (see the v1.14.0 "Larry Thinks" milestone above; Requirements RAD-01..08). Turns `/mos:radar` from a reader into a router: a living capability ledger (Claude Code 2.1.148-159 findings), retrofit backlog (Opus 4.8 model floor, `CLAUDE_CODE_SESSION_ID` Brain scoping, SessionStart session-title, reloadSkills, defaultEnabled, disallowed-tools), and a `radar_findings:` forward-awareness contract so future phases incorporate findings before they are planned. Supersedes the dormant SEED-003. **Sequence FIRST in v1.14.0** (before consumer phases 133/134/135/136). Folds Bucket-C items here because Phase 121.5 already shipped. `.planning/phases/138-*/138-CONTEXT.md`.
 
-**Status:** Scoped-backlog — both build after v1.13.1 ships.
+**Status:** Phase 138 PROMOTED to numbered phase 2026-06-09 (planning in progress); Phase 137 remains scoped-backlog — builds after v1.13.1 ships.
