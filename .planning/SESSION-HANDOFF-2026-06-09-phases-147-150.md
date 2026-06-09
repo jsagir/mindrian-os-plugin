@@ -1,4 +1,6 @@
-# Session Handoff -- 2026-06-09 -- Finish planning 147-150 + start GSD execution
+# Session Handoff -- 2026-06-09 -- Finish 147-150 + cut the v1.14.0-beta.1 "Larry Thinks" beta
+
+GOAL: execute the remaining 140-150 work (150 + 147; 140-146 + 148/149 are done) then publish a beta (v1.14.0-beta.1) that includes the whole band.
 
 Paste the prompt below into a FRESH Claude Code session started in `/home/jsagi/dev/MindrianOS-Plugin`.
 
@@ -24,11 +26,11 @@ VERIFIED STATUS of phases 147-150 (as of 2026-06-09):
 - 150 (memory-cortex-as-graph-members-local-and-brain-queryable-when-reaching): FULLY PLANNED -- 8 plans / 3 waves, plan-checker PASS (11/11 requirements, 0 blockers). NOT executed.
 - (Adjacent: 138 capability-radar = PLANNED not executed; 144.1 = COMPLETE.)
 
+147 vs 150 -- NOT the same substrate (do not assume 150 covers 147): 150 projects the USER memory MDs into room.db (runtime, graph, Part 8/9). 147 generates the phase-STATUS block of `docs/CANON-PHASE-MAP.md` from on-disk facts + a `--check` tripwire (commit-time, repo-doc, NO room.db, NO graph -- its CONTEXT line 138 fences it as "NOT M7"). They are siblings in PATTERN (generate + --check truth, both descend from Phase 122) but target different documents. 147 does NOT block 150, and 150 does NOT do 147's job. 147 is dev-infra/hardening (Phase 139 doctor family), NOT the v1.14.0 user track. It is timely because THIS session hand-edited CANON-PHASE-MAP + ROADMAP heavily and found stale rows (95.5/142) -- 147 is the guard against exactly that.
+
 DO THIS, IN ORDER:
 
-1. FINISH PLANNING 147. Run `/gsd:plan-phase 147` (it has only a CONTEXT). Let the plan-checker verify. Phase 147 is the phase-map-drift-tripwire (detects when docs/CANON-PHASE-MAP.md drifts from shipped reality) -- a small infra phase.
-
-2. EXECUTE PHASE 150 (the main event). FIRST read its full dossier in `.planning/phases/150-memory-cortex-as-graph-members-local-and-brain-queryable-when-reaching/`:
+1. EXECUTE PHASE 150 (the main event -- the priority; does NOT depend on 147). FIRST read its full dossier in `.planning/phases/150-memory-cortex-as-graph-members-local-and-brain-queryable-when-reaching/`:
    - `150-RESEARCH.md` (THE canonical research -- 14-agent internal investigation + Tavily external validation + Hooked rationale; read this first)
    - `150-CONTEXT.md` (scope + LOCKED decisions D-01..D-11)
    - `150-UNDERSTANDING.md` (the reuse-seam map, file:line)
@@ -37,7 +39,18 @@ DO THIS, IN ORDER:
    - `150-01-PLAN.md` ... `150-08-PLAN.md` (the 8 plans)
    Then run `/gsd:execute-phase 150`. Waves: W1 = 150-01 (memory_artifact writer + governing_thought/persona/decision nodes + lineage + run-all-150.sh) + 150-02 (typed memory-cortex Brain packet + adversarial egress test). W2 = 150-03 (reconcile spine + hybrid trigger) + 150-04 (getRoomContext legD + starved-sensor producers + brainAnchors + delete dead SECTION_WEIGHTS). W3 = 150-05 (connector spine + cortex sensor) + 150-06 (selector graph-driven + THE render unlock) + 150-07 (FEYNMAN read-back + seed-writer) + 150-08 (claim harness C1-C7 + doctor --claims + finalize run-all-150.sh). After all waves pass, spawn gsd-verifier to produce `150-VERIFICATION.md`.
 
-3. THEN execute 147 (once it is planned). Optionally execute 138 if I ask.
+2. FINISH + EXECUTE PHASE 147 (independent dev-infra guard; not a 150 blocker). Run `/gsd:plan-phase 147` (it has only a CONTEXT; the plan-checker verifies), then `/gsd:execute-phase 147`. It generates the sentinel-bounded `## Phase Status (auto)` block in `docs/CANON-PHASE-MAP.md` + a `--check` tripwire that fails a commit when hand-typed status drifts from disk facts (reuse `build-command-registry.cjs` generate+check + `timeline-runner.cjs` sentinel merge; see 147-CONTEXT reuse map). Run it once after to reconcile the map (it will catch the stale rows from this session).
+
+3. CUT THE BETA -- v1.14.0-beta.1 "Larry Thinks" (the milestone goal; do this AFTER 150 + 147 are executed + verified). The band 140-146 is the v1.13.1 LARRYREACH work (already executed); 148/149 (complete) + 150 + 147 are the v1.14.0 "Larry Thinks" memory/selector work being released for the FIRST time. Current version is v1.13.1-beta.11, so this bumps the MINOR to v1.14.0-beta.1.
+   Use the release ceremony (do NOT bump by hand) -- `scripts/release.sh` enforces the version-consistency gates:
+   - CHANGELOG.md: add a `## [1.14.0-beta.1]` entry summarizing 148 (selector re-wire), 149 (planning-artifacts graph bridge), 150 (memory cortex as graph members + render unlock + claim harness), 147 (phase-map drift tripwire).
+   - Version lockstep (ALL must match): `.claude-plugin/plugin.json`, `package.json`, the `git tag v1.14.0-beta.1`, and `~/mindrian-marketplace/.claude-plugin/marketplace.json` with `source.ref` pinned to the tag.
+   - npm lockstep (HARD RULE): publish `@mindrian/os` to npm in the same release (release.sh Step 9.5); vendored `node_modules` handled by release.sh (npm ci --omit=dev into the tagged commit, stripped from main HEAD).
+   - Dual-website lockstep (HARD RULE, 8 places): after the bump, fact-check the mindrian-website HAND-TYPED version surfaces (hero eyebrow, roadmap, about timeline, FALLBACK_VERSION constant, counts) against VERSION-BUMP-CHECKLIST.md; Nav badge + Footer auto-resolve from npm. Both Vercel surfaces update.
+   - Release infra ships as BETA first (this IS a beta) -- correct.
+   - `git push origin main --tags` only when the navigator confirms.
+
+(Optional, separate: 138 capability-radar is PLANNED-not-executed but is NOT in the 140-150 band -- leave it out of this beta unless I ask.)
 
 PHASE-150 CRITICAL REMINDERS (from the dossier -- do not violate):
 - `writeDecisionNode` (150-01) is a TRUTH-CLAIM node -> it MUST mint `review_status='proposed'`, NEVER `confirmed`. Only the human `confirmNode` path promotes. A `confirmed` mint is a Canon Part 9 role-5 breach. (The other cortex nodes are system-bookkeeping, created_by=system, exempt.)
