@@ -2434,7 +2434,29 @@ Plans:
 - [x] 149-02-PLAN.md (wave 2) -- the reconcile spine (lib/core/planning/reconcile-runner.cjs): idempotent backfill = sync, requirement parse, lineage, navigability, rides the session-start cascade (D-01/D-02, tri-polar) [GAM-02, GAM-05, GAM-07]
 - [x] 149-03-PLAN.md (wave 3) -- PostToolUse hook (CLI immediacy on top of the reconcile, D-01) + typed-packet Brain projection + adversarial zero-prose-egress test [GAM-04, GAM-06]
 
-**Status**: PLANNED (gsd-plan-phase, 2026-06-08). 3 plans / 3 waves. Build before Phase 148 execution.
+**Status**: COMPLETE (3 plans / 3 waves SHIPPED, 2026-06-09; VERIFICATION status: passed, 7/7 GAM-01..07, 8/8 tests). The DEV-doc graph bridge. Its USER-memory twin is Phase 150.
+
+### Phase 150: Memory Cortex as Graph Members (Local + Brain-queryable when reaching)
+
+> THE REAL 149. Navigator-directed 2026-06-09 after a 5-agent utilization audit found 0 of the 6 per-folder memory MD files are graph members. Phase 149 bridged the DEV `.planning/` docs; this bridges the NAVIGATOR's memory cortex. Sequence in the LarryReach/selector cluster (140-148) as the SUBSTRATE under Phase 148, ahead of Phase 138 + the 133-136 consumers.
+
+**Goal**: Make every per-folder memory markdown (ROOM.md, STATE.md, MINTO.md, BRAIN.md, FEYNMAN.md, USER.md) a first-class GRAPH MEMBER in room.db via the navigation.cjs chokepoint, and QUERYABLE BY BOTH LOCAL AND REMOTE WHEN REACHING -- so when the LarryReach dial fires a reach (and when "what's next" computes a move) it navigates the navigator's own memory through the local graph and can ask the remote Brain via the typed-packet contract (generic handles only, zero raw egress). The selector's reach ranking AND its toggleable archetype components become graph-driven; every orphan the audit found is closed. Makes the website's memory/graph/next-move claims actually true. Mostly REPOINT (Part 7): mirrors the Phase 149 writer + reconcile + lineage + hook + typed-packet, repointed from `.planning/` to the 6 memory files.
+**Depends on**: Phase 149 (the pattern to mirror), Phase 109 (navigation chokepoint), Phase 110 (Brain packet contract), Phase 141 (getRoomContext), Phase 143.3 (connector spine), Phase 144 (decide()), Phase 148 (the selector to make graph-driven), Phase 90 (BRAIN.md derivation), Phase 124 (FEYNMAN timeline)
+**Requirements**: MEM-01, MEM-02, MEM-03, MEM-04, MEM-05, MEM-06, MEM-07, MEM-08, MEM-09
+**Canon parts**: Part 9 (memory locality -- THE phase: the USER memory files finally become graph-navigable), Part 8 (REMOTE queryability = typed packets only, zero raw egress), Part 3 (cortex feeds LOCAL context at every gate; selector graph-driven), Part 2 (reaches arm the navigator using the cortex), Part 6 (dog-fooding -- corrects the 149 dev/user inversion), Part 7 (reuse the 149 + 143.3 + getRoomContext machinery), Part 10 (the website claims are the acceptance bar)
+**Success Criteria** (what must be TRUE):
+
+  1. All 6 memory MD files are projected into room.db as typed nodes via navigation.cjs; reconcile is idempotent (re-run upserts, no dup); a PostToolUse hook on `*/{ROOM,STATE,MINTO,BRAIN,FEYNMAN,USER}.md` + a session-start reconcile slot fire it (tri-polar) (MEM-01)
+  2. Richer typed nodes + lineage land: a governing_thought node (from MINTO), a navigator_persona node (from USER role_blend x journey_stage), and the long-promised decision-node projection (closing the Phase 108/109 EXTEND), with typed edges (STATES / SUPPORTS / INFORMS / DESCRIBES) (MEM-02)
+  3. LOCAL queryable when reaching: getRoomContext surfaces the cortex nodes; the dial + decide() rank reaches off the PROJECTED cortex (gaps, governing thought, Brain priors, persona) (MEM-03)
+  4. REMOTE queryable when reaching: a typed memory-cortex Brain packet carries generic handles ONLY (governing-thought sha256, problem-type/complexity/persona enums, framework-name handles, gap/stage scalars); an adversarial test proves zero raw memory prose reaches any Brain packet (Part 8) (MEM-04)
+  5. The memory-cortex reach(es) are spine-connected: connector: frontmatter + connector-registry.json registration + intelligence-orchestrator dispatch (Phase 143.3) (MEM-05)
+  6. The 148 selector is graph-driven: reach ranking AND the reach-component-map toggleable archetypes read the cortex from the graph via getRoomContext; buildReachList has a live caller; the flat-file roomState side-channels are retired/demoted; frozen 148 contracts (MAX_K=3, 0.70/0.15, DIAL_REACH_K=6) unchanged (MEM-06)
+  7. Orphans closed (perfectly utilized): the 2 starved sensors fire (lowFillSections/venture_stage populated), the brainAnchors producer is wired, SECTION_WEIGHTS is implemented-or-deleted, and the decision double-ledger collapses to one graph-authoritative source (MEM-07)
+  8. FEYNMAN.md read-back: it joins the read contract (readQuintuple or fold), the missing seed-writer (discover.md:170 promise) ships, and the timeline stops being a write-only sink (MEM-08)
+  9. The website claims function end-to-end (each row of the 150-CONTEXT claims table is a falsifiable test): "picks up where you left off", "next move grounded in what your workspace contains", "knowledge graph detects contradictions", "Brain surfaces patterns without seeing content" (MEM-09)
+
+**Status**: SCOPED (CONTEXT.md complete with LOCKED decisions D-01..D-07 + the 5-agent audit grounding + the website acceptance bar, 2026-06-09). Next: `/gsd:plan-phase 150`.
 
 ---
 
