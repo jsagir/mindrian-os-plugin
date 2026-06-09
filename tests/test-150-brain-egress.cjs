@@ -275,22 +275,26 @@ function testHeldNodeDegradesGracefully() {
   applySchema(db);
   const NOW = 1714694400000;
 
-  // A section whose ONLY cortex node is the HELD navigator_persona (no cid).
-  // The build must NOT throw, and must degrade the join fields gracefully.
+  // A HELD section is un-canonicalized: its governing_thought anchor is NOT wired
+  // (no joinable cortex node reachable from the anchor), so the section is
+  // un-joinable to the REMOTE Brain. We seed a stray persona node that is NOT
+  // reachable from the (absent) governing_thought anchor. The builder reads ONLY
+  // via getNeighborhood from the anchor (never node properties), so the anchor
+  // resolving to an empty neighborhood is the structural HELD signal: the build
+  // must NOT throw and must NOT fabricate a remote-join cid.
   const section = 'held-only-section';
-  const gtId = seedPoisonedCortexNode(
-    db, 'governing_thought:' + section, 'governing_thought', section, NOW - 1000, undefined);
-  const personaId = seedPoisonedCortexNode(
+  // NOTE: deliberately NO governing_thought:held-only-section node is seeded, so
+  // getNeighborhood(anchor) returns [] -- the un-joinable HELD case.
+  seedPoisonedCortexNode(
     db, 'navigator_persona:room', 'navigator_persona', section, NOW - 2000, undefined);
-  seedEdge(db, gtId, personaId, 'DESCRIBES');
 
   let packet;
   assert.doesNotThrow(function () {
     packet = mod.buildMemoryCortexPacket(db, { section: section });
-  }, 'buildMemoryCortexPacket must not throw on a HELD (no-correlation_id) cortex node');
+  }, 'buildMemoryCortexPacket must not throw on a HELD (un-joinable) section');
 
   assert.ok(packet && typeof packet === 'object', 'packet must be an object even for a HELD-only section');
-  // The HELD node degrades to LOCAL-only: no remote join key is forced.
+  // The HELD section degrades to LOCAL-only: no remote join key is forced.
   // correlation_id must be absent or empty (never a fabricated cid).
   assert.ok(
     packet.correlation_id == null || packet.correlation_id === '',
