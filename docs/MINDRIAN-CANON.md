@@ -1,7 +1,7 @@
 # Mindrian Canon
 
-Version: 1.5
-Date: 2026-05-31
+Version: 1.6
+Date: 2026-06-09
 Status: Active
 Author: Jonathan Sagir with Claude-as-Larry
 
@@ -409,6 +409,8 @@ This canon was forged in conversation between Jonathan Sagir (founder) and Claud
 
 14. **Audit-node carve-out added (Phase 129.5, 2026-05-31).** Phase 129.5 (Truth-Machine Activation) amended Part 9 with the audit-node carve-out so the human-confirms-truth lever (role 5) could be wired without mislabeling the system's own audit trail as a constitutional violation. `lib/core/navigation/focus.cjs` writes a `focus_changed` memory_event with `created_by=system review_status=confirmed`; before the carve-out this read as an agent writing a confirmed node directly. The carve-out scopes role 5 to truth-claim nodes {claim, CausalClaim, assumption, decision, opportunity} and exempts system-bookkeeping nodes {memory_event, audit, focus}, so audit trails stay legitimate and are never permanently un-promotable. The carve-out was a LOCKED human decision (D-03) made via AskUserQuestion on 2026-05-30; this is the canon-amendment-on-itself mechanism (Part 6 dog-fooding) applied once more. Canon version bumped to 1.5.
 
+15. **Reach-count amendment: the frozen bank moved 5 to 6 (Phase 148, 2026-06-09).** Phase 148 (LarryReach Selector Re-wire) mints `hats` as a REAL 6th machine reach_id, resolving the researcher's open question A1 in favor of a true machine token (NOT a sub_mode render label under brain_consult). This moves the frozen reach bank from 5 to 6. The reach count is a frozen constitutional property: Part 3 (Option generation tier-awareness) renders the Shape F selector against this bank, and the Part 6 dog-fooding mandate requires the plugin to honor its own canon, so a phase that changes a frozen constitutional count must amend the canon using the canon's own mechanism. Plan 01 moved every lockstep surface together in one atomic wave so CI never went RED mid-phase: `sensor-types.REACH_IDS` (now length 6, `hats` appended), `dial-reach-orchestrator` `DIAL_REACH_K` 5 to 6, `dial-label-composer` template families (a render-only `hats` family with no `{framework}` egress slot, so it stays in the non-egress family class per Part 8), the `think-hats` connector repoint (`brain_consult` to `hats`), both SKILL doctrine fences (no-6th to no-7th), the carried drift suite (rewritten to assert 6 and green), and the connector `--check` tripwire (frozen 6). `MAX_K=3` and the frozen 0.70/0.15 recommend gate stayed UNCHANGED; only `DIAL_REACH_K` moved. This was a navigator-confirmed LOCKED decision (D-09, 2026-06-08) applied via the Part 6 dog-fooding canon-amendment-on-itself mechanism, mirroring entry 14. Plan 02 (this docs-only plan) records the amendment in the canon and the phase map. Canon version bumped to 1.6.
+
 Conversation transcript reference: session 2026-04-20, branch `ui/destijl-rebuild`. First canon draft shipped at commit 528abdd; cross-references at b7d95bd; amendment at this commit. Part 9 (Memory Locality and Interpretation) ratified at the Phase 109 release gate (2026-05-12).
 
 ---
@@ -463,4 +465,6 @@ The navigator always decides.
 
 ---
 
-_Mindrian Canon v1.5 - MindrianOS Plugin_
+_Mindrian Canon v1.6 - MindrianOS Plugin_
+
+_Version history is maintained inline in docs/CANON-PHASE-MAP.md (Version history table)._
