@@ -12,8 +12,8 @@
 #   test-150-brain-egress.cjs              -> Plan 02 -- zero memory prose reaches any Brain packet
 #   test-150-reconcile.cjs                 -> Plan 03 -- memory MD files project to nodes; reconcile idempotence
 #   test-150-trigger.cjs                   -> Plan 03 -- the writer hook trigger fires projection
-#   test-150-cortex-context.cjs            -> Plan 04 -- local consumption of cortex nodes
-#   test-150-orphans.cjs                   -> Plan 04 -- orphan detection over the cortex graph
+#   test-150-cortex-local-query.cjs        -> Plan 04 -- getRoomContext legD surfaces the projected cortex (MEM-03)
+#   test-150-orphans.cjs                   -> Plan 04 -- the 4 orphan closures (sensors fire, brainAnchors, SECTION_WEIGHTS gone, decide threading) (MEM-07)
 #   test-150-spine-connector.cjs           -> Plan 05 -- the spine connector wiring
 #   test-150-selector-graph-driven.cjs     -> Plan 06 -- selector reads the cortex graph
 #   test-150-feynman-readback.cjs          -> Plan 07 -- FEYNMAN.md cortex readback
@@ -45,7 +45,7 @@ CJS_SUITES=(
   test-150-decision-projection.cjs
   test-150-reconcile.cjs
   test-150-trigger.cjs
-  test-150-cortex-context.cjs
+  test-150-cortex-local-query.cjs
   test-150-orphans.cjs
   test-150-spine-connector.cjs
   test-150-selector-graph-driven.cjs
