@@ -81,9 +81,50 @@ leading dashes (`prerelease` instead of `--prerelease`), at the dry-run tail
 beta.12 attempt failed this way. Fix: echo `--$BUMP_MODE` (or the literal flag) in the
 hint. Low severity.
 
+## Sibling finding (2026-06-09): marketplace push landed on the wrong branch (beta.12 catalog miss)
+
+During the beta.12 cut, `~/mindrian-marketplace` was checked out on a FEATURE branch
+(`chore/canonical-domain-mindrian-os`), not its default/catalog branch `master`.
+release.sh Step 4/7/9 edited + committed marketplace.json (-> `c39915f` beta.12) and
+pushed on the CURRENT branch, so `master` (the branch `claude plugin marketplace`
+actually reads) stayed at beta.10. The release reported success because its local
+checks passed -- but the published catalog never advertised beta.12. Users (and the
+maintainer's own `claude plugin update`) saw "already latest (beta.10)."
+
+NOTE the marketplace repo's default branch is `master`, NOT `main` (the plugin repo
+is `main`). `raw.githubusercontent.com/.../main/...` 404s; the catalog lives on
+`master`.
+
+Manual fix applied (2026-06-09): `git checkout master` in the marketplace repo,
+`git checkout chore/canonical-domain-mindrian-os -- .claude-plugin/marketplace.json`
+to grab the correct beta.12 version+ref, commit (`91f3c3d` "release: sync catalog to
+v1.13.1-beta.12 (master)"), `git push origin master`. Then `claude plugin marketplace
+update` + `claude plugin update mos@mindrian-marketplace` -> updated beta.10 -> beta.12.
+
+### Proper guard for release.sh (deferred, beta-gate)
+Before any marketplace commit/push, ASSERT the marketplace repo is on its default
+branch:
+```
+MKT_DEFAULT=$(git -C "$MARKETPLACE_DIR" symbolic-ref --short refs/remotes/origin/HEAD | sed 's|^origin/||')   # = master
+MKT_CUR=$(git -C "$MARKETPLACE_DIR" branch --show-current)
+[ "$MKT_CUR" = "$MKT_DEFAULT" ] || { echo "ABORT: marketplace on '$MKT_CUR', expected default '$MKT_DEFAULT'"; exit 1; }
+```
+Same class as the plugin-repo workspace guard. Without it, a stray checked-out branch
+silently misroutes the catalog push.
+
+### KEEP FOR LATER (navigator 2026-06-09): do NOT delete `chore/canonical-domain-mindrian-os`
+The branch is RELEVANT -- it carries the canonical-domain README change (commit
+`14749ed` "set mindrian-os.com as canonical website in README"), which aligns with
+the 2026-06-09 decision to make `mindrian-os.com` the single canonical web surface
+(see feedback_release_dual_website_lockstep UPDATE + release.sh commit 89c6b398).
+Review + merge that README change into `master` when convenient; until then the branch
+stays. (Its other commit, `c39915f` beta.12 marketplace sync, is now redundant -- the
+same change is on master via `91f3c3d`.)
+
 ## Cross-references
 
-- `scripts/release.sh` (Step 2 verify call; Step 4 marketplace bump; Step 7.5 Commit B)
+- `scripts/release.sh` (Step 2 verify call; Step 4 marketplace bump; Step 7.5 Commit B; the missing default-branch guard above)
 - `scripts/verify-release` (check #3 version sync)
 - Phase 123 install-lifecycle-harness (introduced the two-commit Commit-B form)
-- feedback_release_dual_website_lockstep memory (the 9.6 web-surface steps)
+- feedback_release_dual_website_lockstep memory (the 9.6 web-surface steps; UPDATE 2026-06-09 single-surface canon)
+- marketplace repo branch `chore/canonical-domain-mindrian-os` (KEEP -- canonical-domain README, merge later)
