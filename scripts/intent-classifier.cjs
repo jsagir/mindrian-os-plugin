@@ -839,6 +839,70 @@ function formatEngineDecisionBlock(decision, routing, offerLine) {
   return lines.join('\n');
 }
 
+/**
+ * Phase 150-06 (D-08) -- THE RENDER UNLOCK.
+ *
+ * Wrap formatEngineDecisionBlock and, ON THE ENGINE ARM (routing_source ===
+ * 'engine'), surface the grounded one-move onto the LIVE response block:
+ *   1. build roomState.reachScores from the projected cortex via the new
+ *      cortex-reach-adapter.buildReachScoresFromCortex(cortexNodes) (the legD
+ *      field, threaded out on the LOCAL routing lane);
+ *   2. rank with the FROZEN buildReachList(roomState) (MAX_K=3 / 0.70/0.15 /
+ *      DIAL_REACH_K=6 untouched -- 150 FEEDS the selector, never re-architects it);
+ *   3. present through dial-presenter.renderDial -- buildReachList -> dial-presenter
+ *      gains its FIRST production caller (the C2 unlock; the navigator SEES it).
+ *
+ * Best-effort discipline (T-150-06-02): the entire dial render is wrapped so a
+ * render fault NEVER blocks the user turn -- on any error the base engine block
+ * is returned unchanged. The honest-negative (cortex absent) still renders the
+ * engine's one-move from the orchestrator's flat-file fallback (D-02), proving
+ * the wire, not a fixture. Canon Part 8: LOCAL-only, zero Brain calls, presence +
+ * enums only (the adapter never reads cortex prose).
+ *
+ * ctx.cortexNodes: the legD projected cortex (array; defaults to []).
+ */
+function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
+  const base = formatEngineDecisionBlock(decision, routing, offerLine);
+  // Only the engine arm surfaces the dial. Legacy / mixed / silent keep the
+  // base block unchanged (no regression; the dial is the engine-decision face).
+  const source = (routing && typeof routing.source === 'string') ? routing.source : null;
+  if (source !== 'engine') return base;
+
+  try {
+    const adapter = require(
+      path.join(__dirname, '..', 'lib', 'hmi', 'cortex-reach-adapter.cjs')
+    );
+    const orchestrator = require(
+      path.join(__dirname, '..', 'lib', 'hmi', 'dial-reach-orchestrator.cjs')
+    );
+    const presenter = require(
+      path.join(__dirname, '..', 'lib', 'hmi', 'dial-presenter.cjs')
+    );
+
+    const cortexNodes = (ctx && Array.isArray(ctx.cortexNodes)) ? ctx.cortexNodes : [];
+    const reachScores = adapter.buildReachScoresFromCortex(cortexNodes);
+
+    // The tier mode mirrors the engine trace so the frozen 0.70/0.15 gate is
+    // applied exactly as buildReachList already does (mode_a / mode_b / tier_0).
+    const trace = (decision && decision.decision_trace) || {};
+    const tierMode = (typeof trace.brain_md_tier_mode === 'string')
+      ? trace.brain_md_tier_mode : 'tier_0';
+
+    const reachList = orchestrator.buildReachList({
+      tierMode: tierMode,
+      reachScores: reachScores,
+    });
+
+    const rendered = presenter.renderDial(reachList, {});
+    if (rendered && typeof rendered.text === 'string' && rendered.text.length > 0) {
+      return base + '\n\n' + rendered.text;
+    }
+  } catch (_e) {
+    // Best-effort: a dial render fault NEVER blocks the turn (T-150-06-02).
+  }
+  return base;
+}
+
 function navTestSleepMs() {
   const v = process.env.MOS_NAV_TEST_SLEEP;
   if (!v) return 0;
@@ -1363,7 +1427,16 @@ function runNavigationEngine(roomDir, sessionId) {
             }
           }
           const elapsedMs = Date.now() - startedAt;
-          resolve({ decision: decision, elapsed_ms: elapsedMs });
+          // Phase 150-06 (D-08 render unlock): thread the projected cortexNodes
+          // (the Wave-2 legD field) out on the LOCAL routing lane so the decide()
+          // tail can build roomState.reachScores via cortex-reach-adapter and
+          // surface the dial render. Presence + enums only -- NEVER prose, NEVER
+          // toward buildBrainPacket (D-03a LOCAL-lane fence; Canon Part 8).
+          const cortexNodes = (context.roomContext
+            && Array.isArray(context.roomContext.cortexNodes))
+            ? context.roomContext.cortexNodes
+            : [];
+          resolve({ decision: decision, elapsed_ms: elapsedMs, cortex_nodes: cortexNodes });
         })
         .catch(function () { resolve(null); })
         .then(closeRoomDbHandle, closeRoomDbHandle); // finally: close the handle on resolve OR reject (no leak)
@@ -1401,6 +1474,16 @@ function appendTraceTurnNumber(roomDir, sessionId) {
   return 1;
 }
 
+// Phase 150-06 (D-08): export the engine-decision render helpers so the
+// render-unlock suite can drive the dial wiring without self-executing the hook.
+// The self-execution below is gated on require.main === module so a require()
+// from a test (or any consumer) loads the module without firing the hook.
+module.exports = {
+  renderEngineDecisionWithDial: renderEngineDecisionWithDial,
+  formatEngineDecisionBlock: formatEngineDecisionBlock,
+};
+
+if (require.main === module) {
 try {
   const injectionStart = Date.now();
   const code = main();
@@ -1606,8 +1689,14 @@ try {
           traceEntry.f1_closer_payload = f1Payload;
         }
         persistDecisionTrace(roomDir, sessionId, traceEntry);
-        // Emit additionalContext block.
-        const block = formatEngineDecisionBlock(out.decision, routing, offerLine);
+        // Emit additionalContext block. Phase 150-06 (D-08 render unlock): on the
+        // engine arm, surface buildReachList -> dial-presenter onto the live
+        // response block, grounded by the projected cortex (the legD cortex_nodes
+        // threaded out on the LOCAL routing lane). Best-effort: the render never
+        // blocks the turn (renderEngineDecisionWithDial wraps + degrades).
+        const block = renderEngineDecisionWithDial(
+          out.decision, routing, offerLine, { cortexNodes: out.cortex_nodes }
+        );
         if (block && block.length > 0) {
           try { process.stdout.write(block + '\n'); } catch (_) {}
         }
@@ -1626,4 +1715,5 @@ try {
 } catch (_) {
   // Fail-silent on any unexpected error. Classifier is advisory.
   process.exit(0);
+}
 }
