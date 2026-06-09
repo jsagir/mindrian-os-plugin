@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
-status: verifying
+status: executing
 stopped_at: Phase 149 context gathered
-last_updated: "2026-06-08T20:48:21.664Z"
-last_activity: 2026-06-08
+last_updated: "2026-06-09T01:22:01.322Z"
+last_activity: 2026-06-09 -- Phase 148 Plan 03 complete (reach-component-map + standing trio)
 progress:
   total_phases: 85
   completed_phases: 61
   total_plans: 451
-  completed_plans: 398
+  completed_plans: 401
   percent: 72
 ---
 
@@ -21,13 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 146 CLOSED (4/4 plans) -- loop-fires acceptance gate shipped; milestone v1.13.1 "Larry Reaches" gate GREEN. Next: milestone release ceremony / next milestone planning.
+**Current focus:** Phase 148 — larryreach-selector-re-wire-intelligence-toggleable-componen
 
 ## Current Position
 
-Phase: 149
-Plan: Not started
-Status: Phase 146 Plan 04 (loop-fires gate host + aggregator) complete -- the CLOSING plan of the 146 milestone. Two composable gate surfaces shipped. (1) scripts/doctor.cjs gains --dogfood-acceptance: a NEW gate class with its OWN exit-code contract (0 = all 5 ACPT hermetic legs passed; non-zero = a leg failed), NOT a class flag (the class-flag-always-exit-0 invariant does NOT apply), dispatched in main() BEFORE the class-flag exit-0 path so the own-contract exit wins; runDogfoodAcceptance() spawns the 5 ACPT drivers (test-acpt-01..05) as child processes via spawnSync (120000ms timeout, ok=status===0), aggregates exit codes, honors --json; modeled on the Phase-123 runAcceptance child-process-point pattern. (2) tests/run-all-146.sh: the Phase 146 aggregator, cloning the run-all-144.sh skeleton exactly -- Group (a) the 5 ACPT drivers + Group (b) re-runs run-all-144.sh + run-all-1441.sh + run-all-145.sh for FULL-surface certification (the exhaustive 114-surface coverage gate via 1441, so 146 certifies the full connector surface not a 5-criteria sample). (3) commands/explain-decision.md doc note naming the gate host as the loop-fires assertion surface. VERIFIED: bash tests/run-all-146.sh exits 0 (8/8 constituents green: 5 ACPT hermetic + 3 upstream gates re-run, ~101s); node scripts/doctor.cjs --dogfood-acceptance exits 0 (5/5 ACPT points); negative sanity (broke ACPT-01) made BOTH surfaces exit non-zero and NAME ACPT-01 (doctor "failed: ACPT-01", driver exit 7), reverted byte-exact; the gate needed NO live Brain/web/Vercel (hermetic legs carry it; ACPT-05 live mode_a self-skipped honestly, mode_b proved the tier rise -- T-146-14); zero em-dashes in the diff; runDogfoodAcceptance path zero network surface (Part 8). Exit 0 = the milestone ships as "Larry Reaches". Threat register T-146-13/14/15 all MET. Canon Part 6 (dog-fooding the loop-fires gate at the aggregate) + Part 8 (zero net surface in doctor) + Part 3 (explain-decision named). Commits 5bfebc67 (doctor gate class) + 240dcdc1 (run-all-146.sh aggregator). Requirements ACPT-01..05 ALL complete. Phase 146 CLOSED; the LARRYREACH milestone gate is GREEN.
+Phase: 148 (larryreach-selector-re-wire-intelligence-toggleable-componen) — EXECUTING
+Plan: 3 of 5 (148-01, 148-02, 148-03 complete; 148-04, 148-05 pending)
+Status: Executing Phase 148
+
+(Prior) Phase 148 Plan 03 (reach-component-map + toggleable component routing + standing trio) complete. The one genuine net-new artifact of Phase 148 (lib/hmi/reach-component-map.json) shipped + per-option archetype routing wired across the selector surface (IRW-03, IRW-04). reach-component-map.json keys reach_id/sub_mode/standing-option -> archetype (registry-is-the-table, default select on miss): engine sub_modes (reverse-salient/whitespace/cross-domain-analogy/cross-domain-connect/dominant-design) -> multiSelect (D-01); _file -> multiSelect (D-05); _brain_review -> auto (D-04); _compose -> ordered (D-02); hats/six-hats/deep_research -> confirm (D-06); base frozen reaches -> select. selector-dispatcher.resolveArchetype() reads the map (flattened across 3 namespaces) + applyArchetypeRouting folds the AskUserQuestion-mode hints onto the rendered F.* contract via pickShape({payload.reachKey}) -- the SEED-020 single construction site (no bespoke widget anywhere else). shape-f1-renderer.normalizeVerbs gained a standingOptions slot: File + Brain review append OUTSIDE the MAX_K=3 cap, before the always-last Free-Text, never ranker candidates, presence independent of reachScores/mode/tier (the IRW-03 bug fixed -- brain_consult could previously rank out). 5 distinct archetypes emit (>= 3 required). tests/test-148-component-map.cjs (IRW-04) + tests/test-148-standing-options.cjs (IRW-03) green; tests/run-all-148.sh (clones run-all-1433.sh) parses + runs to completion -- connector --check + IRW-01..08 suites (plan-04/05 FAIL-missing by design) + carried drift fences expecting 6 (posture 3) + Part-8 grep sweep. One in-scope deviation (Rule 1): vocabulary_meaning restructured object->array so the Part-8 free-text-body sweep does not false-positive on the text archetype enum. Commits 147a2ee6 (map+dispatcher), ec0633c0 (standing trio), 71059012 (tests+aggregator). All selector-dispatcher + F.1 consumer tests + the frozen-6 drift suite still green. Requirements IRW-03 + IRW-04 complete. Next: Phase 148 Plan 04 (real invocation: closeReach fires the engine; IRW-01/06/07).
 
 ---
 
@@ -80,7 +82,7 @@ Phase 143.3-01 outcome (2026-06-07): shipped the Connector Contract FOUNDATION -
 Phase 142-04 outcome (2026-06-06): VERIFY-AND-CLOSE for NAV-02 + NAV-04 + FILEVAL-03 -- three loop-fires suites turned GREEN against shipped code, with only the one thin wire each test proved a gap for. NAV-02: added ensureSectionDerived(roomPath, section, opts) to lib/core/brain-derivation.cjs (commit ed440faf) as the auto-fire the consumption side was missing -- idempotent short-circuit on a fresh brain-authored BRAIN.md, live-Brain delegation to the shipped deriveSection, and a LOCAL no-Brain-query path that composes a minimal schema-valid fresh BRAIN.md from the local triple through the EXISTING Part-8 chokepoint buildBrainQueryContext (hash + enum + slug only; brain_query_count:0 proves zero queries fired); test-brain-md-tier-rise.cjs (NOT modified) now proves tier_0 with BRAIN.md absent rises above tier_0 once the section BRAIN.md is written, observed in decision_trace.brain_md_tier_mode; buildBrainQueryContext remains the SOLE Brain-context builder (no new query surface). NAV-04: rewrote test-post-compact-nav04-closure.cjs (commit 925ef7f4) to the plan-checker TWO-HOP contract -- a naive direct hooks.json grep for restore-post-compact-context.cjs FALSE-FAILS because the consumer is loaded by the coordinator, never named in hooks.json; the fence now asserts HOP 1 (hooks.json registers sessionstart-coordinator.cjs on a SessionStart entry whose matcher includes compact) + HOP 2 (sessionstart-coordinator.cjs loads restore-post-compact-context) + an explicit anti-false-fail guard that the consumer is NOT named directly in hooks.json + the up-lane producer scripts/post-compact + the 95.5-VERIFICATION.md status: passed close-by-reference; NO production change. FILEVAL-03: thin-wired the already-computed `landed` round-trip values into the ok:true return of fileEvidenceWithReadback as result.readback (LOCAL recall, Part 8) + added surfaceFileEvidenceResult(result) (honesty signal for ok:false; human-readable recall for ok:true), re-exported through navigation.cjs (commit 3be2640b); rewrote test-fileval-readback-surface.cjs to prove BOTH halves -- HONESTY (filing_did_not_land returned + surfaced) AND the plan-checker REMIND positive path (ok:true carries non-empty, human-readable round-trip readback fields). FILEVAL-02 contract stays GREEN (readback is purely additive). Verification: 3 target suites 3/3 + 5/5 + 4/4; run-all-142.sh 7/7 (run twice); zero regression on navigation-acceptance / decoy-tier / room-home / fileval-02; em-dash scan clean across all touched files; every commit through the live pre-commit hook with no --no-verify. One out-of-scope discovery logged (DI-142-01 in deferred-items.md): test-derivation-drain-fires.cjs (NAV-03, plan 142-03) is cold-start flaky -- fails on first invocation after an idle gap, passes on re-run; confirmed DECOUPLED from 142-04 (no import linkage; ensureSectionDerived touches neither the queue nor MINDRIAN_BRAIN_KEY); left to the 142-03 owner. SUMMARY at .planning/phases/142-local-intelligence-wiring-compute-store-and-act/142-04-SUMMARY.md; 142-04 + the Phase 142 top-level row flipped to [x] in ROADMAP.md. PHASE 142 (Local Intelligence Wiring) is COMPLETE, 4/4 plans shipped.
 
 Prior: Phase 141 plan 02 COMPLETE. The previously uncommitted working-tree Capability Dial edit was committed to HEAD FIRST (06a944b8) per the D-06 hard ordering, ADDITIVELY: canon_parts: [Part 2, Part 3, Part 8, Part 9] frontmatter (LARRY-01), 5 machine-readable reach ids context_block/contradiction/cross_room/brain_consult/deep_research (LARRY-03), the LARRY-04 Hierarchical Navigator section led by the Usher division with 3 posture ids push_forward/hold/pull_back + Reach rule 7 arbitration (D-11/12/13), Aronhime quoted verbatim. DRSCH preserved as committed doctrine only (5th reach row + Reach rule 6 untouched, D-01). Version bumped to 1.13.1-beta.7 in CHANGELOG + plugin.json + package.json in lockstep (5b475ccc); no git tag, no marketplace push (human-gated). 3 tests GREEN: test-reach-ids-drift.cjs, test-posture-ids-drift.cjs, test-capability-dial-committed.cjs. Two Rule-1 test fixes applied (reach-id regex now matches contradiction; posture test heading-anchored + end-bounded) -- see 141-02-SUMMARY.md Deviations. Sequential main-tree execution.
-Last activity: 2026-06-08
+Last activity: 2026-06-09 -- Phase 148 execution started
 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
@@ -1329,6 +1331,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-08T19:03:40.668Z
-Stopped at: Phase 149 context gathered
-Resume file: .planning/phases/149-gsd-planning-artifacts-as-local-graph-members-brain-queryabl/149-CONTEXT.md
+Last session: 2026-06-09T01:30:00.000Z
+Stopped at: Completed 148-03-PLAN.md (reach-component-map + standing trio); 148-04, 148-05 pending
+Resume file: .planning/phases/148-larryreach-selector-re-wire-intelligence-toggleable-componen/148-04-PLAN.md
