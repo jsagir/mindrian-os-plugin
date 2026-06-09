@@ -132,6 +132,8 @@ echo "--- Running: Part-8 grep sweep (new 148 artifacts) ---"
 PART8_OK=1
 SWEEP_TARGETS=(
   "lib/hmi/reach-component-map.json"
+  "lib/hmi/brain-review-packet.cjs"
+  "lib/hmi/hats-persona-cache.cjs"
 )
 # Forbidden egress-projection / hashing tokens (mirrors run-all-1433.sh step d).
 FORBIDDEN_TOKENS='projectText|safeNodeProjection|safeContradictionProjection|safeUnsupportedProjection'
@@ -147,6 +149,25 @@ done
 # The component map must NOT carry a free-text body channel heading to Brain.
 if grep -nE '"(summary|content|body|text|note|description)"[[:space:]]*:' "$REPO_ROOT/lib/hmi/reach-component-map.json" >/dev/null 2>&1; then
   echo "    FORBIDDEN free-text body field in: lib/hmi/reach-component-map.json"; PART8_OK=0
+fi
+# check-brain-boundary scan over the NEW Brain-review path (T-148-05-01). The
+# Brain-review packet MUST gate its outbound handle through auditQueryString
+# (the default-deny egress chokepoint) and MUST pass any Brain response through
+# brain-response-sanitize. Their absence is a Part-8 regression on the single
+# highest-risk path in the phase.
+BRP="$REPO_ROOT/lib/hmi/brain-review-packet.cjs"
+if [[ -f "$BRP" ]]; then
+  if ! grep -q "auditQueryString" "$BRP"; then
+    echo "    MISSING auditQueryString gate in: lib/hmi/brain-review-packet.cjs"; PART8_OK=0
+  fi
+  if ! grep -qE "brain-response-sanitize|sanitize" "$BRP"; then
+    echo "    MISSING brain-response-sanitize in: lib/hmi/brain-review-packet.cjs"; PART8_OK=0
+  fi
+  # The Brain-review path must not open a raw network egress that bypasses the
+  # gate (no bare fetch/http to a Brain endpoint in this module).
+  if grep -nE "fetch\(|https?://|mcp__brain_" "$BRP" >/dev/null 2>&1; then
+    echo "    FORBIDDEN raw network egress in: lib/hmi/brain-review-packet.cjs"; PART8_OK=0
+  fi
 fi
 if [[ $PART8_OK -eq 1 ]]; then
   ((PASSED++)); echo ">>> Part-8 grep sweep: PASSED"
