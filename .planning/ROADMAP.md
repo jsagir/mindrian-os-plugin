@@ -2376,9 +2376,9 @@ Plans:
 - [x] 148-02-PLAN.md (wave 1) -- Canon amendment: MINDRIAN-CANON.md + CANON-PHASE-MAP.md record the 5->6 reach-count change (Part 6 dog-fooding) [IRW-02] -- SHIPPED 2026-06-09
 - [x] 148-03-PLAN.md (wave 2) -- reach-component-map.json + dispatcher archetype routing (IRW-04); File + Brain review standing options outside the MAX_K=3 cap, Free-Text last (IRW-03); run-all-148.sh aggregator [IRW-03, IRW-04, IRW-07] -- SHIPPED 2026-06-09 (147a2ee6, ec0633c0, 71059012)
 - [x] 148-04-PLAN.md (wave 2) -- real invocation: closeReach resolves framework->command and fires the real engine + edge + artifact (IRW-06); engine reaches rankable (IRW-01); frozen-contracts audit (IRW-07) [IRW-01, IRW-06, IRW-07] -- SHIPPED 2026-06-09 (fc9b7bf4, 4142ab94, 4b8823ed)
-- [ ] 148-05-PLAN.md (wave 3) -- unify offer-resolver + suggest-next onto one pickShape host (IRW-05); cold-room "what can I help you with" lead (D-07/08); typed Brain-review packet zero-egress (IRW-08); per-room Hats persona cache (D-06) [IRW-02, IRW-05, IRW-08]
+- [x] 148-05-PLAN.md (wave 3) -- unify offer-resolver + suggest-next onto one pickShape F.1 host (IRW-05); cold-room "what can I help you with" lead (D-07/08); typed Brain-review packet zero-egress (IRW-08); per-room Hats persona cache (D-06) [IRW-02, IRW-05, IRW-08] -- SHIPPED 2026-06-09 (21ec78c5, 674436d5, 5390ef31); run-all-148.sh 18/18 green
 
-**Status**: PLANNED (gsd-plan-phase, 2026-06-08). 5 plans / 3 waves. Parked at navigator request to build Phase 149 (the graph-member bridge) first, so 148's own execution artifacts land in the graph.
+**Status**: COMPLETE (all 5 plans / 3 waves SHIPPED, 2026-06-09). Full phase gate `bash tests/run-all-148.sh` => 18/18 PASS (IRW-01..08 suites + carried drift fences at 6 + posture at 3 + Part-8 grep sweep + check-brain-boundary scan over the Brain-review path). DIAL_REACH_K==6 with `hats` as the 6th machine reach; MAX_K=3 + 0.70/0.15 gate unchanged; offer-resolver + suggest-next + F.1 unified onto the one pickShape host; Brain review is a typed methodology packet with zero user-content egress.
 
 ### Phase 149: GSD Planning Artifacts as Local-Graph Members (Brain-queryable via typed packets)
 
