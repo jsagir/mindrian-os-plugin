@@ -9,7 +9,7 @@
  * 11.1 (the dual-egress seam scoped to brain_consult + deep_research only).
  *
  * Assertions:
- *   1. The template bank carries EXACTLY the 5 canonical reach ids.
+ *   1. The template bank carries EXACTLY the 6 canonical reach ids.
  *   2. Zero em-dashes anywhere in the template bank.
  *   3. Zero banned mechanism nouns in any template.
  *   4. jtbd-taxonomy.json contains zero em-dashes (the fix in Task 3).
@@ -39,6 +39,7 @@ const CANONICAL_REACH_IDS = [
   'cross_room',
   'brain_consult',
   'deep_research',
+  'hats',
 ];
 
 // The bank must contain NONE of its own source mechanism terms (UI-SPEC
@@ -86,8 +87,8 @@ function collectTemplateStrings() {
   return strings;
 }
 
-// ---------- 1. Exactly the 5 canonical reach ids ----------
-check('bank covers EXACTLY the 5 canonical reach ids (no more, no fewer)', () => {
+// ---------- 1. Exactly the 6 canonical reach ids ----------
+check('bank covers EXACTLY the 6 canonical reach ids (no more, no fewer)', () => {
   const fams = composer.TEMPLATE_FAMILIES;
   const got = Object.keys(fams).sort();
   const want = CANONICAL_REACH_IDS.slice().sort();

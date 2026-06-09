@@ -4,8 +4,8 @@
 //
 // Asserts the reach-id machine-token set in HEAD:skills/larry-personality/SKILL.md
 // is EXACTLY {context_block, contradiction, cross_room, brain_consult,
-// deep_research} -- no more, no fewer. A 6th id (drift) fails; a missing id (RED)
-// fails.
+// deep_research, hats} -- no more, no fewer (Phase 148 D-09 raised 5 -> 6). A 7th
+// id (drift) fails; a missing id (RED) fails.
 //
 // Hygiene: the dial carries prose words like "contradiction" in sentences, which
 // would self-invalidate a bare word count. So the reach ids are required to live
@@ -23,7 +23,7 @@ const { execFileSync } = require('node:child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 
-const CANONICAL_REACH_IDS = ['brain_consult', 'context_block', 'contradiction', 'cross_room', 'deep_research'];
+const CANONICAL_REACH_IDS = ['brain_consult', 'context_block', 'contradiction', 'cross_room', 'deep_research', 'hats'];
 
 function gitShowHead(relPath) {
   try {
@@ -68,8 +68,8 @@ assert.deepEqual(
   expectedSorted,
   'LARRY-03: capability-dial reach-id set must be EXACTLY ' +
     JSON.stringify(expectedSorted) + ' (found ' + JSON.stringify(foundSorted) +
-    '); RED until the 5 machine tokens are committed as code spans'
+    '); RED until the 6 machine tokens are committed as code spans'
 );
 
-process.stdout.write('PASS test-reach-ids-drift.cjs (LARRY-03 exactly-5 reach-id set)\n');
+process.stdout.write('PASS test-reach-ids-drift.cjs (LARRY-03 exactly-6 reach-id set)\n');
 process.exit(0);

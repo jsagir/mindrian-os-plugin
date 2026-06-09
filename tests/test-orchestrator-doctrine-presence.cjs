@@ -20,8 +20,9 @@
  *            coexistence (engine-side vs prompt-side, one-reach-per-beat), and
  *            room-proactive coexistence.
  *
- * Plus the canonical fence: the frozen 5 reach_ids + the frozen 3 postures appear,
- * and NO 6th reach id string appears. Plus zero em-dashes in the skill.
+ * Plus the canonical fence: the frozen 6 reach_ids + the frozen 3 postures appear,
+ * and NO 7th reach id string appears (Phase 148 D-09 raised 5 -> 6). Plus zero
+ * em-dashes in the skill.
  *
  * Prints per-requirement PASS/FAIL; exits non-zero on any miss.
  * House rule: hyphens only, no em-dashes.
@@ -34,7 +35,7 @@ const path = require('node:path');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const SKILL_PATH = path.join(REPO_ROOT, 'skills', 'intelligence-orchestrator', 'SKILL.md');
 
-const FROZEN_REACH_IDS = ['context_block', 'contradiction', 'cross_room', 'brain_consult', 'deep_research'];
+const FROZEN_REACH_IDS = ['context_block', 'contradiction', 'cross_room', 'brain_consult', 'deep_research', 'hats'];
 const FROZEN_POSTURE_IDS = ['push_forward', 'hold', 'pull_back'];
 
 const src = fs.readFileSync(SKILL_PATH, 'utf8');
@@ -109,9 +110,9 @@ check('ORCH-04 - tier predicate (tier_0/mode_a/mode_b) + Phase 144 coexistence (
 });
 
 // ---------------------------------------------------------------------------
-// The canonical fence -- frozen 5 reaches + frozen 3 postures + NO 6th reach
+// The canonical fence -- frozen 6 reaches + frozen 3 postures + NO 7th reach
 // ---------------------------------------------------------------------------
-check('FENCE - the frozen 5 reach_ids all appear', function () {
+check('FENCE - the frozen 6 reach_ids all appear', function () {
   for (const r of FROZEN_REACH_IDS) {
     has('`' + r + '`', 'FENCE: reach_id `' + r + '` must appear as a code-span token in the doctrine');
   }
@@ -123,9 +124,9 @@ check('FENCE - the frozen 3 postures all appear', function () {
   }
 });
 
-check('FENCE - the no-6th-reach rule is stated', function () {
-  assert.ok(/(no|never)( a)? 6th reach/i.test(src),
-    'FENCE: the doctrine must explicitly forbid a 6th reach_id (the canonical fence)');
+check('FENCE - the no-7th-reach rule is stated', function () {
+  assert.ok(/(no|never)( a)? 7th reach/i.test(src),
+    'FENCE: the doctrine must explicitly forbid a 7th reach_id (the canonical fence; Phase 148 D-09 raised the floor from 6th to 7th)');
 });
 
 // ---------------------------------------------------------------------------

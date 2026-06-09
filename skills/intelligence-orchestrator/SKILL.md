@@ -12,7 +12,7 @@ consumes: lib/core/insight-sensors.cjs::dispatchSensors
 resolver: lib/workflow/command-resolver.cjs
 registry: data/connector-registry.json
 dispatch_map: data/dispatch-framework-map.json
-reach_ids: [context_block, contradiction, cross_room, brain_consult, deep_research]   # the frozen 5 - NEVER a 6th
+reach_ids: [context_block, contradiction, cross_room, brain_consult, deep_research, hats]   # the frozen 6 - NEVER a 7th
 posture_ids: [push_forward, hold, pull_back]                                          # the frozen 3
 filing: fileEvidenceWithReadback (fallback wireAccept)                                # decision 2
 live_call: dispatchSensors, gated behind tier_mode (degrade to doctrine-sim at tier_0) # decision 1
@@ -58,11 +58,11 @@ the `sensor_index`, nothing fires -- silently and honestly (degrade-don't-fabric
 orchestrator never invents a reach, never invents a command, and never hardcodes a sensor-to-framework
 mapping that the registry does not already carry. Reads the registry; never a hardcoded table.
 
-## The frozen banks (no 6th reach, no 4th posture)
+## The frozen banks (no 7th reach, no 4th posture)
 
-The reach_id is ALWAYS one of the frozen 5, cited verbatim:
+The reach_id is ALWAYS one of the frozen 6, cited verbatim:
 
-`context_block`, `contradiction`, `cross_room`, `brain_consult`, `deep_research`.
+`context_block`, `contradiction`, `cross_room`, `brain_consult`, `deep_research`, `hats`.
 
 The posture is ALWAYS one of the frozen 3, cited verbatim:
 
@@ -70,19 +70,21 @@ The posture is ALWAYS one of the frozen 3, cited verbatim:
 
 These banks are frozen and drift-tested (`lib/core/sensors/sensor-types.cjs` REACH_IDS / POSTURE_IDS;
 the connector `--check` tripwire validates every connector against them). The orchestrator NEVER mints
-a 6th reach_id and NEVER mints a 4th posture. The intelligence-tool identity (reverse-salient, hsi,
-whitespace, cross-domain-connect, cross-domain-analogy, six-hats, hat-scoped-research) lives in the
-`sub_mode` field as a RENDER LABEL under one of the frozen 5 reaches -- it is never a reach_id.
+a 7th reach_id and NEVER mints a 4th posture. The remaining intelligence-tool identities
+(reverse-salient, hsi, whitespace, cross-domain-connect, cross-domain-analogy, hat-scoped-research)
+live in the `sub_mode` field as a RENDER LABEL under one of the frozen 6 reaches -- they are never a
+reach_id. Six-hats is the EXCEPTION: as of Phase 148 D-09 it is no longer a sub_mode render label
+under brain_consult; it is now carried by its own first-class `hats` reach (the 6th machine reach).
 
 ### Composition rule
 
-- BONO hat sequences compose UNDER `brain_consult` -- the hat sequence is generic published
-  methodology (Six Thinking Hats), so the team perspective is a `sub_mode` render label, never a reach.
+- BONO hat sequences ARE the `hats` reach (Phase 148 D-09): six-hats is the 6th machine reach, no
+  longer a `sub_mode` render label under `brain_consult`. The team perspective rides the `hats` reach.
 - Reverse Salient (RS), HSI, whitespace, and cross-domain analogies compose UNDER `context_block` or
   `brain_consult` as `sub_mode` render labels.
 - deep-research IS the `deep_research` reach (the one sanctioned multi-reach exception), not a label
   on another reach.
-- There is NO 6th reach_id. `sub_mode` / `team_perspective` / `whitespace` are render labels, period.
+- There is NO 7th reach_id. `sub_mode` / `whitespace` / cross-domain labels are render labels, period.
 
 ## The Part 8 boundary (stated up front)
 

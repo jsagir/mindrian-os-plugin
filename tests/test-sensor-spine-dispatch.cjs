@@ -16,8 +16,8 @@
  *     when the registry is empty.
  *
  * Loop-fires discipline: the drift tests FIX the banks (any add/remove fails),
- * mirroring the Phase 141 exactly-5 / exactly-3 drift discipline this module
- * inherits. Named so the Phase 146 gate can compose this suite.
+ * mirroring the Phase 141 + Phase 148 exactly-6 / exactly-3 drift discipline this
+ * module inherits. Named so the Phase 146 gate can compose this suite.
  *
  * House rule: hyphens only, no em-dashes.
  */
@@ -38,15 +38,15 @@ function fail(name, err) {
   if (err) process.stdout.write('    ' + (err.message || String(err)) + '\n');
 }
 
-const EXPECTED_REACH_IDS = ['context_block', 'contradiction', 'cross_room', 'brain_consult', 'deep_research'];
+const EXPECTED_REACH_IDS = ['context_block', 'contradiction', 'cross_room', 'brain_consult', 'deep_research', 'hats'];
 const EXPECTED_POSTURE_IDS = ['push_forward', 'hold', 'pull_back'];
 
 (function test_reachIdsExactlyFive() {
-  const label = 'REACH_IDS is exactly the 5 dial-doctrine reach ids (Phase 141 D-05 drift contract)';
+  const label = 'REACH_IDS is exactly the 6 dial-doctrine reach ids (Phase 141 D-05 + Phase 148 D-09 drift contract)';
   try {
     assert.deepEqual(types.REACH_IDS, EXPECTED_REACH_IDS,
       label + ': REACH_IDS must match the committed bank in canonical order');
-    assert.equal(types.REACH_IDS.length, 5, label + ': exactly 5 -- no more, no fewer');
+    assert.equal(types.REACH_IDS.length, 6, label + ': exactly 6 -- no more, no fewer');
     ok(label);
   } catch (e) { fail(label, e); }
 })();

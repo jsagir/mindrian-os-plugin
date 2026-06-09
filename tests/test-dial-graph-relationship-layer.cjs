@@ -144,9 +144,10 @@ function testMemdial01SelectedAndPivotedQueryable() {
   assert.ok(pivotedTyped.length >= 1, 'PIVOTED reachable as a typed edge via getNeighborhood (why-not is graph data)');
   assert.ok(pivotedTyped.some((n) => n.id === declined), 'the PIVOTED neighbor is the declined-recommended command');
 
-  // The 5 reach ids are the doctrine vocabulary the dial relationship layer is
-  // built on (MEMDIAL-01 names "5 reach ids + SELECTED_REACH/PIVOTED edges").
-  assert.equal(REACH_IDS.length, 5, 'the dial relationship layer carries exactly 5 reach ids');
+  // The 6 reach ids are the doctrine vocabulary the dial relationship layer is
+  // built on (MEMDIAL-01 names "reach ids + SELECTED_REACH/PIVOTED edges";
+  // Phase 148 D-09 raised 5 -> 6 when 'hats' became the 6th machine reach).
+  assert.equal(REACH_IDS.length, 6, 'the dial relationship layer carries exactly 6 reach ids');
   db.close();
 }
 

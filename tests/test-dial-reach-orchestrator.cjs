@@ -37,6 +37,7 @@ const CANON_REACH_IDS = [
   'cross_room',
   'brain_consult',
   'deep_research',
+  'hats',
 ];
 
 // Helper: build a roomState that pins each reach's score to a crafted value.
@@ -57,15 +58,15 @@ function countRecommended(reachList) {
 // Two-K separation (V9) -- assert FIRST so a regression on MAX_K is loud.
 // ---------------------------------------------------------------------------
 
-test('V9: DIAL_REACH_K is 5 and distinct from the untouched ranker MAX_K=3', () => {
+test('V9: DIAL_REACH_K is 6 and distinct from the untouched ranker MAX_K=3', () => {
   const orch = loadOrch();
   const ranker = require(RANKER_PATH);
-  assert.strictEqual(orch.DIAL_REACH_K, 5, 'DIAL_REACH_K must be 5');
+  assert.strictEqual(orch.DIAL_REACH_K, 6, 'DIAL_REACH_K must be 6 (Phase 148 D-09 raised 5 -> 6)');
   assert.strictEqual(ranker.MAX_K, 3, 'ranker MAX_K must STILL be 3 (untouched)');
   assert.notStrictEqual(orch.DIAL_REACH_K, ranker.MAX_K, 'the two Ks must be distinct constants');
 });
 
-test('Orchestrator returns exactly 5 ranked reaches (DIAL_REACH_K), desc by score', () => {
+test('Orchestrator returns exactly 6 ranked reaches (DIAL_REACH_K), desc by score', () => {
   const orch = loadOrch();
   const rl = orch.buildReachList(stateWith('mode_a', {
     context_block: 0.87,
@@ -73,8 +74,9 @@ test('Orchestrator returns exactly 5 ranked reaches (DIAL_REACH_K), desc by scor
     cross_room: 0.54,
     brain_consult: 0.48,
     deep_research: 0.40,
+    hats: 0.33,
   }));
-  assert.strictEqual(rl.reaches.length, 5, 'must return exactly 5 reaches');
+  assert.strictEqual(rl.reaches.length, 6, 'must return exactly 6 reaches');
   for (let i = 1; i < rl.reaches.length; i++) {
     assert.ok(
       rl.reaches[i - 1].score >= rl.reaches[i].score,
@@ -220,7 +222,7 @@ test('ReachList carries offered_count (<=3) and total_count (=N)', () => {
     brain_consult: 0.48,
     deep_research: 0.40,
   }));
-  assert.strictEqual(rl.total_count, 5, 'total_count is N (5)');
+  assert.strictEqual(rl.total_count, 6, 'total_count is N (6)');
   assert.ok(rl.offered_count <= 3, 'offered_count never exceeds MAX_K=3');
   assert.strictEqual(rl.offered_count, Math.min(rl.reaches.length, 3));
 });

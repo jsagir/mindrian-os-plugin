@@ -28,7 +28,7 @@
  *   - render S1, pivot off the recommended       -> PIVOTED edge + f_selector_pivot (+ SELECTED_REACH)
  *
  * The four standing fences re-asserted end-to-end (so the aggregator owns them):
- *   V9   two-K separation: ranker MAX_K == 3 AND orchestrator DIAL_REACH_K == 5 (distinct constants)
+ *   V9   two-K separation: ranker MAX_K == 3 AND orchestrator DIAL_REACH_K == 6 (distinct constants)
  *   V10  frozen gate integrity: 0.70 floor + 0.15 margin; margin > 0.15 yields exactly 1 marker
  *   V11  Part-8 {framework} egress seam: brain_consult / deep_research audit raw user content out;
  *        the other three families are render-only
@@ -217,7 +217,7 @@ function assertNoMechanismNouns(text, stateLabel) {
 function testS1ModeAClearLeader() {
   const reachList = buildReachList(modeAClearLeader());
   assert.equal(reachList.tier_mode, 'mode_a', 'S1 is mode_a');
-  assert.equal(reachList.reaches.length, 5, 'S1 previews all 5 reaches (DIAL_REACH_K)');
+  assert.equal(reachList.reaches.length, 6, 'S1 previews all 6 reaches (DIAL_REACH_K)');
   assert.equal(reachList.reaches[0].reach_id, 'context_block', 'S1 leader is the highest-scored reach');
 
   const rendered = renderDial(reachList, { slotContext: FULL_SLOTS });
@@ -225,7 +225,7 @@ function testS1ModeAClearLeader() {
   assert.ok(rendered.body.indexOf(MARKER_RECOMMENDED) !== -1, 'S1: filled triangle present');
   assert.ok(rendered.body.indexOf(MARKER_ROW) !== -1, 'S1: empty triangles present on the other rows');
   assert.ok(rendered.framing === null, 'S1 (Mode A) has no cold-room framing line');
-  assert.ok(rendered.footer.indexOf('of 5') !== -1, 'S1 footer reports the 5-reach preview total');
+  assert.ok(rendered.footer.indexOf('of 6') !== -1, 'S1 footer reports the 6-reach preview total');
 
   // V1 / V2: WHAT-THEY-GET labels only, no mechanism nouns, no literal "(Recommended)".
   assertNoMechanismNouns(rendered.text, 'S1');
@@ -403,16 +403,16 @@ function testRoundTripPivot() {
 }
 
 // ---------------------------------------------------------------------------
-// V9 -- the two-K separation: MAX_K (ranker) == 3 AND DIAL_REACH_K (orchestrator) == 5.
+// V9 -- the two-K separation: MAX_K (ranker) == 3 AND DIAL_REACH_K (orchestrator) == 6.
 // ---------------------------------------------------------------------------
 function testV9TwoK() {
   assert.equal(ranker.MAX_K, 3, 'V9: the ranker MAX_K chooser clamp is 3 (untouched)');
-  assert.equal(DIAL_REACH_K, 5, 'V9: the orchestrator DIAL_REACH_K preview is 5');
-  assert.ok(ranker.MAX_K !== DIAL_REACH_K, 'V9: the two Ks are distinct constants (rank 5, preview 5, choose 3)');
+  assert.equal(DIAL_REACH_K, 6, 'V9: the orchestrator DIAL_REACH_K preview is 6 (Phase 148 D-09 raised 5 -> 6)');
+  assert.ok(ranker.MAX_K !== DIAL_REACH_K, 'V9: the two Ks are distinct constants (rank N, preview 6, choose 3)');
 
-  // The structural consequence: preview is 5, the chooser offers at most 3.
+  // The structural consequence: preview is 6, the chooser offers at most 3.
   const reachList = buildReachList(modeAClearLeader());
-  assert.equal(reachList.reaches.length, DIAL_REACH_K, 'V9: the preview ranks DIAL_REACH_K=5 reaches');
+  assert.equal(reachList.reaches.length, DIAL_REACH_K, 'V9: the preview ranks DIAL_REACH_K=6 reaches');
   assert.ok(reachList.offered_count <= ranker.MAX_K, 'V9: the chooser offers at most MAX_K=3');
 }
 
@@ -520,7 +520,7 @@ process.stdout.write('--- closeReach round-trip ---\n');
 check('round-trip sync (SELECTED_REACH + f_selector_sync_confirmed -> memory projection)', testRoundTripSync);
 check('round-trip pivot (PIVOTED ENUM-only + f_selector_pivot + SELECTED_REACH)', testRoundTripPivot);
 process.stdout.write('--- standing fences V9/V10/V11/V12 ---\n');
-check('V9 two-K separation (MAX_K=3 vs DIAL_REACH_K=5)', testV9TwoK);
+check('V9 two-K separation (MAX_K=3 vs DIAL_REACH_K=6)', testV9TwoK);
 check('V10 frozen gate integrity (0.70 / 0.15; margin>0.15 -> 1 marker)', testV10FrozenGate);
 check('V11 Part-8 {framework} egress seam', testV11Part8EgressSeam);
 check('V12 write locality (navigation.cjs only)', testV12WriteLocality);
