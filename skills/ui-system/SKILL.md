@@ -264,7 +264,7 @@ Options: the 5 frozen reach-ids, surfaced as WHAT-THEY-GET Feynman labels (the c
 - `brain_consult` -- "Suggest the next move for {framework_or_situation}." (methodology guidance; Part 8: generic framework handle only)
 - `deep_research` -- "Go find out what the world knows about {topic}, framed through {framework}." (external research; Part 8: generic framework handle only)
 
-Free-Text is NOT a 4th explicit row -- the host-injected "Type something" / "Chat about this" rows handle overflow (the chooser stays MAX_K=3 even though the orchestrator previews DIAL_REACH_K=5; the two-K separation is locked: DIAL_REACH_K=5 preview, MAX_K=3 chooser).
+Free-Text is NOT a 4th explicit row -- the host-injected "Type something" / "Chat about this" rows handle overflow (the chooser stays MAX_K=3 even though the orchestrator previews DIAL_REACH_K=6; the two-K separation is locked: DIAL_REACH_K=6 preview, MAX_K=3 chooser -- Phase 148 D-09 raised the preview 5 -> 6 when 'hats' became the 6th machine reach).
 
 Render states: five states ship (`lib/hmi/dial-presenter.cjs`):
 - S1 (Mode A clear leader): 1 filled triangle on reach #1; rows 2-3 get the empty triangle; footer stat-strip.

@@ -11,7 +11,7 @@
  * chokepoint), with ZERO filesystem reads and ZERO Brain calls.
  *
  * This test drives the four MEMDIAL-02 components:
- *   1. available reaches      -- the 5 canonical reach ids (DIAL_REACH_K)
+ *   1. available reaches      -- the 6 canonical reach ids (DIAL_REACH_K; Phase 148 D-09 raised 5 -> 6)
  *   2. last selected          -- the most-recent SELECTED_REACH edge
  *   3. current recommended    -- the FROZEN-gate result (Section 7)
  *   4. recent research conclusions -- surfaced from the DRSCH research-conclusion

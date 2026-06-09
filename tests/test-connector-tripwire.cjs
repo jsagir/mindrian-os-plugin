@@ -5,7 +5,7 @@
  * Phase 143.3-02 Task 3 -- the CONN-03 tripwire test.
  *
  * Proves the four connector validations + the clean-tree pass:
- *   (1) reach_id not in the frozen 5 (REACH_IDS) is flagged
+ *   (1) reach_id not in the frozen 6 (REACH_IDS) is flagged
  *   (2) framework that does not resolve via commandsForFramework (WFL-01) is
  *       flagged for a command-firing connector
  *   (3) posture not in the frozen 3 (POSTURE_IDS) is flagged
@@ -39,7 +39,7 @@ function assert(cond, label) {
 }
 
 // ---------------------------------------------------------------------------
-// (1) bad reach_id -> "frozen 5"
+// (1) bad reach_id -> "frozen 6"
 // ---------------------------------------------------------------------------
 {
   const reg = {
@@ -57,8 +57,8 @@ function assert(cond, label) {
   };
   const errs = validateConnectors(reg);
   assert(
-    errs.some((e) => e.indexOf('frozen 5') !== -1),
-    'bad reach_id (bogus_reach) is flagged as not in the frozen 5'
+    errs.some((e) => e.indexOf('frozen 6') !== -1),
+    'bad reach_id (bogus_reach) is flagged as not in the frozen 6'
   );
 }
 

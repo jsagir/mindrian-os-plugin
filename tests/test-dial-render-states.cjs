@@ -101,21 +101,21 @@ test('DIALTUI-10: the ReachList core contains zero ANSI escape codes', () => {
 });
 
 // ---------------------------------------------------------------------------
-// S1 -- Mode A, clear leader: exactly 1 filled marker, footer 'top-3 of 5'
+// S1 -- Mode A, clear leader: exactly 1 filled marker, footer 'top-3 of 6'
 // ---------------------------------------------------------------------------
 
-test('S1: mode_a clear leader -> exactly 1 filled marker; footer top-3 of 5', () => {
+test('S1: mode_a clear leader -> exactly 1 filled marker; footer top-3 of 6', () => {
   const presenter = loadPresenter();
   const rl = orch.buildReachList(stateWith('mode_a', {
     context_block: 0.87, contradiction: 0.61, cross_room: 0.54,
-    brain_consult: 0.48, deep_research: 0.40,
+    brain_consult: 0.48, deep_research: 0.40, hats: 0.33,
   }));
   const out = presenter.renderDial(rl, { slotContext: FULL_SLOTS });
   const txt = renderText(out);
 
   assert.strictEqual(countGlyph(txt, '▶'), 1, 'S1 must have exactly 1 filled marker (U+25B6)');
   assert.ok(countGlyph(txt, '▷') >= 2, 'S1 rows 2-3 carry the empty marker (U+25B7)');
-  assert.ok(/top-3 of 5/.test(txt), "S1 footer must contain 'top-3 of 5'");
+  assert.ok(/top-3 of 6/.test(txt), "S1 footer must contain 'top-3 of 6' (Phase 148 D-09 raised 5 -> 6)");
 });
 
 test('S1: the highest confidence percent sits on the filled-marker row', () => {
@@ -244,20 +244,20 @@ test('V2: the literal "(Recommended)" never appears in any rendered output', () 
 
 // ---------------------------------------------------------------------------
 // V5 -- the chooser body has exactly 3 option rows (MAX_K=3); preview/total
-// reflects 5 (DIAL_REACH_K).
+// reflects 6 (DIAL_REACH_K; Phase 148 D-09 raised 5 -> 6).
 // ---------------------------------------------------------------------------
 
-test('V5: the chooser body has exactly 3 option rows; total reflects 5', () => {
+test('V5: the chooser body has exactly 3 option rows; total reflects 6', () => {
   const presenter = loadPresenter();
   const rl = orch.buildReachList(stateWith('mode_a', {
     context_block: 0.87, contradiction: 0.61, cross_room: 0.54,
-    brain_consult: 0.48, deep_research: 0.40,
+    brain_consult: 0.48, deep_research: 0.40, hats: 0.33,
   }));
   const out = presenter.renderDial(rl, { slotContext: FULL_SLOTS });
   const txt = renderText(out);
   // exactly 3 option rows = 3 marker glyphs total (filled + empty) in the body.
   const markerRows = countGlyph(txt, '▶') + countGlyph(txt, '▷');
   assert.strictEqual(markerRows, 3, 'exactly 3 option rows (MAX_K=3)');
-  assert.strictEqual(rl.total_count, 5, 'the preview/total reflects 5 (DIAL_REACH_K)');
-  assert.ok(/top-3 of 5/.test(txt), 'the footer surfaces the 5-of-N overflow, not pagination');
+  assert.strictEqual(rl.total_count, 6, 'the preview/total reflects 6 (DIAL_REACH_K)');
+  assert.ok(/top-3 of 6/.test(txt), 'the footer surfaces the 6-of-N overflow, not pagination');
 });
