@@ -442,6 +442,23 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:memory-cortex-reach",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-08"
+      ],
+      "reach_id": "cross_room",
+      "sub_mode": "memory-cortex-bridge",
+      "framework": null,
+      "posture": "push_forward",
+      "hierarchy_rank": 60,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
       "surface": "/mos:mos-reason",
       "source": "command",
       "connects_to_spine": true,
@@ -985,6 +1002,9 @@
       "/mos:scout",
       "agent:opportunity-scanner",
       "agent:research"
+    ],
+    "SENS-08": [
+      "/mos:memory-cortex-reach"
     ]
   },
   "framework_index": {

@@ -443,11 +443,20 @@ function validateConnectors(reg) {
     }
 
     // (2) WFL-01 resolver-resolution: a connector that declares a filing or a
-    // decision surface fires a command on APPROVE, so its framework MUST
-    // resolve through commandsForFramework().
+    // decision surface AND DECLARES A FRAMEWORK fires a command on APPROVE via
+    // framework resolution, so that framework MUST resolve through
+    // commandsForFramework(). A connector with framework:null declares no
+    // framework -- per CONNECTOR-CONTRACT.md section 4 (additive-degrade) it
+    // routes through the orchestrator with no framework and degrades to "run it
+    // manually" rather than fabricating a command. The minimal Part-8-safe
+    // memory-cortex reach (Phase 150, framework:null + filing:memory_event_only)
+    // is exactly this degrade case; gating the resolver check on a declared
+    // framework keeps the additive-degrade rule honest.
+    const declaresFramework = typeof c.framework === 'string' && c.framework;
     const firesCommand =
-      (typeof c.filing === 'string' && c.filing && c.filing !== 'none') ||
-      (typeof c.decision_surface === 'string' && c.decision_surface);
+      ((typeof c.filing === 'string' && c.filing && c.filing !== 'none') ||
+        (typeof c.decision_surface === 'string' && c.decision_surface)) &&
+      declaresFramework;
     if (firesCommand) {
       const resolved = commandsForFramework(c && c.framework);
       if (!Array.isArray(resolved) || resolved.length === 0) {

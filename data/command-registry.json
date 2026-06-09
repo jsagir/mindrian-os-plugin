@@ -740,6 +740,21 @@
       "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
     },
     {
+      "command": "/mos:memory-cortex-reach",
+      "kind": "utility",
+      "frameworks": [],
+      "produces": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "F (Selector Block)",
+      "serves_jtbd": [
+        "navigate"
+      ],
+      "teaching": "When a governing thought you set has gone stale, or a fresh contradiction has just landed against a claim, your memory cortex has something to tell you. /mos:memory-cortex-reach is the navigator-facing surface the orchestrator dispatches to bring that signal to a Decision Gate. It does not re-implement the cortex; it joins the reach spine so the cortex becomes dispatchable.",
+      "jtbd_label": "Navigate",
+      "jtbd_summary": null
+    },
+    {
       "command": "/mos:memory",
       "kind": "utility",
       "frameworks": [],
