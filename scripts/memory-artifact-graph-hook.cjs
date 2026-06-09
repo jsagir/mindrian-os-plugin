@@ -154,11 +154,15 @@ function runHook() {
     // pass is the chokepoint; because it is idempotent, the hook write + a later
     // session-start reconcile never duplicate (D-01 belt-and-suspenders).
     const result = runner.reconcileMemoryArtifacts(roomDir, reconcileOpts);
+    // MED-04: log only when genuine work happened (upserted > 0). An unchanged
+    // room (all no-op re-projections) emits nothing, so the line is honest and an
+    // idempotent re-run no longer claims it "did work". The unchanged count is
+    // surfaced for observability of the idempotence invariant.
     if (result && result.upserted > 0) {
       try {
         process.stderr.write('[memory-artifact-graph-hook] ' + result.upserted +
-          ' memory node(s) upserted, ' + result.decision_nodes +
-          ' decision node(s), ' + result.edges + ' cortex edge(s)\n');
+          ' memory node(s) upserted, ' + (result.unchanged || 0) + ' unchanged, ' +
+          result.decision_nodes + ' decision node(s), ' + result.edges + ' cortex edge(s)\n');
       } catch (_e) { /* swallow logger error */ }
     }
   } catch (err) {
