@@ -2369,7 +2369,16 @@ The LARRYREACH milestone (140-146) made the dial FIRE. But the tester onboarding
   7. SEED-003 status flipped to `superseded-by: Phase 138` and forward-points to the ledger (RAD-07)
   8. Part 8 boundary holds: session-id scoping is read-only enumeration; the brain-boundary scan passes; zero user-content egress on any new path (RAD-08)
 
-**Status**: PENDING -- CONTEXT.md complete with LOCKED decisions (AskUserQuestion 2026-06-01); promoted to numbered phase 2026-06-09; `/gsd:plan-phase 138` in progress.
+**Plans**: 4 plans in 3 waves (gsd-plan-phase, 2026-06-09)
+
+Plans:
+
+- [ ] 138-01-PLAN.md (wave 1) -- the net-new mechanism: generated capability ledger + --check tripwire, read-only radar-router, radar_findings: drift check, /mos:radar --fetch ledger-append, run-all-138.sh aggregator [RAD-01, RAD-02, RAD-03]
+- [ ] 138-02-PLAN.md (wave 2) -- Bucket R retrofits: presence-guarded CLAUDE_CODE_SESSION_ID read-only LOCAL scoping behind the navigation chokepoint + adversarial Part-8 zero-egress proof, per-category usage telemetry, A2 audit-and-document (superseded-by-architecture), model-floor + .zip beta-channel notes [RAD-04, RAD-08]
+- [ ] 138-03-PLAN.md (wave 2) -- Bucket C: SessionStart session-title contributor + reloadSkills on the single coordinator, one defaultEnabled: false cluster, one disallowed-tools skill [RAD-05]
+- [ ] 138-04-PLAN.md (wave 3) -- A4 SUPERSEDE decision recorded (no fork harness, no FORK_SUBAGENT flag) + SEED-003 flipped to superseded-by Phase 138 + CANON-PHASE-MAP reconciliation + full run-all-138.sh phase gate [RAD-06, RAD-07]
+
+**Status**: PLANNED (gsd-plan-phase, 2026-06-09). 4 plans / 3 waves. Wave 1: 138-01 (mechanism + aggregator). Wave 2: 138-02 + 138-03 (Bucket R + Bucket C, disjoint files, parallel). Wave 3: 138-04 (A4/SEED-003/canon reconciliation + phase gate). A4=SUPERSEDE and A2=audit-and-document baked in; ledger=JSON-generated default; Cowork SESSION_ID=presence-guarded confirm-at-consumer-phase; SESSION_ID corrected to 2.1.154.
 
 ### Phase 148: LarryReach Selector Re-wire (Intelligence + Toggleable Components)
 
