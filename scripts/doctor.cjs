@@ -10,7 +10,7 @@
  * replaces it with the latest cached version.
  *
  * MODES:
- *   doctor             read-only diagnostic — exits with status code only
+ *   doctor             read-only diagnostic - exits with status code only
  *   doctor --fix       runs backup-then-replace recovery if drift detected
  *   doctor --json      machine-readable output (for hooks / regression tests)
  *
