@@ -15,7 +15,8 @@
 #   test-150-cortex-local-query.cjs        -> Plan 04 -- getRoomContext legD surfaces the projected cortex (MEM-03)
 #   test-150-orphans.cjs                   -> Plan 04 -- the 4 orphan closures (sensors fire, brainAnchors, SECTION_WEIGHTS gone, decide threading) (MEM-07)
 #   test-150-spine-connector.cjs           -> Plan 05 -- the spine connector wiring
-#   test-150-selector-graph-driven.cjs     -> Plan 06 -- selector reads the cortex graph
+#   test-150-selector-graph-driven.cjs     -> Plan 06 (MEM-06) -- selector reads the cortex graph; archetype escalation; frozen 148 contracts
+#   test-150-render-unlock.cjs             -> Plan 06 (D-08) -- buildReachList -> dial-presenter reaches the live decide() surface
 #   test-150-feynman-readback.cjs          -> Plan 07 -- FEYNMAN.md cortex readback
 #   test-150-claim-harness.cjs             -> Plan 08 -- the claim-harness driver suite
 #   test-150-navigation-only-invariant.cjs -> Plan 08 -- cortex read/write ONLY via navigation.cjs (finalizes this runner)
@@ -49,6 +50,7 @@ CJS_SUITES=(
   test-150-orphans.cjs
   test-150-spine-connector.cjs
   test-150-selector-graph-driven.cjs
+  test-150-render-unlock.cjs
   test-150-feynman-readback.cjs
   test-150-brain-egress.cjs
   test-150-navigation-only-invariant.cjs
