@@ -74,6 +74,9 @@ The canonical sites (mindrian-explanation.vercel.app, mindrian-getting-started.v
 - **D-05 Spine-connected.** The memory-cortex reach(es) declare `connector:` frontmatter, register in `connector-registry.json`, and are dispatchable by the Phase 143.3 intelligence-orchestrator.
 - **D-06 Sequencing.** LarryReach/selector cluster (140-148), substrate under 148, ahead of Phase 138 + the 133-136 consumers. NOT folded into 148 (its own phase, like 149 was).
 - **D-07 The website is the bar.** The claims table above are falsifiable acceptance tests; the phase is not done until they function.
+- **D-08 The 148/150 render unlock (load-bearing -- understanding pass 2026-06-09).** `decide()` fires live on every prompt, but `buildReachList` -> `dial-presenter` have ZERO production callers: the engine decides the one next move and the navigator NEVER SEES it. 150 + 148 must together wire `buildReachList` -> `dial-presenter` into the live response surface so the grounded next-move is actually PRESENTED. 148 built the UI machinery; 150 grounds it AND surfaces it. This is claim C2's unlock.
+- **D-09 The claim harness is the acceptance gate.** Phase 150 ships against a `tests/claim-harness/` (7 falsifiable claim drivers C1..C7 over a real fixture room.db, no mocked Brain) that asserts each public site claim FUNCTIONS. Ship RED; each `claim-cN` turns GREEN as the bridge delivers. The semantic-quality claims (C2 "is it good", C4 "relevance") are carved out to the Part-10 human empathy gate, not faked.
+- **D-10 The vision frame (navigator).** 150 + 148 are the one phase-pair that unlocks Mindrian by proving it in its own structure (Part 6): ICM = structure (the graph the cortex joins), PWS = structured thinking (the reaches), Mondrian = creativity within constraints (the frozen rails + the moving-M splash -- breakthrough comes from the constraint), a liquid ever-changing structure organized through the one navigation chokepoint, thinking big and small at once (the ONE next move grounded in the WHOLE room).
 
 ## The mechanism (mostly REPOINT -- Canon Part 7)
 
@@ -119,11 +122,14 @@ Then the consumption side (the "perfectly utilized" half):
 - [ ] The 148 selector is graph-driven: reach ranking + reach-component-map toggleable archetypes read the cortex from the graph; buildReachList has a live caller; side-channels retired/demoted
 - [ ] Orphans closed: sensor ctx populated (the 2 dead sensors fire), brainAnchors producer wired, SECTION_WEIGHTS implemented-or-deleted, decisions projected to graph nodes (double-ledger collapsed)
 - [ ] FEYNMAN.md read-back: in the read contract + seed-writer shipped + timeline no longer a write-only sink
+- [ ] The 148/150 render unlock: buildReachList -> dial-presenter is wired into the live response so the navigator SEES the grounded next-move (claim C2 render arm passes)
+- [ ] The claim harness ships: tests/claim-harness/ with C1..C7 drivers over a real fixture room.db (no mocked Brain), run-all-claims.sh + optional doctor --claims; each claim green as the bridge delivers; semantic claims carved out to the human gate
 - [ ] The website claims table functions end-to-end (each row a falsifiable test)
 - [ ] run-all-150.sh green; no em-dashes
 
 ## Cross-references
 
+- **150-UNDERSTANDING.md** (this dir) -- the pre-planning understanding pass: the 140-148 reuse-seam map, the connector-spine plug-in shape, the dual-graph remote-query shape + the 4 substrate caveats, the full claim-harness design, and the vision frame. READ BEFORE PLANNING.
 - 5-agent utilization audit, 2026-06-09 (this transcript) -- the grounding; capture as a findings doc if not already
 - Phase 149 (the DEV-doc bridge this mirrors): lib/core/navigation/planning-artifacts.cjs, lib/core/planning/reconcile-runner.cjs, scripts/gsd-artifact-graph-hook.cjs, tests/test-149-brain-egress.cjs
 - Phase 109 navigation chokepoint (lib/core/navigation.cjs); Phase 110 Brain packet contract
