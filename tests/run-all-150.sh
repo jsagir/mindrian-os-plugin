@@ -57,6 +57,7 @@ CJS_SUITES=(
   test-150-orphans.cjs
   test-150-spine-connector.cjs
   test-150-selector-graph-driven.cjs
+  test-150-cortex-loop-live.cjs
   test-150-render-unlock.cjs
   test-150-feynman-readback.cjs
 )
