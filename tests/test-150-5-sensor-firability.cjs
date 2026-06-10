@@ -434,6 +434,27 @@ const NEUTRAL_TEXT = 'we filed three fictional notes about the garden schedule t
 })();
 
 // =====================================================================
+// HONEST-NEGATIVE arm 3b (WR-01) -- a FUTURE-dated side-channel (clock skew,
+// archive extraction, backup restore) must NOT read as fresh forever
+// =====================================================================
+(function armNegFutureDatedSideChannel() {
+  const label =
+    'NEGATIVE artifact_filed (future-dated): a forward-dated last-cascade.json beyond the window does not fire (WR-01)';
+  let roomDir = null;
+  try {
+    roomDir = makeTmpRoom('futurecasc');
+    const sideChannel = writeCascadeSideChannel(roomDir, [{ type: 'CONTRADICT', confidence: 0.9 }]);
+    const futureSec = (Date.now() + (2 * 24 * 60 * 60 * 1000)) / 1000;
+    fs.utimesSync(sideChannel, futureSec, futureSec);
+    const turn = makeTurn(NEUTRAL_TEXT);
+    const reaches = sensors.dispatchSensors(turn, {}, { roomDir: roomDir });
+    assert.ok(firedSignals(reaches).indexOf('artifact_filed') === -1,
+      label + ': a future mtime must not count as fresh indefinitely');
+    ok(label);
+  } catch (e) { fail(label, e); } finally { rmTmpRoom(roomDir); }
+})();
+
+// =====================================================================
 // HONEST-NEGATIVE arm 4 -- artifact_filed: a STALE last-cascade.json
 // (mtime backdated beyond SIGNAL_FRESHNESS_MS) does NOT derive the signal
 // =====================================================================
