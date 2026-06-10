@@ -5,7 +5,7 @@
 # FIRES end-to-end across the FULL connector surface. It composes two groups so
 # Phase 146 certifies the full surface, not a 5-criteria sample:
 #
-#   (a) the 5 ACPT dogfood drivers -- each driving a REAL shipped unit (no stub
+#   (a) the 6 ACPT dogfood drivers -- each driving a REAL shipped unit (no stub
 #       of the unit under test) with obviously-fictional fixture inputs, each
 #       carrying an adversarial honest-negative:
 #         ACPT-01 navigation engine fires    (Plan 01) routing_source legacy->engine
@@ -13,6 +13,11 @@
 #         ACPT-03 first material auto-explore (Plan 02) room non-empty by turn 2
 #         ACPT-04 filing cascade surfaces     (Plan 02) cross-relationship mid-session
 #         ACPT-05 BRAIN.md derive tier rise   (Plan 03) tier_mode rises above tier_0
+#         ACPT-06 dial atomic emission        (Phase 150.5-03) the leg that would
+#                 have caught the dead-sensor spine and the split render: a real
+#                 sensor fires from the PRODUCTION turn shape and dial text +
+#                 card contract emit atomically on the engine arm; legacy emits
+#                 neither.
 #       The ACPT-05 LIVE mode_a arm self-skips honestly when Brain is unreachable;
 #       its hermetic mode_b arm carries the CI gate either way (the live arm is
 #       the operator's in-room proof, named not faked).
@@ -23,7 +28,7 @@
 #         run-all-1441.sh  registry complete + exhaustive 114-surface coverage + Part-8 boundary
 #         run-all-145.sh   cadence + Phase-140 hardening
 #
-# Exit 0 = every constituent (5 ACPT + 3 upstream gates) is green = the milestone
+# Exit 0 = every constituent (6 ACPT + 3 upstream gates) is green = the milestone
 # ships as "Larry Reaches". Non-zero = the milestone is renamed (per the ROADMAP
 # Phase 146 mandate). The gate needs NO live Brain / live web / live Vercel to be
 # CI-green; the hermetic legs carry the gate.
@@ -43,13 +48,14 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 START_TIME=$(date +%s)
 
-# (a) The 5 ACPT dogfood drivers (each drives a REAL shipped unit).
+# (a) The 6 ACPT dogfood drivers (each drives a REAL shipped unit).
 CJS_SUITES=(
   test-acpt-01-engine-fires.cjs
   test-acpt-02-websearch-hat-scoped.cjs
   test-acpt-03-first-material-explore.cjs
   test-acpt-04-filing-cascade-surfaces.cjs
   test-acpt-05-brain-derive-tier-rise.cjs
+  test-acpt-06-dial-atomic-emission.cjs
 )
 
 # (b) The upstream aggregators re-run for full-surface certification.
@@ -70,9 +76,9 @@ echo "========================================"
 echo ""
 
 # ---------------------------------------------------------------------------
-# (a) The 5 ACPT dogfood drivers.
+# (a) The 6 ACPT dogfood drivers.
 # ---------------------------------------------------------------------------
-echo "--- Group (a): the 5 ACPT dogfood drivers ---"
+echo "--- Group (a): the 6 ACPT dogfood drivers ---"
 echo ""
 for c in "${CJS_SUITES[@]}"; do
   p="$SCRIPT_DIR/$c"

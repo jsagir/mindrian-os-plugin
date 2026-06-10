@@ -178,9 +178,10 @@ function parseArgs(argv) {
     // attempted and failed). Composes with --fix when called as
     // `doctor --fix --post-update` from /mos:update Step 7.
     postUpdate: false,
-    // Phase 146 Plan 04 (ACPT-01..05): --dogfood-acceptance is the LOOP-FIRES
-    // gate -- the Phase 146 milestone gate. It runs the 5 ACPT dogfood drivers
-    // (tests/test-acpt-0{1,2,3,4,5}-*.cjs) as child processes and aggregates
+    // Phase 146 Plan 04 (ACPT-01..05) + Phase 150.5-03 (ACPT-06):
+    // --dogfood-acceptance is the LOOP-FIRES gate -- the Phase 146 milestone
+    // gate. It runs the 6 ACPT dogfood drivers
+    // (tests/test-acpt-0{1,2,3,4,5,6}-*.cjs) as child processes and aggregates
     // their exit codes. It has its OWN exit-code contract (0 = every ACPT
     // hermetic leg passed; non-zero = a leg failed), separate from the existing
     // release --acceptance, and mirroring how --acceptance is "NOT a class flag"
@@ -321,13 +322,14 @@ Environment readiness probes (Phase 127.2 Plan 03 -- separate from class flags):
                            Exit 0 = activated or already on latest; exit 1 = swap failed.
 
 Loop-fires gate (Phase 146 -- the milestone gate; separate from class flags):
-  --dogfood-acceptance     run the 5 ACPT dogfood drivers (engine-fires,
+  --dogfood-acceptance     run the 6 ACPT dogfood drivers (engine-fires,
                            websearch-hat-scoped, first-material-explore,
-                           filing-cascade-surfaces, brain-derive-tier-rise) as
+                           filing-cascade-surfaces, brain-derive-tier-rise,
+                           dial-atomic-emission) as
                            child processes and aggregate their exit codes. This is
                            the Phase 146 loop-fires gate: it certifies the loop
                            FIRES across the dogfood criteria. It has its OWN
-                           exit-code contract (0 = all 5 ACPT hermetic legs
+                           exit-code contract (0 = all 6 ACPT hermetic legs
                            passed; non-zero = a leg failed) and is NOT a class
                            flag -- the class-flag-always-exit-0 invariant does NOT
                            apply. Per the ROADMAP Phase 146 mandate: exit 0 = the
@@ -3012,8 +3014,11 @@ async function runAcceptance(opts) {
 
 // -- Loop-fires gate: --dogfood-acceptance (Phase 146 Plan 04) -------
 //
-// The Phase 146 milestone gate. Composes the 5 ACPT dogfood drivers (Plans
-// 01-03) by spawning each as a child `node <driver>` process and aggregating
+// The Phase 146 milestone gate. Composes the 6 ACPT dogfood drivers (Phase 146
+// Plans 01-03: ACPT-01 engine-fires, ACPT-02 websearch-hat-scoped, ACPT-03
+// first-material-explore, ACPT-04 filing-cascade-surfaces, ACPT-05
+// brain-derive-tier-rise; Phase 150.5-03: ACPT-06 dial-atomic-emission)
+// by spawning each as a child `node <driver>` process and aggregating
 // their exit codes. Modeled on runAcceptance (the checklist-point shape +
 // the spawnSync child-process model from the verify-release point), but with
 // its OWN exit-code contract: 0 = every ACPT hermetic leg passed; non-zero =
@@ -3038,6 +3043,7 @@ const ACPT_DRIVERS = [
   { id: 'ACPT-03', file: 'test-acpt-03-first-material-explore.cjs', label: 'first material auto-explores (room non-empty by turn 2)' },
   { id: 'ACPT-04', file: 'test-acpt-04-filing-cascade-surfaces.cjs', label: 'filing surfaces a cross-relationship cascade mid-session' },
   { id: 'ACPT-05', file: 'test-acpt-05-brain-derive-tier-rise.cjs', label: 'BRAIN.md derive raises tier_mode above tier_0 (hermetic; live mode_a self-skips)' },
+  { id: 'ACPT-06', file: 'test-acpt-06-dial-atomic-emission.cjs',   label: 'dial text + card contract emit atomically on the engine arm (real sensor fired from the production turn shape); legacy emits neither' },
 ];
 
 async function runDogfoodAcceptance(opts) {
@@ -3740,7 +3746,7 @@ function main() {
   }
 
   // Phase 146 Plan 04: --dogfood-acceptance loop-fires gate. Has its OWN
-  // exit-code contract (0 = all 5 ACPT hermetic legs passed; non-zero = a leg
+  // exit-code contract (0 = all 6 ACPT hermetic legs passed; non-zero = a leg
   // failed) -- per the ROADMAP Phase 146 mandate, exit 0 = the milestone ships
   // as "Larry Reaches", non-zero = the milestone is renamed. NOT a class flag;
   // the class-flag-always-exit-0 invariant does NOT apply. Dispatched BEFORE the
