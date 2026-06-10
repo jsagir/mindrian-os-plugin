@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
-status: executing
-stopped_at: Phase 150 Plan 08 complete (MEM-09 / D-09) -- PHASE 150 COMPLETE. The claim harness + the finalized phase gate: tests/claim-harness/ ships build-fixture-room-db.cjs (a REAL room.db via navigation.cjs, no mocked Brain), the C1..C7 falsifiable public-site-claim drivers (each with an honest-negative arm; Brain arms self-skip; C2-good + C4-relevance carved to the Part-10 human gate), and run-all-claims.sh (two-group clone of run-all-146.sh). doctor --claims added as a sibling of --acceptance (own exit code + DOCTOR_CLAIM_FAIL_POINT self-test). tests/run-all-150.sh FINALIZED: bash tests/run-all-150.sh = 14 passed / 0 failed / 0 missing (the phase gate is one command, fully green). Frozen 148 contracts byte-unchanged (MAX_K=3, 0.70/0.15, DIAL_REACH_K=6). Next: Phase 150 complete -- ready for the milestone next step.
-last_updated: "2026-06-09T15:00:00.000Z"
-last_activity: 2026-06-09 -- Phase 150 Plan 08 complete (Phase 150 COMPLETE)
+status: verifying
+stopped_at: Completed 150.5-01-PLAN.md
+last_updated: "2026-06-10T03:44:07.681Z"
+last_activity: 2026-06-09 -- Phase 150 execution started
 progress:
-  total_phases: 87
-  completed_phases: 63
-  total_plans: 465
-  completed_plans: 411
-  percent: 73
+  total_phases: 88
+  completed_phases: 62
+  total_plans: 468
+  completed_plans: 412
+  percent: 70
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 150 (memory-cortex-as-graph-members) — COMPLETE
 Plan: 8 of 8 (all plans complete)
-Status: Phase complete
+Status: Phase complete — ready for verification
 
 Phase 150 Plan 08 (MEM-09 / D-09 -- the claim harness + the finalized phase gate) complete. Three moves landed: (1) tests/claim-harness/fixtures/claim-room/ -- one obviously-fictional claim-room (ROOM/STATE/USER at root + problem-definition + market-analysis sections, each carrying the 6 memory MD kinds) INCLUDING the contradicting pair (DEC-PD-100 ship-the-scheduler vs DEC-MA-200 never-ship-it) for C3/C7 and poison-nodes (BRAIN.md + FEYNMAN.md carrying SECRET CLAIM PROSE / leak@example.com / a /home/jsagi/secret/ path / an injection token) for the C6 egress arm; tests/claim-harness/build-fixture-room-db.cjs copies the committed tree to a MINDRIAN_ROOMS_HOME tmpdir and builds a REAL room.db by projecting the memory files THROUGH navigation.cjs (reconcileMemoryArtifacts -> 11 nodes / 4 decisions / 7 edges), never hand-stitched SQLite; node:sqlite-unavailable -> SKIP 77; no mocked Brain. (2) the seven claim-cN.cjs drivers -- each drives a REAL shipped unit on the real fixture with an honest-negative arm: C1 focus-node graph identity persists across a room.db re-open; C2 decide() returns a grounded one-move + dial-presenter.renderDial reaches the live surface (D-08 SEEN arm); C3 minting CONTRADICTS lands a queryable edge + writeEdge rejects a non-taxonomy type; C4 the cortex packet carries generic advisory handles, Part-8-clean, degrades offline; C5 K artifacts -> >= K typed nodes + decisions mint at proposed (Part-9); C6 poison-seeded nodes -> zero forbidden prose in the packet (hermetic + source + fixture); C7 file A then conflicting B -> INFORMS lineage + CONTRADICTS minted mid-session. The Brain LIVE arms (C4-live, C6-live) self-skip via class-m-brain-smoke; the semantic claims C2-good + C4-relevance are CARVED OUT to the Part-10 human empathy gate (named SKIP, never a fake PASS). run-all-claims.sh is the two-group clone of run-all-146.sh (group a = C1..C7, group b = the live-Brain precondition + the Part-8 cortex-packet sweep) -> 9/9. (3) scripts/doctor.cjs gains --claims, a SIBLING of --acceptance with its OWN exit code + a DOCTOR_CLAIM_FAIL_POINT self-test hook; tests/run-all-150.sh FINALIZED (every real 150 CJS suite + run-all-claims.sh group + the carried 148 frozen-contracts/reach-ids fences + a standalone Part-8 sweep over the 5 new 150 artifacts). 3 honest-negative-driven initial RED failures surfaced real facts (the reconcile DECISION_ID_RE strips the DEC- prefix to PD-100/MA-200; routing_source flips at the router not in decide()) and were fixed in the drivers (Rule 1). intent-classifier.cjs was NOT modified (the 150-04/06 overlap respected). Frozen 148 contracts byte-unchanged (MAX_K=3, 0.70/0.15, DIAL_REACH_K=6; the carried run-all-148.sh 18/18 asserts it). Canon Part 6/8/9 gates hold. Zero em-dashes. THE PHASE GATE: bash tests/run-all-150.sh = 14 passed / 0 failed / 0 missing (exit 0). Commits 1413c78f (fixture + builder), 0e677232 (7 drivers + aggregator), 2dd48b42 (doctor --claims + finalized run-all-150). Requirement MEM-09 complete. Phase 150 COMPLETE.
 
@@ -450,6 +450,7 @@ Progress: [█████████░] 92%
 |-------|-------|-------|----------|
 | 149 | 3 | - | - |
 | Phase 150 P05 | 5min | 3 tasks | 7 files |
+| Phase 150.5 P01 | 25m | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -1310,6 +1311,8 @@ Progress: [█████████░] 92%
 - [Phase 144.1]: framework null is the legal WFL-01 no-framework config, not smuggled user content; Part-8 CHECK 2 exempts it while still requiring a non-null framework to be a generic name in framework-names.json (DI-144.1-A resolved)
 - [Phase 144.1]: Tier A surfaces whose connectors are owned by Phase 143.3/144 (rs-*, causal, persona, hat-briefing, diagnostics, file-meeting, brain-derive, diagnose, suggest-next, act) are allow-listed with an ownership reason so 144.1 counts them classified without claiming them
 - [Phase ?]: Phase 145 verification suite (run-all-145.sh + 2 CJS suites) proves SCHED-01/02 cadence-fires + throttle + Phase-140 HARD-01/02/03 (adversarial fixtures) + Part-8 zero-egress + Part-4 findings-to-graph. HARD-01 asserted as capture-not-swallow; HARD-02/03 by synthesized regression. Phase 145 COMPLETE 3/3.
+- [Phase 150.5]: 150.5-01: dispatcher-side seam -- dispatchSensors normalizes at entry (one seam fixes all callers; hook turn byte-unchanged, strongest D-03a posture) -- Fixes decide(), ACPT drivers, and future callers at once; derived text/signals never exist on the object flowing toward buildBrainPacket
+- [Phase 150.5]: 150.5-01: SIGNAL_FRESHNESS_MS=30min mtime gate; exactly two derived fuels (artifact_filed, first_material) -- Prevents stale side-channels re-firing the engine arm every session (T-150.5-02); CONTEXT names exactly two fuels, no third derivation invented
 
 ### Pending Todos
 
@@ -1345,6 +1348,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-09 -- Phase 150 resumed-from-reboot + COMPLETE (8/8), reviewed, fixed, milestone v1.15.0 roadmapped.
-Stopped at: PHASE 150 COMPLETE (run-all-150 15/15, run-all-148 18/18, claims 9/9; the memory-intelligence loop proven LIVE on real data after the 8-finding review fix-pass; 150-VERIFICATION = GOAL ACHIEVED). beta.12 NOT cut (50 commits unpushed, verified, awaiting explicit release go). NEW milestone v1.15.0 "The Cockpit" (151-154) roadmapped from 2026-06-08-keyboard-tui-capability-cockpit-research.md Section 15. Key constraint re-confirmed (Tavily + Claude Code issue #9881 OPEN): the keyboard cockpit CANNOT run in-chat (TTY wall) -- it is Path A standalone binary (Phase 154); in-chat stays AskUserQuestion. Engine-first ordering.
+Last session: 2026-06-10T03:44:07.637Z
+Stopped at: Completed 150.5-01-PLAN.md
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).
