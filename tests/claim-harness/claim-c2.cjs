@@ -136,6 +136,11 @@ try {
         'dial-presenter.renderDial must be invoked on the engine arm (the SEEN arm, D-08)');
       assert.ok(block.indexOf('Larry can reach for:') !== -1,
         'the dial render must be surfaced onto the live response block');
+      // 150.5-02 (DIAL-ATOM-01): text presence alone is the exact false-green
+      // 150.5-RESEARCH.md Finding B item 3 documents -- the harness must not
+      // stay green through the split-render failure (text without contract).
+      assert.ok(block.indexOf('[AskUserQuestion contract:') !== -1,
+        'DIAL-ATOM-01: the AskUserQuestion contract trailer must ride the same rendered block as the dial text (never text-only)');
     } finally {
       spy.restore();
     }
