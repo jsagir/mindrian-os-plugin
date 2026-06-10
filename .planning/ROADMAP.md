@@ -2483,7 +2483,7 @@ Plans:
 - [x] 150.5-02-PLAN.md -- atomic dial emission: contract threaded via the dispatcher trailer (SEED-020 single door), silent catch replaced with a dial_render_note in the persisted decision trace, D-01 sensor-fired tier-0 cold-card arm, claim-c2 hardened (DIAL-ATOM-01) [wave 1]
 - [x] 150.5-03-PLAN.md -- ACPT-06 in doctor --dogfood-acceptance + run-all-146.sh, the run-all-150.5.sh phase gate, the no-card-no-picture doctrine line, D-01 recorded as EXECUTED (DIAL-ATOM-02/03) [wave 2]
 
-**Status**: PLANNED (3 plans, 2 waves) -- next: `/gsd:execute-phase 150.5`
+**Status**: EXECUTED (3/3 plans shipped 2026-06-10; commits b8a26534..49fab7fe incl. the WR-01 review fix). Phase gate `bash tests/run-all-150.5.sh` 7/7; `doctor --dogfood-acceptance` 6/6 with ACPT-06. VERIFICATION status: human_needed -- 5/5 must-haves machine-verified; the ONE open item is the host-driven live card render (150.5-UAT.md). Flips to Complete when the UAT passes on a real beta turn.
 
 ---
 
