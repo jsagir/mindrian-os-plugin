@@ -860,7 +860,12 @@ function formatEngineDecisionBlock(decision, routing, offerLine) {
  * enums only (the adapter never reads cortex prose).
  *
  * ctx.cortexNodes: the legD projected cortex (array; defaults to []).
+ * ctx.onRenderNote: optional fault-note callback (150.5-02 DIAL-ATOM-01).
  */
+// SEED-020 pickShape exemption (150.5-02, documented decision): the dial render
+// stays on the shipped 143.1 renderShapeF1 resolve/format path and does NOT fold
+// through pickShape (its install-tier-0 refuse would kill the D-01 sensor-fired
+// cold card); the trailer construction stays dispatcher-only.
 function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
   const base = formatEngineDecisionBlock(decision, routing, offerLine);
   // Only the engine arm surfaces the dial. Legacy / mixed / silent keep the
@@ -895,10 +900,40 @@ function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
 
     const rendered = presenter.renderDial(reachList, {});
     if (rendered && typeof rendered.text === 'string' && rendered.text.length > 0) {
-      return base + '\n\n' + rendered.text;
+      // 150.5-02 (DIAL-ATOM-01): thread the AskUserQuestion contract through
+      // the SEED-020 single construction door. The dispatcher mints the
+      // trailer onto the envelope's scalar marker; this caller only READS it
+      // positionally in the concatenation below (never composes the trailer
+      // string, never assigns the marker). The trailer rides EVERY engine arm
+      // including tier_0 -- that arm IS the D-01 (LOCKED 2026-06-09)
+      // sensor-fired cold card: buildReachList's tier_0 path already renders
+      // the S4 framing + the no-signal confidence column, and the live card
+      // contract now rides with them. No tier_mode gating on the trailer.
+      const dispatcher = require(
+        path.join(__dirname, '..', 'lib', 'hmi', 'selector-dispatcher.cjs')
+      );
+      dispatcher.appendAskUserQuestionTrailer(rendered, 'F.1');
+      const marker = rendered.askuserquestion_marker;
+      if (typeof marker === 'string' && marker.length > 0) {
+        return base + '\n\n' + rendered.text + '\n' + marker;
+      }
     }
-  } catch (_e) {
-    // Best-effort: a dial render fault NEVER blocks the turn (T-150-06-02).
+  } catch (e) {
+    // A dial render fault NEVER blocks the turn (T-150-06-02), and it no
+    // longer vanishes (the Phase 140 D-03 silent-failure class is closed at
+    // this seam, 150.5-02): classify the fault into a scalar note for the
+    // persisted decision trace via ctx.onRenderNote. Scalars only -- never
+    // e.message or a stack (a message can carry filesystem paths; the note
+    // is a classifier, not a payload). The callback is itself guarded so a
+    // faulting callback cannot throw out of the fault handler.
+    if (ctx && typeof ctx.onRenderNote === 'function') {
+      try {
+        ctx.onRenderNote({
+          event: 'dial_render_fault',
+          error_name: (e && e.name) || 'Error',
+        });
+      } catch (_cbErr) { /* never throw out of the fault handler */ }
+    }
   }
   return base;
 }
@@ -1688,15 +1723,22 @@ try {
         if (f1Payload && Array.isArray(f1Payload.verbs) && f1Payload.verbs.length > 0) {
           traceEntry.f1_closer_payload = f1Payload;
         }
-        persistDecisionTrace(roomDir, sessionId, traceEntry);
         // Emit additionalContext block. Phase 150-06 (D-08 render unlock): on the
         // engine arm, surface buildReachList -> dial-presenter onto the live
         // response block, grounded by the projected cortex (the legD cortex_nodes
         // threaded out on the LOCAL routing lane). Best-effort: the render never
         // blocks the turn (renderEngineDecisionWithDial wraps + degrades).
+        // 150.5-02 (DIAL-ATOM-01): the render runs BEFORE persistDecisionTrace
+        // so a dial_render_fault note (ctx.onRenderNote) merges into the SAME
+        // persisted decision trace routing_trace_notes already rides (the
+        // shipped Phase-91 surface; zero new write paths, threat T-150.5-07).
         const block = renderEngineDecisionWithDial(
-          out.decision, routing, offerLine, { cortexNodes: out.cortex_nodes }
+          out.decision, routing, offerLine, {
+            cortexNodes: out.cortex_nodes,
+            onRenderNote: function (note) { traceEntry.dial_render_note = note; },
+          }
         );
+        persistDecisionTrace(roomDir, sessionId, traceEntry);
         if (block && block.length > 0) {
           try { process.stdout.write(block + '\n'); } catch (_) {}
         }
