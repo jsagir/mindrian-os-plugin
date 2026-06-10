@@ -1,7 +1,21 @@
-## [Unreleased] -- v1.13.1-beta.13 (in progress)
+## [Unreleased] -- v1.13.1-beta.15 (in progress)
 
 ### Added
 - 
+
+## [1.13.1-beta.14] - 2026-06-10
+
+### Fixed
+- Phase 150.5 (sensor turn-contract repair + atomic dial render coupling, SEED-021): the 5 structurally dead production sensors fire again -- `lib/core/insight-sensors.cjs` gains `normalizeTurn` + `deriveTurnSignals` + `SIGNAL_FRESHNESS_MS`; `dispatchSensors` normalizes ONCE at entry (text aliased from userText; signals derived freshness-gated from the two shipped LOCAL side-channels: `last-cascade.json` newFindings -> `artifact_filed`, auto-explore markers -> `first_material`); the caller turn is never mutated. Root cause found by the 2026-06-09 8-agent prior-art fan-out: the hook builds `{userText, sectionPath, sessionId}` while five sensors read `turn.text`/`turn.signals` -- fire_skill stayed null, routing_source never flipped, the dial never rendered for any real navigator.
+- Atomic dial emission (DIAL-ATOM-01): `renderEngineDecisionWithDial` threads the AskUserQuestion contract through the SEED-020 single construction door (`selector-dispatcher.appendAskUserQuestionTrailer`, now a top-level export) so dial text + card contract emit together on the engine arm -- never text-only; a render fault writes a `dial_render_note` into the persisted decision trace instead of vanishing (closes the Phase 140 D-03 silent-failure class at this seam); claim-c2 C2-seen now asserts contract presence, not just the text substring.
+- WR-01 (code review): `isFreshFile` requires non-negative age, so a future-dated side-channel (WSL2/Windows-mount clock skew, archive extraction, backup restore) can never read as fresh indefinitely.
+
+### Added
+- ACPT-06: `doctor --dogfood-acceptance` is now a SIX-leg gate -- the new leg proves a real sensor fires from the production-shaped turn and that dial text + card contract emit atomically (honest-negative: the legacy arm emits neither). `tests/run-all-150.5.sh` is the one-command phase gate (both new suites + ACPT-06 + the D-03a fence + the carried run-all-144/146/150 aggregators).
+- D-01 (navigator-LOCKED 2026-06-09): the HYBRID sensor-fired cold card -- tier-0/cold turns render the dial WITH the live card when a sensor fired; a genuinely cold room stays silent (no dead chrome). The always-interactive surface stays Phase 154's cockpit. larry-personality gains the anti-mimicry doctrine line (no card, no picture).
+
+### Changed
+- Frozen contracts byte-unchanged and fence-proven: MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 recommend gate, the 6-reach bank, the 3 postures. Zero Brain egress delta (derived signals are closed-enum kind strings from LOCAL fs only).
 
 ## [1.13.1-beta.12] - 2026-06-09
 
