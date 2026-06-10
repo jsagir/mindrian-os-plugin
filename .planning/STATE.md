@@ -4,13 +4,13 @@ milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: verifying
 stopped_at: Completed 150.5-01-PLAN.md
-last_updated: "2026-06-10T03:44:07.681Z"
+last_updated: "2026-06-10T04:00:15.293Z"
 last_activity: 2026-06-09 -- Phase 150 execution started
 progress:
   total_phases: 88
   completed_phases: 62
   total_plans: 468
-  completed_plans: 412
+  completed_plans: 413
   percent: 70
 ---
 
@@ -451,6 +451,7 @@ Progress: [█████████░] 92%
 | 149 | 3 | - | - |
 | Phase 150 P05 | 5min | 3 tasks | 7 files |
 | Phase 150.5 P01 | 25m | 2 tasks | 2 files |
+| Phase 150.5 P02 | 8m | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -1313,6 +1314,8 @@ Progress: [█████████░] 92%
 - [Phase ?]: Phase 145 verification suite (run-all-145.sh + 2 CJS suites) proves SCHED-01/02 cadence-fires + throttle + Phase-140 HARD-01/02/03 (adversarial fixtures) + Part-8 zero-egress + Part-4 findings-to-graph. HARD-01 asserted as capture-not-swallow; HARD-02/03 by synthesized regression. Phase 145 COMPLETE 3/3.
 - [Phase 150.5]: 150.5-01: dispatcher-side seam -- dispatchSensors normalizes at entry (one seam fixes all callers; hook turn byte-unchanged, strongest D-03a posture) -- Fixes decide(), ACPT drivers, and future callers at once; derived text/signals never exist on the object flowing toward buildBrainPacket
 - [Phase 150.5]: 150.5-01: SIGNAL_FRESHNESS_MS=30min mtime gate; exactly two derived fuels (artifact_filed, first_material) -- Prevents stale side-channels re-firing the engine arm every session (T-150.5-02); CONTEXT names exactly two fuels, no third derivation invented
+- [Phase ?]: 150.5-02: SEED-020 pickShape exemption documented -- dial render stays on renderShapeF1; trailer minted only by dispatcher appendAskUserQuestionTrailer (exported top-level, Rule 3)
+- [Phase ?]: 150.5-02: dial render fault writes scalar dial_render_note into the shipped persistDecisionTrace surface (zero new write paths); render reordered before persist
 
 ### Pending Todos
 
@@ -1348,6 +1351,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-10T03:44:07.637Z
+Last session: 2026-06-10T03:59:14.656Z
 Stopped at: Completed 150.5-01-PLAN.md
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).
