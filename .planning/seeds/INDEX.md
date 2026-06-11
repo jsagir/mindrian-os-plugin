@@ -299,6 +299,8 @@ _End of SEEDs INDEX. Source-of-truth for individual SEED reasoning lives in each
 | SEED-019 part8-boundary-as-runtime-slm-guardrail | part8-runtime-enforcement | medium | dormant | Runtime SLM classifier on the Brain egress chokepoint |
 | SEED-020 regulation-layer-larry-as-connector | regulation-layer | large | dormant | Cost/freshness/metacognition regulators surfaced through Larry (Feyminto voice) |
 | SEED-021 f7-max-keyboard-dial-atomic-render-coupling | selector-ui | medium | active (navigator-decided 2026-06-09) | Atomic text/card render coupling (Phase 144 gate) + F.7-max: De Stijl previews, multiSelect modifier checkboxes, confidence bars, tier-0 honest cold card |
+| SEED-022 icm-fractal-memory-contract | fractal-memory | large | dormant | Identity-begets-memory depth-3 recursion + umbilical v2 inheritance + born-wired HITL birth gate (SEED-004 precondition) + DRIFT.md 7th memory kind. Approved 2026-06-11; composes with SEED-001/Phase 136/Phase 112 |
+| SEED-023 meeting-micro-knowledge-dikw-filing-engine | meeting-intelligence | large | partially-promoted (v1 slice -> Phase 150.8, 2026-06-11) | Typed micro-knowledge (knowledge_type x6 + conditions), Claimify 4-pass extraction, ACTA reanalyze probes, insight node layer, causal edge taxonomy amendment (REFINES/ROOT_CAUSES -- Canon Part 4 gate), Ackoff DIKW transcript-to-wisdom trigger. Verbatim research at research/2026-06-11-meeting-micro-knowledge-dikw-proposal.md |
 
 ### Housekeeping (re-status now, zero cost)
 
@@ -312,7 +314,7 @@ _End of SEEDs INDEX. Source-of-truth for individual SEED reasoning lives in each
 |---|---|---|
 | **v1.13.1** (in flight; finish-line only) | SEED-012 (feynman mom-test, navigator-targeted), SEED-008 residual | No NEW scope into the frozen residual chain (128/129/130/131/132/121.5). |
 | **v1.13.2** (gated on Brain schema stable) | SEED-010 (neo4j investigator) | Hold until Phase 127 + Capability Map stop moving. |
-| **v1.14.0** (major next) | **BUGS first:** SEED-004, SEED-005, SEED-018 -> reserve phase numbers first. **Core:** SEED-020, SEED-006. **Feature:** SEED-003->138, SEED-009, SEED-002. **Arch:** SEED-011, SEED-001. | SEED-004 ships BEFORE SEED-001. The three highest-urgency items are defects, not features. |
+| **v1.14.0** (major next) | **BUGS first:** SEED-004, SEED-005, SEED-018 -> reserve phase numbers first. **Core:** SEED-020, SEED-006. **Feature:** SEED-003->138, SEED-009, SEED-002. **Arch:** SEED-011, SEED-001, SEED-022 (fractal memory contract -- composes with 001/004), SEED-023 (meeting micro-knowledge DIKW engine -- GATE-0 precondition runs in Phase 150.6). | SEED-004 ships BEFORE SEED-001 AND SEED-022 (it is SEED-022's named precondition). The three highest-urgency items are defects, not features. |
 | **v1.15.0+** (arch cleanup + commercialization) | SEED-013 (python elim / Phase 134), SEED-014 (brain repo split), SEED-015 (install profiles), SEED-016 (agentshield), SEED-017 (Pro tier) | SEED-017 = highest business relevancy, latest sequencing (gates behind 006 + 015). |
 | **Trigger-gated** (event, not date) | SEED-019 (Part 8 PR-gate / Phase 110 wire enforcement), SEED-001 (room-proactive expansion / Phase 112), SEED-002 + SEED-009 (corpus thresholds) | Fire on the event; do not force into a milestone date. |
 
