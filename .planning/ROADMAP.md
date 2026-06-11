@@ -2465,12 +2465,12 @@ Plans:
 **Goal:** Execute the audit's Q1 fix queue (FIX-01..06: Larry's stale reach prose, install->cli sweep, Brain-numbers merge + 6-tool table, help-groups, venture_classified emission, workspace-path sweep + worktree prune) + GATE-0 (segment-level cascade-on-meetings audit, SEED-023 precondition) + the Phase 88 human-gate closer + the 126-H1/H3 stale-gate re-scope + TUI minors (footers, emoji, M8). Context: .planning/phases/150.6-drift-fix-sweep-and-human-gate-quick-closers/150.6-CONTEXT.md
 **Requirements**: DRIFT-01..DRIFT-11 (plan-local IDs minted 1:1 from the CONTEXT fix queue): DRIFT-01 FIX-01 Larry reach prose, DRIFT-02 FIX-02 install->cli sweep, DRIFT-03 FIX-03 Brain numbers + 6-tool table, DRIFT-04 FIX-04 help-groups, DRIFT-05 FIX-05 venture_classified emission, DRIFT-06 FIX-06 workspace paths + worktree prune, DRIFT-07 GATE-0 cascade verdict, DRIFT-08 Phase 88 closer, DRIFT-09 126-H1/H3 re-scope, DRIFT-10 FIX-10 TUI minors (footers/glyphs/M8), DRIFT-11 FIX-09 F.7 header fork.
 **Depends on:** Phase 150
-**Plans:** 4 plans (wave 1: 01 prose+TUI, 02 npm+Brain+paths, 03 code fixes -- parallel; wave 2: 04 gate closures + F.7 fork)
+**Plans:** 2/4 plans executed
 
 Plans:
 
-- [ ] 150.6-01-PLAN.md -- FIX-01 Larry reach/sensor/engine-flip prose + FIX-10 Action Footers + glyph hygiene + memory.md M8 (DRIFT-01, DRIFT-10)
-- [ ] 150.6-02-PLAN.md -- FIX-02 @mindrian_os/install->cli sweep + FIX-03 Brain numbers (a3c422fe) + real 6-tool table + brain_ask + FIX-06 workspace paths + worktree prune + pre-commit refresh [CHECKPOINT: live Brain read] (DRIFT-02, DRIFT-03, DRIFT-06)
+- [x] 150.6-01-PLAN.md -- FIX-01 Larry reach/sensor/engine-flip prose + FIX-10 Action Footers + glyph hygiene + memory.md M8 (DRIFT-01, DRIFT-10)
+- [x] 150.6-02-PLAN.md -- FIX-02 @mindrian_os/install->cli sweep + FIX-03 Brain numbers (a3c422fe) + real 6-tool table + brain_ask + FIX-06 workspace paths + worktree prune + pre-commit refresh [CHECKPOINT: live Brain read] (DRIFT-02, DRIFT-03, DRIFT-06)
 - [ ] 150.6-03-PLAN.md -- FIX-04 help-groups (drop visualize, add discover + memory-cortex-reach, renderer deprecated-skip) + FIX-05 venture_classified emission un-deadens the Phase 119 nudge (DRIFT-04, DRIFT-05)
 - [ ] 150.6-04-PLAN.md -- GATE-0 segment-cascade verdict + Phase 88 closer + 126-H1/H3 SUPERSEDED + FIX-09 F.7 header fork [CHECKPOINTS: Phase 88 live run, FIX-09 AskUserQuestion] (DRIFT-07, DRIFT-08, DRIFT-09, DRIFT-11)
 
