@@ -4,9 +4,11 @@
 
 Brain is MindrianOS's knowledge graph and semantic search layer. It contains:
 
-- **21K+ nodes** in Neo4j — frameworks, tools, connections, and teaching intelligence
-- **1,427 embeddings** in Pinecone — semantic vectors across the PWS curriculum
-- **Cross-domain relationships** — how frameworks chain, overlap, and apply
+- **27,804 nodes** in Neo4j -- frameworks, tools, connections, and teaching intelligence (incl. 12,401 MethodologyChunk substrate; ~15.4K teaching-graph core)
+- **19,987 relationships** in Neo4j -- how frameworks chain, overlap, and apply
+- **12,413 vectors** in Pinecone (pws-brain, 1024-dim) -- semantic vectors across the PWS curriculum
+
+(Live read 2026-06-11 -- see docs/MINDRIAN-CANON.md Appendix D.)
 
 Brain is a paid-tier feature. Contact Jonathan for an API key.
 
@@ -27,7 +29,7 @@ Add this to your `claude_desktop_config.json`:
 }
 ```
 
-Then restart Claude Desktop. Five Brain tools will appear automatically.
+Then restart Claude Desktop. Six Brain tools will appear automatically.
 
 This works on both **Claude Desktop** and **Cowork**.
 
@@ -38,15 +40,16 @@ This works on both **Claude Desktop** and **Cowork**.
 | `brain_schema` | Explore the knowledge graph structure (labels, relationships, properties) |
 | `brain_query` | Run Cypher queries (read-only) against the teaching graph |
 | `brain_write` | Write data to the graph (with confirmation prompt) |
-| `brain_search` | Semantic search across 1,427 PWS knowledge vectors |
+| `brain_search` | Semantic search across the PWS knowledge vectors (Pinecone pws-brain) |
 | `brain_stats` | Check index health and record counts |
+| `brain_ask` | Flagship GUIDED DirectiveEnvelope tool -- Larry frames the question, chains the frameworks, and teaches the next move |
 
 ## Troubleshooting
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | "401 Invalid Brain API key" | Wrong or missing API key | Check your key with Jonathan (support@mindrian-os.com) |
-| First request takes 30-60s | Render free tier cold start | Retry — subsequent requests are fast |
+| First request takes 30-60s | Render free tier cold start | Retry -- subsequent requests are fast |
 | "ECONNREFUSED" | Server redeploying | Wait 1 minute, then retry |
 | Tools don't appear | Config not loaded | Restart Claude Desktop after editing config |
 

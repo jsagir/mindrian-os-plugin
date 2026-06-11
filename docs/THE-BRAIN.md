@@ -12,11 +12,13 @@ The Brain is Larry -- not as text, but as accumulated judgment.
 
 ## The Five Layers
 
-### Layer 1: The Framework Graph (Neo4j -- ~16.1K nodes, ~22.5K relationships)
+### Layer 1: The Framework Graph (Neo4j -- 27,804 nodes, 19,987 relationships)
 
 Not a list of frameworks. A GRAPH of how innovation methodology works.
 
-Node types: Framework (748), Phase, Concept (9,353), ProblemType (233), Book (141), Tool (107), Technique (210), Course, Example, ProcessStep (655) -- 27 canonical labels total (see mindrian-deploy/docs/BRAIN-SCHEMA.md section 1).
+The 27,804-node total includes 12,401 MethodologyChunk substrate nodes (the Phase 127.1 GraphRAG collapse moved the chunk corpus into Neo4j); the teaching-graph core is ~15.4K nodes. (Live read 2026-06-11 -- see MINDRIAN-CANON.md Appendix D.)
+
+Node types (top labels, live read 2026-06-11): MethodologyChunk (12,401), Concept (9,131), __Entity__ (4,357), Framework (748), Product (1,289), Chunk (1,167), Event (1,013), ProcessStep (650), Person (624), plus Phase, ProblemType, Book, Tool, Technique, Course, Example -- 27 canonical labels total (see mindrian-deploy/docs/BRAIN-SCHEMA.md section 1).
 
 Critical relationship types (the moat):
 - FEEDS_INTO: The load-bearing framework-sequencing edge -- one framework's output becomes the next's input; 163 Framework->Framework edges, ~7.9K traversable chains depth 1-4. (Domain Explorer feeds into Bono as hats.)
@@ -30,11 +32,11 @@ Critical relationship types (the moat):
 
 Why unreplicable: Built from 30+ years of teaching. Relationships DISCOVERED through watching 100+ students apply frameworks. Chaining rules come from real classroom observation, not theory.
 
-### Layer 2: The Semantic Embeddings (Pinecone -- ~1.4K materials embeddings + Neo4j framework index)
+### Layer 2: The Semantic Embeddings (Pinecone pws-brain -- 12,413 vectors, 1024-dim + Neo4j framework index)
 
-384-dimensional embeddings of every teaching material: methodology chapters, framework deep-dives, graded student examples, lecture transcripts. Enables meaning-matching, not keyword-matching. Combined with graph: semantics finds WHAT, graph finds WHY and WHAT NEXT.
+1024-dimensional embeddings of the teaching corpus across five namespaces (live read 2026-06-11): core (8,555), materials (1,775), reference (1,690), tools (242), graphrag (144), books (7). Enables meaning-matching, not keyword-matching. Combined with graph: semantics finds WHAT, graph finds WHY and WHAT NEXT.
 
-Separately, the Neo4j `framework_embeddings` vector index (384-dim, COSINE) now covers all 748 :Framework nodes -- re-embedded in brain-cleanup Phase 5 QUAL-03 using all-MiniLM-L6-v2 (was 6/100 / 23/748 pre-cleanup). The Pinecone materials index (~1.4K teaching materials) and the Neo4j framework vector index are distinct; the former is the semantic search surface, the latter powers framework similarity lookups directly on the graph.
+Separately, the Neo4j `framework_embeddings` vector index (384-dim, COSINE) now covers all 748 :Framework nodes -- re-embedded in brain-cleanup Phase 5 QUAL-03 using all-MiniLM-L6-v2 (was 6/100 / 23/748 pre-cleanup). The Pinecone pws-brain index (12,413 vectors) and the Neo4j framework vector index are distinct; the former is the semantic search surface, the latter powers framework similarity lookups directly on the graph.
 
 ### Layer 3: The Grading Engine
 
@@ -52,15 +54,16 @@ Example: User has 5 sub-domains from Domain Explorer, tool_usage score is 3/10. 
 
 ## Brain MCP Tools (what the plugin calls)
 
+The Brain MCP registers exactly six tools (`mcp-server-brain/lib/brain-ask.cjs`).
+
 | Tool | Returns | User Experiences |
 |------|---------|-----------------|
-| enrich_context | Framework matches + connections | Larry seems remarkably knowledgeable |
-| suggest_chain | Ranked next-frameworks with transforms | Larry suggests the perfect next step |
-| suggest_methodology | Best framework for this moment | Larry introduces the right tool naturally |
-| grade_room | Rubric scores + targeted feedback | Honest, calibrated assessment |
-| find_connections | Cross-domain bridges | Surprising connections between fields |
-| get_chaining_rules | Transform instructions for pipeline handoffs | Pipelines chain intelligently |
-| get_teaching_context | Mode-calibrated teaching approach | Larry adjusts perfectly |
+| brain_query | Read-only Cypher results from the teaching graph | Larry seems remarkably knowledgeable |
+| brain_schema | Graph structure -- labels, relationship types, properties | Larry knows how the methodology connects |
+| brain_write | Confirmed write into the graph (guarded) | Larry remembers what the curriculum teaches |
+| brain_search | Semantic-vector matches across teaching materials | Larry finds the right material by meaning, not keyword |
+| brain_stats | Index health + corpus counts | Larry's intelligence is live and measurable |
+| brain_ask | GUIDED DirectiveEnvelope -- the flagship tool: Larry frames the question, chains the frameworks, and teaches the next move | Larry suggests the perfect next step and explains why |
 
 The user never sees a tool call. They see Larry being brilliant.
 
