@@ -5,15 +5,28 @@ status: human_needed
 score: 9/9 must-haves verified
 verifier_model: claude-sonnet-4-6
 human_verification:
-  - test: "Cut a real beta.15 release via scripts/release.sh --prerelease"
+  - id: H1
+    test: "Cut a real beta.15 release via scripts/release.sh --prerelease"
     expected: "Step 9.6 fails first run (origin remote missing on /home/jsagi/mindrianos-install-site), emits 'git remote add origin' recovery; after one-time bootstrap, subsequent runs sail through Step 9.6 -> Vercel live-poll confirms new version"
     why_human: "Step 9.6 HARD lockstep requires a real git push origin main to a live Vercel-connected repo, a real curl live-poll against https://mindrianos-install-site.vercel.app/, and a real npm publish success for Step 9.7. The test fixture (Test 4-9 in test-release-bump-tag-and-publish-gates.cjs) covers structural checks and HTTP mocks but cannot substitute for the real release run."
-  - test: "Upgrade a real beta.13 tester install (Lawrence or Gary) to beta.15"
+    status: SUPERSEDED
+    superseded_on: "2026-06-11"
+    superseded_by: "150.6-04 Task 3 (DRIFT-09 stale-gate re-scope)"
+    superseded_reason: "The install minisite was RETIRED 2026-06-09 (memory hard rule feedback_release_dual_website_lockstep). The canonical web surface is now the single mindrian-os.com (the mindrian-website deploy's custom domain). release.sh NO_MINISITE defaults to 1; the Step 9.6b live-poll was repointed to mindrian-os.com. The Step 9.6 install-minisite HARD lockstep this gate verifies no longer runs by default, so cutting a release to verify it is a test of retired machinery. NOT attempted. Original gate text preserved above for the historical record."
+  - id: H2
+    test: "Upgrade a real beta.13 tester install (Lawrence or Gary) to beta.15"
     expected: "session-start emits '[session-start] install-state migrated v1 -> v2'; ~/.mindrian/install-state.json gains schema_version:2, topology_class:'healthy', last_acceptance_run:null, renderer_contract_version:'unknown'; no manual --fix required"
     why_human: "The migration smoke test was verified on the maintainer's own dev box, but cannot be run against a remote tester's machine programmatically. The upgrade path involves the tester pulling beta.15 and session-start firing on their machine."
-  - test: "Verify mindrianos-install-site.vercel.app reflects the beta.15 version after release cut"
+    status: OPEN
+    note: "NOT superseded -- the schema v1->v2 migration on a real tester machine is still live. Its closure rides the FIX-07 tester round (out of 150.6 Plan 04 scope). 126 status stays human_needed scoped to H2 only."
+  - id: H3
+    test: "Verify mindrianos-install-site.vercel.app reflects the beta.15 version after release cut"
     expected: "https://mindrianos-install-site.vercel.app/ shows 'v1.13.0-beta.15' within 180s of git push origin main from ~/mindrianos-install-site/"
     why_human: "Vercel auto-deploy requires the minisite repo to have a live origin remote. Per Plan 04 SUMMARY 'User Setup Required', the first real release cut will fail at the origin-check because ~/mindrianos-install-site has NO origin remote configured. The operator must run 'git remote add origin <url> && git push -u origin main' once before the HARD lockstep can succeed end-to-end."
+    status: SUPERSEDED
+    superseded_on: "2026-06-11"
+    superseded_by: "150.6-04 Task 3 (DRIFT-09 stale-gate re-scope)"
+    superseded_reason: "mindrianos-install-site.vercel.app was RETIRED 2026-06-09 (memory hard rule feedback_release_dual_website_lockstep). The canonical web surface is now mindrian-os.com. There is no live minisite to poll; the Step 9.6b live-poll was repointed to mindrian-os.com. Verifying the retired minisite's Vercel deploy is a test of dead machinery. NOT attempted. Original gate text preserved above for the historical record."
 ---
 
 # Phase 126: Install-Lifecycle Harness Gaps Verification Report
@@ -34,7 +47,7 @@ human_verification:
 |---|-------|--------|----------|
 | 1 | `/mos:doctor --fix` emits BOTH `recovered to <version>` AND `backup <path>` lines (M1.1) | VERIFIED | `tests/test-doctor-fix-renderer.cjs` 7/7 GREEN; `scripts/doctor.cjs` lines 2656-2673 confirm the `classARecovered` branch emits both lines; contract-as-source pattern loads `commands/doctor.md` as fixture |
 | 2 | Marketplace cache picks beta.13 over beta.9 (semver correct) (M1.2) | VERIFIED | `tests/test-marketplace-cache-prerelease-pick.cjs` 5/5 GREEN; `scripts/doctor.cjs` line 223 uses `semver.compare(a.raw, b.raw)` replacing the prior `localeCompare` bug |
-| 3 | Install-minisite stays in sync with plugin version cuts via release.sh Step 9.6 HARD (M1.3) | VERIFIED (automated); HUMAN NEEDED (live end-to-end) | `scripts/release.sh` line 477-622 contains the full HARD lockstep; `tests/test-release-bump-tag-and-publish-gates.cjs` 13/13 GREEN; WARN 2 invariant confirmed (MINISITE_DIR-absent emits `gh repo clone`, origin-missing emits `git remote add origin`, no cross-contamination); live Vercel poll requires human |
+| 3 | Install-minisite stays in sync with plugin version cuts via release.sh Step 9.6 HARD (M1.3) | SUPERSEDED | WHY: the install minisite was RETIRED 2026-06-09; the canonical web surface is now the single mindrian-os.com (memory hard rule feedback_release_dual_website_lockstep). release.sh NO_MINISITE defaults 1 and Step 9.6b was repointed to mindrian-os.com, so the Step 9.6 install-minisite HARD lockstep no longer runs by default. SUPERSEDING AUTHORITY: 2026-06-09 minisite retirement + release.sh NO_MINISITE flag; re-scoped 2026-06-11 by 150.6-04 Task 3 (DRIFT-09). The automated structure verification at ship time was real (`scripts/release.sh` line 477-622 had the full HARD lockstep; `tests/test-release-bump-tag-and-publish-gates.cjs` 13/13 GREEN; WARN 2 invariant confirmed) -- preserved here -- but the live-end-to-end half (H1/H3) is now moot machinery and NOT attempted. |
 | 4 | Stale `mindrian-os.stale-*` backup dirs older than 30 days are pruned (M1.4) | VERIFIED | `tests/test-cache-prune-extended.cjs` 7/7 GREEN; `lib/core/cache-prune.cjs` line 266 has `pruneStaleBackups` with `MOS_CACHE_PRUNE_AGE_DAYS` env override; period-literal pattern `/^mindrian-os\.stale-/` guards live install |
 | 5 | `test-doctor-acceptance-self-coverage.cjs` ships 5 scaffolded-broken-state fixtures wired into release.sh Step 6.6b (M2) | VERIFIED | 6/6 GREEN; `scripts/release.sh` lines 381-397 have Step 6.6b HARD ABORT block; `--dry-run` output shows Step 6.6b |
 | 6 | release.sh Step 5.5 tag-push verify exists with retry + bypass (M3.1) | VERIFIED | `scripts/release.sh` line 756-793 contains Step 5.5; `RELEASE_TAG_PUSH_RETRIES` env var supported; `SKIP_TAG_VERIFY=1` bypass logged |
@@ -152,7 +165,9 @@ No blockers or warnings found. Specific checks run:
 
 ### Human Verification Required
 
-#### 1. First real beta.15 release.sh run - Step 9.6 HARD lockstep end-to-end
+#### 1. First real beta.15 release.sh run - Step 9.6 HARD lockstep end-to-end -- SUPERSEDED 2026-06-11
+
+**Status:** SUPERSEDED (H1). The install minisite was retired 2026-06-09; the canonical web surface is mindrian-os.com; release.sh NO_MINISITE defaults 1 and Step 9.6b was repointed. The Step 9.6 install-minisite HARD lockstep this item verifies no longer runs by default. NOT attempted. Re-scoped by 150.6-04 Task 3 (DRIFT-09). Original gate text preserved below for the record.
 
 **Test:** Run `bash scripts/release.sh --prerelease` from `/home/jsagi/MindrianOS-Plugin/` to cut v1.13.0-beta.15.
 
@@ -174,7 +189,9 @@ After the one-time bootstrap (`git remote add origin <url> && git push -u origin
 
 **Why human:** The smoke test (Plan 07 Task 3) ran on the maintainer's dev box. The remote tester's machine has a real v1 install-state.json written by beta.13's session-start. The migration path requires that machine to actually pull beta.15 and fire session-start against its own `~/.mindrian/install-state.json`.
 
-#### 3. Vercel live-deploy confirmed at https://mindrianos-install-site.vercel.app/
+#### 3. Vercel live-deploy confirmed at https://mindrianos-install-site.vercel.app/ -- SUPERSEDED 2026-06-11
+
+**Status:** SUPERSEDED (H3). mindrianos-install-site.vercel.app was retired 2026-06-09; the canonical web surface is mindrian-os.com; the Step 9.6b live-poll was repointed there. There is no live minisite to confirm in a browser. NOT attempted. Re-scoped by 150.6-04 Task 3 (DRIFT-09). Original gate text preserved below for the record.
 
 **Test:** After the beta.15 release.sh run succeeds (including the one-time minisite origin bootstrap), visit `https://mindrianos-install-site.vercel.app/` in a browser.
 
@@ -198,9 +215,12 @@ No gaps. All 9 must-haves (M1 through M9) are verified against the actual codeba
 - M8 (acc.5 resolution): 6/6 GREEN including acc.5
 - M9 (zero regression): Phase 123 / Phase 95.2 / Phase 95.1 suites all GREEN
 
-The 3 human-verification items are not gaps -- they are live-environment behaviors that pass all automated structural checks but require an actual release run and real tester machine access to confirm end-to-end. Status is `human_needed` rather than `passed` specifically because Step 9.6's Vercel live-deploy path (the centerpiece of the install-minisite Hard-tier enforcement from memory rule `feedback_install_minisite_lockstep.md`) cannot be mechanically verified without running the release pipeline against a live minisite repo with an established origin remote.
+**Re-scope 2026-06-11 (150.6-04 Task 3, DRIFT-09).** Two of the three human-verification items are now SUPERSEDED, not open:
 
-**Phase 126 is ready to proceed to release cut once the minisite origin remote is bootstrapped.**
+- **H1 + H3 (SUPERSEDED):** Both verify the install-minisite machinery (the Step 9.6 HARD lockstep release run and the mindrianos-install-site.vercel.app Vercel live-poll). The install minisite was RETIRED 2026-06-09; the canonical web surface is the single mindrian-os.com (memory hard rule `feedback_release_dual_website_lockstep`, which supersedes the older `feedback_install_minisite_lockstep`). release.sh `NO_MINISITE` defaults to 1 and Step 9.6b was repointed to mindrian-os.com. These gates verify retired machinery and are NOT attempted. The original gate text is preserved (frontmatter + the body items above) per the 117-VERIFICATION.md:104 superseded-annotation idiom.
+- **H2 (OPEN, NOT superseded):** The schema v1->v2 migration on a real beta.13 tester machine is still a live behavior. Its closure rides the FIX-07 tester round (out of 150.6 Plan 04 scope). Phase 126 status stays `human_needed` scoped to H2 only.
+
+**Phase 126 no longer blocks on the minisite path (retired). The one remaining live item is H2 (tester upgrade migration smoke), which rides the FIX-07 tester round.**
 
 ---
 
