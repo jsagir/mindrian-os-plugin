@@ -2471,8 +2471,8 @@ Plans:
 
 - [x] 150.6-01-PLAN.md -- FIX-01 Larry reach/sensor/engine-flip prose + FIX-10 Action Footers + glyph hygiene + memory.md M8 (DRIFT-01, DRIFT-10)
 - [x] 150.6-02-PLAN.md -- FIX-02 @mindrian_os/install->cli sweep + FIX-03 Brain numbers (a3c422fe) + real 6-tool table + brain_ask + FIX-06 workspace paths + worktree prune + pre-commit refresh [CHECKPOINT: live Brain read] (DRIFT-02, DRIFT-03, DRIFT-06)
-- [ ] 150.6-03-PLAN.md -- FIX-04 help-groups (drop visualize, add discover + memory-cortex-reach, renderer deprecated-skip) + FIX-05 venture_classified emission un-deadens the Phase 119 nudge (DRIFT-04, DRIFT-05)
-- [ ] 150.6-04-PLAN.md -- GATE-0 segment-cascade verdict + Phase 88 closer + 126-H1/H3 SUPERSEDED + FIX-09 F.7 header fork [CHECKPOINTS: Phase 88 live run, FIX-09 AskUserQuestion] (DRIFT-07, DRIFT-08, DRIFT-09, DRIFT-11)
+- [x] 150.6-03-PLAN.md -- FIX-04 help-groups (drop visualize, add discover + memory-cortex-reach, renderer deprecated-skip) + FIX-05 venture_classified emission un-deadens the Phase 119 nudge (DRIFT-04, DRIFT-05)
+- [x] 150.6-04-PLAN.md -- GATE-0 verdict FILE-LEVEL ONLY + Phase 88 closer (88-H2 flake CLOSED; 88-H1 live run PAUSED for navigator) + 126-H1/H3 SUPERSEDED + FIX-09 F.7 header rendered (Option A, navigator-LOCKED) (DRIFT-07/09/11 complete; DRIFT-08 partial -- 88-H1 human-action open)
 
 ### Phase 150.7: Tester round 2 validation week and Part 10 ratification gate (INSERTED)
 
