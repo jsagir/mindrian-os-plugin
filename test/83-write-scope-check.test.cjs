@@ -8,7 +8,7 @@
  * MindrianRooms fixtures, piping synthetic PreToolUse payloads on stdin,
  * and asserting exit codes and stderr content.
  *
- * Seven test cases, per plan 83-06 task 3:
+ * Eight test cases, per plan 83-06 task 3 (case 8 added quick-260611-nob):
  *   1. Allow: write to the active room
  *   2. Block: write to a non-active room
  *   3. Block: write to a sealed room even when it is the active room
@@ -16,6 +16,7 @@
  *   5. Allow: empty stdin
  *   6. Allow: unparseable stdin
  *   7. Allow: tool_input missing file_path
+ *   8. Block: write to a rooms-root file with accurate root-file message
  *
  * Zero test frameworks. Node built-in assert only. CJS only.
  */
@@ -267,6 +268,33 @@ test('allows when tool_input has no file_path', () => {
     );
     assert.strictEqual(res.status, 0,
       'missing file_path should allow, got ' + res.status);
+  } finally {
+    cleanup(fx);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// 8. Block: write to a rooms-root file with accurate root-file message
+// ---------------------------------------------------------------------------
+test('blocks write to a rooms-root file with accurate root-file message', () => {
+  const fx = mkFixture('block-root-file');
+  try {
+    const root = mkRoomsRoot(fx, {
+      rooms: [{ name: 'alpha' }],
+      registry: { active: 'alpha', rooms: {} }
+    });
+    const target = path.join(root, 'INDEX.md');
+    fs.writeFileSync(target, '# rooms index\n');
+    const res = runHook(
+      { tool_name: 'Edit', tool_input: { file_path: target } },
+      root
+    );
+    assert.strictEqual(res.status, 2,
+      'expected exit 2, got ' + res.status + ' stderr=' + res.stderr);
+    assert.ok(/root file/i.test(res.stderr),
+      'stderr should name the target a root file, got: ' + res.stderr);
+    assert.ok(!res.stderr.includes('switch INDEX.md'),
+      'stderr must not suggest switching to a filename, got: ' + res.stderr);
   } finally {
     cleanup(fx);
   }

@@ -117,6 +117,26 @@ function targetRoomUnderRoot(root, target) {
   return segments[0];
 }
 
+// A depth-1 path under the MindrianRooms root that is NOT a directory is a
+// root-level FILE (e.g. INDEX.md), not a room. Classifying it as a room
+// produces the nonsense remediation "/mos:rooms switch INDEX.md". On stat
+// error (nonexistent depth-1 path) we return true: an agent creating a new
+// root-level FILE is the case this hook must catch; creating a new room
+// directory goes through /mos:rooms new, not a raw Write.
+function isRootLevelFile(root, target) {
+  const rel = path.relative(root, target);
+  if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) {
+    return false;
+  }
+  const segments = rel.split(path.sep).filter(Boolean);
+  if (segments.length !== 1) return false;
+  try {
+    return !fs.statSync(target).isDirectory();
+  } catch (_) {
+    return true;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -203,6 +223,17 @@ function main() {
 
   const activeRoom = readActiveRoom(realRoot);
   if (!activeRoom) return allow();
+
+  // Root-level FILE classification runs before isSealed: probing
+  // root/INDEX.md/GUARDRAIL.md (a path under a file) is nonsense, and the
+  // root-file message must win over the cross-room message.
+  if (isRootLevelFile(realRoot, resolvedTarget)) {
+    return block(
+      'Blocked: write to MindrianRooms root file ' + targetRoom + ' denied. The rooms root is a shared routing surface, not a room.\n' +
+      'With explicit user approval, apply the edit via a shell command or /mos:rooms maintenance.',
+      'blocked write to rooms-root file ' + targetRoom + ' (active: ' + activeRoom + ')'
+    );
+  }
 
   const sealed = isSealed(realRoot, targetRoom);
 
