@@ -264,7 +264,9 @@ function parseArgs(argv) {
 function usageText() {
   return `Usage: doctor.cjs [flags]
 
-Default (no flag) runs class A install-cache check only.
+Default (no flag) runs class A install-cache check + class N plugin-enabled-state
+(the silent-disable detector -- runs on a bare doctor run because the plugin's own
+SessionStart hooks cannot fire while the plugin is DISABLED).
 
 Class flags (combine freely; --all activates them all):
   --cascade-rooms          class B (.room-root sentinel) + class C (active-room guard silence)
@@ -284,6 +286,12 @@ Class flags (combine freely; --all activates them all):
   --brain-smoke            class M (Brain end-to-end smoke: 5-layer probe -- plugin root,
                            key resolver, HTTPS schema, MCP stdio handshake, e2e brain_schema.
                            Diagnostic-only; reports the exact failing layer. Phase 127-02.)
+  class N                  plugin-enabled-state (DRIFT-12 / silent-disable detector): reads
+                           ~/.claude/settings.json enabledPlugins + installed_plugins.json.
+                           installed && enabled===false -> CRITICAL (re-enable hint); enabled
+                           ===true or absent -> OK. Runs on a bare doctor run AND under --all (NOT
+                           behind a flag -- a disabled plugin cannot run its own hooks). LOCAL
+                           read only, never writes settings.json.
   --all                    activate all class flags
 
 Release-gate runner (Phase 123 Plan-04 -- separate from class flags):
@@ -3392,11 +3400,28 @@ function renderHumanReport(report) {
         }
       }
     }
+    // Class N: plugin-enabled-state (DRIFT-12). Same Shape-E idiom; a 'warn'
+    // here is the CRITICAL silent-disable failure, so it carries an explicit
+    // re-enable action line.
+    const pen = report.checks['plugin-enabled-state'];
+    if (pen && pen.status !== 'skip') {
+      let glyph;
+      let color;
+      if (pen.status === 'ok') { glyph = '✓'; color = C.green; }
+      else if (pen.status === 'warn') { glyph = '⚠'; color = C.red; } // CRITICAL
+      else if (pen.status === 'error') { glyph = '⚠'; color = C.red; }
+      else { glyph = '⊘'; color = C.dim; } // skip
+      bodyRows.push('  ' + color + '■' + C.reset + ' plugin-enabled-state        ' + color + glyph + C.reset + ' ' + (pen.detail || pen.status));
+      if (pen.status === 'warn') {
+        bodyRows.push('     ' + C.dim + '-> claude plugin enable ' + (pen.key || 'mos@mindrian-marketplace') + '   (or /plugin in the Claude Code TUI)' + C.reset);
+      }
+    }
     for (const [name, _check] of Object.entries(report.checks)) {
       if (name === 'install-cache') continue; // already handled above.
       if (name === 'statusline-visibility') continue; // rendered above.
       if (name === 'install-incomplete') continue; // rendered above.
       if (name === 'stale-first-touch-copy') continue; // rendered above.
+      if (name === 'plugin-enabled-state') continue; // rendered above.
       // Future: render check.detail rows here using the same idiom.
     }
   }
@@ -4264,6 +4289,59 @@ function main() {
     }
   }
 
+  // Class N: plugin-enabled-state (DRIFT-12 / RCA plugin-silent-disable-after-
+  // cc-self-upgrade; install-cache failure family case 7). Reads ~/.claude/
+  // settings.json `enabledPlugins` + installed_plugins.json. When the plugin is
+  // installed but its enabledPlugins key is `false`, that IS the silent-disable
+  // failure -- the plugin's own SessionStart hooks cannot fire to report it, so
+  // this check (reachable via `mindrian-os doctor` because the npm package +
+  // install cache exist on disk regardless of the enabled flag) is the only
+  // detector that runs while DISABLED. enabled===null (key absent on older CC)
+  // is "unknown, not an error" -> OK. Canon Part 8: LOCAL read only; NEVER
+  // writes settings.json. Runs under --all AND on a bare `doctor` run (the
+  // accumulative-engine trigger shape) so a disabled-state diagnosis surfaces
+  // without any class flag -- exactly the situation a silently-disabled user is
+  // in. Pure, sync, never throws.
+  if (flags.all || flags.fix || !classFlagsActive) {
+    try {
+      const { checkPluginEnabled } = require(path.join(__dirname, '..', 'lib', 'core', 'check-plugin-enabled.cjs'));
+      const res = checkPluginEnabled();
+      let status;
+      let detail;
+      if (res.installed && res.enabled === false) {
+        status = 'warn'; // CRITICAL -- the silent-disable failure state.
+        detail = 'plugin is DISABLED (enabledPlugins["' + (res.key || 'mos@mindrian-marketplace') + '"] = false) -- this state is the silent-disable failure (install-cache family case 7). Fix: claude plugin enable ' + (res.key || 'mos@mindrian-marketplace') + ' (or /plugin in the TUI)';
+      } else if (res.installed && (res.enabled === true || res.enabled === null)) {
+        status = 'ok';
+        detail = res.enabled === true
+          ? 'plugin is enabled (enabledPlugins["' + res.key + '"] = true)'
+          : 'plugin enabled flag absent (older Claude Code) -- treated as enabled (unknown, not an error)';
+      } else {
+        // Not installed: out of scope for this check (class A/I own install state).
+        status = 'skip';
+        detail = 'plugin not found in installed_plugins.json -- enabled-state check not applicable';
+      }
+      report.checks['plugin-enabled-state'] = {
+        class: 'N',
+        status,
+        detail,
+        installed: res.installed,
+        enabled: res.enabled,
+        key: res.key,
+        settings_path: res.settings_path,
+      };
+    } catch (err) {
+      report.checks['plugin-enabled-state'] = {
+        class: 'N',
+        status: 'error',
+        detail: (err && err.message) || 'class N threw',
+        installed: false,
+        enabled: null,
+        key: null,
+      };
+    }
+  }
+
   if (flags.brainSmoke) {
     const { checkBrainSmoke } = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'class-m-brain-smoke.cjs'));
     checkBrainSmoke().then(function (result) {
@@ -4447,6 +4525,15 @@ function _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installR
   if (report.recoveryRolledBack) process.exit(4);
   if (report.classARecovered) process.exit(2);
   if (report.drift.detected) process.exit(1);
+  // Class N (DRIFT-12): the plugin-DISABLED silent-disable state is a drift
+  // signal on a bare / non-class-flag run. enabled===false -> exit 1 so
+  // `mindrian-os doctor` returns non-zero for the one failure mode that no
+  // SessionStart hook can ever report (the hooks do not run while disabled).
+  // ok / null / skip leave the exit at 0. Under class-flag mode the run already
+  // returned 0 above (graceful-degradation invariant) -- the finding is still
+  // visible in report.checks for --all consumers.
+  const pen = report.checks && report.checks['plugin-enabled-state'];
+  if (pen && pen.status === 'warn') process.exit(1);
   process.exit(0);
 }
 
