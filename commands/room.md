@@ -83,8 +83,7 @@ Read `STATE.md` from the resolved room path for the computed overview. Also read
 
 **Zone 1 -- Header Panel:**
 ```
-╭─ [Room Name] ── ~/MindrianRooms/[name]/ ── [Venture Stage] ──────╮
-│                                                                       │
+-- [Room Name] -- ~/MindrianRooms/[name]/ -- [Venture Stage] --
 ```
 
 Show the simplified `~/MindrianRooms/[name]/` path in the header. For legacy unmigrated rooms, show the actual relative path instead.
@@ -147,7 +146,7 @@ If no signals, omit Zone 3 entirely.
 
 Run `bash scripts/resolve-room` to find the active room. If no room found, use 3-line error format. If the section doesn't exist in the resolved room path, show:
 ```
-✗ Section not found: [section-name]
+x Section not found: [section-name]
   Why: No room/[section-name]/ directory
   Fix: /mos:room add [section-name]
 ```
@@ -162,8 +161,7 @@ Read entries in the section directory.
 
 **Zone 1 -- Header Panel:**
 ```
-╭─ [Room Name] ── [section-name] ── [Venture Stage] ─────╮
-│                                                            │
+-- [Room Name] -- [section-name] -- [Venture Stage] --
 ```
 
 **Zone 2 -- Content Body (Shape C: Room Card):**
@@ -227,7 +225,7 @@ Actions reference graph edges when possible.
 - Run `bash scripts/resolve-room` to find the active room. If no room found, use 3-line error format.
 - If the target directory already exists:
   ```
-  ✗ Room already exists: [path]
+  x Room already exists: [path]
     Why: room/[path]/ directory already present
     Fix: /mos:room [path]
   ```

@@ -1,6 +1,6 @@
 ---
 name: doctor
-description: Diagnose and optionally repair MindrianOS install — detects install-cache drift, .room-root sentinel gaps, active-room guard silence, surface-verification gaps, ROOM.md/MINTO.md drift, UI Ruling System compliance, statusline visibility drift, and Brain end-to-end smoke
+description: Diagnose and optionally repair MindrianOS install -- detects install-cache drift, .room-root sentinel gaps, active-room guard silence, surface-verification gaps, ROOM.md/MINTO.md drift, UI Ruling System compliance, statusline visibility drift, and Brain end-to-end smoke
 help_jtbd: "Diagnose and optionally repair an off-feeling install."
 argument-hint: "[--fix] [--cascade-rooms] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--all] [--acceptance] [--pre-tag] [--light-npx] [--json]"
 body_shape: E (Action Report)
@@ -14,15 +14,15 @@ allowed-tools:
 
 # /mos:doctor
 
-Self-service diagnostic for MindrianOS installs. Detects when the live plugin install at `~/.claude/plugins/mindrian-os/` has fallen behind the marketplace cache (a real failure mode that occurred twice — see `docs/autopsies/2026-04-13-wrong-workspace-incident.md` and `docs/autopsies/2026-04-28-install-cache-drift-incident.md`).
+Self-service diagnostic for MindrianOS installs. Detects when the live plugin install at `~/.claude/plugins/mindrian-os/` has fallen behind the marketplace cache (a real failure mode that occurred twice -- see `docs/autopsies/2026-04-13-wrong-workspace-incident.md` and `docs/autopsies/2026-04-28-install-cache-drift-incident.md`).
 
 ## How it works
 
 The script `scripts/doctor.cjs` runs three checks:
 
-1. **Install cache version** — reads `~/.claude/plugins/mindrian-os/.claude-plugin/plugin.json`
-2. **Marketplace cache** — enumerates `~/.claude/plugins/cache/mindrian-marketplace/mos/*` directories and picks the highest semver as "latest"
-3. **Drift** — compares the two; if install < latest, drift is reported
+1. **Install cache version** -- reads `~/.claude/plugins/mindrian-os/.claude-plugin/plugin.json`
+2. **Marketplace cache** -- enumerates `~/.claude/plugins/cache/mindrian-marketplace/mos/*` directories and picks the highest semver as "latest"
+3. **Drift** -- compares the two; if install < latest, drift is reported
 
 If the user passes `--fix`, the script:
 
@@ -42,9 +42,9 @@ Look at the user's invocation:
 - `/mos:doctor --verify-surface` → class D live cascade end-to-end via test/fixtures/cascade-surface-e2e/
 - `/mos:doctor --room-md` → class E (ROOM.md/MINTO.md presence under .room-root subtrees)
 - `/mos:doctor --ui-compliance` → class F (UI Ruling System scan across commands/*.md and scripts/*.cjs)
-- `/mos:doctor --statusline-visibility` → class G — checks user-settings drift, plugin install integrity, and statusline-mos isolated execution
-- `/mos:doctor --stale-first-touch` → class K (Phase 121.5-05; SEED-007 absorption) — scans `data/first-touch-surfaces.json`-declared greeting surfaces (banner, splash, onboard, sessionstart, operator-update, larry-extended) for stale version literals (older than the running plugin) and U+2014 em-dash violations on surfaces flagged `em_dash_check: true`
-- `/mos:doctor --deprecated-usage` → class L (Phase 121.5-08 Sub-plan J) — scans last-7-days `~/.claude/projects/.../*.jsonl` session transcripts for `/mos:<deprecated>` patterns (heal/query/organize/hmi-status/visualize/diagnostics) and surfaces a per-command "use `/mos:<new>` instead" hint. Pure LOCAL scan; zero network, zero Brain. Also activated by `--all`.
+- `/mos:doctor --statusline-visibility` → class G -- checks user-settings drift, plugin install integrity, and statusline-mos isolated execution
+- `/mos:doctor --stale-first-touch` → class K (Phase 121.5-05; SEED-007 absorption) -- scans `data/first-touch-surfaces.json`-declared greeting surfaces (banner, splash, onboard, sessionstart, operator-update, larry-extended) for stale version literals (older than the running plugin) and U+2014 em-dash violations on surfaces flagged `em_dash_check: true`
+- `/mos:doctor --deprecated-usage` → class L (Phase 121.5-08 Sub-plan J) -- scans last-7-days `~/.claude/projects/.../*.jsonl` session transcripts for `/mos:<deprecated>` patterns (heal/query/organize/hmi-status/visualize/diagnostics) and surfaces a per-command "use `/mos:<new>` instead" hint. Pure LOCAL scan; zero network, zero Brain. Also activated by `--all`.
 - `/mos:doctor --brain-smoke` → class M (Phase 127-02 BRAIN-MCP-127-08): 5-layer Brain end-to-end probe (plugin root resolver, key resolver, HTTPS schema, MCP stdio handshake, e2e brain_schema via the bundled shim). Diagnostic-only; reports the exact failing layer with fail-fast cascade. Detects 12 Phase 126 failure-mode rows in one composable test (the doctor's single Brain smoke).
 - `/mos:doctor --fix` → diagnostic + auto-recovery for any class that supports --fix (class A, B, E, G)
 - `/mos:doctor --json` → machine-readable output (for hooks / regression tests)
@@ -154,3 +154,10 @@ so Larry picks up the new plugin code.
 ```
 
 Note: per D-19, the renderer above is structural. Larry handles narrative interpretation of any drift finding when surfacing conversationally (e.g., "what does this mean?"). See references/personality/voice-dna.md for voice patterns.
+
+## Zone 4 (Action Footer)
+
+After presenting results, suggest next actions:
+
+> Want to repair what we found? -> /mos:doctor --fix
+> Want the full picture? -> /mos:status
