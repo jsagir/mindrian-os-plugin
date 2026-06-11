@@ -17,7 +17,9 @@
  *      this arm goes RED.
  *
  *   2. The split render (DIAL-ATOM-01): on the engine arm the emitted block
- *      must carry BOTH the dial text ('Larry can reach for:') AND the
+ *      must carry BOTH the dial text ('Choose next reach:' -- the F.7 prompt
+ *      that FIX-09/150.6-04 substituted for the legacy 'Larry can reach for:')
+ *      AND the
  *      AskUserQuestion card contract trailer ('[AskUserQuestion contract:')
  *      together -- one emission site, never text-only. If the trailer is ever
  *      dropped again (the :896-899 discard SEED-021 found), this arm goes RED.
@@ -63,8 +65,10 @@ delete process.env.MOS_NAV_TEST_SUPPRESS_SKILLS;
 // An obviously-fictional proprietary sentinel for the Part-8 provenance proof.
 const PART8_SENTINEL = 'SECRET-ACPT06-DIALMARGIN-77pct-FICTIONAL';
 
-// The two atomic-emission assertion substrings (DIAL-ATOM-01).
-const DIAL_TEXT_SUBSTRING = 'Larry can reach for:';
+// The two atomic-emission assertion substrings (DIAL-ATOM-01). FIX-09 (150.6-04):
+// the dial-text marker is now the F.7 'Choose next reach:' prompt (SKILL.md:257),
+// which replaced the legacy 'Larry can reach for:' header.
+const DIAL_TEXT_SUBSTRING = 'Choose next reach:';
 const CONTRACT_SUBSTRING = '[AskUserQuestion contract:';
 
 let passed = 0;

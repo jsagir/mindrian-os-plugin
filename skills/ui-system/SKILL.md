@@ -254,8 +254,10 @@ Header format:
 ```
 [filled-square] [CONTEXT] - REACH                 - decision gate
 [down-triangle] LOCAL   / BRAIN   / SIGNAL
-[right-triangle-filled] Choose next reach:
+[arrow] Choose next reach:
 ```
+
+The header glyphs map to the approved-12 vocabulary: `[filled-square]` = `■`, `[down-triangle]` = `▼`, `[arrow]` = `→`. The prompt-line glyph was declared `[right-triangle-filled]` (`▶`) in an earlier draft, but `▶` is the FROZEN recommended-row marker on the chooser body (S1 = exactly one `▶`); reusing it in the header would collide with that frozen single-marker contract. FIX-09 (150.6-04, navigator-LOCKED: render the canon header) shipped the prompt line with `→` and amended this declaration to match what `lib/hmi/dial-presenter.cjs` renders (truth-telling, not blessing drift). The frozen contracts (MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 gate, the body marker glyphs `▶`/`▷`) are unchanged.
 
 Options: the 6 frozen reach-ids, surfaced as WHAT-THEY-GET Feynman labels (the canonical verb persists to the graph edge, not the screen). These reach-ids are an F.7 specialization, NOT a replacement for the 10 canonical verbs -- each reach maps onto an existing canonical verb when it commits:
 - `context_block` -- "Pull up what we decided about {topic}." (problem-space reflection)

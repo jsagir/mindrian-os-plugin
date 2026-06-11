@@ -261,3 +261,86 @@ test('V5: the chooser body has exactly 3 option rows; total reflects 6', () => {
   assert.strictEqual(rl.total_count, 6, 'the preview/total reflects 6 (DIAL_REACH_K)');
   assert.ok(/top-3 of 6/.test(txt), 'the footer surfaces the 6-of-N overflow, not pagination');
 });
+
+// ---------------------------------------------------------------------------
+// FIX-09 (150.6-04): the Shape F.7 tri-context Decision Gate header
+// (SKILL.md:253-258) renders ON the engine arm and is PREPENDED to the dial.
+// Production-shaped: driven through the real orchestrator ReachList (no
+// hand-built fixture for the header), the SAME path the engine arm emits.
+// ---------------------------------------------------------------------------
+
+test('F.7 header: the tri-context Decision Gate header renders with all three lines', () => {
+  const presenter = loadPresenter();
+  const rl = orch.buildReachList(stateWith('mode_a', {
+    context_block: 0.87, contradiction: 0.61, cross_room: 0.54,
+    brain_consult: 0.48, deep_research: 0.40, hats: 0.33,
+  }));
+  const out = presenter.renderDial(rl, { slotContext: FULL_SLOTS });
+  // structured header is present
+  assert.ok(out.decisionGateHeader && typeof out.decisionGateHeader === 'object',
+    'renderDial returns a decisionGateHeader object');
+  const txt = renderText(out);
+  // Line 1: the '[filled-square] [CONTEXT] - REACH - decision gate' header line.
+  assert.ok(/■ .* - REACH - decision gate/.test(txt),
+    'the header line carries the filled-square glyph + REACH + decision gate (SKILL.md:255)');
+  // Line 2: the '[down-triangle] LOCAL / BRAIN / SIGNAL' tri-context line.
+  assert.ok(/▼ LOCAL .* \/ BRAIN .* \/ SIGNAL /.test(txt),
+    'the tri-context line carries the down-triangle glyph + LOCAL / BRAIN / SIGNAL (SKILL.md:256)');
+  // Line 3: the '[arrow] Choose next reach:' prompt line (FIX-09 amended SKILL.md:257).
+  assert.ok(/→ Choose next reach:/.test(txt),
+    'the prompt line carries the arrow glyph + Choose next reach: (SKILL.md:257, FIX-09)');
+  // the context label is derived from the slotContext (room_name preferred).
+  assert.ok(txt.indexOf('synteris') !== -1,
+    'the header CONTEXT label is derived from slotContext.room_name');
+});
+
+test('F.7 header: BRAIN shows a prior in mode_a, offline otherwise; SIGNAL absent', () => {
+  const presenter = loadPresenter();
+  const modeA = renderText(presenter.renderDial(
+    orch.buildReachList(stateWith('mode_a', {
+      context_block: 0.87, contradiction: 0.61, cross_room: 0.54,
+      brain_consult: 0.48, deep_research: 0.40,
+    })), { slotContext: FULL_SLOTS }));
+  // BRAIN prior present only when a Brain-derived ranking exists (mode_a).
+  assert.ok(/BRAIN prior/.test(modeA), 'mode_a header shows a BRAIN prior');
+  // SIGNAL is honestly absent this turn (the presenter threads no outside signal).
+  assert.ok(/SIGNAL \(none this turn\)/.test(modeA),
+    'SIGNAL is "(none this turn)" when no outside-world signal is threaded');
+
+  const modeB = renderText(presenter.renderDial(
+    orch.buildReachList(stateWith('mode_b', {
+      context_block: 0.44, contradiction: 0.41, cross_room: 0.38,
+      brain_consult: 0.35, deep_research: 0.30,
+    })), { slotContext: FULL_SLOTS }));
+  assert.ok(/BRAIN \(offline\)/.test(modeB),
+    'Mode B header shows BRAIN (offline) -- no Brain-derived prior exists');
+});
+
+test('F.7 header: the header glyphs do NOT pollute the frozen body marker count', () => {
+  const presenter = loadPresenter();
+  // S1 clear leader must STILL be exactly one filled body marker, even with the
+  // header prepended -- the header uses ■/▼/→, never the body markers ▶/▷.
+  const out = presenter.renderDial(
+    orch.buildReachList(stateWith('mode_a', {
+      context_block: 0.87, contradiction: 0.61, cross_room: 0.54,
+      brain_consult: 0.48, deep_research: 0.40, hats: 0.33,
+    })), { slotContext: FULL_SLOTS });
+  const txt = renderText(out);
+  assert.strictEqual(countGlyph(txt, '▶'), 1,
+    'S1 still has exactly 1 filled body marker (header does not add a ▶)');
+  const markerRows = countGlyph(txt, '▶') + countGlyph(txt, '▷');
+  assert.strictEqual(markerRows, 3, 'still exactly 3 body option rows (MAX_K=3 frozen)');
+});
+
+test('F.7 header: zero em-dashes in the rendered header (CLAUDE.md hard rule)', () => {
+  const presenter = loadPresenter();
+  const states = [
+    stateWith('mode_a', { context_block: 0.87, contradiction: 0.61, cross_room: 0.54, brain_consult: 0.48, deep_research: 0.40 }),
+    stateWith('mode_b', { context_block: 0.44, contradiction: 0.41, cross_room: 0.38, brain_consult: 0.35, deep_research: 0.30 }),
+    stateWith('tier_0', {}),
+  ];
+  for (const st of states) {
+    const txt = renderText(presenter.renderDial(orch.buildReachList(st), { slotContext: FULL_SLOTS }));
+    assert.ok(txt.indexOf('\u2014') === -1, 'no em-dash (U+2014) anywhere in the render');
+  }
+});

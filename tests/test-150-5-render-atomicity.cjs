@@ -139,8 +139,12 @@ check('engine arm emits dial text AND the AskUserQuestion contract trailer toget
   assert.equal(typeof fn, 'function', 'classifier must export renderEngineDecisionWithDial');
   const block = fn(engineDecision('mode_a'), ENGINE_ROUTING, null, { cortexNodes: CORTEX_NODES });
   assert.equal(typeof block, 'string', 'render helper returns a string block');
-  assert.ok(block.indexOf('Larry can reach for:') !== -1,
-    'the dial text half must be on the block');
+  // FIX-09 (150.6-04): the dial-text half is now the F.7 'Choose next reach:'
+  // tri-context Decision Gate prompt (SKILL.md:257), which replaced the legacy
+  // 'Larry can reach for:' header. The atomic-coupling invariant is unchanged:
+  // the dial text and the contract trailer must ride the same emission.
+  assert.ok(block.indexOf('Choose next reach:') !== -1,
+    'the dial text half (the F.7 Choose next reach: prompt) must be on the block');
   assert.ok(block.indexOf(TRAILER_PREFIX + ' shape=F.1') !== -1,
     'the contract trailer must ride the same emission as the text (never text-only)');
 });
@@ -158,8 +162,8 @@ check('legacy arm renders NEITHER dial text NOR trailer (the :869 engine-only ga
   const routing = { source: 'legacy', activated_skills: [] };
   const block = fn(decision, routing, null, {});
   assert.equal(typeof block, 'string', 'legacy arm returns a string');
-  assert.equal(block.indexOf('Larry can reach for:'), -1,
-    'no dial chrome on the legacy arm');
+  assert.equal(block.indexOf('Choose next reach:'), -1,
+    'no dial chrome (the F.7 Choose next reach: prompt) on the legacy arm');
   assert.equal(block.indexOf(TRAILER_PREFIX), -1,
     'no contract trailer on the legacy arm');
 });

@@ -102,8 +102,8 @@ check('engine-arm render invokes dial-presenter.renderDial (C2 unlock, D-08)', f
     assert.ok(spy.calls.length > 0,
       'dial-presenter.renderDial must be invoked on the engine arm (C2 unlock)');
     // The grounded one-move must be PRESENTED onto the live surface.
-    assert.ok(block.indexOf('Larry can reach for:') !== -1,
-      'the dial render must be surfaced onto the live response block');
+    assert.ok(block.indexOf('Choose next reach:') !== -1,
+      'the dial render (the F.7 Choose next reach: prompt; FIX-09 150.6-04) must be surfaced onto the live response block');
   } finally {
     spy.restore();
   }

@@ -134,8 +134,8 @@ try {
       assert.equal(typeof block, 'string', 'render helper returns a string block');
       assert.ok(spy.calls.length > 0,
         'dial-presenter.renderDial must be invoked on the engine arm (the SEEN arm, D-08)');
-      assert.ok(block.indexOf('Larry can reach for:') !== -1,
-        'the dial render must be surfaced onto the live response block');
+      assert.ok(block.indexOf('Choose next reach:') !== -1,
+        'the dial render (the F.7 Choose next reach: prompt; FIX-09 150.6-04) must be surfaced onto the live response block');
       // 150.5-02 (DIAL-ATOM-01): text presence alone is the exact false-green
       // 150.5-RESEARCH.md Finding B item 3 documents -- the harness must not
       // stay green through the split-render failure (text without contract).
