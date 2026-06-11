@@ -27,15 +27,16 @@ Load all reference files and context before starting:
 
 1. Read `references/personality/voice-dna.md` for Larry's voice
 2. Read `references/meeting/transcript-patterns.md` for speaker ID regex patterns
-3. Read `references/meeting/segment-classification.md` for the 6-type taxonomy
-4. Read `references/meeting/section-mapping.md` for the 12-role x 6-type x 8-section routing matrix
-5. Read `references/meeting/artifact-template.md` for wicked-problem-aware YAML frontmatter
-6. Read `references/meeting/summary-template.md` for narrative + structured dual storage format
-7. Read `references/meeting/speaker-profile-template.md` for ICM nested folder profiles
-8. Read `references/meeting/cross-relationship-patterns.md` (if file exists -- skip gracefully if not)
-9. Read `references/meeting/cross-meeting-intelligence.md` for cross-meeting convergence/contradiction detection and action item triage protocols
-10. Read `room/STATE.md` for venture context (if exists)
-11. Scan `room/team/` for known speaker profiles: glob `room/team/*/*/PROFILE.md`
+3. Read `references/meeting/segment-classification.md` for the 6-type segment taxonomy (the SELECTION pass)
+4. Read `references/meeting/knowledge-typing.md` for the 6-enum knowledge taxonomy + conditions/counter_conditions + temporal validity (the TYPING pass)
+6. Read `references/meeting/section-mapping.md` for the 12-role x 6-type x 8-section routing matrix
+7. Read `references/meeting/artifact-template.md` for wicked-problem-aware YAML frontmatter
+8. Read `references/meeting/summary-template.md` for narrative + structured dual storage format
+9. Read `references/meeting/speaker-profile-template.md` for ICM nested folder profiles
+10. Read `references/meeting/cross-relationship-patterns.md` (if file exists -- skip gracefully if not)
+11. Read `references/meeting/cross-meeting-intelligence.md` for cross-meeting convergence/contradiction detection and action item triage protocols
+12. Read `room/STATE.md` for venture context (if exists)
+13. Scan `room/team/` for known speaker profiles: glob `room/team/*/*/PROFILE.md`
 
 Track any newly created speaker profiles in a list called `new_profiles` for the post-pipeline research step.
 
@@ -263,35 +264,128 @@ Do not surface routine or weak emotions. Only notable emotional signals that pro
 
 ---
 
-## Step 3: Segment Classification (Priority-First)
+## Step 3: Claimify Extraction (4-Pass Pipeline)
 
-### Classify Each Segment
+This step is the Claimify 4-pass extraction. It replaces a single flat
+classification with selection -> disambiguation -> decomposition -> typing, and
+it is the DIKW filing seam: the typing pass mints a typed truth-claim node per
+ATOMIC claim through `navigation.writeClaimNode`. Extraction IS the segmentation
+authority -- a transcript that decomposes into K atomic claims mints K claim
+nodes, never one file-level claim.
 
-Process each non-greeting, non-trivial segment from the transcript:
+All four passes are LLM judgment (Larry reasoning over the transcript). There is
+NO CJS extractor: extraction is judgment, and a hardcoded extractor would be the
+RESEARCH anti-pattern. The passes run per non-greeting, non-trivial segment.
 
-1. **Classify** using the 6-type taxonomy from `references/meeting/segment-classification.md`:
-   - decision, action-item, insight, advice, question, noise
+### Pass 1: Selection
 
-2. **Apply role-aware heuristics** from `references/meeting/section-mapping.md`:
+Classify each segment using the 6-type SEGMENT taxonomy from
+`references/meeting/segment-classification.md` (decision, action-item, insight,
+advice, question, noise) and the role-aware heuristics from
+`references/meeting/section-mapping.md`:
+
+1. **Classify** the segment type.
+2. **Apply role-aware heuristics**:
    - Investor question about financials = HIGH priority
    - Mentor advice on problem framing = HIGH priority
    - Team-member status update = MEDIUM priority
    - Use the routing matrix to determine the target room section
-
 3. **Sort by priority**: decisions (HIGHEST) > action-items (HIGH) > insights (MEDIUM) > advice (MEDIUM) > questions (LOW)
-
 4. **Flag potential noise** that contains proper nouns, competitor names, or numbers:
    > "This looks like small talk but Lawrence mentioned a competitor name. File or skip?"
 
+Filler and pure social talk is tagged `no_claim` and discarded (it mints no claim
+node). The selection pass IS the priority sort -- it decides WHICH segments carry
+candidate knowledge.
+
+### Pass 2: Disambiguation
+
+For each selected segment, resolve pronouns and referents before decomposing:
+
+1. Use the **speaker identity** from the Step 2 roster and the **prior 2 to 3
+   turns** of context to bind every pronoun ("it", "they", "this") and every
+   bare referent ("the deal", "that number") to a concrete antecedent.
+2. **Unresolvable referents** do NOT drop the segment. Extend the existing
+   below-0.5 ask-the-user rule (`segment-classification.md` Classification
+   Confidence Scoring, the "below 0.5 -> ask the user" threshold): when a referent
+   cannot be resolved from the speaker plus the prior 2 to 3 turns, the resulting
+   atomic claim is still minted, marked `disambiguation: 'ambiguous'`, and QUEUED
+   for human review. An ambiguous claim is NEVER silently dropped.
+
+### Pass 3: Decomposition
+
+Split each compound segment into ATOMIC claims (extends the Multi-Type resolution
+rules in `segment-classification.md`):
+
+1. A segment that asserts two things becomes two atomic claims ("revenue was $1.2M
+   and churn dropped" -> a `fact` claim and a separate claim about churn).
+2. A decision-plus-action segment becomes the decision claim plus the action
+   sub-element.
+3. Each atomic claim must carry exactly ONE dominant knowledge_type after typing.
+   If it still reads as two types, it was not fully decomposed; split again.
+
+### Pass 4: Typing + Write
+
+Classify each atomic claim against the 6-enum knowledge taxonomy in
+`references/meeting/knowledge-typing.md`
+(fact / causal / heuristic / anomaly_cue / mental_model / assumption), run the
+conditions/counter_conditions contrastive probe, extract valid_from/valid_until
+when the claim is time-bound, then mint the node:
+
+For EACH atomic claim, call `navigation.writeClaimNode(db, params)` (via
+`lib/core/navigation.cjs` over a room.db handle from `openRoomDb`) with:
+
+```
+{
+  text,                  // the atomic claim text (stays LOCAL, never to Brain)
+  knowledge_type,        // one of the frozen 6 enum members
+  conditions,            // "when does this hold?"  ('' if none stated)
+  counter_conditions,    // "when does this break?" ('' if none stated)
+  valid_from,            // ISO date or '' (TV-01)
+  valid_until,           // ISO date or '' (TV-01)
+  sourceSpeaker,         // the Step 2 roster speaker id
+  sourceSegment,         // the segment id (idempotency key)
+  sessionId,             // the meeting session id
+  disambiguation         // 'ambiguous' ONLY for unresolved claims (Pass 2), else omitted
+}
+```
+
+`writeClaimNode` mints `type='claim'`, `review_status='proposed'` (NEVER
+auto-confirmed -- Canon Part 9 role 5: a human confirms truth at a Decision Gate).
+Re-filing the same segment in the same session UPSERTs (idempotent), never
+duplicates. The claim PROSE lives only in room.db and the artifact; only the
+knowledge_type enum handle may ride to Brain downstream (Canon Part 8).
+
+### Knowledge-rung edges (REFINES / ROOT_CAUSES / INSTANTIATES)
+
+When the prose justifies a relationship BETWEEN two atomic claims, mint a typed
+edge via `navigation.writeEdge` using the amended taxonomy
+(`lib/core/navigation/edges.cjs` `ALLOWED_EDGE_TYPES`):
+
+- `REFINES` -- a new claim TIGHTENS or CONDITIONS a prior claim without
+  invalidating it (the missing middle between INFORMS-too-weak and
+  CONTRADICTS-wrong). Source = the refining claim.
+- `ROOT_CAUSES` -- a directional cause-to-effect edge. Source = the cause claim,
+  target = the effect claim (a `causal` claim is the natural source).
+- `INSTANTIATES` -- a concrete example claim that EVIDENCES an abstract claim.
+  Source = the concrete claim, target = the abstract `mental_model` claim.
+
+`valid_from` / `valid_until` ride the edge `properties` JSON (zero writeEdge
+signature change). The claim BODY never lands on the edge -- edge properties are
+enum and scalar only (Canon Part 8).
+
 ### Show Classification Reasoning
 
-For EVERY classified segment, show Larry's reasoning:
+For EVERY classified atomic claim, show Larry's reasoning, extending each line
+with the knowledge_type:
 
-> "This is an insight about market size -> market-analysis. Confidence: 0.85"
-> "This is a decision about product focus -> solution-design. Confidence: 0.92"
-> "This is advice on hiring strategy -> team-execution. Confidence: 0.78"
+> "insight about market size -> market-analysis | claim: fact | Confidence: 0.85"
+> "decision about product focus -> solution-design | claim: heuristic | Confidence: 0.92"
+> "advice on hiring -> team-execution | claim: mental_model | Confidence: 0.78"
+> "unresolved referent 'they' -> queued AMBIGUOUS | claim: assumption | Confidence: 0.40"
 
-Transparency is mandatory -- even when it makes the flow longer. The user needs to trust Larry's classifications.
+Transparency is mandatory -- even when it makes the flow longer. The user needs to
+trust Larry's classifications.
 
 ---
 
