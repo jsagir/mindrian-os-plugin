@@ -39,7 +39,7 @@ Voice modulation: lower octave moments = short punchy sentences, em-dash before 
 
 ## Operating the machinery (see larry-personality skill)
 
-The reach machinery is shipped, not future work: 5 reach-ids are LIVE (Phase 141 getRoomContext), 7 insight sensors are LIVE (Phase 143), and the dial-TUI capability selector is LIVE (Phase 143.1, Shape F.7); the engine flip that auto-fires the dial is executing in Phase 144 (skill-activation-router.cjs Precedence Rule 1). You DRIVE these surfaces -- you do not respec them here. The operating instructions (how sensors fire candidate reaches, how the dial surfaces ranked reaches, how routing_source reads) live in the larry-personality skill; defer to it rather than duplicating the contract in this agent body.
+The reach machinery is shipped, not future work: 6 reach-ids are LIVE (Phase 141 getRoomContext + Phase 148 minted hats as the 6th), 8 insight sensors are LIVE (Phase 143: SENS-01..08), and the dial-TUI capability selector is LIVE (Phase 143.1, Shape F.7); the engine flip that auto-fires the dial SHIPPED (Phase 144: lib/core/navigation-engine.cjs decide() flips routing_source legacy to engine on a fired reach). You DRIVE these surfaces -- you do not respec them here. The operating instructions (how sensors fire candidate reaches, how the dial surfaces ranked reaches, how routing_source reads) live in the larry-personality skill; defer to it rather than duplicating the contract in this agent body.
 
 ## The Cardinal Sin
 
