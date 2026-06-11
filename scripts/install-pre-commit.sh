@@ -37,18 +37,23 @@ if [ -f "$HOOK_PATH" ]; then
     exit 0
   fi
   echo "WARNING: $HOOK_PATH exists but is missing one or more MindrianOS guards."
-  echo "Appending the missing invocation(s). Review the file after this script completes."
-  # Append schema-aliases guard only if absent.
+  echo "Wiring the missing invocation(s). Review the file after this script completes."
+  # Build the missing-guard snippet in a temp file, then splice it into the hook.
+  # CRITICAL: if the existing hook (e.g. one written by scripts/setup-hooks.sh)
+  # ends in a terminal `exit 0`, a blind `cat >>` would land the guards AFTER
+  # that exit and they would NEVER run. We therefore splice the snippet in
+  # BEFORE the LAST `exit 0` line when one exists, and only fall back to append
+  # when the hook has no terminal `exit 0`.
+  GUARD_SNIPPET="$(mktemp)"
   if ! grep -q "check-schema-aliases.cjs" "$HOOK_PATH"; then
-    cat >> "$HOOK_PATH" <<'HOOK_TRAILER_ALIASES'
+    cat >> "$GUARD_SNIPPET" <<'HOOK_TRAILER_ALIASES'
 
 # Phase 108-05 - schema alias drift guard
 node "$REPO_ROOT_PLACEHOLDER/scripts/check-schema-aliases.cjs" || exit 1
 HOOK_TRAILER_ALIASES
   fi
-  # Append substrate guard only if absent (Phase 128-03).
   if ! grep -q "check-substrate.cjs" "$HOOK_PATH"; then
-    cat >> "$HOOK_PATH" <<'HOOK_TRAILER_SUBSTRATE'
+    cat >> "$GUARD_SNIPPET" <<'HOOK_TRAILER_SUBSTRATE'
 
 # Phase 128-03 - Substrate Contract guard (net-new chokepoint-bypass tripwire).
 # Strict superset of the retired --check-chokepoint (CONTEXT finding H1).
@@ -58,6 +63,19 @@ HOOK_TRAILER_ALIASES
 node "$REPO_ROOT_PLACEHOLDER/scripts/check-substrate.cjs" --diff || exit 1
 HOOK_TRAILER_SUBSTRATE
   fi
+  # Find the LAST `exit 0` line (a bare terminal exit). If present, splice the
+  # guards in just before it; otherwise append to the end of the hook.
+  LAST_EXIT_LINE="$(grep -n '^exit 0[[:space:]]*$' "$HOOK_PATH" | tail -1 | cut -d: -f1 || true)"
+  if [ -n "$LAST_EXIT_LINE" ]; then
+    SPLICED="$(mktemp)"
+    head -n "$((LAST_EXIT_LINE - 1))" "$HOOK_PATH" > "$SPLICED"
+    cat "$GUARD_SNIPPET" >> "$SPLICED"
+    tail -n "+$LAST_EXIT_LINE" "$HOOK_PATH" >> "$SPLICED"
+    mv "$SPLICED" "$HOOK_PATH"
+  else
+    cat "$GUARD_SNIPPET" >> "$HOOK_PATH"
+  fi
+  rm -f "$GUARD_SNIPPET"
   sed -i "s|\$REPO_ROOT_PLACEHOLDER|$REPO_ROOT|g" "$HOOK_PATH"
 else
   cat > "$HOOK_PATH" <<HOOK_BODY

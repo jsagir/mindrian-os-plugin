@@ -2,12 +2,12 @@
 
 ## Workspace Rule (CRITICAL — read first)
 
-**The canonical development workspace is `/home/jsagi/MindrianOS-Plugin/`. Every commit, every push, every release happens here.**
+**The canonical development workspace is `/home/jsagi/dev/MindrianOS-Plugin/`. Every commit, every push, every release happens here.**
 
 `~/.claude/plugins/mindrian-os/` is NOT a dev workspace. It is where Claude Code installs the plugin for read access. It has a `dev` remote pointing at this workspace, but commits made there never reach GitHub. Working in it silently diverges from the release pipeline.
 
 **Before any session that touches the plugin:**
-1. `cd ~/MindrianOS-Plugin` (verify with `pwd`)
+1. `cd ~/dev/MindrianOS-Plugin` (verify with `pwd`)
 2. `git fetch origin main` (never work on a stale local clone)
 3. `git status` (uncommitted drift should be stashed or explained)
 4. If you find yourself at a path starting with `~/.claude/plugins/`, **STOP**. Change directory and restart the session.
