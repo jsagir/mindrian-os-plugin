@@ -20,6 +20,7 @@
         "new-project",
         "onboard",
         "splash",
+        "discover",
         "help",
         "rooms",
         "room",
@@ -99,7 +100,8 @@
         "analyze-timing",
         "causal",
         "auto-explore",
-        "memory"
+        "memory",
+        "memory-cortex-reach"
       ],
       "lane": "explore"
     },
@@ -168,8 +170,7 @@
       "commands": [
         "dashboard",
         "wiki",
-        "scheduled-tasks",
-        "visualize"
+        "scheduled-tasks"
       ],
       "lane": "view"
     },

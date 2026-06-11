@@ -117,12 +117,28 @@ function jtbdFor(name) {
   return fm && fm.help_jtbd ? fm.help_jtbd : '';
 }
 
+// Read the deprecated flag exactly as commands/visualize.md:8 declares it
+// (`deprecated: true`). readCommandFrontmatter stores YAML scalars as strings,
+// so a deprecated command surfaces as fm.deprecated === 'true'. This is the
+// durability layer: even if a future deprecated command is left in a group,
+// the group walk skips it so it never renders. Kills the class, not just the
+// instance (the data fix drops visualize from the hub group as the instance).
+function isDeprecated(name) {
+  const fm = readCommandFrontmatter(name);
+  return !!(fm && String(fm.deprecated).trim() === 'true');
+}
+
 // Collect every command whose group.lane === lane, in group order.
+// Deprecated:true commands are skipped so the lane count matches the cards
+// the group walk renders below (the deprecated-skip durability layer).
 function commandsForLane(groups, lane) {
   const out = [];
   for (const g of groups.groups) {
     if (g.lane === lane) {
-      for (const cmd of g.commands) out.push(cmd);
+      for (const cmd of g.commands) {
+        if (isDeprecated(cmd)) continue;
+        out.push(cmd);
+      }
     }
   }
   return out;
@@ -189,6 +205,9 @@ function renderHelpCards(groups, useColor) {
         '    ' + col('muted') + B + (g.glyph || '·') + ' ' + g.label + R
       );
       for (const cmd of g.commands) {
+        // Skip deprecated:true entries during the group walk so a deprecated
+        // command left in a group never renders (kills the class).
+        if (isDeprecated(cmd)) continue;
         out.push('    ' + laneColor + BLOCK + R + ' ' + laneColor + B + '/mos:' + cmd + R);
         const j = jtbdFor(cmd);
         if (j) out.push('    ' + laneColor + BLOCK + R + ' ' + col('cream') + j + R);
