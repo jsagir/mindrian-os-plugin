@@ -41,6 +41,7 @@ CJS_SUITES=(
   test-typed-claim-writer.cjs
   test-temporal-validity.cjs
   test-segment-aware-filing-guard.cjs
+  test-edges-refines-rootcauses-instantiates-floor.cjs
 )
 
 TOTAL=0

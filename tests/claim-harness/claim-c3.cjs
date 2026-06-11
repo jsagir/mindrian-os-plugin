@@ -78,6 +78,27 @@ try {
     assert.equal(row.type, 'CONTRADICTS', 'the minted edge carries the CONTRADICTS type');
   });
 
+  check('Phase 150.8: minting a REFINES edge on the fixture exercises the new closed-set member', function () {
+    // The 150.8-02 amendment adds REFINES to the closed allow-list (navigator-
+    // gated, D-150.8). Drive it through the SAME navigation.writeEdge chokepoint
+    // on the REAL fixture: a refining claim TIGHTENS the prior decision without
+    // invalidating it (valid_from rides the existing properties JSON, TV-01).
+    const res = navigation.writeEdge(db, {
+      source_id: decMa,
+      target_id: decPd,
+      edge_type: 'REFINES',
+      properties: { reason: 'tightens_conditions', valid_from: '2026-06-11', valid_until: '' },
+    });
+    assert.ok(res && res.ok, 'writeEdge(REFINES) must succeed, got: ' + JSON.stringify(res));
+    const row = db.prepare(
+      "SELECT source, target, type, properties FROM edges WHERE source = ? AND target = ? AND type = 'REFINES'"
+    ).get(decMa, decPd);
+    assert.ok(row, 'the REFINES edge must be queryable in room.db');
+    assert.equal(row.type, 'REFINES', 'the minted edge carries the REFINES type');
+    const props = JSON.parse(row.properties);
+    assert.equal(props.valid_from, '2026-06-11', 'valid_from (TV-01) rides the edge properties JSON');
+  });
+
   check('honest-negative: writeEdge REJECTS a non-taxonomy edge type (the allow-list is real)', function () {
     const res = navigation.writeEdge(db, {
       source_id: decPd,
