@@ -2492,13 +2492,16 @@ Plans:
 > URGENT insertion 2026-06-11 by navigator directive: the meeting filing system ships on the v1.13.1 train, not v1.14.0. The v1 SLICE of SEED-023 (verbatim proposal at .planning/research/2026-06-11-meeting-micro-knowledge-dikw-proposal.md). Heavy remainder (insight layer, ACTA reanalyze pass, speaker profiling, live CDM probes, causal FEYNMAN timeline) stays in SEED-023 for v1.14.0.
 
 **Goal:** Every transcript that lands (file-meeting, Velma, paste) fires the Ackoff DIKW ladder: Data (segments) -> Information (TYPED atomic claims via Claimify 4-pass extraction: selection -> disambiguation -> decomposition -> typing) -> Knowledge (knowledge_type x6 enum + conditions/counter_conditions + valid_from/valid_until + the minimum-viable edge trio REFINES/ROOT_CAUSES/INSTANTIATES via a navigator-gated Canon Part 4 amendment) -> Wisdom (/mos:build-knowledge renders the typed graph by DIKW rung). Consumes 150.6's GATE-0 verdict (segment-level cascade firing); if broken, plan 01 fixes the type guard first. Context: .planning/phases/150.8-meeting-micro-knowledge-dikw-filing-v1-any-transcript-files-/150.8-CONTEXT.md
-**Requirements**: TBD (scope enumerated in CONTEXT; run /gsd-plan-phase 150.8 to break down)
+**Requirements**: DIKW-01 (typed claim writer: knowledge_type x6 + conditions/counter_conditions), DIKW-02 (GATE-0 segment-aware filing), DIKW-03 (temporal valid_from/valid_until on claims + edges), DIKW-04 (REFINES/ROOT_CAUSES/INSTANTIATES navigator-gated edge amendment), DIKW-05 (Claimify 4-pass extraction + ambiguous queue), DIKW-06 (SessionStart ambiguous resurface), DIKW-07 (post-filing F.1 selector), DIKW-08 (Confirm-proposed-claims via confirmNode), DIKW-09 (cortex-reach claim branch), DIKW-10 (build-knowledge DIKW render), DIKW-11 (any-transcript trigger invariant assertion)
 **Depends on:** Phase 150.6 (GATE-0), Phase 150
-**Plans:** 0 plans
+**Plans:** 4 plans (4 waves; plan 02 is autonomous: false -- navigator gate)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 150.8 to break down)
+- [ ] 150.8-01-PLAN.md -- substrate: writeClaimNode + knowledge_type x6 + temporal props + GATE-0 segment-aware filing seam [wave 1]
+- [ ] 150.8-02-PLAN.md -- CHECKPOINT: navigator gate -> atomic edge-taxonomy amendment (REFINES/ROOT_CAUSES/INSTANTIATES) + canon docs [wave 2]
+- [ ] 150.8-03-PLAN.md -- Claimify 4-pass extraction + ambiguous queue + SessionStart resurface + trigger-invariant assertion [wave 3]
+- [ ] 150.8-04-PLAN.md -- post-filing F.1 selector + confirm flow + cortex-reach claim branch + build-knowledge DIKW render + Part 8 poison leg [wave 4]
 
 ### Phase 150.5: Sensor Turn-Contract Repair + Atomic Dial Render Coupling (INSERTED)
 
