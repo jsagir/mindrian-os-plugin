@@ -1383,6 +1383,17 @@ function runNavigationEngine(roomDir, sessionId) {
       // 1200ms envelope. deriveConversationSeed never rejects (faults -> '').
       deriveConversationSeed(navigationMod, roomDb)
         .then(function (conversationSeed) {
+          // FIX-05 (Phase 150.6-03): stash the seed on the shared context (LOCAL
+          // routing lane only; NEVER threaded toward buildBrainPacket per the
+          // D-03a fence) so the sibling decision .then() can forward it to the
+          // F.1 closer payload. The closer classifies it at the write seam via
+          // recordSelectorDecision and stores ONLY the scalar boolean
+          // venture_classified + source enum (Canon Part 8: the sentence itself
+          // never enters any stored payload).
+          context.conversationSeed =
+            (typeof conversationSeed === 'string' && conversationSeed.length > 0)
+              ? conversationSeed
+              : null;
           const turn = {
             userText: conversationSeed, // LOCAL seed lane only (D-03a fence): never threads toward the Brain packet
             sectionPath: sectionPath,
@@ -1685,6 +1696,17 @@ try {
               });
               if (rendered && rendered.payload) {
                 f1Payload = rendered.payload;
+                // FIX-05 (Phase 150.6-03): carry the LOCAL conversation seed on
+                // the persisted F.1 payload so the consumer surface forwards it
+                // as closeOffer({ sentence }) on the NEXT turn (the seam where
+                // the pick is routed to recordSelectorDecision). The closer
+                // classifies it at the write seam and stores ONLY the scalar
+                // boolean + source enum; the sentence never enters any payload
+                // (Canon Part 8). This is the LOCAL routing lane only -- the
+                // seed is NEVER threaded toward buildBrainPacket (D-03a fence).
+                if (context.conversationSeed) {
+                  f1Payload.sentence = context.conversationSeed;
+                }
               }
             } catch (_) { /* closer is best-effort; offerLine still emits */ }
           }
