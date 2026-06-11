@@ -2458,6 +2458,48 @@ Plans:
 
 **Status**: COMPLETE (8 of 8 plans SHIPPED, 2026-06-09). Plan 01 (node/edge/decision writers) + Plan 02 (Brain packet, zero egress) + Plan 03 (reconcile cortex spine + tri-polar hybrid trigger, MEM-01) + Plan 04 (cortex LOCAL-queryable + 4 orphan closures, MEM-03 + MEM-07) + Plan 05 (memory-cortex sensor + connector-spine wiring, MEM-05 + D-05) + Plan 06 (selector graph-driven + render unlock, MEM-06 + D-08) + Plan 07 (FEYNMAN read-back, MEM-08) + Plan 08 (claim harness + finalized phase gate, MEM-09 + D-09) SHIPPED. Plan 08: `tests/claim-harness/` ships `build-fixture-room-db.cjs` (a REAL `room.db` built via `navigation.cjs` in a `MINDRIAN_ROOMS_HOME` tmpdir, NO mocked Brain), one obviously-fictional `fixtures/claim-room/` (the contradicting pair `DEC-PD-100`/`DEC-MA-200` + poison-nodes), and the seven `claim-c1..c7.cjs` falsifiable public-site-claim drivers (each driving a REAL shipped unit with an honest-negative arm; the Brain LIVE arms self-skip via `class-m-brain-smoke`; the semantic claims C2-good + C4-relevance carved to the Part-10 human empathy gate, named not faked); `run-all-claims.sh` is the two-group clone of `run-all-146.sh`. `doctor --claims` is a SIBLING of `--acceptance` (own exit code + `DOCTOR_CLAIM_FAIL_POINT` self-test). `tests/run-all-150.sh` is FINALIZED (every 150 suite + the claim-harness group + the carried 148 frozen-contracts/reach-ids fences + a Part-8 sweep): **`bash tests/run-all-150.sh` = 14 passed / 0 failed / 0 missing** -- the phase gate is one green command. `intent-classifier.cjs` untouched (the 150-04/06 overlap respected). Frozen contracts byte-unchanged (MAX_K=3, 0.70/0.15, DIAL_REACH_K=6). Each public-site claim is now true by instrumentation (Canon Part 6 dog-fooding). MEM-09 complete; PHASE 150 COMPLETE. Plan 07: `readQuintuple(sectionPath) -> {room, state, reasoning, brain, feynman}` folded FEYNMAN into the per-folder read contract. Plan 07: `readQuintuple(sectionPath) -> {room, state, reasoning, brain, feynman}` folds FEYNMAN into the per-folder read contract in BOTH `lib/core/folder-memory.cjs` + `lib/core/folder-memory-async.cjs` as an ADDITIVE extension of `readQuadruple` (the first four fields byte-preserved; the `feynman` field carries the `bodyOutsideSentinels` human body, excluding the auto Timeline; async twin keeps AsyncFunction + key-set parity; reuses the SHIPPED Phase 124 timeline-runner helpers per Part 7); the MISSING `lib/core/feynman/feynman-seed-writer.cjs` ships the discover.md:170 promise (seeds a fresh section FEYNMAN body via the shipped atomic-write idiom, idempotent, never hand-writes); and two additive EVENT_TYPES (`feynman_body_seeded` / `feynman_body_stale_flagged`) projected via `navigation.cjs` close the FEYNMAN write-only sink (the body-freshness scalar / stale-flag becomes a navigable graph signal; Part 8 prose never egresses; Part 9 system-bookkeeping under the v1.5 carve-out). Frozen contracts byte-unchanged (MAX_K=3, 0.70/0.15, DIAL_REACH_K=6). `bash tests/run-all-150.sh` 11 passed / 0 failed (3 missing owned by Plans 03/08). Next: `/gsd:execute-phase 150` Plan 08 (claim-harness + navigation-only invariant -- finalizes the runner).
 
+### Phase 150.6: Drift-fix sweep and human-gate quick closers (INSERTED)
+
+> URGENT insertion 2026-06-11 from the full drift audit (.planning/v1.13.1-DRIFT-AUDIT.md, Claude Fable 5, 6 subagent tracks). v1.13.1 train -- ships the next beta after beta.15. Gates 150.7 (testers must receive the FIXED build).
+
+**Goal:** Execute the audit's Q1 fix queue (FIX-01..06: Larry's stale reach prose, install->cli sweep, Brain-numbers merge + 6-tool table, help-groups, venture_classified emission, workspace-path sweep + worktree prune) + GATE-0 (segment-level cascade-on-meetings audit, SEED-023 precondition) + the Phase 88 human-gate closer + the 126-H1/H3 stale-gate re-scope + TUI minors (footers, emoji, M8). Context: .planning/phases/150.6-drift-fix-sweep-and-human-gate-quick-closers/150.6-CONTEXT.md
+**Requirements**: DRIFT-01..DRIFT-11 (plan-local IDs minted 1:1 from the CONTEXT fix queue): DRIFT-01 FIX-01 Larry reach prose, DRIFT-02 FIX-02 install->cli sweep, DRIFT-03 FIX-03 Brain numbers + 6-tool table, DRIFT-04 FIX-04 help-groups, DRIFT-05 FIX-05 venture_classified emission, DRIFT-06 FIX-06 workspace paths + worktree prune, DRIFT-07 GATE-0 cascade verdict, DRIFT-08 Phase 88 closer, DRIFT-09 126-H1/H3 re-scope, DRIFT-10 FIX-10 TUI minors (footers/glyphs/M8), DRIFT-11 FIX-09 F.7 header fork.
+**Depends on:** Phase 150
+**Plans:** 4 plans (wave 1: 01 prose+TUI, 02 npm+Brain+paths, 03 code fixes -- parallel; wave 2: 04 gate closures + F.7 fork)
+
+Plans:
+
+- [ ] 150.6-01-PLAN.md -- FIX-01 Larry reach/sensor/engine-flip prose + FIX-10 Action Footers + glyph hygiene + memory.md M8 (DRIFT-01, DRIFT-10)
+- [ ] 150.6-02-PLAN.md -- FIX-02 @mindrian_os/install->cli sweep + FIX-03 Brain numbers (a3c422fe) + real 6-tool table + brain_ask + FIX-06 workspace paths + worktree prune + pre-commit refresh [CHECKPOINT: live Brain read] (DRIFT-02, DRIFT-03, DRIFT-06)
+- [ ] 150.6-03-PLAN.md -- FIX-04 help-groups (drop visualize, add discover + memory-cortex-reach, renderer deprecated-skip) + FIX-05 venture_classified emission un-deadens the Phase 119 nudge (DRIFT-04, DRIFT-05)
+- [ ] 150.6-04-PLAN.md -- GATE-0 segment-cascade verdict + Phase 88 closer + 126-H1/H3 SUPERSEDED + FIX-09 F.7 header fork [CHECKPOINTS: Phase 88 live run, FIX-09 AskUserQuestion] (DRIFT-07, DRIFT-08, DRIFT-09, DRIFT-11)
+
+### Phase 150.7: Tester round 2 validation week and Part 10 ratification gate (INSERTED)
+
+> URGENT insertion 2026-06-11 from the human-gate harvest: no human_needed gate closes on existing evidence (all live tester sessions are beta.17/beta.34, pre-cure -- version incongruence). v1.13.1 train.
+
+**Goal:** Re-dose the existing tester cohort on the CURRENT build per .planning/research/2026-06-11-human-gate-harvest-and-tester-round-2.md (CLI re-dose + Windows fresh install + first-ever Desktop/Cowork sessions + live-key MVA reward arm + dial render + async round), then compute the FIRST Hooked re-score (>=55) + thinking-partner tally (>=4/5) and RUN OR FORMALLY DE-SCOPE the Canon Part 10 ratification gate. Exit rule: no gate stays human_needed after the round. Context: .planning/phases/150.7-tester-round-2-validation-week-and-part-10-ratification-gate/150.7-CONTEXT.md
+**Requirements**: TBD (protocol in research file; run /gsd-plan-phase 150.7 to break down)
+**Depends on:** Phase 150.6 (the fixed build), Phase 150
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 150.7 to break down)
+
+### Phase 150.8: Meeting micro-knowledge DIKW filing v1 -- any transcript files to wisdom (INSERTED)
+
+> URGENT insertion 2026-06-11 by navigator directive: the meeting filing system ships on the v1.13.1 train, not v1.14.0. The v1 SLICE of SEED-023 (verbatim proposal at .planning/research/2026-06-11-meeting-micro-knowledge-dikw-proposal.md). Heavy remainder (insight layer, ACTA reanalyze pass, speaker profiling, live CDM probes, causal FEYNMAN timeline) stays in SEED-023 for v1.14.0.
+
+**Goal:** Every transcript that lands (file-meeting, Velma, paste) fires the Ackoff DIKW ladder: Data (segments) -> Information (TYPED atomic claims via Claimify 4-pass extraction: selection -> disambiguation -> decomposition -> typing) -> Knowledge (knowledge_type x6 enum + conditions/counter_conditions + valid_from/valid_until + the minimum-viable edge trio REFINES/ROOT_CAUSES/INSTANTIATES via a navigator-gated Canon Part 4 amendment) -> Wisdom (/mos:build-knowledge renders the typed graph by DIKW rung). Consumes 150.6's GATE-0 verdict (segment-level cascade firing); if broken, plan 01 fixes the type guard first. Context: .planning/phases/150.8-meeting-micro-knowledge-dikw-filing-v1-any-transcript-files-/150.8-CONTEXT.md
+**Requirements**: TBD (scope enumerated in CONTEXT; run /gsd-plan-phase 150.8 to break down)
+**Depends on:** Phase 150.6 (GATE-0), Phase 150
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 150.8 to break down)
+
 ### Phase 150.5: Sensor Turn-Contract Repair + Atomic Dial Render Coupling (INSERTED)
 
 > URGENT insertion 2026-06-09 after the SEED-021 prior-art fan-out (8 agents over phases 140-150 + a live trigger-chain diagnosis). The sweep found the LarryReach milestone's sensor spine is structurally dead in production -- 5 of 8 sensors can NEVER fire from the live hook path -- and the shipped dial's text half is uncoupled from its AskUserQuestion card half. This closes the defect gap BEFORE the v1.15.0 cockpit train (151-154) builds UX on top of it.
