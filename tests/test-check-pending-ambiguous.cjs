@@ -35,10 +35,8 @@ try {
   process.exit(77);
 }
 
-const { applySchema } = require(
-  path.join(REPO_ROOT, 'tests', 'claim-harness', 'build-fixture-room-db.cjs')
-);
 const navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
+const roomDb = require(path.join(REPO_ROOT, 'lib', 'core', 'room-db.cjs'));
 
 let pass = 0;
 function check(label, fn) {
@@ -49,14 +47,15 @@ function check(label, fn) {
 
 console.log('test-check-pending-ambiguous');
 
-// Build a hermetic rooms-home with a single room.db. Returns { roomsHome, roomDir }.
+// Build a hermetic rooms-home with a single room.db at the CANONICAL path
+// (<roomDir>/.mindrian/room.db, exactly where openRoomDb resolves it) by
+// projecting claims THROUGH openRoomDb -- the same handle the hook reads.
+// Returns { roomsHome, roomDir, dbPath }.
 function makeFixtureRoom(withAmbiguous) {
   const roomsHome = fs.mkdtempSync(path.join(os.tmpdir(), 'amb-hook-'));
   const roomDir = path.join(roomsHome, 'amb-room');
   fs.mkdirSync(roomDir, { recursive: true });
-  const dbPath = path.join(roomDir, 'room.db');
-  const db = new DatabaseSync(dbPath);
-  applySchema(db);
+  const db = roomDb.openRoomDb(roomDir);
   if (withAmbiguous) {
     navigation.writeClaimNode(db, {
       text: 'SECRETPROSE_they_said_the_deal_closes_Q3',
@@ -72,7 +71,8 @@ function makeFixtureRoom(withAmbiguous) {
       sourceSegment: 'seg-clean-1',
     });
   }
-  db.close();
+  try { roomDb.closeRoomDb(db); } catch (_e) {}
+  const dbPath = path.join(roomDir, '.mindrian', 'room.db');
   return { roomsHome, roomDir, dbPath };
 }
 

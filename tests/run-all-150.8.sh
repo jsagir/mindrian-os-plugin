@@ -42,6 +42,8 @@ CJS_SUITES=(
   test-temporal-validity.cjs
   test-segment-aware-filing-guard.cjs
   test-edges-refines-rootcauses-instantiates-floor.cjs
+  test-ambiguous-queue.cjs
+  test-check-pending-ambiguous.cjs
 )
 
 TOTAL=0

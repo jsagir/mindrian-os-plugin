@@ -60,6 +60,18 @@
             "statusMessage": "Scanning for breakthroughs..."
           }
         ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-pending-ambiguous.cjs\"",
+            "timeout": 2000,
+            "async": false,
+            "statusMessage": "Scanning for ambiguous segments..."
+          }
+        ]
       }
     ],
     "PreCompact": [
