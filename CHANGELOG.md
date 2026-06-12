@@ -1,7 +1,9 @@
 ## [Unreleased] -- v1.13.1-beta.17 (in progress)
 
-### Added
-- 
+### Fixed
+- Doctor marketplace-cache drift deadlock (quick-260612-cl7, install-cache family case 8): `checkInstallVersion` is now topology-aware regardless of legacy-dir presence -- on a box with a vestigial `~/.claude/plugins/mindrian-os/` dir plus a live marketplace cache, doctor reports the active root's version and the false CRITICAL drift never forms. When recovery is skipped by design under marketplace-cache topology, doctor records `recoverySkipped`, renders the reason (no more `recovery failed: unknown`), and exits 0 under `--fix`; read-only drift keeps exiting 1 so monitoring signal is preserved.
+- Update checker resolves LATEST from the mindrian-marketplace catalog pin (branch-agnostic `HEAD` ref) instead of main's never-released next-version placeholder -- `/mos:update` and `check-version-and-sha.cjs` stop advertising a beta that does not exist; degraded fallback to main plugin.json is disclosed in REASON when the catalog is unreachable.
+- `/mos:update` changelog fetch anchors on numbered release headings -- users never see the `[Unreleased]` in-progress placeholder during an update (live tester confusion: beta.17-in-progress shown during a beta.16 install).
 
 ## [1.13.1-beta.16] - 2026-06-12
 
