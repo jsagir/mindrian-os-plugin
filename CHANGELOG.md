@@ -1,7 +1,15 @@
 ## [Unreleased] -- v1.13.1-beta.19 (in progress)
 
 ### Added
-- 
+- Phase 155 Ignite Flow: `/mos:ignite` front-door orchestrator for new-room onboarding. Three entry doors (Just Talk, directive `--express` / `--from-brief <sha8>`, opportunity promotion), F-selector HITL gate chain (B1 starting point, B2 blueprint approval before any mkdir with embedded nugget routing table, B3 first win), and `navigation.birthRoom()` -- the atomic 7-step birth transaction (scaffold-then-register, 6/6 memory complement incl. FEYNMAN seed + BRAIN derivation enqueue, operator + JTBD transitions, scratchpad gate-answer replay as typed edges, batch confirmNode on approve). onboard / rooms-new / discover / new-project all route into the one front door.
+- `data/room-blueprints.json`: 8 persona blueprint families (exploration / solution-first / problem-first / business-first / portfolio / venture / program / case-study) consumed by the scaffold -- the one-size-fits-all 8-section room is gone; arrival-asset routing picks the family and seeds ROOM.md default_methodologies from the chosen chain.
+- Domain insight sweep (Hooked reward leg): CV/paste -> domains extracted locally -> SIGNAL research on generic domain handles only (research-corpus + 30-day cache reuse) -> cross-domain and sub-domain adjacencies filed as proposed claims + opportunity candidates, surfaced at B3 or right after upload extraction. Adversarial Part 8 egress tripwire test guards the path: CV text never leaves the machine.
+- USER.md convergence: one machine schema across all onboarding surfaces; role_blend populated at room birth for the first time.
+
+### Fixed
+- shallow-doc-parser dead focus write: the upload path called setFocus with wrong arity and invalid setBy, so Phase 115 CV pastes never landed a focus node. Fixed; upload extraction now seeds the local graph as designed.
+- MVA option 2 ("Build a room around this") unstubbed: STUB_MESSAGE_119 replaced by `ignite_from_brief`; the venture_classified receipt nudge points at `/mos:ignite`. The reward-to-room conversion path is whole end to end.
+- CONNECTOR-CONTRACT.md frozen-5 doc drift corrected to the enforced frozen-6 reach bank.
 
 ## [1.13.1-beta.18] - 2026-06-12
 
