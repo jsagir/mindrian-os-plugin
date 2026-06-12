@@ -81,6 +81,83 @@ for c in "${CJS_SUITES[@]}"; do
   echo ""
 done
 
+# ---------------------------------------------------------------------------
+# Carried regression fences (Plan 04 -- the phase-final plan). This aggregator
+# is the SINGLE phase-gate command, so it invokes the carried fences directly:
+# the frozen 148 constitution (must be 18/18), the Phase 150 cortex bridge, the
+# Phase 150.5 sensor-turn contract, and the public-site claim harness. Each is a
+# bash sub-aggregator that exits non-zero on any failure.
+# ---------------------------------------------------------------------------
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+FENCES=(
+  "run-all-148.sh"
+  "run-all-150.sh"
+  "run-all-150.5.sh"
+)
+echo "--- Carried regression fences ---"
+echo ""
+for f in "${FENCES[@]}"; do
+  fp="$SCRIPT_DIR/$f"
+  ((TOTAL++))
+  echo "--- Running fence: $f ---"
+  if [[ ! -f "$fp" ]]; then
+    ((MISSING++)); MISSING_TESTS+=("$f"); echo ">>> $f: MISSING"; echo ""; continue
+  fi
+  bash "$fp" >/dev/null 2>&1
+  rc=$?
+  if [[ $rc -eq 0 ]]; then
+    ((PASSED++)); echo ">>> fence $f: PASSED"
+  else
+    ((FAILED++)); FAILED_TESTS+=("fence $f"); echo ">>> fence $f: FAILED"
+  fi
+  echo ""
+done
+
+# The claim harness (public-site claim acceptance gate, 9 drivers).
+((TOTAL++))
+echo "--- Running fence: claim-harness/run-all-claims.sh ---"
+if [[ ! -f "$SCRIPT_DIR/claim-harness/run-all-claims.sh" ]]; then
+  ((MISSING++)); MISSING_TESTS+=("claim-harness/run-all-claims.sh"); echo ">>> claim-harness: MISSING"; echo ""
+else
+  bash "$SCRIPT_DIR/claim-harness/run-all-claims.sh" >/dev/null 2>&1
+  rc=$?
+  if [[ $rc -eq 0 ]]; then
+    ((PASSED++)); echo ">>> fence claim-harness/run-all-claims.sh: PASSED"
+  else
+    ((FAILED++)); FAILED_TESTS+=("fence claim-harness/run-all-claims.sh"); echo ">>> fence claim-harness/run-all-claims.sh: FAILED"
+  fi
+  echo ""
+fi
+
+# ---------------------------------------------------------------------------
+# Final Part 8 forbidden-substring sweep over the new packet-bound artifacts.
+# The poison-transcript test proves no claim prose reaches a Brain packet at
+# RUNTIME; this static sweep proves the new claim/packet-adjacent source files
+# carry no forbidden egress token (a fetch / brain-client require / raw https
+# call) that could let prose out. Teeth: any match FAILS the gate loudly.
+# ---------------------------------------------------------------------------
+((TOTAL++))
+echo "--- Running: Part 8 static egress sweep over new claim/packet artifacts ---"
+SWEEP_FILES=(
+  "$REPO_ROOT/lib/core/navigation/typed-claim.cjs"
+  "$REPO_ROOT/lib/hmi/cortex-reach-adapter.cjs"
+  "$REPO_ROOT/lib/core/navigation/room-context.cjs"
+)
+SWEEP_FAIL=0
+for sf in "${SWEEP_FILES[@]}"; do
+  [[ -f "$sf" ]] || continue
+  if grep -nE "require\(['\"](node:)?https?['\"]\)|require\(['\"][^'\"]*brain-client[^'\"]*['\"]\)|\bfetch\(|\bhttps?\.(request|get)\(" "$sf" >/dev/null 2>&1; then
+    SWEEP_FAIL=1
+    echo "    forbidden egress token in: $sf"
+  fi
+done
+if [[ $SWEEP_FAIL -eq 0 ]]; then
+  ((PASSED++)); echo ">>> Part 8 static egress sweep: PASSED (zero forbidden egress tokens)"
+else
+  ((FAILED++)); FAILED_TESTS+=("Part 8 static egress sweep"); echo ">>> Part 8 static egress sweep: FAILED"
+fi
+echo ""
+
 END_TIME=$(date +%s)
 ELAPSED=$((END_TIME - START_TIME))
 
@@ -117,5 +194,5 @@ if [[ $MISSING -gt 0 ]]; then
 fi
 
 echo "========================================"
-echo "  Exit 0: the Phase 150.8 gate is green (the typed-claim substrate holds + temporal validity round-trips + the segment-authority seam honors the GATE-0 verdict)."
+echo "  Exit 0: the Phase 150.8 gate is green -- the complete phase gate (the typed-claim DIKW substrate + the post-filing F.1 selector + confirm-claim dispatch + the cortex-reach claim branch + the build-knowledge graph reader + the Part 8 poison-transcript leg) AND every carried regression fence (148 18/18, 150, 150.5, claim-harness) green."
 exit 0
