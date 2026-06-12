@@ -187,6 +187,20 @@ Unlike `analyze` (which runs hats sequentially in a single context), `--parallel
 
 **Why parallel instead of sequential?** Sequential analysis (via `analyze`) lets each hat build on the previous one. Parallel analysis gives INDEPENDENT perspectives -- later hats are not biased by earlier ones. This produces more genuine disagreements and stronger convergence signals. Use `analyze` for deep facilitated thinking; use `--parallel` for unbiased multi-perspective stress-testing.
 
+## Persona Override (Identity-Only)
+
+The personas above are the AI TEAM around the navigator. Separately, a navigator can declare their OWN synthetic persona for a role-play or test session. This is the identity-only override surface. It is a local-only sentinel file (zero Brain egress per Canon Part 8); a navigator-set persona is navigator-confirmed (legitimate per Canon Part 9 role 5).
+
+```bash
+node lib/core/persona-override.cjs set <role>     # declare a synthetic persona
+node lib/core/persona-override.cjs status         # show the active override JSON, or "none"
+node lib/core/persona-override.cjs clear          # remove the override
+```
+
+What it does: while an override is active, the identity that every persona reader funnels through (`readUserMd`) returns the SYNTHETIC persona instead of the real USER.md, for every turn. The override store lives OUTSIDE the context window, so the declared persona sticks across turns AND survives maintenance commands like `/mos:doctor` (the exact failure that previously collapsed a role-played persona). `set <role>` sets the canonical role plus a 1.0 role-blend on that role.
+
+How to clear it: run `node lib/core/persona-override.cjs clear`. With no override active, identity resolution is byte-identical to the default (every real user is on this path).
+
 ## Personas Are Perspective Lenses, Not Expert Advisors
 
 Every persona output includes a disclaimer. Personas synthesize from YOUR room data -- they never generate new domain facts. They are thinking tools that help you see your venture from structured angles, not authoritative opinions.
