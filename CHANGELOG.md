@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.13.1-beta.22 (in progress)
+## [1.13.1-beta.22] - 2026-06-13
 
 ### Added
 - Conversation intake plumbing (quick 260612-pkb): the Stop and PreCompact hooks now capture Claude Code's `transcript_path`, parse the conversation offline (`scripts/transcript-ingest.cjs` -- user content as string, assistant text blocks only, drops thinking/tool_use/command-chrome, caps 4000 chars/fragment and 1000 fragments), and write real `user`/`assistant` fragments into the active room's `room.db` before summarizing. The dormant downstream readers (voice_log writer, `sessions.summary`, the RECENT SESSIONS resume block) light up unchanged. Fixes the "Brother Test" (reopen a room and Larry references the prior session) and Context Volatility failure modes 2 (session termination) and 3 (unfiled insights). `sessions.summary` is now a 3-5 sentence extractive summary over real turns instead of the `session ended` stub. Local-only (Canon Part 8): zero Brain egress.
