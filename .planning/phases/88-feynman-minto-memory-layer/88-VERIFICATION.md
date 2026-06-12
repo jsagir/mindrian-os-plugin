@@ -26,6 +26,10 @@ human_verification:
 
 ---
 
+## 88-H1 Ownership Transfer (2026-06-12)
+
+By navigator directive ("unblock 150.6"), the 88-H1 live two-session defer->reference acceptance is TRANSFERRED to Phase 150.7 (tester-round-2-validation-week), which owns ALL live-session human gates and whose exit rule guarantees no gate stays human_needed after the round. The session script lives in 88-HUMAN-GATE-CLOSER.md + 150.6-04-SUMMARY.md. 88-H2 is CLOSED-AS-FLAKE (2026-06-11, p95 ~=180ms quiet-env, 10x). This phase's overall status remains human_needed until 150.7 runs the test; Phase 150.6 is no longer blocked on it.
+
 ## Goal Achievement
 
 ### Observable Truths
