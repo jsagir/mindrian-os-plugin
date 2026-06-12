@@ -2572,6 +2572,17 @@ Promoted from research `.planning/research/2026-06-08-keyboard-tui-capability-co
 **Success Criteria**: (1) standalone binary runs in a real terminal with full keyboard nav (arrows/space/left-right/tab); (2) composes an ordered chain via inquirer-ordered-checkbox and writes typed edges via navigation.cjs; (3) De Stijl color-block skin realizes the Section-10 color-state map; (4) the agent picks up the composed chain next turn; (5) zero Brain egress; frozen contracts honored.
 **Status**: PLANNED (research complete; the milestone capstone).
 
+### Phase 155: ignite-flow -- /mos:ignite front-door orchestrator -- new-room onboarding with F-selector HITL gates (B1/B2/B3), three entry doors (Just Talk / directive / umbilical), persona blueprint families, Hooked first-cycle. Input: .planning/research/new-room-onboarding-20260612/ (BIRTH-FLOW-BRIEF.md decisions 1-9 + 6 maps + Systems addendum gaps 1-15)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 150
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 155 to break down)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
