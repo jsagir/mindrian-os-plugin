@@ -45,6 +45,11 @@ CJS_SUITES=(
   test-ambiguous-queue.cjs
   test-check-pending-ambiguous.cjs
   test-trigger-invariant.cjs
+  test-post-filing-selector.cjs
+  test-confirm-claim-flow.cjs
+  test-cortex-reach-claim-branch.cjs
+  test-build-knowledge-dikw-render.cjs
+  test-part8-poison-transcript.cjs
 )
 
 TOTAL=0

@@ -811,6 +811,62 @@ If cross-relationships were found, add:
 If cross-meeting intelligence was detected, add:
 > "{Y} convergence signals and {Z} cross-meeting contradictions detected."
 
+### Post-Filing Next-Move Selector (F.1)
+
+A write-only ladder with no visible next move is the exact failure class this
+milestone keeps finding (RESEARCH Pitfall 5). After filing completes, surface the
+DIKW ladder's next move through the canonical Shape F.1 selector so the navigator
+always has a visible move.
+
+Count the two scalars from the room.db graph (LOCAL only -- never the transcript
+prose, Canon Part 8):
+
+- `M` = the ambiguous-queue size:
+  `SELECT COUNT(*) FROM nodes WHERE type='claim' AND json_extract(properties,'$.disambiguation')='ambiguous' AND review_status='proposed'`
+- `N` = the proposed-claim count:
+  `SELECT COUNT(*) FROM nodes WHERE type='claim' AND review_status='proposed'`
+
+Then render the selector via `lib/hmi/selector-dispatcher.cjs` pickShape (the
+dispatcher auto-attaches the AskUserQuestion trailer + archetype and appends
+Free-Text last, so 3 ladder verbs render as `verbs=4`):
+
+```js
+const dispatcher = require('lib/hmi/selector-dispatcher.cjs');
+dispatcher.pickShape({
+  requestedShape: 'F.1',
+  tier,                 // the resolved room tier
+  roomDir,              // the active room dir
+  payload: {
+    verbs: [
+      'Review ambiguous segments (' + M + ')',
+      'Confirm proposed claims (' + N + ')',
+      'Build knowledge from this meeting',
+    ],
+    header: '-- mindrianOS -- meeting filed -- next move --',
+    emitTelemetry: true,   // ONLY on the actual presentation surface
+  },
+});
+```
+
+Verb routing (each is a thin dispatch over a SHIPPED chokepoint -- no new machinery):
+
+- **Review ambiguous segments (M)** -- walk the `disambiguation:'ambiguous'`
+  queue (the same scan the SessionStart `scripts/check-pending-ambiguous.cjs`
+  resurfaces); resolve each referent with the user, then re-mint the claim with
+  the resolved text (idempotent UPSERT).
+- **Confirm proposed claims (N)** -- per-claim APPROVE routes through
+  `navigation.confirmNode(db, claimId, navigation.resolveByUser(roomDir), reason)`.
+  `resolveByUser` reads USER.md first; NEVER pass a literal
+  'larry'/'brain'/'system'/'assistant' (promoteNodeStatus rejects with
+  `agent_attribution_forbidden`). The Knowledge rung is confirmable per Canon
+  Part 9 role 5: the human confirms truth.
+- **Build knowledge from this meeting** -- invoke `/mos:build-knowledge`, which
+  reads the typed claims by `knowledge_type` and renders them by DIKW rung.
+
+The frozen 148 dial constitution is UNTOUCHED here: this is a render-host call,
+not a ranker edit. MAX_K=3, DIAL_REACH_K=6, and the 0.70/0.15 gate stay where
+they are.
+
 ---
 
 ## Voice Rules
