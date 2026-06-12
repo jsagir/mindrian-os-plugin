@@ -50,6 +50,20 @@ echo "  Phase 155 phase gate (Wave 1 + Wave 2 + Wave 3)"
 echo "========================================"
 echo ""
 
+echo "--- Wave-4 static checks ---"
+echo ""
+
+STATIC_CHECKS_PASS=true
+echo "--- Running: check-room-blueprints.cjs --check ---"
+node "$SCRIPT_DIR/../scripts/check-room-blueprints.cjs" --check
+if [[ $? -ne 0 ]]; then
+  echo ">>> check-room-blueprints.cjs --check: FAILED"
+  STATIC_CHECKS_PASS=false
+else
+  echo ">>> check-room-blueprints.cjs --check: PASSED"
+fi
+echo ""
+
 echo "--- Wave-1 + Wave-2 + Wave-3 CJS suites ---"
 echo ""
 
@@ -109,6 +123,12 @@ if [[ $MISSING -gt 0 ]]; then
   exit 1
 fi
 
+if [[ "$STATIC_CHECKS_PASS" == "false" ]]; then
+  echo "  Wave-4 static checks: FAILED"
+  echo "========================================"
+  exit 1
+fi
+
 echo "========================================"
-echo "  Exit 0: the Phase 155 Wave-1 + Wave-2 + Wave-3 gate is green (B2 gate + scratchpad + EVENT_TYPES floor + birth transaction + mva option 2 unstubbed)."
+echo "  Exit 0: the Phase 155 Wave-1 + Wave-2 + Wave-3 + Wave-4 gate is green (B2 gate + scratchpad + EVENT_TYPES floor + birth transaction + mva option 2 unstubbed + room-blueprints CI check)."
 exit 0
