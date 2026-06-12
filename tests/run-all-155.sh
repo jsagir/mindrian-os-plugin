@@ -29,13 +29,14 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 START_TIME=$(date +%s)
 
-# Wave-1 + Wave-2 + Wave-3 CJS suites
+# Wave-1 + Wave-2 + Wave-3 + Wave-4 CJS suites
 CJS_SUITES=(
   test-new-project-b2-gate.cjs
   test-scratchpad-birth-answers.cjs
   test-memory-events-birth-floor.cjs
   test-room-birth.cjs
   test-mva-from-brief.cjs
+  test-blueprint-scaffold.cjs
 )
 
 TOTAL=0

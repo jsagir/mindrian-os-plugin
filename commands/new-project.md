@@ -133,11 +133,67 @@ This is a CONVERSATION, not a form. Explore naturally through questions:
 
 ### When to Move On
 
-After sufficient exploration (user has shared enough for meaningful room context), surface the
-proposed room as the B2 blueprint gate (Canon Part 9 -- this is THE promotion moment; Approve =
-batch confirmNode on all extracted claims, byUser from USER.md. Canon Part 3 -- every fork
-passes through a pickShape gate; bare-prose confirmation is the violation already fixed on
-onboard Step 6 D-12 LOCKED).
+After sufficient exploration (user has shared enough for meaningful room context), first surface
+the B1 STARTING POINT gate (unless --express or --from-brief already resolved it), then surface
+the B2 blueprint gate.
+
+<!-- B1 GATE -- birth - STARTING POINT - decision gate -->
+<!-- BIRTH-FLOW-BRIEF.md Section 2: F.1 shape, pre-room; answers journal to scratchpad -->
+<!-- directive entry pre-answers (arrival_asset inferred); B1 shown only if ambiguous -->
+<!-- SEED-022 Tier-0 exemption: B1 renders full F.1 pre-room via payload.verbs path -->
+
+**B1: STARTING POINT GATE (Shape F.1, pre-room)**
+
+<!-- --express / --from-brief bypass note: when --express or --from-brief is active, B1 is -->
+<!-- pre-answered from context (arrival_asset inferred from session material or brief content). -->
+<!-- Show B1 only if the material is ambiguous (e.g. a CV that could map to exploration OR -->
+<!-- solution-first). When pre-answered, skip to B2 with blueprintFamily already resolved. -->
+<!-- Per BIRTH-FLOW-BRIEF.md Section 2: "directive entry pre-answers and shows B1 only if ambiguous." -->
+
+Display the starting-point header before calling pickShape:
+
+```
+birth - STARTING POINT - decision gate
+LOCAL / BRAIN / SIGNAL
+
+What are you arriving with?
+```
+
+Call `pickShape('F.1', { operator: currentOperator, tier: resolveTier(), payload: { header: 'birth - STARTING POINT - decision gate', verbs: [ { key: 'a', label: 'A solution looking for its problem', alias_label: 'solution-first', canonical_verb: 'RunMethodology' }, { key: 'b', label: 'A domain or interest to explore', alias_label: 'exploration', canonical_verb: 'RunMethodology' }, { key: 'c', label: 'A defined venture or business case', alias_label: 'venture', canonical_verb: 'RunMethodology' } ] } })`.
+
+The F.1 dispatcher appends Free-Text as the last option automatically (Tier-0 trailer).
+
+After B1 answer is received, journal to scratchpad:
+```javascript
+writeScratchpadBirthAnswer({
+  gate_id: 'B1',
+  option_key: answer.option_key,        // 'a', 'b', 'c', or 'free_text'
+  canonical_verb: answer.canonical_verb,
+  alias_label: answer.alias_label,
+  arrival_asset: resolvedArrivalAsset,  // see mapping below
+  blueprintFamily: resolvedFamily,       // see mapping below
+  ts: Date.now()
+})
+```
+
+Arrival asset and blueprintFamily mapping from B1 answer:
+- Option A ('a' / 'solution-first'): arrival_asset = 'solution-looking-for-problem', blueprintFamily = 'solution-first'
+- Option B ('b' / 'exploration'): arrival_asset = 'domain-or-interest', blueprintFamily = 'exploration'
+- Option C ('c' / 'venture'): arrival_asset = 'defined-venture', blueprintFamily = 'venture'
+- Free-Text: keep arrival_asset = null, blueprintFamily = 'venture' (default; re-infer from response)
+
+Pass blueprintFamily into the B2 display (the "Section set" field) and into the birthRoom call
+so scaffoldRoomSkeleton consumes it from data/room-blueprints.json.
+
+<!-- Tri-Polar degradation script for B1 (Desktop / no AskUserQuestion card guarantee): -->
+<!-- Desktop: render as: -->
+<!--   "Which best describes what you are arriving with? -->
+<!--    (a) A solution looking for its problem -->
+<!--    (b) A domain or interest to explore -->
+<!--    (c) A defined venture or business case -->
+<!--    -- type a, b, or c." -->
+<!-- CLI: pickShape fires the AskUserQuestion card normally via selector-dispatcher. -->
+<!-- Cowork: same as CLI; hook fires the card in the shared context. -->
 
 <!-- B2 GATE -- birth - ROOM BLUEPRINT - decision gate -->
 <!-- BIRTH-FLOW-BRIEF.md Section 2 + Canon Part 9 (promotion moment) + Canon Part 3 (F.0) -->

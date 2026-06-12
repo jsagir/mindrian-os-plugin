@@ -81,19 +81,27 @@ console.log('Section 1: exploration family creates exploration sections (not fro
   const result = scaffold.scaffoldRoomSkeleton(tmpDir, { blueprintFamily: 'exploration' });
   const explorationSections = blueprints.exploration.sections;
   const frozenSections = Array.from(scaffold.SECTION_NAMES);
+  const frozenSet = new Set(frozenSections);
 
-  // At least one exploration section should have been created.
-  const anyCreated = result.sections_created.length > 0 || explorationSections.some(
+  // The scaffold can only create directories for slugs in the frozen SECTION_NAMES table.
+  // Sections like "opportunity-bank" are used in the birth flow but are not scaffold sections;
+  // the scaffold silently filters them out (see resolveBlueprint in room-skeleton-scaffold.cjs).
+  // So: scaffoldable sections = intersection of explorationSections with SECTION_NAMES.
+  const scaffoldableSections = explorationSections.filter((s) => frozenSet.has(s));
+
+  // At least one scaffoldable exploration section should have been created.
+  const anyCreated = result.sections_created.length > 0 || scaffoldableSections.some(
     (s) => fs.existsSync(path.join(tmpDir, s))
   );
   assert(anyCreated, 'exploration: at least one section directory exists');
 
-  // Every created section dir should be in the exploration family sections (not all 8 frozen).
-  const dirsPresent = explorationSections.filter((s) => fs.existsSync(path.join(tmpDir, s)));
-  assert(dirsPresent.length === explorationSections.length,
-    'exploration: all ' + explorationSections.length + ' exploration sections present');
+  // Every scaffoldable exploration section dir should exist.
+  const dirsPresent = scaffoldableSections.filter((s) => fs.existsSync(path.join(tmpDir, s)));
+  assert(dirsPresent.length === scaffoldableSections.length,
+    'exploration: all ' + scaffoldableSections.length + ' scaffoldable exploration sections present' +
+      ' (' + scaffoldableSections.join(',') + ')');
 
-  // Sections NOT in exploration should NOT exist (the family is a SUBSET of 8).
+  // Sections NOT in exploration (and not opportunity-bank) should NOT exist.
   const sectionsOnlyInFrozen = frozenSections.filter((s) => !explorationSections.includes(s));
   const unexpectedDirs = sectionsOnlyInFrozen.filter((s) => fs.existsSync(path.join(tmpDir, s)));
   assert(unexpectedDirs.length === 0,
