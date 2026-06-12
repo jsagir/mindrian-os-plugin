@@ -379,7 +379,7 @@ Quick reference (you can always just talk to Larry instead):
   /mos:update ......... Check for updates
 ```
 
-## USER.md Generation
+## USER.md Generation (machine schema via writeUserMdAtomic)
 
 **After Steps 4/4b (or whatever subset was completed), generate USER.md.**
 
@@ -391,31 +391,38 @@ Check if a `room/` directory exists in the current workspace:
 - If `room/` exists: write to `room/USER.md`
 - If no `room/`: write to `~/.mindrian-user.md`
 
-### USER.md structure
+### USER.md structure (converged machine schema -- Phase 155-03)
 
-Use the Write tool to create USER.md with this exact structure. Use `[not provided]` for fields the user did not supply:
+Use `writeUserMdAtomic` from `lib/core/user-md-ops.cjs`. Do NOT write
+USER.md as freeform prose. The machine schema must be schema-identical to
+the schema written by `commands/new-project.md` Step 5 so that
+`resolveByUser` (called at confirmNode batch) finds identity on both surfaces.
 
-```markdown
-# User Profile
+Schema fields to populate from context gathered in Steps 1-4:
+- `canonical_role`: from context inference or 'navigator' as default.
+  Use one of the taxonomy roles (Founder, Researcher, Operator, Investor,
+  Mentor, Domain Expert, Student) if inferred; otherwise 'navigator'.
+- `role_blend`: 7-axis struct. Axes: founder, researcher, operator, investor,
+  mentor, domain_expert, student (all 0.0-1.0 float). Start from `emptyUser()`
+  and override axes detected from conversation signals.
+- `journey_stage`: taxonomy slug or null (see persona-taxonomy.cjs
+  JOURNEY_STAGES: ordinary_world, call_to_adventure, crossing_threshold, ...).
+- `first_seen`: ISO date string.
 
-**Name:** [name]
-**Role:** [role]
-**Domain:** [domain]
-**Subdomain:** [subdomain specialization]
-**Technical Level:** [beginner/intermediate/advanced]
-**Current Focus:** [what they're working on]
-**Goal with MindrianOS:** [stated objective]
-**Expertise Areas:** [list]
-**Context Source:** [Q&A / document / research]
-**Created:** [YYYY-MM-DD]
+Example usage (Node snippet calling the write primitive directly):
 
-## Incentives
-
-**Success Definition:** [from context gathering]
-**Stakeholders:** [from context gathering]
-**Timeline:** [from context gathering]
-**Prior Attempts:** [from context gathering]
+```javascript
+const { writeUserMdAtomic, emptyUser } = require('lib/core/user-md-ops.cjs');
+const base = emptyUser();
+base.canonical_role = detectedRole || 'navigator';
+base.journey_stage = inferredStage || null;
+base.first_seen = new Date().toISOString();
+if (detectedBlend) { Object.assign(base.role_blend, detectedBlend); }
+writeUserMdAtomic(userMdPath, base);
 ```
+
+To update a user's profile: re-run `/mos:ignite` or edit USER.md frontmatter
+directly. The `/mos:profile-user` command is deferred to a successor phase.
 
 ## Marker Writing (CRITICAL -- must happen in ALL paths)
 

@@ -65,7 +65,9 @@ function checkFalse(label, value) {
       domain_expert: 0.0,
       student: 0.0,
     },
-    journey_stage: 'Crossing the Threshold',
+    // The taxonomy stores stage slugs in snake_case (persona-taxonomy.cjs JOURNEY_STAGES).
+    // 'crossing_threshold' is the canonical slug for the Campbell stage.
+    journey_stage: 'crossing_threshold',
     first_seen: new Date().toISOString(),
   };
 
@@ -74,7 +76,7 @@ function checkFalse(label, value) {
 
   checkTrue('Test 1a: readUserMd returns non-null after writeUserMdAtomic', result);
   check('Test 1b: canonical_role survives round-trip', result && result.canonical_role, 'navigator');
-  check('Test 1c: journey_stage survives round-trip', result && result.journey_stage, 'Crossing the Threshold');
+  check('Test 1c: journey_stage survives round-trip', result && result.journey_stage, 'crossing_threshold');
   checkTrue('Test 1d: role_blend is present', result && result.role_blend);
   check('Test 1e: role_blend.founder = 0.6', result && result.role_blend && result.role_blend.founder, 0.6);
   check('Test 1f: role_blend.researcher = 0.4', result && result.role_blend && result.role_blend.researcher, 0.4);

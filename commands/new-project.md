@@ -265,29 +265,43 @@ Body includes:
 | legal-ip | Track legal structure, agreements, IP protection | structure-argument | Design, Investment |
 | financial-model | Build financial projections and metrics | scenario-analysis, build-thesis | Design, Investment |
 
-## Step 5: Create USER.md
+## Step 5: Create USER.md (machine schema via writeUserMdAtomic)
 
-Create `$ROOMS_HOME/<slug>/USER.md` capturing what you learned about the user:
+Create `$ROOMS_HOME/<slug>/USER.md` using `writeUserMdAtomic` from
+`lib/core/user-md-ops.cjs`. Do NOT write USER.md as freeform prose.
+The machine schema must be present before room creation so `resolveByUser`
+(called at the Plan 155-02 STEP 2 confirmNode batch) finds identity.
 
-```markdown
-# User Context
+Schema fields to populate from the conversation:
+- `canonical_role`: from conversation-mode detection or 'navigator' as default.
+  Use one of the taxonomy roles (Founder, Researcher, Operator, Investor,
+  Mentor, Domain Expert, Student) if inferred; otherwise 'navigator'.
+- `role_blend`: 7-axis struct from `detectPersonaUpdate` or `emptyUser()` if
+  signals are thin. Axes: founder, researcher, operator, investor, mentor,
+  domain_expert, student (all 0.0-1.0 float, sum need not equal 1).
+- `journey_stage`: inferred from context using the taxonomy slug
+  (e.g. 'crossing_threshold', 'ordinary_world', 'call_to_adventure') or
+  null if unclear. See persona-taxonomy.cjs JOURNEY_STAGES for valid slugs.
+- `first_seen`: ISO date string (e.g. new Date().toISOString()).
 
-## Identity
-- **Name:** {if shared, otherwise omit}
-- **Background:** {what they shared about themselves}
+Example usage (in a bash hook or Node snippet):
 
-## Venture Context
-- **Core idea:** {1-2 sentence summary}
-- **Stage:** {inferred venture stage}
-- **Primary concern:** {what they seem most focused on}
-
-## Working Style
-- **Communication:** {observations about how they communicate}
-- **Depth preference:** {do they want details or big picture?}
-
-## What They Care About Most
-{The thing that clearly drives them based on the conversation}
+```javascript
+const { writeUserMdAtomic, emptyUser, detectPersonaUpdate } = require('lib/core/user-md-ops.cjs');
+const base = emptyUser();
+// Populate from extracted signals; override only what was detected.
+base.canonical_role = detectedRole || 'navigator';
+base.journey_stage = inferredStage || null;
+base.first_seen = new Date().toISOString();
+if (detectedBlend) {
+  Object.assign(base.role_blend, detectedBlend);
+}
+writeUserMdAtomic('$ROOMS_HOME/<slug>/USER.md', base);
 ```
+
+To update a user's profile later: re-run `/mos:ignite` or edit USER.md
+frontmatter directly. The `/mos:profile-user` command is deferred to a
+successor phase.
 
 ## Step 6: Create Initial Entries
 
