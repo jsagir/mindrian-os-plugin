@@ -74,8 +74,23 @@ function buildEnv(tmpRoot, installVersion, cachedVersions) {
 }
 
 function runDoctor(home, args) {
+  // Topology pin (quick-260612-cl7, RCA doctor-marketplace-cache-drift-deadlock):
+  // this harness builds a LEGACY install dir + a populated scratch cache with
+  // NO installed_plugins.json. Since the 2026-05-31 topology guard,
+  // resolveActivePluginRoot() classifies that fixture as marketplace-cache
+  // (cache hit wins when the registry is absent), which gates recovery OFF and
+  // -- after the deadlock fix -- also reads the install version from the cache.
+  // Pin MINDRIAN_OS_ROOT at the scratch legacy path so the resolver classifies
+  // a NON-marketplace-cache topology and the legacy drift + recovery semantics
+  // under test actually run (same idiom as tests/test-doctor-atomic-swap.cjs).
   const result = spawnSync('node', [DOCTOR_SCRIPT, ...args, '--json'], {
-    env: { ...process.env, HOME: home },
+    env: {
+      ...process.env,
+      HOME: home,
+      USERPROFILE: home,
+      MINDRIAN_PLUGIN_HOME: path.join(home, '.claude/plugins'),
+      MINDRIAN_OS_ROOT: path.join(home, '.claude/plugins/mindrian-os'),
+    },
     encoding: 'utf8',
   });
   let report = null;
@@ -115,9 +130,13 @@ function testAutoRecovery(tmpRoot) {
   const result = runDoctor(tmpRoot, ['--fix']);
 
   assert('exits with code 2 (recovered)', result.exitCode === 2, `got exit=${result.exitCode}`);
-  assert('recovered.recoveredVersion === 1.11.0',
-    result.report && result.report.recovered && result.report.recovered.recoveredVersion === '1.11.0',
-    JSON.stringify(result.report && result.report.recovered));
+  // Report-shape update (quick-260612-cl7): Phase 95.2 moved the single
+  // recovery record to report.classARecovered; report.recovered became the
+  // unified per-class ARRAY. The old `report.recovered.recoveredVersion`
+  // read was stale (undefined on an array).
+  assert('classARecovered.recoveredVersion === 1.11.0',
+    result.report && result.report.classARecovered && result.report.classARecovered.recoveredVersion === '1.11.0',
+    JSON.stringify(result.report && result.report.classARecovered));
 
   // Verify on disk
   const installPluginJson = path.join(tmpRoot, '.claude/plugins/mindrian-os/.claude-plugin/plugin.json');
@@ -125,7 +144,7 @@ function testAutoRecovery(tmpRoot) {
   assert('live plugin.json now reports 1.11.0', live.version === '1.11.0', `got ${live.version}`);
 
   // Verify backup exists
-  const backupPath = result.report && result.report.recovered && result.report.recovered.backup;
+  const backupPath = result.report && result.report.classARecovered && result.report.classARecovered.backup;
   assert('backup directory was created', backupPath && fs.existsSync(backupPath), `backup=${backupPath}`);
 
   // Verify backup retains stale plugin.json
@@ -171,9 +190,13 @@ function testFixNoDriftIsNoop(tmpRoot) {
   const result = runDoctor(tmpRoot, ['--fix']);
 
   assert('exits with code 0 (no-op)', result.exitCode === 0, `got exit=${result.exitCode}`);
+  // Report-shape update (quick-260612-cl7): report.recovered is the always-
+  // present unified ARRAY (truthy even when empty); the no-op contract is
+  // classARecovered === null AND an empty recovered array.
   assert('no recovery performed',
-    !(result.report && result.report.recovered),
-    JSON.stringify(result.report && result.report.recovered));
+    result.report && result.report.classARecovered === null
+      && Array.isArray(result.report.recovered) && result.report.recovered.length === 0,
+    JSON.stringify(result.report && { classARecovered: result.report.classARecovered, recovered: result.report.recovered }));
 }
 
 // ── Main ────────────────────────────────────────────────────────────

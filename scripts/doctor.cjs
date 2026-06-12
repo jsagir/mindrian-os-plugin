@@ -426,6 +426,36 @@ function cmpVersion(a, b) {
 // -- Diagnostic checks -----------------------------------------------
 
 function checkInstallVersion() {
+  // Topology-aware REGARDLESS of legacy-dir presence (RCA:
+  // doctor-marketplace-cache-drift-deadlock, 2026-06-12): under
+  // marketplace-cache topology Claude Code loads the plugin from the cache
+  // version dir recorded in installed_plugins.json. The active-root read used
+  // to live ONLY inside the dir-missing branch below, so a VESTIGIAL legacy
+  // ~/.claude/plugins/mindrian-os/ dir (stale at an older version)
+  // short-circuited it: this function returned the legacy dir's stale version,
+  // drift detection tripped against the cache latest, the recovery gate
+  // refused to act (marketplace-cache topology, by design), and the
+  // unconditional drift exit-1 deadlocked /mos:update Step 7 permanently.
+  // Read the ACTIVE root FIRST so class A reports the version the loader
+  // actually uses; the legacy dir's presence is informational only
+  // (legacyDirPresent feeds the deferred P1 class I reap).
+  try {
+    const active = resolveActivePluginRoot();
+    if (active && active.topology === 'marketplace-cache' && active.root) {
+      const activePluginJson = path.join(active.root, '.claude-plugin', 'plugin.json');
+      if (fs.existsSync(activePluginJson)) {
+        const json = JSON.parse(fs.readFileSync(activePluginJson, 'utf8'));
+        return {
+          status: 'ok',
+          version: json.version,
+          parsed: parseVersion(json.version),
+          topology: 'marketplace-cache',
+          activeRoot: active.root,
+          legacyDirPresent: fs.existsSync(INSTALL_DIR),
+        };
+      }
+    }
+  } catch (_) { /* fall through to the existing legacy logic below */ }
   if (!fs.existsSync(INSTALL_DIR)) {
     // Topology-aware (Bug 7 follow-up, 2026-06-02): under marketplace-cache
     // topology Claude Code loads the plugin from the cache version dir, and the
@@ -3325,7 +3355,18 @@ function renderHumanReport(report) {
       bodyRows.push(`  ${C.yellow}■${C.reset} install-cache              ${C.yellow}⚠${C.reset} drift detected`);
       bodyRows.push(`     ${C.dim}live${C.reset}    ${C.yellow}${report.install.version}${C.reset} ${C.dim}→${C.reset} ${C.green}${report.cache.latest}${C.reset}`);
       if (report.fixRequested) {
-        bodyRows.push(`     ${C.red}⚠${C.reset} recovery failed: ${report.recoveryError || 'unknown'}`);
+        // RCA doctor-marketplace-cache-drift-deadlock (2026-06-12): three-way
+        // branch replaces the single `recovery failed: <err || 'unknown'>`
+        // line. The literal 'unknown' rendered whenever recovery was never
+        // ATTEMPTED (gated/skipped) -- classARecovered and recoveryError both
+        // null is not a failure, it is an un-run.
+        if (report.recoveryError) {
+          bodyRows.push(`     ${C.red}⚠${C.reset} recovery failed: ${report.recoveryError}`);
+        } else if (report.recoverySkipped) {
+          bodyRows.push(`     ${C.yellow}⚠${C.reset} recovery skipped (topology marketplace-cache -- legacy install dir is vestigial)`);
+        } else {
+          bodyRows.push(`     ${C.dim}recovery not attempted (gated)${C.reset}`);
+        }
       }
     } else {
       bodyRows.push(`  ${C.green}■${C.reset} install-cache              ${C.green}✓${C.reset} healthy ${C.dim}(${report.install.version})${C.reset}`);
@@ -3957,6 +3998,10 @@ function main() {
     fixRequested: flags.fix,
     classARecovered: null, // class A install-cache recovery result (single object)
     recoveryError: null,
+    recoverySkipped: null, // set when --fix drift recovery is skipped BY DESIGN
+                           // (marketplace-cache topology; RCA
+                           // doctor-marketplace-cache-drift-deadlock). Stable
+                           // JSON shape for consumers (post-update activator).
     checks: {},     // class B/C/D/E/F results land here.
     recovered: [],  // unified array of recovery records across all classes.
   };
@@ -4004,8 +4049,13 @@ function main() {
   // and the dirty/unpushed refuse checks per D-13). Without this carve-out
   // class A would migrate the legacy dir AHEAD of class I, defeating the
   // dirty-legacy refuse contract.
+  // Resolve the active topology ONCE for both the recovery gate and the
+  // skipped-by-design branch (RCA doctor-marketplace-cache-drift-deadlock:
+  // the prior double-call pattern made the gate and the drift detector read
+  // two different sources of truth).
+  const activeTopologyAtGate = resolveActivePluginRoot().topology;
   if (flags.fix && report.drift.detected && !flags.installState
-      && resolveActivePluginRoot().topology !== 'marketplace-cache') {
+      && activeTopologyAtGate !== 'marketplace-cache') {
     // Defense-in-depth (debug session doctor-class-a-drift-topology-blind-false-positive,
     // 2026-05-31): with the Change-1 topology guard above, drift.detected is already
     // false for the healthy marketplace-cache case so this gate is not reached for it.
@@ -4024,6 +4074,19 @@ function main() {
         report.recoveryRolledBack = true;
       }
     }
+  } else if (flags.fix && report.drift.detected && !flags.installState
+      && activeTopologyAtGate === 'marketplace-cache') {
+    // RCA doctor-marketplace-cache-drift-deadlock (2026-06-12): the topology
+    // check is what blocked recovery. Record the skip instead of silently
+    // falling through -- a silent skip left classARecovered AND recoveryError
+    // both null, which rendered as the useless 'recovery failed: unknown' and
+    // tripped the unconditional drift exit-1 in _finalizeAndExit (the
+    // permanent /mos:update Step 7 deadlock). Skipped-by-design is NOT
+    // failure: the renderer and the exit finalizer both read this field.
+    report.recoverySkipped = {
+      reason: 'topology-marketplace-cache',
+      detail: 'recovery skipped by design: active topology is marketplace-cache; the legacy install dir is vestigial and class A will not touch it (class I owns legacy migration)',
+    };
   }
 
   // Class B + C: cascade-rooms (sentinel + active-room guard silence).
@@ -4520,11 +4583,15 @@ function _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installR
   // 2 = drift detected and recovered via --fix.
   // 3 = internal error (cache unreadable, or install in 'error' state -- not 'missing').
   // 4 = recovery attempted but rolled back to backup state (D-03).
+  // 0 = drift detected but recovery skipped by design (marketplace-cache
+  //     topology; report.recoverySkipped set -- only ever under --fix, so
+  //     read-only drift keeps exiting 1). RCA:
+  //     doctor-marketplace-cache-drift-deadlock (2026-06-12).
   if (cacheResult.status !== 'ok') process.exit(3);
   if (installResult.status === 'error') process.exit(3);
   if (report.recoveryRolledBack) process.exit(4);
   if (report.classARecovered) process.exit(2);
-  if (report.drift.detected) process.exit(1);
+  if (report.drift.detected && !report.recoverySkipped) process.exit(1);
   // Class N (DRIFT-12): the plugin-DISABLED silent-disable state is a drift
   // signal on a bare / non-class-flag run. enabled===false -> exit 1 so
   // `mindrian-os doctor` returns non-zero for the one failure mode that no

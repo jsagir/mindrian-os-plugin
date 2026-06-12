@@ -197,10 +197,15 @@ try {
   assert.strictEqual(report.recoveryError, null,
     'no recovery error; recoveryError must be null; got ' + JSON.stringify(report.recoveryError));
   // Human render: the literal 'recovery failed' and the bare 'unknown' fallback
-  // must be unreachable on this fixture.
+  // must be unreachable on this fixture. Scope the 'unknown' check to
+  // recovery-related lines: the unrelated plugin-enabled-state row legitimately
+  // says "treated as enabled (unknown, not an error)" on hermetic fixtures
+  // (no ~/.claude.json), and that pre-existing render is out of this RCA's scope.
   const { out } = runDoctorHuman(home, ['--fix']);
   assert.ok(!/recovery failed/.test(out), 'human render must not say "recovery failed"; got: ' + out.slice(0, 300));
-  assert.ok(!/\bunknown\b/.test(out), 'human render must not contain the bare word "unknown"; got: ' + out.slice(0, 300));
+  const recoveryLines = out.split('\n').filter(l => /recovery/i.test(l));
+  assert.ok(!recoveryLines.some(l => /\bunknown\b/.test(l)),
+    'no recovery line may contain the bare word "unknown"; got: ' + JSON.stringify(recoveryLines));
   rmTmp(home);
   pass('Test v.2 (--fix exits 0, classARecovered/recoveryError null, no unknown render)');
 } catch (err) { failTest('Test v.2 (--fix exits 0, classARecovered/recoveryError null, no unknown render)', err); }
