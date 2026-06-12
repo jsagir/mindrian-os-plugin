@@ -4,13 +4,13 @@ milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: executing
 stopped_at: Completed 150.5-03-PLAN.md
-last_updated: "2026-06-12T05:24:40.444Z"
-last_activity: 2026-06-11 -- Phase 150.8 execution started
+last_updated: "2026-06-12T08:55:44.440Z"
+last_activity: "2026-06-12 -- Completed quick task 260612-cl7: fix doctor marketplace-cache drift deadlock (RCA P0a + P0b + checker LATEST P2)"
 progress:
-  total_phases: 91
+  total_phases: 92
   completed_phases: 65
-  total_plans: 476
-  completed_plans: 422
+  total_plans: 482
+  completed_plans: 423
   percent: 71
 ---
 
@@ -30,7 +30,7 @@ Status: Ready to execute
 Queue: 150.6 (drift-fix sweep, gates both) -> 150.7 (tester round 2 + Part 10 ratification gate) + 150.8 (meeting DIKW filing v1, navigator-directive) -> v1.13.1 final gate
 
 (Prior position) Phase: 150 (memory-cortex-as-graph-members) — COMPLETE
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Phase complete — ready for verification
 
 Phase 150 Plan 08 (MEM-09 / D-09 -- the claim harness + the finalized phase gate) complete. Three moves landed: (1) tests/claim-harness/fixtures/claim-room/ -- one obviously-fictional claim-room (ROOM/STATE/USER at root + problem-definition + market-analysis sections, each carrying the 6 memory MD kinds) INCLUDING the contradicting pair (DEC-PD-100 ship-the-scheduler vs DEC-MA-200 never-ship-it) for C3/C7 and poison-nodes (BRAIN.md + FEYNMAN.md carrying SECRET CLAIM PROSE / leak@example.com / a /home/jsagi/secret/ path / an injection token) for the C6 egress arm; tests/claim-harness/build-fixture-room-db.cjs copies the committed tree to a MINDRIAN_ROOMS_HOME tmpdir and builds a REAL room.db by projecting the memory files THROUGH navigation.cjs (reconcileMemoryArtifacts -> 11 nodes / 4 decisions / 7 edges), never hand-stitched SQLite; node:sqlite-unavailable -> SKIP 77; no mocked Brain. (2) the seven claim-cN.cjs drivers -- each drives a REAL shipped unit on the real fixture with an honest-negative arm: C1 focus-node graph identity persists across a room.db re-open; C2 decide() returns a grounded one-move + dial-presenter.renderDial reaches the live surface (D-08 SEEN arm); C3 minting CONTRADICTS lands a queryable edge + writeEdge rejects a non-taxonomy type; C4 the cortex packet carries generic advisory handles, Part-8-clean, degrades offline; C5 K artifacts -> >= K typed nodes + decisions mint at proposed (Part-9); C6 poison-seeded nodes -> zero forbidden prose in the packet (hermetic + source + fixture); C7 file A then conflicting B -> INFORMS lineage + CONTRADICTS minted mid-session. The Brain LIVE arms (C4-live, C6-live) self-skip via class-m-brain-smoke; the semantic claims C2-good + C4-relevance are CARVED OUT to the Part-10 human empathy gate (named SKIP, never a fake PASS). run-all-claims.sh is the two-group clone of run-all-146.sh (group a = C1..C7, group b = the live-Brain precondition + the Part-8 cortex-packet sweep) -> 9/9. (3) scripts/doctor.cjs gains --claims, a SIBLING of --acceptance with its OWN exit code + a DOCTOR_CLAIM_FAIL_POINT self-test hook; tests/run-all-150.sh FINALIZED (every real 150 CJS suite + run-all-claims.sh group + the carried 148 frozen-contracts/reach-ids fences + a standalone Part-8 sweep over the 5 new 150 artifacts). 3 honest-negative-driven initial RED failures surfaced real facts (the reconcile DECISION_ID_RE strips the DEC- prefix to PD-100/MA-200; routing_source flips at the router not in decide()) and were fixed in the drivers (Rule 1). intent-classifier.cjs was NOT modified (the 150-04/06 overlap respected). Frozen 148 contracts byte-unchanged (MAX_K=3, 0.70/0.15, DIAL_REACH_K=6; the carried run-all-148.sh 18/18 asserts it). Canon Part 6/8/9 gates hold. Zero em-dashes. THE PHASE GATE: bash tests/run-all-150.sh = 14 passed / 0 failed / 0 missing (exit 0). Commits 1413c78f (fixture + builder), 0e677232 (7 drivers + aggregator), 2dd48b42 (doctor --claims + finalized run-all-150). Requirement MEM-09 complete. Phase 150 COMPLETE.
@@ -683,6 +683,7 @@ Progress: [█████████░] 92%
 | Phase 145 P03 | 12min | 2 tasks | 3 files |
 
 ### Roadmap Evolution
+
 - Phase 155 added (2026-06-12): ignite-flow -- /mos:ignite front-door orchestrator (new-room onboarding, F-selector HITL, umbilical birth, Hooked first-cycle). Numbered 155 to avoid the 151-154 v1.15.0 cockpit-train collision. Research input: .planning/research/new-room-onboarding-20260612/
 
 - Phase 150.6 inserted after Phase 150: drift-fix-sweep-and-human-gate-quick-closers (URGENT, INSERTED 2026-06-11) -- v1.13.1 train, ships next beta after beta.15. Executes the Q1 queue of .planning/v1.13.1-DRIFT-AUDIT.md: FIX-01 larry-extended/larry-personality stale reach prose (6 reach-ids / 8 sensors / Phase 144 SHIPPED), FIX-02 @mindrian_os/install->cli sweep, FIX-03 Brain numbers merge (a3c422fe) + THE-BRAIN.md 6-tool table, FIX-04 help-groups (drop visualize, add discover + memory-cortex-reach), FIX-05 venture_classified one-line emission (un-deadens the Phase 119 nudge), FIX-06 workspace-path sweep + worktree prune. PLUS: GATE-0 (segment-level cascade-on-meetings audit, SEED-023 precondition), the Phase 88 closer (.planning/phases/88-feynman-minto-memory-layer/88-HUMAN-GATE-CLOSER.md), and the 126-H1/H3 stale-gate re-scope (install minisite retired 2026-06-09). Doc-heavy, low-risk; all evidence pre-gathered by the 2026-06-11 Fable 5 drift audit (.planning/v1.13.1-DRIFT-AUDIT.md).
@@ -1370,6 +1371,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-12T05:24:20.301Z
+Last session: 2026-06-12T08:55:44.411Z
 Stopped at: Completed 150.5-03-PLAN.md
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).
