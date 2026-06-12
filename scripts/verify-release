@@ -71,7 +71,15 @@ if [ -f "$MARKETPLACE_DIR/.claude-plugin/marketplace.json" ]; then
   if [ "$PLUGIN_VER" = "$MARKET_VER" ]; then
     pass "Versions match: plugin=$PLUGIN_VER marketplace=$MARKET_VER"
   else
-    fail "Version MISMATCH: plugin=$PLUGIN_VER marketplace=$MARKET_VER"
+    # Two-commit steady state (release.sh Step 7.5 design): after a release the
+    # catalog stays at the released vN while plugin.json carries the NEXT
+    # pre-release placeholder (inc(vN)). That mismatch is HEALTHY, not a drift.
+    EXPECTED_NEXT=$(node -e "try{console.log(require('semver').inc(process.argv[1],'prerelease','beta'))}catch(e){console.log('ERR')}" "$MARKET_VER" 2>/dev/null || echo "ERR")
+    if [ "$PLUGIN_VER" = "$EXPECTED_NEXT" ]; then
+      pass "Two-commit steady state: marketplace=$MARKET_VER (released), plugin=$PLUGIN_VER (next placeholder)"
+    else
+      fail "Version MISMATCH: plugin=$PLUGIN_VER marketplace=$MARKET_VER (neither equal nor the documented next-placeholder state)"
+    fi
   fi
 else
   warn "Marketplace.json not found"
