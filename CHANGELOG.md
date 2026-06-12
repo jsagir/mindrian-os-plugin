@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.13.1-beta.15 (in progress)
+## [1.13.1-beta.16] - 2026-06-12
 
 ### Added
 - Phase 150.8 (meeting micro-knowledge DIKW filing v1): every filed transcript now climbs Ackoff's ladder -- Data (segments) -> Information (typed atomic claims) -> Knowledge (confirmable claims + causal edges) -> Wisdom (`/mos:build-knowledge` renders the typed graph by DIKW rung). `writeClaimNode` truth-claim writer (`lib/core/navigation/typed-claim.cjs`): frozen 6-enum `knowledge_type` (fact / causal / heuristic / anomaly_cue / mental_model / assumption) + `conditions` / `counter_conditions` boundary fields + `valid_from` / `valid_until` temporal validity, all additive JSON properties, minted `proposed` per Canon Part 9.
