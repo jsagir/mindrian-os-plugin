@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.13.1-beta.17 (in progress)
+## [1.13.1-beta.18] - 2026-06-12
 
 ### Fixed
 - Doctor marketplace-cache drift deadlock (quick-260612-cl7, install-cache family case 8): `checkInstallVersion` is now topology-aware regardless of legacy-dir presence -- on a box with a vestigial `~/.claude/plugins/mindrian-os/` dir plus a live marketplace cache, doctor reports the active root's version and the false CRITICAL drift never forms. When recovery is skipped by design under marketplace-cache topology, doctor records `recoverySkipped`, renders the reason (no more `recovery failed: unknown`), and exits 0 under `--fix`; read-only drift keeps exiting 1 so monitoring signal is preserved.
