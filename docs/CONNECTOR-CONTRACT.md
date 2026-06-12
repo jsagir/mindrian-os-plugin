@@ -22,7 +22,7 @@ A standard, additive frontmatter block. Each surface declares ONLY the parts rel
 |---------|------|---------|
 | `connects_to_spine` | boolean | Opt-in flag. `true` = wired. Absent or `false` = legacy / not wired (untouched until retrofitted). The generator skips any surface where this is not `true`. |
 | `sensor_triggers` | array of SENS ids (0..n) | Which sensor(s) surface this surface's reach. `[]` is valid (a surface that declares a reach but is not sensor-driven). |
-| `reach_id` | one of the frozen 5 | The reach this surface participates in: `context_block`, `contradiction`, `cross_room`, `brain_consult`, `deep_research`. NEVER a 6th id. |
+| `reach_id` | one of the frozen 6 (hats added Phase 148, Canon Appendix D entry 15) | The reach this surface participates in: `context_block`, `contradiction`, `cross_room`, `brain_consult`, `deep_research`, `hats`. |
 | `sub_mode` | string (render label) | The intelligence-tool identity as a RENDER LABEL under that reach_id (e.g. `reverse-salient`). Free text, but registered. NEVER a new reach_id. |
 | `framework` | string (EXACT name) | The EXACT Brain `:Framework` name matching `data/framework-names.json` -- the resolver key. MUST equal the surface's existing `frameworks:` value (Phase 122). |
 | `posture` | one of the frozen 3 | The Hierarchical Navigator movement: `push_forward`, `hold`, or `pull_back`. |
@@ -36,10 +36,10 @@ A standard, additive frontmatter block. Each surface declares ONLY the parts rel
 
 The 5 reach_ids and the 3 postures stay FROZEN. The contract NEVER mints a 6th reach_id -- `sub_mode` carries the intelligence-tool identity as a render label instead.
 
-- **The frozen 5 reach_ids:** `context_block`, `contradiction`, `cross_room`, `brain_consult`, `deep_research`. (Source of truth: `lib/core/sensors/sensor-types.cjs` REACH_IDS.)
+- **The frozen 6 reach_ids (hats added Phase 148, Canon Appendix D entry 15):** `context_block`, `contradiction`, `cross_room`, `brain_consult`, `deep_research`, `hats`. (Source of truth: `lib/core/sensors/sensor-types.cjs` REACH_IDS.)
 - **The frozen 3 postures:** `push_forward`, `hold`, `pull_back`. (Source of truth: `lib/core/sensors/sensor-types.cjs` POSTURE_IDS.)
 
-Drift tests assert any add or remove fails CI, mirroring the Phase 141 exactly-5 / exactly-3 invariants. A `sub_mode` is a render label only; it can be added freely without touching the frozen banks.
+Drift tests assert any add or remove fails CI, mirroring the Phase 141 exactly-6 / exactly-3 invariants. A `sub_mode` is a render label only; it can be added freely without touching the frozen banks.
 
 ## 4. The additive-degrade rule
 

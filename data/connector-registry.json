@@ -363,6 +363,24 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:ignite",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-01",
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "ignite",
+      "framework": null,
+      "posture": "push_forward",
+      "hierarchy_rank": 10,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
       "surface": "/mos:jtbd",
       "source": "command",
       "connects_to_spine": true,
@@ -947,6 +965,7 @@
       "/mos:deep-grade",
       "/mos:dominant-designs",
       "/mos:grade",
+      "/mos:ignite",
       "/mos:mos-reason",
       "/mos:mullins",
       "/mos:new-project",
@@ -971,6 +990,7 @@
       "/mos:explore-domains",
       "/mos:find-analogies",
       "/mos:find-connections",
+      "/mos:ignite",
       "/mos:mva-brief",
       "/mos:new-project"
     ],
