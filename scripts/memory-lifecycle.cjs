@@ -22,9 +22,19 @@
  *   - The "role" values 'session-summary' and 'post-compact' are intentionally
  *     new free-string values on the fragments table. The schema treats role as
  *     TEXT NOT NULL with no enum. Documented in 84-CONTEXT D-03.
+ *   - Conversation intake (quick task 260612-pkb): on Stop and PreCompact the
+ *     handlers now ingest the real user/assistant turns from the transcript at
+ *     MINDRIAN_TRANSCRIPT_PATH (exported by scripts/on-stop) into the closing
+ *     session's fragments table, scoped to the active room's room.db ONLY
+ *     (Canon Part 8: no Brain egress). When real fragments exist the summary is
+ *     extractive over those turns (transcript-ingest.buildSummary, 3-5
+ *     sentences); this supersedes the D-12 "last 3 fragments, 500 chars" stub
+ *     for the populated case. With no transcript / empty transcript the legacy
+ *     stub path is byte-identical to before.
  *   - v1.10.8 session summaries are deliberately minimal (last 3 fragments
- *     concatenated, truncated to 500 chars) per 84-CONTEXT D-12. The synthesis
- *     voice will replace this with a real summarizer in a later release.
+ *     concatenated, truncated to 500 chars) per 84-CONTEXT D-12. This is now the
+ *     fallback used only when no conversation fragments were ingested. The
+ *     synthesis voice will replace this with a real summarizer in a later release.
  *   - post-compact creates a NEW session id; the pre-compact handler closed
  *     the old one. Compact is a context discontinuity.
  *   - A stale .mindrian/current-session.json pointer (from a crashed session)
@@ -195,6 +205,42 @@ async function cmdSessionStart(roomDir) {
 
 const FRAGMENT_HARVEST_CAP = 500;
 
+// Quick task 260612-pkb: conversation intake helper. Reads MINDRIAN_TRANSCRIPT_PATH,
+// parses the transcript offline, and writes the real user/assistant turns into
+// the given session as 'user'/'assistant' fragments. Idempotent: a guard skips
+// ingest when conversation fragments already exist for the session (Stop /
+// PreCompact can fire more than once). Every path is graceful: no env var, an
+// unreadable transcript, or a per-fragment write error are silent no-ops.
+// LOCAL-only (Canon Part 8): the parser does pure local read+parse, and rows are
+// written only to the active room's room.db. No network, no Brain.
+async function ingestTranscriptFragments(db, sessionId, memory, transcriptIngest) {
+  const transcriptPath = process.env.MINDRIAN_TRANSCRIPT_PATH || '';
+  if (!transcriptPath) return;
+
+  let alreadyHas = 0;
+  try {
+    const row = db.prepare(
+      "SELECT COUNT(*) AS n FROM fragments WHERE session_id = ? AND role IN ('user','assistant')"
+    ).get(sessionId);
+    alreadyHas = (row && row.n) || 0;
+  } catch (_) {
+    alreadyHas = 0;
+  }
+  if (alreadyHas !== 0) return; // already ingested for this session
+
+  const turns = transcriptIngest.parseTranscript(transcriptPath); // [] on any failure
+  for (const t of turns) {
+    if (!t || !t.content) continue;
+    try {
+      await memory.addFragment(db, {
+        session_id: sessionId,
+        role: t.role === 'assistant' ? 'assistant' : 'user',
+        content: t.content,
+      });
+    } catch (_) { /* per-fragment graceful */ }
+  }
+}
+
 function loadAllFragments(db, sessionId) {
   try {
     const rows = db.prepare(
@@ -281,10 +327,25 @@ async function cmdStop(roomDir) {
 
   const { openRoomDb, closeRoomDb } = require(ROOM_DB_MODULE);
   const memory = require(path.join(__dirname, '..', 'lib', 'core', 'memory-ops.cjs'));
+  const transcriptIngest = require(path.join(__dirname, 'transcript-ingest.cjs'));
 
   const handle = { db: openRoomDb(roomDir) };
   try {
-    const summary = summarizeSession(handle.db, pointer.id);
+    // Quick task 260612-pkb: conversation intake. Before summarizing, ingest
+    // the real conversation turns from MINDRIAN_TRANSCRIPT_PATH (exported by
+    // scripts/on-stop) into the just-closing session. Idempotent: skip if real
+    // conversation fragments already exist for this session (Stop can fire more
+    // than once). LOCAL-only (Canon Part 8): parseTranscript reads a local file
+    // and the rows land in the active room's room.db; no Brain egress.
+    await ingestTranscriptFragments(handle.db, pointer.id, memory, transcriptIngest);
+
+    // Summary: when real user/assistant fragments exist, build the extractive
+    // multi-sentence summary; otherwise fall back to the legacy stub behavior.
+    const convoForSummary = loadAllFragments(handle.db, pointer.id)
+      .filter((f) => f && (f.role === 'user' || f.role === 'assistant'));
+    const summary = convoForSummary.length > 0
+      ? transcriptIngest.buildSummary(convoForSummary)
+      : summarizeSession(handle.db, pointer.id);
     await memory.addFragment(handle.db, {
       session_id: pointer.id,
       role: 'session-summary',
@@ -369,10 +430,20 @@ async function cmdPreCompact(roomDir) {
 
   const { openRoomDb, closeRoomDb } = require(ROOM_DB_MODULE);
   const memory = require(path.join(__dirname, '..', 'lib', 'core', 'memory-ops.cjs'));
+  const transcriptIngest = require(path.join(__dirname, 'transcript-ingest.cjs'));
 
   const handle = { db: openRoomDb(roomDir) };
   try {
-    const summary = summarizeSession(handle.db, pointer.id);
+    // Quick task 260612-pkb: a compact boundary is a context discontinuity
+    // (Context Volatility failure mode #1). Capture the conversation before it
+    // is discontinued, mirroring cmdStop. Same idempotency guard; LOCAL-only.
+    await ingestTranscriptFragments(handle.db, pointer.id, memory, transcriptIngest);
+
+    const convoForSummary = loadAllFragments(handle.db, pointer.id)
+      .filter((f) => f && (f.role === 'user' || f.role === 'assistant'));
+    const summary = convoForSummary.length > 0
+      ? transcriptIngest.buildSummary(convoForSummary)
+      : summarizeSession(handle.db, pointer.id);
     await memory.endSession(handle.db, pointer.id, {
       summary: summary || null,
       key_decisions: [],
