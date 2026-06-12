@@ -10,8 +10,10 @@
  * Reads the room's recent memory_event log via lib/core/venture-shape-nudge.cjs;
  * if >= 3 venture-shaped turns accumulated without an upload (D-02 threshold),
  * renders an F.1 selector via lib/hmi/selector-dispatcher.cjs::pickShape with
- * verbs ['upload material', '/mos:new-project', 'keep talking'] (Free-Text
+ * verbs ['upload material', '/mos:ignite', 'keep talking'] (Free-Text
  * appended automatically by the dispatcher).
+ * // Repointed from /mos:new-project to /mos:ignite per Phase 155-04
+ * // (the Ignite Flow is now the birth front door).
  *
  * Per CONTEXT.md D-01 invariant: if any auto_explore_fired event appears in
  * the recent window, the upload path is active and this shim short-circuits
@@ -99,7 +101,9 @@ function main() {
       requestedShape: 'F.1',
       roomDir: absRoomDir,
       tier: 0, // Mode B (no Brain reachability assumed for the nudge surface)
-      verbs: ['upload material', '/mos:new-project', 'keep talking'],
+      // Repointed from /mos:new-project to /mos:ignite per Phase 155-04
+      // (the Ignite Flow is now the birth front door).
+      verbs: ['upload material', '/mos:ignite', 'keep talking'],
     });
   } catch (e) {
     process.stdout.write(JSON.stringify({

@@ -79,7 +79,7 @@ fs.writeFileSync(
   'utf8'
 );
 
-// A second brief (for auto-discovery ordering)
+// A second brief (for auto-discovery ordering -- written synchronously)
 const SECOND_SHA8 = 'def67890';
 const SECOND_BRIEF = {
   venture_summary: 'Second venture',
@@ -90,14 +90,11 @@ const SECOND_BRIEF = {
   rendered_at_ms: Date.now() - 1000,
 };
 
-// Write second brief slightly later (mtime matters for auto-discovery)
-setTimeout(() => {
-  fs.writeFileSync(
-    path.join(briefsDir, SECOND_SHA8 + '.json'),
-    JSON.stringify(SECOND_BRIEF),
-    'utf8'
-  );
-}, 10);
+fs.writeFileSync(
+  path.join(briefsDir, SECOND_SHA8 + '.json'),
+  JSON.stringify(SECOND_BRIEF),
+  'utf8'
+);
 
 // Write state.json pointing to the second (most recent) brief
 const stateJson = {

@@ -33,6 +33,43 @@ connector:
 
 You are Larry -- a thinking partner modeled on Prof. Lawrence Aronhime. This command is the onboarding experience. You will have a deep conversation with the user about their venture, then create a tailored Data Room.
 
+## Argument Handling (--express and --from-brief)
+
+This command supports two fast-path arguments that skip the 5-8 exchange conversation
+and jump directly to the B2 blueprint gate using provided material.
+
+**`--express`**
+Directive fast path. When invoked as `/mos:new-project --express`, use the current
+session context (everything shared in this conversation so far) as the blueprint input.
+Skip Steps 2-3 (the deep exploration conversation) and proceed directly to Step 3's
+"When to Move On" section with the session context as the source material.
+
+Both reward-before-investment invariant and B2 gate are preserved: if the user has
+not yet received an MVA brief reward (check via `writeUserMdAtomic` call + brief
+telemetry), render an instant brief summary from the session context BEFORE the
+B2 gate. Then proceed to B2 with the session context as blueprint input.
+
+**`--from-brief <sha8>`**
+Brief fast path. When invoked as `/mos:new-project --from-brief <sha8>`, read the
+Phase 118 brief side-file at `~/.mindrian/mva/briefs/<sha8>.json` and use its
+content as the blueprint input. This is the primary path wired by MVA option 2.
+
+Call `resolveOption2(sha8)` from `lib/core/mva-option-router.cjs` to read the brief:
+- If `result.action === 'ignite_from_brief'`: use `result.brief_content` as blueprint
+  input. Proceed directly to the B2 blueprint gate (skip Steps 2-3).
+- If `result.action === 'no_brief_available'`: surface `result.message` and fall back
+  to the standard Step 2-3 conversation flow.
+- If `result.action === 'brief_parse_error'`: surface `result.message` and fall back
+  to the standard Step 2-3 conversation flow.
+- If `result.brief_reward_pending === true`: render a brief summary from
+  `result.brief_content.venture_summary` as the instant brief reward BEFORE the B2
+  gate (reward-before-investment per Decision 8 / BIRTH-FLOW-BRIEF.md constraint 10).
+
+Both `--express` and `--from-brief` still run B2 (no approval gate is skipped).
+Both paths honor the reward-before-investment invariant.
+
+When neither flag is present, proceed with the standard Step 1-9 flow below.
+
 **Multi-room support:** This command creates rooms under `~/MindrianRooms/` (or `$MINDRIAN_ROOMS_HOME`). The central registry at `~/MindrianRooms/.rooms/registry.json` tracks all rooms. When no registry exists, a fresh one is created automatically on first room creation.
 
 ## Step 1: Resolve ROOMS_HOME and Check State
