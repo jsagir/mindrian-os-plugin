@@ -630,7 +630,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "F (Selector Block)",
+      "body_shape": "F.1",
       "serves_jtbd": [
         "explore"
       ],
@@ -665,7 +665,7 @@
         "explore",
         "build"
       ],
-      "teaching": "Larry walks you through three birth gates -- starting point, blueprint approve, first win -- so every new room begins with a clear JTBD, the right section set, and one bankable opportunity.",
+      "teaching": "Larry walks you through three birth gates (starting point, blueprint approve, first win) so every new room begins with a clear JTBD, the right section set, and one bankable opportunity.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
@@ -762,7 +762,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "F (Selector Block)",
+      "body_shape": "F.1",
       "serves_jtbd": [
         "navigate"
       ],
