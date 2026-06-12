@@ -2574,14 +2574,19 @@ Promoted from research `.planning/research/2026-06-08-keyboard-tui-capability-co
 
 ### Phase 155: ignite-flow -- /mos:ignite front-door orchestrator -- new-room onboarding with F-selector HITL gates (B1/B2/B3), three entry doors (Just Talk / directive / umbilical), persona blueprint families, Hooked first-cycle. Input: .planning/research/new-room-onboarding-20260612/ (BIRTH-FLOW-BRIEF.md decisions 1-9 + 6 maps + Systems addendum gaps 1-15)
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Ship the Ignite Flow: one front door (/mos:ignite) replacing five overlapping surfaces, with F-selector HITL gates B1 (arrival_asset / blueprint family), B2 (room blueprint approve -- the Part 9 promotion moment), and B3 (first-win in-room ranker), backed by an atomic 7-step birth transaction (scaffold-then-register order, 6/6 memory complement, room_created event, scratchpad replay as typed edges), persona blueprint families from data/room-blueprints.json, unified USER.md schema, unstubbed MVA option 2 (--from-brief), and Hooked first-cycle assembly.
+**Requirements**: GAP-1, GAP-2, GAP-3, GAP-4, GAP-5, GAP-6, GAP-7, GAP-8
 **Depends on:** Phase 150
-**Plans:** 0 plans
+**Plans:** 6 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 155 to break down)
+- [ ] 155-01-PLAN.md -- B2 blueprint F.0 gate in new-project + scratchpad birth_gate_answers extension
+- [ ] 155-02-PLAN.md -- lib/core/navigation/room-birth.cjs birth transaction keystone (7-step Q1 sequence, 6/6 complement, EVENT_TYPES +2, drainBirthGateAnswers)
+- [ ] 155-03-PLAN.md -- USER.md convergence (writeUserMdAtomic wired, setFocus dead-code fix, profile-user stub resolved)
+- [ ] 155-04-PLAN.md -- Directive fast path (--express + --from-brief unstub STUB_MESSAGE_119, venture_classified nudge repoint)
+- [ ] 155-05-PLAN.md -- data/room-blueprints.json (8 families) + B1 gate + scaffold blueprint-family consumption
+- [ ] 155-06-PLAN.md -- /mos:ignite command + B3 first-win gate + entry routing + registry regeneration + CONNECTOR-CONTRACT.md drift fix
 
 ---
 
