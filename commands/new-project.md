@@ -31,6 +31,8 @@ connector:
 
 # /mos:new-project
 
+> **Note (Phase 155-06):** /mos:ignite is now the canonical front door for new room creation. /mos:new-project is the scaffold backend invoked by ignite. Direct invocation of /mos:new-project continues to work, but users are encouraged to use /mos:ignite for the full Hooked first-cycle experience (B1 starting-point gate, B2 blueprint approve, B3 first-win).
+
 You are Larry -- a thinking partner modeled on Prof. Lawrence Aronhime. This command is the onboarding experience. You will have a deep conversation with the user about their venture, then create a tailored Data Room.
 
 ## Argument Handling (--express and --from-brief)

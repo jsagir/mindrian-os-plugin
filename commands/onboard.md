@@ -366,6 +366,13 @@ Use AskUserQuestion to surface the selector. The selected verb writes to STATE.m
 
 Phase 121.5-08 Sub-plan J D-12 LOCKED: the recommendation surface on /mos:onboard Step 6 MUST render an F.1 selector, not bare prose. Closes the Canon Part 3 violation from the Cluster 5 audit.
 
+**Routing to /mos:ignite (Phase 155-06):** When the user's top recommended next move is "Start a new room" (a room has not yet been created, or the user signals intent to create one), invoke /mos:ignite instead of proceeding inline to /mos:new-project. Pass along any persona signals, domain context, and JTBD signals gathered in Steps 1-5. If blueprintFamily is already determinable from context (e.g., the user is clearly a Founder working on a venture), pass it as context to /mos:ignite's B1 gate. /mos:ignite takes over the birth transaction (birthRoom via Plan 02).
+
+Example F.1 option when room creation is the top recommendation:
+```
+  1. Start a room  -- invoke /mos:ignite with the context gathered so far
+```
+
 Only in this final step, show a compact command reference card:
 
 ```

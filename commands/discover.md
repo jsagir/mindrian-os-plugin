@@ -191,6 +191,18 @@ Every movement routes to an EXISTING atom through the resolver door `commandsFor
 
 All discovery content -- brand soul, product essence, persona names, JTBD content, client specifics -- is LOCAL room data. None of it may enter a Brain query (Canon Part 8). The connector's only Brain-bound value is the generic `framework` handle ("Jobs to Be Done (JTBD)"); `web_scope` is `null` (discovery never reaches the web). Movements route through `commandsForFramework` (a framework name, never client content). All artifacts file LOCAL via `navigation.cjs` `fileEvidenceWithReadback`. The DISC-10 plain-language message and any deck derive from LOCAL room artifacts only; the bridge dispatch carries no client strings to Brain or web.
 
+## Routing to /mos:ignite at the birth moment (Phase 155-06)
+
+When the Discovery session reaches the birth moment (the client has committed to creating a room, after DISC-10's plain-language message has been delivered and the Discovery Brief is complete), route to /mos:ignite. Do NOT route to /mos:new-project directly.
+
+Discover is the conversation; ignite is the birth.
+
+Pass the Discovery Brief content in one of two ways:
+- Preferred: pass the brief sha8 reference as `--from-brief <sha8>` if the brief has been filed to `~/.mindrian/mva/briefs/<sha8>.json` (via the Phase 118 pipeline).
+- Fallback: use `--express` and ensure the session context contains the Discovery Brief content. /mos:ignite's B2 gate will use the session context as blueprint input.
+
+The Discovery Brief content (product essence, JTBD, persona, positioning) serves as pre-filled B2 blueprint material. The blueprintFamily from the discovery session (typically 'venture' or 'exploration' depending on how far along the client is) should be determinable from the brief -- pass it as context so /mos:ignite can bypass B1 if appropriate.
+
 ## DISC-09 acceptance
 
 On a fixture client, `/mos:discover` produces a valid Discovery Brief plus a scaffolded room (ROOM.md present per folder), the connector registry includes the single `discover` connector, the CONN-03 tripwire is green, and the Part-8 sweep returns zero. The Tri-Polar check (CLI / Desktop / Cowork) passes per the surface note above.

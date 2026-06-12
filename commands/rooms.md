@@ -187,7 +187,9 @@ purpose: {one-line purpose from section definitions}
 
 Use the section definitions from `/mos:new-project` Step 4 for purpose and methodology defaults.
 
-**Important:** `/mos:rooms new` creates the room STRUCTURE only. No deep exploration conversation happens here - that is what `/mos:new-project` does afterward. This keeps room creation fast.
+**Important (Phase 155-06 routing update):** `/mos:rooms new` now routes to /mos:ignite for the full Hooked first-cycle birth experience. Pass any name/slug the user provided as context. /mos:ignite runs B1 (starting-point gate) unless arrival_asset is determinable from the name context, then proceeds through B2 blueprint approve and B3 first-win. /mos:ignite owns the birth transaction (birthRoom via Plan 02). /mos:rooms new is the entry surface; /mos:ignite is the birth orchestrator.
+
+Route to /mos:ignite after Step 2 (name/slug capture). The legacy Steps 3-6 below are preserved as the scaffold backend (invoked by ignite's new-project delegation), but /mos:rooms new no longer drives them directly.
 
 ### Step 4: Register Room
 
@@ -223,7 +225,7 @@ Show success with Zone 1 header displaying the new room name:
   Venture stage: Pre-Opportunity
   Sections: 8
 
-  [triangle-right] /mos:new-project     Start the deep exploration conversation
+  [triangle-right] /mos:ignite           Start the birth conversation (B1/B2/B3 gates)
   [hollow-triangle] /mos:rooms list      See all your rooms
 ```
 
