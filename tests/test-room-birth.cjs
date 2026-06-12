@@ -148,21 +148,25 @@ try {
 
   check('roomDir directory exists', fs.existsSync(tmpRoomDir));
 
-  // 6 memory files check: ROOM.md at root, STATE.md at root, MINTO.md at root,
+  // 6 memory files check: ROOM.md in a section dir (scaffold places it per-section,
+  // not at the room root), STATE.md at root, MINTO.md at root,
   // USER.md at root, and FEYNMAN.md in at least one section.
-  const rootRoom = fs.existsSync(path.join(tmpRoomDir, 'ROOM.md'));
+  // scaffold writes ROOM.md inside each of the 8 ICM section dirs; check any.
+  const sections = ['problem-definition', 'market-analysis', 'solution-design',
+    'business-model', 'competitive-analysis', 'team-execution', 'legal-ip', 'financial-model'];
+  const rootRoom = sections.some((s) =>
+    fs.existsSync(path.join(tmpRoomDir, s, 'ROOM.md'))
+  );
   const rootState = fs.existsSync(path.join(tmpRoomDir, 'STATE.md'));
   const rootMinto = fs.existsSync(path.join(tmpRoomDir, 'MINTO.md'));
   const rootUser = fs.existsSync(path.join(tmpRoomDir, 'USER.md'));
 
   // FEYNMAN.md -- scaffold writes it per section; check any section
-  const sections = ['problem-definition', 'market-analysis', 'solution-design',
-    'business-model', 'competitive-analysis', 'team-execution', 'legal-ip', 'financial-model'];
   const hasFeynman = sections.some((s) =>
     fs.existsSync(path.join(tmpRoomDir, s, 'FEYNMAN.md'))
   );
 
-  check('ROOM.md exists at room root', rootRoom);
+  check('ROOM.md exists in at least one ICM section dir', rootRoom);
   check('STATE.md exists at room root', rootState);
   check('MINTO.md exists at room root', rootMinto);
   check('USER.md exists at room root', rootUser);

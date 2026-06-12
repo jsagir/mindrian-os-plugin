@@ -29,10 +29,12 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 START_TIME=$(date +%s)
 
-# Wave-1 CJS suites
+# Wave-1 + Wave-2 CJS suites
 CJS_SUITES=(
   test-new-project-b2-gate.cjs
   test-scratchpad-birth-answers.cjs
+  test-memory-events-birth-floor.cjs
+  test-room-birth.cjs
 )
 
 TOTAL=0
@@ -43,11 +45,11 @@ FAILED_TESTS=()
 MISSING_TESTS=()
 
 echo "========================================"
-echo "  Phase 155 phase gate (Wave 1)"
+echo "  Phase 155 phase gate (Wave 1 + Wave 2)"
 echo "========================================"
 echo ""
 
-echo "--- Wave-1 CJS suites ---"
+echo "--- Wave-1 + Wave-2 CJS suites ---"
 echo ""
 
 for c in "${CJS_SUITES[@]}"; do
@@ -75,7 +77,7 @@ END_TIME=$(date +%s)
 ELAPSED=$((END_TIME - START_TIME))
 
 echo "========================================"
-echo "  Summary (Phase 155 phase gate)"
+echo "  Summary (Phase 155 phase gate Wave 1 + Wave 2)"
 echo "========================================"
 echo "  Total:   $TOTAL"
 echo "  Passed:  $PASSED"
@@ -107,5 +109,5 @@ if [[ $MISSING -gt 0 ]]; then
 fi
 
 echo "========================================"
-echo "  Exit 0: the Phase 155 Wave-1 gate is green (B2 gate present + scratchpad birth_gate_answers contract holds)."
+echo "  Exit 0: the Phase 155 Wave-1 + Wave-2 gate is green (B2 gate + scratchpad + EVENT_TYPES floor + birth transaction)."
 exit 0
