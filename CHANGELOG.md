@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.13.1-beta.19 (in progress)
+## [1.13.1-beta.20] - 2026-06-12
 
 ### Added
 - Phase 155 Ignite Flow: `/mos:ignite` front-door orchestrator for new-room onboarding. Three entry doors (Just Talk, directive `--express` / `--from-brief <sha8>`, opportunity promotion), F-selector HITL gate chain (B1 starting point, B2 blueprint approval before any mkdir with embedded nugget routing table, B3 first win), and `navigation.birthRoom()` -- the atomic 7-step birth transaction (scaffold-then-register, 6/6 memory complement incl. FEYNMAN seed + BRAIN derivation enqueue, operator + JTBD transitions, scratchpad gate-answer replay as typed edges, batch confirmNode on approve). onboard / rooms-new / discover / new-project all route into the one front door.
