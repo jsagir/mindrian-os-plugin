@@ -150,6 +150,65 @@ The PostToolUse envelope's `additionalContext` is a one-line string. The cascade
 
 NOTE: This contract REPLACES the previous load-bearing-broken-since-88.1-03 detection that read the cascade payload from the PostToolUse `additionalContext` envelope. The bash hook never wrote the cascade payload at the location the skill expected. Phase 95 corrects the data flow by relocating the payload to the side-channel file. The prose APPROVE/REJECT/DEFER renderer below (existing APPROVE/REJECT/DEFER flow at "After Filing: Decision Capture") is BYTE-IDENTICAL to current - only the input source has changed.
 
+## Proactive Filing Offer (Conversation Artifact Capture)
+
+The cascade flow above fires when an artifact is WRITTEN. This section covers the case BEFORE that: when a CONVERSATION (not a /mos: command run) yields a keepable artifact, Larry proactively offers to file it before moving on. The conversation IS the work product; the offer is what turns it into a receipt (Canon Part 10, "the room as receipt"). The silent failure mode this guards against: good thinking that is never filed is gone, and a new navigator does not know to ask.
+
+This is doctrine, not a deterministic hook. The "a keepable artifact just appeared" judgment is Larry's, made by reading the conversation, not by a bash detector. The OFFER routes through machinery that already exists - the Decision Gate, the canonical verbs, the AskUserQuestion selector. No new verb, no new selector format, no new engine (Canon Part 7 reuse).
+
+### What it is
+
+When a discuss chunk settles into something the navigator would want again - a sharpened problem definition, a grounded competitive landscape, a chosen direction, a pilot or Phase 0 design, a synthesis - Larry closes the turn with a one-line offer to file it. He does not silently let it evaporate, and he does not wait to be asked.
+
+### Triggers (offer)
+
+Offer at a natural artifact boundary, when EITHER the navigator has agreed to a framing OR a self-contained work product has formed:
+
+| Trigger | What just settled |
+|---------|-------------------|
+| Problem definition articulated or reframed AND the navigator agrees | A sharpened or re-expressed problem statement |
+| Competitive landscape / market scan produced | A grounded set of competitors, alternatives, or market structure |
+| A decision or direction is chosen | The navigator picks a path among options |
+| A plan / pilot / Phase 0 design is produced | A concrete next-step protocol the navigator could run |
+| A synthesis the navigator would want again next session | A wrap that collapses branches back to insight |
+
+### Anti-triggers (do NOT offer)
+
+One offer per artifact. Honor the escape hatch. Do NOT offer when:
+
+- Mid-exploration with no settled artifact - the thought is still forming.
+- Small talk, greetings, or a clarifying side-question.
+- The navigator is mid-thought (a trailing "...", an unfinished list, an explicit "hold on").
+- An offer was already made and declined this turn-cluster - no repeat nagging on the same artifact.
+- A methodology session is live - NEVER interrupt; the filing already routes through that command.
+
+The cadence rule mirrors the Noise Gate above: when in doubt, stay quiet. A wrong offer is worse than no offer.
+
+### How to offer (existing selector, existing verbs)
+
+Close the turn with a Decision Gate F.1 Next Move selector (the AskUserQuestion primitive, the default after a discuss chunk per Canon Part 3). The options map onto the EXISTING canonical verbs - do NOT invent a "File this" verb:
+
+| Option (what the navigator gets) | Canonical verb (Part 3) | Where it routes |
+|----------------------------------|-------------------------|-----------------|
+| File it | Run Methodology | Route to the matching /mos: command that files this artifact type, resolved at surface-time (problem definition -> /mos:diagnose or /mos:structure-argument output; landscape -> /mos:research or /mos:compare-ventures; pilot/plan -> file as a decision/artifact). Larry never types the slug from memory; the resolver late-binds it. |
+| Bank it | Bank Opportunity (ADD) | When the artifact is an opportunity, ADD to the local Opportunity Bank with HSI score + domain tags. |
+| Not yet | Defer | DEFER edge; the gate remembers and re-surfaces at a milestone audit. |
+| Free-Text | Free-Text | Always available; Larry interprets and routes to one of the above. |
+
+The selector is F.1; the verbs are the canonical ten. A "Synthesize" option is offered instead of "File it" when the artifact is a wrap that collapses branches (Part 3 verb 7). The vocabulary is closed - this offer adds no verb to it.
+
+### Reason capture (decline is data)
+
+A decline is the most valuable signal in the system (Canon Part 4; Decision #13). When the navigator picks "Not yet" or declines, capture the reason with ONE low-friction line - never block, never re-prompt: "Got it - parking it. One line on why, so I do not re-offer the same thing?" The reason becomes graph data; silent rejection is the failure mode the gate must make trivially easy to avoid.
+
+### Surface-agnostic
+
+The F.1 / AskUserQuestion path works identically on CLI, Desktop, and Cowork. The offer is conversational on every surface - no surface-specific code (Tri-Polar rule).
+
+### Part 8 (local-only)
+
+Filing writes LOCAL room artifacts / room.db only. The offer never queries the Brain. The artifact body, the problem definition text, the landscape, the pilot - none of it egresses. If a /mos: command in the "File it" route consults the Brain for generic methodology, it carries only framework handles and phase identifiers per Canon Part 8, never the artifact bytes.
+
 ## After Filing: Decision Capture
 
 When the post-write cascade completes and the side-channel reader (above) finds `newFindings` in `<roomDir>/.mindrian/last-cascade.json`, present findings to the user for decision.
