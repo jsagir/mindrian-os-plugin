@@ -1,6 +1,6 @@
 ---
 name: doctor
-description: Diagnose and optionally repair MindrianOS install: detects install-cache drift, .room-root sentinel gaps, active-room guard silence, surface-verification gaps, ROOM.md/MINTO.md drift, UI Ruling System compliance, statusline visibility drift, and Brain end-to-end smoke
+description: "Diagnose and optionally repair MindrianOS install: detects install-cache drift, .room-root sentinel gaps, active-room guard silence, surface-verification gaps, ROOM.md/MINTO.md drift, UI Ruling System compliance, statusline visibility drift, and Brain end-to-end smoke"
 help_jtbd: "Diagnose and optionally repair an off-feeling install."
 argument-hint: "[--fix] [--cascade-rooms] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--all] [--acceptance] [--pre-tag] [--light-npx] [--json]"
 body_shape: E (Action Report)
