@@ -96,11 +96,73 @@ This is a CONVERSATION, not a form. Explore naturally through questions:
 
 ### When to Move On
 
-After sufficient exploration (user has shared enough for meaningful room context), summarize what you heard and propose the room structure:
+After sufficient exploration (user has shared enough for meaningful room context), surface the
+proposed room as the B2 blueprint gate (Canon Part 9 -- this is THE promotion moment; Approve =
+batch confirmNode on all extracted claims, byUser from USER.md. Canon Part 3 -- every fork
+passes through a pickShape gate; bare-prose confirmation is the violation already fixed on
+onboard Step 6 D-12 LOCKED).
 
-> "Here's what I'm hearing: [1-2 sentence summary]. Let me set up your Data Room based on this. I'll create sections for the areas we discussed, with starter questions for the ones we haven't explored yet."
+<!-- B2 GATE -- birth - ROOM BLUEPRINT - decision gate -->
+<!-- BIRTH-FLOW-BRIEF.md Section 2 + Canon Part 9 (promotion moment) + Canon Part 3 (F.0) -->
+<!-- SEED-022: human approval BEFORE mkdir. Nothing is created until B2 Approve. -->
 
-Wait for user confirmation before creating the room.
+**B2: ROOM BLUEPRINT GATE (Shape F.0, pre-room)**
+
+Display the room blueprint summary before calling pickShape:
+
+```
+birth - ROOM BLUEPRINT - decision gate
+LOCAL / BRAIN / SIGNAL
+
+Name:           <venture-name>
+Slug:           <slug>
+Section set:    <8 sections or blueprint family>
+Venture stage:  <honest stage from conversation -- never assumed>
+JTBD:           <first job sentence from conversation>
+Persona:        <role_blend inferred>
+
+Nugget routing table (nothing files until this is approved):
+
+| nugget | target section | why |
+|--------|---------------|-----|
+| <extracted claim 1> | <section-name> | <one phrase reason> |
+| <extracted claim 2> | <section-name> | <one phrase reason> |
+| ... one row per substantive claim extracted ... |
+
+Nothing is created until you approve.
+```
+
+Call `pickShape('F.0', { operator: currentOperator, tier: resolveTier(), payload: { header: 'birth - ROOM BLUEPRINT - decision gate' } })`.
+
+Shape F.0 is a closed-vocab gate (Approve / Reject [Adjust] / Defer). The dispatcher
+(lib/hmi/selector-dispatcher.cjs) ignores any caller-supplied verbs for F.0 -- the three
+verbs are exactly: Approve, Reject (the Adjust channel: user types reason, Larry revises
+blueprint, re-renders B2 -- RESEARCH Q3 option a), Defer. Never add a fourth option.
+
+**Approve path:** Proceed to Step 4 (room creation). This is the Part 9 promotion moment:
+run a batch confirmNode on all extracted claims, byUser resolved from USER.md. Log a
+`room_created` memory_event (Plan 02 responsibility -- this plan wires the gate, Plan 02
+wires the birth transaction). Record that B2 Approve was captured.
+
+**Reject / Adjust path:** Capture the reason (a REJECTED_BECAUSE edge will be written at
+birth per Canon Part 4). Revise the blueprint based on the user's correction: update the
+section set, slug, venture_stage, JTBD, or nugget routing table as needed. Re-render the
+B2 display block and re-call pickShape('F.0', ...) -- this is the Adjust loop.
+
+**Defer path:** Journal the blueprint to scratchpad via:
+```
+writeScratchpadBirthAnswer({ gate_id: 'B2', option_key: 'defer', canonical_verb: 'Defer',
+  alias_label: 'Defer', ts: Date.now() })
+```
+Then exit gracefully. The navigator can resume with /mos:ignite --from-opportunity or by
+returning to /mos:new-project.
+
+<!-- Tri-Polar degradation script (Canon constraint 9 -- no AskUserQuestion card guarantee -->
+<!-- on Desktop; render proof V8 deferred per BIRTH-FLOW-BRIEF.md Section 6 constraint 9) -->
+<!-- Desktop: render the blueprint as a prose summary then display:                         -->
+<!--   "Type: approve / adjust [reason] / defer"                                            -->
+<!-- This is the same conversational degradation pattern as onboard.md Step 6.             -->
+<!-- CLI: pickShape fires the AskUserQuestion card normally via selector-dispatcher.        -->
 
 ## Step 4: Create Room Structure
 
