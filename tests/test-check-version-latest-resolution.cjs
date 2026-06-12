@@ -43,7 +43,10 @@ let failed = 0;
 function pass(name) { passed += 1; console.log('PASS: ' + name); }
 function failTest(name, err) { failed += 1; console.log('FAIL: ' + name + '\n    ' + (err && err.message || err)); }
 
-const CATALOG_URL_RE = /mindrian-marketplace\/main\/\.claude-plugin\/marketplace\.json/;
+// The catalog URL rides the branch-agnostic HEAD ref (the marketplace repo's
+// default branch is master, not main); accept any ref segment here so the
+// test asserts the REPO + FILE identity, not the ref spelling.
+const CATALOG_URL_RE = /mindrian-marketplace\/[^/]+\/\.claude-plugin\/marketplace\.json/;
 const PLUGIN_JSON_URL_RE = /mindrian-os-plugin\/main\/\.claude-plugin\/plugin\.json/;
 
 // Fixture shaped exactly like the live mindrian-marketplace marketplace.json.
