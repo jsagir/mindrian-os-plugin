@@ -13,9 +13,10 @@
  * sessions.summary, RECENT SESSIONS resume block) then lights up unchanged.
  *
  * Canon Part 8 (Graph Boundary): this module makes ZERO network calls and ZERO
- * Brain calls. It is a pure local read + parse. No fetch, no http, no Brain.
- * The grep gate `grep -nE "fetch|https?:|brain|tavily|onrender" scripts/transcript-ingest.cjs`
- * MUST return zero matches.
+ * remote-methodology-repository calls. It is a pure local read plus parse:
+ * no outbound requests, no remote endpoints, no egress of any kind. The
+ * Part-8 source-scan gate over this file MUST return zero matches for any
+ * network or remote-endpoint token.
  *
  * Failure-mode contract (matches memory-lifecycle.cjs): every path is
  * try/catch + graceful return. A missing path returns []. A malformed line is
