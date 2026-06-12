@@ -4,14 +4,14 @@ milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: executing
 stopped_at: Completed 150.5-03-PLAN.md
-last_updated: "2026-06-11T21:25:11.545Z"
+last_updated: "2026-06-12T05:24:40.444Z"
 last_activity: 2026-06-11 -- Phase 150.8 execution started
 progress:
   total_phases: 91
-  completed_phases: 64
+  completed_phases: 65
   total_plans: 476
-  completed_plans: 418
-  percent: 70
+  completed_plans: 422
+  percent: 71
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 150.8 (meeting-micro-knowledge-dikw-filing-v1) — EXECUTING
-Status: Executing Phase 150.8
+Status: Ready to execute
 Queue: 150.6 (drift-fix sweep, gates both) -> 150.7 (tester round 2 + Part 10 ratification gate) + 150.8 (meeting DIKW filing v1, navigator-directive) -> v1.13.1 final gate
 
 (Prior position) Phase: 150 (memory-cortex-as-graph-members) — COMPLETE
-Plan: 1 of 4
+Plan: 2 of 4
 Status: Phase complete — ready for verification
 
 Phase 150 Plan 08 (MEM-09 / D-09 -- the claim harness + the finalized phase gate) complete. Three moves landed: (1) tests/claim-harness/fixtures/claim-room/ -- one obviously-fictional claim-room (ROOM/STATE/USER at root + problem-definition + market-analysis sections, each carrying the 6 memory MD kinds) INCLUDING the contradicting pair (DEC-PD-100 ship-the-scheduler vs DEC-MA-200 never-ship-it) for C3/C7 and poison-nodes (BRAIN.md + FEYNMAN.md carrying SECRET CLAIM PROSE / leak@example.com / a /home/jsagi/secret/ path / an injection token) for the C6 egress arm; tests/claim-harness/build-fixture-room-db.cjs copies the committed tree to a MINDRIAN_ROOMS_HOME tmpdir and builds a REAL room.db by projecting the memory files THROUGH navigation.cjs (reconcileMemoryArtifacts -> 11 nodes / 4 decisions / 7 edges), never hand-stitched SQLite; node:sqlite-unavailable -> SKIP 77; no mocked Brain. (2) the seven claim-cN.cjs drivers -- each drives a REAL shipped unit on the real fixture with an honest-negative arm: C1 focus-node graph identity persists across a room.db re-open; C2 decide() returns a grounded one-move + dial-presenter.renderDial reaches the live surface (D-08 SEEN arm); C3 minting CONTRADICTS lands a queryable edge + writeEdge rejects a non-taxonomy type; C4 the cortex packet carries generic advisory handles, Part-8-clean, degrades offline; C5 K artifacts -> >= K typed nodes + decisions mint at proposed (Part-9); C6 poison-seeded nodes -> zero forbidden prose in the packet (hermetic + source + fixture); C7 file A then conflicting B -> INFORMS lineage + CONTRADICTS minted mid-session. The Brain LIVE arms (C4-live, C6-live) self-skip via class-m-brain-smoke; the semantic claims C2-good + C4-relevance are CARVED OUT to the Part-10 human empathy gate (named SKIP, never a fake PASS). run-all-claims.sh is the two-group clone of run-all-146.sh (group a = C1..C7, group b = the live-Brain precondition + the Part-8 cortex-packet sweep) -> 9/9. (3) scripts/doctor.cjs gains --claims, a SIBLING of --acceptance with its OWN exit code + a DOCTOR_CLAIM_FAIL_POINT self-test hook; tests/run-all-150.sh FINALIZED (every real 150 CJS suite + run-all-claims.sh group + the carried 148 frozen-contracts/reach-ids fences + a standalone Part-8 sweep over the 5 new 150 artifacts). 3 honest-negative-driven initial RED failures surfaced real facts (the reconcile DECISION_ID_RE strips the DEC- prefix to PD-100/MA-200; routing_source flips at the router not in decide()) and were fixed in the drivers (Rule 1). intent-classifier.cjs was NOT modified (the 150-04/06 overlap respected). Frozen 148 contracts byte-unchanged (MAX_K=3, 0.70/0.15, DIAL_REACH_K=6; the carried run-all-148.sh 18/18 asserts it). Canon Part 6/8/9 gates hold. Zero em-dashes. THE PHASE GATE: bash tests/run-all-150.sh = 14 passed / 0 failed / 0 missing (exit 0). Commits 1413c78f (fixture + builder), 0e677232 (7 drivers + aggregator), 2dd48b42 (doctor --claims + finalized run-all-150). Requirement MEM-09 complete. Phase 150 COMPLETE.
@@ -459,6 +459,7 @@ Progress: [█████████░] 92%
 | Phase 150.5 P03 | 30m | 3 tasks | 7 files |
 | Phase 150.6 P02 | 38min | 3 tasks | 9 files |
 | Phase 150.6 P04 | 1 session | 4 tasks (1 paused) | 12 files |
+| Phase 150.8 P04 | 50m | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -1330,6 +1331,7 @@ Progress: [█████████░] 92%
 - [Phase 150.5]: 150.5-03: D-01 recorded EXECUTED in 150.5-CONTEXT.md (append-only); DIAL-ATOM-03 closed; C5 always-on cold card stays de-scoped to Phase 154
 - [Phase ?]: 150.6-02: Brain corpus normalized to ONE live-read set (27,804 nodes / 19,987 rels / 12,413 Pinecone vectors, 2026-06-11) across THE-BRAIN.md, brain-setup.md, CLAUDE.md, MINDRIAN-CANON.md Appendix D; canon stays v1.6 (figures correction).
 - [Phase ?]: 150.6-02: @mindrian_os/install deprecated on npm + swept to live @mindrian_os/cli; THE-BRAIN.md rewritten to the real 6-tool MCP surface (brain_query/schema/write/search/stats/ask).
+- [Phase ?]: 150.8-04: Confirm-proposed-claims routes through confirmNode (D1); cortex-reach claim branch additive, frozen 148 constants untouched (D2)
 
 ### Pending Todos
 
@@ -1366,6 +1368,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-11T10:46:20.791Z
+Last session: 2026-06-12T05:24:20.301Z
 Stopped at: Completed 150.5-03-PLAN.md
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).
