@@ -22,7 +22,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 START_TIME=$(date +%s)
 
-# Wave-1 + Wave-2 + Wave-3 + Wave-4 CJS suites
+# Wave-1 + Wave-2 + Wave-3 + Wave-4 + Wave-5 (Plan 07) CJS suites
 CJS_SUITES=(
   test-new-project-b2-gate.cjs
   test-scratchpad-birth-answers.cjs
@@ -30,6 +30,8 @@ CJS_SUITES=(
   test-room-birth.cjs
   test-mva-from-brief.cjs
   test-blueprint-scaffold.cjs
+  test-domain-insight-sweep.cjs
+  test-domain-insight-egress-tripwire.cjs
 )
 
 TOTAL=0
@@ -250,7 +252,7 @@ END_TIME=$(date +%s)
 ELAPSED=$((END_TIME - START_TIME))
 
 echo "========================================"
-echo "  Summary (Phase 155 phase gate -- all 6 plans)"
+echo "  Summary (Phase 155 phase gate -- all 7 plans)"
 echo "========================================"
 echo "  CJS suites total:   $TOTAL"
 echo "  CJS suites passed:  $PASSED"
@@ -317,10 +319,11 @@ if [[ "$ALL_GREEN" == "false" ]]; then
 fi
 
 echo "========================================"
-echo "  Exit 0: the Phase 155 all-6-plans gate is green."
+echo "  Exit 0: the Phase 155 all-7-plans gate is green."
 echo "  Proved: ignite.md CONN-03-passing + ranker-eligible + bespoke-prompt-free"
 echo "  Proved: entry routing onboard/rooms/discover/new-project all route to /mos:ignite"
 echo "  Proved: both registries regenerated with ignite; --check tripwires pass"
 echo "  Proved: CONNECTOR-CONTRACT.md frozen-5 corrected to frozen-6"
+echo "  Proved: Plan 07 extractDomains + sweepDomainInsights + Part 8 egress tripwire green"
 echo "  Proved: carried fences 148/150.5/150.8 + claim-harness 9/9 hold"
 exit 0

@@ -133,3 +133,5 @@ Cite docs/reward-before-investment-rule.md. The ignite flow IS a complete Hook c
 - **Investment:** B2 Approve -> room exists (room.db created, registry live) -> B3 loads the next trigger
 
 Every step ends at an F.1 offering to Bank Opportunity so the win persists in the opportunity-bank section. The three gates (B1/B2/B3) are not a form -- they are three investment checkpoints in the Hook cycle, each producing a typed edge in room.db.
+
+After B3 renders, call sweepDomainInsights (lib/core/domain-insight-sweep.cjs) with the domains extracted from the upload path (extractDomains from shallow-doc-parser.cjs); surface results as 'three adjacencies in your background you have never seen' as the Hooked variable reward (Decision 9 / BIRTH-FLOW-BRIEF.md Section 9 Gap 15). Tri-Polar degradation: on Desktop (no db handle pre-birth), run extractDomains only and surface the handles as a text summary; sweepDomainInsights with db runs post-birth in the B3 slot.
