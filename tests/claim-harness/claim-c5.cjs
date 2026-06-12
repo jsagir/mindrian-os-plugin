@@ -16,6 +16,41 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 
 const HARNESS = require('./build-fixture-room-db.cjs');
+const REPO_ROOT = path.resolve(__dirname, '..', '..');
+const navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
+
+// Phase 150.8-04 (DIKW-10): the fixture transcript claims. A K-segment meeting
+// decomposes (the Claimify 4-pass) into K atomic claims; extraction is the
+// segmentation authority (the GATE-0 consequence), so filing K segments mints
+// >= K type='claim' nodes -- the completeness invariant the DIKW ladder stands on.
+// Each carries a knowledge_type enum from the frozen 6 (the typed-graph the
+// build-knowledge reader groups by rung). Prose stays LOCAL (Canon Part 8).
+const FIXTURE_TRANSCRIPT_CLAIMS = Object.freeze([
+  { knowledge_type: 'fact', text: 'The TAM for the enterprise segment is 190M dollars', sourceSegment: 'tx-seg-1' },
+  { knowledge_type: 'causal', text: 'Onboarding friction is causing the week-one churn spike', sourceSegment: 'tx-seg-2' },
+  { knowledge_type: 'heuristic', text: 'Ship the smallest reversible change first', sourceSegment: 'tx-seg-3' },
+  { knowledge_type: 'anomaly_cue', text: 'Retention dropped in the cohort that saw the new pricing page', sourceSegment: 'tx-seg-4' },
+  { knowledge_type: 'mental_model', text: 'Treat the venture as a near-decomposable nested system', sourceSegment: 'tx-seg-5' },
+  { knowledge_type: 'assumption', text: 'Buyers will tolerate a 14-day evaluation window', sourceSegment: 'tx-seg-6' },
+]);
+
+// mintFixtureTranscriptClaims(db, sessionId) -> count minted. Files each fixture
+// claim THROUGH the navigation chokepoint (navigation.writeClaimNode) on the real
+// fixture room.db, exactly the way /mos:file-meeting Pass 4 does.
+function mintFixtureTranscriptClaims(db, sessionId) {
+  let minted = 0;
+  for (const c of FIXTURE_TRANSCRIPT_CLAIMS) {
+    const r = navigation.writeClaimNode(db, {
+      knowledge_type: c.knowledge_type,
+      text: c.text,
+      sessionId: sessionId,
+      sourceSegment: c.sourceSegment,
+    });
+    assert.equal(r.ok, true, 'fixture claim must write: ' + JSON.stringify(r));
+    minted += 1;
+  }
+  return minted;
+}
 
 try {
   require('node:sqlite');
@@ -82,6 +117,40 @@ try {
   check('honest-negative: a never-projected node type has a zero count (index reflects reality)', function () {
     const ghost = db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE type = 'this_type_was_never_projected'").get();
     assert.equal(ghost.n, 0, 'an un-filed node type must have zero indexed nodes');
+  });
+
+  // Phase 150.8-04 (DIKW-10): the typed-claim completeness extension. A K-segment
+  // transcript -> >= K type='claim' nodes, queryable by knowledge_type, minted at
+  // proposed. This is the EX-01 DIKW acceptance leg run on the real fixture room.db.
+  const SESSION = 'claim-c5-transcript';
+  const K = mintFixtureTranscriptClaims(db, SESSION);
+
+  check('K transcript segments -> >= K type=claim nodes (completeness, DIKW-10)', function () {
+    const claimRow = db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE type = 'claim'").get();
+    assert.ok(claimRow.n >= K,
+      'the claim index (' + claimRow.n + ') must be >= the ' + K + ' filed segments');
+  });
+
+  check('every filed claim is queryable by knowledge_type (json_extract)', function () {
+    const rows = db.prepare(
+      "SELECT id, json_extract(properties,'$.knowledge_type') AS kt " +
+      "FROM nodes WHERE type='claim'"
+    ).all();
+    assert.ok(rows.length >= K, 'all filed claims must be readable by knowledge_type');
+    const FROZEN6 = new Set(['fact', 'causal', 'heuristic', 'anomaly_cue', 'mental_model', 'assumption']);
+    for (const r of rows) {
+      assert.ok(FROZEN6.has(r.kt),
+        'claim ' + r.id + ' carries a knowledge_type outside the frozen 6: ' + r.kt);
+    }
+  });
+
+  check('typed claims mint at proposed (never auto-confirmed -- Part 9 role 5)', function () {
+    const rows = db.prepare("SELECT id, review_status FROM nodes WHERE type = 'claim'").all();
+    assert.ok(rows.length >= K, 'claims must be present');
+    for (const r of rows) {
+      assert.equal(r.review_status, 'proposed',
+        'claim ' + r.id + ' must mint at proposed: ' + r.review_status);
+    }
   });
 } finally {
   built.cleanup && built.cleanup();
