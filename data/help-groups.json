@@ -17,6 +17,7 @@
       "label": "Getting Started",
       "glyph": "▶",
       "commands": [
+        "ignite",
         "new-project",
         "onboard",
         "splash",
@@ -192,7 +193,8 @@
     "heal": "doctor --heal-room",
     "query": "graph",
     "organize": "rooms organize",
-    "hmi-status": "doctor --ui-compliance"
+    "hmi-status": "doctor --ui-compliance",
+    "visualize": "dashboard --mermaid"
   },
   "_lanes": {
     "start": "Start + navigate",
