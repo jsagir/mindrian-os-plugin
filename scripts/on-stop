@@ -20,6 +20,25 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
+# Quick task 260612-pkb: conversation intake plumbing. Capture the Stop hook
+# stdin JSON ONCE and extract transcript_path, exporting it so the
+# memory-lifecycle.cjs stop subprocess (line ~199) can ingest the real
+# conversation turns into the active room's room.db. stdin can only be read
+# once, so this MUST run before anything else consumes stdin. Defensive on
+# every step (|| true under set -euo pipefail): a manual run with no stdin
+# must not hang and must not error. LOCAL-only (Canon Part 8): this only reads
+# a local transcript path; no network, no Brain.
+HOOK_STDIN="$(cat 2>/dev/null || true)"
+if [ -n "$HOOK_STDIN" ]; then
+  TRANSCRIPT_PATH="$(printf '%s' "$HOOK_STDIN" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const j=JSON.parse(d);process.stdout.write(j.transcript_path||'')}catch(_){process.stdout.write('')}})" 2>/dev/null || true)"
+  if [ -n "$TRANSCRIPT_PATH" ]; then
+    export MINDRIAN_TRANSCRIPT_PATH="$TRANSCRIPT_PATH"
+    if [ "${MINDRIAN_MEMORY_DEBUG:-}" = "1" ]; then
+      printf '[on-stop] MINDRIAN_TRANSCRIPT_PATH=%s\n' "$MINDRIAN_TRANSCRIPT_PATH" >&2
+    fi
+  fi
+fi
+
 # Determine working directory
 WORK_DIR="${PWD}"
 ROOM_DIR=$("${SCRIPT_DIR}/resolve-room" "$WORK_DIR") || ROOM_DIR=""
