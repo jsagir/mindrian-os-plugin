@@ -44,6 +44,7 @@ CJS_SUITES=(
   test-edges-refines-rootcauses-instantiates-floor.cjs
   test-ambiguous-queue.cjs
   test-check-pending-ambiguous.cjs
+  test-trigger-invariant.cjs
 )
 
 TOTAL=0
