@@ -73,9 +73,9 @@ Continue to Step 3 (standard upgrade flow).
 
 ### Step 3: Show what's new
 
-Fetch the relevant CHANGELOG section:
+Fetch the relevant CHANGELOG section. CRITICAL: anchor on a NUMBERED release heading. The top of main's CHANGELOG is the next-version `[Unreleased] -- (in progress)` placeholder (the two-commit release form burns it), and showing it to a user installing the released version reads as a phantom version (live confusion report, 2026-06-12):
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/jsagir/mindrian-os-plugin/main/CHANGELOG.md" | sed -n '/^## \[/,/^## \[/p' | head -60
+curl -fsSL "https://raw.githubusercontent.com/jsagir/mindrian-os-plugin/main/CHANGELOG.md" | sed -n '/^## \[[0-9]/,/^## \[/p' | head -60
 ```
 
 Show in Larry's voice:
