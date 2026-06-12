@@ -1,6 +1,6 @@
 ---
 name: jtbd
-description: Show, set, list, or inspect the active JTBD (job-to-be-done) -- the per-room signal that tells Larry what kind of work the navigator is doing right now
+description: "Show, set, list, or inspect the active JTBD: the per-room signal that tells Larry what kind of work the navigator is doing right now"
 help_jtbd: "Surface the job-to-be-done you are in right now."
 argument-hint: "[set <jtbd> | clear | list | history] [--json]"
 body_shape: E (Action Report)

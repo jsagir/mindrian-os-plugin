@@ -1,6 +1,6 @@
 ---
 name: operator
-description: Show or manually set the conversation operator (JUST_TALK / EXPLORE_CAPTURE / BUILD_ROOM / METHODOLOGY / DECISION_GATE) -- the per-room state machine that governs how Larry renders responses
+description: "Show or manually set the conversation operator (JUST_TALK / EXPLORE_CAPTURE / BUILD_ROOM / METHODOLOGY / DECISION_GATE): the per-room state machine that governs how Larry renders responses"
 help_jtbd: "See or change the conversation operator state."
 argument-hint: "[history] [set <op>] [reset] [--json]"
 body_shape: E (Action Report)

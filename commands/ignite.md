@@ -5,7 +5,7 @@ help_jtbd: "Start (or excavate) a room through one front door."
 body_shape: E
 argument-hint: "[--express | --from-brief <sha8> | --from-opportunity <ref>]"
 serves_jtbd: ["explore", "build"]
-teaching: "Larry walks you through three birth gates -- starting point, blueprint approve, first win -- so every new room begins with a clear JTBD, the right section set, and one bankable opportunity."
+teaching: "Larry walks you through three birth gates (starting point, blueprint approve, first win) so every new room begins with a clear JTBD, the right section set, and one bankable opportunity."
 interactive_first_reward: instant_brief
 allowed-tools:
   - Read

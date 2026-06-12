@@ -1,8 +1,8 @@
 ---
 name: memory-cortex-reach
 description: Reach into your memory cortex when a governing thought goes stale or a contradiction lands
-help_jtbd: "Surface the projected memory cortex (governing thoughts, claims, contradictions) as a Decision Gate reach when the cortex signals it needs attention."
-body_shape: F (Selector Block)
+help_jtbd: "Bring the memory cortex to a Decision Gate when a governing thought goes stale or a contradiction lands."
+body_shape: F.1
 body_shape_detail: One reach surfaced at an F.1 Decision Gate; the navigator approves before any cortex read fires
 serves_jtbd: ["navigate"]
 teaching: "When a governing thought you set has gone stale, or a fresh contradiction has just landed against a claim, your memory cortex has something to tell you. /mos:memory-cortex-reach is the navigator-facing surface the orchestrator dispatches to bring that signal to a Decision Gate. It does not re-implement the cortex; it joins the reach spine so the cortex becomes dispatchable."
