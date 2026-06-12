@@ -1,0 +1,4 @@
+room: mindrianOS
+relation: code
+born: 2026-06-11
+note: Dev repo of the mindrianOS venture (Canon Part 6 dog-fooding). Human tester evidence lives in the room at sub-rooms/feedback/testers (registered slug tester-feedback) and sub-rooms/qa/. R&D cross-references: dev-side .planning/research/ <-> room-side research/ (incl. algorithm-rd) and product-evolution/ (audits, decisions, architectural-mandates). Verification gates marked human_needed in .planning/phases/ should harvest evidence from the room before claiming no human observation exists.
