@@ -1,12 +1,17 @@
 ## [Unreleased] -- v1.13.1-beta.15 (in progress)
 
 ### Added
-- 
+- Phase 150.8 (meeting micro-knowledge DIKW filing v1): every filed transcript now climbs Ackoff's ladder -- Data (segments) -> Information (typed atomic claims) -> Knowledge (confirmable claims + causal edges) -> Wisdom (`/mos:build-knowledge` renders the typed graph by DIKW rung). `writeClaimNode` truth-claim writer (`lib/core/navigation/typed-claim.cjs`): frozen 6-enum `knowledge_type` (fact / causal / heuristic / anomaly_cue / mental_model / assumption) + `conditions` / `counter_conditions` boundary fields + `valid_from` / `valid_until` temporal validity, all additive JSON properties, minted `proposed` per Canon Part 9.
+- Claimify 4-pass extraction in `/mos:file-meeting` Step 3 (selection -> disambiguation -> decomposition -> typing) with `references/meeting/knowledge-typing.md`; unresolvable referents queue as `ambiguous` claims (never silently dropped) and resurface at SessionStart via `scripts/check-pending-ambiguous.cjs` (mandatory Dismiss, 3-strikes throttle, counts-and-ids-only payload per Part 8).
+- Edge taxonomy amendment (navigator-LOCKED 2026-06-12, canon v1.6 -> v1.7, Appendix D entry 18): `REFINES`, `ROOT_CAUSES`, `INSTANTIATES` join `ALLOWED_EDGE_TYPES` in one atomic lockstep wave (edges.cjs block + floor test + claim-harness C3 arm + canon docs). Meeting claims can now express causal structure as first-class graph edges.
+- Post-filing F.1 selector: three ladder verbs (Review ambiguous / Confirm proposed claims / Build knowledge); the Confirm verb routes through the Phase 129.5 `confirmNode` chokepoint with human `byUser` attribution -- the Knowledge rung is actually confirmable. The cortex-reach-adapter gains an additive `claim` branch so fresh typed claims lift dial reach scores (filing is felt, not just stored).
+- `doctor` class N (silent-disable watchdog): detects the plugin installed-but-disabled state from OUTSIDE the plugin's hook surface -- `npx @mindrian_os/cli doctor` flags it CRITICAL with the exact `claude plugin enable` recovery command (install-cache family case 7; RCA plugin-silent-disable-after-cc-self-upgrade).
 
-## [Unreleased] -- v1.13.1-beta.15 (in progress)
+### Fixed
+- Phase 150.6 (drift-fix sweep, from the 2026-06-11 Fable 5 full drift audit): Larry's agent/skill prose corrected to shipped facts (6 reach-ids, SENS-01..08, Phase 144 engine flip SHIPPED -- Larry stops under-claiming his own engine every session); npm description + docs point at the live `@mindrian_os/cli` (dead `@mindrian_os/install` deprecated ON the registry); `docs/THE-BRAIN.md` fictional 7-tool table replaced with the real 6 (incl. `brain_ask`); ONE Brain number set across all four surfaces (27,804 nodes incl. 12,401 MethodologyChunk substrate / 19,987 rels / 12,413 Pinecone vectors, live read 2026-06-11, Appendix D entry 16); `/mos:help` drops deprecated `visualize`, surfaces shipped `discover` + `memory-cortex-reach`; `venture_classified` scalar emission un-deadens the Phase 119 receipt nudge (Part 8: boolean + enum only); workspace-guard paths repointed to `~/dev/MindrianOS-Plugin`; F.7 dial renders the declared tri-context Decision Gate header (navigator-LOCKED, SKILL.md:257 glyph collision resolved); Action Footers added to `doctor`/`memory`; pre-commit installer dead-guard bug fixed (guards spliced before the terminal exit 0).
 
-### Added
-- 
+### Changed
+- GATE-0 verdict (consumed by 150.8): the intelligence cascade fires FILE-LEVEL ONLY on meeting artifacts; extraction is the segmentation authority (`SEGMENT_AUTHORITY` contract in intelligence-cascade.cjs). Frozen contracts byte-unchanged throughout both phases: MAX_K=3, DIAL_REACH_K=6, 0.70/0.15, the 6-reach bank. Canon now at v1.7.
 
 ## [1.13.1-beta.14] - 2026-06-10
 
