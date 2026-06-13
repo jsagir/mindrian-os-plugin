@@ -2590,16 +2590,16 @@ Plans:
 
 ### Phase 150.9: Doctor drift-classes for Fable audit tracks (extends 95.1)
 
-**Goal:** Extend the Phase 95.1 doctor class-engine with Class P (prose-vs-code drift) + Class Q (GSD execution-record drift) + a DRIFT.md baseline writer (FIX-13), opt-in under `doctor --drift`, so every release self-audits instead of paying ~600k tokens for a manual Fable re-run.
-**Requirements**: DDC-03, DDC-08 (Plan 01); DDC-01, DDC-02, DDC-04, DDC-05 (Plan 02); DDC-* (Plan 03)
-**Depends on:** Phase 95.1 (doctor class-engine)
-**Plans:** 3 plans (2 complete)
+**Goal:** Extend the Phase 95.1 doctor class-engine with Class P (prose-vs-code drift, REPORT-ONLY) + Class Q (GSD execution-record drift via a gsd-health shell-out parsing W007/I001) + a FIX-13 DRIFT.md root+per-folder baseline writer (diff-stable so the next audit DIFFs instead of rediscovering ~600k tokens), all opt-in under `doctor --drift`, heal-where-safe (auto-writes DRIFT.md + missing-SUMMARY stubs while prose stays report-only), Canon Part 8 zero-egress, and the marketplace-cache-drift-deadlock carve-out preserved -- so every release self-audits instead of paying for a manual Fable re-run.
+**Requirements**: DDC-01..DDC-08 (plan-local IDs minted 1:1 from the phase's drift-class surface): DDC-01 Class P prose-vs-code report-only (wraps the two checkers), DDC-02 Class Q GSD execution-record drift (gsd-health shell-out, W007/I001 parse), DDC-03 DRIFT.md root + per-folder writer (FIX-13 diff-stable baseline), DDC-04 --drift opt-in activation flag (D-04; classFlagsActive registration), DDC-05 heal-where-safe split (D-03; auto-write DRIFT.md + stub SUMMARYs; prose report-only), DDC-06 Part 8 zero-egress floor proof (95.2-mirrored grep) + deadlock-carve-out-preserved proof, DDC-07 phase-gate test suite (run-all-150.9.sh + the 3 CJS test files), DDC-08 SUMMARY-stub helper for I001 missing-SUMMARY heal.
+**Depends on:** Phase 95.1 (the doctor class-engine host), Phase 150.6 (the audit fix-queue context)
+**Plans:** 3/3 plans complete
 
 Plans:
 
 - [x] 150.9-01-PLAN.md -- lib/core/drift-baseline.cjs pure DRIFT.md writer (root index + per-folder, FIX-13 diff-stability, V12 traversal guard, Part 8 floor) + tests/test-drift-baseline.cjs 6/6 GREEN [DDC-03, DDC-08]
 - [x] 150.9-02-PLAN.md -- doctor.cjs Class P (prose-vs-code, REPORT-ONLY; wraps both shipped checkers, first-touch via subprocess) + Class Q (gsd-record drift; shells to gsd-tools validate health --raw, parses W007/I001, shape-asserts) + `--drift` opt-in flag (classFlagsActive exit-0; independent of --all; deadlock carve-out untouched) + `--drift --fix` heal arm (DRIFT.md + SUMMARY stubs via Plan-01 writer). test-doctor-class-p.cjs 4/4 + test-doctor-class-q.cjs 7/7 GREEN [DDC-01, DDC-02, DDC-04, DDC-05]
-- [ ] 150.9-03-PLAN.md -- tests/run-all-150.9.sh phase gate + acceptance greps
+- [x] 150.9-03-PLAN.md -- tests/run-all-150.9.sh phase gate (3 CJS suites + Part 8 zero-egress floor grep + deadlock-exit-0 proof) + ROADMAP DDC-01..DDC-08 backfill [DDC-06, DDC-07]
 
 ### Phase 150.10: Systems Thinking F-selector -- promote /mos:systems-thinking to a human-in-the-loop move-selector (INSERTED)
 

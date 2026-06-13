@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: executing
-stopped_at: Phase 150.9 Plan 02 complete (doctor Class P/Q + --drift heal arm shipped GREEN)
-last_updated: "2026-06-13T20:43:12.000Z"
-last_activity: 2026-06-13 -- Phase 150.9 Plan 02 complete (doctor Class P/Q + --drift)
+stopped_at: Phase 150.9 Plan 03 complete (run-all-150.9.sh phase gate GREEN + ROADMAP DDC-01..DDC-08 backfill) -- PHASE 150.9 COMPLETE
+last_updated: "2026-06-13T21:05:00.000Z"
+last_activity: 2026-06-13 -- Phase 150.9 Plan 03 complete (phase gate + ROADMAP backfill); Phase 150.9 COMPLETE
 progress:
   total_phases: 94
-  completed_phases: 66
+  completed_phases: 67
   total_plans: 486
-  completed_plans: 431
+  completed_plans: 432
   percent: 70
 ---
 
@@ -25,9 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 150.9 (doctor-drift-classes-for-fable-audit-tracks-extends-95-1) — EXECUTING (2/3 plans)
-Status: Plans 01-02 complete; Plan 03 remains (phase gate)
-Queue: 150.6 (drift-fix sweep, gates both) -> 150.7 (tester round 2 + Part 10 ratification gate) + 150.8 (meeting DIKW filing v1, navigator-directive) -> v1.13.1 final gate
+Phase: 150.9 (doctor-drift-classes-for-fable-audit-tracks-extends-95-1) — COMPLETE (3/3 plans)
+Status: Phase complete — ready for verification
+Queue: 150.7 (tester round 2 + Part 10 ratification gate) + 150.10 (systems-thinking F-selector) -> v1.13.1 final gate
+
+Phase 150.9 Plan 03 (DDC-06, DDC-07 -- the phase gate + ROADMAP backfill) complete. tests/run-all-150.9.sh ships as the one-command Phase 150.9 gate, mirroring the run-all-150.5.sh two-group-plus-tally idiom: group (a) runs the three real CJS drift suites by their corrected names (test-drift-baseline.cjs 6/6 + test-doctor-class-p.cjs 4/4 + test-doctor-class-q.cjs 7/7); group (b) is the Canon Part 8 zero-egress floor proof (RQ5, mirroring the 95.2 grep precedent) -- a FULL grep of lib/core/drift-baseline.cjs + a PR-diff-scoped grep of scripts/doctor.cjs new lines (git diff origin/main, with a new-Class-P/Q line-range 4430-4710 fallback when upstream is unavailable) for the fetch|http|curl|brain|tavily token set; group (c) is the marketplace-cache-drift-deadlock-preserved proof (RQ1) -- node scripts/doctor.cjs --drift --json run live with its exit code asserted == 0. Single N passed/M failed/K missing tally; exits non-zero on any failure. One Rule-1 deviation: the PR-diff grep false-positived on the EDITED classFlagsActive line `|| flags.brainSmoke || flags.drift;` (the pre-existing brainSmoke Class-M control flag is NOT network egress -- Plan 02's SUMMARY self-check pre-identified exactly this), fixed with a flags.brainSmoke|brain_smoke|brainSmoke benign-flag carve-out applied to both grep paths; the leg now passes honestly with 0 genuine network matches. bash tests/run-all-150.9.sh = 6 passed / 0 failed / 0 missing (exit 0). The ROADMAP 150.9 entry was backfilled from the partial placeholder Requirements line to the full minted DDC-01..DDC-08 1:1 mapping (the 150.6 DRIFT-01..11 idiom verbatim: ID then short description, comma-separated), Depends-on extended to 95.1 + 150.6, Plans bumped to 3/3 complete, the 150.9-03 plan row added + checked off; no placeholders remain in the 150.9 block and every DDC-01..DDC-08 is covered by at least one plan's frontmatter (DDC-06 + DDC-07 in Plan 03). This SUMMARY replaced the I001 auto-stub that Plan 02's --drift --fix heal arm wrote for this plan (proof the heal arm works). Zero em-dashes. Commit 016482e5 (phase gate). Requirements DDC-06 + DDC-07 complete. Phase 150.9 COMPLETE (all 8 DDC requirements shipped across Plans 01-03).
 
 Phase 150.9 Plan 02 (DDC-01, DDC-02, DDC-04, DDC-05) complete. doctor.cjs gains two new lettered drift classes behind an opt-in `--drift` flag, conforming exactly to the shipped A-N class contract (return shape, classFlagsActive exit-0 invariant, _finalizeAndExit-only exit, no process.exit in any class fn). Class P (prose-vs-code, REPORT-ONLY, D-03) wraps the two shipped checkers per Canon Part 7 reuse: check-skill-vs-code-drift.cjs via require().check() and check-first-touch-drift.cjs via spawnSync subprocess (Pitfall 1 -- the checker is CLI-only and self-exits, so a require would kill doctor; the subprocess captures exit code + DRIFT: stdout lines). It is proven to make ZERO edits to any prose .md, even under --fix (P-2 mtime-unchanged). Class Q (gsd-record drift, D-02) SHELLS OUT to gsd-tools validate health --raw with a FIXED arg array (T-150.9-03; cwd=repo-root per Pitfall 3), parses W007 (ROADMAP gaps) + I001 (missing SUMMARYs), shape-asserts before reading (Pitfall 2 -> status:error not false-clean), treats broken/error health as indeterminate, and degrades to status:skip on locator failure (resolveGsdTools mirrors the workflows/health.md _GSD_TOOLS order + a MINDRIAN_DOCTOR_GSD_TOOLS override for hermetic tests). The --drift --fix heal arm calls the Plan-01 writer (writeDriftBaseline + stubMissingSummary) to auto-write DRIFT.md + stub missing SUMMARYs while Class P prose findings are recorded report-only (per_folder:false pointer). flags.drift is in the classFlagsActive OR-chain (exit-0 invariant) and is INDEPENDENT of --all (D-04), so the marketplace-cache-drift-deadlock carve-out in Class A is never touched (Q-4 asserts exit stays 0). Verified live: Class Q parses 96 W007 + 9 I001 from the real repo; the heal arm writes only gitignored .planning/ (zero tracked/prose edits). TDD: Task 1 RED (test-doctor-class-p.cjs 4 behaviors + test-doctor-class-q.cjs 7 behaviors) committed first; Tasks 2/3 flipped both GREEN (P 4/4, Q 7/7). One in-scope deviation (Rule 3): cp was not a module-scope alias in main(), added a local require('child_process') matching the existing in-function idiom. RQ5 PR-diff network grep returns 0 on the new lines; zero em-dashes across all 3 changed files. Commits 84f21a08 (RED tests), e451b3be (--drift + Class P), 55a7c592 (Class Q + heal arm). Next: Phase 150.9 Plan 03 (tests/run-all-150.9.sh phase gate + acceptance greps).
 
