@@ -2590,14 +2590,29 @@ Plans:
 
 ### Phase 150.9: Doctor drift-classes for Fable audit tracks (extends 95.1)
 
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase TBD
+**Goal:** Extend the Phase 95.1 doctor class-engine with Class P (prose-vs-code drift) + Class Q (GSD execution-record drift) + a DRIFT.md baseline writer (FIX-13), opt-in under `doctor --drift`, so every release self-audits instead of paying ~600k tokens for a manual Fable re-run.
+**Requirements**: DDC-03, DDC-08 (Plan 01); DDC-* (Plans 02-03)
+**Depends on:** Phase 95.1 (doctor class-engine)
+**Plans:** 3 plans (1 complete)
+
+Plans:
+
+- [x] 150.9-01-PLAN.md -- lib/core/drift-baseline.cjs pure DRIFT.md writer (root index + per-folder, FIX-13 diff-stability, V12 traversal guard, Part 8 floor) + tests/test-drift-baseline.cjs 6/6 GREEN [DDC-03, DDC-08]
+- [ ] 150.9-02-PLAN.md -- doctor.cjs Class P/Q dispatch + `--drift` heal arm (consumes the writer)
+- [ ] 150.9-03-PLAN.md -- tests/run-all-150.9.sh phase gate + acceptance greps
+
+### Phase 150.10: Systems Thinking F-selector -- promote /mos:systems-thinking to a human-in-the-loop move-selector (INSERTED)
+
+**Goal:** Promote the existing `/mos:systems-thinking` command from a fixed 4-phase walk into an F-surface human-in-the-loop move-selector. The navigator sits at a dial every turn and picks a ranked move (M1 draw/challenge boundary -> M2 build causal loop -> M3 name archetype -> M4 locate Meadows leverage point -> M5 route to validation), plus Brain-surfaced cross-framework chains (Root Cause 0.85 / Scenario 0.80 / Six Hats 0.70). GUIDED default ("let me think"); dial overrides just-tell-me (AUTONOMOUS) / stop. PWS anchor: systems thinking is a META-LENS -- it qualifies and helps at ANY stage, ANY problem type (UDP/IDP/WDP x Simple/Complex/Wicked), ANY case, NOT only discovery (Brain returns stage:null). The PWS discipline that holds everywhere: end with an actionable handle (a leverage-point hypothesis + a STAGE-AWARE next-action target -- validate-with-people in discovery, intervention-to-prototype in design, thesis-loop in investment, leverage-to-instrument in operations), NOT a pretty diagram. Filing is STAGE-AWARE: the artifact files to the ACTIVE room section, not always problem-definition. **LOAD-BEARING Piece A -- Brain ingestion of IRIS Session 2:** ingest Session 2's generic PWS methodology into the CURRENT Brain graph ADDITIVELY -- dedup against existing nodes (causal loops / leverage points / wicked problems / systems thinking / Meadows already exist -> MERGE, never duplicate), add the genuinely-new (Cynefin, Futures Wheel, S-curve/dominant design, Mullins, trending-to-absurd, examples: USS Nautilus / fishery CLD / Benz 1885) each WIRED on creation, one "IRIS 2026 Session 2" Lecture anchor, and an ORPHAN-SCAN acceptance gate (zero nodes with source_doc='iris-2026-session-2' and no edge). Source material is the IRIS Session 2 transcript (own IP; sidesteps the CC BY-SA 4.0 third-party skill). Three-layer navigation contract: Brain (Neo4j) supplies the generic FLOW via graph-native `PREREQUISITE`/`FEEDS_INTO` edges among the move-nodes (seeded by Piece A); the local SQLite graph (room/.room-graph/, read via navigation.cjs) supplies room STATE; room.db memory (memory-ops.cjs, 3 layers) supplies TRAJECTORY; ranking is computed LOCALLY by blending all three (Canon Part 8: zero room-content egress to Brain). Promote-in-place: no new command (connector frontmatter already wired -- reach_id context_block, SENS-06, surface F.2). Design spec: .planning/specs/systems-thinking-f-selector-design.md. Context: .planning/phases/150.10-systems-thinking-f-selector/150.10-CONTEXT.md
+**Requirements**: TBD (design spec is the requirements source; run /gsd-plan-phase 150.10 to break down)
+**Depends on:** Phase 150 (memory cortex), Phase 143 (insight sensors / SENS-06), Phase 144 (decide() engine flip), Phase 148 (6-reach bank + F.1 selector), Phase 109 (navigation.cjs chokepoint)
 **Plans:** 0 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 150.9 to break down)
+- [ ] TBD (run /gsd-plan-phase 150.10 to break down)
+
+**Open decision (carried from spec, locked unless overruled at plan time):** Piece A seeds the move-node `PREREQUISITE`/`FEEDS_INTO` edges into Brain (admin write-capable key required); if the key is absent at build time, Piece B falls back to the hardcoded ranking heuristic and Piece A becomes a follow-up. Defaults: M5 names target + offers (not auto) the talking-to-people handoff; trending-to-absurd/S-curve stays a cross-chain (no 6th move); filing target = problem-definition.
 
 ---
 
