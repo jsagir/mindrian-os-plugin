@@ -297,6 +297,16 @@ Class flags (combine freely; --all activates them all):
                            ===true or absent -> OK. Runs on a bare doctor run AND under --all (NOT
                            behind a flag -- a disabled plugin cannot run its own hooks). LOCAL
                            read only, never writes settings.json.
+  --drift                  class P (prose-vs-code drift, REPORT-ONLY -- wraps
+                           check-skill-vs-code-drift + check-first-touch-drift; never
+                           edits prose, even under --fix) + class Q (gsd-record drift --
+                           shells out to gsd-tools validate health --raw, parses W007
+                           ROADMAP gaps + I001 missing SUMMARYs). With --fix, writes the
+                           DRIFT.md baseline (root index + per-folder detail) and stubs
+                           missing SUMMARYs (mechanical heal); prose stays report-only.
+                           OPT-IN ONLY: independent of --all, NOT in the session-start
+                           roster. Release/CI invokes it explicitly. LOCAL-only, zero
+                           network. Phase 150.9 (FIX-13).
   --all                    activate all class flags
 
 Release-gate runner (Phase 123 Plan-04 -- separate from class flags):
@@ -3745,6 +3755,81 @@ function runAccumulativeEngine(flags) {
   };
 }
 
+// -- Phase 150.9 Class Q / heal-arm helpers --------------------------
+//
+// resolveGsdTools(): locate gsd-tools.cjs mirroring the workflows/health.md:52
+// _GSD_TOOLS resolver order. NEVER hardcodes a single path. Honors the
+// MINDRIAN_DOCTOR_GSD_TOOLS env override FIRST (hermetic-test injection +
+// operator override). Returns an absolute path or null (-> Class Q emits a
+// 'skip' finding; the run never crashes). Canon Part 8: locates a LOCAL tool;
+// no network.
+function resolveGsdTools() {
+  const fsLocal = require('fs');
+  // 0. Explicit override (tests + operators).
+  const override = process.env.MINDRIAN_DOCTOR_GSD_TOOLS;
+  if (override) {
+    return fsLocal.existsSync(override) ? override : null;
+  }
+  const SHIM = 'gsd-tools.cjs';
+  const candidates = [];
+  // 1. RUNTIME_DIR / repo-root gsd-core.
+  const runtimeRoot = process.env.RUNTIME_DIR || path.resolve(__dirname, '..');
+  candidates.push(path.join(runtimeRoot, 'gsd-core', 'bin', SHIM));
+  candidates.push(path.join(runtimeRoot, '.claude', 'gsd-core', 'bin', SHIM));
+  // 2. HOME-installed gsd-core (the common dev/CI topology).
+  const home = process.env.HOME || process.env.USERPROFILE;
+  if (home) candidates.push(path.join(home, '.claude', 'gsd-core', 'bin', SHIM));
+  for (const c of candidates) {
+    try { if (fsLocal.existsSync(c)) return c; } catch (_e) { /* keep looking */ }
+  }
+  return null;
+}
+
+// extractPhaseToken(message): pull a phase label (digits + dots, e.g. "150.7")
+// out of a W007 ROADMAP-gap message. Returns the token or null.
+function extractPhaseToken(message) {
+  const s = String(message || '');
+  // "Phase 150.7 exists on disk but not in ROADMAP.md"
+  let m = s.match(/Phase\s+([0-9][0-9.]*)\b/i);
+  if (m) return m[1];
+  // Fallback: a leading "<NN>-<name>" directory token.
+  m = s.match(/\b([0-9][0-9.]*)-[a-z]/i);
+  return m ? m[1] : null;
+}
+
+// extractPlanRef(message): from an I001 "NNN-PP-PLAN.md has no SUMMARY.md"
+// message recover { phase, planFile, planLabel }. Returns null when no
+// "<plan>-PLAN.md" token is present.
+function extractPlanRef(message) {
+  const s = String(message || '');
+  const m = s.match(/([0-9][0-9.]*-[0-9A-Za-z.]+-PLAN\.md)/);
+  if (!m) return null;
+  const planFile = m[1];
+  const planLabel = planFile.replace(/-PLAN\.md$/i, '');
+  const phaseMatch = planLabel.match(/^([0-9][0-9.]*)-/);
+  const phase = phaseMatch ? phaseMatch[1] : null;
+  return { phase, planFile, planLabel };
+}
+
+// findPhaseDir(repoRoot, phaseToken): locate the on-disk phase directory under
+// .planning/phases/ whose name starts with "<phase>-". Returns absolute path or
+// null. Used only by the --fix heal arm to place a SUMMARY stub.
+function findPhaseDir(repoRoot, phaseToken) {
+  if (!phaseToken) return null;
+  const fsLocal = require('fs');
+  const phasesDir = path.join(repoRoot, '.planning', 'phases');
+  let entries;
+  try { entries = fsLocal.readdirSync(phasesDir, { withFileTypes: true }); }
+  catch (_e) { return null; }
+  const prefix = phaseToken + '-';
+  for (const ent of entries) {
+    if (ent.isDirectory() && ent.name.indexOf(prefix) === 0) {
+      return path.join(phasesDir, ent.name);
+    }
+  }
+  return null;
+}
+
 // -- Main ------------------------------------------------------------
 
 function main() {
@@ -4408,6 +4493,213 @@ function main() {
         detail: (err && err.message) || 'class P threw',
         first_touch_hits: 0,
         report_only: true,
+      };
+    }
+  }
+
+  // Class Q: GSD execution-record drift (Phase 150.9 Plan-02; the W007/I001
+  // class Fable ran by hand). SHELLS OUT to `gsd-tools validate health --raw`
+  // (D-02 -- single source of truth; does NOT reimplement the ROADMAP/SUMMARY
+  // scan) and parses W007 (ROADMAP drift) + I001 (missing SUMMARYs). OPT-IN
+  // ONLY (D-04): gated behind flags.drift. Pure LOCAL: spawns a LOCAL node
+  // subprocess (gsd-tools), zero network / zero Brain (Canon Part 8 -- the
+  // spawnSync('node', [...'validate','health']) is a local subprocess, not a
+  // network call). Pitfalls handled: 2 (shape-assert before reading; error not
+  // false-clean), 3 (cwd = repo root, treat broken/error health as
+  // indeterminate). Soft-fail + locator-skip: never crashes doctor.
+  if (flags.drift) {
+    try {
+      const driftRepoRoot = path.resolve(__dirname, '..');
+      const gsdToolsPath = resolveGsdTools();
+      if (!gsdToolsPath) {
+        report.checks['gsd-record-drift'] = {
+          class: 'Q',
+          status: 'skip',
+          detail: 'gsd-health unavailable (gsd-tools.cjs not found via the resolver order) -- W007/I001 scan skipped',
+          w007: [],
+          i001: [],
+        };
+      } else {
+        const cp = require('child_process');
+        // T-150.9-03 mitigation: FIXED arg array (never a shell string); no
+        // interpolation of untrusted input. cwd = repo root (Pitfall 3).
+        const hr = cp.spawnSync('node', [gsdToolsPath, 'validate', 'health', '--raw'], {
+          cwd: driftRepoRoot,
+          encoding: 'utf8',
+          timeout: 60000,
+        });
+        let health = null;
+        let parseErr = null;
+        try {
+          health = JSON.parse((hr && hr.stdout) || '');
+        } catch (e) {
+          parseErr = (e && e.message) || 'JSON parse failed';
+        }
+
+        if (parseErr || !health || typeof health !== 'object'
+            || !Array.isArray(health.warnings) || !Array.isArray(health.info)) {
+          // Pitfall 2: shape unrecognized -> error, NOT a false clean.
+          report.checks['gsd-record-drift'] = {
+            class: 'Q',
+            status: 'error',
+            detail: 'gsd-health output shape unrecognized -- W007/I001 parse skipped'
+              + (parseErr ? ' (' + parseErr + ')' : ''),
+            w007: [],
+            i001: [],
+          };
+        } else {
+          const w007 = health.warnings.filter((w) => w && w.code === 'W007');
+          const i001 = health.info.filter((i) => i && i.code === 'I001');
+          // Pitfall 3: a broken/error top-level status is indeterminate -- surface
+          // it rather than reporting clean when there are no parsed findings.
+          const topStatus = String(health.status || '');
+          const indeterminate = (topStatus === 'broken' || topStatus === 'error');
+          let qStatus;
+          if (w007.length || i001.length) qStatus = 'warn';
+          else if (indeterminate) qStatus = 'error';
+          else qStatus = 'ok';
+          report.checks['gsd-record-drift'] = {
+            class: 'Q',
+            status: qStatus,
+            detail: qStatus === 'warn'
+              ? ('gsd-record drift: ' + w007.length + ' W007 (ROADMAP gap) + ' + i001.length + ' I001 (missing SUMMARY)')
+              : (qStatus === 'error'
+                ? ('gsd-health status "' + topStatus + '" -- record-drift indeterminate')
+                : 'gsd execution records clean (no W007 / I001)'),
+            health_status: topStatus,
+            w007,
+            i001,
+          };
+        }
+      }
+    } catch (err) {
+      report.checks['gsd-record-drift'] = {
+        class: 'Q',
+        status: 'error',
+        detail: (err && err.message) || 'class Q threw',
+        w007: [],
+        i001: [],
+      };
+    }
+  }
+
+  // --drift --fix HEAL ARM (D-03 heal-where-safe split). MECHANICAL drift
+  // auto-heals: write the DRIFT.md baseline (root index + per-folder detail)
+  // from the Class P + Class Q findings, and stub a missing SUMMARY for each
+  // I001 record. JUDGMENT-CALL drift stays REPORT-ONLY: Class P prose findings
+  // are recorded, NEVER auto-fixed. This arm MUST NOT call process.exit (exit
+  // is _finalizeAndExit-only -- preserves the exit-0 invariant + the deadlock
+  // carve-out). Soft-fail: a throw records a heal error, never crashes doctor.
+  if (flags.drift && flags.fix) {
+    try {
+      const driftRepoRoot = path.resolve(__dirname, '..');
+      const planningDir = path.join(driftRepoRoot, '.planning');
+      const {
+        writeDriftBaseline,
+        stubMissingSummary,
+      } = require(path.join(__dirname, '..', 'lib', 'core', 'drift-baseline.cjs'));
+
+      // Build the finding set from Class P + Class Q results.
+      const findings = [];
+      const qRes = report.checks['gsd-record-drift'];
+      if (qRes && Array.isArray(qRes.w007)) {
+        for (const w of qRes.w007) {
+          const phase = extractPhaseToken(w && w.message);
+          findings.push({
+            finding_id: 'W007-' + (phase || 'unknown'),
+            track: 'gsd_record',
+            severity: 'warn',
+            status: 'open',
+            source_class: 'Q',
+            detail: (w && w.message) || 'ROADMAP gap',
+            phase: phase,
+            per_folder: !!phase,
+          });
+        }
+      }
+      const summaryStubs = [];
+      if (qRes && Array.isArray(qRes.i001)) {
+        for (const i of qRes.i001) {
+          const planRef = extractPlanRef(i && i.message);
+          const phase = planRef ? planRef.phase : null;
+          findings.push({
+            finding_id: 'I001-' + (planRef ? planRef.planLabel : 'unknown'),
+            track: 'gsd_record',
+            severity: 'info',
+            status: 'open',
+            source_class: 'Q',
+            detail: (i && i.message) || 'missing SUMMARY',
+            phase: phase,
+            per_folder: !!phase,
+          });
+          if (planRef) summaryStubs.push(planRef);
+        }
+      }
+      // Class P prose findings are recorded REPORT-ONLY in the root index; they
+      // carry per_folder:false so the writer renders a (report-only) pointer and
+      // never writes a prose file.
+      const pRes = report.checks['prose-vs-code'];
+      if (pRes && (pRes.status === 'warn')) {
+        findings.push({
+          finding_id: 'P-prose-vs-code',
+          track: 'prose_vs_code',
+          severity: 'high',
+          status: 'open',
+          source_class: 'P',
+          detail: pRes.detail || 'prose-vs-code drift (report-only)',
+          phase: null,
+          per_folder: false,
+        });
+      }
+
+      const healResult = { drift_md: null, summary_stubs: [], errors: [] };
+      try {
+        const wr = writeDriftBaseline({
+          planningDir,
+          findings,
+          meta: {
+            audit_date: new Date().toISOString().slice(0, 10),
+            auditor: 'doctor --drift --fix (Class P + Q)',
+            status: (qRes && qRes.health_status) || 'unknown',
+            process_note: 'Bound per-agent scope, fan wider (Fable 600s watchdog lesson).',
+          },
+        });
+        healResult.drift_md = { rootPath: wr.rootPath, wrote: wr.wrote };
+      } catch (e) {
+        healResult.errors.push('drift-baseline write: ' + ((e && e.message) || e));
+      }
+      // Stub missing SUMMARYs (I001 mechanical auto-heal).
+      for (const ref of summaryStubs) {
+        try {
+          const phaseDir = findPhaseDir(driftRepoRoot, ref.phase);
+          if (!phaseDir) {
+            healResult.errors.push('no phase dir for ' + ref.phase + ' (' + ref.planFile + ')');
+            continue;
+          }
+          const st = stubMissingSummary({ phaseDir, planFile: ref.planFile });
+          healResult.summary_stubs.push({ path: st.path, created: st.created });
+        } catch (e) {
+          healResult.errors.push('summary stub ' + ref.planFile + ': ' + ((e && e.message) || e));
+        }
+      }
+      report.checks['drift-heal'] = {
+        class: 'Q',
+        status: healResult.errors.length ? 'warn' : 'ok',
+        detail: 'DRIFT.md baseline written; ' + healResult.summary_stubs.filter((s) => s.created).length
+          + ' SUMMARY stub(s) created'
+          + (healResult.errors.length ? '; ' + healResult.errors.length + ' heal error(s)' : ''),
+        drift_md: healResult.drift_md,
+        summary_stubs: healResult.summary_stubs,
+        errors: healResult.errors,
+        report_only_prose: true,
+      };
+    } catch (err) {
+      report.checks['drift-heal'] = {
+        class: 'Q',
+        status: 'error',
+        detail: (err && err.message) || 'drift heal arm threw',
+        summary_stubs: [],
+        errors: [(err && err.message) || 'threw'],
       };
     }
   }
