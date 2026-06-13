@@ -204,6 +204,10 @@ function parseArgs(argv) {
     // DOCTOR_CLAIM_FAIL_POINT env hook (mirroring DOCTOR_TEST_FAIL_POINT) makes
     // the gate's own failure path testable.
     claims: false,
+    // Phase 150.9 Plan-02: --drift activates Class P (prose-vs-code, report-only)
+    // + Class Q (gsd-record drift) + the DRIFT.md writer. OPT-IN ONLY (D-04):
+    // NOT added to the --all block, NOT in the default session-start roster.
+    drift: false,
     all: false, simulateWrite: null,
     scanCommandsDir: null, scanScriptsDir: null,
   };
@@ -220,6 +224,7 @@ function parseArgs(argv) {
     else if (arg === '--stale-first-touch') flags.staleFirstTouch = true;
     else if (arg === '--deprecated-usage') flags.deprecatedUsage = true;
     else if (arg === '--brain-smoke') flags.brainSmoke = true;
+    else if (arg === '--drift') flags.drift = true;
     else if (arg === '--acceptance') flags.acceptance = true;
     else if (arg === '--pre-tag') flags.preTag = true;
     else if (arg === '--pre-flight') flags.preFlight = true;
@@ -3988,7 +3993,14 @@ function main() {
   const classFlagsActive = flags.cascadeRooms || flags.verifySurface
     || flags.roomMd || flags.uiCompliance || flags.statuslineVisibility
     || flags.installState || flags.staleFirstTouch || flags.deprecatedUsage
-    || flags.brainSmoke;
+    || flags.brainSmoke || flags.drift;
+    // ^ Phase 150.9 Plan-02: registering flags.drift here honors the
+    //   graceful-degradation exit-0 invariant. This is what preserves the
+    //   marketplace-cache-drift-deadlock carve-out automatically: that carve-out
+    //   lives in Class A's checkInstallVersion() which --drift never touches, and
+    //   classFlagsActive forces _finalizeAndExit to exit 0 (so a detected install
+    //   drift never flips a --drift run to exit 1). Per D-04 + the CONTEXT
+    //   discretion ruling.
 
   const report = {
     install: installResult,
@@ -4326,6 +4338,76 @@ function main() {
         status: 'error',
         action: 'class L scan threw: ' + err.message,
         deprecated_uses: [],
+      };
+    }
+  }
+
+  // Class P: prose-vs-code / product-claims drift (Phase 150.9 Plan-02;
+  // Fable v1.13.1 audit track 1). REPORT-ONLY (D-03): NEVER edits any prose
+  // .md file, even under --fix. Wraps the two shipped checkers (Canon Part 7
+  // reuse -- repoints, does NOT reimplement):
+  //   - check-skill-vs-code-drift.cjs : require().check() (clean, no exit)
+  //   - check-first-touch-drift.cjs   : spawned as a SUBPROCESS (Pitfall 1 --
+  //                                     it is CLI-only and self-exits, so a
+  //                                     require() would kill doctor mid-run).
+  // OPT-IN ONLY (D-04): gated strictly behind flags.drift, NEVER behind
+  // !classFlagsActive. Pure LOCAL: file reads + a LOCAL node subprocess; zero
+  // network, zero Brain, zero telemetry (Canon Part 8). Soft-fail: a throw
+  // records an error finding, never crashes doctor.
+  if (flags.drift) {
+    try {
+      // (a) skill-vs-code drift -- require-clean.
+      let skillResult = null;
+      let skillErr = null;
+      try {
+        const { check } = require(path.join(__dirname, 'check-skill-vs-code-drift.cjs'));
+        skillResult = check();
+      } catch (e) {
+        skillErr = (e && e.message) || 'skill-vs-code check threw';
+      }
+
+      // (b) first-touch drift -- SUBPROCESS (Pitfall 1). Capture exit code
+      // (1 = drift, 0 = clean) + parse the "DRIFT:" stdout lines. We pass the
+      // child the SAME process.env so a test's MOS_TEST_SCAN_DIR fixture flows
+      // through. Fixed arg array (no shell string).
+      const ftPath = path.join(__dirname, 'check-first-touch-drift.cjs');
+      const cp = require('child_process');
+      const ft = cp.spawnSync('node', [ftPath], { encoding: 'utf8', timeout: 30000 });
+      const ftStdout = (ft && ft.stdout) || '';
+      const firstTouchHits = ftStdout
+        .split('\n')
+        .filter((ln) => ln.indexOf('DRIFT:') === 0).length;
+      const firstTouchDrift = ft && ft.status === 1;
+
+      // Aggregate. skill drift = !valid; first-touch drift = exit 1 / hits > 0.
+      const skillDrift = skillResult ? skillResult.valid === false : false;
+      const anyDrift = skillDrift || firstTouchDrift;
+
+      const detailParts = [];
+      if (skillErr) detailParts.push('skill-vs-code check error: ' + skillErr);
+      else if (skillDrift) detailParts.push('skill-vs-code drift (SKILL.md disagrees with shipped code)');
+      if (firstTouchDrift) detailParts.push('first-touch drift: ' + firstTouchHits + ' hit(s)');
+      if (!anyDrift && !skillErr) detailParts.push('prose-vs-code surfaces clean');
+
+      report.checks['prose-vs-code'] = {
+        class: 'P',
+        // REPORT-ONLY: status is ok|warn (never a --fix that rewrites prose).
+        // A checker that errored is surfaced as warn-with-detail, not a false ok.
+        status: (anyDrift || skillErr) ? 'warn' : 'ok',
+        detail: detailParts.join('; '),
+        skill_findings: skillResult || null,
+        skill_error: skillErr,
+        first_touch_hits: firstTouchHits,
+        first_touch_drift: !!firstTouchDrift,
+        report_only: true,
+      };
+    } catch (err) {
+      report.checks['prose-vs-code'] = {
+        class: 'P',
+        status: 'error',
+        detail: (err && err.message) || 'class P threw',
+        first_touch_hits: 0,
+        report_only: true,
       };
     }
   }
