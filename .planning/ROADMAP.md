@@ -2588,6 +2588,17 @@ Plans:
 - [x] 155-05-PLAN.md -- data/room-blueprints.json (8 families) + B1 gate + scaffold blueprint-family consumption
 - [x] 155-06-PLAN.md -- /mos:ignite command + B3 first-win gate + entry routing + registry regeneration + CONNECTOR-CONTRACT.md drift fix
 
+### Phase 150.9: Doctor drift-classes for Fable audit tracks (extends 95.1)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase TBD
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 150.9 to break down)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)

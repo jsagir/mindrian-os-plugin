@@ -4,8 +4,8 @@ milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: verifying
 stopped_at: Completed 155-07-PLAN.md
-last_updated: "2026-06-12T10:52:59.074Z"
-last_activity: "2026-06-12 -- Completed quick task 260612-cl7: fix doctor marketplace-cache drift deadlock (RCA P0a + P0b + checker LATEST P2)"
+last_updated: "2026-06-13T19:56:00.622Z"
+last_activity: 2026-06-12 -- Completed quick tasks 260612-t29 (proactive filing offers) + 260612-t2k (persona override identity-only via readUserMd seam) -- both QA-report fixes from Lawrence's beta.20 persona test
 progress:
   total_phases: 92
   completed_phases: 66
