@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: executing
-stopped_at: Phase 150.9 Plan 01 complete (drift-baseline.cjs writer shipped GREEN)
-last_updated: "2026-06-13T20:28:26.263Z"
-last_activity: 2026-06-13 -- Phase 150.9 Plan 01 complete (DRIFT.md writer)
+stopped_at: Phase 150.9 Plan 02 complete (doctor Class P/Q + --drift heal arm shipped GREEN)
+last_updated: "2026-06-13T20:43:12.000Z"
+last_activity: 2026-06-13 -- Phase 150.9 Plan 02 complete (doctor Class P/Q + --drift)
 progress:
   total_phases: 94
   completed_phases: 66
   total_plans: 486
-  completed_plans: 430
+  completed_plans: 431
   percent: 70
 ---
 
@@ -25,9 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 150.9 (doctor-drift-classes-for-fable-audit-tracks-extends-95-1) — EXECUTING (1/3 plans)
-Status: Plan 01 complete; Plans 02-03 remain
+Phase: 150.9 (doctor-drift-classes-for-fable-audit-tracks-extends-95-1) — EXECUTING (2/3 plans)
+Status: Plans 01-02 complete; Plan 03 remains (phase gate)
 Queue: 150.6 (drift-fix sweep, gates both) -> 150.7 (tester round 2 + Part 10 ratification gate) + 150.8 (meeting DIKW filing v1, navigator-directive) -> v1.13.1 final gate
+
+Phase 150.9 Plan 02 (DDC-01, DDC-02, DDC-04, DDC-05) complete. doctor.cjs gains two new lettered drift classes behind an opt-in `--drift` flag, conforming exactly to the shipped A-N class contract (return shape, classFlagsActive exit-0 invariant, _finalizeAndExit-only exit, no process.exit in any class fn). Class P (prose-vs-code, REPORT-ONLY, D-03) wraps the two shipped checkers per Canon Part 7 reuse: check-skill-vs-code-drift.cjs via require().check() and check-first-touch-drift.cjs via spawnSync subprocess (Pitfall 1 -- the checker is CLI-only and self-exits, so a require would kill doctor; the subprocess captures exit code + DRIFT: stdout lines). It is proven to make ZERO edits to any prose .md, even under --fix (P-2 mtime-unchanged). Class Q (gsd-record drift, D-02) SHELLS OUT to gsd-tools validate health --raw with a FIXED arg array (T-150.9-03; cwd=repo-root per Pitfall 3), parses W007 (ROADMAP gaps) + I001 (missing SUMMARYs), shape-asserts before reading (Pitfall 2 -> status:error not false-clean), treats broken/error health as indeterminate, and degrades to status:skip on locator failure (resolveGsdTools mirrors the workflows/health.md _GSD_TOOLS order + a MINDRIAN_DOCTOR_GSD_TOOLS override for hermetic tests). The --drift --fix heal arm calls the Plan-01 writer (writeDriftBaseline + stubMissingSummary) to auto-write DRIFT.md + stub missing SUMMARYs while Class P prose findings are recorded report-only (per_folder:false pointer). flags.drift is in the classFlagsActive OR-chain (exit-0 invariant) and is INDEPENDENT of --all (D-04), so the marketplace-cache-drift-deadlock carve-out in Class A is never touched (Q-4 asserts exit stays 0). Verified live: Class Q parses 96 W007 + 9 I001 from the real repo; the heal arm writes only gitignored .planning/ (zero tracked/prose edits). TDD: Task 1 RED (test-doctor-class-p.cjs 4 behaviors + test-doctor-class-q.cjs 7 behaviors) committed first; Tasks 2/3 flipped both GREEN (P 4/4, Q 7/7). One in-scope deviation (Rule 3): cp was not a module-scope alias in main(), added a local require('child_process') matching the existing in-function idiom. RQ5 PR-diff network grep returns 0 on the new lines; zero em-dashes across all 3 changed files. Commits 84f21a08 (RED tests), e451b3be (--drift + Class P), 55a7c592 (Class Q + heal arm). Next: Phase 150.9 Plan 03 (tests/run-all-150.9.sh phase gate + acceptance greps).
 
 Phase 150.9 Plan 01 (DDC-03 + DDC-08 -- the ONE genuinely net-new piece of Phase 150.9) complete. lib/core/drift-baseline.cjs ships as a pure, hermetic, require-clean DRIFT.md writer (FIX-13 baseline) with four exported functions on a frozen signature Plan 02 consumes: renderRootIndex(meta, findings) (the .planning/DRIFT.md rolled-up index: frontmatter kind=drift-baseline-index + a counts block + one stable-id body row per finding with a per_folder pointer column), renderPerFolder(phase, meta, findings, firstSeenMap) (the per-phase .planning/phases/<NN>/DRIFT.md detail, carrying ONLY that phase's findings), writeDriftBaseline({planningDir, findings, meta, noTouch}) (the orchestrator that writes BOTH granularities under .planning/ -- D-01), and stubMissingSummary({phaseDir, planFile}) (the heal-arm I001 auto-stub helper, idempotent). The FIX-13 diff-stability contract is encoded and tested: finding_id is a deterministic stable key; first_seen is set ONCE (read back from a per-folder HTML-comment ledger so the body table stays human-clean) and never rewritten; last_seen bumps each run UNLESS noTouch=true (then the per-folder file is left byte-identical -- true idempotence); a finding flipped open->closed keeps its row plus a closed_date (CLAUDE.md decision 14 history preservation). V12 path-traversal mitigation: every write target is resolved + asserted inside the passed containment root (path.resolve + startsWith(root + sep)); a traversal-shaped phase token (e.g. "../../etc") is skipped, never written, and stubMissingSummary refuses a planFile that is a path rather than a bare basename (T-150.9-01 mitigated). Canon Part 8 floor held: Node built-ins only (fs, path), zero new deps, zero network surface -- grep -nE "fetch|http|curl|brain|tavily" lib/core/drift-baseline.cjs returns 0 (T-150.9-02 mitigated, tested in-suite + the header comment is deliberately token-free). The module is require-clean (no top-level side effects, no process.exit). TDD: Task 1 RED (tests/test-drift-baseline.cjs, 6 behaviors -- schema round-trip / per-folder locality / diff-stability / closed-with-history / traversal refusal / Part 8 floor; obviously-synthetic phase-999 W007-999-test fixtures) committed first and confirmed RED (module absent); Task 2 GREEN flipped 6/6. One in-scope deviation (Rule 1): the GREEN-commit header comment originally named the forbidden network tokens in prose and tripped its own Part 8 floor test; rephrased to token-free wording (no behavior change). node tests/test-drift-baseline.cjs 6/6 PASS; zero em-dashes across both files (the Test-1 em-dash assertion uses String.fromCharCode(0x2014) to keep the source ASCII-clean). Commits 3065895b (RED test), d33332e9 (GREEN module). Requirements DDC-03 + DDC-08 complete. Next: Phase 150.9 Plan 02 (doctor.cjs Class P/Q dispatch + --drift heal arm, consuming this writer's frozen signature).
 
