@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: verifying
-stopped_at: Completed 155-07-PLAN.md
-last_updated: "2026-06-13T19:56:00.622Z"
+stopped_at: Phase 150.9 planned (3 plans, checker-passed)
+last_updated: "2026-06-13T20:22:58.754Z"
 last_activity: 2026-06-12 -- Completed quick tasks 260612-t29 (proactive filing offers) + 260612-t2k (persona override identity-only via readUserMd seam) -- both QA-report fixes from Lawrence's beta.20 persona test
 progress:
-  total_phases: 92
+  total_phases: 94
   completed_phases: 66
-  total_plans: 483
+  total_plans: 486
   completed_plans: 429
-  percent: 72
+  percent: 70
 ---
 
 # Project State
@@ -1377,6 +1377,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-12T10:52:58.978Z
-Stopped at: Completed 155-07-PLAN.md
+Last session: 2026-06-13T20:22:58.725Z
+Stopped at: Phase 150.9 planned (3 plans, checker-passed)
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).
