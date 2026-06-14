@@ -51,6 +51,78 @@ Where you draw the system boundary determines what you see. Most innovation fail
 | Limits to Growth | Initial success hits a constraint | "What's the constraint you'll hit at 10x scale?" |
 | Tragedy of the Commons | Shared resource exploited by individual actors | "Everyone's optimizing their part. What's being destroyed in the aggregate?" |
 
+## The Meta-Lens Framing
+
+Systems thinking is a META-LENS. It qualifies and helps at ANY stage, ANY problem type, ANY case - not only discovery. A founder bounding an undefined problem, an operator tracing why a fix keeps failing, an investor stress-testing a flywheel, a team debugging a churn loop after launch all run the same five moves, at different stages, against different problem types (UDP / IDP / WDP x Simple / Complex / Wicked). Brain returns `stage: null` for this framework. The selector is invocable from any room section and must adapt, never assume discovery. Filing is stage-aware: the artifact goes to the ACTIVE room section, never a fixed default.
+
+> "There is no solving the systems problem. None. All you can do is try to make it a little better." (IRIS Session 2)
+
+That line is the discipline. The loop does not solve the wicked problem; it locates leverage and produces a stage-appropriate next move.
+
+## The Five Moves
+
+The selector exposes five within-systems moves behind the dial. Each move has a trigger, what it produces, the PWS anchor, a `sub_mode`, and a Larry voice line.
+
+### M1 - Draw / challenge the boundary (`st-boundary`)
+
+- **Trigger**: no boundary statement exists in the local graph yet.
+- **Produces**: a system boundary statement - what is included, what is excluded, and why.
+- **PWS anchor**: most innovation failures come from drawing the boundary too tight.
+- **Larry line**: "Where you draw the boundary determines what you see. You've drawn it too tight."
+
+### M2 - Build the causal loop (`st-loop`)
+
+- **Trigger**: the boundary is set but no causal loop is mapped.
+- **Produces**: a causal loop diagram told as a story - reinforcing and balancing loops with signed links.
+- **PWS anchor**: build the loop as a STORY of the system, then read the loops off the story. See `references/methodology/causal-loop-diagrams.md` for the depth method.
+- **Larry line**: "Every causal map has two kinds of loops and two only."
+
+### M3 - Name the archetype (`st-archetype`)
+
+- **Trigger**: a loop exists but the recurring pattern has not been named.
+- **Produces**: a matched systems archetype (Fixes That Fail, Shifting the Burden, Success to the Successful, Limits to Growth, Tragedy of the Commons) plus its question.
+- **PWS anchor**: naming the archetype turns a one-off loop into a recognized pattern with a known intervention shape.
+- **Larry line**: "You're patching the symptom. What's the side effect of this fix?"
+
+### M4 - Locate the leverage point (`st-leverage`)
+
+- **Trigger**: a loop or archetype exists but no leverage point has been located.
+- **Produces**: ONE Meadows leverage point plus the rationale (never all twelve - pick the one that matters most).
+- **PWS anchor**: a small change in one thing produces big changes in everything.
+- **Larry line**: "Wherever those leverage points are, are opportunities to make the problem better."
+
+### M5 - Route to next action, stage-aware (`st-act`)
+
+- **Trigger**: a leverage point is located (or a prior-session leverage point was never routed to validation).
+- **Produces**: a stage-appropriate next-action target. NAME-AND-STOP - name the target and OFFER the handoff, do not auto-jump.
+  - discovery -> which variable to validate + who to go talk to
+  - design -> which intervention to prototype
+  - investment -> which loop the thesis rests on
+  - operations -> which leverage point to instrument
+- **PWS anchor**: the loop ends with an actionable handle, not a diagram.
+- **Larry line**: "Now go act on THIS leverage point." (the handoff target depends on the stage)
+
+## The CLD Storytelling Method (M2 depth)
+
+A causal loop diagram is BUILT as a story, not read off a chart. You tell the story of the system, then read the loops out of the story.
+
+- **The fishery stock**: tell the story of a fish population. More fish means more catch; more catch means fewer fish; fewer fish means less catch next season. Telling the story surfaces a balancing loop (the stock regulates itself) and the delay (this season's catch hits next season's stock).
+- **The breakfast / frustration loop**: a rushed morning. Skip breakfast to save time; low energy by mid-morning; slower work; more time lost; more rushing tomorrow. Telling the story surfaces a reinforcing loop (the frustration compounds) that no single fix breaks.
+
+Two kinds of loops and two only:
+
+> "Reinforcing is not positive or negative. It just means it gets more and more in the same direction." (IRIS Session 2)
+
+A reinforcing loop drives more and more in the same direction (network effects, viral growth, talent flywheels, compounding frustration). A balancing loop resists change (saturation, regulatory friction, resource limits, the fishery regulating itself). Signed links (+ amplifies, - dampens) and delays (the lag between action and outcome) are read off the story once it is told.
+
+## The Leverage-Point to Validation Handoff
+
+This is the PWS discipline that separates the selector from a generic systems tool:
+
+> A generic systems tool ends with a pretty diagram. The PWS selector ends with an ACTIONABLE HANDLE - a leverage-point hypothesis (the one small change with the biggest effect) plus a stage-appropriate next-action target.
+
+After M4 locates the leverage point, M5 routes it to the next action without auto-jumping. In discovery that is "which variable, which people to go validate"; in design "which intervention to prototype"; in investment "which loop the thesis depends on"; in operations "which leverage point to instrument." The diagram is a means; the actionable handle is the end. That difference is the whole point, and it is stage-independent.
+
 ## Phases
 
 ### Phase 1: Map the System (Investigative -- turns 1-3)
