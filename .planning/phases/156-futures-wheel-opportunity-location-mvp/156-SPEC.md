@@ -8,7 +8,7 @@
 
 ## Goal
 
-A new `/mos:futures [concept]` command does what a human provably cannot: it turns a seed concept into a bounded multi-ring consequence wheel (1st/2nd/3rd-order, flat artifacts under the Opportunity Bank, NO sub-rooms) and surfaces the invisible cross-domain ripples a linear human mind misses. It traces "and then what?" causal chains as `ROOT_CAUSES`/`ENABLES` edges, surfaces hidden bridges via the HSI engine and cross-domain reverse-salient (RS) analysis (mutually invoked), tags every consequence with PESTEL domain + temporal horizon + confidence, and banks opportunity candidates whose provenance traces to an `HSI_CONNECTION`, `REVERSE_SALIENT`, or `ROOT_CAUSES` edge.
+A new `/mos:futures [concept]` command does what a human provably cannot: it turns a seed concept into a bounded multi-ring consequence wheel (1st/2nd/3rd-order, flat artifacts under the Opportunity Bank, NO sub-rooms) and surfaces the invisible cross-domain ripples a linear human mind misses. It traces "and then what?" causal chains as `ROOT_CAUSES` edges, surfaces hidden bridges via the HSI engine and cross-domain reverse-salient (RS) analysis (mutually invoked), tags every consequence with PESTEL domain + temporal horizon + confidence, and banks opportunity candidates whose provenance traces to an `HSI_CONNECTION`, `REVERSE_SALIENT`, or `ROOT_CAUSES` edge.
 
 **The reason this is a software job, not a human one (navigator, 2026-06-14):** the instructor who teaches the Futures Wheel admits he "can't think through first, second, third-order consequences, not well" — human brains are linear, 2nd/3rd-order effects are "nearly invisible," and the wheel "explodes in complexity, mathematically unmanageable without software." The whole point of building this on Claude/MindrianOS is to do the cognitively-impossible part: the non-linear, multi-ring, cross-domain traversal a human cannot hold in their head. Success is therefore measured by surfacing ripples the navigator did NOT already see, not by rendering a tidy diagram.
 
@@ -21,7 +21,7 @@ A new `/mos:futures [concept]` command does what a human provably cannot: it tur
 - **HSI engine** — `scripts/compute-hsi.py` (writes `.hsi-results.json`) + `scripts/hsi-to-graph.cjs` (reads it, writes `HSI_CONNECTION` + `REVERSE_SALIENT` edges to room.db; requires consequences to already exist as `Artifact` nodes). HSI = |BERT_sim − LSA_sim| × integrative — "connected in ways nobody sees" — i.e. exactly the invisible cross-domain 2nd/3rd-order bridges.
 - **Reverse Salient (RS) cross-domain engine** — Phase 89 shipped `scripts/rs-engine.py` (internal / cross-room / external / hybrid modes) + `lib/core/bridge-writer.cjs` + the `REVERSE_SALIENT` edge type that `hsi-to-graph.cjs` ALREADY writes. RS surfaces lagging-component / cross-domain analogies (Hughes 1983). Per the navigator (2026-06-14) RS cross-domain analysis is "even more related" to the Futures Wheel and must be MUTUALLY invoked — the same meta-lens chaining pattern Phase 150.10 established (M4 reverse-salient ↔ systems-thinking). The Futures Wheel can invoke RS when a cross-domain ripple warrants it, and an RS cross-domain finding can seed/feed a wheel.
 - **Source material** — the human-foresight limitation framing comes from IRIS 2026 Session 2 (the cohort-2026 lecture already ingested as generic methodology into the Brain teaching graph in Phase 150.10, `source_doc='iris-2026-session-2'`).
-- **Causal cascade edges** — `ROOT_CAUSES` (directional cause->effect) + `ENABLES` are BOTH in the frozen `ALLOWED_EDGE_TYPES` set (`ROOT_CAUSES` added by the Phase 150.8 amendment). No Part 4 amendment needed. `LEADS_TO`/`CAUSES` are NOT frozen-legal and are excluded.
+- **Causal cascade edges** — `ROOT_CAUSES` (directional cause->effect) is in the frozen `ALLOWED_EDGE_TYPES` set (added by the Phase 150.8 amendment) and is the cascade edge this phase writes via the `navigation.writeEdge` chokepoint. CORRECTION (Phase 156 Wave 2, 2026-06-14): `ENABLES` is NOT in the shipped `ALLOWED_EDGE_TYPES` Set, despite Canon Part 4 listing it in the edge vocabulary — a canon-vs-code drift (the old cascade types were written by a different path, not `writeEdge`). The MVP uses `ROOT_CAUSES` ONLY; an `ENABLES` write through `writeEdge` is correctly reported as a failure rather than raw-SQL-bypassed. `LEADS_TO`/`CAUSES` are also excluded.
 - **Opportunity Bank** — `lib/core/opportunity-ops.cjs::bankOpportunity(roomDir, opportunity)` exists with dedup (problem_hash), confidence-update, evidence-append. Needs `opportunity.problem` + `confidence` + `evidence`.
 - **Proactive discovery loop** (`.claude/includes/architecture.md`) IS the Futures Wheel loop, unnamed: filed artifact -> cross-relationship scan -> new edges -> Larry surfaces -> user decision -> graph data.
 
@@ -51,7 +51,7 @@ A new `/mos:futures [concept]` command does what a human provably cannot: it tur
 
 5. **Causal cascade edges**: Ring-to-ring causal links are written as frozen-legal typed edges.
    - Current: No causal edges between consequence artifacts.
-   - Target: Each (N-1)->N ring link is a `ROOT_CAUSES` edge (source=cause, target=effect); enabling relations use `ENABLES`. Written via the `navigation.cjs` chokepoint. NO `LEADS_TO`/`CAUSES` (not in the frozen set).
+   - Target: Each (N-1)->N ring link is a `ROOT_CAUSES` edge (source=cause, target=effect), written via the `navigation.cjs` chokepoint. NO `ENABLES` (NOT in the shipped frozen Set - corrected Wave 2), NO `LEADS_TO`/`CAUSES`.
    - Acceptance: After a run, room.db contains `ROOT_CAUSES` edges from ring-1 artifacts to their ring-2 children; a grep/SQL check finds zero non-frozen edge types written by the command.
 
 6. **HSI hidden-bridge scan (explicit pipeline step)**: The command runs HSI over the seed's consequences as a named, ordered step.
@@ -110,7 +110,7 @@ A new `/mos:futures [concept]` command does what a human provably cannot: it tur
 - Bounded multi-ring (1st/2nd/3rd-order) consequence generation as flat artifacts under `opportunity-bank/futures-<seed>/`
 - Advisory linguistic causal-cue flagging (reuse, no ML)
 - `horizon` + `confidence` + PESTEL `domain` frontmatter on consequence artifacts
-- `ROOT_CAUSES` + `ENABLES` cascade edges via navigation.cjs
+- `ROOT_CAUSES` cascade edges via navigation.cjs (ENABLES dropped - not in the shipped frozen Set, Wave 2 correction)
 - Explicit HSI scan step (compute-hsi.py -> hsi-to-graph.cjs) over filed consequences
 - Hidden-bridge surfacing at a tri-context Decision Gate
 - Foresight meta-lens chaining web: Decision-Gate HANDOFF HOOKS to RS, /mos:systems-thinking, /mos:scenario-plan, /mos:explore-trends (mutual where noted), resolved via the Phase 122 command resolver
@@ -133,7 +133,7 @@ A new `/mos:futures [concept]` command does what a human provably cannot: it tur
 
 - Depth and per-node fan-out MUST be bounded (defaults 3 rings, 5 children) — the wheel is "mathematically unmanageable" otherwise.
 - HSI requires consequences to exist as `Artifact` nodes in room.db BEFORE `hsi-to-graph.cjs` runs — the command must file before it scans.
-- Only frozen `ALLOWED_EDGE_TYPES` may be written (`ROOT_CAUSES`, `ENABLES`, `HSI_CONNECTION`, `REVERSE_SALIENT`) — no new edge types without a canon amendment.
+- Only frozen `ALLOWED_EDGE_TYPES` may be written via `writeEdge`: `ROOT_CAUSES` is the cascade edge used (`ENABLES` is NOT in the shipped Set - Wave 2 correction). `HSI_CONNECTION` / `REVERSE_SALIENT` are written by `hsi-to-graph.cjs` raw SQL (deliberately outside the frozen Set), never via `writeEdge`. No new edge types without a canon amendment.
 - All graph writes route through the `lib/core/navigation.cjs` chokepoint (Part 9).
 - No new runtime dependency; the causal-cue pass reuses existing regex/parse helpers; HSI uses the shipped Python (Tier 1 LSA+MiniLM default).
 - Canon Part 8: zero Brain egress; LOCAL room.db + filesystem only.
