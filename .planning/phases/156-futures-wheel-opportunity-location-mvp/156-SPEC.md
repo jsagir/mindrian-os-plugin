@@ -2,7 +2,7 @@
 
 **Created:** 2026-06-14
 **Ambiguity score:** 0.18 (gate: ≤ 0.20)
-**Requirements:** 12 locked
+**Requirements:** 13 locked
 **Milestone:** v1.13.1 "Larry Reaches" (navigator-pulled)
 **canon_parts:** Part 2 (Engine 1 Act 1 intelligence), Part 3 (Decision Gate), Part 4 (typed edges + Opportunity Bank), Part 7 (reuse before build), Part 8 (LOCAL only), Part 9 (proposed->confirmed)
 
@@ -98,6 +98,11 @@ A new `/mos:futures [concept]` command does what a human provably cannot: it tur
       All reuse the 150.10 chaining-web infrastructure + the Phase 122 command resolver; no new engine. Bounded: surfaced at a Decision Gate on a detected trigger (cross-domain bridge, causal loop, branch co-occurrence, banked candidate), not on every node.
     - Acceptance: On a seed whose consequences span ≥2 domains, the command output footer offers handoffs to the foresight web partners (RS, /mos:systems-thinking, /mos:scenario-plan, /mos:explore-trends, /mos:analyze-timing|dominant-designs, /mos:diagnose, /mos:mullins, /mos:explore-futures); accepting the RS pass writes ≥1 `REVERSE_SALIENT` edge / bridge artifact; each handoff resolves through the Phase 122 command resolver (not a hardcoded string); the reverse "open as a futures wheel" handoff exists from at least the RS and systems-thinking surfaces.
 
+13. **Bounded SIGNAL research step (the SCAN leg)**: The wheel fetches public external evidence to ground consequences and surface weak signals — on-demand and bounded, NOT always-on.
+    - Current: The pipeline as otherwise specced is LOCAL-only (Larry-generated consequences + HSI over local artifacts). The SEED->SCAN leg of the research-doc loop has no implementation here. The shipped surfaces exist: `lib/core/research-corpus.cjs` + `research-cache.cjs` (30-day cache, Phase 130.5), the Phase 131 research-as-graph-aware-workflow (`docs/RESEARCH-AS-WORKFLOW-STEP.md`), `/mos:research` (wires findings as typed graph evidence).
+    - Target: TWO fire points: (a) seed grounding — research the seed concept once up front to inform ring-1 generation; (b) per-ring on-demand — the navigator can fire a research pass over a ring's consequences. Each pass (i) corroborates a consequence's `confidence` + evidence tier (Part 5), and (ii) surfaces weak signals that propose ADDITIONAL consequences (the "do what a human can't" mandate). Reuses research-corpus + the Phase 131 workflow + `/mos:research`; the 30-day cache bounds external calls. This is the SIGNAL leg of the tri-context Decision Gate.
+    - Acceptance: A seed run fetches ≥1 public source up front (cache hit or live); a per-ring research pass either raises/lowers ≥1 consequence's confidence with a cited public source OR proposes ≥1 new consequence tagged as signal-derived; the research queries carry only generic domain handles (Part 8 boundary scan passes — no room content egresses).
+
 ## Boundaries
 
 **In scope:**
@@ -109,6 +114,7 @@ A new `/mos:futures [concept]` command does what a human provably cannot: it tur
 - Explicit HSI scan step (compute-hsi.py -> hsi-to-graph.cjs) over filed consequences
 - Hidden-bridge surfacing at a tri-context Decision Gate
 - Foresight meta-lens chaining web: Decision-Gate HANDOFF HOOKS to RS, /mos:systems-thinking, /mos:scenario-plan, /mos:explore-trends (mutual where noted), resolved via the Phase 122 command resolver
+- Bounded SIGNAL research step (seed grounding + per-ring on-demand) reusing research-corpus + Phase 131 workflow + /mos:research, 30-day cached
 - Subsystem impact map (PESTEL-domain) render mode
 - Opportunity banking with edge provenance via opportunity-ops.cjs
 - HITL proposed->confirmed gating (Part 3 / Part 9)
@@ -147,6 +153,7 @@ A new `/mos:futures [concept]` command does what a human provably cannot: it tur
 - [ ] An approved candidate banks via `bankOpportunity()` with provenance tracing to an HSI_CONNECTION, REVERSE_SALIENT, or ROOT_CAUSES edge
 - [ ] On a multi-domain seed, an RS cross-domain pass is offered at a Decision Gate and (on accept) writes ≥1 REVERSE_SALIENT edge / bridge artifact; the RS-finding -> futures-wheel reverse handoff is present
 - [ ] At least one surfaced bridge is one the navigator did NOT explicitly draw (the "do what a human can't" test)
+- [ ] Seed grounding fetches ≥1 public source; a per-ring research pass corroborates a confidence OR proposes a signal-derived consequence; Part 8 scan confirms only generic handles egress
 - [ ] Consequences/opportunities land `proposed` and reach `confirmed` only via navigator decision (byUser); REJECT writes a reason edge
 - [ ] Part 8 boundary scan over new code returns zero user-content-to-Brain paths
 
@@ -179,6 +186,8 @@ A new `/mos:futures [concept]` command does what a human provably cannot: it tur
 | 3+    | Navigator input | "Very relevant to systems thinking"           | FW-12 broadened: the wheel IS systems thinking projected forward; chain to /mos:systems-thinking (150.10 M2 causal-loop / M4 leverage-point), mutual. |
 | 3+    | Navigator input | "and trending to the absurd and scenario analysis" | FW-12 generalized to the FORESIGHT META-LENS CHAINING WEB: /mos:futures is the consequence-graph HUB chaining to RS + systems-thinking + scenario-plan (branch clustering) + explore-trends (trending-to-absurd). Resolves Part 7 (chain-not-duplicate). Bounded to handoff HOOKS; deep integration deferred. |
 | 4     | Seed Closer     | Close the foresight-web membership            | Navigator added ALL remaining 150.10 siblings: S-curve/dominant-design (analyze-timing + dominant-designs), Cynefin (diagnose), Mullins 7-domains, explore-futures. Web = 8 partners. LOCK + commit, then discuss-phase. |
+| discuss | HOW decisions | Interaction / approval / view / chaining      | Guided-by-ring generation; per-ring batch approval gate; subsystem (PESTEL) map default + ring on demand; top-N ranked chaining handoffs (mirror the dial). |
+| discuss | Navigator catch | "where is the research step?"                 | FW-13 added: bounded SIGNAL research (seed grounding + per-ring on-demand) reusing research-corpus + Phase 131 + /mos:research, 30-day cached, Part 8-safe. Corrects the under-scoped SCAN leg. NOT always-on (that stays deferred). |
 
 ---
 
