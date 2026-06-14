@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
-status: executing
-stopped_at: Phase 150.10 Plan 04 complete (Piece D -- leverage-point local-graph excavation: lib/core/leverage-scan.cjs + the 12-level signature mirror + M4 scanner-invocation Decision Gate + M3 chain handoffs). Phase 150.10 COMPLETE (4 of 4 plans).
-last_updated: "2026-06-14T07:08:30.000Z"
-last_activity: 2026-06-14 -- Phase 150.10 Plan 04 complete (Piece D leverage-point local-graph excavation; the M4 leverage move is now operational over room.db). Phase 150.10 COMPLETE.
+status: completed
+stopped_at: Phase 156 context gathered (Futures Wheel MVP; SPEC 13 reqs + CONTEXT locked; discuss-phase complete)
+last_updated: "2026-06-14T17:47:11.788Z"
+last_activity: 2026-06-13 -- Phase 150.9 execution started
 progress:
-  total_phases: 94
-  completed_phases: 68
-  total_plans: 486
-  completed_plans: 435
-  percent: 70
+  total_phases: 95
+  completed_phases: 74
+  total_plans: 478
+  completed_plans: 470
+  percent: 78
 ---
 
 # Project State
@@ -1393,6 +1393,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-13T20:22:58.725Z
-Stopped at: Phase 150.9 planned (3 plans, checker-passed)
+Last session: 2026-06-14T17:47:11.673Z
+Stopped at: Phase 156 context gathered (Futures Wheel MVP; SPEC 13 reqs + CONTEXT locked; discuss-phase complete)
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).
