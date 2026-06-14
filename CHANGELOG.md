@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.13.1-beta.23 (in progress)
+## [1.13.1-beta.24] - 2026-06-14
 
 ### Added
 - Phase 150.9 (doctor drift-classes): `/mos:doctor --drift` opt-in flag adds two report-first drift classes on top of the install-cache classes. Class P (prose-vs-code) scans Larry's agent/skill/doc prose for claims that contradict shipped facts; report-only, never auto-edits. Class Q (GSD-record drift) shells out to `gsd-health` to surface ROADMAP gaps + missing SUMMARYs as drift findings. `lib/core/drift-baseline.cjs` writes per-folder + root `DRIFT.md` baselines (idempotent, traversal-guarded) so successive `--drift` runs diff against a stable anchor; `--drift --fix` heals only where safe. First production run caught 96 W007 (ROADMAP gaps) + 9 I001 (missing SUMMARYs) - the Fable FIX-12 drift set. Requirements DDC-01..08; phase gate `tests/run-all-150.9.sh` 6/6 (incl. Canon Part 8 floor + deadlock carve-out proofs). Local-only: zero Brain egress.
