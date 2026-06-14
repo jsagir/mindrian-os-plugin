@@ -1,7 +1,11 @@
 ## [Unreleased] -- v1.13.1-beta.23 (in progress)
 
 ### Added
-- 
+- Phase 150.9 (doctor drift-classes): `/mos:doctor --drift` opt-in flag adds two report-first drift classes on top of the install-cache classes. Class P (prose-vs-code) scans Larry's agent/skill/doc prose for claims that contradict shipped facts; report-only, never auto-edits. Class Q (GSD-record drift) shells out to `gsd-health` to surface ROADMAP gaps + missing SUMMARYs as drift findings. `lib/core/drift-baseline.cjs` writes per-folder + root `DRIFT.md` baselines (idempotent, traversal-guarded) so successive `--drift` runs diff against a stable anchor; `--drift --fix` heals only where safe. First production run caught 96 W007 (ROADMAP gaps) + 9 I001 (missing SUMMARYs) - the Fable FIX-12 drift set. Requirements DDC-01..08; phase gate `tests/run-all-150.9.sh` 6/6 (incl. Canon Part 8 floor + deadlock carve-out proofs). Local-only: zero Brain egress.
+- Phase 150.10 (systems-thinking meta-lens): `/mos:systems-thinking` promoted in place from a flat connector to an F-surface move-selector (M1 name the system -> M2 draw the loop -> M3 find the leverage point -> M4 trace the reverse salient -> M5 validate), GUIDED, with 3-layer local ranking and stage-aware filing. `lib/core/leverage-scan.cjs` is the M4 move: a Meadows 12-level leverage scan over `room.db` (reads via `navigation.cjs` only, ranked highest-leverage-first) wired into the selector as a Decision Gate, with the meta-lens chaining web (M4<->reverse-salient, M3<->find-analogies+research) wired in code. `systems-thinking-loop` registered as a ranked reach component in `lib/hmi/reach-component-map.json` (FROZEN-6 held: REACH_IDS still 6, byte-unchanged). Requirements ST-01..18; phase gate `tests/run-all-150.10.sh` green.
+
+### Changed
+- Brain teaching graph (production Neo4j): +12 generic-methodology nodes for the IRIS 2026 Session 2 lecture (`source_doc='iris-2026-session-2'`, all MERGE-based / idempotent) - the M1-M5 Method nodes + PREREQUISITE chain (M1->M2->M3->M4->M5, M4 FEEDS_INTO M5) + 4 Example nodes + trending-to-absurd Technique + the Leverage Point Local-Graph Excavation Method + cross-domain chaining edges (M4<->Reverse Salient, M3->Four Lenses, Excavation->M4/Leverage Points/Reverse Salient). Generic methodology only, zero user content (Canon Part 8 clean, orphan-scan 0). Re-ingestion is idempotent.
 
 ## [1.13.1-beta.22] - 2026-06-13
 
