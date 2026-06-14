@@ -1,5 +1,8 @@
 # MindrianOS Moat Mandate
 
+> **CORRECTION (2026-06-14, KuzuDB-drift sweep): the local per-room graph is SQLite (`room/.room-graph/room.db`), NOT KuzuDB.** The Brain is Neo4j + Pinecone. Mentions of "KuzuDB" / ".lazygraph" / "KuzuDB edge types" below describe the RETIRED LazyGraph engine; the typed-edge model (INFORMS / CONTRADICTS / CONVERGES / INVALIDATES / ENABLES ...) is unchanged and now lives in SQLite. Canonical rule: local graph is SQLite (do not reintroduce KuzuDB as a current claim).
+
+
 **Status:** Active
 **Applies to:** Every PR, every feature, every phase review
 **Reference:** docs/MWP-SPECIFICATION.md for full protocol details
@@ -27,7 +30,7 @@ The moat is NOT any single component. It is the integration of:
 6. Proactive Intelligence Loop (5 edge types + user decision learning)
 7. Brain Enrichment (21K nodes, 65K relationships, never distributed)
 
-**9 KuzuDB Edge Types** carrying cross-section intelligence:
+**9 typed edge types (SQLite room.db)** carrying cross-section intelligence:
 INFORMS, CONTRADICTS, CONVERGES, ENABLES, INVALIDATES, BELONGS_TO, REASONING_INFORMS, HSI_CONNECTION, REVERSE_SALIENT
 
 **Brain IP** that cannot be replicated:
@@ -100,7 +103,7 @@ If 3+ warning signs are checked, the PR adds surface area. It should either be r
 Every week of operation should deepen the moat:
 - Every user decision (APPROVE/REJECT/DEFER) becomes graph data
 - Every HSI computation refines innovation connections
-- Every Brain query enriches local KuzuDB
+- Every Brain query enriches local SQLite graph (room.db)
 - Every spectral profile builds the room's thinking-mode map
 - Every session log feeds future KAIROS dream cycles
 
@@ -124,7 +127,7 @@ Does this PR contribute to any of these compounding loops?
 
 A competitor starting today faces:
 - 7 MWP layers that must work together (12+ months engineering)
-- 9 KuzuDB edge types operating continuously
+- 9 typed edge types operating continuously
 - Spectral Markov innovation discovery (research contribution)
 - Proactive intelligence loop that learns from decisions
 - Brain with 21K nodes and 65K relationships (never distributed)

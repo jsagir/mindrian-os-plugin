@@ -1,5 +1,8 @@
 # LazyGraph Schema Reference
 
+> **CORRECTION (2026-06-14, KuzuDB-drift sweep): the local per-room graph is SQLite (`room/.room-graph/room.db`), NOT KuzuDB.** The Brain is Neo4j + Pinecone. Mentions of "KuzuDB" / ".lazygraph" / "KuzuDB edge types" below describe the RETIRED LazyGraph engine; the typed-edge model (INFORMS / CONTRADICTS / CONVERGES / INVALIDATES / ENABLES ...) is unchanged and now lives in SQLite. Canonical rule: local graph is SQLite (do not reintroduce KuzuDB as a current claim).
+
+
 > KuzuDB embedded graph schema for per-project knowledge graphs.
 > Use this document as context when generating Cypher queries from natural language.
 
