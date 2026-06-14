@@ -2631,11 +2631,14 @@ Plans:
 
 **Requirements**: FW-01, FW-02, FW-03, FW-04, FW-05, FW-06, FW-07, FW-08, FW-09, FW-10, FW-11, FW-12, FW-13 (locked in 156-SPEC.md)
 **Depends on:** Phase 155; engines already shipped (ICM backbone, HSI/whitespace suite, opportunity-ops.cjs, proactive-discovery loop)
-**Plans:** 0 plans
+**Plans:** 4 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-spec-phase 156, then /gsd-plan-phase 156 to break down)
+- [ ] 156-01-PLAN.md (Wave 1) -- scaffold /mos:futures command + connector frontmatter (Part 7 chain-not-duplicate) + orchestrator shell with frontmatter validators + caps + advisory causal-cue flagger [FW-01, FW-03, FW-04]
+- [ ] 156-02-PLAN.md (Wave 2) -- bounded guided-by-ring generation (depth 3 x fan-out 5) + ROOT_CAUSES/ENABLES cascade edges via the navigation chokepoint + Artifact-node registration + file-then-scan HSI sequence (the landmine-1 count-match guard) [FW-02, FW-05, FW-06]
+- [ ] 156-03-PLAN.md (Wave 3, NOT autonomous) -- PESTEL subsystem map (default) + ring view + per-ring batch Decision Gate surfacing cross-domain bridges + proposed->confirmed via confirmNode + banking with edge provenance [FW-07, FW-08, FW-09, FW-10]
+- [ ] 156-04-PLAN.md (Wave 4) -- top-3-of-N foresight-web chaining handoffs via command-resolver (mutual RS) + bounded two-fire-point SIGNAL research + Part 8 adversarial egress tripwire + run-all-156.sh phase gate [FW-11, FW-12, FW-13]
 
 ---
 
