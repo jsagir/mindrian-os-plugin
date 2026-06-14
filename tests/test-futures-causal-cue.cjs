@@ -10,7 +10,7 @@
  *   - CAUSAL_CUE_LEXICON is exported and frozen
  *
  * Mirrors the run-all-150.10.sh per-suite convention: prints a PASS/FAIL line,
- * exits non-zero on failure. No watch flag, no external test framework.
+ * exits non-zero on failure. Single run only, no external test framework.
  * No em-dashes (hyphens only).
  */
 
