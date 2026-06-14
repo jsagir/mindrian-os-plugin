@@ -2629,7 +2629,7 @@ Plans:
 
 **Open scoping for the spec:** (1) Canon Part 7 - net-new `/mos:futures` command vs repointing existing `/mos:explore-futures` / `/mos:scenario-plan` / `/mos:explore-trends` (all exist + spine-wired); (2) causal-extraction approach for first-order consequences (LLM hallucination risk - research recommends hybrid linguistic+LLM); (3) how/when HSI is invoked over a seed's consequence set.
 
-**Requirements**: TBD (FW-xx, locked by /gsd-spec-phase 156)
+**Requirements**: FW-01, FW-02, FW-03, FW-04, FW-05, FW-06, FW-07, FW-08, FW-09, FW-10, FW-11, FW-12, FW-13 (locked in 156-SPEC.md)
 **Depends on:** Phase 155; engines already shipped (ICM backbone, HSI/whitespace suite, opportunity-ops.cjs, proactive-discovery loop)
 **Plans:** 0 plans
 
