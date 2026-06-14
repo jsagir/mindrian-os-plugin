@@ -54,6 +54,23 @@ Every time you add something new, the system compares it against everything alre
 
 ---
 
+## Why not just talk to Claude, ChatGPT, or Gemini directly?
+
+You can. MindrianOS is not instead of them. It is the layer that makes one of them remember, judge, and hold you to your own reasoning.
+
+A raw AI is brilliant for one turn and forgets the next. Ask it the same venture question next week and it relearns you from scratch. It knows every framework but not which one you need right now. And it is agreeable: it will help you build a beautiful deck on a false premise, because it optimizes for a helpful answer, not a true one.
+
+MindrianOS adds the four things a raw model structurally cannot be:
+
+- **It remembers.** Your venture lives in a room that persists across every session. The contradiction you found three weeks ago is still there, still checking today's input.
+- **It knows when.** Not just which framework exists, but which one fits this stage and this problem, chained in the right order, calibrated from decades of teaching.
+- **It pushes back.** It blocks you when the evidence is thin and surfaces the conflict between your pricing and your market. A co-founder tells you when you are wrong. A chatbot tells you that you are brilliant.
+- **It keeps your data yours.** The teaching that travels is generic methodology. Your specifics never leave your machine. You get smarter-from-the-world intelligence without becoming the product.
+
+The short version: a raw AI is the engine. MindrianOS is the operating system around it. For a one-off question, use the engine. For a venture you carry for months, you want the OS.
+
+---
+
 ## Install
 
 Built for people who have never opened a terminal. Full walkthrough at [the install guide](https://mindrian-os.com/docs/install).
