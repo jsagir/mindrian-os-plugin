@@ -56,3 +56,19 @@ Hand-wired chains written this session that this seed generalizes:
 - M3 archetype <-> Four Lenses of Innovation (CROSS_DOMAIN_ANALOGUE)
 - Leverage Point Local-Graph Excavation -> M4 / Leverage Points / Reverse Salient (PART_OF / RELATED_TO / CROSS_DOMAIN_ANALOGUE)
 These were Part-8-clean generic-methodology writes to the production Brain (source_doc='iris-2026-session-2'); they are the working prototype of the OPERATES/CHAINS layer this seed would generate at scale.
+
+## 4b. Remote graph sync (navigator addition 2026-06-14) - LOAD-BEARING
+
+The orchestration graph is NOT a one-time ingestion - it is a CONTINUOUS SYNC. Any change to a Mindrian skill, agent, or command (add / modify / remove) must propagate to the remote Brain so the mindrian-operation tier stays in LOCKSTEP with the actual plugin machinery. Brain must never drift from what the repo actually ships.
+
+Mechanism (extends the Part 7 generator from section 4):
+- The generator (from connector-registry.json + command-registry.json + a skills/agents walk) emits the Brain orchestration projection.
+- A `--check` tripwire (pre-commit + Feynman runner, mirroring scripts/build-connector-registry.cjs --check) fails CI when the repo's skills/agents/commands diverge from the last-synced Brain projection.
+- A SYNC step (release-lockstep surface, mirroring the npm / website / minisite lockstep) pushes the projection to the remote Brain on release (or on the relevant commit). This is the "remote graph sync" the navigator named.
+- Idempotent MERGE-based writes (as the 150.10 hand-writes proved), tagged so a stale node can be reconciled/removed.
+
+Connects to **Phase 137 (brain-mindrianos-sync-compat, scoped-backlog v1.14.0)** - that deferred phase IS the Brain<->MindrianOS sync substrate this clause needs. SEED-024 should ABSORB or sequence with Phase 137.
+
+Part 8: only generic machinery metadata syncs (command slugs, reach_ids, framework names, OPERATES/CHAINS edges) - never user content. The methodology_tier property keeps the synced machinery legible and bounded.
+
+Drift-detection tie-in: this is the SAME anti-drift discipline Phase 150.9 just shipped for docs/code (the doctor --drift engine). The orchestration-graph sync is "doctor --drift for the Brain projection" - a Class that detects Brain-vs-repo machinery drift and a sync that heals it.
