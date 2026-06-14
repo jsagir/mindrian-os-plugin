@@ -2618,6 +2618,25 @@ Plans:
 
 **Open decision (carried from spec, locked unless overruled at plan time):** Piece A seeds the move-node `PREREQUISITE`/`FEEDS_INTO` edges into Brain (admin write-capable key required); if the key is absent at build time, Piece B falls back to the hardcoded ranking heuristic and Piece A becomes a follow-up. Defaults: M5 names target + offers (not auto) the talking-to-people handoff; trending-to-absurd/S-curve stays a cross-chain (no 6th move); filing target = problem-definition.
 
+### Phase 156: Futures Wheel opportunity-location MVP
+
+**Milestone:** v1.13.1 "Larry Reaches" (navigator-pulled into the current train 2026-06-14)
+**canon_parts:** Part 2 (Engine 1 Act 1 intelligence via HSI/whitespace), Part 3 (opportunity approval at the tri-context Decision Gate), Part 4 (typed edges + Opportunity Bank ADD), Part 7 (reuse before build), Part 8 (LOCAL room.db only, zero Brain egress)
+
+**Goal:** Assemble (NOT rebuild) a Futures Wheel foresight context that locates opportunities. A seed concept creates a Layer 0 ICM context; first-order consequences file as ICM Layer 4 artifacts (NO sub-rooms - SEED-004 gate); the existing HSI engine (`scripts/compute-hsi.py` + `hsi-to-graph.cjs`) scans for hidden consequence bridges and writes typed ENABLES/INFORMS/CONTRADICTS/CONVERGES edges; consequence nodes carry new frontmatter deltas (`horizon: near|mid|long` + `confidence: 0.0-1.0` + PESTEL `domain:` tag); opportunity candidates bank via the existing proactive-discovery loop + `opportunity-ops.cjs`. Larry's reframe: this NAMES A LOOP MINDRIAN ALREADY RUNS (the proactive discovery loop) and points it forward in time. Source: SEED-025 + `.planning/research/futures-wheel-agent-20260614/`.
+
+**Out of scope (deferred):** reflection / prediction-audit scheduled pass; sub-rooms as N-th-order consequence nodes (gated by SEED-004); always-on horizon scanning; multi-agent specialization (Scan/Consequence/Propagation/Evaluation/Synthesis/Reflection). These belong to the grand-vision research program, NOT this MVP.
+
+**Open scoping for the spec:** (1) Canon Part 7 - net-new `/mos:futures` command vs repointing existing `/mos:explore-futures` / `/mos:scenario-plan` / `/mos:explore-trends` (all exist + spine-wired); (2) causal-extraction approach for first-order consequences (LLM hallucination risk - research recommends hybrid linguistic+LLM); (3) how/when HSI is invoked over a seed's consequence set.
+
+**Requirements**: TBD (FW-xx, locked by /gsd-spec-phase 156)
+**Depends on:** Phase 155; engines already shipped (ICM backbone, HSI/whitespace suite, opportunity-ops.cjs, proactive-discovery loop)
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-spec-phase 156, then /gsd-plan-phase 156 to break down)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
