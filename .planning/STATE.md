@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: executing
-stopped_at: Phase 156 Plan 01 COMPLETE (FW-01/03/04 -- /mos:futures command + orchestrator shell + advisory causal-cue flagger). Next: Phase 156 Plan 02 (Wave 2).
-last_updated: "2026-06-14T20:20:00.000Z"
-last_activity: 2026-06-14 -- Phase 156 Plan 01 executed
+stopped_at: Phase 156 Plan 02 COMPLETE (FW-02/05/06 -- bounded generateRing + ROOT_CAUSES cascade writer + Artifact registrar + count-match guard + runHsiScan sequencer; >=1 HSI_CONNECTION on the fixture). Next: Phase 156 Plan 03 (Wave 3).
+last_updated: "2026-06-14T20:45:00.000Z"
+last_activity: 2026-06-14 -- Phase 156 Plan 02 executed
 progress:
   total_phases: 95
   completed_phases: 74
   total_plans: 482
-  completed_plans: 471
+  completed_plans: 472
   percent: 78
 ---
 
@@ -25,9 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 156 (futures-wheel-opportunity-location-mvp) — EXECUTING (Plan 01 of 4 complete)
+Phase: 156 (futures-wheel-opportunity-location-mvp) — EXECUTING (Plan 02 of 4 complete)
 Status: Executing Phase 156
 Queue: 150.7 (tester round 2 + Part 10 ratification gate) -> v1.13.1 final gate
+
+Phase 156 Plan 02 (FW-02/05/06 -- Wave 2 generation loop + cascade edges + HSI sequencer) complete. Extended (NOT rewrote) the Wave-1 orchestrator shell with four functions: generateRing (clamps depth to FUTURES_DEPTH_CAP=3 + per-parent fan-out to FUTURES_FANOUT_CAP=5 BEFORE any HSI O(n^2) pairing; ring-N stamps parent_id; invalid children skipped, never thrown; each annotated via flagCausalCue), writeCascadeEdges (ROOT_CAUSES source=parent target=child via the navigation.writeEdge chokepoint ONLY -- zero raw INSERT INTO edges; enum/scalar properties ring+confidence, never the body, Part 8), registerConsequenceArtifacts (files each consequence at opportunity-bank/futures-<seed-slug>/<slug>/<slug>.md with an ICM Layer 0 ROOM.md per folder, THEN registers each as a type='Artifact' node via lazygraph.indexArtifact so the node id == compute-hsi path-derived id == hsi-to-graph endpoint id by construction), assertArtifactCountMatchesFiled (the LANDMINE #1 precondition guard) + runHsiScan (the ordered FW-06 sequencer: assert -> hard-fail-on-mismatch -> python3 compute-hsi.py --tier 1 -> hsi-to-graph.cjs -> read-back HSI_CONNECTION + rank cross-domain bridges; Tri-Polar python3-absent Tier 0 degrade). Three tests: test-futures-generator (caps + parent links), test-futures-edges (ROOT_CAUSES via chokepoint + Part 8 no-body + no raw ENABLES bypass), test-futures-hsi-integration (4 cross-domain Artifact nodes; guard ok:true before scan; NEGATIVE missing-node guard ok:false AND runHsiScan refuses without invoking compute-hsi; 5 HSI_CONNECTION edges on Tier 1). Three Rule-1 deviations: (1) ENABLES is NOT in the frozen ALLOWED_EDGE_TYPES (only ROOT_CAUSES is; plan/RESEARCH assumed both) -- an ENABLES request is reported as a failure, NEVER silently raw-SQL'd, honoring the chokepoint invariant; (2) the edges table FK requires endpoints to exist as nodes first -- the unit test registers them before cascading, mirroring the production register-then-cascade order; (3) the HSI fixture needed divergent-vocabulary cross-domain texts (hsi_score rewards |semantic - lsa| divergence, not raw similarity) -- rewrote the seed to same-meaning/disjoint-vocabulary >=5-sentence consequences. Source gates: grep -ciE "LEADS_TO|'CAUSES'" = 0, grep -c "INSERT INTO edges" = 0, grep -ciE "writeEdge.*HSI_CONNECTION|writeEdge.*REVERSE_SALIENT" = 0. Zero em-dashes across all 5 files. Self-check PASSED (5 source/test/fixture files + SUMMARY found; commits 0e1e4d4a + 1644c6ea found). Canon Part 7 (thin orchestration over shipped engines) + Part 8 (zero egress; LOCAL room.db + filesystem only) + Part 9 (consequences land proposed; confirm deferred to Wave 3). Next: Phase 156 Plan 03 (Wave 3).
 
 Phase 156 Plan 01 (FW-01/03/04 -- interface-first Wave 1) complete. Net-new (Part 7): commands/futures.md (connector frontmatter, reach_id context_block so no new reach minted, Part 7 chain-not-duplicate block naming explore-futures/scenario-plan/explore-trends, D-01 guided-by-ring loop, D-03 subsystem-PESTEL render), lib/core/futures/orchestrator.cjs (the SHELL: FUTURES_DEPTH_CAP=3 + FUTURES_FANOUT_CAP=5 with clamping resolvers, frozen HORIZON_ENUM {near,mid,long} + PESTEL_DOMAIN_ENUM {Political,Economic,Social,Technological,Environmental,Legal}, validateConsequenceFrontmatter enum+range; Wave 2-4 functions stubbed-to-throw so zero graph/HSI surface; reuses opportunity-ops.parseFrontmatter), lib/core/futures/causal-cue.cjs (frozen CAUSAL_CUE_LEXICON + flagCausalCue returning cue-supported|cue-thin + matched[] + confidence_adjust delta + dropped:false ALWAYS -- advisory only, built-in regex, no ML, no new dep; T-156-02 mitigated). Two TDD unit tests (test-futures-causal-cue.cjs RED-first then GREEN; test-futures-frontmatter.cjs asserts BOTH confidence>1 and <0 = range not just enum). Two Rule-3 deviations: (1) command-registry pre-commit gate rejected "Futures Wheel" -> added to data/framework-names.json curated_extras (corpus-verified real Glenn-1971 framework, score 0.86; Part-8-safe, no Brain write) + regenerated command-registry.json; (2) reworded a test comment so the no-watch acceptance grep returns 0. Canon Part 7 (all thin orchestration over shipped engines / chain-not-duplicate) + Part 8 (zero egress; no fetch/Brain-write) + Part 9 (truth-claim confirm deferred to Wave 3 gate). Zero em-dashes across all 5 files. Self-check PASSED (5 source/test files + SUMMARY found; commits 01f6c95c + 18f4146b + 7068243a found). Next: Phase 156 Plan 02 (Wave 2 generation loop).
 
