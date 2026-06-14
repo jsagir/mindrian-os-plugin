@@ -36,7 +36,8 @@
     "cross-domain-analogy": { "archetype": "multiSelect" },
     "cross-domain-connect": { "archetype": "multiSelect" },
     "dominant-design": { "archetype": "multiSelect" },
-    "six-hats": { "archetype": "confirm" }
+    "six-hats": { "archetype": "confirm" },
+    "systems-thinking-loop": { "archetype": "multiSelect" }
   },
   "standing_options": {
     "_compose": { "archetype": "ordered" },
