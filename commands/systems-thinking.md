@@ -135,6 +135,61 @@ Always degrade to the heuristic rather than blocking. The dial stays human-in-th
 
 Lens-at-a-time discipline is mandatory: one question or one observation per turn. Never dump all five moves as prose. Never lecture systems theory in the abstract; anchor every concept in the navigator's specific problem.
 
+## M4 (st-leverage): excavate the leverage point from the local graph
+
+When the navigator picks M4, do NOT hand-wave a Meadows level from intuition.
+EXCAVATE it from THIS room's graph. M4 invokes the local scanner and surfaces
+ranked candidates as a Decision Gate.
+
+1. **Scan.** Open the active room.db through the navigation chokepoint and run
+   the scanner (the chokepoint is the ONLY read path; never open sqlite directly,
+   never fs-scan):
+   ```
+   const navigation = require('lib/core/navigation.cjs');
+   const { scanLeveragePoints } = require('lib/core/leverage-scan.cjs');
+   const db = navigation.openRoomDbForCaller(roomDir);
+   let candidates = [];
+   try { candidates = scanLeveragePoints(db); }
+   finally { navigation.closeRoomDbForCaller(db); }
+   ```
+   The scanner reads the generic 12-level signature mapping
+   (`references/methodology/leverage-scan-signatures.md`) and runs it over the
+   local graph, returning candidates RANKED highest-leverage-first (lower Meadows
+   number first). Tier-0 resilient: it runs with Brain offline. If `db` is null
+   (no room.db yet), fall back to a single conceptual leverage hypothesis from
+   the conversation - the dial never blocks.
+2. **Offer (Shape F.1 Decision Gate, name-and-offer, NEVER auto-apply).** Render
+   the top 3-5 ranked candidates as an F.1 gate. Each row names the candidate
+   node, its Meadows level, and the signature that flagged it. Larry NAMES the
+   leverage point and OFFERS it; he does not auto-apply an intervention (the M5
+   name-and-stop discipline). The navigator picks which leverage point to act on.
+3. **Chain handoff (name-and-offer).** Levels 6 to 8 (information flows /
+   reinforcing / balancing) are read from the rs-engine REVERSE_SALIENT edges
+   already in room.db (signed_diff = the lag = the leverage signal; ST-17). The
+   scanner does NOT reimplement bottleneck detection. When a level-6-to-8
+   candidate surfaces, offer the chain as a single Decision Gate line:
+   `arrow Go deeper on this reverse salient with /mos:find-bottlenecks?` Offer
+   it; never auto-invoke. The navigator chooses to cross.
+
+Part 8: the room candidates stay LOCAL. They are NEVER sent to Brain. Only the
+generic signature mapping crosses Brain to local, never the local candidates the
+other way.
+
+## M3 (st-archetype): chain to analogies and research for ideation (ST-18)
+
+When the navigator picks M3 and names a system archetype, surface the meta-lens
+chain handoffs (name-and-offer, NEVER auto-invoke). A system archetype IS a
+cross-domain pattern, so M3 offers two ideation chains as Decision Gate lines:
+
+- `arrow Surface analogous systems with /mos:find-analogies?` (cross-domain
+  analogous systems for ideation)
+- `arrow Pull external evidence with /mos:research?` (web evidence for the
+  archetype's dynamics)
+
+Both are name-and-offer. The navigator chooses to cross; M3 never auto-jumps. The
+Brain side chains the M3 lens to the Four Lenses of Innovation via the
+CROSS_DOMAIN_ANALOGUE edge, so brain_consult can invoke either lens (ST-18).
+
 ## Terminal Condition and Stage-Aware Filing
 
 M5 produces a stage-appropriate next-action target, then NAME-AND-STOP: name the target, OFFER the handoff, do not auto-jump.

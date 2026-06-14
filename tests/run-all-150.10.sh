@@ -35,6 +35,7 @@ START_TIME=$(date +%s)
 # (b) The new repertoire + frozen-6 test, plus (c) the carried 148 frozen fences.
 CJS_SUITES=(
   test-150.10-systems-thinking-repertoire.cjs   # ST-11 (Piece C: repertoire + frozen-6)
+  test-leverage-scan.cjs                         # ST-15..ST-17 (Piece D: the M4 leverage scanner)
   test-148-frozen-contracts.cjs                 # CARRIED: MAX_K=3, DIAL_REACH_K=6, 0.70/0.15
   test-148-component-map.cjs                     # CARRIED: the sub_mode rows + dispatcher routing
 )
@@ -116,11 +117,28 @@ fi
 if grep -nE "fetch\(|https?://|mcp__brain_" "$REPO_ROOT/tests/test-150.10-systems-thinking-repertoire.cjs" >/dev/null 2>&1; then
   echo "    FORBIDDEN raw network egress in: tests/test-150.10-systems-thinking-repertoire.cjs"; PART8_OK=0
 fi
+# Piece D Part-8 floor: the leverage-point scanner reads LOCAL room.db only; the
+# room candidates NEVER egress to Brain. The plan must_have asserts this exact
+# grep returns 0 matches over lib/core/leverage-scan.cjs.
+LEVERAGE_SCAN="$REPO_ROOT/lib/core/leverage-scan.cjs"
+if [[ ! -f "$LEVERAGE_SCAN" ]]; then
+  echo "    MISSING sweep target: lib/core/leverage-scan.cjs"; PART8_OK=0
+elif grep -nE "fetch|http|curl|brain|tavily" "$LEVERAGE_SCAN" >/dev/null 2>&1; then
+  echo "    FORBIDDEN egress token in: lib/core/leverage-scan.cjs"; PART8_OK=0
+fi
 # No em-dashes in the new 150.10 artifacts (CLAUDE.md HARD RULE: hyphens only).
 # The forbidden glyph is matched via its codepoint (U+2014) so this runner
 # itself carries no literal em-dash to trip its own sweep.
 EMDASH=$'\u2014'
-for t in "${SWEEP_TARGETS[@]}" "tests/run-all-150.10.sh"; do
+EMDASH_TARGETS=(
+  "${SWEEP_TARGETS[@]}"
+  "tests/run-all-150.10.sh"
+  "lib/core/leverage-scan.cjs"
+  "tests/test-leverage-scan.cjs"
+  "references/methodology/leverage-scan-signatures.md"
+  "commands/systems-thinking.md"
+)
+for t in "${EMDASH_TARGETS[@]}"; do
   f="$REPO_ROOT/$t"
   if [[ -f "$f" ]] && grep -q "$EMDASH" "$f"; then
     echo "    FORBIDDEN em-dash in: $t"; PART8_OK=0
