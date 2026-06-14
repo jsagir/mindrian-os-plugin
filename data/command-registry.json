@@ -557,6 +557,24 @@
       "jtbd_summary": "Prepare for an investor / partner / customer meeting."
     },
     {
+      "command": "/mos:futures",
+      "kind": "methodology",
+      "frameworks": [
+        "Futures Wheel"
+      ],
+      "produces": "room/opportunity-bank/futures-*/**",
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "methodology",
+      "serves_jtbd": [
+        "find-problem",
+        "connect-domains"
+      ],
+      "teaching": "When you need to see the invisible cross-domain ripples a linear mind misses, /mos:futures turns a seed concept into a bounded multi-ring consequence wheel, scans for hidden bridges with HSI, and banks the opportunities. Best when 'and then what?' matters more than a tidy diagram.",
+      "jtbd_label": "Find Problem",
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
+    },
+    {
       "command": "/mos:grade",
       "kind": "methodology",
       "frameworks": [
@@ -1614,6 +1632,9 @@
     ],
     "Usher's Model of Cumulative Synthesis": [
       "/mos:find-connections"
+    ],
+    "Futures Wheel": [
+      "/mos:futures"
     ],
     "Six Thinking Hats": [
       "/mos:hat-briefing",
