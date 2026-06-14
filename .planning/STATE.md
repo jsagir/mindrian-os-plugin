@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: executing
-stopped_at: Phase 150.9 Plan 03 complete (run-all-150.9.sh phase gate GREEN + ROADMAP DDC-01..DDC-08 backfill) -- PHASE 150.9 COMPLETE
-last_updated: "2026-06-13T21:05:00.000Z"
-last_activity: 2026-06-13 -- Phase 150.9 Plan 03 complete (phase gate + ROADMAP backfill); Phase 150.9 COMPLETE
+stopped_at: Phase 150.10 Plan 02 complete (Piece B -- /mos:systems-thinking promoted in place to F-surface move-selector + 5-move/CLD references)
+last_updated: "2026-06-14T06:20:00.000Z"
+last_activity: 2026-06-14 -- Phase 150.10 Plan 02 complete (systems-thinking F-selector promote-in-place; Piece B of 150.10)
 progress:
   total_phases: 94
   completed_phases: 67
   total_plans: 486
-  completed_plans: 432
+  completed_plans: 433
   percent: 70
 ---
 
@@ -25,9 +25,14 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 150.9 (doctor-drift-classes-for-fable-audit-tracks-extends-95-1) — COMPLETE (3/3 plans)
+Phase: 150.10 (systems-thinking-f-selector) — executing (Plan 01 + Plan 02 of 3 complete; Plan 03 Piece C pending)
+Status: Plan 02 complete — Piece B (selector + references) shipped
+Queue: 150.10 Plan 03 (Piece C repertoire registration) + 150.7 (tester round 2 + Part 10 ratification gate) -> v1.13.1 final gate
+
+Phase 150.10 Plan 02 (ST-06..ST-09 -- Piece B: promote /mos:systems-thinking in place to the F-surface move-selector) complete. Three moves landed: (1) commands/systems-thinking.md rewritten from the fixed "Quick pass or deep dive?" march into the SENSE -> RANK -> OFFER -> PICK -> EXECUTE -> RE-RANK selector loop (M1 boundary -> M2 causal loop -> M3 archetype -> M4 leverage point -> M5 stage-aware next action), GUIDED default with let-me-think / just-tell-me / stop dial overrides, the local rank(move) blend formula + the heuristic ordering skeleton verbatim, the three-layer navigation section naming the REAL chokepoint functions (navigation.cjs getNeighborhood / findContradictions / getActiveFocus for Layer 2 room state, memory-ops.cjs getSessionHistory for Layer 3 trajectory -- confirmed by grepping their module.exports before writing the prose, per the MED-3 done-criterion), a dedicated Flow-Source Dual Path section (Brain-flow path traverses the Plan-01-seeded PREREQUISITE/FEEDS_INTO edges when reachable; heuristic fallback when Brain is unreachable or the seed is absent, so the command never hard-fails), M5 NAME-AND-STOP (names the stage-appropriate target + offers the handoff, does not auto-jump -- Q1 RESOLVED), stage-aware filing to the ACTIVE room section (never a fixed default), and the META-LENS framing (any stage, any problem type, NOT discovery-only). The connector frontmatter is BYTE-UNCHANGED (reach_id context_block, sub_mode systems-thinking-loop, SENS-06, hierarchy_rank 44, surface F.2, fileEvidenceWithReadback); the per-move sub-modes (st-boundary / st-loop / st-archetype / st-leverage / st-act) added as PROSE comments under surface: F.2, not new reaches (Part 7 promote-in-place, no 6th reach, no 7th reach_id). (2) references/methodology/systems-thinking.md extended with "## The Five Moves" (M1-M5: trigger / produces / PWS anchor / sub_mode / Larry voice line verbatim), "## The CLD Storytelling Method" (build the loop as a story: fishery stock + breakfast/frustration loop), "## The Leverage-Point to Validation Handoff" (PWS ends with an actionable handle, not a diagram), and "## The Meta-Lens Framing"; Session 2 transcript anchors preserved verbatim. (3) references/methodology/causal-loop-diagrams.md created (65 lines, min 30): reinforcing vs balancing loops (two kinds and two only), signed links + delays, story-first construction, loop-as-actionable-handle (feeds M3/M4, not terminal). Trending-to-absurd stays a CROSS-CHAIN, no 6th core move (Q2 RESOLVED); move set stays M1-M5. Canon Part 7 (promote-in-place) + Part 8 (ranking computed locally, only generic flow crosses to Brain) + Part 3/4 (Shape F gate, every move files a typed edge) hold. Zero em-dashes across all three files (byte-level U+2014 grep returned empty). Self-check PASSED (3 source files + SUMMARY found; commits found). Commits 83a5ec55 (Task 1 selector loop), 91b96366 (Task 2 five-move reference), 20569d36 (Task 3 CLD reference). Requirements ST-06..ST-09 complete. Next: Phase 150.10 Plan 03 (Piece C -- register systems-thinking-loop as a ranked sub_mode component in reach-component-map.json + FROZEN-6 invariant test + run-all-150.10.sh phase gate).
+
+(Prior) Phase: 150.9 (doctor-drift-classes-for-fable-audit-tracks-extends-95-1) — COMPLETE (3/3 plans)
 Status: Phase complete — ready for verification
-Queue: 150.7 (tester round 2 + Part 10 ratification gate) + 150.10 (systems-thinking F-selector) -> v1.13.1 final gate
 
 Phase 150.9 Plan 03 (DDC-06, DDC-07 -- the phase gate + ROADMAP backfill) complete. tests/run-all-150.9.sh ships as the one-command Phase 150.9 gate, mirroring the run-all-150.5.sh two-group-plus-tally idiom: group (a) runs the three real CJS drift suites by their corrected names (test-drift-baseline.cjs 6/6 + test-doctor-class-p.cjs 4/4 + test-doctor-class-q.cjs 7/7); group (b) is the Canon Part 8 zero-egress floor proof (RQ5, mirroring the 95.2 grep precedent) -- a FULL grep of lib/core/drift-baseline.cjs + a PR-diff-scoped grep of scripts/doctor.cjs new lines (git diff origin/main, with a new-Class-P/Q line-range 4430-4710 fallback when upstream is unavailable) for the fetch|http|curl|brain|tavily token set; group (c) is the marketplace-cache-drift-deadlock-preserved proof (RQ1) -- node scripts/doctor.cjs --drift --json run live with its exit code asserted == 0. Single N passed/M failed/K missing tally; exits non-zero on any failure. One Rule-1 deviation: the PR-diff grep false-positived on the EDITED classFlagsActive line `|| flags.brainSmoke || flags.drift;` (the pre-existing brainSmoke Class-M control flag is NOT network egress -- Plan 02's SUMMARY self-check pre-identified exactly this), fixed with a flags.brainSmoke|brain_smoke|brainSmoke benign-flag carve-out applied to both grep paths; the leg now passes honestly with 0 genuine network matches. bash tests/run-all-150.9.sh = 6 passed / 0 failed / 0 missing (exit 0). The ROADMAP 150.9 entry was backfilled from the partial placeholder Requirements line to the full minted DDC-01..DDC-08 1:1 mapping (the 150.6 DRIFT-01..11 idiom verbatim: ID then short description, comma-separated), Depends-on extended to 95.1 + 150.6, Plans bumped to 3/3 complete, the 150.9-03 plan row added + checked off; no placeholders remain in the 150.9 block and every DDC-01..DDC-08 is covered by at least one plan's frontmatter (DDC-06 + DDC-07 in Plan 03). This SUMMARY replaced the I001 auto-stub that Plan 02's --drift --fix heal arm wrote for this plan (proof the heal arm works). Zero em-dashes. Commit 016482e5 (phase gate). Requirements DDC-06 + DDC-07 complete. Phase 150.9 COMPLETE (all 8 DDC requirements shipped across Plans 01-03).
 
