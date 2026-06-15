@@ -2674,16 +2674,19 @@ Plans:
 
 **Scope fence (NOT the dormant full SEED-009):** this is SEED-009-MINIMAL. It does NOT build the `ranker_weights` table, the gradient-descent ensemble refit, or any learned-weight model -- those stay dormant behind SEED-009's two-gate trigger (>=30 active users AND >=1000 outcome edges; current ~4 users, <100 edges). Training the ensemble now would overfit the Wave-1 cohort (adversarial review attack 4). The frozen 148 contracts (MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 RECOMMEND gate, the 6-reach bank, the 3 postures) are UNTOUCHED.
 
-**Open question deferred to discuss-phase (navigator 2026-06-15):** which rank surface the penalty hooks -- `f-selector-ranker.cjs` (command candidates; the seam the research traced) vs `dial-reach-orchestrator.cjs` (the 6 reaches the navigator literally sees + rejects). Resolve with a seam trace of which surface the REJECTED / `f_selector_decision` edges actually attach to. Do NOT pre-decide.
+**Open question RESOLVED in discuss-phase (D-01, 2026-06-15):** the penalty hooks the command-level `_applyDecay` seam (`f-selector-ranker.cjs` consuming `selector-decisions.applyDecayWeight`). The seam trace found `closeReach` (`dial-close-reach.cjs:236`) delegates a REACH reject to `recordSelectorDecision` keyed by `reach.command`, so reaches collapse to their command key -- ONE penalty at the command seam covers BOTH surfaces. Post-research scope (D-07): the four fences require a presentation count, so the phase adds ONE additive `reach_presented` memory_event at the dial-render consumer seam (Plan 01).
 
 **Requirements:** RJP-01, RJP-02, RJP-03, RJP-04, RJP-05, RJP-06, RJP-07, RJP-08 (the 8 locked requirements in 158-SPEC.md, in spec order: ride-the-seam, byte-stable-at-zero, bounded-discount, hard-suppress-at-N, named-threshold, Part-8-counts-only, Part-9-chokepoint, not-full-SEED-009)
 **Depends on:** Phase 125 (the f-selector ranker + `_applyDecay` IoC seam); Phase 109 (the `navigation.cjs` memory chokepoint); Phase 129/148 (the `f_selector_decision` outcome-edge writers)
 **Authority:** `.planning/phases/157-brain-orchestration-graph-and-methodology-tiers/157-RESEARCH.md` (the reverse-salient finding + leverage point 1); `.planning/seeds/SEED-009-learned-ranker-weights-from-outcome-edges.md` (the minimal-vs-full boundary)
-**Plans:** 0 plans
+**Plans:** 4 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-spec-phase 158, then /gsd-discuss-phase 158 -- the surface question resolves in discuss)
+- [ ] 158-01-PLAN.md -- presentation counter (reach_presented) at the dial-consumer seam + EVENT_TYPES additive + no-command guard (D-07/D-01/D-01a; the fence enabler) [wave 1, autonomous: false -- locates the dial consumer]
+- [ ] 158-02-PLAN.md -- reject-count-in-window reader (REJECT-only, window W) + bounded countPenalty on the _applyDecay rail + combined-suppression floor + named constants (RJP-01/02/03; D-02/D-02a/D-03/D-04/D-08a/D-09) [wave 2]
+- [ ] 158-03-PLAN.md -- hard-suppression-with-parole, all four fences (M/W/deterministic-parole/per-room) + drop before sort/slice + named-constant enforcement (RJP-04/05; D-05/D-06/D-08b) [wave 3]
+- [ ] 158-04-PLAN.md -- run-all-158.sh phase gate (CJS suites + Part 8 sweep + Part 9 sweep + RJP-08 sweep) + byte-stable-at-zero snapshot + frozen-148 passthrough (RJP-02/06/07/08) [wave 4]
 
 ---
 
