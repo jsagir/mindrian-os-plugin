@@ -2663,6 +2663,30 @@ Plans:
 
 ---
 
+### Phase 158: bounded rejection-penalty (SEED-009-minimal)
+
+**Milestone:** v1.13.1 / v1.14.0-candidate (LOCAL-only; no Brain dependency; can land independent of Phase 157)
+**canon_parts:** Part 4 (rejection is data -- "why not" must teach the ranker, not just file), Part 7 (reuse -- ride the shipped `_applyDecay` IoC seam, do not rebuild), Part 8 (boundary -- the penalty reads edge COUNTS only, never rejection reason strings), Part 9 (read outcome edges via the `navigation.cjs` chokepoint, never folder scans)
+
+**Sequencing (navigator 2026-06-15):** PULL FORWARD, build BEFORE Phase 157. The 157-RESEARCH systems fan-out found the reach layer SENSES/RANKS/SURFACES/RECORDS but does NOT LEARN: REJECTED / `f_selector_decision(outcome=reject)` edges file (Part 4 Decision 13) but no production code reads them back. The static ensemble weights at `lib/workflow/f-selector-ranker.cjs:287-290` are the reverse salient -- the open point in an otherwise-built circuit. This phase closes it with the smallest fix. It is LOCAL-only and does NOT need the Brain orchestration graph (157), so it builds first.
+
+**Goal:** Add a bounded, investment-scaled REJECTION_PENALTY that rides the existing `_applyDecay` injected-function seam (the same IoC rail PIVOT/DEFER already use, `f-selector-ranker.cjs` + `selector-decisions.cjs applyDecayWeight`), so a chronically-rejected candidate is discounted instead of re-surfacing at the top of the ranked set on the next turn. Penalty shape: `(reject_count / presentations) * penalty_weight`, bounded and investment-scaled, mirroring the shipped decay hook. Default of zero rejections = byte-stable score (no behavior change for a cold room).
+
+**Scope fence (NOT the dormant full SEED-009):** this is SEED-009-MINIMAL. It does NOT build the `ranker_weights` table, the gradient-descent ensemble refit, or any learned-weight model -- those stay dormant behind SEED-009's two-gate trigger (>=30 active users AND >=1000 outcome edges; current ~4 users, <100 edges). Training the ensemble now would overfit the Wave-1 cohort (adversarial review attack 4). The frozen 148 contracts (MAX_K=3, DIAL_REACH_K=6, the 0.70/0.15 RECOMMEND gate, the 6-reach bank, the 3 postures) are UNTOUCHED.
+
+**Open question deferred to discuss-phase (navigator 2026-06-15):** which rank surface the penalty hooks -- `f-selector-ranker.cjs` (command candidates; the seam the research traced) vs `dial-reach-orchestrator.cjs` (the 6 reaches the navigator literally sees + rejects). Resolve with a seam trace of which surface the REJECTED / `f_selector_decision` edges actually attach to. Do NOT pre-decide.
+
+**Requirements:** RJP-xx (locked in 158-SPEC.md -- pending /gsd-spec-phase 158)
+**Depends on:** Phase 125 (the f-selector ranker + `_applyDecay` IoC seam); Phase 109 (the `navigation.cjs` memory chokepoint); Phase 129/148 (the `f_selector_decision` outcome-edge writers)
+**Authority:** `.planning/phases/157-brain-orchestration-graph-and-methodology-tiers/157-RESEARCH.md` (the reverse-salient finding + leverage point 1); `.planning/seeds/SEED-009-learned-ranker-weights-from-outcome-edges.md` (the minimal-vs-full boundary)
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-spec-phase 158, then /gsd-discuss-phase 158 -- the surface question resolves in discuss)
+
+---
+
 ## Backlog (parking lot — unscheduled, not phase-bound)
 
 ### GSD Planning Artifacts as Local-Graph Members (Brain-queryable via typed packets) — REGISTERED 2026-06-08
