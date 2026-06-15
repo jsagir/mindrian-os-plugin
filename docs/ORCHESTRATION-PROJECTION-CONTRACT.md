@@ -138,10 +138,71 @@ A deliberately un-wired fixture (`tests/fixtures/orchestration-unwired/UNWIRED-F
 
 **The sensor-firability caveat.** The wiring-completeness gate ASSUMES sensors `SENS-02`..`05`/`07` fire on a fresh-room turn, but that firability is an EMPIRICAL validation (a live trace), not a code read. `--check` validates STRUCTURAL reach-wiring (a command/framework reaches one of the 6 reaches in the projection); it does NOT assert that the firing sensor actually mints a reach at runtime. That empirical leg -- proving a sensor fires and dispatches the expected reach on a real turn -- is OUT of this build-time gate's scope. The build-time `--check` answers "is every framework structurally wired to a reach?"; it does not answer "does the sensor fire and dispatch that reach at runtime?".
 
-## 5. Forward references (Plan 05)
+## 4c. Cache contract (the deferred nav-engine consumer target) (BOG-09)
+
+`data/brain-orchestration-projection.json` IS the Brain-derived LOCAL cache the navigation engine will read at `decide()` time. This section specifies the consumable shape so the DEFERRED consumer has a stable target. The actual nav-engine read of this cache is deferred (157-CONTEXT deferred list); only the contract lands here.
+
+### Brain-derived LOCAL cache, Tier-0 resilient
+
+The projection is a Brain-DERIVED LOCAL cache, mirroring the BRAIN.md derivation-resilience pattern (Canon Part 9):
+
+- The Brain is the EXTERNAL CORTEX the projection is SHAPED AFTER (the dual-role amendment, Appendix D entry 19, sanctions the SHAPE the Brain may hold). It is NOT a runtime dependency of the cache.
+- The cache is REGENERATED DETERMINISTICALLY from LOCAL sources alone: the connector registry (`data/connector-registry.json`) + the command registry (`data/command-registry.json`) + the `commands/` + `skills/` + `agents/` file walk + the hand-curated analogue seed (`data/cross-domain-analogues.json`) + the wired-XOR-allowlisted ledger (`data/orchestration-unwired-allowlist.json`). NONE of these is the Brain.
+- Therefore the cache SURVIVES A BRAIN OUTAGE (Tier-0 resilient): the nav engine reads the local file with NO live Brain dependency at read time. The same node + edge schema is available whether the Brain is reachable or not. There is NO live Brain read at generate time and NO live Brain read at the deferred consume time.
+
+This is the same resilience contract BRAIN.md carries per folder: a Brain-derived artifact that, once derived, is a self-sufficient local consumable. The projection regeneration (`node scripts/build-orchestration-projection.cjs`) reads only local bytes; `--check` (section 4a) regenerates in memory and makes ZERO Brain/network calls.
+
+### The exact consumable shape
+
+The deferred nav-engine consumer reads this top-level shape:
+
+```
+{
+  ontology_ref:      string,   // the source registries this projection is derived from
+  generated_note:    string,   // the GENERATED-do-not-edit-by-hand marker
+  chain_layer_note:  string,   // the legible source-empty-chain-layer marker (section 3)
+  nodes:             Node[],   // every node carries the NODE_FIELD_ALLOWLIST fields (section 2)
+  edges:             Edge[]    // every edge is { type, from, to } (section 3)
+}
+```
+
+- **Node field allowlist** (the closed set of keys any node may carry; section 2 documents each): `id`, `kind`, `methodology_tier`, `name`, `reach_id`, `sub_mode`, `hierarchy_rank`, `posture`, `sensor_triggers`, `framework`, `chain_provenance`, `ranking`. The `chain_provenance` sub-block carries only `{ framework, command, reach_id, sub_mode, firing_sensors }` (the chain-provenance field names from Plan 03), all of which are themselves in the generic-machinery allowlist.
+- **Edge field allowlist** (the closed set of keys any edge may carry): `type`, `from`, `to`.
+
+These two allowlists are EXPORTED from the generator as frozen arrays `NODE_FIELD_ALLOWLIST` and `EDGE_FIELD_ALLOWLIST` (`scripts/build-orchestration-projection.cjs`), so the Part 8 boundary scan (section 4d) asserts against the SAME source of truth this section documents. A node/edge key outside the corresponding allowlist is a Part 8 breach, caught by the scan before the artifact lands.
+
+### Deferred fast-follows (explicitly OUT of Phase 157)
+
+| Deferred item | Where it lands | Why out of 157 |
+|---------------|----------------|----------------|
+| LIVE Brain WRITE of the projection | a fast-follow (needs the admin/Neo4j write path; a one-time ingest) | Phase 157 sanctions only the SHAPE the Brain may hold + the LOCAL cache the plugin derives; it opens no new wire to the Brain |
+| CONTINUOUS remote sync (release-lockstep SYNC + CI drift-vs-Brain) | **Phase 137** (brain-mindrianos-sync-compat); SEED-024 sequences it | a separate phase with its own write path + drift gate |
+| LIVE nav-engine CONSUMPTION of the cache (ranked next-reach at `decide()` time) | a deferred consumer | this phase EXPOSES the inputs + DEFINES the cache contract only; the read is downstream |
+
+The `LOCAL data -> BRAIN: NO` invariant (Part 8) is UNCHANGED and remains binding across all three deferrals.
+
+---
+
+## 4d. The Part 8 boundary scan (Plan 05, BOG-09 / BOG-10)
+
+`tests/test-orchestration-projection-part8-boundary.cjs` is the adversarial boundary scan that makes the locality CONSTITUTIONAL rather than assumed, mirroring the Phase 90 5-tripwire forbidden-substring sweep and the Phase 110 adversarial-seed idiom. It proves zero user-content egress BY CONSTRUCTION over FOUR surfaces: the projection artifact (`data/brain-orchestration-projection.json`), the generator (`scripts/build-orchestration-projection.cjs`), the analogue seed (`data/cross-domain-analogues.json`), and the wired-XOR-allowlisted ledger (`data/orchestration-unwired-allowlist.json`).
+
+The scan asserts five things and exits non-zero on ANY breach:
+
+1. **Field-allowlist sweep (BOG-10).** Every node key is in `NODE_FIELD_ALLOWLIST` and every edge key is in `EDGE_FIELD_ALLOWLIST` (the generator's exported frozen arrays); the `chain_provenance` and `ranking` sub-blocks are descended into and their keys are restricted to the same generic set. A key outside the allowlist FAILS (a candidate user-content field).
+2. **Tier sweep (BOG-10 boundary-keeper).** `methodology_tier` is present on EVERY node and is exactly `pws` or `mindrian-operation`. A node without it is not a legal projection node.
+3. **Forbidden-value heuristic sweep (the planted-secret tripwire).** No node or edge VALUE matches a user-content heuristic: a `room/` path segment, an at-sign email pattern, or free text longer than a documented short cap. The scan is adversarial: it SEEDS a planted user-content value into an in-memory copy of the projection and PROVES the heuristic catches it (RED), then confirms the REAL artifact is clean (GREEN). The scan is the PROOF, not an assertion.
+4. **Zero-live-Brain sweep (BOG-09).** The generator source (comment lines filtered out) carries NO top-level `brain-client` require and NO `fetch` / `http` / `curl` / `brain.query` / `brain.write` call. This generator has NO Brain touch at all (unlike the connector `--refresh-names` sibling). The match is on the actual call/require SYNTAX, never a bare substring, so the header prose naming "Brain" does not self-invalidate the gate.
+5. **Generic-machinery sources (BOG-10).** The analogue seed carries only `from` / `to` generic framework-NAME pairs + a `rationale` prose field (bounded, no user content); the allowlist carries only `framework` / `reason` machinery-metadata pairs.
+
+The scan is registered in `lib/memory/run-feynman-tests.cjs` `TEST_FILES` so the Feynman runner enforces it on every run. It makes ZERO Brain/network calls.
+
+---
+
+## 5. Forward references
 
 - **Plan 04 -- the `--check` drift tripwire (LANDED).** See section 4a for the now-shipped 3-mode taxonomy (STALE / UN-WIRED / UN-RANKED), the wired-XOR-allowlisted ledger, the un-wired fixture, and the pre-commit + Feynman-runner registration. The `chain_layer_note` is present on the projection regardless of the chain layer being source-empty (section 3), so it remains the legible-empty-layer marker.
-- **Plan 05 -- the boundary scan.** A build-time boundary scan over the projection artifact + its generator proves zero user-content fields by construction: every node field is a command slug, a reach_id, a sub_mode, a framework name, a `methodology_tier`, a ranking enum/scalar, or a SENS id; every edge is one of the five closed types between two node ids. A projection node or field carrying user-specific bytes is a Part 8 breach, caught before the artifact lands.
+- **Plan 05 -- the cache contract + the boundary scan (LANDED).** See section 4c for the Brain-derived LOCAL cache contract (the deferred nav-engine consumer target, Tier-0 resilient, the consumable shape, the deferred fast-follows) and section 4d for the adversarial Part 8 boundary scan that proves zero user-content fields by construction across the projection + generator + analogue seed + allowlist.
 
 ---
 

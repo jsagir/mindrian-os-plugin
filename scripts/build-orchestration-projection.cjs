@@ -123,6 +123,54 @@ const ALLOWED_EDGE_TYPES = Object.freeze(new Set([
 // Backwards-compatible alias retained for the Plan 02 export surface + tests.
 const EDGE_TYPES = Object.freeze(Array.from(ALLOWED_EDGE_TYPES));
 
+// ---------------------------------------------------------------------------
+// The Part 8 boundary-scan field allowlists (Plan 05, BOG-10). These are the
+// SINGLE SOURCE OF TRUTH the docs/ORCHESTRATION-PROJECTION-CONTRACT.md cache
+// contract documents AND the boundary scan
+// (tests/test-orchestration-projection-part8-boundary.cjs) asserts against. A
+// node key outside NODE_FIELD_ALLOWLIST or an edge key outside
+// EDGE_FIELD_ALLOWLIST is a Part 8 breach (a candidate user-content field), and
+// the scan fails the build before the artifact lands. Every name here is a
+// GENERIC machinery field (an id, a kind, a tier, a name, a ranking enum/scalar,
+// a typed-edge endpoint); NONE is a user-content channel.
+//
+// The list mirrors the node schema in docs/ORCHESTRATION-PROJECTION-CONTRACT.md
+// section 2 EXACTLY: { id, kind, methodology_tier, name } on every node, plus the
+// connector-derived ranking inputs (reach_id, sub_mode, hierarchy_rank, posture,
+// sensor_triggers, framework), plus the two provenance blocks (chain_provenance,
+// ranking). chain_provenance + ranking are sub-objects whose KEYS are themselves
+// restricted to this same generic set (the scan descends into them); they carry
+// NO new field name beyond the allowlist.
+const NODE_FIELD_ALLOWLIST = Object.freeze([
+  // The mandatory four (every node).
+  'id',
+  'kind',
+  'methodology_tier',
+  'name',
+  // Connector-derived ranking inputs (BOG-07; enum/scalar/id only).
+  'reach_id',
+  'sub_mode',
+  'hierarchy_rank',
+  'posture',
+  'sensor_triggers',
+  'framework',
+  // The chain-provenance sub-block + its inner keys (all generic handles).
+  'chain_provenance',
+  'command',
+  'firing_sensors',
+  // The Plan 02 ranking sub-block (same scalars as the top-level fields).
+  'ranking',
+]);
+
+// Every edge is exactly { type, from, to } where from/to are node ids and type
+// is one of the closed ALLOWED_EDGE_TYPES set. No edge carries any other field;
+// an edge key outside this set is a Part 8 breach.
+const EDGE_FIELD_ALLOWLIST = Object.freeze([
+  'type',
+  'from',
+  'to',
+]);
+
 // The curated_chains kind -> edge type mapping (documented in
 // docs/ORCHESTRATION-PROJECTION-CONTRACT.md). A curated_chains entry declares a
 // `kind`; this maps it to one of the three chaining edge types. Anything else is
@@ -860,5 +908,7 @@ if (require.main === module) {
     EDGE_TYPES,
     ALLOWED_EDGE_TYPES,
     CHAIN_KIND_TO_EDGE_TYPE,
+    NODE_FIELD_ALLOWLIST,
+    EDGE_FIELD_ALLOWLIST,
   };
 }
