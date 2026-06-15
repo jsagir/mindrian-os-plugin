@@ -25,7 +25,16 @@ Downstream agents MUST read `158-SPEC.md` before planning or implementing. Requi
 <decisions>
 ## Implementation Decisions
 
-### Surface (commands vs reaches) - the spec-deferred fork, RESOLVED BY TRACE
+### SURFACE CORRECTION (navigator-LOCKED 2026-06-15, AFTER plan-check) - SUPERSEDES D-01/D-02/D-04/D-07 below
+The first plan-check (gsd-plan-checker) red-teamed the plans and found the command-surface premise WRONG for the suppression + counter halves. The navigator chose to target THE 6-REACH DIAL (what the user sees). This block supersedes the command-surface framing in D-01/D-02/D-04/D-07 below (kept for history):
+- **SC-01 (surface):** the penalty + hard-suppression target the DIAL REACH surface: `lib/hmi/dial-reach-orchestrator.cjs` `_resolveReachScore(def, roomState)` (reads `roomState.reachScores[reach_id]`) + `buildReachList`. NOT `rankForSelector` / the `_applyDecay` command rail. The dial renders the 6 fixed `reach_id`s (context_block / contradiction / cross_room / brain_consult / deep_research / hats); reaches are NOT commands.
+- **SC-02 (re-key cmd -> reach_id):** the reject signal, the count-in-window, the penalty, and the presentation counter all key by `reach_id`, NOT `cmd:<command>`. (Confirm at close: that the rejected reach's `reach_id` is captured - research item.)
+- **SC-03 (injection point):** discount the rejected reach_id's score inside `_resolveReachScore`; hard-suppression DROPS the reach_id from the ranked set BEFORE the top-K slice in `buildReachList`, analogous to the command-side drop-before-sort/slice (D-08b).
+- **SC-04 (dormant rail = moot here, but still a latent finding):** BLOCKER 2 (no production consumer injects `_applyDecayWeight`, so the shipped PIVOT/DEFER recency decay is inert in production) NO LONGER blocks this phase - we are off that rail. It remains a real latent bug worth its own follow-up (note in deferred).
+- **SC-05 (FROZEN-148 guard - LOAD-BEARING):** `_resolveReachScore` / `buildReachList` is the frozen-148 surface. Suppression may discount a score and drop a reach from the RENDERED top-K, but MUST NOT change DIAL_REACH_K=6 (the bank stays 6), MAX_K=3, the 0.70/0.15 gate semantics, or the 6 REACH_IDS. The frozen-6 invariant test MUST stay green (it asserts the BANK is 6, not that 6 always render). Research must confirm.
+- **SC-06 (db + counter seam):** the render seam `scripts/intent-classifier.cjs:896` calls `buildReachList({tierMode, reachScores})` with NO db; the LIVE engine arm (~1331-1478) holds `roomState.db`. The `reach_presented` counter (keyed by reach_id) must fire where db exists on the live arm - research locates it.
+
+### Surface (commands vs reaches) - the spec-deferred fork, RESOLVED BY TRACE [SUPERSEDED by SC-01]
 - **D-01:** Hook the penalty into the command-level `_applyDecay` seam (`f-selector-ranker.cjs` consuming `selector-decisions.applyDecayWeight`). Evidence: `closeReach` (`dial-close-reach.cjs:236`) delegates a REACH reject to `recordSelectorDecision` keyed by `reach.command`, writing the REJECTED edge + `f_selector_decision` row on `cmd:<command>`; `applyDecayWeight` reads those rows per command. So reaches collapse to their command key - ONE penalty at the command seam covers BOTH surfaces. There is no separate decay path in `dial-reach-orchestrator`. The commands-vs-reaches question dissolves: it is the command seam, and reaches feed it.
 - **D-01a (no-command guard):** when a reach has no `reach.command` (e.g. a render-only family), the penalty must degrade to ZERO (no penalty), never throw. Graceful by construction.
 
