@@ -1,7 +1,10 @@
 ## [Unreleased] -- v1.13.1-beta.25 (in progress)
 
 ### Added
-- 
+- Phase 156 (Futures Wheel MVP): new `/mos:futures [concept]` command - an assemble-not-rebuild foresight context that does what a linear human cannot: builds a bounded multi-ring consequence wheel (1st/2nd/3rd-order, flat artifacts under `opportunity-bank/futures-<seed>/`, NO sub-rooms) and surfaces the invisible cross-domain ripples a linear mind misses. Guided-by-ring generation (depth 3 x fan-out 5) with an advisory causal-cue flagger; consequences carry `horizon` + `confidence` + PESTEL `domain` frontmatter; parent->child cascade as `ROOT_CAUSES` edges via the navigation chokepoint; the shipped HSI engine scans for hidden cross-domain bridges (`HSI_CONNECTION`) with a hard Artifact-registration count-guard before the scan; per-ring HITL Decision Gate (proposed->confirmed via `confirmNode` with navigator `byUser`); PESTEL subsystem-map default render + ring view on demand; opportunity banking with edge provenance; top-3-of-N foresight-web chaining handoffs (RS, systems-thinking, scenario-plan, explore-trends, analyze-timing, dominant-designs, diagnose, mullins, explore-futures) via the Phase 122 command-resolver (no hardcoded command strings); bounded two-fire-point SIGNAL research (seed grounding + per-ring, 30-day cached, generic handles only); adversarial Part 8 egress tripwire + `tests/run-all-156.sh` phase gate (14/14). `futures-wheel` connector registered on the SENS-06 dial (no 7th reach minted; rides `context_block`). Requirements FW-01..FW-13. Canon parts 2/3/4/7/8/9. Local-only: zero Brain egress.
+
+### Fixed
+- Futures Wheel cascade-edge wiring (caught by a live dogfood run): `generateRing` assigned short slug ids while `registerConsequenceArtifacts` registered the Artifact node under a path-derived id, so `writeCascadeEdges` wrote `ROOT_CAUSES` against an id with no node and the cascade silently produced zero edges. `registerConsequenceArtifacts` now stamps the registered id back onto each consequence object; the natural generate->register->cascade flow wires correctly (regression test `tests/test-futures-cascade-integration.cjs`, gate now 14/14). The unit test missed it because it hand-inserted nodes with matching ids; the integration test drives the real flow.
 
 ## [1.13.1-beta.24] - 2026-06-14
 
