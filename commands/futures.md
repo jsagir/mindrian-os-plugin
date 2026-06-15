@@ -70,6 +70,26 @@ The command loop is GUIDED BY RING. It does not flat-brainstorm. Each turn:
 
 The default render is the subsystem impact map: consequences grouped by their PESTEL `domain:` frontmatter (the instructor's flatter, usable-in-practice complement to the ring view). The ring view is the on-demand alternate. Render through `skills/ui-system` De Stijl - never hand-rolled HTML.
 
+## FW-12 chaining footer - the foresight-web handoffs
+
+After a ring is approved, offer the navigator the TOP-3-of-N ranked foresight-web handoffs at the F.1 gate (D-04, mirroring the 150.x dial). Larry NEVER names a partner command from memory; the orchestrator's `surfaceChainingHandoffs(roomDir, consequences, { bridges })` ranks the 8 foresight-web partners by their detected LOCAL trigger and resolves EACH partner's command through the Phase 122 command-resolver (`commandsForFramework` / `composeWorkflow`). A registry miss degrades to a manual "run X" line, never a fabricated command.
+
+The 8 partners and their triggers:
+- a cross-domain HSI bridge -> Reverse Salient (the RS lens)
+- a causal ring -> Systems Thinking
+- co-occurring consequence branches -> Scenario Planning
+- a far-horizon consequence -> S-Curve trends / timing and Dominant Design
+- a tangled multi-ring set -> Problem Definition diagnose
+- a high-confidence bankable candidate -> the Mullins seven-domains screen
+
+Accepting the RS handoff runs `runRSReverseSalient(roomDir)` -- the shipped reverse-salient engine over the consequence set, writing >=1 REVERSE_SALIENT edge via the rs-engine raw path (NOT writeEdge; REVERSE_SALIENT is not in the frozen ALLOWED_EDGE_TYPES). The reverse "open as a futures wheel?" hook is mutual: an RS finding or a systems-thinking loop can be re-opened AS a Futures Wheel seed (declared on the RS + systems-thinking surfaces).
+
+## FW-13 SIGNAL research - two fire points (generic handles only)
+
+The wheel grounds its consequences in real signal at TWO bounded fire points (D-05), both cache-first (30-day TTL via research-cache) and carrying ONLY a generic domain/concept handle to `research-corpus.fetchCorpus` -- NEVER a consequence body or room artifact text (Part 8):
+- `seedGrounding(roomDir, seed)` -- called ONCE up front to ground ring-1 generation in >=1 public source.
+- `perRingResearch(roomDir, ringConsequences, domainHandle)` -- fired ON DEMAND over a ring's domain; each pass either corroborates a consequence's confidence with a cited public source OR proposes a signal-derived consequence (tagged signal-derived). A second call within the TTL window is a cache hit, so this is NOT always-on.
+
 ## Setup
 
 1. Read `room/STATE.md` for venture context and the active venture stage (if it exists)
