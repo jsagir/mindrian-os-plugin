@@ -26,6 +26,7 @@ CJS_SUITES=(
   test-futures-causal-cue.cjs
   test-futures-frontmatter.cjs
   test-futures-edges.cjs
+  test-futures-cascade-integration.cjs
   test-futures-hsi-integration.cjs
   test-futures-render.cjs
   test-futures-confirm.cjs
