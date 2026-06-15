@@ -887,6 +887,23 @@ function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
     const cortexNodes = (ctx && Array.isArray(ctx.cortexNodes)) ? ctx.cortexNodes : [];
     const reachScores = adapter.buildReachScoresFromCortex(cortexNodes);
 
+    // Phase 158-03 (RJP-01..05 / SC-07): apply the upstream-computed reject
+    // penalty. reach_penalties was folded on the live engine arm (db open) and
+    // threaded out on ctx; here (db already closed) we MERGE the discounted
+    // scores over the cortex-derived reachScores and pass the hard-suppression
+    // set into buildReachList. buildReachList stays PURE: it receives only
+    // scalars + a Set, never db. When reach_penalties is absent (no penalty
+    // computed) or empty (zero rejections), reachScores is unchanged and
+    // suppressedReachIds is empty -> byte-identical render (RJP-02).
+    const reachPenalties = (ctx && ctx.reach_penalties && typeof ctx.reach_penalties === 'object')
+      ? ctx.reach_penalties : null;
+    if (reachPenalties && reachPenalties.discountedScores
+        && typeof reachPenalties.discountedScores === 'object') {
+      Object.assign(reachScores, reachPenalties.discountedScores);
+    }
+    const suppressedReachIds = (reachPenalties && Array.isArray(reachPenalties.suppressedReachIds))
+      ? reachPenalties.suppressedReachIds : [];
+
     // The tier mode mirrors the engine trace so the frozen 0.70/0.15 gate is
     // applied exactly as buildReachList already does (mode_a / mode_b / tier_0).
     const trace = (decision && decision.decision_trace) || {};
@@ -896,6 +913,7 @@ function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
     const reachList = orchestrator.buildReachList({
       tierMode: tierMode,
       reachScores: reachScores,
+      suppressedReachIds: suppressedReachIds,
     });
 
     const rendered = presenter.renderDial(reachList, {});
@@ -1538,7 +1556,53 @@ function runNavigationEngine(roomDir, sessionId) {
           } catch (_reachEmitErr) {
             // best-effort: a faulting emit never blocks the turn or leaks the db
           }
-          resolve({ decision: decision, elapsed_ms: elapsedMs, cortex_nodes: cortexNodes });
+          // Phase 158-03 (RJP-01..05 / SC-07): fold the bounded reject penalty +
+          // the hard-suppression set on THIS live engine arm, while roomDb is
+          // still OPEN. computeReachPenalties reads the reach_id-keyed reject
+          // counts + presentation counts (via the navigation chokepoint, Part 9;
+          // enums/scalars only, Part 8) and returns { discountedScores,
+          // suppressedReachIds }. We thread the result OUT alongside cortex_nodes;
+          // the render seam (renderEngineDecisionWithDial, db already closed)
+          // merges discountedScores over the cortex reachScores and passes
+          // suppressedReachIds into the PURE buildReachList -- db is NEVER threaded
+          // into dial-reach-orchestrator (SC-07). Best-effort: any fault degrades
+          // to an empty penalty set so the render is un-discounted, never blocked.
+          // Zero rejections -> discountedScores is byte-identity (base*(1-0)) and
+          // suppressedReachIds is empty -> byte-identical render (RJP-02).
+          let reachPenalties = { discountedScores: {}, suppressedReachIds: [] };
+          try {
+            if (roomDb && Array.isArray(cortexNodes) && cortexNodes.length > 0) {
+              const reachReader = require(
+                path.join(__dirname, '..', 'lib', 'workflow', 'reach-reject-reader.cjs')
+              );
+              const penAdapter = require(
+                path.join(__dirname, '..', 'lib', 'hmi', 'cortex-reach-adapter.cjs')
+              );
+              const penScores = penAdapter.buildReachScoresFromCortex(cortexNodes);
+              const pen = reachReader.computeReachPenalties(roomDb, {
+                reachScores: penScores,
+                db: roomDb,
+                roomDir: roomDir,
+              });
+              if (pen && typeof pen === 'object') {
+                reachPenalties = {
+                  discountedScores: (pen.discountedScores && typeof pen.discountedScores === 'object')
+                    ? pen.discountedScores : {},
+                  suppressedReachIds: Array.isArray(pen.suppressedReachIds)
+                    ? pen.suppressedReachIds : [],
+                };
+              }
+            }
+          } catch (_reachPenErr) {
+            // best-effort: degrade to the un-discounted render, never block resolve
+            reachPenalties = { discountedScores: {}, suppressedReachIds: [] };
+          }
+          resolve({
+            decision: decision,
+            elapsed_ms: elapsedMs,
+            cortex_nodes: cortexNodes,
+            reach_penalties: reachPenalties,
+          });
         })
         .catch(function () { resolve(null); })
         .then(closeRoomDbHandle, closeRoomDbHandle); // finally: close the handle on resolve OR reject (no leak)
@@ -1837,6 +1901,12 @@ try {
         const block = renderEngineDecisionWithDial(
           out.decision, routing, offerLine, {
             cortexNodes: out.cortex_nodes,
+            // Phase 158-03 (SC-07): the upstream-computed bounded reject penalty +
+            // hard-suppression set, folded on the live arm (db open) and threaded
+            // out on the resolved object. The render seam merges discountedScores
+            // over reachScores + passes suppressedReachIds into the PURE
+            // buildReachList. Absent/empty -> un-discounted byte-identical render.
+            reach_penalties: out.reach_penalties,
             onRenderNote: function (note) { traceEntry.dial_render_note = note; },
           }
         );
