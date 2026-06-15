@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
-status: executing
-stopped_at: Phase 156 Plan 04 (Wave 4, FINAL) COMPLETE -- FW-12 top-3-of-N foresight-web chaining handoffs via command-resolver (zero hardcoded /mos: strings) + mutual RS writing a REVERSE_SALIENT edge via the rs-engine raw path + reverse open-as-futures-wheel hook; FW-13 bounded two-fire-point SIGNAL research (seedGrounding + perRingResearch, cache-first 30-day TTL, generic handles only); FW-11 Part 8 adversarial egress tripwire + run-all-156.sh phase gate (13/13 green, exit 0). All 4 Phase-156 waves complete.
-last_updated: "2026-06-15T03:55:00.000Z"
-last_activity: 2026-06-15 -- Phase 156 Plan 04 (Wave 4, final) executed; full phase gate green
+status: completed
+stopped_at: "Phase 156 EXECUTED + verified (4/4 plans, 13/13 must-haves, run-all-156.sh green). status: human_needed - 2 manual UAT items (live /mos:futures run + Desktop/Cowork) deferred to /gsd-verify-work."
+last_updated: "2026-06-15T03:57:19.941Z"
+last_activity: 2026-06-14 -- Phase 156 execution started
 progress:
   total_phases: 95
-  completed_phases: 74
+  completed_phases: 75
   total_plans: 482
-  completed_plans: 473
-  percent: 78
+  completed_plans: 474
+  percent: 79
 ---
 
 # Project State
@@ -1401,6 +1401,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-14T20:05:08.695Z
-Stopped at: Phase 156 PLANNED + verified (4 plans / 4 waves, gsd-plan-checker PASSED, FW-01..13 covered). Ready for /gsd-execute-phase 156.
+Last session: 2026-06-15T03:57:19.864Z
+Stopped at: Phase 156 EXECUTED + verified (4/4 plans, 13/13 must-haves, run-all-156.sh green). status: human_needed - 2 manual UAT items (live /mos:futures run + Desktop/Cowork) deferred to /gsd-verify-work.
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).
