@@ -1,7 +1,7 @@
 # Mindrian Canon
 
-Version: 1.7
-Date: 2026-06-12
+Version: 1.8
+Date: 2026-06-15
 Status: Active
 Author: Jonathan Sagir with Claude-as-Larry
 
@@ -294,6 +294,16 @@ The scan, the required check, and the review chain are enforced at the repositor
 "Just this small exception" is the exact thought that breeds every privacy breach. The answer is no. The boundary is not negotiable. Cross-user intelligence, if ever built, is a separate product with a separate installer and a separate legal review. Not a flag on this one.
 ```
 
+### The Brain's dual role (orchestration projection)
+
+The Brain holds BOTH the teaching methodology AND a projection of Mindrian's own orchestration layer. The teaching methodology is the PWS thinking-tools graph this Part has always governed (framework chaining rules, phase progressions, teaching patterns calibrated from the curriculum). The orchestration layer is Mindrian's own generic machinery: the /mos commands, the 6 frozen reaches plus their sub_modes, the skills, the agents, the frameworks, and the connector spine that wires them. The Brain may hold a typed projection of that machinery alongside the methodology it already holds. This is an additive extension of what the Brain is constitutionally allowed to hold; it does not displace the teaching role and it does not weaken any boundary stated above.
+
+Every node in that orchestration projection carries a `methodology_tier` property of exactly one of two values: `pws` or `mindrian-operation`. The `pws` tier marks the teaching IP frameworks (Cynefin, Meadows, JTBD, Reverse Salient, Six Thinking Hats, and the rest of the methodology graph). The `mindrian-operation` tier marks the machinery (the /mos commands, the 6 reaches plus sub_modes, the skills, the agents, the connector spine). `methodology_tier` is the boundary-keeper: it is the legibility marker that makes the projected machinery Part-8-legal, because it certifies that every projected node is generic machinery metadata (a command slug, a reach_id, a framework name, a tier, a typed edge) and NEVER a user's data. A node without a `methodology_tier` is not a legal projection node. The tier is what keeps the projection legible to this Part: a `mindrian-operation` node is generic plumbing metadata; a `pws` node is generic teaching metadata; neither carries a specific navigator's artifacts, rooms, meetings, or decisions.
+
+The projection is a Brain-DERIVED LOCAL cache (see Part 9). The projection artifact is the local consumable: a committed local file that the navigation engine will read, mirroring the BRAIN.md derivation-resilience pattern. The Brain is the external cortex that the projection is shaped after, not a runtime dependency of it. No live Brain read and no live Brain write rides this projection. Live Brain write of the projection and continuous remote sync are deferred (continuous sync is Phase 137; the live write is a fast-follow), and live nav-engine consumption of the cache is deferred. This Phase-157 amendment sanctions the SHAPE the Brain may hold and the LOCAL cache the plugin may derive; it does not open any new wire to the Brain.
+
+The projection carries ONLY generic machinery metadata: command slugs, reach_ids, sub_modes, framework names, `methodology_tier`, ranking inputs (hierarchy_rank, posture, sensor_triggers), and the typed edges between them (OPERATES, CHAINS, FEEDS_INTO, PREREQUISITE, CROSS_DOMAIN_ANALOGUE). It never carries user content, room data, meeting transcripts, assumption registries, decisions, or personal identifiers. A build-time boundary scan over the projection artifact and its generator proves this by construction: a projection node or field that carries user-specific bytes is a Part 8 breach, caught before the artifact lands, exactly as the existing breach rules above demand. The LOCAL data -> BRAIN: NO invariant stated at the top of this Part is UNCHANGED and remains binding: the projection is a LOCAL artifact derived from the plugin's own generic machinery, so this amendment does NOT sanction any user-data egress, and the existing boundary scan, PR gate, and Canon Custodian review continue to apply in full.
+
 Part 9 (Memory Locality and Interpretation) is the enforcement architecture for this boundary - it specifies where memory lives (SQL) and how the typed packet contract makes the LOCAL-to-BRAIN boundary structurally hard, not just audited.
 
 ---
@@ -475,6 +485,6 @@ The navigator always decides.
 
 ---
 
-_Mindrian Canon v1.7 - MindrianOS Plugin_
+_Mindrian Canon v1.8 - MindrianOS Plugin_
 
 _Version history is maintained inline in docs/CANON-PHASE-MAP.md (Version history table)._
