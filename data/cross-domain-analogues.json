@@ -1,0 +1,15 @@
+{
+  "hand_authored_note": "Hand-curated, version-controlled, --check'd seed of CROSS_DOMAIN_ANALOGUE pairs the orchestration-projection generator reads (the curated_chains / curated_extras idiom of data/command-registry.json). Holds GENERIC framework-NAME pairs ONLY (pws-tier handles) -- never command slugs, never user content, never HSI/embedding-derived over room content (Phase 157 D-02; Canon Part 8). This file is the source for the CROSS_DOMAIN_ANALOGUE edges in the projection. The from/to strings MUST match a framework name in data/command-registry.json or data/connector-registry.json framework_index where one exists, so Wave 3's edges resolve to real framework nodes; the node-derivation union mints a pws-tier framework node for any analogue endpoint, so an endpoint that has no command still gets a legal framework node (the analogue edge never dangles). Seeded with the 150.10 prototype pairs (M4 leverage <-> Reverse Salient Analysis; M3 archetype / find-analogies <-> Four Lenses of Innovation).",
+  "analogues": [
+    {
+      "from": "Systems Thinking",
+      "to": "Reverse Salient Analysis",
+      "rationale": "The Meadows leverage-point move (Systems Thinking M4) is cross-domain analogous to the reverse-salient move: both locate the lagging component in an expanding system where a small, well-placed intervention shifts the whole."
+    },
+    {
+      "from": "Systems Thinking",
+      "to": "Four Lenses of Innovation",
+      "rationale": "The systems-archetype move (Systems Thinking M3) is cross-domain analogous to the Four Lenses find-analogies move: both recognize a recurring structural pattern in one domain and transpose it as a generative analogy into another."
+    }
+  ]
+}
