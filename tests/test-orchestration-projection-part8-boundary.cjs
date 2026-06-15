@@ -86,7 +86,8 @@ const FREE_TEXT_CAP = 120;
 //   - a room/ path segment (a local artifact path -- e.g. room/problem/foo.md)
 //   - an at-sign email pattern (a personal identifier)
 //   - free text longer than the cap (an artifact body / transcript)
-const ROOM_PATH_RX = /(^|[\/\s])room\/[A-Za-z0-9._-]/;
+const ROOM_PATH_RX = /(^|[\/\s-])rooms?\/[A-Za-z0-9._-]/i;
+const ROOMS_STORE_RX = /MindrianRooms\//;
 const EMAIL_RX = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
 
 let passed = 0;
@@ -107,6 +108,7 @@ function fail(name, err) {
 function forbiddenValueReason(value) {
   if (typeof value !== 'string') return '';
   if (ROOM_PATH_RX.test(value)) return 'room/ path segment (a local artifact path)';
+  if (ROOMS_STORE_RX.test(value)) return 'MindrianRooms/ store path (an absolute room artifact path)';
   if (EMAIL_RX.test(value)) return 'at-sign email pattern (a personal identifier)';
   if (value.length > FREE_TEXT_CAP) {
     return 'free text longer than the ' + FREE_TEXT_CAP + '-char cap (a candidate artifact body)';
