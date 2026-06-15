@@ -4,13 +4,13 @@ milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: completed
 stopped_at: Phase 158 planned (4 reach-surface plans, plan-check converged) - ready to execute
-last_updated: "2026-06-15T12:19:53.880Z"
+last_updated: "2026-06-15T12:41:09.499Z"
 last_activity: 2026-06-14 -- Phase 156 execution started
 progress:
   total_phases: 97
   completed_phases: 75
   total_plans: 486
-  completed_plans: 474
+  completed_plans: 475
   percent: 77
 ---
 
@@ -53,7 +53,7 @@ Phase 150.9 Plan 02 (DDC-01, DDC-02, DDC-04, DDC-05) complete. doctor.cjs gains 
 Phase 150.9 Plan 01 (DDC-03 + DDC-08 -- the ONE genuinely net-new piece of Phase 150.9) complete. lib/core/drift-baseline.cjs ships as a pure, hermetic, require-clean DRIFT.md writer (FIX-13 baseline) with four exported functions on a frozen signature Plan 02 consumes: renderRootIndex(meta, findings) (the .planning/DRIFT.md rolled-up index: frontmatter kind=drift-baseline-index + a counts block + one stable-id body row per finding with a per_folder pointer column), renderPerFolder(phase, meta, findings, firstSeenMap) (the per-phase .planning/phases/<NN>/DRIFT.md detail, carrying ONLY that phase's findings), writeDriftBaseline({planningDir, findings, meta, noTouch}) (the orchestrator that writes BOTH granularities under .planning/ -- D-01), and stubMissingSummary({phaseDir, planFile}) (the heal-arm I001 auto-stub helper, idempotent). The FIX-13 diff-stability contract is encoded and tested: finding_id is a deterministic stable key; first_seen is set ONCE (read back from a per-folder HTML-comment ledger so the body table stays human-clean) and never rewritten; last_seen bumps each run UNLESS noTouch=true (then the per-folder file is left byte-identical -- true idempotence); a finding flipped open->closed keeps its row plus a closed_date (CLAUDE.md decision 14 history preservation). V12 path-traversal mitigation: every write target is resolved + asserted inside the passed containment root (path.resolve + startsWith(root + sep)); a traversal-shaped phase token (e.g. "../../etc") is skipped, never written, and stubMissingSummary refuses a planFile that is a path rather than a bare basename (T-150.9-01 mitigated). Canon Part 8 floor held: Node built-ins only (fs, path), zero new deps, zero network surface -- grep -nE "fetch|http|curl|brain|tavily" lib/core/drift-baseline.cjs returns 0 (T-150.9-02 mitigated, tested in-suite + the header comment is deliberately token-free). The module is require-clean (no top-level side effects, no process.exit). TDD: Task 1 RED (tests/test-drift-baseline.cjs, 6 behaviors -- schema round-trip / per-folder locality / diff-stability / closed-with-history / traversal refusal / Part 8 floor; obviously-synthetic phase-999 W007-999-test fixtures) committed first and confirmed RED (module absent); Task 2 GREEN flipped 6/6. One in-scope deviation (Rule 1): the GREEN-commit header comment originally named the forbidden network tokens in prose and tripped its own Part 8 floor test; rephrased to token-free wording (no behavior change). node tests/test-drift-baseline.cjs 6/6 PASS; zero em-dashes across both files (the Test-1 em-dash assertion uses String.fromCharCode(0x2014) to keep the source ASCII-clean). Commits 3065895b (RED test), d33332e9 (GREEN module). Requirements DDC-03 + DDC-08 complete. Next: Phase 150.9 Plan 02 (doctor.cjs Class P/Q dispatch + --drift heal arm, consuming this writer's frozen signature).
 
 (Prior position) Phase: 150 (memory-cortex-as-graph-members) — COMPLETE
-Plan: 1 of 4
+Plan: 2 of 4
 Status: Phase complete — ready for verification
 
 Phase 150 Plan 08 (MEM-09 / D-09 -- the claim harness + the finalized phase gate) complete. Three moves landed: (1) tests/claim-harness/fixtures/claim-room/ -- one obviously-fictional claim-room (ROOM/STATE/USER at root + problem-definition + market-analysis sections, each carrying the 6 memory MD kinds) INCLUDING the contradicting pair (DEC-PD-100 ship-the-scheduler vs DEC-MA-200 never-ship-it) for C3/C7 and poison-nodes (BRAIN.md + FEYNMAN.md carrying SECRET CLAIM PROSE / leak@example.com / a /home/jsagi/secret/ path / an injection token) for the C6 egress arm; tests/claim-harness/build-fixture-room-db.cjs copies the committed tree to a MINDRIAN_ROOMS_HOME tmpdir and builds a REAL room.db by projecting the memory files THROUGH navigation.cjs (reconcileMemoryArtifacts -> 11 nodes / 4 decisions / 7 edges), never hand-stitched SQLite; node:sqlite-unavailable -> SKIP 77; no mocked Brain. (2) the seven claim-cN.cjs drivers -- each drives a REAL shipped unit on the real fixture with an honest-negative arm: C1 focus-node graph identity persists across a room.db re-open; C2 decide() returns a grounded one-move + dial-presenter.renderDial reaches the live surface (D-08 SEEN arm); C3 minting CONTRADICTS lands a queryable edge + writeEdge rejects a non-taxonomy type; C4 the cortex packet carries generic advisory handles, Part-8-clean, degrades offline; C5 K artifacts -> >= K typed nodes + decisions mint at proposed (Part-9); C6 poison-seeded nodes -> zero forbidden prose in the packet (hermetic + source + fixture); C7 file A then conflicting B -> INFORMS lineage + CONTRADICTS minted mid-session. The Brain LIVE arms (C4-live, C6-live) self-skip via class-m-brain-smoke; the semantic claims C2-good + C4-relevance are CARVED OUT to the Part-10 human empathy gate (named SKIP, never a fake PASS). run-all-claims.sh is the two-group clone of run-all-146.sh (group a = C1..C7, group b = the live-Brain precondition + the Part-8 cortex-packet sweep) -> 9/9. (3) scripts/doctor.cjs gains --claims, a SIBLING of --acceptance with its OWN exit code + a DOCTOR_CLAIM_FAIL_POINT self-test hook; tests/run-all-150.sh FINALIZED (every real 150 CJS suite + run-all-claims.sh group + the carried 148 frozen-contracts/reach-ids fences + a standalone Part-8 sweep over the 5 new 150 artifacts). 3 honest-negative-driven initial RED failures surfaced real facts (the reconcile DECISION_ID_RE strips the DEC- prefix to PD-100/MA-200; routing_source flips at the router not in decide()) and were fixed in the drivers (Rule 1). intent-classifier.cjs was NOT modified (the 150-04/06 overlap respected). Frozen 148 contracts byte-unchanged (MAX_K=3, 0.70/0.15, DIAL_REACH_K=6; the carried run-all-148.sh 18/18 asserts it). Canon Part 6/8/9 gates hold. Zero em-dashes. THE PHASE GATE: bash tests/run-all-150.sh = 14 passed / 0 failed / 0 missing (exit 0). Commits 1413c78f (fixture + builder), 0e677232 (7 drivers + aggregator), 2dd48b42 (doctor --claims + finalized run-all-150). Requirement MEM-09 complete. Phase 150 COMPLETE.
@@ -485,6 +485,7 @@ Progress: [█████████░] 92%
 | Phase 150.8 P04 | 50m | 3 tasks | 12 files |
 | Phase 155 P02 | ~2h | 2 tasks | 7 files |
 | Phase 155 P07 | 4h | 2 tasks | 7 files |
+| Phase 158 P01 | ~25min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -1362,6 +1363,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 150.6-02: @mindrian_os/install deprecated on npm + swept to live @mindrian_os/cli; THE-BRAIN.md rewritten to the real 6-tool MCP surface (brain_query/schema/write/search/stats/ask).
 - [Phase ?]: 150.8-04: Confirm-proposed-claims routes through confirmNode (D1); cortex-reach claim branch additive, frozen 148 constants untouched (D2)
 - [Phase ?]: 155-07 GAP-15: extractDomains strips PII to generic handles; sweepDomainInsights drives Tavily per handle; LOCAL synthesis only; zero Brain egress
+- [Phase ?]: Phase 158-01: reach_id keying via enum-gated optional field (off-set ignored, no-arg byte-stable); local frozen REACH_IDS const avoids require cycle; two-turn pin carries reach_id on the persisted F.1 payload via the LOCAL grounding reach_id
 
 ### Pending Todos
 
@@ -1402,6 +1404,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-15T12:19:53.837Z
+Last session: 2026-06-15T12:40:53.979Z
 Stopped at: Phase 158 planned (4 reach-surface plans, plan-check converged) - ready to execute
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).
