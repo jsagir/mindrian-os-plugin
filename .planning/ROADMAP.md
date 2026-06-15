@@ -2659,7 +2659,7 @@ Plans:
 
 Plans:
 
-- [ ] 157-01-PLAN.md -- Canon Part 8 dual-role amendment + methodology_tier boundary-keeper (docs-only GATING; Appendix D entry 19 + version 1.7->1.8) [wave 1]
+- [x] 157-01-PLAN.md -- Canon Part 8 dual-role amendment + methodology_tier boundary-keeper (docs-only GATING; Appendix D entry 19 + version 1.7->1.8) [wave 1] -- COMPLETE 2026-06-15 (commits 6b030c3e/88a8a004/8f66faf0; Canon v1.8; docs-only gate honored)
 - [ ] 157-02-PLAN.md -- The projection generator (sibling of build-connector-registry.cjs) + cross-domain-analogues.json + tier-tagged nodes [wave 2]
 - [ ] 157-03-PLAN.md -- Closed typed-edge set (OPERATES/CHAINS/FEEDS_INTO/PREREQUISITE/CROSS_DOMAIN_ANALOGUE) + ranking-input exposure [wave 3]
 - [ ] 157-04-PLAN.md -- The --check tripwire (STALE/UN-WIRED/UN-RANKED) + un-wired fixture + pre-commit/Feynman wiring [wave 4]
