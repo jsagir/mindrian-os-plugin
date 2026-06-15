@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: in-progress
-stopped_at: Phase 159 (dial-closer-consumer-wire) COMPLETE - all 3 waves; run-all-159.sh one-command gate exits 0 (159 10/10, 158 14/14, 148 18/18); the producer->consumer->penalty loop PROVEN LIVE (3 real rejects suppress the reach; RED on consumer removal)
-last_updated: "2026-06-15T22:20:00.000Z"
-last_activity: 2026-06-15 -- Phase 159 Wave 3 (integration test + run-all-159.sh gate) COMPLETE
+stopped_at: Phase 159 (dial-closer-consumer-wire) COMPLETE + VERIFIED - all 3 waves; run-all-159.sh gate exits 0 (159 10/10, 158 14/14, 148 18/18); gsd-verifier PASS 10/10 (159-VERIFICATION.md); the producer->consumer->penalty loop PROVEN LIVE (3 real rejects suppress the reach; RED on consumer removal). Phase 158 is now LIVE in production, no longer inert. Next: /gsd:plan-phase 157.
+last_updated: "2026-06-15T22:45:00.000Z"
+last_activity: 2026-06-15 -- Phase 159 COMPLETE + gsd-verifier PASS 10/10; 158 now fires live
 progress:
   total_phases: 98
-  completed_phases: 76
+  completed_phases: 77
   total_plans: 489
   completed_plans: 481
-  percent: 78
+  percent: 79
 ---
 
 # Project State

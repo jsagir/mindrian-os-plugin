@@ -2705,7 +2705,7 @@ Plans:
 **canon_parts:** Part 4 (every dial choice becomes graph data -- the loop this closes), Part 8 (the pick read path stays enum/scalar; user pick text never crosses to Brain), Part 9 (consumer reads/writes via the navigation.cjs chokepoint only)
 **Depends on:** Phase 158 (the penalty reader it feeds); Phase 135 / 143.1 (the F.1 closer producer + closeReach/closeOffer it calls); Phase 144 (the engine flip that gates the emit arm)
 **Blocks (soft):** Phase 158 functioning in production; the broader "rejection is data" loop
-**Plans:** 3/3 plans executed -- PHASE COMPLETE
+**Plans:** 3/3 plans executed -- PHASE COMPLETE + VERIFIED (gsd-verifier PASS 10/10, 159-VERIFICATION.md; Phase 158 now LIVE in production)
 
 Plans:
 
