@@ -2705,11 +2705,15 @@ Plans:
 **canon_parts:** Part 4 (every dial choice becomes graph data -- the loop this closes), Part 8 (the pick read path stays enum/scalar; user pick text never crosses to Brain), Part 9 (consumer reads/writes via the navigation.cjs chokepoint only)
 **Depends on:** Phase 158 (the penalty reader it feeds); Phase 135 / 143.1 (the F.1 closer producer + closeReach/closeOffer it calls); Phase 144 (the engine flip that gates the emit arm)
 **Blocks (soft):** Phase 158 functioning in production; the broader "rejection is data" loop
-**Plans:** 1/3 plans executed
+**Plans:** 3/3 plans executed -- PHASE COMPLETE
 
 Plans:
 
-- [ ] TBD (run /gsd:spec-phase 159, then /gsd:plan-phase 159)
+- [x] 159-01 (Wave 1): closeOffer reach_id forward + consumeF1Pick shared-core consumer + CLI capture adapter (DCW-02/03/04/05/06/07/08). 3 suites green (14 checks). Commits d794d866, 7f2fc6b7, 571ba860.
+- [x] 159-02 (Wave 2): turn-start wiring in scripts/intent-classifier.cjs -- the exported consumePriorF1Pick reads the prior payload, opens room.db via the navigation chokepoint, routes the pick through consumeF1Pick (TDD; DCW-01/04/06/08). Commits 92ce3dff (RED), 99a4d163 (GREEN).
+- [x] 159-03 (Wave 3, SEALING): the scripted 2-turn producer->consumer->penalty LIVE-suppression integration test (3 REAL rejects suppress the reach from buildReachList, RED on consumer removal; DCW-09) + tests/run-all-159.sh one-command gate (158 + 148 passthroughs + Part 8/9 sweeps; exit 0; DCW-10) + the Part 8 SECRETREASON159 sweep (DCW-05) + docs/F1-PICK-CAPTURE-ADAPTER-SEAM.md Desktop/Cowork seam contract with capture deferred (DCW-07). NO production logic changed. Commits 23a5fb4b, 7f384b82, 39059029.
+
+**Outcome:** the dial decision loop now records to room.db in production and Phase 158's computeReachPenalties reads a REAL signal. The whole producer->consumer->penalty loop is proven LIVE behind the one-command run-all-159.sh gate (159 10/10; 158 14/14; 148 18/18). LIVE Desktop/Cowork conversational pick-capture is the one explicit deferral (DI-159-01; seam documented).
 
 ---
 
