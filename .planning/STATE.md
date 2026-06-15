@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
-status: "BOG-09 + BOG-10 landed (Phase 157 Plan 05 COMPLETE -- the FINAL sealing wave; Phase 157 now COMPLETE 5/5). docs/ORCHESTRATION-PROJECTION-CONTRACT.md gained section 4c (the cache-contract schema: the projection IS the Brain-derived LOCAL cache the deferred nav engine reads, Tier-0 resilient -- regenerated deterministically from LOCAL sources so it survives a Brain outage; the consumable shape; the deferred fast-follows -- live Brain write + Phase 137 continuous sync + nav-engine consumption all OUT of 157) + section 4d (the boundary scan). scripts/build-orchestration-projection.cjs exports NODE_FIELD_ALLOWLIST + EDGE_FIELD_ALLOWLIST frozen arrays (single source of truth for the scan; NO emit-logic change, projection byte-stable at 207 nodes). tests/test-orchestration-projection-part8-boundary.cjs is the adversarial 6-check Part 8 boundary scan over FOUR surfaces (projection + generator + cross-domain-analogues + orchestration-unwired-allowlist): field-allowlist sweep (every node/edge key in the exported allowlist incl. chain_provenance+ranking sub-keys), methodology_tier on every node (pws|mindrian-operation boundary-keeper), the PLANTED-SECRET forbidden-value tripwire (plants a room/ path + email + over-cap body, proves the heuristic catches each RED, then real per-surface data clean GREEN; demonstrated at artifact level too -- poisoning a node name -> exit 1, restore -> exit 0), the zero-live-Brain grep gate (generator comments stripped: no brain-client require, no fetch/http/curl/brain.query/brain.write call), and the generic-machinery sources check. Boundary scan 6/6; bash suite 33->37; scan registered in run-feynman-tests.cjs TEST_FILES (BOG-11). hats stays an OPEN RESEARCH Q6 navigator-gated item (NOT closed). Zero Brain/network (Part 8); zero em-dashes; frozen-148 UNTOUCHED. Commits b24fe175 (cache contract + allowlist exports) + 7005d724 (boundary scan + bash group + Feynman registration)."
-stopped_at: Phase 157 Plan 05 (the local cache-contract schema doc + Part 8 boundary scan over the projection + generator, Wave 5 of 5, autonomous) COMPLETE. Phase 157 (brain-orchestration-graph-and-methodology-tiers) is now COMPLETE 5/5. Next: Phase 157 verification gate, or per navigator sequencing.
-last_updated: "2026-06-15T20:36:37.000Z"
-last_activity: 2026-06-15 -- Phase 157 Plan 05 COMPLETE (the cache-contract schema doc BOG-09 + the adversarial Part 8 boundary scan BOG-10); Phase 157 COMPLETE 5/5
+status: in-progress
+stopped_at: Phase 157 (brain-orchestration-graph-and-methodology-tiers) COMPLETE + VERIFIED -- 5/5 waves; gsd-verifier PASS 11/11 (157-VERIFICATION.md). Canon Part 8 amended to v1.8 (Brain dual-role + methodology_tier boundary-keeper, Appendix D entry 19, LOCAL->BRAIN:NO restated-not-weakened); data/brain-orchestration-projection.json (207 nodes, 27 pws + 180 mindrian-operation, all tiered) + the --check tripwire (STALE/UN-WIRED/UN-RANKED) making the /mos:futures-class un-wired gap dead-by-construction; the adversarial Part 8 boundary scan proven non-vacuous (RED on planted email/room-path/MindrianRooms-path/new-field/over-cap; GREEN on real artifact; hardened during verification to catch absolute MindrianRooms/ paths). hats SENS-05 firability stays an OPEN navigator-gated item (RESEARCH Q6). Session trio 158 (live) + 159 (wired) + 157 (projected) all COMPLETE + VERIFIED.
+last_updated: "2026-06-15T23:30:00.000Z"
+last_activity: 2026-06-15 -- Phase 157 COMPLETE + gsd-verifier PASS 11/11; boundary scan hardened
 progress:
   total_phases: 98
-  completed_phases: 77
+  completed_phases: 78
   total_plans: 494
   completed_plans: 486
-  percent: 79
+  percent: 80
 ---
 
 # Project State
