@@ -16,6 +16,19 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 143.3 connector frontmatter (Phase 157-04 Task 0: wire the diagnose orphan) ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-06]
+  reach_id: context_block
+  sub_mode: problem-diagnosis
+  framework: "Problem Definition Transformation Framework"
+  posture: push_forward
+  hierarchy_rank: 5
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # /mos:diagnose

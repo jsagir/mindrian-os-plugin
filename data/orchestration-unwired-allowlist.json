@@ -1,0 +1,6 @@
+[
+  {
+    "framework": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+    "reason": "MECE is operated as a COMPONENT under The Pyramid Principle (its /mos:structure-argument connector framework); it reaches a reach via the Pyramid Principle node, not as a standalone reach target. /mos:structure-argument declares the connector framework The Pyramid Principle (reach_id context_block), and MECE is the decomposition discipline inside that pyramid, so MECE is wired-via-sibling at the Pyramid Principle node rather than minting its own reach. Not a true orphan; an intentional component-under-parent relation. The wired-XOR-allowlisted ledger (Phase 144.1 out-of-spine allow-list idiom): a framework is wired XOR listed here with a reason. Phase 157-04 Task 0 quantified the live framework-grained orphan set at exactly 2; the diagnose orphan was WIRED (connector added to commands/diagnose.md), leaving MECE as the single allowlisted entry. Hand-maintained, never generated."
+  }
+]

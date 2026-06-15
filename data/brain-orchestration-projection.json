@@ -376,7 +376,34 @@
       "id": "command:/mos:diagnose",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
-      "name": "/mos:diagnose"
+      "name": "/mos:diagnose",
+      "reach_id": "context_block",
+      "sub_mode": "problem-diagnosis",
+      "hierarchy_rank": 5,
+      "posture": "push_forward",
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "framework": "Problem Definition Transformation Framework",
+      "chain_provenance": {
+        "framework": "Problem Definition Transformation Framework",
+        "command": "/mos:diagnose",
+        "reach_id": "context_block",
+        "sub_mode": "problem-diagnosis",
+        "firing_sensors": [
+          "SENS-06"
+        ]
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "problem-diagnosis",
+        "hierarchy_rank": 5,
+        "posture": "push_forward",
+        "sensor_triggers": [
+          "SENS-06"
+        ],
+        "framework": "Problem Definition Transformation Framework"
+      }
     },
     {
       "id": "command:/mos:diagnostics",
@@ -2591,6 +2618,12 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "persona-hats"
+    },
+    {
+      "id": "sub_mode:problem-diagnosis",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "problem-diagnosis"
     },
     {
       "id": "sub_mode:pyramid-argument",

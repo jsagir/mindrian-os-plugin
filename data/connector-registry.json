@@ -176,6 +176,23 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:diagnose",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "problem-diagnosis",
+      "framework": "Problem Definition Transformation Framework",
+      "posture": "push_forward",
+      "hierarchy_rank": 5,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:dial-memory-refresh",
       "source": "command",
       "connects_to_spine": true,
@@ -980,6 +997,7 @@
       "/mos:build-thesis",
       "/mos:challenge-assumptions",
       "/mos:deep-grade",
+      "/mos:diagnose",
       "/mos:dominant-designs",
       "/mos:futures",
       "/mos:grade",
@@ -1083,6 +1101,9 @@
       "/mos:deep-grade",
       "/mos:grade",
       "agent:grading"
+    ],
+    "Problem Definition Transformation Framework": [
+      "/mos:diagnose"
     ],
     "Reverse Salient Analysis": [
       "/mos:dial-memory-refresh",
