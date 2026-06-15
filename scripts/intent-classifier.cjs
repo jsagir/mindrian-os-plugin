@@ -1689,10 +1689,34 @@ try {
               );
               const offerForF1 = (out.decision && out.decision.offer_next_step) || {};
               const decisionTrace = (out.decision && out.decision.decision_trace) || null;
+              // Phase 158-01 (RJP-07 / SC-02): the two-turn offer->close keying
+              // pin. The reach_id that GROUNDED this offer is named in the LOCAL
+              // decision trace (context_assembly.decision_grounding -- a frozen
+              // reach_id when a sensor reach drove the fire, else 'wicked' /
+              // 'brain_verb' / 'neighborhood' / null). Map it onto the offer's
+              // command verb so buildF1Payload carries a parallel per-verb reachIds
+              // map; the persisted f1_closer_payload then survives the turn boundary
+              // and the next-turn pick routes back to closeReach keyed by reach_id.
+              // Non-reach groundings ('wicked'/'brain_verb'/...) are forwarded as-is
+              // and dropped by the recordSelectorDecision enum-gate downstream, so
+              // only a real REACH_IDS member ever lands on the persisted payload.
+              let reachIdByVerb = null;
+              try {
+                const grounding = decisionTrace
+                  && decisionTrace.context_assembly
+                  && decisionTrace.context_assembly.decision_grounding;
+                const offerCmd = (offerForF1 && typeof offerForF1.command === 'string')
+                  ? offerForF1.command : null;
+                if (typeof grounding === 'string' && grounding.length > 0 && offerCmd) {
+                  reachIdByVerb = {};
+                  reachIdByVerb[offerCmd] = grounding;
+                }
+              } catch (_) { reachIdByVerb = null; }
               const rendered = closer.renderF1(offerForF1, {
                 roomDir: roomDir,
                 operator: operatorState,
                 decisionTrace: decisionTrace,
+                reachIdByVerb: reachIdByVerb,
               });
               if (rendered && rendered.payload) {
                 f1Payload = rendered.payload;
