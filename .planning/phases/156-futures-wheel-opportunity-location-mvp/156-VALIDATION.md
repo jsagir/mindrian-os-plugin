@@ -47,9 +47,9 @@ created: 2026-06-14
 | FW-07 subsystem PESTEL map render | — | N/A | render assert | `node tests/test-futures-render.cjs` (grep PESTEL grouping) | ⬜ pending |
 | FW-08/09 bank w/ edge provenance | — | provenance traces to edge | integration | `node tests/test-futures-bank.cjs` | ⬜ pending |
 | FW-10 proposed→confirmed via confirmNode (byUser) | T-156-02 | no agent-confirmed truth-claim | integration | `node tests/test-futures-confirm.cjs` | ⬜ pending |
-| FW-11 Part 8 local-only | T-156-03 | zero room-content egress | boundary scan | `node tests/test-futures-part8-leak.cjs` (adversarial) | ⬜ pending |
-| FW-12 top-N chaining via command-resolver (no hardcode) | — | N/A | unit | `node tests/test-futures-chaining.cjs` | ⬜ pending |
-| FW-13 SIGNAL seed+per-ring; generic handles only | T-156-03 | query carries no room body | integration+boundary | `node tests/test-futures-signal.cjs` | ⬜ pending |
+| FW-11 Part 8 local-only | T-156-03 | zero room-content egress | boundary scan | `node tests/test-futures-part8-leak.cjs` (adversarial) | ✅ PASS (Plan 04, dd82d383) |
+| FW-12 top-N chaining via command-resolver (no hardcode) | — | N/A | unit | `node tests/test-futures-chaining.cjs` | ✅ PASS (Plan 04, bc02c7e8) |
+| FW-13 SIGNAL seed+per-ring; generic handles only | T-156-03 | query carries no room body | integration+boundary | `node tests/test-futures-signal.cjs` | ✅ PASS (Plan 04, 1f1906ec) |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 

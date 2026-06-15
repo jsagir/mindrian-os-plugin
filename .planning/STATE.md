@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: executing
-stopped_at: Phase 156 Plan 03 -- 3 auto tasks COMPLETE (FW-07 subsystem PESTEL render + ring view; FW-10 per-ring Decision Gate + proposed->confirmed via confirmNode + REJECT/DEFER reason edges; FW-08/09 banking with edge provenance). AWAITING the human-verify checkpoint (NOT autonomous): navigator must walk /mos:futures to ring 2-3, confirm a cross-domain bridge surfaces + APPROVE/REJECT flow + subsystem map default. Resume signal: "approved" or describe issues.
-last_updated: "2026-06-14T21:30:00.000Z"
-last_activity: 2026-06-14 -- Phase 156 Plan 03 auto-tasks executed; paused at human-verify gate
+stopped_at: Phase 156 Plan 04 (Wave 4, FINAL) COMPLETE -- FW-12 top-3-of-N foresight-web chaining handoffs via command-resolver (zero hardcoded /mos: strings) + mutual RS writing a REVERSE_SALIENT edge via the rs-engine raw path + reverse open-as-futures-wheel hook; FW-13 bounded two-fire-point SIGNAL research (seedGrounding + perRingResearch, cache-first 30-day TTL, generic handles only); FW-11 Part 8 adversarial egress tripwire + run-all-156.sh phase gate (13/13 green, exit 0). All 4 Phase-156 waves complete.
+last_updated: "2026-06-15T03:55:00.000Z"
+last_activity: 2026-06-15 -- Phase 156 Plan 04 (Wave 4, final) executed; full phase gate green
 progress:
   total_phases: 95
   completed_phases: 74
   total_plans: 482
-  completed_plans: 472
+  completed_plans: 473
   percent: 78
 ---
 
@@ -25,9 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 156 (futures-wheel-opportunity-location-mvp) — EXECUTING (Plan 02 of 4 complete; Plan 03 auto-tasks done, AWAITING human-verify gate)
-Status: Executing Phase 156 — Plan 03 paused at human-verify checkpoint
+Phase: 156 (futures-wheel-opportunity-location-mvp) — EXECUTING (Plan 04 of 4 COMPLETE; all 4 waves done)
+Status: Phase 156 all 4 plans complete; run-all-156.sh phase gate green (13/13)
 Queue: 150.7 (tester round 2 + Part 10 ratification gate) -> v1.13.1 final gate
+
+Phase 156 Plan 04 (FW-11/12/13 -- Wave 4, FINAL) complete. Extended (NOT rewrote) the Wave-1/2/3 orchestrator with the foresight-web chaining + SIGNAL + Part 8 surface. FW-12: surfaceChainingHandoffs ranks the 8 foresight-web partners by a LOCAL trigger (detectChainingTriggers: cross-domain bridge -> RS; cascade -> systems-thinking; domain co-occurrence -> scenario; long-horizon -> trends/timing/dominant-design; high-confidence -> Mullins; multi-ring -> diagnose) and surfaces the TOP-3-of-N at F.1 (D-04); EVERY handoff command comes BACK from command-resolver.composeWorkflow -- the partner table names only FRAMEWORK HANDLES so grep -ciE "['\"]/mos:(systems-thinking|scenario-plan|...)['\"]" orchestrator.cjs = 0; a registry miss degrades to manual (command:null), never fabricated. runRSReverseSalient invokes scripts/rs-engine.py --mode internal, writing >=1 REVERSE_SALIENT edge via the rs-engine RAW path (NOT writeEdge; REVERSE_SALIENT not frozen). Reverse open-as-futures-wheel hook declared for RS + systems-thinking. FW-13: runSignalResearch/seedGrounding/perRingResearch -- two fire points, cache-first 30-day TTL (research-cache), the fetchCorpus query is ALWAYS genericDomainHandle(query) (<=6-word generic phrase), NEVER a consequence body (Part 8); corroborate-a-confidence OR propose-a-signal-derived-consequence. FW-11: test-futures-part8-leak.cjs mirrors test-navigation-packet-part8-leak (static scan + runtime adversarial; planted SECRET body + email never reach fetchCorpus; real audit fails closed); run-all-156.sh aggregates all 11 test-futures-*.cjs + Part-8 grep sweep + em-dash sweep, exits 0 only if all green (13/13). Three deviations (Rule 3 better-sqlite3 absent -> read REVERSE_SALIENT via lazygraph.openGraph; Rule 1 RS fixture needed divergent vocabulary to clear the rs-engine 0.3 threshold; Rule 1 the handle-clamp Part 8 assertion tightened to the accurate <=6-word bound + the real audit floor). ZERO ENABLES anywhere. Zero em-dashes (run-all-156.sh em-dash grep uses the U+2014 codepoint escape). Commits bc02c7e8 + 1f1906ec + dd82d383. Self-check PASSED. Next: navigator resolves the Plan-03 human-verify checkpoint (walk /mos:futures end-to-end), then Phase 156 closes into the v1.13.1 train.
 
 Phase 156 Plan 03 (FW-07/08/09/10 -- Wave 3 render + Decision Gate + banking) -- 3 auto tasks COMPLETE; PAUSED at the human-verify checkpoint (this wave is autonomous:false). Net-new lib/core/futures/subsystem-render.cjs: renderSubsystemMap (D-03 DEFAULT, groups consequences by PESTEL domain) + renderRingView (on demand, groups by ring 1|2|3), both composed through the shared ui-system render-v2 De Stijl 4-zone formatter -- zero hand-rolled HTML. Extended (NOT rewrote) orchestrator.cjs with surfaceBridgesAtGate (per-ring batch tri-context F.1 gate; surfaces top-N cross-domain HSI bridges that are NOT direct ROOT_CAUSES ring links -- the do-what-a-human-cannot ripple; BRAIN panel carries only the generic Futures Wheel handle, Part 8), confirmRingDecisions (APPROVE -> proposed->confirmed via navigation.confirmNode with a human byUser resolved by resolveByUser; a poisoned larry USER.md is coerced to navigator -- never agent-confirmed truth, Part 9; REJECT -> REJECTED_BECAUSE scalar reason edge; DEFER -> DEFERRED, Part 4; no body text on edges, Part 8), bankCandidateWithProvenance (banks via opportunity-ops.bankOpportunity with an additive provenance field naming an HSI_CONNECTION/REVERSE_SALIENT/ROOT_CAUSES source edge; un-traceable candidate refused, T-156-01; dedup preserved). Rule-1 deviation: bankOpportunity did NOT pass arbitrary frontmatter through (RESEARCH s5 assumption wrong, mirroring the Wave-2 ENABLES finding) -- fixed additively (provenance emitted only when supplied; opportunity-extractor.test.cjs 12/12 still green). Design: consequence gate nodes are truth-claim type CausalClaim so the Part 9 agent-attribution guard fires on confirm (the Artifact registration stays the HSI surface). ZERO ENABLES introduced anywhere. Three tests green: test-futures-render, test-futures-confirm, test-futures-bank; all 5 prior-wave futures tests still green. Source gates on orchestrator.cjs: confirmNode( = 2, INSERT INTO edges = 0, promoteNodeStatus( = 0. Only em-dash hit is a PRE-EXISTING comment at opportunity-ops.cjs:765 (logged DI-156-03-01, not on my lines). Commits 48cb88cb + 941b4642 + a72f4dce. Self-check PASSED. Next: navigator resolves the human-verify checkpoint, then Phase 156 Plan 04 (Wave 4).
 
