@@ -2695,6 +2695,7 @@ Plans:
 **Goal:** Wire the turn-N+1 consumer so the dial decision loop actually records to room.db. Today the producer half is wired (`renderF1` persists `decision_trace.f1_closer_payload` with per-verb `reachIds`, scripts/intent-classifier.cjs:1835,1890) but NOTHING reads it back on the next turn to call `closeOffer`/`closeReach` -> `recordSelectorDecision`. Result: no `f_selector_decision(accept|defer|reject)` row is ever written from the dial in production, so Canon Decision 13 ("rejection is data") captures nothing AND Phase 158's `computeReachPenalties` structurally always reads 0 -> `countPenalty=0` -> suppression never fires. This phase closes the input segment of the circuit.
 
 **Investigation (2026-06-15, two independent read-only traces converged):**
+
 - Wire 1 (blocking, the input): a turn-start consumer reads the prior turn's `decision_trace.f1_closer_payload.reachIds`, matches the navigator's pick verb, and routes it into a decision write keyed by `reach_id`. Attach by the producer at scripts/intent-classifier.cjs:1806-1842. `closeReach` (lib/workflow/dial-close-reach.cjs:222) already forwards `reach_id` (:251) and just needs a caller; `closeOffer` (lib/workflow/offer-closer.cjs:286) needs `reach_id` added into `decisionArgs` (:329-336).
 - Wire 2 (precondition): `decision_trace.context_assembly.decision_grounding` (intent-classifier.cjs:1825-1832) must reliably resolve to a frozen REACH_IDS member for dial-driven offers, else reject keying stays sparse even after Wire 1.
 - Wire 3 (gating condition to confirm): the emit+fold+render arm is gated on the active engine arm + `cortexNodes.length > 0` (intent-classifier.cjs:1522-1526,1574); in a legacy-routing room no `reach_presented` fires, so M-floor (MIN_PRESENTATIONS=2) + parole lack data. Confirm the Phase 144 engine flip (lib/core/navigation-engine.cjs decide()) fires in real rooms.
@@ -2704,7 +2705,7 @@ Plans:
 **canon_parts:** Part 4 (every dial choice becomes graph data -- the loop this closes), Part 8 (the pick read path stays enum/scalar; user pick text never crosses to Brain), Part 9 (consumer reads/writes via the navigation.cjs chokepoint only)
 **Depends on:** Phase 158 (the penalty reader it feeds); Phase 135 / 143.1 (the F.1 closer producer + closeReach/closeOffer it calls); Phase 144 (the engine flip that gates the emit arm)
 **Blocks (soft):** Phase 158 functioning in production; the broader "rejection is data" loop
-**Plans:** 0 plans -- run /gsd:spec-phase 159 next (open decisions above earn a spec)
+**Plans:** 1/3 plans executed
 
 Plans:
 
