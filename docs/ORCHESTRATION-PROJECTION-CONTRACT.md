@@ -109,12 +109,38 @@ The `LOCAL data -> BRAIN: NO` invariant (Part 8) is UNCHANGED. This projection i
 
 ---
 
-## 5. Forward references (Plans 04 and 05)
+## 4a. The `--check` drift tripwire: the 3-mode failure taxonomy (Plan 04, BOG-08 / D-04)
 
-- **Plan 04 -- the `--check` drift tripwire.** A `--check` mode (mirroring the connector idiom; wired into the pre-commit hook + the Feynman runner) regenerates the projection in memory and exits non-zero on any of three failures:
-  - **STALE** -- the repo's commands / skills / agents / frameworks diverge from the committed projection (someone edited a surface without regenerating).
-  - **UN-WIRED** -- a framework / command / skill is missing from the projection OR a framework is not reachable via the OPERATES -> reach wiring (the generalization of the `/mos:futures` un-wired gap).
-  - **UN-RANKED** -- a connector-declaring `mindrian-operation` node lacks its ranking inputs (`reach_id` / `hierarchy_rank` / `posture`). Plan 04 asserts the ranking fields are present on connector-derived nodes and ABSENT (legally exempt) on name-only skill nodes (D-01). When asserting an UN-RANKED failure fixture, Plan 04 targets a connector-declaring node stripped of its ranking inputs; it must NOT flag a name-only skill node, which is exempt by design. The `chain_layer_note` is present on the projection regardless of the chain layer being source-empty, so Plan 04 can assert its presence as the legible-empty-layer marker.
+`node scripts/build-orchestration-projection.cjs --check` regenerates the projection from the LIVE sources in memory, runs `validateProjection(projection)`, and exits non-zero on ANY of three NAMED failure modes (each with its own message + recovery line, mirroring `build-connector-registry.cjs --check`). `validateProjection` returns three categorized arrays `{ stale, unwired, unranked }` so each mode is independently testable without spawning a subprocess. The check makes ZERO Brain/network calls (Part 8).
+
+| Mode | Fires when | Token | Skills |
+|------|-----------|-------|--------|
+| **STALE** | the serialized regeneration of the live sources differs byte-for-byte from the committed `data/brain-orchestration-projection.json` (a surface changed without regenerating) | `STALE` | n/a |
+| **UN-WIRED** | a FRAMEWORK is missing from `nodes[]` OR is not reachable to one of the 6 frozen reaches (`REACH_IDS`) via any `OPERATES -> reach` chain, UNLESS the framework is in `data/orchestration-unwired-allowlist.json` with a documented reason (wired-XOR-allowlisted, the Phase 144.1 idiom). A framework reachable via a SIBLING command's connector counts as wired (a command lacking its OWN connector does NOT fire UN-WIRED as long as its framework reaches a reach elsewhere). | `UN-WIRED` | EXEMPT (D-01) |
+| **UN-RANKED** | a connector-derived `mindrian-operation` node (one that declares a `reach_id`) lacks `reach_id`, `hierarchy_rank`, or `posture` | `UN-RANKED` | EXEMPT (D-01) |
+
+UN-WIRED is FRAMEWORK-GRAINED (matches BOG-06 "every framework is reachable"): it is the generalization of the `/mos:futures` gap, where a framework shipped present-but-unwired because the connector registry was not regenerated. The gate fires on the FRAMEWORK, not on every command surface, and NEVER on a skill node (skills are name-only, behavior-as-context, not reach-dispatched, D-01).
+
+The `--check` is registered in BOTH gate surfaces (BOG-11), mirroring the connector `--check` idiom exactly:
+
+- **`scripts/hooks/pre-commit`** -- a staged-path guard runs `--check` when any of `commands/*.md`, `skills/*/SKILL.md`, `agents/*.md`, `data/connector-registry.json`, `data/command-registry.json`, `data/cross-domain-analogues.json`, `data/orchestration-unwired-allowlist.json`, or `data/brain-orchestration-projection.json` is staged, and rejects the commit (exit 2) with the recovery line on failure.
+- **`lib/memory/run-feynman-tests.cjs`** -- `lib/memory/orchestration-projection.test.cjs` is registered in the `TEST_FILES` array, so the Feynman runner exercises the projection `--check` (and the un-wired fixture) on every run.
+
+The wired-XOR-allowlisted ledger `data/orchestration-unwired-allowlist.json` is a bare JSON array of `{ framework, reason }`. A framework is EITHER reach-wired OR listed here with a reason; never both, never neither. Phase 157-04 Task 0 quantified the live framework-grained orphan set at exactly 2 and resolved each before the `--check` landed: `Problem Definition Transformation Framework` was WIRED (a connector block was added to `commands/diagnose.md`, reach_id `context_block`); `MECE (Mutually Exclusive, Collectively Exhaustive)` was ALLOWLISTED (it is a component under The Pyramid Principle, its `/mos:structure-argument` connector framework, so it reaches a reach via that node rather than as a standalone reach target). With both resolved, the clean live repo passes `--check` exit 0 by construction.
+
+A deliberately un-wired fixture (`tests/fixtures/orchestration-unwired/UNWIRED-FIXTURE.md`) declares a framework with NO `connector:` block and proves `validateProjection` flags it UN-WIRED. The fixture lives under `tests/fixtures/` and is NEVER walked by the live generator's `listSourceFiles()` (which walks `commands/` + `skills/` + `agents/` only), so the real-repo `--check` stays exit 0.
+
+## 4b. The hats reach + the sensor-firability assumption
+
+**The hats reach is a first-class PRE-SCORED reach node, NOT an un-wired orphan.** Do NOT write "hats has no sensor" -- that is FALSE. `/mos:think-hats` carries `sensor_triggers: [SENS-05]` and `reach_id: hats` in `data/connector-registry.json` (Phase 148 D-09 minted `hats` as the real 6th machine reach_id). `hats` is one of the 6 frozen `REACH_IDS` and is NEVER silently dropped from the projection or the wiring-completeness matrix; it appears as a `mindrian-operation` reach node like the other five.
+
+`hats` is EXEMPT from the sensor-FIRING leg of UN-WIRED for a specific, documented reason. The wiring-completeness gate checks STRUCTURAL reach-wiring (a framework reaches one of the 6 reaches via an `OPERATES -> reach` chain). The genuinely OPEN item -- RESEARCH Q6 -- is whether `SENS-05` FIRING at runtime actually MINTS the `hats` reach versus dispatching a DIFFERENT reach. That is a NAVIGATOR-gated decision (mint a dedicated `hats`-minting sensor, vs formally de-scope `hats` to pre-scored-only), NOT an engineer call. Either way `hats` stays a first-class reach node in the matrix; the open question is about runtime sensor->reach dispatch, never about the node's presence.
+
+**The sensor-firability caveat.** The wiring-completeness gate ASSUMES sensors `SENS-02`..`05`/`07` fire on a fresh-room turn, but that firability is an EMPIRICAL validation (a live trace), not a code read. `--check` validates STRUCTURAL reach-wiring (a command/framework reaches one of the 6 reaches in the projection); it does NOT assert that the firing sensor actually mints a reach at runtime. That empirical leg -- proving a sensor fires and dispatches the expected reach on a real turn -- is OUT of this build-time gate's scope. The build-time `--check` answers "is every framework structurally wired to a reach?"; it does not answer "does the sensor fire and dispatch that reach at runtime?".
+
+## 5. Forward references (Plan 05)
+
+- **Plan 04 -- the `--check` drift tripwire (LANDED).** See section 4a for the now-shipped 3-mode taxonomy (STALE / UN-WIRED / UN-RANKED), the wired-XOR-allowlisted ledger, the un-wired fixture, and the pre-commit + Feynman-runner registration. The `chain_layer_note` is present on the projection regardless of the chain layer being source-empty (section 3), so it remains the legible-empty-layer marker.
 - **Plan 05 -- the boundary scan.** A build-time boundary scan over the projection artifact + its generator proves zero user-content fields by construction: every node field is a command slug, a reach_id, a sub_mode, a framework name, a `methodology_tier`, a ranking enum/scalar, or a SENS id; every edge is one of the five closed types between two node ids. A projection node or field carrying user-specific bytes is a Part 8 breach, caught before the artifact lands.
 
 ---

@@ -166,6 +166,28 @@ if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.
 fi
 
 # ---------------------------------------------------------------------------
+# Phase 157-04 guardian: orchestration-projection drift + the 3-mode taxonomy.
+#
+# When any commands/*.md, skills/*/SKILL.md, agents/*.md, data/connector-registry
+# .json, data/command-registry.json, data/cross-domain-analogues.json,
+# data/orchestration-unwired-allowlist.json, or data/brain-orchestration
+# -projection.json is staged, regenerate the projection in memory and reject the
+# commit on any of the three named failure modes (BOG-08, D-04): STALE (a surface
+# changed without regenerating), UN-WIRED (a framework not reachable to one of
+# the 6 frozen reaches and not allowlisted -- the generalization of the
+# /mos:futures un-wired gap, BOG-06), or UN-RANKED (a connector-derived node
+# missing reach_id/hierarchy_rank/posture). Generated, never hand-written; drift
+# impossible to commit. Canon Part 8: the check never touches the Brain.
+# Recovery on drift: node scripts/build-orchestration-projection.cjs
+# (the guard runs:  node scripts/build-orchestration-projection.cjs --check )
+# ---------------------------------------------------------------------------
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.md|agents/.*\.md|data/connector-registry\.json|data/command-registry\.json|data/cross-domain-analogues\.json|data/orchestration-unwired-allowlist\.json|data/brain-orchestration-projection\.json)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-orchestration-projection.cjs" ]; then
+    node "$REPO_ROOT/scripts/build-orchestration-projection.cjs" --check || { echo "orchestration-projection drift -- run: node scripts/build-orchestration-projection.cjs" >&2; exit 2; }
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 # Phase 110 guardian: brain-packet-schema drift / malformed-schema tripwire.
 #
 # When data/brain-packet-schema.json or scripts/build-brain-packet-schema.cjs
