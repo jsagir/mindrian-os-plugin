@@ -88,10 +88,44 @@ const NODE_KINDS = Object.freeze([
   'sub_mode',
 ]);
 
-// The documented closed set of edge types this plan emits. This plan (157-02)
-// ships only the OPERATES scaffold (command -> framework). Plan 03 widens this
-// set to CHAINS / FEEDS_INTO / PREREQUISITE / CROSS_DOMAIN_ANALOGUE.
-const EDGE_TYPES = Object.freeze(['OPERATES']);
+// The documented CLOSED set of edge types the projection emits (BOG-05). Exactly
+// these five, frozen. Mirrors the frozen-bank idiom of
+// lib/core/sensors/sensor-types.cjs REACH_IDS and
+// lib/core/navigation/edges.cjs ALLOWED_EDGE_TYPES. An undocumented edge type is
+// rejected at build by the addEdge() chokepoint. The set is a CEILING, not a
+// floor: OPERATES (>=1 per framework-declaring command) and CROSS_DOMAIN_ANALOGUE
+// (one per analogue pair, >=2) are hard floors; the three chaining types
+// (CHAINS / FEEDS_INTO / PREREQUISITE) are emitted ONLY from a populated
+// curated_chains source, which is empty today (see generated_note).
+const ALLOWED_EDGE_TYPES = Object.freeze(new Set([
+  // command -> framework. The connector/command registries' framework_index
+  // inverse map, promoted to a typed edge.
+  'OPERATES',
+  // framework -> framework sequential chaining (from curated_chains kind=chain).
+  'CHAINS',
+  // framework -> framework OR reach -> reach progression (curated_chains
+  // kind=feeds_into).
+  'FEEDS_INTO',
+  // framework -> framework prerequisite relation (curated_chains
+  // kind=prerequisite).
+  'PREREQUISITE',
+  // framework <-> framework cross-domain analogy (the 150.10 hand-wired pairs
+  // read from data/cross-domain-analogues.json).
+  'CROSS_DOMAIN_ANALOGUE',
+]));
+
+// Backwards-compatible alias retained for the Plan 02 export surface + tests.
+const EDGE_TYPES = Object.freeze(Array.from(ALLOWED_EDGE_TYPES));
+
+// The curated_chains kind -> edge type mapping (documented in
+// docs/ORCHESTRATION-PROJECTION-CONTRACT.md). A curated_chains entry declares a
+// `kind`; this maps it to one of the three chaining edge types. Anything else is
+// rejected by addEdge() (the type would not be in ALLOWED_EDGE_TYPES).
+const CHAIN_KIND_TO_EDGE_TYPE = Object.freeze({
+  chain: 'CHAINS',
+  feeds_into: 'FEEDS_INTO',
+  prerequisite: 'PREREQUISITE',
+});
 
 // ---------------------------------------------------------------------------
 // readJson(p) -- read a committed JSON source. Returns null on any failure so
@@ -233,6 +267,91 @@ function rankingInputsFromConnector(conn) {
 }
 
 // ---------------------------------------------------------------------------
+// buildOperationNode(id, kind, name, conn) -- build a mindrian-operation node
+// (command or agent) that, WHEN it declares a connector, exposes its ranking
+// inputs at the TOP LEVEL (BOG-07): reach_id, sub_mode, hierarchy_rank, posture,
+// sensor_triggers -- plus a chain-provenance block. When there is no connector,
+// the node is name + tier only (no ranking fields). Each field is copied verbatim
+// from the connector as an enum/scalar (Part 8: generic machinery, never user
+// content). A `ranking` block (the Plan 02 shape) is RETAINED alongside the
+// top-level fields for backwards compatibility with any Plan-02 consumer.
+// ---------------------------------------------------------------------------
+function buildOperationNode(id, kind, name, conn) {
+  const node = { id, kind, methodology_tier: TIER_OP, name };
+  const ranking = rankingInputsFromConnector(conn);
+  if (!Object.keys(ranking).length) return node;
+
+  // Top-level ranking inputs (BOG-07): the nav engine reads these directly from
+  // the node without descending into a sub-object.
+  if (typeof ranking.reach_id === 'string') node.reach_id = ranking.reach_id;
+  if (typeof ranking.sub_mode === 'string') node.sub_mode = ranking.sub_mode;
+  if (typeof ranking.hierarchy_rank === 'number') node.hierarchy_rank = ranking.hierarchy_rank;
+  if (typeof ranking.posture === 'string') node.posture = ranking.posture;
+  if (Array.isArray(ranking.sensor_triggers)) node.sensor_triggers = ranking.sensor_triggers;
+  if (typeof ranking.framework === 'string') node.framework = ranking.framework;
+
+  // Chain provenance (BOG-07 elevated): the framework -> command (OPERATES) ->
+  // reach chain + the firing sensor list, so a rejection-reason or a why-block
+  // could later cite the FULL chain, not just the score signals. All generic
+  // machinery handles (framework name, command surface, reach id, SENS ids).
+  const provenance = {};
+  if (typeof ranking.framework === 'string') provenance.framework = ranking.framework;
+  provenance.command = name;
+  if (typeof ranking.reach_id === 'string') provenance.reach_id = ranking.reach_id;
+  if (typeof ranking.sub_mode === 'string') provenance.sub_mode = ranking.sub_mode;
+  if (Array.isArray(ranking.sensor_triggers)) provenance.firing_sensors = ranking.sensor_triggers;
+  node.chain_provenance = provenance;
+
+  // Retain the Plan 02 ranking block for backwards compatibility.
+  node.ranking = ranking;
+  return node;
+}
+
+// ---------------------------------------------------------------------------
+// rankReachesForProblem(projection, opts) -- a PURE fixture query proving "a
+// fixture query can rank candidate reaches from the projection alone" (BOG-07
+// acceptance). It reads ONLY the projection (no registry, no Brain, no fs) and
+// returns the candidate reaches ranked. The ranking key is the BEST (lowest)
+// hierarchy_rank of any mindrian-operation node wired to that reach (lower rank
+// wins; mirrors the connector spine's one-reach-per-beat lower-rank-wins
+// arbitration). Ties break deterministically by reach_id ascending. A reach with
+// no wired ranked node sorts last (Infinity rank) but still appears, so the full
+// frozen-6 set is rankable. opts.problemType / opts.stage are accepted for the
+// documented call shape; this fixture ranks by the projection's exposed
+// hierarchy_rank (the deferred nav engine layers problem/stage weighting on top).
+// Returns [{ reach_id, best_rank, wired_count }] in ranked order.
+// ---------------------------------------------------------------------------
+function rankReachesForProblem(projection, opts) {
+  void opts; // problemType / stage accepted for the call shape; see header.
+  const nodes = projection && Array.isArray(projection.nodes) ? projection.nodes : [];
+  const reachIds = nodes
+    .filter((n) => n && n.kind === 'reach' && typeof n.name === 'string')
+    .map((n) => n.name);
+
+  const best = new Map();
+  const count = new Map();
+  for (const id of reachIds) {
+    best.set(id, Infinity);
+    count.set(id, 0);
+  }
+  for (const n of nodes) {
+    if (!n || n.methodology_tier !== TIER_OP) continue;
+    if (typeof n.reach_id !== 'string' || !best.has(n.reach_id)) continue;
+    count.set(n.reach_id, count.get(n.reach_id) + 1);
+    if (typeof n.hierarchy_rank === 'number' && n.hierarchy_rank < best.get(n.reach_id)) {
+      best.set(n.reach_id, n.hierarchy_rank);
+    }
+  }
+
+  return reachIds
+    .map((id) => ({ reach_id: id, best_rank: best.get(id), wired_count: count.get(id) }))
+    .sort((a, b) => {
+      if (a.best_rank !== b.best_rank) return a.best_rank - b.best_rank;
+      return a.reach_id.localeCompare(b.reach_id);
+    });
+}
+
+// ---------------------------------------------------------------------------
 // distinctSubModes(connectorReg) -- the DERIVED sub_mode set: the distinct
 // sub_modes seen across the connector spine. Each becomes a mindrian-operation
 // sub_mode node. Sorted for byte-stability.
@@ -246,6 +365,123 @@ function distinctSubModes(connectorReg) {
     if (c && typeof c.sub_mode === 'string' && c.sub_mode) set.add(c.sub_mode);
   }
   return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+// ---------------------------------------------------------------------------
+// makeAddEdge(nodeIds, edges, seen) -- the referential-integrity chokepoint.
+// Returns an addEdge(type, from, to) closure that THROWS if:
+//   - type is not in ALLOWED_EDGE_TYPES (an undocumented edge type, BOG-05), or
+//   - from or to is absent from nodeIds (a dangling endpoint).
+// Deduplicates on (type, from, to) so a re-declared pair lands once. Mirrors the
+// frozen-bank-membership-throws idiom of lib/core/navigation/edges.cjs writeEdge
+// (which returns instead of throwing; here we throw because a malformed edge in
+// a GENERATED artifact is a build error, not a runtime input error).
+// ---------------------------------------------------------------------------
+function makeAddEdge(nodeIds, edges, seen) {
+  return function addEdge(type, from, to) {
+    if (!ALLOWED_EDGE_TYPES.has(type)) {
+      throw new Error('addEdge: undocumented edge type ' + JSON.stringify(type));
+    }
+    if (!nodeIds.has(from)) {
+      throw new Error('addEdge: dangling edge endpoint (from) ' + JSON.stringify(from));
+    }
+    if (!nodeIds.has(to)) {
+      throw new Error('addEdge: dangling edge endpoint (to) ' + JSON.stringify(to));
+    }
+    const key = type + '\n' + from + '\n' + to;
+    if (seen.has(key)) return;
+    seen.add(key);
+    edges.push({ type, from, to });
+  };
+}
+
+// ---------------------------------------------------------------------------
+// curatedChainEdges(commandReg, addEdge) -- emit CHAINS / FEEDS_INTO /
+// PREREQUISITE edges from command-registry.curated_chains, where present. Each
+// curated_chains entry is { kind, from, to } with kind in CHAIN_KIND_TO_EDGE_TYPE
+// (chain -> CHAINS, feeds_into -> FEEDS_INTO, prerequisite -> PREREQUISITE) and
+// from/to being framework names (framework -> framework) OR reach ids
+// (reach -> reach, for FEEDS_INTO progressions). The from/to strings are mapped
+// to node ids: a known framework name -> framework:<name>, a known reach id ->
+// reach:<id>. addEdge throws on a dangling endpoint, so a curated_chains entry
+// that references an unknown framework/reach FAILS the build (referential
+// integrity). curated_chains is EMPTY today, so this emits ZERO chaining edges;
+// the empty-state is made LEGIBLE by the projection's generated_note (NOT
+// silent). Returns the count emitted.
+// ---------------------------------------------------------------------------
+function curatedChainEdges(commandReg, frameworkNodeIds, reachNodeIds, addEdge) {
+  const chains = commandReg && Array.isArray(commandReg.curated_chains)
+    ? commandReg.curated_chains
+    : [];
+  let emitted = 0;
+  // Resolve an endpoint string to a node id: prefer a framework node, then a
+  // reach node. addEdge() rejects anything that resolves to no node.
+  const resolve = (s) => {
+    if (typeof s !== 'string' || !s) return null;
+    const fwId = 'framework:' + s;
+    if (frameworkNodeIds.has(fwId)) return fwId;
+    const reachId = 'reach:' + s;
+    if (reachNodeIds.has(reachId)) return reachId;
+    // Unresolved: return the raw string so addEdge throws a clear dangling error.
+    return s;
+  };
+  for (const c of chains) {
+    if (!c || typeof c !== 'object') continue;
+    const type = CHAIN_KIND_TO_EDGE_TYPE[c.kind];
+    if (!type) {
+      throw new Error('curatedChainEdges: unknown chain kind ' + JSON.stringify(c.kind));
+    }
+    addEdge(type, resolve(c.from), resolve(c.to));
+    emitted += 1;
+  }
+  return emitted;
+}
+
+// ---------------------------------------------------------------------------
+// crossDomainAnalogueEdges(analogues, frameworkNodeIds, addEdge) -- emit one
+// CROSS_DOMAIN_ANALOGUE edge per data/cross-domain-analogues.json analogue pair
+// (the 150.10 seeds). Both endpoints are framework names; the node-derivation
+// union already minted a framework node for each endpoint, so they resolve.
+// addEdge throws if an endpoint somehow does not resolve. Returns the count.
+// ---------------------------------------------------------------------------
+function crossDomainAnalogueEdges(analogues, addEdge) {
+  const list = analogues && Array.isArray(analogues.analogues) ? analogues.analogues : [];
+  let emitted = 0;
+  for (const a of list) {
+    if (!a || typeof a !== 'object') continue;
+    if (typeof a.from !== 'string' || !a.from) continue;
+    if (typeof a.to !== 'string' || !a.to) continue;
+    addEdge('CROSS_DOMAIN_ANALOGUE', 'framework:' + a.from, 'framework:' + a.to);
+    emitted += 1;
+  }
+  return emitted;
+}
+
+// ---------------------------------------------------------------------------
+// chainLayerNote(curatedChainCount) -- the top-level generated_note string for
+// the chain layer. When curated_chains is source-empty (zero chaining edges),
+// the note states the chain layer is source-empty pending a populated
+// curated_chains, so the empty chain layer is LEGIBLE not silent (per the plan
+// PLAN-CHECK note). When chains exist, the note reflects the count.
+// ---------------------------------------------------------------------------
+function chainLayerNote(curatedChainCount) {
+  if (curatedChainCount === 0) {
+    return (
+      'Chain layer (CHAINS / FEEDS_INTO / PREREQUISITE) is SOURCE-EMPTY: ' +
+      'data/command-registry.json curated_chains is [] (an empty array), so the ' +
+      'generator legitimately emits ZERO chaining edges. The closed edge set is a ' +
+      'CEILING not a floor; only OPERATES (>=1 per framework-declaring command) and ' +
+      'CROSS_DOMAIN_ANALOGUE (one per analogue pair) are hard floors. Populate ' +
+      'curated_chains (kind in chain|feeds_into|prerequisite; from/to a framework ' +
+      'name or reach id) and regenerate to materialize the chain layer. The empty ' +
+      'state is intentional and legible, never fabricated to fill the gap.'
+    );
+  }
+  return (
+    'Chain layer emitted ' + curatedChainCount + ' edge(s) from ' +
+    'data/command-registry.json curated_chains (kind -> CHAINS / FEEDS_INTO / ' +
+    'PREREQUISITE).'
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -268,20 +504,20 @@ function buildProjection() {
   const nodes = [];
 
   // command / skill / agent nodes -- per-file (BOG-04), all mindrian-operation.
-  // A command/agent that has a connector entry carries its ranking inputs.
+  // A command/agent that DECLARES A CONNECTOR exposes its ranking inputs at the
+  // TOP LEVEL of the node (BOG-07): reach_id, sub_mode, hierarchy_rank, posture,
+  // sensor_triggers -- copied verbatim as enum/scalar values from the connector
+  // entry (Part 8: generic machinery signals, never user content). It also
+  // carries a chain-provenance block (the framework -> command (OPERATES) -> reach
+  // chain + the firing sensor list) so the deferred nav engine can both RANK and
+  // EXPLAIN (BOG-07 elevated). A skill carries NO connector (D-01): name + tier
+  // only, no ranking fields (exempt from the ranking gate; Plan 04 enforces the
+  // exemption).
   for (const src of sources) {
     if (src.kind === 'command') {
       const surface = commandSurfaceId(src.base);
       const conn = connBySurface.get(surface);
-      const node = {
-        id: 'command:' + surface,
-        kind: 'command',
-        methodology_tier: TIER_OP,
-        name: surface,
-      };
-      const ranking = rankingInputsFromConnector(conn);
-      if (Object.keys(ranking).length) node.ranking = ranking;
-      nodes.push(node);
+      nodes.push(buildOperationNode('command:' + surface, 'command', surface, conn));
     } else if (src.kind === 'skill') {
       // Skills carry NO connector frontmatter (D-01): name + tier only.
       nodes.push({
@@ -293,15 +529,7 @@ function buildProjection() {
     } else if (src.kind === 'agent') {
       const surface = 'agent:' + src.base;
       const conn = connBySurface.get(surface);
-      const node = {
-        id: 'agent:' + src.base,
-        kind: 'agent',
-        methodology_tier: TIER_OP,
-        name: src.base,
-      };
-      const ranking = rankingInputsFromConnector(conn);
-      if (Object.keys(ranking).length) node.ranking = ranking;
-      nodes.push(node);
+      nodes.push(buildOperationNode('agent:' + src.base, 'agent', src.base, conn));
     }
   }
 
@@ -340,16 +568,25 @@ function buildProjection() {
     });
   }
 
-  // OPERATES edge scaffold: command -> framework, promoted from the union of the
-  // command-registry + connector-registry framework_index inverse maps. A
-  // framework_index entry is { frameworkName: [surface, ...] }; each surface that
-  // is a /mos: command yields one OPERATES edge to that framework node. Deduped +
-  // sorted for byte-stability.
+  // ---- typed edge layer (BOG-05): the 5 closed types, every edge routed
+  // through the addEdge() referential-integrity chokepoint. ----
+  const nodeIds = new Set(nodes.map((n) => n.id));
   const frameworkNodeIds = new Set(frameworks.map((fw) => 'framework:' + fw));
+  const reachNodeIds = new Set(REACH_IDS.map((r) => 'reach:' + r));
   const commandNodeIds = new Set(
     sources.filter((s) => s.kind === 'command').map((s) => 'command:' + commandSurfaceId(s.base))
   );
-  const operatesSet = new Set();
+
+  const edges = [];
+  const seenEdge = new Set();
+  const addEdge = makeAddEdge(nodeIds, edges, seenEdge);
+
+  // OPERATES: command -> framework, promoted from the union of the
+  // command-registry + connector-registry framework_index inverse maps. The
+  // (from, to) pairs are collected + sorted FIRST so the emission order (hence
+  // the serialized artifact) is byte-stable; addEdge dedupes + enforces
+  // referential integrity.
+  const operatesPairs = [];
   for (const reg of [commandReg, connectorReg]) {
     const fi = reg && reg.framework_index;
     if (!fi || typeof fi !== 'object') continue;
@@ -361,20 +598,34 @@ function buildProjection() {
         if (typeof surface !== 'string' || !surface.startsWith('/mos:')) continue;
         const fromId = 'command:' + surface;
         if (!commandNodeIds.has(fromId)) continue;
-        operatesSet.add(fromId + ' ' + toId);
+        // Join on a newline: node ids contain spaces (framework names like
+        // "Jobs to Be Done (JTBD)"), so a space separator would corrupt the
+        // split. A newline can never appear in a node id, so it is a safe
+        // delimiter for the sort-then-split byte-stability pass.
+        operatesPairs.push(fromId + '\n' + toId);
       }
     }
   }
-  const edges = Array.from(operatesSet)
-    .sort((a, b) => a.localeCompare(b))
-    .map((pair) => {
-      const [from, to] = pair.split(' ');
-      return { type: 'OPERATES', from, to };
-    });
+  operatesPairs.sort((a, b) => a.localeCompare(b));
+  for (const pair of operatesPairs) {
+    const idx = pair.indexOf('\n');
+    addEdge('OPERATES', pair.slice(0, idx), pair.slice(idx + 1));
+  }
+
+  // CHAINS / FEEDS_INTO / PREREQUISITE: from command-registry.curated_chains
+  // (EMPTY today -> zero edges + the chain-layer note below). Never fabricated.
+  const curatedChainCount = curatedChainEdges(
+    commandReg, frameworkNodeIds, reachNodeIds, addEdge
+  );
+
+  // CROSS_DOMAIN_ANALOGUE: one edge per cross-domain-analogues.json pair (>=2,
+  // the 150.10 seeds). The endpoints are minted framework nodes, so they resolve.
+  crossDomainAnalogueEdges(analogues, addEdge);
 
   return {
     ontology_ref: 'data/connector-registry.json + data/command-registry.json',
     generated_note: GENERATED_NOTE,
+    chain_layer_note: chainLayerNote(curatedChainCount),
     nodes,
     edges,
   };
@@ -389,6 +640,7 @@ function serializeProjection(proj) {
   const clean = {
     ontology_ref: proj.ontology_ref,
     generated_note: proj.generated_note,
+    chain_layer_note: proj.chain_layer_note,
     nodes: proj.nodes,
     edges: proj.edges,
   };
@@ -425,9 +677,17 @@ if (require.main === module) {
     distinctFrameworks,
     distinctSubModes,
     rankingInputsFromConnector,
+    buildOperationNode,
+    rankReachesForProblem,
+    makeAddEdge,
+    curatedChainEdges,
+    crossDomainAnalogueEdges,
+    chainLayerNote,
     buildProjection,
     serializeProjection,
     NODE_KINDS,
     EDGE_TYPES,
+    ALLOWED_EDGE_TYPES,
+    CHAIN_KIND_TO_EDGE_TYPE,
   };
 }
