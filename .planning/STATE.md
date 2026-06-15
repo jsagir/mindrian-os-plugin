@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: completed
-stopped_at: "Phase 157 context gathered + systems-thinking fan-out filed as 157-RESEARCH.md. discuss-phase complete (D-01..D-05). Key finding: the what-next reach layer does not LEARN (rejection->weight loop missing); reverse salient = static ensemble weights. Ready for /gsd-plan-phase 157."
-last_updated: "2026-06-15T09:22:03.519Z"
+stopped_at: Phase 158 context gathered
+last_updated: "2026-06-15T10:35:23.190Z"
 last_activity: 2026-06-14 -- Phase 156 execution started
 progress:
-  total_phases: 96
+  total_phases: 97
   completed_phases: 75
   total_plans: 482
   completed_plans: 474
-  percent: 78
+  percent: 77
 ---
 
 # Project State
@@ -1402,6 +1402,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-15T09:22:03.480Z
-Stopped at: Phase 157 context gathered + systems-thinking fan-out filed as 157-RESEARCH.md. discuss-phase complete (D-01..D-05). Key finding: the what-next reach layer does not LEARN (rejection->weight loop missing); reverse salient = static ensemble weights. Ready for /gsd-plan-phase 157.
+Last session: 2026-06-15T10:35:23.149Z
+Stopped at: Phase 158 context gathered
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).
