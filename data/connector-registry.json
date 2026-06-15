@@ -345,6 +345,23 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:futures",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "futures-wheel",
+      "framework": "Futures Wheel",
+      "posture": "hold",
+      "hierarchy_rank": 45,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:grade",
       "source": "command",
       "connects_to_spine": true,
@@ -964,6 +981,7 @@
       "/mos:challenge-assumptions",
       "/mos:deep-grade",
       "/mos:dominant-designs",
+      "/mos:futures",
       "/mos:grade",
       "/mos:ignite",
       "/mos:mos-reason",
@@ -1083,6 +1101,9 @@
     ],
     "Usher's Model of Cumulative Synthesis": [
       "/mos:find-connections"
+    ],
+    "Futures Wheel": [
+      "/mos:futures"
     ],
     "Adaptive Leadership": [
       "/mos:leadership"
