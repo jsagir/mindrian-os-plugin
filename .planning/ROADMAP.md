@@ -2679,14 +2679,14 @@ Plans:
 **Requirements:** RJP-01, RJP-02, RJP-03, RJP-04, RJP-05, RJP-06, RJP-07, RJP-08 (the 8 locked requirements in 158-SPEC.md, in spec order: ride-the-seam, byte-stable-at-zero, bounded-discount, hard-suppress-at-N, named-threshold, Part-8-counts-only, Part-9-chokepoint, not-full-SEED-009)
 **Depends on:** Phase 125 (the f-selector ranker + `_applyDecay` IoC seam); Phase 109 (the `navigation.cjs` memory chokepoint); Phase 129/148 (the `f_selector_decision` outcome-edge writers)
 **Authority:** `.planning/phases/157-brain-orchestration-graph-and-methodology-tiers/157-RESEARCH.md` (the reverse-salient finding + leverage point 1); `.planning/seeds/SEED-009-learned-ranker-weights-from-outcome-edges.md` (the minimal-vs-full boundary)
-**Plans:** 1/4 plans executed
+**Plans:** 4/4 plans executed -- PHASE COMPLETE (run-all-158.sh 14/14 + frozen-148 18/18; gsd-verifier PASS 8/8, 158-VERIFICATION.md)
 
 Plans:
 
 - [x] 158-01-PLAN.md -- keying: forward `reach.reach_id` from `closeReach` reject branch into `recordSelectorDecision` (optional enum, off-REACH_IDS ignored) + pin the offer->close two-turn propagation (renderF1 payload -> next-turn closeReach) (RJP-06/07; SC-02) [wave 1, autonomous: false -- pins the propagation point]
-- [ ] 158-02-PLAN.md -- additive `reach_presented` EVENT_TYPE fired per offered reach on the LIVE engine arm (db present) + reach_id-keyed reject-in-window + presentations readers via navigation.cjs (RJP-06/07; SC-06/SC-07) [wave 2]
-- [ ] 158-03-PLAN.md -- named constants N/M/W/P/CAP/FLOOR + bounded penalty + 4 fences (M/W/deterministic-parole/per-room) + fold discount + `suppressedReachIds` upstream + PURE `buildReachList` drops before sort/frozen-gate + frozen-148 guard (RJP-01/02/03/04/05/08; SC-03/SC-05/SC-07/D-05/D-06/D-09) [wave 3]
-- [ ] 158-04-PLAN.md -- run-all-158.sh gate (reach-keyed suites + Part 8 sweep + Part 9 sweep + run-all-148.sh passthrough) + byte-stable-at-zero snapshot + buildReachList purity tripwire (RJP-02/06/07/08) [wave 4]
+- [x] 158-02-PLAN.md -- additive `reach_presented` EVENT_TYPE fired per offered reach on the LIVE engine arm (db present) + reach_id-keyed reject-in-window + presentations readers via navigation.cjs (RJP-06/07; SC-06/SC-07) [wave 2] (commits 23cd71df + c62c7efd + 0b1ff8c6 + bbfdc4d3; 7/7)
+- [x] 158-03-PLAN.md -- named constants N/M/W/P/CAP/FLOOR + bounded penalty + 4 fences (M/W/deterministic-parole/per-room) + fold discount + `suppressedReachIds` upstream + PURE `buildReachList` drops before sort/frozen-gate + frozen-148 guard (RJP-01/02/03/04/05/08; SC-03/SC-05/SC-07/D-05/D-06/D-09) [wave 3] (commits 736986cc + 6ed0c3da + 76542259 + 4a8c2548; 22/22)
+- [x] 158-04-PLAN.md -- run-all-158.sh gate (reach-keyed suites + Part 8 sweep + Part 9 sweep + run-all-148.sh passthrough) + byte-stable-at-zero snapshot + buildReachList purity tripwire (RJP-02/06/07/08) [wave 4] (commits e0ad713a + 48f5a9c2 + f809fdc3; gate exits 0, 14/14)
 
 ---
 

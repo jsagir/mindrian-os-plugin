@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: completed
-stopped_at: Phase 158 planned (4 reach-surface plans, plan-check converged) - ready to execute
-last_updated: "2026-06-15T12:41:09.499Z"
-last_activity: 2026-06-14 -- Phase 156 execution started
+stopped_at: Phase 158 COMPLETE (4 of 4 plans; run-all-158.sh 14/14 + frozen-148 18/18; verifier PASS 8/8)
+last_updated: "2026-06-15T15:55:00.000Z"
+last_activity: 2026-06-15 -- Phase 158 executed (bounded rejection-penalty, all 4 waves + verification)
 progress:
   total_phases: 97
-  completed_phases: 75
-  total_plans: 486
-  completed_plans: 475
-  percent: 77
+  completed_phases: 76
+  total_plans: 490
+  completed_plans: 479
+  percent: 78
 ---
 
 # Project State
@@ -25,9 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 156 (futures-wheel-opportunity-location-mvp) — EXECUTING (Plan 04 of 4 COMPLETE; all 4 waves done)
-Status: Phase 156 all 4 plans complete; run-all-156.sh phase gate green (13/13)
-Queue: 150.7 (tester round 2 + Part 10 ratification gate) -> v1.13.1 final gate
+Phase: 158 (bounded-rejection-penalty-seed-009-minimal) — COMPLETE (4 of 4 plans; all 4 waves + verification)
+Status: run-all-158.sh phase gate green (14/14, incl. frozen-148 passthrough 18/18); gsd-verifier PASS 8/8 against RJP-01..08
+Queue: 150.7 (tester round 2 + Part 10 ratification gate) -> v1.13.1 final gate; Phase 156 human-verify checkpoint still open
+
+Phase 158 (bounded-rejection-penalty SEED-009-minimal) COMPLETE -- all 4 waves executed + gsd-verifier PASS 8/8 (158-VERIFICATION.md). Closes the open rejection->ranking feedback loop on the 6-reach DIAL surface (SC-01..07 navigator-LOCKED correction of the SPEC's _applyDecay command-rail framing): a chronically-rejected reach_id is bounded-discounted then HARD-suppressed from the rendered top-K once reject-count >= N within window W, gated by all four bias fences. Wave 1 (158-01, commits 8b107b98 + 52c16a93): optional enum-gated reach_id on recordSelectorDecision (off-REACH_IDS ignored; no-arg byte-identical, RJP-02 foundation) + the offer->close two-turn propagation pin; keying suite 4/4. Wave 2 (158-02, 23cd71df + c62c7efd + 0b1ff8c6 + bbfdc4d3): additive reach_presented EVENT_TYPES entry (floor-not-size) + lib/workflow/reach-reject-reader.cjs (rejectCountInWindow REJECT-ONLY -- DEFER/PIVOT never count, D-03; presentationsCount; both prefer the roomState injection seam so the orchestrator stays PURE) + the live-arm reach_presented emit per offered top-3 reach_id where roomDb is open; 7/7. Wave 3 (158-03, 736986cc + 6ed0c3da + 76542259 + 4a8c2548): six NAMED constants N=3/M=2/W=8/P=5/CAP=0.6/FLOOR=0.05 with documented ~4-user/<100-edge low-data rationale (no magic literal gates suppression, RJP-05); countPenalty = min(CAP, n/(N+1)) exactly 0 at zero (RJP-02/03), the SOLE multiplier (no recency factor on the reach surface); isHardSuppressed with all four fences (M min-presentations floor, W aging window, deterministic parole every Pth presentation NOT Math.random per D-06, per-room scope Part 8); computeReachPenalties folds the discount into roomState.reachScores upstream on the live arm and passes a suppressedReachIds set into the PURE buildReachList, which DROPS them BEFORE sort + _applyFrozenGate (SC-03/SC-05; total_count 6->5, bank stays 6); D-02a FLOOR keeps a discounted-not-suppressed reach off exactly 0; 22/22. Wave 4 (158-04, e0ad713a + 48f5a9c2 + f809fdc3): tests/run-all-158.sh one-command gate (11 suites + Part 8 reason-string sweep + Part 9 chokepoint sweep + frozen-148 passthrough), byte-stable-at-zero snapshot, the SECRETREASON123 Part 8 tripwire (counts/enums only, never properties.reason, RJP-06), the Part 9 chokepoint+orchestrator-purity tripwire (RJP-07); gate exits 0, 14/14. Frozen-148 held throughout (MAX_K=3, DIAL_REACH_K=6, 0.70/0.15 gate, 6 REACH_IDS, 3 postures); the 0.40/0.30/0.30 ensemble weights in f-selector-ranker.cjs untouched; NO ranker_weights table (RJP-08 -- this is the MINIMAL pull-forward, not the dormant full SEED-009). Canon Part 4 (rejection is data, now READ BACK) + Part 7 (reuse the shipped reach surface + readers) + Part 8 (enum/scalar only, zero reason egress) + Part 9 (navigation.cjs sole read path, orchestrator pure). One honest deferred: closeReach/closeOffer have no live production caller yet (pre-existing Phase 143.1 consumer-surface gap, OUT of 158 scope -- the production penalty still fires via computeReachPenalties reading f_selector_decision rows by reach_id whenever rejection edges exist in room.db); and the dormant _applyDecayWeight command-rail (SC-04 / BLOCKER 2) stays a separate latent follow-up. Zero em-dashes. Next: navigator decides v1.13.1 train sequencing (150.7 ratification gate + Phase 156 human-verify checkpoint).
 
 Phase 156 Plan 04 (FW-11/12/13 -- Wave 4, FINAL) complete. Extended (NOT rewrote) the Wave-1/2/3 orchestrator with the foresight-web chaining + SIGNAL + Part 8 surface. FW-12: surfaceChainingHandoffs ranks the 8 foresight-web partners by a LOCAL trigger (detectChainingTriggers: cross-domain bridge -> RS; cascade -> systems-thinking; domain co-occurrence -> scenario; long-horizon -> trends/timing/dominant-design; high-confidence -> Mullins; multi-ring -> diagnose) and surfaces the TOP-3-of-N at F.1 (D-04); EVERY handoff command comes BACK from command-resolver.composeWorkflow -- the partner table names only FRAMEWORK HANDLES so grep -ciE "['\"]/mos:(systems-thinking|scenario-plan|...)['\"]" orchestrator.cjs = 0; a registry miss degrades to manual (command:null), never fabricated. runRSReverseSalient invokes scripts/rs-engine.py --mode internal, writing >=1 REVERSE_SALIENT edge via the rs-engine RAW path (NOT writeEdge; REVERSE_SALIENT not frozen). Reverse open-as-futures-wheel hook declared for RS + systems-thinking. FW-13: runSignalResearch/seedGrounding/perRingResearch -- two fire points, cache-first 30-day TTL (research-cache), the fetchCorpus query is ALWAYS genericDomainHandle(query) (<=6-word generic phrase), NEVER a consequence body (Part 8); corroborate-a-confidence OR propose-a-signal-derived-consequence. FW-11: test-futures-part8-leak.cjs mirrors test-navigation-packet-part8-leak (static scan + runtime adversarial; planted SECRET body + email never reach fetchCorpus; real audit fails closed); run-all-156.sh aggregates all 11 test-futures-*.cjs + Part-8 grep sweep + em-dash sweep, exits 0 only if all green (13/13). Three deviations (Rule 3 better-sqlite3 absent -> read REVERSE_SALIENT via lazygraph.openGraph; Rule 1 RS fixture needed divergent vocabulary to clear the rs-engine 0.3 threshold; Rule 1 the handle-clamp Part 8 assertion tightened to the accurate <=6-word bound + the real audit floor). ZERO ENABLES anywhere. Zero em-dashes (run-all-156.sh em-dash grep uses the U+2014 codepoint escape). Commits bc02c7e8 + 1f1906ec + dd82d383. Self-check PASSED. Next: navigator resolves the Plan-03 human-verify checkpoint (walk /mos:futures end-to-end), then Phase 156 closes into the v1.13.1 train.
 
