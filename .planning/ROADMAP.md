@@ -2655,7 +2655,7 @@ Plans:
 
 **Requirements**: BOG-01, BOG-02, BOG-03, BOG-04, BOG-05, BOG-06, BOG-07, BOG-08, BOG-09, BOG-10, BOG-11 (locked in 157-SPEC.md)
 **Depends on:** Phase 156 (the connector spine + futures chaining web it generalizes); Phase 122 (command-registry + --check idiom); Phase 137 (Brain<->MindrianOS sync substrate - absorb or sequence); the 150.10 hand-wired CROSS_DOMAIN_ANALOGUE prototype
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans executed -- Phase 157 COMPLETE 2026-06-15
 
 Plans:
 
@@ -2663,7 +2663,7 @@ Plans:
 - [x] 157-02-PLAN.md -- The projection generator (sibling of build-connector-registry.cjs) + cross-domain-analogues.json + tier-tagged nodes [wave 2] -- COMPLETE 2026-06-15 (206 nodes, 49 OPERATES edges; generator + projection + cross-domain-analogues seed)
 - [x] 157-03-PLAN.md -- Closed typed-edge set (OPERATES/CHAINS/FEEDS_INTO/PREREQUISITE/CROSS_DOMAIN_ANALOGUE) + ranking-input exposure [wave 3] -- COMPLETE 2026-06-15 (commits 29c1f063/d57696db; frozen ALLOWED_EDGE_TYPES + addEdge chokepoint; OPERATES=49, CROSS_DOMAIN_ANALOGUE=2, chaining=0 + chain_layer_note; 56 nodes with ranking inputs + chain_provenance; rankReachesForProblem; ORCHESTRATION-PROJECTION-CONTRACT.md)
 - [x] 157-04-PLAN.md -- The --check tripwire (STALE/UN-WIRED/UN-RANKED) + un-wired fixture + pre-commit/Feynman wiring [wave 4]
-- [ ] 157-05-PLAN.md -- Local cache-contract schema doc + Part 8 boundary scan (zero user-content fields) [wave 5]
+- [x] 157-05-PLAN.md -- Local cache-contract schema doc + Part 8 boundary scan (zero user-content fields) [wave 5] -- COMPLETE 2026-06-15 (commits b24fe175/7005d724; BOG-09 cache contract section 4c -- projection IS the Brain-derived LOCAL cache the deferred nav engine reads, Tier-0 resilient, deferred fast-follows live-write + Phase 137 sync + nav-engine consumption OUT of 157; NODE/EDGE_FIELD_ALLOWLIST exported; BOG-10 adversarial 6-check Part 8 boundary scan over projection + generator + analogues + allowlist -- field-allowlist sweep + methodology_tier on every node + planted-secret forbidden-value tripwire (catches a room/ path + email + over-cap body RED, real artifact clean GREEN) + zero-live-Brain grep gate; bash suite 33->37; scan registered in Feynman runner; 207 nodes byte-stable, NO emit-logic change; hats stays open RESEARCH Q6; zero em-dashes)
 
 ---
 
