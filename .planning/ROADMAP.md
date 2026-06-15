@@ -2676,7 +2676,7 @@ Plans:
 
 **Open question deferred to discuss-phase (navigator 2026-06-15):** which rank surface the penalty hooks -- `f-selector-ranker.cjs` (command candidates; the seam the research traced) vs `dial-reach-orchestrator.cjs` (the 6 reaches the navigator literally sees + rejects). Resolve with a seam trace of which surface the REJECTED / `f_selector_decision` edges actually attach to. Do NOT pre-decide.
 
-**Requirements:** RJP-xx (locked in 158-SPEC.md -- pending /gsd-spec-phase 158)
+**Requirements:** RJP-01, RJP-02, RJP-03, RJP-04, RJP-05, RJP-06, RJP-07, RJP-08 (the 8 locked requirements in 158-SPEC.md, in spec order: ride-the-seam, byte-stable-at-zero, bounded-discount, hard-suppress-at-N, named-threshold, Part-8-counts-only, Part-9-chokepoint, not-full-SEED-009)
 **Depends on:** Phase 125 (the f-selector ranker + `_applyDecay` IoC seam); Phase 109 (the `navigation.cjs` memory chokepoint); Phase 129/148 (the `f_selector_decision` outcome-edge writers)
 **Authority:** `.planning/phases/157-brain-orchestration-graph-and-methodology-tiers/157-RESEARCH.md` (the reverse-salient finding + leverage point 1); `.planning/seeds/SEED-009-learned-ranker-weights-from-outcome-edges.md` (the minimal-vs-full boundary)
 **Plans:** 0 plans
