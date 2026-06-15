@@ -2655,11 +2655,15 @@ Plans:
 
 **Requirements**: BOG-01, BOG-02, BOG-03, BOG-04, BOG-05, BOG-06, BOG-07, BOG-08, BOG-09, BOG-10, BOG-11 (locked in 157-SPEC.md)
 **Depends on:** Phase 156 (the connector spine + futures chaining web it generalizes); Phase 122 (command-registry + --check idiom); Phase 137 (Brain<->MindrianOS sync substrate - absorb or sequence); the 150.10 hand-wired CROSS_DOMAIN_ANALOGUE prototype
-**Plans:** 0 plans
+**Plans:** 5 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-spec-phase 157, then /gsd-plan-phase 157 to break down)
+- [ ] 157-01-PLAN.md -- Canon Part 8 dual-role amendment + methodology_tier boundary-keeper (docs-only GATING; Appendix D entry 19 + version 1.7->1.8) [wave 1]
+- [ ] 157-02-PLAN.md -- The projection generator (sibling of build-connector-registry.cjs) + cross-domain-analogues.json + tier-tagged nodes [wave 2]
+- [ ] 157-03-PLAN.md -- Closed typed-edge set (OPERATES/CHAINS/FEEDS_INTO/PREREQUISITE/CROSS_DOMAIN_ANALOGUE) + ranking-input exposure [wave 3]
+- [ ] 157-04-PLAN.md -- The --check tripwire (STALE/UN-WIRED/UN-RANKED) + un-wired fixture + pre-commit/Feynman wiring [wave 4]
+- [ ] 157-05-PLAN.md -- Local cache-contract schema doc + Part 8 boundary scan (zero user-content fields) [wave 5]
 
 ---
 
