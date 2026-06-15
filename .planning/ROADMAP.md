@@ -2688,6 +2688,28 @@ Plans:
 - [x] 158-03-PLAN.md -- named constants N/M/W/P/CAP/FLOOR + bounded penalty + 4 fences (M/W/deterministic-parole/per-room) + fold discount + `suppressedReachIds` upstream + PURE `buildReachList` drops before sort/frozen-gate + frozen-148 guard (RJP-01/02/03/04/05/08; SC-03/SC-05/SC-07/D-05/D-06/D-09) [wave 3] (commits 736986cc + 6ed0c3da + 76542259 + 4a8c2548; 22/22)
 - [x] 158-04-PLAN.md -- run-all-158.sh gate (reach-keyed suites + Part 8 sweep + Part 9 sweep + run-all-148.sh passthrough) + byte-stable-at-zero snapshot + buildReachList purity tripwire (RJP-02/06/07/08) [wave 4] (commits e0ad713a + 48f5a9c2 + f809fdc3; gate exits 0, 14/14)
 
+### Phase 159: dial-closer-consumer-wire
+
+**Milestone:** v1.13.1 (LOCAL-only; no Brain dependency; UNBLOCKS Phase 158 in production; sequence BEFORE Phase 157)
+
+**Goal:** Wire the turn-N+1 consumer so the dial decision loop actually records to room.db. Today the producer half is wired (`renderF1` persists `decision_trace.f1_closer_payload` with per-verb `reachIds`, scripts/intent-classifier.cjs:1835,1890) but NOTHING reads it back on the next turn to call `closeOffer`/`closeReach` -> `recordSelectorDecision`. Result: no `f_selector_decision(accept|defer|reject)` row is ever written from the dial in production, so Canon Decision 13 ("rejection is data") captures nothing AND Phase 158's `computeReachPenalties` structurally always reads 0 -> `countPenalty=0` -> suppression never fires. This phase closes the input segment of the circuit.
+
+**Investigation (2026-06-15, two independent read-only traces converged):**
+- Wire 1 (blocking, the input): a turn-start consumer reads the prior turn's `decision_trace.f1_closer_payload.reachIds`, matches the navigator's pick verb, and routes it into a decision write keyed by `reach_id`. Attach by the producer at scripts/intent-classifier.cjs:1806-1842. `closeReach` (lib/workflow/dial-close-reach.cjs:222) already forwards `reach_id` (:251) and just needs a caller; `closeOffer` (lib/workflow/offer-closer.cjs:286) needs `reach_id` added into `decisionArgs` (:329-336).
+- Wire 2 (precondition): `decision_trace.context_assembly.decision_grounding` (intent-classifier.cjs:1825-1832) must reliably resolve to a frozen REACH_IDS member for dial-driven offers, else reject keying stays sparse even after Wire 1.
+- Wire 3 (gating condition to confirm): the emit+fold+render arm is gated on the active engine arm + `cortexNodes.length > 0` (intent-classifier.cjs:1522-1526,1574); in a legacy-routing room no `reach_presented` fires, so M-floor (MIN_PRESENTATIONS=2) + parole lack data. Confirm the Phase 144 engine flip (lib/core/navigation-engine.cjs decide()) fires in real rooms.
+
+**Open decisions for spec/discuss:** (a) canonical closer -- `closeReach` vs `closeOffer` (or unify); (b) how the next-turn pick is CAPTURED across the three surfaces (CLI AskUserQuestion F.1 pick vs Desktop/Cowork conversational) -- Tri-Polar; (c) scope -- reject-only (minimal, unblocks 158) vs the full accept/defer/reject loop (the whole dial loop is dark, not just reject); (d) Part 8/9 discipline on the consumer read path (reads via navigation.cjs only; enum/scalar payloads; user pick text never egresses).
+
+**canon_parts:** Part 4 (every dial choice becomes graph data -- the loop this closes), Part 8 (the pick read path stays enum/scalar; user pick text never crosses to Brain), Part 9 (consumer reads/writes via the navigation.cjs chokepoint only)
+**Depends on:** Phase 158 (the penalty reader it feeds); Phase 135 / 143.1 (the F.1 closer producer + closeReach/closeOffer it calls); Phase 144 (the engine flip that gates the emit arm)
+**Blocks (soft):** Phase 158 functioning in production; the broader "rejection is data" loop
+**Plans:** 0 plans -- run /gsd:spec-phase 159 next (open decisions above earn a spec)
+
+Plans:
+
+- [ ] TBD (run /gsd:spec-phase 159, then /gsd:plan-phase 159)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
