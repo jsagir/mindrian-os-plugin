@@ -2640,6 +2640,27 @@ Plans:
 - [~] 156-03-PLAN.md (Wave 3, NOT autonomous) -- PESTEL subsystem map (default) + ring view + per-ring batch Decision Gate surfacing cross-domain bridges + proposed->confirmed via confirmNode + banking with edge provenance [FW-07, FW-08, FW-09, FW-10] -- 3 AUTO TASKS COMPLETE 2026-06-14 (commits 48cb88cb, 941b4642, a72f4dce); AWAITING human-verify checkpoint before plan-complete
 - [x] 156-04-PLAN.md (Wave 4, FINAL) -- top-3-of-N foresight-web chaining handoffs via command-resolver (zero hardcoded /mos: strings; mutual RS writes a REVERSE_SALIENT edge via the rs-engine raw path; reverse open-as-futures-wheel hook) + bounded two-fire-point SIGNAL research (seedGrounding + perRingResearch, cache-first 30-day TTL, generic handles only) + Part 8 adversarial egress tripwire + run-all-156.sh phase gate [FW-11, FW-12, FW-13] -- COMPLETE 2026-06-15 (commits bc02c7e8, 1f1906ec, dd82d383). run-all-156.sh green 13/13.
 
+### Phase 157: Brain orchestration graph and methodology tiers
+
+**Milestone:** v1.14.0-candidate (SEED-024 tags v1.14.0+; the canon-amendment + local generator MVP could land on v1.13.1, but the remote-sync clause depends on Phase 137 which is v1.14.0 - resolve in spec)
+**canon_parts:** Part 6 (dog-fooding canon-amendment-on-itself - the FIRST step), Part 7 (reuse - generate from connector + command registries, do not hand-author), Part 8 (only generic machinery metadata syncs to Brain - never user content; methodology_tier keeps the boundary legible), Part 9 (Brain as external cortex)
+
+**Goal:** Make the Brain hold Mindrian's OWN orchestration layer, not just the teaching methodology - so the navigation engine can ask "given this stage / problem-type / fired sensor, what is the ranked next reach and its chain" instead of reading hand-maintained local tables + ad-hoc CROSS_DOMAIN_ANALOGUE edges (the 150.10 hand-wiring this generalizes). THREE pieces: (1) ingest the toolset as a typed orchestration graph (every command/reach/skill/framework a node; OPERATES command->framework, CHAINS/FEEDS_INTO/PREREQUISITE framework->framework + reach->reach, CROSS_DOMAIN_ANALOGUE the leverage<->reverse-salient class); (2) a first-class `methodology_tier` property - `pws` (teaching IP) vs `mindrian-operation` (the /mos commands, 6 reaches + sub_modes, skills, connector spine) - the property that keeps the Part 8 boundary legible; (3) commands are OPERATORS of methodologies (promote the connector-registry command->framework map to a typed Brain edge). Source: SEED-024 + `.planning/specs/brain-orchestration-graph-design.md`.
+
+**Canon amendment FIRST (not code):** this expands the Brain's constitutional role from "teaching-methodology repository" to "teaching methodology + Mindrian's own orchestration layer." That lands via the Part 6 dog-fooding canon-amendment-on-itself mechanism (navigator-gated, like Appendix D entries 14/15/18), NOT a silent ingestion. The `methodology_tier` distinction is what keeps it Part-8-legal (generic machinery, never user data).
+
+**Remote sync (LOAD-BEARING, navigator 2026-06-14):** the orchestration graph is a CONTINUOUS SYNC, not a one-time ingest. A generator (connector-registry.json + command-registry.json + a skills/agents walk) emits the Brain projection; a `--check` tripwire (pre-commit + Feynman runner, mirroring `scripts/build-connector-registry.cjs --check`) fails CI on repo-vs-Brain machinery drift; a SYNC step (release-lockstep surface) pushes the projection on release; idempotent MERGE writes. This is "doctor --drift for the Brain projection" (the same anti-drift discipline as Phase 150.9). ABSORBS or sequences with **Phase 137 (brain-mindrianos-sync-compat)**.
+
+**Open scoping for the spec (SEED-024 Q1-Q5):** (1) generated-from-registry (Part 7 answer) vs Brain-authored; (2) navigation engine queries Brain live vs a Brain-derived local cache (Tier-0 resilience); (3) skill node granularity (per-skill vs per-capability); (4) OPERATES edge direction + cardinality (many-to-many); (5) does this absorb/supersede the Phase 122 command-registry or sit above it.
+
+**Requirements**: TBD (BOG-xx, locked by /gsd-spec-phase 157)
+**Depends on:** Phase 156 (the connector spine + futures chaining web it generalizes); Phase 122 (command-registry + --check idiom); Phase 137 (Brain<->MindrianOS sync substrate - absorb or sequence); the 150.10 hand-wired CROSS_DOMAIN_ANALOGUE prototype
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-spec-phase 157, then /gsd-plan-phase 157 to break down)
+
 ---
 
 ## Backlog (parking lot — unscheduled, not phase-bound)
