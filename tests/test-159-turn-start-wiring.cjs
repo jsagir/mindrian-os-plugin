@@ -134,6 +134,10 @@ function payloadReachGrounded() {
     recommendedVerb: SKILLX,
     header: '[NEXT MOVE]',
     reachIds: { [SKILLX]: 'deep_research' },
+    // Phase 159-02 (DCW-01): the producer carries the GENERIC framework handle on
+    // the persisted payload so the turn-start consumer can complete the offer
+    // scaffold + write the decision edge (target_id = 'framework:' + framework).
+    framework: FW,
   };
 }
 
@@ -242,8 +246,11 @@ check('Part 9: the turn-start consumer block opens room.db ONLY via the navigati
   // Isolate the consumePriorF1Pick helper body for the assertion.
   const start = src.indexOf('function consumePriorF1Pick');
   assert.ok(start !== -1, 'consumePriorF1Pick must be defined in intent-classifier.cjs');
-  // Take a generous window from the function start (the helper is small).
-  const window = src.slice(start, start + 4000);
+  // The helper body ends at the module.exports that follows it; take the window
+  // up to that boundary so the whole helper is asserted (not a truncated slice).
+  const exportsIdx = src.indexOf('module.exports', start);
+  assert.ok(exportsIdx !== -1, 'module.exports must follow the helper');
+  const window = src.slice(start, exportsIdx);
   // The helper must reference the navigation chokepoint open + close.
   assert.ok(/openRoomDbForCaller/.test(window), 'helper opens room.db via openRoomDbForCaller');
   assert.ok(/closeRoomDbForCaller/.test(window), 'helper closes room.db via closeRoomDbForCaller');

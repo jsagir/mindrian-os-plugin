@@ -1640,13 +1640,170 @@ function appendTraceTurnNumber(roomDir, sessionId) {
   return 1;
 }
 
+// ---------------------------------------------------------------------------
+// Phase 159-02 (HOW-4, DCW-01/04/06/08): consumePriorF1Pick -- the turn-start
+// consumer attachment.
+//
+// The producer half is wired (the engine arm below persists
+// decision_trace.f1_closer_payload near :1890). NOTHING reads it back at the
+// START of the next turn, so the dial loop (accept / defer / reject / Free-Text)
+// never records in a real room and Phase 158's computeReachPenalties structurally
+// always reads 0. This helper closes that read seam: at turn start, before the new
+// turn's dial render, it reads the PRIOR turn's persisted f1_closer_payload, routes
+// the navigator's pick through the Wave-1 shared-core consumer (consumeF1Pick) over
+// a navigation-chokepoint-owned room.db handle, and degrades to a no-op on any
+// non-dial / cold / faulted turn (DCW-04 byte-unchanged invariant).
+//
+// Canon binding:
+//   Part 7: thin glue over the SHIPPED captureCliPick + consumeF1Pick + the
+//           closers. Net-new = read-prior-trace + open/close the handle, NOT a
+//           re-implemented recorder.
+//   Part 8: only {verb enum, outcome enum, reach_id enum} reach any row. The raw
+//           navigator text rides the FIX-05 LOCAL sentence lane (captureCliPick
+//           confines answer.text to the optional `sentence`, which consumeF1Pick
+//           forwards to closeOffer({sentence}) for classification-to-scalar at the
+//           write seam). The pick text NEVER enters a row body or a Brain packet.
+//   Part 9: room.db is opened ONLY via navigation.openRoomDbForCaller and CLOSED in
+//           a finally via navigation.closeRoomDbForCaller (no leak). consumeF1Pick
+//           never opens room.db itself; closeOffer routes the write through the
+//           navigation chokepoint. The decision-trace FILE read is the system's own
+//           bookkeeping file (the same file appendTraceTurnNumber reads at :1633),
+//           NOT room data -- so the fs read is Part 9 legal (Part 9 governs room.db).
+//
+// Wire-2 precondition (DCW-08): the grounding->verb map on the producer side
+// (:1823-1834) already keys reachIds by a frozen REACH_IDS member when a sensor
+// reach drove the fire; non-reach groundings forward as-is and are dropped by the
+// downstream recordSelectorDecision enum-gate -> unkeyed write, never mis-keyed.
+// This helper reads the persisted reachIds verbatim, so the keyed-or-unkeyed
+// guarantee holds by construction.
+//
+// currentTurnAnswer: the AskUserQuestion F.1 answer shape captureCliPick accepts
+//   ({ selectedOption, outcome?, text? }). On the live hook the caller passes the
+//   turn's classified pick; the answer's raw text is confined to the LOCAL lane.
+//
+// Returns the consumeF1Pick result verbatim ({ ok, recorded?, reason?, outcome?,
+// reach_id? }); a structured no-op on every cold / unmatched / absent-db / faulted
+// turn. Wrapped best-effort: a fault returns { ok:false, reason } and NEVER throws.
+// ---------------------------------------------------------------------------
+function consumePriorF1Pick(roomDir, sessionId, currentTurnAnswer) {
+  try {
+    if (!roomDir || typeof roomDir !== 'string') {
+      return { ok: false, reason: 'no_room' };
+    }
+
+    // (1) Read the PRIOR turn's persisted trace from the system's own bookkeeping
+    // file (the same file appendTraceTurnNumber reads). Read the LAST entry's
+    // f1_closer_payload. A missing / corrupt / payload-less trace is a non-dial turn.
+    let priorPayload = null;
+    try {
+      const filePath = path.join(
+        roomDir, '.mindrian', 'decision-traces', sessionId + '.json'
+      );
+      const raw = fs.readFileSync(filePath, 'utf8');
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.traces) && parsed.traces.length > 0) {
+        const last = parsed.traces[parsed.traces.length - 1];
+        if (last && last.f1_closer_payload && typeof last.f1_closer_payload === 'object') {
+          priorPayload = last.f1_closer_payload;
+        }
+      }
+    } catch (_) { priorPayload = null; }
+
+    // (2) Non-dial / cold turn: no prior payload -> immediate no-op. This is the
+    // byte-unchanged guarantee (DCW-04): the helper emits nothing and writes nothing.
+    if (!priorPayload || !Array.isArray(priorPayload.verbs) || priorPayload.verbs.length === 0) {
+      return { ok: false, reason: 'no_prior_payload' };
+    }
+
+    // (3) Lazy-require the capture adapter + the shared-core consumer + the
+    // navigation chokepoint (best-effort: a load failure degrades to a no-op,
+    // mirroring the producer's :1806-1855 idiom). navigation.cjs is the ONLY door
+    // to room.db (Part 9); this helper opens through it, never room-db.cjs directly.
+    let captureMod;
+    let consumerMod;
+    let nav;
+    try {
+      captureMod = require(
+        path.join(__dirname, '..', 'lib', 'hmi', 'f1-pick-capture-cli.cjs')
+      );
+      consumerMod = require(
+        path.join(__dirname, '..', 'lib', 'workflow', 'f1-pick-consumer.cjs')
+      );
+      nav = require(
+        path.join(__dirname, '..', 'lib', 'core', 'navigation.cjs')
+      );
+    } catch (_) {
+      return { ok: false, reason: 'consumer_unavailable' };
+    }
+    if (!captureMod || typeof captureMod.captureCliPick !== 'function'
+        || !consumerMod || typeof consumerMod.consumeF1Pick !== 'function') {
+      return { ok: false, reason: 'consumer_unavailable' };
+    }
+
+    // Capture the pick from the current turn's answer (deterministic enum match
+    // against priorPayload.verbs; the raw text stays on the LOCAL sentence lane).
+    const captured = captureMod.captureCliPick(currentTurnAnswer, priorPayload);
+    const pick = (captured && captured.pick) ? captured.pick : { verb: null, outcome: null };
+
+    // (4) Open the caller-owned room.db ONLY via the navigation chokepoint, call the
+    // consumer, and ALWAYS close the handle in a finally (Part 9, no leak). The
+    // chokepoint returns null when room.db is absent (Tier 0); consumeF1Pick then
+    // surfaces a structured no-op without crashing.
+    let roomDb = null;
+    try {
+      if (nav && typeof nav.openRoomDbForCaller === 'function') {
+        roomDb = nav.openRoomDbForCaller(roomDir);
+      }
+    } catch (_) { roomDb = null; }
+
+    try {
+      const roomState = { db: roomDb, roomDir: roomDir };
+      // The matched verb completes its offer scaffold from the persisted generic
+      // framework handle (carried on the payload by the producer, DCW-01). The
+      // decision edge target_id is 'framework:' + framework, so the scaffold is what
+      // lets the accept/defer/reject row write. A non-reach / framework-less payload
+      // degrades: the consumer surfaces invalid_framework as a structured no-op.
+      if (typeof priorPayload.framework === 'string' && priorPayload.framework.length > 0) {
+        roomState.offer = { framework: priorPayload.framework };
+      }
+      // Forward the captured LOCAL sentence onto the payload the consumer sees so
+      // closeOffer classifies it to a scalar at the write seam (FIX-05, Part 8).
+      // The persisted payload.sentence already carries the producer-side seed; the
+      // captured sentence (if any) only supplements it and never becomes a value.
+      let payloadForConsumer = priorPayload;
+      if (captured && typeof captured.sentence === 'string' && captured.sentence.length > 0
+          && (typeof priorPayload.sentence !== 'string' || priorPayload.sentence.length === 0)) {
+        payloadForConsumer = Object.assign({}, priorPayload, { sentence: captured.sentence });
+      }
+      return consumerMod.consumeF1Pick({
+        priorPayload: payloadForConsumer,
+        pick: pick,
+        roomState: roomState,
+      });
+    } finally {
+      try {
+        if (nav && typeof nav.closeRoomDbForCaller === 'function') {
+          nav.closeRoomDbForCaller(roomDb);
+        }
+      } catch (_) { /* tolerant: already closed */ }
+    }
+  } catch (_e) {
+    // Best-effort: a fault is a no-op, never a throw -- a non-dial / cold / failed
+    // turn is byte-unchanged from today (DCW-04, the load-bearing invariant).
+    return { ok: false, reason: 'consumer_threw' };
+  }
+}
+
 // Phase 150-06 (D-08): export the engine-decision render helpers so the
 // render-unlock suite can drive the dial wiring without self-executing the hook.
 // The self-execution below is gated on require.main === module so a require()
 // from a test (or any consumer) loads the module without firing the hook.
+// Phase 159-02 (HOW-4): export consumePriorF1Pick so the turn-start wiring suite
+// can drive the consumer without spawning the whole hook.
 module.exports = {
   renderEngineDecisionWithDial: renderEngineDecisionWithDial,
   formatEngineDecisionBlock: formatEngineDecisionBlock,
+  consumePriorF1Pick: consumePriorF1Pick,
 };
 
 if (require.main === module) {
@@ -1670,6 +1827,20 @@ try {
     const roomDir = resolveActiveRoomDir();
     if (roomDir) {
       const sessionId = resolveSessionId(roomDir);
+      // Phase 159-02 (HOW-4, DCW-01/04): the turn-start consumer. Fire BEFORE the
+      // new turn's dial render, reading the PRIOR turn's persisted f1_closer_payload
+      // and routing the navigator's pick through the navigation-chokepoint-owned
+      // consumer. Best-effort by construction (consumePriorF1Pick never throws and
+      // returns a structured no-op on every non-dial / cold / faulted turn), so a
+      // turn with no prior dial offer is BYTE-UNCHANGED from today (DCW-04). The raw
+      // STDIN_MESSAGE rides ONLY the LOCAL lane (captureCliPick confines it to the
+      // optional sentence); the selected verb is the deterministic enum match.
+      try {
+        consumePriorF1Pick(roomDir, sessionId, {
+          selectedOption: STDIN_MESSAGE,
+          text: STDIN_MESSAGE,
+        });
+      } catch (_) { /* fire-and-forget: never disrupt the prompt (DCW-04) */ }
       navP = emitEngineDecisionBlock(roomDir, sessionId).then(function (out) {
         if (!out || !out.decision) return null;
         // Phase 91-03: compose engine decision with legacy file-state +
@@ -1850,6 +2021,20 @@ try {
                 // seed is NEVER threaded toward buildBrainPacket (D-03a fence).
                 if (context.conversationSeed) {
                   f1Payload.sentence = context.conversationSeed;
+                }
+                // Phase 159-02 (DCW-01): carry the offer's GENERIC framework handle
+                // onto the persisted payload so the turn-start consumer
+                // (consumePriorF1Pick, next turn) can complete the matched verb's
+                // offer scaffold and write the f_selector_decision edge whose
+                // target_id is 'framework:' + framework (selector-decisions.cjs:277).
+                // The framework is a generic methodology name (never user content,
+                // Canon Part 8); this is the IDENTICAL additive post-build mutation
+                // idiom as the FIX-05 sentence carry directly above (the persist
+                // mechanism + the reachIds/verbs keying are untouched). Without it the
+                // accept/defer/reject row cannot be written and the dial loop stays
+                // dark, so this is a load-bearing additive field.
+                if (typeof offerForF1.framework === 'string' && offerForF1.framework.length > 0) {
+                  f1Payload.framework = offerForF1.framework;
                 }
               }
             } catch (_) { /* closer is best-effort; offerLine still emits */ }
