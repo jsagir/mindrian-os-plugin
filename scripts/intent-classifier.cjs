@@ -1482,6 +1482,62 @@ function runNavigationEngine(roomDir, sessionId) {
             && Array.isArray(context.roomContext.cortexNodes))
             ? context.roomContext.cortexNodes
             : [];
+          // Phase 158-02 (RJP-06 / SC-06 / D-07): fire one reach_presented
+          // memory_event per OFFERED top-3 reach_id on THIS live engine arm,
+          // keyed by reach_id, while roomDb is still the OPEN handle (it is
+          // closed only in the trailing finally at .then(closeRoomDbHandle)
+          // below). The PURE render seam (renderEngineDecisionWithDial) cannot
+          // do this -- by the time it runs the db is already closed (the dial
+          // render path is db-free). This counter is the enabler of the M-floor
+          // + periodic-parole fences (Plan 03): nothing else records WHICH reach
+          // was offered (selector_presentation is command-anonymous; the render
+          // path is pure). We recompute the would-be-offered top-3 the SAME way
+          // the render seam does (buildReachScoresFromCortex -> buildReachList ->
+          // slice(0, offered_count)) so the counter matches what the navigator
+          // is shown. buildReachList stays PURE: it receives ONLY {tierMode,
+          // reachScores}; db is NEVER threaded into dial-reach-orchestrator
+          // (SC-07). Best-effort: any fault is swallowed and never blocks resolve,
+          // never throws out of the .then, never prevents the finally
+          // closeRoomDbHandle, never leaks the db handle. Payload is enum/scalar
+          // only (reach_id + source_path + created_by) -- Part 8.
+          try {
+            if (roomDb
+                && navigationMod
+                && typeof navigationMod.logMemoryEvent === 'function'
+                && Array.isArray(cortexNodes)
+                && cortexNodes.length > 0) {
+              const reachAdapter = require(
+                path.join(__dirname, '..', 'lib', 'hmi', 'cortex-reach-adapter.cjs')
+              );
+              const reachOrchestrator = require(
+                path.join(__dirname, '..', 'lib', 'hmi', 'dial-reach-orchestrator.cjs')
+              );
+              const reachTrace = (decision && decision.decision_trace) || {};
+              const reachTierMode = (typeof reachTrace.brain_md_tier_mode === 'string')
+                ? reachTrace.brain_md_tier_mode : 'tier_0';
+              const reachScores = reachAdapter.buildReachScoresFromCortex(cortexNodes);
+              const reachList = reachOrchestrator.buildReachList({
+                tierMode: reachTierMode,
+                reachScores: reachScores,
+              });
+              if (reachList
+                  && Array.isArray(reachList.reaches)
+                  && Number.isInteger(reachList.offered_count)) {
+                const offered = reachList.reaches.slice(0, reachList.offered_count);
+                for (const reach of offered) {
+                  if (reach && typeof reach.reach_id === 'string' && reach.reach_id.length > 0) {
+                    navigationMod.logMemoryEvent(roomDb, 'reach_presented', {
+                      reach_id: reach.reach_id,
+                      source_path: 'dial:presented:' + reach.reach_id,
+                      created_by: 'system',
+                    });
+                  }
+                }
+              }
+            }
+          } catch (_reachEmitErr) {
+            // best-effort: a faulting emit never blocks the turn or leaks the db
+          }
           resolve({ decision: decision, elapsed_ms: elapsedMs, cortex_nodes: cortexNodes });
         })
         .catch(function () { resolve(null); })
