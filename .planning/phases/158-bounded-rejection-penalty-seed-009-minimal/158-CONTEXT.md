@@ -57,10 +57,17 @@ Attacks considered and the fence that defuses each:
 - **Non-determinism from parole** (RNG makes ranking unstable/untestable) -> deterministic parole counter (D-06).
 - **Overfitting the Wave-1 cohort** (the reason the FULL SEED-009 stays dormant) -> this phase adds NO learned weights; only a bounded heuristic penalty justified at any edge count.
 
+### Post-research scope decision (navigator-LOCKED 2026-06-15, after 158-RESEARCH.md)
+- **D-07 (presentation counter IS in-scope):** the navigator chose FULL scope (all 4 fences). The research confirmed the landmine: NO existing signal records that a specific reach/command was OFFERED (the dial render path is pure; `selector_presentation` is command-anonymous; `suggestion_surfaced` / `f_selector_miss` fire on other paths). M-floor + periodic parole REQUIRE a presentations count, so this phase ADDS one lightweight additive `reach_presented` memory_event at the dial-render seam, keyed to `cmd:<command>` (same collapse as `closeReach`), Part 8 enum/scalar-only. This is the enabler of the locked fences, not scope creep. (Note: hard-suppress + W-aging alone could run on the existing invocation signal, but FULL scope unifies M/W/parole on presentation-units.)
+- **D-08 (seam-bug fixes the plan MUST carry, from research):**
+  - (a) the existing `_invocationsSinceDecision` counts ALL `f_selector_decision` rows (defer + reject); the NEW reject count must filter `decision === 'reject'` / `edge_semantic === 'REJECTED'` itself (the enum IS in the payload - D-03 + Part 8 both satisfiable without reading `reason`).
+  - (b) hard-suppression must DROP the candidate inside the scoring loop BEFORE `scored.sort` (`f-selector-ranker.cjs:451`) and `slice(0,k)` (`:465`), not after - else a suppressed item rides or leaves a hole. The drop is distinct from the D-02a combined-suppression floor (which deliberately keeps below-threshold scores off 0).
+- **D-09 (constant starting values, tunable-later):** N=3 (hard-suppress threshold), M=2 (min-presentations floor), W=8 (recency window), P=5 (parole period), CAP=0.6 (countPenalty cap), FLOOR=0.05 (combined-suppression floor). Grounded against shipped reference points DECAY_WINDOW=5 and PIVOT_PENALTY_FLOOR=0.2; conservative for ~4 users / <100 edges; flagged tunable from telemetry later. All are NAMED constants per RJP-05.
+- **D-10 (open questions resolved):** (Q1) the W window unit is PRESENTATION-units, consistent with M + parole now that the counter exists. (Q2) the planner's FIRST task locates where the dial CONSUMER holds `roomState.db` (the seam that fires `reach_presented`) - the one scope-risk the research named; do NOT thread db into the pure orchestrator. (Q3) `reach_suppressed` / `reach_paroled` observability events are DEFERRED unless trivially cheap (planner discretion) - not required for the fences to work.
+
 ### Claude's Discretion
-- The exact values of N, M, W, the parole period P, the `countPenalty` cap, and the combined-suppression floor - tuned CONSERVATIVELY in planning given ~4 users / <100 outcome edges (documented rationale required). Lean: small N, M >= a couple of presentations, W short enough that stale streaks expire within a working session or two.
-- The precise bounded shape of `countPenalty` (linear `min(1, count/CAP)` vs a gentler curve) - left to plan, must be bounded.
-- Whether to emit a `memory_event` (e.g. `reach_suppressed` / `reach_paroled`) for observability per Part 4 - lean YES but minimal (enum/scalar payload only); planner decides in-scope-minimal vs deferred.
+- The precise bounded shape of `countPenalty` (linear `min(CAP, count/SOMETHING)` vs a gentler curve) - left to plan, must be bounded by CAP (D-09).
+- Plan/wave structure (the research suggests the counter could be an isolated first wave; the navigator chose Full without mandating that split - planner decides sequencing).
 
 </decisions>
 
