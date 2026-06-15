@@ -2653,7 +2653,7 @@ Plans:
 
 **Open scoping for the spec (SEED-024 Q1-Q5):** (1) generated-from-registry (Part 7 answer) vs Brain-authored; (2) navigation engine queries Brain live vs a Brain-derived local cache (Tier-0 resilience); (3) skill node granularity (per-skill vs per-capability); (4) OPERATES edge direction + cardinality (many-to-many); (5) does this absorb/supersede the Phase 122 command-registry or sit above it.
 
-**Requirements**: TBD (BOG-xx, locked by /gsd-spec-phase 157)
+**Requirements**: BOG-01, BOG-02, BOG-03, BOG-04, BOG-05, BOG-06, BOG-07, BOG-08, BOG-09, BOG-10, BOG-11 (locked in 157-SPEC.md)
 **Depends on:** Phase 156 (the connector spine + futures chaining web it generalizes); Phase 122 (command-registry + --check idiom); Phase 137 (Brain<->MindrianOS sync substrate - absorb or sequence); the 150.10 hand-wired CROSS_DOMAIN_ANALOGUE prototype
 **Plans:** 0 plans
 
