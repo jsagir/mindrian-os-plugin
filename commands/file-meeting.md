@@ -430,6 +430,39 @@ During filing, if any open action items remain (not cleared in Step 0), compare 
 
 Use Larry's judgment -- not exact text matching. Only surface when confidence is high. If user confirms, update the source meeting's action-items.md.
 
+### Date+Sync Gate (R11, D-02) -- runs BEFORE any artifact write
+
+The human owns `valid_at`. `created_at` = when we filed it; `valid_at` = when it
+actually happened. A meeting is ALWAYS a real-world event, so before writing the
+meeting artifact you MUST clear the shared date+sync gate -- the ONE enforcement
+chokepoint that both this CLI path and the MCP filing tool call (D-02, tri-polar;
+the rule lives in `lib/core/temporal/date-sync-gate.cjs` `requireValidAt`, never
+re-implemented per surface).
+
+A meeting node is flagged `has_event_date=true` at write time by node type (D-04 --
+meeting always; a decision/claim is flagged ONLY when this filing path detects an
+explicit event date). The flag is set at write, never inferred at read.
+
+Call the gate before the artifact write:
+
+```bash
+node -e "const {requireValidAt}=require('./lib/core/temporal/date-sync-gate.cjs'); \
+  const r=requireValidAt({type:'meeting',id:process.env.MEETING_ID,source_path:process.env.MEETING_PATH}, \
+  {whenAnswer:process.env.WHEN_ANSWER||undefined}); \
+  console.log(JSON.stringify(r));"
+```
+
+- If the gate returns `GATE_BLOCK`, render its Shape F.1 selector spec via
+  **AskUserQuestion** (the CLI render surface): a "when?" question that sets
+  `valid_at` (it accepts a free-typed relative phrase like "last Tuesday", which
+  the gate resolves via chrono-node against `getReferenceNow()`) AND a
+  multi-select "relates to?" question. You MUST NOT write the meeting artifact
+  until the gate returns `GATE_PASS` -- an undated meeting BLOCKS here.
+- When the human answers "relates to?", the gate writes a sync edge per relation
+  and emits `f_selector_sync_confirmed` (the existing Shape F sync machinery).
+- `created_at` stays the filing moment; `valid_at` is the human's answer. Both
+  ride the meeting node's `properties` JSON (additive, no DDL), Part 8 LOCAL only.
+
 ### Create Filed Artifacts
 
 For each filed segment, create a markdown file in the target room section using the frontmatter from `references/meeting/artifact-template.md`:
