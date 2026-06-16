@@ -248,6 +248,13 @@ test('confirmNode is the ONLY new production caller of promoteNodeStatus (source
         if (e.name === 'node_modules') continue;
         walk(full);
       } else if (e.isFile() && /\.(cjs|js|mjs)$/.test(e.name)) {
+        // Exclude test files: the audit asserts no new PRODUCTION caller, and a
+        // co-located *.test.* exercising the symbol (e.g. the Phase 160-04
+        // bitemporal migration test asserting last_modified_at write discipline
+        // through promoteNodeStatus) is a test, not a production caller. Phase
+        // 109's migration tests live under tests/ and so were never walked here;
+        // co-located lib/ migration tests must be excluded by the same intent.
+        if (/\.test\.(cjs|js|mjs)$/.test(e.name)) continue;
         let src;
         try { src = fs.readFileSync(full, 'utf8'); } catch (_) { continue; }
         if (src.indexOf('promoteNodeStatus') < 0) continue;
