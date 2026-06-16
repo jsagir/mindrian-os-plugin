@@ -1,0 +1,71 @@
+{
+  "_comment": "Phase 160-03 Task 2 (R5 / D-03) -- the FROZEN Leg D recency determinism fixture. A fixed cortex node set + a fixed injected reference clock -> a frozen expected ranked id order. tests/test-legd-recency-golden.cjs builds a hermetic room.db from these nodes, runs Leg D with referenceMs injected via the options.now seam (D-01a), and asserts the cortexNodes id order BYTE-MATCHES expectedRankedIds. This guards the spine hot path: any drift in the app-side decay blend (a changed DECAY_BASE, a lost tiebreak, a reverted ORDER BY) fails CI. House rule: hyphens only, no em-dashes.",
+  "referenceMs": 1781611200000,
+  "referenceIso": "2026-06-16T12:00:00Z",
+  "decayBase": 0.995,
+  "nodes": [
+    {
+      "id": "claim:alpha",
+      "type": "claim",
+      "created_at": 1781604000000,
+      "last_seen_at": 1781604000000,
+      "review_status": "confirmed",
+      "_ageHours": 2,
+      "_expectedScore": 0.990025
+    },
+    {
+      "id": "decision:beta",
+      "type": "decision",
+      "created_at": 1781521200000,
+      "last_seen_at": 1781521200000,
+      "review_status": "confirmed",
+      "_ageHours": 25,
+      "_expectedScore": 0.88222
+    },
+    {
+      "id": "governing_thought:g1",
+      "type": "governing_thought",
+      "created_at": 1781609400000,
+      "last_seen_at": 1781609400000,
+      "review_status": "proposed",
+      "_ageHours": 0.5,
+      "_expectedScore": 0.997497
+    },
+    {
+      "id": "memory_artifact:ROOM",
+      "type": "memory_artifact",
+      "created_at": 1780747200000,
+      "last_seen_at": 1780747200000,
+      "review_status": "confirmed",
+      "_ageHours": 240,
+      "_expectedScore": 0.300289
+    },
+    {
+      "id": "claim:gamma",
+      "type": "claim",
+      "created_at": 1781521200000,
+      "last_seen_at": 1781521200000,
+      "review_status": "proposed",
+      "_ageHours": 25,
+      "_expectedScore": 0.88222,
+      "_tieNote": "score-tied with decision:beta at 25h; ascending-id tiebreak ranks claim:gamma before decision:beta"
+    },
+    {
+      "id": "navigator_persona:u",
+      "type": "navigator_persona",
+      "created_at": 1779019200000,
+      "last_seen_at": 1779019200000,
+      "review_status": "confirmed",
+      "_ageHours": 720,
+      "_expectedScore": 0.027078
+    }
+  ],
+  "expectedRankedIds": [
+    "governing_thought:g1",
+    "claim:alpha",
+    "claim:gamma",
+    "decision:beta",
+    "memory_artifact:ROOM",
+    "navigator_persona:u"
+  ]
+}
