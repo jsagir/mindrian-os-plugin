@@ -54,6 +54,18 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-reference-now-seed.cjs\"",
+            "timeout": 5000,
+            "async": false,
+            "statusMessage": "Seeding reference clock..."
+          }
+        ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-pending-breakthrough.cjs\"",
             "timeout": 2000,
             "async": false,

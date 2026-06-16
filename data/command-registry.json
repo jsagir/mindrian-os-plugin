@@ -224,6 +224,21 @@
       "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C."
     },
     {
+      "command": "/mos:correct-reference-now",
+      "kind": "utility",
+      "frameworks": [],
+      "produces": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "E",
+      "serves_jtbd": [
+        "temporal-correction"
+      ],
+      "teaching": "When you see today's real date diverge from what the room thinks now is, /mos:correct-reference-now writes the true calendar date into the reference seam so every delta Larry speaks (you raised this 3 days ago) stays honest. The SessionStart hook only seeds a Date.now() floor, and a hook subprocess may not see Claude Code's injected currentDate. This command is how Larry closes that gap.",
+      "jtbd_label": "Temporal Correction",
+      "jtbd_summary": null
+    },
+    {
       "command": "/mos:dashboard",
       "kind": "utility",
       "frameworks": [],
