@@ -2765,13 +2765,14 @@ Two phases scoped + parked to v1.14.0 (NOT in the frozen v1.13.1 chain). CONTEXT
 
 **Goal:** MindrianOS resolves the user's relative time against one authoritative reference clock, speaks time back, ranks recent context above stale in the spine and reach engine, stores bitemporal valid-time on graph nodes, and enforces a human-owned valid_at on real-world-event artifacts. Requirements R1-R12 locked in 160-SPEC.md (this phase tracks requirements in its own SPEC.md). Canon parts: Part 2, 3, 4, 5, 7, 8, 9.
 
-**Plans:** 6 plans across 3 waves (Wave 1 -> {Wave 2 x3 parallel} -> {Wave 3 x2}).
+**Plans:** 4/6 plans executed
 
 Plans:
-- [ ] 160-01-PLAN.md - Wave 1: R1 reference-now seam (getReferenceNow precedence ladder, SessionStart seeder, Larry correction tool, Part 8 SIGNAL skew corrector)
-- [ ] 160-02-PLAN.md - Wave 2: R2/R3/R4 chrono-node resolver + Larry speaks time + dual-stamp memory_events
-- [ ] 160-03-PLAN.md - Wave 2: R5/R6 Leg D recency ranking (golden-file determinism guard) + recency as a reach signal
-- [ ] 160-04-PLAN.md - Wave 2: R7/R8 bitemporal node migration + non-lossy supersession
+
+- [x] 160-01-PLAN.md - Wave 1: R1 reference-now seam (getReferenceNow precedence ladder, SessionStart seeder, Larry correction tool, Part 8 SIGNAL skew corrector)
+- [x] 160-02-PLAN.md - Wave 2: R2/R3/R4 chrono-node resolver + Larry speaks time + dual-stamp memory_events
+- [x] 160-03-PLAN.md - Wave 2: R5/R6 Leg D recency ranking (golden-file determinism guard) + recency as a reach signal
+- [x] 160-04-PLAN.md - Wave 2: R7/R8 bitemporal node migration + non-lossy supersession
 - [ ] 160-05-PLAN.md - Wave 3: R9/R10 point-in-time query helper + generalized stale detection
 - [ ] 160-06-PLAN.md - Wave 3: R11/R12 Shape F HITL date+sync gate (one shared tri-polar chokepoint) + temporal-blindness sentinel
 
