@@ -2765,7 +2765,7 @@ Two phases scoped + parked to v1.14.0 (NOT in the frozen v1.13.1 chain). CONTEXT
 
 **Goal:** MindrianOS resolves the user's relative time against one authoritative reference clock, speaks time back, ranks recent context above stale in the spine and reach engine, stores bitemporal valid-time on graph nodes, and enforces a human-owned valid_at on real-world-event artifacts. Requirements R1-R12 locked in 160-SPEC.md (this phase tracks requirements in its own SPEC.md). Canon parts: Part 2, 3, 4, 5, 7, 8, 9.
 
-**Plans:** 5/6 plans executed
+**Plans:** 6/6 plans complete
 
 Plans:
 
@@ -2774,6 +2774,6 @@ Plans:
 - [x] 160-03-PLAN.md - Wave 2: R5/R6 Leg D recency ranking (golden-file determinism guard) + recency as a reach signal
 - [x] 160-04-PLAN.md - Wave 2: R7/R8 bitemporal node migration + non-lossy supersession
 - [x] 160-05-PLAN.md - Wave 3: R9/R10 point-in-time query helper + generalized stale detection
-- [ ] 160-06-PLAN.md - Wave 3: R11/R12 Shape F HITL date+sync gate (one shared tri-polar chokepoint) + temporal-blindness sentinel
+- [x] 160-06-PLAN.md - Wave 3: R11/R12 Shape F HITL date+sync gate (one shared tri-polar chokepoint) + temporal-blindness sentinel
 
 **Status:** Planned 2026-06-16. Next: /gsd-execute-phase 160.

@@ -4,7 +4,7 @@ milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: verifying
 stopped_at: Phase 160 (temporal-awareness-spine) context gathered - 4 decisions D-01..D-04; SPEC (12 reqs) + RESEARCH + CONTEXT committed; ready for plan-phase
-last_updated: "2026-06-16T09:34:12.793Z"
+last_updated: "2026-06-16T09:50:23.187Z"
 last_activity: 2026-06-14 -- Phase 156 execution started
 progress:
   total_phases: 98
@@ -505,6 +505,7 @@ Progress: [█████████░] 92%
 | Phase 160 P02 | 8 | 2 tasks | 7 files |
 | Phase 160 P03 | 12 | 2 tasks | 8 files |
 | Phase 160 P05 | 22 | 2 tasks | 5 files |
+| Phase 160 P06 | 8min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -1385,6 +1386,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: Phase 158-01: reach_id keying via enum-gated optional field (off-set ignored, no-arg byte-stable); local frozen REACH_IDS const avoids require cycle; two-turn pin carries reach_id on the persisted F.1 payload via the LOCAL grounding reach_id
 - [Phase ?]: 157-04: wired /mos:diagnose orphan (connector); allowlisted MECE under The Pyramid Principle; --check distinguishes STALE/UN-WIRED/UN-RANKED, registered in pre-commit + Feynman runner
 - [Phase ?]: 160-02: dual-stamp event-type-agnostic (existing frozen EVENT_TYPE only); raw relative_time prose dropped from persisted payload (Part 8 scalar discipline); chrono anchored via instant+UTC for deterministic resolution
+- [Phase ?]: 160-06: date+sync gate is ONE shared lib/core chokepoint requireValidAt both CLI and MCP call (D-02 tri-polar); has_event_date set at write by type, READ never inferred (D-04); temporal-blindness sentinel is a scheduled cadence backstop
 
 ### Pending Todos
 
@@ -1425,6 +1427,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-16T09:34:04.588Z
+Last session: 2026-06-16T09:49:54.708Z
 Stopped at: Phase 160 (temporal-awareness-spine) context gathered - 4 decisions D-01..D-04; SPEC (12 reqs) + RESEARCH + CONTEXT committed; ready for plan-phase
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).
