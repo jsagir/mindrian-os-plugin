@@ -27,8 +27,8 @@ This phase wires existing parts (de-risked) plus a chrono-node resolver, a node 
 
 1. **Reference-now seam**: One authoritative "now" sourced from Claude Code, not the system clock.
    - Current: time read from `Date.now()` at write; CC's injected `currentDate` ignored (`sessionstart-banner-formatter.cjs:37`).
-   - Target: `getReferenceNow()` reads CC's injected `currentDate` at SessionStart, persists it to a local seam, and is the single source for user-facing temporal deltas; falls back to `Date.now()` when absent; routes through the existing `options.now` clock seam.
-   - Acceptance: with `currentDate=2026-06-16` injected and the system clock set to a different date, `humanDelta`-rendered surfaces compute against 2026-06-16; a unit test injecting a fixed reference asserts the rendered delta.
+   - Target: `getReferenceNow()` is a precedence ladder: (1) injected `currentDate` wins for the calendar date, (2) OPTIONAL online time-fetch as a clock-skew corrector (NTP-style fetch-once-per-session + offset; true time-of-day/tz; degrades silently offline), (3) `Date.now()` floor. Persists to a local seam; routes through the existing `options.now` clock seam. Online rung is Part 8 SIGNAL (bare GET, e.g. HTTP `Date` header, zero user bytes).
+   - Acceptance: (a) with `currentDate=2026-06-16` injected and the system clock set to a different date, `humanDelta`-rendered surfaces compute against 2026-06-16; (b) a unit test injecting a fixed reference asserts the rendered delta; (c) with the online source unreachable, `getReferenceNow()` still returns a valid reference (degrades to currentDate/Date.now()) with no thrown error.
 
 ### Wave 2 - Resolve + speak
 
@@ -122,6 +122,7 @@ This phase wires existing parts (de-risked) plus a chrono-node resolver, a node 
 ## Acceptance Criteria
 
 - [ ] `getReferenceNow()` resolves to CC `currentDate` when injected; deltas compute against it, not the system clock
+- [ ] `getReferenceNow()` degrades cleanly when the optional online time source is unreachable (returns a valid reference via currentDate/Date.now(), no thrown error); online rung carries zero user bytes (Part 8 SIGNAL)
 - [ ] chrono-node resolves ≥10 relative expressions correctly against a fixed reference
 - [ ] Larry's greeting includes a `humanDelta()` time delta for the last-touched topic
 - [ ] real-world-event `memory_event`s carry distinct `valid_at` and `created_at`
