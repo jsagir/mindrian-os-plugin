@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.13.1-beta.29 (in progress)
+## [1.13.1-beta.30] - 2026-06-16
 
 ### Added
 - 
