@@ -2760,3 +2760,19 @@ Two phases scoped + parked to v1.14.0 (NOT in the frozen v1.13.1 chain). CONTEXT
 - **Phase 138 — Capability radar absorption + routing.** PROMOTED 2026-06-09 to a numbered v1.14.0 phase (see the v1.14.0 "Larry Thinks" milestone above; Requirements RAD-01..08). Turns `/mos:radar` from a reader into a router: a living capability ledger (Claude Code 2.1.148-159 findings), retrofit backlog (Opus 4.8 model floor, `CLAUDE_CODE_SESSION_ID` Brain scoping, SessionStart session-title, reloadSkills, defaultEnabled, disallowed-tools), and a `radar_findings:` forward-awareness contract so future phases incorporate findings before they are planned. Supersedes the dormant SEED-003. **Sequence FIRST in v1.14.0** (before consumer phases 133/134/135/136). Folds Bucket-C items here because Phase 121.5 already shipped. `.planning/phases/138-*/138-CONTEXT.md`.
 
 **Status:** Phase 138 PROMOTED to numbered phase 2026-06-09 (planning in progress); Phase 137 remains scoped-backlog — builds after v1.13.1 ships.
+
+### Phase 160 - Temporal Awareness (spine + Larry Reaches) - PLANNED 2026-06-16
+
+**Goal:** MindrianOS resolves the user's relative time against one authoritative reference clock, speaks time back, ranks recent context above stale in the spine and reach engine, stores bitemporal valid-time on graph nodes, and enforces a human-owned valid_at on real-world-event artifacts. Requirements R1-R12 locked in 160-SPEC.md (this phase tracks requirements in its own SPEC.md). Canon parts: Part 2, 3, 4, 5, 7, 8, 9.
+
+**Plans:** 6 plans across 3 waves (Wave 1 -> {Wave 2 x3 parallel} -> {Wave 3 x2}).
+
+Plans:
+- [ ] 160-01-PLAN.md - Wave 1: R1 reference-now seam (getReferenceNow precedence ladder, SessionStart seeder, Larry correction tool, Part 8 SIGNAL skew corrector)
+- [ ] 160-02-PLAN.md - Wave 2: R2/R3/R4 chrono-node resolver + Larry speaks time + dual-stamp memory_events
+- [ ] 160-03-PLAN.md - Wave 2: R5/R6 Leg D recency ranking (golden-file determinism guard) + recency as a reach signal
+- [ ] 160-04-PLAN.md - Wave 2: R7/R8 bitemporal node migration + non-lossy supersession
+- [ ] 160-05-PLAN.md - Wave 3: R9/R10 point-in-time query helper + generalized stale detection
+- [ ] 160-06-PLAN.md - Wave 3: R11/R12 Shape F HITL date+sync gate (one shared tri-polar chokepoint) + temporal-blindness sentinel
+
+**Status:** Planned 2026-06-16. Next: /gsd-execute-phase 160.
