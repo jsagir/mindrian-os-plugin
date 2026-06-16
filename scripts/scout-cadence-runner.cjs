@@ -22,6 +22,9 @@
  *   7. reverse-salient              (SCHED-02; part of the HSI step's detect-reverse-salients)
  *   8. opportunity-bank scan        (SCHED-02; compute-opportunity-state + opportunity-ops.listOpportunities)
  *   9. efficiency telemetry         (scout-telemetry-aggregator.cjs --json)
+ *  10. temporal-blindness sentinel  (Phase 160-06 R12; D-04 scheduled backstop --
+ *                                    PURE LOCAL room.db scan via sensorTemporalBlindness,
+ *                                    NOT a fetch; emits temporal_blindness_surfaced)
  *
  * CANON PART 8 -- ZERO-EGRESS POSTURE (constitutional):
  *   The runner performs NO Brain query and NO web fetch. HSI / whitespace /
@@ -257,6 +260,34 @@ function main(argv) {
 
   // 9. efficiency telemetry (LOCAL JSONL aggregation; zero network).
   steps.push(runStep('efficiency-telemetry', 'node', [bin('scout-telemetry-aggregator.cjs'), '--json']));
+
+  // 10. temporal-blindness sentinel (Phase 160-06 R12; D-04 SCHEDULED backstop).
+  //     A PURE LOCAL room.db scan -- NOT a fetch. The runner COMPOSES the shipped
+  //     sensorTemporalBlindness (Canon Part 7 reuse); it surfaces real-world-event
+  //     nodes whose valid_at IS NULL and emits temporal_blindness_surfaced when
+  //     any surface (silent when none). The R11 gate is the front line; this is
+  //     the standing backstop, fired on the cadence, never per-turn. Zero egress.
+  try {
+    const { openRoomDb, closeRoomDb } = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'room-db.cjs'));
+    const { sensorTemporalBlindness } = require(path.join(PLUGIN_ROOT, 'lib', 'core', 'sensors', 'sensor-temporal-blindness.cjs'));
+    const sdb = openRoomDb(roomDir);
+    try {
+      const sentinel = sensorTemporalBlindness({ db: sdb });
+      const c = sentinel && typeof sentinel.count === 'number' ? sentinel.count : 0;
+      if (c > 0) findingsToGraph.push(`temporal-blindness:${c}`);
+      steps.push({
+        name: 'temporal-blindness-sentinel',
+        status: 'ok',
+        exit: 0,
+        stdout: c > 0 ? `${c} undated real-world node(s) surfaced` : 'no undated real-world nodes',
+        stderr: '',
+      });
+    } finally {
+      closeRoomDb(sdb);
+    }
+  } catch (e) {
+    steps.push({ name: 'temporal-blindness-sentinel', status: 'degraded', exit: 1, stdout: '', stderr: e.message || String(e) });
+  }
 
   // (4) Phase-140 safe-auto-fire guard. Pass the captured health-check exit so
   //     HARD-01 is asserted from the real exit, not swallowed.
