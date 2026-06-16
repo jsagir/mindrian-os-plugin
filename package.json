@@ -24,6 +24,7 @@
     "@modelcontextprotocol/sdk": "^1.29.0",
     "asciichart": "^1.5.25",
     "chokidar": "^4.0.3",
+    "chrono-node": "^2.9.1",
     "express": "^5.1.0",
     "flexsearch": "^0.7.43",
     "gray-matter": "^4.0.3",
