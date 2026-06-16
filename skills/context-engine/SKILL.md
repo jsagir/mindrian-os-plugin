@@ -21,7 +21,24 @@ Update USER.md when user shares new context (new venture details, changed prefer
 ## Context-Aware Return Greeting
 
 When USER.md and STATE.md exist, greet with awareness:
-"I see you were working on [last topic]. You have [N] banked opportunities -- strongest: [problem]. You still have gaps in [empty rooms]. Want to continue with [suggested next action]?"
+"I see you raised [last topic] [time delta]. You have [N] banked opportunities -- strongest: [problem]. You still have gaps in [empty rooms]. Want to continue with [suggested next action]?"
+
+### Larry speaks relative time (Phase 160 R3)
+
+The `[time delta]` in the greeting is NOT free prose. It is produced by the
+callable render function `renderTopicGreetingDelta(node, opts)` in
+`lib/core/temporal/dual-stamp.cjs`, which composes a `humanDelta()` delta
+("you raised this 3 days ago") for the last-touched topic node's `created_at`
+against `getReferenceNow()` (the one authoritative reference clock, Phase 160
+Wave 1). The renderer REUSES the shipped `humanDelta()` from
+`lib/core/feynman/timeline-renderer.cjs` (Canon Part 7 reuse-before-build) --
+relative-time rendering is never re-implemented in the greeting.
+
+The through-line: `created_at` = when we filed it; the delta Larry speaks is
+"how long ago you raised this." Time rides at the FRONT of the interaction (the
+Hooked variable-reward lever), not buried in a timeline view. When the topic
+node has no `created_at`, the renderer degrades to the delta-free clause
+"I see you were working on [topic]."
 
 Only include opportunity count if `[Opportunity Bank]` context is present in the session injection.
 
