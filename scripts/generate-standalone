@@ -30,11 +30,14 @@ OUTPUT_PATH="${3:-${ROOM_DIR}/data-room-dashboard.html}"
 TEMP_GRAPH=$(mktemp /tmp/graph-XXXXXX.json)
 trap 'rm -f "$TEMP_GRAPH"' EXIT
 
+# Phase 162-02 (R4): the bundled dashboard graph.json is now SPINE-SOURCED via
+# build-graph-from-sqlite.cjs (navigation.getGraphExport), not the bash
+# scripts/build-graph wikilink/filesystem scanner. One id space, no orphans.
 echo "Building graph data from ${ROOM_DIR}..."
-bash "${SCRIPT_DIR}/build-graph" "$ROOM_DIR" "$TEMP_GRAPH"
+node "${SCRIPT_DIR}/build-graph-from-sqlite.cjs" "$ROOM_DIR" "$TEMP_GRAPH"
 
 if [ ! -s "$TEMP_GRAPH" ]; then
-  echo "ERROR: build-graph produced empty output"
+  echo "ERROR: build-graph-from-sqlite produced empty output"
   exit 1
 fi
 

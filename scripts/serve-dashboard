@@ -21,8 +21,11 @@ fi
 ROOM_DIR="$(cd "$ROOM_DIR" && pwd)"
 
 # ── Step 2: Generate fresh graph data into the dashboard directory ──
+# Phase 162-02 (R4): the dashboard graph.json feed is now SPINE-SOURCED via
+# build-graph-from-sqlite.cjs (navigation.getGraphExport), not the bash
+# scripts/build-graph wikilink/filesystem scanner. One id space, no orphans.
 echo "Building graph data from ${ROOM_DIR}..."
-bash "${SCRIPT_DIR}/build-graph" "$ROOM_DIR" "${DASHBOARD_DIR}/graph.json"
+node "${SCRIPT_DIR}/build-graph-from-sqlite.cjs" "$ROOM_DIR" "${DASHBOARD_DIR}/graph.json"
 
 # ── Step 3: Find available port ──
 # Also generates standalone export alongside the dashboard
