@@ -32,6 +32,22 @@
 **Context:** `.planning/phases/163-trending-to-absurd-harness/163-CONTEXT.md`
 **Status:** Scoped 2026-06-17. Next: confirm planning-tree location + open v1.14.0, then /gsd-discuss-phase 163 (or /gsd-plan-phase 163).
 
+### Phase 164: bono-research-debate-engine -- BONO Research-Debate Engine (cognitive capstone)
+
+**Goal:** Make `/mos:bono` real -- the cognitive capstone that turns de Bono's hats from opinions into researched, adversarial arguments over the venture's own domain graph. A per-(subdomain x hat) research fan-out whose readings are consolidated as a structured ARGUMENT between the hats over a graph-proposed "what if" hypothesis (navigator confirms/edits), with every pipeline step filed to the room AND embedded into the local graph.
+
+**What it is (Part 7):** ~80-85% reuse. CONSUMES Phase 163's domain/subdomain/focus_area first-class typed nodes (the domain lens family in `lib/core/lens-engine.cjs`, `reserved_for: 'v1.14.0'`) + the Phase 130 cognitive lens family (`think-hats`/`persona`/`hat-briefing`/`challenge-assumptions`) + Engine 1 decomposition commands + the `navigation.cjs` chokepoint. Net-new (~15-20%): the per-(subdomain x hat) cell fan-out, the inter-hat DEBATE consolidation over a graph-proposed hypothesis, and the incremental per-step file+embed contract.
+
+**Load-bearing net-new -- incremental filing (NAVIGATOR REQUIREMENT 2026-06-17):** every pipeline step (tree / hypotheses / cells / debate / synthesis) files an artifact to the room AND embeds its analysis into the local graph via the `navigation.cjs` chokepoint BEFORE the next step runs. A crashed run leaves every completed step persisted and queryable. Debate rulings/tensions file as typed edges from the FROZEN allow-list (any genuinely new edge type is a canon amendment, navigator-gated -- never a command-level invention). All LOCAL via navigation.cjs (Part 8/9); Brain generic-methodology READ-ONLY, ZERO user-content egress.
+
+**Build pattern:** harness-as-code 9-property architecture (recon -> foundation -> surfaces -> verify; contracts-on-disk; exclusive file ownership; adversarial structured verdict; rules-in-prompt; resumable; orchestrator-in-loop). This phase is the canonical reference implementation the Phase 163 entry forward-references as "Ref impl: /mos:bono".
+
+**Depends on:** Phase 163 (domain-graph-citizen substrate) + Phase 130 (cognitive lens family). Execute after 163.
+**Canon parts:** 2, 3, 4, 8, 9.
+**Design input:** `.planning/research/2026-06-17-bono-research-debate-engine-scoping.md`. NOTE: an earlier spike (branch `bono-spike-stale-baseline`) was built on a 2239-commit-stale base and is REFERENCE-ONLY -- re-implement against current main.
+**Context:** `.planning/phases/164-bono-research-debate-engine/164-CONTEXT.md`
+**Status:** Scoped + queued 2026-06-17. Next: after Phase 163 lands, open v1.14.0, then /gsd-discuss-phase 164 (or /gsd-plan-phase 164).
+
 ---
 
 ## Shipped history: v1.13.0 "The Closed Loop" (renamed Arc 4 -- was "Every Hirer")
