@@ -134,10 +134,11 @@ function migrationEventCount(roomDir) {
     }
     // Seed room.db with an Artifact node (no Section nodes).
     const { db, conn } = await lgOps.openGraph(roomDir);
-    conn.prepare(
-      'INSERT INTO nodes (id, type, properties, source_path, created_by, created_at, last_seen_at) ' +
-      "VALUES (?, 'Artifact', '{}', 'test:artifact', 'system', ?, ?)"
-    ).run('problem-definition/note', Date.now(), Date.now());
+    // openGraph creates the bare 3-column schema (no provenance migration yet);
+    // seed with the legacy 3-column insert. openRoomDb (called by the migration)
+    // will run the provenance migration and widen the schema additively.
+    conn.prepare("INSERT INTO nodes (id, type, properties) VALUES (?, 'Artifact', '{}')")
+      .run('problem-definition/note');
     await lgOps.closeGraph(db);
 
     assert.strictEqual(countSectionNodes(roomDir), 0, 'precondition: no Section nodes');
@@ -184,10 +185,11 @@ function migrationEventCount(roomDir) {
     }
     // Seed an Artifact + run the migration so room.db has real Section nodes.
     const { db, conn } = await lgOps.openGraph(roomDir);
-    conn.prepare(
-      'INSERT INTO nodes (id, type, properties, source_path, created_by, created_at, last_seen_at) ' +
-      "VALUES (?, 'Artifact', '{}', 'test:artifact', 'system', ?, ?)"
-    ).run('problem-definition/note', Date.now(), Date.now());
+    // openGraph creates the bare 3-column schema (no provenance migration yet);
+    // seed with the legacy 3-column insert. openRoomDb (called by the migration)
+    // will run the provenance migration and widen the schema additively.
+    conn.prepare("INSERT INTO nodes (id, type, properties) VALUES (?, 'Artifact', '{}')")
+      .run('problem-definition/note');
     await lgOps.closeGraph(db);
     migrateSectionNodes(roomDir);
 
