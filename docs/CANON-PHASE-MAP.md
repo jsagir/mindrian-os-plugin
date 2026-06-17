@@ -3,7 +3,7 @@
 Authoritative mapping of Mindrian Canon parts to implementing phases.
 Past reach (shipped) and future reach (planned) in one view.
 
-Canon reference: docs/MINDRIAN-CANON.md (v1.8)
+Canon reference: docs/MINDRIAN-CANON.md (v1.9)
 
 ---
 
@@ -138,14 +138,22 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 
 Phase 108 shipped the proposal cross-reference document and the schema reconciliation deliverables that made the Part 9 contract testable. Phase 109 ratified Part 9 at its release gate by merging the proposal text from `.planning/research/2026-05-03-canon-part-9-memory-locality-proposal.md` into `docs/MINDRIAN-CANON.md` as a new Part 9. Phase 110 hardens the Brain wire schema so Part 8 enforcement (LOCAL to BRAIN: NO) is structurally enforced, not just procedurally audited. The trio (108 + 109 + 110) constitutes the Part 9 implementing cluster. Phase 124 (FEYNMAN.md Temporal Awareness) is the FIRST consumer of the Part 9 surface to land on the v1.13.0-beta.x train as a user-facing artifact: it makes `memory_event` human-readable at the FEYNMAN.md surface per section, with byte-preserved human authorship across regeneration; per Canon Part 6 (Product-as-Venture) the canon names the phase that implements the canon.
 
-### Part 10 (CODE SHIPPED, NOT YET RATIFIED) - Conversation as Product
+### Part 10 (RATIFIED 2026-06-17 by navigator authority) - Conversation as Product
 
-> Reconciliation note (2026-06-05): every implementing phase below SHIPPED in
-> the v1.13.0 milestone, yet Part 10 is still NOT in docs/MINDRIAN-CANON.md and
-> the ratification gate (Hooked re-score >= 55 AND empathy audit 4/5 testers
-> report "thinking partner") was NEVER run. The code landed; the constitution
-> was never amended. Status below reflects code reality; "ratified: NO" is the
-> open obligation. See .planning/debug/planned-vs-executed-drift-audit-260605.md.
+> Ratification note (2026-06-17): Part 10 is now in docs/MINDRIAN-CANON.md as
+> binding canon (Appendix D entry 20; canon v1.8 -> v1.9). Every implementing
+> phase below SHIPPED in v1.13.0. The empirical ratification gate (Hooked
+> re-score >= 55 AND empathy audit 4/5 testers report "thinking partner") was
+> NEVER run -- measured 2026-06-05 at Hooked Variable Reward 0.0/10 (no reward
+> telemetry on the dogfood box) and 0/5 empathy observations, because the Phase
+> 150.7 tester round-2 validation week never executed. The navigator OVERRODE
+> the empirical gate and ratified on navigator authority: recorded truthfully,
+> the thresholds were NOT met and NOT measured against real users; ratification
+> rests on navigator judgment that the thesis is sound and the code is shipped
+> and stable. Per Part 5 the empirical validation is DEFERRED to a v1.14.0
+> validation week as post-ratification confirmation (a named debt, not a
+> precondition). Closes Phase 150.7. Gate evidence:
+> .planning/milestones/v1.13.0-PART-10-RATIFICATION-GATE.md.
 
 | Status   | Phase / Component | Reference |
 |----------|-------------------|-----------|
@@ -326,6 +334,7 @@ carries no canon_parts contract yet.
 | v1.7          | TBD      | 2026-06-12 | Phase 150.8 Plan 02 edge-vocabulary amendment (canon_parts 4/7/8/9): REFINES + ROOT_CAUSES + INSTANTIATES added to the frozen `ALLOWED_EDGE_TYPES` closed set in lib/core/navigation/edges.cjs. NAVIGATOR-GATED frozen-set move (D-150.8, navigator-LOCKED 2026-06-12) via the Part 6 dog-fooding canon-amendment-on-itself mechanism, mirroring entries 14/15. REFINES = a new claim tightens/conditions a prior claim without invalidating it (the missing middle between INFORMS-too-weak and CONTRADICTS-wrong); ROOT_CAUSES = directional cause->effect; INSTANTIATES = concrete-example-evidences-abstract. The 3 deferred types (GENERALIZES / CONTRADICTS_CONDITIONALLY / SUPERSEDES_v2) stay OUT (SEED-023, v1.14.0). MINDRIAN-CANON.md Appendix D entry 18 records the amendment + Part 4 edge-list updated with the trio + header Version line 1.6 -> 1.7. Phase 150.8 row added to the "v1.13.1 Larry Reaches connector spine + engine flip" section. valid_from/valid_until (DIKW-03 edge half / TV-01) ride the existing writeEdge properties JSON with zero signature change (Part 8 enum/scalar-only). ONE atomic lockstep wave (edges.cjs + floor test + C3 fence + canon docs) so CI never went RED. Fences: tests/test-edges-refines-rootcauses-instantiates-floor.cjs green, run-all-claims.sh 9/9, run-all-150.8.sh 4/4, run-all-148.sh 18/18. Map + canon text change. |
 | v1.6 (kept)   | TBD      | 2026-06-11 | Phase 150.6 Plan 02 corpus-figures correction (canon_parts 4/6/7/8; figures correction only, no doctrine change). A fresh live read of the production Brain substrates (Neo4j via my-neo4j MCP, Pinecone via pinecone MCP, 2026-06-11) normalized the four Brain-number surfaces (docs/THE-BRAIN.md, docs/brain-setup.md, CLAUDE.md moat block, MINDRIAN-CANON.md Appendix D) onto ONE set: 27,804 nodes (incl. 12,401 MethodologyChunk substrate from the Phase 127.1 GraphRAG collapse; ~15.4K teaching-graph core) / 19,987 relationships / 12,413 Pinecone pws-brain vectors (1024-dim). Supersedes the three conflicting sets (entry-13 ratified 15,298/19,713/12,401 among them). MINDRIAN-CANON.md Appendix D entry 16 records the correction in the entry-13 voice; header Version line stays 1.6. Plan 02 also rewrote THE-BRAIN.md to the real 6-tool Brain MCP surface (brain_query/schema/write/search/stats/ask; the prior 7-tool table was fictional) and added a brain_ask row + "Six Brain tools" to brain-setup.md. Map + canon text change. |
 | v1.8          | TBD      | 2026-06-15 | Phase 157 Plan 01 Brain dual-role amendment (canon_parts 6/8/9): Part 8 sanctions the Brain holding a projection of Mindrian's own orchestration layer alongside the teaching methodology; methodology_tier (pws | mindrian-operation) minted as the boundary-keeper. Navigator-gated frozen-property addition (D-03, navigator-LOCKED 2026-06-15) via the Part 6 dog-fooding canon-amendment-on-itself mechanism, mirroring entries 14/15/18. MINDRIAN-CANON.md Appendix D entry 19 records the amendment + header/footer Version 1.7 -> 1.8. The projection is a Brain-derived LOCAL cache (Part 9); ZERO live Brain read/write (live write + continuous sync = Phase 137, deferred; nav-engine consumption deferred). The generator + --check land in Plans 02-05 GATED behind this amendment. Map + canon text change. |
+| v1.9          | TBD      | 2026-06-17 | Part 10 (Conversation as Product) RATIFIED into the canon body by navigator authority (Phase 150.7 close; canon_parts 3/6/10). Thesis "Larry IS the product; Conversation IS the surface; Rooms are receipts; Commands are internals" + five sub-claims (Phases 114/115/116/118/119, 100, 117/120) -- all implementing code shipped in v1.13.0. The empirical ratification gate (Hooked re-score >= 55 AND 4/5 testers report "thinking partner") was NEVER run: measured 2026-06-05 at Hooked Variable Reward 0.0/10 (no reward telemetry on the dogfood box) + 0/5 empathy observations; the Phase 150.7 tester round-2 validation week never executed. The navigator OVERRODE the empirical gate and ratified on navigator authority -- recorded truthfully: thresholds NOT met, NOT measured against real users; ratification rests on navigator judgment that the thesis is sound and the code is shipped/stable. Per Part 5 the empirical validation is DEFERRED to a v1.14.0 validation week as post-ratification confirmation (named debt, not a precondition). Navigator-LOCKED 2026-06-17 via the Part 6 dog-fooding canon-amendment-on-itself mechanism, mirroring entries 14/15/18/19. MINDRIAN-CANON.md gains Part 10 + Appendix D entry 20 + header/footer Version 1.8 -> 1.9; the Part 10 block here flips from "CODE SHIPPED, NOT YET RATIFIED" to RATIFIED; closes Phase 150.7. Gate evidence: .planning/milestones/v1.13.0-PART-10-RATIFICATION-GATE.md. Map + canon text change. |
 
 ---
 

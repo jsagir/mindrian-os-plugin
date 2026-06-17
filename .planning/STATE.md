@@ -16,6 +16,10 @@ progress:
 
 # Project State
 
+## Latest (2026-06-17) -- Part 10 RATIFIED + Phase 150.7 closed
+
+Canon Part 10 ("Conversation as Product") was ratified into `docs/MINDRIAN-CANON.md` as binding canon (v1.8 -> v1.9), closing Phase 150.7 and the long-open "CODE SHIPPED, NOT YET RATIFIED" obligation. **Ratified on navigator authority, OVERRIDING the empirical gate** (Hooked re-score >= 55 + 4/5 empathy), which was never run (measured 0.0/10 + 0/5; the tester round-2 validation week never executed). Recorded truthfully: thresholds not met, not measured against real users. Per Part 5, the empirical validation is DEFERRED to a v1.14.0 tester validation week as post-ratification confirmation (named debt). Touched: MINDRIAN-CANON.md (Part 10 body + Appendix D entry 20 + v1.9), CANON-PHASE-MAP.md (block flip + v1.9 row), the gate file (status -> RATIFIED), 150.7-SUMMARY.md.
+
 ## Latest (2026-06-17) -- Phase 162 W1-W3 closed + v1.13.1-beta.34 shipped
 
 Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3 code had landed on `main` in a prior session that died before writing SUMMARYs or closing the W3 release gate. This session reconciled it:

@@ -1,7 +1,7 @@
 # Mindrian Canon
 
-Version: 1.8
-Date: 2026-06-15
+Version: 1.9
+Date: 2026-06-17
 Status: Active
 Author: Jonathan Sagir with Claude-as-Larry
 
@@ -359,6 +359,32 @@ Phase 124 (FEYNMAN.md Temporal Awareness) is the FIRST Larry-explains surface to
 
 ---
 
+## Part 10 - Conversation as Product
+
+> Larry IS the product. Conversation IS the surface. Rooms are receipts. Commands are internals.
+
+The navigator does not "use a tool." The navigator talks to Larry. Everything else - the room, the graph, the /mos commands, the dial - is machinery that serves that conversation. The product surface is the dialogue, not the command palette.
+
+### The five sub-claims
+
+1. **Larry IS the product.** The default activation surface is Larry, not a command menu. A navigator who installs MindrianOS and says nothing still meets Larry. Implementing phase: Phase 114 (larry-default-activation).
+
+2. **Conversation IS the surface.** The first touch is a persona-aware conversational turn, not a form. Larry reads role-blend x journey-stage (Part 2a) and meets the navigator where they are, whether they paste a CV or type a stuck-decision sentence. Implementing phase: Phase 115 (owned-emotion-dual-path-first-touch).
+
+3. **Rooms are receipts.** The room is the legible by-product of the conversation, not a thing the navigator fills in. Persistent conversation carries across sessions (the unresolved-tension hook), the room generates as a receipt of work done (the 30-second MVA reward), and this is a formal invariant, not a convenience. Implementing phases: Phase 116 (unresolved-tension-hook), Phase 118 (30-second-mva-reward), Phase 119 (room-as-receipt-invariant).
+
+4. **Commands are internals.** The /mos commands are the plumbing Larry reaches for, not the navigator's primary interface. Larry routes to the right command via the JTBD inference engine; the navigator never needs to memorize a command surface. Command-hiding in full is a v1.14.0 obligation; until then commands stay user-facing as a fallback while Larry routes heuristically. Implementing phase: Phase 100 (jtbd-inference-engine).
+
+5. **The triple-filter intelligence runs automatically.** The Act 1 intelligence math (decomposition + whitespace + reverse salient + cross-domain match, Part 2 Engine 1) fires on first material without the navigator asking, and the variable-reward breakthrough scan surfaces the non-obvious. Implementing phases: Phase 117 (auto-explore-domains-on-first-material), Phase 120 (breakthrough-scan-category-g).
+
+### Ratification provenance (navigator-authority override)
+
+Part 10 was authored as a proposal (synthesized 2026-05-05) with a ratification gate that required BOTH a Hooked re-score >= 55/70 (Eyal 2014 composite) AND an empathy audit in which 4 of 5 testers report a "thinking partner" experience. The implementing code (Phases 114-120, plus the Phase 100 JTBD engine) ALL SHIPPED across the v1.13.0 milestone, but the gate was never run: the measured state (2026-06-05) was Hooked Variable Reward 0.0/10 (the dogfood box carried no reward telemetry to score) and 0/5 empathy observations recorded, because the tester round-2 validation week (Phase 150.7) never executed. The cohort experienced the pre-cure builds, never the cure.
+
+On 2026-06-17 the navigator ratified Part 10 into this canon **on navigator authority**, explicitly overriding the empirical score gate. This is a navigator-LOCKED constitutional decision (Appendix D entry 20) applied via the Part 6 dog-fooding canon-amendment-on-itself mechanism, mirroring entries 14/15/18/19. The override is recorded truthfully and without euphemism: the empirical thresholds were NOT met and were NOT measured against real users; ratification rests on the navigator's judgment that the thesis is sound and the implementing code is shipped and stable, not on the gate's evidence bar. Per Part 5 (Evidence Is Graded By Context), the empirical validation (a real tester re-dose producing the two numbers) is DEFERRED to a v1.14.0 validation week as a post-ratification confirmation - it is no longer a precondition for Part 10 being binding canon, but its absence is a known, named debt. The gate record at `.planning/milestones/v1.13.0-PART-10-RATIFICATION-GATE.md` carries the measured-state evidence; Phase 150.7 closes as ratified-by-override.
+
+---
+
 ## Appendix A - Relationship to MWP
 
 The canon adds the navigation axis (role-blend x journey-stage) and the security constitution (Part 8) on top of the MWP 7-layer integration surface. MWP-SPECIFICATION.md carries a forward-reference to this canon; canon-conformant features also satisfy MWP conformance clause 7.1.
@@ -433,6 +459,8 @@ This canon was forged in conversation between Jonathan Sagir (founder) and Claud
 
 19. **Brain dual-role amendment: orchestration projection sanctioned + methodology_tier minted (Phase 157, 2026-06-15).** Phase 157 (brain-orchestration-graph-and-methodology-tiers) amended Part 8 (The Graph Boundary) to sanction the Brain holding a projection of Mindrian's own orchestration layer (the /mos commands, the 6 frozen reaches plus sub_modes, the skills, the agents, the frameworks, the connector spine) ALONGSIDE the teaching methodology it has always held. `methodology_tier` (pws | mindrian-operation) is minted as the first-class boundary-keeper property that makes the projected machinery Part-8-legal: `pws` marks the teaching IP frameworks (Cynefin, Meadows, JTBD, Reverse Salient, the hat framework, and the rest), `mindrian-operation` marks the machinery, and the tier certifies every projected node as generic machinery metadata, NEVER user data. The projection is a Brain-derived LOCAL cache (Part 9), and Phase 157 makes ZERO live Brain read/write: live Brain write of the projection and continuous remote sync are deferred (continuous sync is Phase 137 brain-mindrianos-sync-compat; the live write is a fast-follow), and live nav-engine consumption of the cache is deferred. The LOCAL data -> BRAIN: NO invariant is UNCHANGED and restated as still binding; the amendment sanctions the SHAPE the Brain may hold and the LOCAL cache the plugin may derive, opening no new wire to the Brain. The amendment is the FIRST gate, landing docs-only before any generator code: the projection generator (a sibling of `scripts/build-connector-registry.cjs`, Part 7 reuse) and its `--check` tripwire (STALE / UN-WIRED / UN-RANKED) land in the subsequent Phase 157 plans, gated behind this amendment. Applied via the Part 6 dog-fooding canon-amendment-on-itself mechanism, mirroring entries 14, 15, and 18. This was the navigator-LOCKED decision D-03 (157-CONTEXT.md), navigator-LOCKED 2026-06-15. The amendment + header/footer Version 1.7 -> 1.8 + the CANON-PHASE-MAP Phase 157 row + v1.8 version-history row moved together as the docs-only gate. Canon version bumped to 1.8.
 
+20. **Part 10 ratification by navigator authority (2026-06-17).** Part 10 (Conversation as Product) -- thesis "Larry IS the product; Conversation IS the surface; Rooms are receipts; Commands are internals" with five sub-claims implemented across Phases 114/115/116/118/119 (sub-claims 1-3), Phase 100 (sub-claim 4), and Phases 117/120 (sub-claim 5) -- was ratified into the canon body as a new Part 10. The original ratification gate required a Hooked re-score >= 55/70 AND 4 of 5 testers reporting a "thinking partner" experience; the implementing code ALL SHIPPED across v1.13.0 but the gate was never run (measured 2026-06-05: Hooked Variable Reward 0.0/10 with no reward telemetry on the dogfood box, 0/5 empathy observations recorded; the Phase 150.7 tester round-2 validation week never executed -- the cohort experienced the pre-cure builds, never the cure). The navigator overrode the empirical gate and ratified on navigator authority. Recorded truthfully and without euphemism: the thresholds were NOT met and were NOT measured against real users; ratification rests on the navigator's judgment that the thesis is sound and the implementing code is shipped and stable, not on the gate's evidence bar. Per Part 5 (Evidence Is Graded By Context) the empirical validation (a real tester re-dose producing the two numbers) is DEFERRED to a v1.14.0 validation week as post-ratification confirmation -- no longer a precondition for Part 10 being binding canon, but a known and named debt. Navigator-LOCKED 2026-06-17, applied via the Part 6 dog-fooding canon-amendment-on-itself mechanism, mirroring entries 14/15/18/19. Closes the Phase 150.7 gate and the CANON-PHASE-MAP "CODE SHIPPED, NOT YET RATIFIED" obligation. Gate evidence: `.planning/milestones/v1.13.0-PART-10-RATIFICATION-GATE.md`. Canon version bumped to 1.9.
+
 Conversation transcript reference: session 2026-04-20, branch `ui/destijl-rebuild`. First canon draft shipped at commit 528abdd; cross-references at b7d95bd; amendment at this commit. Part 9 (Memory Locality and Interpretation) ratified at the Phase 109 release gate (2026-05-12).
 
 ---
@@ -487,6 +515,6 @@ The navigator always decides.
 
 ---
 
-_Mindrian Canon v1.8 - MindrianOS Plugin_
+_Mindrian Canon v1.9 - MindrianOS Plugin_
 
 _Version history is maintained inline in docs/CANON-PHASE-MAP.md (Version history table)._
