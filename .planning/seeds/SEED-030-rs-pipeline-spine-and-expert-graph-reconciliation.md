@@ -8,7 +8,7 @@ surfaces: [cli, desktop, cowork]
 proving_case: ~/MindrianRooms/aion-eureka-synergy (RS pipelines manual-only all session; F7/F8)
 evidence: dev repo 2026-06-17 - rs-* NOT-WIRED + ABSENT from data/connector-registry.json
 related: Phase 144.1 (connector-retrofit-sweep, PLANNED), SEED-029 (embedding layer), SEED-013 (eliminate-python), Phase 89 (reverse-salient-engine)
-phase: 158-embedding-layer-and-rs-reconciliation
+phase: 161-embedding-layer-and-rs-reconciliation
 source: dogfood (AION C08 demo build) + dev-repo wiring audit
 ---
 
@@ -22,7 +22,7 @@ source: dogfood (AION C08 demo build) + dev-repo wiring audit
    `/mos:` invocations. (This is the unfinished Phase 144.1 connector-retrofit-sweep scope.)
 2. **Two remote couplings, not one.** RS depends on BOTH:
    - Pinecone vectors (`scripts/rs-engine.py` + `lib/core/rs_corpus.py`/`rs_cache.py`/`rs_hybrid.py`)
-     -> addressed by the Embedding Layer (SEED-029 / Phase 158 R-RS-1).
+     -> addressed by the Embedding Layer (SEED-029 / Phase 161 R-RS-1).
    - Neo4j Aura / Brain Cypher (`rs-experts` resolves the expert network "via Brain Cypher MATCH";
      `rs-explain` runs graph queries) -> NOT addressed by embeddings. This is PEOPLE / teaching-graph
      data, genuinely Brain IP (Canon Part 8).
@@ -37,7 +37,7 @@ the user did not manually trigger. Both halves must land for RS to be a first-cl
 1. **Spine-wire the RS family.** Add `connector:` frontmatter (reach_id, sensor_triggers, posture,
    hierarchy_rank, filing) to `rs-fetch`, `rs-explain`, `rs-experts`, `rs-thesis`; regenerate
    `data/connector-registry.json`; `--check` tripwire green. RS becomes rankable/reachable on the dial.
-2. **Repoint RS vectors at the Embedding Layer** (Phase 158): rs-engine internal/cross-room/external/
+2. **Repoint RS vectors at the Embedding Layer** (Phase 161): rs-engine internal/cross-room/external/
    hybrid modes read local room.db vectors + on-demand signal, not Pinecone rs-external.
 3. **R-expert decision (LOCKED-pending):** `rs-experts` Aura/expert-graph coupling.
    - Option A (recommend): KEEP remote-Brain Mode-A. The expert network is people + teaching-graph

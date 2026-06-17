@@ -1,5 +1,5 @@
 ---
-phase: 158
+phase: 161
 slug: embedding-layer-and-rs-reconciliation
 milestone: v1.14.0
 status: context-gathering
@@ -14,7 +14,7 @@ qa_ref: .planning/debug/aion-eureka-demo-build-qa-session.md (F7, F8, F-misc rer
 source_of_truth: install-cache beta.30 ran the dogfood session; reconcile vs origin/main beta.31 before any code change
 ---
 
-# Phase 158 - The Embedding Layer + RS spine/expert reconciliation
+# Phase 161 - The Embedding Layer + RS spine/expert reconciliation
 
 ## Goal (goal-backward, one sentence)
 Every embedding-dependent surface (HSI, whitespace, find-connections/analogies/bottlenecks,
@@ -90,5 +90,5 @@ are wired onto the Larry-reaches connector spine.
 - D-model / R6 / R-expert ratified as LOCKED decisions with tradeoffs recorded.
 
 ## Next action
-`/gsd:discuss-phase 158` to ratify D-model / R6 / R-expert, then `/gsd:plan-phase 158`.
+`/gsd:discuss-phase 161` to ratify D-model / R6 / R-expert, then `/gsd:plan-phase 161`.
 Reconcile the beta.30-vs-beta.31 source delta before any code claim becomes load-bearing.
