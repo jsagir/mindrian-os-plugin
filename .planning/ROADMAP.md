@@ -23,7 +23,17 @@ Archived: `.planning/milestones/v1.13.1-ROADMAP.md` + `v1.13.1-REQUIREMENTS.md`.
 **Canon parts:** 2, 3, 4, 6, 7, 8, 9, 10.
 **Design input:** `.planning/research/2026-06-17-trending-to-absurd-harness-scoping.md` (4-agent fan-out).
 **Context:** `.planning/phases/163-trending-to-absurd-harness/163-CONTEXT.md`
-**Status:** Scoped 2026-06-17. Next: confirm planning-tree location + open v1.14.0, then /gsd-discuss-phase 163 (or /gsd-plan-phase 163).
+**Plans:** 6 plans in 6 waves (harness-as-code: foundation A/B/C -> surface A/B -> verify)
+
+Plans:
+- [ ] 163-01-PLAN.md -- WAVE 1 FOUNDATION-A: the 4-edge frozen-vocabulary canon amendment (DECOMPOSED_INTO / PART_OF / TAGGED_WITH / RELATED_TO), one atomic navigator-gated lockstep
+- [ ] 163-02-PLAN.md -- WAVE 2 FOUNDATION-B: domain/subdomain/focus_area typed nodes + typed-domain.cjs writer + edge-linker through the navigation.cjs chokepoint
+- [ ] 163-03-PLAN.md -- WAVE 3 FOUNDATION-C: activate the lens-engine domain family (5 lenses + hierarchy synthesizer) + getDomainsForTrendExtrapolation graph-walking reader
+- [ ] 163-04-PLAN.md -- WAVE 4 SURFACE-A: clone+extend the futures orchestrator into the 5-act trend pipeline + command + connector + skill
+- [ ] 163-05-PLAN.md -- WAVE 5 SURFACE-B: Stage 7 mitigation/innovation roadmap + full 4-persona x 3-path variance via Shape F hybrid gates
+- [ ] 163-06-PLAN.md -- WAVE 6 VERIFY: the adversarial structured verdict + tests/run-all-163.sh phase gate
+
+**Status:** PLANNED 2026-06-18 (6 plans, 6 waves). Next: confirm planning-tree location + open v1.14.0, then /gsd-execute-phase 163.
 
 ### Phase 164: bono-research-debate-engine -- BONO Research-Debate Engine (cognitive capstone)
 
