@@ -554,6 +554,40 @@ function collectGraphData(roomDir, graph) {
   }
 }
 
+// SEED-026: source the viz graph from room.db typed edges through the navigation
+// spine (getGraphExport), in ONE node-identity space. This REPLACES the old
+// collectGraph (scripts/build-graph wikilink/filesystem node scan) + collectGraphData
+// (room.db edge bolt-on) two-authority path, whose mismatched id spaces produced
+// orphan nodes. Runs the chokepoint in a child process to keep this generator
+// synchronous (the same idiom collectGraphData used for its async room.db read).
+// Canon Part 8: getGraphExport emits a strict whitelist payload only.
+function collectGraphExport(roomDir) {
+  const navPath = path.join(SCRIPT_DIR, '..', 'lib', 'core', 'navigation.cjs').replace(/\\/g, '\\\\');
+  const rd = roomDir.replace(/\\/g, '\\\\');
+  const queryScript = [
+    "const nav = require('" + navPath + "');",
+    "(async () => {",
+    "  try {",
+    "    const r = await nav.getGraphExport('" + rd + "');",
+    "    process.stdout.write(JSON.stringify(r));",
+    "  } catch (err) {",
+    "    process.stdout.write(JSON.stringify({ ok:false, cold_start:false, error:String(err && err.message || err), elements:{nodes:[],edges:[]}, counts:{nodes:0,edges:0,excluded:0,orphans:0,dropped_edges:0}, unmapped_types:[] }));",
+    "  }",
+    "})();",
+  ].join('\n');
+  const tmpScript = path.join(roomDir, '.tmp-pres-graphexport.js');
+  try {
+    fs.writeFileSync(tmpScript, queryScript, 'utf-8');
+    const output = safeExec('node "' + tmpScript + '"', 15000);
+    try { fs.unlinkSync(tmpScript); } catch (_) {}
+    if (!output) return { ok: false, cold_start: false, elements: { nodes: [], edges: [] }, counts: { nodes: 0, edges: 0 }, unmapped_types: [] };
+    return JSON.parse(output.trim());
+  } catch (err) {
+    try { fs.unlinkSync(tmpScript); } catch (_) {}
+    return { ok: false, cold_start: false, elements: { nodes: [], edges: [] }, counts: { nodes: 0, edges: 0 }, unmapped_types: [] };
+  }
+}
+
 // -- Template processing --
 
 function readInlineJS(relPath) {
@@ -679,14 +713,24 @@ function main() {
   const opportunities = collectOpportunities(roomDir);
   const assets = collectAssets(roomDir);
   const team = collectTeam(roomDir);
-  const graph = collectGraph(roomDir);
-  const graphData = collectGraphData(roomDir, graph);
+  // SEED-026: graph viz sources nodes + edges from room.db via the navigation
+  // spine (getGraphExport), one identity space -> no wikilink-node orphans.
+  const graphExport = collectGraphExport(roomDir);
+  const graph = { elements: graphExport.elements || { nodes: [], edges: [] } };
+  const graphData = {
+    available: !!graphExport.ok && !graphExport.cold_start,
+    edges: (graphExport.counts && graphExport.counts.edges) || 0,
+    cold_start: !!graphExport.cold_start,
+    excluded: (graphExport.counts && graphExport.counts.excluded) || 0,
+    orphans: (graphExport.counts && graphExport.counts.orphans) || 0,
+    unmapped_types: graphExport.unmapped_types || [],
+  };
   const stats = collectStats(roomDir, totalArtifacts, sections.length);
   const whitespace = collectWhitespace(roomDir);
   const topicForest = collectTopicForest(roomDir);
 
-  // Update edge count from graph data
-  stats.edges = (graph.elements.edges || []).length;
+  // Update edge count from the spine-sourced export (SEED-026)
+  stats.edges = (graphExport.counts && graphExport.counts.edges) || 0;
 
   // -- 3. Build ROOM_DATA --
   const ROOM_DATA = {
