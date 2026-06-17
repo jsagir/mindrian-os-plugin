@@ -111,3 +111,50 @@ implementation already built this session:
 
 Recommended execution: `/gsd:debug aion-eureka-demo-build-qa-session` (the QA case carries the RCA,
 Required Code Changes, and Tests for SEED-026/027/028), or a `/gsd:quick` scoped to SEED-026.
+
+## 11. Update 2026-06-17 - Embedding Layer reframe + RS reconciliation (supersedes the per-surface framing)
+
+Two refinements after the initial cut. The per-surface framing in sections 1-10 stands, but the
+substrate is now a first-class layer, and RS is bigger than "layer 4."
+
+### 11a. Embeddings become a FIRST-CLASS LAYER (not per-surface logic)
+- New component `lib/core/embeddings.cjs`: ONE embedder + ONE model + room.db vector storage +
+  JS cosine, consumed by ALL intelligence surfaces (HSI, whitespace, find-*, RS).
+- OSS: `@huggingface/transformers` (transformers.js) - pure JS in Node, no Python, no API key,
+  MIT/Apache. Anthropic has NO embeddings API, so there is no Claude-native embedding to wait for;
+  local OSS is the route. Same direction as SEED-013 / Phase 134.
+- D-model decision (vendoring constraint per release-process.md "every production dep is pure JS"):
+  - WASM backend (`onnxruntime-web`) -> portable, NO per-platform native binaries, fits the single
+    vendored-node_modules tree. Slower, but room-scale is tiny. **RECOMMEND.**
+  - Native backend (`onnxruntime-node`) -> faster, but ships per-platform `.node` binaries, BREAKS
+    the single-vendored-tree rule (forces per-platform trees or runtime install). Avoid unless scale demands.
+  - Model: `all-MiniLM-L6-v2` int8 (~23MB) bundled, or download-on-first-use with offline fallback.
+
+### 11b. RS pipeline reconciliation (EVIDENCE-CONFIRMED gap, dev repo 2026-06-17)
+- The 4 `rs-*` commands (`rs-fetch`, `rs-explain`, `rs-experts`, `rs-thesis`) are NOT-WIRED to the
+  connector spine and ABSENT from `data/connector-registry.json`. The `find-*` / `whitespace` /
+  `score-innovation` wrappers ARE wired. So Larry never REACHES for the RS pipelines (manual-only).
+- RS couples to TWO remotes, not one: Pinecone (`rs-engine.py` + `rs_corpus`/`rs_cache`/`rs_hybrid`)
+  AND Neo4j Aura / Brain Cypher (`rs-experts` resolves the expert network "via Brain Cypher MATCH";
+  `rs-explain` graph queries).
+- Implication: the Embedding Layer fixes the VECTOR coupling ONLY. RS needs THREE things:
+  1. repoint its vectors at the Embedding Layer (THIS phase),
+  2. wire `rs-*` onto the Larry-reaches spine (Phase 144.1 retrofit-sweep scope) -> SEED-030,
+  3. decide the `rs-experts` Aura/expert-graph coupling -> SEED-030. This is PEOPLE data, genuinely
+     Brain IP; embeddings CANNOT localize it.
+
+### 11c. The three LOCKED-pending decisions (scaffold-blocking)
+- D-model: transformers.js WASM (recommend) vs native.
+- R6 (vector moat): drop the methodology corpus vs keep Brain Mode-A (recommend keep).
+- R-expert (graph moat): `rs-experts`/Aura kept as remote-Brain Mode-A (recommend keep) vs descope.
+
+### 11d. Revised phase name + split
+"The Embedding Layer + RS spine/expert reconciliation."
+- Embedding Layer (the shared substrate) = THIS phase (R1-R8 above, now centered on `lib/core/embeddings.cjs`).
+- RS spine-wiring + expert-graph decision = a PARALLEL axis the layer alone does not fix; tracked in
+  SEED-030 and overlapping the planned Phase 144.1 (connector-retrofit-sweep). The vector-repoint of
+  RS belongs to this phase; the spine-wiring + Aura decision belong to SEED-030 / 144.1.
+
+### 11e. Attached seed (new)
+- SEED-030 rs-pipeline-spine-and-expert-graph-reconciliation (the RS orphan + Aura coupling; the
+  non-vector half of "RS fully local + reachable").
