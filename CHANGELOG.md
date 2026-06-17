@@ -1,7 +1,10 @@
 ## [Unreleased] -- v1.13.1-beta.33 (in progress)
 
 ### Added
-- 
+- Phase 162 (Graph Spine, SEED-026) W1-W3: every graph the navigator draws is now sourced through a single whole-graph read primitive over room.db in ONE node-identity space, so orphan/dangling edges are structurally impossible. `lib/core/navigation/graph-export.cjs` ships `getGraphExport(roomDir)` (re-exported from `navigation.cjs`): nodes AND edges come from room.db in one id space; an edge ships only when both endpoints are in the included node set; bookkeeping types (memory_event/focus/audit) are excluded-and-counted, never silently dropped; unknown node types render loud (default color + flagged in `unmapped_types`), never thrown; cold-start (no room.db) emits Section anchors so a Tier-0 room never renders blank. The CLI presentation graph (`scripts/generate-presentation.cjs`) and the Desktop/Cowork Cytoscape dashboard (`scripts/build-graph-from-sqlite.cjs` + `dashboard/index.html`) both consume the spine -- single node authority across surfaces, styled by knowledge_type color + degree size + edge-type gloss. Section nodes are now durable room.db rows written at room birth inside the ACID transaction, with an idempotent migration (`lib/core/migrations/phase-162-section-nodes.cjs`) backfilling existing rooms. Requirements R1/R2/R3/R4/R11. Canon parts 4/7/8/9. Local-only: zero Brain egress.
+
+### Security
+- Phase 162 W3: adversarial Canon Part 8 boundary hardening over the graph export. `tests/test-graph-export-part8-leak.cjs` proves no hostile byte (correlation_id / brain_id / source_path / transcript prose / personal identifier / proprietary number / raw secret) reaches the export payload, and asserts every node's data key-set equals exactly the Part 8 whitelist (with a negative control so the scan is not over-broad). A committed golden-room snapshot + a node-type completeness gate (`scripts/check-graph-export-typemap.cjs`) fail loud if any live node type is unclassified; `tests/run-all-162.sh` aggregates the phase gate (6/6 suites green).
 
 ## [1.13.1-beta.32] - 2026-06-17
 
