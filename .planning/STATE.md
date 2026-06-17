@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
 status: milestone-complete
-stopped_at: v1.13.1 "Larry Reaches" SHIPPED STABLE + milestone archived 2026-06-17 (npm @latest 1.13.1, tag v1.13.1, audit tech_debt accepted). Next: v1.14.0 -- Phase 163 trending-to-absurd-harness (navigator-designated FIRST).
-last_updated: "2026-06-17T18:30:00Z"
-last_activity: 2026-06-17 -- v1.13.1 finalized STABLE (release.sh --finalize) + milestone completed/archived; v1.14.0 queued (Phase 163 first, Phase 164 sibling)
+stopped_at: v1.13.1 SHIPPED STABLE + archived. v1.14.0 Phase 163 (trending-to-absurd-harness) CONTEXT gathered -- D-163-01..06 LOCKED (Tier-2-foundation-first, full domain-edge set, hybrid default, full variance). Ready for /gsd-plan-phase 163.
+last_updated: "2026-06-18T00:00:00Z"
+last_activity: 2026-06-18 -- branch tangle reconciled onto main; Phase 163 discuss complete (6 decisions locked); v1.14.0 queued (163 first, 164 sibling)
 progress:
   total_phases: 98
   completed_phases: 78
