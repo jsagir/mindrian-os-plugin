@@ -16,6 +16,10 @@ progress:
 
 # Project State
 
+## Latest (2026-06-17) -- Phase 156 UAT closed
+
+Phase 156 (Futures Wheel MVP) UAT moved `partial -> complete`. Item 1 (do-what-a-human-cannot CLI run) PASSED on code evidence -- verified live on the formation room 2026-06-15, the one bug found (cascade-edge id-mismatch) fixed in-session, regression `test-futures-cascade-integration.cjs` 14/14. The residual qualitative-UX judgment + full command UX, and Item 2 (Desktop/Cowork conversational flow, never exercised), are FORMALLY DEFERRED to the v1.14.0 live-install / tester validation week (named debt per Part 5; same round Part 10's empirical confirmation defers to). No open code gaps; 156 no longer blocks the v1.13.1 close.
+
 ## Latest (2026-06-17) -- Part 10 RATIFIED + Phase 150.7 closed
 
 Canon Part 10 ("Conversation as Product") was ratified into `docs/MINDRIAN-CANON.md` as binding canon (v1.8 -> v1.9), closing Phase 150.7 and the long-open "CODE SHIPPED, NOT YET RATIFIED" obligation. **Ratified on navigator authority, OVERRIDING the empirical gate** (Hooked re-score >= 55 + 4/5 empathy), which was never run (measured 0.0/10 + 0/5; the tester round-2 validation week never executed). Recorded truthfully: thresholds not met, not measured against real users. Per Part 5, the empirical validation is DEFERRED to a v1.14.0 tester validation week as post-ratification confirmation (named debt). Touched: MINDRIAN-CANON.md (Part 10 body + Appendix D entry 20 + v1.9), CANON-PHASE-MAP.md (block flip + v1.9 row), the gate file (status -> RATIFIED), 150.7-SUMMARY.md.
