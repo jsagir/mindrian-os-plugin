@@ -1,15 +1,8 @@
-# Roadmap: Larry Reaches v1.13.1
+# Roadmap: v1.14.0 (next) -- v1.13.1 "Larry Reaches" SHIPPED STABLE 2026-06-17
 
-## Active Milestone: v1.13.1 "Larry Reaches" (Phases 140-146)
+## SHIPPED: v1.13.1 "Larry Reaches" -- finalized STABLE 2026-06-17 (npm @latest 1.13.1, tag v1.13.1)
 
-**Status:** v1.13.1-beta.9+ (dev HEAD 2026-06-07). The LARRYREACH loop-fires gate is GREEN: the reach SENSORS (Phase 143), the navigation engine flip (Phase 144), the connector retrofit sweep (Phase 144.1), and the FULLY-WIRED acceptance gate (Phase 146, doctor --dogfood-acceptance + tests/run-all-146.sh, 8/8 constituents green incl. the run-all-1441 exhaustive 114-surface re-run) all SHIPPED. Exit 0 = the milestone ships as "Larry Reaches". Phases 141 (4/6) and 142 (3/4) carry remaining non-gate-blocking plans. Full milestone mapping is at the "LARRYREACH" section further down this file.
-
-> Header re-pointed 2026-06-05 during the planned-vs-executed drift audit. The
-> v1.13.0 "The Closed Loop" detail BELOW this block is retained as shipped
-> history (v1.13.0 finalized STABLE 2026-06-02). NOTE: v1.13.0 was never given a
-> formal milestone close-out (no v1.13.0-MILESTONE-AUDIT.md; empty stable
-> CHANGELOG body), so doctor hotfixes that belong to it ride v1.13.1 betas.
-> Source: .planning/debug/planned-vs-executed-drift-audit-260605.md.
+Archived: `.planning/milestones/v1.13.1-ROADMAP.md` + `v1.13.1-REQUIREMENTS.md`. Milestone audit: `.planning/v1.13.1-MILESTONE-AUDIT.md` (status tech_debt -- accepted; deferred items carried to v1.14.0). 24 phases executed across the 140-160 band; the LARRYREACH loop-fires gate is green (Phase 146, `tests/run-all-146.sh` 8/8). Canon Part 10 ratified (canon v1.9, navigator-authority override). Next focus: v1.14.0 (Planned section below).
 
 ---
 

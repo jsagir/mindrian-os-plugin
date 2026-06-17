@@ -1,5 +1,20 @@
 # Milestones
 
+## v1.13.1 "Larry Reaches" (Shipped STABLE: 2026-06-17)
+
+**Phases completed:** 24 phases executed across the 140-160 band (plus the connector-spine .x phases); 1740 commits since v1.13.0-beta.1. Audit: tech_debt accepted (deferred items -> v1.14.0). npm @latest 1.13.1, tag v1.13.1.
+
+**Key accomplishments:**
+
+- LARRYREACH loop-fires: insight sensors (143) + navigation-engine flip (144, routing_source legacy->engine) + the self-extending connector spine + retrofit sweep (144.1) + the fully-wired acceptance gate (146, `tests/run-all-146.sh` 8/8 green).
+- Local retrieval spine + capability dial (141) and local-intelligence wiring compute-store-act (142): `getRoomContext` 3-leg fusion + FILEVAL evidence filing with read-back.
+- LarryReach selector re-wire (148): `hats` minted as the 6th frozen reach; dial-reach orchestrator + reach-component map; suggest surfaces unified on the F.1 host.
+- Memory cortex + GSD planning artifacts as local-graph members (149/150); meeting micro-knowledge DIKW filing (150.8) adding REFINES/ROOT_CAUSES/INSTANTIATES to the frozen edge vocabulary.
+- Brain orchestration projection + `methodology_tier` boundary-keeper (157); temporal-awareness spine (160); Futures Wheel MVP `/mos:futures` (156); graph-spine single-authority viz W1-W3 / SEED-026 shipped on the beta train (162).
+- Canon Part 10 "Conversation as Product" RATIFIED (canon v1.8 -> v1.9, navigator-authority override; empirical confirmation deferred to a v1.14.0 tester validation week).
+
+---
+
 ## v1.11.0 Memory Triple + Navigation Engine (Shipped: 2026-05-01)
 
 **Phases completed:** 34 phases, 172 plans, 196 tasks

@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
-status: released
-stopped_at: Phase 162 (graph-spine-single-authority-viz) W1-W3 reconciled + SHIPPED as v1.13.1-beta.34 (SEED-026); W4-W7 deferred to v1.14.0 per locked D-C
-last_updated: "2026-06-17T17:36:40Z"
-last_activity: 2026-06-17 -- Phase 162 W1-W3 closed; v1.13.1-beta.34 released (npm + tag + marketplace + website lockstep)
+status: milestone-complete
+stopped_at: v1.13.1 "Larry Reaches" SHIPPED STABLE + milestone archived 2026-06-17 (npm @latest 1.13.1, tag v1.13.1, audit tech_debt accepted). Next: v1.14.0 -- Phase 163 trending-to-absurd-harness (navigator-designated FIRST).
+last_updated: "2026-06-17T18:30:00Z"
+last_activity: 2026-06-17 -- v1.13.1 finalized STABLE (release.sh --finalize) + milestone completed/archived; v1.14.0 queued (Phase 163 first, Phase 164 sibling)
 progress:
   total_phases: 98
   completed_phases: 78
