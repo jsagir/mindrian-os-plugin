@@ -31,6 +31,7 @@ NET-NEW only (~15-20%):
 1. Per-(subdomain x hat) **cell research fan-out** as a Workflow harness (cell agent returns `{stance, evidence, confidence}` from web + local-graph-read + Brain-generic).
 2. **Inter-hat DEBATE consolidation** over a graph-proposed "what if" hypothesis (the navigator confirms/edits the hypothesis) -> ruling + residual tension, with an adversarial verify pass.
 3. **Incremental filing contract:** every pipeline step files an artifact to the room AND embeds its analysis into the local graph via `navigation.cjs` BEFORE the next step (crash-resumable, queryable per step).
+4. **Synthetic experts as reusable graph citizens:** high-value team members are FILED as `SyntheticExpert` typed nodes (promoting the existing `room/team/personas/` `.md` files to queryable nodes) and RE-INVOKED as hats in future BONO runs. Mint at the Decision Gate (human confirms which experts to keep, Part 9 role 5); team assembly queries the expert library first, generates only the gaps. ROOM-LOCAL in this phase; cross-room reuse is a deferred Part-8-gated amendment. See `164-SYNTHETIC-EXPERTS.md`.
 
 ## Surfaces (provisional - finalized in plan-phase)
 
