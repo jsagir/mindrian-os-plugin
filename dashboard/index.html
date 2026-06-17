@@ -593,6 +593,54 @@
 
     // ── Cytoscape De Stijl Stylesheet ──
     const graphStyle = [
+      // ── Phase 162-02 (R4): spine base node mapper ──
+      // The getGraphExport spine already colored every node by knowledge_type and
+      // computed its degree, so the dashboard reads what the spine emits rather
+      // than re-deriving a color (single source of truth: the spine colored it).
+      // This base 'node' selector is listed FIRST so the more specific selectors
+      // below (section-group, artifact, etc.) override it where they apply; nodes
+      // the spine emits that have no bespoke dashboard selector (claim, causal,
+      // assumption, decision, opportunity, governing, evidence, ...) inherit this
+      // color + degree-sized shape so hubs read at a glance.
+      {
+        selector: 'node',
+        style: {
+          'background-color': 'data(color)',
+          'background-opacity': 0.8,
+          'border-width': 0,
+          'label': 'data(label)',
+          'font-family': '"Inter", sans-serif',
+          'font-size': 10,
+          'color': '#F5F0E8',
+          'text-valign': 'bottom',
+          'text-halign': 'center',
+          'text-margin-y': 4,
+          'text-wrap': 'wrap',
+          'text-max-width': 100,
+          'shape': 'ellipse',
+          // Degree-sized: hubs render larger. mapData scales node.data.degree from
+          // [0,12] onto a [24,72] px diameter, clamped at the ends.
+          'width': 'mapData(degree, 0, 12, 24, 72)',
+          'height': 'mapData(degree, 0, 12, 24, 72)'
+        }
+      },
+      // ── Phase 162-02 (R4): spine base edge fallback ──
+      // Spine edge types without a bespoke selector below (states, supports,
+      // instantiates, describes, enables, invalidates, refines, root-causes,
+      // derived-from, reverse-salient, belongs-to, ...) inherit this default so
+      // every typed edge in the feed renders. The cluster-edge selector overrides
+      // this to stay invisible (layout-only).
+      {
+        selector: 'edge',
+        style: {
+          'line-color': '#5C5A56',
+          'target-arrow-color': '#5C5A56',
+          'target-arrow-shape': 'triangle',
+          'curve-style': 'bezier',
+          'width': 1,
+          'line-style': 'solid'
+        }
+      },
       // Section group nodes
       {
         selector: 'node.section-group',
@@ -870,15 +918,32 @@
       // For large rooms (many artifacts), remove parent-child compound nesting
       // and use cose layout with virtual edges to keep artifacts near their section
       if (totalNodes > 30) {
-        // Strip parent field -- cose compound layout collapses with many children
+        // Strip parent field -- cose compound layout collapses with many children.
+        // Legacy feeds carried node.data.parent; the getGraphExport spine does NOT
+        // emit a parent field (spine nodes are not compound), so this loop cleanly
+        // no-ops on a spine feed (Phase 162-02 / R4).
         data.elements.nodes.forEach(function(n) {
           if (n.data.parent) {
             n.data._section = n.data.parent;
             delete n.data.parent;
           }
         });
-        // Add virtual edges from artifact to section for clustering
         if (!data.elements.edges) data.elements.edges = [];
+        // Phase 162-02 (R4): spine fallback for section grouping. The spine emits
+        // no parent field but DOES emit BELONGS_TO edges (node -> Section). When no
+        // node carries _section (a spine feed), derive section membership from the
+        // BELONGS_TO edges already in the feed so the >30-node cluster grouping
+        // still keeps each node near its section.
+        var anySection = data.elements.nodes.some(function(n) { return n.data._section; });
+        if (!anySection) {
+          data.elements.edges.forEach(function(e) {
+            if (e.data && e.data.type === 'BELONGS_TO') {
+              var memberNode = data.elements.nodes.filter(function(n) { return n.data.id === e.data.source; })[0];
+              if (memberNode) { memberNode.data._section = e.data.target; }
+            }
+          });
+        }
+        // Add virtual edges from member node to its section for clustering.
         data.elements.nodes.forEach(function(n) {
           if (n.data._section) {
             data.elements.edges.push({
@@ -958,6 +1023,29 @@
         }
       });
 
+      // ── Phase 162-02 (R4): edge tap shows the spine gloss ──
+      // The getGraphExport spine emits a plain-English gloss + the typed edge name
+      // on every edge. On tap, surface edge.data.gloss plus edge.data.type so the
+      // navigator can read what the relationship means without leaving the graph.
+      cy.on('tap', 'edge', function(evt) {
+        var edge = evt.target;
+        if (edge.hasClass('cluster-edge')) return; // layout-only, no semantics
+        var gloss = edge.data('gloss');
+        var type = edge.data('type') || '';
+        if (!gloss && !type) return;
+        var tip = document.getElementById('edge-tooltip');
+        if (!tip) return;
+        var srcLabel = edge.source().data('label') || edge.source().id();
+        var tgtLabel = edge.target().data('label') || edge.target().id();
+        tip.textContent = '[' + type + '] "' + srcLabel + '" ' + (gloss || 'connects to') + ' "' + tgtLabel + '"';
+        tip.style.display = 'block';
+        var pos = evt.renderedPosition || evt.position;
+        if (pos) {
+          tip.style.left = (pos.x + 60) + 'px';
+          tip.style.top = (pos.y + 48) + 'px';
+        }
+      });
+
       // Hover node -> highlight connected edges
       cy.on('mouseover', 'node', function(evt) {
         const node = evt.target;
@@ -992,7 +1080,10 @@
         var info = EDGE_ENGLISH[edgeClass] || { verb: edgeClass };
         var srcLabel = edge.source().data('label') || edge.source().id();
         var tgtLabel = edge.target().data('label') || edge.target().id();
-        edgeTooltip.textContent = '"' + srcLabel + '" ' + info.verb + ' "' + tgtLabel + '"';
+        // Phase 162-02 (R4): prefer the spine-emitted gloss when present so the
+        // hover text matches the single-source-of-truth typed-edge explanation.
+        var verb = edge.data('gloss') || info.verb;
+        edgeTooltip.textContent = '"' + srcLabel + '" ' + verb + ' "' + tgtLabel + '"';
         edgeTooltip.style.display = 'block';
         var pos = evt.renderedPosition || evt.position;
         if (pos) {
