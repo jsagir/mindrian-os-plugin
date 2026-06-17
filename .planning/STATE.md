@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches"
-status: verifying
-stopped_at: Phase 160 (temporal-awareness-spine) context gathered - 4 decisions D-01..D-04; SPEC (12 reqs) + RESEARCH + CONTEXT committed; ready for plan-phase
-last_updated: "2026-06-16T09:50:23.187Z"
-last_activity: 2026-06-14 -- Phase 156 execution started
+status: released
+stopped_at: Phase 162 (graph-spine-single-authority-viz) W1-W3 reconciled + SHIPPED as v1.13.1-beta.34 (SEED-026); W4-W7 deferred to v1.14.0 per locked D-C
+last_updated: "2026-06-17T17:36:40Z"
+last_activity: 2026-06-17 -- Phase 162 W1-W3 closed; v1.13.1-beta.34 released (npm + tag + marketplace + website lockstep)
 progress:
   total_phases: 98
   completed_phases: 78
@@ -15,6 +15,19 @@ progress:
 ---
 
 # Project State
+
+## Latest (2026-06-17) -- Phase 162 W1-W3 closed + v1.13.1-beta.34 shipped
+
+Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3 code had landed on `main` in a prior session that died before writing SUMMARYs or closing the W3 release gate. This session reconciled it:
+
+- **W1 (162-01)** spine primitive `getGraphExport` -- SUMMARY backfilled (commit `39eb695b`, as-built).
+- **W2 (162-02)** dashboard repoint + durable Section nodes -- SUMMARY backfilled (5 commits, W2 gate 13/13).
+- **W3 (162-03)** Part 8 leak gate + golden-room + type-map gate -- ran green this session (`run-all-162.sh` 6/6); navigator authorized ship-now; **Task 3 release gate RESOLVED**.
+- **Released v1.13.1-beta.34** via `scripts/release.sh --prerelease` (SEED-026 on the v1.13.x beta train per locked D-C). 5-way lockstep verified: npm `@mindrian_os/cli@1.13.1-beta.34`, tag `v1.13.1-beta.34` at origin (`9304dfe1`), plugin `main` + marketplace `source.ref` pushed, mindrian-os.com `FALLBACK_VERSION=v1.13.1-beta.34`. (release.sh aborted at Step 5.5 on a tag-replication-lag false negative AFTER all irreversible steps; finalization completed manually.)
+
+**W4-W7 (162-04..07) remain UNTOUCHED -- deferred to v1.14.0** per locked D-C: SEED-031 lossy-join fix (W4), co-occurrence re-home (W5), retire build-graph node path (W6), Phase 161 embedding on-ramp (W7). Honor the W5-before-W6 invariant when planning.
+
+> Note: Phase 162 is not tracked in ROADMAP.md (the planning dir has drifted ahead of the roadmap). Broader STATE/ROADMAP reconciliation + dead-phase cruft cleanup (Phase 76, orphan 78/79/81 dirs) is a separate follow-up.
 
 ## Project Reference
 
