@@ -13,6 +13,27 @@
 
 ---
 
+## Planned Next Milestone: v1.14.0 (not yet formally opened)
+
+**Status:** PLANNED. v1.14.0 is not yet opened as the active milestone (the v1.13.1 close is parked at audit -> finalize -> complete). This section queues v1.14.0 phases so `/gsd-new-milestone` picks them up in order. Phase 163 is the navigator-designated FIRST phase to execute in v1.14.0 (directive 2026-06-17).
+
+### Phase 163: trending-to-absurd-harness -- Visionary Innovation Companion (FIRST TO EXECUTE)
+
+**Goal:** Ship the "Trending to the Absurd" / Visionary Innovation Companion as a graph-fed harness-as-code skill: a structured trend-extrapolation agent that pushes trends to their absurd extreme to surface disruptive innovation opportunities, SEEDED AUTONOMOUSLY from domain extraction / domain archaeology with sub-domains pulled from the local graph, deliverable as autonomous / hybrid / human-in-the-loop pipelines.
+
+**What it is (Part 7):** ~80-85% reuse. EXTENDS `/mos:explore-trends` (the shipped 6-stage absurd-trend reference) + CHAINS to `/mos:futures` (Phase 156; CLONE its `lib/core/futures/orchestrator.cjs` as the harness template). Net-new (~15-20%): autonomous domain seeding, Stage 7 (mitigation/innovation roadmap), persona variants (Founder/Researcher/Investor/Analyst), path variance (Quick/Full/Expert), graph citizenship.
+
+**Load-bearing net-new -- domains/subdomains as connected graph citizens (NAVIGATOR REQUIREMENT 2026-06-17):** `domain`/`subdomain`/`focus_area` become FIRST-CLASS typed nodes carrying RELEVANT TYPED EDGES to ALL other node types (claims, assumptions, opportunities, artifacts, sections, trends, consequences) as related items -- the connective taxonomy layer of the graph, walkable FROM a domain TO everything it touches. Requires: `DECOMPOSED_INTO` hierarchy edge + at most ONE new membership edge (reuse DESCRIBES/CONVERGES/INFORMS where semantics fit) -> **frozen-edge-vocabulary canon amendment** (navigator-LOCKED, Part 6 dog-fooding). Activate the domain lens family in `lib/core/lens-engine.cjs` (already `reserved_for: 'v1.14.0'`). Writer `lib/core/navigation/typed-domain.cjs` + `getDomainsForTrendExtrapolation` reader (Tier-0 stopgap from artifacts/BRAIN.md; Tier-2 graph-walking + feedback loop). All LOCAL via the navigation.cjs chokepoint (Part 8/9).
+
+**Build pattern:** harness-as-code 9-property architecture (recon -> foundation -> surfaces -> verify; contracts-on-disk; exclusive ownership of `room/opportunity-bank/`; adversarial structured verdict; rules-in-prompt; resumable; orchestrator-in-loop). Ref impl: /mos:bono.
+
+**Canon parts:** 2, 3, 4, 6, 7, 8, 9, 10.
+**Design input:** `.planning/research/2026-06-17-trending-to-absurd-harness-scoping.md` (4-agent fan-out).
+**Context:** `.planning/phases/163-trending-to-absurd-harness/163-CONTEXT.md`
+**Status:** Scoped 2026-06-17. Next: confirm planning-tree location + open v1.14.0, then /gsd-discuss-phase 163 (or /gsd-plan-phase 163).
+
+---
+
 ## Shipped history: v1.13.0 "The Closed Loop" (renamed Arc 4 -- was "Every Hirer")
 
 **Status:** v1.13.0 SHIPPED STABLE 2026-06-02. Code for Part 10 (Phases 114-120) all landed; Part 10 RATIFICATION (empathy + Hooked gate) was never run and remains the open obligation. beta.1 shipped 2026-05-05 (plugin commit afcea5f, marketplace a37b073).
