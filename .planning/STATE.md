@@ -4,7 +4,7 @@ milestone: v1.13.1
 milestone_name: "Larry Reaches" -- finalized STABLE 2026-06-17
 status: verifying
 stopped_at: Phase 165 context gathered
-last_updated: "2026-06-18T06:20:37.594Z"
+last_updated: "2026-06-18T11:39:02.890Z"
 last_activity: 2026-06-14 -- Phase 156 execution started
 progress:
   total_phases: 13
@@ -527,6 +527,7 @@ Progress: [█████████░] 92%
 | Phase 160 P03 | 12 | 2 tasks | 8 files |
 | Phase 160 P05 | 22 | 2 tasks | 5 files |
 | Phase 160 P06 | 8min | 3 tasks | 8 files |
+| Phase 163 P02 | 1 session | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -1409,6 +1410,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 157-04: wired /mos:diagnose orphan (connector); allowlisted MECE under The Pyramid Principle; --check distinguishes STALE/UN-WIRED/UN-RANKED, registered in pre-commit + Feynman runner
 - [Phase ?]: 160-02: dual-stamp event-type-agnostic (existing frozen EVENT_TYPE only); raw relative_time prose dropped from persisted payload (Part 8 scalar discipline); chrono anchored via instant+UTC for deterministic resolution
 - [Phase ?]: 160-06: date+sync gate is ONE shared lib/core chokepoint requireValidAt both CLI and MCP call (D-02 tri-polar); has_event_date set at write by type, READ never inferred (D-04); temporal-blindness sentinel is a scheduled cadence backstop
+- [Phase ?]: 163-02: domain/subdomain/focus_area minted as first-class typed nodes via typed-domain.cjs; truth-claim domains land proposed (Part 9 role 5), pure-taxonomy domains system-confirmed (v1.5 carve-out); linkDomainToRelated writes the four domain edges via the navigation.writeEdge chokepoint only
 
 ### Pending Todos
 
@@ -1449,6 +1451,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-18T06:20:37.538Z
+Last session: 2026-06-18T11:38:58.428Z
 Stopped at: Phase 165 context gathered
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).
