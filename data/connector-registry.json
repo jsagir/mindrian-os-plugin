@@ -788,6 +788,23 @@
       "decision_surface": "F.1"
     },
     {
+      "surface": "/mos:trending-to-absurd",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-04"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "trending-to-absurd",
+      "framework": "S-Curve Analysis",
+      "posture": "push_forward",
+      "hierarchy_rank": 33,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:user-needs",
       "source": "command",
       "connects_to_spine": true,
@@ -1056,6 +1073,7 @@
       "/mos:opportunities",
       "/mos:research",
       "/mos:scout",
+      "/mos:trending-to-absurd",
       "agent:opportunity-scanner",
       "agent:research"
     ],
@@ -1077,7 +1095,8 @@
     ],
     "S-Curve Analysis": [
       "/mos:analyze-timing",
-      "/mos:explore-trends"
+      "/mos:explore-trends",
+      "/mos:trending-to-absurd"
     ],
     "Domain Selection": [
       "/mos:auto-explore",

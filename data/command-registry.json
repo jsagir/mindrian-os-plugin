@@ -1445,6 +1445,24 @@
       "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
+      "command": "/mos:trending-to-absurd",
+      "kind": "methodology",
+      "frameworks": [
+        "S-Curve Analysis"
+      ],
+      "produces": "room/opportunity-bank/trending-to-absurd/*",
+      "inputs": [],
+      "autonomous_safe": true,
+      "body_shape": "methodology",
+      "serves_jtbd": [
+        "understand-market",
+        "explore"
+      ],
+      "teaching": "When a trend feels safe, you have not pushed it far enough. /mos:trending-to-absurd seeds itself from your room's connective taxonomy, then extrapolates each trend to its absurd extreme across the 3-10 / 11-30 / 50yr horizons -- the disruptive opportunity shows up at the edge first.",
+      "jtbd_label": "Understand Market",
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
+    },
+    {
       "command": "/mos:update",
       "kind": "utility",
       "frameworks": [],
@@ -1593,7 +1611,8 @@
     ],
     "S-Curve Analysis": [
       "/mos:analyze-timing",
-      "/mos:explore-trends"
+      "/mos:explore-trends",
+      "/mos:trending-to-absurd"
     ],
     "Beautiful Question Framework": [
       "/mos:beautiful-question"
