@@ -31,6 +31,8 @@ CJS_SUITES=(
   test-lens-domain-family.cjs
   test-get-domains-for-trends.cjs
   test-trending-to-absurd-orchestrator.cjs
+  test-trending-to-absurd-stage7.cjs
+  test-trending-to-absurd-variance.cjs
 )
 
 TOTAL=0
@@ -120,6 +122,10 @@ EMDASH_TARGETS=(
   "tests/test-trending-to-absurd-orchestrator.cjs"
   "commands/trending-to-absurd.md"
   "skills/trending-to-absurd/SKILL.md"
+  "lib/core/trending-to-absurd/stage7-roadmap.cjs"
+  "tests/test-trending-to-absurd-stage7.cjs"
+  "lib/core/trending-to-absurd/variance.cjs"
+  "tests/test-trending-to-absurd-variance.cjs"
 )
 for t in "${EMDASH_TARGETS[@]}"; do
   f="$REPO_ROOT/$t"
