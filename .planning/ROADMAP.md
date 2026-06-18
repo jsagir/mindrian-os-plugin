@@ -33,10 +33,10 @@ Plans:
 - [x] 163-02-PLAN.md -- WAVE 2 FOUNDATION-B: domain/subdomain/focus_area typed nodes + typed-domain.cjs writer + edge-linker through the navigation.cjs chokepoint
 - [x] 163-03-PLAN.md -- WAVE 3 FOUNDATION-C: activate the lens-engine domain family (5 lenses + hierarchy synthesizer) + getDomainsForTrendExtrapolation graph-walking reader -- complete (commits 6b3f39a8 + 75df38f6 + cfb2caf6; run-all-163 5/5)
 - [x] 163-04-PLAN.md -- WAVE 4 SURFACE-A: clone+extend the futures orchestrator into the 5-act trend pipeline + command + connector + skill -- complete 2026-06-18 (commits fc2d3392 + b526d20a; orchestrator clone re-exports the futures harness verbatim + seedFromDomains/generateAbsurdRings/registerTrendArtifacts/surfaceTrendSelectionGate; /mos:trending-to-absurd command + connector block + skill; run-all-163 7/7, em-dash clean, both registries regenerated)
-- [ ] 163-05-PLAN.md -- WAVE 5 SURFACE-B: Stage 7 mitigation/innovation roadmap + full 4-persona x 3-path variance via Shape F hybrid gates
+- [x] 163-05-PLAN.md -- WAVE 5 SURFACE-B: Stage 7 mitigation/innovation roadmap + full 4-persona x 3-path variance via Shape F hybrid gates -- complete 2026-06-18 (commits 2a5515a2 + d45d889c; stage7-roadmap.cjs maps each opportunity to UDP/IDP/WDP + mitigation/innovation steps filed under opportunity-bank/trending-to-absurd-<seed>/stage7-roadmap/ with ROOM.md, truth-claims proposed; variance.cjs PERSONA_LENSES x PATH_VARIANTS + surfacePersonaPathGate Shape F + recordPersonaPathSelection SELECTED_REACH enum-only edge; Act 0 gate + Stage 7 act wired into the command body; run-all-163 9/9, em-dash clean, Part 8 zero egress)
 - [ ] 163-06-PLAN.md -- WAVE 6 VERIFY: the adversarial structured verdict + tests/run-all-163.sh phase gate
 
-**Status:** IN PROGRESS 2026-06-18 (6 plans, 6 waves). Waves 1-4 complete (163-01..163-04). Next: 163-05 (WAVE 5 SURFACE-B: Stage 7 + 4-persona x 3-path variance), then 163-06 (WAVE 6 VERIFY).
+**Status:** IN PROGRESS 2026-06-18 (6 plans, 6 waves). Waves 1-5 complete (163-01..163-05). Next: 163-06 (WAVE 6 VERIFY).
 
 ### Phase 166: gated-chain-executor -- the runChain spine (SECOND TO EXECUTE)
 

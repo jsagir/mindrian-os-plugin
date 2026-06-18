@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches" -- finalized STABLE 2026-06-17
 status: verifying
-stopped_at: Phase 163 Wave 4 (163-04) complete -- next 163-05
-last_updated: "2026-06-18T15:05:00.000Z"
+stopped_at: Phase 163 Wave 5 (163-05) complete -- next 163-06 (WAVE 6 VERIFY)
+last_updated: "2026-06-18T12:11:00.000Z"
 last_activity: 2026-06-14 -- Phase 156 execution started
 progress:
   total_phases: 13
@@ -16,7 +16,11 @@ progress:
 
 # Project State
 
-## Latest (2026-06-18) -- Phase 163 Wave 4 (163-04) complete
+## Latest (2026-06-18) -- Phase 163 Wave 5 (163-05) complete
+
+WAVE 5 SURFACE-B landed: the Visionary Innovation Companion is complete to the 7-stage spec with FULL variance. `lib/core/trending-to-absurd/stage7-roadmap.cjs` `generateStage7Roadmap` maps each banked opportunity to the UDP/IDP/WDP problem-type taxonomy (reused from the Phase 91-07 problem-type-router; classified by a LOCAL definition_clarity + confidence heuristic, Part 8 zero Brain call) and emits a mitigation roadmap (defend the absurd-trend risk) + an innovation roadmap (seize the opportunity), each step evidence-tiered (Part 5); truth-claim steps land review_status proposed, never auto-confirmed (Part 9 role 5). The roadmap files as a nested artifact under opportunity-bank/trending-to-absurd-<seed>/stage7-roadmap/ with ROOM.md per folder (exclusive ownership, T-163-13). `lib/core/trending-to-absurd/variance.cjs` ships D-163-06 FULL variance: `PERSONA_LENSES` frozen Founder/Researcher/Investor/Analyst (+ per-persona beautiful-question framing) x `PATH_VARIANTS` frozen Quick(1 ring + auto)/Full(FUTURES_DEPTH_CAP + hybrid)/Expert(all rings + hybrid + multi_agent); `surfacePersonaPathGate` returns a Shape F (F.2 path-control + F.1 persona) descriptor with tri-context panels (D-163-05 hybrid); `recordPersonaPathSelection` writes a SELECTED_REACH typed edge via navigation.writeEdge with enum-only props {persona, path} (Part 4 selection-as-graph-data, Part 8 enum-only). The command body gains an Act 0 persona/path gate (sets ring depth + gate policy + framing) + a Stage 7 act. Commits 2a5515a2 + d45d889c. `run-all-163.sh` 9/9, em-dash sweep clean, Part 8 leak scan clean. Waves 1-5 done; next 163-06 (WAVE 6 VERIFY: the adversarial structured verdict + phase gate).
+
+## Earlier (2026-06-18) -- Phase 163 Wave 4 (163-04) complete
 
 WAVE 4 SURFACE-A landed: the Visionary Innovation Companion is a graph-fed harness-as-code surface. `lib/core/trending-to-absurd/orchestrator.cjs` CLONES the futures 5-act harness (Part 7: require + re-export verbatim, never rewrite) and EXTENDS it with a graph-native Act 1 seed (`seedFromDomains` reads `getDomainsForTrendExtrapolation`, D-163-04), the extrapolate-to-absurd horizon stamping (3-10 / 11-30 / 50yr onto the reused HORIZON_ENUM), an exclusive-ownership filing wrapper (`registerTrendArtifacts` -> opportunity-bank/trending-to-absurd-<seed>/, T-163-10), and the Shape F.1 trend-selection gate (`surfaceTrendSelectionGate`, D-163-05). `/mos:trending-to-absurd` rides the connector spine (Phase 143.3 block, framework == frameworks: "S-Curve Analysis", hierarchy_rank 33); `skills/trending-to-absurd/SKILL.md` declares canon_parts [2,3,4,7,8,9,10] + chain-to-/mos:futures / extend-/mos:explore-trends posture. Both registries regenerated (connector 58, command 97). Commits fc2d3392 + b526d20a. `run-all-163.sh` 7/7, em-dash sweep clean, zero raw edge SQL, zero Brain egress. Waves 1-4 done; next 163-05 (Stage 7 + 4-persona x 3-path variance).
 
@@ -532,6 +536,7 @@ Progress: [█████████░] 92%
 | Phase 160 P05 | 22 | 2 tasks | 5 files |
 | Phase 160 P06 | 8min | 3 tasks | 8 files |
 | Phase 163 P02 | 1 session | 2 tasks | 4 files |
+| Phase 163 P05 | 1 session | 2 tasks | 6 files |
 
 ## Accumulated Context
 
