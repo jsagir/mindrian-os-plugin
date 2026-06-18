@@ -28,6 +28,8 @@ START_TIME=$(date +%s)
 CJS_SUITES=(
   test-edges-domain-taxonomy-floor.cjs
   test-typed-domain.cjs
+  test-lens-domain-family.cjs
+  test-get-domains-for-trends.cjs
 )
 
 TOTAL=0
@@ -79,6 +81,11 @@ EMDASH_TARGETS=(
   "lib/core/navigation/typed-domain.cjs"
   "lib/core/navigation.cjs"
   "tests/test-typed-domain.cjs"
+  "lib/core/lens-engine.cjs"
+  "lib/core/synthesizers/domain-hierarchy.cjs"
+  "lib/core/navigation/get-domains-for-trends.cjs"
+  "tests/test-lens-domain-family.cjs"
+  "tests/test-get-domains-for-trends.cjs"
 )
 for t in "${EMDASH_TARGETS[@]}"; do
   f="$REPO_ROOT/$t"
