@@ -52,6 +52,19 @@ This command is ORCHESTRATION, not a new atom (Canon Part 7). It CLONES + EXTEND
 
 This command auto-runs the stages flagged `autonomous_safe` and surfaces a Shape F Decision Gate at each of the two judgment points (trend selection, opportunity pick). HITL and autonomous remain selectable on the same rails. Ask once up front: "Hybrid (auto where safe, gate at judgment points), full HITL, or autonomous?"
 
+## The full variance surface (D-163-06)
+
+This command ships FULL variance in v1: all four persona lenses and all three paths, both selectable at a Shape F gate before the run begins.
+
+- **Persona lenses (`lib/core/trending-to-absurd/variance.cjs` `PERSONA_LENSES`):** Founder / Researcher / Investor / Analyst. The persona reshapes the FRAMING -- a Founder reads the absurd extrapolation through "what if we are solving the wrong problem?", an Investor through "what has to be true for this to return 10x?". Use the persona's beautiful question (`PERSONA_FRAMING`) to set the lens on every act.
+- **Path variants (`PATH_VARIANTS`):** Quick (fewer rings + auto -- fastest read), Full (all rings + hybrid gates -- the D-163-05 default), Expert (all rings + hybrid + multi-agent refinement). The chosen path sets the ring depth and the gate policy for the orchestrator's hybrid run.
+
+### Act 0 -- the persona + path Decision Gate (HITL judgment point)
+
+Call `surfacePersonaPathGate(roomDir)`. Render the returned descriptor through the Shape F selector (F.2 path-control for the path choice, F.1 next-move for the persona) with the tri-context panels (LOCAL the room / BRAIN generic S-Curve Analysis handle only / SIGNAL none this turn). The navigator picks one persona and one path. Then record the selection as graph data via `recordPersonaPathSelection(db, { persona, path, focusNodeId })` -- it writes a SELECTED_REACH typed edge with enum-only props (persona + path), so the choice becomes graph data (Part 4) the next scan can read. The chosen path sets the ring depth (`PATH_VARIANTS[path].rings`) and the gate policy (`PATH_VARIANTS[path].gate_policy`); the chosen persona sets the Larry framing for the rest of the run.
+
+When the path is Expert, the `multi_agent` flag dispatches the economic / technological / social / environmental refinement sub-agents -- these ride the EXISTING Canon Part 2 SUB-AGENT SPAWN affordance (a sub-agent inherits the persona context and returns a structured finding), NOT a new mechanism.
+
 ## The 5 acts
 
 ### Act 1 -- seed from the graph (autonomous_safe)
@@ -73,6 +86,16 @@ Call `registerTrendArtifacts(roomDir, consequences, { seed })`. It files each co
 ### Act 5 -- the opportunity-pick gate + handoffs (HITL judgment point 2)
 
 Surface the ring bridges via `surfaceBridgesAtGate(...)` and apply the navigator's choices via `confirmRingDecisions(db, roomDir, decisions)`: APPROVE promotes a consequence proposed-to-confirmed through `navigation.confirmNode` with `resolveByUser` (a HUMAN byUser, never the agent); REJECT and DEFER write reason edges (Part 4). Bank an approved candidate via `bankCandidateWithProvenance(...)`. Then surface the chaining handoffs via `surfaceChainingHandoffs(...)` -- every handoff target resolves through the Phase 122 command-resolver, never a hardcoded `/mos:` string. The futures CHAIN ("open as a futures wheel?") is reachable here.
+
+### Stage 7 -- the mitigation / innovation roadmap (autonomous_safe)
+
+This is the net-new output section the 7-stage spec adds beyond explore-trends's 6 stages. After the opportunities are banked, call `generateStage7Roadmap(roomDir, opportunities, { seed })` from `lib/core/trending-to-absurd/stage7-roadmap.cjs`. For each banked opportunity it:
+
+- classifies the opportunity into the UDP / IDP / WDP problem-type taxonomy (the `/mos:diagnose` vocabulary -- Undefined / Ill-Defined / Well-Defined),
+- emits a mitigation roadmap (how to DEFEND against the absurd-trend risk) and an innovation roadmap (how to SEIZE the disruptive opportunity), each step tagged with an evidence tier (Part 5),
+- files the roadmap as a nested artifact under `room/opportunity-bank/trending-to-absurd-<seed>/stage7-roadmap/` with an ICM Layer 0 ROOM.md per folder (exclusive ownership).
+
+A roadmap step that asserts a venture truth lands `review_status: proposed` (Part 9 role 5) -- never auto-confirmed. Promotion to confirmed is a human byUser decision at a later gate. An empty opportunity set yields an empty roadmap without error.
 
 ## Canon boundaries
 
