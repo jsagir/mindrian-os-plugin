@@ -28,7 +28,7 @@ Archived: `.planning/milestones/v1.13.1-ROADMAP.md` + `v1.13.1-REQUIREMENTS.md`.
 **Plans:** 6 plans in 6 waves (harness-as-code: foundation A/B/C -> surface A/B -> verify)
 
 Plans:
-- [ ] 163-01-PLAN.md -- WAVE 1 FOUNDATION-A: the 4-edge frozen-vocabulary canon amendment (DECOMPOSED_INTO / PART_OF / TAGGED_WITH / RELATED_TO), one atomic navigator-gated lockstep
+- [x] 163-01-PLAN.md -- WAVE 1 FOUNDATION-A: the 4-edge frozen-vocabulary canon amendment (DECOMPOSED_INTO / PART_OF / TAGGED_WITH / RELATED_TO), one atomic navigator-gated lockstep -- RATIFIED 2026-06-18 (canon v1.9 -> v1.10; commits 43ee325b + 02ba51dc; floor test 6/6, run-all-163 2/2)
 - [ ] 163-02-PLAN.md -- WAVE 2 FOUNDATION-B: domain/subdomain/focus_area typed nodes + typed-domain.cjs writer + edge-linker through the navigation.cjs chokepoint
 - [ ] 163-03-PLAN.md -- WAVE 3 FOUNDATION-C: activate the lens-engine domain family (5 lenses + hierarchy synthesizer) + getDomainsForTrendExtrapolation graph-walking reader
 - [ ] 163-04-PLAN.md -- WAVE 4 SURFACE-A: clone+extend the futures orchestrator into the 5-act trend pipeline + command + connector + skill

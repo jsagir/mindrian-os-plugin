@@ -2,7 +2,8 @@
 phase: 163
 plan: 01
 subsystem: navigation/edges + canon
-status: awaiting-navigator-ratification
+status: complete
+ratified: 2026-06-18 (navigator-approved; D-163-03)
 tags: [canon-amendment, frozen-edge-set, domain-taxonomy, navigator-gated, D-163-03]
 requires:
   - lib/core/navigation/edges.cjs (ALLOWED_EDGE_TYPES frozen Set)
