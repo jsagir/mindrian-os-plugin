@@ -26,6 +26,14 @@ CJS_SUITES=(
   test-chain-executor-gate.cjs
   test-chain-retry-backoff.cjs
   test-chain-graceful-partial.cjs
+  # Wave 4 MIGRATE act (the donor -> thinnest caller). Dependency order: the
+  # pre-migration behavior CAPTURE runs FIRST (it writes/asserts the baseline
+  # fixture the migration identity suite reads), then the migration + PRE===POST
+  # identity suite. There is NO pre-existing act regression suite to register
+  # (confirmed: tests/ carried none) -- the snapshot IS the regression net this
+  # wave creates.
+  test-act-prebehavior-snapshot.cjs
+  test-act-on-runchain.cjs
 )
 
 TOTAL=0
@@ -126,6 +134,11 @@ EMDASH_TARGETS=(
   "tests/test-chain-executor-gate.cjs"
   "tests/test-chain-retry-backoff.cjs"
   "tests/test-chain-graceful-partial.cjs"
+  # Wave 4: the migrated donor + its command doc + the two new act suites.
+  "scripts/act-command.cjs"
+  "commands/act.md"
+  "tests/test-act-prebehavior-snapshot.cjs"
+  "tests/test-act-on-runchain.cjs"
   "tests/run-all-166.sh"
 )
 for t in "${EMDASH_TARGETS[@]}"; do
