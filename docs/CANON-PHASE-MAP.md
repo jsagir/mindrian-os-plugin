@@ -278,6 +278,14 @@ runtimes) under the Part 8 boundary (Brain stays a methodology client, never a
 data store). Recorded here as a proposed seed only -- it is NOT a phase and
 carries no canon_parts contract yet.
 
+### v1.14.0 execution order + phase additions (added 2026-06-18)
+
+Navigator-LOCKED v1.14.0 execution order: **163 -> 166 -> 164 -> 165**. Phase 166 (gated-chain-executor) is a NEW phase scoped 2026-06-18 from an 11-agent fan-out; it is the runChain RUNTIME the suggester (122/143/144) and the orchestration projection (157/SEED-024) assume exists, and the runtime SEED-032 (harness-as-code) declares. 164 and 165 RIDE the runChain spine instead of cloning the futures orchestrator.
+
+| Status | Phase / Component | Canon Parts | Reference |
+|--------|-------------------|-------------|-----------|
+| scoped | Phase 166 gated-chain-executor (the runChain spine; invoke -> capture -> pass -> loop; auto-run autonomous_safe, halt at material steps via the Part 3 gate) | 2, 3, 4, 6, 7, 8, 9, 10 | `.planning/phases/166-gated-chain-executor/166-SPEC.md` + `166-RESEARCH.md` + `.planning/research/2026-06-18-orchestration-executor-dual-graph-conversation.md`. EXEC-01..06 + pre-work B1-B4. ~80-85% repoint of act-command.cjs + command-resolver.cjs + framework-runner + model-profiles.cjs. Declared first consumer of the Phase 157 projection. Mirror in mindrianOS Data Room solution-design. |
+
 ### Appendix A - Relationship to MWP
 
 | Status  | Phase / Component | Reference |

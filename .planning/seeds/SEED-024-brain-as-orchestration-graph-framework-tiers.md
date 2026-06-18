@@ -72,3 +72,6 @@ Connects to **Phase 137 (brain-mindrianos-sync-compat, scoped-backlog v1.14.0)**
 Part 8: only generic machinery metadata syncs (command slugs, reach_ids, framework names, OPERATES/CHAINS edges) - never user content. The methodology_tier property keeps the synced machinery legible and bounded.
 
 Drift-detection tie-in: this is the SAME anti-drift discipline Phase 150.9 just shipped for docs/code (the doctor --drift engine). The orchestration-graph sync is "doctor --drift for the Brain projection" - a Class that detects Brain-vs-repo machinery drift and a sync that heals it.
+
+---
+**Related research (2026-06-18):** see `.planning/research/2026-06-18-orchestration-executor-dual-graph-conversation.md` + Phase 166 (gated-chain-executor). The Gated Chain Executor (runChain spine) is the runtime this seed assumes; that doc carries the full Q&A + 11-agent fan-out.

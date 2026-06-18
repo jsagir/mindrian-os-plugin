@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.13.1
-milestone_name: "Larry Reaches"
-status: milestone-complete
-stopped_at: v1.13.1 SHIPPED STABLE + archived. v1.14.0 Phase 163 (trending-to-absurd-harness) CONTEXT gathered -- D-163-01..06 LOCKED (Tier-2-foundation-first, full domain-edge set, hybrid default, full variance). Ready for /gsd-plan-phase 163.
-last_updated: "2026-06-18T00:00:00Z"
-last_activity: 2026-06-18 -- branch tangle reconciled onto main; Phase 163 discuss complete (6 decisions locked); v1.14.0 queued (163 first, 164 sibling)
+milestone_name: "Larry Reaches" -- finalized STABLE 2026-06-17
+status: verifying
+stopped_at: Phase 165 context gathered
+last_updated: "2026-06-18T06:20:37.594Z"
+last_activity: 2026-06-14 -- Phase 156 execution started
 progress:
-  total_phases: 98
-  completed_phases: 78
-  total_plans: 494
-  completed_plans: 486
-  percent: 80
+  total_phases: 13
+  completed_phases: 13
+  total_plans: 62
+  completed_plans: 62
+  percent: 100
 ---
 
 # Project State
@@ -1449,6 +1449,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-16T09:49:54.708Z
-Stopped at: Phase 160 (temporal-awareness-spine) context gathered - 4 decisions D-01..D-04; SPEC (12 reqs) + RESEARCH + CONTEXT committed; ready for plan-phase
+Last session: 2026-06-18T06:20:37.538Z
+Stopped at: Phase 165 context gathered
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).

@@ -90,3 +90,6 @@ the harness).
 - Does the harness manifest become part of the Brain orchestration projection (Phase 157) so it is a
   legible, tier-marked artifact, or stay purely local?
 - Idempotence test: what is the canonical "converged room" fixture whose re-run must be a no-op?
+
+---
+**Related research (2026-06-18):** see `.planning/research/2026-06-18-orchestration-executor-dual-graph-conversation.md` + Phase 166 (gated-chain-executor). The Gated Chain Executor (runChain spine) is the runtime this seed assumes; that doc carries the full Q&A + 11-agent fan-out.

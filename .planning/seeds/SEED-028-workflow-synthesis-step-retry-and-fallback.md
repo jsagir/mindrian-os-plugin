@@ -56,3 +56,6 @@ resume/journal substrate for partial re-run; do not build a new orchestration pa
 - resume-from-runId caching (stop a run, edit the script to insert a validation
   phase, resume - the unchanged research agents returned cached). Excellent.
 - mid-run validation-phase insertion. Excellent. Preserve both.
+
+---
+**Related research (2026-06-18):** see `.planning/research/2026-06-18-orchestration-executor-dual-graph-conversation.md` + Phase 166 (gated-chain-executor). The Gated Chain Executor (runChain spine) is the runtime this seed assumes; that doc carries the full Q&A + 11-agent fan-out.

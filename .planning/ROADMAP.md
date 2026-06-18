@@ -6,9 +6,11 @@ Archived: `.planning/milestones/v1.13.1-ROADMAP.md` + `v1.13.1-REQUIREMENTS.md`.
 
 ---
 
-## Planned Next Milestone: v1.14.0 (not yet formally opened)
+## Active Milestone: v1.14.0 (OPEN -- repo on v1.14.0-beta.2)
 
-**Status:** PLANNED. v1.14.0 is not yet opened as the active milestone (the v1.13.1 close is parked at audit -> finalize -> complete). This section queues v1.14.0 phases so `/gsd-new-milestone` picks them up in order. Phase 163 is the navigator-designated FIRST phase to execute in v1.14.0 (directive 2026-06-17).
+**Status:** OPEN / IN PROGRESS. Reconciled 2026-06-18: the repo is already on `v1.14.0-beta.2` (package.json + plugin.json + CHANGELOG; tag `v1.14.0-beta.1` cut; npm @latest still 1.13.1 since betas are pre-release). The prior "not yet formally opened" line was stale drift -- v1.14.0 IS the active milestone, so `/gsd-new-milestone` is NOT needed; execute phases directly. Phase 163 is the navigator-designated FIRST phase (directive 2026-06-17); execution order is 163 -> 166 -> 164 -> 165 (navigator-LOCKED 2026-06-18).
+
+**Execution order (navigator-LOCKED 2026-06-18): 163 -> 166 -> 164 -> 165.** Phase 163 ships first (visionary companion, the directive). Phase 166 (gated-chain-executor / the runChain spine) lands SECOND as the foundation runtime, extracted from the four existing hand-rolled loops (act/pipeline/ignite/futures-orchestrator) once 163 has proven the harness shape on a real application. Phases 164 and 165 then RIDE the shared runChain instead of cloning a fifth/sixth orchestrator. Rationale + full Q&A + 11-agent fan-out: `.planning/research/2026-06-18-orchestration-executor-dual-graph-conversation.md`. 163<->166 have NO hard dependency (163 clones the futures orchestrator + uses /mos:act); the relationship is abstraction-overlap (163's hybrid pipeline IS a concrete runChain instance), so 166-after-163 captures the learning then de-duplicates for 164/165.
 
 ### Phase 163: trending-to-absurd-harness -- Visionary Innovation Companion (FIRST TO EXECUTE)
 
@@ -35,6 +37,24 @@ Plans:
 
 **Status:** PLANNED 2026-06-18 (6 plans, 6 waves). Next: confirm planning-tree location + open v1.14.0, then /gsd-execute-phase 163.
 
+### Phase 166: gated-chain-executor -- the runChain spine (SECOND TO EXECUTE)
+
+**Goal:** Ship ONE shared runtime, `lib/core/chain-executor.cjs` (`runChain`), that takes a sequence of reaches/commands and runs it as gated autopilot: invoke a step, capture its structured output, pass it as context into the next step, loop. Auto-run steps tagged `autonomous_safe`; HALT at material-decision steps and hand to the Tri-Context Decision Gate (Part 3). This is the missing RUNTIME that chains/pipelines every skill, command, and agent -- the executor the suggester (122/143/144) and the orchestration graph (157/SEED-024) both assume exists. SEED-032 (harness-as-code) declares it; this phase builds it.
+
+**What it is (Part 7):** ~80-85% reuse. REPOINT: extract the loop from `scripts/act-command.cjs:13-26`; call `validateChainAutonomy`/`composeWorkflow` (`lib/workflow/command-resolver.cjs:131-152`) for posture+steps; dispatch `agents/framework-runner.md` as the per-step brick (`previous_output` -> `chain_output`); read `decide()` (`lib/core/navigation-engine.cjs`) per loop; persist via `lib/mcp/pipeline-state.cjs` through `navigation.cjs`; route model tier via `lib/core/model-profiles.cjs`. NET-NEW (~15-20%): the `runChain` contract, the posture x evidence-quality gate, the resume-store reconciliation, and the migration of act/pipeline/ignite onto the spine. NO new orchestration framework (no LangChain/CrewAI; Claude IS the model, the spine IS the harness).
+
+**Requirements:** EXEC-01 loop runner, EXEC-02 output-passing (carry the quality signal), EXEC-03 posture x evidence-quality gate (the leverage point; irreversible steps forced-material), EXEC-04 kill-switch + single trace. Proposed: EXEC-05 (SEED-028 retry/backoff -- fold-in or fast-follow) + EXEC-06 (token budget + early-kill: maxSteps, quality early-stop, distilled output-passing, per-step routing). Pre-work blockers: B1 reconcile the two resume stores (standardize on `pipeline-state.cjs`), B2 do NOT change `decide()`'s return shape (`navigation-engine.cjs:596`; many consumers), B3 reject the harness "all PASSING -> stop" convergence (canon halt is the material-step gate), B4 recipe-source authority (command-registry = posture / connector-registry = wiring / brain-orchestration-projection = ranked next-reach; gives the dark 207-node projection a named consumer).
+
+**Migration waves:** act (DONOR, extract the spine) -> pipeline (CONSUMER, add provenanceFn + resume) -> ignite (CONSUMER, all-material 3-gate birth with the birthRoom ordering guard) -> larry-extended / larry-personality handoff seam. One surface per wave to keep CI green.
+
+**Depends on:** Phase 122 + 144 + 141 + 109 (all SHIPPED). Soft-depends on Phase 157 (ranked next-reach consumption; deferred -- 166 reads `decide()` locally until then). Builds AFTER Phase 163 so the harness shape is proven on a real application first.
+
+**Canon parts:** 2, 3, 4, 6, 7, 8, 9, 10.
+**Design input + full reasoning:** `.planning/research/2026-06-18-orchestration-executor-dual-graph-conversation.md` (11-agent fan-out) + `166-RESEARCH.md`.
+**Spec:** `.planning/phases/166-gated-chain-executor/166-SPEC.md`
+**Related seeds:** SEED-024 (orchestration graph / suggester), SEED-028 (retry/fallback), SEED-032 (harness-as-code / the manifest this is the runtime for).
+**Status:** SCOPED 2026-06-18. Next: after Phase 163 lands, /gsd-discuss-phase 166 then /gsd-plan-phase 166.
+
 ### Phase 164: bono-research-debate-engine -- BONO Research-Debate Engine (cognitive capstone)
 
 **Goal:** Make `/mos:bono` real -- the cognitive capstone that turns de Bono's hats from opinions into researched, adversarial arguments over the venture's own domain graph. A per-(subdomain x hat) research fan-out whose readings are consolidated as a structured ARGUMENT between the hats over a graph-proposed "what if" hypothesis (navigator confirms/edits), with every pipeline step filed to the room AND embedded into the local graph.
@@ -45,11 +65,32 @@ Plans:
 
 **Build pattern:** harness-as-code 9-property architecture (recon -> foundation -> surfaces -> verify; contracts-on-disk; exclusive file ownership; adversarial structured verdict; rules-in-prompt; resumable; orchestrator-in-loop). This phase is the canonical reference implementation the Phase 163 entry forward-references as "Ref impl: /mos:bono".
 
-**Depends on:** Phase 163 (domain-graph-citizen substrate) + Phase 130 (cognitive lens family). Execute after 163.
-**Canon parts:** 2, 3, 4, 8, 9.
-**Design input:** `.planning/research/2026-06-17-bono-research-debate-engine-scoping.md`. NOTE: an earlier spike (branch `bono-spike-stale-baseline`) was built on a 2239-commit-stale base and is REFERENCE-ONLY -- re-implement against current main.
+**Deliverable -- Diagnostic Issue Tree (design input 2026-06-18):** the diagnostic ("why") issue-tree is the concrete deliverable of TWO hats from the expert breakdown -- White (Data Analyst) + Black (Risk Assessor) -- the backward-looking causal sibling to Phase 163's forward trend tree. Ships as a SECOND sub_mode of the existing `/mos:diagnose` reach (`sub_mode: issue-tree` alongside `problem-diagnosis`; same `reach_id: context_block`, framework, `fileEvidenceWithReadback`). Connected to `/mos:ignite`: ignite births the governing problem to `problem-definition/`, the tree sources its key question from there and is the natural first diagnostic reach after the B3 first-win gate (shares ignite's `[SENS-01, SENS-06]` pair). LLM generates insightful MECE+falsifiable branches; the deterministic `MindrianIssueTree.js` engine validates MECE + falsifiability, renders Markdown, emits typed edges. EDGE REMAP (navigator-LOCKED 2026-06-18): the engine's `INVALIDATED`->frozen **INVALIDATES**, `RESOLVES_VIA`->frozen **ROOT_CAUSES** (confirmed leaf->governing problem) + **ENABLES** (opportunity-bank seed); NO canon amendment. Design: `.planning/phases/164-bono-research-debate-engine/164-ISSUE-TREE.md`. Source ref: `reference/issue-tree/` + `reference/genesis/` (the runnable GENESIS 6-module expert-breakdown pipeline behind `164-GENESIS-TRANSLATION.md`).
+
+**Depends on:** Phase 163 (domain-graph-citizen substrate) + Phase 130 (cognitive lens family). Execute after 163 AND after Phase 166 (per the 2026-06-18 order). RIDES the Phase 166 `runChain` spine (its per-(subdomain x hat) fan-out + inter-hat debate gates use `runChain` callbacks instead of cloning a fresh orchestrator); the harness-as-code 9 properties are satisfied BY the shared runtime, not re-implemented here.
+**Canon parts:** 2, 3, 4, 7, 8, 9.
+**Design input:** `.planning/research/2026-06-17-bono-research-debate-engine-scoping.md` + `164-GENESIS-TRANSLATION.md` (now with runnable source at `reference/genesis/`) + `164-ISSUE-TREE.md`. NOTE: an earlier spike (branch `bono-spike-stale-baseline`) was built on a 2239-commit-stale base and is REFERENCE-ONLY -- re-implement against current main.
 **Context:** `.planning/phases/164-bono-research-debate-engine/164-CONTEXT.md`
 **Status:** Scoped + queued 2026-06-17. Next: after Phase 163 lands, open v1.14.0, then /gsd-discuss-phase 164 (or /gsd-plan-phase 164).
+
+---
+
+### Phase 165: unknown-unknowns-blindspot-engine -- Confident-Wrong Discovery (Engine 1 blindspot lane)
+
+**Goal:** Ship the Knowns/Unknowns matrix + unknown-unknowns discovery engine (Horvitz et al. 2019, "Identifying Unknown Unknowns in the Open World") as the rigorous, citable backend of `/mos:map-unknowns` and the Engine-1 blindspot family. It hunts the room's blind spots -- the claims the navigator is MOST confident about and confidently WRONG -- by partitioning the high-confidence claim corpus (DSP) and spending a bounded probe budget via a UCB bandit on the highest-surprise regions.
+
+**What it is (Part 7):** ~70-80% reuse. EXTENDS `/mos:map-unknowns` (the Rumsfeld 2x2 = the shipped `KnownsUnknownsMatrix`) + the Engine-1 blindspot scripts (`compute-blindspot-mass`, `compute-bayesian-surprise`, reverse-salient `rs-engine.py`, whitespace) + the `navigation.cjs` chokepoint + the connector spine. Net-new (~20-30%): the DSP partitioner + UCB bandit (deterministic, index-sampled, NO `Math.random`; resumable per-pull), and the LOAD-BEARING RECAST -- the room has no trained classifier/oracle, so model=belief system, confidence=evidence tier (Part 5), oracle=human-confirm (Part 9 role 5) | `/mos:validate` falsification test | MVP result.
+
+**The 2x2 IS the router (chain topology):** each Rumsfeld quadrant routes to a different pipeline. Known-Unknown -> whitespace fill / research-corpus / expert exploration (164 White hat) / find-analogies. Unknown-Known -> meetings + graph-walk / build-knowledge (DIKW). Unknown-Unknown -> challenge-assumptions -> issue-tree -> validate/MVP. Known-Known = the bandit's hunting ground. Declared as `FEEDS_INTO` edges via the Phase 89.4 rs-chain-feeder precedent (upstream: whitespace/reverse-salient/HSI/decomposition; downstream: challenge/issue-tree/validate-mvp/find-analogies/expert-fill). Surfaces IN the F.1 selector as ranked candidate reaches (f-selector-ranker, Phase 125).
+
+**Trigger -- meetings are the oracle (navigator defaults 2026-06-18):** a meeting is both where blind spots are BORN (new confident assertions) and KILLED (a stakeholder contradiction = the oracle returning a true label). Not a new sensor -- a condition on two shipped ones: RESOLVE rides SENS-06's `contradiction` branch (a `CONTRADICTS`/`INVALIDATES` against a `confirmed` Academic/Operational-tier claim); RE-SCAN rides SENS-08 memory-cortex (stale governing-thought hash). Hash-delta gated (mirror the Act-1 `STATE.md` source-hash invalidation + `SIGNAL_FRESHNESS_MS`) so it never fires on a trivial standup. DEFAULT: auto-fire at the next F.1 gate (Larry reacts unprompted), freshness-gated. IN-SCOPE: wire `/mos:file-meeting` onto the connector spine (currently an orphan -- no `connector:` block; today the trigger leans on `/mos:reanalyze`).
+
+**Build pattern:** harness-as-code 9-property architecture (recon -> foundation [deterministic core: pattern-miner / dsp / bandit / rumsfeld-matrix / corpus-adapter] -> surfaces [orchestrator clone of `lib/core/futures/orchestrator.cjs` + map-unknowns connector + sensor conditions + chain-feeder] -> verify [adversarial structured verdict: recast-holds / deterministic / part8-clean / frozen-edges-only / gate-prevents-thrash]). Ref impl: /mos:bono.
+
+**Depends on:** Phase 163 (domain-graph-citizen substrate, for partitioning the claim corpus by domain) + Phase 150.8 (typed claim nodes + evidence tiers = the confident-claim corpus). Execute after 163 AND after Phase 166 (per the 2026-06-18 order); sibling to 164. RIDES the Phase 166 `runChain` spine: the 2x2-quadrant chain topology (each Rumsfeld quadrant routes to a different pipeline) is expressed as `runChain` step sequences with the posture x quality gate, not a cloned orchestrator.
+**Canon parts:** 2 (Engine 1), 3 (F.1 selector + Decision Gate), 4 (typed edges), 5 (evidence tier = confidence), 8 (LOCAL-only pattern-mine, zero Brain egress), 9 (oracle = human-confirms-truth).
+**Design input:** `.planning/research/2026-06-18-unknown-unknowns-blindspot-engine-scoping.md`. Source ref: `reference/unknown-unknowns-horvitz/`.
+**Status:** Scoped + queued 2026-06-18. Next: after Phase 163 lands, open v1.14.0, then /gsd-discuss-phase 165.
 
 ---
 
