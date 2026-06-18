@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches" -- finalized STABLE 2026-06-17
 status: verifying
-stopped_at: Phase 166 Wave 6 (166-06) complete -- next 166-07 (larry handoff seam)
-last_updated: "2026-06-18T13:45:00.000Z"
+stopped_at: Phase 166 Wave 3 (166-03) complete -- EXEC-05 retry/backoff + graceful partial
+last_updated: "2026-06-18T14:01:54.219Z"
 last_activity: 2026-06-14 -- Phase 156 execution started
 progress:
   total_phases: 13
@@ -559,6 +559,7 @@ Progress: [█████████░] 92%
 | Phase 163 P05 | 1 session | 2 tasks | 6 files |
 | Phase 166 P05 | 6m | 3 tasks | 5 files |
 | Phase 166 P06 | 8m | 2 tasks | 3 files |
+| Phase 166 P07 | 5min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -1482,6 +1483,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-18T13:23:00.000Z
+Last session: 2026-06-18T14:01:47.025Z
 Stopped at: Phase 166 Wave 3 (166-03) complete -- EXEC-05 retry/backoff + graceful partial
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).
