@@ -76,6 +76,15 @@ Before filing, self-check the artifact against three criteria:
 
 If any criterion fails, revise the artifact before filing. Never file a generic artifact. If after revision it still fails, set confidence to "low" and note the quality issue in the return summary.
 
+#### fable-mode self-critique contract (HARN-02 / D-167-04)
+
+fable-mode is the named per-step brick contract for chained execution. It maps directly onto the Step-3 quality gate above and the `FRAMEWORK_RUNNER_RESULT` quality enum below. It introduces NO new model, NO fable model tier (model selection stays opus/sonnet/haiku), and NO new quality vocabulary.
+
+1. **Verify + self-critique on every material chain step.** When a step runs as part of a chain (`previous_output` present) AND the step is material (its posture is not push_forward, it is irreversible, or it is flagged material), the runner MUST VERIFY its output and SELF-CRITIQUE it against the three Step-3 criteria BEFORE its `chain_output` becomes the next step's `previous_output`. A trivially-safe push_forward reversible step skips the critique (D-167-04 token-cost scoping: do not re-verify trivially-safe steps).
+2. **The verdict rides the existing quality field.** The self-critique verdict is carried in the `FRAMEWORK_RUNNER_RESULT` `quality` field (`high|medium|low`). A failed self-critique sets `quality: low`. The runtime maps `quality: low` to a HALT: the `lib/core/chain-executor.cjs` `selfCritiqueFn` seam augments `result.quality` to feed the EXISTING LOW_QUALITY gate (`makeGateFn`), and the seam is mirrored in BOTH the synchronous `runChain` path and the asynchronous `_runChainResilient` path, so a failed self-critique halts the chain in whichever path ran.
+3. **Naming over shipped machinery.** fable-mode is net-new naming over the quality gate that already ships; it adds NO new enum value and NO model alias.
+4. **No auto-retry to convergence (166 B3).** A low self-critique HALTS at the Decision Gate; it does NOT loop or auto-retry toward a passing state. The verdict is a gate INPUT, never a convergence stop condition.
+
 ### Step 4: File Artifact
 
 Write the artifact to `{room_path}/{target_section}/` with provenance frontmatter:

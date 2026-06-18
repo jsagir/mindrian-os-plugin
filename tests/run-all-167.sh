@@ -34,6 +34,7 @@ CJS_SUITES=(
   test-recipe-maps-loadmanifest.cjs
   test-harness-manifest-part8-boundary.cjs
   test-harness-manifest-precommit-wiring.cjs
+  test-chain-executor-fable-mode.cjs
 )
 
 TOTAL=0
@@ -95,6 +96,7 @@ PART8_OK=1
 PART8_LIB=(
   "scripts/build-harness-manifest.cjs"
   "lib/core/recipe-maps.cjs"
+  "lib/core/chain-executor.cjs"
 )
 # No Brain-write MCP call / brain-write helper (the canonical Part 8 breach).
 BRAIN_WRITE='mcp__brain_(write|store|upsert|ingest)|writeBrain|sendToBrain|ingestToBrain'
@@ -138,10 +140,13 @@ EMDASH_TARGETS=(
   "scripts/build-harness-manifest.cjs"
   "data/harness-manifest.json"
   "lib/core/recipe-maps.cjs"
+  "lib/core/chain-executor.cjs"
+  "agents/framework-runner.md"
   "tests/test-harness-manifest-check.cjs"
   "tests/test-recipe-maps-loadmanifest.cjs"
   "tests/test-harness-manifest-part8-boundary.cjs"
   "tests/test-harness-manifest-precommit-wiring.cjs"
+  "tests/test-chain-executor-fable-mode.cjs"
   "scripts/install-pre-commit.sh"
   "tests/run-all-167.sh"
 )
