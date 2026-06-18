@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches" -- finalized STABLE 2026-06-17
 status: verifying
-stopped_at: Phase 166 Wave 2 (166-02) complete -- next 166-03 (act migration wave)
-last_updated: "2026-06-18T13:30:00.000Z"
+stopped_at: Phase 166 Wave 3 (166-03) complete -- next 166-04 (act DONOR migration wave)
+last_updated: "2026-06-18T13:23:00.000Z"
 last_activity: 2026-06-14 -- Phase 156 execution started
 progress:
   total_phases: 13
@@ -16,7 +16,11 @@ progress:
 
 # Project State
 
-## Latest (2026-06-18) -- Phase 166 Wave 2 (166-02) complete
+## Latest (2026-06-18) -- Phase 166 Wave 3 (166-03) complete
+
+WAVE 3 RELIABILITY landed: EXEC-05 / D-166-01 closes the SEED-028 / AION failure mode (a transient 5xx on the load-bearing terminal synthesis step silently discarding an entire chain). NEW `lib/core/chain-retry.cjs` ships `isTransient(err)` (a CLOSED allow-list of the four transient codes 500/502/503/529 read from .status/.statusCode/a message regex; 501/504 + all 4xx + validation/type errors fail fast, T-166-11) and `withBackoff(fn, {retries, baseDelayMs, maxDelayMs, sleep, returnMarkerOnExhaust})` (exponential-with-cap delay via an INJECTABLE sleep -- deterministic, no Math.random; bounded at retries+1 attempts and maxDelayMs delay, T-166-09; non-transient rethrows immediately; exhaustion returns/throws a marker naming the last code). `runChain` was EXTENDED, not forked: an opt-gated async resilient path (triggered ONLY by a reliability opt: retries/journal/roomDir/resume/sleep) wraps the onStep dispatch in `withBackoff(isTransient)`; on transient exhaustion OR a non-transient hard fault it folds a `{step, failure:{code,reason,attempts}, partial:true}` marker into the ONE trace, PRESERVES upstream chain_outputs, journals the position via the Wave-1 `pipeline-state.cjs` recordStep/read substrate (D-166-02), and returns `{completed:false, partial:true, haltedAt}` -- NEVER null, never a silent drop. A resume reads the journal cursor and SKIPS at-or-before-cursor steps, re-entering at the failed step (upstream NOT re-run); no new orchestration path (Part 7). The Wave-2 synchronous runChain path is byte-identical for all prior callers (D-166-04 single door preserved; Wave-2 suites stay green). B2 preserved (decision_trace recorded unchanged on the resilient path); B3 preserved (no convergence branch). Phase gate `tests/run-all-166.sh` 8/8 green (6 suites + Part 8 sweep + em-dash sweep); chain-retry.cjs + the graceful-partial branch open zero Brain wire (Part 8). 5 atomic commits (RED 9eb2f98d, GREEN 0dc840e6 retry; RED 268cdb95, GREEN 88e5417f partial; runner 62c63fd4). Plans 04-08 remain (act DONOR migration -> pipeline -> ignite -> larry handoff seam). See `166-03-SUMMARY.md`.
+
+## Prior (2026-06-18) -- Phase 166 Wave 2 (166-02) complete
 
 WAVE 2 CORE landed: the missing RUNTIME. `lib/core/chain-executor.cjs` ships `runChain` -- the ONE shared gated loop in lib/core (CLI+MCP, D-166-04; no consumer owns a loop), extracted/generalized from the donor loop in `scripts/act-command.cjs`. It implements EXEC-01 (loop runner re-calling the injectable `decideFn` seam -- production default = navigation-engine `decide()` -- ONCE PER LOOP as the LIVE next-step authority; B2 records its `decision_trace` UNCHANGED / reference-equal, NEVER rankedNextReach which stays contract-only per Phase 157 deferral), EXEC-02 (each step's `chain_output` folds into the next `previousOutput` carrying the framework-runner `quality` enum forward), EXEC-03 (`makeGateFn` -- the single leverage point -- returns 'run' ONLY for push_forward/autonomous_safe + not-low-quality + reversible; irreversible steps via `IRREVERSIBLE_HINTS` email/deploy/publish/external-write or an explicit flag are FORCED-MATERIAL and halt regardless of tag, D-166-05/HARD RULE), EXEC-04 ([stop] verb flushes the trace built so far and ends cleanly + ONE ordered chain trace = {step, chain_output, quality, decision_trace}), and EXEC-06 (maxSteps `budget_brake` hard cap + `quality_early_stop`). NO convergence stop (B3): the stop condition is posture/quality/maxSteps only. Fail-closed throughout (any gate/onStep/decide fault degrades to a withhold-default halt). Phase gate `tests/run-all-166.sh` 6/6 green (4 suites + Part 8 sweep + em-dash sweep); chain-executor.cjs opens zero Brain wire (Part 8). 4 atomic commits (RED 1ee95c62, GREEN fa8ada42, gate test 43607002, runner a68e598f). Plans 03-08 remain (act DONOR migration -> pipeline -> ignite -> larry handoff seam). See `166-02-SUMMARY.md`.
 
@@ -1464,6 +1468,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-18T11:38:58.428Z
-Stopped at: Phase 165 context gathered
+Last session: 2026-06-18T13:23:00.000Z
+Stopped at: Phase 166 Wave 3 (166-03) complete -- EXEC-05 retry/backoff + graceful partial
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).
