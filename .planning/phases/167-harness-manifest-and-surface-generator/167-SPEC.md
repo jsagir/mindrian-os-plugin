@@ -13,7 +13,7 @@ depends_on:
 realizes_seed: SEED-032 (harness-as-code)
 related_seeds: [SEED-024, SEED-028]
 source: "navigator 2026-06-18 -- the three-move architecture update (Harness / Larry-PAI / fable-mode), split out of Phase 166 to respect D-166-03 (three-map layering) and the 166 SPEC's deferral of the manifest"
-sequence: "after Phase 166; slot vs 164/165 is a navigator decision (no hard dependency on 164/165)"
+sequence: "THIRD in v1.14.0 -- revised order 163 -> 166 -> 167 -> 164 -> 165, navigator-LOCKED 2026-06-18. Moved ahead of 164/165 (per 167-RESEARCH 4-lens) so they inherit generated wiring (HARN-03) + fable-mode (HARN-02) from birth."
 ---
 
 # Phase 167: Harness-as-code completion
