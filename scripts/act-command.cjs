@@ -52,6 +52,19 @@ const resolver = require(path.join(REPO_ROOT, 'lib', 'workflow', 'command-resolv
 // replaces the bespoke [continue] / [stop] brackets.
 const dispatcher = require(path.join(REPO_ROOT, 'lib', 'hmi', 'selector-dispatcher.cjs'));
 
+// Phase 166-04 (Wave 4 MIGRATE): act was the DONOR the runChain spine was
+// extracted from (Wave 2). This wave repoints act ONTO the spine: the walk that
+// used to live in this file's planChainRun loop now lives in
+// lib/core/chain-executor.cjs runChain. act composes the chain (recommender +
+// resolver, unchanged) then DELEGATES the walk to runChain, supplying act's
+// callbacks only -- postureFn (recipe-maps.postureForCommand, the ONE posture
+// authority, Wave 1), the default gateFn, an onStep recording the would-run step
+// the way planChainRun did, an onHalt rendering the existing F.0 gate, and
+// provenanceFn:null (act is not the pipeline). act owns no loop and
+// re-implements no posture (D-166-04).
+const chainExecutor = require(path.join(REPO_ROOT, 'lib', 'core', 'chain-executor.cjs'));
+const recipeMaps = require(path.join(REPO_ROOT, 'lib', 'core', 'recipe-maps.cjs'));
+
 // Phase 129-04: navigation.cjs is the ONLY door to room.db for this script (it
 // is NOT substrate-guard allow-listed). Lazy-required with a graceful try/catch
 // so a navigation load failure degrades the workflow_stage emission to a no-op
@@ -113,37 +126,114 @@ function readProblemType(roomDir) {
   return null;
 }
 
-// ---------- plan the chain run, stopping at the first non-autonomous step ----------
+// ---------- plan the chain run by DELEGATING the walk to runChain (Phase 166-04) ----------
 
 /**
- * planChainRun(workflow, autonomyReport) -> { wouldRun, stopAt, stopReason }
- *   wouldRun:    [{step, command, framework}] the autonomous_safe prefix the
- *                command body may run unattended.
- *   stopAt:      the first step that needs the user (or null if the whole chain
- *                is autonomous_safe).
- *   stopReason:  'not autonomous_safe' | 'no /mos: command' | null
+ * buildRunChainPlan(workflow, autonomyReport) -> { wouldRun, stopAt, stopReason }
  *
- * The first blocker per validateChainAutonomy is "not autonomous_safe". A
- * command:null step is ALSO a stop point (it cannot run unattended -- it needs
- * a manual run), per the spec's "stop at the first non-autonomous_safe (or
- * command-less) step".
+ * The Wave-4 migration seam: act stops owning a loop. Where this file used to
+ * walk the steps itself (the old planChainRun loop, act-command.cjs:131-147),
+ * it now DELEGATES the walk to lib/core/chain-executor.cjs runChain and DERIVES
+ * the same { wouldRun, stopAt, stopReason } plan shape from runChain's
+ * { trace, completed, haltedAt } return. The render (renderChainReport) and the
+ * journaling (emitWorkflowStages) drive off this plan UNCHANGED, so the
+ * user-visible behavior is byte/behavior-identical to the pre-migration donor
+ * (VERIFIED against tests/fixtures/act-prebehavior-baseline.json).
+ *
+ * The callbacks act supplies to runChain:
+ *   postureFn    = recipe-maps.postureForCommand (the ONE posture authority, Wave 1).
+ *                  act re-implements no posture -- it names the authority and lets
+ *                  the spine consult it.
+ *   gateFn       = a chain-autonomy gate built from THIS chain's autonomyReport
+ *                  (the blocker-set + command-less detection the donor encoded).
+ *                  Because act's stop semantics are "the first non-autonomous_safe
+ *                  (or command-less) step", the gate reads the precomputed
+ *                  validateChainAutonomy report rather than re-deriving posture
+ *                  per step -- the report IS recipe-maps' verdict for the chain.
+ *   onStep       = records the greenlit step into wouldRun (the way planChainRun
+ *                  pushed { step, command, framework }); returns a benign output
+ *                  (act does NOT dispatch framework-runner here -- the /mos:act
+ *                  command body does that for the greenlit prefix; this helper
+ *                  only PLANS the walk).
+ *   onHalt       = records the stop step + reason (the render's F.0 gate is built
+ *                  later by renderChainReport from plan.stopAt). Returns 'defer'
+ *                  so the loop halts here (act's stop = the first material step).
+ *   provenanceFn = null (act is not the pipeline).
+ *   decideFn     = a no-op seam (act's stop authority is the chain autonomy
+ *                  report, not a live decide() neighborhood walk -- act PLANS a
+ *                  precomposed chain rather than re-deriving the next reach).
  */
-function planChainRun(workflow, autonomyReport) {
+function buildRunChainPlan(workflow, autonomyReport) {
+  const steps = Array.isArray(workflow) ? workflow : [];
+
+  // The blocker set + command-less detection the donor encoded, surfaced to the
+  // gate. This is validateChainAutonomy's verdict -- recipe-maps' posture
+  // authority for the chain -- not a re-implementation.
   const blockerSteps = new Set();
   if (autonomyReport && Array.isArray(autonomyReport.blockers)) {
     for (const b of autonomyReport.blockers) if (b && typeof b.step === 'number') blockerSteps.add(b.step);
   }
+
   const wouldRun = [];
-  for (const s of workflow) {
-    if (!s || typeof s.command !== 'string' || s.command.length === 0) {
-      return { wouldRun: wouldRun, stopAt: s, stopReason: 'no /mos: command' };
+  let stopAt = null;
+  let stopReason = null;
+
+  // gateFn: 'run' for an autonomous_safe step, 'halt' at the first command-less
+  // (no /mos:) step or the first blocker. The stop reason is captured here so
+  // onHalt can record it. This is the donor's stop semantics, moved onto the
+  // shared spine's gate seam.
+  function gateFn(step) {
+    if (!step || typeof step.command !== 'string' || step.command.length === 0) {
+      stopReason = 'no /mos: command';
+      return 'halt';
     }
-    if (blockerSteps.has(s.step)) {
-      return { wouldRun: wouldRun, stopAt: s, stopReason: 'not autonomous_safe' };
+    if (blockerSteps.has(step.step)) {
+      stopReason = 'not autonomous_safe';
+      return 'halt';
     }
-    wouldRun.push({ step: s.step, command: s.command, framework: s.framework });
+    return 'run';
   }
-  return { wouldRun: wouldRun, stopAt: null, stopReason: null };
+
+  // onStep: record the greenlit step into wouldRun (the planning the donor did).
+  // act does NOT dispatch the framework-runner here; the command body greenlights
+  // the prefix. Returns a benign high-quality output so the spine's quality carry
+  // never short-circuits the autonomous_safe prefix.
+  function onStep(step) {
+    wouldRun.push({ step: step.step, command: step.command, framework: step.framework });
+    return { chain_output: { step: step.step }, quality: 'high' };
+  }
+
+  // onHalt: record the stop step (the render builds the F.0 gate from it). Return
+  // 'defer' so runChain ends the walk here (act halts at the first material step).
+  function onHalt(step) {
+    stopAt = step;
+    return 'defer';
+  }
+
+  chainExecutor.runChain(steps, {
+    postureFn: recipeMaps.postureForCommand,
+    gateFn: gateFn,
+    onStep: onStep,
+    onHalt: onHalt,
+    provenanceFn: null,
+    decideFn: function () { return null; },
+    maxSteps: steps.length > 0 ? steps.length : 1,
+  });
+
+  return { wouldRun: wouldRun, stopAt: stopAt, stopReason: stopReason };
+}
+
+/**
+ * planChainRun(workflow, autonomyReport) -> { wouldRun, stopAt, stopReason }
+ *
+ * Thin shim preserved for the existing call sites (renderChainReport,
+ * emitWorkflowStages, main, and the snapshot/identity suites). The walk
+ * OWNERSHIP now lives in runChain via buildRunChainPlan; this name stays as the
+ * stable surface that returns the same plan shape it always did. The donor loop
+ * that used to live here (the manual step walk) is gone -- act owns no loop.
+ */
+function planChainRun(workflow, autonomyReport) {
+  return buildRunChainPlan(workflow, autonomyReport);
 }
 
 // ---------- render (Shape E / F.0 action report) ----------
@@ -363,6 +453,7 @@ module.exports = {
   parseArgs: parseArgs,
   resolveRoomDir: resolveRoomDir,
   readProblemType: readProblemType,
+  buildRunChainPlan: buildRunChainPlan,
   planChainRun: planChainRun,
   renderChainReport: renderChainReport,
   emitWorkflowStages: emitWorkflowStages,
