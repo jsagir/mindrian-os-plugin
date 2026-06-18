@@ -6,12 +6,18 @@
 # a Part-8 grep sweep + an em-dash sweep over the phase artifacts proving the
 # CLAUDE.md no-em-dash + Canon Part 8 HARD RULES hold.
 #
-# Wave 1 (this plan) registers the three foundation suites:
-#   test-harness-manifest-check.cjs           (the generator + --check)
-#   test-recipe-maps-loadmanifest.cjs         (the loadManifest accessor)
-#   test-harness-manifest-part8-boundary.cjs  (the planted-secret boundary scan)
-# Later waves (fable-mode, /mos:new-surface, the adversarial verdict) append
-# their suites to CJS_SUITES.
+# FINALIZED (Wave 5) as the SINGLE PASS/FAIL phase gate. Every Phase-167 suite +
+# the manifest --check + the new-surface --check (on a tmp-dir fixture) + the
+# Part 8 grep sweep + the adversarial verdict + the Part 8 leak scan + the
+# em-dash sweep run to completion here. The registered suites, in wave order:
+#   test-harness-manifest-check.cjs           (W1: the generator + --check)
+#   test-recipe-maps-loadmanifest.cjs         (W1: the loadManifest accessor)
+#   test-harness-manifest-part8-boundary.cjs  (W1: the planted-secret boundary)
+#   test-harness-manifest-precommit-wiring.cjs(W2: the D-167-03 pre-commit gate)
+#   test-chain-executor-fable-mode.cjs        (W3: fable-mode self-critique)
+#   test-new-surface-generator.cjs            (W4: /mos:new-surface)
+#   test-harness-167-verdict.cjs              (W5: the adversarial verdict)
+#   test-harness-167-part8-leak.cjs           (W5: the Part 8 leak scan)
 #
 # This runner MUST run to completion (no crash) even when any suite fails.
 #
@@ -26,9 +32,10 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 START_TIME=$(date +%s)
 
 # Phase-167 suites in wave order. Wave 1 registers the three foundation suites;
-# Wave 2 (D-167-03 enforcement) appends the pre-commit wiring test; later waves
-# append (fable-mode self-critique, new-surface generator, the adversarial
-# structured verdict).
+# Wave 2 (D-167-03 enforcement) appends the pre-commit wiring test; Wave 3
+# appends fable-mode self-critique; Wave 4 appends the new-surface generator;
+# Wave 5 (this finalization) appends the adversarial structured verdict + the
+# Part 8 leak scan -- the last two legs that make this the SINGLE phase gate.
 CJS_SUITES=(
   test-harness-manifest-check.cjs
   test-recipe-maps-loadmanifest.cjs
@@ -36,6 +43,8 @@ CJS_SUITES=(
   test-harness-manifest-precommit-wiring.cjs
   test-chain-executor-fable-mode.cjs
   test-new-surface-generator.cjs
+  test-harness-167-verdict.cjs
+  test-harness-167-part8-leak.cjs
 )
 
 TOTAL=0
@@ -215,6 +224,8 @@ EMDASH_TARGETS=(
   "scripts/build-new-surface.cjs"
   "commands/new-surface.md"
   "tests/test-new-surface-generator.cjs"
+  "tests/test-harness-167-verdict.cjs"
+  "tests/test-harness-167-part8-leak.cjs"
   "scripts/install-pre-commit.sh"
   "tests/run-all-167.sh"
 )
