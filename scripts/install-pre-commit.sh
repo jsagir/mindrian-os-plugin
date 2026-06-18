@@ -31,9 +31,10 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 HOOK_PATH="$REPO_ROOT/.git/hooks/pre-commit"
 
 if [ -f "$HOOK_PATH" ]; then
-  # Idempotency: consider the hook fully installed only when BOTH guards wired.
-  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH"; then
-    echo "Pre-commit hook already installed (schema-aliases + substrate). No changes."
+  # Idempotency: consider the hook fully installed only when ALL guards wired
+  # (schema-aliases + substrate + the Phase 167 harness-manifest drift guard).
+  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH" && grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH"; then
+    echo "Pre-commit hook already installed (schema-aliases + substrate + harness-manifest). No changes."
     exit 0
   fi
   echo "WARNING: $HOOK_PATH exists but is missing one or more MindrianOS guards."
@@ -63,6 +64,27 @@ HOOK_TRAILER_ALIASES
 node "$REPO_ROOT_PLACEHOLDER/scripts/check-substrate.cjs" --diff || exit 1
 HOOK_TRAILER_SUBSTRATE
   fi
+  if ! grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH"; then
+    cat >> "$GUARD_SNIPPET" <<'HOOK_TRAILER_MANIFEST'
+
+# Phase 167 (D-167-03) - harness-manifest drift guard.
+# When the manifest, its generator, OR any of the three named source maps
+# (command-registry / connector-registry / brain-orchestration-projection) is
+# staged, regenerate the manifest in memory and reject the commit on drift
+# (STALE / UNRESOLVED / MALFORMED). A change to any source map can stale the
+# manifest digests, so the trigger is path-scoped on all five paths. STRONGER
+# than the connector/projection precedent (whose --checks run only in test
+# aggregators): the manifest --check is wired into BOTH pre-commit and
+# tests/run-all-167.sh. Canon Part 8: the check is a local byte-compare +
+# map-resolve; it never touches the Brain.
+# Recovery on drift: node scripts/build-harness-manifest.cjs
+if git diff --cached --name-only | grep -qE '^(scripts/build-harness-manifest\.cjs|data/harness-manifest\.json|data/command-registry\.json|data/connector-registry\.json|data/brain-orchestration-projection\.json)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT_PLACEHOLDER/scripts/build-harness-manifest.cjs" ]; then
+    node "$REPO_ROOT_PLACEHOLDER/scripts/build-harness-manifest.cjs" --check || { echo "harness-manifest drift -- run: node scripts/build-harness-manifest.cjs" >&2; exit 1; }
+  fi
+fi
+HOOK_TRAILER_MANIFEST
+  fi
   # Find the LAST `exit 0` line (a bare terminal exit). If present, splice the
   # guards in just before it; otherwise append to the end of the hook.
   LAST_EXIT_LINE="$(grep -n '^exit 0[[:space:]]*$' "$HOOK_PATH" | tail -1 | cut -d: -f1 || true)"
@@ -80,9 +102,10 @@ HOOK_TRAILER_SUBSTRATE
 else
   cat > "$HOOK_PATH" <<HOOK_BODY
 #!/usr/bin/env bash
-# Auto-installed by scripts/install-pre-commit.sh (Phase 108-05 + 128-03).
+# Auto-installed by scripts/install-pre-commit.sh (Phase 108-05 + 128-03 + 167).
 # Phase 108-05 - schema alias drift guard.
 # Phase 128-03 - Substrate Contract guard (lib/core/navigation.cjs is the only door).
+# Phase 167 (D-167-03) - harness-manifest drift guard.
 set -euo pipefail
 node "$REPO_ROOT/scripts/check-schema-aliases.cjs" || exit 1
 # Phase 128-03 - reject net-new chokepoint bypass on staged files.
@@ -91,6 +114,22 @@ node "$REPO_ROOT/scripts/check-schema-aliases.cjs" || exit 1
 # or add the path to ALLOWED_DIRECT_IMPORT in scripts/check-substrate.cjs.
 # Contract: docs/architecture/SUBSTRATE-CONTRACT.md
 node "$REPO_ROOT/scripts/check-substrate.cjs" --diff || exit 1
+# Phase 167 (D-167-03) - harness-manifest drift guard.
+# When the manifest, its generator, OR any of the three named source maps
+# (command-registry / connector-registry / brain-orchestration-projection) is
+# staged, regenerate the manifest in memory and reject the commit on drift
+# (STALE / UNRESOLVED / MALFORMED). A change to any source map can stale the
+# manifest digests, so the trigger is path-scoped on all five paths. STRONGER
+# than the connector/projection precedent (whose --checks run only in test
+# aggregators): the manifest --check is wired into BOTH pre-commit and
+# tests/run-all-167.sh. Canon Part 8: the check is a local byte-compare +
+# map-resolve; it never touches the Brain.
+# Recovery on drift: node scripts/build-harness-manifest.cjs
+if git diff --cached --name-only | grep -qE '^(scripts/build-harness-manifest\.cjs|data/harness-manifest\.json|data/command-registry\.json|data/connector-registry\.json|data/brain-orchestration-projection\.json)\$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-harness-manifest.cjs" ]; then
+    node "$REPO_ROOT/scripts/build-harness-manifest.cjs" --check || { echo "harness-manifest drift -- run: node scripts/build-harness-manifest.cjs" >&2; exit 1; }
+  fi
+fi
 HOOK_BODY
 fi
 
