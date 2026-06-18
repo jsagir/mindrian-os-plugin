@@ -2,7 +2,8 @@
 phase: 168-part4-edge-vocabulary-reconciliation
 plan: 01
 subsystem: navigation / typed-edge vocabulary
-status: awaiting-navigator-ratification
+status: complete
+ratified: 2026-06-18 (navigator-approved; canon v1.10 -> v1.11)
 tags: [edge-vocabulary, reconciliation, canon-amendment, frozen-set, part-4, part-9, navigator-gated]
 requires:
   - lib/core/navigation/edges.cjs (ALLOWED_EDGE_TYPES frozen set)
