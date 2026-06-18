@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches" -- finalized STABLE 2026-06-17
 status: verifying
-stopped_at: Phase 166 Wave 5 (166-05) complete -- next 166-06 (ignite migration wave)
+stopped_at: Phase 166 Wave 6 (166-06) complete -- next 166-07 (larry handoff seam)
 last_updated: "2026-06-18T13:45:00.000Z"
 last_activity: 2026-06-14 -- Phase 156 execution started
 progress:
@@ -16,7 +16,11 @@ progress:
 
 # Project State
 
-## Latest (2026-06-18) -- Phase 166 Wave 5 (166-05) complete
+## Latest (2026-06-18) -- Phase 166 Wave 6 (166-06) complete
+
+WAVE 6 MIGRATE ignite landed: ignite (commands/ignite.md) is now a CONSUMER of the shared `lib/core/chain-executor.cjs runChain` spine. Its three hand-rolled birth gates (B1 starting point ignite.md:57-78, B2 blueprint ignite.md:82-96, B3 first win ignite.md:98-137) are re-hosted on runChain as an ALL-MATERIAL chain: ignite supplies a gateFn that returns 'halt' for EVERY step (each birth step is forced-material -- birth is all human decisions, the all-material extreme of EXEC-03 / D-166-05; nothing auto-runs), an onHalt rendering the existing F.1/F.0 gate per birth step, an onStep performing the existing per-gate side effect (writeScratchpadBirthAnswer + the new-project scaffold delegation + birthRoom + closeReach/recordSelectorDecision), and provenanceFn:null (ignite is not the pipeline; only the pipeline supplies a real stamp). ignite owns no loop; the sequencing belongs to runChain. The load-bearing invariant is PRESERVED as a chain-shape contract: the birthRoom ordering guard -- B3 fires ONLY after birthRoom succeeds (room.db created, focus set, registry flipped -- the Part 9 promotion BETWEEN B2-approve and B3); on birthRoom ok:false the chain halts after B2 and B3 never renders (the T-155-06-01 mitigation). THE DOC EDIT IS THE DELIVERABLE (ignite.md is markdown with no runtime): the old affirmative "orchestrates three birth gates (B1, B2, B3) in sequence" loop prose is removed/neutralized and the doc now NAMES chain-executor + runChain. HIGH-2 fix: a DOC-CONTENT GREP GATE in run-all-166.sh proves the doc committed to runChain (asserts ignite.md names chain-executor AND runChain, the old affirmative in-sequence loop language is gone -- comment-filtered, negated forms exempt, never a bare ==0 gate -- and the "B3 fires ONLY after birthRoom succeeds" content string survives; re-anchored on content not stale line numbers); proven to fail RED on the old phrase and pass GREEN when neutralized. The three EXISTING birth-gate regression suites (test-room-birth, test-scratchpad-birth-answers, test-memory-events-birth-floor) are registered so the migration cannot drift the shipped birth behavior. `tests/test-ignite-on-runchain.cjs` validates the runChain contract (all-material halts + ordering guard + promotion sequencing B1->B2->birthRoom->B3 + Defer/[stop] preserves the scratchpad with no half-promoted room). B2 preserved (decide() untouched); Part 8 clean (no new Brain wire). Phase gate `tests/run-all-166.sh` 17/17 green (13 suites + Part 8 sweep + Wave-6 doc-content grep gate + em-dash sweep). 2 atomic commits (doc+test ca2bdc20, register+gate 439ffb0f). Plans 07-08 remain (larry handoff seam). See `166-06-SUMMARY.md`.
+
+## Earlier (2026-06-18) -- Phase 166 Wave 5 (166-05) complete
 
 WAVE 5 MIGRATE pipeline landed: the pipeline (commands/pipeline.md) is now a CONSUMER of the shared `lib/core/chain-executor.cjs runChain` spine, not a hand-rolled stage walk. It supplies `provenanceFn` = `lib/mcp/pipeline-state.cjs makeProvenanceFn(chainName)` (the consumer that stamps each stage artifact's `pipeline` + `pipeline_stage` frontmatter per framework-runner.md:220; act and ignite pass provenanceFn:null), `postureFn` = recipe-maps.postureForCommand, the default gateFn, and an onStep dispatching the per-stage framework-runner. Resume now reads from `pipeline-state.cjs` ONLY via the NEW `reconcileResume(roomDir)` -- the SOLE chain-state truth (B1/D-166-02) -- with the artifact-frontmatter scan (commands/pipeline.md:78-114 block + the "Pipeline resumability" rule) demoted to a SECONDARY confirming index: AGREE confirms the position, DISAGREE trusts pipeline-state.json and flags the frontmatter STALE (never the reverse). The Wave-1 isNext hard gate prevents re-running an already-completed stage; the ~60 duplicated loop lines are now the shared spine (de-dup). CRITICAL HIGH-1 fix: pipeline-state.cjs shipped UNTESTED, so its FIRST-ever coverage (`tests/test-pipeline-state-shipped-behavior.cjs`) captured the SHIPPED initChain/checkPosition/recordStep/chain_position/getPreviousOutput round-trip as a baseline BEFORE the additive wiring, and the migration suite's Test 5 re-runs it as a child process to prove PRE === POST -- the additive makeProvenanceFn + reconcileResume drifted the shipped store NOTHING. B2 preserved (decide() untouched); Part 8 (the provenanceFn stamp is enum/scalar only -- pipeline name + stage number, never the result body, never crosses to Brain; pipeline-state.cjs added to the Part-8 grep sweep, clean). Phase gate `tests/run-all-166.sh` 12/12 green (10 suites + Part 8 sweep + em-dash sweep). 3 atomic commits (capture 0feb2867, GREEN wiring 374c8c0c, repoint+register d858b9c0). Plans 06-08 remain (ignite -> larry handoff seam). See `166-05-SUMMARY.md`.
 
@@ -554,6 +558,7 @@ Progress: [█████████░] 92%
 | Phase 163 P02 | 1 session | 2 tasks | 4 files |
 | Phase 163 P05 | 1 session | 2 tasks | 6 files |
 | Phase 166 P05 | 6m | 3 tasks | 5 files |
+| Phase 166 P06 | 8m | 2 tasks | 3 files |
 
 ## Accumulated Context
 
