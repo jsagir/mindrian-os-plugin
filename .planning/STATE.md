@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches" -- finalized STABLE 2026-06-17
 status: verifying
-stopped_at: Phase 166 Wave 8 (166-08) complete -- adversarial verdict + finalized phase gate (Phase 166 DONE)
-last_updated: "2026-06-18T17:30:00.000Z"
+stopped_at: Phase 166 Wave 3 (166-03) complete -- EXEC-05 retry/backoff + graceful partial
+last_updated: "2026-06-18T15:04:35.972Z"
 last_activity: 2026-06-14 -- Phase 156 execution started
 progress:
   total_phases: 13
@@ -564,6 +564,7 @@ Progress: [█████████░] 92%
 | Phase 166 P05 | 6m | 3 tasks | 5 files |
 | Phase 166 P06 | 8m | 2 tasks | 3 files |
 | Phase 166 P07 | 5min | 2 tasks | 4 files |
+| Phase 167 P01 | 25min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -1447,6 +1448,7 @@ Progress: [█████████░] 92%
 - [Phase ?]: 160-02: dual-stamp event-type-agnostic (existing frozen EVENT_TYPE only); raw relative_time prose dropped from persisted payload (Part 8 scalar discipline); chrono anchored via instant+UTC for deterministic resolution
 - [Phase ?]: 160-06: date+sync gate is ONE shared lib/core chokepoint requireValidAt both CLI and MCP call (D-02 tri-polar); has_event_date set at write by type, READ never inferred (D-04); temporal-blindness sentinel is a scheduled cadence backstop
 - [Phase ?]: 163-02: domain/subdomain/focus_area minted as first-class typed nodes via typed-domain.cjs; truth-claim domains land proposed (Part 9 role 5), pure-taxonomy domains system-confirmed (v1.5 carve-out); linkDomainToRelated writes the four domain edges via the navigation.writeEdge chokepoint only
+- [Phase ?]: Phase 167 Plan 01: harness manifest is a 3-MAP DIGEST (data/harness-manifest.json via build-harness-manifest.cjs) naming the three maps by role+path+sha256-digest+source_count, never per-surface; recipe-maps loadManifest() wraps not retires (D-167-02); --check + planted-secret Part 8 scan gate it; run-all-167.sh 6/6 green
 
 ### Pending Todos
 
@@ -1487,6 +1489,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-18T14:01:47.025Z
+Last session: 2026-06-18T15:03:59.627Z
 Stopped at: Phase 166 Wave 3 (166-03) complete -- EXEC-05 retry/backoff + graceful partial
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).

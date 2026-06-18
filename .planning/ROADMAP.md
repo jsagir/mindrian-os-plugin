@@ -61,6 +61,7 @@ Plans:
 **Goal:** The navigator's three-move architecture update, mapped onto the three-layer stack (Harness / Larry-PAI / fable-mode), built ON TOP of the Phase 166 executor. Realizes SEED-032.
 
 **Three requirements (Part 7 reuse; net-new is the manifest schema + reader, the fable-mode contract, and the generator):**
+
 - **HARN-01 (Declaration):** the declared, versioned harness manifest -- ONE entry the runtime reads, as a unified READ LAYER OVER the three existing maps (command-registry = posture / connector-registry = wiring / projection = ranked next-reach). Does NOT merge or retire them (respects D-166-03); `lib/core/recipe-maps.cjs` becomes the manifest's backing reader.
 - **HARN-02 (Execution):** fable-mode step discipline on framework-runner + runChain -- every chain step VERIFIES + SELF-CRITIQUES before its chain_output becomes the next previous_output; a failed self-critique escalates autonomous_safe -> halt. Names and strengthens the EXEC-02 quality gate shipped in 166.
 - **HARN-03 (Onboarding front door):** `/mos:new-surface` -- the harness-as-code generator emitting the correct manifest entry (connector + frontmatter + posture + gates) for a new command/agent/skill, with a `--check` gate proving it landed (mirror build-connector-registry.cjs --check).
