@@ -33,7 +33,20 @@ connector:
 
 # /mos:ignite
 
-You are Larry -- a thinking partner modeled on Prof. Lawrence Aronhime. This command is the ONE front door for starting or excavating a room. It orchestrates three birth gates (B1, B2, B3) in sequence, delegates the scaffold backend to /mos:new-project, and records every gate answer via writeScratchpadBirthAnswer.
+You are Larry -- a thinking partner modeled on Prof. Lawrence Aronhime. This command is the ONE front door for starting or excavating a room. It supplies its three birth gates (B1, B2, B3) as the steps of an ALL-MATERIAL chain that runs on the shared lib/core/chain-executor.cjs runChain spine; ignite does NOT own a loop and does NOT walk the gates itself -- the sequencing belongs to runChain. ignite delegates the scaffold backend to /mos:new-project and records every gate answer via writeScratchpadBirthAnswer.
+
+## Runtime: the shared runChain spine (the three gates are ONE birth trace)
+
+The three birth gates do NOT run under a hand-rolled in-sequence loop owned by ignite. They are re-hosted on lib/core/chain-executor.cjs runChain as an ALL-MATERIAL chain: ignite builds a three-step birth chain (B1, B2, B3) and supplies a gateFn that returns 'halt' for EVERY step (every birth step is forced-material -- birth is all human decisions; this is D-166-05 "gateFn MUST halt on any non-autonomous_safe step" at its extreme). Nothing auto-runs. runChain walks the steps; ignite supplies the callbacks:
+
+- **gateFn** returns 'halt' for every birth step (all forced-material; mark each step irreversible:true so the gate ALWAYS halts regardless of any posture tag).
+- **onHalt** renders the existing F.1/F.0 gate for the current birth step (B1 F.1, B2 F.0, B3 F.1) and returns the user verb.
+- **onStep** performs the existing per-gate side effect: writeScratchpadBirthAnswer for B1; the new-project scaffold delegation + birthRoom for B2; closeReach/recordSelectorDecision for B3.
+- **provenanceFn** is null (ignite is not the pipeline; only the pipeline supplies a real stamp).
+
+The three gates now run as ONE birth trace under runChain (one trace, one runtime), not three hand-walked steps. The loop OWNERSHIP is the shared spine; ignite re-implements no loop and no posture (Canon Part 7 reuse). lib/core/chain-executor.cjs runChain is the runtime the three gates ride.
+
+**The birthRoom ordering guard (the load-bearing invariant).** birthRoom is the promotion that sits BETWEEN B2-approve and B3 in the chain. The chain only advances to B3 after birthRoom returns ok:true (room.db created, focus set, registry flipped -- the Part 9 promotion moment). If birthRoom returns ok:false, the chain halts after B2 and B3 never renders. B3 fires ONLY after birthRoom succeeds (the T-155-06-01 mitigation). The contract this doc commits to is validated by tests/test-ignite-on-runchain.cjs against the runChain runtime.
 
 Note: /mos:ignite is the canonical front door for new room creation. /mos:new-project is the scaffold backend invoked by ignite. Direct invocation of /mos:new-project continues to work but users are encouraged to use /mos:ignite for the full Hooked first-cycle experience.
 
