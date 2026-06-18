@@ -35,6 +35,7 @@ CJS_SUITES=(
   test-harness-manifest-part8-boundary.cjs
   test-harness-manifest-precommit-wiring.cjs
   test-chain-executor-fable-mode.cjs
+  test-new-surface-generator.cjs
 )
 
 TOTAL=0
@@ -84,6 +85,69 @@ fi
 echo ""
 
 # ---------------------------------------------------------------------------
+# new-surface --check FIXTURE leg (LOW-5 / T-167-20). Emit a known-good fixture
+# surface to a TMP dir via the MINDRIAN_SURFACE_OUT_DIR env override (NEVER a
+# committed commands/ file), then run --check against that tmp fixture so the leg
+# never mutates the real commands/ tree or the committed registries. The fixture
+# is well-formed but NOT registered in the real connector-registry, so --check
+# is EXPECTED to exit 1 with a NOT_REGISTERED finding: the leg PASSES when --check
+# correctly refuses (the generator's gate works), and FAILS only if --check
+# wrongly passes (a broken gate) or crashes.
+# ---------------------------------------------------------------------------
+((TOTAL++))
+echo "--- Running: new-surface --check fixture (tmp-dir, never a committed commands/ file) ---"
+NS_TMP="$(mktemp -d "${TMPDIR:-/tmp}/new-surface-fixture-XXXXXX")"
+NS_OK=1
+# Emit a fixture command surface to the tmp dir only.
+NS_SPEC="$NS_TMP/spec.json"
+cat > "$NS_SPEC" <<'JSON'
+{
+  "kind": "command",
+  "name": "ci-fixture-surface",
+  "connects_to_spine": true,
+  "sensor_triggers": ["SENS-01"],
+  "reach_id": "context_block",
+  "sub_mode": "ci-fixture",
+  "framework": null,
+  "posture": "push_forward",
+  "hierarchy_rank": 99,
+  "filing": "none",
+  "plan_gated": false,
+  "web_scope": null,
+  "surface": "F.1"
+}
+JSON
+# Emit to the tmp dir (no regeneration of real registries): a write-only emit.
+if MINDRIAN_SURFACE_OUT_DIR="$NS_TMP" node -e "
+  const gen = require('$REPO_ROOT/scripts/build-new-surface.cjs');
+  const spec = require('$NS_SPEC');
+  const res = gen.emitSurface(spec, { outDir: process.env.MINDRIAN_SURFACE_OUT_DIR });
+  if (!require('fs').existsSync(res.path)) { process.exit(2); }
+" >/dev/null 2>&1; then
+  : # emit succeeded
+else
+  echo "    fixture emit failed"; NS_OK=0
+fi
+# Confirm the fixture landed in the tmp dir, NOT the real commands/ tree.
+if [[ ! -f "$NS_TMP/commands/ci-fixture-surface.md" ]]; then
+  echo "    fixture surface did not land in the tmp dir"; NS_OK=0
+fi
+if [[ -f "$REPO_ROOT/commands/ci-fixture-surface.md" ]]; then
+  echo "    FORBIDDEN: fixture leaked into the real commands/ tree"; NS_OK=0
+fi
+# Run --check against the tmp fixture: it is unregistered, so --check must exit 1.
+if MINDRIAN_SURFACE_OUT_DIR="$NS_TMP" node "$REPO_ROOT/scripts/build-new-surface.cjs" --check --kind command --name ci-fixture-surface >/dev/null 2>&1; then
+  echo "    --check wrongly PASSED on an unregistered fixture (broken gate)"; NS_OK=0
+fi
+rm -rf "$NS_TMP"
+if [[ $NS_OK -eq 1 ]]; then
+  ((PASSED++)); echo ">>> new-surface --check fixture: PASSED"
+else
+  ((FAILED++)); FAILED_TESTS+=("new-surface --check fixture"); echo ">>> new-surface --check fixture: FAILED"
+fi
+echo ""
+
+# ---------------------------------------------------------------------------
 # Part-8 grep sweep (VERIFY). The same BRAIN_WRITE + RAW_FETCH + external-http
 # regexes as run-all-163.sh, over the Phase-167 lib + script surfaces present so
 # far. Zero user-content-to-Brain / raw-external-egress tokens may appear. The
@@ -97,6 +161,7 @@ PART8_LIB=(
   "scripts/build-harness-manifest.cjs"
   "lib/core/recipe-maps.cjs"
   "lib/core/chain-executor.cjs"
+  "scripts/build-new-surface.cjs"
 )
 # No Brain-write MCP call / brain-write helper (the canonical Part 8 breach).
 BRAIN_WRITE='mcp__brain_(write|store|upsert|ingest)|writeBrain|sendToBrain|ingestToBrain'
@@ -147,6 +212,9 @@ EMDASH_TARGETS=(
   "tests/test-harness-manifest-part8-boundary.cjs"
   "tests/test-harness-manifest-precommit-wiring.cjs"
   "tests/test-chain-executor-fable-mode.cjs"
+  "scripts/build-new-surface.cjs"
+  "commands/new-surface.md"
+  "tests/test-new-surface-generator.cjs"
   "scripts/install-pre-commit.sh"
   "tests/run-all-167.sh"
 )

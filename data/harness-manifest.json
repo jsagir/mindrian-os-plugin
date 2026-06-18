@@ -7,14 +7,14 @@
     {
       "role": "posture",
       "path": "data/command-registry.json",
-      "digest": "42141ab2cf2789f64bc2d7b9f0e56251bfedfaa3bcf35b44d188fc3ac0943a88",
-      "source_count": 97
+      "digest": "663a4d8c6a96def72c441145cfa355795eef9f61e1868416a89beb3c70fa3e18",
+      "source_count": 98
     },
     {
       "role": "wiring",
       "path": "data/connector-registry.json",
-      "digest": "4ca9f6cbef7ba678fb5057221142256219922dadfea7043d7ff4940506cc7b2e",
-      "source_count": 58
+      "digest": "ccc55845fb299961539fc1b52030c7244b178537dcb6208e70acdeb88d65148f",
+      "source_count": 59
     },
     {
       "role": "ranked_next_reach",

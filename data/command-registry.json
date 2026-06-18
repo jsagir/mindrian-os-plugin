@@ -928,6 +928,21 @@
       "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
+      "command": "/mos:new-surface",
+      "kind": "utility",
+      "frameworks": [],
+      "produces": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "E",
+      "serves_jtbd": [
+        "explore"
+      ],
+      "teaching": "When you are adding a new command, agent, or skill to the harness, /mos:new-surface emits the surface .md with the correct 11-key connector frontmatter so its wiring is declared, never hand-written, then regenerates the connector-registry (its real home) and the harness-manifest wiring digest. Harness-as-code for surfaces.",
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+    },
+    {
       "command": "/mos:onboard",
       "kind": "utility",
       "frameworks": [],

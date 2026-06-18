@@ -599,6 +599,23 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:new-surface",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-01"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "new-surface",
+      "framework": null,
+      "posture": "push_forward",
+      "hierarchy_rank": 24,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:operator",
       "source": "command",
       "connects_to_spine": true,
@@ -1045,7 +1062,8 @@
       "/mos:find-connections",
       "/mos:ignite",
       "/mos:mva-brief",
-      "/mos:new-project"
+      "/mos:new-project",
+      "/mos:new-surface"
     ],
     "SENS-07": [
       "/mos:build-thesis",
