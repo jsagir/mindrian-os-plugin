@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches" -- finalized STABLE 2026-06-17
 status: verifying
-stopped_at: Phase 163 Wave 5 (163-05) complete -- next 163-06 (WAVE 6 VERIFY)
-last_updated: "2026-06-18T12:11:00.000Z"
+stopped_at: Phase 166 Wave 2 (166-02) complete -- next 166-03 (act migration wave)
+last_updated: "2026-06-18T13:30:00.000Z"
 last_activity: 2026-06-14 -- Phase 156 execution started
 progress:
   total_phases: 13
@@ -16,7 +16,11 @@ progress:
 
 # Project State
 
-## Latest (2026-06-18) -- Phase 163 Wave 5 (163-05) complete
+## Latest (2026-06-18) -- Phase 166 Wave 2 (166-02) complete
+
+WAVE 2 CORE landed: the missing RUNTIME. `lib/core/chain-executor.cjs` ships `runChain` -- the ONE shared gated loop in lib/core (CLI+MCP, D-166-04; no consumer owns a loop), extracted/generalized from the donor loop in `scripts/act-command.cjs`. It implements EXEC-01 (loop runner re-calling the injectable `decideFn` seam -- production default = navigation-engine `decide()` -- ONCE PER LOOP as the LIVE next-step authority; B2 records its `decision_trace` UNCHANGED / reference-equal, NEVER rankedNextReach which stays contract-only per Phase 157 deferral), EXEC-02 (each step's `chain_output` folds into the next `previousOutput` carrying the framework-runner `quality` enum forward), EXEC-03 (`makeGateFn` -- the single leverage point -- returns 'run' ONLY for push_forward/autonomous_safe + not-low-quality + reversible; irreversible steps via `IRREVERSIBLE_HINTS` email/deploy/publish/external-write or an explicit flag are FORCED-MATERIAL and halt regardless of tag, D-166-05/HARD RULE), EXEC-04 ([stop] verb flushes the trace built so far and ends cleanly + ONE ordered chain trace = {step, chain_output, quality, decision_trace}), and EXEC-06 (maxSteps `budget_brake` hard cap + `quality_early_stop`). NO convergence stop (B3): the stop condition is posture/quality/maxSteps only. Fail-closed throughout (any gate/onStep/decide fault degrades to a withhold-default halt). Phase gate `tests/run-all-166.sh` 6/6 green (4 suites + Part 8 sweep + em-dash sweep); chain-executor.cjs opens zero Brain wire (Part 8). 4 atomic commits (RED 1ee95c62, GREEN fa8ada42, gate test 43607002, runner a68e598f). Plans 03-08 remain (act DONOR migration -> pipeline -> ignite -> larry handoff seam). See `166-02-SUMMARY.md`.
+
+## Earlier (2026-06-18) -- Phase 163 Wave 5 (163-05) complete
 
 WAVE 5 SURFACE-B landed: the Visionary Innovation Companion is complete to the 7-stage spec with FULL variance. `lib/core/trending-to-absurd/stage7-roadmap.cjs` `generateStage7Roadmap` maps each banked opportunity to the UDP/IDP/WDP problem-type taxonomy (reused from the Phase 91-07 problem-type-router; classified by a LOCAL definition_clarity + confidence heuristic, Part 8 zero Brain call) and emits a mitigation roadmap (defend the absurd-trend risk) + an innovation roadmap (seize the opportunity), each step evidence-tiered (Part 5); truth-claim steps land review_status proposed, never auto-confirmed (Part 9 role 5). The roadmap files as a nested artifact under opportunity-bank/trending-to-absurd-<seed>/stage7-roadmap/ with ROOM.md per folder (exclusive ownership, T-163-13). `lib/core/trending-to-absurd/variance.cjs` ships D-163-06 FULL variance: `PERSONA_LENSES` frozen Founder/Researcher/Investor/Analyst (+ per-persona beautiful-question framing) x `PATH_VARIANTS` frozen Quick(1 ring + auto)/Full(FUTURES_DEPTH_CAP + hybrid)/Expert(all rings + hybrid + multi_agent); `surfacePersonaPathGate` returns a Shape F (F.2 path-control + F.1 persona) descriptor with tri-context panels (D-163-05 hybrid); `recordPersonaPathSelection` writes a SELECTED_REACH typed edge via navigation.writeEdge with enum-only props {persona, path} (Part 4 selection-as-graph-data, Part 8 enum-only). The command body gains an Act 0 persona/path gate (sets ring depth + gate policy + framing) + a Stage 7 act. Commits 2a5515a2 + d45d889c. `run-all-163.sh` 9/9, em-dash sweep clean, Part 8 leak scan clean. Waves 1-5 done; next 163-06 (WAVE 6 VERIFY: the adversarial structured verdict + phase gate).
 
