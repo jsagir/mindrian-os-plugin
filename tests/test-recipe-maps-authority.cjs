@@ -56,9 +56,16 @@ check('wiringForReach: known reach returns surface(s); unknown reach returns []'
   const surfaces = rm.wiringForReach('context_block');
   assert.ok(Array.isArray(surfaces), 'expected an array of surfaces');
   assert.ok(surfaces.length > 0, "expected at least one surface for reach 'context_block'");
+  // The connector spine wires a reach to its dispatch-target surface(s); a
+  // surface is a command (/mos:*), an agent (agent:*), or a skill (skill:*).
+  // Every wired surface must be a non-empty string (the onStep dispatch target).
   assert.ok(
-    surfaces.every((s) => typeof s === 'string' && s.startsWith('/mos:')),
-    'expected every wired surface to be a /mos: command string'
+    surfaces.every((s) => typeof s === 'string' && s.length > 0),
+    'expected every wired surface to be a non-empty dispatch-target string'
+  );
+  assert.ok(
+    surfaces.some((s) => s.startsWith('/mos:')),
+    "expected at least one /mos: command surface for reach 'context_block'"
   );
 
   const none = rm.wiringForReach('no_such_reach_xyz');
