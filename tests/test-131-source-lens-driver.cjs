@@ -124,8 +124,13 @@ test('T1.1: LENS_REGISTRY.source is ACTIVE (client_count 1) with a lens_sets ent
   ok(src.lens_sets.includes('scholarly'), 'source lens_sets includes a source lens name');
 });
 
-test('T1.2: domain / framework / trend stay reserved (client_count 0) -- no over-activation', () => {
-  equal(engine.LENS_REGISTRY.domain.client_count, 0, 'domain still reserved');
+test('T1.2: framework / trend stay reserved (client_count 0) -- no over-activation', () => {
+  // Phase-163 contract evolution: the domain family was ACTIVATED (client_count 1)
+  // by Plan 163-03 (the five Engine-1 decomposition lenses + the domain-hierarchy
+  // synthesizer). The pre-163 baseline asserted domain reserved too; ONLY
+  // framework / trend remain reserved now (the broader v1.14.0 framework/trend
+  // lens migrations are still separate phases).
+  ok(engine.LENS_REGISTRY.domain.client_count > 0, 'domain activated by Phase 163');
   equal(engine.LENS_REGISTRY.framework.client_count, 0, 'framework still reserved');
   equal(engine.LENS_REGISTRY.trend.client_count, 0, 'trend still reserved');
 });

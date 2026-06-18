@@ -323,19 +323,23 @@ test('T2.7: onReject path writes REJECTED_BECAUSE + a lens_finding_rejected even
   equal(countEvents(db, 'lens_finding_rejected'), rejected.c, 'reject events match REJECTED_BECAUSE edges');
 });
 
-test('T2.8: LENS_REGISTRY has 5 families; cognitive + source populated, domain/framework/trend reserved', () => {
+test('T2.8: LENS_REGISTRY has 5 families; cognitive + source + domain populated, framework/trend reserved', () => {
   // Phase-131 contract evolution: the source family was ACTIVATED (client_count 1)
-  // by Plan 131-03 (the source-lens driver pilot). cognitive stays populated;
-  // domain / framework / trend stay reserved (client_count 0). The pre-131
-  // baseline asserted all 4 non-cognitive families reserved; that baseline is now
-  // intentionally superseded -- only the three v1.14.0 families remain reserved.
+  // by Plan 131-03 (the source-lens driver pilot). Phase-163 contract evolution:
+  // the domain family was ACTIVATED (client_count 1) by Plan 163-03 (the five
+  // Engine-1 decomposition lenses + the domain-hierarchy synthesizer). cognitive
+  // stays populated; ONLY framework / trend stay reserved (client_count 0) -- the
+  // pre-163 baseline asserted domain reserved too; that baseline is now
+  // intentionally superseded.
   const r = engine.LENS_REGISTRY;
   const keys = Object.keys(r).sort();
   deepEqual(keys, ['cognitive', 'domain', 'framework', 'source', 'trend']);
   ok(r.cognitive.client_count > 0, 'cognitive populated');
   ok(Array.isArray(r.cognitive.lens_sets) && r.cognitive.lens_sets.includes('six-hats'), 'cognitive lists six-hats');
   ok(r.source.client_count > 0, 'source activated by Phase 131');
-  for (const k of ['domain', 'framework', 'trend']) {
+  ok(r.domain.client_count > 0, 'domain activated by Phase 163');
+  ok(Array.isArray(r.domain.lens_sets) && r.domain.lens_sets.includes('disciplinary'), 'domain lists the decomposition lenses');
+  for (const k of ['framework', 'trend']) {
     equal(r[k].client_count, 0, k + ' reserved with client_count 0');
   }
 });
