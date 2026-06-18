@@ -42,6 +42,17 @@ CJS_SUITES=(
   # tests/ carried none) -- the shipped-behavior capture IS the net.
   test-pipeline-state-shipped-behavior.cjs
   test-pipeline-on-runchain.cjs
+  # Wave 6 MIGRATE ignite (the CONSUMER where the gate is ALWAYS material). The
+  # ignite migration suite validates the runChain CONTRACT the doc commits to
+  # (all-material halts + birthRoom ordering guard + promotion sequencing +
+  # Defer/[stop] preserves the scratchpad). The three EXISTING birth-gate
+  # regression suites are registered alongside it so the migration cannot drift
+  # the shipped birth behavior unnoticed (the doc-content grep gate below proves
+  # the DOC committed to runChain, since ignite.md is markdown with no runtime).
+  test-ignite-on-runchain.cjs
+  test-room-birth.cjs
+  test-scratchpad-birth-answers.cjs
+  test-memory-events-birth-floor.cjs
 )
 
 TOTAL=0
@@ -124,6 +135,67 @@ fi
 echo ""
 
 # ---------------------------------------------------------------------------
+# Wave 6 DOC-CONTENT GREP GATE (HIGH-2). commands/ignite.md is markdown with NO
+# runtime, so the stubbed .cjs contract test alone can pass while the DOC still
+# describes the OLD hand-rolled loop. The .cjs test validates the runChain
+# contract; THIS gate proves the DOC actually committed to it. Two assertions:
+#   (a) ignite.md NAMES the runtime -- both "chain-executor" AND "runChain" must
+#       be present (fail if either is missing).
+#   (b) the OLD hand-rolled sequential-loop language is removed/neutralized -- the
+#       gate FAILS if surviving prose still describes ignite OWNING the B1->B2->B3
+#       walk (the forbidden affirmative phrase co-locating "in sequence" with the
+#       three birth gates). Comment lines are filtered (grep -v '^#'-style) so a
+#       comment cannot self-invalidate the count; this is NOT a bare unfiltered
+#       == 0 gate -- it scans the doc BODY for the specific forbidden phrasing.
+# A doc still describing the old loop MUST fail RED here.
+# ---------------------------------------------------------------------------
+((TOTAL++))
+echo "--- Running: Wave-6 doc-content grep gate (ignite.md names runChain + old loop neutralized) ---"
+IGNITE_DOC="$REPO_ROOT/commands/ignite.md"
+DOC_OK=1
+if [[ ! -f "$IGNITE_DOC" ]]; then
+  echo "    MISSING doc: commands/ignite.md"; DOC_OK=0
+else
+  # (a) NAMES the runtime: both tokens must be present.
+  if ! grep -q "chain-executor" "$IGNITE_DOC"; then
+    echo "    ignite.md does NOT name chain-executor (the runtime the gates ride)"; DOC_OK=0
+  fi
+  if ! grep -q "runChain" "$IGNITE_DOC"; then
+    echo "    ignite.md does NOT name runChain (the shared spine)"; DOC_OK=0
+  fi
+  # (b) old hand-rolled sequential-loop language removed/neutralized. Strip
+  # markdown comment/HTML-comment lines first so a quoted comment cannot
+  # self-invalidate the count, then scan the BODY for the FORBIDDEN affirmative
+  # phrasing: prose that describes ignite OWNING the B1/B2/B3 walk "in sequence".
+  # The negated form on line ~40 ("do NOT run under a hand-rolled in-sequence
+  # loop") is intentionally NOT matched -- the gate targets the affirmative claim
+  # that ignite orchestrates the three gates in sequence with its own loop.
+  DOC_BODY=$(grep -vE '^[[:space:]]*(#|<!--)' "$IGNITE_DOC")
+  if echo "$DOC_BODY" | grep -nE "orchestrates three birth gates \(B1, B2, B3\) in sequence" >/dev/null 2>&1; then
+    echo "    FORBIDDEN old loop prose: ignite.md still says it orchestrates the three gates in sequence"; DOC_OK=0
+  fi
+  # Belt-and-suspenders: any surviving line that AFFIRMATIVELY co-locates "three
+  # birth gates" + "in sequence" WITHOUT a neutralizing negation (not / NOT / do
+  # not / belongs to runChain) is the old hand-rolled loop language and fails.
+  OLD_LOOP=$(echo "$DOC_BODY" | grep -nE "three birth gates.*in sequence|in sequence.*three birth gates" | grep -viE "not |belongs to runChain|do NOT|does NOT")
+  if [[ -n "$OLD_LOOP" ]]; then
+    echo "    FORBIDDEN old loop prose (affirmative in-sequence walk) in ignite.md:"; echo "$OLD_LOOP"; DOC_OK=0
+  fi
+  # Confirm the load-bearing ordering-guard content string survived (re-anchored
+  # on content, not a stale line number).
+  if ! grep -q "B3 fires ONLY after birthRoom succeeds" "$IGNITE_DOC"; then
+    echo "    MISSING ordering-guard content string 'B3 fires ONLY after birthRoom succeeds'"; DOC_OK=0
+  fi
+fi
+
+if [[ $DOC_OK -eq 1 ]]; then
+  ((PASSED++)); echo ">>> Wave-6 doc-content grep gate: PASSED"
+else
+  ((FAILED++)); FAILED_TESTS+=("Wave-6 doc-content grep gate"); echo ">>> Wave-6 doc-content grep gate: FAILED"
+fi
+echo ""
+
+# ---------------------------------------------------------------------------
 # Em-dash sweep (CLAUDE.md HARD RULE: hyphens only). The forbidden glyph is
 # matched via its codepoint escape (U+2014) so this runner itself carries no
 # literal em-dash to trip its own sweep.
@@ -152,6 +224,9 @@ EMDASH_TARGETS=(
   "commands/pipeline.md"
   "tests/test-pipeline-state-shipped-behavior.cjs"
   "tests/test-pipeline-on-runchain.cjs"
+  # Wave 6: the migrated ignite doc + the new ignite-on-runchain suite.
+  "commands/ignite.md"
+  "tests/test-ignite-on-runchain.cjs"
   "tests/run-all-166.sh"
 )
 for t in "${EMDASH_TARGETS[@]}"; do
