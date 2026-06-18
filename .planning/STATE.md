@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches" -- finalized STABLE 2026-06-17
 status: verifying
-stopped_at: Phase 166 Wave 3 (166-03) complete -- next 166-04 (act DONOR migration wave)
-last_updated: "2026-06-18T13:23:00.000Z"
+stopped_at: Phase 166 Wave 4 (166-04) complete -- next 166-05 (pipeline migration wave)
+last_updated: "2026-06-18T13:34:00.000Z"
 last_activity: 2026-06-14 -- Phase 156 execution started
 progress:
   total_phases: 13
@@ -16,7 +16,11 @@ progress:
 
 # Project State
 
-## Latest (2026-06-18) -- Phase 166 Wave 3 (166-03) complete
+## Latest (2026-06-18) -- Phase 166 Wave 4 (166-04) complete
+
+WAVE 4 MIGRATE act landed: the DONOR is now the thinnest caller of `runChain`. `scripts/act-command.cjs` --chain composes the framework chain (recommender + resolver, unchanged) then DELEGATES the walk to `lib/core/chain-executor.cjs runChain` via the new `buildRunChainPlan` seam, supplying callbacks ONLY -- `postureFn` = `recipe-maps.postureForCommand` (the ONE posture authority, Wave 1; act re-implements no posture), a chain-autonomy `gateFn`, an `onStep` recording the would-run step, an `onHalt` recording the stop step, `provenanceFn: null` (act is not the pipeline), and a no-op `decideFn` (act PLANS a precomposed chain, so `decide()` shape is untouched -- B2 preserved). `planChainRun` is now a thin shim over `buildRunChainPlan`; the donor's manual step walk is GONE (act owns no loop, D-166-04). The HIGH-1 gap (act had NO regression suite) is closed by instrumentation, NOT assertion: `tests/test-act-prebehavior-snapshot.cjs` captured the SHIPPED `renderChainReport` bytes + the whole-autonomous / gated-halt / [stop] outcomes to a committed baseline `tests/fixtures/act-prebehavior-baseline.json` BEFORE the refactor, then `tests/test-act-on-runchain.cjs` asserts the post-runChain output is byte/behavior-identical for all three paths -- "no drift" is VERIFIED. The F.0 "needs you here" gate render + the [stop] kill switch are preserved byte-identical. `commands/act.md` Chain Mode prose now names `chain-executor.cjs runChain` as the shared spine act rides; the user contract is unchanged. Phase gate `tests/run-all-166.sh` 10/10 green (8 suites + Part 8 sweep + em-dash sweep); act-command.cjs sweep clean (zero Brain egress, Part 8 / B2). 3 atomic commits (baseline 01c40bff, migration GREEN 9cdfb1eb, docs+register a30f8635). Plans 05-08 remain (pipeline -> ignite -> larry handoff seam). See `166-04-SUMMARY.md`.
+
+## Earlier (2026-06-18) -- Phase 166 Wave 3 (166-03) complete
 
 WAVE 3 RELIABILITY landed: EXEC-05 / D-166-01 closes the SEED-028 / AION failure mode (a transient 5xx on the load-bearing terminal synthesis step silently discarding an entire chain). NEW `lib/core/chain-retry.cjs` ships `isTransient(err)` (a CLOSED allow-list of the four transient codes 500/502/503/529 read from .status/.statusCode/a message regex; 501/504 + all 4xx + validation/type errors fail fast, T-166-11) and `withBackoff(fn, {retries, baseDelayMs, maxDelayMs, sleep, returnMarkerOnExhaust})` (exponential-with-cap delay via an INJECTABLE sleep -- deterministic, no Math.random; bounded at retries+1 attempts and maxDelayMs delay, T-166-09; non-transient rethrows immediately; exhaustion returns/throws a marker naming the last code). `runChain` was EXTENDED, not forked: an opt-gated async resilient path (triggered ONLY by a reliability opt: retries/journal/roomDir/resume/sleep) wraps the onStep dispatch in `withBackoff(isTransient)`; on transient exhaustion OR a non-transient hard fault it folds a `{step, failure:{code,reason,attempts}, partial:true}` marker into the ONE trace, PRESERVES upstream chain_outputs, journals the position via the Wave-1 `pipeline-state.cjs` recordStep/read substrate (D-166-02), and returns `{completed:false, partial:true, haltedAt}` -- NEVER null, never a silent drop. A resume reads the journal cursor and SKIPS at-or-before-cursor steps, re-entering at the failed step (upstream NOT re-run); no new orchestration path (Part 7). The Wave-2 synchronous runChain path is byte-identical for all prior callers (D-166-04 single door preserved; Wave-2 suites stay green). B2 preserved (decision_trace recorded unchanged on the resilient path); B3 preserved (no convergence branch). Phase gate `tests/run-all-166.sh` 8/8 green (6 suites + Part 8 sweep + em-dash sweep); chain-retry.cjs + the graceful-partial branch open zero Brain wire (Part 8). 5 atomic commits (RED 9eb2f98d, GREEN 0dc840e6 retry; RED 268cdb95, GREEN 88e5417f partial; runner 62c63fd4). Plans 04-08 remain (act DONOR migration -> pipeline -> ignite -> larry handoff seam). See `166-03-SUMMARY.md`.
 
