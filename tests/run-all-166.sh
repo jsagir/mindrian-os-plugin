@@ -22,6 +22,8 @@ START_TIME=$(date +%s)
 CJS_SUITES=(
   test-pipeline-state-isnext-gate.cjs
   test-recipe-maps-authority.cjs
+  test-chain-executor-loop.cjs
+  test-chain-executor-gate.cjs
 )
 
 TOTAL=0
@@ -65,6 +67,7 @@ echo "--- Running: Part-8 grep sweep (Phase-166 lib surfaces) ---"
 PART8_OK=1
 SWEEP_TARGETS=(
   "lib/core/recipe-maps.cjs"
+  "lib/core/chain-executor.cjs"
 )
 
 # No Brain-write MCP call / brain-write helper (the canonical Part 8 breach).
@@ -112,8 +115,11 @@ EMDASH_OK=1
 EMDASH_TARGETS=(
   "lib/mcp/pipeline-state.cjs"
   "lib/core/recipe-maps.cjs"
+  "lib/core/chain-executor.cjs"
   "tests/test-pipeline-state-isnext-gate.cjs"
   "tests/test-recipe-maps-authority.cjs"
+  "tests/test-chain-executor-loop.cjs"
+  "tests/test-chain-executor-gate.cjs"
   "tests/run-all-166.sh"
 )
 for t in "${EMDASH_TARGETS[@]}"; do
