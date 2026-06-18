@@ -144,7 +144,8 @@ check('a [stop] verb flushes the trace built so far and ends with completed:fals
 
   assert.equal(result.completed, false, 'a [stop] chain is not completed');
   assert.ok(result.haltedAt, 'haltedAt must be set on a stop');
-  assert.equal(result.haltedAt.step, 2, 'haltedAt names the stop step');
+  assert.equal(result.haltedAt.step.step, 2, 'haltedAt names the stop step (the step object)');
+  assert.equal(result.haltedAt.stopped, true, 'a [stop] verb marks haltedAt.stopped true');
   // Flush, not drop: step 1 ran and IS in the trace.
   assert.equal(result.trace.length, 1, 'the step that ran above the stop is flushed into the trace');
   assert.equal(result.trace[0].step.step, 1, 'step 1 ran and is preserved in the trace');
