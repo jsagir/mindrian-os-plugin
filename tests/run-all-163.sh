@@ -27,6 +27,7 @@ START_TIME=$(date +%s)
 # trend-agent surface tests, the Part 8 leak scan).
 CJS_SUITES=(
   test-edges-domain-taxonomy-floor.cjs
+  test-typed-domain.cjs
 )
 
 TOTAL=0
@@ -75,6 +76,9 @@ EMDASH_TARGETS=(
   "tests/run-all-163.sh"
   "docs/MINDRIAN-CANON.md"
   "docs/CANON-PHASE-MAP.md"
+  "lib/core/navigation/typed-domain.cjs"
+  "lib/core/navigation.cjs"
+  "tests/test-typed-domain.cjs"
 )
 for t in "${EMDASH_TARGETS[@]}"; do
   f="$REPO_ROOT/$t"
