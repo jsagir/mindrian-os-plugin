@@ -53,6 +53,18 @@ CJS_SUITES=(
   test-room-birth.cjs
   test-scratchpad-birth-answers.cjs
   test-memory-events-birth-floor.cjs
+  # Wave 7 MIGRATE the larry seam (the LAST migration): larry-extended post-gate
+  # HANDOFF to runChain + larry-personality auto-sequence branch. The handoff
+  # suite validates the runChain CONTRACT both larry docs commit to (post-gate
+  # handoff + still-halts-on-material + GUIDED-default preserved + resolver/Part 8
+  # discipline). The EXISTING larry-personality reach-id drift doctrine suite is
+  # registered alongside it so the SKILL.md edit cannot drift the frozen reach-id
+  # doctrine / the GUIDED-default contract unnoticed (the doc-content grep gate
+  # below proves both larry markdown surfaces committed to runChain AND preserved
+  # the non-autonomous_safe safe-halt rule verbatim, since both are docs with no
+  # runtime).
+  test-larry-handoff-seam.cjs
+  test-reach-ids-drift.cjs
 )
 
 TOTAL=0
@@ -127,6 +139,33 @@ for t in "${SWEEP_TARGETS[@]}"; do
   fi
 done
 
+# Wave 7: extend the Part-8 sweep to the two larry markdown surfaces. The
+# auto-sequence branch must keep the Brain push an OFFER (the fetch fires only
+# after the gate, SKILL.md reach rule 5). Assert NO new pre-gate Brain fetch was
+# added to either larry doc: no mcp__brain_ fetch call, no brain-write helper.
+# Markdown comment lines (<!-- ... -->) are stripped so a doc-comment naming a
+# forbidden token cannot self-invalidate the count (grep -v '^#'-style filtering).
+LARRY_PART8_TARGETS=(
+  "agents/larry-extended.md"
+  "skills/larry-personality/SKILL.md"
+)
+# A pre-gate Brain FETCH is the breach the OFFER-not-fetch rule guards against. We
+# match an mcp__brain_ tool CALL idiom or a brain-write helper; the words
+# "Brain push" / "Brain consult" / "Brain says" prose are NOT a fetch and are
+# allowed (they are the OFFER, not the call).
+LARRY_BRAIN_FETCH='mcp__brain_[a-z]+\(|fetch[[:space:]]*\(|writeBrain|sendToBrain|ingestToBrain'
+for t in "${LARRY_PART8_TARGETS[@]}"; do
+  f="$REPO_ROOT/$t"
+  if [[ ! -f "$f" ]]; then
+    echo "    MISSING Part-8 larry target: $t"; PART8_OK=0; continue
+  fi
+  # Strip HTML/markdown comment lines so a quoted token cannot self-invalidate.
+  LDOC=$(grep -vE '^[[:space:]]*(<!--|#)' "$f")
+  if echo "$LDOC" | grep -nE "$LARRY_BRAIN_FETCH" >/dev/null 2>&1; then
+    echo "    FORBIDDEN pre-gate Brain fetch added to larry surface: $t (OFFER-not-fetch breach)"; PART8_OK=0
+  fi
+done
+
 if [[ $PART8_OK -eq 1 ]]; then
   ((PASSED++)); echo ">>> Part-8 grep sweep: PASSED"
 else
@@ -196,6 +235,67 @@ fi
 echo ""
 
 # ---------------------------------------------------------------------------
+# Wave 7 DOC-CONTENT GREP GATE (HIGH-2 FIX). Both larry surfaces
+# (agents/larry-extended.md + skills/larry-personality/SKILL.md) are markdown with
+# NO runtime, so the stubbed .cjs contract test alone can pass while the docs still
+# describe the OLD suggest-and-wait loop OR silently weaken the safe-halt rule. The
+# .cjs test validates the runChain handoff contract; THIS gate proves the DOCS
+# committed to it AND kept the safe-halt rule verbatim. Four assertions:
+#   (a) BOTH larry docs NAME the runtime -- "chain-executor" AND "runChain" must be
+#       present in EACH file (fail if either string is missing from either file).
+#   (b) SKILL.md documents the auto-sequence branch (the "auto-sequence" token).
+#   (c) the non-autonomous_safe SAFE-HALT rule is preserved VERBATIM -- the
+#       GUIDED-default line "ends in a Decision Gate, not a verdict" must still be
+#       present byte-intact in SKILL.md (fail if deleted or reworded).
+#   (d) the "One reach per beat" rule survives in SKILL.md.
+# Comment lines are filtered (grep -v '^#'-style) where a comment could
+# self-invalidate the count; this is NOT a bare unfiltered == 0 gate.
+# ---------------------------------------------------------------------------
+((TOTAL++))
+echo "--- Running: Wave-7 doc-content grep gate (both larry docs name runChain + auto-sequence + safe-halt verbatim) ---"
+LARRY_EXTENDED="$REPO_ROOT/agents/larry-extended.md"
+LARRY_SKILL="$REPO_ROOT/skills/larry-personality/SKILL.md"
+LARRY_DOC_OK=1
+if [[ ! -f "$LARRY_EXTENDED" ]]; then
+  echo "    MISSING doc: agents/larry-extended.md"; LARRY_DOC_OK=0
+fi
+if [[ ! -f "$LARRY_SKILL" ]]; then
+  echo "    MISSING doc: skills/larry-personality/SKILL.md"; LARRY_DOC_OK=0
+fi
+if [[ $LARRY_DOC_OK -eq 1 ]]; then
+  # (a) BOTH docs NAME the runtime -- chain-executor AND runChain in EACH file.
+  for d in "$LARRY_EXTENDED" "$LARRY_SKILL"; do
+    if ! grep -q "chain-executor" "$d"; then
+      echo "    $(basename "$d") does NOT name chain-executor (the handoff runtime)"; LARRY_DOC_OK=0
+    fi
+    if ! grep -q "runChain" "$d"; then
+      echo "    $(basename "$d") does NOT name runChain (the handoff target)"; LARRY_DOC_OK=0
+    fi
+  done
+  # (b) the auto-sequence branch is documented in SKILL.md.
+  if ! grep -q "auto-sequence" "$LARRY_SKILL"; then
+    echo "    SKILL.md does NOT document the auto-sequence branch (the 'auto-sequence' token is missing)"; LARRY_DOC_OK=0
+  fi
+  # (c) the non-autonomous_safe SAFE-HALT rule preserved VERBATIM (D-166-05). The
+  # GUIDED-default line must survive byte-intact so the auto-sequence branch can
+  # never be read as weakening it.
+  if ! grep -q "ends in a Decision Gate, not a verdict" "$LARRY_SKILL"; then
+    echo "    MISSING/REWORDED safe-halt rule: SKILL.md no longer carries 'ends in a Decision Gate, not a verdict' verbatim"; LARRY_DOC_OK=0
+  fi
+  # (d) the "One reach per beat" rule survives in SKILL.md.
+  if ! grep -q "One reach per beat" "$LARRY_SKILL"; then
+    echo "    MISSING 'One reach per beat' rule in SKILL.md (the GUIDED-default one-reach contract)"; LARRY_DOC_OK=0
+  fi
+fi
+
+if [[ $LARRY_DOC_OK -eq 1 ]]; then
+  ((PASSED++)); echo ">>> Wave-7 doc-content grep gate: PASSED"
+else
+  ((FAILED++)); FAILED_TESTS+=("Wave-7 doc-content grep gate"); echo ">>> Wave-7 doc-content grep gate: FAILED"
+fi
+echo ""
+
+# ---------------------------------------------------------------------------
 # Em-dash sweep (CLAUDE.md HARD RULE: hyphens only). The forbidden glyph is
 # matched via its codepoint escape (U+2014) so this runner itself carries no
 # literal em-dash to trip its own sweep.
@@ -227,6 +327,10 @@ EMDASH_TARGETS=(
   # Wave 6: the migrated ignite doc + the new ignite-on-runchain suite.
   "commands/ignite.md"
   "tests/test-ignite-on-runchain.cjs"
+  # Wave 7: the two migrated larry surfaces + the new handoff-seam suite.
+  "agents/larry-extended.md"
+  "skills/larry-personality/SKILL.md"
+  "tests/test-larry-handoff-seam.cjs"
   "tests/run-all-166.sh"
 )
 for t in "${EMDASH_TARGETS[@]}"; do
