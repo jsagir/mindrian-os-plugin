@@ -53,6 +53,41 @@ NET-NEW only (~15-20%):
 
 `.planning/research/2026-06-17-bono-research-debate-engine-scoping.md` (this session). NOTE: an earlier spike implementation (branch `bono-spike-stale-baseline` in the dev clone) was built on a 2239-commit-stale base and is REFERENCE-ONLY, NOT mergeable - its cited APIs are outdated. Re-implement against current main.
 
+## Substrate update (post-166/167, navigator-LOCKED 2026-06-18)
+
+This CONTEXT pre-dated Phases 166 (gated-chain-executor) + 167 (harness-as-code completion), both
+now SHIPPED. 164 RIDES that runtime instead of building its own. The harness-as-code 9 properties are
+satisfied BY the shared runtime, NOT re-implemented here (Part 7). Revised decisions:
+
+- **D-164-S1: the inter-hat DEBATE consolidation rides `runChain` (Phase 166), not a bespoke Workflow
+  harness.** The sequential debate chain (hypothesis -> per-hat argument -> ruling -> residual tension)
+  is a `runChain` step sequence: `postureFn` from the manifest, `gateFn` halts at the
+  hypothesis-confirm + ruling Decision Gates (Part 3), `onStep` dispatches the cell/consolidator agent,
+  `provenanceFn` stamps each step artifact. NO new loop runtime.
+- **D-164-S2: the per-(subdomain x hat) CELL fan-out is PARALLEL, not a runChain sequence.** runChain is
+  a sequential gated loop; the cell fan-out is N independent cells. OPEN for research/plan: dispatch the
+  cells via the existing parallel pattern (act-swarm / parallel agent dispatch) and FEED their
+  `{stance, evidence, confidence}` results into the sequential `runChain` debate consolidation. Do NOT
+  force the parallel fan-out through the sequential loop.
+- **D-164-S3: the cell + debate chains carry fable-mode self-critique (Phase 167 HARN-02).** Each cell's
+  `{stance, evidence, confidence}` self-critiques (verify + critique) before it folds into the debate,
+  so one bad cell reading cannot propagate into the ruling. This is exactly the multi-step
+  garbage-propagation case the 167 research flagged 164/165 as needing from birth.
+- **D-164-S4: `/mos:bono` (and any new cell/consolidator agent) is scaffolded via `/mos:new-surface`
+  (Phase 167 HARN-03).** Its connector block + manifest landing are GENERATED, not hand-written; the
+  surface lands transitively across the three maps with `--check` proof. Pin `reach_id` to a frozen
+  reach + `sub_mode`, never a 7th reach.
+- **D-164-S5: incremental filing (net-new #3) uses the `pipeline-state.cjs` journal (Phase 166
+  D-166-02, the sole chain-state truth).** Each pipeline step is journaled before the next so a crashed
+  run resumes from the cursor without re-running completed cells.
+
+Net effect: 164's net-new shrinks further (it inherits the loop, the gate, the generator, fable-mode,
+the journal); the genuinely net-new is the cell-fan-out-to-debate composition, the GENESIS expert
+breakdown, the issue-tree engine, and the SyntheticExpert citizens. The substrate is plumbing 164
+calls, not plumbing 164 writes.
+
 ## Next
 
-Open v1.14.0, then `/gsd-discuss-phase 164` (or `/gsd-plan-phase 164`). Depends on Phase 163 landing the domain-graph-citizen substrate first.
+`/gsd-plan-phase 164` (research-then-plan; RESEARCH.md to be produced -- 164 is design-doc-dense:
+GENESIS-TRANSLATION, ISSUE-TREE, SYNTHETIC-EXPERTS, EXPERT-LIFECYCLE + reference/). Depends on 163
+(done) + 130 + now 166 + 167 (all done).
