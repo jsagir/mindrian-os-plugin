@@ -54,7 +54,7 @@ Plans:
 **Design input + full reasoning:** `.planning/research/2026-06-18-orchestration-executor-dual-graph-conversation.md` (11-agent fan-out) + `166-RESEARCH.md`.
 **Spec:** `.planning/phases/166-gated-chain-executor/166-SPEC.md`
 **Related seeds:** SEED-024 (orchestration graph / suggester), SEED-028 (retry/fallback), SEED-032 (harness-as-code / the manifest this is the runtime for).
-**Status:** SCOPED 2026-06-18. Next: after Phase 163 lands, /gsd-discuss-phase 166 then /gsd-plan-phase 166.
+**Status:** IN PROGRESS 2026-06-18. Plan 01 (Wave 1 FOUNDATION, B1 + B4) COMPLETE: `lib/mcp/pipeline-state.cjs` is the SOLE chain-state truth with a HARD `isNext` gate (B1, D-166-02; `CHAIN_STATE_SOURCE` exported, frontmatter scan demoted to a secondary index); `lib/core/recipe-maps.cjs` wires the three existing maps for three jobs, layered not merged (B4, D-166-03; posture from command-registry, wiring from connector-registry, ranked next-reach from the 207-node projection -- `rankedNextReach` is CONTRACT-ONLY, decide() drives the Wave-2 loop, live consumption deferred with Phase 157). Phase gate `tests/run-all-166.sh` 4/4 green (2 foundation suites + Part 8 sweep + em-dash sweep). 5 atomic commits. Plans 02-08 remain (the runChain loop + migration waves). See `166-01-SUMMARY.md`.
 
 ### Phase 164: bono-research-debate-engine -- BONO Research-Debate Engine (cognitive capstone)
 
