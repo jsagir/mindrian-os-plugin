@@ -30,6 +30,7 @@ CJS_SUITES=(
   test-typed-domain.cjs
   test-lens-domain-family.cjs
   test-get-domains-for-trends.cjs
+  test-trending-to-absurd-orchestrator.cjs
 )
 
 TOTAL=0
@@ -64,6 +65,35 @@ for c in "${CJS_SUITES[@]}"; do
 done
 
 # ---------------------------------------------------------------------------
+# Connector-block validation (Wave 4 SURFACE-A). The /mos:trending-to-absurd
+# command must declare connects_to_spine: true and a connector framework that
+# EQUALS its frameworks: value (Phase 143.3 contract section 27 + the generator
+# --check tripwire). Gates RED if the command is missing or the framework drifts.
+# ---------------------------------------------------------------------------
+((TOTAL++))
+echo "--- Running: connector-block validation (trending-to-absurd) ---"
+CONN_OK=1
+TTA_CMD="$REPO_ROOT/commands/trending-to-absurd.md"
+TTA_SKILL="$REPO_ROOT/skills/trending-to-absurd/SKILL.md"
+if [[ ! -f "$TTA_CMD" ]]; then
+  echo "    MISSING commands/trending-to-absurd.md"; CONN_OK=0
+else
+  grep -q "connects_to_spine: true" "$TTA_CMD" || { echo "    connects_to_spine not true"; CONN_OK=0; }
+  # The connector framework MUST equal the frameworks: value (S-Curve Analysis).
+  grep -q 'frameworks: \["S-Curve Analysis"\]' "$TTA_CMD" || { echo "    frameworks: drift"; CONN_OK=0; }
+  grep -q 'framework: "S-Curve Analysis"' "$TTA_CMD" || { echo "    connector framework drift"; CONN_OK=0; }
+fi
+if [[ ! -f "$TTA_SKILL" ]]; then
+  echo "    MISSING skills/trending-to-absurd/SKILL.md"; CONN_OK=0
+fi
+if [[ $CONN_OK -eq 1 ]]; then
+  ((PASSED++)); echo ">>> connector-block validation: PASSED"
+else
+  ((FAILED++)); FAILED_TESTS+=("connector-block validation"); echo ">>> connector-block validation: FAILED"
+fi
+echo ""
+
+# ---------------------------------------------------------------------------
 # Em-dash sweep (CLAUDE.md HARD RULE: hyphens only). The forbidden glyph is
 # matched via its codepoint escape (U+2014) so this runner itself carries no
 # literal em-dash to trip its own sweep.
@@ -86,6 +116,10 @@ EMDASH_TARGETS=(
   "lib/core/navigation/get-domains-for-trends.cjs"
   "tests/test-lens-domain-family.cjs"
   "tests/test-get-domains-for-trends.cjs"
+  "lib/core/trending-to-absurd/orchestrator.cjs"
+  "tests/test-trending-to-absurd-orchestrator.cjs"
+  "commands/trending-to-absurd.md"
+  "skills/trending-to-absurd/SKILL.md"
 )
 for t in "${EMDASH_TARGETS[@]}"; do
   f="$REPO_ROOT/$t"
