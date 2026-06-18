@@ -34,6 +34,14 @@ CJS_SUITES=(
   # wave creates.
   test-act-prebehavior-snapshot.cjs
   test-act-on-runchain.cjs
+  # Wave 5 MIGRATE pipeline (the consumer onto runChain). Dependency order: the
+  # FIRST-ever pipeline-state.cjs shipped-behavior CAPTURE runs FIRST (it is the
+  # regression net this wave creates -- pipeline-state.cjs shipped untested), then
+  # the migration + provenanceFn + sole-truth-resume + PRE===POST identity suite.
+  # There is NO pre-existing pipeline regression suite to register (confirmed:
+  # tests/ carried none) -- the shipped-behavior capture IS the net.
+  test-pipeline-state-shipped-behavior.cjs
+  test-pipeline-on-runchain.cjs
 )
 
 TOTAL=0
@@ -79,6 +87,7 @@ SWEEP_TARGETS=(
   "lib/core/recipe-maps.cjs"
   "lib/core/chain-executor.cjs"
   "lib/core/chain-retry.cjs"
+  "lib/mcp/pipeline-state.cjs"
 )
 
 # No Brain-write MCP call / brain-write helper (the canonical Part 8 breach).
@@ -139,6 +148,10 @@ EMDASH_TARGETS=(
   "commands/act.md"
   "tests/test-act-prebehavior-snapshot.cjs"
   "tests/test-act-on-runchain.cjs"
+  # Wave 5: the migrated pipeline consumer + its command doc + the two new suites.
+  "commands/pipeline.md"
+  "tests/test-pipeline-state-shipped-behavior.cjs"
+  "tests/test-pipeline-on-runchain.cjs"
   "tests/run-all-166.sh"
 )
 for t in "${EMDASH_TARGETS[@]}"; do
