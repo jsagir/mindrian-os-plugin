@@ -26,12 +26,14 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 START_TIME=$(date +%s)
 
 # Phase-167 suites in wave order. Wave 1 registers the three foundation suites;
-# later waves append (fable-mode self-critique, new-surface generator, the
-# adversarial structured verdict).
+# Wave 2 (D-167-03 enforcement) appends the pre-commit wiring test; later waves
+# append (fable-mode self-critique, new-surface generator, the adversarial
+# structured verdict).
 CJS_SUITES=(
   test-harness-manifest-check.cjs
   test-recipe-maps-loadmanifest.cjs
   test-harness-manifest-part8-boundary.cjs
+  test-harness-manifest-precommit-wiring.cjs
 )
 
 TOTAL=0
@@ -139,6 +141,8 @@ EMDASH_TARGETS=(
   "tests/test-harness-manifest-check.cjs"
   "tests/test-recipe-maps-loadmanifest.cjs"
   "tests/test-harness-manifest-part8-boundary.cjs"
+  "tests/test-harness-manifest-precommit-wiring.cjs"
+  "scripts/install-pre-commit.sh"
   "tests/run-all-167.sh"
 )
 for t in "${EMDASH_TARGETS[@]}"; do
