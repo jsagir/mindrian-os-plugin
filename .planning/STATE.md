@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches" -- finalized STABLE 2026-06-17
 status: verifying
-stopped_at: Phase 166 Wave 4 (166-04) complete -- next 166-05 (pipeline migration wave)
-last_updated: "2026-06-18T13:34:00.000Z"
+stopped_at: Phase 166 Wave 5 (166-05) complete -- next 166-06 (ignite migration wave)
+last_updated: "2026-06-18T13:45:00.000Z"
 last_activity: 2026-06-14 -- Phase 156 execution started
 progress:
   total_phases: 13
@@ -16,7 +16,11 @@ progress:
 
 # Project State
 
-## Latest (2026-06-18) -- Phase 166 Wave 4 (166-04) complete
+## Latest (2026-06-18) -- Phase 166 Wave 5 (166-05) complete
+
+WAVE 5 MIGRATE pipeline landed: the pipeline (commands/pipeline.md) is now a CONSUMER of the shared `lib/core/chain-executor.cjs runChain` spine, not a hand-rolled stage walk. It supplies `provenanceFn` = `lib/mcp/pipeline-state.cjs makeProvenanceFn(chainName)` (the consumer that stamps each stage artifact's `pipeline` + `pipeline_stage` frontmatter per framework-runner.md:220; act and ignite pass provenanceFn:null), `postureFn` = recipe-maps.postureForCommand, the default gateFn, and an onStep dispatching the per-stage framework-runner. Resume now reads from `pipeline-state.cjs` ONLY via the NEW `reconcileResume(roomDir)` -- the SOLE chain-state truth (B1/D-166-02) -- with the artifact-frontmatter scan (commands/pipeline.md:78-114 block + the "Pipeline resumability" rule) demoted to a SECONDARY confirming index: AGREE confirms the position, DISAGREE trusts pipeline-state.json and flags the frontmatter STALE (never the reverse). The Wave-1 isNext hard gate prevents re-running an already-completed stage; the ~60 duplicated loop lines are now the shared spine (de-dup). CRITICAL HIGH-1 fix: pipeline-state.cjs shipped UNTESTED, so its FIRST-ever coverage (`tests/test-pipeline-state-shipped-behavior.cjs`) captured the SHIPPED initChain/checkPosition/recordStep/chain_position/getPreviousOutput round-trip as a baseline BEFORE the additive wiring, and the migration suite's Test 5 re-runs it as a child process to prove PRE === POST -- the additive makeProvenanceFn + reconcileResume drifted the shipped store NOTHING. B2 preserved (decide() untouched); Part 8 (the provenanceFn stamp is enum/scalar only -- pipeline name + stage number, never the result body, never crosses to Brain; pipeline-state.cjs added to the Part-8 grep sweep, clean). Phase gate `tests/run-all-166.sh` 12/12 green (10 suites + Part 8 sweep + em-dash sweep). 3 atomic commits (capture 0feb2867, GREEN wiring 374c8c0c, repoint+register d858b9c0). Plans 06-08 remain (ignite -> larry handoff seam). See `166-05-SUMMARY.md`.
+
+## Earlier (2026-06-18) -- Phase 166 Wave 4 (166-04) complete
 
 WAVE 4 MIGRATE act landed: the DONOR is now the thinnest caller of `runChain`. `scripts/act-command.cjs` --chain composes the framework chain (recommender + resolver, unchanged) then DELEGATES the walk to `lib/core/chain-executor.cjs runChain` via the new `buildRunChainPlan` seam, supplying callbacks ONLY -- `postureFn` = `recipe-maps.postureForCommand` (the ONE posture authority, Wave 1; act re-implements no posture), a chain-autonomy `gateFn`, an `onStep` recording the would-run step, an `onHalt` recording the stop step, `provenanceFn: null` (act is not the pipeline), and a no-op `decideFn` (act PLANS a precomposed chain, so `decide()` shape is untouched -- B2 preserved). `planChainRun` is now a thin shim over `buildRunChainPlan`; the donor's manual step walk is GONE (act owns no loop, D-166-04). The HIGH-1 gap (act had NO regression suite) is closed by instrumentation, NOT assertion: `tests/test-act-prebehavior-snapshot.cjs` captured the SHIPPED `renderChainReport` bytes + the whole-autonomous / gated-halt / [stop] outcomes to a committed baseline `tests/fixtures/act-prebehavior-baseline.json` BEFORE the refactor, then `tests/test-act-on-runchain.cjs` asserts the post-runChain output is byte/behavior-identical for all three paths -- "no drift" is VERIFIED. The F.0 "needs you here" gate render + the [stop] kill switch are preserved byte-identical. `commands/act.md` Chain Mode prose now names `chain-executor.cjs runChain` as the shared spine act rides; the user contract is unchanged. Phase gate `tests/run-all-166.sh` 10/10 green (8 suites + Part 8 sweep + em-dash sweep); act-command.cjs sweep clean (zero Brain egress, Part 8 / B2). 3 atomic commits (baseline 01c40bff, migration GREEN 9cdfb1eb, docs+register a30f8635). Plans 05-08 remain (pipeline -> ignite -> larry handoff seam). See `166-04-SUMMARY.md`.
 
@@ -549,6 +553,7 @@ Progress: [█████████░] 92%
 | Phase 160 P06 | 8min | 3 tasks | 8 files |
 | Phase 163 P02 | 1 session | 2 tasks | 4 files |
 | Phase 163 P05 | 1 session | 2 tasks | 6 files |
+| Phase 166 P05 | 6m | 3 tasks | 5 files |
 
 ## Accumulated Context
 
