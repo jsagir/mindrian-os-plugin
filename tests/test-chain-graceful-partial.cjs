@@ -208,7 +208,8 @@ function nullDecideFn() { return { decision_trace: null }; }
   ok('T4 non-transient fails fast (no retry) and STILL returns a graceful partial preserving upstream');
 })();
 
+// Three test bodies (T1+T2 share one IIFE, T3, T4) -> three ok() calls.
 setTimeout(function () {
-  console.log('PARTIAL_OK ' + passed + '/4');
-  if (passed !== 4) process.exit(1);
+  console.log('PARTIAL_OK ' + passed + '/3');
+  if (passed !== 3) process.exit(1);
 }, 80);
