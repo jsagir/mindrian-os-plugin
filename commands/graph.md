@@ -128,3 +128,47 @@ After presenting results, suggest next actions:
 
 > Want to see this visually? -> /mos:dashboard
 > Want to re-run the analysis? -> /mos:reanalyze
+> Want to wire the typed-edge graph for this room and its sub-rooms? -> /mos:graph --derive
+
+## --derive (the HEAL-FIRST backfill)
+
+`/mos:graph --derive` is the universal net that wires an EXISTING room AND its sub-rooms in one pass. It is the surface that works on the hook-less surfaces (Desktop / Cowork) where the Stop sweep and SessionStart drain do not fire. The backfill is HEAL-FIRST: its FIRST step is the GDH-08 self-heal, BEFORE any resolve / rebuild / derive. Run it via lib/core/graph-backfill.cjs:
+
+```bash
+node -e "
+const { runDeriveBackfill } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/graph-backfill.cjs');
+const res = runDeriveBackfill({ roomDir: 'room/', approvedBy: process.env.MOS_APPROVED_BY || '' });
+console.log(JSON.stringify(res));
+"
+```
+
+The HEAL-FIRST sequence (each step in order):
+
+1. **STEP 0 -- the GDH-08 self-heal (runs FIRST).** `detectUnsentineledArtifactFolder(roomDir)` finds any artifact-bearing folder under the room that lacks its OWN `.room-root` sentinel. For each one found, surface it at the Part 3 Decision Gate:
+
+   ```
+   ------------------------------
+     Sentinel-less artifact folder detected
+     Folder: [name] ([N] artifacts)
+     Why heal: without its own .room-root, the resolver rolls these
+       artifacts into the parent and they never index as their own room
+   ------------------------------
+   ```
+
+   Offer APPROVE / REJECT (with reason) / DEFER. ONLY on APPROVE do you call `healRoom` with the navigator threaded as `approvedBy`. The heal makes the folder a FULL-CITIZEN child room: birthRoom (ROOM.md + STATE.md + MINTO.md + per-section FEYNMAN.md + BRAIN enqueue + room_created memory_event + its own `.mindrian/room.db`), the NESTED_WITHIN lineage edge `room:<child> -> room:<parent>`, the registry / sentinel parent pointer, and the `## Timeline (auto)` section. REJECT captures the why-not (Part 4); nothing auto-creates a room (Part 3/9). Without this heal-first step the real b2-journey 0 -> N is UNREACHABLE -- a sentinel-less folder silently mis-rolls into its parent.
+
+2. **STEP 1 -- resolve.** Resolve the (now-sentineled) room by `resolveRoomRoot`.
+
+3. **STEP 2 -- rebuild TRANSITIVELY.** Rebuild it ROOT-FILES-aware (the flat-root b2 artifacts), non-.md-aware (.docx / .html via the LOCAL extractor), and sub-room recursive (the Plan 04 `rebuildGraph`, arbitrary depth).
+
+4. **STEP 3 -- derive per room AND per sub-room.** Call `runDerivation` once per room and per healed/citizen sub-room. The derived edges land PROPOSED -- the backfill NEVER auto-confirms. The human confirms via the existing confirmNode Decision Gate path.
+
+5. **STEP 4 -- report the delta.** Report the typed-edge count before -> after (0 -> N):
+
+   > Wired [parent] and [K] sub-rooms. Typed edges: [before] -> [after]. [N] new relationships are PROPOSED -- review and confirm at the gate.
+
+**Idempotence (GDH-07).** A re-run is a no-op: STEP 0 detects no unsentineled folder (an already-healed room keeps its `.room-root`; the NESTED_WITHIN edge ON CONFLICT no-ops), and `runDerivation`'s pre-propose guard mints no duplicate proposed node and never downgrades a confirmed node.
+
+**Three-surface.** On Desktop / Cowork (no hooks) this command IS the universal net, and STEP 0 self-heal runs there too. On the CLI the debounced Stop sweep (`scripts/gsd-graph-derive-sweep.cjs` enqueues) plus the SessionStart drain (`scripts/gsd-graph-derive-drain.cjs` runs) keep the typed derivation swept, not per-keystroke; this command is the explicit backfill alongside them.
+
+**Part 8.** The backfill, the sweep, and the drain open ZERO Brain wire. The heal is LOCAL fs + navigation.cjs only; derivation uses a LOCAL deriveFn (default heuristic local-cue scan, or the Part-8-legal anthropic-transport LLM producer). Brain-derive is the one Brain-touching deriver, boundary-scanned separately.

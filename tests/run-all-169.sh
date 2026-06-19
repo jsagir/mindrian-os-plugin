@@ -51,6 +51,7 @@ CJS_SUITES=(
   test-room-lineage-edge.cjs
   test-recursive-rollup.cjs
   test-depth2-full-citizen.cjs
+  test-graph-derive-sweep.cjs
 )
 
 TOTAL=0
@@ -128,7 +129,9 @@ PART8_LIB=(
   "lib/core/graph-derivation.cjs"
   "lib/core/graph-candidate-producer.cjs"
   "lib/core/graph-self-heal.cjs"
+  "lib/core/graph-backfill.cjs"
   "scripts/gsd-graph-derive-sweep.cjs"
+  "scripts/gsd-graph-derive-drain.cjs"
 )
 # No Brain-write MCP call / brain-write helper (the canonical Part 8 breach).
 BRAIN_WRITE='mcp__brain_(write|store|upsert|ingest)|writeBrain|sendToBrain|ingestToBrain'
@@ -206,6 +209,7 @@ EMDASH_TARGETS=(
   "tests/test-room-lineage-edge.cjs"
   "tests/test-recursive-rollup.cjs"
   "tests/test-depth2-full-citizen.cjs"
+  "tests/test-graph-derive-sweep.cjs"
   "tests/run-all-169.sh"
   "docs/MINDRIAN-CANON.md"
   "docs/CANON-PHASE-MAP.md"

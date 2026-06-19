@@ -84,6 +84,18 @@
             "statusMessage": "Scanning for ambiguous segments..."
           }
         ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/gsd-graph-derive-drain.cjs\"",
+            "timeout": 5000,
+            "async": false,
+            "statusMessage": "Draining graph-derivation queue..."
+          }
+        ]
       }
     ],
     "PreCompact": [
@@ -143,6 +155,15 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hmi-compliance-poll.cjs\" --hook",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/gsd-graph-derive-sweep.cjs\"",
             "timeout": 3000
           }
         ]
