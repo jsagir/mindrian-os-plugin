@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches" -- finalized STABLE 2026-06-17
 status: verifying
-stopped_at: "Phase 169 Plan 03 (169-03) complete -- GDH-04: lib/core/doc-text-extractor.cjs landed as the pure-JS non-destructive .docx/.html text extractor (root cause #3 closed: the indexer was .md-only). extractDocText(absPath) -> string: .docx via a ZIP central-directory walk + zlib.inflateRawSync (method 8) + a method-0 stored raw fallback + the <w:t>-run regex (RESEARCH Code Example 1, proven against the b2 fixture, 216 Hebrew runs); .html via cheerio $('body').text(); '' otherwise. D-169-03 non-destructive (read-only, no sidecar; source bytes/mtime UNCHANGED, asserted GREEN). V5 zip-bomb guard (MAX_ZIP_ENTRIES central-dir cap + inflateRawSync maxOutputLength ~10MB + whole-body try/catch -> '' exit-safe). ZERO new dep (Node built-ins + already-listed cheerio; package.json byte-unchanged). test-doc-text-extractor GREEN (4/4); run-all-169.sh Total 17 Passed 7 (was 6) Failed 10, other 10 stubs RED-untouched, floors + Part-8 + em-dash sweeps GREEN; zero em-dashes"
-last_updated: "2026-06-19T15:45:00.000Z"
+stopped_at: "Phase 169 Plan 04 (169-04) complete -- Wave 4 surfaces (GDH-02/03/04/05 + D-169-11 fractal teeth). The MISSING FUEL now exists: lib/core/graph-candidate-producer.cjs produceCandidates is the LLM derivation PRODUCER reading LOCAL artifact-pair text and proposing {source,target,edge_type,reason} tuples drawn ONLY from the frozen cascade subset, emitting BOTH CONTRADICTS AND CONVERGES (D-169-06), injectable llm stub, default anthropic-transport (mirroring llm-name-suggester.cjs) NEVER the Brain (Part 8). lib/core/graph-derivation.cjs runDerivation is the runChain composer (deriveFn = the producer; fable-mode critiques each candidate; candidateToFinding adapter; survivors land a PROPOSED truth-claim NODE via navigation.writeClaimNode with a stable sha256 content-hash id + a typed EDGE via navigation.writeEdge; review_status on the NODE not the edge -- Pitfall 1; no raw edge SQL) + rollupSubRooms (RECURSIVE/TRANSITIVE read-side ATTACH file:mode=ro walking NESTED_WITHIN at arbitrary depth, cycle-guarded, never writes the parent db). lazygraph-ops.cjs gained a ROOT-FILES pass (D-169-07 flat-room reach) + TRANSITIVE sub-room recursion into per-sub-room dbs at arbitrary depth (D-169-02/D-169-11) + the non-md reach (extractDocText branch + widened readdir filter) + the DISABLED legacy raw-SQL cascade (D-169-08/MEDIUM-4: derivation via navigation.writeEdge is the sole cascade writer; BELONGS_TO preserved). Edges-table FK to nodes(id) relaxed (D-169-11 blocking enablement; PK still enforces uniqueness). graph-derivation.cjs allow-listed in check-substrate.cjs. Part-8 sweep now guards the Brain HOST + exempts api.anthropic.com. test-candidate-producer + test-graph-derivation-loop + test-subroom-rollup + test-recursive-rollup GREEN (4/4 plan stubs); derive-idempotence GREEN as a side effect of the required stable id; run-all-169.sh Total 17 Passed 12 Failed 5 (the 5 Wave-5/6 stubs RED-untouched); floors + Part-8 + em-dash sweeps GREEN; zero em-dashes. 3 PRE-EXISTING out-of-scope failures logged to deferred-items.md. 3 atomic commits (e757c0ba lazygraph, 08eed34f producer+sweep, 2a17704e derivation+allowlist)"
+last_updated: "2026-06-19T16:30:00.000Z"
 last_activity: 2026-06-19
 progress:
   total_phases: 13
@@ -16,7 +16,50 @@ progress:
 
 # Project State
 
-## Latest (2026-06-19) -- Phase 169 Wave 3 (169-03) complete -- GDH-04 the pure-JS non-destructive .docx/.html text extractor
+## Latest (2026-06-19) -- Phase 169 Wave 4 (169-04) complete -- the LLM producer + the runChain composer + the fractal rollup (GDH-02/03/04/05 + D-169-11)
+
+WAVE 4 SURFACES landed: the core of the harness. The plan-check REVISE verdict had found the engine had no
+FUEL -- the four shipped derivers only WRITE pre-structured findings, none GENERATE candidate edges from raw
+artifact text. `lib/core/graph-candidate-producer.cjs` `produceCandidates({roomDir, artifactPair, llm})` is
+that missing fuel: it reads LOCAL artifact-pair text (routing .docx/.html through extractDocText) and
+PROPOSES `{source, target, edge_type, reason}` tuples drawn ONLY from the frozen cascade subset, emitting
+BOTH a CONTRADICTS AND a CONVERGES candidate (D-169-06: not CONTRADICTS-only; within-room CONVERGES is the
+producer job, LOW-6). The `llm` is injectable (deterministic stub in tests); the default transport mirrors
+`lib/core/llm-name-suggester.cjs` (direct fetch to api.anthropic.com/v1/messages, x-api-key +
+anthropic-version + AbortController timeout) -- the Part-8-legal LOCAL LLM transport, NEVER the Brain.
+`lib/core/graph-derivation.cjs` `runDerivation({roomDir, runChain, selfCritiqueFn, deriveFn})` is the
+runChain composer: deriveFn defaults to the producer (injectable), each step is material:true so fable-mode
+(167 selfCritiqueFn) critiques EACH candidate, the explicit named `candidateToFinding` adapter bridges a
+producer tuple into the writer finding shape (D-169-06 producer/writer/adapter split, not a fork), and a
+critique-PASSED candidate lands a PROPOSED truth-claim NODE (review_status='proposed' on the NODE via
+`navigation.writeClaimNode`, stable sha256 content-hash id -- Pitfall 3/GDH-07) plus a typed EDGE via
+`navigation.writeEdge` (enum/scalar props, NEVER edge.review_status -- Pitfall 1); an unjustified candidate
+is dropped (no node, no edge -- T-169-07). `rollupSubRooms(parentRoomDir)` walks the NESTED_WITHIN lineage
+edge RECURSIVELY / TRANSITIVELY (read-only ATTACH, file: mode=ro) so a sub-sub-room edge reaches the TOP
+rollup at arbitrary depth (D-169-11), cycle-guarded, never writing the parent db. `lazygraph-ops.cjs`
+`rebuildGraph` gained a ROOT-FILES pass (D-169-07: flat-room top-level .md/.docx/.html reach) + TRANSITIVE
+sub-room recursion into per-sub-room dbs at arbitrary depth (D-169-02/D-169-11, cycle-guarded) + the non-md
+reach (`_indexArtifactBody` routes .docx/.html through extractDocText), and its legacy raw-SQL cascade
+(CONTRADICTS/INFORMS/ENABLES/INVALIDATES) is DISABLED (D-169-08/MEDIUM-4) so derivation via
+`navigation.writeEdge` is the SOLE cascade writer; BELONGS_TO preserved. DEVIATIONS (auto-fixed, documented):
+the edges-table FK to nodes(id) was RELAXED (D-169-11 blocking enablement -- room-lineage NESTED_WITHIN +
+cross-room/healed-later edges cannot exist under a hard FK; PRIMARY KEY still enforces uniqueness);
+graph-derivation.cjs was allow-listed in check-substrate.cjs (its writes route through navigation; room-db /
+node:sqlite are only the caller-handle + the cross-room read-only rollup ATTACH); the run-all-169.sh Part-8
+sweep was corrected to guard the Brain HOST (the real boundary) and exempt the Part-8-legal api.anthropic.com
+LOCAL transport. test-candidate-producer + test-graph-derivation-loop + test-subroom-rollup +
+test-recursive-rollup GREEN (4/4 plan stubs); test-derive-idempotence GREEN as a legitimate side effect of
+the plan-required stable content-hash id; `run-all-169.sh` Total 17 Passed 12 Failed 5 (the five Wave-5/6
+stubs -- derive-backfill-acceptance / 169-brain-boundary / sentinel-self-heal / room-lineage-edge /
+depth2-full-citizen -- RED-untouched, turned GREEN by Plans 05/06/07); the two carried floor tests + Part-8 +
+em-dash sweeps GREEN; zero em-dashes. 3 PRE-EXISTING out-of-scope test failures (test-131-substrate stale
+exact-delta, test-sqlite-concurrent environmental WAL, test-129.5-confirm-node Phase-160 supersession caller)
+logged to `deferred-items.md`, NOT fixed (scope boundary). 3 atomic commits (lazygraph e757c0ba, producer +
+sweep 08eed34f, derivation + allow-list 2a17704e). Plans 05 (backfill HEAL-FIRST + sweep hook), 06
+(brain-derive boundary scan), 07 (graph-self-heal lineage edge) consume these surfaces. See
+`.planning/phases/169-graph-derivation-harness/169-04-SUMMARY.md`.
+
+## Earlier (2026-06-19) -- Phase 169 Wave 3 (169-03) complete -- GDH-04 the pure-JS non-destructive .docx/.html text extractor
 
 WAVE 3 also landed the GDH-04 reader. `lib/core/doc-text-extractor.cjs` is the pure-JS non-destructive
 `.docx`/`.html` text extractor that makes the dense moat content (the 9 b2-journey `.docx` dossiers)
