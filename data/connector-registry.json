@@ -180,6 +180,7 @@
       "source": "command",
       "connects_to_spine": true,
       "sensor_triggers": [
+        "SENS-01",
         "SENS-06"
       ],
       "reach_id": "context_block",
@@ -1056,6 +1057,7 @@
     ],
     "SENS-01": [
       "/mos:auto-explore",
+      "/mos:diagnose",
       "/mos:discover",
       "/mos:explore-domains",
       "/mos:find-analogies",

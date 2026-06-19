@@ -30,6 +30,8 @@ CJS_SUITES=(
   test-synthetic-expert-nodetype-floor.cjs
   test-synthetic-expert-writer.cjs
   test-expert-library-assembly.cjs
+  test-issue-tree-engine.cjs
+  test-issue-tree-edge-remap.cjs
 )
 
 TOTAL=0
@@ -106,6 +108,34 @@ fi
 echo ""
 
 # ---------------------------------------------------------------------------
+# Connector --check assertion (Wave 3; D-164-S4, threat T-164-11). The issue-tree
+# sub_mode rides the EXISTING diagnose context_block reach (one reach, two modes);
+# build-connector-registry.cjs --check must stay clean (no 7th reach minted, no
+# duplicate tuple), and commands/diagnose.md must carry the issue-tree sub_mode +
+# ignite's [SENS-01, SENS-06] pair. Mirrors the run-all-163 connector-block idiom.
+# ---------------------------------------------------------------------------
+((TOTAL++))
+echo "--- Running: connector --check + diagnose issue-tree sub_mode ---"
+CONN_OK=1
+if ! node "$REPO_ROOT/scripts/build-connector-registry.cjs" --check >/dev/null 2>&1; then
+  echo "    connector-registry --check failed (7th reach or duplicate tuple)"; CONN_OK=0
+fi
+DIAGNOSE_CMD="$REPO_ROOT/commands/diagnose.md"
+if [[ ! -f "$DIAGNOSE_CMD" ]]; then
+  echo "    MISSING commands/diagnose.md"; CONN_OK=0
+else
+  grep -q "issue-tree" "$DIAGNOSE_CMD" || { echo "    issue-tree sub_mode missing from diagnose.md"; CONN_OK=0; }
+  grep -q "SENS-01" "$DIAGNOSE_CMD" || { echo "    SENS-01 (ignite sensor pair) missing from diagnose.md"; CONN_OK=0; }
+  grep -q "context_block" "$DIAGNOSE_CMD" || { echo "    context_block reach_id missing from diagnose.md"; CONN_OK=0; }
+fi
+if [[ $CONN_OK -eq 1 ]]; then
+  ((PASSED++)); echo ">>> connector --check + diagnose issue-tree sub_mode: PASSED"
+else
+  ((FAILED++)); FAILED_TESTS+=("connector --check + diagnose issue-tree sub_mode"); echo ">>> connector --check + diagnose issue-tree sub_mode: FAILED"
+fi
+echo ""
+
+# ---------------------------------------------------------------------------
 # Em-dash sweep (CLAUDE.md HARD RULE: hyphens only). The forbidden glyph is
 # matched via its codepoint escape (U+2014) so this runner itself carries no
 # literal em-dash to trip its own sweep.
@@ -121,6 +151,10 @@ EMDASH_TARGETS=(
   "tests/test-synthetic-expert-nodetype-floor.cjs"
   "tests/test-synthetic-expert-writer.cjs"
   "tests/test-expert-library-assembly.cjs"
+  "lib/core/issue-tree.cjs"
+  "tests/test-issue-tree-engine.cjs"
+  "tests/test-issue-tree-edge-remap.cjs"
+  "commands/diagnose.md"
   "tests/run-all-164.sh"
   ".planning/phases/108-graph-memory-schema-reconciliation/aliases.yml"
   "docs/MINDRIAN-CANON.md"
