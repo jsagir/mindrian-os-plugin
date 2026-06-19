@@ -394,6 +394,15 @@ node_aliases:
     canon_parts: [Part 2, Part 4]
     notes: "Person/org/coalition/role at lazygraph-ops.cjs:53-65 with type validation (closed enum at line 71). Not in Codex proposal."
 
+  # --- Phase 164 E1 navigator-gated node-type addition (D-164-S1) ---
+
+  - codex_term: SyntheticExpert
+    resolution: NEW
+    canonical_name: SyntheticExpert
+    source_phase: 164
+    canon_parts: [Part 2, Part 4, Part 9]
+    notes: "The reusable expert graph citizen: a high-value team member FILED from room/team/personas .md files and promoted to a queryable node, re-invokable as a hat in future runs. A truth-claim node (added to TRUTH_CLAIM_TYPES in lib/core/navigation/transitions.cjs), so it is human-confirm-gated (Part 9 role 5: the navigator decides which experts are kept). ROOM-LOCAL this phase; cross-room expert reuse is a deferred Part-8-gated amendment. Generic-lens metadata only (hat/name/surname/archetype/beautiful_question/method/evidence_tier/invocation_count/review_status/provenance); NEVER venture content (Part 8). Canon v1.13 Appendix D entry 24."
+
 # ============================================================================
 # STATUS ALIASES (D-03 reconciliation with existing assumptions.validity enum)
 # ============================================================================
