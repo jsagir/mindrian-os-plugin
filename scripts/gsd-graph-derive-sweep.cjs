@@ -1,0 +1,162 @@
+#!/usr/bin/env node
+'use strict';
+
+/*
+ * Phase 169-05 (GDH-02 trigger / D-169-01 / D-169-08) -- the Stop SWEEP hook.
+ * ==========================================================================
+ * The CHEAP half of the enqueue-then-drain debounce. On the Stop event this
+ * hook ENQUEUES a derive request for the current room into a small queue file
+ * and exits 0 immediately. It NEVER runs the expensive TYPED derivation inline
+ * (T-169-11): that runs on the SessionStart DRAIN (scripts/gsd-graph-derive-
+ * drain.cjs), mirroring the SHIPPED scripts/brain-derivation-drain.cjs
+ * precedent (the per-write structural index hook stays untouched -- Pattern 3).
+ *
+ * Wall-clock contract: the Stop handler stays within the Stop timeout budget
+ * because it ONLY writes a tiny JSON queue file (no Brain, no SQL derivation,
+ * no LLM call). Exit code is ALWAYS 0 (never block session end). Failures are
+ * silent (advisory; a missed enqueue is re-enqueued the next Stop, and the
+ * explicit /mos:graph --derive backfill is the universal net).
+ *
+ * Canon Part 8: LOCAL only. The enqueue writes a room-local queue file under
+ *   the room's `.mindrian/`; it opens ZERO Brain wire. The room is resolved by
+ *   the GDH-01 `.room-root` walk-up resolver (lib/core/room-root.cjs), so a
+ *   sub-room Stop enqueues the SUB-room, not the registry active room.
+ *
+ * Queue idiom: mirrors lib/core/brain-derivation-queue.cjs -- a JSON file at
+ *   <roomDir>/.mindrian/graph-derive-queue.json carrying { entries: [ {roomDir,
+ *   enqueued_at} ] }, deduped by resolved roomDir. The drain reads it, runs
+ *   runDerivation per entry, and clears the drained entry.
+ *
+ * CLI modes:
+ *   node scripts/gsd-graph-derive-sweep.cjs            -- Stop hook: enqueue the
+ *                                                         active/resolved room.
+ *   node scripts/gsd-graph-derive-sweep.cjs --room <d> -- enqueue a specific room
+ *                                                         (used by the round-trip test).
+ *
+ * Pure CJS, node built-ins only, zero npm deps. No em-dashes (CLAUDE.md).
+ */
+
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+
+const QUEUE_RELATIVE = path.join('.mindrian', 'graph-derive-queue.json');
+
+// ---------------------------------------------------------------------------
+// Room resolution: the GDH-01 `.room-root` walk-up resolver, falling back to
+// the registry active room when no sentinel is found from cwd.
+// ---------------------------------------------------------------------------
+
+function resolveMindrianRoomsRoot() {
+  const envRoot = process.env.MINDRIAN_ROOMS_ROOT;
+  if (envRoot && fs.existsSync(envRoot)) return envRoot;
+  const home = process.env.HOME || os.homedir();
+  if (!home) return null;
+  const defaultRoot = path.join(home, 'MindrianRooms');
+  if (fs.existsSync(defaultRoot)) return defaultRoot;
+  return null;
+}
+
+function resolveActiveRoomDir() {
+  const root = resolveMindrianRoomsRoot();
+  if (!root) return null;
+  try {
+    const regPath = path.join(root, '.rooms', 'registry.json');
+    const reg = JSON.parse(fs.readFileSync(regPath, 'utf8'));
+    if (reg && typeof reg.active === 'string' && reg.active.length > 0) {
+      const cand = path.join(root, reg.active);
+      if (fs.existsSync(cand)) return cand;
+    }
+  } catch (_e) { /* fall through */ }
+  return null;
+}
+
+// Resolve the room to enqueue: prefer the `.room-root` walk-up from cwd (so a
+// sub-room Stop enqueues the sub-room), then the registry active room.
+function resolveRoomDir(explicit) {
+  if (typeof explicit === 'string' && explicit.length > 0 && fs.existsSync(explicit)) {
+    return path.resolve(explicit);
+  }
+  try {
+    const { resolveRoomRoot } = require('../lib/core/room-root.cjs');
+    const fromCwd = resolveRoomRoot(process.cwd());
+    if (fromCwd) return path.resolve(fromCwd);
+  } catch (_e) { /* fall through */ }
+  const active = resolveActiveRoomDir();
+  return active ? path.resolve(active) : null;
+}
+
+// ---------------------------------------------------------------------------
+// Enqueue (the cheap write)
+// ---------------------------------------------------------------------------
+
+function queuePath(roomDir) {
+  return path.join(roomDir, QUEUE_RELATIVE);
+}
+
+function readQueue(roomDir) {
+  try {
+    const raw = fs.readFileSync(queuePath(roomDir), 'utf8');
+    const q = JSON.parse(raw);
+    if (q && Array.isArray(q.entries)) return q;
+  } catch (_e) { /* missing or corrupt -- start fresh */ }
+  return { entries: [] };
+}
+
+/**
+ * enqueueDerive(roomDir) -> { ok, queued, queuePath }
+ * Append a derive request for roomDir, deduped by resolved roomDir. Cheap:
+ * one small JSON write. Never throws (returns { ok:false } on failure).
+ */
+function enqueueDerive(roomDir) {
+  if (typeof roomDir !== 'string' || roomDir.length === 0) {
+    return { ok: false, reason: 'no_room' };
+  }
+  const resolved = path.resolve(roomDir);
+  try {
+    const dir = path.dirname(queuePath(resolved));
+    fs.mkdirSync(dir, { recursive: true });
+    const q = readQueue(resolved);
+    const already = q.entries.some(e => e && path.resolve(e.roomDir || '') === resolved);
+    if (!already) {
+      q.entries.push({ roomDir: resolved, enqueued_at: new Date().toISOString() });
+    }
+    fs.writeFileSync(queuePath(resolved), JSON.stringify(q, null, 2));
+    return { ok: true, queued: !already, queuePath: queuePath(resolved) };
+  } catch (_e) {
+    return { ok: false, reason: 'write_failed' };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// CLI parser
+// ---------------------------------------------------------------------------
+
+function parseArgs(argv) {
+  const out = { roomDir: null };
+  for (let i = 0; i < argv.length; i += 1) {
+    if (argv[i] === '--room' && argv[i + 1]) { out.roomDir = argv[i + 1]; i += 1; }
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------
+// Entry point (Stop hook): enqueue and exit 0 always.
+// ---------------------------------------------------------------------------
+
+function main() {
+  try {
+    const args = parseArgs(process.argv.slice(2));
+    const roomDir = resolveRoomDir(args.roomDir);
+    if (roomDir) enqueueDerive(roomDir);
+  } catch (_e) {
+    // Silent: a Stop hook must never block session end.
+  }
+  process.exit(0);
+}
+
+module.exports = { enqueueDerive, readQueue, queuePath, resolveRoomDir };
+
+if (require.main === module) {
+  main();
+}
