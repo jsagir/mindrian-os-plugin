@@ -98,6 +98,26 @@ OR document why structural-index edges coexisting with proposed derivation edges
 the PRIMARY KEY); the GDH-02 sweep drain MUST name its trigger (SessionStart drain, mirroring the
 brain-derivation-drain precedent), not enqueue-and-never-drain.
 
+### D-169-09: GDH-08 sentinel self-heal in the backfill (navigator-LOCKED 2026-06-19, live-recon finding)
+Live recon (2026-06-19) confirmed the b2-journey acceptance fixture has NO `.room-root` of its own: it
+holds 33 flat artifacts directly in its folder, the parent jonathan-contractor-motj HAS a `.room-root` +
+`.mindrian/room.db` (192K), and a walk-up from any b2-journey file resolves to the PARENT. So the GDH-01
+resolver unify (resolve-by-`.room-root`-walk-up) is necessary BUT INSUFFICIENT: a sentinel-less artifact
+folder still silently mis-rolls-up into its parent's db and never indexes as its own room. The fixture
+literally cannot hit 0 -> N as a room until this is handled.
+RESOLUTION (navigator-LOCKED, the "prevent from accruing" answer): add GDH-08 -- the GDH-06 backfill
+DETECTS an artifact-bearing folder under a room that lacks its own `.room-root` and SELF-HEALS it: write
+the `.room-root` sentinel (HUMAN-CONFIRMED at the Part 3 Decision Gate, "why-not" captured on reject per
+Part 4; never a silent write), bootstrap its `.mindrian/room.db` (lazygraph openGraph), THEN index +
+derive into THAT room. New sub-rooms remain covered by the SEED-001 atomic sub-room-creation contract;
+GDH-08 is the backfill net for folders created OUTSIDE it (hand-built, like b2-journey via its
+`_build_*.py` scripts). The LIVE b2-journey is healed BY the harness when /mos:graph --derive runs on it
+(NOT hand-patched) -- the dog-food acceptance proof (Part 6). Plan home: extend the GDH-06 backfill (Plan
+05) with the detect + Decision-Gate-confirm + sentinel-write + db-bootstrap step; add a test asserting a
+sentinel-less artifact folder is detected + (on confirm) gains a `.room-root` + indexes into its OWN db,
+not the parent's; the Verify wave (Plan 06) acceptance runs the self-heal as the first step of the b2
+0 -> N proof.
+
 </decisions>
 
 <canonical_refs>

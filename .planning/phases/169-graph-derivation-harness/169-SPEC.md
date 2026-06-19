@@ -50,6 +50,13 @@ edge set 168), so it is mostly composition.
   count 0 -> N.
 - **GDH-07 (idempotent):** re-running the derivation on a wired room is a no-op (Ralph idempotence;
   proposed edges are not re-proposed; confirmed edges are untouched).
+- **GDH-08 (sentinel self-heal):** the backfill DETECTS an artifact-bearing folder that sits under a
+  room but has NO `.room-root` of its own (so the GDH-01 walk-up would silently roll its artifacts up
+  into the parent's db) and SELF-HEALS it: write the `.room-root` sentinel (human-confirmed at the Part 3
+  Decision Gate; "why-not" captured on reject), bootstrap its `.mindrian/room.db`, THEN index + derive
+  into THAT room. New sub-rooms stay covered by the SEED-001 atomic sub-room-creation contract; GDH-08 is
+  the BACKFILL net for folders created outside it (hand-built like the b2-journey fixture). Without GDH-08
+  the GDH-01 resolver unify is necessary-but-insufficient: a sentinel-less folder still mis-rolls-up.
 
 ## Canon alignment
 - Part 8: derivation is LOCAL (room.db); Brain is generic-methodology read-only; zero user-content
@@ -73,8 +80,11 @@ the sub-room rollup + the non-.md reach + wiring the derivation into the pipe.
 - The lazygraph two-vocabulary unification (SEED-034 note; separate from this phase).
 
 ## Acceptance
-- The b2-journey fixture: after `/mos:graph --derive` (or the backfill), typed-edge count goes 0 -> N
-  (CONTRADICTS / CONVERGES across the value-chain + canon artifacts), edges land `proposed`.
+- The b2-journey fixture: it has NO `.room-root` today (verified 2026-06-19: its 33 flat artifacts roll
+  up into the parent jonathan-contractor-motj db). So `/mos:graph --derive` FIRST self-heals it (GDH-08:
+  write the sentinel at the Decision Gate, bootstrap its db), THEN takes typed-edge count 0 -> N
+  (CONTRADICTS / CONVERGES across the value-chain + canon artifacts), edges land `proposed`. The live
+  room being healed BY the harness IS the dog-food acceptance proof (Part 6).
 - A sub-room write indexes into the sub-room's own db with the active room set to the parent (GDH-01).
 - A .docx artifact's content is reachable to the derivation (GDH-04).
 - Re-run is a no-op (GDH-07). Part 8 leak scan clean. No em-dashes. Adversarial verify wave.
