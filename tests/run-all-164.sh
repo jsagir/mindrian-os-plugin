@@ -28,6 +28,8 @@ START_TIME=$(date +%s)
 # issue-tree tests, the debate-engine surface tests, the Part 8 leak scan).
 CJS_SUITES=(
   test-synthetic-expert-nodetype-floor.cjs
+  test-synthetic-expert-writer.cjs
+  test-expert-library-assembly.cjs
 )
 
 TOTAL=0
@@ -114,7 +116,11 @@ EMDASH=$'\u2014'
 EMDASH_OK=1
 EMDASH_TARGETS=(
   "lib/core/navigation/transitions.cjs"
+  "lib/core/navigation/synthetic-expert.cjs"
+  "lib/core/expert-library.cjs"
   "tests/test-synthetic-expert-nodetype-floor.cjs"
+  "tests/test-synthetic-expert-writer.cjs"
+  "tests/test-expert-library-assembly.cjs"
   "tests/run-all-164.sh"
   ".planning/phases/108-graph-memory-schema-reconciliation/aliases.yml"
   "docs/MINDRIAN-CANON.md"

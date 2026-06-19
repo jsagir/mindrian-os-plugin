@@ -232,7 +232,6 @@ check('Test 5 -- offerExpertsForFiling returns a ranked candidate list', () => {
   assert.ok(Array.isArray(candidates), 'returns an array');
   assert.equal(candidates.length, 2, 'one candidate per run hat');
   assert.equal(candidates[0].hat, 'White', 'the higher-contribution hat ranks first');
-  db.close && null;
 });
 
 // Test 6: expert-library.cjs carries no Brain call and no raw room.db open (Part 8).
