@@ -13,6 +13,22 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 165 connector (close the file-meeting orphan; D-165-07) ---
+# The meeting-filing event dispatches the blind-spot trigger sensors. Rides the
+# EXISTING 'contradiction' reach (a filed meeting that contradicts a confident
+# claim = the oracle returning a true label). NO new reach_id (frozen bank = 6).
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-06, SENS-08]
+  reach_id: contradiction
+  sub_mode: file-meeting
+  framework: null
+  posture: pull_back
+  hierarchy_rank: 37
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # /mos:file-meeting

@@ -312,6 +312,24 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:file-meeting",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-06",
+        "SENS-08"
+      ],
+      "reach_id": "contradiction",
+      "sub_mode": "file-meeting",
+      "framework": null,
+      "posture": "pull_back",
+      "hierarchy_rank": 37,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:find-analogies",
       "source": "command",
       "connects_to_spine": true,
@@ -500,7 +518,10 @@
       "surface": "/mos:map-unknowns",
       "source": "command",
       "connects_to_spine": true,
-      "sensor_triggers": [],
+      "sensor_triggers": [
+        "SENS-06",
+        "SENS-08"
+      ],
       "reach_id": "context_block",
       "sub_mode": "unknowns-matrix",
       "framework": "Knowns and Unknowns Matrix Framework",
@@ -1052,9 +1073,11 @@
       "/mos:deep-grade",
       "/mos:diagnose",
       "/mos:dominant-designs",
+      "/mos:file-meeting",
       "/mos:futures",
       "/mos:grade",
       "/mos:ignite",
+      "/mos:map-unknowns",
       "/mos:mos-reason",
       "/mos:mullins",
       "/mos:new-project",
@@ -1116,6 +1139,8 @@
       "agent:research"
     ],
     "SENS-08": [
+      "/mos:file-meeting",
+      "/mos:map-unknowns",
       "/mos:memory-cortex-reach"
     ]
   },

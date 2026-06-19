@@ -19,7 +19,7 @@ allowed-tools:
 # --- Phase 143.3 connector frontmatter ---
 connector:
   connects_to_spine: true
-  sensor_triggers: []
+  sensor_triggers: [SENS-06, SENS-08]
   reach_id: context_block
   sub_mode: unknowns-matrix
   framework: "Knowns and Unknowns Matrix Framework"
