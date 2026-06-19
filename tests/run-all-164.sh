@@ -32,6 +32,8 @@ CJS_SUITES=(
   test-expert-library-assembly.cjs
   test-issue-tree-engine.cjs
   test-issue-tree-edge-remap.cjs
+  test-bono-cell-fanout.cjs
+  test-bono-cell-selfcritique.cjs
 )
 
 TOTAL=0
@@ -154,6 +156,10 @@ EMDASH_TARGETS=(
   "lib/core/issue-tree.cjs"
   "tests/test-issue-tree-engine.cjs"
   "tests/test-issue-tree-edge-remap.cjs"
+  "lib/core/bono/cell-fanout.cjs"
+  "tests/test-bono-cell-fanout.cjs"
+  "tests/test-bono-cell-selfcritique.cjs"
+  "agents/persona-analyst.md"
   "commands/diagnose.md"
   "tests/run-all-164.sh"
   ".planning/phases/108-graph-memory-schema-reconciliation/aliases.yml"
