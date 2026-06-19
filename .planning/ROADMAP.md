@@ -145,7 +145,15 @@ Plans:
 **Depends on:** Phase 163 (domain-graph-citizen substrate, for partitioning the claim corpus by domain) + Phase 150.8 (typed claim nodes + evidence tiers = the confident-claim corpus). Execute after 163, 166, AND 167 (revised 2026-06-18 order); sibling to 164. Its new surfaces (e.g. /mos:file-meeting onto the spine) are scaffolded via the Phase 167 /mos:new-surface generator and its 2x2-quadrant chains carry fable-mode discipline from birth. RIDES the Phase 166 `runChain` spine: the 2x2-quadrant chain topology (each Rumsfeld quadrant routes to a different pipeline) is expressed as `runChain` step sequences with the posture x quality gate, not a cloned orchestrator.
 **Canon parts:** 2 (Engine 1), 3 (F.1 selector + Decision Gate), 4 (typed edges), 5 (evidence tier = confidence), 8 (LOCAL-only pattern-mine, zero Brain egress), 9 (oracle = human-confirms-truth).
 **Design input:** `.planning/research/2026-06-18-unknown-unknowns-blindspot-engine-scoping.md`. Source ref: `reference/unknown-unknowns-horvitz/`.
-**Status:** Scoped + queued 2026-06-18. Next: after Phase 163 lands, open v1.14.0, then /gsd-discuss-phase 165.
+**Plans:** 6 plans in 4 waves (planned 2026-06-19).
+Plans:
+- [ ] 165-01-PLAN.md -- Wave 1 Foundation: the shared IFACE (the recast contract) + seeded fixture room.db + the 10 RED test stubs + run-all-165.sh phase gate
+- [ ] 165-02-PLAN.md -- Wave 2 Foundation: the deterministic engine core (pattern-miner / dsp + the REAL interPartitionDistance / index-deterministic resumable bandit / rumsfeld-matrix router)
+- [ ] 165-03-PLAN.md -- Wave 2 Foundation: corpus-adapter (the load-bearing graded-confirmed UNION recast) + the proxy oracle (3 LOCAL scalars)
+- [ ] 165-04-PLAN.md -- Wave 3 Surfaces: the orchestrator pipeline + the 169-cloned proposed-finding writer + frozen-edge self-check + rank-in to F.1 (engine halts at the gate)
+- [ ] 165-05-PLAN.md -- Wave 3 Surfaces: close the file-meeting orphan (connector on the existing contradiction reach) + upgrade map-unknowns triggers + regenerate the connector registry
+- [ ] 165-06-PLAN.md -- Wave 4 Verify: the adversarial {passed, findings[]} verdict + the Part-8 boundary sweep + the finalized run-all-165.sh phase gate
+**Status:** Planned 2026-06-19 (6 plans, 4 waves). Next: `/gsd-execute-phase 165` (after the locked order reaches 165).
 
 ---
 
