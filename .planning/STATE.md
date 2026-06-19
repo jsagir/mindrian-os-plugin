@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches" -- finalized STABLE 2026-06-17
 status: verifying
-stopped_at: "Phase 165 Plan 01 (165-01) complete -- the unknown-unknowns harness-as-code Wave-0 foundation: the shared recast IFACE (lib/core/unknowns/iface.cjs), the seeded fixture room.db (both sides of the D-165-03 filter), the 10 RED test stubs (contracts-on-disk), and tests/run-all-165.sh (clone of run-all-164.sh). The aggregator EXECUTES every stub: 10 RED (intended Wave-0 close) + 3 floor PASS (iface load, fixture, em-dash sweep), exit 1. Resume: 165-02 (Wave 2 -- the deterministic engine core: corpus-adapter UNION recast + proxy oracle + dsp + the REAL interPartitionDistance, turning the corpus/dsp/proxy stubs green)."
-last_updated: "2026-06-19T16:16:24.084Z"
+stopped_at: "Phase 165 Plan 02 (165-02) complete -- the deterministic engine core: lib/core/unknowns/{pattern-miner,dsp,bandit,rumsfeld-matrix}.cjs cloned from the issue-tree.cjs pure-build idiom. dsp ships the REAL interPartition{Feature,Confidence}Distance (lone partition = 0.0, NOT the stub 1.0; goodness Eq.2 wires the real g2/g4); the bandit is index-deterministic (zero Math.random/Date.now) with a per-pull CHECKPOINT_SHAPE and byte-identical replay-then-continue resume; rumsfeld-matrix emits quadrant->frozen FEEDS_INTO routing intent. This plan's RED stubs (dsp, dsp-goodness, bandit, resume) GREEN; the Wave-3/4 stubs (corpus-adapter, proxy-oracle, frozen-edges, part8-boundary, rank-in, verdict) still RED. grep Math.random over lib/core/unknowns/ = 0. Resume: 165-03 (corpus-adapter graded-confirmed UNION recast + the proxy oracle, turning the corpus/proxy stubs green)."
+last_updated: "2026-06-19T17:05:00.000Z"
 last_activity: 2026-06-19
 progress:
   total_phases: 13
@@ -15,6 +15,20 @@ progress:
 ---
 
 # Project State
+
+## Latest (2026-06-19) -- Phase 165 Plan 02 (the deterministic engine core: pattern-miner + DSP with the REAL inter-partition distance + the resumable bandit + the rumsfeld router) COMPLETE
+
+WAVE 2 (Plan 02) shipped the pure, LOCAL, zero-Brain math core under `lib/core/unknowns/`, cloning the `lib/core/issue-tree.cjs` deterministic single-build purity model (NOT the 56KB futures async shell). FOUR modules:
+
+(1) `pattern-miner.cjs` -- `minePatterns(instances)` mines support-bounded descriptive patterns over the shared INSTANCE_FEATURES schema: NUMERIC dims yield quartile `<=`/`>=` conditions (over corpus-quartile cuts; evidenceTier mapped via TIER_NUMERIC), CATEGORICAL dims yield `=` per distinct value, AND-combined apriori-style up to `maxPatternLength`, kept above `minSupport`. Pure, deterministic, stable iteration order.
+
+(2) `dsp.cjs` -- DSP Algorithm 1 `partition()` greedy set-cover (maximize newCover/goodness, tie-break partition-id asc, until covered) PLUS the REAL inter-partition distance closing the reference stub-leak (the discretion deliverable): `interPartitionFeatureDistance` = normalized `|a-b|/corpusRange` numeric + Hamming categorical, mean over feature dims then mean over id-sorted siblings (corpusRanges computed ONCE for scale-free determinism); `interPartitionConfidenceDistance` = mean `|meanConf_i - meanConf_j|`. A LONE partition returns `0.0` (NOT the stub 1.0). `goodness()` wires the real g2/g4 into Eq.2 with DEFAULT_CONFIG.dspWeights. The dsp-goodness test asserts DISCRIMINATION (distinct, non-1.0), monotone separation, and goodness-differs-from-stubbed.
+
+(3) `bandit.cjs` -- Algorithm 2 UCB-with-discount: `initialize` seeds one arm per partition (ascending-claimId unprobed cursor), `selectNextInstance` runs first-K try-each-arm-once in stable priority order then UCB-with-discount, emitting pull records `{time, arm, instance, utility, isUnknownUnknown, cumulativeUtility}`; Eq.1 utility, Eq.3 discount (`currentArmSize/sizeAtPull`), UCB bound `sqrt(2*ln(sumEff)/N_t)`; `budget = floor(N*config.budget)`. Index-deterministic (D-165-09): ZERO Math.random, ZERO Date.now in the code path; arm priority is an INJECTED priorityFn (default partition.meanConfidence; the orchestrator supplies the real HSI priority, not hardcoded). Per-pull CHECKPOINT_SHAPE; `scanId` from `(roomDir, corpusHash)`; `resumeFrom` validates corpusHash and deterministically replays-then-continues (byte-identical) or fails closed to a fresh scan (dirty corpus / replay divergence).
+
+(4) `rumsfeld-matrix.cjs` -- `categorizeItem(item, awareness, knowledge)` -> KK/KU/UK/UU + the quadrant->pipeline routing table emitting frozen `FEEDS_INTO` chain targets (KU -> whitespace/find-analogies/bono/deep-research; UK -> file-meeting/navigate-graph/analyze-room; UU -> challenge-assumptions/diagnose/validate; KK = the bandit hunting ground, no route). Returns routing INTENT only -- no command invocation, no edge write (the orchestrator writes FEEDS_INTO through the navigation chokepoint). `getMatrixSummary`/`exportMatrix` for the analyze step.
+
+This plan turned its FOUR RED stubs GREEN (dsp, dsp-goodness, bandit, resume); the Wave-3/4/5/6 stubs (corpus-adapter, proxy-oracle, frozen-edges, part8-boundary, rank-in, verdict) remain RED-untouched per the harness-as-code contract -- `tests/run-all-165.sh` 7 PASS / 6 FAIL (intended). Constitutional gates: grep Math.random over lib/core/unknowns/ code = 0; zero Brain require; D-165-08 only the frozen FEEDS_INTO emitted (zero edges.cjs change, zero canon amendment); zero new deps; zero em-dashes. 3 feat commits (7c370f8e pattern-miner+dsp, 9ecc0ff1 bandit, 15ad7165 rumsfeld) + docs 54599acf. See 165-02-SUMMARY.md. Next per locked order: Phase 165 Plan 03 (the corpus-adapter graded-confirmed UNION recast + the proxy oracle).
 
 ## Latest (2026-06-19) -- Phase 165 Plan 01 (the harness-as-code Wave-0 foundation: IFACE + fixture + RED stubs + phase gate) COMPLETE
 
