@@ -1,7 +1,7 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.13.1
-milestone_name: "Larry Reaches -- finalized STABLE 2026-06-17"
+milestone: v1.14.0-beta.2
+milestone_name: "v1.14.0 (active -- repo on v1.14.0-beta.2; v1.13.1 Larry Reaches SHIPPED STABLE 2026-06-17)"
 status: verifying
 stopped_at: "Phase 165 Plan 06 (165-06) complete -- THE VERIFY WAVE closed (safe-resume closeout). The unknown-unknowns blind-spot engine is GREEN: lib/core/unknowns/verdict.cjs runVerdict returns {passed, findings[]} proving the engine BY INSTRUMENTATION (runs discoverUnknownUnknowns on the seeded fixture; asserts the planted blind spot surfaced, landed PROPOSED-only, emitted only frozen edges INVALIDATES/ROOT_CAUSES/ENABLES/FEEDS_INTO, never auto-confirmed); test-unknowns-verdict.cjs 5/5, test-unknowns-part8-boundary.cjs 8/8 (zero Brain require / raw INSERT / Math.random / network over 9 lib/core/unknowns/* surfaces). tests/run-all-165.sh FINALIZED single phase gate 19/19, exit 0. Prior session had committed verdict.cjs + the 2 tests (594c1314) but died before finalizing the gate; this session fixed the em-dash sweep tripping its own file (EMDASH via U+2014 codepoint escape), committed a4dab33e. D-165-08/09/10; zero new deps, zero canon amendment, zero em-dashes. Phase 165 is COMPLETE (6/6 plans) and is the LAST phase in the v1.14.0 locked order. Resume: /gsd-progress to pick the next milestone move."
 last_updated: "2026-06-19T17:51:43.781Z"
