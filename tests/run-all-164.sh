@@ -34,6 +34,8 @@ CJS_SUITES=(
   test-issue-tree-edge-remap.cjs
   test-bono-cell-fanout.cjs
   test-bono-cell-selfcritique.cjs
+  test-bono-debate-composition.cjs
+  test-bono-incremental-filing.cjs
 )
 
 TOTAL=0
@@ -159,7 +161,11 @@ EMDASH_TARGETS=(
   "lib/core/bono/cell-fanout.cjs"
   "tests/test-bono-cell-fanout.cjs"
   "tests/test-bono-cell-selfcritique.cjs"
+  "lib/core/bono/debate-composition.cjs"
+  "tests/test-bono-debate-composition.cjs"
+  "tests/test-bono-incremental-filing.cjs"
   "agents/persona-analyst.md"
+  "commands/bono.md"
   "commands/diagnose.md"
   "tests/run-all-164.sh"
   ".planning/phases/108-graph-memory-schema-reconciliation/aliases.yml"
