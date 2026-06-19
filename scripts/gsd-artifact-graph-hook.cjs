@@ -51,6 +51,15 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 
+// Phase 169-02 (GDH-01, D-169-05): the ONE `.room-root` walk-up resolver. The
+// write-index path resolves the room by the WRITTEN FILE's own `.room-root`
+// FIRST, so a write into a sub-room indexes into THAT sub-room's db regardless
+// of the registry active room (root cause #1). It returns '' on no sentinel, and
+// the resolver below then degrades to the existing env/registry-active fallback.
+const { resolveRoomRoot } = require(
+  path.resolve(__dirname, '..', 'lib', 'core', 'room-root.cjs')
+);
+
 // Strict gate: a path INSIDE a .planning/ tree that ends in .md. The attacker-
 // influenceable file_path is checked against this before any room work happens.
 // Normalize backslashes so the gate is cross-platform (Windows paths).
@@ -74,10 +83,21 @@ function readStdin() {
   }
 }
 
-// resolveRoomDir -- prefer the explicit env room (CLI hook contract), else fall
-// back to the MindrianRooms registry active room. Mirror of the Phase 149
-// session-start slot's resolver -- the SAME registry, no new resolver added.
-function resolveRoomDir() {
+// resolveRoomDir(filePath) -- FILE-ROOTED first (Phase 169-02 / GDH-01): when the
+// written filePath sits inside a room carrying a `.room-root` sentinel, resolve
+// to THAT room (so a sub-room write indexes into the sub-room's own db, not the
+// registry active room -- root cause #1). Only when the file is outside any room
+// (resolveRoomRoot -> '') do we fall back to the existing env/registry-active
+// resolution, so a path-less / orphan-file call still degrades exactly as before.
+function resolveRoomDir(filePath) {
+  // File-rooted resolution FIRST.
+  if (typeof filePath === 'string' && filePath.length > 0) {
+    try {
+      const rooted = resolveRoomRoot(filePath);
+      if (rooted && fs.existsSync(rooted)) return rooted;
+    } catch (_e) { /* fall through to env/registry */ }
+  }
+
   const envRoom = process.env.CLAUDE_ROOM_DIR ||
                   process.env.CLAUDE_ACTIVE_ROOM ||
                   process.env.ROOM_DIR ||
@@ -115,7 +135,9 @@ function runHook() {
   // Strict .planning/*.md gate -- skip-fast for any other path (no-op exit 0).
   if (!isPlanningMarkdown(filePath)) return;
 
-  const roomDir = resolveRoomDir();
+  // Phase 169-02 (GDH-01): thread the written filePath so the write-index room is
+  // resolved by the file's OWN `.room-root` first, then env/registry as fallback.
+  const roomDir = resolveRoomDir(filePath);
   if (!roomDir) return;
 
   // Open room.db so the reconcile can upsert. Lazy-require node:sqlite so an

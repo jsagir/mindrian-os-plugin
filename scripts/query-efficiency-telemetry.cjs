@@ -195,22 +195,20 @@ function extractSlashCommand(payload) {
 //      only if the plugin resolve-room script can produce an answer
 //      quickly (< 200ms). If either fails, the hook exits silent.
 
-const MAX_DEPTH = 12;
+// Phase 169-02 (GDH-01): the inline .room-root walk-up is repointed at the ONE
+// shared resolver (lib/core/room-root.cjs) so there is no duplicated walk-up.
+// The shared resolver returns '' when no sentinel is found; this script's
+// existing contract is null, so we coerce '' -> null at the boundary.
+const { resolveRoomRoot: resolveRoomRootShared } = require(
+  path.resolve(__dirname, '..', 'lib', 'core', 'room-root.cjs')
+);
 
 function findRoomRootFromCwd() {
-  let dir = process.cwd();
-  for (let hops = 0; hops < MAX_DEPTH; hops += 1) {
-    if (dir === path.dirname(dir)) break;
-    try {
-      if (fs.existsSync(path.join(dir, '.room-root'))) return dir;
-    } catch (_e) { /* keep walking */ }
-    dir = path.dirname(dir);
-  }
-  return null;
+  return resolveRoomRootShared(process.cwd()) || null;
 }
 
 function resolveRoomRoot() {
-  // Primary: .room-root sentinel from cwd.
+  // Primary: .room-root sentinel from cwd (via the shared resolver).
   const fromCwd = findRoomRootFromCwd();
   if (fromCwd) return fromCwd;
 

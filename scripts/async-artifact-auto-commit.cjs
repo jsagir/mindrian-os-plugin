@@ -118,20 +118,17 @@ function extractToolName(payload) {
   return null;
 }
 
-// ---------- Room root resolution (.room-root sentinel walk) ----------
-
-const MAX_DEPTH = 12;
+// ---------- Room root resolution (repointed at the ONE shared resolver) ----------
+// Phase 169-02 (GDH-01): the inline .room-root walk-up is repointed at the shared
+// resolver (lib/core/room-root.cjs) so there is no duplicated walk-up. The shared
+// resolver returns '' when no sentinel is found; this function's existing
+// contract is null, so we coerce '' -> null at the boundary.
+const { resolveRoomRoot: resolveRoomRootShared } = require(
+  path.resolve(__dirname, '..', 'lib', 'core', 'room-root.cjs')
+);
 
 function findRoomRoot(filePath) {
-  let dir = path.dirname(filePath);
-  for (let hops = 0; hops < MAX_DEPTH; hops += 1) {
-    if (dir === path.dirname(dir)) break;
-    try {
-      if (fs.existsSync(path.join(dir, '.room-root'))) return dir;
-    } catch (_e) { /* keep walking */ }
-    dir = path.dirname(dir);
-  }
-  return null;
+  return resolveRoomRootShared(filePath) || null;
 }
 
 // ---------- Git repo top discovery ----------

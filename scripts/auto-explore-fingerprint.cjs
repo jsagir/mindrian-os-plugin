@@ -72,18 +72,15 @@ function readStdin() {
   }
 }
 
-// ---------- Room section walker (mirrors scripts/post-write detect_room_section) ----------
+// ---------- Room section walker (repointed at the ONE shared resolver) ----------
+// Phase 169-02 (GDH-01): the inline .room-root walk-up is repointed at the shared
+// resolver (lib/core/room-root.cjs) so there is no duplicated walk-up. The shared
+// resolver returns '' when no sentinel is found; this function's existing
+// contract is null, so we coerce '' -> null at the boundary.
+const { resolveRoomRoot: resolveRoomRootShared } = require('../lib/core/room-root.cjs');
 
 function detectRoomSection(filePath) {
-  let cur = path.dirname(filePath);
-  const root = path.parse(cur).root;
-  let hops = 0;
-  while (cur && cur !== root && hops < 12) {
-    if (fs.existsSync(path.join(cur, '.room-root'))) return cur;
-    cur = path.dirname(cur);
-    hops += 1;
-  }
-  return null;
+  return resolveRoomRootShared(filePath) || null;
 }
 
 function roomSlugFromDir(roomDir) {
