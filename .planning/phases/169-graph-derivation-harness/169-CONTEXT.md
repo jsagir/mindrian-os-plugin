@@ -60,6 +60,44 @@ cascade-edge semantics. Part 7 reuse; do not fork derivation logic.
   zero egress, boundary scan over any Brain-touching deriver. Edges only from the frozen set (complete
   after 168). fable-mode (167) self-critiques each derived edge before it lands. Idempotent re-run
   (GDH-07): proposed edges not re-proposed, confirmed untouched. NO em-dashes.
+### D-169-06: the candidate-edge PRODUCER is an LLM derivation step in runChain (navigator-LOCKED 2026-06-19, plan-check revision)
+The plan-checker (REVISE verdict, 2026-06-19) found the shipped derivers only WRITE pre-structured
+findings; none GENERATE candidate edges from raw artifact text, so the b2 fixture (flat-root Hebrew
+.docx, no wikilinks) would never reach 0 -> N -- a fuel-less engine. RESOLUTION (navigator-LOCKED):
+the runChain `onStep` dispatches an LLM DERIVATION agent that reads artifact-pair text (incl. the
+extracted .docx/.html via D-169-03) and PROPOSES candidate `{source, target, edge_type, reason}` tuples
+drawn ONLY from the frozen ALLOWED_EDGE_TYPES set; fable-mode (167 `selfCritiqueFn`) critiques each so a
+bad CONTRADICTS does not land; survivors are written as a PROPOSED truth-claim NODE + typed edge via
+`findings-wirer` through the `navigation.cjs` chokepoint (so D-169-04 "findings-wirer writes" STILL
+holds -- the LLM step is the producer, findings-wirer is the writer; the deriver is wired INTO runChain,
+not forked). Net-new: the derivation agent prompt + a candidate->finding adapter. This makes the SPEC's
+"fable-mode-critiqued so a bad CONTRADICTS does not land" language operative (a deterministic scan would
+not need critique). The producer MUST cover BOTH edge families the SPEC Acceptance names (CONTRADICTS
+AND CONVERGES across the value-chain + canon artifacts), not CONTRADICTS-only. Part 8: the derivation
+agent reads LOCAL artifact text and writes LOCAL edges only; it does NOT call the Brain (brain-derive
+stays the one Brain-touching deriver, boundary-scanned in Verify).
+
+### D-169-07: rebuild must reach ROOT-LEVEL (flat) artifacts, not only canonical section folders (navigator-LOCKED 2026-06-19, plan-check revision)
+The plan-checker found `rebuildGraph` walks `discoverSections(roomDir).all` (KNOWN section subfolders)
+only; the b2 sub-room holds its 39 artifacts in the room ROOT (flat), so none are even re-indexed.
+RESOLUTION: `rebuildGraph` (and the sweep) gains a ROOT-FILES pass alongside the section walk -- a
+(sub-)room's root-level .md/.docx/.html artifacts are discovered + indexed too. General fix (handles any
+flat room), NOT a fixture-prep hack. Without it GDH-03/04 reach the .docx extension but never the b2
+files.
+
+### D-169-08: the b2 acceptance proof must run against the REAL fixture; synthetic is CI-determinism only (navigator-LOCKED 2026-06-19, plan-check revision)
+The synthetic two-artifact fallback may keep CI deterministic, but it must NOT be the SOLE evidence for
+GDH-06. The Verify verdict (169-06) runs the 0 -> N check against the REAL b2 path
+(`~/MindrianRooms/motj-ecosystem/sub-rooms/jonathan-contractor-motj/b2-journey`) as a non-skippable
+check WHEN the fixture is present (the dogfood/maintainer box), recording the actual N + the edge types
+in the SUMMARY; a manual-verify gate in VALIDATION.md asserts "real b2 fixture, count before/after
+captured" before /gsd-verify-work closes the phase. The legacy raw-SQL cascade writer in
+`_indexArtifactBody` (which writes CONTRADICTS/INFORMS/ENABLES via raw INSERT, bypassing the chokepoint
+and auto-confirming) MUST be reconciled in Plan 04 (disable it so derivation is the sole cascade writer,
+OR document why structural-index edges coexisting with proposed derivation edges is non-conflicting under
+the PRIMARY KEY); the GDH-02 sweep drain MUST name its trigger (SessionStart drain, mirroring the
+brain-derivation-drain precedent), not enqueue-and-never-drain.
+
 </decisions>
 
 <canonical_refs>
