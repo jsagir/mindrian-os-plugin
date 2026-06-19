@@ -71,3 +71,27 @@ them. Land 164 green first, then a focused phase.
 - Skill scoping: room-root vs sub-room placement, and how the fractal-nest reachability is expressed.
 - `/mos:skill` vs `/mos:new-surface`: is `/mos:skill` a thin navigator-facing wrapper over the 167
   generator, or a distinct surface? (Lean wrapper, Part 7.)
+
+## Source set: which of the ~90 /mos commands can PRODUCE a SyntheticExpert (first-pass, 2026-06-19)
+
+**Classification rule (the filter the Larry-reach sensor uses):** a command produces a SyntheticExpert
+candidate IFF its output is a PERSPECTIVE-BEARING ROLE (a hat, a stakeholder, an SME lens, an evaluator).
+A command whose output is a CLAIM or ANALYSIS (lean-canvas, mullins, scenario-plan, structure-argument,
+validate) produces graph nodes but NOT experts. Role -> expert candidate; claim -> not.
+
+| Tier | Surfaces | Why |
+|------|----------|-----|
+| Primary (the role IS the output) | /mos:persona, /mos:think-hats, /mos:hat-briefing, room_content generate-personas / invoke-persona / analyze-perspectives | instantiate hats/personas directly -> direct SyntheticExpert candidates |
+| Strong (produce SME roles) | /mos:discover (client/stakeholder personas), /mos:leadership (the role shapes a team needs), /mos:challenge-assumptions (a Black-hat / Red-Team expert) | output is a named perspective-bearing role |
+| Agent-form experts (already synthetic experts) | the agents themselves: mos:investor, mos:persona-analyst, mos:grading, mos:research, mos:reverse-salient-agent | these ARE experts in agent form -- the cleanest promotion source |
+| NOT producers | lean-canvas, mullins, scenario-plan, structure-argument, validate, value-proposition, build-thesis, ... | output is a claim/analysis, not a role |
+
+Net: the role-instantiating cluster (~8-10 commands) plus the 5 expert-shaped agents are the producer set.
+Any of them can file a SyntheticExpert node (164) which /mos:skill (this seed) materializes into a project
+skill. This source set + the role-vs-claim rule is what the proactive Larry-reach sensor (sub-claim 2)
+keys on to decide WHEN to suggest "save this as an expert / skill."
+
+**Verification deferred:** this is a first-pass classification from the command surface, NOT a per-command
+file read. A follow-on fan-out (agent-per-cluster) should CONFIRM each producer + draft the SyntheticExpert
+schema each emits (the hat / domain / sub-domain / archetype fields) before the implementing phase wires
+them. Run it after Phase 164 lands (it depends on the SyntheticExpert node existing).
