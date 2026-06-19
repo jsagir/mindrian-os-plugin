@@ -118,6 +118,24 @@ sentinel-less artifact folder is detected + (on confirm) gains a `.room-root` + 
 not the parent's; the Verify wave (Plan 06) acceptance runs the self-heal as the first step of the b2
 0 -> N proof.
 
+### D-169-10: GDH-09 full-citizen wiring on heal -- reuse birthRoom; net-new = parent edge + temporal (navigator-LOCKED 2026-06-19)
+The self-heal (GDH-08) must NOT leave a bare sentinel + empty db -- a healed room must be a FIRST-CLASS
+citizen, byte-indistinguishable from a born room. RESOLUTION (navigator-LOCKED, "harness this"): GDH-08's
+heal INVOKES the full SEED-001 atomic room-birth wiring by REUSING `lib/core/navigation/room-birth.cjs`
+(birthRoom / the scaffold + feynman-seed path), which already wires: `scaffoldRoomSkeleton` ->
+ROOM.md (ICM Layer 0, every dir) + STATE.md + MINTO.md + USER.md identity files; `feynman-seed-writer.seedSection`
+-> per-section FEYNMAN.md; compute-state -> STATE.md; the Phase 90 BRAIN-derivation enqueue -> BRAIN.md;
+a `room_created`/`room_auto_created` memory_event via the navigation.cjs chokepoint. NET-NEW (small, Part 7):
+(a) a PARENT-LINKAGE typed edge -- a frozen `PART_OF` (Phase 163, any-node -> parent room/sub-room) from
+the healed child room node to its parent room node -- so the D-169-02 read-side ATTACH rollup can WALK
+parent -> child (parent-originated + linked, bidirectional); (b) the FEYNMAN `## Timeline (auto)`
+temporal-awareness section (Phase 124 timeline-runner, regenerated from memory_event) lands for the healed
+room (session-start cascade OR an explicit refresh in the heal path). Part 8: scaffold + sentinel + edge
+are LOCAL fs / navigation.cjs only, zero Brain (BRAIN.md is enqueued, derived locally per Phase 90). The
+parent linkage + the per-section FEYNMAN + the temporal timeline are what make a healed sub-room actually
+NAVIGABLE from its parent, not an orphan island. This same full-wiring path is what the SEED-001 contract
+guarantees for NEW sub-rooms; GDH-09 makes the BACKFILL heal honor the identical contract.
+
 </decisions>
 
 <canonical_refs>

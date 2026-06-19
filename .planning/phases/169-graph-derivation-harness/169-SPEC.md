@@ -57,6 +57,17 @@ edge set 168), so it is mostly composition.
   into THAT room. New sub-rooms stay covered by the SEED-001 atomic sub-room-creation contract; GDH-08 is
   the BACKFILL net for folders created outside it (hand-built like the b2-journey fixture). Without GDH-08
   the GDH-01 resolver unify is necessary-but-insufficient: a sentinel-less folder still mis-rolls-up.
+- **GDH-09 (full-citizen wiring on heal):** the GDH-08 self-heal must NOT leave a bare `.room-root` +
+  empty db. It invokes the FULL SEED-001 atomic room-birth wiring (REUSE `lib/core/navigation/room-birth.cjs`
+  birthRoom / `scaffoldRoomSkeleton` + `feynman-seed-writer.seedSection` + compute-state + the Phase 90
+  BRAIN-derivation enqueue), so a healed room gets: ROOM.md identity (ICM Layer 0, every dir) + STATE.md +
+  MINTO.md + the per-section FEYNMAN.md + the enqueued BRAIN.md + the `room_created`/`room_auto_created`
+  memory_event. PLUS two net-new pieces: (a) a PARENT-LINKAGE typed edge -- a frozen `PART_OF` (Phase 163)
+  from the healed child room to its parent room node -- so the D-169-02 parent rollup can WALK from parent
+  to child (parent-originated + linked, bidirectional); (b) the FEYNMAN `## Timeline (auto)` temporal-
+  awareness section (Phase 124 timeline-runner, regenerated from memory_event) lands for the healed room.
+  A healed room is byte-indistinguishable from a born room. Part 7: this is REUSE of birthRoom + the Phase
+  124 runner; the only net-new is the parent-linkage edge + the composition. Part 8: all LOCAL, zero Brain.
 
 ## Canon alignment
 - Part 8: derivation is LOCAL (room.db); Brain is generic-methodology read-only; zero user-content
