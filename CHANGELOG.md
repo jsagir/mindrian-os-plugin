@@ -1,4 +1,4 @@
-## [Unreleased] -- v1.14.0-beta.2 (in progress)
+## [1.14.0-beta.3] - 2026-06-19
 
 ### Added
 - **Phase 164 -- BONO research/debate engine (`/mos:bono`).** Assembles a de Bono six-hats team across (subdomain x hat) cells, runs an inter-hat debate on your hypothesis, and files structured findings as proposed truth-claim nodes. Mints the `SyntheticExpert` node type so a high-value team member can be saved and re-invoked as a hat in future runs (human-confirmed per Canon Part 9 role 5). Phase gate `tests/run-all-164.sh` 20/20; adversarial verdict 13/13.
