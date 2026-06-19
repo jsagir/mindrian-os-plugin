@@ -7,9 +7,23 @@
 #
 # Wave 1 (Plan 01) registers the SyntheticExpert node-type floor test
 # (test-synthetic-expert-nodetype-floor.cjs -- the E1 frozen-taxonomy amendment,
-# D-164-S1). Later waves (the writeSyntheticExpertNode chokepoint, the issue-tree
-# surface, the debate orchestrator, the Part 8 leak scan) append their suites to
-# CJS_SUITES.
+# D-164-S1). Waves 2-5 appended the writeSyntheticExpertNode chokepoint, the
+# expert-library assembly, the issue-tree surface, the cell fan-out, and the
+# debate orchestrator. Wave 6 (Plan 06, this FINALIZATION) registers the
+# adversarial {passed, findings[]} verdict (test-bono-verdict.cjs) + the Part 8
+# leak scan (test-bono-part8-leak.cjs) and adds the FROZEN-CONTRACT grep checks
+# (the D-164-S2 parallel-not-runChain negative, the compose-on-169-substrate
+# assertion, the frozen-vocabulary check, the v1.13 canon-version assertion) +
+# the Part-8 grep sweep, locking this gate GREEN.
+#
+# THE FINALIZED PHASE GATE (Wave 6): every 164 suite is GREEN -- the node-type
+# floor, the writer, the library assembly, the issue-tree engine + edge-remap,
+# the cell fan-out + self-critique, the debate composition + incremental filing,
+# the adversarial verdict, and the Part 8 leak scan -- PLUS the frozen-set
+# assertion, the connector --check, the parallel-not-runChain negative grep, the
+# compose-on-substrate grep, the frozen-vocabulary grep, the v1.13 canon-version
+# assertion, the Part-8 grep sweep, and the em-dash sweep. This gate is the single
+# PASS/FAIL phase contract for /gsd-verify-work: Failed 0, exit 0.
 #
 # This runner MUST run to completion (no crash) even when any suite fails.
 #
@@ -36,6 +50,8 @@ CJS_SUITES=(
   test-bono-cell-selfcritique.cjs
   test-bono-debate-composition.cjs
   test-bono-incremental-filing.cjs
+  test-bono-verdict.cjs
+  test-bono-part8-leak.cjs
 )
 
 TOTAL=0
@@ -140,6 +156,199 @@ fi
 echo ""
 
 # ---------------------------------------------------------------------------
+# D-164-S2 PARALLEL-NOT-RUNCHAIN negative grep (Wave 6; threat T-164-27). The
+# parallel cell fan-out must NOT ride the sequential chain executor: a
+# chain-executor require / a runChain call in lib/core/bono/cell-fanout.cjs is a
+# breach (the sequential loop is the Wave-5 debate, never the fan-out). Comment
+# lines are filtered (grep -v) so a doc comment naming runChain cannot
+# self-invalidate the count. Mirrors the Phase 166 B3 convergence-stop negative.
+# ---------------------------------------------------------------------------
+((TOTAL++))
+echo "--- Running: D-164-S2 parallel-not-runChain negative grep (cell-fanout) ---"
+FANOUT_OK=1
+FANOUT_FILE="$REPO_ROOT/lib/core/bono/cell-fanout.cjs"
+if [[ ! -f "$FANOUT_FILE" ]]; then
+  echo "    MISSING cell-fanout.cjs"; FANOUT_OK=0
+else
+  # Strip CJS comment lines (leading // or * or /*) before the negative grep.
+  FANOUT_CODE=$(grep -vE '^[[:space:]]*(//|\*|/\*)' "$FANOUT_FILE")
+  if echo "$FANOUT_CODE" | grep -qE "require\([^)]*chain-executor"; then
+    echo "    cell-fanout.cjs REQUIRES chain-executor (the parallel fan-out smuggled the sequential loop)"; FANOUT_OK=0
+  fi
+  if echo "$FANOUT_CODE" | grep -qE "\brunChain\b"; then
+    echo "    cell-fanout.cjs calls runChain (the fan-out must be parallel, not a sequential chain)"; FANOUT_OK=0
+  fi
+  # Positive proof of the parallel mechanic.
+  if ! echo "$FANOUT_CODE" | grep -qE "Promise\.all"; then
+    echo "    cell-fanout.cjs has no Promise.all parallel dispatch (the parallel mechanic is absent)"; FANOUT_OK=0
+  fi
+fi
+if [[ $FANOUT_OK -eq 1 ]]; then
+  ((PASSED++)); echo ">>> D-164-S2 parallel-not-runChain negative grep: PASSED"
+else
+  ((FAILED++)); FAILED_TESTS+=("D-164-S2 parallel-not-runChain negative grep"); echo ">>> D-164-S2 parallel-not-runChain negative grep: FAILED"
+fi
+echo ""
+
+# ---------------------------------------------------------------------------
+# COMPOSE-ON-169-SUBSTRATE grep (Wave 6; threat T-164-33). The debate composition
+# must RIDE the 169-shipped substrate: it REQUIRES graph-derivation (runDerivation)
+# AND findings-wirer (wireAccept) and makes NO direct navigation.writeEdge call (the
+# derived edges ride runDerivation's frozen CASCADE_SUBSET; the ruling rides
+# wireAccept/wireReject). Comment lines filtered so a comment naming writeEdge cannot
+# self-invalidate. Mirrors the Phase 169 MEDIUM-4 sole-cascade-writer grep.
+# ---------------------------------------------------------------------------
+((TOTAL++))
+echo "--- Running: compose-on-169-substrate grep (debate-composition) ---"
+COMPOSE_OK=1
+COMPOSE_FILE="$REPO_ROOT/lib/core/bono/debate-composition.cjs"
+if [[ ! -f "$COMPOSE_FILE" ]]; then
+  echo "    MISSING debate-composition.cjs"; COMPOSE_OK=0
+else
+  COMPOSE_CODE=$(grep -vE '^[[:space:]]*(//|\*|/\*)' "$COMPOSE_FILE")
+  echo "$COMPOSE_CODE" | grep -qE "require\([^)]*graph-derivation" || { echo "    debate-composition.cjs does NOT require graph-derivation (runDerivation)"; COMPOSE_OK=0; }
+  echo "$COMPOSE_CODE" | grep -qE "require\([^)]*findings-wirer" || { echo "    debate-composition.cjs does NOT require findings-wirer (wireAccept)"; COMPOSE_OK=0; }
+  echo "$COMPOSE_CODE" | grep -qE "\brunDerivation\b" || { echo "    debate-composition.cjs never references runDerivation"; COMPOSE_OK=0; }
+  echo "$COMPOSE_CODE" | grep -qE "\bwireAccept\b" || { echo "    debate-composition.cjs never references wireAccept"; COMPOSE_OK=0; }
+  # The negative: NO bare navigation.writeEdge( / writeEdge( call in the composition.
+  if echo "$COMPOSE_CODE" | grep -qE "navigation\.writeEdge[[:space:]]*\("; then
+    echo "    debate-composition.cjs calls navigation.writeEdge DIRECTLY (compose-on-substrate breach)"; COMPOSE_OK=0
+  fi
+  if echo "$COMPOSE_CODE" | grep -qE "[^.]writeEdge[[:space:]]*\("; then
+    echo "    debate-composition.cjs calls writeEdge directly (the edges must ride runDerivation / wireAccept)"; COMPOSE_OK=0
+  fi
+fi
+if [[ $COMPOSE_OK -eq 1 ]]; then
+  ((PASSED++)); echo ">>> compose-on-169-substrate grep: PASSED"
+else
+  ((FAILED++)); FAILED_TESTS+=("compose-on-169-substrate grep"); echo ">>> compose-on-169-substrate grep: FAILED"
+fi
+echo ""
+
+# ---------------------------------------------------------------------------
+# FROZEN-VOCABULARY grep (Wave 6; threat T-164-28; E2-remap). The issue-tree must
+# emit ONLY frozen edge types: lib/core/issue-tree.cjs must carry NO pre-remap
+# literal (INVALIDATED / RESOLVES_VIA / BELONGS_TO) as an EMITTED edge_type value
+# (the remap to INVALIDATES / ROOT_CAUSES / ENABLES / PART_OF landed). Comment lines
+# filtered so the remap-documenting comments do not self-trip.
+# ---------------------------------------------------------------------------
+((TOTAL++))
+echo "--- Running: frozen-vocabulary grep (issue-tree edge remap landed) ---"
+VOCAB_OK=1
+ISSUE_TREE_FILE="$REPO_ROOT/lib/core/issue-tree.cjs"
+if [[ ! -f "$ISSUE_TREE_FILE" ]]; then
+  echo "    MISSING issue-tree.cjs"; VOCAB_OK=0
+else
+  ISSUE_CODE=$(grep -vE '^[[:space:]]*(//|\*|/\*)' "$ISSUE_TREE_FILE")
+  # A quoted pre-remap edge-type literal in the (comment-stripped) code is a breach.
+  for forbidden in INVALIDATED RESOLVES_VIA BELONGS_TO; do
+    if echo "$ISSUE_CODE" | grep -qE "['\"]${forbidden}['\"]"; then
+      echo "    pre-remap edge type emitted: $forbidden (the E2-remap did not land)"; VOCAB_OK=0
+    fi
+  done
+  # The remap targets must be present (the remap actually happened).
+  for target in PART_OF INFORMS INVALIDATES ROOT_CAUSES ENABLES; do
+    echo "$ISSUE_CODE" | grep -qE "['\"]${target}['\"]" || { echo "    remap target missing: $target"; VOCAB_OK=0; }
+  done
+fi
+if [[ $VOCAB_OK -eq 1 ]]; then
+  ((PASSED++)); echo ">>> frozen-vocabulary grep: PASSED"
+else
+  ((FAILED++)); FAILED_TESTS+=("frozen-vocabulary grep"); echo ">>> frozen-vocabulary grep: FAILED"
+fi
+echo ""
+
+# ---------------------------------------------------------------------------
+# CANON-VERSION assertion (Wave 6; threat T-164-34). The E1 amendment must have
+# landed at the live target: docs/MINDRIAN-CANON.md header + footer are v1.13 and
+# Appendix D entry 24 (SyntheticExpert) exists (stacked on Phase 169's v1.12 /
+# entry 23). A stale version is a Part 6 self-CONTRADICTS.
+# ---------------------------------------------------------------------------
+((TOTAL++))
+echo "--- Running: canon-version assertion (v1.13 + Appendix D entry 24) ---"
+CANON_OK=1
+CANON_FILE="$REPO_ROOT/docs/MINDRIAN-CANON.md"
+if [[ ! -f "$CANON_FILE" ]]; then
+  echo "    MISSING MINDRIAN-CANON.md"; CANON_OK=0
+else
+  grep -qE "^Version:[[:space:]]*1\.13[[:space:]]*$" "$CANON_FILE" || { echo "    CANON header Version is not 1.13"; CANON_OK=0; }
+  grep -qE "Mindrian Canon v1\.13" "$CANON_FILE" || { echo "    CANON footer is not v1.13"; CANON_OK=0; }
+  grep -qE "^24\.[[:space:]]+\*\*Node-type amendment: SyntheticExpert" "$CANON_FILE" || { echo "    Appendix D entry 24 (SyntheticExpert) is absent"; CANON_OK=0; }
+  # Stacked on Phase 169 (entry 23 / NESTED_WITHIN preserved beneath it).
+  grep -qE "^23\.[[:space:]]+\*\*Edge-vocabulary amendment: NESTED_WITHIN" "$CANON_FILE" || { echo "    prior Phase-169 entry 23 (NESTED_WITHIN) is gone (the stack broke)"; CANON_OK=0; }
+fi
+if [[ $CANON_OK -eq 1 ]]; then
+  ((PASSED++)); echo ">>> canon-version assertion: PASSED"
+else
+  ((FAILED++)); FAILED_TESTS+=("canon-version assertion"); echo ">>> canon-version assertion: FAILED"
+fi
+echo ""
+
+# ---------------------------------------------------------------------------
+# Part-8 grep sweep (Wave 6; threat T-164-26). The same BRAIN_WRITE forbidden-token
+# vocabulary as run-all-166/169, over ALL Phase-164 surfaces. The canonical breach
+# is a Brain-WRITE (a code path that writes user bytes to the Brain); a documented
+# generic-handle Brain READ is the Part-8-legal Mode A path, so the egress-wire +
+# raw-fetch checks are scoped to the lib surfaces only (where an egress wire would
+# live). The CJS verdict + the test-bono-part8-leak.cjs suite carry the full
+# per-line scan; this bash block is the floor that backs it.
+# ---------------------------------------------------------------------------
+((TOTAL++))
+echo "--- Running: Part-8 grep sweep (Phase 164 surfaces) ---"
+PART8_OK=1
+PART8_ALL=(
+  "lib/core/bono/cell-fanout.cjs"
+  "lib/core/bono/debate-composition.cjs"
+  "lib/core/issue-tree.cjs"
+  "lib/core/navigation/synthetic-expert.cjs"
+  "lib/core/expert-library.cjs"
+  "commands/bono.md"
+  "commands/diagnose.md"
+  "agents/persona-analyst.md"
+)
+PART8_LIB=(
+  "lib/core/bono/cell-fanout.cjs"
+  "lib/core/bono/debate-composition.cjs"
+  "lib/core/issue-tree.cjs"
+  "lib/core/navigation/synthetic-expert.cjs"
+  "lib/core/expert-library.cjs"
+)
+# The canonical Part 8 breach: a Brain-write MCP call / write-to-Brain helper.
+BRAIN_WRITE='mcp__brain_(write|store|upsert|ingest)|writeBrain|sendToBrain|ingestToBrain'
+# A smuggled egress wire (lib only): a Brain-host URL / brain-client require.
+BRAIN_HOST='mindrian-brain\.onrender|brain\.mindrian|brain-client|brainClient'
+# A raw external fetch( in lib code (the leading char class excludes .fetchCorpus).
+RAW_FETCH='[^a-zA-Z_.]fetch[[:space:]]*\('
+ANTHROPIC_EXEMPT='api\.anthropic\.com'
+# The Brain-WRITE token check fires on EVERY surface.
+for t in "${PART8_ALL[@]}"; do
+  f="$REPO_ROOT/$t"
+  [[ -f "$f" ]] || { echo "    MISSING surface: $t"; PART8_OK=0; continue; }
+  if grep -nE "$BRAIN_WRITE" "$f" | grep -vE '^[0-9]+:[[:space:]]*(//|\*|/\*|#|<!--)' >/dev/null 2>&1; then
+    echo "    FORBIDDEN Brain-write token in: $t"; PART8_OK=0
+  fi
+done
+# The egress-wire + raw-fetch checks fire on lib surfaces only.
+for t in "${PART8_LIB[@]}"; do
+  f="$REPO_ROOT/$t"
+  [[ -f "$f" ]] || continue
+  if grep -nE "$BRAIN_HOST" "$f" | grep -vE '^[0-9]+:[[:space:]]*(//|\*|/\*)' >/dev/null 2>&1; then
+    echo "    FORBIDDEN Brain-host egress wire in: $t"; PART8_OK=0
+  fi
+  if ! grep -qE "$ANTHROPIC_EXEMPT" "$f"; then
+    if grep -nE "$RAW_FETCH" "$f" | grep -vE '^[0-9]+:[[:space:]]*(//|\*|/\*)' >/dev/null 2>&1; then
+      echo "    FORBIDDEN raw fetch( egress in: $t"; PART8_OK=0
+    fi
+  fi
+done
+if [[ $PART8_OK -eq 1 ]]; then
+  ((PASSED++)); echo ">>> Part-8 grep sweep: PASSED"
+else
+  ((FAILED++)); FAILED_TESTS+=("Part-8 grep sweep"); echo ">>> Part-8 grep sweep: FAILED"
+fi
+echo ""
+
+# ---------------------------------------------------------------------------
 # Em-dash sweep (CLAUDE.md HARD RULE: hyphens only). The forbidden glyph is
 # matched via its codepoint escape (U+2014) so this runner itself carries no
 # literal em-dash to trip its own sweep.
@@ -164,6 +373,8 @@ EMDASH_TARGETS=(
   "lib/core/bono/debate-composition.cjs"
   "tests/test-bono-debate-composition.cjs"
   "tests/test-bono-incremental-filing.cjs"
+  "tests/test-bono-verdict.cjs"
+  "tests/test-bono-part8-leak.cjs"
   "agents/persona-analyst.md"
   "commands/bono.md"
   "commands/diagnose.md"
