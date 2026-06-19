@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches" -- finalized STABLE 2026-06-17
 status: verifying
-stopped_at: "Phase 169 Plan 02 (169-02) complete -- GDH-01: lib/core/room-root.cjs landed as the ONE `.room-root` walk-up resolver (Part 7 consolidation of the 3x-duplicated walk-up); the write-index hook (gsd-artifact-graph-hook resolveRoomDir(filePath) file-rooted FIRST, env/registry fallback) + the 3 scripts (query-efficiency-telemetry / auto-explore-fingerprint / async-artifact-auto-commit) repointed at it; detectActiveRoom LEFT INTACT (D-169-05); root cause #1 closed (a sub-room write indexes into THAT sub-room's db regardless of registry active room); test-room-root-resolver GREEN (4/4), run-all-169.sh Total 17 Passed 6 (was 5) Failed 11, other 11 stubs RED-untouched, floors + sweeps GREEN; zero em-dashes"
-last_updated: "2026-06-19T15:30:00.000Z"
+stopped_at: "Phase 169 Plan 03 (169-03) complete -- GDH-04: lib/core/doc-text-extractor.cjs landed as the pure-JS non-destructive .docx/.html text extractor (root cause #3 closed: the indexer was .md-only). extractDocText(absPath) -> string: .docx via a ZIP central-directory walk + zlib.inflateRawSync (method 8) + a method-0 stored raw fallback + the <w:t>-run regex (RESEARCH Code Example 1, proven against the b2 fixture, 216 Hebrew runs); .html via cheerio $('body').text(); '' otherwise. D-169-03 non-destructive (read-only, no sidecar; source bytes/mtime UNCHANGED, asserted GREEN). V5 zip-bomb guard (MAX_ZIP_ENTRIES central-dir cap + inflateRawSync maxOutputLength ~10MB + whole-body try/catch -> '' exit-safe). ZERO new dep (Node built-ins + already-listed cheerio; package.json byte-unchanged). test-doc-text-extractor GREEN (4/4); run-all-169.sh Total 17 Passed 7 (was 6) Failed 10, other 10 stubs RED-untouched, floors + Part-8 + em-dash sweeps GREEN; zero em-dashes"
+last_updated: "2026-06-19T15:45:00.000Z"
 last_activity: 2026-06-19
 progress:
   total_phases: 13
@@ -16,7 +16,27 @@ progress:
 
 # Project State
 
-## Latest (2026-06-19) -- Phase 169 Wave 3 (169-02) complete -- GDH-01 the ONE `.room-root` walk-up resolver + write-index repoint
+## Latest (2026-06-19) -- Phase 169 Wave 3 (169-03) complete -- GDH-04 the pure-JS non-destructive .docx/.html text extractor
+
+WAVE 3 also landed the GDH-04 reader. `lib/core/doc-text-extractor.cjs` is the pure-JS non-destructive
+`.docx`/`.html` text extractor that makes the dense moat content (the 9 b2-journey `.docx` dossiers)
+reachable to the indexer and the derivation, closing ROOT CAUSE #3 (the indexer was `.md`-only).
+`extractDocText(absPath) -> string` branches on extension: for `.docx` it finds the EOCD signature, walks
+the ZIP central directory to `word/document.xml`, inflates method-8 via `zlib.inflateRawSync` (method-0
+stored read raw, no inflate), and regex-pulls the `<w:t>` runs (RESEARCH Code Example 1, PROVEN against the
+real b2 fixture: 216 Hebrew runs, UTF-8 decoded correctly); for `.html` it returns `$('body').text()` via
+cheerio (already a declared dep); anything else returns `''`. D-169-03 NON-DESTRUCTIVE: the module opens the
+source for READ only, writes no sidecar, mutates no bytes (the test asserts source sha256 UNCHANGED before/
+after, GREEN). V5 zip-bomb hardened (T-169-04/05): `MAX_ZIP_ENTRIES` caps the central-dir loop,
+`inflateRawSync` carries a `maxOutputLength` of ~10 MB, and the whole body is wrapped in try/catch returning
+`''` on any parse fault (the hook's exit-safe degrade). ZERO new dependency (T-169-SC): Node built-ins
+(`node:fs`, `node:zlib`, `node:path`) plus existing cheerio only; `package.json`/`package-lock.json`
+byte-unchanged. Turned `tests/test-doc-text-extractor.cjs` GREEN (4/4); `run-all-169.sh` Total 17, Passed 7
+(was 6), Failed 10 -- the other ten 169 stubs stay RED-untouched (Waves 4-7 turn them GREEN), the two
+carried floor tests + the frozen-edge-set + Part-8 grep + em-dash sweeps stay GREEN. Zero em-dashes. Commit:
+`2643b581`. Summary: `.planning/phases/169-graph-derivation-harness/169-03-SUMMARY.md`.
+
+## Earlier (2026-06-19) -- Phase 169 Wave 3 (169-02) complete -- GDH-01 the ONE `.room-root` walk-up resolver + write-index repoint
 
 WAVE 3 landed the GDH-01 resolver unify. `lib/core/room-root.cjs` is the ONE `.room-root` walk-up resolver
 (`resolveRoomRoot(filePath) -> roomDir|''` + `findRoomRootSentinels() -> ['.room-root']`) -- a Part 7
