@@ -2,9 +2,12 @@
 # Phase 169 verification aggregator -- the single PASS/FAIL phase gate for the
 # Graph-Derivation Harness. Wave 1 (169-00) minted the room-lineage edge
 # NESTED_WITHIN into the Part 9 writeEdge chokepoint frozen set so the D-169-11
-# fractal joint has a LEGAL, graph-navigable representation. Wave 2 (169-01, this
-# finalization) lands the shared IFACE block + the thirteen RED test stubs + the
-# fixtures, and registers every stub here so the gate EXECUTES them.
+# fractal joint has a LEGAL, graph-navigable representation. Waves 2-5 built the
+# shared IFACE surfaces (room-root, doc-text-extractor, graph-candidate-producer,
+# graph-derivation + recursive rollup, graph-self-heal, graph-backfill, the
+# sweep/drain hooks). Wave 6 (169-06, this FINALIZATION) ships the adversarial
+# {passed, findings[]} verdict, finalizes the Part 8 boundary sweep, migrates the
+# sqlite-battle fence to the post-MEDIUM-4 reality, and locks this gate GREEN.
 #
 # Runs every registered tests/test-*.cjs suite to completion, prints a per-suite
 # PASS/FAIL line + a final tally, exits 1 if any failed, asserts NESTED_WITHIN is
@@ -12,13 +15,16 @@
 # surfaces, and appends an em-dash sweep over the phase artifacts proving the
 # CLAUDE.md no-em-dash HARD RULE holds.
 #
-# NOTE on RED-by-design (Wave 2): the thirteen 169 stubs require not-yet-built
-# IFACE modules (room-root.cjs, doc-text-extractor.cjs, graph-candidate-producer.cjs,
-# graph-derivation.cjs, graph-self-heal.cjs). They are SUPPOSED to FAIL here
-# (Nyquist: every module ships with a test that preceded it). The gate EXECUTES
-# them and reports them red; Waves 3-6 turn each GREEN. The two carried floor
-# tests (room-lineage + Phase 168 cascade) stay GREEN and prove the frozen
-# vocabulary is untouched.
+# THE FINALIZED PHASE GATE (Wave 6): every 169 suite is GREEN -- the GDH-01..09
+# loops, the recursive rollup, the heal-first backfill acceptance, the sentinel
+# self-heal, the room-lineage edge, the depth>=2 full-citizen test, the
+# adversarial verdict, and the Part 8 boundary sweep -- PLUS the carried Phase 168
+# cascade floor test + the carried Phase 169-00 room-lineage floor test + the
+# carried migrated tests/test-sqlite-battle.cjs regression fence (the invisible
+# cascade-disable break, now caught here). The two carried floor tests prove the
+# frozen vocabulary is untouched (NESTED_WITHIN was the only addition this phase,
+# minted in Plan 00). This gate is the single PASS/FAIL phase contract for
+# /gsd-verify-work: Failed 0, exit 0.
 #
 # This runner MUST run to completion (no crash) even when any suite fails.
 #
