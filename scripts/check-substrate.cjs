@@ -72,6 +72,16 @@ const ALLOWED_DIRECT_IMPORT = [
   /^lib\/core\/lazygraph-ops\.cjs$/,
   /^lib\/core\/memory-ops\.cjs$/,
   /^lib\/core\/opportunity-ops\.cjs$/,
+  // Phase 169 (D-169-11): the graph-derivation composer + the rollupSubRooms
+  // RECURSIVE read-side ATTACH. Its WRITES already route through the navigation
+  // chokepoint (writeClaimNode + writeEdge for the proposed node + typed edge);
+  // it requires room-db.cjs ONLY to open the caller-owned write handle, and
+  // node:sqlite ONLY for the cross-room read-only ATTACH the rollup needs (a
+  // read-side UNION over child room.db files at arbitrary depth, for which the
+  // navigation surface has no ATTACH primitive). The parent db is NEVER written
+  // by the rollup (read-only open via file: mode=ro). Allow-listed alongside the
+  // other substrate-adjacent core modules (room-db / lazygraph-ops / memory-ops).
+  /^lib\/core\/graph-derivation\.cjs$/,
   /^tests\//,
   /^tests\/fixtures\//,
   /^scripts\/migrate-/,
