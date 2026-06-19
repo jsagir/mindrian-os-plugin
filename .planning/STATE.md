@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.13.1
 milestone_name: "Larry Reaches" -- finalized STABLE 2026-06-17
 status: verifying
-stopped_at: "Phase 169 Plan 01 (169-01) complete -- WAVE 2 FOUNDATION: run-all-169.sh finalized as the single phase gate (13 RED stubs + 2 carried floor tests + Part-8 sweep + em-dash sweep) + the 13 RED stubs against the shared IFACE block + fixtures; gate runs (Total 17, Passed 5, Failed 12, all 13 stubs EXECUTE RED-by-require, floor tests + sweeps GREEN); zero em-dashes"
-last_updated: "2026-06-19T14:55:00.000Z"
+stopped_at: "Phase 169 Plan 02 (169-02) complete -- GDH-01: lib/core/room-root.cjs landed as the ONE `.room-root` walk-up resolver (Part 7 consolidation of the 3x-duplicated walk-up); the write-index hook (gsd-artifact-graph-hook resolveRoomDir(filePath) file-rooted FIRST, env/registry fallback) + the 3 scripts (query-efficiency-telemetry / auto-explore-fingerprint / async-artifact-auto-commit) repointed at it; detectActiveRoom LEFT INTACT (D-169-05); root cause #1 closed (a sub-room write indexes into THAT sub-room's db regardless of registry active room); test-room-root-resolver GREEN (4/4), run-all-169.sh Total 17 Passed 6 (was 5) Failed 11, other 11 stubs RED-untouched, floors + sweeps GREEN; zero em-dashes"
+last_updated: "2026-06-19T15:30:00.000Z"
 last_activity: 2026-06-19
 progress:
   total_phases: 13
@@ -16,7 +16,28 @@ progress:
 
 # Project State
 
-## Latest (2026-06-19) -- Phase 169 Wave 2 (169-01) complete -- the contracts-on-disk bus (shared IFACE + 13 RED stubs + fixtures)
+## Latest (2026-06-19) -- Phase 169 Wave 3 (169-02) complete -- GDH-01 the ONE `.room-root` walk-up resolver + write-index repoint
+
+WAVE 3 landed the GDH-01 resolver unify. `lib/core/room-root.cjs` is the ONE `.room-root` walk-up resolver
+(`resolveRoomRoot(filePath) -> roomDir|''` + `findRoomRootSentinels() -> ['.room-root']`) -- a Part 7
+CONSOLIDATION of the 3x-duplicated walk-up, not a net-new invention: the `.room-root` FILE sentinel is
+already written at room birth and the walk-up was already duplicated in three scripts. Pure LOCAL fs walk,
+zero Brain (Part 8), never throws (fail-safe `''` return so a malformed path never blocks a Write). The
+WRITE-INDEX path is repointed at it: `scripts/gsd-artifact-graph-hook.cjs::resolveRoomDir(filePath)` now
+resolves by the written file's OWN `.room-root` FIRST and falls back to the env/registry-active room only
+when the file is outside any room -- so a write into a sub-room indexes into THAT sub-room's db regardless
+of the registry active room (ROOT CAUSE #1 CLOSED, verified by a functional probe of both legs). The three
+hand-rolled walk-ups (`query-efficiency-telemetry.cjs`, `auto-explore-fingerprint.cjs`,
+`async-artifact-auto-commit.cjs`) are repointed at the shared resolver (`'' -> null` coerced at each
+boundary so their existing null contract is byte-preserved) -- ONE resolver, drift removed.
+`dashboard-helpers.cjs::detectActiveRoom` is LEFT INTACT for genuine active-room callers (D-169-05). Turned
+`tests/test-room-root-resolver.cjs` GREEN (4/4); `run-all-169.sh` Total 17, Passed 6 (was 5), Failed 11 --
+the other eleven 169 stubs stay RED-untouched (later waves turn them GREEN), the two carried floor tests +
+the frozen-edge-set + Part-8 + em-dash sweeps stay GREEN. Zero em-dashes. Commits: `4d7db39d` (the
+resolver), `669b9d88` (the hook + 3 scripts repointed). Summary:
+`.planning/phases/169-graph-derivation-harness/169-02-SUMMARY.md`.
+
+## Earlier (2026-06-19) -- Phase 169 Wave 2 (169-01) complete -- the contracts-on-disk bus (shared IFACE + 13 RED stubs + fixtures)
 
 WAVE 2 FOUNDATION landed: the Nyquist contracts-on-disk bus. `tests/run-all-169.sh` is FINALIZED as the single PASS/FAIL phase gate (EXTENDED from the Wave 1 scaffold, NOT clobbered): it registers all thirteen 169 RED stubs alongside the two carried floor tests (`test-edges-room-lineage-floor.cjs` from 169-00 + the Phase 168 `test-edges-part4-cascade-floor.cjs`), runs a Part-8 grep sweep over the 169 lib/script surfaces (skip-until-built so the boundary is guarded the instant a surface lands), keeps the frozen-edge-set assertion (NESTED_WITHIN minted, PART_OF untouched), and extends the em-dash sweep over every stub; mirrors `run-all-167.sh`. The thirteen RED stubs encode the GDH-01..09 + depth>=2 contracts against the shared IFACE block, each RED-by-require until its module ships (Nyquist: no module ships without a test that preceded it). THE NINE ORIGINAL: room-root-resolver (GDH-01), doc-text-extractor (GDH-04, source-bytes-unchanged D-169-03), subroom-rollup (GDH-03), candidate-producer (GDH-05, asserts BOTH CONTRADICTS AND CONVERGES per D-169-06, frozen cascade subset, no Brain), graph-derivation-loop (GDH-05, review_status on the NODE not the edge + fable-mode rejects the unjustified CONTRADICTS), derive-idempotence (GDH-07), derive-backfill-acceptance (GDH-06, heal-first then 0 -> N), 169-brain-boundary (Part 8 5-tripwire sweep with a sharp-regex self-test). THE FOUR NEW: sentinel-self-heal (GDH-08/09, approvedBy gate both ways + birthRoom reuse + registry/sentinel parent fields), room-lineage-edge (GDH-09, NESTED_WITHIN room:child -> room:parent via writeEdge, enum/scalar props), recursive-rollup (D-169-11, transitive arbitrary depth top->mid->leaf), depth2-full-citizen (D-169-11, ROOM.md + room.db + per-section FEYNMAN + `## Timeline (auto)` + NESTED_WITHIN up + visible from parent down). Fixtures: `tests/fixtures/169/stored-method.docx` (a valid compression-method-0 stored zip with two w:t runs, synthesized with Node built-ins only so no inflate is needed to read it) + `sample.html`. Gate runs to completion: Total 17, Passed 5 (2 floor tests + frozen-set + Part-8 + em-dash sweeps), Failed 12 (all 13 stubs EXECUTE and report RED-by-require; the require error names the missing IFACE module, confirming RED-by-design not syntax error). Zero em-dashes across all 15 files. 2 atomic commits (aggregator+fixtures 3a64f040, stubs 57450f37). Plans 02-07 each turn their stubs GREEN. Next: 169-02 (Wave 3 GDH-01: lib/core/room-root.cjs the ONE `.room-root` resolver). See `169-01-SUMMARY.md`.
 
