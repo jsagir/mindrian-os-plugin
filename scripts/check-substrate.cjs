@@ -82,6 +82,13 @@ const ALLOWED_DIRECT_IMPORT = [
   // by the rollup (read-only open via file: mode=ro). Allow-listed alongside the
   // other substrate-adjacent core modules (room-db / lazygraph-ops / memory-ops).
   /^lib\/core\/graph-derivation\.cjs$/,
+  // Phase 169-07 (GDH-08/09 + D-169-11): the full-citizen self-heal. It requires
+  // room-db.cjs openRoomDb ONLY to open the caller-owned write handle for the
+  // NESTED_WITHIN lineage edge (the edge WRITE itself routes through the
+  // navigation chokepoint navigation/edges.cjs::writeEdge). It hand-rolls no
+  // scaffold (it INVOKES room-birth.cjs birthRoom) and makes ZERO Brain call.
+  // Allow-listed alongside graph-derivation.cjs.
+  /^lib\/core\/graph-self-heal\.cjs$/,
   /^tests\//,
   /^tests\/fixtures\//,
   /^scripts\/migrate-/,
