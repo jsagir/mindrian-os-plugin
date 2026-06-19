@@ -22,6 +22,18 @@ ROOT_CAUSES). A live field incident (b2-journey, 23 .md + 9 .docx) proved they a
 the substrate shipped 2026-06-18 (runChain 166, manifest + fable-mode + generator 167, the reconciled
 edge set 168), so it is mostly composition.
 
+## Constitutional framing (navigator reframe 2026-06-19)
+This phase is NOT a derivation bug fix -- it is the phase that makes MindrianOS's big claim HOLD. ICM
+(folder IS code) + Simon 1962 (complex systems persist only as nested near-decomposable hierarchies) +
+Rittel 1973 (the venture is a wicked problem) = the claim that the nested folder hierarchy, carrying
+memory and typed edges at every level, IS the wicked-problem substrate. The b2-journey incident proved
+the claim does not currently hold: a folder 3 levels deep was an orphan (no identity, no graph, no
+memory, no parent link). 169 makes the FRACTAL hold -- self-similar at every scale, every level the same
+shape (ROOM.md + own graph + memory + temporal + typed edges up to parent and down to children),
+composing RECURSIVELY at ARBITRARY DEPTH. The fractal joint (parent<->child) is both operational
+(registry + .room-root parent pointer) AND a typed graph edge (the nested hierarchy IS the graph). See
+169-CONTEXT.md D-169-11 for the locked representation + the arbitrary-depth recursion requirement.
+
 ## The four verified root causes (SEED-034)
 1. TWO room resolvers disagree: the auto-graph hook (`gsd-artifact-graph-hook.cjs:77-95`) resolves by
    the REGISTRY ACTIVE room; the rebuild tool resolves by `.room-root`. Sub-room writes index into the

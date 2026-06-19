@@ -136,6 +136,46 @@ parent linkage + the per-section FEYNMAN + the temporal timeline are what make a
 NAVIGABLE from its parent, not an orphan island. This same full-wiring path is what the SEED-001 contract
 guarantees for NEW sub-rooms; GDH-09 makes the BACKFILL heal honor the identical contract.
 
+### D-169-11: the fractal joint = registry/sentinel + a TYPED lineage edge; arbitrary-depth recursion (navigator-LOCKED 2026-06-19, ICM/fractal reframe + fan-out finding)
+THE CONSTITUTIONAL REFRAME (navigator, 2026-06-19): Phase 169 is NOT a derivation bug fix -- it is the
+phase that makes the ICM fractal nested-hierarchy-with-memory claim HOLD at every level. ICM (folder IS
+code) + Simon 1962 (complex systems survive only as nested near-decomposable hierarchies) + Rittel 1973
+(the venture is wicked) = MindrianOS's big claim: the nested folder hierarchy, carrying memory and typed
+edges at every level, IS the wicked-problem substrate. The b2-journey incident PROVED the claim does not
+currently hold (a 3-levels-deep folder was an orphan: no identity, no graph, no memory, no parent link).
+169 makes the fractal hold.
+
+FRACTAL HAS TEETH (not metaphor): self-similar at EVERY scale. motj-ecosystem -> jonathan-contractor-motj
+-> b2-journey -> deeper. Every level must be the SAME shape (ROOM.md + own graph + memory + temporal +
+typed edges up to parent and down to children). REQUIREMENT: the heal, the rollup, the parent-linkage,
+and the memory wiring must compose RECURSIVELY at ARBITRARY DEPTH -- not parent->one-child. The re-plan
+and the Verify wave must assert depth >= 2 (a sub-sub-room), not just one level.
+
+THE FRACTAL JOINT (the parent<->child seam) -- navigator chose BOTH (Option C):
+- OPERATIONAL truth (reuse the shipped rollup, which reads these): the heal REGISTERS the healed sub-room
+  in `.rooms/registry.json` with `parent=<slug>` AND writes a `parent` pointer into the `.room-root`
+  sentinel JSON (room-birth.cjs:359-362 currently writes {room,active,born} with NO parent field -- ADD it).
+  The fan-out verified b2-journey is ABSENT from the registry and the sentinel carries no parent, so today
+  the rollup cannot even see a healed sub-room. The heal MUST fix both.
+- GRAPH-NAVIGABLE truth (the moat / the "typed edges between levels" claim): a TYPED structural lineage
+  edge child-room-node -> parent-room-node, so a graph walk traverses the nested hierarchy. BLOCKER the
+  fan-out found: the frozen `PART_OF` (edges.cjs:344-348) allows targets domain/subdomain/focus_area ONLY
+  -- a room is NOT a legal PART_OF target, and writeEdge:451 checks only edge_type membership, not
+  endpoints, so a PART_OF room->room write would SUCCEED silently but VIOLATE the frozen-endpoint contract
+  (a Part 4 self-CONTRADICTS). RESOLUTION: the re-plan determines the cleanest LEGAL representation -- mint
+  a room-lineage edge OR widen an endpoint OR use the existing structural BELONGS_TO (artifact->section is
+  already BELONGS_TO; a room->parent-room BELONGS_TO may be the natural structural lineage) -- and if it
+  moves the frozen set it is a NAVIGATOR-GATED canon amendment (the normal mechanism, Appendix D entries
+  18/21/22), ratified at a blocking checkpoint BEFORE the bytes land. The edge MUST be graph-navigable
+  (the rollup or a hierarchy query can traverse it), not decorative.
+
+CONSEQUENCE for the plans: GDH-08 + GDH-09 are currently in NO plan's requirements (the plans stop at
+GDH-07); the parent-linkage edge is never written; FEYNMAN/timeline/temporal is mentioned by no plan;
+birthRoom's `approvedBy` precondition (room-birth.cjs:316-318) must be threaded from the Decision Gate.
+The comprehensive re-plan must add GDH-08/09 (+ the lineage representation + arbitrary-depth recursion)
+across the plan set, and the Verify wave must prove the REAL b2-journey becomes a FULL CITIZEN (ROOM.md +
+per-section FEYNMAN + temporal timeline + registered + parent-linked + own graph 0->N) at depth >= 2.
+
 </decisions>
 
 <canonical_refs>
