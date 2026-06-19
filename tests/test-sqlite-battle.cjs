@@ -76,23 +76,36 @@ describe('SQLITE-BATTLE: Edge case stress tests', async () => {
     });
   });
 
-  describe('BATTLE-03: Wikilink edge creation', () => {
-    it('creates INFORMS edge from [[wikilink]] syntax', async () => {
+  // MIGRATED (Phase 169-06 / D-169-08 MEDIUM-4): the legacy raw-SQL cascade in
+  // the structural indexer is DISABLED. The structural index now writes the
+  // membership edge BELONGS_TO only; the cascade edges (INFORMS / CONTRADICTS /
+  // ENABLES / INVALIDATES) come ONLY from the derivation path (runDerivation via
+  // navigation.writeEdge, the SOLE cascade writer). BATTLE-03/04 are migrated to
+  // that post-disable reality (do NOT re-enable the cascade; assert the new truth).
+  describe('BATTLE-03: structural index writes membership, NOT the cascade (post-MEDIUM-4)', () => {
+    it('creates the structural BELONGS_TO edge for the artifact and does NOT create an INFORMS edge from the [[wikilink]]', async () => {
       const filePath = writeArtifact('problem-definition', 'with-links',
         '---\ndate: 2026-01-01\n---\n# Linked\n\nSee [[market-analysis]] for details.');
-      await lg.indexArtifact(conn, roomDir, filePath);
-      const edges = conn.prepare("SELECT * FROM edges WHERE type = 'INFORMS'").all();
-      assert.ok(edges.length >= 1, 'at least one INFORMS edge from wikilink');
+      const result = await lg.indexArtifact(conn, roomDir, filePath);
+      // the structural membership edge STAYS: the artifact BELONGS_TO its section.
+      const belongs = conn.prepare("SELECT * FROM edges WHERE source = ? AND type = 'BELONGS_TO'").all(result.id);
+      assert.ok(belongs.length >= 1, 'the structural BELONGS_TO edge must exist for the artifact');
+      // the structural index NO LONGER writes the cascade: zero INFORMS edges
+      // FROM THIS artifact (derivation is now the sole cascade source, D-169-08).
+      const informsFromArtifact = conn.prepare("SELECT * FROM edges WHERE source = ? AND type = 'INFORMS'").all(result.id);
+      assert.equal(informsFromArtifact.length, 0,
+        'the structural index must NOT create an INFORMS edge from the wikilink (derivation is the sole cascade writer post-MEDIUM-4)');
     });
   });
 
-  describe('BATTLE-04: Contradiction detection near wikilinks', () => {
-    it('creates CONTRADICTS edge when contradiction term is near wikilink', async () => {
+  describe('BATTLE-04: structural index does NOT write CONTRADICTS (post-MEDIUM-4)', () => {
+    it('does NOT create a CONTRADICTS edge from a contradiction-near-wikilink artifact (derivation is the sole cascade source)', async () => {
       const filePath = writeArtifact('solution-design', 'contradict',
         '---\ndate: 2026-01-01\n---\n# Contradictions\n\nHowever, this contradicts [[problem-definition]] completely.');
-      await lg.indexArtifact(conn, roomDir, filePath);
-      const edges = conn.prepare("SELECT * FROM edges WHERE type = 'CONTRADICTS'").all();
-      assert.ok(edges.length >= 1, 'CONTRADICTS edge detected from context');
+      const result = await lg.indexArtifact(conn, roomDir, filePath);
+      const contradictsFromArtifact = conn.prepare("SELECT * FROM edges WHERE source = ? AND type = 'CONTRADICTS'").all(result.id);
+      assert.equal(contradictsFromArtifact.length, 0,
+        'the structural index must NOT create a CONTRADICTS edge (derivation via navigation.writeEdge is the sole cascade writer post-MEDIUM-4)');
     });
   });
 

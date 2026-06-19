@@ -39,6 +39,7 @@ START_TIME=$(date +%s)
 CJS_SUITES=(
   test-edges-room-lineage-floor.cjs
   test-edges-part4-cascade-floor.cjs
+  test-sqlite-battle.cjs
   test-room-root-resolver.cjs
   test-doc-text-extractor.cjs
   test-subroom-rollup.cjs
@@ -52,6 +53,7 @@ CJS_SUITES=(
   test-recursive-rollup.cjs
   test-depth2-full-citizen.cjs
   test-graph-derive-sweep.cjs
+  test-graph-derivation-verdict.cjs
 )
 
 TOTAL=0
@@ -210,6 +212,8 @@ EMDASH_TARGETS=(
   "tests/test-recursive-rollup.cjs"
   "tests/test-depth2-full-citizen.cjs"
   "tests/test-graph-derive-sweep.cjs"
+  "tests/test-graph-derivation-verdict.cjs"
+  "tests/test-sqlite-battle.cjs"
   "tests/run-all-169.sh"
   "docs/MINDRIAN-CANON.md"
   "docs/CANON-PHASE-MAP.md"
