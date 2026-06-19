@@ -106,7 +106,7 @@ Plans:
 
 **Lineage-edge representation (navigator decision required, 169-00):** the re-plan chose to MINT a NEW frozen-set edge type, NESTED_WITHIN (child-room-node -> parent-room-node), over widening PART_OF endpoints (PART_OF is the domain-taxonomy edge; room->room PART_OF would pollute domain-walk traversals -- a Part 4 self-CONTRADICTS) or reusing BELONGS_TO (absent from the navigation frozen set; would require a chokepoint bypass). NESTED_WITHIN moves the frozen constitutional set, so 169-00 is a navigator-gated canon amendment ratified at a BLOCKING checkpoint:decision BEFORE the edges.cjs bytes land (mirroring Appendix D entries 18/21/22).
 
-**Status:** Re-planned 2026-06-19 (8 plans / 6 waves; the comprehensive re-plan after the 8-agent fan-out verdict MISSING). GDH-08/09 + the NESTED_WITHIN lineage edge + arbitrary-depth recursion + the heal-first sequence are now planned across the set; the depth>=2 full-citizen acceptance is in the Verify wave. Next: check -> (revise) -> execute.
+**Status:** PLANNED + plan-check PASS 2026-06-19 -- READY TO EXECUTE. 8 plans / 6 waves (comprehensive re-plan after the 8-agent ICM/fractal fan-out verdict MISSING; final plan-checker VERDICT: PASS, verified against live code, 2 non-blocking phrasing notes only). GDH-08/09 + the NESTED_WITHIN lineage edge + arbitrary-depth recursion + the heal-first sequence are planned across the set; the depth>=2 full-citizen acceptance is in the Verify wave. **Wave 1 (169-00) is a BLOCKING navigator checkpoint -- ratify minting NESTED_WITHIN before the edges.cjs bytes land.** Next: /clear then /gsd-execute-phase 169.
 
 ---
 
