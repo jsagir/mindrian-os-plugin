@@ -7,7 +7,7 @@ wave_0_complete: false
 created: 2026-06-19
 ---
 
-# Phase 169 — Validation Strategy
+# Phase 169 - Validation Strategy
 
 > Per-phase validation contract for feedback sampling during execution. Derived from 169-RESEARCH.md "## Validation Architecture". Harness-as-code: the Verify wave owns the adversarial structured verdict + the phase gate.
 
@@ -18,7 +18,7 @@ created: 2026-06-19
 | Property | Value |
 |----------|-------|
 | **Framework** | Node built-in (`node:test` / bare `assert` CJS); repo convention is `tests/run-all-<phase>.sh` aggregator + `tests/test-*.cjs` |
-| **Config file** | none — self-contained CJS scripts |
+| **Config file** | none - self-contained CJS scripts |
 | **Quick run command** | `node tests/test-doc-text-extractor.cjs` (single file) |
 | **Full suite command** | `bash tests/run-all-169.sh` |
 | **Estimated runtime** | ~30-60 seconds |
@@ -29,7 +29,7 @@ created: 2026-06-19
 
 - **After every task commit:** Run `node tests/test-<module>.cjs` for the module touched
 - **After every plan wave:** Run `bash tests/run-all-169.sh`
-- **Before `/gsd-verify-work`:** Full 169 suite green + carried Phase 168 floor test green + Part 8 boundary scan returning 0 forbidden matches + the real-b2 manual-verify gate captured (see Manual-Only Verifications)
+- **Before `/gsd-verify-work`:** Full 169 suite green + carried Phase 168 floor test green + carried migrated tests/test-sqlite-battle.cjs fence green + Part 8 boundary scan returning 0 forbidden matches + the real-b2 manual-verify gate captured (see Manual-Only Verifications)
 - **Max feedback latency:** ~60 seconds
 
 ---
@@ -47,6 +47,7 @@ created: 2026-06-19
 | GDH-06 | `/mos:graph --derive` on the b2 fixture takes typed-edge count 0 → N (THE acceptance fixture; real-b2 non-skippable when present, synthetic fallback only when absent) | acceptance | `node tests/test-derive-backfill-acceptance.cjs` | ❌ W0 | ⬜ pending |
 | GDH-07 | re-run is a no-op: no duplicate proposed nodes; confirmed edges untouched | integration | `node tests/test-derive-idempotence.cjs` | ❌ W0 | ⬜ pending |
 | MEDIUM-4 | no derivation-owned cascade edge type (CONTRADICTS/INFORMS/ENABLES/INVALIDATES) is raw-INSERTed in the indexer path; derivation is the sole cascade writer (D-169-08) | adversarial | covered by `node tests/test-graph-derivation-verdict.cjs` (MEDIUM-4 check) | ❌ W0 | ⬜ pending |
+| MEDIUM-4 (migration fence) | the committed structural-index suite is migrated to the post-disable reality: indexArtifact on a [[wikilink]] artifact writes BELONGS_TO but NO INFORMS/CONTRADICTS from the structural index (the cascade moved to derivation); carried in run-all-169.sh so the cascade-disable cannot silently break it (D-169-08) | regression (carried) | `node tests/test-sqlite-battle.cjs` (migrated BATTLE-03/04; registered in run-all-169.sh, mirroring the carried 168 floor test) | ✅ exists (committed; migrated in Plan 06) | ⬜ pending |
 | Part 8 | boundary scan: no user bytes reach Brain in graph-derivation.cjs + graph-candidate-producer.cjs + the sweep + drain hooks + brain-derive | adversarial | `node tests/test-169-brain-boundary.cjs` (forbidden-substring sweep, Phase 90 5-tripwire pattern) | ❌ W0 | ⬜ pending |
 | Part 4/9 | every derived edge type is in ALLOWED_EDGE_TYPES (frozen-set floor) | unit | extend `tests/test-edges-part4-cascade-floor.cjs` (Phase 168) | ✅ exists | ⬜ pending |
 
@@ -56,17 +57,22 @@ created: 2026-06-19
 
 ## Wave 0 Requirements
 
-- [ ] `tests/run-all-169.sh` — the phase aggregator (none exists yet)
-- [ ] `tests/test-doc-text-extractor.cjs` — GDH-04 (b2 fixture + a tiny stored-method .docx)
-- [ ] `tests/test-room-root-resolver.cjs` — GDH-01
-- [ ] `tests/test-subroom-rollup.cjs` — GDH-03 (two temp room.db files, ATTACH, UNION)
-- [ ] `tests/test-candidate-producer.cjs` — GDH-05 producer (stub llm; both CONTRADICTS + CONVERGES; D-169-06)
-- [ ] `tests/test-graph-derivation-loop.cjs` — GDH-05 loop (stub deriveFn/selfCritiqueFn; candidateToFinding)
-- [ ] `tests/test-derive-idempotence.cjs` — GDH-07
-- [ ] `tests/test-derive-backfill-acceptance.cjs` — GDH-06 (the b2 0 → N count)
-- [ ] `tests/test-graph-derive-sweep.cjs` — GDH-02 enqueue-then-drain round-trip (created Plan 05; MEDIUM-5)
-- [ ] `tests/test-169-brain-boundary.cjs` — Part 8 adversarial sweep
-- [ ] `tests/test-graph-derivation-verdict.cjs` — the adversarial structured `{passed, findings[]}` verdict (harness-as-code property 6; mirror Phase 166 W8 / 163 W6 / 167 Plan 05) + the MEDIUM-4 sole-cascade-writer check + the real-b2 0 → N proof
+- [ ] `tests/run-all-169.sh` - the phase aggregator (none exists yet)
+- [ ] `tests/test-doc-text-extractor.cjs` - GDH-04 (b2 fixture + a tiny stored-method .docx)
+- [ ] `tests/test-room-root-resolver.cjs` - GDH-01
+- [ ] `tests/test-subroom-rollup.cjs` - GDH-03 (two temp room.db files, ATTACH, UNION)
+- [ ] `tests/test-candidate-producer.cjs` - GDH-05 producer (stub llm; both CONTRADICTS + CONVERGES; D-169-06)
+- [ ] `tests/test-graph-derivation-loop.cjs` - GDH-05 loop (stub deriveFn/selfCritiqueFn; candidateToFinding)
+- [ ] `tests/test-derive-idempotence.cjs` - GDH-07
+- [ ] `tests/test-derive-backfill-acceptance.cjs` - GDH-06 (the b2 0 → N count)
+- [ ] `tests/test-graph-derive-sweep.cjs` - GDH-02 enqueue-then-drain round-trip (created Plan 05; MEDIUM-5)
+- [ ] `tests/test-169-brain-boundary.cjs` - Part 8 adversarial sweep
+- [ ] `tests/test-graph-derivation-verdict.cjs` - the adversarial structured `{passed, findings[]}` verdict (harness-as-code property 6; mirror Phase 166 W8 / 163 W6 / 167 Plan 05) + the MEDIUM-4 sole-cascade-writer check + the real-b2 0 → N proof
+
+### Carried regression fences (registered in run-all-169.sh)
+
+- [ ] `tests/test-edges-part4-cascade-floor.cjs` - the carried Phase 168 frozen-edge-set floor test (already exists; stays green, no new edge type minted this phase)
+- [ ] `tests/test-sqlite-battle.cjs` - the carried committed structural-index suite, MIGRATED in Plan 06 to the post-MEDIUM-4 reality (BATTLE-03/04: BELONGS_TO yes, INFORMS/CONTRADICTS from the structural index no) and registered in run-all-169.sh so the Wave-3 cascade-disable cannot silently break it (the invisible-break the plan-check found)
 
 ---
 
@@ -84,11 +90,11 @@ created: 2026-06-19
 
 | ASVS / Pattern | Applies | Control |
 |----------------|---------|---------|
-| V5 Input Validation | yes | The .docx/.html extractor parses attacker-influenceable bytes — cap ZIP entry count, cap inflated size (zip-bomb guard via `inflateRawSync` size cap ~10MB), never eval/exec content, treat extracted text as data only |
-| Part 8 breach (user .docx bytes → Brain) | yes | Boundary scan over graph-derivation.cjs + graph-candidate-producer.cjs (the LLM producer reads LOCAL text only) + the sweep + drain hooks + brain-derive-command.cjs; the LOCAL derivers + the LLM producer never touch the wire; Brain queries carry only generic handles/enums |
+| V5 Input Validation | yes | The .docx/.html extractor parses attacker-influenceable bytes - cap ZIP entry count, cap inflated size (zip-bomb guard via `inflateRawSync` size cap ~10MB), never eval/exec content, treat extracted text as data only |
+| Part 8 breach (user .docx bytes → Brain) | yes | Boundary scan over graph-derivation.cjs + graph-candidate-producer.cjs (the LLM producer reads LOCAL text only; default transport is the llm-name-suggester.cjs anthropic pattern, NOT the Brain) + the sweep + drain hooks + brain-derive-command.cjs; the LOCAL derivers + the LLM producer never touch the wire; Brain queries carry only generic handles/enums |
 | Room-boundary leak (cross-room ATTACH) | yes | Read-side ATTACH only; NEVER copy sub-room rows into the parent db; cross-room typed edges stay deferred (Phase 83) |
 | Bad CONTRADICTS misleads navigator | yes | fable-mode selfCritiqueFn rejects unjustified edges; every derived edge lands as a PROPOSED node; human confirms (Part 3/9) |
-| Chokepoint bypass (raw SQL) | yes | The legacy raw-SQL cascade in lazygraph-ops _indexArtifactBody is DISABLED (D-169-08) so derivation via navigation.writeEdge is the sole cascade writer; the Phase 109 pre-commit substrate guard rejects a new direct room-db require outside the allow-list; the verdict's MEDIUM-4 check asserts no raw cascade INSERT remains |
+| Chokepoint bypass (raw SQL) | yes | The legacy raw-SQL cascade in lazygraph-ops _indexArtifactBody is DISABLED (D-169-08; all four types CONTRADICTS/INFORMS/ENABLES/INVALIDATES) so derivation via navigation.writeEdge is the sole cascade writer; the Phase 109 pre-commit substrate guard rejects a new direct room-db require outside the allow-list; the verdict's MEDIUM-4 check asserts no raw cascade INSERT remains; the carried migrated battle fence asserts the structural index no longer writes the cascade |
 
 ---
 
@@ -100,6 +106,7 @@ created: 2026-06-19
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 60s
 - [ ] The real-b2 manual-verify gate (GDH-06) is captured before phase close (D-169-08)
+- [ ] The carried migrated tests/test-sqlite-battle.cjs fence is green + registered in run-all-169.sh before phase close (D-169-08, the invisible-break fix)
 - [ ] `nyquist_compliant: true` set in frontmatter (set by the planner once every task maps to a test)
 
 **Approval:** pending
