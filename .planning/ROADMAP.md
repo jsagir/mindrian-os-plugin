@@ -147,7 +147,7 @@ Plans:
 **Design input:** `.planning/research/2026-06-18-unknown-unknowns-blindspot-engine-scoping.md`. Source ref: `reference/unknown-unknowns-horvitz/`.
 **Plans:** 6 plans in 4 waves (planned 2026-06-19).
 Plans:
-- [ ] 165-01-PLAN.md -- Wave 1 Foundation: the shared IFACE (the recast contract) + seeded fixture room.db + the 10 RED test stubs + run-all-165.sh phase gate
+- [x] 165-01-PLAN.md -- Wave 1 Foundation: the shared IFACE (the recast contract) + seeded fixture room.db + the 10 RED test stubs + run-all-165.sh phase gate. COMPLETE 2026-06-19: lib/core/unknowns/iface.cjs (INSTANCE_FEATURES + TIER_NUMERIC/TIER_FLOOR + DEFAULT_CONFIG.proxy + CHECKPOINT_SHAPE + FROZEN_ENGINE_EDGES; pure, zero Brain/Math.random/Date.now), tests/fixtures/unknowns/build-fixture-room.cjs (UNION returns exactly 5 graded-confirmed Academic/Operational + the excluded mix; via navigation chokepoint + human confirmNode), 10 RED stubs + tests/run-all-165.sh (clone of 164; EXECUTES every stub: 10 RED + 3 floor PASS, exit 1). 3 commits (fa498bc9, 4e61465c, 7fee7742) + docs 5911f3a8. See 165-01-SUMMARY.md.
 - [ ] 165-02-PLAN.md -- Wave 2 Foundation: the deterministic engine core (pattern-miner / dsp + the REAL interPartitionDistance / index-deterministic resumable bandit / rumsfeld-matrix router)
 - [ ] 165-03-PLAN.md -- Wave 2 Foundation: corpus-adapter (the load-bearing graded-confirmed UNION recast) + the proxy oracle (3 LOCAL scalars)
 - [ ] 165-04-PLAN.md -- Wave 3 Surfaces: the orchestrator pipeline + the 169-cloned proposed-finding writer + frozen-edge self-check + rank-in to F.1 (engine halts at the gate)
