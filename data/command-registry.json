@@ -121,6 +121,24 @@
       "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
     },
     {
+      "command": "/mos:bono",
+      "kind": "methodology",
+      "frameworks": [
+        "Six Thinking Hats"
+      ],
+      "produces": "room/solution-design/*",
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "B (Semantic Tree)",
+      "serves_jtbd": [
+        "explore",
+        "decide-pursue"
+      ],
+      "teaching": "When you have a wicked question and need a structured argument rather than one opinion, /mos:bono spawns a parallel research swarm across the (subdomain x hat) grid, then debates the readings as a sequential inter-hat argument over a graph-proposed what-if hypothesis. The navigator confirms the hypothesis and the ruling at two decision gates; the synthesis files only on APPROVE.",
+      "jtbd_label": "Explore",
+      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+    },
+    {
       "command": "/mos:brain-derive",
       "kind": "utility",
       "frameworks": [],
@@ -1632,6 +1650,12 @@
     "Beautiful Question Framework": [
       "/mos:beautiful-question"
     ],
+    "Six Thinking Hats": [
+      "/mos:bono",
+      "/mos:hat-briefing",
+      "/mos:persona",
+      "/mos:think-hats"
+    ],
     "Ackoff Pyramid": [
       "/mos:build-knowledge"
     ],
@@ -1684,11 +1708,6 @@
     ],
     "Futures Wheel": [
       "/mos:futures"
-    ],
-    "Six Thinking Hats": [
-      "/mos:hat-briefing",
-      "/mos:persona",
-      "/mos:think-hats"
     ],
     "Adaptive Leadership": [
       "/mos:leadership"

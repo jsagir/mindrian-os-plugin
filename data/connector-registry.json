@@ -89,6 +89,23 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:bono",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-05"
+      ],
+      "reach_id": "hats",
+      "sub_mode": "bono",
+      "framework": "Six Thinking Hats",
+      "posture": "hold",
+      "hierarchy_rank": 4,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:build-knowledge",
       "source": "command",
       "connects_to_spine": true,
@@ -1016,6 +1033,7 @@
   "sensor_index": {
     "SENS-05": [
       "/mos:analyze-needs",
+      "/mos:bono",
       "/mos:discover",
       "/mos:jtbd",
       "/mos:leadership",
@@ -1125,6 +1143,11 @@
     "Beautiful Question Framework": [
       "/mos:beautiful-question"
     ],
+    "Six Thinking Hats": [
+      "/mos:bono",
+      "/mos:think-hats",
+      "agent:persona-analyst"
+    ],
     "Ackoff Pyramid": [
       "/mos:build-knowledge"
     ],
@@ -1194,10 +1217,6 @@
     "HSI Semantic Surprise Analysis Assistant": [
       "/mos:score-innovation",
       "/mos:whitespace"
-    ],
-    "Six Thinking Hats": [
-      "/mos:think-hats",
-      "agent:persona-analyst"
     ]
   }
 }
