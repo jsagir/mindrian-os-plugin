@@ -132,9 +132,22 @@ PART8_LIB=(
 )
 # No Brain-write MCP call / brain-write helper (the canonical Part 8 breach).
 BRAIN_WRITE='mcp__brain_(write|store|upsert|ingest)|writeBrain|sendToBrain|ingestToBrain'
+# No Brain-HOST egress. The REAL Part 8 boundary is the Mindrian-owned Brain MCP
+# host -- never api.anthropic.com. A Brain-host substring (the brain host / a
+# brain.* URL / a brain-client require) in any of these surfaces is the breach.
+# Mirrors the scaffold harness Gate 3 literal-grep on the forbidden Brain host
+# (llm-name-suggester.cjs docstring) -- NOT a blanket fetch ban.
+BRAIN_HOST='mindrian-brain|brain\.mindrian|brain-client|brainClient'
 # No raw external HTTP egress in lib/script code. The leading char class excludes
-# .fetchCorpus on a caller object.
+# .fetchCorpus on a caller object. EXEMPTION: api.anthropic.com is the SHIPPED
+# Part-8-LEGAL LOCAL LLM transport (precedent: lib/core/llm-name-suggester.cjs,
+# lib/core/mva-classifier.cjs). The Canon Part 8 boundary covers ONLY the
+# Mindrian-owned Brain MCP host, NOT api.anthropic.com (a stateless LLM transport).
+# So the candidate producer's default anthropic-transport fetch is LEGAL; the
+# sweep filters api.anthropic.com lines out of the raw-fetch + external-http
+# checks and instead asserts the Brain host never appears.
 RAW_FETCH='[^a-zA-Z_.]fetch[[:space:]]*\('
+ANTHROPIC_EXEMPT='api\.anthropic\.com'
 for t in "${PART8_LIB[@]}"; do
   f="$REPO_ROOT/$t"
   if [[ ! -f "$f" ]]; then
@@ -143,12 +156,21 @@ for t in "${PART8_LIB[@]}"; do
   if grep -nE "$BRAIN_WRITE" "$f" >/dev/null 2>&1; then
     echo "    FORBIDDEN Brain-write token in: $t"; PART8_OK=0
   fi
-  # Filter comment lines so a doc comment that names fetch( as prose does not
-  # self-invalidate the count (CJS comments lead with // or *).
-  if grep -nE "$RAW_FETCH" "$f" | grep -vE '^[0-9]+:[[:space:]]*(//|\*|/\*)' >/dev/null 2>&1; then
-    echo "    FORBIDDEN raw fetch( egress in: $t"; PART8_OK=0
+  # The REAL boundary: a Brain-host egress is the breach (api.anthropic.com is not).
+  if grep -nE "$BRAIN_HOST" "$f" | grep -vE '^[0-9]+:[[:space:]]*(//|\*|/\*)' >/dev/null 2>&1; then
+    echo "    FORBIDDEN Brain-host egress in: $t"; PART8_OK=0
   fi
-  if grep -nE "https?://" "$f" | grep -vE "github\.com" | grep -vE '^[0-9]+:[[:space:]]*(//|\*|/\*)' >/dev/null 2>&1; then
+  # Filter comment lines so a doc comment that names fetch( as prose does not
+  # self-invalidate the count (CJS comments lead with // or *). The producer's
+  # only fetch IS the anthropic transport (the Part-8-legal LOCAL LLM path), so
+  # exempt files that carry the anthropic URL from the raw-fetch ban; the
+  # Brain-host check above is the real guard.
+  if ! grep -qE "$ANTHROPIC_EXEMPT" "$f"; then
+    if grep -nE "$RAW_FETCH" "$f" | grep -vE '^[0-9]+:[[:space:]]*(//|\*|/\*)' >/dev/null 2>&1; then
+      echo "    FORBIDDEN raw fetch( egress in: $t"; PART8_OK=0
+    fi
+  fi
+  if grep -nE "https?://" "$f" | grep -vE "github\.com" | grep -vE "$ANTHROPIC_EXEMPT" | grep -vE '^[0-9]+:[[:space:]]*(//|\*|/\*)' >/dev/null 2>&1; then
     echo "    FORBIDDEN external http(s) endpoint in: $t"; PART8_OK=0
   fi
 done
