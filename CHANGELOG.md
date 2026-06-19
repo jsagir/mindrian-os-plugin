@@ -1,12 +1,27 @@
 ## [Unreleased] -- v1.14.0-beta.2 (in progress)
 
 ### Added
-- 
+- **Phase 164 -- BONO research/debate engine (`/mos:bono`).** Assembles a de Bono six-hats team across (subdomain x hat) cells, runs an inter-hat debate on your hypothesis, and files structured findings as proposed truth-claim nodes. Mints the `SyntheticExpert` node type so a high-value team member can be saved and re-invoked as a hat in future runs (human-confirmed per Canon Part 9 role 5). Phase gate `tests/run-all-164.sh` 20/20; adversarial verdict 13/13.
+- **Phase 165 -- unknown-unknowns blind-spot engine (backs `/mos:map-unknowns`).** A Horvitz et al. 2019 recast that hunts the claims you are most confident about and confidently wrong: a DSP partitioner + deterministic UCB bandit + Rumsfeld 2x2 router + LOCAL proxy oracle, all zero-Brain-egress, that halts at the F.1 Decision Gate. Proven by instrumentation: `tests/run-all-165.sh` 19/19, adversarial verdict 5/5, Part-8 boundary 8/8.
+- **Phase 163 -- trending-to-the-absurd harness (`/mos:trending-to-absurd`).** The visionary-innovation companion that pushes trends to the absurd to surface future problems. Phase gate 13/13.
+- **Phase 166 -- gated-chain executor (the `runChain` spine).** The shared invoke -> capture -> pass -> loop runtime that auto-runs autonomous-safe steps and halts at material steps via the Decision Gate; the engines (BONO, unknown-unknowns, trending-to-absurd) ride it instead of cloning a per-feature orchestrator. Phase gate `tests/run-all-166.sh` 23/23.
+- **Phase 167 -- harness-as-code completion (`/mos:new-surface`).** A declared 3-MAP manifest + generator that scaffolds a new command/surface onto the connector spine and regenerates the registry transitively, plus posture-scoped fable-mode self-critique on material steps. Phase gate 12/12.
+- **Phase 169 -- graph-derivation harness.** Mints the `NESTED_WITHIN` room-lineage edge so the nested-room fractal joint has a legal, graph-navigable home (child room -> parent room), and ships the self-heal rollup walk. Phase gate `tests/run-all-169.sh` green.
+
+### Changed
+- README rebuilt to reflect v1.14.0: version badge, the new front-door command set (`/mos:ignite`, `/mos:discover`, `/mos:bono`, `/mos:map-unknowns`), and the current surface count (99 commands, 14 skills, 9 agents).
+- mindrian-os.com updated with the new commands and v1.14.0 capability information, version surfaces reconciled, and redeployed.
+- Mindrian Canon advanced to v1.13 (Appendix D entries 21-24): the domain-taxonomy edges (DECOMPOSED_INTO / PART_OF / TAGGED_WITH / RELATED_TO), the Part-4 cascade reconciliation (CONVERGES / INVALIDATES / ENABLES into the navigation chokepoint), the `NESTED_WITHIN` room-lineage edge, and the `SyntheticExpert` node type.
+
+### Fixed
+- **Phase 168 -- Part-4 edge-vocabulary reconciliation.** Brought the Part 9 `writeEdge` chokepoint frozen set into line with Canon Part 4 prose (CONVERGES / INVALIDATES / ENABLES were declared in canon and written by the legacy cascade path but rejected by the chokepoint). Phase gate `tests/run-all-168.sh` green.
+- `tests/run-all-165.sh` no longer trips its own em-dash sweep: the swept-for em-dash is now defined via its U+2014 codepoint escape so the gate file carries no literal em-dash.
+- GSD STATE.md / ROADMAP.md reconciled to the active milestone (`v1.14.0-beta.2`): the stale `v1.13.1` milestone label, the old phase/plan counts, and the stale `## Latest` section were corrected so every progress report reads true.
 
 ## [1.14.0-beta.1] - 2026-06-18
 
 ### Added
-- 
+- Opened the v1.14.0 cycle on top of the shipped v1.13.1 "Larry Reaches" stable release. Detailed v1.14.0 notes are consolidated under the beta.3 entry above (the phases 163-169 executed band landed across beta.1 and beta.2).
 
 ## [1.13.1] - 2026-06-17
 

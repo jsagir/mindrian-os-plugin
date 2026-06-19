@@ -7,16 +7,26 @@ stopped_at: "Phase 165 Plan 06 (165-06) complete -- THE VERIFY WAVE closed (safe
 last_updated: "2026-06-19T17:51:43.781Z"
 last_activity: 2026-06-19
 progress:
-  total_phases: 13
-  completed_phases: 13
-  total_plans: 62
-  completed_plans: 62
+  total_phases: 7
+  completed_phases: 7
+  total_plans: 40
+  completed_plans: 40
   percent: 100
 ---
 
 # Project State
 
-## Latest (2026-06-19) -- Phase 165 Plan 04 (THE ORCHESTRATOR: the full pipeline + the proposed-finding writer + the F.1 rank-in, HALTING at the gate) COMPLETE
+## Latest (2026-06-19) -- Phase 165 COMPLETE (6/6 plans); v1.14.0 executed band (163-169) all GREEN; milestone v1.14.0-beta on the release ceremony
+
+**Milestone:** v1.14.0-beta.2 in manifests, cutting v1.14.0-beta.3 in the release ceremony (repo was 180 commits ahead of origin). The v1.14.0 executed band is COMPLETE: Phases 163 (trending-to-absurd-harness), 164 (bono-research-debate-engine), 165 (unknown-unknowns-blindspot-engine), 166 (gated-chain-executor), 167 (harness-manifest-and-surface-generator), 168 (part4-edge-vocabulary-reconciliation), 169 (graph-derivation-harness) -- 7 phases, 40/40 plans, all phase gates GREEN. Canon at v1.13 (Appendix D through entry 24: NESTED_WITHIN room-lineage edge + SyntheticExpert node type).
+
+**Phase 165 (this session, safe-resume closeout):** the unknown-unknowns blind-spot engine (Horvitz et al. 2019 recast) is closed and GREEN. Plan 06 (THE VERIFY WAVE) was finished via the GSD safe-resume gate: a prior session had committed the production code (verdict.cjs + the two tests, 594c1314) but died before finalizing the phase gate and writing the summary. This session: verified all deliverables by instrumentation, fixed the one remaining gate failure (run-all-165.sh tripping its own em-dash sweep -- EMDASH redefined via the U+2014 codepoint escape), committed the finalized gate (a4dab33e), wrote 165-06-SUMMARY.md, and flipped ROADMAP + STATE to COMPLETE. `tests/run-all-165.sh` 19/19, exit 0; `test-unknowns-verdict.cjs` 5/5 {passed:true}; `test-unknowns-part8-boundary.cjs` 8/8. D-165-08/09/10 closed; zero new deps, zero canon amendment, zero em-dashes.
+
+**Next:** the v1.14.0-beta.3 release ceremony (lockstep + npm + tag + push + marketplace via scripts/release.sh --prerelease --allow-ahead --no-website; README rebuilt for v1.14.0; mindrian-os.com updated with the new commands + v1.14.0 info and deployed separately). After the ceremony: pick the next v1.14.0 phase (e.g. Phase 144.1 connector-retrofit-sweep) via /gsd-progress, or audit the milestone.
+
+---
+
+## Archived detail (2026-06-19) -- Phase 165 Plan 04 (THE ORCHESTRATOR: the full pipeline + the proposed-finding writer + the F.1 rank-in, HALTING at the gate) COMPLETE
 
 Plan 04 wired the surface that sequences the deterministic engine and HALTS at the F.1 Decision Gate (orchestrator-in-loop; harness-as-code property 9). TWO net-new modules + TWO RED stubs turned GREEN:
 

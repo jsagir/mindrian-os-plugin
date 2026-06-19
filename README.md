@@ -10,7 +10,7 @@
   Powered by PWS (Problems Worth Solving), an innovation methodology built and tested through 20 years of teaching by Prof. Lawrence Aronhime.
   Engineered by Jonathan Sagir.
 
-  [![Version](https://img.shields.io/badge/version-1.13.1--beta-1E3A6E)](CHANGELOG.md)
+  [![Version](https://img.shields.io/badge/version-1.14.0--beta-1E3A6E)](CHANGELOG.md)
   [![License](https://img.shields.io/badge/license-BSL_1.1-C8A43C)](LICENSE)
   [![Works on](https://img.shields.io/badge/CLI_+_Desktop_+_Cowork-2D6B4A)](#three-surfaces)
 
@@ -114,17 +114,19 @@ Talk. That is the whole interface. You describe what you are trying to do, and L
 The commands below are internals. You never have to memorize them or type them. Larry reaches for them on your behalf. They are here for the times you already know the shortcut and want it.
 
 ```bash
-/mos:new-project          # tell Larry what you are exploring
+/mos:ignite               # the front door: start or excavate a room
+/mos:discover             # Larry-led client + product + JTBD discovery
 /mos:beautiful-question   # reframe the problem before solving it
 /mos:analyze-needs        # who has this problem, how badly, what they have tried
-/mos:lean-canvas          # one-page business model
+/mos:bono                 # a six-hats research-and-debate team on your question
+/mos:map-unknowns         # hunt the claims you are most confident about, and wrong
 /mos:file-meeting         # paste a transcript, Larry files it
 /mos:opportunities        # what grants match this room right now
 /mos:graph "what is the weakest assumption in my financial model?"
 /mos:grade                # honest assessment against real ventures
 ```
 
-If you do not know which one to run, that is the normal case. Just talk.
+That is a slice of 99 commands across 14 skills and 9 agents. If you do not know which one to run, that is the normal case. Just talk: Larry reaches for the right one.
 
 ---
 
