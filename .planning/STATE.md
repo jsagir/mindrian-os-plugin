@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
-milestone_name: "v1.14.0 (active -- repo on v1.14.0-beta.2; v1.13.1 Larry Reaches SHIPPED STABLE 2026-06-17)"
+milestone_name: milestone
 status: verifying
-stopped_at: "Phase 165 Plan 06 (165-06) complete -- THE VERIFY WAVE closed (safe-resume closeout). The unknown-unknowns blind-spot engine is GREEN: lib/core/unknowns/verdict.cjs runVerdict returns {passed, findings[]} proving the engine BY INSTRUMENTATION (runs discoverUnknownUnknowns on the seeded fixture; asserts the planted blind spot surfaced, landed PROPOSED-only, emitted only frozen edges INVALIDATES/ROOT_CAUSES/ENABLES/FEEDS_INTO, never auto-confirmed); test-unknowns-verdict.cjs 5/5, test-unknowns-part8-boundary.cjs 8/8 (zero Brain require / raw INSERT / Math.random / network over 9 lib/core/unknowns/* surfaces). tests/run-all-165.sh FINALIZED single phase gate 19/19, exit 0. Prior session had committed verdict.cjs + the 2 tests (594c1314) but died before finalizing the gate; this session fixed the em-dash sweep tripping its own file (EMDASH via U+2014 codepoint escape), committed a4dab33e. D-165-08/09/10; zero new deps, zero canon amendment, zero em-dashes. Phase 165 is COMPLETE (6/6 plans) and is the LAST phase in the v1.14.0 locked order. Resume: /gsd-progress to pick the next milestone move."
-last_updated: "2026-06-19T17:51:43.781Z"
+stopped_at: Phase 172 context gathered + recalibrated to CIRS (structural)
+last_updated: "2026-06-22T14:20:19.105Z"
 last_activity: 2026-06-19
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 40
-  completed_plans: 40
+  total_phases: 6
+  completed_phases: 6
+  total_plans: 39
+  completed_plans: 39
   percent: 100
 ---
 
@@ -1728,6 +1728,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-19T21:30:00Z
-Stopped at: Phase 169 Plan 00 (169-00) complete -- NESTED_WITHIN room-lineage edge minted into the frozen ALLOWED_EDGE_TYPES set (navigator-ratified option-a); canon v1.11 -> v1.12 (Appendix D entry 23 + Part 4 list); run-all-169.sh scaffold 4/4 green; carried 168 floor still 6/6. Resume: 169-01 (Wave 2 shared IFACE + run-all finalize + RED stubs + fixtures).
+Last session: 2026-06-22T14:20:19.070Z
+Stopped at: Phase 172 context gathered + recalibrated to CIRS (structural)
 Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).
