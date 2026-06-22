@@ -2922,7 +2922,21 @@ Plans:
 
 **Status:** Planned 2026-06-16. Next: /gsd-execute-phase 160.
 
-### Phase 170 - Dual-Use Diffusion + Adoption-Capacity Engine (ACE) - COMPLETE 2026-06-22 (additive)
+### Phase 172 - Contextual Invocation Coverage (MAJOR / FOUNDATIONAL - navigator-designated FIRST 2026-06-22)
+
+**Goal:** The remote Brain graph + its LOCAL projection must TRIGGER, CHAIN, and MONITOR the invocation of EVERY relevant surface - methodology frameworks AND commands without frameworks. Non-framework commands get a `mindrian-operation` remote-graph COUNTERPART node (the "second tier"), with a PROMOTION PATH to a first-class `pws` frontier framework. Close the contextual-invocation holes and add a COVERAGE GATE so they never silently regress. Canon parts: 2, 3, 4, 6, 7, 8, 9, 10. SPEC: `172-SPEC.md` (INV-01..12). CONTEXT: `172-CONTEXT.md`.
+
+**Why first:** the moat is WHEN / WHICH / SEQUENCE, not the catalog (CLAUDE.md moat formula). Attempted piecemeal several times (143.x connector spine, 144.1 RETRO-07) and always regressed for lack of a coverage gate. ACE (Phase 170) exposed it. Load-bearing for the upcoming local-graph-critical seeds/phases (invocation must hold Local-Only, against the brain-orchestration-projection, with no live Brain call).
+
+**Baseline (2026-06-22, 101 commands):** 54 wired (51 proactive), 9 half-wired (declare a framework but no connector -> never auto-fire; the ENTIRE rs-* reverse-salient family is dark though Reverse Salient is a Canon Engine-1 pillar), 38 dark (most correctly-manual utilities). The sin is being dark WITHOUT a decision -> RETRO-07: every surface WIRED or EXPLICITLY EXCLUDED.
+
+**The two wires:** KNOWLEDGE (a :Framework node, what a surface teaches) vs TRIGGER (a connector block that makes the engine reach). The engine only fires surfaces with the TRIGGER wire. Phase 170/171 filled the knowledge half for ACE; this phase owns the trigger half across ALL surfaces + the remote counterpart for non-framework commands.
+
+**Sequence:** EXECUTE FIRST. Phases 170 + 171 FOLLOW and reconcile UNDER this contract (ACE / `/mos:diffusion` become context-triggered not keyword-only; the 171 ingest pipeline step-5 trigger+chain becomes a thin caller of this phase's INV-02/03/10 rules so every FUTURE methodology is born contextually-invocable). The 170/171 release (branch `phase-170-171-ace-diffusion-pipeline`, commit 36683430) is ON HOLD until reconciled.
+
+**Status:** Registered 2026-06-22 (CONTEXT + SPEC on disk; baseline measured). Next: `/gsd-discuss-phase 172` -> `/gsd-plan-phase 172`.
+
+### Phase 170 - Dual-Use Diffusion + Adoption-Capacity Engine (ACE) - COMPLETE 2026-06-22 (additive, reconciles under Phase 172)
 
 **Goal:** Canonize Horowitz adoption-capacity theory (Adoption-Capacity Engine, ACE v2) as a first-class Brain framework and wire a dual-use diffusion trigger so MindrianOS surfaces it for ANY dual-use technology. Canon parts: 2, 3, 4, 6, 7, 8, 9. CONTEXT: `.planning/phases/170-dual-use-diffusion-ace/170-CONTEXT.md`. Map row: `docs/CANON-PHASE-MAP.md` (v1.14.0-beta dual-use diffusion addition).
 
