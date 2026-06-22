@@ -5,7 +5,7 @@ slug: contextual-invocation-coverage
 milestone: v1.14.0
 created: 2026-06-22
 canon_parts: [2, 3, 4, 6, 7, 8, 9, 10]
-status: spec-locked-recalibrated   # CIRS structural recalibration adopted 2026-06-22; INV-13..17 added; see 172-RECALIBRATION.md
+status: spec-locked-recalibrated   # CIRS recalibration adopted 2026-06-22; INV-13..23 added; PRECONDITION MET: Canon Part 11 (Invocation Constitution) ratified v1.14 (Appendix D entry 25). Ready for /gsd-plan-phase 172. See 172-RECALIBRATION.md.
 ---
 
 # Phase 172 SPEC: Contextual Invocation Coverage + Remote-Graph Counterparts
