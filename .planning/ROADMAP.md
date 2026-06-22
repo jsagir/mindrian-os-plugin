@@ -2934,7 +2934,25 @@ Plans:
 
 **Sequence:** EXECUTE FIRST. Phases 170 + 171 FOLLOW and reconcile UNDER this contract (ACE / `/mos:diffusion` become context-triggered not keyword-only; the 171 ingest pipeline step-5 trigger+chain becomes a thin caller of this phase's INV-02/03/10 rules so every FUTURE methodology is born contextually-invocable). The 170/171 release (branch `phase-170-171-ace-diffusion-pipeline`, commit 36683430) is ON HOLD until reconciled.
 
-**Status:** Registered 2026-06-22 (CONTEXT + SPEC on disk; baseline measured). Next: `/gsd-discuss-phase 172` -> `/gsd-plan-phase 172`.
+**Plans:** 14 plans in 8 waves (planned 2026-06-22 as a harness-as-code CIRS build; INV-01..23 covered).
+
+Plans:
+- [ ] 172-01-PLAN.md (W1) -- CIRS R1 exclude mechanism + wired-XOR-excluded coverage ledger [INV-01/03/10]
+- [ ] 172-02-PLAN.md (W1) -- R12 cirs_relationship contract + CANON-PHASE-MAP CIRS column + gate hook [INV-22/13]
+- [ ] 172-03-PLAN.md (W1) -- mindrian-operation counterpart + command-grained projection gate + promotion path [INV-04/05/06]
+- [ ] 172-04-PLAN.md (W2) -- wire the rs-* reverse-salient family (Engine-1 pillar) [INV-02]
+- [ ] 172-05-PLAN.md (W3) -- wire causal/diagnostics/hat-briefing/persona + hats engine case [INV-02]
+- [ ] 172-06-PLAN.md (W4) -- exhaustive residual classification: every command WIRE or EXCLUDE (gap->0) [INV-01/03]
+- [ ] 172-07-PLAN.md (W2) -- context-driven trigger model (keyword=fallback) + Meadows systems model [INV-07/23]
+- [ ] 172-08-PLAN.md (W5) -- /mos:act one governed selection brain: connector + real decide() + F.1 + calibration [INV-18/20/21]
+- [ ] 172-09-PLAN.md (W6) -- /mos:act always-on pinned JTBD-blurb standing suggestion [INV-19]
+- [ ] 172-10-PLAN.md (W3) -- curated FEEDS_INTO confidences + projection chain layer + suggest-next rank [INV-08]
+- [ ] 172-11-PLAN.md (W3) -- fractal coverage rollup over NESTED_WITHIN + projection monitoring [INV-09/16]
+- [ ] 172-12-PLAN.md (W6) -- reconcile 170 (SENS-09 context branch) + 171 (ingest step-5 thin caller) [INV-11/17]
+- [ ] 172-13-PLAN.md (W7) -- flip gate WARN->FAIL + wire into pre-commit/release/doctor [INV-10/14]
+- [ ] 172-14-PLAN.md (W8) -- adversarial verify with structured verdict + run-all-172.sh [INV-15]
+
+**Status:** Planned 2026-06-22 (14 plans, 8 waves). Next: `/gsd-execute-phase 172`.
 
 ### Phase 170 - Dual-Use Diffusion + Adoption-Capacity Engine (ACE) - COMPLETE 2026-06-22 (additive, reconciles under Phase 172)
 
