@@ -5,7 +5,7 @@ slug: contextual-invocation-coverage
 milestone: v1.14.0
 created: 2026-06-22
 canon_parts: [2, 3, 4, 6, 7, 8, 9, 10]
-status: spec-locked-pending-discuss
+status: spec-locked-recalibrated   # CIRS structural recalibration adopted 2026-06-22; INV-13..17 added; see 172-RECALIBRATION.md
 ---
 
 # Phase 172 SPEC: Contextual Invocation Coverage + Remote-Graph Counterparts
@@ -16,6 +16,15 @@ The remote Brain graph (and its LOCAL projection) must be able to TRIGGER, CHAIN
 invocation of EVERY relevant surface - both methodology frameworks AND commands that have no framework.
 A surface the engine cannot reach is a hole in the moat. Coverage is enforced by a GATE so it never
 silently regresses (the reason prior attempts failed).
+
+**Recalibration (2026-06-22, navigator-directed).** 172 is not a patch — it is a STRUCTURAL change.
+It ships the **Command Invocation Ruling System (CIRS)**: a born-wired, gate-enforced, harness-as-code
+constitution (R1..R11, below) governing the LIFECYCLE (born / modified / updated / removed) of every
+invocable surface across MindrianOS. INV-01..12 are the FIRST application of CIRS; INV-13..17 are the
+structural lift. Research-conclusion-driven (see EXTERNAL-RESEARCH.md: control/data-plane + CQRS
+projection + T-Box/A-Box + scale-invariant fractal rollup + state-conditioned routing + earned chains
++ drift-detection gate). Built as a harness-as-code Workflow (9-property architecture). Full framing:
+172-RECALIBRATION.md.
 
 ## Definitions
 
@@ -76,8 +85,58 @@ silently regresses (the reason prior attempts failed).
   call at decide/rank/route time) - the load-bearing requirement for the upcoming local-graph-critical
   seeds/phases. Brain-on enriches; Brain-off never breaks invocation.
 
+### The Command Invocation Ruling System (CIRS) — the closed ruling set
+
+A closed constitution (constitutional counterpart of Canon Part 3's 10 verbs / Part 4's edge vocab).
+Every invocable surface MUST satisfy R1..R11; the gate enforces them; a change to the closed set is a
+canon amendment, not a per-phase edit.
+
+- **R1** Two states, no third: WIRED (`connector:` block) or EXCLUDED (`connector:{excluded,reason}`).
+- **R2** Born-wired: a new/modified surface fails the gate CLOSED unless it satisfies R1.
+- **R3** Context-triggered: trigger keys on navigator problem-state via navigation.cjs; keyword = fallback.
+- **R4** One governed path: invocation resolves through dispatchSensors -> decide() -> command-resolver. No second selection brain.
+- **R5** Remote counterpart: every surface has an orchestration-projection node with `methodology_tier`; non-framework commands get a `mindrian-operation` counterpart.
+- **R6** Earned chains: FEEDS_INTO carries curated confidence (v1), surfaced via the LOCAL projection; absent/uniform confidence is illegal. Learned weights -> SEED-009.
+- **R7** Local-only at decide/rank: projection is a CQRS read-model (control plane) with source-version + per-room checkpoint + freshness markers; user data never flows up (Part 8 T-Box/A-Box).
+- **R8** Promotion path: dark -> mindrian-operation counterpart -> pws frontier framework, navigator-gated.
+- **R9** Enforced: gate wired into pre-commit + release.sh + doctor --acceptance + 171 ingest step-5; warn->report then hard-FAIL once baseline wired/excluded.
+- **R10** Lockstep on change: any add/modify/update/remove re-runs the gate and keeps the projection in lockstep (drift-detection).
+- **R11** Fractal coverage: coverage + chain monitoring rolls up across nested rooms via ONE scale-invariant operator over NESTED_WITHIN, depth-3 capped, aggregate-only across boundaries.
+
+### Structural requirements (additive — INV-01..12 unchanged)
+
+- **INV-13** CIRS (R1..R11) is a closed ruling set; a change to it is a canon amendment (Part 6 mechanism).
+- **INV-14** Born-wired lifecycle gate (R2): a new/modified surface under commands/ skills/ agents/
+  fails closed unless wired-or-excluded — enforced in pre-commit + release + doctor --acceptance + the
+  171 ingest pipeline. This is the structural cure for the recurring regression (orphaned WARN-only gate).
+- **INV-15** 172 is BUILT as a harness-as-code Workflow (9-property canonical architecture: recon-first,
+  phased fan-out with barriers Foundation->Surfaces->Chains->Verify, contracts-on-disk bus, exclusive
+  file ownership, one shared IFACE, adversarial verify with structured verdict, RULES block per prompt,
+  resumable via scriptPath+resumeFromRunId, orchestrator stays in the loop). Ref impl: /mos:bono build.
+- **INV-16** Fractal coverage rollup (R11) over NESTED_WITHIN, depth-3 capped, one scale-invariant operator.
+- **INV-17** 170 + 171 conform to CIRS via their own GSD plans BEFORE release; 172 owns that gate.
+- **INV-18** /mos:act collapses to ONE governed selection brain (navigator-LOCKED 2026-06-22): a
+  `connector:` block on act.md (autonomous_safe stays false) AND act --chain feeds the real
+  navigation-engine decide() as its decideFn (drop the `()=>null` at act-command.cjs:219), so the chain's
+  per-step next-reach comes from the SAME spine. /mos:pipeline + act --swarm are each WIRED-or-EXCLUDED
+  under the gate. This is R4 made concrete.
+- **INV-19** /mos:act is an ALWAYS-ON standing suggestion (additive — navigator-LOCKED 2026-06-22).
+  Larry ALWAYS surfaces /mos:act in the suggest-next / dial host as a PINNED additive option, positioned
+  first OR last, that NEVER displaces the MAX_K=3 ranked context-reaches and is NOT a 7th reach (the
+  frozen DIAL_REACH_K=6 / MAX_K=3 contracts are untouched — act is a standing UI suggestion to invoke a
+  command, not a new reach_id). It renders a JTBD-CONTEXTUALIZED blurb derived from the active JTBD
+  (/mos:jtbd state) + STATE.md + MINTO.md: in THIS specific case (this JTBD / problem-state) it states
+  (a) WHAT /mos:act would do, (b) WHAT it can help with, (c) HOW (which framework/chain it would run and
+  why). This makes the one governed autonomous-execution path (INV-18) always available and
+  self-explaining per room state. The blurb is LOCAL-derived (Part 8: enum/scalar + local state only;
+  no Brain egress to compose it). Add a `hats`-style render family in the dial-label composer for the
+  pinned act row (render-only, no `{framework}` egress slot), mirroring the Phase-148 non-egress family.
+
 ## Success criteria
 
+- CIRS (R1..R11) is the enforced ruling system; INV-13..18 are met.
+- The born-wired gate (INV-14) is wired into pre-commit + release + doctor + ingest and is hard-fail green.
+- /mos:act resolves through the one governed path (INV-18); no second selection brain remains.
 - Every surface is WIRED or EXPLICITLY EXCLUDED; the coverage gate is hard-fail and green.
 - The 9 half-wired thinking surfaces (rs-* first) are contextually triggerable.
 - Non-framework commands that warrant it have `mindrian-operation` counterpart nodes and chain.
