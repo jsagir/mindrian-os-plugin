@@ -1,7 +1,7 @@
 # Mindrian Canon
 
-Version: 1.13
-Date: 2026-06-19
+Version: 1.14
+Date: 2026-06-22
 Status: Active
 Author: Jonathan Sagir with Claude-as-Larry
 
@@ -387,6 +387,142 @@ On 2026-06-17 the navigator ratified Part 10 into this canon **on navigator auth
 
 ---
 
+## Part 11 - The Invocation Constitution (the Command Invocation Ruling System)
+
+Ratified 2026-06-22 (navigator-LOCKED, Appendix D entry 25), in a disciplined-minimal form after a
+three-reviewer adversarial pass. CLAUDE.md states the moat plainly: prompts can be copied; the graph
+that knows WHEN to use WHICH prompt, in WHAT sequence is the moat. WHEN / WHICH / SEQUENCE is
+INVOCATION. Until now invocation had no constitutional home - its doctrine was scattered across Part 2
+(reaches), Part 3 (the gate + Shape F), Part 8 (the projection + methodology_tier), and Appendix D
+entries 15/19 - and it regressed repeatedly (Phases 143.x, 144.1) because the governing contract lived
+nowhere but an orphaned, WARN-only gate. The Graph Boundary (Part 8) and Memory Locality (Part 9) are
+full Parts; the thing that decides what gets reached for is the same altitude.
+
+### North Star
+
+> Every capability MindrianOS can invoke is GOVERNED: it knows when it should be reached for, it is
+> reachable by exactly one path, it explains itself, it chains usefully, it stays local, it is
+> represented in the orchestration graph, and it cannot enter, change, or leave the system without the
+> constitution knowing. A capability the engine cannot reach - or can reach two different ways - is a
+> hole in the moat.
+
+### The doctrine
+
+- **The two wires.** A capability has a KNOWLEDGE wire (a `:Framework` node, Part 8) and a TRIGGER wire
+  (a connector mapping a navigator CONTEXT to the capability). The system reaches only for capabilities
+  that have the TRIGGER wire. Knowledge without trigger is a dark capability.
+- **The dual graph (control plane / data plane).** The remote orchestration projection (Part 8,
+  Appendix D entry 19) is the CONTROL plane - generic machinery topology, every node tagged
+  methodology_tier (pws | mindrian-operation). The local room.db is the DATA plane. The invariant is
+  Part 8 restated: control/policy flows down; user data NEVER flows up. The local capability view is a
+  DERIVED, non-authoritative read-model of the control plane, version-stamped and rebuilt-not-mutated,
+  consumed LOCAL-ONLY at decide/rank time (no live Brain call on the hot path - opens no new wire).
+- **One governed path.** Every invocation resolves through one spine (dispatchSensors -> decide() ->
+  resolver). No capability runs a second, ungoverned selection brain.
+- **Born-wired lifecycle.** A capability cannot ENTER, CHANGE, or LEAVE without the constitution: a new
+  or modified surface is wired or explicitly excluded, or it is rejected. Coverage is a lifecycle
+  invariant enforced at every merge, not a number checked once.
+- **Fractal coverage.** Coverage and chain health roll up across the nested-room hierarchy
+  (NESTED_WITHIN, Part 4) via one scale-invariant operator, depth-bounded, aggregate-SCALAR-only across
+  room boundaries (Simon near-decomposability), honoring Appendix D entry 23's rule that cross-room
+  aggregation of NESTED_WITHIN edges is forbidden.
+
+### The Command Invocation Ruling System (CIRS) - the closed ruling set
+
+A closed constitution, the invocation-layer counterpart of Part 3's closed verb vocabulary and Part 4's
+closed edge vocabulary. Every invocable surface MUST satisfy R1-R14; the gate enforces them; a change to
+the closed set is a canon amendment (Part 6 mechanism), not a per-phase edit. Two rules (R6, R11) are
+DECLARED-but-DEFERRED-ENFORCEMENT: the direction is law, but hard-FAIL enforcement is gated on substrate
+existing (curated chain confidences; the scale-invariant rollup operator) - until then they hold as
+warn/aspirational, so no unproven number is frozen as hard law.
+
+- **R1** Two states, no third - WIRED (`connector:` block) or EXCLUDED (`connector:{excluded,reason}`).
+  EXCLUDED-with-reason is a first-class conformant terminal state, NOT "dark". Unit of coverage: a
+  surface = one command file, one skill SKILL.md, one agent file; sub-behaviors are not independently
+  counted (finer granularity is a named future amendment - SEED-024).
+- **R2** Born-wired - a new/modified surface fails the gate CLOSED unless it satisfies R1.
+- **R3** Context-triggered - trigger keys on navigator problem-state (LOCAL via the navigation.cjs
+  chokepoint, Part 9; enum/scalar only, Part 8); keyword is a fallback tier, not the basis. Triggers
+  wire to the existing 6 reaches; no rule mints a 7th reach (precedent: SENS-09 reuses brain_consult).
+- **R4** One governed path - invocation resolves through dispatchSensors -> decide() -> resolver; no
+  second selection brain. Does not touch the Part 3 render contract (MAX_K=3, DIAL_REACH_K=6, the
+  0.70/0.15 gate, the F.1 keyboard contract, the single-marker body glyph - all frozen, unchanged).
+- **R5** Remote counterpart - every surface has a node in the Part-8 orchestration PROJECTION (control
+  plane, methodology_tier-tagged generic machinery metadata, Appendix D entry 19), NOT a room.db Part-9
+  node; non-framework commands get a `mindrian-operation` counterpart. A new room.db node type would be a
+  separate Phase-108/Part-9 amendment (precedent: SyntheticExpert, entry 24).
+- **R6** Earned chains (DEFERRED-ENFORCEMENT) - FEEDS_INTO carries curated confidence (v1), surfaced via
+  the LOCAL projection; absent/uniform confidence is the defect to remove. Confidence lives on the
+  PROJECTION's FEEDS_INTO (generic machinery, LOCAL cache), NOT the Part-4/Part-9 navigation
+  ALLOWED_EDGE_TYPES FEEDS_INTO - no property is added to the frozen navigation edge, and no edge type is
+  minted. ORDERING of surfaced chain candidates is Part 3's MAX_K ranker, not CIRS. Learned weights are a
+  gated future (SEED-009; no Brain write rides them).
+- **R7** Local-only at decide/rank - the projection is a derived read-model (control plane) with
+  source-version + per-room checkpoint + freshness markers; restates LOCAL -> BRAIN: NO; opens no wire.
+- **R8** Promotion path - dark -> `mindrian-operation` counterpart -> `pws` frontier framework
+  (metadata reclassification within the sanctioned projection), navigator-gated (Part 3 + Part 9 role 5).
+- **R9** Enforced, not aspirational - the gate is wired into pre-commit + release + doctor (the Phase
+  150.9 doctor --drift engine) + the ingest pipeline; warn->report, then hard-FAIL once the baseline is
+  wired/excluded. Three non-overlapping timeframes: born-gate (merge), doctor --drift (periodic),
+  forward-declaration (planning).
+- **R10** Lockstep on change - any add/modify/update/remove re-runs the gate and keeps the projection in
+  lockstep (drift-detection over the machinery).
+- **R11** Fractal coverage (DEFERRED-ENFORCEMENT) - coverage + chain monitoring rolls up across nested
+  rooms via one scale-invariant operator over NESTED_WITHIN, depth-bounded, aggregate-SCALAR-only;
+  reads child coverage scalars, never child lineage edges across room.db boundaries (entry 23).
+- **R12** Forward-declaration & explainability - every future phase that adds/modifies/removes an
+  invocable surface, OR consumes the spine, declares and explains how it USES and/or is USED BY CIRS via
+  a `cirs_relationship:` block. This is a SPECIALIZATION of the existing canon_parts forward-compatibility
+  rule (declaring any cirs_relationship field auto-implies 11 in canon_parts; the gate derives one from
+  the other so they cannot disagree). Recorded via a CIRS column in CANON-PHASE-MAP, keyed on phase SLUG
+  (absorbing the map's own number-collision warning). A phase touching a surface without a conformant
+  declaration is gate-FAILED.
+- **R13** Retirement - a removed surface transitions to a RETIRED ledger state with mandatory
+  inbound-chain re-point-or-drop; the gate FAILS on a live FEEDS_INTO whose target is retired (no
+  dangling counterpart, no orphaned chain).
+- **R14** Trigger-overlap - two wired surfaces whose triggers fire on the same problem-state are a
+  coverage-quality defect; the gate detects overlap (WARN minimum) and arbitration defers to the Part 3
+  MAX_K ranker. (`autonomous_safe` is a required field of the R1 WIRED connector block, gate-governed -
+  it decides auto-run-vs-halt for the post-gate runChain handoff, Part 3.)
+
+### Relationship to the existing Parts (what this PULLS TOGETHER, what it does NOT change)
+
+- **Part 2** - the reaches remain the team's affordances; the 6 reaches + 3 postures are frozen, unchanged.
+- **Part 3** - reaches still render through Shape F + the 3-layer loop; MAX_K=3, DIAL_REACH_K=6, the
+  0.70/0.15 gate, the single-marker body glyph, the F.1 keyboard contract are frozen. Part 11 governs the
+  SUPPLY (which capabilities exist, are wired, trigger, chain); Part 3 governs the DEMAND-side decision
+  surface (how the eligible set is ranked, rendered, chosen, recorded). A /mos:act standing suggestion
+  below 0.70 carries NO RECOMMENDED marker and NO second body glyph.
+- **Part 4** - chains/counterparts reuse existing edge vocabularies; Part 11 mints NO new edge type.
+- **Part 7** - Part 11 is the structural expression of Reuse-Before-Build at the invocation layer:
+  capabilities are repointed and wired, not rebuilt; the moat is made self-extending.
+- **Part 8** - Part 11 is BOUNDED BY Part 8 and adds no new wire; the control plane is the entry-19
+  projection it already sanctioned; methodology_tier remains the boundary-keeper; LOCAL->BRAIN: NO unchanged.
+- **Part 9** - invocation reads/writes the local graph via the navigation.cjs chokepoint; calibration
+  intent is journaled as memory_event; the proposed->confirmed gate is honored; Part 11 mints NO new node type.
+- **Part 10** - invocation is the machinery that serves the conversation; Part 11 is HOW "commands are
+  internals" is made true and safe (/mos:act becomes governed, self-explaining, intent-calibrated).
+
+### Implementing phase
+
+Phase 172 (contextual-invocation-coverage) is the implementing phase - it ships CIRS R1-R14 as code.
+Phase 166 (gated-chain-executor / runChain - shipped on disk) is the runtime R4/R6 lean on. Per Part 6
+(Product-as-Venture) the canon names the phase that implements the canon. 170 + 171 are the first
+conformance targets, gated before release. The Part binds on ratification; 172 implements it over time
+(Part-binding is decoupled from 172 being fully green).
+
+### Ratification provenance
+
+Proposed 2026-06-22 in the /gsd-discuss-phase 172 session after a 14-stream research fan-out, reviewed by
+three independent adversarial reviewers (A canon-compliance: COMPLIANT-WITH-CONSTRAINTS; B adversarial:
+OVERSPECIFIED/fold-in; C integration: RECONCILES-WITH-GAPS/keep-as-Part). Navigator ratified the
+disciplined-minimal synthesis (keep the Part; R6/R11 deferred-enforcement; constraints C1-C6 + gap fixes
+M1/M3/M6 folded in). Applied via the Part 6 dog-fooding canon-amendment-on-itself mechanism at a
+navigator-LOCKED checkpoint, mirroring Parts 9 and 10. Evidence:
+docs/CANON-PART-11-PROPOSAL-invocation-constitution.md + docs/CANON-PART-11-REVIEW-SYNTHESIS.md.
+
+---
+
 ## Appendix A - Relationship to MWP
 
 The canon adds the navigation axis (role-blend x journey-stage) and the security constitution (Part 8) on top of the MWP 7-layer integration surface. MWP-SPECIFICATION.md carries a forward-reference to this canon; canon-conformant features also satisfy MWP conformance clause 7.1.
@@ -471,6 +607,8 @@ This canon was forged in conversation between Jonathan Sagir (founder) and Claud
 
 24. **Node-type amendment: SyntheticExpert minted as a truth-claim node (Phase 164, 2026-06-19).** Phase 164 (BONO Research/Debate Engine) amended the Phase-108 frozen node taxonomy and Part 9's truth-claim set, adding ONE node type, SyntheticExpert, to give the E1 reusable-expert citizen a LEGAL home: a high-value team member FILED from the room/team/personas .md files and promoted to a queryable graph node, re-invokable as a hat in future runs. SyntheticExpert is added as a truth-claim NODE type (the `TRUTH_CLAIM_TYPES` frozen Set in `lib/core/navigation/transitions.cjs` plus the `node_aliases` SyntheticExpert entry, resolution NEW, in the Phase-108 `aliases.yml`) BECAUSE a human confirms which experts are worth keeping (Part 9 role 5: the navigator decides). The single additive member AUTOMATICALLY human-confirm-gates a SyntheticExpert's proposed->confirmed promotion: the `promoteNodeStatus` guard keys on `TRUTH_CLAIM_TYPES.has(row.type)`, so an agent-attributed confirm is REJECTED and only a human byUser promotes, with ZERO change to the promoteNodeStatus signature or the closed TRANSITIONS table. The SyntheticExpert node carries generic-lens metadata ONLY (hat/name/surname/archetype/beautiful_question/method/evidence_tier/invocation_count/review_status/provenance), NEVER venture content; cross-room expert reuse is a DEFERRED Part-8-gated amendment, so this phase is ROOM-LOCAL with zero Brain egress (Part 8). The node taxonomy is a frozen constitutional property: the Phase 108 frozen-taxonomy contract froze it, and the Part 6 dog-fooding mandate requires the plugin to honor its own canon, so adding a node type is a canon amendment, not a per-phase edit. Code-wise the change is purely additive and reversible (mirroring the edges.cjs ALLOWED_EDGE_TYPES additive moves of entries 18/21/22/23). The companion edge-vocabulary work E2 was ALREADY DONE by Phase 168 (Appendix D entry 22: CONVERGES / INVALIDATES / ENABLES brought into the Part 9 frozen set; the Phase 164 issue-tree REMAPS BELONGS_TO to PART_OF, frozen by Phase 163), so this amendment carries ONLY the node type and touches no edge vocabulary. This was the navigator-LOCKED decision D-164-S1 (164-CONTEXT.md / the E1 amendment), navigator-ratified at a blocking checkpoint BEFORE the canon bytes landed (mirroring the Phase 169 D-169-11, the Phase 168 D-168 reconciliation, the Phase 163 D-163-03 quad, and the Phase 150.8 D-150.8 trio). The amendment landed as ONE atomic lockstep wave so CI never went RED mid-phase: the `transitions.cjs` additive member, the `aliases.yml` node_aliases entry (schema guard still green), this Part 2 expert-citizen mention + this Appendix D entry 24, the CANON-PHASE-MAP Phase 164 row + v1.13 version-history row, and the canonical FLOOR test (`tests/test-synthetic-expert-nodetype-floor.cjs` -- SyntheticExpert membership + the full prior truth-claim FLOOR preserved + frozen Set + an agent-attributed-confirm-rejected / human-confirm-ok promotion round-trip, never asserting `.size`) registered in `tests/run-all-164.sh`, all moving together. Applied via the Part 6 dog-fooding canon-amendment-on-itself mechanism, mirroring entries 14/15/18/19/21/22/23. The floor test fence holds green. Canon version bumped to 1.13.
 
+25. **Part 11 (The Invocation Constitution / CIRS) ratified (2026-06-22).** A new constitutional Part - the invocation/reachability layer, peer to Part 8 (Boundary) and Part 9 (Memory) - establishing the Command Invocation Ruling System (CIRS R1-R14) as a closed ruling set governing the lifecycle (born/modified/updated/removed) of every invocable surface (command, skill, agent). Until now invocation doctrine was scattered across Parts 2/3/8 + entries 15/19 and regressed repeatedly (Phases 143.x, 144.1) because the governing contract lived nowhere but an orphaned WARN-only gate. Proposed in the /gsd-discuss-phase 172 session after a 14-stream research fan-out, then put through a three-reviewer adversarial pass: A (canon-compliance) = CANON-COMPLIANT-WITH-CONSTRAINTS (C1-C6); B (adversarial) = OVERSPECIFIED, argued fold-into-Part-8; C (integration) = RECONCILES-WITH-GAPS, keep-as-Part (fold-in would re-scatter). The navigator ratified the synthesized disciplined-minimal form: KEEP as Part 11 (A+C altitude verdict), with R6 (earned chains) + R11 (fractal rollup) DECLARED-but-DEFERRED-ENFORCEMENT (hard-FAIL gated on substrate existing - answers B's premature-freeze attack), constraints C1-C6 (reaches/postures frozen; Shape F scalars frozen; R6 confidence on the PROJECTION FEEDS_INTO not the navigation edge; R5 counterpart is a projection node not a room.db node; no new Brain wire; cross-room NESTED_WITHIN aggregation forbidden) and the gap fixes (R13 retirement state, R14 trigger-overlap, autonomous_safe governed, R6 ranking-deferral to Part 3, R1 unit-of-coverage, R12 = canon_parts specialization keyed on slug) folded into the Part text. Part 11 mints NO new edge type, NO new node type, NO new reach, and opens NO new Brain wire - every primitive it leans on is already canon; what is NEW is the closed ruling set + the born-wired lifecycle gate. Navigator-LOCKED 2026-06-22, applied via the Part 6 dog-fooding canon-amendment-on-itself mechanism, mirroring Parts 9 and 10 (entries 12/20). Implementing phase: 172 (with Phase 166 runChain as the runtime; 170/171 as first conformance targets). Header/footer Version 1.13 -> 1.14. Evidence: docs/CANON-PART-11-PROPOSAL-invocation-constitution.md + docs/CANON-PART-11-REVIEW-SYNTHESIS.md.
+
 Conversation transcript reference: session 2026-04-20, branch `ui/destijl-rebuild`. First canon draft shipped at commit 528abdd; cross-references at b7d95bd; amendment at this commit. Part 9 (Memory Locality and Interpretation) ratified at the Phase 109 release gate (2026-05-12).
 
 ---
@@ -525,6 +663,6 @@ The navigator always decides.
 
 ---
 
-_Mindrian Canon v1.13 - MindrianOS Plugin_
+_Mindrian Canon v1.14 - MindrianOS Plugin_
 
 _Version history is maintained inline in docs/CANON-PHASE-MAP.md (Version history table)._
