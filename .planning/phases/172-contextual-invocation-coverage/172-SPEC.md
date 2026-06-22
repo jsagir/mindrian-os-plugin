@@ -127,6 +127,23 @@ canon amendment, not a per-phase edit.
   phase touching a surface without a conformant declaration. Every FUTURE phase must understand, know,
   and EXPLAIN how it uses and/or is used by this phase's invocation ruling system — self-documenting and
   self-enforcing, so the moat (WHEN/WHICH/SEQUENCE) can never silently regress at the phase boundary.
+- **INV-23** 172 applies SYSTEMS-THINKING (Meadows) as a first-class design lens AND wires
+  /mos:systems-thinking itself under CIRS. The invocation surface is modeled as a system:
+  - STOCKS: counts of dark / wired / excluded surfaces; un-ranked counterparts; placeholder/absent chains.
+  - FLOWS: surfaces born / modified / removed; surfaces wired / excluded; chains earned.
+  - FEEDBACK LOOPS: the coverage gate is the BALANCING loop holding the dark-surface stock at zero. The
+    recurring regression was a BROKEN loop — a WARN-only, CI-orphaned nudge = weak feedback + long delay,
+    so the dark stock accumulated unchecked (143.x / 144.1).
+  - LEVERAGE POINTS: the born-wired hard gate (R2/INV-14) is a HIGH-leverage intervention — Meadows #5
+    (the rules of the system) and #4 (self-organization: CIRS gives the system the power to govern its
+    own surface) — NOT a low-leverage parameter tweak (merely flipping a number). The fix targets the
+    rule, not the symptom.
+  - DELAYS: the gate fires at MERGE (minimal delay), not at audit-time (the long delay that let the
+    regression grow). Shortening the feedback delay is itself a Meadows leverage point.
+  - HIERARCHY: the fractal rollup (R11) is the system's near-decomposable hierarchy (Simon 1962) — the
+    balancing loop holds at every nested level, aggregate-only across boundaries.
+  172 DESIGNS the gate AS the balancing loop placed at the highest-leverage point, and records this
+  system model in the phase (so the planner builds the leverage-point intervention, not a symptom patch).
 - **INV-18** /mos:act collapses to ONE governed selection brain (navigator-LOCKED 2026-06-22): a
   `connector:` block on act.md (autonomous_safe stays false) AND act --chain feeds the real
   navigation-engine decide() as its decideFn (drop the `()=>null` at act-command.cjs:219), so the chain's

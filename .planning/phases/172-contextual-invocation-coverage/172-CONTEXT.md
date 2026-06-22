@@ -216,6 +216,16 @@ mirroring the canon_parts forward-compatibility rule. 172 ships the declaration 
 column + the gate hook. No future phase can silently change the invocation surface without
 understanding, declaring, and explaining its relationship to the moat.
 
+### D-172-n (LOCKED — navigator 2026-06-22) — systems-thinking is a first-class design lens for 172
+The invocation surface is modeled as a SYSTEM (Meadows): STOCKS = dark/wired/excluded surface counts,
+un-ranked counterparts, placeholder chains; FLOWS = surfaces born/modified/removed, wired/excluded;
+FEEDBACK = the coverage gate is the BALANCING loop holding the dark-surface stock at zero (the prior
+regression was a broken loop: WARN-only + CI-orphaned = weak feedback + long delay); LEVERAGE POINTS =
+the born-wired hard gate is a HIGH-leverage rule-change (Meadows #5 rules / #4 self-organization), not a
+parameter tweak; DELAYS = fire at MERGE not audit-time; HIERARCHY = the fractal rollup (R11) is Simon's
+near-decomposable hierarchy. 172 designs the gate AS the balancing loop at the highest-leverage point,
+and wires /mos:systems-thinking itself under CIRS. See SPEC INV-23.
+
 ### D-172-g (LOCKED principle) — Dual-graph = control-plane / data-plane, projection is a CQRS read-model
 The remote orchestration projection (data/brain-orchestration-projection.json, SHIPPED via Phase 157,
 220 nodes incl. 192 methodology_tier, 101 command counterparts) is the CONTROL plane (capabilities,
