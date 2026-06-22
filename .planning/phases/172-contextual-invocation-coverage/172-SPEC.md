@@ -102,6 +102,13 @@ canon amendment, not a per-phase edit.
 - **R9** Enforced: gate wired into pre-commit + release.sh + doctor --acceptance + 171 ingest step-5; warn->report then hard-FAIL once baseline wired/excluded.
 - **R10** Lockstep on change: any add/modify/update/remove re-runs the gate and keeps the projection in lockstep (drift-detection).
 - **R11** Fractal coverage: coverage + chain monitoring rolls up across nested rooms via ONE scale-invariant operator over NESTED_WITHIN, depth-3 capped, aggregate-only across boundaries.
+- **R12** Forward-declaration & explainability: EVERY future phase that adds / modifies / removes an
+  invocable surface, OR that consumes the invocation spine, MUST declare and explain how it USES and/or
+  is USED BY CIRS — a `cirs_relationship:` frontmatter block (surfaces_added, surfaces_modified,
+  surfaces_removed, spine_consumed, gate_impact) plus a prose explanation. A phase that touches a surface
+  without a conformant declaration is gate-FAILED (R2). Recorded in CANON-PHASE-MAP via a CIRS column,
+  mirroring the canon_parts forward-compatibility rule. CIRS is self-propagating: no future phase can
+  silently change the invocation surface without understanding, declaring, and explaining its relationship.
 
 ### Structural requirements (additive — INV-01..12 unchanged)
 
@@ -115,6 +122,11 @@ canon amendment, not a per-phase edit.
   resumable via scriptPath+resumeFromRunId, orchestrator stays in the loop). Ref impl: /mos:bono build.
 - **INV-16** Fractal coverage rollup (R11) over NESTED_WITHIN, depth-3 capped, one scale-invariant operator.
 - **INV-17** 170 + 171 conform to CIRS via their own GSD plans BEFORE release; 172 owns that gate.
+- **INV-22** Forward-compatibility / explainability rule (R12): 172 ships (a) the `cirs_relationship:`
+  declaration contract, (b) a CIRS column in docs/CANON-PHASE-MAP.md, and (c) the gate hook that fails a
+  phase touching a surface without a conformant declaration. Every FUTURE phase must understand, know,
+  and EXPLAIN how it uses and/or is used by this phase's invocation ruling system — self-documenting and
+  self-enforcing, so the moat (WHEN/WHICH/SEQUENCE) can never silently regress at the phase boundary.
 - **INV-18** /mos:act collapses to ONE governed selection brain (navigator-LOCKED 2026-06-22): a
   `connector:` block on act.md (autonomous_safe stays false) AND act --chain feeds the real
   navigation-engine decide() as its decideFn (drop the `()=>null` at act-command.cjs:219), so the chain's

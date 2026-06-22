@@ -206,6 +206,16 @@ The act surface (D-172-f/j/k/l + INV-18..21) now composes a coherent shape: act 
 and intent-CALIBRATED (internal discuss before it acts) — the autonomous engine made governed, present,
 legible, and safe.
 
+### D-172-m (LOCKED — navigator 2026-06-22) — every future phase declares its CIRS relationship
+CIRS is self-propagating (R12 / INV-22): every FUTURE phase that adds/modifies/removes an invocable
+surface OR consumes the invocation spine MUST declare and explain how it USES and/or is USED BY this
+phase's ruling system — a `cirs_relationship:` frontmatter block (surfaces_added / surfaces_modified /
+surfaces_removed / spine_consumed / gate_impact) + prose. A phase touching a surface without a
+conformant declaration is gate-FAILED (R2). Recorded via a CIRS column in docs/CANON-PHASE-MAP.md,
+mirroring the canon_parts forward-compatibility rule. 172 ships the declaration contract + the map
+column + the gate hook. No future phase can silently change the invocation surface without
+understanding, declaring, and explaining its relationship to the moat.
+
 ### D-172-g (LOCKED principle) — Dual-graph = control-plane / data-plane, projection is a CQRS read-model
 The remote orchestration projection (data/brain-orchestration-projection.json, SHIPPED via Phase 157,
 220 nodes incl. 192 methodology_tier, 101 command counterparts) is the CONTROL plane (capabilities,
