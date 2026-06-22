@@ -228,6 +228,23 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:diffusion",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-09"
+      ],
+      "reach_id": "brain_consult",
+      "sub_mode": "dual-use-diffusion",
+      "framework": "Adoption-Capacity Theory",
+      "posture": "push_forward",
+      "hierarchy_rank": 28,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null
+    },
+    {
       "surface": "/mos:discover",
       "source": "command",
       "connects_to_spine": true,
@@ -1129,6 +1146,9 @@
       "/mos:find-bottlenecks",
       "agent:reverse-salient-agent"
     ],
+    "SENS-09": [
+      "/mos:diffusion"
+    ],
     "SENS-04": [
       "/mos:explore-trends",
       "/mos:opportunities",
@@ -1196,6 +1216,9 @@
       "/mos:dial-memory-refresh",
       "/mos:find-bottlenecks",
       "agent:reverse-salient-agent"
+    ],
+    "Adoption-Capacity Theory": [
+      "/mos:diffusion"
     ],
     "Dominant Design": [
       "/mos:dominant-designs"

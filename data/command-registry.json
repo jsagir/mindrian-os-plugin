@@ -72,7 +72,8 @@
       "command": "/mos:analyze-timing",
       "kind": "methodology",
       "frameworks": [
-        "S-Curve Analysis"
+        "S-Curve Analysis",
+        "Adoption-Capacity Theory"
       ],
       "produces": "room/**/timing/*",
       "inputs": [],
@@ -341,6 +342,23 @@
       "teaching": "When a section's Dial Memory feels stale, /mos:dial-memory-refresh rebuilds the auto-section from the SELECTED_REACH / PIVOTED / DRSCH relationship layer. Human-authored prose stays byte-preserved.",
       "jtbd_label": "Validate Idea",
       "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
+    },
+    {
+      "command": "/mos:diffusion",
+      "kind": "methodology",
+      "frameworks": [
+        "Adoption-Capacity Theory"
+      ],
+      "produces": "room/**/timing/*",
+      "inputs": [],
+      "autonomous_safe": true,
+      "body_shape": "methodology",
+      "serves_jtbd": [
+        "understand-market"
+      ],
+      "teaching": "When you are working on a dual-use or deep-tech innovation and need to know if it will actually spread - and to whom first - /mos:diffusion runs the Adoption-Capacity Engine over it. Best before you commit to a market or a timing window.",
+      "jtbd_label": "Understand Market",
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
     },
     {
       "command": "/mos:discover",
@@ -719,6 +737,19 @@
       "teaching": "Larry walks you through three birth gates (starting point, blueprint approve, first win) so every new room begins with a clear JTBD, the right section set, and one bankable opportunity.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging."
+    },
+    {
+      "command": "/mos:ingest-methodology",
+      "kind": "utility",
+      "frameworks": [],
+      "produces": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "action-report",
+      "serves_jtbd": [],
+      "teaching": "Maintainer-only. When you want to teach the Brain a new methodology, /mos:ingest-methodology runs the 7-step pipeline - encode, Part-8 boundary gate, graph write, vector write, trigger + chain, register, local refresh - so the framework is reachable by every user and operable Local-Only, with zero user-data egress.",
+      "jtbd_label": null,
+      "jtbd_summary": null
     },
     {
       "command": "/mos:jtbd",
@@ -1646,6 +1677,10 @@
       "/mos:analyze-timing",
       "/mos:explore-trends",
       "/mos:trending-to-absurd"
+    ],
+    "Adoption-Capacity Theory": [
+      "/mos:analyze-timing",
+      "/mos:diffusion"
     ],
     "Beautiful Question Framework": [
       "/mos:beautiful-question"

@@ -184,6 +184,39 @@
       }
     },
     {
+      "id": "command:/mos:bono",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:bono",
+      "reach_id": "hats",
+      "sub_mode": "bono",
+      "hierarchy_rank": 4,
+      "posture": "hold",
+      "sensor_triggers": [
+        "SENS-05"
+      ],
+      "framework": "Six Thinking Hats",
+      "chain_provenance": {
+        "framework": "Six Thinking Hats",
+        "command": "/mos:bono",
+        "reach_id": "hats",
+        "sub_mode": "bono",
+        "firing_sensors": [
+          "SENS-05"
+        ]
+      },
+      "ranking": {
+        "reach_id": "hats",
+        "sub_mode": "bono",
+        "hierarchy_rank": 4,
+        "posture": "hold",
+        "sensor_triggers": [
+          "SENS-05"
+        ],
+        "framework": "Six Thinking Hats"
+      }
+    },
+    {
       "id": "command:/mos:brain-derive",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -331,6 +364,12 @@
       }
     },
     {
+      "id": "command:/mos:correct-reference-now",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:correct-reference-now"
+    },
+    {
       "id": "command:/mos:dashboard",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -382,6 +421,7 @@
       "hierarchy_rank": 5,
       "posture": "push_forward",
       "sensor_triggers": [
+        "SENS-01",
         "SENS-06"
       ],
       "framework": "Problem Definition Transformation Framework",
@@ -391,6 +431,7 @@
         "reach_id": "context_block",
         "sub_mode": "problem-diagnosis",
         "firing_sensors": [
+          "SENS-01",
           "SENS-06"
         ]
       },
@@ -400,6 +441,7 @@
         "hierarchy_rank": 5,
         "posture": "push_forward",
         "sensor_triggers": [
+          "SENS-01",
           "SENS-06"
         ],
         "framework": "Problem Definition Transformation Framework"
@@ -442,6 +484,39 @@
           "SENS-02"
         ],
         "framework": "Reverse Salient Analysis"
+      }
+    },
+    {
+      "id": "command:/mos:diffusion",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:diffusion",
+      "reach_id": "brain_consult",
+      "sub_mode": "dual-use-diffusion",
+      "hierarchy_rank": 28,
+      "posture": "push_forward",
+      "sensor_triggers": [
+        "SENS-09"
+      ],
+      "framework": "Adoption-Capacity Theory",
+      "chain_provenance": {
+        "framework": "Adoption-Capacity Theory",
+        "command": "/mos:diffusion",
+        "reach_id": "brain_consult",
+        "sub_mode": "dual-use-diffusion",
+        "firing_sensors": [
+          "SENS-09"
+        ]
+      },
+      "ranking": {
+        "reach_id": "brain_consult",
+        "sub_mode": "dual-use-diffusion",
+        "hierarchy_rank": 28,
+        "posture": "push_forward",
+        "sensor_triggers": [
+          "SENS-09"
+        ],
+        "framework": "Adoption-Capacity Theory"
       }
     },
     {
@@ -637,7 +712,34 @@
       "id": "command:/mos:file-meeting",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
-      "name": "/mos:file-meeting"
+      "name": "/mos:file-meeting",
+      "reach_id": "contradiction",
+      "sub_mode": "file-meeting",
+      "hierarchy_rank": 37,
+      "posture": "pull_back",
+      "sensor_triggers": [
+        "SENS-06",
+        "SENS-08"
+      ],
+      "chain_provenance": {
+        "command": "/mos:file-meeting",
+        "reach_id": "contradiction",
+        "sub_mode": "file-meeting",
+        "firing_sensors": [
+          "SENS-06",
+          "SENS-08"
+        ]
+      },
+      "ranking": {
+        "reach_id": "contradiction",
+        "sub_mode": "file-meeting",
+        "hierarchy_rank": 37,
+        "posture": "pull_back",
+        "sensor_triggers": [
+          "SENS-06",
+          "SENS-08"
+        ]
+      }
     },
     {
       "id": "command:/mos:find-analogies",
@@ -901,6 +1003,12 @@
       }
     },
     {
+      "id": "command:/mos:ingest-methodology",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:ingest-methodology"
+    },
+    {
       "id": "command:/mos:jtbd",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -1023,18 +1131,30 @@
       "sub_mode": "unknowns-matrix",
       "hierarchy_rank": 40,
       "posture": "hold",
+      "sensor_triggers": [
+        "SENS-06",
+        "SENS-08"
+      ],
       "framework": "Knowns and Unknowns Matrix Framework",
       "chain_provenance": {
         "framework": "Knowns and Unknowns Matrix Framework",
         "command": "/mos:map-unknowns",
         "reach_id": "context_block",
-        "sub_mode": "unknowns-matrix"
+        "sub_mode": "unknowns-matrix",
+        "firing_sensors": [
+          "SENS-06",
+          "SENS-08"
+        ]
       },
       "ranking": {
         "reach_id": "context_block",
         "sub_mode": "unknowns-matrix",
         "hierarchy_rank": 40,
         "posture": "hold",
+        "sensor_triggers": [
+          "SENS-06",
+          "SENS-08"
+        ],
         "framework": "Knowns and Unknowns Matrix Framework"
       }
     },
@@ -1248,6 +1368,36 @@
         "sensor_triggers": [
           "SENS-01",
           "SENS-06"
+        ]
+      }
+    },
+    {
+      "id": "command:/mos:new-surface",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:new-surface",
+      "reach_id": "context_block",
+      "sub_mode": "new-surface",
+      "hierarchy_rank": 24,
+      "posture": "push_forward",
+      "sensor_triggers": [
+        "SENS-01"
+      ],
+      "chain_provenance": {
+        "command": "/mos:new-surface",
+        "reach_id": "context_block",
+        "sub_mode": "new-surface",
+        "firing_sensors": [
+          "SENS-01"
+        ]
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "new-surface",
+        "hierarchy_rank": 24,
+        "posture": "push_forward",
+        "sensor_triggers": [
+          "SENS-01"
         ]
       }
     },
@@ -1735,6 +1885,39 @@
       }
     },
     {
+      "id": "command:/mos:trending-to-absurd",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:trending-to-absurd",
+      "reach_id": "context_block",
+      "sub_mode": "trending-to-absurd",
+      "hierarchy_rank": 33,
+      "posture": "push_forward",
+      "sensor_triggers": [
+        "SENS-04"
+      ],
+      "framework": "S-Curve Analysis",
+      "chain_provenance": {
+        "framework": "S-Curve Analysis",
+        "command": "/mos:trending-to-absurd",
+        "reach_id": "context_block",
+        "sub_mode": "trending-to-absurd",
+        "firing_sensors": [
+          "SENS-04"
+        ]
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "trending-to-absurd",
+        "hierarchy_rank": 33,
+        "posture": "push_forward",
+        "sensor_triggers": [
+          "SENS-04"
+        ],
+        "framework": "S-Curve Analysis"
+      }
+    },
+    {
       "id": "command:/mos:update",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -1964,6 +2147,12 @@
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
       "name": "room-proactive"
+    },
+    {
+      "id": "skill:trending-to-absurd",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "trending-to-absurd"
     },
     {
       "id": "skill:ui-system",
@@ -2224,6 +2413,12 @@
       "name": "Adaptive Leadership"
     },
     {
+      "id": "framework:Adoption-Capacity Theory",
+      "kind": "framework",
+      "methodology_tier": "pws",
+      "name": "Adoption-Capacity Theory"
+    },
+    {
       "id": "framework:Beautiful Question Framework",
       "kind": "framework",
       "methodology_tier": "pws",
@@ -2434,6 +2629,12 @@
       "name": "beautiful-question"
     },
     {
+      "id": "sub_mode:bono",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "bono"
+    },
+    {
       "id": "sub_mode:brain-query",
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
@@ -2480,6 +2681,18 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "dominant-design"
+    },
+    {
+      "id": "sub_mode:dual-use-diffusion",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "dual-use-diffusion"
+    },
+    {
+      "id": "sub_mode:file-meeting",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "file-meeting"
     },
     {
       "id": "sub_mode:funding",
@@ -2596,6 +2809,12 @@
       "name": "new-project"
     },
     {
+      "id": "sub_mode:new-surface",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "new-surface"
+    },
+    {
       "id": "sub_mode:operator",
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
@@ -2710,6 +2929,12 @@
       "name": "timing-scurve"
     },
     {
+      "id": "sub_mode:trending-to-absurd",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "trending-to-absurd"
+    },
+    {
       "id": "sub_mode:trends-scurve",
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
@@ -2766,6 +2991,11 @@
     {
       "type": "OPERATES",
       "from": "command:/mos:analyze-timing",
+      "to": "framework:Adoption-Capacity Theory"
+    },
+    {
+      "type": "OPERATES",
+      "from": "command:/mos:analyze-timing",
       "to": "framework:S-Curve Analysis"
     },
     {
@@ -2777,6 +3007,11 @@
       "type": "OPERATES",
       "from": "command:/mos:beautiful-question",
       "to": "framework:Beautiful Question Framework"
+    },
+    {
+      "type": "OPERATES",
+      "from": "command:/mos:bono",
+      "to": "framework:Six Thinking Hats"
     },
     {
       "type": "OPERATES",
@@ -2822,6 +3057,11 @@
       "type": "OPERATES",
       "from": "command:/mos:dial-memory-refresh",
       "to": "framework:Reverse Salient Analysis"
+    },
+    {
+      "type": "OPERATES",
+      "from": "command:/mos:diffusion",
+      "to": "framework:Adoption-Capacity Theory"
     },
     {
       "type": "OPERATES",
@@ -2977,6 +3217,11 @@
       "type": "OPERATES",
       "from": "command:/mos:think-hats",
       "to": "framework:Six Thinking Hats"
+    },
+    {
+      "type": "OPERATES",
+      "from": "command:/mos:trending-to-absurd",
+      "to": "framework:S-Curve Analysis"
     },
     {
       "type": "OPERATES",

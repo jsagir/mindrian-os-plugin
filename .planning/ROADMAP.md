@@ -2921,3 +2921,16 @@ Plans:
 - [x] 160-06-PLAN.md - Wave 3: R11/R12 Shape F HITL date+sync gate (one shared tri-polar chokepoint) + temporal-blindness sentinel
 
 **Status:** Planned 2026-06-16. Next: /gsd-execute-phase 160.
+
+### Phase 170 - Dual-Use Diffusion + Adoption-Capacity Engine (ACE) - COMPLETE 2026-06-22 (additive)
+
+**Goal:** Canonize Horowitz adoption-capacity theory (Adoption-Capacity Engine, ACE v2) as a first-class Brain framework and wire a dual-use diffusion trigger so MindrianOS surfaces it for ANY dual-use technology. Canon parts: 2, 3, 4, 6, 7, 8, 9. CONTEXT: `.planning/phases/170-dual-use-diffusion-ace/170-CONTEXT.md`. Map row: `docs/CANON-PHASE-MAP.md` (v1.14.0-beta dual-use diffusion addition).
+
+**Sequence:** ADDITIVE to the v1.14.0 train, navigator-directed 2026-06-22. NOT in the navigator-LOCKED order -- it is a Brain framework plus an additive sensor reusing the frozen `brain_consult` reach, not a frozen-set move, so NO canon-text amendment was required.
+
+**What shipped:**
+- **Brain (Neo4j):** ACE Framework (57 edges -- 5 variables + OC sub-vector, conceptual capacity, 7 cases incl 3 dual-use worked examples, 2x2 typology, 7-step pipeline, 5-path response, 4 critiques, 4 extensions, fit thresholds + FI multipliers + power-shift rules; `methodology_tier: pws`); Hooked Model enriched to full depth (15 edges, `pws`); Self-Selling Loop minted (`methodology_tier: mindrian-operation`, 12 edges). FEEDS_INTO chain: S-Curve / Reverse Salient / PEST / Macro Trends / Sustaining-vs-Disruptive INTO ACE; ACE INTO Scenario Planning / Mullins / Triple Validation Compass / Ansoff / Now-New-Next / Self-Selling Loop.
+- **Brain (Pinecone pws-brain):** 3 framework summaries (`tools` + `core`) + 47 granular chunks (`core`); `brain_search` verified top-rank retrieval (ACE 0.83, Hooked variable-ratio 0.93, SSL test-not-demo 0.85).
+- **Plugin:** SENS-09 dual-use diffusion sensor (`lib/core/sensors/sensor-diffusion-adoption.cjs`; frozen `brain_consult` reach; keyword + marker + signal modes) registered in `lib/core/insight-sensors.cjs`; dispatch `adoption-capacity` -> "Adoption-Capacity Theory" -> `/mos:analyze-timing` via `data/dispatch-framework-map.json` + `data/framework-names.json` + `data/command-registry.json`. Test `tests/test-diffusion-adoption-sensor.cjs` 20/20; regression fences green (Part-8 sweep, routing fence, spine dispatch 6-reach invariant, decide-sensor-fire, 150.5 firability).
+
+**Status:** COMPLETE 2026-06-22 (Brain ingestion + trigger shipped + tests green; plugin files uncommitted in working tree pending release). Part 8 honored: Brain holds generic methodology only; the operational Innovation/Actor/Forecast layer is ROOM-LOCAL (deferred).

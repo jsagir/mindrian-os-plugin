@@ -127,6 +127,7 @@ Anyone searching for the old slug `SEED-003-brain-silent-identity` will find thi
 | SEED-012 feynman-engine mom-test panel | dormant | TBD v1.13.1 (navigator-targeted) | borderline orphan -- design fully brainstormed; no phase number reserved |
 | SEED-013 eliminate-python-from-user-machine | dormant+spiked | Phase 134 (CONTEXT.md scaffolded, no PLAN.md) | NOT orphan -- 134 is the named implementing phase |
 | SEED-014 brain-mcp-separate-repo | dormant+spiked | TBD v1.14.0 (pre-gate: brain-boundary-scan PR-gate must land in monorepo first) | borderline orphan -- research artifact done, no phase number reserved |
+| SEED-037 graph-derive-drain-heal-and-doctor-retrofit | scheduled-v1.14.0 (CRITICAL, NEXT-IN-LINE) | TBD v1.14.0-beta -- promote NEXT, ahead of remaining 166/165 feature work | NOT orphan -- navigator-directed as the critical next beta phase. Data-integrity defect: semantic-edge layer empty in ALL live rooms; the drain silently clears the retry signal on every SessionStart. RCA: .planning/debug/graph-derive-silent-clear-dead-api-derivation.md |
 
 ---
 

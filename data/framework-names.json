@@ -110,6 +110,8 @@
   ],
   "curated_extras_note": "Legitimate :Framework node names that exist in the Brain but are not yet FEEDS_INTO-linked (brain-cleanup adds those edges over time). Hand-curated -- NOT junk nodes. The allowlist the registry validates against is framework_names UNION curated_extras. Verified live 2026-05-12 via lib/core/brain-client.cjs that each name resolves to a real :Framework node.",
   "curated_extras": [
+    "Adoption-Capacity Theory",
+    "Self-Selling Loop",
     "Ackoff Pyramid",
     "Dominant Design",
     "Futures Wheel",
