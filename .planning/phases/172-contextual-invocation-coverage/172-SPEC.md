@@ -131,6 +131,27 @@ canon amendment, not a per-phase edit.
   self-explaining per room state. The blurb is LOCAL-derived (Part 8: enum/scalar + local state only;
   no Brain egress to compose it). Add a `hats`-style render family in the dial-label composer for the
   pinned act row (render-only, no `{framework}` egress slot), mirroring the Phase-148 non-egress family.
+- **INV-20** /mos:act renders through the canonical Shape F.1 selector host (navigator-LOCKED 2026-06-22).
+  BOTH (a) the pinned always-on act standing suggestion (INV-19) AND (b) act's own next-step/option
+  presentation use the shipped Shape F.1 renderer (lib/hmi/shape-f1-renderer.cjs) and honor the FROZEN
+  F.1 keyboard contract: UP/DOWN option navigation + SIDE toggle of the toggleable archetype components
+  (lib/hmi/reach-component-map.json). act's current bespoke `body_shape: E` `yes / pick another / cancel`
+  prose gate (act.md:192-196) is REPLACED by / unified onto the F.1 host — consistent with the Phase-148
+  "suggest surfaces unify onto the F.1 host" contract. The frozen F.1 keyboard contract, MAX_K=3, and
+  DIAL_REACH_K=6 are UNTOUCHED; act is a pinned additive row ON the F.1 host, rendered via
+  AskUserQuestion (the Shape F.1 primitive), never a hand-rolled selector.
+- **INV-21** /mos:act carries an INTERNAL discuss / intent-calibration phase (navigator-LOCKED
+  2026-06-22). Before act SELECTS or EXECUTES anything, it runs a short INTENT-CALIBRATION step — a
+  lightweight internal discuss phase (reusing the discuss-phase pattern + the Shape F.1 gate) that
+  calibrates with the navigator's ACTUAL intent (what they want act to do in this room state, scope,
+  constraints, what "done" looks like) BEFORE routing through the F.1 selector -> decide() -> runChain.
+  act NEVER acts on a presumed intent: it confirms intent first via the F.1 gate, then acts. This is
+  the calibration gate that makes act's autonomy safe (Canon Part 3 Decision Gate + Part 10 conversation
+  -as-product + the post-gate runChain handoff: calibrate -> approve -> auto-run the autonomous_safe
+  prefix -> halt at the first material step). Calibration reads LOCAL state only (active JTBD + STATE.md
+  + MINTO.md); no Brain egress to calibrate (Part 8). The calibration outcome is journaled as a
+  workflow_stage / memory_event through navigation.cjs (Part 9), so the intent that drove the run is
+  auditable.
 
 ## Success criteria
 

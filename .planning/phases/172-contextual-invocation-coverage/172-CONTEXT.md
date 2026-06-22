@@ -182,6 +182,30 @@ blurb is LOCAL-derived (Part 8: enum/scalar + local state only; no Brain egress)
 pinned additive row in the suggest-next/dial renderer + a JTBD-blurb generator reading the active JTBD
 + STATE/MINTO; act.md serves_jtbd carries the per-state framing. See SPEC INV-19.
 
+### D-172-k (LOCKED — navigator 2026-06-22) — /mos:act renders on the canonical Shape F.1 host
+The pinned act standing suggestion (D-172-j) AND act's own option gate use the shipped Shape F.1
+renderer (lib/hmi/shape-f1-renderer.cjs) with the FROZEN F.1 keyboard contract — UP/DOWN option
+navigation + SIDE toggle of the toggleable archetype components (lib/hmi/reach-component-map.json).
+act's current bespoke body_shape:E `yes/pick another/cancel` prose prompt (act.md:192-196) is replaced
+by / unified onto the F.1 host (Phase-148 "suggest surfaces unify onto the F.1 host"). Rendered via the
+AskUserQuestion Shape F.1 primitive — never a hand-rolled selector. Frozen F.1 keyboard contract +
+MAX_K=3 + DIAL_REACH_K=6 untouched. See SPEC INV-20.
+
+### D-172-l (LOCKED — navigator 2026-06-22) — /mos:act has an internal discuss/calibration phase
+Before act selects or executes anything, it runs a short INTENT-CALIBRATION step — a lightweight
+internal discuss phase (reusing the discuss-phase pattern + the Shape F.1 gate) that aligns with the
+navigator's actual intent (what they want act to do in this room state, scope, constraints, definition
+of done) BEFORE routing through the F.1 selector -> decide() -> runChain. act never acts on a presumed
+intent; it confirms first, then acts (Part 3 Decision Gate + Part 10 + the post-gate runChain handoff:
+calibrate -> approve -> auto-run autonomous_safe prefix -> halt at first material step). Calibration
+reads LOCAL state only (JTBD + STATE + MINTO); no Brain egress; the intent is journaled via
+navigation.cjs (Part 9) so the run is auditable. See SPEC INV-21.
+
+The act surface (D-172-f/j/k/l + INV-18..21) now composes a coherent shape: act is spine-GOVERNED
+(one brain), always-SUGGESTED (JTBD-contextualized standing row), F.1-RENDERED (up/down + side toggle),
+and intent-CALIBRATED (internal discuss before it acts) — the autonomous engine made governed, present,
+legible, and safe.
+
 ### D-172-g (LOCKED principle) — Dual-graph = control-plane / data-plane, projection is a CQRS read-model
 The remote orchestration projection (data/brain-orchestration-projection.json, SHIPPED via Phase 157,
 220 nodes incl. 192 methodology_tier, 101 command counterparts) is the CONTROL plane (capabilities,
