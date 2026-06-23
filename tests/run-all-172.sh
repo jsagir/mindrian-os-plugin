@@ -36,6 +36,7 @@ CJS_SUITES=(
   test-curated-chains-ranking.cjs
   test-act-governed-selection.cjs
   test-act-cross-class-chain.cjs
+  test-act-standing-suggestion.cjs
   test-170-171-cirs-conformance.cjs
   test-diffusion-adoption-sensor.cjs
   test-reach-ids-drift.cjs
