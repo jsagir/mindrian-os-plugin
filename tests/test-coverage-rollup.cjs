@@ -134,21 +134,25 @@ check('Test 3: across a room boundary only aggregate SCALARS travel (no child li
 });
 
 check('Test 4: the operator is scale-invariant (same function applies at every level)', () => {
+  // NOTE: Test 2 attached a depth-4 room `d` (wired:99) as a child of `c`. So `c`
+  // is no longer a leaf; the genuine leaf is now `d`. The scale-invariance proof
+  // uses `d` for the leaf case.
+  const d = path.join(c, 'd');
   const atRoot = rollupCoverage(root);
   const atA = rollupCoverage(a);
   const atB = rollupCoverage(b);
-  const atC = rollupCoverage(c);
+  const atD = rollupCoverage(d);
   // Same shape at every level.
-  for (const r of [atRoot, atA, atB, atC]) {
+  for (const r of [atRoot, atA, atB, atD]) {
     assert.ok(r.aggregate && typeof r.aggregate.total === 'number', 'same aggregate shape at every level');
     assert.equal(typeof r.subtree_size, 'number', 'same subtree_size field at every level');
     assert.ok(r.coverage_ratio >= 0 && r.coverage_ratio <= 1, 'same normalized ratio at every level');
   }
-  // A leaf room rolls up only itself.
-  assert.equal(atC.aggregate.total, 5, 'a leaf room (c) aggregates only its own 5 surfaces');
-  assert.equal(atC.subtree_size, 1, 'a leaf room has subtree_size 1');
-  // c reached from b includes c only (b->c is one hop; d is beyond b at depth 2 -> ok, but
-  // b's subtree b(2)+c(5)... plus d would be depth-2 from b). atB stays within b's own cap.
+  // A genuine leaf room (d) rolls up only itself.
+  assert.equal(atD.aggregate.total, 99, 'a leaf room (d) aggregates only its own 99 surfaces');
+  assert.equal(atD.subtree_size, 1, 'a leaf room has subtree_size 1');
+  assert.equal(atD.coverage_ratio, 1, 'd is fully wired (99/99)');
+  // b aggregates itself + descendants within b cap (b -> c -> d).
   assert.ok(atB.subtree_size >= 2, 'b aggregates itself + its descendants within b cap');
 });
 
@@ -219,4 +223,4 @@ check('Test 4: the report carries only generic machinery shape (counts + names),
   assert.ok(!/room\.db|\.mindrian\/coverage|artifact:|meeting:|assumption:/.test(blob), 'no user-room content in the report');
 });
 
-console.log(`\nPASS (${pass}/12)`);
+console.log(`\nPASS (${pass}/9)`);
