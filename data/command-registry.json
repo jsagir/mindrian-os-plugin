@@ -1791,7 +1791,7 @@
     },
     {
       "kind": "feeds_into",
-      "from": "Sustaining vs Disruptive Innovation",
+      "from": "Dominant Design",
       "to": "Adoption-Capacity Theory",
       "confidence": 0.8
     },
@@ -1815,18 +1815,6 @@
     },
     {
       "kind": "feeds_into",
-      "from": "Adoption-Capacity Theory",
-      "to": "Self-Selling Loop",
-      "confidence": 0.85
-    },
-    {
-      "kind": "feeds_into",
-      "from": "Cynefin Framework",
-      "to": "Wicked Problem Detection Framework",
-      "confidence": 0.68
-    },
-    {
-      "kind": "feeds_into",
       "from": "Jobs to Be Done (JTBD)",
       "to": "Lean Canvas",
       "confidence": 0.76
@@ -1838,6 +1826,18 @@
       "confidence": 0.65
     },
     {
+      "kind": "feeds_into",
+      "from": "Four Lenses of Innovation",
+      "to": "S-Curve Analysis",
+      "confidence": 0.66
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Futures Wheel",
+      "to": "Scenario Planning",
+      "confidence": 0.73
+    },
+    {
       "kind": "chain",
       "from": "Problem Definition Transformation Framework",
       "to": "MECE (Mutually Exclusive, Collectively Exhaustive)",
@@ -1846,7 +1846,7 @@
     {
       "kind": "prerequisite",
       "from": "S-Curve Analysis",
-      "to": "Strategic Inflection Point",
+      "to": "Dominant Design",
       "confidence": 0.69
     }
   ]
