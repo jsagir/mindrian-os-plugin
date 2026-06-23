@@ -10,10 +10,19 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash(node scripts/mos-status.cjs:*)
   - Read
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
 connector:
-  excluded: true
-  reason: "Render command. Shows current room status on explicit navigator request; a read-only status render, not a contextual reach."
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: context_block
+  sub_mode: room-status
+  framework: null
+  posture: hold
+  hierarchy_rank: 14
+  filing: memory_event_only
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # /mos:status

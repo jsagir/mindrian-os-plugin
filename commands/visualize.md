@@ -13,10 +13,10 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash
   - Read
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# --- Phase 172-16 CIRS R1 exclude (Canon Part 11; deprecated-redirect, navigator-directed 2026-06-23) ---
 connector:
   excluded: true
-  reason: "Render command. Generates a graph / diagram view on explicit navigator request; it visualizes existing state, not a navigator problem-state."
+  reason: "Deprecated - redirects to /mos:dashboard --mermaid; scheduled removal v1.14.0. Retained only for compatibility, so it carries no problem-state trigger."
 ---
 
 # /mos:visualize

@@ -9,10 +9,19 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash
   - Read
-# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+# --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
 connector:
-  excluded: true
-  reason: "Render command. Opens the localhost wiki view of the room on explicit navigator request; a read-only render surface with no problem-state trigger."
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: context_block
+  sub_mode: room-wiki
+  framework: null
+  posture: hold
+  hierarchy_rank: 12
+  filing: memory_event_only
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 # /mos:wiki
 
