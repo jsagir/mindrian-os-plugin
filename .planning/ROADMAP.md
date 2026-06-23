@@ -3020,3 +3020,17 @@ Plans:
 **Research filed 2026-06-23:** `.planning/phases/174-hypothesis-based-ignite/174-RESEARCH.md` - the hypothesis-to-idea mechanism extracted from the AION precedent (the four-beat workflow, the novelty x explainability 2x2, the Brain-derived master chain, the five-element defensible-hypothesis rubric, the falsifying-base-case pattern, the reusable-vs-domain-specific boundary, and the person-anchored arrival). Domain-specific exemplar in the user-local `aion-eureka-synergy` room; tester/partner case study in mindrianOS `market-analysis/`.
 
 **Status:** SEEDED + RESEARCHED 2026-06-23 (navigator-directed). Not yet specced. Next when promoted: `/gsd-spec-phase 174`.
+
+### Phase 175 - Deck Command Consolidation (/mos:deck + the deck-design ruleset) - SPLIT FROM 173 (2026-06-23)
+
+**Goal (proposed):** Consolidate MOSDeckEngine + the feynman-engine into ONE invokable `/mos:deck` command (SPEC R8-R11, R13-R14, split out of Phase 173). Feynman / HEART / mesh are STYLES within it; the build is a methodological F.1-guided flow; a deck-design ruleset (mandatory source hyperlinks, SVG/animation/image-generation standards, brand-asset reuse, default MindrianOS Design System + logo -> mindrian-os.com) is enforced. Canon parts: 1, 3, 7, 10, 11.
+
+**Why split (D-01, navigator 2026-06-23):** the engine consolidation is a large, independent build and the 173-SPEC flagged R11 as highest-risk. Phase 173 ships the selector now (routing "Make it land" jobs to the EXISTING deck skills); Phase 175 ships the merged command. Source contract: `173-SPEC.md` R8-R11/R13-R14.
+
+**Locked decisions (D-04, navigator 2026-06-23):** command name `/mos:deck`; MOSDeckEngine + feynman-engine become ALIASES (deprecate-not-delete, back-compat); Feynman/HEART/mesh as a style sub-selector; deck-design ruleset starts WARN, hard-gates later (CIRS deferred-enforcement pattern).
+
+**Best-implementation research (Tavily, 2026-06-23 - in `.planning/phases/173-publish-jtbd-need-selector/173-RESEARCH-tavily.md`):** brand auto-binding via a Brand-Kit model (Beautiful.ai); in-line source citation is a real enterprise value lever (Hebbia ISD), not bureaucracy; AI-generated-image provenance footers (bottom-right, 8-10pt, tool+year); visual-metaphor/diagram-first, one-idea-per-slide; Feynman = comprehension spine (4-step pipeline), HEART = persuasion spine (Ben Weiner), mesh = per deck type. HEART sourced from Brain (verified present 2026-06-23).
+
+**Dependency:** consumes Phase 172 CIRS (born-wired); pairs with Phase 173 (the selector's "Make it land" lane points here once shipped). Declares a `cirs_relationship:` block.
+
+**Status:** SEEDED 2026-06-23 (split from 173, decisions pre-locked). Not yet specced. Next when promoted: `/gsd-spec-phase 175`.
