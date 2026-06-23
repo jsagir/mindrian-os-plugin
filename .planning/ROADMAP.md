@@ -3013,4 +3013,8 @@ Plans:
 
 **Dependency:** sits on the shipped /mos:ignite birth orchestrator; should be born-wired under Phase 172 CIRS like 173.
 
-**Status:** SEEDED 2026-06-23 (navigator-directed). Not yet specced. Next when promoted: `/gsd-spec-phase 174`.
+**Scope enrichment (navigator, 2026-06-23):** (1) GENERIC - applies to ANY hypothesis -> problem-definition case, not pharma; AION is precedent only, zero domain assumptions imported. (2) PERSON-ANCHORED arrival - can start from a PERSON (CV / capabilities / skills) + their HYPOTHESIS + the MOTIVATION / logic / reason behind it, then extract DOMAIN + SUB-DOMAINS (Engine 1 decomposition) as the first move -> problem-definition seed. Reuses Phase 115 person extraction + `/mos:explore-domains`. The person's CV grades IKA (Interest/Knowledge/Access) and founder-fit; the motivation is the belief's human-level provenance (Part 5 evidence tiering).
+
+**Research filed 2026-06-23:** `.planning/phases/174-hypothesis-based-ignite/174-RESEARCH.md` - the hypothesis-to-idea mechanism extracted from the AION precedent (the four-beat workflow, the novelty x explainability 2x2, the Brain-derived master chain, the five-element defensible-hypothesis rubric, the falsifying-base-case pattern, the reusable-vs-domain-specific boundary, and the person-anchored arrival). Domain-specific exemplar in the user-local `aion-eureka-synergy` room; tester/partner case study in mindrianOS `market-analysis/`.
+
+**Status:** SEEDED + RESEARCHED 2026-06-23 (navigator-directed). Not yet specced. Next when promoted: `/gsd-spec-phase 174`.
