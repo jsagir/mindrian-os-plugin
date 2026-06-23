@@ -31,6 +31,7 @@ CJS_SUITES=(
   test-connector-tripwire.cjs
   test-cirs-declaration.cjs
   test-orchestration-counterpart-coverage.cjs
+  test-context-driven-trigger.cjs
   test-reach-ids-drift.cjs
   test-posture-ids-drift.cjs
 )
