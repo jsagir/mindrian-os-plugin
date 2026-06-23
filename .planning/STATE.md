@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: verifying
-stopped_at: "BRANCH RECONCILED 2026-06-23: Phase 172 COMPLETE (16 plans, VERDICT PASS, merge-ready) + Phase 173 IN PROGRESS (01 done; 02 done -- /mos:show shipped + SUMMARY GSD-closed; 03 planned, NOT started)"
-last_updated: "2026-06-23T12:30:00.000Z"
+stopped_at: "BRANCH RECONCILED 2026-06-23: Phase 172 COMPLETE (16 plans, VERDICT PASS, merge-ready) + Phase 173 COMPLETE (3/3 plans: 01 data contracts, 02 /mos:show front door, 03 SENS-SHOW sensor + R1-R7 flow; run-all-173.sh 7/7 GREEN; no 7th reach; run-all-172.sh still 20/20)"
+last_updated: "2026-06-23T13:15:00.000Z"
 last_activity: 2026-06-23
 progress:
   total_phases: 6
@@ -21,7 +21,7 @@ progress:
 Branch `phase-170-171-ace-diffusion-pipeline` is 95 commits ahead of origin/main and stacks FOUR phases: 170 (ACE/diffusion) + 171 (methodology-ingest) + 172 (contextual-invocation-coverage) + 173 (publish/visualize JTBD need-selector). Phases 172 and 173 ran in CONCURRENT sessions and their commits are interleaved chronologically. Each commit is atomic and scoped (`172-*` vs `173-*`), so the history is sound; STATE.md was the contested shared artifact and is reconciled here.
 
 - **Phase 172 (contextual-invocation-coverage): COMPLETE -- MERGE-READY.** 16 plans, VERDICT PASS (172-VERDICT.md). 88 wired / 36 excluded / 0 gap on BOTH ledgers; both coverage gates HARD-FAIL across pre-commit + install + release + doctor; /mos:act spine-governed + always-on + calibrated; cross-class chaining live; Canon v1.15 (Part 11 R1 four-class governance-ISA). R6/R11/R13/R14 are DECLARED-but-DEFERRED-ENFORCEMENT (named debt). run-all-172.sh 20/20. Navigator-gated CLOSE pending.
-- **Phase 173 (publish/visualize JTBD need-selector): IN PROGRESS -- NOT MERGE-READY.** 173-01 done (PLAN+SUMMARY); 173-02 DONE + GSD-CLOSED (commands/show.md born-wired F.1 JTBD need-selector front door; connector + cirs_relationship; connector ledger 89 wired / 36 excluded / 0 gap; projection command ledger 77 ranked / 25 excluded / 0 gap; run-all-172.sh 20/20; CIRS adversarial 19/19; 173-02-SUMMARY.md shipped); 173-03 PLANNED, not started (SENS-SHOW sensor + dispatchSensors registration + end-to-end R1-R7 flow test). /mos:publish UNCHANGED (D-02); no 7th reach minted (D-03).
+- **Phase 173 (publish/visualize JTBD need-selector): COMPLETE -- selector half fully shipped (R1-R7 + R12).** 173-01 done (data/publish-needs.json + --check + role_blend->lane mapper); 173-02 done + GSD-CLOSED (commands/show.md born-wired F.1 JTBD need-selector front door; connector ledger 89 wired / 36 excluded / 0 gap; projection command ledger 77 ranked / 25 excluded / 0 gap); 173-03 DONE (lib/core/sensors/sensor-show-share.cjs SENS-SHOW registered in dispatchSensors -- the show/share trigger surfacing the EXISTING context_block reach naming /mos:show at posture hold; end-to-end R1-R7 flow test; `bash tests/run-all-173.sh` 7/7 GREEN). dispatch-framework-map.json UNTOUCHED (selector resolves via command-resolver, its drift test green). /mos:publish UNCHANGED (D-02); REACH_IDS still 6 / POSTURE_IDS still 3 -- no 7th reach minted (D-03); run-all-172.sh still 20/20.
 - **170 + 171: shipped, release-held, now CIRS-conformant** (172 Plan 12 reconciled them). Release is a separate navigator step.
 
 **Merge-readiness ruling:** 172 is mergeable as-is. 173 is NOT (173-02 SUMMARY + 173-03 outstanding). BEFORE any merge of this branch the navigator must choose: (A) finish 173 (close 173-02 + run 173-03), then merge the whole v1.14.0-beta train together; or (B) park/revert the 173-* commits onto their own branch and merge 170/171/172 alone; or (C) merge the train as-is and finish 173 on main (only if 173-02's partial code is safe to ship). Recommended: (A) finish 173, merge together -- splitting interleaved history (option B) is invasive.
@@ -928,6 +928,8 @@ Progress: [█████████░] 92%
 | Phase 167 P02 | 20min | 2 tasks | 3 files |
 | Phase 172 P06 | ~25min | 2 tasks | 55 files |
 | Phase 173 P01 | 20m | 2 tasks | 4 files |
+| Phase 173 P02 | ~25m | 2 tasks | 6 files |
+| Phase 173 P03 | ~20m | 2 tasks | 5 files |
 
 ## Accumulated Context
 
