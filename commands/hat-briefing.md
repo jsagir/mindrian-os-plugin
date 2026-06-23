@@ -13,6 +13,19 @@ produces: "room/**/hat-briefing/*"
 inputs: []
 autonomous_safe: false
 ui_reference: skills/ui-system/SKILL.md
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-07]
+  reach_id: hats
+  sub_mode: hat-briefing
+  framework: "Six Thinking Hats"   # MUST match the existing frameworks: value
+  posture: hold
+  hierarchy_rank: 2
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 # --- Phase 130-03 lens-engine client frontmatter (READER, not rotator) ---
 lens_type: cognitive
 lens_set: six-hats

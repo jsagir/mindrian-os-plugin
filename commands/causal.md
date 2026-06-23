@@ -12,6 +12,19 @@ frameworks: ["Root Cause Analysis"]
 produces: "room/**/causal/*"
 inputs: []
 autonomous_safe: true
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-02]
+  reach_id: context_block
+  sub_mode: causal-trace
+  framework: "Root Cause Analysis"   # MUST match the existing frameworks: value
+  posture: pull_back
+  hierarchy_rank: 6
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 allowed-tools:
   - Read
   - Write
