@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: executing
-stopped_at: Phase 172 Plan 03 COMPLETE (CIRS R5/R8 command-grained counterpart substrate + promotion path)
-last_updated: "2026-06-23T07:40:00.000Z"
+stopped_at: Phase 172 Plan 07 COMPLETE (R3/INV-07 context-driven trigger tiering + INV-23 Meadows systems model)
+last_updated: "2026-06-23T04:30:00.000Z"
 last_activity: 2026-06-23
 progress:
   total_phases: 6
@@ -16,7 +16,15 @@ progress:
 
 # Project State
 
-## Latest (2026-06-23) -- Phase 172 Plan 03 COMPLETE (CIRS R5/R8 command-grained counterpart substrate); Phase 172 now 3 of 14 plans
+## Latest (2026-06-23) -- Phase 172 Plan 07 COMPLETE (R3/INV-07 context-driven trigger tiering + INV-23 Meadows systems model)
+
+**Phase 172 Plan 07 (this session):** tiered the sensor trigger model so context problem-state leads and keyword is a recorded fallback (R3/INV-07), and recorded the invocation surface as a Meadows system (INV-23). Task 1 (RED b2f86ca4 -> GREEN 2ffa0bbd, tdd): `lib/core/sensors/sensor-types.cjs` gains `TRIGGER_TIERS` (closed ORDERED set `['signal','context','keyword']` -- the order IS the precedence: context preferred, keyword fallback), `PROBLEM_STATE_FIELDS` (the enum read allow-list stage/jtbd/graph_gap), `readProblemStateEnum` (a PURE projection of the LOCAL problem-state enums already on tuple+ctx that the navigation.cjs chokepoint populated -- ZERO new fs/Brain read on the hot path), `classifyTriggerTier`/`isContextTier`/`hasProblemStateSignal`. `lib/core/insight-sensors.cjs` `normalizeTurn` records a `trigger_tier` enum on the normalized COPY at the one-seam normalization point (tuple threaded through `dispatchSensors`); helpers re-exported from the dispatch surface. `makeReach` + the frozen 6-reach/3-posture banks byte-untouched; Phase 144 fence (no routing_source mutation, no decide() call) preserved; keyword DEMOTED to a recorded fallback (the diffusion sensor still fires mode='keyword' on keyword-only input). Task 2 (2490baf0): `docs/172-SYSTEMS-MODEL.md` models the invocation surface as a Meadows system -- STOCKS (dark/wired/excluded/un-ranked/placeholder-chains), FLOWS (born/modified/removed/wired/excluded/chains-earned), FEEDBACK (the coverage gate IS the BALANCING loop holding the dark stock at zero; the 143.x/144.1 regression was a BROKEN loop -- WARN-only + CI-orphaned = weak feedback + long delay), LEVERAGE (born-wired hard gate = Meadows #5 rules / #4 self-organization, NOT a #12 parameter tweak), DELAYS (gate fires at merge not audit-time), HIERARCHY (fractal rollup = Simon near-decomposability, aggregate-scalar-only across boundaries); plus the Test-5 confirmation that `/mos:systems-thinking` is registry-wired (`connects_to_spine:true`, CIRS R1). Fences: `tests/test-context-driven-trigger.cjs` 8/8, `tests/run-all-172.sh` 8/8, carried diffusion-adoption 20/20 + sensors-part8-sweep + sensor-spine-dispatch 6/6 + 150.5-firability 22/22 + reach/posture drift all green. INV-07/INV-23 complete. Zero new deps, zero canon amendment, zero new edge/node/reach type, zero new Brain wire, zero em-dashes. 3 atomic commits (b2f86ca4/2ffa0bbd/2490baf0) + this docs commit. See 172-07-SUMMARY.md.
+
+**Next:** Phase 172 Plan 04 (W2) -- wire the rs-* reverse-salient family (Engine-1 pillar) with `mindrian-operation` counterparts [INV-02], shrinking the 28-gap set. (Plan 07 ran ahead of Plan 04 in this session; Plan 04 remains the next gap-shrinking wave.) Via `/gsd-execute-phase 172`.
+
+---
+
+## Prior (2026-06-23) -- Phase 172 Plan 03 COMPLETE (CIRS R5/R8 command-grained counterpart substrate); Phase 172 now 3 of 14 plans
 
 **Phase 172 Plan 03 (this session):** built the CIRS R5/R8 substrate on the shipped Phase 157 orchestration projection. `scripts/build-orchestration-projection.cjs` `validateProjection()` now returns a fourth array `command_gaps[]`: the command-grained coverage pass INVERTS the old UN-RANKED early-continue (which silently skipped any node lacking `reach_id`), so a bare command surfaces as a gap UNLESS it is ranked or excluded. `classifyCommandNode()` + `commandCoverageReport()` classify every command node ranked|excluded|gap (XOR partition). `EXCLUDED_COMMANDS` is the authoritative 18-command utility-exclusion table (doctor/dashboard/setup/help/...), each with a documented reason (Canon Part 11 R1 first-class terminal state, never dark). `serializeCommandLedger()` emits `data/orchestration-command-ledger.json` (GENERATED, never hand-authored): 55 ranked / 18 excluded / 28 gap / total 101 (XOR holds); STALE-byte-checked in `--check`. `docs/ORCHESTRATION-PROJECTION-CONTRACT.md` section 4e documents the `mindrian-operation` COUNTERPART node (INV-05) + the dark -> counterpart -> `pws` frontier PROMOTION PATH (R8/INV-06) via the Phase 171 `ingestPlan` pipeline, navigator-gated, minting NO new node type. The 28 gaps (rs-* family, causal, act) stay WARN-only this stage (D-172-e); the hard-FAIL flip is Plan 172-13. TDD RED (2ee6c118) -> GREEN (56dc7c19). Fences: `tests/test-orchestration-counterpart-coverage.cjs` 17/17, `tests/run-all-172.sh` 7/7, the existing `lib/memory/orchestration-projection.test.cjs` 37/37 (closed-edge-set + tier rule untouched), `test-orchestration-projection-part8-boundary.cjs` exit 0, frozen exactly-6-reach + exactly-3-posture drift fences green. INV-04/05/06 complete. Zero new deps, zero canon amendment, zero new edge/node type, zero new Brain wire, zero em-dashes. 4 atomic commits (220543b0/356bfff8/2ee6c118/56dc7c19) + this docs commit. See 172-03-SUMMARY.md.
 

@@ -2943,7 +2943,7 @@ Plans:
 - [ ] 172-04-PLAN.md (W2) -- wire the rs-* reverse-salient family (Engine-1 pillar) [INV-02]
 - [ ] 172-05-PLAN.md (W3) -- wire causal/diagnostics/hat-briefing/persona + hats engine case [INV-02]
 - [ ] 172-06-PLAN.md (W4) -- exhaustive residual classification: every command WIRE or EXCLUDE (gap->0) [INV-01/03]
-- [ ] 172-07-PLAN.md (W2) -- context-driven trigger model (keyword=fallback) + Meadows systems model [INV-07/23]
+- [x] 172-07-PLAN.md (W2) -- context-driven trigger model (keyword=fallback) + Meadows systems model [INV-07/23] (DONE 2026-06-23; commits b2f86ca4/2ffa0bbd/2490baf0; sensor-types TRIGGER_TIERS + classifyTriggerTier/readProblemStateEnum context-first/keyword-fallback seam, insight-sensors normalizeTurn records trigger_tier, docs/172-SYSTEMS-MODEL.md Meadows model + systems-thinking R1-wired confirmation, run-all-172.sh 8/8)
 - [ ] 172-08-PLAN.md (W5) -- /mos:act one governed selection brain: connector + real decide() + F.1 + calibration [INV-18/20/21]
 - [ ] 172-09-PLAN.md (W6) -- /mos:act always-on pinned JTBD-blurb standing suggestion [INV-19]
 - [ ] 172-10-PLAN.md (W3) -- curated FEEDS_INTO confidences + projection chain layer + suggest-next rank [INV-08]
@@ -2952,7 +2952,7 @@ Plans:
 - [ ] 172-13-PLAN.md (W7) -- flip gate WARN->FAIL + wire into pre-commit/release/doctor [INV-10/14]
 - [ ] 172-14-PLAN.md (W8) -- adversarial verify with structured verdict + run-all-172.sh [INV-15]
 
-**Status:** EXECUTING (3 of 14 plans complete, 2026-06-23). Plan 01 (CIRS R1/R2 gate substrate -- EXCLUDE state + wired-XOR-excluded coverage ledger) DONE. Plan 02 (CIRS R12 forward-declaration contract + slug-keyed CANON-PHASE-MAP CIRS column + gate hook; self-conformant on 172-01/172-02) DONE. Plan 03 (CIRS R5/R8 substrate -- command-grained projection gate inverting the UN-RANKED early-continue + data/orchestration-command-ledger.json + the mindrian-operation counterpart node + the dark->counterpart->pws-frontier promotion path; command_gaps WARN-only, hard-FAIL deferred to Plan 172-13) DONE. Next: `/gsd-execute-phase 172` Plan 04 (wire the rs-* reverse-salient family).
+**Status:** EXECUTING (4 of 14 plans complete, 2026-06-23). Plan 01 (CIRS R1/R2 gate substrate -- EXCLUDE state + wired-XOR-excluded coverage ledger) DONE. Plan 02 (CIRS R12 forward-declaration contract + slug-keyed CANON-PHASE-MAP CIRS column + gate hook; self-conformant on 172-01/172-02) DONE. Plan 03 (CIRS R5/R8 substrate -- command-grained projection gate inverting the UN-RANKED early-continue + data/orchestration-command-ledger.json + the mindrian-operation counterpart node + the dark->counterpart->pws-frontier promotion path; command_gaps WARN-only, hard-FAIL deferred to Plan 172-13) DONE. Plan 07 (CIRS R3/INV-07 context-driven trigger tiering -- sensor-types TRIGGER_TIERS context-first/keyword-fallback seam reading the LOCAL problem-state enum via navigation.cjs with zero new hot-path read + INV-23 Meadows systems model docs/172-SYSTEMS-MODEL.md + systems-thinking R1-wired confirmation; ran ahead of Plan 04 this session) DONE. Next: `/gsd-execute-phase 172` Plan 04 (wire the rs-* reverse-salient family).
 
 ### Phase 170 - Dual-Use Diffusion + Adoption-Capacity Engine (ACE) - COMPLETE 2026-06-22 (additive, reconciles under Phase 172)
 
