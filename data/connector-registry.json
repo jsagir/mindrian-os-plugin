@@ -758,6 +758,74 @@
       "decision_surface": "F.2"
     },
     {
+      "surface": "/mos:rs-experts",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-02"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "reverse-salient-experts",
+      "framework": "Reverse Salient Analysis",
+      "posture": "pull_back",
+      "hierarchy_rank": 4,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
+      "surface": "/mos:rs-explain",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-02"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "reverse-salient-explain",
+      "framework": "Reverse Salient Analysis",
+      "posture": "pull_back",
+      "hierarchy_rank": 3,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
+      "surface": "/mos:rs-fetch",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-02"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "reverse-salient-fetch",
+      "framework": "Reverse Salient Analysis",
+      "posture": "pull_back",
+      "hierarchy_rank": 2,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
+      "surface": "/mos:rs-thesis",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-02"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "reverse-salient-thesis",
+      "framework": "Reverse Salient Analysis",
+      "posture": "pull_back",
+      "hierarchy_rank": 5,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:scenario-plan",
       "source": "command",
       "connects_to_spine": true,
@@ -1144,6 +1212,10 @@
     "SENS-02": [
       "/mos:dial-memory-refresh",
       "/mos:find-bottlenecks",
+      "/mos:rs-experts",
+      "/mos:rs-explain",
+      "/mos:rs-fetch",
+      "/mos:rs-thesis",
       "agent:reverse-salient-agent"
     ],
     "SENS-09": [
@@ -1215,6 +1287,10 @@
     "Reverse Salient Analysis": [
       "/mos:dial-memory-refresh",
       "/mos:find-bottlenecks",
+      "/mos:rs-experts",
+      "/mos:rs-explain",
+      "/mos:rs-fetch",
+      "/mos:rs-thesis",
       "agent:reverse-salient-agent"
     ],
     "Adoption-Capacity Theory": [
