@@ -1377,6 +1377,22 @@
       "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
+      "command": "/mos:show",
+      "kind": "mechanical",
+      "frameworks": [],
+      "produces": "",
+      "inputs": [],
+      "autonomous_safe": true,
+      "body_shape": "F.1",
+      "serves_jtbd": [
+        "prepare-pitch",
+        "explore"
+      ],
+      "teaching": "When the room is full but you don't know which view answers your question, /mos:show asks your JOB in plain language -- know where I stand, find what's broken, make it land, get it into the world -- and runs the right view underneath. You name the need; the command stays hidden.",
+      "jtbd_label": "Prepare Pitch",
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+    },
+    {
       "command": "/mos:snapshot",
       "kind": "utility",
       "frameworks": [],
