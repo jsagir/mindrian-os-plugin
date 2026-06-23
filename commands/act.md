@@ -3,7 +3,7 @@ name: act
 description: Run Larry's best-pick methodology for your room state
 help_jtbd: "Run the next move Larry recommends, without typing the /mos: command yourself."
 argument-hint: '[--chain] [--swarm] [--dry-run]'
-body_shape: E (Action Report)
+body_shape: E (Action Report) + F.1 (Next-Move gate)
 serves_jtbd: ["plan-execution"]
 teaching: "When you have analyses on the table but no clear next step, /mos:act picks the best-fit methodology for your current room state and runs it. Saves you from analysis paralysis."
 # --- Phase 122 workflow-layer frontmatter ---
@@ -63,7 +63,7 @@ You are Larry. This command autonomously selects and executes the best methodolo
 
 ## UI Format
 
-- **Body Shape:** E -- Action Report (status block, reasoning, then action)
+- **Body Shape:** E -- Action Report (status block, reasoning, then action) for the thinking trace + execution; **Shape F.1** (`lib/hmi/shape-f1-renderer.cjs`, AskUserQuestion primitive) for every option/approval gate. act NEVER hand-rolls a selector (INV-20).
 - **Reference:** `skills/ui-system/SKILL.md`
 - **Zone 1:** Header Panel -- room name + "Autonomous Engine"
 - **Zone 2:** Content Body -- Thinking Trace (reasoning) + Execution (framework output)
@@ -110,6 +110,20 @@ If `room/MINTO.md` exists, read it for:
 - Identified gaps and tensions
 
 If no MINTO.md exists, note that qualitative context is unavailable. Proceed with STATE.md only.
+
+## Step 2c: Intent Calibration (INV-21) -- BEFORE any selection or execution
+
+Before act SELECTS or EXECUTES anything, run a short INTERNAL intent-calibration step. This is act's "confirm what the navigator actually wants" gate: a lightweight internal discuss (the discuss-phase pattern, reused) that pins down, in this room state, what the navigator wants act to do, the scope, the constraints, and the definition of done -- BEFORE routing through F.1 -> decide() -> runChain. Calibration runs first; it is the elevation-of-privilege brake (T-172-15): act never auto-acts on an uncalibrated assumption.
+
+Calibration reads **LOCAL state ONLY** -- the active JTBD, `room/STATE.md`, and `room/MINTO.md` (the governing thought + tensions). It makes **zero Brain egress** (Canon Part 8): no Brain query carries the navigator's intent, scope, or venture content. The calibration is a local reflection over already-read room state, not a Brain round-trip.
+
+Calibration steps:
+
+1. From STATE.md (stage, problem type, weakest sections) and MINTO.md (governing thought, open tensions), draft a one-line read of what act believes the navigator wants next and why.
+2. Surface that read at the Shape F.1 host (the same AskUserQuestion primitive used for the option gate): Confirm this intent / Adjust scope or constraints / Set a different definition of done. The navigator confirms or corrects the intent BEFORE act selects a framework.
+3. Journal the calibrated intent as a `memory_event` through `lib/core/navigation.cjs` (Canon Part 9: SQL is the local mind; the run is auditable). The journaled packet carries ONLY enum/scalar intent handles (the confirmed scope enum, the definition-of-done enum, a timestamp), NEVER the venture content (Part 9 typed packet / Part 8 boundary).
+
+The post-gate handoff is then: **calibrate -> approve -> auto-run the `autonomous_safe` prefix -> halt at the first material step** (Canon Part 3 Decision Gate; the runChain gate authority). MAX_K=3, DIAL_REACH_K=6, and the F.1 keyboard contract stay FROZEN throughout -- calibration renders against them, it never edits them.
 
 ## Step 3: Select Framework (Brain + Local Fallback)
 
@@ -212,10 +226,10 @@ If the `--budget` flag is set, pass it as `maxBudget` to the optimizer. The opti
 
 ### Standard Mode (`/mos:act`)
 
-After displaying the thinking trace:
+After displaying the thinking trace, render the option gate on the canonical **Shape F.1 host** -- NEVER a hand-rolled selector. act's next-move presentation goes through the AskUserQuestion Shape F.1 primitive (`lib/hmi/shape-f1-renderer.cjs`, dispatched via `lib/hmi/selector-dispatcher.cjs`), honoring the FROZEN F.1 keyboard contract (UP/DOWN option navigation + SIDE toggle, Canon Part 3 / INV-20). The selected verb becomes a typed edge (Part 4); no bespoke dialog.
 
-1. Ask the user: "Ready to run **{framework-name}**? (yes / pick another / cancel)"
-2. If yes, dispatch to `agents/framework-runner.md` with:
+1. Surface the F.1 Next-Move gate with the selected framework as the recommended row: Run **{framework-name}** / Pick another framework / Cancel (Free-Text is appended last by the host). The 0.70/0.15 RECOMMENDED gate, MAX_K=3, and DIAL_REACH_K=6 are FROZEN -- act renders against them, it never edits them.
+2. If the navigator selects Run, dispatch to `agents/framework-runner.md` with:
    - Framework name
    - Room context summary (from Step 2)
    - No chain input (single execution)
@@ -279,9 +293,9 @@ Then, for the steps the helper greenlit:
   Source: {Brain graph chains | Local progression}
 ```
 
-3. Ask user: "Ready to run this chain? (yes / modify / cancel)"
+3. Surface the chain-approval gate on the Shape F.1 host (the same AskUserQuestion primitive, INV-20): Run this chain / Modify the chain / Cancel. Never a hand-rolled yes/modify/cancel prompt.
 
-4. If yes, execute sequentially **with checkpoints between steps** (AGENT-03):
+4. If the navigator selects Run, execute sequentially **with checkpoints between steps** (AGENT-03):
    - Run framework 1 via `agents/framework-runner.md`
    - After each step completes, use `chainCheckpoint()` from `dispatch-optimizer.cjs` to generate the pause prompt:
      ```javascript
@@ -398,7 +412,7 @@ Display the swarm plan before dispatching, including cost estimate (AGENT-02):
        Budget: {remainingContext}K remaining{if --budget: ", capped at {budget}K"}
 ```
 
-Ask user: "Ready to swarm? (yes / modify / cancel)"
+Surface the swarm-approval gate on the Shape F.1 host (the AskUserQuestion primitive, INV-20): Swarm now / Modify the plan / Cancel. Never a hand-rolled prompt.
 
 ### Swarm Dispatch
 

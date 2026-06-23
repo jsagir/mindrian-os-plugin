@@ -9,7 +9,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)",
+      "body_shape": "E (Action Report) + F.1 (Next-Move gate)",
       "serves_jtbd": [
         "plan-execution"
       ],
