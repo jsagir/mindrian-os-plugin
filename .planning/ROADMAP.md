@@ -2997,4 +2997,20 @@ Plans:
 
 **Related research (mindrianOS Data Room):** `solution-design/design-mcp-room-deck-and-palette-binding.md` (inline-view parity gap), `product-evolution/design-mcp-connector-authoring-path.md` (design-system brand backend, DesignSync writable path + the live MindrianOS Design System). Per Canon Part 6, mirror the phase intent into the Data Room solution-design section.
 
-**Status:** Roadmap entry added 2026-06-23. Next: `/gsd-spec-phase 173`.
+**Status:** SPEC.md written + committed 2026-06-23 (14 requirements, ambiguity 0.16, gate passed; commit 4961af7f). Next: `/gsd-discuss-phase 173`.
+
+### Phase 174 - Hypothesis-Based Ignite Starting Point (SEEDED 2026-06-23 - spec later)
+
+**Goal (proposed):** Add a new `/mos:ignite` arrival mode: a HYPOTHESIS-based starting point. Today ignite's B1 starting-point gate accepts arrival assets (paste a CV/memo/pitch, or describe a venture). Phase 174 adds a third door - the navigator starts the room from a HYPOTHESIS ("I believe X"): a single falsifiable belief statement that seeds the room's problem-definition and assumption registry from the outset. Canon parts (proposed): 1, 2a, 3, 5, 10.
+
+**Why:** A hypothesis is the most honest cold-start for the wicked navigator (Canon Part 1) - many founders/researchers begin not with a polished pitch but with one belief they want to test. It rhymes with HEART's H = Hypothesis (Phase 173 deck model) and with Canon Part 5 (evidence-graded claims): the opening hypothesis becomes the room's first first-class, evidence-tiered assumption, immediately navigable and testable. It also feeds Engine 1 (decomposition + whitespace + reverse-salient) from a sharper seed than a free-form description.
+
+**Sketch (to spec later):**
+- A new B1 arrival branch: "start from a hypothesis" -> capture one "I believe ___" statement -> file it as the room's seed assumption (Part 5 evidence tier = None/Practitioner initially) + a derived problem-definition draft.
+- The hypothesis becomes a tracked truth-claim node (Part 9), `review_status: proposed`, promotable as evidence accrues.
+- Persona-aware framing (Part 2a): researcher phrases it as a testable claim; founder as a market bet; investor as a thesis precondition.
+- Reuse the Phase 115 dual-path first-touch detector + ignite B1/B2/B3 birth transaction; this is a NEW arrival classification, not a new birth engine (Part 7 reuse).
+
+**Dependency:** sits on the shipped /mos:ignite birth orchestrator; should be born-wired under Phase 172 CIRS like 173.
+
+**Status:** SEEDED 2026-06-23 (navigator-directed). Not yet specced. Next when promoted: `/gsd-spec-phase 174`.
