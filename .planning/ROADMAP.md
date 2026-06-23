@@ -2989,6 +2989,7 @@ Plans:
 **The deck-style requirement (navigator, 2026-06-23):** the "Make it land" lane offers a DECK-STYLE choice because different deck types need different narrative structures and views: (a) **Feynman style** - first-principles simplification (make a complex/technical idea understandable); (b) **HEART style** - the H.E.A.R.T pitch-narrative model (Ben Weiner; Hypothesis / Enormous stakes / Alternatives inadequate / Radically different / Team), sourced from the Brain teaching graph (verified present, T3 tier, `brain_search` top-rank 2026-06-23), promoted into an invokable, publishable deck command + visual; (c) **mesh/combo** - a blend, since each structure carries different properties and views and is relevant to different deck types (or a combination). HEART becomes a first-class published visual when a user is creating a business deck, on par with the Feynman engine. Both bind to the default MindrianOS Design System (user-overridable). The HEART knowledge stays generic methodology in the Brain (Part 8); only the LOCAL room content fills the structure.
 
 **Design (locked from the 2026-06-23 discovery session):**
+
 - 4 intent lanes as F.1 question-tabs in JTBD voice: "Know where I stand" / "Find what's broken" / "Make it land" / "Get it into the world". Options are user-voice jobs (e.g. "show me how my pieces connect" -> `/mos:graph`; "show me where I'm weakest" -> `/mos:radar`; "make this simple enough for an outsider" -> MOSDeckEngine; "give me a link I can send" -> `/mos:publish`).
 - Persona-adaptive default lane via USER.md role_blend (Part 2a): founder opens on "Get it into the world", researcher on "Find what's broken", investor on thesis/red-team.
 - The "show the unseen" bar: a job earns a slot only if it surfaces CONNECTIONS or GAPS (the moat), not decoration.
@@ -2999,10 +3000,11 @@ Plans:
 
 **Related research (mindrianOS Data Room):** `solution-design/design-mcp-room-deck-and-palette-binding.md` (inline-view parity gap), `product-evolution/design-mcp-connector-authoring-path.md` (design-system brand backend, DesignSync writable path + the live MindrianOS Design System). Per Canon Part 6, mirror the phase intent into the Data Room solution-design section.
 
-**Plans:** 3 plans in 2 waves (planned 2026-06-23). Scope: R1-R7 + R12 (the selector). R8-R11/R13-R14 deferred to Phase 175.
+**Plans:** 1/3 plans executed
 
 Plans:
-- [ ] 173-01-PLAN.md — data/publish-needs.json need->command map (R2) + show-the-unseen tag (R7) + --check validator + role_blend->lane mapper (R6)
+
+- [x] 173-01-PLAN.md — data/publish-needs.json need->command map (R2) + show-the-unseen tag (R7) + --check validator + role_blend->lane mapper (R6)
 - [ ] 173-02-PLAN.md — /mos:show F.1 JTBD selector front door (R1, R3 resolution) + born-wired CIRS connector + cirs_relationship (R5, R12)
 - [ ] 173-03-PLAN.md — show/share trigger sensor SENS-SHOW (R4) + dispatchSensors registration + cross-surface note (R12) + end-to-end R1-R7 flow test
 
@@ -3015,6 +3017,7 @@ Plans:
 **Why:** A hypothesis is the most honest cold-start for the wicked navigator (Canon Part 1) - many founders/researchers begin not with a polished pitch but with one belief they want to test. It rhymes with HEART's H = Hypothesis (Phase 173 deck model) and with Canon Part 5 (evidence-graded claims): the opening hypothesis becomes the room's first first-class, evidence-tiered assumption, immediately navigable and testable. It also feeds Engine 1 (decomposition + whitespace + reverse-salient) from a sharper seed than a free-form description.
 
 **Sketch (to spec later):**
+
 - A new B1 arrival branch: "start from a hypothesis" -> capture one "I believe ___" statement -> file it as the room's seed assumption (Part 5 evidence tier = None/Practitioner initially) + a derived problem-definition draft.
 - The hypothesis becomes a tracked truth-claim node (Part 9), `review_status: proposed`, promotable as evidence accrues.
 - Persona-aware framing (Part 2a): researcher phrases it as a testable claim; founder as a market bet; investor as a thesis precondition.

@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: verifying
-stopped_at: "Phase 172 Plan 14 COMPLETE (INV-15 adversarial verify + structured VERDICT; phase ready to close, navigator-gated)"
-last_updated: "2026-06-23T12:30:00.000Z"
+stopped_at: "Phase 172 Plan 13 COMPLETE (the full flip: both gates hard-FAIL + four-class canon v1.15)"
+last_updated: "2026-06-23T11:44:30.985Z"
 last_activity: 2026-06-23
 progress:
   total_phases: 6
@@ -415,7 +415,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 173 (publish-jtbd-need-selector) - EXECUTING
-Plan: 1 of 3
+Plan: 2 of 3
 
 ### Phase 172 Plan 02 (CIRS R12 forward-declaration contract + gate hook, Wave 1, autonomous) COMPLETE
 
@@ -913,6 +913,7 @@ Progress: [█████████░] 92%
 | Phase 167 P01 | 25min | 3 tasks | 7 files |
 | Phase 167 P02 | 20min | 2 tasks | 3 files |
 | Phase 172 P06 | ~25min | 2 tasks | 55 files |
+| Phase 173 P01 | 20m | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -1841,7 +1842,7 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-23T11:30:26.134Z
+Last session: 2026-06-23T11:44:22.260Z
 Stopped at: Phase 172 Plan 13 COMPLETE (the full flip: both gates hard-FAIL + four-class canon v1.15)
 Resume path: Phase 172 Plan 13 is COMPLETE (commits 7858e79f flip+propagate, 34160b84 four-surface wiring, 75451e52 hard-fail proof, 74b0b8c1 four-class canon v1.15). BOTH CIRS coverage gates now hard-FAIL: build-connector-registry.cjs + build-orchestration-projection.cjs `--check` exit non-zero on any surface neither WIRED nor EXCLUDED (and any command counterpart neither ranked nor excluded), wired into pre-commit + install-pre-commit + release.sh (Step 2.4) + doctor --acceptance (coverage-gate point). The projection-exclude reconciliation propagated the 10 connector-EXCLUDED bare-command counterparts into the projection (projection now 76 ranked / 25 excluded / 0 gap); BOTH ledgers gap=0 (connector 88/36/0). Canon Part 11 R1 carries the verbatim four-class governance-ISA sentence (mechanical/framework/intelligence/pipeline); coverageReport() carries a per-surface class enum (counts unchanged); canon v1.14 -> v1.15 (Appendix D entry 26 + CANON-PHASE-MAP row). Fences: tests/test-coverage-gate-hardfail.cjs 14/14, tests/test-cirs-four-class-floor.cjs 23/23, bash tests/run-all-172.sh 18/18. The born-wired hard gate is now enforced at every merge -- the structural cure for the 143.x/144.1 regression. See 172-13-SUMMARY.md.
 
