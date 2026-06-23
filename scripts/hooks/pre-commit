@@ -149,19 +149,23 @@ fi
 # ---------------------------------------------------------------------------
 # Phase 143.3-02 guardian: connector-registry drift + four CONN-03 validations.
 #
-# When any commands/*.md, skills/*/SKILL.md, data/connector-registry.json, or
+# When any commands/*.md, skills/*/SKILL.md, agents/*.md,
+# data/connector-registry.json, data/connector-coverage-ledger.json, or
 # data/framework-names.json is staged, regenerate the connector registry in
 # memory and reject the commit if the on-disk registry is stale OR any of the
 # four CONN-03 validations fail (reach_id not in frozen 6, posture not in frozen
 # 3, framework unresolvable via commandsForFramework, or a duplicate
-# (sensor,reach,sub_mode) tuple). Generated, never hand-written; drift
-# impossible to commit. Canon Part 8: the check never touches the Brain.
+# (sensor,reach,sub_mode) tuple) OR any surface is a GAP (neither WIRED nor
+# EXCLUDED). The gap check is a HARD FAIL as of Phase 172-13 (Canon Part 11
+# R2/R9): a born-dark surface can no longer reach merge. Generated, never
+# hand-written; drift impossible to commit. Canon Part 8: the check never
+# touches the Brain.
 # Recovery on drift: node scripts/build-connector-registry.cjs
 # (the guard runs:  node scripts/build-connector-registry.cjs --check )
 # ---------------------------------------------------------------------------
-if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.md|data/connector-registry\.json|data/framework-names\.json)$'; then
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.md|agents/.*\.md|data/connector-registry\.json|data/connector-coverage-ledger\.json|data/framework-names\.json)$'; then
   if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-connector-registry.cjs" ]; then
-    node "$REPO_ROOT/scripts/build-connector-registry.cjs" --check || { echo "connector-registry drift -- run: node scripts/build-connector-registry.cjs" >&2; exit 2; }
+    node "$REPO_ROOT/scripts/build-connector-registry.cjs" --check || { echo "connector-registry drift / dark surface -- run: node scripts/build-connector-registry.cjs" >&2; exit 2; }
   fi
 fi
 
@@ -181,9 +185,9 @@ fi
 # Recovery on drift: node scripts/build-orchestration-projection.cjs
 # (the guard runs:  node scripts/build-orchestration-projection.cjs --check )
 # ---------------------------------------------------------------------------
-if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.md|agents/.*\.md|data/connector-registry\.json|data/command-registry\.json|data/cross-domain-analogues\.json|data/orchestration-unwired-allowlist\.json|data/brain-orchestration-projection\.json)$'; then
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.md|agents/.*\.md|data/connector-registry\.json|data/connector-coverage-ledger\.json|data/command-registry\.json|data/cross-domain-analogues\.json|data/orchestration-unwired-allowlist\.json|data/brain-orchestration-projection\.json|data/orchestration-command-ledger\.json)$'; then
   if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-orchestration-projection.cjs" ]; then
-    node "$REPO_ROOT/scripts/build-orchestration-projection.cjs" --check || { echo "orchestration-projection drift -- run: node scripts/build-orchestration-projection.cjs" >&2; exit 2; }
+    node "$REPO_ROOT/scripts/build-orchestration-projection.cjs" --check || { echo "orchestration-projection drift / command gap -- run: node scripts/build-orchestration-projection.cjs" >&2; exit 2; }
   fi
 fi
 

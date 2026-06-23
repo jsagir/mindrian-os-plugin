@@ -267,6 +267,28 @@ if ! bash "$PLUGIN_DIR/scripts/verify-release" 2>&1; then
 fi
 echo -e "${GREEN}All verification checks passed${NC}"
 
+# --- Step 2.4: coverage gates (Canon Part 11 R2/R9/INV-10 step 3, Phase 172-13) ---
+# The born-wired coverage gate as a release gate step. Runs BOTH --check gates
+# directly (a HARD ABORT) so a release carrying an accidental-dark surface (a
+# command/skill/agent neither WIRED nor EXCLUDED, or a bare command counterpart
+# neither ranked nor excluded) is caught BEFORE any version mutation. This is
+# also folded into doctor --acceptance (the coverage-gate point), but running it
+# here too keeps the release pipeline self-documenting. Canon Part 8: both
+# regenerate in memory from LOCAL sources; zero Brain / network.
+echo ""
+echo "=== Step 2.4: coverage gates (connector + orchestration-projection --check) ==="
+if ! node "$PLUGIN_DIR/scripts/build-connector-registry.cjs" --check; then
+  echo -e "${RED}ABORT: connector coverage gate failed -- a surface is neither WIRED nor EXCLUDED.${NC}"
+  echo "  Recovery: node scripts/build-connector-registry.cjs"
+  exit 1
+fi
+if ! node "$PLUGIN_DIR/scripts/build-orchestration-projection.cjs" --check; then
+  echo -e "${RED}ABORT: orchestration-projection coverage gate failed -- a command counterpart is neither ranked nor excluded.${NC}"
+  echo "  Recovery: node scripts/build-orchestration-projection.cjs"
+  exit 1
+fi
+echo -e "${GREEN}  coverage gates passed (no dark surface)${NC}"
+
 # --- Step 2.5: doctor --acceptance --pre-flight (HARD ABORT) ---
 # Phase 126.1 hotfix (2026-05-15): the clean-tree check was moved out of
 # --pre-tag by 3fc008b because release.sh Step 6.6 calls --pre-tag AFTER

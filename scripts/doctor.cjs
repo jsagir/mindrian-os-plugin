@@ -2716,6 +2716,48 @@ function buildAcceptanceChecklist(ctx) {
         return { ok: ok, finding: finding, detail: { exit: r.status, summary: j && j.summary } };
       },
     },
+    {
+      // Phase 172-13 (Canon Part 11 R2/R9/INV-10 step 3): the born-wired coverage
+      // gate as a release acceptance point. Runs BOTH --check gates -- the
+      // connector registry (a surface neither WIRED nor EXCLUDED is a hard fail)
+      // and the orchestration projection (a bare command counterpart neither
+      // ranked nor excluded is a hard fail). A release with an accidental-dark
+      // surface aborts here. Canon Part 8: both --check gates regenerate in
+      // memory from LOCAL sources; zero Brain / network.
+      id: 'coverage-gate',
+      label: 'connector + orchestration-projection coverage gates pass (no dark surface)',
+      severity: 'blocker',
+      applies_to: ['pre-tag', 'full'],
+      run: async function () {
+        if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'coverage-gate') {
+          return { ok: false, finding: 'coverage-gate synthesized failure (test mode)', detail: {} };
+        }
+        const cp = require('child_process');
+        const gates = [
+          { id: 'connector', script: 'build-connector-registry.cjs' },
+          { id: 'projection', script: 'build-orchestration-projection.cjs' },
+        ];
+        const results = [];
+        for (const g of gates) {
+          const scriptPath = path.join(pluginRoot, 'scripts', g.script);
+          if (!fs.existsSync(scriptPath)) {
+            results.push({ id: g.id, ok: false, status: null, note: 'script missing: ' + g.script });
+            continue;
+          }
+          const r = cp.spawnSync('node', [scriptPath, '--check'], { encoding: 'utf8', timeout: 60000 });
+          results.push({
+            id: g.id,
+            ok: r.status === 0,
+            status: r.status,
+            stderrTail: (r.stderr || '').slice(-400),
+          });
+        }
+        const failed = results.filter(function (x) { return !x.ok; });
+        const ok = failed.length === 0;
+        const finding = ok ? null : (failed.map(function (x) { return x.id + ' gate exited ' + x.status; }).join('; '));
+        return { ok: ok, finding: finding, detail: { gates: results } };
+      },
+    },
     // -- Phase 126 Plan 05: 5 release-flight pre-flight hot-patches --
     //
     // Phase 123's release cut (v1.13.0-beta.13) surfaced 5 hot-patches during

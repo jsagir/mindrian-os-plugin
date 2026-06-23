@@ -32,9 +32,10 @@ HOOK_PATH="$REPO_ROOT/.git/hooks/pre-commit"
 
 if [ -f "$HOOK_PATH" ]; then
   # Idempotency: consider the hook fully installed only when ALL guards wired
-  # (schema-aliases + substrate + the Phase 167 harness-manifest drift guard).
-  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH" && grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH"; then
-    echo "Pre-commit hook already installed (schema-aliases + substrate + harness-manifest). No changes."
+  # (schema-aliases + substrate + the Phase 167 harness-manifest drift guard +
+  # the Phase 172-13 coverage gates: connector --check + projection --check).
+  if grep -q "check-schema-aliases.cjs" "$HOOK_PATH" && grep -q "check-substrate.cjs" "$HOOK_PATH" && grep -q "build-harness-manifest.cjs --check" "$HOOK_PATH" && grep -q "build-connector-registry.cjs --check" "$HOOK_PATH" && grep -q "build-orchestration-projection.cjs --check" "$HOOK_PATH"; then
+    echo "Pre-commit hook already installed (schema-aliases + substrate + harness-manifest + coverage gates). No changes."
     exit 0
   fi
   echo "WARNING: $HOOK_PATH exists but is missing one or more MindrianOS guards."
@@ -85,6 +86,40 @@ if git diff --cached --name-only | grep -qE '^(scripts/build-harness-manifest\.c
 fi
 HOOK_TRAILER_MANIFEST
   fi
+  if ! grep -q "build-connector-registry.cjs --check" "$HOOK_PATH"; then
+    cat >> "$GUARD_SNIPPET" <<'HOOK_TRAILER_CONNECTOR'
+
+# Phase 172-13 (Canon Part 11 R2/R9) - connector coverage gate (born-wired
+# HARD-FAIL). When any commands/*.md, skills/*/SKILL.md, agents/*.md, or the
+# connector/coverage-ledger/framework-names JSONs are staged, regenerate the
+# connector registry in memory and reject the commit on STALE, any CONN-03
+# validation failure, OR any GAP surface (neither WIRED nor EXCLUDED). A
+# born-dark surface can no longer reach merge. Canon Part 8: zero Brain calls.
+# Recovery on drift: node scripts/build-connector-registry.cjs
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.md|agents/.*\.md|data/connector-registry\.json|data/connector-coverage-ledger\.json|data/framework-names\.json)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT_PLACEHOLDER/scripts/build-connector-registry.cjs" ]; then
+    node "$REPO_ROOT_PLACEHOLDER/scripts/build-connector-registry.cjs" --check || { echo "connector-registry drift / dark surface -- run: node scripts/build-connector-registry.cjs" >&2; exit 1; }
+  fi
+fi
+HOOK_TRAILER_CONNECTOR
+  fi
+  if ! grep -q "build-orchestration-projection.cjs --check" "$HOOK_PATH"; then
+    cat >> "$GUARD_SNIPPET" <<'HOOK_TRAILER_PROJECTION'
+
+# Phase 172-13 (Canon Part 11 R2/R9) - orchestration-projection coverage gate
+# (born-wired HARD-FAIL). When any commands/*.md, skills/*/SKILL.md, agents/*.md,
+# or the projection/ledger/registry JSONs are staged, regenerate the projection
+# in memory and reject the commit on STALE / UN-WIRED / UN-RANKED OR any
+# command_gap (a bare command counterpart neither ranked nor excluded). Canon
+# Part 8: zero Brain calls.
+# Recovery on drift: node scripts/build-orchestration-projection.cjs
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.md|agents/.*\.md|data/connector-registry\.json|data/connector-coverage-ledger\.json|data/command-registry\.json|data/cross-domain-analogues\.json|data/orchestration-unwired-allowlist\.json|data/brain-orchestration-projection\.json|data/orchestration-command-ledger\.json)$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT_PLACEHOLDER/scripts/build-orchestration-projection.cjs" ]; then
+    node "$REPO_ROOT_PLACEHOLDER/scripts/build-orchestration-projection.cjs" --check || { echo "orchestration-projection drift / command gap -- run: node scripts/build-orchestration-projection.cjs" >&2; exit 1; }
+  fi
+fi
+HOOK_TRAILER_PROJECTION
+  fi
   # Find the LAST `exit 0` line (a bare terminal exit). If present, splice the
   # guards in just before it; otherwise append to the end of the hook.
   LAST_EXIT_LINE="$(grep -n '^exit 0[[:space:]]*$' "$HOOK_PATH" | tail -1 | cut -d: -f1 || true)"
@@ -128,6 +163,20 @@ node "$REPO_ROOT/scripts/check-substrate.cjs" --diff || exit 1
 if git diff --cached --name-only | grep -qE '^(scripts/build-harness-manifest\.cjs|data/harness-manifest\.json|data/command-registry\.json|data/connector-registry\.json|data/brain-orchestration-projection\.json)\$'; then
   if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-harness-manifest.cjs" ]; then
     node "$REPO_ROOT/scripts/build-harness-manifest.cjs" --check || { echo "harness-manifest drift -- run: node scripts/build-harness-manifest.cjs" >&2; exit 1; }
+  fi
+fi
+# Phase 172-13 (Canon Part 11 R2/R9) - connector coverage gate (born-wired HARD-FAIL).
+# Recovery on drift / dark surface: node scripts/build-connector-registry.cjs
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.md|agents/.*\.md|data/connector-registry\.json|data/connector-coverage-ledger\.json|data/framework-names\.json)\$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-connector-registry.cjs" ]; then
+    node "$REPO_ROOT/scripts/build-connector-registry.cjs" --check || { echo "connector-registry drift / dark surface -- run: node scripts/build-connector-registry.cjs" >&2; exit 1; }
+  fi
+fi
+# Phase 172-13 (Canon Part 11 R2/R9) - orchestration-projection coverage gate (born-wired HARD-FAIL).
+# Recovery on drift / command gap: node scripts/build-orchestration-projection.cjs
+if git diff --cached --name-only | grep -qE '^(commands/.*\.md|skills/.*/SKILL\.md|agents/.*\.md|data/connector-registry\.json|data/connector-coverage-ledger\.json|data/command-registry\.json|data/cross-domain-analogues\.json|data/orchestration-unwired-allowlist\.json|data/brain-orchestration-projection\.json|data/orchestration-command-ledger\.json)\$'; then
+  if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-orchestration-projection.cjs" ]; then
+    node "$REPO_ROOT/scripts/build-orchestration-projection.cjs" --check || { echo "orchestration-projection drift / command gap -- run: node scripts/build-orchestration-projection.cjs" >&2; exit 1; }
   fi
 fi
 HOOK_BODY
