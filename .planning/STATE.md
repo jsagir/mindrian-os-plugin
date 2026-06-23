@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: verifying
-stopped_at: Phase 172 context gathered + recalibrated to CIRS (structural)
-last_updated: "2026-06-22T14:20:19.105Z"
-last_activity: 2026-06-19
+stopped_at: Phase 172 Plan 01 COMPLETE (CIRS R1/R2 gate substrate -- EXCLUDE state + coverage ledger)
+last_updated: "2026-06-23T06:42:00.000Z"
+last_activity: 2026-06-23
 progress:
   total_phases: 6
   completed_phases: 6
@@ -310,12 +310,16 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 165 — unknown-unknowns-blindspot-engine
+**Current focus:** Phase 172 — contextual-invocation-coverage
 
 ## Current Position
 
-Phase: 165 (unknown-unknowns-blindspot-engine) — EXECUTING
-Plan: 1 of 6
+Phase: 172 (contextual-invocation-coverage) — EXECUTING
+Plan: 2 of 14 (Plan 01 COMPLETE)
+
+### Phase 172 Plan 01 (CIRS R1/R2 gate substrate, Wave 1, autonomous) COMPLETE
+
+The connector generator now recognizes a first-class EXCLUDED surface and emits the wired-XOR-excluded coverage ledger that every later 172 wave reads and the Wave-4 gate hard-enforces. Task 1 (commit 8471aa3b): the EXCLUDE code path -- `buildRegistry()` skips `connector:{excluded:true}` (never a wired entry), `classifySurface()` + the exported `coverageReport()` classify EVERY command/skill/agent surface as wired/excluded/gap, and `excluded:true` with no `reason` is a build error (D-172-a "no surface dark by accident"). Frozen `REACH_IDS`/`POSTURE_IDS`/`MAX_K`/`DIAL_REACH_K` untouched (zero diff to sensor-types.cjs). Task 2 (commit 0e6fe19c): `serializeLedger()` + committed `data/connector-coverage-ledger.json` (62 wired, 0 excluded, 62 gap across 124 surfaces); `--check` byte-checks the ledger STALE and WARNs (does NOT FAIL) on gaps -- the warn+report stage of D-172-e step 1; the hard-FAIL flip is Wave-4/Plan 172-09. Task 3 (commit 6a0b52b0, tdd): `tests/test-connector-coverage-ledger.cjs` (count parity + excluded-state + XOR invariant + STALE + Part 8 planted-secret tripwire), `tests/run-all-172.sh` aggregator 5/5, and the `excluded`+`reason` sub-keys + Canon Part 11 R1 note in docs/CONNECTOR-CONTRACT.md. Verification: `--check` exit 0, ledger test exit 0, run-all-172.sh 5/5. No 7th reach, no new edge/node type, no new Brain wire. Self-check PASSED. See `172-01-SUMMARY.md`.
 
 ### Phase 157 Plan 05 (cache-contract schema + Part 8 boundary scan, Wave 5 of 5, autonomous) COMPLETE -- the FINAL SEALING wave
 
@@ -424,7 +428,7 @@ Phase 143.3-01 outcome (2026-06-07): shipped the Connector Contract FOUNDATION -
 Phase 142-04 outcome (2026-06-06): VERIFY-AND-CLOSE for NAV-02 + NAV-04 + FILEVAL-03 -- three loop-fires suites turned GREEN against shipped code, with only the one thin wire each test proved a gap for. NAV-02: added ensureSectionDerived(roomPath, section, opts) to lib/core/brain-derivation.cjs (commit ed440faf) as the auto-fire the consumption side was missing -- idempotent short-circuit on a fresh brain-authored BRAIN.md, live-Brain delegation to the shipped deriveSection, and a LOCAL no-Brain-query path that composes a minimal schema-valid fresh BRAIN.md from the local triple through the EXISTING Part-8 chokepoint buildBrainQueryContext (hash + enum + slug only; brain_query_count:0 proves zero queries fired); test-brain-md-tier-rise.cjs (NOT modified) now proves tier_0 with BRAIN.md absent rises above tier_0 once the section BRAIN.md is written, observed in decision_trace.brain_md_tier_mode; buildBrainQueryContext remains the SOLE Brain-context builder (no new query surface). NAV-04: rewrote test-post-compact-nav04-closure.cjs (commit 925ef7f4) to the plan-checker TWO-HOP contract -- a naive direct hooks.json grep for restore-post-compact-context.cjs FALSE-FAILS because the consumer is loaded by the coordinator, never named in hooks.json; the fence now asserts HOP 1 (hooks.json registers sessionstart-coordinator.cjs on a SessionStart entry whose matcher includes compact) + HOP 2 (sessionstart-coordinator.cjs loads restore-post-compact-context) + an explicit anti-false-fail guard that the consumer is NOT named directly in hooks.json + the up-lane producer scripts/post-compact + the 95.5-VERIFICATION.md status: passed close-by-reference; NO production change. FILEVAL-03: thin-wired the already-computed `landed` round-trip values into the ok:true return of fileEvidenceWithReadback as result.readback (LOCAL recall, Part 8) + added surfaceFileEvidenceResult(result) (honesty signal for ok:false; human-readable recall for ok:true), re-exported through navigation.cjs (commit 3be2640b); rewrote test-fileval-readback-surface.cjs to prove BOTH halves -- HONESTY (filing_did_not_land returned + surfaced) AND the plan-checker REMIND positive path (ok:true carries non-empty, human-readable round-trip readback fields). FILEVAL-02 contract stays GREEN (readback is purely additive). Verification: 3 target suites 3/3 + 5/5 + 4/4; run-all-142.sh 7/7 (run twice); zero regression on navigation-acceptance / decoy-tier / room-home / fileval-02; em-dash scan clean across all touched files; every commit through the live pre-commit hook with no --no-verify. One out-of-scope discovery logged (DI-142-01 in deferred-items.md): test-derivation-drain-fires.cjs (NAV-03, plan 142-03) is cold-start flaky -- fails on first invocation after an idle gap, passes on re-run; confirmed DECOUPLED from 142-04 (no import linkage; ensureSectionDerived touches neither the queue nor MINDRIAN_BRAIN_KEY); left to the 142-03 owner. SUMMARY at .planning/phases/142-local-intelligence-wiring-compute-store-and-act/142-04-SUMMARY.md; 142-04 + the Phase 142 top-level row flipped to [x] in ROADMAP.md. PHASE 142 (Local Intelligence Wiring) is COMPLETE, 4/4 plans shipped.
 
 Prior: Phase 141 plan 02 COMPLETE. The previously uncommitted working-tree Capability Dial edit was committed to HEAD FIRST (06a944b8) per the D-06 hard ordering, ADDITIVELY: canon_parts: [Part 2, Part 3, Part 8, Part 9] frontmatter (LARRY-01), 5 machine-readable reach ids context_block/contradiction/cross_room/brain_consult/deep_research (LARRY-03), the LARRY-04 Hierarchical Navigator section led by the Usher division with 3 posture ids push_forward/hold/pull_back + Reach rule 7 arbitration (D-11/12/13), Aronhime quoted verbatim. DRSCH preserved as committed doctrine only (5th reach row + Reach rule 6 untouched, D-01). Version bumped to 1.13.1-beta.7 in CHANGELOG + plugin.json + package.json in lockstep (5b475ccc); no git tag, no marketplace push (human-gated). 3 tests GREEN: test-reach-ids-drift.cjs, test-posture-ids-drift.cjs, test-capability-dial-committed.cjs. Two Rule-1 test fixes applied (reach-id regex now matches contradiction; posture test heading-anchored + end-bounded) -- see 141-02-SUMMARY.md Deviations. Sequential main-tree execution.
-Last activity: 2026-06-19
+Last activity: 2026-06-23
 
 ### LARRYREACH milestone roadmap (2026-06-04)
 
@@ -1728,6 +1732,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-22T14:20:19.070Z
-Stopped at: Phase 172 context gathered + recalibrated to CIRS (structural)
-Resume path: (1) optionally `bash scripts/release.sh prerelease --allow-ahead` to bank beta.12 (verified, dry-run green). (2) Build v1.15.0 phase-by-phase: scaffold + `/gsd-discuss-phase 151` (research already exists: keyboard-tui-cockpit-research Section 11 "The Map" + Section 9 component arsenal) -> `/gsd-plan-phase 151` -> `/gsd-execute-phase 151`, then 152 (per-command research: 2026-06-08-phase-152-per-command-determination.md), 153 (RTL, research Section 13), 154 (the standalone Ink cockpit capstone). GSD detects phases by .planning/phases/<n>-<slug>/ DIRECTORY -- each needs scaffolding before plan-phase (phase_found was false for 151 because no dir yet).
+Last session: 2026-06-23T06:42:00.000Z
+Stopped at: Phase 172 Plan 01 COMPLETE (CIRS R1/R2 gate substrate)
+Resume path: Phase 172 Plan 01 (CIRS R1/R2 gate substrate) is COMPLETE -- the EXCLUDE state + the wired-XOR-excluded coverage ledger (data/connector-coverage-ledger.json) + the warn-only gap report are shipped and test-fenced (commits 8471aa3b, 0e6fe19c, 6a0b52b0). Next: `/gsd-execute-phase 172` Plan 02 (R12 cirs_relationship contract + CANON-PHASE-MAP CIRS column + gate hook, per the 172 plan map). The hard-FAIL flip of the RETRO-07 coverage gate is Wave-7 / Plan 172-13 -- do NOT make `--check` exit non-zero on gaps before then.
