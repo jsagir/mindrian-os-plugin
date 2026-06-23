@@ -328,6 +328,14 @@ invocable surface. R6 (earned chains) + R11 (fractal rollup) are DECLARED-but-DE
 Part 11 governs SUPPLY/reachability; Part 3 governs the DEMAND-side decision surface. CIRS obligations
 are keyed on phase SLUG (the CIRS column), a SPECIALIZATION of the canon_parts forward-compatibility rule.
 
+**The CIRS column is the slug-keyed forward-declaration ledger (R12).** Every future phase row in this
+section is keyed on phase SLUG (not number, absorbing this map's own phase-number-collision warning) and
+carries its cirs_relationship summary: surfaces touched (added / modified / removed), spine consumed, and
+gate impact. The schema source for the `cirs_relationship:` declaration block is docs/CIRS-RELATIONSHIP-CONTRACT.md
+(the R12 contract: the five-field block + the canon_parts-11 auto-derivation rule). A phase that adds,
+modifies, or removes an invocable surface, OR that consumes the invocation spine, MUST declare a conformant
+cirs_relationship block or the gate FAILS it.
+
 | Status  | Phase / Component | CIRS relationship | Reference |
 |---------|-------------------|-------------------|-----------|
 | registered | Phase 172 contextual-invocation-coverage | IMPLEMENTS CIRS R1-R14 (the born-wired gate, exclude ledger, dark-surface wiring, mindrian-operation counterparts, curated chains, /mos:act reconciliation, fractal rollup, R12 forward-declaration) | .planning/phases/172-contextual-invocation-coverage/ (CONTEXT + SPEC INV-01..23 + RECALIBRATION) |
