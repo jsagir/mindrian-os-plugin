@@ -13,6 +13,7 @@
 #   (b) the CJS suites:
 #         test-connector-coverage-ledger.cjs  -> Phase 172-01 ledger XOR + EXCLUDE
 #         test-connector-tripwire.cjs          -> the carried four-validation tripwire
+#         test-cirs-declaration.cjs            -> Phase 172-02 R12 gate-hook validator
 #   (c) the CARRIED frozen-bank drift fences (172 is ADDITIVE -- no frozen-set move):
 #         test-reach-ids-drift.cjs             -> frozen 6 reach_ids (no 7th)
 #         test-posture-ids-drift.cjs           -> frozen 3 postures (no 4th)
@@ -28,6 +29,7 @@ START_TIME=$(date +%s)
 CJS_SUITES=(
   test-connector-coverage-ledger.cjs
   test-connector-tripwire.cjs
+  test-cirs-declaration.cjs
   test-reach-ids-drift.cjs
   test-posture-ids-drift.cjs
 )
