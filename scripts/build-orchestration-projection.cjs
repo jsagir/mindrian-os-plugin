@@ -210,13 +210,21 @@ const NODE_FIELD_ALLOWLIST = Object.freeze([
   'ranking',
 ]);
 
-// Every edge is exactly { type, from, to } where from/to are node ids and type
-// is one of the closed ALLOWED_EDGE_TYPES set. No edge carries any other field;
-// an edge key outside this set is a Part 8 breach.
+// Every edge is { type, from, to } where from/to are node ids and type is one of
+// the closed ALLOWED_EDGE_TYPES set, OPTIONALLY carrying the two earned-chain
+// scalars `confidence` (a curated float) and `transform` (a SHORT generic
+// handoff descriptor -- a chain-step machinery string, never user content), which
+// mirror the verified Brain FEEDS_INTO {confidence, transform} edge schema
+// (research/172-SPFO-CHAIN-MODEL-REFERENCE.md, Plan 172-15, Canon Part 11 R6 /
+// INV-08). `transform` is enum/scalar machinery metadata (Part 8) -- the
+// forbidden-value heuristic still fences any room/ path, email, or over-cap body.
+// An edge key OUTSIDE this set is a Part 8 breach.
 const EDGE_FIELD_ALLOWLIST = Object.freeze([
   'type',
   'from',
   'to',
+  'confidence',
+  'transform',
 ]);
 
 // The curated_chains kind -> edge type mapping (documented in
@@ -479,8 +487,14 @@ function distinctSubModes(connectorReg) {
 // (which returns instead of throwing; here we throw because a malformed edge in
 // a GENERATED artifact is a build error, not a runtime input error).
 // ---------------------------------------------------------------------------
+// props (optional, 4th arg) may carry the earned-chain scalars { confidence,
+// transform } (Plan 172-15, Canon Part 11 R6 / INV-08). Only `confidence` (a
+// number) and `transform` (a SHORT generic handoff string) are copied onto the
+// edge, mirroring the verified Brain FEEDS_INTO {confidence, transform} schema;
+// any other prop key is IGNORED (the EDGE_FIELD_ALLOWLIST boundary scan would
+// otherwise fail the build -- a key outside the allowlist is a Part 8 breach).
 function makeAddEdge(nodeIds, edges, seen) {
-  return function addEdge(type, from, to) {
+  return function addEdge(type, from, to, props) {
     if (!ALLOWED_EDGE_TYPES.has(type)) {
       throw new Error('addEdge: undocumented edge type ' + JSON.stringify(type));
     }
@@ -493,7 +507,12 @@ function makeAddEdge(nodeIds, edges, seen) {
     const key = type + '\n' + from + '\n' + to;
     if (seen.has(key)) return;
     seen.add(key);
-    edges.push({ type, from, to });
+    const edge = { type, from, to };
+    if (props && typeof props === 'object') {
+      if (typeof props.confidence === 'number') edge.confidence = props.confidence;
+      if (typeof props.transform === 'string' && props.transform) edge.transform = props.transform;
+    }
+    edges.push(edge);
   };
 }
 
@@ -552,7 +571,15 @@ function curatedChainEdges(commandReg, frameworkNodeIds, reachNodeIds, commandNo
     if (!type) {
       throw new Error('curatedChainEdges: unknown chain kind ' + JSON.stringify(c.kind));
     }
-    addEdge(type, resolve(c.from), resolve(c.to));
+    // Carry the earned-chain scalars onto the materialized edge where the source
+    // curated_chains entry has them: `confidence` (a curated float) and
+    // `transform` (a SHORT generic handoff descriptor). This mirrors the verified
+    // Brain FEEDS_INTO {confidence, transform} schema (Plan 172-15, Canon Part 11
+    // R6 / INV-08); transform is enum/scalar machinery metadata only (Part 8).
+    const props = {};
+    if (typeof c.confidence === 'number') props.confidence = c.confidence;
+    if (typeof c.transform === 'string' && c.transform) props.transform = c.transform;
+    addEdge(type, resolve(c.from), resolve(c.to), props);
     emitted += 1;
   }
   return emitted;

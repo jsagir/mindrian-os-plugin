@@ -109,7 +109,8 @@
       "hierarchy_rank": 27,
       "posture": "push_forward",
       "sensor_triggers": [
-        "SENS-06"
+        "SENS-06",
+        "SENS-09"
       ],
       "framework": "S-Curve Analysis",
       "chain_provenance": {
@@ -118,7 +119,8 @@
         "reach_id": "context_block",
         "sub_mode": "timing-scurve",
         "firing_sensors": [
-          "SENS-06"
+          "SENS-06",
+          "SENS-09"
         ]
       },
       "ranking": {
@@ -127,7 +129,8 @@
         "hierarchy_rank": 27,
         "posture": "push_forward",
         "sensor_triggers": [
-          "SENS-06"
+          "SENS-06",
+          "SENS-09"
         ],
         "framework": "S-Curve Analysis"
       }
@@ -1117,7 +1120,22 @@
       "id": "command:/mos:ingest-methodology",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
-      "name": "/mos:ingest-methodology"
+      "name": "/mos:ingest-methodology",
+      "reach_id": "brain_consult",
+      "sub_mode": "methodology-ingest",
+      "hierarchy_rank": 60,
+      "posture": "push_forward",
+      "chain_provenance": {
+        "command": "/mos:ingest-methodology",
+        "reach_id": "brain_consult",
+        "sub_mode": "methodology-ingest"
+      },
+      "ranking": {
+        "reach_id": "brain_consult",
+        "sub_mode": "methodology-ingest",
+        "hierarchy_rank": 60,
+        "posture": "push_forward"
+      }
     },
     {
       "id": "command:/mos:jtbd",
@@ -3106,6 +3124,12 @@
       "name": "memory-inspect"
     },
     {
+      "id": "sub_mode:methodology-ingest",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "methodology-ingest"
+    },
+    {
       "id": "sub_mode:minto-reason",
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
@@ -3639,77 +3663,107 @@
     {
       "type": "FEEDS_INTO",
       "from": "framework:S-Curve Analysis",
-      "to": "framework:Adoption-Capacity Theory"
+      "to": "framework:Adoption-Capacity Theory",
+      "confidence": 0.82,
+      "transform": "maturity-to-adoption"
     },
     {
       "type": "FEEDS_INTO",
       "from": "framework:Reverse Salient Analysis",
-      "to": "framework:Adoption-Capacity Theory"
+      "to": "framework:Adoption-Capacity Theory",
+      "confidence": 0.78,
+      "transform": "bottleneck-to-adoption"
     },
     {
       "type": "FEEDS_INTO",
       "from": "framework:PEST Analysis",
-      "to": "framework:Adoption-Capacity Theory"
+      "to": "framework:Adoption-Capacity Theory",
+      "confidence": 0.7,
+      "transform": "macro-to-adoption"
     },
     {
       "type": "FEEDS_INTO",
       "from": "framework:Dominant Design",
-      "to": "framework:Adoption-Capacity Theory"
+      "to": "framework:Adoption-Capacity Theory",
+      "confidence": 0.8,
+      "transform": "design-to-adoption"
     },
     {
       "type": "FEEDS_INTO",
       "from": "framework:Adoption-Capacity Theory",
-      "to": "framework:Scenario Planning"
+      "to": "framework:Scenario Planning",
+      "confidence": 0.74,
+      "transform": "adoption-to-scenario"
     },
     {
       "type": "FEEDS_INTO",
       "from": "framework:Adoption-Capacity Theory",
-      "to": "framework:Mullins Model"
+      "to": "framework:Mullins Model",
+      "confidence": 0.77,
+      "transform": "adoption-to-opportunity"
     },
     {
       "type": "FEEDS_INTO",
       "from": "framework:Adoption-Capacity Theory",
-      "to": "framework:PWS Triple Validation Compass"
+      "to": "framework:PWS Triple Validation Compass",
+      "confidence": 0.72,
+      "transform": "adoption-to-validation"
     },
     {
       "type": "FEEDS_INTO",
       "from": "framework:Jobs to Be Done (JTBD)",
-      "to": "framework:Lean Canvas"
+      "to": "framework:Lean Canvas",
+      "confidence": 0.76,
+      "transform": "job-to-model"
     },
     {
       "type": "FEEDS_INTO",
       "from": "framework:Reverse Salient Analysis",
-      "to": "framework:Scenario Planning"
+      "to": "framework:Scenario Planning",
+      "confidence": 0.65,
+      "transform": "bottleneck-to-scenario"
     },
     {
       "type": "FEEDS_INTO",
       "from": "framework:Four Lenses of Innovation",
-      "to": "framework:S-Curve Analysis"
+      "to": "framework:S-Curve Analysis",
+      "confidence": 0.66,
+      "transform": "explore-to-maturity"
     },
     {
       "type": "FEEDS_INTO",
       "from": "framework:Futures Wheel",
-      "to": "framework:Scenario Planning"
+      "to": "framework:Scenario Planning",
+      "confidence": 0.73,
+      "transform": "diverge-to-scenario"
     },
     {
       "type": "CHAINS",
       "from": "framework:Problem Definition Transformation Framework",
-      "to": "framework:MECE (Mutually Exclusive, Collectively Exhaustive)"
+      "to": "framework:MECE (Mutually Exclusive, Collectively Exhaustive)",
+      "confidence": 0.71,
+      "transform": "reframe-to-structured"
     },
     {
       "type": "PREREQUISITE",
       "from": "framework:S-Curve Analysis",
-      "to": "framework:Dominant Design"
+      "to": "framework:Dominant Design",
+      "confidence": 0.69,
+      "transform": "maturity-prereq-design"
     },
     {
       "type": "FEEDS_INTO",
       "from": "command:/mos:find-bottlenecks",
-      "to": "command:/mos:pipeline"
+      "to": "command:/mos:pipeline",
+      "confidence": 0.68,
+      "transform": "diagnose-to-pipeline"
     },
     {
       "type": "FEEDS_INTO",
       "from": "command:/mos:pipeline",
-      "to": "framework:Scenario Planning"
+      "to": "framework:Scenario Planning",
+      "confidence": 0.64,
+      "transform": "pipeline-to-scenario"
     },
     {
       "type": "CROSS_DOMAIN_ANALOGUE",

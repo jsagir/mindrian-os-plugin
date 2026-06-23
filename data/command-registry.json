@@ -1775,91 +1775,106 @@
       "kind": "feeds_into",
       "from": "S-Curve Analysis",
       "to": "Adoption-Capacity Theory",
-      "confidence": 0.82
+      "confidence": 0.82,
+      "transform": "maturity-to-adoption"
     },
     {
       "kind": "feeds_into",
       "from": "Reverse Salient Analysis",
       "to": "Adoption-Capacity Theory",
-      "confidence": 0.78
+      "confidence": 0.78,
+      "transform": "bottleneck-to-adoption"
     },
     {
       "kind": "feeds_into",
       "from": "PEST Analysis",
       "to": "Adoption-Capacity Theory",
-      "confidence": 0.7
+      "confidence": 0.7,
+      "transform": "macro-to-adoption"
     },
     {
       "kind": "feeds_into",
       "from": "Dominant Design",
       "to": "Adoption-Capacity Theory",
-      "confidence": 0.8
+      "confidence": 0.8,
+      "transform": "design-to-adoption"
     },
     {
       "kind": "feeds_into",
       "from": "Adoption-Capacity Theory",
       "to": "Scenario Planning",
-      "confidence": 0.74
+      "confidence": 0.74,
+      "transform": "adoption-to-scenario"
     },
     {
       "kind": "feeds_into",
       "from": "Adoption-Capacity Theory",
       "to": "Mullins Model",
-      "confidence": 0.77
+      "confidence": 0.77,
+      "transform": "adoption-to-opportunity"
     },
     {
       "kind": "feeds_into",
       "from": "Adoption-Capacity Theory",
       "to": "PWS Triple Validation Compass",
-      "confidence": 0.72
+      "confidence": 0.72,
+      "transform": "adoption-to-validation"
     },
     {
       "kind": "feeds_into",
       "from": "Jobs to Be Done (JTBD)",
       "to": "Lean Canvas",
-      "confidence": 0.76
+      "confidence": 0.76,
+      "transform": "job-to-model"
     },
     {
       "kind": "feeds_into",
       "from": "Reverse Salient Analysis",
       "to": "Scenario Planning",
-      "confidence": 0.65
+      "confidence": 0.65,
+      "transform": "bottleneck-to-scenario"
     },
     {
       "kind": "feeds_into",
       "from": "Four Lenses of Innovation",
       "to": "S-Curve Analysis",
-      "confidence": 0.66
+      "confidence": 0.66,
+      "transform": "explore-to-maturity"
     },
     {
       "kind": "feeds_into",
       "from": "Futures Wheel",
       "to": "Scenario Planning",
-      "confidence": 0.73
+      "confidence": 0.73,
+      "transform": "diverge-to-scenario"
     },
     {
       "kind": "chain",
       "from": "Problem Definition Transformation Framework",
       "to": "MECE (Mutually Exclusive, Collectively Exhaustive)",
-      "confidence": 0.71
+      "confidence": 0.71,
+      "transform": "reframe-to-structured"
     },
     {
       "kind": "prerequisite",
       "from": "S-Curve Analysis",
       "to": "Dominant Design",
-      "confidence": 0.69
+      "confidence": 0.69,
+      "transform": "maturity-prereq-design"
     },
     {
       "kind": "feeds_into",
       "from": "command:/mos:find-bottlenecks",
       "to": "command:/mos:pipeline",
-      "confidence": 0.68
+      "confidence": 0.68,
+      "transform": "diagnose-to-pipeline"
     },
     {
       "kind": "feeds_into",
       "from": "command:/mos:pipeline",
       "to": "framework:Scenario Planning",
-      "confidence": 0.64
+      "confidence": 0.64,
+      "transform": "pipeline-to-scenario"
     }
   ]
 }

@@ -64,7 +64,7 @@ The ranking-input fields and `chain_provenance` are the BOG-07 ranking surface: 
 
 The projection emits EXACTLY these five typed edge kinds and ONLY these five. The set is `ALLOWED_EDGE_TYPES = Object.freeze(new Set([...]))` in the generator, mirroring the frozen-bank idiom of `lib/core/sensors/sensor-types.cjs` `REACH_IDS` and `lib/core/navigation/edges.cjs` `ALLOWED_EDGE_TYPES`. The `addEdge(type, from, to)` chokepoint THROWS at build time if `type` is not in the set OR if either endpoint is absent from `nodes[]` (referential integrity), so a malformed or dangling edge can NEVER land in the artifact.
 
-Every edge is `{ type, from, to }` where `from` and `to` are node ids.
+Every edge is `{ type, from, to }` where `from` and `to` are node ids. A chain edge (`CHAINS` / `FEEDS_INTO` / `PREREQUISITE`) materialized from a `curated_chains` entry MAY ALSO carry the two earned-chain scalars `confidence` (a curated float) and `transform` (a SHORT generic handoff descriptor -- a chain-step machinery string such as `"diverge-to-scenario"`, enum/scalar only, NEVER user content), mirroring the verified Brain `FEEDS_INTO {confidence, transform}` edge schema (Plan 172-15, Canon Part 11 R6 / INV-08). These two keys are in `EDGE_FIELD_ALLOWLIST`; any other edge key is a Part 8 breach. `transform` rides the PROJECTION edge only -- it is NOT added to the frozen navigation `ALLOWED_EDGE_TYPES` (`lib/core/navigation/edges.cjs`).
 
 | Edge type | Direction | Meaning | Source |
 |-----------|-----------|---------|--------|
