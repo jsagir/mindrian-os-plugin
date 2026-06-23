@@ -90,6 +90,19 @@ check('Test 4: checkImageProvenance empty when AI image has a conformant footer'
   assert.deepEqual(findings, [], 'no findings when the footer is conformant');
 });
 
+check('Test 4b: checkImageProvenance WARNs on a BARE boolean data-ai image (no value) with no footer', () => {
+  const html = LOGO_OK + '<img data-ai src="hero.png" alt="hero">';
+  const findings = checkImageProvenance(html);
+  assert.equal(findings.length, 1, 'bare boolean data-ai is still flagged as an AI image');
+  assert.equal(findings[0].severity, 'warn', 'severity is warn');
+});
+
+check('Test 4c: checkImageProvenance does NOT false-match a non-AI data-* attribute', () => {
+  const html = LOGO_OK + '<img data-aint="no" data-ai-source="cam" src="photo.png" alt="real">';
+  const findings = checkImageProvenance(html);
+  assert.deepEqual(findings, [], 'data-aint / data-ai-source are not AI markers');
+});
+
 // ---- checkBrandBinding ----
 
 check('Test 5: checkBrandBinding WARNs when the logo is not mindrian-os.com; empty when it is', () => {
