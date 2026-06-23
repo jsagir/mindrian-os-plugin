@@ -436,6 +436,27 @@
       }
     },
     {
+      "id": "command:/mos:deck",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:deck",
+      "reach_id": "context_block",
+      "sub_mode": "deck-build",
+      "hierarchy_rank": 54,
+      "posture": "hold",
+      "chain_provenance": {
+        "command": "/mos:deck",
+        "reach_id": "context_block",
+        "sub_mode": "deck-build"
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "deck-build",
+        "hierarchy_rank": 54,
+        "posture": "hold"
+      }
+    },
+    {
       "id": "command:/mos:deep-grade",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -3125,6 +3146,12 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "decision-explain"
+    },
+    {
+      "id": "sub_mode:deck-build",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "deck-build"
     },
     {
       "id": "sub_mode:deck-engine",

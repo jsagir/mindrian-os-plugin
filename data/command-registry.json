@@ -274,6 +274,21 @@
       "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
+      "command": "/mos:deck",
+      "kind": "mechanical",
+      "frameworks": [],
+      "produces": "",
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "F.1",
+      "serves_jtbd": [
+        "prepare-pitch"
+      ],
+      "teaching": "When your room is full but the story is not yet a deck, /mos:deck asks ONE thing -- which shape fits, Feynman to make it clear, HEART to make it land, or mesh to do both -- then walks the structure section by section, filling each from your own room and binding the MindrianOS look by default. The 6-stage Feynman engine and the design system already exist; the command reaches for them, it never rebuilds them.",
+      "jtbd_label": "Prepare Pitch",
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+    },
+    {
       "command": "/mos:deep-grade",
       "kind": "methodology",
       "frameworks": [
