@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: verifying
-stopped_at: "BRANCH RECONCILED 2026-06-23: Phase 172 COMPLETE (16 plans, VERDICT PASS, merge-ready) + Phase 173 COMPLETE (3/3 plans: 01 data contracts, 02 /mos:show front door, 03 SENS-SHOW sensor + R1-R7 flow; run-all-173.sh 7/7 GREEN; no 7th reach; run-all-172.sh still 20/20)"
-last_updated: "2026-06-23T19:00:00.000Z"
+stopped_at: "Completed 175-01-PLAN.md: /mos:deck born WIRED + RANKED (gap=0); data/deck-styles.json (3 styles / 5 HEART sections / 6 Feynman stages); run-all-172.sh 20/20 + run-all-173.sh 7/7; REACH_IDS stays 6. Next: 175-02 (deck-design ruleset --check, WARN-first)."
+last_updated: "2026-06-23T16:18:00.000Z"
 last_activity: 2026-06-23
 progress:
   total_phases: 6
@@ -15,6 +15,12 @@ progress:
 ---
 
 # Project State
+
+## Latest (2026-06-23) -- Phase 175 Plan 01 COMPLETE (the born-wired /mos:deck command + the deck-style source of truth)
+
+**Phase 175 Plan 01 (this session):** authored `/mos:deck` -- the consolidated deck command that MOSDeckEngine + feynman-engine merge into -- as a born-WIRED, F.1-guided, methodological deck-build flow. Task 1 (2db22068): `data/deck-styles.json`, the single source of truth the command doctrine and the 175-03 tests both read -- exactly 3 styles (feynman/heart/mesh; mesh composes [feynman, heart]), the 5 ordered HEART sections spelling H/E/A/R/T (every fill_source = `local-room-content`, Part 8), and the 6 Feynman stages verbatim from MOSDeckEngine; the flat data-map idiom of `data/publish-needs.json`. Task 2 (3bda31f1): `commands/deck.md` -- born WIRED via a `connector:` block (`context_block` reach reused per D-04, sub_mode `deck-build`, rank 54), self-declaring its CIRS relationship via a `cirs_relationship:` block with `canon_parts` containing 11; the F.1 style sub-selector (one AskUserQuestion, Feynman/HEART/mesh + the mandatory Other free-text option) routing to 3 distinct named paths; the deterministic Feynman 6-stage pipeline; the HEART 5-section Brain-sourced-methodology / LOCAL-filled path (methodology flows Brain->local, room content NEVER local->Brain); the mesh compose-both path; the per-section accept/reshape/skip F.1 Decision Gate; the WARN-first deck-design ruleset doctrine (source links, brand auto-bind + logo->https://mindrian-os.com, AI-image provenance bottom-right 8-10pt); resolves through `command-resolver` then `runChain` (one governed path, Part 11 R4). `/mos:deck` registers WIRED in the connector ledger (gap=0) and RANKED in the orchestration command ledger (gap=0). Rule-3 deviations: (1) rank 54 not the plan-suggested 15 (15 is used 3 times; 54-59 is the unused band); (2) regenerated all four registry chains (command-registry + connector-registry + connector-coverage-ledger + orchestration-projection + orchestration-command-ledger + harness-manifest, the last regenerated AFTER the other three) in the deck.md commit because the hard-FAIL pre-commit gates block any commit while a new surface leaves them stale (the plan scoped registry-PROOF to 175-03, but the live gates do not permit a stale commit; gap=0 either way, so 175-03 is unaffected). Fences: `run-all-172.sh` 20/20, `run-all-173.sh` 7/7, REACH_IDS stays length 6 (frozen bank untouched), all four `--check` gates exit 0. Zero new deps, zero canon amendment, zero new edge/node/reach type, zero new Brain wire, zero em-dashes. 2 atomic task commits (2db22068/3bda31f1) + this docs commit. See 175-01-SUMMARY.md.
+
+**Next:** Phase 175 Plan 02 (the deck-design ruleset `--check`, WARN-first: `lib/core/deck-design-rules.cjs` + `scripts/check-deck-design.cjs`), then Plan 175-03 (alias MOSDeckEngine + feynman-engine to /mos:deck, repoint the /mos:show make-land lane, registry-wiring proof + 172/173 regression). Via `/gsd-execute-phase 175`.
 
 ## RECONCILIATION (2026-06-23) -- branch carries TWO phases interleaved (172 done + 173 done); both GSD-complete and merge-ready; read before any merge
 
