@@ -7,7 +7,22 @@
       "id": "command:/mos:act",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
-      "name": "/mos:act"
+      "name": "/mos:act",
+      "reach_id": "context_block",
+      "sub_mode": "act",
+      "hierarchy_rank": 11,
+      "posture": "hold",
+      "chain_provenance": {
+        "command": "/mos:act",
+        "reach_id": "context_block",
+        "sub_mode": "act"
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "act",
+        "hierarchy_rank": 11,
+        "posture": "hold"
+      }
     },
     {
       "id": "command:/mos:admin",
@@ -2885,6 +2900,12 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "ackoff-pyramid"
+    },
+    {
+      "id": "sub_mode:act",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "act"
     },
     {
       "id": "sub_mode:adaptive-leadership",

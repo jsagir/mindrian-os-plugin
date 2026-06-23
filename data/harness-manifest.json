@@ -13,14 +13,14 @@
     {
       "role": "wiring",
       "path": "data/connector-registry.json",
-      "digest": "4782204ffd2fc33605c518eaf5f68434098a0d0035beeefae93d02079dbce13f",
-      "source_count": 79
+      "digest": "13a1dc07bfe08f92217363751523bc8a87d722cfa9b33b3a2d810c360a636199",
+      "source_count": 80
     },
     {
       "role": "ranked_next_reach",
       "path": "data/brain-orchestration-projection.json",
-      "digest": "70811f6ceabdd1ea81a6c98eb6b62b0bbdde9db0d45db029f76cc328eb0164f3",
-      "source_count": 236
+      "digest": "55efda09d68d9b984d6471867a499297be07ef43347bc6d7392c8c65bc670849",
+      "source_count": 237
     }
   ]
 }

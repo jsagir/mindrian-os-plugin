@@ -34,6 +34,7 @@ CJS_SUITES=(
   test-context-driven-trigger.cjs
   test-coverage-rollup.cjs
   test-curated-chains-ranking.cjs
+  test-act-governed-selection.cjs
   test-reach-ids-drift.cjs
   test-posture-ids-drift.cjs
 )
