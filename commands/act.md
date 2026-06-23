@@ -20,6 +20,32 @@ allowed-tools:
   - Bash
   - mcp__mindrian-brain__brain_ask
   - mcp__mindrian-brain__brain_search
+# --- Phase 172 CIRS connector ---
+# /mos:act is the standing meta-orchestrator: a PINNED selection suggestion, NOT a 7th reach
+# (Canon Part 11 R3/R4). It surfaces a governed SELECTION; reach_id 'context_block' is in the
+# frozen 6 (Canon Appendix D entry 15); posture 'hold' is in the frozen 3.
+# sensor_triggers is [] -- act is a standing standing suggestion, not sensor-driven (it is OFFERED
+# by the spine, it does not fire off a single SENS detector).
+# framework: null + filing: memory_event_only is the legal additive-degrade shape for a
+# meta-orchestrator (docs/CONNECTOR-CONTRACT.md section 4; mirrors the ignite front-door connector).
+# autonomous_safe stays false in act's own frontmatter above (the spine OFFERS act; the navigator
+# CONFIRMS at the F.1 gate -- T-172-15 elevation-of-privilege mitigation).
+# --swarm is a SUB-MODE of act (not a separate file): it is WIRED-BY-INHERITANCE under this one
+# connector (the swarm dispatch is a parallel execution mode of the same governed selection; it
+# mints no second selection brain). No separate connector or exclusion is warranted for --swarm.
+# ONE connector block only (Canon Part 7 / MOAT rule). canon_parts live in 172-CONTEXT.md.
+connector:
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: context_block
+  sub_mode: act
+  framework: null
+  posture: hold
+  hierarchy_rank: 11
+  filing: memory_event_only
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # /mos:act
