@@ -141,6 +141,23 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:causal",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-02"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "causal-trace",
+      "framework": "Root Cause Analysis",
+      "posture": "pull_back",
+      "hierarchy_rank": 6,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:challenge-assumptions",
       "source": "command",
       "connects_to_spine": true,
@@ -205,6 +222,23 @@
       "framework": "Problem Definition Transformation Framework",
       "posture": "push_forward",
       "hierarchy_rank": 5,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
+      "surface": "/mos:diagnostics",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-01"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "wave1-fingerprint",
+      "framework": "HSI Semantic Surprise Analysis Assistant",
+      "posture": "hold",
+      "hierarchy_rank": 7,
       "filing": "fileEvidenceWithReadback",
       "plan_gated": false,
       "web_scope": null,
@@ -448,6 +482,23 @@
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": null
+    },
+    {
+      "surface": "/mos:hat-briefing",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-07"
+      ],
+      "reach_id": "hats",
+      "sub_mode": "hat-briefing",
+      "framework": "Six Thinking Hats",
+      "posture": "hold",
+      "hierarchy_rank": 2,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
     },
     {
       "surface": "/mos:ignite",
@@ -705,6 +756,23 @@
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": null
+    },
+    {
+      "surface": "/mos:persona",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-05"
+      ],
+      "reach_id": "hats",
+      "sub_mode": "persona",
+      "framework": "Six Thinking Hats",
+      "posture": "hold",
+      "hierarchy_rank": 3,
+      "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
     },
     {
       "surface": "/mos:reanalyze",
@@ -1145,6 +1213,7 @@
       "/mos:leadership",
       "/mos:mva-option",
       "/mos:operator",
+      "/mos:persona",
       "/mos:think-hats"
     ],
     "SENS-06": [
@@ -1184,6 +1253,7 @@
     "SENS-01": [
       "/mos:auto-explore",
       "/mos:diagnose",
+      "/mos:diagnostics",
       "/mos:discover",
       "/mos:explore-domains",
       "/mos:find-analogies",
@@ -1198,18 +1268,15 @@
       "/mos:deep-grade",
       "/mos:funding",
       "/mos:grade",
+      "/mos:hat-briefing",
       "/mos:mullins",
       "/mos:scout",
       "/mos:value-proposition",
       "agent:grading",
       "agent:investor"
     ],
-    "SENS-03": [
-      "/mos:compare-ventures",
-      "/mos:mullins",
-      "agent:brain-query"
-    ],
     "SENS-02": [
+      "/mos:causal",
       "/mos:dial-memory-refresh",
       "/mos:find-bottlenecks",
       "/mos:rs-experts",
@@ -1217,6 +1284,11 @@
       "/mos:rs-fetch",
       "/mos:rs-thesis",
       "agent:reverse-salient-agent"
+    ],
+    "SENS-03": [
+      "/mos:compare-ventures",
+      "/mos:mullins",
+      "agent:brain-query"
     ],
     "SENS-09": [
       "/mos:diffusion"
@@ -1262,6 +1334,8 @@
     ],
     "Six Thinking Hats": [
       "/mos:bono",
+      "/mos:hat-briefing",
+      "/mos:persona",
       "/mos:think-hats",
       "agent:persona-analyst"
     ],
@@ -1271,6 +1345,10 @@
     "PWS Value Proposition": [
       "/mos:build-thesis",
       "/mos:value-proposition"
+    ],
+    "Root Cause Analysis": [
+      "/mos:causal",
+      "/mos:root-cause"
     ],
     "Red Teaming": [
       "/mos:challenge-assumptions"
@@ -1283,6 +1361,11 @@
     ],
     "Problem Definition Transformation Framework": [
       "/mos:diagnose"
+    ],
+    "HSI Semantic Surprise Analysis Assistant": [
+      "/mos:diagnostics",
+      "/mos:score-innovation",
+      "/mos:whitespace"
     ],
     "Reverse Salient Analysis": [
       "/mos:dial-memory-refresh",
@@ -1334,13 +1417,6 @@
     "Hypothesis-Driven Problem Solving": [
       "/mos:research",
       "agent:research"
-    ],
-    "Root Cause Analysis": [
-      "/mos:root-cause"
-    ],
-    "HSI Semantic Surprise Analysis Assistant": [
-      "/mos:score-innovation",
-      "/mos:whitespace"
     ]
   }
 }
