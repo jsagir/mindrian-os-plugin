@@ -7,6 +7,10 @@ serves_jtbd: ["explore"]
 teaching: "When you want the MindrianOS Mondrian banner, /mos:splash displays it. Mostly decorative; useful for screenshots and demo openings."
 allowed-tools:
   - Bash
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Render command. Emits the splash / banner surface; a presentation-only render with no problem-state trigger."
 ---
 
 # /mos:splash

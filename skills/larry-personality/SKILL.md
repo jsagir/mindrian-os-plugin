@@ -6,6 +6,10 @@ description: >
   solving, and structured thinking. Provides the Ask-Tell Dial, mode transitions,
   and framework delivery patterns.
 canon_parts: [Part 2, Part 3, Part 8, Part 9]
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Ambient always-on infra. The Ask-Tell dial / teaching personality runs on every conversational turn; it is the substrate the reaches render through, not a problem-state-triggered reach itself."
 ---
 
 # Larry Personality -- The Ask-Tell Dial

@@ -42,6 +42,19 @@ const CANONICAL_REACH_IDS = [
   'hats',
 ];
 
+// Phase 172-09 (INV-19): the composer also carries the PINNED /mos:act
+// standing-suggestion render family. act is NOT a reach (it mints no 7th
+// reach_id, DIAL_REACH_K stays 6) -- it is a render-only, non-egress family for
+// the always-on act row. The drift guard below asserts the composer families are
+// EXACTLY the 6 frozen reaches PLUS this one sanctioned non-reach render family,
+// so a stray 7th REACH family still trips while the act family is explicitly
+// allowed.
+const SANCTIONED_NON_REACH_FAMILIES = [
+  'act',
+];
+
+const EXPECTED_FAMILY_IDS = CANONICAL_REACH_IDS.concat(SANCTIONED_NON_REACH_FAMILIES);
+
 // The bank must contain NONE of its own source mechanism terms (UI-SPEC
 // Section 9 banned-noun sweep). Case-insensitive so 'Context Block' and
 // 'context block' both trip.
@@ -87,12 +100,19 @@ function collectTemplateStrings() {
   return strings;
 }
 
-// ---------- 1. Exactly the 6 canonical reach ids ----------
-check('bank covers EXACTLY the 6 canonical reach ids (no more, no fewer)', () => {
+// ---------- 1. Exactly the 6 canonical reach families + the sanctioned act family ----------
+check('bank covers EXACTLY the 6 frozen reach families + the act render family (no more, no fewer)', () => {
   const fams = composer.TEMPLATE_FAMILIES;
   const got = Object.keys(fams).sort();
-  const want = CANONICAL_REACH_IDS.slice().sort();
-  assert.deepEqual(got, want, 'reach id set drift: got [' + got.join(',') + '] want [' + want.join(',') + ']');
+  const want = EXPECTED_FAMILY_IDS.slice().sort();
+  assert.deepEqual(got, want, 'family id set drift: got [' + got.join(',') + '] want [' + want.join(',') + ']');
+  // The 6 frozen REACH families must all still be present (act adds, never removes).
+  for (const rid of CANONICAL_REACH_IDS) {
+    assert.ok(Object.prototype.hasOwnProperty.call(fams, rid),
+      'frozen reach family missing: ' + rid);
+  }
+  // act is the ONLY sanctioned non-reach family; assert it is non-egress.
+  assert.strictEqual(fams.act.egress, false, 'the act render family must be non-egress');
 });
 
 // ---------- 2. Zero em-dashes in the template bank ----------
@@ -190,13 +210,15 @@ check('a GENERIC framework handle crosses the seam cleanly', () => {
 // We prove render-only by instrumentation: the composer exposes a counter of
 // audit invocations. The 3 render-only families MUST NOT increment it; the 2
 // egress families MUST.
-check('context_block / contradiction / cross_room are render-only (never invoke the egress audit)', () => {
+check('context_block / contradiction / cross_room / hats / act are render-only (never invoke the egress audit)', () => {
   assert.equal(typeof composer._auditCallCount, 'function', 'composer._auditCallCount introspection missing');
 
   const before3 = composer._auditCallCount();
   composer.composeLabel('context_block', { topic: 'pricing' });
   composer.composeLabel('contradiction', { topic_a: 'pricing', topic_b: 'CAC' });
   composer.composeLabel('cross_room', { room_name: 'synteris', topic: 'pricing' });
+  composer.composeLabel('hats', { topic: 'pricing' });
+  composer.composeLabel('act', { what: 'Run the next move.', how: 'Larry picks the framework.' });
   const after3 = composer._auditCallCount();
   assert.equal(after3, before3, 'a render-only family invoked the egress audit (count moved)');
 

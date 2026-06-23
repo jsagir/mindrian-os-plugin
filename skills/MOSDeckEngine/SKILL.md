@@ -7,6 +7,18 @@ description: >
   mental models, simplify until it breaks, teach it back. Outputs YC-quality slides.
   Triggers: pitch deck, explain complex concept, simplify for investors, technical
   storytelling, demo day, fundraising deck.
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: context_block
+  sub_mode: deck-engine
+  posture: hold
+  hierarchy_rank: 14
+  filing: memory_event_only
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # Feynman Engine -- Complexity to Clarity Pipeline

@@ -65,6 +65,27 @@ const dispatcher = require(path.join(REPO_ROOT, 'lib', 'hmi', 'selector-dispatch
 const chainExecutor = require(path.join(REPO_ROOT, 'lib', 'core', 'chain-executor.cjs'));
 const recipeMaps = require(path.join(REPO_ROOT, 'lib', 'core', 'recipe-maps.cjs'));
 
+// Phase 172-08 (CIRS R4 / INV-18): the REAL navigation-engine decide() is the ONE
+// governed selection authority. act feeds it as runChain's decideFn so each chain
+// step's next-reach derivation comes from the SAME spine the pipeline and the engine
+// consume -- act runs NO second, ungoverned selection brain (the prior
+// decideFn: () => null was that second brain; it is gone). Lazy-required with a
+// graceful try/catch so a load failure degrades the per-step decision to a null
+// handle (exactly the pre-172-08 no-op behavior) and never crashes the gate render.
+// decide() reads LOCAL context only and opens no new Brain wire (Canon Part 11 R7 /
+// Part 8: feeding decide() as decideFn opens no Brain egress).
+let _navEngineDecide = null; // null=untried, false=absent, function=loaded
+function loadRealDecide() {
+  if (_navEngineDecide !== null) return _navEngineDecide;
+  try {
+    const mod = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation-engine.cjs'));
+    _navEngineDecide = (mod && typeof mod.decide === 'function') ? mod.decide : false;
+  } catch (_e) {
+    _navEngineDecide = false;
+  }
+  return _navEngineDecide;
+}
+
 // Phase 129-04: navigation.cjs is the ONLY door to room.db for this script (it
 // is NOT substrate-guard allow-listed). Lazy-required with a graceful try/catch
 // so a navigation load failure degrades the workflow_stage emission to a no-op
@@ -159,9 +180,14 @@ function readProblemType(roomDir) {
  *                  later by renderChainReport from plan.stopAt). Returns 'defer'
  *                  so the loop halts here (act's stop = the first material step).
  *   provenanceFn = null (act is not the pipeline).
- *   decideFn     = a no-op seam (act's stop authority is the chain autonomy
- *                  report, not a live decide() neighborhood walk -- act PLANS a
- *                  precomposed chain rather than re-deriving the next reach).
+ *   decideFn     = the REAL navigation-engine decide() (Phase 172-08, CIRS R4):
+ *                  act feeds the ONE governed selection authority so each step's
+ *                  next-reach derivation comes from the SAME spine the pipeline and
+ *                  the engine consume. act's STOP authority is still the chain
+ *                  autonomy report (gateFn), but the next-reach DERIVATION is no
+ *                  longer a no-op second brain -- the prior decideFn: () => null is
+ *                  gone. The decision_trace decide() returns is recorded UNCHANGED
+ *                  by runChain (B2); decide() reads LOCAL context only (Part 8).
  */
 function buildRunChainPlan(workflow, autonomyReport) {
   const steps = Array.isArray(workflow) ? workflow : [];
@@ -216,7 +242,28 @@ function buildRunChainPlan(workflow, autonomyReport) {
     onStep: onStep,
     onHalt: onHalt,
     provenanceFn: null,
-    decideFn: function () { return null; },
+    // CIRS R4: feed the REAL decide() (or the default the spine loads when the
+    // engine is absent). Adapt runChain's ({step,index},{previousOutput}) call onto
+    // decide(turn, context): the step index seeds a minimal LOCAL turn; context stays
+    // the runChain-supplied previousOutput carry. decide() never throws (it returns a
+    // safe emptyDecision on any internal fault), so a degraded engine yields a benign
+    // decision handle rather than crashing the gate. ONE selection authority.
+    decideFn: (function () {
+      const realDecide = loadRealDecide();
+      if (typeof realDecide !== 'function') {
+        // Engine absent: degrade to a benign null-handle seam (never the loop's own
+        // second selection path -- there is no second brain to fall back to). This is
+        // NOT the removed ungoverned decideFn; it is the absent-engine degrade only.
+        return function degradeNoDecision() { return null; };
+      }
+      return function (turn, context) {
+        const idx = (turn && typeof turn.index === 'number') ? turn.index : 0;
+        return realDecide(
+          { userText: '', sectionPath: null, sessionId: 'act-chain-' + idx },
+          context || {}
+        );
+      };
+    })(),
     maxSteps: steps.length > 0 ? steps.length : 1,
   });
 

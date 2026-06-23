@@ -9,7 +9,7 @@
       "produces": null,
       "inputs": [],
       "autonomous_safe": false,
-      "body_shape": "E (Action Report)",
+      "body_shape": "E (Action Report) + F.1 (Next-Move gate)",
       "serves_jtbd": [
         "plan-execution"
       ],
@@ -72,7 +72,8 @@
       "command": "/mos:analyze-timing",
       "kind": "methodology",
       "frameworks": [
-        "S-Curve Analysis"
+        "S-Curve Analysis",
+        "Adoption-Capacity Theory"
       ],
       "produces": "room/**/timing/*",
       "inputs": [],
@@ -341,6 +342,23 @@
       "teaching": "When a section's Dial Memory feels stale, /mos:dial-memory-refresh rebuilds the auto-section from the SELECTED_REACH / PIVOTED / DRSCH relationship layer. Human-authored prose stays byte-preserved.",
       "jtbd_label": "Validate Idea",
       "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
+    },
+    {
+      "command": "/mos:diffusion",
+      "kind": "methodology",
+      "frameworks": [
+        "Adoption-Capacity Theory"
+      ],
+      "produces": "room/**/timing/*",
+      "inputs": [],
+      "autonomous_safe": true,
+      "body_shape": "methodology",
+      "serves_jtbd": [
+        "understand-market"
+      ],
+      "teaching": "When you are working on a dual-use or deep-tech innovation and need to know if it will actually spread - and to whom first - /mos:diffusion runs the Adoption-Capacity Engine over it. Best before you commit to a market or a timing window.",
+      "jtbd_label": "Understand Market",
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
     },
     {
       "command": "/mos:discover",
@@ -719,6 +737,19 @@
       "teaching": "Larry walks you through three birth gates (starting point, blueprint approve, first win) so every new room begins with a clear JTBD, the right section set, and one bankable opportunity.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging."
+    },
+    {
+      "command": "/mos:ingest-methodology",
+      "kind": "utility",
+      "frameworks": [],
+      "produces": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "action-report",
+      "serves_jtbd": [],
+      "teaching": "Maintainer-only. When you want to teach the Brain a new methodology, /mos:ingest-methodology runs the 7-step pipeline - encode, Part-8 boundary gate, graph write, vector write, trigger + chain, register, local refresh - so the framework is reachable by every user and operable Local-Only, with zero user-data egress.",
+      "jtbd_label": null,
+      "jtbd_summary": null
     },
     {
       "command": "/mos:jtbd",
@@ -1346,6 +1377,22 @@
       "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
+      "command": "/mos:show",
+      "kind": "mechanical",
+      "frameworks": [],
+      "produces": "",
+      "inputs": [],
+      "autonomous_safe": true,
+      "body_shape": "F.1",
+      "serves_jtbd": [
+        "prepare-pitch",
+        "explore"
+      ],
+      "teaching": "When the room is full but you don't know which view answers your question, /mos:show asks your JOB in plain language -- know where I stand, find what's broken, make it land, get it into the world -- and runs the right view underneath. You name the need; the command stays hidden.",
+      "jtbd_label": "Prepare Pitch",
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+    },
+    {
       "command": "/mos:snapshot",
       "kind": "utility",
       "frameworks": [],
@@ -1647,6 +1694,10 @@
       "/mos:explore-trends",
       "/mos:trending-to-absurd"
     ],
+    "Adoption-Capacity Theory": [
+      "/mos:analyze-timing",
+      "/mos:diffusion"
+    ],
     "Beautiful Question Framework": [
       "/mos:beautiful-question"
     ],
@@ -1735,5 +1786,111 @@
       "/mos:structure-argument"
     ]
   },
-  "curated_chains": []
+  "curated_chains": [
+    {
+      "kind": "feeds_into",
+      "from": "S-Curve Analysis",
+      "to": "Adoption-Capacity Theory",
+      "confidence": 0.82,
+      "transform": "maturity-to-adoption"
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Reverse Salient Analysis",
+      "to": "Adoption-Capacity Theory",
+      "confidence": 0.78,
+      "transform": "bottleneck-to-adoption"
+    },
+    {
+      "kind": "feeds_into",
+      "from": "PEST Analysis",
+      "to": "Adoption-Capacity Theory",
+      "confidence": 0.7,
+      "transform": "macro-to-adoption"
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Dominant Design",
+      "to": "Adoption-Capacity Theory",
+      "confidence": 0.8,
+      "transform": "design-to-adoption"
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Adoption-Capacity Theory",
+      "to": "Scenario Planning",
+      "confidence": 0.74,
+      "transform": "adoption-to-scenario"
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Adoption-Capacity Theory",
+      "to": "Mullins Model",
+      "confidence": 0.77,
+      "transform": "adoption-to-opportunity"
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Adoption-Capacity Theory",
+      "to": "PWS Triple Validation Compass",
+      "confidence": 0.72,
+      "transform": "adoption-to-validation"
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Jobs to Be Done (JTBD)",
+      "to": "Lean Canvas",
+      "confidence": 0.76,
+      "transform": "job-to-model"
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Reverse Salient Analysis",
+      "to": "Scenario Planning",
+      "confidence": 0.65,
+      "transform": "bottleneck-to-scenario"
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Four Lenses of Innovation",
+      "to": "S-Curve Analysis",
+      "confidence": 0.66,
+      "transform": "explore-to-maturity"
+    },
+    {
+      "kind": "feeds_into",
+      "from": "Futures Wheel",
+      "to": "Scenario Planning",
+      "confidence": 0.73,
+      "transform": "diverge-to-scenario"
+    },
+    {
+      "kind": "chain",
+      "from": "Problem Definition Transformation Framework",
+      "to": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+      "confidence": 0.71,
+      "transform": "reframe-to-structured"
+    },
+    {
+      "kind": "prerequisite",
+      "from": "S-Curve Analysis",
+      "to": "Dominant Design",
+      "confidence": 0.69,
+      "transform": "maturity-prereq-design"
+    },
+    {
+      "kind": "feeds_into",
+      "from": "command:/mos:find-bottlenecks",
+      "to": "command:/mos:pipeline",
+      "confidence": 0.68,
+      "transform": "diagnose-to-pipeline"
+    },
+    {
+      "kind": "feeds_into",
+      "from": "command:/mos:pipeline",
+      "to": "framework:Scenario Planning",
+      "confidence": 0.64,
+      "transform": "pipeline-to-scenario"
+    }
+  ]
 }

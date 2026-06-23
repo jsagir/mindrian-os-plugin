@@ -4,6 +4,10 @@ description: >
   PWS methodology framework routing and awareness. Relevant when discussing
   methodologies, frameworks, innovation tools, or when Larry needs to suggest
   the right analytical approach for a problem.
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Ambient always-on infra. The Tier 0 methodology reference fallback loaded as context; a passive reference substrate, not a problem-state-triggered reach."
 ---
 
 # PWS Methodology -- Framework Routing

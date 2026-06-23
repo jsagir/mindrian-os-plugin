@@ -14,6 +14,19 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: context_block
+  sub_mode: room-view
+  framework: null
+  posture: hold
+  hierarchy_rank: 15
+  filing: memory_event_only
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # /mos:room

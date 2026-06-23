@@ -171,6 +171,26 @@ function loadCuratedExtras() {
   }
 }
 
+// Phase 172-10 (R6 / INV-08): curated_chains is a HAND-MAINTAINED curated block,
+// NOT generated from command frontmatter -- it carries the per-edge FEEDS_INTO /
+// CHAINS / PREREQUISITE confidences the orchestration projection materializes
+// (the curated v1; learned weights are deferred to SEED-009). The generator must
+// PRESERVE it across regeneration, exactly mirroring loadCuratedExtras() above:
+// regenerate the frontmatter-derived sections, carry curated_chains through
+// untouched. Hardcoding [] here (the pre-172-10 behavior) was the placeholder-by-
+// omission defect R6 removes -- it would silently wipe the curated confidences on
+// every rebuild. Confidence lives on the PROJECTION's curated_chains entry, never
+// on the frozen navigation ALLOWED_EDGE_TYPES FEEDS_INTO (Canon Part 11 R6).
+function loadCuratedChains() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
+    const chains = Array.isArray(raw && raw.curated_chains) ? raw.curated_chains : [];
+    return chains.slice();
+  } catch (_e) {
+    return [];
+  }
+}
+
 // ---------------------------------------------------------------------------
 // buildRegistry() -- scan commands/*.md (sorted), parse frontmatter, build the
 // commands[] array, the inverse framework_index, and collect _unresolved for
@@ -244,7 +264,7 @@ function buildRegistry() {
     generated_note: GENERATED_NOTE,
     commands,
     framework_index: frameworkIndex,
-    curated_chains: [],
+    curated_chains: loadCuratedChains(),
     _unresolved: unresolved,
     _missingServesJtbd: missingServesJtbd,
   };

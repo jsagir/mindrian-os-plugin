@@ -11,6 +11,19 @@ frameworks: ["Six Thinking Hats"]
 produces: "room/team/ai-personas/*"
 inputs: []
 autonomous_safe: true
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-05]
+  reach_id: hats
+  sub_mode: persona
+  framework: "Six Thinking Hats"   # MUST match the existing frameworks: value
+  posture: hold
+  hierarchy_rank: 3
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 # --- Phase 130-03 lens-engine client frontmatter ---
 lens_type: cognitive
 lens_set: six-hats

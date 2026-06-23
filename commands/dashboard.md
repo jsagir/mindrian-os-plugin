@@ -10,6 +10,19 @@ argument-hint: [live|stop|open]
 allowed-tools:
   - Bash
   - Read
+# --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: context_block
+  sub_mode: room-dashboard
+  framework: null
+  posture: hold
+  hierarchy_rank: 11
+  filing: memory_event_only
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 <!-- License: BUSL-1.1. MindrianOS Plugin, Jonathan Sagir, 2026. -->

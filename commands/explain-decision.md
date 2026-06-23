@@ -7,6 +7,19 @@ serves_jtbd: ["audit-room"]
 teaching: "When Larry made a recommendation and you want to know why, /mos:explain-decision shows the Navigation Engine trace for the last turn. Every recommendation has a graph path behind it."
 disable-model-invocation: true
 allowed-tools: Bash(node *)
+# --- Phase 172-16 CIRS R1 WIRE (Canon Part 11; navigator-directed 2026-06-23) ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: context_block
+  sub_mode: decision-explain
+  framework: null
+  posture: hold
+  hierarchy_rank: 16
+  filing: memory_event_only
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # /mos:explain-decision

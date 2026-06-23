@@ -10,6 +10,10 @@ allowed-tools:
   - Write
   - WebFetch
   - Glob
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Utility command. Surfaces a capability / signal radar view on explicit navigator request; a render / inspection surface today. INV-06 promotion candidate (a future ambient signal-scan trigger is plausible), excluded for now."
 ---
 
 # /mos:radar

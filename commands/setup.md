@@ -11,6 +11,10 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Utility command. One-time configuration surface (graph / Brain connect) the navigator runs deliberately; setup is an operator action, not a contextual reach."
 ---
 
 # /mos:setup

@@ -1,6 +1,18 @@
 ---
 name: client-discovery-interview
 description: Use when starting a website, brand, or UX build for a new client or product and you must understand the client, the product, and its users before any design begins. Triggers - new-client kickoff, discovery phase, creative or design brief, brand discovery, client questionnaire, defining user personas and jobs-to-be-done, "understand the client before we design", "what should this site be".
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: context_block
+  sub_mode: client-discovery
+  posture: hold
+  hierarchy_rank: 15
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # Client Discovery Interview

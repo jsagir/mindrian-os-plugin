@@ -16,6 +16,18 @@ allowed-tools:
   - mcp__mindrian-brain__brain_query
   - mcp__mindrian-brain__read_neo4j_cypher
   - mcp__mindrian-brain__brain_search
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: context_block
+  sub_mode: suggest-next
+  posture: hold
+  hierarchy_rank: 8
+  filing: memory_event_only
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # /mos:suggest-next

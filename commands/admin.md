@@ -12,6 +12,10 @@ allowed-tools:
   - Read
   - Bash
   - Glob
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Utility command. Navigator-invoked maintenance surface (registry / config admin); it acts on operator request, not on a navigator problem-state, so no sensor triggers it."
 ---
 
 # /mos:admin

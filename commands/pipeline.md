@@ -17,6 +17,18 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: []
+  reach_id: context_block
+  sub_mode: pipeline-chain
+  posture: push_forward
+  hierarchy_rank: 7
+  filing: memory_event_only
+  plan_gated: false
+  web_scope: null
+  surface: F.0
 ---
 
 # /mos:pipeline

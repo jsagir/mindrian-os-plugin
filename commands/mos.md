@@ -12,6 +12,10 @@ ui_reference: skills/ui-system/SKILL.md
 allowed-tools:
   - Bash
   - Read
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Utility command. The /mos namespace entry / index surface; a meta dispatcher the navigator invokes directly, carrying no problem-state trigger of its own."
 ---
 
 # /mos:mos

@@ -11,6 +11,10 @@ allowed-tools:
   - Read
   - Write
   - Bash
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Utility command. Inspects or selects model profiles on explicit navigator request; an operator configuration surface, not contextually triggered."
 ---
 
 # /mos:models

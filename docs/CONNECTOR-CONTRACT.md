@@ -31,6 +31,17 @@ A standard, additive frontmatter block. Each surface declares ONLY the parts rel
 | `plan_gated` | boolean | `true` ONLY for the `deep_research` escalation (the sanctioned exception that may chain a multi-angle plan). `false` everywhere else. |
 | `web_scope` | `null` or one of `white` \| `green` \| `black` \| `yellow` \| `red` \| `blue` | The hat-scoped web access, when applicable (Part 2). `null` when the surface does not reach the web. |
 | `surface` | string (Shape-F sub-shape) | The Shape-F sub-shape the Decision Gate renders as (e.g. `F.0`, `F.1`). |
+| `excluded` | boolean | The R1 second state (Canon Part 11). `true` = this surface is a first-class EXCLUDED surface, deliberately NOT wired to the spine (a pure utility/admin command with no thinking surface, for example). An excluded surface is conformant and terminal -- it is NOT "dark". When `true`, the generator records the surface in the coverage ledger's `excluded` bucket and does NOT emit a wired connector entry. |
+| `reason` | string (REQUIRED when `excluded: true`) | The machinery rationale for the exclusion -- an author-written sentence explaining WHY the surface is not wired. A generic machinery string only (never user content, Part 8). `excluded: true` with NO `reason` is a BUILD ERROR (D-172-a: no surface dark by accident); the generator fails closed on both the default run and `--check`. |
+
+### R1: two states -- WIRED or EXCLUDED-with-reason (Canon Part 11)
+
+Per Canon Part 11 R1 (The Invocation Constitution), every invocable surface has exactly **two** conformant states, no third:
+
+1. **WIRED** -- declares `connects_to_spine: true` (the connector block above).
+2. **EXCLUDED** -- declares `excluded: true` with a `reason`.
+
+A surface that is neither is a **GAP** ("dark by accident"), which is illegal under R1. `excluded` makes the EXCLUDE decision EXPLICIT and machine-checkable: a missing `reason` is a build error, so a surface can never be silently excluded. The generator emits the wired-XOR-excluded coverage ledger (`data/connector-coverage-ledger.json`) classifying every command/skill/agent as `wired`, `excluded`, or `gap`; the `gap` count is what the R9 coverage gate reports (WARN this stage; hard-FAIL is a later wave). EXCLUDED-with-reason is a first-class conformant terminal state, never a gap.
 
 ## 3. The frozen banks (drift-tested)
 

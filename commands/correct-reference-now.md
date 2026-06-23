@@ -9,6 +9,10 @@ teaching: "When you see today's real date diverge from what the room thinks now 
 allowed-tools:
   - Bash
   - Read
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Lifecycle command. A reference-correction maintenance action the navigator runs deliberately to fix a citation; an upkeep surface, not a problem-state reach."
 ---
 
 # /mos:correct-reference-now

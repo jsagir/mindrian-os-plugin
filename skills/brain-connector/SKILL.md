@@ -5,6 +5,10 @@ description: >
   Proactive: surfaces contradictions and gaps. Active when Brain API key is
   set (MINDRIAN_BRAIN_KEY in .env) or Brain MCP server is configured.
 activation: "env:MINDRIAN_BRAIN_KEY"
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Ambient always-on infra. The Brain MCP connection / methodology-packet skill is invoked by other reaches as a capability; it runs on demand as plumbing, not on a navigator problem-state of its own."
 ---
 
 # Brain Connector -- Enrichment Layer

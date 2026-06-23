@@ -10,6 +10,10 @@ teaching: "When something feels off with the install, /mos:doctor diagnoses inst
 allowed-tools:
   - Bash
   - Read
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Utility command. A diagnostics / health-check surface the navigator or release pipeline runs deliberately; it inspects the install, never reacts to a navigator problem-state."
 ---
 
 # /mos:doctor

@@ -7,6 +7,10 @@ serves_jtbd: ["audit-room"]
 teaching: "When a room section drifts from its BRAIN.md derivation, /mos:brain-derive rebuilds the per-section Brain context now. Run after large filings or before a decision gate."
 disable-model-invocation: false
 allowed-tools: Bash(node *)
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Lifecycle / maintenance command. Regenerates the BRAIN.md per-folder derivation; a maintenance refresh run deliberately or by the staleness scan. INV-06 promotion candidate (a future mindrian-operation counterpart could make derivation contextually triggered), excluded for now."
 ---
 
 # /mos:brain-derive

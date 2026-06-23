@@ -12,6 +12,10 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Utility command. Multi-room registry management the navigator drives deliberately; an operator surface with no problem-state trigger."
 ---
 
 # /mos:rooms

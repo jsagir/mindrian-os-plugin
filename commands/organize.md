@@ -16,6 +16,10 @@ allowed-tools:
   - Bash
   - Glob
   - Grep
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
+connector:
+  excluded: true
+  reason: "Utility command. Reorganizes / files room artifacts on explicit navigator request; a housekeeping action today. INV-06 promotion candidate (a future contextual trigger on filing pressure is plausible), excluded for now."
 ---
 
 # /mos:organize

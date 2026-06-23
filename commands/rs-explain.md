@@ -17,6 +17,19 @@ allowed-tools:
   - Read
   - mcp__mindrian-brain__brain_ask
   - mcp__mindrian-brain__brain_search
+# --- Phase 143.3 connector frontmatter ---
+connector:
+  connects_to_spine: true
+  sensor_triggers: [SENS-02]
+  reach_id: context_block
+  sub_mode: reverse-salient-explain
+  framework: "Reverse Salient Analysis"   # MUST match the existing frameworks: value
+  posture: pull_back
+  hierarchy_rank: 3
+  filing: fileEvidenceWithReadback
+  plan_gated: false
+  web_scope: null
+  surface: F.1
 ---
 
 # /mos:rs-explain
