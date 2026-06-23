@@ -39,7 +39,7 @@ You do NOT build any view here. You read the job map, render ONE selector, resol
 ## Setup
 
 1. Read `references/personality/voice-dna.md` for Larry's voice.
-2. Read `data/publish-needs.json`. This is the single source of truth for the lanes and the jobs. The `_lanes` block holds the 4 lane labels keyed by their frozen lane ids; the `jobs` array holds each job as `{ job, jtbd_line, resolves_to, lane, persona_weight, shows }`. The `job` field is the user-voice label you show; `resolves_to` is the command (or the MOSDeckEngine skill handle) you resolve to; you NEVER show a `resolves_to` token to the navigator.
+2. Read `data/publish-needs.json`. This is the single source of truth for the lanes and the jobs. The `_lanes` block holds the 4 lane labels keyed by their frozen lane ids; the `jobs` array holds each job as `{ job, jtbd_line, resolves_to, lane, persona_weight, shows }`. The `job` field is the user-voice label you show; `resolves_to` is the command you resolve to (the make-land deck job now resolves to the consolidated `/mos:deck` command, Phase 175); you NEVER show a `resolves_to` token to the navigator.
 3. Resolve the active room and read its `USER.md` `role_blend`. Call `defaultLaneForRoleBlend(role_blend)` from `lib/core/publish-needs-default-lane.cjs` to pick the OPENING lane (R6: the selector opens on the persona-default lane). On cold start, empty, or any unknown blend the mapper returns `know-stand`; trust it, never guess.
 
 ## The selector (one AskUserQuestion, Shape F.1)
@@ -55,7 +55,7 @@ Render ONE AskUserQuestion call. This is the Shape F.1 lanes-as-tabs, options-as
 On selection, look up the chosen job's `resolves_to` in `data/publish-needs.json`. Then resolve it through the one governed door:
 
 - For a `/mos:` command target, resolve it through `lib/workflow/command-resolver.cjs` (the registry door, Phase 122). NEVER name a command from memory; the resolved object MUST come from the resolver (D-03). Hand the resolved chain to `runChain` in `lib/core/chain-executor.cjs` (Phase 166): it auto-runs the autonomous_safe prefix and halts at the first material step at the Decision Gate (Canon Part 3). The "give me a link I can send" job resolves to the UNCHANGED `/mos:publish` (D-02); you route TO it, you never modify or overload it.
-- For the "Make it land" lane's `resolves_to: MOSDeckEngine`, route to the EXISTING MOSDeckEngine skill (D-01). Do NOT build a `/mos:deck` here; the consolidated deck command is Phase 175.
+- For the "Make it land" lane's `resolves_to: /mos:deck`, route to the consolidated `/mos:deck` command (Phase 175, R9): resolve it through `command-resolver` then hand the chain to `runChain`, exactly like every other `/mos:` job. The prior interim `MOSDeckEngine` skill-handle route (D-01) is retired; `MOSDeckEngine` and `feynman-engine` now alias to `/mos:deck` via `data/deck-aliases.json` (deprecate-not-delete).
 
 ## Rules
 
