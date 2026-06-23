@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: verifying
-stopped_at: Phase 172 Plan 02 COMPLETE (CIRS R12 forward-declaration contract + gate hook)
-last_updated: "2026-06-23T10:09:21.888Z"
+stopped_at: Phase 172 Plan 16 COMPLETE (navigator-directed presentation-surface reclassification; 7 surfaces EXCLUDE -> WIRE; gap stays 0)
+last_updated: "2026-06-23T00:00:00.000Z"
 last_activity: 2026-06-23
 progress:
   total_phases: 6
@@ -15,6 +15,10 @@ progress:
 ---
 
 # Project State
+
+## Latest (2026-06-23) -- Phase 172 Plan 16 COMPLETE (navigator-directed presentation-surface reclassification)
+
+**Phase 172 Plan 16 (this session):** corrected the Plan-06 over-exclusion per the navigator-approved EXACT 7-surface set (2026-06-23 "ok"). 7 room-presentation / Larry-explains / meeting-intelligence surfaces moved EXCLUDE -> WIRE: dashboard (sub_mode room-dashboard), wiki (room-wiki), present (room-present), status (room-status), room (room-view), explain-decision (decision-explain), speakers (meeting-speakers) -- each a WIRED connector block (context_block reach, framework:null additive-degrade, sensor_triggers:[], hold posture, memory_event_only filing, distinct sub_mode, ranks 11-17). visualize + query stay excluded:true with corrected DEPRECATED-redirect reasons (visualize -> /mos:dashboard --mermaid; query -> /mos:graph). onboard + export kept EXCLUDED (navigator kept them out). Task 1 (6417f686): the 9 frontmatter edits. Task 2 (5cb9555d): regenerated connector-registry (88 connectors, was 81) + coverage-ledger (88 wired / 36 excluded / 0 gap) + harness-manifest in lockstep; `--check` exits 0; counts.gap stayed 0 (NO regression). No 7th reach / no new edge / node / Brain wire minted; reach_id frozen-6 context_block; no em-dashes. See 172-16-SUMMARY.md. The corrected ledger is now the baseline for the Plan-13 RETRO-07 hard-FAIL flip.
 
 ## BLOCKER (2026-06-23) -- Phase 172 Plan 13 HALTED at Task 1 (RED-gate guard tripped: orchestration command-ledger gap=15, NOT 0)
 
