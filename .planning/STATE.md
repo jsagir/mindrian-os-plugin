@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: verifying
-stopped_at: Phase 173 context gathered (split; selector scope)
-last_updated: "2026-06-23T11:30:26.168Z"
+stopped_at: "Phase 172 Plan 14 COMPLETE (INV-15 adversarial verify + structured VERDICT; phase ready to close, navigator-gated)"
+last_updated: "2026-06-23T12:30:00.000Z"
 last_activity: 2026-06-23
 progress:
   total_phases: 6
@@ -16,7 +16,13 @@ progress:
 
 # Project State
 
-## Latest (2026-06-23) -- Phase 172 Plan 16 COMPLETE (navigator-directed presentation-surface reclassification)
+## Latest (2026-06-23) -- Phase 172 Plan 14 COMPLETE (INV-15 -- adversarial verify + structured VERDICT; the harness-as-code Phase V; PHASE READY TO CLOSE)
+
+**Phase 172 Plan 14 (this session):** shipped the harness-as-code Phase V (CIRS property 6) -- an ADVERSARIAL red-team that TRIES to ship a dark surface AND a second selection brain, with the born-wired hard gate catching BOTH, plus a STRUCTURED pass/fail verdict over the whole coverage contract. Task 1 (af37e0c5, tdd): `tests/test-cirs-adversarial-verify.cjs` (19/19) -- Attack 1 synthesizes the dark surface (classifies gap; PRESENT in commands/ it trips BOTH the connector AND the projection hard gates non-zero; connector FAIL names the surface; probe removed in finally, zero tracked-file mutation); Attack 2 asserts the second selection brain is closed (act-command feeds the REAL decide() via loadRealDecide; NO ungoverned ()=>null decideFn via a comment-stripped grep so the cure's own documentation does not false-positive; act.md connector-wired); the positive contract asserts rs-* fires context_block, navigation-engine reachIdToSkillFamily has the hats case, gap=0 on BOTH ledgers (zero excluded-without-reason errors), and the frozen invariants REACH_IDS=6/POSTURE_IDS=3/DIAL_REACH_K=6/MAX_K=3; it EMITS `{pass, assertions[]}` (printed + returned via runVerdict()) and exits non-zero on any FAIL. Task 2 (7d4e5623): `tests/run-all-172.sh` registers the adversarial verify AND adds the orchestration-projection --check gate beside the connector --check gate (20/20 green); `.planning/.../172-VERDICT.md` is the structured pass/fail verdict over R1..R14 + INV-01..23 with PASS/FAIL/DEFERRED-ENFORCEMENT -- R6 + R11 + R13 + R14 recorded DEFERRED-ENFORCEMENT each with a one-line reason (earned-chain learned weights / production-depth fractal rollup / no surface-retirement plan in 172 / substrate-gated trigger-overlap comparator), all 23 INV PASS, final counts 88 wired / 36 excluded / 0 gap (both ledgers gap=0). VERDICT: PASS. The phase is ready to close (navigator-gated). Zero new deps, zero canon amendment, zero new edge/node/reach type, zero new Brain wire, zero em-dashes. 2 atomic commits (af37e0c5/7d4e5623) + this docs commit. See 172-14-SUMMARY.md + 172-VERDICT.md.
+
+**Next:** Phase 172 navigator-gated phase CLOSE (review 172-VERDICT.md), then the v1.14.0-beta release gate. Via `/gsd-verify-work` or the navigator close.
+
+## Prior (2026-06-23) -- Phase 172 Plan 16 COMPLETE (navigator-directed presentation-surface reclassification)
 
 **Phase 172 Plan 16 (this session):** corrected the Plan-06 over-exclusion per the navigator-approved EXACT 7-surface set (2026-06-23 "ok"). 7 room-presentation / Larry-explains / meeting-intelligence surfaces moved EXCLUDE -> WIRE: dashboard (sub_mode room-dashboard), wiki (room-wiki), present (room-present), status (room-status), room (room-view), explain-decision (decision-explain), speakers (meeting-speakers) -- each a WIRED connector block (context_block reach, framework:null additive-degrade, sensor_triggers:[], hold posture, memory_event_only filing, distinct sub_mode, ranks 11-17). visualize + query stay excluded:true with corrected DEPRECATED-redirect reasons (visualize -> /mos:dashboard --mermaid; query -> /mos:graph). onboard + export kept EXCLUDED (navigator kept them out). Task 1 (6417f686): the 9 frontmatter edits. Task 2 (5cb9555d): regenerated connector-registry (88 connectors, was 81) + coverage-ledger (88 wired / 36 excluded / 0 gap) + harness-manifest in lockstep; `--check` exits 0; counts.gap stayed 0 (NO regression). No 7th reach / no new edge / node / Brain wire minted; reach_id frozen-6 context_block; no em-dashes. See 172-16-SUMMARY.md. The corrected ledger is now the baseline for the Plan-13 RETRO-07 hard-FAIL flip.
 
@@ -404,12 +410,12 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 172 — contextual-invocation-coverage
+**Current focus:** Phase 173 - publish-jtbd-need-selector
 
 ## Current Position
 
-Phase: 172 (contextual-invocation-coverage) — EXECUTING
-Plan: 172-10 COMPLETE (R6/INV-08); parallel-wave order -- Plans 01/02/04/05/07/10/11 done, 03/06/13 outstanding
+Phase: 173 (publish-jtbd-need-selector) - EXECUTING
+Plan: 1 of 3
 
 ### Phase 172 Plan 02 (CIRS R12 forward-declaration contract + gate hook, Wave 1, autonomous) COMPLETE
 
