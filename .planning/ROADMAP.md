@@ -3043,4 +3043,11 @@ Plans:
 
 **Dependency:** consumes Phase 172 CIRS (born-wired); pairs with Phase 173 (the selector's "Make it land" lane points here once shipped). Declares a `cirs_relationship:` block.
 
-**Status:** SEEDED 2026-06-23 (split from 173, decisions pre-locked). Not yet specced. Next when promoted: `/gsd-spec-phase 175`.
+**Plans:** 3 plans in 2 waves
+
+Plans:
+- [ ] 175-01-PLAN.md - commands/deck.md: the consolidated /mos:deck command (born-wired connector: + cirs_relationship:), the F.1 Feynman/HEART/mesh style selector, the per-section accept/reshape/skip build flow, the WARN-first deck-design ruleset doctrine (R1-R5, R7, R8)
+- [ ] 175-02-PLAN.md - the deck-design ruleset --check (WARN-first): lib/core/deck-design-rules.cjs + scripts/check-deck-design.cjs proving source-link + AI-image-provenance + brand-binding warnings without failing (R6, R7, R8)
+- [ ] 175-03-PLAN.md - alias MOSDeckEngine + feynman-engine to /mos:deck (deprecate-not-delete), repoint the /mos:show make-land lane to /mos:deck, regenerate the connector + orchestration registries so /mos:deck is WIRED + ranked, and the behavior + 172/173 regression suite (R1, R9, all-behavior tests)
+
+**Status:** PLANNED 2026-06-23 (3 plans, 2 waves; decisions pre-locked from the 173 split). Next: `/gsd-execute-phase 175`.
