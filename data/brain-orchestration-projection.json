@@ -2110,6 +2110,36 @@
       "name": "/mos:setup"
     },
     {
+      "id": "command:/mos:show",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:show",
+      "reach_id": "context_block",
+      "sub_mode": "jtbd-need-selector",
+      "hierarchy_rank": 53,
+      "posture": "hold",
+      "sensor_triggers": [
+        "SENS-SHOW"
+      ],
+      "chain_provenance": {
+        "command": "/mos:show",
+        "reach_id": "context_block",
+        "sub_mode": "jtbd-need-selector",
+        "firing_sensors": [
+          "SENS-SHOW"
+        ]
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "jtbd-need-selector",
+        "hierarchy_rank": 53,
+        "posture": "hold",
+        "sensor_triggers": [
+          "SENS-SHOW"
+        ]
+      }
+    },
+    {
       "id": "command:/mos:snapshot",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -3209,6 +3239,12 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "jtbd-infer"
+    },
+    {
+      "id": "sub_mode:jtbd-need-selector",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "jtbd-need-selector"
     },
     {
       "id": "sub_mode:lean-canvas",
