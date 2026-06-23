@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: verifying
-stopped_at: Phase 172 Plan 01 COMPLETE (CIRS R1/R2 gate substrate -- EXCLUDE state + coverage ledger)
-last_updated: "2026-06-23T06:42:00.000Z"
+stopped_at: Phase 172 Plan 02 COMPLETE (CIRS R12 forward-declaration contract + gate hook)
+last_updated: "2026-06-23T07:10:00.000Z"
 last_activity: 2026-06-23
 progress:
   total_phases: 6
@@ -315,7 +315,11 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 172 (contextual-invocation-coverage) — EXECUTING
-Plan: 2 of 14 (Plan 01 COMPLETE)
+Plan: 3 of 14 (Plans 01 + 02 COMPLETE)
+
+### Phase 172 Plan 02 (CIRS R12 forward-declaration contract + gate hook, Wave 1, autonomous) COMPLETE
+
+The self-propagating heart of CIRS landed: the `cirs_relationship:` declaration contract, the slug-keyed CIRS column in CANON-PHASE-MAP, and a LOCAL-only gate hook that fails any phase touching an invocable surface (or consuming the spine) without a conformant declaration. Task 1 (commit c9d828b0): authored `docs/CIRS-RELATIONSHIP-CONTRACT.md` -- the five-field block (surfaces_added/modified/removed, spine_consumed, gate_impact) + required prose `explanation`, the canon_parts-11 auto-derivation rule (declaring any field auto-implies 11; the gate derives one from the other so they cannot disagree, R12), the dual trigger (commands/|skills/|agents/ OR non-empty spine_consumed), and the slug-keyed CANON-PHASE-MAP record (absorbs the number-collision warning). Anchored to Canon Part 11 R12 + Appendix D entry 25; zero em-dashes. Task 2 (commit f5f3dabb): extended the EXISTING Part 11 section of `docs/CANON-PHASE-MAP.md` (exclusive ownership, no duplication) with the rubric formalizing the CIRS column as the slug-keyed forward-declaration ledger pointing at the contract as schema source; Phase 172/170/171 rows intact. Task 3 (RED fc6fd751, GREEN a2cc3dba, tdd): `scripts/check-cirs-declaration.cjs` exporting `checkCirsDeclaration(fm) -> {ok, errors[]}` + CLI `--check <planpath...>` (exits non-zero + recovery line); a triggered phase REQUIRES a conformant block (all five fields + non-empty explanation) AND 11 in canon_parts; LOCAL-only, zero Brain/network (Part 8). `parsePlanFrontmatter` mirrors the shipped `parseConnectorFrontmatter` nested-descent idiom (Part 7 reuse). `tests/test-cirs-declaration.cjs` covers the four behaviors + a spine-trigger case + 172-01/172-02 as positive fixtures + a comment-stripped no-network source scan; registered in `tests/run-all-172.sh`. Verification: test exit 0, `--check` 172-02 + 172-01 exit 0 (self-conformant), a dark `commands/` plan exits 1 with the recovery line, Part 8 source scan 0 matches, `bash tests/run-all-172.sh` 6/6 (frozen reach/posture drift fences green). No 7th reach, no new edge/node type, no new Brain wire; the hook is NOT yet wired into pre-commit/release (that is INV-14/R9, a later wave) so it does not retroactively break existing phases. INV-22 + INV-13 complete. Self-check PASSED. See `172-02-SUMMARY.md`.
 
 ### Phase 172 Plan 01 (CIRS R1/R2 gate substrate, Wave 1, autonomous) COMPLETE
 
@@ -1732,6 +1736,6 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last session: 2026-06-23T06:42:00.000Z
-Stopped at: Phase 172 Plan 01 COMPLETE (CIRS R1/R2 gate substrate)
+Last session: 2026-06-23T07:10:00.000Z
+Stopped at: Phase 172 Plan 02 COMPLETE (CIRS R12 forward-declaration contract + gate hook)
 Resume path: Phase 172 Plan 01 (CIRS R1/R2 gate substrate) is COMPLETE -- the EXCLUDE state + the wired-XOR-excluded coverage ledger (data/connector-coverage-ledger.json) + the warn-only gap report are shipped and test-fenced (commits 8471aa3b, 0e6fe19c, 6a0b52b0). Next: `/gsd-execute-phase 172` Plan 02 (R12 cirs_relationship contract + CANON-PHASE-MAP CIRS column + gate hook, per the 172 plan map). The hard-FAIL flip of the RETRO-07 coverage gate is Wave-7 / Plan 172-13 -- do NOT make `--check` exit non-zero on gaps before then.
