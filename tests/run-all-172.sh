@@ -33,6 +33,7 @@ CJS_SUITES=(
   test-orchestration-counterpart-coverage.cjs
   test-context-driven-trigger.cjs
   test-coverage-rollup.cjs
+  test-curated-chains-ranking.cjs
   test-reach-ids-drift.cjs
   test-posture-ids-drift.cjs
 )
