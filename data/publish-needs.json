@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "_note": "R2 + R7 (Phase 173). The JTBD need->command map the /mos:show selector (173-02) and the show/share trigger sensor (173-03) read as their single source of truth. Mirrors data/dispatch-framework-map.json (flat data-map idiom) + data/help-groups.json (lane idiom). Each jobs[] row is a USER-VOICE job (never a /mos: token or a command name -- Part 10 commands-are-internals): { job, jtbd_line, resolves_to, lane, persona_weight, shows }. resolves_to is the EXACT command key in data/command-registry.json (with the /mos: prefix) OR the 'MOSDeckEngine' skill handle for the make-land lane (D-01: route to the EXISTING deck skill until Phase 175). shows is the R7 admission bar: a job earns a slot ONLY if it surfaces 'connections' or 'gaps' (the moat) -- decoration-only candidates are OMITTED, not slotted. persona_weight names which role_blend roles favor the job (generic enum keys only, Part 8-clean: no user content). Validated by scripts/check-publish-needs.cjs (--check) against the command registry + the skills/ directory; the role_blend->default-lane mapper is lib/core/publish-needs-default-lane.cjs (R6).",
+  "_note": "R2 + R7 (Phase 173). The JTBD need->command map the /mos:show selector (173-02) and the show/share trigger sensor (173-03) read as their single source of truth. Mirrors data/dispatch-framework-map.json (flat data-map idiom) + data/help-groups.json (lane idiom). Each jobs[] row is a USER-VOICE job (never a /mos: token or a command name -- Part 10 commands-are-internals): { job, jtbd_line, resolves_to, lane, persona_weight, shows }. resolves_to is the EXACT command key in data/command-registry.json (with the /mos: prefix); the make-land lane now resolves to the consolidated /mos:deck command (Phase 175, R9 + D-04, replacing the D-01 interim 'MOSDeckEngine' skill-handle route). shows is the R7 admission bar: a job earns a slot ONLY if it surfaces 'connections' or 'gaps' (the moat) -- decoration-only candidates are OMITTED, not slotted. persona_weight names which role_blend roles favor the job (generic enum keys only, Part 8-clean: no user content). Validated by scripts/check-publish-needs.cjs (--check) against the command registry + the skills/ directory; the role_blend->default-lane mapper is lib/core/publish-needs-default-lane.cjs (R6).",
   "_lanes": {
     "know-stand": "Know where I stand",
     "find-broken": "Find what's broken",
@@ -43,7 +43,7 @@
     {
       "job": "make this simple enough for an outsider",
       "jtbd_line": "When my idea is too technical for the room to follow, I want it reduced to plain language, so I can find the gaps in my own explanation before an outsider does.",
-      "resolves_to": "MOSDeckEngine",
+      "resolves_to": "/mos:deck",
       "lane": "make-land",
       "persona_weight": { "founder": 0.6, "researcher": 0.4 },
       "shows": "gaps"

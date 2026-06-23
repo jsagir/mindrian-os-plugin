@@ -21,69 +21,45 @@ connector:
   surface: F.1
 ---
 
-# Feynman Engine -- Complexity to Clarity Pipeline
+# MOSDeckEngine -- DEPRECATED, consolidated into /mos:deck
 
-Transform complex engineering concepts into YC-quality presentation decks through
-Richard Feynman's first-principles decomposition method.
+> **Deprecation redirect (Phase 175, deprecate-not-delete).**
+> This engine is now consolidated into the `/mos:deck` command. Invoke `/mos:deck`
+> and pick the **Feynman** style to run the 6-stage first-principles comprehension
+> pipeline this skill used to run on its own. The `/mos:deck` command also adds the
+> HEART persuasion spine and a mesh composite, a methodological per-section build
+> flow, and a WARN-first deck-design ruleset (source links, brand auto-binding with
+> the logo linking to https://mindrian-os.com, AI-image provenance footers).
+>
+> This SKILL.md is RETAINED for back-compat (the `MOSDeckEngine` handle still
+> triggers and still routes to `/mos:deck` via `data/deck-aliases.json`), and the
+> `connector:` block above is preserved so the surface stays WIRED under CIRS. New
+> work should invoke `/mos:deck` and pick the Feynman style. The original 6-stage
+> Feynman pipeline (reduce to essence, translate, expose confusion, build mental
+> models, simplify until it breaks, teach it back) now lives behind the Feynman
+> style of `/mos:deck`; the canonical stage list is `data/deck-styles.json`
+> (`feynman_stages[]`).
 
-## The Problem
+## Where the engine went
 
-The Curse of Knowledge. Technical founders cannot unsee their own complexity.
-They drown investors in architecture diagrams, system specs, and jargon.
-This skill is the antidote.
+| Was | Now |
+|-----|-----|
+| `MOSDeckEngine` skill (this file) | `/mos:deck` command, Feynman style |
+| `feynman-engine` skill (out-of-repo) | `/mos:deck` command, Feynman style |
+| Standalone 6-stage Feynman pipeline | Feynman style spine inside `/mos:deck` |
+| Pitch / investor / demo-day deck | `/mos:deck` (Feynman or HEART or mesh) |
 
-## When to Use
-
-- Preparing a pitch deck from technical material
-- Explaining a complex system to non-technical stakeholders
-- Translating engineering architecture into investor language
-- Simplifying a whitepaper or technical document for a presentation
-- Any time someone says "make this simple" about something that is not
-
-## When NOT to Use
-
-- Writing technical documentation for engineers (keep the complexity)
-- Internal architecture reviews (wrong audience)
-- Academic papers (different communication standard)
-
-## Input
-
-Accept any of these:
-- **Live conversation** -- explain the concept, the pipeline runs interactively
-- **Pasted text** -- whitepaper excerpt, technical doc, architecture description
-- **File path** -- reads a document and processes it
-
-## The Pipeline
-
-Six stages, run sequentially. Each stage produces a visible artifact the user
-reviews before the next stage fires. This is interactive, not autonomous.
-
-```
-Complex Concept
-    |
-    v
-[1. REDUCE TO ESSENCE]     -- Strip to fundamental truths
-    |
-    v
-[2. TRANSLATE]              -- Rewrite for smart generalists
-    |
-    v
-[3. EXPOSE CONFUSION]      -- Find and fix hidden gaps (may loop 2-3x)
-    |
-    v
-[4. BUILD MENTAL MODELS]   -- Create 2-3 powerful analogies
-    |
-    v
-[5. SIMPLIFY UNTIL BREAKS] -- Find the sweet spot boundary
-    |
-    v
-[6. TEACH IT BACK]         -- Quality gate: does it stand alone?
-    |
-    v
-YC-Quality Deck
-```
+Both prior handles (`MOSDeckEngine`, `feynman-engine`) resolve to `/mos:deck` per
+`data/deck-aliases.json` (D-04b). Pick the Feynman style for the comprehension
+spine this skill was built for.
 
 ---
+
+## Appendix: the original 6-stage Feynman pipeline (now the /mos:deck Feynman style)
+
+The stages below are retained verbatim as reference for what the Feynman style of
+`/mos:deck` runs. They are no longer invoked from this file; invoke `/mos:deck` and
+pick the Feynman style.
 
 ## Stage 1: REDUCE TO ESSENCE
 

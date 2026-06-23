@@ -223,6 +223,21 @@
       "decision_surface": "F.1"
     },
     {
+      "surface": "/mos:deck",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "deck-build",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 54,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:deep-grade",
       "source": "command",
       "connects_to_spine": true,
