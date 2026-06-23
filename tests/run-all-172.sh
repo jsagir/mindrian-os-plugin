@@ -39,6 +39,7 @@ CJS_SUITES=(
   test-act-cross-class-chain.cjs
   test-act-standing-suggestion.cjs
   test-170-171-cirs-conformance.cjs
+  test-coverage-gate-hardfail.cjs
   test-diffusion-adoption-sensor.cjs
   test-reach-ids-drift.cjs
   test-posture-ids-drift.cjs
