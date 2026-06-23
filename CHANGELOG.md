@@ -1,4 +1,13 @@
-## [Unreleased] -- v1.14.0-beta.6 (in progress)
+## [Unreleased] -- v1.14.0-beta.7 (in progress)
+
+The v1.14.0-beta train continues: the deck surface consolidates onto one born-wired front door (Phase 175) and Scenario Planning is wired into its canon chain (Phase 176), on top of the beta.5 payload (Canon Part 11 / CIRS, ACE/diffusion, methodology-ingest, /mos:show).
+
+### Added
+- **Phase 175 -- /mos:deck, the consolidated deck command.** One born-wired front door (`commands/deck.md`) for investor-grade deck generation, replacing the scattered deck surfaces. The legacy `MOSDeckEngine` and `feynman-engine` handles are aliased to `/mos:deck` (`data/deck-aliases.json`, doctrine + data) so existing invocations route to the new style selector instead of a dead path. Three deck styles (Feynman first-principles, HEART narrative, mesh), each built per-section through a Shape F.1 accept/reshape/skip gate rather than auto-advancing. Deck style + section-schema source of truth lives in `data/deck-styles.json`; the `make-land` lane is repointed to `/mos:deck`. Born-wired per Canon Part 11 (CIRS R1/R2): the command is WIRED with a `connector:` block and passes the hard coverage gate. A WARN-first deck-design ruleset (`lib/core/deck-design-rules.cjs` pure helpers + `scripts/check-deck-design.cjs` `--check` CLI) lints a deck against the design rules and warns without blocking. Behavior suite `tests/test-deck-consolidation.cjs` + `tests/test-deck-design-check.cjs`; phase gate `tests/run-all-175.sh` 20/20.
+- **Phase 176 -- Scenario Planning wired into its canon chain.** Three curated FEEDS_INTO chain edges (bare framework names, on the orchestration projection per Canon Part 11 R6): `Domain Selection -> Scenario Planning` (0.68, the F.1 next step after `/mos:explore-domains`), `PEST Analysis -> Scenario Planning` (0.60, the STEEP feeder), and `Scenario Planning -> Futures Wheel` (0.66, the cascade out to `/mos:futures`). The `/mos:scenario-plan` command body and `references/methodology/scenario-plan.md` are reconciled to the canonical 10-step arc (Define Domain -> STEEP -> independent critical uncertainties -> 2x2 -> PARTS-tested narratives -> identify opportunities -> cross-scenario -> prioritize + bank to the Opportunity Bank -> robust strategies -> iterate) with a dual-name note. Additive only: no reach, edge type, or node type minted, and no Brain wire opened; both coverage `--check` ledgers stay gap=0. Phase gate `tests/run-all-176.sh` 5/5.
+
+### Fixed
+- **data-ai image provenance.** `checkImageProvenance` hardened to flag bare-boolean `data-ai` image markers that previously slipped through provenance verification.
 
 ## [1.14.0-beta.5] - 2026-06-23
 
