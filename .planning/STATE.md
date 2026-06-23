@@ -4,7 +4,7 @@ milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: verifying
 stopped_at: "BRANCH RECONCILED 2026-06-23: Phase 172 COMPLETE (16 plans, VERDICT PASS, merge-ready) + Phase 173 COMPLETE (3/3 plans: 01 data contracts, 02 /mos:show front door, 03 SENS-SHOW sensor + R1-R7 flow; run-all-173.sh 7/7 GREEN; no 7th reach; run-all-172.sh still 20/20)"
-last_updated: "2026-06-23T13:15:00.000Z"
+last_updated: "2026-06-23T19:00:00.000Z"
 last_activity: 2026-06-23
 progress:
   total_phases: 6
@@ -16,7 +16,7 @@ progress:
 
 # Project State
 
-## RECONCILIATION (2026-06-23) -- branch carries TWO phases interleaved (172 done + 173 in progress); read before any merge
+## RECONCILIATION (2026-06-23) -- branch carries TWO phases interleaved (172 done + 173 done); both GSD-complete and merge-ready; read before any merge
 
 Branch `phase-170-171-ace-diffusion-pipeline` is 95 commits ahead of origin/main and stacks FOUR phases: 170 (ACE/diffusion) + 171 (methodology-ingest) + 172 (contextual-invocation-coverage) + 173 (publish/visualize JTBD need-selector). Phases 172 and 173 ran in CONCURRENT sessions and their commits are interleaved chronologically. Each commit is atomic and scoped (`172-*` vs `173-*`), so the history is sound; STATE.md was the contested shared artifact and is reconciled here.
 
@@ -24,7 +24,7 @@ Branch `phase-170-171-ace-diffusion-pipeline` is 95 commits ahead of origin/main
 - **Phase 173 (publish/visualize JTBD need-selector): COMPLETE -- selector half fully shipped (R1-R7 + R12).** 173-01 done (data/publish-needs.json + --check + role_blend->lane mapper); 173-02 done + GSD-CLOSED (commands/show.md born-wired F.1 JTBD need-selector front door; connector ledger 89 wired / 36 excluded / 0 gap; projection command ledger 77 ranked / 25 excluded / 0 gap); 173-03 DONE (lib/core/sensors/sensor-show-share.cjs SENS-SHOW registered in dispatchSensors -- the show/share trigger surfacing the EXISTING context_block reach naming /mos:show at posture hold; end-to-end R1-R7 flow test; `bash tests/run-all-173.sh` 7/7 GREEN). dispatch-framework-map.json UNTOUCHED (selector resolves via command-resolver, its drift test green). /mos:publish UNCHANGED (D-02); REACH_IDS still 6 / POSTURE_IDS still 3 -- no 7th reach minted (D-03); run-all-172.sh still 20/20.
 - **170 + 171: shipped, release-held, now CIRS-conformant** (172 Plan 12 reconciled them). Release is a separate navigator step.
 
-**Merge-readiness ruling:** 172 is mergeable as-is. 173 is NOT (173-02 SUMMARY + 173-03 outstanding). BEFORE any merge of this branch the navigator must choose: (A) finish 173 (close 173-02 + run 173-03), then merge the whole v1.14.0-beta train together; or (B) park/revert the 173-* commits onto their own branch and merge 170/171/172 alone; or (C) merge the train as-is and finish 173 on main (only if 173-02's partial code is safe to ship). Recommended: (A) finish 173, merge together -- splitting interleaved history (option B) is invasive.
+**Merge-readiness ruling (RESOLVED 2026-06-23 -- Option A taken):** BOTH 172 and 173 are now mergeable. The navigator-directed Option A executed: 173-02 was GSD-CLOSED (173-02-SUMMARY.md written, citing SHAs 72f67f6f / fd2a0a1d / 445bab90) and 173-03 was completed (sensor-show-share.cjs SENS-SHOW + dispatchSensors registration + R1-R7 flow test + run-all-173.sh aggregator + 173-03-SUMMARY.md citing SHAs d342bd19 / 7122176d). Verify outcomes on this branch: run-all-173.sh 7/7 GREEN, run-all-172.sh STILL 20/20, connector --check exit 0 (89 wired / 36 excluded / 0 gap), orchestration-projection --check exit 0 (77 ranked / 25 excluded / 0 gap), check-publish-needs OK, REACH_IDS=6 / POSTURE_IDS=3 / DIAL_REACH_K=6 / MAX_K=3 frozen, SENS-SHOW fires the EXISTING context_block reach at posture hold (no 7th reach), neutral turn does not fire, zero em-dashes. The whole v1.14.0-beta train (170 + 171 + 172 + 173) is now GSD-complete and can merge together. Release remains a separate navigator-gated step.
 
 **Next (172):** navigator-gated phase CLOSE (review 172-VERDICT.md) + the 170/171 + v1.15 release gate.
 
