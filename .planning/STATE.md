@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: executing
-stopped_at: Phase 172 Plan 04 COMPLETE (INV-02 -- rs-* reverse-salient family wired, Engine-1 pillar; gap 62 -> 58)
-last_updated: "2026-06-23T06:15:00.000Z"
+stopped_at: Phase 172 Plan 05 COMPLETE (INV-02 -- half-wired set emptied: causal/diagnostics->context_block, hat-briefing/persona->hats + the hats engine case; gap 58 -> 54)
+last_updated: "2026-06-23T07:40:00.000Z"
 last_activity: 2026-06-23
 progress:
   total_phases: 6
@@ -16,7 +16,15 @@ progress:
 
 # Project State
 
-## Latest (2026-06-23) -- Phase 172 Plan 04 COMPLETE (INV-02 -- rs-* reverse-salient family wired; Engine-1 pillar; coverage gap 62 -> 58)
+## Latest (2026-06-23) -- Phase 172 Plan 05 COMPLETE (INV-02 -- half-wired set emptied + the hats engine gap repaired; coverage gap 58 -> 54)
+
+**Phase 172 Plan 05 (this session):** wired the last four half-wired thinking surfaces AND filled the missing engine MAPPING for the frozen 6th reach `hats` (INV-02, D-172-c, Canon Part 11). Task 1 (a6d06a5b): added a `# --- Phase 143.3 connector frontmatter ---` `connector:` block to four command files -- causal (`reach_id:context_block`, sub_mode `causal-trace`, framework "Root Cause Analysis", posture `pull_back`, SENS-02, rank 6), diagnostics (`context_block`, `wave1-fingerprint`, "HSI Semantic Surprise Analysis Assistant", `hold`, SENS-01, rank 7), hat-briefing (`reach_id:hats`, `hat-briefing`, "Six Thinking Hats", `hold`, SENS-07, rank 2), persona (`hats`, `persona`, "Six Thinking Hats", `hold`, SENS-05, rank 3). All `connects_to_spine:true`, framework EXACT-matching each file's `frameworks:` value (WFL-01 key), `filing:fileEvidenceWithReadback`, `surface:F.1`; distinct sub_modes vs think-hats' `six-hats` so no `(sensor,reach,sub_mode)` tuple collides; no 7th reach minted. Task 2 (TDD RED 44a52f91 / GREEN 50eac2d5): wrote `tests/test-172-hats-reach-case.cjs` (4 behaviors), confirmed RED (reachIdToSkillFamily('hats') returned the default null), then added `case 'hats': return 'Synthesize'` to `lib/core/navigation-engine.cjs` reachIdToSkillFamily (Synthesize is an EXISTING CANONICAL_VERBS member -> verbToSkillFamily 'blue-hat'; no new verb) and exported resolveFireSkill for the contract test -- so a FIRED hats reach now flips routing_source legacy->engine; test 5/5, run-all-144.sh 5/5 (the five existing cases unchanged). Engine MAPPING only -- NO runtime sensor that fires `hats` was added (out of scope, deferred). Task 3 (9d0db21f): regenerated `data/connector-registry.json` (70 connectors, was 66) + `data/connector-coverage-ledger.json` (70 wired / 0 excluded / 54 gap, was 66/0/58 -- exactly -4) via the generator; `--check` exits 0. Rule-3 deviation: the pre-commit `harness-manifest` STALE tripwire fired (manifest digests the registry, source_count 66 -> 70); regenerated via `node scripts/build-harness-manifest.cjs` and committed in lockstep (the sanctioned lockstep plan 172-04 also hit). The full originally-half-wired set (8 commands: rs-* + these 4) is now WIRED; the half-wired bucket is empty. INV-02 carried. Zero new deps, zero canon amendment, zero new edge/node/reach type, zero new Brain wire, zero em-dashes. 4 atomic commits + this docs commit. See 172-05-SUMMARY.md.
+
+**Next:** Phase 172 Plan 06 (W3) -- exhaustive residual classification of the remaining 54 gap surfaces; then Plan 172-13 (RETRO-07 hard-FAIL coverage gate). Via `/gsd-execute-phase 172`.
+
+---
+
+## Prior (2026-06-23) -- Phase 172 Plan 04 COMPLETE (INV-02 -- rs-* reverse-salient family wired; Engine-1 pillar; coverage gap 62 -> 58)
 
 **Phase 172 Plan 04 (this session):** wired the reverse-salient rs-* family (rs-fetch/rs-explain/rs-experts/rs-thesis) -- the Canon Engine-1 pillar that was entirely dark -- into the `context_block` reach via `pull_back`, the single largest thinking-surface gap (INV-02, D-172-c). Task 1 (6e9b813e): added a `# --- Phase 143.3 connector frontmatter ---` delimited `connector:` block to all four rs-* command files -- `connects_to_spine:true`, `sensor_triggers:[SENS-02]` (the shipped lagging-component sensor that already fires context_block), `reach_id:context_block` (frozen 6, no 7th reach minted), `framework:"Reverse Salient Analysis"` (EXACT match to each file's existing `frameworks:` value, the WFL-01 resolver key), `posture:pull_back` (frozen 3), `filing:fileEvidenceWithReadback`, `plan_gated:false`, `web_scope:null`, `surface:F.1`. To clear the validateConnectors check-4 `(sensor,reach,sub_mode)` tuple collision (all four share SENS-02 + context_block), each carries a distinct sub_mode -- `reverse-salient-fetch`/`-explain`/`-experts`/`-thesis` -- plus distinct hierarchy_rank 2/3/4/5. Task 2 (887590ba): regenerated `data/connector-registry.json` (66 connectors, was 62) + `data/connector-coverage-ledger.json` (66 wired / 0 excluded / 58 gap, was 62/0/62 -- exactly -4 on gap, the rs-* family) via the generator (never hand-edited); `--check` exits 0 (gap + methodology-nudge WARNs are warn-only this stage, hard-FAIL deferred to Plan 172-13). Rule-3 deviation: the pre-commit `harness-manifest` STALE tripwire fired because `data/harness-manifest.json` digests the connector-registry (source_count 62 -> 66); regenerated it via `node scripts/build-harness-manifest.cjs` and committed in lockstep. INV-02 complete. Zero new deps, zero canon amendment, zero new edge/node/reach type, zero new Brain wire, zero em-dashes. 2 atomic commits (6e9b813e/887590ba) + this docs commit. See 172-04-SUMMARY.md.
 
