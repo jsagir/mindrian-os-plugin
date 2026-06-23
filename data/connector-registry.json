@@ -57,7 +57,8 @@
       "source": "command",
       "connects_to_spine": true,
       "sensor_triggers": [
-        "SENS-06"
+        "SENS-06",
+        "SENS-09"
       ],
       "reach_id": "context_block",
       "sub_mode": "timing-scurve",
@@ -1400,6 +1401,10 @@
       "agent:persona-analyst",
       "agent:research"
     ],
+    "SENS-09": [
+      "/mos:analyze-timing",
+      "/mos:diffusion"
+    ],
     "SENS-01": [
       "/mos:auto-explore",
       "/mos:diagnose",
@@ -1439,9 +1444,6 @@
       "/mos:compare-ventures",
       "/mos:mullins",
       "agent:brain-query"
-    ],
-    "SENS-09": [
-      "/mos:diffusion"
     ],
     "SENS-04": [
       "/mos:explore-trends",

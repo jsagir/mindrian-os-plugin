@@ -17,9 +17,18 @@ allowed-tools:
   - Bash
   - Glob
 # --- Phase 144.1 connector frontmatter ---
+# Phase 172-12 (INV-11 reconciliation): analyze-timing is the connector home for
+# TWO reaches that land on the same command. The PRIMARY connector block declares
+# the S-Curve direct path (SENS-06 -> context_block). The Adoption-Capacity (ACE)
+# diffusion path is surfaced by SENS-09 (lib/core/sensors/sensor-diffusion-adoption.cjs),
+# which fires the FROZEN brain_consult reach with dispatch 'adoption-capacity';
+# the WFL-01 map (data/dispatch-framework-map.json) resolves that to
+# "Adoption-Capacity Theory" -> /mos:analyze-timing via commandsForFramework.
+# SENS-09 is therefore listed in sensor_triggers so the ACE surfacing is
+# first-class in the frontmatter (NO 7th reach minted; brain_consult is frozen).
 connector:
   connects_to_spine: true
-  sensor_triggers: [SENS-06]
+  sensor_triggers: [SENS-06, SENS-09]
   reach_id: context_block
   sub_mode: timing-scurve
   framework: "S-Curve Analysis"

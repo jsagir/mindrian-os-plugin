@@ -77,4 +77,36 @@ const fnames = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'fr
 const allNames = (fnames.framework_names || []).concat(fnames.curated_extras || []);
 ok('framework name in allowlist', allNames.indexOf('Adoption-Capacity Theory') !== -1);
 
+// 8. Phase 172-12 (R3 / INV-07) -- CONTEXT branch primary, keyword DEMOTED.
+// Behavior 1: a diffusion-shaped problem_type (the LOCAL navigator problem-state,
+// read via the navigation.cjs chokepoint convention) fires the CONTEXT tier even
+// with NO diffusion lexicon in the turn text.
+const byContext = sensorDiffusionAdoption(
+  { text: 'will this catch on in the field?', signals: [] },
+  { problem_type: 'diffusion' }, {});
+ok('fires on diffusion problem_type with no keyword', byContext !== null);
+ok('context mode recorded (not keyword)', byContext.evidence.mode === 'context');
+
+// Behavior 2: with NO diffusion problem-state, a bare lexicon hit fires the
+// DEMOTED keyword fallback tier (proves keyword is reachable but secondary).
+ok('keyword is the demoted fallback tier', byKeyword.evidence.mode === 'keyword');
+ok('keyword fallback only when no diffusion context', byKeyword.evidence.problem_type === 'WDP');
+
+// Behavior 3: every firing mode still uses the FROZEN brain_consult reach (no
+// 7th reach minted by the context branch).
+ok('context branch still fires brain_consult', byContext.reach_id === 'brain_consult');
+ok('context branch posture frozen', POSTURE_IDS.indexOf(byContext.posture) !== -1);
+
+// Behavior 4: the evidence carries only enums (mode + trigger_tier + problem_type),
+// never matched user text (Part 8).
+for (const k of Object.keys(byContext.evidence)) {
+  const v = byContext.evidence[k];
+  ok('context evidence "' + k + '" is scalar/enum',
+    v === null || ['string', 'number', 'boolean'].indexOf(typeof v) !== -1);
+}
+ok('context evidence has no user prose',
+  !Object.values(byContext.evidence).some(function (v) {
+    return typeof v === 'string' && v.split(' ').length > 3;
+  }));
+
 console.log('\nPASS ' + pass + ' assertions');
