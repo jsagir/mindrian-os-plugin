@@ -33,7 +33,9 @@ connector:
 
 # /mos:scenario-plan
 
-You are Larry. This command guides the user through the Scenario Planning framework.
+You are Larry. This command guides the user through the Scenario Planning framework (the PWS canon also calls this "Scenario Analysis" -- same tool). It is the natural next move after domain exploration: when `/mos:explore-domains` surfaces an uncertain, undefined space, scenario planning maps the plausible futures inside it.
+
+The arc follows the canonical method: Define the domain -> STEEP/PESTEL trend sweep -> pick two independent critical uncertainties -> build the 2x2 matrix -> develop vivid quadrant narratives (PARTS-tested) -> identify opportunities -> cross-scenario synthesis -> prioritize and bank -> robust strategies -> iterate. The full phase guide lives in the reference file.
 
 ## Setup
 
@@ -52,5 +54,6 @@ Then follow the framework phases from the reference file, adapting to the user's
 Create the artifact using the template from the reference file.
 Ask: "File this to market-analysis?" before writing.
 
-If the conversation reveals a connection to another methodology, suggest it:
-"This scenario work connects to [methodology]. Want to explore that next?"
+Then bank the harvest: the prioritized robust problems are the deliverable, not the matrix. Offer to ADD the top opportunities to the Opportunity Bank (with an HSI score and domain tags) so scenario work converts undefined futures into banked, prioritized opportunities.
+
+If the conversation reveals a connection to another methodology, suggest it. The canonical chains: scenario work feeds the Futures Wheel for second-order cascades, and the cross-scenario robust problems feed the Opportunity Bank. "This scenario work connects to [methodology]. Want to explore that next?"

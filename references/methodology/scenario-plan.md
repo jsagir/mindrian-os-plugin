@@ -44,7 +44,8 @@ ONE question per response. Short and Socratic.
 
 Identify forces that could reshape the domain.
 
-- "What forces could reshape this domain? Social, technological, economic, environmental, political. Brainstorm without filtering."
+- "What forces could reshape this domain? Social, Technological, Economic, Environmental, Political. Brainstorm without filtering." This is the STEEP (a.k.a. PESTEL) sweep -- run all five lenses so the scenarios are anchored in credible drivers, not hunches.
+- Score each force on two scales: Impact (low/high) and Uncertainty (low/high). The high-impact + high-uncertainty forces are the candidate axes.
 - Categorize each force: Predetermined (high certainty) vs Uncertain (genuinely unknown direction).
 - "Which uncertainties have the highest impact AND the most unpredictable outcome?"
 
@@ -70,6 +71,8 @@ For each of the four scenarios, build a vivid narrative.
 
 Ensure internal consistency. No contradictions within a world. All four scenarios must be equally plausible -- no favorites, no utopia, no dystopia.
 
+PARTS test (scenario quality gate): each scenario must be Plausible, Actionable, Relevant, Transformative, and Systematic. A quadrant that fails PARTS is a label, not a scenario -- reshape it or drop the axis.
+
 ### Phase 5: Cross-Scenario Synthesis (Blend to Insight -- turns 9-11)
 
 Look across all four worlds for patterns.
@@ -77,6 +80,8 @@ Look across all four worlds for patterns.
 - "What problems appear in three or four scenarios?" -- These are robust problems. Gold.
 - "What problems are unique to one scenario?" -- These are contingent opportunities. Hedges.
 - "In which of these scenarios does your current strategy fail catastrophically?"
+- Prioritize the surfaced problems by PWS significance x solvability: is the problem worth solving, and is it solvable within current constraints?
+- Bank the top robust problems to the Opportunity Bank (ADD, with an HSI score and domain tags). This is the deliverable: scenario work turns undefined futures into banked, prioritized opportunities.
 
 ### Phase 6: Strategic Implications (Insight -- turns 11+)
 
@@ -87,6 +92,13 @@ Develop actions that create value in multiple futures.
 - Distinguish between no-regret moves, options, and big bets.
 
 End with: "What actions today prepare us for multiple futures?"
+
+### Phase 7: Iterate (Insight -- optional loop)
+
+Scenario work is iterative, not one-shot.
+
+- "Do new trends or uncertainties suggest different axes? If the first matrix went somewhere interesting, keep going; if it didn't, swap an axis and rebuild."
+- Revisit the matrix as evidence arrives. The scenarios are a living artifact, refreshed as the world moves.
 
 ## Artifact Template
 
