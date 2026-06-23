@@ -3005,10 +3005,10 @@ Plans:
 Plans:
 
 - [x] 173-01-PLAN.md — data/publish-needs.json need->command map (R2) + show-the-unseen tag (R7) + --check validator + role_blend->lane mapper (R6)
-- [ ] 173-02-PLAN.md — /mos:show F.1 JTBD selector front door (R1, R3 resolution) + born-wired CIRS connector + cirs_relationship (R5, R12)
+- [x] 173-02-PLAN.md — /mos:show F.1 JTBD selector front door (R1, R3 resolution) + born-wired CIRS connector + cirs_relationship (R5, R12)
 - [ ] 173-03-PLAN.md — show/share trigger sensor SENS-SHOW (R4) + dispatchSensors registration + cross-surface note (R12) + end-to-end R1-R7 flow test
 
-**Status:** PLANNED 2026-06-23 (3 plans, 2 waves; SPEC.md committed 4961af7f). Next: `/gsd-execute-phase 173`.
+**Status:** IN PROGRESS 2026-06-23 (2 of 3 plans complete; 173-02 shipped /mos:show born-wired, ledger 89 wired / 36 excluded / 0 gap, run-all-172.sh 20/20). Next: `/gsd-execute-phase 173` (Plan 03 -- SENS-SHOW sensor).
 
 ### Phase 174 - Hypothesis-Based Ignite Starting Point (SEEDED 2026-06-23 - spec later)
 
