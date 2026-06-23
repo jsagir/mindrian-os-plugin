@@ -208,6 +208,21 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:dashboard",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "room-dashboard",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 11,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:deep-grade",
       "source": "command",
       "connects_to_spine": true,
@@ -328,6 +343,21 @@
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": null
+    },
+    {
+      "surface": "/mos:explain-decision",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "decision-explain",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 16,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
     },
     {
       "surface": "/mos:explore-domains",
@@ -851,6 +881,21 @@
       "decision_surface": "F.0"
     },
     {
+      "surface": "/mos:present",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "room-present",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 13,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:reanalyze",
       "source": "command",
       "connects_to_spine": true,
@@ -882,6 +927,21 @@
       "filing": "fileEvidenceWithReadback",
       "plan_gated": true,
       "web_scope": "green",
+      "decision_surface": "F.1"
+    },
+    {
+      "surface": "/mos:room",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "room-view",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 15,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
       "decision_surface": "F.1"
     },
     {
@@ -1020,6 +1080,36 @@
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": null
+    },
+    {
+      "surface": "/mos:speakers",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "meeting-speakers",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 17,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
+      "surface": "/mos:status",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "room-status",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 14,
+      "filing": "memory_event_only",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
     },
     {
       "surface": "/mos:structure-argument",
@@ -1169,6 +1259,21 @@
       "posture": "hold",
       "hierarchy_rank": 3,
       "filing": "fileEvidenceWithReadback",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
+      "surface": "/mos:wiki",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "room-wiki",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 12,
+      "filing": "memory_event_only",
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": "F.1"
