@@ -2939,7 +2939,7 @@ Plans:
 Plans:
 - [x] 172-01-PLAN.md (W1) -- CIRS R1 exclude mechanism + wired-XOR-excluded coverage ledger [INV-01/03/10] (DONE 2026-06-23; commits 8471aa3b/0e6fe19c/6a0b52b0)
 - [x] 172-02-PLAN.md (W1) -- R12 cirs_relationship contract + CANON-PHASE-MAP CIRS column + gate hook [INV-22/13] (DONE 2026-06-23; commits c9d828b0/f5f3dabb/fc6fd751/a2cc3dba; test+--check self-conformant, run-all-172.sh 6/6)
-- [ ] 172-03-PLAN.md (W1) -- mindrian-operation counterpart + command-grained projection gate + promotion path [INV-04/05/06]
+- [x] 172-03-PLAN.md (W1) -- mindrian-operation counterpart + command-grained projection gate + promotion path [INV-04/05/06] (DONE 2026-06-23; commits 220543b0/356bfff8/2ee6c118/56dc7c19; command_gaps[] inverts the UN-RANKED early-continue, data/orchestration-command-ledger.json 55 ranked/18 excluded/28 gap, ORCHESTRATION-PROJECTION-CONTRACT section 4e promotion path, run-all-172.sh 7/7)
 - [ ] 172-04-PLAN.md (W2) -- wire the rs-* reverse-salient family (Engine-1 pillar) [INV-02]
 - [ ] 172-05-PLAN.md (W3) -- wire causal/diagnostics/hat-briefing/persona + hats engine case [INV-02]
 - [ ] 172-06-PLAN.md (W4) -- exhaustive residual classification: every command WIRE or EXCLUDE (gap->0) [INV-01/03]
@@ -2952,7 +2952,7 @@ Plans:
 - [ ] 172-13-PLAN.md (W7) -- flip gate WARN->FAIL + wire into pre-commit/release/doctor [INV-10/14]
 - [ ] 172-14-PLAN.md (W8) -- adversarial verify with structured verdict + run-all-172.sh [INV-15]
 
-**Status:** EXECUTING (2 of 14 plans complete, 2026-06-23). Plan 01 (CIRS R1/R2 gate substrate -- EXCLUDE state + wired-XOR-excluded coverage ledger) DONE. Plan 02 (CIRS R12 forward-declaration contract + slug-keyed CANON-PHASE-MAP CIRS column + gate hook; self-conformant on 172-01/172-02) DONE. Next: `/gsd-execute-phase 172` Plan 03.
+**Status:** EXECUTING (3 of 14 plans complete, 2026-06-23). Plan 01 (CIRS R1/R2 gate substrate -- EXCLUDE state + wired-XOR-excluded coverage ledger) DONE. Plan 02 (CIRS R12 forward-declaration contract + slug-keyed CANON-PHASE-MAP CIRS column + gate hook; self-conformant on 172-01/172-02) DONE. Plan 03 (CIRS R5/R8 substrate -- command-grained projection gate inverting the UN-RANKED early-continue + data/orchestration-command-ledger.json + the mindrian-operation counterpart node + the dark->counterpart->pws-frontier promotion path; command_gaps WARN-only, hard-FAIL deferred to Plan 172-13) DONE. Next: `/gsd-execute-phase 172` Plan 04 (wire the rs-* reverse-salient family).
 
 ### Phase 170 - Dual-Use Diffusion + Adoption-Capacity Engine (ACE) - COMPLETE 2026-06-22 (additive, reconciles under Phase 172)
 

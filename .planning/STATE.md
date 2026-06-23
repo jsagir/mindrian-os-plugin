@@ -2,21 +2,29 @@
 gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
-status: verifying
-stopped_at: Phase 172 Plan 02 COMPLETE (CIRS R12 forward-declaration contract + gate hook)
-last_updated: "2026-06-23T07:10:00.000Z"
+status: executing
+stopped_at: Phase 172 Plan 03 COMPLETE (CIRS R5/R8 command-grained counterpart substrate + promotion path)
+last_updated: "2026-06-23T07:40:00.000Z"
 last_activity: 2026-06-23
 progress:
   total_phases: 6
   completed_phases: 6
-  total_plans: 39
-  completed_plans: 39
+  total_plans: 40
+  completed_plans: 40
   percent: 100
 ---
 
 # Project State
 
-## Latest (2026-06-19) -- Phase 165 COMPLETE (6/6 plans); v1.14.0 executed band (163-169) all GREEN; milestone v1.14.0-beta on the release ceremony
+## Latest (2026-06-23) -- Phase 172 Plan 03 COMPLETE (CIRS R5/R8 command-grained counterpart substrate); Phase 172 now 3 of 14 plans
+
+**Phase 172 Plan 03 (this session):** built the CIRS R5/R8 substrate on the shipped Phase 157 orchestration projection. `scripts/build-orchestration-projection.cjs` `validateProjection()` now returns a fourth array `command_gaps[]`: the command-grained coverage pass INVERTS the old UN-RANKED early-continue (which silently skipped any node lacking `reach_id`), so a bare command surfaces as a gap UNLESS it is ranked or excluded. `classifyCommandNode()` + `commandCoverageReport()` classify every command node ranked|excluded|gap (XOR partition). `EXCLUDED_COMMANDS` is the authoritative 18-command utility-exclusion table (doctor/dashboard/setup/help/...), each with a documented reason (Canon Part 11 R1 first-class terminal state, never dark). `serializeCommandLedger()` emits `data/orchestration-command-ledger.json` (GENERATED, never hand-authored): 55 ranked / 18 excluded / 28 gap / total 101 (XOR holds); STALE-byte-checked in `--check`. `docs/ORCHESTRATION-PROJECTION-CONTRACT.md` section 4e documents the `mindrian-operation` COUNTERPART node (INV-05) + the dark -> counterpart -> `pws` frontier PROMOTION PATH (R8/INV-06) via the Phase 171 `ingestPlan` pipeline, navigator-gated, minting NO new node type. The 28 gaps (rs-* family, causal, act) stay WARN-only this stage (D-172-e); the hard-FAIL flip is Plan 172-13. TDD RED (2ee6c118) -> GREEN (56dc7c19). Fences: `tests/test-orchestration-counterpart-coverage.cjs` 17/17, `tests/run-all-172.sh` 7/7, the existing `lib/memory/orchestration-projection.test.cjs` 37/37 (closed-edge-set + tier rule untouched), `test-orchestration-projection-part8-boundary.cjs` exit 0, frozen exactly-6-reach + exactly-3-posture drift fences green. INV-04/05/06 complete. Zero new deps, zero canon amendment, zero new edge/node type, zero new Brain wire, zero em-dashes. 4 atomic commits (220543b0/356bfff8/2ee6c118/56dc7c19) + this docs commit. See 172-03-SUMMARY.md.
+
+**Next:** Phase 172 Plan 04 (W2) -- wire the rs-* reverse-salient family (Engine-1 pillar) with `mindrian-operation` counterparts [INV-02], shrinking the 28-gap set. Via `/gsd-execute-phase 172`.
+
+---
+
+## Earlier (2026-06-19) -- Phase 165 COMPLETE (6/6 plans); v1.14.0 executed band (163-169) all GREEN; milestone v1.14.0-beta on the release ceremony
 
 **Milestone:** v1.14.0-beta.2 in manifests, cutting v1.14.0-beta.3 in the release ceremony (repo was 180 commits ahead of origin). The v1.14.0 executed band is COMPLETE: Phases 163 (trending-to-absurd-harness), 164 (bono-research-debate-engine), 165 (unknown-unknowns-blindspot-engine), 166 (gated-chain-executor), 167 (harness-manifest-and-surface-generator), 168 (part4-edge-vocabulary-reconciliation), 169 (graph-derivation-harness) -- 7 phases, 40/40 plans, all phase gates GREEN. Canon at v1.13 (Appendix D through entry 24: NESTED_WITHIN room-lineage edge + SyntheticExpert node type).
 
