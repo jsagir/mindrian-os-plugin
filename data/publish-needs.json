@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "_note": "R2 + R7 (Phase 173). The JTBD need->command map the /mos:show selector (173-02) and the show/share trigger sensor (173-03) read as their single source of truth. Mirrors data/dispatch-framework-map.json (flat data-map idiom) + data/help-groups.json (lane idiom). Each jobs[] row is a USER-VOICE job (never a /mos: token or a command name -- Part 10 commands-are-internals): { job, jtbd_line, resolves_to, lane, persona_weight, shows }. resolves_to is the EXACT command key in data/command-registry.json (with the /mos: prefix) OR the 'MOSDeckEngine' skill handle for the make-land lane (D-01: route to the EXISTING deck skill until Phase 175). shows is the R7 admission bar: a job earns a slot ONLY if it surfaces 'connections' or 'gaps' (the moat) -- decoration-only candidates are OMITTED, not slotted. persona_weight names which role_blend roles favor the job (generic enum keys only, Part 8-clean: no user content). Validated by scripts/check-publish-needs.cjs (--check) against the command registry + the skills/ directory; the role_blend->default-lane mapper is lib/core/publish-needs-default-lane.cjs (R6).",
+  "_lanes": {
+    "know-stand": "Know where I stand",
+    "find-broken": "Find what's broken",
+    "make-land": "Make it land",
+    "get-into-world": "Get it into the world"
+  },
+  "jobs": [
+    {
+      "job": "show me how my pieces connect",
+      "jtbd_line": "When I have filled the room with scattered work, I want to see how the pieces connect, so I can reason about the venture as one system instead of disconnected notes.",
+      "resolves_to": "/mos:graph",
+      "lane": "know-stand",
+      "persona_weight": { "founder": 0.5, "researcher": 0.5 },
+      "shows": "connections"
+    },
+    {
+      "job": "give me the one-screen state of my room",
+      "jtbd_line": "When I lose the thread between sessions, I want one screen that shows the whole room's health, so I can pick up where I left off without re-reading everything.",
+      "resolves_to": "/mos:dashboard",
+      "lane": "know-stand",
+      "persona_weight": { "founder": 0.4, "operator": 0.6 },
+      "shows": "connections"
+    },
+    {
+      "job": "let me read my venture as one connected story",
+      "jtbd_line": "When my thinking is spread across many sections, I want to read it as one cross-linked wiki, so I can follow the connections between sections in their own context.",
+      "resolves_to": "/mos:wiki",
+      "lane": "know-stand",
+      "persona_weight": { "researcher": 0.6, "founder": 0.4 },
+      "shows": "connections"
+    },
+    {
+      "job": "show me where I'm weakest",
+      "jtbd_line": "When I am about to commit to a direction, I want to see where the venture is weakest against the market, so I can fix the gap before it costs me.",
+      "resolves_to": "/mos:radar",
+      "lane": "find-broken",
+      "persona_weight": { "researcher": 0.5, "investor": 0.5 },
+      "shows": "gaps"
+    },
+    {
+      "job": "make this simple enough for an outsider",
+      "jtbd_line": "When my idea is too technical for the room to follow, I want it reduced to plain language, so I can find the gaps in my own explanation before an outsider does.",
+      "resolves_to": "MOSDeckEngine",
+      "lane": "make-land",
+      "persona_weight": { "founder": 0.6, "researcher": 0.4 },
+      "shows": "gaps"
+    },
+    {
+      "job": "walk me through this for a meeting",
+      "jtbd_line": "When I have a meeting coming up, I want my work shaped into a walkable narrative, so I can see which parts of the argument still have holes.",
+      "resolves_to": "/mos:present",
+      "lane": "make-land",
+      "persona_weight": { "founder": 0.5, "operator": 0.5 },
+      "shows": "gaps"
+    },
+    {
+      "job": "give me a link I can send",
+      "jtbd_line": "When my work is ready to share, I want a single link I can send to someone outside the room, so I can connect my thinking to the people who need to see it.",
+      "resolves_to": "/mos:publish",
+      "lane": "get-into-world",
+      "persona_weight": { "founder": 0.7, "operator": 0.3 },
+      "shows": "connections"
+    },
+    {
+      "job": "give me a frozen copy to hand off",
+      "jtbd_line": "When I need to hand my state to someone else, I want a self-contained snapshot of the room as it stands, so I can pass the whole connected picture without losing context.",
+      "resolves_to": "/mos:snapshot",
+      "lane": "get-into-world",
+      "persona_weight": { "operator": 0.6, "founder": 0.4 },
+      "shows": "connections"
+    }
+  ]
+}
