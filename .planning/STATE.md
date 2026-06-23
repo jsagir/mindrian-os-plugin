@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.14.0-beta.2
 milestone_name: milestone
 status: verifying
-stopped_at: "Phase 172 Plan 13 COMPLETE (the full flip: both gates hard-FAIL + four-class canon v1.15)"
+stopped_at: "BRANCH RECONCILED 2026-06-23: Phase 172 COMPLETE (16 plans, VERDICT PASS, merge-ready) + Phase 173 IN PROGRESS (01 done; 02 code-committed, SUMMARY pending; 03 planned, NOT merge-ready)"
 last_updated: "2026-06-23T11:44:30.985Z"
 last_activity: 2026-06-23
 progress:
@@ -15,6 +15,20 @@ progress:
 ---
 
 # Project State
+
+## RECONCILIATION (2026-06-23) -- branch carries TWO phases interleaved (172 done + 173 in progress); read before any merge
+
+Branch `phase-170-171-ace-diffusion-pipeline` is 95 commits ahead of origin/main and stacks FOUR phases: 170 (ACE/diffusion) + 171 (methodology-ingest) + 172 (contextual-invocation-coverage) + 173 (publish/visualize JTBD need-selector). Phases 172 and 173 ran in CONCURRENT sessions and their commits are interleaved chronologically. Each commit is atomic and scoped (`172-*` vs `173-*`), so the history is sound; STATE.md was the contested shared artifact and is reconciled here.
+
+- **Phase 172 (contextual-invocation-coverage): COMPLETE -- MERGE-READY.** 16 plans, VERDICT PASS (172-VERDICT.md). 88 wired / 36 excluded / 0 gap on BOTH ledgers; both coverage gates HARD-FAIL across pre-commit + install + release + doctor; /mos:act spine-governed + always-on + calibrated; cross-class chaining live; Canon v1.15 (Part 11 R1 four-class governance-ISA). R6/R11/R13/R14 are DECLARED-but-DEFERRED-ENFORCEMENT (named debt). run-all-172.sh 20/20. Navigator-gated CLOSE pending.
+- **Phase 173 (publish/visualize JTBD need-selector): IN PROGRESS -- NOT MERGE-READY.** 173-01 done (PLAN+SUMMARY); 173-02 code committed (commands/show.md need-selector + publish-needs map/validator + registry regen) but its SUMMARY is PENDING (not GSD-closed); 173-03 PLANNED, not started. A concurrent session owns 173; do not assume it is finished.
+- **170 + 171: shipped, release-held, now CIRS-conformant** (172 Plan 12 reconciled them). Release is a separate navigator step.
+
+**Merge-readiness ruling:** 172 is mergeable as-is. 173 is NOT (173-02 SUMMARY + 173-03 outstanding). BEFORE any merge of this branch the navigator must choose: (A) finish 173 (close 173-02 + run 173-03), then merge the whole v1.14.0-beta train together; or (B) park/revert the 173-* commits onto their own branch and merge 170/171/172 alone; or (C) merge the train as-is and finish 173 on main (only if 173-02's partial code is safe to ship). Recommended: (A) finish 173, merge together -- splitting interleaved history (option B) is invasive.
+
+**Next (172):** navigator-gated phase CLOSE (review 172-VERDICT.md) + the 170/171 + v1.15 release gate.
+
+---
 
 ## Latest (2026-06-23) -- Phase 172 Plan 14 COMPLETE (INV-15 -- adversarial verify + structured VERDICT; the harness-as-code Phase V; PHASE READY TO CLOSE)
 
